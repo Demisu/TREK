@@ -40,6 +40,8 @@ const UNNUMBERED = [
   'Migration20200101042600_a_session_row_per_sign_in',
   'Migration20200101042700_timestamps_stored_in_one_spelling',
   'Migration20200101042800_an_email_the_account_typed_in_itself',
+  'Migration20200101042900_tour_planned_total_duration',
+  'Migration20200101043000_tour_break_additional_duration',
 ];
 // The last step the positional runner ever had; planLegacyBaseline refuses a
 // schema_version past it.

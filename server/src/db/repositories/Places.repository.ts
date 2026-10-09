@@ -1,13 +1,13 @@
-import type { Places } from '../entities/Places.entity';
 import { absDifference, coalesceParam, columnRef, currentTimestamp, lowerTrim } from '../dialect/sql-functions';
-import { type AssertRowKeys } from './_shared/rows';
-import { TrekRepository } from './_shared/trek-repository';
+import type { Places } from '../entities/Places.entity';
+import type { DB } from '../kysely/db';
 // Task 9 fix wave (B-L2): `TagRow` is Tags.repository.ts's own row type,
 // byte-identical to what used to be hand-mirrored here — a second
 // declaration of the same shape is exactly the duplication Sonar flags and
 // the program's "single source of truth" rule (root CLAUDE.md) forbids.
 import type { TagRow } from './Tags.repository';
-import type { DB } from '../kysely/db';
+import { type AssertRowKeys } from './_shared/rows';
+import { TrekRepository } from './_shared/trek-repository';
 
 /** A `places` row as the API emits it — every scalar column of the entity. */
 export interface PlaceRow {
@@ -75,9 +75,29 @@ type PlacesTripFileKyselyDB = Pick<DB, 'trip_files'>;
  */
 export type SharePublicPlaceRow = Pick<
   PlaceWithCategoryRow,
-  | 'id' | 'trip_id' | 'name' | 'description' | 'lat' | 'lng' | 'address' | 'category_id' | 'price' | 'currency'
-  | 'place_time' | 'end_time' | 'duration_minutes' | 'notes' | 'image_url' | 'website' | 'phone' | 'transport_mode'
-  | 'created_at' | 'updated_at' | 'category_name' | 'category_color' | 'category_icon'
+  | 'id'
+  | 'trip_id'
+  | 'name'
+  | 'description'
+  | 'lat'
+  | 'lng'
+  | 'address'
+  | 'category_id'
+  | 'price'
+  | 'currency'
+  | 'place_time'
+  | 'end_time'
+  | 'duration_minutes'
+  | 'notes'
+  | 'image_url'
+  | 'website'
+  | 'phone'
+  | 'transport_mode'
+  | 'created_at'
+  | 'updated_at'
+  | 'category_name'
+  | 'category_color'
+  | 'category_icon'
 >;
 
 type SharePublicPlaceKyselyDB = Pick<DB, 'places' | 'categories'>;
@@ -142,7 +162,10 @@ export class PlacesRepository extends TrekRepository<Places> {
       .leftJoin('p.category', 'c')
       .leftJoin('p.tours', 't')
       .select([
-        'p.*', 'c.name as category_name', 'c.color as category_color', 'c.icon as category_icon',
+        'p.*',
+        'c.name as category_name',
+        'c.color as category_color',
+        'c.icon as category_icon',
         columnRef(platform, 't.place_id').as('tour_place_id'),
       ])
       .where('p.id = ?', [place_id])
@@ -281,10 +304,7 @@ export class PlacesRepository extends TrekRepository<Places> {
    * the 3g plan's task split — every other method here belongs to Plan 3c.
    */
   async findRaw(id: number): Promise<PlaceRow | undefined> {
-    return this.qb('p')
-      .select(['p.*'])
-      .where({ 'p.id': id })
-      .execute<PlaceRow | undefined>('get', false);
+    return this.qb('p').select(['p.*']).where({ 'p.id': id }).execute<PlaceRow | undefined>('get', false);
   }
 
   /**
@@ -294,7 +314,10 @@ export class PlacesRepository extends TrekRepository<Places> {
    * callers immediately follow a `true` result with `deleteById(id)` on the
    * SAME numeric id.
    */
-  async reclaimInputs(id: number, trip_id: number): Promise<{ google_place_id: string | null; image_url: string | null } | undefined> {
+  async reclaimInputs(
+    id: number,
+    trip_id: number,
+  ): Promise<{ google_place_id: string | null; image_url: string | null } | undefined> {
     return this.qb('p')
       .select(['p.google_place_id', 'p.image_url'])
       .where({ 'p.id': id, 'p.trip_id': trip_id })
@@ -428,67 +451,73 @@ export class PlacesRepository extends TrekRepository<Places> {
    * `findInTrip` first) — this method writes exactly what it is handed,
    * plus the timestamp stamp every write gets.
    */
-  async updatePlace(id: number, write: {
-    // Task 9 fix wave (B-L10): `places.name` is `NOT NULL` (`PlaceRow.name:
-    // string`); the caller's `(name || null) ?? existingPlace.name` fold
-    // always resolves to a real string before this is called — `string |
-    // null` here was a widened lie the type checker could never catch a
-    // real NULL write through.
-    name: string;
-    description: string | null;
-    lat: number | null;
-    lng: number | null;
-    address: string | null;
-    category_id: number | null;
-    price: number | null;
-    currency: string | null;
-    place_time: string | null;
-    end_time: string | null;
-    duration_minutes: number | null;
-    notes: string | null;
-    image_url: string | null;
-    google_place_id: string | null;
-    google_ftid: string | null;
-    osm_id: string | null;
-    amap_poi_id: string | null;
-    website: string | null;
-    phone: string | null;
-    transport_mode: string | null;
-    route_color: string | null;
-    stop_type: string | null;
-    fill_percent: number | null;
-    email: string | null;
-    opening_hours: string | null;
-  }): Promise<void> {
+  async updatePlace(
+    id: number,
+    write: {
+      // Task 9 fix wave (B-L10): `places.name` is `NOT NULL` (`PlaceRow.name:
+      // string`); the caller's `(name || null) ?? existingPlace.name` fold
+      // always resolves to a real string before this is called — `string |
+      // null` here was a widened lie the type checker could never catch a
+      // real NULL write through.
+      name: string;
+      description: string | null;
+      lat: number | null;
+      lng: number | null;
+      address: string | null;
+      category_id: number | null;
+      price: number | null;
+      currency: string | null;
+      place_time: string | null;
+      end_time: string | null;
+      duration_minutes: number | null;
+      notes: string | null;
+      image_url: string | null;
+      google_place_id: string | null;
+      google_ftid: string | null;
+      osm_id: string | null;
+      amap_poi_id: string | null;
+      website: string | null;
+      phone: string | null;
+      transport_mode: string | null;
+      route_color: string | null;
+      stop_type: string | null;
+      fill_percent: number | null;
+      email: string | null;
+      opening_hours: string | null;
+    },
+  ): Promise<void> {
     const platform = this.getEntityManager().getPlatform();
-    await this.nativeUpdate({ id }, {
-      name: write.name,
-      description: write.description,
-      lat: write.lat,
-      lng: write.lng,
-      address: write.address,
-      category: write.category_id,
-      price: write.price,
-      currency: write.currency,
-      place_time: write.place_time,
-      end_time: write.end_time,
-      duration_minutes: write.duration_minutes,
-      notes: write.notes,
-      image_url: write.image_url,
-      google_place_id: write.google_place_id,
-      google_ftid: write.google_ftid,
-      osm_id: write.osm_id,
-      amap_poi_id: write.amap_poi_id,
-      website: write.website,
-      phone: write.phone,
-      transport_mode: write.transport_mode,
-      route_color: write.route_color,
-      stop_type: write.stop_type,
-      fill_percent: write.fill_percent,
-      email: write.email,
-      opening_hours: write.opening_hours,
-      updated_at: currentTimestamp(platform),
-    });
+    await this.nativeUpdate(
+      { id },
+      {
+        name: write.name,
+        description: write.description,
+        lat: write.lat,
+        lng: write.lng,
+        address: write.address,
+        category: write.category_id,
+        price: write.price,
+        currency: write.currency,
+        place_time: write.place_time,
+        end_time: write.end_time,
+        duration_minutes: write.duration_minutes,
+        notes: write.notes,
+        image_url: write.image_url,
+        google_place_id: write.google_place_id,
+        google_ftid: write.google_ftid,
+        osm_id: write.osm_id,
+        amap_poi_id: write.amap_poi_id,
+        website: write.website,
+        phone: write.phone,
+        transport_mode: write.transport_mode,
+        route_color: write.route_color,
+        stop_type: write.stop_type,
+        fill_percent: write.fill_percent,
+        email: write.email,
+        opening_hours: write.opening_hours,
+        updated_at: currentTimestamp(platform),
+      },
+    );
   }
 
   /**
@@ -498,7 +527,10 @@ export class PlacesRepository extends TrekRepository<Places> {
    * 1` — the same candidate id bound in all four positions, exactly as the
    * legacy statement does.
    */
-  async findDuplicateByExternalId(trip_id: string, external_id: string): Promise<{ id: number; google_ftid: string | null } | undefined> {
+  async findDuplicateByExternalId(
+    trip_id: string,
+    external_id: string,
+  ): Promise<{ id: number; google_ftid: string | null } | undefined> {
     return this.qb('p')
       .select(['p.id', 'p.google_ftid'])
       .where('p.trip_id = ?', [trip_id])
@@ -530,7 +562,10 @@ export class PlacesRepository extends TrekRepository<Places> {
    * :609-619`) already accepts and this repository reproduces literally,
    * not fixes).
    */
-  async findDuplicateByName(trip_id: string, lowered_trimmed_name: string): Promise<{ id: number; google_ftid: string | null } | undefined> {
+  async findDuplicateByName(
+    trip_id: string,
+    lowered_trimmed_name: string,
+  ): Promise<{ id: number; google_ftid: string | null } | undefined> {
     const platform = this.getEntityManager().getPlatform();
     return this.qb('p')
       .select(['p.id', 'p.google_ftid'])
@@ -552,7 +587,12 @@ export class PlacesRepository extends TrekRepository<Places> {
    * `ABS(lat - ?) <= ?` then `ABS(lng - ?) <= ?`, the SAME `tolerance` value
    * on both.
    */
-  async findDuplicateByCoords(trip_id: string, lat: number, lng: number, tolerance: number): Promise<{ id: number; google_ftid: string | null } | undefined> {
+  async findDuplicateByCoords(
+    trip_id: string,
+    lat: number,
+    lng: number,
+    tolerance: number,
+  ): Promise<{ id: number; google_ftid: string | null } | undefined> {
     const platform = this.getEntityManager().getPlatform();
     return this.qb('p')
       .select(['p.id', 'p.google_ftid'])
@@ -576,17 +616,33 @@ export class PlacesRepository extends TrekRepository<Places> {
    * is `DayAssignmentsRepository.listItineraryForGpx` — a different table
    * root, kept there per the task-4 brief's own pointer.
    */
-  async listForGpx(trip_id: string): Promise<{
-    name: string; description: string | null; address: string | null;
-    lat: number | null; lng: number | null; route_geometry: string | null;
-    category: string | null;
-  }[]> {
+  async listForGpx(trip_id: string): Promise<
+    {
+      name: string;
+      description: string | null;
+      address: string | null;
+      lat: number | null;
+      lng: number | null;
+      route_geometry: string | null;
+      category: string | null;
+    }[]
+  > {
     return this.qb('p')
       .leftJoin('p.category', 'c')
       .select(['p.name', 'p.description', 'p.address', 'p.lat', 'p.lng', 'p.route_geometry', 'c.name as category'])
       .where('p.trip_id = ?', [trip_id])
       .orderBy({ 'p.id': 'asc' })
-      .execute<{ name: string; description: string | null; address: string | null; lat: number | null; lng: number | null; route_geometry: string | null; category: string | null }[]>('all', false);
+      .execute<
+        {
+          name: string;
+          description: string | null;
+          address: string | null;
+          lat: number | null;
+          lng: number | null;
+          route_geometry: string | null;
+          category: string | null;
+        }[]
+      >('all', false);
   }
 
   /**
@@ -603,17 +659,31 @@ export class PlacesRepository extends TrekRepository<Places> {
    * folding logic, which stays in `PlacesService.buildDedupSet` exactly as
    * it was.
    */
-  async listDedupInputs(trip_id: string): Promise<{
-    name: string | null; lat: number | null; lng: number | null;
-    google_place_id: string | null; google_ftid: string | null; osm_id: string | null; amap_poi_id: string | null;
-  }[]> {
+  async listDedupInputs(trip_id: string): Promise<
+    {
+      name: string | null;
+      lat: number | null;
+      lng: number | null;
+      google_place_id: string | null;
+      google_ftid: string | null;
+      osm_id: string | null;
+      amap_poi_id: string | null;
+    }[]
+  > {
     return this.qb('p')
       .select(['p.name', 'p.lat', 'p.lng', 'p.google_place_id', 'p.google_ftid', 'p.osm_id', 'p.amap_poi_id'])
       .where('p.trip_id = ?', [trip_id])
-      .execute<{
-        name: string | null; lat: number | null; lng: number | null;
-        google_place_id: string | null; google_ftid: string | null; osm_id: string | null; amap_poi_id: string | null;
-      }[]>('all', false);
+      .execute<
+        {
+          name: string | null;
+          lat: number | null;
+          lng: number | null;
+          google_place_id: string | null;
+          google_ftid: string | null;
+          osm_id: string | null;
+          amap_poi_id: string | null;
+        }[]
+      >('all', false);
   }
 
   /**
@@ -658,12 +728,15 @@ export class PlacesRepository extends TrekRepository<Places> {
    * with the legacy statement's own `SELECT DISTINCT`, not a functional
    * requirement.
    */
-  async listForTrip(trip_id: string, filters: {
-    searchPattern?: string;
-    category?: string;
-    tag?: string;
-    assignment?: 'all' | 'unassigned' | 'assigned';
-  }): Promise<PlaceListRow[]> {
+  async listForTrip(
+    trip_id: string,
+    filters: {
+      searchPattern?: string;
+      category?: string;
+      tag?: string;
+      assignment?: 'all' | 'unassigned' | 'assigned';
+    },
+  ): Promise<PlaceListRow[]> {
     const platform = this.getEntityManager().getPlatform();
     const qb = this.qb('p')
       .leftJoin('p.category', 'c')
@@ -673,18 +746,26 @@ export class PlacesRepository extends TrekRepository<Places> {
       // places. `columnRef`, because the bare `t.place_id` twin is
       // persist(false) and selects nothing.
       .leftJoin('p.tours', 't')
-      .select([
-        'p.*', columnRef(platform, 't.place_id').as('tour_place_id'),
-        'c.name as category_name', 'c.color as category_color', 'c.icon as category_icon',
-        'pr.country_code as country_code', 'pr.region_name as region_name',
-      ], true)
+      .select(
+        [
+          'p.*',
+          columnRef(platform, 't.place_id').as('tour_place_id'),
+          'c.name as category_name',
+          'c.color as category_color',
+          'c.icon as category_icon',
+          'pr.country_code as country_code',
+          'pr.region_name as region_name',
+        ],
+        true,
+      )
       .where('p.trip_id = ?', [trip_id]);
 
     if (filters.searchPattern) {
-      qb.andWhere(
-        "(p.name LIKE ? ESCAPE '\\' OR p.address LIKE ? ESCAPE '\\' OR p.description LIKE ? ESCAPE '\\')",
-        [filters.searchPattern, filters.searchPattern, filters.searchPattern],
-      );
+      qb.andWhere("(p.name LIKE ? ESCAPE '\\' OR p.address LIKE ? ESCAPE '\\' OR p.description LIKE ? ESCAPE '\\')", [
+        filters.searchPattern,
+        filters.searchPattern,
+        filters.searchPattern,
+      ]);
     }
     if (filters.category) {
       qb.andWhere('p.category_id = ?', [filters.category]);
@@ -715,7 +796,12 @@ export class PlacesRepository extends TrekRepository<Places> {
    * trip_id = ? AND deleted_at IS NULL`: the attachment a place takes its
    * picture from, trash excluded.
    */
-  async findActiveTripFile(id: number, trip_id: number): Promise<{ filename: string; original_name: string; mime_type: string | null; file_size: number | null } | undefined> {
+  async findActiveTripFile(
+    id: number,
+    trip_id: number,
+  ): Promise<
+    { filename: string; original_name: string; mime_type: string | null; file_size: number | null } | undefined
+  > {
     return await this.kysely<PlacesTripFileKyselyDB>()
       .selectFrom('trip_files')
       .select(['filename', 'original_name', 'mime_type', 'file_size'])
@@ -798,14 +884,18 @@ export class PlacesRepository extends TrekRepository<Places> {
    *  - PL44 (`enrichOne`'s photo update) — `image_url` alone.
    *  - PL46 (`backfillMissingAddresses`) — `address` alone.
    */
-  async fillIfEmpty(id: number, trip_id: number, fields: {
-    google_place_id?: string | null;
-    google_ftid?: string | null;
-    address?: string | null;
-    website?: string | null;
-    phone?: string | null;
-    image_url?: string | null;
-  }): Promise<void> {
+  async fillIfEmpty(
+    id: number,
+    trip_id: number,
+    fields: {
+      google_place_id?: string | null;
+      google_ftid?: string | null;
+      address?: string | null;
+      website?: string | null;
+      phone?: string | null;
+      image_url?: string | null;
+    },
+  ): Promise<void> {
     const platform = this.getEntityManager().getPlatform();
     const data: {
       google_place_id?: ReturnType<typeof coalesceParam>;
@@ -816,7 +906,8 @@ export class PlacesRepository extends TrekRepository<Places> {
       image_url?: ReturnType<typeof coalesceParam>;
       updated_at: ReturnType<typeof currentTimestamp>;
     } = { updated_at: currentTimestamp(platform) };
-    if (fields.google_place_id !== undefined) data.google_place_id = coalesceParam(platform, 'google_place_id', fields.google_place_id);
+    if (fields.google_place_id !== undefined)
+      data.google_place_id = coalesceParam(platform, 'google_place_id', fields.google_place_id);
     if (fields.google_ftid !== undefined) data.google_ftid = coalesceParam(platform, 'google_ftid', fields.google_ftid);
     if (fields.address !== undefined) data.address = coalesceParam(platform, 'address', fields.address);
     if (fields.website !== undefined) data.website = coalesceParam(platform, 'website', fields.website);
@@ -869,10 +960,29 @@ export class PlacesRepository extends TrekRepository<Places> {
       .selectFrom('places as p')
       .leftJoin('categories as c', 'c.id', 'p.category_id')
       .select([
-        'p.id', 'p.trip_id', 'p.name', 'p.description', 'p.lat', 'p.lng', 'p.address', 'p.category_id',
-        'p.price', 'p.currency', 'p.place_time', 'p.end_time', 'p.duration_minutes', 'p.notes',
-        'p.image_url', 'p.website', 'p.phone', 'p.transport_mode', 'p.created_at', 'p.updated_at',
-        'c.name as category_name', 'c.color as category_color', 'c.icon as category_icon',
+        'p.id',
+        'p.trip_id',
+        'p.name',
+        'p.description',
+        'p.lat',
+        'p.lng',
+        'p.address',
+        'p.category_id',
+        'p.price',
+        'p.currency',
+        'p.place_time',
+        'p.end_time',
+        'p.duration_minutes',
+        'p.notes',
+        'p.image_url',
+        'p.website',
+        'p.phone',
+        'p.transport_mode',
+        'p.created_at',
+        'p.updated_at',
+        'c.name as category_name',
+        'c.color as category_color',
+        'c.icon as category_icon',
       ])
       .where('p.trip_id', '=', trip_id as number)
       .orderBy('p.created_at', 'desc')
@@ -912,10 +1022,7 @@ export class PlacesRepository extends TrekRepository<Places> {
    * relatively ordered) the same way the legacy loop did.
    */
   async listAllForTrip(trip_id: number | string): Promise<PlaceRow[]> {
-    return await this.qb('p')
-      .select(['p.*'])
-      .where('p.trip_id = ?', [trip_id])
-      .execute<PlaceRow[]>('all', false);
+    return await this.qb('p').select(['p.*']).where('p.trip_id = ?', [trip_id]).execute<PlaceRow[]>('all', false);
   }
 
   /**
@@ -1015,11 +1122,17 @@ export class PlacesRepository extends TrekRepository<Places> {
   }
 
   /** CH1 (`ChargingService.read`) — `SELECT name, lat, lng, stop_type FROM places WHERE id = ? AND trip_id = ?`. */
-  async findChargingProbe(id: number, trip_id: number): Promise<{ name: string; lat: number | null; lng: number | null; stop_type: string | null } | undefined> {
+  async findChargingProbe(
+    id: number,
+    trip_id: number,
+  ): Promise<{ name: string; lat: number | null; lng: number | null; stop_type: string | null } | undefined> {
     const row = await this.qb('p')
       .select(['p.name', 'p.lat', 'p.lng', 'p.stop_type'])
       .where({ id, trip: trip_id })
-      .execute<{ name: string; lat: number | null; lng: number | null; stop_type: string | null } | undefined>('get', false);
+      .execute<{ name: string; lat: number | null; lng: number | null; stop_type: string | null } | undefined>(
+        'get',
+        false,
+      );
     return row ?? undefined;
   }
 
@@ -1044,10 +1157,7 @@ export class PlacesRepository extends TrekRepository<Places> {
 
   /** AC31 (`AccommodationsService.createAccommodation`) — `SELECT name FROM places WHERE id = ?`, the auto-created partner booking's title source. */
   async getName(id: number): Promise<{ name: string } | undefined> {
-    return await this.qb('p')
-      .select(['p.name'])
-      .where({ id })
-      .execute<{ name: string } | undefined>('get', false);
+    return await this.qb('p').select(['p.name']).where({ id }).execute<{ name: string } | undefined>('get', false);
   }
 
   // ---------------------------------------------------------------------------
@@ -1119,7 +1229,9 @@ export class PlacesRepository extends TrekRepository<Places> {
    * city apart from the region sitting right above it in the same address
    * (#1115) — unchanged from the legacy projection.
    */
-  async listAddressesForUser(user_id: number): Promise<{ address: string | null; lat: number | null; lng: number | null; region_name: string | null }[]> {
+  async listAddressesForUser(
+    user_id: number,
+  ): Promise<{ address: string | null; lat: number | null; lng: number | null; region_name: string | null }[]> {
     return await this.kysely<PlacesAddressesForUserKyselyDB>()
       .selectFrom('places as p')
       .innerJoin('trips as t', 't.id', 'p.trip_id')
@@ -1178,8 +1290,16 @@ export class PlacesRepository extends TrekRepository<Places> {
     return await this.kysely<ImportablePlacesKyselyDB>()
       .selectFrom('places as p')
       .select((eb) => [
-        'p.id as place_id', 'p.name', 'p.address', 'p.lat', 'p.lng', 'p.category_id', 'p.image_url',
-        'p.google_place_id', 'p.google_ftid', 'p.osm_id',
+        'p.id as place_id',
+        'p.name',
+        'p.address',
+        'p.lat',
+        'p.lng',
+        'p.category_id',
+        'p.image_url',
+        'p.google_place_id',
+        'p.google_ftid',
+        'p.osm_id',
         eb
           .selectFrom('day_assignments as da')
           .innerJoin('days as d', 'd.id', 'da.day_id')
@@ -1265,7 +1385,11 @@ export class PlacesRepository extends TrekRepository<Places> {
     phone: string | null;
     osm_id: string | null;
   }): Promise<number> {
-    const inserted = await this.kysely<PlacesNarrowInsertKyselyDB>().insertInto('places').values(row).returning('id').executeTakeFirstOrThrow();
+    const inserted = await this.kysely<PlacesNarrowInsertKyselyDB>()
+      .insertInto('places')
+      .values(row)
+      .returning('id')
+      .executeTakeFirstOrThrow();
     return inserted.id;
   }
 
@@ -1316,8 +1440,16 @@ export class PlacesRepository extends TrekRepository<Places> {
       .leftJoin('categories as c', 'c.id', 'p.category_id')
       .select([
         'da.day_id',
-        'p.name', 'p.address', 'p.lat', 'p.lng', 'p.place_time', 'p.end_time',
-        'p.duration_minutes', 'p.notes', 'p.transport_mode', 'c.name as category',
+        'p.name',
+        'p.address',
+        'p.lat',
+        'p.lng',
+        'p.place_time',
+        'p.end_time',
+        'p.duration_minutes',
+        'p.notes',
+        'p.transport_mode',
+        'c.name as category',
       ])
       .where('p.trip_id', '=', trip_id)
       .where('da.accommodation_id', 'is', null)
@@ -1333,7 +1465,15 @@ export class PlacesRepository extends TrekRepository<Places> {
    * ?)`. The place a drawn tour lives on starts at the route's first point;
    * every other column keeps its default. Returns the generated id.
    */
-  async insertTourPlace(input: { trip_id: number; name: string; lat: number; lng: number; route_geometry: string }): Promise<number> {
+  async insertTourPlace(input: {
+    trip_id: number;
+    name: string;
+    lat: number;
+    lng: number;
+    route_geometry: string;
+    description?: string | null;
+    website?: string | null;
+  }): Promise<number> {
     return await this.insert({
       trip: input.trip_id,
       name: input.name,
@@ -1341,6 +1481,8 @@ export class PlacesRepository extends TrekRepository<Places> {
       lng: input.lng,
       transport_mode: 'walking',
       route_geometry: input.route_geometry,
+      description: input.description ?? null,
+      website: input.website ?? null,
     });
   }
 
@@ -1354,7 +1496,14 @@ export class PlacesRepository extends TrekRepository<Places> {
   async updateTourRoute(
     id: number,
     trip_id: number,
-    input: { name: string; lat: number; lng: number; route_geometry: string },
+    input: {
+      name: string;
+      lat: number;
+      lng: number;
+      route_geometry: string;
+      description?: string | null;
+      website?: string | null;
+    },
   ): Promise<boolean> {
     const platform = this.getEntityManager().getPlatform();
     const updated = await this.nativeUpdate(
@@ -1365,6 +1514,8 @@ export class PlacesRepository extends TrekRepository<Places> {
         lng: input.lng,
         transport_mode: 'walking',
         route_geometry: input.route_geometry,
+        ...(input.description !== undefined ? { description: input.description } : {}),
+        ...(input.website !== undefined ? { website: input.website } : {}),
         updated_at: currentTimestamp(platform),
       },
     );

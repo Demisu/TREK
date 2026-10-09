@@ -11,6 +11,8 @@ describe('known migrations', () => {
     const known = knownMigrationNames();
     expect(known.has('Migration20200101000000_baseline_schema')).toBe(true);
     expect(known.has('Migration20200101042000_tours')).toBe(true);
+    expect(known.has('Migration20200101042900_tour_planned_total_duration')).toBe(true);
+    expect(known.has('Migration20200101043000_tour_break_additional_duration')).toBe(true);
     expect(known.size).toBe(fs.readdirSync(path.join(__dirname, '../../../src/db/migrations')).length);
   });
 

@@ -49,6 +49,8 @@ const METRICS = {
   elevation_gain: 420,
   elevation_loss: 380,
   duration: 150,
+  planned_duration_minutes: 125,
+  break_additional_minutes: 35,
   match_confidence: 1,
   max_hiking_difficulty: 3,
 };
@@ -57,7 +59,8 @@ describe('ToursRepository reads', () => {
   it('TOURREPO-001: listForTrip projects the facet with its place name and both flags, newest first, never another trip', async () => {
     const { trip, other } = fixture();
     const older = createPlace(testDb, trip.id, { name: 'Older' });
-    const newer = createPlace(testDb, trip.id, { name: 'Newer' });
+    const newer = createPlace(testDb, trip.id, { name: 'Newer', description: 'Lake ridge' });
+    testDb.prepare('UPDATE places SET website = ? WHERE id = ?').run('https://www.komoot.com/tour/42', newer.id);
     const plain = createPlace(testDb, trip.id, { name: 'Not a tour' });
     const foreign = createPlace(testDb, other.id, { name: 'Foreign' });
     createTour(testDb, older.id, { created_at: '2026-01-01 10:00:00', distance: 5, match_confidence: 0.3 });
@@ -70,11 +73,15 @@ describe('ToursRepository reads', () => {
       {
         place_id: newer.id,
         name: 'Newer',
+        description: 'Lake ridge',
+        website: 'https://www.komoot.com/tour/42',
         tour_type: 'hike',
         distance: null,
         elevation_gain: null,
         elevation_loss: null,
         duration: null,
+        planned_duration_minutes: null,
+        break_additional_minutes: null,
         difficulty: null,
         wanderer_ref: null,
         match_confidence: null,
@@ -85,11 +92,15 @@ describe('ToursRepository reads', () => {
       {
         place_id: older.id,
         name: 'Older',
+        description: null,
+        website: null,
         tour_type: 'hike',
         distance: 5,
         elevation_gain: null,
         elevation_loss: null,
         duration: null,
+        planned_duration_minutes: null,
+        break_additional_minutes: null,
         difficulty: null,
         wanderer_ref: null,
         match_confidence: 0.3,
@@ -164,6 +175,8 @@ describe('ToursRepository writes', () => {
     expect(await repo.findInTrip(trip.id, place.id)).toEqual({
       place_id: place.id,
       name: 'Drawn',
+      description: null,
+      website: null,
       ...METRICS,
       difficulty: null,
       wanderer_ref: null,
@@ -182,13 +195,34 @@ describe('ToursRepository writes', () => {
 
     expect(await repo.updateInTrip(trip.id, place.id, METRICS)).toBe(true);
     expect(await repo.findInTrip(trip.id, place.id)).toMatchObject(METRICS);
+    const {
+      planned_duration_minutes: _omitted,
+      break_additional_minutes: _omittedBreaks,
+      ...routeOnlyUpdate
+    } = METRICS;
+    expect(await repo.updateInTrip(trip.id, place.id, routeOnlyUpdate)).toBe(true);
+    expect(await repo.findInTrip(trip.id, place.id)).toMatchObject({
+      duration: 150,
+      planned_duration_minutes: 125,
+      break_additional_minutes: 35,
+    });
   });
 
   it('TOURREPO-008: listRowsForTrip and insertCopy carry every column, created_at included, onto the copied place', async () => {
     const { trip, other } = fixture();
     const source = createPlace(testDb, trip.id);
     createTour(testDb, source.id, { created_at: '2026-03-04 05:06:07', distance: 3.5, max_hiking_difficulty: 4 });
-    await updateRows(t, Tours, { place: source.id }, { difficulty: 'T3', wanderer_ref: 'w-1' });
+    await updateRows(
+      t,
+      Tours,
+      { place: source.id },
+      {
+        difficulty: 'T3',
+        wanderer_ref: 'w-1',
+        planned_duration_minutes: 95,
+        break_additional_minutes: 30,
+      },
+    );
 
     const rows = await repo.listRowsForTrip(trip.id);
     expect(rows).toEqual([
@@ -199,6 +233,8 @@ describe('ToursRepository writes', () => {
         elevation_gain: null,
         elevation_loss: null,
         duration: null,
+        planned_duration_minutes: 95,
+        break_additional_minutes: 30,
         difficulty: 'T3',
         wanderer_ref: 'w-1',
         match_confidence: null,

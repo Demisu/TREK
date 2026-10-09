@@ -1,6 +1,7 @@
 import { useEffect, useRef, useMemo, useState, createElement, useCallback } from 'react'
 import { makeMarkerDraggable, makePoiDraggable, draggedPoiId } from './markerDrag'
 import { useStableVias } from './viaMarkerState'
+import { wirePlannerWaypointDrag } from './plannerWaypointDrag'
 import { ALT_CASING, ALT_LABEL_TEXT } from '../Roadtrip/alternativeColors'
 import { serviceMarkerHtml, serviceMarkerOuter } from '../Roadtrip/serviceMarker'
 import { renderIconMarkup } from '../../utils/iconMarkup'
@@ -622,6 +623,7 @@ export function MapViewGL({
   plannerWaypoints = [],
   selectedPlannerWaypointId = null,
   onPlannerWaypointClick,
+  onPlannerWaypointMove,
   routeProfileFocus = null,
   viewBaseLayer,
   onViewBaseLayerChange,
@@ -708,6 +710,9 @@ export function MapViewGL({
   /** The road-trip via handles (#1797) — hand-positioned like the rest, so listed here. */
   const viaPinsRef = useRef<PlacePin[]>([])
   const plannerWaypointPinsRef = useRef<PlacePin[]>([])
+  const plannerWaypointHandlersRef = useRef({ onPlannerWaypointClick, onPlannerWaypointMove })
+  plannerWaypointHandlersRef.current = { onPlannerWaypointClick, onPlannerWaypointMove }
+  const plannerWaypointsDraggable = !!onPlannerWaypointMove
   const profileFocusPinRef = useRef<PlacePin | null>(null)
   /** The drive-time pills on the offered routes; same treatment. */
   const altLabelsRef = useRef<PlacePin[]>([])
@@ -744,6 +749,7 @@ export function MapViewGL({
     if (!map || !mapReady) return
     plannerWaypointPinsRef.current.forEach(pin => pin.remove())
     plannerWaypointPinsRef.current = []
+    const dragCleanups: (() => void)[] = []
 
     for (const [index, point] of plannerWaypoints.entries()) {
       const selected = point.id === selectedPlannerWaypointId
@@ -754,18 +760,34 @@ export function MapViewGL({
       el.setAttribute('aria-label', `Waypoint ${index + 1}`)
       el.style.cssText = `display:flex;width:${size}px;height:${size}px;align-items:center;justify-content:center;border-radius:9999px;background:#0a84ff;color:white;border:${selected ? 3 : 2}px solid white;box-shadow:0 2px 7px rgba(0,0,0,.4);font:700 11px system-ui;cursor:pointer;padding:0`
       const swallow = (event: Event) => event.stopPropagation()
-      const select = (event: Event) => { event.stopPropagation(); onPlannerWaypointClick?.(point.id) }
+      const select = (event: Event) => { event.stopPropagation(); plannerWaypointHandlersRef.current.onPlannerWaypointClick?.(point.id) }
       el.addEventListener('pointerdown', swallow)
       el.addEventListener('touchstart', swallow, { passive: true })
       el.addEventListener('click', select)
-      plannerWaypointPinsRef.current.push(attachPin(map, gl, pinLayerRef.current, el, point.lng, point.lat))
+      const pin = attachPin(map, gl, pinLayerRef.current, el, point.lng, point.lat)
+      plannerWaypointPinsRef.current.push(pin)
+      if (plannerWaypointsDraggable) {
+        el.style.cursor = 'grab'
+        dragCleanups.push(wirePlannerWaypointDrag({
+          element: el,
+          initial: { lat: point.lat, lng: point.lng },
+          coordinateAt: (clientX, clientY) => {
+            const rect = map.getContainer().getBoundingClientRect()
+            const at = map.unproject([clientX - rect.left, clientY - rect.top])
+            return { lat: at.lat, lng: at.lng }
+          },
+          setPosition: ({ lat, lng }) => pin.setLngLat([lng, lat]),
+          onCommit: ({ lat, lng }) => plannerWaypointHandlersRef.current.onPlannerWaypointMove?.(point.id, lat, lng) ?? false,
+        }))
+      }
     }
 
     return () => {
+      dragCleanups.forEach(cleanup => cleanup())
       plannerWaypointPinsRef.current.forEach(pin => pin.remove())
       plannerWaypointPinsRef.current = []
     }
-  }, [gl, mapReady, onPlannerWaypointClick, plannerWaypoints, selectedPlannerWaypointId])
+  }, [gl, mapReady, plannerWaypoints, plannerWaypointsDraggable, selectedPlannerWaypointId])
 
   useEffect(() => () => {
     profileFocusPinRef.current?.remove()

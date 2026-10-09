@@ -324,6 +324,8 @@ describe('Real ToursService update trip boundary (stubbed repositories)', () => 
       lat: 48,
       lng: 11,
       route_geometry: JSON.stringify(input.route_geometry),
+      ...(input.description !== undefined ? { description: input.description } : {}),
+      ...(input.website !== undefined ? { website: input.website } : {}),
     });
     expect(f.toursRepo.updateInTrip).toHaveBeenCalledExactlyOnceWith(
       7,

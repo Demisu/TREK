@@ -13,12 +13,15 @@ import { PlacesService } from '../places/places.service';
 import { computeTourMetrics, parseRouteGeometry, LOW_CONFIDENCE_THRESHOLD, type GeometryPoint } from './tours.helpers';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import type {
-  TourCreateRequest,
-  TourCreateResponse,
-  TourDetailResponse,
-  TourListItem,
-  TourWaypoint,
+import {
+  MAX_PLANNED_TOUR_DURATION_MINUTES,
+  plannedTourDurationMinutesSchema,
+  tourWebsiteSchema,
+  type TourCreateRequest,
+  type TourCreateResponse,
+  type TourDetailResponse,
+  type TourListItem,
+  type TourWaypoint,
 } from '@trek/shared';
 
 export interface ImportGpxAsTourResult {
@@ -52,11 +55,15 @@ export class ToursService {
     return {
       place_id: r.place_id,
       name: r.name,
+      description: r.description,
+      website: r.website,
       tour_type: r.tour_type as TourListItem['tour_type'],
       distance: r.distance,
       elevation_gain: r.elevation_gain,
       elevation_loss: r.elevation_loss,
       duration: r.duration,
+      planned_duration_minutes: r.planned_duration_minutes,
+      break_additional_minutes: r.break_additional_minutes,
       difficulty: r.difficulty,
       wanderer_ref: r.wanderer_ref,
       match_confidence: r.match_confidence,
@@ -76,6 +83,12 @@ export class ToursService {
       elevation_gain: metrics.elevationGainM,
       elevation_loss: metrics.elevationLossM,
       duration: input.duration_seconds == null ? null : Math.round(input.duration_seconds / 60),
+      ...(input.planned_duration_minutes !== undefined
+        ? { planned_duration_minutes: input.planned_duration_minutes }
+        : {}),
+      ...(input.break_additional_minutes !== undefined
+        ? { break_additional_minutes: input.break_additional_minutes }
+        : {}),
       match_confidence: 1,
       max_hiking_difficulty: input.max_hiking_difficulty,
     };
@@ -88,6 +101,33 @@ export class ToursService {
    */
   private async assertTourTypeEnabled(key: string): Promise<void> {
     if (!(await this.tourTypesRepo.isEnabled(key))) throw new BadRequestException('Tour type is not available');
+  }
+
+  private validateInformationalMetadata(input: TourCreateRequest): void {
+    if (input.description != null && input.description.length > 2000) {
+      throw new BadRequestException('description must be 2000 characters or less');
+    }
+    if (input.website != null && !tourWebsiteSchema.safeParse(input.website).success) {
+      throw new BadRequestException('website must be a valid HTTPS URL without credentials');
+    }
+  }
+
+  private validatePlannedTimes(input: TourCreateRequest): void {
+    for (const value of [input.planned_duration_minutes, input.break_additional_minutes]) {
+      if (value !== undefined && !plannedTourDurationMinutesSchema.safeParse(value).success) {
+        throw new BadRequestException('planned Tour times must be whole minutes from 0 to 1440');
+      }
+    }
+    if (
+      input.planned_duration_minutes == null &&
+      input.duration_seconds != null &&
+      Math.round(input.duration_seconds / 60) + (input.break_additional_minutes ?? 0) >
+        MAX_PLANNED_TOUR_DURATION_MINUTES
+    ) {
+      throw new BadRequestException(
+        'walking time plus breaks must be 1440 minutes or less unless a total is overridden',
+      );
+    }
   }
 
   /** All tours (the facet + owning place) for a trip, newest first. */
@@ -131,6 +171,8 @@ export class ToursService {
     // The controller's TripAccessGuard already resolved this trip id.
     const tid = toRowId(tripId)!;
     await this.assertTourTypeEnabled(input.tour_type);
+    this.validateInformationalMetadata(input);
+    this.validatePlannedTimes(input);
     const start = input.route_geometry[0];
     const fields = this.routeFields(input);
 
@@ -141,8 +183,15 @@ export class ToursService {
         lat: start[0],
         lng: start[1],
         route_geometry: JSON.stringify(input.route_geometry),
+        description: input.description ?? null,
+        website: input.website ?? null,
       });
-      await this.toursRepo.insertTour({ place_id: id, ...fields });
+      await this.toursRepo.insertTour({
+        place_id: id,
+        ...fields,
+        planned_duration_minutes: fields.planned_duration_minutes ?? null,
+        break_additional_minutes: fields.break_additional_minutes ?? null,
+      });
       await this.waypointsRepo.insertForPlace(id, input.waypoints);
       return id;
     });
@@ -174,6 +223,8 @@ export class ToursService {
     const pid = toRowId(placeId);
     if (tid === null || pid === null) throw new NotFoundException('Tour not found');
     await this.assertTourTypeEnabled(input.tour_type);
+    this.validateInformationalMetadata(input);
+    this.validatePlannedTimes(input);
     const start = input.route_geometry[0];
     const fields = this.routeFields(input);
 
@@ -188,6 +239,8 @@ export class ToursService {
         lat: start[0],
         lng: start[1],
         route_geometry: JSON.stringify(input.route_geometry),
+        ...(input.description !== undefined ? { description: input.description } : {}),
+        ...(input.website !== undefined ? { website: input.website } : {}),
       });
       if (!placeUpdated) throw new NotFoundException('Tour not found');
       if (!(await this.toursRepo.updateInTrip(tid, pid, fields))) throw new NotFoundException('Tour not found');
@@ -253,6 +306,8 @@ export class ToursService {
           elevation_gain: metrics.elevationGainM,
           elevation_loss: metrics.elevationLossM,
           duration: null,
+          planned_duration_minutes: null,
+          break_additional_minutes: null,
           match_confidence: matchConfidence,
           max_hiking_difficulty: 2,
         });
@@ -260,11 +315,15 @@ export class ToursService {
           this.toItem({
             place_id: place.id,
             name: place.name,
+            description: place.description ?? null,
+            website: place.website ?? null,
             tour_type: 'hike',
             distance: metrics.distanceKm,
             elevation_gain: metrics.elevationGainM,
             elevation_loss: metrics.elevationLossM,
             duration: null,
+            planned_duration_minutes: null,
+            break_additional_minutes: null,
             difficulty: null,
             wanderer_ref: null,
             match_confidence: matchConfidence,

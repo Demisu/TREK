@@ -111,6 +111,8 @@ export interface MapViewProps {
   plannerWaypoints?: Array<{ id: string; lat: number; lng: number }>;
   selectedPlannerWaypointId?: string | null;
   onPlannerWaypointClick?: (id: string) => void;
+  /** Drops a dragged control point; returns false when the move was refused. */
+  onPlannerWaypointMove?: (id: string, lat: number, lng: number) => boolean;
   routeProfileFocus?: RouteProfileFocus | null;
   viewBaseLayer?: TourBaseLayer;
   onViewBaseLayerChange?: (layer: TourBaseLayer) => void;
@@ -123,7 +125,7 @@ export interface MapViewProps {
    */
   focusPoints?: [number, number][];
   /** Changes only when the caller intentionally wants a new initial frame. */
-  focusKey?: number;
+  focusKey?: number | string;
   /**
    * What the caller's own chrome covers while `focusPoints` is framed, in pixels per edge.
    *

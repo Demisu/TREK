@@ -141,6 +141,8 @@ describe('ToursService planner contracts (mock-only; SQLite rollback semantics a
       lat: 48,
       lng: 11,
       route_geometry: JSON.stringify(request.route_geometry),
+      description: request.description ?? null,
+      website: request.website ?? null,
     });
     expect(setup.toursRepo.insertTour).toHaveBeenCalledExactlyOnceWith({
       place_id: 42,
@@ -149,6 +151,8 @@ describe('ToursService planner contracts (mock-only; SQLite rollback semantics a
       elevation_gain: 50,
       elevation_loss: 20,
       duration: 60,
+      planned_duration_minutes: null,
+      break_additional_minutes: null,
       match_confidence: 1,
       max_hiking_difficulty: 2,
     });
@@ -236,6 +240,8 @@ describe('ToursService planner contracts (mock-only; SQLite rollback semantics a
       lat: 49,
       lng: 12,
       route_geometry: JSON.stringify(update.route_geometry),
+      ...(update.description !== undefined ? { description: update.description } : {}),
+      ...(update.website !== undefined ? { website: update.website } : {}),
     });
     expect(setup.toursRepo.updateInTrip).toHaveBeenCalledExactlyOnceWith(7, 42, {
       tour_type: 'hike',

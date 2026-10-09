@@ -214,6 +214,9 @@ describe('Tours GPX atomic persistence and postcommit publication', () => {
       has_waypoints: false,
       caution: true,
       match_confidence: 0.3,
+      duration: null,
+      planned_duration_minutes: null,
+      break_additional_minutes: null,
     });
     expect(result.tours[1]).toMatchObject({
       name: 'Ridge',
@@ -246,8 +249,19 @@ describe('Tours GPX atomic persistence and postcommit publication', () => {
       (await findRows(await sharedTestOrm(testDb), Tours, {}, { place: 'asc' })).map((tour) => ({
         place_id: tour.place_id,
         tour_type: tour.tour_type,
+        duration: tour.duration,
+        planned_duration_minutes: tour.planned_duration_minutes,
+        break_additional_minutes: tour.break_additional_minutes,
       })),
-    ).toEqual(rows.map((row) => ({ place_id: row.id, tour_type: 'hike' })));
+    ).toEqual(
+      rows.map((row) => ({
+        place_id: row.id,
+        tour_type: 'hike',
+        duration: null,
+        planned_duration_minutes: null,
+        break_additional_minutes: null,
+      })),
+    );
     expect(await count('tour_waypoints')).toBe(0);
 
     expect(seen).toEqual([

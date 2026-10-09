@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { MapPin } from 'lucide-react'
 import { mapsApi } from '../../api/client'
 import { useTranslation } from '../../i18n'
@@ -18,6 +18,9 @@ interface Props {
   value: LocationPoint | null
   onChange: (loc: LocationPoint | null) => void
   placeholder?: string
+  ariaLabel?: string
+  /** Announces the field as a combobox and says "nothing found" or an error in its list. */
+  showSearchStatus?: boolean
   style?: React.CSSProperties
   /**
    * The trip's own places, offered while the field is empty or holds fewer than three
@@ -27,7 +30,7 @@ interface Props {
   places?: LocationPoint[]
 }
 
-export default function LocationSelect({ value, onChange, placeholder, style, places }: Props) {
+export default function LocationSelect({ value, onChange, placeholder, ariaLabel, showSearchStatus = false, style, places }: Props) {
   const { t, locale } = useTranslation()
   const placeLang = usePlaceLanguage()
   // Ohne Reisekontext ist der Hinweis leer, und die Suche laeuft wie bisher.
@@ -36,6 +39,10 @@ export default function LocationSelect({ value, onChange, placeholder, style, pl
   const { open, setOpen, highlight, setHighlight, wrapRef, handleKey } = useSuggestionDropdown()
   const [results, setResults] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+  const [searchError, setSearchError] = useState(false)
+  // The text the last answer was for, so a status never describes older text.
+  const [searchedQuery, setSearchedQuery] = useState<string | null>(null)
+  const listId = `${useId()}-location-results`
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -47,6 +54,9 @@ export default function LocationSelect({ value, onChange, placeholder, style, pl
     const trimmed = query.trim()
     if (trimmed.length < 3 || (value && trimmed === value.name)) {
       setResults([])
+      setLoading(false)
+      setSearchError(false)
+      setSearchedQuery(null)
       return
     }
     // Clearing the timer does nothing to a request already out: an answer for
@@ -54,13 +64,20 @@ export default function LocationSelect({ value, onChange, placeholder, style, pl
     let stale = false
     debounceRef.current = setTimeout(async () => {
       setLoading(true)
+      setSearchError(false)
+      setSearchedQuery(null)
       try {
         const data = await mapsApi.search(trimmed, placeLang, locationBias)
         if (stale) return
         setResults(data.places || [])
         setHighlight(-1)
+        setSearchedQuery(trimmed)
       } catch {
-        if (!stale) setResults([])
+        if (!stale) {
+          setResults([])
+          setSearchError(true)
+          setSearchedQuery(trimmed)
+        }
       } finally {
         if (!stale) setLoading(false)
       }
@@ -79,13 +96,21 @@ export default function LocationSelect({ value, onChange, placeholder, style, pl
     onChange(loc)
     setQuery(loc.name)
     setOpen(false)
-    setResults([])
+    resetSearch()
   }
 
   const clear = () => {
     onChange(null)
     setQuery('')
+    resetSearch()
+  }
+
+  function resetSearch() {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
     setResults([])
+    setLoading(false)
+    setSearchError(false)
+    setSearchedQuery(null)
   }
 
   // The trip's places stand in for the search below three characters. Derived rather
@@ -96,6 +121,30 @@ export default function LocationSelect({ value, onChange, placeholder, style, pl
   const rows = showPicks
     ? (places ?? []).filter(p => !typed || p.name.toLowerCase().includes(typed.toLowerCase()))
     : results
+  const showNoResults =
+    showSearchStatus && !showPicks && searchedQuery === typed && rows.length === 0 && !loading && !searchError
+  const showError = showSearchStatus && searchError && searchedQuery === typed
+  const listOpen = open && ((loading && !showPicks) || rows.length > 0 || showNoResults || showError)
+  const accessibleLabel = ariaLabel ?? placeholder ?? t('reservations.searchLocation')
+  const statusLine = showError ? (
+    <div role="alert" className="text-content-faint" style={{ padding: 10, fontSize: 'calc(12px * var(--fs-scale-body, 1))' }}>
+      {t('common.error')}
+    </div>
+  ) : showNoResults ? (
+    <div role="status" className="text-content-faint" style={{ padding: 10, fontSize: 'calc(12px * var(--fs-scale-body, 1))' }}>
+      {t('help.center.searchEmpty', { query: typed })}
+    </div>
+  ) : null
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Escape closes the list even while it only shows a status line.
+    if (e.key === 'Escape' && open) {
+      e.preventDefault()
+      setOpen(false)
+      return
+    }
+    handleKey(e, rows, pick)
+  }
 
   return (
     <div ref={wrapRef} style={{ position: 'relative', ...style }}>
@@ -103,14 +152,27 @@ export default function LocationSelect({ value, onChange, placeholder, style, pl
         icon={<MapPin size={14} className="text-content-faint" style={{ flexShrink: 0 }} />}
         query={query}
         placeholder={placeholder ?? t('reservations.searchLocation')}
-        onType={(text) => { setQuery(text); setOpen(true); setHighlight(-1); if (value) onChange(null) }}
+        onType={(text) => { setQuery(text); setOpen(true); setHighlight(-1); setSearchError(false); setSearchedQuery(null); if (value) onChange(null) }}
         onOpen={() => setOpen(true)}
-        onKeyDown={(e) => handleKey(e, rows, pick)}
+        onKeyDown={onKeyDown}
         onClear={value ? clear : undefined}
+        inputAria={showSearchStatus ? {
+          role: 'combobox',
+          'aria-label': accessibleLabel,
+          'aria-autocomplete': 'list',
+          'aria-expanded': listOpen,
+          'aria-controls': listOpen ? listId : undefined,
+          'aria-activedescendant': listOpen && highlight >= 0 ? `${listId}-option-${highlight}` : undefined,
+        } : undefined}
       />
 
       {open && (
-        <SuggestionList loading={loading && !showPicks} rowCount={rows.length}>
+        <SuggestionList
+          loading={loading && !showPicks}
+          rowCount={rows.length}
+          status={statusLine}
+          listbox={showSearchStatus ? { id: listId, label: accessibleLabel } : undefined}
+        >
           {rows.map((r, i) => (
             <SuggestionRow
               key={showPicks ? `pick:${r.name}:${r.lat}:${r.lng}` : `${r.osm_id || r.google_place_id || i}`}
@@ -118,6 +180,7 @@ export default function LocationSelect({ value, onChange, placeholder, style, pl
               onPick={() => pick(r)}
               onHover={() => setHighlight(i)}
               align="flex-start"
+              optionId={showSearchStatus ? `${listId}-option-${i}` : undefined}
             >
               <PlaceSuggestion name={r.name} address={r.address} />
             </SuggestionRow>

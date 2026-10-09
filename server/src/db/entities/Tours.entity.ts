@@ -1,8 +1,8 @@
-import { Collection, EntityRepositoryType, type Opt, PrimaryKeyProp, type Ref, defineEntity, p } from '@mikro-orm/core';
 import { ToursRepository } from '../repositories/Tours.repository';
 import { Places } from './Places.entity';
 import { TourTypes } from './TourTypes.entity';
 import { TourWaypoints } from './TourWaypoints.entity';
+import { Collection, EntityRepositoryType, type Opt, PrimaryKeyProp, type Ref, defineEntity, p } from '@mikro-orm/core';
 
 export class Tours {
   [EntityRepositoryType]?: ToursRepository;
@@ -14,6 +14,8 @@ export class Tours {
   elevation_gain?: number | null;
   elevation_loss?: number | null;
   duration?: number | null;
+  planned_duration_minutes?: number | null;
+  break_additional_minutes?: number | null;
   difficulty?: string | null;
   wanderer_ref?: string | null;
   match_confidence?: number | null;
@@ -34,6 +36,8 @@ export const ToursSchema = defineEntity({
     elevation_gain: p.double().nullable(),
     elevation_loss: p.double().nullable(),
     duration: p.double().nullable(),
+    planned_duration_minutes: p.integer().nullable(),
+    break_additional_minutes: p.integer().nullable(),
     difficulty: p.text().nullable(),
     wanderer_ref: p.text().nullable(),
     match_confidence: p.double().nullable(),
