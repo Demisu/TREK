@@ -2,7 +2,8 @@ import type { TourListItem } from '@trek/shared';
 import { Bike, Footprints, Mountain, Route } from 'lucide-react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '../../../tests/helpers/render';
-import TourDayRowFacts, { TourDayRowIcon, tourDayRowIcon } from './TourDayRowFacts';
+import TourDayRowFacts, { TourDayRowIcon } from './TourDayRowFacts';
+import { tourDayRowIcon } from './tourDayRowIcon';
 
 const tour: TourListItem = {
   place_id: 42,

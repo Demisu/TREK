@@ -1,37 +1,12 @@
 import type { TourListItem } from '@trek/shared';
-import {
-  ArrowUp,
-  Bike,
-  Clock,
-  Footprints,
-  Mountain,
-  Pause,
-  Route,
-  Ruler,
-  Sailboat,
-  type LucideIcon,
-} from 'lucide-react';
+import { ArrowUp, Clock, Footprints, Pause, Ruler, type LucideIcon } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useTranslation } from '../../i18n';
 import { useSettingsStore } from '../../store/settingsStore';
 import { formatDistance, formatElevation } from '../../utils/units';
 import { Tooltip } from '../shared/Tooltip';
+import { tourDayRowIcon } from './tourDayRowIcon';
 import { formatPlannedTourDuration, tourPlannedTimes } from './tourPresentation';
-
-export function tourDayRowIcon(type: string): LucideIcon {
-  switch (type) {
-    case 'hike':
-      return Mountain;
-    case 'bike':
-      return Bike;
-    case 'walk':
-      return Footprints;
-    case 'kayak':
-      return Sailboat;
-    default:
-      return Route;
-  }
-}
 
 export function TourDayRowIcon({ type, size = 27 }: { type: string; size?: number }) {
   const { t } = useTranslation();

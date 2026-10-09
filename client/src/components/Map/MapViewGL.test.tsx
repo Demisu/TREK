@@ -959,7 +959,7 @@ describe('MapViewGL', () => {
     await act(async () => {});
     expect(glMap.fitBounds).toHaveBeenCalledOnce();
     expect(glMap.fitBounds).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ maxZoom: 15 }));
-    const mapConstructions = (maplibregl.Map as any).mock.calls.length;
+    const mapConstructions = vi.mocked(maplibregl.Map).mock.calls.length;
     glMap.fitBounds.mockClear();
 
     rerender(
@@ -974,7 +974,7 @@ describe('MapViewGL', () => {
     );
     await act(async () => {});
     expect(glMap.fitBounds).not.toHaveBeenCalled();
-    expect((maplibregl.Map as any).mock.calls).toHaveLength(mapConstructions);
+    expect(vi.mocked(maplibregl.Map).mock.calls).toHaveLength(mapConstructions);
 
     rerender(
       <MapViewGL
