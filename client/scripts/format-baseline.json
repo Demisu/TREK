@@ -1277,7 +1277,6 @@
   "src/mobile/components/MBottomNav.test.tsx",
   "src/mobile/components/MBottomNav.tsx",
   "src/mobile/components/MChip.tsx",
-  "src/mobile/components/MDancingTrek.tsx",
   "src/mobile/components/MDayImpactList.tsx",
   "src/mobile/components/MDropdownPanel.tsx",
   "src/mobile/components/MFab.tsx",

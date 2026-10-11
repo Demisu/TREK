@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import MascotClip, { findClip, mascot3dEnabled } from './trek3d/MascotClip';
+import MascotClip from './trek3d/MascotClip';
+import { findClip, mascot3dEnabled } from './trek3d/mascotClips';
 
 /**
  * The TREK mascot — an empty-state character that IS the TREK mark: the logo is

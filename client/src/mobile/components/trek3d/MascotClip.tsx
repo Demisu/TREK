@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import meta from './clips.meta.json';
+import { CLIPS } from './mascotClips';
 
 /**
  * The 3D TREK mascot as pre-rendered clips. Each clip is a plain H.264 MP4 with
@@ -17,47 +18,11 @@ import meta from './clips.meta.json';
  * inside the full 88:96 box so every scene keeps the same scale. Only URLs are
  * bundled; the files load when a mascot actually renders.
  */
-const CLIPS = import.meta.glob('./clips/*.mp4', { query: '?url', import: 'default', eager: true }) as Record<
-  string,
-  string
->;
-const META = meta as Record<string, { poke: number; crop: [number, number, number, number] }>;
+const META: Record<string, { poke: number; crop: number[] }> = meta;
 
 const FADE_MS = 140;
 // The clips frame the figure with more air than the SVG, so they render at 1.6 times the requested size
 const CLIP_SCALE = 1.6;
-
-function clipKey(scene: string, mood: string, sceneMood: string) {
-  return mood === sceneMood ? scene : `${scene}--${mood}`;
-}
-
-export function findClip(scene: string, mood: string, sceneMood: string): string | null {
-  const key = clipKey(scene, mood, sceneMood);
-  return CLIPS[`./clips/${key}-light-loop.mp4`] ? key : null;
-}
-
-let webgl: boolean | null = null;
-function hasWebgl(): boolean {
-  if (webgl === null) {
-    try {
-      webgl = !!document.createElement('canvas').getContext('webgl');
-    } catch {
-      webgl = false;
-    }
-  }
-  return webgl;
-}
-
-/** Opt-out for comparing against the SVG: localStorage `trek-mascot-3d` = `0`. */
-export function mascot3dEnabled(): boolean {
-  try {
-    if (localStorage.getItem('trek-mascot-3d') === '0') return false;
-  } catch {
-    /* storage blocked: keep the default */
-  }
-  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return false;
-  return hasWebgl();
-}
 
 function useIsDark() {
   const read = () => document.documentElement.classList.contains('dark');
