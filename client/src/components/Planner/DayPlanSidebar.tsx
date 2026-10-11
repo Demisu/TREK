@@ -1656,7 +1656,8 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                 onDrop={e => handleDropOnDay(e, day.id)}
                 onContextMenu={canEditDays ? e => ctxMenu.open(e, dayMenuItems) : undefined}
                 style={{
-                  display: 'flex', alignItems: hasDayPills ? 'flex-start' : 'center', gap: 10,
+                  display: 'grid', gridTemplateColumns: 'auto minmax(0, 1fr) auto', columnGap: 10, rowGap: 4,
+                  alignItems: hasDayPills ? 'start' : 'center',
                   paddingBlock: 10, paddingInlineEnd: 8, paddingInlineStart: 10,
                   cursor: 'pointer',
                   background: isDragTarget ? DAY_HEAD_DROP : (isSelected ? DAY_HEAD_SELECTED : headerTintBg),
@@ -1679,6 +1680,7 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                   className="flex flex-none flex-col items-center overflow-hidden rounded-[10px] font-geist font-bold tabular-nums shadow-sm"
                   style={{
                     width: hasWeather ? 36 : 32,
+                    gridRow: hasDayPills ? 'span 2' : undefined,
                     // Selection still wins. A tinted badge mixes the tone INTO the
                     // card colour so it stays the same tile, and takes
                     // --text-secondary: the number is small and bold, so 4.5:1 applies.
@@ -1700,7 +1702,7 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                   )}
                 </div>
 
-                <div className={`min-w-0 flex-1 ${hasDayPills ? 'pt-px' : ''}`}>
+                <div className={hasDayPills ? 'min-w-0 pt-[5px]' : 'min-w-0'}>
                   <div className="flex min-w-0 items-baseline gap-2">
                     <span className="min-w-0 truncate font-bold text-content" style={fs(13.5, 'body')}>
                       {heading.primary}
@@ -1711,64 +1713,11 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                       </span>
                     )}
                   </div>
-                  {hasDayPills && (
-                    <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1">
-                      {dayAccs.map(acc => {
-                        const isCheckIn = acc.start_day_id === day.id
-                        const isCheckOut = acc.end_day_id === day.id
-                        const accName = (acc as any).place_name || (acc as any).reservation_title
-                        // The state is said in words as well as colour: check-in green,
-                        // check-out red, a stay in between quiet.
-                        const state = isCheckOut && !isCheckIn ? t('day.checkOut') : isCheckIn ? t('day.checkIn') : null
-                        const iconTone = isCheckOut && !isCheckIn ? 'text-danger' : isCheckIn ? 'text-success' : 'text-content-faint'
-                        // Not confirmed yet: a dashed ring says so at a glance, the tooltip in words (#2281).
-                        const pending = pendingStays.has(acc.id)
-                        const named = state ? `${state}: ${accName}` : accName
-                        const tip = pending ? `${named} (${t('reservations.pending')})` : named
-                        // The name opens the place, as before; a stay with a booking gets a
-                        // second target in the same pill that opens the booking (#2363).
-                        const stayBooking = onOpenBooking
-                          ? reservations.find(r => r.accommodation_id != null && Number(r.accommodation_id) === acc.id)
-                          : undefined
-                        return (
-                          <span key={acc.id} className={`inline-flex min-w-0 max-w-full items-stretch overflow-hidden rounded-full ${pending ? 'border border-dashed border-warning bg-warning-soft' : 'bg-surface-card shadow-sm'}`}>
-                            <Tooltip label={tip}>
-                              <button type="button" data-dp="day-pill" data-pending={pending || undefined}
-                                onClick={e => { e.stopPropagation(); if ((acc as any).place_id) onPlaceClick((acc as any).place_id) }}
-                                className={`inline-flex min-w-0 items-center gap-1 py-[2px] font-geist font-normal text-content-secondary hover:text-content ${stayBooking ? 'ps-2 pe-1.5' : 'px-2'}`}
-                                style={{ ...fs(10.5), cursor: (acc as any).place_id ? 'pointer' : 'default' }}>
-                                <Hotel size={11} strokeWidth={2} className={`flex-none ${iconTone}`} />
-                                <span className="truncate">{accName}</span>
-                              </button>
-                            </Tooltip>
-                            {stayBooking && (
-                              <Tooltip label={t('day.openStayBooking')}>
-                                <button type="button" data-dp="day-pill-booking" aria-label={t('day.openStayBooking')}
-                                  onClick={e => { e.stopPropagation(); onOpenBooking!(stayBooking) }}
-                                  className="flex flex-none items-center border-s border-edge-faint ps-1.5 pe-2 text-content-faint hover:text-content">
-                                  <Ticket size={11} strokeWidth={2} />
-                                </button>
-                              </Tooltip>
-                            )}
-                          </span>
-                        )
-                      })}
-                      {/* Active rental car badges */}
-                      {activeRentals.map(r => (
-                        <button type="button" data-dp="day-pill" key={`rental-${r.id}`} onClick={e => { e.stopPropagation(); if (onOpenBooking) onOpenBooking(r); else setTransportDetail(r) }}
-                          className="inline-flex min-w-0 max-w-full items-center gap-1 rounded-full bg-surface-card px-2 py-[2px] font-geist font-normal text-content-secondary shadow-sm hover:text-content"
-                          style={fs(10.5)}>
-                          <Car size={11} strokeWidth={2} className="flex-none text-content-faint" />
-                          <span className="truncate">{r.title}</span>
-                        </button>
-                      ))}
-                      {/* A plugin's name for this day (which leg of the trip it belongs to). */}
-                      {dayTint?.label && <SoftPill>{dayTint.label}</SoftPill>}
-                    </div>
-                  )}
                 </div>
 
-                <div className="flex flex-none items-center gap-1">
+                {/* Pulled out of the line's height, so the pills below sit under the name
+                    rather than under the 28px buttons. */}
+                <div className="-my-1 flex flex-none items-center gap-1">
                   {canEditDays && (
                     <Tooltip label={t('planner.addToThisDay')} placement="top">
                       <button type="button"
@@ -1785,6 +1734,61 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                     {isExpanded ? <ChevronDown size={15} strokeWidth={2} /> : <ChevronRight size={15} strokeWidth={2} />}
                   </button>
                 </div>
+                {hasDayPills && (
+                  <div className="flex min-w-0 flex-nowrap items-center gap-1" style={{ gridColumn: '2 / 4' }}>
+                    {dayAccs.map(acc => {
+                      const isCheckIn = acc.start_day_id === day.id
+                      const isCheckOut = acc.end_day_id === day.id
+                      const accName = (acc as any).place_name || (acc as any).reservation_title
+                      // The state is said in words as well as colour: check-in green,
+                      // check-out red, a stay in between quiet.
+                      const state = isCheckOut && !isCheckIn ? t('day.checkOut') : isCheckIn ? t('day.checkIn') : null
+                      const iconTone = isCheckOut && !isCheckIn ? 'text-danger' : isCheckIn ? 'text-success' : 'text-content-faint'
+                      // Not confirmed yet: a dashed ring says so at a glance, the tooltip in words (#2281).
+                      const pending = pendingStays.has(acc.id)
+                      const named = state ? `${state}: ${accName}` : accName
+                      const tip = pending ? `${named} (${t('reservations.pending')})` : named
+                      // The name opens the place, as before; a stay with a booking gets a
+                      // second target in the same pill that opens the booking (#2363).
+                      const stayBooking = onOpenBooking
+                        ? reservations.find(r => r.accommodation_id != null && Number(r.accommodation_id) === acc.id)
+                        : undefined
+                      return (
+                        <span key={acc.id} className={`inline-flex min-w-0 max-w-max flex-[1_1_0%] items-stretch overflow-hidden rounded-full ${pending ? 'border border-dashed border-warning bg-warning-soft' : 'bg-surface-card shadow-sm'}`}>
+                          <Tooltip label={tip}>
+                            <button type="button" data-dp="day-pill" data-pending={pending || undefined}
+                              onClick={e => { e.stopPropagation(); if ((acc as any).place_id) onPlaceClick((acc as any).place_id) }}
+                              className={`inline-flex min-w-0 items-center gap-1 py-[2px] font-geist font-normal text-content-secondary hover:text-content ${stayBooking ? 'ps-2 pe-1.5' : 'px-2'}`}
+                              style={{ ...fs(10.5), cursor: (acc as any).place_id ? 'pointer' : 'default' }}>
+                              <Hotel size={11} strokeWidth={2} className={`flex-none ${iconTone}`} />
+                              <span className="truncate">{accName}</span>
+                            </button>
+                          </Tooltip>
+                          {stayBooking && (
+                            <Tooltip label={t('day.openStayBooking')}>
+                              <button type="button" data-dp="day-pill-booking" aria-label={t('day.openStayBooking')}
+                                onClick={e => { e.stopPropagation(); onOpenBooking!(stayBooking) }}
+                                className="flex flex-none items-center border-s border-edge-faint ps-1.5 pe-2 text-content-faint hover:text-content">
+                                <Ticket size={11} strokeWidth={2} />
+                              </button>
+                            </Tooltip>
+                          )}
+                        </span>
+                      )
+                    })}
+                    {/* Active rental car badges */}
+                    {activeRentals.map(r => (
+                      <button type="button" data-dp="day-pill" key={`rental-${r.id}`} onClick={e => { e.stopPropagation(); if (onOpenBooking) onOpenBooking(r); else setTransportDetail(r) }}
+                        className="inline-flex min-w-0 max-w-max flex-[1_1_0%] items-center gap-1 rounded-full bg-surface-card px-2 py-[2px] font-geist font-normal text-content-secondary shadow-sm hover:text-content"
+                        style={fs(10.5)}>
+                        <Car size={11} strokeWidth={2} className="flex-none text-content-faint" />
+                        <span className="truncate">{r.title}</span>
+                      </button>
+                    ))}
+                    {/* A plugin's name for this day (which leg of the trip it belongs to). */}
+                    {dayTint?.label && <SoftPill>{dayTint.label}</SoftPill>}
+                  </div>
+                )}
               </div>
 
               {/* Aufgeklappte Orte + Notizen */}
