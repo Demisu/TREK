@@ -312,7 +312,6 @@ const roadtrip: TranslationStrings = {
     'De boeking {title} valt op geen enkele dag van deze reis, dus de rit houdt er geen rekening mee.',
   'roadtrip.bookings.loose': 'Ook geboekt op deze dag',
   'roadtrip.ride.departureFlight': 'Vertrek {time}',
-  'roadtrip.ride.duration': 'Duur volgens de boeking',
   'roadtrip.ride.checkIn': 'Inchecken',
   'roadtrip.ride.boarding': 'Instappen',
   'roadtrip.ride.missed': 'Gemist',

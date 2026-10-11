@@ -317,7 +317,6 @@ const roadtrip: TranslationStrings = {
     'Η κράτηση {title} δεν βρίσκεται σε καμία μέρα αυτού του ταξιδιού, οπότε η διαδρομή δεν τη λαμβάνει υπόψη.',
   'roadtrip.bookings.loose': 'Επίσης κρατημένο αυτή τη μέρα',
   'roadtrip.ride.departureFlight': 'Αναχώρηση {time}',
-  'roadtrip.ride.duration': 'Διάρκεια σύμφωνα με την κράτηση',
   'roadtrip.ride.checkIn': 'Check-in',
   'roadtrip.ride.boarding': 'Επιβίβαση',
   'roadtrip.ride.missed': 'Χάθηκε',

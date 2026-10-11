@@ -313,7 +313,6 @@ const roadtrip: TranslationStrings = {
   'roadtrip.ride.undated': '{title}: a foglalás az utazás egyik napjára sem esik, ezért az útvonal nem számol vele.',
   'roadtrip.bookings.loose': 'Erre a napra még lefoglalva',
   'roadtrip.ride.departureFlight': 'Indulás {time}',
-  'roadtrip.ride.duration': 'Időtartam a foglalás szerint',
   'roadtrip.ride.checkIn': 'Utasfelvétel',
   'roadtrip.ride.boarding': 'Beszállás',
   'roadtrip.ride.missed': 'Lekésve',

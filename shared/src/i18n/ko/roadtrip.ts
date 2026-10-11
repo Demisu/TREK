@@ -289,7 +289,6 @@ const roadtrip: TranslationStrings = {
   'roadtrip.ride.undated': '{title}은(는) 이 여행의 어느 날에도 속하지 않아 주행에 반영되지 않습니다.',
   'roadtrip.bookings.loose': '이날의 다른 예약',
   'roadtrip.ride.departureFlight': '출발 {time}',
-  'roadtrip.ride.duration': '예약 기준 소요 시간',
   'roadtrip.ride.checkIn': '체크인',
   'roadtrip.ride.boarding': '탑승',
   'roadtrip.ride.missed': '놓침',

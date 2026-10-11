@@ -346,7 +346,6 @@ const roadtrip: TranslationStrings = {
   'roadtrip.ride.undated': 'Бронювання {title} не припадає на жоден день цієї подорожі, тому маршрут його не враховує.',
   'roadtrip.bookings.loose': 'Також заброньовано цього дня',
   'roadtrip.ride.departureFlight': 'Виліт {time}',
-  'roadtrip.ride.duration': 'Тривалість за бронюванням',
   'roadtrip.ride.checkIn': 'Реєстрація',
   'roadtrip.ride.boarding': 'Посадка',
   'roadtrip.ride.missed': 'Запізнення',

@@ -277,7 +277,6 @@ const roadtrip: TranslationStrings = {
   'roadtrip.ride.undated': '{title} 不在本次旅行的任何一天，因此行程不會用到它。',
   'roadtrip.bookings.loose': '當天的其他預訂',
   'roadtrip.ride.departureFlight': '起飛 {time}',
-  'roadtrip.ride.duration': '預訂時長',
   'roadtrip.ride.checkIn': '辦理登記',
   'roadtrip.ride.boarding': '上車',
   'roadtrip.ride.missed': '錯過',

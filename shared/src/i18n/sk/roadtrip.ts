@@ -326,7 +326,6 @@ const roadtrip: TranslationStrings = {
   'roadtrip.ride.undated': '{title} nepripadá na žiadny deň tejto cesty, preto sa v jazde nepoužije.',
   'roadtrip.bookings.loose': 'V tento deň rezervované aj',
   'roadtrip.ride.departureFlight': 'Odlet {time}',
-  'roadtrip.ride.duration': 'Trvanie podľa rezervácie',
   'roadtrip.ride.checkIn': 'Check-in',
   'roadtrip.ride.boarding': 'Nástup',
   'roadtrip.ride.missed': 'Zmeškané',

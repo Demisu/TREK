@@ -303,7 +303,6 @@ const roadtrip: TranslationStrings = {
   'roadtrip.ride.undated': '{title} ei ole ühelgi selle reisi päeval, seega sõit seda ei kasuta.',
   'roadtrip.bookings.loose': 'Samaks päevaks broneeritud',
   'roadtrip.ride.departureFlight': 'Väljumine {time}',
-  'roadtrip.ride.duration': 'Kestus broneeringu järgi',
   'roadtrip.ride.checkIn': 'Sisseregistreerimine',
   'roadtrip.ride.boarding': 'Pardaleminek',
   'roadtrip.ride.missed': 'Maha jäädud',

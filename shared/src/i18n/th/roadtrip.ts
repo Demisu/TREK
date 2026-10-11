@@ -283,7 +283,6 @@ const roadtrip: TranslationStrings = {
   'roadtrip.ride.undated': '{title} ไม่อยู่ในวันใดของการเดินทางนี้ เส้นทางขับรถจึงไม่ใช้รายการนี้',
   'roadtrip.bookings.loose': 'จองไว้ในวันนี้ด้วย',
   'roadtrip.ride.departureFlight': 'ออกเดินทาง {time}',
-  'roadtrip.ride.duration': 'ระยะเวลาตามการจอง',
   'roadtrip.ride.checkIn': 'เช็คอิน',
   'roadtrip.ride.boarding': 'ขึ้นโดยสาร',
   'roadtrip.ride.missed': 'พลาด',

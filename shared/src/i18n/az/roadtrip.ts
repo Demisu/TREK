@@ -312,7 +312,6 @@ const roadtrip: TranslationStrings = {
   'roadtrip.ride.undated': '{title} bu səyahətin heç bir gününə təyin edilmədiyi üçün yol ondan istifadə etmir.',
   'roadtrip.bookings.loose': 'Bu gün üçün digər rezervasiyalar',
   'roadtrip.ride.departureFlight': 'Yola düşmə {time}',
-  'roadtrip.ride.duration': 'Rezervasiyaya görə müddət',
   'roadtrip.ride.checkIn': 'Giriş',
   'roadtrip.ride.boarding': 'Minmə',
   'roadtrip.ride.missed': 'Qaçırılıb',

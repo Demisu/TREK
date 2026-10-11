@@ -292,7 +292,6 @@ const roadtrip: TranslationStrings = {
   'roadtrip.ride.undated': 'Đặt chỗ {title} không thuộc ngày nào của chuyến đi này, nên hành trình không tính đến nó.',
   'roadtrip.bookings.loose': 'Cũng đã đặt trong ngày này',
   'roadtrip.ride.departureFlight': 'Cất cánh {time}',
-  'roadtrip.ride.duration': 'Thời lượng theo đặt chỗ',
   'roadtrip.ride.checkIn': 'Làm thủ tục',
   'roadtrip.ride.boarding': 'Lên tàu',
   'roadtrip.ride.missed': 'Lỡ chuyến',

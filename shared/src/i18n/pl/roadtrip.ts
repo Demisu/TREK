@@ -344,7 +344,6 @@ const roadtrip: TranslationStrings = {
   'roadtrip.ride.undated': 'Rezerwacja {title} nie przypada na żaden dzień tej podróży, więc trasa jej nie uwzględnia.',
   'roadtrip.bookings.loose': 'Zarezerwowane też tego dnia',
   'roadtrip.ride.departureFlight': 'Wylot {time}',
-  'roadtrip.ride.duration': 'Czas trwania według rezerwacji',
   'roadtrip.ride.checkIn': 'Odprawa',
   'roadtrip.ride.boarding': 'Wsiadanie',
   'roadtrip.ride.missed': 'Spóźnienie',

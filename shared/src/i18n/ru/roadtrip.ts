@@ -351,7 +351,6 @@ const roadtrip: TranslationStrings = {
     'Бронирование {title} не относится ни к одному дню этой поездки, поэтому маршрут его не учитывает.',
   'roadtrip.bookings.loose': 'Также забронировано в этот день',
   'roadtrip.ride.departureFlight': 'Вылет {time}',
-  'roadtrip.ride.duration': 'Длительность по бронированию',
   'roadtrip.ride.checkIn': 'Регистрация',
   'roadtrip.ride.boarding': 'Посадка',
   'roadtrip.ride.missed': 'Опоздание',

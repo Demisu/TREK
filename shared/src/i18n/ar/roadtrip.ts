@@ -365,7 +365,6 @@ const roadtrip: TranslationStrings = {
   'roadtrip.ride.undated': 'الحجز {title} لا يقع في أي يوم من أيام هذه الرحلة، لذلك لا يستخدمه المسار.',
   'roadtrip.bookings.loose': 'محجوز أيضًا في هذا اليوم',
   'roadtrip.ride.departureFlight': 'الإقلاع {time}',
-  'roadtrip.ride.duration': 'المدة حسب الحجز',
   'roadtrip.ride.checkIn': 'تسجيل الوصول',
   'roadtrip.ride.boarding': 'الصعود',
   'roadtrip.ride.missed': 'فاتتك',

@@ -296,7 +296,6 @@ const roadtrip: TranslationStrings = {
     'Pemesanan {title} tidak berada di hari mana pun dalam perjalanan ini, jadi perjalanan tidak memperhitungkannya.',
   'roadtrip.bookings.loose': 'Juga dipesan hari ini',
   'roadtrip.ride.departureFlight': 'Berangkat {time}',
-  'roadtrip.ride.duration': 'Durasi sesuai pemesanan',
   'roadtrip.ride.checkIn': 'Check-in',
   'roadtrip.ride.boarding': 'Boarding',
   'roadtrip.ride.missed': 'Terlewat',

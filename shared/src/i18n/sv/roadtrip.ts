@@ -307,7 +307,6 @@ const roadtrip: TranslationStrings = {
   'roadtrip.ride.undated': 'Bokningen {title} ligger inte på någon av resans dagar, så körningen tar inte med den.',
   'roadtrip.bookings.loose': 'Även bokat denna dag',
   'roadtrip.ride.departureFlight': 'Avgång {time}',
-  'roadtrip.ride.duration': 'Längd enligt bokningen',
   'roadtrip.ride.checkIn': 'Incheckning',
   'roadtrip.ride.boarding': 'Påstigning',
   'roadtrip.ride.missed': 'Missad',

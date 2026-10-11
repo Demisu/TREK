@@ -291,7 +291,6 @@ const roadtrip: TranslationStrings = {
   'roadtrip.ride.undated': '{title} はこの旅行のどの日にも入っていないため、走行では使われません。',
   'roadtrip.bookings.loose': 'この日のその他の予約',
   'roadtrip.ride.departureFlight': '出発 {time}',
-  'roadtrip.ride.duration': '予約上の所要時間',
   'roadtrip.ride.checkIn': 'チェックイン',
   'roadtrip.ride.boarding': '乗車',
   'roadtrip.ride.missed': '乗り遅れ',

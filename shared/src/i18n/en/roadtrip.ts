@@ -305,7 +305,6 @@ const roadtrip: TranslationStrings = {
   'roadtrip.ride.undated': '{title} is on none of this trip’s days, so the drive does not use it.',
   'roadtrip.bookings.loose': 'Also booked this day',
   'roadtrip.ride.departureFlight': 'Departure {time}',
-  'roadtrip.ride.duration': 'Duration per the booking',
   'roadtrip.ride.checkIn': 'Check-in',
   'roadtrip.ride.boarding': 'Boarding',
   'roadtrip.ride.missed': 'Missed',

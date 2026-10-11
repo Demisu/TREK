@@ -311,7 +311,6 @@ const roadtrip: TranslationStrings = {
     'A reserva {title} não está em nenhum dia desta viagem, por isso o percurso não a considera.',
   'roadtrip.bookings.loose': 'Também reservado neste dia',
   'roadtrip.ride.departureFlight': 'Partida {time}',
-  'roadtrip.ride.duration': 'Duração segundo a reserva',
   'roadtrip.ride.checkIn': 'Check-in',
   'roadtrip.ride.boarding': 'Embarque',
   'roadtrip.ride.missed': 'Perdido',
