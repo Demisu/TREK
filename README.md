@@ -43,7 +43,7 @@ A self-hosted, real-time collaborative travel planner — with maps, budgets, pa
 
 <div align="center">
 
-<img src="https://github.com/mauriceboe/trek-media/releases/download/readme-assets/TREK1.webp" alt="TREK, a tour of the app" width="100%" />
+<img src="https://github.com/mauriceboe/trek-media/releases/download/readme-assets/TREK2.webp" alt="TREK, a tour of the app" width="100%" />
 
 </div>
 
