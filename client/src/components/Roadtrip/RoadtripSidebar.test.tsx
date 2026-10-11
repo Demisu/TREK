@@ -653,7 +653,10 @@ describe('RoadtripSidebar', () => {
     // whose mode nobody drew an icon for.
     const ride = wrap(<RoadtripSidebar routes={routes({ days: [day({ legs: [leg({ mode: 'ferry' })] })] })} />)
     expect(ride.container.querySelector('svg.lucide-sailboat')).toBeInTheDocument()
-    expect(ride.container.querySelector('svg.lucide-car-front')).toBeNull()
+    // The day head sums the drive under a car of its own; the band itself draws none.
+    const head = screen.getByRole('heading', { level: 3 }).parentElement
+    const cars = [...ride.container.querySelectorAll('svg.lucide-car-front')]
+    expect(cars.filter(svg => !head?.contains(svg))).toHaveLength(0)
   })
 
   it('FE-ROADTRIP-SIDEBAR-017: a late finding without a figure still reports itself', () => {
