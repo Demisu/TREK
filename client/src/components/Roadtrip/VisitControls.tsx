@@ -14,7 +14,7 @@ export interface RoadtripStayControl {
 }
 
 /** The white field box the inspector's other sections (rating, hours, files) use. */
-export const VISIT_BOX = 'flex min-h-[38px] min-w-0 items-center justify-between gap-2 rounded-[10px] border border-edge-faint bg-surface-card px-3 py-2'
+const VISIT_BOX = 'flex min-h-[38px] min-w-0 items-center justify-between gap-2 rounded-[10px] border border-edge-faint bg-surface-card px-3 py-2'
 
 /**
  * A stop's road trip controls in the place inspector: how long it takes and whether the

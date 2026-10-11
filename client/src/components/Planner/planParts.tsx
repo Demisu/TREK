@@ -79,7 +79,7 @@ export function MoreButton({ label, items, size = 26, alwaysVisible = false, cla
 
 /** A time or time range as a white badge, like the other facts on a card. */
 /** A small white badge on a row's second line, for what the row says about when. */
-export function WhiteBadge({ children, icon, className = '', quiet = false }: {
+export function WhiteBadge({ children, icon, className = '' }: {
   children: ReactNode
   icon?: ReactNode
   className?: string

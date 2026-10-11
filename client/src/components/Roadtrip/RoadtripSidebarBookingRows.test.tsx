@@ -49,8 +49,15 @@ const booking = (over: Partial<Reservation> & Pick<Reservation, 'id' | 'type' | 
 const railOf = (row: Element): Element => row.firstElementChild!
 const lines = (row: Element): number => railOf(row).querySelectorAll(':scope > .w-\\[1\\.5px\\]').length
 
+/**
+ * A booking card keeps its rail beside the button rather than inside it: both line
+ * stubs are always drawn, and only the ones that carry the chain take the edge colour.
+ */
+const cardLines = (card: Element): number =>
+  ((card.parentElement as Element).firstElementChild as Element).querySelectorAll(':scope > .w-\\[1\\.5px\\].bg-edge').length
+
 describe('TerminalStop', () => {
-  it('FE-ROADTRIP-BOOKINGROWS-001: a departure on a row of its own reads its code, its timetable clock and the check-in, and opens the booking', () => {
+  it('FE-ROADTRIP-BOOKINGROWS-001: a departure on a row of its own reads its place, its code as a pill, its timetable clock and the check-in, and opens the booking', () => {
     const onOpen = vi.fn()
     const { container } = wrap(
       <TerminalStop
@@ -61,8 +68,8 @@ describe('TerminalStop', () => {
         onOpen={onOpen}
       />,
     )
-    const row = screen.getByRole('button')
-    expect(row).toBeEnabled()
+    const card = screen.getByRole('button')
+    expect(card).toBeEnabled()
     expect(screen.getByText('HAM')).toBeInTheDocument()
     expect(screen.getByText('Hamburg Airport')).toBeInTheDocument()
     // The timetable's clock, its day carry and its words for a screen reader.
@@ -72,13 +79,41 @@ describe('TerminalStop', () => {
     expect(screen.getByText('Check-in')).toBeInTheDocument()
     expect(screen.getByText('13:15')).toBeInTheDocument()
     expect(container.querySelector('svg.lucide-plane')).not.toBeNull()
-    // What pressing it does comes after the row's own content.
-    expect(row.lastElementChild).toHaveTextContent('Open booking')
-    expect(row.lastElementChild).toHaveClass('sr-only')
-    expect(lines(row)).toBe(2)
-    expect(tooltipOf(screen.getByText('Hamburg Airport'))).toBe('Open booking')
-    fireEvent.click(row)
+    // What pressing it does comes after the card's own content.
+    expect(card.lastElementChild).toHaveTextContent('Open booking')
+    expect(card.lastElementChild).toHaveClass('sr-only')
+    expect(cardLines(card)).toBe(2)
+    fireEvent.click(card)
     expect(onOpen).toHaveBeenCalledTimes(1)
+  })
+
+  it('FE-ROADTRIP-BOOKINGROWS-001b: with its booking at hand the card reads the booking title, as the day plan does', () => {
+    wrap(
+      <TerminalStop
+        stop={stop({ time: '13:15', carrier: carrier() })}
+        booking={booking({ id: 7, type: 'flight', title: 'Lufthansa to Munich' })}
+        entry={entry()}
+        late={[]}
+        continues
+      />,
+    )
+    expect(screen.getByText('Lufthansa to Munich')).toBeInTheDocument()
+    expect(screen.queryByText('Hamburg Airport')).toBeNull()
+    expect(screen.getByText('HAM')).toBeInTheDocument()
+  })
+
+  it('FE-ROADTRIP-BOOKINGROWS-001c: a check-in the drive cannot make takes no pill on the card, neither the check-in nor that it is missed', () => {
+    wrap(
+      <TerminalStop
+        stop={stop({ time: '13:15', carrier: carrier() })}
+        entry={entry()}
+        late={[warning({ code: 'late', minutes: 180 })]}
+        continues
+      />,
+    )
+    expect(screen.queryByText('Check-in')).toBeNull()
+    expect(screen.queryByText('Missed')).toBeNull()
+    expect(screen.getByText('HAM')).toBeInTheDocument()
   })
 
   it('FE-ROADTRIP-BOOKINGROWS-002: a hire desk says which one it is, falls back to the arrival clock and stays inert without a booking to open', () => {
@@ -86,14 +121,14 @@ describe('TerminalStop', () => {
     const first = wrap(
       <TerminalStop stop={stop({ name: 'Sixt Hamburg', carrier: desk })} entry={entry({ arrival: '09:40' })} late={[]} continues={false} starts />,
     )
-    const row = screen.getByRole('button')
-    expect(row).toBeDisabled()
+    const card = screen.getByRole('button')
+    expect(card).toBeDisabled()
     expect(screen.getByText('Pickup')).toBeInTheDocument()
     expect(screen.getByText('09:40')).toBeInTheDocument()
     expect(screen.queryByText('Open booking')).toBeNull()
     expect(first.container.querySelector('svg.lucide-car')).not.toBeNull()
     // The first row of the day on the last stop of it: no line either way.
-    expect(lines(row)).toBe(0)
+    expect(cardLines(card)).toBe(0)
     first.unmount()
 
     // Neither a timetable nor a drive arrival: the clock column stays empty.
@@ -158,7 +193,7 @@ describe('RideBlock', () => {
   })
   const seg = { distance: 600000, duration: 4500, durationText: '1 h 15 min', mode: 'flight' } as RouteSegment
 
-  it('FE-ROADTRIP-BOOKINGROWS-005: a ride on one day is one block: its title, both ends with their clocks, the places, the check-in and the minutes', () => {
+  it('FE-ROADTRIP-BOOKINGROWS-005: a ride on one day is one card: its title, both clocks in the arrival column, the route as one pill and the check-in', () => {
     const onOpen = vi.fn()
     wrap(
       <RideBlock
@@ -171,25 +206,41 @@ describe('RideBlock', () => {
         onOpen={onOpen}
       />,
     )
-    const row = screen.getByRole('button')
-    const block = row.children[1]
-    expect(block).toHaveClass('border-edge-faint')
+    const card = screen.getByRole('button')
     expect(screen.getByText('LH 2078')).toBeInTheDocument()
-    expect(screen.getByText('HAM')).toBeInTheDocument()
-    expect(screen.getByText('MUC')).toBeInTheDocument()
-    expect(screen.getByText('Departure 15:15')).toHaveClass('sr-only')
-    expect(screen.getByText('Arrival 16:30')).toHaveClass('sr-only')
-    expect(screen.getByText('Hamburg Airport')).toBeInTheDocument()
-    expect(screen.getByText('Munich Airport')).toHaveClass('text-end')
+    // Both ends in one route pill, the places behind it as its tooltip.
+    const route = screen.getByText('HAM').parentElement!
+    expect(route).toContainElement(screen.getByText('MUC'))
+    expect(tooltipOf(route.closest('.rounded-full') as Element)).toBe('Hamburg Airport \u2192 Munich Airport')
+    const clock = screen.getByText('15:15 \u2013 16:30')
+    expect(tooltipOf(clock)).toBe('Departure 15:15, Arrival 16:30')
     expect(screen.getByText('Check-in')).toBeInTheDocument()
-    expect(screen.getByText('1 h 15 min')).toBeInTheDocument()
-    expect(tooltipOf(screen.getByText('1 h 15 min').parentElement!)).toBe('Duration per the booking')
-    expect(tooltipOf(screen.getByText('LH 2078'))).toBe('Open booking')
-    fireEvent.click(row)
+    expect(screen.getByText('13:15')).toBeInTheDocument()
+    // The minutes the ride takes are the booking's business, not the rail's.
+    expect(screen.queryByText('1 h 15 min')).toBeNull()
+    expect(card.lastElementChild).toHaveTextContent('Open booking')
+    expect(card.lastElementChild).toHaveClass('sr-only')
+    fireEvent.click(card)
     expect(onOpen).toHaveBeenCalledTimes(1)
   })
 
-  it('FE-ROADTRIP-BOOKINGROWS-006: a ride the drive cannot catch edges the block in the warning colour, its check-in standing alone without minutes', () => {
+  it('FE-ROADTRIP-BOOKINGROWS-005b: with its booking at hand the card reads the booking title', () => {
+    wrap(
+      <RideBlock
+        departure={departure}
+        arrival={arrival}
+        booking={booking({ id: 7, type: 'flight', title: 'Hamburg to Munich' })}
+        entries={[entry(), entry()]}
+        late={[]}
+        seg={seg}
+        continues
+      />,
+    )
+    expect(screen.getByText('Hamburg to Munich')).toBeInTheDocument()
+    expect(screen.queryByText('LH 2078')).toBeNull()
+  })
+
+  it('FE-ROADTRIP-BOOKINGROWS-006: a ride the drive cannot catch shows neither its check-in nor that it is missed on its card', () => {
     wrap(
       <RideBlock
         departure={departure}
@@ -201,17 +252,16 @@ describe('RideBlock', () => {
         starts
       />,
     )
-    const row = screen.getByRole('button')
-    expect(row).toBeDisabled()
-    expect(row.children[1]).toHaveClass('border-warning')
-    expect(screen.getByText('Missed')).toBeInTheDocument()
-    expect(screen.getByText('there at 16:15')).toBeInTheDocument()
-    // No minutes on the timetable: the check-in stands alone.
-    expect(screen.getByText('Missed').closest('.flex-wrap')!.children).toHaveLength(1)
-    expect(lines(row)).toBe(0)
+    const card = screen.getByRole('button')
+    expect(card).toBeDisabled()
+    expect(screen.queryByText('Missed')).toBeNull()
+    expect(screen.queryByText('Check-in')).toBeNull()
+    // The route pill stands alone on the card's second line.
+    expect(((screen.getByText('HAM').closest('.rounded-full') as Element).parentElement as Element).children).toHaveLength(1)
+    expect(cardLines(card)).toBe(0)
   })
 
-  it('FE-ROADTRIP-BOOKINGROWS-007: a booking with no codes, no clocks and no minutes keeps its strip and drops the lines it has nothing for', () => {
+  it('FE-ROADTRIP-BOOKINGROWS-007: a booking with no codes, no clocks and no minutes keeps its title and the route between the names', () => {
     wrap(
       <RideBlock
         departure={stop({ name: 'Kiel', carrier: carrier({ type: 'ferry', code: null, at: null, title: 'Color Line' }) })}
@@ -222,19 +272,18 @@ describe('RideBlock', () => {
         continues
       />,
     )
-    const block = screen.getByRole('button').children[1]
-    // Title and strip only: no place line under chips that already are the names, and no
-    // check-in or minutes row.
-    expect(block.children).toHaveLength(2)
-    const strip = block.children[1]
-    expect(strip.children).toHaveLength(5)
-    expect(strip.children[0]).toHaveTextContent('Kiel')
-    expect(strip.children[1]).toBeEmptyDOMElement()
-    expect(strip.children[3]).toBeEmptyDOMElement()
-    expect(strip.children[4]).toHaveTextContent('Oslo')
+    const card = screen.getByRole('button')
+    // The title line and the pill line, and no sentence for a screen reader without a booking to open.
+    expect(card.children).toHaveLength(2)
+    const [titleLine, pills] = Array.from(card.children)
+    // No clock beside the title.
+    expect(titleLine.children).toHaveLength(1)
+    expect(titleLine).toHaveTextContent('Color Line')
+    expect(pills.children).toHaveLength(1)
+    expect(screen.getByText('Kiel').parentElement).toContainElement(screen.getByText('Oslo'))
   })
 
-  it('FE-ROADTRIP-BOOKINGROWS-008: the minutes stand alone when the timetable gives no check-in', () => {
+  it('FE-ROADTRIP-BOOKINGROWS-008: a timetable with only a departure reads that clock alone, with no check-in and no minutes', () => {
     wrap(
       <RideBlock
         departure={stop({ name: 'Kiel', carrier: carrier({ type: 'ferry', code: null, at: '14:00' }) })}
@@ -246,40 +295,49 @@ describe('RideBlock', () => {
       />,
     )
     expect(screen.queryByText('Check-in')).toBeNull()
-    expect(screen.getByText('1 h 15 min')).toBeInTheDocument()
+    expect(screen.queryByText('1 h 15 min')).toBeNull()
     expect(screen.getByText('14:00')).toBeInTheDocument()
   })
 })
 
 describe('BookingChips', () => {
   const table = booking({ id: 1, type: 'restaurant', title: 'Fischereihafen', reservation_time: '2026-06-01T19:30' })
-  const train = booking({ id: 2, type: 'train', title: 'ICE 1007' })
+  const train = booking({ id: 2, type: 'train', title: 'ICE 1007', status: 'confirmed' })
 
-  it('FE-ROADTRIP-BOOKINGROWS-009: a chip opens when this reader may open it, and the rest stay plain chips', () => {
+  it('FE-ROADTRIP-BOOKINGROWS-009: a pill opens when this reader may open it, and the rest stay plain pills that name their booking in the tooltip', () => {
     const onOpen = vi.fn()
     const { container } = wrap(<BookingChips bookings={[table, train]} continues canEdit={false} onOpen={onOpen} />)
+    // Each pill says it is a reservation and carries its time; the title is in its name.
+    expect(screen.getAllByText('Reservation')).toHaveLength(2)
     expect(screen.getByText('19:30')).toBeInTheDocument()
     // The table has only its editor, which this reader may not open; the train has a view.
-    expect(screen.getByText('Fischereihafen').closest('button')).toBeNull()
-    const ride = screen.getByRole('button')
-    expect(ride).toHaveTextContent('ICE 1007')
+    expect(screen.queryByRole('button', { name: /Fischereihafen/ })).toBeNull()
+    expect(tooltipOf(screen.getByText('19:30').parentElement!)).toBe('Fischereihafen (Pending)')
+    const ride = screen.getByRole('button', { name: 'ICE 1007, Confirmed' })
     fireEvent.click(ride)
     expect(onOpen).toHaveBeenCalledWith(2)
     expect(container.querySelector('.w-\\[1\\.5px\\]')).not.toBeNull()
   })
 
-  it('FE-ROADTRIP-BOOKINGROWS-010: an editor opens every chip, and without a way to open any they are all plain', () => {
+  it('FE-ROADTRIP-BOOKINGROWS-009b: the word takes the status colour, green once confirmed and amber while pending', () => {
+    wrap(<BookingChips bookings={[table, train]} continues={false} canEdit={false} />)
+    const [pending, confirmed] = screen.getAllByText('Reservation')
+    expect(pending).toHaveClass('text-warning')
+    expect(confirmed).toHaveClass('text-success')
+  })
+
+  it('FE-ROADTRIP-BOOKINGROWS-010: an editor opens every pill, and without a way to open any they are all plain', () => {
     const onOpen = vi.fn()
     const editor = wrap(<BookingChips bookings={[table, train]} continues={false} canEdit onOpen={onOpen} />)
     expect(screen.getAllByRole('button')).toHaveLength(2)
-    fireEvent.click(screen.getByText('Fischereihafen'))
+    fireEvent.click(screen.getByRole('button', { name: 'Fischereihafen, Pending' }))
     expect(onOpen).toHaveBeenCalledWith(1)
     expect(editor.container.querySelector('.w-\\[1\\.5px\\]')).toBeNull()
     editor.unmount()
 
     wrap(<BookingChips bookings={[table, train]} continues={false} canEdit />)
     expect(screen.queryByRole('button')).toBeNull()
-    expect(screen.getByText('ICE 1007')).toBeInTheDocument()
+    expect(screen.getAllByText('Reservation')).toHaveLength(2)
   })
 
   it('FE-ROADTRIP-BOOKINGROWS-011: the clock follows the traveller\'s format', () => {

@@ -17,9 +17,9 @@ describe('Road trip rail styles', () => {
     expect(RAIL_DASH).not.toHaveProperty('borderStyle')
   })
 
-  it('FE-ROADTRIP-RAILSTYLE-003: captions and day badges are tracked capitals in a quiet tone, and a day badge stays at medium weight', () => {
-    expect(classes(STAT_LABEL)).toEqual(expect.arrayContaining(['uppercase', 'tracking-[0.15em]', 'text-content-faint']))
-    expect(classes(DAY_BADGE)).toEqual(expect.arrayContaining(['uppercase', 'tracking-[0.09em]', 'font-medium', 'text-content-muted']))
+  it('FE-ROADTRIP-RAILSTYLE-003: captions are the eyebrow of the dialogs, and a day badge is the round pill of the day plan in a quiet tone at normal weight', () => {
+    expect(classes(STAT_LABEL)).toEqual(expect.arrayContaining(['uppercase', 'tracking-[.08em]', 'font-bold', 'text-content-faint']))
+    expect(classes(DAY_BADGE)).toEqual(expect.arrayContaining(['rounded-full', 'uppercase', 'tracking-[.05em]', 'font-normal', 'text-content-secondary']))
     expect(classes(DAY_BADGE)).not.toContain('font-semibold')
   })
 })

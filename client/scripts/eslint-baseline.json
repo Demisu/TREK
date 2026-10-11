@@ -1,7 +1,7 @@
 {
   "src": {
     "@typescript-eslint/no-non-null-assertion": 407,
-    "@typescript-eslint/no-misused-promises": 877,
+    "@typescript-eslint/no-misused-promises": 876,
     "no-console": 88,
     "complexity": 231,
     "@typescript-eslint/no-explicit-any": 154,

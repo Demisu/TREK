@@ -217,6 +217,8 @@ describe('DayPlanSidebar day header', () => {
     render(<DayPlanSidebar {...makeDefaultProps({ days, accommodations })} />);
     expect(dayHeader('Day 1').style.alignItems).toBe('center');
     expect(dayHeader('Day 1').querySelector('[data-dp="day-pill"]')).toBeNull();
-    expect(dayHeader('Day 2').style.alignItems).toBe('flex-start');
+    // The head is a grid now, so the pills can sit on a row of their own under the name.
+    expect(dayHeader('Day 2').style.display).toBe('grid');
+    expect(dayHeader('Day 2').style.alignItems).toBe('start');
   });
 });

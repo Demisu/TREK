@@ -345,7 +345,7 @@ export function ReservationPill({ booking, arrival, canEdit, onOpen }: {
 }): React.ReactElement {
   const { t } = useTranslation()
   const is12h = useSettingsStore(s => s.settings.time_format) === '12h'
-  const Icon = bookingIcon(booking.type)
+  const icon = React.createElement(bookingIcon(booking.type), { size: 10, strokeWidth: 2.2, 'aria-hidden': true })
   const confirmed = booking.status === 'confirmed'
   const status = confirmed ? t('reservations.confirmed') : t('reservations.pending')
   const clock = bookingClock(booking)
@@ -357,7 +357,7 @@ export function ReservationPill({ booking, arrival, canEdit, onOpen }: {
     <FigureBadge
       caption
       tone={confirmed ? 'success' : 'pending'}
-      lead={<><Icon size={10} strokeWidth={2.2} aria-hidden />{t('places.formReservation')}</>}
+      lead={<>{icon}{t('places.formReservation')}</>}
       value={shownTime ?? undefined}
       tooltip={`${booking.title} (${status})`}
       onActivate={open ? () => open() : undefined}
