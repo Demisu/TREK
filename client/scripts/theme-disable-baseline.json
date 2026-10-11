@@ -30,7 +30,6 @@
   "components/Roadtrip/RoadtripCategoryPicker.tsx": 2,
   "components/Roadtrip/RoadtripCorridorPanel.tsx": 3,
   "components/Roadtrip/RoadtripSidebarStopRows.tsx": 4,
-  "components/Roadtrip/RoadtripStopPopup.tsx": 1,
   "components/Roadtrip/RoadtripTrackModal.tsx": 1,
   "components/Roadtrip/StopKindPicker.tsx": 2,
   "components/Roadtrip/dayColors.ts": 8,

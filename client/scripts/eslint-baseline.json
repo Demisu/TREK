@@ -1,10 +1,10 @@
 {
   "src": {
-    "@typescript-eslint/no-non-null-assertion": 407,
+    "@typescript-eslint/no-non-null-assertion": 406,
     "@typescript-eslint/no-misused-promises": 876,
     "no-console": 88,
     "complexity": 231,
-    "@typescript-eslint/no-explicit-any": 154,
+    "@typescript-eslint/no-explicit-any": 149,
     "trek/no-swallowed-catch": 135,
     "max-params": 35,
     "trek/store-without-selector": 69,
