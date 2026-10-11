@@ -1,5 +1,5 @@
 import React from 'react'
-import { AlertTriangle, Clock, type LucideIcon } from 'lucide-react'
+import { AlertTriangle, ArrowRight, type LucideIcon } from 'lucide-react'
 import { useTranslation } from '../../i18n/TranslationContext'
 import { Tooltip } from '../shared/Tooltip'
 import { useSettingsStore } from '../../store/settingsStore'
@@ -9,18 +9,14 @@ import type { BookendReading } from './roadtripRowModel'
 import { BOOKEND_DISC, BOOKEND_ICON, bookendBadge } from './nightBookend'
 import type { RoadtripStop } from './useRoadtripRoutes'
 import type { Reservation, RouteSegment } from '../../types'
-import { bookingOpens, carrierIcon, rideReading, terminalReading, type CheckInReading, type RideEnd } from './carrierRide'
+import { bookingOpens, rideReading, terminalReading, type CheckInReading, type RideEnd } from './carrierRide'
 import FigureBadge from './FigureBadge'
+import { tintOf } from '../Planner/planParts'
+import { typeInfo } from '../Planner/bookings/bookingsModel'
 import { bookingClock, bookingIcon } from './stopBookings'
 import { FS } from './typeScale'
 import { DISC, RAIL_GRID } from './RoadtripSidebar.constants'
 import { Arrival, DayCarry, DriveFindingBadge, LateBadge } from './RoadtripSidebarBadges'
-
-/** The rail's dash laid on its side: the ride between two terminals, drawn like a leg. */
-const RIDE_DASH: React.CSSProperties = {
-  height: 1.5,
-  backgroundImage: 'repeating-linear-gradient(90deg, var(--border-primary) 0 4px, transparent 4px 8px)',
-}
 
 /**
  * One end of a ride on a row of its own: a terminal whose ride lands on another day, or a
@@ -32,8 +28,10 @@ const RIDE_DASH: React.CSSProperties = {
  * on the right, and on a departure the check-in with whatever the drive makes of it. A desk
  * has no other end beside it, so it says which one it is. The whole row opens the booking.
  */
-export function TerminalStop({ stop, entry, late, continues, starts, onOpen }: {
+export function TerminalStop({ stop, booking, entry, late, continues, starts, onOpen }: {
   stop: RoadtripStop
+  /** The booking the terminal belongs to, for its type colour and title. */
+  booking?: Reservation
   entry: ScheduleEntry | undefined
   late: ScheduleWarning[]
   continues: boolean
@@ -43,25 +41,80 @@ export function TerminalStop({ stop, entry, late, continues, starts, onOpen }: {
   const { t } = useTranslation()
   const is12h = useSettingsStore(s => s.settings.time_format) === '12h'
   const { end, desk, checkIn } = terminalReading(stop, entry, late, t, is12h)
-  const place = <span className="min-w-0 truncate font-semibold text-content" style={{ fontSize: FS.name }}>{end.place}</span>
   return (
-    <DiscRow Icon={carrierIcon(stop.carrier!.type)} starts={starts} continues={continues} onOpen={onOpen} opens={onOpen ? t('roadtrip.ride.open') : undefined}>
-      <span className="flex min-w-0 items-start gap-2 rounded-lg px-1.5 pb-1 pt-0.5 transition-colors group-hover:bg-surface-hover">
-        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="flex min-w-0 items-center gap-1.5 leading-6">
-            {end.code ? <CodeChip text={end.code} /> : null}
-            {onOpen ? <Tooltip label={t('roadtrip.ride.open')}>{place}</Tooltip> : place}
-          </span>
-          {desk || checkIn ? (
-            <span className="flex flex-wrap items-center gap-1">
-              {desk ? <span className="text-content-muted" style={{ fontSize: FS.meta }}>{desk}</span> : null}
-              {checkIn ? <CheckInBadge checkIn={checkIn} /> : null}
-            </span>
-          ) : null}
+    <TransportCard
+      type={booking?.type ?? stop.carrier!.type}
+      title={booking?.title ?? end.place}
+      clock={end.clock ? <TimetableClock end={end} /> : entry?.arrival ? <Arrival entry={entry} /> : null}
+      checkIn={checkIn?.state === 'ok' ? checkIn : null}
+      starts={starts}
+      continues={continues}
+      onOpen={onOpen}
+    >
+      {desk ? <FigureBadge caption lead={desk} /> : end.code ? <FigureBadge caption lead={end.code} /> : null}
+    </TransportCard>
+  )
+}
+
+/**
+ * A booking on the rail drawn the way the day plan draws it: a card in the type's colour
+ * with the booking's title and its time and phase as the day plan's pills. Its icon sits
+ * on the line in the disc a stop's number takes, so the chain reads stop, ride, stop in
+ * one column.
+ */
+function TransportCard({ type, title, clock, checkIn, starts, continues, onOpen, warn, children }: {
+  type: string
+  title: string
+  /** The time on the right, in the column every stop's arrival reads down. */
+  clock?: React.ReactNode
+  /** The check-in, as the last pill of the row. */
+  checkIn?: CheckInReading | null
+  starts?: boolean
+  continues: boolean
+  onOpen?: () => void
+  /** The ride is missed: the card takes the warning edge. */
+  warn?: boolean
+  children?: React.ReactNode
+}): React.ReactElement {
+  const { t } = useTranslation()
+  const info = typeInfo(type)
+  const color = info.color
+  const pills = React.Children.toArray(children).filter(Boolean)
+  return (
+    <div className="grid" style={RAIL_GRID}>
+      <span className="flex flex-col items-center" aria-hidden>
+        <span className={`w-[1.5px] flex-1 rounded-sm ${starts ? '' : 'bg-edge'}`} />
+        <span className={`${DISC} my-1 bg-surface-tertiary text-content-secondary`}>
+          <info.Icon size={13} strokeWidth={2} />
         </span>
-        {end.clock ? <TimetableClock end={end} className="leading-6" /> : entry?.arrival ? <Arrival entry={entry} /> : null}
+        <span className={`w-[1.5px] flex-1 rounded-sm ${continues ? 'bg-edge' : ''}`} />
       </span>
-    </DiscRow>
+      <button
+        type="button"
+        onClick={onOpen}
+        disabled={!onOpen}
+        onMouseEnter={e => { e.currentTarget.style.background = tintOf(color, 12) }}
+        onMouseLeave={e => { e.currentTarget.style.background = tintOf(color, 7) }}
+        className="my-0.5 flex min-w-0 flex-col gap-0.5 rounded-xl px-2 pb-1 pt-0.5 text-start transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-default"
+        style={{ background: tintOf(color, 7), border: `1px solid ${warn ? 'var(--warning)' : tintOf(color, 24)}` }}
+      >
+        {/* The name in the stop size with the clock on the right in the arrival column,
+            and under both the facts as pills across the whole card. */}
+        <span className="flex w-full min-w-0 items-start gap-2">
+          <span className="min-w-0 flex-1 truncate font-semibold leading-6 tracking-[-0.012em] text-content" style={{ fontSize: FS.name }}>
+            {title}
+          </span>
+          {clock}
+        </span>
+        {pills.length || checkIn ? (
+          <span className="flex w-full min-w-0 flex-nowrap items-center gap-1 pb-0.5">
+            {pills}
+            {checkIn ? <CheckInBadge checkIn={checkIn} /> : null}
+          </span>
+        ) : null}
+        {onOpen ? <span className="sr-only">{t('roadtrip.ride.open')}</span> : null}
+      </button>
+    </div>
   )
 }
 
@@ -139,7 +192,7 @@ export function BookendStop({ reading, entry, late, driveFindings, continues, st
             <FigureBadge
               tone={badge.warning ? 'warning' : 'neutral'}
               caption
-              lead={badge.warning ? <><AlertTriangle size={9} aria-hidden />{badge.lead}</> : badge.lead}
+              lead={badge.warning ? <><AlertTriangle size={10} aria-hidden />{badge.lead}</> : badge.lead}
               value={badge.value ?? undefined}
               tooltip={badge.hint ?? undefined}
             />
@@ -153,18 +206,6 @@ export function BookendStop({ reading, entry, late, driveFindings, continues, st
   )
 }
 
-/** A terminal's code, or the name of one without it, in the chip the ride's ends stand in. */
-function CodeChip({ text }: { text: string }): React.ReactElement {
-  return (
-    <span
-      className="block h-[16px] min-w-0 max-w-[9rem] shrink-0 truncate rounded border border-edge bg-surface-card px-1 font-geist font-semibold leading-[14px] text-content"
-      style={{ fontSize: FS.label }}
-    >
-      {text}
-    </span>
-  )
-}
-
 /**
  * The timetable's clock at one end of a ride. Weighted like a pinned arrival because the
  * booking fixes it, and named for what it is: the time a clock in this column otherwise
@@ -175,7 +216,7 @@ function TimetableClock({ end, className = '' }: { end: RideEnd; className?: str
     <Tooltip label={end.label ?? ''}>
       <span
         dir="ltr"
-        className={`shrink-0 whitespace-nowrap font-semibold tabular-nums text-content-secondary ${className}`}
+        className={`shrink-0 whitespace-nowrap font-semibold leading-6 tabular-nums text-content-secondary ${className}`}
         style={{ fontSize: FS.time }}
       >
         <span aria-hidden>{end.clock}</span>
@@ -198,7 +239,7 @@ function CheckInBadge({ checkIn }: { checkIn: CheckInReading }): React.ReactElem
     <FigureBadge
       tone={warning ? 'warning' : 'neutral'}
       caption
-      lead={warning ? <><AlertTriangle size={9} aria-hidden />{checkIn.lead}</> : checkIn.lead}
+      lead={warning ? <><AlertTriangle size={10} aria-hidden />{checkIn.lead}</> : checkIn.lead}
       value={checkIn.value}
       tooltip={checkIn.hint}
     />
@@ -206,19 +247,17 @@ function CheckInBadge({ checkIn }: { checkIn: CheckInReading }): React.ReactElem
 }
 
 /**
- * A ride that leaves and lands on the same day, as one thing in the chain. One block on
- * one disc rather than three rows, because it IS one thing, a flight, and three rows read
- * as three places the day went to.
- *
- * Four lines, each fact once: the booking; the two codes with their timetable clocks and
- * the ride drawn between them as a leg; the places; and the check-in, which carries the
- * finding when the drive gets there late, beside the minutes the ride takes. A ride the
- * drive cannot catch edges the block in the warning colour. The whole block opens the
- * booking; the road resumes below it as usual.
+ * A ride that leaves and lands on the same day, as one thing in the chain: one card on one
+ * disc rather than three rows, because it IS one thing, a flight, and three rows read as
+ * three places the day went to. Both timetable clocks sit in the arrival column, the
+ * route and the check-in under the title. A ride the drive cannot catch edges the card in
+ * the warning colour. The whole card opens the booking; the road resumes below it.
  */
-export function RideBlock({ departure, arrival, entries, late, seg, continues, starts, onOpen }: {
+export function RideBlock({ departure, arrival, booking, entries, late, seg, continues, starts, onOpen }: {
   departure: RoadtripStop
   arrival: RoadtripStop
+  /** The booking the ride is, for its type colour and title. */
+  booking?: Reservation
   entries: [ScheduleEntry | undefined, ScheduleEntry | undefined]
   late: ScheduleWarning[]
   seg: RouteSegment | undefined
@@ -229,51 +268,48 @@ export function RideBlock({ departure, arrival, entries, late, seg, continues, s
   const { t } = useTranslation()
   const is12h = useSettingsStore(s => s.settings.time_format) === '12h'
   const ride = rideReading({ departure, arrival, entries, warnings: late, seg }, t, is12h)
-  const title = <span className="min-w-0 flex-1 truncate font-medium text-content-secondary" style={{ fontSize: FS.meta }}>{ride.title}</span>
-  return (
-    <DiscRow Icon={carrierIcon(departure.carrier!.type)} starts={starts} continues={continues} onOpen={onOpen} opens={onOpen ? t('roadtrip.ride.open') : undefined}>
-      <span
-        className={`my-0.5 flex min-w-0 flex-col gap-1 rounded-lg border bg-surface-tertiary px-2 pb-1.5 pt-1 transition-colors group-hover:bg-surface-selected ${
-          ride.checkIn?.state === 'missed' ? 'border-warning' : 'border-edge-faint'
-        }`}
-      >
-        <span className="flex min-w-0 items-center">
-          {onOpen ? <Tooltip label={t('roadtrip.ride.open')}>{title}</Tooltip> : title}
-        </span>
-        <span className="grid min-w-0 items-center gap-1.5" style={{ gridTemplateColumns: 'auto auto minmax(12px, 1fr) auto auto' }}>
-          <CodeChip text={ride.from.chip} />
-          {ride.from.clock ? <TimetableClock end={ride.from} /> : <span />}
-          <span style={RIDE_DASH} aria-hidden />
-          {ride.to.clock ? <TimetableClock end={ride.to} /> : <span />}
-          <CodeChip text={ride.to.chip} />
-        </span>
-        {ride.from.placeLine || ride.to.placeLine ? (
-          <span className="flex min-w-0 justify-between gap-2 text-content-muted" style={{ fontSize: FS.meta }}>
-            <span className="min-w-0 truncate">{ride.from.placeLine}</span>
-            <span className="min-w-0 truncate text-end">{ride.to.placeLine}</span>
-          </span>
-        ) : null}
-        {ride.checkIn || ride.duration ? (
-          <span className="flex flex-wrap items-center gap-1">
-            {ride.checkIn ? <CheckInBadge checkIn={ride.checkIn} /> : null}
-            {ride.duration ? (
-              <FigureBadge lead={<Clock size={9} aria-hidden />} value={ride.duration} tooltip={t('roadtrip.ride.duration')} />
-            ) : null}
-          </span>
-        ) : null}
+  const clock = ride.from.clock || ride.to.clock ? (
+    <Tooltip label={[ride.from.label, ride.to.label].filter(Boolean).join(', ')}>
+      <span dir="ltr" className="shrink-0 whitespace-nowrap font-semibold leading-6 tabular-nums text-content-secondary" style={{ fontSize: FS.time }}>
+        {ride.from.clock}<DayCarry days={ride.from.dayOffset} />
+        {ride.to.clock ? <>{' \u2013 '}{ride.to.clock}<DayCarry days={ride.to.dayOffset} /></> : null}
       </span>
-    </DiscRow>
+    </Tooltip>
+  ) : null
+  const places = [ride.from.placeLine ?? ride.from.place, ride.to.placeLine ?? ride.to.place].join(' \u2192 ')
+  return (
+    <TransportCard
+      type={booking?.type ?? departure.carrier!.type}
+      title={booking?.title ?? ride.title}
+      clock={clock}
+      checkIn={ride.checkIn?.state === 'ok' ? ride.checkIn : null}
+      starts={starts}
+      continues={continues}
+      onOpen={onOpen}
+    >
+      <FigureBadge
+        shrink
+        caption
+        lead={(
+          <span dir="ltr" className="flex min-w-0 items-center gap-1">
+            <span className="min-w-0 truncate">{ride.from.chip}</span>
+            <ArrowRight size={10} strokeWidth={2.2} className="flex-none" aria-hidden />
+            <span className="min-w-0 truncate">{ride.to.chip}</span>
+          </span>
+        )}
+        tooltip={places}
+      />
+    </TransportCard>
   )
 }
 
 /**
- * The bookings a stop carries, under its row: the table, the tickets, the tour, each a
- * chip with the booking panel's icon, its name and the clock it starts at. Chips because
- * a booking is a fact about the stop, not a stop of its own: the count, the numbering
- * and the drive are none the different for it. Each opens its booking.
+ * The bookings a stop carries, under its row the way the day plan hangs them under a
+ * place: a pill in the status colour with the booking's icon, then its time. A booking
+ * is a fact about the stop, not a stop of its own, so it takes no line, no disc and no
+ * card. Each pill opens its booking.
  *
  * Under the stop's button rather than inside it, because a button cannot hold buttons.
- * The rail keeps its line through the row so the chain reads unbroken.
  */
 export function BookingChips({ bookings, continues, canEdit, onOpen }: {
   bookings: Reservation[]
@@ -282,42 +318,51 @@ export function BookingChips({ bookings, continues, canEdit, onOpen }: {
   canEdit: boolean
   onOpen?: (reservationId: number) => void
 }): React.ReactElement {
-  const { t } = useTranslation()
-  const is12h = useSettingsStore(s => s.settings.time_format) === '12h'
   return (
     <div className="grid" style={RAIL_GRID}>
       <span className="flex flex-col items-center" aria-hidden>
         {continues ? <span className="w-[1.5px] flex-1 rounded-sm bg-edge" /> : null}
       </span>
-      <div className="flex min-w-0 flex-wrap gap-1 px-1.5 pb-1.5">
-        {bookings.map(r => {
-          const Icon = bookingIcon(r.type)
-          const clock = bookingClock(r)
-          const body = (
-            <>
-              <Icon size={10} strokeWidth={2} className="shrink-0" aria-hidden />
-              <span className="min-w-0 truncate">{r.title}</span>
-              {clock ? <span className="shrink-0 font-medium tabular-nums text-content-faint">{formatClockTime(clock, is12h)}</span> : null}
-            </>
-          )
-          const chip = 'inline-flex h-[20px] max-w-full items-center gap-1 rounded-md border border-edge bg-surface-card px-1.5 text-content-secondary'
-          return onOpen && bookingOpens(r, canEdit) ? (
-            <Tooltip key={r.id} label={t('roadtrip.ride.open')}>
-              <button
-                type="button"
-                onClick={() => onOpen(r.id)}
-                className={`${chip} transition-colors hover:bg-surface-hover hover:text-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent`}
-                style={{ fontSize: FS.meta }}
-              >
-                {body}
-              </button>
-            </Tooltip>
-          ) : (
-            <span key={r.id} className={chip} style={{ fontSize: FS.meta }}>{body}</span>
-          )
-        })}
+      <div className="flex min-w-0 flex-wrap items-center gap-1 px-1.5 pb-1.5">
+        {bookings.map(r => <ReservationPill key={r.id} booking={r} canEdit={canEdit} onOpen={onOpen} />)}
       </div>
     </div>
+  )
+}
+
+/**
+ * A booking on a stop's badge row: the status colour, the booking's icon and the word,
+ * like the day plan's pill under a place, with its time only when that is not already the
+ * arrival on the right. A span with the button role, because the stop row around it is a
+ * button already.
+ */
+export function ReservationPill({ booking, arrival, canEdit, onOpen }: {
+  booking: Reservation
+  /** The stop's arrival as the row prints it, so a time equal to it is not said twice. */
+  arrival?: string | null
+  canEdit: boolean
+  onOpen?: (reservationId: number) => void
+}): React.ReactElement {
+  const { t } = useTranslation()
+  const is12h = useSettingsStore(s => s.settings.time_format) === '12h'
+  const Icon = bookingIcon(booking.type)
+  const confirmed = booking.status === 'confirmed'
+  const status = confirmed ? t('reservations.confirmed') : t('reservations.pending')
+  const clock = bookingClock(booking)
+  const time = clock ? formatClockTime(clock, is12h) : null
+  const shownTime = time && time !== arrival ? time : null
+  const open = onOpen && bookingOpens(booking, canEdit) ? () => onOpen(booking.id) : undefined
+  // The same pill as the stay and the check-in: the word in capitals, a straight cut, the time.
+  return (
+    <FigureBadge
+      caption
+      tone={confirmed ? 'success' : 'pending'}
+      lead={<><Icon size={10} strokeWidth={2.2} aria-hidden />{t('places.formReservation')}</>}
+      value={shownTime ?? undefined}
+      tooltip={`${booking.title} (${status})`}
+      onActivate={open ? () => open() : undefined}
+      ariaLabel={`${booking.title}, ${status}`}
+    />
   )
 }
 

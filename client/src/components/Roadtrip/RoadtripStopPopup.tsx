@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useId, useState } from 'react'
 import { ParkingSquare, Hourglass, AlertTriangle, BedDouble } from 'lucide-react'
-import Modal from '../shared/Modal'
+import { DialogButton, DialogFooter, DialogHeader, DialogSection, DialogShell, DialogTile, FooterSpacer, NEUTRAL_TINT, fs } from '../shared/DialogShell'
+import { PANEL, Segmented } from '../shared/dialogParts'
 import CustomTimePicker from '../shared/CustomTimePicker'
 import StayPortals from './StayPortals'
 import ChargingInfo from './ChargingInfo'
@@ -92,6 +93,7 @@ export default function RoadtripStopPopup({
   // people sleep and a hotel is somewhere people stop for lunch.
   const [night, setNight] = useState<boolean>(() => nightByDefault(draft))
   const [checkIn, setCheckIn] = useState(() => checkInByDefault(draft))
+  const labelId = useId()
 
   // The popup stays mounted while the draft is swapped for another one, so every
   // answer is seeded again from the new draft, the way the phone sheet does it.
@@ -126,158 +128,117 @@ export default function RoadtripStopPopup({
     }
   }
 
+  const tone = kind?.color ?? 'var(--text-faint)'
   return (
-    <Modal isOpen onClose={onClose} title={t(draft.editing ? 'common.edit' : 'roadtrip.stop.addTitle')} size={overnight ? 'xl' : 'sm'}>
-      <div className="flex flex-col gap-4">
-        <div className={overnight ? "grid grid-cols-1 gap-5 sm:grid-cols-2" : ""}>
-        <div className="flex min-w-0 flex-col gap-4">
-        <div className="flex items-start gap-3">
-          <span
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl"
-            // theme-lint-disable — the road-trip palette, the same one the map pin and the
-            // result row use; a token here would make the three disagree.
-            style={{ background: `${kind?.color ?? '#64748B'}1f`, color: kind?.color ?? '#64748B' }}
-          >
-            {kind ? <kind.Icon size={17} aria-hidden /> : <ParkingSquare size={17} aria-hidden />}
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="break-words text-body font-semibold text-content">{draft.poi.name}</p>
-            <p className="mt-0.5 text-caption text-content-muted">
-              {t('roadtrip.stop.landsOn', { day: draft.dayNumber, position: draft.position + 1 })}
-            </p>
-          </div>
-        </div>
-
-        {duplicateName ? (
-          // The full place form warns about duplicates; losing that warning would make
-          // this the easiest way to add the same petrol station twice.
-          <p className="flex items-start gap-1.5 rounded-lg bg-warning-soft px-2.5 py-2 text-caption text-warning">
-            <AlertTriangle size={13} className="mt-0.5 shrink-0" aria-hidden />
-            {t('roadtrip.stop.duplicate', { name: duplicateName })}
-          </p>
-        ) : null}
-
-        {/* Only where sleeping is on the table. A petrol station gets no choice, because
-            there is nothing to choose between. */}
-        {overnight && onSaveNight ? (
-          <div className="flex rounded-lg border border-edge p-0.5">
-            {[
-              { on: false, label: t('roadtrip.stay.mode.pause'), Icon: Hourglass },
-              { on: true, label: t('roadtrip.stay.mode.night'), Icon: BedDouble },
-            ].map(({ on, label, Icon }) => (
-              <button
-                key={label}
-                type="button"
-                aria-pressed={night === on}
-                onClick={() => setNight(on)}
-                className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-caption transition-colors ${
-                  night === on
-                    ? 'bg-accent font-semibold text-accent-text'
-                    : 'text-content-secondary hover:bg-surface-hover'
-                }`}
-              >
-                <Icon size={13} aria-hidden />
-                {label}
-              </button>
-            ))}
-          </div>
-        ) : null}
-
-        {asNight ? (
-          <div className="flex flex-col gap-3">
-            {/* Check-in only, and optional at that: it is the hour the drive can stop
-                for the night, which is the one thing about a booking the chain uses.
-                A check-out says when the room has to be back, never when anybody sets
-                off, so it is a booking detail and lives under Days with the rest of
-                them. A hotel found on a map has no idea when its reception opens. */}
-            <label className="min-w-0 flex-1">
-              <span className="text-caption font-medium uppercase tracking-wide text-content-faint">
-                {t('day.checkIn')}
+    <DialogShell
+      onClose={onClose}
+      labelledBy={labelId}
+      width={overnight ? 'editor' : 'detail'}
+      header={(
+        <DialogHeader
+          tile={(
+            <DialogTile>
+              {/* The road-trip palette, the same one the map pin and the result row use. */}
+              <span style={{ color: tone }}>
+                {kind ? <kind.Icon size={20} strokeWidth={1.9} aria-hidden /> : <ParkingSquare size={20} strokeWidth={1.9} aria-hidden />}
               </span>
-              <CustomTimePicker value={checkIn} onChange={setCheckIn} aria-label={t('day.checkIn')} placeholder="" style={{ marginTop: 6, width: '100%' }} />
-            </label>
-            {websiteHref || draft.poi.phone ? (
-              <div className="flex flex-wrap gap-x-3 gap-y-1 text-caption">
-                {websiteHref ? (
-                  <a
-                    href={websiteHref}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    className="text-accent hover:underline"
-                  >
-                    {t('places.formWebsite')}
-                  </a>
-                ) : null}
-                {draft.poi.phone ? (
-                  <a href={`tel:${draft.poi.phone}`} className="text-accent hover:underline">
-                    {draft.poi.phone}
-                  </a>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-        ) : (
-        <>
-        <div>
-          <span className="text-caption font-medium uppercase tracking-wide text-content-faint">
-            {t('roadtrip.stop.kind')}
-          </span>
-          <StopKindChips value={stopType} onPick={pickKind} />
-        </div>
-
-        <div>
-          <span className="text-caption font-medium uppercase tracking-wide text-content-faint">
-            {t('roadtrip.stop.stay')}
-          </span>
-          <StopStayChips value={dwell} onPick={setDwell} />
-        </div>
-
-        {/* How busy the charging area is and what it charges, while the stop is still
-            being considered rather than once it is on the trip. Only for the kind that
-            has an answer: a petrol station or a bakery asks nothing, so picking either
-            of those costs no request at all.
-
-            One panel for one station, for as long as the dialog is open. The corridor
-            list deliberately does not do this per row: it publishes results box by
-            box, each row would own its own refresh timer, and a station in a dense
-            row of chargers is the case the upstream match refuses as ambiguous. */}
-        {stopType === 'charging' ? (
-          <div>
-            <span className="text-caption font-medium uppercase tracking-wide text-content-faint">
-              {t('roadtrip.charging.availability')}
-            </span>
-            <div className="mt-1.5">
-              <ChargingInfo lat={draft.poi.lat} lng={draft.poi.lng} name={draft.poi.name} />
-            </div>
-          </div>
-        ) : null}
-        </>
-        )}
-
-        </div>
-        {overnight ? <StayPortals lat={draft.poi.lat} lng={draft.poi.lng} name={draft.poi.name} camping={draft.poi.category === 'campsite'}
-          arrival={overnight.days.find(day => day.id === draft.dayId)?.date}
-          departure={overnight.days.find(day => day.id === overnight.defaultEndDayId)?.date} /> : null}
-        </div>
-
-        <div className="flex items-center gap-2 border-t border-edge-faint pt-3">
-          <button
-            type="button"
-            onClick={() => onMoreDetails({ stopType, dwellMinutes: dwell })}
-            className="rounded-lg px-2.5 py-1.5 text-caption text-content-muted transition-colors hover:bg-surface-hover hover:text-content"
-          >
+            </DialogTile>
+          )}
+          tint={NEUTRAL_TINT}
+          labelId={labelId}
+          onClose={onClose}
+          eyebrow={t(draft.editing ? 'common.edit' : 'roadtrip.stop.addTitle')}
+          title={draft.poi.name}
+          sub={t('roadtrip.stop.landsOn', { day: draft.dayNumber, position: draft.position + 1 })}
+          pills={overnight && onSaveNight ? (
+            // Only where sleeping is on the table. A petrol station gets no choice,
+            // because there is nothing to choose between.
+            <Segmented
+              value={night ? 'night' : 'pause'}
+              label={t('roadtrip.stop.kind')}
+              onChange={v => setNight(v === 'night')}
+              options={[
+                { value: 'pause', label: t('roadtrip.stay.mode.pause'), icon: <Hourglass size={13} aria-hidden /> },
+                { value: 'night', label: t('roadtrip.stay.mode.night'), icon: <BedDouble size={13} aria-hidden /> },
+              ]}
+            />
+          ) : undefined}
+        />
+      )}
+      footer={(
+        <DialogFooter>
+          <DialogButton onClick={() => onMoreDetails({ stopType, dwellMinutes: dwell })}>
             {t('roadtrip.stop.moreDetails')}
-          </button>
-          <button
-            type="button"
-            onClick={submit}
-            disabled={saving}
-            className="ms-auto rounded-lg bg-accent px-3.5 py-1.5 text-body font-semibold text-accent-text transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
+          </DialogButton>
+          <FooterSpacer />
+          <DialogButton onClick={onClose}>{t('common.cancel')}</DialogButton>
+          <DialogButton variant="primary" onClick={() => void submit()} disabled={saving}>
             {t(draft.editing ? 'common.save' : 'roadtrip.poi.add')}
-          </button>
+          </DialogButton>
+        </DialogFooter>
+      )}
+    >
+      {duplicateName ? (
+        // The full place form warns about duplicates; losing that warning would make
+        // this the easiest way to add the same petrol station twice.
+        <p className="m-0 flex items-start gap-1.5 rounded-[12px] bg-warning-soft px-3 py-2.5 text-warning" style={fs(12, 'body')}>
+          <AlertTriangle size={13} className="mt-0.5 shrink-0" aria-hidden />
+          {t('roadtrip.stop.duplicate', { name: duplicateName })}
+        </p>
+      ) : null}
+
+      <div className={overnight ? 'grid grid-cols-1 items-start gap-5 sm:grid-cols-2' : 'flex flex-col gap-5'}>
+        <div className="flex min-w-0 flex-col gap-5">
+          {asNight ? (
+            <>
+              {/* Check-in only, and optional at that: it is the hour the drive can stop for
+                  the night, the one thing about a booking the chain uses. A check-out is a
+                  booking detail and lives under Days with the rest of them. */}
+              <DialogSection label={t('day.checkIn')}>
+                <CustomTimePicker value={checkIn} onChange={setCheckIn} aria-label={t('day.checkIn')} placeholder="" style={{ width: '100%' }} />
+              </DialogSection>
+              {websiteHref || draft.poi.phone ? (
+                <div className="flex flex-wrap gap-x-3 gap-y-1" style={fs(12, 'body')}>
+                  {websiteHref ? (
+                    <a href={websiteHref} target="_blank" rel="noreferrer noopener" className="font-medium text-content hover:underline">
+                      {t('places.formWebsite')}
+                    </a>
+                  ) : null}
+                  {draft.poi.phone ? (
+                    <a href={`tel:${draft.poi.phone}`} className="font-medium text-content hover:underline">{draft.poi.phone}</a>
+                  ) : null}
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <>
+              <DialogSection label={t('roadtrip.stop.kind')}>
+                <div className={PANEL}>
+                  <StopKindChips value={stopType} onPick={pickKind} white className="flex flex-wrap gap-1.5" />
+                </div>
+              </DialogSection>
+              <DialogSection label={t('roadtrip.stop.stay')}>
+                <div className={PANEL}>
+                  <StopStayChips value={dwell} onPick={setDwell} white className="flex flex-wrap gap-1.5" />
+                </div>
+              </DialogSection>
+              {/* How busy the charging area is and what it charges, while the stop is still
+                  being considered. Only for the kind that has an answer: a petrol station
+                  or a bakery asks nothing, so picking either costs no request at all. */}
+              {stopType === 'charging' ? (
+                <DialogSection label={t('roadtrip.charging.availability')}>
+                  <ChargingInfo lat={draft.poi.lat} lng={draft.poi.lng} name={draft.poi.name} />
+                </DialogSection>
+              ) : null}
+            </>
+          )}
         </div>
+        {overnight ? (
+          <StayPortals lat={draft.poi.lat} lng={draft.poi.lng} name={draft.poi.name} camping={draft.poi.category === 'campsite'}
+            arrival={overnight.days.find(day => day.id === draft.dayId)?.date}
+            departure={overnight.days.find(day => day.id === overnight.defaultEndDayId)?.date} />
+        ) : null}
       </div>
-    </Modal>
+    </DialogShell>
   )
 }

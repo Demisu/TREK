@@ -23,7 +23,7 @@ export function OffRoadBadge({ meters }: { meters: number }): React.ReactElement
   const distanceUnit = useSettingsStore(s => s.settings.distance_unit)
   return (
     <FigureBadge
-      lead={<Footprints size={9} aria-hidden />}
+      lead={<Footprints size={10} strokeWidth={2.2} aria-hidden />}
       value={formatDistance(meters / 1000, distanceUnit)}
       tooltip={t('roadtrip.stop.offRoad', { distance: formatDistance(meters / 1000, distanceUnit) })}
     />
@@ -54,7 +54,7 @@ export function FillBadge({ percent, own, onEdit }: {
   if (percent === null && !onEdit) return null
   return (
     <FigureBadge
-      lead={<BatteryCharging size={9} aria-hidden />}
+      lead={<BatteryCharging size={10} strokeWidth={2.2} aria-hidden />}
       value={percent === null ? '+' : `${percent} %`}
       faint={percent === null || !own}
       valueSize="micro"
@@ -144,7 +144,7 @@ export function DriveFindingBadge({ warning }: { warning: ScheduleWarning }): Re
   return (
     <FigureBadge
       tone="warning"
-      lead={<Icon size={9} aria-hidden />}
+      lead={<Icon size={10} strokeWidth={2.2} aria-hidden />}
       value={warning.code === 'range'
         ? formatDistance(warning.sinceKm ?? 0, distanceUnit)
         : `+${formatDurationShort((warning.overMinutes ?? 0) * 60)}`}
@@ -215,7 +215,7 @@ export function LateBadge({ late }: { late: ScheduleWarning }): React.ReactEleme
     <FigureBadge
       tone="warning"
       dir="ltr"
-      lead={<AlertTriangle size={9} aria-label={label} />}
+      lead={<AlertTriangle size={10} strokeWidth={2.2} aria-label={label} />}
       value={`+${formatDurationShort((late.minutes ?? 0) * 60)}`}
       tooltip={label}
     />

@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useId } from 'react'
 import { AlertTriangle, Hourglass, Minus, Plus, ArrowRight } from 'lucide-react'
-import Modal from '../shared/Modal'
+import { DialogButton, DialogFooter, DialogHeader, DialogShell, DialogTile, FooterSpacer, NEUTRAL_TINT, fs } from '../shared/DialogShell'
 import { useTranslation } from '../../i18n/TranslationContext'
 import { useSettingsStore } from '../../store/settingsStore'
 import { formatDurationShort } from './roadtripModel'
@@ -32,6 +32,9 @@ interface RoadtripStayModalProps {
   /** Zero clears it: the rail reads "no stay" and "nothing planned" as the same thing. */
   onSave: (placeId: number, minutes: number) => Promise<void> | void
 }
+
+/** The round minus and plus beside the number. */
+const STEP_BUTTON = 'grid h-9 w-9 place-items-center rounded-full bg-surface-card text-content-secondary shadow-sm transition-colors hover:text-content disabled:opacity-30'
 
 /** The slider's own track and thumb, drawn from tokens so both themes get it right. */
 const SLIDER = [
@@ -70,6 +73,7 @@ export default function RoadtripStayModal({ stop, onClose, onSave }: RoadtripSta
     arrival: stop?.arrival, is12h, initial: 0, wholeMinutes: false,
   })
   const leave = useLeaveMode(stop)
+  const labelId = useId()
 
   // Reopened on a different stop, so it starts from that stop's own value rather than
   // from whatever the last one was left on.
@@ -90,44 +94,44 @@ export default function RoadtripStayModal({ stop, onClose, onSave }: RoadtripSta
   }
 
   return (
-    <Modal isOpen onClose={onClose} size="sm" title={
-      <span className="flex items-center gap-2">
-        <Hourglass size={15} className="text-content-faint" aria-hidden />
-        {t('roadtrip.stop.stay')}
-      </span>
-    }>
-      <div className="flex flex-col gap-5">
-        <p className="break-words text-center text-caption text-content-muted">{stop.name}</p>
-
-        {/* The number, the way a timer shows one. Minus and plus flank it so a value can
-            be nudged without hunting for the slider's thumb. */}
+    <DialogShell
+      onClose={onClose}
+      labelledBy={labelId}
+      width="detail"
+      header={<StayHeader labelId={labelId} name={stop.name} onClose={onClose} />}
+      footer={(
+        <DialogFooter>
+          {/* Removing is the same write as setting one, so it sits with the other actions
+              rather than behind a confirmation. */}
+          <DialogButton disabled={saving || !stop.minutes} onClick={() => void commit(0)}>
+            {t('roadtrip.stay.none')}
+          </DialogButton>
+          <FooterSpacer />
+          <DialogButton onClick={onClose}>{t('common.cancel')}</DialogButton>
+          <DialogButton variant="primary" disabled={saving} onClick={() => void commit(minutes)}>
+            {t('common.save')}
+          </DialogButton>
+        </DialogFooter>
+      )}
+    >
+      {/* The number, the way a timer shows one. Minus and plus flank it so a value can
+          be nudged without hunting for the slider's thumb. */}
+      <div className="flex flex-col gap-4 rounded-[14px] border border-edge-faint bg-surface-secondary px-4 pb-4 pt-5">
         <div className="flex items-center justify-center gap-4">
-          <button
-            type="button"
-            onClick={() => nudge(-STEP)}
-            disabled={minutes === 0}
-            aria-label={`-${STEP}`}
-            className="grid h-9 w-9 place-items-center rounded-full border border-edge text-content-secondary transition-colors hover:bg-surface-hover disabled:opacity-30"
-          >
+          <button type="button" onClick={() => nudge(-STEP)} disabled={minutes === 0} aria-label={`-${STEP}`} className={STEP_BUTTON}>
             <Minus size={15} aria-hidden />
           </button>
           <span
             aria-live="polite"
-            className="min-w-[8rem] text-center text-title font-semibold tabular-nums tracking-tight text-content"
+            className="min-w-[8rem] text-center font-bold tabular-nums tracking-[-0.02em] text-content"
+            style={fs(28, 'subtitle')}
           >
             {minutes > 0 ? formatDurationShort(minutes * 60) : t('roadtrip.stay.none')}
           </span>
-          <button
-            type="button"
-            onClick={() => nudge(STEP)}
-            disabled={minutes >= MAX}
-            aria-label={`+${STEP}`}
-            className="grid h-9 w-9 place-items-center rounded-full border border-edge text-content-secondary transition-colors hover:bg-surface-hover disabled:opacity-30"
-          >
+          <button type="button" onClick={() => nudge(STEP)} disabled={minutes >= MAX} aria-label={`+${STEP}`} className={STEP_BUTTON}>
             <Plus size={15} aria-hidden />
           </button>
         </div>
-
         <input
           type="range"
           min={0}
@@ -138,22 +142,17 @@ export default function RoadtripStayModal({ stop, onClose, onSave }: RoadtripSta
           aria-label={t('roadtrip.stay.custom')}
           className={SLIDER}
         />
-
-        {/* What the stay costs the rest of the day. The arrival cannot move — the drive
-            decides it — so the arrow shows the one end this dialog does move. */}
-        {times ? <ArriveLeave arrive={times.arrive} leave={times.leave} carry={times.carry} /> : null}
-
         <div className="flex flex-wrap justify-center gap-1.5">
           {PRESETS.map(value => (
             <button
               key={value}
               type="button"
               onClick={() => setMinutes(value)}
-              className={`rounded-full border px-3 py-1 text-caption font-medium tabular-nums transition-colors ${
-                minutes === value
-                  ? 'border-accent bg-accent text-accent-text'
-                  : 'border-edge bg-surface-card text-content-secondary hover:border-content-faint'
+              aria-pressed={minutes === value}
+              className={`rounded-full px-3 py-1 font-semibold tabular-nums transition-colors ${
+                minutes === value ? 'bg-accent text-accent-text' : 'bg-surface-card text-content-secondary shadow-sm hover:text-content'
               }`}
+              style={fs(11.5, 'body')}
             >
               {formatDurationShort(value * 60)}
             </button>
@@ -161,34 +160,25 @@ export default function RoadtripStayModal({ stop, onClose, onSave }: RoadtripSta
         </div>
       </div>
 
-      <div className="mt-6 flex items-center gap-2">
-        {/* Removing is the same write as setting one, so it sits with the other actions
-            rather than behind a confirmation. */}
-        <button
-          type="button"
-          disabled={saving || !stop.minutes}
-          onClick={() => void commit(0)}
-          className="rounded-lg px-3 py-2 text-caption font-medium text-content-muted transition-colors hover:bg-surface-hover hover:text-content disabled:opacity-40"
-        >
-          {t('roadtrip.stay.none')}
-        </button>
-        <button
-          type="button"
-          onClick={onClose}
-          className="ms-auto rounded-lg border border-edge px-3 py-2 text-caption font-medium text-content-secondary transition-colors hover:bg-surface-hover"
-        >
-          {t('common.cancel')}
-        </button>
-        <button
-          type="button"
-          disabled={saving}
-          onClick={() => void commit(minutes)}
-          className="rounded-lg bg-accent px-4 py-2 text-caption font-semibold text-accent-text transition-opacity disabled:opacity-40"
-        >
-          {t('common.save')}
-        </button>
-      </div>
-    </Modal>
+      {/* What the stay costs the rest of the day. The arrival cannot move (the drive
+          decides it), so the arrow points at the one end this dialog does move. */}
+      {times ? <ArriveLeave arrive={times.arrive} leave={times.leave} carry={times.carry} /> : null}
+    </DialogShell>
+  )
+}
+
+/** The head band both shapes of the dialog share: the hourglass, "Stay", the stop's name. */
+function StayHeader({ labelId, name, onClose }: { labelId: string; name: string; onClose: () => void }): React.ReactElement {
+  const { t } = useTranslation()
+  return (
+    <DialogHeader
+      tile={<DialogTile><Hourglass size={20} strokeWidth={1.9} className="text-content-muted" /></DialogTile>}
+      tint={NEUTRAL_TINT}
+      labelId={labelId}
+      onClose={onClose}
+      eyebrow={t('roadtrip.stop.stay')}
+      title={name}
+    />
   )
 }
 
@@ -215,82 +205,80 @@ function LeaveTime({ stop, leave, until: leaveAt, is12h, onClose }: {
   const until = formatClockTime(leaveAt, is12h)
   const arrive = stop.arrival ? formatClockTime(stop.arrival, is12h) : null
   const departure = stop.departure ? formatClockTime(stop.departure, is12h) : until
+  const labelId = useId()
   return (
-    <Modal isOpen onClose={onClose} size="sm" title={
-      <span className="flex items-center gap-2">
-        <Hourglass size={15} className="text-content-faint" aria-hidden />
-        {t('roadtrip.stop.stay')}
-      </span>
-    }>
-      <div className="flex flex-col gap-5">
-        <p className="break-words text-center text-caption text-content-muted">{stop.name}</p>
-        <span className="text-center text-title font-semibold tabular-nums tracking-tight text-content">
+    <DialogShell
+      onClose={onClose}
+      labelledBy={labelId}
+      width="detail"
+      header={<StayHeader labelId={labelId} name={stop.name} onClose={onClose} />}
+      footer={(
+        <DialogFooter>
+          {leave.remove ? (
+            <DialogButton disabled={leave.removing} onClick={() => void leave.remove?.()}>
+              {t('roadtrip.stay.clearLeave')}
+            </DialogButton>
+          ) : null}
+          <FooterSpacer />
+          <DialogButton onClick={onClose}>{t('common.close')}</DialogButton>
+        </DialogFooter>
+      )}
+    >
+      <div className="flex flex-col items-center gap-2 rounded-[14px] border border-edge-faint bg-surface-secondary px-4 py-5 text-center">
+        <span className="font-bold tabular-nums tracking-[-0.02em] text-content" style={fs(28, 'subtitle')}>
           {leave.minutes === null ? t('roadtrip.stay.until', { time: until }) : formatDurationShort(leave.minutes * 60)}
         </span>
         {leave.missedBy !== null ? (
-          <p className="flex items-center justify-center gap-1.5 text-center text-body font-medium text-warning">
+          <p className="m-0 flex items-center justify-center gap-1.5 font-medium text-warning" style={fs(12.5, 'body')}>
             <AlertTriangle size={14} className="shrink-0" aria-hidden />
             {t('roadtrip.warn.missedLeave', { count: leave.missedBy })}
           </p>
         ) : (
-          <p className="text-center text-body text-content-secondary">
+          <p className="m-0 text-content-secondary" style={fs(12.5, 'body')}>
             {t(leave.dayEndsFirst ? 'roadtrip.stay.dayEndsFirst' : 'roadtrip.stay.leavesAt', { time: until })}
           </p>
         )}
-        {/* The day ending first means the row's departure is only where it stops for the
-            night, not a time it leaves. */}
-        {arrive && !leave.dayEndsFirst ? <ArriveLeave arrive={arrive} leave={departure} /> : null}
       </div>
-
-      <div className="mt-6 flex items-center gap-2">
-        {leave.remove ? (
-          <button
-            type="button"
-            disabled={leave.removing}
-            onClick={() => void leave.remove?.()}
-            className="rounded-lg px-3 py-2 text-caption font-medium text-content-muted transition-colors hover:bg-surface-hover hover:text-content disabled:opacity-40"
-          >
-            {t('roadtrip.stay.clearLeave')}
-          </button>
-        ) : null}
-        <button
-          type="button"
-          onClick={onClose}
-          className="ms-auto rounded-lg border border-edge px-3 py-2 text-caption font-medium text-content-secondary transition-colors hover:bg-surface-hover"
-        >
-          {t('common.close')}
-        </button>
-      </div>
-    </Modal>
+      {/* The day ending first means the row's departure is only where it stops for the
+          night, not a time it leaves. */}
+      {arrive && !leave.dayEndsFirst ? <ArriveLeave arrive={arrive} leave={departure} /> : null}
+    </DialogShell>
   )
 }
 
-/** Arrival, arrow, departure: the two ends of the stay, with the day the second lands on. */
+/** Arrival, arrow, departure: the two ends of the stay as field boxes, with the day the second lands on. */
 function ArriveLeave({ arrive, leave, carry = 0 }: { arrive: string; leave: string; carry?: number }): React.ReactElement {
   const { t } = useTranslation()
   return (
-    <div className="flex items-center justify-center gap-3 rounded-xl border border-edge-faint bg-surface-secondary px-3 py-2.5">
-      <span className="flex flex-col items-center gap-0.5">
-        <span className="font-geist text-caption font-semibold uppercase tracking-[0.12em] text-content-faint">
-          {t('roadtrip.stay.arrive')}
-        </span>
-        <span dir="ltr" className="text-body font-semibold tabular-nums text-content-secondary">{arrive}</span>
+    <div className="flex items-stretch gap-2">
+      <TimeBox label={t('roadtrip.stay.arrive')} value={arrive} quiet />
+      <span className="grid place-items-center text-content-faint" aria-hidden>
+        <ArrowRight size={14} className="rtl:rotate-180" />
       </span>
-      <ArrowRight size={14} className="mt-3 shrink-0 text-content-faint" aria-hidden />
-      <span className="flex flex-col items-center gap-0.5">
-        <span className="font-geist text-caption font-semibold uppercase tracking-[0.12em] text-content-faint">
-          {t('roadtrip.stay.leave')}
-        </span>
-        <span dir="ltr" className="text-body font-semibold tabular-nums text-content">
-          {leave}
-          {carry > 0 ? (
-            <span className="ms-0.5">
-              {`+${carry}`}
-              <span className="sr-only">{` ${t('roadtrip.warn.overnight')}`}</span>
-            </span>
-          ) : null}
-        </span>
-      </span>
+      <TimeBox
+        label={t('roadtrip.stay.leave')}
+        value={(
+          <>
+            {leave}
+            {carry > 0 ? (
+              <span className="ms-0.5">
+                {`+${carry}`}
+                <span className="sr-only">{` ${t('roadtrip.warn.overnight')}`}</span>
+              </span>
+            ) : null}
+          </>
+        )}
+      />
     </div>
+  )
+}
+
+/** One end of the stay: an eyebrow over the clock, in the cards' field box. */
+function TimeBox({ label, value, quiet }: { label: string; value: React.ReactNode; quiet?: boolean }): React.ReactElement {
+  return (
+    <span className="flex min-w-0 flex-1 flex-col gap-1 rounded-[10px] border border-edge-faint bg-surface-card px-3 py-2">
+      <span className="font-geist font-bold uppercase tracking-[.08em] text-content-faint" style={fs(9.5)}>{label}</span>
+      <span dir="ltr" className={`font-semibold tabular-nums ${quiet ? 'text-content-secondary' : 'text-content'}`} style={fs(15, 'body')}>{value}</span>
+    </span>
   )
 }

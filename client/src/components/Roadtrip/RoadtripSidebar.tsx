@@ -22,7 +22,7 @@ import { dayBookings } from './stopBookings'
 import type { Reservation } from '../../types'
 import type { StayDraft } from './RoadtripStayModal'
 import { missedLeaveOf, stayDraftOf } from './stayReading'
-import { DAY_BADGE, RAIL_GRID, STAT_LABEL } from './RoadtripSidebar.constants'
+import { RAIL_GRID, STAT_LABEL } from './RoadtripSidebar.constants'
 import { RefuelBand } from './RoadtripSidebarRefuelBand'
 import { DriveBand, SpillBlock } from './RoadtripSidebarDriveBands'
 import { BookendStop, BookingChips, RideBlock, TerminalStop, UndatedRides } from './RoadtripSidebarBookingRows'
@@ -294,6 +294,7 @@ function DaySection({ day, selectedAssignmentId, onSelectStop, onOpenBooking, ca
       if (stop.carrier.role === 'arrival' && prev?.carrier?.role === 'departure' && sameRide(prev)) return null
       const ride = stop.carrier.role === 'departure' && next?.carrier?.role === 'arrival' && sameRide(next)
       const open = onOpenBooking ? () => onOpenBooking(stop.carrier!.reservationId) : undefined
+      const booking = reservations?.find(res => res.id === stop.carrier!.reservationId)
       // The index the road leaves from: the arrival's when the block holds both ends.
       const tail = ride ? i + 1 : i
       const after = day.stops[tail + 1]
@@ -301,6 +302,7 @@ function DaySection({ day, selectedAssignmentId, onSelectStop, onOpenBooking, ca
         <li key={stop.assignmentId}>
           {ride ? (
             <RideBlock
+              booking={booking}
               departure={stop}
               arrival={next!}
               entries={[day.schedule.entries[i], day.schedule.entries[i + 1]]}
@@ -312,6 +314,7 @@ function DaySection({ day, selectedAssignmentId, onSelectStop, onOpenBooking, ca
             />
           ) : (
             <TerminalStop
+              booking={booking}
               stop={stop}
               entry={day.schedule.entries[i]}
               late={lateness}
@@ -382,6 +385,9 @@ function DaySection({ day, selectedAssignmentId, onSelectStop, onOpenBooking, ca
             onEditStay={onEditStay ? () => onEditStay(stayDraftOf(stop, day.schedule.entries[i], missedLeaveOf(day, i))) : undefined}
             onPickKind={onSetStopKind ? anchor => setPicking({ anchor, stop }) : undefined}
             onPickFill={onSetStopFill ? anchor => setFilling({ anchor, stop }) : undefined}
+            bookings={bookings.atStop.get(i)}
+            canEditBookings={canEditBookings}
+            onOpenBooking={onOpenBooking}
           />
         ) : (
           <Stop
@@ -399,11 +405,11 @@ function DaySection({ day, selectedAssignmentId, onSelectStop, onOpenBooking, ca
             onEditStay={onEditStay ? () => onEditStay(stayDraftOf(stop, day.schedule.entries[i], missedLeaveOf(day, i))) : undefined}
             onPickKind={onSetStopKind ? anchor => setPicking({ anchor, stop }) : undefined}
             onPickFill={onSetStopFill ? anchor => setFilling({ anchor, stop }) : undefined}
+            bookings={bookings.atStop.get(i)}
+            canEditBookings={canEditBookings}
+            onOpenBooking={onOpenBooking}
           />
         )}
-        {bookings.atStop.has(i) ? (
-          <BookingChips bookings={bookings.atStop.get(i)!} continues={i < last} canEdit={!!canEditBookings} onOpen={onOpenBooking} />
-        ) : null}
         {i < last && (!day.stops[i + 1].automaticNight || day.legs[i]?.distance !== 0) ? (
           <DriveBand
             leg={day.legs[i]}
@@ -568,7 +574,7 @@ function QuietDaySection({ day, onMoveStopToDay, drag }: {
           {t('roadtrip.day', { number: day.dayNumber })}
         </h3>
         {day.date ? (
-          <time dateTime={day.date} className={`${DAY_BADGE} ms-auto border border-edge`} style={{ fontSize: FS.label }}>
+          <time dateTime={day.date} className="ms-auto whitespace-nowrap text-content-faint" style={{ fontSize: FS.time }}>
             {formatDate(day.date, language)}
           </time>
         ) : null}

@@ -3,6 +3,7 @@ import { Bike, CarFront, Footprints, Moon, Shuffle, Zap, type LucideIcon } from 
 import MDancingTrek from '../../mobile/components/MDancingTrek'
 import { useTranslation } from '../../i18n/TranslationContext'
 import { Tooltip } from '../shared/Tooltip'
+import { fs } from '../shared/DialogShell'
 import { useSettingsStore } from '../../store/settingsStore'
 import { formatDistance } from '../../utils/units'
 import { formatClockTime } from '../../utils/formatters'
@@ -66,14 +67,14 @@ export function DriveBand({ leg, carrier, onAskAlternatives, alternativesOpen }:
   // would otherwise cut off the one figure the band exists for.
   const band = (
     <>
-      <Icon size={12} strokeWidth={1.7} className="shrink-0" aria-hidden />
+      <Icon size={11} strokeWidth={2} className="shrink-0" aria-hidden />
       {leg && ride ? (
         <>
-          {carrier ? <span className="min-w-0 truncate font-medium" style={{ fontSize: FS.meta }}>{carrier.title}</span> : null}
-          {duration ? <span className="shrink-0 font-medium tabular-nums" style={{ fontSize: FS.meta }}>{duration}</span> : null}
+          {carrier ? <span className="min-w-0 truncate font-medium" style={fs(10.5)}>{carrier.title}</span> : null}
+          {duration ? <span className="shrink-0 font-medium tabular-nums" style={fs(10.5)}>{duration}</span> : null}
         </>
       ) : (
-        <span className="min-w-0 truncate font-medium tabular-nums" style={{ fontSize: FS.meta }}>
+        <span className="min-w-0 truncate font-medium tabular-nums" style={fs(10.5)}>
           {!leg
             ? t('roadtrip.leg.pending')
             : t('roadtrip.leg.driveText', {
@@ -101,7 +102,7 @@ export function DriveBand({ leg, carrier, onAskAlternatives, alternativesOpen }:
             type="button"
             onClick={onAskAlternatives}
             aria-pressed={alternativesOpen}
-            className={`group/leg my-1.5 flex w-full items-center gap-1.5 rounded-lg py-1 pe-1 ps-2 text-start transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${
+            className={`group/leg my-1 flex w-full items-center gap-1.5 rounded-full py-[3px] pe-1 ps-2.5 text-start font-geist transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${
               alternativesOpen
                 ? 'bg-surface-selected text-content'
                 : 'bg-surface-tertiary text-content-muted hover:bg-surface-selected'
@@ -112,16 +113,16 @@ export function DriveBand({ leg, carrier, onAskAlternatives, alternativesOpen }:
                 a black chip in the middle of a rail whose only other filled thing is
                 nothing at all: it read as a button that had been pressed and stuck. */}
             <span
-              className={`ms-auto grid h-[18px] w-[18px] shrink-0 place-items-center rounded-md transition-colors ${
+              className={`ms-auto grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full transition-colors ${
                 alternativesOpen ? 'text-content' : 'text-content-faint group-hover/leg:text-content'
               }`}
             >
-              <Shuffle size={12} strokeWidth={1.9} aria-label={t('roadtrip.alt.ask')} />
+              <Shuffle size={11} strokeWidth={2} aria-label={t('roadtrip.alt.ask')} />
             </span>
           </button>
           </Tooltip>
         ) : (
-          <div className="my-1.5 flex items-center gap-1.5 rounded-lg bg-surface-tertiary py-1 pe-2 ps-2 text-content-muted">
+          <div className="my-1 flex w-full items-center gap-1.5 rounded-full bg-surface-tertiary px-2.5 py-[3px] font-geist text-content-muted">
             {band}
           </div>
         )}
@@ -218,10 +219,10 @@ export function SpillBlock({ spill, children }: {
                 reading in the one place the eye does not look for one, and gave the
                 row two competing figures with no order between them. */}
             <div
-              className="my-1.5 flex w-full items-center gap-2 rounded-lg py-1 pe-2 ps-2"
+              className="my-1 flex w-full items-center gap-1.5 rounded-full px-2.5 py-[3px] font-geist"
               style={{ background: 'color-mix(in srgb, var(--info) 12%, transparent)', color: 'var(--info)' }}
             >
-              <Moon size={12} strokeWidth={1.7} className="shrink-0" aria-hidden />
+              <Moon size={11} strokeWidth={2} className="shrink-0" aria-hidden />
               <span className="min-w-0 truncate font-medium tabular-nums" style={{ fontSize: FS.meta }}>
                 {leg
                   ? t('roadtrip.leg.driveText', {
