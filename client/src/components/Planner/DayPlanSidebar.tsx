@@ -2098,7 +2098,7 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                               {(place.place_time || place.description || place.address || cat?.name) && (
                                 <div className="mt-0.5 flex min-w-0 items-center gap-1.5">
                                   {place.place_time && (
-                                    <TimePill>
+                                    <TimePill quiet>
                                       {formatTime(place.place_time, locale, timeFormat)}{place.end_time ? ` – ${formatTime(place.end_time, locale, timeFormat)}` : ''}
                                     </TimePill>
                                   )}
@@ -2416,8 +2416,8 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                                 return (
                                   <div className="mt-0.5 flex min-w-0 items-center gap-1.5">
                                     {/* Where in a multi-day span this day falls, said quietly beside its time. */}
-                                    {spanLabel && <SoftPill caps>{spanLabel}</SoftPill>}
                                     {timeText && <TimePill>{timeText}</TimePill>}
+                                    {spanLabel && <SoftPill caps>{spanLabel}</SoftPill>}
                                     {timeZone && (
                                       <Tooltip label={timeZone} placement="top">
                                         <span role="img" aria-label={timeZone} data-dp="transport-timezone"

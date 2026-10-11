@@ -144,7 +144,7 @@ export default function BookingDetailDialog(p: BookingDetailDialogProps) {
           {!!r.needs_review && <ReviewPill pill />}
           <AirTrailPill r={r} pill />
           {r.confirmation_number && (
-            <span className={`${PILL} ms-auto gap-1 py-0.5 pe-1`}>
+            <span className={`${PILL} gap-1 py-0.5 pe-1`}>
               <BlurredCode className="font-geist tabular-nums">#{r.confirmation_number}</BlurredCode>
               <Tooltip label={t('reservations.copyCode')}>
                 <button type="button" onClick={copyCode} aria-label={t('reservations.copyCode')}

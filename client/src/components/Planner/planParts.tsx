@@ -79,28 +79,34 @@ export function MoreButton({ label, items, size = 26, alwaysVisible = false, cla
 
 /** A time or time range as a white badge, like the other facts on a card. */
 /** A small white badge on a row's second line, for what the row says about when. */
-export function WhiteBadge({ children, icon, className = '' }: { children: ReactNode; icon?: ReactNode; className?: string }) {
+export function WhiteBadge({ children, icon, className = '', quiet = false }: {
+  children: ReactNode
+  icon?: ReactNode
+  className?: string
+  /** On a white row: a hairline under the shadow, so the white pill does not vanish there. */
+  quiet?: boolean
+}) {
   return (
-    <span className={`inline-flex flex-none items-center gap-1 whitespace-nowrap rounded-full bg-surface-card px-2 py-[2px] font-geist font-normal tabular-nums text-content-secondary shadow-sm ${className}`} style={fs(10.5)}>
+    <span className={`inline-flex flex-none items-center gap-1 whitespace-nowrap h-[20px] rounded-full px-2 font-geist font-normal leading-none tabular-nums text-content-secondary bg-surface-card shadow-sm ring-1 ring-inset ring-edge-faint ${className}`} style={fs(10.5)}>
       {icon}
       {children}
     </span>
   )
 }
 
-export function TimePill({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <WhiteBadge className={className} icon={<Clock size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>{children}</WhiteBadge>
+export function TimePill({ children, className = '', quiet = false }: { children: ReactNode; className?: string; quiet?: boolean }) {
+  return <WhiteBadge className={className} quiet={quiet} icon={<Clock size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>{children}</WhiteBadge>
 }
 
 export type PillTone = 'neutral' | 'success' | 'warning' | 'danger' | 'info' | 'accent'
 
 // White badges on whatever tint the row has; the tone only colours the words and the icon.
 const PILL_TONES: Record<PillTone, string> = {
-  neutral: 'bg-surface-card text-content-secondary shadow-sm',
-  success: 'bg-surface-card text-success shadow-sm',
-  warning: 'bg-surface-card text-warning shadow-sm',
-  danger: 'bg-surface-card text-danger shadow-sm',
-  info: 'bg-surface-card text-info shadow-sm',
+  neutral: 'bg-surface-card text-content-secondary shadow-sm ring-1 ring-inset ring-edge-faint',
+  success: 'bg-surface-card text-success shadow-sm ring-1 ring-inset ring-edge-faint',
+  warning: 'bg-surface-card text-warning shadow-sm ring-1 ring-inset ring-edge-faint',
+  danger: 'bg-surface-card text-danger shadow-sm ring-1 ring-inset ring-edge-faint',
+  info: 'bg-surface-card text-info shadow-sm ring-1 ring-inset ring-edge-faint',
   accent: 'bg-accent text-accent-text',
 }
 
@@ -113,7 +119,7 @@ export function SoftPill({ tone = 'neutral', icon, children, className = '', cap
   caps?: boolean
 }) {
   return (
-    <span className={`inline-flex min-w-0 flex-none items-center gap-1 whitespace-nowrap rounded-full px-2 py-[2px] font-geist font-normal ${caps ? 'uppercase tracking-[.05em]' : ''} ${PILL_TONES[tone]} ${className}`} style={fs(caps ? 9.5 : 10.5)}>
+    <span className={`inline-flex min-w-0 flex-none items-center gap-1 h-[20px] whitespace-nowrap rounded-full px-2 font-geist font-normal leading-none ${caps ? 'uppercase tracking-[.05em]' : ''} ${PILL_TONES[tone]} ${className}`} style={fs(caps ? 9.5 : 10.5)}>
       {icon}
       {children}
     </span>
