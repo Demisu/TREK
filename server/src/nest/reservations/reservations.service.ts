@@ -7,6 +7,7 @@ import { RealtimeService } from '../realtime/realtime.service';
 import { PermissionsService } from '../permissions/permissions.service';
 import { ReservationsReadService, toTraveler } from './reservations-read.service';
 import { keepMirroredPrice } from './reservation-metadata';
+import { endpointRows, groupDayPositions, groupEndpointsByReservation } from './reservations.helpers';
 import type { Reservation, User } from '../../types';
 import { BudgetService } from '../budget/budget.service';
 import { typeToCostCategory } from '@trek/shared';
@@ -256,17 +257,7 @@ export class ReservationsService {
 
   async loadEndpointsByTrip(tripId: string | number): Promise<Map<number, ReservationEndpoint[]>> {
     const rows: ReservationEndpointRow[] = await this.endpointsRepo.listForTrip(this.rowIdNum(tripId));
-    const map = new Map<number, ReservationEndpoint[]>();
-    for (const r of rows) {
-      const list = map.get(r.reservation_id) ?? [];
-      // `role` is TEXT at the DB (unconstrained); `ReservationEndpoint.role`
-      // narrows it to the three values every writer of this column sends —
-      // the same widen-on-read the legacy `this.db.all<ReservationEndpoint>`
-      // generic parameter asserted without any runtime check.
-      list.push(r as ReservationEndpoint);
-      map.set(r.reservation_id, list);
-    }
-    return map;
+    return groupEndpointsByReservation(rows);
   }
 
   /**
@@ -376,24 +367,8 @@ export class ReservationsService {
     // database connection is not open").
     await this.uow.transactional(async () => {
       await this.endpointsRepo.deleteForReservation(reservationId);
-      // lat/lng are NOT NULL: an imported transport whose pick-up/return (or station/
-      // stop) couldn't be geocoded reaches here with null coords. Skip those rows rather
-      // than let the INSERT throw and fail the entire booking save — the dates still live
-      // on reservation_time/reservation_end_time, so the booking lands on its day either way.
-      const filtered = endpoints.filter((e) => e.lat != null && e.lng != null);
-      for (const [i, e] of filtered.entries()) {
-        await this.endpointsRepo.insertEndpoint({
-          reservation_id: reservationId,
-          role: e.role,
-          sequence: e.sequence ?? i,
-          name: e.name,
-          code: e.code ?? null,
-          lat: e.lat!,
-          lng: e.lng!,
-          timezone: e.timezone ?? null,
-          local_time: e.local_time ?? null,
-          local_date: e.local_date ?? null,
-        });
+      for (const row of endpointRows(reservationId, endpoints)) {
+        await this.endpointsRepo.insertEndpoint(row);
       }
     });
   }
@@ -412,12 +387,7 @@ export class ReservationsService {
     const reservations: ReservationRow[] = (await this.reservationsRepo.listForTrip(tripId)).map((r) => ({ ...r }));
 
     const dayPositions = await this.dayPositionsRepo.listForTrip(this.rowIdNum(tripId));
-
-    const posMap = new Map<number, Record<number, number>>();
-    for (const dp of dayPositions) {
-      if (!posMap.has(dp.reservation_id)) posMap.set(dp.reservation_id, {});
-      posMap.get(dp.reservation_id)![dp.day_id] = dp.position;
-    }
+    const posMap = groupDayPositions(dayPositions);
 
     const endpointsMap = await this.loadEndpointsByTrip(tripId);
     const travelersMap = await this.loadTravelersByTrip(tripId);

@@ -20,34 +20,7 @@ import { ROADTRIP_RESERVATION_TYPES } from '@trek/shared';
  * folds `accommodation_id` (`Math.trunc(Number(x))`), `day_positions`,
  * `endpoints` and `travelers` on afterward (unchanged from the legacy split).
  */
-export interface ReservationJoinRow {
-  id: number;
-  trip_id: number;
-  day_id: number | null;
-  end_day_id: number | null;
-  place_id: number | null;
-  assignment_id: number | null;
-  title: string;
-  accommodation_id: string | null;
-  reservation_time: string | null;
-  reservation_end_time: string | null;
-  location: string | null;
-  confirmation_number: string | null;
-  notes: string | null;
-  status: string | null;
-  type: string | null;
-  created_at: string | null;
-  metadata: string | null;
-  day_plan_position: number | null;
-  needs_review: number;
-  external_source: string | null;
-  external_id: string | null;
-  external_owner_user_id: number | null;
-  external_synced_at: string | null;
-  sync_enabled: number | null;
-  external_hash: string | null;
-  url: string | null;
-  ingest_state: string;
+export interface ReservationJoinRow extends ReservationAllColumnsRow {
   day_number: number | null;
   place_name: string | null;
   accommodation_place_id: number | null;
