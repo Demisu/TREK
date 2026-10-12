@@ -235,7 +235,7 @@ describe('GalleryView', () => {
     await deleteThroughConfirm(user)
 
     await waitFor(() => expect(deleted).toBe(true))
-    await waitFor(() => expect(useJourneyStore.getState().current!.gallery).toHaveLength(0))
+    await waitFor(() => expect(useJourneyStore.getState().current?.gallery).toHaveLength(0))
     const current = useJourneyStore.getState().current!
     expect(current.gallery).toHaveLength(0)
     expect(current.entries[0].photos).toHaveLength(0)
@@ -296,7 +296,7 @@ describe('GalleryView', () => {
 
     expect(screen.queryByText('Delete photo')).not.toBeInTheDocument()
     expect(deleted).toBe(false)
-    expect(useJourneyStore.getState().current!.gallery).toHaveLength(1)
+    expect(useJourneyStore.getState().current?.gallery).toHaveLength(1)
     expect(onPhotoClick).not.toHaveBeenCalled()
   })
 

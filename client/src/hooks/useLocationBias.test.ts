@@ -94,8 +94,8 @@ describe('useLocationBias mit Kartenausschnitt', () => {
     seed({ trip: { id: 5 }, places: [KYOTO_A, TOKIO], planMapViewport: KYOTO_VIEW });
     const { box, point } = renderHook(() => useLocationBias()).result.current;
     expect(box).toEqual({ low: { lat: 34.96, lng: 135.70 }, high: { lat: 35.06, lng: 135.82 } });
-    expect(point!.lat).toBeCloseTo(35.01, 6);
-    expect(point!.lng).toBeCloseTo(135.76, 6);
+    expect(point?.lat).toBeCloseTo(35.01, 6);
+    expect(point?.lng).toBeCloseTo(135.76, 6);
   });
 
   it('schlaegt auch den geoeffneten Tag', () => {
@@ -108,7 +108,7 @@ describe('useLocationBias mit Kartenausschnitt', () => {
       planMapViewport: KYOTO_VIEW,
     });
     const { box } = renderHook(() => useLocationBias()).result.current;
-    expect(box!.high.lng).toBeLessThan(TOKIO.lng);
+    expect(box?.high.lng).toBeLessThan(TOKIO.lng);
   });
 
   it('faellt bei einem zu weiten Ausschnitt auf den Tag zurueck', () => {
