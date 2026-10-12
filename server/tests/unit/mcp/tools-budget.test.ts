@@ -10,8 +10,8 @@ import { BudgetItemMembers } from '../../../src/db/entities/BudgetItemMembers.en
 import { BudgetItems } from '../../../src/db/entities/BudgetItems.entity';
 import { BudgetSettlements } from '../../../src/db/entities/BudgetSettlements.entity';
 import { Reservations } from '../../../src/db/entities/Reservations.entity';
-import { Trips } from '../../../src/db/entities/Trips.entity';
 import { TripMembers } from '../../../src/db/entities/TripMembers.entity';
+import { Trips } from '../../../src/db/entities/Trips.entity';
 import { BudgetService } from '../../../src/nest/budget/budget.service';
 import { invalidatePermissionsCache } from '../../../src/nest/permissions/permissions-cache';
 import {

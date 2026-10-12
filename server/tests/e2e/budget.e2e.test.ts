@@ -811,17 +811,35 @@ describe('Budget e2e (real auth guard + temp SQLite, real budget SQL)', () => {
   // to drop them and shrink the total to what the rest had paid.
   describe('someone who left the trip', () => {
     it('PUT with the unchanged payers and split keeps them, the total and a balanced ledger; a stranger is still dropped', async () => {
-      await makeUser(orm, { id: 3, username: 'e2e-leaver', email: 'leaver@example.test', role: 'user', password_version: 0 });
-      await makeUser(orm, { id: 4, username: 'e2e-stranger', email: 'stranger@example.test', role: 'user', password_version: 0 });
+      await makeUser(orm, {
+        id: 3,
+        username: 'e2e-leaver',
+        email: 'leaver@example.test',
+        role: 'user',
+        password_version: 0,
+      });
+      await makeUser(orm, {
+        id: 4,
+        username: 'e2e-stranger',
+        email: 'stranger@example.test',
+        role: 'user',
+        password_version: 0,
+      });
       const leftTripId = (await makeTrip(orm, 1, { title: 'E2E Left Trip', currency: 'EUR' })).id;
       await addTripMember(orm, leftTripId, 2);
       await addTripMember(orm, leftTripId, 3);
       const payload = {
         name: 'Rental car',
-        payers: [{ user_id: 1, amount: 120 }, { user_id: 3, amount: 60 }],
+        payers: [
+          { user_id: 1, amount: 120 },
+          { user_id: 3, amount: 60 },
+        ],
         member_ids: [1, 2, 3],
       };
-      const created = await request(server).post(`/api/trips/${leftTripId}/budget`).set('Cookie', sessionCookie(1)).send(payload);
+      const created = await request(server)
+        .post(`/api/trips/${leftTripId}/budget`)
+        .set('Cookie', sessionCookie(1))
+        .send(payload);
       expect(created.status).toBe(201);
       await deleteRows(orm, TripMembers, { trip: leftTripId, user: 3 });
 
@@ -834,11 +852,13 @@ describe('Budget e2e (real auth guard + temp SQLite, real budget SQL)', () => {
       expect(saved.body.item.payers.map((p: { user_id: number }) => p.user_id).sort()).toEqual([1, 3]);
       expect(saved.body.item.members.map((m: { user_id: number }) => m.user_id).sort()).toEqual([1, 2, 3]);
 
-      const settlement = await request(server).get(`/api/trips/${leftTripId}/budget/settlement`).set('Cookie', sessionCookie(1));
+      const settlement = await request(server)
+        .get(`/api/trips/${leftTripId}/budget/settlement`)
+        .set('Cookie', sessionCookie(1));
       expect(settlement.status).toBe(200);
       const balances = settlement.body.balances as { user_id: number; balance: number }[];
       expect(Math.round(balances.reduce((a, b) => a + b.balance, 0) * 100)).toBe(0);
-      expect(balances.find(b => b.user_id === 3)?.balance).toBe(0);
+      expect(balances.find((b) => b.user_id === 3)?.balance).toBe(0);
     });
   });
 });
