@@ -23,6 +23,8 @@ import type { PlacePhotoCacheService } from '../../../src/nest/place-photos/plac
 import { QueryHelpersService } from '../../../src/nest/query-helpers/query-helpers.service';
 import { SettingsService } from '../../../src/nest/settings/settings.service';
 import { ShareService, publicReservationMetadata } from '../../../src/nest/share/share.service';
+import { TripMembershipModule } from '../../../src/nest/trip-membership/trip-membership.module';
+import { TripMembershipService } from '../../../src/nest/trip-membership/trip-membership.service';
 import type { User } from '../../../src/types';
 import {
   createUser,
@@ -39,13 +41,13 @@ import { deleteRows, findRow, insertRow, updateRows } from '../../helpers/factor
 import { setAppSetting, setUserSetting } from '../../helpers/factories/settings';
 import { shareServiceRepoArgs } from '../../helpers/share-repos';
 import { resetTestDb } from '../../helpers/test-db';
+import { createTestModule, type TestModule } from '../../helpers/test-module';
 import type { TestOrm } from '../../helpers/test-orm';
 import {
   sharedTestOrm,
   createTestUnitOfWork,
   createTestAppSettingsRepo,
   createTestSettingsRepo,
-  createTestTripsRepo,
   createTestTagsRepo,
   createTestPlaceRatingsRepo,
   createTestAssignmentParticipantsRepo,
@@ -72,18 +74,22 @@ const photoCacheStub = { serveKey } as unknown as PlacePhotoCacheService;
 
 let svc: ShareService;
 let t: TestOrm;
+let membership: TestModule;
 
 // `t`, `uow` and the settings repositories all derive from the SAME
 // `sharedTestOrm(testDb)` (task-2-review.md I2) — see settings.service.test.ts's
 // own comment on this pattern.
 beforeAll(async () => {
   t = await sharedTestOrm(testDb);
+  // SettingsService reads the trips a planner view may keep (#2639) through
+  // TripMembershipService, taken from its own module.
+  membership = await createTestModule({ db: testDb, imports: [TripMembershipModule] });
   svc = new ShareService(
     new SettingsService(
       await createTestUnitOfWork(testDb),
       await createTestAppSettingsRepo(testDb),
       await createTestSettingsRepo(testDb),
-      await createTestTripsRepo(testDb),
+      membership.get(TripMembershipService),
     ),
     permissionsStub,
     new QueryHelpersService(
@@ -105,6 +111,7 @@ beforeEach(() => {
 });
 
 afterAll(async () => {
+  await membership.close();
   await t.close();
   testDb.close();
 });

@@ -22,6 +22,8 @@ import { JourneyShareService } from '../../../src/nest/journey/journey-share.ser
 import { TrekPhotoRegistrationService } from '../../../src/nest/photos/trek-photo-registration.service';
 import { RealtimeService } from '../../../src/nest/realtime/realtime.service';
 import { SettingsService } from '../../../src/nest/settings/settings.service';
+import { TripMembershipModule } from '../../../src/nest/trip-membership/trip-membership.module';
+import { TripMembershipService } from '../../../src/nest/trip-membership/trip-membership.service';
 import { createUser, createJourney, createJourneyEntry, addJourneyContributor } from '../../helpers/factories';
 import { countRows, findRow, insertRow, insertRowIgnoringConflict, updateRows } from '../../helpers/factories/rows';
 import { setAppSetting, setUserSetting } from '../../helpers/factories/settings';
@@ -36,6 +38,7 @@ import {
 import { createTestJourneyShareTokensRepo } from '../../helpers/journey-share-repos';
 import { GALLERY_CHRONOLOGICAL_ORDER } from '../../helpers/legacy-gallery-order';
 import { resetTestDb } from '../../helpers/test-db';
+import { createTestModule, type TestModule } from '../../helpers/test-module';
 import type { TestOrm } from '../../helpers/test-orm';
 import {
   sharedTestOrm,
@@ -66,6 +69,7 @@ vi.mock('../../../src/db/database', async () => {
 
 let svc: JourneyShareService;
 let t: TestOrm;
+let membership: TestModule;
 
 // `t`, `uow` and the settings repositories all derive from the SAME
 // `sharedTestOrm(testDb)` (task-2-review.md I2) — see settings.service.test.ts's
@@ -76,6 +80,9 @@ beforeAll(async () => {
   const uow = await createTestUnitOfWork(testDb);
   t = await sharedTestOrm(testDb);
   const journeysRepo = await createTestJourneysRepo(testDb);
+  // SettingsService reads the trips a planner view may keep (#2639) through
+  // TripMembershipService, taken from its own module.
+  membership = await createTestModule({ db: testDb, imports: [TripMembershipModule] });
   svc = new JourneyShareService(
     new JourneyDomainService(
       new RealtimeService(),
@@ -99,7 +106,7 @@ beforeAll(async () => {
       uow,
       await createTestAppSettingsRepo(testDb),
       await createTestSettingsRepo(testDb),
-      await createTestTripsRepo(testDb),
+      membership.get(TripMembershipService),
     ),
     // Plan 3g Task 3: JourneyShareTokensRepository (JS1-JS15) + the
     // already-built JourneysRepository (JS8/JS12), same instance the domain
@@ -124,6 +131,7 @@ beforeEach(() => {
 });
 
 afterAll(async () => {
+  await membership.close();
   await t.close();
   testDb.close();
 });

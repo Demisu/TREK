@@ -1,12 +1,11 @@
 import { readEnv } from '../../app-config';
 import { AppSettings } from '../../db/entities/AppSettings.entity';
 import { Settings } from '../../db/entities/Settings.entity';
-import { Trips } from '../../db/entities/Trips.entity';
 import type { AppSettingsRepository } from '../../db/repositories/AppSettings.repository';
 import type { SettingsRepository } from '../../db/repositories/Settings.repository';
-import type { TripsRepository } from '../../db/repositories/Trips.repository';
 import { decrypt_api_key, maybe_encrypt_api_key } from '../common/crypto/apiKeyCrypto';
 import { UnitOfWork } from '../database/unit-of-work';
+import { TripMembershipService } from '../trip-membership/trip-membership.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
 import {
@@ -180,7 +179,7 @@ export class SettingsService {
     private readonly uow: UnitOfWork,
     @InjectRepository(AppSettings) private readonly appSettings: AppSettingsRepository,
     @InjectRepository(Settings) private readonly settings: SettingsRepository,
-    @InjectRepository(Trips) private readonly trips: TripsRepository,
+    private readonly membership: TripMembershipService,
   ) {}
 
   /**
@@ -196,7 +195,7 @@ export class SettingsService {
     if (!parsed.success) return {};
     const views = compactPlannerTripViews(parsed.data);
     if (Object.keys(views).length === 0) return views;
-    const openable = new Set((await this.trips.listAccessibleIds(userId)).map(String));
+    const openable = new Set((await this.membership.listAccessibleTripIds(userId)).map(String));
     return Object.fromEntries(Object.entries(views).filter(([tripId]) => openable.has(tripId)));
   }
 

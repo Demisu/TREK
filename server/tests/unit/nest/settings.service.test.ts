@@ -9,18 +9,21 @@
  */
 import { db as testDb } from '../../../src/db/database';
 import { Settings } from '../../../src/db/entities/Settings.entity';
+import { Trips } from '../../../src/db/entities/Trips.entity';
 import { SettingsService } from '../../../src/nest/settings/settings.service';
+import { TripMembershipModule } from '../../../src/nest/trip-membership/trip-membership.module';
+import { TripMembershipService } from '../../../src/nest/trip-membership/trip-membership.service';
 import { addTripMember, createTrip, createUser } from '../../helpers/factories';
-import { findRows } from '../../helpers/factories/rows';
+import { deleteRows, findRows } from '../../helpers/factories/rows';
 import { readUserSetting, setAppSetting, setUserSetting } from '../../helpers/factories/settings';
 import { resetTestDb } from '../../helpers/test-db';
+import { createTestModule, type TestModule } from '../../helpers/test-module';
 import type { TestOrm } from '../../helpers/test-orm';
 import {
   sharedTestOrm,
   createTestUnitOfWork,
   createTestAppSettingsRepo,
   createTestSettingsRepo,
-  createTestTripsRepo,
 } from '../../helpers/test-uow';
 
 import { describe, it, expect, vi, beforeAll, beforeEach, afterAll } from 'vitest';
@@ -49,6 +52,7 @@ vi.mock('../../../src/nest/common/crypto/apiKeyCrypto', () => ({
 
 let svc: SettingsService;
 let t: TestOrm;
+let membership: TestModule;
 
 // `t`, `uow` and the two repositories all derive from the SAME `sharedTestOrm(testDb)`
 // (task-2-review.md I2): a second, independent `createTestOrm(testDb)` here would give
@@ -56,13 +60,17 @@ let t: TestOrm;
 // opens its transaction on — a repository write inside setAdminUserDefaults/
 // bulkUpsertSettings's transaction would then run outside it (or contend on a second
 // mutex over the same connection), exactly the trap the shared-ORM helpers exist to avoid.
+// TripMembershipService, which lists the trips the planner view row (#2639) may keep, comes
+// out of its own module instead of a constructor call here. Its container brings an ORM of
+// its own, which is safe for it: that service only reads.
 beforeAll(async () => {
   t = await sharedTestOrm(testDb);
+  membership = await createTestModule({ db: testDb, imports: [TripMembershipModule] });
   svc = new SettingsService(
     await createTestUnitOfWork(testDb),
     await createTestAppSettingsRepo(testDb),
     await createTestSettingsRepo(testDb),
-    await createTestTripsRepo(testDb),
+    membership.get(TripMembershipService),
   );
 });
 
@@ -72,6 +80,7 @@ beforeEach(() => {
 });
 
 afterAll(async () => {
+  await membership.close();
   await t.close();
   testDb.close();
 });
@@ -435,7 +444,7 @@ describe('planner_trip_views', () => {
     const own = createTrip(testDb, user.id);
     const foreign = createTrip(testDb, other.id);
     const gone = createTrip(testDb, user.id);
-    testDb.prepare('DELETE FROM trips WHERE id = ?').run(gone.id);
+    await deleteRows(t, Trips, { id: gone.id });
     await svc.upsertSetting(user.id, 'planner_trip_views', {
       [own.id]: { roadtrip: true },
       [foreign.id]: { roadtrip: true },

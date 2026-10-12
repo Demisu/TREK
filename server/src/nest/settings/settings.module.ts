@@ -1,8 +1,8 @@
 import { AppSettings } from '../../db/entities/AppSettings.entity';
 import { Settings } from '../../db/entities/Settings.entity';
-import { Trips } from '../../db/entities/Trips.entity';
 import { AppConfigModule } from '../app-config/app-config.module';
 import { AuditModule } from '../audit/audit.module';
+import { TripMembershipModule } from '../trip-membership/trip-membership.module';
 import { AdminDefaultUserSettingsController, SettingsController } from './settings.controller';
 import { SettingsMcp } from './settings.mcp';
 import { SettingsService } from './settings.service';
@@ -20,9 +20,10 @@ import { Module } from '@nestjs/common';
   // (nothing resolves it off an ambient MikroORM request context — an
   // earlier design tried that and broke ~185 hand-built unit tests, see
   // task-5-review.md §4), so nothing in this module ever needs
-  // `@InjectRepository(Users)`. Trips is here for the planner view row (#2639),
-  // which keeps only trips the user can still open.
-  imports: [AppConfigModule, AuditModule, MikroOrmModule.forFeature([AppSettings, Settings, Trips])],
+  // `@InjectRepository(Users)`. TripMembershipModule is here for the planner
+  // view row (#2639), which keeps only trips the user can still open: the
+  // trips table belongs to another domain, so the ids come from its service.
+  imports: [AppConfigModule, AuditModule, TripMembershipModule, MikroOrmModule.forFeature([AppSettings, Settings])],
   controllers: [SettingsController, AdminDefaultUserSettingsController],
   providers: [SettingsService, SettingsMcp],
   exports: [SettingsService],

@@ -146,6 +146,9 @@ import { Trips } from '../../../src/db/entities/Trips.entity';
 import { Users } from '../../../src/db/entities/Users.entity';
 import { legacyBoundIntegerText } from '../../../src/nest/common/row-id';
 import { TripAccessService } from '../../../src/nest/trip-membership/trip-access.service';
+import { TripMembershipModule } from '../../../src/nest/trip-membership/trip-membership.module';
+import { TripMembershipService } from '../../../src/nest/trip-membership/trip-membership.service';
+import { createTestModule, type TestModule } from '../../helpers/test-module';
 import { FakeRealtimeService } from '../../helpers/fake-realtime';
 
 const realtime = new FakeRealtimeService();
@@ -226,6 +229,7 @@ let placesSvc: PlacesService;
 let svc: TripsService;
 let membersSvc: TripMembersService;
 let readModelSvc: TripReadModelService;
+let membership: TestModule;
 beforeAll(async () => {
   dbsEm = (await sharedTestOrm(testDb)).em;
   photoCache = new PlacePhotoCacheService(
@@ -277,6 +281,9 @@ beforeAll(async () => {
   await createTestCollectionPlacesRepo(testDb),
   buildPlaceImportService(),
 );
+  // SettingsService reads the trips a planner view may keep (#2639) through TripMembershipService,
+  // which comes out of its own module instead of a constructor call here.
+  membership = await createTestModule({ db: testDb, imports: [TripMembershipModule] });
   svc = new TripsService(
   new ReservationsService(new PermissionsService(await createTestAppSettingsRepo(testDb), await createTestUnitOfWork(testDb)), budgetSvc, realtime, notificationsStub(), new ReservationsReadService(await createTestReservationsRepo(testDb), await createTestReservationEndpointsRepo(testDb), await createTestReservationTravelersRepo(testDb), await createTestReservationDayPositionsRepo(testDb)), accommodationsSvc, await createTestUnitOfWork(testDb), await createTestReservationsRepo(testDb), await createTestReservationEndpointsRepo(testDb), await createTestReservationTravelersRepo(testDb), await createTestReservationDayPositionsRepo(testDb), await createTestDayAccommodationsRepo(testDb), await createTestDaysRepo(testDb), await createTestPlacesRepo(testDb), await createTestDayAssignmentsRepo(testDb), await createTestTripMembersRepo(testDb), await createTestUsersRepo(testDb), await createTestTripsRepo(testDb), await createTestBudgetItemsRepo(testDb)),
   daysSvc,
@@ -296,7 +303,7 @@ beforeAll(async () => {
   coversFx.storage,
   await createTestUnitOfWork(testDb),
   (await sharedTestOrm(testDb)).em,
-  new SettingsService(await createTestUnitOfWork(testDb), await createTestAppSettingsRepo(testDb), await createTestSettingsRepo(testDb), await createTestTripsRepo(testDb)),
+  new SettingsService(await createTestUnitOfWork(testDb), await createTestAppSettingsRepo(testDb), await createTestSettingsRepo(testDb), membership.get(TripMembershipService)),
 );
   membersSvc = new TripMembersService(budgetSvc, new UserCleanupService(new MaintenanceRepository(dbsEm!), budgetSvc, await createTestUnitOfWork(testDb), await createTestUsersRepo(testDb), await createTestTripMembersRepo(testDb), await createTestBudgetItemsRepo(testDb), await createTestBudgetSettlementsRepo(testDb), await createTestJourneyShareTokensRepo(testDb), await createTestJourneysRepo(testDb), await createTestJourneyEntriesRepo(testDb), await createTestJourneyContributorsRepo(testDb), await createTestShareTokensRepo(testDb), await createTestPluginsRepo(testDb), await createTestPluginUserErasureQueueRepo(testDb)), new PermissionsService(await createTestAppSettingsRepo(testDb), await createTestUnitOfWork(testDb)), realtime, notificationsStub(), await createTestUnitOfWork(testDb), await createTestTripsRepo(testDb), await createTestTripMembersRepo(testDb), await createTestUsersRepo(testDb));
   readModelSvc = new TripReadModelService(
@@ -347,7 +354,8 @@ beforeEach(() => {
   resetTestDb(testDb);
 });
 
-afterAll(() => {
+afterAll(async () => {
+  await membership.close();
   testDb.close();
 });
 

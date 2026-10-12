@@ -7,6 +7,8 @@
  */
 import { AppSettings } from '../../src/db/entities/AppSettings.entity';
 import { Settings } from '../../src/db/entities/Settings.entity';
+import { TripMembers } from '../../src/db/entities/TripMembers.entity';
+import { Trips } from '../../src/db/entities/Trips.entity';
 import { TrekExceptionFilter } from '../../src/nest/common/trek-exception.filter';
 import { ZodValidationPipe } from '../../src/nest/common/zod-validation.pipe';
 import { SettingsModule } from '../../src/nest/settings/settings.module';
@@ -33,11 +35,13 @@ const { db } = vi.hoisted(() => {
     key TEXT NOT NULL, value TEXT, UNIQUE(user_id, key));`);
   tmp.exec('CREATE TABLE app_settings (key TEXT PRIMARY KEY, value TEXT);');
   // Only what the planner view row (#2639) asks: which trips the user can open.
+  // An ORM insert names every column the entity gives a default (currency,
+  // is_archived, reminder_days, the timestamps and added_at), so those are here too.
   tmp.exec(`CREATE TABLE trips (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL,
-    title TEXT NOT NULL DEFAULT 'Trip', created_at DATETIME DEFAULT CURRENT_TIMESTAMP);`);
-  tmp.exec(
-    'CREATE TABLE trip_members (id INTEGER PRIMARY KEY AUTOINCREMENT, trip_id INTEGER NOT NULL, user_id INTEGER NOT NULL);',
-  );
+    title TEXT NOT NULL DEFAULT 'Trip', currency TEXT, is_archived INTEGER DEFAULT 0, reminder_days INTEGER DEFAULT 3,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP);`);
+  tmp.exec(`CREATE TABLE trip_members (id INTEGER PRIMARY KEY AUTOINCREMENT, trip_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL, added_at DATETIME DEFAULT CURRENT_TIMESTAMP);`);
   return { db: tmp };
 });
 
@@ -335,12 +339,13 @@ describe('Settings e2e (real auth guard + temp SQLite)', () => {
   });
 
   describe('planner_trip_views (#2639)', () => {
-    beforeEach(() => {
-      db.exec('DELETE FROM trip_members; DELETE FROM trips;');
-      db.prepare('INSERT INTO trips (id, user_id) VALUES (?, ?)').run(41, 1);
-      db.prepare('INSERT INTO trips (id, user_id) VALUES (?, ?)').run(42, 2);
-      db.prepare('INSERT INTO trips (id, user_id) VALUES (?, ?)').run(43, 2);
-      db.prepare('INSERT INTO trip_members (trip_id, user_id) VALUES (?, ?)').run(43, 1);
+    beforeEach(async () => {
+      await deleteRows(orm, TripMembers);
+      await deleteRows(orm, Trips);
+      await insertRow(orm, Trips, { id: 41, user: 1, title: 'Trip' });
+      await insertRow(orm, Trips, { id: 42, user: 2, title: 'Trip' });
+      await insertRow(orm, Trips, { id: 43, user: 2, title: 'Trip' });
+      await insertRow(orm, TripMembers, { trip: 43, user: 1 });
     });
 
     it('PUT keeps the switches of trips the user can open and GET hands them back', async () => {
