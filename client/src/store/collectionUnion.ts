@@ -13,7 +13,13 @@ export async function loadUnionPlaces(ids: number[]): Promise<CollectionPlace[]>
   const seen = new Set<number>();
   for (let i = 0; i < ids.length; i += DETAIL_BATCH) {
     const batch = await Promise.all(
-      ids.slice(i, i + DETAIL_BATCH).map((id) => collectionsApi.get(id).catch(() => null))
+      ids.slice(i, i + DETAIL_BATCH).map((id) =>
+        collectionsApi.get(id).catch(() => {
+          // A list that cannot be read (left, deleted, unreachable) is skipped, so
+          // the union still holds the places of every list that can be.
+          return null;
+        })
+      )
     );
     for (const d of batch) {
       if (!d) continue;
