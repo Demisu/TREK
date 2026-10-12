@@ -239,7 +239,8 @@ const journey: TranslationStrings = {
   'journey.settings.failedToDelete': 'Failed to delete',
   'journey.entries.deleteTitle': 'Delete Entry',
   'journey.gallery.deleteTitle': 'Delete photo',
-  'journey.gallery.deleteMessage': 'This photo will be removed from the gallery and from every entry it appears in. This cannot be undone.',
+  'journey.gallery.deleteMessage':
+    'This photo will be removed from the gallery and from every entry it appears in. This cannot be undone.',
   'journey.photosUploaded': '{count} photos uploaded',
   'journey.photosUploaded.one': '{count} photo uploaded',
   'journey.photosUploadFailed': 'Some photos failed to upload',

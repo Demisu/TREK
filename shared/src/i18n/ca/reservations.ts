@@ -101,7 +101,8 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'Fi',
   'reservations.span.ongoing': 'En curs',
   'reservations.validation.endBeforeStart': "La data/hora de fi ha de ser posterior a la d'inici",
-  'reservations.validation.endTimeBeforeStartTime': "L'hora de fi és anterior a la d'inici. Si acaba l'endemà, indica una data de fi.",
+  'reservations.validation.endTimeBeforeStartTime':
+    "L'hora de fi és anterior a la d'inici. Si acaba l'endemà, indica una data de fi.",
   'reservations.addBooking': 'Afegeix una reserva',
   'reservations.meta.airline': 'Aerolínia',
   'reservations.meta.flightNumber': 'Núm. de vol',

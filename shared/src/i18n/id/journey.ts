@@ -222,7 +222,8 @@ const journey: TranslationStrings = {
   'journey.settings.failedToDelete': 'Gagal menghapus',
   'journey.entries.deleteTitle': 'Hapus Entri',
   'journey.gallery.deleteTitle': 'Hapus foto',
-  'journey.gallery.deleteMessage': 'Foto ini akan dihapus dari galeri dan dari setiap entri yang memakainya. Tindakan ini tidak dapat dibatalkan.',
+  'journey.gallery.deleteMessage':
+    'Foto ini akan dihapus dari galeri dan dari setiap entri yang memakainya. Tindakan ini tidak dapat dibatalkan.',
   'journey.photosUploaded': '{count} foto diunggah',
   'journey.photosUploadFailed': 'Beberapa foto gagal diunggah',
   'journey.photosAdded': '{count} foto ditambahkan',

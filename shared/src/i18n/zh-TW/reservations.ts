@@ -252,8 +252,7 @@ const reservations: TranslationStrings = {
   'reservations.copyCode': '複製預訂碼',
   'reservations.copyFailed': '無法複製',
   'reservations.showInFiles': '在檔案中顯示',
-  'reservations.filesNeedConnection':
-    '上傳檔案需要網路連線。移除新檔案即可離線儲存這筆預訂，或在恢復連線後再儲存。',
+  'reservations.filesNeedConnection': '上傳檔案需要網路連線。移除新檔案即可離線儲存這筆預訂，或在恢復連線後再儲存。',
   'reservations.needsConnection': '此操作需要網路連線。請在 TREK 恢復連線後再試一次。',
 };
 export default reservations;

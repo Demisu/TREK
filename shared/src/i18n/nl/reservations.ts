@@ -133,7 +133,8 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'Einde',
   'reservations.span.ongoing': 'Lopend',
   'reservations.validation.endBeforeStart': 'Einddatum/-tijd moet na de startdatum/-tijd liggen',
-  'reservations.validation.endTimeBeforeStartTime': 'De eindtijd ligt vóór de starttijd. Eindigt het de volgende dag, kies dan een einddatum.',
+  'reservations.validation.endTimeBeforeStartTime':
+    'De eindtijd ligt vóór de starttijd. Eindigt het de volgende dag, kies dan een einddatum.',
   'reservations.addBooking': 'Boeking toevoegen',
   'reservations.import.title': 'Boekingsbevestigingen importeren',
   'reservations.import.cta': 'Importeren vanuit bestand',

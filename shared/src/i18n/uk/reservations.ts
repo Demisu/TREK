@@ -132,7 +132,8 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'Кінець',
   'reservations.span.ongoing': 'Триває',
   'reservations.validation.endBeforeStart': 'Дата/час закінчення повинен бути пізніше дати/часу початку',
-  'reservations.validation.endTimeBeforeStartTime': 'Час закінчення раніший за час початку. Якщо бронювання закінчується наступного дня, вкажіть дату закінчення.',
+  'reservations.validation.endTimeBeforeStartTime':
+    'Час закінчення раніший за час початку. Якщо бронювання закінчується наступного дня, вкажіть дату закінчення.',
   'reservations.addBooking': 'Додати бронювання',
   'reservations.import.title': 'Імпорт підтверджень бронювання',
   'reservations.import.cta': 'Імпортувати з файлу',

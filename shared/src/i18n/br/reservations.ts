@@ -132,7 +132,8 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'Fim',
   'reservations.span.ongoing': 'Em andamento',
   'reservations.validation.endBeforeStart': 'A data/hora final deve ser posterior à data/hora inicial',
-  'reservations.validation.endTimeBeforeStartTime': 'O horário final é anterior ao inicial. Se terminar no dia seguinte, defina uma data final.',
+  'reservations.validation.endTimeBeforeStartTime':
+    'O horário final é anterior ao inicial. Se terminar no dia seguinte, defina uma data final.',
   'reservations.addBooking': 'Adicionar reserva',
   'reservations.import.title': 'Importar confirmações de reserva',
   'reservations.import.cta': 'Importar de arquivo',

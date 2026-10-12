@@ -132,7 +132,8 @@ const reservations: TranslationStrings = {
   'reservations.span.end': '종료',
   'reservations.span.ongoing': '진행 중',
   'reservations.validation.endBeforeStart': '종료 날짜/시간은 시작 날짜/시간 이후여야 합니다',
-  'reservations.validation.endTimeBeforeStartTime': '종료 시간이 시작 시간보다 이릅니다. 다음 날 끝나면 종료 날짜를 설정하세요.',
+  'reservations.validation.endTimeBeforeStartTime':
+    '종료 시간이 시작 시간보다 이릅니다. 다음 날 끝나면 종료 날짜를 설정하세요.',
   'reservations.addBooking': '예약 추가',
   'reservations.import.title': '예약 확인서 가져오기',
   'reservations.import.cta': '파일에서 가져오기',

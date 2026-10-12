@@ -231,7 +231,8 @@ const journey: TranslationStrings = {
   'journey.settings.failedToDelete': 'Smazání se nezdařilo',
   'journey.entries.deleteTitle': 'Smazat záznam',
   'journey.gallery.deleteTitle': 'Smazat fotku',
-  'journey.gallery.deleteMessage': 'Tato fotka zmizí z galerie i ze všech záznamů, ve kterých je použita. Tuto akci nelze vrátit.',
+  'journey.gallery.deleteMessage':
+    'Tato fotka zmizí z galerie i ze všech záznamů, ve kterých je použita. Tuto akci nelze vrátit.',
   'journey.photosUploaded': '{count} fotografií nahráno',
   'journey.photosUploaded.one': '{count} fotografie nahrána',
   'journey.photosUploaded.few': '{count} fotografie nahrány',

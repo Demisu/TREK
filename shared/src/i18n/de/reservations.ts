@@ -77,7 +77,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': 'Möchtest du die Reservierung "{name}" wirklich löschen?',
   'reservations.confirm.deleteTitle': 'Buchung löschen?',
   'reservations.confirm.deleteBody': '"{name}" wird unwiderruflich gelöscht.',
-  'reservations.confirm.deleteBodyWithExpense': '"{name}" wird zusammen mit den verknüpften Kosten unwiderruflich gelöscht.',
+  'reservations.confirm.deleteBodyWithExpense':
+    '"{name}" wird zusammen mit den verknüpften Kosten unwiderruflich gelöscht.',
   'reservations.toast.updated': 'Reservierung aktualisiert',
   'reservations.toast.removed': 'Reservierung gelöscht',
   'reservations.toast.saveError': 'Fehler beim Speichern',
@@ -135,7 +136,8 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'Ende',
   'reservations.span.ongoing': 'Laufend',
   'reservations.validation.endBeforeStart': 'Enddatum/-zeit muss nach dem Startdatum/-zeit liegen',
-  'reservations.validation.endTimeBeforeStartTime': 'Die Endzeit liegt vor der Startzeit. Endet die Buchung am nächsten Tag, wähle ein Enddatum.',
+  'reservations.validation.endTimeBeforeStartTime':
+    'Die Endzeit liegt vor der Startzeit. Endet die Buchung am nächsten Tag, wähle ein Enddatum.',
   'reservations.addBooking': 'Buchung hinzufügen',
   'reservations.import.title': 'Buchungsbestätigungen importieren',
   'reservations.import.cta': 'Aus Datei importieren',
@@ -265,6 +267,7 @@ const reservations: TranslationStrings = {
   'reservations.showInFiles': 'In Dateien zeigen',
   'reservations.filesNeedConnection':
     'Dateien brauchen zum Hochladen eine Verbindung. Entferne die neuen, um die Buchung offline zu speichern, oder speichere, sobald du wieder online bist.',
-  'reservations.needsConnection': 'Dafür braucht es eine Verbindung. Versuch es noch einmal, sobald TREK wieder online ist.',
+  'reservations.needsConnection':
+    'Dafür braucht es eine Verbindung. Versuch es noch einmal, sobald TREK wieder online ist.',
 };
 export default reservations;

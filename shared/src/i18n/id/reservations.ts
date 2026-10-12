@@ -133,7 +133,8 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'Selesai',
   'reservations.span.ongoing': 'Berlangsung',
   'reservations.validation.endBeforeStart': 'Tanggal/waktu selesai harus setelah tanggal/waktu mulai',
-  'reservations.validation.endTimeBeforeStartTime': 'Waktu selesai lebih awal dari waktu mulai. Jika berakhir keesokan harinya, atur tanggal selesai.',
+  'reservations.validation.endTimeBeforeStartTime':
+    'Waktu selesai lebih awal dari waktu mulai. Jika berakhir keesokan harinya, atur tanggal selesai.',
   'reservations.addBooking': 'Tambah pemesanan',
   'reservations.import.title': 'Impor konfirmasi pemesanan',
   'reservations.import.cta': 'Impor dari file',

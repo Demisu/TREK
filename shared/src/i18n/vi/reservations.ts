@@ -133,7 +133,8 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'Kết thúc',
   'reservations.span.ongoing': 'Đang thực hiện',
   'reservations.validation.endBeforeStart': 'Ngày/giờ kết thúc phải sau ngày/giờ bắt đầu',
-  'reservations.validation.endTimeBeforeStartTime': 'Giờ kết thúc sớm hơn giờ bắt đầu. Nếu kết thúc vào ngày hôm sau, hãy đặt ngày kết thúc.',
+  'reservations.validation.endTimeBeforeStartTime':
+    'Giờ kết thúc sớm hơn giờ bắt đầu. Nếu kết thúc vào ngày hôm sau, hãy đặt ngày kết thúc.',
   'reservations.addBooking': 'Thêm đặt chỗ',
   'reservations.import.title': 'Nhập xác nhận đặt chỗ',
   'reservations.import.cta': 'Nhập từ tập tin',

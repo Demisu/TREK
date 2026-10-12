@@ -241,7 +241,8 @@ const journey: TranslationStrings = {
   'journey.settings.failedToDelete': 'Kustutamine ebaõnnestus',
   'journey.entries.deleteTitle': 'Kustuta sissekanne',
   'journey.gallery.deleteTitle': 'Kustuta foto',
-  'journey.gallery.deleteMessage': 'See foto eemaldatakse galeriist ja kõigist sissekannetest, kus seda kasutatakse. Seda ei saa tagasi võtta.',
+  'journey.gallery.deleteMessage':
+    'See foto eemaldatakse galeriist ja kõigist sissekannetest, kus seda kasutatakse. Seda ei saa tagasi võtta.',
   'journey.photosUploaded': '{count} fotot üles laaditud',
   'journey.photosUploaded.one': '{count} foto üles laaditud',
   'journey.photosUploadFailed': 'Mõne foto üleslaadimine ebaõnnestus',

@@ -75,7 +75,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': 'Czy na pewno chcesz usunąć rezerwację "{name}"?',
   'reservations.confirm.deleteTitle': 'Usunąć rezerwację?',
   'reservations.confirm.deleteBody': 'Rezerwacja "{name}" zostanie trwale usunięta.',
-  'reservations.confirm.deleteBodyWithExpense': 'Rezerwacja "{name}" zostanie trwale usunięta wraz z powiązanymi kosztami.',
+  'reservations.confirm.deleteBodyWithExpense':
+    'Rezerwacja "{name}" zostanie trwale usunięta wraz z powiązanymi kosztami.',
   'reservations.toast.updated': 'Rezerwacja została zaktualizowana',
   'reservations.toast.removed': 'Rezerwacja została usunięta',
   'reservations.toast.fileUploaded': 'Plik został przesłany',
@@ -133,7 +134,8 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'Koniec',
   'reservations.span.ongoing': 'W trakcie',
   'reservations.validation.endBeforeStart': 'Data/godzina zakończenia musi być późniejsza niż data/godzina rozpoczęcia',
-  'reservations.validation.endTimeBeforeStartTime': 'Godzina zakończenia jest wcześniejsza niż godzina rozpoczęcia. Jeśli kończy się następnego dnia, ustaw datę zakończenia.',
+  'reservations.validation.endTimeBeforeStartTime':
+    'Godzina zakończenia jest wcześniejsza niż godzina rozpoczęcia. Jeśli kończy się następnego dnia, ustaw datę zakończenia.',
   'reservations.addBooking': 'Dodaj rezerwację',
   'reservations.import.title': 'Importuj potwierdzenia rezerwacji',
   'reservations.import.cta': 'Importuj z pliku',

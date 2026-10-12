@@ -237,7 +237,8 @@ const journey: TranslationStrings = {
   'journey.settings.failedToDelete': 'Не удалось удалить',
   'journey.entries.deleteTitle': 'Удалить запись',
   'journey.gallery.deleteTitle': 'Удалить фото',
-  'journey.gallery.deleteMessage': 'Фото будет удалено из галереи и из всех записей, где оно используется. Это действие нельзя отменить.',
+  'journey.gallery.deleteMessage':
+    'Фото будет удалено из галереи и из всех записей, где оно используется. Это действие нельзя отменить.',
   'journey.photosUploaded': '{count} фото загружено',
   'journey.photosUploaded.one': '{count} фото загружено',
   'journey.photosUploaded.few': '{count} фото загружены',

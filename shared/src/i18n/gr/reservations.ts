@@ -76,7 +76,8 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': 'Είστε σίγουροι ότι θέλετε να διαγράψετε την κράτηση "{name}";',
   'reservations.confirm.deleteTitle': 'Διαγραφή κράτησης;',
   'reservations.confirm.deleteBody': 'Η κράτηση "{name}" θα διαγραφεί οριστικά.',
-  'reservations.confirm.deleteBodyWithExpense': 'Η κράτηση "{name}" θα διαγραφεί οριστικά μαζί με τα συνδεδεμένα έξοδα.',
+  'reservations.confirm.deleteBodyWithExpense':
+    'Η κράτηση "{name}" θα διαγραφεί οριστικά μαζί με τα συνδεδεμένα έξοδα.',
   'reservations.toast.updated': 'Η κράτηση ενημερώθηκε',
   'reservations.toast.removed': 'Η κράτηση διαγράφηκε',
   'reservations.toast.fileUploaded': 'Το αρχείο μεταφορτώθηκε',
@@ -134,7 +135,8 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'Λήξη',
   'reservations.span.ongoing': 'Σε εξέλιξη',
   'reservations.validation.endBeforeStart': 'Η ημερομηνία/ώρα λήξης πρέπει να είναι μετά την ημερομηνία/ώρα έναρξης',
-  'reservations.validation.endTimeBeforeStartTime': 'Η ώρα λήξης είναι πριν από την ώρα έναρξης. Αν λήγει την επόμενη μέρα, ορίστε ημερομηνία λήξης.',
+  'reservations.validation.endTimeBeforeStartTime':
+    'Η ώρα λήξης είναι πριν από την ώρα έναρξης. Αν λήγει την επόμενη μέρα, ορίστε ημερομηνία λήξης.',
   'reservations.addBooking': 'Προσθήκη κράτησης',
   'reservations.import.title': 'Εισαγωγή επιβεβαιώσεων κράτησης',
   'reservations.import.cta': 'Εισαγωγή από αρχείο',

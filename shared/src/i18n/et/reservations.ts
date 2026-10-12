@@ -137,7 +137,8 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'Lõpp',
   'reservations.span.ongoing': 'Käimas',
   'reservations.validation.endBeforeStart': 'Lõppkuupäev ja -aeg peavad olema algusest hilisemad',
-  'reservations.validation.endTimeBeforeStartTime': 'Lõpuaeg on enne algusaega. Kui see lõpeb järgmisel päeval, määra lõppkuupäev.',
+  'reservations.validation.endTimeBeforeStartTime':
+    'Lõpuaeg on enne algusaega. Kui see lõpeb järgmisel päeval, määra lõppkuupäev.',
   'reservations.addBooking': 'Lisa broneering',
   'reservations.import.title': 'Impordi broneeringukinnitused',
   'reservations.import.cta': 'Impordi failist',

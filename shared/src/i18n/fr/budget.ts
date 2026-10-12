@@ -210,6 +210,7 @@ const budget: TranslationStrings = {
     "Échec de l'enregistrement : {count} reçu importé est toujours là. Supprimez-le dans l'onglet Fichiers.",
   'costs.receiptsNeedConnection':
     "Les justificatifs ont besoin d'une connexion pour être envoyés. Retirez les nouveaux pour enregistrer la dépense hors ligne, ou enregistrez une fois de retour en ligne.",
-  'costs.paymentQueued': 'Vous êtes hors ligne. Le paiement est enregistré et apparaîtra dès que TREK sera de nouveau en ligne.',
+  'costs.paymentQueued':
+    'Vous êtes hors ligne. Le paiement est enregistré et apparaîtra dès que TREK sera de nouveau en ligne.',
 };
 export default budget;

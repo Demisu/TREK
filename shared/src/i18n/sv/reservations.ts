@@ -133,7 +133,8 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'Slut',
   'reservations.span.ongoing': 'Pågår',
   'reservations.validation.endBeforeStart': 'Slutdatum och -tid måste ligga efter startdatum och -tid',
-  'reservations.validation.endTimeBeforeStartTime': 'Sluttiden ligger före starttiden. Om den slutar nästa dag, ange ett slutdatum.',
+  'reservations.validation.endTimeBeforeStartTime':
+    'Sluttiden ligger före starttiden. Om den slutar nästa dag, ange ett slutdatum.',
   'reservations.addBooking': 'Lägg till bokning',
   'reservations.import.title': 'Importera bokningsbekräftelser',
   'reservations.import.cta': 'Importera från fil',
