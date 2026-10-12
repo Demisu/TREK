@@ -140,6 +140,8 @@ export function useDashboard() {
     }
   }
 
+  // A refusal says why (no right to archive or delete this trip, say) rather
+  // than only that it failed; the generic line stays for a failure without one.
   const confirmDelete = async () => {
     if (!deleteTrip) return
     try {
@@ -147,8 +149,8 @@ export function useDashboard() {
       setTrips(prev => prev.filter(t => t.id !== deleteTrip.id))
       setArchivedTrips(prev => prev.filter(t => t.id !== deleteTrip.id))
       toast.success(t('dashboard.toast.deleted'))
-    } catch {
-      toast.error(t('dashboard.toast.deleteError'))
+    } catch (err: unknown) {
+      toast.error(getApiErrorMessage(err, t('dashboard.toast.deleteError')))
     }
     setDeleteTrip(null)
   }
@@ -159,8 +161,8 @@ export function useDashboard() {
       setTrips(prev => prev.filter(t => t.id !== id))
       setArchivedTrips(prev => sortTrips([data.trip, ...prev]))
       toast.success(t('dashboard.toast.archived'))
-    } catch {
-      toast.error(t('dashboard.toast.archiveError'))
+    } catch (err: unknown) {
+      toast.error(getApiErrorMessage(err, t('dashboard.toast.archiveError')))
     }
   }
 
@@ -170,8 +172,8 @@ export function useDashboard() {
       setArchivedTrips(prev => prev.filter(t => t.id !== id))
       setTrips(prev => sortTrips([data.trip, ...prev]))
       toast.success(t('dashboard.toast.restored'))
-    } catch {
-      toast.error(t('dashboard.toast.restoreError'))
+    } catch (err: unknown) {
+      toast.error(getApiErrorMessage(err, t('dashboard.toast.restoreError')))
     }
   }
 
@@ -181,8 +183,8 @@ export function useDashboard() {
       const data = await tripsApi.copy(copyTrip.id, { title: `${copyTrip.title} (${t('dashboard.copySuffix')})` })
       setTrips(prev => sortTrips([data.trip, ...prev]))
       toast.success(t('dashboard.toast.copied'))
-    } catch {
-      toast.error(t('dashboard.toast.copyError'))
+    } catch (err: unknown) {
+      toast.error(getApiErrorMessage(err, t('dashboard.toast.copyError')))
     }
     setCopyTrip(null)
   }

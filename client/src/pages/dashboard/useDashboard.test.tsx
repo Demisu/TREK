@@ -207,7 +207,7 @@ describe('useDashboard', () => {
   });
 
   it('FE-HOOK-DASH-014: a failing delete toasts and keeps the trip', async () => {
-    server.use(http.delete('/api/trips/:id', () => HttpResponse.json({ error: 'nope' }, { status: 500 })));
+    server.use(http.delete('/api/trips/:id', () => HttpResponse.json({}, { status: 500 })));
     const { result } = await mountLoaded();
 
     act(() => { result.current.setDeleteTrip(PARIS); });
@@ -230,12 +230,41 @@ describe('useDashboard', () => {
   });
 
   it('FE-HOOK-DASH-016: a failing archive only toasts', async () => {
-    server.use(http.put('/api/trips/:id', () => HttpResponse.json({ error: 'nope' }, { status: 500 })));
+    server.use(http.put('/api/trips/:id', () => HttpResponse.json({}, { status: 500 })));
     const { result } = await mountLoaded();
 
     await act(async () => { await result.current.handleArchive(101); });
 
     expect(toastCalls).toContainEqual(['Failed to archive trip', 'error']);
+  });
+
+  it('FE-HOOK-DASH-016b: an archive the server refuses says why (#2604)', async () => {
+    server.use(http.put('/api/trips/:id', () => HttpResponse.json({ error: 'No permission to archive/unarchive this trip' }, { status: 403 })));
+    const { result } = await mountLoaded();
+
+    await act(async () => { await result.current.handleArchive(101); });
+    await act(async () => { await result.current.handleUnarchive(103); });
+
+    expect(toastCalls.filter(c => c[1] === 'error')).toEqual([
+      ['No permission to archive/unarchive this trip', 'error'],
+      ['No permission to archive/unarchive this trip', 'error'],
+    ]);
+  });
+
+  it('FE-HOOK-DASH-016c: a delete or copy the server refuses says why (#2604)', async () => {
+    server.use(
+      http.delete('/api/trips/:id', () => HttpResponse.json({ error: 'No permission to delete this trip' }, { status: 403 })),
+      http.post('/api/trips/:id/copy', () => HttpResponse.json({ error: 'No permission to create trips' }, { status: 403 })),
+    );
+    const { result } = await mountLoaded();
+
+    act(() => { result.current.setDeleteTrip(PARIS); });
+    await act(async () => { await result.current.confirmDelete(); });
+    act(() => { result.current.setCopyTrip(PARIS); });
+    await act(async () => { await result.current.confirmCopy(); });
+
+    expect(toastCalls).toContainEqual(['No permission to delete this trip', 'error']);
+    expect(toastCalls).toContainEqual(['No permission to create trips', 'error']);
   });
 
   it('FE-HOOK-DASH-017: restoring moves the trip back into the active list', async () => {
@@ -252,7 +281,7 @@ describe('useDashboard', () => {
   });
 
   it('FE-HOOK-DASH-018: a failing restore only toasts', async () => {
-    server.use(http.put('/api/trips/:id', () => HttpResponse.json({ error: 'nope' }, { status: 500 })));
+    server.use(http.put('/api/trips/:id', () => HttpResponse.json({}, { status: 500 })));
     const { result } = await mountLoaded();
 
     await act(async () => { await result.current.handleUnarchive(103); });
@@ -284,7 +313,7 @@ describe('useDashboard', () => {
   });
 
   it('FE-HOOK-DASH-021: a failing copy only toasts', async () => {
-    server.use(http.post('/api/trips/:id/copy', () => HttpResponse.json({ error: 'nope' }, { status: 500 })));
+    server.use(http.post('/api/trips/:id/copy', () => HttpResponse.json({}, { status: 500 })));
     const { result } = await mountLoaded();
 
     act(() => { result.current.setCopyTrip(PARIS); });
