@@ -130,11 +130,11 @@ export function TransportModal({ isOpen, onClose, onSave, reservation, days, sel
     })
   }, [isOpen, reservation, prefill, selectedDayId, budgetItems])
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault()
     if (!form.title.trim()) return
     if (filesNeedConnection(pendingFiles, !!onFileUpload)) { toast.error(t('reservations.filesNeedConnection')); return }
-    return saveTransport()
+    await saveTransport()
   }
 
   const saveTransport = async () => {
