@@ -22,8 +22,20 @@ export function projectDayItinerary(
   const placesById = new Map(places.map(place => [place.id, place]))
   return assignments.map(assignment => {
     const placeId = assignment.place?.id
-    if (!toursEnabled || placeId == null || assignment.tour_place_id !== placeId) return { kind: 'stop', assignment }
+    if (placeId == null) return { kind: 'stop', assignment }
     const currentPlace = placesById.get(placeId)
+    if (!toursEnabled || assignment.tour_place_id !== placeId) {
+      // Any other place with a track (GPX/KML import) sits at the track's first point,
+      // so routing it as a plain stop draws a second road alongside the track (#2600).
+      // It gets the same gap as a Tour; without a usable track it stays a stop and can
+      // never turn into an invalid Tour.
+      const track = analyzeRouteGeometry(currentPlace?.route_geometry)?.routeCoordinates ?? []
+      if (track.length < 2) return { kind: 'stop', assignment }
+      const start = { lat: track[0][0], lng: track[0][1] }
+      const end = { lat: track[track.length - 1][0], lng: track[track.length - 1][1] }
+      return { kind: 'tour', assignment, placeId, start, end, geometry: track,
+        loop: start.lat === end.lat && start.lng === end.lng, valid: true } as const
+    }
     const analysis = analyzeRouteGeometry(currentPlace ? currentPlace.route_geometry : assignment.tour_route_geometry)
     const geometry = analysis?.routeCoordinates ?? []
     const start = geometry.length >= 2

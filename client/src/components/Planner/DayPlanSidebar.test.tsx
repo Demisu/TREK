@@ -2917,7 +2917,7 @@ describe('DayPlanSidebar', () => {
   it.each([
     { enabled: true, excluded: false, pairs: [[48.85, 48.86], [48.88, 48.89]] },
     { enabled: true, excluded: true, pairs: [[48.85, 48.89]] },
-    { enabled: false, excluded: false, pairs: [[48.85, 48.86], [48.86, 48.89]] },
+    { enabled: false, excluded: false, pairs: [[48.85, 48.86], [48.88, 48.89]] },
   ])('B5 sidebar Tour connector parity enabled=$enabled excluded=$excluded', async ({ enabled, excluded, pairs }) => {
     useAddonStore.setState({ addons: [{ id: 'tours', name: 'Tours', icon: 'Route', type: 'feature', enabled }] })
     const day = buildDay({ id: 10, date: '2025-06-01' })

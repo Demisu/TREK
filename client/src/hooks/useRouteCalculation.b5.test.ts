@@ -45,7 +45,8 @@ describe('B5 useRouteCalculation', () => {
   it.each([
     { enabled: true, excluded: false, expected: [[48.1, 48.2], [48.3, 48.4]] },
     { enabled: true, excluded: true, expected: [[48.1, 48.4]] },
-    { enabled: false, excluded: false, expected: [[48.1, 48.2, 48.4]] },
+    // Off, the place still has its track, so the drive breaks there all the same (#2600).
+    { enabled: false, excluded: false, expected: [[48.1, 48.2], [48.3, 48.4]] },
   ])('routes enabled=$enabled excluded=$excluded using the shared day topology', async ({ enabled, excluded, expected }) => {
     seed(enabled, excluded)
     const { result } = renderHook(() => useRouteCalculation(useTripStore(), 1, true, 'walking'))

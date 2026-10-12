@@ -161,6 +161,21 @@ describe('trip route map in the PDF', () => {
     expect(srcdoc()).not.toContain('stroke="#14805e"')
   })
 
+  it('leaves an imported track to its line instead of routing alongside it (#2600)', async () => {
+    const a = assign(41, 1, 0, 48.1, 11.1)
+    const trackPlace = assign(42, 1, 1, 48.2, 11.2)
+    const c = assign(43, 1, 2, 48.4, 11.4)
+    const places = [{ ...place(42, 48.2, 11.2), route_geometry: JSON.stringify([[48.2, 11.2], [48.3, 11.3]]) }] as never
+    await downloadTripPDF({ ...args, days: [args.days[0]], places, assignments: { '1': [a, trackPlace, c] } })
+
+    expect(vi.mocked(routeTrip).mock.calls[0][0].toursEnabled).toBe(false)
+    expect(vi.mocked(calculateRouteWithLegs).mock.calls.map(([points]) =>
+      points.map(point => [point.lat, point.lng])))
+      .toEqual([[[48.1, 11.1], [48.2, 11.2]], [[48.3, 11.3], [48.4, 11.4]]])
+    expect(srcdoc()).toContain('stroke="#14805e"')
+    expect(srcdoc()).not.toContain('tours.dayRoute.endpointUnknown')
+  })
+
   it('prints one localized warning for an invalid Tour and does not invent its outgoing endpoint', async () => {
     useAddonStore.setState({ addons: [{ id: 'tours', enabled: true }] as never })
     const a = assign(31, 1, 0, 48.1, 11.1)

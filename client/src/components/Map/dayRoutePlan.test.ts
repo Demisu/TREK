@@ -436,3 +436,72 @@ describe('Tour day itinerary segments', () => {
     expect(projectDayItinerary(list, true)[1]).toMatchObject({ geometry: [points.S, points.E] })
   })
 })
+
+// #2600: an imported GPX/KML place sits at its track's first point, so routing it as a
+// plain stop drew a second road from the track start to the next stop, alongside the
+// track itself. Any assigned place with a track now leaves that stretch to the track.
+describe('Imported track places', () => {
+  const points = {
+    A: [35.2015, 24.1395], S: [35.201, 24.118], M: [35.199, 24.1], E: [35.1965, 24.079], C: [35.19, 24.07],
+  } as const
+  type Name = keyof typeof points
+  const stop = (name: Name, order: number, placeId: number) =>
+    buildAssignment({ id: 900 + order, day_id: 1, order_index: order,
+      place: buildPlace({ id: placeId, lat: points[name][0], lng: points[name][1] }) })
+  const trackPlace = (id: number, geometry: string | null, at: readonly [number, number] = points.S) =>
+    buildPlace({ id, lat: at[0], lng: at[1], route_geometry: geometry })
+  const track = JSON.stringify([points.S, points.M, points.E])
+  const runsOf = (list: AssignmentsMap['1'], places: ReturnType<typeof buildPlace>[], toursEnabled = false) =>
+    buildDayRouteRuns(1, { ...inputs({ assignments: { '1': list } }), toursEnabled, places })
+      .map(run => run.map(point => [point.lat, point.lng]))
+
+  it('routes up to the track start and carries on from its end, without the Tours addon', () => {
+    const list = [stop('A', 0, 1), stop('S', 1, 2), stop('C', 2, 3)]
+    const places = [buildPlace({ id: 1 }), trackPlace(2, track), buildPlace({ id: 3 })]
+    expect(runsOf(list, places)).toEqual([[points.A, points.S], [points.E, points.C]])
+    expect(runsOf(list, places, true)).toEqual([[points.A, points.S], [points.E, points.C]])
+    expect(projectDayItinerary(list, false, places)[1]).toMatchObject({ kind: 'tour', valid: true, geometry: [points.S, points.M, points.E] })
+  })
+
+  it('routes to the track start even when the marker was moved off it', () => {
+    const list = [stop('A', 0, 1), stop('C', 1, 2), stop('C', 2, 3)]
+    const places = [buildPlace({ id: 1 }), trackPlace(2, track, points.C), buildPlace({ id: 3 })]
+    expect(runsOf(list, places)).toEqual([[points.A, points.S], [points.E, points.C]])
+  })
+
+  it('takes the track as recorded, so one walked the other way still starts at its first point', () => {
+    const list = [stop('A', 0, 1), stop('E', 1, 2), stop('C', 2, 3)]
+    const places = [buildPlace({ id: 1 }), trackPlace(2, track, points.E), buildPlace({ id: 3 })]
+    expect(runsOf(list, places)).toEqual([[points.A, points.S], [points.E, points.C]])
+  })
+
+  it('keeps a place without a usable track as a plain stop, never as an invalid tour', () => {
+    const list = [stop('A', 0, 1), stop('S', 1, 2), stop('C', 2, 3)]
+    for (const geometry of [null, '{bad', JSON.stringify([points.S])]) {
+      const places = [buildPlace({ id: 1 }), trackPlace(2, geometry), buildPlace({ id: 3 })]
+      expect(runsOf(list, places)).toEqual([[points.A, points.S, points.C]])
+      expect(projectDayItinerary(list, true, places)[1]).toMatchObject({ kind: 'stop' })
+    }
+    // Places not loaded yet: the assignment alone carries no track, so nothing is guessed.
+    expect(runsOf(list, [])).toEqual([[points.A, points.S, points.C]])
+  })
+
+  it('starts the evening drive back to the hotel at the end of the track', () => {
+    const hotel = [35.5, 24.0]
+    const days = [1, 2, 3].map(id => buildDay({ id, day_number: id }))
+    const accommodations = [{ id: 1, trip_id: 1, start_day_id: 1, end_day_id: 3,
+      place_lat: hotel[0], place_lng: hotel[1] }] as Accommodation[]
+    const list = [stop('A', 0, 1), stop('S', 1, 2)].map(assignment => ({ ...assignment, day_id: 2 }))
+    const places = [buildPlace({ id: 1 }), trackPlace(2, track)]
+    expect(buildDayRouteRuns(2, { ...inputs({ days, assignments: { '2': list }, accommodations,
+      optimizeFromAccommodation: true }), places }).map(run => run.map(point => [point.lat, point.lng])))
+      .toEqual([[hotel, points.A], [points.A, points.S], [points.E, hotel]])
+  })
+
+  it('draws the track as a line in the trip overview and the PDF map', () => {
+    const list = [stop('A', 0, 1), stop('S', 1, 2), stop('C', 2, 3)]
+    const places = [buildPlace({ id: 1 }), trackPlace(2, track), buildPlace({ id: 3 })]
+    const plan = planTripRoute({ ...inputs({ assignments: { '1': list } }), places }, 'driving')
+    expect(plan[0].tourLines).toEqual([[points.S, points.M, points.E]])
+  })
+})
