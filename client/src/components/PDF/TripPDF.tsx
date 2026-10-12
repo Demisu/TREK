@@ -8,6 +8,7 @@ import type { Trip, Day, Place, Category, AssignmentsMap, DayNote, DistanceUnit,
 import { isDayInAccommodationRange, getDayOrder } from '../../utils/dayOrder'
 import { hidesOnMiddleDay, getTransportForDay, getMergedItems, getSpanPhase, getDisplayTimeForDay } from '../../utils/dayMerge'
 import { safeHexColor } from '../../utils/safeColor'
+import { pdfSwitchOn, rememberPdfSwitch } from '../../utils/pdfSwitch'
 import { renderIconMarkup } from '../../utils/iconMarkup'
 import { formatMoney, formatMoneySum, formatClockTime, splitReservationDateTime, type MoneyEntry } from '../../utils/formatters'
 import { useSettingsStore } from '../../store/settingsStore'
@@ -37,23 +38,6 @@ const PAGE_BREAK_KEY = 'trek_pdf_page_break_per_day'
  * wants the plan without the fine print.
  */
 const TRANSPORT_NOTES_KEY = 'trek_pdf_transport_notes'
-
-/** A preview switch that is on unless it was turned off; both default to on. */
-function pdfSwitchOn(key: string): boolean {
-  try {
-    return localStorage.getItem(key) !== '0'
-  } catch {
-    return true
-  }
-}
-
-function rememberPdfSwitch(key: string, on: boolean): void {
-  try {
-    localStorage.setItem(key, on ? '1' : '0')
-  } catch {
-    // A blocked localStorage costs the preference, not the export.
-  }
-}
 
 /* The overlay is imperative DOM, so the switch from Settings/ToggleSwitch is
    rebuilt here rather than rendered — as static markup it would carry no
