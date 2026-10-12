@@ -817,6 +817,43 @@ describe('ReservationsService (DI-native, real SQL)', () => {
       expect(out.costEvents).toEqual([]);
       expect(budget.linkBudgetItemToReservation).not.toHaveBeenCalled();
     });
+
+    it('RESV-TX-007: the cost is dated on the booking day, a hotel on its check-in day (#2604)', async () => {
+      const { trip } = ownerTrip();
+      const first = createDay(testDb, trip.id, { date: '2026-11-10' });
+      const second = createDay(testDb, trip.id, { date: '2026-11-11' });
+      budget.linkBudgetItemToReservation.mockReturnValue({ id: 7 });
+      const linkedWith = () => budget.linkBudgetItemToReservation.mock.calls.at(-1)?.[2];
+
+      await svc.createWithCost(String(trip.id), { title: 'KTX', type: 'train', reservation_time: '2026-11-12T10:00' } as never, { total_price: 59800 });
+      expect(linkedWith()).toMatchObject({ name: 'KTX', total_price: 59800, expense_date: '2026-11-12' });
+
+      await svc.createWithCost(
+        String(trip.id),
+        { title: 'Hanok', type: 'hotel', create_accommodation: { start_day_id: second.id, end_day_id: second.id } } as never,
+        { total_price: 120000 },
+      );
+      expect(linkedWith()).toMatchObject({ name: 'Hanok', expense_date: '2026-11-11' });
+
+      // A time without a date sits on the day it was added to.
+      await svc.createWithCost(String(trip.id), { title: 'Lunch', type: 'restaurant', reservation_time: 'T12:00', day_id: first.id } as never, { total_price: 9000 });
+      expect(linkedWith()).toMatchObject({ name: 'Lunch', expense_date: '2026-11-10' });
+
+      // Nothing to date it by: no date, as before.
+      await svc.createWithCost(String(trip.id), { title: 'Tip', type: 'other' } as never, { total_price: 5000 });
+      expect(linkedWith()).not.toHaveProperty('expense_date');
+    });
+
+    it('RESV-TX-008: a price added to a booking later dates its new cost the same way (#2604)', async () => {
+      const { trip } = ownerTrip();
+      budget.linkBudgetItemToReservation.mockReturnValue({ id: 8 });
+      const created = await svc.create(String(trip.id), { title: 'Ferry', type: 'ferry', reservation_time: '2026-11-13T08:30' } as never);
+      const current = (await svc.getReservation(String(created.reservation.id), String(trip.id)))!;
+
+      await svc.updateWithCost(String(created.reservation.id), String(trip.id), { title: 'Ferry' } as never, current, { total_price: 30000 });
+
+      expect(budget.linkBudgetItemToReservation).toHaveBeenCalledWith(String(trip.id), created.reservation.id, expect.objectContaining({ expense_date: '2026-11-13' }));
+    });
   });
 
   describe('notifyBookingChange', () => {

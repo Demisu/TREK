@@ -142,7 +142,7 @@ export default function MTransportFormSheet({ planner, onOpenExpense }: MTranspo
       if (saved?.id && canUploadFiles) {
         await uploadBookingFiles(fd => planner.tripActions.addFile(tripId, fd), saved.id, pendingFiles, form.title)
       }
-      const expenseRequest = expenseRequestAfterSave(withExpense, saved?.id, form)
+      const expenseRequest = expenseRequestAfterSave(withExpense, saved, form, days)
       if (expenseRequest) onOpenExpense(expenseRequest)
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : t('common.unknownError'))

@@ -12,7 +12,7 @@ import MBookingFilesCosts from './MBookingFilesCosts'
 import { expenseRequestAfterSave, travelerIdsOf, travelersChanged, uploadBookingFiles } from '../../../../components/Planner/bookingFormModel'
 import { useBookingExpenseIntent } from '../../../../components/Planner/useBookingExpenseIntent'
 import {
-  RESERVATION_TYPE_OPTIONS as TYPE_OPTIONS, reservationFieldsFrom, reservationFieldsFromPrefill,
+  RESERVATION_TYPE_OPTIONS as TYPE_OPTIONS, reservationFieldsFrom, reservationFieldsFromPrefill, selectedDayDate,
 } from '../../../../components/Planner/reservationFormModel'
 import { useReservationForm } from '../../../../components/Planner/useReservationForm'
 import { buildAssignmentOptions } from '../../../../components/Planner/assignmentOptions'
@@ -159,7 +159,7 @@ export default function MReservationSheet({ planner, onOpenExpense }: MReservati
       if (saved?.id && canUploadFiles) {
         await uploadBookingFiles(fd => planner.tripActions.addFile(tripId, fd), saved.id, pendingFiles, form.title)
       }
-      const expenseRequest = expenseRequestAfterSave(withExpense, saved?.id, form)
+      const expenseRequest = expenseRequestAfterSave(withExpense, saved, form, days)
       if (expenseRequest) onOpenExpense(expenseRequest)
       if (importReviewActive && saved) advanceImportReview()
     } catch (err: unknown) {
@@ -232,7 +232,7 @@ export default function MReservationSheet({ planner, onOpenExpense }: MReservati
                 <Eyebrow className="mb-[5px] uppercase">{t('reservations.startTime')}</Eyebrow>
                 <CustomTimePicker
                   value={startTime}
-                  onChange={tm => setStartTime(tm, days.find(dy => dy.id === selectedDayId)?.date || '')}
+                  onChange={tm => setStartTime(tm, selectedDayDate(days, selectedDayId))}
                 />
               </div>
             </div>

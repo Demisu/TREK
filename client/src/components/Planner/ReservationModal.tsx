@@ -1,5 +1,4 @@
 import { useEffect, useRef, useMemo, useId } from 'react'
-import { localIsoDate } from '../../utils/localDate'
 import { useParams } from 'react-router'
 import { useTripStore } from '../../store/tripStore'
 import { useAddonStore } from '../../store/addonStore'
@@ -25,7 +24,7 @@ import { DialogShell, DialogFooter, FooterSpacer, DialogButton } from '../shared
 import { INPUT, GRID_2, GRID_3, EditorField, PillSelect } from '../shared/dialogParts'
 import { typeInfo } from './bookings/bookingsModel'
 import type { StatusTone } from './bookings/bookingParts'
-import { RESERVATION_TYPE_OPTIONS as TYPE_OPTIONS, reservationFieldsFrom, reservationFieldsFromPrefill } from './reservationFormModel'
+import { RESERVATION_TYPE_OPTIONS as TYPE_OPTIONS, reservationFieldsFrom, reservationFieldsFromPrefill, selectedDayDate } from './reservationFormModel'
 import { useReservationForm } from './useReservationForm'
 import { expenseRequestAfterSave, pendingImportExpense, travelerIdsOf, travelersChanged, uploadBookingFiles } from './bookingFormModel'
 import { useBookingExpenseIntent } from './useBookingExpenseIntent'
@@ -151,7 +150,7 @@ export function ReservationModal({ isOpen, onClose, onSave, reservation, days, p
       }
       // Open the Costs editor for the saved booking when the user asked to
       // create/edit its linked expense (gated on saved?.id).
-      const expenseRequest = expenseRequestAfterSave(expense.take(), saved?.id, form)
+      const expenseRequest = expenseRequestAfterSave(expense.take(), saved, form, days)
       if (expenseRequest && onOpenExpense) onOpenExpense(expenseRequest)
     } finally {
       setIsSaving(false)
@@ -266,7 +265,7 @@ export function ReservationModal({ isOpen, onClose, onSave, reservation, days, p
             <EditorField label={t('reservations.startTime')}>
               <CustomTimePicker
                 value={startTime}
-                onChange={tm => setStartTime(tm, days.find(dy => dy.id === selectedDayId)?.date || localIsoDate())}
+                onChange={tm => setStartTime(tm, selectedDayDate(days, selectedDayId))}
               />
             </EditorField>
             <EditorField label={t('reservations.endDate')} error={isEndBeforeStart ? t('reservations.validation.endBeforeStart') : undefined}>

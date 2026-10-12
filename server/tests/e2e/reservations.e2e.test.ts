@@ -215,6 +215,21 @@ describe('Reservations + accommodations e2e (real auth guard + temp SQLite, real
     expect(item).toEqual({ total_price: 20, currency: null, exchange_rate: 1 });
   });
 
+  it('201 create dates the booked cost on the booking day, not on no day at all (#2604)', async () => {
+    const res = await request(server)
+      .post(`/api/trips/${tripId}/reservations`)
+      .set('Cookie', sessionCookie(1))
+      .send({
+        title: 'KTX',
+        type: 'train',
+        reservation_time: '2026-11-12T10:00',
+        create_budget_entry: { total_price: 59800 },
+      });
+    expect(res.status).toBe(201);
+    const item = await findRow(orm, BudgetItems, { reservation: res.body.reservation.id });
+    expect(item?.expense_date).toBe('2026-11-12');
+  });
+
   it('201 create reservation (real insert + booking notification), 400 without title', async () => {
     const ok = await request(server)
       .post(`/api/trips/${tripId}/reservations`)

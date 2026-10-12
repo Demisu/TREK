@@ -1,9 +1,9 @@
-// FE-PLANNER-BOOKINGFORM-001 to -008: the travellers, picked files, attached files
+// FE-PLANNER-BOOKINGFORM-001 to -009: the travellers, picked files, attached files
 // and expense requests of the transport and booking forms, desktop and phone alike.
 import { typeToCostCategory } from '@trek/shared';
 import { describe, expect, it, vi } from 'vitest';
 
-import { buildBudgetItem, buildReservation, buildTripFile } from '../../../tests/helpers/factories';
+import { buildBudgetItem, buildDay, buildReservation, buildTripFile } from '../../../tests/helpers/factories';
 import type { Reservation } from '../../types';
 import {
   attachedBookingFiles,
@@ -67,13 +67,28 @@ describe('bookingFormModel', () => {
   it('FE-PLANNER-BOOKINGFORM-005: an expense wish opens the editor for the saved booking, nothing else does', () => {
     const booking = { title: 'Hotel Adlon', type: 'hotel' };
     const item = buildBudgetItem({ id: 7 });
-    expect(expenseRequestAfterSave({ create: true }, 42, booking)).toEqual({
+    expect(expenseRequestAfterSave({ create: true }, { id: 42 }, booking, [])).toEqual({
       prefill: { reservationId: 42, name: 'Hotel Adlon', category: typeToCostCategory('hotel') },
     });
-    expect(expenseRequestAfterSave({ editItem: item }, 42, booking)).toEqual({ editItem: item });
-    expect(expenseRequestAfterSave(null, 42, booking)).toBeNull();
-    expect(expenseRequestAfterSave({ create: true }, undefined, booking)).toBeNull();
-    expect(expenseRequestAfterSave({ editItem: item }, null, booking)).toBeNull();
+    expect(expenseRequestAfterSave({ editItem: item }, { id: 42 }, booking, [])).toEqual({ editItem: item });
+    expect(expenseRequestAfterSave(null, { id: 42 }, booking, [])).toBeNull();
+    expect(expenseRequestAfterSave({ create: true }, undefined, booking, [])).toBeNull();
+    expect(expenseRequestAfterSave({ editItem: item }, null, booking, [])).toBeNull();
+  });
+
+  it('FE-PLANNER-BOOKINGFORM-009: the expense opened for a booking is dated on the booking day (#2604)', () => {
+    const days = [buildDay({ id: 5, date: '2026-11-10' }), buildDay({ id: 6, date: '2026-11-11' })];
+    const train = { title: 'KTX', type: 'train' };
+    const dateOf = (saved: Parameters<typeof expenseRequestAfterSave>[1]) =>
+      (expenseRequestAfterSave({ create: true }, saved, train, days) as { prefill: { date?: string } }).prefill.date;
+    expect(dateOf({ id: 1, reservation_time: '2026-11-12T10:00' })).toBe('2026-11-12');
+    expect(dateOf({ id: 1, reservation_time: '2026-11-12' })).toBe('2026-11-12');
+    // A hotel has no time of its own: it counts on its check-in day.
+    expect(dateOf({ id: 1, reservation_time: null, accommodation_start_day_id: 6 })).toBe('2026-11-11');
+    // A time without a date sits on the day it was added to, or on none.
+    expect(dateOf({ id: 1, reservation_time: 'T09:00', day_id: 5 })).toBe('2026-11-10');
+    expect(dateOf({ id: 1, reservation_time: 'T09:00', day_id: null })).toBeUndefined();
+    expect(dateOf({ id: 1 })).toBeUndefined();
   });
 
   it('FE-PLANNER-BOOKINGFORM-006: an import review previews the parsed price, a saved booking does not', () => {

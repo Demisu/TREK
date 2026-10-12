@@ -176,6 +176,18 @@ export function withStartDate(reservationTime: string, date: string | null | und
   return date ? (time ? `${date}T${time}` : date) : '';
 }
 
+/**
+ * The date a start time typed on an undated booking falls on: the day the booking is
+ * being added to, else none. Never today, which is mostly not a trip day at all and
+ * was then moved onto the first one, so the list and the plan disagreed (#2604).
+ */
+export function selectedDayDate(
+  days: Pick<Day, 'id' | 'date'>[],
+  selectedDayId: number | string | null | undefined
+): string {
+  return (selectedDayId != null && days.find((d) => d.id === selectedDayId)?.date) || '';
+}
+
 /** The start with a new time, on its own date or `fallbackDate` when it has none. */
 export function withStartTime(reservationTime: string, time: string, fallbackDate: string): string {
   const date = startParts(reservationTime).date || fallbackDate;

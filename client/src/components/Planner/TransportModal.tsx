@@ -152,7 +152,7 @@ export function TransportModal({ isOpen, onClose, onSave, reservation, days, sel
       }
       // The user asked to create/edit the linked expense — open the Costs editor
       // for the now-saved booking. Gated on saved?.id so a failed save doesn't.
-      const expenseRequest = expenseRequestAfterSave(expense.take(), saved?.id, form)
+      const expenseRequest = expenseRequestAfterSave(expense.take(), saved, form, days)
       if (expenseRequest && onOpenExpense) onOpenExpense(expenseRequest)
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : t('common.unknownError'))

@@ -711,7 +711,7 @@ export class BudgetService {
   async linkBudgetItemToReservation(
     tripId: string | number,
     reservationId: number,
-    data: { name: string; category?: string; total_price: number; currency?: string | null; exchange_rate?: number },
+    data: { name: string; category?: string; total_price: number; currency?: string | null; exchange_rate?: number; expense_date?: string | null },
   ) {
     // createBudgetItem accepts reservation_id directly — the legacy separate
     // UPDATE after the insert was redundant (and non-atomic).

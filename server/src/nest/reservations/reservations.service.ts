@@ -42,6 +42,8 @@ import { decodeJson } from '../../utils/json-column';
 
 type Trip = TripAccess;
 type BudgetEntry = { total_price?: number; category?: string; currency?: string | null; exchange_rate?: number } | undefined;
+/** A booking's cost as the service writes it: the entry, dated on the booking's day (bookingDate), never by the caller. */
+type DatedBudgetEntry = (NonNullable<BudgetEntry> & { expense_date?: string | null }) | undefined;
 
 /** What a booking write did to its linked costs, for the caller to send once the write has committed. */
 export type CostEvent =
@@ -666,7 +668,7 @@ export class ReservationsService {
   async createWithCostInTx(tripId: string, data: CreateReservationData, entry: BudgetEntry) {
     const costEvents: CostEvent[] = [];
     const done = await this.createInTx(tripId, data);
-    await this.syncBudgetOnCreate(tripId, done.reservation.id, data.title, data.type, entry, undefined, costEvents);
+    await this.syncBudgetOnCreate(tripId, done.reservation.id, data.title, data.type, await this.dated(entry, done.reservation), undefined, costEvents);
     return { ...done, costEvents };
   }
 
@@ -675,7 +677,7 @@ export class ReservationsService {
     const costEvents: CostEvent[] = [];
     const { stayMirror, ...written } = await this.uow.transactional(async () => {
       const done = await this.updateInTx(id, tripId, data, current);
-      await this.syncBudgetOnUpdate(tripId, id, data.title ?? '', data.type, current.title, current.type ?? undefined, entry, undefined, costEvents);
+      await this.syncBudgetOnUpdate(tripId, id, data.title ?? '', data.type, current.title, current.type ?? undefined, await this.dated(entry, done.reservation), undefined, costEvents);
       return done;
     });
     await this.announceStayMirror(tripId, stayMirror);
@@ -1133,8 +1135,26 @@ export class ReservationsService {
     return { ...rest, currency, ...(priced.exchange_rate != null ? { exchange_rate: priced.exchange_rate } : {}) };
   }
 
+  /**
+   * The calendar day a booking falls on, which a cost created with it is dated on
+   * (#2604): its own date, else a hotel's check-in day, else the day it sits on.
+   * Null for a booking without any of them; the cost then has no date, as before.
+   */
+  private async bookingDate(reservation: ReservationRow): Promise<string | null> {
+    const own = String(reservation.reservation_time ?? '').slice(0, 10);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(own)) return own;
+    const dayId = Number(reservation.accommodation_start_day_id ?? reservation.day_id) || null;
+    return dayId ? ((await this.daysRepo.findById(dayId))?.date ?? null) : null;
+  }
+
+  /** The entry with the booking's day as its date, replacing anything the caller sent. */
+  private async dated(entry: BudgetEntry, reservation: ReservationRow): Promise<DatedBudgetEntry> {
+    if (!entry || typeof entry !== 'object' || !(Number(entry.total_price) > 0)) return entry;
+    return { ...entry, expense_date: await this.bookingDate(reservation) };
+  }
+
   /** POST side effect: link a budget item when a price is provided. `collect` holds the broadcast for the caller's transaction. */
-  async syncBudgetOnCreate(tripId: string, reservationId: number, title: string, type: string | undefined, entry: BudgetEntry, socketId: string | undefined, collect?: CostEvent[]): Promise<void> {
+  async syncBudgetOnCreate(tripId: string, reservationId: number, title: string, type: string | undefined, entry: DatedBudgetEntry, socketId: string | undefined, collect?: CostEvent[]): Promise<void> {
     if (!entry || !(Number(entry.total_price) > 0)) return;
     // A failing cost write is not caught: it rolls the booking back with it in createWithCost.
     const item = await this.budget.linkBudgetItemToReservation(tripId, reservationId, {
@@ -1143,12 +1163,13 @@ export class ReservationsService {
       total_price: entry.total_price!,
       ...(entry.currency ? { currency: entry.currency } : {}),
       ...(entry.exchange_rate != null ? { exchange_rate: entry.exchange_rate } : {}),
+      ...(entry.expense_date ? { expense_date: entry.expense_date } : {}),
     });
     this.sendCost(tripId, { event: 'budget:created', payload: { item } }, socketId, collect);
   }
 
   /** PUT side effect: drop the linked budget item when the price is cleared, else create/update it. `collect` and failures as on create. */
-  async syncBudgetOnUpdate(tripId: string, id: string, title: string, type: string | undefined, currentTitle: string, currentType: string | undefined, entry: BudgetEntry, socketId: string | undefined, collect?: CostEvent[]): Promise<void> {
+  async syncBudgetOnUpdate(tripId: string, id: string, title: string, type: string | undefined, currentTitle: string, currentType: string | undefined, entry: DatedBudgetEntry, socketId: string | undefined, collect?: CostEvent[]): Promise<void> {
     // When the booking type changes, keep a linked expense's category in sync —
     // but only if it still carries the auto-derived category (so a manual pick in
     // the Costs editor is preserved). Runs regardless of create_budget_entry.
@@ -1189,7 +1210,12 @@ export class ReservationsService {
       this.sendCost(tripId, { event: 'budget:updated', payload: { item: updated } }, socketId, collect);
     } else {
       // The link travels on the insert, so a cost is never written without its booking.
-      const item = await this.budget.linkBudgetItemToReservation(tripId, Number(id), { name: itemName, category, total_price: entry.total_price! });
+      const item = await this.budget.linkBudgetItemToReservation(tripId, Number(id), {
+        name: itemName,
+        category,
+        total_price: entry.total_price!,
+        ...(entry.expense_date ? { expense_date: entry.expense_date } : {}),
+      });
       this.sendCost(tripId, { event: 'budget:created', payload: { item } }, socketId, collect);
     }
   }

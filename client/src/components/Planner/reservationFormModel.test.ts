@@ -1,4 +1,4 @@
-// FE-PLANNER-RESFORM-001 to -014: the booking form both the desktop ReservationModal
+// FE-PLANNER-RESFORM-001 to -015: the booking form both the desktop ReservationModal
 // and the phone's booking sheet save through.
 import { describe, expect, it } from 'vitest';
 
@@ -12,6 +12,7 @@ import {
   reservationFieldsFrom,
   reservationFieldsFromPrefill,
   reservationSaveData,
+  selectedDayDate,
   splitEndTime,
   startParts,
   tripDateBounds,
@@ -185,6 +186,13 @@ describe('reservation dates', () => {
     expect(withStartTime('', '09:15', '2026-01-01')).toBe('2026-01-01T09:15');
     expect(withStartTime('2026-07-02T09:15', '', '2026-01-01')).toBe('2026-07-02');
     expect(withStartTime('', '09:15', '')).toBe('T09:15');
+  });
+
+  it('FE-PLANNER-RESFORM-015: a time typed without a day takes the picked day, never today (#2604)', () => {
+    expect(selectedDayDate(days, 3)).toBe('2026-07-02');
+    expect(selectedDayDate(days, null)).toBe('');
+    expect(selectedDayDate(days, 99)).toBe('');
+    expect(withStartTime('', '09:15', selectedDayDate(days, null))).toBe('T09:15');
   });
 
   it('FE-PLANNER-RESFORM-007: the pickers are bounded by the earliest and latest dated day', () => {

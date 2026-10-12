@@ -1,6 +1,6 @@
 import { typeToCostCategory } from '@trek/shared';
 
-import type { BudgetItem, Reservation, TripFile } from '../../types';
+import type { BudgetItem, Day, Reservation, TripFile } from '../../types';
 import type { BookingExpenseRequest } from './BookingCostsSection.types';
 import { importedPriceEntry } from './importedPrice';
 
@@ -62,18 +62,42 @@ export interface BookingExpenseIntent {
   create?: boolean;
 }
 
+type SavedBooking = Pick<Reservation, 'id'> &
+  Partial<Pick<Reservation, 'reservation_time' | 'day_id' | 'accommodation_start_day_id'>>;
+
+/**
+ * The calendar day a saved booking falls on: its own date, else a hotel's check-in
+ * day, else the day it sits on. Nothing for a booking without any of them.
+ */
+export function bookingDate(saved: SavedBooking, days: Pick<Day, 'id' | 'date'>[]): string | undefined {
+  const own = (saved.reservation_time || '').slice(0, 10);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(own)) return own;
+  const dayId = saved.accommodation_start_day_id ?? saved.day_id;
+  return (dayId != null && days.find((d) => d.id === dayId)?.date) || undefined;
+}
+
 /**
  * The expense editor request to open once a booking is saved, or null when the user
- * asked for none or the save came back without a record.
+ * asked for none or the save came back without a record. A new expense is dated on
+ * the booking's day rather than today (#2604).
  */
 export function expenseRequestAfterSave(
   intent: BookingExpenseIntent | null | undefined,
-  savedId: number | null | undefined,
-  booking: { title: string; type: string }
+  saved: SavedBooking | null | undefined,
+  booking: { title: string; type: string },
+  days: Pick<Day, 'id' | 'date'>[]
 ): BookingExpenseRequest | null {
-  if (!intent || !savedId) return null;
+  if (!intent || !saved?.id) return null;
   if (intent.editItem) return { editItem: intent.editItem };
-  return { prefill: { reservationId: savedId, name: booking.title, category: typeToCostCategory(booking.type) } };
+  const date = bookingDate(saved, days);
+  return {
+    prefill: {
+      reservationId: saved.id,
+      name: booking.title,
+      category: typeToCostCategory(booking.type),
+      ...(date ? { date } : {}),
+    },
+  };
 }
 
 /**
