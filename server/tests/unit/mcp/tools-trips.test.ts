@@ -365,20 +365,17 @@ describe('Tool: update_trip', () => {
     expect(shifted).toEqual(['2026-08-10', '2026-08-11', '2026-08-12', '2026-08-13', '2026-08-14']);
   });
 
-  it('shifts entries from the owners own plan even if another vacay plan is active', async () => {
+  it('shifts the owner entries in the plan they are active in, a shared plan they joined included (#2604)', async () => {
     const { user } = createUser(testDb);
     const { user: otherOwner } = createUser(testDb);
     const trip = createTrip(testDb, user.id, { start_date: '2026-09-01', end_date: '2026-09-07' });
 
-    // Own plan with entries that should be shifted.
-    const ownPlanId = await vacayPlanWithYear(user.id);
+    // Joining a plan moves the owner's days into it, so that is where they live.
+    const { id: sharedPlanId } = await makeVacayPlan(orm, otherOwner.id);
+    await addVacayPlanMember(orm, sharedPlanId, user.id, 'accepted');
     for (const d of ['2026-09-02', '2026-09-03']) {
-      await makeVacayEntry(orm, ownPlanId, user.id, d, { note: '' });
+      await makeVacayEntry(orm, sharedPlanId, user.id, d, { note: '' });
     }
-
-    // Different accepted plan becomes "active" for the owner.
-    const { id: foreignPlanId } = await makeVacayPlan(orm, otherOwner.id);
-    await addVacayPlanMember(orm, foreignPlanId, user.id, 'accepted');
 
     await withHarness(user.id, async (h) => {
       const result = await h.client.callTool({
@@ -388,10 +385,10 @@ describe('Tool: update_trip', () => {
       expect(result.isError).toBeFalsy();
     });
 
-    const oldWindow = await vacayDatesBetween(ownPlanId, user.id, '2026-09-01', '2026-09-07');
+    const oldWindow = await vacayDatesBetween(sharedPlanId, user.id, '2026-09-01', '2026-09-07');
     expect(oldWindow).toHaveLength(0);
 
-    const shifted = await vacayDatesBetween(ownPlanId, user.id, '2026-09-08', '2026-09-14');
+    const shifted = await vacayDatesBetween(sharedPlanId, user.id, '2026-09-08', '2026-09-14');
     expect(shifted).toEqual(['2026-09-09', '2026-09-10']);
   });
 
