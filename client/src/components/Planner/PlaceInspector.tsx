@@ -39,7 +39,7 @@ import { navigationTargetLabel, getNavigationTargets, openNavigationTarget } fro
 import { TRANSPORT_TYPES, getPlaceBookings } from '../../utils/dayMerge'
 import { NavigationMenu } from '../shared/NavigationMenu'
 import { centredMapCardBox } from '../Map/centredMapCard'
-import { resolveOpenNow, resolvePlaceTimeZone, placeWeekdayIndex, type OpeningPeriod } from './placeOpenState'
+import { resolveOpenNow, resolvePlaceTimeZone, getWeekdayIndex, type OpeningPeriod } from './placeOpenState'
 import { convertHoursLine } from './placeHoursFormat'
 import type { EndDayControlProps } from '../Roadtrip/EndDayControl'
 import VisitControls, { type RoadtripStayControl } from '../Roadtrip/VisitControls'
@@ -134,13 +134,6 @@ function usePlaceDetails(googlePlaceId, osmId, language) {
     }).catch(() => {})
   }, [detailId, language])
   return details
-}
-
-function getWeekdayIndex(dateStr, timeZone) {
-  // weekdayDescriptions[0] = Monday … [6] = Sunday
-  if (!dateStr) return placeWeekdayIndex(new Date(), timeZone)
-  const jsDay = new Date(dateStr + 'T12:00:00').getDay()
-  return jsDay === 0 ? 6 : jsDay - 1
 }
 
 function formatFileSize(bytes) {
