@@ -67,11 +67,15 @@ export function useDashboard() {
   useEffect(() => { void loadTrips() }, [])
 
   // Travel stats + upcoming reservations power the atlas row and the sidebar.
-  // Both are best-effort: a failure just leaves that section empty.
-  useEffect(() => {
+  // Both are best-effort: a failure just leaves that section empty. Every trip
+  // mutation below reloads them, so the counters and the booking dates don't
+  // lag behind a created, copied or redated trip until the next visit. #2604
+  const loadSideData = () => {
     authApi.travelStats().then(setStats).catch(() => {})
     reservationsApi.upcoming().then((r: { reservations: UpcomingReservation[] }) => setUpcoming(r.reservations || [])).catch(() => {})
-  }, [])
+  }
+
+  useEffect(() => { loadSideData() }, [])
 
   const loadTrips = async () => {
     setIsLoading(true)
@@ -124,6 +128,7 @@ export function useDashboard() {
       const data = await tripsApi.create(tripData)
       setTrips(prev => sortTrips([data.trip, ...prev]))
       toast.success(t('dashboard.toast.created'))
+      loadSideData()
       return data
     } catch (err: unknown) {
       throw new Error(getApiErrorMessage(err, t('dashboard.toast.createError')))
@@ -136,6 +141,7 @@ export function useDashboard() {
       const data = await tripRepo.update(editingTrip.id, tripData)
       setTrips(prev => sortTrips(prev.map(t => t.id === editingTrip.id ? data.trip : t)))
       toast.success(t('dashboard.toast.updated'))
+      loadSideData()
     } catch (err: unknown) {
       throw new Error(getApiErrorMessage(err, t('dashboard.toast.updateError')))
     }
@@ -153,6 +159,7 @@ export function useDashboard() {
       setTrips(prev => prev.filter(t => t.id !== deleteTrip.id))
       setArchivedTrips(prev => prev.filter(t => t.id !== deleteTrip.id))
       toast.success(t('dashboard.toast.deleted'))
+      loadSideData()
     } catch (err: unknown) {
       toast.error(getApiErrorMessage(err, t('dashboard.toast.deleteError')))
     }
@@ -165,6 +172,7 @@ export function useDashboard() {
       setTrips(prev => prev.filter(t => t.id !== id))
       setArchivedTrips(prev => sortTrips([data.trip, ...prev]))
       toast.success(t('dashboard.toast.archived'))
+      loadSideData()
     } catch (err: unknown) {
       toast.error(getApiErrorMessage(err, t('dashboard.toast.archiveError')))
     }
@@ -176,6 +184,7 @@ export function useDashboard() {
       setArchivedTrips(prev => prev.filter(t => t.id !== id))
       setTrips(prev => sortTrips([data.trip, ...prev]))
       toast.success(t('dashboard.toast.restored'))
+      loadSideData()
     } catch (err: unknown) {
       toast.error(getApiErrorMessage(err, t('dashboard.toast.restoreError')))
     }
@@ -188,6 +197,7 @@ export function useDashboard() {
       const data = await tripsApi.copy(copyTrip.id, { title: `${copyTrip.title} (${t('dashboard.copySuffix')})` })
       setTrips(prev => sortTrips([data.trip, ...prev]))
       toast.success(t('dashboard.toast.copied'))
+      loadSideData()
     } catch (err: unknown) {
       toast.error(getApiErrorMessage(err, t('dashboard.toast.copyError')))
     }
