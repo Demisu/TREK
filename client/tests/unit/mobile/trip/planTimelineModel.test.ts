@@ -365,19 +365,38 @@ describe('planTimelineModel — buildPlanRows', () => {
     expect(noAnchorRows.find(row => row.kind === 'place' && row.assignment.id === tour.id)).toMatchObject({ invalidTour: true })
   })
 
-  it('keeps Tours-off routing on the legacy single Place anchor', () => {
+  it('keeps Tours-off routing on the legacy single Place anchor unless the Place has a track (#2600)', () => {
     const before = assignment(81, 0, place(801, 'Before', 48.1, 11.1))
     const tour = tourAssignment(82, 1, [[48.11, 11.11], [48.12, 11.12]])
     const after = assignment(83, 2, place(803, 'After', 48.13, 11.13))
-    const rows = tourRows([before, tour, after], [
-      seg([48.1, 11.1], [48.11, 11.11]),
-      seg([48.11, 11.11], [48.13, 11.13]),
-    ], false)
+    // The legs the route calc draws for the day with the addon off, as the phone hands them on.
+    const drawn = (list: Assignment[]) => segmentsOf(buildDayRouteRuns(2, {
+      days: DAYS, assignments: { '2': list }, reservations: [], accommodations: [], optimizeFromAccommodation: false,
+      toursEnabled: false, places: list.flatMap(item => item.place ? [item.place as Place] : []),
+    }))
+    const tourRow = (rows: ReturnType<typeof buildPlanRows>) =>
+      rows.find(row => row.kind === 'place' && row.assignment.id === tour.id)
+
+    // Off, the Place still has its track, so the drive breaks there all the same and
+    // carries on from the track's end, as on the desktop day plan.
+    const rows = tourRows([before, tour, after], drawn([before, tour, after]), false)
     expect(connectors(rows).map(item => [item.from, item.to])).toEqual([
+      [[48.1, 11.1], [48.11, 11.11]],
+      [[48.12, 11.12], [48.13, 11.13]],
+    ])
+    expect(rows.filter(row => row.kind === 'conn').map(row => row.assignmentId)).toEqual([before.id, tour.id])
+    expect(tourRow(rows)).toMatchObject({ invalidTour: false })
+
+    // Without a usable track it is a plain stop on its Place anchor, the saved Tour
+    // geometry left alone, and never an invalid Tour as it would be with the addon on.
+    const untracked = tourAssignment(82, 1, [[48.11, 11.11], [48.12, 11.12]], 'not valid geometry')
+    const anchorRows = tourRows([before, untracked, after], drawn([before, untracked, after]), false)
+    expect(connectors(anchorRows).map(item => [item.from, item.to])).toEqual([
       [[48.1, 11.1], [48.11, 11.11]],
       [[48.11, 11.11], [48.13, 11.13]],
     ])
-    expect(rows.find(row => row.kind === 'place' && row.assignment.id === tour.id)).toMatchObject({ invalidTour: false })
+    expect(tourRow(anchorRows)).toMatchObject({ invalidTour: false })
+    expect(tourRow(tourRows([before, untracked, after], [], true))).toMatchObject({ invalidTour: true })
   })
 })
 
