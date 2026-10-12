@@ -14,7 +14,7 @@ import { useAddonStore } from '../../store/addonStore'
 import { resetAllStores, seedStore } from '../../../tests/helpers/store'
 import { buildUser, buildTrip, buildDay, buildPlace, buildAssignment, buildReservation, buildBudgetItem } from '../../../tests/helpers/factories'
 import {
-  addonsApi, accommodationsApi, authApi, tripsApi, assignmentsApi,
+  addonsApi, authApi, tripsApi, assignmentsApi,
   healthApi, airtrailApi, mapsApi, toursApi,
 } from '../../api/client'
 import { accommodationRepo } from '../../repo/accommodationRepo'
@@ -77,9 +77,10 @@ vi.mock('../../sync/networkMode', async (importOriginal) => {
   }
 })
 
-vi.mock('../../repo/accommodationRepo', () => ({
-  accommodationRepo: { list: vi.fn(async () => ({ accommodations: [] })) },
-}))
+vi.mock('../../repo/accommodationRepo', async importOriginal => {
+  const real = await importOriginal<typeof import('../../repo/accommodationRepo')>()
+  return { accommodationRepo: { ...real.accommodationRepo, list: vi.fn(async () => ({ accommodations: [] })) } }
+})
 
 vi.mock('../../services/photoService', () => ({
   getCached: vi.fn(() => undefined),
@@ -203,7 +204,6 @@ beforeEach(() => {
   vi.spyOn(authApi, 'getAppConfig').mockResolvedValue({})
   vi.spyOn(healthApi, 'features').mockResolvedValue({ bookingImport: false, aiParsing: false })
   vi.spyOn(tripsApi, 'getMembers').mockResolvedValue({ owner: null, members: [] })
-  vi.spyOn(accommodationsApi, 'list').mockResolvedValue({ accommodations: [] })
   vi.spyOn(assignmentsApi, 'updateTime').mockResolvedValue({})
   vi.spyOn(airtrailApi, 'sync').mockResolvedValue({ changed: 0 })
   vi.spyOn(mapsApi, 'reverse').mockResolvedValue({ name: '', address: '' } as never)
@@ -1983,9 +1983,9 @@ describe('useTripPlanner — bookings and transports', () => {
 
   it('FE-TP-HOOK-077: a new hotel refreshes the accommodation list', async () => {
     seedTrip()
-    vi.mocked(accommodationsApi.list).mockResolvedValue({ accommodations: [{ id: 3 }] })
-
     const { result } = await renderPlanner()
+    // Stubbed after the mount's own read, so only the refresh can bring the stay in.
+    vi.mocked(accommodationRepo.list).mockResolvedValue({ accommodations: [{ id: 3 }] as never })
     await act(async () => {
       await result.current.handleSaveReservation({ title: 'Ryokan', type: 'hotel' })
     })
@@ -2110,8 +2110,9 @@ describe('useTripPlanner — bookings and transports', () => {
     expect(second.create_accommodation.place_id).toBe(901)
   })
 
-  it('FE-TP-HOOK-081d: offline, no place is minted for a booking that cannot be written', async () => {
+  it('FE-TP-HOOK-081d: offline, a new hotel\'s place skips the geocode and is linked by its temp id', async () => {
     env.forcedOffline = true
+    actions.addPlace.mockResolvedValue(buildPlace({ id: -1758000000001, name: 'Ryokan Sakura' }))
     seedTrip()
 
     const { result } = await renderPlanner()
@@ -2122,12 +2123,11 @@ describe('useTripPlanner — bookings and transports', () => {
       } as never)
     })
 
-    // A place created offline gets a negative temp id, and the reservation write
-    // is online-only — linking one is a foreign-key failure on the server.
-    expect(actions.addPlace).not.toHaveBeenCalled()
+    // Offline the booking queues behind the place and is sent with the place's real id (#2601).
     expect(mapsApi.search).not.toHaveBeenCalled()
+    expect(actions.addPlace.mock.calls).toEqual([[42, { name: 'Ryokan Sakura', lat: null, lng: null, address: null }]])
     const payload = actions.addReservation.mock.calls[0][1] as { create_accommodation: { place_id?: number } }
-    expect(payload.create_accommodation.place_id).toBeUndefined()
+    expect(payload.create_accommodation.place_id).toBe(-1758000000001)
   })
 
   it('FE-TP-HOOK-081e: a place still holding an offline temp id is not linked as the accommodation', async () => {
@@ -2239,9 +2239,9 @@ describe('useTripPlanner — bookings and transports', () => {
 
   it('FE-TP-HOOK-087: deleting a booking refreshes the accommodations', async () => {
     seedTrip()
-    vi.mocked(accommodationsApi.list).mockResolvedValue({ accommodations: [{ id: 1 }] })
-
     const { result } = await renderPlanner()
+    // Stubbed after the mount's own read, so only the refresh can bring the stay in.
+    vi.mocked(accommodationRepo.list).mockResolvedValue({ accommodations: [{ id: 1 }] as never })
     await act(async () => { await result.current.handleDeleteReservation(5) })
 
     expect(actions.deleteReservation).toHaveBeenCalledWith(42, 5)
@@ -2541,9 +2541,9 @@ describe('useTripPlanner — booking import review', () => {
 
   it('FE-TP-HOOK-090: advancing moves on to the transport item and then finishes the session', async () => {
     seedTrip()
-    vi.mocked(accommodationsApi.list).mockResolvedValue({ accommodations: [{ id: 2 }] })
-
     const { result } = await renderPlanner()
+    // Stubbed after the mount's own read, so only the refresh can bring the stay in.
+    vi.mocked(accommodationRepo.list).mockResolvedValue({ accommodations: [{ id: 2 }] as never })
     act(() => { result.current.startImportReview([hotelItem, flightItem] as never) })
 
     act(() => { result.current.advanceImportReview() })
