@@ -444,6 +444,49 @@ describe('Settlement tools', () => {
     }
   });
 
+  it('get_settlement_summary hands out whole won on a won trip, like REST (#2604)', async () => {
+    // ₩10,001 for two is 5,000.50 each. A whole won is the smallest amount that can
+    // change hands, so that is what both surfaces offer, and an agent booking the
+    // flow it was given squares the trip.
+    const { user, other, trip } = tripWithTwo();
+    await updateRows(orm, Trips, { id: trip.id }, { currency: 'KRW' });
+    const item = createBudgetItem(testDb, trip.id, { total_price: 10001 });
+    await updateRows(orm, BudgetItems, { id: item.id }, { currency: 'KRW' });
+    await addBudgetItemMember(orm, item.id, user.id, { paid: 0 });
+    await addBudgetItemMember(orm, item.id, other.id, { paid: 0 });
+    await addBudgetItemPayer(orm, item.id, user.id, 10001);
+
+    const controller = new BudgetController(
+      new BudgetService(
+        new PermissionsService(await createTestAppSettingsRepo(testDb), await createTestUnitOfWork(testDb)),
+        new ExchangeRatesService(),
+        new RealtimeService(),
+        await createTestUnitOfWork(testDb),
+        ...(await budgetRepoArgs(testDb)),
+      ),
+    );
+    const access = { id: trip.id, user_id: user.id, currency: 'KRW' } as TripAccess;
+    const rest = await controller.settlement({ id: user.id } as User, access, String(trip.id), {});
+
+    await withHarness(user.id, async (h) => {
+      const result = await h.client.callTool({ name: 'get_settlement_summary', arguments: { tripId: trip.id } });
+      const data = parseToolResult(result) as { summary: typeof rest };
+      expect(data.summary).toEqual(rest);
+      expect(data.summary.balances.map((b) => b.balance)).toEqual([5001, -5001]);
+      expect(data.summary.flows.map((f) => f.amount)).toEqual([5001]);
+
+      await h.client.callTool({
+        name: 'create_settlement',
+        arguments: { tripId: trip.id, from_user_id: other.id, to_user_id: user.id, amount: 5001, currency: 'KRW' },
+      });
+      const after = parseToolResult(
+        await h.client.callTool({ name: 'get_settlement_summary', arguments: { tripId: trip.id } }),
+      ) as { summary: typeof rest };
+      expect(after.summary.balances.map((b) => b.balance)).toEqual([0, 0]);
+      expect(after.summary.flows).toEqual([]);
+    });
+  });
+
   it('get_settlement_summary returns balances and flows', async () => {
     try {
       const { user, other, trip } = tripWithTwo();

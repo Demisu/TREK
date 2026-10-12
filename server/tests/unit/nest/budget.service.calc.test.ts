@@ -1285,6 +1285,155 @@ describe('calculateSettlement: unconverted rows', () => {
   });
 });
 
+// ── Currencies shown without decimals (#2604) ────────────────────────────────
+
+describe('calculateSettlement: currencies shown in whole units (#2604)', () => {
+  const KRW = { base: 'KRW', tripCurrency: 'KRW', rates: null };
+  type Result = Awaited<ReturnType<BudgetService['calculateSettlement']>>;
+
+  /**
+   * What the panels print for a won is a whole won, so every figure has to be
+   * one already and the printed set has to add up the way the ledger does: the
+   * balances to zero, each person's flows to their balance, each final-budget
+   * line to the rows listed under it.
+   */
+  const expectWholeAndSquare = (result: Result) => {
+    const figures = [
+      ...result.balances.map((b) => b.balance),
+      ...result.flows.map((f) => f.amount),
+      ...result.finalBudgets.flatMap((f) => [f.expenses, f.reimbursed, f.pending, f.final]),
+      ...result.finalBudgets.flatMap((f) => [
+        ...f.sources.fronted.map((r) => r.cents / 100),
+        ...f.sources.moved.map((r) => r.cents / 100),
+        ...f.sources.outstanding.map((r) => r.cents / 100),
+      ]),
+    ];
+    for (const v of figures) expect(Number.isInteger(v)).toBe(true);
+    expect(result.balances.reduce((a, b) => a + b.balance, 0)).toBe(0);
+    for (const b of result.balances) {
+      const moved =
+        result.flows.filter((f) => f.to.user_id === b.user_id).reduce((a, f) => a + f.amount, 0) -
+        result.flows.filter((f) => f.from.user_id === b.user_id).reduce((a, f) => a + f.amount, 0);
+      expect(moved).toBe(b.balance);
+    }
+    for (const f of result.finalBudgets) {
+      expect(f.sources.fronted.reduce((a, r) => a + r.cents, 0)).toBe(Math.round(f.expenses * 100));
+      expect(f.sources.moved.reduce((a, r) => a + r.cents, 0)).toBe(Math.round(f.reimbursed * 100));
+      expect(f.sources.outstanding.reduce((a, r) => a + r.cents, 0)).toBe(Math.round(f.pending * 100));
+      expect(f.final).toBe(f.expenses - f.reimbursed - f.pending);
+    }
+  };
+
+  /** Books every flow the settlement offers, as the Settle button does, and reads the trip again. */
+  const settleEverything = async (
+    items: BudgetItem[],
+    members: ReturnType<typeof makeMember>[],
+    payers: ReturnType<typeof makePayer>[],
+    opts: Parameters<BudgetService['calculateSettlement']>[1],
+    currency: string,
+  ) => {
+    const first = await budget.calculateSettlement(1, opts);
+    const booked = first.flows.map((f, i) =>
+      makeSettlementRow(i + 1, f.from.user_id, f.to.user_id, f.amount, currency),
+    );
+    await setupDb(items, members, payers, booked);
+    return budget.calculateSettlement(1, opts);
+  };
+
+  it('₩10,000 three ways: balances in whole won that add up, and settle-up moves exactly them', async () => {
+    // The report: the ledger holds 6,666.67 / -3,333.33 / -3,333.34 and the panel
+    // rounded each one on its own to +6,667 / -3,333 / -3,333, one won out, with
+    // two flows of 3,333 under "You're owed 6,667".
+    const items = [{ ...makeItem(1, 10000), currency: 'KRW' } as BudgetItem];
+    const members = [makeMember(1, 1, 'alice'), makeMember(1, 2, 'bob'), makeMember(1, 3, 'carol')];
+    const payers = [makePayer(1, 1, 10000, 'alice')];
+    await setupDb(items, members, payers);
+
+    const result = await budget.calculateSettlement(1, KRW);
+    expectWholeAndSquare(result);
+    expect(result.balances.find((b) => b.user_id === 1)?.balance).toBe(6667);
+    expect(result.flows.map((f) => f.amount).sort()).toEqual([3333, 3334]);
+
+    const after = await settleEverything(items, members, payers, KRW, 'KRW');
+    expect(after.balances.map((b) => b.balance)).toEqual([0, 0, 0]);
+    expect(after.flows).toEqual([]);
+    expectWholeAndSquare(after);
+  });
+
+  it.each([
+    [60001, 4],
+    [100001, 3],
+  ])('₩%i split %i ways squares up in whole won', async (total, people) => {
+    const names = ['alice', 'bob', 'carol', 'dave'].slice(0, people);
+    const items = [{ ...makeItem(1, total), currency: 'KRW' } as BudgetItem];
+    const members = names.map((n, i) => makeMember(1, i + 1, n));
+    const payers = [makePayer(1, 1, total, 'alice')];
+    await setupDb(items, members, payers);
+
+    expectWholeAndSquare(await budget.calculateSettlement(1, KRW));
+
+    const after = await settleEverything(items, members, payers, KRW, 'KRW');
+    expect(after.balances.every((b) => b.balance === 0)).toBe(true);
+    expect(after.flows).toEqual([]);
+  });
+
+  it('a yen bill on a won trip, split four ways, squares up in whole won', async () => {
+    // ¥4,000 at a frozen 0.1086 yen per won is 36,832.41 won: neither the total nor
+    // the shares land on a whole won, which summed to -1 on screen.
+    const items = [{ ...makeItem(1, 4000), currency: 'JPY', exchange_rate: 0.1086 } as BudgetItem];
+    const members = ['alice', 'bob', 'carol', 'dave'].map((n, i) => makeMember(1, i + 1, n));
+    const payers = [makePayer(1, 1, 4000, 'alice')];
+    await setupDb(items, members, payers);
+
+    expectWholeAndSquare(await budget.calculateSettlement(1, KRW));
+    const after = await settleEverything(items, members, payers, KRW, 'KRW');
+    expect(after.balances.every((b) => b.balance === 0)).toBe(true);
+    expect(after.flows).toEqual([]);
+  });
+
+  it('a transfer stored with a fraction of a won still reads in whole won', async () => {
+    // What the Settle button used to send: the unrounded 3,333.34. The ledger keeps
+    // it to the hundredth; what is shown stays whole and adds up.
+    await setupDb(
+      [{ ...makeItem(1, 10000), currency: 'KRW' } as BudgetItem],
+      [makeMember(1, 1, 'alice'), makeMember(1, 2, 'bob'), makeMember(1, 3, 'carol')],
+      [makePayer(1, 1, 10000, 'alice')],
+      [makeSettlementRow(1, 3, 1, 3333.34, 'KRW')],
+    );
+    const result = await budget.calculateSettlement(1, KRW);
+    expectWholeAndSquare(result);
+    expect(result.flows.map((f) => f.amount)).toEqual([3333]);
+  });
+
+  it('a euro trip read in won is shown in whole won and still adds up', async () => {
+    const items = [makeItem(1, 100.01)];
+    const members = [makeMember(1, 1, 'alice'), makeMember(1, 2, 'bob'), makeMember(1, 3, 'carol')];
+    const payers = [makePayer(1, 1, 100.01, 'alice')];
+    await setupDb(items, members, payers, [makeSettlementRow(1, 2, 1, 12.34, 'EUR')]);
+    const results = await Promise.all(
+      [1473.21, 1500, 1612.77].map((krwPerEur) =>
+        budget.calculateSettlement(1, { base: 'KRW', tripCurrency: 'EUR', rates: { EUR: 1, KRW: krwPerEur } }),
+      ),
+    );
+    for (const result of results) {
+      expect(result.currency).toBe('KRW');
+      expectWholeAndSquare(result);
+    }
+  });
+
+  it('a two-decimal display currency keeps its cents', async () => {
+    // The euro case the rest of this file pins, read once more beside the won ones:
+    // 10.00 three ways stays 3.34 / 3.33 / 3.33, not whole euros.
+    await setupDb(
+      [makeItem(1, 10)],
+      [makeMember(1, 1, 'alice'), makeMember(1, 2, 'bob'), makeMember(1, 3, 'carol')],
+      [makePayer(1, 1, 10, 'alice')],
+    );
+    const result = await budget.calculateSettlement(1);
+    expect(result.flows.map((f) => f.amount).sort()).toEqual([3.33, 3.34]);
+  });
+});
+
 // ── freezeForeignRate (write-path FX freeze, #1445) ───────────────────────────
 // The trip seeded by beforeEach/seedBaseline is EUR — every case here relies on
 // that baseline instead of reconfiguring a `FROM trips` stub.

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import type { BudgetFallbackFx, BudgetParticipantFinal, BudgetUnconverted, TrekWsPayload, TrekWsTripEventName } from '@trek/shared';
-import { splitEqualShares, sumMinor, toMinor } from '@trek/shared';
+import { currencyDecimals, splitEqualShares, sumMinor, toMinor } from '@trek/shared';
 import { RealtimeService } from '../realtime/realtime.service';
 import { PermissionsService } from '../permissions/permissions.service';
 import { avatarUrl } from '../common/avatarUrl';
@@ -107,17 +107,23 @@ function sumMoney(amounts: number[]): number {
  * is what the set has to sum to. By default that is the rounded conversion of its
  * own sum; the rows behind a figure pass the figure's already allocated cents
  * instead, so a list nested under a line lands exactly on that line.
+ *
+ * `unit` is the smallest step the currency is shown in, in cents (100 for won or
+ * yen, else 1). The ledger keeps hundredths, but a set handed out in hundredths of
+ * a won and rounded one by one on screen stops adding up (#2604). In the trip's own
+ * currency the remainders are integers, so booking what is offered clears it.
  */
-function allocateDisplayCents(cents: number[], factor: number, total = Math.round(cents.reduce((a, c) => a + c, 0) * factor)): number[] {
-  if (factor === 1) return [...cents];
-  const exact = cents.map(c => c * factor);
+function allocateDisplayCents(cents: number[], factor: number, total?: number, unit = 1): number[] {
+  if (factor === 1 && unit === 1) return [...cents];
+  const exact = cents.map(c => (c * factor) / unit);
   const out = exact.map(v => Math.floor(v));
-  const drift = total - out.reduce((a, v) => a + v, 0);
+  const target = total === undefined ? Math.round((cents.reduce((a, c) => a + c, 0) * factor) / unit) : total / unit;
+  const drift = target - out.reduce((a, v) => a + v, 0);
   const byFraction = exact
-    .map((v, i) => ({ i, frac: v - Math.floor(v) }))
+    .map((v, i) => ({ i, frac: factor === 1 ? cents[i] - out[i] * unit : v - Math.floor(v) }))
     .sort((a, b) => b.frac - a.frac || a.i - b.i);
   for (let k = 0; k < drift && k < byFraction.length; k++) out[byFraction[k].i] += 1;
-  return out;
+  return unit === 1 ? out : out.map(v => v * unit);
 }
 
 /**
@@ -1195,6 +1201,9 @@ export class BudgetService {
     const quoted = requested === tripCurrency ? 1 : (quoteRatio(rates, requested, tripCurrency) ?? baseRate);
     const currency = quoted === null ? tripCurrency : requested;
     const displayFactor = quoted ?? 1;
+    // Every figure goes out in whole steps of that currency: whole won or yen (#2604).
+    const displayUnit = 10 ** Math.max(0, 2 - currencyDecimals(currency));
+    const toDisplay = (cents: number[], total?: number) => allocateDisplayCents(cents, displayFactor, total, displayUnit);
     // A recorded settle-up amount is entered in whatever display currency the payer
     // was viewing. New rows capture that currency and the rate frozen at settle time
     // (#1445), so a settled position stays balanced when live rates drift — mirroring
@@ -1346,15 +1355,15 @@ export class BudgetService {
     // derived from the same integers, so what the balances say is owed is exactly
     // what "Settle up" offers to move, down to the last cent (#1382).
     const ledger = Object.values(balances);
-    const displayCents = allocateDisplayCents(ledger.map(b => b.cents), displayFactor);
+    const displayCents = toDisplay(ledger.map(b => b.cents));
     // Each component of the final budget is re-denominated as its own set, for the
     // same reason the balances are: rounding one person at a time lets the column
     // drift away from the figure it converted from. The final itself is then
     // subtracted in display cents rather than converted separately, so the three
     // lines the breakdown shows always add up to the total beside them, whatever
     // currency the viewer picked.
-    const frontedDisplayCents = allocateDisplayCents(ledger.map(b => frontedCents[b.user_id] || 0), displayFactor);
-    const reimbursedDisplayCents = allocateDisplayCents(ledger.map(b => reimbursedCents[b.user_id] || 0), displayFactor);
+    const frontedDisplayCents = toDisplay(ledger.map(b => frontedCents[b.user_id] || 0));
+    const reimbursedDisplayCents = toDisplay(ledger.map(b => reimbursedCents[b.user_id] || 0));
 
     // Calculate optimized payment flows (greedy algorithm)
     const people = ledger
@@ -1396,8 +1405,8 @@ export class BudgetService {
         // figure as the target, so each list adds up to the line it sits under.
         const fronted = frontedRows[b.user_id] || [];
         const moved = movedRows[b.user_id] || [];
-        const frontedDisplay = allocateDisplayCents(fronted.map(r => r.cents), displayFactor, frontedDisplayCents[i]);
-        const movedDisplay = allocateDisplayCents(moved.map(r => r.cents), displayFactor, reimbursedDisplayCents[i]);
+        const frontedDisplay = toDisplay(fronted.map(r => r.cents), frontedDisplayCents[i]);
+        const movedDisplay = toDisplay(moved.map(r => r.cents), reimbursedDisplayCents[i]);
         return {
           user_id: b.user_id, username: b.username, avatar_url: b.avatar_url,
           expenses: frontedDisplayCents[i] / 100,

@@ -279,6 +279,54 @@ describe('Budget e2e (real auth guard + temp SQLite, real budget SQL)', () => {
     }
   });
 
+  it('a won trip offers whole won, and settling what it offers squares everyone (#2604)', async () => {
+    // ₩10,000 three ways nets to 6,666.67 / -3,333.33 / -3,333.34 in the ledger. The
+    // settlement answered those hundredths, the panel rounded each to 6,667 / -3,333 /
+    // -3,333, and Settle booked 3,333.34 won.
+    await makeUser(orm, {
+      id: 5,
+      username: 'e2e-third',
+      email: 'third@example.test',
+      role: 'user',
+      password_version: 0,
+    });
+    const krwTrip = (await makeTrip(orm, 1, { title: 'FIX KRW', currency: 'KRW' })).id;
+    await addTripMember(orm, krwTrip, 2);
+    await addTripMember(orm, krwTrip, 5);
+
+    const dinner = await request(server)
+      .post(`/api/trips/${krwTrip}/budget`)
+      .set('Cookie', sessionCookie(1))
+      .send({ name: 'Dinner', currency: 'KRW', payers: [{ user_id: 1, amount: 10000 }], member_ids: [1, 2, 5] });
+    expect(dinner.status).toBe(201);
+
+    const read = () =>
+      request(server).get(`/api/trips/${krwTrip}/budget/settlement?base=KRW`).set('Cookie', sessionCookie(1));
+    const before = await read();
+    expect(before.status).toBe(200);
+    const balances = before.body.balances as { user_id: number; balance: number }[];
+    const flows = before.body.flows as { from: { user_id: number }; to: { user_id: number }; amount: number }[];
+    // Which of the three carries the odd hundredth depends on the item id; what is
+    // shown is whole won either way, adds up to zero, and the flows move exactly it.
+    for (const b of balances) expect(Number.isInteger(b.balance)).toBe(true);
+    expect(balances.reduce((a, b) => a + b.balance, 0)).toBe(0);
+    expect(flows.every((f) => Number.isInteger(f.amount))).toBe(true);
+    expect(flows.reduce((a, f) => a + f.amount, 0)).toBe(balances.find((b) => b.user_id === 1)?.balance);
+
+    const paid = await Promise.all(
+      flows.map((f) =>
+        request(server)
+          .post(`/api/trips/${krwTrip}/budget/settlements`)
+          .set('Cookie', sessionCookie(1))
+          .send({ from_user_id: f.from.user_id, to_user_id: f.to.user_id, amount: f.amount, currency: 'KRW' }),
+      ),
+    );
+    expect(paid.map((r) => r.status)).toEqual(flows.map(() => 201));
+    const after = await read();
+    expect((after.body.balances as { balance: number }[]).map((b) => b.balance)).toEqual([0, 0, 0]);
+    expect(after.body.flows).toEqual([]);
+  });
+
   it('GET /summary/per-person reads a dollar bill on a euro trip at its booked rate (#2525)', async () => {
     const hotel = await request(server)
       .post(`/api/trips/${tripId}/budget`)
