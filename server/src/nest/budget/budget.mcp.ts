@@ -1,9 +1,7 @@
 import { ADDON_IDS } from '../../addons';
 import { Places } from '../../db/entities/Places.entity';
-import { TripMembers } from '../../db/entities/TripMembers.entity';
 import { Trips } from '../../db/entities/Trips.entity';
 import type { PlacesRepository } from '../../db/repositories/Places.repository';
-import type { TripMembersRepository } from '../../db/repositories/TripMembers.repository';
 import type { TripsRepository } from '../../db/repositories/Trips.repository';
 import { noAccess, permissionDenied } from '../../mcp/tools/_shared';
 import {
@@ -102,9 +100,6 @@ export class BudgetMcp {
     private readonly uow: UnitOfWork,
     @InjectRepository(Places) private readonly places: PlacesRepository,
     @InjectRepository(Trips) private readonly trips: TripsRepository,
-    // Plan 4 Task 3 — DatabaseService.rosterUserIds inlined onto
-    // TripMembersRepository.rosterUserIds directly.
-    @InjectRepository(TripMembers) private readonly tripMembers: TripMembersRepository,
   ) {}
 
   /**
@@ -125,10 +120,13 @@ export class BudgetMcp {
   /**
    * The total a custom split has to reconcile against: explicit payers derive it
    * (the write path overwrites total_price with their sum), so the stated total
-   * is not necessarily the figure that ends up in the row.
+   * is not necessarily the figure that ends up in the row. `itemId` is the
+   * expense being edited, null for a new one: its own payers and split members
+   * count as the write path counts them, even after leaving the trip (#2604).
    */
   private async settledTotalCents(
     tripId: number,
+    itemId: number | null,
     payers: { user_id: number; amount: number }[] | undefined,
     total_price: number | undefined,
     fallbackCents: number,
@@ -138,8 +136,8 @@ export class BudgetMcp {
     // here instead would certify a split against a figure the row never receives.
     // Negative payers count with their sign (#2176) — the write path stores them.
     if (payers !== undefined) {
-      const roster = await this.tripMembers.rosterUserIds(tripId);
-      return sumMinor(payers.filter((p) => p.amount !== 0 && roster.has(p.user_id)).map((p) => p.amount));
+      const allowed = await this.budget.allowedParticipantIds(tripId, itemId);
+      return sumMinor(payers.filter((p) => p.amount !== 0 && allowed.has(p.user_id)).map((p) => p.amount));
     }
     if (total_price !== undefined) return toMinor(total_price);
     return fallbackCents;
@@ -152,16 +150,19 @@ export class BudgetMcp {
    * difference no payment can ever clear, so it is refused here rather than
    * stored and discovered on the balances screen. An off-roster or repeated
    * user_id is refused for the same reason: the write path drops both silently,
-   * which would unbalance a split that had just been checked.
+   * which would unbalance a split that had just been checked. Someone already on
+   * the expense being edited (`itemId`) is not a stranger, even once they have
+   * left the trip, because the write path keeps them (#2604).
    */
   private async splitRefusal(
     tripId: number,
+    itemId: number | null,
     members: { user_id: number; amount: number }[],
     totalCents: number,
     payers?: { user_id: number; amount: number }[],
   ): Promise<string | null> {
-    const roster = await this.tripMembers.rosterUserIds(tripId);
-    const strangers = members.filter((m) => !roster.has(m.user_id)).map((m) => m.user_id);
+    const allowed = await this.budget.allowedParticipantIds(tripId, itemId);
+    const strangers = members.filter((m) => !allowed.has(m.user_id)).map((m) => m.user_id);
     if (strangers.length > 0) {
       return `members contains user IDs that are not on this trip: ${strangers.join(', ')}. Resolve them with list_trip_members.`;
     }
@@ -172,7 +173,7 @@ export class BudgetMcp {
     // certified here would not be the split stored. Refuse rather than let the
     // difference surface on the balances screen.
     if (payers) {
-      const payerStrangers = payers.filter((p) => p.amount !== 0 && !roster.has(p.user_id)).map((p) => p.user_id);
+      const payerStrangers = payers.filter((p) => p.amount !== 0 && !allowed.has(p.user_id)).map((p) => p.user_id);
       if (payerStrangers.length > 0) {
         return `payers contains user IDs that are not on this trip: ${payerStrangers.join(', ')}. Resolve them with list_trip_members.`;
       }
@@ -271,8 +272,9 @@ export class BudgetMcp {
     if (members !== undefined) {
       const refusal = await this.splitRefusal(
         tripId,
+        null,
         members,
-        await this.settledTotalCents(tripId, payers, total_price, toMinor(total_price)),
+        await this.settledTotalCents(tripId, null, payers, total_price, toMinor(total_price)),
         payers,
       );
       if (refusal) return errorResult(refusal);
@@ -431,8 +433,9 @@ export class BudgetMcp {
       if (!existing) return errorResult('Budget item not found.');
       const refusal = await this.splitRefusal(
         tripId,
+        itemId,
         members,
-        await this.settledTotalCents(tripId, payers, total_price, toMinor(existing.total_price)),
+        await this.settledTotalCents(tripId, itemId, payers, total_price, toMinor(existing.total_price)),
         payers,
       );
       if (refusal) return errorResult(refusal);

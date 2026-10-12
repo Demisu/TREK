@@ -167,7 +167,6 @@ beforeAll(async () => {
     await createTestUnitOfWork(testDb),
     await createTestPlacesRepo(testDb),
     await createTestTripsRepo(testDb),
-    await createTestTripMembersRepo(testDb),
   );
   tripPromptsMcp = new TripPromptsMcp(tripsStub, readModelStub, promptPackingService, addonsStub);
 });

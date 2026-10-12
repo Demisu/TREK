@@ -11,6 +11,7 @@ import { BudgetItems } from '../../../src/db/entities/BudgetItems.entity';
 import { BudgetSettlements } from '../../../src/db/entities/BudgetSettlements.entity';
 import { Reservations } from '../../../src/db/entities/Reservations.entity';
 import { Trips } from '../../../src/db/entities/Trips.entity';
+import { TripMembers } from '../../../src/db/entities/TripMembers.entity';
 import { BudgetService } from '../../../src/nest/budget/budget.service';
 import { invalidatePermissionsCache } from '../../../src/nest/permissions/permissions-cache';
 import {
@@ -1278,6 +1279,65 @@ describe('Budget tools: a custom split cannot be certified against a total the r
       expect(row.total_price).toBe(100);
       const shares = await memberRows(data.item.id);
       expect(shares.map((s) => s.amount)).toEqual([60, 40]);
+    });
+  });
+
+  // #2604: someone removed from the trip keeps their rows on the expense, and an
+  // edit that sends them back must not be refused as if they were a stranger.
+  it('certifies an edit that keeps someone who has left the trip on the expense (#2604)', async () => {
+    const { user: owner } = createUser(testDb);
+    const { user: friend } = createUser(testDb);
+    const { user: stranger } = createUser(testDb);
+    const trip = createTrip(testDb, owner.id);
+    addTripMember(testDb, trip.id, friend.id);
+    await withHarness(owner.id, async (h) => {
+      const created = await h.client.callTool({
+        name: 'create_budget_item',
+        arguments: {
+          tripId: trip.id,
+          name: 'Boat',
+          total_price: 100,
+          payers: [{ user_id: friend.id, amount: 100 }],
+          members: [
+            { user_id: owner.id, amount: 60 },
+            { user_id: friend.id, amount: 40 },
+          ],
+        },
+      });
+      const { item } = parseToolResult(created) as { item: { id: number } };
+      await deleteRows(orm, TripMembers, { trip: trip.id, user: friend.id });
+
+      const kept = await h.client.callTool({
+        name: 'update_budget_item',
+        arguments: {
+          tripId: trip.id,
+          itemId: item.id,
+          note: 'paid at the pier',
+          payers: [{ user_id: friend.id, amount: 100 }],
+          members: [
+            { user_id: owner.id, amount: 60 },
+            { user_id: friend.id, amount: 40 },
+          ],
+        },
+      });
+      expect(kept.isError).toBeFalsy();
+      expect((await itemRow(item.id)).total_price).toBe(100);
+      expect((await memberRows(item.id)).map((s) => s.amount)).toEqual([60, 40]);
+
+      const refused = await h.client.callTool({
+        name: 'update_budget_item',
+        arguments: {
+          tripId: trip.id,
+          itemId: item.id,
+          payers: [{ user_id: friend.id, amount: 100 }],
+          members: [
+            { user_id: owner.id, amount: 60 },
+            { user_id: stranger.id, amount: 40 },
+          ],
+        },
+      });
+      expect(refused.isError).toBe(true);
+      expect(errorText(refused)).toContain('not on this trip');
     });
   });
 });

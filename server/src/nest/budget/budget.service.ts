@@ -266,27 +266,37 @@ export class BudgetService {
   }
 
   /**
-   * The subset of `userIds` that is actually on this trip. Used to be a plain
-   * existence check against `users`, which let any id on the instance become a
-   * payer or a split member and come back out through the read-back join with a
-   * name and an avatar attached. Off-roster ids drop silently, the way the
-   * packing and reservations assignee paths handle them.
+   * Who may be a payer or a split member of an expense: everyone on the trip,
+   * plus, for an existing expense, whoever already pays for it or shares it.
+   * Used to be a plain existence check against `users`, which let any id on the
+   * instance become a payer or a split member and come back out through the
+   * read-back join with a name and an avatar attached. Off-roster ids still drop
+   * silently, the way the packing and reservations assignee paths handle them.
+   *
+   * Someone removed from the trip keeps their rows on the expenses they were part
+   * of, and the edit form sends those ids back. Filtering them out on that save
+   * dropped their share and shrank total_price to what the rest had paid (#2604),
+   * so ids already on this expense stay allowed, as payer or as member, and can
+   * still be taken off it. A stranger who never was on it is refused as before.
+   * Read before anything is replaced, inside the caller's transaction.
    */
-  private async rosterMemberIds(tripId: string | number, userIds: number[]): Promise<Set<number>> {
-    const unique = new Set(userIds);
-    if (unique.size === 0) return new Set();
-    const roster = await this.tripMembersRepo.rosterUserIds(tripId);
-    return new Set([...unique].filter(id => roster.has(id)));
+  async allowedParticipantIds(tripId: string | number, itemId: number | null): Promise<Set<number>> {
+    const allowed = new Set(await this.tripMembersRepo.rosterUserIds(tripId));
+    if (itemId !== null) {
+      for (const p of await this.budgetItemPayersRepo.listForItem(itemId)) allowed.add(p.user_id);
+      for (const m of await this.budgetItemMembersRepo.listUserPaid(itemId)) allowed.add(m.user_id);
+    }
+    return allowed;
   }
 
   /**
    * Replace the payer rows of an item and keep total_price = sum of payer amounts.
    * A negative amount is a real payer — the recipient of a refund (#2176) — and
    * is stored as such; only a zero (or NaN) amount says nothing and is dropped.
+   * `known` is {@link allowedParticipantIds}, read before the rows go.
    */
-  private async writeItemPayers(itemId: number | string, tripId: string | number, payers: { user_id: number; amount: number }[]) {
+  private async writeItemPayers(itemId: number | string, known: ReadonlySet<number>, payers: { user_id: number; amount: number }[]) {
     await this.budgetItemPayersRepo.deleteForItem(itemId as number);
-    const known = await this.rosterMemberIds(tripId, payers.map(p => p.user_id));
     const accepted: number[] = [];
     for (const p of payers) {
       if (!p.amount || !known.has(p.user_id)) continue;
@@ -623,10 +633,10 @@ export class BudgetService {
       const payerTotal = sumMoney((data.payers || []).filter(p => p.amount !== 0).map(p => p.amount));
       const total = data.payers && data.payers.length > 0 ? payerTotal : (data.total_price || 0);
 
-      const knownMembers = data.members ? await this.rosterMemberIds(tripId, data.members.map(m => m.user_id)) : null;
-      const members = data.members && knownMembers ? data.members.filter(m => knownMembers.has(m.user_id)) : undefined;
-      const knownIds = data.member_ids ? await this.rosterMemberIds(tripId, data.member_ids) : null;
-      const memberIds = data.member_ids && knownIds ? data.member_ids.filter(uid => knownIds.has(uid)) : undefined;
+      // A new expense has nobody on it yet, so only the trip's own people qualify.
+      const known = data.payers || data.members || data.member_ids ? await this.allowedParticipantIds(tripId, null) : new Set<number>();
+      const members = data.members ? data.members.filter(m => known.has(m.user_id)) : undefined;
+      const memberIds = data.member_ids ? data.member_ids.filter(uid => known.has(uid)) : undefined;
 
       const { note, ticket } = splitLegacyTicketNote(data.note, data.ticket_json);
 
@@ -647,7 +657,7 @@ export class BudgetService {
         place_id: data.place_id != null ? data.place_id : null,
       });
 
-      if (data.payers && data.payers.length > 0) await this.writeItemPayers(itemId, tripId, data.payers);
+      if (data.payers && data.payers.length > 0) await this.writeItemPayers(itemId, known, data.payers);
       if (members && members.length > 0) {
         for (const m of members) {
           await this.budgetItemMembersRepo.insertIgnore({ budget_item_id: itemId, user_id: m.user_id, paid: 0, amount: m.amount !== undefined && m.amount !== null ? m.amount : null });
@@ -727,6 +737,15 @@ export class BudgetService {
       const item = await this.budgetItemsRepo.findInTrip(id, tripId);
       if (!item) return null;
 
+      // Who may stay on or join this expense, and the paid ticks of its split, are
+      // read before the payer and member rows below are replaced.
+      const splitTouched = data.payers !== undefined || data.members !== undefined || data.member_ids !== undefined;
+      const known = splitTouched ? await this.allowedParticipantIds(tripId, id) : new Set<number>();
+      const existingPaid = new Map<number, number>();
+      if (data.members !== undefined || data.member_ids !== undefined) {
+        for (const e of await this.budgetItemMembersRepo.listUserPaid(id)) existingPaid.set(e.user_id, e.paid);
+      }
+
       // An old client sending a receipt in `note` still lands in ticket_json, and
       // its note is left untouched rather than clobbered with the receipt blob.
       const { note, ticket } = splitLegacyTicketNote(data.note, data.ticket_json);
@@ -755,7 +774,7 @@ export class BudgetService {
 
       // Optional inline payer/member replacement (the edit modal saves all at once).
       if (data.payers !== undefined) {
-        await this.writeItemPayers(id, tripId, data.payers);
+        await this.writeItemPayers(id, known, data.payers);
         // writeItemPayers derives total_price from the payer sum (0 for no payers).
         // A "recorded total, nobody assigned" expense clears payers but still carries
         // an explicit total_price — re-apply it so it isn't clobbered to 0.
@@ -763,20 +782,20 @@ export class BudgetService {
           await this.budgetItemsRepo.setTotalPrice(id, data.total_price);
         }
       }
+      // The paid ticks carry over, as they do through updateMembers: the edit form
+      // saves the whole split every time, and it used to clear every tick with it.
       if (data.members !== undefined) {
-        const known = await this.rosterMemberIds(tripId, data.members.map(m => m.user_id));
         const members = data.members.filter(m => known.has(m.user_id));
         await this.budgetItemMembersRepo.deleteForItem(id);
         for (const m of members) {
-          await this.budgetItemMembersRepo.insertIgnore({ budget_item_id: id, user_id: m.user_id, paid: 0, amount: m.amount !== undefined && m.amount !== null ? m.amount : null });
+          await this.budgetItemMembersRepo.insertIgnore({ budget_item_id: id, user_id: m.user_id, paid: existingPaid.get(m.user_id) || 0, amount: m.amount !== undefined && m.amount !== null ? m.amount : null });
         }
         await this.budgetItemsRepo.setPersons(id, members.length || null);
       } else if (data.member_ids !== undefined) {
-        const known = await this.rosterMemberIds(tripId, data.member_ids);
         const memberIds = data.member_ids.filter(uid => known.has(uid));
         await this.budgetItemMembersRepo.deleteForItem(id);
         for (const uid of memberIds) {
-          await this.budgetItemMembersRepo.insertIgnore({ budget_item_id: id, user_id: uid, paid: 0, amount: null });
+          await this.budgetItemMembersRepo.insertIgnore({ budget_item_id: id, user_id: uid, paid: existingPaid.get(uid) || 0, amount: null });
         }
         await this.budgetItemsRepo.setPersons(id, memberIds.length || null);
       }
@@ -838,7 +857,7 @@ export class BudgetService {
     return await this.uow.transactional(async () => {
       const item = await this.budgetItemsRepo.existsInTrip(id, tripId);
       if (!item) return null;
-      await this.writeItemPayers(id, tripId, payers);
+      await this.writeItemPayers(id, await this.allowedParticipantIds(tripId, id), payers);
       const updated = this.toBudgetItem((await this.budgetItemsRepo.findById(id))!);
       updated.members = await this.loadItemMembers(id);
       updated.payers = await this.loadItemPayers(id);
@@ -959,10 +978,10 @@ export class BudgetService {
       const existingPaid: Record<number, number> = {};
       const existing = await this.budgetItemMembersRepo.listUserPaid(id);
       for (const e of existing) existingPaid[e.user_id] = e.paid;
+      const known = await this.allowedParticipantIds(tripId, id);
 
       await this.budgetItemMembersRepo.deleteForItem(id);
 
-      const known = await this.rosterMemberIds(tripId, userIds);
       const memberIds = userIds.filter(uid => known.has(uid));
       if (memberIds.length > 0) {
         for (const userId of memberIds) {
