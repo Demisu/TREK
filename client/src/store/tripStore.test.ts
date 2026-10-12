@@ -98,6 +98,7 @@ describe('tripStore', () => {
         selectedDayId: 1,
         placesFilter: 'unplanned',
         placesCategoryFilter: new Set(['3']),
+        planMapViewport: { tripId: 1, south: 1, west: 1, north: 2, east: 2 },
         error: 'stale error',
       });
 
@@ -117,6 +118,8 @@ describe('tripStore', () => {
       expect(state.selectedDayId).toBeNull();
       expect(state.placesFilter).toBe('all');
       expect(state.placesCategoryFilter.size).toBe(0);
+      // The next trip's search must not lean on where this trip's map was.
+      expect(state.planMapViewport).toBeNull();
       expect(state.error).toBeNull();
       // Global lookups survive a trip switch.
       expect(state.tags.map(t => t.id)).toEqual([5]);

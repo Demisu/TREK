@@ -10,6 +10,7 @@ import { usePoiExplore } from '../../../../components/Map/usePoiExplore'
 import { useMergedMapPois } from '../../../../components/Map/useMergedMapPois'
 import { firstStopOfPlace, stageOf } from '../../../../components/Roadtrip/roadtripRowModel'
 import { stageMapData } from '../../../../components/Roadtrip/stageMap'
+import { usePlanMapViewport } from '../../../../hooks/usePlanMapViewport'
 import { useRoadtripSettings } from '../../../../hooks/useRoadtripSettings'
 import { useSettingsStore } from '../../../../store/settingsStore'
 import { useTripStore } from '../../../../store/tripStore'
@@ -165,6 +166,13 @@ function holdFocus(
  */
 export default function MMapArea({ planner, shell }: MMapAreaProps) {
   const poi = usePoiExplore()
+  // The place sheet's search looks where this map looks (#2620).
+  const reportViewport = usePlanMapViewport(planner.tripId)
+  const poiViewportChange = poi.onViewportChange
+  const onViewportChange = useCallback((bounds: Parameters<typeof poiViewportChange>[0]) => {
+    poiViewportChange(bounds)
+    reportViewport(bounds)
+  }, [poiViewportChange, reportViewport])
   const [glMap, setGlMap] = useState<CompassMap | null>(null)
   const poiPillEnabled = useSettingsStore(s => s.settings.map_poi_pill_enabled) !== false
   const distanceUnit = useSettingsStore(s => s.settings.distance_unit)
@@ -405,7 +413,7 @@ export default function MMapArea({ planner, shell }: MMapAreaProps) {
         onPoiClick={onStage
           ? planner.handlePoiClick
           : marker => planner.openAddPlaceFromPoi(marker, planner.selectedDayId)}
-        onViewportChange={poi.onViewportChange}
+        onViewportChange={onViewportChange}
         onMapReady={setGlMap}
         // Other ways of driving the leg the stage asked about, and the one lit up.
         alternativeRoutes={onStage ? planner.alternativeOverlays : undefined}

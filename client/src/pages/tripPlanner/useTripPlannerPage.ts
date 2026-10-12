@@ -3,6 +3,7 @@ import type { TourListItem } from '@trek/shared'
 import { usePoiExplore, type Bbox } from '../../components/Map/usePoiExplore'
 import { placeActions } from '../../components/Planner/usePlaceActions'
 import { useTourPlanner } from '../../components/Tours/planner/useTourPlanner'
+import { usePlanMapViewport } from '../../hooks/usePlanMapViewport'
 import { useTripPlanner } from './useTripPlanner'
 
 export function useTripPlannerPage() {
@@ -89,10 +90,13 @@ export function useTripPlannerPage() {
   const poi = usePoiExplore()
   const poiViewportChangeRef = useRef(poi.onViewportChange)
   poiViewportChangeRef.current = poi.onViewportChange
+  // The place search looks where the plan map looks, and only while it is on screen.
+  const reportViewport = usePlanMapViewport(tripId, activeTab === 'plan')
   const captureViewport = useCallback((bounds: Bbox) => {
     lastPlanMapViewportRef.current = bounds
     poiViewportChangeRef.current(bounds)
-  }, [])
+    reportViewport(bounds)
+  }, [reportViewport])
 
   const onSelectTour = (tour: TourListItem | null, opener?: HTMLElement) => {
     tourDetailOpenerRef.current = tour && opener ? { placeId: tour.place_id, element: opener } : null

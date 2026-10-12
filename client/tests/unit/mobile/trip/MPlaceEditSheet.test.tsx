@@ -437,7 +437,7 @@ describe('MPlaceEditSheet', () => {
    * carried. The hint comes from useLocationBias, which reads the trip store,
    * not the planner prop, so both are seeded the way the running app has them.
    */
-  async function capturedBias(places: Place[], day?: { id: number; placeIds: number[] }) {
+  async function capturedBias(places: Place[], day?: { id: number; placeIds: number[] }, extra: Record<string, unknown> = {}) {
     const bodies: Record<string, unknown>[] = []
     server.use(http.post('/api/maps/autocomplete', async ({ request }) => {
       bodies.push(await request.json() as Record<string, unknown>)
@@ -447,6 +447,7 @@ describe('MPlaceEditSheet', () => {
       places,
       assignments: day ? { [String(day.id)]: day.placeIds.map(id => ({ place_id: id })) } : {},
       selectedDayId: day?.id ?? null,
+      ...extra,
     })
     setup({ places })
     fireEvent.change(screen.getByPlaceholderText('places.mapsSearchPlaceholder'), { target: { value: 'ueno' } })
@@ -475,6 +476,18 @@ describe('MPlaceEditSheet', () => {
     expect(await capturedBias(places, { id: 7, placeIds: [1, 2] })).toEqual({
       low: { lat: 35.71, lng: 139.77 }, high: { lat: 35.71, lng: 139.8 },
     })
+  })
+
+  it('FE-MOB-PLEDIT-029c: biases on the visible map area first, even for a trip too wide for one region (#2620)', async () => {
+    const places = [
+      { id: 1, name: 'Tokyo', lat: 35.68, lng: 139.76 },
+      { id: 2, name: 'Kyoto', lat: 35.01, lng: 135.77 },
+    ] as unknown as Place[]
+    // The map is zoomed in on Kyoto. The trip alone would send nothing at all.
+    expect(await capturedBias(places, undefined, {
+      trip: { id: 1 },
+      planMapViewport: { tripId: 1, south: 34.96, west: 135.7, north: 35.06, east: 135.82 },
+    })).toEqual({ low: { lat: 34.96, lng: 135.7 }, high: { lat: 35.06, lng: 135.82 } })
   })
 
   it('FE-MOB-PLEDIT-030: drops the bias for a trip that outgrows one region', async () => {

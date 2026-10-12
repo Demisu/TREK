@@ -659,10 +659,13 @@ describe('TripPlannerPage — shell', () => {
     hookState = { ...hookState, activeTab: 'plan' }
     view.rerender(<TripPlannerPage />)
     act(() => props('map').onViewportChange({ south: 46.9, west: 10.8, north: 47.5, east: 12.1 }))
+    // The place search looks where the plan map looks (#2620), and only while it is shown.
+    expect(useTripStore.getState().planMapViewport).toEqual({ tripId: 42, south: 46.9, west: 10.8, north: 47.5, east: 12.1 })
     plannerActions.mode = { type: 'neutral' }
     plannerActions.waypoints = []
     hookState = { ...hookState, activeTab: 'tour-planner' }
     view.rerender(<TripPlannerPage />)
+    expect(useTripStore.getState().planMapViewport).toBeNull()
 
     expect(props('map').focusPoints).toEqual([[46.9, 10.8], [47.5, 12.1]])
     expect(props('map').route).toBeNull()

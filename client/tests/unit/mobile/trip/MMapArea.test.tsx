@@ -17,7 +17,7 @@ import { openLeg } from '../../../helpers/legAlternatives'
 import { RT_ALT_BAR_LIFT } from '../../../../src/mobile/screens/trip/roadtrip/useMRtAlternatives'
 import { corePoiCategories, pluginPoiCategories } from '../../../../src/components/Map/usePoiCategories'
 
-// FE-MOB-MAPAREA-001 to FE-MOB-MAPAREA-049
+// FE-MOB-MAPAREA-001 to FE-MOB-MAPAREA-050
 //
 // The stage's pins come out of the trip store rather than the planner's map list, so the
 // stage fixtures seed the store and leave `mapPlaces` to stand for what the plan tab shows.
@@ -988,5 +988,19 @@ describe('MMapArea — places filter', () => {
     expect(screen.queryByTestId('places-filter-pill')).not.toBeInTheDocument()
     renderArea({ view: 'plan', mapFront: false })
     expect(screen.queryByTestId('places-filter-pill')).not.toBeInTheDocument()
+  })
+})
+
+describe('MMapArea — viewport', () => {
+  it('FE-MOB-MAPAREA-050: a moved map feeds both the POI bar and the place search, and leaves nothing behind (#2620)', () => {
+    const bounds = { south: 34.96, west: 135.7, north: 35.06, east: 135.82 }
+    const { unmount } = renderArea()
+
+    act(() => (mocks.props.onViewportChange as (b: typeof bounds) => void)(bounds))
+    expect(mocks.poi.onViewportChange).toHaveBeenCalledWith(bounds)
+    expect(useTripStore.getState().planMapViewport).toEqual({ tripId: 1, ...bounds })
+
+    unmount()
+    expect(useTripStore.getState().planMapViewport).toBeNull()
   })
 })
