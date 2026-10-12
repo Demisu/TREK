@@ -59,7 +59,7 @@ export default function MReservationSheet({ planner, onOpenExpense }: MReservati
 
   const {
     form, setForm, set, isSaving, setIsSaving, pendingFiles, setPendingFiles, travelerIds, setTravelerIds, toggleTraveler,
-    isEndBeforeStart, dateBounds, startDate, startTime, setStartDate, setStartTime, takeStopDay,
+    isEndBeforeStart, endTimeBeforeStartTime, dateBounds, startDate, startTime, setStartDate, setStartTime, takeStopDay,
     pickPlace, pickHotelPlace, pickHotelStart, pickHotelEnd, saveData: buildSaveData,
   } = useReservationForm(EMPTY, days, places)
   const assignmentOptions = useMemo(
@@ -250,6 +250,11 @@ export default function MReservationSheet({ planner, onOpenExpense }: MReservati
             {isEndBeforeStart && (
               <div className="mt-[6px] text-[0.6875rem] text-[color:var(--m-st-danger)]">
                 {t('reservations.validation.endBeforeStart')}
+              </div>
+            )}
+            {endTimeBeforeStartTime && (
+              <div className="mt-[6px] text-[0.6875rem] text-[color:var(--m-st-pending)]">
+                {t('reservations.validation.endTimeBeforeStartTime')}
               </div>
             )}
 

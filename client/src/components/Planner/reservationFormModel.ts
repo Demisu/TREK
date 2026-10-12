@@ -164,6 +164,17 @@ export function isEndBeforeStart(form: DateFields): boolean {
   return `${form.end_date}T${endTime}` <= `${startDate}T${startTime}`;
 }
 
+/**
+ * Whether an end time without an end date comes before the start time, which saves
+ * as an end earlier on the start day. That only warns: with time zones (a flight
+ * landing "before" it took off) the times can be right as they are (#2604).
+ */
+export function endTimeBeforeStartTime(form: DateFields): boolean {
+  if (form.type === 'hotel' || form.end_date || !form.reservation_end_time) return false;
+  const startTime = (form.reservation_time || '').split('T')[1] || '';
+  return !!startTime && form.reservation_end_time < startTime;
+}
+
 /** The start's date and time as the two pickers show them. */
 export function startParts(reservationTime: string): { date: string; time: string } {
   const [date, time] = (reservationTime || '').split('T');

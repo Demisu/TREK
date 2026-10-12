@@ -80,7 +80,7 @@ export function ReservationModal({ isOpen, onClose, onSave, reservation, days, p
 
   const {
     form, setForm, set, isSaving, setIsSaving, pendingFiles, setPendingFiles, travelerIds, setTravelerIds, toggleTraveler,
-    isEndBeforeStart, dateBounds: tripDateRange, startDate, startTime, setStartDate, setStartTime, takeStopDay,
+    isEndBeforeStart, endTimeBeforeStartTime, dateBounds: tripDateRange, startDate, startTime, setStartDate, setStartTime, takeStopDay,
     pickPlace, pickHotelPlace, pickHotelStart, pickHotelEnd, saveData: buildSaveData,
   } = useReservationForm(EMPTY_FORM, days, places)
   const attach = useBookingFileAttach({ reservation, files, onFileUpload, setPendingFiles, toast, t })
@@ -277,7 +277,10 @@ export function ReservationModal({ isOpen, onClose, onSave, reservation, days, p
                 max={tripDateRange.max}
               />
             </EditorField>
-            <EditorField label={t('reservations.endTime')}>
+            <EditorField
+              label={t('reservations.endTime')}
+              hint={endTimeBeforeStartTime ? <span className="text-warning">{t('reservations.validation.endTimeBeforeStartTime')}</span> : undefined}
+            >
               <CustomTimePicker value={form.reservation_end_time} onChange={v => set('reservation_end_time', v)} />
             </EditorField>
           </div>

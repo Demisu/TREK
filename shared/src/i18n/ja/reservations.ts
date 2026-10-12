@@ -131,6 +131,7 @@ const reservations: TranslationStrings = {
   'reservations.span.end': '終了',
   'reservations.span.ongoing': '進行中',
   'reservations.validation.endBeforeStart': '終了日時は開始日時より後である必要があります',
+  'reservations.validation.endTimeBeforeStartTime': '終了時刻が開始時刻より前です。翌日に終わる場合は終了日を設定してください。',
   'reservations.addBooking': '予約を追加',
   'reservations.import.title': '予約確認書のインポート',
   'reservations.import.cta': 'ファイルからインポート',

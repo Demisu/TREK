@@ -132,6 +132,7 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'Vége',
   'reservations.span.ongoing': 'Folyamatban',
   'reservations.validation.endBeforeStart': 'A befejezés dátuma/időpontja a kezdés utáni kell legyen',
+  'reservations.validation.endTimeBeforeStartTime': 'A befejezés időpontja a kezdés előtt van. Ha a következő napon ér véget, adj meg befejezési dátumot.',
   'reservations.addBooking': 'Foglalás hozzáadása',
   'reservations.import.title': 'Foglalási visszaigazolások importálása',
   'reservations.import.cta': 'Importálás fájlból',

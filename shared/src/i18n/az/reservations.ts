@@ -159,6 +159,7 @@ const reservations: TranslationStrings = {
   'reservations.span.ongoing': 'Davam edir',
 
   'reservations.validation.endBeforeStart': 'Bitmə tarixi və vaxtı başlanğıc tarixi və vaxtından sonra olmalıdır',
+  'reservations.validation.endTimeBeforeStartTime': 'Bitmə vaxtı başlanğıc vaxtından əvvəldir. Növbəti gün bitirsə, bitmə tarixi təyin edin.',
 
   'reservations.addBooking': 'Rezervasiya əlavə et',
 

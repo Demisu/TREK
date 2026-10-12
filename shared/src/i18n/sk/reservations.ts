@@ -137,6 +137,7 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'Koniec',
   'reservations.span.ongoing': 'Prebieha',
   'reservations.validation.endBeforeStart': 'Dátum/čas konca musí byť po dátume/čase začiatku',
+  'reservations.validation.endTimeBeforeStartTime': 'Čas konca je skôr ako čas začiatku. Ak končí nasledujúci deň, nastavte dátum konca.',
   'reservations.addBooking': 'Pridať rezerváciu',
   'reservations.import.title': 'Importovať potvrdenia rezervácií',
   'reservations.import.cta': 'Importovať zo súboru',

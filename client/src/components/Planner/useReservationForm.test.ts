@@ -91,4 +91,15 @@ describe('useReservationForm', () => {
       endpoints: [],
     });
   });
+
+  it('FE-PLANNER-RESFORMHOOK-006: an end time before the start time on the same day raises the warning (#2604)', () => {
+    const { result } = renderHook(() => useReservationForm(EMPTY, days, places));
+    act(() => result.current.setStartTime('18:00', '2026-07-01'));
+    expect(result.current.endTimeBeforeStartTime).toBe(false);
+    act(() => result.current.set('reservation_end_time', '09:00'));
+    expect(result.current.endTimeBeforeStartTime).toBe(true);
+    expect(result.current.isEndBeforeStart).toBe(false);
+    act(() => result.current.set('end_date', '2026-07-02'));
+    expect(result.current.endTimeBeforeStartTime).toBe(false);
+  });
 });

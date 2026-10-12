@@ -4,6 +4,7 @@ import type { Day, Place } from '../../types';
 import { toggledTraveler } from './bookingFormModel';
 import {
   type CheckInEndField,
+  endTimeBeforeStartTime,
   isEndBeforeStart,
   type ReservationFields,
   reservationSaveData,
@@ -56,6 +57,7 @@ export function useReservationForm<F extends ReservationFields & CheckInEndField
     setTravelerIds,
     toggleTraveler,
     isEndBeforeStart: isEndBeforeStart(form),
+    endTimeBeforeStartTime: endTimeBeforeStartTime(form),
     dateBounds,
     startDate: start.date,
     startTime: start.time,

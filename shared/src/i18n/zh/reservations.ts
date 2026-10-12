@@ -131,6 +131,7 @@ const reservations: TranslationStrings = {
   'reservations.span.end': '结束',
   'reservations.span.ongoing': '进行中',
   'reservations.validation.endBeforeStart': '结束日期/时间必须晚于开始日期/时间',
+  'reservations.validation.endTimeBeforeStartTime': '结束时间早于开始时间。如果在次日结束，请设置结束日期。',
   'reservations.addBooking': '添加预订',
   'reservations.import.title': '导入预订确认',
   'reservations.import.cta': '从文件导入',

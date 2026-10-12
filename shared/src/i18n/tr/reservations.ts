@@ -132,6 +132,7 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'Son',
   'reservations.span.ongoing': 'Devam ediyor',
   'reservations.validation.endBeforeStart': 'Bitiş tarihi/saati başlangıçtan sonra olmalı',
+  'reservations.validation.endTimeBeforeStartTime': 'Bitiş saati başlangıç saatinden önce. Ertesi gün bitiyorsa bir bitiş tarihi belirleyin.',
   'reservations.addBooking': 'Rezervasyon ekle',
   'reservations.import.title': 'Rezervasyon onaylarını içe aktar',
   'reservations.import.cta': 'Dosyadan içe aktar',

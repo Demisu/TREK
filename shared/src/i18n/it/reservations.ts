@@ -132,6 +132,7 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'Fine',
   'reservations.span.ongoing': 'In corso',
   'reservations.validation.endBeforeStart': 'La data/ora di fine deve essere successiva alla data/ora di inizio',
+  'reservations.validation.endTimeBeforeStartTime': "L'ora di fine è precedente all'ora di inizio. Se termina il giorno dopo, imposta una data di fine.",
   'reservations.addBooking': 'Aggiungi prenotazione',
   'reservations.import.title': 'Importa conferme di prenotazione',
   'reservations.import.cta': 'Importa da file',

@@ -100,6 +100,7 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'Fin',
   'reservations.span.ongoing': 'En curso',
   'reservations.validation.endBeforeStart': 'La fecha/hora de fin debe ser posterior a la de inicio',
+  'reservations.validation.endTimeBeforeStartTime': 'La hora de fin es anterior a la de inicio. Si termina al día siguiente, indica una fecha de fin.',
   'reservations.addBooking': 'Añadir reserva',
   'reservations.meta.airline': 'Aerolínea',
   'reservations.meta.flightNumber': 'N° de vuelo',

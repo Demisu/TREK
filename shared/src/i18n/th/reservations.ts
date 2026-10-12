@@ -136,6 +136,7 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'สิ้นสุด',
   'reservations.span.ongoing': 'กำลังดำเนินการอยู่',
   'reservations.validation.endBeforeStart': 'วันที่/เวลาสิ้นสุดต้องอยู่หลังวันที่/เวลาเริ่มต้น',
+  'reservations.validation.endTimeBeforeStartTime': 'เวลาสิ้นสุดอยู่ก่อนเวลาเริ่มต้น หากสิ้นสุดในวันถัดไป ให้กำหนดวันที่สิ้นสุด',
   'reservations.addBooking': 'เพิ่มการจอง',
   'reservations.import.title': 'นำเข้าการยืนยันการจอง',
   'reservations.import.cta': 'นำเข้าจากไฟล์',

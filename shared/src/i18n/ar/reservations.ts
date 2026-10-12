@@ -131,6 +131,7 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'النهاية',
   'reservations.span.ongoing': 'جارٍ',
   'reservations.validation.endBeforeStart': 'يجب أن يكون تاريخ/وقت الانتهاء بعد تاريخ/وقت البدء',
+  'reservations.validation.endTimeBeforeStartTime': 'وقت الانتهاء قبل وقت البدء. إذا كان ينتهي في اليوم التالي، فحدّد تاريخ انتهاء.',
   'reservations.addBooking': 'إضافة حجز',
   'reservations.import.title': 'استيراد تأكيدات الحجز',
   'reservations.import.cta': 'استيراد من ملف',

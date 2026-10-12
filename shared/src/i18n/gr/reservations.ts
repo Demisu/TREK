@@ -133,6 +133,7 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'Λήξη',
   'reservations.span.ongoing': 'Σε εξέλιξη',
   'reservations.validation.endBeforeStart': 'Η ημερομηνία/ώρα λήξης πρέπει να είναι μετά την ημερομηνία/ώρα έναρξης',
+  'reservations.validation.endTimeBeforeStartTime': 'Η ώρα λήξης είναι πριν από την ώρα έναρξης. Αν λήγει την επόμενη μέρα, ορίστε ημερομηνία λήξης.',
   'reservations.addBooking': 'Προσθήκη κράτησης',
   'reservations.import.title': 'Εισαγωγή επιβεβαιώσεων κράτησης',
   'reservations.import.cta': 'Εισαγωγή από αρχείο',

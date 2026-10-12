@@ -134,6 +134,7 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'Ende',
   'reservations.span.ongoing': 'Laufend',
   'reservations.validation.endBeforeStart': 'Enddatum/-zeit muss nach dem Startdatum/-zeit liegen',
+  'reservations.validation.endTimeBeforeStartTime': 'Die Endzeit liegt vor der Startzeit. Endet die Buchung am nächsten Tag, wähle ein Enddatum.',
   'reservations.addBooking': 'Buchung hinzufügen',
   'reservations.import.title': 'Buchungsbestätigungen importieren',
   'reservations.import.cta': 'Aus Datei importieren',

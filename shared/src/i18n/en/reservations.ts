@@ -136,6 +136,7 @@ const reservations: TranslationStrings = {
   'reservations.span.end': 'End',
   'reservations.span.ongoing': 'Ongoing',
   'reservations.validation.endBeforeStart': 'End date/time must be after start date/time',
+  'reservations.validation.endTimeBeforeStartTime': 'The end time is before the start time. If it ends the next day, set an end date.',
   'reservations.addBooking': 'Add booking',
   'reservations.import.title': 'Import booking confirmations',
   'reservations.import.cta': 'Import from file',
