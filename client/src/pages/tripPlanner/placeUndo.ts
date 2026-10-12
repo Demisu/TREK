@@ -44,7 +44,7 @@ function isUploadedImage(url: string | null | undefined): boolean {
 }
 
 /** Every field the place was created with, for writing it again. */
-export function placeRestorePayload(place: Place): Partial<Place> & { name: string } {
+function placeRestorePayload(place: Place): Partial<Place> & { name: string } {
   return {
     name: place.name,
     description: place.description,

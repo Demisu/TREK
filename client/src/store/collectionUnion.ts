@@ -4,7 +4,7 @@ import { collectionsApi } from '../api/collections';
 /** Detail requests fired at once while building the union. A user with many
  *  lists would otherwise open "All saved" (or the trip's saved-places picker)
  *  with one full list read per list, all in parallel (#2559). */
-export const DETAIL_BATCH = 4;
+const DETAIL_BATCH = 4;
 
 /** Union of every list's places, in list order, without duplicates. A list
  *  that cannot be read is skipped. */

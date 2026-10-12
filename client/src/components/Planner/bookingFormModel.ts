@@ -79,7 +79,7 @@ type SavedBooking = Pick<Reservation, 'id'> &
  * The calendar day a saved booking falls on: its own date, else a hotel's check-in
  * day, else the day it sits on. Nothing for a booking without any of them.
  */
-export function bookingDate(saved: SavedBooking, days: Pick<Day, 'id' | 'date'>[]): string | undefined {
+function bookingDate(saved: SavedBooking, days: Pick<Day, 'id' | 'date'>[]): string | undefined {
   const own = (saved.reservation_time || '').slice(0, 10);
   if (/^\d{4}-\d{2}-\d{2}$/.test(own)) return own;
   const dayId = saved.accommodation_start_day_id ?? saved.day_id;
