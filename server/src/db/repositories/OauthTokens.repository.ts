@@ -41,6 +41,7 @@ export interface OauthTokenWithUserRow {
   username: string;
   email: string;
   role: string;
+  email_self_asserted: number;
 }
 
 /** OA17 (`findChainRoot`'s upward-walk read). */
@@ -268,6 +269,7 @@ export class OauthTokensRepository extends TrekRepository<OauthTokens> {
         'u.username',
         'u.email',
         'u.role',
+        'u.email_self_asserted',
       ])
       .where({ 'ot.access_token_hash': hash })
       .execute<OauthTokenWithUserRow | undefined>('get', false);

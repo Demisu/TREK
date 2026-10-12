@@ -954,6 +954,19 @@ describe('getUserByAccessToken — includes clientId (C2)', () => {
     expect(info).not.toBeNull();
     expect(info!.clientId).toBe(clientId);
   });
+
+  it('reports the email as verified unless the account typed it in itself', async () => {
+    const { user } = createUser(testDb);
+    const created = await makeClient(user.id);
+    const clientId = created.client!.client_id as string;
+
+    const first = await issueTokens(clientId, user.id, ['trips:read']);
+    expect((await getUserByAccessToken(first.access_token))!.emailVerified).toBe(true);
+
+    await updateRows(t, Users, { id: user.id }, { email_self_asserted: 1 });
+    const second = await issueTokens(clientId, user.id, ['trips:read']);
+    expect((await getUserByAccessToken(second.access_token))!.emailVerified).toBe(false);
+  });
 });
 
 // ---------------------------------------------------------------------------

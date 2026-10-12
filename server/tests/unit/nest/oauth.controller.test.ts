@@ -428,10 +428,27 @@ describe('OauthPublicController /userinfo + /revoke', () => {
     expect(r1.headers['WWW-Authenticate']).toBe('Bearer realm="TREK MCP"');
     const r2 = makeRes();
     await opc(
-      osvc({ getUserByAccessToken: vi.fn().mockReturnValue({ user: { id: 1, email: 'a@b.c', username: 'u' } }) }),
+      osvc({
+        getUserByAccessToken: vi
+          .fn()
+          .mockReturnValue({ user: { id: 1, email: 'a@b.c', username: 'u' }, emailVerified: true }),
+      }),
       rl(),
     ).userinfo('Bearer tok', r2);
     expect(r2.body).toEqual({ sub: '1', email: 'a@b.c', email_verified: true, preferred_username: 'u' });
+  });
+
+  it('userinfo: an email the account typed in itself is not reported as verified', async () => {
+    const res = makeRes();
+    await opc(
+      osvc({
+        getUserByAccessToken: vi
+          .fn()
+          .mockReturnValue({ user: { id: 2, email: 'x@y.z', username: 'v' }, emailVerified: false }),
+      }),
+      rl(),
+    ).userinfo('Bearer tok', res);
+    expect(res.body).toEqual({ sub: '2', email: 'x@y.z', email_verified: false, preferred_username: 'v' });
   });
 
   it('userinfo: 404 empty when MCP is disabled', async () => {

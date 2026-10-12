@@ -73,6 +73,8 @@ function expiriesAsIso(row: { access_token_expires_at: string; refresh_token_exp
 
 export interface OAuthTokenInfo {
   user: User;
+  /** False when the account typed its email in itself; nobody has confirmed that address. */
+  emailVerified: boolean;
   scopes: string[];
   clientId: string;
   audience: string | null;
@@ -450,6 +452,7 @@ export class OauthService {
 
     return {
       user: { id: row.user_id, username: row.username, email: row.email, role: row.role as 'admin' | 'user' },
+      emailVerified: !row.email_self_asserted,
       scopes: decodeJson(OAUTH_TOKEN_SCOPES, row.scopes, `client ${row.client_id} user ${row.user_id}`),
       clientId: row.client_id,
       audience: row.audience ?? null,

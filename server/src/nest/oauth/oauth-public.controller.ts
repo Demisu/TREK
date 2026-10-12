@@ -220,7 +220,7 @@ export class OauthPublicController {
     res.json({
       sub: String(info.user.id),
       email: info.user.email,
-      email_verified: true,
+      email_verified: info.emailVerified,
       preferred_username: info.user.username,
     });
   }
