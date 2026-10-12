@@ -10,7 +10,7 @@
     "src/nest/collab/collab.mcp.ts": 3,
     "src/nest/collab/collab.rpc.ts": 2,
     "src/nest/doc-sync/doc-sync-config.service.ts": 2,
-    "src/nest/llm-parse/llm-local.service.ts": 7,
+    "src/nest/llm-parse/llm-local.service.ts": 3,
     "src/nest/maps/maps-url.resolver.ts": 2,
     "src/nest/maps/providers/osm.client.ts": 4,
     "src/nest/memories/immich.controller.ts": 6,

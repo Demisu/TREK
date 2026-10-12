@@ -5,7 +5,7 @@ import { adminApi } from '../../../api/client';
 import { type Addon, DEFAULT_OLLAMA_URL, MASKED } from './addonModel';
 import { useLlmParsingConfig } from './useLlmParsingConfig';
 
-// FE-HOOK-LLMCFG-001 to FE-HOOK-LLMCFG-010
+// FE-HOOK-LLMCFG-001 to FE-HOOK-LLMCFG-011
 
 const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
 vi.mock('../../shared/Toast', () => ({ useToast: () => toast }));
@@ -72,6 +72,15 @@ describe('useLlmParsingConfig', () => {
     vi.mocked(adminApi.llmLocalModels).mockRejectedValue('nope');
     await act(() => result.current.loadModels());
     expect(result.current.modelsErr).toBe('Could not reach the local LLM server');
+  });
+
+  it("FE-HOOK-LLMCFG-011: a refused list shows the server's reason, not the status line (#2649)", async () => {
+    const refused = Object.assign(new Error('Request failed with status code 502'), {
+      response: { status: 502, data: { error: 'Local LLM server rejected the API key (401)' } },
+    });
+    vi.mocked(adminApi.llmLocalModels).mockRejectedValue(refused);
+    const { result } = renderHook(() => useLlmParsingConfig(llm({ provider: 'local' })));
+    await waitFor(() => expect(result.current.modelsErr).toBe('Local LLM server rejected the API key (401)'));
   });
 
   it('FE-HOOK-LLMCFG-005: a pull reports progress, selects the model and lists again', async () => {

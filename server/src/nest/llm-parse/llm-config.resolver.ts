@@ -57,6 +57,23 @@ export class LlmConfigResolver {
     };
   }
 
+  /**
+   * The saved local server and its decrypted key, for the admin screen's model
+   * list and pull (#2649): a server behind an auth proxy answers neither without
+   * the key. Read before a model is chosen, since listing the models is how one
+   * gets chosen, and only while the saved provider is local. The caller decides
+   * whether the address it is about to call is this one.
+   */
+  async readLocalServerAccess(): Promise<{ baseUrl?: string; apiKey?: string } | null> {
+    const row = await this.addonsRepo.findById(ADDON_IDS.LLM_PARSING);
+    const cfg = row?.config;
+    if (!cfg || asProvider(cfg.provider) !== 'local') return null;
+    return {
+      baseUrl: typeof cfg.baseUrl === 'string' && cfg.baseUrl.trim() ? cfg.baseUrl.trim() : undefined,
+      apiKey: decryptLlmApiKey(cfg.apiKey),
+    };
+  }
+
   private async readUserConfig(userId: number): Promise<ResolvedLlmConfig | null> {
     const settings = await this.settings.getUserSettings(userId);
     const provider = asProvider(settings.llm_provider);

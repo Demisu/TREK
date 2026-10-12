@@ -147,3 +147,25 @@ describe('resolveLlmConfig', () => {
     expect(findById).toHaveBeenCalledWith('llm_parsing');
   });
 });
+
+describe('readLocalServerAccess (#2649)', () => {
+  it('answers the saved local server and its decrypted key, before a model is chosen', async () => {
+    setInstanceConfig({ provider: 'local', baseUrl: ' https://ollama.example.org/v1 ', apiKey: 'proxy-key' });
+    expect(await resolver.readLocalServerAccess()).toEqual({
+      baseUrl: 'https://ollama.example.org/v1',
+      apiKey: 'proxy-key',
+    });
+  });
+
+  it('answers without a key when none is saved, and a blank base URL as the default', async () => {
+    setInstanceConfig({ provider: 'local', model: 'nuextract', baseUrl: '' });
+    expect(await resolver.readLocalServerAccess()).toEqual({ baseUrl: undefined, apiKey: undefined });
+  });
+
+  it('answers null when the saved provider is not local, or nothing is saved', async () => {
+    setInstanceConfig({ provider: 'openai', baseUrl: 'https://api.openai.com/v1', apiKey: 'sk' });
+    expect(await resolver.readLocalServerAccess()).toBeNull();
+    setInstanceConfig(undefined);
+    expect(await resolver.readLocalServerAccess()).toBeNull();
+  });
+});

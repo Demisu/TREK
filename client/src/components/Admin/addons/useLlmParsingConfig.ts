@@ -2,6 +2,7 @@ import { type LlmVision, asLlmVision } from '@trek/shared';
 import { useEffect, useEffectEvent, useState } from 'react';
 
 import { adminApi } from '../../../api/client';
+import { getApiErrorMessage } from '../../../types';
 import { useToast } from '../../shared/Toast';
 import { type Addon, DEFAULT_OLLAMA_URL } from './addonModel';
 
@@ -40,7 +41,8 @@ export function useLlmParsingConfig(addon: Addon) {
       const res = await adminApi.llmLocalModels(effectiveUrl);
       setInstalled(res.models.map((m) => m.name));
     } catch (e: unknown) {
-      setModelsErr(e instanceof Error ? e.message : 'Could not reach the local LLM server');
+      // The server says why (unreachable, key refused); axios' own status line does not.
+      setModelsErr(getApiErrorMessage(e, 'Could not reach the local LLM server'));
       setInstalled([]);
     } finally {
       setLoadingModels(false);

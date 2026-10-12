@@ -35,6 +35,24 @@ describe('LlmLocalService.ollamaRoot', () => {
   });
 });
 
+describe('LlmLocalService.sameServer', () => {
+  it('matches the same root however the base URL is spelled', () => {
+    expect(svc().sameServer('https://ollama.example.org/v1', 'https://ollama.example.org')).toBe(true);
+    expect(svc().sameServer('https://OLLAMA.example.org:443/v1/', 'https://ollama.example.org/v1')).toBe(true);
+    expect(svc().sameServer(undefined, 'http://localhost:11434/v1')).toBe(true);
+  });
+
+  it('does not match another host, scheme, port or path', () => {
+    const s = svc();
+    expect(s.sameServer('https://ollama.example.org/v1', 'https://evil.example.com/v1')).toBe(false);
+    expect(s.sameServer('https://ollama.example.org/v1', 'http://ollama.example.org/v1')).toBe(false);
+    expect(s.sameServer('https://ollama.example.org/v1', 'https://ollama.example.org:8443/v1')).toBe(false);
+    expect(s.sameServer('https://proxy.example.org/ollama', 'https://proxy.example.org/other')).toBe(false);
+    expect(s.sameServer('https://ollama.example.org', 'https://ollama.example.org@evil.example.com')).toBe(false);
+    expect(s.sameServer('https://ollama.example.org', 'not a url')).toBe(false);
+  });
+});
+
 describe('LlmLocalService.listModels', () => {
   it('returns named models from /api/tags', async () => {
     const fetchFn = mockFetch(async () => ({
@@ -44,6 +62,45 @@ describe('LlmLocalService.listModels', () => {
     const out = await svc().listModels('http://localhost:11434/v1');
     expect(out.models).toEqual([{ name: 'nuextract', size: 100 }]);
     expect(fetchFn.mock.calls[0][0]).toBe('http://localhost:11434/api/tags');
+  });
+
+  it('sends the configured key as a Bearer header, and none without one (#2649)', async () => {
+    const fetchFn = mockFetch(async () => ({ ok: true, json: async () => ({ models: [] }) }));
+    await svc().listModels('https://ollama.example.org/v1', 'proxy-key');
+    expect(fetchFn.mock.calls[0][1].headers).toMatchObject({ authorization: 'Bearer proxy-key' });
+    await svc().listModels('https://ollama.example.org/v1');
+    expect(fetchFn.mock.calls[1][1].headers ?? {}).not.toHaveProperty('authorization');
+    expect(fetchFn.mock.calls[0][0]).not.toContain('proxy-key');
+  });
+
+  it('says the key was rejected when the server answers 401 or 403', async () => {
+    mockFetch(async () => ({ ok: false, status: 401, body: null }));
+    await expect(svc().listModels('http://ollama:11434', 'wrong')).rejects.toMatchObject({
+      response: { error: 'Local LLM server rejected the API key (401)' },
+    });
+    mockFetch(async () => ({ ok: false, status: 403, body: null }));
+    await expect(svc().listModels('http://ollama:11434')).rejects.toMatchObject({
+      response: { error: expect.stringContaining('requires an API key (403)') },
+    });
+  });
+
+  it('falls back to the OpenAI model list when the server has no /api/tags', async () => {
+    const fetchFn = mockFetch(async (url?: string) =>
+      url?.endsWith('/api/tags')
+        ? { ok: false, status: 404, body: null }
+        : { ok: true, json: async () => ({ data: [{ id: 'qwen3-8b' }, { id: '' }, {}] }) },
+    );
+    const out = await svc().listModels('http://lmstudio:1234/v1', 'k');
+    expect(out.models).toEqual([{ name: 'qwen3-8b', size: 0 }]);
+    expect(fetchFn.mock.calls[1][0]).toBe('http://lmstudio:1234/v1/models');
+    expect(fetchFn.mock.calls[1][1].headers).toMatchObject({ authorization: 'Bearer k' });
+  });
+
+  it('keeps the 404 when the OpenAI model list is missing too', async () => {
+    mockFetch(async () => ({ ok: false, status: 404, body: null }));
+    await expect(svc().listModels('http://nothing:1')).rejects.toMatchObject({
+      response: { error: 'Local LLM server error (404)' },
+    });
   });
 
   it('502s when the server is unreachable', async () => {
@@ -69,6 +126,24 @@ describe('LlmLocalService.pull', () => {
     expect(fetchFn.mock.calls[0][0]).toBe('http://localhost:11434/api/pull');
     const init = fetchFn.mock.calls[0][1];
     expect(JSON.parse(init.body)).toEqual({ model: 'nuextract', stream: true });
+  });
+
+  it('sends the configured key with the pull, and none without one (#2649)', async () => {
+    const fetchFn = mockFetch(async () => ({ ok: true, body: {} }));
+    await svc().pull('https://ollama.example.org/v1', 'nuextract', 'proxy-key');
+    expect(fetchFn.mock.calls[0][1].headers).toMatchObject({
+      'content-type': 'application/json',
+      authorization: 'Bearer proxy-key',
+    });
+    await svc().pull('https://ollama.example.org/v1', 'nuextract');
+    expect(fetchFn.mock.calls[1][1].headers).not.toHaveProperty('authorization');
+  });
+
+  it('says the key was rejected when the pull answers 401', async () => {
+    mockFetch(async () => ({ ok: false, status: 401, body: null }));
+    await expect(svc().pull('http://ollama:11434', 'nuextract', 'wrong')).rejects.toMatchObject({
+      response: { error: 'Local LLM server rejected the API key (401)' },
+    });
   });
 });
 
