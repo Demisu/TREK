@@ -1,4 +1,4 @@
-// FE-PAGE-COLL-001 to FE-PAGE-COLL-085
+// FE-PAGE-COLL-001 to FE-PAGE-COLL-093
 // The Collections page hook. The collection store is replaced by a fixture so
 // every handler/branch can be driven directly; the categories request goes
 // through MSW, and the websocket module is already mocked in tests/setup.ts.
@@ -34,6 +34,9 @@ vi.mock('../../components/Collections/collectionFile', () => ({
   downloadCollectionGpx: vi.fn(),
 }))
 import { downloadCollectionFile, downloadCollectionGpx } from '../../components/Collections/collectionFile'
+
+/** How long useCollections lets a run of collections:* events settle before it reloads. */
+const WS_SETTLE_MS = 400
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 function makeStore() {
@@ -164,6 +167,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  vi.useRealTimers()
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
   delete window.__addToast
@@ -869,7 +873,9 @@ describe('useCollections — websocket sync', () => {
     store.loadAll.mockClear()
     // The route sync already activated the union on mount; only the WS effect counts here.
     store.setActive.mockClear()
+    vi.useFakeTimers()
     act(() => wsHandler()({ type: 'collections:updated', collectionId: 4 }))
+    act(() => { vi.advanceTimersByTime(WS_SETTLE_MS) })
 
     expect(store.loadAll).toHaveBeenCalledTimes(1)
     expect(store.loadCollection).toHaveBeenCalledWith(4)
@@ -881,7 +887,9 @@ describe('useCollections — websocket sync', () => {
     store.activeId = null
     await setup()
     store.loadAll.mockClear()
+    vi.useFakeTimers()
     act(() => wsHandler()({ type: 'collections:left' }))
+    act(() => { vi.advanceTimersByTime(WS_SETTLE_MS) })
 
     expect(store.loadAll).toHaveBeenCalledTimes(1)
     expect(store.loadCollection).not.toHaveBeenCalled()
@@ -891,9 +899,60 @@ describe('useCollections — websocket sync', () => {
   it('FE-PAGE-COLL-076: an update on the All-saved union re-unions the lists', async () => {
     store.activeId = 'all'
     await setup()
+    store.setActive.mockClear()
+    vi.useFakeTimers()
     act(() => wsHandler()({ type: 'collections:accepted' }))
+    act(() => { vi.advanceTimersByTime(WS_SETTLE_MS) })
 
-    expect(store.setActive).toHaveBeenCalledWith('all')
+    // A refresh, so the open place and the selection survive the re-union.
+    expect(store.refreshActive).toHaveBeenCalledTimes(1)
+    expect(store.setActive).not.toHaveBeenCalled()
+    expect(store.loadCollection).not.toHaveBeenCalled()
+  })
+
+  it('FE-PAGE-COLL-091: a burst of updates reloads once, after it has settled (#2559)', async () => {
+    store.activeId = 4
+    await setup()
+    store.loadAll.mockClear()
+    vi.useFakeTimers()
+    act(() => {
+      for (let i = 0; i < 20; i++) {
+        wsHandler()({ type: 'collections:updated', collectionId: 4 })
+        vi.advanceTimersByTime(50)
+      }
+    })
+    expect(store.loadAll).not.toHaveBeenCalled()
+    expect(store.loadCollection).not.toHaveBeenCalled()
+
+    act(() => { vi.advanceTimersByTime(WS_SETTLE_MS) })
+    expect(store.loadAll).toHaveBeenCalledTimes(1)
+    expect(store.loadCollection).toHaveBeenCalledTimes(1)
+    expect(store.loadCollection).toHaveBeenCalledWith(4)
+  })
+
+  it('FE-PAGE-COLL-092: the settled reload reads the list that is open by then', async () => {
+    store.activeId = 4
+    const view = await setup()
+    vi.useFakeTimers()
+    act(() => wsHandler()({ type: 'collections:updated', collectionId: 4 }))
+    store.activeId = 'all'
+    view.rerender()
+    act(() => { vi.advanceTimersByTime(WS_SETTLE_MS) })
+
+    expect(store.loadCollection).not.toHaveBeenCalled()
+    expect(store.refreshActive).toHaveBeenCalledTimes(1)
+  })
+
+  it('FE-PAGE-COLL-093: a reload still pending on unmount is dropped', async () => {
+    store.activeId = 4
+    const view = await setup()
+    store.loadAll.mockClear()
+    vi.useFakeTimers()
+    act(() => wsHandler()({ type: 'collections:updated', collectionId: 4 }))
+    view.unmount()
+    act(() => { vi.advanceTimersByTime(WS_SETTLE_MS) })
+
+    expect(store.loadAll).not.toHaveBeenCalled()
     expect(store.loadCollection).not.toHaveBeenCalled()
   })
 })

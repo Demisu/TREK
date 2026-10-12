@@ -18,6 +18,9 @@ import type { Category, Place } from '../../types'
 import { filterPlaces, sortPlaces, statusCounts, mappablePlaces, presentCategories, presentLabels } from './collectionsModel'
 import type { CollectionLabelUpdateRequest } from '@trek/shared'
 
+/** Quiet time after the last collections:* event before the page reloads. */
+const WS_RELOAD_SETTLE_MS = 400
+
 /**
  * Collections page logic — owns the page-local UI state (new/edit-list forms,
  * mobile rail drawer), pulls the collection store, wires the WebSocket live sync
@@ -145,6 +148,9 @@ export function useCollections() {
 
   // Live sync via WebSocket. collections:deleted / :removed must bounce a member
   // off a list that was removed (or that they were kicked from) under them.
+  const wsReloadTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const activeIdRef = useRef(activeId)
+  useEffect(() => { activeIdRef.current = activeId }, [activeId])
   const handleWsMessage = useCallback((msg: { type: string; collectionId?: number }) => {
     if (!msg.type?.startsWith('collections:')) return
     if (msg.type === 'collections:deleted' || msg.type === 'collections:removed') {
@@ -160,15 +166,26 @@ export function useCollections() {
     // invite / accepted / declined / cancelled / left / updated → refresh the
     // rail, and refresh the active list WITHOUT clearing the current selection or
     // select-mode (setActive would reset selectedPlaceId → close the open detail).
-    loadAll()
-    if (typeof activeId === 'number') loadCollection(activeId)
-    else if (activeId === ALL_SAVED) setActive(ALL_SAVED)
+    // An agent saving places one by one over MCP sends one event per place, so
+    // the reload waits until they stop instead of re-reading every list per event
+    // (#2559), and then reads whatever list is open by that time.
+    if (wsReloadTimer.current !== null) clearTimeout(wsReloadTimer.current)
+    wsReloadTimer.current = setTimeout(() => {
+      wsReloadTimer.current = null
+      loadAll()
+      const current = activeIdRef.current
+      if (typeof current === 'number') loadCollection(current)
+      else if (current === ALL_SAVED) refreshActive()
+    }, WS_RELOAD_SETTLE_MS)
   }, [activeId])
 
   useEffect(() => {
     addListener(handleWsMessage)
     return () => removeListener(handleWsMessage)
   }, [handleWsMessage])
+  useEffect(() => () => {
+    if (wsReloadTimer.current !== null) clearTimeout(wsReloadTimer.current)
+  }, [])
 
   // ── Derived ─────────────────────────────────────────────────────────
   const activeCollection = useMemo(
