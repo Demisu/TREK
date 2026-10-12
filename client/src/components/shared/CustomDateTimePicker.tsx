@@ -3,6 +3,7 @@ import { localIsoDate } from '../../utils/localDate';
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from '../../i18n';
+import { dateInputPattern } from '../../utils/dateInputPattern';
 import { useRemeasureSignal } from '../../hooks/useAnchoredPosition';
 import { useWeekStartDay } from '../../hooks/useWeekStartDay';
 import { leadingBlanks, weekdayLabels } from '../../utils/calendarWeek';
@@ -276,8 +277,8 @@ export function CustomDatePicker({
             if (e.key === 'Escape') setIsTyping(false);
           }}
           onBlur={handleTextSubmit}
-          placeholder="DD.MM.YYYY"
-          aria-label="Enter date manually"
+          placeholder={dateInputPattern(locale)}
+          aria-label={t('common.datepicker.enterManually')}
           style={{
             width: '100%',
             padding: '8px 14px',

@@ -223,7 +223,9 @@ export default function TripFormModal({ isOpen, onClose, onSave, trip, onCoverUp
     }
   }
 
-  const update = (field, value) => setFormData(prev => {
+  // An edit answers whatever the last save complained about, so the complaint
+  // goes with it rather than standing over the fixed field until the next save.
+  const update = (field, value) => { setError(''); setFormData(prev => {
     const next = { ...prev, [field]: value }
     if (field === 'start_date' && value) {
       if (!prev.end_date || prev.end_date < value) {
@@ -235,7 +237,7 @@ export default function TripFormModal({ isOpen, onClose, onSave, trip, onCoverUp
       }
     }
     return next
-  })
+  }) }
 
   /* The dashboard's shapes, in the app's own tokens.
      `.trek-dash` deliberately scopes its palette to that page, so none of its

@@ -76,8 +76,10 @@ export default function MNewTripSheet({ open, trip, onClose, onSave, onCoverUpda
     setPendingRemoval(null)
   }, [trip, open])
 
-  // Moving the start keeps the trip length (same rule as TripFormModal).
+  // Moving the start keeps the trip length (same rule as TripFormModal). Every
+  // edit clears the last save's complaint, as on the desktop form.
   const changeStart = (value: string) => {
+    setError('')
     setEndDate(endDateForNewStart(startDate, endDate, value))
     setStartDate(value)
   }
@@ -154,7 +156,7 @@ export default function MNewTripSheet({ open, trip, onClose, onSave, onCoverUpda
           <FieldLabel>{t('dashboard.tripTitle')}</FieldLabel>
           <input
             value={title}
-            onChange={e => canEditTrip && setTitle(e.target.value)}
+            onChange={e => { if (canEditTrip) { setError(''); setTitle(e.target.value) } }}
             readOnly={!canEditTrip}
             placeholder={t('dashboard.tripTitlePlaceholder')}
             className={inputCls}
@@ -165,7 +167,7 @@ export default function MNewTripSheet({ open, trip, onClose, onSave, onCoverUpda
           <FieldLabel>{t('dashboard.tripDescription')}</FieldLabel>
           <textarea
             value={description}
-            onChange={e => canEditTrip && setDescription(e.target.value)}
+            onChange={e => { if (canEditTrip) { setError(''); setDescription(e.target.value) } }}
             readOnly={!canEditTrip}
             placeholder={t('dashboard.tripDescriptionPlaceholder')}
             rows={2}
@@ -188,7 +190,7 @@ export default function MNewTripSheet({ open, trip, onClose, onSave, onCoverUpda
             <FieldLabel>{t('dashboard.endDate')}</FieldLabel>
             <CustomDatePicker
               value={endDate}
-              onChange={v => { if (canEditTrip) setEndDate(v) }}
+              onChange={v => { if (canEditTrip) { setError(''); setEndDate(v) } }}
               placeholder={t('dashboard.endDate')}
               borderless
               style={{ marginTop: 3 }}
@@ -203,7 +205,7 @@ export default function MNewTripSheet({ open, trip, onClose, onSave, onCoverUpda
           <FieldLabel>{t('dashboard.currency')}</FieldLabel>
           <CustomSelect
             value={currency}
-            onChange={v => { if (canEditTrip) setCurrency(String(v)) }}
+            onChange={v => { if (canEditTrip) { setError(''); setCurrency(String(v)) } }}
             disabled={!canEditTrip}
             searchable
             size="sm"

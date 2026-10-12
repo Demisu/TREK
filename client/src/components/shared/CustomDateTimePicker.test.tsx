@@ -104,14 +104,14 @@ describe('CustomDatePicker', () => {
     const user = userEvent.setup();
     render(<CustomDatePicker value="" onChange={onChange} />);
     await user.click(screen.getByRole('button', { name: /enter date manually/i }));
-    expect(screen.getByPlaceholderText('DD.MM.YYYY')).toBeTruthy();
+    expect(screen.getByRole('textbox', { name: 'Enter date manually' })).toBeTruthy();
   });
 
   it('FE-COMP-DATEPICKER-012: text input accepts ISO format YYYY-MM-DD', async () => {
     const user = userEvent.setup();
     render(<CustomDatePicker value="" onChange={onChange} />);
     await user.click(screen.getByRole('button', { name: /enter date manually/i }));
-    const input = screen.getByPlaceholderText('DD.MM.YYYY');
+    const input = screen.getByRole('textbox', { name: 'Enter date manually' });
     fireEvent.change(input, { target: { value: '2026-07-04' } });
     fireEvent.keyDown(input, { key: 'Enter' });
     expect(onChange).toHaveBeenCalledWith('2026-07-04');
@@ -121,7 +121,7 @@ describe('CustomDatePicker', () => {
     const user = userEvent.setup();
     render(<CustomDatePicker value="" onChange={onChange} />);
     await user.click(screen.getByRole('button', { name: /enter date manually/i }));
-    const input = screen.getByPlaceholderText('DD.MM.YYYY');
+    const input = screen.getByRole('textbox', { name: 'Enter date manually' });
     fireEvent.change(input, { target: { value: '17.07.2026' } });
     fireEvent.keyDown(input, { key: 'Enter' });
     expect(onChange).toHaveBeenCalledWith('2026-07-17');
@@ -131,7 +131,7 @@ describe('CustomDatePicker', () => {
     const user = userEvent.setup();
     render(<CustomDatePicker value="" onChange={onChange} />);
     await user.click(screen.getByRole('button', { name: /enter date manually/i }));
-    const input = screen.getByPlaceholderText('DD.MM.YYYY');
+    const input = screen.getByRole('textbox', { name: 'Enter date manually' });
     fireEvent.change(input, { target: { value: '31.02.2026' } });
     fireEvent.keyDown(input, { key: 'Enter' });
     expect(onChange).not.toHaveBeenCalled();
@@ -141,7 +141,7 @@ describe('CustomDatePicker', () => {
     const user = userEvent.setup();
     render(<CustomDatePicker value="" onChange={onChange} />);
     await user.click(screen.getByRole('button', { name: /enter date manually/i }));
-    const input = screen.getByPlaceholderText('DD.MM.YYYY');
+    const input = screen.getByRole('textbox', { name: 'Enter date manually' });
     fireEvent.change(input, { target: { value: '29.02.2024' } });
     fireEvent.keyDown(input, { key: 'Enter' });
     expect(onChange).toHaveBeenCalledWith('2024-02-29');
@@ -151,9 +151,9 @@ describe('CustomDatePicker', () => {
     const user = userEvent.setup();
     render(<CustomDatePicker value="" onChange={onChange} />);
     await user.click(screen.getByRole('button', { name: /enter date manually/i }));
-    const input = screen.getByPlaceholderText('DD.MM.YYYY');
+    const input = screen.getByRole('textbox', { name: 'Enter date manually' });
     fireEvent.keyDown(input, { key: 'Escape' });
-    expect(screen.queryByPlaceholderText('DD.MM.YYYY')).toBeNull();
+    expect(screen.queryByRole('textbox', { name: 'Enter date manually' })).toBeNull();
     expect(screen.getAllByRole('button').length).toBeGreaterThan(0);
   });
 
@@ -183,7 +183,7 @@ describe('CustomDatePicker', () => {
     const user = userEvent.setup();
     render(<CustomDatePicker value="" onChange={onChange} min="2026-03-10" max="2026-03-20" />);
     await user.click(screen.getByRole('button', { name: /enter date manually/i }));
-    const input = screen.getByPlaceholderText('DD.MM.YYYY');
+    const input = screen.getByRole('textbox', { name: 'Enter date manually' });
     fireEvent.change(input, { target: { value: '2026-03-25' } });
     fireEvent.keyDown(input, { key: 'Enter' });
     expect(onChange).not.toHaveBeenCalled();
@@ -503,22 +503,22 @@ describe('CustomDatePicker branches', () => {
     openCalendar();
     fireEvent.click(screen.getByRole('button', { name: /enter date manually/i }));
 
-    expect(screen.getByPlaceholderText('DD.MM.YYYY')).toHaveProperty('value', '');
+    expect(screen.getByRole('textbox', { name: 'Enter date manually' })).toHaveProperty('value', '');
   });
 
   it('FE-W5DP-010: submitting an empty manual entry does nothing', () => {
     render(<CustomDatePicker value="" onChange={onChange} />);
     fireEvent.click(screen.getByRole('button', { name: /enter date manually/i }));
-    fireEvent.blur(screen.getByPlaceholderText('DD.MM.YYYY'));
+    fireEvent.blur(screen.getByRole('textbox', { name: 'Enter date manually' }));
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.queryByPlaceholderText('DD.MM.YYYY')).not.toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: 'Enter date manually' })).not.toBeInTheDocument();
   });
 
   it('FE-W5DP-011: a manual entry without three number groups is ignored', () => {
     render(<CustomDatePicker value="" onChange={onChange} />);
     fireEvent.click(screen.getByRole('button', { name: /enter date manually/i }));
-    const input = screen.getByPlaceholderText('DD.MM.YYYY');
+    const input = screen.getByRole('textbox', { name: 'Enter date manually' });
     fireEvent.change(input, { target: { value: '17.07' } });
     fireEvent.keyDown(input, { key: 'Enter' });
 
@@ -528,7 +528,7 @@ describe('CustomDatePicker branches', () => {
   it('FE-W5DP-012: a manual entry already in locale order is taken as typed', () => {
     render(<CustomDatePicker value="" onChange={onChange} />);
     fireEvent.click(screen.getByRole('button', { name: /enter date manually/i }));
-    const input = screen.getByPlaceholderText('DD.MM.YYYY');
+    const input = screen.getByRole('textbox', { name: 'Enter date manually' });
     fireEvent.change(input, { target: { value: '07/17/2026' } });
     fireEvent.keyDown(input, { key: 'Enter' });
 
@@ -538,7 +538,7 @@ describe('CustomDatePicker branches', () => {
   it('FE-W5DP-013: a two-digit year is expanded into the 2000s', () => {
     render(<CustomDatePicker value="" onChange={onChange} />);
     fireEvent.click(screen.getByRole('button', { name: /enter date manually/i }));
-    const input = screen.getByPlaceholderText('DD.MM.YYYY');
+    const input = screen.getByRole('textbox', { name: 'Enter date manually' });
     fireEvent.change(input, { target: { value: '07/17/26' } });
     fireEvent.keyDown(input, { key: 'Enter' });
 
@@ -548,7 +548,7 @@ describe('CustomDatePicker branches', () => {
   it('FE-W5DP-014: an impossible day/month combination is rejected', () => {
     render(<CustomDatePicker value="" onChange={onChange} />);
     fireEvent.click(screen.getByRole('button', { name: /enter date manually/i }));
-    const input = screen.getByPlaceholderText('DD.MM.YYYY');
+    const input = screen.getByRole('textbox', { name: 'Enter date manually' });
     fireEvent.change(input, { target: { value: '13/45/2026' } });
     fireEvent.keyDown(input, { key: 'Enter' });
 
@@ -558,7 +558,7 @@ describe('CustomDatePicker branches', () => {
   it('FE-W5DP-015: a localised manual entry outside [min,max] is rejected', () => {
     render(<CustomDatePicker value="" onChange={onChange} min="2026-03-10" max="2026-03-20" />);
     fireEvent.click(screen.getByRole('button', { name: /enter date manually/i }));
-    const input = screen.getByPlaceholderText('DD.MM.YYYY');
+    const input = screen.getByRole('textbox', { name: 'Enter date manually' });
     fireEvent.change(input, { target: { value: '03/25/2026' } });
     fireEvent.keyDown(input, { key: 'Enter' });
 
@@ -743,7 +743,7 @@ describe('CustomDatePicker branches', () => {
 
     fireEvent.click(keyboard);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(screen.getByPlaceholderText('DD.MM.YYYY')).toHaveProperty('value', '03/15/2026');
+    expect(screen.getByRole('textbox', { name: 'Enter date manually' })).toHaveProperty('value', '03/15/2026');
   });
 });
 
