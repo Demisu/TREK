@@ -1207,3 +1207,53 @@ describe('useCollections: GPX (#2301)', () => {
     expect(answer).toEqual(read)
   })
 })
+
+// #2645: the invite notification links to /collections/:id, a list the invitee
+// cannot read until they accept. The page has to offer the invite there, and a
+// link to a list that is gone (declined, cancelled, deleted) must not leave the
+// page pointing at nothing.
+describe('useCollections — route that is an invite (#2645)', () => {
+  const invite = { collection_id: 14, name: 'Lisbon', from: { id: 4, username: 'Lena' } }
+
+  it('FE-PAGE-COLL-086: a route id that is a pending invite exposes it and does not open the list', async () => {
+    routeParams = { id: '14' }
+    store.incomingInvites = [invite]
+    const { result } = await setup()
+    expect(result.current.routeInvite).toEqual(invite)
+    expect(store.setActive).not.toHaveBeenCalledWith(14)
+    expect(navigate).not.toHaveBeenCalled()
+  })
+
+  it('FE-PAGE-COLL-087: the invite on the route is listed first', async () => {
+    routeParams = { id: '14' }
+    const other = { collection_id: 3, name: 'Rome', from: { id: 5, username: 'Tom' } }
+    store.incomingInvites = [other, invite]
+    const { result } = await setup()
+    expect(result.current.orderedInvites).toEqual([invite, other])
+  })
+
+  it('FE-PAGE-COLL-088: a route id that is neither a list nor an invite bounces to /collections once the lists are in', async () => {
+    routeParams = { id: '14' }
+    store.collections = [collection({ id: 2 })]
+    await setup()
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/collections', { replace: true }))
+  })
+
+  it('FE-PAGE-COLL-089: no bounce while the lists are still loading', async () => {
+    routeParams = { id: '14' }
+    let finish: () => void = () => {}
+    store.loadAll.mockImplementationOnce(() => new Promise<void>(res => { finish = res }))
+    await setup()
+    expect(navigate).not.toHaveBeenCalled()
+    await act(async () => { finish() })
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/collections', { replace: true }))
+  })
+
+  it('FE-PAGE-COLL-090: a route id that is one of the lists stays put', async () => {
+    routeParams = { id: '14' }
+    store.collections = [collection({ id: 14 })]
+    await setup()
+    await act(async () => {})
+    expect(navigate).not.toHaveBeenCalled()
+  })
+})

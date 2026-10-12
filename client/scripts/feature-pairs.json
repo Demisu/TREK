@@ -862,6 +862,7 @@
     "src/mobile/screens/atlas/MAtlasSearch.tsx": "Phone full screen country search overlay; options, suggestions and selection come through props from MAtlas.",
     "src/mobile/screens/atlas/MAtlasStatsCard.tsx": "Markup only; renders the AtlasStats that MAtlas passes in.",
     "src/mobile/screens/collections/MCollCategoryPicker.tsx": "Phone only category dropdown; value and categories come through props from the collection sheets.",
+    "src/mobile/screens/collections/MCollInvites.tsx": "Markup only; the invites and accept and decline come through props from useCollections via MCollections.",
     "src/mobile/screens/collections/MCollLabelsSheet.tsx": "Phone label sheet; create, update, delete and assign come through props from useCollections.",
     "src/mobile/screens/collections/MCollLinksEditor.tsx": "Markup only; link rows and the change handler come through props from the collection sheets.",
     "src/mobile/screens/collections/MCollListPickerSheet.tsx": "Phone list picker sheet; the move or copy action comes through onPick from useCollections.",

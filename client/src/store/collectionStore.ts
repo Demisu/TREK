@@ -180,8 +180,8 @@ export const useCollectionStore = create<CollectionState>((set, get) => ({
     } catch {
       // The list may have been left / removed / deleted out from under us (a WS
       // event or the URL sync can re-request an id we just lost access to). Clear
-      // it instead of leaving an uncaught 403/404 rejection; the route sync then
-      // bounces to /collections.
+      // it instead of leaving an uncaught 403/404 rejection; useCollections drops
+      // a route id that is no longer one of the lists.
       if (get().activeId === id) set({ activeId: null, places: [], members: [], labels: [] })
     } finally {
       set({ placesLoading: false })

@@ -211,6 +211,8 @@ function makeHook(overrides: Hook = {}): Hook {
     hasMappable: true,
     members: [],
     incomingInvites: [],
+    orderedInvites: [],
+    routeInvite: null,
     counts: { all: 1, idea: 0, want: 1, visited: 0 },
     view: 'list',
     statusFilter: 'all',

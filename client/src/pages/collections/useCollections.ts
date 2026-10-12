@@ -79,8 +79,11 @@ export function useCollections() {
   // place from the detail panel, or the select-mode set for a bulk copy.
   const [copyIds, setCopyIds] = useState<number[] | null>(null)
 
-  // Initial load.
-  useEffect(() => { loadAll() }, [])
+  // Initial load. listsLoaded says the rail is fresh from this visit, which
+  // the route check below waits for before it calls a list id unknown. A load
+  // that fails leaves it off, so an offline page never drops the route.
+  const [listsLoaded, setListsLoaded] = useState(false)
+  useEffect(() => { loadAll().then(() => setListsLoaded(true), () => setListsLoaded(false)) }, [])
 
   // Central admin-defined categories, for assigning a category to a saved place.
   const [categories, setCategories] = useState<Category[]>([])
@@ -104,15 +107,41 @@ export function useCollections() {
     return () => cancelAnimationFrame(raf)
   }, [view, isWide])
 
+  // The invite notification links to /collections/:id, a list the invitee
+  // cannot read before they accept (#2645). When the route is such an invite
+  // the page offers it instead of opening the list, and lists it first.
+  const routeInvite = useMemo(() => {
+    if (!routeId) return null
+    const id = Number(routeId)
+    return incomingInvites.find(inv => inv.collection_id === id) ?? null
+  }, [routeId, incomingInvites])
+  const orderedInvites = useMemo(
+    () => (routeInvite ? [routeInvite, ...incomingInvites.filter(inv => inv !== routeInvite)] : incomingInvites),
+    [routeInvite, incomingInvites],
+  )
+
   // Keep the active list in sync with the URL (/collections/:id, or the
-  // "All saved" union at /collections).
+  // "All saved" union at /collections). A pending invite on the route shows
+  // the union behind its card.
   useEffect(() => {
-    const next: ActiveCollectionId = routeId ? Number(routeId) : ALL_SAVED
+    const next: ActiveCollectionId = routeId && !routeInvite ? Number(routeId) : ALL_SAVED
     if (Number.isNaN(next as number)) return
     if (next !== activeId) setActive(next)
-    // Only re-run when the route or the loaded list set changes.
+    // Only re-run when the route, the loaded list set or the invite on it changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeId, collections.length])
+  }, [routeId, collections.length, routeInvite])
+
+  // A route id that is neither one of the lists nor a pending invite is a link
+  // to something gone: a declined or withdrawn invite, a deleted list, one the
+  // person was removed from. Drop it once the lists are in, rather than leave
+  // the URL on a list the page cannot show.
+  useEffect(() => {
+    if (!listsLoaded || loading || !routeId) return
+    const id = Number(routeId)
+    if (Number.isNaN(id)) return
+    if (collections.some(l => l.id === id) || incomingInvites.some(inv => inv.collection_id === id)) return
+    navigate('/collections', { replace: true })
+  }, [listsLoaded, loading, routeId, collections, incomingInvites, navigate])
 
   // Live sync via WebSocket. collections:deleted / :removed must bounce a member
   // off a list that was removed (or that they were kicked from) under them.
@@ -490,7 +519,7 @@ export function useCollections() {
     collections, ownedLists, sharedLists, activeCollection, isAllSaved, isOwner,
     myRole, canEdit, canDelete,
     canShare, shareMemberCount,
-    activeId, places, visiblePlaces, mappable, hasMappable, members, incomingInvites, counts,
+    activeId, places, visiblePlaces, mappable, hasMappable, members, incomingInvites, routeInvite, orderedInvites, counts,
     view, statusFilter, categoryFilter, categoryOptions, ratingFilter, sortMode, search, selectedPlaceId, selectMode, selectedIds,
     labels, labelFilter, labelOptions,
     loading, placesLoading,

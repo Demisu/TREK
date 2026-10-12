@@ -21,6 +21,7 @@ import MCollEditSheet from './MCollEditSheet'
 import MCollLabelsSheet from './MCollLabelsSheet'
 import MCollTripPickerSheet from './MCollTripPickerSheet'
 import MCollListPickerSheet from './MCollListPickerSheet'
+import MCollInvites from './MCollInvites'
 import { STATUS_SPEC } from './collectionsMobileModel'
 import { CancelPill, PrimaryPill } from './MCollSheetKit'
 
@@ -208,6 +209,8 @@ export default function MCollections() {
           </button>
         </div>
       )}
+
+      <MCollInvites invites={c.orderedInvites} onAccept={c.handleAcceptInvite} onDecline={c.handleDeclineInvite} t={t} />
 
       {c.loading && c.collections.length === 0 ? (
         <div className="flex items-center justify-center py-20 text-m-faint">

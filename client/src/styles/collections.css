@@ -92,6 +92,9 @@
 .trek-dash .col-invite-accept:hover { opacity: .9; }
 .trek-dash .col-invite-decline { border: 1px solid var(--line-2); color: var(--ink-2); }
 .trek-dash .col-invite-decline:hover { background: var(--surface); }
+/* the same cards at the top of the page body (no lists yet, or the invite's own link) */
+.trek-dash .col-invites-main { max-width: 420px; margin: 0 auto 22px; }
+.trek-dash .col-invites-main .col-invite { padding: 13px; }
 
 /* ----------------- hero ----------------- */
 .trek-dash .col-hero {
