@@ -1391,8 +1391,9 @@ describe('SharedTripPage', () => {
       fireEvent.click(screen.getByRole('button', { name: /costs/i }));
 
       await waitFor(() => expect(screen.getByText('Hostel')).toBeInTheDocument());
-      // Each category twice: its line in the overview and its own card.
-      expect(screen.getAllByText('Stay')).toHaveLength(2);
+      // A free-text category the fixed list does not know joins Other, as in the
+      // Costs tab: one group, so its line in the overview and its own card.
+      expect(screen.queryByText('Stay')).toBeNull();
       expect(screen.getAllByText('Other')).toHaveLength(2);
       // The priceless row states no amount rather than a placeholder.
       expect(screen.getByText('Museum pass').closest('li')?.textContent).toBe('Museum pass');
@@ -1894,6 +1895,35 @@ describe('SharedTripPage', () => {
       expect(document.getElementById('shared-day-1')).not.toBeNull();
       expect(document.getElementById('shared-day-2')).toBeNull();
       expect(screen.queryByText('Not planned yet')).toBeNull();
+    });
+  });
+
+  describe('FE-PAGE-SHARED-041: cost categories follow the reader language (#2596)', () => {
+    const payload = {
+      trip: { id: 1, title: 'Shared Paris Trip', start_date: '2026-07-01', end_date: '2026-07-03', currency: 'EUR' },
+      days: [], assignments: {}, dayNotes: {}, places: [], reservations: [], accommodations: [], packing: [],
+      budget: [
+        { id: 1, name: 'Le Meurice', total_price: '300', category: 'accommodation' },
+        { id: 2, name: 'Air France', total_price: '120', category: 'flights' },
+        // A free-text category from before the fixed list joins its key, as in the Costs tab.
+        { id: 3, name: 'Hostel night', total_price: '40', category: 'Hotel' },
+      ],
+      categories: [], collab: [],
+      permissions: { share_bookings: false, share_packing: false, share_budget: true, share_collab: false },
+    };
+
+    it('labels each group with the translated category, not the stored key', async () => {
+      seedStore(useSettingsStore, { settings: buildSettings({ language: 'de' }) });
+      server.use(http.get('/api/shared/:token', () => HttpResponse.json(payload)));
+      renderSharedTrip('cat-token');
+      fireEvent.click(await screen.findByRole('button', { name: /kosten/i }));
+      await screen.findByText('Le Meurice');
+      // Once in the overview, once on the group card.
+      await waitFor(() => expect(screen.getAllByText('Unterkunft')).toHaveLength(2));
+      expect(screen.getAllByText('Flüge')).toHaveLength(2);
+      expect(screen.queryByText('accommodation')).toBeNull();
+      expect(screen.queryByText('flights')).toBeNull();
+      expect(screen.queryByText('Hotel')).toBeNull();
     });
   });
 });

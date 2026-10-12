@@ -1,4 +1,5 @@
 import { CheckCircle2, Circle, MessageCircle, PackageCheck, Wallet } from 'lucide-react'
+import { catMeta } from '../../components/Budget/costsCategories'
 import { fs, NEUTRAL_TINT } from '../../components/shared/DialogShell'
 import { CountPill } from '../../components/Planner/bookings/bookingParts'
 import { TripMemberAvatar } from '../../components/Trips/TripMemberAvatar'
@@ -105,7 +106,10 @@ export function SharedCostsView({ items, base, tripCurrency, convert }: CostsPro
   }
   const sumOf = (list: Expense[]) => list.reduce((s, i) => s + valueOf(i), 0)
   const total = sumOf(items)
-  const groups = groupInOrder(items, i => i.category || t('shared.other'))
+  // Grouped by the fixed key and labelled in the reader's language, as the Costs
+  // tab does: the stored value is a key ("flights") or an old free-text label.
+  const groups = groupInOrder(items, i => catMeta(i.category).key)
+  const labelOf = (key: string) => t(catMeta(key).labelKey)
   return (
     <div className="flex flex-col gap-4">
       <div className={`${CARD} grid gap-5 p-5 md:grid-cols-[minmax(0,280px)_minmax(0,1fr)]`}>
@@ -119,7 +123,7 @@ export function SharedCostsView({ items, base, tripCurrency, convert }: CostsPro
             return (
               <li key={category}>
                 <div className="mb-1 flex items-baseline gap-2" style={fs(12.5, 'body')}>
-                  <span className="min-w-0 flex-1 truncate font-semibold text-content-secondary">{category}</span>
+                  <span className="min-w-0 flex-1 truncate font-semibold text-content-secondary">{labelOf(category)}</span>
                   <span className="font-geist font-semibold tabular-nums text-content">{money(sum)}</span>
                 </div>
                 <Meter value={total > 0 ? sum / total : 0} />
@@ -132,7 +136,7 @@ export function SharedCostsView({ items, base, tripCurrency, convert }: CostsPro
         {groups.map(([category, list]) => (
           <section key={category} className={CARD}>
             <div className={CARD_HEAD} style={{ background: NEUTRAL_TINT }}>
-              <h3 className="min-w-0 flex-1 truncate font-bold text-content" style={fs(13.5, 'body')}>{category}</h3>
+              <h3 className="min-w-0 flex-1 truncate font-bold text-content" style={fs(13.5, 'body')}>{labelOf(category)}</h3>
               <span className="font-geist font-bold tabular-nums text-content-secondary" style={fs(12.5, 'body')}>{money(sumOf(list))}</span>
             </div>
             <ul className="flex flex-col divide-y divide-[color:var(--border-faint)]">
