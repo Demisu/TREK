@@ -267,7 +267,7 @@ export default function TourDetailDialog({
   </>
 
   return (
-    <DetailShell header={header} footer={footer} onClose={onClose} closeLabel={t('common.close')} leftWidth={leftWidth} rightWidth={rightWidth}
+    <DetailShell header={header} footer={footer} onClose={onClose} closeLabel={t('common.close')} leftWidth={leftWidth} rightWidth={rightWidth} clearMapPill={desktopNonModal}
       tint={tintOf(trackColor)}
       closeButtonClassName="focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2">
       {source === 'gpx' && (

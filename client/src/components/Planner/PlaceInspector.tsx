@@ -38,6 +38,7 @@ import { formatDistance, formatElevation } from '../../utils/units'
 import { navigationTargetLabel, getNavigationTargets, openNavigationTarget } from './placeNavigation'
 import { TRANSPORT_TYPES, getPlaceBookings } from '../../utils/dayMerge'
 import { NavigationMenu } from '../shared/NavigationMenu'
+import { centredMapCardBox } from '../Map/centredMapCard'
 import { resolveOpenNow, resolvePlaceTimeZone, placeWeekdayIndex, type OpeningPeriod } from './placeOpenState'
 import { convertHoursLine } from './placeHoursFormat'
 import type { EndDayControlProps } from '../Roadtrip/EndDayControl'
@@ -199,6 +200,7 @@ interface PlaceInspectorProps {
   onRate?: (placeId: number, rating: number | null) => Promise<void> | void
   leftWidth?: number
   rightWidth?: number
+  clearMapPill?: boolean // over the desktop map, beside the base-layer pill
   // ── Collection-mode props ──
   collectionStatus?: CollectionStatus
   onCopyToTrip?: () => void
@@ -220,7 +222,7 @@ export default function PlaceInspector({
   assignments = {}, reservations = [], onEditTransport, onEditReservation, onOpenBooking,
   onClose, onEdit: editPlace, onDelete: deletePlace, onAssignToDay, onRemoveAssignment,
   files = [], onFileUpload, tripMembers = [], onSetParticipants, onUpdatePlace: updatePlace, onUploadImage, onImageFromFile, onRate,
-  leftWidth = 0, rightWidth = 0,
+  leftWidth = 0, rightWidth = 0, clearMapPill = false,
   collectionStatus, onCopyToTrip, onSetStatus, onRemoveFromList, roadtripEndDay, roadtripStay, roadtripActive,
 }: PlaceInspectorProps) {
   // Editing the place is a place right. The planner hands the handlers over
@@ -381,9 +383,7 @@ export default function PlaceInspector({
       style={{
         position: 'absolute',
         bottom: 20,
-        left: `calc(${leftWidth}px + (100% - ${leftWidth}px - ${rightWidth}px) / 2)`,
-        transform: 'translateX(-50%)',
-        width: `min(800px, calc(100% - ${leftWidth}px - ${rightWidth}px - 32px))`,
+        ...centredMapCardBox(leftWidth, rightWidth, { clearPill: clearMapPill }), transform: 'translateX(-50%)',
         zIndex: 50,
         fontFamily: 'var(--font-system)',
       }}

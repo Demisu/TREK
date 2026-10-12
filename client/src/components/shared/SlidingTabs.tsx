@@ -162,4 +162,19 @@ export function SlidingTabs<T extends string>({
   )
 }
 
+/**
+ * A tab label that also has a short form: icon only on a phone, the short form
+ * where the bar is tight, the full name from xl up. A wide window has the room,
+ * and an abbreviation there ("Book" for Bookings) read as cut off (#2604).
+ */
+export function TabLabel({ label, short }: { label: string; short?: string }): React.ReactElement {
+  if (!short || short === label) return <span className="hidden sm:inline">{label}</span>
+  return (
+    <>
+      <span className="hidden sm:inline xl:hidden">{short}</span>
+      <span className="hidden xl:inline">{label}</span>
+    </>
+  )
+}
+
 export default SlidingTabs

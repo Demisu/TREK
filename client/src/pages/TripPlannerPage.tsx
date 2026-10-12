@@ -16,7 +16,7 @@ import PlaceInspector from '../components/Planner/PlaceInspector'
 import DayDetailPanel from '../components/Planner/DayDetailPanel'
 import PlaceFormModal from '../components/Planner/PlaceFormModal'
 import TripFormModal from '../components/Trips/TripFormModal'
-import SlidingTabs from '../components/shared/SlidingTabs'
+import SlidingTabs, { TabLabel } from '../components/shared/SlidingTabs'
 import TripMembersModal from '../components/Trips/TripMembersModal'
 import { ReservationModal } from '../components/Planner/ReservationModal'
 import TransitJourneyModal from '../components/Planner/TransitJourneyModal'
@@ -261,9 +261,8 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
         <SlidingTabs
           tabs={TRIP_TABS.map(tab => ({
             id: tab.id,
-            label: <span className="hidden sm:inline">{tab.shortLabel || tab.label}</span>,
-            // The visible label is abbreviated on purpose; the full name goes to
-            // assistive tech only, so nothing repeats itself under the cursor.
+            label: <TabLabel label={tab.label} short={tab.shortLabel} />,
+            // An abbreviated label gives its full name to assistive tech, not to a tooltip under the cursor.
             ariaLabel: tab.label,
             icon: tab.icon,
           }))}
@@ -563,6 +562,7 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
                 onDelete={() => handleDeletePlace(selectedPlace.id)}
                 leftWidth={isMobile ? 0 : leftPanelPx}
                 rightWidth={isMobile ? 0 : rightPanelPx}
+                clearMapPill
               />
             )}
 

@@ -26,6 +26,7 @@ import { BOX, Eyebrow, Field, RoundAction, TypeTile, toneOf, toneColor, toneTint
 import { SoftPill, TimePill, tintOf } from './planParts'
 import { typeInfo } from './bookings/bookingsModel'
 import { weatherIconFor } from '../Weather/weatherIcons'
+import { centredMapCardBox } from '../Map/centredMapCard'
 
 function WIcon({ main, size = 14 }: { main: string; size?: number }) {
   const Icon = weatherIconFor(main)
@@ -162,7 +163,7 @@ export default function DayDetailPanel({ day, days, places, categories = [], tri
   const removeAccommodation = (acc: Accommodation) => { handleRemoveAccommodation(acc).catch(showError) }
 
   return (
-    <div className="fixed z-50" style={{ bottom: 'calc(var(--bottom-nav-h) + 20px)', left: `calc(${leftWidth}px + (100vw - ${leftWidth}px - ${rightWidth}px) / 2)`, transform: 'translateX(-50%)', width: `min(800px, calc(100vw - ${leftWidth}px - ${rightWidth}px - 32px))`, ...(mobile ? { zIndex: 10000 } : null), fontFamily: 'var(--font-system)' }}>
+    <div className="fixed z-50" style={{ bottom: 'calc(var(--bottom-nav-h) + 20px)', transform: 'translateX(-50%)', ...centredMapCardBox(leftWidth, rightWidth, { extent: '100vw', clearPill: !mobile }), ...(mobile ? { zIndex: 10000 } : null), fontFamily: 'var(--font-system)' }}>
       <div ref={cardRef}
         className="flex flex-col overflow-hidden rounded-[20px] border border-edge-faint bg-surface-elevated shadow-popover backdrop-blur-[40px] backdrop-saturate-[1.8]"
         style={{ maxHeight: collapsed ? 'none' : '60vh' }}>

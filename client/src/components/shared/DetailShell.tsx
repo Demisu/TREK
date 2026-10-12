@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { X } from 'lucide-react'
 import { NEUTRAL_TINT } from './DialogShell'
 import { Tooltip } from './Tooltip'
+import { centredMapCardBox } from '../Map/centredMapCard'
 
 interface DetailShellProps {
   header: ReactNode
@@ -11,6 +12,8 @@ interface DetailShellProps {
   closeLabel: string
   leftWidth?: number
   rightWidth?: number
+  /** Over the desktop map: keep clear of the base-layer pill in its bottom-left corner. */
+  clearMapPill?: boolean
   /** The head band's background; the neutral accent wash when left out. */
   tint?: string
   closeButtonClassName?: string
@@ -30,6 +33,7 @@ export default function DetailShell({
   closeLabel,
   leftWidth = 0,
   rightWidth = 0,
+  clearMapPill = false,
   tint = NEUTRAL_TINT,
   closeButtonClassName = '',
   testId,
@@ -39,9 +43,8 @@ export default function DetailShell({
       style={{
         position: 'absolute',
         bottom: 20,
-        left: `calc(${leftWidth}px + (100% - ${leftWidth}px - ${rightWidth}px) / 2)`,
+        ...centredMapCardBox(leftWidth, rightWidth, { clearPill: clearMapPill }),
         transform: 'translateX(-50%)',
-        width: `min(800px, calc(100% - ${leftWidth}px - ${rightWidth}px - 32px))`,
         zIndex: 50,
         fontFamily: 'var(--font-system)',
       }}
