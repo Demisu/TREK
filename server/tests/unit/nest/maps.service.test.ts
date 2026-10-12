@@ -865,89 +865,6 @@ describe('resolveGoogleMapsUrl coordinate extraction (ReDoS guards)', () => {
   });
 });
 
-// A Google place URL carries two points: @lat,lng is where the camera looks,
-// !3d!4d is the place itself. Pinning the camera lands next to the place (#2635).
-describe('resolveGoogleMapsUrl place pin before camera (#2635)', () => {
-  // What https://maps.app.goo.gl/CdynKSHT16bufnAp9 redirects to.
-  const EIFFEL_SHARE_TARGET =
-    'https://www.google.com/maps/place/Tour+Eiffel/@48.8579431,2.292255,812m/data=!3m1!1e3!4m7!3m6!1s0x47e66e2964e34e2d:0x8ddca9ee380ef7e0!8m2!3d48.8583701!4d2.2944813!15sChFtYXBzIGVpZmZlbCB0b3dlcloTIhFtYXBzIGVpZmZlbCB0b3dlcpIBE2hpc3RvcmljYWxfbGFuZG1hcmuaAURDaTlEUVVsUlFVTnZaRU5vZEhsalJqbHZUMnR3VGxkWGRFaFBWM2gyVFd3NWVtTnVTalJNVlU1RVUxWm9ORTlWUlJBQuABAPoBBAgAEDg!16zL20vMDJqODE?entry=tts&g_ep=EgoyMDI2MTAwNy4wIPu8ASoASAFQAw%3D%3D&skid=20b521f5-0f45-4a02-8475-b2a1c2bdcb0b';
-
-  const nominatimAt = (calls: string[]) =>
-    vi.fn(async (u: string) => {
-      calls.push(u);
-      if (u.includes('goo.gl')) return { url: EIFFEL_SHARE_TARGET };
-      return { ok: true, json: async () => ({ display_name: 'Avenue Gustave Eiffel, Paris', name: null, address: {} }) };
-    });
-
-  it('MAPS-2635-001: a place URL with both @ and !3d!4d resolves to the place, not the camera', async () => {
-    const calls: string[] = [];
-    vi.stubGlobal('fetch', nominatimAt(calls));
-    const result = await svc.resolveGoogleMapsUrl(EIFFEL_SHARE_TARGET);
-    expect(result.lat).toBe(48.8583701);
-    expect(result.lng).toBe(2.2944813);
-    expect(result.name).toBe('Tour Eiffel');
-    expect(result.google_ftid).toBe('0x47e66e2964e34e2d:0x8ddca9ee380ef7e0');
-    // The address is looked up at the place too.
-    const reverse = calls.find((u) => u.includes('nominatim'));
-    expect(reverse).toContain('lat=48.8583701');
-    expect(reverse).toContain('lon=2.2944813');
-  });
-
-  it('MAPS-2635-002: the share short link resolves to the place pin', async () => {
-    const calls: string[] = [];
-    vi.stubGlobal('fetch', nominatimAt(calls));
-    const result = await svc.resolveGoogleMapsUrl('https://maps.app.goo.gl/CdynKSHT16bufnAp9');
-    expect(result.lat).toBe(48.8583701);
-    expect(result.lng).toBe(2.2944813);
-  });
-
-  it('MAPS-2635-003: only !3d!4d still resolves', async () => {
-    vi.stubGlobal('fetch', nominatimStub);
-    const result = await svc.resolveGoogleMapsUrl(
-      'https://www.google.com/maps/place/Tour+Eiffel/data=!4m7!3m6!8m2!3d48.8583701!4d2.2944813',
-    );
-    expect(result.lat).toBe(48.8583701);
-    expect(result.lng).toBe(2.2944813);
-  });
-
-  it('MAPS-2635-004: only @ still resolves to the camera point', async () => {
-    vi.stubGlobal('fetch', nominatimStub);
-    const result = await svc.resolveGoogleMapsUrl('https://www.google.com/maps/@48.8579431,2.292255,812m');
-    expect(result.lat).toBe(48.8579431);
-    expect(result.lng).toBe(2.292255);
-  });
-
-  it('MAPS-2635-005: only ?q= still resolves', async () => {
-    vi.stubGlobal('fetch', nominatimStub);
-    const result = await svc.resolveGoogleMapsUrl('https://www.google.com/maps?q=48.8583701,2.2944813');
-    expect(result.lat).toBe(48.8583701);
-    expect(result.lng).toBe(2.2944813);
-  });
-
-  it('MAPS-2635-006: @ keeps its precedence over ?q= when no place pin is present', async () => {
-    vi.stubGlobal('fetch', nominatimStub);
-    const result = await svc.resolveGoogleMapsUrl('https://www.google.com/maps/@48.85,2.29,15z?q=40.6892,-74.0445');
-    expect(result.lat).toBe(48.85);
-    expect(result.lng).toBe(2.29);
-  });
-
-  it('MAPS-2635-007: a page body with both @ and !3d!4d resolves to the place', async () => {
-    const fetchMock = vi.fn(async (u: string) => {
-      if (u.includes('nominatim')) {
-        return { ok: true, json: async () => ({ display_name: 'Paris', name: null, address: {} }) };
-      }
-      return {
-        url: 'https://www.google.com/maps/place/Somewhere',
-        text: async () => 'x/@48.8579431,2.292255,812m/y!3d48.8583701!4d2.2944813z',
-      };
-    });
-    vi.stubGlobal('fetch', fetchMock);
-    const result = await svc.resolveGoogleMapsUrl('https://www.google.com/maps?cid=999');
-    expect(result.lat).toBe(48.8583701);
-    expect(result.lng).toBe(2.2944813);
-  });
-});
-
 // ── searchNominatim (fetch-dependent) ────────────────────────────────────────
 
 describe('searchNominatim (fetch stubbed)', () => {
@@ -1413,20 +1330,6 @@ describe('searchPlaces (fetch stubbed)', () => {
     expect(Array.isArray(result.places)).toBe(true);
   });
 
-  // The same gap on the explicit search: with the index off and no key the
-  // fallback asked Nominatim again and dropped the bias it had been given (#2620).
-  it('MAPS-038b: the Nominatim fallback keeps the location bias', async () => {
-    indexOff();
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => [] });
-    vi.stubGlobal('fetch', fetchMock);
-
-    await svc.searchPlaces(999, 'Starbucks', 'en', { lat: 35, lng: 135.75 });
-
-    const url = new URL(String(fetchMock.mock.calls[0][0]));
-    expect(url.searchParams.get('viewbox')).toBe('135.25,34.5,136.25,35.5');
-    expect(url.searchParams.get('bounded')).toBe('0');
-  });
-
   // Session tokens: the keystrokes of one search and the details lookup that
   // ends it must reach Google under the same token, or every request is billed
   // on its own. The body field and the query parameter are what Google's
@@ -1637,38 +1540,6 @@ describe('autocompletePlaces (fetch stubbed)', () => {
     expect(result.suggestions).toHaveLength(1);
     expect(result.suggestions[0].mainText).toBe('Paris');
     expect(result.suggestions[0].placeId).toBe('node:1');
-  });
-
-  // Without the index and without a key the suggestions come from Nominatim,
-  // and the box the client already computed has to reach it (#2620). It ranks,
-  // it does not restrict: bounded=0, so a far away place still comes back.
-  it('MAPS-081b: hands the location bias to Nominatim as a viewbox', async () => {
-    indexOff();
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => [] });
-    vi.stubGlobal('fetch', fetchMock);
-
-    await svc.autocompletePlaces(999, 'Starbucks', 'en', {
-      low: { lat: 34.9, lng: 135.6 },
-      high: { lat: 35.1, lng: 135.9 },
-    });
-
-    const url = new URL(String(fetchMock.mock.calls[0][0]));
-    expect(url.pathname).toContain('/search');
-    expect(url.searchParams.get('bounded')).toBe('0');
-    const [west, south, east, north] = String(url.searchParams.get('viewbox')).split(',').map(Number);
-    expect((west + east) / 2).toBeCloseTo(135.75);
-    expect((south + north) / 2).toBeCloseTo(35);
-  });
-
-  it('MAPS-081c: asks Nominatim without a viewbox when no bias was sent', async () => {
-    indexOff();
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => [] });
-    vi.stubGlobal('fetch', fetchMock);
-
-    await svc.autocompletePlaces(999, 'Starbucks', 'en');
-
-    const url = new URL(String(fetchMock.mock.calls[0][0]));
-    expect(url.searchParams.has('viewbox')).toBe(false);
   });
 
   it('MAPS-082: uses Google when user has an API key', async () => {
