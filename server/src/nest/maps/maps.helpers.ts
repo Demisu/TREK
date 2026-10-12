@@ -118,21 +118,7 @@ export function mergeSearchResults(
   fromOsm: Record<string, unknown>[],
   limit = 10,
 ): Record<string, unknown>[] {
-  const sameThing = (a: Record<string, unknown>, b: Record<string, unknown>): boolean => {
-    const [aLat, aLng, bLat, bLng] = [a.lat, a.lng, b.lat, b.lng];
-    if (![aLat, aLng, bLat, bLng].every((v) => typeof v === 'number')) return false;
-    // 60 m is close enough to be the same shop. It is NOT enough on its own:
-    // a temple and the coffee shop at its gate are fifty metres apart, and
-    // deduping on distance alone swallowed the temple, which is the exact
-    // result this function exists to surface. Two things in one spot with
-    // unrelated names are two things.
-    if (haversineMetres(aLat as number, aLng as number, bLat as number, bLng as number) >= 60) {
-      return false;
-    }
-    return typeof a.name === 'string' && typeof b.name === 'string' && namesOverlap(a.name, b.name);
-  };
-
-  const extra = fromOsm.filter((o) => !fromIndex.some((i) => sameThing(i, o)));
+  const extra = fromOsm.filter((o) => !fromIndex.some((i) => samePlace(i, o)));
 
   const out: Record<string, unknown>[] = [];
   for (let i = 0; i < Math.max(fromIndex.length, extra.length) && out.length < limit; i++) {
@@ -140,6 +126,25 @@ export function mergeSearchResults(
     if (i < extra.length && out.length < limit) out.push(extra[i]);
   }
   return out;
+}
+
+/**
+ * Whether two rows from different sources are one place. The search list and
+ * the suggestion list both dedupe on this, so a place shown once in one is
+ * shown once in the other.
+ */
+export function samePlace(a: { lat?: unknown; lng?: unknown; name?: unknown }, b: typeof a): boolean {
+  const [aLat, aLng, bLat, bLng] = [a.lat, a.lng, b.lat, b.lng];
+  if (![aLat, aLng, bLat, bLng].every((v) => typeof v === 'number')) return false;
+  // 60 m is close enough to be the same shop. It is NOT enough on its own:
+  // a temple and the coffee shop at its gate are fifty metres apart, and
+  // deduping on distance alone swallowed the temple, which is the exact
+  // result this function exists to surface. Two things in one spot with
+  // unrelated names are two things.
+  if (haversineMetres(aLat as number, aLng as number, bLat as number, bLng as number) >= 60) {
+    return false;
+  }
+  return typeof a.name === 'string' && typeof b.name === 'string' && namesOverlap(a.name, b.name);
 }
 
 export function namesOverlap(a: string, b: string): boolean {

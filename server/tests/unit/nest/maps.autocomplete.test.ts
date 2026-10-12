@@ -1,5 +1,5 @@
 /**
- * MAPS-AUTO-001..013: the suggestion list behind the place search box.
+ * MAPS-AUTO-001..016: the suggestion list behind the place search box.
  *
  * This is the path the index was built for. Nominatim's usage policy names
  * autocomplete as unacceptable use in its own words, whatever the rate, and the
@@ -130,7 +130,8 @@ describe('MapsService.autocompletePlaces', () => {
     expect(result.suggestions[0].placeId).toBe('gers:abc-123');
     expect(result.suggestions[1].placeId).toBe('gers:def-456');
     expect(result.suggestions[0].mainText).toBe('Café Kröpeliner');
-    expect(result.suggestions[0].secondaryText).toBe('Rostock, DE');
+    // The country by name, not its ISO code (#2592).
+    expect(result.suggestions[0].secondaryText).toBe('Rostock, Germany');
   });
 
   it('MAPS-AUTO-002: a place with no locality gets an empty line, not the word "undefined"', async () => {
@@ -287,5 +288,99 @@ describe('MapsService.autocompletePlaces', () => {
     const off = await make(true, { maps_api_key: 'key', places_google_only: 'false' }).autocompletePlaces(1, INPUT);
     expect(mockSearch).toHaveBeenCalledTimes(1);
     expect(off.source).toBe('trek-places');
+  });
+
+  it('MAPS-AUTO-014: the country is named in the language the search was made in (#2592)', async () => {
+    const hakata = hit({ name: 'Kirby Cafe Hakata', address: { locality: '福岡市博多区', country: 'JP' } });
+    mockSearch.mockResolvedValue([hakata]);
+
+    const named = async (lang?: string) =>
+      (await make().autocompletePlaces(1, INPUT, lang)).suggestions[0].secondaryText;
+
+    expect(await named('en')).toBe('福岡市博多区, Japan');
+    expect(await named('de')).toBe('福岡市博多区, Japan');
+    expect(await named('fr')).toBe('福岡市博多区, Japon');
+    expect(await named('ja')).toBe('福岡市博多区, 日本');
+    // TREK's own codes for Brazilian Portuguese and Greek are not BCP 47 tags.
+    expect(await named('br')).toBe('福岡市博多区, Japão');
+    expect(await named('gr')).toBe('福岡市博多区, Ιαπωνία');
+    expect(await named(undefined)).toBe('福岡市博多区, Japan');
+  });
+
+  it('MAPS-AUTO-015: a country the runtime cannot name stays as the index sent it', async () => {
+    mockSearch.mockResolvedValue([
+      hit({ address: { locality: 'Rostock', country: 'JPN' } }),
+      hit({ gers: 'x', address: { locality: 'Rostock', country: '' } }),
+    ]);
+
+    const { suggestions } = await make().autocompletePlaces(1, INPUT, 'not a locale!');
+
+    expect(suggestions[0].secondaryText).toBe('Rostock, JPN');
+    expect(suggestions[1].secondaryText).toBe('Rostock');
+  });
+
+  it('MAPS-AUTO-016: a layer row for a place the index already listed is dropped, as the search list does (#2592)', async () => {
+    // The reported case: the index's Kirby Cafe Hakata and the layer's Kirby
+    // Cafe six metres away are one shop, and the list showed it twice. The
+    // layer's Kirby Cafe in Tokyo is another shop and stays.
+    mockSearch.mockResolvedValue([
+      hit({
+        gers: 'hakata',
+        name: 'Kirby Cafe Hakata',
+        lat: 33.59052848815918,
+        lng: 130.4105987548828,
+        address: { locality: '福岡市博多区', country: 'JP' },
+      }),
+      osmHit({
+        id: 'osm:node/1',
+        osm_id: 1,
+        name: 'Kirby Cafe',
+        local_name: 'カービィカフェ',
+        lat: 35.7103685,
+        lng: 139.8118977,
+      }),
+      hit({ gers: 'emmetsburg', name: "Kirby's Cafe", lat: 43.11215019226074, lng: -94.69049072265625 }),
+      osmHit({
+        id: 'osm:node/2',
+        osm_id: 2,
+        name: 'Kirby Cafe',
+        local_name: 'カービィカフェ',
+        lat: 33.5905723,
+        lng: 130.4106152,
+      }),
+      // The same name a hundred metres off is kept, exactly as the search
+      // list keeps it: index coordinates are not that precise, but a chain's
+      // second branch round the corner is not a duplicate either.
+      osmHit({
+        id: 'osm:node/3',
+        osm_id: 3,
+        name: "Kirby's Café",
+        local_name: null,
+        lat: 43.1122282,
+        lng: -94.6917042,
+      }),
+      // The index carries the local name, the layer labels it with the exonym
+      // that matched: compared on the name written on the building instead.
+      hit({ gers: 'hasedera', name: '長谷寺', lat: 35.3124, lng: 139.5333 }),
+      osmHit({
+        id: 'osm:way/4',
+        osm_type: 'way',
+        osm_id: 4,
+        name: 'Hase-dera',
+        local_name: '長谷寺',
+        lat: 35.31245,
+        lng: 139.53335,
+      }),
+    ]);
+
+    const { suggestions } = await make().autocompletePlaces(1, INPUT, 'en');
+
+    expect(suggestions.map((s) => s.placeId)).toEqual([
+      'gers:hakata',
+      'node:1',
+      'gers:emmetsburg',
+      'node:3',
+      'gers:hasedera',
+    ]);
   });
 });

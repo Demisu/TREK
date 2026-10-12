@@ -520,7 +520,7 @@ export class MapsService {
           limit: 8,
           sources: 'index,osm',
         });
-        if (found.length > 0) return { suggestions: indexSuggestions(found), source: 'trek-places' };
+        if (found.length > 0) return { suggestions: indexSuggestions(found, lang), source: 'trek-places' };
       } catch (err: unknown) {
         console.warn('TREK Places autocomplete failed, falling back:', (err as Error).message);
       }

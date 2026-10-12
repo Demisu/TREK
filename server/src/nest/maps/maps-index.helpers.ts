@@ -4,7 +4,7 @@
  * need no branch per source. Pure: the calls themselves are trek-places.client's,
  * the decision to make them is MapsService's.
  */
-import { buildOsmDetails, parsePoiCategories } from './maps.helpers';
+import { buildOsmDetails, parsePoiCategories, samePlace, toApiLang } from './maps.helpers';
 import { POI_RESULT_CAP, type PoiSearchResult } from './providers/osm.client';
 import {
   POI_CATEGORY_TO_TREK,
@@ -144,9 +144,49 @@ export function indexPoiAnswer(
   };
 }
 
-/** Autocomplete rows out of the index and its OpenStreetMap layer, interleaved as they came. */
-export function indexSuggestions(found: TrekSearchHit[]): MapsAutocompleteResult['suggestions'] {
-  return found.map((p) =>
+const regionNamesByLang = new Map<string, Intl.DisplayNames | null>();
+
+/**
+ * The index hands over an ISO code ("JP"), which is not what a person reads a
+ * place by. Named through Intl in the language of the search, the way
+ * journey-domain names countries. A code the runtime cannot name, or a locale
+ * it does not know, leaves the code as it came.
+ */
+function countryName(code: string | null | undefined, lang: string | undefined): string | null {
+  if (!code) return null;
+  const locale = toApiLang(lang);
+  if (!regionNamesByLang.has(locale)) {
+    let names: Intl.DisplayNames | null = null;
+    try {
+      names = new Intl.DisplayNames([locale], { type: 'region', fallback: 'code' });
+    } catch {
+      // Not a locale tag, or a Node built without full ICU.
+    }
+    regionNamesByLang.set(locale, names);
+  }
+  try {
+    return regionNamesByLang.get(locale)?.of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
+/**
+ * Autocomplete rows out of the index and its OpenStreetMap layer, interleaved as they came.
+ *
+ * A layer row for a place the index already listed is dropped, by the same
+ * rule the search list merges its two sources with (#2592). Both copies at the
+ * same spot read as two shops, and the explicit search showed it once. The
+ * index's copy stays, because it carries the stable id and the contact details.
+ */
+export function indexSuggestions(found: TrekSearchHit[], lang?: string): MapsAutocompleteResult['suggestions'] {
+  const indexed = found.filter((p) => !isOsmHit(p));
+  const listed = (p: TrekSearchHit): boolean =>
+    !isOsmHit(p) ||
+    !indexed.some(
+      (i) => samePlace(i, p) || (!!p.local_name && samePlace(i, { lat: p.lat, lng: p.lng, name: p.local_name })),
+    );
+  return found.filter(listed).map((p) =>
     isOsmHit(p)
       ? {
           // The service's own id form, translated into the one this
@@ -174,7 +214,7 @@ export function indexSuggestions(found: TrekSearchHit[]): MapsAutocompleteResult
       : {
           placeId: `gers:${p.gers}`,
           mainText: p.name,
-          secondaryText: [p.address?.locality, p.address?.country].filter(Boolean).join(', '),
+          secondaryText: [p.address?.locality, countryName(p.address?.country, lang)].filter(Boolean).join(', '),
           source: 'trek-places',
           lat: p.lat,
           lng: p.lng,
