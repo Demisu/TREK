@@ -62,7 +62,6 @@ import type {
   CollectionMember,
   CollectionMembership,
   CollectionPlace,
-  CollectionLink,
   CollectionCreateRequest,
   CollectionUpdateRequest,
   CollectionSavePlaceRequest,
@@ -76,22 +75,7 @@ import type {
 import { NotificationsService } from '../notifications/notifications.service';
 import { PlaceImportService, type ExportedCollectionFile } from '../place-import/place-import.service';
 import { UnitOfWork } from '../database/unit-of-work';
-
-/** Links are stored as a JSON TEXT column; parse on read, stringify on write. */
-function parseLinks(raw: unknown): CollectionLink[] | undefined {
-  if (typeof raw !== 'string' || !raw) return undefined;
-  try {
-    const v = JSON.parse(raw);
-    return Array.isArray(v) ? (v as CollectionLink[]) : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
-function serializeLinks(links: CollectionLink[] | undefined): string | null {
-  return links && links.length ? JSON.stringify(links) : null;
-}
-
+import { parseLinks, serializeLinks } from './collections.helpers';
 
 // ---------------------------------------------------------------------------
 // Errors — thrown as plain Errors carrying a status; TrekExceptionFilter maps
