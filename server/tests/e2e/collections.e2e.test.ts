@@ -711,6 +711,65 @@ describe('Collections e2e (real auth guard + real service + temp SQLite)', () =>
     ).toBe(400);
   });
 
+  // ── move out of a shared list ────────────────────────────────────────────
+  // Moving a place out removes it from the source list, so it takes the same
+  // role there as deleting it: an editor is refused, an admin is not.
+  it('COLLECTIONS-E2E-051: moving a place out of a shared list needs admin, not editor', async () => {
+    const shared = (
+      await request(server)
+        .post('/api/addons/collections')
+        .set('Cookie', sessionCookie(ownerId))
+        .send({ name: 'Shared moves' })
+    ).body;
+    const editorId = createUser(db as never).user.id;
+    const adminId = createUser(db as never).user.id;
+    const join = async (userId: number, role: 'editor' | 'admin') => {
+      await request(server)
+        .post('/api/addons/collections/invite')
+        .set('Cookie', sessionCookie(ownerId))
+        .send({ collection_id: shared.id, user_id: userId, role });
+      await request(server)
+        .post('/api/addons/collections/invite/accept')
+        .set('Cookie', sessionCookie(userId))
+        .send({ collection_id: shared.id });
+    };
+    await join(editorId, 'editor');
+    await join(adminId, 'admin');
+    const place = (
+      await request(server)
+        .post('/api/addons/collections/places')
+        .set('Cookie', sessionCookie(ownerId))
+        .send({ collection_id: shared.id, name: 'Pergamon' })
+    ).body.place;
+    const editorList = (
+      await request(server)
+        .post('/api/addons/collections')
+        .set('Cookie', sessionCookie(editorId))
+        .send({ name: 'Editor own' })
+    ).body;
+    const adminList = (
+      await request(server)
+        .post('/api/addons/collections')
+        .set('Cookie', sessionCookie(adminId))
+        .send({ name: 'Admin own' })
+    ).body;
+
+    const refused = await request(server)
+      .patch(`/api/addons/collections/places/${place.id}`)
+      .set('Cookie', sessionCookie(editorId))
+      .send({ collection_id: editorList.id });
+    expect(refused.status).toBe(403);
+    expect(refused.body.error).toBe('Only an admin can move places out of this list');
+    expect((await findRow(orm, CollectionPlaces, { id: place.id }))?.collection_id).toBe(shared.id);
+
+    const moved = await request(server)
+      .patch(`/api/addons/collections/places/${place.id}`)
+      .set('Cookie', sessionCookie(adminId))
+      .send({ collection_id: adminList.id });
+    expect(moved.status).toBe(200);
+    expect((await findRow(orm, CollectionPlaces, { id: place.id }))?.collection_id).toBe(adminList.id);
+  });
+
   // ── delete ───────────────────────────────────────────────────────────────
   it('COLLECTIONS-E2E-050: owner deletes; non-owner member cannot (403)', async () => {
     const col = (

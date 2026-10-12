@@ -435,6 +435,16 @@ describe('MCollections', () => {
     expect(screen.getByRole('button', { name: /collections.duplicateToList/ })).toBeInTheDocument()
   })
 
+  it('FE-MOB-COLSCR-017b: an editor keeps copy and duplicate but cannot move places out of the list', () => {
+    mocks.coll = makeHook({ selectMode: true, selectedIds: [10], canEdit: true, canDelete: false, isOwner: false })
+    render(<MCollections />)
+
+    expect(screen.queryByRole('button', { name: /collections.moveToList/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /common.delete/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /collections.duplicateToList/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /collections.copyToTrip/ })).toBeInTheDocument()
+  })
+
   it('FE-MOB-COLSCR-018: the list view renders rows, the loading state and both empty states', () => {
     render(<MCollections />)
     expect(screen.getByText('Elbphilharmonie')).toBeInTheDocument()

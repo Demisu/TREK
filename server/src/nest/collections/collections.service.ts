@@ -198,9 +198,19 @@ export class CollectionsService {
 
   /** Delete a place — owner or admin only. */
   async assertCanDelete(userId: number, collectionId: number): Promise<void> {
+    await this.assertOwnerOrAdmin(userId, collectionId, 'Only an admin can delete places from this list');
+  }
+
+  /** Move a place out of a list to another one. It leaves the list just as a
+   *  delete would, so it takes the same role. */
+  private async assertCanMoveOut(userId: number, collectionId: number): Promise<void> {
+    await this.assertOwnerOrAdmin(userId, collectionId, 'Only an admin can move places out of this list');
+  }
+
+  private async assertOwnerOrAdmin(userId: number, collectionId: number, refusal: string): Promise<void> {
     const r = await this.roleOf(userId, collectionId);
     if (r === null) httpError(404, 'Collection not found');
-    if (r !== 'owner' && r !== 'admin') httpError(403, 'Only an admin can delete places from this list');
+    if (r !== 'owner' && r !== 'admin') httpError(403, refusal);
   }
 
   private async ownerOf(collectionId: number): Promise<number> {
@@ -919,6 +929,7 @@ export class CollectionsService {
 
     let movedTo: number | null = null;
     if (body.collection_id !== undefined && body.collection_id !== currentCollection) {
+      await this.assertCanMoveOut(userId, currentCollection);
       await this.assertCanEdit(userId, body.collection_id);
       write.collection_id = body.collection_id;
       write.owner_id = await this.ownerOf(body.collection_id);

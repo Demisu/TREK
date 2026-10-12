@@ -383,7 +383,7 @@ export default function MCollections() {
                 <button type="button" onClick={c.openCopyForSelection} disabled={c.selectedIds.length === 0} className={selectChip(c.selectedIds.length === 0)}>
                   <Copy size={13} strokeWidth={2.2} /> {t('collections.copyToTrip')}
                 </button>
-                {c.canEdit && (
+                {c.canDelete && (
                   <button type="button" onClick={() => c.setListPickerMode('move')} disabled={c.selectedIds.length === 0} className={selectChip(c.selectedIds.length === 0)}>
                     <FolderInput size={13} strokeWidth={2.2} /> {t('collections.moveToList')}
                   </button>

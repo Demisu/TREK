@@ -69,7 +69,7 @@ Above the places sit compact filters: by **status**, by **category**, by average
 - **Select all** the currently filtered places.
 - **Assign label**: add one or more of the list's labels to every selected place at once.
 - **Copy to trip**: copies the selected places into any of your trips (carrying their name, description, category, notes, price, coordinates, photo and tags).
-- **Move to list** or **Duplicate to list**: the selection goes into another of your lists.
+- **Move to list** or **Duplicate to list**: the selection goes into another of your lists. Moving takes the places out of the current list, so in a shared list it needs the same role as deleting them (Admin or owner).
 - **Delete** the selection.
 
 ## Custom labels
@@ -94,7 +94,7 @@ When sharing, the owner assigns each member a permission role, and can change it
 |---|---|
 | **Viewer** | View the list, cast their own star rating on its places, copy its places into their own trips, and filter by label; no other changes to the list. |
 | **Editor** *(default)* | Add new places and edit existing ones, and manage + assign the list's labels. |
-| **Admin** | Everything an editor can, plus delete places. |
+| **Admin** | Everything an editor can, plus delete places and move them out to another list. |
 
 The owner always has full control. The owner can also remove a member, and a member can leave a shared list themselves. Permissions are enforced on the server, so a role can only ever do what it is allowed to.
 

@@ -277,7 +277,7 @@ function CollectionsPageDesktop(): React.ReactElement {
                         <Tags size={14} /> {t('collections.labels.assign')}
                       </button>
                     )}
-                    {c.canEdit && (
+                    {c.canDelete && (
                       <button type="button" onClick={() => c.setListPickerMode('move')} disabled={c.selectedIds.length === 0} className="col-selbar-btn">
                         <FolderInput size={14} /> {t('collections.moveToList')}
                       </button>

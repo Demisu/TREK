@@ -461,6 +461,64 @@ describe('status + updatePlace move', () => {
     await expect(svc.updatePlace(owner.id, p.id, { collection_id: b.id })).rejects.toThrow();
   });
 
+  // Moving a place out takes it away from the source list, so the source needs
+  // the same role as deleting it there (owner or admin), not just edit rights.
+  it('COLLECTIONS-SVC-018b: an editor of the source list cannot move a place out of it', async () => {
+    const owner = createUser(testDb).user;
+    const shared = await svc.createCollection(owner.id, { name: 'Shared' });
+    const editor = createUser(testDb).user;
+    await joinCollection(shared.id, editor.id, 'editor');
+    const own = await svc.createCollection(editor.id, { name: 'Mine' });
+    const l = await svc.createLabel(owner.id, shared.id, 'Berlin');
+    const { place: p } = await svc.savePlace(owner.id, { collection_id: shared.id, name: 'Kept' });
+    await svc.updatePlace(owner.id, p.id, { label_ids: [l.id] });
+
+    await expect(svc.updatePlace(editor.id, p.id, { collection_id: own.id })).rejects.toThrow(
+      'Only an admin can move places out of this list',
+    );
+    const row = await findRow(await orm(), CollectionPlaces, { id: p.id });
+    expect(row?.collection_id).toBe(shared.id);
+    expect(row?.owner_id).toBe(owner.id);
+    expect((await svc.getCollection(owner.id, shared.id)).places.find(x => x.id === p.id)?.label_ids).toEqual([l.id]);
+  });
+
+  it('COLLECTIONS-SVC-018c: an admin of the source list may move a place out of it', async () => {
+    const owner = createUser(testDb).user;
+    const shared = await svc.createCollection(owner.id, { name: 'Shared' });
+    const admin = createUser(testDb).user;
+    await joinCollection(shared.id, admin.id, 'admin');
+    const own = await svc.createCollection(admin.id, { name: 'Mine' });
+    const { place: p } = await svc.savePlace(owner.id, { collection_id: shared.id, name: 'Movable' });
+
+    const moved = await svc.updatePlace(admin.id, p.id, { collection_id: own.id });
+    expect(moved.collection_id).toBe(own.id);
+  });
+
+  it('COLLECTIONS-SVC-018d: an editor may still edit a place when collection_id names the list it is in', async () => {
+    const owner = createUser(testDb).user;
+    const shared = await svc.createCollection(owner.id, { name: 'Shared' });
+    const editor = createUser(testDb).user;
+    await joinCollection(shared.id, editor.id, 'editor');
+    const { place: p } = await svc.savePlace(owner.id, { collection_id: shared.id, name: 'Old' });
+
+    const res = await svc.updatePlace(editor.id, p.id, { collection_id: shared.id, name: 'New' });
+    expect(res.name).toBe('New');
+    expect(res.collection_id).toBe(shared.id);
+  });
+
+  it('COLLECTIONS-SVC-018e: a viewer of the source list still gets the read-only refusal on a move', async () => {
+    const owner = createUser(testDb).user;
+    const shared = await svc.createCollection(owner.id, { name: 'Shared' });
+    const viewer = createUser(testDb).user;
+    await joinCollection(shared.id, viewer.id, 'viewer');
+    const own = await svc.createCollection(viewer.id, { name: 'Mine' });
+    const { place: p } = await svc.savePlace(owner.id, { collection_id: shared.id, name: 'X' });
+
+    await expect(svc.updatePlace(viewer.id, p.id, { collection_id: own.id })).rejects.toThrow(
+      'You have read-only access to this list',
+    );
+  });
+
   // #1870: the address column was missing from the UPDATE set, so a typo or a
   // moved restaurant could only be fixed by deleting and re-adding the place.
   it('COLLECTIONS-SVC-019: updatePlace corrects the address and clears it with null', async () => {

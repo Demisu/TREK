@@ -477,6 +477,24 @@ describe('Tool: update_collection_place / set_collection_place_status / rate_col
       expect(cleared.place.rating_count).toBe(0);
     });
   });
+
+  it('update_collection_place refuses an editor moving a place out of a shared list', async () => {
+    const { user: owner } = createUser(testDb);
+    const { user: editor } = createUser(testDb);
+    const shared = await seedCollection(owner.id, 'Shared');
+    await addMember(shared, editor.id, 'editor');
+    const own = await seedCollection(editor.id, 'Mine');
+    const pid = await seedPlace(shared, owner.id, 'Gate');
+    await withHarness(editor.id, async (h) => {
+      const res = await h.client.callTool({
+        name: 'update_collection_place',
+        arguments: { placeId: pid, collection_id: own },
+      });
+      expect(res.isError).toBe(true);
+      expect(errorText(res)).toBe('Only an admin can move places out of this list');
+    });
+    expect((await findRow(orm, CollectionPlaces, { id: pid }))?.collection_id).toBe(shared);
+  });
 });
 
 // ---------------------------------------------------------------------------

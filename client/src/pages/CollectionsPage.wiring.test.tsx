@@ -479,6 +479,15 @@ describe('CollectionsPage — select mode', () => {
     expect(screen.getByRole('button', { name: /collections.copyToTrip/ })).toBeInTheDocument()
   })
 
+  it('FE-PAGE-COLLPAGE-021b: an editor keeps the edit actions but cannot move places out of the list', () => {
+    renderPage({ ...selecting, canEdit: true, canDelete: false })
+    expect(screen.queryByRole('button', { name: /collections.moveToList/ })).toBeNull()
+    expect(screen.queryByRole('button', { name: /common.delete/ })).toBeNull()
+    expect(screen.getByRole('button', { name: /collections.labels.assign/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /collections.duplicateToList/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /collections.copyToTrip/ })).toBeInTheDocument()
+  })
+
   it('FE-PAGE-COLLPAGE-022: bulk buttons are disabled while nothing is selected', () => {
     renderPage({ selectMode: true, selectedIds: [] })
     expect(screen.getByRole('button', { name: /collections.moveToList/ })).toBeDisabled()
