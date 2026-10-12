@@ -522,6 +522,7 @@ export class TripsService {
     // The row, the leave entries that follow its dates and the rebuilt day grid are
     // one write: a failure halfway used to leave a trip whose days missed its dates.
     let removedDays: DayGridRemoval[] = [];
+    let vacayId: number | undefined; // the vacay plan whose leave days moved along (#2604)
     await this.uow.transactional(async () => {
       // Before the row: the rebase reads the outgoing currency off it (#1543).
       if (rebase) await this.budget.applyCurrencyRebase(tripId, rebase);
@@ -542,7 +543,7 @@ export class TripsService {
       });
 
       if (trip.start_date && trip.end_date && newStart && newStart !== trip.start_date)
-        await this.vacay.shiftOwnerEntriesForTripWindow(trip.user_id, trip.start_date, trip.end_date, newStart);
+        vacayId = await this.vacay.shiftOwnerEntriesForTripWindow(trip.user_id, trip.start_date, trip.end_date, newStart);
 
       if (regenerate) {
         // Accommodations have no absolute date columns, so their pre-change dates must be
@@ -565,6 +566,7 @@ export class TripsService {
         }
       }
     });
+    if (vacayId !== undefined) await this.vacay.notifyPlanUsers(vacayId, undefined);
 
     const changes: Record<string, unknown> = {};
     if (title && title !== trip.title) changes.title = title;

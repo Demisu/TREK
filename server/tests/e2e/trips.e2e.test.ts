@@ -28,6 +28,8 @@ import { Journeys } from '../../src/db/entities/Journeys.entity';
 import { Settings } from '../../src/db/entities/Settings.entity';
 import { TripMembers } from '../../src/db/entities/TripMembers.entity';
 import { Trips } from '../../src/db/entities/Trips.entity';
+import { VacayEntries } from '../../src/db/entities/VacayEntries.entity';
+import { VacayPlans } from '../../src/db/entities/VacayPlans.entity';
 // TripsService itself is real since the trip fold — no tripService mock; the
 // real migrated trips/trip_members/days tables serve its SQL.
 // bundle()'s days + accommodations now run DaysService's real SQL (DI-injected,
@@ -40,10 +42,11 @@ import { BudgetService } from '../../src/nest/budget/budget.service';
 import { TrekExceptionFilter } from '../../src/nest/common/trek-exception.filter';
 import { PermissionsService } from '../../src/nest/permissions/permissions.service';
 import { RealtimeModule } from '../../src/nest/realtime/realtime.module';
+import { RealtimeService } from '../../src/nest/realtime/realtime.service';
 import { TripsModule } from '../../src/nest/trips/trips.module';
 import { makeDayAssignment } from '../helpers/factories/itinerary';
 import { makePlace } from '../helpers/factories/places';
-import { countRows, deleteRows, findRow, findRows, insertRow } from '../helpers/factories/rows';
+import { countRows, deleteRows, findRow, findRows, insertRow, insertRows } from '../helpers/factories/rows';
 import { setUserSetting } from '../helpers/factories/settings';
 import { makeDay } from '../helpers/factories/trips';
 import { makeUser } from '../helpers/factories/users';
@@ -233,6 +236,41 @@ describe('Trips e2e (real auth guard + temp SQLite)', () => {
     expect(Object.keys(res.body)).toEqual(['trip']);
     expect(res.body.trip).toMatchObject({ start_date: '2026-07-01', end_date: '2026-07-05', day_count: 5 });
     expect(await dayIds(week.body.trip.id)).toEqual(kept);
+  });
+
+  it('200 update with a later start moves the leave days of the owner along, off the blocked weekend, and tells the plan (#2604)', async () => {
+    // 2030-11-25 is a Monday; the plan blocks Saturday and Sunday by default.
+    const trip = await request(server)
+      .post('/api/trips')
+      .set('Cookie', sessionCookie(1))
+      .send({ title: 'Leave', start_date: '2030-11-25', end_date: '2030-11-30' });
+    const shift = (start_date: string, end_date: string) =>
+      request(server)
+        .put(`/api/trips/${trip.body.trip.id}`)
+        .set('Cookie', sessionCookie(1))
+        .send({ start_date, end_date });
+
+    // No vacay plan yet: moving the trip creates none.
+    expect((await shift('2030-11-26', '2030-12-01')).status).toBe(200);
+    expect(await countRows(orm, VacayPlans, { owner: 1 })).toBe(0);
+    expect((await shift('2030-11-25', '2030-11-30')).status).toBe(200);
+
+    const planId = await insertRow(orm, VacayPlans, { owner: 1 });
+    const week = ['2030-11-25', '2030-11-26', '2030-11-27', '2030-11-28', '2030-11-29'];
+    await insertRows(
+      orm,
+      VacayEntries,
+      week.map((date) => ({ plan: planId, user: 1, date, note: '' })),
+    );
+    const broadcast = vi.spyOn(app.get(RealtimeService), 'broadcastToUser');
+
+    expect((await shift('2030-11-27', '2030-12-02')).status).toBe(200);
+
+    const dates = (await findRows(orm, VacayEntries, { plan: planId }, { date: 'asc' })).map((e) => e.date);
+    expect(dates).toEqual(['2030-11-27', '2030-11-28', '2030-11-29']);
+    expect(broadcast).toHaveBeenCalledWith(1, { type: 'vacay:update' }, undefined);
+    broadcast.mockRestore();
+    await deleteRows(orm, VacayPlans, { id: planId });
   });
 
   it('404 on a missing trip', async () => {

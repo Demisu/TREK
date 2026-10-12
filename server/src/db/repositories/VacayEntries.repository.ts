@@ -1,4 +1,3 @@
-import { dateAdd } from '../dialect/sql-functions';
 import type { VacayEntries } from '../entities/VacayEntries.entity';
 import type { DB } from '../kysely/db';
 import { TrekRepository } from './_shared/trek-repository';
@@ -16,13 +15,6 @@ export interface VacayEntryWithPersonRow {
   kind: string;
   person_name: string;
   person_color: string;
-}
-
-/** SQLite's `date(<col>, '+N days')` — the same calendar-day arithmetic `dateAdd` spells in SQL (§13), computed in JS for {@link VacayEntriesRepository.shiftForOwnerWindow}'s collision pre-check. Verified against SQLite's own `date()` modifier: both walk the proleptic Gregorian calendar by whole days, so they agree on every input (the same reasoning R9's VC4 date-diff verification gives). */
-function shiftIsoDate(isoDate: string, days: number): string {
-  const d = new Date(`${isoDate}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + days);
-  return d.toISOString().slice(0, 10);
 }
 
 export class VacayEntriesRepository extends TrekRepository<VacayEntries> {
@@ -79,40 +71,28 @@ export class VacayEntriesRepository extends TrekRepository<VacayEntries> {
   }
 
   /**
-   * VC5 (`shiftOwnerEntriesForTripWindow`) — `UPDATE OR IGNORE vacay_entries
-   * SET date = date(date, ? || ' days') WHERE plan_id = ? AND user_id = ? AND
-   * date BETWEEN ? AND ?`. SQLite's per-statement `OR IGNORE`
-   * conflict-resolution clause applies to UPDATE as well as INSERT, but
-   * neither Kysely's `UpdateQueryBuilder` (only `.modifyEnd()`, which appends
-   * AFTER the whole statement, not after the `UPDATE` keyword) nor MikroORM's
-   * `nativeUpdate` exposes it — a genuine builder gap, not a helper this
-   * plan's R9 anticipated (R9's own VC5 note only covers the date
-   * EXPRESSION, via the existing `dateAdd`, not this conflict-resolution
-   * clause). Reproduced as a read-then-conditionally-write loop instead:
-   * read every candidate row, and for each one whose shifted date would
-   * collide with an existing `(user, plan, date)` row, skip it — `OR
-   * IGNORE`'s own per-row behavior, exactly — otherwise write it with
-   * `dateAdd` (still the SQL-computed value, per R9). Low-volume,
-   * request-scoped (a trip's own leave entries on a date-window move, never
-   * a hot path), so the per-row round trip is not a concern.
+   * VC5 (`shiftOwnerEntriesForTripWindow`): `SELECT id, date, fraction FROM
+   * vacay_entries WHERE plan_id = ? AND user_id = ? AND date BETWEEN ? AND ?
+   * ORDER BY date`: the leave days a trip window move carries along, and the
+   * ones already standing on its targets. The service decides each row's fate
+   * and writes it with {@link moveEntry} or {@link deleteById} (#2604).
    */
-  async shiftForOwnerWindow(planId: number, userId: number, start: string, end: string, offset: number): Promise<void> {
-    const platform = this.getEntityManager().getPlatform();
-    // M1 (task-7-review.md): legacy's single `UPDATE OR IGNORE` walks rows in
-    // rowid order; without an explicit orderBy here, SQLite returns rows in
-    // (user, plan, date) index order instead, so the per-row collision check
-    // above skips different rows than legacy did on consecutive days inserted
-    // out of id order.
+  async listForOwnerWindow(
+    planId: number,
+    userId: number,
+    start: string,
+    end: string,
+  ): Promise<{ id: number; date: string; fraction: number }[]> {
     const rows = await this.find(
       { plan: planId, user: userId, date: { $gte: start, $lte: end } },
-      { fields: ['id', 'date'], orderBy: { id: 'asc' } },
+      { fields: ['id', 'date', 'fraction'], orderBy: { date: 'asc' } },
     );
-    for (const row of rows) {
-      const shiftedDate = shiftIsoDate(row.date, offset);
-      const collision = await this.findOne({ plan: planId, user: userId, date: shiftedDate }, { fields: ['id'] });
-      if (collision) continue;
-      await this.nativeUpdate({ id: row.id }, { date: dateAdd(platform, 'date', offset) });
-    }
+    return rows.map((row) => ({ id: row.id, date: row.date, fraction: row.fraction }));
+  }
+
+  /** VC5: `UPDATE vacay_entries SET date = ?, fraction = ? WHERE id = ?`, one moved day of `shiftOwnerEntriesForTripWindow`. */
+  async moveEntry(id: number, date: string, fraction: number): Promise<void> {
+    await this.nativeUpdate({ id }, { date, fraction });
   }
 
   /** VC24/VC30/VC121 — `DELETE FROM vacay_entries WHERE plan_id = ? AND date = ?` (`applyHolidayCalendars`'s auto-clear, and `makeRoomForCompanyHoliday`'s whole-holiday clear, reached from `updatePlan`'s company-holiday enable and `toggleCompanyHoliday`). */

@@ -28,6 +28,10 @@ import { VacayUserSettings as VacayUserSettingsEntity } from '../../db/entities/
 import type { VacayUserSettingsRepository } from '../../db/repositories/VacayUserSettings.repository';
 import { SchoolHolidayRegions } from '../../db/entities/SchoolHolidayRegions.entity';
 import type { SchoolHolidayRegionsRepository } from '../../db/repositories/SchoolHolidayRegions.repository';
+import {
+  daysAlwaysInMonth, isBlockedWeekend, normalizeFraction, normalizeKind, normalizeYearType, pad2, parseAsUtcMillis,
+  shiftIsoDate, windowEndYear,
+} from './vacay.helpers';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -140,67 +144,6 @@ const COLORS = [
   '#3b82f6', '#22c55e', '#06b6d4', '#f43f5e', '#a855f7',
   '#10b981', '#0ea5e9', '#64748b', '#be185d', '#0d9488',
 ];
-
-// ---------------------------------------------------------------------------
-// Pure helpers (no DB access)
-// ---------------------------------------------------------------------------
-
-/** Coerce an arbitrary input to a supported entry fraction: half (0.5) or full (1). */
-function normalizeFraction(value: unknown): number {
-  return Number(value) === 0.5 ? 0.5 : 1;
-}
-
-/** Coerce an arbitrary input to a supported leave type: comp/flex or vacation (#1074). */
-function normalizeKind(value: unknown): 'vacation' | 'comp' {
-  return value === 'comp' ? 'comp' : 'vacation';
-}
-
-/**
- * Same semantics as the client's isWeekend guard (holidays.ts): UTC weekday,
- * weekend_days falls back to Sat/Sun when the column is NULL or empty.
- */
-function isBlockedWeekend(plan: Pick<VacayPlan, 'block_weekends' | 'weekend_days'>, date: string): boolean {
-  if (!plan.block_weekends) return false;
-  const days = plan.weekend_days ? String(plan.weekend_days).split(',').map(Number) : [0, 6];
-  return days.includes(new Date(date + 'T00:00:00Z').getUTCDay());
-}
-
-const pad2 = (n: number) => String(n).padStart(2, '0');
-
-/** Days a month has in every year — February caps at 28 so no boundary lands on a date a common year lacks. */
-function daysAlwaysInMonth(month: number): number {
-  if (month === 2) return 28;
-  return [4, 6, 9, 11].includes(month) ? 30 : 31;
-}
-
-/** Coerce an arbitrary input to a supported leave-year type (#737). */
-function normalizeYearType(value: unknown): 'calendar' | 'fiscal' | 'anniversary' {
-  return value === 'fiscal' || value === 'anniversary' ? value : 'calendar';
-}
-
-/**
- * The calendar year a window's last day falls in. `end` is exclusive, so a window
- * ending on Jan 1 (the calendar default) stops inside the previous year.
- */
-function windowEndYear(end: string): number {
-  const y = Number.parseInt(end.slice(0, 4), 10);
-  return end.endsWith('-01-01') ? y - 1 : y;
-}
-
-/**
- * Parse a date or datetime string the way SQLite's `julianday()` does — the
- * numeric components taken at face value as UTC, never the host's local
- * timezone. `Date.parse` only does this for a bare `YYYY-MM-DD`; a datetime
- * string with no zone suffix (`2025-06-12T23:30`) is local time per the ES
- * spec, which drifted from `julianday`'s always-UTC reading by whatever the
- * server's offset is (M2, task-7-review.md). Unparseable input returns `NaN`.
- */
-function parseAsUtcMillis(value: string): number {
-  const m = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?)?/.exec(value);
-  if (!m) return Number.NaN;
-  const [, y, mo, d, h, mi, s] = m;
-  return Date.UTC(Number(y), Number(mo) - 1, Number(d), Number(h ?? 0), Number(mi ?? 0), Number(s ?? 0));
-}
 
 /**
  * Vacay domain service — owns the vacay SQL, now through the ten vacay
@@ -405,12 +348,22 @@ export class VacayService {
     return (await this.getActivePlan(userId)).id;
   }
 
+  /**
+   * A trip's new start carries its owner's leave days along by the same offset
+   * (#983), in whatever plan the owner is active in, a fused one included. Each
+   * day either moves or is dropped: a target on a blocked weekend or a whole
+   * company holiday is no leave day, and a target already holding leave that
+   * stays put is leave already. A half company holiday leaves half a day, as in
+   * toggleEntry. Public holidays come from an outside API and are not checked
+   * inside the trip's transaction. Returns the plan whose entries changed, so
+   * the caller can notify its users once the transaction is committed (#2604).
+   */
   async shiftOwnerEntriesForTripWindow(
     ownerId: number,
     oldStart: string,
     oldEnd: string,
     newStart: string
-  ): Promise<void> {
+  ): Promise<number | undefined> {
     // VC4 (R9's verified restructured shape): `CAST(julianday(?) - julianday(?)
     // AS INTEGER)` on two BOUND VALUES is plain JS date-diff arithmetic —
     // verified against the SQL on 5 date pairs incl. a leap-year boundary and a
@@ -422,11 +375,45 @@ export class VacayService {
     // same as legacy, instead of writing a NaN date and 500ing after the trip
     // row is already committed.
     const offset = Math.trunc((parseAsUtcMillis(newStart) - parseAsUtcMillis(oldStart)) / 86400000);
-    if (!Number.isFinite(offset) || offset === 0) return;
+    if (!Number.isFinite(offset) || offset === 0) return undefined;
 
-    const plan = await this.getOwnPlan(ownerId);
+    // A trip edit never creates a plan: without one there is no leave to move.
+    const plan = await this.peekActivePlan(ownerId);
+    if (!plan) return undefined;
 
-    await this.entries.shiftForOwnerWindow(plan.id, ownerId, oldStart, oldEnd, offset);
+    return await this.uow.transactional(async () => {
+      const moving = await this.entries.listForOwnerWindow(plan.id, ownerId, oldStart, oldEnd);
+      if (moving.length === 0) return undefined;
+      const movingIds = new Set(moving.map(row => row.id));
+      const firstTarget = shiftIsoDate(moving[0].date, offset);
+      const lastTarget = shiftIsoDate(moving[moving.length - 1].date, offset);
+      const standing = new Set(
+        (await this.entries.listForOwnerWindow(plan.id, ownerId, firstTarget, lastTarget))
+          .filter(row => !movingIds.has(row.id))
+          .map(row => row.date),
+      );
+      const companyHolidays = plan.company_holidays_enabled
+        ? await this.companyHolidays.listDatesForRange(plan.id, firstTarget, shiftIsoDate(lastTarget, 1))
+        : [];
+      const companyFractions = new Map(companyHolidays.map(h => [h.date, h.fraction] as const));
+
+      const moves: { id: number; date: string; fraction: number }[] = [];
+      for (const row of moving) {
+        const date = shiftIsoDate(row.date, offset);
+        const company = companyFractions.get(date);
+        if (standing.has(date) || isBlockedWeekend(plan, date) || (company !== undefined && company >= 1)) {
+          await this.entries.deleteById(row.id);
+        } else {
+          moves.push({ id: row.id, date, fraction: company !== undefined && row.fraction > 0.5 ? 0.5 : row.fraction });
+        }
+      }
+      // Rows move in the direction of travel, so each target is already free of
+      // the moving row that held it when the next one arrives: (user, plan, date)
+      // is unique.
+      if (offset > 0) moves.reverse();
+      for (const move of moves) await this.entries.moveEntry(move.id, move.date, move.fraction);
+      return plan.id;
+    });
   }
 
   async getPlanUsers(planId: number): Promise<VacayUser[]> {
