@@ -14,7 +14,7 @@ import { CustomDatePicker } from '../shared/CustomDateTimePicker'
 import { useReceiptScan } from './useReceiptScan'
 import { ReceiptScanModal } from './ReceiptScanModal'
 import { SYMBOLS, SPLIT_COLORS } from './BudgetPanel.constants'
-import { finalBudgetFor, finalBudgetSources, NOTE_MAX, paidByUser, readUserNote, settlementDate } from './CostsPanel.helpers'
+import { finalBudgetFor, finalBudgetSources, formerParticipantRows, NOTE_MAX, paidByUser, readUserNote, settlementDate } from './CostsPanel.helpers'
 import { COST_CAT_META, COST_CATEGORY_LIST, catMeta } from './costsCategories'
 import {
   baseTotal as baseTotalOf, booked as bookedAmount, currencyOptions, isUnfinished as isUnfinishedModel, lineOf as lineOfModel, memberShareOf,
@@ -69,7 +69,7 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
   // Display/base currency, the trip's own, the settlement, totals, filters and
   // the ledger writes: the same ledger the phone tab runs on.
   const {
-    me, base, tripCurrency, ctx, settlement, settlementError, loadSettlement,
+    me, base, tripCurrency, ctx, settlement, settlementError, loadSettlement, knownNames,
     search, setSearch, segment: filter, setSegment: setFilter, catFilter, setCatFilter, dayFilter, setDayFilter,
     totals, filtered, filteredSettlements, catBreakdown, exportCsv: handleExportCsv,
     deleteExpense: handleDelete, undoSettlement, settleFlow, settleAll,
@@ -102,12 +102,14 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
 
   const people = tripMembers
   const personById = useCallback((id: number) => people.find(p => p.id === id), [people])
-  const personName = useCallback((id: number) => id === me ? t('costs.you') : (personById(id)?.username || '?'), [me, personById, t])
+  // Someone who left the trip is no longer in `people`, but the expenses still name them (#2604).
+  const nameOf = useCallback((id: number) => personById(id)?.username || knownNames.get(id) || '?', [personById, knownNames])
+  const personName = useCallback((id: number) => id === me ? t('costs.you') : nameOf(id), [me, nameOf, t])
   const colorFor = useCallback((id: number) => {
     const idx = people.findIndex(p => p.id === id)
     return SPLIT_COLORS[(idx >= 0 ? idx : 0) % SPLIT_COLORS.length].gradient
   }, [people])
-  const initial = useCallback((id: number) => id === me ? t('costs.youShort') : (personById(id)?.username || '?').charAt(0).toUpperCase(), [me, personById, t])
+  const initial = useCallback((id: number) => id === me ? t('costs.youShort') : nameOf(id).charAt(0).toUpperCase(), [me, nameOf, t])
 
   const fmt = useCallback((v: number, c = base) => formatMoney(v, c, locale), [base, locale])
   const fmt0 = useCallback((v: number, c = base) => formatMoney(v, c, locale, { decimals: 0 }), [base, locale])
@@ -840,7 +842,10 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
 
   function BalancesList({ balances }: { balances: CostsSettlementResponse['balances'] }) {
     if (settlementError) return loadFailed()
-    const rows = people.map(p => balances.find(b => b.user_id === p.id) || { user_id: p.id, username: p.username, avatar_url: null, balance: 0 })
+    const rows = [
+      ...people.map(p => balances.find(b => b.user_id === p.id) || { user_id: p.id, username: p.username, avatar_url: null, balance: 0 }),
+      ...formerParticipantRows(people.map(p => p.id), balances, b => Math.abs(b.balance) >= 0.005),
+    ]
     const max = Math.max(1, ...rows.map(r => Math.abs(r.balance)))
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -881,7 +886,10 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
   function FinalBudgetList() {
     if (settlementError) return loadFailed()
     const finals = settlement?.finalBudgets || []
-    const rows = people.map(p => finalBudgetFor(finals, p))
+    const rows = [
+      ...people.map(p => finalBudgetFor(finals, p)),
+      ...formerParticipantRows(people.map(p => p.id), finals, f => Math.abs(f.final) >= 0.005 || Math.abs(f.expenses) >= 0.005),
+    ]
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {rows.map(r => {

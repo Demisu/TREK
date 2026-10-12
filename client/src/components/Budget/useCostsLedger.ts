@@ -20,6 +20,7 @@ import {
   type CostsSegment,
   type CostsSettlementResponse,
 } from './costsModel';
+import { knownPersonNames } from './CostsPanel.helpers';
 import { useFreezeMissingRates } from './useFreezeMissingRates';
 
 type Translate = (key: string, params?: Record<string, string | number>) => string;
@@ -129,6 +130,8 @@ export function useCostsLedger({
 
   const shareOf = skipUnfinishedShares ? settledShareOf : myShareOf;
   const flows = useMemo(() => settlement?.flows || [], [settlement]);
+  // Names for people the expenses still name after they left the trip (#2604).
+  const knownNames = useMemo(() => knownPersonNames(budgetItems, settlement), [budgetItems, settlement]);
   // `ctx` carries the rates. They can land after the expenses, and without it in the
   // deps the cards kept the sums they were first added up with while the rows moved on.
   const totals = useMemo(() => computeTotals(budgetItems, flows, ctx, shareOf), [budgetItems, flows, ctx, shareOf]);
@@ -224,6 +227,7 @@ export function useCostsLedger({
     settlementError,
     loadSettlement,
     flows,
+    knownNames,
     search,
     setSearch,
     segment,

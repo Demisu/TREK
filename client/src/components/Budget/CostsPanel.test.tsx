@@ -2777,4 +2777,33 @@ describe('CostsPanel: a bill the server cannot convert', () => {
     // currency when it has no quote of its own.
     expect(asked.every(a => a.base === 'IRR' && a.baseRate === null)).toBe(true)
   })
+
+  it('FE-W5COSTS-097: someone who left the trip is named and keeps their balance in the list (#2604)', async () => {
+    // Carol was removed from the trip; her payer row stays on the expense and the
+    // server still nets her into the balances.
+    const item = {
+      ...buildBudgetItem({ trip_id: 1, category: 'food', name: 'Boat' }), total_price: 90,
+      payers: [{ user_id: 3, amount: 90, username: 'carol' }],
+      members: [{ user_id: 1, paid: 0, amount: null, username: 'alice' }, { user_id: 2, paid: 0, amount: null, username: 'bob' }, { user_id: 3, paid: 0, amount: null, username: 'carol' }],
+    }
+    server.use(
+      http.get('/api/trips/1/budget', () => HttpResponse.json({ items: [item] })),
+      http.get('/api/trips/1/budget/settlement', () =>
+        HttpResponse.json({
+          balances: [
+            { user_id: 1, username: 'alice', avatar_url: null, balance: -30 },
+            { user_id: 2, username: 'bob', avatar_url: null, balance: -30 },
+            { user_id: 3, username: 'carol', avatar_url: null, balance: 60 },
+          ],
+          flows: [],
+          settlements: [],
+        })
+      ),
+    )
+    render(<CostsPanel tripId={1} tripMembers={tripMembers} />)
+
+    await screen.findByText('Boat')
+    await waitFor(() => expect(screen.getAllByText('carol').length).toBeGreaterThan(0))
+    expect(screen.queryByText('?')).not.toBeInTheDocument()
+  })
 })

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calculateTicketShares, expenseEditorFor, newExpenseSeed, receiptToPrefill, finalBudgetFor, finalBudgetSources, hasTicketSplit, paidByUser, payerSum, payersBalanced, readTicketItems, readUserNote, rebalancePayers, settlementDate, splitCents, splitEqualShares, writeTicketItems, type TicketItem } from './CostsPanel.helpers'
+import { calculateTicketShares, expenseEditorFor, newExpenseSeed, receiptToPrefill, finalBudgetFor, finalBudgetSources, formerParticipantRows, hasTicketSplit, knownPersonNames, paidByUser, payerSum, payersBalanced, readTicketItems, readUserNote, rebalancePayers, settlementDate, splitCents, splitEqualShares, writeTicketItems, type TicketItem } from './CostsPanel.helpers'
 
 describe('splitCents', () => {
   it('splits evenly when it divides cleanly', () => {
@@ -358,5 +358,41 @@ describe('expenseEditorFor', () => {
   it('lets the booking win, since it is what was just clicked', () => {
     expect(expenseEditorFor({ editing: null, prefill: { amount: 3 } }, closeBooking, { name: 'Café' }, closeReceipt))
       .toEqual({ key: 'booking', editing: null, prefill: { amount: 3 }, close: closeBooking })
+  })
+})
+
+// #2604: someone removed from the trip keeps their rows on the expenses, so the
+// views name them from what the server sent and keep their money in the lists.
+describe('knownPersonNames', () => {
+  it('names a former member from the expenses and the settlement', () => {
+    const names = knownPersonNames(
+      [{ payers: [{ user_id: 4, username: 'Lena' }], members: [{ user_id: 1, username: 'Jonas' }, { user_id: 4, username: 'Lena' }] }],
+      { balances: [{ user_id: 5, username: 'Tom' }], finalBudgets: [], flows: [{ from: { user_id: 5, username: 'Tom' }, to: { user_id: 6, username: 'Mia' } }] },
+    )
+    expect(Object.fromEntries(names)).toEqual({ 1: 'Jonas', 4: 'Lena', 5: 'Tom', 6: 'Mia' })
+  })
+
+  it('copes with no settlement and rows without a name', () => {
+    expect(knownPersonNames([{ payers: [{ user_id: 2 }], members: null }], null).size).toBe(0)
+  })
+})
+
+describe('formerParticipantRows', () => {
+  const balances = [
+    { user_id: 1, balance: 30 },
+    { user_id: 4, balance: 60 },
+    { user_id: 5, balance: -90 },
+    { user_id: 7, balance: 0 },
+  ]
+
+  it('lists the people off the trip that still carry money, so the balances add up to zero', () => {
+    const extra = formerParticipantRows([1, 5], balances, b => Math.abs(b.balance) >= 0.005)
+    expect(extra).toEqual([{ user_id: 4, balance: 60 }])
+    const listed = [...balances.filter(b => [1, 5].includes(b.user_id)), ...extra]
+    expect(listed.reduce((a, b) => a + b.balance, 0)).toBe(0)
+  })
+
+  it('adds nobody when everyone is on the trip', () => {
+    expect(formerParticipantRows([1, 4, 5, 7], balances, () => true)).toEqual([])
   })
 })

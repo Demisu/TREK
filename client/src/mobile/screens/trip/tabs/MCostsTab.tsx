@@ -11,7 +11,7 @@ import MCostSheet from '../sheets/MCostSheet'
 import { ReceiptPreviewModal } from '../../../../components/Budget/ReceiptPreviewModal'
 import { useCostsLedger } from '../../../../components/Budget/useCostsLedger'
 import { useSettlementForm } from '../../../../components/Budget/useSettlementForm'
-import { finalBudgetFor, finalBudgetSources, NOTE_MAX, paidByUser, readUserNote } from '../../../../components/Budget/CostsPanel.helpers'
+import { finalBudgetFor, finalBudgetSources, formerParticipantRows, NOTE_MAX, paidByUser, readUserNote } from '../../../../components/Budget/CostsPanel.helpers'
 import { catMeta, COST_CAT_META } from '../../../../components/Budget/costsCategories'
 import CustomSelect from '../../../../components/shared/CustomSelect'
 import { CustomDatePicker } from '../../../../components/shared/CustomDateTimePicker'
@@ -48,7 +48,7 @@ export default function MCostsTab({ planner, shell }: MTabScreenProps) {
   // The display and trip currencies, the server-computed settlement, totals,
   // filters and the ledger writes: the same ledger the desktop panel runs on.
   const {
-    me, base, tripCurrency, ctx, settlement, settlementError, loadSettlement, flows,
+    me, base, tripCurrency, ctx, settlement, settlementError, loadSettlement, flows, knownNames,
     search, setSearch, segment, setSegment, catFilter, setCatFilter, dayFilter, setDayFilter,
     totals, filtered, filteredSettlements, catBreakdown, exportCsv: handleExportCsv,
     deleteExpense, undoSettlement: handleUndoSettlement,
@@ -70,7 +70,13 @@ export default function MCostsTab({ planner, shell }: MTabScreenProps) {
   const catKeys = useMemo(() => categoryFilterKeys(budgetItems), [budgetItems])
   const dayKeys = useMemo(() => dayFilterKeys(budgetItems), [budgetItems])
 
-  const personName = (id: number) => (id === me ? t('costs.you') : tripMembers.find(p => p.id === id)?.username || '?')
+  // Someone who left the trip is no longer a member, but the expenses still name them (#2604).
+  const personName = (id: number) => (id === me ? t('costs.you') : tripMembers.find(p => p.id === id)?.username || knownNames.get(id) || '?')
+  // The members, then whoever left the trip with money still on their name, so the rows add up.
+  const memberIds = tripMembers.map(p => p.id)
+  const asPerson = (r: { user_id: number; username: string; avatar_url?: string | null }) => ({ id: r.user_id, username: r.username, avatar_url: r.avatar_url ?? null })
+  const balancePeople = [...tripMembers, ...formerParticipantRows(memberIds, settlement?.balances || [], b => Math.abs(b.balance) >= 0.005).map(asPerson)]
+  const finalPeople = [...tripMembers, ...formerParticipantRows(memberIds, settlement?.finalBudgets || [], f => Math.abs(f.final) >= 0.005 || Math.abs(f.expenses) >= 0.005).map(asPerson)]
 
   const shortDate = (dateIso: string) => {
     try {
@@ -232,7 +238,7 @@ export default function MCostsTab({ planner, shell }: MTabScreenProps) {
             )}
 
             <div className="mb-[2px] mt-3 font-geist text-[0.625rem] font-bold uppercase tracking-[.09em] text-m-faint">{t('costs.balances')}</div>
-            {tripMembers.map(p => {
+            {balancePeople.map(p => {
               const balance = settlement?.balances.find(b => b.user_id === p.id)?.balance ?? 0
               const pos = balance > 0.01
               const neg = balance < -0.01
@@ -256,7 +262,7 @@ export default function MCostsTab({ planner, shell }: MTabScreenProps) {
         <div className="font-geist text-[0.625rem] font-bold uppercase tracking-[.09em] text-m-faint">{t('costs.finalBudget')}</div>
         {settlementError ? (
           <p className="py-[14px] text-center font-geist text-[0.71875rem] text-m-muted">{t('common.unknownError')}</p>
-        ) : tripMembers.map(p => {
+        ) : finalPeople.map(p => {
           const row = finalBudgetFor(settlement?.finalBudgets || [], p)
           const open = expandedFinalId === p.id
           return (

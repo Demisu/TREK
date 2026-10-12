@@ -76,6 +76,38 @@ export function finalBudgetFor(finals: BudgetParticipantFinal[], member: { id: n
 }
 
 /**
+ * Every name the server sent along with the expenses and the settlement, by user
+ * id. Someone removed from the trip keeps their payer and split rows (#2604) but
+ * is no longer among the trip members, so the views fall back to these instead
+ * of printing "?" for them.
+ */
+export function knownPersonNames(
+  items: { payers?: { user_id: number; username?: string }[] | null; members?: { user_id: number; username: string }[] | null }[],
+  settlement: { balances?: { user_id: number; username: string }[]; finalBudgets?: { user_id: number; username: string }[]; flows?: { from: { user_id: number; username: string }; to: { user_id: number; username: string } }[] } | null | undefined,
+): Map<number, string> {
+  const names = new Map<number, string>()
+  const add = (p: { user_id: number; username?: string | null }) => { if (p.username && !names.has(p.user_id)) names.set(p.user_id, p.username) }
+  for (const item of items) {
+    for (const p of item.payers || []) add(p)
+    for (const m of item.members || []) add(m)
+  }
+  for (const b of settlement?.balances || []) add(b)
+  for (const f of settlement?.finalBudgets || []) add(f)
+  for (const f of settlement?.flows || []) { add(f.from); add(f.to) }
+  return names
+}
+
+/**
+ * The server's rows for people no longer on the trip that still carry money, to
+ * list after the members' own. The balances net to zero across everyone the
+ * expenses name, so leaving a former member out made the list stop adding up.
+ */
+export function formerParticipantRows<T extends { user_id: number }>(memberIds: number[], rows: T[], carriesMoney: (row: T) => boolean): T[] {
+  const onTrip = new Set(memberIds)
+  return rows.filter(r => !onTrip.has(r.user_id) && carriesMoney(r))
+}
+
+/**
  * The rows behind one traveler's final budget, ready to print. They arrive as
  * ids and display cents: the server spreads each of the three figures over its
  * rows with the same largest-remainder split the figure came from, so every list
