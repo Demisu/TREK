@@ -115,6 +115,11 @@ export function amountToInputString(value: number | null | undefined, currency: 
   return cleanAmount(value).toFixed(currencyDecimals(currency))
 }
 
+/** An empty amount field's placeholder in the currency's own form: "0,00" in euros, "0" in won (#2604). */
+export function zeroAmountInput(currency: string): string {
+  return localizeAmountInput(amountToInputString(0, currency), currency)
+}
+
 /**
  * A price held as free text, tidied only when it really is a number. Import
  * writes whatever the confirmation said into this field, so anything that does

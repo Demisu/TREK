@@ -8,6 +8,7 @@ import { useSettingsStore } from '../../store/settingsStore';
 import type { TripStoreState } from '../../store/tripStore';
 import type { BudgetItem, Trip } from '../../types';
 import { downloadBlob } from '../../utils/fileDownload';
+import { localToday } from '../Planner/today';
 import {
   buildCostsCsv,
   categoryBreakdown,
@@ -185,11 +186,16 @@ export function useCostsLedger({
     }
   };
 
+  // A quick settle is dated on the viewer's own day, as the payment dialog dates
+  // it, so it is not left to the server's UTC clock (#2604).
   const settleFlow = async (fromId: number, toId: number, amount: number) => {
     try {
       await budgetApi.createSettlement(
         tripId,
-        withFallbackFx({ from_user_id: fromId, to_user_id: toId, amount, currency: base }, tripCurrency)
+        withFallbackFx(
+          { from_user_id: fromId, to_user_id: toId, amount, currency: base, settled_at: localToday() },
+          tripCurrency
+        )
       );
       loadSettlement();
     } catch {
@@ -204,7 +210,13 @@ export function useCostsLedger({
         await budgetApi.createSettlement(
           tripId,
           withFallbackFx(
-            { from_user_id: f.from.user_id, to_user_id: f.to.user_id, amount: f.amount, currency: base },
+            {
+              from_user_id: f.from.user_id,
+              to_user_id: f.to.user_id,
+              amount: f.amount,
+              currency: base,
+              settled_at: localToday(),
+            },
             tripCurrency
           )
         );

@@ -60,6 +60,7 @@ const budget: TranslationStrings = {
   'costs.outstanding': 'Openstaand bedrag',
   'costs.outstandingSub': 'Uitgaven zonder betaler',
   'costs.outstandingItems': 'uitgaven zonder betaler',
+  'costs.outstandingItems.one': 'uitgave zonder betaler',
   'costs.expenses': 'Uitgaven',
   'costs.entries': '{count} invoeren',
   'costs.entries.one': '{count} invoer',

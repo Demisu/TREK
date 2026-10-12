@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { splitReservationDateTime, resolveDayId, formatMoney, formatMoneySum, formatPriceText, currencyDecimals, localizeAmountInput, amountToInputString } from './formatters'
+import { splitReservationDateTime, resolveDayId, formatMoney, formatMoneySum, formatPriceText, currencyDecimals, localizeAmountInput, amountToInputString, zeroAmountInput } from './formatters'
 import { CURRENCIES, SYMBOLS, currenciesWith } from '../components/Budget/BudgetPanel.constants'
 import type { Day } from '../types'
 
@@ -37,6 +37,15 @@ describe('localizeAmountInput (#1624)', () => {
   it('passes an empty/nullish value through unchanged', () => {
     expect(localizeAmountInput('', 'EUR')).toBe('')
     expect(localizeAmountInput(null, 'EUR')).toBe('')
+  })
+})
+
+describe('zeroAmountInput (#2604)', () => {
+  it('shows an empty amount the way the currency writes it', () => {
+    expect(zeroAmountInput('EUR')).toBe('0,00')
+    expect(zeroAmountInput('USD')).toBe('0.00')
+    expect(zeroAmountInput('KRW')).toBe('0')
+    expect(zeroAmountInput('KWD')).toBe('0.000')
   })
 })
 

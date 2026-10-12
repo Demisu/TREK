@@ -59,6 +59,7 @@ const budget: TranslationStrings = {
   'costs.outstanding': 'Importo in sospeso',
   'costs.outstandingSub': 'Spese senza pagante',
   'costs.outstandingItems': 'spese senza pagante',
+  'costs.outstandingItems.one': 'spesa senza pagante',
   'costs.expenses': 'Spese',
   'costs.entries': '{count} voci',
   'costs.entries.one': '{count} voce',

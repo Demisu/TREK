@@ -10,8 +10,10 @@ import { SYMBOLS } from './BudgetPanel.constants';
 import type { TripMember } from './BudgetPanelMemberChips';
 import type { ExpensePrefill } from './CostsPanel';
 import {
+  amountInCurrency,
   amountPattern,
   calculateTicketShares,
+  clampAmountDecimals,
   hasTicketSplit,
   newExpenseSeed,
   payersBalanced,
@@ -81,7 +83,7 @@ export function useExpenseForm({
       localToday()
     )
   );
-  const [currency, setCurrency] = useState(editing ? editingCurrency : seed.currency);
+  const [currency, setCurrencyState] = useState(editing ? editingCurrency : seed.currency);
   const [day, setDay] = useState(editing ? editing.expense_date || localToday() : seed.day);
   const [note, setNote] = useState(() => readUserNote(editing));
   // Edit and prefill seeds are padded to the currency's decimals (#2175): the DB
@@ -222,7 +224,23 @@ export function useExpenseForm({
       ? ticketValid
       : totalNum !== 0 && (participants.size === 0 || splitMode === 'equally' || customBalanced));
 
-  const onTotalChange = (v: string) => setTotal(v.replace(',', '.'));
+  // Every amount field takes only the decimals its currency has (#2604): a won
+  // amount typed as 1000.555 would otherwise be saved as typed, listed as ₩1,001
+  // and reopened as 1001.
+  const asAmount = (raw: string) => clampAmountDecimals(raw.replace(',', '.'), currency);
+
+  const onTotalChange = (v: string) => setTotal(asAmount(v));
+
+  // A switch to a currency with fewer decimals cuts what was already typed the same way.
+  const setCurrency = (next: string) => {
+    const cut = (m: Record<number, string>) =>
+      Object.fromEntries(Object.entries(m).map(([id, v]) => [id, amountInCurrency(v, next)]));
+    setCurrencyState(next);
+    setTotal((prev) => amountInCurrency(prev, next));
+    setPayerAmounts(cut);
+    setCustomAmounts(cut);
+    setTicketItems((prev) => prev.map((item) => ({ ...item, price: amountInCurrency(item.price, next) })));
+  };
 
   // Keep the payer amounts summing to the total as it changes, including in ticket
   // mode, where the total is derived from the ticket items rather than typed. Only
@@ -266,7 +284,7 @@ export function useExpenseForm({
   };
 
   const onPayerAmountChange = (id: number, v: string) => {
-    const val = v.replace(',', '.');
+    const val = asAmount(v);
     const nextPinned = new Set(pinnedPayers);
     nextPinned.add(id);
     setPinnedPayers(nextPinned);
@@ -274,7 +292,7 @@ export function useExpenseForm({
   };
 
   const handleCustomAmountChange = (id: number, raw: string) => {
-    const val = raw.replace(',', '.');
+    const val = asAmount(raw);
     if (val === '' || amountPattern(currency, true).test(val)) {
       setCustomAmounts((prev) => ({ ...prev, [id]: val }));
     }
@@ -292,7 +310,7 @@ export function useExpenseForm({
   };
 
   const handleUpdateItemPrice = (id: string, raw: string) => {
-    const price = raw.replace(',', '.');
+    const price = asAmount(raw);
     if (price === '' || amountPattern(currency, false).test(price)) {
       setTicketItems((prev) => prev.map((item) => (item.id === id ? { ...item, price } : item)));
     }

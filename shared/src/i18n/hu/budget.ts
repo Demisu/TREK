@@ -61,6 +61,7 @@ const budget: TranslationStrings = {
   'costs.outstanding': 'Rendezetlen összeg',
   'costs.outstandingSub': 'Fizető nélküli költségek',
   'costs.outstandingItems': 'költség fizetőre vár',
+  'costs.outstandingItems.one': 'költség fizetőre vár',
   'costs.expenses': 'Költségek',
   'costs.entries': '{count} bejegyzés',
   'costs.entries.one': '{count} bejegyzés',

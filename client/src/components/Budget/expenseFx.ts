@@ -66,10 +66,9 @@ export function splitShareLabel(
   fx: ExpenseFx | null,
   participants: number,
   base: string,
-  sym: ((currency: string) => string) | null,
   locale: string,
 ): string {
-  const entered = sym ? sym(currency) + each.toFixed(2) : formatMoney(each, currency, locale)
+  const entered = formatMoney(each, currency, locale)
   const whole = fx ? (fx.shown ?? fx.inTrip) : null
   if (whole == null || participants <= 0) return entered
   return `${entered} → ${formatMoney(whole / participants, base, locale)}`

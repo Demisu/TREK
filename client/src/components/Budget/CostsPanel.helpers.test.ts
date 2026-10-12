@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calculateTicketShares, expenseEditorFor, newExpenseSeed, receiptToPrefill, finalBudgetFor, finalBudgetSources, formerParticipantRows, hasTicketSplit, knownPersonNames, paidByUser, payerSum, payersBalanced, readTicketItems, readUserNote, rebalancePayers, settlementDate, splitCents, splitEqualShares, writeTicketItems, type TicketItem } from './CostsPanel.helpers'
+import { amountInCurrency, amountPattern, calculateTicketShares, clampAmountDecimals, expenseEditorFor, newExpenseSeed, receiptToPrefill, finalBudgetFor, finalBudgetSources, formerParticipantRows, hasTicketSplit, knownPersonNames, paidByUser, payerSum, payersBalanced, readTicketItems, readUserNote, rebalancePayers, settlementDate, splitCents, splitEqualShares, writeTicketItems, type TicketItem } from './CostsPanel.helpers'
 
 describe('splitCents', () => {
   it('splits evenly when it divides cleanly', () => {
@@ -198,6 +198,43 @@ describe('settlementDate', () => {
 
   it('is empty when neither is set', () => {
     expect(settlementDate({})).toBe('')
+  })
+
+  it("reads the recorded UTC time on the viewer's own calendar day (#2604)", () => {
+    const runnerTimeZone = process.env.TZ
+    process.env.TZ = 'Asia/Seoul'
+    try {
+      // 23:30 UTC is 08:30 the next morning in Seoul.
+      expect(settlementDate({ created_at: '2026-10-11 23:30:00' })).toBe('2026-10-12')
+      expect(settlementDate({ created_at: '2026-10-11T23:30:00Z' })).toBe('2026-10-12')
+      // A day the user picked is a calendar day already and stays as it is.
+      expect(settlementDate({ settled_at: '2026-10-11', created_at: '2026-10-11 23:30:00' })).toBe('2026-10-11')
+    } finally {
+      if (runnerTimeZone === undefined) delete process.env.TZ
+      else process.env.TZ = runnerTimeZone
+    }
+  })
+})
+
+describe('amount decimals per currency (#2604)', () => {
+  it('cuts a typed amount to the decimals the currency has', () => {
+    expect(clampAmountDecimals('1000.555', 'KRW')).toBe('1000.')
+    expect(clampAmountDecimals('1000.', 'JPY')).toBe('1000.')
+    expect(amountInCurrency('12.34', 'KRW')).toBe('12')
+    expect(amountInCurrency('12.34', 'EUR')).toBe('12.34')
+    expect(clampAmountDecimals('10.555', 'EUR')).toBe('10.55')
+    expect(clampAmountDecimals('1.5555', 'KWD')).toBe('1.555')
+    expect(clampAmountDecimals('-12.5', 'EUR')).toBe('-12.5')
+    expect(clampAmountDecimals('', 'KRW')).toBe('')
+  })
+
+  it('takes no decimals for a currency without minor units, three for a three-decimal one', () => {
+    expect(amountPattern('KRW', false).test('1000')).toBe(true)
+    expect(amountPattern('KRW', false).test('1000.')).toBe(true)
+    expect(amountPattern('KRW', false).test('1000.5')).toBe(false)
+    expect(amountPattern('EUR', true).test('-10.55')).toBe(true)
+    expect(amountPattern('EUR', false).test('10.555')).toBe(false)
+    expect(amountPattern('KWD', false).test('1.555')).toBe(true)
   })
 })
 

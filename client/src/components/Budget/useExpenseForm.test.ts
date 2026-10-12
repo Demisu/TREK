@@ -21,7 +21,7 @@ vi.mock('./receiptUploads', () => ({
   ),
 }));
 
-// FE-BUDGET-EXPFORM-001 to FE-BUDGET-EXPFORM-021
+// FE-BUDGET-EXPFORM-001 to FE-BUDGET-EXPFORM-023
 
 const PEOPLE: TripMember[] = [
   { id: 1, username: 'alice', avatar_url: null },
@@ -268,13 +268,13 @@ describe('useExpenseForm: what it adds up', () => {
     expect(result.current.valid).toBe(true);
   });
 
-  it('FE-BUDGET-EXPFORM-008: amounts are refused beyond the currency decimals and ticket prices cannot be negative', () => {
+  it('FE-BUDGET-EXPFORM-008: amounts are cut to the currency decimals, text is refused and ticket prices cannot be negative', () => {
     const { result } = setup();
     act(() => {
       result.current.handleCustomAmountChange(1, '1.234');
       result.current.handleCustomAmountChange(2, 'abc');
     });
-    expect(result.current.customAmounts).toEqual({});
+    expect(result.current.customAmounts).toEqual({ 1: '1.23' });
     act(() => result.current.handleCustomAmountChange(1, '-2'));
     expect(result.current.customAmounts).toEqual({ 1: '-2' });
     act(() => result.current.handleCustomAmountChange(1, ''));
@@ -565,5 +565,38 @@ describe('useExpenseForm: saving', () => {
       member_ids: [1, 2],
       total_price: 12,
     });
+  });
+
+  it('FE-BUDGET-EXPFORM-022: amounts take only the decimals the currency has, typed or switched to (#2604)', async () => {
+    const { result } = setup({ prefill: { currency: 'KRW' } });
+    act(() => {
+      result.current.setName('Dinner');
+      result.current.onTotalChange('1000.555');
+    });
+    // The point stays, so a digit typed after it is not taken as one more whole won.
+    expect(result.current.total).toBe('1000.');
+    act(() => result.current.onTotalChange('1000.5'));
+    expect(result.current.total).toBe('1000.');
+    act(() => {
+      result.current.setSplitMode('custom');
+      result.current.handleCustomAmountChange(1, '600,5');
+      result.current.enableMultiPayer();
+    });
+    expect(result.current.customAmounts[1]).toBe('600.');
+    act(() => result.current.onPayerAmountChange(1, '400.75'));
+    expect(result.current.payerAmounts[1]).toBe('400.');
+
+    // Euros keep two places, and a switch to won drops the cents already typed.
+    act(() => result.current.setCurrency('EUR'));
+    act(() => result.current.onTotalChange('12.345'));
+    expect(result.current.total).toBe('12.34');
+    act(() => result.current.setCurrency('KRW'));
+    expect(result.current.total).toBe('12');
+  });
+
+  it('FE-BUDGET-EXPFORM-023: a three-decimal currency keeps its third place', () => {
+    const { result } = setup({ prefill: { currency: 'KWD' } });
+    act(() => result.current.onTotalChange('1.5555'));
+    expect(result.current.total).toBe('1.555');
   });
 });

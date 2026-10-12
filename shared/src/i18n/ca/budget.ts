@@ -168,6 +168,7 @@ const budget: TranslationStrings = {
   'costs.outstanding': 'Import pendent',
   'costs.outstandingSub': 'Despeses encara sense pagador',
   'costs.outstandingItems': 'despeses necessiten un pagador',
+  'costs.outstandingItems.one': 'despesa necessita un pagador',
   'costs.multiplePayers': 'Han pagat diverses persones',
   'costs.singlePayer': 'Ha pagat una sola persona',
   'costs.payersUnbalanced': 'Els imports dels pagadors han de sumar {amount}',

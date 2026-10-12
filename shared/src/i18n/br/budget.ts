@@ -59,6 +59,7 @@ const budget: TranslationStrings = {
   'costs.outstanding': 'Valor pendente',
   'costs.outstandingSub': 'Despesas sem pagador',
   'costs.outstandingItems': 'despesas sem pagador',
+  'costs.outstandingItems.one': 'despesa sem pagador',
   'costs.expenses': 'Despesas',
   'costs.entries': '{count} lançamentos',
   'costs.entries.one': '{count} lançamento',

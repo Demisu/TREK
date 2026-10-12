@@ -60,6 +60,8 @@ const budget: TranslationStrings = {
   'costs.outstanding': 'Nevyriešená suma',
   'costs.outstandingSub': 'Výdavky zatiaľ bez platcu',
   'costs.outstandingItems': 'výdavkov potrebuje platcu',
+  'costs.outstandingItems.one': 'výdavok potrebuje platcu',
+  'costs.outstandingItems.few': 'výdavky potrebujú platcu',
   'costs.expenses': 'Výdavky',
   'costs.entries': '{count} položiek',
   'costs.entries.one': '{count} položka',

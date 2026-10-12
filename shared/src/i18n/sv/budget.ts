@@ -59,6 +59,7 @@ const budget: TranslationStrings = {
   'costs.outstanding': 'Utestående belopp',
   'costs.outstandingSub': 'Utgifter utan betalare än',
   'costs.outstandingItems': 'utgifter saknar betalare',
+  'costs.outstandingItems.one': 'utgift saknar betalare',
   'costs.expenses': 'Kostnader',
   'costs.entries': '{count} inlägg',
   'costs.entries.one': '{count} inlägg',

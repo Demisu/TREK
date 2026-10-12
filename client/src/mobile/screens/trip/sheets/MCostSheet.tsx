@@ -8,7 +8,7 @@ import { Eyebrow, FIELD_AREA_CLS, FIELD_CLS, FormSheetFooter, FormSheetHeader } 
 import { useTranslation } from '../../../../i18n'
 import { useToast } from '../../../../components/shared/Toast'
 import { useTripStore } from '../../../../store/tripStore'
-import { formatMoney, localizeAmountInput } from '../../../../utils/formatters'
+import { amountToInputString, formatMoney, localizeAmountInput, zeroAmountInput } from '../../../../utils/formatters'
 import { openFile } from '../../../../utils/fileDownload'
 import { splitShareLabel } from '../../../../components/Budget/expenseFx'
 import { SPLIT_COLORS } from '../../../../components/Budget/BudgetPanel.constants'
@@ -150,11 +150,11 @@ export default function MCostSheet({ tripId, base, people, me, editing, prefill,
           <NumericInput
             mode="signed-decimal"
             signToggleLabel={t('costs.toggleSign')}
-            placeholder={localizeAmountInput('0.00', currency)}
-            value={localizeAmountInput(isTicketMode ? ticketInfo.total.toFixed(2) : total, currency)}
+            placeholder={zeroAmountInput(currency)}
+            value={localizeAmountInput(isTicketMode ? amountToInputString(ticketInfo.total, currency) : total, currency)}
             onValueChange={onTotalChange}
             disabled={isTicketMode}
-            className="min-w-0 flex-1 border-0 bg-transparent text-[0.84375rem] font-semibold text-m-ink outline-none [font-variant-numeric:tabular-nums] placeholder:text-m-faint"
+            className="min-w-0 flex-1 border-0 bg-transparent text-[0.84375rem] font-semibold text-m-ink outline-none [font-variant-numeric:tabular-nums] placeholder:font-normal placeholder:text-m-faint"
           />
         </div>
 
@@ -276,10 +276,10 @@ export default function MCostSheet({ tripId, base, people, me, editing, prefill,
                         <NumericInput
                           mode="signed-decimal"
                           signToggleLabel={t('costs.toggleSign')}
-                          placeholder={localizeAmountInput('0.00', currency)}
+                          placeholder={zeroAmountInput(currency)}
                           value={localizeAmountInput(payerAmounts[p.id] || '', currency)}
                           onValueChange={v => onPayerAmountChange(p.id, v)}
-                          className="w-full border-0 bg-transparent py-[7px] text-end text-[0.8125rem] font-semibold text-m-ink outline-none"
+                          className="w-full border-0 bg-transparent py-[7px] text-end text-[0.8125rem] font-semibold text-m-ink outline-none placeholder:font-normal placeholder:text-m-faint"
                         />
                       </div>
                     ) : (
@@ -330,10 +330,10 @@ export default function MCostSheet({ tripId, base, people, me, editing, prefill,
                     <span className="text-[0.75rem] text-m-faint">{sym(currency)}</span>
                     <NumericInput
                       mode="decimal"
-                      placeholder={localizeAmountInput('0.00', currency)}
+                      placeholder={zeroAmountInput(currency)}
                       value={localizeAmountInput(item.price, currency)}
                       onValueChange={v => handleUpdateItemPrice(item.id, v)}
-                      className="w-full border-0 bg-transparent py-[7px] text-end text-[0.8125rem] font-semibold text-m-ink outline-none"
+                      className="w-full border-0 bg-transparent py-[7px] text-end text-[0.8125rem] font-semibold text-m-ink outline-none placeholder:font-normal placeholder:text-m-faint"
                     />
                   </div>
                   <button type="button" onClick={() => handleRemoveItem(item.id)} className="flex-none text-m-muted" aria-label={t('common.delete')}>
@@ -371,7 +371,7 @@ export default function MCostSheet({ tripId, base, people, me, editing, prefill,
                   {people.map(p => (
                     <div key={p.id} className="flex justify-between text-[0.8125rem]">
                       <span className="text-m-muted">{nameOf(p)}</span>
-                      <span className="font-semibold text-m-ink [font-variant-numeric:tabular-nums]">{sym(currency)}{(ticketInfo.shares[p.id] || 0).toFixed(2)}</span>
+                      <span className="font-semibold text-m-ink [font-variant-numeric:tabular-nums]">{formatMoney(ticketInfo.shares[p.id] || 0, currency, locale)}</span>
                     </div>
                   ))}
                 </div>
@@ -397,7 +397,7 @@ export default function MCostSheet({ tripId, base, people, me, editing, prefill,
                     {splitMode === 'equally' ? (
                       on ? (
                         <span className="flex-none pe-1 text-[0.8125rem] font-semibold text-m-ink [font-variant-numeric:tabular-nums]">
-                          {sym(currency)}{(equalShares[p.id] || 0).toFixed(2)}
+                          {formatMoney(equalShares[p.id] || 0, currency, locale)}
                         </span>
                       ) : (
                         <span className="flex-none pe-1 text-[0.6875rem] text-m-faint">{t('costs.tapToInclude')}</span>
@@ -408,10 +408,10 @@ export default function MCostSheet({ tripId, base, people, me, editing, prefill,
                         <input
                           type="text"
                           inputMode="decimal"
-                          placeholder={localizeAmountInput((placeholderShares[p.id] || 0).toFixed(2), currency)}
+                          placeholder={localizeAmountInput(amountToInputString(placeholderShares[p.id] || 0, currency), currency)}
                           value={localizeAmountInput(customAmounts[p.id] || '', currency)}
                           onChange={e => handleCustomAmountChange(p.id, e.target.value)}
-                          className="w-full border-0 bg-transparent py-[7px] text-end text-[0.8125rem] font-semibold text-m-ink outline-none placeholder:text-m-faint"
+                          className="w-full border-0 bg-transparent py-[7px] text-end text-[0.8125rem] font-semibold text-m-ink outline-none placeholder:font-normal placeholder:text-m-faint"
                         />
                       </div>
                     ) : (
@@ -426,13 +426,13 @@ export default function MCostSheet({ tripId, base, people, me, editing, prefill,
             <div className="mt-2 text-[0.71875rem]">
               {splitMode === 'equally' ? (
                 <span className="text-m-faint">
-                  {participants.size > 0 && t('costs.splitSummary', { count: participants.size, amount: splitShareLabel(each, currency, fx, participants.size, base, sym, locale) })}
+                  {participants.size > 0 && t('costs.splitSummary', { count: participants.size, amount: splitShareLabel(each, currency, fx, participants.size, base, locale) })}
                 </span>
               ) : (
                 <span className={`font-semibold ${customBalanced ? 'text-[color:var(--m-st-confirmed)]' : 'text-[color:var(--m-st-danger)]'}`}>
                   {customBalanced
-                    ? t('costs.splitSummary', { count: participants.size, amount: splitShareLabel(each, currency, fx, participants.size, base, sym, locale) })
-                    : `${sym(currency)}${splitSum.toFixed(2)} / ${sym(currency)}${totalNum.toFixed(2)}`}
+                    ? t('costs.splitSummary', { count: participants.size, amount: splitShareLabel(each, currency, fx, participants.size, base, locale) })
+                    : `${formatMoney(splitSum, currency, locale)} / ${formatMoney(totalNum, currency, locale)}`}
                 </span>
               )}
             </div>

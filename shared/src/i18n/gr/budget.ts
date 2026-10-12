@@ -61,6 +61,7 @@ const budget: TranslationStrings = {
   'costs.outstanding': 'Εκκρεμές ποσό',
   'costs.outstandingSub': 'Έξοδα χωρίς πληρωτή ακόμη',
   'costs.outstandingItems': 'έξοδα χρειάζονται πληρωτή',
+  'costs.outstandingItems.one': 'έξοδο χρειάζεται πληρωτή',
   'costs.expenses': 'Έξοδα',
   'costs.entries': '{count} εγγραφές',
   'costs.entries.one': '{count} εγγραφή',

@@ -4,7 +4,7 @@ import { budgetApi } from '../../api/client';
 import { withFallbackFx } from '../../hooks/useExchangeRates';
 import { amountToInputString } from '../../utils/formatters';
 import { localToday } from '../Planner/today';
-import { settlementDate } from './CostsPanel.helpers';
+import { amountInCurrency, clampAmountDecimals, settlementDate } from './CostsPanel.helpers';
 import type { CostsSettlement } from './costsModel';
 
 type Translate = (key: string, params?: Record<string, string | number>) => string;
@@ -96,15 +96,23 @@ export function useSettlementForm({
     }
   };
 
+  // Typed with either decimal mark and cut to the currency's decimals (#2604), on
+  // entry and when the currency changes under an amount already typed.
+  const changeAmount = (v: string) => setAmount(clampAmountDecimals(v.replace(',', '.'), currency));
+  const changeCurrency = (next: string) => {
+    setCurrency(next);
+    setAmount((prev) => amountInCurrency(prev, next));
+  };
+
   return {
     fromId,
     setFromId,
     toId,
     setToId,
     amount,
-    setAmount,
+    setAmount: changeAmount,
     currency,
-    setCurrency,
+    setCurrency: changeCurrency,
     day,
     setDay,
     note,

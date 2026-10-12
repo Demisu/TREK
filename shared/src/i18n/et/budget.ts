@@ -59,6 +59,7 @@ const budget: TranslationStrings = {
   'costs.outstanding': 'Tasumata summa',
   'costs.outstandingSub': 'Kulud, millel veel maksja puudub',
   'costs.outstandingItems': 'kulu vajab maksjat',
+  'costs.outstandingItems.one': 'kulu vajab maksjat',
   'costs.expenses': 'Kulud',
   'costs.entries': '{count} kirjet',
   'costs.entries.one': '{count} kirje',

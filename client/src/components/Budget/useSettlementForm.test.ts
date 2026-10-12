@@ -7,7 +7,7 @@ import { localToday } from '../Planner/today';
 import type { CostsSettlement } from './costsModel';
 import { useSettlementForm } from './useSettlementForm';
 
-// FE-BUDGET-SETTLEFORM-001 to FE-BUDGET-SETTLEFORM-009
+// FE-BUDGET-SETTLEFORM-001 to FE-BUDGET-SETTLEFORM-010
 
 vi.mock('../../api/client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../api/client')>()),
@@ -217,5 +217,15 @@ describe('useSettlementForm: saving', () => {
     };
     expect(await run(true)).toBe(1);
     expect(await run(false)).toBe(2);
+  });
+
+  it('FE-BUDGET-SETTLEFORM-010: the amount takes only the decimals its currency has (#2604)', () => {
+    const { result } = setup({ editing: null });
+    act(() => result.current.setAmount('12,345'));
+    expect(result.current.amount).toBe('12.34');
+    act(() => result.current.setCurrency('JPY'));
+    expect(result.current.amount).toBe('12');
+    act(() => result.current.setAmount('1000.5'));
+    expect(result.current.amount).toBe('1000.');
   });
 });

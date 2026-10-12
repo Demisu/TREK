@@ -7,7 +7,7 @@ import { useToast } from '../shared/Toast'
 import { useTranslation } from '../../i18n'
 import { splitShareLabel } from './expenseFx'
 import { useIsMobile } from '../../hooks/useIsMobile'
-import { formatMoney, currencyDecimals, currencyLocale, localizeAmountInput } from '../../utils/formatters'
+import { formatMoney, amountToInputString, currencyDecimals, currencyLocale, localizeAmountInput, zeroAmountInput } from '../../utils/formatters'
 import { openFile } from '../../utils/fileDownload'
 import CustomSelect from '../shared/CustomSelect'
 import { CustomDatePicker } from '../shared/CustomDateTimePicker'
@@ -283,8 +283,8 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
         <SummaryCard label={t('costs.outstanding')} sub={t('costs.outstandingSub')} amount={totals.outstanding} currency={base} locale={locale}
           icon={<AlertCircle size={18} />} tone="unfinished"
           foot={totals.outstandingCount > 0
-            ? <span><b>{totals.outstandingCount}</b> {t('costs.outstandingItems')}</span>
-            : <span className="text-content-faint">{t('costs.allSettled')}</span>} />
+            ? <span><b>{totals.outstandingCount}</b> {t('costs.outstandingItems', { count: totals.outstandingCount })}</span>
+            : !settlement?.flows?.length && <span className="text-content-faint">{t('costs.allSettled')}</span>} />
         <SummaryCard label={t('costs.totalSpend')} sub={t('costs.totalSpendSub')} amount={totals.totalSpend} currency={base} locale={locale}
           icon={<BarChart3 size={18} />} tone="total"
           foot={<>
@@ -1134,7 +1134,7 @@ function SettlementModal({ tripId, people, me, editing, currency, tripCurrency, 
           <div className="flex items-center rounded-[10px] border border-edge bg-surface-input px-3" style={{ height: FIELD_H }}>
             <span className="text-content-faint" style={fs(14, 'body')}>{SYMBOLS[cur] || (cur + ' ')}</span>
             {/* Typed and shown the way the expense total is, in the reader's own decimal mark. */}
-            <NumericInput mode="decimal" placeholder={localizeAmountInput('0.00', cur)} value={localizeAmountInput(amount, cur)}
+            <NumericInput mode="decimal" placeholder={zeroAmountInput(cur)} value={localizeAmountInput(amount, cur)}
               onValueChange={v => setAmount(v.replace(',', '.'))}
               className="w-full flex-1 border-0 bg-transparent ps-1.5 font-semibold text-content outline-none dark:bg-transparent" style={fs(14, 'body')} />
           </div>
@@ -1204,7 +1204,7 @@ export function ExpenseModal({ tripId, base, people, me, editing, prefill, onClo
   const PERSON_LIST = 'divide-y divide-edge-faint overflow-hidden rounded-[12px] border border-edge-faint bg-surface-card'
   const PERSON_ROW = 'grid min-h-[48px] grid-cols-[minmax(0,1fr)_130px] items-center gap-2.5 px-3 py-1.5'
   const AMOUNT_BOX = 'flex items-center gap-1 rounded-[8px] border border-edge bg-surface-input px-2.5'
-  const AMOUNT_INPUT = 'w-full border-0 bg-transparent py-2 text-end font-semibold text-content outline-none dark:bg-transparent'
+  const AMOUNT_INPUT = 'w-full border-0 bg-transparent py-2 text-end font-semibold text-content outline-none dark:bg-transparent placeholder:font-normal placeholder:text-content-faint'
 
   // Who is in, shown as a real box to tick instead of a row that only fades.
   const tick = (on: boolean) => (
@@ -1280,7 +1280,7 @@ export function ExpenseModal({ tripId, base, people, me, editing, prefill, onClo
                   {on ? (
                     <div className={AMOUNT_BOX}>
                       <span className="text-content-faint" style={fs(13, 'body')}>{sym(currency)}</span>
-                      <NumericInput mode="signed-decimal" placeholder={localizeAmountInput('0.00', currency)} data-testid="payer-amount"
+                      <NumericInput mode="signed-decimal" placeholder={zeroAmountInput(currency)} data-testid="payer-amount"
                         value={localizeAmountInput(payerAmounts[p.id] || '', currency)}
                         onValueChange={v => onPayerAmountChange(p.id, v)}
                         className={AMOUNT_INPUT} style={fs(13.5, 'body')} />
@@ -1346,7 +1346,7 @@ export function ExpenseModal({ tripId, base, people, me, editing, prefill, onClo
                     <span className="text-content-faint" style={fs(12)}>{sym(currency)}</span>
                     <NumericInput
                       mode="decimal"
-                      placeholder={localizeAmountInput('0.00', currency)}
+                      placeholder={zeroAmountInput(currency)}
                       value={localizeAmountInput(item.price, currency)}
                       onValueChange={v => handleUpdateItemPrice(item.id, v)}
                       className={AMOUNT_INPUT}
@@ -1427,7 +1427,7 @@ export function ExpenseModal({ tripId, base, people, me, editing, prefill, onClo
                   ) : (
                     <div className={AMOUNT_BOX}>
                       <span className="text-content-faint" style={fs(13, 'body')}>{sym(currency)}</span>
-                      <input type="text" inputMode="decimal" placeholder={localizeAmountInput((placeholderShares[p.id] || 0).toFixed(2), currency)} value={localizeAmountInput(customAmounts[p.id] || '', currency)}
+                      <input type="text" inputMode="decimal" placeholder={localizeAmountInput(amountToInputString(placeholderShares[p.id] || 0, currency), currency)} value={localizeAmountInput(customAmounts[p.id] || '', currency)}
                         onChange={e => handleCustomAmountChange(p.id, e.target.value)}
                         className={AMOUNT_INPUT} style={fs(13.5, 'body')} />
                     </div>
@@ -1440,7 +1440,7 @@ export function ExpenseModal({ tripId, base, people, me, editing, prefill, onClo
             {splitMode === 'equally' ? (
               participants.size > 0 && <>
                 {badge(<><Users size={12} strokeWidth={2.4} />{participants.size}</>)}
-                {badge(t('costs.perPerson', { amount: splitShareLabel(each, currency, fx, participants.size, base, null, locale) }))}
+                {badge(t('costs.perPerson', { amount: splitShareLabel(each, currency, fx, participants.size, base, locale) }))}
               </>
             ) : customBalanced ? (
               badge(<><Check size={12} strokeWidth={3} />{t('costs.splitBalanced')}</>, 'success')
@@ -1557,7 +1557,7 @@ export function ExpenseModal({ tripId, base, people, me, editing, prefill, onClo
           <EditorField label={t('costs.totalAmount')}>
             <div className="flex items-center rounded-[10px] border border-edge bg-surface-input px-3" style={{ height: FIELD_H, opacity: isTicketMode ? 0.6 : 1 }}>
               <span className="text-content-faint" style={fs(15, 'subtitle')}>{sym(currency)}</span>
-              <NumericInput mode="signed-decimal" placeholder={localizeAmountInput('0.00', currency)} value={localizeAmountInput(isTicketMode ? ticketInfo.total.toFixed(2) : total, currency)}
+              <NumericInput mode="signed-decimal" placeholder={zeroAmountInput(currency)} value={localizeAmountInput(isTicketMode ? amountToInputString(ticketInfo.total, currency) : total, currency)}
                 onValueChange={onTotalChange}
                 signToggleLabel={t('costs.toggleSign')}
                 disabled={isTicketMode}

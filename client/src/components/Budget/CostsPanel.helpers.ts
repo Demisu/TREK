@@ -14,16 +14,36 @@
 import { splitEqualShares as splitEqualMinorShares, toMinor } from '@trek/shared'
 import type { BudgetParticipantFinal, ReceiptRead } from '@trek/shared'
 import { amountToInputString, currencyDecimals } from '../../utils/formatters'
+import { localIsoDate } from '../../utils/localDate'
 import type { ExpensePrefill } from './CostsPanel'
 import type { BudgetItem } from '../../types'
 
 // The split and receipt fields guard their own precision on every keystroke, so the
 // guard has to follow the currency: a three-decimal one (KWD, BHD, …) seeds three
 // places, and the old fixed two rejected every keystroke after that, leaving the field
-// unusable until a digit was deleted (#2175). Never stricter than two places, so no
-// value a field accepts today can become uneditable.
+// unusable until a digit was deleted (#2175). A currency without minor units (KRW,
+// JPY) takes no decimals at all, or a won amount could carry cents the list then
+// rounds away (#2604). The point itself may stand, so a digit typed after it is
+// dropped instead of joining the whole won. Callers cut the input with
+// clampAmountDecimals first, so a longer value a field was seeded with stays editable.
 export const amountPattern = (currency: string, signed: boolean) =>
-  new RegExp(`^${signed ? '-?' : ''}\\d*\\.?\\d{0,${Math.max(2, currencyDecimals(currency))}}$`)
+  new RegExp(`^${signed ? '-?' : ''}\\d*\\.?\\d{0,${currencyDecimals(currency)}}$`)
+
+/**
+ * A dot-normalized amount as typed, cut to the decimals the currency has (#2604):
+ * "1000.555" in won is "1000.", in euros "1000.55". Cut, not rounded, so the digits
+ * left are the ones the user typed, and a won amount keeps its point so a digit
+ * typed after it is dropped rather than read as one more whole won.
+ */
+export function clampAmountDecimals(value: string, currency: string): string {
+  const dot = value.indexOf('.')
+  return dot < 0 ? value : value.slice(0, dot + 1 + currencyDecimals(currency))
+}
+
+/** An amount already typed, in the currency it was switched to: cut, and without a point left bare. */
+export function amountInCurrency(value: string, currency: string): string {
+  return clampAmountDecimals(value, currency).replace(/\.$/, '')
+}
 
 /**
  * Spread `amount` across `n` payers in whole cents so the parts sum back exactly.
@@ -41,12 +61,17 @@ export function splitCents(amount: number, n: number): number[] {
 /**
  * The calendar day a settle-up payment counts on for grouping/filtering: its own
  * `settled_at` if the user set one, else the day it was recorded (`created_at`).
- * Mirrors `expense_date` falling back nowhere on a budget item — a settlement's
- * `created_at` doubled as its date before `settled_at` existed, so this keeps
- * every pre-existing row grouped exactly where it already was.
+ * A settlement's `created_at` doubled as its date before `settled_at` existed.
+ * It is SQLite's UTC clock ("2026-10-11 23:30:00"), so it is read as UTC and
+ * placed on the viewer's own calendar: in Seoul that payment was made on the
+ * 12th, not the 11th (#2604).
  */
 export function settlementDate(s: { settled_at?: string | null; created_at?: string | null }): string {
-  return (s.settled_at || s.created_at || '').slice(0, 10)
+  if (s.settled_at) return s.settled_at.slice(0, 10)
+  if (!s.created_at) return ''
+  const iso = s.created_at.replace(' ', 'T')
+  const at = new Date(/(Z|[+-]\d{2}:?\d{2})$/i.test(iso) ? iso : `${iso}Z`)
+  return Number.isNaN(at.getTime()) ? s.created_at.slice(0, 10) : localIsoDate(at)
 }
 
 /**

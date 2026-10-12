@@ -10,7 +10,7 @@ import { localToday } from '../../../../src/components/Planner/today'
 import { resetAllStores } from '../../../helpers/store'
 import { act, fireEvent, render, screen, waitFor, within } from '../../../helpers/render'
 
-// FE-MOB-COSTSH-001 to FE-MOB-COSTSH-030
+// FE-MOB-COSTSH-001 to FE-MOB-COSTSH-038
 // The sheet reads its copy from useTranslation(), so assertions are English.
 // EUR formats de-DE style: displayed amounts and inputs use a comma.
 
@@ -113,8 +113,9 @@ describe('MCostSheet', () => {
     // A comma is normalised to a dot before it reaches the state.
     fillBasics('Dinner', '85,50')
 
-    expect(screen.getAllByText('€42.75')).toHaveLength(2)
-    expect(screen.getByText('Split 2 ways · €42.75 each')).toBeInTheDocument()
+    // Shares read the way the list prints euros (#2604).
+    expect(screen.getAllByText('42,75 €')).toHaveLength(2)
+    expect(screen.getByText('Split 2 ways · 42,75 € each')).toBeInTheDocument()
 
     fireEvent.click(submit())
     await waitFor(() => expect(addBudgetItem).toHaveBeenCalledTimes(1))
@@ -208,7 +209,7 @@ describe('MCostSheet', () => {
     fillBasics('Taxi', '30')
     fireEvent.click(screen.getByRole('button', { name: 'B bob' }))
 
-    expect(screen.getByText('1 person · €30.00')).toBeInTheDocument()
+    expect(screen.getByText('1 person · 30,00 €')).toBeInTheDocument()
     expect(screen.getAllByText('Tap to include')).toHaveLength(1)
 
     fireEvent.click(submit())
@@ -346,12 +347,12 @@ describe('MCostSheet', () => {
     const shares = screen.getAllByPlaceholderText('50,00')
     expect(shares).toHaveLength(2)
     fireEvent.change(shares[0], { target: { value: '30' } })
-    expect(screen.getByText('€30.00 / €100.00')).toBeInTheDocument()
+    expect(screen.getByText('30,00 € / 100,00 €')).toBeInTheDocument()
     expect(submit()).toBeDisabled()
 
     // The remaining share now suggests what is left of the total.
     fireEvent.change(screen.getByPlaceholderText('70,00'), { target: { value: '70' } })
-    expect(screen.getByText('Split 2 ways · €50.00 each')).toBeInTheDocument()
+    expect(screen.getByText('Split 2 ways · 50,00 € each')).toBeInTheDocument()
 
     fireEvent.click(submit())
     await waitFor(() => expect(addBudgetItem).toHaveBeenCalledWith(1, expect.objectContaining({
@@ -359,14 +360,14 @@ describe('MCostSheet', () => {
     })))
   })
 
-  it('FE-MOB-COSTSH-015: a custom share rejects a third decimal and is cleared when the member drops out', () => {
+  it('FE-MOB-COSTSH-015: a custom share drops a third decimal and is cleared when the member drops out', () => {
     renderSheet()
     fillBasics('Dinner', '100')
     fireEvent.click(screen.getByRole('button', { name: 'Custom' }))
 
     const share = screen.getAllByPlaceholderText('50,00')[0]
     fireEvent.change(share, { target: { value: '30.123' } })
-    expect(share).toHaveValue('')
+    expect(share).toHaveValue('30,12')
     fireEvent.change(share, { target: { value: '30,5' } })
     expect(screen.getByDisplayValue('30,5')).toBe(share)
 
@@ -386,7 +387,7 @@ describe('MCostSheet', () => {
     fireEvent.change(screen.getAllByPlaceholderText('0,00')[1], { target: { value: '20' } })
 
     expect(totalField()).toHaveValue('20,00')
-    expect(screen.getAllByText('€10.00')).toHaveLength(2)
+    expect(screen.getAllByText('10,00 €')).toHaveLength(2)
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Add' })[1])
     await waitFor(() => expect(addBudgetItem).toHaveBeenCalledTimes(1))
@@ -725,5 +726,24 @@ describe('MCostSheet', () => {
 
     expect(screen.getAllByText('XTS 5.00')).toHaveLength(2)
     expect(screen.getByText('Split 2 ways · XTS 5.00 each')).toBeInTheDocument()
+  })
+
+  it('FE-MOB-COSTSH-038: a won expense reads whole won with grouping and suggests its custom shares faintly (#2604)', () => {
+    localStorage.setItem('trek_fx_KRW', JSON.stringify({ rates: { KRW: 1 }, ts: Date.now() }))
+    renderSheet({ base: 'KRW' })
+    fireEvent.change(nameField(), { target: { value: 'BBQ' } })
+    const total = screen.getByPlaceholderText('0')
+    fireEvent.change(total, { target: { value: '60000.55' } })
+    expect(total).toHaveValue('60000.')
+
+    expect(screen.getAllByText('₩30,000')).toHaveLength(2)
+    expect(screen.getByText('Split 2 ways · ₩30,000 each')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Custom' }))
+    const shares = screen.getAllByPlaceholderText('30000')
+    expect(shares[0]).toHaveValue('')
+    expect(shares[0].className).toContain('placeholder:text-m-faint')
+    fireEvent.change(shares[0], { target: { value: '10000' } })
+    expect(screen.getByText('₩10,000 / ₩60,000')).toBeInTheDocument()
   })
 })

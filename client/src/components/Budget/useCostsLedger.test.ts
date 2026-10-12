@@ -8,6 +8,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import type { BudgetItem, Trip } from '../../types';
 import { downloadBlob } from '../../utils/fileDownload';
+import { localToday } from '../Planner/today';
 import type { CostsSettlementResponse } from './costsModel';
 import { useCostsLedger } from './useCostsLedger';
 import { useFreezeMissingRates } from './useFreezeMissingRates';
@@ -268,13 +269,19 @@ describe('useCostsLedger: writes', () => {
     expect(toastError).toHaveBeenCalledWith('common.unknownError');
   });
 
-  it('FE-BUDGET-LEDGER-011: settling one flow or all of them records transfers in the display currency', async () => {
+  it('FE-BUDGET-LEDGER-011: settling one flow or all of them records transfers in the display currency, dated on the local day (#2604)', async () => {
     const { result } = setup();
     await waitFor(() => expect(result.current.settlement).not.toBeNull());
     await act(async () => {
       await result.current.settleFlow(1, 2, 15);
     });
-    expect(createMock()).toHaveBeenCalledWith(7, { from_user_id: 1, to_user_id: 2, amount: 15, currency: 'EUR' });
+    expect(createMock()).toHaveBeenCalledWith(7, {
+      from_user_id: 1,
+      to_user_id: 2,
+      amount: 15,
+      currency: 'EUR',
+      settled_at: localToday(),
+    });
     expect(settlementMock()).toHaveBeenCalledTimes(2);
 
     createMock().mockClear();
@@ -284,7 +291,13 @@ describe('useCostsLedger: writes', () => {
       await result.current.settleAll();
     });
     expect(createMock()).toHaveBeenCalledTimes(2);
-    expect(createMock()).toHaveBeenNthCalledWith(2, 7, { from_user_id: 3, to_user_id: 1, amount: 5, currency: 'EUR' });
+    expect(createMock()).toHaveBeenNthCalledWith(2, 7, {
+      from_user_id: 3,
+      to_user_id: 1,
+      amount: 5,
+      currency: 'EUR',
+      settled_at: localToday(),
+    });
     expect(toastError).toHaveBeenCalledWith('common.unknownError');
     expect(settlementMock()).toHaveBeenCalledTimes(3);
   });

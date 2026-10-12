@@ -5,7 +5,7 @@ import {
 } from 'lucide-react'
 import MDancingTrek from '../../../components/MDancingTrek'
 import { useTranslation } from '../../../../i18n'
-import { formatMoney } from '../../../../utils/formatters'
+import { formatMoney, localizeAmountInput, zeroAmountInput } from '../../../../utils/formatters'
 import { openFile } from '../../../../utils/fileDownload'
 import MCostSheet from '../sheets/MCostSheet'
 import { ReceiptPreviewModal } from '../../../../components/Budget/ReceiptPreviewModal'
@@ -175,7 +175,7 @@ export default function MCostsTab({ planner, shell }: MTabScreenProps) {
           </span>
           <div className="min-w-0 flex-1">
             <div className="text-[0.78125rem] font-bold text-m-ink">{t('costs.outstanding')}</div>
-            <div className="font-geist text-[0.59375rem] text-m-faint"><b>{totals.outstandingCount}</b> {t('costs.outstandingItems')}</div>
+            <div className="font-geist text-[0.59375rem] text-m-faint"><b>{totals.outstandingCount}</b> {t('costs.outstandingItems', { count: totals.outstandingCount })}</div>
           </div>
           <div className="flex-none font-geist text-[0.9375rem] font-extrabold tabular-nums" style={{ color: STATUS_COLOR.pending }}>
             {formatMoney(totals.outstanding, base, locale)}
@@ -873,7 +873,7 @@ function AddPaymentSheet({ open, editing, onClose, tripId, base, tripCurrency, p
 
         <Eyebrow className="mb-[7px] mt-[14px] uppercase">{t('costs.amount')}</Eyebrow>
         <div className="flex items-center gap-2">
-          <input type="text" inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" className={FIELD_CLS} />
+          <input type="text" inputMode="decimal" value={localizeAmountInput(amount, currency)} onChange={e => setAmount(e.target.value)} placeholder={zeroAmountInput(currency)} className={FIELD_CLS} />
           <span className="flex-none font-geist text-[0.75rem] font-bold text-m-faint">{currency}</span>
         </div>
 

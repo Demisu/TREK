@@ -66,6 +66,7 @@ const budget: TranslationStrings = {
   'costs.outstanding': 'Gözləyən məbləğ',
   'costs.outstandingSub': 'Ödəyicisi hələ təyin edilməyən xərclər',
   'costs.outstandingItems': 'xərc üçün ödəyici təyin edilməlidir',
+  'costs.outstandingItems.one': 'xərc üçün ödəyici təyin edilməlidir',
 
   'costs.expenses': 'Xərclər',
   'costs.entries': '{count} qeyd',

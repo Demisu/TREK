@@ -59,6 +59,7 @@ const budget: TranslationStrings = {
   'costs.outstanding': 'Ausstehender Betrag',
   'costs.outstandingSub': 'Ausgaben noch ohne Zahler',
   'costs.outstandingItems': 'Ausgaben ohne Zahler',
+  'costs.outstandingItems.one': 'Ausgabe ohne Zahler',
   'costs.expenses': 'Ausgaben',
   'costs.entries': '{count} Einträge',
   'costs.entries.one': '{count} Eintrag',
