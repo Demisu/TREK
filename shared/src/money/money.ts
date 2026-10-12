@@ -81,3 +81,41 @@ export function splitEqualShares(
   });
   return shares;
 }
+
+/** One line of an itemized receipt (#1658): its price as typed and who is in on it. */
+export interface TicketLine {
+  price: string | number;
+  parts: readonly number[];
+}
+
+/**
+ * Per-person shares of a receipt split line by line, in whole hundredths keyed
+ * by user id, plus the receipt total.
+ *
+ * Every hundredth lands on somebody: a line nobody is ticked for is carried by
+ * everyone who appears anywhere on the receipt, so the shares add back up to
+ * the total (#1382). Within a line the leftover hundredths go to the lowest
+ * user ids first. A receipt with nobody on it at all splits nothing.
+ *
+ * The cost editor previews with this and the server re-splits a stored receipt
+ * with it when somebody leaves the trip, so the two never round apart.
+ */
+export function splitTicketLines(lines: readonly TicketLine[]): { shares: Record<number, number>; totalMinor: number } {
+  const shares: Record<number, number> = {};
+  let totalMinor = 0;
+  const everyone = [...new Set(lines.flatMap((line) => line.parts))].sort((a, b) => a - b);
+
+  for (const line of lines) {
+    const priceMinor = toMinor(Number.parseFloat(String(line.price)) || 0);
+    totalMinor += priceMinor;
+    const ids = line.parts.length > 0 ? [...new Set(line.parts)].sort((a, b) => a - b) : everyone;
+    const n = ids.length;
+    if (n === 0) continue;
+    const base = Math.floor(priceMinor / n);
+    const remainder = priceMinor - base * n;
+    ids.forEach((id, i) => {
+      shares[id] = (shares[id] ?? 0) + base + (i < remainder ? 1 : 0);
+    });
+  }
+  return { shares, totalMinor };
+}

@@ -1,4 +1,4 @@
-import { currencyDecimals, splitEqualShares, sumMinor, toMinor } from './money';
+import { currencyDecimals, splitEqualShares, splitTicketLines, sumMinor, toMinor } from './money';
 
 import { describe, expect, it } from 'vitest';
 
@@ -68,5 +68,32 @@ describe('splitEqualShares', () => {
 
   it('answers an empty map for nobody', () => {
     expect(splitEqualShares(500, [], 3)).toEqual({});
+  });
+});
+
+describe('splitTicketLines', () => {
+  it('splits each line across the people ticked for it, leftover hundredths to the lowest ids', () => {
+    expect(
+      splitTicketLines([
+        { price: '10', parts: [2, 1] },
+        { price: '0.05', parts: [1, 2] },
+        { price: 6, parts: [2] },
+      ]),
+    ).toEqual({ shares: { 1: 503, 2: 1102 }, totalMinor: 1605 });
+  });
+
+  it('puts a line nobody is ticked for on everyone on the receipt', () => {
+    const { shares, totalMinor } = splitTicketLines([
+      { price: '30', parts: [1] },
+      { price: '10', parts: [] },
+      { price: '20', parts: [3] },
+    ]);
+    expect(shares).toEqual({ 1: 3500, 3: 2500 });
+    expect(Object.values(shares).reduce((a, b) => a + b, 0)).toBe(totalMinor);
+  });
+
+  it('splits nothing when nobody is on the receipt', () => {
+    expect(splitTicketLines([{ price: '12', parts: [] }])).toEqual({ shares: {}, totalMinor: 1200 });
+    expect(splitTicketLines([])).toEqual({ shares: {}, totalMinor: 0 });
   });
 });

@@ -11,7 +11,7 @@
  * Amounts are the raw input strings, parsed on use (same as customAmounts).
  */
 
-import { splitEqualShares as splitEqualMinorShares, toMinor } from '@trek/shared'
+import { splitEqualShares as splitEqualMinorShares, splitTicketLines, toMinor } from '@trek/shared'
 import type { BudgetParticipantFinal, ReceiptRead } from '@trek/shared'
 import { amountToInputString, currencyDecimals } from '../../utils/formatters'
 import { localIsoDate } from '../../utils/localDate'
@@ -267,39 +267,10 @@ export function readUserNote(item: { note?: string | null } | null | undefined):
  * anyway, since every line needs someone on it.
  */
 export function calculateTicketShares(items: TicketItem[]): { shares: Record<number, number>; total: number } {
-  const shares: Record<number, number> = {}
-  let totalCents = 0
-
-  const everyone = [...new Set(items.flatMap(i => [...i.participants]))].sort((a, b) => a - b)
-
-  for (const item of items) {
-    const priceNum = Number.parseFloat(item.price) || 0
-    const priceCents = Math.round(priceNum * 100)
-    totalCents += priceCents
-
-    const sortedPartIds = item.participants.size > 0
-      ? [...item.participants].sort((a, b) => a - b)
-      : everyone
-    const n = sortedPartIds.length
-    if (n === 0) continue
-
-    const baseCents = Math.floor(priceCents / n)
-    const remainder = priceCents - baseCents * n
-
-    for (let i = 0; i < n; i++) {
-      const id = sortedPartIds[i]
-      const hasExtraCent = i < remainder
-      const shareCents = baseCents + (hasExtraCent ? 1 : 0)
-      shares[id] = (shares[id] || 0) + shareCents
-    }
-  }
-
+  const { shares, totalMinor } = splitTicketLines(items.map(i => ({ price: i.price, parts: [...i.participants] })))
   const finalShares: Record<number, number> = {}
-  for (const id of Object.keys(shares)) {
-    finalShares[Number(id)] = shares[Number(id)] / 100
-  }
-
-  return { shares: finalShares, total: totalCents / 100 }
+  for (const [id, cents] of Object.entries(shares)) finalShares[Number(id)] = cents / 100
+  return { shares: finalShares, total: totalMinor / 100 }
 }
 
 /**
