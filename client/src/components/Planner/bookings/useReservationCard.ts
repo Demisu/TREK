@@ -1,6 +1,8 @@
 import { useState, type KeyboardEvent, type MouseEvent } from 'react';
 
+import { useTripStore } from '../../../store/tripStore';
 import type { Reservation } from '../../../types';
+import { deleteBodyKey } from './bookingsModel';
 import { openAttachment } from './openAttachment';
 import { useReservationDelete } from './useReservationDelete';
 
@@ -19,7 +21,8 @@ export interface ReservationCardHost {
  * behind a question with a toast when it fails, and its attached files, which
  * open from a chip inside the card's own button (so a click or Enter/Space on
  * the chip stops there). A file that cannot be opened stays silent here; the
- * desktop panel toasts it.
+ * desktop panel toasts it. The delete question names a linked expense, which
+ * goes with the booking.
  */
 export function useReservationCard(res: Reservation, host: ReservationCardHost) {
   const blurCodes = host.settings.blur_booking_codes;
@@ -28,11 +31,15 @@ export function useReservationCard(res: Reservation, host: ReservationCardHost) 
     () => host.toast.error(host.t('reservations.toast.deleteError'))
   );
   const [codeRevealed, setCodeRevealed] = useState(false);
+  const deleteTakesExpense = useTripStore(
+    (s) => deleteBodyKey(res.id, s.budgetItems) === 'reservations.confirm.deleteBodyWithExpense'
+  );
 
   return {
     codeBlurred: !!blurCodes && !codeRevealed,
     toggleCode: blurCodes ? () => setCodeRevealed((v) => !v) : undefined,
     confirmingDelete: pendingDelete != null,
+    deleteTakesExpense,
     askDelete: () => requestDelete(res),
     cancelDelete,
     confirmDelete: () => {

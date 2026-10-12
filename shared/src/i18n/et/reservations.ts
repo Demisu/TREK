@@ -76,6 +76,7 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': 'Kas soovid kindlasti kustutada broneeringu "{name}"?',
   'reservations.confirm.deleteTitle': 'Kas kustutada broneering?',
   'reservations.confirm.deleteBody': '"{name}" kustutatakse jäädavalt.',
+  'reservations.confirm.deleteBodyWithExpense': '"{name}" kustutatakse jäädavalt koos sellega seotud kuludega.',
   'reservations.toast.updated': 'Broneering uuendatud',
   'reservations.toast.removed': 'Broneering kustutatud',
   'reservations.toast.fileUploaded': 'Fail üles laaditud',

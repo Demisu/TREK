@@ -74,6 +74,7 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': '예약 "{name}"을(를) 삭제할까요?',
   'reservations.confirm.deleteTitle': '예약을 삭제할까요?',
   'reservations.confirm.deleteBody': '"{name}"이(가) 영구 삭제됩니다.',
+  'reservations.confirm.deleteBodyWithExpense': '"{name}"과(와) 연결된 비용이 영구 삭제됩니다.',
   'reservations.toast.updated': '예약이 업데이트되었습니다',
   'reservations.toast.removed': '예약이 삭제되었습니다',
   'reservations.toast.fileUploaded': '파일이 업로드되었습니다',

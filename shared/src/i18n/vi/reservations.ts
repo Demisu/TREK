@@ -75,6 +75,7 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': 'Bạn có chắc chắn muốn xóa đặt chỗ "{name}" không?',
   'reservations.confirm.deleteTitle': 'Xóa đặt chỗ?',
   'reservations.confirm.deleteBody': '"{name}" sẽ bị xóa vĩnh viễn.',
+  'reservations.confirm.deleteBodyWithExpense': '"{name}" và các chi phí liên kết sẽ bị xóa vĩnh viễn.',
   'reservations.toast.updated': 'Đã cập nhật đặt chỗ',
   'reservations.toast.removed': 'Đã xóa đặt chỗ',
   'reservations.toast.fileUploaded': 'Tệp đã được tải lên',

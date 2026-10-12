@@ -43,6 +43,7 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': 'Segur que vols eliminar la reserva "{name}"?',
   'reservations.confirm.deleteTitle': 'Vols eliminar la reserva?',
   'reservations.confirm.deleteBody': "« {name} » s'eliminarà permanentment.",
+  'reservations.confirm.deleteBodyWithExpense': "« {name} » i els costos vinculats s'eliminaran permanentment.",
   'reservations.toast.updated': 'Reserva actualitzada',
   'reservations.toast.removed': 'Reserva eliminada',
   'reservations.toast.fileUploaded': 'Fitxer pujat',

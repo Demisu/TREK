@@ -1,4 +1,4 @@
-// FE-PLANNER-BOOKINGHOST-001 to FE-PLANNER-BOOKINGHOST-017
+// FE-PLANNER-BOOKINGHOST-001 to FE-PLANNER-BOOKINGHOST-018
 import { render, screen, fireEvent, waitFor, within } from '../../../../tests/helpers/render';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
@@ -109,6 +109,15 @@ describe('BookingDetailHost', () => {
 
     await waitFor(() => expect(onDelete).toHaveBeenCalledWith(r.id));
     expect(calls).toEqual(['close', 'delete']);
+  });
+
+  it('FE-PLANNER-BOOKINGHOST-018: the delete question says a linked expense goes with the booking (#2604)', async () => {
+    const r = buildReservation({ title: 'Dinner' });
+    useTripStore.setState({ budgetItems: [buildBudgetItem({ name: 'Dinner bill', reservation_id: r.id } as never)] });
+    renderHost(r, { onDelete: vi.fn() });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    expect(screen.getByText('"Dinner" will be permanently deleted, along with its linked costs.')).toBeInTheDocument();
   });
 
   it('FE-PLANNER-BOOKINGHOST-007: a failed delete says so', async () => {

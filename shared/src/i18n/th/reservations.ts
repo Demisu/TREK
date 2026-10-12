@@ -76,6 +76,7 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': 'คุณแน่ใจหรือไม่ว่าต้องการลบการจอง "{name}"',
   'reservations.confirm.deleteTitle': 'ลบการจองใช่ไหม',
   'reservations.confirm.deleteBody': '"{name}" จะถูกลบอย่างถาวร',
+  'reservations.confirm.deleteBodyWithExpense': '"{name}" และค่าใช้จ่ายที่เชื่อมโยงไว้จะถูกลบอย่างถาวร',
   'reservations.toast.updated': 'อัพเดตการจองแล้ว',
   'reservations.toast.removed': 'ลบการจองแล้ว',
   'reservations.toast.fileUploaded': 'อัปโหลดไฟล์แล้ว',

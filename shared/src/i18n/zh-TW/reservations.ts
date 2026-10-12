@@ -74,6 +74,7 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': '確定要刪除預訂「{name}」嗎？',
   'reservations.confirm.deleteTitle': '刪除預訂？',
   'reservations.confirm.deleteBody': '"{name}" 將被永久刪除。',
+  'reservations.confirm.deleteBodyWithExpense': '"{name}" 及其關聯的費用將被永久刪除。',
   'reservations.toast.updated': '預訂已更新',
   'reservations.toast.removed': '預訂已刪除',
   'reservations.toast.fileUploaded': '檔案已上傳',

@@ -161,7 +161,7 @@ export function CardDeleteSheet({ title, card, t }: { title: string; card: CardS
       open={card.confirmingDelete}
       onClose={card.cancelDelete}
       title={t('reservations.confirm.deleteTitle')}
-      message={t('reservations.confirm.deleteBody', { name: title })}
+      message={t(card.deleteTakesExpense ? 'reservations.confirm.deleteBodyWithExpense' : 'reservations.confirm.deleteBody', { name: title })}
       confirmLabel={t('common.delete')}
       cancelLabel={t('common.cancel')}
       danger

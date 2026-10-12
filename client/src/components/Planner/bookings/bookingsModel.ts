@@ -317,6 +317,16 @@ export function costsFor(reservationId: number, items: { reservation_id?: number
   return [...sums.entries()].map(([currency, amount]) => ({ currency, amount }))
 }
 
+/**
+ * The delete question's text. The server deletes a booking's linked expenses with it,
+ * so a booking that has one says so instead of only naming the booking (#2604).
+ */
+export function deleteBodyKey(reservationId: number | undefined, items: { reservation_id?: number | null }[]): string {
+  return reservationId != null && items.some(it => it.reservation_id === reservationId)
+    ? 'reservations.confirm.deleteBodyWithExpense'
+    : 'reservations.confirm.deleteBody'
+}
+
 /** A title for an entry saved without one: its route, else its place, else nothing. */
 export function displayTitle(r: Reservation): string {
   if (r.title?.trim()) return r.title

@@ -74,6 +74,7 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': 'Вы уверены, что хотите удалить бронирование «{name}»?',
   'reservations.confirm.deleteTitle': 'Удалить бронирование?',
   'reservations.confirm.deleteBody': '«{name}» будет удалено навсегда.',
+  'reservations.confirm.deleteBodyWithExpense': '«{name}» и связанные с ним расходы будут удалены навсегда.',
   'reservations.toast.updated': 'Бронирование обновлено',
   'reservations.toast.removed': 'Бронирование удалено',
   'reservations.toast.fileUploaded': 'Файл загружен',

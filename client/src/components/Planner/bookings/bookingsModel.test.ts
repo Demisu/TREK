@@ -1,4 +1,4 @@
-// FE-PLANNER-BKMODEL-001 to FE-PLANNER-BKMODEL-043
+// FE-PLANNER-BKMODEL-001 to FE-PLANNER-BKMODEL-044
 import { describe, it, expect } from 'vitest';
 import { Plane, TramFront, FileText, Hotel } from 'lucide-react';
 import { buildAssignment, buildDay, buildPlace, buildReservation } from '../../../../tests/helpers/factories';
@@ -10,6 +10,7 @@ import {
   applyFilters,
   buildAssignmentLookup,
   costsFor,
+  deleteBodyKey,
   daySpan,
   displayTitle,
   groupReservations,
@@ -336,6 +337,13 @@ describe('costsFor', () => {
   it('FE-PLANNER-BKMODEL-038: without any currency it falls back to EUR, and nothing linked is an empty list', () => {
     expect(costsFor(3, [{ reservation_id: 3, total_price: 4 }], '')).toEqual([{ currency: 'EUR', amount: 4 }]);
     expect(costsFor(4, [{ reservation_id: 3, total_price: 4 }], 'EUR')).toEqual([]);
+  });
+
+  it('FE-PLANNER-BKMODEL-044: the delete question names the linked expense only when there is one (#2604)', () => {
+    const items = [{ reservation_id: 3 }, { reservation_id: null }];
+    expect(deleteBodyKey(3, items)).toBe('reservations.confirm.deleteBodyWithExpense');
+    expect(deleteBodyKey(4, items)).toBe('reservations.confirm.deleteBody');
+    expect(deleteBodyKey(undefined, items)).toBe('reservations.confirm.deleteBody');
   });
 });
 

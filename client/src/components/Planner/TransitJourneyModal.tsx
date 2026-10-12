@@ -10,8 +10,10 @@ import { Segmented, TEXTAREA } from '../shared/dialogParts'
 import { Tooltip } from '../shared/Tooltip'
 import { BookingDialogHeader, TypePill } from './bookings/BookingDialogShell'
 import { TransitLegs } from './bookings/transitParts'
+import { deleteBodyKey } from './bookings/bookingsModel'
 import { useTranslation } from '../../i18n'
 import { useSettingsStore } from '../../store/settingsStore'
+import { useTripStore } from '../../store/tripStore'
 import { splitReservationDateTime, formatTime } from '../../utils/formatters'
 import { TransitTitle, TransitMetaBadges, TransitWalkDivider, fmtTransitDuration } from './transitDisplay'
 import type { Reservation } from '../../types'
@@ -55,6 +57,7 @@ export default function TransitJourneyModal({ reservation, onClose, onSave, onDe
   const { t, locale } = useTranslation()
   const isMobile = useIsPhone()
   const timeFormat = useSettingsStore(st => st.settings.time_format) || '24h'
+  const budgetItems = useTripStore(st => st.budgetItems)
   const res = reservation
   const meta = typeof res.metadata === 'string' ? (() => { try { return JSON.parse(res.metadata || '{}') } catch { return {} } })() : (res.metadata || {})
   const transit = meta.transit && Array.isArray(meta.transit.legs) ? meta.transit : null
@@ -252,7 +255,7 @@ export default function TransitJourneyModal({ reservation, onClose, onSave, onDe
           onClose={() => setConfirmDelete(false)}
           onConfirm={async () => { setConfirmDelete(false); await onDelete(); onClose() }}
           title={t('reservations.confirm.deleteTitle')}
-          message={t('reservations.confirm.deleteBody', { name: res.title })}
+          message={t(deleteBodyKey(res.id, budgetItems), { name: res.title })}
         />
       </>
     )
@@ -530,7 +533,7 @@ export default function TransitJourneyModal({ reservation, onClose, onSave, onDe
         onClose={() => setConfirmDelete(false)}
         onConfirm={async () => { setConfirmDelete(false); await onDelete(); onClose() }}
         title={t('reservations.confirm.deleteTitle')}
-        message={t('reservations.confirm.deleteBody', { name: res.title })}
+        message={t(deleteBodyKey(res.id, budgetItems), { name: res.title })}
       />
     </Modal>
   )

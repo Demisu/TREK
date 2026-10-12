@@ -74,6 +74,7 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': 'Opravdu chcete smazat rezervaci „{name}”?',
   'reservations.confirm.deleteTitle': 'Smazat rezervaci?',
   'reservations.confirm.deleteBody': '„{name}” bude trvale smazána.',
+  'reservations.confirm.deleteBodyWithExpense': '„{name}” bude trvale smazána i s propojenými náklady.',
   'reservations.toast.updated': 'Rezervace aktualizována',
   'reservations.toast.removed': 'Rezervace smazána',
   'reservations.toast.fileUploaded': 'Soubor byl nahrán',

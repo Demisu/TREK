@@ -77,6 +77,7 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': 'Naozaj chcete odstrániť rezerváciu „{name}“?',
   'reservations.confirm.deleteTitle': 'Odstrániť rezerváciu?',
   'reservations.confirm.deleteBody': '„{name}“ bude natrvalo odstránená.',
+  'reservations.confirm.deleteBodyWithExpense': '„{name}“ bude natrvalo odstránená spolu s prepojenými nákladmi.',
   'reservations.toast.updated': 'Rezervácia aktualizovaná',
   'reservations.toast.removed': 'Rezervácia odstránená',
   'reservations.toast.fileUploaded': 'Súbor bol nahraný',

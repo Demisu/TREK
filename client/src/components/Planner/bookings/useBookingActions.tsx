@@ -4,6 +4,7 @@ import { useTripStore } from '../../../store/tripStore'
 import { useToast } from '../../shared/Toast'
 import ConfirmDialog from '../../shared/ConfirmDialog'
 import { useReservationDelete } from './useReservationDelete'
+import { deleteBodyKey } from './bookingsModel'
 
 /**
  * The two things a booking can have done to it without its editor: switching
@@ -17,6 +18,7 @@ export function useBookingActions(tripId: number, onDelete: (id: number) => unkn
   const { t } = useTranslation()
   const toast = useToast()
   const toggleReservationStatus = useTripStore(s => s.toggleReservationStatus)
+  const budgetItems = useTripStore(s => s.budgetItems)
   const { pendingDelete, requestDelete, cancelDelete, confirmDelete } =
     useReservationDelete(onDelete, () => toast.error(t('reservations.toast.deleteError')), beforeDelete)
 
@@ -30,7 +32,7 @@ export function useBookingActions(tripId: number, onDelete: (id: number) => unkn
       onClose={cancelDelete}
       onConfirm={confirmDelete}
       title={t('reservations.confirm.deleteTitle')}
-      message={t('reservations.confirm.deleteBody', { name: pendingDelete?.title ?? '' })}
+      message={t(deleteBodyKey(pendingDelete?.id, budgetItems), { name: pendingDelete?.title ?? '' })}
       confirmLabel={t('common.delete')}
       cancelLabel={t('common.cancel')}
     />

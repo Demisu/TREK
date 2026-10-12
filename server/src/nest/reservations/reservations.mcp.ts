@@ -460,7 +460,7 @@ export class ReservationsMcp {
 
   @Tool({
     name: 'delete_reservation',
-    description: 'Delete a reservation from a trip.',
+    description: 'Delete a reservation from a trip. Expenses linked to it are deleted with it, and so is the stay a hotel booking created.',
     inputSchema: {
       tripId: idSchema,
       reservationId: idSchema,

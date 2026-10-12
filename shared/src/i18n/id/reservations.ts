@@ -75,6 +75,7 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': 'Yakin ingin menghapus reservasi "{name}"?',
   'reservations.confirm.deleteTitle': 'Hapus pemesanan?',
   'reservations.confirm.deleteBody': '"{name}" akan dihapus permanen.',
+  'reservations.confirm.deleteBodyWithExpense': '"{name}" beserta biaya yang terkait akan dihapus permanen.',
   'reservations.toast.updated': 'Reservasi diperbarui',
   'reservations.toast.removed': 'Reservasi dihapus',
   'reservations.toast.fileUploaded': 'File diunggah',

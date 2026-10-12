@@ -1,10 +1,12 @@
-// FE-PLANNER-RESLISTFILTER-005 to -008: what one card of the phone's bookings
+// FE-PLANNER-RESLISTFILTER-005 to -009: what one card of the phone's bookings
 // and transports tabs does.
 import { act, renderHook } from '@testing-library/react';
 import type { KeyboardEvent, MouseEvent } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { buildReservation } from '../../../../tests/helpers/factories';
+import { buildBudgetItem, buildReservation } from '../../../../tests/helpers/factories';
+import { resetAllStores, seedStore } from '../../../../tests/helpers/store';
+import { useTripStore } from '../../../store/tripStore';
 import type { Reservation } from '../../../types';
 import { openFile } from '../../../utils/fileDownload';
 import { useReservationCard } from './useReservationCard';
@@ -87,5 +89,12 @@ describe('useReservationCard', () => {
     expect(tab.stopPropagation).not.toHaveBeenCalled();
     expect(openFile).toHaveBeenCalledTimes(3);
     expect(openFile).toHaveBeenCalledWith('/uploads/f/1', 'voucher.pdf');
+  });
+
+  it('FE-PLANNER-RESLISTFILTER-009: the card knows whether deleting it takes a linked expense along (#2604)', () => {
+    resetAllStores();
+    seedStore(useTripStore, { budgetItems: [buildBudgetItem({ id: 1, reservation_id: 10 } as never)] });
+    expect(renderHook(() => useReservationCard(ann, host())).result.current.deleteTakesExpense).toBe(true);
+    expect(renderHook(() => useReservationCard(bob, host())).result.current.deleteTakesExpense).toBe(false);
   });
 });

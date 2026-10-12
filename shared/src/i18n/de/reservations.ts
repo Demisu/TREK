@@ -77,6 +77,7 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': 'Möchtest du die Reservierung "{name}" wirklich löschen?',
   'reservations.confirm.deleteTitle': 'Buchung löschen?',
   'reservations.confirm.deleteBody': '"{name}" wird unwiderruflich gelöscht.',
+  'reservations.confirm.deleteBodyWithExpense': '"{name}" wird zusammen mit den verknüpften Kosten unwiderruflich gelöscht.',
   'reservations.toast.updated': 'Reservierung aktualisiert',
   'reservations.toast.removed': 'Reservierung gelöscht',
   'reservations.toast.saveError': 'Fehler beim Speichern',

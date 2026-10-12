@@ -1,4 +1,4 @@
-// FE-COMP-MRESCARD-001 to FE-COMP-MRESCARD-008
+// FE-COMP-MRESCARD-001 to FE-COMP-MRESCARD-009
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Hotel, Plane } from 'lucide-react';
 import { describe, expect, it, vi } from 'vitest';
@@ -118,6 +118,12 @@ describe('MReservationCardParts', () => {
     expect(screen.getByText('reservations.confirm.deleteBody:LH 400')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'common.delete' }));
     expect(card.confirmDelete).toHaveBeenCalledOnce();
+  });
+
+  it('FE-COMP-MRESCARD-009: a booking with a linked expense says the expense is deleted with it (#2604)', () => {
+    render(<CardDeleteSheet title="LH 400" card={cardState({ confirmingDelete: true, deleteTakesExpense: true })} t={t} />);
+
+    expect(screen.getByText('reservations.confirm.deleteBodyWithExpense:LH 400')).toBeInTheDocument();
   });
 
   it('FE-COMP-MRESCARD-008: the date sits beside the day title and never shrinks, a range stacks the time under it (#2590)', () => {

@@ -76,6 +76,7 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': 'Biztosan törölni szeretnéd a(z) "{name}" foglalást?',
   'reservations.confirm.deleteTitle': 'Foglalás törlése?',
   'reservations.confirm.deleteBody': '"{name}" véglegesen törlődik.',
+  'reservations.confirm.deleteBodyWithExpense': '"{name}" a hozzá kapcsolt költségekkel együtt véglegesen törlődik.',
   'reservations.toast.updated': 'Foglalás frissítve',
   'reservations.toast.removed': 'Foglalás törölve',
   'reservations.toast.fileUploaded': 'Fájl feltöltve',

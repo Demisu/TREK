@@ -75,6 +75,7 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': 'Czy na pewno chcesz usunąć rezerwację "{name}"?',
   'reservations.confirm.deleteTitle': 'Usunąć rezerwację?',
   'reservations.confirm.deleteBody': 'Rezerwacja "{name}" zostanie trwale usunięta.',
+  'reservations.confirm.deleteBodyWithExpense': 'Rezerwacja "{name}" zostanie trwale usunięta wraz z powiązanymi kosztami.',
   'reservations.toast.updated': 'Rezerwacja została zaktualizowana',
   'reservations.toast.removed': 'Rezerwacja została usunięta',
   'reservations.toast.fileUploaded': 'Plik został przesłany',

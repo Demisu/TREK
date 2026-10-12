@@ -24,7 +24,7 @@ import { BookingDialogHeader, StatusPill } from './bookings/BookingDialogShell'
 import { DialogShell, DialogSection, DialogFooter, FooterSpacer, DialogButton, DeleteButton } from '../shared/DialogShell'
 import { INPUT, READONLY_BOX, GRID_2, GRID_3, PANEL, SEARCH_ON_PANEL, EditorField, Segmented, PillSelect, AddRowButton } from '../shared/dialogParts'
 import { fs, Eyebrow, type StatusTone } from './bookings/bookingParts'
-import { typeInfo } from './bookings/bookingsModel'
+import { deleteBodyKey, typeInfo } from './bookings/bookingsModel'
 import {
   EMPTY_TRANSPORT_FIELDS, TRANSPORT_TYPE_OPTIONS as TYPE_OPTIONS, emptyCarStop, emptyStationWaypoint, emptyWaypoint,
   transportDayOptions, type StationWaypointForm, type WaypointForm,
@@ -565,7 +565,7 @@ export function TransportModal({ isOpen, onClose, onSave, reservation, days, sel
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
         title={t('reservations.confirm.deleteTitle')}
-        message={t('reservations.confirm.deleteBody', { name: reservation?.title ?? '' })}
+        message={t(deleteBodyKey(reservation?.id, budgetItems), { name: reservation?.title ?? '' })}
         confirmLabel={t('common.delete')}
         cancelLabel={t('common.cancel')}
         onConfirm={async () => {

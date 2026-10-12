@@ -75,6 +75,7 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': '"{name}" rezervasyonunu silmek istediğinizden emin misiniz?',
   'reservations.confirm.deleteTitle': 'Rezervasyon silinsin mi?',
   'reservations.confirm.deleteBody': '"{name}" kalıcı olarak silinecek.',
+  'reservations.confirm.deleteBodyWithExpense': '"{name}" ve bağlı maliyetleri kalıcı olarak silinecek.',
   'reservations.toast.updated': 'Rezervasyon güncellendi',
   'reservations.toast.removed': 'Rezervasyon silindi',
   'reservations.toast.fileUploaded': 'Dosya yüklendi',

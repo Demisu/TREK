@@ -76,6 +76,7 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': 'Είστε σίγουροι ότι θέλετε να διαγράψετε την κράτηση "{name}";',
   'reservations.confirm.deleteTitle': 'Διαγραφή κράτησης;',
   'reservations.confirm.deleteBody': 'Η κράτηση "{name}" θα διαγραφεί οριστικά.',
+  'reservations.confirm.deleteBodyWithExpense': 'Η κράτηση "{name}" θα διαγραφεί οριστικά μαζί με τα συνδεδεμένα έξοδα.',
   'reservations.toast.updated': 'Η κράτηση ενημερώθηκε',
   'reservations.toast.removed': 'Η κράτηση διαγράφηκε',
   'reservations.toast.fileUploaded': 'Το αρχείο μεταφορτώθηκε',

@@ -75,6 +75,7 @@ const reservations: TranslationStrings = {
   'reservations.confirm.delete': 'Är du säker på att du vill ta bort bokningen "{name}"?',
   'reservations.confirm.deleteTitle': 'Ta bort bokningen?',
   'reservations.confirm.deleteBody': '"{name}" kommer att raderas permanent.',
+  'reservations.confirm.deleteBodyWithExpense': '"{name}" och de kopplade kostnaderna kommer att raderas permanent.',
   'reservations.toast.updated': 'Bokning uppdaterad',
   'reservations.toast.removed': 'Bokning borttagen',
   'reservations.toast.fileUploaded': 'Fil uppladdad',
