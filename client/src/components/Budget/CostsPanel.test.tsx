@@ -52,7 +52,7 @@ describe('CostsPanel — settlements in the ledger', () => {
     await screen.findByText('Dinner')
     await screen.findByText('Payment')
     // The payment row exposes an inline undo (no need to open a separate History modal).
-    expect(screen.getByRole('button', { name: 'Undo' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^Undo(:|$)/ })).toBeInTheDocument()
   })
 
   it('records a manual payment via the Add payment button', async () => {
@@ -242,7 +242,7 @@ describe('CostsPanel — settlements in the ledger', () => {
     render(<CostsPanel tripId={1} tripMembers={tripMembers} />)
 
     await screen.findByText('Lunch')
-    await user.click(screen.getAllByRole('button', { name: 'Edit' })[0])
+    await user.click(screen.getAllByRole('button', { name: /^Edit(:|$)/ })[0])
     await user.click(await screen.findByRole('button', { name: 'Save' }))
 
     await waitFor(() => expect(patched).toBeTruthy())
@@ -453,7 +453,7 @@ describe('CostsPanel — settlements in the ledger', () => {
     render(<CostsPanel tripId={1} tripMembers={tripMembers} />)
 
     await screen.findByText('Hotel')
-    await user.click(screen.getByRole('button', { name: 'Edit' }))
+    await user.click(screen.getByRole('button', { name: /^Edit(:|$)/ }))
 
     // Nobody paid this expense — reopening it must not silently reselect "You".
     expect(await screen.findByRole('radio', { name: 'No one paid yet' })).toBeChecked()
@@ -579,7 +579,7 @@ describe('CostsPanel — settlements in the ledger', () => {
     render(<CostsPanel tripId={1} tripMembers={tripMembers} />)
 
     await screen.findByText('Dinner')
-    await user.click(screen.getByRole('button', { name: 'Edit' }))
+    await user.click(screen.getByRole('button', { name: /^Edit(:|$)/ }))
 
     // Loading used to be payers.find(...), which silently dropped the second payer.
     // Seeded with two decimals since #2175, localized for EUR.
@@ -768,7 +768,7 @@ describe('CostsPanel — settlements in the ledger', () => {
     render(<CostsPanel tripId={1} tripMembers={tripMembers} />)
 
     await screen.findByText('Payment')
-    await user.click(screen.getByRole('button', { name: 'Edit' }))
+    await user.click(screen.getByRole('button', { name: /^Edit(:|$)/ }))
 
     // The stored USD amount comes back as-is (padded to two decimals, #2175),
     // not silently reread as euros.
@@ -984,7 +984,7 @@ describe('CostsPanel — settle up', () => {
     await screen.findByText('45,00 €')
     // The "you're owed" card names who still owes me.
     expect(screen.getByText("You're owed")).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Settle' }))
+    fireEvent.click(screen.getByRole('button', { name: /^Settle(:|$)/ }))
 
     await waitFor(() => expect(posted).toHaveLength(1))
     expect(posted[0]).toMatchObject({ from_user_id: 2, to_user_id: 1, amount: 45, currency: 'EUR' })
@@ -1018,7 +1018,7 @@ describe('CostsPanel — settle up', () => {
     server.use(http.post('/api/trips/1/budget/settlements', () => HttpResponse.json({ error: 'no' }, { status: 500 })))
     mount([], { flows: [flows[0]] })
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Settle' }))
+    fireEvent.click(await screen.findByRole('button', { name: /^Settle(:|$)/ }))
     await waitFor(() => expect(addToast).toHaveBeenCalledWith('Unknown error', 'error', undefined))
 
     addToast.mockClear()
@@ -1037,10 +1037,10 @@ describe('CostsPanel — settle up', () => {
     }))
     mount([], { settlements: [{ id: 7, from_user_id: 2, to_user_id: 1, amount: 30, created_at: '2025-06-16 10:00:00' }] })
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Undo' }))
+    fireEvent.click(await screen.findByRole('button', { name: /^Undo(:|$)/ }))
     await waitFor(() => expect(deleted).toBe(1))
 
-    fireEvent.click(screen.getByRole('button', { name: 'Undo' }))
+    fireEvent.click(screen.getByRole('button', { name: /^Undo(:|$)/ }))
     await waitFor(() => expect(addToast).toHaveBeenCalledWith('Unknown error', 'error', undefined))
     delete window.__addToast
   })
@@ -1252,7 +1252,7 @@ describe('CostsPanel — expense rows', () => {
     mount([dinner()])
 
     await screen.findByText('Dinner')
-    fireEvent.click(screen.getByRole('button', { name: 'Delete' }))
+    fireEvent.click(screen.getByRole('button', { name: /^Delete(:|$)/ }))
 
     await waitFor(() => expect(addToast).toHaveBeenCalledWith('Unknown error', 'error', undefined))
     // The optimistic removal is rolled back by the store.
@@ -1274,9 +1274,9 @@ describe('CostsPanel — expense rows', () => {
     expect(screen.queryByRole('button', { name: 'Add expense' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Settle up' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Add payment' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Settle' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Undo' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^Settle(:|$)/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^Delete(:|$)/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^Undo(:|$)/ })).not.toBeInTheDocument()
   })
 })
 
@@ -1353,7 +1353,7 @@ describe('CostsPanel — payment modal', () => {
     }))
     mount([], { settlements: [{ id: 7, from_user_id: 2, to_user_id: 1, amount: 30, created_at: '2025-06-16 10:00:00' }] })
 
-    await user.click(await screen.findByRole('button', { name: 'Edit' }))
+    await user.click(await screen.findByRole('button', { name: /^Edit(:|$)/ }))
     const amount = await screen.findByPlaceholderText('0,00')
     await user.clear(amount)
     await user.type(amount, '12,50')
@@ -1428,7 +1428,7 @@ describe('CostsPanel — payment modal', () => {
     }))
     mount([], { settlements: [{ id: 7, from_user_id: 2, to_user_id: 1, amount: 30, settled_at: '2025-06-10', created_at: '2025-06-16 10:00:00' }] })
 
-    await user.click(await screen.findByRole('button', { name: 'Edit' }))
+    await user.click(await screen.findByRole('button', { name: /^Edit(:|$)/ }))
     await user.click(screen.getByRole('button', { name: 'Save' }))
 
     await waitFor(() => expect(put).toBeTruthy())
@@ -1441,7 +1441,7 @@ describe('CostsPanel — payment modal', () => {
     const user = userEvent.setup()
     mount([], { settlements: [{ id: 7, from_user_id: 2, to_user_id: 1, amount: 30, settled_at: '2025-06-10', created_at: '2025-06-16 10:00:00' }] })
 
-    await user.click(await screen.findByRole('button', { name: 'Edit' }))
+    await user.click(await screen.findByRole('button', { name: /^Edit(:|$)/ }))
     const save = screen.getByRole('button', { name: 'Save' })
     expect(save).toBeEnabled()
 
@@ -1477,7 +1477,7 @@ describe('CostsPanel — expense modal', () => {
     mount([expense({ id: 150, name: 'Market run', category: 'groceries', total_price: 30, note, payers: [{ user_id: 1, amount: 30 }], members: [{ user_id: 1, username: 'alice', amount: 15 }, { user_id: 2, username: 'bob', amount: 15 }] })])
 
     await screen.findByText('Market run')
-    await user.click(screen.getByRole('button', { name: 'Edit' }))
+    await user.click(screen.getByRole('button', { name: /^Edit(:|$)/ }))
 
     expect(await screen.findByDisplayValue('Apples')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Cake')).toBeInTheDocument()
@@ -1499,7 +1499,7 @@ describe('CostsPanel — expense modal', () => {
     mount([expense({ id: 151, name: 'Market run', category: 'groceries', total_price: 30, note: 'TICKETJSON:{oops', payers: [{ user_id: 1, amount: 30 }], members: [{ user_id: 1, username: 'alice' }] })])
 
     await screen.findByText('Market run')
-    await user.click(screen.getByRole('button', { name: 'Edit' }))
+    await user.click(screen.getByRole('button', { name: /^Edit(:|$)/ }))
 
     expect(await screen.findByRole('button', { name: /Add item/i })).toBeInTheDocument()
     expect(screen.queryByPlaceholderText('Item name')).not.toBeInTheDocument()
@@ -1520,7 +1520,7 @@ describe('CostsPanel — expense modal', () => {
     })])
 
     await screen.findByText('Dinner')
-    await user.click(screen.getByRole('button', { name: 'Edit' }))
+    await user.click(screen.getByRole('button', { name: /^Edit(:|$)/ }))
 
     // Custom shares reopen padded to two decimals (#2175), localized for EUR.
     expect((await screen.findByDisplayValue('70,00')).tagName).toBe('INPUT')
@@ -1801,7 +1801,7 @@ describe('CostsPanel — remaining paths', () => {
     mount([dinner()])
 
     await screen.findByText('Dinner')
-    fireEvent.click(screen.getByRole('button', { name: 'Delete' }))
+    fireEvent.click(screen.getByRole('button', { name: /^Delete(:|$)/ }))
 
     await waitFor(() => expect(deleted).toBe(true))
     expect(screen.queryByText('Dinner')).not.toBeInTheDocument()
@@ -1872,7 +1872,7 @@ describe('CostsPanel — remaining paths', () => {
     )
     render(<CostsPanel tripId={1} tripMembers={[...tripMembers, { id: 3, username: 'cara', avatar_url: null }]} />)
 
-    await user.click(await screen.findByRole('button', { name: 'Edit' }))
+    await user.click(await screen.findByRole('button', { name: /^Edit(:|$)/ }))
     // No symbol is known, so the code itself prefixes the amount and labels the option.
     await screen.findByPlaceholderText('0.00')
     expect(screen.getAllByText('XBT').length).toBeGreaterThanOrEqual(2)
@@ -1890,7 +1890,7 @@ describe('CostsPanel — remaining paths', () => {
     mount([expense({ id: 240, name: 'Mining rig', category: 'other', total_price: 2, currency: 'XBT', payers: [{ user_id: 1, amount: 2 }], members: [{ user_id: 1, username: 'alice' }] })])
 
     await screen.findByText('Mining rig')
-    await user.click(screen.getByRole('button', { name: 'Edit' }))
+    await user.click(screen.getByRole('button', { name: /^Edit(:|$)/ }))
 
     // XBT is unknown to the locale map → dot separator, two decimals (#2175).
     expect(await screen.findByDisplayValue('2.00')).toBeInTheDocument()
@@ -2038,7 +2038,7 @@ describe('CostsPanel — split modes and guests', () => {
     })])
 
     await screen.findByText('Hotel')
-    await user.click(screen.getByRole('button', { name: 'Edit' }))
+    await user.click(screen.getByRole('button', { name: /^Edit(:|$)/ }))
 
     // Nobody paid, so switching to multi-payer seeds me as the only payer.
     await user.click(await screen.findByRole('button', { name: 'Multiple people paid' }))
@@ -2159,11 +2159,11 @@ describe('CostsPanel — decimal padding on edit (#2175)', () => {
     ])
 
     await screen.findByText('Coffee')
-    await user.click(screen.getAllByRole('button', { name: 'Edit' })[0])
+    await user.click(screen.getAllByRole('button', { name: /^Edit(:|$)/ })[0])
     expect(await screen.findByDisplayValue('4,90')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Cancel' }))
 
-    await user.click(screen.getAllByRole('button', { name: 'Edit' })[1])
+    await user.click(screen.getAllByRole('button', { name: /^Edit(:|$)/ })[1])
     expect(await screen.findByDisplayValue('5,00')).toBeInTheDocument()
   })
 
@@ -2243,7 +2243,7 @@ describe('CostsPanel — negative amounts (#2176)', () => {
     // Not "Unfinished": the refund has its recipient recorded.
     expect(within(row).queryByText('Unfinished')).toBeNull()
 
-    await user.click(screen.getByRole('button', { name: 'Edit' }))
+    await user.click(screen.getByRole('button', { name: /^Edit(:|$)/ }))
     // The negative payer reopens selected instead of resetting to "Nobody",
     // and the total is seeded signed and padded.
     expect(await screen.findByRole('radio', { name: 'You' })).toBeChecked()
@@ -2540,7 +2540,7 @@ describe('CostsPanel: a bill entered in the display currency (#2525)', () => {
     mount([hotel()])
 
     await screen.findByText('Aparthotel Silver')
-    await user.click(screen.getByRole('button', { name: 'Edit' }))
+    await user.click(screen.getByRole('button', { name: /^Edit(:|$)/ }))
     expect(await screen.findByDisplayValue('801.76')).toBeInTheDocument()
     // Same currency as the list, so the dialog said nothing, and 801.76 there beside
     // $791.57 in the list looked like two different expenses.
@@ -2610,7 +2610,7 @@ describe('CostsPanel: a bill entered in the display currency (#2525)', () => {
     // The list reads the missing currency as the trip's own.
     expect(screen.getByText(/100,00\s€ → \$115\.51/)).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'Edit' }))
+    await user.click(screen.getByRole('button', { name: /^Edit(:|$)/ }))
     expect(await screen.findByDisplayValue('100,00')).toBeInTheDocument()
     // Seeding the display currency here would label 100 euro as 100 dollars, and a
     // plain save would then store it that way.
@@ -2676,7 +2676,7 @@ describe('CostsPanel: a bill the server cannot convert', () => {
     // Only the currency the settlement is missing, at the rate the browser holds.
     await waitFor(() => expect(frozen).toEqual([{ fallback_fx: { base: 'AUD', rates: { VND: 18241.3 } } }]))
     // The settlement is read again and Bob's half can be settled.
-    expect(await screen.findByRole('button', { name: 'Settle' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: /^Settle(:|$)/ })).toBeInTheDocument()
     expect(screen.getAllByText(/244\.50/).length).toBeGreaterThan(0)
     // Nothing on the page counts the bill as 8,920,000 dollars any more.
     expect(screen.queryByText(/\$8,920,000/)).toBeNull()
@@ -2719,7 +2719,7 @@ describe('CostsPanel: a bill the server cannot convert', () => {
     )
     render(<CostsPanel tripId={1} tripMembers={tripMembers} />)
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Settle' }))
+    fireEvent.click(await screen.findByRole('button', { name: /^Settle(:|$)/ }))
     await waitFor(() => expect(posted).toHaveLength(1))
     // The transfer freezes at the rate the settlement was labelled with, so it cancels its
     // flow to the cent.

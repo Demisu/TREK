@@ -123,4 +123,20 @@ describe('CostsPanel: summary footers and won amounts (#2604)', () => {
     await user.type(shares[0], '1000.5');
     expect(shares[0].value).toBe('1000.');
   });
+
+  it('FE-COSTS-2604-005: edit and delete on a row say which expense they act on', async () => {
+    mount([owedByBob()]);
+    await screen.findByText('Museum');
+    expect(screen.getByRole('button', { name: 'Edit: Museum' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Delete: Museum' })).toBeInTheDocument();
+  });
+
+  it('FE-COSTS-2604-006: a settle-up row and its button name who pays whom', async () => {
+    mount([owedByBob()], {
+      flows: [{ from: { user_id: 2, username: 'bob' }, to: { user_id: 1, username: 'alice' }, amount: 20 }],
+    });
+    await screen.findByText('Museum');
+    expect(screen.getByRole('button', { name: /^Settle: bob → you, 20,00\s€$/ })).toBeInTheDocument();
+    expect(screen.getAllByText('bob → you').length).toBeGreaterThan(0);
+  });
 });

@@ -42,7 +42,7 @@ const budget: TranslationStrings = {
   'budget.categoriesLabel': 'カテゴリ',
   'costs.you': '自分',
   'costs.youShort': 'Y',
-  'costs.youLower': 'you',
+  'costs.youLower': '自分',
   'costs.youOwe': '支払う額',
   'costs.youOweSub': '他の人に支払うべき額',
   'costs.youreOwed': '受け取る額',

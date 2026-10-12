@@ -48,6 +48,7 @@ export default function JourneyShareSection({ journeyId }: { journeyId: number }
             ].map(({ key, label, icon: Icon }) => (
               <button type="button"
                 key={key}
+                aria-pressed={!!link[key]}
                 onClick={() => togglePerm(key)}
                 className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border text-[12px] font-medium transition-all ${
                   link[key]

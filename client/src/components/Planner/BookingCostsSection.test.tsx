@@ -112,7 +112,7 @@ describe('BookingCostsSection', () => {
     const user = userEvent.setup();
     renderSection();
     await user.click(linkSelect());
-    await user.type(screen.getByPlaceholderText('...'), 'snack');
+    await user.type(screen.getByPlaceholderText('Search'), 'snack');
     expect(screen.getByRole('button', { name: /Snacks/ })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Souvenirs/ })).not.toBeInTheDocument();
   });

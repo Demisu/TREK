@@ -298,6 +298,9 @@ describe('TripMembersModal', () => {
       const input = screen.getByDisplayValue(/\/shared\/abc123/);
       expect(input).toBeInTheDocument();
     });
+    // Each toggle says whether it is on, not only by its colour (#2604).
+    expect(screen.getByRole('button', { name: 'Bookings' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Costs' })).toHaveAttribute('aria-pressed', 'false');
   });
 
   it('FE-COMP-MEMBERS-019: copy share link calls clipboard.writeText', async () => {
@@ -1093,6 +1096,19 @@ describe('TripMembersModal on a phone', () => {
   });
   afterEach(() => {
     Object.defineProperty(window, 'innerWidth', { value: width, configurable: true, writable: true });
+  });
+
+  it('FE-COMP-MEMBERS-058b: the public link toggles say whether they are on (#2604)', async () => {
+    seedStore(usePermissionsStore, { permissions: { share_manage: 'trip_owner' } });
+    seedStore(useTripStore, { trip: buildTrip({ id: 1, user_id: ownerUser.id }) });
+    server.use(http.get('/api/trips/1/share-link', () => HttpResponse.json({
+      token: 'abc123', share_map: true, share_bookings: true, share_packing: false, share_budget: false, share_collab: false,
+    })));
+    render(<TripMembersModal {...defaultProps} />);
+
+    expect(await screen.findByRole('button', { name: 'Bookings' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Costs' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: 'Map & Plan' })).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('FE-COMP-MEMBERS-058: keeps the sheet it had, with "(you)" beside the name', async () => {

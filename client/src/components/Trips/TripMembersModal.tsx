@@ -24,7 +24,7 @@ function ShareLinkSection({ tripId, t }: { tripId: number; t: (key: string, para
       {/* Permission checkboxes */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
         {[...SHARE_SECTIONS, ...SHARE_OPTIONS].map(opt => ({ ...opt, label: t(opt.label), always: 'always' in opt && !!opt.always })).map(opt => (
-          <button type="button" key={opt.key} onClick={() => !opt.always && handleUpdatePerms(opt.key, !perms[opt.key])}
+          <button type="button" key={opt.key} aria-pressed={!!perms[opt.key]} aria-disabled={opt.always || undefined} onClick={() => !opt.always && handleUpdatePerms(opt.key, !perms[opt.key])}
             style={{
               display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 20,
               border: '1.5px solid', fontSize: 'calc(11px * var(--fs-scale-caption, 1))', fontWeight: 500, cursor: opt.always ? 'default' : 'pointer',

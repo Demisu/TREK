@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useId } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronDown, Check } from 'lucide-react'
 import { useAnchoredPosition, scrollAnchorIntoView } from '../../hooks/useAnchoredPosition'
+import { useTranslation } from '../../i18n'
 
 interface SelectOption {
   // Callers use both string keys and numeric ids (e.g. day/place ids) as values, and
@@ -91,6 +92,7 @@ export default function CustomSelect({
   const searchRef = useRef<HTMLInputElement>(null)
   const keyboardDirection = useRef<'first' | 'last' | null>(null)
   const menuId = useId()
+  const { t } = useTranslation()
 
   // Follows the trigger while the sheet scrolls and while the on-screen keyboard
   // resizes the viewport, instead of freezing at the rect measured on open (#1999).
@@ -258,7 +260,8 @@ export default function CustomSelect({
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="..."
+                placeholder={t('common.search')}
+                aria-label={t('common.search')}
                 style={{
                   width: '100%', border: '1px solid var(--border-secondary)', borderRadius: 6,
                   padding: '5px 8px', fontSize: 'calc(12px * var(--fs-scale-body, 1))', outline: 'none', fontFamily: 'inherit',

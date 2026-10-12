@@ -252,7 +252,7 @@ describe('MCostSheet', () => {
     expect(screen.queryByText(/live rate/)).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'EUR €' }))
-    fireEvent.change(screen.getByPlaceholderText('...'), { target: { value: 'USD' } })
+    fireEvent.change(screen.getByPlaceholderText('Search'), { target: { value: 'USD' } })
     fireEvent.click(screen.getByRole('button', { name: 'USD $' }))
 
     expect(screen.getByText('$100.00')).toBeInTheDocument()

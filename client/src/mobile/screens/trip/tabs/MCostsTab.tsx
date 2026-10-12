@@ -647,10 +647,10 @@ function ExpenseRow({ item, ctx, base, locale, t, canEdit, onEdit, onDelete, onT
 
       {canEdit && (
         <div className="flex flex-none flex-col gap-1 rounded-full border border-[color:var(--m-gbr)] bg-[color:var(--m-glass)] p-[5px]">
-          <button type="button" onClick={onEdit} aria-label={t('common.edit')} className="flex h-[26px] w-[26px] items-center justify-center rounded-full text-m-muted">
+          <button type="button" onClick={onEdit} aria-label={`${t('common.edit')}: ${item.name}`} className="flex h-[26px] w-[26px] items-center justify-center rounded-full text-m-muted">
             <Pencil size={12} strokeWidth={2} />
           </button>
-          <button type="button" onClick={onDelete} aria-label={t('common.delete')} className="flex h-[26px] w-[26px] items-center justify-center rounded-full text-m-muted">
+          <button type="button" onClick={onDelete} aria-label={`${t('common.delete')}: ${item.name}`} className="flex h-[26px] w-[26px] items-center justify-center rounded-full text-m-muted">
             <Trash2 size={12} strokeWidth={2} />
           </button>
         </div>
@@ -707,6 +707,7 @@ function PaymentRow({ settlement, ctx, base, locale, t, personName, canEdit, onE
   // A transfer without a currency was entered in the display currency, not the trip's.
   const amount = paymentAmount(settlement, ctx)
   const line = paymentLineOf(settlement, ctx, amount)
+  const who = `${personName(settlement.from_user_id)} → ${personName(settlement.to_user_id)}`
   return (
     <div className="mt-2 flex items-center gap-[6px]">
       <div className="relative min-w-0 flex-1 rounded-2xl border border-[color:var(--m-rowbr)] bg-m-card px-3 py-[12px]">
@@ -716,7 +717,7 @@ function PaymentRow({ settlement, ctx, base, locale, t, personName, canEdit, onE
           </span>
           <div className="min-w-0 flex-1">
             <div className="truncate text-[0.8125rem] font-bold text-m-ink">{t('costs.payment')}</div>
-            <div className="truncate font-geist text-[0.65625rem] text-m-faint">{personName(settlement.from_user_id)} → {personName(settlement.to_user_id)}</div>
+            <div className="truncate font-geist text-[0.65625rem] text-m-faint">{who}</div>
             {line && (
               <div className="mt-[1px] truncate font-geist text-[0.59375rem] text-m-faint">
                 {formatMoney(line.entered.amount, line.entered.currency, locale)} {'→'} {formatMoney(line.into.amount, line.into.currency, locale)}
@@ -732,10 +733,10 @@ function PaymentRow({ settlement, ctx, base, locale, t, personName, canEdit, onE
 
       {canEdit && (
         <div className="flex flex-none flex-col gap-1 rounded-full border border-[color:var(--m-gbr)] bg-[color:var(--m-glass)] p-[5px]">
-          <button type="button" onClick={onEdit} aria-label={t('common.edit')} className="flex h-[26px] w-[26px] items-center justify-center rounded-full text-m-muted">
+          <button type="button" onClick={onEdit} aria-label={`${t('common.edit')}: ${who}`} className="flex h-[26px] w-[26px] items-center justify-center rounded-full text-m-muted">
             <Pencil size={12} strokeWidth={2} />
           </button>
-          <button type="button" onClick={onUndo} aria-label={t('costs.undo')} className="flex h-[26px] w-[26px] items-center justify-center rounded-full text-m-muted">
+          <button type="button" onClick={onUndo} aria-label={`${t('costs.undo')}: ${who}`} className="flex h-[26px] w-[26px] items-center justify-center rounded-full text-m-muted">
             <RotateCcw size={12} strokeWidth={2} />
           </button>
         </div>

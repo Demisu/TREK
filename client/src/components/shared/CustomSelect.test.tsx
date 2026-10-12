@@ -71,7 +71,7 @@ describe('CustomSelect', () => {
     render(<CustomSelect value="" onChange={onChange} options={OPTIONS} searchable={true} />);
     await user.click(screen.getByRole('button')); // open
 
-    const searchInput = screen.getByPlaceholderText('...');
+    const searchInput = screen.getByPlaceholderText('common.search');
     await user.type(searchInput, 'ban');
 
     // Only Banana should remain, Apple and Cherry should be filtered out
@@ -257,8 +257,8 @@ describe('CustomSelect', () => {
     render(<CustomSelect ariaLabel="Choose fruit" value="" onChange={onChange} options={OPTIONS} searchable />);
     const trigger = screen.getByRole('button', { name: 'Choose fruit' });
     await user.click(trigger);
-    expect(screen.getByPlaceholderText('...')).toHaveFocus();
-    await user.type(screen.getByPlaceholderText('...'), 'ban');
+    expect(screen.getByPlaceholderText('common.search')).toHaveFocus();
+    await user.type(screen.getByPlaceholderText('common.search'), 'ban');
     await user.keyboard('{ArrowDown}{Enter}');
     expect(onChange).toHaveBeenCalledWith('banana');
     expect(trigger).toHaveFocus();

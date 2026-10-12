@@ -109,6 +109,7 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
     const idx = people.findIndex(p => p.id === id)
     return SPLIT_COLORS[(idx >= 0 ? idx : 0) % SPLIT_COLORS.length].gradient
   }, [people])
+  const transferLabel = (fromId: number, toId: number) => `${personName(fromId)} → ${toId === me ? t('costs.youLower') : personName(toId)}`
   const initial = useCallback((id: number) => id === me ? t('costs.youShort') : nameOf(id).charAt(0).toUpperCase(), [me, nameOf, t])
 
   const fmt = useCallback((v: number, c = base) => formatMoney(v, c, locale), [base, locale])
@@ -447,14 +448,15 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {flows.map((f, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-            <Tooltip label={`${personName(f.from.user_id)} → ${f.to.user_id === me ? t('costs.youLower') : personName(f.to.user_id)}`}>
+            <Tooltip label={transferLabel(f.from.user_id, f.to.user_id)}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
               <Avatar id={f.from.user_id} size={32} /><ArrowRight size={15} className="text-content-faint" /><Avatar id={f.to.user_id} size={32} />
+              <span className="sr-only">{transferLabel(f.from.user_id, f.to.user_id)}</span>
             </div>
             </Tooltip>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
               <span className="text-content" style={{ fontSize: 'calc(14px * var(--fs-scale-body, 1))', fontWeight: 700 }}>{fmt(f.amount)}</span>
-              {canEdit && <button type="button" onClick={() => settleFlow(f.from.user_id, f.to.user_id, f.amount)} className="bg-[var(--text-primary)] text-[var(--bg-primary)]" style={{ padding: '7px 12px', borderRadius: 9, fontSize: 'calc(12px * var(--fs-scale-body, 1))', fontWeight: 600, border: 0, cursor: 'pointer', fontFamily: 'inherit' }}>{t('costs.settle')}</button>}
+              {canEdit && <button type="button" aria-label={`${t('costs.settle')}: ${transferLabel(f.from.user_id, f.to.user_id)}, ${fmt(f.amount)}`} onClick={() => settleFlow(f.from.user_id, f.to.user_id, f.amount)} className="bg-[var(--text-primary)] text-[var(--bg-primary)]" style={{ padding: '7px 12px', borderRadius: 9, fontSize: 'calc(12px * var(--fs-scale-body, 1))', fontWeight: 600, border: 0, cursor: 'pointer', fontFamily: 'inherit' }}>{t('costs.settle')}</button>}
             </div>
           </div>
         ))}
@@ -603,7 +605,7 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
    * mobile card has always done it this way, and out here the buttons stop
    * competing with the amount for the right edge of the card.
    */
-  function RowActions({ onEdit, onDelete, deleteLabel }: { onEdit: () => void; onDelete: () => void; deleteLabel: string }) {
+  function RowActions({ onEdit, onDelete, deleteLabel, name }: { onEdit: () => void; onDelete: () => void; deleteLabel: string; name: string }) {
     // No `background` here on purpose: an inline value would beat the :hover
     // rule in the stylesheet block below, which is how the first attempt at
     // this silently did nothing.
@@ -615,10 +617,10 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
     return (
       <div className="exp-actions bg-surface-secondary border border-edge-faint" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 3, flexShrink: 0, borderRadius: 999, padding: 5 }}>
         <Tooltip label={t('common.edit')}>
-        <button type="button" aria-label={t('common.edit')} onClick={onEdit} className="text-content-muted transition-colors" style={btn}><Pencil size={13} /></button>
+        <button type="button" aria-label={`${t('common.edit')}: ${name}`} onClick={onEdit} className="text-content-muted transition-colors" style={btn}><Pencil size={13} /></button>
         </Tooltip>
         <Tooltip label={deleteLabel}>
-        <button type="button" aria-label={deleteLabel} onClick={onDelete} className="exp-action-danger transition-colors" style={{ ...btn, color: '#dc2626' }}><Trash2 size={13} /></button>
+        <button type="button" aria-label={`${deleteLabel}: ${name}`} onClick={onDelete} className="exp-action-danger transition-colors" style={{ ...btn, color: '#dc2626' }}><Trash2 size={13} /></button>
         </Tooltip>
       </div>
     )
@@ -741,7 +743,7 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
           </div>
         </div>
       </div>
-      {canEdit && RowActions({ onEdit: () => { setEditing(e); setModalOpen(true) }, onDelete: () => handleDelete(e.id), deleteLabel: t('common.delete') })}
+      {canEdit && RowActions({ onEdit: () => { setEditing(e); setModalOpen(true) }, onDelete: () => handleDelete(e.id), deleteLabel: t('common.delete'), name: e.name })}
       </div>
     )
   }
@@ -803,6 +805,7 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
   function SettlementRow({ s }: { s: Settlement }) {
     // Booked in the trip currency like an expense, so it is explained the same way.
     const line = paymentLineOf(s, ctx, settled(s))
+    const who = `${personName(s.from_user_id)} → ${personName(s.to_user_id)}`
     return (
       <div style={{ display: 'flex', alignItems: 'stretch', gap: 8 }}>
       <div className="bg-surface-secondary border border-edge-faint exp-row" style={{ flex: 1, minWidth: 0, display: 'grid', gridTemplateColumns: isMobile ? '46px 1fr auto' : '46px minmax(200px, 1fr) minmax(0, 1.5fr) auto', gap: isMobile ? 16 : 18, alignItems: 'center', borderRadius: 18, padding: '16px 20px' }}>
@@ -812,10 +815,10 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
             {t('costs.payment')}
             {line && <span className="text-content-faint" style={{ fontWeight: 400, fontSize: 'calc(12px * var(--fs-scale-body, 1))', marginInlineStart: 10 }}>{fmt(line.entered.amount, line.entered.currency)} → {fmt(line.into.amount, line.into.currency)}</span>}
           </div>
-          <Tooltip label={`${personName(s.from_user_id)} → ${personName(s.to_user_id)}`}>
+          <Tooltip label={who}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
             <Avatar id={s.from_user_id} size={20} /><ArrowRight size={13} className="text-content-faint" /><Avatar id={s.to_user_id} size={20} />
-            <span className="text-content-faint" style={{ fontSize: 'calc(12px * var(--fs-scale-body, 1))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{personName(s.from_user_id)} → {personName(s.to_user_id)}</span>
+            <span className="text-content-faint" style={{ fontSize: 'calc(12px * var(--fs-scale-body, 1))', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{who}</span>
           </div>
           </Tooltip>
         </div>
@@ -829,10 +832,10 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
       {canEdit && (
         <div className="exp-actions bg-surface-secondary border border-edge-faint" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 3, flexShrink: 0, borderRadius: 999, padding: 5 }}>
           <Tooltip label={t('common.edit')}>
-          <button type="button" aria-label={t('common.edit')} onClick={() => setEditingSettlement(s)} className="text-content-muted transition-colors" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 30, height: 30, borderRadius: 999, border: 0, cursor: 'pointer', padding: 0 }}><Pencil size={13} /></button>
+          <button type="button" aria-label={`${t('common.edit')}: ${who}`} onClick={() => setEditingSettlement(s)} className="text-content-muted transition-colors" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 30, height: 30, borderRadius: 999, border: 0, cursor: 'pointer', padding: 0 }}><Pencil size={13} /></button>
           </Tooltip>
           <Tooltip label={t('costs.undo')}>
-          <button type="button" aria-label={t('costs.undo')} onClick={() => undoSettlement(s.id)} className="exp-action-danger transition-colors" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 30, height: 30, borderRadius: 999, border: 0, cursor: 'pointer', padding: 0, color: '#dc2626' }}><RotateCcw size={13} /></button>
+          <button type="button" aria-label={`${t('costs.undo')}: ${who}`} onClick={() => undoSettlement(s.id)} className="exp-action-danger transition-colors" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 30, height: 30, borderRadius: 999, border: 0, cursor: 'pointer', padding: 0, color: '#dc2626' }}><RotateCcw size={13} /></button>
           </Tooltip>
         </div>
       )}
@@ -935,7 +938,6 @@ export default function CostsPanel({ tripId, tripMembers = [] }: CostsPanelProps
         <span className="text-content" style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{value}</span>
       </div>
     )
-    const transferLabel = (fromId: number, toId: number) => `${personName(fromId)} → ${toId === me ? t('costs.youLower') : personName(toId)}`
     // Capped and scrollable: a long trip's expense list would otherwise push the
     // rest of the sidebar off the screen every time a name is tapped.
     const listCls = { display: 'flex', flexDirection: 'column', gap: 5, marginTop: 6, maxHeight: 180, overflowY: 'auto' } as const

@@ -381,10 +381,16 @@ describe('MCostsTab', () => {
     expect(dayTrigger).toHaveAttribute('aria-expanded', 'true')
   })
 
+  it('FE-MOB-COSTT-024b: edit and delete on a row name the expense (#2604)', async () => {
+    await renderTab()
+    expect(within(rowOf('Ramen')).getByRole('button', { name: 'common.edit: Ramen' })).toBeInTheDocument()
+    expect(within(rowOf('Ramen')).getByRole('button', { name: 'common.delete: Ramen' })).toBeInTheDocument()
+  })
+
   it('FE-MOB-COSTT-024: opens the edit sheet from a row and reloads on save', async () => {
     const p = planner()
     await renderTab(p)
-    fireEvent.click(within(rowOf('Ramen')).getByRole('button', { name: 'common.edit' }))
+    fireEvent.click(within(rowOf('Ramen')).getByRole('button', { name: /^common\.edit(:|$)/ }))
     expect(screen.getByText('sheet editing 11')).toBeInTheDocument()
 
     fireEvent.click(screen.getByText('sheet save'))
@@ -396,7 +402,7 @@ describe('MCostsTab', () => {
   it('FE-MOB-COSTT-025: deletes an expense after confirming and refreshes the settlement', async () => {
     const p = planner()
     await renderTab(p)
-    fireEvent.click(within(rowOf('Ramen')).getByRole('button', { name: 'common.delete' }))
+    fireEvent.click(within(rowOf('Ramen')).getByRole('button', { name: /^common\.delete(:|$)/ }))
     const dialog = screen.getByRole('dialog', { name: 'costs.confirm.deleteTitle' })
     expect(within(dialog).getByText('costs.confirm.deleteBody:Ramen')).toBeInTheDocument()
     fireEvent.click(within(dialog).getByText('common.delete'))
@@ -408,7 +414,7 @@ describe('MCostsTab', () => {
     const p = planner()
     vi.mocked(p.tripActions.deleteBudgetItem).mockRejectedValueOnce(new Error('offline'))
     await renderTab(p)
-    fireEvent.click(within(rowOf('Ramen')).getByRole('button', { name: 'common.delete' }))
+    fireEvent.click(within(rowOf('Ramen')).getByRole('button', { name: /^common\.delete(:|$)/ }))
     fireEvent.click(within(screen.getByRole('dialog')).getByText('common.delete'))
     await waitFor(() => expect(p.toast.error).toHaveBeenCalledWith('common.unknownError'))
   })
@@ -500,8 +506,8 @@ describe('MCostsTab', () => {
   it('FE-MOB-COSTT-032: a read-only member gets no add, edit or delete affordances', async () => {
     await renderTab(planner({ can: vi.fn(() => false) as unknown as TripPlanner['can'] }))
     expect(screen.queryByRole('button', { name: 'costs.addPayment' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'common.edit' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'common.delete' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^common\.edit(:|$)/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^common\.delete(:|$)/ })).not.toBeInTheDocument()
     expect(within(cardOf('Ramen')).getByRole('button', { pressed: false })).toBeDisabled()
   })
 
@@ -533,7 +539,7 @@ describe('MCostsTab', () => {
   it('FE-MOB-COSTT-035: cancelling the confirm keeps the expense', async () => {
     const p = planner()
     await renderTab(p)
-    fireEvent.click(within(rowOf('Ramen')).getByRole('button', { name: 'common.delete' }))
+    fireEvent.click(within(rowOf('Ramen')).getByRole('button', { name: /^common\.delete(:|$)/ }))
     fireEvent.click(within(screen.getByRole('dialog')).getByText('common.cancel'))
     expect(p.tripActions.deleteBudgetItem).not.toHaveBeenCalled()
     expect(screen.getByText('Ramen')).toBeInTheDocument()
@@ -682,7 +688,7 @@ describe('MCostsTab', () => {
     const update = vi.spyOn(budgetApi, 'updateSettlement').mockResolvedValue({})
     await renderTab()
 
-    fireEvent.click(within(rowOf('costs.payment')).getByRole('button', { name: 'common.edit' }))
+    fireEvent.click(within(rowOf('costs.payment')).getByRole('button', { name: /^common\.edit(:|$)/ }))
     const dialog = screen.getByRole('dialog', { name: 'costs.editPayment' })
     expect(within(dialog).getByDisplayValue('25.00')).toBeInTheDocument()
 
@@ -700,7 +706,7 @@ describe('MCostsTab', () => {
     const del = vi.spyOn(budgetApi, 'deleteSettlement').mockResolvedValue({ success: true })
     await renderTab()
 
-    fireEvent.click(within(rowOf('costs.payment')).getByRole('button', { name: 'costs.undo' }))
+    fireEvent.click(within(rowOf('costs.payment')).getByRole('button', { name: /^costs\.undo(:|$)/ }))
     expect(del).toHaveBeenCalledWith(7, 502)
     await waitFor(() => expect(settlementBases).toHaveLength(2))
   })
@@ -718,7 +724,7 @@ describe('MCostsTab', () => {
     expect(within(row).getByText('£10.00 → $20.00')).toBeInTheDocument()
     expect(within(row).getByText('$20.00')).toBeInTheDocument()
 
-    fireEvent.click(within(row).getByRole('button', { name: 'common.edit' }))
+    fireEvent.click(within(row).getByRole('button', { name: /^common\.edit(:|$)/ }))
     const dialog = screen.getByRole('dialog', { name: 'costs.editPayment' })
     expect(within(dialog).getByDisplayValue('10.00')).toBeInTheDocument()
     expect(within(dialog).getByRole('button', { name: /GBP/ })).toBeInTheDocument()
