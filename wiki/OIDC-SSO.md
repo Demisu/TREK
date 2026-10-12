@@ -96,6 +96,18 @@ When an SSO login matches an existing TREK account by OIDC subject (`sub`), that
 - **Invite token present** in the login URL: account is created regardless of the registration toggle. Pass the token as `?invite=<token>` when initiating SSO login (e.g. `GET /api/auth/oidc/login?invite=<token>`).
 - **SSO registration disabled and no invite**: login is rejected with a `registration_disabled` error.
 
+### How an existing account gets linked
+
+An SSO login that finds no account by its subject falls back to the email address. It links the TREK account with that address only when all of these hold:
+
+- **The provider confirms the address.** `email_verified` has to be true, otherwise the login ends with `email_not_verified`.
+- **The address did not come from the account itself.** An address typed into the signup form or changed under **Settings** proves nothing about who owns it, so a login with that address ends with `email_link_blocked` and the user sees a message to ask the admin. Addresses an admin entered (an account created in **Admin → Users**, or an email changed there), the first account of the instance and accounts the provider created are linked as before.
+- **The account is not linked to another subject of the same provider.** The same issuer with another `sub` is another person at that provider, so this also ends with `email_link_blocked`. Pointing the instance at a different provider (a new issuer) still moves an account over on its first verified login there.
+
+To let a blocked account link, confirm its address as admin: in **Admin → Users**, edit the user, change the email to any other address and save, then set it back to the real address and save again. Changing only upper and lower case does not count. If the account is not needed, deleting it lets the SSO login create a fresh one instead. The server log names the account a login was refused for (`[OIDC] Refused to link a sign-in to user <id> by email`), and every email change a user makes in their own settings appears in the audit log as `user.email_change`.
+
+Accounts that existed before this check keep linking as they did, except those whose address provably changed since they registered without an admin editing it.
+
 ## Admin panel (runtime configuration)
 
 OIDC can also be configured without environment variables via **Admin → Settings**, in the **Single Sign-On (OIDC)** card. The following fields are settable at runtime:

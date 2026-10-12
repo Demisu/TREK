@@ -20,6 +20,7 @@ Actions are grouped by area below. The **Action key** is the raw value stored in
 | `user.login` | User logged in |
 | `user.login_failed` | Login attempt failed |
 | `user.password_change` | User changed their password |
+| `user.email_change` | User changed their own email address in their settings. The address itself is not recorded |
 | `user.account_delete` | User deleted their account |
 | `user.password_reset_request` | Password reset requested |
 | `user.password_reset_success` | Password reset completed |
