@@ -4,8 +4,8 @@ import type { TranslationFn } from '../../types';
 
 interface CollectionInviteCardProps {
   invite: IncomingCollectionInvite;
-  onAccept: (id: number) => void;
-  onDecline: (id: number) => void;
+  onAccept: (id: number) => void | Promise<void>;
+  onDecline: (id: number) => void | Promise<void>;
   t: TranslationFn;
 }
 
@@ -27,10 +27,10 @@ export default function CollectionInviteCard({
         {t('collections.invites.from')} {invite.from.username}
       </div>
       <div className="col-invite-actions">
-        <button type="button" onClick={() => onAccept(invite.collection_id)} className="col-invite-accept">
+        <button type="button" onClick={() => void onAccept(invite.collection_id)} className="col-invite-accept">
           {t('collections.invites.accept')}
         </button>
-        <button type="button" onClick={() => onDecline(invite.collection_id)} className="col-invite-decline">
+        <button type="button" onClick={() => void onDecline(invite.collection_id)} className="col-invite-decline">
           {t('collections.invites.decline')}
         </button>
       </div>

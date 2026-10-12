@@ -5,8 +5,8 @@ import { CancelPill, Eyebrow, PrimaryPill } from './MCollSheetKit';
 
 interface MCollInvitesProps {
   invites: IncomingCollectionInvite[];
-  onAccept: (id: number) => void;
-  onDecline: (id: number) => void;
+  onAccept: (id: number) => void | Promise<void>;
+  onDecline: (id: number) => void | Promise<void>;
   t: TranslationFn;
 }
 
@@ -30,10 +30,12 @@ export default function MCollInvites({ invites, onAccept, onDecline, t }: MCollI
             {t('collections.invites.from')} {inv.from.username}
           </div>
           <div className="mt-3 flex items-center gap-2">
-            <PrimaryPill onClick={() => onAccept(inv.collection_id)}>
+            <PrimaryPill onClick={() => void onAccept(inv.collection_id)}>
               <Check size={14} strokeWidth={2.4} /> {t('collections.invites.accept')}
             </PrimaryPill>
-            <CancelPill onClick={() => onDecline(inv.collection_id)}>{t('collections.invites.decline')}</CancelPill>
+            <CancelPill onClick={() => void onDecline(inv.collection_id)}>
+              {t('collections.invites.decline')}
+            </CancelPill>
           </div>
         </div>
       ))}
