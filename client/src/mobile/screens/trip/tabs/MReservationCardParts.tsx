@@ -73,10 +73,14 @@ export function CardActions({ onEdit, onDelete, t }: { onEdit: () => void; onDel
 
 /**
  * Date and time row, followed by the booking code. The code sits outside the
- * row button so its reveal can be its own control.
+ * row button so its reveal can be its own control. The calendar date never
+ * shrinks; a long day title is cut instead, and a day range takes the full
+ * width with the time under it.
  */
 export function CardWhenAndCode({
   dayValue,
+  dayDate = null,
+  dayRange = false,
   timeValue,
   code,
   card,
@@ -84,6 +88,8 @@ export function CardWhenAndCode({
   t,
 }: {
   dayValue: string;
+  dayDate?: string | null;
+  dayRange?: boolean;
   timeValue: string;
   code: string | null | undefined;
   card: CardState;
@@ -93,9 +99,14 @@ export function CardWhenAndCode({
   return (
     <>
       <button type="button" onClick={onOpen} className="block w-full text-start">
-        <div className="flex gap-2">
+        <div className={`flex gap-2 ${dayRange ? 'flex-col' : ''}`}>
           <Field label={t('reservations.date')} className="flex-[1.4]">
-            {dayValue}
+            {dayDate ? (
+              <span className="flex min-w-0 items-center justify-center gap-1.5">
+                <span className="min-w-0 truncate">{dayValue}</span>
+                <span className="flex-none font-medium text-m-faint">{dayDate}</span>
+              </span>
+            ) : dayValue}
           </Field>
           <Field label={t('reservations.time')} className="flex-1" tabular>
             {timeValue}

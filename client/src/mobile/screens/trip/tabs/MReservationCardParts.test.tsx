@@ -1,4 +1,4 @@
-// FE-COMP-MRESCARD-001 to FE-COMP-MRESCARD-007
+// FE-COMP-MRESCARD-001 to FE-COMP-MRESCARD-008
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Hotel, Plane } from 'lucide-react';
 import { describe, expect, it, vi } from 'vitest';
@@ -118,5 +118,27 @@ describe('MReservationCardParts', () => {
     expect(screen.getByText('reservations.confirm.deleteBody:LH 400')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'common.delete' }));
     expect(card.confirmDelete).toHaveBeenCalledOnce();
+  });
+
+  it('FE-COMP-MRESCARD-008: the date sits beside the day title and never shrinks, a range stacks the time under it (#2590)', () => {
+    const { container } = render(
+      <CardWhenAndCode
+        dayValue="Germany Departure Flight – Korea Arrival"
+        dayDate="Oct 21 – Oct 22"
+        dayRange
+        timeValue="15:35 – 09:55"
+        code={null}
+        card={cardState()}
+        onOpen={vi.fn()}
+        t={t}
+      />
+    );
+
+    const title = screen.getByText('Germany Departure Flight – Korea Arrival');
+    const date = screen.getByText('Oct 21 – Oct 22');
+    expect(title).toHaveClass('truncate');
+    expect(date).toHaveClass('flex-none');
+    expect(title.contains(date)).toBe(false);
+    expect(container.querySelector('button > div')).toHaveClass('flex-col');
   });
 });

@@ -1,4 +1,4 @@
-// FE-PLANNER-BKFACTS-001 to FE-PLANNER-BKFACTS-020
+// FE-PLANNER-BKFACTS-001 to FE-PLANNER-BKFACTS-022
 import { describe, it, expect } from 'vitest';
 import { buildDay, buildReservation } from '../../../../tests/helpers/factories';
 import type { ReservationEndpoint } from '../../../types';
@@ -41,6 +41,27 @@ describe('bookingFacts: day', () => {
   it('FE-PLANNER-BKFACTS-004: a day without a date has no date beside it', () => {
     const f = bookingFacts(buildReservation({ day_id: 703, end_day_id: 703 }), ctx());
     expect(f.day).toEqual({ label: 'dayplan.dayN#3', date: null, range: false });
+  });
+
+  it('FE-PLANNER-BKFACTS-021: a day without a date borrows the booking date (#2590)', () => {
+    const d4 = buildDay({ id: 704, day_number: 4, date: null, title: 'Korea Arrival' });
+    const one = bookingFacts(buildReservation({ day_id: 703, reservation_time: '2025-06-02T15:35' }), ctx({ days: [d1, d2, d3, d4] }));
+    expect(one.day).toEqual({ label: 'dayplan.dayN#3', date: 'Mon, Jun 2', range: false });
+    const range = bookingFacts(
+      buildReservation({ day_id: 703, end_day_id: 704, reservation_time: '2025-06-02T15:35', reservation_end_time: '2025-06-03T09:55' }),
+      ctx({ days: [d1, d2, d3, d4] }),
+    );
+    expect(range.day).toEqual({ label: 'dayplan.dayN#3 → Korea Arrival', date: 'Jun 2 → Jun 3', range: true });
+  });
+
+  it('FE-PLANNER-BKFACTS-022: a dated day keeps its own date over the booking date, and one date is not doubled', () => {
+    expect(bookingFacts(buildReservation({ day_id: 701, reservation_time: '2025-06-05T10:00' }), ctx()).day?.date).toBe('Sun, Jun 1');
+    const d4 = buildDay({ id: 704, day_number: 4, date: null, title: null });
+    const f = bookingFacts(
+      buildReservation({ day_id: 703, end_day_id: 704, reservation_time: '2025-06-02T08:00', reservation_end_time: '2025-06-02T22:00' }),
+      ctx({ days: [d1, d2, d3, d4] }),
+    );
+    expect(f.day?.date).toBe('Mon, Jun 2');
   });
 
   it('FE-PLANNER-BKFACTS-005: without a day the booking dates stand in, a range when they differ', () => {

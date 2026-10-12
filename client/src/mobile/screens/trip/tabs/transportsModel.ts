@@ -1,5 +1,6 @@
 import { formatTime, splitReservationDateTime } from '../../../../utils/formatters'
 import type { Day, Reservation, TranslationFn } from '../../../../types'
+import { linkedDayDate } from '../../../../components/Planner/bookings/bookingFacts'
 
 /**
  * Transport view-model — the real-data counterpart to the demo's `trsSecs`
@@ -45,8 +46,8 @@ export function parseTransportMeta(res: Reservation): TransportMeta {
 
 /**
  * The date and time cells of a phone booking or transport card: the day (or day
- * range) the booking sits on, else its own date, and its time or time range. A
- * dash stands in for whichever is missing.
+ * range) the booking sits on with its calendar date beside it, else its own
+ * date, and its time or time range. A dash stands in for whichever is missing.
  */
 export function cardWhen(
   res: Reservation,
@@ -55,7 +56,7 @@ export function cardWhen(
   t: TranslationFn,
   locale: string,
   timeFormat: string,
-): { dayValue: string; timeValue: string } {
+): { dayValue: string; dayDate: string | null; dayRange: boolean; timeValue: string } {
   const startDt = splitReservationDateTime(res.reservation_time)
   const endDt = splitReservationDateTime(res.reservation_end_time)
   const fmtDate = (date: string) =>
@@ -64,10 +65,14 @@ export function cardWhen(
   const timeValue = startDt.time
     ? `${formatTime(startDt.time, locale, timeFormat)}${endDt.time ? ` – ${formatTime(endDt.time, locale, timeFormat)}` : ''}`
     : '—'
+  const rangeEnd = startDay && endDay && endDay.id !== startDay.id ? endDay : undefined
   const dayValue = startDay
-    ? `${dayLabel(startDay)}${endDay && endDay.id !== startDay.id ? ` – ${dayLabel(endDay)}` : ''}`
+    ? `${dayLabel(startDay)}${rangeEnd ? ` – ${dayLabel(rangeEnd)}` : ''}`
     : startDt.date
       ? fmtDate(startDt.date)
       : '—'
-  return { dayValue, timeValue }
+  // The same date the desktop card prints beside the day, so a long day title
+  // can never hide when the booking actually is.
+  const dayDate = startDay ? linkedDayDate(startDay, endDay, { start: startDt.date, end: endDt.date }, locale, ' – ') : null
+  return { dayValue, dayDate, dayRange: !!rangeEnd, timeValue }
 }

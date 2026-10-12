@@ -129,7 +129,7 @@ function BookingCard({ res, planner, canEdit, compact }: {
     planner.setShowReservationModal(true)
   }
 
-  const { dayValue, timeValue } = cardWhen(res, startDay, endDay, t, locale, timeFormat)
+  const { dayValue, dayDate, dayRange, timeValue } = cardWhen(res, startDay, endDay, t, locale, timeFormat)
 
   return (
     <div className="mt-2 overflow-hidden rounded-2xl border border-[color:var(--m-rowbr)] bg-[color:var(--m-ic)]">
@@ -146,6 +146,8 @@ function BookingCard({ res, planner, canEdit, compact }: {
         <div className="px-3 pb-3 pt-[9px]">
           <CardWhenAndCode
             dayValue={dayValue}
+            dayDate={dayDate}
+            dayRange={dayRange}
             timeValue={timeValue}
             code={res.confirmation_number}
             card={card}

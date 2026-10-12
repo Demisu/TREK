@@ -41,6 +41,25 @@ export function formatDay(date: string, locale: string, weekday = true): string 
   return fmtDate(date, locale, weekday)
 }
 
+/**
+ * The calendar date beside a linked day or day range, with a weekday when it is
+ * a single date. A day without a date of its own (a trip planned without dates)
+ * borrows the booking's own start or end date, so a date is never missing when
+ * the booking knows one.
+ */
+export function linkedDayDate(
+  start: Day,
+  end: Day | undefined,
+  booking: { start: string | null; end: string | null },
+  locale: string,
+  separator = ' → ',
+): string | null {
+  const first = start.date || booking.start
+  const last = end && end.id !== start.id ? end.date || booking.end : null
+  const dates = [first, last !== first ? last : null].filter(Boolean) as string[]
+  return dates.length ? dates.map(d => fmtDate(d, locale, dates.length === 1)).join(separator) : null
+}
+
 /** Everything a card, a row and the detail pane print about one booking, formatted once. */
 export function bookingFacts(r: Reservation, c: FactsContext): BookingFacts {
   const { t, locale, timeFormat } = c
@@ -55,8 +74,7 @@ export function bookingFacts(r: Reservation, c: FactsContext): BookingFacts {
   if (span.start) {
     const range = !!span.end && span.end.id !== span.start.id
     const label = range ? `${dayName(span.start)} → ${dayName(span.end!)}` : dayName(span.start)
-    const dates = [span.start.date, range ? span.end!.date : null].filter(Boolean) as string[]
-    day = { label, date: dates.length ? dates.map(d => fmtDate(d, locale, dates.length === 1)).join(' → ') : null, range }
+    day = { label, date: linkedDayDate(span.start, span.end, { start: startDt.date, end: endDt.date }, locale), range }
   } else if (startDt.date) {
     const range = !!endDt.date && endDt.date !== startDt.date
     const label = range ? `${fmtDate(startDt.date, locale)} → ${fmtDate(endDt.date!, locale)}` : fmtDate(startDt.date, locale)

@@ -65,8 +65,13 @@ export function WhenFields({ facts }: { facts: BookingFacts }) {
     <div className={`flex gap-2 ${facts.day?.range ? 'flex-col' : ''}`}>
       {facts.day && (
         <Field label={t('reservations.date')} className="flex-[1.4]">
-          {facts.day.label}
-          {facts.day.date && <span className="ms-1.5 font-medium text-content-faint">{facts.day.date}</span>}
+          {facts.day.date ? (
+            // The date never shrinks; a long day title is cut instead.
+            <span className="flex min-w-0 items-center justify-center gap-1.5">
+              <span className="min-w-0 truncate">{facts.day.label}</span>
+              <span className="flex-none font-medium text-content-faint">{facts.day.date}</span>
+            </span>
+          ) : facts.day.label}
         </Field>
       )}
       {facts.time && <Field label={t('reservations.time')} className="flex-1" tabular>{facts.time}</Field>}
