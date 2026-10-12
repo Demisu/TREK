@@ -60,7 +60,8 @@ describe('CostsPanel: summary footers and won amounts (#2604)', () => {
     mount([owedByBob()], {
       flows: [{ from: { user_id: 2, username: 'bob' }, to: { user_id: 1, username: 'alice' }, amount: 20 }],
     });
-    await screen.findByText('Museum');
+    // The flow comes with the settlement, which can arrive after the expense.
+    await screen.findByRole('button', { name: /^Settle: bob → you/ });
     expect(screen.getByRole('region', { name: 'Outstanding amount' })).not.toHaveTextContent("You're all settled up");
   });
 
@@ -136,7 +137,7 @@ describe('CostsPanel: summary footers and won amounts (#2604)', () => {
       flows: [{ from: { user_id: 2, username: 'bob' }, to: { user_id: 1, username: 'alice' }, amount: 20 }],
     });
     await screen.findByText('Museum');
-    expect(screen.getByRole('button', { name: /^Settle: bob → you, 20,00\s€$/ })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: /^Settle: bob → you, 20,00\s€$/ })).toBeInTheDocument();
     expect(screen.getAllByText('bob → you').length).toBeGreaterThan(0);
   });
 });
