@@ -398,15 +398,15 @@ export class VacayService {
       const companyFractions = new Map(companyHolidays.map(h => [h.date, h.fraction] as const));
 
       const moves: { id: number; date: string; fraction: number }[] = [];
-      for (const row of moving) {
-        const date = shiftIsoDate(row.date, offset);
+      const dropped: number[] = [];
+      for (const { id, date: from, fraction } of moving) {
+        const date = shiftIsoDate(from, offset);
         const company = companyFractions.get(date);
-        if (standing.has(date) || isBlockedWeekend(plan, date) || (company !== undefined && company >= 1)) {
-          await this.entries.deleteById(row.id);
-        } else {
-          moves.push({ id: row.id, date, fraction: company !== undefined && row.fraction > 0.5 ? 0.5 : row.fraction });
-        }
+        const drops = standing.has(date) || isBlockedWeekend(plan, date) || (company ?? 0) >= 1;
+        if (drops) dropped.push(id);
+        else moves.push({ id, date, fraction: company === undefined ? fraction : Math.min(fraction, 0.5) });
       }
+      await this.entries.deleteByIds(dropped);
       // Rows move in the direction of travel, so each target is already free of
       // the moving row that held it when the next one arrives: (user, plan, date)
       // is unique.

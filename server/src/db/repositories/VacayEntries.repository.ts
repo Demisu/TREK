@@ -203,6 +203,12 @@ export class VacayEntriesRepository extends TrekRepository<VacayEntries> {
     await this.nativeDelete({ id });
   }
 
+  /** `DELETE FROM vacay_entries WHERE id IN (dynamic)`, the leave days `shiftOwnerEntriesForTripWindow` drops in one statement; a bound list. */
+  async deleteByIds(ids: number[]): Promise<void> {
+    if (ids.length === 0) return;
+    await this.nativeDelete({ id: { $in: ids } });
+  }
+
   /** VC116 — `UPDATE vacay_entries SET fraction = ?, kind = ? WHERE id = ?` (`toggleEntry`'s in-place conversion). */
   async updateFractionKind(id: number, fraction: number, kind: string): Promise<void> {
     await this.nativeUpdate({ id }, { fraction, kind });
