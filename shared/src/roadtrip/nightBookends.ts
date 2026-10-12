@@ -113,6 +113,33 @@ export function bookendStaysOf<S extends Omit<BookendStay, 'reservation_id'>>(
 }
 
 /**
+ * The stored day's stops with one night per hotel: the last visit of a place a stay begins
+ * at on this day (#2636).
+ *
+ * A stop is a night when a stay begins at its place on its day, and a hotel can be on its
+ * check-in day twice: the stop the booking put there and the traveller's own visit, back
+ * for a rest at noon. Both were read as the night and both held to the check-in, so the
+ * rest waited for the room or was set back to it, and a check-in twelve hours off its
+ * arrival moved it and every stop behind it onto the next day's card. The night ends the
+ * day, so the last visit is the night; the ones before it are stops like any other, a
+ * hotel all the same, without the check-in.
+ *
+ * Read over the stops in their stored order, before a terminal or a bookend is seated
+ * among them, the same in the browser and on the server. A day with one visit per hotel
+ * comes back as it was.
+ */
+export function oneNightPerStay(stops: RoadtripStop[]): RoadtripStop[] {
+  const last = new Map<number, number>();
+  stops.forEach((stop, i) => {
+    if (stop.night) last.set(stop.placeId, i);
+  });
+  if (last.size === stops.filter((stop) => stop.night).length) return stops;
+  return stops.map((stop, i) =>
+    stop.night && last.get(stop.placeId) !== i ? { ...stop, night: false, checkInTime: null } : stop,
+  );
+}
+
+/**
  * A bookend as a stop. `legMode` is the mode of the drive that leaves it: the morning's
  * drive to the first stop goes the way that stop is reached from the hotel
  * (`incoming_leg_transport_mode`, the mode the day plan draws that leg in), and the

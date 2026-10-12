@@ -362,6 +362,22 @@ describe('usePlaceFormOpeners', () => {
     expect(result.current.form.editingPlace?.id).toBe(6)
   })
 
+  it('FE-TP-OPENERS-014b: a hotel visited twice on its check-in day opens as the night only at its last visit (#2636)', () => {
+    const tripAccommodations = [stay({ id: 70, place_id: 3, start_day_id: 14, end_day_id: 12, check_in: '15:00', check_out: '10:00' })]
+    const twice: AssignmentsMap = {
+      ...assignments,
+      14: [buildAssignment({ id: 141, place: hotel, order_index: 0 }), buildAssignment({ id: 142, place: hotel, order_index: 2 })],
+    }
+    const { result } = renderOpeners({ roadtripActive: true, tripAccommodations, assignments: twice })
+
+    act(() => { result.current.openPlaceEditor(hotel, 141) })
+    expect(result.current.stopDraft).toMatchObject({ dayId: 14, position: 0, editing: { accommodationId: undefined, checkIn: '' } })
+    expect(result.current.stopDraft?.overnight).toBeUndefined()
+
+    act(() => { result.current.openPlaceEditor(hotel, 142) })
+    expect(result.current.stopDraft).toMatchObject({ dayId: 14, position: 2, editing: { accommodationId: 70, checkIn: '15:00' }, overnight: { defaultEndDayId: 12 } })
+  })
+
   it('FE-TP-OPENERS-015: an ordinary place opens the form on its one visit, a tour on the phone selects it instead', () => {
     const { result } = renderOpeners()
 

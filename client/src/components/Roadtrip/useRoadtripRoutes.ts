@@ -1,5 +1,5 @@
 import { useRoadtripSettings } from '../../hooks/useRoadtripSettings'
-import { assembleRoadtrip, bookendStaysOf, carrierLegsFor, carrierSeam, foldRouteRun, hotelBookendsOn, isCarrierMode, isStationaryJoin, mergeRouteSegments, seatCarrierStops, seatNightBookends, standsAsDay, terminalAssignmentId, viasOnLeg, type CarrierSeam, type RoadtripStop, type RoadtripRoutes, type PlanDay, type QuietDay, type RoutedLeg } from '@trek/shared/roadtrip'
+import { assembleRoadtrip, bookendStaysOf, carrierLegsFor, carrierSeam, foldRouteRun, hotelBookendsOn, isCarrierMode, isStationaryJoin, mergeRouteSegments, oneNightPerStay, seatCarrierStops, seatNightBookends, standsAsDay, terminalAssignmentId, viasOnLeg, type CarrierSeam, type RoadtripStop, type RoadtripRoutes, type PlanDay, type QuietDay, type RoutedLeg } from '@trek/shared/roadtrip'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { avoidedClasses, calculateRouteWithLegs, routeEngineFor, RoutingRefusedError, type RouteEngine } from '../Map/RouteCalculator'
 import { resolveLegMode } from '../Planner/legMode'
@@ -319,8 +319,9 @@ export function useRoadtripRoutes(
           .filter((x): x is { assignment: Assignment; stop: RoadtripStop } => x.stop !== null)
         // The index is filled in after the drop, because it is the index into THIS
         // list: an assignment whose place has no coordinates never becomes a stop, and
-        // counting before the filter would name a row the rail does not draw.
-        const stops = located.map((x, i) => ({ ...x.stop, ownerIndex: i }))
+        // counting before the filter would name a row the rail does not draw. A hotel
+        // visited twice on its check-in day is the night at its last visit only.
+        const stops = oneNightPerStay(located.map((x, i) => ({ ...x.stop, ownerIndex: i })))
         return {
           dayId: d.id,
           dayNumber: d.day_number ?? 0,

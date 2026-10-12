@@ -1405,6 +1405,34 @@ describe('a booked night at both ends of its days', () => {
     expect(runs).toContainEqual(['driving', [HOTEL[0], P[4][0], P[5][0], HOTEL[0]]])
   })
 
+  it('FE-ROADTRIP-ROUTES-065: a hotel visited again on its check-in day is the night only at its last visit (#2636)', async () => {
+    switchTo(false)
+    const days = [day(1, 1), day(2, 2)]
+    // A rest at the hotel at noon, a place, and back to the hotel for the night.
+    const assignments = map(1, [
+      { id: 1, at: P[0], time: '09:00', dwell: 0 },
+      { id: 2, at: HOTEL, dwell: 60 },
+      { id: 3, at: P[1], dwell: 30 },
+      { id: 4, at: HOTEL },
+    ]) as AssignmentsMap
+    Object.assign(assignments['1'][3], { place_id: 20 })
+    const stays = [stayOf(5, 2, 1, 2, HOTEL, { check_in: '15:00' })]
+    const { result } = renderHook(() => useRoadtripRoutes(7, days, assignments, 'driving', {}, [], stays))
+    await waitFor(() => expect(result.current.loading).toBe(false))
+
+    const [card] = result.current.days
+    expect(card.stops.map(s => [s.name, s.night, s.checkInTime])).toEqual([
+      ['Stop 1', false, null],
+      ['Stop 2', false, null],
+      ['Stop 3', false, null],
+      ['Stop 4', true, '15:00'],
+    ])
+    // The rest is reached when the drive gets there, the night waits for the room.
+    expect(card.schedule.entries.map(e => e.arrival)).toEqual(['09:00', '10:00', '12:00', '15:00'])
+    expect(card.schedule.warnings).toEqual([])
+    expect(result.current.days.map(d => d.dayId)).toEqual([1])
+  })
+
   it('FE-ROADTRIP-ROUTES-064: the stop tonight’s booking put first on its day gives way to the evening at the stay (#2546)', async () => {
     const { days } = cam()
     const stays = [stayOf(1, 1, 1, 2, GETAWAY), stayOf(2, 4, 2, 3, WALLINGA)]

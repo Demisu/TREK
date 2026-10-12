@@ -27,6 +27,7 @@ import {
   foldRouteRun,
   hotelBookendsOn,
   isStationaryJoin,
+  oneNightPerStay,
   splitIntoRuns,
   spillChains,
   dayWindow,
@@ -147,28 +148,31 @@ export class RoadtripPlanService {
     const dayNumberOf = (dayId: number): number => context.days.find((d) => d.id === dayId)?.day_number ?? 0;
     const stored: PlanDay[] = context.days.map((day) => {
       const visits = context.visits.filter((v) => v.day_id === day.id && v.lat !== null && v.lng !== null);
-      const stops = visits.map((v, index): RoadtripStop => ({
-        assignmentId: v.id,
-        ownerDayId: day.id,
-        ownerIndex: index,
-        placeId: v.place_id,
-        name: v.name,
-        lat: v.lat!,
-        lng: v.lng!,
-        time: v.time,
-        // The visit's end time is when the drive leaves it, the same reading the
-        // planner makes in the browser (useRoadtripRoutes).
-        leaveAt: v.end_time,
-        checkInTime: v.check_in,
-        night: v.stay_id !== null,
-        bookedNightId: v.accommodation_id,
-        dwellMinutes: v.duration_minutes,
-        endDay: v.end_day === 1,
-        legMode: v.leg_transport_mode,
-        incomingLegMode: v.incoming_leg_transport_mode,
-        stopType: v.stop_type,
-        fillPercent: v.fill_percent,
-      }));
+      // One night per hotel, the last visit of it, the way the browser reads the day.
+      const stops = oneNightPerStay(
+        visits.map((v, index): RoadtripStop => ({
+          assignmentId: v.id,
+          ownerDayId: day.id,
+          ownerIndex: index,
+          placeId: v.place_id,
+          name: v.name,
+          lat: v.lat!,
+          lng: v.lng!,
+          time: v.time,
+          // The visit's end time is when the drive leaves it, the same reading the
+          // planner makes in the browser (useRoadtripRoutes).
+          leaveAt: v.end_time,
+          checkInTime: v.check_in,
+          night: v.stay_id !== null,
+          bookedNightId: v.accommodation_id,
+          dwellMinutes: v.duration_minutes,
+          endDay: v.end_day === 1,
+          legMode: v.leg_transport_mode,
+          incomingLegMode: v.incoming_leg_transport_mode,
+          stopType: v.stop_type,
+          fillPercent: v.fill_percent,
+        })),
+      );
       return {
         dayId: day.id,
         dayNumber: day.day_number,

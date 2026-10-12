@@ -413,6 +413,15 @@ describe('storedRideSlot', () => {
     expect(storedRideSlot(ferry(), [amsterdam, hotel], [{ ...checkIn[0], start_day_id: 4 }], 5)).toBe(0.5)
   })
 
+  it('times only the last visit of the hotel by its check-in, an earlier one is a stop (#2636)', () => {
+    // Checked in at six, after the 17:30 sailing: the night is behind the crossing, and so
+    // is the rest at the same hotel before it. Read as a second check-in it timed the rest
+    // at six too, and the slot went behind both, so the drive reached them overland.
+    const checkIn = [{ place_id: 30, start_day_id: 5, check_in: '18:00' }]
+    const night = { ...hotel, id: 4, order_index: 2 }
+    expect(storedRideSlot(ferry(), [amsterdam, hotel, night], checkIn, 5)).toBe(0.5)
+  })
+
   it('opens the day, closes it, or sits behind a timed row, measured on order indexes', () => {
     expect(storedRideSlot(ferry(), [row(2, 3, 54.9783, -1.6178)], [], 5)).toBe(2.5)
     expect(storedRideSlot(ferry(), [amsterdam], [], 5)).toBe(0.5)

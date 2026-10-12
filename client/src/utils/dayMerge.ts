@@ -375,8 +375,9 @@ interface StoredStop {
  * number among their order indexes all the same, and worked out over the rows the list
  * shows it could land behind a hidden stop on the far shore, which the drive then went to
  * overland before the crossing (#2461). Each row counts with its start, else the check-in
- * of the stay that begins there that day (`stayStartingOn`), and with its coordinates; a
- * row without them is no stop of the drive. Where the rule keeps the clock's seat, the
+ * of the stay that begins there that day (`stayStartingOn`) on the place's last row of the
+ * day, and with its coordinates; a row without them is no stop of the drive. Where the
+ * rule keeps the clock's seat, the
  * clock is read over the same rows: behind the last one timed at or before the departure,
  * else at the end of the day.
  */
@@ -388,11 +389,16 @@ export function storedRideSlot(
 ): number | null {
   const ride = sameDayRide(r)
   if (!ride || !day.length) return null
+  // The night is the last visit of its hotel on the day (`oneNightPerStay`), so only that
+  // row is timed by the check-in; an earlier visit of the same place is a stop like any other.
+  const lastOfPlace = new Map<number | null | undefined, number>()
+  for (const row of day) lastOfPlace.set(row.place_id, Math.max(lastOfPlace.get(row.place_id) ?? -Infinity, row.order_index))
   const items: SeatItem[] = day.flatMap(row => {
     const lat = row.place?.lat
     const lng = row.place?.lng
     if (typeof lat !== 'number' || typeof lng !== 'number' || !Number.isFinite(lat) || !Number.isFinite(lng)) return []
-    const start = row.place?.place_time ?? stayStartingOn(stays, row.place_id, dayId)?.check_in
+    const night = lastOfPlace.get(row.place_id) === row.order_index
+    const start = row.place?.place_time ?? (night ? stayStartingOn(stays, row.place_id, dayId)?.check_in : null)
     return [{ key: row.order_index, minutes: parseTimeToMinutes(start), point: { lat, lng } }]
   })
   const keys = day.map(row => row.order_index)

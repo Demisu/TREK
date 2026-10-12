@@ -295,7 +295,9 @@ export function usePlaceFormOpeners(options: PlaceFormOpenersOptions) {
       if (entry) {
         const dayId = Number(entry[0])
         const visit = entry[1].find(visit => visit.id === visitId)!
-        const stay = tripAccommodations.find(stay => stay.place_id === place.id && stay.start_day_id === dayId)
+        // The night is the hotel's last visit of the day; an earlier one opens as a stop.
+        const lastVisit = entry[1].filter(other => other.place_id === place.id).every(other => (other.order_index ?? 0) <= (visit.order_index ?? 0))
+        const stay = lastVisit ? tripAccommodations.find(stay => stay.place_id === place.id && stay.start_day_id === dayId) : undefined
         const category = place.stop_type ?? (stay ? 'hotel' : '')
         const routedDay = roadtripRoutes.days.find(day => day.stops.some(stop => stop.assignmentId === visitId))
         const arrivalTime = routedDay?.schedule.entries[routedDay.stops.findIndex(stop => stop.assignmentId === visitId)]?.arrival ?? null

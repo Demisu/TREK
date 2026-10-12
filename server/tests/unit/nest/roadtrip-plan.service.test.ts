@@ -244,6 +244,38 @@ describe('a booked night on the road trip (#2410)', () => {
     expect(night.schedule.entries[0]).toMatchObject({ arrival: '15:00', anchored: true });
   });
 
+  it('holds only the last visit of the hotel on its check-in day to the check-in, an earlier one is a stop (#2636)', async () => {
+    const { user, trip, plans } = await setup();
+    const arrival = createDay(db, trip.id);
+    const start = createPlace(db, trip.id, { name: 'Wismar', lat: 53.9, lng: 11.46 });
+    const hotel = createPlace(db, trip.id, { name: 'Rostock', lat: 54.09, lng: 12.1 });
+    const beach = createPlace(db, trip.id, { name: 'Warnemuende', lat: 54.17, lng: 12.08 });
+    await setPlace(start.id, { duration_minutes: 30 });
+    await setPlace(hotel.id, { duration_minutes: 30 });
+    await setPlace(beach.id, { duration_minutes: 30 });
+    const first = createDayAssignment(db, arrival.id, start.id);
+    createDayAssignment(db, arrival.id, hotel.id);
+    createDayAssignment(db, arrival.id, beach.id);
+    createDayAssignment(db, arrival.id, hotel.id);
+    await setVisit(first.id, { assignment_time: '09:00' });
+    const departure = createDay(db, trip.id);
+    createDayAccommodation(db, trip.id, hotel.id, arrival.id, departure.id, { check_in: '15:00' });
+
+    const { calculated } = await plans.calculate(trip.id, user.id);
+
+    const [day] = calculated.days.filter((d) => d.dayId === arrival.id);
+    expect(day.stops.map((s) => [s.name, s.night, s.checkInTime])).toEqual([
+      ['Wismar', false, null],
+      ['Rostock', false, null],
+      ['Warnemuende', false, null],
+      ['Rostock', true, '15:00'],
+    ]);
+    // The rest at the hotel is reached at half past ten, not held for the room, and nothing is late.
+    expect(day.schedule.entries.map((e) => e.arrival)).toEqual(['09:00', '10:30', '12:00', '15:00']);
+    expect(day.schedule.entries[3]).toMatchObject({ anchored: true });
+    expect(day.schedule.warnings).toEqual([]);
+  });
+
   it('files a lone stop that is no night under the quiet days', async () => {
     const { user, trip, plans } = await setup();
     const quiet = createDay(db, trip.id);

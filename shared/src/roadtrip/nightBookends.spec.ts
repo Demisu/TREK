@@ -8,7 +8,8 @@
  * that a night spent at one hotel is a leg going nowhere. From 029 on: a day moved by a
  * ride the road does not see, a terminal out of a drive's reach, and the flight day of
  * the report read from the stored day to its nights. From 033 on: the stop a booking put
- * on its check-in day gives way to the evening at that stay.
+ * on its check-in day gives way to the evening at that stay. From 036 on: a hotel visited
+ * twice on its check-in day is the night at its last visit only (#2636).
  */
 import { assembleRoadtrip } from './assemble';
 import { carrierLegsFor, carrierSeam, seatCarrierStops, terminalAssignmentId, type CarrierBooking } from './carriers';
@@ -18,6 +19,7 @@ import {
   bookendStaysOf,
   hotelBookendsOn,
   isStationaryJoin,
+  oneNightPerStay,
   seatNightBookends,
   withStationaryJoins,
   type BookendStay,
@@ -813,5 +815,42 @@ describe('the stop a booking put on its check-in day (#2546)', () => {
     // Another stay's stop is not tonight's, and is left alone.
     const other = seatNightBookends([planDay(D2, [booked(0, { bookedNightId: 9 }), p()])], days, [a, b]);
     expect(shape(other[0])).toEqual(['morning:1', 'B', 'P', 'evening:2']);
+  });
+});
+
+describe('a hotel visited twice on its check-in day (#2636)', () => {
+  const b = stay(2, D2, D3, WALLINGA);
+  const nights = (day: PlanDay | undefined) =>
+    (day?.stops ?? []).map((s) => [s.bookend ? s.bookend.phase : s.name, s.night ?? false, s.checkInTime ?? null]);
+
+  it('ROADTRIP-BOOKENDS-036: the last visit is the night, an earlier one a stop without the check-in', () => {
+    const rest = stayStop(D2, 0, WALLINGA, { name: 'Rest', placeId: 502, checkInTime: '15:00' });
+    const place = visit(D2, 1, { name: 'P' });
+    const night = stayStop(D2, 2, WALLINGA, { name: 'Night', placeId: 502, checkInTime: '15:00', bookedNightId: 2 });
+    expect(nights(planDay(D2, oneNightPerStay([rest, place, night])))).toEqual([
+      ['Rest', false, null],
+      ['P', false, null],
+      ['Night', true, '15:00'],
+    ]);
+    // Still a hotel: only the night and its check-in move.
+    expect(oneNightPerStay([rest, place, night])[0]).toMatchObject({ stopType: 'hotel', placeId: 502 });
+    // One visit per hotel, two hotels on one day, or no hotel: the day comes back as it was.
+    const other = stayStop(D2, 3, GETAWAY, { name: 'Other', placeId: 501, checkInTime: '18:00' });
+    for (const stops of [[place, night], [night, other], [place]]) expect(oneNightPerStay(stops)).toBe(stops);
+  });
+
+  it('ROADTRIP-BOOKENDS-037: with the days at the stay, the rest stays a stop and the booked night ends the day', () => {
+    const stops = oneNightPerStay([
+      stayStop(D2, 0, WALLINGA, { name: 'Rest', placeId: 502, checkInTime: '15:00' }),
+      visit(D2, 1, { name: 'P' }),
+      stayStop(D2, 2, WALLINGA, { name: 'B', placeId: 502, checkInTime: '15:00', bookedNightId: 2 }),
+    ]);
+    const [day] = seatNightBookends([planDay(D2, stops)], days, [stay(1, D1, D2, GETAWAY), b]);
+    expect(nights(day)).toEqual([
+      ['morning', false, null],
+      ['Rest', false, null],
+      ['P', false, null],
+      ['B', true, '15:00'],
+    ]);
   });
 });
