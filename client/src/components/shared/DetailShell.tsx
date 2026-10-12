@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { X } from 'lucide-react'
 import { NEUTRAL_TINT } from './DialogShell'
 import { Tooltip } from './Tooltip'
-import { centredMapCardBox } from '../Map/centredMapCard'
+import { centredMapCard } from '../Map/centredMapCard'
 
 interface DetailShellProps {
   header: ReactNode
@@ -38,13 +38,15 @@ export default function DetailShell({
   closeButtonClassName = '',
   testId,
 }: DetailShellProps) {
+  const mapCard = centredMapCard(leftWidth, rightWidth, { clearPill: clearMapPill })
   return (
     <div
       style={{
         position: 'absolute',
         bottom: 20,
-        ...centredMapCardBox(leftWidth, rightWidth, { clearPill: clearMapPill }),
+        left: mapCard.centre,
         transform: 'translateX(-50%)',
+        width: mapCard.width,
         zIndex: 50,
         fontFamily: 'var(--font-system)',
       }}

@@ -20,15 +20,19 @@ const PILL_CLEARANCE = MAP_LAYER_SWITCHER_INSET + MAP_ROUND_CONTROL_SIZE + 8;
  *
  * `extent` is what the card is placed in: '100%' of the map, or '100vw' for the
  * fixed day panel.
+ *
+ * `centre` is where the card's middle sits, measured from the map's left edge like
+ * the panel widths. Each card sets it as its own `left` next to translateX(-50%),
+ * so lint:rtl counts that physical side where the card is placed.
  */
-export function centredMapCardBox(
+export function centredMapCard(
   leftWidth: number,
   rightWidth: number,
   { extent = '100%', clearPill = false }: { extent?: string; clearPill?: boolean } = {}
-): { left: string; width: string } {
+): { centre: string; width: string } {
   const free = `(${extent} - ${leftWidth}px - ${rightWidth}px)`;
   const centre = `calc(${leftWidth}px + ${free} / 2)`;
-  if (!clearPill) return { left: centre, width: `min(800px, calc(${free} - ${2 * EDGE_GAP}px))` };
+  if (!clearPill) return { centre, width: `min(800px, calc(${free} - ${2 * EDGE_GAP}px))` };
   const width = `min(800px, calc(${free} - ${PILL_CLEARANCE + EDGE_GAP}px))`;
-  return { width, left: `max(${centre}, calc(${leftWidth}px + ${PILL_CLEARANCE}px + ${width} / 2))` };
+  return { width, centre: `max(${centre}, calc(${leftWidth}px + ${PILL_CLEARANCE}px + ${width} / 2))` };
 }

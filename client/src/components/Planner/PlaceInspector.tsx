@@ -38,7 +38,7 @@ import { formatDistance, formatElevation } from '../../utils/units'
 import { navigationTargetLabel, getNavigationTargets, openNavigationTarget } from './placeNavigation'
 import { TRANSPORT_TYPES, getPlaceBookings } from '../../utils/dayMerge'
 import { NavigationMenu } from '../shared/NavigationMenu'
-import { centredMapCardBox } from '../Map/centredMapCard'
+import { centredMapCard } from '../Map/centredMapCard'
 import { resolveOpenNow, resolvePlaceTimeZone, getWeekdayIndex, type OpeningPeriod } from './placeOpenState'
 import { convertHoursLine } from './placeHoursFormat'
 import type { EndDayControlProps } from '../Roadtrip/EndDayControl'
@@ -370,13 +370,16 @@ export default function PlaceInspector({
   const phone = place.phone || googleDetails?.phone
   const description = place.description || googleDetails?.summary
   const showRating = (mode === 'trip' && !!onRate) || !!shortReview
+  const mapCard = centredMapCard(leftWidth, rightWidth, { clearPill: clearMapPill })
 
   return (
     <div
       style={{
         position: 'absolute',
         bottom: 20,
-        ...centredMapCardBox(leftWidth, rightWidth, { clearPill: clearMapPill }), transform: 'translateX(-50%)',
+        left: mapCard.centre,
+        transform: 'translateX(-50%)',
+        width: mapCard.width,
         zIndex: 50,
         fontFamily: 'var(--font-system)',
       }}
