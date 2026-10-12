@@ -344,8 +344,11 @@ beforeEach(() => {
   }) as unknown as typeof window.__addToast
   seedStore(useAuthStore, { user: buildUser({ id: 1 }), isAuthenticated: true, placesPhotosEnabled: false })
 
-  // The two switches this whole file depends on.
+  // The two switches this whole file depends on. The mode sits on the account as well
+  // as in the tab (#2639), with the settings already loaded, so a toggle saves straight
+  // away instead of leaving a settings fetch behind that lands in the next test.
   sessionStorage.setItem('trip-roadtrip-42', '1')
+  useSettingsStore.setState(s => ({ isLoaded: true, settings: { ...s.settings, planner_trip_views: { '42': { roadtrip: true } } } }))
   vi.spyOn(addonsApi, 'enabled').mockResolvedValue({ addons: [{ id: 'roadtrip' }] } as never)
 
   vi.spyOn(authApi, 'getAppConfig').mockResolvedValue({})

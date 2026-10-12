@@ -32,6 +32,12 @@ const { db } = vi.hoisted(() => {
   tmp.exec(`CREATE TABLE settings (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL,
     key TEXT NOT NULL, value TEXT, UNIQUE(user_id, key));`);
   tmp.exec('CREATE TABLE app_settings (key TEXT PRIMARY KEY, value TEXT);');
+  // Only what the planner view row (#2639) asks: which trips the user can open.
+  tmp.exec(`CREATE TABLE trips (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL,
+    title TEXT NOT NULL DEFAULT 'Trip', created_at DATETIME DEFAULT CURRENT_TIMESTAMP);`);
+  tmp.exec(
+    'CREATE TABLE trip_members (id INTEGER PRIMARY KEY AUTOINCREMENT, trip_id INTEGER NOT NULL, user_id INTEGER NOT NULL);',
+  );
   return { db: tmp };
 });
 
@@ -325,6 +331,59 @@ describe('Settings e2e (real auth guard + temp SQLite)', () => {
         .send({ week_start: 'friday' });
       expect(res.status).toBe(400);
       expect(await findRow(orm, AppSettings, { key: 'default_user_setting_week_start' })).toBeNull();
+    });
+  });
+
+  describe('planner_trip_views (#2639)', () => {
+    beforeEach(() => {
+      db.exec('DELETE FROM trip_members; DELETE FROM trips;');
+      db.prepare('INSERT INTO trips (id, user_id) VALUES (?, ?)').run(41, 1);
+      db.prepare('INSERT INTO trips (id, user_id) VALUES (?, ?)').run(42, 2);
+      db.prepare('INSERT INTO trips (id, user_id) VALUES (?, ?)').run(43, 2);
+      db.prepare('INSERT INTO trip_members (trip_id, user_id) VALUES (?, ?)').run(43, 1);
+    });
+
+    it('PUT keeps the switches of trips the user can open and GET hands them back', async () => {
+      const put = await request(server)
+        .put('/api/settings')
+        .set('Cookie', sessionCookie(1))
+        .send({
+          key: 'planner_trip_views',
+          value: {
+            '41': { roadtrip: true },
+            '42': { roadtrip: true },
+            '43': { dawarich: true, overview: false },
+            '99': { overview: true },
+          },
+        });
+      expect(put.status).toBe(200);
+      const res = await request(server).get('/api/settings').set('Cookie', sessionCookie(1));
+      expect(res.body.settings.planner_trip_views).toEqual({ '41': { roadtrip: true }, '43': { dawarich: true } });
+    });
+
+    it('bulk prunes the same way', async () => {
+      const res = await request(server)
+        .post('/api/settings/bulk')
+        .set('Cookie', sessionCookie(1))
+        .send({ settings: { planner_trip_views: { '41': { overview: true }, '42': { overview: true } } } });
+      expect(res.status).toBe(200);
+      expect(JSON.parse(String(await userSetting(1, 'planner_trip_views')))).toEqual({ '41': { overview: true } });
+    });
+
+    it('400 for a value outside the contract, on both routes, and nothing is stored', async () => {
+      const put = await request(server)
+        .put('/api/settings')
+        .set('Cookie', sessionCookie(1))
+        .send({ key: 'planner_trip_views', value: { '41': { roadtrip: 'on' } } });
+      expect(put.status).toBe(400);
+      expect(put.body.error).toMatch(/planner_trip_views/);
+      const bulk = await request(server)
+        .post('/api/settings/bulk')
+        .set('Cookie', sessionCookie(1))
+        .send({ settings: { theme: 'dark', planner_trip_views: ['41'] } });
+      expect(bulk.status).toBe(400);
+      expect(await userSetting(1, 'planner_trip_views')).toBeNull();
+      expect(await userSetting(1, 'theme')).toBeNull();
     });
   });
 });

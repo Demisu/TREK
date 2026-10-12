@@ -66,3 +66,43 @@ export type SettingsBulkResponse = z.infer<typeof settingsBulkResponseSchema>;
 /** GET/PUT /api/admin/default-user-settings: the stored defaults a new account starts with, by key. */
 export const adminDefaultUserSettingsResponseSchema = z.record(z.string(), z.unknown());
 export type AdminDefaultUserSettingsResponse = z.infer<typeof adminDefaultUserSettingsResponseSchema>;
+
+/**
+ * The planner's view switches a traveller expects to find again on any device
+ * (#2639): road trip mode, the recorded Dawarich trail and the whole-trip route
+ * overview. One settings row per user, keyed by trip id, holding only the
+ * switches that are on; a trip without any is left out instead of stored as a
+ * row of falses. The server drops trips the user can no longer open on every
+ * write, so a deleted trip does not linger in the row.
+ */
+export const PLANNER_TRIP_VIEWS_KEY = 'planner_trip_views';
+/** More trips than anyone keeps open at once; it bounds the row, not a person. */
+export const PLANNER_TRIP_VIEWS_MAX = 500;
+
+export const plannerTripViewSchema = z.object({
+  roadtrip: z.boolean().optional(),
+  dawarich: z.boolean().optional(),
+  overview: z.boolean().optional(),
+});
+export type PlannerTripView = z.infer<typeof plannerTripViewSchema>;
+export type PlannerTripViewFlag = keyof PlannerTripView;
+
+export const plannerTripViewsSchema = z
+  .record(z.string().regex(/^[1-9]\d{0,9}$/), plannerTripViewSchema)
+  .refine((views) => Object.keys(views).length <= PLANNER_TRIP_VIEWS_MAX, {
+    message: `At most ${PLANNER_TRIP_VIEWS_MAX} trips`,
+  });
+export type PlannerTripViews = z.infer<typeof plannerTripViewsSchema>;
+
+/** The views with every trip that has no switch on left out. */
+export function compactPlannerTripViews(views: PlannerTripViews): PlannerTripViews {
+  const kept: PlannerTripViews = {};
+  for (const [tripId, view] of Object.entries(views)) {
+    const on: PlannerTripView = {};
+    if (view.roadtrip) on.roadtrip = true;
+    if (view.dawarich) on.dawarich = true;
+    if (view.overview) on.overview = true;
+    if (Object.keys(on).length > 0) kept[tripId] = on;
+  }
+  return kept;
+}

@@ -95,7 +95,12 @@ beforeAll(async () => {
       await createTestJourneyEntryPhotosRepo(testDb),
       await createTestPlacesRepo(testDb),
     ),
-    new SettingsService(uow, await createTestAppSettingsRepo(testDb), await createTestSettingsRepo(testDb)),
+    new SettingsService(
+      uow,
+      await createTestAppSettingsRepo(testDb),
+      await createTestSettingsRepo(testDb),
+      await createTestTripsRepo(testDb),
+    ),
     // Plan 3g Task 3: JourneyShareTokensRepository (JS1-JS15) + the
     // already-built JourneysRepository (JS8/JS12), same instance the domain
     // service above uses.

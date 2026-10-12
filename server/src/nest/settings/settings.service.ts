@@ -1,13 +1,23 @@
 import { readEnv } from '../../app-config';
 import { AppSettings } from '../../db/entities/AppSettings.entity';
 import { Settings } from '../../db/entities/Settings.entity';
+import { Trips } from '../../db/entities/Trips.entity';
 import type { AppSettingsRepository } from '../../db/repositories/AppSettings.repository';
 import type { SettingsRepository } from '../../db/repositories/Settings.repository';
+import type { TripsRepository } from '../../db/repositories/Trips.repository';
 import { decrypt_api_key, maybe_encrypt_api_key } from '../common/crypto/apiKeyCrypto';
 import { UnitOfWork } from '../database/unit-of-work';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
-import { MASKED_SETTING_VALUE, WEEK_START_VALUES, normalizeAppearance } from '@trek/shared';
+import {
+  MASKED_SETTING_VALUE,
+  PLANNER_TRIP_VIEWS_KEY,
+  WEEK_START_VALUES,
+  compactPlannerTripViews,
+  normalizeAppearance,
+  plannerTripViewsSchema,
+  type PlannerTripViews,
+} from '@trek/shared';
 
 /**
  * Exported so a caller that hands settings to somebody else can assert its own
@@ -170,7 +180,29 @@ export class SettingsService {
     private readonly uow: UnitOfWork,
     @InjectRepository(AppSettings) private readonly appSettings: AppSettingsRepository,
     @InjectRepository(Settings) private readonly settings: SettingsRepository,
+    @InjectRepository(Trips) private readonly trips: TripsRepository,
   ) {}
+
+  /**
+   * The planner's remembered view switches (#2639), reduced to trips this user
+   * can still open and to switches that are on. The client only ever adds to
+   * the row, so this is where a deleted trip, or one the user was removed
+   * from, leaves it again. Anything the contract does not accept is stored as
+   * an empty row; the controller has already answered 400 for a request.
+   */
+  private async keepOpenableTripViews(userId: number, value: unknown): Promise<PlannerTripViews | null> {
+    if (value === null || value === undefined) return null;
+    const parsed = plannerTripViewsSchema.safeParse(value);
+    if (!parsed.success) return {};
+    const views = compactPlannerTripViews(parsed.data);
+    if (Object.keys(views).length === 0) return views;
+    const openable = new Set((await this.trips.listAccessibleIds(userId)).map(String));
+    return Object.fromEntries(Object.entries(views).filter(([tripId]) => openable.has(tripId)));
+  }
+
+  private async prepareValue(userId: number, key: string, value: unknown): Promise<unknown> {
+    return key === PLANNER_TRIP_VIEWS_KEY ? await this.keepOpenableTripViews(userId, value) : value;
+  }
 
   async getAdminUserDefaults(): Promise<Record<string, unknown>> {
     const rows = await this.appSettings.findByKeyPrefix('default_user_setting_');
@@ -297,7 +329,8 @@ export class SettingsService {
   }
 
   async upsertSetting(userId: number, key: string, value: unknown) {
-    await this.settings.upsertForUser(userId, key, serializeValue(key, value));
+    const prepared = await this.prepareValue(userId, key, value);
+    await this.settings.upsertForUser(userId, key, serializeValue(key, prepared));
   }
 
   async bulkUpsertSettings(userId: number, settings: Record<string, unknown>) {
@@ -308,7 +341,8 @@ export class SettingsService {
         // bulk save can never overwrite a stored secret with the mask (the
         // single-upsert route has the same no-op in the controller).
         if (value === MASKED_SETTING_VALUE) continue;
-        await this.settings.upsertForUser(userId, key, serializeValue(key, value));
+        const prepared = await this.prepareValue(userId, key, value);
+        await this.settings.upsertForUser(userId, key, serializeValue(key, prepared));
         written++;
       }
     });

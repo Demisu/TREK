@@ -45,6 +45,7 @@ import {
   createTestUnitOfWork,
   createTestAppSettingsRepo,
   createTestSettingsRepo,
+  createTestTripsRepo,
   createTestTagsRepo,
   createTestPlaceRatingsRepo,
   createTestAssignmentParticipantsRepo,
@@ -82,6 +83,7 @@ beforeAll(async () => {
       await createTestUnitOfWork(testDb),
       await createTestAppSettingsRepo(testDb),
       await createTestSettingsRepo(testDb),
+      await createTestTripsRepo(testDb),
     ),
     permissionsStub,
     new QueryHelpersService(

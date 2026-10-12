@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDawarichTrail } from '../../components/Map/useDawarichTrail'
+import { usePlannerTripView } from './usePlannerTripView'
 import type { TripStoreState } from '../../store/tripStore'
 import type { Place } from '../../types'
 import type { PlannerBase } from './plannerTypes'
@@ -52,16 +53,10 @@ export function usePlannerMapView(options: PlannerMapViewOptions) {
   const transitRoutesShown = routeShown && selectedDayId != null
   const [routeProfile, setRouteProfile] = useState<string>('driving')
   // Whole-trip route overview (#1736): every day's route at once, each in its own
-  // colour. Per trip and per session like road trip mode: it answers "what does the
-  // whole thing look like", which is a question you ask of one trip, not a preference.
-  const [overviewShown, setOverviewShown] = useState<boolean>(() => sessionStorage.getItem(`trip-overview-${tripId}`) === '1')
-  const toggleOverview = useCallback(() => {
-    setOverviewShown(prev => {
-      const next = !prev
-      sessionStorage.setItem(`trip-overview-${tripId}`, next ? '1' : '0')
-      return next
-    })
-  }, [tripId])
+  // colour. Per trip like road trip mode, and remembered on the account the same
+  // way (#2639): it answers "what does the whole thing look like", which is a
+  // question you ask of one trip, not a preference.
+  const [overviewShown, toggleOverview] = usePlannerTripView(tripId, 'overview')
   // A locked map stays where the traveller put it (#2010): picking a day or a place no
   // longer zooms or pans it. Remembered per browser, like the other view toggles; the
   // first frame of a trip still fits, or the map would open on nothing.
@@ -79,19 +74,11 @@ export function usePlannerMapView(options: PlannerMapViewOptions) {
       return next
     })
   }, [])
-  // The recorded route from Dawarich (#2279), per trip and per session for the
-  // same reason as the overview above: it answers "what actually happened on
-  // this trip", which is a question about one trip rather than a preference.
-  const [dawarichTrailShown, setDawarichTrailShown] = useState<boolean>(
-    () => sessionStorage.getItem(`trip-dawarich-${tripId}`) === '1',
-  )
-  const toggleDawarichTrail = useCallback(() => {
-    setDawarichTrailShown(prev => {
-      const next = !prev
-      sessionStorage.setItem(`trip-dawarich-${tripId}`, next ? '1' : '0')
-      return next
-    })
-  }, [tripId])
+  // The recorded route from Dawarich (#2279), per trip and remembered on the
+  // account for the same reason as the overview above: it answers "what
+  // actually happened on this trip", a question about one trip rather than a
+  // preference.
+  const [dawarichTrailShown, toggleDawarichTrail] = usePlannerTripView(tripId, 'dawarich')
   // Fetched here rather than in MapViewAuto so the desktop and the phone share
   // one request, and so the pill that toggles it can show why there is no line.
   const dawarichTrail = useDawarichTrail(tripId, dawarichTrailShown)

@@ -6,6 +6,7 @@
 // each documented against the producing service). Re-exported here so the rest
 // of the client keeps importing from '../types' unchanged.
 import type {
+  PlannerTripViews,
   TrekWsEventName,
   TrekWsPluginEventName,
   Trip,
@@ -237,6 +238,8 @@ export interface Settings {
   start_page?: 'dashboard' | 'active_trip'
   /** Which planner tab 'active_trip' opens on — a TripTabId (constants/tripTabs). */
   start_trip_tab?: string
+  /** Road trip mode, the Dawarich trail and the route overview per trip, only those that are on (#2639). */
+  planner_trip_views?: PlannerTripViews
   // AI booking-import fallback (per-user config; used when the admin has not set
   // instance-wide config on the llm_parsing addon). llm_api_key is masked on read.
   llm_provider?: 'local' | 'openai' | 'anthropic'

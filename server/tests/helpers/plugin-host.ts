@@ -413,7 +413,7 @@ export async function createPluginRpcHostParts(
   // Plan 4 Task 1 constructor-ripple: LlmConfigResolver's addon-row read
   // moved off DatabaseService onto AddonsRepository.
   const llmConfig = new LlmConfigResolver(
-    new SettingsService(await createTestUnitOfWork(db), appSettings, await createTestSettingsRepo(db)),
+    new SettingsService(await createTestUnitOfWork(db), appSettings, await createTestSettingsRepo(db), await createTestTripsRepo(db)),
     (await sharedTestOrm(db)).repo(Addons),
     addons,
   );
@@ -507,7 +507,7 @@ export async function createPluginRpcHostParts(
     generalStorage,
     await createTestUnitOfWork(db),
     (await sharedTestOrm(db)).em,
-    new SettingsService(await createTestUnitOfWork(db), appSettings, await createTestSettingsRepo(db)),
+    new SettingsService(await createTestUnitOfWork(db), appSettings, await createTestSettingsRepo(db), await createTestTripsRepo(db)),
   );
   // Plan 4 Task 4: UserCleanupService's UC1 now goes through a directly-injected
   // EntityManager (MaintenanceRepository.deletePluginUserData), not DatabaseService.

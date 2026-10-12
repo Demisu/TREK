@@ -1,5 +1,6 @@
 import { AppSettings } from '../../db/entities/AppSettings.entity';
 import { Settings } from '../../db/entities/Settings.entity';
+import { Trips } from '../../db/entities/Trips.entity';
 import { AppConfigModule } from '../app-config/app-config.module';
 import { AuditModule } from '../audit/audit.module';
 import { AdminDefaultUserSettingsController, SettingsController } from './settings.controller';
@@ -19,8 +20,9 @@ import { Module } from '@nestjs/common';
   // (nothing resolves it off an ambient MikroORM request context — an
   // earlier design tried that and broke ~185 hand-built unit tests, see
   // task-5-review.md §4), so nothing in this module ever needs
-  // `@InjectRepository(Users)`.
-  imports: [AppConfigModule, AuditModule, MikroOrmModule.forFeature([AppSettings, Settings])],
+  // `@InjectRepository(Users)`. Trips is here for the planner view row (#2639),
+  // which keeps only trips the user can still open.
+  imports: [AppConfigModule, AuditModule, MikroOrmModule.forFeature([AppSettings, Settings, Trips])],
   controllers: [SettingsController, AdminDefaultUserSettingsController],
   providers: [SettingsService, SettingsMcp],
   exports: [SettingsService],

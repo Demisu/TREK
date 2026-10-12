@@ -10,7 +10,7 @@
 import { db as testDb } from '../../../src/db/database';
 import { Settings } from '../../../src/db/entities/Settings.entity';
 import { SettingsService } from '../../../src/nest/settings/settings.service';
-import { createUser } from '../../helpers/factories';
+import { addTripMember, createTrip, createUser } from '../../helpers/factories';
 import { findRows } from '../../helpers/factories/rows';
 import { readUserSetting, setAppSetting, setUserSetting } from '../../helpers/factories/settings';
 import { resetTestDb } from '../../helpers/test-db';
@@ -20,6 +20,7 @@ import {
   createTestUnitOfWork,
   createTestAppSettingsRepo,
   createTestSettingsRepo,
+  createTestTripsRepo,
 } from '../../helpers/test-uow';
 
 import { describe, it, expect, vi, beforeAll, beforeEach, afterAll } from 'vitest';
@@ -61,6 +62,7 @@ beforeAll(async () => {
     await createTestUnitOfWork(testDb),
     await createTestAppSettingsRepo(testDb),
     await createTestSettingsRepo(testDb),
+    await createTestTripsRepo(testDb),
   );
 });
 
@@ -404,5 +406,63 @@ describe('legacy quirk fixes', () => {
   it('SET-SVC-030 — bulk returns the count of keys actually written', async () => {
     const { user } = createUser(testDb);
     expect(await svc.bulkUpsertSettings(user.id, { a: '1', b: '••••••••' })).toBe(1);
+  });
+});
+
+// #2639: road trip mode, the Dawarich trail and the route overview follow the
+// user to another browser through one settings row, and that row must not keep
+// trips the user can no longer open.
+describe('planner_trip_views', () => {
+  it('SET-SVC-037 — keeps the switches of trips the user owns or is a member of', async () => {
+    const { user } = createUser(testDb);
+    const { user: other } = createUser(testDb);
+    const own = createTrip(testDb, user.id);
+    const shared = createTrip(testDb, other.id);
+    addTripMember(testDb, shared.id, user.id);
+    await svc.upsertSetting(user.id, 'planner_trip_views', {
+      [own.id]: { roadtrip: true },
+      [shared.id]: { dawarich: true, overview: true },
+    });
+    expect((await svc.getUserSettings(user.id)).planner_trip_views).toEqual({
+      [own.id]: { roadtrip: true },
+      [shared.id]: { dawarich: true, overview: true },
+    });
+  });
+
+  it('SET-SVC-038 — drops trips the user cannot open, deleted ones included, on every write', async () => {
+    const { user } = createUser(testDb);
+    const { user: other } = createUser(testDb);
+    const own = createTrip(testDb, user.id);
+    const foreign = createTrip(testDb, other.id);
+    const gone = createTrip(testDb, user.id);
+    testDb.prepare('DELETE FROM trips WHERE id = ?').run(gone.id);
+    await svc.upsertSetting(user.id, 'planner_trip_views', {
+      [own.id]: { roadtrip: true },
+      [foreign.id]: { roadtrip: true },
+      [gone.id]: { overview: true },
+    });
+    expect(JSON.parse(String(await readUserSetting(t, user.id, 'planner_trip_views')))).toEqual({
+      [own.id]: { roadtrip: true },
+    });
+  });
+
+  it('SET-SVC-039 — stores only switches that are on, and the bulk path does the same', async () => {
+    const { user } = createUser(testDb);
+    const a = createTrip(testDb, user.id);
+    const b = createTrip(testDb, user.id);
+    await svc.bulkUpsertSettings(user.id, {
+      planner_trip_views: { [a.id]: { roadtrip: false, overview: true }, [b.id]: { dawarich: false } },
+    });
+    expect(JSON.parse(String(await readUserSetting(t, user.id, 'planner_trip_views')))).toEqual({
+      [a.id]: { overview: true },
+    });
+  });
+
+  it('SET-SVC-040 — a value outside the contract is stored as an empty row, null clears it', async () => {
+    const { user } = createUser(testDb);
+    await svc.upsertSetting(user.id, 'planner_trip_views', { abc: { roadtrip: 'yes' } });
+    expect(await readUserSetting(t, user.id, 'planner_trip_views')).toBe('{}');
+    await svc.upsertSetting(user.id, 'planner_trip_views', null);
+    expect(await readUserSetting(t, user.id, 'planner_trip_views')).toBe('');
   });
 });

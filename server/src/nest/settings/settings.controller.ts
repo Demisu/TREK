@@ -12,7 +12,9 @@ import { SettingsService, isAdminOnlyEndpointSetting } from './settings.service'
 import { Body, Controller, Get, HttpCode, HttpException, Post, Put, Req, UseGuards } from '@nestjs/common';
 import {
   MASKED_SETTING_VALUE,
+  PLANNER_TRIP_VIEWS_KEY,
   adminDefaultUserSettingsResponseSchema,
+  plannerTripViewsSchema,
   settingUpsertResponseSchema,
   settingsBulkResponseSchema,
   settingsListResponseSchema,
@@ -61,6 +63,22 @@ export class SettingsController {
     }
   }
 
+  /**
+   * The one value with a shape the route checks (#2639): the planner's view
+   * switches per trip. Clearing it stays open, like every other key.
+   */
+  private assertValidValues(settings: Record<string, unknown>) {
+    const value = settings[PLANNER_TRIP_VIEWS_KEY];
+    if (value === undefined || value === null) return;
+    const parsed = plannerTripViewsSchema.safeParse(value);
+    if (!parsed.success) {
+      throw new HttpException(
+        { error: `Invalid value for ${PLANNER_TRIP_VIEWS_KEY}: ${parsed.error.issues[0]?.message ?? 'not accepted'}` },
+        400,
+      );
+    }
+  }
+
   @Get()
   @ResponseContract(settingsListResponseSchema)
   async list(@CurrentUser() user: User) {
@@ -71,6 +89,7 @@ export class SettingsController {
   @ResponseContract(settingUpsertResponseSchema)
   async upsert(@CurrentUser() user: User, @Body() body: SettingUpsertDto) {
     this.assertMayWriteInstanceEndpoint({ [body.key]: body.value });
+    this.assertValidValues({ [body.key]: body.value });
     // assertMayWriteInstanceEndpoint only covers llm_base_url and provider 'local'.
     // llm_api_key and llm_model are writable by every user, and on a managed
     // install both cost the operator money, so the key list decides here.
@@ -90,6 +109,7 @@ export class SettingsController {
   @ResponseContract(settingsBulkResponseSchema)
   async bulk(@CurrentUser() user: User, @Body() body: SettingsBulkDto) {
     this.assertMayWriteInstanceEndpoint(body.settings);
+    this.assertValidValues(body.settings);
     const { allowed, blocked } = splitManagedKeys(body.settings, this.env.isManaged());
     try {
       const updated = await this.settings.bulkUpsertSettings(user.id, allowed);

@@ -1,11 +1,12 @@
-// FE-TP-MAPVIEW-001 to FE-TP-MAPVIEW-012
+// FE-TP-MAPVIEW-001 to FE-TP-MAPVIEW-013
 //
 // The planner's map view switches and its first fit, driven straight through
 // usePlannerMapView. Every toggle is called here, together with the storage each one
 // remembers its state in: the planner tests only ever read these values.
 import { act, renderHook } from '@testing-library/react'
-import { resetAllStores } from '../../../tests/helpers/store'
-import { buildPlace, buildTrip } from '../../../tests/helpers/factories'
+import { resetAllStores, seedStore } from '../../../tests/helpers/store'
+import { buildPlace, buildSettings, buildTrip } from '../../../tests/helpers/factories'
+import { useSettingsStore } from '../../store/settingsStore'
 import type { Place, Trip } from '../../types'
 import { usePlannerMapView } from './usePlannerMapView'
 
@@ -103,18 +104,21 @@ describe('usePlannerMapView', () => {
     expect(result.current.routeProfile).toBe('plugin:bikes/gravel')
   })
 
-  it('FE-TP-MAPVIEW-007: the whole-trip overview flips and is kept per trip for the session', () => {
+  it('FE-TP-MAPVIEW-007: the whole-trip overview flips and is kept per trip, in the tab and on the account', () => {
+    seedStore(useSettingsStore, { settings: buildSettings(), isLoaded: true })
     const { result } = renderMapView()
 
     act(() => { result.current.toggleOverview() })
     expect(result.current.overviewShown).toBe(true)
     expect(sessionStorage.getItem('trip-overview-7')).toBe('1')
+    expect(useSettingsStore.getState().settings.planner_trip_views).toEqual({ '7': { overview: true } })
     expect(renderMapView().result.current.overviewShown).toBe(true)
     expect(renderMapView({ tripId: 8 }).result.current.overviewShown).toBe(false)
 
     act(() => { result.current.toggleOverview() })
     expect(result.current.overviewShown).toBe(false)
     expect(sessionStorage.getItem('trip-overview-7')).toBe('0')
+    expect(useSettingsStore.getState().settings.planner_trip_views).toEqual({})
   })
 
   it('FE-TP-MAPVIEW-008: the map lock flips, is read through its ref and is remembered by the browser', () => {
@@ -160,12 +164,14 @@ describe('usePlannerMapView', () => {
     expect(result.current.isMobileRef.current).toBe(true)
   })
 
-  it('FE-TP-MAPVIEW-011: the recorded trail flips and is kept per trip for the session', () => {
+  it('FE-TP-MAPVIEW-011: the recorded trail flips and is kept per trip, in the tab and on the account', () => {
+    seedStore(useSettingsStore, { settings: buildSettings(), isLoaded: true })
     const { result } = renderMapView()
 
     act(() => { result.current.toggleDawarichTrail() })
     expect(result.current.dawarichTrailShown).toBe(true)
     expect(sessionStorage.getItem('trip-dawarich-7')).toBe('1')
+    expect(useSettingsStore.getState().settings.planner_trip_views).toEqual({ '7': { dawarich: true } })
     // The addon is off in this store, so switching the layer on asks nothing of the network.
     expect(result.current.dawarichTrail.status).toBe('idle')
     expect(renderMapView().result.current.dawarichTrailShown).toBe(true)
@@ -173,6 +179,19 @@ describe('usePlannerMapView', () => {
     act(() => { result.current.toggleDawarichTrail() })
     expect(result.current.dawarichTrailShown).toBe(false)
     expect(sessionStorage.getItem('trip-dawarich-7')).toBe('0')
+  })
+
+  it('FE-TP-MAPVIEW-013: the overview and the trail switched on in another browser are on here too (#2639)', () => {
+    // A fresh tab: nothing in sessionStorage, only the account's settings.
+    seedStore(useSettingsStore, {
+      settings: buildSettings({ planner_trip_views: { '7': { overview: true, dawarich: true } } }),
+      isLoaded: true,
+    })
+
+    const { result } = renderMapView()
+    expect(result.current.overviewShown).toBe(true)
+    expect(result.current.dawarichTrailShown).toBe(true)
+    expect(renderMapView({ tripId: 8 }).result.current.overviewShown).toBe(false)
   })
 
   it('FE-TP-MAPVIEW-012: each trip gets one automatic fit, once it has a place to fit to', () => {

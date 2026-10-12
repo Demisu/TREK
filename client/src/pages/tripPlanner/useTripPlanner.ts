@@ -54,6 +54,7 @@ import { usePlaceEdits } from './usePlaceEdits'
 import { usePlaceFormOpeners } from './usePlaceFormOpeners'
 import { useDayPlanEdits } from './useDayPlanEdits'
 import { useBookingEdits } from './useBookingEdits'
+import { usePlannerTripView } from './usePlannerTripView'
 import { useIsPhone } from '../../mobile/useIsPhone'
 import { useRoadtripVias } from '../../components/Roadtrip/useRoadtripVias'
 
@@ -116,10 +117,10 @@ export function useTripPlanner() {
   // asked to open ('collab' in particular, guessed off) survives the gap.
   const [addonsLoaded, setAddonsLoaded] = useState<boolean>(false)
   // Road trip mode swaps the plan view's left rail (and later its map layer) for the
-  // drive-first reading of the same trip. Per trip and per session, like the tab choice:
-  // someone planning a road trip stays in it across reloads without it leaking into
-  // their next, non-driving trip.
-  const [storedRoadtripMode, setRoadtripMode] = useState<boolean>(() => sessionStorage.getItem(`trip-roadtrip-${tripId}`) === '1')
+  // drive-first reading of the same trip. Remembered per trip on the account (#2639):
+  // someone planning a road trip finds it again in another browser without it
+  // leaking into their next, non-driving trip.
+  const [storedRoadtripMode, toggleRoadtripMode] = usePlannerTripView(tripId, 'roadtrip')
   // Declared here rather than with the other layout state further down, because
   // road-trip mode is decided on it and the assignment and place lists below are
   // decided on that. One subscriber for the whole hook.
@@ -151,13 +152,6 @@ export function useTripPlanner() {
       Object.entries(storedAssignments).map(([dayId, visits]) => [dayId, visits.filter(v => !hidden(v))]),
     )
   }, [roadtripMode, roadtripSettings.roadtrip_service_stops_in_days, storedAssignments])
-  const toggleRoadtripMode = useCallback(() => {
-    setRoadtripMode(prev => {
-      const next = !prev
-      sessionStorage.setItem(`trip-roadtrip-${tripId}`, next ? '1' : '0')
-      return next
-    })
-  }, [tripId])
   const [collabFeatures, setCollabFeatures] = useState<{ chat: boolean; notes: boolean; links: boolean; polls: boolean; whatsnext: boolean }>({ chat: true, notes: true, links: true, polls: true, whatsnext: true })
   const [tripAccommodations, setTripAccommodations] = useState<Accommodation[]>([])
   const places = useMemo(
