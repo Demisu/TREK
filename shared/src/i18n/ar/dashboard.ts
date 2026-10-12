@@ -291,5 +291,7 @@ const dashboard: TranslationStrings = {
   'dashboard.aria.addTimezone': 'إضافة منطقة زمنية',
   'dashboard.aria.removeTimezone': 'إزالة {city}',
   'dashboard.dayCountRequired': 'عدد الأيام مطلوب',
+  'dashboard.tripChangeNeedsConnection':
+    'تغيير التواريخ أو عدد الأيام أو العملة أو صورة الغلاف يتطلب اتصالاً. يمكن تغيير الاسم والوصف والتذكير دون اتصال.',
 };
 export default dashboard;

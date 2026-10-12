@@ -79,5 +79,6 @@ const common: TranslationStrings = {
   'common.errorUpdateTitle': 'Yeni versiya mövcuddur',
   'common.errorUpdateBody': 'Bu səhifə açıq olarkən TREK yeniləndi. Yeni versiyanı əldə etmək üçün səhifəni yenilə.',
   'common.errorPluginTitle': 'Bu plagini göstərmək mümkün olmadı',
+  'common.needsConnection': 'Bunun üçün bağlantı lazımdır. TREK yenidən onlayn olduqda bir daha cəhd edin.',
 };
 export default common;

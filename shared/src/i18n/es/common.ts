@@ -80,5 +80,6 @@ const common: TranslationStrings = {
   'common.errorUpdateBody':
     'TREK se actualizó mientras esta pestaña estaba abierta. Recarga para obtener la nueva versión.',
   'common.errorPluginTitle': 'No se pudo mostrar este plugin',
+  'common.needsConnection': 'Esto necesita conexión. Vuelve a intentarlo cuando TREK esté de nuevo en línea.',
 };
 export default common;

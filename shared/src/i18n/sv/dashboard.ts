@@ -220,5 +220,7 @@ const dashboard: TranslationStrings = {
   'dashboard.aria.addTimezone': 'Lägg till tidszon',
   'dashboard.aria.removeTimezone': 'Ta bort {city}',
   'dashboard.dayCountRequired': 'Antalet dagar måste anges',
+  'dashboard.tripChangeNeedsConnection':
+    'Nya datum, ett annat antal dagar, en annan valuta eller en ny omslagsbild kräver en anslutning. Namn, beskrivning och påminnelse kan ändras offline.',
 };
 export default dashboard;

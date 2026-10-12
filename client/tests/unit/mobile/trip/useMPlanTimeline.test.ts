@@ -678,7 +678,7 @@ describe('useMPlanTimeline', () => {
     const { result } = await renderTimeline(makePlanner())
     await act(async () => { result.current.setLegMode(11, 'walking') })
     expect(useTripStore.getState().assignments['2'].map(a => a.leg_transport_mode)).toEqual(['walking', undefined])
-    expect(assignmentsApi.updateTransport).toHaveBeenCalledWith(1, 11, 'walking')
+    await waitFor(() => expect(assignmentsApi.updateTransport).toHaveBeenCalledWith(1, 11, 'walking'))
   })
 
   it('FE-MOB-PLTL-042: reverts to the server state when the leg mode fails to save', async () => {

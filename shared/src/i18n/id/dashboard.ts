@@ -204,5 +204,7 @@ const dashboard: TranslationStrings = {
   'dashboard.aria.addTimezone': 'Tambah zona waktu',
   'dashboard.aria.removeTimezone': 'Hapus {city}',
   'dashboard.dayCountRequired': 'Jumlah hari wajib diisi',
+  'dashboard.tripChangeNeedsConnection':
+    'Mengubah tanggal, jumlah hari, mata uang, atau sampul memerlukan koneksi. Nama, deskripsi, dan pengingat bisa diubah secara offline.',
 };
 export default dashboard;

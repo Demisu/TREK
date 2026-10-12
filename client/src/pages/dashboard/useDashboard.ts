@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { tripsApi, authApi, reservationsApi } from '../../api/client'
 import { tripRepo } from '../../repo/tripRepo'
+import { isEffectivelyOffline } from '../../sync/networkMode'
 import { useAuthStore } from '../../store/authStore'
 import { useTranslation } from '../../i18n'
 import { useToast } from '../../components/shared/Toast'
@@ -132,7 +133,7 @@ export function useDashboard() {
   const handleUpdate = async (tripData: TripCreateRequest) => {
     if (!editingTrip) return
     try {
-      const data = await tripsApi.update(editingTrip.id, tripData)
+      const data = await tripRepo.update(editingTrip.id, tripData)
       setTrips(prev => sortTrips(prev.map(t => t.id === editingTrip.id ? data.trip : t)))
       toast.success(t('dashboard.toast.updated'))
     } catch (err: unknown) {
@@ -144,6 +145,9 @@ export function useDashboard() {
   // than only that it failed; the generic line stays for a failure without one.
   const confirmDelete = async () => {
     if (!deleteTrip) return
+    // Deleting, copying and creating a trip are the server's to do; archiving
+    // and editing its name wait in the offline queue.
+    if (isEffectivelyOffline()) { toast.error(t('common.needsConnection')); setDeleteTrip(null); return }
     try {
       await tripsApi.delete(deleteTrip.id)
       setTrips(prev => prev.filter(t => t.id !== deleteTrip.id))
@@ -157,7 +161,7 @@ export function useDashboard() {
 
   const handleArchive = async (id: number) => {
     try {
-      const data = await tripsApi.archive(id)
+      const data = await tripRepo.update(id, { is_archived: true })
       setTrips(prev => prev.filter(t => t.id !== id))
       setArchivedTrips(prev => sortTrips([data.trip, ...prev]))
       toast.success(t('dashboard.toast.archived'))
@@ -168,7 +172,7 @@ export function useDashboard() {
 
   const handleUnarchive = async (id: number) => {
     try {
-      const data = await tripsApi.unarchive(id)
+      const data = await tripRepo.update(id, { is_archived: false })
       setArchivedTrips(prev => prev.filter(t => t.id !== id))
       setTrips(prev => sortTrips([data.trip, ...prev]))
       toast.success(t('dashboard.toast.restored'))
@@ -179,6 +183,7 @@ export function useDashboard() {
 
   const confirmCopy = async () => {
     if (!copyTrip) return
+    if (isEffectivelyOffline()) { toast.error(t('common.needsConnection')); setCopyTrip(null); return }
     try {
       const data = await tripsApi.copy(copyTrip.id, { title: `${copyTrip.title} (${t('dashboard.copySuffix')})` })
       setTrips(prev => sortTrips([data.trip, ...prev]))

@@ -80,5 +80,6 @@ const common: TranslationStrings = {
   'common.errorUpdateBody':
     'TREK uppdaterades medan den här fliken var öppen. Ladda om för att hämta den nya versionen.',
   'common.errorPluginTitle': 'Det här tillägget kunde inte visas',
+  'common.needsConnection': 'Det här kräver en anslutning. Försök igen när TREK är online igen.',
 };
 export default common;

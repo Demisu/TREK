@@ -1,8 +1,8 @@
 import { create } from 'zustand'
 import type { StoreApi } from 'zustand'
-import { tripsApi, tagsApi, categoriesApi } from '../api/client'
+import { tagsApi, categoriesApi } from '../api/client'
 import { offlineDb } from '../db/offlineDb'
-import { tripRepo } from '../repo/tripRepo'
+import { tripRepo, TripNeedsConnectionError } from '../repo/tripRepo'
 import { dayRepo } from '../repo/dayRepo'
 import { placeRepo } from '../repo/placeRepo'
 import { packingRepo } from '../repo/packingRepo'
@@ -243,7 +243,7 @@ export const useTripStore = create<TripStoreState>((set, get) => ({
   updateTrip: async (tripId: number | string, data: Partial<Trip> & { date_shift_mode?: 'keep_bookings' | 'shift_all' }) => {
     try {
       const before = get().trip
-      const result = await tripsApi.update(tripId, data)
+      const result = await tripRepo.update(tripId, data)
       set({ trip: result.trip })
       // New dates rebuild the day rows, and a stay on a day that went is gone
       // with it. Stays live in the planner, not here, so every caller of this
@@ -266,6 +266,7 @@ export const useTripStore = create<TripStoreState>((set, get) => ({
       await get().loadReservations(tripId)
       return result.trip
     } catch (err: unknown) {
+      if (err instanceof TripNeedsConnectionError) throw err
       throw new Error(getApiErrorMessage(err, 'Error updating trip'))
     }
   },

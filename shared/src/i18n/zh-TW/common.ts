@@ -77,5 +77,6 @@ const common: TranslationStrings = {
   'common.errorUpdateTitle': '有新版本可用',
   'common.errorUpdateBody': '此分頁開啟期間 TREK 已更新。請重新載入以取得新版本。',
   'common.errorPluginTitle': '無法顯示此外掛程式',
+  'common.needsConnection': '此操作需要網路連線。請在 TREK 恢復連線後再試一次。',
 };
 export default common;

@@ -256,5 +256,7 @@ const dashboard: TranslationStrings = {
   'dashboard.aria.addTimezone': 'Добавить часовой пояс',
   'dashboard.aria.removeTimezone': 'Удалить {city}',
   'dashboard.dayCountRequired': 'Количество дней обязательно',
+  'dashboard.tripChangeNeedsConnection':
+    'Для смены дат, количества дней, валюты или обложки нужно подключение. Название, описание и напоминание можно менять и офлайн.',
 };
 export default dashboard;

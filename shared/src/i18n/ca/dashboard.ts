@@ -223,5 +223,7 @@ const dashboard: TranslationStrings = {
   'dashboard.mobile.spotlightDayOf': 'Dia {day} de {total}',
   'dashboard.mobile.spotlightDays': '{count} dies',
   'dashboard.mobile.spotlightDays.one': '{count} dia',
+  'dashboard.tripChangeNeedsConnection':
+    'Canviar les dates, el nombre de dies, la moneda o la portada necessita connexió. El nom, la descripció i el recordatori es poden canviar sense connexió.',
 };
 export default dashboard;

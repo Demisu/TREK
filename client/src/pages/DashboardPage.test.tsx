@@ -17,8 +17,10 @@ beforeEach(() => {
   // 2026-07-01..07-10) so the dashboard's past/upcoming/spotlight split is stable
   // regardless of the wall clock — otherwise these tests break once the date
   // rolls past the hardcoded fixture window. shouldAdvanceTime keeps userEvent
-  // and async waitFor working under fake timers.
-  vi.useFakeTimers({ shouldAdvanceTime: true });
+  // and async waitFor working under fake timers. Only the clock is faked: the
+  // IndexedDB stand-in schedules its requests on timers, and a fake one left
+  // pending when a test ends stalls every later write to the offline cache.
+  vi.useFakeTimers({ shouldAdvanceTime: true, toFake: ['Date'] });
   vi.setSystemTime(new Date('2026-07-05T12:00:00Z'));
   resetAllStores();
   // Seed auth with authenticated user

@@ -1,6 +1,5 @@
 import { type ChangeEvent, useCallback, useRef, useState } from 'react';
 
-import { assignmentsApi } from '../../api/client';
 import { translateApiError, useTranslation } from '../../i18n';
 import type { TripStoreState } from '../../store/tripStore';
 import { useTripStore } from '../../store/tripStore';
@@ -66,15 +65,7 @@ export function placeActions({ tripId, tripActions, toast, t }: PlaceActionDeps)
   /** Who joins the assignment; the answer is written back into that day's list. */
   const setParticipants = async (assignmentId: number, dayId: number, userIds: number[]) => {
     try {
-      const data = await assignmentsApi.setParticipants(tripId, assignmentId, userIds);
-      useTripStore.setState((state) => ({
-        assignments: {
-          ...state.assignments,
-          [String(dayId)]: (state.assignments[String(dayId)] || []).map((a) =>
-            a.id === assignmentId ? { ...a, participants: data.participants } : a
-          ),
-        },
-      }));
+      await useTripStore.getState().setAssignmentParticipants(tripId, dayId, assignmentId, userIds);
     } catch (err: unknown) {
       report(err);
     }

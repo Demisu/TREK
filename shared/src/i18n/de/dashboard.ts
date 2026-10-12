@@ -224,5 +224,7 @@ const dashboard: TranslationStrings = {
   'dashboard.aria.addTimezone': 'Zeitzone hinzufügen',
   'dashboard.aria.removeTimezone': '{city} entfernen',
   'dashboard.dayCountRequired': 'Anzahl der Tage ist erforderlich',
+  'dashboard.tripChangeNeedsConnection':
+    'Neue Daten, eine andere Anzahl Tage, eine andere Währung oder ein neues Titelbild brauchen eine Verbindung. Name, Beschreibung und Erinnerung lassen sich auch offline ändern.',
 };
 export default dashboard;

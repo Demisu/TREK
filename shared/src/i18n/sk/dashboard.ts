@@ -238,5 +238,7 @@ const dashboard: TranslationStrings = {
   'dashboard.aria.addTimezone': 'Pridať časové pásmo',
   'dashboard.aria.removeTimezone': 'Odstrániť {city}',
   'dashboard.dayCountRequired': 'Počet dní je povinný',
+  'dashboard.tripChangeNeedsConnection':
+    'Zmena termínu, počtu dní, meny alebo titulného obrázka potrebuje pripojenie. Názov, popis a pripomienku môžeš zmeniť aj offline.',
 };
 export default dashboard;

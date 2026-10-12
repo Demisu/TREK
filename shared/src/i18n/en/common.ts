@@ -79,5 +79,6 @@ const common: TranslationStrings = {
   'common.errorUpdateTitle': 'A new version is available',
   'common.errorUpdateBody': 'TREK was updated while this tab was open. Reload to get the new version.',
   'common.errorPluginTitle': 'This plugin could not be shown',
+  'common.needsConnection': 'This needs a connection. Try again once TREK is back online.',
 };
 export default common;

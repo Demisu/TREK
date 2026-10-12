@@ -10,7 +10,6 @@ import { safeHttpUrl } from '../../utils/safeUrl'
 import { ChevronDown, ChevronRight, ChevronUp, Compass, RotateCcw, ExternalLink, Pencil, GripVertical, Ticket, Plus, FileText, Trash2, Car, Lock, Hotel, Eraser, Route as RouteIcon, RouteOff, Bookmark, StickyNote, TramFront, Zap, MapPin, Globe } from 'lucide-react'
 import { type PickedPlace } from './TransitSearchPanel'
 import { buildTransitLeg, buildTransitNameIndex } from './transitLeg'
-import { daysApi } from '../../api/client'
 import { optimizeRoute, generateGoogleMapsUrl, generateCoMapsUrl } from '../Map/RouteCalculator'
 import { dayViaLookup, routeLeg, type LegEnd, type ViasByDay } from '../Map/dayRouteVias'
 import GoogleMapsIcon from '../shared/GoogleMapsIcon'
@@ -1392,11 +1391,9 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
   // and mirrored into routeProfile so the live map redraws at once. Legs that carry
   // their own mode are left untouched.
   const setDayDefaultMode = (dayId: number, mode: string) => {
-    useTripStore.setState(state => ({ days: state.days.map(d => (d.id === dayId ? { ...d, default_transport_mode: mode } : d)) }))
     onSetRouteProfile?.(mode)
-    daysApi.updateTransport(tripId, dayId, mode).catch((err: unknown) => {
+    tripActions.setDayTransportMode(tripId, dayId, mode).catch((err: unknown) => {
       toast.error(err instanceof Error ? err.message : t('common.unknownError'))
-      void tripActions.refreshDays(tripId)
     })
   }
 

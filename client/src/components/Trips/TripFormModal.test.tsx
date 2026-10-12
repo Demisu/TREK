@@ -1520,4 +1520,31 @@ describe('TripFormModal', () => {
     await waitFor(() => expect(onSave).toHaveBeenCalledTimes(2));
     expect(onSave.mock.calls[1][0]).toMatchObject({ day_count: 6 });
   });
+
+  // #2601: offline a new name still saves, while what only the server can do says so.
+  describe('offline', () => {
+    const setOnline = (v: boolean) => Object.defineProperty(navigator, 'onLine', { value: v, writable: true, configurable: true });
+    afterEach(() => setOnline(true));
+
+    it('FE-COMP-TRIPFORM-098: a new name is saved offline, new dates and a new trip are refused with the hint', async () => {
+      const user = userEvent.setup();
+      const trip = buildTrip({ id: 1, title: 'Rome', start_date: '2026-11-02', end_date: '2026-11-04', currency: 'EUR' });
+      const onSave = vi.fn().mockResolvedValue(undefined);
+      setOnline(false);
+      const { unmount } = render(<TripFormModal {...defaultProps} trip={trip} onSave={onSave} />);
+      const title = screen.getByDisplayValue('Rome');
+      await user.clear(title);
+      await user.type(title, 'Roma');
+      await user.click(screen.getByRole('button', { name: /Update/i }));
+      await waitFor(() => expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ title: 'Roma', start_date: '2026-11-02' })));
+      unmount();
+
+      const created = vi.fn();
+      render(<TripFormModal {...defaultProps} onSave={created} />);
+      await user.type(screen.getByPlaceholderText(/Summer in Japan/i), 'Paris 2026');
+      await submitNewTrip(user);
+      expect(await screen.findByText(/This needs a connection/)).toBeInTheDocument();
+      expect(created).not.toHaveBeenCalled();
+    });
+  });
 });

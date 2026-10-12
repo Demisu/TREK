@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { useTripStore } from '../../../src/store/tripStore';
 import { resetAllStores, seedStore } from '../../helpers/store';
 import { buildPlace, buildAssignment } from '../../helpers/factories';
 import { server } from '../../helpers/msw/server';
+import { clearAll, offlineDb } from '../../../src/db/offlineDb';
 
 vi.mock('../../../src/api/websocket', () => ({
   connect: vi.fn(),
@@ -565,6 +566,65 @@ describe('assignmentsSlice', () => {
       useTripStore.getState().setAssignments(next);
 
       expect(useTripStore.getState().assignments).toEqual(next);
+    });
+  });
+
+  // #2601: offline a place goes on its day, comes off it, moves and is reordered
+  // through the queue instead of failing.
+  describe('offline', () => {
+    const setOnline = (v: boolean) => Object.defineProperty(navigator, 'onLine', { value: v, writable: true, configurable: true });
+    beforeEach(async () => { await clearAll(); setOnline(false); });
+    afterEach(async () => { setOnline(true); await clearAll(); });
+
+    async function queued(): Promise<[string, string][]> {
+      return (await offlineDb.mutationQueue.toArray())
+        .sort((a, b) => a.createdAt - b.createdAt)
+        .map(m => [m.method, m.url]);
+    }
+
+    it('FE-ASSIGN-OFF-001: a place put on a day offline stays there and waits in the queue', async () => {
+      const place = buildPlace({ id: 10, trip_id: 1 });
+      seedStore(useTripStore, { places: [place], assignments: { '1': [] } });
+
+      const visit = await useTripStore.getState().assignPlaceToDay(1, 1, 10);
+
+      expect(visit?.id).toBeLessThan(0);
+      expect(useTripStore.getState().assignments['1'].map(a => a.place_id)).toEqual([10]);
+      expect(await queued()).toEqual([['POST', '/trips/1/days/1/assignments']]);
+    });
+
+    it('FE-ASSIGN-OFF-002: removing, reordering and moving offline keep the change and queue it', async () => {
+      const a = buildAssignment({ id: 5, day_id: 1, order_index: 0 });
+      const b = buildAssignment({ id: 6, day_id: 1, order_index: 1 });
+      seedStore(useTripStore, { assignments: { '1': [a, b], '2': [] } });
+
+      await useTripStore.getState().reorderAssignments(1, 1, [6, 5]);
+      await useTripStore.getState().moveAssignment(1, 6, 1, 2);
+      await useTripStore.getState().removeAssignment(1, 1, 5);
+
+      expect(useTripStore.getState().assignments['1']).toEqual([]);
+      expect(useTripStore.getState().assignments['2'].map(x => x.id)).toEqual([6]);
+      expect(await queued()).toEqual([
+        ['PUT', '/trips/1/days/1/assignments/reorder'],
+        ['PUT', '/trips/1/assignments/6/move'],
+        ['DELETE', '/trips/1/days/1/assignments/5'],
+      ]);
+    });
+
+    it('FE-ASSIGN-OFF-003: a leg mode and the travellers chosen offline land on the visit', async () => {
+      seedStore(useTripStore, { assignments: { '2': [buildAssignment({ id: 5, day_id: 2 })] } });
+      await offlineDb.tripMembers.put({ tripId: 1, id: 4, username: 'Lena', avatar: null });
+
+      await useTripStore.getState().setAssignmentParticipants(1, 2, 5, [4]);
+      await useTripStore.getState().setAssignmentLegMode(1, 2, 5, 'driving');
+
+      const visit = useTripStore.getState().assignments['2'][0];
+      expect(visit.participants).toEqual([{ user_id: 4, username: 'Lena', avatar: null }]);
+      expect(visit.leg_transport_mode).toBe('driving');
+      expect(await queued()).toEqual([
+        ['PUT', '/trips/1/assignments/5/participants'],
+        ['PUT', '/trips/1/assignments/5/transport'],
+      ]);
     });
   });
 });

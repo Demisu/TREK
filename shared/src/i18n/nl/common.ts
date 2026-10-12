@@ -80,5 +80,6 @@ const common: TranslationStrings = {
   'common.errorUpdateBody':
     'TREK is bijgewerkt terwijl dit tabblad open stond. Herlaad om de nieuwe versie te krijgen.',
   'common.errorPluginTitle': 'Deze plug-in kon niet worden getoond',
+  'common.needsConnection': 'Hiervoor is een verbinding nodig. Probeer het opnieuw zodra TREK weer online is.',
 };
 export default common;

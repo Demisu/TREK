@@ -204,5 +204,7 @@ const dashboard: TranslationStrings = {
   'dashboard.unsplashNoResults': 'Không tìm thấy ảnh nào',
   'dashboard.coverSearchError': 'Tìm kiếm trên Unsplash không thành công',
   'dashboard.useUnsplashPhoto': 'Dùng ảnh Unsplash của {photographer}',
+  'dashboard.tripChangeNeedsConnection':
+    'Đổi ngày, số ngày, tiền tệ hoặc ảnh bìa cần có kết nối. Tên, mô tả và lời nhắc có thể đổi khi ngoại tuyến.',
 };
 export default dashboard;

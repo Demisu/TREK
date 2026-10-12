@@ -224,5 +224,7 @@ const dashboard: TranslationStrings = {
   'dashboard.aria.addTimezone': 'Időzóna hozzáadása',
   'dashboard.aria.removeTimezone': '{city} eltávolítása',
   'dashboard.dayCountRequired': 'A napok száma kötelező',
+  'dashboard.tripChangeNeedsConnection':
+    'Az időpontok, a napok száma, a pénznem vagy a borítókép módosításához kapcsolat kell. A név, a leírás és az emlékeztető offline is módosítható.',
 };
 export default dashboard;

@@ -220,5 +220,7 @@ const dashboard: TranslationStrings = {
   'dashboard.aria.addTimezone': 'Lisa ajavöönd',
   'dashboard.aria.removeTimezone': 'Eemalda {city}',
   'dashboard.dayCountRequired': 'Päevade arv on kohustuslik',
+  'dashboard.tripChangeNeedsConnection':
+    'Kuupäevade, päevade arvu, valuuta või kaanepildi muutmiseks on vaja ühendust. Nime, kirjeldust ja meeldetuletust saab muuta ka võrguühenduseta.',
 };
 export default dashboard;

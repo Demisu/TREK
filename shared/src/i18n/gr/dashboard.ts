@@ -225,5 +225,7 @@ const dashboard: TranslationStrings = {
   'dashboard.aria.addTimezone': 'Add timezone', // en-fallback
   'dashboard.aria.removeTimezone': 'Remove {city}', // en-fallback
   'dashboard.dayCountRequired': 'Ο αριθμός ημερών είναι υποχρεωτικός',
+  'dashboard.tripChangeNeedsConnection':
+    'Η αλλαγή ημερομηνιών, αριθμού ημερών, νομίσματος ή εξωφύλλου χρειάζεται σύνδεση. Το όνομα, η περιγραφή και η υπενθύμιση αλλάζουν και εκτός σύνδεσης.',
 };
 export default dashboard;

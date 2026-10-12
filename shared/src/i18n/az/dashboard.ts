@@ -223,5 +223,7 @@ const dashboard: TranslationStrings = {
   'dashboard.aria.addTimezone': 'Saat qurşağı əlavə et',
   'dashboard.aria.removeTimezone': '{city} saat qurşağını sil',
   'dashboard.dayCountRequired': 'Günlərin sayı tələb olunur',
+  'dashboard.tripChangeNeedsConnection':
+    'Tarixləri, günlərin sayını, valyutanı və ya üz şəklini dəyişmək üçün bağlantı lazımdır. Adı, təsviri və xatırlatmanı oflayn da dəyişə bilərsiniz.',
 };
 export default dashboard;

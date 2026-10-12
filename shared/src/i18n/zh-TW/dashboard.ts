@@ -200,5 +200,6 @@ const dashboard: TranslationStrings = {
   'dashboard.aria.addTimezone': '新增時區',
   'dashboard.aria.removeTimezone': '移除 {city}',
   'dashboard.dayCountRequired': '天數為必填項',
+  'dashboard.tripChangeNeedsConnection': '變更日期、天數、幣別或封面需要網路連線。名稱、說明和提醒可以在離線時變更。',
 };
 export default dashboard;

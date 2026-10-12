@@ -4223,12 +4223,10 @@ describe('DayPlanSidebar', () => {
     expect(useTripStore.getState().days[0].default_transport_mode).toBe('walking')
   })
 
-  it('FE-PLANNER-DAYPLAN-170: a failing day-mode save is reported and the days are refetched', async () => {
+  it('FE-PLANNER-DAYPLAN-170: a failing day-mode save is reported and the day gets its old mode back', async () => {
     const user = userEvent.setup()
     const { daysApi } = await import('../../api/client')
     vi.mocked(daysApi.updateTransport).mockRejectedValueOnce(new Error('offline'))
-    const refreshDays = vi.fn(async () => undefined)
-    stubTripActions({ refreshDays })
     const day = buildDay({ id: 10, date: '2025-06-01', title: 'Day 1' })
     const assignments = {
       '10': [
@@ -4236,10 +4234,11 @@ describe('DayPlanSidebar', () => {
         buildAssignment({ id: 12, day_id: 10, order_index: 1, place: buildPlace({ id: 2, name: 'B', lat: 48.86, lng: 2.36 }) }),
       ],
     }
+    seedStore(useTripStore, { days: [day] })
     render(<DayPlanSidebar {...makeDefaultProps({ days: [day], assignments, selectedDayId: 10 })} />)
     await user.click(screen.getByRole('button', { name: 'Walking' }))
     await waitFor(() => expect(mockToast.error).toHaveBeenCalledWith('offline'))
-    expect(refreshDays).toHaveBeenCalledWith(1)
+    expect(useTripStore.getState().days[0].default_transport_mode).toBeFalsy()
   })
 
   it('FE-PLANNER-DAYPLAN-171: a route connector opens the per-segment travel-mode menu', async () => {

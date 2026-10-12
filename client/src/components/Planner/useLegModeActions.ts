@@ -1,7 +1,7 @@
 import { type LucideIcon, RotateCcw, TramFront } from 'lucide-react';
 import { useCallback } from 'react';
 
-import { assignmentsApi } from '../../api/client';
+import { assignmentRepo } from '../../repo/assignmentRepo';
 import type { TripStoreState } from '../../store/tripStore';
 import { type RouteModeOption, routeModeIcon, useRouteModeOptions } from './routeModes';
 
@@ -52,10 +52,7 @@ export function useLegModeActions({ tripId, toast, t, tripActions }: LegModeDeps
 
   const persistLegMode = useCallback(
     (assignmentId: number, mode: string | null, direction?: 'incoming') => {
-      const write = direction
-        ? assignmentsApi.updateTransport(tripId, assignmentId, mode, direction)
-        : assignmentsApi.updateTransport(tripId, assignmentId, mode);
-      write.catch((err: unknown) => {
+      assignmentRepo.setLegMode(tripId, assignmentId, mode, direction).catch((err: unknown) => {
         toast.error(err instanceof Error ? err.message : t('common.unknownError'));
         void tripActions.refreshDays(tripId);
       });

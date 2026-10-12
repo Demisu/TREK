@@ -3,6 +3,7 @@ import { reanchorAfterRemove, reanchorByStopOrder } from '../../components/Roadt
 import type { useRouteCalculation } from '../../hooks/useRouteCalculation'
 import type { useTourPlaceIds } from '../../hooks/useTourPlaceIds'
 import { useTripStore, type TripStoreState } from '../../store/tripStore'
+import { isEffectivelyOffline } from '../../sync/networkMode'
 import type { Accommodation, Place } from '../../types'
 import { timedSlot } from '../../utils/dayMerge'
 import { restoreVisit, visitOf } from './placeUndo'
@@ -164,6 +165,9 @@ export function useDayPlanEdits(options: DayPlanEditsOptions) {
   }, [tripId, toast])
 
   const handleReorderDays = useCallback((orderedIds: number[]) => {
+    // The server moves the bookings' dates along with their days, so a new order
+    // of the days needs a connection, like adding or deleting one.
+    if (isEffectivelyOffline()) { toast.error(t('dayplan.daysOffline')); return }
     const prevIds = (useTripStore.getState().days || [])
       .slice().sort((a, b) => (a.day_number ?? 0) - (b.day_number ?? 0)).map(d => d.id)
     tripActions.reorderDays(tripId, orderedIds)

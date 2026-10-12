@@ -221,5 +221,7 @@ const dashboard: TranslationStrings = {
   'dashboard.aria.addTimezone': 'Saat dilimi ekle',
   'dashboard.aria.removeTimezone': '{city} kaldır',
   'dashboard.dayCountRequired': 'Gün sayısı gereklidir',
+  'dashboard.tripChangeNeedsConnection':
+    'Tarihleri, gün sayısını, para birimini veya kapak görselini değiştirmek bağlantı gerektirir. Ad, açıklama ve hatırlatıcı çevrimdışı da değiştirilebilir.',
 };
 export default dashboard;

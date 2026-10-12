@@ -80,5 +80,6 @@ const common: TranslationStrings = {
   'common.errorUpdateBody':
     'TREKi uuendati ajal, kui see vahekaart oli avatud. Uue versiooni kasutamiseks laadi leht uuesti.',
   'common.errorPluginTitle': 'Seda pluginat ei saanud kuvada',
+  'common.needsConnection': 'Selleks on vaja ühendust. Proovi uuesti, kui TREK on taas võrgus.',
 };
 export default common;

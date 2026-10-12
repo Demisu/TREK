@@ -202,5 +202,7 @@ const dashboard: TranslationStrings = {
   'dashboard.aria.addTimezone': 'タイムゾーンを追加',
   'dashboard.aria.removeTimezone': '{city}を削除',
   'dashboard.dayCountRequired': '日数は必須です',
+  'dashboard.tripChangeNeedsConnection':
+    '日程、日数、通貨、カバー画像の変更には接続が必要です。名前、説明、リマインダーはオフラインでも変更できます。',
 };
 export default dashboard;

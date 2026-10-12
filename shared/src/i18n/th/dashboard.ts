@@ -201,5 +201,7 @@ const dashboard: TranslationStrings = {
   'dashboard.aria.addTimezone': 'เพิ่มเขตเวลา',
   'dashboard.aria.removeTimezone': 'ลบ {city}',
   'dashboard.dayCountRequired': 'ต้องระบุจำนวนวัน',
+  'dashboard.tripChangeNeedsConnection':
+    'การเปลี่ยนวันที่ จำนวนวัน สกุลเงิน หรือภาพปกต้องใช้การเชื่อมต่อ ส่วนชื่อ คำอธิบาย และการแจ้งเตือนเปลี่ยนแบบออฟไลน์ได้',
 };
 export default dashboard;

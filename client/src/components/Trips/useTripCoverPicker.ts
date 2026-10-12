@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 
 import { tripsApi } from '../../api/client';
 import { useTranslation } from '../../i18n';
+import { isEffectivelyOffline } from '../../sync/networkMode';
 import { getApiErrorMessage } from '../../types';
 import { normalizeImageFile } from '../../utils/convertHeic';
+import { refusedOffline } from '../../utils/needsConnection';
 import { useToast } from '../shared/Toast';
 
 interface CoverSearchPhoto {
@@ -93,6 +95,7 @@ export function useTripCoverPicker({ trip, title, onCoverUpdate, releasePreviewO
   };
 
   const uploadCoverNow = async (tripId: number, file: File) => {
+    if (refusedOffline(toast, t)) return;
     setUploadingCover(true);
     try {
       const fd = new FormData();
@@ -131,6 +134,10 @@ export function useTripCoverPicker({ trip, title, onCoverUpdate, releasePreviewO
     }
     // Guard against out-of-order responses: only the latest search applies its
     // results, so a slow earlier query can't overwrite a newer one. #1277 review
+    if (isEffectivelyOffline()) {
+      setSearchError(t('common.needsConnection'));
+      return;
+    }
     const seq = ++coverSearchSeq.current;
     setSearching(true);
     setSearchError('');
@@ -152,6 +159,7 @@ export function useTripCoverPicker({ trip, title, onCoverUpdate, releasePreviewO
     if (!photo.url) return;
     setPendingCoverFile(null);
     if (isEditing && trip?.id) {
+      if (refusedOffline(toast, t)) return;
       setUploadingCover(true);
       try {
         await tripsApi.update(trip.id, { cover_image: photo.url });
@@ -178,6 +186,7 @@ export function useTripCoverPicker({ trip, title, onCoverUpdate, releasePreviewO
     }
     // Nothing pending left, so the preview is a saved trip's stored cover.
     const id = trip!.id;
+    if (refusedOffline(toast, t)) return;
     try {
       await tripsApi.update(id, { cover_image: null });
       setCoverPreview(null);

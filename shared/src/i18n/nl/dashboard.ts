@@ -223,5 +223,7 @@ const dashboard: TranslationStrings = {
   'dashboard.aria.addTimezone': 'Tijdzone toevoegen',
   'dashboard.aria.removeTimezone': '{city} verwijderen',
   'dashboard.dayCountRequired': 'Aantal dagen is verplicht',
+  'dashboard.tripChangeNeedsConnection':
+    'Nieuwe data, een ander aantal dagen, een andere valuta of een nieuwe omslag hebben een verbinding nodig. Naam, beschrijving en herinnering kun je ook offline wijzigen.',
 };
 export default dashboard;

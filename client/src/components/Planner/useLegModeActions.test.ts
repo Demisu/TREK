@@ -56,10 +56,13 @@ describe('useLegModeActions', () => {
       result.current.persistLegMode(11, 'walking');
       result.current.persistLegMode(12, null, 'incoming');
     });
-    expect(vi.mocked(assignmentsApi.updateTransport).mock.calls).toEqual([
-      [3, 11, 'walking'],
-      [3, 12, null, 'incoming'],
-    ]);
+    // The repo first asks the queue whether an older write to the leg waits.
+    await waitFor(() =>
+      expect(vi.mocked(assignmentsApi.updateTransport).mock.calls).toEqual([
+        [3, 11, 'walking'],
+        [3, 12, null, 'incoming'],
+      ])
+    );
     expect(d.toast.error).not.toHaveBeenCalled();
     expect(d.tripActions.refreshDays).not.toHaveBeenCalled();
   });

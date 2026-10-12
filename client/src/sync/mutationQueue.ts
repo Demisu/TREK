@@ -15,7 +15,7 @@ import type { QueuedMutation } from '../db/offlineDb'
 import type { Table } from 'dexie'
 import { roadtripPreferencesResponseSchema, assignmentSchema, tourCreateResponseSchema, type TourCreateResponse } from '@trek/shared'
 import { cacheAssignment } from '../db/cacheAssignment'
-import type { BudgetItem, BudgetItemMember, Reservation, TripFile } from '../types'
+import type { Assignment, AssignmentParticipant, BudgetItem, BudgetItemMember, Day, DayNote, Reservation, Trip, TripFile } from '../types'
 
 // Map Dexie table names used in `resource` field → actual Dexie tables.
 function getTable(resource: string): Table | undefined {
@@ -189,6 +189,15 @@ async function dropTempRows(mutation: QueuedMutation): Promise<void> {
     await offlineDb.tours.delete(mutation.tempId)
     return
   }
+  // Visits and day notes live on the cached day, not in a table of their own.
+  if (mutation.resource === 'assignments' || mutation.resource === 'dayNotes') {
+    const tempId = mutation.tempId
+    await offlineDb.days.where('trip_id').equals(mutation.tripId).modify(day => {
+      if (mutation.resource === 'assignments') day.assignments = (day.assignments ?? []).filter(a => a.id !== tempId)
+      else day.notes_items = (day.notes_items ?? []).filter(n => n.id !== tempId)
+    })
+    return
+  }
   const table = getTable(mutation.resource)
   if (table) await table.delete(mutation.tempId)
 }
@@ -226,6 +235,10 @@ const TEMP_REF_FIELDS = ['place_id', 'reservation_id', 'accommodation_id'] as co
 // Objects inside a body that carry such fields of their own: the stay a hotel
 // booking creates alongside names its place.
 const TEMP_REF_OBJECTS = ['create_accommodation'] as const
+// Resources whose writes carry no version token (see the 409 branch of the flush).
+const UNVERSIONED_RESOURCES = new Set(['assignments', 'days', 'dayNotes'])
+// A new order of a day's visits can name visits created offline.
+const TEMP_REF_LISTS = ['orderedIds'] as const
 
 /**
  * The body with every link to an offline-created entity pointed at the real id
@@ -249,7 +262,32 @@ function remapBodyRefs(body: unknown, idMap: Map<number, number>): unknown {
     remapped ??= { ...fields }
     remapped[key] = next
   }
+  for (const key of TEMP_REF_LISTS) {
+    const list = fields[key]
+    if (!Array.isArray(list) || !list.some(id => typeof id === 'number' && idMap.has(id))) continue
+    remapped ??= { ...fields }
+    remapped[key] = list.map(id => (typeof id === 'number' ? idMap.get(id) ?? id : id))
+  }
   return remapped ?? body
+}
+
+/**
+ * The body as it is sent: every link the queue has learned the real id of, and
+ * a list without the temporary ids it has not. Those name a create that did not
+ * sync, which the server would not know.
+ */
+function bodyToSend(body: unknown, idMap: Map<number, number>): unknown {
+  const remapped = remapBodyRefs(body, idMap)
+  if (!remapped || typeof remapped !== 'object' || Array.isArray(remapped)) return remapped
+  const fields = remapped as Record<string, unknown>
+  let trimmed: Record<string, unknown> | null = null
+  for (const key of TEMP_REF_LISTS) {
+    const list = fields[key]
+    if (!Array.isArray(list) || !list.some(id => typeof id === 'number' && id < 0)) continue
+    trimmed ??= { ...fields }
+    trimmed[key] = list.filter(id => typeof id !== 'number' || id > 0)
+  }
+  return trimmed ?? remapped
 }
 
 /**
@@ -299,6 +337,80 @@ async function reconcileTripFile(data: unknown): Promise<void> {
   if (!file.file || typeof file.file.id !== 'number') return
   const local = await offlineDb.tripFiles.get(file.file.id)
   await offlineDb.tripFiles.put({ ...local, ...file.file })
+}
+
+/**
+ * A replayed visit write. A create moves the visit on its cached day from the
+ * temporary id to the real one; the visit routes answer `{ assignment }`, the
+ * participants route `{ participants }`, and a reorder or delete names no visit.
+ */
+async function reconcileAssignment(mutation: QueuedMutation, data: unknown, entityId: number | undefined, idMap: Map<number, number>): Promise<void> {
+  const answer = (data && typeof data === 'object' ? data : {}) as { assignment?: unknown; participants?: AssignmentParticipant[] }
+  if (answer.assignment) {
+    const saved = assignmentSchema.parse(answer.assignment) as Assignment
+    const tempId = mutation.tempId
+    if (tempId !== undefined && tempId !== saved.id) {
+      await offlineDb.days.where('id').equals(saved.day_id).modify(day => {
+        day.assignments = (day.assignments ?? []).map(a => (a.id === tempId ? { ...a, ...saved } : a))
+      })
+      await remapTempId(mutation, saved.id, idMap)
+    }
+    await cacheAssignment(saved)
+    return
+  }
+  if (answer.participants && entityId !== undefined) {
+    const participants = answer.participants
+    await offlineDb.days.where('trip_id').equals(mutation.tripId).modify(day => {
+      if (!day.assignments?.some(a => a.id === entityId)) return
+      day.assignments = day.assignments.map(a => (a.id === entityId ? { ...a, participants } : a))
+    })
+  }
+}
+
+/**
+ * A replayed day write. The day answers `{ day }` without its notes, so the
+ * cached notes stay, and so do the cached visits: they may hold writes still
+ * waiting behind this one.
+ */
+async function reconcileDay(data: unknown): Promise<void> {
+  const day = data && typeof data === 'object' ? (data as { day?: Day }).day : undefined
+  if (!day || typeof day.id !== 'number') return
+  const { assignments: _assignments, notes_items: _notes, ...fields } = day
+  await offlineDb.days.where('id').equals(day.id).modify(row => { Object.assign(row, fields) })
+}
+
+/**
+ * A replayed trip write. The answer lays its fields over the cached trip, which
+ * keeps the counts the list shape carries and the answer does not.
+ */
+async function reconcileTrip(data: unknown): Promise<void> {
+  const trip = data && typeof data === 'object' ? (data as { trip?: Trip }).trip : undefined
+  if (!trip || typeof trip.id !== 'number') return
+  const local = await offlineDb.trips.get(trip.id)
+  await offlineDb.trips.put({ ...local, ...trip })
+}
+
+/** A replayed day note write: the note lands on its cached day, a create under its real id. */
+async function reconcileDayNote(mutation: QueuedMutation, data: unknown, idMap: Map<number, number>): Promise<void> {
+  const note = data && typeof data === 'object' ? (data as { note?: DayNote }).note : undefined
+  if (!note || typeof note.id !== 'number') return
+  const replaceId = mutation.tempId ?? note.id
+  await offlineDb.days.where('id').equals(note.day_id).modify(day => {
+    const notes = day.notes_items ?? []
+    day.notes_items = notes.some(n => n.id === replaceId)
+      ? notes.map(n => (n.id === replaceId ? { ...n, ...note } : n))
+      : [...notes.filter(n => n.id !== note.id), note]
+  })
+  if (mutation.tempId !== undefined && mutation.tempId !== note.id) await remapTempId(mutation, note.id, idMap)
+}
+
+/** Visits, days, day notes and the trip itself, each from the answer its route gives. */
+async function reconcilePlanWrite(mutation: QueuedMutation, data: unknown, entityId: number | undefined, idMap: Map<number, number>): Promise<void> {
+  if (mutation.method === 'DELETE') return
+  if (mutation.resource === 'assignments') await reconcileAssignment(mutation, data, entityId, idMap)
+  else if (mutation.resource === 'days') await reconcileDay(data)
+  else if (mutation.resource === 'dayNotes') await reconcileDayNote(mutation, data, idMap)
+  else if (mutation.resource === 'trips') await reconcileTrip(data)
 }
 
 /**
@@ -523,7 +635,7 @@ export const mutationQueue = {
           const response = await apiClient.request({
             method: mutation.method,
             url: reqUrl,
-            data: remapBodyRefs(mutation.body, idMap),
+            data: bodyToSend(mutation.body, idMap),
             headers,
           })
 
@@ -532,9 +644,9 @@ export const mutationQueue = {
             await offlineDb.roadtripPreferences.put(saved)
           }
           // Apply canonical server response to Dexie
-          if (mutation.resource === 'assignments') {
-            await cacheAssignment(assignmentSchema.parse(response.data.assignment))
-          }
+          // The plan's own rows have no table the generic branches below would
+          // write, so those pass over them.
+          await reconcilePlanWrite(mutation, response.data, reqEntityId, idMap)
           if (mutation.resource === 'tours') {
             await reconcileTour(mutation, tourCreateResponseSchema.parse(response.data), idMap)
           } else if (mutation.resource === 'budgetItems' && mutation.method !== 'DELETE') {
@@ -609,7 +721,10 @@ export const mutationQueue = {
           // the user's strategy instead of failing it. Deliberately scoped to
           // edits: an offline DELETE is "delete wins" by design (no CAS on the
           // delete path), so it never reaches here. See the wiki Offline doc.
-          if (httpStatus === 409 && mutation.method !== 'DELETE') {
+          // Visits, days and day notes carry no version, so a 409 there is a
+          // refusal (a Tour already on that day) that no retry can change, and
+          // it fails like any other 4xx.
+          if (httpStatus === 409 && mutation.method !== 'DELETE' && !UNVERSIONED_RESOURCES.has(mutation.resource ?? '')) {
             const server = extractConflictServer(err)
             const strategy = getOfflinePrefs().conflictStrategy
             if (strategy === 'server') {

@@ -18,6 +18,8 @@ import { useTripRangeGuard, type RangeCheck } from '../../hooks/useTripRangeGuar
 import type { ShiftMode } from '../../utils/dayImpactLines'
 import { useTripCoverPicker } from './useTripCoverPicker'
 import { tripFormError } from './tripFormModel'
+import { isEffectivelyOffline } from '../../sync/networkMode'
+import { tripChangeNeedsConnection } from '../../repo/tripRepo'
 
 type DateShiftMode = ShiftMode
 type TripPayload = TripCreateRequest & { date_shift_mode?: DateShiftMode }
@@ -158,6 +160,7 @@ export default function TripFormModal({ isOpen, onClose, onSave, trip, onCoverUp
     // Moving the start of a dated trip shifts the whole day grid, so let the user
     // choose how bookings follow before anything is saved (#1288). End-date-only
     // changes don't shift days and dateless transitions have nothing to shift.
+    if (refusedOffline(payload)) return
     const askShift = !!(isEditing && trip?.start_date && trip?.end_date
       && payload.start_date && payload.end_date && payload.start_date !== trip.start_date)
     // And say which days the new range removes, with what is on them, before
@@ -171,7 +174,16 @@ export default function TripFormModal({ isOpen, onClose, onSave, trip, onCoverUp
     await performSave(payload)
   }
 
+  // A new trip, new dates or a new currency are made by the server; a new name
+  // or description waits in the queue offline like any other change.
+  const refusedOffline = (payload: TripPayload): boolean => {
+    if (!isEffectivelyOffline() || (isEditing && !tripChangeNeedsConnection(trip ?? undefined, payload))) return false
+    setError(t(isEditing ? 'dashboard.tripChangeNeedsConnection' : 'common.needsConnection'))
+    return true
+  }
+
   const performSave = async (payload: TripPayload) => {
+    if (refusedOffline(payload)) return
     setIsLoading(true)
     try {
       const result = await onSave(payload)
@@ -526,6 +538,7 @@ export default function TripFormModal({ isOpen, onClose, onSave, trip, onCoverUp
                     className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-body font-medium bg-surface text-content border border-edge"
                     onClick={async () => {
                       if (m.id === currentUser?.id) return
+                      if (isEffectivelyOffline()) { toast.error(t('common.needsConnection')); return }
                       try {
                         await tripsApi.removeMember(trip!.id, m.id)
                         setExistingMembers(prev => prev.filter(x => x.id !== m.id))
@@ -560,7 +573,9 @@ export default function TripFormModal({ isOpen, onClose, onSave, trip, onCoverUp
                 onChange={async value => {
                   if (isEditing && trip?.id) {
                     const user = allUsers.find(u => u.id === Number(value))
-                    if (user) {
+                    if (user && isEffectivelyOffline()) {
+                      toast.error(t('common.needsConnection'))
+                    } else if (user) {
                       try {
                         await tripsApi.addMember(trip.id, user.username)
                         setExistingMembers(prev => [...prev, { id: user.id, username: user.username }])

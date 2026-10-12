@@ -220,5 +220,7 @@ const dashboard: TranslationStrings = {
   'dashboard.aria.addTimezone': 'Adicionar fuso horário',
   'dashboard.aria.removeTimezone': 'Remover {city}',
   'dashboard.dayCountRequired': 'O número de dias é obrigatório',
+  'dashboard.tripChangeNeedsConnection':
+    'Mudar as datas, o número de dias, a moeda ou a capa precisa de conexão. Nome, descrição e lembrete podem ser alterados offline.',
 };
 export default dashboard;

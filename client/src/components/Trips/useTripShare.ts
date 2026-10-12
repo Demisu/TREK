@@ -8,6 +8,7 @@ import { useTripStore } from '../../store/tripStore'
 import { useTranslation } from '../../i18n'
 import { getApiErrorMessage } from '../../types'
 import { copyText } from '../../utils/clipboard'
+import { refusedOffline } from '../../utils/needsConnection'
 
 // The state behind the share dialog, shared by the desktop dialog and the one the
 // phone opens from its More sheet. The questions ("Remove this member?") are the
@@ -74,6 +75,7 @@ export function useShareLink(tripId: number) {
   const url = token ? `${window.location.origin}/shared/${token}` : null
 
   const create = async () => {
+    if (refusedOffline(toast, t)) return
     try {
       const d = await shareApi.createLink(tripId, perms)
       setToken(d.token)
@@ -82,6 +84,7 @@ export function useShareLink(tripId: number) {
 
   const setPerm = async (key: SharePerm, value: boolean) => {
     const next = { ...perms, [key]: value }
+    if (token && refusedOffline(toast, t)) return
     setPerms(next)
     if (token) {
       try { await shareApi.createLink(tripId, next) } catch { toast.error(t('share.createError')) }
@@ -89,6 +92,7 @@ export function useShareLink(tripId: number) {
   }
 
   const remove = async () => {
+    if (refusedOffline(toast, t)) return
     try {
       await shareApi.deleteLink(tripId)
       setToken(null)
@@ -117,6 +121,7 @@ export function useTripInviteLink(tripId: number) {
   const url = token ? `${window.location.origin}/join/${token}` : null
 
   const create = async () => {
+    if (refusedOffline(toast, t)) return
     setBusy(true)
     try { const d = await tripInviteApi.createLink(tripId); setToken(d.token) }
     catch { toast.error(t('share.createError')) }
@@ -124,6 +129,7 @@ export function useTripInviteLink(tripId: number) {
   }
 
   const remove = async () => {
+    if (refusedOffline(toast, t)) return
     setBusy(true)
     try { await tripInviteApi.deleteLink(tripId); setToken(null) }
     catch { toast.error(t('common.error')) }
@@ -184,7 +190,7 @@ export function useTripMembers({ isOpen, tripId, onClose, onMembersChanged }: {
 
   const add = async () => {
     const target = allUsers.find(u => String(u.id) === String(selectedUserId))
-    if (!target) return
+    if (!target || refusedOffline(toast, t)) return
     setAdding(true)
     try {
       await tripsApi.addMember(tripId, target.username)
@@ -199,6 +205,7 @@ export function useTripMembers({ isOpen, tripId, onClose, onMembersChanged }: {
   }
 
   const transfer = async (newOwnerId: number) => {
+    if (refusedOffline(toast, t)) return
     setTransferringId(newOwnerId)
     try {
       await tripsApi.transferOwnership(tripId, newOwnerId)
@@ -213,6 +220,7 @@ export function useTripMembers({ isOpen, tripId, onClose, onMembersChanged }: {
   }
 
   const remove = async (userId: number, isSelf: boolean) => {
+    if (refusedOffline(toast, t)) return
     setRemovingId(userId)
     try {
       await tripsApi.removeMember(tripId, userId)
@@ -227,7 +235,7 @@ export function useTripMembers({ isOpen, tripId, onClose, onMembersChanged }: {
 
   const addGuest = async () => {
     const name = newGuestName.trim()
-    if (!name) return
+    if (!name || refusedOffline(toast, t)) return
     setAddingGuest(true)
     try {
       await tripsApi.createGuest(tripId, name)
@@ -262,6 +270,7 @@ export function useTripMembers({ isOpen, tripId, onClose, onMembersChanged }: {
     renameCommitted.current = true
     const name = renameValue.trim()
     if (!name) { setRenamingGuestId(null); return }
+    if (refusedOffline(toast, t)) { renameCommitted.current = false; return }
     try {
       await tripsApi.renameGuest(tripId, userId, name)
       setRenamingGuestId(null)
@@ -273,6 +282,7 @@ export function useTripMembers({ isOpen, tripId, onClose, onMembersChanged }: {
   }
 
   const removeGuest = async (userId: number) => {
+    if (refusedOffline(toast, t)) return
     setRemovingId(userId)
     try {
       await tripsApi.deleteGuest(tripId, userId)
