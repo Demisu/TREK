@@ -115,7 +115,7 @@ const dayplan: TranslationStrings = {
   'dayplan.impactBookings': 'Bokningar: {count}',
   'dayplan.impactBookings.one': 'Bokningar: {count}',
   'dayplan.impactStay': 'Boende på {name}',
-  'dayplan.deleteDayBookingsHint': 'De ligger kvar under Bokningar, utan dag.',
+  'dayplan.deleteDayBookingsHint': 'De behåller sitt datum och ligger kvar under Bokningar, utan dag.',
   'dayplan.deleteDayStayHint': 'Incheckning eller utcheckning sker den här dagen, så boendet avbokas.',
   'dayplan.deleteDayStayBookedHint':
     'Incheckning eller utcheckning sker den här dagen, så boendet avbokas tillsammans med bokningen ”{booking}” och dess utgift.',

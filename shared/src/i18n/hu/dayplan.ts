@@ -114,7 +114,7 @@ const dayplan: TranslationStrings = {
   'dayplan.impactBookings': 'Foglalások: {count}',
   'dayplan.impactBookings.one': 'Foglalások: {count}',
   'dayplan.impactStay': 'Szállás: {name}',
-  'dayplan.deleteDayBookingsHint': 'A Foglalások között maradnak, nap nélkül.',
+  'dayplan.deleteDayBookingsHint': 'Megtartják a dátumukat, és a Foglalások között maradnak, nap nélkül.',
   'dayplan.deleteDayStayHint':
     'A bejelentkezés vagy a kijelentkezés erre a napra esik, ezért a szállás lemondásra kerül.',
   'dayplan.deleteDayStayBookedHint':

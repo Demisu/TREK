@@ -122,7 +122,7 @@ const dayplan: TranslationStrings = {
   'dayplan.impactBookings.few': 'Бронювання: {count}',
   'dayplan.impactBookings.many': 'Бронювання: {count}',
   'dayplan.impactStay': 'Проживання в {name}',
-  'dayplan.deleteDayBookingsHint': 'Вони залишаться в Бронюваннях, без дня.',
+  'dayplan.deleteDayBookingsHint': 'Вони збережуть свою дату й залишаться в Бронюваннях, без дня.',
   'dayplan.deleteDayStayHint': 'Заїзд або виїзд припадає на цей день, тому проживання скасовується.',
   'dayplan.deleteDayStayBookedHint':
     'Заїзд або виїзд припадає на цей день, тому проживання скасовується разом із бронюванням «{booking}» і його витратою.',

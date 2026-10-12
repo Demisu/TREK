@@ -109,7 +109,7 @@ const dayplan: TranslationStrings = {
   'dayplan.impactDeletedHint': 'จะถูกลบไปด้วย',
   'dayplan.impactBookings': 'การจอง: {count}',
   'dayplan.impactStay': 'การพักที่ {name}',
-  'dayplan.deleteDayBookingsHint': 'ยังคงอยู่ในส่วนการจอง โดยไม่ผูกกับวันใด',
+  'dayplan.deleteDayBookingsHint': 'ยังคงวันที่เดิมและอยู่ในส่วนการจอง โดยไม่ผูกกับวันใด',
   'dayplan.deleteDayStayHint': 'เช็คอินหรือเช็คเอาท์ในวันนี้และจะถูกยกเลิก',
   'dayplan.deleteDayStayBookedHint':
     'เช็คอินหรือเช็คเอาท์ในวันนี้และจะถูกยกเลิก พร้อมกับการจอง “{booking}” และค่าใช้จ่าย',

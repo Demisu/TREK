@@ -128,7 +128,7 @@ const dayplan: TranslationStrings = {
   'dayplan.impactBookings.few': 'الحجوزات: {count}',
   'dayplan.impactBookings.many': 'الحجوزات: {count}',
   'dayplan.impactStay': 'الإقامة في {name}',
-  'dayplan.deleteDayBookingsHint': 'تبقى ضمن الحجوزات، دون يوم.',
+  'dayplan.deleteDayBookingsHint': 'تحتفظ بتاريخها وتبقى ضمن الحجوزات، دون يوم.',
   'dayplan.deleteDayStayHint': 'يقع تسجيل الوصول أو المغادرة في هذا اليوم، لذا تُلغى الإقامة.',
   'dayplan.deleteDayStayBookedHint':
     'يقع تسجيل الوصول أو المغادرة في هذا اليوم، لذا تُلغى الإقامة مع الحجز "{booking}" ومصروفه.',

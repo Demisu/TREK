@@ -110,7 +110,7 @@ const dayplan: TranslationStrings = {
   'dayplan.impactDeletedHint': 'Ikut dihapus.',
   'dayplan.impactBookings': 'Pemesanan: {count}',
   'dayplan.impactStay': 'Menginap di {name}',
-  'dayplan.deleteDayBookingsHint': 'Tetap ada di Pemesanan, tanpa hari.',
+  'dayplan.deleteDayBookingsHint': 'Tanggalnya tidak berubah dan tetap ada di Pemesanan, tanpa hari.',
   'dayplan.deleteDayStayHint': 'Check-in atau check-out jatuh pada hari tersebut, jadi penginapan dibatalkan.',
   'dayplan.deleteDayStayBookedHint':
     'Check-in atau check-out jatuh pada hari tersebut, jadi penginapan dibatalkan bersama pemesanan “{booking}” dan pengeluarannya.',

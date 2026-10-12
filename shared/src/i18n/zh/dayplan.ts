@@ -108,7 +108,7 @@ const dayplan: TranslationStrings = {
   'dayplan.impactDeletedHint': '也会一并删除。',
   'dayplan.impactBookings': '预订：{count}',
   'dayplan.impactStay': '住宿：{name}',
-  'dayplan.deleteDayBookingsHint': '它们会保留在“预订”中，但不再属于任何一天。',
+  'dayplan.deleteDayBookingsHint': '它们保留原日期，并会保留在“预订”中，但不再属于任何一天。',
   'dayplan.deleteDayStayHint': '入住或退房在这一天，因此住宿会被取消。',
   'dayplan.deleteDayStayBookedHint': '入住或退房在这一天，因此住宿会被取消，同时取消预订“{booking}”及其费用。',
   'dayplan.deleteDayStayBookingHint': '入住或退房在这一天，因此住宿会被取消，同时取消预订“{booking}”。',

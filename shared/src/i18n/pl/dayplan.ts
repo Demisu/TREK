@@ -123,7 +123,7 @@ const dayplan: TranslationStrings = {
   'dayplan.impactBookings.few': 'Rezerwacje: {count}',
   'dayplan.impactBookings.many': 'Rezerwacje: {count}',
   'dayplan.impactStay': 'Nocleg w {name}',
-  'dayplan.deleteDayBookingsHint': 'Pozostają w Rezerwacjach, bez dnia.',
+  'dayplan.deleteDayBookingsHint': 'Zachowują swoją datę i pozostają w Rezerwacjach, bez dnia.',
   'dayplan.deleteDayStayHint': 'Zameldowanie lub wymeldowanie przypada na ten dzień, więc nocleg zostanie anulowany.',
   'dayplan.deleteDayStayBookedHint':
     'Zameldowanie lub wymeldowanie przypada na ten dzień, więc nocleg zostanie anulowany razem z rezerwacją „{booking}” i jej wydatkiem.',

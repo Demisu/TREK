@@ -122,7 +122,7 @@ const dayplan: TranslationStrings = {
   'dayplan.impactBookings.few': 'Бронирования: {count}',
   'dayplan.impactBookings.many': 'Бронирования: {count}',
   'dayplan.impactStay': 'Проживание в {name}',
-  'dayplan.deleteDayBookingsHint': 'Они останутся в Бронированиях, без дня.',
+  'dayplan.deleteDayBookingsHint': 'Они сохранят свою дату и останутся в Бронированиях, без дня.',
   'dayplan.deleteDayStayHint': 'Заезд или выезд приходится на этот день, поэтому проживание отменяется.',
   'dayplan.deleteDayStayBookedHint':
     'Заезд или выезд приходится на этот день, поэтому проживание отменяется вместе с бронированием «{booking}» и его расходом.',

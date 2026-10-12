@@ -114,7 +114,7 @@ const dayplan: TranslationStrings = {
   'dayplan.impactBookings': 'Κρατήσεις: {count}',
   'dayplan.impactBookings.one': 'Κρατήσεις: {count}',
   'dayplan.impactStay': 'Διαμονή στο {name}',
-  'dayplan.deleteDayBookingsHint': 'Παραμένουν στις Κρατήσεις, χωρίς ημέρα.',
+  'dayplan.deleteDayBookingsHint': 'Διατηρούν την ημερομηνία τους και παραμένουν στις Κρατήσεις, χωρίς ημέρα.',
   'dayplan.deleteDayStayHint': 'Η άφιξη ή η αναχώρηση είναι αυτή την ημέρα, οπότε η διαμονή ακυρώνεται.',
   'dayplan.deleteDayStayBookedHint':
     'Η άφιξη ή η αναχώρηση είναι αυτή την ημέρα, οπότε η διαμονή ακυρώνεται μαζί με την κράτηση «{booking}» και το έξοδό της.',

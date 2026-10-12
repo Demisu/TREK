@@ -118,7 +118,7 @@ const dayplan: TranslationStrings = {
   'dayplan.impactBookings.one': 'Rezervácie: {count}',
   'dayplan.impactBookings.few': 'Rezervácie: {count}',
   'dayplan.impactStay': 'Pobyt v {name}',
-  'dayplan.deleteDayBookingsHint': 'Zostanú v Rezerváciách, bez dňa.',
+  'dayplan.deleteDayBookingsHint': 'Ponechajú si svoj dátum a zostanú v Rezerváciách, bez dňa.',
   'dayplan.deleteDayStayHint': 'Check-in alebo check-out pripadá na tento deň a pobyt sa zruší.',
   'dayplan.deleteDayStayBookedHint':
     'Check-in alebo check-out pripadá na tento deň a pobyt sa zruší spolu s rezerváciou „{booking}“ a jej výdavkom.',

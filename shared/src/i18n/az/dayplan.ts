@@ -129,7 +129,7 @@ const dayplan: TranslationStrings = {
   'dayplan.impactBookings': 'Rezervasiyalar: {count}',
   'dayplan.impactBookings.one': 'Rezervasiyalar: {count}',
   'dayplan.impactStay': '{name} məkanında qalma',
-  'dayplan.deleteDayBookingsHint': 'Onlar gün təyin edilmədən Rezervasiyalar bölməsində qalır.',
+  'dayplan.deleteDayBookingsHint': 'Onlar tarixlərini saxlayır və gün təyin edilmədən Rezervasiyalar bölməsində qalır.',
   'dayplan.deleteDayStayHint': 'Giriş və ya çıxış bu günə düşdüyü üçün qalma qeydi ləğv edilir.',
   'dayplan.deleteDayStayBookedHint':
     'Giriş və ya çıxış bu günə düşdüyü üçün qalma qeydi, “{booking}” rezervasiyası və onun xərci birlikdə ləğv edilir.',

@@ -110,7 +110,7 @@ const dayplan: TranslationStrings = {
   'dayplan.impactDeletedHint': '함께 삭제됩니다.',
   'dayplan.impactBookings': '예약: {count}',
   'dayplan.impactStay': '{name} 숙박',
-  'dayplan.deleteDayBookingsHint': '날짜 없이 예약에 남습니다.',
+  'dayplan.deleteDayBookingsHint': '날짜는 그대로 유지되고, 일차 없이 예약에 남습니다.',
   'dayplan.deleteDayStayHint': '이 날짜에 체크인 또는 체크아웃하므로 숙박이 취소됩니다.',
   'dayplan.deleteDayStayBookedHint':
     '이 날짜에 체크인 또는 체크아웃하므로 숙박이 예약 “{booking}” 및 해당 지출과 함께 취소됩니다.',

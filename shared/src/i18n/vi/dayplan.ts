@@ -110,7 +110,7 @@ const dayplan: TranslationStrings = {
   'dayplan.impactDeletedHint': 'Cũng bị xóa.',
   'dayplan.impactBookings': 'Đặt chỗ: {count}',
   'dayplan.impactStay': 'Lưu trú tại {name}',
-  'dayplan.deleteDayBookingsHint': 'Chúng vẫn nằm trong Đặt chỗ, không gắn với ngày nào.',
+  'dayplan.deleteDayBookingsHint': 'Chúng giữ nguyên ngày và vẫn nằm trong Đặt chỗ, không gắn với ngày nào.',
   'dayplan.deleteDayStayHint': 'Nhận phòng hoặc trả phòng rơi vào ngày này, nên chỗ lưu trú bị hủy.',
   'dayplan.deleteDayStayBookedHint':
     'Nhận phòng hoặc trả phòng rơi vào ngày này, nên chỗ lưu trú bị hủy cùng với đặt chỗ “{booking}” và chi phí của nó.',

@@ -114,7 +114,7 @@ const dayplan: TranslationStrings = {
   'dayplan.impactBookings': 'Broneeringud: {count}',
   'dayplan.impactBookings.one': 'Broneeringud: {count}',
   'dayplan.impactStay': 'Peatumine kohas {name}',
-  'dayplan.deleteDayBookingsHint': 'Need jäävad Broneeringute alla, ilma päevata.',
+  'dayplan.deleteDayBookingsHint': 'Need säilitavad oma kuupäeva ja jäävad Broneeringute alla, ilma päevata.',
   'dayplan.deleteDayStayHint': 'Sisse- või väljaregistreerimine on sellel päeval, seega see tühistatakse.',
   'dayplan.deleteDayStayBookedHint':
     'Sisse- või väljaregistreerimine on sellel päeval, seega see tühistatakse koos broneeringuga „{booking}“ ja selle kuluga.',
