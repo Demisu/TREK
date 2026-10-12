@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import type { WeatherResult } from '@trek/shared'
-import { weatherApi, accommodationsApi } from '../../api/client'
+import { weatherApi } from '../../api/client'
+import { accommodationRepo } from '../../repo/accommodationRepo'
 import { isDayInAccommodationRange } from '../../utils/dayOrder'
 import { applyStayStops } from '../../store/stayStops'
 import { stayCheckoutDay, stayRequestBody } from './stayFormModel'
@@ -29,8 +30,8 @@ const EMPTY_HOTEL_FORM: HotelForm = { check_in: '', check_in_end: '', check_out:
  * server moved for it, for the desktop day panel and the phone accommodation
  * sheet alike. Throws when the server refuses the write.
  */
-export async function writeStay(tripId: number, accId: number | null, body: Parameters<typeof accommodationsApi.create>[1]) {
-  const data = accId != null ? await accommodationsApi.update(tripId, accId, body) : await accommodationsApi.create(tripId, body)
+export async function writeStay(tripId: number, accId: number | null, body: Parameters<typeof accommodationRepo.create>[1]) {
+  const data = accId != null ? await accommodationRepo.update(tripId, accId, body) : await accommodationRepo.create(tripId, body)
   applyStayStops(data)
   return data
 }
@@ -109,7 +110,7 @@ export function useDayDetail(day: Day | null, days: Day[], tripId: number, lat: 
   useEffect(() => {
     if (!tripId) return
     let cancelled = false
-    accommodationsApi.list(tripId)
+    accommodationRepo.list(tripId)
       .then(data => {
         if (cancelled) return
         const all: Accommodation[] = data.accommodations || []
@@ -148,7 +149,7 @@ export function useDayDetail(day: Day | null, days: Day[], tripId: number, lat: 
     await writeStay(tripId, accommodation.id, stayRequestBody(hotelForm, hotelDayRange))
     setShowHotelPicker(false)
     setHotelForm(EMPTY_HOTEL_FORM)
-    const d = await accommodationsApi.list(tripId)
+    const d = await accommodationRepo.list(tripId)
     const all: Accommodation[] = d.accommodations || []
     setAccommodations(all)
     const forDay = all.filter(isForDay)
@@ -160,7 +161,7 @@ export function useDayDetail(day: Day | null, days: Day[], tripId: number, lat: 
   const updateAccommodationField = async (field: string, value: string | null) => {
     if (!accommodation) return
     try {
-      const data = await accommodationsApi.update(tripId, accommodation.id, { [field]: value || null })
+      const data = await accommodationRepo.update(tripId, accommodation.id, { [field]: value || null })
       applyStayStops(data)
       setAccommodation(data.accommodation)
       onAccommodationChange?.()
@@ -175,7 +176,7 @@ export function useDayDetail(day: Day | null, days: Day[], tripId: number, lat: 
    */
   const handleRemoveAccommodation = async (target: Accommodation | null = accommodation) => {
     if (!target) return
-    applyStayStops(await accommodationsApi.delete(tripId, target.id))
+    applyStayStops(await accommodationRepo.delete(tripId, target.id))
     const updated = accommodations.filter(a => a.id !== target.id)
     setAccommodations(updated)
     setDayAccommodations(updated.filter(isForDay))

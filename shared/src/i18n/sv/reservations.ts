@@ -259,5 +259,8 @@ const reservations: TranslationStrings = {
   'reservations.copyCode': 'Kopiera bokningskod',
   'reservations.copyFailed': 'Kunde inte kopiera',
   'reservations.showInFiles': 'Visa i filer',
+  'reservations.filesNeedConnection':
+    'Filer behöver en anslutning för att laddas upp. Ta bort de nya för att spara bokningen offline, eller spara när du är online igen.',
+  'reservations.needsConnection': 'Det här kräver en anslutning. Försök igen när TREK är online igen.',
 };
 export default reservations;

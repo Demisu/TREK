@@ -37,7 +37,7 @@ const EMPTY_FORM: HotelForm = { check_in: '', check_in_end: '', check_out: '', c
  * HotelPickerModal (day-plan panel). Marks one of the trip's places as a stay
  * across a day range, with check-in/until/check-out times and a confirmation
  * code. Opened from the day sheet's "Add accommodation" button; saving goes
- * through accommodationsApi and refreshes the planner's tripAccommodations.
+ * through accommodationRepo and refreshes the planner's tripAccommodations.
  */
 export default function MAccommodationSheet({ planner, shell }: MTripSheetsProps) {
   const { t, locale } = useTranslation()

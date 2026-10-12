@@ -262,5 +262,8 @@ const reservations: TranslationStrings = {
   'reservations.copyCode': 'Αντιγραφή κωδικού κράτησης',
   'reservations.copyFailed': 'Η αντιγραφή απέτυχε',
   'reservations.showInFiles': 'Εμφάνιση στα αρχεία',
+  'reservations.filesNeedConnection':
+    'Τα αρχεία χρειάζονται σύνδεση για να ανέβουν. Αφαίρεσε τα νέα για να αποθηκεύσεις την κράτηση εκτός σύνδεσης ή αποθήκευσε όταν είσαι ξανά online.',
+  'reservations.needsConnection': 'Αυτό χρειάζεται σύνδεση. Δοκίμασε ξανά μόλις το TREK συνδεθεί ξανά.',
 };
 export default reservations;

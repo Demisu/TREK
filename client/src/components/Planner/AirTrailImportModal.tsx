@@ -5,8 +5,9 @@ import { Plane, X, Check } from 'lucide-react'
 import type { AirtrailFlight, AirtrailImportResult } from '@trek/shared'
 import { useTranslation } from '../../i18n'
 import { useToast } from '../shared/Toast'
-import { airtrailApi, reservationsApi } from '../../api/client'
+import { airtrailApi } from '../../api/client'
 import { useTripStore } from '../../store/tripStore'
+import { isEffectivelyOffline } from '../../sync/networkMode'
 import { parseReservationMetadata } from '../../utils/flightLegs'
 
 interface AirTrailImportModalProps {
@@ -71,6 +72,7 @@ export default function AirTrailImportModal({ isOpen, onClose, tripId, pushUndo 
   const trip = useTripStore(s => s.trip)
   const reservations = useTripStore(s => s.reservations)
   const loadReservations = useTripStore(s => s.loadReservations)
+  const deleteReservation = useTripStore(s => s.deleteReservation)
   const mouseDownTarget = useRef<EventTarget | null>(null)
 
   const [loading, setLoading] = useState(false)
@@ -117,6 +119,12 @@ export default function AirTrailImportModal({ isOpen, onClose, tripId, pushUndo 
     setError('')
     setSelected(new Set())
     setJoinOff(new Set())
+    // The flights live on the AirTrail server, which only a connection reaches.
+    if (isEffectivelyOffline()) {
+      setFlights([])
+      setError(t('reservations.needsConnection'))
+      return
+    }
     setLoading(true)
     airtrailApi
       .flights()
@@ -196,6 +204,7 @@ export default function AirTrailImportModal({ isOpen, onClose, tripId, pushUndo 
   const handleImport = async () => {
     const ids = [...selected].filter(id => !importedIds.has(id))
     if (ids.length === 0 || importing) return
+    if (isEffectivelyOffline()) { setError(t('reservations.needsConnection')); return }
     setImporting(true)
     setError('')
     try {
@@ -209,7 +218,7 @@ export default function AirTrailImportModal({ isOpen, onClose, tripId, pushUndo 
           const linked = useTripStore.getState().reservations.filter(
             r => r.external_source === 'airtrail' && r.external_id && imported.includes(String(r.external_id)),
           )
-          await Promise.all(linked.map(r => reservationsApi.delete(tripId, r.id).catch(() => {})))
+          await Promise.all(linked.map(r => deleteReservation(tripId, r.id).catch(() => {})))
           await loadReservations(tripId)
         })
         toast.success(t('reservations.airtrail.imported', { count: imported.length }))

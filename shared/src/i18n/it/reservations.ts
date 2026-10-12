@@ -259,5 +259,8 @@ const reservations: TranslationStrings = {
   'reservations.copyCode': 'Copia codice prenotazione',
   'reservations.copyFailed': 'Impossibile copiare',
   'reservations.showInFiles': 'Mostra nei file',
+  'reservations.filesNeedConnection':
+    'I file hanno bisogno di una connessione per essere caricati. Rimuovi quelli nuovi per salvare la prenotazione offline, oppure salva quando sei di nuovo online.',
+  'reservations.needsConnection': 'Serve una connessione. Riprova quando TREK tornerà online.',
 };
 export default reservations;

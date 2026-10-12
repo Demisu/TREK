@@ -26,7 +26,7 @@ export function buildTripActions(): Record<string, ReturnType<typeof vi.fn>> {
     'reorderDays', 'setAssignments', 'setPackedCount', 'setPackingItemSharing', 'setSelectedDay',
     'toggleBudgetMemberPaid', 'togglePackingItem', 'toggleReservationStatus', 'toggleTodoItem',
     'updateDayNote', 'updateDayTitle', 'updatePackingItem', 'updatePlace', 'updatePlacesMany',
-    'updateReservation', 'updateTodoItem', 'updateTrip', 'uploadPlaceImage',
+    'updateReservation', 'updateReservationPositions', 'updateTodoItem', 'updateTrip', 'uploadPlaceImage',
   ];
   const actions: Record<string, ReturnType<typeof vi.fn>> = {};
   for (const name of names) actions[name] = vi.fn(async () => undefined);

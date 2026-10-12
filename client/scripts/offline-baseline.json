@@ -162,7 +162,6 @@
   "src/pages/tripPlanner/useBookingEdits.ts",
   "src/pages/tripPlanner/usePlaceFormOpeners.ts",
   "src/pages/tripPlanner/usePlannerDialogs.ts",
-  "src/pages/tripPlanner/useRoadtripStopEdits.ts",
   "src/pages/tripPlanner/useTripPlanner.ts",
   "src/pages/vacay/useVacay.ts"
 ]

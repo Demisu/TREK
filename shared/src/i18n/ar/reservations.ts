@@ -286,5 +286,8 @@ const reservations: TranslationStrings = {
   'reservations.copyCode': 'نسخ رمز الحجز',
   'reservations.copyFailed': 'تعذّر النسخ',
   'reservations.showInFiles': 'عرض في الملفات',
+  'reservations.filesNeedConnection':
+    'يحتاج رفع الملفات إلى اتصال. أزل الملفات الجديدة لحفظ الحجز دون اتصال، أو احفظ عندما تعود متصلاً.',
+  'reservations.needsConnection': 'يتطلب هذا اتصالاً. حاول مرة أخرى عندما يعود TREK للاتصال.',
 };
 export default reservations;

@@ -254,5 +254,8 @@ const reservations: TranslationStrings = {
   'reservations.copyCode': 'Sao chép mã đặt chỗ',
   'reservations.copyFailed': 'Không thể sao chép',
   'reservations.showInFiles': 'Hiện trong Tập tin',
+  'reservations.filesNeedConnection':
+    'Cần có kết nối để tải tệp lên. Gỡ các tệp mới để lưu đặt chỗ khi ngoại tuyến, hoặc lưu khi bạn trực tuyến trở lại.',
+  'reservations.needsConnection': 'Thao tác này cần kết nối. Hãy thử lại khi TREK trực tuyến trở lại.',
 };
 export default reservations;

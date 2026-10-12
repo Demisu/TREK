@@ -1,4 +1,4 @@
-// FE-PLANNER-AIRTRAIL-001 to FE-PLANNER-AIRTRAIL-020
+// FE-PLANNER-AIRTRAIL-001 to FE-PLANNER-AIRTRAIL-022
 import { render, screen, fireEvent, waitFor } from '../../../tests/helpers/render';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
@@ -8,6 +8,7 @@ import { useTripStore } from '../../store/tripStore';
 import { resetAllStores, seedStore } from '../../../tests/helpers/store';
 import { buildUser, buildTrip, buildReservation } from '../../../tests/helpers/factories';
 import type { AirtrailFlight } from '@trek/shared';
+import { _resetNetworkMode, setForcedOffline } from '../../sync/networkMode';
 import AirTrailImportModal, { detectConnections } from './AirTrailImportModal';
 
 const toasts: Array<[string, string]> = [];
@@ -344,5 +345,17 @@ describe('AirTrailImportModal', () => {
     render(<AirTrailImportModal {...defaultProps} />);
     await screen.findByText('Finnair AY1502');
     expect(screen.queryByText(/^Imported$/)).not.toBeInTheDocument();
+  });
+  it('FE-PLANNER-AIRTRAIL-022: offline the dialog says it needs a connection instead of asking AirTrail (#2601)', async () => {
+    const flights = vi.fn();
+    server.use(http.get('/api/integrations/airtrail/flights', () => { flights(); return HttpResponse.json({ flights: [flight()] }); }));
+    setForcedOffline(true);
+    try {
+      render(<AirTrailImportModal {...defaultProps} />);
+      expect(await screen.findByText('This needs a connection. Try again once TREK is back online.')).toBeInTheDocument();
+    } finally {
+      _resetNetworkMode();
+    }
+    expect(flights).not.toHaveBeenCalled();
   });
 });

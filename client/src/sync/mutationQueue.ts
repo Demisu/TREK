@@ -15,7 +15,7 @@ import type { QueuedMutation } from '../db/offlineDb'
 import type { Table } from 'dexie'
 import { roadtripPreferencesResponseSchema, assignmentSchema, tourCreateResponseSchema, type TourCreateResponse } from '@trek/shared'
 import { cacheAssignment } from '../db/cacheAssignment'
-import type { BudgetItem, BudgetItemMember } from '../types'
+import type { BudgetItem, BudgetItemMember, Reservation } from '../types'
 
 // Map Dexie table names used in `resource` field → actual Dexie tables.
 function getTable(resource: string): Table | undefined {
@@ -25,6 +25,7 @@ function getTable(resource: string): Table | undefined {
     todoItems:    offlineDb.todoItems,
     budgetItems:  offlineDb.budgetItems,
     reservations: offlineDb.reservations,
+    accommodations: offlineDb.accommodations,
     tripFiles:    offlineDb.tripFiles,
   }
   return map[resource]
@@ -219,8 +220,12 @@ async function remapTempId(mutation: QueuedMutation, realId: number, idMap: Map<
 }
 
 // Body fields that can name an entity created offline earlier in the queue: an
-// expense saved from a place or a booking that has not synced yet.
-const TEMP_REF_FIELDS = ['place_id', 'reservation_id'] as const
+// expense saved from a place or a booking that has not synced yet, a booking
+// linked to such a place or stay.
+const TEMP_REF_FIELDS = ['place_id', 'reservation_id', 'accommodation_id'] as const
+// Objects inside a body that carry such fields of their own: the stay a hotel
+// booking creates alongside names its place.
+const TEMP_REF_OBJECTS = ['create_accommodation'] as const
 
 /**
  * The body with every link to an offline-created entity pointed at the real id
@@ -236,6 +241,13 @@ function remapBodyRefs(body: unknown, idMap: Map<number, number>): unknown {
     if (realId === undefined) continue
     remapped ??= { ...fields }
     remapped[field] = realId
+  }
+  for (const key of TEMP_REF_OBJECTS) {
+    const nested = fields[key]
+    const next = remapBodyRefs(nested, idMap)
+    if (next === nested) continue
+    remapped ??= { ...fields }
+    remapped[key] = next
   }
   return remapped ?? body
 }
@@ -257,6 +269,24 @@ async function reconcileBudgetItem(mutation: QueuedMutation, data: unknown, idMa
   }
   const local = await offlineDb.budgetItems.get(item.id)
   await offlineDb.budgetItems.put({ ...local, ...item, ...(answer.members ? { members: answer.members } : {}) })
+}
+
+/**
+ * A replayed booking write. Only `reservation` names the booking: the travelers
+ * route answers `{ travelers, reservation }`, which the first-value rule of the
+ * generic branch would read as the traveler list. The travelers the answer
+ * lists replace the local ones; a row that does not list them keeps them.
+ */
+async function reconcileReservation(mutation: QueuedMutation, data: unknown, idMap: Map<number, number>): Promise<void> {
+  const answer = (data && typeof data === 'object' ? data : {}) as { reservation?: Reservation; travelers?: Reservation['travelers'] }
+  const reservation = answer.reservation
+  if (!reservation || typeof reservation.id !== 'number') return
+  if (mutation.tempId !== undefined && mutation.tempId !== reservation.id) {
+    await offlineDb.reservations.delete(mutation.tempId)
+    await remapTempId(mutation, reservation.id, idMap)
+  }
+  const local = await offlineDb.reservations.get(reservation.id)
+  await offlineDb.reservations.put({ ...local, ...reservation, ...(answer.travelers ? { travelers: answer.travelers } : {}) })
 }
 
 /**
@@ -497,6 +527,8 @@ export const mutationQueue = {
             await reconcileTour(mutation, tourCreateResponseSchema.parse(response.data), idMap)
           } else if (mutation.resource === 'budgetItems' && mutation.method !== 'DELETE') {
             await reconcileBudgetItem(mutation, response.data, idMap)
+          } else if (mutation.resource === 'reservations' && mutation.method !== 'DELETE') {
+            await reconcileReservation(mutation, response.data, idMap)
           } else if (mutation.method !== 'DELETE' && mutation.resource) {
             const table = getTable(mutation.resource)
             if (table && response.data && typeof response.data === 'object') {

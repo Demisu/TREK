@@ -253,5 +253,8 @@ const reservations: TranslationStrings = {
   'reservations.copyCode': 'คัดลอกรหัสการจอง',
   'reservations.copyFailed': 'คัดลอกไม่สำเร็จ',
   'reservations.showInFiles': 'แสดงในไฟล์',
+  'reservations.filesNeedConnection':
+    'การอัปโหลดไฟล์ต้องใช้การเชื่อมต่อ ลบไฟล์ใหม่ออกเพื่อบันทึกการจองแบบออฟไลน์ หรือบันทึกเมื่อกลับมาออนไลน์',
+  'reservations.needsConnection': 'การทำงานนี้ต้องใช้การเชื่อมต่อ ลองอีกครั้งเมื่อ TREK กลับมาออนไลน์',
 };
 export default reservations;

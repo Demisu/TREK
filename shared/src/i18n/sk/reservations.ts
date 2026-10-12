@@ -268,5 +268,8 @@ const reservations: TranslationStrings = {
   'reservations.copyCode': 'Kopírovať rezervačný kód',
   'reservations.copyFailed': 'Kopírovanie zlyhalo',
   'reservations.showInFiles': 'Zobraziť v súboroch',
+  'reservations.filesNeedConnection':
+    'Súbory potrebujú na nahratie pripojenie. Odstráň nové, aby si rezerváciu uložil offline, alebo ulož, keď budeš znova online.',
+  'reservations.needsConnection': 'Na toto je potrebné pripojenie. Skús to znova, keď bude TREK opäť online.',
 };
 export default reservations;

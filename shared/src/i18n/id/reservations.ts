@@ -251,5 +251,8 @@ const reservations: TranslationStrings = {
   'reservations.copyCode': 'Salin kode pemesanan',
   'reservations.copyFailed': 'Tidak dapat menyalin',
   'reservations.showInFiles': 'Tampilkan di File',
+  'reservations.filesNeedConnection':
+    'File perlu koneksi untuk diunggah. Hapus file baru untuk menyimpan pemesanan secara offline, atau simpan saat kamu kembali online.',
+  'reservations.needsConnection': 'Ini memerlukan koneksi. Coba lagi begitu TREK kembali online.',
 };
 export default reservations;

@@ -1,5 +1,6 @@
 import { typeToCostCategory } from '@trek/shared';
 
+import { isEffectivelyOffline } from '../../sync/networkMode';
 import type { BudgetItem, Day, Reservation, TripFile } from '../../types';
 import type { BookingExpenseRequest } from './BookingCostsSection.types';
 import { importedPriceEntry } from './importedPrice';
@@ -51,6 +52,15 @@ export async function uploadBookingFiles(
     fd.append('description', description);
     await upload(fd);
   }
+}
+
+/**
+ * Whether saving now would have to upload picked files while TREK is offline. A
+ * file cannot wait in the offline queue the way the booking can, so the form asks
+ * to save without the new files instead of storing a booking that loses them.
+ */
+export function filesNeedConnection(files: File[], canUpload: boolean): boolean {
+  return canUpload && files.length > 0 && isEffectivelyOffline();
 }
 
 /**

@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react'
 import type { BookingImportPreviewItem } from '@trek/shared'
-import { accommodationsApi, mapsApi } from '../../api/client'
+import { mapsApi } from '../../api/client'
 import { receiptToPrefill } from '../../components/Budget/CostsPanel.helpers'
 import type { ExpensePrefill } from '../../components/Budget/CostsPanel'
 import { parsedItemToDraft, isTransportItem, isUnplaceableItem, type BookingReviewDraft } from '../../components/Planner/parsedItemToDraft'
 import { getImportFiles, deleteImportFiles } from '../../db/offlineDb'
+import { accommodationRepo } from '../../repo/accommodationRepo'
 import { useBackgroundTasksStore } from '../../store/backgroundTasksStore'
 import type { TripStoreState } from '../../store/tripStore'
 import { isEffectivelyOffline } from '../../sync/networkMode'
@@ -88,7 +89,7 @@ export function useBookingEdits(options: BookingEditsOptions) {
         setShowReservationModal(false)
         setEditingReservation(null)
         if (data.type === 'hotel') {
-          accommodationsApi.list(tripId).then(d => setTripAccommodations(d.accommodations || [])).catch(() => {})
+          accommodationRepo.list(tripId).then(d => setTripAccommodations(d.accommodations || [])).catch(() => {})
         }
         return r
       } else {
@@ -100,7 +101,7 @@ export function useBookingEdits(options: BookingEditsOptions) {
         if ((data as Record<string, unknown>).create_budget_entry) await tripActions.loadBudgetItems?.(tripId)
         // Refresh accommodations if hotel was created
         if (data.type === 'hotel') {
-          accommodationsApi.list(tripId).then(d => setTripAccommodations(d.accommodations || [])).catch(() => {})
+          accommodationRepo.list(tripId).then(d => setTripAccommodations(d.accommodations || [])).catch(() => {})
         }
         return r
       }
@@ -134,7 +135,7 @@ export function useBookingEdits(options: BookingEditsOptions) {
       await tripActions.deleteReservation(tripId, id)
       toast.success(t('trip.toast.deleted'))
       // Refresh accommodations in case a hotel booking was deleted
-      accommodationsApi.list(tripId).then(d => setTripAccommodations(d.accommodations || [])).catch(() => {})
+      accommodationRepo.list(tripId).then(d => setTripAccommodations(d.accommodations || [])).catch(() => {})
     }
     catch (err: unknown) { toast.error(err instanceof Error ? err.message : t('common.unknownError')) }
   }
@@ -148,24 +149,19 @@ export function useBookingEdits(options: BookingEditsOptions) {
     if (n) {
       const existing = places.find(p => p.name?.trim().toLowerCase() === n)
         ?? places.find(p => p.name && (p.name.toLowerCase().includes(n) || n.includes(p.name.toLowerCase())))
-      // Only a server-side id may be linked. A negative id is an offline temp id
-      // (mutationQueue.nextTempId): the reservation write is online-only, the queue
-      // rewrites temp ids in a URL but never inside another entity's body, and
-      // day_accommodations.place_id carries a foreign key, so a temp id here is a
-      // rolled-back insert and a 500 instead of a saved booking.
-      if (existing && existing.id > 0) return existing.id
+      // A negative id is a place created offline (mutationQueue.nextTempId). Offline
+      // the booking waits in the queue behind that place and is sent with its real
+      // id. Online the booking goes out at once, and day_accommodations.place_id
+      // carries a foreign key, so a temp id there is a 500 instead of a saved booking.
+      if (existing && (existing.id > 0 || isEffectivelyOffline())) return existing.id
     }
-    // Offline the booking itself cannot be written (reservations are online-only),
-    // so minting a place here would only leave an orphan behind on the next flush,
-    // and its temp id could never be linked anyway. Link nothing, and skip the
-    // geocode round-trip too; the retry online matches this venue by name.
-    if (isEffectivelyOffline()) return null
     let lat: number | null = null
     let lng: number | null = null
     let address: string | null = venue.address ?? null
     try {
       const query = venue.address ? `${name} ${venue.address}`.trim() : name
-      if (query) {
+      // Offline there is no geocoder to ask; the place is created without coords.
+      if (query && !isEffectivelyOffline()) {
         const res = await mapsApi.search(query)
         const hit = res?.places?.[0] as { lat?: number; lng?: number; address?: string } | undefined
         if (hit && hit.lat != null && hit.lng != null) {
@@ -182,7 +178,7 @@ export function useBookingEdits(options: BookingEditsOptions) {
       // find it. addPlace unwraps the response and puts the place into
       // `places`, so the next save reuses it.
       const place = await tripActions.addPlace(tripId, { name: name || address || 'Accommodation', lat, lng, address })
-      return place && place.id > 0 ? place.id : null
+      return place && (place.id > 0 || isEffectivelyOffline()) ? place.id : null
     } catch { return null }
   }
 
@@ -281,7 +277,7 @@ export function useBookingEdits(options: BookingEditsOptions) {
     setImportReviewActive(false)
     setShowReservationModal(false); setEditingReservation(null); setReservationPrefill(null)
     setShowTransportModal(false); setEditingTransport(null); setTransportPrefill(null); setTransportModalDayId(null)
-    accommodationsApi.list(tripId).then(d => setTripAccommodations(d.accommodations || [])).catch(() => {})
+    accommodationRepo.list(tripId).then(d => setTripAccommodations(d.accommodations || [])).catch(() => {})
     // Imported bookings auto-create their linked costs server-side, but the saving client
     // suppresses its own budget:created echo (X-Socket-Id), so reload the budget items here
     // to surface those expenses without a manual page refresh.

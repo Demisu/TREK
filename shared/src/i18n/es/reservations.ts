@@ -261,5 +261,8 @@ const reservations: TranslationStrings = {
   'reservations.copyCode': 'Copiar código de reserva',
   'reservations.copyFailed': 'No se pudo copiar',
   'reservations.showInFiles': 'Mostrar en archivos',
+  'reservations.filesNeedConnection':
+    'Los archivos necesitan conexión para subirse. Quita los nuevos para guardar la reserva sin conexión, o guarda cuando vuelvas a estar en línea.',
+  'reservations.needsConnection': 'Esto necesita conexión. Vuelve a intentarlo cuando TREK esté de nuevo en línea.',
 };
 export default reservations;

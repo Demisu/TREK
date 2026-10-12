@@ -261,5 +261,8 @@ const reservations: TranslationStrings = {
   'reservations.copyCode': 'Copiar el codi de reserva',
   'reservations.copyFailed': "No s'ha pogut copiar",
   'reservations.showInFiles': 'Mostrar als fitxers',
+  'reservations.filesNeedConnection':
+    'Els fitxers necessiten connexió per pujar-se. Treu els nous per desar la reserva sense connexió, o desa quan tornis a estar en línia.',
+  'reservations.needsConnection': 'Això necessita connexió. Torna-ho a provar quan TREK torni a estar en línia.',
 };
 export default reservations;

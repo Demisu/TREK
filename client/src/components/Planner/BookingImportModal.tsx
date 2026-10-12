@@ -7,6 +7,7 @@ import { llmRepo } from '../../repo/llmRepo'
 import { LLM_PHOTO_EXTENSIONS } from '@trek/shared'
 import { useBackgroundTasksStore } from '../../store/backgroundTasksStore'
 import { saveImportFiles } from '../../db/offlineDb'
+import { isEffectivelyOffline } from '../../sync/networkMode'
 
 interface BookingImportModalProps {
   isOpen: boolean
@@ -101,6 +102,8 @@ export default function BookingImportModal({ isOpen, onClose, tripId, kind }: Bo
   // Start the parse in the background and close — the widget takes it from here.
   const handleParse = async () => {
     if (files.length === 0 || loading) return
+    // Reading a booking runs on the server: offline there is nothing to send it to.
+    if (isEffectivelyOffline()) { setError(t('reservations.needsConnection')); return }
     setLoading(true)
     setError('')
     try {

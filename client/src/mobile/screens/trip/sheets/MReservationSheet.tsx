@@ -9,7 +9,7 @@ import CustomTimePicker from '../../../../components/shared/CustomTimePicker'
 import { CustomDatePicker } from '../../../../components/shared/CustomDateTimePicker'
 import { Eyebrow, FIELD_CLS, FormSheetFooter, FormSheetHeader } from './PlSheetChrome'
 import MBookingFilesCosts from './MBookingFilesCosts'
-import { expenseRequestAfterSave, travelerIdsOf, travelersChanged, uploadBookingFiles } from '../../../../components/Planner/bookingFormModel'
+import { expenseRequestAfterSave, travelerIdsOf, travelersChanged, filesNeedConnection, uploadBookingFiles } from '../../../../components/Planner/bookingFormModel'
 import { useBookingExpenseIntent } from '../../../../components/Planner/useBookingExpenseIntent'
 import {
   RESERVATION_TYPE_OPTIONS as TYPE_OPTIONS, reservationFieldsFrom, reservationFieldsFromPrefill, selectedDayDate,
@@ -144,6 +144,7 @@ export default function MReservationSheet({ planner, onOpenExpense }: MReservati
   const handleSubmit = async () => {
     // Only the costs button reaches this without the footer's date check.
     if (isEndBeforeStart) { toast.error(t('reservations.validation.endBeforeStart')); return }
+    if (filesNeedConnection(pendingFiles, canUploadFiles)) { toast.error(t('reservations.filesNeedConnection')); return }
     const withExpense = expense.take()
     setIsSaving(true)
     try {

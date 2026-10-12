@@ -1,10 +1,10 @@
 import { useCallback, useState } from 'react'
 import type { RoadtripStopType } from '@trek/shared'
-import { accommodationsApi } from '../../api/client'
 import type { StayDraft } from '../../components/Roadtrip/RoadtripStayModal'
 import { reanchorAfterInsert, reanchorAfterRemove, reanchorAfterReorder } from '../../components/Roadtrip/roadtripModel'
 import type { RoadtripStop } from '../../components/Roadtrip/useRoadtripRoutes'
 import type { useRouteCalculation } from '../../hooks/useRouteCalculation'
+import { accommodationRepo } from '../../repo/accommodationRepo'
 import { applyStayStops } from '../../store/stayStops'
 import type { TripStoreState } from '../../store/tripStore'
 import type { Accommodation } from '../../types'
@@ -67,7 +67,7 @@ export function useRoadtripStopEdits(options: RoadtripStopEditsOptions) {
         if (accommodationId) {
           // The night is what was switched off, not the stop: it stays where it is
           // in the drive and becomes an ordinary pause.
-          applyStayStops(await accommodationsApi.delete(tripId, accommodationId, { keepStop: true }))
+          applyStayStops(await accommodationRepo.delete(tripId, accommodationId, { keepStop: true }))
           await loadAccommodations()
         }
         updateRouteForDay(dayId)
@@ -130,8 +130,8 @@ export function useRoadtripStopEdits(options: RoadtripStopEditsOptions) {
         // it in the one person whose rail still shows the night at its old place in
         // the chain is the one who just moved its check-in.
         const written = stopDraft.editing.accommodationId
-          ? await accommodationsApi.update(tripId, stopDraft.editing.accommodationId, booking)
-          : await accommodationsApi.create(tripId, booking)
+          ? await accommodationRepo.update(tripId, stopDraft.editing.accommodationId, booking)
+          : await accommodationRepo.create(tripId, booking)
         applyStayStops(written)
         // A night seated by a new check-in renumbers its neighbours as well, and the
         // answer names only the night. The day is read back whole rather than guessed.
@@ -159,7 +159,7 @@ export function useRoadtripStopEdits(options: RoadtripStopEditsOptions) {
           viaLiesBefore(dayId, { lat: poi.lat, lng: poi.lng }),
         )
         await tripActions.assignPlaceToDay(tripId, dayId, place.id, position)
-        await accommodationsApi.create(tripId, {
+        await accommodationRepo.create(tripId, {
           place_id: place.id,
           start_day_id: dayId,
           end_day_id: endDayId,

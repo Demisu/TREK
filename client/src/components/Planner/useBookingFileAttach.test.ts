@@ -1,4 +1,4 @@
-// FE-PLANNER-BOOKINGFILES-001 to -005: the Files row of the desktop booking and
+// FE-PLANNER-BOOKINGFILES-001 to -006: the Files row of the desktop booking and
 // transport dialogs.
 import { act, renderHook } from '@testing-library/react';
 import type React from 'react';
@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { buildTripFile } from '../../../tests/helpers/factories';
+import { _resetNetworkMode, setForcedOffline } from '../../sync/networkMode';
 import type { TripFile } from '../../types';
 import { type BookingFileAttachOptions, useBookingFileAttach } from './useBookingFileAttach';
 
@@ -92,5 +93,22 @@ describe('useBookingFileAttach', () => {
   it('FE-PLANNER-BOOKINGFILES-005: a new booking lists no attached files', () => {
     const { result } = setup({ reservation: null }, [buildTripFile({ id: 1, reservation_id: 5 })]);
     expect(result.current.attach.attachedFiles).toEqual([]);
+  });
+  it('FE-PLANNER-BOOKINGFILES-006: offline a file on a saved booking is not sent and says it needs a connection (#2601)', async () => {
+    const onFileUpload = vi.fn(async (_fd: FormData) => undefined);
+    const { result, toast } = setup({ onFileUpload });
+    const event = changeEvent(new File(['x'], 'ticket.pdf'));
+    setForcedOffline(true);
+    try {
+      await act(async () => {
+        await result.current.attach.handleFileChange(event);
+      });
+    } finally {
+      _resetNetworkMode();
+    }
+    expect(onFileUpload).not.toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalledWith('reservations.needsConnection');
+    expect(event.target.value).toBe('');
+    expect(result.current.pendingFiles).toEqual([]);
   });
 });

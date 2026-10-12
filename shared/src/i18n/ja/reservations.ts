@@ -251,5 +251,8 @@ const reservations: TranslationStrings = {
   'reservations.copyCode': '予約コードをコピー',
   'reservations.copyFailed': 'コピーできませんでした',
   'reservations.showInFiles': 'ファイルで表示',
+  'reservations.filesNeedConnection':
+    'ファイルのアップロードには接続が必要です。オフラインで予約を保存するには新しいファイルを外すか、オンラインに戻ってから保存してください。',
+  'reservations.needsConnection': 'この操作には接続が必要です。TREK がオンラインに戻ってから、もう一度お試しください。',
 };
 export default reservations;

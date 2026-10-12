@@ -1,6 +1,7 @@
 import type React from 'react';
 import { type Dispatch, type SetStateAction, useState } from 'react';
 
+import { isEffectivelyOffline } from '../../sync/networkMode';
 import type { TripFile } from '../../types';
 import { attachedBookingFiles } from './bookingFormModel';
 
@@ -35,7 +36,12 @@ export function useBookingFileAttach({
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (reservation?.id) {
+    if (reservation?.id && isEffectivelyOffline()) {
+      // A file goes up at once on a saved booking, and an upload cannot wait in
+      // the offline queue.
+      toast.error(t('reservations.needsConnection'));
+      e.target.value = '';
+    } else if (reservation?.id) {
       setUploadingFile(true);
       try {
         if (onFileUpload) {

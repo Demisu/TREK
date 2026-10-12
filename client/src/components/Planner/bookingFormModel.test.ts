@@ -1,13 +1,15 @@
-// FE-PLANNER-BOOKINGFORM-001 to -009: the travellers, picked files, attached files
+// FE-PLANNER-BOOKINGFORM-001 to -010: the travellers, picked files, attached files
 // and expense requests of the transport and booking forms, desktop and phone alike.
 import { typeToCostCategory } from '@trek/shared';
 import { describe, expect, it, vi } from 'vitest';
 
 import { buildBudgetItem, buildDay, buildReservation, buildTripFile } from '../../../tests/helpers/factories';
+import { _resetNetworkMode, setForcedOffline } from '../../sync/networkMode';
 import type { Reservation } from '../../types';
 import {
   attachedBookingFiles,
   expenseRequestAfterSave,
+  filesNeedConnection,
   pendingImportExpense,
   toggledTraveler,
   travelerIdsOf,
@@ -112,5 +114,17 @@ describe('bookingFormModel', () => {
     expect(attachedBookingFiles(files, 5, [3]).map((f) => f.id)).toEqual([1, 2, 3]);
     expect(attachedBookingFiles(files, null, [3])).toEqual([]);
     expect(attachedBookingFiles(files, undefined, [])).toEqual([]);
+  });
+  it('FE-PLANNER-BOOKINGFORM-010: only files that would go up while offline hold the save back (#2601)', () => {
+    const file = new File(['x'], 'ticket.pdf');
+    expect(filesNeedConnection([file], true)).toBe(false);
+    setForcedOffline(true);
+    try {
+      expect(filesNeedConnection([file], true)).toBe(true);
+      expect(filesNeedConnection([], true)).toBe(false);
+      expect(filesNeedConnection([file], false)).toBe(false);
+    } finally {
+      _resetNetworkMode();
+    }
   });
 });

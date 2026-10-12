@@ -30,7 +30,7 @@ import {
   transportDayOptions, type StationWaypointForm, type WaypointForm,
 } from './transportEndpoints'
 import { useTransportForm } from './useTransportForm'
-import { expenseRequestAfterSave, pendingImportExpense, travelerIdsOf, travelersChanged, uploadBookingFiles } from './bookingFormModel'
+import { expenseRequestAfterSave, pendingImportExpense, travelerIdsOf, travelersChanged, filesNeedConnection, uploadBookingFiles } from './bookingFormModel'
 import { useBookingExpenseIntent } from './useBookingExpenseIntent'
 import { useBookingFileAttach } from './useBookingFileAttach'
 
@@ -130,9 +130,14 @@ export function TransportModal({ isOpen, onClose, onSave, reservation, days, sel
     })
   }, [isOpen, reservation, prefill, selectedDayId, budgetItems])
 
-  const handleSubmit = async (e?: React.FormEvent) => {
+  const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault()
     if (!form.title.trim()) return
+    if (filesNeedConnection(pendingFiles, !!onFileUpload)) { toast.error(t('reservations.filesNeedConnection')); return }
+    return saveTransport()
+  }
+
+  const saveTransport = async () => {
     setIsSaving(true)
     try {
       const saved = await onSave(payload(days, {

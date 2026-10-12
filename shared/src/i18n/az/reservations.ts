@@ -292,6 +292,9 @@ const reservations: TranslationStrings = {
   'reservations.copyCode': 'Rezervasiya kodunu kopyala',
   'reservations.copyFailed': 'Kopyalamaq alınmadı',
   'reservations.showInFiles': 'Fayllarda göstər',
+  'reservations.filesNeedConnection':
+    'Faylların yüklənməsi üçün bağlantı lazımdır. Rezervasiyanı oflayn saxlamaq üçün yeni faylları silin və ya yenidən onlayn olduqda saxlayın.',
+  'reservations.needsConnection': 'Bunun üçün bağlantı lazımdır. TREK yenidən onlayn olduqda bir daha cəhd edin.',
 };
 
 export default reservations;

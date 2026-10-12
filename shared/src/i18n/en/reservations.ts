@@ -260,5 +260,8 @@ const reservations: TranslationStrings = {
   'reservations.copyCode': 'Copy booking code',
   'reservations.copyFailed': 'Could not copy',
   'reservations.showInFiles': 'Show in files',
+  'reservations.filesNeedConnection':
+    'Files need a connection to upload. Remove the new ones to save the booking offline, or save once you are back online.',
+  'reservations.needsConnection': 'This needs a connection. Try again once TREK is back online.',
 };
 export default reservations;

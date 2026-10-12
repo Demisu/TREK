@@ -2,7 +2,8 @@
 import { createElement } from 'react'
 import { getCategoryIcon } from '../shared/categoryIcons'
 import { FileText, Info, Clock, MapPin, Navigation, Train, Plane, Bus, Car, Ship, Sailboat, CableCar, Bike, CarTaxiFront, Route, Coffee, Ticket, Star, Heart, Camera, Flag, Lightbulb, AlertTriangle, ShoppingBag, Bookmark, Hotel, LogIn, LogOut, KeyRound, BedDouble, Utensils, Users, ParkingSquare, LucideIcon } from 'lucide-react'
-import { accommodationsApi, mapsApi, pluginsApi } from '../../api/client'
+import { mapsApi, pluginsApi } from '../../api/client'
+import { accommodationRepo } from '../../repo/accommodationRepo'
 import type { Trip, Day, Place, Category, AssignmentsMap, DayNote, DistanceUnit, BudgetItem } from '../../types'
 import { isDayInAccommodationRange, getDayOrder } from '../../utils/dayOrder'
 import { hidesOnMiddleDay, getTransportForDay, getMergedItems, getSpanPhase, getDisplayTimeForDay } from '../../utils/dayMerge'
@@ -254,7 +255,7 @@ export async function downloadTripPDF({ trip, days, places, assignments: allStor
   const range = longDateRange(sorted, loc)
   const coverImg = safeImg(trip?.cover_image)
   //retrieve accommodations for the trip to display on the day sections and prefetch their photos if needed
-  const accommodations = await accommodationsApi.list(trip.id);
+  const accommodations = await accommodationRepo.list(trip.id);
   // The endpoint answers `{ accommodations: [...] }`, not a bare array. Unwrapped once
   // here so every reader below gets the list itself — passing the envelope on is what
   // cost the route map its hotel legs, and silently (#1736).

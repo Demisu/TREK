@@ -3,9 +3,11 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Loader2, CheckCircle2, AlertCircle, AlertTriangle, X } from 'lucide-react'
 import { useTranslation } from '../../i18n'
+import { useToast } from '../shared/Toast'
 import { addListener, removeListener } from '../../api/websocket'
 import { reservationsApi, healthApi } from '../../api/client'
 import { saveImportFiles } from '../../db/offlineDb'
+import { isEffectivelyOffline } from '../../sync/networkMode'
 import { useBackgroundTasksStore, taskFoundSomething, type BackgroundImportTask } from '../../store/backgroundTasksStore'
 import type { ReceiptRead } from '@trek/shared'
 
@@ -33,6 +35,7 @@ function readingKey(task: BackgroundImportTask): string {
  */
 export default function BackgroundTasksWidget() {
   const { t } = useTranslation()
+  const toast = useToast()
   const navigate = useNavigate()
   const tasks = useBackgroundTasksStore((s) => s.tasks)
   const setProgress = useBackgroundTasksStore((s) => s.setProgress)
@@ -56,6 +59,8 @@ export default function BackgroundTasksWidget() {
   const retryWithAi = async (task: BackgroundImportTask) => {
     const files = task.sourceFiles
     if (!files || files.length === 0 || retrying === task.id) return
+    // Offline the card stays as it is, with its button, for a try once the connection is back.
+    if (isEffectivelyOffline()) { toast.error(t('reservations.needsConnection')); return }
     setRetrying(task.id)
     try {
       const { jobId } = await reservationsApi.importBookingAsync(task.tripId, files, 'force-ai')

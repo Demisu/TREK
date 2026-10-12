@@ -16,7 +16,7 @@ import {
   transportDayOptions, type StationWaypointForm, type WaypointForm,
 } from '../../../../components/Planner/transportEndpoints'
 import { useTransportForm } from '../../../../components/Planner/useTransportForm'
-import { expenseRequestAfterSave, travelerIdsOf, travelersChanged, uploadBookingFiles } from '../../../../components/Planner/bookingFormModel'
+import { expenseRequestAfterSave, travelerIdsOf, travelersChanged, filesNeedConnection, uploadBookingFiles } from '../../../../components/Planner/bookingFormModel'
 import { useBookingExpenseIntent } from '../../../../components/Planner/useBookingExpenseIntent'
 import { Eyebrow, FIELD_CLS, FormSheetFooter, FormSheetHeader } from './PlSheetChrome'
 import MBookingFilesCosts from './MBookingFilesCosts'
@@ -123,6 +123,7 @@ export default function MTransportFormSheet({ planner, onOpenExpense }: MTranspo
 
   const handleSubmit = async () => {
     if (!form.title.trim() || isSaving) return
+    if (filesNeedConnection(pendingFiles, canUploadFiles)) { toast.error(t('reservations.filesNeedConnection')); return }
     const withExpense = expense.take()
     setIsSaving(true)
     try {

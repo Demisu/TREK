@@ -262,5 +262,8 @@ const reservations: TranslationStrings = {
   'reservations.copyCode': 'Foglalási kód másolása',
   'reservations.copyFailed': 'Nem sikerült másolni',
   'reservations.showInFiles': 'Megjelenítés a fájlokban',
+  'reservations.filesNeedConnection':
+    'A fájlok feltöltéséhez kapcsolat kell. Távolítsd el az újakat, hogy offline mentsd a foglalást, vagy ments, amikor újra online vagy.',
+  'reservations.needsConnection': 'Ehhez kapcsolat kell. Próbáld újra, amint a TREK újra online lesz.',
 };
 export default reservations;

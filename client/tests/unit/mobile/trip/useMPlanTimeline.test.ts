@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { WeatherResult } from '@trek/shared'
-import { assignmentsApi, reservationsApi, weatherApi } from '../../../../src/api/client'
+import { assignmentsApi, weatherApi } from '../../../../src/api/client'
 import { useMPlanTimeline } from '../../../../src/mobile/screens/trip/plan/useMPlanTimeline'
 import type { TransportEntry } from '../../../../src/mobile/screens/trip/plan/planTimelineModel'
 import type { TripPlanner } from '../../../../src/mobile/screens/trip/MTripShell'
@@ -94,7 +94,6 @@ describe('useMPlanTimeline', () => {
     routeCalc.segments = []
     vi.spyOn(weatherApi, 'get').mockResolvedValue(FORECAST)
     vi.spyOn(assignmentsApi, 'updateTransport').mockResolvedValue({})
-    vi.spyOn(reservationsApi, 'updatePositions').mockResolvedValue({})
     vi.spyOn(window, 'open').mockImplementation(() => null)
   })
 
@@ -352,7 +351,7 @@ describe('useMPlanTimeline', () => {
 
     await act(async () => { result.current.moveRow(result.current.merged[3], 'up') })
 
-    await waitFor(() => expect(reservationsApi.updatePositions).toHaveBeenCalledWith(
+    await waitFor(() => expect(planner.tripActions.updateReservationPositions).toHaveBeenCalledWith(
       1, [{ id: 51, day_plan_position: 2 / 3 }], 2,
     ))
     expect(planner.tripActions.reorderAssignments).toHaveBeenCalledWith(1, 2, [11, 12])
@@ -433,7 +432,7 @@ describe('useMPlanTimeline', () => {
 
     await act(async () => { result.current.moveRow(result.current.merged[2], 'up') })
 
-    await waitFor(() => expect(reservationsApi.updatePositions).toHaveBeenCalledWith(
+    await waitFor(() => expect(planner.tripActions.updateReservationPositions).toHaveBeenCalledWith(
       1, [{ id: 51, day_plan_position: 0.5 }], 2,
     ))
     // Only the moved booking gains a per-day position; the other day's booking is untouched.

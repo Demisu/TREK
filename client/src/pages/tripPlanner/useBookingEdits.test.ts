@@ -183,14 +183,18 @@ describe('useBookingEdits', () => {
     expect(actions.addPlace).not.toHaveBeenCalled()
   })
 
-  it('FE-TP-BOOKING-006: offline nothing is linked, and a failed search still makes the place without coordinates', async () => {
+  it('FE-TP-BOOKING-006: offline the stay is linked to a place made here, and a failed search still makes the place without coordinates', async () => {
     const { result } = renderEdits()
 
+    // Offline the booking waits in the queue behind the place, so a place made
+    // or found offline is linked and goes out with its real id later.
     setForcedOffline(true)
     const offline = await saveHotel(result, { venue: { name: 'Lodge', address: 'Main 1' } })
-    expect(offline.place_id).toBeUndefined()
+    expect(offline.place_id).toBe(900)
     expect(mapsApi.search).not.toHaveBeenCalled()
-    expect(actions.addPlace).not.toHaveBeenCalled()
+    expect(actions.addPlace).toHaveBeenCalledWith(42, { name: 'Lodge', lat: null, lng: null, address: 'Main 1' })
+    const hutOffline = await saveHotel(result, { venue: { name: 'Hut' } })
+    expect(hutOffline.place_id).toBe(-3)
     _resetNetworkMode()
 
     vi.mocked(mapsApi.search).mockRejectedValueOnce(new Error('overpass down'))

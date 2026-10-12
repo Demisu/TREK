@@ -26,7 +26,7 @@ import { typeInfo } from './bookings/bookingsModel'
 import type { StatusTone } from './bookings/bookingParts'
 import { RESERVATION_TYPE_OPTIONS as TYPE_OPTIONS, reservationFieldsFrom, reservationFieldsFromPrefill, selectedDayDate } from './reservationFormModel'
 import { useReservationForm } from './useReservationForm'
-import { expenseRequestAfterSave, pendingImportExpense, travelerIdsOf, travelersChanged, uploadBookingFiles } from './bookingFormModel'
+import { expenseRequestAfterSave, pendingImportExpense, travelerIdsOf, travelersChanged, filesNeedConnection, uploadBookingFiles } from './bookingFormModel'
 import { useBookingExpenseIntent } from './useBookingExpenseIntent'
 import { useBookingFileAttach } from './useBookingFileAttach'
 
@@ -126,6 +126,7 @@ export function ReservationModal({ isOpen, onClose, onSave, reservation, days, p
     e?.preventDefault?.()
     if (!form.title.trim()) return
     if (isEndBeforeStart) { toast.error(t('reservations.validation.endBeforeStart')); return }
+    if (filesNeedConnection(pendingFiles, !!onFileUpload)) { toast.error(t('reservations.filesNeedConnection')); return }
     setIsSaving(true)
     try {
       const saveData = buildSaveData({ assignmentId: form.assignment_id, isEdit: !!reservation?.id, withCheckInEnd: true })

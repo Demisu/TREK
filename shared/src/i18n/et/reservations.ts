@@ -260,5 +260,8 @@ const reservations: TranslationStrings = {
   'reservations.copyCode': 'Kopeeri broneerimiskood',
   'reservations.copyFailed': 'Kopeerimine ebaõnnestus',
   'reservations.showInFiles': 'Näita failides',
+  'reservations.filesNeedConnection':
+    'Failide üleslaadimiseks on vaja ühendust. Eemalda uued, et broneering võrguühenduseta salvestada, või salvesta, kui oled taas võrgus.',
+  'reservations.needsConnection': 'Selleks on vaja ühendust. Proovi uuesti, kui TREK on taas võrgus.',
 };
 export default reservations;

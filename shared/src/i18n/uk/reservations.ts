@@ -272,5 +272,8 @@ const reservations: TranslationStrings = {
   'reservations.copyCode': 'Копіювати код бронювання',
   'reservations.copyFailed': 'Не вдалося скопіювати',
   'reservations.showInFiles': 'Показати у файлах',
+  'reservations.filesNeedConnection':
+    "Для завантаження файлів потрібне з'єднання. Видаліть нові, щоб зберегти бронювання офлайн, або збережіть, коли знову будете онлайн.",
+  'reservations.needsConnection': "Для цього потрібне з'єднання. Спробуйте ще раз, коли TREK знову буде онлайн.",
 };
 export default reservations;
