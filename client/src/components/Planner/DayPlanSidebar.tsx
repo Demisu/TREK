@@ -435,7 +435,7 @@ function useDayPlanSidebar(props: DayPlanSidebarProps) {
   }
 
   // A booking pinned to a stop on another day shows at that stop only (#2604).
-  const stopDays = useMemo(() => stopDayIds(assignments), [assignments])
+  const stopDays = stopDayIds(assignments)
   const getTransportForDay = (dayId: number) =>
     _getTransportForDay({ reservations, dayId, dayAssignmentIds: (assignments[String(dayId)] || []).map(a => a.id), days, stopDays })
 
