@@ -7,7 +7,7 @@ import type { InviteTokensRepository, InviteTokenRow } from '../../db/repositori
 import type { UsersRepository, UserRow } from '../../db/repositories/Users.repository';
 import { User } from '../../types';
 import { safeFetchAdminConfigured } from '../../utils/ssrfGuard';
-import { logError } from '../audit/audit-log.logger';
+import { logError, logWarn } from '../audit/audit-log.logger';
 import { AuthService } from '../auth/auth.service';
 import { readAppSetting, resolveAppSetting, type AppSettingKey } from '../common/app-settings.registry';
 import { setAuthCookie, RememberOption } from '../common/cookie';
@@ -677,7 +677,7 @@ export class OidcService implements OnModuleDestroy {
         return { error: 'email_not_verified' };
       }
       if (user.email_self_asserted) {
-        console.warn(
+        logWarn(
           `[OIDC] Refused to link a sign-in to user ${user.id} by email: the account set that address itself. An admin can confirm it by changing the email in the admin panel.`,
         );
         return { error: 'email_link_blocked' };
@@ -685,7 +685,7 @@ export class OidcService implements OnModuleDestroy {
       // The same provider with another subject is another person at that
       // provider, never this account under a new name.
       if (user.oidc_sub && user.oidc_issuer === config.issuer) {
-        console.warn(
+        logWarn(
           `[OIDC] Refused to link a sign-in to user ${user.id} by email: it is linked to another subject of this provider.`,
         );
         return { error: 'email_link_blocked' };
