@@ -108,6 +108,11 @@ describe('MapsService.getPlaceDetails for a gers: id', () => {
     expect(out.place).toMatchObject({ name: "L'Osteria", osm_id: 'gers:abc-123', source: 'trek-places' });
   });
 
+  it('MAPS-GERS-011: the place is read in the language of the request, so its locality is too (#2592)', async () => {
+    await make(null).getPlaceDetails(1, 'gers:abc-123', 'ja');
+    expect(mockById).toHaveBeenCalledWith('abc-123', { lang: 'ja' });
+  });
+
   it('MAPS-GERS-006: an unknown id is null rather than a thrown request', async () => {
     mockById.mockResolvedValue(null);
     expect(await make(null).getPlaceDetails(1, 'gers:nope')).toEqual({ place: null });

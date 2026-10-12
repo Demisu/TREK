@@ -108,7 +108,9 @@ describe('MapsService.nearbyPlaces', () => {
 
     const out = await make({ google: true }).nearbyPlaces(1, p.lat, p.lng, { radius: 800, limit: 5 });
 
-    expect(mockNearby).toHaveBeenCalledWith(p.lat, p.lng, { radius: 800, limit: 5 });
+    // The language of the answer, English when none was asked for, the same
+    // default Google and OpenStreetMap get below (#2592).
+    expect(mockNearby).toHaveBeenCalledWith(p.lat, p.lng, { radius: 800, limit: 5, lang: 'en' });
     expect(out.source).toBe('trek-places');
     expect(out.places.map((r) => r.name)).toEqual(['Near Cafe', 'Far Cafe']);
     expect(out.places[0].distance_m).toBe(56);
@@ -169,6 +171,15 @@ describe('MapsService.nearbyPlaces', () => {
     expect(error).toHaveBeenCalledWith(
       expect.stringContaining('searchNearby failed with 429 userId=1 keySource=user-row'),
     );
+  });
+
+  it('MAPS-NEARBY-011: the index names the localities in the language asked for (#2592)', async () => {
+    const p = nextPoint();
+    mockNearby.mockResolvedValue([indexRow('near', 'Near Cafe', p.lat + 0.0005, p.lng)]);
+
+    await make().nearbyPlaces(1, p.lat, p.lng, { lang: 'br' });
+
+    expect(mockNearby).toHaveBeenCalledWith(p.lat, p.lng, expect.objectContaining({ lang: 'pt-BR' }));
   });
 
   it('MAPS-NEARBY-004: without a key OpenStreetMap answers, in the asked language, nearest first', async () => {

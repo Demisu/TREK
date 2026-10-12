@@ -445,7 +445,23 @@ describe('Tool: search_nearby_places', () => {
       expect(data.source).toBe('trek-places');
       expect(data.places.map((p: any) => p.name)).toEqual(['Closer', 'Farther']);
       expect(data.places[0].distance_m).toBe(11);
-      expect(trekNearbyMock).toHaveBeenCalledWith(48.8606, 2.3376, { radius: 200, limit: 5 });
+      expect(trekNearbyMock).toHaveBeenCalledWith(48.8606, 2.3376, { radius: 200, limit: 5, lang: 'en' });
+    });
+  });
+
+  it('asks the index in the language the tool was given, as the REST route does (#2592)', async () => {
+    const { user } = createUser(testDb);
+    trekNearbyMock.mockClear();
+    trekNearbyMock.mockResolvedValueOnce([
+      { gers: 'n-1', name: 'Closer', lat: 35.7104, lng: 139.8119, address: null, contact: null },
+    ]);
+
+    await withHarness(user.id, async (h) => {
+      await h.client.callTool({
+        name: 'search_nearby_places',
+        arguments: { lat: 35.7103, lng: 139.8118, radius: 200, limit: 5, lang: 'de' },
+      });
+      expect(trekNearbyMock).toHaveBeenCalledWith(35.7103, 139.8118, { radius: 200, limit: 5, lang: 'de' });
     });
   });
 

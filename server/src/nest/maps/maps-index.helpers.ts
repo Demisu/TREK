@@ -4,6 +4,7 @@
  * need no branch per source. Pure: the calls themselves are trek-places.client's,
  * the decision to make them is MapsService's.
  */
+import { getCountryFromCoords } from '../atlas/atlas-geo';
 import { buildOsmDetails, parsePoiCategories, samePlace, toApiLang } from './maps.helpers';
 import { POI_RESULT_CAP, type PoiSearchResult } from './providers/osm.client';
 import {
@@ -96,11 +97,11 @@ export function indexPoiPlan(category: string, bbox: PoiBbox, limit: number): In
  * this branch argues elsewhere that naming a source is a licence obligation. The
  * wire contract keeps `source` an open string, so widening it costs nothing.
  *
- * One thing the index cannot do is localise. The Overpass path picks
- * `name:<lang>` and falls back to `int_name`; the service has no language
- * parameter at all, so a German user exploring Tokyo gets the Japanese primary
- * names here. Named rather than hidden: whoever adds localisation upstream
- * should find this comment.
+ * One thing the index cannot do is translate a name. The Overpass path picks
+ * `name:<lang>` and falls back to `int_name`; the service takes a language now,
+ * but only puts localities into it, because Overture carries no translated
+ * names. A German user exploring Tokyo therefore still gets the Japanese
+ * primary names here, and the POI pins show no locality to translate.
  */
 export function indexPoiAnswer(
   found: (TrekPlace & { categoryPath?: string | null })[],
@@ -195,10 +196,18 @@ export function indexSuggestions(found: TrekSearchHit[], lang?: string): MapsAut
           // the failure would land after the user had picked it.
           placeId: osmPlaceId(p),
           mainText: p.name,
-          // The layer carries no address. The local name is what the
-          // place is called on the spot, which is more use under a
-          // translated label than an empty line.
-          secondaryText: p.local_name && p.local_name !== p.name ? p.local_name : '',
+          // The layer carries no address, but asked with a language it
+          // names the town the place is in, and that reads the way an
+          // index row does: "Sumida, Japan" (#2592). The country comes
+          // from the coordinate, which is all the layer has. Without a
+          // locality the local name is what the place is called on the
+          // spot, which is more use under a translated label than an
+          // empty line.
+          secondaryText: p.locality
+            ? [p.locality, countryName(getCountryFromCoords(p.lat, p.lng), lang)].filter(Boolean).join(', ')
+            : p.local_name && p.local_name !== p.name
+              ? p.local_name
+              : '',
           // Per row, because this list is two indexes interleaved.
           // The name above the list says `trek-places`, which is true
           // of the call and false of half the rows in it — the layer

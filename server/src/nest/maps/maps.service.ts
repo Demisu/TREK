@@ -355,6 +355,7 @@ export class MapsService {
           lat: locationBias?.lat,
           lng: locationBias?.lng,
           limit: 10,
+          lang,
         })
           .then(indexHitsOnly)
           .catch((err: unknown) => {
@@ -446,7 +447,7 @@ export class MapsService {
     const keyed = await this.keyedProvider(userId);
     if (this.trekPlacesEnabled() && !(await this.selector.googleOnly(keyed))) {
       // Never throws upward, like the search: a slow index drops to the next source.
-      const found = await trekPlacesNearby(origin.lat, origin.lng, { radius, limit }).catch((err: unknown) => {
+      const found = await trekPlacesNearby(origin.lat, origin.lng, { radius, limit, lang }).catch((err: unknown) => {
         console.warn('TREK Places nearby failed, falling back:', (err as Error).message);
         return [];
       });
@@ -519,6 +520,7 @@ export class MapsService {
           lng: centre?.lng,
           limit: 8,
           sources: 'index,osm',
+          lang,
         });
         if (found.length > 0) return { suggestions: indexSuggestions(found, lang), source: 'trek-places' };
       } catch (err: unknown) {

@@ -15,6 +15,7 @@ import {
   trekPlacesNearby,
   trekPlacesSearch,
   resetTrekPlacesBreaker,
+  serviceLang,
   type TrekPlace,
 } from '../../../src/nest/maps/trek-places.client';
 
@@ -260,6 +261,68 @@ describe('trekPlacesSearch', () => {
   it('survives a malformed results field', async () => {
     stubFetch({ query: 'x', results: 'not an array' });
     await expect(trekPlacesSearch('x')).resolves.toEqual([]);
+  });
+});
+
+describe('the reader language (#2592)', () => {
+  it('sends TREK codes as the tags the service reads, and nothing it would refuse', () => {
+    expect(serviceLang('de')).toBe('de');
+    // Brazilian Portuguese and Greek have codes of their own in TREK.
+    expect(serviceLang('br')).toBe('pt-BR');
+    expect(serviceLang('gr')).toBe('el');
+    // Passed as it is: the service maps a region onto the script OSM keys by.
+    expect(serviceLang('zh-TW')).toBe('zh-TW');
+    expect(serviceLang(undefined)).toBeUndefined();
+    expect(serviceLang('  ')).toBeUndefined();
+    expect(serviceLang('not a locale!')).toBeUndefined();
+  });
+
+  it('asks search, nearby and the place lookup in it', async () => {
+    stubFetch({ query: 'x', results: [], place: PLACE });
+    await trekPlacesSearch('x', { lang: 'br' });
+    await trekPlacesNearby(54.1, 12.1, { lang: 'gr' });
+    await trekPlacesById('abc-123', { lang: 'ja' });
+    expect(calls.map((c) => new URL(c.url).searchParams.get('lang'))).toEqual(['pt-BR', 'el', 'ja']);
+  });
+
+  it('leaves the parameter off without a language, so the answer is the one it always was', async () => {
+    stubFetch({ query: 'x', results: [], place: PLACE, count: 0 });
+    await trekPlacesSearch('x');
+    await trekPlacesNearby(54.1, 12.1);
+    await trekPlacesById('abc-123');
+    await trekPlacesSearch('x', { lang: 'not a locale!' });
+    await trekPlacesArea(BOX);
+    expect(calls.every((c) => !new URL(c.url).searchParams.has('lang'))).toBe(true);
+  });
+
+  it('keeps a layer row locality only when it is a name', async () => {
+    const osm = (locality: unknown) => ({
+      id: 'osm:node/1',
+      osm_type: 'node',
+      osm_id: 1,
+      name: 'Kirby Cafe',
+      local_name: 'カービィカフェ',
+      lat: 35.71,
+      lng: 139.81,
+      category: null,
+      source: 'openstreetmap',
+      locality,
+    });
+    stubFetch({ query: 'x', results: [osm(' Sumida '), osm(''), osm(42), osm(null), { ...PLACE }] });
+
+    const found = await trekPlacesSearch('x', { lang: 'en', sources: 'index,osm' });
+
+    expect(found.map((h) => ('locality' in h ? h.locality : 'index row'))).toEqual([
+      'Sumida',
+      null,
+      null,
+      null,
+      'index row',
+    ]);
+    // A row the service sent without the field, which is every row asked
+    // without a language, is left without it.
+    stubFetch({ query: 'x', results: [{ ...osm(null), locality: undefined }] });
+    expect((await trekPlacesSearch('x'))[0]).not.toHaveProperty('locality');
   });
 });
 

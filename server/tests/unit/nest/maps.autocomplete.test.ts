@@ -383,4 +383,50 @@ describe('MapsService.autocompletePlaces', () => {
       'gers:hasedera',
     ]);
   });
+  it('MAPS-AUTO-017: the search language goes to the index, which names localities in it (#2592)', async () => {
+    mockSearch.mockResolvedValue([hit()]);
+
+    await make().autocompletePlaces(1, INPUT, 'br');
+
+    expect(mockSearch).toHaveBeenCalledWith(INPUT, expect.objectContaining({ sources: 'index,osm', lang: 'br' }));
+  });
+
+  it('MAPS-AUTO-018: a layer row reads as its town and country, like an index row (#2592)', async () => {
+    // What the service answers for "kirby cafe" with a language: the two layer
+    // rows used to repeat カービィカフェ under "Kirby Cafe" with no place at all.
+    const tokyo = osmHit({ name: 'Kirby Cafe', local_name: 'カービィカフェ', lat: 35.7103685, lng: 139.8118977 });
+    const rows = (locality: string) => [
+      { ...tokyo, locality },
+      hit({ gers: 'emmetsburg', name: "Kirby's Cafe", lat: 43.11215, lng: -94.69049 }),
+    ];
+
+    mockSearch.mockResolvedValue(rows('Sumida'));
+    expect((await make().autocompletePlaces(1, INPUT, 'en')).suggestions[0].secondaryText).toBe('Sumida, Japan');
+
+    mockSearch.mockResolvedValue(rows('Sumida'));
+    expect((await make().autocompletePlaces(1, INPUT, 'fr')).suggestions[0].secondaryText).toBe('Sumida, Japon');
+
+    mockSearch.mockResolvedValue(rows('Tokio'));
+    expect((await make().autocompletePlaces(1, INPUT, 'de')).suggestions[0].secondaryText).toBe('Tokio, Japan');
+  });
+
+  it('MAPS-AUTO-019: without a locality the layer row keeps its local name, and never prints a blank', async () => {
+    mockSearch.mockResolvedValue([
+      osmHit({ id: 'osm:node/1', osm_id: 1, locality: null }),
+      osmHit({ id: 'osm:node/2', osm_id: 2, name: 'Same', local_name: 'Same', lat: 1, lng: 1, locality: null }),
+      osmHit({ id: 'osm:node/3', osm_id: 3, name: 'Old service', local_name: '旧', lat: 2, lng: 2 }),
+    ]);
+
+    const { suggestions } = await make().autocompletePlaces(1, INPUT, 'en');
+
+    expect(suggestions.map((s) => s.secondaryText)).toEqual(['東京駅丸の内駅舎', '', '旧']);
+  });
+
+  it('MAPS-AUTO-020: a locality out at sea, where no country is, stands alone', async () => {
+    mockSearch.mockResolvedValue([osmHit({ lat: 0.5, lng: -30, locality: 'Somewhere' })]);
+
+    const { suggestions } = await make().autocompletePlaces(1, INPUT, 'en');
+
+    expect(suggestions[0].secondaryText).toBe('Somewhere');
+  });
 });

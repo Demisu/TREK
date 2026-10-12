@@ -129,6 +129,14 @@ describe('MapsService.searchPlaces — the merged path', () => {
     expect(out.places[1].name).toBe('長谷寺');
   });
 
+  it('MAPS-SEARCH-014: the index is asked in the language of the search, like OpenStreetMap is (#2592)', async () => {
+    mockSearch.mockResolvedValue([indexHit('Kirby Cafe Hakata')]);
+
+    await make().searchPlaces(1, 'kirby cafe', 'de');
+
+    expect(mockSearch).toHaveBeenCalledWith('kirby cafe', expect.objectContaining({ lang: 'de' }));
+  });
+
   it('MAPS-SEARCH-002: an index answer with nothing from OSM is named as index only', async () => {
     mockSearch.mockResolvedValue([indexHit("L'Osteria")]);
     mockNominatim.mockResolvedValue(osmAnswer([]));
@@ -311,7 +319,7 @@ describe('MapsService.searchPlaces — the merged path', () => {
 
     await make().searchPlaces(1, "L'Osteria", 'de', { lat: 54.0879, lng: 12.1408, radius: 5000 });
 
-    expect(mockSearch).toHaveBeenCalledWith("L'Osteria", { lat: 54.0879, lng: 12.1408, limit: 10 });
+    expect(mockSearch).toHaveBeenCalledWith("L'Osteria", { lat: 54.0879, lng: 12.1408, limit: 10, lang: 'de' });
     // Without the viewbox, "Hase-dera" answers with the temple in Nara rather
     // than the one the user is standing beside in Kamakura.
     const params = mockNominatim.mock.calls[0][1] as URLSearchParams;

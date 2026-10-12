@@ -58,7 +58,9 @@ export class PlaceDetailsResolver {
       // the index: a place saved while it was on is still opened from what the
       // trip holds, not looked up again.
       if (!indexEnabled) return { place: null };
-      const found = await trekPlacesById(placeId.slice('gers:'.length)).catch(() => null);
+      // In the reader's language, so the locality the place is saved with is
+      // one they can read (#2592). The name stays what the index has.
+      const found = await trekPlacesById(placeId.slice('gers:'.length), { lang }).catch(() => null);
       if (!found) return { place: null };
 
       // What the index lacks, OpenStreetMap often has for the same building
