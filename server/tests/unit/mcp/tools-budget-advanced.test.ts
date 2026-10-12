@@ -277,6 +277,19 @@ describe('Settlement tools', () => {
     return { user, other, trip };
   }
 
+  /** The REST side of the parity cases below: the controller behind GET /budget/settlement, on this suite's db. */
+  async function restController() {
+    return new BudgetController(
+      new BudgetService(
+        new PermissionsService(await createTestAppSettingsRepo(testDb), await createTestUnitOfWork(testDb)),
+        new ExchangeRatesService(),
+        new RealtimeService(),
+        await createTestUnitOfWork(testDb),
+        ...(await budgetRepoArgs(testDb)),
+      ),
+    );
+  }
+
   it('create_settlement records a payment, broadcasts, and is listed', async () => {
     const { user, other, trip } = tripWithTwo();
     await withHarness(user.id, async (h) => {
@@ -366,15 +379,7 @@ describe('Settlement tools', () => {
     const unpaid = createBudgetItem(testDb, trip.id, { total_price: 40 });
     await addBudgetItemMember(orm, unpaid.id, other.id, { paid: 0 });
 
-    const controller = new BudgetController(
-      new BudgetService(
-        new PermissionsService(await createTestAppSettingsRepo(testDb), await createTestUnitOfWork(testDb)),
-        new ExchangeRatesService(),
-        new RealtimeService(),
-        await createTestUnitOfWork(testDb),
-        ...(await budgetRepoArgs(testDb)),
-      ),
-    );
+    const controller = await restController();
     const rest = await controller.settlement(
       { id: user.id } as User,
       { id: trip.id, user_id: user.id } as TripAccess,
@@ -412,15 +417,7 @@ describe('Settlement tools', () => {
       await addBudgetItemMember(orm, item.id, other.id, { paid: 0 });
       await addBudgetItemPayer(orm, item.id, user.id, 12345.67);
 
-      const controller = new BudgetController(
-        new BudgetService(
-          new PermissionsService(await createTestAppSettingsRepo(testDb), await createTestUnitOfWork(testDb)),
-          new ExchangeRatesService(),
-          new RealtimeService(),
-          await createTestUnitOfWork(testDb),
-          ...(await budgetRepoArgs(testDb)),
-        ),
-      );
+      const controller = await restController();
       const rest = await controller.settlement(
         { id: user.id } as User,
         { id: trip.id, user_id: user.id, currency: 'EUR' } as TripAccess,
@@ -456,15 +453,7 @@ describe('Settlement tools', () => {
     await addBudgetItemMember(orm, item.id, other.id, { paid: 0 });
     await addBudgetItemPayer(orm, item.id, user.id, 10001);
 
-    const controller = new BudgetController(
-      new BudgetService(
-        new PermissionsService(await createTestAppSettingsRepo(testDb), await createTestUnitOfWork(testDb)),
-        new ExchangeRatesService(),
-        new RealtimeService(),
-        await createTestUnitOfWork(testDb),
-        ...(await budgetRepoArgs(testDb)),
-      ),
-    );
+    const controller = await restController();
     const access = { id: trip.id, user_id: user.id, currency: 'KRW' } as TripAccess;
     const rest = await controller.settlement({ id: user.id } as User, access, String(trip.id), {});
 
