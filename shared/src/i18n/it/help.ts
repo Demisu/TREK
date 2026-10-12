@@ -2905,7 +2905,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     'Ciò che avevi pianificato e ciò che hai fatto davvero sono insieme sulla mappa, tratteggiato contro continuo, e la scheda sopra i pulsanti elenca ancora i giorni pianificati e le loro distanze.',
   'help.guide.map-dawarich-trail.tip.1':
-    'Acceso o spento viene ricordato per viaggio per questa sessione del browser. Finché il percorso è acceso, TREK interroga di nuovo Dawarich ogni due minuti, così un viaggio in corso si aggiorna senza ricaricare; il percorso in sé non viene mai salvato, quindi non è nel database di TREK, non è nei backup e non c’è offline.',
+    'Acceso o spento viene ricordato per viaggio sul tuo account, quindi è uguale in ogni browser e su ogni dispositivo. Finché il percorso è acceso, TREK interroga di nuovo Dawarich ogni due minuti, così un viaggio in corso si aggiorna senza ricaricare; il percorso in sé non viene mai salvato, quindi non è nel database di TREK, non è nei backup e non c’è offline.',
   'help.guide.map-dawarich-trail.tip.2':
     'L’etichetta del pulsante spiega una mappa vuota: Caricamento del percorso registrato… mentre è in arrivo, In queste date non è stato registrato nulla, Impossibile caricare il percorso registrato, oppure Il percorso registrato richiede una connessione quando TREK è offline.',
   // map-compass
@@ -3957,7 +3957,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.result':
     'La colonna di sinistra è il tragitto in auto e la mappa ne mostra ogni giorno. Giorni torna dritto al programma, immutato.',
   'help.guide.roadtrip-mode.tip.1':
-    'La scelta viene ricordata per viaggio finché la scheda del browser resta aperta, quindi un ricaricamento torna sul tragitto in auto.',
+    'La scelta viene ricordata per viaggio sul tuo account, quindi un ricaricamento, un altro browser o un altro dispositivo torna sul tragitto in auto.',
   'help.guide.roadtrip-mode.tip.2':
     'Il selettore esiste solo una volta che un amministratore ha acceso il modulo Viaggio su strada, sotto Moduli nell’Amministrazione.',
   'help.guide.roadtrip-mode.tip.3':

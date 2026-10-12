@@ -2777,7 +2777,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     'Planlaşdırdığınız və əslində etdiyiniz birlikdə xəritədədir, qırıq xətt bütövə qarşı, düymələrin üstündəki kart isə hələ də planlaşdırılmış günləri və məsafələrini göstərir.',
   'help.guide.map-dawarich-trail.tip.1':
-    'Aktiv və ya deaktiv vəziyyəti bu brauzer sessiyası üçün hər səyahətə görə yadda saxlanılır. Marşrut aktiv olduqda TREK hər iki dəqiqədən bir Dawarich-ə yenidən sorğu göndərir, beləliklə davam edən səyahət səhifəni yeniləmədən yenilənir; marşrutun özü heç vaxt saxlanılmır, buna görə o, TREK-in verilənlər bazasında, ehtiyat nüsxələrdə və oflayn rejimdə yoxdur.',
+    'Aktiv və ya deaktiv vəziyyəti hər səyahət üçün hesabınızda yadda saxlanılır, buna görə hər brauzerdə və hər cihazda eynidir. Marşrut aktiv olduqda TREK hər iki dəqiqədən bir Dawarich-ə yenidən sorğu göndərir, beləliklə davam edən səyahət səhifəni yeniləmədən yenilənir; marşrutun özü heç vaxt saxlanılmır, buna görə o, TREK-in verilənlər bazasında, ehtiyat nüsxələrdə və oflayn rejimdə yoxdur.',
   'help.guide.map-dawarich-trail.tip.2':
     'Düymənin yazısı boş xəritəni izah edir: yüklənərkən Qeydə alınmış marşrut yüklənir…, həmçinin Bu tarixlərdə heç nə qeydə alınmayıb, Qeydə alınmış marşrutu yükləmək mümkün olmadı və ya TREK oflayn olduqda Qeydə alınmış marşrut internet bağlantısı tələb edir.',
   // map-compass
@@ -3967,7 +3967,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.result':
     'Sol sütun yolu göstərir, xəritə isə onun hər gününü. Günlər dəyişməmiş plana dərhal geri keçir.',
   'help.guide.roadtrip-mode.tip.1':
-    'Seçim brauzer tabı açıq olduğu müddətcə hər səyahət üçün yadda saxlanılır, buna görə səhifəni yenilədikdə yenidən yol görünür.',
+    'Seçim hər səyahət üçün hesabınızda yadda saxlanılır, buna görə səhifəni yenilədikdə, başqa brauzerdə və ya başqa cihazda yenidən yol görünür.',
   'help.guide.roadtrip-mode.tip.2':
     'Keçid yalnız administrator admin panelindəki Əlavələr bölməsində Avtomobil səyahəti əlavəsini aktiv etdikdən sonra mövcuddur.',
   'help.guide.roadtrip-mode.tip.3':

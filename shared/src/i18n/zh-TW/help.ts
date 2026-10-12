@@ -2391,7 +2391,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     '你計劃的和你實際做的一起在地圖上，虛線對實線，而按鈕上方的卡片仍然列著計劃中的日子和它們的距離。',
   'help.guide.map-dawarich-trail.tip.1':
-    '開或關按旅行記住，在這個瀏覽器工作階段內有效。路線開著時，TREK 每兩分鐘再問一次 Dawarich，所以進行中的旅行不用重新載入也能跟上；路線本身從不儲存，所以它不在 TREK 的資料庫裡，不在備份裡，離線時也沒有。',
+    '開或關按旅行記在你的帳號裡，所以在每個瀏覽器、每台裝置上都一樣。路線開著時，TREK 每兩分鐘再問一次 Dawarich，所以進行中的旅行不用重新載入也能跟上；路線本身從不儲存，所以它不在 TREK 的資料庫裡，不在備份裡，離線時也沒有。',
   'help.guide.map-dawarich-trail.tip.2':
     '按鈕的標籤會解釋空白的地圖：還在路上時是「正在載入記錄的路線…」，或者是「這幾天沒有任何記錄」「無法載入記錄的路線」，TREK 離線時則是「記錄的路線需要網路連線」。',
   // map-compass
@@ -3308,7 +3308,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.step.5':
     '點選某一天的標題把它摺疊起來。摺疊的一天也會從地圖上消失；再次點選標題就能讓它回來。',
   'help.guide.roadtrip-mode.result': '左欄就是駕駛，地圖顯示它的每一天。「依日」直接切回計劃，計劃沒有變化。',
-  'help.guide.roadtrip-mode.tip.1': '只要瀏覽器分頁還開著，這個選擇就按旅行記住，所以重新載入還會回到駕駛。',
+  'help.guide.roadtrip-mode.tip.1': '這個選擇按旅行記在你的帳號裡，所以重新載入、換個瀏覽器或換台裝置都會回到駕駛。',
   'help.guide.roadtrip-mode.tip.2':
     '只有管理員在「管理後臺」的「擴充套件」裡開啟了「公路旅行」擴充套件之後，這個切換才存在。',
   'help.guide.roadtrip-mode.tip.3': '手機上沒有切換：擴充套件會在「計劃」旁邊加一個自己的「公路旅行」分頁。',

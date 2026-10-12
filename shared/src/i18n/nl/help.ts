@@ -2926,7 +2926,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     'Wat je plande en wat je echt deed staan samen op de kaart, gestreept tegenover doorgetrokken, en het kaartje boven de knoppen noemt nog steeds de geplande dagen en hun afstanden.',
   'help.guide.map-dawarich-trail.tip.1':
-    'Aan of uit wordt per reis onthouden voor deze browsersessie. Zolang de route aanstaat vraagt TREK Dawarich elke twee minuten opnieuw, zo loopt een reis die bezig is bij zonder herladen; de route zelf wordt nooit opgeslagen, dus hij zit niet in de database van TREK, niet in back-ups en is er offline niet.',
+    'Aan of uit wordt per reis in je account onthouden, dus het is in elke browser en op elk apparaat hetzelfde. Zolang de route aanstaat vraagt TREK Dawarich elke twee minuten opnieuw, zo loopt een reis die bezig is bij zonder herladen; de route zelf wordt nooit opgeslagen, dus hij zit niet in de database van TREK, niet in back-ups en is er offline niet.',
   'help.guide.map-dawarich-trail.tip.2':
     'Het label van de knop verklaart een lege kaart: De opgenomen route wordt geladen… zolang hij onderweg is, Op deze datums is er niets opgenomen, De opgenomen route kon niet worden geladen, of De opgenomen route heeft een verbinding nodig als TREK offline is.',
   // map-compass
@@ -3975,7 +3975,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.result':
     'De linkerkolom is de rit en de kaart toont elke dag ervan. Dagen schakelt meteen terug naar het plan, ongewijzigd.',
   'help.guide.roadtrip-mode.tip.1':
-    'De keuze wordt per reis onthouden zolang het browsertabblad open staat, dus na een herlaad kom je weer in de rit terecht.',
+    'De keuze wordt per reis in je account onthouden, dus na een herlaad, in een andere browser of op een ander apparaat kom je weer in de rit terecht.',
   'help.guide.roadtrip-mode.tip.2':
     'De schakelaar bestaat pas als een beheerder de add-on Roadtrip heeft aangezet, onder Add-ons in Beheer.',
   'help.guide.roadtrip-mode.tip.3':

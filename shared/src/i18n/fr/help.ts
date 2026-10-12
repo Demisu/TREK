@@ -2981,7 +2981,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     'Ce que vous aviez prévu et ce que vous avez réellement fait sont ensemble sur la carte, pointillés contre trait plein, et la fiche au-dessus des boutons liste toujours les jours prévus et leurs distances.',
   'help.guide.map-dawarich-trail.tip.1':
-    'Activé ou non est mémorisé par voyage pour cette session du navigateur. Tant que le trajet est affiché, TREK réinterroge Dawarich toutes les deux minutes, si bien qu’un voyage en cours se met à jour sans rechargement ; le trajet lui-même n’est jamais stocké, il n’est donc ni dans la base de données de TREK, ni dans les sauvegardes, ni disponible hors ligne.',
+    'Activé ou non est mémorisé par voyage sur votre compte, c’est donc pareil dans chaque navigateur et sur chaque appareil. Tant que le trajet est affiché, TREK réinterroge Dawarich toutes les deux minutes, si bien qu’un voyage en cours se met à jour sans rechargement ; le trajet lui-même n’est jamais stocké, il n’est donc ni dans la base de données de TREK, ni dans les sauvegardes, ni disponible hors ligne.',
   'help.guide.map-dawarich-trail.tip.2':
     'Le libellé du bouton explique une carte vide : Chargement du trajet enregistré… pendant qu’il est en chemin, Rien n’a été enregistré à ces dates, Le trajet enregistré n’a pas pu être chargé, ou Le trajet enregistré nécessite une connexion quand TREK est hors ligne.',
   // map-compass
@@ -4037,7 +4037,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.result':
     'La colonne de gauche est le trajet et la carte en montre chaque jour. Jours revient directement au plan, inchangé.',
   'help.guide.roadtrip-mode.tip.1':
-    'Le choix est retenu par voyage tant que l’onglet du navigateur reste ouvert, un rechargement revient donc sur le trajet.',
+    'Le choix est retenu par voyage sur votre compte, un rechargement, un autre navigateur ou un autre appareil revient donc sur le trajet.',
   'help.guide.roadtrip-mode.tip.2':
     'Le sélecteur n’existe qu’une fois qu’un administrateur a activé l’extension Road trip, sous Extensions dans l’Administration.',
   'help.guide.roadtrip-mode.tip.3':

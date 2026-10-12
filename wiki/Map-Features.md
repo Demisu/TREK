@@ -61,7 +61,7 @@ A leg you walk is drawn as a dotted line in the same colour, without the casing,
 
 ### The whole trip at once
 
-The **Show whole trip** button in the bottom-right corner of the map swaps the single day for every travel day of the trip, each drawn in its own colour over a darker casing of the same colour, so neighbouring days stay apart on any basemap. It is on desktop and on the phone, and your choice is remembered per trip for the rest of the session. **Hide whole trip** goes back to the single day.
+The **Show whole trip** button in the bottom-right corner of the map swaps the single day for every travel day of the trip, each drawn in its own colour over a darker casing of the same colour, so neighbouring days stay apart on any basemap. It is on desktop and on the phone, and your choice is remembered per trip on your account, in every browser and on every device. **Hide whole trip** goes back to the single day.
 
 A card above the button lists the days: each one by its title, or by its number when it has none, with an icon per travel mode it is actually driven or walked in and the distance covered that day. The trip's **Total distance** sits at the top. Picking a day in the list selects it, the same as picking it anywhere else.
 

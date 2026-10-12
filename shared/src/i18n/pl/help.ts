@@ -2865,7 +2865,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     'To, co zaplanowałeś, i to, co naprawdę zrobiłeś, są na mapie razem, przerywane przeciw ciągłemu, a karta nad przyciskami wciąż wypisuje planowane dni i ich odległości.',
   'help.guide.map-dawarich-trail.tip.1':
-    'Włączone albo wyłączone jest zapamiętywane dla każdej podróży na czas tej sesji przeglądarki. Dopóki trasa jest włączona, TREK pyta Dawarich ponownie co dwie minuty, więc podróż w toku nadrabia bez przeładowania; sama trasa nigdy nie jest zapisywana, więc nie ma jej w bazie TREK-a, w kopiach zapasowych ani offline.',
+    'Włączone albo wyłączone jest zapamiętywane dla każdej podróży na Twoim koncie, więc jest takie samo w każdej przeglądarce i na każdym urządzeniu. Dopóki trasa jest włączona, TREK pyta Dawarich ponownie co dwie minuty, więc podróż w toku nadrabia bez przeładowania; sama trasa nigdy nie jest zapisywana, więc nie ma jej w bazie TREK-a, w kopiach zapasowych ani offline.',
   'help.guide.map-dawarich-trail.tip.2':
     'Etykieta przycisku wyjaśnia pustą mapę: Wczytywanie zapisanej trasy…, dopóki jest w drodze, W tych dniach nic nie zostało zapisane, Nie udało się wczytać zapisanej trasy, albo Zapisana trasa wymaga połączenia, gdy TREK jest offline.',
   // map-compass
@@ -3905,7 +3905,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.result':
     'Lewa kolumna jest jazdą, a mapa pokazuje każdy jej dzień. Dni przełączają prosto z powrotem na plan, niezmieniony.',
   'help.guide.roadtrip-mode.tip.1':
-    'Wybór jest pamiętany dla każdej podróży, dopóki karta przeglądarki jest otwarta, więc po odświeżeniu wracasz do jazdy.',
+    'Wybór jest pamiętany dla każdej podróży na Twoim koncie, więc po odświeżeniu, w innej przeglądarce lub na innym urządzeniu wracasz do jazdy.',
   'help.guide.roadtrip-mode.tip.2':
     'Przełącznik istnieje dopiero wtedy, gdy administrator włączy dodatek Podróż samochodowa, w Dodatki w Administracji.',
   'help.guide.roadtrip-mode.tip.3':

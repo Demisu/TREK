@@ -80,7 +80,7 @@ An undone place delete brings the place back with all its details and puts it on
 
 ## Road trip view
 
-With the [Road trip](Road-Trip) addon enabled, the **Days** / **Road trip** switch above the days column turns the day cards into one continuous drive: arrival times, daily travel times, driving limits, range, search along the route, via points and current hazard warnings. The choice is kept per trip for the browser session. All of it is on its own page:
+With the [Road trip](Road-Trip) addon enabled, the **Days** / **Road trip** switch above the days column turns the day cards into one continuous drive: arrival times, daily travel times, driving limits, range, search along the route, via points and current hazard warnings. The choice is remembered per trip on your account, so it comes back in another browser or on another device. All of it is on its own page:
 
 - [Daily travel times and day endings](Road-Trip#daily-travel-times-and-day-endings), including **End the day here** and dragging an end-of-day label on the map.
 - [Driving settings](Road-Trip#driving-settings), shared by everyone on the trip.

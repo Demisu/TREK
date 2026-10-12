@@ -2939,7 +2939,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     'Was du geplant und was du tatsächlich getan hast, liegt zusammen auf der Karte, gestrichelt gegen durchgezogen, und das Kärtchen über den Knöpfen listet weiter die geplanten Tage und ihre Entfernungen.',
   'help.guide.map-dawarich-trail.tip.1':
-    'An oder aus wird pro Reise für diese Browser-Sitzung gemerkt. Solange die Route an ist, fragt TREK Dawarich alle zwei Minuten erneut, sodass eine laufende Reise ohne Neuladen aufholt; die Route selbst wird nie gespeichert, sie ist also weder in der Datenbank von TREK noch in Backups noch offline da.',
+    'An oder aus wird pro Reise in deinem Konto gemerkt und ist damit in jedem Browser und auf jedem Gerät gleich. Solange die Route an ist, fragt TREK Dawarich alle zwei Minuten erneut, sodass eine laufende Reise ohne Neuladen aufholt; die Route selbst wird nie gespeichert, sie ist also weder in der Datenbank von TREK noch in Backups noch offline da.',
   'help.guide.map-dawarich-trail.tip.2':
     'Die Beschriftung des Knopfes erklärt eine leere Karte: Aufgezeichnete Route wird geladen…, solange sie unterwegs ist, An diesen Tagen wurde nichts aufgezeichnet, Die aufgezeichnete Route konnte nicht geladen werden, oder Die aufgezeichnete Route braucht eine Verbindung, wenn TREK offline ist.',
   // map-compass
@@ -3994,7 +3994,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.result':
     'Die linke Spalte ist die Fahrt, und die Karte zeigt jeden ihrer Tage. Tage schaltet direkt zurück zum Plan, unverändert.',
   'help.guide.roadtrip-mode.tip.1':
-    'Die Wahl wird je Reise gemerkt, solange der Browser-Tab offen ist, ein Neuladen kommt also wieder in der Fahrt an.',
+    'Die Wahl wird je Reise in deinem Konto gemerkt, ein Neuladen, ein anderer Browser oder ein anderes Gerät kommt also wieder in der Fahrt an.',
   'help.guide.roadtrip-mode.tip.2':
     'Den Schalter gibt es erst, wenn ein Admin das Addon Roadtrip eingeschaltet hat, unter Addons in der Administration.',
   'help.guide.roadtrip-mode.tip.3':

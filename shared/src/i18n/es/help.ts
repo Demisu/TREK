@@ -2924,7 +2924,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     'Lo que planificaste y lo que hiciste de verdad están juntos en el mapa, discontinuo frente a continuo, y la tarjeta sobre los botones sigue listando los días planificados y sus distancias.',
   'help.guide.map-dawarich-trail.tip.1':
-    'Activado o no se recuerda por viaje para esta sesión del navegador. Mientras la ruta está activada, TREK vuelve a preguntar a Dawarich cada dos minutos, así que un viaje en marcha se pone al día sin recargar; la ruta en sí nunca se guarda, así que no está en la base de datos de TREK, ni en las copias de seguridad, ni disponible sin conexión.',
+    'Activado o no se recuerda por viaje en tu cuenta, así que es igual en cualquier navegador y en cualquier dispositivo. Mientras la ruta está activada, TREK vuelve a preguntar a Dawarich cada dos minutos, así que un viaje en marcha se pone al día sin recargar; la ruta en sí nunca se guarda, así que no está en la base de datos de TREK, ni en las copias de seguridad, ni disponible sin conexión.',
   'help.guide.map-dawarich-trail.tip.2':
     'La etiqueta del botón explica un mapa vacío: Cargando la ruta grabada… mientras está en camino, No se grabó nada en estas fechas, No se pudo cargar la ruta grabada, o La ruta grabada necesita conexión cuando TREK está sin conexión.',
   // map-compass
@@ -3974,7 +3974,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.result':
     'La columna izquierda es el trayecto y el mapa muestra cada uno de sus días. Días vuelve directo al plan, sin cambios.',
   'help.guide.roadtrip-mode.tip.1':
-    'La elección se recuerda por viaje mientras la pestaña del navegador siga abierta, así que una recarga vuelve al trayecto.',
+    'La elección se recuerda por viaje en tu cuenta, así que una recarga, otro navegador u otro dispositivo vuelve al trayecto.',
   'help.guide.roadtrip-mode.tip.2':
     'El selector solo existe cuando un administrador ha activado el complemento Viaje por carretera, en Complementos dentro de Administración.',
   'help.guide.roadtrip-mode.tip.3':

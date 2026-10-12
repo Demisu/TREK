@@ -2858,7 +2858,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     'Planladığınız ile gerçekte yaptığınız haritada birliktedir, kesikliye karşı düz, ve düğmelerin üstündeki kart hâlâ planlanan günleri ve mesafelerini listeler.',
   'help.guide.map-dawarich-trail.tip.1':
-    'Açık ya da kapalı olduğu bu tarayıcı oturumu için gezi başına hatırlanır. Rota açıkken TREK her iki dakikada bir Dawarich’e yeniden sorar, böylece süren bir gezi yeniden yükleme olmadan yetişir; rotanın kendisi asla saklanmaz, yani TREK’in veritabanında, yedeklerde ve çevrimdışıyken yoktur.',
+    'Açık ya da kapalı olduğu gezi başına hesabınızda hatırlanır, yani her tarayıcıda ve her cihazda aynıdır. Rota açıkken TREK her iki dakikada bir Dawarich’e yeniden sorar, böylece süren bir gezi yeniden yükleme olmadan yetişir; rotanın kendisi asla saklanmaz, yani TREK’in veritabanında, yedeklerde ve çevrimdışıyken yoktur.',
   'help.guide.map-dawarich-trail.tip.2':
     'Düğmenin etiketi boş bir haritayı açıklar: yoldayken Kaydedilen rota yükleniyor…, Bu tarihlerde hiçbir şey kaydedilmemiş, Kaydedilen rota yüklenemedi ya da TREK çevrimdışıyken Kaydedilen rota için bağlantı gerekir.',
   // map-compass
@@ -3904,7 +3904,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.result':
     'Sol sütun sürüştür ve harita onun her gününü gösterir. Günler doğrudan plana geri döner, değişmeden.',
   'help.guide.roadtrip-mode.tip.1':
-    'Seçim, tarayıcı sekmesi açık kaldığı sürece her gezi için hatırlanır, yani sayfa yenilendiğinde sürüşe geri dönersiniz.',
+    'Seçim her gezi için hesabınızda hatırlanır, yani sayfa yenilendiğinde, başka bir tarayıcıda ya da başka bir cihazda sürüşe geri dönersiniz.',
   'help.guide.roadtrip-mode.tip.2':
     'Anahtar ancak bir yönetici Yönetim içindeki Eklentiler altından Yol gezisi eklentisini açtığında var olur.',
   'help.guide.roadtrip-mode.tip.3': 'Telefonda anahtar yoktur: eklenti Planı yanına kendi Yol gezisi sekmesini ekler.',

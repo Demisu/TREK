@@ -2700,7 +2700,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     'Kaardil on koos see, mida planeerisid, ja see, mida tegelikult tegid, katkendjoon pideva joone kõrval, ning nuppude kohal olev kaart loetleb endiselt planeeritud päevad ja nende vahemaad.',
   'help.guide.map-dawarich-trail.tip.1':
-    'Sisse- või väljalülitatud olek jäetakse selle brauseriseansi jooksul iga reisi jaoks meelde. Kuni teekond on sisse lülitatud, küsib TREK Dawarichilt iga kahe minuti järel uuesti, nii et käimasolev reis uueneb ilma lehte uuesti laadimata; teekonda ennast ei salvestata kunagi, seega pole seda TREKi andmebaasis ega varukoopiates ja see pole võrguühenduseta saadaval.',
+    'Sisse- või väljalülitatud olek jäetakse iga reisi jaoks sinu kontole meelde, nii et see on igas brauseris ja igas seadmes sama. Kuni teekond on sisse lülitatud, küsib TREK Dawarichilt iga kahe minuti järel uuesti, nii et käimasolev reis uueneb ilma lehte uuesti laadimata; teekonda ennast ei salvestata kunagi, seega pole seda TREKi andmebaasis ega varukoopiates ja see pole võrguühenduseta saadaval.',
   'help.guide.map-dawarich-trail.tip.2':
     'Nupu silt selgitab tühja kaarti: Salvestatud teekonna laadimine… laadimise ajal, Nendel kuupäevadel pole midagi salvestatud, Salvestatud teekonda ei saanud laadida või Salvestatud teekonna laadimine vajab ühendust, kui TREK on võrguühenduseta.',
   // map-compass
@@ -3874,7 +3874,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.result':
     'Vasak veerg on sõit ja kaart näitab selle iga päeva. Päevad lülitab otse tagasi plaanile, muutmata kujul.',
   'help.guide.roadtrip-mode.tip.1':
-    'Valik jäetakse iga reisi jaoks meelde seniks, kuni brauseri vahekaart on avatud, nii et pärast uuesti laadimist näed jälle sõitu.',
+    'Valik jäetakse iga reisi jaoks sinu kontole meelde, nii et pärast uuesti laadimist, teises brauseris või teises seadmes näed jälle sõitu.',
   'help.guide.roadtrip-mode.tip.2':
     'Lüliti on olemas alles siis, kui administraator on halduspaneelis jaotises Lisamoodulid sisse lülitanud lisamooduli Autoreis.',
   'help.guide.roadtrip-mode.tip.3':

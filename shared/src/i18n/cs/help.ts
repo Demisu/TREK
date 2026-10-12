@@ -2798,7 +2798,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     'Co jste naplánovali a co jste opravdu udělali, je na mapě pohromadě, čárkované proti plnému, a karta nad tlačítky pořád vypisuje plánované dny a jejich vzdálenosti.',
   'help.guide.map-dawarich-trail.tip.1':
-    'Zapnuto nebo vypnuto se pamatuje pro každou cestu po dobu této relace prohlížeče. Dokud je trasa zapnutá, ptá se TREK Dawarichu každé dvě minuty znovu, takže cesta, která právě probíhá, se dotáhne bez znovunačtení; trasa samotná se nikdy neukládá, takže není v databázi TREKu, není v zálohách a není k dispozici offline.',
+    'Zapnuto nebo vypnuto se pamatuje pro každou cestu ve vašem účtu, takže je to stejné v každém prohlížeči a na každém zařízení. Dokud je trasa zapnutá, ptá se TREK Dawarichu každé dvě minuty znovu, takže cesta, která právě probíhá, se dotáhne bez znovunačtení; trasa samotná se nikdy neukládá, takže není v databázi TREKu, není v zálohách a není k dispozici offline.',
   'help.guide.map-dawarich-trail.tip.2':
     'Popisek tlačítka vysvětlí prázdnou mapu: Načítá se zaznamenaná trasa…, dokud je na cestě, V těchto dnech nebylo nic zaznamenáno, Zaznamenanou trasu se nepodařilo načíst, nebo Zaznamenaná trasa vyžaduje připojení, když je TREK offline.',
   // map-compass
@@ -3828,7 +3828,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.result':
     'Levý sloupec je jízda a mapa ukazuje každý její den. Dny přepnou rovnou zpět na plán, nezměněný.',
   'help.guide.roadtrip-mode.tip.1':
-    'Volba se pamatuje pro každou cestu, dokud je karta prohlížeče otevřená, takže po načtení se vrátíte k jízdě.',
+    'Volba se pamatuje pro každou cestu ve vašem účtu, takže po načtení, v jiném prohlížeči i na jiném zařízení se vrátíte k jízdě.',
   'help.guide.roadtrip-mode.tip.2':
     'Přepínač existuje, až když správce zapne doplněk Cesta autem, pod Doplňky v Administraci.',
   'help.guide.roadtrip-mode.tip.3':

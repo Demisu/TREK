@@ -2846,7 +2846,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     'Những gì bạn đã lên kế hoạch và những gì bạn thực sự đã làm cùng nằm trên bản đồ, nét đứt bên nét liền, và thẻ phía trên các nút vẫn liệt kê các ngày đã lên kế hoạch cùng khoảng cách của chúng.',
   'help.guide.map-dawarich-trail.tip.1':
-    'Bật hay tắt được nhớ theo từng chuyến đi cho phiên trình duyệt này. Khi lộ trình đang bật, TREK hỏi lại Dawarich mỗi hai phút, nên một chuyến đi đang diễn ra sẽ cập nhật mà không cần tải lại; bản thân lộ trình không bao giờ được lưu, nên nó không nằm trong cơ sở dữ liệu của TREK, không trong bản sao lưu và không có khi ngoại tuyến.',
+    'Bật hay tắt được nhớ theo từng chuyến đi trong tài khoản của bạn, nên giống nhau trên mọi trình duyệt và mọi thiết bị. Khi lộ trình đang bật, TREK hỏi lại Dawarich mỗi hai phút, nên một chuyến đi đang diễn ra sẽ cập nhật mà không cần tải lại; bản thân lộ trình không bao giờ được lưu, nên nó không nằm trong cơ sở dữ liệu của TREK, không trong bản sao lưu và không có khi ngoại tuyến.',
   'help.guide.map-dawarich-trail.tip.2':
     'Nhãn của nút giải thích một bản đồ trống: “Đang tải lộ trình đã ghi…” khi nó đang trên đường tới, “Không có gì được ghi lại trong những ngày này”, “Không tải được lộ trình đã ghi”, hoặc “Lộ trình đã ghi cần có kết nối” khi TREK đang ngoại tuyến.',
   // map-compass
@@ -3889,7 +3889,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.result':
     'Cột bên trái là chuyến lái xe và bản đồ hiện mọi ngày của nó. “Ngày” đưa thẳng về kế hoạch, không thay đổi gì.',
   'help.guide.roadtrip-mode.tip.1':
-    'Lựa chọn này được nhớ cho từng chuyến đi chừng nào thẻ trình duyệt còn mở, nên tải lại trang vẫn quay về chuyến lái xe.',
+    'Lựa chọn này được nhớ cho từng chuyến đi trong tài khoản của bạn, nên tải lại trang, mở trình duyệt khác hay thiết bị khác vẫn quay về chuyến lái xe.',
   'help.guide.roadtrip-mode.tip.2':
     'Nút chuyển chỉ có sau khi quản trị viên bật tiện ích “Chuyến đi đường bộ” trong “Tiện ích bổ sung” ở “Sự quản lý”.',
   'help.guide.roadtrip-mode.tip.3':

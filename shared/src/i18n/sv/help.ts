@@ -2823,7 +2823,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     'Det du planerade och det du faktiskt gjorde ligger på kartan tillsammans, streckat mot heldraget, och kortet ovanför knapparna listar fortfarande de planerade dagarna och deras avstånd.',
   'help.guide.map-dawarich-trail.tip.1':
-    'På eller av kommer ihåg per resa för den här webbläsarsessionen. Medan rutten är på frågar TREK Dawarich igen varannan minut, så en pågående resa hinner ikapp utan omladdning; rutten i sig lagras aldrig, så den finns inte i TREK:s databas, inte i säkerhetskopior och inte offline.',
+    'På eller av kommer ihåg per resa på ditt konto, så det är detsamma i varje webbläsare och på varje enhet. Medan rutten är på frågar TREK Dawarich igen varannan minut, så en pågående resa hinner ikapp utan omladdning; rutten i sig lagras aldrig, så den finns inte i TREK:s databas, inte i säkerhetskopior och inte offline.',
   'help.guide.map-dawarich-trail.tip.2':
     'Knappens etikett förklarar en tom karta: Laddar den inspelade rutten… medan den är på väg, Ingenting spelades in de här datumen, Den inspelade rutten kunde inte laddas, eller Den inspelade rutten kräver en anslutning när TREK är offline.',
   // map-compass
@@ -3869,7 +3869,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.result':
     'Vänsterkolumnen är körningen och kartan visar varje dag av den. Dagar växlar rakt tillbaka till planen, oförändrad.',
   'help.guide.roadtrip-mode.tip.1':
-    'Valet kommer ihåg per resa så länge webbläsarfliken är öppen, så en omladdning kommer tillbaka till körningen.',
+    'Valet kommer ihåg per resa på ditt konto, så en omladdning, en annan webbläsare eller en annan enhet kommer tillbaka till körningen.',
   'help.guide.roadtrip-mode.tip.2':
     'Växeln finns först när en administratör har slagit på tillägget Bilresa, under Tillägg i Administration.',
   'help.guide.roadtrip-mode.tip.3':

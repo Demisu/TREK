@@ -21,7 +21,7 @@ It is a second way of looking at a trip, not a second trip. Nothing is copied: s
 
 ## Switching to Road trip
 
-With the addon on, a **Days** / **Road trip** switch sits at the top of the planner's left column on the desktop. The choice is remembered per trip for as long as the browser tab stays open.
+With the addon on, a **Days** / **Road trip** switch sits at the top of the planner's left column on the desktop. The choice is remembered per trip on your account, so a reload, another browser or another device comes back to the drive.
 
 In **Road trip** the planner changes shape:
 

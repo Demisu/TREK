@@ -2924,7 +2924,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     'Apa yang Anda rencanakan dan apa yang benar-benar Anda lakukan ada di peta bersama-sama, putus-putus berhadapan dengan utuh, dan kartu di atas tombol-tombol masih mendaftar hari-hari yang direncanakan beserta jaraknya.',
   'help.guide.map-dawarich-trail.tip.1':
-    'Menyala atau mati diingat per perjalanan untuk sesi peramban ini. Selama rute menyala, TREK bertanya lagi kepada Dawarich setiap dua menit, sehingga perjalanan yang sedang berlangsung menyusul tanpa pemuatan ulang; rutenya sendiri tidak pernah disimpan, jadi tidak ada di basis data TREK, tidak di cadangan dan tidak ada saat luring.',
+    'Menyala atau mati diingat per perjalanan di akun Anda, jadi sama di setiap peramban dan di setiap perangkat. Selama rute menyala, TREK bertanya lagi kepada Dawarich setiap dua menit, sehingga perjalanan yang sedang berlangsung menyusul tanpa pemuatan ulang; rutenya sendiri tidak pernah disimpan, jadi tidak ada di basis data TREK, tidak di cadangan dan tidak ada saat luring.',
   'help.guide.map-dawarich-trail.tip.2':
     'Label tombol menjelaskan peta yang kosong: “Memuat rute terekam…” selama masih dalam perjalanan, “Tidak ada yang terekam pada tanggal ini”, “Rute terekam tidak dapat dimuat”, atau “Rute terekam memerlukan koneksi” ketika TREK luring.',
   // map-compass
@@ -3981,7 +3981,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.result':
     'Kolom kiri adalah perjalanan berkendara dan peta menampilkan setiap harinya. “Hari” langsung mengembalikan rencana, tanpa perubahan.',
   'help.guide.roadtrip-mode.tip.1':
-    'Pilihan itu diingat per perjalanan selama tab peramban terbuka, jadi memuat ulang akan kembali ke perjalanan berkendara.',
+    'Pilihan itu diingat per perjalanan di akun Anda, jadi memuat ulang, peramban lain, atau perangkat lain akan kembali ke perjalanan berkendara.',
   'help.guide.roadtrip-mode.tip.2':
     'Sakelar itu baru ada setelah admin menyalakan addon “Perjalanan darat”, di bawah “Addon” pada “Administrasi”.',
   'help.guide.roadtrip-mode.tip.3':

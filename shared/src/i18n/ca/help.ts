@@ -2914,7 +2914,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     'El que havies planificat i el que vas fer de debò són junts al mapa, discontinu contra continu, i la targeta sobre els botons encara llista els dies planificats i les seves distàncies.',
   'help.guide.map-dawarich-trail.tip.1':
-    'Activat o desactivat es recorda per viatge durant aquesta sessió del navegador. Mentre el recorregut és activat, TREK torna a preguntar a Dawarich cada dos minuts, així que un viatge en marxa es posa al dia sense recarregar; el recorregut mateix no es desa mai, així que no és a la base de dades de TREK, ni a les còpies de seguretat, ni hi és fora de línia.',
+    'Activat o desactivat es recorda per viatge al teu compte, així que és igual a cada navegador i a cada dispositiu. Mentre el recorregut és activat, TREK torna a preguntar a Dawarich cada dos minuts, així que un viatge en marxa es posa al dia sense recarregar; el recorregut mateix no es desa mai, així que no és a la base de dades de TREK, ni a les còpies de seguretat, ni hi és fora de línia.',
   'help.guide.map-dawarich-trail.tip.2':
     'L’etiqueta del botó explica un mapa buit: S’està carregant el recorregut enregistrat… mentre és de camí, No s’ha enregistrat res en aquestes dates, No s’ha pogut carregar el recorregut enregistrat, o El recorregut enregistrat necessita connexió quan TREK és fora de línia.',
   // map-compass
@@ -3961,7 +3961,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.result':
     'La columna esquerra és el trajecte i el mapa en mostra cada dia. Dies torna directament al pla, sense canvis.',
   'help.guide.roadtrip-mode.tip.1':
-    'La tria es recorda per viatge mentre la pestanya del navegador segueixi oberta, així que una recàrrega torna al trajecte.',
+    'La tria es recorda per viatge al teu compte, així que una recàrrega, un altre navegador o un altre dispositiu torna al trajecte.',
   'help.guide.roadtrip-mode.tip.2':
     'El selector només existeix un cop un administrador ha activat el complement Viatge per carretera, a Complements dins d’Administració.',
   'help.guide.roadtrip-mode.tip.3':

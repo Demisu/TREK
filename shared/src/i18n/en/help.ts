@@ -2653,7 +2653,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     'What you planned and what you actually did are on the map together, dashed against solid, and the card above the buttons still lists the planned days and their distances.',
   'help.guide.map-dawarich-trail.tip.1':
-    'On or off is remembered per trip for this browser session. While the route is on, TREK asks Dawarich again every two minutes, so a trip under way catches up without a reload; the route itself is never stored, so it is not in TREK’s database, not in backups and not there offline.',
+    'On or off is remembered per trip on your account, so it is the same in every browser and on every device. While the route is on, TREK asks Dawarich again every two minutes, so a trip under way catches up without a reload; the route itself is never stored, so it is not in TREK’s database, not in backups and not there offline.',
   'help.guide.map-dawarich-trail.tip.2':
     'The button’s label explains an empty map: Loading the recorded route… while it is on its way, Nothing was recorded on these dates, The recorded route could not be loaded, or The recorded route needs a connection when TREK is offline.',
   // map-compass
@@ -3839,7 +3839,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.result':
     'The left column is the drive and the map shows every day of it. Days switches straight back to the plan, unchanged.',
   'help.guide.roadtrip-mode.tip.1':
-    'The choice is remembered per trip for as long as the browser tab is open, so a reload comes back to the drive.',
+    'The choice is remembered per trip on your account, so a reload, another browser or another device comes back to the drive.',
   'help.guide.roadtrip-mode.tip.2':
     'The switch only exists once an admin has turned the Road trip addon on, under Addons in the admin panel.',
   'help.guide.roadtrip-mode.tip.3':

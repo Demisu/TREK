@@ -2349,7 +2349,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     '你计划的和你实际做的一起在地图上，虚线对实线，而按钮上方的卡片仍然列着计划中的日子和它们的距离。',
   'help.guide.map-dawarich-trail.tip.1':
-    '开或关按旅行记住，在这个浏览器会话内有效。路线开着时，TREK 每两分钟再问一次 Dawarich，所以进行中的旅行不用刷新也能跟上；路线本身从不保存，所以它不在 TREK 的数据库里，不在备份里，离线时也没有。',
+    '开或关按旅行记在你的账户里，所以在每个浏览器、每台设备上都一样。路线开着时，TREK 每两分钟再问一次 Dawarich，所以进行中的旅行不用刷新也能跟上；路线本身从不保存，所以它不在 TREK 的数据库里，不在备份里，离线时也没有。',
   'help.guide.map-dawarich-trail.tip.2':
     '按钮的标签会解释空白的地图：还在路上时是“正在加载记录的路线…”，或者是“这些日期没有任何记录”“无法加载记录的路线”，TREK 离线时则是“查看记录的路线需要网络连接”。',
   // map-compass
@@ -3258,7 +3258,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.step.5':
     '点击某一天的标题把它折叠起来。折叠的一天也会从地图上消失；再次点击标题就能让它回来。',
   'help.guide.roadtrip-mode.result': '左栏就是驾驶，地图显示它的每一天。“按天”直接切回计划，计划没有变化。',
-  'help.guide.roadtrip-mode.tip.1': '只要浏览器标签页还开着，这个选择就按旅行记住，所以重新载入还会回到驾驶。',
+  'help.guide.roadtrip-mode.tip.1': '这个选择按旅行记在你的账户里，所以重新载入、换个浏览器或换台设备都会回到驾驶。',
   'help.guide.roadtrip-mode.tip.2': '只有管理员在“管理后台”的“扩展”里开启了“公路旅行”扩展之后，这个切换才存在。',
   'help.guide.roadtrip-mode.tip.3': '手机上没有切换：扩展会在“计划”旁边加一个自己的“公路旅行”标签页。',
   // roadtrip-stops

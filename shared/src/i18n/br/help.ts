@@ -2864,7 +2864,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     'O que você planejou e o que realmente fez estão juntos no mapa, tracejado contra cheio, e o cartão acima dos botões ainda lista os dias planejados e as distâncias deles.',
   'help.guide.map-dawarich-trail.tip.1':
-    'Ligado ou desligado é lembrado por viagem nesta sessão do navegador. Enquanto a rota está ligada, o TREK pergunta ao Dawarich de novo a cada dois minutos, então uma viagem em andamento se atualiza sem recarregar; a rota em si nunca é armazenada, então não está no banco de dados do TREK, nem nos backups, nem disponível offline.',
+    'Ligado ou desligado é lembrado por viagem na sua conta, então é o mesmo em qualquer navegador e em qualquer dispositivo. Enquanto a rota está ligada, o TREK pergunta ao Dawarich de novo a cada dois minutos, então uma viagem em andamento se atualiza sem recarregar; a rota em si nunca é armazenada, então não está no banco de dados do TREK, nem nos backups, nem disponível offline.',
   'help.guide.map-dawarich-trail.tip.2':
     'O rótulo do botão explica um mapa vazio: Carregando a rota gravada… enquanto ela está a caminho, Nada foi gravado nessas datas, Não foi possível carregar a rota gravada, ou A rota gravada precisa de conexão quando o TREK está offline.',
   // map-compass
@@ -3903,7 +3903,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.result':
     'A coluna esquerda é o trajeto e o mapa mostra cada dia dele. Dias volta direto ao plano, sem mudanças.',
   'help.guide.roadtrip-mode.tip.1':
-    'A escolha é lembrada por viagem enquanto a aba do navegador estiver aberta, então um recarregamento volta ao trajeto.',
+    'A escolha é lembrada por viagem na sua conta, então um recarregamento, outro navegador ou outro dispositivo volta ao trajeto.',
   'help.guide.roadtrip-mode.tip.2':
     'O seletor só existe depois que um administrador liga o complemento Viagem de carro, em Complementos na Administração.',
   'help.guide.roadtrip-mode.tip.3':

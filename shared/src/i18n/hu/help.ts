@@ -2918,7 +2918,7 @@ const help: TranslationStrings = {
   'help.guide.map-dawarich-trail.result':
     'Amit terveztél és amit valóban tettél, együtt van a térképen, szaggatott a folytonos mellett, és a gombok fölötti kártya továbbra is a tervezett napokat és a távolságaikat sorolja.',
   'help.guide.map-dawarich-trail.tip.1':
-    'Hogy be vagy ki van kapcsolva, utazásonként megjegyzi erre a böngésző-munkamenetre. Amíg az útvonal be van kapcsolva, a TREK kétpercenként újra kérdezi a Dawarichot, így egy folyamatban lévő utazás újratöltés nélkül utoléri magát; magát az útvonalat soha nem tárolja, tehát nincs a TREK adatbázisában, a biztonsági mentésekben és offline sem.',
+    'Hogy be vagy ki van kapcsolva, utazásonként a fiókodban marad meg, így minden böngészőben és minden eszközön ugyanaz. Amíg az útvonal be van kapcsolva, a TREK kétpercenként újra kérdezi a Dawarichot, így egy folyamatban lévő utazás újratöltés nélkül utoléri magát; magát az útvonalat soha nem tárolja, tehát nincs a TREK adatbázisában, a biztonsági mentésekben és offline sem.',
   'help.guide.map-dawarich-trail.tip.2':
     'A gomb felirata megmagyarázza az üres térképet: Rögzített útvonal betöltése… amíg úton van, Ezeken a napokon nem készült rögzítés, A rögzített útvonalat nem sikerült betölteni, vagy A rögzített útvonalhoz kapcsolat kell, amikor a TREK offline.',
   // map-compass
@@ -3973,7 +3973,7 @@ const help: TranslationStrings = {
   'help.guide.roadtrip-mode.result':
     'A bal oszlop a vezetés, és a térkép annak minden napját mutatja. A Napok egyenesen visszakapcsol a tervre, változatlanul.',
   'help.guide.roadtrip-mode.tip.1':
-    'A választás utazásonként megmarad, amíg a böngészőfül nyitva van, így egy újratöltés a vezetéshez tér vissza.',
+    'A választás utazásonként a fiókodban marad meg, így egy újratöltés, egy másik böngésző vagy egy másik eszköz is a vezetéshez tér vissza.',
   'help.guide.roadtrip-mode.tip.2':
     'A kapcsoló csak akkor létezik, ha egy adminisztrátor bekapcsolta az Autós út bővítményt, az Adminisztráció Bővítmények lapján.',
   'help.guide.roadtrip-mode.tip.3': 'Telefonon nincs kapcsoló: a bővítmény saját Autós út fület tesz a Terv mellé.',
