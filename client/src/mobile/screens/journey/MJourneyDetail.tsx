@@ -317,7 +317,7 @@ export default function MJourneyDetail() {
                       type="button"
                       onClick={() => setPhotoDeleteTarget(photo)}
                       aria-label={t('common.delete')}
-                      className="absolute end-[6px] top-[6px] flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur"
+                      className="absolute end-[6px] top-[6px] flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--overlay)] text-[color:var(--m-knob)] backdrop-blur"
                     >
                       <X size={13} />
                     </button>

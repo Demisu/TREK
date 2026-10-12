@@ -253,7 +253,7 @@ export default function MReservationSheet({ planner, onOpenExpense }: MReservati
               </div>
             )}
             {endTimeBeforeStartTime && (
-              <div className="mt-[6px] text-[0.6875rem] text-[color:var(--m-st-pending)]">
+              <div className="mt-[6px] text-caption text-[color:var(--m-st-pending)]">
                 {t('reservations.validation.endTimeBeforeStartTime')}
               </div>
             )}

@@ -25,8 +25,8 @@ export default function MCollInvites({ invites, onAccept, onDecline, t }: MCollI
           key={inv.collection_id}
           className="rounded-[18px] border border-[color:var(--m-gbr)] bg-[color:var(--m-glass)] p-[12px]"
         >
-          <div className="truncate text-[0.875rem] font-bold text-m-ink">{inv.name}</div>
-          <div className="mt-[2px] truncate font-geist text-[0.71875rem] text-m-muted">
+          <div className="truncate text-body font-bold text-m-ink">{inv.name}</div>
+          <div className="mt-[2px] truncate font-geist text-caption text-m-muted">
             {t('collections.invites.from')} {inv.from.username}
           </div>
           <div className="mt-3 flex items-center gap-2">
