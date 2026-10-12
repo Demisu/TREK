@@ -10,7 +10,7 @@ import { VisitedCountries } from '../../../../src/db/entities/VisitedCountries.e
 import type { VisitedCountriesRepository } from '../../../../src/db/repositories/VisitedCountries.repository';
 import { createSnapshotTestDb } from '../../../helpers/db-mock';
 import { createUser } from '../../../helpers/factories';
-import { insertRows } from '../../../helpers/factories/rows';
+import { findRow, insertRows } from '../../../helpers/factories/rows';
 import { resetTestDb } from '../../../helpers/test-db';
 import { createTestOrm, type TestOrm } from '../../../helpers/test-orm';
 
@@ -80,5 +80,48 @@ describe('VisitedCountriesRepository.listCodesForUser (AT5/AT7/AT43)', () => {
   it('VISCOUNTRYREPO-004: empty array for a user with nothing visited', async () => {
     const { user } = createUser(testDb);
     expect(await repo.listCodesForUser(user.id)).toEqual([]);
+  });
+});
+
+describe('VisitedCountriesRepository: countries that came in through a region (#2597)', () => {
+  it('VISCOUNTRYREPO-005: markFromRegion writes region, and the readers still answer manual', async () => {
+    const { user } = createUser(testDb);
+    await repo.markFromRegion(user.id, 'NO');
+
+    expect((await findRow(t, VisitedCountries, { user: user.id, country_code: 'NO' }))?.source).toBe('region');
+    expect(await repo.findSource(user.id, 'NO')).toEqual({ source: 'manual' });
+    expect((await repo.listForUser(user.id)).map((r) => r.source)).toEqual(['manual']);
+    expect(await repo.hasOwnMark(user.id, 'NO')).toBe(false);
+  });
+
+  it('VISCOUNTRYREPO-006: markFromRegion leaves a country the user marked itself as it was', async () => {
+    const { user } = createUser(testDb);
+    await repo.markVisited(user.id, 'NO', 'dawarich');
+    await repo.markFromRegion(user.id, 'NO');
+
+    expect(await repo.findSource(user.id, 'NO')).toEqual({ source: 'dawarich' });
+    expect(await repo.hasOwnMark(user.id, 'NO')).toBe(true);
+  });
+
+  it('VISCOUNTRYREPO-007: promoteFromRegion turns a region row into the given mark and touches nothing else', async () => {
+    const { user } = createUser(testDb);
+    await repo.markFromRegion(user.id, 'NO');
+    await repo.markVisited(user.id, 'SE', 'manual');
+
+    await repo.promoteFromRegion(user.id, 'NO', 'dawarich');
+    await repo.promoteFromRegion(user.id, 'SE', 'dawarich');
+
+    expect(await repo.findSource(user.id, 'NO')).toEqual({ source: 'dawarich' });
+    expect(await repo.findSource(user.id, 'SE')).toEqual({ source: 'manual' });
+    expect(await repo.hasOwnMark(user.id, 'NO')).toBe(true);
+  });
+
+  it('VISCOUNTRYREPO-008: hasOwnMark is false without a row and scoped to the user', async () => {
+    const { user } = createUser(testDb);
+    const { user: other } = createUser(testDb, { username: 'other' });
+    await repo.markVisited(other.id, 'NO', 'manual');
+
+    expect(await repo.hasOwnMark(user.id, 'NO')).toBe(false);
+    expect(await repo.findSource(user.id, 'NO')).toBeUndefined();
   });
 });

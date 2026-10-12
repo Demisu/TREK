@@ -44,6 +44,8 @@ beforeEach(() => {
     http.post('/api/addons/atlas/country/:code/mark', () => HttpResponse.json({ success: true })),
     http.post('/api/addons/atlas/region/:code/mark', () => HttpResponse.json({ success: true })),
     http.delete('/api/addons/atlas/region/:code/mark', () => HttpResponse.json({ success: true })),
+    // After a region goes the atlas asks whether the country is still marked (#2597).
+    http.get('/api/addons/atlas/country/:code', () => HttpResponse.json({ manually_marked: false })),
     http.post('/api/addons/atlas/bucket-list', () =>
       HttpResponse.json({ item: buildBucketItem({ id: 99, name: 'Germany', country_code: 'DE' }) }),
     ),

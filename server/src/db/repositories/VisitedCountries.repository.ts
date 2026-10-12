@@ -21,6 +21,15 @@ type VisitedCountriesReadKyselyDB = Pick<DB, 'visited_countries'>;
 type VisitedCountriesWriteKyselyDB = Pick<DB, 'visited_countries'>;
 
 /**
+ * The source as callers see it. 'region' marks a country that only came onto
+ * the map through one of its regions and goes again with the last of them
+ * (#2597); to everyone else it reads as a mark made by hand, as it always did.
+ */
+function publicSource(source: string): string {
+  return source === 'region' ? 'manual' : source;
+}
+
+/**
  * `visited_countries` — the user's own explicit "I've been here" marks
  * (Plan 3f Task 1, atlas). `markVisited` (AT12) needs the `changes > 0`
  * signal the legacy `.run(...).changes` gave (whether this call actually
@@ -43,12 +52,13 @@ export class VisitedCountriesRepository extends TrekRepository<VisitedCountries>
 
   /** AT10 (`listVisitedCountries`) — `SELECT country_code, created_at, source FROM visited_countries WHERE user_id = ? ORDER BY created_at DESC`. */
   async listForUser(userId: number): Promise<VisitedCountryRow[]> {
-    return await this.readDb()
+    const rows = await this.readDb()
       .selectFrom('visited_countries')
       .select(['country_code', 'created_at', 'source'])
       .where('user_id', '=', userId)
       .orderBy('created_at', 'desc')
       .execute();
+    return rows.map((row) => ({ ...row, source: publicSource(row.source) }));
   }
 
   /**
@@ -69,12 +79,29 @@ export class VisitedCountriesRepository extends TrekRepository<VisitedCountries>
 
   /** AT8/AT9 (`countryPlaces`'s no-trip early return, `countryPlaces`'s mark lookup — identical text) — `SELECT source FROM visited_countries WHERE user_id = ? AND country_code = ?`. */
   async findSource(userId: number, countryCode: string): Promise<{ source: string } | undefined> {
-    return await this.writeDb()
+    const row = await this.writeDb()
       .selectFrom('visited_countries')
       .select('source')
       .where('user_id', '=', userId)
       .where('country_code', '=', countryCode)
       .executeTakeFirst();
+    return row && { source: publicSource(row.source) };
+  }
+
+  /**
+   * `unmarkRegion`'s cascade check: whether the user marked the country visited
+   * themselves (by hand or from Dawarich), rather than it only coming in
+   * through one of its regions (#2597).
+   */
+  async hasOwnMark(userId: number, countryCode: string): Promise<boolean> {
+    const row = await this.writeDb()
+      .selectFrom('visited_countries')
+      .select('country_code')
+      .where('user_id', '=', userId)
+      .where('country_code', '=', countryCode)
+      .where('source', '!=', 'region')
+      .executeTakeFirst();
+    return !!row;
   }
 
   /**
@@ -103,20 +130,34 @@ export class VisitedCountriesRepository extends TrekRepository<VisitedCountries>
 
   /**
    * AT19 (`markRegion`, inside its transaction) — `INSERT OR IGNORE INTO
-   * visited_countries (user_id, country_code) VALUES (?, ?)`, a DISTINCT
-   * 2-column variant of {@link markVisited}'s 3-column insert. The legacy
-   * statement's column list omits `source`, letting the schema's own
-   * `DEFAULT 'manual'` fill it — reproduced here by passing that literal
-   * explicitly (`VisitedCountries.entity.ts`'s `source: p.text()
-   * .default('manual')`, the exact same value the omitted column would
-   * have taken). No `changes` signal here; the legacy statement never
-   * checked it either.
+   * visited_countries (user_id, country_code, source) VALUES (?, ?, 'region')`.
+   * A country that only came onto the map through one of its regions is
+   * written as 'region', not 'manual', so removing its last region can tell
+   * it apart from a country the user ticked off itself (#2597). The conflict
+   * is ignored, so a country already marked keeps its own source. Rows written
+   * before this change carry 'manual' and are left as they are. No `changes`
+   * signal here; the legacy statement never checked it either.
    */
   async markFromRegion(userId: number, countryCode: string): Promise<void> {
     await this.writeDb()
       .insertInto('visited_countries')
-      .values({ user_id: userId, country_code: countryCode, source: 'manual' })
+      .values({ user_id: userId, country_code: countryCode, source: 'region' })
       .onConflict((oc) => oc.doNothing())
+      .execute();
+  }
+
+  /**
+   * `markCountry`, inside its transaction, right after {@link markVisited}: a
+   * country that only came in through a region becomes the user's own mark
+   * once they mark it visited themselves. Any other row is left alone.
+   */
+  async promoteFromRegion(userId: number, countryCode: string, source: 'manual' | 'dawarich'): Promise<void> {
+    await this.writeDb()
+      .updateTable('visited_countries')
+      .set({ source })
+      .where('user_id', '=', userId)
+      .where('country_code', '=', countryCode)
+      .where('source', '=', 'region')
       .execute();
   }
 }

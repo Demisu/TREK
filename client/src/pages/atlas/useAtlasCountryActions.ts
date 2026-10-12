@@ -67,11 +67,12 @@ export function withRegionUnmarked(prev: VisitedRegionMap, countryCode: string, 
 }
 
 /**
- * The atlas once a region is unmarked: if no visible region of the country remains
- * (however a region was derived: the server hides it either way and cascades to the
- * country the same way), the country goes too, but only when it has no place or trip
- * of its own. A country with real places is never hidden server side (#1490), so
- * removing it here would only flash and reappear on the next load.
+ * The atlas once a region is unmarked and the server no longer holds the country as
+ * marked: if no visible region of the country remains (however a region was derived:
+ * the server hides it either way and cascades to the country the same way), the
+ * country goes too, but only when it has no place or trip of its own. A country with
+ * real places is never hidden server side (#1490), so removing it here would only
+ * flash and reappear on the next load.
  */
 export function withCountryDroppedAfterRegionUnmark(
   prev: AtlasData | null,
@@ -91,6 +92,21 @@ export function withCountryDroppedAfterRegionUnmark(
     stats: { ...prev.stats, totalCountries: Math.max(0, prev.stats.totalCountries - 1) },
     continents: { ...prev.continents, [cont]: Math.max(0, (prev.continents?.[cont] || 0) - 1) },
   };
+}
+
+/**
+ * Whether the server still holds the country as marked after one of its regions was
+ * unmarked. A country the user marked itself survives its last region (#2597), so the
+ * atlas asks instead of guessing; when the answer does not come, the country stays
+ * until the next load settles it.
+ */
+async function isCountryStillMarked(code: string): Promise<boolean> {
+  try {
+    const r = await apiClient.get(`/addons/atlas/country/${code}`);
+    return r.data?.manually_marked !== false;
+  } catch {
+    return true;
+  }
 }
 
 /**
@@ -155,7 +171,9 @@ export function useAtlasCountryActions({
     try {
       await apiClient.delete(`/addons/atlas/region/${regionCode}/mark`);
       setVisitedRegions((prev) => withRegionUnmarked(prev, countryCode, regionCode));
-      setData((prev) => withCountryDroppedAfterRegionUnmark(prev, countryCode, regionCode, visitedRegions));
+      if (!(await isCountryStillMarked(countryCode))) {
+        setData((prev) => withCountryDroppedAfterRegionUnmark(prev, countryCode, regionCode, visitedRegions));
+      }
     } catch (err) {
       toast.error(getApiErrorMessage(err, t('common.error')));
     }

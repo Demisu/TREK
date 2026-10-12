@@ -685,14 +685,13 @@ export class AtlasService {
    * every mark was until an integration could make one, and `INSERT OR IGNORE`
    * means a country already ticked by hand keeps that provenance — confirming
    * it again from a recording does not relabel somebody's own work as imported.
-   */
-  /**
    * Returns whether this actually added the country, so a caller reporting
    * "3 countries added" is not counting the ones that were already there.
    */
   async markCountry(userId: number, code: string, source: 'manual' | 'dawarich' = 'manual'): Promise<boolean> {
     return await this.uow.transactional(async () => {
       const inserted = await this.visitedCountries.markVisited(userId, code, source); // AT12
+      await this.visitedCountries.promoteFromRegion(userId, code, source); // #2597
       // Marking it visited again lifts a previous removal.
       await this.hiddenCountries.unhide(userId, code); // AT13
       return inserted;
@@ -763,10 +762,11 @@ export class AtlasService {
       if (countryCode) {
         await this.hiddenRegions.hide(userId, code, countryCode); // AT27
 
-        // If that was the country's last visible region, hide the country too — otherwise it
-        // keeps showing "visited" on the world map with nothing left to drill into.
+        // If that was the country's last visible region, hide the country too, or it keeps showing
+        // "visited" with nothing left to drill into. One the user marked itself stays (#2597).
+        const ownMark = await this.visitedCountries.hasOwnMark(userId, countryCode);
         const hidden = await this.getHiddenRegions(userId);
-        if (!(await this.hasVisibleRegionForCountry(userId, countryCode, hidden))) {
+        if (!ownMark && !(await this.hasVisibleRegionForCountry(userId, countryCode, hidden))) {
           await this.unmarkCountry(userId, countryCode);
         }
       }

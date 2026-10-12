@@ -11,6 +11,7 @@ import { HiddenRegions } from '../../../src/db/entities/HiddenRegions.entity';
 import { PlaceRegions } from '../../../src/db/entities/PlaceRegions.entity';
 import { Places } from '../../../src/db/entities/Places.entity';
 import { ReservationEndpoints } from '../../../src/db/entities/ReservationEndpoints.entity';
+import { VisitedCountries } from '../../../src/db/entities/VisitedCountries.entity';
 import { VisitedRegions } from '../../../src/db/entities/VisitedRegions.entity';
 import {
   createUser,
@@ -422,6 +423,21 @@ describe('Tool: unmark_region_visited', () => {
       expect(data.success).toBe(true);
       expect(await findRow(orm, VisitedRegions, { user: user.id, region_code: 'IT-LO' })).toBeNull();
     });
+  });
+
+  it('keeps a country the user marked itself when its last region goes, like REST (#2597)', async () => {
+    const { user } = createUser(testDb);
+    await markCountryVisited(orm, user.id, 'NO');
+    await markRegion(user.id, 'NO-03', 'Oslo', 'NO');
+    await insertRow(orm, VisitedCountries, { user: user.id, country_code: 'SE', source: 'region' });
+    await markRegion(user.id, 'SE-AB', 'Stockholm', 'SE');
+    await withHarness(user.id, async (h) => {
+      await h.client.callTool({ name: 'unmark_region_visited', arguments: { regionCode: 'NO-03' } });
+      await h.client.callTool({ name: 'unmark_region_visited', arguments: { regionCode: 'SE-AB' } });
+    });
+    expect(await findRow(orm, VisitedCountries, { user: user.id, country_code: 'NO' })).toBeTruthy();
+    // A country that only came in through its region still goes with it.
+    expect(await findRow(orm, VisitedCountries, { user: user.id, country_code: 'SE' })).toBeNull();
   });
 
   it('succeeds even when region was not marked (no-op)', async () => {

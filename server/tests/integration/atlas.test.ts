@@ -424,6 +424,43 @@ describe('Mark/unmark region', () => {
     expect(codes).toContain('DE');
   });
 
+  it('ATLAS-011: unmark last region keeps a country the user marked visited itself (#2597)', async () => {
+    const { user } = createUser(testDb);
+    const cookie = authCookie(user.id);
+
+    await request(app).post('/api/addons/atlas/country/NO/mark').set('Cookie', cookie);
+    await request(app)
+      .post('/api/addons/atlas/region/NO-03/mark')
+      .set('Cookie', cookie)
+      .send({ name: 'Oslo', country_code: 'NO' });
+    await request(app).delete('/api/addons/atlas/region/NO-03/mark').set('Cookie', cookie);
+
+    const stats = await request(app).get('/api/addons/atlas/stats').set('Cookie', cookie);
+    expect((stats.body.countries as { code: string }[]).map((c) => c.code)).toContain('NO');
+    const country = await request(app).get('/api/addons/atlas/country/NO').set('Cookie', cookie);
+    expect(country.body).toMatchObject({ manually_marked: true, marked_source: 'manual' });
+    const regions = await request(app).get('/api/addons/atlas/regions').set('Cookie', cookie);
+    expect(regions.body.regions['NO']).toBeUndefined();
+  });
+
+  it('ATLAS-011: a country first reached through a region stays once it is marked itself (#2597)', async () => {
+    const { user } = createUser(testDb);
+    const cookie = authCookie(user.id);
+
+    await request(app)
+      .post('/api/addons/atlas/region/NO-03/mark')
+      .set('Cookie', cookie)
+      .send({ name: 'Oslo', country_code: 'NO' });
+    const before = await request(app).get('/api/addons/atlas/country/NO').set('Cookie', cookie);
+    expect(before.body).toMatchObject({ manually_marked: true, marked_source: 'manual' });
+
+    await request(app).post('/api/addons/atlas/country/NO/mark').set('Cookie', cookie);
+    await request(app).delete('/api/addons/atlas/region/NO-03/mark').set('Cookie', cookie);
+
+    const stats = await request(app).get('/api/addons/atlas/stats').set('Cookie', cookie);
+    expect((stats.body.countries as { code: string }[]).map((c) => c.code)).toContain('NO');
+  });
+
   it('ATLAS-011 — regions are isolated between users', async () => {
     const { user: user1 } = createUser(testDb);
     const { user: user2 } = createUser(testDb);

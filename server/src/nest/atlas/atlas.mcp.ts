@@ -283,7 +283,8 @@ export class AtlasMcp {
 
   @Tool({
     name: 'unmark_region_visited',
-    description: 'Remove a region from the visited list.',
+    description:
+      'Remove a region from the visited list. Removing the last region of a country also removes the country, unless it was marked visited itself.',
     inputSchema: {
       regionCode: z.string(),
     },

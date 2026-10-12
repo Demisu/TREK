@@ -1,4 +1,4 @@
-// FE-PAGE-ATLASACTIONS-001 to FE-PAGE-ATLASACTIONS-014: the country / region popup logic
+// FE-PAGE-ATLASACTIONS-001 to FE-PAGE-ATLASACTIONS-015: the country / region popup logic
 // behind both the desktop dialog and the phone sheet.
 import { act, renderHook } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
@@ -73,6 +73,9 @@ beforeEach(() => {
       deleted.push(new URL(request.url).pathname);
       return HttpResponse.json({ success: true });
     }),
+    http.get('/api/addons/atlas/country/:code', () =>
+      HttpResponse.json({ places: [], trips: [], manually_marked: false, marked_source: null, status: 'idea' })
+    ),
     http.post('/api/addons/atlas/bucket-list', async ({ request }) => {
       const body = (await request.json()) as Record<string, unknown>;
       posted.push({ url: '/api/addons/atlas/bucket-list', body });
@@ -200,6 +203,32 @@ describe('useAtlasCountryActions', () => {
     expect(result.current.visitedRegions).toEqual({});
     expect(result.current.data?.countries).toEqual([]);
     expect(result.current.confirmAction).toBeNull();
+  });
+
+  it('FE-PAGE-ATLASACTIONS-015: a country the server still holds as marked stays when its last region goes (#2597)', async () => {
+    const init = () => ({
+      confirmAction: { type: 'unmark-region', code: 'ES', name: 'Galicia', regionCode: 'ES-GA' } as AtlasConfirmAction,
+      data: buildAtlasData({
+        countries: [{ code: 'ES', tripCount: 0, placeCount: 0, firstVisit: null, lastVisit: null }],
+      }),
+      visitedRegions: { ES: [{ code: 'ES-GA', name: 'Galicia', placeCount: 0 }] },
+    });
+    server.use(
+      http.get('/api/addons/atlas/country/:code', () =>
+        HttpResponse.json({ places: [], trips: [], manually_marked: true, marked_source: 'manual', status: 'visited' })
+      )
+    );
+    const marked = setup(init());
+    await act(() => marked.result.current.actions.unmarkRegion());
+    expect(marked.result.current.visitedRegions).toEqual({});
+    expect(marked.result.current.data?.countries.map((c) => c.code)).toEqual(['ES']);
+
+    // No answer: the country stays until the next load rather than vanishing on a guess.
+    server.use(http.get('/api/addons/atlas/country/:code', () => HttpResponse.json({}, { status: 500 })));
+    const unknown = setup(init());
+    await act(() => unknown.result.current.actions.unmarkRegion());
+    expect(unknown.result.current.data?.countries.map((c) => c.code)).toEqual(['ES']);
+    expect(addToast).not.toHaveBeenCalled();
   });
 
   it('FE-PAGE-ATLASACTIONS-010: adding to the bucket list posts the entry, prepends it and runs beforeClose', async () => {

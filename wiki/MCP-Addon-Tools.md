@@ -58,7 +58,7 @@ Requires `atlas:read` or `atlas:write` scope.
 | `list_visited_regions` | List all manually visited sub-country regions for the current user. |
 | `locate_atlas_region` | Resolve a coordinate to the country and region codes the Atlas map can highlight, which is where the pair `mark_region_visited` expects comes from. A point outside every bundled polygon answers with `null` fields rather than an error. For a postal address use `reverse_geocode` instead. |
 | `mark_region_visited` | Mark a sub-country region as visited (e.g. `"US-CA"`). |
-| `unmark_region_visited` | Remove a region from the visited list. |
+| `unmark_region_visited` | Remove a region from the visited list. Removing the last region of a country also removes the country, unless it was marked visited itself. |
 | `get_country_atlas_places` | Get places saved in the user's atlas for a specific country. |
 | `create_bucket_list_item` | Add a destination to your personal bucket list with optional coordinates, country code, target date and `region_code` (a state or province, hatched on the Atlas map). The same destination for the same target date is rejected as a duplicate. |
 | `update_bucket_list_item` | Update a bucket list item (name, notes, coordinates, target date). |
