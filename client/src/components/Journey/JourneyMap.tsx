@@ -330,8 +330,8 @@ function JourneyMap(
       coords.forEach(c => trackCoords.push(c))
     }
 
-    // route polyline — only in non-fullscreen (sidebar map) mode
-    if (!fullScreen && items.length > 1) {
+    // route trail: dashed line connecting entries in time order, same as JourneyMapGL
+    if (items.length > 1) {
       const routeCoords = items.map(i => [i.lat, i.lng] as L.LatLngTuple)
       L.polyline(routeCoords, {
         color: dark ? '#71717A' : '#A1A1AA',

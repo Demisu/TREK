@@ -277,6 +277,16 @@ describe('JourneyMapGL', () => {
     expect(gl.map.addLayer).not.toHaveBeenCalled()
   })
 
+  it('FE-COMP-JMAPGL-037: the fullScreen map draws the route once the entries arrive after mount', () => {
+    withToken()
+    const { rerender } = render(<JourneyMapGL checkins={[]} entries={[]} fullScreen />)
+    expect(gl.map.addSource).not.toHaveBeenCalledWith('journey-route', expect.anything())
+
+    rerender(<JourneyMapGL checkins={[]} entries={entries} fullScreen />)
+    expect(gl.map.addSource).toHaveBeenCalledWith('journey-route', expect.objectContaining({ type: 'geojson' }))
+    expect(gl.map.addLayer).toHaveBeenCalledWith(expect.objectContaining({ id: 'journey-route-line' }))
+  })
+
   it('FE-COMP-JMAPGL-010: the camera fits entries and trail with the requested bottom padding', () => {
     withToken()
     render(
