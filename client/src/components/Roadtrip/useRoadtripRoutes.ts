@@ -14,7 +14,7 @@ import { dayWindow } from './dayWindow'
 import { useTranslation } from '../../i18n/TranslationContext'
 import { stayStartingOn } from '../../utils/dayMerge'
 import { staysAtTheirPlaces } from './nightBookend'
-import { viaKeyOf } from '../Map/dayRouteVias'
+import { viaKeyOf } from '../../utils/dayRouteVias'
 
 export type { RoadtripStop, RoadtripDay, RoadtripRoutes, QuietDay, AccessSpur, RoutedLeg, SnappedPoint } from '@trek/shared/roadtrip'
 

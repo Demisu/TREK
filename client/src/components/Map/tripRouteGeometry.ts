@@ -1,6 +1,6 @@
 import { calculateRouteWithLegs, RoutingRefusedError, type RouteProfileKey } from './RouteCalculator'
 import { buildDayRouteRuns, type DayRouteInputs, type DayRoutePoint } from './dayRoutePlan'
-import { dayViaLookup, foldViaLegs, threadVias, viasOnDayLeg, type DayViaLookup } from './dayRouteVias'
+import { dayViaLookup, foldViaLegs, threadVias, viasOnDayLeg, type DayViaLookup } from '../../utils/dayRouteVias'
 import { projectDayItinerary } from './dayTourProjection'
 import { resolveLegMode } from '../Planner/legMode'
 import { dayColor } from '../Roadtrip/dayColors'
