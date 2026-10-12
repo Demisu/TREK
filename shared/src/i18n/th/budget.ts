@@ -195,6 +195,9 @@ const budget: TranslationStrings = {
   'costs.deleteReceipt': 'ลบใบเสร็จ',
   'costs.viewReceipt': 'ดูใบเสร็จ',
   'costs.receiptLeftBehind': 'บันทึกไม่สำเร็จ และยังมีใบเสร็จที่อัปโหลด {count} รายการอยู่ ลบได้ในแท็บไฟล์',
+  'costs.receiptsNeedConnection':
+    'การอัปโหลดใบเสร็จต้องใช้การเชื่อมต่อ ลบใบเสร็จใหม่ออกเพื่อบันทึกค่าใช้จ่ายแบบออฟไลน์ หรือบันทึกเมื่อกลับมาออนไลน์',
+  'costs.paymentQueued': 'คุณออฟไลน์อยู่ การชำระเงินถูกบันทึกแล้วและจะแสดงเมื่อ TREK กลับมาออนไลน์',
 };
 
 export default budget;

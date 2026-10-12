@@ -600,3 +600,28 @@ describe('useExpenseForm: saving', () => {
     expect(result.current.total).toBe('1.555');
   });
 });
+
+describe('useExpenseForm: offline', () => {
+  const setOnline = (v: boolean) =>
+    Object.defineProperty(navigator, 'onLine', { value: v, writable: true, configurable: true });
+  afterEach(() => setOnline(true));
+
+  it('FE-BUDGET-EXPFORM-024: offline, new receipts stop the save with a hint, an expense without them saves (#2601)', async () => {
+    setOnline(false);
+    const withPhoto = setup();
+    fill(withPhoto.result, 'Lunch', '12');
+    act(() => withPhoto.result.current.handleReceiptFileSelect([new File(['x'], 'bill.jpg')]));
+    await save(withPhoto.result);
+    expect(saveWithReceipts).not.toHaveBeenCalled();
+    expect(addBudgetItem).not.toHaveBeenCalled();
+    expect(withPhoto.onSaved).not.toHaveBeenCalled();
+    expect(errorToasts()).toEqual(['costs.receiptsNeedConnection']);
+    expect(withPhoto.result.current.saving).toBe(false);
+
+    const plain = setup();
+    fill(plain.result, 'Lunch', '12');
+    await save(plain.result);
+    expect(addBudgetItem).toHaveBeenCalledWith(7, expect.objectContaining({ name: 'Lunch', total_price: 12 }));
+    expect(plain.onSaved).toHaveBeenCalled();
+  });
+});

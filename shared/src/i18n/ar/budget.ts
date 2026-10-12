@@ -245,5 +245,8 @@ const budget: TranslationStrings = {
   'costs.receiptLeftBehind.two': 'فشل الحفظ، وما زال هناك إيصالان مرفوعان. احذفهما من تبويب الملفات.',
   'costs.receiptLeftBehind.few': 'فشل الحفظ، وما زال هناك {count} إيصالات مرفوعة. احذفها من تبويب الملفات.',
   'costs.receiptLeftBehind.many': 'فشل الحفظ، وما زال هناك {count} إيصالًا مرفوعًا. احذفها من تبويب الملفات.',
+  'costs.receiptsNeedConnection':
+    'يحتاج رفع الإيصالات إلى اتصال. أزل الإيصالات الجديدة لحفظ المصروف دون اتصال، أو احفظ عندما تعود متصلاً.',
+  'costs.paymentQueued': 'أنت غير متصل. تم حفظ الدفعة وستظهر عندما يعود TREK للاتصال.',
 };
 export default budget;

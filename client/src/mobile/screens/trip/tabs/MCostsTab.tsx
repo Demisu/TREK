@@ -839,7 +839,7 @@ function AddPaymentSheet({ open, editing, onClose, tripId, base, tripCurrency, p
   tripCurrency: string
   people: TripMember[]
   me: number
-  toast: { error: (message: string) => void }
+  toast: { error: (message: string) => void; info: (message: string) => void }
   t: TFn
   onSaved: () => void
 }) {

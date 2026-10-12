@@ -195,6 +195,9 @@ const budget: TranslationStrings = {
   'costs.deleteReceipt': 'Xóa hóa đơn',
   'costs.viewReceipt': 'Xem hóa đơn',
   'costs.receiptLeftBehind': 'Không lưu được, và {count} hóa đơn đã tải lên vẫn còn đó. Hãy vào tab Tập tin để xóa.',
+  'costs.receiptsNeedConnection':
+    'Cần có kết nối để tải hóa đơn lên. Gỡ các hóa đơn mới để lưu khoản chi khi ngoại tuyến, hoặc lưu khi bạn trực tuyến trở lại.',
+  'costs.paymentQueued': 'Bạn đang ngoại tuyến. Khoản thanh toán đã được lưu và sẽ hiện ra khi TREK trực tuyến trở lại.',
 };
 
 export default budget;

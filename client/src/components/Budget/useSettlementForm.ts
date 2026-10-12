@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import { budgetApi } from '../../api/client';
 import { withFallbackFx } from '../../hooks/useExchangeRates';
+import { budgetRepo } from '../../repo/budgetRepo';
 import { amountToInputString } from '../../utils/formatters';
 import { localToday } from '../Planner/today';
 import { amountInCurrency, clampAmountDecimals, settlementDate } from './CostsPanel.helpers';
@@ -10,6 +10,7 @@ import type { CostsSettlement } from './costsModel';
 type Translate = (key: string, params?: Record<string, string | number>) => string;
 interface Toaster {
   error: (message: string) => void;
+  info: (message: string) => void;
 }
 
 /**
@@ -86,8 +87,11 @@ export function useSettlementForm({
       tripCurrency
     );
     try {
-      if (editing) await budgetApi.updateSettlement(tripId, editing.id, data);
-      else await budgetApi.createSettlement(tripId, data);
+      const result = editing
+        ? await budgetRepo.updateSettlement(tripId, editing.id, data)
+        : await budgetRepo.createSettlement(tripId, data);
+      // Offline the payment waits in the queue and shows once it is sent.
+      if (result.queued) toast.info(t('costs.paymentQueued'));
       onSaved();
     } catch {
       toast.error(t('common.unknownError'));

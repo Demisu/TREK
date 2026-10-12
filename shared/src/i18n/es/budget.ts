@@ -205,5 +205,8 @@ const budget: TranslationStrings = {
   'costs.viewReceipt': 'Ver recibo',
   'costs.receiptLeftBehind': 'No se pudo guardar y quedan {count} recibos subidos. Elimínalos en la pestaña Archivos.',
   'costs.receiptLeftBehind.one': 'No se pudo guardar y queda {count} recibo subido. Elimínalo en la pestaña Archivos.',
+  'costs.receiptsNeedConnection':
+    'Los recibos necesitan conexión para subirse. Quita los nuevos para guardar el gasto sin conexión, o guarda cuando vuelvas a estar en línea.',
+  'costs.paymentQueued': 'Estás sin conexión. El pago está guardado y aparecerá cuando TREK vuelva a estar en línea.',
 };
 export default budget;

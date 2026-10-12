@@ -207,5 +207,8 @@ const budget: TranslationStrings = {
     'Falha ao salvar, e {count} comprovantes enviados ainda estão lá. Remova-os na aba Arquivos.',
   'costs.receiptLeftBehind.one':
     'Falha ao salvar, e {count} comprovante enviado ainda está lá. Remova-o na aba Arquivos.',
+  'costs.receiptsNeedConnection':
+    'Os recibos precisam de conexão para serem enviados. Remova os novos para salvar a despesa offline, ou salve quando estiver online de novo.',
+  'costs.paymentQueued': 'Você está offline. O pagamento foi salvo e aparece quando o TREK voltar a ficar online.',
 };
 export default budget;

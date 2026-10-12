@@ -208,5 +208,8 @@ const budget: TranslationStrings = {
     'Kaydetme başarısız oldu ve yüklenen {count} fiş hâlâ duruyor. Dosyalar sekmesinden silin.',
   'costs.receiptLeftBehind.one':
     'Kaydetme başarısız oldu ve yüklenen {count} fiş hâlâ duruyor. Dosyalar sekmesinden silin.',
+  'costs.receiptsNeedConnection':
+    'Fişlerin yüklenmesi için bağlantı gerekir. Harcamayı çevrimdışı kaydetmek için yenilerini kaldırın ya da tekrar çevrimiçi olduğunuzda kaydedin.',
+  'costs.paymentQueued': 'Çevrimdışısınız. Ödeme kaydedildi ve TREK yeniden çevrimiçi olduğunda görünecek.',
 };
 export default budget;

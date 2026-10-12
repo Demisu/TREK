@@ -52,6 +52,7 @@ const HISTORY: Record<number, StoreSpec> = {
   7: { areaPlaces: null },
   8: { areaPlaces: '[gers+tripId], gers, tripId, searchName' },
   9: { tours: 'place_id, trip_id' },
+  10: { budgetSettlements: 'tripId' },
 };
 
 const HISTORY_VERSIONS = Object.keys(HISTORY)
@@ -128,6 +129,7 @@ function rowsAt(version: number): Record<string, Record<string, unknown>> {
     areaPlaces: { gers: 'g-1', tripId: 1, name: 'Café A', searchName: 'cafe a', address: '', cachedAt: 7 },
     roadtripPreferences: { tripId: 1, preferences: { avoid_tolls: true } },
     tours: { place_id: 21, trip_id: 1, name: 'Old town loop', distance: 4200 },
+    budgetSettlements: { tripId: 1, base: 'EUR', settlement: { balances: [], flows: [] } },
   };
   const tables = schemaAt(version);
   return Object.fromEntries(Object.entries(all).filter(([table]) => table in tables));
@@ -279,6 +281,14 @@ const UPGRADE_CASES: Record<number, UpgradeCase> = {
       expect(await db.areaPlaces.get(['g-1', 1])).toMatchObject({ name: 'Café A' });
       await db.table('tours').put({ place_id: 99, trip_id: 3 });
       expect(await db.tours.where('trip_id').equals(3).count()).toBe(1);
+    },
+  },
+  10: {
+    intent: 'adds the cached Costs settlement and keeps the tours',
+    check: async (db) => {
+      expect(await db.tours.get(21)).toMatchObject({ name: 'Old town loop' });
+      await db.table('budgetSettlements').put({ tripId: 3, base: 'USD', settlement: { flows: [] } });
+      expect(await db.budgetSettlements.get(3)).toMatchObject({ base: 'USD' });
     },
   },
 };

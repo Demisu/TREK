@@ -217,5 +217,8 @@ const budget: TranslationStrings = {
     'Uložení selhalo, {count} nahraná účtenka tam stále je. Odstraňte ji v záložce Soubory.',
   'costs.receiptLeftBehind.few':
     'Uložení selhalo, {count} nahrané účtenky tam stále jsou. Odstraňte je v záložce Soubory.',
+  'costs.receiptsNeedConnection':
+    'Účtenky potřebují k nahrání připojení. Odeberte nové, abyste výdaj uložili offline, nebo uložte, až budete znovu online.',
+  'costs.paymentQueued': 'Jste offline. Platba je uložená a zobrazí se, jakmile bude TREK znovu online.',
 };
 export default budget;

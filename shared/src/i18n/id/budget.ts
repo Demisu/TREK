@@ -195,5 +195,8 @@ const budget: TranslationStrings = {
   'costs.deleteReceipt': 'Hapus kuitansi',
   'costs.viewReceipt': 'Lihat kuitansi',
   'costs.receiptLeftBehind': 'Gagal menyimpan, tetapi {count} kuitansi yang diunggah masih ada. Hapus di tab File.',
+  'costs.receiptsNeedConnection':
+    'Struk perlu koneksi untuk diunggah. Hapus struk baru untuk menyimpan pengeluaran secara offline, atau simpan saat kamu kembali online.',
+  'costs.paymentQueued': 'Kamu sedang offline. Pembayaran sudah disimpan dan akan muncul begitu TREK kembali online.',
 };
 export default budget;

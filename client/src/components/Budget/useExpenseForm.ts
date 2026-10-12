@@ -2,6 +2,7 @@ import { useEffect, useEffectEvent, useMemo, useState } from 'react';
 
 import { useTranslation } from '../../i18n';
 import { useTripStore } from '../../store/tripStore';
+import { isEffectivelyOffline } from '../../sync/networkMode';
 import type { BudgetItem, BudgetItemReceipt } from '../../types';
 import { amountToInputString } from '../../utils/formatters';
 import { localToday } from '../Planner/today';
@@ -349,6 +350,12 @@ export function useExpenseForm({
 
   const save = async () => {
     if (!valid || (oneSaveAtATime && saving)) return;
+    // A receipt is a file upload, which cannot wait in the offline queue. The
+    // expense itself can, so the user is asked to save it without the new ones.
+    if (pendingReceiptFiles.length > 0 && isEffectivelyOffline()) {
+      toast.error(t('costs.receiptsNeedConnection'));
+      return;
+    }
     setSaving(true);
     // A picked payer always goes out, even when nobody shares the expense: the
     // server re-derives total_price from the payer sum (CostsPanel.helpers), so

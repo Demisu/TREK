@@ -229,6 +229,9 @@ const budget: TranslationStrings = {
     'Yadda saxlamaq mümkün olmadı və yüklənmiş {count} qəbz hələ də qalır. Onları Fayllar bölməsindən silin.',
   'costs.receiptLeftBehind.one':
     'Yadda saxlamaq mümkün olmadı və yüklənmiş {count} qəbz hələ də qalır. Onu Fayllar bölməsindən silin.',
+  'costs.receiptsNeedConnection':
+    'Qəbzlərin yüklənməsi üçün bağlantı lazımdır. Xərci oflayn saxlamaq üçün yeni qəbzləri silin və ya yenidən onlayn olduqda saxlayın.',
+  'costs.paymentQueued': 'Siz oflaynsınız. Ödəniş saxlanıldı və TREK yenidən onlayn olduqda görünəcək.',
 };
 
 export default budget;

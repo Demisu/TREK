@@ -208,5 +208,8 @@ const budget: TranslationStrings = {
     'Opslaan mislukt en er staan nog {count} geüploade bonnen. Verwijder ze op het tabblad Bestanden.',
   'costs.receiptLeftBehind.one':
     'Opslaan mislukt en er staat nog {count} geüploade bon. Verwijder hem op het tabblad Bestanden.',
+  'costs.receiptsNeedConnection':
+    'Bonnetjes hebben een verbinding nodig om te uploaden. Verwijder de nieuwe om de uitgave offline op te slaan, of sla op zodra je weer online bent.',
+  'costs.paymentQueued': 'Je bent offline. De betaling is opgeslagen en verschijnt zodra TREK weer online is.',
 };
 export default budget;

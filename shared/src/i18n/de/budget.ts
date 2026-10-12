@@ -207,5 +207,8 @@ const budget: TranslationStrings = {
     'Speichern fehlgeschlagen, {count} hochgeladene Belege liegen noch da. Im Dateien-Tab entfernen.',
   'costs.receiptLeftBehind.one':
     'Speichern fehlgeschlagen, {count} hochgeladener Beleg liegt noch da. Im Dateien-Tab entfernen.',
+  'costs.receiptsNeedConnection':
+    'Belege brauchen zum Hochladen eine Verbindung. Entferne die neuen, um die Ausgabe offline zu speichern, oder speichere, sobald du wieder online bist.',
+  'costs.paymentQueued': 'Du bist offline. Die Zahlung ist gespeichert und erscheint, sobald TREK wieder online ist.',
 };
 export default budget;

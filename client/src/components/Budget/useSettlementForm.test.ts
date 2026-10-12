@@ -2,12 +2,13 @@ import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 
 import { budgetApi } from '../../api/client';
+import { clearAll, offlineDb } from '../../db/offlineDb';
 import { clearExchangeRateCache } from '../../hooks/useExchangeRates';
 import { localToday } from '../Planner/today';
 import type { CostsSettlement } from './costsModel';
 import { useSettlementForm } from './useSettlementForm';
 
-// FE-BUDGET-SETTLEFORM-001 to FE-BUDGET-SETTLEFORM-010
+// FE-BUDGET-SETTLEFORM-001 to FE-BUDGET-SETTLEFORM-011
 
 vi.mock('../../api/client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../api/client')>()),
@@ -28,6 +29,7 @@ const RECORDED: CostsSettlement = {
 
 let onSaved: Mock<() => void>;
 let toastError: Mock<(message: string) => void>;
+let toastInfo: Mock<(message: string) => void>;
 
 interface Props {
   editing: CostsSettlement | null;
@@ -46,7 +48,7 @@ function setup(initial: Props, oneSaveAtATime?: boolean) {
         editing,
         open,
         t: (key: string) => key,
-        toast: { error: toastError },
+        toast: { error: toastError, info: toastInfo },
         onSaved,
         oneSaveAtATime,
       }),
@@ -62,6 +64,7 @@ beforeEach(() => {
   clearExchangeRateCache();
   onSaved = vi.fn<() => void>();
   toastError = vi.fn<(message: string) => void>();
+  toastInfo = vi.fn<(message: string) => void>();
   createMock().mockResolvedValue({});
   updateMock().mockResolvedValue({});
 });
@@ -227,5 +230,28 @@ describe('useSettlementForm: saving', () => {
     expect(result.current.amount).toBe('12');
     act(() => result.current.setAmount('1000.5'));
     expect(result.current.amount).toBe('1000.');
+  });
+});
+
+describe('useSettlementForm: offline (#2601)', () => {
+  it('FE-BUDGET-SETTLEFORM-011: offline a payment is queued with a hint instead of failing', async () => {
+    await clearAll();
+    Object.defineProperty(navigator, 'onLine', { value: false, writable: true, configurable: true });
+    try {
+      const { result } = setup({ editing: null });
+      act(() => result.current.setAmount('8'));
+      await act(async () => {
+        await result.current.save();
+      });
+      expect(createMock()).not.toHaveBeenCalled();
+      expect(toastError).not.toHaveBeenCalled();
+      expect(toastInfo).toHaveBeenCalledWith('costs.paymentQueued');
+      expect(onSaved).toHaveBeenCalledTimes(1);
+      const [queued] = await offlineDb.mutationQueue.toArray();
+      expect(queued).toMatchObject({ method: 'POST', url: '/trips/7/budget/settlements' });
+      expect(queued.body).toMatchObject({ from_user_id: 1, to_user_id: 2, amount: 8 });
+    } finally {
+      Object.defineProperty(navigator, 'onLine', { value: true, writable: true, configurable: true });
+    }
   });
 });

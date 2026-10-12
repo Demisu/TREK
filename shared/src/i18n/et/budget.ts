@@ -207,6 +207,9 @@ const budget: TranslationStrings = {
     'Salvestamine ebaõnnestus ja {count} üleslaaditud kviitungit on endiselt alles. Eemalda need vahekaardil Failid.',
   'costs.receiptLeftBehind.one':
     'Salvestamine ebaõnnestus ja {count} üleslaaditud kviitung on endiselt alles. Eemalda see vahekaardil Failid.',
+  'costs.receiptsNeedConnection':
+    'Tšekkide üleslaadimiseks on vaja ühendust. Eemalda uued, et kulu võrguühenduseta salvestada, või salvesta, kui oled taas võrgus.',
+  'costs.paymentQueued': 'Oled võrguühenduseta. Makse on salvestatud ja ilmub, kui TREK on taas võrgus.',
 };
 
 export default budget;

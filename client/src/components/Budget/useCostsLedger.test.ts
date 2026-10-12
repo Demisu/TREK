@@ -4,8 +4,10 @@ import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { buildBudgetItem, buildTrip } from '../../../tests/helpers/factories';
 import { resetAllStores, seedStore } from '../../../tests/helpers/store';
 import { budgetApi } from '../../api/client';
+import { clearAll, offlineDb } from '../../db/offlineDb';
 import { useAuthStore } from '../../store/authStore';
 import { useSettingsStore } from '../../store/settingsStore';
+import { setForcedOffline } from '../../sync/networkMode';
 import type { BudgetItem, Trip } from '../../types';
 import { downloadBlob } from '../../utils/fileDownload';
 import { localToday } from '../Planner/today';
@@ -13,7 +15,7 @@ import type { CostsSettlementResponse } from './costsModel';
 import { useCostsLedger } from './useCostsLedger';
 import { useFreezeMissingRates } from './useFreezeMissingRates';
 
-// FE-BUDGET-LEDGER-001 to FE-BUDGET-LEDGER-012
+// FE-BUDGET-LEDGER-001 to FE-BUDGET-LEDGER-013
 
 const fx = vi.hoisted(() => ({
   // One stable converter, the way useExchangeRates hands out a memoised one: USD is half a euro.
@@ -74,6 +76,7 @@ const paidByBob = () =>
 let loadBudgetItems: Mock<(tripId: number | string) => Promise<void>>;
 let deleteBudgetItem: Mock<(tripId: number | string, id: number) => Promise<void>>;
 let toastError: Mock<(message: string) => void>;
+let toastInfo: Mock<(message: string) => void>;
 
 interface Options {
   trip?: Trip;
@@ -94,7 +97,7 @@ function setup(options: Options = {}) {
         actions: { loadBudgetItems, deleteBudgetItem },
         canEdit: true,
         t: (key: string) => key,
-        toast: { error: toastError },
+        toast: { error: toastError, info: toastInfo },
         settlementOnTripChange: options.settlementOnTripChange,
         skipUnfinishedShares: options.skipUnfinishedShares,
         csvCurrencyAsStored: options.csvCurrencyAsStored,
@@ -115,6 +118,7 @@ beforeEach(() => {
   loadBudgetItems = vi.fn<(tripId: number | string) => Promise<void>>(async () => undefined);
   deleteBudgetItem = vi.fn<(tripId: number | string, id: number) => Promise<void>>(async () => undefined);
   toastError = vi.fn<(message: string) => void>();
+  toastInfo = vi.fn<(message: string) => void>();
   settlementMock().mockResolvedValue(SETTLEMENT);
   createMock().mockResolvedValue({});
   deleteMock().mockResolvedValue({});
@@ -315,5 +319,34 @@ describe('useCostsLedger: writes', () => {
     };
     expect(await readCsv(false)).toBe('USD');
     expect(await readCsv(true)).toBe('usd');
+  });
+});
+
+describe('useCostsLedger: offline (#2601)', () => {
+  it('FE-BUDGET-LEDGER-013: an offline settle waits in the queue with a hint, and the balances are read again once it is sent', async () => {
+    await clearAll();
+    const { result } = setup();
+    await waitFor(() => expect(result.current.settlement).toEqual(SETTLEMENT));
+    act(() => setForcedOffline(true));
+    try {
+      await act(async () => {
+        await result.current.settleFlow(1, 2, 15);
+      });
+      expect(createMock()).not.toHaveBeenCalled();
+      expect(toastError).not.toHaveBeenCalled();
+      expect(toastInfo).toHaveBeenCalledWith('costs.paymentQueued');
+      expect(await offlineDb.mutationQueue.count()).toBe(1);
+      // Offline the last balances read stand in, so the ledger keeps showing them.
+      expect(result.current.settlementError).toBe(false);
+      expect(result.current.settlement).toEqual(SETTLEMENT);
+    } finally {
+      act(() => setForcedOffline(false));
+    }
+    // Back online with the payment still queued: no read until the queue is through.
+    const before = settlementMock().mock.calls.length;
+    await act(async () => {
+      await offlineDb.mutationQueue.clear();
+    });
+    await waitFor(() => expect(settlementMock().mock.calls.length).toBeGreaterThan(before));
   });
 });

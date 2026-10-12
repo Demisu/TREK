@@ -196,5 +196,8 @@ const budget: TranslationStrings = {
   'costs.viewReceipt': 'レシートを表示',
   'costs.receiptLeftBehind':
     '保存に失敗し、アップロード済みのレシートが{count}件残っています。「ファイル」タブで削除してください。',
+  'costs.receiptsNeedConnection':
+    'レシートのアップロードには接続が必要です。オフラインで経費を保存するには新しいレシートを外すか、オンラインに戻ってから保存してください。',
+  'costs.paymentQueued': 'オフラインです。支払いは保存され、TREK がオンラインに戻ると表示されます。',
 };
 export default budget;

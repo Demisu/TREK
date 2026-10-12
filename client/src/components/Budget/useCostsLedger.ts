@@ -1,8 +1,10 @@
+import { liveQuery } from 'dexie';
 import { useCallback, useEffect, useEffectEvent, useMemo, useState } from 'react';
 
-import { budgetApi } from '../../api/client';
 import { useExchangeRates, withFallbackFx } from '../../hooks/useExchangeRates';
+import { useNetworkMode } from '../../hooks/useNetworkMode';
 import { useTranslation } from '../../i18n';
+import { budgetRepo, type SettlementWriteResult } from '../../repo/budgetRepo';
 import { useAuthStore } from '../../store/authStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import type { TripStoreState } from '../../store/tripStore';
@@ -27,6 +29,7 @@ import { useFreezeMissingRates } from './useFreezeMissingRates';
 type Translate = (key: string, params?: Record<string, string | number>) => string;
 interface Toaster {
   error: (message: string) => void;
+  info: (message: string) => void;
 }
 
 /**
@@ -89,7 +92,7 @@ export function useCostsLedger({
   // The browser's own figure for the display currency goes along, for the server to
   // answer in it when it cannot fetch a quote itself.
   const loadSettlement = useCallback(() => {
-    budgetApi
+    budgetRepo
       .settlement(tripId, base, base !== tripCurrency ? displayPerTrip : null)
       .then((s) => {
         setSettlement(s);
@@ -110,9 +113,30 @@ export function useCostsLedger({
   useEffect(() => {
     onTripChange();
   }, [tripId, loadBudgetItems]);
+  // Offline the balances are the last ones the server worked out, and an expense or
+  // payment saved meanwhile waits in the queue. Read again once the connection is
+  // back and the queue holds no Costs write any more, so they count.
+  const { offline } = useNetworkMode();
+  const [queuedWrites, setQueuedWrites] = useState(0);
+  useEffect(() => {
+    const subscription = liveQuery(() => budgetRepo.pendingWrites(tripId)).subscribe({
+      next: setQueuedWrites,
+      // A queue that cannot be read holds nothing to wait for.
+      error: () => setQueuedWrites(0),
+    });
+    return () => subscription.unsubscribe();
+  }, [tripId]);
+  const synced = !offline && queuedWrites === 0;
   useEffect(() => {
     loadSettlement();
-  }, [budgetItems.length, loadSettlement]);
+  }, [budgetItems.length, loadSettlement, synced]);
+
+  // A payment saved offline has no row until the server records it, so the user
+  // is told it is on its way rather than seeing nothing happen.
+  const afterSettlementWrite = (result: SettlementWriteResult) => {
+    if (result.queued) toast.info(t('costs.paymentQueued'));
+    loadSettlement();
+  };
 
   // Rows the server could not count get a rate frozen from the browser's, and the
   // settlement is read again once they count.
@@ -179,8 +203,7 @@ export function useCostsLedger({
   // as "undo" rather than delete.
   const undoSettlement = async (id: number) => {
     try {
-      await budgetApi.deleteSettlement(tripId, id);
-      loadSettlement();
+      afterSettlementWrite(await budgetRepo.deleteSettlement(tripId, id));
     } catch {
       toast.error(t('common.unknownError'));
     }
@@ -190,14 +213,14 @@ export function useCostsLedger({
   // it, so it is not left to the server's UTC clock (#2604).
   const settleFlow = async (fromId: number, toId: number, amount: number) => {
     try {
-      await budgetApi.createSettlement(
+      const result = await budgetRepo.createSettlement(
         tripId,
         withFallbackFx(
           { from_user_id: fromId, to_user_id: toId, amount, currency: base, settled_at: localToday() },
           tripCurrency
         )
       );
-      loadSettlement();
+      afterSettlementWrite(result);
     } catch {
       toast.error(t('common.unknownError'));
     }
@@ -205,9 +228,10 @@ export function useCostsLedger({
 
   const settleAll = async () => {
     if (!flows.length) return;
+    let queued = false;
     try {
       for (const f of flows) {
-        await budgetApi.createSettlement(
+        const result = await budgetRepo.createSettlement(
           tripId,
           withFallbackFx(
             {
@@ -220,13 +244,14 @@ export function useCostsLedger({
             tripCurrency
           )
         );
+        queued ||= result.queued;
       }
     } catch {
       toast.error(t('common.unknownError'));
     } finally {
       // Refresh even when one transfer failed: the ones created before it are real,
       // and leaving them in the flow list invites a second, doubled settle-up.
-      loadSettlement();
+      afterSettlementWrite({ queued });
     }
   };
 

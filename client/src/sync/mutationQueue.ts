@@ -15,6 +15,7 @@ import type { QueuedMutation } from '../db/offlineDb'
 import type { Table } from 'dexie'
 import { roadtripPreferencesResponseSchema, assignmentSchema, tourCreateResponseSchema, type TourCreateResponse } from '@trek/shared'
 import { cacheAssignment } from '../db/cacheAssignment'
+import type { BudgetItem, BudgetItemMember } from '../types'
 
 // Map Dexie table names used in `resource` field → actual Dexie tables.
 function getTable(resource: string): Table | undefined {
@@ -197,17 +198,65 @@ async function dropTempRows(mutation: QueuedMutation): Promise<void> {
  * this flush and durably for the next.
  */
 async function remapTempId(mutation: QueuedMutation, realId: number, idMap: Map<number, number>): Promise<void> {
-  if (mutation.tempId === undefined || mutation.tempId === realId) return
-  idMap.set(mutation.tempId, realId)
+  const tempId = mutation.tempId
+  if (tempId === undefined || tempId === realId) return
+  idMap.set(tempId, realId)
   await offlineDb.mutationQueue
     .where('tripId')
     .equals(mutation.tripId)
-    .filter(m => m.tempEntityId === mutation.tempId)
+    .filter(m => m.tempEntityId === tempId)
     .modify(m => {
       m.url = m.url.replace('{id}', String(realId))
       m.entityId = realId
       m.tempEntityId = undefined
     })
+  const learned = new Map([[tempId, realId]])
+  await offlineDb.mutationQueue
+    .where('tripId')
+    .equals(mutation.tripId)
+    .filter(m => remapBodyRefs(m.body, learned) !== m.body)
+    .modify(m => { m.body = remapBodyRefs(m.body, learned) })
+}
+
+// Body fields that can name an entity created offline earlier in the queue: an
+// expense saved from a place or a booking that has not synced yet.
+const TEMP_REF_FIELDS = ['place_id', 'reservation_id'] as const
+
+/**
+ * The body with every link to an offline-created entity pointed at the real id
+ * the queue learned for it. The same body when nothing changed.
+ */
+function remapBodyRefs(body: unknown, idMap: Map<number, number>): unknown {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return body
+  const fields = body as Record<string, unknown>
+  let remapped: Record<string, unknown> | null = null
+  for (const field of TEMP_REF_FIELDS) {
+    const ref = fields[field]
+    const realId = typeof ref === 'number' && ref < 0 ? idMap.get(ref) : undefined
+    if (realId === undefined) continue
+    remapped ??= { ...fields }
+    remapped[field] = realId
+  }
+  return remapped ?? body
+}
+
+/**
+ * A replayed expense write. Only `item` names the expense: the members route
+ * answers `{ members, item }` with the item's bare row and the paid tick answers
+ * `{ member }` with no item at all, so neither fits the first-value rule of the
+ * generic branch. The bare row keeps the payers and receipts the local copy
+ * holds and takes the members the answer lists.
+ */
+async function reconcileBudgetItem(mutation: QueuedMutation, data: unknown, idMap: Map<number, number>): Promise<void> {
+  const answer = (data && typeof data === 'object' ? data : {}) as { item?: BudgetItem; members?: BudgetItemMember[] }
+  const item = answer.item
+  if (!item || typeof item.id !== 'number') return
+  if (mutation.tempId !== undefined && mutation.tempId !== item.id) {
+    await offlineDb.budgetItems.delete(mutation.tempId)
+    await remapTempId(mutation, item.id, idMap)
+  }
+  const local = await offlineDb.budgetItems.get(item.id)
+  await offlineDb.budgetItems.put({ ...local, ...item, ...(answer.members ? { members: answer.members } : {}) })
 }
 
 /**
@@ -432,7 +481,7 @@ export const mutationQueue = {
           const response = await apiClient.request({
             method: mutation.method,
             url: reqUrl,
-            data: mutation.body,
+            data: remapBodyRefs(mutation.body, idMap),
             headers,
           })
 
@@ -446,6 +495,8 @@ export const mutationQueue = {
           }
           if (mutation.resource === 'tours') {
             await reconcileTour(mutation, tourCreateResponseSchema.parse(response.data), idMap)
+          } else if (mutation.resource === 'budgetItems' && mutation.method !== 'DELETE') {
+            await reconcileBudgetItem(mutation, response.data, idMap)
           } else if (mutation.method !== 'DELETE' && mutation.resource) {
             const table = getTable(mutation.resource)
             if (table && response.data && typeof response.data === 'object') {

@@ -17,6 +17,17 @@ export interface CachedTour extends TourListItem {
   waypoints?: TourWaypoint[];
 }
 
+/**
+ * The last settlement the server worked out for a trip, in the display currency
+ * it was asked for, so the Costs balances still read offline. The server nets
+ * them, so offline they stay as they were when last read.
+ */
+export interface CachedBudgetSettlement {
+  tripId: number;
+  base: string;
+  settlement: unknown;
+}
+
 // ── Queue + sync types ────────────────────────────────────────────────────────
 
 // 'conflict' is terminal-until-resolved: the server rejected the replay because
@@ -222,6 +233,7 @@ export class TrekOfflineDb extends Dexie {
   importFiles!: Table<ImportSourceFile, [string, string]>;
   areaPlaces!: Table<CachedAreaPlace, [string, number]>;
   tours!: Table<CachedTour, number>;
+  budgetSettlements!: Table<CachedBudgetSettlement, number>;
 
   constructor(name: string = ANON_DB_NAME) {
     super(name);
@@ -293,6 +305,9 @@ export class TrekOfflineDb extends Dexie {
     // v9: the Tours facet, keyed like the place it belongs to, so a Tour still
     // reads as one offline and can be edited there.
     this.version(9).stores({ tours: 'place_id, trip_id' });
+
+    // v10: the Costs settlement, one per trip, so the balances read offline.
+    this.version(10).stores({ budgetSettlements: 'tripId' });
   }
 }
 
@@ -574,9 +589,11 @@ export async function clearTripData(tripId: number): Promise<void> {
       offlineDb.areaPlaces,
       offlineDb.roadtripPreferences,
       offlineDb.tours,
+      offlineDb.budgetSettlements,
     ],
     async () => {
       await offlineDb.roadtripPreferences.delete(tripId);
+      await offlineDb.budgetSettlements.delete(tripId);
       await offlineDb.days.where('trip_id').equals(tripId).delete();
       await offlineDb.places.where('trip_id').equals(tripId).delete();
       await offlineDb.packingItems.where('trip_id').equals(tripId).delete();
