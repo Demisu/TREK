@@ -35,6 +35,8 @@ const members: TranslationStrings = {
   'members.guestRenameError': 'Error en canviar el nom del convidat',
   'members.guestRemoved': 'Convidat eliminat',
   'members.confirmRemoveGuest':
-    "Vols eliminar aquest convidat? Les seves assignacions i particions de despeses també s'eliminaran.",
+    "Vols eliminar aquest convidat? Les seves assignacions s'eliminaran i la seva part de cada despesa es repartirà entre la resta de participants.",
+  'members.guestHasPayments':
+    "Aquest convidat ha pagat una despesa o forma part d'un pagament registrat. Canvia primer qui paga o elimina el pagament.",
 };
 export default members;

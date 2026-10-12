@@ -33,6 +33,9 @@ const members: TranslationStrings = {
   'members.guestAddError': 'Külalise lisamine ebaõnnestus',
   'members.guestRenameError': 'Külalise ümbernimetamine ebaõnnestus',
   'members.guestRemoved': 'Külaline eemaldatud',
-  'members.confirmRemoveGuest': 'Kas eemaldada see külaline? Eemaldatakse ka talle määratud ülesanded ja kuluosad.',
+  'members.confirmRemoveGuest':
+    'Kas eemaldada see külaline? Talle määratud ülesanded eemaldatakse ja tema osa igast kulust jagatakse teiste osalejate vahel.',
+  'members.guestHasPayments':
+    'See külaline on tasunud mõne kulu või on seotud registreeritud maksega. Muuda kõigepealt maksjat või kustuta makse.',
 };
 export default members;

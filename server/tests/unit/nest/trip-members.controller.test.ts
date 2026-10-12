@@ -1,4 +1,6 @@
 import type { AuditService } from '../../../src/nest/audit/audit.service';
+import { GUEST_HAS_PAYMENTS } from '../../../src/nest/budget/budget-departure.helpers';
+import { DomainError } from '../../../src/nest/common/domain-error';
 import { NotFoundError, ValidationError } from '../../../src/nest/common/domain-errors';
 import { TripMembersController } from '../../../src/nest/trip-members/trip-members.controller';
 import { TripMembersModule } from '../../../src/nest/trip-members/trip-members.module';
@@ -239,6 +241,18 @@ describe('TripMembersController', () => {
       expect(await tc(ok).deleteGuest(user, '9', '7')).toEqual({ success: true });
       // Task 6 review, L1: see the addMember case above.
       expect(ok.broadcast).not.toHaveBeenCalled();
+    });
+
+    it('passes the 409 of a guest who moved money on as it stands, the text the MCP tool answers too (#2604)', async () => {
+      const refused = svc({
+        deleteGuest: vi
+          .fn()
+          .mockRejectedValue(new DomainError(409, GUEST_HAS_PAYMENTS, { code: 'guest_has_payments' })),
+      } as Partial<TripMembersService>);
+      expect(await thrown(() => tc(refused).deleteGuest(user, '9', '7'))).toEqual({
+        status: 409,
+        body: { error: GUEST_HAS_PAYMENTS },
+      });
     });
 
     it('maps a ValidationError from createGuest to 400', async () => {

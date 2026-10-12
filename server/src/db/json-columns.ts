@@ -89,3 +89,20 @@ export const COLLAB_POLL_OPTIONS: JsonColumn<unknown[]> = {
   schema: z.array(z.unknown()),
   fallback: () => [],
 };
+
+/**
+ * An expense's itemized receipt (#1658): each line's price as typed and the user
+ * ids in on it. The client writes it; the server only reads it to take a departed
+ * guest off the lines, so every key it does not know is kept as it is.
+ */
+export const BUDGET_ITEM_TICKET: JsonColumn<{ items: { price?: string | number; parts?: number[] }[] } | null> = {
+  column: 'budget_items.ticket_json',
+  schema: z
+    .object({
+      items: z.array(
+        z.looseObject({ price: z.union([z.string(), z.number()]).optional(), parts: z.array(z.number()).optional() }),
+      ),
+    })
+    .loose(),
+  fallback: () => null,
+};

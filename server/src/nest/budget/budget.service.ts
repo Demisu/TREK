@@ -27,8 +27,10 @@ import { Trips } from '../../db/entities/Trips.entity';
 import type { TripsRepository, TripAccess } from '../../db/repositories/Trips.repository';
 import { TripMembers } from '../../db/entities/TripMembers.entity';
 import type { TripMembersRepository } from '../../db/repositories/TripMembers.repository';
-import { RESERVATION_METADATA } from '../../db/json-columns';
-import { decodeJson, encodeJson } from '../../utils/json-column';
+import { BUDGET_ITEM_TICKET, RESERVATION_METADATA } from '../../db/json-columns';
+import { decodeJson, decodeJsonResult, encodeJson } from '../../utils/json-column';
+import { DomainError } from '../common/domain-error';
+import { GUEST_HAS_PAYMENTS, shareAfterLeaving } from './budget-departure.helpers';
 
 type Trip = TripAccess;
 
@@ -1005,13 +1007,26 @@ export class BudgetService {
     });
   }
 
+  /**
+   * Clears a guest's traces before the users row goes, refusing while money they moved is
+   * on the books: the cascade would take their payer rows and recorded payments with it (#2604).
+   */
+  async releaseGuest(userId: number): Promise<void> {
+    await this.uow.transactional(async () => {
+      const paid = await this.budgetItemPayersRepo.countNonZeroForUser(userId);
+      if (paid + (await this.budgetSettlementsRepo.countForUser(userId)) > 0) {
+        throw new DomainError(409, GUEST_HAS_PAYMENTS, { code: 'guest_has_payments' });
+      }
+      await this.budgetItemsRepo.clearPaidByUser(userId);
+      await this.budgetSettlementsRepo.clearCreatedBy(userId);
+      await this.removeUserFromBudgetItems(userId);
+    });
+  }
+
   async removeUserFromBudgetItems(userId: number): Promise<void> {
     await this.uow.transactional(async () => {
       const itemIds = await this.budgetItemMembersRepo.listItemIdsForUser(userId);
-      if (itemIds.length === 0) {
-        return;
-      }
-
+      await Promise.all(itemIds.map(itemId => this.handOnShare(itemId, userId)));
       await this.budgetItemMembersRepo.deleteForUser(userId);
 
       for (const itemId of itemIds) {
@@ -1019,6 +1034,19 @@ export class BudgetService {
         await this.budgetItemsRepo.setPersons(itemId, count || null);
       }
     });
+  }
+
+  /** Hands a departing member's custom or receipt share to the rest of the split, see {@link shareAfterLeaving}. */
+  private async handOnShare(itemId: number, userId: number): Promise<void> {
+    const item = await this.budgetItemsRepo.findById(itemId);
+    if (!item) return;
+    const ticket = decodeJsonResult(BUDGET_ITEM_TICKET, item.ticket_json);
+    const currency = item.currency || (await this.tripsRepo.getCurrency(item.trip_id)) || 'EUR';
+    const members = await this.budgetItemMembersRepo.listForItem(itemId);
+    const next = shareAfterLeaving(itemId, members, userId, currency, ticket.ok ? ticket.value : null);
+    if (next.ticket) await this.budgetItemsRepo.setTicketJson(itemId, encodeJson(BUDGET_ITEM_TICKET, next.ticket));
+    const amounts = Object.entries(next.amounts ?? {});
+    await Promise.all(amounts.map(([id, amount]) => this.budgetItemMembersRepo.setAmount(itemId, Number(id), amount)));
   }
 
   /**

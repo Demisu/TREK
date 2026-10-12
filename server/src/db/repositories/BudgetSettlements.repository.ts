@@ -179,6 +179,16 @@ export class BudgetSettlementsRepository extends TrekRepository<BudgetSettlement
     await this.kysely<BudgetSettlementsKyselyDB>().deleteFrom('budget_settlements').where('id', '=', id).execute();
   }
 
+  /** How many recorded payments a user sent or received: `SELECT COUNT(*) FROM budget_settlements WHERE from_user_id = ? OR to_user_id = ?`. */
+  async countForUser(user_id: number): Promise<number> {
+    const row = await this.kysely<BudgetSettlementsKyselyDB>()
+      .selectFrom('budget_settlements')
+      .select((eb) => eb.fn.countAll<number>().as('count'))
+      .where((eb) => eb.or([eb('from_user_id', '=', user_id), eb('to_user_id', '=', user_id)]))
+      .executeTakeFirst();
+    return Number(row?.count ?? 0);
+  }
+
   /**
    * `UPDATE budget_settlements SET created_by_user_id = NULL WHERE
    * created_by_user_id = ?`. The column has no ON DELETE action, so deleting a

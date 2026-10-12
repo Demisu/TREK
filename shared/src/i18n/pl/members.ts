@@ -34,6 +34,9 @@ const members: TranslationStrings = {
   'members.guestAddError': 'Nie udało się dodać gościa',
   'members.guestRenameError': 'Nie udało się zmienić nazwy gościa',
   'members.guestRemoved': 'Usunięto gościa',
-  'members.confirmRemoveGuest': 'Usunąć tego gościa? Jego przypisania i udziały w kosztach również zostaną usunięte.',
+  'members.confirmRemoveGuest':
+    'Usunąć tego gościa? Jego przypisania zostaną usunięte, a jego udział w każdym wydatku zostanie podzielony między pozostałych uczestników.',
+  'members.guestHasPayments':
+    'Ten gość zapłacił za wydatek lub jest stroną zarejestrowanej płatności. Najpierw zmień płatnika lub usuń płatność.',
 };
 export default members;

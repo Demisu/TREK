@@ -33,6 +33,9 @@ const members: TranslationStrings = {
   'members.guestAddError': 'Nepodarilo sa pridať hosťa',
   'members.guestRenameError': 'Nepodarilo sa premenovať hosťa',
   'members.guestRemoved': 'Hosť odobraný',
-  'members.confirmRemoveGuest': 'Odobrať tohto hosťa? Jeho priradenia a podiely na nákladoch budú tiež odobrané.',
+  'members.confirmRemoveGuest':
+    'Odobrať tohto hosťa? Jeho priradenia budú odobrané a jeho podiel na každom výdavku sa rozdelí medzi ostatných účastníkov.',
+  'members.guestHasPayments':
+    'Tento hosť zaplatil výdavok alebo je súčasťou zaznamenanej platby. Najprv zmeňte platiteľa alebo platbu odstráňte.',
 };
 export default members;

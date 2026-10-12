@@ -31,6 +31,9 @@ const members: TranslationStrings = {
   'members.guestAddError': 'ไม่สามารถเพิ่มแขกได้',
   'members.guestRenameError': 'เปลี่ยนชื่อแขกไม่สำเร็จ',
   'members.guestRemoved': 'นำแขกออกแล้ว',
-  'members.confirmRemoveGuest': 'ลบแขกรายนี้ใช่ไหม การมอบหมายและส่วนแบ่งต้นทุนของพวกเขาจะถูกลบออกด้วย',
+  'members.confirmRemoveGuest':
+    'ลบแขกรายนี้ใช่ไหม การมอบหมายของพวกเขาจะถูกลบ และส่วนแบ่งในแต่ละค่าใช้จ่ายจะถูกแบ่งให้ผู้ร่วมจ่ายคนอื่น',
+  'members.guestHasPayments':
+    'แขกรายนี้เป็นผู้จ่ายค่าใช้จ่ายหรือเกี่ยวข้องกับการชำระเงินที่บันทึกไว้ โปรดเปลี่ยนผู้จ่ายหรือลบการชำระเงินก่อน',
 };
 export default members;

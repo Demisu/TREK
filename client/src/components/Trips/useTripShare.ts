@@ -279,8 +279,11 @@ export function useTripMembers({ isOpen, tripId, onClose, onMembersChanged }: {
       await loadMembers(true)
       await loadBudgetItems(tripId)
       toast.success(t('members.guestRemoved'))
-    } catch {
-      toast.error(t('members.removeError'))
+    } catch (err: unknown) {
+      // A guest who paid for something or is part of a recorded payment stays (#2604):
+      // deleting them would take that money off the books.
+      const refused = (err as { response?: { status?: number } } | null)?.response?.status === 409
+      toast.error(t(refused ? 'members.guestHasPayments' : 'members.removeError'))
     } finally {
       setRemovingId(null)
     }

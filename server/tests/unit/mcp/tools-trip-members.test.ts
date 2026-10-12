@@ -9,8 +9,10 @@ import { ShareTokens } from '../../../src/db/entities/ShareTokens.entity';
 import { TripMembers } from '../../../src/db/entities/TripMembers.entity';
 import { Trips } from '../../../src/db/entities/Trips.entity';
 import { Users } from '../../../src/db/entities/Users.entity';
+import { GUEST_HAS_PAYMENTS } from '../../../src/nest/budget/budget-departure.helpers';
 import { invalidatePermissionsCache } from '../../../src/nest/permissions/permissions-cache';
 import { createUser, createAdmin, createTrip, addTripMember } from '../../helpers/factories';
+import { addBudgetItemPayer, makeBudgetItem } from '../../helpers/factories/budget';
 import { countRows, findRow } from '../../helpers/factories/rows';
 import { setAppSetting } from '../../helpers/factories/settings';
 import { makeShareToken } from '../../helpers/factories/trips';
@@ -838,6 +840,22 @@ describe('Tool: delete_trip_guest', () => {
         'member:removed',
         expect.objectContaining({ userId: guestId }),
       );
+    });
+  });
+
+  it('refuses a guest who paid an expense, with the same text REST answers (#2604)', async () => {
+    const { user: owner } = createUser(testDb);
+    const trip = createTrip(testDb, owner.id);
+    await withHarness(owner.id, async (h) => {
+      const guestId = await makeGuest(h, trip.id, 'Anna');
+      const item = await makeBudgetItem(orm, trip.id, { total_price: 60 });
+      await addBudgetItemPayer(orm, item.id, guestId, 60);
+      broadcastMock.mockClear();
+      const result = await h.client.callTool({ name: 'delete_trip_guest', arguments: { tripId: trip.id, guestId } });
+      expect(result.isError).toBe(true);
+      expect(JSON.stringify(result.content)).toContain(GUEST_HAS_PAYMENTS);
+      expect(await findRow(orm, Users, { id: guestId })).not.toBeNull();
+      expect(broadcastMock).not.toHaveBeenCalledWith(trip.id, 'member:removed', expect.anything());
     });
   });
 

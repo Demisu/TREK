@@ -31,6 +31,9 @@ const members: TranslationStrings = {
   'members.guestAddError': 'ゲストの追加に失敗しました',
   'members.guestRenameError': 'ゲストの名前変更に失敗しました',
   'members.guestRemoved': 'ゲストを削除しました',
-  'members.confirmRemoveGuest': 'このゲストを削除しますか？割り当てと費用の負担分も削除されます。',
+  'members.confirmRemoveGuest':
+    'このゲストを削除しますか？割り当ては削除され、各費用の負担分は分担している他のメンバーに振り分けられます。',
+  'members.guestHasPayments':
+    'このゲストは費用を支払ったか、記録された支払いに含まれています。先に支払者を変更するか、支払いを削除してください。',
 };
 export default members;

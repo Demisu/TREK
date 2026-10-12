@@ -33,6 +33,9 @@ const members: TranslationStrings = {
   'members.guestAddError': 'Nem sikerült hozzáadni a vendéget',
   'members.guestRenameError': 'Nem sikerült átnevezni a vendéget',
   'members.guestRemoved': 'Vendég eltávolítva',
-  'members.confirmRemoveGuest': 'Eltávolítja ezt a vendéget? A hozzárendelései és költségrészei is törlődnek.',
+  'members.confirmRemoveGuest':
+    'Eltávolítja ezt a vendéget? A hozzárendelései törlődnek, a költségekből rá eső rész pedig a többi résztvevő között oszlik meg.',
+  'members.guestHasPayments':
+    'Ez a vendég kifizetett egy költséget, vagy részese egy rögzített fizetésnek. Előbb módosítsa a fizetőt, vagy törölje a fizetést.',
 };
 export default members;

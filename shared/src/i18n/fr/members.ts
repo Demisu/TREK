@@ -33,6 +33,9 @@ const members: TranslationStrings = {
   'members.guestAddError': "Échec de l'ajout de l'invité",
   'members.guestRenameError': "Échec du renommage de l'invité",
   'members.guestRemoved': 'Invité supprimé',
-  'members.confirmRemoveGuest': 'Supprimer cet invité ? Ses affectations et parts de dépenses seront aussi supprimées.',
+  'members.confirmRemoveGuest':
+    'Supprimer cet invité ? Ses affectations seront supprimées et sa part de chaque dépense sera répartie entre les autres participants.',
+  'members.guestHasPayments':
+    "Cet invité a payé une dépense ou fait partie d'un paiement enregistré. Changez d'abord le payeur ou supprimez le paiement.",
 };
 export default members;

@@ -43,7 +43,7 @@ Requires `trips:read` or `trips:write` scope.
 | `leave_trip` | Leave a trip you were invited to, giving up your own access. Use this rather than `remove_trip_member` when the user means themselves. The owner cannot leave their own trip. Requires `trips:write`. |
 | `create_trip_guest` | Add a travelling companion who has no TREK account. Assignable to budget splits, packing and day participants; never signs in, never emailed. Owner only. |
 | `rename_trip_guest` | Rename a guest on a trip. Owner only. |
-| `delete_trip_guest` | Delete a guest and re-split the expenses they were part of. Owner only. |
+| `delete_trip_guest` | Delete a guest and hand their share of each expense to the others in its split. Refused while the guest paid for an expense or is part of a recorded payment. Owner only. |
 | `copy_trip` | Duplicate a trip (days, places, itinerary, packing, budget, reservations). Packing items reset to unchecked. |
 | `export_trip_ics` | Export the trip itinerary and reservations as iCalendar (`.ics`) text. |
 | `get_share_link` | Get the current public share link for a trip and its permission flags. Requires `trips:share`. |

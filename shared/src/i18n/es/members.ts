@@ -33,6 +33,9 @@ const members: TranslationStrings = {
   'members.guestAddError': 'Error al añadir el invitado',
   'members.guestRenameError': 'Error al renombrar el invitado',
   'members.guestRemoved': 'Invitado eliminado',
-  'members.confirmRemoveGuest': '¿Eliminar este invitado? También se eliminarán sus asignaciones y partes de gastos.',
+  'members.confirmRemoveGuest':
+    '¿Eliminar este invitado? Se eliminarán sus asignaciones y su parte de cada gasto se repartirá entre los demás participantes.',
+  'members.guestHasPayments':
+    'Este invitado pagó un gasto o forma parte de un pago registrado. Cambia primero quién paga o elimina el pago.',
 };
 export default members;

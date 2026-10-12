@@ -38,7 +38,10 @@ const members: TranslationStrings = {
   'members.guestAddError': 'Qonağı əlavə etmək mümkün olmadı',
   'members.guestRenameError': 'Qonağın adını dəyişmək mümkün olmadı',
   'members.guestRemoved': 'Qonaq çıxarıldı',
-  'members.confirmRemoveGuest': 'Bu qonaq çıxarılsın? Ona təyin edilmiş tapşırıqlar və xərc payları da silinəcək.',
+  'members.confirmRemoveGuest':
+    'Bu qonaq çıxarılsın? Ona təyin edilmiş tapşırıqlar silinəcək, hər xərcdəki payı isə digər iştirakçılar arasında bölünəcək.',
+  'members.guestHasPayments':
+    'Bu qonaq bir xərci ödəyib və ya qeydə alınmış ödənişin tərəfidir. Əvvəlcə ödəyəni dəyişin və ya ödənişi silin.',
 };
 
 export default members;

@@ -33,6 +33,9 @@ const members: TranslationStrings = {
   'members.guestAddError': "Impossibile aggiungere l'ospite",
   'members.guestRenameError': "Impossibile rinominare l'ospite",
   'members.guestRemoved': 'Ospite rimosso',
-  'members.confirmRemoveGuest': 'Rimuovere questo ospite? Verranno rimosse anche le sue assegnazioni e quote di spesa.',
+  'members.confirmRemoveGuest':
+    'Rimuovere questo ospite? Le sue assegnazioni verranno rimosse e la sua quota di ogni spesa sarà ripartita tra gli altri partecipanti.',
+  'members.guestHasPayments':
+    'Questo ospite ha pagato una spesa o fa parte di un pagamento registrato. Cambia prima chi paga o elimina il pagamento.',
 };
 export default members;

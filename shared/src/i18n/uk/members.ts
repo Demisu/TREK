@@ -35,6 +35,9 @@ const members: TranslationStrings = {
   'members.guestAddError': 'Не вдалося додати гостя',
   'members.guestRenameError': 'Не вдалося перейменувати гостя',
   'members.guestRemoved': 'Гостя видалено',
-  'members.confirmRemoveGuest': 'Видалити цього гостя? Його призначення та частки витрат також буде видалено.',
+  'members.confirmRemoveGuest':
+    'Видалити цього гостя? Його призначення буде видалено, а його частку в кожній витраті розподілено між іншими учасниками.',
+  'members.guestHasPayments':
+    'Цей гість оплатив витрату або є учасником записаного платежу. Спочатку змініть платника або видаліть платіж.',
 };
 export default members;

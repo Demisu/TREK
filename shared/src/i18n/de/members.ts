@@ -33,6 +33,9 @@ const members: TranslationStrings = {
   'members.guestAddError': 'Gast konnte nicht hinzugefügt werden',
   'members.guestRenameError': 'Gast konnte nicht umbenannt werden',
   'members.guestRemoved': 'Gast entfernt',
-  'members.confirmRemoveGuest': 'Diesen Gast entfernen? Seine Zuweisungen und Kostenanteile werden ebenfalls entfernt.',
+  'members.confirmRemoveGuest':
+    'Diesen Gast entfernen? Seine Zuweisungen werden entfernt, sein Anteil an jeder Ausgabe geht an die anderen Beteiligten.',
+  'members.guestHasPayments':
+    'Dieser Gast hat eine Ausgabe bezahlt oder ist an einer erfassten Zahlung beteiligt. Ändere zuerst den Zahler oder lösche die Zahlung.',
 };
 export default members;

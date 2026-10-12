@@ -306,6 +306,11 @@ export class BudgetItemsRepository extends TrekRepository<BudgetItems> {
       .execute();
   }
 
+  /** `UPDATE budget_items SET ticket_json = ? WHERE id = ?`. */
+  async setTicketJson(id: number, ticket_json: string | null): Promise<void> {
+    await this.kysely<BudgetKyselyDB>().updateTable('budget_items').set({ ticket_json }).where('id', '=', id).execute();
+  }
+
   /** BG83 (`reorderItems`, looped) — `UPDATE budget_items SET sort_order = ? WHERE id = ? AND trip_id = ?`. */
   async setSortOrder(id: number | string, trip_id: number | string, sort_order: number): Promise<void> {
     await this.kysely<BudgetKyselyDB>()

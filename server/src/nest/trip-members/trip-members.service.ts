@@ -298,18 +298,21 @@ export class TripMembersService {
 
   async deleteGuest(tripId: string | number, guestUserId: number): Promise<boolean> {
     if (!(await this.guestOfTrip(tripId, guestUserId))) return false;
-    // The plugin erasure, the budget re-split and the user delete run in one
+    // The budget check and re-split, the plugin erasure and the user delete run in one
     // transaction, so a failure mid-flow can't leave the expense divisors re-derived,
     // or the guest's plugin rows erased, for a guest that still exists (or vice
     // versa). The plugin notification goes out after the commit.
     await this.uow.transactional(async () => {
+      // A guest who paid for something or is part of a recorded payment is refused with a
+      // 409 before anything is touched: the cascade would take that money off the books
+      // (#2604). Otherwise the expenses they were part of are re-split before the cascade
+      // takes their member rows away, the divisor and the custom amounts cannot follow a
+      // foreign key (#1553).
+      await this.budget.releaseGuest(guestUserId);
       // A guest is still a user id a plugin may hold data for, so erase that too (the
       // host-side per-user tables plus a durable own-db erasure per granted plugin), exactly
       // like a full account deletion; otherwise a deleted guest's plugin data lingers.
       await this.userCleanup.erasePluginUserData(guestUserId);
-      // Re-split the expenses they were part of before the cascade takes their member
-      // rows away — the divisor is denormalized and cannot follow a foreign key (#1553).
-      await this.budget.removeUserFromBudgetItems(guestUserId);
       // Deleting the guest's users row cascades its membership and every assignment join
       // (trip_members, budget/packing/assignment links) via the ON DELETE foreign keys.
       await this.usersRepo.deleteGuest(guestUserId);

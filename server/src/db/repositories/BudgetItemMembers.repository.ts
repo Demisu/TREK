@@ -196,6 +196,16 @@ export class BudgetItemMembersRepository extends TrekRepository<BudgetItemMember
       .execute();
   }
 
+  /** `UPDATE budget_item_members SET amount = ? WHERE budget_item_id = ? AND user_id = ?`. */
+  async setAmount(budget_item_id: number, user_id: number, amount: number | null): Promise<void> {
+    await this.kysely<BudgetItemMembersKyselyDB>()
+      .updateTable('budget_item_members')
+      .set({ amount })
+      .where('budget_item_id', '=', budget_item_id)
+      .where('user_id', '=', user_id)
+      .execute();
+  }
+
   /** BG35/BG38/BG59 — `DELETE FROM budget_item_members WHERE budget_item_id = ?` (replace-all before a re-insert). */
   async deleteForItem(budget_item_id: number): Promise<void> {
     await this.kysely<BudgetItemMembersKyselyDB>()

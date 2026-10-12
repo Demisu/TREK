@@ -1,4 +1,4 @@
-// FE-COMP-MEMBERS-001 to FE-COMP-MEMBERS-060
+// FE-COMP-MEMBERS-001 to FE-COMP-MEMBERS-061
 import type { Mock } from 'vitest';
 import { act, render, screen, fireEvent, waitFor } from '../../../tests/helpers/render';
 import userEvent from '@testing-library/user-event';
@@ -989,7 +989,7 @@ describe('TripMembersModal', () => {
 
     const trash = await screen.findByRole('button', { name: 'Remove access' });
     await user.click(trash);
-    expect(screen.getByText('Remove this guest? Their assignments and cost shares will be removed too.')).toBeInTheDocument();
+    expect(screen.getByText('Remove this guest? Their assignments are removed and their share of each expense goes to the others in its split.')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(deletedId).toBeNull();
 
@@ -1012,6 +1012,23 @@ describe('TripMembersModal', () => {
     await user.click(screen.getByRole('button', { name: 'Delete' }));
 
     await waitFor(() => expect(addToast).toHaveBeenCalledWith('Failed to remove', 'error', undefined));
+    expect(screen.getByText('Grandma')).toBeInTheDocument();
+  });
+
+  it('FE-COMP-MEMBERS-061: a guest who paid for something is kept, with the reason (#2604)', async () => {
+    const user = userEvent.setup();
+    mockRoster([guestRow]);
+    server.use(http.delete('/api/trips/1/guests/:userId', () => HttpResponse.json({ error: 'refused' }, { status: 409 })));
+    render(<TripMembersModal {...defaultProps} />);
+
+    await user.click(await screen.findByRole('button', { name: 'Remove access' }));
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+    await waitFor(() => expect(addToast).toHaveBeenCalledWith(
+      'This guest paid for an expense or is part of a recorded payment. Change the payer or delete the payment first.',
+      'error',
+      undefined,
+    ));
     expect(screen.getByText('Grandma')).toBeInTheDocument();
   });
 

@@ -610,7 +610,7 @@ export class TripsMcp {
   @Tool({
     name: 'delete_trip_guest',
     description:
-      'Remove a guest from a trip. This deletes the guest outright (they exist only for this trip) and re-splits any expenses they were part of. Only the trip owner can do this.',
+      'Remove a guest from a trip. This deletes the guest outright (they exist only for this trip) and hands their share of any expense to the others in its split. Refused while the guest paid for an expense or is part of a recorded payment: change the payer or delete the payment first. Only the trip owner can do this.',
     inputSchema: {
       tripId: idSchema,
       guestId: idSchema.describe('User ID of the guest, from list_trip_members'),

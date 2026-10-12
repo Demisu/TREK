@@ -94,6 +94,17 @@ export class BudgetItemPayersRepository extends TrekRepository<BudgetItemPayers>
       .execute();
   }
 
+  /** How many expenses a user paid any part of, a refund's negative share included (#2176): `SELECT COUNT(*) FROM budget_item_payers WHERE user_id = ? AND amount <> 0`. */
+  async countNonZeroForUser(user_id: number): Promise<number> {
+    const row = await this.kysely<BudgetItemPayersKyselyDB>()
+      .selectFrom('budget_item_payers')
+      .select((eb) => eb.fn.countAll<number>().as('count'))
+      .where('user_id', '=', user_id)
+      .where('amount', '<>', 0)
+      .executeTakeFirst();
+    return Number(row?.count ?? 0);
+  }
+
   /** BG4 — `DELETE FROM budget_item_payers WHERE budget_item_id = ?` (replace-all before a re-insert). */
   async deleteForItem(budget_item_id: number): Promise<void> {
     await this.kysely<BudgetItemPayersKyselyDB>()

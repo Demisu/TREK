@@ -22,12 +22,14 @@
  */
 import { db } from '../../src/db/database';
 import { AuditLog } from '../../src/db/entities/AuditLog.entity';
+import { BudgetItemMembers } from '../../src/db/entities/BudgetItemMembers.entity';
 import { Days } from '../../src/db/entities/Days.entity';
 import { JourneyEntries } from '../../src/db/entities/JourneyEntries.entity';
 import { Journeys } from '../../src/db/entities/Journeys.entity';
 import { Settings } from '../../src/db/entities/Settings.entity';
 import { TripMembers } from '../../src/db/entities/TripMembers.entity';
 import { Trips } from '../../src/db/entities/Trips.entity';
+import { Users } from '../../src/db/entities/Users.entity';
 import { VacayEntries } from '../../src/db/entities/VacayEntries.entity';
 import { VacayPlans } from '../../src/db/entities/VacayPlans.entity';
 // TripsService itself is real since the trip fold — no tripService mock; the
@@ -38,8 +40,10 @@ import { VacayPlans } from '../../src/db/entities/VacayPlans.entity';
 // DI-injected BudgetService since the budget fold — stubbed via a container
 // spy in beforeAll (unrelated to this file's schema conversion).
 
+import { GUEST_HAS_PAYMENTS } from '../../src/nest/budget/budget-departure.helpers';
 import { BudgetService } from '../../src/nest/budget/budget.service';
 import { TrekExceptionFilter } from '../../src/nest/common/trek-exception.filter';
+import { withRequestContext } from '../../src/nest/database/request-context';
 import { PermissionsService } from '../../src/nest/permissions/permissions.service';
 import { RealtimeModule } from '../../src/nest/realtime/realtime.module';
 import { RealtimeService } from '../../src/nest/realtime/realtime.service';
@@ -53,6 +57,7 @@ import { makeUser } from '../helpers/factories/users';
 import { createTestMikroOrmModule, createTestOrm, type TestOrm } from '../helpers/test-orm';
 import { TestUnitOfWorkModule } from '../helpers/test-uow';
 import { sessionCookie } from './harness';
+import { MikroORM } from '@mikro-orm/core';
 import { Test } from '@nestjs/testing';
 import { MAX_TRIP_DAYS } from '@trek/shared';
 
@@ -398,5 +403,52 @@ describe('Trips e2e (real auth guard + temp SQLite)', () => {
     expect(await findRow(orm, Trips, { id: tripId })).toBeNull();
     expect(await findRow(orm, JourneyEntries, { type: 'skeleton' })).toBeNull();
     expect((await findRow(orm, JourneyEntries, { id: filledId }))!.source_trip_id).toBeNull();
+  });
+
+  it('DELETE guest: 409 while the guest paid an expense, then 200 with their share handed on (#2604)', async () => {
+    const tripId = await seedTrip('T');
+    const budget = app.get(BudgetService);
+    const inContext = <T>(fn: () => Promise<T>) => withRequestContext(app.get(MikroORM), fn);
+    const created = await request(server)
+      .post(`/api/trips/${tripId}/guests`)
+      .set('Cookie', sessionCookie(1))
+      .send({ name: 'FIX1012 G' });
+    expect(created.status).toBe(201);
+    const guestId = created.body.member.id as number;
+    const paid = await inContext(() =>
+      budget.createBudgetItem(tripId, {
+        name: 'Museum',
+        payers: [{ user_id: guestId, amount: 60 }],
+        member_ids: [1, guestId],
+      }),
+    );
+    const shared = await inContext(() =>
+      budget.createBudgetItem(tripId, {
+        name: 'Snacks',
+        payers: [{ user_id: 1, amount: 90 }],
+        members: [
+          { user_id: 1, amount: 50 },
+          { user_id: guestId, amount: 40 },
+        ],
+      }),
+    );
+
+    const refused = await request(server)
+      .delete(`/api/trips/${tripId}/guests/${guestId}`)
+      .set('Cookie', sessionCookie(1));
+    expect(refused.status).toBe(409);
+    expect(refused.body).toEqual({ error: GUEST_HAS_PAYMENTS });
+    expect(await findRow(orm, Users, { id: guestId })).not.toBeNull();
+
+    // Once the payer is changed the guest goes, and the owner carries the whole snack bill.
+    await inContext(() => budget.setItemPayers(paid.id, tripId, [{ user_id: 1, amount: 60 }]));
+    const ok = await request(server).delete(`/api/trips/${tripId}/guests/${guestId}`).set('Cookie', sessionCookie(1));
+    expect(ok.status).toBe(200);
+    expect(await findRow(orm, Users, { id: guestId })).toBeNull();
+    expect(
+      (await findRows(orm, BudgetItemMembers, { budgetItem: shared.id })).map((m) => [m.user_id, m.amount]),
+    ).toEqual([[1, 90]]);
+    const { balances } = await inContext(() => budget.calculateSettlement(tripId));
+    expect(balances.reduce((sum, b) => sum + Math.round(b.balance * 100), 0)).toBe(0);
   });
 });

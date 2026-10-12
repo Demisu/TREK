@@ -76,7 +76,9 @@ These limits are enforced on the server, not just hidden in the UI.
 
 In the owner's Guests section, each guest row has a **Rename** (pencil) and a **Remove access** (trash) button. Rename turns the name into a field: Enter saves, Escape leaves it as it was. Removing a guest is **destructive and cascading**, so TREK asks in a dialog before it deletes, and removes the guest only on **Delete**:
 
-> Remove this guest? Their assignments and cost shares will be removed too.
+> Remove this guest? Their assignments are removed and their share of each expense goes to the others in its split.
+
+A share split by amount is handed to the others in equal parts, and a receipt split line by line is split again without the guest. A guest who paid for an expense, or who is part of a recorded payment, cannot be removed: TREK says so and keeps the guest, so the money stays on the books. Change the payer or delete the payment first.
 
 There is no limit on the number of guests per trip.
 

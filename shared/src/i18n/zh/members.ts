@@ -31,6 +31,7 @@ const members: TranslationStrings = {
   'members.guestAddError': '添加访客失败',
   'members.guestRenameError': '重命名访客失败',
   'members.guestRemoved': '已移除访客',
-  'members.confirmRemoveGuest': '移除此访客？其分配和费用分摊也将被移除。',
+  'members.confirmRemoveGuest': '移除此访客？其分配将被移除，其在每笔费用中的分摊将转给其他参与者。',
+  'members.guestHasPayments': '此访客支付过费用或涉及已记录的付款。请先更改付款人或删除该付款。',
 };
 export default members;
