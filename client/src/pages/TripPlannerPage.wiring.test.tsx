@@ -435,6 +435,12 @@ function renderPage(overrides: HookState = {}) {
   return render(<TripPlannerPage />)
 }
 
+/** The page on the Tours planner tab, with the Tours addon on. */
+function renderToursPage(overrides: HookState = {}) {
+  const enabledAddons = { packing: true, budget: true, documents: true, collab: true, tours: true }
+  return renderPage({ activeTab: 'tour-planner', toursEnabled: true, enabledAddons, ...overrides })
+}
+
 function mockStartNewTourTransition() {
   plannerActions.startNewTour.mockImplementation(() => {
     plannerActions.mode = { type: 'new-draft' }
@@ -471,8 +477,7 @@ beforeEach(() => {
 
 describe('TripPlannerPage — shell', () => {
   it('UI-R2: Tours Planner rails use shared resize bounds, touch handles and keyboard nudges', () => {
-    const { container } = renderPage({ activeTab: 'tour-planner', toursEnabled: true,
-      enabledAddons: { packing: true, budget: true, documents: true, collab: true, tours: true } })
+    const { container } = renderToursPage()
     const handles = container.querySelectorAll<HTMLElement>('div[role="separator"]')
     expect(handles).toHaveLength(2)
     expect(Array.from(handles, handle => handle.getAttribute('data-resize'))).toEqual(['left', 'right'])
@@ -491,8 +496,7 @@ describe('TripPlannerPage — shell', () => {
   })
 
   it('UI-R2: collapsed Tours rails retain semantic restore controls and report zero map insets', () => {
-    renderPage({ activeTab: 'tour-planner', toursEnabled: true, leftHidden: true, rightHidden: true,
-      enabledAddons: { packing: true, budget: true, documents: true, collab: true, tours: true } })
+    renderToursPage({ leftHidden: true, rightHidden: true })
     expect(props('map').leftWidth).toBe(0)
     expect(props('map').rightWidth).toBe(0)
     expect(screen.getByRole('button', { name: 'trip.mobilePlan' })).toBeInTheDocument()
@@ -505,9 +509,8 @@ describe('TripPlannerPage — shell', () => {
     { leftHidden: false, rightHidden: true, visibleSide: 'left', leftInset: 300, rightInset: 0 },
     { leftHidden: true, rightHidden: false, visibleSide: 'right', leftInset: 0, rightInset: 300 },
   ])('UI-R2: the 768-1023px panel state shows only its selected rail ($visibleSide)', ({ leftHidden, rightHidden, visibleSide, leftInset, rightInset }) => {
-    const { container } = renderPage({ activeTab: 'tour-planner', toursEnabled: true, narrowPanels: true,
-      leftHidden, rightHidden, leftWidth: 300, rightWidth: 300, resizeMax: 300,
-      enabledAddons: { packing: true, budget: true, documents: true, collab: true, tours: true } })
+    const { container } = renderToursPage({ narrowPanels: true,
+      leftHidden, rightHidden, leftWidth: 300, rightWidth: 300, resizeMax: 300 })
     const handles = container.querySelectorAll<HTMLElement>('div[role="separator"]')
     expect(handles).toHaveLength(1)
     expect(handles[0]).toHaveAttribute('data-resize', visibleSide)
@@ -517,8 +520,7 @@ describe('TripPlannerPage — shell', () => {
   })
 
   it('UI-R2: rail collapse changes only map insets, not the fit target or routed draft', () => {
-    const view = renderPage({ activeTab: 'tour-planner', toursEnabled: true,
-      enabledAddons: { packing: true, budget: true, documents: true, collab: true, tours: true } })
+    const view = renderToursPage()
     const focusPoints = props('map').focusPoints
     const route = props('map').route
     const fitKey = props('map').fitKey
@@ -551,7 +553,7 @@ describe('TripPlannerPage — shell', () => {
       caution: false,
       has_waypoints: true,
     }
-    renderPage({ activeTab: 'tour-planner', toursEnabled: true, enabledAddons: { packing: true, budget: true, documents: true, collab: true, tours: true }, tours: [savedTour] })
+    renderToursPage({ tours: [savedTour] })
 
     expect(await screen.findByText('Plan a tour')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Plan new tour' })).toBeInTheDocument()
@@ -563,10 +565,7 @@ describe('TripPlannerPage — shell', () => {
   it('preserves the visible TOUR-PLANNER camera when the Plan a Tour button starts an empty draft', async () => {
     const place = buildPlace({ id: 81, lat: 35.01, lng: 135.76 })
     mockStartNewTourTransition()
-    const view = renderPage({
-      activeTab: 'tour-planner',
-      enabledAddons: { packing: true, budget: true, documents: true, collab: true, tours: true },
-      toursEnabled: true,
+    const view = renderToursPage({
       places: [place],
     })
     const mapElement = screen.getByTestId('map-view')
@@ -612,10 +611,7 @@ describe('TripPlannerPage — shell', () => {
     ]
     plannerActions.mapFocusKey = 8
     plannerActions.saveOutcome = savedTour
-    const view = renderPage({
-      activeTab: 'tour-planner',
-      enabledAddons: { packing: true, budget: true, documents: true, collab: true, tours: true },
-      toursEnabled: true,
+    const view = renderToursPage({
       tours: [savedTour],
       places: [buildPlace({ id: savedTour.place_id, lat: 35.01, lng: 135.76 })],
     })
@@ -638,7 +634,7 @@ describe('TripPlannerPage — shell', () => {
   it('FE-PAGE-TPW-063: uses the last TRIP-PLAN viewport for neutral TOUR-PLANNER fallback', () => {
     const first = buildPlace({ id: 81, lat: 47.1, lng: 11.2 })
     const second = buildPlace({ id: 82, lat: 47.3, lng: 11.6 })
-    const view = renderPage({ activeTab: 'tour-planner', enabledAddons: { packing: true, budget: true, documents: true, collab: true, tours: true }, toursEnabled: true, places: [first, second] })
+    const view = renderToursPage({ places: [first, second] })
 
     expect(props('map').focusPoints).toEqual([[47.1, 11.2], [47.3, 11.6]])
     expect(props('map').route).toBeNull()
@@ -679,7 +675,7 @@ describe('TripPlannerPage — shell', () => {
     ]
     plannerActions.mode = { type: 'edit-saved', placeId: 92 }
     plannerActions.waypoints = waypoints
-    const view = renderPage({ activeTab: 'tour-planner', enabledAddons: { packing: true, budget: true, documents: true, collab: true, tours: true }, toursEnabled: true })
+    const view = renderToursPage()
     const fitTargets = props('map').focusPoints
     const route = props('map').route
     const mapWaypoints = props('map').plannerWaypoints
@@ -704,7 +700,7 @@ describe('TripPlannerPage — shell', () => {
   })
 
   it('FE-PAGE-TPW-064: falls back to the normal map default when there is no viewport or geo Place', () => {
-    renderPage({ activeTab: 'tour-planner', enabledAddons: { packing: true, budget: true, documents: true, collab: true, tours: true }, toursEnabled: true, places: [] })
+    renderToursPage({ places: [] })
 
     expect(props('map').focusPoints).toEqual([])
     expect(props('map').center).toBeUndefined()
@@ -779,10 +775,7 @@ describe('TripPlannerPage — shell', () => {
       const mode = plannerActions.mode as { placeId?: number }
       if (mode.placeId === placeId) plannerActions.mode = { type: 'neutral' }
     })
-    const view = renderPage({
-      activeTab: 'tour-planner',
-      enabledAddons: { packing: true, budget: true, documents: true, collab: true, tours: true },
-      toursEnabled: true,
+    const view = renderToursPage({
       tours: [savedTour],
       handleDeleteTour,
       setDeletePlaceId,
@@ -870,7 +863,7 @@ describe('TripPlannerPage — shell', () => {
       has_waypoints: false,
     }
     const trekTour = { ...gpxTour, place_id: 92, name: 'Editable ridge tour', has_waypoints: true }
-    const view = renderPage({ activeTab: 'tour-planner', enabledAddons: { packing: true, budget: true, documents: true, collab: true, tours: true }, toursEnabled: true, places: [gpxPlace], tours: [gpxTour, trekTour] })
+    const view = renderToursPage({ places: [gpxPlace], tours: [gpxTour, trekTour] })
 
     fireEvent.click(await screen.findByRole('option', { name: /Imported ridge GPX/i }))
 
