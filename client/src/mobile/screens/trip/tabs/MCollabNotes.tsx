@@ -22,6 +22,7 @@ import {
   type CollabNoteData,
   type CollabNoteFile,
 } from '../../../../components/Collab/collabModel'
+import { offlineOr } from '../../../../utils/needsConnection'
 
 interface MCollabNotesProps {
   planner: TripPlanner
@@ -77,7 +78,7 @@ export default function MCollabNotes({ planner }: MCollabNotesProps) {
       })) as NoteResponse
       created = res.note
     } catch {
-      toast.error(t('common.error'))
+      toast.error(offlineOr(t, t('common.error')))
       throw new Error('create failed')
     }
     if (data.pendingFiles.length > 0) {
@@ -99,7 +100,7 @@ export default function MCollabNotes({ planner }: MCollabNotesProps) {
       const res = (await collabApi.updateNote(tripId, noteId, data)) as NoteResponse
       updated = res.note
     } catch {
-      toast.error(t('common.error'))
+      toast.error(offlineOr(t, t('common.error')))
       throw new Error('update failed')
     }
     if (pendingFiles.length > 0) {
@@ -117,7 +118,7 @@ export default function MCollabNotes({ planner }: MCollabNotesProps) {
       setNotes(prev => prev.filter(n => n.id !== noteId))
       announceNoteFilesChanged()
     } catch {
-      toast.error(t('common.error'))
+      toast.error(offlineOr(t, t('common.error')))
     }
   }, [tripId, toast, t, setNotes])
 
@@ -132,7 +133,7 @@ export default function MCollabNotes({ planner }: MCollabNotesProps) {
       announceNoteFilesChanged()
       return true
     } catch {
-      toast.error(t('common.error'))
+      toast.error(offlineOr(t, t('common.error')))
       return false
     }
   }, [tripId, toast, t, setNotes])

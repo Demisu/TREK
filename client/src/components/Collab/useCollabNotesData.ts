@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { collabApi } from '../../api/client';
 import { addListener, removeListener } from '../../api/websocket';
 import type { useTranslation } from '../../i18n';
+import { offlineOr } from '../../utils/needsConnection';
 import type { useToast } from '../shared/Toast';
 import type { CollabNoteData } from './collabModel';
 
@@ -97,7 +98,7 @@ export function useCollabNotesData<N extends { id: number } = CollabNoteData>({
           await collabApi.uploadNoteFile(tripId, noteId, fd);
         } catch (err) {
           onFileError?.(err);
-          toast.error(t('common.error'));
+          toast.error(offlineOr(t, t('common.error')));
         }
       }
       if (files.length > 0) announceNoteFilesChanged();

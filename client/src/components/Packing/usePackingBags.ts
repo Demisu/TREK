@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { packingApi } from '../../api/client';
 import { useNetworkMode } from '../../hooks/useNetworkMode';
 import type { PackingBag } from '../../types';
+import { offlineOr } from '../../utils/needsConnection';
 import { BAG_COLORS } from './packingListPanel.constants';
 import { useBagTotalsPing } from './useBagTotalsPing';
 
@@ -74,7 +75,7 @@ export function usePackingBags({
       setBags((prev) => [...prev, data.bag]);
       return { bag: data.bag };
     } catch {
-      toast.error(t('packing.toast.saveError'));
+      toast.error(offlineOr(t, t('packing.toast.saveError')));
       return null;
     }
   };
@@ -87,7 +88,7 @@ export function usePackingBags({
       const result = await packingApi.updateBag(tripId, bagId, data);
       setBags((prev) => prev.map((b) => (b.id === bagId ? { ...b, ...result.bag } : b)));
     } catch {
-      toast.error(t('common.error'));
+      toast.error(offlineOr(t, t('common.error')));
     }
   };
 
@@ -96,7 +97,7 @@ export function usePackingBags({
       await packingApi.deleteBag(tripId, bagId);
       setBags((prev) => prev.filter((b) => b.id !== bagId));
     } catch {
-      toast.error(t('packing.toast.deleteError'));
+      toast.error(offlineOr(t, t('packing.toast.deleteError')));
     }
   };
 
@@ -105,7 +106,7 @@ export function usePackingBags({
       const result = await packingApi.setBagMembers(tripId, bagId, userIds);
       setBags((prev) => prev.map((b) => (b.id === bagId ? { ...b, members: result.members } : b)));
     } catch {
-      toast.error(t('common.error'));
+      toast.error(offlineOr(t, t('common.error')));
     }
   };
 

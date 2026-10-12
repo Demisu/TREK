@@ -4,6 +4,7 @@ import { useEffect, useEffectEvent, useState } from 'react';
 import { placesApi } from '../../api/client';
 import type { useTranslation } from '../../i18n';
 import { useAuthStore } from '../../store/authStore';
+import { offlineOr } from '../../utils/needsConnection';
 import type { useToast } from '../shared/Toast';
 
 export interface PlacesImportSummary {
@@ -230,7 +231,8 @@ export function usePlacesFileImport({
         }
       } catch (err: unknown) {
         const message =
-          (err as { response?: { data?: { error?: string } } })?.response?.data?.error || t('places.importFileError');
+          (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+          offlineOr(t, t('places.importFileError'));
         errors.push(files.length > 1 ? `${f.name}: ${message}` : message);
       }
     }

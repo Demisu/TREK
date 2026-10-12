@@ -2,6 +2,7 @@ import { useMemo, useState, type ChangeEvent } from 'react';
 
 import { packingApi } from '../../api/client';
 import { useTripStore } from '../../store/tripStore';
+import { offlineOr } from '../../utils/needsConnection';
 import { parseImportLines } from './packingListPanel.helpers';
 
 type Translate = (key: string, params?: Record<string, string | number>) => string;
@@ -66,7 +67,7 @@ export function usePackingImport({
       setText('');
       onImported();
     } catch {
-      toast.error(t('packing.importError'));
+      toast.error(offlineOr(t, t('packing.importError')));
     } finally {
       if (oneAtATime) setImporting(false);
     }

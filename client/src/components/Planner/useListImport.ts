@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { placesApi } from '../../api/client';
 import type { useTranslation } from '../../i18n';
 import { useAuthStore } from '../../store/authStore';
+import { offlineOr } from '../../utils/needsConnection';
 import type { useToast } from '../shared/Toast';
 
 export type ListImportProvider = 'google' | 'naver';
@@ -84,7 +85,9 @@ export function useListImport({ tripId, t, toast, loadTrip, pushUndo, onDone }: 
       onDone?.();
     } catch (err: unknown) {
       const message = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
-      toast.error(message || t(provider === 'google' ? 'places.googleListError' : 'places.naverListError'));
+      toast.error(
+        message || offlineOr(t, t(provider === 'google' ? 'places.googleListError' : 'places.naverListError'))
+      );
     } finally {
       setLoading(false);
     }

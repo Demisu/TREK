@@ -5,6 +5,7 @@ import { useTripStore } from '../../store/tripStore'
 import { useToast } from '../shared/Toast'
 import { useTranslation } from '../../i18n'
 import { PackingTemplateOption } from './PackingTemplateOption'
+import { offlineOr } from '../../utils/needsConnection'
 
 interface Template {
   id: number
@@ -50,7 +51,7 @@ export default function ApplyTemplateButton({ tripId, visibility, style, classNa
       toast.success(t('packing.templateApplied', { count: data.count }))
       setOpen(false)
     } catch {
-      toast.error(t('packing.templateError'))
+      toast.error(offlineOr(t, t('packing.templateError')))
     } finally {
       setApplying(false)
     }

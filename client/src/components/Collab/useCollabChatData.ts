@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'reac
 import { collabApi } from '../../api/client';
 import { addListener, removeListener } from '../../api/websocket';
 import type { useTranslation } from '../../i18n';
+import { offlineOr } from '../../utils/needsConnection';
 import type { useToast } from '../shared/Toast';
 import type { ChatMessage, ChatReaction } from './collabModel';
 import { MAX_CHAT_IMAGES, useChatImages } from './useChatImages';
@@ -143,7 +144,7 @@ export function useCollabChatData({
         });
       }
     } catch {
-      if (toastLoadMoreErrors) toast.error(t('common.error'));
+      if (toastLoadMoreErrors) toast.error(offlineOr(t, t('common.error')));
     } finally {
       setLoadingMore(false);
     }
@@ -204,7 +205,7 @@ export function useCollabChatData({
       isAtBottom.current = true;
       setTimeout(() => scrollToBottom('smooth'), 50);
     } catch {
-      toast.error(t('common.error'));
+      toast.error(offlineOr(t, t('common.error')));
     } finally {
       setSending(false);
       setUploadProgress(0);
@@ -218,7 +219,7 @@ export function useCollabChatData({
         await collabApi.deleteMessage(tripId, msgId);
         setMessages((prev) => prev.map((m) => (m.id === msgId ? { ...m, _deleted: true } : m)));
       } catch {
-        toast.error(t('common.error'));
+        toast.error(offlineOr(t, t('common.error')));
       }
     },
     [tripId, toast, t]
@@ -230,7 +231,7 @@ export function useCollabChatData({
         const data = (await collabApi.reactMessage(tripId, msgId, emoji)) as { reactions: ChatReaction[] };
         setMessages((prev) => prev.map((m) => (m.id === msgId ? { ...m, reactions: data.reactions } : m)));
       } catch {
-        toast.error(t('common.error'));
+        toast.error(offlineOr(t, t('common.error')));
       }
     },
     [tripId, toast, t]

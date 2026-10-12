@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { packingApi } from '../../api/client';
+import { offlineOr } from '../../utils/needsConnection';
 
 type Translate = (key: string, params?: Record<string, string | number>) => string;
 interface Toaster {
@@ -36,7 +37,7 @@ export function usePackingCategoryAssignees({ tripId, t, toast }: { tripId: numb
       const data = await packingApi.setCategoryAssignees(tripId, category, userIds);
       setCategoryAssignees((prev) => ({ ...prev, [category]: data.assignees || [] }));
     } catch {
-      toast.error(t('packing.toast.saveError'));
+      toast.error(offlineOr(t, t('packing.toast.saveError')));
     }
   };
 

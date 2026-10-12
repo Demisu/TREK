@@ -26,6 +26,7 @@ import { FilePreviewPortal } from './CollabNotesFilePreviewPortal'
 import { AuthedImg } from './CollabNotesAuthedImg'
 import { safeExternalHref } from '../../utils/safeUrl'
 import { useIsPhone } from '../../mobile/useIsPhone'
+import { offlineOr } from '../../utils/needsConnection'
 
 // ── Main Component ──────────────────────────────────────────────────────────
 interface CollabNotesProps {
@@ -88,7 +89,7 @@ function useCollabNotes({ tripId, currentUser }: CollabNotesProps) {
     try {
       created = await collabApi.createNote(tripId, data)
     } catch (err) {
-      toast.error(t('common.error'))
+      toast.error(offlineOr(t, t('common.error')))
       throw err
     }
     if (created) {
@@ -114,7 +115,7 @@ function useCollabNotes({ tripId, currentUser }: CollabNotesProps) {
       result = await collabApi.updateNote(tripId, noteId, data)
     } catch (err) {
       // A batch of writes reports once for the whole run instead of once per note.
-      if (!opts.silent) toast.error(t('common.error'))
+      if (!opts.silent) toast.error(offlineOr(t, t('common.error')))
       throw err
     }
     const updated = result?.note || result
@@ -168,7 +169,7 @@ function useCollabNotes({ tripId, currentUser }: CollabNotesProps) {
     // settings modal has to stay open on the rejection instead of closing on it.
     if (failed > 0) {
       await resyncNotes()
-      toast.error(t('common.error'))
+      toast.error(offlineOr(t, t('common.error')))
       throw new Error(`rename failed for ${failed} of ${toUpdate.length} notes`)
     }
   }, [notes, handleUpdateNote, resyncNotes, toast, t])
@@ -186,7 +187,7 @@ function useCollabNotes({ tripId, currentUser }: CollabNotesProps) {
   }, [editingNote, tripId, handleUpdateNote, setNotes, uploadNoteFiles])
 
   const handleDeleteNoteFile = useCallback(async (noteId, fileId) => {
-    try { await collabApi.deleteNoteFile(tripId, noteId, fileId) } catch { toast.error(t('common.error')) }
+    try { await collabApi.deleteNoteFile(tripId, noteId, fileId) } catch { toast.error(offlineOr(t, t('common.error'))) }
     announceNoteFilesChanged()
   }, [tripId, toast, t])
 
@@ -194,7 +195,7 @@ function useCollabNotes({ tripId, currentUser }: CollabNotesProps) {
     try {
       await collabApi.deleteNote(tripId, noteId)
     } catch (err) {
-      toast.error(t('common.error'))
+      toast.error(offlineOr(t, t('common.error')))
       throw err
     }
     setNotes(prev => prev.filter(n => n.id !== noteId))

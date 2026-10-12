@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { collabApi } from '../../api/client';
 import { addListener, removeListener } from '../../api/websocket';
 import type { useTranslation } from '../../i18n';
+import { offlineOr } from '../../utils/needsConnection';
 import type { useToast } from '../shared/Toast';
 import { isPollActive, type CollabPollData } from './collabModel';
 
@@ -111,7 +112,7 @@ export function useCollabPolls({
         const created = readPoll(await collabApi.createPoll(tripId, data));
         setPolls((prev) => (prev.some((p) => p.id === created.id) ? prev : [created, ...prev]));
       } catch (err) {
-        toast.error(t('common.error'));
+        toast.error(offlineOr(t, t('common.error')));
         throw err;
       }
     },
@@ -125,7 +126,7 @@ export function useCollabPolls({
         const target = matchVoteByPollId ? pollId : updated.id;
         setPolls((prev) => prev.map((p) => (p.id === target ? updated : p)));
       } catch {
-        toast.error(t('common.error'));
+        toast.error(offlineOr(t, t('common.error')));
       }
     },
     [tripId, matchVoteByPollId, toast, t]
@@ -142,7 +143,7 @@ export function useCollabPolls({
           })
         );
       } catch {
-        toast.error(t('common.error'));
+        toast.error(offlineOr(t, t('common.error')));
       }
     },
     [tripId, replaceClosedPoll, toast, t]
@@ -154,7 +155,7 @@ export function useCollabPolls({
         await collabApi.deletePoll(tripId, pollId);
         setPolls((prev) => prev.filter((p) => p.id !== pollId));
       } catch {
-        toast.error(t('common.error'));
+        toast.error(offlineOr(t, t('common.error')));
       }
     },
     [tripId, toast, t]

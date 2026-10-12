@@ -4,6 +4,7 @@ import { collectionsApi } from '../../api/collections';
 import type { useTranslation } from '../../i18n';
 import { useTripStore } from '../../store/tripStore';
 import type { Place } from '../../types';
+import { offlineOr } from '../../utils/needsConnection';
 import { useToast } from '../shared/Toast';
 
 /** What the pool shows: everything, what is not on a day yet, what is, or the tracks. */
@@ -135,7 +136,7 @@ export function usePlacesPool({ tripId, places, poolPlaces, toursEnabled, t, sta
       else toast.success(t('collections.markedVisitedTrip', { count: matchedPlaces ?? 0 }));
       exitSelectMode();
     } catch {
-      toast.error(t('common.error'));
+      toast.error(offlineOr(t, t('common.error')));
     } finally {
       setMarkVisitedBusy(false);
     }

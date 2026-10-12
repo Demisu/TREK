@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 
 import type { useTranslation } from '../../i18n';
 import type { Category } from '../../types';
+import { offlineOr } from '../../utils/needsConnection';
 import type { useToast } from '../shared/Toast';
 import type { PlaceDetailsSelection } from './PlaceDetailsColumn';
 import {
@@ -174,7 +175,7 @@ export function useNewCategory({ t, toast, onCreated, variant, create }: NewCate
       setName('');
       setOpen(false);
     } catch {
-      toast.error(t('places.categoryCreateError'));
+      toast.error(offlineOr(t, t('places.categoryCreateError')));
     } finally {
       if (sheet) setSaving(false);
     }

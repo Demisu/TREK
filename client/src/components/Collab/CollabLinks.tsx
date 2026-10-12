@@ -14,6 +14,7 @@ import ConfirmDialog from '../shared/ConfirmDialog'
 import EmptyState from '../shared/EmptyState'
 import { Tooltip } from '../shared/Tooltip'
 import { useToast } from '../shared/Toast'
+import { offlineOr } from '../../utils/needsConnection'
 
 const FONT = "var(--font-system)"
 
@@ -218,7 +219,7 @@ export default function CollabLinks({ tripId }: { tripId: number }) {
       setLinks(v => [d.link, ...v])
     } catch (err) {
       console.error('Failed to add collab link:', err)
-      toast.error(t('common.error'))
+      toast.error(offlineOr(t, t('common.error')))
       throw err
     }
   }
@@ -229,7 +230,7 @@ export default function CollabLinks({ tripId }: { tripId: number }) {
       setLinks(v => v.map(x => x.id === link.id ? d.link : x).sort((a, b) => Number(b.pinned) - Number(a.pinned)))
     } catch (err) {
       console.error('Failed to pin collab link:', err)
-      toast.error(t('common.error'))
+      toast.error(offlineOr(t, t('common.error')))
     }
   }
 
@@ -239,7 +240,7 @@ export default function CollabLinks({ tripId }: { tripId: number }) {
       setLinks(v => v.map(x => x.id === link.id ? d.link : x))
     } catch (err) {
       console.error('Failed to edit collab link:', err)
-      toast.error(t('common.error'))
+      toast.error(offlineOr(t, t('common.error')))
       throw err
     }
   }
@@ -250,7 +251,7 @@ export default function CollabLinks({ tripId }: { tripId: number }) {
       setLinks(v => v.filter(x => x.id !== id))
     } catch (err) {
       console.error('Failed to delete collab link:', err)
-      toast.error(t('common.error'))
+      toast.error(offlineOr(t, t('common.error')))
     }
   }
 
