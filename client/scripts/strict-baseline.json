@@ -52,7 +52,7 @@
   "src/components/Planner/DayPlanSidebarNoteModal.test.tsx": 1,
   "src/components/Planner/PlaceFormModal.test.tsx": 3,
   "src/components/Planner/PlaceFormModal.tsx": 1,
-  "src/components/Planner/PlaceInspector.tsx": 19,
+  "src/components/Planner/PlaceInspector.tsx": 17,
   "src/components/Planner/PlacesBulkCategoryModal.test.tsx": 1,
   "src/components/Planner/PlacesSidebar.tsx": 1,
   "src/components/Planner/PlacesSidebarMobileDayPicker.tsx": 8,

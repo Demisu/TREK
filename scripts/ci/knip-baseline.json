@@ -183,7 +183,7 @@
     "client/src/store/backgroundTasksStore.ts": 1,
     "client/src/store/helpStore.ts": 2,
     "client/src/theme/applyAppearance.ts": 1,
-    "client/src/types.ts": 7,
+    "client/src/types.ts": 6,
     "client/src/utils/connectionsVisibility.ts": 1,
     "client/src/utils/dayDeleteImpact.ts": 3,
     "client/src/utils/journeyLifecycle.ts": 1,
