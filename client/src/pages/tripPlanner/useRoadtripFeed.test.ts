@@ -29,7 +29,6 @@ const rt = vi.hoisted(() => ({
   },
   boundaryArgs: [] as unknown[],
   vias: { byDay: {} as Record<number, Array<{ id: number; day_id: number; after_order_index: number; sequence: number; lat: number; lng: number }>> },
-  viasArgs: [] as unknown[],
   routes: {
     days: [] as Array<Record<string, unknown>>,
     quietDays: [] as unknown[],
@@ -51,9 +50,6 @@ vi.mock('../../hooks/useRoadtripSettings', () => ({
 }))
 vi.mock('../../components/Roadtrip/useDayBoundaries', () => ({
   useDayBoundaries: (...args: unknown[]) => { rt.boundaryArgs = args; return rt.boundaries },
-}))
-vi.mock('../../components/Roadtrip/useRoadtripVias', () => ({
-  useRoadtripVias: (...args: unknown[]) => { rt.viasArgs = args; return rt.vias },
 }))
 vi.mock('../../components/Roadtrip/useRefuelSearch', () => ({ useRefuelSearch: () => rt.refuel }))
 vi.mock('../../components/Roadtrip/useRoadtripRoutes', () => ({
@@ -107,6 +103,7 @@ function baseOptions(over: Partial<Options> = {}): Options {
   return {
     tripId: 42, trip, can, toast, t,
     isMobile: false, activeTab: 'plan', enabledAddons: { roadtrip: true }, roadtripMode: true, roadtripSettings: {},
+    roadtripVias: rt.vias as unknown as Options['roadtripVias'],
     days, storedAssignments: stored, assignments: plan, tripAccommodations: [], reservations: [],
     places: [lake, castle], visibleConnections: [], routeProfile: 'driving', mapPlaces: [], expandedDayIds: null,
     ...over,
@@ -143,7 +140,6 @@ describe('useRoadtripFeed', () => {
     expect(result.current.roadtripActive).toBe(false)
     expect(result.current.roadtripFeedActive).toBe(false)
     expect(rt.prefsArgs).toEqual([42, false])
-    expect(rt.viasArgs).toEqual([42, false])
     expect(rt.boundaryArgs[1]).toBe(false)
     const [tripId, routedDays, routedAssignments, profile, , , , routedReservations] = rt.routesArgs
     expect(tripId).toBe(42)
@@ -170,7 +166,6 @@ describe('useRoadtripFeed', () => {
     expect(result.current.roadtripFeedActive).toBe(true)
     expect(result.current.dailyTimesActive).toBe(true)
     expect(rt.prefsArgs).toEqual([42, true])
-    expect(rt.viasArgs).toEqual([42, true])
     expect(rt.boundaryArgs).toEqual([42, true, plan])
     expect(rt.routesArgs[1]).toBe(days)
     expect(rt.routesArgs[2]).toBe(stored)

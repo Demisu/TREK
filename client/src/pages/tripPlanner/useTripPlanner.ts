@@ -55,6 +55,7 @@ import { usePlaceFormOpeners } from './usePlaceFormOpeners'
 import { useDayPlanEdits } from './useDayPlanEdits'
 import { useBookingEdits } from './useBookingEdits'
 import { useIsPhone } from '../../mobile/useIsPhone'
+import { useRoadtripVias } from '../../components/Roadtrip/useRoadtripVias'
 
 /**
  * Trip planner page logic, the big one. Owns the trip store wiring, addon
@@ -422,20 +423,31 @@ export function useTripPlanner() {
     places, assignments, selectedDayId, days, tripAccommodations, reservations, toursEnabled,
   })
 
-  const { route, routeWalking, routeSegments, routeVias, routeInfo, setRoute, setRouteInfo, updateRouteForDay } = useRouteCalculation({ assignments } as any, selectedDayId, routeShown, routeProfile, tripAccommodations)
+  // Fed whenever the addon is on, not only while the mode is being looked at.
+  // The three handlers that re-anchor a day's vias (assign, remove, reorder)
+  // are reachable from the place inspector in both modes, and with an empty list
+  // they computed an empty correction and wrote nothing while the server kept
+  // every via pointing at a position that had moved. Deleting a stop with the
+  // switch off then left the detour on the wrong leg, for the traveller and for
+  // a collaborator who never turned the mode on at all. The day route and the
+  // overview draw them too, so a road picked in the road trip is the road the
+  // day drives (#2580).
+  const roadtripVias = useRoadtripVias(tripId, !!enabledAddons.roadtrip)
+  const { route, routeWalking, routeSegments, routeVias, routeInfo, setRoute, setRouteInfo, updateRouteForDay } = useRouteCalculation({ assignments, roadtripVias: roadtripVias.byDay }, selectedDayId, routeShown, routeProfile, tripAccommodations)
   // Road trip mode already draws the whole trip its own way, so the overview stands
   // down there rather than drawing a second set of lines over it.
   const overviewActive = overviewShown && !roadtripMode
-  const tripOverview = useTripRouteOverview(tripId, days, assignments, reservations, tripAccommodations, routeProfile, overviewActive, places)
+  const overviewVias = useMemo(() => ({ storedAssignments, viasByDay: roadtripVias.byDay }), [storedAssignments, roadtripVias.byDay])
+  const tripOverview = useTripRouteOverview(tripId, days, assignments, reservations, tripAccommodations, routeProfile, overviewActive, places, overviewVias)
 
   // Called here so the road trip's effects keep their place, right after the overview's.
   const {
-    roadtripActive, roadtripFeedActive, roadtripRoutes, roadtripVias, roadtripCorridor, refuel, followTrack,
+    roadtripActive, roadtripFeedActive, roadtripRoutes, roadtripCorridor, refuel, followTrack,
     roadtripPreferencesState, dailyTimesActive, dayBoundaries, resetDayBoundaries, dayBoundaryControls, saveRoadtripLimit,
     roadtripStopsOf, viaLiesBefore, viasAfterInsert, roadtripConnections, roadtripViaCounts,
     collapsedRoadtripDays, toggleRoadtripDay, roadtripMapLines, roadtripMapPlaces, roadtripLineColors, dawarichHiddenDates,
   } = useRoadtripFeed({
-    tripId, trip, can, toast, t, enabledAddons, roadtripMode, roadtripSettings, isMobile, activeTab,
+    tripId, trip, can, toast, t, enabledAddons, roadtripMode, roadtripSettings, roadtripVias, isMobile, activeTab,
     days, reservations, storedAssignments, assignments, tripAccommodations, places,
     mapPlaces, expandedDayIds, routeProfile, visibleConnections,
   })

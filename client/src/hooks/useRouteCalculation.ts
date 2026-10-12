@@ -6,18 +6,25 @@ import { useSettingsStore } from '../store/settingsStore'
 import { useAddonStore } from '../store/addonStore'
 import { calculateRouteWithLegs, type RouteProfileKey } from '../components/Map/RouteCalculator'
 import { buildDayRouteRuns, hotelBookendOf, TRANSPORT_TYPES } from '../components/Map/dayRoutePlan'
+import { dayViaLookup, foldViaLegs, threadVias, viaKeyOf, viasOnDayLeg } from '../components/Map/dayRouteVias'
 import { resolveLegMode } from '../components/Planner/legMode'
+import type { RoadtripVia } from '@trek/shared'
 import type { TripStoreState } from '../store/tripStore'
 import type { RouteSegment, RouteResult, RouteVia, Accommodation } from '../types'
 
 const NO_ACCOMMODATIONS: Accommodation[] = []
+const NO_VIAS: Record<number, RoadtripVia[]> = {}
 
 /**
  * Manages route calculation state for a selected day. Extracts geo-coded waypoints from
  * day assignments, draws a straight-line route immediately, then upgrades it to real OSRM
  * road geometry with per-segment durations. Aborts in-flight requests when the day changes.
+ *
+ * `roadtripVias` are the road trip's vias by day: a road picked there is the road this
+ * day drives too (#2580). Absent, or empty while the road trip addon is off.
  */
-export function useRouteCalculation(tripStore: TripStoreState, selectedDayId: number | null, enabled: boolean = true, profile: RouteProfileKey = 'driving', accommodations: Accommodation[] = NO_ACCOMMODATIONS) {
+export function useRouteCalculation(tripStore: Pick<TripStoreState, 'assignments'> & { roadtripVias?: Record<number, RoadtripVia[]> }, selectedDayId: number | null, enabled: boolean = true, profile: RouteProfileKey = 'driving', accommodations: Accommodation[] = NO_ACCOMMODATIONS) {
+  const viasByDay = tripStore.roadtripVias ?? NO_VIAS
   const [route, setRoute] = useState<[number, number][][] | null>(null)
   const [routeInfo, setRouteInfo] = useState<RouteResult | null>(null)
   const [routeSegments, setRouteSegments] = useState<RouteSegment[]>([])
@@ -42,6 +49,7 @@ export function useRouteCalculation(tripStore: TripStoreState, selectedDayId: nu
   // Recompute when the user flips km↔mi so leg distances (formatted at compute time)
   // refresh instead of showing stale cached text (#1300).
   const distanceUnit = useSettingsStore((s) => s.settings.distance_unit)
+  const viaKey = useMemo(() => viaKeyOf(viasByDay), [viasByDay])
 
   const updateRouteForDay = useCallback(async (dayId: number | null) => {
     if (routeAbortRef.current) routeAbortRef.current.abort()
@@ -61,6 +69,8 @@ export function useRouteCalculation(tripStore: TripStoreState, selectedDayId: nu
       places,
     })
     const day = allDays.find(d => d.id === dayId)
+    // Anchors count the stored list, the hidden lodging and service rows included.
+    const viaLookup = dayViaLookup(state.assignments || {}, viasByDay)
 
     const straightLines = (): [number, number][][] =>
       runsWithHotel.map(r => r.map(p => [p.lat, p.lng] as [number, number]))
@@ -119,12 +129,13 @@ export function useRouteCalculation(tripStore: TripStoreState, selectedDayId: nu
           while (end < run.length - 1 && resolveLegMode(run[end], run[end + 1], dayDefaultMode) === mode) end++
           const chunk = run.slice(i, end + 1)
           const straight = (): [number, number][] => chunk.map(p => [p.lat, p.lng] as [number, number])
+          const { waypoints, stopAt } = threadVias(chunk, (from, to) => viasOnDayLeg(viaLookup, dayId, mode, from, to))
           try {
-            const r = await calculateRouteWithLegs(chunk.map(p => ({ lat: p.lat, lng: p.lng })), { signal: controller.signal, profile: mode, tripId, dayId })
+            const r = await calculateRouteWithLegs(waypoints, { signal: controller.signal, profile: mode, tripId, dayId })
             pushCoords(r.coordinates.length >= 2 ? r.coordinates : straight(), mode === 'walking')
             // Leg k runs from chunk[k] to chunk[k + 1]; a hotel bookend says so on the
             // segment, which is how the phone timeline finds it (#2501).
-            r.legs.forEach((leg, k) => {
+            foldViaLegs(r.legs, stopAt, distanceUnit).forEach((leg, k) => {
               const hotelBookend = chunk[k + 1] ? hotelBookendOf(chunk[k], chunk[k + 1]) : undefined
               allLegs.push(hotelBookend ? { ...leg, mode, hotelBookend } : { ...leg, mode })
             })
@@ -143,7 +154,7 @@ export function useRouteCalculation(tripStore: TripStoreState, selectedDayId: nu
       // Aborted (day changed) — newer call owns the state. Anything else: keep straight lines.
       if (!(err instanceof Error) || err.name !== 'AbortError') { setRouteSegments([]); setRouteVias([]) }
     }
-  }, [enabled, profile, accommodations, optimizeFromAccommodation, distanceUnit, selectedDayDefaultMode, mirrorServiceStops, toursEnabled, places])
+  }, [enabled, profile, accommodations, optimizeFromAccommodation, distanceUnit, selectedDayDefaultMode, mirrorServiceStops, toursEnabled, places, viasByDay])
 
   // Stable signature for transport reservations on the selected day — changes when a transport
   // is added, removed, or repositioned, ensuring route recalc fires even on transport-only reorders.
@@ -167,7 +178,7 @@ export function useRouteCalculation(tripStore: TripStoreState, selectedDayId: nu
     if (!selectedDayId) { setRoute(null); setRouteWalking([]); setRouteSegments([]); setRouteVias([]); return }
     updateRouteForDay(selectedDayId)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDayId, selectedDayAssignments, transportSignature, enabled, profile, accommodations, optimizeFromAccommodation, distanceUnit, selectedDayDefaultMode, mirrorServiceStops, toursEnabled, places])
+  }, [selectedDayId, selectedDayAssignments, transportSignature, enabled, profile, accommodations, optimizeFromAccommodation, distanceUnit, selectedDayDefaultMode, mirrorServiceStops, toursEnabled, places, viaKey])
 
   return { route, routeWalking, routeSegments, routeVias, routeInfo, setRoute, setRouteInfo, updateRouteForDay }
 }

@@ -75,8 +75,9 @@ export function useMPlanTimeline(planner: TripPlanner) {
   // only computes segments while the manual "show route" toggle is on (map), so
   // we run a dedicated, always-enabled calculation just for the connectors and
   // use only its segments — the polyline it produces is ignored here.
+  // The road trip's vias bend these connectors the way the road was picked (#2580).
   const { routeSegments: connSegments } = useRouteCalculation(
-    { assignments } as unknown as Parameters<typeof useRouteCalculation>[0],
+    { assignments, roadtripVias: planner.roadtripVias.byDay },
     selectedDayId,
     true,
     routeProfile,

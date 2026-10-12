@@ -278,6 +278,22 @@ describe('useTripRouteOverview', () => {
     expect(result.current.focusPoints).toBe(frame)
   })
 
+  it('FE-MAP-TRO-015: a road picked in the road trip re-routes the overview through it (#2580)', async () => {
+    const via = { id: 1, day_id: 1, after_order_index: 0, sequence: 0, lat: 48.95, lng: 2.6, created_at: '' }
+    const { result, rerender } = renderHook(
+      ({ viasByDay }: { viasByDay: Record<number, typeof via[]> }) =>
+        useTripRouteOverview(7, DAYS, ASSIGNMENTS, [], [], 'driving', true, undefined, { storedAssignments: ASSIGNMENTS, viasByDay }),
+      { initialProps: { viasByDay: {} } },
+    )
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    const asked = () => vi.mocked(calculateRouteWithLegs).mock.calls.map(call => call[0].map(p => p.lat))
+    expect(asked()).toEqual([[48.86, 48.88], [45.76, 45.78]])
+
+    rerender({ viasByDay: { 1: [via] } })
+    await waitFor(() => expect(asked()).toHaveLength(3))
+    expect(asked()[2]).toEqual([48.86, 48.95, 48.88])
+  })
+
   it('FE-MAP-TRO-013: switching the overview back on publishes a fresh frame', async () => {
     const { result, rerender } = render()
     await waitFor(() => expect(result.current.loading).toBe(false))

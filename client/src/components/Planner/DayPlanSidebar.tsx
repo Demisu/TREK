@@ -11,7 +11,8 @@ import { ChevronDown, ChevronRight, ChevronUp, Compass, RotateCcw, ExternalLink,
 import { type PickedPlace } from './TransitSearchPanel'
 import { buildTransitLeg, buildTransitNameIndex } from './transitLeg'
 import { reservationsApi, daysApi } from '../../api/client'
-import { calculateRouteWithLegs, optimizeRoute, generateGoogleMapsUrl, generateCoMapsUrl } from '../Map/RouteCalculator'
+import { optimizeRoute, generateGoogleMapsUrl, generateCoMapsUrl } from '../Map/RouteCalculator'
+import { dayViaLookup, routeLeg, type LegEnd, type ViasByDay } from '../Map/dayRouteVias'
 import GoogleMapsIcon from '../shared/GoogleMapsIcon'
 import PlaceAvatar from '../shared/PlaceAvatar'
 import ConfirmDialog from '../shared/ConfirmDialog'
@@ -131,6 +132,7 @@ export interface DayPlanSidebarProps {
   onNavigateToFiles?: () => void
   routeShown?: boolean
   routeProfile?: string
+  roadtripViasByDay?: ViasByDay
   onToggleRoute?: () => void
   onSetRouteProfile?: (profile: string) => void
   onAddPlace?: () => void
@@ -194,7 +196,7 @@ function useDayPlanSidebar(props: DayPlanSidebarProps) {
   tripId,
   trip, days, places, assignments,
   selectedDayId, selectedPlaceId, selectedAssignmentId,
-  onSelectDay, accommodations,
+  onSelectDay, accommodations, roadtripViasByDay,
   onReorder,
   onAssignToDay, onMoveToDay,
   reservations,
@@ -613,8 +615,8 @@ function useDayPlanSidebar(props: DayPlanSidebarProps) {
       // Each run point carries the ORIGIN assignment's per-segment travel mode
       // (#1281): the leg from this point to the next is routed with `mode` (null =
       // inherit the day default). Transport endpoints carry no mode → day default.
-      const runs: { id: number; lat: number; lng: number; isPlace: boolean; leg_transport_mode?: string | null; incoming_leg_transport_mode?: string | null }[][] = []
-      let cur: { id: number; lat: number; lng: number; isPlace: boolean; leg_transport_mode?: string | null; incoming_leg_transport_mode?: string | null }[] = []
+      const runs: { id: number; lat: number; lng: number; isPlace: boolean; leg_transport_mode?: string | null; incoming_leg_transport_mode?: string | null; assignmentId?: number }[][] = []
+      let cur: { id: number; lat: number; lng: number; isPlace: boolean; leg_transport_mode?: string | null; incoming_leg_transport_mode?: string | null; assignmentId?: number }[] = []
       // A run is only a real drive when it holds an actual place. Two back-to-back
       // transports (e.g. two flights on one day) would otherwise pair the first's
       // arrival with the second's departure into a phantom airport→airport leg — the
@@ -648,7 +650,7 @@ function useDayPlanSidebar(props: DayPlanSidebarProps) {
             cur = []
             curHasPlace = false
           }
-          cur.push({ id: it.data.id, lat: it.data.place.lat, lng: it.data.place.lng, isPlace: true, leg_transport_mode: it.data.leg_transport_mode ?? null, incoming_leg_transport_mode: it.data.incoming_leg_transport_mode ?? null })
+          cur.push({ id: it.data.id, assignmentId: it.data.id, lat: it.data.place.lat, lng: it.data.place.lng, isPlace: true, leg_transport_mode: it.data.leg_transport_mode ?? null, incoming_leg_transport_mode: it.data.incoming_leg_transport_mode ?? null })
           curHasPlace = true
         } else if (it.type === 'transport') {
           const r = it.data
@@ -749,7 +751,7 @@ function useDayPlanSidebar(props: DayPlanSidebarProps) {
       const legsByDay: Record<number, Record<number, RouteSegment>> = {}
       const hotelByDay: Record<number, { top?: { seg: RouteSegment; name: string; targetId?: number }; bottom?: { seg: RouteSegment; name: string; targetId?: number } }> = {}
 
-      // One cached OSRM/plugin call per waypoint pair; shares RouteCalculator's cache.
+      // One cached OSRM/plugin call per leg, through the road trip's vias (#2580); shares RouteCalculator's cache.
       // tripId/dayId ride along for plugin route profiles (the server access-checks them).
       // Resolve a leg's mode (#1281): an explicit per-segment override wins, then
       // the day's saved default, then the live picker value. Sticky by design — the
@@ -757,12 +759,9 @@ function useDayPlanSidebar(props: DayPlanSidebarProps) {
       const dayDefaultMode = (dayId: number): string =>
         days.find(d => d.id === dayId)?.default_transport_mode || routeProfile
 
-      const legBetween = async (a: { lat: number; lng: number }, b: { lat: number; lng: number }, dayId: number, mode: string): Promise<RouteSegment | undefined> => {
-        try {
-          const r = await calculateRouteWithLegs([a, b], { signal: controller.signal, profile: mode, tripId, dayId })
-          return r.legs[0] ? { ...r.legs[0], mode } : undefined
-        } catch { return undefined }
-      }
+      const viaLookup = dayViaLookup(assignments, roadtripViasByDay)
+      const legBetween = (a: LegEnd, b: LegEnd, dayId: number, mode: string) =>
+        routeLeg(a, b, viaLookup, { signal: controller.signal, profile: mode, tripId, dayId }, distanceUnit)
 
       // Collect every leg of every day first, then fetch them a few at a time.
       // Each result is stored under its own key, so nothing here depends on the
@@ -784,7 +783,7 @@ function useDayPlanSidebar(props: DayPlanSidebarProps) {
             const to = run[i + 1]
             const mode = resolveLegMode(from, to, dfMode)
             tasks.push(async () => {
-              const seg = await legBetween({ lat: from.lat, lng: from.lng }, { lat: to.lat, lng: to.lng }, dayId, mode)
+              const seg = await legBetween(from, to, dayId, mode)
               if (seg) dayLegs[from.id] = seg
             })
           }
@@ -829,7 +828,7 @@ function useDayPlanSidebar(props: DayPlanSidebarProps) {
     // routeDayIds is memoized from the same inputs as routeDayKey below, so keying the
     // effect on the string is equivalent while staying stable across unrelated renders.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeDayKey, routeProfile, mergedItemsMap, accommodations, days, optimizeFromAccommodation, distanceUnit, toursEnabled, places])
+  }, [routeDayKey, routeProfile, mergedItemsMap, accommodations, days, optimizeFromAccommodation, distanceUnit, toursEnabled, places, roadtripViasByDay])
 
   const openAddNote = (dayId, e) => {
     e?.stopPropagation()

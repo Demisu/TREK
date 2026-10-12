@@ -6,6 +6,7 @@ import {
 } from './tripRouteGeometry'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useAddonStore } from '../../store/addonStore'
+import type { RoadtripVia } from '@trek/shared'
 import type { Accommodation, AssignmentsMap, Day, Place, Reservation } from '../../types'
 
 export type { TripOverviewDay, TripRouteSummary } from './tripRouteGeometry'
@@ -18,6 +19,12 @@ export interface TripRouteOverview extends TripRouteSummary {
 const EMPTY: TripRouteOverview = { ...summariseTripRoute([]), loading: false }
 const EMPTY_PLACES: Place[] = []
 
+/** The road trip's vias and the stored day lists their anchors count in. */
+interface TripRouteVias {
+  storedAssignments: AssignmentsMap
+  viasByDay: Record<number, RoadtripVia[]>
+}
+
 /**
  * Every travel day's route at once, each day in its own colour, with the trip's total
  * distance (#1736).
@@ -26,7 +33,8 @@ const EMPTY_PLACES: Place[] = []
  * `useRouteCalculation` draws the selected day from, so a day looks identical whether
  * you are looking at it alone or at the whole trip. This hook is the React wrapper:
  * the planning and routing themselves live in `tripRouteGeometry`, so the PDF export
- * can draw the same trip without a component to hang a hook on.
+ * can draw the same trip without a component to hang a hook on. A road picked in the road
+ * trip is drawn here too (#2580).
  */
 export function useTripRouteOverview(
   tripId: number | null,
@@ -37,6 +45,7 @@ export function useTripRouteOverview(
   profile: RouteProfileKey,
   enabled: boolean,
   places: Place[] = EMPTY_PLACES,
+  vias?: TripRouteVias,
 ): TripRouteOverview {
   const optimizeFromAccommodation = useSettingsStore(s => s.settings.optimize_from_accommodation)
   const toursEnabled = useAddonStore(s => s.isEnabled('tours'))
@@ -53,18 +62,20 @@ export function useTripRouteOverview(
   const frameRef = useRef<{ tripId: number | null; points: [number, number][] } | null>(null)
   const wasEnabled = useRef(false)
 
+  const storedAssignments = vias?.storedAssignments
+  const viasByDay = vias?.viasByDay
   const plan = useMemo(
     () => (enabled
-      ? planTripRoute({ days, assignments, reservations, accommodations, optimizeFromAccommodation, toursEnabled, places }, profile)
+      ? planTripRoute({ days, assignments, reservations, accommodations, optimizeFromAccommodation, toursEnabled, places, storedAssignments, viasByDay }, profile)
       : []),
-    [enabled, days, assignments, reservations, accommodations, optimizeFromAccommodation, profile, toursEnabled, places],
+    [enabled, days, assignments, reservations, accommodations, optimizeFromAccommodation, profile, toursEnabled, places, storedAssignments, viasByDay],
   )
 
   // Only geometry and mode decide whether legs have to be fetched again: renaming a
   // place or editing its notes must not fire a routing round.
   const planKey = useMemo(
     () => plan.map(({ day, runs, tourLines }) => `${day.id}@${day.default_transport_mode ?? ''}:${runs
-      .map(chunks => chunks.map(c => `${c.mode}>${c.points.map(p => `${p.lat.toFixed(5)},${p.lng.toFixed(5)}`).join('|')}`).join('+'))
+      .map(chunks => chunks.map(c => `${c.mode}>${c.waypoints.map(p => `${p.lat.toFixed(5)},${p.lng.toFixed(5)}`).join('|')}`).join('+'))
       .join('/')}:tours=${JSON.stringify(tourLines ?? [])}`).join(';'),
     [plan],
   )
@@ -108,7 +119,7 @@ export function useTripRouteOverview(
       if (!loading && reframe) frameRef.current = { tripId, points: next.focusPoints }
       setResult({ ...next, focusPoints: loading ? frame : frameRef.current!.points, loading })
     }
-    void routeTripLegs(plan, { tripId, signal: controller.signal, onAnswer: routed => publish(routed, true) })
+    void routeTripLegs(plan, { tripId, signal: controller.signal, unit: distanceUnit, onAnswer: routed => publish(routed, true) })
       .then(routed => publish(routed, false))
 
     return () => controller.abort()

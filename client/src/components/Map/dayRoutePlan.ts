@@ -16,6 +16,8 @@ export interface DayRoutePoint {
   incoming_leg_transport_mode?: string | null
   /** Only on an accommodation bookend: the stay the day starts from or ends at. */
   hotel?: 'morning' | 'evening'
+  /** Only on a planned stop: its assignment, which the road trip's vias are filed against. */
+  assignmentId?: number
 }
 
 /**
@@ -84,7 +86,7 @@ export function buildDayRouteRuns(dayId: number, input: DayRouteInputs): DayRout
   const projected = new Map(projectDayItinerary(da, input.toursEnabled ?? false, input.places).map(item => [item.assignment.id, item]))
 
   type Entry =
-    | { kind: 'place'; lat: number; lng: number; pos: number; time: string | null; mode: string | null; incoming: string | null }
+    | { kind: 'place'; id: number; lat: number; lng: number; pos: number; time: string | null; mode: string | null; incoming: string | null }
     | { kind: 'tour'; start: { lat: number; lng: number } | null; end: { lat: number; lng: number } | null; pos: number; time: string | null; mode: string | null; incoming: string | null }
     | { kind: 'transport'; from: { lat: number; lng: number } | null; to: { lat: number; lng: number } | null; pos: number; carrier: boolean }
   const entries: Entry[] = merged.flatMap((item): Entry[] => {
@@ -99,7 +101,7 @@ export function buildDayRouteRuns(dayId: number, input: DayRouteInputs): DayRout
       }]
       if (!a.place?.lat || !a.place?.lng) return []
       return [{
-        kind: 'place', lat: a.place.lat, lng: a.place.lng, pos: item.sortKey, time: a.place?.place_time ?? null,
+        kind: 'place', id: a.id, lat: a.place.lat, lng: a.place.lng, pos: item.sortKey, time: a.place?.place_time ?? null,
         // Per-segment travel mode (#1281): mode of the leg leaving this place.
         mode: (a as { leg_transport_mode?: string | null }).leg_transport_mode ?? null,
         // Boundary-leg mode (#1281 follow-up): mode of the leg arriving at this place.
@@ -144,7 +146,7 @@ export function buildDayRouteRuns(dayId: number, input: DayRouteInputs): DayRout
       // The open run may be nothing but a far-away arrival endpoint — break rather
       // than draw the ocean.
       if (prev && !prev.isPlace && !withinDriveRange(prev, entry)) closeRun()
-      currentRun.push({ lat: entry.lat, lng: entry.lng, isPlace: true, leg_transport_mode: entry.mode, incoming_leg_transport_mode: entry.incoming })
+      currentRun.push({ lat: entry.lat, lng: entry.lng, isPlace: true, leg_transport_mode: entry.mode, incoming_leg_transport_mode: entry.incoming, assignmentId: entry.id })
       runHasPlace = true
     } else if (entry.from || entry.to) {
       const prev = currentRun[currentRun.length - 1]

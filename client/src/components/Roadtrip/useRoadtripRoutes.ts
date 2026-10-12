@@ -14,6 +14,7 @@ import { dayWindow } from './dayWindow'
 import { useTranslation } from '../../i18n/TranslationContext'
 import { stayStartingOn } from '../../utils/dayMerge'
 import { staysAtTheirPlaces } from './nightBookend'
+import { viaKeyOf } from '../Map/dayRouteVias'
 
 export type { RoadtripStop, RoadtripDay, RoadtripRoutes, QuietDay, AccessSpur, RoutedLeg, SnappedPoint } from '@trek/shared/roadtrip'
 
@@ -402,15 +403,7 @@ export function useRoadtripRoutes(
 
   // Only the geometry decides whether legs have to be re-fetched: renaming a place or
   // editing its notes must not fire a routing round.
-  const viaKey = useMemo(
-    () => Object.entries(viasByDay)
-      .map(([dayId, vias]) => `${dayId}:${vias.map(v => `${v.after_order_index}@${v.lat.toFixed(5)},${v.lng.toFixed(5)}`).join('|')}`)
-      // Only the order has to be stable — this is a cache key, not a list anybody reads
-      // — but it has to be stable on purpose rather than by default.
-      .sort((a, b) => a.localeCompare(b))
-      .join(';'),
-    [viasByDay],
-  )
+  const viaKey = useMemo(() => viaKeyOf(viasByDay), [viasByDay])
 
   const planKey = useMemo(
     () => `${plan.map(d => `${d.dayId}:${d.stops.map(stopKey).join('|')}`).join(';')}#${viaKey}`,

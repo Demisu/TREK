@@ -13,7 +13,8 @@ import { useFollowTrack } from '../../components/Roadtrip/useFollowTrack'
 import { useRefuelSearch } from '../../components/Roadtrip/useRefuelSearch'
 import { useRoadtripCorridor } from '../../components/Roadtrip/useRoadtripCorridor'
 import { useRoadtripRoutes } from '../../components/Roadtrip/useRoadtripRoutes'
-import { useRoadtripVias } from '../../components/Roadtrip/useRoadtripVias'
+import type { RoadtripVias } from '../../components/Roadtrip/useRoadtripVias'
+import { roadtripStopList } from '../../components/Map/dayRouteVias'
 import { useLoadRoadtripSettings } from '../../hooks/useRoadtripSettings'
 import { roadtripPreferencesRepo } from '../../repo/roadtripPreferencesRepo'
 import { useAuthStore } from '../../store/authStore'
@@ -35,6 +36,8 @@ interface RoadtripFeedOptions extends Pick<PlannerBase, 'tripId' | 'trip' | 'can
   /** The trip's road trip switch, already off on a phone. */
   roadtripMode: boolean
   roadtripSettings: RoadtripPreferences
+  /** The trip's vias, loaded by the planner because the day view draws them too. */
+  roadtripVias: RoadtripVias
   days: TripStoreState['days']
   storedAssignments: TripStoreState['assignments']
   /** The day lists read as a plan, without the stops only the drive wants. */
@@ -60,7 +63,7 @@ interface RoadtripFeedOptions extends Pick<PlannerBase, 'tripId' | 'trip' | 'can
  */
 export function useRoadtripFeed(options: RoadtripFeedOptions) {
   const {
-    tripId, trip, can, toast, t, isMobile, activeTab, enabledAddons, roadtripMode, roadtripSettings,
+    tripId, trip, can, toast, t, isMobile, activeTab, enabledAddons, roadtripMode, roadtripSettings, roadtripVias,
     days, storedAssignments, assignments, tripAccommodations, reservations, places, visibleConnections,
     routeProfile, mapPlaces, expandedDayIds,
   } = options
@@ -98,14 +101,6 @@ export function useRoadtripFeed(options: RoadtripFeedOptions) {
       for (const boundary of dayBoundaries.boundaries) await dayBoundaries.save(boundary.day_number, null)
     } catch (err: unknown) { toast.error(err instanceof Error ? err.message : t('common.unknownError')) }
   } : undefined
-  // Fed whenever the addon is on, not only while the mode is being looked at.
-  // The three handlers that re-anchor a day's vias (assign, remove, reorder)
-  // are reachable from the place inspector in both modes, and with an empty list
-  // they computed an empty correction and wrote nothing while the server kept
-  // every via pointing at a position that had moved. Deleting a stop with the
-  // switch off then left the detour on the wrong leg, for the traveller and for
-  // a collaborator who never turned the mode on at all.
-  const roadtripVias = useRoadtripVias(tripId, !!enabledAddons.roadtrip)
   const refuel = useRefuelSearch()
   const roadtripRoutes = useRoadtripRoutes(
     tripId,
@@ -163,11 +158,7 @@ export function useRoadtripFeed(options: RoadtripFeedOptions) {
    * it also answers for a day with one stop or none, which is exactly the day a stop
    * gets pushed onto when a leg turns out too long.
    */
-  const roadtripStopsOf = useCallback((dayId: number) =>
-    (storedAssignments[String(dayId)] ?? [])
-      .slice()
-      .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0))
-      .filter(a => typeof a.place?.lat === 'number' && typeof a.place?.lng === 'number'),
+  const roadtripStopsOf = useCallback((dayId: number) => roadtripStopList(storedAssignments[String(dayId)]),
   [storedAssignments])
 
   /**
