@@ -121,7 +121,9 @@ describe('MReservationCardParts', () => {
   });
 
   it('FE-COMP-MRESCARD-009: a booking with a linked expense says the expense is deleted with it (#2604)', () => {
-    render(<CardDeleteSheet title="LH 400" card={cardState({ confirmingDelete: true, deleteTakesExpense: true })} t={t} />);
+    render(
+      <CardDeleteSheet title="LH 400" card={cardState({ confirmingDelete: true, deleteTakesExpense: true })} t={t} />
+    );
 
     expect(screen.getByText('reservations.confirm.deleteBodyWithExpense:LH 400')).toBeInTheDocument();
   });

@@ -22,7 +22,9 @@ describe('usePlanMapViewport', () => {
   });
 
   it('raeumt ihn auch weg, sobald die Karte nicht mehr zu sehen ist, und nimmt dann nichts an', () => {
-    const { result, rerender } = renderHook(({ shown }) => usePlanMapViewport(5, shown), { initialProps: { shown: true } });
+    const { result, rerender } = renderHook(({ shown }) => usePlanMapViewport(5, shown), {
+      initialProps: { shown: true },
+    });
     act(() => result.current(KYOTO));
     rerender({ shown: false });
     expect(useTripStore.getState().planMapViewport).toBeNull();

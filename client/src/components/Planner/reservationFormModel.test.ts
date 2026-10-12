@@ -181,16 +181,24 @@ describe('reservation dates', () => {
     expect(endTimeBeforeStartTime(overnight)).toBe(true);
     // Time zones can make a booking end "before" it starts, so the save stays open.
     expect(isEndBeforeStart(overnight)).toBe(false);
-    expect(endTimeBeforeStartTime(form({ reservation_time: '2026-11-24T09:00', reservation_end_time: '18:00' }))).toBe(false);
-    expect(endTimeBeforeStartTime(form({ reservation_time: '2026-11-24T18:00', reservation_end_time: '18:00' }))).toBe(false);
+    expect(endTimeBeforeStartTime(form({ reservation_time: '2026-11-24T09:00', reservation_end_time: '18:00' }))).toBe(
+      false
+    );
+    expect(endTimeBeforeStartTime(form({ reservation_time: '2026-11-24T18:00', reservation_end_time: '18:00' }))).toBe(
+      false
+    );
     // With the next day as end date the times are fine, and an end date of its own is checked by isEndBeforeStart.
     expect(
-      endTimeBeforeStartTime(form({ reservation_time: '2026-11-24T18:00', end_date: '2026-11-25', reservation_end_time: '09:00' }))
+      endTimeBeforeStartTime(
+        form({ reservation_time: '2026-11-24T18:00', end_date: '2026-11-25', reservation_end_time: '09:00' })
+      )
     ).toBe(false);
     expect(endTimeBeforeStartTime(form({ reservation_time: '2026-11-24', reservation_end_time: '09:00' }))).toBe(false);
     expect(endTimeBeforeStartTime(form({ reservation_end_time: '09:00' }))).toBe(false);
     expect(
-      endTimeBeforeStartTime(form({ type: 'hotel', reservation_time: '2026-11-24T18:00', reservation_end_time: '09:00' }))
+      endTimeBeforeStartTime(
+        form({ type: 'hotel', reservation_time: '2026-11-24T18:00', reservation_end_time: '09:00' })
+      )
     ).toBe(false);
   });
 
