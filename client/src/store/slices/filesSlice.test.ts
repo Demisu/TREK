@@ -1,9 +1,10 @@
-// FE-STORE-FILES-001 to FE-STORE-FILES-007
+// FE-STORE-FILES-001 to FE-STORE-FILES-010
 import { http, HttpResponse } from 'msw';
 import { server } from '../../../tests/helpers/msw/server';
 import { resetAllStores, seedStore } from '../../../tests/helpers/store';
 import { buildTripFile } from '../../../tests/helpers/factories';
 import { useTripStore } from '../tripStore';
+import { clearAll, offlineDb } from '../../db/offlineDb';
 
 /**
  * unlinkFileFromReservation (#2084): a file can sit on a booking two ways, through
@@ -115,5 +116,54 @@ describe('filesSlice.unlinkFileFromReservation', () => {
     ).rejects.toThrow('Link locked');
     // The reload in finally replaced the list all the same.
     expect(useTripStore.getState().files.map(f => f.id)).toEqual([99]);
+  });
+});
+
+/**
+ * Offline (#2601): a file moved to the trash or taken off a booking waits in the
+ * queue instead of failing, and an upload says it needs a connection.
+ */
+describe('filesSlice offline', () => {
+  function setOnline(v: boolean): void {
+    Object.defineProperty(navigator, 'onLine', { value: v, writable: true, configurable: true });
+  }
+
+  beforeEach(async () => {
+    resetAllStores();
+    await clearAll();
+    setOnline(false);
+  });
+
+  afterEach(() => {
+    setOnline(true);
+  });
+
+  it('FE-STORE-FILES-008: a file moved to the trash offline leaves the list and its DELETE waits', async () => {
+    seedStore(useTripStore, { files: [buildTripFile({ id: 7, trip_id: 1 }), buildTripFile({ id: 8, trip_id: 1 })] });
+
+    await useTripStore.getState().deleteFile(1, 7);
+
+    expect(useTripStore.getState().files.map((f) => f.id)).toEqual([8]);
+    const [mutation] = await offlineDb.mutationQueue.toArray();
+    expect(mutation).toMatchObject({ method: 'DELETE', url: '/trips/1/files/7' });
+  });
+
+  it('FE-STORE-FILES-009: a file uploaded on the booking comes off it offline without asking for its link rows', async () => {
+    const file = buildTripFile({ id: 7, trip_id: 1, reservation_id: 9, linked_reservation_ids: [] });
+    await offlineDb.tripFiles.put(file);
+
+    await useTripStore.getState().unlinkFileFromReservation(1, file, 9);
+
+    const [mutation] = await offlineDb.mutationQueue.toArray();
+    expect(mutation).toMatchObject({ method: 'PUT', url: '/trips/1/files/7', body: { reservation_id: null } });
+    expect(useTripStore.getState().files).toEqual([expect.objectContaining({ id: 7, reservation_id: null })]);
+  });
+
+  it('FE-STORE-FILES-010: an upload offline throws the hint key and keeps the list', async () => {
+    seedStore(useTripStore, { files: [buildTripFile({ id: 7, trip_id: 1 })] });
+
+    await expect(useTripStore.getState().addFile(1, new FormData())).rejects.toThrow('files.uploadNeedsConnection');
+
+    expect(useTripStore.getState().files.map((f) => f.id)).toEqual([7]);
   });
 });

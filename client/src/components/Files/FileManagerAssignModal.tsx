@@ -7,6 +7,7 @@ import { transportIcon } from './FileManager.helpers'
 import { planFileLinkToggle, runFileLinkRecordStep, type FileLinkField } from './fileActions'
 import { DialogHeader, DialogShell, DialogTile, NEUTRAL_TINT } from '../shared/DialogShell'
 import { EditorField, INPUT } from '../shared/dialogParts'
+import { translateApiError } from '../../i18n'
 
 export function AssignModal(S: FileManagerState) {
   const { files, assignFileId, setAssignFileId, t, days, assignments, places, reservations, tripId, handleAssign, refreshFiles } = S
@@ -22,8 +23,9 @@ export function AssignModal(S: FileManagerState) {
     try {
       await runFileLinkRecordStep(tripId, file.id, field, targetId, step.kind)
       refreshFiles()
-    } catch {
-      // A failed link record change stays quiet.
+    } catch (err) {
+      // Offline a link record cannot be removed, and the hint says so.
+      S.toast.error(translateApiError(t, err, 'files.toast.assignError'))
     }
   }
   return (

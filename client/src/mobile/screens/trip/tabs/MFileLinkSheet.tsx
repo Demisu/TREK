@@ -5,6 +5,7 @@ import MSheet from '../../../components/MSheet'
 import { PHONE_FILE_LINK_RULES, toggleFileLink, type FileLinkField } from '../../../../components/Files/fileActions'
 import { linkedFileIds } from '../../../../components/Files/fileListRules'
 import type { TripFile } from '../../../../types'
+import { translateApiError } from '../../../../i18n'
 import type { TripPlanner } from '../MTripShell'
 import { Eyebrow, TileHeader } from '../sheets/MTripSheetUi'
 
@@ -46,8 +47,8 @@ export default function MFileLinkSheet({ planner, file, onClose }: MFileLinkShee
     try {
       await toggleFileLink(tripId, shown, field, targetId, PHONE_FILE_LINK_RULES)
       refresh()
-    } catch {
-      toast.error(t('files.toast.assignError'))
+    } catch (err) {
+      toast.error(translateApiError(t, err, 'files.toast.assignError'))
     } finally {
       setBusyKey(null)
     }

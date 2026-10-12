@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type ClipboardEvent } fr
 import { Link, Loader2, MoreVertical, Star } from 'lucide-react'
 import MDancingTrek from '../../../components/MDancingTrek'
 import { useTranslation, translateApiError } from '../../../../i18n'
-import { filesApi } from '../../../../api/client'
+import { fileRepo } from '../../../../repo/fileRepo'
 import { openFile } from '../../../../utils/fileDownload'
 import { isMedia, formatSize } from '../../../../components/Files/FileManager.helpers'
 import type { TripFile } from '../../../../types'
@@ -27,9 +27,8 @@ import {
  * (spec 03 §5.2). Upload and Trash are triggered from the shell's header
  * (shell.uploadFilesSignal / shell.openFilesTrashSignal, watched below, same
  * pattern as useTodoList.ts's addItemSignal) since those buttons live outside
- * this panel. Star/rename-note/link run straight against filesApi (§7.3);
- * add/delete run through planner.tripActions (§7.3 — the only two file
- * mutations the store owns).
+ * this panel. Star/rename-note/link run through fileRepo, so offline they
+ * wait in the queue; add/delete run through planner.tripActions (§7.3).
  */
 export default function MFilesTab({ planner, shell }: MTabScreenProps) {
   const { t } = planner
@@ -117,10 +116,10 @@ export default function MFilesTab({ planner, shell }: MTabScreenProps) {
     lastDocSyncSignal.current = shell.openDocSyncSignal
   }, [shell.openDocSyncSignal])
 
-  // ── Star toggle (ungated, §7.6) — direct filesApi call + store refresh, same as §7.3. ──
+  // ── Star toggle (ungated, §7.6): through fileRepo, then a store refresh. ──
   const toggleStar = async (file: TripFile) => {
     try {
-      await filesApi.toggleStar(planner.tripId, file.id)
+      await fileRepo.toggleStar(planner.tripId, file.id)
       planner.tripActions.loadFiles(planner.tripId)
     } catch {
       planner.toast.error(t('files.toast.assignError'))

@@ -7,6 +7,7 @@ import type { useTourPlaceIds } from '../../hooks/useTourPlaceIds'
 import { translateApiError } from '../../i18n'
 import { useAuthStore } from '../../store/authStore'
 import { useTripStore, type TripStoreState } from '../../store/tripStore'
+import { isEffectivelyOffline } from '../../sync/networkMode'
 import type { Accommodation, Place } from '../../types'
 import { capturePlaceVisits, deleteLosesDependents, restorePlace } from './placeUndo'
 import type { PlannerBase, PlannerHistory } from './plannerTypes'
@@ -91,6 +92,9 @@ export function usePlaceEdits(options: PlaceEditsOptions) {
 
   const handleSavePlace = useCallback(async (data) => {
     const pendingFiles = data._pendingFiles
+    // A file cannot wait in the offline queue the way the place can, so the form
+    // stays open with them instead of saving a place that loses them.
+    if (pendingFiles?.length > 0 && isEffectivelyOffline()) throw new Error(t('files.placeFilesNeedConnection'))
     delete data._pendingFiles
     // Where a service stop added by hand belongs on the drive. The form worked it out
     // from the coordinates being saved, because until a place was chosen in it there

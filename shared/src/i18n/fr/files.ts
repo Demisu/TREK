@@ -65,5 +65,9 @@ const files: TranslationStrings = {
     'Supprimer définitivement tous les fichiers de la corbeille ? Cette action est irréversible.',
   'files.noteLabel': 'Note',
   'files.notePlaceholder': 'Ajouter une note…',
+  'files.uploadNeedsConnection': 'L’envoi nécessite une connexion. Réessaie quand TREK sera de nouveau en ligne.',
+  'files.linkNeedsConnection': 'Retirer ce lien nécessite une connexion. Réessaie quand TREK sera de nouveau en ligne.',
+  'files.placeFilesNeedConnection':
+    'Les fichiers ont besoin d’une connexion pour être envoyés. Retire les nouveaux pour enregistrer le lieu hors ligne, ou enregistre une fois de nouveau en ligne.',
 };
 export default files;

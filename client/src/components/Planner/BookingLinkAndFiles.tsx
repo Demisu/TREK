@@ -1,7 +1,7 @@
 import type { ChangeEvent, RefObject } from 'react'
 import { ExternalLink, FileText, Link2, X } from 'lucide-react'
 import { useTripStore } from '../../store/tripStore'
-import { useTranslation } from '../../i18n'
+import { translateApiError, useTranslation } from '../../i18n'
 import { useToast } from '../shared/Toast'
 import { openFile } from '../../utils/fileDownload'
 import { BookingFileButtons } from './BookingFileButtons'
@@ -50,7 +50,7 @@ export function BookingLinkAndFiles({
   const linkable = reservationId ? tripFiles.filter(f => !f.deleted_at && !attachedFiles.some(af => af.id === f.id)) : []
   const detach = async (file: TripFile) => {
     if (!tripId || !reservationId) return
-    try { await unlinkFile(tripId, file, reservationId) } catch { toast.error(t('reservations.toast.updateError')) }
+    try { await unlinkFile(tripId, file, reservationId) } catch (err) { toast.error(translateApiError(t, err, 'reservations.toast.updateError')) }
     onDetached(file.id)
   }
 

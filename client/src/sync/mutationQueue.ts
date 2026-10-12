@@ -15,7 +15,7 @@ import type { QueuedMutation } from '../db/offlineDb'
 import type { Table } from 'dexie'
 import { roadtripPreferencesResponseSchema, assignmentSchema, tourCreateResponseSchema, type TourCreateResponse } from '@trek/shared'
 import { cacheAssignment } from '../db/cacheAssignment'
-import type { BudgetItem, BudgetItemMember, Reservation } from '../types'
+import type { BudgetItem, BudgetItemMember, Reservation, TripFile } from '../types'
 
 // Map Dexie table names used in `resource` field → actual Dexie tables.
 function getTable(resource: string): Table | undefined {
@@ -290,6 +290,18 @@ async function reconcileReservation(mutation: QueuedMutation, data: unknown, idM
 }
 
 /**
+ * A replayed file write. Only `file` names the file: the link route answers
+ * `{ success, links }`, and the file routes answer the stored row without the
+ * ids of its further links, so the ones the local copy holds stay.
+ */
+async function reconcileTripFile(data: unknown): Promise<void> {
+  const file = (data && typeof data === 'object' ? data : {}) as { file?: TripFile }
+  if (!file.file || typeof file.file.id !== 'number') return
+  const local = await offlineDb.tripFiles.get(file.file.id)
+  await offlineDb.tripFiles.put({ ...local, ...file.file })
+}
+
+/**
  * A replayed tour write. The answer names the tour by its place, so the
  * offline place and facet move from the temporary id to the real one. The
  * place keeps its offline copy until the next list replaces it: the server
@@ -529,6 +541,8 @@ export const mutationQueue = {
             await reconcileBudgetItem(mutation, response.data, idMap)
           } else if (mutation.resource === 'reservations' && mutation.method !== 'DELETE') {
             await reconcileReservation(mutation, response.data, idMap)
+          } else if (mutation.resource === 'tripFiles' && mutation.method !== 'DELETE') {
+            await reconcileTripFile(response.data)
           } else if (mutation.method !== 'DELETE' && mutation.resource) {
             const table = getTable(mutation.resource)
             if (table && response.data && typeof response.data === 'object') {

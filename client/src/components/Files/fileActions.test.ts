@@ -1,4 +1,4 @@
-// FE-FILES-ACTIONS-001 to FE-FILES-ACTIONS-020: the paste, link, field save and trash rules the
+// FE-FILES-ACTIONS-001 to FE-FILES-ACTIONS-021: the paste, link, field save and trash rules the
 // desktop file manager and the phone's files tab and sheets share, with what each view keeps.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -242,5 +242,29 @@ describe('trashFileWithToast', () => {
     expect(fb.toast.success).not.toHaveBeenCalled();
     expect(onTrashed).not.toHaveBeenCalled();
     expect(fb.toast.error).toHaveBeenCalledWith('files.toast.deleteError');
+  });
+});
+
+describe('link toggles offline (#2601)', () => {
+  afterEach(() => {
+    Object.defineProperty(navigator, 'onLine', { value: true, writable: true, configurable: true });
+    vi.restoreAllMocks();
+  });
+
+  it('FE-FILES-ACTIONS-021: the column and a new record wait in the queue, removing a record says it needs a connection', async () => {
+    Object.defineProperty(navigator, 'onLine', { value: false, writable: true, configurable: true });
+    const update = vi.spyOn(filesApi, 'update');
+    const addLink = vi.spyOn(filesApi, 'addLink');
+    const getLinks = vi.spyOn(filesApi, 'getLinks');
+
+    await toggleFileLink(1, buildTripFile({ id: 9, place_id: null }), 'place_id', 5);
+    await toggleFileLink(1, buildTripFile({ id: 9, place_id: 1 }), 'place_id', 6);
+    await expect(
+      toggleFileLink(1, buildTripFile({ id: 9, place_id: 1, linked_place_ids: [6] }), 'place_id', 6)
+    ).rejects.toThrow('files.linkNeedsConnection');
+
+    expect(update).not.toHaveBeenCalled();
+    expect(addLink).not.toHaveBeenCalled();
+    expect(getLinks).not.toHaveBeenCalled();
   });
 });

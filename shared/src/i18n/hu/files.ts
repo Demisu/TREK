@@ -64,5 +64,9 @@ const files: TranslationStrings = {
   'files.confirm.emptyTrash': 'Véglegesen törlöd az összes kukába helyezett fájlt? Ez nem vonható vissza.',
   'files.noteLabel': 'Megjegyzés',
   'files.notePlaceholder': 'Megjegyzés hozzáadása...',
+  'files.uploadNeedsConnection': 'A feltöltéshez kapcsolat kell. Próbáld újra, amikor a TREK ismét online.',
+  'files.linkNeedsConnection': 'A hivatkozás eltávolításához kapcsolat kell. Próbáld újra, amikor a TREK ismét online.',
+  'files.placeFilesNeedConnection':
+    'A fájlok feltöltéséhez kapcsolat kell. Távolítsd el az újakat, hogy a helyet offline mentsd, vagy ments, amikor újra online vagy.',
 };
 export default files;

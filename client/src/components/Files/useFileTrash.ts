@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { filesApi } from '../../api/client';
 import type { useTranslation } from '../../i18n';
+import { fileRepo } from '../../repo/fileRepo';
 import type { TripFile } from '../../types';
 import type { useToast } from '../shared/Toast';
 
@@ -31,7 +31,7 @@ export function useFileTrash({ tripId, t, toast, onRestored, open }: FileTrashOp
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await filesApi.list(tripId, true);
+      const data = await fileRepo.listTrash(tripId);
       setFiles(data.files || []);
     } catch {
       // An unreachable trash shows as empty.
@@ -43,8 +43,8 @@ export function useFileTrash({ tripId, t, toast, onRestored, open }: FileTrashOp
     if (!open) return;
     let cancelled = false;
     setLoading(true);
-    filesApi
-      .list(tripId, true)
+    fileRepo
+      .listTrash(tripId)
       .then((data: { files?: TripFile[] }) => {
         if (!cancelled) setFiles(data.files || []);
       })
@@ -59,7 +59,11 @@ export function useFileTrash({ tripId, t, toast, onRestored, open }: FileTrashOp
 
   const restore = async (fileId: number) => {
     try {
-      await filesApi.restore(tripId, fileId);
+      await fileRepo.restore(
+        tripId,
+        fileId,
+        files.find((f) => f.id === fileId)
+      );
       setFiles((prev) => prev.filter((f) => f.id !== fileId));
       onRestored();
       toast.success(t('files.toast.restored'));
@@ -70,7 +74,7 @@ export function useFileTrash({ tripId, t, toast, onRestored, open }: FileTrashOp
 
   const permanentDelete = async (fileId: number) => {
     try {
-      await filesApi.permanentDelete(tripId, fileId);
+      await fileRepo.permanentDelete(tripId, fileId);
       setFiles((prev) => prev.filter((f) => f.id !== fileId));
       toast.success(t('files.toast.deleted'));
     } catch {
@@ -80,7 +84,7 @@ export function useFileTrash({ tripId, t, toast, onRestored, open }: FileTrashOp
 
   const emptyTrash = async () => {
     try {
-      await filesApi.emptyTrash(tripId);
+      await fileRepo.emptyTrash(tripId);
       setFiles([]);
       toast.success(t('files.toast.trashEmptied'));
     } catch {

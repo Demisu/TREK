@@ -61,5 +61,8 @@ const files: TranslationStrings = {
   'files.confirm.emptyTrash': '永久删除回收站中的所有文件？此操作无法撤销。',
   'files.noteLabel': '备注',
   'files.notePlaceholder': '添加备注...',
+  'files.uploadNeedsConnection': '上传需要网络连接。请在 TREK 恢复在线后重试。',
+  'files.linkNeedsConnection': '移除此关联需要网络连接。请在 TREK 恢复在线后重试。',
+  'files.placeFilesNeedConnection': '文件需要网络连接才能上传。移除新文件即可离线保存该地点，或在恢复在线后再保存。',
 };
 export default files;

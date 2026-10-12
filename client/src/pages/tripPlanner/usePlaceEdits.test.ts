@@ -1,4 +1,4 @@
-// FE-TP-PLACEEDITS-001 to FE-TP-PLACEEDITS-016
+// FE-TP-PLACEEDITS-001 to FE-TP-PLACEEDITS-017
 //
 // Writes to the trip's places, driven straight through usePlaceEdits. The store holds
 // the places and day lists the delete and category handlers capture for their undo,
@@ -459,5 +459,26 @@ describe('usePlaceEdits', () => {
     await act(async () => { await result.current.confirmChangeCategory([1, 2], 4) })
 
     expect(fixed.pushUndo).toHaveBeenCalledWith('undo.changeCategory', expect.any(Function), undefined, [1, 2])
+  })
+
+  it('FE-TP-PLACEEDITS-017: offline, a save with new files is refused before anything is written', async () => {
+    Object.defineProperty(navigator, 'onLine', { value: false, writable: true, configurable: true })
+    try {
+      const { result } = renderEdits({ editingPlace: lake })
+      let refused: unknown
+      await act(async () => {
+        await result.current.handleSavePlace({ name: 'Lake', _pendingFiles: [new File(['x'], 'a.pdf')] }).catch((err: unknown) => { refused = err })
+      })
+
+      expect(refused).toEqual(new Error('files.placeFilesNeedConnection'))
+      expect(actions.updatePlace).not.toHaveBeenCalled()
+      expect(actions.addFile).not.toHaveBeenCalled()
+
+      // Without new files the place saves offline as before.
+      await act(async () => { await result.current.handleSavePlace({ name: 'Lake' }) })
+      expect(actions.updatePlace).toHaveBeenCalledWith(42, 1, { name: 'Lake' })
+    } finally {
+      Object.defineProperty(navigator, 'onLine', { value: true, writable: true, configurable: true })
+    }
   })
 })

@@ -61,5 +61,9 @@ const files: TranslationStrings = {
   'files.confirm.emptyTrash': 'ゴミ箱内のファイルをすべて完全に削除しますか？元に戻せません。',
   'files.noteLabel': 'メモ',
   'files.notePlaceholder': 'メモを追加...',
+  'files.uploadNeedsConnection': 'アップロードには接続が必要です。TREKがオンラインに戻ったらもう一度お試しください。',
+  'files.linkNeedsConnection': 'このリンクの解除には接続が必要です。TREKがオンラインに戻ったらもう一度お試しください。',
+  'files.placeFilesNeedConnection':
+    'ファイルのアップロードには接続が必要です。新しいファイルを外して場所をオフラインで保存するか、オンラインに戻ってから保存してください。',
 };
 export default files;

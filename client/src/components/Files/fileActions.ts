@@ -1,4 +1,4 @@
-import { filesApi } from '../../api/client';
+import { fileRepo } from '../../repo/fileRepo';
 import type { TranslationFn, TripFile } from '../../types';
 import type { useToast } from '../shared/Toast';
 
@@ -71,7 +71,11 @@ interface FileLinkRecord {
   reservation_id?: number | string | null;
 }
 
-/** Runs an `addLink` or `removeLink` step against the server. */
+/**
+ * Runs an `addLink` or `removeLink` step. Adding one waits in the offline queue;
+ * removing one needs the server to name the link record, so offline it throws
+ * the hint that says so.
+ */
 export async function runFileLinkRecordStep(
   tripId: number,
   fileId: number,
@@ -81,18 +85,16 @@ export async function runFileLinkRecordStep(
   rules: FileLinkRules = {}
 ): Promise<void> {
   if (step === 'addLink') {
-    await filesApi.addLink(
+    await fileRepo.addLink(
       tripId,
       fileId,
       field === 'place_id' ? { place_id: targetId } : { reservation_id: targetId }
     );
     return;
   }
-  const linksRes = (await filesApi.getLinks(tripId, fileId)) as { links?: FileLinkRecord[] };
-  const link = (linksRes.links || []).find((l) =>
+  await fileRepo.removeLinkTo(tripId, fileId, (l: FileLinkRecord) =>
     rules.matchRecordsByNumber ? Number(l[field]) === targetId : l[field] === targetId
   );
-  if (link) await filesApi.removeLink(tripId, fileId, link.id);
 }
 
 /** Toggles one place or booking on a file, whichever of the server calls that takes. */
@@ -104,7 +106,7 @@ export async function toggleFileLink(
   rules: FileLinkRules = {}
 ): Promise<void> {
   const step = planFileLinkToggle(file, field, targetId, rules);
-  if (step.kind === 'update') await filesApi.update(tripId, file.id, step.data);
+  if (step.kind === 'update') await fileRepo.update(tripId, file.id, step.data);
   else await runFileLinkRecordStep(tripId, file.id, field, targetId, step.kind, rules);
 }
 
@@ -128,12 +130,12 @@ export const PHONE_FILE_UPDATE_RULES: FileUpdateRules = { awaitRefresh: true };
 export async function updateFileFields(
   tripId: number,
   fileId: number,
-  data: Parameters<typeof filesApi.update>[2],
+  data: Parameters<typeof fileRepo.update>[2],
   { t, toast, refresh }: FileFeedback & { refresh: () => unknown },
   rules: FileUpdateRules = {}
 ): Promise<void> {
   try {
-    await filesApi.update(tripId, fileId, data);
+    await fileRepo.update(tripId, fileId, data);
     if (rules.awaitRefresh) await refresh();
     else void refresh();
   } catch {

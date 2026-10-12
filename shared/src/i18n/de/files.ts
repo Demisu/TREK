@@ -64,5 +64,11 @@ const files: TranslationStrings = {
   'files.confirm.emptyTrash': 'Alle Dateien im Papierkorb endgültig löschen? Das kann nicht rückgängig gemacht werden.',
   'files.noteLabel': 'Notiz',
   'files.notePlaceholder': 'Notiz hinzufügen...',
+  'files.uploadNeedsConnection':
+    'Zum Hochladen braucht es eine Verbindung. Versuch es noch einmal, sobald TREK wieder online ist.',
+  'files.linkNeedsConnection':
+    'Diese Verknüpfung lässt sich nur mit Verbindung entfernen. Versuch es noch einmal, sobald TREK wieder online ist.',
+  'files.placeFilesNeedConnection':
+    'Dateien brauchen zum Hochladen eine Verbindung. Entferne die neuen, um den Ort offline zu speichern, oder speichere, sobald du wieder online bist.',
 };
 export default files;

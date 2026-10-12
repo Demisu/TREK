@@ -64,5 +64,10 @@ const files: TranslationStrings = {
   'files.confirm.emptyTrash': 'Çöp kutusundaki tüm dosyalar kalıcı olarak silinsin mi? Bu işlem geri alınamaz.',
   'files.noteLabel': 'Not',
   'files.notePlaceholder': 'Not ekleyin...',
+  'files.uploadNeedsConnection': 'Yükleme için bağlantı gerekiyor. TREK yeniden çevrimiçi olduğunda tekrar dene.',
+  'files.linkNeedsConnection':
+    'Bu bağlantıyı kaldırmak için internet bağlantısı gerekiyor. TREK yeniden çevrimiçi olduğunda tekrar dene.',
+  'files.placeFilesNeedConnection':
+    'Dosyaları yüklemek için bağlantı gerekiyor. Yeri çevrimdışı kaydetmek için yenilerini kaldır ya da yeniden çevrimiçi olduğunda kaydet.',
 };
 export default files;

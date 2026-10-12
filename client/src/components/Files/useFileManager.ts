@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useToast } from '../shared/Toast'
 import { useTranslation, translateApiError } from '../../i18n'
-import { filesApi } from '../../api/client'
+import { fileRepo } from '../../repo/fileRepo'
 import type { Place, Reservation, TripFile, Day, AssignmentsMap } from '../../types'
 import { useCanDo } from '../../store/permissionsStore'
 import { useTripStore } from '../../store/tripStore'
@@ -66,7 +66,7 @@ export function useFileManager({ files = [], onUpload, onDelete, onUpdate, place
 
   const handleStar = async (fileId: number) => {
     try {
-      await filesApi.toggleStar(tripId, fileId)
+      await fileRepo.toggleStar(tripId, fileId)
       refreshFiles()
     } catch { /* */ }
   }

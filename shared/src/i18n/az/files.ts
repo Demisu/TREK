@@ -76,6 +76,11 @@ const files: TranslationStrings = {
 
   'files.noteLabel': 'Qeyd',
   'files.notePlaceholder': 'Qeyd əlavə edin...',
+  'files.uploadNeedsConnection': 'Yükləmək üçün bağlantı lazımdır. TREK yenidən onlayn olduqda bir daha cəhd edin.',
+  'files.linkNeedsConnection':
+    'Bu əlaqəni silmək üçün bağlantı lazımdır. TREK yenidən onlayn olduqda bir daha cəhd edin.',
+  'files.placeFilesNeedConnection':
+    'Faylları yükləmək üçün bağlantı lazımdır. Məkanı oflayn saxlamaq üçün yeni faylları silin və ya yenidən onlayn olduqda saxlayın.',
 };
 
 export default files;

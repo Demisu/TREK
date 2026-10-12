@@ -191,7 +191,7 @@ describe('MFilesTab', () => {
     const { planner } = renderTab()
     expect(screen.getByRole('button', { name: 'files.unstar' })).toBeInTheDocument()
     fireEvent.click(screen.getAllByRole('button', { name: 'files.star' })[0])
-    expect(filesApi.toggleStar).toHaveBeenCalledWith(1, 1)
+    await waitFor(() => expect(filesApi.toggleStar).toHaveBeenCalledWith(1, 1))
     await waitFor(() => expect(planner.tripActions.loadFiles).toHaveBeenCalledWith(1))
   })
 

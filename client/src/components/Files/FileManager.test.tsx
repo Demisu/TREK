@@ -168,7 +168,7 @@ describe('FileManager', () => {
     const starBtn = screen.getByRole('button', { name: /star/i });
     await user.click(starBtn);
 
-    expect(filesApi.toggleStar).toHaveBeenCalledWith(1, 1);
+    await waitFor(() => expect(filesApi.toggleStar).toHaveBeenCalledWith(1, 1));
   });
 
   it('FE-COMP-FILEMANAGER-006: trash toggle loads and displays trashed files', async () => {
@@ -207,7 +207,7 @@ describe('FileManager', () => {
     const restoreBtn = screen.getByRole('button', { name: /restore/i });
     await user.click(restoreBtn);
 
-    expect(filesApi.restore).toHaveBeenCalledWith(1, 5);
+    await waitFor(() => expect(filesApi.restore).toHaveBeenCalledWith(1, 5));
   });
 
   it('FE-COMP-FILEMANAGER-008: permanent delete calls filesApi.permanentDelete after confirm', async () => {

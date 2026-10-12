@@ -67,5 +67,9 @@ const files: TranslationStrings = {
   'files.confirm.emptyTrash': 'Trvale smazat všechny soubory v koši? Tuto akci nelze vrátit.',
   'files.noteLabel': 'Poznámka',
   'files.notePlaceholder': 'Přidat poznámku...',
+  'files.uploadNeedsConnection': 'Nahrávání vyžaduje připojení. Zkus to znovu, až bude TREK zase online.',
+  'files.linkNeedsConnection': 'Odebrání tohoto propojení vyžaduje připojení. Zkus to znovu, až bude TREK zase online.',
+  'files.placeFilesNeedConnection':
+    'Soubory potřebují k nahrání připojení. Odeber nové, abys místo uložil offline, nebo ulož, až budeš zase online.',
 };
 export default files;
