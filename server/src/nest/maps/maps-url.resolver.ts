@@ -34,12 +34,14 @@ export type MapsLink =
   { kind: 'resolved'; result: ResolvedMapsUrl } | { kind: 'amap'; lat: number; lng: number; name: string | null };
 
 // Extract coordinates from a string (URL or page body). Google Maps encodes
-// them several ways: /@lat,lng,zoom · !3dlat!4dlng (map data param) · ?q=/?ll=.
+// them several ways: !3dlat!4dlng (map data param) · /@lat,lng,zoom · ?q=/?ll=.
+// The data param is the place itself, while @ is only where the camera looks,
+// often a hundred metres off on a place link, so the data param wins (#2635).
 function extractCoords(s: string): { lat: number; lng: number } | null {
-  const at = s.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-  if (at) return { lat: Number.parseFloat(at[1]), lng: Number.parseFloat(at[2]) };
   const data = s.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
   if (data) return { lat: Number.parseFloat(data[1]), lng: Number.parseFloat(data[2]) };
+  const at = s.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if (at) return { lat: Number.parseFloat(at[1]), lng: Number.parseFloat(at[2]) };
   const q = s.match(/[?&](?:q|ll)=(-?\d+\.\d+),(-?\d+\.\d+)/);
   if (q) return { lat: Number.parseFloat(q[1]), lng: Number.parseFloat(q[2]) };
   return null;
