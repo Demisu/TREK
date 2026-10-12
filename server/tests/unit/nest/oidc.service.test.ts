@@ -125,7 +125,13 @@ const orm = () => sharedTestOrm(testDb);
 /** Writes columns of the user row directly, the state a login starts from. */
 async function setUserColumns(
   userId: number,
-  data: { oidc_sub?: string | null; oidc_issuer?: string | null; avatar?: string | null; updated_at?: string },
+  data: {
+    oidc_sub?: string | null;
+    oidc_issuer?: string | null;
+    avatar?: string | null;
+    updated_at?: string;
+    email_self_asserted?: number;
+  },
 ): Promise<void> {
   await updateRows(await orm(), Users, { id: userId }, data);
 }
@@ -1029,6 +1035,147 @@ describe('findOrCreateUser', () => {
 });
 
 // ── claim-based role mapping on login (#2364) ────────────────────────────────
+
+// A sign-in that finds an account only through its email address. The address is
+// proof of nothing when the account typed it in itself (signup, profile settings):
+// whoever did that would otherwise get every later SSO login for that address.
+describe('findOrCreateUser linking by email', () => {
+  const SELF = { email_self_asserted: 1 };
+
+  it('OIDC-SVC-100: a verified sign-in is not linked to an account that set this email itself', async () => {
+    const { user } = createUser(testDb, { email: 'colleague@corp.test' });
+    await setUserColumns(user.id, { oidc_sub: null, oidc_issuer: null, ...SELF });
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      const result = await svc.findOrCreateUser(
+        { sub: 'victim-sub', email: 'colleague@corp.test', name: 'Colleague', email_verified: true },
+        MOCK_CONFIG,
+      );
+
+      expect(result).toEqual({ error: 'email_link_blocked' });
+      const row = await readUser(await orm(), user.id);
+      expect({ oidc_sub: row.oidc_sub, oidc_issuer: row.oidc_issuer }).toEqual({ oidc_sub: null, oidc_issuer: null });
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it('OIDC-SVC-101: an unverified sign-in against such an account says email_not_verified, not that the account exists', async () => {
+    const { user } = createUser(testDb, { email: 'quiet@corp.test' });
+    await setUserColumns(user.id, { oidc_sub: null, oidc_issuer: null, ...SELF });
+
+    const result = await svc.findOrCreateUser({ sub: 'other-sub', email: 'quiet@corp.test' }, MOCK_CONFIG);
+
+    expect(result).toEqual({ error: 'email_not_verified' });
+    expect((await readUser(await orm(), user.id)).oidc_sub).toBeNull();
+  });
+
+  it('OIDC-SVC-102: an account an admin created still links on its first verified sign-in', async () => {
+    const { user } = createUser(testDb, { email: 'made-by-admin@corp.test' });
+    await setUserColumns(user.id, { oidc_sub: null, oidc_issuer: null, email_self_asserted: 0 });
+
+    const result = await svc.findOrCreateUser(
+      { sub: 'sub-made-by-admin', email: 'made-by-admin@corp.test', email_verified: 'true' },
+      MOCK_CONFIG,
+    );
+
+    expect((result as { user: { id: number } }).user.id).toBe(user.id);
+    expect((await readUser(await orm(), user.id)).oidc_sub).toBe('sub-made-by-admin');
+  });
+
+  it('OIDC-SVC-103: the same provider with another subject is refused, verified or not, and the row keeps its link', async () => {
+    const { user } = createUser(testDb, { email: 'linked@corp.test' });
+    await setUserColumns(user.id, { oidc_sub: 'sub-owner', oidc_issuer: MOCK_CONFIG.issuer });
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      const verified = await svc.findOrCreateUser(
+        { sub: 'sub-stranger', email: 'linked@corp.test', email_verified: true },
+        MOCK_CONFIG,
+      );
+      const unverified = await svc.findOrCreateUser({ sub: 'sub-stranger', email: 'linked@corp.test' }, MOCK_CONFIG);
+
+      expect(verified).toEqual({ error: 'email_link_blocked' });
+      expect(unverified).toEqual({ error: 'email_not_verified' });
+      const row = await readUser(await orm(), user.id);
+      expect({ oidc_sub: row.oidc_sub, oidc_issuer: row.oidc_issuer }).toEqual({
+        oidc_sub: 'sub-owner',
+        oidc_issuer: MOCK_CONFIG.issuer,
+      });
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it('OIDC-SVC-104: a provider switch needs a verified email, the row stays on the old provider otherwise', async () => {
+    const { user } = createUser(testDb, { email: 'mover@corp.test' });
+    await setUserColumns(user.id, { oidc_sub: 'sub-old', oidc_issuer: 'https://old-idp.example.com' });
+
+    const result = await svc.findOrCreateUser(
+      { sub: 'sub-new', email: 'mover@corp.test' },
+      { ...MOCK_CONFIG, issuer: 'https://new-idp.example.com' },
+    );
+
+    expect(result).toEqual({ error: 'email_not_verified' });
+    const row = await readUser(await orm(), user.id);
+    expect({ oidc_sub: row.oidc_sub, oidc_issuer: row.oidc_issuer }).toEqual({
+      oidc_sub: 'sub-old',
+      oidc_issuer: 'https://old-idp.example.com',
+    });
+  });
+
+  it('OIDC-SVC-105: a provider switch onto an email the account set itself is refused', async () => {
+    const { user } = createUser(testDb, { email: 'switched-self@corp.test' });
+    await setUserColumns(user.id, { oidc_sub: 'sub-old', oidc_issuer: 'https://old-idp.example.com', ...SELF });
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      const result = await svc.findOrCreateUser(
+        { sub: 'sub-new', email: 'switched-self@corp.test', email_verified: true },
+        { ...MOCK_CONFIG, issuer: 'https://new-idp.example.com' },
+      );
+
+      expect(result).toEqual({ error: 'email_link_blocked' });
+      expect((await readUser(await orm(), user.id)).oidc_sub).toBe('sub-old');
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it('OIDC-SVC-106: a refused link never hands the account the role from the claims', async () => {
+    process.env.OIDC_ADMIN_VALUE = 'trek-admins';
+    const { user } = createUser(testDb, { email: 'trap@corp.test', role: 'user' });
+    await setUserColumns(user.id, { oidc_sub: null, oidc_issuer: null, ...SELF });
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      await svc.findOrCreateUser(
+        { sub: 'admin-sub', email: 'trap@corp.test', email_verified: true, groups: ['trek-admins'] },
+        MOCK_CONFIG,
+      );
+      expect((await readUser(await orm(), user.id)).role).toBe('user');
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it('OIDC-SVC-107: an account found by its own subject signs in, whoever set its email', async () => {
+    const { user } = createUser(testDb, { email: 'own@corp.test' });
+    await setUserColumns(user.id, { oidc_sub: 'sub-own', oidc_issuer: MOCK_CONFIG.issuer, ...SELF });
+
+    const result = await svc.findOrCreateUser({ sub: 'sub-own', email: 'own@corp.test' }, MOCK_CONFIG);
+
+    expect((result as { user: { id: number } }).user.id).toBe(user.id);
+  });
+
+  it('OIDC-SVC-108: an account the provider creates starts out with a trusted email', async () => {
+    createUser(testDb, { email: 'someone@corp.test' });
+    await svc.findOrCreateUser({ sub: 'sub-fresh', email: 'fresh@corp.test', name: 'Fresh' }, MOCK_CONFIG);
+
+    expect((await userByEmail('fresh@corp.test'))?.email_self_asserted).toBe(0);
+  });
+});
 
 describe('findOrCreateUser role mapping', () => {
   type RoleResult = { user: any; roleChange?: { from: string; to: string; claim: string } };

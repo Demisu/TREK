@@ -240,6 +240,19 @@ describe('UsersRepository', () => {
       expect(raw).toMatchObject({ username: 'localuser', email: 'local@example.com', role: 'user', login_count: 0 });
     });
 
+    it('USERSREPO-016b: the self-set email mark is 0 unless the caller names it', async () => {
+      const base = { password_hash: 'hashed', role: 'user', first_seen_version: '1.2.3' };
+      const plain = await users.insertUser({ ...base, username: 'plainmark', email: 'plain@example.com' });
+      const own = await users.insertUser({
+        ...base,
+        username: 'ownmark',
+        email: 'own@example.com',
+        email_self_asserted: 1,
+      });
+      expect(plain.email_self_asserted).toBe(0);
+      expect(own.email_self_asserted).toBe(1);
+    });
+
     it('USERSREPO-017: SSO registration shape (O14) — oidc_sub/oidc_issuer/avatar set', async () => {
       const row = await users.insertUser({
         username: 'ssouser',

@@ -61,6 +61,10 @@ const login: TranslationStrings = {
   'login.resetPasswordFailed': "Restabliment fallit. L'enllaç pot haver caducat.",
   'login.oidc.tokenFailed': "L'autenticació ha fallat.",
   'login.oidc.invalidState': 'Sessió no vàlida. Torna-ho a provar.',
+  'login.oidc.emailNotVerified':
+    "El teu proveïdor d'inici de sessió no ha confirmat aquesta adreça de correu, així que no es pot vincular a un compte existent.",
+  'login.oidc.emailLinkBlocked':
+    "Aquest inici de sessió no s'ha pogut vincular al compte existent amb aquest correu. Demana a l'administrador que confirmi l'adreça.",
   'login.demoFailed': "Ha fallat l'accés a la demo",
   'login.oidcSignIn': 'Entra amb {name}',
   'login.demoHint': 'Prova la demo: no cal que et registris',

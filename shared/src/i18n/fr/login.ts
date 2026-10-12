@@ -63,6 +63,10 @@ const login: TranslationStrings = {
   'login.resetPasswordFailed': 'Échec de la réinitialisation. Le lien a peut-être expiré.',
   'login.oidc.tokenFailed': "L'authentification a échoué.",
   'login.oidc.invalidState': 'Session invalide. Veuillez réessayer.',
+  'login.oidc.emailNotVerified':
+    "Votre fournisseur de connexion n'a pas confirmé cette adresse e-mail, elle ne peut donc pas être liée à un compte existant.",
+  'login.oidc.emailLinkBlocked':
+    "Cette connexion n'a pas pu être liée au compte existant avec cet e-mail. Demandez à votre administrateur de confirmer l'adresse.",
   'login.demoFailed': 'Échec de la connexion démo',
   'login.oidcSignIn': 'Se connecter avec {name}',
   'login.oidcOnly':

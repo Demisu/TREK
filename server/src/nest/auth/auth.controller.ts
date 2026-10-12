@@ -196,6 +196,11 @@ export class AuthController {
   async updateSettings(@CurrentUser() user: User, @Body() body: SettingsUpdateDto, @Req() req: Request) {
     const result = await this.profile.updateSettings(user.id, body);
     await this.auditApiKeys(user.id, result.changedKeys ?? [], req);
+    // The address itself stays out of the row, like the key values above; the row
+    // is what tells an admin later that the account chose its current address.
+    if (result.emailChanged) {
+      await this.audit.writeAudit({ userId: user.id, action: 'user.email_change', ip: getClientIp(req) });
+    }
     return { success: result.success, user: result.user };
   }
 

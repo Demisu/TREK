@@ -237,6 +237,8 @@ export function useLogin() {
         no_email: t('login.oidc.noEmail'),
         token_failed: t('login.oidc.tokenFailed'),
         invalid_state: t('login.oidc.invalidState'),
+        email_not_verified: t('login.oidc.emailNotVerified'),
+        email_link_blocked: t('login.oidc.emailLinkBlocked'),
       }
       setError(errorMessages[oidcError] || oidcError)
       sessionStorage.removeItem('oidc_redirect')

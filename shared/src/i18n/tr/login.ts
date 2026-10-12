@@ -25,6 +25,10 @@ const login: TranslationStrings = {
   'login.oidc.noEmail': 'Sağlayıcıdan e-posta alınmadı.',
   'login.oidc.tokenFailed': 'Kimlik doğrulama başarısız oldu.',
   'login.oidc.invalidState': 'Geçersiz oturum. Lütfen tekrar deneyin.',
+  'login.oidc.emailNotVerified':
+    'Oturum açma sağlayıcınız bu e-posta adresini doğrulamadı, bu yüzden mevcut bir hesaba bağlanamaz.',
+  'login.oidc.emailLinkBlocked':
+    'Bu oturum açma, bu e-postaya sahip mevcut hesaba bağlanamadı. Adresi doğrulaması için yöneticinize başvurun.',
   'login.demoFailed': 'Demo girişi başarısız oldu',
   'login.oidcSignIn': '{name} ile oturum açın',
   'login.oidcOnly': 'Parola kimlik doğrulaması devre dışı. Lütfen SSO sağlayıcınızı kullanarak oturum açın.',

@@ -24,6 +24,10 @@ const login: TranslationStrings = {
   'login.oidc.noEmail': 'Od poskytovatele nebyl přijat žádný e-mail.',
   'login.oidc.tokenFailed': 'Ověření se nezdařilo.',
   'login.oidc.invalidState': 'Neplatná relace. Zkuste to prosím znovu.',
+  'login.oidc.emailNotVerified':
+    'Váš poskytovatel přihlášení tuto e-mailovou adresu nepotvrdil, proto ji nelze propojit s existujícím účtem.',
+  'login.oidc.emailLinkBlocked':
+    'Toto přihlášení se nepodařilo propojit s existujícím účtem s tímto e-mailem. Požádejte správce o potvrzení adresy.',
   'login.demoFailed': 'Přihlášení do dema se nezdařilo',
   'login.oidcSignIn': 'Přihlásit se přes {name}',
   'login.oidcOnly': 'Ověřování heslem je zakázáno. Přihlaste se prosím přes SSO poskytovatele.',

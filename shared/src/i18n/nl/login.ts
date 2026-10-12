@@ -61,6 +61,10 @@ const login: TranslationStrings = {
   'login.resetPasswordFailed': 'Resetten mislukt. De link is mogelijk verlopen.',
   'login.oidc.tokenFailed': 'Authenticatie mislukt.',
   'login.oidc.invalidState': 'Ongeldige sessie. Probeer het opnieuw.',
+  'login.oidc.emailNotVerified':
+    'Je inlogprovider heeft dit e-mailadres niet bevestigd, dus het kan niet aan een bestaand account worden gekoppeld.',
+  'login.oidc.emailLinkBlocked':
+    'Deze aanmelding kon niet worden gekoppeld aan het bestaande account met dit e-mailadres. Vraag je beheerder het adres te bevestigen.',
   'login.demoFailed': 'Demo-login mislukt',
   'login.oidcSignIn': 'Inloggen met {name}',
   'login.oidcOnly': 'Wachtwoordauthenticatie is uitgeschakeld. Log in via je SSO-provider.',

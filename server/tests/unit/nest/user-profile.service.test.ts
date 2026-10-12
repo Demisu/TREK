@@ -143,6 +143,32 @@ describe('updateSettings', () => {
   });
 });
 
+// An address the account types in itself is not one an SSO sign-in may link to by email.
+describe('updateSettings marks an email the account set itself', () => {
+  const flagOf = async (id: number) => (await readUser(await sharedTestOrm(testDb), id)).email_self_asserted;
+
+  it('AUTH-DB-120: a new address is marked and reported as changed', async () => {
+    const { user } = createUser(testDb, { email: 'before@example.com' });
+    const result = await profile.updateSettings(user.id, { email: 'colleague@example.com' });
+    expect(result.emailChanged).toBe(true);
+    expect(await flagOf(user.id)).toBe(1);
+  });
+
+  it('AUTH-DB-121: the same address in another case keeps its standing', async () => {
+    const { user } = createUser(testDb, { email: 'same@example.com' });
+    const result = await profile.updateSettings(user.id, { email: ' Same@Example.com ' });
+    expect(result.emailChanged).toBe(false);
+    expect(await flagOf(user.id)).toBe(0);
+  });
+
+  it('AUTH-DB-122: a save without an email leaves the mark alone', async () => {
+    const { user } = createUser(testDb);
+    const result = await profile.updateSettings(user.id, { username: 'renamed' });
+    expect(result.emailChanged).toBe(false);
+    expect(await flagOf(user.id)).toBe(0);
+  });
+});
+
 // ---------------------------------------------------------------------------
 // getSettings
 // ---------------------------------------------------------------------------

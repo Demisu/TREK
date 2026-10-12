@@ -24,6 +24,10 @@ const login: TranslationStrings = {
   'login.oidc.noEmail': 'No email received from provider.',
   'login.oidc.tokenFailed': 'Authentication failed.',
   'login.oidc.invalidState': 'Invalid session. Please try again.',
+  'login.oidc.emailNotVerified':
+    'Your sign-in provider has not confirmed this email address, so it cannot be linked to an existing account.',
+  'login.oidc.emailLinkBlocked':
+    'This sign-in could not be linked to the existing account with this email. Ask your administrator to confirm the address.',
   'login.demoFailed': 'Demo login failed',
   'login.oidcSignIn': 'Sign in with {name}',
   'login.oidcOnly': 'Password authentication is disabled. Please sign in using your SSO provider.',

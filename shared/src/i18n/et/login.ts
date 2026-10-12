@@ -24,6 +24,10 @@ const login: TranslationStrings = {
   'login.oidc.noEmail': 'Teenusepakkujalt ei saadud e-posti aadressi.',
   'login.oidc.tokenFailed': 'Autentimine ebaõnnestus.',
   'login.oidc.invalidState': 'Vigane seanss. Proovi uuesti.',
+  'login.oidc.emailNotVerified':
+    'Sinu sisselogimise pakkuja ei ole seda e-posti aadressi kinnitanud, seega ei saa seda olemasoleva kontoga siduda.',
+  'login.oidc.emailLinkBlocked':
+    'Seda sisselogimist ei õnnestunud siduda selle e-postiga olemasoleva kontoga. Palu administraatoril aadress kinnitada.',
   'login.demoFailed': 'Demoversiooni sisselogimine ebaõnnestus',
   'login.oidcSignIn': 'Logi sisse teenusega {name}',
   'login.oidcOnly': 'Parooliga autentimine on keelatud. Logi sisse oma SSO-teenuse kaudu.',

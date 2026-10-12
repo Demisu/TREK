@@ -468,10 +468,9 @@ export class AuthService {
     const password_hash = bcrypt.hashSync(password, BCRYPT_COST);
 
     try {
-      // One transaction for the whole signup: a mid-sequence throw (invite
-      // bookkeeping, trip auto-join) must not leave a half-registered user.
-      // The collision check and the first-user count run inside it too, so two
-      // signups at once cannot both pass the check or both become admin.
+      // One transaction for the whole signup: a mid-sequence throw (invite bookkeeping, trip auto-join)
+      // must not leave a half-registered user. The collision check and the first-user count run inside
+      // it too, so two signups at once cannot both pass the check or both become admin.
       return await this.uow.transactional(async () => {
         // Ignore guests (#1362): their synthetic username/email must never block a real signup.
         const existingUserId = await this.usersRepo.findIdByEmailOrUsernameCI(email, username);
@@ -482,6 +481,7 @@ export class AuthService {
         const role = isFirstUser ? 'admin' : 'user';
         const inserted = await this.usersRepo.insertUser({
           username, email, password_hash, role, first_seen_version: readEnv().app.appVersion || '0.0.0',
+          email_self_asserted: isFirstUser ? 0 : 1,
         });
 
         const user = { id: inserted.id, username, email, role, avatar: null, mfa_enabled: false };

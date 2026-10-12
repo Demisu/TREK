@@ -24,6 +24,9 @@ const login: TranslationStrings = {
   'login.oidc.noEmail': '공급자로부터 이메일을 받지 못했습니다.',
   'login.oidc.tokenFailed': '인증 실패.',
   'login.oidc.invalidState': '유효하지 않은 세션입니다. 다시 시도하세요.',
+  'login.oidc.emailNotVerified': '로그인 제공자가 이 이메일 주소를 확인하지 않아 기존 계정에 연결할 수 없습니다.',
+  'login.oidc.emailLinkBlocked':
+    '이 로그인을 이 이메일을 사용하는 기존 계정에 연결할 수 없습니다. 관리자에게 주소 확인을 요청하세요.',
   'login.demoFailed': '데모 로그인 실패',
   'login.oidcSignIn': '{name}으로 로그인',
   'login.oidcOnly': '비밀번호 인증이 비활성화되었습니다. SSO 공급자로 로그인하세요.',

@@ -12,6 +12,7 @@ import { db as testDb } from '../../src/db/database';
 import { AuditLog } from '../../src/db/entities/AuditLog.entity';
 import { Users } from '../../src/db/entities/Users.entity';
 import { OidcService } from '../../src/nest/oidc/oidc.service';
+import { authCookie } from '../helpers/auth';
 import { createUser } from '../helpers/factories';
 import type { FactoryOrm } from '../helpers/factories/context';
 import { findRow, findRows } from '../helpers/factories/rows';
@@ -346,6 +347,92 @@ describe('GET /api/auth/oidc/callback', () => {
 
     expect(res.status).toBe(302);
     expect(res.headers.location).toContain('oidc_error=registration_disabled');
+  });
+});
+
+// ── an email the account set itself ──────────────────────────────────────────
+
+describe('GET /api/auth/oidc/callback onto an email the account set itself', () => {
+  /** One verified SSO sign-in for this sub and email, run through the real callback. */
+  async function ssoSignIn(sub: string, email: string): Promise<request.Response> {
+    mockDiscover.mockResolvedValueOnce(MOCK_DISCOVERY_DOC);
+    mockExchangeCode.mockResolvedValueOnce({ access_token: 'tok', id_token: 'fake.id.token', _ok: true, _status: 200 });
+    mockVerifyIdToken.mockResolvedValueOnce({ ok: true, claims: { sub } });
+    mockGetUserInfo.mockResolvedValueOnce({ sub, email, name: 'Colleague', email_verified: true });
+    const { state } = await oidcSvc.createState('http://localhost:3001/api/auth/oidc/callback');
+    return request(app)
+      .get(`/api/auth/oidc/callback?code=c-${sub}&state=${state}`)
+      .set('Cookie', `trek_oidc_state=${state}`);
+  }
+
+  async function register(username: string, email: string): Promise<request.Response> {
+    const res = await request(app).post('/api/auth/register').send({ username, email, password: 'Secure123!x' });
+    expect(res.status).toBe(201);
+    return res;
+  }
+
+  it('OIDC-030: a signup with a colleague address does not receive the colleague sign-in', async () => {
+    await register('owner', 'owner@example.com');
+    const squatter = await register('squatter', 'colleague@example.com');
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      const res = await ssoSignIn('sub-colleague', 'colleague@example.com');
+
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toContain('/login?oidc_error=email_link_blocked');
+      const row = await readUser(orm(), squatter.body.user.id);
+      expect(row.oidc_sub).toBeNull();
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it('OIDC-031: an address changed in the profile settings does not receive the sign-in either', async () => {
+    await register('owner', 'owner@example.com');
+    const member = await register('member', 'member@example.com');
+    const cookie = readCookie(member, 'trek_session');
+    const change = await request(app)
+      .put('/api/auth/me/settings')
+      .set('Cookie', `trek_session=${cookie}`)
+      .send({ email: 'colleague@example.com' });
+    expect(change.status).toBe(200);
+    const audit = await findRows(orm(), AuditLog, { user: member.body.user.id, action: 'user.email_change' });
+    expect(audit).toHaveLength(1);
+    expect(audit[0].details).toBeNull();
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      const res = await ssoSignIn('sub-colleague', 'colleague@example.com');
+      expect(res.headers.location).toContain('/login?oidc_error=email_link_blocked');
+      expect((await readUser(orm(), member.body.user.id)).oidc_sub).toBeNull();
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it('OIDC-032: an account an admin created, or whose email an admin changed, links on its first sign-in', async () => {
+    const owner = await register('owner', 'owner@example.com');
+    const created = await request(app)
+      .post('/api/admin/users')
+      .set('Cookie', authCookie(owner.body.user.id))
+      .send({ username: 'colleague', email: 'colleague@example.com', password: 'Secure123!x' });
+    expect(created.status).toBe(201);
+
+    const linked = await ssoSignIn('sub-colleague', 'colleague@example.com');
+    expect(linked.headers.location).toContain('/login?oidc_code=');
+    expect((await readUser(orm(), created.body.user.id)).oidc_sub).toBe('sub-colleague');
+
+    // A blocked account is released by the admin entering the address.
+    const member = await register('member', 'typo@example.com');
+    const edited = await request(app)
+      .put(`/api/admin/users/${member.body.user.id}`)
+      .set('Cookie', authCookie(owner.body.user.id))
+      .send({ email: 'member@example.com' });
+    expect(edited.status).toBe(200);
+    const res = await ssoSignIn('sub-member', 'member@example.com');
+    expect(res.headers.location).toContain('/login?oidc_code=');
+    expect((await readUser(orm(), member.body.user.id)).oidc_sub).toBe('sub-member');
   });
 });
 

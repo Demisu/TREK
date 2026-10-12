@@ -24,6 +24,10 @@ const login: TranslationStrings = {
   'login.oidc.noEmail': 'Nenhum e-mail recebido do provedor.',
   'login.oidc.tokenFailed': 'Falha na autenticação.',
   'login.oidc.invalidState': 'Sessão inválida. Tente novamente.',
+  'login.oidc.emailNotVerified':
+    'Seu provedor de login não confirmou este endereço de e-mail, por isso ele não pode ser vinculado a uma conta existente.',
+  'login.oidc.emailLinkBlocked':
+    'Não foi possível vincular este login à conta existente com este e-mail. Peça ao administrador para confirmar o endereço.',
   'login.demoFailed': 'Falha no login de demonstração',
   'login.oidcSignIn': 'Entrar com {name}',
   'login.oidcOnly': 'Login por senha desativado. Use o provedor SSO.',

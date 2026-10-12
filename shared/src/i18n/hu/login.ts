@@ -25,6 +25,10 @@ const login: TranslationStrings = {
   'login.oidc.noEmail': 'Nem érkezett e-mail a szolgáltatótól.',
   'login.oidc.tokenFailed': 'Hitelesítés sikertelen.',
   'login.oidc.invalidState': 'Érvénytelen munkamenet. Kérjük, próbáld újra.',
+  'login.oidc.emailNotVerified':
+    'A bejelentkezési szolgáltatód nem erősítette meg ezt az e-mail-címet, ezért nem kapcsolható meglévő fiókhoz.',
+  'login.oidc.emailLinkBlocked':
+    'Ezt a bejelentkezést nem sikerült összekapcsolni az ehhez az e-mailhez tartozó meglévő fiókkal. Kérd meg az adminisztrátort, hogy erősítse meg a címet.',
   'login.demoFailed': 'Demo bejelentkezés sikertelen',
   'login.oidcSignIn': 'Bejelentkezés ezzel: {name}',
   'login.oidcOnly': 'A jelszavas hitelesítés le van tiltva. Kérjük, jelentkezz be az SSO szolgáltatódon keresztül.',

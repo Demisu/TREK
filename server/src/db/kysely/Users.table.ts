@@ -43,4 +43,5 @@ export interface UsersTable {
   airtrail_write_enabled: InsertOptional<number | null>;
   display_name: InsertOptional<string | null>;
   immich_allow_insecure_tls: InsertOptional<number>;
+  email_self_asserted: InsertOptional<number>;
 }

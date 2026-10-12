@@ -24,6 +24,10 @@ const login: TranslationStrings = {
   'login.oidc.noEmail': 'Tidak ada email yang diterima dari penyedia.',
   'login.oidc.tokenFailed': 'Autentikasi gagal.',
   'login.oidc.invalidState': 'Sesi tidak valid. Coba lagi.',
+  'login.oidc.emailNotVerified':
+    'Penyedia masuk Anda belum mengonfirmasi alamat email ini, jadi tidak dapat ditautkan ke akun yang sudah ada.',
+  'login.oidc.emailLinkBlocked':
+    'Proses masuk ini tidak dapat ditautkan ke akun yang sudah ada dengan email ini. Minta administrator untuk mengonfirmasi alamatnya.',
   'login.demoFailed': 'Login demo gagal',
   'login.oidcSignIn': 'Masuk dengan {name}',
   'login.oidcOnly': 'Autentikasi kata sandi dinonaktifkan. Masuk menggunakan penyedia SSO kamu.',

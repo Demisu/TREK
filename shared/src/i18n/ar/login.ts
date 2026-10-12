@@ -23,6 +23,9 @@ const login: TranslationStrings = {
   'login.oidc.noEmail': 'لم يتم استلام بريد إلكتروني من المزوّد.',
   'login.oidc.tokenFailed': 'فشلت المصادقة.',
   'login.oidc.invalidState': 'جلسة غير صالحة. حاول مرة أخرى.',
+  'login.oidc.emailNotVerified': 'لم يؤكد مزود تسجيل الدخول عنوان البريد الإلكتروني هذا، لذا لا يمكن ربطه بحساب موجود.',
+  'login.oidc.emailLinkBlocked':
+    'تعذر ربط تسجيل الدخول هذا بالحساب الموجود بهذا البريد الإلكتروني. اطلب من المسؤول تأكيد العنوان.',
   'login.demoFailed': 'فشل الدخول إلى العرض التجريبي',
   'login.oidcSignIn': 'تسجيل الدخول عبر {name}',
   'login.oidcOnly': 'تم تعطيل المصادقة بكلمة المرور. يرجى تسجيل الدخول عبر مزود SSO.',

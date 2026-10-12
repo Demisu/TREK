@@ -25,6 +25,10 @@ const login: TranslationStrings = {
   'login.oidc.noEmail': 'Δεν ελήφθη email από τον πάροχο.',
   'login.oidc.tokenFailed': 'Ο έλεγχος ταυτότητας απέτυχε.',
   'login.oidc.invalidState': 'Μη έγκυρη συνεδρία. Παρακαλώ δοκιμάστε ξανά.',
+  'login.oidc.emailNotVerified':
+    'Ο πάροχος σύνδεσης δεν έχει επιβεβαιώσει αυτή τη διεύθυνση email, επομένως δεν μπορεί να συνδεθεί με υπάρχοντα λογαριασμό.',
+  'login.oidc.emailLinkBlocked':
+    'Αυτή η σύνδεση δεν ήταν δυνατό να συνδεθεί με τον υπάρχοντα λογαριασμό με αυτό το email. Ζητήστε από τον διαχειριστή να επιβεβαιώσει τη διεύθυνση.',
   'login.demoFailed': 'Η σύνδεση demo απέτυχε',
   'login.oidcSignIn': 'Σύνδεση με {name}',
   'login.oidcOnly':

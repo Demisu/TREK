@@ -271,6 +271,10 @@ export class AdminService {
     const patch: AdminEditPatch = {};
     if (username) patch.username = username;
     if (email) patch.email = email;
+    // An address the admin enters is one the admin vouches for, so an SSO sign-in
+    // may link to it again. The edit dialog sends the email on every save, so only
+    // a new address counts, not the unchanged one or the same one in another case.
+    if (email && email.toLowerCase() !== user.email.toLowerCase()) patch.email_self_asserted = 0;
     if (role) patch.role = role;
     if (password) {
       patch.password_hash = passwordHash!;

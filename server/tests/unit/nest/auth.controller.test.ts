@@ -707,6 +707,37 @@ describe('AuthController (authenticated)', () => {
     expect(writeAudit).not.toHaveBeenCalled();
   });
 
+  it('update-settings logs a new email address without the address, and nothing for any other save', async () => {
+    writeAudit.mockClear();
+    const withEmail = ac(
+      asvc({}),
+      rl(),
+      {},
+      {
+        updateSettings: vi
+          .fn()
+          .mockReturnValue({ success: true, user: { id: 1 }, changedKeys: [], emailChanged: true }),
+      },
+    );
+    expect(await withEmail.updateSettings(user, {}, req)).toEqual({ success: true, user: { id: 1 } });
+    expect(writeAudit).toHaveBeenCalledTimes(1);
+    expect(writeAudit).toHaveBeenCalledWith(expect.objectContaining({ userId: user.id, action: 'user.email_change' }));
+    expect(writeAudit.mock.calls[0][0].details).toBeUndefined();
+
+    writeAudit.mockClear();
+    await ac(
+      asvc({}),
+      rl(),
+      {},
+      {
+        updateSettings: vi
+          .fn()
+          .mockReturnValue({ success: true, user: { id: 1 }, changedKeys: [], emailChanged: false }),
+      },
+    ).updateSettings(user, {}, req);
+    expect(writeAudit).not.toHaveBeenCalled();
+  });
+
   it('update-settings + get-settings map errors, else return their payloads', async () => {
     expect(
       await thrownAsync(() =>

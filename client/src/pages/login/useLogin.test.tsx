@@ -392,6 +392,25 @@ describe('useLogin — OIDC callback', () => {
     expect(sessionStorage.getItem('oidc_redirect')).toBeNull();
   });
 
+  it('FE-LOGIN-HOOK-020b: says why a sign-in was not linked to an existing account by email', async () => {
+    setSearch('?oidc_error=email_link_blocked');
+    const blocked = renderLogin();
+    await waitFor(() =>
+      expect(blocked.result.current.error).toBe(
+        'This sign-in could not be linked to the existing account with this email. Ask your administrator to confirm the address.',
+      ),
+    );
+    blocked.unmount();
+
+    setSearch('?oidc_error=email_not_verified');
+    const unverified = renderLogin();
+    await waitFor(() =>
+      expect(unverified.result.current.error).toBe(
+        'Your sign-in provider has not confirmed this email address, so it cannot be linked to an existing account.',
+      ),
+    );
+  });
+
   it('FE-LOGIN-HOOK-021: passes an unknown oidc_error through unchanged', async () => {
     setSearch('?oidc_error=some_new_provider_code');
 

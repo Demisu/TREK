@@ -665,21 +665,35 @@ export class OidcService implements OnModuleDestroy {
     userInfo: OidcUserInfo,
     picture: string | null,
   ): Promise<{ user: User; roleChange?: OidcRoleChange } | { error: string }> {
-    // Reaching here without an oidc_sub means we matched an existing local
-    // account by email. Only auto-link the OIDC identity when the IdP asserts
-    // the email is verified; an unverified email must not auto-link.
-    if (!user.oidc_sub) {
+    // A row that does not carry this sub and issuer was found by its email
+    // address alone. Linking it takes two promises: the IdP says the address is
+    // verified, and the address on the row was not typed in by the account itself
+    // (signup, profile settings), or whoever did that would receive this person's
+    // sign-in. The unverified answer comes first, so it never tells an unverified
+    // login whether such an account exists.
+    if (user.oidc_sub !== sub || user.oidc_issuer !== config.issuer) {
       const emailVerified = userInfo.email_verified === true || userInfo.email_verified === 'true';
       if (!emailVerified) {
         return { error: 'email_not_verified' };
       }
-      await this.usersRepo.linkOidcIdentity(user.id, sub, config.issuer);
-      user = { ...user, oidc_sub: sub, oidc_issuer: config.issuer };
-    } else if (user.oidc_issuer !== config.issuer || user.oidc_sub !== sub) {
-      // The admin pointed the instance at a different IdP. We got here through the
-      // verified-email lookup, so this is the same person arriving from the new
-      // provider; leaving the old sub and issuer on the row would keep the account
-      // pinned to a provider that no longer exists (#2110).
+      if (user.email_self_asserted) {
+        console.warn(
+          `[OIDC] Refused to link a sign-in to user ${user.id} by email: the account set that address itself. An admin can confirm it by changing the email in the admin panel.`,
+        );
+        return { error: 'email_link_blocked' };
+      }
+      // The same provider with another subject is another person at that
+      // provider, never this account under a new name.
+      if (user.oidc_sub && user.oidc_issuer === config.issuer) {
+        console.warn(
+          `[OIDC] Refused to link a sign-in to user ${user.id} by email: it is linked to another subject of this provider.`,
+        );
+        return { error: 'email_link_blocked' };
+      }
+      // Without an oidc_sub this is the account's first SSO sign-in. With one from
+      // another issuer, the admin pointed the instance at a different IdP: leaving
+      // the old sub and issuer on the row would keep the account pinned to a
+      // provider that no longer exists (#2110).
       await this.usersRepo.linkOidcIdentity(user.id, sub, config.issuer);
       user = { ...user, oidc_sub: sub, oidc_issuer: config.issuer };
     }

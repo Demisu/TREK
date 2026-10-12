@@ -115,6 +115,7 @@ export class Users {
   airtrail_write_enabled?: number | null = 0;
   display_name?: string | null;
   immich_allow_insecure_tls: number & Opt = 0;
+  email_self_asserted: number & Opt = 0;
   assignment_participants_collection = new Collection<AssignmentParticipants>(this);
   audit_log_collection = new Collection<AuditLog>(this);
   bucket_list_collection = new Collection<BucketList>(this);
@@ -255,6 +256,7 @@ export const UsersSchema = defineEntity({
     airtrail_write_enabled: p.integer().nullable(),
     display_name: p.text().nullable(),
     immich_allow_insecure_tls: p.integer().default(0),
+    email_self_asserted: p.integer().default(0),
     assignment_participants_collection: () => p.oneToMany(AssignmentParticipants).mappedBy('user').hidden(),
     audit_log_collection: () => p.oneToMany(AuditLog).mappedBy('user').hidden(),
     bucket_list_collection: () => p.oneToMany(BucketList).mappedBy('user').hidden(),

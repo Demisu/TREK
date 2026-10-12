@@ -210,7 +210,7 @@ export class UserProfileService {
   async updateSettings(
     userId: number,
     rawBody: unknown,
-  ): Promise<{ success?: boolean; user?: Record<string, unknown>; changedKeys?: string[] }> {
+  ): Promise<{ success?: boolean; user?: Record<string, unknown>; changedKeys?: string[]; emailChanged?: boolean }> {
     const body = rawBody as {
       maps_api_key?: string;
       openweather_api_key?: string;
@@ -261,6 +261,14 @@ export class UserProfileService {
     if (username !== undefined) changes.username = username.trim();
     if (email !== undefined) changes.email = email.trim();
 
+    // A new address typed in here is the account's own word for it, so an SSO
+    // sign-in no longer links to it by email (see OidcService.refreshLinkedUser).
+    // Changing only the case keeps the address and its standing.
+    const previousEmail = changes.email !== undefined ? await this.usersRepo.getEmail(userId) : null;
+    const emailChanged =
+      changes.email !== undefined && changes.email.toLowerCase() !== (previousEmail ?? '').toLowerCase();
+    if (emailChanged) changes.email_self_asserted = 1;
+
     // Read before the write, so the comparison sees the old value; the role in
     // the same row decides whether the two instance-wide names travel with it.
     const current = await this.currentKeys(userId);
@@ -297,6 +305,7 @@ export class UserProfileService {
         avatar_url: avatarUrl(updated || {}),
       },
       changedKeys,
+      emailChanged,
     };
   }
 

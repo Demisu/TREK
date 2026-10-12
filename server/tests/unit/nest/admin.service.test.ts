@@ -795,6 +795,21 @@ describe('admin quirk fixes (post-fold)', () => {
     const row = await readUser(orm, user.id);
     expect(row.username).toBe(user.username);
   });
+
+  // The edit dialog sends the email on every save, so only a new address is the
+  // admin vouching for it; the account's own mark survives any other edit.
+  it('ADMIN-SVC-073 — a new email from the admin clears the self-set mark, an unchanged one keeps it', async () => {
+    const { user } = createUser(testDb, { email: 'self@example.com' });
+    await updateRows(orm, Users, { id: user.id }, { email_self_asserted: 1 });
+
+    await updateUser(String(user.id), { email: 'self@example.com', role: 'user', username: user.username });
+    expect((await readUser(orm, user.id)).email_self_asserted).toBe(1);
+    await updateUser(String(user.id), { email: 'SELF@example.com' });
+    expect((await readUser(orm, user.id)).email_self_asserted).toBe(1);
+
+    await updateUser(String(user.id), { email: 'confirmed@example.com' });
+    expect((await readUser(orm, user.id)).email_self_asserted).toBe(0);
+  });
 });
 
 // ── What an admin password reset ends, and what an ordinary edit must not ─────

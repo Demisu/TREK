@@ -58,6 +58,8 @@ const login: TranslationStrings = {
   'login.resetPasswordFailed': '重置失败。链接可能已过期。',
   'login.oidc.tokenFailed': '认证失败。',
   'login.oidc.invalidState': '会话无效，请重试。',
+  'login.oidc.emailNotVerified': '你的登录提供方尚未确认此邮箱地址，因此无法关联到现有账户。',
+  'login.oidc.emailLinkBlocked': '无法将此次登录关联到使用此邮箱的现有账户。请让管理员确认该地址。',
   'login.demoFailed': '演示登录失败',
   'login.oidcSignIn': '通过 {name} 登录',
   'login.oidcOnly': '密码登录已关闭。请通过 SSO 提供商登录。',

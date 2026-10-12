@@ -63,6 +63,7 @@ export interface UserRow {
   airtrail_write_enabled: number | null;
   display_name: string | null;
   immich_allow_insecure_tls: number;
+  email_self_asserted: number;
 }
 
 /**
@@ -85,6 +86,8 @@ export interface NewUserRow {
   oidc_sub?: string | null;
   oidc_issuer?: string | null;
   avatar?: string | null;
+  /** 1 for an address typed into the signup form (nobody vouches for it), 0 for the first account and SSO ones. */
+  email_self_asserted?: number;
 }
 
 /**
@@ -119,6 +122,7 @@ export interface UserProfilePatch {
   amap_api_key?: string | null;
   username?: string;
   email?: string;
+  email_self_asserted?: number;
 }
 
 /** `UserProfileService.getApiKeyColumns`/`currentKeys` (UP1). */
@@ -280,6 +284,7 @@ export interface AdminEditPatch {
   role?: string;
   password_hash?: string;
   password_version?: number;
+  email_self_asserted?: number;
 }
 
 export class UsersRepository extends TrekRepository<Users> {
@@ -474,6 +479,7 @@ export class UsersRepository extends TrekRepository<Users> {
         oidc_sub: row.oidc_sub ?? null,
         oidc_issuer: row.oidc_issuer ?? null,
         avatar: row.avatar ?? null,
+        email_self_asserted: row.email_self_asserted ?? 0,
       }),
     );
     const inserted = await this.findById(id);
@@ -990,17 +996,10 @@ export class UsersRepository extends TrekRepository<Users> {
   // ---------------------------------------------------------------------
 
   /**
-   * `` UPDATE users SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP
-   *  WHERE id = ? `` — the SET clause is built at the CALL SITE from a fixed
-   * set of 6 possible literal column names, never here: `patchProfile` takes
-   * only the already-decided final columns as a typed partial and writes
-   * them in ONE `nativeUpdate` (never `assign`+`flush`, which would be a
-   * second statement shape for the identical intent) — the entity-API
-   * equivalent of the legacy's dynamic `SET` list, without ever building SQL
-   * text. `updated_at` is always stamped, matching the legacy: this method's
-   * only caller (`UserProfileService.updateSettings`) calls it only when at
-   * least one field changed (`updates.length > 0`), the same guard the
-   * legacy statement was built under.
+   * `` UPDATE users SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ? ``: the
+   * caller decides the columns of {@link UserProfilePatch}, this writes them in ONE `nativeUpdate`
+   * (never `assign`+`flush`) and never builds SQL text. `updated_at` is always stamped, as in the
+   * legacy; the only caller (`UserProfileService.updateSettings`) calls it only when a field changed.
    */
   async patchProfile(id: number, changes: UserProfilePatch): Promise<void> {
     const platform = this.getEntityManager().getPlatform();

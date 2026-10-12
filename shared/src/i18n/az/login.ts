@@ -25,6 +25,10 @@ const login: TranslationStrings = {
   'login.oidc.noEmail': 'Provayderdən e-poçt ünvanı alınmadı.',
   'login.oidc.tokenFailed': 'Autentifikasiya uğursuz oldu.',
   'login.oidc.invalidState': 'Sessiya etibarsızdır. Yenidən cəhd edin.',
+  'login.oidc.emailNotVerified':
+    'Giriş provayderiniz bu e-poçt ünvanını təsdiqləməyib, buna görə o, mövcud hesabla əlaqələndirilə bilməz.',
+  'login.oidc.emailLinkBlocked':
+    'Bu giriş həmin e-poçtla mövcud hesaba bağlana bilmədi. Ünvanı təsdiqləmək üçün administratora müraciət edin.',
   'login.demoFailed': 'Demo girişi uğursuz oldu',
   'login.oidcSignIn': '{name} ilə daxil ol',
   'login.oidcOnly': 'Parolla autentifikasiya deaktiv edilib. SSO provayderinizdən istifadə edərək daxil olun.',

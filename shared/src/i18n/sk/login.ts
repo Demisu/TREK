@@ -24,6 +24,10 @@ const login: TranslationStrings = {
   'login.oidc.noEmail': 'Od poskytovateľa nebol prijatý žiadny e-mail.',
   'login.oidc.tokenFailed': 'Overenie zlyhalo.',
   'login.oidc.invalidState': 'Neplatná relácia. Skúste to prosím znova.',
+  'login.oidc.emailNotVerified':
+    'Váš poskytovateľ prihlásenia túto e-mailovú adresu nepotvrdil, preto ju nemožno prepojiť s existujúcim účtom.',
+  'login.oidc.emailLinkBlocked':
+    'Toto prihlásenie sa nepodarilo prepojiť s existujúcim účtom s týmto e-mailom. Požiadajte správcu o potvrdenie adresy.',
   'login.demoFailed': 'Prihlásenie do dema zlyhalo',
   'login.oidcSignIn': 'Prihlásiť sa cez {name}',
   'login.oidcOnly': 'Overovanie heslom je zakázané. Prihláste sa prosím cez svojho SSO poskytovateľa.',
