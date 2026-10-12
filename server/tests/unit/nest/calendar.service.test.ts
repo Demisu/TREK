@@ -390,6 +390,57 @@ describe('exportICS', () => {
     expect(ics).not.toContain('DTSTART:20250602T090000');
   });
 
+  describe('end of a timed stop (#2641)', () => {
+    const timedStop = async (place: Record<string, unknown>, assignment: Record<string, unknown> = {}) => {
+      const { user } = createUser(testDb);
+      const trip = createTrip(testDb, user.id, { title: 'Short Stops' });
+      const day = createDay(testDb, trip.id, { date: '2025-06-02' });
+      const created = createPlace(testDb, trip.id, { name: 'Cafe', lat: 52.52, lng: 13.405 });
+      await updateRows(orm, Places, { id: created.id }, place);
+      const a = createDayAssignment(testDb, day.id, created.id);
+      if (Object.keys(assignment).length) await updateRows(orm, DayAssignments, { id: a.id }, assignment);
+      return (await svc.exportICS(trip.id)).ics;
+    };
+
+    it('CAL-2641a: a start time without an end ends after the place duration', async () => {
+      const ics = await timedStop({ place_time: '18:00', end_time: null, duration_minutes: 20 });
+
+      expect(ics).toContain('DTSTART;TZID=Europe/Berlin:20250602T180000\r\nDTEND;TZID=Europe/Berlin:20250602T182000\r\n');
+    });
+
+    it('CAL-2641b: a place on the default duration gets an explicit hour', async () => {
+      const ics = await timedStop({ place_time: '09:30', end_time: null, duration_minutes: 60 });
+
+      expect(ics).toContain('DTEND;TZID=Europe/Berlin:20250602T103000');
+    });
+
+    it('CAL-2641c: an end time under an hour wins over the duration', async () => {
+      const ics = await timedStop({ place_time: '10:00', end_time: '10:30', duration_minutes: 60 });
+
+      expect(ics).toContain('DTSTART;TZID=Europe/Berlin:20250602T100000\r\nDTEND;TZID=Europe/Berlin:20250602T103000\r\n');
+      expect(ics).not.toContain('DTEND;TZID=Europe/Berlin:20250602T110000');
+    });
+
+    it('CAL-2641d: an assignment start and end under an hour stay as set', async () => {
+      const ics = await timedStop({ duration_minutes: 90 }, { assignment_time: '16:00', assignment_end_time: '16:20' });
+
+      expect(ics).toContain('DTSTART;TZID=Europe/Berlin:20250602T160000\r\nDTEND;TZID=Europe/Berlin:20250602T162000\r\n');
+    });
+
+    it('CAL-2641e: a duration running past midnight ends on the next day', async () => {
+      const ics = await timedStop({ duration_minutes: 45 }, { assignment_time: '23:40' });
+
+      expect(ics).toContain('DTSTART;TZID=Europe/Berlin:20250602T234000\r\nDTEND;TZID=Europe/Berlin:20250603T002500\r\n');
+    });
+
+    it.each([null, 0])('CAL-2641f: without a usable duration (%s) no end is invented', async (duration) => {
+      const ics = await timedStop({ place_time: '18:00', end_time: null, duration_minutes: duration });
+
+      expect(ics).toContain('DTSTART;TZID=Europe/Berlin:20250602T180000');
+      expect(ics).not.toContain('DTEND;TZID=');
+    });
+  });
+
   it('CAL-011: a reservation_time with seconds is kept as is and a date-only end time emits no DTEND', async () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id, { title: 'Second Precision' });

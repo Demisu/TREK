@@ -141,6 +141,19 @@ function groupByDay<T extends { day_id: number }>(rows: T[]): Map<number, T[]> {
   }
   return byDay;
 }
+
+/** A wall clock `minutes` later, carried over midnight onto the following date. */
+function plusMinutes(date: string, time: string, minutes: number): { date: string; time: string } {
+  const [h, m] = time.slice(0, 5).split(':').map(Number);
+  const total = h * 60 + m + minutes;
+  const dayShift = Math.floor(total / (24 * 60));
+  const rest = ((total % (24 * 60)) + 24 * 60) % (24 * 60);
+  return {
+    date: dayShift ? addDays(date, dayShift) : date,
+    time: `${String(Math.floor(rest / 60)).padStart(2, '0')}:${String(rest % 60).padStart(2, '0')}`,
+  };
+}
+
 /** Ten years at most: a span longer than that is a typo, not a trip. */
 const MAX_SCAN_DAYS = 3660;
 
@@ -353,6 +366,15 @@ export class CalendarService {
         ev += dtLine('DTSTART', a.effective_time, zone, day.date + 'T00:00');
         if (a.effective_end_time) {
           ev += dtLine('DTEND', a.effective_end_time, zone, day.date + 'T00:00');
+        } else if (a.place_duration_minutes && a.place_duration_minutes > 0) {
+          // Without an end the event would have no length, and clients put their
+          // own default (mostly an hour) in its place, so a 20 minute stop came out
+          // as an hour (#2641). The place's duration says how long it lasts.
+          const start = a.effective_time ?? '';
+          if (/^\d{2}:\d{2}/.test(start)) {
+            const stop = plusMinutes(day.date, start, a.place_duration_minutes);
+            ev += dtLine('DTEND', stop.time, zone, stop.date + 'T00:00');
+          }
         }
         ev += `SUMMARY:${esc(a.place_name)}\r\n`;
         let desc = '';
@@ -562,17 +584,6 @@ export class CalendarService {
      * until-clock — reads as. Zero-length events collapse in most clients.
      */
     const HANDOVER_MINUTES = 60;
-
-    const plusMinutes = (date: string, time: string, minutes: number): { date: string; time: string } => {
-      const [h, m] = time.slice(0, 5).split(':').map(Number);
-      const total = h * 60 + m + minutes;
-      const dayShift = Math.floor(total / (24 * 60));
-      const rest = ((total % (24 * 60)) + 24 * 60) % (24 * 60);
-      return {
-        date: dayShift ? addDays(date, dayShift) : date,
-        time: `${String(Math.floor(rest / 60)).padStart(2, '0')}:${String(rest % 60).padStart(2, '0')}`,
-      };
-    };
 
     interface WindowSide {
       date: string;

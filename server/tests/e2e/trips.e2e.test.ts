@@ -41,8 +41,11 @@ import { TrekExceptionFilter } from '../../src/nest/common/trek-exception.filter
 import { PermissionsService } from '../../src/nest/permissions/permissions.service';
 import { RealtimeModule } from '../../src/nest/realtime/realtime.module';
 import { TripsModule } from '../../src/nest/trips/trips.module';
+import { makeDayAssignment } from '../helpers/factories/itinerary';
+import { makePlace } from '../helpers/factories/places';
 import { countRows, deleteRows, findRow, findRows, insertRow } from '../helpers/factories/rows';
 import { setUserSetting } from '../helpers/factories/settings';
+import { makeDay } from '../helpers/factories/trips';
 import { makeUser } from '../helpers/factories/users';
 import { createTestMikroOrmModule, createTestOrm, type TestOrm } from '../helpers/test-orm';
 import { TestUnitOfWorkModule } from '../helpers/test-uow';
@@ -284,6 +287,33 @@ describe('Trips e2e (real auth guard + temp SQLite)', () => {
     expect(res.headers['content-type']).toContain('text/calendar');
     expect(res.headers['content-disposition']).toBe('attachment; filename="___4_5_.ics"');
     expect(res.text).toContain('BEGIN:VCALENDAR');
+  });
+
+  // A stop with a start time and no end ends after the place's duration, so a
+  // 20 minute stop does not turn into the client's default hour (#2641).
+  it('200 export.ics ends a stop without an end time after its duration', async () => {
+    const tripId = await insertRow(orm, Trips, {
+      user: 1,
+      title: 'Short Stops',
+      start_date: '2026-11-02',
+      end_date: '2026-11-02',
+    });
+    const day = await makeDay(orm, tripId, { date: '2026-11-02' });
+    const place = await makePlace(orm, tripId, {
+      name: 'Cafe',
+      lat: 52.52,
+      lng: 13.405,
+      place_time: '18:00',
+      duration_minutes: 20,
+    });
+    await makeDayAssignment(orm, day.id, place.id);
+
+    const res = await request(server).get(`/api/trips/${tripId}/export.ics`).set('Cookie', sessionCookie(1));
+
+    expect(res.status).toBe(200);
+    expect(res.text).toContain(
+      'DTSTART;TZID=Europe/Berlin:20261102T180000\r\nDTEND;TZID=Europe/Berlin:20261102T182000\r\n',
+    );
   });
 
   it('200 bundle for an accessible trip (real member list)', async () => {
