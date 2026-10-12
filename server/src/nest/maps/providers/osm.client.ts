@@ -267,9 +267,10 @@ export class OsmClient {
   async autocompleteNominatim(
     input: string,
     lang?: string,
+    bias?: { lat: number; lng: number },
   ): Promise<{ suggestions: { placeId: string; mainText: string; secondaryText: string }[]; source: 'nominatim' }> {
     try {
-      const places = await this.searchNominatim(input, lang);
+      const places = await this.searchNominatim(input, lang, 'interactive', bias);
       const suggestions = places
         .filter((p) => p.osm_id && p.osm_id.includes(':') && p.osm_id.split(':')[1] !== '')
         .slice(0, 5)

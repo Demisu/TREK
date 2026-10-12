@@ -393,7 +393,7 @@ export class MapsService {
       // first call carried a viewbox with bounded=0, which orders results
       // without changing which ones exist, so a second call can only return the
       // same empty list a throttle-interval later.
-      const places = osmAnswer ?? (await this.osm.searchNominatim(query, lang));
+      const places = osmAnswer ?? (await this.osm.searchNominatim(query, lang, 'interactive', locationBias));
       return { places, source: 'openstreetmap' };
     }
 
@@ -532,7 +532,7 @@ export class MapsService {
     }
 
     if (!apiKey) {
-      return this.osm.autocompleteNominatim(input, lang);
+      return this.osm.autocompleteNominatim(input, lang, boxCentre);
     }
 
     const google = this.googlePlaces.provider({ key: apiKey, source: keySource, userId });
