@@ -4,9 +4,11 @@ import { useAuthStore } from '../../store/authStore';
 
 /**
  * Which integrations the settings shells offer: the addon flags behind each
- * integration section, whether any of them is on (the Integrations tab only shows
- * then), and whether this is a managed install. With `reloadAddons` the addon list
- * is fetched again on mount, as the integrations tab on both shells does.
+ * integration section, whether any of them is on, and whether this is a managed
+ * install. The desktop Integrations tab shows regardless, since its API keys need
+ * no addon; the mobile one has no API keys and only shows when `hasIntegrations`.
+ * With `reloadAddons` the addon list is fetched again on mount, as the
+ * integrations tab on both shells does.
  */
 export function useIntegrationGates({ reloadAddons }: { reloadAddons: boolean }) {
   const { isEnabled: addonEnabled, loadAddons } = useAddonStore();

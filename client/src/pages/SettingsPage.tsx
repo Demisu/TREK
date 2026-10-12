@@ -26,7 +26,7 @@ export default function SettingsPage(): React.ReactElement {
 function SettingsPageDesktop(): React.ReactElement {
   const { t } = useTranslation()
   // Page = wiring container: addon/version loading + active-tab state in the hook.
-  const { hasIntegrations, hasPlugins, appVersion, activeTab, setActiveTab, managed } = useSettings()
+  const { hasPlugins, appVersion, activeTab, setActiveTab, managed } = useSettings()
   // Every tab is its own help screen; a tab without one falls back to the settings overview.
   const helpId = getHelpContext(`settings-${activeTab}`) ? `settings-${activeTab}` : 'settings'
 
@@ -35,9 +35,9 @@ function SettingsPageDesktop(): React.ReactElement {
     { id: 'appearance', label: t('settings.tabs.appearance'), icon: Paintbrush },
     { id: 'map', label: t('settings.tabs.map'), icon: Map },
     { id: 'notifications', label: t('settings.tabs.notifications'), icon: Bell },
-    ...(hasIntegrations
-      ? [{ id: 'integrations', label: t('settings.tabs.integrations'), icon: Plug }]
-      : []),
+    // Always there: API keys sit in this tab and need no addon. The addon backed
+    // sections inside it gate themselves.
+    { id: 'integrations', label: t('settings.tabs.integrations'), icon: Plug },
     ...(hasPlugins
       ? [{ id: 'plugins', label: t('settings.tabs.plugins'), icon: Blocks }]
       : []),
@@ -86,7 +86,7 @@ function SettingsPageDesktop(): React.ReactElement {
             {activeTab === 'appearance' && <AppearanceSettingsTab />}
             {activeTab === 'map' && <MapSettingsTab />}
             {activeTab === 'notifications' && <NotificationsTab />}
-            {activeTab === 'integrations' && hasIntegrations && <IntegrationsTab />}
+            {activeTab === 'integrations' && <IntegrationsTab />}
             {activeTab === 'plugins' && hasPlugins && <PluginSettingsTab />}
             {activeTab === 'offline' && <OfflineTab />}
             {activeTab === 'account' && <AccountTab />}

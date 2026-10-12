@@ -17,7 +17,7 @@ It cannot write anything. An integration that reads your itinerary needs no abil
 
 ## Getting a key
 
-1. Open **Settings → Integrations**
+1. Open **Settings → Integrations** in the desktop layout. The tab is always there and needs no addon: an API key works with MCP and every other integration switched off. The phone layout has no API Keys section yet, so create the key on a wider screen.
 2. Under **API Keys**, click **Create key** and give it a name you will recognise later (the name is only for you — "Dawarich", "home assistant", "laptop script")
 3. Choose **what the key may read.** Everything is selected by default. Anything you switch off is refused for that key.
 4. **Copy the key immediately.** It is shown once. TREK stores only a hash of it, so it cannot be shown again — if you lose it, delete the key and make a new one.
