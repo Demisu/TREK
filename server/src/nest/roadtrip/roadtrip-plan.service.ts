@@ -148,7 +148,7 @@ export class RoadtripPlanService {
     const dayNumberOf = (dayId: number): number => context.days.find((d) => d.id === dayId)?.day_number ?? 0;
     const stored: PlanDay[] = context.days.map((day) => {
       const visits = context.visits.filter((v) => v.day_id === day.id && v.lat !== null && v.lng !== null);
-      // One night per hotel, the last visit of it, the way the browser reads the day.
+      // One night per hotel (oneNightPerStay), the way the browser reads the day.
       const stops = oneNightPerStay(
         visits.map((v, index): RoadtripStop => ({
           assignmentId: v.id,

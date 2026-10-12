@@ -10,6 +10,7 @@ import type { CorridorPoi } from '../../components/Roadtrip/useCorridorPois'
 import type { usePlaceLanguage } from '../../hooks/usePlaceLanguage'
 import type { TripStoreState } from '../../store/tripStore'
 import type { Accommodation, Place } from '../../types'
+import { nightRowsOf } from '../../utils/dayMerge'
 import { getDayOrder } from '../../utils/dayOrder'
 import type { PlannerBase } from './plannerTypes'
 import { resolvePoolAssignmentId } from './tripPlannerModel'
@@ -295,9 +296,9 @@ export function usePlaceFormOpeners(options: PlaceFormOpenersOptions) {
       if (entry) {
         const dayId = Number(entry[0])
         const visit = entry[1].find(visit => visit.id === visitId)!
-        // The night is the hotel's last visit of the day; an earlier one opens as a stop.
-        const lastVisit = entry[1].filter(other => other.place_id === place.id).every(other => (other.order_index ?? 0) <= (visit.order_index ?? 0))
-        const stay = lastVisit ? tripAccommodations.find(stay => stay.place_id === place.id && stay.start_day_id === dayId) : undefined
+        // One visit of the hotel is the night; another one that day opens as a stop.
+        const night = nightRowsOf(entry[1].map(other => ({ ...other, order_index: other.order_index ?? 0 })), tripAccommodations, dayId).has(visit.order_index ?? 0)
+        const stay = night ? tripAccommodations.find(stay => stay.place_id === place.id && stay.start_day_id === dayId) : undefined
         const category = place.stop_type ?? (stay ? 'hotel' : '')
         const routedDay = roadtripRoutes.days.find(day => day.stops.some(stop => stop.assignmentId === visitId))
         const arrivalTime = routedDay?.schedule.entries[routedDay.stops.findIndex(stop => stop.assignmentId === visitId)]?.arrival ?? null

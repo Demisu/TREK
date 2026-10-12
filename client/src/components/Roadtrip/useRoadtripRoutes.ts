@@ -321,7 +321,7 @@ export function useRoadtripRoutes(
         // The index is filled in after the drop, because it is the index into THIS
         // list: an assignment whose place has no coordinates never becomes a stop, and
         // counting before the filter would name a row the rail does not draw. A hotel
-        // visited twice on its check-in day is the night at its last visit only.
+        // visited twice on its check-in day is the night at one visit only.
         const stops = oneNightPerStay(located.map((x, i) => ({ ...x.stop, ownerIndex: i })))
         return {
           dayId: d.id,

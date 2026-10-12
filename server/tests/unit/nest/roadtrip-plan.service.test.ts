@@ -276,6 +276,39 @@ describe('a booked night on the road trip (#2410)', () => {
     expect(day.schedule.warnings).toEqual([]);
   });
 
+  it('keeps the night on the stop the booking put first over a rest later in the day (#2636)', async () => {
+    const { user, trip, plans } = await setup();
+    const arrival = createDay(db, trip.id);
+    const hotel = createPlace(db, trip.id, { name: 'Rostock', lat: 54.09, lng: 12.1 });
+    const beach = createPlace(db, trip.id, { name: 'Warnemuende', lat: 54.17, lng: 12.08 });
+    const port = createPlace(db, trip.id, { name: 'Wismar', lat: 53.9, lng: 11.46 });
+    await setPlace(hotel.id, { duration_minutes: 30 });
+    await setPlace(beach.id, { duration_minutes: 30 });
+    await setPlace(port.id, { duration_minutes: 30 });
+    // A day without hours: the booking seats its stop first, Days does not show it, and the
+    // rest the traveller put mid-day is the last visit of the hotel.
+    const booked = createDayAssignment(db, arrival.id, hotel.id);
+    createDayAssignment(db, arrival.id, beach.id);
+    createDayAssignment(db, arrival.id, hotel.id);
+    createDayAssignment(db, arrival.id, port.id);
+    const departure = createDay(db, trip.id);
+    const stay = createDayAccommodation(db, trip.id, hotel.id, arrival.id, departure.id, { check_in: '15:00' });
+    await setVisit(booked.id, { accommodation_id: stay.id });
+
+    const { calculated } = await plans.calculate(trip.id, user.id);
+
+    const [day] = calculated.days.filter((d) => d.dayId === arrival.id);
+    expect(day.stops.map((s) => [s.name, s.night, s.checkInTime])).toEqual([
+      ['Rostock', true, '15:00'],
+      ['Warnemuende', false, null],
+      ['Rostock', false, null],
+      ['Wismar', false, null],
+    ]);
+    expect(day.schedule.entries.map((e) => e.anchored ?? false)).toEqual([true, false, false, false]);
+    expect(day.schedule.warnings).toEqual([]);
+    expect(calculated.days.filter((d) => d.stops.some((s) => s.ownerDayId === arrival.id))).toHaveLength(1);
+  });
+
   it('files a lone stop that is no night under the quiet days', async () => {
     const { user, trip, plans } = await setup();
     const quiet = createDay(db, trip.id);

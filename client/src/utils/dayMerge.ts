@@ -1,5 +1,5 @@
 import { chronoOrder } from '@trek/shared'
-import { rideSeatAfter, sameDayRide, type CarrierBooking, type SeatItem } from '@trek/shared/roadtrip'
+import { nightVisits, rideSeatAfter, sameDayRide, type CarrierBooking, type SeatItem } from '@trek/shared/roadtrip'
 // `orderedEndpoints` is the geometry order's single source of truth, in the module
 // that documents the multi-leg model. Sorting endpoints a second time here is how
 // the two drift.
@@ -398,7 +398,31 @@ export function stayStartingOn<T extends StayStart>(stays: readonly T[], placeId
 interface StoredStop {
   order_index: number
   place_id?: number | null
+  accommodation_id?: number | null
   place?: { lat?: number | null; lng?: number | null; place_time?: string | null } | null
+}
+
+/** Where the row stands, or null for a row without coordinates, which is no stop of the drive. */
+function pointOf(row: StoredStop): { lat: number; lng: number } | null {
+  const lat = row.place?.lat
+  const lng = row.place?.lng
+  return typeof lat === 'number' && typeof lng === 'number' && Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null
+}
+
+/**
+ * The order indexes of the day's rows the road trip reads as a night, timed by the check-in
+ * of the stay that begins there (`stayStartingOn`): one per hotel, picked the way
+ * `oneNightPerStay` picks it over the rows the drive stops at (#2636). Another visit of
+ * the same hotel that day is a stop like any other.
+ */
+export function nightRowsOf(day: readonly StoredStop[], stays: readonly StayStart[], dayId: number): Set<number> {
+  const rows = day.filter(row => pointOf(row) !== null).sort((a, b) => a.order_index - b.order_index)
+  const nights = nightVisits(rows.map(row => ({
+    placeId: row.place_id ?? 0,
+    night: row.place_id != null && stayStartingOn(stays, row.place_id, dayId) !== undefined,
+    bookedNightId: row.accommodation_id ?? null,
+  })))
+  return new Set(rows.filter((_, i) => nights.has(i)).map(row => row.order_index))
 }
 
 /**
@@ -412,11 +436,10 @@ interface StoredStop {
  * number among their order indexes all the same, and worked out over the rows the list
  * shows it could land behind a hidden stop on the far shore, which the drive then went to
  * overland before the crossing (#2461). Each row counts with its start, else the check-in
- * of the stay that begins there that day (`stayStartingOn`) on the place's last row of the
- * day, and with its coordinates; a row without them is no stop of the drive. Where the
- * rule keeps the clock's seat, the
- * clock is read over the same rows: behind the last one timed at or before the departure,
- * else at the end of the day.
+ * of the stay that begins there that day on the row that is its night (`nightRowsOf`), and
+ * with its coordinates; a row without them is no stop of the drive. Where the rule keeps
+ * the clock's seat, the clock is read over the same rows: behind the last one timed at or
+ * before the departure, else at the end of the day.
  */
 export function storedRideSlot(
   r: CarrierBooking,
@@ -426,17 +449,12 @@ export function storedRideSlot(
 ): number | null {
   const ride = sameDayRide(r)
   if (!ride || !day.length) return null
-  // The night is the last visit of its hotel on the day (`oneNightPerStay`), so only that
-  // row is timed by the check-in; an earlier visit of the same place is a stop like any other.
-  const lastOfPlace = new Map<number | null | undefined, number>()
-  for (const row of day) lastOfPlace.set(row.place_id, Math.max(lastOfPlace.get(row.place_id) ?? -Infinity, row.order_index))
+  const nights = nightRowsOf(day, stays, dayId)
   const items: SeatItem[] = day.flatMap(row => {
-    const lat = row.place?.lat
-    const lng = row.place?.lng
-    if (typeof lat !== 'number' || typeof lng !== 'number' || !Number.isFinite(lat) || !Number.isFinite(lng)) return []
-    const night = lastOfPlace.get(row.place_id) === row.order_index
-    const start = row.place?.place_time ?? (night ? stayStartingOn(stays, row.place_id, dayId)?.check_in : null)
-    return [{ key: row.order_index, minutes: parseTimeToMinutes(start), point: { lat, lng } }]
+    const point = pointOf(row)
+    if (!point) return []
+    const start = row.place?.place_time ?? (nights.has(row.order_index) ? stayStartingOn(stays, row.place_id, dayId)?.check_in : null)
+    return [{ key: row.order_index, minutes: parseTimeToMinutes(start), point }]
   })
   const keys = day.map(row => row.order_index)
   const seat = rideSeatAfter(items, ride)

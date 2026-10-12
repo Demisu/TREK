@@ -1,5 +1,5 @@
 /**
- * ROADTRIP-ASSEMBLE-001..023: what the assembler does with the model's warnings, and
+ * ROADTRIP-ASSEMBLE-001..024: what the assembler does with the model's warnings, and
  * what it tells a surface about the drive between connected days. From 017 on: a booked
  * night seated at both ends of its days (`seatNightBookends`) is one spot overnight,
  * driven to and from like any stop and never between.
@@ -415,6 +415,35 @@ describe('assembleRoadtrip a hotel visited twice on its check-in day (#2636)', (
     expect(day.schedule.entries[1]!.anchored).toBeFalsy();
     expect(day.schedule.entries[3]!.anchored).toBe(true);
     expect(day.schedule.warnings).toEqual([]);
+  });
+
+  it('ROADTRIP-ASSEMBLE-024: the booking leads a day without hours, and a rest later on is a stop', () => {
+    // The booking seats its stop first on a day nobody put an hour on, and Days does not
+    // show it. The rest the traveller put mid-day is then the hotel's last visit, and read
+    // as the night it was held to the check-in a second time.
+    const day = (rest: Partial<RoadtripStop>) =>
+      oneNightPerStay([
+        stop({ ownerIndex: 0, ...hotel, checkInTime: '15:00', bookedNightId: 7 }),
+        stop({ ownerIndex: 1, dwellMinutes: 30 }),
+        stop({ ownerIndex: 2, ...rest, dwellMinutes: 60 }),
+        stop({ ownerIndex: 3, dwellMinutes: 30 }),
+      ]);
+
+    const routes = assemble(day({ ...hotel, checkInTime: '15:00' }), [hour, hour, hour]);
+
+    expect(routes.days).toHaveLength(1);
+    const [only] = routes.days;
+    expect(only!.stops.map((s) => [s.ownerIndex, s.night, s.checkInTime])).toEqual([
+      [0, true, '15:00'],
+      [1, undefined, undefined],
+      [2, false, null],
+      [3, undefined, undefined],
+    ]);
+    // The day runs as it did before the rest was put on it.
+    const without = assemble(day({ placeId: 900, lat: 45, lng: 7 }), [hour, hour, hour]);
+    expect(only!.schedule.entries).toEqual(without.days[0]!.schedule.entries);
+    expect(only!.schedule.entries.map((e) => e.arrival)).toEqual(['15:00', '16:00', '17:30', '19:30']);
+    expect(only!.schedule.warnings).toEqual([]);
   });
 });
 

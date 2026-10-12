@@ -9,7 +9,7 @@
  * ride the road does not see, a terminal out of a drive's reach, and the flight day of
  * the report read from the stored day to its nights. From 033 on: the stop a booking put
  * on its check-in day gives way to the evening at that stay. From 036 on: a hotel visited
- * twice on its check-in day is the night at its last visit only (#2636).
+ * twice on its check-in day is the night at one visit only (#2636).
  */
 import { assembleRoadtrip } from './assemble';
 import { carrierLegsFor, carrierSeam, seatCarrierStops, terminalAssignmentId, type CarrierBooking } from './carriers';
@@ -837,6 +837,26 @@ describe('a hotel visited twice on its check-in day (#2636)', () => {
     // One visit per hotel, two hotels on one day, or no hotel: the day comes back as it was.
     const other = stayStop(D2, 3, GETAWAY, { name: 'Other', placeId: 501, checkInTime: '18:00' });
     for (const stops of [[place, night], [night, other], [place]]) expect(oneNightPerStay(stops)).toBe(stops);
+  });
+
+  it('ROADTRIP-BOOKENDS-038: the booking keeps the night over a later rest, and a visit that ends the day takes it', () => {
+    const booked = stayStop(D2, 0, WALLINGA, { name: 'Booked', placeId: 502, checkInTime: '15:00', bookedNightId: 2 });
+    const rest = stayStop(D2, 2, WALLINGA, { name: 'Rest', placeId: 502, checkInTime: '15:00' });
+    const place = visit(D2, 1, { name: 'P' });
+    const after = visit(D2, 3, { name: 'Q' });
+    // The booking's stop first, the traveller's rest mid-day: the rest is a stop.
+    expect(nights(planDay(D2, oneNightPerStay([booked, place, rest, after])))).toEqual([
+      ['Booked', true, '15:00'],
+      ['P', false, null],
+      ['Rest', false, null],
+      ['Q', false, null],
+    ]);
+    // The traveller's own visit ends the day: that is the night, the booking's stop a stop.
+    expect(nights(planDay(D2, oneNightPerStay([booked, place, rest])))).toEqual([
+      ['Booked', false, null],
+      ['P', false, null],
+      ['Rest', true, '15:00'],
+    ]);
   });
 
   it('ROADTRIP-BOOKENDS-037: with the days at the stay, the rest stays a stop and the booked night ends the day', () => {

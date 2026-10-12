@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseTimeToMinutes, getSpanPhase, hidesOnMiddleDay, getTransportRouteEndpoints, getDisplayTimeForDay, getTransportForDay, getAssignmentReservations, getPlaceBookings, getMergedItems, rideSeatKey, seatTimedDrop, stayStartingOn, storedRideSlot, timedSlot, type MergedItem } from './dayMerge'
+import { parseTimeToMinutes, getSpanPhase, hidesOnMiddleDay, getTransportRouteEndpoints, getDisplayTimeForDay, getTransportForDay, getAssignmentReservations, getPlaceBookings, getMergedItems, nightRowsOf, rideSeatKey, seatTimedDrop, stayStartingOn, storedRideSlot, timedSlot, type MergedItem } from './dayMerge'
 import { planMergedOrder, withTransportPositions } from './mergedOrder'
 
 describe('parseTimeToMinutes', () => {
@@ -421,6 +421,18 @@ describe('storedRideSlot', () => {
     const checkIn = [{ place_id: 30, start_day_id: 5, check_in: '18:00' }]
     const night = { ...hotel, id: 4, order_index: 2 }
     expect(storedRideSlot(ferry(), [amsterdam, hotel, night], checkIn, 5)).toBe(0.5)
+  })
+
+  it("reads the booking's stop as the night over a rest after it, and a visit that ends the day over both (#2636)", () => {
+    const stays = [{ place_id: 30, start_day_id: 5, check_in: '18:00' }]
+    // The booking seats its stop first on a day without hours, and Days does not show it.
+    const booked = { ...hotel, order_index: 0, accommodation_id: 7 }
+    const rest = { ...hotel, id: 4, order_index: 2 }
+    const after = row(5, 3, 54.9783, -1.6178)
+    expect([...nightRowsOf([booked, { ...amsterdam, order_index: 1 }, rest, after], stays, 5)]).toEqual([0])
+    expect([...nightRowsOf([booked, { ...amsterdam, order_index: 1 }, rest], stays, 5)]).toEqual([2])
+    // Without a stay starting there that day nothing is a night.
+    expect([...nightRowsOf([booked, rest], stays, 6)]).toEqual([])
   })
 
   it('opens the day, closes it, or sits behind a timed row, measured on order indexes', () => {

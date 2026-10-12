@@ -113,30 +113,52 @@ export function bookendStaysOf<S extends Omit<BookendStay, 'reservation_id'>>(
 }
 
 /**
- * The stored day's stops with one night per hotel: the last visit of a place a stay begins
- * at on this day (#2636).
+ * The stored day's stops with one night per hotel (#2636).
  *
  * A stop is a night when a stay begins at its place on its day, and a hotel can be on its
  * check-in day twice: the stop the booking put there and the traveller's own visit, back
  * for a rest at noon. Both were read as the night and both held to the check-in, so the
  * rest waited for the room or was set back to it, and a check-in twelve hours off its
- * arrival moved it and every stop behind it onto the next day's card. The night ends the
- * day, so the last visit is the night; the ones before it are stops like any other, a
- * hotel all the same, without the check-in.
+ * arrival moved it and every stop behind it onto the next day's card.
+ *
+ * One of the visits keeps the night and its check-in, the others are stops like any
+ * other, a hotel all the same. A visit that ends the day is the night. Else the booking's
+ * stop is: it is seated by its check-in (night-seat.ts), first on a day without hours,
+ * and Days does not show it, so a rest the traveller put after it is the last visit they
+ * see and still not the night. Else the last visit is.
  *
  * Read over the stops in their stored order, before a terminal or a bookend is seated
  * among them, the same in the browser and on the server. A day with one visit per hotel
  * comes back as it was.
  */
 export function oneNightPerStay(stops: RoadtripStop[]): RoadtripStop[] {
-  const last = new Map<number, number>();
-  stops.forEach((stop, i) => {
-    if (stop.night) last.set(stop.placeId, i);
+  const nights = nightVisits(stops);
+  if (nights.size === stops.filter((stop) => stop.night).length) return stops;
+  return stops.map((stop, i) => (stop.night && !nights.has(i) ? { ...stop, night: false, checkInTime: null } : stop));
+}
+
+/**
+ * The indexes of the visits `oneNightPerStay` keeps as the night, one per place, over a
+ * day's visits in their stored order. A row is a candidate when a stay begins at its
+ * place that day (`night`); `bookedNightId` marks the stop the booking put there. For a
+ * caller that reads the stored rows rather than the stops (the ride slot, the editor).
+ */
+export function nightVisits(visits: readonly Pick<RoadtripStop, 'placeId' | 'night' | 'bookedNightId'>[]): Set<number> {
+  const byPlace = new Map<number, number[]>();
+  visits.forEach((visit, i) => {
+    if (visit.night) byPlace.set(visit.placeId, [...(byPlace.get(visit.placeId) ?? []), i]);
   });
-  if (last.size === stops.filter((stop) => stop.night).length) return stops;
-  return stops.map((stop, i) =>
-    stop.night && last.get(stop.placeId) !== i ? { ...stop, night: false, checkInTime: null } : stop,
-  );
+  const nights = new Set<number>();
+  for (const at of byPlace.values()) {
+    let last = -1;
+    let booked = -1;
+    for (const i of at) {
+      last = i;
+      if (visits[i]?.bookedNightId != null) booked = i;
+    }
+    nights.add(last === visits.length - 1 || booked < 0 ? last : booked);
+  }
+  return nights;
 }
 
 /**
