@@ -1333,3 +1333,24 @@ describe('MJourneyEntrySheet clips', () => {
     expect(document.querySelectorAll('svg.lucide-play')).toHaveLength(1);
   });
 });
+
+// FE-MOB-JENTRY-057: the phone half of the location field that snapped back (#2615).
+
+describe('MJourneyEntrySheet location field', () => {
+  it('FE-MOB-JENTRY-057: emptying the location keeps the field empty, drops the pin and saves no place', async () => {
+    const user = userEvent.setup();
+    const { onSave } = mountSheet(buildEntry({ id: 5, location_name: 'Rome', location_lat: 41.9, location_lng: 12.5 }));
+    const input = screen.getByPlaceholderText('Search location...');
+    expect(input).toHaveValue('Rome');
+    expect(document.querySelector('svg.lucide-map-pin')).toBeInTheDocument();
+
+    fireEvent.change(input, { target: { value: 'Rom' } });
+    fireEvent.change(input, { target: { value: '' } });
+    expect(input).toHaveValue('');
+    expect(document.querySelector('svg.lucide-map-pin')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(onSave).toHaveBeenCalled());
+    expect(onSave.mock.calls[0][0]).toMatchObject({ location_name: null, location_lat: null, location_lng: null });
+  });
+});

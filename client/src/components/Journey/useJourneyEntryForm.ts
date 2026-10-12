@@ -102,6 +102,8 @@ export function useJourneyEntryForm({
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState('');
   const locationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Counts location lookups, so an answer that comes back after the field moved on is dropped.
+  const locationSearchSeqRef = useRef(0);
   const [mood, setMood] = useState(entry.mood || '');
   const [weather, setWeather] = useState(entry.weather || '');
   const [statsExcluded, setStatsExcluded] = useState(entry.stats_excluded ?? false);
@@ -423,8 +425,19 @@ export function useJourneyEntryForm({
 
   const searchLocation = (query: string) => {
     setLocationQuery(query);
-    setShowLocationResults(true);
     if (locationTimerRef.current) clearTimeout(locationTimerRef.current);
+    const seq = ++locationSearchSeqRef.current;
+    // An emptied field removes the place instead of falling back to the stored one (#2615).
+    if (!query.trim()) {
+      setLocationName('');
+      setLocationLat(null);
+      setLocationLng(null);
+      setLocationResults([]);
+      setLocationSearching(false);
+      setShowLocationResults(false);
+      return;
+    }
+    setShowLocationResults(true);
     if (query.trim().length < 2) {
       setLocationResults([]);
       return;
@@ -433,6 +446,7 @@ export function useJourneyEntryForm({
       setLocationSearching(true);
       try {
         const res = await mapsApi.search(query, placeLang);
+        if (seq !== locationSearchSeqRef.current) return;
         setLocationResults(
           (res.places || [])
             .slice(0, 6)
@@ -444,14 +458,16 @@ export function useJourneyEntryForm({
             }))
         );
       } catch {
-        setLocationResults([]);
+        if (seq === locationSearchSeqRef.current) setLocationResults([]);
       } finally {
-        setLocationSearching(false);
+        if (seq === locationSearchSeqRef.current) setLocationSearching(false);
       }
     }, 400);
   };
 
   const pickLocation = (r: LocationResult) => {
+    locationSearchSeqRef.current++;
+    setLocationSearching(false);
     setLocationName(r.name);
     setLocationLat(r.lat);
     setLocationLng(r.lng);
@@ -470,6 +486,7 @@ export function useJourneyEntryForm({
       // reverse geocode comes back.
       const fallbackName = `${pos.lat.toFixed(5)}, ${pos.lng.toFixed(5)}`;
       if (locationTimerRef.current) clearTimeout(locationTimerRef.current);
+      locationSearchSeqRef.current++;
       setLocationSearching(false);
       setLocationLat(pos.lat);
       setLocationLng(pos.lng);

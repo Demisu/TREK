@@ -1,4 +1,4 @@
-// FE-JRN-ENTRYFORM-001 to FE-JRN-ENTRYFORM-021: the journey entry form logic behind both
+// FE-JRN-ENTRYFORM-001 to FE-JRN-ENTRYFORM-024: the journey entry form logic behind both
 // the desktop editor dialog and the phone entry sheet.
 import { act, renderHook, waitFor } from '@testing-library/react';
 import type React from 'react';
@@ -387,5 +387,56 @@ describe('useJourneyEntryForm', () => {
     expect(addToast).toHaveBeenCalledWith('Locked', 'error', undefined);
     expect(onDone).not.toHaveBeenCalled();
     expect(sheet.result.current.saving).toBe(false);
+  });
+
+  it('FE-JRN-ENTRYFORM-022: emptying the location field removes the location and saves it as gone (#2615)', async () => {
+    const { result, props } = setup();
+    act(() => result.current.searchLocation('Rom'));
+    act(() => result.current.searchLocation(''));
+    expect(result.current.locationQuery).toBe('');
+    expect(result.current.locationName).toBe('');
+    expect(result.current.locationLat).toBeNull();
+    expect(result.current.locationLng).toBeNull();
+    expect(result.current.showLocationResults).toBe(false);
+    expect(result.current.isDirty).toBe(true);
+
+    await act(() => result.current.handleSave());
+    expect(props.onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ location_name: null, location_lat: null, location_lng: null }),
+      4
+    );
+  });
+
+  it('FE-JRN-ENTRYFORM-023: a search still on its way when the field is emptied does not bring its results back', async () => {
+    vi.useFakeTimers();
+    let answer: (v: unknown) => void = () => {};
+    vi.spyOn(mapsApi, 'search').mockReturnValue(new Promise((resolve) => (answer = resolve)) as never);
+    const { result } = setup();
+    act(() => result.current.searchLocation('Par'));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(400);
+    });
+    expect(result.current.locationSearching).toBe(true);
+
+    act(() => result.current.searchLocation(''));
+    expect(result.current.locationSearching).toBe(false);
+    await act(async () => {
+      answer({ places: [{ name: 'Paris', lat: '48.85', lng: '2.35' }] });
+    });
+    expect(result.current.locationResults).toEqual([]);
+    expect(result.current.locationSearching).toBe(false);
+  });
+
+  it('FE-JRN-ENTRYFORM-024: typed text without a picked result keeps the stored location', async () => {
+    const { result, props } = setup();
+    act(() => result.current.searchLocation('Mil'));
+    expect(result.current.locationName).toBe('Rome');
+    expect(result.current.locationLat).toBe(41.89);
+
+    await act(() => result.current.handleSave());
+    expect(props.onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ location_name: 'Rome', location_lat: 41.89, location_lng: 12.49 }),
+      4
+    );
   });
 });
