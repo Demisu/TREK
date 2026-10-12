@@ -259,6 +259,8 @@ const journey: TranslationStrings = {
   'journey.settings.failedToDelete': 'Silmək mümkün olmadı',
 
   'journey.entries.deleteTitle': 'Qeydi sil',
+  'journey.gallery.deleteTitle': 'Fotonu sil',
+  'journey.gallery.deleteMessage': 'Bu foto qalereyadan və istifadə olunduğu bütün qeydlərdən silinəcək. Bunu geri qaytarmaq mümkün deyil.',
   'journey.photosUploaded': '{count} foto yükləndi',
   'journey.photosUploaded.one': '{count} foto yükləndi',
   'journey.photosUploadFailed': 'Bəzi fotoları yükləmək mümkün olmadı',

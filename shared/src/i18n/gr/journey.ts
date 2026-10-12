@@ -235,6 +235,8 @@ const journey: TranslationStrings = {
   'journey.settings.coverFailed': 'Η μεταφόρτωση απέτυχε',
   'journey.settings.failedToDelete': 'Αποτυχία διαγραφής',
   'journey.entries.deleteTitle': 'Διαγραφή Καταχώρησης',
+  'journey.gallery.deleteTitle': 'Διαγραφή φωτογραφίας',
+  'journey.gallery.deleteMessage': 'Η φωτογραφία θα αφαιρεθεί από τη συλλογή και από κάθε καταχώρηση στην οποία εμφανίζεται. Αυτό δεν μπορεί να αναιρεθεί.',
   'journey.photosUploaded': '{count} φωτογραφίες μεταφορτώθηκαν',
   'journey.photosUploaded.one': '{count} φωτογραφία μεταφορτώθηκε',
   'journey.photosUploadFailed': 'Ορισμένες φωτογραφίες απέτυχαν να μεταφορτωθούν',

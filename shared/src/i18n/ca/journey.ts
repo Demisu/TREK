@@ -227,6 +227,8 @@ const journey: TranslationStrings = {
   'journey.settings.coverFailed': 'Error en pujar',
   'journey.settings.failedToDelete': 'Error en eliminar',
   'journey.entries.deleteTitle': "Elimina l'entrada",
+  'journey.gallery.deleteTitle': 'Elimina la foto',
+  'journey.gallery.deleteMessage': "Aquesta foto s'eliminarà de la galeria i de totes les entrades on apareix. No es pot desfer.",
   'journey.photosUploaded': '{count} fotos pujades',
   'journey.photosUploaded.one': '{count} foto pujada',
   'journey.photosUploadFailed': "Algunes fotos no s'han pogut pujar",

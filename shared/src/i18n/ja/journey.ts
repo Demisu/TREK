@@ -222,6 +222,8 @@ const journey: TranslationStrings = {
   'journey.settings.coverFailed': 'アップロードに失敗しました',
   'journey.settings.failedToDelete': '削除に失敗しました',
   'journey.entries.deleteTitle': 'エントリーを削除',
+  'journey.gallery.deleteTitle': '写真を削除',
+  'journey.gallery.deleteMessage': 'この写真はギャラリーと、使われているすべてのエントリーから削除されます。元に戻すことはできません。',
   'journey.photosUploaded': '{count}枚の写真をアップロードしました',
   'journey.photosAdded': '{count}枚の写真を追加しました',
   'journey.public.notFound': '見つかりません',

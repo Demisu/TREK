@@ -236,6 +236,8 @@ const journey: TranslationStrings = {
   'journey.settings.coverFailed': 'Przesyłanie nie powiodło się',
   'journey.settings.failedToDelete': 'Nie udało się usunąć',
   'journey.entries.deleteTitle': 'Usuń wpis',
+  'journey.gallery.deleteTitle': 'Usuń zdjęcie',
+  'journey.gallery.deleteMessage': 'To zdjęcie zniknie z galerii i ze wszystkich wpisów, w których jest użyte. Tej operacji nie można cofnąć.',
   'journey.photosUploaded': 'Przesłano {count} zdjęcia',
   'journey.photosUploaded.one': 'Przesłano {count} zdjęcie',
   'journey.photosUploaded.few': 'Przesłano {count} zdjęcia',

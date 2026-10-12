@@ -232,6 +232,8 @@ const journey: TranslationStrings = {
   'journey.settings.coverFailed': 'Uppladdning misslyckades',
   'journey.settings.failedToDelete': 'Kunde inte ta bort',
   'journey.entries.deleteTitle': 'Ta bort inlägg',
+  'journey.gallery.deleteTitle': 'Ta bort foto',
+  'journey.gallery.deleteMessage': 'Fotot tas bort från galleriet och från alla inlägg där det används. Detta kan inte ångras.',
   'journey.photosUploaded': '{count} foton uppladdade',
   'journey.photosUploaded.one': '{count} foto uppladdat',
   'journey.photosUploadFailed': 'Några foton kunde inte laddas upp',

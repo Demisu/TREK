@@ -226,6 +226,8 @@ const journey: TranslationStrings = {
   'journey.settings.coverFailed': 'Caricamento fallito',
   'journey.settings.failedToDelete': 'Eliminazione non riuscita',
   'journey.entries.deleteTitle': 'Elimina voce',
+  'journey.gallery.deleteTitle': 'Elimina foto',
+  'journey.gallery.deleteMessage': 'Questa foto verrà rimossa dalla galleria e da tutte le voci in cui compare. Non è possibile annullare.',
   'journey.photosUploaded': '{count} foto caricate',
   'journey.photosUploaded.one': '{count} foto caricata',
   'journey.photosUploadFailed': 'Alcune foto non sono state caricate',

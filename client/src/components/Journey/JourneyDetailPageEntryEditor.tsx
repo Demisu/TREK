@@ -29,7 +29,9 @@ const SOURCE_ON = 'border-content bg-surface-secondary text-content'
 const PHOTO_PANEL = 'mt-2 rounded-[12px] border border-edge-faint bg-surface-secondary'
 /** A control laid over a photo tile, raised on the card colour so it reads on any picture. */
 const ON_PHOTO = 'bg-surface-card text-content shadow-sm'
-const PHOTO_REMOVE = `absolute end-1 top-1 grid h-5 w-5 place-items-center rounded-full opacity-0 transition-opacity group-hover:opacity-100 ${ON_PHOTO}`
+/** A tile control shown on hover, on keyboard focus, and always where there is no hover (#2593). */
+const ON_TILE_HOVER = 'opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100'
+const PHOTO_REMOVE = `absolute end-1 top-1 grid h-5 w-5 place-items-center rounded-full ${ON_TILE_HOVER} ${ON_PHOTO}`
 /** What hangs under the location field: the search results, or the note that a search is running. */
 const DROPDOWN = 'absolute inset-x-0 top-full z-[100] mt-1 rounded-[12px] border border-edge-faint bg-surface-card shadow-dropdown'
 
@@ -409,7 +411,7 @@ export function EntryEditor({ entry, journeyId, tripDates, galleryPhotos, trips,
                       {idx > 0 && photos.length > 1 && (
                         <button type="button"
                           onClick={e => { e.stopPropagation(); photoOrder.makeFirst(idx) }}
-                          className={`absolute bottom-0.5 start-0.5 rounded px-1.5 py-0.5 font-semibold opacity-0 transition-opacity group-hover:opacity-100 ${ON_PHOTO}`}
+                          className={`absolute bottom-0.5 start-0.5 rounded px-1.5 py-0.5 font-semibold ${ON_TILE_HOVER} ${ON_PHOTO}`}
                           style={fs(8)}
                         >
                           {t('journey.editor.makeFirst')}

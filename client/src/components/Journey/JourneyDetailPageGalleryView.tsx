@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react'
 import { RefreshCw, Camera, X, Play } from 'lucide-react'
 import { useJourneyStore } from '../../store/journeyStore'
 import { useTranslation } from '../../i18n'
-import { journeyApi } from '../../api/client'
 import { useToast } from '../shared/Toast'
 import type { JourneyEntry, GalleryPhoto, JourneyTrip } from '../../store/journeyStore'
 import { photoUrl, posterlessVideo } from '../../pages/journeyDetail/JourneyDetailPage.helpers'
@@ -11,13 +10,16 @@ import { useConnectedPhotoProviders } from './useConnectedPhotoProviders'
 import { useGalleryUpload } from './useGalleryUpload'
 import { ScrollTrigger } from './JourneyDetailPageScrollTrigger'
 import EmptyState from '../shared/EmptyState'
+import ConfirmDialog from '../shared/ConfirmDialog'
 
-export function GalleryView({ entries, gallery, journeyId, userId, trips, onPhotoClick, onRefresh, onAddProviderPhotos, onRegisterUpload, onRegisterProviders, onUploadProgress }: {
+export function GalleryView({ entries, gallery, journeyId, userId, trips, canEdit, onPhotoClick, onRefresh, onAddProviderPhotos, onRegisterUpload, onRegisterProviders, onUploadProgress }: {
   entries: JourneyEntry[]
   gallery: GalleryPhoto[]
   journeyId: number
   userId: number
   trips: JourneyTrip[]
+  /** Owner or editor: only they get the delete on a tile, the server refuses everyone else. */
+  canEdit: boolean
   onPhotoClick: (photos: GalleryPhoto[], index: number) => void
   onRefresh: () => void
   /** What the picker's Add does: the host's useProviderPhotoAdds, shared with the phone screen. */
@@ -63,24 +65,15 @@ export function GalleryView({ entries, gallery, journeyId, userId, trips, onPhot
   const galleryFileRef = useRef<HTMLInputElement>(null)
   useEffect(() => { onRegisterUpload?.(() => galleryFileRef.current?.click()) }, [onRegisterUpload])
 
+  // Deleting is final on the server and takes the photo out of every entry that
+  // uses it too, so the tile only asks; the dialog does the deleting (#2593).
+  const [deleteTarget, setDeleteTarget] = useState<GalleryPhoto | null>(null)
+
   const handleDeletePhoto = async (galleryPhotoId: number) => {
     const store = useJourneyStore.getState()
     if (!store.current) return
-
-    // Optimistic update — remove from gallery and all entry photo lists
-    useJourneyStore.setState({
-      current: {
-        ...store.current,
-        gallery: (store.current.gallery || []).filter(p => p.id !== galleryPhotoId),
-        entries: store.current.entries.map(e => ({
-          ...e,
-          photos: e.photos.filter(p => p.id !== galleryPhotoId),
-        })),
-      },
-    })
-
     try {
-      await journeyApi.deleteGalleryPhoto(journeyId, galleryPhotoId)
+      await store.deleteGalleryPhoto(journeyId, galleryPhotoId)
     } catch {
       toast.error(t('common.error'))
       onRefresh()
@@ -134,13 +127,17 @@ export function GalleryView({ entries, gallery, journeyId, userId, trips, onPhot
                   </span>
                 </div>
               )}
-              {/* Delete button */}
-              <button type="button"
-                onClick={(e) => { e.stopPropagation(); void handleDeletePhoto(photo.id) }}
-                className="absolute top-1.5 end-1.5 w-6 h-6 rounded-full bg-black/60 backdrop-blur text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
-              >
-                <X size={12} />
-              </button>
+              {/* Delete: revealed on hover, always there where there is no hover (#2593) */}
+              {canEdit && (
+                <button type="button"
+                  onClick={(e) => { e.stopPropagation(); setDeleteTarget(photo) }}
+                  onKeyDown={e => e.stopPropagation()}
+                  aria-label={t('common.delete')}
+                  className="absolute top-1.5 end-1.5 w-6 h-6 rounded-full bg-black/60 backdrop-blur text-white flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:w-8 [@media(hover:none)]:h-8 [@media(hover:none)]:opacity-100 transition-opacity z-10"
+                >
+                  <X size={12} />
+                </button>
+              )}
               {photo.provider && photo.provider !== 'local' && (
                 <div className="absolute top-1.5 start-1.5">
                   <span className="text-[8px] font-medium px-1.5 py-0.5 rounded-full bg-black/70 backdrop-blur text-white flex items-center gap-1">
@@ -150,7 +147,7 @@ export function GalleryView({ entries, gallery, journeyId, userId, trips, onPhot
                 </div>
               )}
               {photo.caption && (
-                <div className="absolute bottom-0 inset-x-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute bottom-0 inset-x-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity">
                   <p className="text-[10px] text-white truncate">{photo.caption}</p>
                 </div>
               )}
@@ -161,6 +158,16 @@ export function GalleryView({ entries, gallery, journeyId, userId, trips, onPhot
       {visibleCount < allPhotos.length && (
         <ScrollTrigger onVisible={() => setVisibleCount(c => c + GALLERY_PAGE)} loading={false} />
       )}
+
+      <ConfirmDialog
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => { if (deleteTarget) void handleDeletePhoto(deleteTarget.id) }}
+        title={t('journey.gallery.deleteTitle')}
+        message={t('journey.gallery.deleteMessage')}
+        confirmLabel={t('common.delete')}
+        danger
+      />
 
       {/* Provider Photo Picker Modal */}
       {showPicker && (

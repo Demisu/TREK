@@ -1,4 +1,4 @@
-// FE-MOB-JDET-001 to FE-MOB-JDET-039
+// FE-MOB-JDET-001 to FE-MOB-JDET-043
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '../../../helpers/render';
 import MJourneyDetail from '../../../../src/mobile/screens/journey/MJourneyDetail';
@@ -660,5 +660,55 @@ describe('MJourneyDetail', () => {
     // height. A map on a percentage of an auto-height parent collapses to zero.
     const { container } = setup();
     expect(container.firstElementChild).toHaveClass('h-dvh');
+  });
+  it('FE-MOB-JDET-040: an editor gets a delete button on every gallery tile, a viewer none (#2593)', () => {
+    const gallery = [buildGalleryPhoto(), buildGalleryPhoto({ id: 502, photo_id: 901 })];
+    const { unmount } = setup({ view: 'gallery', current: buildDetail({ gallery }) });
+    expect(screen.getAllByRole('button', { name: 'common.delete' })).toHaveLength(2);
+    unmount();
+
+    setup({ view: 'gallery', current: buildDetail({ gallery }), canEditEntries: false });
+    expect(screen.queryByRole('button', { name: 'common.delete' })).not.toBeInTheDocument();
+  });
+
+  it('FE-MOB-JDET-041: the tile delete asks first and only then deletes the photo', async () => {
+    const deleteGalleryPhoto = vi.fn(async () => {});
+    useJourneyStore.setState({ deleteGalleryPhoto } as never);
+    const gallery = [buildGalleryPhoto(), buildGalleryPhoto({ id: 502, photo_id: 901 })];
+    const { hook } = setup({ view: 'gallery', current: buildDetail({ gallery }) });
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'common.delete' })[1]);
+    expect(hook.setLightbox).not.toHaveBeenCalled();
+    expect(deleteGalleryPhoto).not.toHaveBeenCalled();
+    expect(screen.getByText('journey.gallery.deleteMessage')).toBeInTheDocument();
+
+    const confirm = screen.getAllByRole('button', { name: 'common.delete' }).slice(-1)[0];
+    fireEvent.click(confirm);
+    await waitFor(() => expect(deleteGalleryPhoto).toHaveBeenCalledWith(12, 502));
+    expect(screen.queryByText('journey.gallery.deleteMessage')).not.toBeInTheDocument();
+  });
+
+  it('FE-MOB-JDET-042: cancelling the photo confirm deletes nothing', () => {
+    const deleteGalleryPhoto = vi.fn(async () => {});
+    useJourneyStore.setState({ deleteGalleryPhoto } as never);
+    setup({ view: 'gallery', current: buildDetail({ gallery: [buildGalleryPhoto()] }) });
+
+    fireEvent.click(screen.getByRole('button', { name: 'common.delete' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(screen.queryByText('journey.gallery.deleteMessage')).not.toBeInTheDocument();
+    expect(deleteGalleryPhoto).not.toHaveBeenCalled();
+  });
+
+  it('FE-MOB-JDET-043: a failed photo delete reports it and reloads the journey', async () => {
+    const deleteGalleryPhoto = vi.fn(async () => { throw new Error('nope'); });
+    useJourneyStore.setState({ deleteGalleryPhoto } as never);
+    const { hook } = setup({ view: 'gallery', current: buildDetail({ gallery: [buildGalleryPhoto()] }) });
+
+    fireEvent.click(screen.getByRole('button', { name: 'common.delete' }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'common.delete' }).slice(-1)[0]);
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('common.error'));
+    expect(hook.loadJourney).toHaveBeenCalledWith(12);
   });
 });

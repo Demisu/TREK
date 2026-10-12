@@ -218,6 +218,8 @@ const journey: TranslationStrings = {
   'journey.settings.coverFailed': '上傳失敗',
   'journey.settings.failedToDelete': '刪除失敗',
   'journey.entries.deleteTitle': '刪除條目',
+  'journey.gallery.deleteTitle': '刪除照片',
+  'journey.gallery.deleteMessage': '這張照片將從相簿以及所有使用它的條目中移除。此操作無法復原。',
   'journey.photosUploaded': '{count} 張照片已上傳',
   'journey.photosUploadFailed': '部分照片上傳失敗',
   'journey.photosAdded': '{count} 張照片已新增',

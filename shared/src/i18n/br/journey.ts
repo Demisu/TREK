@@ -227,6 +227,8 @@ const journey: TranslationStrings = {
   'journey.settings.coverFailed': 'Falha no envio',
   'journey.settings.failedToDelete': 'Falha ao excluir',
   'journey.entries.deleteTitle': 'Excluir entrada',
+  'journey.gallery.deleteTitle': 'Excluir foto',
+  'journey.gallery.deleteMessage': 'Esta foto será removida da galeria e de todas as entradas em que aparece. Isso não pode ser desfeito.',
   'journey.photosUploaded': '{count} fotos enviadas',
   'journey.photosUploaded.one': '{count} foto enviada',
   'journey.photosUploadFailed': 'Algumas fotos não foram enviadas',

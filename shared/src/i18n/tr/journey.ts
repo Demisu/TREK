@@ -227,6 +227,8 @@ const journey: TranslationStrings = {
   'journey.settings.coverFailed': 'Yükleme başarısız oldu',
   'journey.settings.failedToDelete': 'Silinemedi',
   'journey.entries.deleteTitle': 'Kaydı Sil',
+  'journey.gallery.deleteTitle': 'Fotoğrafı sil',
+  'journey.gallery.deleteMessage': 'Bu fotoğraf galeriden ve kullanıldığı tüm kayıtlardan kaldırılacak. Bu işlem geri alınamaz.',
   'journey.photosUploaded': '{count} fotoğraf yüklendi',
   'journey.photosUploaded.one': '{count} fotoğraf yüklendi',
   'journey.photosAdded': '{count} fotoğraf eklendi',

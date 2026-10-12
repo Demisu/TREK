@@ -231,6 +231,8 @@ const journey: TranslationStrings = {
   'journey.settings.coverFailed': 'Upload fehlgeschlagen',
   'journey.settings.failedToDelete': 'Löschen fehlgeschlagen',
   'journey.entries.deleteTitle': 'Eintrag löschen',
+  'journey.gallery.deleteTitle': 'Foto löschen',
+  'journey.gallery.deleteMessage': 'Das Foto verschwindet aus der Galerie und aus allen Einträgen, in denen es verwendet wird. Das kann nicht rückgängig gemacht werden.',
   'journey.photosUploaded': '{count} Fotos hochgeladen',
   'journey.photosUploaded.one': '{count} Foto hochgeladen',
   'journey.photosUploadFailed': 'Einige Fotos konnten nicht hochgeladen werden',

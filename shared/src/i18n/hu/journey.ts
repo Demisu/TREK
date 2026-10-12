@@ -226,6 +226,8 @@ const journey: TranslationStrings = {
   'journey.settings.coverFailed': 'A feltöltés sikertelen',
   'journey.settings.failedToDelete': 'Törlés sikertelen',
   'journey.entries.deleteTitle': 'Bejegyzés törlése',
+  'journey.gallery.deleteTitle': 'Fotó törlése',
+  'journey.gallery.deleteMessage': 'A fotó eltűnik a galériából és minden bejegyzésből, amelyben szerepel. Ez nem vonható vissza.',
   'journey.photosUploaded': '{count} fotó feltöltve',
   'journey.photosUploaded.one': '{count} fotó feltöltve',
   'journey.photosUploadFailed': 'Néhány fotót nem sikerült feltölteni',

@@ -232,6 +232,8 @@ const journey: TranslationStrings = {
   'journey.settings.coverFailed': 'การอัปโหลดล้มเหลว',
   'journey.settings.failedToDelete': 'ลบไม่สำเร็จ',
   'journey.entries.deleteTitle': 'ลบรายการ',
+  'journey.gallery.deleteTitle': 'ลบรูปภาพ',
+  'journey.gallery.deleteMessage': 'รูปภาพนี้จะถูกลบออกจากแกลเลอรีและจากทุกรายการที่ใช้รูปนี้ ไม่สามารถย้อนกลับได้',
   'journey.photosUploaded': 'อัปโหลดรูปภาพ {count} รูปแล้ว',
   'journey.photosUploadFailed': 'รูปภาพบางรูปไม่สามารถอัปโหลดได้',
   'journey.photosAdded': 'เพิ่มรูปภาพ {count} รูปแล้ว',

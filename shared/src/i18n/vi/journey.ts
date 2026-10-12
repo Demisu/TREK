@@ -227,6 +227,8 @@ const journey: TranslationStrings = {
   'journey.settings.coverFailed': 'Tải lên không thành công',
   'journey.settings.failedToDelete': 'Không thể xóa',
   'journey.entries.deleteTitle': 'Xóa mục nhập',
+  'journey.gallery.deleteTitle': 'Xóa ảnh',
+  'journey.gallery.deleteMessage': 'Ảnh này sẽ bị xóa khỏi thư viện và khỏi mọi mục nhập có dùng ảnh. Không thể hoàn tác.',
   'journey.photosUploaded': '{count} ảnh đã được tải lên',
   'journey.photosUploadFailed': 'Một số ảnh không thể tải lên',
   'journey.photosAdded': 'Đã thêm {count} ảnh',

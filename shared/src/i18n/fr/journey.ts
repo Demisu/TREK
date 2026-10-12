@@ -227,6 +227,8 @@ const journey: TranslationStrings = {
   'journey.settings.coverFailed': 'Échec du téléversement',
   'journey.settings.failedToDelete': 'Échec de la suppression',
   'journey.entries.deleteTitle': "Supprimer l'entrée",
+  'journey.gallery.deleteTitle': 'Supprimer la photo',
+  'journey.gallery.deleteMessage': 'Cette photo sera retirée de la galerie et de toutes les entrées où elle apparaît. Cette action est irréversible.',
   'journey.photosUploaded': '{count} photos téléversées',
   'journey.photosUploaded.one': '{count} photo téléversée',
   'journey.photosUploadFailed': "Certaines photos n'ont pas pu être téléversées",

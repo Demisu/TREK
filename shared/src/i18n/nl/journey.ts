@@ -228,6 +228,8 @@ const journey: TranslationStrings = {
   'journey.settings.coverFailed': 'Uploaden mislukt',
   'journey.settings.failedToDelete': 'Verwijderen mislukt',
   'journey.entries.deleteTitle': 'Vermelding verwijderen',
+  'journey.gallery.deleteTitle': 'Foto verwijderen',
+  'journey.gallery.deleteMessage': 'Deze foto wordt verwijderd uit de galerij en uit elke vermelding waarin hij voorkomt. Dit kan niet ongedaan worden gemaakt.',
   'journey.photosUploaded': "{count} foto's geüpload",
   'journey.photosUploaded.one': '{count} foto geüpload',
   'journey.photosUploadFailed': "Sommige foto's konden niet worden geüpload",

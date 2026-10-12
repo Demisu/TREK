@@ -44,6 +44,8 @@ const journey: TranslationStrings = {
   'journey.settings.endDescription': 'يخفي شارة البث المباشر. يمكنك إعادة الفتح في أي وقت.',
   'journey.settings.failedToDelete': 'فشل في الحذف',
   'journey.entries.deleteTitle': 'حذف الإدخال',
+  'journey.gallery.deleteTitle': 'حذف الصورة',
+  'journey.gallery.deleteMessage': 'ستُزال هذه الصورة من المعرض ومن كل إدخال تظهر فيه. لا يمكن التراجع عن ذلك.',
   'journey.photosUploaded': 'تم رفع {count} صورة',
   'journey.photosUploaded.zero': 'لم يتم رفع أي صورة',
   'journey.photosUploaded.one': 'تم رفع صورة واحدة',

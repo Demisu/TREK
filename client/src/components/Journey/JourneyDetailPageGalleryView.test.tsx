@@ -1,4 +1,4 @@
-// FE-JRN-GALLERY-001 to FE-JRN-GALLERY-021
+// FE-JRN-GALLERY-001 to FE-JRN-GALLERY-024
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { act, useRef, useState } from 'react'
@@ -79,8 +79,9 @@ const entries: JourneyEntry[] = [
 /** Mirrors the page wiring: the gallery reports its connected providers up,
     and the host renders one button per provider next to Upload. The picker's
     Add goes through the same hook the page takes from useJourneyDetail. */
-function GalleryHarness({ gallery, onPhotoClick, onRefresh, onRegisterUpload, onUploadProgress }: {
+function GalleryHarness({ gallery, canEdit = true, onPhotoClick, onRefresh, onRegisterUpload, onUploadProgress }: {
   gallery: GalleryPhoto[]
+  canEdit?: boolean
   onPhotoClick: (photos: GalleryPhoto[], index: number) => void
   onRefresh: () => void
   onRegisterUpload?: (fn: () => void) => void
@@ -100,6 +101,7 @@ function GalleryHarness({ gallery, onPhotoClick, onRefresh, onRegisterUpload, on
         journeyId={JOURNEY_ID}
         userId={1}
         trips={trips}
+        canEdit={canEdit}
         onPhotoClick={onPhotoClick}
         onRefresh={onRefresh}
         onAddProviderPhotos={addPickedPhotos}
@@ -111,14 +113,22 @@ function GalleryHarness({ gallery, onPhotoClick, onRefresh, onRegisterUpload, on
   )
 }
 
-function mountGallery(gallery: GalleryPhoto[], onRegisterUpload?: (fn: () => void) => void) {
+function mountGallery(gallery: GalleryPhoto[], onRegisterUpload?: (fn: () => void) => void, canEdit = true) {
   const onPhotoClick = vi.fn()
   const onRefresh = vi.fn()
   const onUploadProgress = vi.fn()
   const utils = render(
-    <GalleryHarness gallery={gallery} onPhotoClick={onPhotoClick} onRefresh={onRefresh} onRegisterUpload={onRegisterUpload} onUploadProgress={onUploadProgress} />,
+    <GalleryHarness gallery={gallery} canEdit={canEdit} onPhotoClick={onPhotoClick} onRefresh={onRefresh} onRegisterUpload={onRegisterUpload} onUploadProgress={onUploadProgress} />,
   )
   return { ...utils, onPhotoClick, onRefresh, onUploadProgress }
+}
+
+/** The tile's delete asks first (#2593): the corner button, then the dialog's own Delete. */
+async function deleteThroughConfirm(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('button', { name: 'Delete' }))
+  expect(screen.getByText('Delete photo')).toBeInTheDocument()
+  const dialogDelete = screen.getAllByRole('button', { name: 'Delete' }).slice(-1)[0]
+  await user.click(dialogDelete)
 }
 
 function useConnectedImmich() {
@@ -205,7 +215,7 @@ describe('GalleryView', () => {
     expect(screen.getByText('Colosseum')).toBeInTheDocument()
   })
 
-  it('FE-JRN-GALLERY-007: removes a deleted photo from the store optimistically', async () => {
+  it('FE-JRN-GALLERY-007: a confirmed delete removes the photo from the gallery and its entries', async () => {
     let deleted = false
     server.use(http.delete('/api/journeys/9/gallery/100', () => {
       deleted = true
@@ -220,11 +230,12 @@ describe('GalleryView', () => {
       },
     })
     const user = userEvent.setup()
-    const { container, onRefresh } = mountGallery([photo])
+    const { onRefresh } = mountGallery([photo])
 
-    await user.click(container.querySelectorAll('button')[0])
+    await deleteThroughConfirm(user)
 
     await waitFor(() => expect(deleted).toBe(true))
+    await waitFor(() => expect(useJourneyStore.getState().current!.gallery).toHaveLength(0))
     const current = useJourneyStore.getState().current!
     expect(current.gallery).toHaveLength(0)
     expect(current.entries[0].photos).toHaveLength(0)
@@ -241,9 +252,9 @@ describe('GalleryView', () => {
       },
     })
     const user = userEvent.setup()
-    const { container, onRefresh } = mountGallery([photo])
+    const { onRefresh } = mountGallery([photo])
 
-    await user.click(container.querySelectorAll('button')[0])
+    await deleteThroughConfirm(user)
 
     await waitFor(() => expect(toastSpy).toHaveBeenCalledWith('Error', 'error', undefined))
     expect(onRefresh).toHaveBeenCalledTimes(1)
@@ -256,11 +267,51 @@ describe('GalleryView', () => {
       return HttpResponse.json({ ok: true })
     }))
     const user = userEvent.setup()
-    const { container } = mountGallery([buildGalleryPhoto()])
+    mountGallery([buildGalleryPhoto()])
 
-    await user.click(container.querySelectorAll('button')[0])
+    await deleteThroughConfirm(user)
 
     expect(deleted).toBe(false)
+  })
+
+  it('FE-JRN-GALLERY-022: cancelling the confirm leaves the photo where it is', async () => {
+    let deleted = false
+    server.use(http.delete('/api/journeys/9/gallery/100', () => {
+      deleted = true
+      return HttpResponse.json({ ok: true })
+    }))
+    const photo = buildGalleryPhoto()
+    useJourneyStore.setState({
+      current: {
+        id: JOURNEY_ID, user_id: 1, title: 'Italy', status: 'active', created_at: 0, updated_at: 0,
+        entries: [], gallery: [photo], trips, contributors: [], stats: { entries: 0, photos: 1, places: 0 },
+      },
+    })
+    const user = userEvent.setup()
+    const { onPhotoClick } = mountGallery([photo])
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
+    expect(screen.getByText(/removed from the gallery and from every entry/)).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+
+    expect(screen.queryByText('Delete photo')).not.toBeInTheDocument()
+    expect(deleted).toBe(false)
+    expect(useJourneyStore.getState().current!.gallery).toHaveLength(1)
+    expect(onPhotoClick).not.toHaveBeenCalled()
+  })
+
+  it('FE-JRN-GALLERY-023: a viewer gets no delete button on the tiles', () => {
+    mountGallery([buildGalleryPhoto()], undefined, false)
+
+    expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument()
+  })
+
+  it('FE-JRN-GALLERY-024: the delete button does not wait for a hover on touch screens or keyboard focus', () => {
+    mountGallery([buildGalleryPhoto()])
+
+    const button = screen.getByRole('button', { name: 'Delete' })
+    expect(button.className).toContain('[@media(hover:none)]:opacity-100')
+    expect(button.className).toContain('focus-visible:opacity-100')
   })
 
   it('FE-JRN-GALLERY-010: only offers providers that are enabled and connected', async () => {

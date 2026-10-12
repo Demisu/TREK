@@ -618,6 +618,7 @@ function JourneyDetailPageDesktop() {
                   journeyId={current.id}
                   userId={useAuthStore.getState().user?.id || 0}
                   trips={current.trips}
+                  canEdit={canEditEntries}
                   onPhotoClick={(photos, idx) => setLightbox({ photos: photos.map(p => ({ id: p.id, src: photoUrl(p, 'original'), caption: p.caption ?? null, provider: p.provider, asset_id: p.asset_id, owner_id: p.owner_id, mediaType: p.media_type })), index: idx })}
                   onRefresh={() => loadJourney(Number(id))}
                   onAddProviderPhotos={addPickedProviderPhotos}

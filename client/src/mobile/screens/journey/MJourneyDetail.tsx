@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { ChevronLeft, MapPin, Grid3x3, MoreHorizontal, Play, Image, Camera, EyeOff, Settings2 } from 'lucide-react'
+import { ChevronLeft, MapPin, Grid3x3, MoreHorizontal, Play, Image, Camera, EyeOff, Settings2, X } from 'lucide-react'
 import JourneyMap from '../../../components/Journey/JourneyMapAuto'
 import PhotoLightbox from '../../../components/Journey/PhotoLightbox'
 import ContributorInviteDialog from '../../../components/Journey/ContributorInviteDialog'
@@ -127,6 +127,9 @@ export default function MJourneyDetail() {
   const [showUploadMenu, setShowUploadMenu] = useState(false)
   const [showActionMenu, setShowActionMenu] = useState(false)
   const [pickerProvider, setPickerProvider] = useState<string | null>(null)
+  // The gallery photo waiting on its delete confirm; entries have their own deleteTarget.
+  const [photoDeleteTarget, setPhotoDeleteTarget] = useState<GalleryPhoto | null>(null)
+  const deleteGalleryPhoto = useJourneyStore(state => state.deleteGalleryPhoto)
   const dawarichEnabled = useAddonStore(state => state.isEnabled)('dawarich')
   const [dawarichOpen, setDawarichOpen] = useState(false)
   /**
@@ -288,25 +291,38 @@ export default function MJourneyDetail() {
           ) : (
             <div className="grid grid-cols-2 gap-2">
               {gallery.map((photo, i) => (
-                <button
-                  key={photo.id}
-                  type="button"
-                  onClick={() => openLightbox(gallery, i)}
-                  className="relative aspect-square overflow-hidden rounded-[14px]"
-                >
-                  {posterlessVideo(photo) ? (
-                    <span className="block h-full w-full bg-[color:var(--m-ic)]" />
-                  ) : (
-                    <img src={photoUrl(photo, 'thumbnail')} alt={photo.caption || ''} loading="lazy" className="h-full w-full object-cover" />
-                  )}
-                  {photo.media_type === 'video' && (
-                    <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur">
-                        <Play size={16} className="ml-[2px]" fill="currentColor" />
+                // A wrapper, not one button: the delete sits beside the tile's own
+                // button instead of inside it (#2593).
+                <div key={photo.id} className="relative aspect-square overflow-hidden rounded-[14px]">
+                  <button
+                    type="button"
+                    onClick={() => openLightbox(gallery, i)}
+                    className="relative block h-full w-full"
+                  >
+                    {posterlessVideo(photo) ? (
+                      <span className="block h-full w-full bg-[color:var(--m-ic)]" />
+                    ) : (
+                      <img src={photoUrl(photo, 'thumbnail')} alt={photo.caption || ''} loading="lazy" className="h-full w-full object-cover" />
+                    )}
+                    {photo.media_type === 'video' && (
+                      <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur">
+                          <Play size={16} className="ml-[2px]" fill="currentColor" />
+                        </span>
                       </span>
-                    </span>
+                    )}
+                  </button>
+                  {canEditEntries && (
+                    <button
+                      type="button"
+                      onClick={() => setPhotoDeleteTarget(photo)}
+                      aria-label={t('common.delete')}
+                      className="absolute end-[6px] top-[6px] flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur"
+                    >
+                      <X size={13} />
+                    </button>
                   )}
-                </button>
+                </div>
               ))}
             </div>
           )}
@@ -596,6 +612,23 @@ export default function MJourneyDetail() {
         }}
         title={t('journey.entries.deleteTitle')}
         message={t('journey.deleteConfirmMessage', { title: deleteTarget?.title || '' })}
+        confirmLabel={t('common.delete')}
+        danger
+      />
+
+      {/* Delete gallery photo confirm: final, and it leaves every entry that used the photo */}
+      <ConfirmDialog
+        isOpen={!!photoDeleteTarget}
+        onClose={() => setPhotoDeleteTarget(null)}
+        onConfirm={() => {
+          if (!photoDeleteTarget) return
+          deleteGalleryPhoto(current.id, photoDeleteTarget.id).catch(() => {
+            toast.error(t('common.error'))
+            void loadJourney(Number(id))
+          })
+        }}
+        title={t('journey.gallery.deleteTitle')}
+        message={t('journey.gallery.deleteMessage')}
         confirmLabel={t('common.delete')}
         danger
       />

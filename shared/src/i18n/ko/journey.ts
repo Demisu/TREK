@@ -221,6 +221,8 @@ const journey: TranslationStrings = {
   'journey.settings.coverFailed': '업로드 실패',
   'journey.settings.failedToDelete': '삭제 실패',
   'journey.entries.deleteTitle': '항목 삭제',
+  'journey.gallery.deleteTitle': '사진 삭제',
+  'journey.gallery.deleteMessage': '이 사진은 갤러리와 이 사진이 사용된 모든 항목에서 삭제됩니다. 되돌릴 수 없습니다.',
   'journey.photosUploaded': '사진 {count}장이 업로드되었습니다',
   'journey.photosAdded': '사진 {count}장이 추가되었습니다',
   'journey.public.notFound': '찾을 수 없습니다',
