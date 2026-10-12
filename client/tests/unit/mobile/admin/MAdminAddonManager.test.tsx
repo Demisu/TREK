@@ -533,7 +533,9 @@ describe('MAdminAddonManager', () => {
     );
     render(<MAdminAddonManager />);
 
-    await screen.findByText(/Request failed with status code 500/);
+    // The server's reason is shown, not axios' status line (#2649)
+    await screen.findByText('down');
+    expect(screen.queryByText(/Request failed with status code/)).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Refresh' }));
     await screen.findByText('No models installed yet — pull one below.');
