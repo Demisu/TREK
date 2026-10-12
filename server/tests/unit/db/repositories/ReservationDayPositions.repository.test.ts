@@ -75,4 +75,14 @@ describe('ReservationDayPositionsRepository — fully seeded world', () => {
     const trip = createTrip(testDb, user.id);
     expect(await repo.listForTrip(trip.id)).toEqual([]);
   });
+
+  it('listForReservation — the slots of one booking per day, none of another booking', async () => {
+    const { multiDay, day1, day2 } = await seed();
+    const rows = await repo.listForReservation(multiDay.id);
+    expect(rows.map((r) => [r.day_id, r.position]).sort()).toEqual([
+      [day1.id, 0],
+      [day2.id, 1],
+    ]);
+    expect(await repo.listForReservation(999999)).toEqual([]);
+  });
 });

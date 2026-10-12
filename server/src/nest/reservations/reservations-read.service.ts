@@ -1,6 +1,8 @@
+import { ReservationDayPositions } from '../../db/entities/ReservationDayPositions.entity';
 import { ReservationEndpoints } from '../../db/entities/ReservationEndpoints.entity';
 import { ReservationTravelers } from '../../db/entities/ReservationTravelers.entity';
 import { Reservations } from '../../db/entities/Reservations.entity';
+import type { ReservationDayPositionsRepository } from '../../db/repositories/ReservationDayPositions.repository';
 import type { ReservationEndpointsRepository } from '../../db/repositories/ReservationEndpoints.repository';
 import type { ReservationTravelersRepository } from '../../db/repositories/ReservationTravelers.repository';
 import type { ReservationsRepository } from '../../db/repositories/Reservations.repository';
@@ -53,6 +55,7 @@ export class ReservationsReadService {
     @InjectRepository(Reservations) private readonly reservationsRepo: ReservationsRepository,
     @InjectRepository(ReservationEndpoints) private readonly endpointsRepo: ReservationEndpointsRepository,
     @InjectRepository(ReservationTravelers) private readonly travelersRepo: ReservationTravelersRepository,
+    @InjectRepository(ReservationDayPositions) private readonly dayPositionsRepo: ReservationDayPositionsRepository,
   ) {}
 
   async getReservationWithJoins(id: string | number): Promise<ReservationRow | undefined> {
@@ -62,6 +65,7 @@ export class ReservationsReadService {
     const result: ReservationRow = { ...row };
     result.endpoints = await this.loadEndpoints(row.id);
     result.travelers = await this.loadTravelers(row.id);
+    result.day_positions = await this.loadDayPositions(row.id);
     // accommodation_id is a TEXT column; the integer FK reads back as a numeric
     // string (e.g. "14.0"). Normalize to an int so clients can parse it.
     result.accommodation_id = row.accommodation_id == null ? null : Math.trunc(Number(row.accommodation_id));
@@ -72,6 +76,17 @@ export class ReservationsReadService {
     // RR2 — no ORDER BY difference: `ReservationEndpointsRepository
     // .listForReservation` already orders by `sequence` (RR2's own shape).
     return (await this.endpointsRepo.listForReservation(reservationId)) as ReservationEndpoint[];
+  }
+
+  /**
+   * The booking's slot per day, in the shape `ReservationsService.list` sends:
+   * `{ [day_id]: position }`, or null without any. The list reads it before the
+   * booking's time, so a payload without it put a moved booking back by the clock.
+   */
+  async loadDayPositions(reservationId: number): Promise<Record<number, number> | null> {
+    const rows = await this.dayPositionsRepo.listForReservation(reservationId);
+    if (rows.length === 0) return null;
+    return Object.fromEntries(rows.map((dp) => [dp.day_id, dp.position]));
   }
 
   async loadTravelers(reservationId: number | string): Promise<ReservationTraveler[]> {

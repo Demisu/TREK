@@ -73,6 +73,7 @@ async function makeImportService(): Promise<AirtrailImportService> {
         await createTestReservationsRepo(db),
         await createTestReservationEndpointsRepo(db),
         await createTestReservationTravelersRepo(db),
+        await createTestReservationDayPositionsRepo(db),
       ),
       await accommodationsOver(db),
       await createTestUnitOfWork(db),

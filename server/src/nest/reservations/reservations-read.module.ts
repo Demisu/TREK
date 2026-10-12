@@ -1,3 +1,4 @@
+import { ReservationDayPositions } from '../../db/entities/ReservationDayPositions.entity';
 import { ReservationEndpoints } from '../../db/entities/ReservationEndpoints.entity';
 import { ReservationTravelers } from '../../db/entities/ReservationTravelers.entity';
 import { Reservations } from '../../db/entities/Reservations.entity';
@@ -11,14 +12,17 @@ import { Module } from '@nestjs/common';
  * in — which would re-close the cycle that airtrail.bridge used to dodge.
  *
  * `MikroOrmModule.forFeature([Reservations, ReservationEndpoints,
- * ReservationTravelers])` registers `ReservationsRepository`/
- * `ReservationEndpointsRepository`/`ReservationTravelersRepository` for
+ * ReservationTravelers, ReservationDayPositions])` registers `ReservationsRepository`/
+ * `ReservationEndpointsRepository`/`ReservationTravelersRepository`/
+ * `ReservationDayPositionsRepository` for
  * `ReservationsReadService`'s `@InjectRepository` constructor params (Plan
  * 3d Task 2, R11) — the entity classes only, not `ReservationsModule`
  * itself, so this module stays the same leaf it always was.
  */
 @Module({
-  imports: [MikroOrmModule.forFeature([Reservations, ReservationEndpoints, ReservationTravelers])],
+  imports: [
+    MikroOrmModule.forFeature([Reservations, ReservationEndpoints, ReservationTravelers, ReservationDayPositions]),
+  ],
   providers: [ReservationsReadService],
   exports: [ReservationsReadService],
 })

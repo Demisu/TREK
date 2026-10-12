@@ -479,6 +479,7 @@ export async function createPluginRpcHostParts(
       await createTestReservationsRepo(db),
       await createTestReservationEndpointsRepo(db),
       await createTestReservationTravelersRepo(db),
+      await createTestReservationDayPositionsRepo(db),
     ),
     accommodations,
     await createTestUnitOfWork(db),

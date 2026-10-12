@@ -80,7 +80,7 @@ const broadcast = realtime.broadcastMock;
 let svc: ReservationsService;
 let orm: TestOrm;
 beforeAll(async () => {
-  svc = new ReservationsService(permissionsStub, budget as unknown as BudgetService, realtime, notificationsStub(notif.send), new ReservationsReadService(await createTestReservationsRepo(testDb), await createTestReservationEndpointsRepo(testDb), await createTestReservationTravelersRepo(testDb)), await makeAccommodationsService(testDb, realtime), await createTestUnitOfWork(testDb), await createTestReservationsRepo(testDb), await createTestReservationEndpointsRepo(testDb), await createTestReservationTravelersRepo(testDb), await createTestReservationDayPositionsRepo(testDb), await createTestDayAccommodationsRepo(testDb), await createTestDaysRepo(testDb), await createTestPlacesRepo(testDb), await createTestDayAssignmentsRepo(testDb), await createTestTripMembersRepo(testDb), await createTestUsersRepo(testDb), await createTestTripsRepo(testDb), await createTestBudgetItemsRepo(testDb));
+  svc = new ReservationsService(permissionsStub, budget as unknown as BudgetService, realtime, notificationsStub(notif.send), new ReservationsReadService(await createTestReservationsRepo(testDb), await createTestReservationEndpointsRepo(testDb), await createTestReservationTravelersRepo(testDb), await createTestReservationDayPositionsRepo(testDb)), await makeAccommodationsService(testDb, realtime), await createTestUnitOfWork(testDb), await createTestReservationsRepo(testDb), await createTestReservationEndpointsRepo(testDb), await createTestReservationTravelersRepo(testDb), await createTestReservationDayPositionsRepo(testDb), await createTestDayAccommodationsRepo(testDb), await createTestDaysRepo(testDb), await createTestPlacesRepo(testDb), await createTestDayAssignmentsRepo(testDb), await createTestTripMembersRepo(testDb), await createTestUsersRepo(testDb), await createTestTripsRepo(testDb), await createTestBudgetItemsRepo(testDb));
 });
 
 beforeEach(async () => {
@@ -387,6 +387,23 @@ describe('ReservationsService (DI-native, real SQL)', () => {
       const single = (await svc.getReservationWithJoins(res.id))!;
       expect(single.accommodation_id).toBe(acc.id);
       expect(single.travelers).toHaveLength(1);
+      expect(single.day_positions).toEqual({ [days[0].id]: 2 });
+    });
+
+    // The create and update responses and their broadcasts come from the single read.
+    // Without the day slots in it, a booking moved on a day went back to its time in
+    // the list after every edit until the next reload (#2631).
+    it('RESV-SVC-015b: the update result keeps the day slot, null for a booking without one', async () => {
+      const { trip } = ownerTrip({ start_date: '2030-05-01', end_date: '2030-05-02' });
+      const days = await findRows(orm, Days, { trip: trip.id }, { day_number: 'asc' }) as { id: number }[];
+      const moved = createReservation(testDb, trip.id, { title: 'Train', type: 'train' });
+      const untouched = createReservation(testDb, trip.id, { title: 'Bus', type: 'bus' });
+      await svc.updatePositions(String(trip.id), [{ id: moved.id, day_plan_position: 3.5 }], days[1].id);
+
+      const current = await svc.getReservation(String(moved.id), String(trip.id));
+      const { reservation } = await svc.update(String(moved.id), String(trip.id), { notes: 'window seat' }, current as Parameters<ReservationsService['update']>[3]);
+      expect(reservation.day_positions).toEqual({ [days[1].id]: 3.5 });
+      expect((await svc.getReservationWithJoins(untouched.id))?.day_positions).toBeNull();
     });
 
     it('RESV-SVC-016: getReservationWithJoins returns undefined for a missing id', async () => {

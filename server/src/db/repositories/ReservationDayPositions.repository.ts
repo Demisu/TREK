@@ -33,6 +33,20 @@ export class ReservationDayPositionsRepository extends TrekRepository<Reservatio
   }
 
   /**
+   * `SELECT day_id, position FROM reservation_day_positions WHERE reservation_id = ?`:
+   * one booking's slots, for the single-booking read the create, update and
+   * broadcast payloads come from. Without them a booking moved on a day lost
+   * that slot in the list after every edit until the next reload (#2631).
+   */
+  async listForReservation(reservation_id: number): Promise<{ day_id: number; position: number }[]> {
+    return this.kysely<ReservationDayPositionsKyselyDB>()
+      .selectFrom('reservation_day_positions')
+      .select(['day_id', 'position'])
+      .where('reservation_id', '=', reservation_id)
+      .execute();
+  }
+
+  /**
    * RS31 (`ReservationsService.updatePositions`'s day branch) — `INSERT OR
    * REPLACE INTO reservation_day_positions (reservation_id, day_id,
    * position) SELECT r.id, d.id, ? FROM reservations r JOIN days d ON

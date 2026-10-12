@@ -439,6 +439,23 @@ describe('Reservations + accommodations e2e (real auth guard + temp SQLite, real
       expect(await positionRow(ownReservationId, ownDayId)).toEqual({ position: 3 });
     });
 
+    // The list puts a booking where it was moved on a day before its time, and the
+    // client replaces the booking with what an edit answers (#2631).
+    it('keeps the day slot in what an edit of the booking answers', async () => {
+      const ownReservationId = await seedReservation(tripId, 'Mine', 'other');
+      await request(server)
+        .put(`/api/trips/${tripId}/reservations/positions`)
+        .set('Cookie', sessionCookie(1))
+        .send({ positions: [{ id: ownReservationId, day_plan_position: 2.5 }], day_id: ownDayId })
+        .expect(200);
+      const res = await request(server)
+        .put(`/api/trips/${tripId}/reservations/${ownReservationId}`)
+        .set('Cookie', sessionCookie(1))
+        .send({ notes: 'aisle' });
+      expect(res.status).toBe(200);
+      expect(res.body.reservation.day_positions).toEqual({ [ownDayId]: 2.5 });
+    });
+
     // An id that exists nowhere used to raise a foreign-key error, which the
     // exception filter turned into a 500 — telling the caller apart from the
     // 200 a real id returns, for any id on the instance.

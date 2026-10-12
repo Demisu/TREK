@@ -296,6 +296,7 @@ const buildReadModel = async (tripsRepo: TripsRepository, roster: TripMembersSer
         await createTestReservationsRepo(testDb),
         await createTestReservationEndpointsRepo(testDb),
         await createTestReservationTravelersRepo(testDb),
+        await createTestReservationDayPositionsRepo(testDb),
       ),
       await accommodationsOver(testDb, realtime),
       await createTestUnitOfWork(testDb),

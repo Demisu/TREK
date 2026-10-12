@@ -5,6 +5,7 @@
 import { db as testDb } from '../../../src/db/database';
 import { BudgetItems } from '../../../src/db/entities/BudgetItems.entity';
 import { DayAccommodations } from '../../../src/db/entities/DayAccommodations.entity';
+import { ReservationDayPositions } from '../../../src/db/entities/ReservationDayPositions.entity';
 import { ReservationTravelers } from '../../../src/db/entities/ReservationTravelers.entity';
 import { Reservations } from '../../../src/db/entities/Reservations.entity';
 import { Trips } from '../../../src/db/entities/Trips.entity';
@@ -291,6 +292,26 @@ describe('Tool: update_reservation', () => {
     expect(updated).toEqual([auto.id]);
     const events = broadcastMock.mock.calls.map((c) => c[1]);
     expect(events.indexOf('budget:updated')).toBeLessThan(events.indexOf('reservation:updated'));
+  });
+
+  // #2631: the day planner puts a booking moved on a day by its day slot, and the
+  // edit's answer and broadcast replace the booking in every open list.
+  it('keeps the day slots in the answer and the broadcast', async () => {
+    const { user } = createUser(testDb);
+    const trip = createTrip(testDb, user.id);
+    const day = createDay(testDb, trip.id);
+    const reservation = createReservation(testDb, trip.id, { title: 'Bus', type: 'bus' });
+    await insertRow(orm, ReservationDayPositions, { reservation: reservation.id, day: day.id, position: 2.5 });
+    await withHarness(user.id, async (h) => {
+      const result = await h.client.callTool({
+        name: 'update_reservation',
+        arguments: { tripId: trip.id, reservationId: reservation.id, notes: 'aisle' },
+      });
+      type Answer = { reservation: { day_positions: Record<string, number> | null } };
+      expect((parseToolResult(result) as Answer).reservation.day_positions).toEqual({ [day.id]: 2.5 });
+      const sent = broadcastMock.mock.calls.find((c) => c[1] === 'reservation:updated')?.[2] as Answer;
+      expect(sent.reservation.day_positions).toEqual({ [day.id]: 2.5 });
+    });
   });
 
   it('returns error for reservation not found', async () => {
