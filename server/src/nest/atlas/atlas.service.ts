@@ -164,7 +164,7 @@ function markedSource(row: { source?: string | null } | undefined): string | nul
  * The pure-geo machinery (bundled admin0/admin1 boundaries, point-in-polygon
  * indexes, Nominatim geocoding and its caches) lives in ./atlas-geo — a plain
  * module so the multi-MB caches stay process-global across the container
- * instance and test helpers (#1576).
+ * instance and test helpers (#1576). The country lookup on the admin-0 borders sits in utils/country-borders.ts.
  * Returns native service shapes; the client-facing contracts live in
  * @trek/shared. No broadcasts: atlas rows are uid-scoped, not trip-scoped.
  */

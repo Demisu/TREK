@@ -4,7 +4,7 @@
  * need no branch per source. Pure: the calls themselves are trek-places.client's,
  * the decision to make them is MapsService's.
  */
-import { getCountryFromCoords } from '../atlas/atlas-geo';
+import { getCountryFromCoords } from '../../utils/country-borders';
 import { buildOsmDetails, parsePoiCategories, samePlace, toApiLang } from './maps.helpers';
 import { POI_RESULT_CAP, type PoiSearchResult } from './providers/osm.client';
 import {
