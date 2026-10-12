@@ -674,9 +674,12 @@ export class TripsService {
    * assignments, accommodations, reservations, budget, packing bags/items, day
    * notes) into a new trip owned by `newOwnerId`.
    * Cross-links are remapped to the copied rows (reservation↔budget item,
-   * reservation↔accommodation) and split data travels with the copy
-   * (budget_item_members/payers incl. paid flags, assignment_participants).
-   * Packing items and to-dos are reset to unchecked. Returns the new trip's ID.
+   * reservation↔accommodation). The copy has nobody on it but `newOwnerId`, so
+   * only their own split data travels with it (budget_item_members/payers incl.
+   * paid flags, assignment_participants). An expense anyone else pays for or
+   * shares comes across as a planning entry: same total, no payers, no split
+   * (#2604). Settlements are not copied. Packing items and to-dos are reset to
+   * unchecked. Returns the new trip's ID.
    */
   async copy(sourceTripId: string | number, newOwnerId: number, title?: string): Promise<number> {
     const src = await this.tripsRepo.findRaw(sourceTripId); // TP36
@@ -817,6 +820,7 @@ export class TripsService {
 
       const oldParticipants = await this.assignmentParticipantsRepo.listForTrip(sourceTripId); // TP53
       for (const ap of oldParticipants) {
+        if (ap.user_id !== newOwnerId) continue;
         const newAssignmentId = assignmentMap.get(ap.assignment_id);
         if (newAssignmentId) await this.assignmentParticipantsRepo.insertIgnore(newAssignmentId, [ap.user_id]); // TP54
       }
@@ -877,32 +881,50 @@ export class TripsService {
         reservationMap.set(r.id, newReservationId);
       }
 
+      // TP62/TP64 — Plan 3e Task 2, converted. Read up front: which expenses
+      // involve someone the copy will not have decides how each one is copied.
+      const oldBudgetMembers = await this.budgetItemMembersRepo.listRawForTrip(sourceTripId);
+      const oldBudgetPayers = await this.budgetItemPayersRepo.listRawForTrip(sourceTripId);
+      // Carrying someone else's payer or split row over left the copy owing money
+      // to people who cannot see it, and the first save of the expense dropped them
+      // and shrank its total (#2604). Keeping only the copier's rows would leave the
+      // payers and shares no longer adding up to the total, so the whole split goes
+      // and the expense stays as a planning entry with its total.
+      const sharedWithOthers = new Set<number>();
+      for (const row of [...oldBudgetMembers, ...oldBudgetPayers]) {
+        if (row.user_id !== newOwnerId) sharedWithOthers.add(row.budget_item_id);
+      }
+      const hasSplitRows = new Set(oldBudgetMembers.map(bm => bm.budget_item_id));
+
       // TP60 — Plan 3e Task 2, converted.
       const oldBudget = await this.budgetItemsRepo.listAllForTrip(sourceTripId);
       const budgetMap = new Map<number, number>();
       for (const b of oldBudget) {
-        // TP61 — Plan 3e Task 2, converted (`insertCopy`, carries `paid_by_user_id` verbatim).
+        const planningOnly = sharedWithOthers.has(b.id);
+        // TP61 — Plan 3e Task 2, converted (`insertCopy`). The persons count of a
+        // split is its member count and goes with it; a typed one stays. A receipt
+        // split names who had which line, so it goes as well.
         const newItemId = await this.budgetItemsRepo.insertCopy({
-          trip_id: newTripId, category: b.category, name: b.name, total_price: b.total_price, persons: b.persons, days: b.days,
+          trip_id: newTripId, category: b.category, name: b.name, total_price: b.total_price,
+          persons: planningOnly && hasSplitRows.has(b.id) ? null : b.persons, days: b.days,
           note: b.note, sort_order: b.sort_order,
           reservation_id: b.reservation_id ? (reservationMap.get(b.reservation_id) ?? null) : null,
           currency: b.currency, exchange_rate: b.exchange_rate ?? 1, expense_date: b.expense_date,
-          ticket_json: b.ticket_json, paid_by_user_id: b.paid_by_user_id,
+          ticket_json: planningOnly ? null : b.ticket_json,
+          paid_by_user_id: b.paid_by_user_id === newOwnerId ? b.paid_by_user_id : null,
         });
         budgetMap.set(b.id, newItemId);
       }
 
-      // TP62 — Plan 3e Task 2, converted.
-      const oldBudgetMembers = await this.budgetItemMembersRepo.listRawForTrip(sourceTripId);
       for (const bm of oldBudgetMembers) {
+        if (sharedWithOthers.has(bm.budget_item_id)) continue;
         const newItemId = budgetMap.get(bm.budget_item_id);
         // TP63 — Plan 3e Task 2, converted.
         if (newItemId) await this.budgetItemMembersRepo.insertIgnore({ budget_item_id: newItemId, user_id: bm.user_id, paid: bm.paid ?? 0, amount: bm.amount });
       }
 
-      // TP64 — Plan 3e Task 2, converted.
-      const oldBudgetPayers = await this.budgetItemPayersRepo.listRawForTrip(sourceTripId);
       for (const bp of oldBudgetPayers) {
+        if (sharedWithOthers.has(bp.budget_item_id)) continue;
         const newItemId = budgetMap.get(bp.budget_item_id);
         // TP65 — Plan 3e Task 2, converted.
         if (newItemId) await this.budgetItemPayersRepo.insertIgnore({ budget_item_id: newItemId, user_id: bp.user_id, amount: bp.amount ?? 0 });

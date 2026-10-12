@@ -1381,7 +1381,7 @@ describe('folded trip CRUD', () => {
     expect(rows.find(r => r.name === "Member's meds")).toMatchObject({ is_private: 1, owner_id: member.id });
   });
 
-  it('TRIP-SVC-059: copy remaps cross-links and carries splits/participants (smoke-test I-01)', async () => {
+  it("TRIP-SVC-059: copy remaps cross-links and keeps only the copier on splits and participants (smoke-test I-01)", async () => {
     const { user: owner } = createUser(testDb);
     const { user: friend } = createUser(testDb);
     const trip = createTrip(testDb, owner.id, { title: 'Linked', start_date: '2025-06-01', end_date: '2025-06-02' });
@@ -1415,14 +1415,11 @@ describe('folded trip CRUD', () => {
     expect(Number(newRes.accommodation_id)).toBe(newAccom.id);
     expect(newRes.url).toBe('https://example.test/booking');
 
-    // Splits carried over with per-member paid flags and amounts.
-    const members = await storedRows(BudgetItemMembers, { budgetItem: newItem.id }, { user: 'asc' }, ['user_id', 'paid', 'amount']) as any[];
-    expect(members).toEqual([
-      { user_id: owner.id, paid: 1, amount: 120 },
-      { user_id: friend.id, paid: 0, amount: 120 },
-    ]);
-    const payers = await storedRows(BudgetItemPayers, { budgetItem: newItem.id }, undefined, ['user_id', 'amount']) as any[];
-    expect(payers).toEqual([{ user_id: owner.id, amount: 240 }]);
+    // The friend is not on the copy, so the shared expense comes across as a
+    // planning entry with its total and no split (#2604, see TRIP-SVC-094).
+    expect(newItem).toMatchObject({ total_price: 240, persons: null });
+    expect(await storedRows(BudgetItemMembers, { budgetItem: newItem.id }, undefined, ['user_id'])).toEqual([]);
+    expect(await storedRows(BudgetItemPayers, { budgetItem: newItem.id }, undefined, ['user_id'])).toEqual([]);
 
     // Assignment participants copied onto the remapped assignment.
     const newAssignment = (await getAssignments((await getDays(newTripId))[0].id))[0];
@@ -1432,6 +1429,74 @@ describe('folded trip CRUD', () => {
     // To-dos come across but reset to unchecked (documented behaviour).
     const todos = await storedRows(TodoItems, { trip: newTripId }, undefined, ['name', 'checked']) as any[];
     expect(todos).toEqual([{ name: 'Book transfer', checked: 0 }]);
+  });
+
+  /**
+   * #2604: the copy has nobody on it but the copier, yet it used to take every
+   * payer and split row along. Balances in the copy then named people who could
+   * not see it, and the first save of such an expense dropped them and shrank
+   * its total. An expense anyone else pays for or shares now comes across as a
+   * planning entry with its total; one that is the copier's alone keeps it all.
+   */
+  it('TRIP-SVC-094: copy keeps nobody outside the copy on its expenses and keeps every total (#2604)', async () => {
+    const { user: owner } = createUser(testDb);
+    const { user: friend } = createUser(testDb);
+    const trip = createTrip(testDb, owner.id, { title: 'Shared costs', start_date: '2025-07-01', end_date: '2025-07-01' });
+    addTripMember(testDb, trip.id, friend.id);
+    const days = await getDays(trip.id);
+    const place = createPlace(testDb, trip.id, { name: 'Harbour' });
+    const assignment = createDayAssignment(testDb, days[0].id, place.id);
+    await insertRow(await orm(), AssignmentParticipants, { assignment: assignment.id, user: owner.id });
+    await insertRow(await orm(), AssignmentParticipants, { assignment: assignment.id, user: friend.id });
+
+    const solo = Number(await insertRow(await orm(), BudgetItems, { trip: trip.id, category: 'Food', name: 'Solo lunch', total_price: 50, persons: 1, paidByUser: owner.id }));
+    await insertRow(await orm(), BudgetItemMembers, { budgetItem: solo, user: owner.id, paid: 1, amount: null });
+    await insertRow(await orm(), BudgetItemPayers, { budgetItem: solo, user: owner.id, amount: 50 });
+
+    const shared = Number(await insertRow(await orm(), BudgetItems, {
+      trip: trip.id, category: 'Transport', name: 'Rental car', total_price: 180, persons: 2, paidByUser: friend.id,
+      ticket_json: JSON.stringify({ items: [{ name: 'Car', price: '180', parts: [owner.id, friend.id] }] }),
+    }));
+    await insertRow(await orm(), BudgetItemMembers, { budgetItem: shared, user: owner.id, paid: 0, amount: null });
+    await insertRow(await orm(), BudgetItemMembers, { budgetItem: shared, user: friend.id, paid: 1, amount: null });
+    await insertRow(await orm(), BudgetItemPayers, { budgetItem: shared, user: owner.id, amount: 120 });
+    await insertRow(await orm(), BudgetItemPayers, { budgetItem: shared, user: friend.id, amount: 60 });
+
+    // Paid by the friend alone, with a typed head count and no split rows.
+    const theirs = Number(await insertRow(await orm(), BudgetItems, { trip: trip.id, category: 'Food', name: 'Seafood dinner', total_price: 90, persons: 4 }));
+    await insertRow(await orm(), BudgetItemPayers, { budgetItem: theirs, user: friend.id, amount: 90 });
+
+    const newTripId = await svc.copy(trip.id, owner.id, 'Shared costs copy');
+
+    const copied = await storedRows(BudgetItems, { trip: newTripId }, { name: 'asc' }, ['id', 'name', 'total_price', 'persons', 'paid_by_user_id', 'ticket_json']) as {
+      id: number; name: string; total_price: number; persons: number | null; paid_by_user_id: number | null; ticket_json: string | null;
+    }[];
+    const byName = (name: string) => copied.find(c => c.name === name)!;
+    expect(copied.map(c => [c.name, c.total_price])).toEqual([['Rental car', 180], ['Seafood dinner', 90], ['Solo lunch', 50]]);
+
+    // The copier's own expense is copied whole.
+    expect(byName('Solo lunch')).toMatchObject({ persons: 1, paid_by_user_id: owner.id });
+    expect(await storedRows(BudgetItemMembers, { budgetItem: byName('Solo lunch').id }, undefined, ['user_id', 'paid'])).toEqual([{ user_id: owner.id, paid: 1 }]);
+    expect(await storedRows(BudgetItemPayers, { budgetItem: byName('Solo lunch').id }, undefined, ['user_id', 'amount'])).toEqual([{ user_id: owner.id, amount: 50 }]);
+
+    // A shared one keeps its total as a planning entry: nobody pays, nobody owes.
+    expect(byName('Rental car')).toMatchObject({ persons: null, paid_by_user_id: null, ticket_json: null });
+    expect(await countRows(await orm(), BudgetItemMembers, { budgetItem: byName('Rental car').id })).toBe(0);
+    expect(await countRows(await orm(), BudgetItemPayers, { budgetItem: byName('Rental car').id })).toBe(0);
+    expect(byName('Seafood dinner')).toMatchObject({ persons: 4, paid_by_user_id: null });
+    expect(await countRows(await orm(), BudgetItemPayers, { budgetItem: byName('Seafood dinner').id })).toBe(0);
+
+    // Nothing in the copy points at the friend, and its ledger squares.
+    const newAssignment = (await getAssignments((await getDays(newTripId))[0].id))[0];
+    expect(await storedRows(AssignmentParticipants, { assignment: newAssignment.id }, undefined, ['user_id'])).toEqual([{ user_id: owner.id }]);
+    const settlement = await budgetSvc.calculateSettlement(newTripId);
+    expect(settlement.balances.map(b => b.user_id)).not.toContain(friend.id);
+    expect(Math.round(settlement.balances.reduce((a, b) => a + b.balance, 0) * 100)).toBe(0);
+
+    // The source keeps every row.
+    expect(await countRows(await orm(), BudgetItemPayers, { budgetItem: shared })).toBe(2);
+    expect(await countRows(await orm(), BudgetItemMembers, { budgetItem: shared })).toBe(2);
+    expect(await countRows(await orm(), AssignmentParticipants, { assignment: assignment.id })).toBe(2);
   });
 });
 
@@ -1848,7 +1913,8 @@ describe('copy — whole-trip parity (Task 8)', () => {
 
     // assignment_participants
     const newParticipants = await storedRows(AssignmentParticipants, { assignment: newAssignment.id }, undefined, ['user_id']) as { user_id: number }[];
-    expect(newParticipants.map(p => p.user_id).sort((a, b) => a - b)).toEqual([owner.id, member.id].sort((a, b) => a - b));
+    // Only the copier is on the copy (#2604).
+    expect(newParticipants.map(p => p.user_id)).toEqual([owner.id]);
 
     // roadtrip_vias / roadtrip_day_tracks
     const newVia = await storedFields(RoadtripVias, { day: newDays[0].id }, ['after_order_index', 'sequence', 'lat', 'lng']) as {
@@ -1920,12 +1986,10 @@ describe('copy — whole-trip parity (Task 8)', () => {
       id: number; category: string; name: string; total_price: number; reservation_id: number | null; currency: string | null;
     };
     expect(newItem).toMatchObject({ category: 'Accommodation', name: 'Hotel', total_price: 300, reservation_id: newRes.id, currency: 'EUR' });
-    const newMembers = await storedRows(BudgetItemMembers, { budgetItem: newItem.id }, { user: 'asc' }, ['user_id', 'paid', 'amount']) as { user_id: number; paid: number; amount: number | null }[];
-    expect(newMembers).toEqual([owner.id, member.id].sort((a, b) => a - b).map((uid) =>
-      uid === owner.id ? { user_id: owner.id, paid: 1, amount: 150 } : { user_id: member.id, paid: 0, amount: 150 },
-    ));
-    const newPayers = await storedRows(BudgetItemPayers, { budgetItem: newItem.id }, undefined, ['user_id', 'amount']) as { user_id: number; amount: number }[];
-    expect(newPayers).toEqual([{ user_id: owner.id, amount: 300 }]);
+    // The member is shared into this expense but not on the copy, so it comes
+    // across as a planning entry: same total, no split rows (#2604).
+    expect(await storedRows(BudgetItemMembers, { budgetItem: newItem.id }, undefined, ['user_id'])).toEqual([]);
+    expect(await storedRows(BudgetItemPayers, { budgetItem: newItem.id }, undefined, ['user_id'])).toEqual([]);
     expect((await storedFields(BudgetCategoryOrder, { trip: newTripId, category: 'Accommodation' }, ['sort_order']) as { sort_order: number }).sort_order).toBe(1);
 
     // packing_bags / packing_items (incl. the TP68 privacy filter — the copIER is the owner)
