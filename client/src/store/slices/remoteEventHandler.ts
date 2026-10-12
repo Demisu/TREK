@@ -7,6 +7,7 @@ import { useAuthStore } from '../authStore'
 import { mergeAssignmentPlace } from './placesSlice'
 import { withoutDay } from './daysSlice'
 import { orderBudgetByCategories } from './budgetOrder'
+import { keepDayPositions, withTransportPositions } from '../../utils/mergedOrder'
 
 type SetState = StoreApi<TripStoreState>['setState']
 type GetState = StoreApi<TripStoreState>['getState']
@@ -67,12 +68,21 @@ const putCanonicalBudgetItem: DexieWriter = async (payload, state) => {
   const item = state.budgetItems.find(i => i.id === (payload.itemId as number))
   if (item) await offlineDb.budgetItems.put(item)
 }
-const putReservation: DexieWriter = async payload => {
+const putReservation: DexieWriter = async (payload, state) => {
   // The same empty ping the appliers above handle; without this the write
   // throws and only the swallowed catch keeps it quiet.
   if (!payload.reservation) return
-  await offlineDb.reservations.put(payload.reservation as Reservation)
+  // The applied row, which kept its day slots when the payload had none.
+  const id = (payload.reservation as Reservation).id
+  await offlineDb.reservations.put(state.reservations.find(r => r.id === id) ?? payload.reservation as Reservation)
 }
+/** The moves of a `reservation:positions` event, the ones without a position left out. */
+function positionsOf(payload: Record<string, unknown>): { id: number; day_plan_position: number }[] {
+  if (!Array.isArray(payload.positions)) return []
+  return (payload.positions as { id?: unknown; day_plan_position?: unknown }[])
+    .filter((p): p is { id: number; day_plan_position: number } => typeof p?.id === 'number' && typeof p.day_plan_position === 'number')
+}
+
 const putTripFile: DexieWriter = async payload => {
   await offlineDb.tripFiles.put(payload.file as TripFile)
 }
@@ -149,6 +159,10 @@ export const DEXIE_WRITERS: Partial<Record<TrekWsTripEventName, DexieWriter>> = 
   'reservation:updated': putReservation,
   'reservation:deleted': async payload => {
     await offlineDb.reservations.delete(payload.reservationId as number)
+  },
+  'reservation:positions': async (payload, state) => {
+    const ids = new Set(positionsOf(payload).map(p => p.id))
+    await offlineDb.reservations.bulkPut(state.reservations.filter(r => ids.has(r.id)))
   },
 
   // ── Trip ─────────────────────────────────────────────────────────────────
@@ -468,7 +482,22 @@ export const STATE_APPLIERS: Partial<Record<TrekWsTripEventName, StateApplier>> 
   'reservation:updated': (payload, state) => {
     const reservation = payload.reservation as Reservation | undefined
     if (!reservation) return {}
-    return { reservations: state.reservations.map(r => r.id === reservation.id ? reservation : r) }
+    return { reservations: state.reservations.map(r => r.id === reservation.id ? keepDayPositions(reservation, r) : r) }
+  },
+  // A collaborator moved bookings on a day. Applied the way the mover's own list
+  // wrote them, so their stops and bookings keep one order here too (#2631). REST
+  // names the day `day_id`, the MCP tool `dayId`; without one the move is global.
+  'reservation:positions': (payload, state) => {
+    const positions = positionsOf(payload)
+    if (positions.length === 0) return {}
+    const dayId = (payload.day_id ?? payload.dayId) as number | null | undefined
+    if (dayId != null) return { reservations: withTransportPositions(state.reservations, positions, dayId) }
+    return {
+      reservations: state.reservations.map(r => {
+        const p = positions.find(x => x.id === r.id)
+        return p ? { ...r, day_plan_position: p.day_plan_position } : r
+      }),
+    }
   },
   'reservation:travelers-updated': (payload, state) => ({
     reservations: state.reservations.map(r => r.id === (payload.reservationId as number)

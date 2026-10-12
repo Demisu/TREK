@@ -1,4 +1,4 @@
-// FE-STORE-RESERVATIONS-001 to FE-STORE-RESERVATIONS-005
+// FE-STORE-RESERVATIONS-001 to FE-STORE-RESERVATIONS-006
 import { http, HttpResponse } from 'msw';
 import { server } from '../../../tests/helpers/msw/server';
 import { resetAllStores, seedStore } from '../../../tests/helpers/store';
@@ -87,5 +87,20 @@ describe('reservationsSlice', () => {
 
     expect(useTripStore.getState().reservations).toHaveLength(1);
     expect(useTripStore.getState().budgetItems).toHaveLength(1);
+  });
+
+  // #2631: the list puts a booking moved on a day by its day slot, so an edit answered
+  // without the slots put it back by its time until the next reload.
+  it('FE-STORE-RESERVATIONS-006: an edit answered without day slots keeps the ones the booking had', async () => {
+    seedStore(useTripStore, { reservations: [buildReservation({ id: 5, trip_id: 1, day_positions: { 3: 2.5 } })] });
+    server.use(
+      http.put('/api/trips/1/reservations/5', () =>
+        HttpResponse.json({ reservation: buildReservation({ id: 5, trip_id: 1, notes: 'aisle' }) })
+      )
+    );
+    await useTripStore.getState().updateReservation(1, 5, { notes: 'aisle' });
+    const stored = useTripStore.getState().reservations.find(r => r.id === 5);
+    expect(stored?.notes).toBe('aisle');
+    expect(stored?.day_positions).toEqual({ 3: 2.5 });
   });
 });

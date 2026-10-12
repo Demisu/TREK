@@ -4,6 +4,7 @@ import type { StoreApi } from 'zustand'
 import type { TripStoreState } from '../tripStore'
 import type { Reservation } from '../../types'
 import { getApiErrorMessage } from '../../types'
+import { keepDayPositions } from '../../utils/mergedOrder'
 
 type SetState = StoreApi<TripStoreState>['setState']
 type GetState = StoreApi<TripStoreState>['getState']
@@ -41,7 +42,7 @@ export const createReservationsSlice = (set: SetState, get: GetState): Reservati
     try {
       const result = await reservationsApi.update(tripId, id, data)
       set(state => ({
-        reservations: state.reservations.map(r => r.id === id ? result.reservation : r)
+        reservations: state.reservations.map(r => r.id === id ? keepDayPositions(result.reservation, r) : r)
       }))
       return result.reservation
     } catch (err: unknown) {

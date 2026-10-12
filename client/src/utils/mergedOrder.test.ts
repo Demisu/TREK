@@ -1,8 +1,14 @@
-// FE-UTIL-MERGEDORDER-001 to -008: the reorder writes the desktop day plan and the
+// FE-UTIL-MERGEDORDER-001 to -009: the reorder writes the desktop day plan and the
 // phone's plan timeline both derive from a day's new timeline order.
 import { describe, expect, it } from 'vitest';
 
-import { metadataWithLegPositions, moveRow, planMergedOrder, withTransportPositions } from './mergedOrder';
+import {
+  keepDayPositions,
+  metadataWithLegPositions,
+  moveRow,
+  planMergedOrder,
+  withTransportPositions,
+} from './mergedOrder';
 
 const place = (id: number) => ({ type: 'place', data: { id } });
 const note = (id: number) => ({ type: 'note', data: { id } });
@@ -89,5 +95,14 @@ describe('moveRow', () => {
     expect(moveRow(rows, 0, (r) => r === 'c', true)).toEqual({ order: ['b', 'c', 'a', 'd'], index: 2 });
     expect(moveRow(rows, 1, () => false, false)).toEqual({ order: ['a', 'c', 'd', 'b'], index: 3 });
     expect(rows).toEqual(['a', 'b', 'c', 'd']);
+  });
+});
+
+describe('keepDayPositions', () => {
+  it('FE-UTIL-MERGEDORDER-009: keeps the day slots of the replaced copy only when the new one has none', () => {
+    const prev: { id: number; day_positions?: Record<string, number> | null } = { id: 1, day_positions: { 4: 1.5 } };
+    expect(keepDayPositions({ id: 1 }, prev)).toEqual({ id: 1, day_positions: { 4: 1.5 } });
+    expect(keepDayPositions({ id: 1, day_positions: null }, prev)).toEqual({ id: 1, day_positions: null });
+    expect(keepDayPositions({ id: 1 }, undefined)).toEqual({ id: 1 });
   });
 });

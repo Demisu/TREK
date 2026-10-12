@@ -120,7 +120,6 @@ export const IGNORED_WS_EVENTS = [
   'budget:settlement-created',
   'budget:settlement-updated',
   'budget:settlement-deleted',
-  'reservation:positions',
   // Accommodations live in page-local planner state; the client refetches
   // them off trip:updated date changes, never off these events.
   'accommodation:created',

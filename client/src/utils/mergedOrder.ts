@@ -96,6 +96,16 @@ export function withTransportPositions<R extends PositionedBooking>(
 }
 
 /**
+ * A booking as an edit or a collaborator's event hands it back, with the day slots of
+ * the copy it replaces when it came without any. A server that did not send them yet
+ * put a moved booking back by its time on every edit until the next reload (#2631).
+ */
+export function keepDayPositions<R extends PositionedBooking>(next: R, prev: R | undefined): R {
+  if (!prev || next.day_positions !== undefined) return next;
+  return { ...next, day_positions: prev.day_positions };
+}
+
+/**
  * A booking's metadata with each moved leg's position for the day written into
  * metadata.legs[i].day_positions. Null when the metadata holds no legs to move.
  * Metadata that cannot be parsed counts as empty.
