@@ -40,6 +40,45 @@ function reportedValue(key: string, value: string | undefined): string {
 }
 
 /**
+ * Variables whose surrounding whitespace is stripped once at boot. The schema
+ * already validates them trimmed, but every reader compares the raw string:
+ * NODE_ENV="production " served no web UI at all (#2565), LOG_LEVEL="debug "
+ * fell back to info, DEFAULT_LANGUAGE="de " to English. Deliberately a short
+ * list, not every variable: a secret may carry its spaces on purpose.
+ */
+const TRIMMED_AT_BOOT = ['NODE_ENV', 'LOG_LEVEL', 'DEFAULT_LANGUAGE'] as const;
+
+/**
+ * Strips the whitespace a .env line or a compose file left around the values in
+ * TRIMMED_AT_BOOT and writes the result back, so Express (`app.get('env')`),
+ * the plugin child processes and any library reading NODE_ENV itself see the
+ * same value as readEnv(). Casing is left alone. Each change is reported, since
+ * the banner cannot show a trailing space.
+ *
+ * NODE_ENV="test " is the one exception: trimmed it would switch a running
+ * instance onto an in-memory database without crons, so it is only reported.
+ */
+export function normalizeEnvAtBoot(raw: RawEnv = process.env as RawEnv): void {
+  for (const key of TRIMMED_AT_BOOT) {
+    const value = raw[key];
+    if (value === undefined) continue;
+    const trimmed = value.trim();
+    if (trimmed === value) continue;
+    if (key === 'NODE_ENV' && trimmed === 'test') {
+      bootWarning(`${key}=${JSON.stringify(value)} has surrounding whitespace and is not treated as "test".`);
+      continue;
+    }
+    raw[key] = trimmed;
+    bootWarning(`${key}=${JSON.stringify(value)} has surrounding whitespace, using ${JSON.stringify(trimmed)}.`);
+  }
+}
+
+/** Runs before the file logger exists, so it goes to stderr as a process warning. */
+function bootWarning(message: string): void {
+  process.emitWarning(message, { code: 'TREK_ENV_WHITESPACE' });
+}
+
+/**
  * Fail-fast startup validation: a variable that is PRESENT but malformed aborts
  * boot with an aggregated report; unset/blank variables always pass (their
  * documented defaults apply). Called once from the production entrypoint (see

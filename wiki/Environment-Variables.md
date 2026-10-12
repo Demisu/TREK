@@ -38,7 +38,8 @@ aborting, because `reset-admin.js` â€” the way back into a locked-out instance â
 to keep working. The three plugin caps `TREK_PLUGIN_AI_PER_DAY`, `TREK_PLUGIN_NOTIFY_PER_DAY` and
 `TREK_PLUGIN_AUDIT_MAX_ROWS` are read by the plugin host rather than by the boot schema, so a malformed value there
 falls back to the default without a warning. `NODE_ENV` and `TZ` are not validated at all, so a non-standard value
-like `NODE_ENV=staging` still boots.
+like `NODE_ENV=staging` still boots. Spaces around `NODE_ENV`, `LOG_LEVEL` and `DEFAULT_LANGUAGE` are trimmed at startup with a
+warning in the log; the web UI is only served with `NODE_ENV=production` in lowercase.
 
 ---
 

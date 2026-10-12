@@ -60,6 +60,7 @@ export const envSchema = z.object({
   HOST: anyString,
   // NODE_ENV and TZ are deliberately unvalidated: non-standard values (e.g.
   // NODE_ENV=staging) behave as "not production" today and must keep booting.
+  // Surrounding whitespace on NODE_ENV is trimmed before this runs (env.ts).
   NODE_ENV: anyString,
   TZ: anyString,
   LOG_LEVEL: oneOf(['error', 'warn', 'info', 'debug']),

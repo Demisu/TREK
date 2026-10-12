@@ -8,10 +8,10 @@ the pre-init Express middleware.
 ```
 env.schema.ts    Zod catalog of the whole env surface; fail-fast at boot
 derive.ts        pure (raw env) → typed namespace functions, exact per-site coercions
-env.ts           readEnv() live accessor + validateEnvAtBoot()
+env.ts           readEnv() live accessor + normalizeEnvAtBoot() + validateEnvAtBoot()
 app-url.ts       getAppUrl()/getMcpSafeUrl() instance base-URL resolution
 data-paths.ts    resolveDataPaths(): data/, uploads/, backups, tmp, logs, key files, DB file
-boot-validate.ts side-effect import used by index.ts (validates before other modules load)
+boot-validate.ts side-effect import used by index.ts (trims, then validates before other modules load)
 parsers.ts       shared coercion helpers (boolTrueLoose, numberOr, csvList, …)
 ```
 
@@ -200,3 +200,5 @@ The exemption list is enforced by the `no-restricted-syntax` ban on
 - NODE_ENV comparisons are case-sensitive at some sites (HSTS activation,
   platform statics, spa-fallback, authService dev_mode, oidcService
   frontendUrl) and case-insensitive at others.
+  Surrounding whitespace is stripped once at boot (`normalizeEnvAtBoot`,
+  together with LOG_LEVEL and DEFAULT_LANGUAGE), the casing is not.

@@ -53,7 +53,7 @@ const onListen = () => {
     ...(HOST ? [`  Host:           ${HOST}`] : []),
     `  Container Port: ${PORT}`,
     `  App URL:        ${appUrl}`,
-    `  Environment:    ${env.app.nodeEnv?.toLowerCase() || 'development'}`,
+    `  Environment:    ${env.app.nodeEnv || 'development'}`,
     `  Timezone:       ${tz}`,
     `  Origins:        ${origins}`,
     `  Log level:      ${LOG_LVL}`,
