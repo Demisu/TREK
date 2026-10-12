@@ -12,7 +12,7 @@
   "src/components/PDF/TripPDF.tsx": 1097,
   "src/components/Planner/DayDetailPanel.test.tsx": 2333,
   "src/components/Planner/DayPlanSidebar.test.tsx": 5381,
-  "src/components/Planner/DayPlanSidebar.tsx": 3000,
+  "src/components/Planner/DayPlanSidebar.tsx": 2979,
   "src/components/Planner/PlaceFormModal.test.tsx": 2864,
   "src/components/Planner/PlaceFormModal.tsx": 1250,
   "src/components/Planner/PlaceInspector.tsx": 1308,

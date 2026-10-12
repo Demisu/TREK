@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { parseTimeToMinutes, getSpanPhase, hidesOnMiddleDay, getTransportRouteEndpoints, getDisplayTimeForDay, getTransportForDay, getAssignmentReservations, getPlaceBookings, getMergedItems, rideSeatKey, stayStartingOn, storedRideSlot, timedSlot } from './dayMerge'
+import { parseTimeToMinutes, getSpanPhase, hidesOnMiddleDay, getTransportRouteEndpoints, getDisplayTimeForDay, getTransportForDay, getAssignmentReservations, getPlaceBookings, getMergedItems, rideSeatKey, seatTimedDrop, stayStartingOn, storedRideSlot, timedSlot, type MergedItem } from './dayMerge'
+import { planMergedOrder, withTransportPositions } from './mergedOrder'
 
 describe('parseTimeToMinutes', () => {
   it('parses HH:MM string', () => {
@@ -491,3 +492,105 @@ describe('timedSlot', () => {
     expect(timedSlot(leading, nights, '08:00')).toBe(1)
   })
 })
+
+// #2631: a day with timed and untimed stops between timed transit rides. Dropping a
+// ride against its time used to draw it back at its time with every untimed stop
+// behind the drop, and the next drag stored that shuffle.
+describe('seatTimedDrop', () => {
+  const DAY = 1
+  const stop = (id: number, name: string, time: string | null = null) =>
+    ({ id, order_index: 0, place: { name, place_time: time } })
+  const ride = (id: number, time: string, pos: number) =>
+    ({ id, type: 'transit', title: `ride ${time}`, day_id: DAY, reservation_time: `2026-11-20T${time}`, day_positions: { [DAY]: pos } })
+  const note = (id: number, time: string | null, sort_order: number) => ({ id, text: `note ${id}`, time, sort_order })
+
+  const setup = () => {
+    const stops = [
+      stop(1, 'Palacio', '07:30'), stop(2, 'Jardin', '10:30'), stop(3, 'Asamkirche', '14:00'), stop(4, 'StPeter', '14:30'),
+      stop(5, 'Sendlinger'), stop(6, 'Ayuntamiento'), stop(7, 'Isartor'), stop(8, 'Juliet'),
+    ].map((a, i) => ({ ...a, order_index: i }))
+    return { stops, rides: [ride(101, '07:01', -0.5), ride(102, '12:01', 1.5), ride(103, '16:55', 3.5)], notes: [] as ReturnType<typeof note>[] }
+  }
+  type Day = ReturnType<typeof setup>
+  const draw = (day: Day) => getMergedItems({ dayAssignments: day.stops, dayNotes: day.notes, dayTransports: day.rides, dayId: DAY })
+  const label = (it: MergedItem) => it.type === 'place' ? it.data.place.name : it.type === 'note' ? it.data.text : it.data.title
+
+  /** What the day list does with a drop: insert, seat, store, and draw again. */
+  const drop = (day: Day, from: (it: MergedItem) => boolean, to: (it: MergedItem) => boolean, after = true) => {
+    const m = draw(day)
+    const order = [...m]
+    const [moved] = order.splice(order.findIndex(from), 1)
+    const at = order.findIndex(to) + (after ? 1 : 0)
+    order.splice(at, 0, moved)
+    const seated = seatTimedDrop(order, at, DAY)
+    const plan = planMergedOrder(seated)
+    const stored: Day = {
+      stops: day.stops.map(a => ({ ...a, order_index: plan.assignmentIds.indexOf(a.id) })),
+      rides: withTransportPositions(day.rides, plan.transportUpdates, DAY),
+      notes: day.notes.map(n => ({ ...n, sort_order: plan.noteUpdates.find(u => u.id === n.id)?.sort_order ?? n.sort_order })),
+    }
+    return { seated: seated.map(label), drawn: draw(stored).map(label), stored }
+  }
+  const isRide = (id: number) => (it: MergedItem) => it.type === 'transport' && it.data.id === id
+  const isStop = (name: string) => (it: MergedItem) => it.type === 'place' && it.data.place.name === name
+  const stopsOf = (labels: string[]) => labels.filter(l => !l.startsWith('ride') && !l.startsWith('note'))
+
+  it('draws the day as the setup expects', () => {
+    expect(draw(setup()).map(label)).toEqual([
+      'ride 07:01', 'Palacio', 'Jardin', 'ride 12:01', 'Asamkirche', 'StPeter', 'ride 16:55', 'Sendlinger', 'Ayuntamiento', 'Isartor', 'Juliet',
+    ])
+  })
+
+  it('a ride dropped against its time goes back alone and the stops keep their order', () => {
+    const day = setup()
+    const before = stopsOf(draw(day).map(label))
+    const { seated, drawn } = drop(day, isRide(102), isStop('Sendlinger'))
+    expect(drawn).toEqual(seated)
+    expect(stopsOf(drawn)).toEqual(before)
+    expect(drawn.indexOf('ride 12:01')).toBe(drawn.indexOf('Asamkirche') - 1)
+  })
+
+  it('a later drag of another ride does not reshuffle the stops either', () => {
+    const first = drop(setup(), isRide(102), isStop('Sendlinger'))
+    const { seated, drawn } = drop(first.stored, isRide(101), isStop('Ayuntamiento'))
+    expect(drawn).toEqual(seated)
+    expect(stopsOf(drawn)).toEqual(['Palacio', 'Jardin', 'Asamkirche', 'StPeter', 'Sendlinger', 'Ayuntamiento', 'Isartor', 'Juliet'])
+    expect(drawn[0]).toBe('ride 07:01')
+  })
+
+  it('a ride dropped between untimed stops its time allows stays where it was dropped', () => {
+    const { seated, drawn } = drop(setup(), isRide(103), isStop('Isartor'))
+    expect(drawn).toEqual(seated)
+    expect(drawn.slice(-4)).toEqual(['Ayuntamiento', 'Isartor', 'ride 16:55', 'Juliet'])
+  })
+
+  it('leaves the untimed stops behind a ride where they are, as before', () => {
+    const day: Day = {
+      stops: [stop(1, 'Hotel'), stop(2, 'Museum'), stop(3, 'Dinner')].map((a, i) => ({ ...a, order_index: i })),
+      rides: [ride(101, '09:00', 0.5)],
+      notes: [],
+    }
+    expect(draw(day).map(label)).toEqual(['Hotel', 'ride 09:00', 'Museum', 'Dinner'])
+    const { seated, drawn } = drop(day, isRide(101), isStop('Museum'))
+    expect(drawn).toEqual(seated)
+    expect(drawn).toEqual(['Hotel', 'Museum', 'ride 09:00', 'Dinner'])
+  })
+
+  it('seats a timed note the same way and leaves an untimed one where it was dropped', () => {
+    const day = setup()
+    day.notes = [note(201, '12:30', 1.6), note(202, null, 6.5)]
+    const isNote = (id: number) => (it: MergedItem) => it.type === 'note' && it.data.id === id
+    const timed = drop(day, isNote(201), isStop('Isartor'))
+    expect(timed.drawn).toEqual(timed.seated)
+    expect(timed.drawn.indexOf('note 201')).toBe(timed.drawn.indexOf('Asamkirche') - 1)
+    const untimed = drop(day, isNote(202), isStop('Palacio'))
+    expect(untimed.drawn).toEqual(untimed.seated)
+    expect(untimed.drawn.indexOf('note 202')).toBe(untimed.drawn.indexOf('Palacio') + 1)
+  })
+
+  it('returns a dropped stop as it came', () => {
+    const order = draw(setup())
+    expect(seatTimedDrop(order, 1, DAY)).toEqual(order)
+  })
+})
+

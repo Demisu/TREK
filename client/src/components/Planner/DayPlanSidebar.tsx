@@ -46,7 +46,7 @@ import { getAccommodationAnchors, getDayBookendHotels, shouldDrawMorningLeg, sho
 import {
   TRANSPORT_TYPES, parseTimeToMinutes, getSpanPhase, hidesOnMiddleDay, getDisplayTimeForDay, getTransportRouteEndpoints,
   getTransportForDay as _getTransportForDay, getMergedItems as _getMergedItems, isCarrierTransport, hasCarrierEndpointOnDay,
-  getAssignmentReservations, timedSlot, storedRideSlot,
+  getAssignmentReservations, timedSlot, storedRideSlot, seatTimedDrop,
   type MergedItem,
 } from '../../utils/dayMerge'
 import { withinDriveRange } from '@trek/shared/roadtrip'
@@ -54,7 +54,7 @@ import { formatDate, formatTime, formatMoneySum, splitReservationDateTime } from
 import { dayHeadingParts } from '../../utils/dayLabel'
 import { pendingStayIds } from '../../utils/pendingStays'
 import { dayWeatherAnchor } from '../../utils/dayWeather'
-import { metadataWithLegPositions, planMergedOrder, withTransportPositions } from '../../utils/mergedOrder'
+import { metadataWithLegPositions, moveRow, planMergedOrder, withTransportPositions } from '../../utils/mergedOrder'
 import { planCosts } from './planCosts'
 import { useDayNotes } from '../../hooks/useDayNotes'
 import { useExchangeRates } from '../../hooks/useExchangeRates'
@@ -939,16 +939,9 @@ function useDayPlanSidebar(props: DayPlanSidebarProps) {
         const fromIdx = m.findIndex(i => i.type === fromType && i.data.id === fromId)
         const toIdx = m.findIndex(matchTo)
         if (fromIdx !== -1 && toIdx !== -1) {
-          const simulated = [...m]
-          const [moved] = simulated.splice(fromIdx, 1)
-          let insertIdx = simulated.findIndex(matchTo)
-          if (insertIdx === -1) insertIdx = simulated.length
-          if (insertAfter) insertIdx += 1
-          simulated.splice(insertIdx, 0, moved)
-
-          const timedInOrder = simulated
+          const timedInOrder = moveRow(m, fromIdx, matchTo, insertAfter).order
             .map(i => {
-              if (i.type === 'transport') return parseTimeToMinutes(i.data?.reservation_time)
+              if (i.type === 'transport') return parseTimeToMinutes(getDisplayTimeForDay(i.data, dayId))
               if (i.type === 'place') return parseTimeToMinutes(i.data?.place?.place_time)
               return null
             })
@@ -974,17 +967,9 @@ function useDayPlanSidebar(props: DayPlanSidebarProps) {
       return
     }
 
-    const newOrder = [...m]
-    const [moved] = newOrder.splice(fromIdx, 1)
-    let adjustedTo = newOrder.findIndex(matchTo)
-    if (adjustedTo === -1) adjustedTo = newOrder.length
-    if (insertAfter) adjustedTo += 1
-    newOrder.splice(adjustedTo, 0, moved)
-
-    await applyMergedOrder(dayId, newOrder)
-    setDraggingId(null)
-    setDropTargetKey(null)
-    dragDataRef.current = null
+    const dropped = moveRow(m, fromIdx, matchTo, insertAfter)
+    await applyMergedOrder(dayId, seatTimedDrop(dropped.order, dropped.index, dayId, getDisplayTimeForDay)) // #2631
+    setDraggingId(null); setDropTargetKey(null); dragDataRef.current = null
   }
 
   const confirmTimeRemoval = async () => {
@@ -1011,14 +996,7 @@ function useDayPlanSidebar(props: DayPlanSidebarProps) {
       const toIdx = m.findIndex(matchTo)
       if (fromIdx === -1 || toIdx === -1 || fromIdx === toIdx) return
 
-      const newOrder = [...m]
-      const [moved] = newOrder.splice(fromIdx, 1)
-      let adjustedTo = newOrder.findIndex(matchTo)
-      if (adjustedTo === -1) adjustedTo = newOrder.length
-      if (insertAfter) adjustedTo += 1
-      newOrder.splice(adjustedTo, 0, moved)
-
-      await applyMergedOrder(dayId, newOrder)
+      await applyMergedOrder(dayId, moveRow(m, fromIdx, matchTo, insertAfter).order)
     }
   }
 
@@ -1866,7 +1844,7 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                           if (parseTimeToMinutes(placeTime) !== null) {
                             const timedInNewOrder = newOrder
                               .map(i => {
-                                if (i.type === 'transport') return parseTimeToMinutes(i.data?.reservation_time)
+                                if (i.type === 'transport') return parseTimeToMinutes(getDisplayTimeForDay(i.data, day.id))
                                 if (i.type === 'place') return parseTimeToMinutes(i.data?.place?.place_time)
                                 return null
                               })

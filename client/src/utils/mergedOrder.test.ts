@@ -1,8 +1,8 @@
-// FE-UTIL-MERGEDORDER-001 to -007: the reorder writes the desktop day plan and the
+// FE-UTIL-MERGEDORDER-001 to -008: the reorder writes the desktop day plan and the
 // phone's plan timeline both derive from a day's new timeline order.
 import { describe, expect, it } from 'vitest';
 
-import { metadataWithLegPositions, planMergedOrder, withTransportPositions } from './mergedOrder';
+import { metadataWithLegPositions, moveRow, planMergedOrder, withTransportPositions } from './mergedOrder';
 
 const place = (id: number) => ({ type: 'place', data: { id } });
 const note = (id: number) => ({ type: 'note', data: { id } });
@@ -79,5 +79,15 @@ describe('metadataWithLegPositions', () => {
     expect(metadataWithLegPositions('{not json', { 0: 1 }, 4)).toBeNull();
     expect(metadataWithLegPositions(null, { 0: 1 }, 4)).toBeNull();
     expect(metadataWithLegPositions('', { 0: 1 }, 4)).toBeNull();
+  });
+});
+
+describe('moveRow', () => {
+  it('FE-UTIL-MERGEDORDER-008: puts the row in front of the target, behind it with after, at the end without one', () => {
+    const rows = ['a', 'b', 'c', 'd'];
+    expect(moveRow(rows, 3, (r) => r === 'b', false)).toEqual({ order: ['a', 'd', 'b', 'c'], index: 1 });
+    expect(moveRow(rows, 0, (r) => r === 'c', true)).toEqual({ order: ['b', 'c', 'a', 'd'], index: 2 });
+    expect(moveRow(rows, 1, () => false, false)).toEqual({ order: ['a', 'c', 'd', 'b'], index: 3 });
+    expect(rows).toEqual(['a', 'b', 'c', 'd']);
   });
 });

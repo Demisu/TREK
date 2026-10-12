@@ -1,10 +1,19 @@
-// FE-PLANNER-DAYPLAN-236: the drag data a booking drop leaves behind. The mocks
-// are the ones DayPlanSidebar.test.tsx renders the sidebar with.
+// FE-PLANNER-DAYPLAN-236: the drag data a booking drop leaves behind, and
+// FE-PLANNER-DAYPLAN-237/238: where a timed booking dropped in the day lands. The
+// mocks are the ones DayPlanSidebar.test.tsx renders the sidebar with.
 import { http, HttpResponse } from 'msw';
-import { buildDay, buildReservation, buildTrip, buildUser } from '../../../tests/helpers/factories';
+import {
+  buildAssignment,
+  buildDay,
+  buildPlace,
+  buildReservation,
+  buildTrip,
+  buildUser,
+} from '../../../tests/helpers/factories';
 import { server } from '../../../tests/helpers/msw/server';
-import { fireEvent, render, screen } from '../../../tests/helpers/render';
+import { fireEvent, render, screen, waitFor } from '../../../tests/helpers/render';
 import { resetAllStores, seedStore } from '../../../tests/helpers/store';
+import { reservationsApi } from '../../api/client';
 import { clearExchangeRateCache } from '../../hooks/useExchangeRates';
 import { useAuthStore } from '../../store/authStore';
 import { useSettingsStore } from '../../store/settingsStore';
@@ -181,5 +190,63 @@ describe('DayPlanSidebar drag data', () => {
     });
     expect(updateReservation).toHaveBeenCalledWith(1, 402, { day_id: 11, end_day_id: 11 });
     expect(window.__dragData).toBeNull();
+  });
+});
+
+// #2631: a booking with a time is drawn by it, and the untimed stops behind it take
+// that time. Dropped against its time it went back on the next render and took the
+// stops behind the drop with it, so the day reshuffled on every drag.
+describe('DayPlanSidebar timed booking drop', () => {
+  const renderDay = (busTime: string, busSlot: number) => {
+    const day = buildDay({ id: 10, date: '2025-06-01', title: 'Day 1' });
+    const stops = [
+      buildPlace({ id: 1, name: 'Breakfast', place_time: '08:00' }),
+      buildPlace({ id: 2, name: 'Museum', place_time: '14:00' }),
+      buildPlace({ id: 3, name: 'Old town' }),
+      buildPlace({ id: 4, name: 'Harbour' }),
+    ];
+    const assignments = {
+      '10': stops.map((place, i) => buildAssignment({ id: 11 + i, day_id: 10, order_index: i, place })),
+    };
+    const bus = buildReservation({
+      id: 500,
+      type: 'bus',
+      title: 'City bus',
+      day_id: 10,
+      reservation_time: `2025-06-01T${busTime}`,
+      day_plan_position: busSlot,
+      day_positions: { 10: busSlot },
+    });
+    seedStore(useTripStore, { reservations: [bus] });
+    const onReorder = vi.fn(async () => undefined);
+    render(
+      <DayPlanSidebar
+        {...makeDefaultProps({ days: [day], places: stops, assignments, reservations: [bus], onReorder })}
+      />
+    );
+    const row = (text: string) => screen.getByText(text).closest('[draggable="true"]') as HTMLElement;
+    fireEvent.dragStart(row('City bus'), {
+      dataTransfer: { setData: vi.fn(), effectAllowed: '', getData: vi.fn(() => '') },
+    });
+    fireEvent.drop(row('Harbour'), { dataTransfer: { getData: vi.fn(() => '') } });
+    return { onReorder };
+  };
+
+  it('FE-PLANNER-DAYPLAN-237: a booking dropped against its time stays at its time and moves no stop', async () => {
+    // The 12:00 bus dropped ahead of Harbour, behind the 14:00 museum.
+    const { onReorder } = renderDay('12:00', 0.5);
+    await waitFor(() =>
+      expect(reservationsApi.updatePositions).toHaveBeenCalledWith(1, [{ id: 500, day_plan_position: 0.5 }], 10)
+    );
+    expect(onReorder).toHaveBeenCalledWith(10, [11, 12, 13, 14]);
+    expect(useTripStore.getState().reservations[0].day_positions).toEqual({ 10: 0.5 });
+  });
+
+  it('FE-PLANNER-DAYPLAN-238: a booking dropped where its time allows lands on the drop', async () => {
+    const { onReorder } = renderDay('16:00', 1.5);
+    await waitFor(() =>
+      expect(reservationsApi.updatePositions).toHaveBeenCalledWith(1, [{ id: 500, day_plan_position: 2.5 }], 10)
+    );
+    expect(onReorder).toHaveBeenCalledWith(10, [11, 12, 13, 14]);
   });
 });

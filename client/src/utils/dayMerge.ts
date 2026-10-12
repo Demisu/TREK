@@ -309,6 +309,43 @@ function applyChronoOrder(
   })
 }
 
+/**
+ * A day order with a dragged booking or note at `index`, moved to the nearest slot the
+ * list draws it in. A row with a time is drawn by it, and the untimed rows behind it
+ * take that time too. Dropped against its time, a train went back to its time on the
+ * next render and took every untimed stop behind the drop with it, and the next drag
+ * stored that order (#2631). So it lands as close to the drop as its time allows and
+ * nothing else moves. A row without a time, or one the list draws where it was
+ * dropped, is returned as it came.
+ */
+export function seatTimedDrop(
+  order: readonly MergedItem[],
+  index: number,
+  dayId: number,
+  getDisplayTime: (r: MergedItem['data'], dayId: number) => string | null = getDisplayTimeForDay
+): MergedItem[] {
+  const moved = order[index]
+  if (!moved || moved.type === 'place') return [...order]
+  const minutes = moved.type === 'note'
+    ? parseTimeToMinutes(moved.data?.time)
+    : parseTimeToMinutes(getDisplayTime(moved.data, dayId))
+  if (minutes === null) return [...order]
+  const rest = order.filter((_, i) => i !== index)
+  const drawnAsIs = (at: number): MergedItem[] | null => {
+    const candidate = [...rest.slice(0, at), moved, ...rest.slice(at)]
+    const drawn = applyChronoOrder(candidate, dayId, getDisplayTime)
+    return drawn.every((it, i) => it === candidate[i]) ? candidate : null
+  }
+  for (let dist = 0; dist <= rest.length; dist++) {
+    for (const at of dist === 0 ? [index] : [index - dist, index + dist]) {
+      if (at < 0 || at > rest.length) continue
+      const seated = drawnAsIs(at)
+      if (seated) return seated
+    }
+  }
+  return [...order]
+}
+
 /** A row of the day list as the seat of a ride reads it; a note is none (see rideSeatKey). */
 function seatItemsOf(row: MergedItem): SeatItem[] {
   if (row.type === 'place') {

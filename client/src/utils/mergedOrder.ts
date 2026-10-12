@@ -23,6 +23,25 @@ export interface MergedOrderPlan {
   legPosUpdates: Record<number, Record<number, number>>;
 }
 
+/**
+ * The day order with the row at `from` taken out and put back in front of the first
+ * row `isTarget` picks, or behind it with `after`; at the end when no row is picked.
+ * `index` is where the row landed.
+ */
+export function moveRow<T>(
+  order: readonly T[],
+  from: number,
+  isTarget: (row: T) => boolean,
+  after = false
+): { order: T[]; index: number } {
+  const moved = [...order];
+  const [row] = moved.splice(from, 1);
+  const target = moved.findIndex(isTarget);
+  const index = (target === -1 ? moved.length : target) + (after ? 1 : 0);
+  moved.splice(index, 0, row);
+  return { order: moved, index };
+}
+
 export function planMergedOrder(newOrder: readonly MergedOrderItem[]): MergedOrderPlan {
   const plan: MergedOrderPlan = { assignmentIds: [], noteUpdates: [], transportUpdates: [], legPosUpdates: {} };
   let placeCount = 0;
