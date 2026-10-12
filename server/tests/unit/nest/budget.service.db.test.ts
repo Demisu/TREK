@@ -2148,10 +2148,10 @@ describe('someone who left the trip keeps their part of an expense (#2604)', () 
       member_ids: [alice.id, bob.id, carol.id],
     });
 
-    expect(saved!.total_price).toBe(180);
-    expect(saved!.payers.map(p => p.user_id).sort()).toEqual([alice.id, bob.id].sort());
-    expect(saved!.members.map(m => m.user_id).sort()).toEqual([alice.id, bob.id, carol.id].sort());
-    expect(saved!.persons).toBe(3);
+    expect(saved?.total_price).toBe(180);
+    expect(saved?.payers.map(p => p.user_id).sort()).toEqual([alice.id, bob.id].sort());
+    expect(saved?.members.map(m => m.user_id).sort()).toEqual([alice.id, bob.id, carol.id].sort());
+    expect(saved?.persons).toBe(3);
     const settlement = await budget.calculateSettlement(trip.id);
     expect(balanceSum(settlement.balances)).toBe(0);
   });
@@ -2170,8 +2170,8 @@ describe('someone who left the trip keeps their part of an expense (#2604)', () 
       members: [{ user_id: alice.id, amount: 30 }, { user_id: bob.id, amount: 30 }, { user_id: carol.id, amount: 30 }],
     });
 
-    expect(saved!.total_price).toBe(90);
-    expect(saved!.members.reduce((a, m) => a + (m.amount ?? 0), 0)).toBe(90);
+    expect(saved?.total_price).toBe(90);
+    expect(saved?.members.reduce((a, m) => a + (m.amount ?? 0), 0)).toBe(90);
     const settlement = await budget.calculateSettlement(trip.id);
     expect(balanceSum(settlement.balances)).toBe(0);
     expect(settlement.balances.find(b => b.user_id === bob.id)?.balance).toBe(60);
@@ -2189,11 +2189,11 @@ describe('someone who left the trip keeps their part of an expense (#2604)', () 
       member_ids: [alice.id, bob.id, outsider.id],
     });
 
-    expect(saved!.payers.map(p => p.user_id)).toEqual([alice.id]);
-    expect(saved!.members.map(m => m.user_id)).not.toContain(outsider.id);
-    expect(saved!.total_price).toBe(40);
+    expect(saved?.payers.map(p => p.user_id)).toEqual([alice.id]);
+    expect(saved?.members.map(m => m.user_id)).not.toContain(outsider.id);
+    expect(saved?.total_price).toBe(40);
     const viaMembers = await budget.updateMembers(item.id, trip.id, [alice.id, outsider.id]);
-    expect(viaMembers!.members.map(m => m.user_id)).toEqual([alice.id]);
+    expect(viaMembers?.members.map(m => m.user_id)).toEqual([alice.id]);
   });
 
   it('BUDGET-SVC-DB-090: leaving a former member out of the save removes them', async () => {
@@ -2207,10 +2207,10 @@ describe('someone who left the trip keeps their part of an expense (#2604)', () 
       payers: [{ user_id: alice.id, amount: 30 }], member_ids: [alice.id, carol.id],
     });
 
-    expect(saved!.members.map(m => m.user_id).sort()).toEqual([alice.id, carol.id].sort());
+    expect(saved?.members.map(m => m.user_id).sort()).toEqual([alice.id, carol.id].sort());
     // Once gone from the expense, they cannot be put back while off the trip.
     const again = await budget.updateBudgetItem(item.id, trip.id, { member_ids: [alice.id, bob.id, carol.id] });
-    expect(again!.members.map(m => m.user_id)).not.toContain(bob.id);
+    expect(again?.members.map(m => m.user_id)).not.toContain(bob.id);
   });
 
   it('BUDGET-SVC-DB-091: a former member who was only in the split can be recorded as the payer', async () => {
@@ -2224,8 +2224,8 @@ describe('someone who left the trip keeps their part of an expense (#2604)', () 
       payers: [{ user_id: bob.id, amount: 50 }], member_ids: [alice.id, bob.id],
     });
 
-    expect(saved!.payers.map(p => p.user_id)).toEqual([bob.id]);
-    expect(saved!.total_price).toBe(50);
+    expect(saved?.payers.map(p => p.user_id)).toEqual([bob.id]);
+    expect(saved?.total_price).toBe(50);
   });
 
   it('BUDGET-SVC-DB-092: the paid ticks survive a form save', async () => {
@@ -2254,11 +2254,11 @@ describe('someone who left the trip keeps their part of an expense (#2604)', () 
     await membersSvc.removeMember(trip.id, bob.id);
 
     const payers = await budget.setItemPayers(item.id, trip.id, [{ user_id: alice.id, amount: 20 }, { user_id: bob.id, amount: 20 }]);
-    expect(payers!.total_price).toBe(40);
-    expect(payers!.payers.map(p => p.user_id).sort()).toEqual([alice.id, bob.id].sort());
+    expect(payers?.total_price).toBe(40);
+    expect(payers?.payers.map(p => p.user_id).sort()).toEqual([alice.id, bob.id].sort());
 
     const members = await budget.updateMembers(item.id, trip.id, [alice.id, bob.id]);
-    expect(members!.members.map(m => m.user_id).sort()).toEqual([alice.id, bob.id].sort());
+    expect(members?.members.map(m => m.user_id).sort()).toEqual([alice.id, bob.id].sort());
   });
 
   it('BUDGET-SVC-DB-094: a new expense still takes only people on the trip', async () => {

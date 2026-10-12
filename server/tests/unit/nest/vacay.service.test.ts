@@ -34,7 +34,7 @@ import { createTestVacayHolidayCalendarsRepo, createTestSchoolHolidayRegionsRepo
 import type { EntityClass, EntityDTO, FilterQuery, FindOptions } from '@mikro-orm/core';
 import { sharedTestOrm } from '../../helpers/test-uow';
 import {
-  countRows, deleteRows, findRow, findRows, insertRow, insertRowIgnoringConflict, updateRows, upsertRow,
+  countRows, findRow, findRows, insertRow, insertRowIgnoringConflict, updateRows, upsertRow,
 } from '../../helpers/factories/rows';
 import { SchoolHolidayCountries } from '../../../src/db/entities/SchoolHolidayCountries.entity';
 import { SchoolHolidayRegions } from '../../../src/db/entities/SchoolHolidayRegions.entity';

@@ -1471,7 +1471,11 @@ describe('folded trip CRUD', () => {
     const copied = await storedRows(BudgetItems, { trip: newTripId }, { name: 'asc' }, ['id', 'name', 'total_price', 'persons', 'paid_by_user_id', 'ticket_json']) as {
       id: number; name: string; total_price: number; persons: number | null; paid_by_user_id: number | null; ticket_json: string | null;
     }[];
-    const byName = (name: string) => copied.find(c => c.name === name)!;
+    const byName = (name: string) => {
+      const row = copied.find(c => c.name === name);
+      if (!row) throw new Error(`no copied expense named ${name}`);
+      return row;
+    };
     expect(copied.map(c => [c.name, c.total_price])).toEqual([['Rental car', 180], ['Seafood dinner', 90], ['Solo lunch', 50]]);
 
     // The copier's own expense is copied whole.

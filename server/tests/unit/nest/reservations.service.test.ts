@@ -848,7 +848,8 @@ describe('ReservationsService (DI-native, real SQL)', () => {
       const { trip } = ownerTrip();
       budget.linkBudgetItemToReservation.mockReturnValue({ id: 8 });
       const created = await svc.create(String(trip.id), { title: 'Ferry', type: 'ferry', reservation_time: '2026-11-13T08:30' } as never);
-      const current = (await svc.getReservation(String(created.reservation.id), String(trip.id)))!;
+      const current = await svc.getReservation(String(created.reservation.id), String(trip.id));
+      if (!current) throw new Error('the booking was not created');
 
       await svc.updateWithCost(String(created.reservation.id), String(trip.id), { title: 'Ferry' } as never, current, { total_price: 30000 });
 

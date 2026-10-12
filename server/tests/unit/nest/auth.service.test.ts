@@ -924,8 +924,10 @@ describe('registerUser — success paths', () => {
   it('AUTH-DB-056b: a signup marks the address it typed in, except for the first account', async () => {
     const first = await svc.registerUser({ username: 'owner', email: 'owner@x.com', password: 'Secure123!' });
     const second = await svc.registerUser({ username: 'joiner', email: 'joiner@x.com', password: 'Secure123!' });
-    expect((await readUser(orm, first.auditUserId!)).email_self_asserted).toBe(0);
-    expect((await readUser(orm, second.auditUserId!)).email_self_asserted).toBe(1);
+    expect(first.auditUserId).toEqual(expect.any(Number));
+    expect(second.auditUserId).toEqual(expect.any(Number));
+    expect((await readUser(orm, Number(first.auditUserId))).email_self_asserted).toBe(0);
+    expect((await readUser(orm, Number(second.auditUserId))).email_self_asserted).toBe(1);
   });
 
   it('AUTH-DB-057: missing fields / bad email / duplicate answer their bespoke 400/409s', async () => {
