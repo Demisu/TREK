@@ -538,7 +538,7 @@ export function useTripPlanner() {
     isTourPlace, deletePlaceId, setDeletePlaceId, deletePlaceIds, setDeletePlaceIds,
     deletePlaceIsTour, deletePlacesIncludeTours, deletePlaceNote, deletePlacesNote,
   } = usePlaceEdits({
-    tripId, trip, can, tripActions, toast, t, places, allPlaces, tripAccommodations, reservations,
+    tripId, trip, can, tripActions, toast, t, places, allPlaces, tripAccommodations, loadAccommodations, reservations,
     toursEnabled, tourPlaceIds, invalidateTourPlaceIds, reloadTourPlaceIds, selectedPlaceId, setSelectedPlaceId,
     selectedDayId, updateRouteForDay, pushUndo, forgetPlace,
     editingPlace, editingAssignmentId, placeFormDayId, placeFormPosition, roadtripRoutes, roadtripVias, viaLiesBefore,

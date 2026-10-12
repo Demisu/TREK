@@ -516,6 +516,47 @@ describe('assignmentsSlice', () => {
     });
   });
 
+  describe('setAssignmentParticipants / setAssignmentLegMode', () => {
+    it('FE-ASSIGN-023: the travellers the server answers with, and a leg mode it took, land on the visit', async () => {
+      const place = buildPlace({ id: 10, trip_id: 1 });
+      seedStore(useTripStore, { assignments: { '2': [buildAssignment({ id: 5, day_id: 2, place_id: 10, place })] } });
+      let participantsBody: unknown;
+      const transportBodies: unknown[] = [];
+      server.use(
+        http.put('/api/trips/1/assignments/5/participants', async ({ request }) => {
+          participantsBody = await request.json();
+          return HttpResponse.json({ participants: [{ user_id: 4, username: 'Lena' }] });
+        }),
+        http.put('/api/trips/1/assignments/5/transport', async ({ request }) => {
+          transportBodies.push(await request.json());
+          return HttpResponse.json({ success: true });
+        }),
+      );
+
+      await useTripStore.getState().setAssignmentParticipants(1, 2, 5, [4]);
+      await useTripStore.getState().setAssignmentLegMode(1, 2, 5, 'driving');
+      await useTripStore.getState().setAssignmentLegMode(1, 2, 5, 'cycling', 'incoming');
+
+      expect(participantsBody).toEqual({ user_ids: [4] });
+      expect(transportBodies).toEqual([{ transport_mode: 'driving' }, { transport_mode: 'cycling', direction: 'incoming' }]);
+      const visit = useTripStore.getState().assignments['2'][0];
+      expect(visit.participants).toEqual([{ user_id: 4, username: 'Lena' }]);
+      expect(visit.leg_transport_mode).toBe('driving');
+      expect(visit.incoming_leg_transport_mode).toBe('cycling');
+    });
+
+    it('FE-ASSIGN-024: a refused write is thrown and leaves the visit as it was', async () => {
+      const place = buildPlace({ id: 10, trip_id: 1 });
+      seedStore(useTripStore, { assignments: { '2': [buildAssignment({ id: 5, day_id: 2, place_id: 10, place })] } });
+      server.use(
+        http.put('/api/trips/1/assignments/5/participants', () => HttpResponse.json({ error: 'nope' }, { status: 400 })),
+      );
+
+      await expect(useTripStore.getState().setAssignmentParticipants(1, 2, 5, [4])).rejects.toBeTruthy();
+      expect(useTripStore.getState().assignments['2'][0].participants).toBeUndefined();
+    });
+  });
+
   describe('setAssignments', () => {
     it('FE-ASSIGN-019: replaces the whole assignments map', () => {
       seedStore(useTripStore, { assignments: { '1': [buildAssignment({ id: 1, day_id: 1 })] } });

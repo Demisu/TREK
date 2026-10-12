@@ -276,7 +276,8 @@ describe('useMPlanTimeline', () => {
     const { result } = await renderTimeline(planner)
     await act(async () => { result.current.moveRow(result.current.merged[0], 'down') })
     await waitFor(() => expect(planner.tripActions.reorderAssignments).toHaveBeenCalledWith(1, 2, [12, 11, 13]))
-    expect(planner.pushUndo).toHaveBeenCalledWith('undo.reorder', expect.any(Function))
+    // Tied to the day and its places, so deleting either drops a step that could only fail.
+    expect(planner.pushUndo).toHaveBeenCalledWith('undo.reorder', expect.any(Function), [2], expect.arrayContaining([101, 102, 103]))
     expect(planner.updateRouteForDay).toHaveBeenCalledWith(2)
   })
 
@@ -549,7 +550,7 @@ describe('useMPlanTimeline', () => {
     const { result } = await renderTimeline(planner)
     await act(async () => { await result.current.optimize() })
     expect(planner.tripActions.reorderAssignments).toHaveBeenCalledWith(1, 2, [11, 13, 12])
-    expect(planner.pushUndo).toHaveBeenCalledWith('undo.optimize', expect.any(Function))
+    expect(planner.pushUndo).toHaveBeenCalledWith('undo.optimize', expect.any(Function), [2], expect.arrayContaining([101, 102, 103]))
     expect(planner.updateRouteForDay).toHaveBeenCalledWith(2)
     expect(planner.toast.success).toHaveBeenCalledWith('dayplan.toast.routeOptimized')
 

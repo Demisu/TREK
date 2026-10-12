@@ -529,6 +529,9 @@ export const STATE_APPLIERS: Partial<Record<TrekWsTripEventName, StateApplier>> 
   },
 }
 
+/** The deletes that can take a booked night along with them. */
+const STAY_TAKING_EVENTS = new Set<string>(['day:deleted', 'place:deleted', 'accommodation:deleted'])
+
 /**
  * Applies a remote WebSocket event to the local Zustand store, keeping state in sync across collaborators.
  * Each event type maps to an immutable state update (create/update/delete) for the relevant entity.
@@ -571,12 +574,13 @@ export function handleRemoteEvent(set: SetState, get: GetState, event: WebSocket
     if (tripId) get().loadReservations(tripId)
   }
 
-  // A deleted day cancels a stay that checked in or out on it, and the stays
-  // live in page-local planner state rather than this store. This rides the
-  // planner's existing accommodations:refresh event on purpose, the legacy
-  // window bus the place image and trip date handlers here use as well.
-  // Retiring it means moving the stays into a store slice, a change of its own.
-  if (type === 'day:deleted') window.dispatchEvent(new CustomEvent('accommodations:refresh'))
+  // A deleted day cancels a stay that checked in or out on it, a deleted place
+  // the stay booked at it, and the stays live in page-local planner state rather
+  // than this store. This rides the planner's existing accommodations:refresh
+  // event on purpose, the legacy window bus the place image and trip date
+  // handlers here use as well. Retiring it means moving the stays into a store
+  // slice, a change of its own.
+  if (STAY_TAKING_EVENTS.has(type)) window.dispatchEvent(new CustomEvent('accommodations:refresh'))
 
   // A reorder/insert re-pins dates and re-stamps booking times server-side, so
   // pull the authoritative days + reservations for collaborators.

@@ -76,6 +76,8 @@ The planner keeps your recent actions in a short undo ring: adding, deleting and
 
 Deleting a day is not in the ring. The question before the delete lists what goes with the day instead; see [Deleting a day](Day-Plans-and-Notes#deleting-a-day). An earlier reorder of the days can still be undone afterwards, minus the day that is gone.
 
+An undone place delete brings the place back with all its details and puts it on its days again with the times, notes and travellers it had there. A place that had a booked night, a booking, a linked expense, files, an uploaded picture or another member's rating is deleted without an undo, because those go with it and cannot be brought back.
+
 ## Road trip view
 
 With the [Road trip](Road-Trip) addon enabled, the **Days** / **Road trip** switch above the days column turns the day cards into one continuous drive: arrival times, daily travel times, driving limits, range, search along the route, via points and current hazard warnings. The choice is kept per trip for the browser session. All of it is on its own page:

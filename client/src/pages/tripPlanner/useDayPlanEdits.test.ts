@@ -1,4 +1,4 @@
-// FE-TP-DAYPLAN-001 to FE-TP-DAYPLAN-010
+// FE-TP-DAYPLAN-001 to FE-TP-DAYPLAN-010, with 006b
 //
 // The day plan's edits, driven straight through useDayPlanEdits. The store holds the
 // day lists the remove and reorder handlers capture for their undo, every write goes
@@ -39,6 +39,12 @@ function makeActions() {
     reorderAssignments: vi.fn(async () => undefined),
     updateDayTitle: vi.fn(async () => undefined),
     reorderDays: vi.fn(async () => undefined),
+    setAssignmentTimes: vi.fn(async () => undefined),
+    setAssignmentNotes: vi.fn(async () => undefined),
+    setAssignmentEndDay: vi.fn(async () => undefined),
+    setAssignmentRouteExcluded: vi.fn(async () => undefined),
+    setAssignmentParticipants: vi.fn(async () => undefined),
+    setAssignmentLegMode: vi.fn(async () => undefined),
   }
 }
 
@@ -189,6 +195,26 @@ describe('useDayPlanEdits', () => {
 
     await act(async () => { await lastUndo()() })
     expect(actions.assignPlaceToDay).toHaveBeenCalledWith(42, 10, 2, 1)
+  })
+
+  it('FE-TP-DAYPLAN-006b: a stop taken off its day comes back with its times, note, travellers and legs', async () => {
+    const visit = buildAssignment({
+      id: 104, day_id: 10, place: museum, order_index: 1, assignment_time: '10:00', assignment_end_time: null,
+      notes: 'Tickets', incoming_leg_transport_mode: 'cycling', participants: [{ user_id: 4, username: 'Lena' }],
+    })
+    useTripStore.setState({ assignments: { 10: [day10[0], visit] } })
+    const { result } = renderEdits()
+
+    await act(async () => { await result.current.handleRemoveAssignment(10, 104) })
+    await act(async () => { await lastUndo()() })
+
+    expect(actions.assignPlaceToDay).toHaveBeenCalledWith(42, 10, 4, 1)
+    expect(actions.setAssignmentTimes).toHaveBeenCalledWith(42, 10, 555, { place_time: '10:00', end_time: null })
+    expect(actions.setAssignmentNotes).toHaveBeenCalledWith(42, 10, 555, 'Tickets')
+    expect(actions.setAssignmentParticipants).toHaveBeenCalledWith(42, 10, 555, [4])
+    expect(actions.setAssignmentLegMode).toHaveBeenCalledWith(42, 10, 555, 'cycling', 'incoming')
+    expect(actions.setAssignmentEndDay).not.toHaveBeenCalled()
+    expect(actions.setAssignmentRouteExcluded).not.toHaveBeenCalled()
   })
 
   it('FE-TP-DAYPLAN-007: a removed tour reloads the tours both ways, and an unknown row leaves the vias and the undo alone', async () => {

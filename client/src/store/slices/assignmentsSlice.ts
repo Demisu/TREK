@@ -14,6 +14,8 @@ export interface AssignmentsSlice {
   setAssignmentRouteExcluded: (tripId: number | string, dayId: number, assignmentId: number, excluded: boolean) => Promise<void>
   setAssignmentTimes: (tripId: number | string, dayId: number, assignmentId: number, times: AssignmentTimes) => Promise<void>
   setAssignmentNotes: (tripId: number | string, dayId: number, assignmentId: number, notes: string | null) => Promise<void>
+  setAssignmentParticipants: (tripId: number | string, dayId: number, assignmentId: number, userIds: number[]) => Promise<void>
+  setAssignmentLegMode: (tripId: number | string, dayId: number, assignmentId: number, mode: string | null, direction?: 'outgoing' | 'incoming') => Promise<void>
   assignPlaceToDay: (tripId: number | string, dayId: number | string, placeId: number | string, position?: number | null) => Promise<Assignment | undefined>
   removeAssignment: (tripId: number | string, dayId: number | string, assignmentId: number) => Promise<void>
   clearDayAssignments: (tripId: number | string, dayId: number) => Promise<void>
@@ -96,6 +98,21 @@ export const createAssignmentsSlice = (set: SetState, get: GetState): Assignment
       apply(assignment.notes ?? null)
       throw err
     }
+  },
+  // Who joins the visit and how its legs are travelled are online writes, as they are
+  // from the place inspector and the leg menu; the answer is written into the day.
+  setAssignmentParticipants: async (tripId, dayId, assignmentId, userIds) => {
+    const data = await assignmentsApi.setParticipants(tripId, assignmentId, userIds)
+    set(state => ({
+      assignments: { ...state.assignments, [String(dayId)]: (state.assignments[String(dayId)] || []).map(a => a.id === assignmentId ? { ...a, participants: data.participants } : a) },
+    }))
+  },
+  setAssignmentLegMode: async (tripId, dayId, assignmentId, mode, direction = 'outgoing') => {
+    await assignmentsApi.updateTransport(tripId, assignmentId, mode, direction)
+    const field = direction === 'incoming' ? 'incoming_leg_transport_mode' : 'leg_transport_mode'
+    set(state => ({
+      assignments: { ...state.assignments, [String(dayId)]: (state.assignments[String(dayId)] || []).map(a => a.id === assignmentId ? { ...a, [field]: mode } : a) },
+    }))
   },
   assignPlaceToDay: async (tripId, dayId, placeId, position) => {
     const state = get()

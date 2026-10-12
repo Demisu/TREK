@@ -3,6 +3,7 @@ import { useTripStore } from '../../store/tripStore'
 import { dayLabel } from '../../utils/dayLabel'
 import type { Day } from '../../types'
 import type { RoadtripVias } from '../../components/Roadtrip/useRoadtripVias'
+import { restoreVisit, visitOf } from './placeUndo'
 
 type Translate = (key: string, params?: Record<string, string | number>) => string
 
@@ -70,11 +71,15 @@ export function useDayClear(options: DayClearOptions): DayClear {
     }
     updateRouteForDay(dayId)
     await onToursChanged?.()
-    const placeIds = cleared.map(a => a.place?.id).filter((id): id is number => id != null)
+    const visits = cleared.filter(a => a.place?.id != null).map(a => visitOf(dayId, a))
+    const placeIds = visits.map(visit => visit.placeId)
     pushUndo(t('undo.clearDay'), async () => {
-      // One after the other: each lands at the position the one before it left free.
-      for (const [position, placeId] of placeIds.entries()) {
-        await useTripStore.getState().assignPlaceToDay(tripId, dayId, placeId, position)
+      // One after the other: each lands at the position the one before it left free,
+      // with the times, note and travellers it had.
+      for (const [position, visit] of visits.entries()) {
+        const store = useTripStore.getState()
+        const restored = await store.assignPlaceToDay(tripId, dayId, visit.placeId, position)
+        if (restored?.id) await restoreVisit(tripId, store, visit, restored.id)
       }
       await onToursChanged?.()
     }, [dayId], placeIds)

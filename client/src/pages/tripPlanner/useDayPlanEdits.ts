@@ -5,6 +5,7 @@ import type { useTourPlaceIds } from '../../hooks/useTourPlaceIds'
 import { useTripStore, type TripStoreState } from '../../store/tripStore'
 import type { Accommodation, Place } from '../../types'
 import { timedSlot } from '../../utils/dayMerge'
+import { restoreVisit, visitOf } from './placeUndo'
 import type { PlannerBase, PlannerHistory } from './plannerTypes'
 import type { PlaceEdits } from './usePlaceEdits'
 import type { RoadtripFeed } from './useRoadtripFeed'
@@ -93,7 +94,7 @@ export function useDayPlanEdits(options: DayPlanEditsOptions) {
     const capturedAssignment = (state.assignments[String(dayId)] || []).find(a => a.id === assignmentId)
     const capturedPlaceId = capturedAssignment?.place?.id
     const removedTour = capturedPlaceId != null && isTourPlace(capturedPlaceId)
-    const capturedOrderIndex = capturedAssignment?.order_index ?? 0
+    const capturedVisit = capturedAssignment?.place ? visitOf(dayId, capturedAssignment) : null
     // Worked out before the delete, while the day still has the stop the vias
     // were measured against. `after_order_index` is a POSITION, so taking a stop
     // away moves the ground under every via that follows it: the anchors keep
@@ -111,11 +112,12 @@ export function useDayPlanEdits(options: DayPlanEditsOptions) {
       if (removedTour) await reloadTourPlaceIds()
       if (plan) await roadtripVias.reanchor(dayId, plan)
       updateRouteForDay(dayId)
-      if (capturedPlaceId != null) {
+      if (capturedPlaceId != null && capturedVisit) {
         const capturedDayId = dayId
-        const capturedPos = capturedOrderIndex
         pushUndo(t('undo.removeAssignment'), async () => {
-          await tripActions.assignPlaceToDay(tripId, capturedDayId, capturedPlaceId, capturedPos)
+          // Back with its times, note and travellers, not as a bare stop.
+          const restored = await tripActions.assignPlaceToDay(tripId, capturedDayId, capturedPlaceId, capturedVisit.orderIndex)
+          if (restored?.id) await restoreVisit(tripId, tripActions, capturedVisit, restored.id)
           if (removedTour) await reloadTourPlaceIds()
         }, [capturedDayId], [capturedPlaceId])
       }

@@ -19,6 +19,10 @@ import type { WeatherResult } from '@trek/shared'
 import type { Assignment, Place, RouteSegment } from '../../../../types'
 import type { MergedItem } from '../../../../utils/dayMerge'
 
+/** The places a day's stops name, so a reorder's undo goes once one of them is deleted. */
+const placeIdsOf = (items: Assignment[]): number[] =>
+  [...new Set(items.map(a => a.place?.id).filter((id): id is number => id != null))]
+
 /**
  * State + actions behind the mobile plan timeline. Everything data-shaped comes
  * from the planner (same store the desktop page drives, so WS sync / offline /
@@ -173,7 +177,7 @@ export function useMPlanTimeline(planner: TripPlanner) {
       if (prevAssignmentIds.length) {
         pushUndo(t('undo.reorder'), async () => {
           await tripActions.reorderAssignments(tripId, dayId, prevAssignmentIds)
-        })
+        }, [dayId], placeIdsOf(dayAssignments))
       }
       updateRouteForDay(dayId)
     } catch (err: unknown) {
@@ -277,7 +281,7 @@ export function useMPlanTimeline(planner: TripPlanner) {
       await tripActions.reorderAssignments(tripId, day.id, result.order.map(a => a.id))
       pushUndo(t('undo.optimize'), async () => {
         await tripActions.reorderAssignments(tripId, day.id, prevIds)
-      })
+      }, [day.id], placeIdsOf(dayAssignments))
       updateRouteForDay(day.id)
       toast.success(result.usedHotel ? t('dayplan.toast.routeOptimizedFromHotel') : t('dayplan.toast.routeOptimized'))
     } catch (err: unknown) {

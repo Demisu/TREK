@@ -1,4 +1,4 @@
-// FE-TP-PLACEEDITS-001 to FE-TP-PLACEEDITS-012
+// FE-TP-PLACEEDITS-001 to FE-TP-PLACEEDITS-016
 //
 // Writes to the trip's places, driven straight through usePlaceEdits. The store holds
 // the places and day lists the delete and category handlers capture for their undo,
@@ -12,9 +12,12 @@ import { mutationQueue } from '../../sync/mutationQueue'
 import { setAuthed } from '../../sync/authGate'
 import { server } from '../../../tests/helpers/msw/server'
 import { useTripStore, type TripStoreState } from '../../store/tripStore'
+import { useAuthStore } from '../../store/authStore'
 import { resetAllStores } from '../../../tests/helpers/store'
-import { buildAssignment, buildDay, buildPlace, buildReservation, buildTrip } from '../../../tests/helpers/factories'
-import type { Accommodation } from '../../types'
+import {
+  buildAssignment, buildBudgetItem, buildDay, buildPlace, buildReservation, buildTrip, buildTripFile,
+} from '../../../tests/helpers/factories'
+import type { Accommodation, User } from '../../types'
 import type { Can, Translate } from './plannerTypes'
 import type { RoadtripFeed } from './useRoadtripFeed'
 import { usePlaceEdits } from './usePlaceEdits'
@@ -42,6 +45,11 @@ function makeActions() {
     refreshDays: vi.fn(async () => undefined),
     setAssignmentTimes: vi.fn(async () => undefined),
     setAssignmentNotes: vi.fn(async () => undefined),
+    setAssignmentEndDay: vi.fn(async () => undefined),
+    setAssignmentRouteExcluded: vi.fn(async () => undefined),
+    setAssignmentParticipants: vi.fn(async () => undefined),
+    setAssignmentLegMode: vi.fn(async () => undefined),
+    ratePlace: vi.fn(async () => undefined),
     addFile: vi.fn(async () => undefined),
     deletePlace: vi.fn(async (): Promise<{ tourPlaceIds?: number[] } | undefined> => undefined),
     deletePlacesMany: vi.fn(async (): Promise<{ tourPlaceIds?: number[] } | undefined> => undefined),
@@ -80,6 +88,7 @@ beforeEach(() => {
     tripId: 42, trip, can, toast, t,
     tripActions: { ...useTripStore.getState(), ...actions } as unknown as TripStoreState,
     places: [lake, castle, summit], allPlaces: [lake, castle, summit], tripAccommodations: [], reservations: [],
+    loadAccommodations: vi.fn(),
     toursEnabled: true, tourPlaceIds: new Set<number>(), invalidateTourPlaceIds: vi.fn(), reloadTourPlaceIds: vi.fn(async () => undefined),
     selectedPlaceId: null, setSelectedPlaceId: vi.fn(), selectedDayId: 10,
     updateRouteForDay: vi.fn(async () => undefined), pushUndo: vi.fn(), forgetPlace: vi.fn(),
@@ -260,7 +269,8 @@ describe('usePlaceEdits', () => {
     expect(saved).toEqual({ id: 900 })
     expect(actions.assignPlaceToDay).toHaveBeenCalledWith(42, 11, 900, 2)
     expect(fixed.updateRouteForDay).toHaveBeenCalledWith(11)
-    expect(fixed.pushUndo).toHaveBeenCalledWith('undo.addPlace', expect.any(Function))
+    // Tied to the new place, so deleting it drops a step that could only fail.
+    expect(fixed.pushUndo).toHaveBeenCalledWith('undo.addPlace', expect.any(Function), undefined, [900])
     await act(async () => { await lastUndo()() })
     expect(actions.deletePlace).toHaveBeenCalledWith(42, 900)
   })
@@ -342,5 +352,112 @@ describe('usePlaceEdits', () => {
     actions.updatePlacesMany.mockRejectedValueOnce('nope')
     await act(async () => { await result.current.confirmChangeCategory([1], 4) })
     expect(toast.error).toHaveBeenLastCalledWith('common.unknownError')
+  })
+
+  // A place planned with everything a traveller fills in, on a day with the times, note,
+  // travellers and leg of that visit, and the traveller's own vote.
+  const museum = buildPlace({
+    id: 5, name: 'Museum', category_id: 3, notes: 'Meine Notiz', website: 'https://museum.example', phone: '+49 89 1',
+    email: 'info@museum.example', opening_hours: '[]', duration_minutes: 90, place_time: '09:00', currency: 'EUR',
+    image_url: 'https://images.example/museum.jpg', google_place_id: 'g-5',
+    tags: [{ id: 7, name: 'Art' }], ratings: [{ user_id: 1, username: 'me', rating: 4 }],
+  })
+  const museumVisit = buildAssignment({
+    id: 105, day_id: 10, place: museum, order_index: 0, assignment_time: '10:00', assignment_end_time: '11:00',
+    notes: 'Tagesnotiz', end_day: true, route_excluded: true, leg_transport_mode: 'driving',
+    participants: [{ user_id: 1, username: 'me' }, { user_id: 4, username: 'Lena' }],
+  })
+
+  function seedMuseum() {
+    useAuthStore.setState({ user: { id: 1 } as User })
+    useTripStore.setState({ places: [museum, lake, castle], assignments: { 10: [museumVisit] }, budgetItems: [], files: [] })
+  }
+
+  it('FE-TP-PLACEEDITS-013: undoing a delete writes the place again with every field and plans each visit as it was', async () => {
+    seedMuseum()
+    const { result } = renderEdits()
+    act(() => { result.current.setDeletePlaceId(5) })
+
+    await act(async () => { await result.current.confirmDeletePlace() })
+    // Older steps that name the place are dropped with it, not left to fail later.
+    expect(fixed.forgetPlace).toHaveBeenCalledWith(5)
+    expect(fixed.pushUndo).toHaveBeenCalledWith('undo.deletePlace', expect.any(Function))
+
+    await act(async () => { await lastUndo()() })
+    expect(actions.addPlace).toHaveBeenCalledWith(42, expect.objectContaining({
+      name: 'Museum', category_id: 3, notes: 'Meine Notiz', website: 'https://museum.example', phone: '+49 89 1',
+      email: 'info@museum.example', opening_hours: '[]', duration_minutes: 90, place_time: '09:00', currency: 'EUR',
+      image_url: 'https://images.example/museum.jpg', google_place_id: 'g-5', tags: [7],
+    }))
+    expect(actions.assignPlaceToDay).toHaveBeenCalledWith(42, 10, 900, 0)
+    expect(actions.setAssignmentTimes).toHaveBeenCalledWith(42, 10, 555, { place_time: '10:00', end_time: '11:00' })
+    expect(actions.setAssignmentNotes).toHaveBeenCalledWith(42, 10, 555, 'Tagesnotiz')
+    expect(actions.setAssignmentEndDay).toHaveBeenCalledWith(42, 10, 555, true)
+    expect(actions.setAssignmentRouteExcluded).toHaveBeenCalledWith(42, 10, 555, true)
+    expect(actions.setAssignmentParticipants).toHaveBeenCalledWith(42, 10, 555, [1, 4])
+    expect(actions.setAssignmentLegMode).toHaveBeenCalledWith(42, 10, 555, 'driving')
+    expect(actions.setAssignmentLegMode).toHaveBeenCalledTimes(1)
+    expect(actions.ratePlace).toHaveBeenCalledWith(42, 900, 4)
+  })
+
+  it('FE-TP-PLACEEDITS-014: a delete that takes along what writing the place again cannot bring back offers no undo', async () => {
+    const cases: { name: string; over?: Partial<Options>; store?: Partial<TripStoreState>; place?: Partial<typeof museum> }[] = [
+      { name: 'a booked night', over: { tripAccommodations: [stay({ id: 70, place_id: 5 })] } },
+      { name: 'a booking at it', over: { reservations: [buildReservation({ id: 80, place_id: 5 })] } },
+      { name: 'the hotel of a booking', over: { reservations: [buildReservation({ id: 81, accommodation_place_id: 5 })] } },
+      { name: 'a linked expense', store: { budgetItems: [buildBudgetItem({ id: 90, place_id: 5 })] } },
+      { name: 'a file of its own', store: { files: [buildTripFile({ id: 91, place_id: 5 })] } },
+      { name: 'a file linked to it', store: { files: [buildTripFile({ id: 92, linked_place_ids: [5] })] } },
+      { name: 'a vote of another member', place: { ratings: [{ user_id: 4, username: 'Lena', rating: 2 }] } },
+      { name: 'an uploaded picture', place: { image_url: '/uploads/places/a.jpg' } },
+    ]
+    for (const c of cases) {
+      vi.mocked(fixed.pushUndo).mockClear()
+      vi.mocked(fixed.forgetPlace).mockClear()
+      seedMuseum()
+      useTripStore.setState({ places: [{ ...museum, ...c.place }, lake, castle], ...c.store })
+      const { result, unmount } = renderEdits(c.over)
+      act(() => { result.current.setDeletePlaceId(5) })
+
+      await act(async () => { await result.current.confirmDeletePlace() })
+
+      expect(fixed.pushUndo, c.name).not.toHaveBeenCalled()
+      expect(fixed.forgetPlace, c.name).toHaveBeenCalledWith(5)
+      unmount()
+    }
+    // The night went with the place, so the stays the planner shows are read again.
+    expect(fixed.loadAccommodations).toHaveBeenCalledTimes(1)
+  })
+
+  it('FE-TP-PLACEEDITS-015: a bulk delete undoes each place with its own visits, and offers nothing once one of them holds an expense', async () => {
+    seedMuseum()
+    const castleVisit = buildAssignment({ id: 111, day_id: 11, place: castle, order_index: 0, notes: 'Burg' })
+    useTripStore.setState({ assignments: { 10: [museumVisit], 11: [castleVisit] } })
+    const { result } = renderEdits()
+
+    await act(async () => { await result.current.confirmDeletePlaces([5, 2]) })
+    expect(fixed.forgetPlace).toHaveBeenCalledWith(5)
+    expect(fixed.forgetPlace).toHaveBeenCalledWith(2)
+    actions.addPlace.mockResolvedValueOnce({ id: 900 }).mockResolvedValueOnce({ id: 901 })
+    await act(async () => { await lastUndo()() })
+    expect(actions.addPlace).toHaveBeenCalledWith(42, expect.objectContaining({ name: 'Museum', notes: 'Meine Notiz' }))
+    expect(actions.addPlace).toHaveBeenCalledWith(42, expect.objectContaining({ name: 'Castle' }))
+    expect(actions.assignPlaceToDay).toHaveBeenCalledWith(42, 10, 900, 0)
+    expect(actions.assignPlaceToDay).toHaveBeenCalledWith(42, 11, 901, 0)
+    expect(actions.assignPlaceToDay).toHaveBeenCalledTimes(2)
+    expect(actions.setAssignmentNotes).toHaveBeenCalledWith(42, 11, 555, 'Burg')
+
+    vi.mocked(fixed.pushUndo).mockClear()
+    useTripStore.setState({ budgetItems: [buildBudgetItem({ id: 90, place_id: 2 })] })
+    await act(async () => { await result.current.confirmDeletePlaces([5, 2]) })
+    expect(fixed.pushUndo).not.toHaveBeenCalled()
+  })
+
+  it('FE-TP-PLACEEDITS-016: a category move is tied to its places, so deleting one drops it', async () => {
+    const { result } = renderEdits()
+
+    await act(async () => { await result.current.confirmChangeCategory([1, 2], 4) })
+
+    expect(fixed.pushUndo).toHaveBeenCalledWith('undo.changeCategory', expect.any(Function), undefined, [1, 2])
   })
 })

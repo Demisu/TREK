@@ -5,8 +5,10 @@ import type { usePlaceSelection } from '../../hooks/usePlaceSelection'
 import type { useRouteCalculation } from '../../hooks/useRouteCalculation'
 import type { useTourPlaceIds } from '../../hooks/useTourPlaceIds'
 import { translateApiError } from '../../i18n'
+import { useAuthStore } from '../../store/authStore'
 import { useTripStore, type TripStoreState } from '../../store/tripStore'
 import type { Accommodation, Place } from '../../types'
+import { capturePlaceVisits, deleteLosesDependents, restorePlace } from './placeUndo'
 import type { PlannerBase, PlannerHistory } from './plannerTypes'
 import type { PlannerDialogs } from './usePlannerDialogs'
 import type { RoadtripFeed } from './useRoadtripFeed'
@@ -23,6 +25,8 @@ interface PlaceEditsOptions
   /** Every place of the trip, so a booked night is named whatever the lists leave out. */
   allPlaces: TripStoreState['places']
   tripAccommodations: Accommodation[]
+  /** Reads the stays again, which live in the planner rather than the store. */
+  loadAccommodations: () => void
   reservations: TripStoreState['reservations']
   toursEnabled: boolean
   selectedDayId: TripStoreState['selectedDayId']
@@ -40,7 +44,7 @@ interface PlaceEditsOptions
 export function usePlaceEdits(options: PlaceEditsOptions) {
   const {
     tripId, trip, can, tripActions, toast, t, editingPlace, editingAssignmentId, placeFormDayId, placeFormPosition,
-    places, allPlaces, tripAccommodations, reservations, selectedDayId, selectedPlaceId, setSelectedPlaceId,
+    places, allPlaces, tripAccommodations, loadAccommodations, reservations, selectedDayId, selectedPlaceId, setSelectedPlaceId,
     toursEnabled, tourPlaceIds, invalidateTourPlaceIds, reloadTourPlaceIds, forgetPlace, pushUndo, updateRouteForDay,
     roadtripRoutes, roadtripVias, viaLiesBefore,
   } = options
@@ -186,7 +190,7 @@ export function usePlaceEdits(options: PlaceEditsOptions) {
         const capturedId = place.id
         pushUndo(t('undo.addPlace'), async () => {
           await tripActions.deletePlace(tripId, capturedId)
-        })
+        }, undefined, [capturedId])
       }
       // Handed back so the form can link an expense to a place that did not
       // exist a moment ago (#1298), the same way the booking modals work.
@@ -211,13 +215,40 @@ export function usePlaceEdits(options: PlaceEditsOptions) {
     [can, trip, toursEnabled, isTourPlace]
   )
 
+  /**
+   * What the undo of deleting these places needs, taken before the delete while the
+   * store still has them. Not restorable when the delete takes something along that
+   * writing the places again would not bring back (see deleteLosesDependents).
+   */
+  const captureForUndo = useCallback((placeIds: number[]) => {
+    const state = useTripStore.getState()
+    const userId = useAuthStore.getState().user?.id
+    const captured = state.places.filter(p => placeIds.includes(p.id))
+    const lost = deleteLosesDependents(placeIds, {
+      places: captured, tripAccommodations, reservations, budgetItems: state.budgetItems, files: state.files, userId,
+    })
+    return {
+      places: captured,
+      visits: lost ? [] : capturePlaceVisits(state.assignments, placeIds),
+      restorable: !lost && captured.length > 0,
+      hadStay: tripAccommodations.some(stay => stay.place_id != null && placeIds.includes(stay.place_id)),
+      userId,
+    }
+  }, [tripAccommodations, reservations])
+
+  /**
+   * Steps taken back from the planner's history that still name a deleted place
+   * could only fail now, so they go as soon as the place does. A booked night went
+   * with it as well, so the stays are read again.
+   */
+  const afterDelete = useCallback((placeIds: number[], hadStay: boolean) => {
+    for (const id of placeIds) forgetPlace(id)
+    if (hadStay) loadAccommodations()
+  }, [forgetPlace, loadAccommodations])
+
   const confirmDeletePlace = useCallback(async () => {
     if (!deletePlaceId) return null
-    const state = useTripStore.getState()
-    const capturedPlace = state.places.find(p => p.id === deletePlaceId)
-    const capturedAssignments = Object.entries(state.assignments).flatMap(([dayId, as]) =>
-      as.filter(a => a.place?.id === deletePlaceId).map(a => ({ dayId: Number(dayId), orderIndex: a.order_index }))
-    )
+    const undo = captureForUndo([deletePlaceId])
     try {
       const deletion = await tripActions.deletePlace(tripId, deletePlaceId)
       const deletedTour = Array.isArray(deletion?.tourPlaceIds)
@@ -228,25 +259,10 @@ export function usePlaceEdits(options: PlaceEditsOptions) {
       if (selectedPlaceId === deletePlaceId) setSelectedPlaceId(null)
       updateRouteForDay(selectedDayId)
       toast.success(t('trip.toast.placeDeleted'))
-      if (deletedTour) forgetPlace(deletePlaceId)
-      else if (capturedPlace) {
+      afterDelete([deletePlaceId], undo.hadStay)
+      if (!deletedTour && undo.restorable) {
         pushUndo(t('undo.deletePlace'), async () => {
-          const newPlace = await tripActions.addPlace(tripId, {
-            name: capturedPlace.name,
-            description: capturedPlace.description,
-            lat: capturedPlace.lat,
-            lng: capturedPlace.lng,
-            address: capturedPlace.address,
-            category_id: capturedPlace.category_id,
-            price: capturedPlace.price,
-            // An undone track has to come back as a track, not a bare point.
-            route_geometry: capturedPlace.route_geometry,
-            route_color: capturedPlace.route_color,
-          })
-          const live = new Set(useTripStore.getState().days.map(d => d.id))
-          for (const { dayId, orderIndex } of capturedAssignments) {
-            if (live.has(dayId)) await tripActions.assignPlaceToDay(tripId, dayId, newPlace.id, orderIndex)
-          }
+          await restorePlace(tripId, tripActions, undo.places[0], undo.visits, undo.userId)
         })
       }
       return deletedTour ? deletePlaceId : null
@@ -254,16 +270,12 @@ export function usePlaceEdits(options: PlaceEditsOptions) {
       toast.error(err instanceof Error ? err.message : t('common.unknownError'))
       return null
     }
-  }, [deletePlaceId, tripId, toast, selectedPlaceId, selectedDayId, updateRouteForDay, pushUndo, forgetPlace, invalidateTourPlaceIds, reloadTourPlaceIds, isTourPlace])
+  }, [deletePlaceId, tripId, toast, selectedPlaceId, selectedDayId, updateRouteForDay, pushUndo, captureForUndo, afterDelete, invalidateTourPlaceIds, reloadTourPlaceIds, isTourPlace])
 
   const confirmDeletePlaces = useCallback(async (ids?: number[]) => {
     const targetIds = ids ?? deletePlaceIds
     if (!targetIds?.length) return
-    const state = useTripStore.getState()
-    const capturedPlaces = state.places.filter(p => targetIds.includes(p.id))
-    const capturedAssignments = Object.entries(state.assignments).flatMap(([dayId, as]) =>
-      as.filter(a => a.place?.id != null && targetIds.includes(a.place.id)).map(a => ({ dayId: Number(dayId), placeId: a.place!.id, orderIndex: a.order_index }))
-    )
+    const undo = captureForUndo(targetIds)
     try {
       const deletion = await tripActions.deletePlacesMany(tripId, targetIds)
       const deletedTourIds = Array.isArray(deletion?.tourPlaceIds)
@@ -273,26 +285,15 @@ export function usePlaceEdits(options: PlaceEditsOptions) {
       if (selectedPlaceId != null && targetIds.includes(selectedPlaceId)) setSelectedPlaceId(null)
       if (!ids) setDeletePlaceIds(null)
       updateRouteForDay(selectedDayId)
-      toast.success(t('trip.toast.placesDeleted', { count: capturedPlaces.length }))
-      if (deletedTourIds.length > 0) deletedTourIds.forEach(forgetPlace)
-      else if (capturedPlaces.length > 0) {
+      toast.success(t('trip.toast.placesDeleted', { count: undo.places.length }))
+      afterDelete(targetIds, undo.hadStay)
+      if (deletedTourIds.length === 0 && undo.restorable) {
         pushUndo(t('undo.deletePlaces'), async () => {
-          const live = new Set(useTripStore.getState().days.map(d => d.id))
-          for (const place of capturedPlaces) {
-            const newPlace = await tripActions.addPlace(tripId, {
-              name: place.name, description: place.description,
-              lat: place.lat, lng: place.lng, address: place.address,
-              category_id: place.category_id, price: place.price,
-              route_geometry: place.route_geometry, route_color: place.route_color,
-            })
-            for (const a of capturedAssignments.filter(x => x.placeId === place.id && live.has(x.dayId))) {
-              await tripActions.assignPlaceToDay(tripId, a.dayId, newPlace.id, a.orderIndex)
-            }
-          }
+          for (const place of undo.places) await restorePlace(tripId, tripActions, place, undo.visits, undo.userId)
         })
       }
     } catch (err: unknown) { toast.error(err instanceof Error ? err.message : t('common.unknownError')) }
-  }, [deletePlaceIds, tripId, toast, selectedPlaceId, selectedDayId, updateRouteForDay, pushUndo, forgetPlace, reloadTourPlaceIds, isTourPlace])
+  }, [deletePlaceIds, tripId, toast, selectedPlaceId, selectedDayId, updateRouteForDay, pushUndo, captureForUndo, afterDelete, reloadTourPlaceIds, isTourPlace])
 
   const confirmChangeCategory = useCallback(async (ids: number[], categoryId: number | null) => {
     if (!ids.length) return
@@ -314,7 +315,7 @@ export function usePlaceEdits(options: PlaceEditsOptions) {
           for (const [key, group] of Object.entries(byPrev)) {
             await tripActions.updatePlacesMany(tripId, group, { category_id: key === 'null' ? null : Number(key) })
           }
-        })
+        }, undefined, captured.map(({ id }) => id))
       }
     } catch (err: unknown) { toast.error(err instanceof Error ? err.message : t('common.unknownError')) }
   }, [tripId, toast, pushUndo])

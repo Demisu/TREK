@@ -516,6 +516,19 @@ describe('tripStore', () => {
       window.removeEventListener('accommodations:refresh', listener);
     });
 
+    it('FE-TSTORE-019d: asks the planner to reload accommodations when a place or a stay is deleted elsewhere', () => {
+      // A deleted place takes the night booked at it along, and the stays live in the planner.
+      seedStore(useTripStore, { places: [buildPlace({ id: 500, trip_id: 1 })] });
+      const listener = vi.fn();
+      window.addEventListener('accommodations:refresh', listener);
+
+      useTripStore.getState().handleRemoteEvent({ type: 'place:deleted', placeId: 500 });
+      useTripStore.getState().handleRemoteEvent({ type: 'accommodation:deleted', accommodationId: 70 });
+
+      expect(listener).toHaveBeenCalledTimes(2);
+      window.removeEventListener('accommodations:refresh', listener);
+    });
+
     it('FE-TSTORE-019c: does not reload accommodations for an edit that leaves the image alone', () => {
       const place = buildPlace({ id: 500, trip_id: 1, name: 'Before', image_url: '/uploads/places/a.jpg' });
       seedStore(useTripStore, { places: [place] });
