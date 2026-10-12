@@ -1424,7 +1424,7 @@ describe('folded trip CRUD', () => {
     expect(newRes.url).toBe('https://example.test/booking');
 
     // The friend is not on the copy, so the shared expense comes across as a
-    // planning entry with its total and no split (#2604, see TRIP-SVC-094).
+    // planning entry with its total and no split (#2604, see TRIP-SVC-094 in trips.copy-expenses.test.ts).
     expect(newItem).toMatchObject({ total_price: 240, persons: null });
     expect(await storedRows(BudgetItemMembers, { budgetItem: newItem.id }, undefined, ['user_id'])).toEqual([]);
     expect(await storedRows(BudgetItemPayers, { budgetItem: newItem.id }, undefined, ['user_id'])).toEqual([]);
@@ -1437,78 +1437,6 @@ describe('folded trip CRUD', () => {
     // To-dos come across but reset to unchecked (documented behaviour).
     const todos = await storedRows(TodoItems, { trip: newTripId }, undefined, ['name', 'checked']) as any[];
     expect(todos).toEqual([{ name: 'Book transfer', checked: 0 }]);
-  });
-
-  /**
-   * #2604: the copy has nobody on it but the copier, yet it used to take every
-   * payer and split row along. Balances in the copy then named people who could
-   * not see it, and the first save of such an expense dropped them and shrank
-   * its total. An expense anyone else pays for or shares now comes across as a
-   * planning entry with its total; one that is the copier's alone keeps it all.
-   */
-  it('TRIP-SVC-094: copy keeps nobody outside the copy on its expenses and keeps every total (#2604)', async () => {
-    const { user: owner } = createUser(testDb);
-    const { user: friend } = createUser(testDb);
-    const trip = createTrip(testDb, owner.id, { title: 'Shared costs', start_date: '2025-07-01', end_date: '2025-07-01' });
-    addTripMember(testDb, trip.id, friend.id);
-    const days = await getDays(trip.id);
-    const place = createPlace(testDb, trip.id, { name: 'Harbour' });
-    const assignment = createDayAssignment(testDb, days[0].id, place.id);
-    await insertRow(await orm(), AssignmentParticipants, { assignment: assignment.id, user: owner.id });
-    await insertRow(await orm(), AssignmentParticipants, { assignment: assignment.id, user: friend.id });
-
-    const solo = Number(await insertRow(await orm(), BudgetItems, { trip: trip.id, category: 'Food', name: 'Solo lunch', total_price: 50, persons: 1, paidByUser: owner.id }));
-    await insertRow(await orm(), BudgetItemMembers, { budgetItem: solo, user: owner.id, paid: 1, amount: null });
-    await insertRow(await orm(), BudgetItemPayers, { budgetItem: solo, user: owner.id, amount: 50 });
-
-    const shared = Number(await insertRow(await orm(), BudgetItems, {
-      trip: trip.id, category: 'Transport', name: 'Rental car', total_price: 180, persons: 2, paidByUser: friend.id,
-      ticket_json: JSON.stringify({ items: [{ name: 'Car', price: '180', parts: [owner.id, friend.id] }] }),
-    }));
-    await insertRow(await orm(), BudgetItemMembers, { budgetItem: shared, user: owner.id, paid: 0, amount: null });
-    await insertRow(await orm(), BudgetItemMembers, { budgetItem: shared, user: friend.id, paid: 1, amount: null });
-    await insertRow(await orm(), BudgetItemPayers, { budgetItem: shared, user: owner.id, amount: 120 });
-    await insertRow(await orm(), BudgetItemPayers, { budgetItem: shared, user: friend.id, amount: 60 });
-
-    // Paid by the friend alone, with a typed head count and no split rows.
-    const theirs = Number(await insertRow(await orm(), BudgetItems, { trip: trip.id, category: 'Food', name: 'Seafood dinner', total_price: 90, persons: 4 }));
-    await insertRow(await orm(), BudgetItemPayers, { budgetItem: theirs, user: friend.id, amount: 90 });
-
-    const newTripId = await svc.copy(trip.id, owner.id, 'Shared costs copy');
-
-    const copied = await storedRows(BudgetItems, { trip: newTripId }, { name: 'asc' }, ['id', 'name', 'total_price', 'persons', 'paid_by_user_id', 'ticket_json']) as {
-      id: number; name: string; total_price: number; persons: number | null; paid_by_user_id: number | null; ticket_json: string | null;
-    }[];
-    const byName = (name: string) => {
-      const row = copied.find(c => c.name === name);
-      if (!row) throw new Error(`no copied expense named ${name}`);
-      return row;
-    };
-    expect(copied.map(c => [c.name, c.total_price])).toEqual([['Rental car', 180], ['Seafood dinner', 90], ['Solo lunch', 50]]);
-
-    // The copier's own expense is copied whole.
-    expect(byName('Solo lunch')).toMatchObject({ persons: 1, paid_by_user_id: owner.id });
-    expect(await storedRows(BudgetItemMembers, { budgetItem: byName('Solo lunch').id }, undefined, ['user_id', 'paid'])).toEqual([{ user_id: owner.id, paid: 1 }]);
-    expect(await storedRows(BudgetItemPayers, { budgetItem: byName('Solo lunch').id }, undefined, ['user_id', 'amount'])).toEqual([{ user_id: owner.id, amount: 50 }]);
-
-    // A shared one keeps its total as a planning entry: nobody pays, nobody owes.
-    expect(byName('Rental car')).toMatchObject({ persons: null, paid_by_user_id: null, ticket_json: null });
-    expect(await countRows(await orm(), BudgetItemMembers, { budgetItem: byName('Rental car').id })).toBe(0);
-    expect(await countRows(await orm(), BudgetItemPayers, { budgetItem: byName('Rental car').id })).toBe(0);
-    expect(byName('Seafood dinner')).toMatchObject({ persons: 4, paid_by_user_id: null });
-    expect(await countRows(await orm(), BudgetItemPayers, { budgetItem: byName('Seafood dinner').id })).toBe(0);
-
-    // Nothing in the copy points at the friend, and its ledger squares.
-    const newAssignment = (await getAssignments((await getDays(newTripId))[0].id))[0];
-    expect(await storedRows(AssignmentParticipants, { assignment: newAssignment.id }, undefined, ['user_id'])).toEqual([{ user_id: owner.id }]);
-    const settlement = await budgetSvc.calculateSettlement(newTripId);
-    expect(settlement.balances.map(b => b.user_id)).not.toContain(friend.id);
-    expect(Math.round(settlement.balances.reduce((a, b) => a + b.balance, 0) * 100)).toBe(0);
-
-    // The source keeps every row.
-    expect(await countRows(await orm(), BudgetItemPayers, { budgetItem: shared })).toBe(2);
-    expect(await countRows(await orm(), BudgetItemMembers, { budgetItem: shared })).toBe(2);
-    expect(await countRows(await orm(), AssignmentParticipants, { assignment: assignment.id })).toBe(2);
   });
 });
 
