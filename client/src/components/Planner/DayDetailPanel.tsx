@@ -19,6 +19,7 @@ import type { Day, Place, Category, Reservation, AssignmentsMap, Accommodation }
 import { formatClockTime, splitReservationDateTime } from '../../utils/formatters'
 import { useDayDetail, useDayRename, type HotelDayRange, type HotelForm, type HotelPickerMode } from './useDayDetail'
 import { dayBookings, stayDayLabel, toDisplayTemp } from './dayDetailModel'
+import { pinnedAwayIn } from '../../utils/dayMerge'
 import { stayDayOptions, stayFormFrom, stayPlaceChoices, stayRangeFromEnd, stayRangeFromStart } from './stayFormModel'
 import { DialogShell, DialogHeader, DialogSection, DialogFooter, DialogButton, FooterSpacer, NEUTRAL_TINT, PILL, fs } from '../shared/DialogShell'
 import { INPUT, PANEL, EditorField, AddRowButton, PillSelect } from '../shared/dialogParts'
@@ -230,7 +231,7 @@ export default function DayDetailPanel({ day, days, places, categories = [], tri
 
           {dayContributions.length > 0 && <PluginCardFooter items={dayContributions} tripId={tripId} />}
 
-          <DayReservations day={day} assignments={assignments} reservations={reservations} is12h={is12h} onOpen={onOpenBooking} />
+          <DayReservations day={day} days={days} assignments={assignments} reservations={reservations} is12h={is12h} onOpen={onOpenBooking} />
 
           <DialogSection label={t('day.accommodation')}>
             <div className="flex flex-col gap-2">
@@ -374,10 +375,10 @@ function DayWeather({ weather, loading, isFahrenheit, placeName }: { weather: We
 const OPENS_BOOKING = 'w-full cursor-pointer text-start transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[color:var(--text-primary)]'
 
 /** The bookings of the day, hotels aside (they have their own block). With `onOpen` each row opens its booking. */
-function DayReservations({ day, assignments, reservations, is12h, onOpen }: { day: Day; assignments: AssignmentsMap; reservations: Reservation[]; is12h: boolean; onOpen?: (r: Reservation) => void }) {
+function DayReservations({ day, days, assignments, reservations, is12h, onOpen }: { day: Day; days: Day[]; assignments: AssignmentsMap; reservations: Reservation[]; is12h: boolean; onOpen?: (r: Reservation) => void }) {
   const { t } = useTranslation()
   const dayAssignments = assignments[String(day.id)] || []
-  const dayReservations = dayBookings(day.id, dayAssignments, reservations)
+  const dayReservations = dayBookings(day.id, dayAssignments, reservations, pinnedAwayIn(assignments, days))
   if (dayReservations.length === 0) return null
   return (
     <DialogSection label={t('day.reservations')}>

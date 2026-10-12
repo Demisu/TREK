@@ -12,7 +12,7 @@ import { buildPlanner, buildTripActions } from '../../../helpers/mobileTrip'
 import { resetAllStores, seedStore } from '../../../helpers/store'
 import { act, renderHook, waitFor } from '../../../helpers/render'
 
-// FE-MOB-PLTL-001 to FE-MOB-PLTL-051
+// FE-MOB-PLTL-001 to FE-MOB-PLTL-052
 
 // The connector calculation is its own hook with real OSRM calls — stubbed here so
 // the timeline sees exactly the legs a test wants to match against.
@@ -698,5 +698,18 @@ describe('useMPlanTimeline', () => {
     const { result } = await renderTimeline(planner)
     await act(async () => { result.current.setLegMode(11, 'driving') })
     await waitFor(() => expect(planner.toast.error).toHaveBeenCalledWith('common.unknownError'))
+  })
+
+  it('FE-MOB-PLTL-052: a booking pinned to a stop on another day shows at that stop only (#2604)', async () => {
+    const zoo = buildAssignment({ id: 31, day_id: 3, order_index: 0, place_id: 101, place: MUSEUM })
+    const tickets = buildReservation({ id: 80, type: 'event', title: 'Zoo tickets', day_id: 2, assignment_id: 31 })
+    const assignments = { '2': [A_MUSEUM], '3': [zoo] }
+    const ownDay = await renderTimeline(makePlanner({ assignments, reservations: [tickets] }))
+    expect(ownDay.result.current.rows.map(r => r.key)).toEqual(['pl-11'])
+    ownDay.unmount()
+
+    const stopDay = await renderTimeline(makePlanner({ assignments, reservations: [tickets], selectedDayId: 3 }))
+    const row = stopDay.result.current.rows.find(r => r.key === 'pl-31')
+    expect(row && row.kind === 'place' ? row.linkedReservations.map(r => r.id) : []).toEqual([80])
   })
 })

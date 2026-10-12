@@ -1,4 +1,4 @@
-// FE-PLANNER-DAYDETAILMODEL-001 to -005: the day detail derivations the desktop day
+// FE-PLANNER-DAYDETAILMODEL-001 to -006: the day detail derivations the desktop day
 // panel and the phone day sheet share.
 import { describe, expect, it } from 'vitest';
 
@@ -21,6 +21,13 @@ describe('dayBookings', () => {
     const moved = buildReservation({ id: 5, type: 'event', assignment_id: 77, day_id: 4 });
     expect(dayBookings(4, [{ id: 11 }], [moved]).map((r) => r.id)).toEqual([5]);
     expect(dayBookings(6, [{ id: 11 }], [moved])).toEqual([]);
+  });
+
+  it('FE-PLANNER-DAYDETAILMODEL-006: a booking whose stop moved to another day is listed at the stop only (#2604)', () => {
+    const dinner = buildReservation({ id: 5, type: 'restaurant', assignment_id: 77, day_id: 4 });
+    const away = (r: { assignment_id?: number | null }) => r.assignment_id === 77;
+    expect(dayBookings(4, [{ id: 11 }], [dinner], away)).toEqual([]);
+    expect(dayBookings(6, [{ id: 77 }], [dinner], away).map((r) => r.id)).toEqual([5]);
   });
 });
 

@@ -4,17 +4,19 @@ type Translate = (key: string, params?: Record<string, string | number>) => stri
 
 /**
  * The bookings of a day, hotels aside (they have their own block): the ones hanging
- * on one of the day's stops and the ones booked on the day itself.
+ * on one of the day's stops and the ones booked on the day itself. `pinnedAway` leaves
+ * a booking whose stop sits on another day to that stop (#2604).
  */
 export function dayBookings<R extends Pick<Reservation, 'type' | 'assignment_id' | 'day_id'>>(
   dayId: number,
   dayAssignments: { id: number }[],
-  reservations: R[]
+  reservations: R[],
+  pinnedAway?: (r: Pick<Reservation, 'assignment_id' | 'day_id' | 'end_day_id'>) => boolean
 ): R[] {
   return reservations.filter((r) => {
     if (r.type === 'hotel') return false;
     if (r.assignment_id && dayAssignments.some((a) => a.id === r.assignment_id)) return true;
-    return r.day_id === dayId;
+    return r.day_id === dayId && !pinnedAway?.(r);
   });
 }
 

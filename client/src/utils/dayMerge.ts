@@ -204,14 +204,63 @@ export function expandFlightLegsForDay(
   return out
 }
 
-/** Filter reservations that are active transports for the given day, excluding assignment-linked ones. */
+/** The day each stop of the trip sits on, by its assignment id, for {@link pinnedAway}. */
+export function stopDayIds(assignments: Record<string, readonly { id: number }[] | undefined>): Map<number, number> {
+  const out = new Map<number, number>()
+  for (const [dayId, list] of Object.entries(assignments)) {
+    for (const a of list || []) out.set(a.id, Number(dayId))
+  }
+  return out
+}
+
+/**
+ * Whether a booking pinned to a stop is shown at that stop and not on its own day.
+ * Such a booking has two days to go by, its own date and the stop's, and they part
+ * when the stop is moved to another day or the trip's dates shift while bookings keep
+ * theirs. The stop wins then, so the booking is listed once instead of on two days,
+ * and its date stays as it is (#2604). A stop on one of the booking's own days changes
+ * nothing: a rental picked up at a stop still runs across the rest of its days.
+ */
+export function pinnedAway(
+  r: { assignment_id?: number | null; day_id?: number | null; end_day_id?: number | null },
+  stopDays: ReadonlyMap<number, number> | undefined,
+  dayOrder: (dayId: number) => number | null | undefined
+): boolean {
+  if (!r.assignment_id || !stopDays || r.day_id == null) return false
+  const stopDay = stopDays.get(r.assignment_id)
+  if (stopDay == null) return false
+  const at = dayOrder(stopDay)
+  const first = dayOrder(r.day_id)
+  const last = dayOrder(r.end_day_id ?? r.day_id)
+  if (at == null || first == null || last == null) return false
+  return at < Math.min(first, last) || at > Math.max(first, last)
+}
+
+/** {@link pinnedAway} over the whole trip: its stops from `assignments`, its days in plan order. */
+export function pinnedAwayIn(
+  assignments: Record<string, readonly { id: number }[] | undefined>,
+  days: Array<{ id: number; day_number?: number }>
+): (r: { assignment_id?: number | null; day_id?: number | null; end_day_id?: number | null }) => boolean {
+  const stopDays = stopDayIds(assignments)
+  const order = (id: number): number | null => {
+    const d = days.find(x => x.id === id)
+    return d ? (d.day_number ?? days.indexOf(d)) : null
+  }
+  return r => pinnedAway(r, stopDays, order)
+}
+
+/**
+ * Filter reservations that are active transports for the given day, excluding assignment-linked ones.
+ * With `stopDays` a booking pinned to a stop on another day is left to that stop as well.
+ */
 export function getTransportForDay(opts: {
   reservations: any[]
   dayId: number
   dayAssignmentIds: number[]
   days: Array<{ id: number; day_number?: number; date?: string | null }>
+  stopDays?: ReadonlyMap<number, number>
 }): any[] {
-  const { reservations, dayId, dayAssignmentIds, days } = opts
+  const { reservations, dayId, dayAssignmentIds, days, stopDays } = opts
 
   const getDayOrder = (id: number): number => {
     const d = days.find(x => x.id === id)
@@ -222,6 +271,7 @@ export function getTransportForDay(opts: {
   return reservations.filter(r => {
     if (r.type === 'hotel') return false
     if (r.assignment_id && dayAssignmentIds.includes(r.assignment_id)) return false
+    if (pinnedAway(r, stopDays, getDayOrder)) return false
 
     const startDayId = r.day_id
     const endDayId = r.end_day_id ?? startDayId

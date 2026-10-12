@@ -7,7 +7,7 @@ import { toDisplayTemp } from '../../../../components/Planner/dayDetailModel'
 import { getDayBookendHotels } from '../../../../utils/dayOrder'
 import { dayWeatherAnchor } from '../../../../utils/dayWeather'
 import { metadataWithLegPositions, planMergedOrder, withTransportPositions } from '../../../../utils/mergedOrder'
-import { getDisplayTimeForDay, getMergedItems, getTransportForDay, hasCarrierEndpointOnDay, isCarrierTransport } from '../../../../utils/dayMerge'
+import { getDisplayTimeForDay, getMergedItems, getTransportForDay, hasCarrierEndpointOnDay, isCarrierTransport, stopDayIds } from '../../../../utils/dayMerge'
 import { dayCoMapsUrl, dayExportStops, dayGoogleMapsUrl, optimizeDayOrder, type DayCarrier } from '../../../../components/Planner/dayRoute'
 import { buildTransitLeg, buildTransitNameIndex, type TransitLeg } from '../../../../components/Planner/transitLeg'
 import {
@@ -45,6 +45,9 @@ export function useMPlanTimeline(planner: TripPlanner) {
     return [...(assignments[String(day.id)] || [])].sort((a, b) => a.order_index - b.order_index)
   }, [assignments, day])
 
+  // A booking pinned to a stop on another day shows at that stop only (#2604).
+  const stopDays = useMemo(() => stopDayIds(assignments), [assignments])
+
   const merged = useMemo<MergedItem[]>(() => {
     if (!day) return []
     const dayTransports = getTransportForDay({
@@ -52,6 +55,7 @@ export function useMPlanTimeline(planner: TripPlanner) {
       dayId: day.id,
       dayAssignmentIds: dayAssignments.map(a => a.id),
       days,
+      stopDays,
     })
     return getMergedItems({
       dayAssignments,
@@ -59,7 +63,7 @@ export function useMPlanTimeline(planner: TripPlanner) {
       dayTransports,
       dayId: day.id,
     })
-  }, [day, dayAssignments, dayNotes, reservations, days])
+  }, [day, dayAssignments, dayNotes, reservations, days, stopDays])
 
   // A carrier with a located endpoint today — the exported deep links need it so
   // their no-time hotel bookends match the drawn route (#2157).

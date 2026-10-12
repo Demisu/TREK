@@ -18,7 +18,7 @@ import { ARRIVING_DRIVE, openOn, type LegAlternatives, type RailDrive } from './
 import { FS } from './typeScale'
 import EmptyState from '../shared/EmptyState'
 import AutomaticDayStop from './AutomaticDayStop'
-import { dayBookings } from './stopBookings'
+import { dayBookings, stopDaysOf } from './stopBookings'
 import type { Reservation } from '../../types'
 import type { StayDraft } from './RoadtripStayModal'
 import { missedLeaveOf, stayDraftOf } from './stayReading'
@@ -138,7 +138,7 @@ const RAIL_NARROW_PX = 330
  * move, a stay edit or a refuel offer still names the day the server knows it by. See
  * `nightSpill.ts`.
  */
-function DaySection({ day, selectedAssignmentId, onSelectStop, onOpenBooking, canEditBookings, reservations, dayOrder, onReorderStop, onMoveStopToDay, drag, onAskAlternatives, openAlternatives, onEditStay, onSetStopKind, onSetStopFill, onFollowTrack, viaCount, trackName, refuel, onAskRefuel, onAcceptRefuel, loading, collapsed, onToggle, onFocusPoint, narrow }: {
+function DaySection({ day, selectedAssignmentId, onSelectStop, onOpenBooking, canEditBookings, reservations, dayOrder, stopDays, onReorderStop, onMoveStopToDay, drag, onAskAlternatives, openAlternatives, onEditStay, onSetStopKind, onSetStopFill, onFollowTrack, viaCount, trackName, refuel, onAskRefuel, onAcceptRefuel, loading, collapsed, onToggle, onFocusPoint, narrow }: {
   onFocusPoint?: RoadtripSidebarProps['onFocusPoint']
   /** The rail is pulled too narrow for every badge; the stop count gives way. */
   narrow?: boolean
@@ -159,6 +159,7 @@ function DaySection({ day, selectedAssignmentId, onSelectStop, onOpenBooking, ca
   reservations?: Reservation[]
   /** A day's place in the trip by its id, so a booking spanning days is seen on the days between. */
   dayOrder?: (dayId: number) => number | null
+  stopDays?: ReadonlyMap<number, number>
   onEditStay?: RoadtripSidebarProps['onEditStay']
   onSetStopKind?: RoadtripSidebarProps['onSetStopKind']
   onSetStopFill?: RoadtripSidebarProps['onSetStopFill']
@@ -175,7 +176,7 @@ function DaySection({ day, selectedAssignmentId, onSelectStop, onOpenBooking, ca
   // Which disc the picker hangs under, and for which stop. One at a time: two open
   // popovers over the same rail is two answers to one question.
   const [picking, setPicking] = useState<{ anchor: HTMLElement; stop: RoadtripStop } | null>(null)
-  const bookings = useMemo(() => dayBookings(day, reservations ?? [], dayOrder), [day, reservations, dayOrder])
+  const bookings = useMemo(() => dayBookings(day, reservations ?? [], dayOrder, stopDays), [day, reservations, dayOrder, stopDays])
   const [filling, setFilling] = useState<{ anchor: HTMLElement; stop: RoadtripStop } | null>(null)
   const { t } = useTranslation()
   const last = day.stops.length - 1
@@ -622,6 +623,8 @@ export default function RoadtripSidebar({
     const numbers = new Map([...routes.days, ...routes.quietDays].map(d => [d.dayId, d.dayNumber]))
     return (dayId: number): number | null => numbers.get(dayId) ?? null
   }, [routes.days, routes.quietDays])
+  // A booking pinned to a stop on another day is listed at that stop only (#2604).
+  const stopDays = useMemo(() => stopDaysOf(routes.days), [routes.days])
   const undated = useMemo(() => undatedRides(reservations ?? []), [reservations])
 
   // Nothing to total up, so nothing pretends to: no "0 km" standing above "No route yet".
@@ -677,6 +680,7 @@ export default function RoadtripSidebar({
             canEditBookings={canEditBookings}
             reservations={reservations}
             dayOrder={dayOrder}
+            stopDays={stopDays}
             onEditStay={onEditStay}
             onSetStopKind={onSetStopKind}
             onSetStopFill={onSetStopFill}

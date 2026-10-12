@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseTimeToMinutes, getSpanPhase, hidesOnMiddleDay, getTransportRouteEndpoints, getDisplayTimeForDay, getTransportForDay, getAssignmentReservations, getPlaceBookings, getMergedItems, nightRowsOf, rideSeatKey, seatTimedDrop, stayStartingOn, storedRideSlot, timedSlot, type MergedItem } from './dayMerge'
+import { parseTimeToMinutes, getSpanPhase, hidesOnMiddleDay, getTransportRouteEndpoints, getDisplayTimeForDay, getTransportForDay, getAssignmentReservations, pinnedAway, stopDayIds, getPlaceBookings, getMergedItems, nightRowsOf, rideSeatKey, seatTimedDrop, stayStartingOn, storedRideSlot, timedSlot, type MergedItem } from './dayMerge'
 import { planMergedOrder, withTransportPositions } from './mergedOrder'
 
 describe('parseTimeToMinutes', () => {
@@ -197,6 +197,48 @@ describe('getTransportForDay', () => {
     const rows = getTransportForDay({ reservations, dayId: 1, dayAssignmentIds: [], days })
     expect(rows).toHaveLength(1)
     expect(rows[0].__leg).toBeUndefined()
+  })
+})
+
+describe('a booking pinned to a stop on another day (#2604)', () => {
+  const days = [
+    { id: 1, day_number: 1 },
+    { id: 2, day_number: 2 },
+    { id: 3, day_number: 3 },
+    { id: 4, day_number: 4 },
+  ]
+  const order = (id: number) => days.find(d => d.id === id)?.day_number ?? null
+  const stopDays = stopDayIds({ '1': [{ id: 41 }], '3': [{ id: 43 }, { id: 44 }], '4': undefined })
+
+  it('maps every stop to its day', () => {
+    expect([...stopDays.entries()]).toEqual([[41, 1], [43, 3], [44, 3]])
+  })
+
+  it("a stop outside the booking's own days wins, a stop on one of them or a gone stop does not", () => {
+    expect(pinnedAway({ assignment_id: 43, day_id: 1 }, stopDays, order)).toBe(true)
+    expect(pinnedAway({ assignment_id: 41, day_id: 1 }, stopDays, order)).toBe(false)
+    // A rental picked up at a stop still runs across the rest of its days.
+    expect(pinnedAway({ assignment_id: 43, day_id: 2, end_day_id: 4 }, stopDays, order)).toBe(false)
+    expect(pinnedAway({ assignment_id: 99, day_id: 1 }, stopDays, order)).toBe(false)
+    expect(pinnedAway({ assignment_id: null, day_id: 1 }, stopDays, order)).toBe(false)
+    expect(pinnedAway({ assignment_id: 43, day_id: null }, stopDays, order)).toBe(false)
+    expect(pinnedAway({ assignment_id: 43, day_id: 1 }, undefined, order)).toBe(false)
+  })
+
+  it("the timeline of the booking's own day leaves it to the stop, so it is listed once", () => {
+    const dinner = { id: 10, type: 'restaurant', day_id: 1, assignment_id: 43 }
+    const reservations = [dinner]
+    expect(getTransportForDay({ reservations, dayId: 1, dayAssignmentIds: [41], days, stopDays })).toHaveLength(0)
+    expect(getTransportForDay({ reservations, dayId: 3, dayAssignmentIds: [43, 44], days, stopDays })).toHaveLength(0)
+    expect(getAssignmentReservations(reservations, 43)).toEqual([dinner])
+    // Without the stops of the trip the old rule stands.
+    expect(getTransportForDay({ reservations, dayId: 1, dayAssignmentIds: [41], days })).toHaveLength(1)
+  })
+
+  it('a multi-day booking pinned to a stop on one of its days keeps its other days', () => {
+    const rental = { id: 11, type: 'event', day_id: 2, end_day_id: 4, assignment_id: 43 }
+    expect(getTransportForDay({ reservations: [rental], dayId: 2, dayAssignmentIds: [], days, stopDays })).toHaveLength(1)
+    expect(getTransportForDay({ reservations: [rental], dayId: 3, dayAssignmentIds: [43, 44], days, stopDays })).toHaveLength(0)
   })
 })
 

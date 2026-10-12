@@ -45,7 +45,7 @@ import { getAccommodationAnchors, getDayBookendHotels, shouldDrawMorningLeg, sho
 import {
   TRANSPORT_TYPES, parseTimeToMinutes, getSpanPhase, hidesOnMiddleDay, getDisplayTimeForDay, getTransportRouteEndpoints,
   getTransportForDay as _getTransportForDay, getMergedItems as _getMergedItems, isCarrierTransport, hasCarrierEndpointOnDay,
-  getAssignmentReservations, timedSlot, storedRideSlot, seatTimedDrop,
+  getAssignmentReservations, timedSlot, storedRideSlot, seatTimedDrop, stopDayIds,
   type MergedItem,
 } from '../../utils/dayMerge'
 import { withinDriveRange } from '@trek/shared/roadtrip'
@@ -434,8 +434,10 @@ function useDayPlanSidebar(props: DayPlanSidebarProps) {
     return { day_id: startId, end_day_id: targetDayId }
   }
 
+  // A booking pinned to a stop on another day shows at that stop only (#2604).
+  const stopDays = useMemo(() => stopDayIds(assignments), [assignments])
   const getTransportForDay = (dayId: number) =>
-    _getTransportForDay({ reservations, dayId, dayAssignmentIds: (assignments[String(dayId)] || []).map(a => a.id), days })
+    _getTransportForDay({ reservations, dayId, dayAssignmentIds: (assignments[String(dayId)] || []).map(a => a.id), days, stopDays })
 
   // Get car rentals that are in "active" (middle) phase for a day — shown in day header, not timeline
   const getActiveRentalsForDay = (dayId: number) => {

@@ -12,7 +12,7 @@ import { useDayForecast, useDayRename } from '../../../../components/Planner/use
 import { dayBookings, stayDayLabel, toDisplayTemp } from '../../../../components/Planner/dayDetailModel'
 import { RES_ICONS, getNoteIcon } from '../../../../components/Planner/DayPlanSidebar.constants'
 import { getDayBookendHotels, isDayInAccommodationRange } from '../../../../utils/dayOrder'
-import { getTransportForDay, hasCarrierEndpointOnDay } from '../../../../utils/dayMerge'
+import { getTransportForDay, hasCarrierEndpointOnDay, pinnedAwayIn, stopDayIds } from '../../../../utils/dayMerge'
 import { splitReservationDateTime } from '../../../../utils/formatters'
 import { dayCoMapsUrl, dayGoogleMapsUrl, optimizeDayOrder } from '../../../../components/Planner/dayRoute'
 import GoogleMapsIcon from '../../../../components/shared/GoogleMapsIcon'
@@ -84,8 +84,8 @@ export default function MDaySheet({ planner, shell }: MTripSheetsProps) {
 
   const dayReservations = useMemo(() => {
     if (!day) return []
-    return dayBookings(day.id, dayAssignments, planner.reservations)
-  }, [day, planner.reservations, dayAssignments])
+    return dayBookings(day.id, dayAssignments, planner.reservations, pinnedAwayIn(planner.assignments, planner.days))
+  }, [day, planner.reservations, dayAssignments, planner.assignments, planner.days])
 
   const dayAccommodations = useMemo(() => {
     if (!day) return []
@@ -160,8 +160,9 @@ export default function MDaySheet({ planner, shell }: MTripSheetsProps) {
       dayId: day.id,
       dayAssignmentIds: dayAssignments.map(a => a.id),
       days: planner.days,
+      stopDays: stopDayIds(planner.assignments),
     }).some(r => hasCarrierEndpointOnDay(r, day.id))
-  }, [day, planner.reservations, planner.days, dayAssignments])
+  }, [day, planner.reservations, planner.days, dayAssignments, planner.assignments])
 
   // Google-Maps export of the day's stops, hotel-bookended like the drawn route (#1372/#1465).
   const openInGoogleMaps = () => {

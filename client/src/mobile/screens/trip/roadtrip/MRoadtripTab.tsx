@@ -19,6 +19,7 @@ import type { MTripTabPanelProps } from '../MTripShell'
 import { arrivingReroutable, legReroutable, type StopRow } from '../../../../components/Roadtrip/roadtripRowModel'
 import { ARRIVING_DRIVE, type RailDrive } from '../../../../components/Roadtrip/useRouteAlternatives'
 import { dayBookings } from '../../../../components/Roadtrip/stopBookings'
+import { stopDayIds } from '../../../../utils/dayMerge'
 import { bookendBooking } from '../../../../components/Roadtrip/nightBookend'
 import { getDayOrder } from '../../../../utils/dayOrder'
 import { undatedRides } from '@trek/shared/roadtrip'
@@ -99,12 +100,14 @@ export default function MRoadtripTab({ planner, shell }: MTripTabPanelProps) {
   // by the stop's assignment because the rows carry no index. Opened the way the place
   // sheet opens its linked bookings: a transport in its sheet, anything else in its
   // editor.
+  // A booking pinned to a stop on another day is listed at that stop only (#2604).
+  const stopDays = useMemo(() => stopDayIds(planner.assignments), [planner.assignments])
   const bookings = useMemo(() => {
-    const byIndex = stage ? dayBookings(stage, planner.reservations, dayOrder) : null
+    const byIndex = stage ? dayBookings(stage, planner.reservations, dayOrder, stopDays) : null
     const atStop = new Map<number, Reservation[]>()
     if (stage && byIndex) for (const [i, list] of byIndex.atStop) atStop.set(stage.stops[i]!.assignmentId, list)
     return { atStop, loose: byIndex?.loose ?? [] }
-  }, [stage, planner.reservations, dayOrder])
+  }, [stage, planner.reservations, dayOrder, stopDays])
   // The rides on no day, which the drive leaves out: listed above the stage, whichever it is.
   const undated = useMemo(() => undatedRides(planner.reservations), [planner.reservations])
   // A chip that may not be opened is not a button in the first place (`bookingOpens`),
