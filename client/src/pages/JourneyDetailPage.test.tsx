@@ -1028,8 +1028,9 @@ describe('JourneyDetailPage', () => {
       await renderAndWait();
       await openSettingsDialog(user);
 
-      // The Delete button has red text and a Trash2 icon
-      const deleteBtn = screen.getByRole('button', { name: /delete/i });
+      // The Delete button has red text and a Trash2 icon; gallery tiles behind the dialog have their own (#2593)
+      const settingsDialog = screen.getByRole('dialog', { name: 'Journey Settings' });
+      const deleteBtn = within(settingsDialog).getByRole('button', { name: /delete/i });
       expect(deleteBtn).toBeInTheDocument();
     });
   });
@@ -1404,8 +1405,9 @@ describe('JourneyDetailPage', () => {
       await renderAndWait();
       await openSettingsDialog(user);
 
-      // Click the Delete button (red button in the settings footer)
-      const deleteBtn = screen.getByRole('button', { name: /delete/i });
+      // Click the Delete button in the settings footer, not a gallery tile's Delete behind the dialog (#2593)
+      const settingsDialog = screen.getByRole('dialog', { name: 'Journey Settings' });
+      const deleteBtn = within(settingsDialog).getByRole('button', { name: /delete/i });
       await user.click(deleteBtn);
 
       // The ConfirmDialog mock always renders (no isOpen gate).
@@ -3340,7 +3342,7 @@ describe('JourneyDetailPage', () => {
 
   // ── FE-PAGE-JOURNEYDETAIL-142 ──────────────────────────────────────────
   describe('FE-PAGE-JOURNEYDETAIL-142: Gallery photo delete button calls API', () => {
-    it('clicking the X button on a gallery photo calls delete API', async () => {
+    it('clicking the X button on a gallery photo and confirming calls delete API', async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       let deleteCalled = false;
 
@@ -3360,16 +3362,14 @@ describe('JourneyDetailPage', () => {
         expect(screen.getByText(/1 photo\b/i)).toBeInTheDocument();
       });
 
-      // The gallery photo has a delete (X) button that appears on hover
-      // In the gallery grid, each photo container has an X button
+      // The X in the photo tile's corner, labelled Delete for screen readers (#2593)
       const galleryGrid = screen.getByText(/1 photo\b/i).closest('div')!.parentElement!;
-      const xButtons = galleryGrid.querySelectorAll('button');
-      // Find the X delete button on the photo
-      const deleteBtn = Array.from(xButtons).find(btn => {
-        return btn.closest('[class*="aspect-square"]') !== null && btn.className.includes('rounded-full');
-      });
-      expect(deleteBtn).toBeTruthy();
-      await user.click(deleteBtn as HTMLElement);
+      await user.click(within(galleryGrid).getByRole('button', { name: 'Delete' }));
+      // The X only asks: the photo stays until the gallery's question is confirmed. The
+      // ConfirmDialog mock has no isOpen gate, so that question is picked by its message.
+      expect(useJourneyStore.getState().current?.gallery).toHaveLength(1);
+      const question = screen.getByText(/from every entry it appears in/).closest('[data-testid="confirm-dialog"]');
+      await user.click(within(question as HTMLElement).getByRole('button', { name: 'Confirm' }));
 
       await waitFor(() => {
         expect(deleteCalled).toBe(true);
