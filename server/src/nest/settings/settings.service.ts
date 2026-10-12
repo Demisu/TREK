@@ -336,17 +336,28 @@ export class SettingsService {
   async bulkUpsertSettings(userId: number, settings: Record<string, unknown>) {
     let written = 0;
     await this.uow.transactional(async () => {
-      for (const [key, value] of Object.entries(settings)) {
-        // The client echoes redacted secrets back unchanged — skip them so a
-        // bulk save can never overwrite a stored secret with the mask (the
-        // single-upsert route has the same no-op in the controller).
-        if (value === MASKED_SETTING_VALUE) continue;
-        const prepared = await this.prepareValue(userId, key, value);
+      // The client echoes redacted secrets back unchanged — skip them so a
+      // bulk save can never overwrite a stored secret with the mask (the
+      // single-upsert route has the same no-op in the controller).
+      const entries = Object.entries(settings).filter(([, value]) => value !== MASKED_SETTING_VALUE);
+      for (const [key, prepared] of await this.prepareValues(userId, entries)) {
         await this.settings.upsertForUser(userId, key, serializeValue(key, prepared));
         written++;
       }
     });
     return written;
+  }
+
+  /**
+   * {@link prepareValue} over the entries of a bulk save. Only the planner's
+   * view switches are read against the database, so that read happens once,
+   * before the writes, rather than once per key.
+   */
+  private async prepareValues(userId: number, entries: [string, unknown][]): Promise<[string, unknown][]> {
+    const planner = entries.find(([key]) => key === PLANNER_TRIP_VIEWS_KEY);
+    if (!planner) return entries;
+    const views = await this.prepareValue(userId, PLANNER_TRIP_VIEWS_KEY, planner[1]);
+    return entries.map(([key, value]) => [key, key === PLANNER_TRIP_VIEWS_KEY ? views : value]);
   }
 
   /**
