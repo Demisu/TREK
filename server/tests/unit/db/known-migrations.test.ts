@@ -36,5 +36,6 @@ describe('known migrations', () => {
     expect(unknownMigrations(['Migration1_a', 'Migration3_c'], known)).toEqual(['Migration3_c']);
     expect(() => refuseNewerDatabase(['Migration1_a', 'Migration2_b'], known)).not.toThrow();
     expect(() => refuseNewerDatabase(['Migration1_a', 'Migration3_c'], known)).toThrow(/newer TREK/);
+    expect(() => refuseNewerDatabase(['Migration1_a', 'Migration3_c'], known)).toThrow(/or by a development build/);
   });
 });

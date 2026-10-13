@@ -251,7 +251,8 @@ export async function migrateToHead(
 
 /**
  * A database a newer TREK migrated carries migrations this build does not
- * ship. An image rolled back, or a newer backup restored, would otherwise run
+ * ship; so does one a feature-branch build migrated, which is why the message
+ * names both. An image rolled back, or a newer backup restored, would otherwise run
  * older code against a schema it does not know and fail later, far from the
  * cause. Refused before anything is written.
  */
@@ -259,7 +260,8 @@ export function refuseNewerDatabase(executed: string[], known: Set<string>, rest
   const unknown = unknownMigrations(executed, known);
   if (unknown.length === 0) return;
   throw new Error(
-    `${REFUSAL} the database was migrated by a newer TREK (${unknown.length} unknown migration(s), latest ${unknown[unknown.length - 1]}). ` +
+    `${REFUSAL} the database was migrated by a newer TREK (${unknown.length} unknown migration(s), latest ${unknown[unknown.length - 1]}), ` +
+      'or by a development build that added migrations of its own. ' +
       'Run that version again, or restore a backup taken with this one.' +
       (restoreHint ? ` ${restoreHint}` : ''),
   );
