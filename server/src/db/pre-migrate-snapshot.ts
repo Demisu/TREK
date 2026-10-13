@@ -8,10 +8,12 @@ import path from 'node:path';
 /**
  * A copy of the database taken right before a boot migrates it.
  *
- * Migrations only go forward, and a database a newer TREK migrated is refused
- * by the older one (`refuseNewerDatabase`). Without a copy from before the
- * upgrade, going back to the previous image means restoring a backup, and
- * automatic backups are off by default. So the boot takes one itself: a
+ * Migrations only go forward. An image from 5.0 on refuses a database a newer
+ * TREK migrated (`refuseNewerDatabase`), but 4.3.x and earlier do not check:
+ * they start on the newer schema without a warning and run on what they
+ * understand of it. Either way, going back to the previous image means going
+ * back to a copy from before the upgrade, and automatic backups are off by
+ * default. So the boot takes one itself: a
  * `VACUUM INTO` snapshot next to the database file, named after the schema it
  * holds, e.g. `pre-migrate-legacy-244-20261008T091500Z.db` for a v4.3.3
  * install or `pre-migrate-20200101042300-….db` for one the migrator already
