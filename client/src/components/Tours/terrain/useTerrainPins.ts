@@ -33,7 +33,10 @@ export function useTerrainPins(
     if (!gl || !ready) return;
     pinsRef.current.forEach((pin) => pin.remove());
     const hoverLabel = mapHoverLabel(gl.map, 'planner-waypoint-label');
-    const unbind: (() => void)[] = [];
+    // A label left behind by a turn or a tilt would float over the wrong spot.
+    const hideOnMove = () => hoverLabel.hide();
+    gl.map.on('movestart', hideOnMove);
+    const unbind: (() => void)[] = [() => gl.map.off('movestart', hideOnMove)];
     pinsRef.current = points.map((point, index) => {
       const el = waypointPinElement(index, point.id === selectedId, editable);
       const name = point.name ?? String(index + 1);

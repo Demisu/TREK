@@ -4,7 +4,7 @@
  *
  * Pinned: the layers go in once per map (and wait for `idle` when tiles are
  * still loading, the failure the hazard overlay had), the line is the dark
- * dashed content colour and never a grade colour, new data replaces the
+ * dashed via ferrata violet and never a grade colour, new data replaces the
  * sources' contents instead of rebuilding the layers, a click on the hit line
  * hands the ferrata and the way to `onSelect`, hover and selection highlight
  * the whole ferrata (solid, on a wider casing) and name it above the pointer,
@@ -156,10 +156,10 @@ describe('useFerrataLayerGL', () => {
     expect(addedIds(gl)).toEqual(LAYERS);
   });
 
-  it('FE-FERRATA-GL-002: draws a dark dashed line in the content colour on a light casing, never by grade', () => {
+  it('FE-FERRATA-GL-002: draws a dashed violet line on a white casing, never by grade', () => {
     const root = document.documentElement;
-    root.style.setProperty('--text-primary', 'black');
-    root.style.setProperty('--bg-primary', 'white');
+    root.style.setProperty('--map-ferrata', 'black');
+    root.style.setProperty('--map-ferrata-casing', 'white');
     const gl = fakeGlMap();
     renderHook(() => useFerrataLayerGL(gl.map, GROUPS, vi.fn()));
 
@@ -167,8 +167,8 @@ describe('useFerrataLayerGL', () => {
     expect(line.paint['line-color']).toBe('black');
     expect(line.paint['line-dasharray']).toEqual([2, 1.5]);
     expect(spec(gl, CASING).paint['line-color']).toBe('white');
-    root.style.removeProperty('--text-primary');
-    root.style.removeProperty('--bg-primary');
+    root.style.removeProperty('--map-ferrata');
+    root.style.removeProperty('--map-ferrata-casing');
   });
 
   it('FE-FERRATA-GL-003: waits for idle when the style is still loading tiles', () => {
@@ -269,19 +269,19 @@ describe('useFerrataLayerGL', () => {
 
   it('FE-FERRATA-GL-010: a theme change repaints the installed layers without rebuilding them', async () => {
     const root = document.documentElement;
-    root.style.setProperty('--text-primary', 'black');
+    root.style.setProperty('--map-ferrata', 'black');
     const gl = fakeGlMap();
     renderHook(() => useFerrataLayerGL(gl.map, GROUPS, vi.fn()));
     expect(gl.spies.setPaintProperty).not.toHaveBeenCalled();
 
     await act(async () => {
-      root.style.setProperty('--text-primary', 'ivory');
+      root.style.setProperty('--map-ferrata', 'ivory');
       await Promise.resolve();
     });
 
     await waitFor(() => expect(gl.spies.setPaintProperty).toHaveBeenCalledWith(LINE, 'line-color', 'ivory'));
     expect(addedIds(gl).filter((id) => LAYERS.includes(id))).toEqual(LAYERS);
-    root.style.removeProperty('--text-primary');
+    root.style.removeProperty('--map-ferrata');
   });
   it('FE-FERRATA-GL-011: names the ferrata under the pointer with its grade, above the pointer, and hides it on leave', () => {
     const gl = fakeGlMap();
@@ -290,14 +290,14 @@ describe('useFerrataLayerGL', () => {
     act(() => gl.emit(`mousemove:${HIT}`, click));
 
     const label = gl.container.querySelector<HTMLElement>('[data-testid="ferrata-hover-label"]');
-    expect(label?.hidden).toBe(false);
+    expect(label?.style.display).toBe('');
     expect(label?.textContent).toBe('Via AK2');
     expect(label?.querySelector('span')?.textContent).toBe('K2');
     expect(label?.style.transform).toContain('translate(4px, -8px)');
     expect(label).toHaveClass('bg-surface-card', 'text-content', 'border-edge-faint');
 
     act(() => gl.emit(`mouseleave:${HIT}`));
-    expect(label?.hidden).toBe(true);
+    expect(label?.style.display).toBe('none');
     unmount();
     expect(gl.container.querySelector('[data-testid="ferrata-hover-label"]')).toBeNull();
   });

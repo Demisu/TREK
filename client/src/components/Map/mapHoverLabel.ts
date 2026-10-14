@@ -26,17 +26,26 @@ interface LabelHost {
 }
 
 export interface MapHoverLabel {
-  show(text: { name: string; detail: string | null }, point: { x: number; y: number }): void;
+  /** `owner` is what the label is shown for, so a stale hide from another pin leaves it alone. */
+  show(text: { name: string; detail: string | null }, point: { x: number; y: number }, owner?: object): void;
+  /** Whether the label is up for this owner. */
+  shownFor(owner: object): boolean;
   hide(): void;
   remove(): void;
 }
 
-const NO_LABEL: MapHoverLabel = { show: () => undefined, hide: () => undefined, remove: () => undefined };
+const NO_LABEL: MapHoverLabel = {
+  show: () => undefined,
+  shownFor: () => false,
+  hide: () => undefined,
+  remove: () => undefined,
+};
 
 export function mapHoverLabel(map: LabelHost, testId = 'map-hover-label'): MapHoverLabel {
   if (typeof map.getContainer !== 'function' || typeof document === 'undefined') return NO_LABEL;
   const container = map.getContainer();
   let element: HTMLDivElement | null = null;
+  let shownOwner: object | null = null;
 
   const ensure = () => {
     if (element) return element;
@@ -53,8 +62,9 @@ export function mapHoverLabel(map: LabelHost, testId = 'map-hover-label'): MapHo
   };
 
   return {
-    show({ name, detail }, { x, y }) {
+    show({ name, detail }, { x, y }, owner) {
       const label = ensure();
+      shownOwner = owner ?? null;
       label.replaceChildren(document.createTextNode(name));
       if (detail) {
         const badge = document.createElement('span');
@@ -63,10 +73,15 @@ export function mapHoverLabel(map: LabelHost, testId = 'map-hover-label'): MapHo
         label.appendChild(badge);
       }
       label.style.transform = `translate(${x}px, ${y - POINTER_GAP}px) translate(-50%, -100%)`;
-      label.hidden = false;
+      // Not the hidden attribute: the label's `flex` class would win over it and keep it on screen.
+      label.style.display = '';
+    },
+    shownFor(owner) {
+      return !!element && element.style.display !== 'none' && shownOwner === owner;
     },
     hide() {
-      if (element) element.hidden = true;
+      shownOwner = null;
+      if (element) element.style.display = 'none';
     },
     remove() {
       element?.remove();
@@ -83,7 +98,10 @@ export interface PinHoverText {
 
 /**
  * Shows the label above a pin while the pointer rests on it, and hides it the
- * moment the pin is pressed, so it never trails a drag. Returns the unwiring.
+ * moment the pin is pressed, so it never trails a drag. A map that moves its
+ * markers every frame (the 3D terrain) can leave a pin without a leave event,
+ * so a move anywhere else on the map, or off it, hides the label too, as long
+ * as it is still this pin's. Returns the unwiring.
  */
 export function bindPinHoverLabel(
   pin: HTMLElement,
@@ -94,15 +112,23 @@ export function bindPinHoverLabel(
   const show = () => {
     const box = pin.getBoundingClientRect();
     const frame = container.getBoundingClientRect();
-    label.show(text, { x: box.left + box.width / 2 - frame.left, y: box.top - frame.top });
+    label.show(text, { x: box.left + box.width / 2 - frame.left, y: box.top - frame.top }, pin);
   };
   const hide = () => label.hide();
+  const away = (event: Event) => {
+    if (!label.shownFor(pin)) return;
+    if (event.type === 'pointerleave' || !(event.target instanceof Node && pin.contains(event.target))) label.hide();
+  };
   pin.addEventListener('pointerenter', show);
   pin.addEventListener('pointerleave', hide);
   pin.addEventListener('pointerdown', hide);
+  container.addEventListener('pointermove', away);
+  container.addEventListener('pointerleave', away);
   return () => {
     pin.removeEventListener('pointerenter', show);
     pin.removeEventListener('pointerleave', hide);
     pin.removeEventListener('pointerdown', hide);
+    container.removeEventListener('pointermove', away);
+    container.removeEventListener('pointerleave', away);
   };
 }

@@ -8,6 +8,9 @@ import { wirePlannerWaypointDrag } from './plannerWaypointDrag';
 interface PlannerWaypointMap {
   getContainer: () => HTMLElement;
   unproject: (point: [number, number]) => { lat: number; lng: number };
+  /** Optional so a stand-in map without events still takes the pins. */
+  on?: (type: 'movestart', listener: () => void) => unknown;
+  off?: (type: 'movestart', listener: () => void) => unknown;
 }
 
 /** The slice of a hand-positioned pin the waypoint markers drive. */
@@ -61,6 +64,10 @@ export function usePlannerWaypointMarkersGL<Pin extends PlannerWaypointPin>({
     pinsRef.current = [];
     const dragCleanups: (() => void)[] = [];
     const hoverLabel = mapHoverLabel(map, 'planner-waypoint-label');
+    // A label left behind by a pan or a zoom would float over the wrong spot.
+    const hideOnMove = () => hoverLabel.hide();
+    map.on?.('movestart', hideOnMove);
+    dragCleanups.push(() => map.off?.('movestart', hideOnMove));
 
     for (const [index, point] of plannerWaypoints.entries()) {
       const selected = point.id === selectedPlannerWaypointId;
