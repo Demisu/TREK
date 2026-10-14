@@ -46,6 +46,8 @@ export function mapHoverLabel(map: LabelHost, testId = 'map-hover-label'): MapHo
     element.dataset.testid = testId;
     // The pointer's pixel on the map, not a side of the text: placed from the corner either way.
     element.style.inset = '0px auto auto 0px';
+    // The map's own stylesheet sets Helvetica/Arial on its container; the label speaks in the app's face.
+    element.style.fontFamily = 'var(--font-system)';
     container.appendChild(element);
     return element;
   };
