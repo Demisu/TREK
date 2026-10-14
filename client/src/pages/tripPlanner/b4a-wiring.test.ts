@@ -14,10 +14,13 @@ const pageControllerPath = 'client/src/pages/tripPlanner/useTripPlannerPage.ts'
 const pageText = readFileSync(resolve(process.cwd(), 'src/pages/TripPlannerPage.tsx'), 'utf8')
 const hookText = readFileSync(resolve(process.cwd(), 'src/pages/tripPlanner/useTripPlanner.ts'), 'utf8')
 const pageControllerText = readFileSync(resolve(process.cwd(), 'src/pages/tripPlanner/useTripPlannerPage.ts'), 'utf8')
+// The Tours map and its edit gates live in the map stage the page renders.
+const mapStageText = readFileSync(resolve(process.cwd(), 'src/pages/tripPlanner/TourPlannerMapStage.tsx'), 'utf8')
 const parse = (file: string, text: string) => ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true)
 const page = parse(pagePath, pageText)
 const hook = parse(hookPath, hookText)
 const pageController = parse(pageControllerPath, pageControllerText)
+const mapStage = parse('client/src/pages/tripPlanner/TourPlannerMapStage.tsx', mapStageText)
 
 function collect(source: ts.Node, predicate: (node: ts.Node) => boolean): ts.Node[] {
   const matches: ts.Node[] = []
@@ -180,10 +183,11 @@ test('B4A desktop page delegates Tours state and permissions to its page hook', 
     }
   }
 
-  const mapClickGate = collect(page, node => ts.isJsxAttribute(node)
-    && node.name.getText(page) === 'onMapClick'
+  assert.ok(jsxTags(page, 'TourPlannerMapStage').length === 1)
+  const mapClickGate = collect(mapStage, node => ts.isJsxAttribute(node)
+    && node.name.getText(mapStage) === 'onMapClick'
     && node.initializer && ts.isJsxExpression(node.initializer)
-    && !!node.initializer.expression && node.initializer.expression.getText(page).includes('canPlaceEdit'))
+    && !!node.initializer.expression && node.initializer.expression.getText(mapStage).includes('canPlaceEdit'))
   assert.ok(mapClickGate.length > 0)
 })
 
@@ -191,9 +195,9 @@ test('B4A dedicated desktop controller retains GPX, draft, focus, and saved rail
   assert.ok(callNamed(pageController, 'useTourPlanner'))
   assert.ok(pageText.includes('const pageState = useTripPlannerPage()'))
   assert.ok(pageControllerText.includes("tourPlanner.mode.type === 'view-gpx'"))
-  for (const mode of ['new-draft', 'edit-saved']) assert.ok(pageText.includes(`tourPlanner.mode.type === '${mode}'`))
+  for (const mode of ['new-draft', 'edit-saved']) assert.ok(mapStageText.includes(`tourPlanner.mode.type === '${mode}'`))
   assert.match(pageControllerText, /readOnlyGpxAnalysis\?\.routeCoordinates/)
-  assert.match(pageText, /routeProfileFocus=\{tourPlanner\.routeProfileFocus\}/)
+  assert.match(mapStageText, /routeProfileFocus=\{tourPlanner\.routeProfileFocus\}/)
   assert.match(pageText, /tourPlanner\.viewGpxTour\(tour, place\?\.route_geometry \?\? null\)/)
   assert.match(pageControllerText, /onSaved:[\s\S]*?upsertTour\(result\.tour\)/)
   assert.doesNotMatch(pageText, /setSelectedPlaceId\(result\.tour/)

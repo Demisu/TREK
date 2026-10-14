@@ -365,7 +365,7 @@ describe('MPlanTimeline', () => {
     const row: PlanRow = { key: 'pl-91', kind: 'place', item, assignment: tour, linkedReservations: [], invalidTour: true }
 
     it('shows one localized invalid-endpoint warning and selects the Tour through the shared Place path', () => {
-      const { planner } = renderTimeline({ rows: [row], merged: [item], upNext: null }, { toursEnabled: true })
+      const { planner } = renderTimeline({ rows: [row], merged: [item], upNext: null }, { toursEnabled: true, tours: [] })
 
       expect(screen.getAllByText('tours.dayRoute.endpointUnknown')).toHaveLength(1)
       fireEvent.click(screen.getByText('Assigned Tour'))
@@ -376,7 +376,7 @@ describe('MPlanTimeline', () => {
 
     it('does not show the warning for valid status or with Tours disabled', () => {
       const validRow: PlanRow = { ...row, invalidTour: false }
-      const first = renderTimeline({ rows: [validRow], merged: [item], upNext: null }, { toursEnabled: true })
+      const first = renderTimeline({ rows: [validRow], merged: [item], upNext: null }, { toursEnabled: true, tours: [] })
       expect(screen.queryByText('tours.dayRoute.endpointUnknown')).not.toBeInTheDocument()
       first.unmount()
 
