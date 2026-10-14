@@ -1,6 +1,7 @@
 import { readEnv, getAppUrl } from '../../app-config';
 import { haversineMetres } from '../common/geo';
 import { stripHtmlTags } from '../common/stripHtmlTags';
+import { buildUserAgent, parseOverpassEndpoints } from './overpass.constants';
 import { normalizePlaceWebsite } from '@trek/shared';
 
 import { z } from 'zod';
@@ -15,15 +16,10 @@ import { z } from 'zod';
  * parser cases).
  */
 
-// Overpass, Nominatim and Wikimedia all ask that requests carry a User-Agent that
-// uniquely identifies the deploying instance — a shared, generic UA gets rate-limited
-// and throttled harder (see #1309). When the instance URL is configured we append it;
-// getAppUrl()'s bare http://localhost fallback isn't a useful identifier, so we drop it.
-export function buildUserAgent(instanceUrl: string | undefined): string {
-  const base = 'TREK Travel Planner (https://github.com/liketrek/TREK)';
-  if (instanceUrl && !instanceUrl.startsWith('http://localhost')) return `${base}; ${instanceUrl}`;
-  return base;
-}
+// The User-Agent rule (instance URL appended, the localhost fallback dropped) lives in
+// overpass.constants.ts, the part of maps other domains may import; it is re-exported
+// here for the callers that always read it from this module.
+export { buildUserAgent };
 // Computed once at load — getAppUrl() reads only env vars, which don't change at runtime.
 export const UA = buildUserAgent(getAppUrl());
 
@@ -444,35 +440,11 @@ export function parsePoiCategories(raw: string): string[] {
   return [...seen];
 }
 
-// Public Overpass mirrors, queried in PARALLEL (first valid response wins).
-// Reachability and load vary a lot by network/region — the canonical instance is
-// frequently overloaded (504s) and some community mirrors are unreachable from
-// certain networks. Racing them means whichever mirror is fastest-reachable for
-// this user answers, and an overloaded or blocked one never blocks the others.
-const DEFAULT_OVERPASS_MIRRORS = [
-  'https://overpass-api.de/api/interpreter',
-  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
-  'https://overpass.kumi.systems/api/interpreter',
-  'https://overpass.private.coffee/api/interpreter',
-];
-
-// Operators behind locked-down egress — or running their own Overpass — can point TREK
-// at one or more custom endpoints via OVERPASS_URL (comma-separated). When set it
-// REPLACES the public mirrors, so a firewalled cluster never reaches out to them and a
-// self-hosted instance is used exclusively (see #1309). Non-http(s) entries are dropped.
+// OVERPASS_URL as the endpoint list (it REPLACES the public mirrors, see #1309), read
+// live by default. The parsing and the mirror list are shared with the via ferrata
+// lookup through overpass.constants.ts.
 export function resolveOverpassEndpoints(raw: string | undefined = readEnv().integrations.overpassUrl): string[] {
-  const custom = (raw ?? '')
-    .split(',')
-    .map((s) => s.trim())
-    .filter((s) => {
-      try {
-        const u = new URL(s);
-        return u.protocol === 'http:' || u.protocol === 'https:';
-      } catch {
-        return false;
-      }
-    });
-  return custom.length ? custom : DEFAULT_OVERPASS_MIRRORS;
+  return parseOverpassEndpoints(raw);
 }
 
 // Per-mirror fetch cap. Because mirrors race in parallel this is also the worst-case

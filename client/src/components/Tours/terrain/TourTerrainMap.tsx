@@ -1,9 +1,11 @@
+import type { FerrataBbox } from '@trek/shared';
 import { ChevronDown, ChevronUp, Gauge, Palette, Pause, Play, RotateCcw, Scan, TrendingUp } from 'lucide-react';
 import { useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import type { DistanceUnit } from '../../../types';
 import type { DistanceIndexedProfileSample, RouteProfileFocus } from '../../../utils/routeGeometry';
 import { formatElevation } from '../../../utils/units';
+import type { FerrataMapLayer } from '../../Ferratas/useFerrataMapLayer';
 import { MAP_LAYER_SWITCHER_INSET, TourMapLayerSwitcher, type TourBaseLayer } from '../../Map/MapLayerSwitcher';
 import { MAP_CONTROL_SHADOW } from '../../Map/mapControlShadow';
 import { SoftPill } from '../../Planner/planParts';
@@ -28,11 +30,13 @@ export interface TourTerrainMapProps {
   rightWidth: number;
   waypoints: TerrainWaypoints;
   framePoints: [number, number][];
+  /** The planner map's via ferrata layer: its switch joins the layer pill, its lines the terrain. */
+  ferrataLayer?: FerrataMapLayer;
+  /** The visible area, for the via ferrata layer to ask for. */
+  onViewportChange?: (bbox: FerrataBbox) => void;
 }
 
 const SPEEDS = [1, 2, 4] as const;
-/** Width the layer pill takes with its 3D switch, so the dock starts beside it. */
-const LAYER_PILL_WIDTH = 330;
 
 // The planner's map-control glass, the same shell as the layer pill.
 const GLASS = {
@@ -57,31 +61,40 @@ export default function TourTerrainMap(props: TourTerrainMapProps) {
       {/* MapLibre makes its container position: relative, so it is sized, not inset. */}
       <div ref={setContainer} className="h-full w-full bg-surface" />
 
-      {/* The flat map's layer pill, at the same spot, with 3D switched on. */}
-      <div className="absolute bottom-3 z-[19]" style={{ insetInlineStart: leftWidth + MAP_LAYER_SWITCHER_INSET }}>
-        <TourMapLayerSwitcher active={baseLayer} onChange={onBaseLayerChange} terrainActive onToggleTerrain={onExit} />
-      </div>
-
-      {/* The flyover controls and the grade legend share the bottom edge with the pill, short of the right panel. */}
+      {/* One row along the bottom edge, between the panels: the flat map's layer pill at
+          the same spot with 3D switched on (and the via ferrata status beside it), then the
+          flyover controls and the grade legend. The pill takes the width it needs, so a
+          longer pill moves the dock along instead of running under it. */}
       <div
-        className="pointer-events-none absolute bottom-3 z-[19] grid grid-cols-[1fr_auto_1fr] items-end gap-3"
+        className="pointer-events-none absolute bottom-3 z-[19] flex items-end gap-3"
         style={{
-          insetInlineStart: leftWidth + MAP_LAYER_SWITCHER_INSET + LAYER_PILL_WIDTH + 12,
+          insetInlineStart: leftWidth + MAP_LAYER_SWITCHER_INSET,
           insetInlineEnd: rightWidth + MAP_LAYER_SWITCHER_INSET,
         }}
       >
-        <span />
-        {terrain.canReplay ? (
-          <TerrainDock terrain={terrain} />
-        ) : (
-          <div
-            className="pointer-events-auto rounded-full px-4 py-2.5 text-content-muted"
-            style={{ ...GLASS, ...fs(12, 'body') }}
-          >
-            <PickHint editing={!!props.waypoints.onAdd} />
-          </div>
-        )}
-        <div className="flex justify-end">{terrain.canReplay && <GradeLegend stats={stats} unit={unit} />}</div>
+        <div className="flex-none">
+          <TourMapLayerSwitcher
+            active={baseLayer}
+            onChange={onBaseLayerChange}
+            terrainActive
+            onToggleTerrain={onExit}
+            ferrataLayer={props.ferrataLayer}
+          />
+        </div>
+        <div className="grid min-w-0 flex-1 grid-cols-[1fr_auto_1fr] items-end gap-3">
+          <span />
+          {terrain.canReplay ? (
+            <TerrainDock terrain={terrain} />
+          ) : (
+            <div
+              className="pointer-events-auto rounded-full px-4 py-2.5 text-content-muted"
+              style={{ ...GLASS, ...fs(12, 'body') }}
+            >
+              <PickHint editing={!!props.waypoints.onAdd} />
+            </div>
+          )}
+          <div className="flex justify-end">{terrain.canReplay && <GradeLegend stats={stats} unit={unit} />}</div>
+        </div>
       </div>
     </div>
   );

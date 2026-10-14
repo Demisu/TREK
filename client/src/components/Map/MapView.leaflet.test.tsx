@@ -23,6 +23,13 @@ vi.mock('../../hooks/useGeolocation', () => ({
   useGeolocation: () => ({ position: null, mode: 'off', error: null, errorCode: null, cycleMode: vi.fn(), setMode: vi.fn() }),
 }))
 
+// What the via ferrata layer draws is FerrataLayerLeaflet's own suite; here only what the
+// renderer hands it. jsdom has no SVG renderer for Leaflet to draw real lines into.
+vi.mock('../Ferratas/FerrataLayerLeaflet', () => ({
+  FerrataMapLayerLeaflet: ({ layer }: { layer?: { active: boolean; ferratas: readonly unknown[] } }) =>
+    layer?.active ? <div data-testid="ferrata-leaflet-layer" data-count={layer.ferratas.length} /> : null,
+}))
+
 vi.mock('../../services/photoService', () => ({
   getCached: vi.fn(() => null),
   isLoading: vi.fn(() => false),
@@ -447,5 +454,28 @@ describe('MapView on a real Leaflet map', () => {
     expect(map.dragging.enabled()).toBe(true)
     panMap(container)
     expect(map.getCenter()).not.toEqual(before)
+  })
+
+  it('RC-10: the tour layer pill offers the via ferrata switch, and the layer is drawn only while it is on', async () => {
+    const ferrata = { id: 'way/42', name: 'Via delle Trincee', grade: { raw: '4', level: 4, plus: null }, routeName: null,
+      geometry: [[46.52, 11.8], [46.53, 11.81]], osmUrl: 'https://www.openstreetmap.org/way/42' }
+    const layer = { active: false, onToggle: vi.fn(), status: 'idle' as const, ferratas: [ferrata], onSelect: vi.fn() }
+    const view = render(
+      <MapView places={[]} center={[46.52, 11.8]} zoom={13} tileUrl={RASTER}
+        viewBaseLayer="topo" onViewBaseLayerChange={vi.fn()} ferrataLayer={layer} />,
+    )
+    const toggle = await view.findByRole('button', { name: 'Via ferratas' })
+    expect(toggle).toHaveAttribute('aria-pressed', 'false')
+    expect(view.queryByTestId('ferrata-leaflet-layer')).toBeNull()
+    act(() => toggle.click())
+    expect(layer.onToggle).toHaveBeenCalledOnce()
+
+    view.rerender(
+      <MapView places={[]} center={[46.52, 11.8]} zoom={13} tileUrl={RASTER}
+        viewBaseLayer="topo" onViewBaseLayerChange={vi.fn()} ferrataLayer={{ ...layer, active: true, status: 'ready' }} />,
+    )
+    await waitFor(() => expect(view.getByTestId('ferrata-leaflet-layer')).toHaveAttribute('data-count', '1'))
+    expect(view.getByRole('button', { name: 'Via ferratas' })).toHaveAttribute('aria-pressed', 'true')
+    expect(view.getByTestId('ferrata-status-pill')).toHaveTextContent('1 via ferrata route')
   })
 })

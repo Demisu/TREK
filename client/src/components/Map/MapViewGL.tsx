@@ -32,6 +32,8 @@ import { nightPauseMarker, NIGHT_PAUSE_MIN_ZOOM } from './nightPauseMarker'
 import { clusterPois, poiClusterMarkup, poiClusterList, POI_CLUSTER_DETAIL_ZOOM } from './poiClusters'
 import { groupCoincidentPlaces } from './coincidentPlaces'
 import { useHazardLayerGL } from './useHazardLayerGL'
+import { type FerrataGlMap, isFerrataHit, useFerrataMapLayerGL } from '../Ferratas/useFerrataLayerGL'
+import { formatViaDwell } from './routeViaDwell'
 import { useDawarichTrailGL } from './useDawarichTrailGL'
 import { bindDayBoundaryDrag } from './dayBoundaryDrag'
 import NightPauseTooltip from './NightPauseTooltip'
@@ -419,12 +421,6 @@ function buildPluginLayerData(layers: PluginMapLayer[]) {
   return { type: 'FeatureCollection' as const, features }
 }
 
-function formatViaDwellGl(seconds: number): string {
-  const h = Math.floor(seconds / 3600)
-  const m = Math.round((seconds % 3600) / 60)
-  return h > 0 ? `${h} h ${m} min` : `${m} min`
-}
-
 /**
  * A place pin on the map, whatever is carrying it.
  *
@@ -630,7 +626,7 @@ export function MapViewGL({
   onPlannerWaypointClick,
   onPlannerWaypointMove,
   routeProfileFocus = null,
-  viewBaseLayer, onViewBaseLayerChange, onToggleTerrain3d,
+  viewBaseLayer, onViewBaseLayerChange, onToggleTerrain3d, ferrataLayer,
   roadtripVias,
   onMoveVia,
   onRemoveVia,
@@ -662,6 +658,7 @@ export function MapViewGL({
   const glStyle = styleForActiveProvider(glProvider, rawMapboxStyle, rawMaplibreStyle)
   const enableMapbox3d = !isMapLibre && mapbox3d
   const [mapReady, setMapReady] = useState(false)
+  const [readyMap, setReadyMap] = useState<FerrataGlMap | null>(null) // the ready map, read without touching mapRef
   // Hover tooltip — a cursor-following name/category/address card, matching the
   // Leaflet map's overlay exactly (no anchored popup, no photo thumbnail).
   const [hoverPlace, setHoverPlace] = useState<MapHoverInfo | null>(null)
@@ -688,6 +685,7 @@ export function MapViewGL({
   const mapRef = useRef<any | null>(null)
   const hazardPopupFactory = useCallback(() => new gl.Popup({ className: 'map-tooltip trek-hazard-popup', maxWidth: '320px' }), [gl])
   useHazardLayerGL(mapRef.current, mapReady, hazards, hazardPopupFactory)
+  useFerrataMapLayerGL(mapReady ? readyMap : null, ferrataLayer)
   // Beneath the planned route's casing, the GL twin of the Leaflet pane order.
   useDawarichTrailGL(mapRef.current, mapReady, dawarichTrack, dawarichSelectedDate, 'trip-route-casing', dawarichHiddenDates)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1487,6 +1485,7 @@ export function MapViewGL({
       // safely add their own sources. Style rebuilds reset this via the
       // cleanup below.
       setMapReady(true)
+      setReadyMap(map)
     })
 
     // Layer for the hand-positioned place pins, inside the canvas container so it
@@ -1535,6 +1534,7 @@ export function MapViewGL({
         && typeof map.queryRenderedFeatures === 'function'
         && map.queryRenderedFeatures(e.point, { layers: ['trip-route-hit'] }).length > 0
       ) return
+      if (isFerrataHit(map, e.point)) return // a picked via ferrata opens its card instead
       onClickRefs.current.map?.({ latlng: { lat: e.lngLat.lat, lng: e.lngLat.lng } })
     })
     // Emit the viewport bbox (pan/zoom + once on first idle) so the POI-explore
@@ -1984,7 +1984,7 @@ export function MapViewGL({
         el.addEventListener('mouseleave', () => { setHoverPlace(null); setHoverPos(null) })
       }
       if (v.label || v.dwellSeconds != null) {
-        const text = [v.label, v.dwellSeconds != null ? formatViaDwellGl(v.dwellSeconds) : null].filter(Boolean).join(' · ')
+        const text = [v.label, v.dwellSeconds != null ? formatViaDwell(v.dwellSeconds) : null].filter(Boolean).join(' · ')
         el.addEventListener('click', (ev) => {
           ev.stopPropagation()
           popupRef.current?.setLngLat([v.lng, v.lat]).setText(text).addTo(map)
@@ -2354,7 +2354,7 @@ export function MapViewGL({
         {onToggleFollow && <MapLockPill locked={!followSelection} onToggle={onToggleFollow} />}
         {hasViewBaseLayer
           ? <TourMapLayerSwitcher active={baseLayer as TourBaseLayer} onChange={onViewBaseLayerChange}
-              onToggleTerrain={onToggleTerrain3d} />
+              onToggleTerrain={onToggleTerrain3d} ferrataLayer={ferrataLayer} />
           : <MapLayerSwitcher active={globalBaseLayer as BaseLayer} onToggle={toggleBaseLayer} />}
       </div>
       {/* Hover tooltip — cursor-following name/category/address card, identical to

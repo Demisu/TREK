@@ -2,6 +2,7 @@ import type { DawarichTrack, RoadtripHazard, RoadtripVia } from '@trek/shared';
 import type { Day, Place, Reservation, RouteVia } from '../../types';
 import type { ViewportPadding } from '../../utils/mapViewport';
 import type { RouteProfileFocus } from '../../utils/routeGeometry';
+import type { FerrataMapLayer } from '../Ferratas/useFerrataMapLayer';
 import type { AlternativeOverlay } from '../Roadtrip/alternativeOverlays';
 import type { DayBoundaryControls } from './dayBoundaryDrag';
 import type { CompassMap } from './MapCompassPill';
@@ -118,6 +119,12 @@ export interface MapViewProps {
   onViewBaseLayerChange?: (layer: TourBaseLayer) => void;
   /** Offers the 3D terrain switch in the tour layer pill. */
   onToggleTerrain3d?: () => void;
+  /**
+   * The via ferrata layer (RC-10): its switch and status pill join the tour layer
+   * pill, and while it is on its lines are drawn and a click on one hands the
+   * ferrata to `onSelect`. Both renderers mount it through the Ferratas modules.
+   */
+  ferrataLayer?: FerrataMapLayer;
   /**
    * An explicit stretch of map to frame, independent of the day being shown.
    *

@@ -115,3 +115,6 @@ export * from './money/money';
 
 // Trip permission catalog (keys, levels, defaults) and the rule that decides a check.
 export * from './permissions/permissions';
+
+// Via ferratas around a trip, from OpenStreetMap through Overpass (GET /api/trips/:tripId/ferratas).
+export * from './ferratas/ferratas.schema';

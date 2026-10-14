@@ -1,6 +1,8 @@
-// FE-PAGE-TOURSTAGE-001 to FE-PAGE-TOURSTAGE-005
+// FE-PAGE-TOURSTAGE-001 to FE-PAGE-TOURSTAGE-009
+import type { Ferrata } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '../../../tests/helpers/render';
+import { useTripFerratas } from '../../components/Ferratas/useTripFerratas';
 import type { MapViewProps } from '../../components/Map/mapViewContract';
 import { TourPlannerMapStage, type TourPlannerMapStageProps } from './TourPlannerMapStage';
 
@@ -14,6 +16,14 @@ const stage = vi.hoisted(() => {
       return map;
     }),
     once: vi.fn(() => map),
+    off: vi.fn(() => map),
+    loaded: vi.fn(() => false),
+    getBounds: vi.fn(() => ({
+      getSouth: () => 46.5,
+      getWest: () => 11.7,
+      getNorth: () => 46.6,
+      getEast: () => 11.9,
+    })),
     remove: vi.fn(),
     fitBounds: vi.fn(),
     setTerrain: vi.fn(),
@@ -47,6 +57,20 @@ vi.mock('../../components/Map/MapViewAuto', () => ({
   },
 }));
 vi.mock('../../components/Planner/LocationSelect', () => ({ default: () => <input aria-label="location search" /> }));
+// What the layer asks the server is useTripFerratas' own suite; here it answers from memory.
+vi.mock('../../components/Ferratas/useTripFerratas', () => ({ useTripFerratas: vi.fn() }));
+
+const FERRATA: Ferrata = {
+  id: 'way/42',
+  name: 'Via delle Trincee',
+  grade: { raw: '4', level: 4, plus: null },
+  routeName: null,
+  geometry: [
+    [46.52, 11.8],
+    [46.53, 11.81],
+  ],
+  osmUrl: 'https://www.openstreetmap.org/way/42',
+};
 
 type Planner = TourPlannerMapStageProps['tourPlanner'];
 
@@ -99,6 +123,12 @@ beforeEach(() => {
   stage.listeners.clear();
   stage.flatMap.props = null;
   vi.clearAllMocks();
+  vi.mocked(useTripFerratas).mockImplementation((_tripId, _bbox, enabled) => ({
+    ferratas: enabled ? [FERRATA] : [],
+    status: enabled ? 'ready' : 'idle',
+    truncated: false,
+    attribution: null,
+  }));
   vi.stubGlobal(
     'fetch',
     vi.fn(() => new Promise<Response>(() => {}))
@@ -164,5 +194,63 @@ describe('TourPlannerMapStage', () => {
     await openTerrain();
     expect(screen.getByRole('progressbar', { name: 'Loading the landscape: 0 %' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Grade mix' })).toBeInTheDocument();
+  });
+
+  it('FE-PAGE-TOURSTAGE-006: the flat map gets the via ferrata layer switched off, and nothing is asked for', () => {
+    renderStage(planner('view-saved'));
+    const props = stage.flatMap.props;
+    expect(props?.ferrataLayer?.active).toBe(false);
+    expect(props?.ferrataLayer?.status).toBe('idle');
+    expect(typeof props?.onViewportChange).toBe('function');
+    expect(vi.mocked(useTripFerratas).mock.lastCall).toEqual([7, null, false]);
+  });
+
+  it('FE-PAGE-TOURSTAGE-007: switched on, the layer asks for the area the flat map reported and draws what it found', () => {
+    renderStage(planner('view-saved'));
+    const area = { south: 46.5, west: 11.7, north: 46.6, east: 11.9 };
+    act(() => stage.flatMap.props?.onViewportChange?.(area));
+    act(() => stage.flatMap.props?.ferrataLayer?.onToggle());
+
+    expect(vi.mocked(useTripFerratas).mock.lastCall).toEqual([7, area, true]);
+    expect(stage.flatMap.props?.ferrataLayer?.active).toBe(true);
+    expect(stage.flatMap.props?.ferrataLayer?.ferratas).toEqual([FERRATA]);
+  });
+
+  it('FE-PAGE-TOURSTAGE-008: a picked ferrata opens its card bottom right, clear of the right panel, and Escape closes it', () => {
+    renderStage(planner('view-saved'));
+    act(() => stage.flatMap.props?.ferrataLayer?.onToggle());
+    expect(screen.queryByTestId('ferrata-detail-overlay')).toBeNull();
+
+    act(() => stage.flatMap.props?.ferrataLayer?.onSelect(FERRATA, { lat: 46.52, lng: 11.8 }));
+    const overlay = screen.getByTestId('ferrata-detail-overlay');
+    // The right panel's 380px plus the 20px the layer pill keeps to the left one.
+    expect(overlay.style.right).toBe('400px');
+    // Above the bottom row: its 12px gap, the 42px pill, the same gap again.
+    expect(overlay.style.bottom).toBe('66px');
+    expect(overlay).toHaveTextContent('Via delle Trincee');
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByTestId('ferrata-detail-overlay')).toBeNull();
+  });
+
+  it('FE-PAGE-TOURSTAGE-009: in 3D the switch sits in the terrain layer pill, the layer stays on and the terrain reports its area', async () => {
+    renderStage(planner('view-saved'));
+    act(() => stage.flatMap.props?.ferrataLayer?.onToggle());
+    await openTerrain();
+
+    const toggle = screen.getByRole('button', { name: 'Via ferratas' });
+    expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByTestId('ferrata-status-pill')).toHaveTextContent('1 via ferrata route');
+
+    act(() => stage.fire('load'));
+    expect(vi.mocked(useTripFerratas).mock.lastCall).toEqual([
+      7,
+      { south: 46.5, west: 11.7, north: 46.6, east: 11.9 },
+      true,
+    ]);
+
+    fireEvent.click(toggle);
+    expect(screen.getByRole('button', { name: 'Via ferratas' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.queryByTestId('ferrata-status-pill')).toBeNull();
   });
 });

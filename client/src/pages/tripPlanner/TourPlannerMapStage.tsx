@@ -1,4 +1,7 @@
 import { lazy, Suspense, useState, type ReactElement } from 'react';
+import FerrataDetailOverlay from '../../components/Ferratas/FerrataDetailOverlay';
+import { useFerrataMapLayer } from '../../components/Ferratas/useFerrataMapLayer';
+import { MAP_LAYER_SWITCHER_INSET, MAP_ROUND_CONTROL_SIZE } from '../../components/Map/MapLayerSwitcher';
 import { MapViewAuto as MapView } from '../../components/Map/MapViewAuto';
 import LocationSelect from '../../components/Planner/LocationSelect';
 import { useSettingsStore } from '../../store/settingsStore';
@@ -10,6 +13,10 @@ const TourTerrainMap = lazy(() => import('../../components/Tours/terrain/TourTer
 
 /** The route blue the planner draws a tour in. */
 const TOUR_TRACK_COLOR = '#0a84ff';
+/** The gap both maps keep between the bottom edge, their row of controls and what floats above it. */
+const CONTROL_GAP = 12;
+/** A via ferrata's card floats above the bottom row of controls, at the gap the row keeps to the edge. */
+const FERRATA_CARD_BOTTOM = CONTROL_GAP + MAP_ROUND_CONTROL_SIZE + CONTROL_GAP;
 
 type Planner = ReturnType<typeof useTripPlanner>;
 type PageState = ReturnType<typeof useTripPlannerPage>;
@@ -42,6 +49,8 @@ export function TourPlannerMapStage({
   rightPanelPx,
 }: Readonly<TourPlannerMapStageProps>): ReactElement {
   const [terrain3d, setTerrain3d] = useState(false);
+  // One via ferrata layer for both modes: it stays on, and keeps its card, across 2D and 3D.
+  const ferrata = useFerrataMapLayer(tripId);
   const distanceUnit = useSettingsStore((s) => s.settings.distance_unit);
   const analysis = tourPlanner.mode.type === 'view-gpx' ? tourPlanner.readOnlyGpxAnalysis : tourPlanner.routeAnalysis;
   const editing = tourPlanner.mode.type === 'new-draft' || tourPlanner.mode.type === 'edit-saved';
@@ -74,6 +83,8 @@ export function TourPlannerMapStage({
             rightWidth={rightInset}
             waypoints={waypoints}
             framePoints={tourMap.focusPoints}
+            ferrataLayer={ferrata.layer}
+            onViewportChange={ferrata.onViewportChange}
           />
         </Suspense>
       ) : (
@@ -101,8 +112,16 @@ export function TourPlannerMapStage({
           viewBaseLayer={tourPlanner.mapBaseLayer}
           onViewBaseLayerChange={tourPlanner.setMapBaseLayer}
           onToggleTerrain3d={() => setTerrain3d(true)}
+          ferrataLayer={ferrata.layer}
+          onViewportChange={ferrata.onViewportChange}
         />
       )}
+      <FerrataDetailOverlay
+        ferrata={ferrata.selected}
+        onClose={ferrata.close}
+        insetRight={rightInset + MAP_LAYER_SWITCHER_INSET}
+        bottom={FERRATA_CARD_BOTTOM}
+      />
       {/* Centred over the map between the two panels, which sit on fixed physical sides. */}
       <div
         style={{

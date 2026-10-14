@@ -107,6 +107,10 @@ export default defineConfig({
         'src/nest/days/**/*.ts': { statements: 92, branches: 82, functions: 98, lines: 97 },
         'src/nest/doc-sync/**/*.ts': { statements: 91, branches: 79, functions: 96, lines: 95 },
         'src/nest/feeds/**/*.ts': { statements: 91, branches: 83, functions: 83, lines: 91 },
+        // New domain in this change, unmeasured: pinned at the 80 floor so it
+        // has its own entry rather than hiding in the catch-all. Regenerate with
+        // scripts/coverage-thresholds.mjs after the first full run.
+        'src/nest/ferratas/**/*.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
         'src/nest/files/**/*.ts': { statements: 97, branches: 95, functions: 99, lines: 98 },
         'src/nest/geo/**/*.ts': { statements: 99, branches: 95, functions: 99, lines: 99 },
         // google-quota, managed, mcp-shared, mcp-transport, public-api,

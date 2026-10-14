@@ -1,0 +1,16 @@
+import type { TranslationStrings } from '../types';
+
+const ferratas: TranslationStrings = {
+  'ferratas.layer': 'Vías ferratas',
+  'ferratas.count': '{count} vías ferratas',
+  'ferratas.count.one': '{count} vía ferrata',
+  'ferratas.loading': 'Cargando vías ferratas…',
+  'ferratas.error': 'Overpass no disponible',
+  'ferratas.zoomIn': 'Acerca el mapa para cargar vías ferratas',
+  'ferratas.offline': 'Las vías ferratas necesitan conexión',
+  'ferratas.unknownGrade': 'Dificultad desconocida',
+  'ferratas.unnamed': 'Vía ferrata sin nombre',
+  'ferratas.viewInOsm': 'Ver en OpenStreetMap',
+  'ferratas.attribution': 'Datos © colaboradores de OpenStreetMap',
+};
+export default ferratas;

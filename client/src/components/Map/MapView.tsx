@@ -8,6 +8,8 @@ import { CLUSTER_OPTIONS, createClusterIcon, revealInCluster, type ClusterGroupL
 import RoadtripViaMarkers from './RoadtripViaMarkers'
 import PlannerWaypointMarker from './PlannerWaypointMarker'
 import HazardLayers from './HazardLayers'
+import { FerrataMapLayerLeaflet } from '../Ferratas/FerrataLayerLeaflet'
+import { formatViaDwell } from './routeViaDwell'
 import { ALT_CASING, ALT_LABEL_TEXT } from '../Roadtrip/alternativeColors'
 import { serviceMarkerHtml, serviceMarkerOuter } from '../Roadtrip/serviceMarker'
 import type { AlternativeOverlay } from '../Roadtrip/alternativeOverlays'
@@ -107,12 +109,6 @@ function routeViaIcon(tone: string): L.DivIcon {
   })
   viaIconCache.set(tone, icon)
   return icon
-}
-
-function formatViaDwell(seconds: number): string {
-  const h = Math.floor(seconds / 3600)
-  const m = Math.round((seconds % 3600) / 60)
-  return h > 0 ? `${h} h ${m} min` : `${m} min`
 }
 
 function nightPauseIcon(via: RouteVia): L.DivIcon {
@@ -834,7 +830,7 @@ export const MapView = memo(function MapView({
   onPlannerWaypointClick,
   onPlannerWaypointMove,
   routeProfileFocus = null,
-  viewBaseLayer, onViewBaseLayerChange, onToggleTerrain3d,
+  viewBaseLayer, onViewBaseLayerChange, onToggleTerrain3d, ferrataLayer,
 }: MapViewProps) {
   const globalBaseLayer = useSettingsStore(s => s.settings.map_base_layer) || 'default'
   const updateSetting = useSettingsStore(s => s.updateSetting)
@@ -1337,6 +1333,7 @@ export const MapView = memo(function MapView({
       />
 
       {hazards?.length > 0 && <HazardLayers hazards={hazards} />}
+      <FerrataMapLayerLeaflet layer={ferrataLayer} />
 
       {/* The route as it was actually recorded (#2279). Drawn in the casing
           pane's sibling order so it sits under the planned route rather than
@@ -1384,7 +1381,7 @@ export const MapView = memo(function MapView({
       {onToggleFollow && <MapLockPill locked={!followSelection} onToggle={onToggleFollow} />}
       {hasViewBaseLayer
         ? <TourMapLayerSwitcher active={baseLayer} onChange={onViewBaseLayerChange}
-            onToggleTerrain={onToggleTerrain3d} />
+            onToggleTerrain={onToggleTerrain3d} ferrataLayer={ferrataLayer} />
         : <MapLayerSwitcher active={globalBaseLayer} onToggle={toggleBaseLayer} />}
     </div>
     </div>

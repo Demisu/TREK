@@ -12,6 +12,7 @@ import dawarich from './dawarich';
 import day from './day';
 import dayplan from './dayplan';
 import docsync from './docsync';
+import ferratas from './ferratas';
 import files from './files';
 import help from './help';
 import inspector from './inspector';
@@ -106,5 +107,6 @@ const locale = {
   ...storage,
   ...dawarich,
   ...docsync,
+  ...ferratas,
 };
 export default locale;

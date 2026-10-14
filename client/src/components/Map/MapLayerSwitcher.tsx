@@ -1,6 +1,8 @@
-import { Map as MapIcon, Mountain, Rotate3d, Satellite } from 'lucide-react'
+import { Map as MapIcon, Mountain, MountainSnow, Rotate3d, Satellite } from 'lucide-react'
 import type { CSSProperties } from 'react'
 import { useTranslation } from '../../i18n'
+import FerrataStatusPill from '../Ferratas/FerrataStatusPill'
+import type { FerrataMapLayer } from '../Ferratas/useFerrataMapLayer'
 import { Tooltip } from '../shared/Tooltip'
 import { MAP_CONTROL_SHADOW } from './mapControlShadow'
 
@@ -86,16 +88,22 @@ export function TourMapLayerSwitcher({
   onChange,
   onToggleTerrain,
   terrainActive = false,
+  ferrataLayer,
 }: {
   active: TourBaseLayer
   onChange: (layer: TourBaseLayer) => void
   /** Offers the 3D terrain switch beside the base layers. */
   onToggleTerrain?: () => void
   terrainActive?: boolean
+  /**
+   * Offers the via ferrata switch beside the base layers, and puts the layer's
+   * status pill in the same row, right of this one.
+   */
+  ferrataLayer?: FerrataMapLayer
 }) {
   const { t } = useTranslation()
 
-  return (
+  const pill = (
     <div style={{ ...FROSTED_SHELL, gap: 2 }} role="group" aria-label={t('settings.mapStyle')}>
       {TOUR_LAYERS.map(({ id, labelKey, Icon }) => {
         const selected = active === id
@@ -114,21 +122,40 @@ export function TourMapLayerSwitcher({
           </button>
         )
       })}
-      {onToggleTerrain && (
-        <>
-          <span aria-hidden className="mx-0.5 h-5 w-px bg-edge" />
-          <button
-            type="button"
-            onClick={onToggleTerrain}
-            aria-pressed={terrainActive}
-            className={terrainActive ? 'bg-accent text-accent-text' : 'text-content-muted'}
-            style={segmentStyle(terrainActive)}
-          >
-            <Rotate3d size={15} strokeWidth={2} />
-            <span>3D</span>
-          </button>
-        </>
+      {(ferrataLayer || onToggleTerrain) && <span aria-hidden className="mx-0.5 h-5 w-px bg-edge" />}
+      {ferrataLayer && (
+        <button
+          type="button"
+          onClick={ferrataLayer.onToggle}
+          aria-pressed={ferrataLayer.active}
+          className={ferrataLayer.active ? 'bg-accent text-accent-text' : 'text-content-muted'}
+          style={segmentStyle(ferrataLayer.active)}
+        >
+          <MountainSnow size={15} strokeWidth={2} />
+          <span>{t('ferratas.layer')}</span>
+        </button>
       )}
+      {onToggleTerrain && (
+        <button
+          type="button"
+          onClick={onToggleTerrain}
+          aria-pressed={terrainActive}
+          className={terrainActive ? 'bg-accent text-accent-text' : 'text-content-muted'}
+          style={segmentStyle(terrainActive)}
+        >
+          <Rotate3d size={15} strokeWidth={2} />
+          <span>3D</span>
+        </button>
+      )}
+    </div>
+  )
+
+  if (!ferrataLayer) return pill
+  // The status pill keeps the column gap the lock pill keeps above, and says nothing while the layer is off.
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      {pill}
+      <FerrataStatusPill status={ferrataLayer.status} count={ferrataLayer.ferratas.length} />
     </div>
   )
 }

@@ -1,4 +1,5 @@
 {
   "pages/tripPlanner/PlanMapStage.tsx": 4,
-  "mobile/components/trek3d/MascotClip.tsx": 1
+  "mobile/components/trek3d/MascotClip.tsx": 1,
+  "components/Ferratas/FerrataDetailOverlay.tsx": 1
 }

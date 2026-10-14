@@ -7,8 +7,8 @@ import { resetAllStores } from '../../../tests/helpers/store';
 import type { GeoPosition, TrackingMode } from '../../hooks/useGeolocation';
 import { useSettingsStore } from '../../store/settingsStore';
 
-// The planner-waypoint and location-search camera cases of MapViewGL, with the same
-// map doubles as MapViewGL.test.tsx.
+// The planner-waypoint and location-search camera cases of MapViewGL, and the tour
+// map's via ferrata layer (RC-10), with the same map doubles as MapViewGL.test.tsx.
 
 // Stable fake map so fitBounds call counts survive re-renders. The canvas
 // container is a single element so listeners registered by the component are
@@ -476,5 +476,92 @@ describe('MapViewGL', () => {
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenCalledWith(waypoint.id);
     expect(onMapClick).not.toHaveBeenCalled();
+  });
+
+  const FERRATA = {
+    id: 'way/42',
+    name: 'Via delle Trincee',
+    grade: { raw: '4', level: 4, plus: null },
+    routeName: null,
+    geometry: [
+      [46.52, 11.8],
+      [46.53, 11.81],
+    ] as [number, number][],
+    osmUrl: 'https://www.openstreetmap.org/way/42',
+  };
+  const ferrataLayer = (active: boolean) => ({
+    active,
+    onToggle: vi.fn(),
+    status: active ? ('ready' as const) : ('idle' as const),
+    ferratas: [FERRATA],
+    onSelect: vi.fn(),
+  });
+  const addedFerratas = () => glMap.addSource.mock.calls.filter(([id]) => id === 'trek-ferratas');
+
+  it('RC-10: the via ferrata layer is drawn on the ready map only while it is on, its switch in the tour pill', async () => {
+    loadOnAttach();
+    const off = ferrataLayer(false);
+    const view = render(
+      <MapViewGL
+        places={[]}
+        viewBaseLayer="topo"
+        onViewBaseLayerChange={vi.fn()}
+        ferrataLayer={off}
+        glProvider="maplibre-gl"
+      />
+    );
+    await act(async () => {});
+    expect(addedFerratas()).toHaveLength(0);
+    const toggle = view.getByRole('button', { name: 'Via ferratas' });
+    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    act(() => toggle.click());
+    expect(off.onToggle).toHaveBeenCalledOnce();
+
+    view.rerender(
+      <MapViewGL
+        places={[]}
+        viewBaseLayer="topo"
+        onViewBaseLayerChange={vi.fn()}
+        ferrataLayer={ferrataLayer(true)}
+        glProvider="maplibre-gl"
+      />
+    );
+    await act(async () => {});
+    expect(addedFerratas()).toHaveLength(1);
+    expect(view.getByRole('button', { name: 'Via ferratas' })).toHaveAttribute('aria-pressed', 'true');
+    expect(view.getByTestId('ferrata-status-pill')).toHaveTextContent('1 via ferrata route');
+  });
+
+  it('RC-10: a click on a drawn ferrata opens it and is not a map click, so no control point lands under it', async () => {
+    loadOnAttach();
+    glMap.getLayer.mockImplementation((id: string) => (id === 'trek-ferratas-hit' ? { id } : null));
+    glMap.queryRenderedFeatures.mockImplementation((_point: unknown, options?: { layers?: string[] }) =>
+      options?.layers?.includes('trek-ferratas-hit') ? [{ properties: { id: FERRATA.id } }] : []
+    );
+    const layer = ferrataLayer(true);
+    const onMapClick = vi.fn();
+    render(
+      <MapViewGL
+        places={[]}
+        viewBaseLayer="topo"
+        onViewBaseLayerChange={vi.fn()}
+        ferrataLayer={layer}
+        onMapClick={onMapClick}
+        glProvider="maplibre-gl"
+      />
+    );
+    await act(async () => {});
+    const mapClicks = glMap.on.mock.calls
+      .filter(([event, handler]) => event === 'click' && typeof handler === 'function')
+      .map(([, handler]) => handler as (event: unknown) => void);
+    expect(mapClicks.length).toBeGreaterThan(0);
+    const click = {
+      point: { x: 5, y: 5 },
+      lngLat: { lat: 46.52, lng: 11.8 },
+      originalEvent: { target: document.createElement('div') },
+    };
+    act(() => mapClicks.forEach((handler) => handler(click)));
+    expect(onMapClick).not.toHaveBeenCalled();
+    expect(layer.onSelect).toHaveBeenCalledWith(FERRATA, { lat: 46.52, lng: 11.8 });
   });
 });

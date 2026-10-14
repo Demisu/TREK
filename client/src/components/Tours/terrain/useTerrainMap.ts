@@ -1,5 +1,6 @@
 import type { GeoJSONSource, Map as MapLibreMap } from 'maplibre-gl';
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
+import { isFerrataHit } from '../../Ferratas/useFerrataLayerGL';
 import type { TourBaseLayer } from '../../Map/MapLayerSwitcher';
 import {
   addTerrainLayers,
@@ -67,8 +68,12 @@ function createTerrainMap(
     maxTileCacheSize: 2000,
     attributionControl: { compact: true },
   });
-  // Clicking the terrain adds a control point, the same as on the flat planner map.
-  map.on('click', (event) => scene.current.onAdd?.(event.lngLat.lat, event.lngLat.lng));
+  // Clicking the terrain adds a control point, the same as on the flat planner map;
+  // a click on a via ferrata opens its card instead.
+  map.on('click', (event) => {
+    if (isFerrataHit(map, event.point)) return;
+    scene.current.onAdd?.(event.lngLat.lat, event.lngLat.lng);
+  });
   map.on('style.load', () => {
     addTerrainLayers(map, scene.current.data, scene.current.exaggeration);
     handlers.onReady();

@@ -1,7 +1,10 @@
+import type { FerrataBbox } from '@trek/shared';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { DistanceIndexedProfileSample, RouteProfileFocus } from '../../../utils/routeGeometry';
+import type { FerrataMapLayer } from '../../Ferratas/useFerrataMapLayer';
 import type { TourBaseLayer } from '../../Map/MapLayerSwitcher';
 import { trackData, type PanelWidths, type TrackColorMode } from './terrainLayers';
+import { useTerrainFerratas } from './useTerrainFerratas';
 import { frameCamera, useTerrainMap, type TerrainScene } from './useTerrainMap';
 import { useTerrainPins, type TerrainWaypoints } from './useTerrainPins';
 import { useTerrainPrefetch } from './useTerrainPrefetch';
@@ -20,6 +23,10 @@ interface Options {
   waypoints: TerrainWaypoints;
   /** What the flat map frames, [lat, lng]; the 3D view starts there while there is no route. */
   framePoints: [number, number][];
+  /** The via ferrata layer of the planner map, drawn here too while it is on. */
+  ferrataLayer?: FerrataMapLayer;
+  /** The visible area, for the via ferrata layer to ask for. */
+  onViewportChange?: (bbox: FerrataBbox) => void;
 }
 
 /** The planner map's 3D mode: map, pins, corridor preload and the flyover sharing the rail's focus. */
@@ -53,6 +60,7 @@ export function useTourTerrain(options: Options) {
   const { setContainer, gl, ready, styleGeneration } = useTerrainMap({ scene, baseLayer, data, exaggeration });
   const preloaded = useTerrainPrefetch(gl?.map ?? null, styleGeneration, samples);
   useTerrainPins(gl, ready, waypoints, handlers);
+  useTerrainFerratas(gl, options.ferrataLayer, options.onViewportChange);
   const replay = useTerrainReplay({ gl, ready, samples, focus, onFocusChange, scene, preloaded });
   const { stop } = replay;
 
