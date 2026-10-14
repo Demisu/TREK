@@ -333,13 +333,13 @@ describe('useTourPlanner', () => {
     expect(result.current.plannedTotalMinutes).toBe(90)
 
     const waypointId = result.current.waypoints[1].id
-    act(() => result.current.setWaypointPosition(waypointId, 48.2, 11.2))
+    act(() => { result.current.setWaypointPosition(waypointId, 48.2, 11.2) })
     await act(async () => { await vi.advanceTimersByTimeAsync(450) })
     expect(result.current.walkingDurationMinutes).toBe(90)
     expect(result.current.plannedTotalMinutes).toBe(120)
 
     act(() => result.current.setPlannedDurationMinutes(110))
-    act(() => result.current.setWaypointPosition(waypointId, 48.3, 11.3))
+    act(() => { result.current.setWaypointPosition(waypointId, 48.3, 11.3) })
     await act(async () => { await vi.advanceTimersByTimeAsync(450) })
     expect(result.current.walkingDurationMinutes).toBe(120)
     expect(result.current.plannedTotalMinutes).toBe(110)
@@ -437,7 +437,9 @@ describe('useTourPlanner', () => {
     act(() => first.result.current.reorderWaypoint(ids[2], ids[0], 'before'));
     expect(first.result.current.waypoints.map((point) => point.id)).toEqual([ids[2], ids[0], ids[1]]);
     expect(first.result.current.waypoints.map((point) => point.role)).toEqual(['start', 'via', 'end']);
-    const stored = JSON.parse(localStorage.getItem('tour-draft-78')!) as { waypoints: { id: string }[] };
+    const storedRaw = localStorage.getItem('tour-draft-78');
+    if (storedRaw === null) throw new Error('expected a stored tour draft');
+    const stored = JSON.parse(storedRaw) as { waypoints: { id: string }[] };
     expect(stored.waypoints.map((point) => point.id)).toEqual([ids[2], ids[0], ids[1]]);
 
     first.unmount();

@@ -622,10 +622,14 @@ describe('TripPlannerPage — shell', () => {
     expect(screen.getByTestId('map-view')).toBe(mapElement);
     expect(plannerActions.addWaypoint).not.toHaveBeenCalled();
 
-    act(() => props('map').onMapClick({ latlng: { lat: 35.02, lng: 135.77 } }));
+    act(() => {
+      props('map').onMapClick({ latlng: { lat: 35.02, lng: 135.77 } });
+    });
     expect(plannerActions.addWaypoint).toHaveBeenCalledOnce();
     expect(plannerActions.addWaypoint).toHaveBeenCalledWith(35.02, 135.77);
-    act(() => props('map').onPlannerWaypointMove('via-1', 35.03, 135.78));
+    act(() => {
+      props('map').onPlannerWaypointMove('via-1', 35.03, 135.78);
+    });
     expect(plannerActions.setWaypointPosition).toHaveBeenCalledOnce();
     expect(plannerActions.setWaypointPosition).toHaveBeenCalledWith('via-1', 35.03, 135.78);
     expect(createAssignment).not.toHaveBeenCalled();

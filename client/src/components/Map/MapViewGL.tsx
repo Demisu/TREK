@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo, useState, createElement, useCallback } from 'react'
+import { useEffect, useLayoutEffect, useRef, useMemo, useState, createElement, useCallback } from 'react'
 import { makeMarkerDraggable, makePoiDraggable, draggedPoiId } from './markerDrag'
 import { useStableVias } from './viaMarkerState'
 import { wirePlannerWaypointDrag } from './plannerWaypointDrag'
@@ -711,7 +711,9 @@ export function MapViewGL({
   const viaPinsRef = useRef<PlacePin[]>([])
   const plannerWaypointPinsRef = useRef<PlacePin[]>([])
   const plannerWaypointHandlersRef = useRef({ onPlannerWaypointClick, onPlannerWaypointMove })
-  plannerWaypointHandlersRef.current = { onPlannerWaypointClick, onPlannerWaypointMove }
+  useLayoutEffect(() => {
+    plannerWaypointHandlersRef.current = { onPlannerWaypointClick, onPlannerWaypointMove }
+  }, [onPlannerWaypointClick, onPlannerWaypointMove])
   const plannerWaypointsDraggable = !!onPlannerWaypointMove
   const profileFocusPinRef = useRef<PlacePin | null>(null)
   /** The drive-time pills on the offered routes; same treatment. */

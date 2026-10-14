@@ -137,7 +137,6 @@ export default function TourDetailDialog({
   const navigationTargets = getNavigationTargets(place)
   const navigationLabel = navigationTargets.length === 1 ? navigationTargetLabel(navigationTargets[0], t) : t('inspector.navigation')
   const source = tourSource(tour)
-  const tourTimes = tourPlannedTimes(tour)
   const description = tour.description !== undefined ? tour.description : place.description
   const website = tourWebsitePresentation(tour.website !== undefined ? tour.website : place.website)
   const colorLabel = place.route_color ? place.route_color.toUpperCase() : t('inspector.trackColorAuto')
@@ -220,27 +219,7 @@ export default function TourDetailDialog({
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
           <SoftPill icon={<Mountain size={11} strokeWidth={2} className="flex-none" style={{ color: trackColor }} />}>{t(`tourTypes.${tour.tour_type}`)}</SoftPill>
           {tour.difficulty && <SoftPill>{t('tours.detail.difficulty')}: {tour.difficulty}</SoftPill>}
-          {tourTimes.walkingMinutes != null && (
-            <TimePill>
-              <span aria-label={`${t('tours.planner.inspector.duration')}: ${formatPlannedTourDuration(tourTimes.walkingMinutes)}`}>
-                {t('tours.planner.inspector.duration')}: {formatPlannedTourDuration(tourTimes.walkingMinutes)}
-              </span>
-            </TimePill>
-          )}
-          {tourTimes.breakMinutes != null && (
-            <TimePill>
-              <span aria-label={`${t('tours.planner.breaksAdditional')}: ${formatPlannedTourDuration(tourTimes.breakMinutes)}`}>
-                {t('tours.planner.breaksAdditional')}: {formatPlannedTourDuration(tourTimes.breakMinutes)}
-              </span>
-            </TimePill>
-          )}
-          {tourTimes.plannedTotalMinutes != null && (
-            <TimePill>
-              <span aria-label={`${t('tours.planner.plannedTotalDuration')}: ${formatPlannedTourDuration(tourTimes.plannedTotalMinutes)}${tourTimes.manuallyOverridden ? `, ${t('tours.planner.plannedTotalManual')}` : ''}`}>
-                {t('tours.planner.plannedTotalDuration')}: {formatPlannedTourDuration(tourTimes.plannedTotalMinutes)}{tourTimes.manuallyOverridden ? ` · ${t('tours.planner.plannedTotalManual')}` : ''}
-              </span>
-            </TimePill>
-          )}
+          <TourTimePills tour={tour} />
           <SoftPill>{hikeSourceBadgeLabel(tour, t)}</SoftPill>
           {tour.caution && (
             <Tooltip label={t('tours.caution.tooltip')}>
@@ -393,6 +372,37 @@ export default function TourDetailDialog({
         </div>
       )}
     </DetailShell>
+  )
+}
+
+/** Walking time, breaks and the planned total, each as its own pill; missing values are skipped. */
+function TourTimePills({ tour }: { tour: TourListItem }) {
+  const { t } = useTranslation()
+  const tourTimes = tourPlannedTimes(tour)
+  return (
+    <>
+      {tourTimes.walkingMinutes != null && (
+        <TimePill>
+          <span aria-label={`${t('tours.planner.inspector.duration')}: ${formatPlannedTourDuration(tourTimes.walkingMinutes)}`}>
+            {t('tours.planner.inspector.duration')}: {formatPlannedTourDuration(tourTimes.walkingMinutes)}
+          </span>
+        </TimePill>
+      )}
+      {tourTimes.breakMinutes != null && (
+        <TimePill>
+          <span aria-label={`${t('tours.planner.breaksAdditional')}: ${formatPlannedTourDuration(tourTimes.breakMinutes)}`}>
+            {t('tours.planner.breaksAdditional')}: {formatPlannedTourDuration(tourTimes.breakMinutes)}
+          </span>
+        </TimePill>
+      )}
+      {tourTimes.plannedTotalMinutes != null && (
+        <TimePill>
+          <span aria-label={`${t('tours.planner.plannedTotalDuration')}: ${formatPlannedTourDuration(tourTimes.plannedTotalMinutes)}${tourTimes.manuallyOverridden ? `, ${t('tours.planner.plannedTotalManual')}` : ''}`}>
+            {t('tours.planner.plannedTotalDuration')}: {formatPlannedTourDuration(tourTimes.plannedTotalMinutes)}{tourTimes.manuallyOverridden ? ` · ${t('tours.planner.plannedTotalManual')}` : ''}
+          </span>
+        </TimePill>
+      )}
+    </>
   )
 }
 

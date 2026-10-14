@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo, useCallback, createElement, memo, type ComponentType } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, useMemo, useCallback, createElement, memo, type ComponentType } from 'react'
 import DOM from 'react-dom'
 import { renderIconMarkup } from '../../utils/iconMarkup'
 import { MapContainer, TileLayer, Marker, Polyline, CircleMarker, Circle, useMap, Tooltip } from 'react-leaflet'
@@ -784,7 +784,7 @@ function PlannerWaypointMarker({
   const map = useMap()
   const [marker, setMarker] = useState<L.Marker | null>(null)
   const handlersRef = useRef({ onClick, onMove })
-  handlersRef.current = { onClick, onMove }
+  useLayoutEffect(() => { handlersRef.current = { onClick, onMove } }, [onClick, onMove])
   const position = useMemo(() => [point.lat, point.lng] as [number, number], [point.lat, point.lng])
   const icon = useMemo(() => plannerWaypointIcon(index, selected, !!onMove), [index, onMove, selected])
   const eventHandlers = useMemo(() => ({

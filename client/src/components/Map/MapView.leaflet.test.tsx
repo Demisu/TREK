@@ -94,6 +94,16 @@ function clickOn(el: Element) {
   })
 }
 
+/** The Leaflet marker that renders `el`; throws when the map has none. */
+function markerOf(map: L.Map, el: Element): L.Marker {
+  let found: L.Marker | null = null
+  map.eachLayer(layer => {
+    if (layer instanceof L.Marker && layer.getElement() === el) found = layer
+  })
+  if (!found) throw new Error('no marker renders this element')
+  return found
+}
+
 function pointer(type: string, x: number, y: number): Event {
   const event = new Event(type, { bubbles: true, cancelable: true })
   Object.defineProperties(event, {
@@ -149,11 +159,7 @@ describe('MapView on a real Leaflet map', () => {
     const map = maps[maps.length - 1]
     await waitFor(() => expect(view.container.querySelector('.tour-planner-waypoint-marker')).not.toBeNull())
     const pin = view.container.querySelector('.tour-planner-waypoint-marker') as HTMLElement
-    let marker: L.Marker | null = null
-    map.eachLayer(layer => {
-      if (layer instanceof L.Marker && layer.getElement() === pin) marker = layer
-    })
-    expect(marker).not.toBeNull()
+    const marker = markerOf(map, pin)
     const start = map.latLngToContainerPoint([waypoint.lat, waypoint.lng])
     const end = start.add([30, 20])
     const expected = map.containerPointToLatLng(end)
@@ -164,8 +170,8 @@ describe('MapView on a real Leaflet map', () => {
       pin.dispatchEvent(mouse('mousedown', start.x, start.y))
       pin.dispatchEvent(pointer('pointermove', end.x, end.y))
     })
-    expect(marker!.getLatLng().lat).toBeCloseTo(expected.lat, 6)
-    expect(marker!.getLatLng().lng).toBeCloseTo(expected.lng, 6)
+    expect(marker.getLatLng().lat).toBeCloseTo(expected.lat, 6)
+    expect(marker.getLatLng().lng).toBeCloseTo(expected.lng, 6)
     expect(onMove).not.toHaveBeenCalled()
     expect(waypoints[0]).toEqual(waypoint)
 
@@ -184,8 +190,8 @@ describe('MapView on a real Leaflet map', () => {
         routeProfileFocus={{ distanceMeters: 100, elevationMeters: 0, lat: 34.69, lng: 135.84, sampleIndex: 0 }}
       />
     )
-    expect(marker!.getLatLng().lat).toBeCloseTo(expected.lat, 6)
-    expect(marker!.getLatLng().lng).toBeCloseTo(expected.lng, 6)
+    expect(marker.getLatLng().lat).toBeCloseTo(expected.lat, 6)
+    expect(marker.getLatLng().lng).toBeCloseTo(expected.lng, 6)
 
     act(() => {
       pin.dispatchEvent(pointer('pointerup', end.x, end.y))
@@ -238,10 +244,7 @@ describe('MapView on a real Leaflet map', () => {
     const map = maps[maps.length - 1]
     await waitFor(() => expect(view.container.querySelector('.tour-planner-waypoint-marker')).not.toBeNull())
     const pin = view.container.querySelector('.tour-planner-waypoint-marker') as HTMLElement
-    let marker: L.Marker | null = null
-    map.eachLayer(layer => {
-      if (layer instanceof L.Marker && layer.getElement() === pin) marker = layer
-    })
+    const marker = markerOf(map, pin)
     const start = map.latLngToContainerPoint([waypoint.lat, waypoint.lng])
     const end = start.add([30, 20])
 
@@ -250,15 +253,15 @@ describe('MapView on a real Leaflet map', () => {
       pin.dispatchEvent(pointer('pointermove', end.x, end.y))
       pin.dispatchEvent(pointer('pointercancel', end.x, end.y))
     })
-    expect(marker!.getLatLng().lat).toBeCloseTo(waypoint.lat, 6)
-    expect(marker!.getLatLng().lng).toBeCloseTo(waypoint.lng, 6)
+    expect(marker.getLatLng().lat).toBeCloseTo(waypoint.lat, 6)
+    expect(marker.getLatLng().lng).toBeCloseTo(waypoint.lng, 6)
     expect(onMove).not.toHaveBeenCalled()
 
     clickOn(pin)
     expect(onSelect).toHaveBeenCalledOnce()
     expect(onSelect).toHaveBeenCalledWith(waypoint.id)
     expect(onMapClick).not.toHaveBeenCalled()
-    act(() => map.fire('click', { latlng: L.latLng(34.7, 135.85) }))
+    act(() => { map.fire('click', { latlng: L.latLng(34.7, 135.85) }) })
     expect(onMapClick).toHaveBeenCalledOnce()
   })
 

@@ -64,22 +64,51 @@ function sameWaypointSnapshot(a: TourPlannerWaypoint[], b: TourPlannerWaypoint[]
   return tourWaypointKey(a) === tourWaypointKey(b)
 }
 
+const DRAFT_VERSIONS: ReadonlyArray<DraftPayload['version']> = [1, 2, 3, 4, 5, 6]
+
+function optionalString(value: unknown): boolean {
+  return value === undefined || typeof value === 'string'
+}
+
+function optionalMinutes(value: number | null | undefined): boolean {
+  return value === undefined || value === null
+    || (Number.isInteger(value) && value >= 0 && value <= MAX_PLANNED_TOUR_DURATION_MINUTES)
+}
+
+function optionalPlaceId(value: number | null | undefined): boolean {
+  return value == null || (Number.isInteger(value) && value > 0)
+}
+
+function optionalDifficulty(value: number | null | undefined): boolean {
+  return value == null || (Number.isInteger(value) && value >= 1 && value <= 6)
+}
+
+function validDraftWaypoint(point: TourPlannerWaypoint): boolean {
+  return !!point && typeof point.id === 'string'
+    && Number.isFinite(point.lat) && Math.abs(point.lat) <= 90
+    && Number.isFinite(point.lng) && Math.abs(point.lng) <= 180
+}
+
+function trimmedOrNull(value: string): string | null {
+  return value.trim() || null
+}
+
+function parsedWebsiteOrNull(value: string) {
+  return value.trim() ? tourWebsiteSchema.parse(value) : null
+}
+
 function validDraft(value: unknown): value is DraftPayload {
   if (!value || typeof value !== 'object') return false
   const draft = value as Partial<DraftPayload>
-  return (draft.version === 1 || draft.version === 2 || draft.version === 3 || draft.version === 4 || draft.version === 5 || draft.version === 6) && typeof draft.name === 'string'
-    && (draft.description === undefined || typeof draft.description === 'string')
-    && (draft.website === undefined || typeof draft.website === 'string')
-    && (draft.plannedDurationMinutes === undefined || draft.plannedDurationMinutes === null
-      || (Number.isInteger(draft.plannedDurationMinutes) && draft.plannedDurationMinutes >= 0 && draft.plannedDurationMinutes <= MAX_PLANNED_TOUR_DURATION_MINUTES))
-    && (draft.breakAdditionalMinutes === undefined || draft.breakAdditionalMinutes === null
-      || (Number.isInteger(draft.breakAdditionalMinutes) && draft.breakAdditionalMinutes >= 0 && draft.breakAdditionalMinutes <= MAX_PLANNED_TOUR_DURATION_MINUTES))
-    && (draft.editingPlaceId == null || (Number.isInteger(draft.editingPlaceId) && draft.editingPlaceId > 0))
-    && (draft.maxHikingDifficulty == null || (Number.isInteger(draft.maxHikingDifficulty) && draft.maxHikingDifficulty >= 1 && draft.maxHikingDifficulty <= 6))
+  return draft.version !== undefined && DRAFT_VERSIONS.includes(draft.version) && typeof draft.name === 'string'
+    && optionalString(draft.description)
+    && optionalString(draft.website)
+    && optionalMinutes(draft.plannedDurationMinutes)
+    && optionalMinutes(draft.breakAdditionalMinutes)
+    && optionalPlaceId(draft.editingPlaceId)
+    && optionalDifficulty(draft.maxHikingDifficulty)
     && Array.isArray(draft.waypoints)
-    && draft.waypoints.every(point => point && typeof point.id === 'string'
-      && Number.isFinite(point.lat) && Math.abs(point.lat) <= 90
-      && Number.isFinite(point.lng) && Math.abs(point.lng) <= 180)
+    && draft.waypoints.every(validDraftWaypoint)
 }
 
 export interface UseTourPlannerOptions extends TourPermissionProps {
@@ -673,8 +702,8 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     const submittedPlaceId = editingPlaceId
     const payload = {
       name: name.trim(),
-      description: description.trim() || null,
-      website: website.trim() ? tourWebsiteSchema.parse(website) : null,
+      description: trimmedOrNull(description),
+      website: parsedWebsiteOrNull(website),
       tour_type: 'hike',
       route_geometry: enrichedGeometry.map(point => [point[0], point[1], point[2]]),
       waypoints: waypoints.map((point, sequence) => ({

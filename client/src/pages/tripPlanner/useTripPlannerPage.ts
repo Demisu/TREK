@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { TourListItem } from '@trek/shared'
-import type { LocationPoint } from '../../components/Planner/LocationSelect';
 import { usePoiExplore, type Bbox } from '../../components/Map/usePoiExplore'
 import { placeActions } from '../../components/Planner/usePlaceActions'
 import { useTourPlanner } from '../../components/Tours/planner/useTourPlanner'
 import { usePlanMapViewport } from '../../hooks/usePlanMapViewport'
+import { useMapLocationSearch } from './useMapLocationSearch'
 import { useTripPlanner } from './useTripPlanner'
 
 export function useTripPlannerPage() {
@@ -40,27 +40,6 @@ export function useTripPlannerPage() {
     },
   })
 
-  const [locationSearchValue, setLocationSearchValue] = useState<LocationPoint | null>(null);
-  const [searchCameraIntent, setSearchCameraIntent] = useState<{
-    plannerFocusKey: number;
-    sequence: number;
-    point: [number, number];
-  } | null>(null);
-  const searchCameraSequenceRef = useRef(0);
-  const onLocationSearchChange = useCallback(
-    (location: LocationPoint | null) => {
-      setLocationSearchValue(location);
-      if (!location) return;
-      searchCameraSequenceRef.current += 1;
-      setSearchCameraIntent({
-        plannerFocusKey: tourPlanner.mapFocusKey,
-        sequence: searchCameraSequenceRef.current,
-        point: [location.lat, location.lng],
-      });
-    },
-    [tourPlanner.mapFocusKey]
-  );
-
   const tourDetailOpenerRef = useRef<{ placeId: number; element: HTMLElement } | null>(null)
   const lastPlanMapViewportRef = useRef<Bbox | null>(null)
   const [plannerViewportSnapshot, setPlannerViewportSnapshot] = useState<Bbox | null>(lastPlanMapViewportRef.current)
@@ -93,11 +72,7 @@ export function useTripPlannerPage() {
     return plannerFallbackFocusPoints
   }, [tourPlanner.mode.type, tourPlanner.readOnlyGpxAnalysis?.routeCoordinates, tourPlanner.waypoints, plannerFallbackFocusPoints])
 
-  const searchFocusIsCurrent = searchCameraIntent?.plannerFocusKey === tourPlanner.mapFocusKey;
-  const mapFocusPoints = searchFocusIsCurrent ? [searchCameraIntent.point] : focusPoints;
-  const mapFocusKey = searchFocusIsCurrent
-    ? `tour:${tourPlanner.mapFocusKey}:search:${searchCameraIntent.sequence}`
-    : `tour:${tourPlanner.mapFocusKey}`;
+  const { mapFocusPoints, mapFocusKey, locationSearch } = useMapLocationSearch(tourPlanner.mapFocusKey, focusPoints)
 
   const route = useMemo<[number, number][][] | null>(() => {
     if (tourPlanner.mode.type === 'view-gpx') {
@@ -140,6 +115,6 @@ export function useTripPlannerPage() {
     tourPlanner,
     tourDetails: { openerRef: tourDetailOpenerRef, onSelectTour },
     tourMap: { route, focusPoints: mapFocusPoints, focusKey: mapFocusKey, captureViewport },
-    locationSearch: { value: locationSearchValue, onChange: onLocationSearchChange },
+    locationSearch,
   }
 }

@@ -1,6 +1,6 @@
 import type { TourListItem } from '@trek/shared';
 import { ArrowUp, Clock, Footprints, Pause, Ruler, type LucideIcon } from 'lucide-react';
-import { useId, useState } from 'react';
+import { createElement, useId, useState } from 'react';
 import { useTranslation } from '../../i18n';
 import { useSettingsStore } from '../../store/settingsStore';
 import { formatDistance, formatElevation } from '../../utils/units';
@@ -10,7 +10,6 @@ import { formatPlannedTourDuration, tourPlannedTimes } from './tourPresentation'
 
 export function TourDayRowIcon({ type, size = 27 }: { type: string; size?: number }) {
   const { t } = useTranslation();
-  const Icon = tourDayRowIcon(type);
   const known = ['hike', 'bike', 'walk', 'kayak'].includes(type);
   return (
     <span
@@ -19,7 +18,7 @@ export function TourDayRowIcon({ type, size = 27 }: { type: string; size?: numbe
       className="grid flex-none place-items-center rounded-full"
       style={{ width: size, height: size }}
     >
-      <Icon size={Math.round(size * 0.6)} aria-hidden="true" />
+      {createElement(tourDayRowIcon(type), { size: Math.round(size * 0.6), 'aria-hidden': 'true' })}
     </span>
   );
 }

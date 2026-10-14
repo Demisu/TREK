@@ -117,24 +117,12 @@ export default function LocationSelect({ value, onChange, placeholder, ariaLabel
   // than written into `results`, so a search answer that lands after the field was
   // shortened cannot replace them, and a place already picked does not reopen them.
   const typed = query.trim()
-  const showPicks = !value && typed.length < 3 && !!places?.length
-  const rows = showPicks
-    ? (places ?? []).filter(p => !typed || p.name.toLowerCase().includes(typed.toLowerCase()))
-    : results
-  const showNoResults =
-    showSearchStatus && !showPicks && searchedQuery === typed && rows.length === 0 && !loading && !searchError
-  const showError = showSearchStatus && searchError && searchedQuery === typed
-  const listOpen = open && ((loading && !showPicks) || rows.length > 0 || showNoResults || showError)
+  const { showPicks, rows } = pickRows(value, typed, places, results)
+  const { showNoResults, showError, listOpen } = searchStatus({
+    showSearchStatus, showPicks, searchedQuery, typed, rowCount: rows.length, loading, searchError, open,
+  })
   const accessibleLabel = ariaLabel ?? placeholder ?? t('reservations.searchLocation')
-  const statusLine = showError ? (
-    <div role="alert" className="text-content-faint" style={{ padding: 10, fontSize: 'calc(12px * var(--fs-scale-body, 1))' }}>
-      {t('common.error')}
-    </div>
-  ) : showNoResults ? (
-    <div role="status" className="text-content-faint" style={{ padding: 10, fontSize: 'calc(12px * var(--fs-scale-body, 1))' }}>
-      {t('help.center.searchEmpty', { query: typed })}
-    </div>
-  ) : null
+  const statusLine = renderStatusLine(showError, showNoResults, typed, t)
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // Escape closes the list even while it only shows a status line.
@@ -156,14 +144,7 @@ export default function LocationSelect({ value, onChange, placeholder, ariaLabel
         onOpen={() => setOpen(true)}
         onKeyDown={onKeyDown}
         onClear={value ? clear : undefined}
-        inputAria={showSearchStatus ? {
-          role: 'combobox',
-          'aria-label': accessibleLabel,
-          'aria-autocomplete': 'list',
-          'aria-expanded': listOpen,
-          'aria-controls': listOpen ? listId : undefined,
-          'aria-activedescendant': listOpen && highlight >= 0 ? `${listId}-option-${highlight}` : undefined,
-        } : undefined}
+        inputAria={showSearchStatus ? comboboxAria(accessibleLabel, listOpen, listId, highlight) : undefined}
       />
 
       {open && (
@@ -189,4 +170,64 @@ export default function LocationSelect({ value, onChange, placeholder, ariaLabel
       )}
     </div>
   )
+}
+
+function pickRows<T>(value: LocationPoint | null, typed: string, places: LocationPoint[] | undefined, results: T[]) {
+  const showPicks = !value && typed.length < 3 && !!places?.length
+  const rows: (T | LocationPoint)[] = showPicks
+    ? (places ?? []).filter(p => !typed || p.name.toLowerCase().includes(typed.toLowerCase()))
+    : results
+  return { showPicks, rows }
+}
+
+interface SearchStatusInput {
+  showSearchStatus: boolean
+  showPicks: boolean
+  searchedQuery: string | null
+  typed: string
+  rowCount: number
+  loading: boolean
+  searchError: boolean
+  open: boolean
+}
+
+function searchStatus({ showSearchStatus, showPicks, searchedQuery, typed, rowCount, loading, searchError, open }: SearchStatusInput) {
+  const showNoResults =
+    showSearchStatus && !showPicks && searchedQuery === typed && rowCount === 0 && !loading && !searchError
+  const showError = showSearchStatus && searchError && searchedQuery === typed
+  const listOpen = open && ((loading && !showPicks) || rowCount > 0 || showNoResults || showError)
+  return { showNoResults, showError, listOpen }
+}
+
+function renderStatusLine(
+  showError: boolean,
+  showNoResults: boolean,
+  typed: string,
+  t: ReturnType<typeof useTranslation>['t'],
+) {
+  return showError ? (
+    <div role="alert" className="text-content-faint" style={{ padding: 10, fontSize: 'calc(12px * var(--fs-scale-body, 1))' }}>
+      {t('common.error')}
+    </div>
+  ) : showNoResults ? (
+    <div role="status" className="text-content-faint" style={{ padding: 10, fontSize: 'calc(12px * var(--fs-scale-body, 1))' }}>
+      {t('help.center.searchEmpty', { query: typed })}
+    </div>
+  ) : null
+}
+
+function comboboxAria(
+  accessibleLabel: string,
+  listOpen: boolean,
+  listId: string,
+  highlight: number,
+): React.AriaAttributes & { role?: React.AriaRole } {
+  return {
+    role: 'combobox',
+    'aria-label': accessibleLabel,
+    'aria-autocomplete': 'list',
+    'aria-expanded': listOpen,
+    'aria-controls': listOpen ? listId : undefined,
+    'aria-activedescendant': listOpen && highlight >= 0 ? `${listId}-option-${highlight}` : undefined,
+  }
 }
