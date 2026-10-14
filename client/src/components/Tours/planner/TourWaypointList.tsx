@@ -133,7 +133,7 @@ function WaypointNumber({
       aria-label={ferrata ? `${label}, ${t('tours.ferrata.waypointAtEnd', { name: ferrata.name })}` : label}
       data-waypoint-number={index + 1}
       data-ferrata-end={ferrata ? 'true' : undefined}
-      className={`relative grid h-7 w-7 flex-none place-items-center rounded-[9px] font-geist font-semibold tabular-nums shadow-sm ${selected ? 'bg-accent text-accent-text' : 'bg-surface-card text-content'} ${ferrata ? 'ring-2 ring-[color:var(--map-ferrata)]' : ''}`}
+      className={`relative grid h-7 w-7 flex-none place-items-center rounded-[9px] font-geist font-semibold tabular-nums shadow-sm ${selected ? 'bg-accent text-accent-text' : 'bg-surface-card text-content'} ${ferrata ? 'ring-2 ring-inset ring-[color:var(--map-ferrata)]' : ''}`}
       style={fs(11.5)}
     >
       {index + 1}
