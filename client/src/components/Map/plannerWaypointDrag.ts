@@ -1,4 +1,4 @@
-export interface PlannerWaypointCoordinate {
+interface PlannerWaypointCoordinate {
   lat: number;
   lng: number;
 }
