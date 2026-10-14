@@ -1,4 +1,4 @@
-// FE-PAGE-TOURSTAGE-001 to FE-PAGE-TOURSTAGE-012
+// FE-PAGE-TOURSTAGE-001 to FE-PAGE-TOURSTAGE-016
 import type { Ferrata } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '../../../tests/helpers/render';
@@ -99,6 +99,8 @@ function planner(
     setSelectedWaypointId: vi.fn(),
     setWaypointPosition: vi.fn(() => true),
     addWaypoint: vi.fn(),
+    undo: vi.fn(),
+    maxHikingDifficulty: null,
     routeAnalysis: null,
     readOnlyGpxAnalysis: null,
     mapBaseLayer: 'default',
@@ -109,8 +111,8 @@ function planner(
   } as unknown as Planner;
 }
 
-function renderStage(tourPlanner: Planner, canPlaceEdit = true) {
-  const props = {
+function stageProps(tourPlanner: Planner, canPlaceEdit = true) {
+  return {
     tripId: 7,
     mapTileUrl: '',
     leftHidden: false,
@@ -123,7 +125,24 @@ function renderStage(tourPlanner: Planner, canPlaceEdit = true) {
     leftPanelPx: 320,
     rightPanelPx: 380,
   } as unknown as TourPlannerMapStageProps;
-  return render(<TourPlannerMapStage {...props} />);
+}
+
+function renderStage(tourPlanner: Planner, canPlaceEdit = true) {
+  return render(<TourPlannerMapStage {...stageProps(tourPlanner, canPlaceEdit)} />);
+}
+
+function pointer(type: string, x: number, y: number): Event {
+  const event = new Event(type, { bubbles: true, cancelable: true });
+  Object.defineProperties(event, { clientX: { value: x }, clientY: { value: y }, pointerId: { value: 1 } });
+  return event;
+}
+
+/** A press on the map surface that travels `dx` pixels before it is let go. */
+function press(dx: number) {
+  const surface = screen.getByTestId('tour-map-surface');
+  surface.dispatchEvent(pointer('pointerdown', 100, 100));
+  surface.dispatchEvent(pointer('pointermove', 100 + dx, 100));
+  surface.dispatchEvent(pointer('pointerup', 100 + dx, 100));
 }
 
 /** Switches the flat map to 3D and waits for the GL engine to load. */
@@ -133,6 +152,7 @@ async function openTerrain() {
 }
 
 beforeEach(() => {
+  window.sessionStorage.clear();
   stage.listeners.clear();
   stage.flatMap.props = null;
   stage.search.props = null;
@@ -157,7 +177,7 @@ describe('TourPlannerMapStage', () => {
     const tourPlanner = planner('new-draft');
     renderStage(tourPlanner);
     const props = stage.flatMap.props;
-    expect(props?.plannerWaypoints).toEqual([{ id: 'w1', lat: 46, lng: 7 }]);
+    expect(props?.plannerWaypoints).toEqual([expect.objectContaining({ id: 'w1', lat: 46, lng: 7 })]);
     expect(props?.selectedPlannerWaypointId).toBe('w1');
     expect(props?.onPlannerWaypointMove).toBe(tourPlanner.setWaypointPosition);
     props?.onMapClick?.({ latlng: { lat: 46.2, lng: 7.2 } } as never);
@@ -173,11 +193,21 @@ describe('TourPlannerMapStage', () => {
     expect(props?.onPlannerWaypointMove).toBeUndefined();
   });
 
-  it('FE-PAGE-TOURSTAGE-003: the 3D switch opens the terrain, where a click plans the next point', async () => {
+  it('FE-PAGE-TOURSTAGE-003: the 3D switch opens the terrain, where a click plans once "set points" is on', async () => {
     const tourPlanner = planner('edit-saved');
     renderStage(tourPlanner);
     await openTerrain();
     expect(screen.queryByRole('button', { name: 'flat map' })).toBeNull();
+    // Off to begin with in 3D, where every look around is a drag.
+    const tool = screen.getByRole('button', { name: 'Set points' });
+    expect(tool).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByText('Turn on Set points to click points onto the terrain.')).toBeInTheDocument();
+    act(() => stage.fire('click', { lngLat: { lat: 46.3, lng: 7.3 } }));
+    expect(tourPlanner.addWaypoint).not.toHaveBeenCalled();
+
+    fireEvent.click(tool);
+    expect(screen.getByRole('button', { name: 'Set points' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByTestId('tour-map-surface')).toHaveAttribute('data-placing', 'true');
     expect(screen.getByText(/Click the terrain to set points/)).toBeInTheDocument();
     act(() => stage.fire('click', { lngLat: { lat: 46.3, lng: 7.3 } }));
     expect(tourPlanner.addWaypoint).toHaveBeenCalledWith(46.3, 7.3);
@@ -316,5 +346,63 @@ describe('TourPlannerMapStage', () => {
 
     act(() => stage.flatMap.props?.onMapClick?.({ latlng: { lat: 46.3, lng: 7.3 } } as never));
     expect(tourPlanner.addWaypoint).toHaveBeenCalledWith(46.3, 7.3);
+  });
+  it('FE-PAGE-TOURSTAGE-013: on the flat map "set points" starts on, with the crosshair, and off it takes no clicks', () => {
+    renderStage(planner('new-draft'));
+    expect(stage.flatMap.props?.placeTool?.active).toBe(true);
+    expect(screen.getByTestId('tour-map-surface')).toHaveAttribute('data-placing', 'true');
+
+    act(() => stage.flatMap.props?.placeTool?.onToggle());
+    expect(stage.flatMap.props?.placeTool?.active).toBe(false);
+    expect(stage.flatMap.props?.onMapClick).toBeUndefined();
+    expect(screen.getByTestId('tour-map-surface')).not.toHaveAttribute('data-placing');
+  });
+
+  it('FE-PAGE-TOURSTAGE-014: the end of a pan or a rotation never places a point, a click does, in 2D and 3D', async () => {
+    const tourPlanner = planner('new-draft');
+    renderStage(tourPlanner);
+    press(12);
+    act(() => stage.flatMap.props?.onMapClick?.({ latlng: { lat: 46.2, lng: 7.2 } } as never));
+    expect(tourPlanner.addWaypoint).not.toHaveBeenCalled();
+    press(1);
+    act(() => stage.flatMap.props?.onMapClick?.({ latlng: { lat: 46.2, lng: 7.2 } } as never));
+    expect(tourPlanner.addWaypoint).toHaveBeenCalledTimes(1);
+
+    await openTerrain();
+    fireEvent.click(screen.getByRole('button', { name: 'Set points' }));
+    press(30);
+    act(() => stage.fire('click', { lngLat: { lat: 46.3, lng: 7.3 } }));
+    expect(tourPlanner.addWaypoint).toHaveBeenCalledTimes(1);
+    press(0);
+    act(() => stage.fire('click', { lngLat: { lat: 46.3, lng: 7.3 } }));
+    expect(tourPlanner.addWaypoint).toHaveBeenLastCalledWith(46.3, 7.3);
+  });
+
+  it('FE-PAGE-TOURSTAGE-015: "point set" shows above the bottom row after a click, and its undo takes the point back', () => {
+    const tourPlanner = planner('new-draft');
+    const view = renderStage(tourPlanner);
+    act(() => stage.flatMap.props?.onMapClick?.({ latlng: { lat: 46.2, lng: 7.2 } } as never));
+    const placed = planner('new-draft', {
+      waypoints: [
+        { id: 'w1', lat: 46, lng: 7 },
+        { id: 'w2', lat: 46.2, lng: 7.2 },
+      ],
+      undo: tourPlanner.undo,
+    });
+    view.rerender(<TourPlannerMapStage {...stageProps(placed)} />);
+    const hint = screen.getByTestId('map-undo-hint');
+    expect(hint).toHaveTextContent('tours.planner.pointPlaced');
+    // Clear of the 2D row: its 12px gap, the 42px pill, the same gap again.
+    expect(hint.parentElement?.parentElement?.style.bottom).toBe('66px');
+
+    fireEvent.click(screen.getByRole('button', { name: 'undo.button' }));
+    expect(tourPlanner.undo).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId('map-undo-hint')).toBeNull();
+  });
+
+  it('FE-PAGE-TOURSTAGE-016: without edit rights there is no "set points" switch and no crosshair', () => {
+    renderStage(planner('new-draft'), false);
+    expect(stage.flatMap.props?.placeTool).toBeUndefined();
+    expect(screen.getByTestId('tour-map-surface')).not.toHaveAttribute('data-placing');
   });
 });

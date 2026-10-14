@@ -6,7 +6,12 @@ import type { DistanceUnit } from '../../../types';
 import type { DistanceIndexedProfileSample, RouteProfileFocus } from '../../../utils/routeGeometry';
 import { formatElevation } from '../../../utils/units';
 import type { FerrataMapLayer } from '../../Ferratas/useFerrataMapLayer';
-import { MAP_LAYER_SWITCHER_INSET, TourMapLayerSwitcher, type TourBaseLayer } from '../../Map/MapLayerSwitcher';
+import {
+  MAP_LAYER_SWITCHER_INSET,
+  TourMapLayerSwitcher,
+  type MapPlaceTool,
+  type TourBaseLayer,
+} from '../../Map/MapLayerSwitcher';
 import { MAP_CONTROL_SHADOW } from '../../Map/mapControlShadow';
 import { SoftPill } from '../../Planner/planParts';
 import { fs } from '../../shared/DialogShell';
@@ -37,6 +42,8 @@ export interface TourTerrainMapProps {
   onViewportChange?: (bbox: FerrataBbox) => void;
   /** How high the controls along the bottom edge reach, every row of them, for what floats above them. */
   onControlsHeightChange?: (px: number) => void;
+  /** The "set points" switch in the layer pill, while a tour is being edited. */
+  placeTool?: MapPlaceTool;
 }
 
 const SPEEDS = [1, 2, 4] as const;
@@ -94,6 +101,7 @@ export default function TourTerrainMap(props: TourTerrainMapProps) {
               terrainActive
               onToggleTerrain={onExit}
               ferrataLayer={props.ferrataLayer}
+              placeTool={props.placeTool}
               compact={fit !== 'full'}
             />
           </div>
@@ -106,7 +114,7 @@ export default function TourTerrainMap(props: TourTerrainMapProps) {
                 className="pointer-events-auto rounded-full px-4 py-2.5 text-content-muted"
                 style={{ ...GLASS, ...fs(12, 'body') }}
               >
-                <PickHint editing={!!props.waypoints.onAdd} />
+                <PickHint editing={!!props.waypoints.onAdd} placeOff={props.placeTool?.active === false} />
               </div>
             )}
             <div className="flex justify-end">{!legendAbove && legend}</div>
@@ -117,8 +125,10 @@ export default function TourTerrainMap(props: TourTerrainMapProps) {
   );
 }
 
-function PickHint({ editing }: { editing: boolean }) {
+/** What a click on the terrain does now: plan, nothing until the tool is on, or nothing to plan. */
+function PickHint({ editing, placeOff }: { editing: boolean; placeOff: boolean }) {
   const { t } = useTranslation();
+  if (placeOff) return <>{t('tours.terrain.placeOff')}</>;
   return <>{t(editing ? 'tours.terrain.clickToPlan' : 'tours.terrain.pickTour')}</>;
 }
 

@@ -119,7 +119,7 @@ describe('TourPlannerToursRail', () => {
     expect(screen.getByText('1 h 20 min')).toBeInTheDocument()
   })
 
-  it('disables saved-tour switching and Plan another while a Save is pending', () => {
+  it('disables saved-tour switching while a Save is pending', () => {
     const controller = planner({
       isSaving: true,
       saveOutcome: tour,
@@ -134,14 +134,12 @@ describe('TourPlannerToursRail', () => {
     expect(row).toHaveAttribute('tabindex', '-1')
     fireEvent.click(row)
     expect(controller.openTour).not.toHaveBeenCalled()
-    expect(screen.getByRole('button', { name: 'Plan another' })).toBeDisabled()
   })
 
   it('TOUR-PLANNER-RAIL-001: shows saved Tours rows and route stats without hiding the safety note in navigation', () => {
     render(<TourPlannerToursRail planner={planner({ mode: { type: 'new-draft' } })} tours={[tour]} {...railProps} />)
 
     expect(screen.getByRole('complementary', { name: 'Tours of this trip' })).toBeInTheDocument()
-    expect(screen.getByRole('option', { name: /Saved ridge walk/i })).toHaveTextContent('TREK')
     expect(screen.getByRole('option', { name: /Saved ridge walk/i })).toHaveTextContent('4 km')
     expect(screen.getByText('Ascent')).toBeInTheDocument()
     expect(screen.getByText('50 m')).toBeInTheDocument()
@@ -176,11 +174,9 @@ describe('TourPlannerToursRail', () => {
     const onAssignToDay = vi.fn().mockResolvedValue(undefined)
     render(<TourPlannerToursRail planner={controller} tours={[tour]} {...railProps} onAssignToDay={onAssignToDay} />)
 
-    expect(screen.getByRole('status')).toHaveTextContent('Tour saved')
     expect(screen.queryByRole('button', { name: 'Assign to a day' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Plan another' })).not.toBeInTheDocument()
     expect(onAssignToDay).not.toHaveBeenCalled()
-    fireEvent.click(screen.getByRole('button', { name: 'Plan another' }))
-    expect(controller.startNewTour).toHaveBeenCalledOnce()
     expect(controller.discard).not.toHaveBeenCalled()
     fireEvent.click(screen.getByRole('button', { name: 'Add to day: Saved ridge walk' }))
     const dayOption = screen.getByRole('button', { name: /Summit day/ })
@@ -673,8 +669,8 @@ describe('TourPlannerRail', () => {
 
     rerender(<TourPlannerRail planner={planner({ mode: { type: 'new-draft' } })} />)
     expect(screen.queryByRole('button', { name: 'Plan new tour' })).not.toBeInTheDocument()
-    expect(screen.getByTestId('tour-planner-empty-state')).toHaveTextContent('Click the map to add your starting point.')
-    expect(screen.getByTestId('tour-planner-empty-state')).toHaveTextContent('Add another point to calculate a route.')
+    expect(screen.getByTestId('tour-planner-empty-state')).toHaveTextContent('Turn on Add point and click the map.')
+    expect(screen.getByTestId('tour-planner-empty-state')).toHaveTextContent('From two points on, TREK works out the route.')
     rerender(<TourPlannerRail planner={planner({ mode: { type: 'new-draft' }, waypoints: [{ id: 'first', lat: 48, lng: 11, role: 'start' }] })} />)
     expect(screen.queryByTestId('tour-planner-empty-state')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Plan new tour' })).not.toBeInTheDocument()
@@ -817,11 +813,13 @@ describe('TourPlannerRail', () => {
 
   it('TOUR-PLANNER-RAIL-019: restored new and saved drafts show a non-blocking notice', () => {
     const { rerender } = render(<TourPlannerRail planner={planner({ draftRestored: true, hasUnsavedChanges: true, mode: { type: 'new-draft' } })} />)
-    expect(screen.getByRole('status')).toHaveTextContent('Unsaved draft restored')
+    expect(screen.getByRole('status')).toHaveTextContent('Draft')
+    expect(screen.getByLabelText('Unsaved draft restored')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'New tour' })).toBeInTheDocument()
 
     rerender(<TourPlannerRail planner={planner({ draftRestored: true, hasUnsavedChanges: true, editingPlaceId: tour.place_id, mode: { type: 'edit-saved', placeId: tour.place_id } })} />)
-    expect(screen.getByRole('status')).toHaveTextContent('Unsaved draft restored')
+    expect(screen.getByRole('status')).toHaveTextContent('Draft')
+    expect(screen.getByLabelText('Unsaved draft restored')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Edit tour' })).toBeInTheDocument()
   })
 })

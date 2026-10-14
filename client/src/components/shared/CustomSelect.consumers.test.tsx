@@ -80,9 +80,7 @@ describe('CustomSelect consumer contracts', () => {
       planner={planner({ saveOutcome: tour, editingPlaceId: 42 })}
       tours={[tour]} days={days} loading={false} onAssignToDay={onAssignToDay} onViewGpxTour={vi.fn()}
     /></TranslationProvider>)
-    const saveBanner = screen.getByText('Tour saved').closest('[role="status"]') as HTMLElement
-    expect(within(saveBanner).getByRole('button', { name: 'Plan another' })).toBeInTheDocument()
-    expect(within(saveBanner).queryByRole('button', { name: 'Assign to a day' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Assign to a day' })).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Add to day: Ridge walk' }))
     const dayOption = screen.getByRole('button', { name: /Summit day/ })
     expect(dayOption).toHaveTextContent(/Day 1/)

@@ -102,7 +102,7 @@ describe('ToursSidebar', () => {
     expect(labels[0]).toContain('1.9 km')
     expect(labels[1]).toContain('13 m')
     expect(labels[2]).toContain('11 m')
-    expect(screen.getByText('TREK')).toBeInTheDocument()
+    expect(within(row).queryByText('TREK')).not.toBeInTheDocument()
     expect(screen.getByLabelText(/Maximum trail difficulty|Maximale Wanderschwierigkeit|T2/)).toBeInTheDocument()
     const actionRow = row.querySelector('[data-testid="tour-action-row"]')!
     expect(actionRow.querySelector('button')).toHaveAttribute('aria-haspopup', 'menu')

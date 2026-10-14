@@ -830,7 +830,7 @@ export const MapView = memo(function MapView({
   onPlannerWaypointClick,
   onPlannerWaypointMove,
   routeProfileFocus = null,
-  viewBaseLayer, onViewBaseLayerChange, onToggleTerrain3d, ferrataLayer,
+  viewBaseLayer, onViewBaseLayerChange, onToggleTerrain3d, ferrataLayer, placeTool,
 }: MapViewProps) {
   const globalBaseLayer = useSettingsStore(s => s.settings.map_base_layer) || 'default'
   const updateSetting = useSettingsStore(s => s.updateSetting)
@@ -1298,7 +1298,7 @@ export const MapView = memo(function MapView({
         <RoadtripViaMarkers viasByDay={roadtripVias} onMoveVia={onMoveVia} onRemoveVia={onRemoveVia} />
       ) : null}
 
-      {(plannerWaypoints as Array<{ id: string; lat: number; lng: number }>).map((point, index) => (
+      {plannerWaypoints.map((point, index) => (
         <PlannerWaypointMarker
           key={`planner-waypoint-${point.id}`}
           point={point}
@@ -1381,7 +1381,7 @@ export const MapView = memo(function MapView({
       {onToggleFollow && <MapLockPill locked={!followSelection} onToggle={onToggleFollow} />}
       {hasViewBaseLayer
         ? <TourMapLayerSwitcher active={baseLayer} onChange={onViewBaseLayerChange}
-            onToggleTerrain={onToggleTerrain3d} ferrataLayer={ferrataLayer} />
+            onToggleTerrain={onToggleTerrain3d} ferrataLayer={ferrataLayer} placeTool={placeTool} />
         : <MapLayerSwitcher active={globalBaseLayer} onToggle={toggleBaseLayer} />}
     </div>
     </div>

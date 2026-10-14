@@ -1,10 +1,12 @@
 import type { Marker as MapLibreMarker } from 'maplibre-gl';
 import { useEffect, useRef, type RefObject } from 'react';
+import { bindPinHoverLabel, mapHoverLabel } from '../../Map/mapHoverLabel';
 import { waypointPinElement } from './terrainLayers';
 import type { TerrainGl } from './useTerrainMap';
 
 export interface TerrainWaypoints {
-  points: Array<{ id: string; lat: number; lng: number }>;
+  /** `name` and `detail` (its role) show on hover. */
+  points: Array<{ id: string; lat: number; lng: number; name?: string; detail?: string }>;
   selectedId: string | null;
   onSelect: (id: string) => void;
   /** Absent while the tour cannot be edited; the pins then stay put. */
@@ -30,8 +32,13 @@ export function useTerrainPins(
   useEffect(() => {
     if (!gl || !ready) return;
     pinsRef.current.forEach((pin) => pin.remove());
+    const hoverLabel = mapHoverLabel(gl.map, 'planner-waypoint-label');
+    const unbind: (() => void)[] = [];
     pinsRef.current = points.map((point, index) => {
       const el = waypointPinElement(index, point.id === selectedId, editable);
+      const name = point.name ?? String(index + 1);
+      el.setAttribute('aria-label', name);
+      unbind.push(bindPinHoverLabel(el, hoverLabel, gl.map.getContainer(), { name, detail: point.detail ?? null }));
       el.addEventListener('click', (event) => {
         event.stopPropagation();
         handlers.current.onSelect(point.id);
@@ -43,8 +50,13 @@ export function useTerrainPins(
         const at = pin.getLngLat();
         if (!handlers.current.onMove?.(point.id, at.lat, at.lng)) pin.setLngLat([point.lng, point.lat]);
       });
+      pin.on('dragstart', () => hoverLabel.hide());
       return pin;
     });
+    return () => {
+      unbind.forEach((off) => off());
+      hoverLabel.remove();
+    };
   }, [gl, ready, points, selectedId, editable, handlers]);
 
   // The pins go with the map, not with each redraw.

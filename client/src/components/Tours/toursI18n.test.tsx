@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { within } from '@testing-library/react'
 import en from '@trek/shared/i18n/en'
 import de from '@trek/shared/i18n/de'
 import fr from '@trek/shared/i18n/fr'
@@ -68,7 +67,7 @@ describe('Tours English and German copy', () => {
       expect(en[`tours.planner.difficulty.t${level}`]).toMatch(new RegExp(`^T${level} `))
       expect(de[`tours.planner.difficulty.t${level}`]).toMatch(new RegExp(`^T${level} `))
     }
-    expect(de['tours.planner.safetyNoteDetails']).toMatch(/OSM.*Wetter.*Sperrungen/)
+    expect(de['tours.planner.safetyNote']).toMatch(/Sicherheit/)
     expect(de['tours.planner.difficulty.t3Warning']).toMatch(/Trittsicherheit/)
     expect(de['tours.planner.difficulty.alpineBody']).toMatch(/OSM/)
     expect(toursText(en, 'tours.planner.breaksAdditionalInfo')).toBe('Optional whole minutes added to calculated walking time.')
@@ -94,10 +93,11 @@ describe('Tours English and German copy', () => {
       })} />)
       expect(screen.getByRole('heading', { name: newTitle })).toBeInTheDocument()
       const strings = language === 'de' ? de : en
-      expect(screen.getByText(toursText(strings, 'tours.planner.restored'))).toBeInTheDocument()
+      expect(screen.getByText(toursText(strings, 'tours.planner.restoredShort'))).toBeInTheDocument()
+      expect(screen.getByLabelText(toursText(strings, 'tours.planner.restored'))).toBeInTheDocument()
       expect(screen.getByText(toursText(strings, 'tours.planner.status.routing'))).toBeInTheDocument()
       expect(screen.getByText(toursText(strings, 'tours.planner.difficulty.t3Warning'))).toBeInTheDocument()
-      expect(screen.getByText((_, element) => element?.tagName === 'SPAN' && element.textContent?.includes(toursText(strings, 'tours.planner.safetyNoteDetails')) === true)).toBeInTheDocument()
+      expect(screen.getByText((_, element) => element?.tagName === 'SPAN' && element.textContent?.includes(toursText(strings, 'tours.planner.safetyNote')) === true)).toBeInTheDocument()
       expect(screen.getByLabelText(language === 'de' ? 'Wegpunkt 1' : 'Waypoint 1')).toBeInTheDocument()
       expect(screen.getByRole('button', { name: language === 'de' ? 'Maximale Wegschwierigkeit' : 'Maximum trail difficulty' })).toBeInTheDocument()
       assertNoRawToursKeys()
@@ -125,9 +125,7 @@ describe('Tours English and German copy', () => {
     await waitFor(() => expect(screen.getByLabelText(toursText(de, 'tours.planner.difficulty.t2'))).toBeInTheDocument())
     const onAssignToDay = vi.fn()
     rerender(<TourPlannerToursRail planner={planner({ saveOutcome: tour, mode: { type: 'edit-saved', placeId: 42 } })} tours={[tour]} days={[{ id: 7, title: 'Gipfeltag', date: '2026-05-15' } as never]} loading={false} onAssignToDay={onAssignToDay} onViewGpxTour={vi.fn()} />)
-    const saveBanner = screen.getByText(toursText(de, 'tours.planner.saved')).closest('[role="status"]') as HTMLElement
-    expect(within(saveBanner).getByRole('button', { name: toursText(de, 'tours.planner.planAnother') })).toBeInTheDocument()
-    expect(within(saveBanner).queryByRole('button', { name: toursText(de, 'tours.planner.assignToDay') })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: toursText(de, 'tours.planner.assignToDay') })).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: `${toursText(de, 'tours.addToDay')}: ${tour.name}` }))
     const dayOption = screen.getByRole('button', { name: /Gipfeltag/ })
     expect(dayOption).toHaveTextContent(/Tag 1/)

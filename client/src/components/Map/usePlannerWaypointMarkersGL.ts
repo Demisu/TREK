@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 
+import { bindPinHoverLabel, mapHoverLabel } from './mapHoverLabel';
 import type { MapViewProps } from './mapViewContract';
 import { wirePlannerWaypointDrag } from './plannerWaypointDrag';
 
@@ -59,6 +60,7 @@ export function usePlannerWaypointMarkersGL<Pin extends PlannerWaypointPin>({
     pinsRef.current.forEach((pin) => pin.remove());
     pinsRef.current = [];
     const dragCleanups: (() => void)[] = [];
+    const hoverLabel = mapHoverLabel(map, 'planner-waypoint-label');
 
     for (const [index, point] of plannerWaypoints.entries()) {
       const selected = point.id === selectedPlannerWaypointId;
@@ -66,7 +68,8 @@ export function usePlannerWaypointMarkersGL<Pin extends PlannerWaypointPin>({
       const el = document.createElement('button');
       el.type = 'button';
       el.textContent = String(index + 1);
-      el.setAttribute('aria-label', `Waypoint ${index + 1}`);
+      const name = point.name ?? `Waypoint ${index + 1}`;
+      el.setAttribute('aria-label', name);
       el.style.cssText = `${pinCss(size, selected)};cursor:pointer;padding:0`;
       const swallow = (event: Event) => event.stopPropagation();
       const select = (event: Event) => {
@@ -78,6 +81,7 @@ export function usePlannerWaypointMarkersGL<Pin extends PlannerWaypointPin>({
       el.addEventListener('click', select);
       const pin = attachPin(el, point.lng, point.lat);
       pinsRef.current.push(pin);
+      dragCleanups.push(bindPinHoverLabel(el, hoverLabel, map.getContainer(), { name, detail: point.detail ?? null }));
       if (plannerWaypointsDraggable) {
         el.style.cursor = 'grab';
         dragCleanups.push(
@@ -99,6 +103,7 @@ export function usePlannerWaypointMarkersGL<Pin extends PlannerWaypointPin>({
 
     return () => {
       dragCleanups.forEach((cleanup) => cleanup());
+      hoverLabel.remove();
       pinsRef.current.forEach((pin) => pin.remove());
       pinsRef.current = [];
     };

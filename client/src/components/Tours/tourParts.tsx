@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { TourListItem } from '@trek/shared'
-import { AlertTriangle, ArrowDown, ArrowUp, ChevronDown, Clock, Mountain, Plus, Ruler } from 'lucide-react'
+import { AlertTriangle, ArrowDown, ArrowUp, ChevronDown, Clock, Mountain, Plus, Ruler, type LucideIcon } from 'lucide-react'
 import type { Day, DistanceUnit } from '../../types'
 import type { RouteGeometryAnalysis } from '../../utils/routeGeometry'
 import { useTranslation } from '../../i18n'
@@ -13,7 +13,7 @@ import { Tooltip } from '../shared/Tooltip'
 import { useTripStore } from '../../store/tripStore'
 import { BOX, Eyebrow } from '../Planner/bookings/bookingParts'
 import { SoftPill } from '../Planner/planParts'
-import { formatPlannedTourDuration, hikeSourceBadgeLabel, tourPlannedTimes } from './tourPresentation'
+import { formatPlannedTourDuration, hikeSourceBadgeLabel, tourPlannedTimes, tourSource } from './tourPresentation'
 
 type Translate = (key: string, params?: Record<string, unknown>) => string
 
@@ -26,62 +26,72 @@ export function TourTile({ size = 34, color, raised = false }: { size?: number; 
   )
 }
 
-/** The T-scale badge; a GPX import carries no difficulty, so it gets none. */
-function TourDifficultyPill({ level, t }: { level: TourListItem['max_hiking_difficulty']; t: Translate }) {
-  if (level == null) return null
-  const label = t(`tours.planner.difficulty.t${level}`)
+/**
+ * A tour's tile in a list: its T-scale grade in place of the mountain, named in
+ * full by its tooltip (a GPX import carries no grade and keeps the mountain),
+ * and where it came from, when that was not TREK, as a small badge over its foot.
+ */
+export function TourGradeTile({ tour }: { tour: Pick<TourListItem, 'max_hiking_difficulty' | 'wanderer_ref' | 'has_waypoints'> }) {
+  const { t } = useTranslation()
+  const level = tour.max_hiking_difficulty
+  const source = tourSource(tour)
+  const label = level == null ? null : t(`tours.planner.difficulty.t${level}`)
   return (
-    <Tooltip label={label}>
-      <span aria-label={label} className="inline-flex">
-        <SoftPill>T{level}</SoftPill>
-      </span>
-    </Tooltip>
+    <span className="relative flex-none">
+      <Tooltip label={label ?? ''} disabled={label == null}>
+        <span aria-label={label ?? undefined} className="grid h-[34px] w-[34px] place-items-center rounded-full bg-edge font-geist font-semibold tabular-nums text-content" style={fs(12, 'body')}>
+          {level == null ? <Mountain size={15} strokeWidth={1.9} className="text-content-secondary" /> : `T${level}`}
+        </span>
+      </Tooltip>
+      {source !== 'trek' && (
+        <span className="absolute inset-x-0 -bottom-1.5 flex justify-center">
+          <Tooltip label={hikeSourceBadgeLabel(tour, t)}>
+            <span data-testid="tour-source-badge" aria-label={hikeSourceBadgeLabel(tour, t)}
+              className="rounded-full bg-surface-card px-1 font-geist font-semibold uppercase leading-[14px] tracking-[.04em] text-content-secondary shadow-sm ring-1 ring-inset ring-edge-faint"
+              style={fs(8.5)}>
+              {t(`tours.badgeShort.${source}`)}
+            </span>
+          </Tooltip>
+        </span>
+      )}
+    </span>
   )
 }
 
-/** The facts of a tour as white pills: how far, how much up and down, how hard, where it came from. */
+/** One measured fact of a tour as a white pill: its icon, an optional short word and the value, named in full for a screen reader. */
+function TourMetricPill({ icon: Icon, label, value, prefix }: { icon: LucideIcon; label: string; value: string; prefix?: string }) {
+  return (
+    <SoftPill className="tabular-nums" icon={<Icon size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
+      <span aria-label={`${label}: ${value}`}>{prefix ? `${prefix} ${value}` : value}</span>
+    </SoftPill>
+  )
+}
+
+/** The facts of a tour as white pills, kept to one short row: how far, up and down, how long, how hard, and where it came from when that was not TREK. */
 export function TourFactPills({ tour, className = '' }: { tour: TourListItem; className?: string }) {
   const { t } = useTranslation()
   const unit = useSettingsStore(state => state.settings.distance_unit)
   const times = tourPlannedTimes(tour)
+  const shownMinutes = times.plannedTotalMinutes ?? times.walkingMinutes
+  const timeParts = [
+    times.walkingMinutes != null ? `${t('tours.planner.walkingShort')} ${formatPlannedTourDuration(times.walkingMinutes)}` : null,
+    times.breakMinutes != null ? `${t('tours.planner.breaksShort')} ${formatPlannedTourDuration(times.breakMinutes)}` : null,
+    times.plannedTotalMinutes != null
+      ? `${t('tours.planner.plannedShort')} ${formatPlannedTourDuration(times.plannedTotalMinutes)}${times.manuallyOverridden ? ` (${t('tours.planner.plannedTotalManual')})` : ''}`
+      : null,
+  ].filter((part): part is string => part !== null)
   return (
     <div data-testid="tour-metrics" className={`flex min-w-0 flex-wrap items-center gap-1 ${className}`}>
-      <SoftPill className="tabular-nums" icon={<Ruler size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
-        <span aria-label={`${t('tours.detail.distance')}: ${formatDistance(tour.distance ?? 0, unit)}`}>{formatDistance(tour.distance ?? 0, unit)}</span>
-      </SoftPill>
-      {tour.elevation_gain != null && (
-        <SoftPill className="tabular-nums" icon={<ArrowUp size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
-          <span aria-label={`${t('tours.detail.ascent')}: ${formatElevation(tour.elevation_gain, unit)}`}>{formatElevation(tour.elevation_gain, unit)}</span>
-        </SoftPill>
-      )}
-      {tour.elevation_loss != null && (
-        <SoftPill className="tabular-nums" icon={<ArrowDown size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
-          <span aria-label={`${t('tours.detail.descent')}: ${formatElevation(tour.elevation_loss, unit)}`}>{formatElevation(tour.elevation_loss, unit)}</span>
-        </SoftPill>
-      )}
-      {times.walkingMinutes != null && (
-        <SoftPill className="tabular-nums" icon={<Clock size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
-          <span aria-label={`${t('tours.planner.inspector.duration')}: ${formatPlannedTourDuration(times.walkingMinutes)}`}>
-            {t('tours.planner.walkingShort')} {formatPlannedTourDuration(times.walkingMinutes)}
+      <TourMetricPill icon={Ruler} label={t('tours.detail.distance')} value={formatDistance(tour.distance ?? 0, unit)} />
+      {tour.elevation_gain != null && <TourMetricPill icon={ArrowUp} label={t('tours.detail.ascent')} value={formatElevation(tour.elevation_gain, unit)} />}
+      {tour.elevation_loss != null && <TourMetricPill icon={ArrowDown} label={t('tours.detail.descent')} value={formatElevation(tour.elevation_loss, unit)} />}
+      {shownMinutes != null && (
+        <Tooltip label={timeParts.join(', ')}>
+          <span className="inline-flex">
+            <TourMetricPill icon={Clock} label={timeParts.join(', ')} value={formatPlannedTourDuration(shownMinutes)} />
           </span>
-        </SoftPill>
+        </Tooltip>
       )}
-      {times.breakMinutes != null && (
-        <SoftPill className="tabular-nums" icon={<Clock size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
-          <span aria-label={`${t('tours.planner.breaksAdditional')}: ${formatPlannedTourDuration(times.breakMinutes)}`}>
-            {t('tours.planner.breaksShort')} {formatPlannedTourDuration(times.breakMinutes)}
-          </span>
-        </SoftPill>
-      )}
-      {times.plannedTotalMinutes != null && (
-        <SoftPill className="tabular-nums" icon={<Clock size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
-          <span aria-label={`${t('tours.planner.plannedTotalDuration')}: ${formatPlannedTourDuration(times.plannedTotalMinutes)}${times.manuallyOverridden ? `, ${t('tours.planner.plannedTotalManual')}` : ''}`}>
-            {t('tours.planner.plannedShort')} {formatPlannedTourDuration(times.plannedTotalMinutes)}{times.manuallyOverridden ? ` · ${t('tours.planner.plannedTotalManual')}` : ''}
-          </span>
-        </SoftPill>
-      )}
-      <TourDifficultyPill level={tour.max_hiking_difficulty} t={t} />
-      <SoftPill>{hikeSourceBadgeLabel(tour, t)}</SoftPill>
       {tour.caution && (
         <Tooltip label={t('tours.caution.tooltip')}>
           <span aria-label={t('tours.caution.badge')} className="inline-flex">

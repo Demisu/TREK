@@ -1,4 +1,4 @@
-import { Loader2, Map as MapIcon, Mountain, MountainSnow, Rotate3d, Satellite } from 'lucide-react'
+import { Loader2, Map as MapIcon, MapPinPlus, Mountain, MountainSnow, Rotate3d, Satellite } from 'lucide-react'
 import type { CSSProperties } from 'react'
 import { useTranslation } from '../../i18n'
 import type { FerrataMapLayer } from '../Ferratas/useFerrataMapLayer'
@@ -150,6 +150,33 @@ function FerrataToggle({ layer, compact = false }: { layer: FerrataMapLayer; com
   )
 }
 
+/** The tour map's "set points" tool: while on, a click on the map places a point. */
+export interface MapPlaceTool {
+  active: boolean
+  onToggle: () => void
+}
+
+/** The switch for the "set points" tool, on its icon, named by its tooltip. */
+function PlaceToolToggle({ tool }: { tool: MapPlaceTool }) {
+  const { t } = useTranslation()
+  const label = t('tours.planner.placePoints')
+  return (
+    <Tooltip label={label} placement="top">
+      <button
+        type="button"
+        onClick={tool.onToggle}
+        aria-label={label}
+        aria-pressed={tool.active}
+        data-testid="map-place-tool"
+        className={tool.active ? 'bg-accent text-accent-text' : 'text-content-muted'}
+        style={segmentStyle(tool.active)}
+      >
+        <MapPinPlus size={15} strokeWidth={2} />
+      </button>
+    </Tooltip>
+  )
+}
+
 /**
  * Per-view Tours control. It never reads or writes the global map setting.
  * `compact` shows the base layers and the via ferrata switch by their icons
@@ -162,6 +189,7 @@ export function TourMapLayerSwitcher({
   onToggleTerrain,
   terrainActive = false,
   ferrataLayer,
+  placeTool,
   compact = false,
 }: {
   active: TourBaseLayer
@@ -171,6 +199,8 @@ export function TourMapLayerSwitcher({
   terrainActive?: boolean
   /** Offers the via ferrata switch, with its count badge, beside the base layers. */
   ferrataLayer?: FerrataMapLayer
+  /** Offers the "set points" switch, while a tour is being edited. */
+  placeTool?: MapPlaceTool
   compact?: boolean
 }) {
   const { t } = useTranslation()
@@ -196,7 +226,8 @@ export function TourMapLayerSwitcher({
           </Tooltip>
         )
       })}
-      {(ferrataLayer || onToggleTerrain) && <span aria-hidden className="mx-0.5 h-5 w-px bg-edge" />}
+      {(ferrataLayer || onToggleTerrain || placeTool) && <span aria-hidden className="mx-0.5 h-5 w-px bg-edge" />}
+      {placeTool && <PlaceToolToggle tool={placeTool} />}
       {ferrataLayer && <FerrataToggle layer={ferrataLayer} compact={compact} />}
       {onToggleTerrain && (
         <button

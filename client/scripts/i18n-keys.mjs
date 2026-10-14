@@ -139,11 +139,6 @@ export const DYNAMIC_ALLOWED = [
           'memories.* key in en',
       }))
   ),
-  {
-    file: 'components/Tours/planner/TourPlannerPanels.tsx',
-    template: 'tours.planner.${role}',
-    because: "roleLabel takes role: 'start' | 'via' | 'end', and tours.planner.start/via/end exist",
-  },
 ];
 
 const KEY_RE = /^[a-z][a-zA-Z0-9_]*(?:\.[a-zA-Z0-9_:-]+)+$/;

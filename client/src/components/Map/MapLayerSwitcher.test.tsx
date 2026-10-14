@@ -1,4 +1,4 @@
-// FE-COMP-MAPLAYER-001 to FE-COMP-MAPLAYER-016
+// FE-COMP-MAPLAYER-001 to FE-COMP-MAPLAYER-017
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '../../../tests/helpers/render'
@@ -178,5 +178,28 @@ describe('TourMapLayerSwitcher via ferrata switch', () => {
     expect(group.querySelectorAll('span.bg-edge')).toHaveLength(1)
     const buttons = Array.from(group.querySelectorAll('button')).map((button) => button.getAttribute('aria-label') ?? button.textContent)
     expect(buttons.slice(-2)).toEqual(['Via ferratas', '3D'])
+  })
+  it('FE-COMP-MAPLAYER-017: the "set points" switch leads the tools on its icon, pressed in the accent while on', async () => {
+    const onToggle = vi.fn()
+    const { rerender } = render(
+      <TourMapLayerSwitcher active="default" onChange={() => {}} onToggleTerrain={() => {}}
+        ferrataLayer={ferrataLayer()} placeTool={{ active: true, onToggle }} />
+    )
+    const group = screen.getByRole('group')
+    expect(group.querySelectorAll('span.bg-edge')).toHaveLength(1)
+    const buttons = Array.from(group.querySelectorAll('button')).map((button) => button.getAttribute('aria-label') ?? button.textContent)
+    expect(buttons.slice(-3)).toEqual(['Set points', 'Via ferratas', '3D'])
+    const tool = screen.getByRole('button', { name: 'Set points' })
+    expect(tool).toHaveAttribute('aria-pressed', 'true')
+    expect(tool).toHaveClass('bg-accent', 'text-accent-text')
+    expect(tool).not.toHaveTextContent('Set points')
+    fireEvent.click(tool)
+    expect(onToggle).toHaveBeenCalledTimes(1)
+    fireEvent.mouseEnter(tool)
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Set points')
+
+    rerender(<TourMapLayerSwitcher active="default" onChange={() => {}} placeTool={{ active: false, onToggle }} />)
+    expect(screen.getByRole('button', { name: 'Set points' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: 'Set points' })).toHaveClass('text-content-muted')
   })
 })

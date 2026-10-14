@@ -3,10 +3,12 @@ import FerrataDetailOverlay from '../../components/Ferratas/FerrataDetailOverlay
 import { useFerrataMapLayer } from '../../components/Ferratas/useFerrataMapLayer';
 import { useOutsidePressGuard } from '../../components/Ferratas/useOutsidePressGuard';
 import { MAP_LAYER_SWITCHER_INSET, MAP_ROUND_CONTROL_SIZE } from '../../components/Map/MapLayerSwitcher';
+import { MapUndoHint } from '../../components/Map/MapUndoHint';
 import { MapViewAuto as MapView } from '../../components/Map/MapViewAuto';
 import LocationSelect from '../../components/Planner/LocationSelect';
 import { isRtlLanguage, useTranslation } from '../../i18n';
 import { useSettingsStore } from '../../store/settingsStore';
+import { useTourMapPoints } from './useTourMapPoints';
 import type { useTripPlanner } from './useTripPlanner';
 import type { useTripPlannerPage } from './useTripPlannerPage';
 
@@ -19,6 +21,9 @@ const TOUR_TRACK_COLOR = '#0a84ff';
 const CONTROL_GAP = 12;
 /** A via ferrata's card floats above the bottom row of controls, at the gap the row keeps to the edge. */
 const FERRATA_CARD_BOTTOM = CONTROL_GAP + MAP_ROUND_CONTROL_SIZE + CONTROL_GAP;
+/** The crosshair over either engine's map while a click sets a point (markers keep their own cursor). */
+const PLACING_CURSOR =
+  '[&_.leaflet-container]:!cursor-crosshair [&_.maplibregl-canvas-container]:!cursor-crosshair [&_.mapboxgl-canvas-container]:!cursor-crosshair';
 
 type Planner = ReturnType<typeof useTripPlanner>;
 type PageState = ReturnType<typeof useTripPlannerPage>;
@@ -65,70 +70,80 @@ export function TourPlannerMapStage({
   const { language } = useTranslation();
   const distanceUnit = useSettingsStore((s) => s.settings.distance_unit);
   const analysis = tourPlanner.mode.type === 'view-gpx' ? tourPlanner.readOnlyGpxAnalysis : tourPlanner.routeAnalysis;
-  const editing = tourPlanner.mode.type === 'new-draft' || tourPlanner.mode.type === 'edit-saved';
-  const canEditRoute = canPlaceEdit && !tourPlanner.isSaving && editing;
-  const waypoints = {
-    points: editing ? tourPlanner.waypoints : [],
-    selectedId: editing ? tourPlanner.selectedWaypointId : null,
-    onSelect: tourPlanner.setSelectedWaypointId,
-    onMove: canEditRoute ? tourPlanner.setWaypointPosition : undefined,
-    onAdd: closingPress.guard(canEditRoute ? tourPlanner.addWaypoint : undefined),
-  };
+  // The "set points" tool, per mode; only a real click places, never the end of a drag.
+  const { waypoints, placeTool, placeOn, attachSurface, placedHint } = useTourMapPoints({
+    tourPlanner,
+    canPlaceEdit,
+    mode: terrain3d ? '3d' : '2d',
+    ferrataOpen: !!ferrata.selected,
+    guard: closingPress.guard,
+  });
+  const onAdd = waypoints.onAdd;
   // What each panel covers of the map, a collapsed one its rail.
   const leftInset = leftHidden ? 56 : leftPanelPx;
   const rightInset = rightHidden ? 56 : rightPanelPx;
+  const bottomRowTop = terrain3d ? CONTROL_GAP + terrainControlsPx + CONTROL_GAP : FERRATA_CARD_BOTTOM;
   return (
     <>
-      {terrain3d ? (
-        <Suspense fallback={null}>
-          <TourTerrainMap
-            samples={analysis?.distanceIndexedProfileSamples ?? []}
-            routes={tourMap.route}
-            trackColor={TOUR_TRACK_COLOR}
-            unit={distanceUnit}
-            baseLayer={tourPlanner.mapBaseLayer}
-            onBaseLayerChange={tourPlanner.setMapBaseLayer}
-            onExit={() => setTerrain3d(false)}
-            focus={tourPlanner.routeProfileFocus}
-            onFocusChange={tourPlanner.setRouteProfileFocus}
-            leftWidth={leftInset}
-            rightWidth={rightInset}
-            waypoints={waypoints}
-            framePoints={tourMap.focusPoints}
+      {/* Around either map, to follow its presses and show the crosshair while placing. */}
+      <div
+        ref={attachSurface}
+        className={`absolute inset-0 ${placeOn ? PLACING_CURSOR : ''}`}
+        data-testid="tour-map-surface"
+        data-placing={placeOn || undefined}
+      >
+        {terrain3d ? (
+          <Suspense fallback={null}>
+            <TourTerrainMap
+              samples={analysis?.distanceIndexedProfileSamples ?? []}
+              routes={tourMap.route}
+              trackColor={TOUR_TRACK_COLOR}
+              unit={distanceUnit}
+              baseLayer={tourPlanner.mapBaseLayer}
+              onBaseLayerChange={tourPlanner.setMapBaseLayer}
+              onExit={() => setTerrain3d(false)}
+              focus={tourPlanner.routeProfileFocus}
+              onFocusChange={tourPlanner.setRouteProfileFocus}
+              leftWidth={leftInset}
+              rightWidth={rightInset}
+              waypoints={waypoints}
+              framePoints={tourMap.focusPoints}
+              ferrataLayer={ferrata.layer}
+              onViewportChange={ferrata.onViewportChange}
+              onControlsHeightChange={setTerrainControlsPx}
+              placeTool={placeTool}
+            />
+          </Suspense>
+        ) : (
+          <MapView
+            tripId={tripId}
+            places={[]}
+            route={tourMap.route}
+            followSelection={false}
+            onMapClick={
+              onAdd
+                ? ({ latlng }: { latlng: { lat: number; lng: number } }) => onAdd(latlng.lat, latlng.lng)
+                : undefined
+            }
+            tileUrl={mapTileUrl}
+            leftWidth={leftPanelPx}
+            rightWidth={rightPanelPx}
+            focusPoints={tourMap.focusPoints}
+            focusKey={tourMap.focusKey}
+            plannerWaypoints={waypoints.points}
+            selectedPlannerWaypointId={waypoints.selectedId}
+            onPlannerWaypointClick={tourPlanner.setSelectedWaypointId}
+            onPlannerWaypointMove={waypoints.onMove}
+            routeProfileFocus={tourPlanner.routeProfileFocus}
+            viewBaseLayer={tourPlanner.mapBaseLayer}
+            onViewBaseLayerChange={tourPlanner.setMapBaseLayer}
+            onToggleTerrain3d={() => setTerrain3d(true)}
             ferrataLayer={ferrata.layer}
             onViewportChange={ferrata.onViewportChange}
-            onControlsHeightChange={setTerrainControlsPx}
+            placeTool={placeTool}
           />
-        </Suspense>
-      ) : (
-        <MapView
-          tripId={tripId}
-          places={[]}
-          route={tourMap.route}
-          followSelection={false}
-          onMapClick={closingPress.guard(
-            canEditRoute
-              ? ({ latlng }: { latlng: { lat: number; lng: number } }) =>
-                  tourPlanner.addWaypoint(latlng.lat, latlng.lng)
-              : undefined
-          )}
-          tileUrl={mapTileUrl}
-          leftWidth={leftPanelPx}
-          rightWidth={rightPanelPx}
-          focusPoints={tourMap.focusPoints}
-          focusKey={tourMap.focusKey}
-          plannerWaypoints={waypoints.points}
-          selectedPlannerWaypointId={waypoints.selectedId}
-          onPlannerWaypointClick={tourPlanner.setSelectedWaypointId}
-          onPlannerWaypointMove={waypoints.onMove}
-          routeProfileFocus={tourPlanner.routeProfileFocus}
-          viewBaseLayer={tourPlanner.mapBaseLayer}
-          onViewBaseLayerChange={tourPlanner.setMapBaseLayer}
-          onToggleTerrain3d={() => setTerrain3d(true)}
-          ferrataLayer={ferrata.layer}
-          onViewportChange={ferrata.onViewportChange}
-        />
-      )}
+        )}
+      </div>
       {/* The card sits at the inline end; the panels keep their physical sides, so in a
           right-to-left language that end is the left panel's. */}
       <FerrataDetailOverlay
@@ -136,8 +151,31 @@ export function TourPlannerMapStage({
         onClose={ferrata.close}
         onOutsidePress={closingPress.arm}
         insetEnd={(isRtlLanguage(language) ? leftInset : rightInset) + MAP_LAYER_SWITCHER_INSET}
-        bottom={terrain3d ? CONTROL_GAP + terrainControlsPx + CONTROL_GAP : FERRATA_CARD_BOTTOM}
+        bottom={bottomRowTop}
       />
+      {/* "Point set", with the way back, above the bottom row and between the panels. */}
+      {placedHint.shown && (
+        <div
+          className="pointer-events-none absolute inset-x-0 z-[19] flex justify-center"
+          style={{ bottom: bottomRowTop }}
+        >
+          <div
+            className="flex justify-center"
+            style={{
+              transform: `translateX(${(leftInset - rightInset) / 2}px)`,
+              maxWidth: `calc(100% - ${leftInset + rightInset + 2 * MAP_LAYER_SWITCHER_INSET}px)`,
+            }}
+          >
+            <MapUndoHint
+              key={placedHint.key}
+              message={t('tours.planner.pointPlaced')}
+              undoLabel={t('undo.button')}
+              onUndo={placedHint.undoPlacement}
+              onHold={placedHint.hold}
+            />
+          </div>
+        </div>
+      )}
       {/* Centred over the map between the two panels, which sit on fixed physical sides. */}
       <div
         style={{

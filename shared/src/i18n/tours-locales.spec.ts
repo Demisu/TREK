@@ -83,7 +83,6 @@ describe('Tours locale contracts', () => {
       }
       for (const key of [
         'tours.planner.safetyNote',
-        'tours.planner.safetyNoteDetails',
         'tours.planner.difficulty.t3Warning',
         'tours.planner.difficulty.alpineBody',
       ]) {

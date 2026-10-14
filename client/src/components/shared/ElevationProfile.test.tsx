@@ -60,7 +60,7 @@ describe('ElevationProfile', () => {
 
     expect(onFocus).toHaveBeenLastCalledWith({ distanceMeters: 150, elevationMeters: 187.5, lat: 48.015, lng: 11.015, sampleIndex: 1 })
     expect(profile.querySelector('[data-profile-focus-line]')).toBeInTheDocument()
-    expect(profile.querySelector('[data-profile-focus-point]')).toBeInTheDocument()
+    expect(profile.parentElement?.querySelector('[data-profile-focus-point]')).toBeInTheDocument()
     const readout = profile.parentElement?.querySelector('[data-profile-focus-readout]')
     expect(readout?.textContent).toBe('150 m · 187.5 m')
     expect(readout).toHaveClass('rounded-lg', 'border-edge-faint', 'bg-surface-card', 'text-content', 'shadow-elevated')
@@ -68,7 +68,7 @@ describe('ElevationProfile', () => {
     expect(readout).toHaveStyle({ maxWidth: 'min(164px, calc(100% - 8px))' })
     expect(profile).toHaveStyle({ fontFamily: 'var(--font-system)' })
     expect(profile.querySelector('[data-profile-focus-line]')).toHaveAttribute('stroke', 'var(--text-muted)')
-    expect(profile.querySelector('[data-profile-focus-point]')).toHaveAttribute('stroke', 'var(--bg-card)')
+    expect(profile.parentElement?.querySelector('[data-profile-focus-point]')).toHaveAttribute('stroke', 'var(--bg-card)')
     expect(profile.parentElement?.querySelector('[aria-live="polite"]')?.textContent).toBe('')
     fireEvent.pointerMove(profile, { clientX: -50, pointerType: 'mouse' })
     act(() => frames.shift()?.(32))

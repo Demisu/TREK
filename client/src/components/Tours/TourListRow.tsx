@@ -2,7 +2,7 @@ import { useId, type ReactNode } from 'react'
 import type { TourListItem } from '@trek/shared'
 import { fs } from '../shared/DialogShell'
 import { useTranslation } from '../../i18n'
-import { TourFactPills, TourTile } from './tourParts'
+import { TourFactPills, TourGradeTile } from './tourParts'
 import { tourWebsitePresentation } from './tourPresentation'
 
 interface TourListRowProps {
@@ -38,7 +38,7 @@ export default function TourListRow({ tour, selected = false, disabled = false, 
       }}
     >
       <div className="flex items-start gap-2.5">
-        <TourTile />
+        <TourGradeTile tour={tour} />
         <div className="min-w-0 flex-1 pt-px">
           <span id={nameId} className="block min-w-0 truncate font-semibold leading-tight text-content" style={fs(13, 'body')}>{tour.name}</span>
           <TourFactPills tour={tour} className="mt-1.5" />

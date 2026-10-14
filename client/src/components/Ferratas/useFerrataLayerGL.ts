@@ -4,8 +4,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Ferrata } from '@trek/shared';
 
 import { useTranslation } from '../../i18n';
+import { mapHoverLabel } from '../Map/mapHoverLabel';
 import { type FerrataGroup, ferrataLabel } from './ferrataGroups';
-import { ferrataHoverLabel } from './ferrataHoverLabel';
 import { FERRATA_ICON_IMAGE, FERRATA_ICON_MIN_ZOOM, FERRATA_ICON_PIXEL_RATIO, loadFerrataIcon } from './ferrataIcon';
 import { ferrataFeatureCollection, ferrataLabelCollection } from './ferrataModel';
 import type { FerrataPaint } from './ferrataPaint';
@@ -183,7 +183,7 @@ export function useFerrataLayerGL(
     if (!map) return;
     let waiting = false;
     let disposed = false;
-    const hoverLabel = ferrataHoverLabel(map);
+    const hoverLabel = mapHoverLabel(map, 'ferrata-hover-label');
     const draw = () => {
       if (map.getSource(SOURCE)) return;
       if (!map.isStyleLoaded()) {
@@ -222,8 +222,10 @@ export function useFerrataLayerGL(
       const id: unknown = featureAt(event)?.group;
       const group = typeof id === 'string' ? latest.current.groups.find((candidate) => candidate.id === id) : undefined;
       setHovered(group ? group.id : null);
-      if (group) hoverLabel.show(ferrataLabel(group, latest.current.t), event.point);
-      else hoverLabel.hide();
+      if (group) {
+        const label = ferrataLabel(group, latest.current.t);
+        hoverLabel.show({ name: label.name, detail: label.grade }, event.point);
+      } else hoverLabel.hide();
     };
     const enter = () => {
       map.getCanvas().style.cursor = 'pointer';

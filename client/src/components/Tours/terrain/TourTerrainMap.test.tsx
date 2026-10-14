@@ -1,4 +1,4 @@
-// FE-COMP-TERRAIN-001 to FE-COMP-TERRAIN-014
+// FE-COMP-TERRAIN-001 to FE-COMP-TERRAIN-015
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '../../../../tests/helpers/render';
 import type { DistanceIndexedProfileSample, RouteProfileFocus } from '../../../utils/routeGeometry';
@@ -371,5 +371,25 @@ describe('TourTerrainMap', () => {
     unmount();
     expect(gl.map.remove).toHaveBeenCalledTimes(1);
     expect(pin.remove).toHaveBeenCalled();
+  });
+  it('FE-COMP-TERRAIN-015: the "set points" switch rides in the layer pill, and while it is off the hint says so', async () => {
+    const onToggle = vi.fn();
+    const { rerender } = await renderTerrain({ placeTool: { active: false, onToggle } });
+    const tool = screen.getByRole('button', { name: 'Set points' });
+    expect(tool).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByText('Turn on Set points to click points onto the terrain.')).toBeInTheDocument();
+    fireEvent.click(tool);
+    expect(onToggle).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <TourTerrainMap
+        {...props({
+          placeTool: { active: true, onToggle },
+          waypoints: { points: [], selectedId: null, onSelect: vi.fn(), onAdd: vi.fn() },
+        })}
+      />
+    );
+    expect(screen.getByRole('button', { name: 'Set points' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByText(/Click the terrain to set points/)).toBeInTheDocument();
   });
 });

@@ -6,7 +6,7 @@ import type { FerrataMapLayer } from '../Ferratas/useFerrataMapLayer';
 import type { AlternativeOverlay } from '../Roadtrip/alternativeOverlays';
 import type { DayBoundaryControls } from './dayBoundaryDrag';
 import type { CompassMap } from './MapCompassPill';
-import type { TourBaseLayer } from './MapLayerSwitcher';
+import type { MapPlaceTool, TourBaseLayer } from './MapLayerSwitcher';
 import type { Poi } from './poiCategories';
 
 /*
@@ -109,7 +109,8 @@ export interface MapViewProps {
   /** Reports which option the pointer is over, so the list and the map agree. */
   onHighlightAlternative?: (index: number | null) => void;
   /** Generic numbered control points for list-first route editors. */
-  plannerWaypoints?: Array<{ id: string; lat: number; lng: number }>;
+  /** `name` and `detail` (its role) show on hover; without a name the pin is named by its number. */
+  plannerWaypoints?: Array<{ id: string; lat: number; lng: number; name?: string; detail?: string }>;
   selectedPlannerWaypointId?: string | null;
   onPlannerWaypointClick?: (id: string) => void;
   /** Drops a dragged control point; returns false when the move was refused. */
@@ -119,6 +120,8 @@ export interface MapViewProps {
   onViewBaseLayerChange?: (layer: TourBaseLayer) => void;
   /** Offers the 3D terrain switch in the tour layer pill. */
   onToggleTerrain3d?: () => void;
+  /** Offers the "set points" switch in the tour layer pill, while a tour is being edited. */
+  placeTool?: MapPlaceTool;
   /**
    * The via ferrata layer (RC-10): its switch, with the count as a badge, joins
    * the tour layer pill, and while it is on its lines are drawn and a click on

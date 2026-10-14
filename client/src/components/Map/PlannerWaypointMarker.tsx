@@ -1,6 +1,7 @@
 import L from 'leaflet';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Marker, Tooltip, useMap } from 'react-leaflet';
+import { MAP_LABEL_BADGE_CLASS } from './mapHoverLabel';
 import { wirePlannerWaypointDrag } from './plannerWaypointDrag';
 
 /** The pin's inline style for a size and selection; the renderer owns the colour. */
@@ -24,7 +25,7 @@ export default function PlannerWaypointMarker({
   onMove,
   pinCss,
 }: {
-  point: { id: string; lat: number; lng: number };
+  point: { id: string; lat: number; lng: number; name?: string; detail?: string };
   index: number;
   selected: boolean;
   onClick?: (id: string) => void;
@@ -76,8 +77,9 @@ export default function PlannerWaypointMarker({
       zIndexOffset={selected ? 1200 : 1100}
       eventHandlers={eventHandlers}
     >
-      <Tooltip direction="top" offset={[0, -12]}>
-        {index + 1}
+      <Tooltip direction="top" offset={[0, -12]} opacity={1} className="map-tooltip">
+        <span className="font-medium">{point.name ?? index + 1}</span>
+        {point.detail && <span className={MAP_LABEL_BADGE_CLASS}>{point.detail}</span>}
       </Tooltip>
     </Marker>
   );

@@ -331,7 +331,7 @@ describe('TripPlannerPage — shell', () => {
     expect(plannerActions.addWaypoint).toHaveBeenCalledWith(35.02, 135.77)
   })
 
-  it('preserves the visible TOUR-PLANNER camera when Plan another starts a new Tour', async () => {
+  it('preserves the visible TOUR-PLANNER camera when a new Tour starts after a save', async () => {
     const savedTour = {
       place_id: 82,
       name: 'Saved Kyoto tour',
@@ -363,7 +363,7 @@ describe('TripPlannerPage — shell', () => {
     const mapElement = screen.getByTestId('map-view')
 
     expect(props('map').focusPoints).toEqual([[35.01, 135.76], [35.02, 135.77]])
-    fireEvent.click(await screen.findByRole('button', { name: 'Plan another' }))
+    act(() => { plannerActions.startNewTour() })
     expect(plannerActions.startNewTour).toHaveBeenCalledOnce()
     view.rerender(<TripPlannerPage />)
 

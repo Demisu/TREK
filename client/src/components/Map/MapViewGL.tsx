@@ -626,7 +626,7 @@ export function MapViewGL({
   onPlannerWaypointClick,
   onPlannerWaypointMove,
   routeProfileFocus = null,
-  viewBaseLayer, onViewBaseLayerChange, onToggleTerrain3d, ferrataLayer,
+  viewBaseLayer, onViewBaseLayerChange, onToggleTerrain3d, ferrataLayer, placeTool,
   roadtripVias,
   onMoveVia,
   onRemoveVia,
@@ -2354,7 +2354,7 @@ export function MapViewGL({
         {onToggleFollow && <MapLockPill locked={!followSelection} onToggle={onToggleFollow} />}
         {hasViewBaseLayer
           ? <TourMapLayerSwitcher active={baseLayer as TourBaseLayer} onChange={onViewBaseLayerChange}
-              onToggleTerrain={onToggleTerrain3d} ferrataLayer={ferrataLayer} />
+              onToggleTerrain={onToggleTerrain3d} ferrataLayer={ferrataLayer} placeTool={placeTool} />
           : <MapLayerSwitcher active={globalBaseLayer as BaseLayer} onToggle={toggleBaseLayer} />}
       </div>
       {/* Hover tooltip — cursor-following name/category/address card, identical to

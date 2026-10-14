@@ -122,10 +122,15 @@ export default function ElevationProfile({ samples, color, height = 100, gradien
       {focusX != null && (
         <g pointerEvents="none" aria-hidden="true">
           <line data-profile-focus-line="true" x1={focusX} x2={focusX} y1={4} y2={height - 4} stroke="var(--text-muted)" strokeOpacity="0.85" strokeWidth={1} strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
-          {focusY != null && <circle data-profile-focus-point="true" cx={focusX} cy={focusY} r={4} fill={color} stroke="var(--bg-card)" strokeWidth={2} vectorEffect="non-scaling-stroke" />}
         </g>
       )}
     </svg>
+    {/* The point in an unscaled layer of its own: the chart above stretches to the width, which would squash a circle drawn in it into an ellipse. */}
+    {focusX != null && focusY != null && (
+      <svg width="100%" height={height} aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 overflow-visible">
+        <circle data-profile-focus-point="true" cx={`${(focusX / width) * 100}%`} cy={focusY} r={4} fill={color} stroke="var(--bg-card)" strokeWidth={2} />
+      </svg>
+    )}
     {interactive && focusX != null && (
       <div
         data-profile-focus-readout="true"
