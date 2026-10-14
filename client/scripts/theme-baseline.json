@@ -55,7 +55,7 @@
   "components/Layout/DemoBanner.tsx": 25,
   "components/Layout/InAppNotificationBell.tsx": 10,
   "components/Layout/MobileTopBar.tsx": 51,
-  "components/Layout/Navbar.tsx": 23,
+  "components/Layout/Navbar.tsx": 22,
   "components/Layout/NewVersionNotice.tsx": 3,
   "components/Layout/OfflineBanner.tsx": 2,
   "components/Layout/PageSidebar.tsx": 3,
