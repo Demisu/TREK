@@ -1,12 +1,11 @@
-import { AlertTriangle, Info } from 'lucide-react';
-import { useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { AlertTriangle } from 'lucide-react';
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import { SoftPill } from '../../Planner/planParts';
 import CustomSelect from '../../shared/CustomSelect';
 import { INPUT, LABEL } from '../../shared/dialogParts';
 import { fs } from '../../shared/DialogShell';
-import { Tooltip } from '../../shared/Tooltip';
-import { FoldButton, TourNotice, TourSection } from '../tourParts';
+import { FoldButton, InfoDot, TourNotice, TourSection } from '../tourParts';
 import { TOUR_DURATION_INPUT_MAX_LENGTH, formatTourDuration, parseTourDuration } from './tourDurationInput';
 import type { TourPlannerController } from './useTourPlanner';
 
@@ -37,26 +36,6 @@ function writeDetailsOpen(open: boolean) {
   } catch {
     // Storage blocked: the choice lasts as long as the panel does.
   }
-}
-
-/** The round info dot beside a label; hover, focus and a tap show the explanation as a tooltip. */
-export function InfoDot({ description, label }: { description: string; label: string }) {
-  const id = useId();
-  return (
-    <Tooltip label={description}>
-      <button
-        type="button"
-        aria-label={label}
-        aria-describedby={id}
-        className="grid h-5 w-5 flex-none place-items-center rounded-full text-content-faint transition-colors hover:bg-surface-card hover:text-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
-      >
-        <Info size={13} strokeWidth={2} aria-hidden="true" />
-        <span id={id} className="sr-only">
-          {description}
-        </span>
-      </button>
-    </Tooltip>
-  );
 }
 
 /** A field label with what belongs beside it (an info dot, a badge) on the same line. */

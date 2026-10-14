@@ -93,9 +93,8 @@ describe('Tours English and German copy', () => {
       })} />)
       expect(screen.getByRole('heading', { name: newTitle })).toBeInTheDocument()
       const strings = language === 'de' ? de : en
-      expect(screen.getByText(toursText(strings, 'tours.planner.restoredShort'))).toBeInTheDocument()
       expect(screen.getByLabelText(toursText(strings, 'tours.planner.restored'))).toBeInTheDocument()
-      expect(screen.getByText(toursText(strings, 'tours.planner.status.routing'))).toBeInTheDocument()
+      expect(screen.getByLabelText(toursText(strings, 'tours.planner.status.routing'))).toBeInTheDocument()
       expect(screen.getByText(toursText(strings, 'tours.planner.difficulty.t3Warning'))).toBeInTheDocument()
       expect(screen.getByText((_, element) => element?.tagName === 'SPAN' && element.textContent?.includes(toursText(strings, 'tours.planner.safetyNote')) === true)).toBeInTheDocument()
       expect(screen.getByLabelText(language === 'de' ? 'Wegpunkt 1' : 'Waypoint 1')).toBeInTheDocument()
@@ -149,7 +148,7 @@ describe('Tours English and German copy', () => {
       assertNoRawToursKeys()
     }
     rerender(<TourPlannerRail planner={planner({ mode: { type: 'new-draft' }, status: 'ready', error: 'save' })} />)
-    expect(screen.getByText(toursText(de, 'tours.planner.status.saveFailed'))).toBeInTheDocument()
+    expect(screen.getByLabelText(toursText(de, 'tours.planner.status.saveFailed'))).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: toursText(de, 'tours.planner.maxDifficulty') }))
     fireEvent.click(screen.getByRole('button', { name: toursText(de, 'tours.planner.difficulty.t4') }))
     expect(screen.getByRole('heading', { name: toursText(de, 'tours.planner.difficulty.alpineTitle') })).toBeInTheDocument()

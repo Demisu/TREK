@@ -1,7 +1,8 @@
 import { useId, type ReactNode } from 'react'
 import type { TourListItem } from '@trek/shared'
+import { Link2 } from 'lucide-react'
 import { fs } from '../shared/DialogShell'
-import { useTranslation } from '../../i18n'
+import { SoftPill } from '../Planner/planParts'
 import { TourFactPills, TourGradeTile } from './tourParts'
 import { tourWebsitePresentation } from './tourPresentation'
 
@@ -16,7 +17,6 @@ interface TourListRowProps {
 
 /** A tour in a list, shaped like a place row: tile, name, its facts as pills and the day action on the right. */
 export default function TourListRow({ tour, selected = false, disabled = false, onSelect, action, children }: TourListRowProps) {
-  const { t } = useTranslation()
   const nameId = useId()
   const tone = selected ? 'bg-surface-selected' : disabled ? '' : 'hover:bg-surface-hover'
   const website = tourWebsitePresentation(tour.website)
@@ -37,28 +37,32 @@ export default function TourListRow({ tour, selected = false, disabled = false, 
         }
       }}
     >
-      <div className="flex items-start gap-2.5">
+      {/* The tile, the name and the day actions share the head line; the rest runs the
+          full width under them, below the tile too. */}
+      <div className="flex items-center gap-2.5">
         <TourGradeTile tour={tour} />
-        <div className="min-w-0 flex-1 pt-px">
-          <span id={nameId} className="block min-w-0 truncate font-semibold leading-tight text-content" style={fs(13, 'body')}>{tour.name}</span>
-          <TourFactPills tour={tour} className="mt-1.5" />
-          {tour.description && (
-            <div data-testid="tour-description-preview" className="mt-1 overflow-hidden text-ellipsis text-content-faint" style={{ ...fs(11), lineHeight: 1.25, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-              {tour.description}
-            </div>
-          )}
-          {website && (
-            <div className="mt-1 truncate text-content-faint" style={fs(10.5)}>
-              {website.provider ? `${website.provider} · ${website.domain}` : `${t('places.formWebsite')} · ${website.domain}`}
-            </div>
-          )}
-        </div>
+        <span id={nameId} className="block min-w-0 flex-1 truncate font-semibold leading-tight text-content" style={fs(13, 'body')}>{tour.name}</span>
         {action && (
-          <div data-testid="tour-action-row" role="presentation" className="flex flex-none items-center gap-1.5 pt-1" onClick={event => event.stopPropagation()}>
+          <div data-testid="tour-action-row" role="presentation" className="flex flex-none items-center gap-1.5" onClick={event => event.stopPropagation()}>
             {action}
           </div>
         )}
       </div>
+      {tour.description && (
+        <div data-testid="tour-description-preview" className="mt-2.5 rounded-[10px] bg-surface-card px-2 py-1.5 text-content-secondary shadow-sm ring-1 ring-inset ring-edge-faint" style={fs(11)}>
+          <span className="overflow-hidden text-ellipsis" style={{ lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+            {tour.description}
+          </span>
+        </div>
+      )}
+      <TourFactPills tour={tour} className={tour.description ? 'mt-1.5' : 'mt-2.5'} />
+      {website && (
+        <div className="mt-1 flex min-w-0">
+          <SoftPill icon={<Link2 size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
+            <span className="min-w-0 truncate">{website.provider ?? website.domain}</span>
+          </SoftPill>
+        </div>
+      )}
       {children}
     </li>
   )

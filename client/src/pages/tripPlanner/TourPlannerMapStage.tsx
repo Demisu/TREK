@@ -6,6 +6,7 @@ import { MAP_LAYER_SWITCHER_INSET, MAP_ROUND_CONTROL_SIZE } from '../../componen
 import { MapUndoHint } from '../../components/Map/MapUndoHint';
 import { MapViewAuto as MapView } from '../../components/Map/MapViewAuto';
 import LocationSelect from '../../components/Planner/LocationSelect';
+import type { TerrainLegendLayout } from '../../components/Tours/terrain/TourTerrainMap';
 import { isRtlLanguage, useTranslation } from '../../i18n';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useTourMapPoints } from './useTourMapPoints';
@@ -58,6 +59,7 @@ export function TourPlannerMapStage({
   const [terrain3d, setTerrain3d] = useState(false);
   // How high the 3D map's controls reach: one row, or two once the grade legend moved above the dock.
   const [terrainControlsPx, setTerrainControlsPx] = useState(MAP_ROUND_CONTROL_SIZE);
+  const [terrainLegend, setTerrainLegend] = useState<TerrainLegendLayout | null>(null);
   // One via ferrata layer for both modes: it stays on, and keeps its card, across 2D and 3D.
   // The trip's area for the layer to prefetch: the framed points and the tour's line.
   const ferrataArea = useMemo(
@@ -111,6 +113,7 @@ export function TourPlannerMapStage({
               ferrataLayer={ferrata.layer}
               onViewportChange={ferrata.onViewportChange}
               onControlsHeightChange={setTerrainControlsPx}
+              onLegendLayout={setTerrainLegend}
               placeTool={placeTool}
             />
           </Suspense>
@@ -151,7 +154,10 @@ export function TourPlannerMapStage({
         onClose={ferrata.close}
         onOutsidePress={closingPress.arm}
         insetEnd={(isRtlLanguage(language) ? leftInset : rightInset) + MAP_LAYER_SWITCHER_INSET}
-        bottom={bottomRowTop}
+        // On the flat map nothing sits under the card's corner, so it rests at the edge gap; in 3D it
+        // stands on the dock row, and on the grade bands while they are open.
+        bottom={terrain3d ? bottomRowTop + (terrainLegend?.raisedBy ?? 0) : CONTROL_GAP}
+        width={terrain3d ? terrainLegend?.width : undefined}
       />
       {/* "Point set", with the way back, above the bottom row and between the panels. */}
       {placedHint.shown && (
@@ -202,6 +208,7 @@ export function TourPlannerMapStage({
             ariaLabel={t('tours.planner.mapSearch')}
             floating
             showSearchStatus
+            showSource
             style={{ width: '100%' }}
           />
         </div>

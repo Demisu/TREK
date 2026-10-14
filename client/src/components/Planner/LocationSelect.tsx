@@ -3,9 +3,11 @@ import { MapPin, Search } from 'lucide-react'
 import { mapsApi } from '../../api/client'
 import { useTranslation } from '../../i18n'
 import { useLocationBias } from '../../hooks/useLocationBias'
+import { usePlaceSuggestions } from '../../hooks/usePlaceSuggestions'
 import { usePlaceLanguage } from '../../hooks/usePlaceLanguage'
 import { useSuggestionDropdown } from './useSuggestionDropdown'
 import { PlaceSuggestion, SuggestionInputBox, SuggestionList, SuggestionRow } from './SuggestionDropdown'
+import { SoftPill } from './planParts'
 
 export interface LocationPoint {
   name: string
@@ -30,9 +32,11 @@ interface Props {
    * name; from the third character on the map search answers instead.
    */
   places?: LocationPoint[]
+  /** Marks each search result with where it came from (OSM, Google, TREK, a plugin), as the place form does. */
+  showSource?: boolean
 }
 
-export default function LocationSelect({ value, onChange, placeholder, ariaLabel, showSearchStatus = false, floating = false, style, places }: Props) {
+export default function LocationSelect({ value, onChange, placeholder, ariaLabel, showSearchStatus = false, floating = false, style, places, showSource = false }: Props) {
   const { t, locale } = useTranslation()
   const placeLang = usePlaceLanguage()
   // Ohne Reisekontext ist der Hinweis leer, und die Suche laeuft wie bisher.
@@ -40,6 +44,9 @@ export default function LocationSelect({ value, onChange, placeholder, ariaLabel
   const [query, setQuery] = useState(value?.name || '')
   const { open, setOpen, highlight, setHighlight, wrapRef, handleKey } = useSuggestionDropdown()
   const [results, setResults] = useState<any[]>([])
+  // What answered the last search, for the rows that do not name their own source.
+  const [listSource, setListSource] = useState('')
+  const { sourceLabel } = usePlaceSuggestions()
   const [loading, setLoading] = useState(false)
   const [searchError, setSearchError] = useState(false)
   // The text the last answer was for, so a status never describes older text.
@@ -72,6 +79,7 @@ export default function LocationSelect({ value, onChange, placeholder, ariaLabel
         const data = await mapsApi.search(trimmed, placeLang, locationBias)
         if (stale) return
         setResults(data.places || [])
+        setListSource(data.source || '')
         setHighlight(-1)
         setSearchedQuery(trimmed)
       } catch {
@@ -170,12 +178,19 @@ export default function LocationSelect({ value, onChange, placeholder, ariaLabel
               optionId={showSearchStatus ? `${listId}-option-${i}` : undefined}
             >
               <PlaceSuggestion name={r.name} address={r.address} />
+              {showSource && !showPicks && <SourceMark label={sourceLabel(r, listSource)} />}
             </SuggestionRow>
           ))}
         </SuggestionList>
       )}
     </div>
   )
+}
+
+/** Where a result came from, quiet on purpose, beside its name. */
+function SourceMark({ label }: { label: string | null }) {
+  if (!label) return null
+  return <span className="flex-none self-center"><SoftPill>{label}</SoftPill></span>
 }
 
 function pickRows<T>(value: LocationPoint | null, typed: string, places: LocationPoint[] | undefined, results: T[]) {

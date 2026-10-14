@@ -1,6 +1,6 @@
 import type { FerrataBbox } from '@trek/shared';
 import { ChevronDown, ChevronUp, Gauge, Palette, Pause, Play, RotateCcw, Scan, TrendingUp } from 'lucide-react';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import type { DistanceUnit } from '../../../types';
 import type { DistanceIndexedProfileSample, RouteProfileFocus } from '../../../utils/routeGeometry';
@@ -44,6 +44,14 @@ export interface TourTerrainMapProps {
   onControlsHeightChange?: (px: number) => void;
   /** The "set points" switch in the layer pill, while a tour is being edited. */
   placeTool?: MapPlaceTool;
+  /** The grade legend's width and how far its open bands reach above it, for a card that sits on it; null while there is none. */
+  onLegendLayout?: (layout: TerrainLegendLayout | null) => void;
+}
+
+export interface TerrainLegendLayout {
+  width: number;
+  /** How far the unfolded bands reach above the legend pill, 0 while they are folded. */
+  raisedBy: number;
 }
 
 const SPEEDS = [1, 2, 4] as const;
@@ -67,7 +75,7 @@ export default function TourTerrainMap(props: TourTerrainMapProps) {
   const { setContainer, ...terrain } = useTourTerrain({ ...props, panels: { leftWidth, rightWidth } });
   const stats = useMemo(() => terrainStats(samples), [samples]);
   const { fit, height: controlsHeight, attachRow, attachStack } = useControlRowFit();
-  const legend = terrain.canReplay ? <GradeLegend stats={stats} unit={unit} /> : null;
+  const legend = terrain.canReplay ? <GradeLegend stats={stats} unit={unit} onLayout={props.onLegendLayout} /> : null;
   const legendAbove = fit === 'stacked';
 
   useEffect(() => {
@@ -270,15 +278,46 @@ function PreloadRing({ share, label }: { share: number; label: string }) {
 }
 
 /** The grade mix as a pill like the dock; it unfolds upwards into the bands. */
-function GradeLegend({ stats, unit }: { stats: TerrainStats; unit: DistanceUnit }) {
+function GradeLegend({
+  stats,
+  unit,
+  onLayout,
+}: {
+  stats: TerrainStats;
+  unit: DistanceUnit;
+  onLayout?: (layout: TerrainLegendLayout | null) => void;
+}) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  // A card over the legend takes its width and stands on its bands when they are open.
+  useLayoutEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap || !onLayout) return;
+    const report = () => {
+      const panel = panelRef.current;
+      onLayout({ width: wrap.offsetWidth, raisedBy: open && panel ? panel.offsetHeight + 8 : 0 });
+    };
+    report();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(report);
+    observer.observe(wrap);
+    if (panelRef.current) observer.observe(panelRef.current);
+    return () => observer.disconnect();
+  }, [open, onLayout]);
+  useEffect(() => () => onLayout?.(null), [onLayout]);
   const total = stats.totalMeters || 1;
   const width = (key: GradeBandKey) => `${(stats.bandMeters[key] / total) * 100}%`;
   return (
-    <div className="pointer-events-auto relative">
+    <div ref={wrapRef} className="pointer-events-auto relative">
       {open && (
-        <div id="tour-terrain-grades" className="absolute inset-x-0 bottom-full mb-2 rounded-2xl p-3" style={GLASS}>
+        <div
+          ref={panelRef}
+          id="tour-terrain-grades"
+          className="absolute inset-x-0 bottom-full mb-2 rounded-2xl p-3"
+          style={GLASS}
+        >
           <ul className="flex flex-col gap-1">
             {GRADE_BANDS.map((band) => (
               <li key={band.key} className="flex items-center gap-2 text-content-secondary" style={fs(11)}>

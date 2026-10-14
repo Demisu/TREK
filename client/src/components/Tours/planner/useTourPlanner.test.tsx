@@ -20,6 +20,8 @@ vi.mock('../../../repo/tourRepo', () => ({ tourRepo: { create: createTour, detai
 vi.mock('../useTourPermissions', () => ({ useTourPermissions: ({ canEdit = true, canAssign = true }: { canEdit?: boolean; canAssign?: boolean }) => ({ canEdit, canAssign }) }))
 
 import { useTourPlanner } from './useTourPlanner'
+import { hikingTimeMinutes } from '../hikingTime'
+import { analyzeRouteGeometry } from '../../../utils/routeGeometry'
 import { TourPlannerRail } from './TourPlannerPanels'
 
 const routed = {
@@ -28,6 +30,9 @@ const routed = {
   durationSeconds: 1800,
 }
 const enriched = [[48, 11, 500], [48.01, 11.02, 550]] as [number, number, number][]
+// With the heights in, the walking time is the hiking rule over the enriched line, not the router's.
+const enrichedAnalysis = analyzeRouteGeometry(JSON.stringify(enriched))!
+const enrichedWalkingSeconds = hikingTimeMinutes(enrichedAnalysis.distanceKm, enrichedAnalysis.gain!, enrichedAnalysis.loss!) * 60
 const savedTour = {
   place_id: 42,
   name: 'Saved ridge',
@@ -299,7 +304,7 @@ describe('useTourPlanner', () => {
     expect(result.current.canSave).toBe(true)
     await act(async () => { await result.current.save() })
     expect(createTour).toHaveBeenCalledWith(73, expect.objectContaining({
-      duration_seconds: routed.durationSeconds,
+      duration_seconds: enrichedWalkingSeconds,
       planned_duration_minutes: 95,
       break_additional_minutes: 40,
     }))
@@ -311,13 +316,15 @@ describe('useTourPlanner', () => {
     act(() => result.current.setPlannedDurationMinutes(null))
     await act(async () => { await result.current.save() })
     expect(updateTour).toHaveBeenCalledWith(73, savedTour.place_id, expect.objectContaining({
-      duration_seconds: routed.durationSeconds,
+      duration_seconds: enrichedWalkingSeconds,
       planned_duration_minutes: null,
       break_additional_minutes: 40,
     }))
   })
 
   it('RS-02: recalculates automatic total when route changes but preserves a manual override', async () => {
+    // No heights for this line, so the router's time stands and each new route brings its own.
+    enrichTourElevations.mockResolvedValue(routed.coordinates)
     routeWalkingTour
       .mockResolvedValueOnce({ ...routed, durationSeconds: 3600 })
       .mockResolvedValueOnce({ ...routed, durationSeconds: 5400 })

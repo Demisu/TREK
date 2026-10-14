@@ -22,12 +22,15 @@ export default function FerrataDetailOverlay({
   onOutsidePress,
   insetEnd,
   bottom,
+  width,
 }: {
   selection: FerrataSelection | null;
   onClose: () => void;
   onOutsidePress?: () => void;
   insetEnd: number;
   bottom: number;
+  /** A fixed width, to match what the card stands on (the grade legend in 3D). */
+  width?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const open = !!selection;
@@ -55,11 +58,11 @@ export default function FerrataDetailOverlay({
   return (
     <div
       ref={ref}
-      className="absolute z-[20] flex justify-end"
+      className="absolute z-[20] flex justify-end transition-[bottom] duration-200 ease-out"
       style={{ insetInlineEnd: insetEnd, bottom, maxWidth: `calc(100% - ${insetEnd + 32}px)` }}
       data-testid="ferrata-detail-overlay"
     >
-      <FerrataDetailCard group={selection.group} segment={selection.segment} onClose={onClose} />
+      <FerrataDetailCard group={selection.group} segment={selection.segment} onClose={onClose} width={width} />
     </div>
   );
 }

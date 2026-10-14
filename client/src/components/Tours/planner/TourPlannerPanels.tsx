@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { TourListItem } from '@trek/shared'
-import { AlertTriangle, ArrowLeft, Info, Plus, Redo2, RotateCcw, Save, Trash2, Undo2 } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Circle, Info, Loader2, Plus, Redo2, RotateCcw, Save, Trash2, Undo2 } from 'lucide-react'
 import type { Day } from '../../../types'
 import { useTranslation } from '../../../i18n'
 import { useSettingsStore } from '../../../store/settingsStore'
@@ -58,9 +58,21 @@ function RailTitle({ title, sub, aside }: { title: string; sub?: ReactNode; asid
   )
 }
 
+/** A status as a small round icon beside the title, its words in the tooltip and for a screen reader. */
+function StatusDot({ label, tone, children }: { label: string; tone: 'neutral' | 'info' | 'warning'; children: ReactNode }) {
+  const look = tone === 'warning' ? 'text-warning' : tone === 'info' ? 'text-info' : 'text-content-muted'
+  return (
+    <Tooltip label={label}>
+      <span aria-label={label} className={`grid h-[20px] w-[20px] flex-none place-items-center rounded-full bg-surface-card shadow-sm ring-1 ring-inset ring-edge-faint ${look}`}>
+        {children}
+      </span>
+    </Tooltip>
+  )
+}
+
 /**
- * What the editor is doing right now, as badges under the head's title: a
- * restored draft, routing or saving, and a failure with its retry. Nothing
+ * What the editor is doing right now, as icon badges beside the head's title:
+ * a restored draft, routing or saving, and a failure with its retry. Nothing
  * when there is nothing to say.
  */
 function RailStatusBadges({ planner }: { planner: TourPlannerController }) {
@@ -71,19 +83,21 @@ function RailStatusBadges({ planner }: { planner: TourPlannerController }) {
   const canRetry = planner.status === 'routing-failed' || planner.status === 'elevation-failed'
   if (!restored && !statusKey && !failed) return null
   const warning = planner.error != null || canRetry
+  const statusLabel = failed ? t('tours.planner.status.saveFailed') : statusKey ? t(statusKey) : null
+  const busy = planner.isSaving || planner.status === 'routing' || planner.status === 'enriching-elevation'
   return (
-    <div role="status" data-testid="tour-planner-status" className="mt-1 flex min-w-0 flex-wrap items-center gap-1">
+    <span role="status" data-testid="tour-planner-status" className="ms-1.5 flex flex-none items-center gap-1">
       {restored && (
-        <Tooltip label={t('tours.planner.restored')}>
-          <span className="inline-flex" aria-label={t('tours.planner.restored')}>
-            <SoftPill tone="info" icon={<RotateCcw size={10} strokeWidth={2.2} className="flex-none" />}>{t('tours.planner.restoredShort')}</SoftPill>
-          </span>
-        </Tooltip>
+        <StatusDot label={t('tours.planner.restored')} tone="info">
+          <RotateCcw size={11} strokeWidth={2.2} />
+        </StatusDot>
       )}
-      {(failed || statusKey) && (
-        <SoftPill tone={warning ? 'warning' : 'neutral'} icon={warning ? <AlertTriangle size={10} strokeWidth={2.2} className="flex-none" /> : undefined}>
-          {failed ? t('tours.planner.status.saveFailed') : statusKey ? t(statusKey) : null}
-        </SoftPill>
+      {statusLabel && (
+        <StatusDot label={statusLabel} tone={warning ? 'warning' : 'neutral'}>
+          {warning
+            ? <AlertTriangle size={11} strokeWidth={2.2} />
+            : busy ? <Loader2 size={11} strokeWidth={2.2} className="animate-spin" /> : <Circle size={7} strokeWidth={3} />}
+        </StatusDot>
       )}
       {canRetry && (
         <button type="button" onClick={planner.retry}
@@ -92,7 +106,7 @@ function RailStatusBadges({ planner }: { planner: TourPlannerController }) {
           {t('tours.planner.retry')}
         </button>
       )}
-    </div>
+    </span>
   )
 }
 
@@ -187,7 +201,7 @@ export function TourPlannerRail({ planner, canEdit: editPermission, canAssign: a
           <BarButton label={t('tours.planner.backToTours')} onClick={() => requestClose()} disabled={isSaving} className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
             <ArrowLeft size={16} strokeWidth={2} />
           </BarButton>
-          <RailTitle title={t(isSavedEdit ? 'tours.planner.editTitle' : 'tours.planner.newTitle')} sub={<RailStatusBadges planner={planner} />} />
+          <RailTitle title={t(isSavedEdit ? 'tours.planner.editTitle' : 'tours.planner.newTitle')} aside={<RailStatusBadges planner={planner} />} />
           <BarButton label={t('tours.planner.undo')} onClick={() => { if (canEdit && !isSaving) planner.undo() }} disabled={!canEdit || isSaving || !planner.canUndo}>
             <Undo2 size={15} strokeWidth={2} />
           </BarButton>
@@ -315,9 +329,14 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
   const routeAnalysis = planner.routeAnalysis
 
   // A finished save is said once, as the app says it everywhere: a toast.
+  // Once per save: the toast helper and t are fresh objects on every render, so the
+  // effect reruns often; only a save it has not announced yet gets the toast.
   const savedTour = planner.saveOutcome
+  const announced = useRef<typeof savedTour>(null)
   useEffect(() => {
-    if (savedTour) toast.success(t('tours.planner.saved'))
+    if (!savedTour || announced.current === savedTour) return
+    announced.current = savedTour
+    toast.success(t('tours.planner.saved'))
   }, [savedTour, t, toast])
 
   const openTour = async (tour: TourListItem) => {
@@ -341,7 +360,9 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
 
   const tourTimeFields = [
     {
-      label: t('tours.planner.inspector.duration'),
+      label: t('tours.planner.walkingEstimated'),
+      shortLabel: t('tours.planner.walkingEstimatedShort'),
+      info: { label: t('tours.planner.walkingEstimatedInfoLabel'), description: t('tours.planner.walkingEstimatedInfo') },
       value: planner.walkingDurationMinutes == null
         ? t('tours.planner.walkingTimeUnknown')
         : formatPlannedTourDuration(planner.walkingDurationMinutes),

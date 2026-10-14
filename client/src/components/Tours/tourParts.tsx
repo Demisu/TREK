@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react'
+import { useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import type { TourListItem } from '@trek/shared'
-import { AlertTriangle, ArrowDown, ArrowUp, ChevronDown, Clock, Mountain, Plus, Ruler, type LucideIcon } from 'lucide-react'
+import { AlertTriangle, ArrowDown, ArrowUp, ChevronDown, Clock, Info, Mountain, Plus, Ruler, type LucideIcon } from 'lucide-react'
 import type { Day, DistanceUnit } from '../../types'
 import type { RouteGeometryAnalysis } from '../../utils/routeGeometry'
 import { useTranslation } from '../../i18n'
@@ -159,6 +159,20 @@ export function TourDayMenu({ days, placeId, onPick, disabled = false, label, va
   )
 }
 
+/** The round info dot beside a label; hover, focus and a tap show the explanation as a tooltip. */
+export function InfoDot({ description, label }: { description: string; label: string }) {
+  const id = useId()
+  return (
+    <Tooltip label={description}>
+      <button type="button" aria-label={label} aria-describedby={id}
+        className="grid h-5 w-5 flex-none place-items-center rounded-full text-content-faint transition-colors hover:bg-surface-card hover:text-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
+        <Info size={13} strokeWidth={2} aria-hidden="true" />
+        <span id={id} className="sr-only">{description}</span>
+      </button>
+    </Tooltip>
+  )
+}
+
 /** A labelled block of a tour panel: the eyebrow, an optional control on its right, then the content. */
 export function TourSection({ label, action, children, className = '' }: { label: ReactNode; action?: ReactNode; children: ReactNode; className?: string }) {
   return (
@@ -197,6 +211,42 @@ export function FoldButton({ expanded, onToggle, controls, label }: { expanded: 
   )
 }
 
+interface TourMetricField {
+  label: string
+  /** Said instead of `label` where the field is too narrow for it, rather than cutting it off. */
+  shortLabel?: string
+  value: string
+  info?: { label: string; description: string }
+}
+
+/** A label that falls back to its short form when the full one does not fit its box. */
+function FitLabel({ full, short }: { full: string; short?: string }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const [narrow, setNarrow] = useState(false)
+  useLayoutEffect(() => {
+    const element = ref.current?.parentElement
+    if (!element || !short) return
+    // Measured with the full text in place: it fits when it does not overflow its box.
+    const check = () => {
+      const probe = ref.current
+      if (!probe) return
+      setNarrow(probe.scrollWidth > element.clientWidth + 0.5)
+    }
+    check()
+    if (typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(check)
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [full, short])
+  if (!short) return <>{full}</>
+  return (
+    <>
+      <span ref={ref} aria-hidden={narrow || undefined} className={`inline-block whitespace-nowrap ${narrow ? 'invisible absolute' : ''}`}>{full}</span>
+      {narrow && <span title={full}>{short}</span>}
+    </>
+  )
+}
+
 /**
  * A tour's numbers as labelled fields, the way a booking card shows its facts:
  * distance, any extra the caller has (the walking time), then the altitudes.
@@ -204,12 +254,12 @@ export function FoldButton({ expanded, onToggle, controls, label }: { expanded: 
 export function TourMetricFields({ analysis, unit, extra = [], columns }: {
   analysis: Pick<RouteGeometryAnalysis, 'distanceKm' | 'minEle' | 'maxEle' | 'gain' | 'loss'> | null
   unit?: DistanceUnit
-  extra?: Array<{ label: string; value: string }>
+  extra?: Array<TourMetricField>
   /** A fixed column count for a narrow rail; the inspector lets the fields flow. */
   columns?: 2
 }) {
   const { t } = useTranslation()
-  const fields: Array<{ label: string; value: string }> = [
+  const fields: TourMetricField[] = [
     { label: t('tours.detail.distance'), value: analysis ? formatDistance(analysis.distanceKm, unit) : '-' },
     ...extra,
   ]
@@ -222,7 +272,10 @@ export function TourMetricFields({ analysis, unit, extra = [], columns }: {
     <dl className={`m-0 grid gap-2 ${grid}`}>
       {fields.map(field => (
         <div key={field.label} className="min-w-0">
-          <dt><Eyebrow className="mb-[3px] truncate">{field.label}</Eyebrow></dt>
+          <dt className="mb-[3px] flex min-w-0 items-center gap-0.5">
+            <Eyebrow className="relative min-w-0 truncate"><FitLabel full={field.label} short={field.shortLabel} /></Eyebrow>
+            {field.info && <span className="-my-1 flex-none"><InfoDot label={field.info.label} description={field.info.description} /></span>}
+          </dt>
           <dd className={`${BOX} m-0 truncate px-[10px] py-[7px] text-center font-semibold tabular-nums text-content`} style={fs(12.5, 'body')}>{field.value}</dd>
         </div>
       ))}

@@ -195,7 +195,6 @@ describe('TourPlannerToursRail', () => {
     fireEvent.click(screen.getByRole('button', { name: /Summit day/ }))
 
     await waitFor(() => expect(onAssignToDay).toHaveBeenCalledWith(42, 7))
-    expect(screen.getByRole('status')).toHaveTextContent('Tour saved')
     expect(screen.queryByRole('button', { name: 'Assign to a day' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Add to day: Saved ridge walk' })).toBeEnabled()
   })
@@ -563,7 +562,7 @@ describe('TourPlannerRail', () => {
     expect(screen.getAllByLabelText('Move waypoint up').every(element => element.getAttribute('aria-disabled') === 'true')).toBe(true)
     expect(screen.getAllByLabelText('Move waypoint down').every(element => element.getAttribute('aria-disabled') === 'true')).toBe(true)
     expect(screen.getAllByLabelText('Remove waypoint').every(element => element.getAttribute('aria-disabled') === 'true')).toBe(true)
-    expect(screen.getByRole('status')).toHaveTextContent('Saving…')
+    expect(within(screen.getByRole('status')).getByLabelText('Saving…')).toBeInTheDocument()
   })
 
   it('TOUR-PLANNER-RAIL-006: places the safety note beside Save and numbers rows like map pins', () => {
@@ -813,12 +812,10 @@ describe('TourPlannerRail', () => {
 
   it('TOUR-PLANNER-RAIL-019: restored new and saved drafts show a non-blocking notice', () => {
     const { rerender } = render(<TourPlannerRail planner={planner({ draftRestored: true, hasUnsavedChanges: true, mode: { type: 'new-draft' } })} />)
-    expect(screen.getByRole('status')).toHaveTextContent('Draft')
     expect(screen.getByLabelText('Unsaved draft restored')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'New tour' })).toBeInTheDocument()
 
     rerender(<TourPlannerRail planner={planner({ draftRestored: true, hasUnsavedChanges: true, editingPlaceId: tour.place_id, mode: { type: 'edit-saved', placeId: tour.place_id } })} />)
-    expect(screen.getByRole('status')).toHaveTextContent('Draft')
     expect(screen.getByLabelText('Unsaved draft restored')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Edit tour' })).toBeInTheDocument()
   })

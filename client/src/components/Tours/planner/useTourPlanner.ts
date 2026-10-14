@@ -5,6 +5,7 @@ import { randomId } from '../../../utils/randomId'
 import type { TourBaseLayer } from '../../Map/MapLayerSwitcher'
 import { analyzeRouteGeometry, type RouteProfileFocus } from '../../../utils/routeGeometry'
 import { enrichTourElevations, routeWalkingTour, type TourElevationPoint } from './tourRouting'
+import { hikingTimeMinutes } from '../hikingTime'
 import { useTourPermissions, type TourPermissionProps } from '../useTourPermissions'
 
 export interface TourPlannerWaypoint {
@@ -417,7 +418,15 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const websiteInvalid = website.trim().length > 0 && !tourWebsiteSchema.safeParse(website).success
   const plannedDurationInvalid = plannedDurationMinutes !== null
     && (!Number.isInteger(plannedDurationMinutes) || plannedDurationMinutes < 0 || plannedDurationMinutes > MAX_PLANNED_TOUR_DURATION_MINUTES)
-  const walkingDurationMinutes = durationSeconds === null ? null : Math.round(durationSeconds / 60)
+  const routeAnalysis = useMemo(
+    () => analyzeRouteGeometry(JSON.stringify(enrichedGeometry ?? route)),
+    [enrichedGeometry, route],
+  )
+  // The router's time only stands in until the route has its heights; from then on the
+  // walking time is the signposts' rule over distance, climb and descent.
+  const walkingDurationMinutes = routeAnalysis?.gain != null && routeAnalysis.loss != null
+    ? hikingTimeMinutes(routeAnalysis.distanceKm, routeAnalysis.gain, routeAnalysis.loss)
+    : durationSeconds === null ? null : Math.round(durationSeconds / 60)
   const automaticPlannedTotalMinutes = walkingDurationMinutes === null
     ? null
     : walkingDurationMinutes + (breakAdditionalMinutes ?? 0)
@@ -603,10 +612,6 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   }, [interruptRouting])
 
   const waypointKey = useMemo(() => tourWaypointKey(waypoints), [waypoints])
-  const routeAnalysis = useMemo(
-    () => analyzeRouteGeometry(JSON.stringify(enrichedGeometry ?? route)),
-    [enrichedGeometry, route],
-  )
   const readOnlyGpxAnalysis = useMemo(
     () => analyzeRouteGeometry(readOnlyGpxTour?.routeGeometry),
     [readOnlyGpxTour?.routeGeometry],
@@ -713,7 +718,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
         sequence,
       })),
       max_hiking_difficulty: maxHikingDifficulty,
-      duration_seconds: durationSeconds,
+      duration_seconds: walkingDurationMinutes === null ? durationSeconds : walkingDurationMinutes * 60,
       planned_duration_minutes: plannedDurationMinutes,
       break_additional_minutes: breakAdditionalMinutes,
     } as const
@@ -755,7 +760,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
         setIsSaving(false)
       }
     }
-  }, [breakAdditionalMinutes, canSave, description, durationSeconds, editingPlaceId, enrichedGeometry, invalidateDetailRequest, maxHikingDifficulty, name, onSaved, plannedDurationMinutes, storageKey, tripId, waypoints, website])
+  }, [breakAdditionalMinutes, canSave, description, durationSeconds, walkingDurationMinutes, editingPlaceId, enrichedGeometry, invalidateDetailRequest, maxHikingDifficulty, name, onSaved, plannedDurationMinutes, storageKey, tripId, waypoints, website])
 
   return {
     canEdit, canAssign,
