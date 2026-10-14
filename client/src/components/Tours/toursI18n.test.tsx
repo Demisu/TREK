@@ -144,7 +144,7 @@ describe('Tours English and German copy', () => {
       ['saving', 'tours.planner.status.saving'],
     ] as const) {
       rerender(<TourPlannerRail planner={planner({ mode: { type: 'new-draft' }, status, error: null })} />)
-      expect(screen.getByText(toursText(de, key))).toBeInTheDocument()
+      expect(screen.getByLabelText(toursText(de, key))).toBeInTheDocument()
       assertNoRawToursKeys()
     }
     rerender(<TourPlannerRail planner={planner({ mode: { type: 'new-draft' }, status: 'ready', error: 'save' })} />)

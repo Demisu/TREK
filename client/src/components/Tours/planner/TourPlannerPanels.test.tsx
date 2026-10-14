@@ -116,7 +116,7 @@ describe('TourPlannerToursRail', () => {
       walkingDurationMinutes: 80, breakAdditionalMinutes: 50, plannedTotalMinutes: 130,
     })} tours={[tour]} {...railProps} />)
 
-    expect(screen.getByText('Walking time')).toBeInTheDocument()
+    expect(screen.getByText(/^(Estimated walking time|Est. walking time)$/)).toBeInTheDocument()
     expect(screen.getByText('1 h 20 min')).toBeInTheDocument()
   })
 
@@ -219,7 +219,7 @@ describe('TourPlannerToursRail', () => {
     const onViewGpxTour = vi.fn()
     render(<TourPlannerToursRail planner={controller} tours={[gpxTour]} {...railProps} onViewGpxTour={onViewGpxTour} />)
 
-    expect(screen.getByRole('option', { name: /Saved ridge walk/i })).toHaveTextContent('GPX import')
+    expect(screen.getByRole('option', { name: /Saved ridge walk/i })).toHaveTextContent('GPX')
     fireEvent.click(screen.getByRole('option', { name: /Saved ridge walk/i }))
     expect(onViewGpxTour).not.toHaveBeenCalled()
     expect(controller.openTour).not.toHaveBeenCalled()
@@ -366,20 +366,19 @@ describe('TourPlannerRail', () => {
 
     expect(screen.queryByTestId('tour-planner-walking-time')).not.toBeInTheDocument()
     expect(screen.getByTestId('tour-planner-time-grid')).toHaveClass('grid')
-    expect(screen.getByTestId('tour-planner-time-grid')).toHaveClass('grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]')
+    expect(screen.getByTestId('tour-planner-time-grid')).toHaveClass('grid-cols-2')
     const breaks = screen.getByLabelText('Breaks / additional time')
-    expect(breaks).toHaveValue(35)
+    // A duration field shows "1 h 35 min" and reads minutes, a clock or units back.
+    expect(breaks).toHaveValue('35 min')
     fireEvent.change(breaks, { target: { value: '50' } })
     expect(setBreakAdditionalMinutes).toHaveBeenCalledWith(50)
     fireEvent.change(breaks, { target: { value: '' } })
     expect(setBreakAdditionalMinutes).toHaveBeenLastCalledWith(null)
     fireEvent.change(breaks, { target: { value: '50' } })
     const input = screen.getByLabelText('Planned total duration')
-    expect(input).toHaveValue(95)
-    expect(input).toHaveStyle({ width: '6rem' })
-    expect(screen.getByText('Calculated total')).toBeInTheDocument()
+    expect(input).toHaveValue('1 h 35 min')
     expect(controller.durationSeconds).toBe(3600)
-    fireEvent.change(input, { target: { value: '125' } })
+    fireEvent.change(input, { target: { value: '2:05' } })
     expect(setPlannedDurationMinutes).toHaveBeenCalledWith(125)
 
     rerender(<TourPlannerRail planner={planner({
@@ -388,8 +387,8 @@ describe('TourPlannerRail', () => {
       plannedTotalMinutes: 125, walkingDurationMinutes: 60, breakAdditionalMinutes: 35,
     })} />)
     const overriddenInput = screen.getByLabelText(/Planned total duration/)
-    expect(overriddenInput).toHaveValue(125)
-    expect(document.querySelector('label[for="tour-planner-planned-duration"]')).toHaveTextContent('Manual override')
+    expect(overriddenInput).toHaveValue('2 h 5 min')
+    expect(screen.getByTestId('tour-planner-planned-manual')).toHaveTextContent('Manual override')
     fireEvent.change(overriddenInput, { target: { value: '' } })
     expect(setPlannedDurationMinutes).toHaveBeenCalledWith(null)
 
@@ -602,7 +601,8 @@ describe('TourPlannerRail', () => {
     render(<TourPlannerRail planner={controller} />)
 
     const save = screen.getByRole('button', { name: 'Save' })
-    expect(save.parentElement?.parentElement).toHaveTextContent('Routing is planning assistance, not a safety guarantee.')
+    // The safety note lives in the info dot beside the hiking difficulty, as its description.
+    expect(screen.getByRole('button', { name: 'About safety' })).toHaveAccessibleDescription('Routing is planning assistance, not a safety guarantee.')
     expect(save).toHaveClass('bg-accent', 'text-accent-text')
     expect(save).toHaveClass('hover:opacity-90')
     const firstNumber = screen.getByLabelText('Waypoint 1')

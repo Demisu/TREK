@@ -37,14 +37,14 @@ const HIT = 'trek-ferratas-hit';
 const LABEL = 'trek-ferratas-label';
 const LAYERS = [CASING, LINE, HIGHLIGHT_CASING, HIGHLIGHT, HIT];
 
-const ferrata = (id: string, lat: number, name: string): Ferrata => ({
+const ferrata = (id: string, lat: number, name: string, lng = 11.7): Ferrata => ({
   id,
   name,
   grade: { raw: '2', level: 2, plus: null },
   routeName: null,
   geometry: [
-    [lat, 11.7],
-    [lat + 0.01, 11.71],
+    [lat, lng],
+    [lat + 0.01, lng + 0.01],
   ],
   osmUrl: `https://www.openstreetmap.org/${id}`,
 });
@@ -52,7 +52,7 @@ const ferrata = (id: string, lat: number, name: string): Ferrata => ({
 /** Two ferratas: way/1 and way/2 are one (same name, touching), way/3 another. */
 const GROUPS = groupFerratas([
   ferrata('way/1', 46.5, 'Via A'),
-  ferrata('way/2', 46.51, 'Via A'),
+  ferrata('way/2', 46.51, 'Via A', 11.71),
   ferrata('way/3', 47, 'Via B'),
 ]);
 

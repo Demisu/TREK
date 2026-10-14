@@ -49,11 +49,11 @@ describe('routeFerrataCrossings', () => {
   });
 
   it('FE-FERRATA-CROSS-004: a short gap in the data does not split the stretch', () => {
-    const route = northFrom([47.4, 11.0], 20);
-    // The route steps 25 m aside for two points, still within the join gap.
-    route[10] = [route[10][0], 11.0004];
-    route[11] = [route[11][0], 11.0004];
-    expect(routeFerrataCrossings(route, groups)).toHaveLength(1);
+    // Two pieces of one ferrata with 44 m missing between them: the route point
+    // in the middle of the hole is out of reach, the ones beside it are not.
+    const pieces = groupFerratas([ferrata(2, [47.4, 11.0], 10), ferrata(3, [47.4 + 14 * STEP, 11.0], 11)]);
+    expect(pieces).toHaveLength(1);
+    expect(routeFerrataCrossings(northFrom([47.4, 11.0], 25), pieces)).toHaveLength(1);
   });
 });
 

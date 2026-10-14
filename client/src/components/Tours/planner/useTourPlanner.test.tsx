@@ -1644,7 +1644,7 @@ describe('useTourPlanner', () => {
     expect(result.current.canSave).toBe(false)
     expect(localStorage.getItem('tour-draft-29')).toBeNull()
     expect(screen.getByText('Plan a tour')).toBeInTheDocument()
-    expect(screen.queryByText('Tour could not be saved. Your draft is still here.')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Tour could not be saved. Your draft is still here.')).not.toBeInTheDocument()
     await act(async () => { expect(await result.current.save()).toBeNull() })
     expect(updateTour).not.toHaveBeenCalled()
   })
@@ -1669,6 +1669,6 @@ describe('useTourPlanner', () => {
 
     expect(result.current.editingPlaceId).toBe(savedTour.place_id)
     expect(result.current.name).toBe('Keep this draft')
-    expect(screen.getByText('Tour could not be saved. Your draft is still here.')).toBeInTheDocument()
+    expect(screen.getByLabelText('Tour could not be saved. Your draft is still here.')).toBeInTheDocument()
   })
 })

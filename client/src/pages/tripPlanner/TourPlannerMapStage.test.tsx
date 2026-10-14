@@ -5,6 +5,7 @@ import { act, fireEvent, render, screen, waitFor } from '../../../tests/helpers/
 import { useTripFerratas } from '../../components/Ferratas/useTripFerratas';
 import type { MapViewProps } from '../../components/Map/mapViewContract';
 import { useSettingsStore } from '../../store/settingsStore';
+import { initialTourPlaceToolState, useTourPlaceToolStore } from '../../store/tourPlaceToolStore';
 import { TourPlannerMapStage, type TourPlannerMapStageProps } from './TourPlannerMapStage';
 
 type Handler = (event?: unknown) => void;
@@ -19,6 +20,21 @@ const stage = vi.hoisted(() => {
     once: vi.fn(() => map),
     off: vi.fn(() => map),
     loaded: vi.fn(() => false),
+    // The style never finishes in these tests: the ferrata layer waits for it and draws nothing.
+    isStyleLoaded: vi.fn(() => false),
+    getContainer: vi.fn(() => document.body),
+    getLayer: vi.fn(() => undefined),
+    hasImage: vi.fn(() => false),
+    addImage: vi.fn(),
+    removeImage: vi.fn(),
+    addSource: vi.fn(),
+    addLayer: vi.fn(),
+    removeLayer: vi.fn(),
+    removeSource: vi.fn(),
+    setFilter: vi.fn(),
+    setPaintProperty: vi.fn(),
+    queryRenderedFeatures: vi.fn(() => []),
+    getCanvas: vi.fn(() => ({ style: {} })),
     getBounds: vi.fn(() => ({
       getSouth: () => 46.5,
       getWest: () => 11.7,
@@ -153,6 +169,7 @@ async function openTerrain() {
 
 beforeEach(() => {
   window.sessionStorage.clear();
+  useTourPlaceToolStore.setState(initialTourPlaceToolState());
   stage.listeners.clear();
   stage.flatMap.props = null;
   stage.search.props = null;
@@ -251,6 +268,7 @@ describe('TourPlannerMapStage', () => {
       null,
       false,
       { south: 46, west: 7, north: 46, east: 7 },
+      [],
     ]);
   });
 
@@ -277,8 +295,8 @@ describe('TourPlannerMapStage', () => {
     const overlay = screen.getByTestId('ferrata-detail-overlay');
     // The right panel's 380px plus the 20px the layer pill keeps to the left one.
     expect(overlay.style.insetInlineEnd).toBe('400px');
-    // Above the bottom row: its 12px gap, the 42px pill, the same gap again.
-    expect(overlay.style.bottom).toBe('66px');
+    // On the flat map nothing is under its corner: it rests at the edge gap.
+    expect(overlay.style.bottom).toBe('12px');
     expect(overlay).toHaveTextContent('Via delle Trincee');
     expect(stage.flatMap.props?.ferrataLayer?.selectedId).toBe(group.id);
 

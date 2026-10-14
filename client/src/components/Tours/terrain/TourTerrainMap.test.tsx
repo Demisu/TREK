@@ -22,6 +22,7 @@ const gl = vi.hoisted(() => {
   const listeners = new Map<string, Handler[]>();
   const sources = new Map<string, Record<string, unknown>>();
   const markers: MarkerStub[] = [];
+  const container = document.createElement('div');
   const listen = (type: string, fn: Handler) => listeners.set(type, [...(listeners.get(type) ?? []), fn]);
   const map = {
     on: vi.fn((type: string, fn: Handler) => {
@@ -39,6 +40,14 @@ const gl = vi.hoisted(() => {
       listen(type, wrapped);
       return map;
     }),
+    off: vi.fn((type: string, fn: Handler) => {
+      listeners.set(
+        type,
+        (listeners.get(type) ?? []).filter((other) => other !== fn)
+      );
+      return map;
+    }),
+    getContainer: vi.fn(() => container),
     remove: vi.fn(),
     fitBounds: vi.fn(),
     jumpTo: vi.fn(),

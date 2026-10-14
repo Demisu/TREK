@@ -91,17 +91,18 @@ const ferrata = (
   id: string,
   name: string | null,
   level: number | null,
-  options: { routeName?: string | null; lat?: number; plus?: '+' | null } = {}
+  options: { routeName?: string | null; lat?: number; lng?: number; plus?: '+' | null } = {}
 ): Ferrata => {
   const lat = options.lat ?? 46.5;
+  const lng = options.lng ?? 11.7;
   return {
     id,
     name,
     grade: { raw: level === null ? null : String(level), level, plus: options.plus ?? null },
     routeName: options.routeName ?? null,
     geometry: [
-      [lat, 11.7],
-      [lat + 0.01, 11.71],
+      [lat, lng],
+      [lat + 0.01, Math.round((lng + 0.01) * 1e6) / 1e6],
     ],
     osmUrl: `https://www.openstreetmap.org/${id}`,
   };
@@ -141,7 +142,8 @@ describe('FerrataLayerLeaflet', () => {
   it('FE-FERRATA-LEAFLET-003: the tooltip names the ferrata and its grade range, or falls back to the route and unnamed', () => {
     const groups = groupFerratas([
       ferrata('way/1', 'Pisciadù', 2),
-      ferrata('way/2', 'Pisciadù', 4, { lat: 46.51, plus: '+' }),
+      // Picks up where way/1 ends: one ferrata in two segments.
+      ferrata('way/2', 'Pisciadù', 4, { lat: 46.51, lng: 11.71, plus: '+' }),
       ferrata('way/3', null, 3, { routeName: 'Sentiero attrezzato', lat: 47 }),
       ferrata('way/4', null, null, { lat: 48 }),
     ]);
@@ -183,7 +185,7 @@ describe('FerrataLayerLeaflet', () => {
     root.style.setProperty('--map-ferrata-lit', 'navy');
     const groups = groupFerratas([
       ferrata('way/1', 'Via A', 2),
-      ferrata('way/2', 'Via A', 3, { lat: 46.51 }),
+      ferrata('way/2', 'Via A', 3, { lat: 46.51, lng: 11.71 }),
       ferrata('way/3', 'Via B', 3, { lat: 47 }),
     ]);
     const { rerender } = render(<FerrataLayerLeaflet groups={groups} onSelect={vi.fn()} />);

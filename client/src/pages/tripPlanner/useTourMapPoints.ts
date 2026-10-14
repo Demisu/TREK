@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { useOutsidePressGuard } from '../../components/Ferratas/useOutsidePressGuard';
 import type { TourPlannerController } from '../../components/Tours/planner/useTourPlanner';
 import { useWaypointPlaceNames } from '../../components/Tours/planner/useWaypointPlaceNames';
@@ -5,6 +6,7 @@ import { useTranslation } from '../../i18n';
 import { usePlacedPointHint } from './usePlacedPointHint';
 import { useTourMapPlacing, type TourMapMode } from './useTourMapPlacing';
 
+const NO_POINTS: never[] = [];
 const ROLE_KEY = {
   start: 'tours.planner.start',
   via: 'tours.planner.via',
@@ -44,7 +46,7 @@ export function useTourMapPoints({ tourPlanner, canPlaceEdit, mode, ferrataOpen,
   const { t } = useTranslation();
   const editing = tourPlanner.mode.type === 'new-draft' || tourPlanner.mode.type === 'edit-saved';
   // The same lookup as the waypoint list, so a pin is named on hover as its row is.
-  const placeNames = useWaypointPlaceNames(editing ? tourPlanner.waypoints : []);
+  const placeNames = useWaypointPlaceNames(editing ? tourPlanner.waypoints : NO_POINTS);
   const canEditRoute = canPlaceEdit && !tourPlanner.isSaving && editing;
   const { active, toggle, gate, attach } = useTourMapPlacing(mode);
   const placeOn = canEditRoute && active;
@@ -61,16 +63,23 @@ export function useTourMapPoints({ tourPlanner, canPlaceEdit, mode, ferrataOpen,
     addWaypoint(lat, lng);
   };
   const onAdd = guard(gate(placeOn ? addPoint : undefined));
-
-  return {
-    waypoints: {
-      points: editing
-        ? tourPlanner.waypoints.map((point, index) => ({
+  // Kept by identity while nothing about the points changed, so the map does not redraw its pins on every render.
+  const { waypoints } = tourPlanner;
+  const points = useMemo(
+    () =>
+      editing
+        ? waypoints.map((point, index) => ({
             ...point,
             name: placeNames[point.id] ?? t('tours.planner.waypointLabel', { n: index + 1 }),
             detail: t(ROLE_KEY[point.role]),
           }))
-        : [],
+        : NO_POINTS,
+    [editing, waypoints, placeNames, t]
+  );
+
+  return {
+    waypoints: {
+      points,
       selectedId: editing ? tourPlanner.selectedWaypointId : null,
       onSelect: tourPlanner.setSelectedWaypointId,
       onMove: canEditRoute ? tourPlanner.setWaypointPosition : undefined,

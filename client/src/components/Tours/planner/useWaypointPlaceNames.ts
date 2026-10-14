@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { usePlaceLanguage } from '../../../hooks/usePlaceLanguage';
 import { reverseGeocodeRepo } from '../../../repo/reverseGeocodeRepo';
 
@@ -55,10 +55,13 @@ export function useWaypointPlaceNames(waypoints: WaypointCoordinate[]): Record<s
     };
   }, [lang, signature]);
 
-  const result: Record<string, string> = {};
-  for (const point of waypoints) {
-    const entry = names[point.id];
-    if (entry && entry.key === coordinateKey(point)) result[point.id] = entry.name;
-  }
-  return result;
+  // The same object while the points and their names stay, so a list or a map built on it does not redraw.
+  return useMemo(() => {
+    const result: Record<string, string> = {};
+    for (const point of waypoints) {
+      const entry = names[point.id];
+      if (entry && entry.key === coordinateKey(point)) result[point.id] = entry.name;
+    }
+    return result;
+  }, [names, waypoints]);
 }

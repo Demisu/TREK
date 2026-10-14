@@ -73,9 +73,9 @@ describe('Tours permissions without database setup', () => {
 
   it.each([[false, false], [true, false], [false, true], [true, true]])('update edit=%s assign=%s writes only with place rights and never assigns', async (canEdit, canAssign) => {
     vi.useFakeTimers()
-    state.detail.mockResolvedValue({ tour, waypoints: [{ lat: 48, lng: 11, role: 'start' }, { lat: 49, lng: 12, role: 'end' }] })
-    state.route.mockResolvedValue({ coordinates: [[48, 11], [49, 12]], distanceMeters: 1000, durationSeconds: 600 })
-    state.elevation.mockResolvedValue([[48, 11, 500], [49, 12, 550]])
+    state.detail.mockResolvedValue({ tour, waypoints: [{ lat: 48, lng: 11, role: 'start' }, { lat: 48.008, lng: 11.008, role: 'end' }] })
+    state.route.mockResolvedValue({ coordinates: [[48, 11], [48.008, 11.008]], distanceMeters: 1000, durationSeconds: 600 })
+    state.elevation.mockResolvedValue([[48, 11, 500], [48.008, 11.008, 550]])
     state.update.mockResolvedValue({ tour, waypoints: [] })
     const saved = vi.fn()
     const { result } = renderHook(() => useTourPlanner({ tripId: 7, canEdit, canAssign, onSaved: saved }))
@@ -159,11 +159,11 @@ describe('Tours permissions without database setup', () => {
   })
   it.each([[false, false], [true, false], [false, true], [true, true]])('planner edit=%s assign=%s gates direct create and retained save after revocation', async (canEdit, canAssign) => {
     vi.useFakeTimers()
-    state.route.mockResolvedValue({ coordinates: [[48, 11], [49, 12]], distanceMeters: 1000, durationSeconds: 600 })
-    state.elevation.mockResolvedValue([[48, 11, 500], [49, 12, 550]])
+    state.route.mockResolvedValue({ coordinates: [[48, 11], [48.008, 11.008]], distanceMeters: 1000, durationSeconds: 600 })
+    state.elevation.mockResolvedValue([[48, 11, 500], [48.008, 11.008, 550]])
     state.create.mockResolvedValue({ tour, waypoints: [] })
     const { result, rerender } = renderHook(({ edit }) => useTourPlanner({ tripId: 7, canEdit: edit, canAssign }), { initialProps: { edit: canEdit } })
-    act(() => { result.current.setName('Ridge'); result.current.addWaypoint(48, 11); result.current.addWaypoint(49, 12) })
+    act(() => { result.current.setName('Ridge'); result.current.addWaypoint(48, 11); result.current.addWaypoint(48.008, 11.008) })
     await act(async () => { await vi.advanceTimersByTimeAsync(450) })
     expect(result.current.canSave).toBe(canEdit)
     expect(result.current.waypoints.length).toBe(canEdit ? 2 : 0)

@@ -49,7 +49,7 @@ describe('useFerrataMapLayer', () => {
     expect(result.current.layer.active).toBe(false);
     expect(result.current.layer.count).toBe(0);
     expect(result.current.selected).toBeNull();
-    expect(lastCall()).toEqual([7, null, false, null]);
+    expect(lastCall()).toEqual([7, null, false, null, []]);
   });
 
   it('FE-FERRATA-MAPLAYER-002: an area reported while off is remembered without a re-render, and used once it is on', () => {

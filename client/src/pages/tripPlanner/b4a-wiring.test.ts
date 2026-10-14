@@ -16,6 +16,8 @@ const hookText = readFileSync(resolve(process.cwd(), 'src/pages/tripPlanner/useT
 const pageControllerText = readFileSync(resolve(process.cwd(), 'src/pages/tripPlanner/useTripPlannerPage.ts'), 'utf8')
 // The Tours map and its edit gates live in the map stage the page renders.
 const mapStageText = readFileSync(resolve(process.cwd(), 'src/pages/tripPlanner/TourPlannerMapStage.tsx'), 'utf8')
+// Which clicks place a point is decided by the map stage's points hook.
+const mapPointsText = readFileSync(resolve(process.cwd(), 'src/pages/tripPlanner/useTourMapPoints.ts'), 'utf8')
 const parse = (file: string, text: string) => ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true)
 const page = parse(pagePath, pageText)
 const hook = parse(hookPath, hookText)
@@ -187,17 +189,18 @@ test('B4A desktop page delegates Tours state and permissions to its page hook', 
   const mapClickGate = collect(mapStage, node => ts.isJsxAttribute(node)
     && node.name.getText(mapStage) === 'onMapClick'
     && node.initializer && ts.isJsxExpression(node.initializer)
-    && !!node.initializer.expression && /canEditRoute|canPlaceEdit/.test(node.initializer.expression.getText(mapStage)))
+    && !!node.initializer.expression && /onAdd/.test(node.initializer.expression.getText(mapStage)))
   assert.ok(mapClickGate.length > 0)
   // The gate the 2D and 3D maps share is derived from the place permission.
-  assert.match(mapStageText, /const canEditRoute = canPlaceEdit && /)
+  assert.match(mapStageText, /useTourMapPoints\(\{[\s\S]*?canPlaceEdit,/)
+  assert.match(mapPointsText, /const canEditRoute = canPlaceEdit && /)
 })
 
 test('B4A dedicated desktop controller retains GPX, draft, focus, and saved rail wiring', () => {
   assert.ok(callNamed(pageController, 'useTourPlanner'))
   assert.ok(pageText.includes('const pageState = useTripPlannerPage()'))
   assert.ok(pageControllerText.includes("tourPlanner.mode.type === 'view-gpx'"))
-  for (const mode of ['new-draft', 'edit-saved']) assert.ok(mapStageText.includes(`tourPlanner.mode.type === '${mode}'`))
+  for (const mode of ['new-draft', 'edit-saved']) assert.ok(mapPointsText.includes(`tourPlanner.mode.type === '${mode}'`))
   assert.match(pageControllerText, /readOnlyGpxAnalysis\?\.routeCoordinates/)
   assert.match(mapStageText, /routeProfileFocus=\{tourPlanner\.routeProfileFocus\}/)
   assert.match(pageText, /tourPlanner\.viewGpxTour\(tour, place\?\.route_geometry \?\? null\)/)

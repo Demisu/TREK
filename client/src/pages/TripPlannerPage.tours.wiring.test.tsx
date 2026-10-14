@@ -203,7 +203,7 @@ describe('TripPlannerPage — shell', () => {
       toursEnabled: true,
       places: [],
     });
-    const input = screen.getByRole('combobox', { name: 'reservations.searchLocation' });
+    const input = screen.getByRole('combobox', { name: 'tours.planner.mapSearch' });
     const mapElement = screen.getByTestId('map-view');
 
     await user.type(input, 'Kyoto');
@@ -245,6 +245,6 @@ describe('TripPlannerPage — shell', () => {
 
     view.unmount();
     renderPage({ activeTab: 'plan', showPlaceForm: true });
-    expect(screen.queryByRole('combobox', { name: 'reservations.searchLocation' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox', { name: 'tours.planner.mapSearch' })).not.toBeInTheDocument();
   });
 });
