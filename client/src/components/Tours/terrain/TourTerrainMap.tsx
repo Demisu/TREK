@@ -1,6 +1,6 @@
 import type { FerrataBbox } from '@trek/shared';
 import { ChevronDown, ChevronUp, Gauge, Palette, Pause, Play, RotateCcw, Scan, TrendingUp } from 'lucide-react';
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import type { DistanceUnit } from '../../../types';
 import type { DistanceIndexedProfileSample, RouteProfileFocus } from '../../../utils/routeGeometry';
@@ -221,7 +221,8 @@ function TerrainDock({ terrain }: { terrain: Omit<ReturnType<typeof useTourTerra
             value={terrain.exaggeration}
             aria-label={t('tours.terrain.exaggeration')}
             onChange={(e) => terrain.setExaggeration(Number(e.target.value))}
-            className="w-20 accent-[var(--accent)]"
+            className="trek-range !w-20"
+            style={{ '--fill': `${((terrain.exaggeration - 1) / 2) * 100}%` } as CSSProperties}
           />
           <span className="w-7 font-semibold tabular-nums">{terrain.exaggeration.toFixed(1)}×</span>
         </label>
