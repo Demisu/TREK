@@ -271,7 +271,7 @@ describe('toFerratas', () => {
       { type: 'node', id: 3, lat: 1, lon: 2 },
       { type: 'way', id: -1, geometry: line },
       way(5, {}, [{ lat: 47.1, lon: 11.2 }, null]),
-      way(6, {}, undefined),
+      { type: 'way', id: 6, tags: { highway: 'via_ferrata' } },
       way(7, {}, [{ lat: 470, lon: 11.2 }, line[1]]),
       way(8),
       way(8),

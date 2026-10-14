@@ -25,7 +25,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 // + Tours: tour_types label_key, icon, color; tours.tour_type; tour_waypoints id, place_id, lat, lng, role, sequence.
 // + scheduler_leases: name, owner, expires_at (the scheduler always writes all three).
 // + user_sessions: id, user_id, expires_at.
-const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 446;
+// + ferrata_tiles: tile_key, payload, fetched_at (a fetched tile always carries all three).
+const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 449;
 
 describe('entity class fields never carry a NaN initialiser (task-4-review-shape.md, Important 1)', () => {
   it('CLASSFIELD-001: new X() has no own property whose value is NaN, across all 133 entities', () => {
