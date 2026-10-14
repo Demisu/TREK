@@ -145,7 +145,7 @@ function TourDurationInput({
 }
 
 /** Breaks on top of the walking time, and the planned total that defaults to their sum, side by side. */
-export function TourTimeFields({ planner, locked }: TourFieldProps) {
+function TourTimeFields({ planner, locked }: TourFieldProps) {
   const { t } = useTranslation();
   const manual = planner.plannedDurationMinutes != null;
   return (

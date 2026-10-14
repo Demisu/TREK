@@ -788,10 +788,6 @@ input[type="number"], input[type="time"], input[type="date"], input[type="dateti
   --journal-card: #FFFFFF;
   --journal-border: #E4E4E7;
   --journal-accent: #6366F1;
-  /* Via ferrata lines on the map: a violet nothing else on the map uses, on a white halo. */
-  --map-ferrata: #7c3aed;
-  --map-ferrata-lit: #5b21b6;
-  --map-ferrata-casing: #ffffff;
   --journal-text: #09090B;
   --journal-muted: #71717A;
   --journal-faint: #A1A1AA;
@@ -889,9 +885,6 @@ input[type="number"], input[type="time"], input[type="date"], input[type="dateti
   --journal-card: #18181B;
   --journal-border: #27272A;
   --journal-accent: #818CF8;
-  --map-ferrata: #a78bfa;
-  --map-ferrata-lit: #c4b5fd;
-  --map-ferrata-casing: #ffffff;
   --journal-text: #FAFAFA;
   --journal-muted: #A1A1AA;
   --journal-faint: #52525B;
@@ -1205,11 +1198,6 @@ body {
 .leaflet-tooltip-left.map-tooltip::before,
 .leaflet-tooltip-top.map-tooltip::before {
   display: none;
-}
-/* A clicked via ferrata opens a card with its own focus; the path's focus ring would only linger on the map. */
-.leaflet-interactive.trek-ferrata-hit:focus,
-.leaflet-interactive.trek-ferrata-hit:focus-visible {
-  outline: none;
 }
 
 /* Scrollbars — styled on desktop, hidden on mobile */

@@ -19,7 +19,7 @@ function gapM(a: { lat: number; lng: number }, end: readonly unknown[]): number 
 }
 
 /** Whether a leg still runs from this waypoint to the next one. */
-export function fixedLegJoins(point: FixedLegPoint, next: FixedLegPoint | undefined, leg: TourFixedLeg): boolean {
+function fixedLegJoins(point: FixedLegPoint, next: FixedLegPoint | undefined, leg: TourFixedLeg): boolean {
   const first = leg.geometry[0];
   const last = leg.geometry[leg.geometry.length - 1];
   return (

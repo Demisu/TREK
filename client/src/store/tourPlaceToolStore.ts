@@ -45,7 +45,7 @@ export function setTourPlaceToolMode(mode: TourMapMode): void {
   if (useTourPlaceToolStore.getState().mode !== mode) useTourPlaceToolStore.setState({ mode });
 }
 
-export function setTourPlacing(mode: TourMapMode, on: boolean): void {
+function setTourPlacing(mode: TourMapMode, on: boolean): void {
   writePlacing(mode, on);
   useTourPlaceToolStore.setState((state) => ({ placing: { ...state.placing, [mode]: on } }));
 }

@@ -25,6 +25,7 @@ import '@fontsource/geist-sans/600.css'
 // several .leaflet-* styles.
 import 'leaflet/dist/leaflet.css'
 import './index.css'
+import './styles/ferratas.css'
 // Native HTML5 drag-and-drop never fires on touch input, so the planner's place /
 // day reordering was dead on Android and iOS. The `drag-drop-touch` polyfill synthesises
 // the standard drag events from touch gestures over draggable elements (#1265). It is
