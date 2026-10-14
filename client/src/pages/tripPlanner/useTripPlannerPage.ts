@@ -3,6 +3,7 @@ import type { TourListItem } from '@trek/shared'
 import { usePoiExplore, type Bbox } from '../../components/Map/usePoiExplore'
 import { placeActions } from '../../components/Planner/usePlaceActions'
 import { useTourPlanner } from '../../components/Tours/planner/useTourPlanner'
+import { tourPlannedTimes as projectTourPlannedTimes } from '../../components/Tours/tourPresentation'
 import { usePlanMapViewport } from '../../hooks/usePlanMapViewport'
 import { useMapLocationSearch } from './useMapLocationSearch'
 import { useTripPlanner } from './useTripPlanner'
@@ -19,6 +20,7 @@ export function useTripPlannerPage() {
     setSelectedPlaceId,
     t,
     toast,
+    tours,
     trip,
     tripActions,
     tripId,
@@ -101,6 +103,9 @@ export function useTripPlannerPage() {
     reportViewport(bounds)
   }, [reportViewport])
 
+  // Each tour's planned times keyed by its place, for the day plan's tour rows.
+  const plannedTourDurations = new Map(tours.map(tour => [tour.place_id, { ...projectTourPlannedTimes(tour), tour }] as const))
+
   const onSelectTour = (tour: TourListItem | null, opener?: HTMLElement) => {
     tourDetailOpenerRef.current = tour && opener ? { placeId: tour.place_id, element: opener } : null
     setSelectedPlaceId(tour?.place_id ?? null)
@@ -116,5 +121,6 @@ export function useTripPlannerPage() {
     tourDetails: { openerRef: tourDetailOpenerRef, onSelectTour },
     tourMap: { route, focusPoints: mapFocusPoints, focusKey: mapFocusKey, captureViewport },
     locationSearch,
+    plannedTourDurations,
   }
 }

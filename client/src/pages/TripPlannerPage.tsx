@@ -2,15 +2,12 @@ import React, { useState, Suspense } from 'react'
 import { createPortal } from 'react-dom'
 import { useParams, useNavigate, useSearchParams } from 'react-router'
 import { useSettingsStore } from '../store/settingsStore'
-import { MapViewAuto as MapView } from '../components/Map/MapViewAuto'
 import type { CompassMap } from '../components/Map/MapCompassPill'
 import { getCached, fetchPhoto } from '../services/photoService'
 import DayPlanSidebar from '../components/Planner/DayPlanSidebar'
-import LocationSelect from '../components/Planner/LocationSelect';
 import RoadtripModeSwitch from '../components/Roadtrip/RoadtripModeSwitch'
 import PlacesToursModeSwitch from '../components/Tours/PlacesToursModeSwitch'
 import ToursSidebar from '../components/Tours/ToursSidebar'
-import { tourPlannedTimes as projectTourPlannedTimes } from '../components/Tours/tourPresentation'
 import TourDetailDialog from '../components/Tours/TourDetailDialog'
 import TripLoadingSplash from '../components/shared/TripLoadingSplash'
 import PlacesSidebar from '../components/Planner/PlacesSidebar'
@@ -57,6 +54,7 @@ import {
 import { LazyPanel } from './tripPlanner/LazyPanel'
 import { ListsContainer } from './tripPlanner/ListsContainer'
 import { PlanMapStage } from './tripPlanner/PlanMapStage'
+import { TourPlannerMapStage } from './tripPlanner/TourPlannerMapStage'
 import { useMergedMapPois } from '../components/Map/useMergedMapPois'
 import { useTouchDragBridge } from '../hooks/useTouchDragBridge'
 import PanelResizeHandle from '../components/Planner/PanelResizeHandle'
@@ -149,8 +147,8 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
     tourDetails,
     tourMap,
     locationSearch,
+    plannedTourDurations,
   } = pageState
-  const plannedTourDurations = new globalThis.Map(tours.map(tour => [tour.place_id, { ...projectTourPlannedTimes(tour), tour }] as const))
   // Tablets run this very layout but cannot start an HTML5 drag with a finger,
   // so a long press stands in for one (#1616). Only where the pointer is
   // coarse — a hybrid laptop loads drag-drop-touch instead.
@@ -640,48 +638,11 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
 
         {activeTab === 'tour-planner' && enabledAddons.tours && !isMobile && (
           <div style={{ position: 'absolute', inset: 0 }}>
-            <MapView
-              tripId={tripId}
-              places={[]}
-              route={tourMap.route}
-              followSelection={false}
-              onMapClick={canPlaceEdit && !tourPlanner.isSaving && (tourPlanner.mode.type === 'new-draft' || tourPlanner.mode.type === 'edit-saved')
-                ? ({ latlng }: { latlng: { lat: number; lng: number } }) => tourPlanner.addWaypoint(latlng.lat, latlng.lng)
-                : undefined}
-              tileUrl={mapTileUrl}
-              leftWidth={leftPanelPx}
-              rightWidth={rightPanelPx}
-              focusPoints={tourMap.focusPoints}
-              focusKey={tourMap.focusKey}
-              plannerWaypoints={tourPlanner.mode.type === 'new-draft' || tourPlanner.mode.type === 'edit-saved' ? tourPlanner.waypoints : []}
-              selectedPlannerWaypointId={tourPlanner.mode.type === 'new-draft' || tourPlanner.mode.type === 'edit-saved' ? tourPlanner.selectedWaypointId : null}
-              onPlannerWaypointClick={tourPlanner.setSelectedWaypointId}
-              onPlannerWaypointMove={canPlaceEdit && !tourPlanner.isSaving && (tourPlanner.mode.type === 'new-draft' || tourPlanner.mode.type === 'edit-saved')
-                ? tourPlanner.setWaypointPosition
-                : undefined}
-              routeProfileFocus={tourPlanner.routeProfileFocus}
-              viewBaseLayer={tourPlanner.mapBaseLayer}
-              onViewBaseLayerChange={tourPlanner.setMapBaseLayer}
+            <TourPlannerMapStage
+              tripId={tripId} mapTileUrl={mapTileUrl} leftHidden={leftHidden} rightHidden={rightHidden} t={t}
+              tourPlanner={tourPlanner} tourMap={tourMap} locationSearch={locationSearch} canPlaceEdit={canPlaceEdit}
+              leftPanelPx={leftPanelPx} rightPanelPx={rightPanelPx}
             />
-            {/* Centred over the map between the two panels, which sit on fixed physical sides. */}
-            <div style={{ position: 'absolute', top: 12, insetInline: 0, display: 'flex', justifyContent: 'center', pointerEvents: 'none', zIndex: 19 }}>
-              <div
-                style={{
-                  transform: `translateX(${((leftHidden ? 56 : leftPanelPx) - (rightHidden ? 56 : rightPanelPx)) / 2}px)`,
-                  width: `min(360px, calc(100vw - ${(leftHidden ? 56 : leftPanelPx) + (rightHidden ? 56 : rightPanelPx) + 32}px))`,
-                  pointerEvents: 'auto',
-                }}
-              >
-                <LocationSelect
-                  value={locationSearch.value}
-                  onChange={locationSearch.onChange}
-                  placeholder={t('reservations.searchLocation')}
-                  ariaLabel={t('reservations.searchLocation')}
-                  showSearchStatus
-                  style={{ width: '100%' }}
-                />
-              </div>
-            </div>
             <div className="hidden md:block" style={{ position: 'absolute', left: 10, top: 10, bottom: 10, zIndex: 20 }}>
               <PanelTab hidden={leftHidden} label={leftHidden ? t('trip.mobilePlan') : t('common.collapse')} onToggle={toggleLeft} />
               <div style={{

@@ -80,9 +80,10 @@ import { DayPlanSidebarFooter } from './DayPlanSidebarFooter'
 import type { DayAddControls } from '../../utils/dayAdd'
 import type { DayDeleteQuestion } from '../../utils/dayImpactLines'
 import type { Trip, Day, Place, Category, Assignment, Accommodation, Reservation, AssignmentsMap, RouteResult, RouteSegment, DayNote } from '../../types'
-import { formatPlannedTourDuration, type TourPlannedTimes } from '../Tours/tourPresentation'
+import type { TourPlannedTimes } from '../Tours/tourPresentation'
 import type { TourListItem } from '@trek/shared'
-import TourDayRowFacts, { TourDayRowIcon } from '../Tours/TourDayRowFacts'
+import { TourDayRowIcon } from '../Tours/TourDayRowFacts'
+import { DayPlanPlaceSubline } from './DayPlanPlaceSubline'
 
 export interface DayPlanSidebarProps {
   tripId: number
@@ -2034,42 +2035,7 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                                   </Tooltip>
                                 )}
                               </div>
-                              {(dayRowTour || place.place_time || (tourTimes && (tourTimes.walkingMinutes != null || tourTimes.breakMinutes != null || tourTimes.plannedTotalMinutes != null)) || place.description || place.address || cat?.name) && (
-                                <div className="mt-0.5 flex min-w-0 flex-wrap items-center gap-1.5">
-                                  {place.place_time && (
-                                    <TimePill quiet>
-                                      {formatTime(place.place_time, locale, timeFormat)}{place.end_time ? ` – ${formatTime(place.end_time, locale, timeFormat)}` : ''}
-                                    </TimePill>
-                                  )}
-                                  {dayRowTour && <TourDayRowFacts tour={dayRowTour} />}
-                                  {!dayRowTour && tourTimes?.walkingMinutes != null && (
-                                    <TimePill>
-                                      <span data-testid="trip-plan-tour-walking-time" aria-label={`${t('tours.planner.inspector.duration')}: ${formatPlannedTourDuration(tourTimes.walkingMinutes)}`}>
-                                        {t('tours.planner.walkingShort')}: {formatPlannedTourDuration(tourTimes.walkingMinutes)}
-                                      </span>
-                                    </TimePill>
-                                  )}
-                                  {!dayRowTour && tourTimes?.breakMinutes != null && (
-                                    <TimePill>
-                                      <span data-testid="trip-plan-tour-breaks" aria-label={`${t('tours.planner.breaksAdditional')}: ${formatPlannedTourDuration(tourTimes.breakMinutes)}`}>
-                                        {t('tours.planner.breaksShort')}: {formatPlannedTourDuration(tourTimes.breakMinutes)}
-                                      </span>
-                                    </TimePill>
-                                  )}
-                                  {!dayRowTour && tourTimes?.plannedTotalMinutes != null && (
-                                    <TimePill>
-                                      <span data-testid="trip-plan-tour-planned-duration" aria-label={`${t('tours.planner.plannedTotalDuration')}: ${formatPlannedTourDuration(tourTimes.plannedTotalMinutes)}${tourTimes.manuallyOverridden ? `, ${t('tours.planner.plannedTotalManual')}` : ''}`}>
-                                        {t('tours.planner.plannedShort')}: {formatPlannedTourDuration(tourTimes.plannedTotalMinutes)}{tourTimes.manuallyOverridden ? ` · ${t('tours.planner.plannedTotalManual')}` : ''}
-                                      </span>
-                                    </TimePill>
-                                  )}
-                                  {(place.description || place.address || cat?.name) && (
-                                    <div data-testid={isTourPlace ? 'trip-plan-tour-description' : undefined} className="collab-note-md min-w-0 flex-1 text-content-faint" style={{ ...fs(10.5), overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: isTourPlace ? 'normal' : 'nowrap', lineHeight: 1.3, maxHeight: isTourPlace ? '2.6em' : '1.3em', ...(isTourPlace ? { display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const } : {}) }}>
-                                      <Markdown remarkPlugins={[remarkGfm]}>{place.description || place.address || cat?.name || ''}</Markdown>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
+                              <DayPlanPlaceSubline place={place} cat={cat} tourTimes={tourTimes} isTourPlace={!!isTourPlace} timeFormat={timeFormat} />
                               {assignment.notes && (
                                 // Day-specific note on this stop (#2163) — one muted
                                 // caption line so the timeline shows the note exists

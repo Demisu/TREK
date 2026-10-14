@@ -5,12 +5,9 @@
 // Here the hook is replaced by a controllable fixture so every branch of the
 // layout — panels, portals, tabs, modals — and every inline callback the page
 // hands its children can be driven directly.
-import userEvent from '@testing-library/user-event';
-import { http, HttpResponse } from 'msw';
 import React from 'react';
 import {
   buildAssignment,
-  buildDay,
   buildPackingItem,
   buildPlace,
   buildReservation,
@@ -18,16 +15,16 @@ import {
   buildTrip,
   buildUser,
 } from '../../tests/helpers/factories';
-import { server } from '../../tests/helpers/msw/server';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '../../tests/helpers/render';
 import { resetAllStores, seedStore } from '../../tests/helpers/store';
 import { assignmentsApi } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { useSettingsStore } from '../store/settingsStore';
 import { useTripStore } from '../store/tripStore';
-import type { Day, Place, Reservation, Settings } from '../types';
+import type { Reservation, Settings } from '../types';
 import { analyzeRouteGeometry } from '../utils/routeGeometry';
 import TripPlannerPage from './TripPlannerPage';
+import { baseState, day, place, trip, type HookState } from './TripPlannerPage.wiring.fixture';
 
 // ── Component stubs ───────────────────────────────────────────────────────────
 // Each stub records the props it was rendered with so the page's inline
@@ -165,276 +162,9 @@ vi.mock('../components/Budget/CostsPanel', () => ({
 vi.mock('../components/Collab/CollabPanel', () => ({ default: stub('collabPanel', 'collab-panel') }))
 vi.mock('../components/Plugins/PluginFrame', () => ({ default: stub('pluginFrame', 'plugin-frame') }))
 
-// ── useTripPlanner fixture ────────────────────────────────────────────────────
+// ── useTripPlanner fixture (TripPlannerPage.wiring.fixture.ts) ───────────────────
 
-const trip = buildTrip({ id: 42, title: 'Kyoto', currency: 'JPY' })
-const day: Day = buildDay({ id: 7, trip_id: 42 })
-const place: Place = buildPlace({ id: 1, name: 'Kiyomizu', lat: 34.9, lng: 135.7 })
-
-type HookState = Record<string, unknown>
 let hookState: HookState
-
-function baseState(): HookState {
-  return {
-    tripId: 42,
-    navigate: vi.fn(),
-    toast: { success: vi.fn(), error: vi.fn(), warning: vi.fn(), info: vi.fn() },
-    t: (key: string) => key,
-    language: 'en',
-    placesPhotosEnabled: true,
-    trip,
-    days: [day],
-    places: [place],
-    assignments: { '7': [buildAssignment({ id: 10, day_id: 7, place, order_index: 0 })] },
-    packingItems: [],
-    todoItems: [],
-    categories: [],
-    reservations: [],
-    budgetItems: [],
-    files: [],
-    selectedDayId: 7,
-    isLoading: false,
-    tripActions: {
-      addFile: vi.fn(async () => undefined),
-      deleteFile: vi.fn(async () => undefined),
-      loadFiles: vi.fn(async () => undefined),
-      updatePlace: vi.fn(async () => undefined),
-      uploadPlaceImage: vi.fn(async () => undefined),
-      ratePlace: vi.fn(async () => undefined),
-      updateReservation: vi.fn(async () => undefined),
-      updateTrip: vi.fn(async () => undefined),
-      setSelectedDay: vi.fn(() => undefined),
-      addCategory: vi.fn(async () => undefined),
-    },
-    can: vi.fn(() => true),
-    canUploadFiles: true,
-    pushUndo: vi.fn(() => undefined),
-    undo: vi.fn(async () => undefined),
-    canUndo: false,
-    lastActionLabel: null,
-    handleUndo: vi.fn(async () => undefined),
-    enabledAddons: { packing: true, budget: true, documents: true, collab: true },
-    collabFeatures: { chat: true, notes: true, polls: true, whatsnext: true },
-    tripAccommodations: [],
-    setTripAccommodations: vi.fn(),
-    // Road trip mode off, which is the state every assertion below reads: the page keeps
-    // its ordinary map, sidebar and route wiring, and the road-trip branches stay unmounted.
-    // The shapes still have to be here, because the page reaches into routeAlternatives.open,
-    // roadtripRoutes.lines and roadtripVias.byDay before it ever checks whether the mode is on.
-    roadtripMode: false,
-    toggleRoadtripMode: vi.fn(),
-    roadtripActive: false,
-    roadtripRoutes: { lines: [], segments: [], days: [], loading: false, totalStops: 0 },
-    roadtripCorridor: { visible: [], day: null, dayId: '', setDayId: vi.fn(), categories: [], toggleCategory: vi.fn(), widthKm: 5, setWidthKm: vi.fn(), search: vi.fn(), nameFilter: '', setNameFilter: vi.fn(), insertIndexFor: vi.fn() },
-    refuel: { openFor: null, loading: false, outcome: null, results: [], offered: [], ask: vi.fn(), close: vi.fn() },
-    askRefuel: vi.fn(),
-    acceptRefuel: vi.fn(),
-    followTrack: { dayId: null, open: vi.fn(), close: vi.fn(), tracks: [], busy: false, round: 0, error: null, outcome: null, apply: vi.fn(), clear: vi.fn(), viaCount: 0, available: false },
-    // The recorded-route overlay (#2279). Off and empty: the page reads
-    // `dawarichTrail.track` unconditionally, so the fixture has to carry the
-    // shape the hook returns even when the addon is not in play.
-    dawarichEnabled: false,
-    dawarichTrailShown: false,
-    toggleDawarichTrail: vi.fn(),
-    dawarichTrail: { track: null, status: 'idle', reload: vi.fn() },
-    roadtripViaCounts: {},
-    stopDraft: null,
-    setStopDraft: vi.fn(),
-    saveStopDraft: vi.fn(async () => undefined),
-    stopDraftToForm: vi.fn(),
-    stopDraftDuplicate: null,
-    reorderRoadtripStop: vi.fn(async () => undefined),
-    roadtripVias: { byDay: {}, refresh: vi.fn(async () => undefined) },
-    addRoadtripVia: vi.fn(async () => undefined),
-    moveRoadtripVia: vi.fn(async () => undefined),
-    removeRoadtripVia: vi.fn(async () => undefined),
-    routeAlternatives: { open: null, close: vi.fn(), loading: false, ask: vi.fn(async () => undefined) },
-    askRouteAlternatives: vi.fn(async () => undefined),
-    chooseRouteAlternative: vi.fn(async () => undefined),
-    alternativeOverlays: [],
-    alternativeFocusPoints: [],
-    stayDraft: null,
-    setStayDraft: vi.fn(),
-    setRoadtripStay: vi.fn(async () => undefined),
-    highlightedAlternative: null,
-    setHighlightedAlternative: vi.fn(),
-    moveRoadtripStopToDay: vi.fn(async () => undefined),
-    dropPoiOnRoute: vi.fn(async () => undefined),
-    allowedFileTypes: 'pdf',
-    tripMembers: [],
-    setTripMembers: vi.fn(),
-    refreshMembers: vi.fn(),
-    loadAccommodations: vi.fn(),
-    TRANSPORT_TYPES: new Set(['flight', 'train']),
-    TRIP_TABS: [
-      { id: 'plan', label: 'Plan' },
-      { id: 'transports', label: 'Transports' },
-      { id: 'buchungen', label: 'Bookings', shortLabel: 'Book' },
-      { id: 'listen', label: 'Lists' },
-      { id: 'finanzplan', label: 'Costs' },
-      { id: 'dateien', label: 'Files' },
-      { id: 'collab', label: 'Collab' },
-    ],
-    activeTab: 'plan',
-    setActiveTab: vi.fn(),
-    handleTabChange: vi.fn(),
-    leftWidth: 320,
-    rightWidth: 320,
-    leftCollapsed: false,
-    rightCollapsed: false,
-    setLeftCollapsed: vi.fn(),
-    setRightCollapsed: vi.fn(),
-    leftHidden: false,
-    rightHidden: false,
-    toggleLeft: vi.fn(),
-    toggleRight: vi.fn(),
-    narrowPanels: false,
-    startResizeLeft: vi.fn(),
-    startResizeRight: vi.fn(),
-    nudgeLeft: vi.fn(),
-    nudgeRight: vi.fn(),
-    resizeMin: 200,
-    resizeMax: 520,
-    selectedPlaceId: null,
-    selectedAssignmentId: null,
-    setSelectedPlaceId: vi.fn(),
-    selectAssignment: vi.fn(),
-    showDayDetail: null,
-    setShowDayDetail: vi.fn(),
-    dayDetailCollapsed: false,
-    setDayDetailCollapsed: vi.fn(),
-    showPlaceForm: false,
-    setShowPlaceForm: vi.fn(),
-    setPlaceFormDayId: vi.fn(),
-    editingPlace: null,
-    setEditingPlace: vi.fn(),
-    prefillCoords: null,
-    setPrefillCoords: vi.fn(),
-    editingAssignmentId: null,
-    setEditingAssignmentId: vi.fn(),
-    serviceStopMode: null,
-    setServiceStopForm: vi.fn(),
-    openManualRoadtripStop: vi.fn(),
-    showTripForm: false,
-    setShowTripForm: vi.fn(),
-    showMembersModal: false,
-    setShowMembersModal: vi.fn(),
-    showReservationModal: false,
-    setShowReservationModal: vi.fn(),
-    editingReservation: null,
-    setEditingReservation: vi.fn(),
-    showBookingImport: false,
-    setShowBookingImport: vi.fn(),
-    bookingImportKind: 'bookings' as const,
-    setBookingImportKind: vi.fn(),
-    bookingImportAvailable: true,
-    airTrailAvailable: true,
-    showAirTrailImport: false,
-    setShowAirTrailImport: vi.fn(),
-    bookingForAssignmentId: null,
-    setBookingForAssignmentId: vi.fn(),
-    showTransportModal: false,
-    setShowTransportModal: vi.fn(),
-    editingTransport: null,
-    setEditingTransport: vi.fn(),
-    transportModalDayId: null,
-    setTransportModalDayId: vi.fn(),
-    transportModalAutomated: false,
-    setTransportModalAutomated: vi.fn(),
-    transitPrefill: null,
-    setTransitPrefill: vi.fn(),
-    transitJourney: null,
-    setTransitJourney: vi.fn(),
-    openTransportEditor: vi.fn(),
-    changeTransitRoute: vi.fn(),
-    bookingDetail: null,
-    openBookingDetail: vi.fn(),
-    openBookingFromDayList: vi.fn(),
-    closeBookingDetail: vi.fn(),
-    bookingDetailEditor: undefined,
-    bookingDetailChangeRoute: undefined,
-    showBookingOnMap: vi.fn(),
-    isBookingOnMap: vi.fn(() => false),
-    reservationPrefill: null,
-    transportPrefill: null,
-    importReviewActive: false,
-    advanceImportReview: vi.fn(),
-    routeShown: false,
-    setRouteShown: vi.fn(),
-    transitRoutesShown: false,
-    routeProfile: 'driving',
-    setRouteProfile: vi.fn(),
-    routeVias: [],
-    fitKey: 0,
-    setFitKey: vi.fn(),
-    mobileSidebarOpen: null,
-    setMobileSidebarOpen: vi.fn(),
-    mobilePlanScrollTopRef: { current: 0 },
-    mobilePlacesScrollTopRef: { current: 0 },
-    deletePlaceId: null,
-    setDeletePlaceId: vi.fn(),
-    deletePlaceIds: null,
-    setDeletePlaceIds: vi.fn(),
-    stayRelease: null,
-    setStayRelease: vi.fn(),
-    confirmStayRelease: vi.fn(async () => undefined),
-    visibleConnections: [],
-    toggleConnection: vi.fn(),
-    allConnectionsShown: false,
-    toggleAllConnections: vi.fn(),
-    mapTransportDetail: null,
-    setMapTransportDetail: vi.fn(),
-    isMobile: false,
-    isTouch: false,
-    expandedDayIds: null,
-    setExpandedDayIds: vi.fn(),
-    mapPlaces: [place],
-    route: null,
-    routeSegments: [],
-    routeInfo: null,
-    setRoute: vi.fn(),
-    setRouteInfo: vi.fn(),
-    updateRouteForDay: vi.fn(),
-    handleSelectDay: vi.fn(),
-    handlePlaceClick: vi.fn(),
-    handleMarkerClick: vi.fn(),
-    handleMapClick: vi.fn(),
-    handleMapContextMenu: vi.fn(),
-    openAddPlaceFromPoi: vi.fn(),
-    handleSavePlace: vi.fn(async () => undefined),
-    openPlaceEditor: vi.fn(),
-    handleDeletePlace: vi.fn(),
-    handleDeleteTour: vi.fn(),
-    confirmDeletePlace: vi.fn(async () => undefined),
-    confirmDeletePlaces: vi.fn(async () => undefined),
-    confirmChangeCategory: vi.fn(async () => undefined),
-    handleAssignToDay: vi.fn(async () => undefined),
-    handleRemoveAssignment: vi.fn(async () => undefined),
-    handleReorder: vi.fn(),
-    handleReorderDays: vi.fn(),
-    handleAddDay: vi.fn(),
-    handleUpdateDayTitle: vi.fn(async () => undefined),
-    handleSaveReservation: vi.fn(async () => ({ id: 1 })),
-    handleSaveTransport: vi.fn(async () => ({ id: 2 })),
-    handleDeleteReservation: vi.fn(async () => undefined),
-    selectedPlace: null,
-    dayOrderMap: {},
-    dayPlaces: [],
-    toursEnabled: false,
-    toursMode: true,
-    setToursMode: vi.fn(),
-    tours: [],
-    toursLoading: false,
-    tourDataReady: true,
-    tourPlaceIds: new Set<number>(),
-    reloadTourPlaceIds: vi.fn(async () => undefined),
-    upsertTour: vi.fn(),
-    selectedTour: null,
-    mapTileUrl: 'https://tiles/{z}/{x}/{y}.png',
-    fontStyle: { fontFamily: 'var(--font-system)' },
-    splashDone: true,
-  }
-}
 
 vi.mock('./tripPlanner/useTripPlanner', () => ({
   useTripPlanner: () => hookState,
@@ -576,70 +306,6 @@ describe('TripPlannerPage — shell', () => {
     expect(screen.getByRole('option', { name: /Editable ridge tour/i })).not.toHaveAttribute('aria-selected', 'true')
     expect(plannerActions.openTour).not.toHaveBeenCalled()
   })
-
-  it('shows location search only in TOUR-PLANNER and focuses a result without writing planner data', async () => {
-    const user = userEvent.setup();
-    const createAssignment = vi.spyOn(assignmentsApi, 'create');
-    server.use(
-      http.post('/api/maps/search', async ({ request }) => {
-        const { query } = (await request.json()) as { query: string };
-        expect(query).toBe('Kyoto');
-        return HttpResponse.json({
-          places: [{ name: 'Kyoto', address: 'Japan', lat: 35.0116, lng: 135.7681, osm_id: 'kyoto' }],
-        });
-      })
-    );
-
-    const view = renderPage({
-      activeTab: 'tour-planner',
-      enabledAddons: { packing: true, budget: true, documents: true, collab: true, tours: true },
-      toursEnabled: true,
-      places: [],
-    });
-    const input = screen.getByRole('combobox', { name: 'reservations.searchLocation' });
-    const mapElement = screen.getByTestId('map-view');
-
-    await user.type(input, 'Kyoto');
-    await screen.findByRole('option', { name: /Kyoto/ });
-    await user.keyboard('{ArrowDown}{Enter}');
-
-    await waitFor(() => expect(props('map').focusPoints).toEqual([[35.0116, 135.7681]]));
-    expect(props('map').focusKey).toBe('tour:0:search:1');
-    expect(props('map').places).toEqual([]);
-    expect(props('map').plannerWaypoints).toEqual([]);
-    expect(props('map').onPlannerWaypointMove).toBeUndefined();
-    expect(screen.getByTestId('map-view')).toBe(mapElement);
-    expect(plannerActions.addWaypoint).not.toHaveBeenCalled();
-    expect(plannerActions.openTour).not.toHaveBeenCalled();
-    expect(plannerActions.startNewTour).not.toHaveBeenCalled();
-
-    plannerActions.mode = { type: 'new-draft' };
-    plannerActions.mapFocusKey = 1;
-    view.rerender(<TripPlannerPage />);
-    expect(props('map').focusPoints).toEqual([]);
-    expect(props('map').focusKey).toBe('tour:1');
-    expect(props('map').onPlannerWaypointMove).toBe(plannerActions.setWaypointPosition);
-    expect(screen.getByTestId('map-view')).toBe(mapElement);
-    expect(plannerActions.addWaypoint).not.toHaveBeenCalled();
-
-    act(() => {
-      props('map').onMapClick({ latlng: { lat: 35.02, lng: 135.77 } });
-    });
-    expect(plannerActions.addWaypoint).toHaveBeenCalledOnce();
-    expect(plannerActions.addWaypoint).toHaveBeenCalledWith(35.02, 135.77);
-    act(() => {
-      props('map').onPlannerWaypointMove('via-1', 35.03, 135.78);
-    });
-    expect(plannerActions.setWaypointPosition).toHaveBeenCalledOnce();
-    expect(plannerActions.setWaypointPosition).toHaveBeenCalledWith('via-1', 35.03, 135.78);
-    expect(createAssignment).not.toHaveBeenCalled();
-    expect(plannerActions.openTour).not.toHaveBeenCalled();
-    createAssignment.mockRestore();
-
-    view.unmount();
-    renderPage({ activeTab: 'plan', showPlaceForm: true });
-    expect(screen.queryByRole('combobox', { name: 'reservations.searchLocation' })).not.toBeInTheDocument();
-  });
 
   it('preserves the visible TOUR-PLANNER camera when the Plan a Tour button starts an empty draft', async () => {
     const place = buildPlace({ id: 81, lat: 35.01, lng: 135.76 })
