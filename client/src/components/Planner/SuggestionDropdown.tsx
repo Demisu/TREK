@@ -1,6 +1,16 @@
 import { MapPin, X } from 'lucide-react';
 import type React from 'react';
 import { useTranslation } from '../../i18n';
+import { MAP_CONTROL_SHADOW } from '../Map/mapControlShadow';
+
+// Over a map the field and its list take the map controls' frosted glass instead of a form box.
+const FLOATING_GLASS: React.CSSProperties = {
+  background: 'var(--sidebar-bg)',
+  backdropFilter: 'blur(20px) saturate(180%)',
+  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+  boxShadow: MAP_CONTROL_SHADOW,
+  border: 'none',
+};
 
 // The markup the planner's search fields share: the boxed input with its icon and
 // clear button (AirportSelect, LocationSelect), the floating list (all three) and
@@ -15,6 +25,8 @@ interface SuggestionInputBoxProps {
   onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   /** Shown as the clear button while a value is picked. */
   onClear?: () => void;
+  /** Floats over a map: a frosted pill like the map controls. */
+  floating?: boolean;
   /** Combobox wiring for a field that announces its list (role, aria-expanded, ...). */
   inputAria?: React.AriaAttributes & { role?: React.AriaRole };
 }
@@ -28,18 +40,16 @@ export function SuggestionInputBox({
   onKeyDown,
   onClear,
   inputAria,
+  floating = false,
 }: SuggestionInputBoxProps) {
   return (
     <div
-      className="bg-surface-tertiary"
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 6,
-        padding: '8px 10px',
-        borderRadius: 10,
-        border: '1px solid var(--border-primary)',
-      }}
+      className={floating ? 'focus-within:ring-2 focus-within:ring-accent' : 'bg-surface-tertiary'}
+      style={
+        floating
+          ? { ...FLOATING_GLASS, display: 'flex', alignItems: 'center', gap: 8, height: 42, padding: '0 8px 0 14px', borderRadius: 999 }
+          : { display: 'flex', alignItems: 'center', gap: 6, padding: '8px 10px', borderRadius: 10, border: '1px solid var(--border-primary)' }
+      }
     >
       {icon}
       <input
@@ -84,19 +94,21 @@ interface SuggestionListProps {
   status?: React.ReactNode;
   /** Wraps the rows in a listbox when the field is a combobox. */
   listbox?: { id: string; label: string };
+  /** Floats over a map: the same frosted glass as the field above it. */
+  floating?: boolean;
   children: React.ReactNode;
 }
 
 /** The floating list under the field. Rendered only while it is loading, has rows or a status; the caller checks `open`. */
-export function SuggestionList({ loading, rowCount, status, listbox, children }: SuggestionListProps) {
+export function SuggestionList({ loading, rowCount, status, listbox, floating = false, children }: SuggestionListProps) {
   const { t } = useTranslation();
   if (!loading && rowCount === 0 && !status) return null;
   return (
     <div
-      className="bg-surface-card"
+      className={floating ? undefined : 'bg-surface-card'}
       style={{
         position: 'absolute',
-        top: 'calc(100% + 4px)',
+        top: floating ? 'calc(100% + 6px)' : 'calc(100% + 4px)',
         insetInline: 0,
         border: '1px solid var(--border-primary)',
         borderRadius: 10,
@@ -104,6 +116,7 @@ export function SuggestionList({ loading, rowCount, status, listbox, children }:
         maxHeight: 260,
         overflowY: 'auto',
         zIndex: 1000,
+        ...(floating ? { ...FLOATING_GLASS, borderRadius: 16, padding: 4 } : {}),
       }}
     >
       {loading && rowCount === 0 && (

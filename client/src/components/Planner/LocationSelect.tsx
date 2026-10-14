@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { MapPin } from 'lucide-react'
+import { MapPin, Search } from 'lucide-react'
 import { mapsApi } from '../../api/client'
 import { useTranslation } from '../../i18n'
 import { useLocationBias } from '../../hooks/useLocationBias'
@@ -21,6 +21,8 @@ interface Props {
   ariaLabel?: string
   /** Announces the field as a combobox and says "nothing found" or an error in its list. */
   showSearchStatus?: boolean
+  /** Floats over a map as a frosted pill, like the map controls. */
+  floating?: boolean
   style?: React.CSSProperties
   /**
    * The trip's own places, offered while the field is empty or holds fewer than three
@@ -30,7 +32,7 @@ interface Props {
   places?: LocationPoint[]
 }
 
-export default function LocationSelect({ value, onChange, placeholder, ariaLabel, showSearchStatus = false, style, places }: Props) {
+export default function LocationSelect({ value, onChange, placeholder, ariaLabel, showSearchStatus = false, floating = false, style, places }: Props) {
   const { t, locale } = useTranslation()
   const placeLang = usePlaceLanguage()
   // Ohne Reisekontext ist der Hinweis leer, und die Suche laeuft wie bisher.
@@ -137,7 +139,10 @@ export default function LocationSelect({ value, onChange, placeholder, ariaLabel
   return (
     <div ref={wrapRef} style={{ position: 'relative', ...style }}>
       <SuggestionInputBox
-        icon={<MapPin size={14} className="text-content-faint" style={{ flexShrink: 0 }} />}
+        icon={floating
+          ? <Search size={16} strokeWidth={2} className="text-content-muted" style={{ flexShrink: 0 }} />
+          : <MapPin size={14} className="text-content-faint" style={{ flexShrink: 0 }} />}
+        floating={floating}
         query={query}
         placeholder={placeholder ?? t('reservations.searchLocation')}
         onType={(text) => { setQuery(text); setOpen(true); setHighlight(-1); setSearchError(false); setSearchedQuery(null); if (value) onChange(null) }}
@@ -153,6 +158,7 @@ export default function LocationSelect({ value, onChange, placeholder, ariaLabel
           rowCount={rows.length}
           status={statusLine}
           listbox={showSearchStatus ? { id: listId, label: accessibleLabel } : undefined}
+          floating={floating}
         >
           {rows.map((r, i) => (
             <SuggestionRow
