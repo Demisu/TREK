@@ -171,8 +171,8 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Lülita sisse Lisa punkte, et maastikule klõpsates punkte lisada.',
   'tours.terrain.clickToPlan':
     'Klõpsa maastikul, et punkte lisada. Kui marsruut on olemas, saab selle üle lennata ja kalde järgi värvida.',
-  'tours.ferrata.badge': 'Via ferrata {grade}',
-  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.badge': 'Via ferrata rada {grade}',
+  'tours.ferrata.badgeNoGrade': 'Via ferrata rada',
   'tours.ferrata.crossingInfo':
     'Marsruut läbib {length} rajal „{name}“. Selleks on vaja via ferrata varustust ja kogemust.',
   'tours.ferrata.crossingShort': 'Marsruut läbib via ferrata raja',

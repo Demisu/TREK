@@ -169,8 +169,8 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Slå på Sätt punkter för att klicka ut punkter i terrängen.',
   'tours.terrain.clickToPlan':
     'Klicka i terrängen för att sätta ut punkter. När det finns en rutt kan du flyga över den och färga den efter lutning.',
-  'tours.ferrata.badge': 'Via ferrata {grade}',
-  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.badge': 'Via ferrata-led {grade}',
+  'tours.ferrata.badgeNoGrade': 'Via ferrata-led',
   'tours.ferrata.crossingInfo': 'Rutten går {length} längs ”{name}”. Det kräver via ferrata-utrustning och erfarenhet.',
   'tours.ferrata.crossingShort': 'Rutten går längs en via ferrata',
   'tours.ferrata.waypointAtEnd': 'Början eller slutet av ”{name}”',

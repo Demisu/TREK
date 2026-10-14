@@ -170,8 +170,8 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Bật Đặt điểm để nhấp đặt điểm trên địa hình.',
   'tours.terrain.clickToPlan':
     'Nhấp vào địa hình để đặt điểm. Khi đã có tuyến đường, bạn có thể bay qua và tô màu theo độ dốc.',
-  'tours.ferrata.badge': 'Via ferrata {grade}',
-  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.badge': 'Tuyến via ferrata {grade}',
+  'tours.ferrata.badgeNoGrade': 'Tuyến via ferrata',
   'tours.ferrata.crossingInfo': 'Tuyến đi qua “{name}” dài {length}. Cần trang bị via ferrata và kinh nghiệm.',
   'tours.ferrata.crossingShort': 'Tuyến đi qua một via ferrata',
   'tours.ferrata.waypointAtEnd': 'Điểm đầu hoặc cuối của “{name}”',

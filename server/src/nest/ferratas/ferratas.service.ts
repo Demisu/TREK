@@ -186,6 +186,9 @@ export class FerratasService {
    * One Overpass query for `keys`, shared with every request that needs one of
    * them until it settles. It runs in a request context of its own: it can
    * outlive the request that started it.
+   *
+   * @txStandalone a cache fill: each block is stored whole in its own
+   * transaction after its own Overpass answer, and a lost one is asked again.
    */
   private batch(keys: readonly string[], now: number): TileBatch {
     const run = withRequestContext(this.orm, () => this.fetchAndStore(keys, now));

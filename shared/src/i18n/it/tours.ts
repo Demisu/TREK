@@ -173,8 +173,8 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Attiva Posiziona punti per aggiungere punti sul terreno con un clic.',
   'tours.terrain.clickToPlan':
     "Fai clic sul terreno per aggiungere punti. Appena c'è un percorso, puoi sorvolarlo e colorarlo in base alla pendenza.",
-  'tours.ferrata.badge': 'Via ferrata {grade}',
-  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.badge': 'Ferrata {grade}',
+  'tours.ferrata.badgeNoGrade': 'Ferrata',
   'tours.ferrata.crossingInfo':
     'Il percorso sale per {length} sulla «{name}». Servono attrezzatura da ferrata ed esperienza.',
   'tours.ferrata.crossingShort': 'Il percorso passa per una via ferrata',

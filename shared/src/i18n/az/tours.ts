@@ -172,8 +172,8 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Relyefə klikləyib nöqtə qoymaq üçün «Nöqtə qoy» alətini aç.',
   'tours.terrain.clickToPlan':
     'Nöqtə qoymaq üçün əraziyə klikləyin. Marşrut yarandıqdan sonra onun üzərindən uçmaq və meyilə görə rəngləmək olar.',
-  'tours.ferrata.badge': 'Via ferrata {grade}',
-  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.badge': 'Via ferrata marşrutu {grade}',
+  'tours.ferrata.badgeNoGrade': 'Via ferrata marşrutu',
   'tours.ferrata.crossingInfo':
     'Marşrut {length} boyunca “{name}” üzərindən keçir. Bunun üçün via ferrata ləvazimatı və təcrübə lazımdır.',
   'tours.ferrata.crossingShort': 'Marşrut via ferrata üzərindən keçir',

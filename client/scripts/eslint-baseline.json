@@ -3,7 +3,7 @@
     "@typescript-eslint/no-non-null-assertion": 404,
     "@typescript-eslint/no-misused-promises": 876,
     "no-console": 88,
-    "complexity": 231,
+    "complexity": 230,
     "@typescript-eslint/no-explicit-any": 148,
     "trek/no-swallowed-catch": 133,
     "max-params": 35,

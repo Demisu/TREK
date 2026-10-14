@@ -170,8 +170,8 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Araziye tıklayarak nokta koymak için Nokta koy aracını aç.',
   'tours.terrain.clickToPlan':
     'Nokta eklemek için araziye tıklayın. Bir rota oluştuğunda üzerinden uçabilir ve eğime göre renklendirebilirsiniz.',
-  'tours.ferrata.badge': 'Via ferrata {grade}',
-  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.badge': 'Via ferrata rotası {grade}',
+  'tours.ferrata.badgeNoGrade': 'Via ferrata rotası',
   'tours.ferrata.crossingInfo':
     'Rota {length} boyunca “{name}” üzerinden geçiyor. Bunun için via ferrata ekipmanı ve deneyim gerekir.',
   'tours.ferrata.crossingShort': 'Rota bir via ferrata üzerinden geçiyor',

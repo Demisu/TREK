@@ -174,8 +174,8 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Kapcsold be a Pontok elhelyezése eszközt, hogy kattintással pontokat tegyél a terepre.',
   'tours.terrain.clickToPlan':
     'Kattints a terepre pontok elhelyezéséhez. Ha már van útvonal, átrepülheted és meredekség szerint színezheted.',
-  'tours.ferrata.badge': 'Via ferrata {grade}',
-  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.badge': 'Vasalt út {grade}',
+  'tours.ferrata.badgeNoGrade': 'Vasalt út',
   'tours.ferrata.crossingInfo':
     'Az útvonal {length} hosszan a(z) „{name}” vasalt úton halad. Ehhez via ferrata felszerelés és gyakorlat kell.',
   'tours.ferrata.crossingShort': 'Az útvonal vasalt úton halad',

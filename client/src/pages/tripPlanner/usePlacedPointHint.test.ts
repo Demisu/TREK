@@ -48,12 +48,18 @@ describe('usePlacedPointHint', () => {
     const { result, place } = setup();
     place([A, B]);
     act(() => result.current.hold(true));
-    act(() => vi.advanceTimersByTime(PLACED_HINT_MS * 2));
+    act(() => {
+      vi.advanceTimersByTime(PLACED_HINT_MS * 2);
+    });
     expect(result.current.shown).toBe(true);
     act(() => result.current.hold(false));
-    act(() => vi.advanceTimersByTime(PLACED_HINT_MS - 1));
+    act(() => {
+      vi.advanceTimersByTime(PLACED_HINT_MS - 1);
+    });
     expect(result.current.shown).toBe(true);
-    act(() => vi.advanceTimersByTime(1));
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
     expect(result.current.shown).toBe(false);
   });
 

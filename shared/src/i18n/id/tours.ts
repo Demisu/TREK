@@ -170,8 +170,8 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Aktifkan Tempatkan titik untuk menaruh titik di medan dengan klik.',
   'tours.terrain.clickToPlan':
     'Klik medan untuk menambahkan titik. Setelah ada rute, rute itu bisa diterbangi dan diwarnai menurut kemiringan.',
-  'tours.ferrata.badge': 'Via ferrata {grade}',
-  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.badge': 'Jalur via ferrata {grade}',
+  'tours.ferrata.badgeNoGrade': 'Jalur via ferrata',
   'tours.ferrata.crossingInfo':
     'Rute melewati {length} di “{name}”. Ini butuh perlengkapan via ferrata dan pengalaman.',
   'tours.ferrata.crossingShort': 'Rute melewati via ferrata',

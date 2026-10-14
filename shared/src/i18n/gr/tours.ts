@@ -180,8 +180,8 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Ενεργοποίησε την Τοποθέτηση σημείων για να βάζεις σημεία στο έδαφος με κλικ.',
   'tours.terrain.clickToPlan':
     'Κάνε κλικ στο έδαφος για να ορίσεις σημεία. Μόλις υπάρξει διαδρομή, μπορείς να την πετάξεις και να τη χρωματίσεις κατά κλίση.',
-  'tours.ferrata.badge': 'Via ferrata {grade}',
-  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.badge': 'Διαδρομή via ferrata {grade}',
+  'tours.ferrata.badgeNoGrade': 'Διαδρομή via ferrata',
   'tours.ferrata.crossingInfo':
     'Η διαδρομή περνά {length} από το «{name}». Χρειάζεσαι εξοπλισμό via ferrata και εμπειρία.',
   'tours.ferrata.crossingShort': 'Η διαδρομή περνά από via ferrata',

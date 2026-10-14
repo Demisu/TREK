@@ -31,8 +31,10 @@ const routed = {
 }
 const enriched = [[48, 11, 500], [48.01, 11.02, 550]] as [number, number, number][]
 // With the heights in, the walking time is the hiking rule over the enriched line, not the router's.
-const enrichedAnalysis = analyzeRouteGeometry(JSON.stringify(enriched))!
-const enrichedWalkingSeconds = hikingTimeMinutes(enrichedAnalysis.distanceKm, enrichedAnalysis.gain!, enrichedAnalysis.loss!) * 60
+const enrichedAnalysis = analyzeRouteGeometry(JSON.stringify(enriched))
+if (!enrichedAnalysis) throw new Error('the enriched line has no analysis')
+const enrichedWalkingSeconds =
+  hikingTimeMinutes(enrichedAnalysis.distanceKm, enrichedAnalysis.gain ?? 0, enrichedAnalysis.loss ?? 0) * 60
 const savedTour = {
   place_id: 42,
   name: 'Saved ridge',

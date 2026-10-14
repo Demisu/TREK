@@ -63,7 +63,7 @@ const tours: TranslationStrings = {
   'tours.planner.mapSearch': 'Zoek plaats of adres',
   'tours.planner.placePoints': 'Punten plaatsen',
   'tours.planner.pointPlaced': 'Punt geplaatst',
-  'tours.planner.details': 'Details',
+  'tours.planner.details': 'Details', // same-as-en
   'tours.planner.expandDetails': 'Details tonen',
   'tours.planner.collapseDetails': 'Details verbergen',
   'tours.planner.safetyInfoLabel': 'Over veiligheid',
@@ -171,8 +171,8 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Zet Punten plaatsen aan om punten op het terrein te klikken.',
   'tours.terrain.clickToPlan':
     'Klik in het terrein om punten te zetten. Zodra er een route is, kun je eroverheen vliegen en hem op helling kleuren.',
-  'tours.ferrata.badge': 'Via ferrata {grade}',
-  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.badge': 'Klettersteig {grade}',
+  'tours.ferrata.badgeNoGrade': 'Klettersteig',
   'tours.ferrata.crossingInfo':
     'De route loopt {length} over „{name}”. Daarvoor heb je via-ferratamateriaal en ervaring nodig.',
   'tours.ferrata.crossingShort': 'De route loopt over een via ferrata',

@@ -63,7 +63,7 @@ const tours: TranslationStrings = {
   'tours.planner.mapSearch': 'Ort oder Adresse suchen',
   'tours.planner.placePoints': 'Punkte setzen',
   'tours.planner.pointPlaced': 'Punkt gesetzt',
-  'tours.planner.details': 'Details',
+  'tours.planner.details': 'Details', // same-as-en
   'tours.planner.expandDetails': 'Details einblenden',
   'tours.planner.collapseDetails': 'Details ausblenden',
   'tours.planner.safetyInfoLabel': 'Hinweis zur Sicherheit',
