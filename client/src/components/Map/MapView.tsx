@@ -797,6 +797,7 @@ function PlannerWaypointMarker({
   useEffect(() => {
     if (!marker || !onMove) return
     const element = marker.getElement()
+    if (!element) return
     return wirePlannerWaypointDrag({
       element,
       initial: { lat: point.lat, lng: point.lng },

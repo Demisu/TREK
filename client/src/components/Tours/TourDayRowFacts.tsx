@@ -76,7 +76,7 @@ function Fact({
 
 export default function TourDayRowFacts({ tour, mobile = false }: { tour: TourListItem; mobile?: boolean }) {
   const { t } = useTranslation();
-  const unit = useSettingsStore((state) => state.settings.distance_unit);
+  const unit = useSettingsStore((state) => state.settings.distance_unit) || 'metric';
   const times = tourPlannedTimes(tour);
   const facts: Array<{ icon: LucideIcon; value: string; label: string; testId: string }> = [];
   const add = (icon: LucideIcon, value: string, label: string, testId: string) =>
