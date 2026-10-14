@@ -5,33 +5,23 @@
  * non-empty tags/ratings shape neither `trip-access-primitives.test.ts`'s
  * PRIM-GPWT-00x (empty tags/ratings only) nor any other suite exercises.
  */
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { TRACK_COLORS } from '@trek/shared';
+import { createSnapshotTestDb } from '../../../helpers/db-mock';
+import { resetTestDb } from '../../../helpers/test-db';
+import { createTestOrm, type TestOrm } from '../../../helpers/test-orm';
+import { addTripMember, createCategory, createDay, createDayAssignment, createPlace, createTag, createTrip, createUser } from '../../../helpers/factories';
+import { createTour } from '../../../helpers/tours-repos';
+import { Places } from '../../../../src/db/entities/Places.entity';
+import type { PlacesRepository } from '../../../../src/db/repositories/Places.repository';
+import type { RequiredEntityData } from '@mikro-orm/core';
+import { countRows, deleteRows, findRow, findRows, insertRow, updateRows } from '../../../helpers/factories/rows';
+import { tagPlace } from '../../../helpers/factories/places';
+import { makeTour } from '../../../helpers/factories/tours';
 import { Categories } from '../../../../src/db/entities/Categories.entity';
 import { DayAssignments } from '../../../../src/db/entities/DayAssignments.entity';
 import { PlaceRatings } from '../../../../src/db/entities/PlaceRatings.entity';
 import { PlaceRegions } from '../../../../src/db/entities/PlaceRegions.entity';
-import { Places } from '../../../../src/db/entities/Places.entity';
-import type { PlacesRepository } from '../../../../src/db/repositories/Places.repository';
-import { createSnapshotTestDb } from '../../../helpers/db-mock';
-import {
-  addTripMember,
-  createCategory,
-  createDay,
-  createDayAssignment,
-  createPlace,
-  createTag,
-  createTrip,
-  createUser,
-} from '../../../helpers/factories';
-import { tagPlace } from '../../../helpers/factories/places';
-import { countRows, deleteRows, findRow, findRows, insertRow, updateRows } from '../../../helpers/factories/rows';
-import { makeTour } from '../../../helpers/factories/tours';
-import { resetTestDb } from '../../../helpers/test-db';
-import { createTestOrm, type TestOrm } from '../../../helpers/test-orm';
-import { createTour } from '../../../helpers/tours-repos';
-import type { RequiredEntityData } from '@mikro-orm/core';
-import { TRACK_COLORS } from '@trek/shared';
-
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 const testDb = createSnapshotTestDb();
 let t: TestOrm;
@@ -41,14 +31,8 @@ beforeAll(async () => {
   t = await createTestOrm(testDb);
   places = t.repo(Places);
 });
-beforeEach(() => {
-  resetTestDb(testDb);
-  t.clear();
-});
-afterAll(async () => {
-  await t.close();
-  testDb.close();
-});
+beforeEach(() => { resetTestDb(testDb); t.clear(); });
+afterAll(async () => { await t.close(); testDb.close(); });
 
 /** The stored place; fails the case when it is gone. */
 async function placeRow(id: number) {
@@ -72,27 +56,14 @@ const sqliteNow = (offsetSeconds: number): string =>
 function legacyGetPlaceWithTags(placeId: number): unknown {
   const place = testDb
     // test-sql-allow: the legacy statement is the oracle the repository read is held to.
-    .prepare(
-      'SELECT p.*, c.name as category_name, c.color as category_color, c.icon as category_icon, t.place_id as tour_place_id FROM places p LEFT JOIN categories c ON p.category_id = c.id LEFT JOIN tours t ON t.place_id = p.id WHERE p.id = ?',
-    )
-    .get(placeId) as
-    | (Record<string, unknown> & {
-        category_id: number | null;
-        category_name: string | null;
-        category_color: string | null;
-        category_icon: string | null;
-      })
-    | undefined;
+    .prepare('SELECT p.*, c.name as category_name, c.color as category_color, c.icon as category_icon, t.place_id as tour_place_id FROM places p LEFT JOIN categories c ON p.category_id = c.id LEFT JOIN tours t ON t.place_id = p.id WHERE p.id = ?')
+    .get(placeId) as (Record<string, unknown> & { category_id: number | null; category_name: string | null; category_color: string | null; category_icon: string | null }) | undefined;
   if (!place) return null;
   // test-sql-allow: the legacy statement is the oracle the repository read is held to.
-  const tags = testDb
-    .prepare('SELECT t.* FROM tags t JOIN place_tags pt ON t.id = pt.tag_id WHERE pt.place_id = ?')
-    .all(placeId);
+  const tags = testDb.prepare('SELECT t.* FROM tags t JOIN place_tags pt ON t.id = pt.tag_id WHERE pt.place_id = ?').all(placeId);
   const ratings = testDb
     // test-sql-allow: the legacy statement is the oracle the repository read is held to.
-    .prepare(
-      'SELECT pr.user_id, u.username, u.avatar, pr.rating FROM place_ratings pr JOIN users u ON pr.user_id = u.id WHERE pr.place_id = ? ORDER BY pr.created_at',
-    )
+    .prepare('SELECT pr.user_id, u.username, u.avatar, pr.rating FROM place_ratings pr JOIN users u ON pr.user_id = u.id WHERE pr.place_id = ? ORDER BY pr.created_at')
     .all(placeId) as { user_id: number; username: string; avatar: string | null; rating: number }[];
   return {
     ...place,
@@ -194,7 +165,7 @@ describe('PlacesRepository.findWithTagsAndRatings — parity with the legacy get
     expect(result?.tags.map((tg) => tg.name).sort()).toEqual(['Must see', 'Rainy day']);
   });
 
-  it("PLACEREPO-004: ratings hydrate with the voter's username/avatar, in created_at order, and average correctly", async () => {
+  it('PLACEREPO-004: ratings hydrate with the voter\'s username/avatar, in created_at order, and average correctly', async () => {
     const { user: owner } = createUser(testDb);
     const { user: voterA } = createUser(testDb, { username: 'voter_a' });
     const { user: voterB } = createUser(testDb, { username: 'voter_b' });
@@ -249,7 +220,7 @@ describe('PlacesRepository.findWithTagsAndRatings — parity with the legacy get
     const category = createCategory(testDb, { name: 'Cafes', color: '#654321', icon: '☕' });
     const place = createPlace(testDb, trip.id, { category_id: category.id });
 
-    const result = (await places.findWithTagsAndRatings(place.id)) as unknown as Record<string, unknown>;
+    const result = await places.findWithTagsAndRatings(place.id) as unknown as Record<string, unknown>;
     expect(result.category_name).toBe('Cafes');
     expect(result.category_color).toBe('#654321');
     expect(result.category_icon).toBe('☕');
@@ -311,7 +282,7 @@ describe('PlacesRepository.existsInTrip / findInTrip / reclaimInputs / deleteByI
   // identity map disabled for every read anyway — there is no live
   // identity-map entry here to bypass. This proves a DB round-trip, not an
   // identity-map bypass.
-  it("PLACEREPO-013 (fresh after a raw UPDATE, not D-shape): a name write after an unrelated identity-map read is visible in findInTrip's FIRST wider read", async () => {
+  it('PLACEREPO-013 (fresh after a raw UPDATE, not D-shape): a name write after an unrelated identity-map read is visible in findInTrip\'s FIRST wider read', async () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id);
     const place = createPlace(testDb, trip.id, { name: 'Before' });
@@ -329,46 +300,41 @@ describe('PlacesRepository.existsInTrip / findInTrip / reclaimInputs / deleteByI
   // `toEqual(legacy SELECT p.* ... WHERE p.id = ? AND p.trip_id = ? run raw)`
   // on the full key set, plus a fully NULL-nullable-column row, so a
   // renamed or dropped column would fail this test.
-  it("PLACEREPO-014: findInTrip returns every scalar column (PL9/PL48's SELECT *), full toEqual(legacy) parity, undefined cross-trip", async () => {
+  it('PLACEREPO-014: findInTrip returns every scalar column (PL9/PL48\'s SELECT *), full toEqual(legacy) parity, undefined cross-trip', async () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id);
     const otherTrip = createTrip(testDb, user.id);
     const category = createCategory(testDb);
     const place = createPlace(testDb, trip.id, { name: 'Full Row' });
-    await updateRows(
-      t.orm,
-      Places,
-      { id: place.id },
-      {
-        description: 'A description with 007-style digits',
-        lat: 48.1,
-        lng: 2.2,
-        address: '007 Rue de Paris',
-        category: category.id,
-        price: 12.5,
-        currency: 'EUR',
-        reservation_status: 'confirmed',
-        reservation_notes: 'notes-a',
-        reservation_datetime: '2026-01-01T10:00:00Z',
-        place_time: '10:00',
-        end_time: '11:00',
-        duration_minutes: 45,
-        notes: 'place notes',
-        image_url: '/img/a.png',
-        google_place_id: 'gpid-007',
-        google_ftid: 'gftid-a',
-        website: 'https://a.example',
-        phone: '+33 1 23 45 67 89',
-        transport_mode: 'driving',
-        osm_id: 'osm-a',
-        route_geometry: '{"type":"LineString"}',
-        route_color: '#ff0000',
-        stop_type: 'hotel',
-        fill_percent: 50,
-        amap_poi_id: 'amap-a',
-        source: 'manual',
-      },
-    );
+    await updateRows(t.orm, Places, { id: place.id }, {
+      description: 'A description with 007-style digits',
+      lat: 48.1,
+      lng: 2.2,
+      address: '007 Rue de Paris',
+      category: category.id,
+      price: 12.5,
+      currency: 'EUR',
+      reservation_status: 'confirmed',
+      reservation_notes: 'notes-a',
+      reservation_datetime: '2026-01-01T10:00:00Z',
+      place_time: '10:00',
+      end_time: '11:00',
+      duration_minutes: 45,
+      notes: 'place notes',
+      image_url: '/img/a.png',
+      google_place_id: 'gpid-007',
+      google_ftid: 'gftid-a',
+      website: 'https://a.example',
+      phone: '+33 1 23 45 67 89',
+      transport_mode: 'driving',
+      osm_id: 'osm-a',
+      route_geometry: '{"type":"LineString"}',
+      route_color: '#ff0000',
+      stop_type: 'hotel',
+      fill_percent: 50,
+      amap_poi_id: 'amap-a',
+      source: 'manual',
+    });
 
     const row = await places.findInTrip(place.id, trip.id);
     // test-sql-allow: the legacy statement is the oracle the repository read is held to.
@@ -394,16 +360,8 @@ describe('PlacesRepository.existsInTrip / findInTrip / reclaimInputs / deleteByI
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id);
     const place = createPlace(testDb, trip.id);
-    await updateRows(
-      t.orm,
-      Places,
-      { id: place.id },
-      { google_place_id: 'gpid-1', image_url: '/uploads/places/x.jpg' },
-    );
-    expect(await places.reclaimInputs(place.id, trip.id)).toEqual({
-      google_place_id: 'gpid-1',
-      image_url: '/uploads/places/x.jpg',
-    });
+    await updateRows(t.orm, Places, { id: place.id }, { google_place_id: 'gpid-1', image_url: '/uploads/places/x.jpg' });
+    expect(await places.reclaimInputs(place.id, trip.id)).toEqual({ google_place_id: 'gpid-1', image_url: '/uploads/places/x.jpg' });
     expect(await places.reclaimInputs(999999, trip.id)).toBeUndefined();
   });
 
@@ -419,7 +377,7 @@ describe('PlacesRepository.existsInTrip / findInTrip / reclaimInputs / deleteByI
 });
 
 describe('PlacesRepository.scopedIds (PL23) — input-order preservation', () => {
-  it("PLACEREPO-017: returns only the trip's own ids, in the CALLER's input order, not row/id order", async () => {
+  it('PLACEREPO-017: returns only the trip\'s own ids, in the CALLER\'s input order, not row/id order', async () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id);
     const other = createTrip(testDb, user.id);
@@ -444,62 +402,20 @@ describe('PlacesRepository.insertPlace (PL4) / updatePlace (PL11)', () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id);
     const id = await places.insertPlace({
-      trip_id: trip.id,
-      name: 'Full Insert',
-      description: 'd',
-      lat: 0,
-      lng: 0,
-      address: 'a',
-      category_id: null,
-      price: 0,
-      currency: 'USD',
-      place_time: '09:00',
-      end_time: '10:00',
-      duration_minutes: 60,
-      notes: 'n',
-      image_url: '/uploads/places/x.jpg',
-      google_place_id: 'g',
-      google_ftid: 'f',
-      osm_id: 'o',
-      amap_poi_id: 'am',
-      website: 'w',
-      phone: 'p',
-      email: 'e@x.test',
-      opening_hours: 'Mo-Fr 09:00-17:00',
-      transport_mode: 'walking',
-      route_geometry: '[[1,2]]',
-      route_color: '#fff',
-      stop_type: 'fuel',
+      trip_id: trip.id, name: 'Full Insert', description: 'd', lat: 0, lng: 0, address: 'a',
+      category_id: null, price: 0, currency: 'USD', place_time: '09:00', end_time: '10:00',
+      duration_minutes: 60, notes: 'n', image_url: '/uploads/places/x.jpg', google_place_id: 'g',
+      google_ftid: 'f', osm_id: 'o', amap_poi_id: 'am', website: 'w', phone: 'p', email: 'e@x.test', opening_hours: 'Mo-Fr 09:00-17:00',
+      transport_mode: 'walking', route_geometry: '[[1,2]]', route_color: '#fff', stop_type: 'fuel',
       fill_percent: 50,
     });
     const row = await places.findInTrip(id, trip.id);
     expect(row).toMatchObject({
-      trip_id: trip.id,
-      name: 'Full Insert',
-      description: 'd',
-      lat: 0,
-      lng: 0,
-      address: 'a',
-      category_id: null,
-      price: 0,
-      currency: 'USD',
-      place_time: '09:00',
-      end_time: '10:00',
-      duration_minutes: 60,
-      notes: 'n',
-      image_url: '/uploads/places/x.jpg',
-      google_place_id: 'g',
-      google_ftid: 'f',
-      osm_id: 'o',
-      amap_poi_id: 'am',
-      website: 'w',
-      phone: 'p',
-      email: 'e@x.test',
-      opening_hours: 'Mo-Fr 09:00-17:00',
-      transport_mode: 'walking',
-      route_geometry: '[[1,2]]',
-      route_color: '#fff',
-      stop_type: 'fuel',
+      trip_id: trip.id, name: 'Full Insert', description: 'd', lat: 0, lng: 0, address: 'a',
+      category_id: null, price: 0, currency: 'USD', place_time: '09:00', end_time: '10:00',
+      duration_minutes: 60, notes: 'n', image_url: '/uploads/places/x.jpg', google_place_id: 'g',
+      google_ftid: 'f', osm_id: 'o', amap_poi_id: 'am', website: 'w', phone: 'p', email: 'e@x.test', opening_hours: 'Mo-Fr 09:00-17:00',
+      transport_mode: 'walking', route_geometry: '[[1,2]]', route_color: '#fff', stop_type: 'fuel',
       fill_percent: 50,
     });
   });
@@ -509,31 +425,11 @@ describe('PlacesRepository.insertPlace (PL4) / updatePlace (PL11)', () => {
     const trip = createTrip(testDb, user.id);
     const place = createPlace(testDb, trip.id, { name: 'Original' });
     const base = {
-      name: 'Original',
-      description: null,
-      lat: null,
-      lng: null,
-      address: null,
-      category_id: null,
-      price: null,
-      currency: null,
-      place_time: null,
-      end_time: null,
-      duration_minutes: null,
-      notes: null,
-      image_url: null,
-      google_place_id: null,
-      google_ftid: null,
-      osm_id: null,
-      amap_poi_id: null,
-      website: null,
-      phone: null,
-      email: null,
-      opening_hours: null,
-      transport_mode: null,
-      route_color: null,
-      stop_type: null,
-      fill_percent: null,
+      name: 'Original', description: null, lat: null, lng: null, address: null, category_id: null,
+      price: null, currency: null, place_time: null, end_time: null, duration_minutes: null,
+      notes: null, image_url: null, google_place_id: null, google_ftid: null, osm_id: null,
+      amap_poi_id: null, website: null, phone: null, email: null, opening_hours: null, transport_mode: null, route_color: null,
+      stop_type: null, fill_percent: null,
     };
     // A non-COALESCE column (description) written explicitly null clears it.
     await places.updatePlace(place.id, { ...base, description: 'first' });
@@ -561,31 +457,11 @@ describe('PlacesRepository.insertPlace (PL4) / updatePlace (PL11)', () => {
     await updateRows(t.orm, Places, { id: place.id }, { updated_at: sqliteNow(-3600) });
     const before = (await places.findInTrip(place.id, trip.id))?.updated_at;
     await places.updatePlace(place.id, {
-      name: 'Stamped',
-      description: null,
-      lat: null,
-      lng: null,
-      address: null,
-      category_id: null,
-      price: null,
-      currency: null,
-      place_time: null,
-      end_time: null,
-      duration_minutes: null,
-      notes: null,
-      image_url: null,
-      google_place_id: null,
-      google_ftid: null,
-      osm_id: null,
-      amap_poi_id: null,
-      website: null,
-      phone: null,
-      email: null,
-      opening_hours: null,
-      transport_mode: null,
-      route_color: null,
-      stop_type: null,
-      fill_percent: null,
+      name: 'Stamped', description: null, lat: null, lng: null, address: null, category_id: null,
+      price: null, currency: null, place_time: null, end_time: null, duration_minutes: null,
+      notes: null, image_url: null, google_place_id: null, google_ftid: null, osm_id: null,
+      amap_poi_id: null, website: null, phone: null, email: null, opening_hours: null, transport_mode: null, route_color: null,
+      stop_type: null, fill_percent: null,
     });
     const after = await places.findInTrip(place.id, trip.id);
     expect(after?.name).toBe('Stamped');
@@ -677,8 +553,7 @@ describe('PlacesRepository.listForGpx (PL29) and existsByImageUrl (PI1)', () => 
     expect(rows.map((r) => r.name)).toEqual(['A', 'B']);
     expect(rows[0]).toMatchObject({ name: 'A', category: 'Trails' });
     expect(rows[1]).toMatchObject({ name: 'B', category: null });
-    void p1;
-    void p2;
+    void p1; void p2;
   });
 
   it('PLACEREPO-026 (PI1): existsByImageUrl is trip-agnostic — true for any place carrying the url', async () => {
@@ -704,29 +579,14 @@ describe('PlacesRepository.listDedupInputs (PL24)', () => {
     const trip = createTrip(testDb, user.id);
     const other = createTrip(testDb, user.id);
     await insertRow(t.orm, Places, {
-      trip: trip.id,
-      name: 'Louvre',
-      lat: 48.86,
-      lng: 2.34,
-      google_place_id: 'gp1',
-      google_ftid: 'ft1',
-      osm_id: 'osm1',
-      amap_poi_id: 'amap1',
+      trip: trip.id, name: 'Louvre', lat: 48.86, lng: 2.34, google_place_id: 'gp1', google_ftid: 'ft1', osm_id: 'osm1', amap_poi_id: 'amap1',
     });
     await insertRow(t.orm, Places, { trip: trip.id, name: '', lat: 1.1, lng: 2.2 });
     createPlace(testDb, other.id, { name: 'Not this trip' });
 
     const rows = await places.listDedupInputs(String(trip.id));
     expect(rows).toEqual([
-      {
-        name: 'Louvre',
-        lat: 48.86,
-        lng: 2.34,
-        google_place_id: 'gp1',
-        google_ftid: 'ft1',
-        osm_id: 'osm1',
-        amap_poi_id: 'amap1',
-      },
+      { name: 'Louvre', lat: 48.86, lng: 2.34, google_place_id: 'gp1', google_ftid: 'ft1', osm_id: 'osm1', amap_poi_id: 'amap1' },
       { name: '', lat: 1.1, lng: 2.2, google_place_id: null, google_ftid: null, osm_id: null, amap_poi_id: null },
     ]);
   });
@@ -749,7 +609,7 @@ describe('PlacesRepository.listForTrip (PL3) — filter fragments', () => {
     expect(rows.map((r) => r.id)).toEqual([newer.id, older.id]);
   });
 
-  it("PLACEREPO-028: searchPattern matches name/address/description (already-escaped, wrapped by the caller — NOT a test of the ESCAPE clause itself: `%Eiffel%` has no literal `%`/`_` to escape. `ESCAPE '\\'` is proven by `PLACE-SVC-068`/PLACEREPO-028b below, which do carry a literal wildcard character)", async () => {
+  it('PLACEREPO-028: searchPattern matches name/address/description (already-escaped, wrapped by the caller — NOT a test of the ESCAPE clause itself: `%Eiffel%` has no literal `%`/`_` to escape. `ESCAPE \'\\\'` is proven by `PLACE-SVC-068`/PLACEREPO-028b below, which do carry a literal wildcard character)', async () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id);
     const hit = createPlace(testDb, trip.id, { name: 'Eiffel Tower' });
@@ -796,7 +656,7 @@ describe('PlacesRepository.listForTrip (PL3) — filter fragments', () => {
     void untagged;
   });
 
-  it("PLACEREPO-031: assignment=unassigned / assigned split the trip's places by day_assignments membership", async () => {
+  it('PLACEREPO-031: assignment=unassigned / assigned split the trip\'s places by day_assignments membership', async () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id);
     const day = createDay(testDb, trip.id);
@@ -823,10 +683,7 @@ describe('PlacesRepository.listForTrip (PL3) — filter fragments', () => {
     await tagPlace(t.orm, other.id, [tag.id]);
     // `other` is left unassigned, so `assignment: 'assigned'` alone should exclude it.
     const rows = await places.listForTrip(String(trip.id), {
-      searchPattern: '%Central Park%',
-      category: String(cat.id),
-      tag: String(tag.id),
-      assignment: 'assigned',
+      searchPattern: '%Central Park%', category: String(cat.id), tag: String(tag.id), assignment: 'assigned',
     });
     expect(rows.map((r) => r.id)).toEqual([winner.id]);
   });
@@ -845,12 +702,7 @@ describe('PlacesRepository.listForTrip (PL3) — filter fragments', () => {
 describe('PlacesRepository.listForTrip (PL3) — toEqual(legacy) over all 32 filter combinations', () => {
   function legacyListForTrip(
     tripId: string,
-    filters: {
-      searchPattern?: string;
-      category?: string;
-      tag?: string;
-      assignment?: 'all' | 'unassigned' | 'assigned';
-    },
+    filters: { searchPattern?: string; category?: string; tag?: string; assignment?: 'all' | 'unassigned' | 'assigned' },
   ): unknown[] {
     let query = `
       SELECT DISTINCT p.*, t.place_id AS tour_place_id, c.name as category_name, c.color as category_color, c.icon as category_icon,
@@ -876,12 +728,10 @@ describe('PlacesRepository.listForTrip (PL3) — toEqual(legacy) over all 32 fil
       params.push(filters.tag);
     }
     if (filters.assignment === 'unassigned') {
-      query +=
-        ' AND p.id NOT IN (SELECT da.place_id FROM day_assignments da JOIN days d ON da.day_id = d.id WHERE d.trip_id = ?)';
+      query += ' AND p.id NOT IN (SELECT da.place_id FROM day_assignments da JOIN days d ON da.day_id = d.id WHERE d.trip_id = ?)';
       params.push(tripId);
     } else if (filters.assignment === 'assigned') {
-      query +=
-        ' AND p.id IN (SELECT da.place_id FROM day_assignments da JOIN days d ON da.day_id = d.id WHERE d.trip_id = ?)';
+      query += ' AND p.id IN (SELECT da.place_id FROM day_assignments da JOIN days d ON da.day_id = d.id WHERE d.trip_id = ?)';
       params.push(tripId);
     }
     query += ' ORDER BY p.created_at DESC';
@@ -918,12 +768,7 @@ describe('PlacesRepository.listForTrip (PL3) — toEqual(legacy) over all 32 fil
     const searchOptions: (string | undefined)[] = [undefined, '%Central%'];
     const categoryOptions: (string | undefined)[] = [undefined, String(cat.id)];
     const tagOptions: (string | undefined)[] = [undefined, String(tag.id)];
-    const assignmentOptions: (('all' | 'unassigned' | 'assigned') | undefined)[] = [
-      undefined,
-      'all',
-      'assigned',
-      'unassigned',
-    ];
+    const assignmentOptions: (('all' | 'unassigned' | 'assigned') | undefined)[] = [undefined, 'all', 'assigned', 'unassigned'];
 
     let combinations = 0;
     for (const searchPattern of searchOptions) {
@@ -949,30 +794,13 @@ describe('PlacesRepository.listForTrip (PL3) — toEqual(legacy) over all 32 fil
 // enrichment/backfill `fillIfEmpty` matrix.
 // ---------------------------------------------------------------------------
 
-describe("PlacesRepository.insertPlace — the four importers' narrower column sets (PL31/34/38/41), read back inside the same transaction (PL32/35/40/42)", () => {
+describe('PlacesRepository.insertPlace — the four importers\' narrower column sets (PL31/34/38/41), read back inside the same transaction (PL32/35/40/42)', () => {
   const base = {
-    address: null,
-    category_id: null,
-    price: null,
-    currency: null,
-    place_time: null,
-    end_time: null,
-    duration_minutes: 60,
-    notes: null,
-    image_url: null,
-    google_place_id: null,
-    google_ftid: null,
-    osm_id: null,
-    amap_poi_id: null,
-    website: null,
-    phone: null,
-    email: null,
-    opening_hours: null,
-    transport_mode: 'walking',
-    route_geometry: null,
-    route_color: null,
-    stop_type: null,
-    fill_percent: null,
+    address: null, category_id: null, price: null, currency: null,
+    place_time: null, end_time: null, duration_minutes: 60, notes: null, image_url: null,
+    google_place_id: null, google_ftid: null, osm_id: null, amap_poi_id: null, website: null,
+    phone: null, email: null, opening_hours: null, transport_mode: 'walking', route_geometry: null, route_color: null,
+    stop_type: null, fill_percent: null,
   };
 
   it('PLACEREPO-033 (PL31/PL32, GPX): the 7-column GPX shape is stored, and the read inside the same transaction sees the uncommitted row', async () => {
@@ -982,32 +810,18 @@ describe("PlacesRepository.insertPlace — the four importers' narrower column s
     const row = await t.em.transactional(async () => {
       const id = await places.insertPlace({
         ...base,
-        trip_id: trip.id,
-        name: 'GPX Waypoint',
-        description: 'from a gpx file',
-        lat: 48.85,
-        lng: 2.35,
-        route_geometry: '[[48.85,2.35],[48.86,2.36]]',
+        trip_id: trip.id, name: 'GPX Waypoint', description: 'from a gpx file',
+        lat: 48.85, lng: 2.35, route_geometry: '[[48.85,2.35],[48.86,2.36]]',
       });
       // Same transaction, no commit yet — this read must still see it.
       return places.findWithTagsAndRatings(id);
     });
 
     expect(row).toMatchObject({
-      trip_id: trip.id,
-      name: 'GPX Waypoint',
-      description: 'from a gpx file',
-      lat: 48.85,
-      lng: 2.35,
-      address: null,
-      category_id: null,
-      notes: null,
-      transport_mode: 'walking',
-      route_geometry: '[[48.85,2.35],[48.86,2.36]]',
-      duration_minutes: 60,
-      category: null,
-      tags: [],
-      ratings: [],
+      trip_id: trip.id, name: 'GPX Waypoint', description: 'from a gpx file',
+      lat: 48.85, lng: 2.35, address: null, category_id: null, notes: null,
+      transport_mode: 'walking', route_geometry: '[[48.85,2.35],[48.86,2.36]]',
+      duration_minutes: 60, category: null, tags: [], ratings: [],
     });
     // Committed for real, not just visible mid-transaction.
     expect(await findRow(t.orm, Places, { trip: trip.id })).toMatchObject({ name: 'GPX Waypoint' });
@@ -1017,22 +831,13 @@ describe("PlacesRepository.insertPlace — the four importers' narrower column s
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id);
 
-    await expect(
-      t.em.transactional(async () => {
-        const id = await places.insertPlace({
-          ...base,
-          trip_id: trip.id,
-          name: 'Rolled back',
-          description: null,
-          lat: 1,
-          lng: 1,
-        });
-        // The uncommitted row is visible to a read inside the same transaction...
-        const seen = await places.findWithTagsAndRatings(id);
-        expect(seen?.name).toBe('Rolled back');
-        throw new Error('force rollback');
-      }),
-    ).rejects.toThrow('force rollback');
+    await expect(t.em.transactional(async () => {
+      const id = await places.insertPlace({ ...base, trip_id: trip.id, name: 'Rolled back', description: null, lat: 1, lng: 1 });
+      // The uncommitted row is visible to a read inside the same transaction...
+      const seen = await places.findWithTagsAndRatings(id);
+      expect(seen?.name).toBe('Rolled back');
+      throw new Error('force rollback');
+    })).rejects.toThrow('force rollback');
 
     // ...but never lands once the wrapping transaction rolls back.
     expect(await countRows(t.orm, Places, { trip: trip.id })).toBe(0);
@@ -1046,28 +851,16 @@ describe("PlacesRepository.insertPlace — the four importers' narrower column s
     const row = await t.em.transactional(async () => {
       const id = await places.insertPlace({
         ...base,
-        trip_id: trip.id,
-        name: 'Placemark 1',
-        description: 'a kml placemark',
-        lat: 35.0,
-        lng: 139.0,
-        category_id: cat.id,
-        route_geometry: null,
+        trip_id: trip.id, name: 'Placemark 1', description: 'a kml placemark',
+        lat: 35.0, lng: 139.0, category_id: cat.id, route_geometry: null,
       });
       return places.findWithTagsAndRatings(id);
     });
 
     expect(row).toMatchObject({
-      trip_id: trip.id,
-      name: 'Placemark 1',
-      description: 'a kml placemark',
-      lat: 35.0,
-      lng: 139.0,
-      category_id: cat.id,
-      duration_minutes: 60,
-      transport_mode: 'walking',
-      address: null,
-      notes: null,
+      trip_id: trip.id, name: 'Placemark 1', description: 'a kml placemark',
+      lat: 35.0, lng: 139.0, category_id: cat.id, duration_minutes: 60,
+      transport_mode: 'walking', address: null, notes: null,
       category: { id: cat.id, name: 'Hiking' },
     });
   });
@@ -1079,27 +872,15 @@ describe("PlacesRepository.insertPlace — the four importers' narrower column s
     const row = await t.em.transactional(async () => {
       const id = await places.insertPlace({
         ...base,
-        trip_id: trip.id,
-        name: 'Google Place',
-        description: null,
-        lat: 40.7,
-        lng: -74.0,
-        notes: 'a note',
-        google_ftid: '0x1:0x2',
+        trip_id: trip.id, name: 'Google Place', description: null,
+        lat: 40.7, lng: -74.0, notes: 'a note', google_ftid: '0x1:0x2',
       });
       return places.findWithTagsAndRatings(id);
     });
 
     expect(row).toMatchObject({
-      trip_id: trip.id,
-      name: 'Google Place',
-      notes: 'a note',
-      google_ftid: '0x1:0x2',
-      lat: 40.7,
-      lng: -74.0,
-      address: null,
-      category_id: null,
-      duration_minutes: 60,
+      trip_id: trip.id, name: 'Google Place', notes: 'a note', google_ftid: '0x1:0x2',
+      lat: 40.7, lng: -74.0, address: null, category_id: null, duration_minutes: 60,
       transport_mode: 'walking',
     });
   });
@@ -1111,45 +892,26 @@ describe("PlacesRepository.insertPlace — the four importers' narrower column s
     const row = await t.em.transactional(async () => {
       const id = await places.insertPlace({
         ...base,
-        trip_id: trip.id,
-        name: 'Naver Spot',
-        description: null,
-        lat: 37.5,
-        lng: 127.0,
-        address: '123 Some Street',
-        notes: 'a naver note',
+        trip_id: trip.id, name: 'Naver Spot', description: null,
+        lat: 37.5, lng: 127.0, address: '123 Some Street', notes: 'a naver note',
       });
       return places.findWithTagsAndRatings(id);
     });
 
     expect(row).toMatchObject({
-      trip_id: trip.id,
-      name: 'Naver Spot',
-      address: '123 Some Street',
-      notes: 'a naver note',
-      lat: 37.5,
-      lng: 127.0,
-      category_id: null,
-      duration_minutes: 60,
-      transport_mode: 'walking',
+      trip_id: trip.id, name: 'Naver Spot', address: '123 Some Street', notes: 'a naver note',
+      lat: 37.5, lng: 127.0, category_id: null, duration_minutes: 60, transport_mode: 'walking',
     });
   });
 });
 
 describe('PlacesRepository.distinctRouteColors / setRouteColor (PL36/PL37)', () => {
-  it("PLACEREPO-037: distinctRouteColors returns only this trip's non-null colours, scoped by trip_id", async () => {
+  it('PLACEREPO-037: distinctRouteColors returns only this trip\'s non-null colours, scoped by trip_id', async () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id);
     const other = createTrip(testDb, user.id);
     const track = async (tripId: number, name: string, routeColor?: string) =>
-      insertRow(t.orm, Places, {
-        trip: tripId,
-        name,
-        lat: 1,
-        lng: 1,
-        route_geometry: '[[1,1]]',
-        ...(routeColor ? { route_color: routeColor } : {}),
-      });
+      insertRow(t.orm, Places, { trip: tripId, name, lat: 1, lng: 1, route_geometry: '[[1,1]]', ...(routeColor ? { route_color: routeColor } : {}) });
     await track(trip.id, 'A', TRACK_COLORS[0]);
     await track(trip.id, 'B', TRACK_COLORS[1]);
     await track(trip.id, 'C');
@@ -1184,16 +946,18 @@ describe('PlacesRepository.distinctRouteColors / setRouteColor (PL36/PL37)', () 
     // splitting them (read in one transaction, write in a second, separate
     // one) is precisely the bug this pairing exists to prevent, and doing
     // that here would make the test pass for the wrong reason.
-    const claimAndWrite = (placeId: number) =>
-      t.em.transactional(async () => {
-        const taken = new Set(await places.distinctRouteColors(trip.id));
-        const free = TRACK_COLORS.find((c) => !taken.has(c));
-        if (!free) throw new Error('palette exhausted');
-        await places.setRouteColor(placeId, free);
-        return free;
-      });
+    const claimAndWrite = (placeId: number) => t.em.transactional(async () => {
+      const taken = new Set(await places.distinctRouteColors(trip.id));
+      const free = TRACK_COLORS.find((c) => !taken.has(c));
+      if (!free) throw new Error('palette exhausted');
+      await places.setRouteColor(placeId, free);
+      return free;
+    });
 
-    const [colorA, colorB] = await Promise.all([claimAndWrite(placeA.id), claimAndWrite(placeB.id)]);
+    const [colorA, colorB] = await Promise.all([
+      claimAndWrite(placeA.id),
+      claimAndWrite(placeB.id),
+    ]);
 
     expect(colorA).not.toBe(colorB);
     const rows = await findRows(t.orm, Places, { id: { $in: [placeA.id, placeB.id] } });
@@ -1224,11 +988,7 @@ describe('PlacesRepository.fillIfEmpty (PL43/PL44/PL46) — three call shapes ov
     await updateRows(t.orm, Places, { id: place.id }, { phone: '+1 555', updated_at: '2020-01-01 00:00:00' });
 
     await places.fillIfEmpty(place.id, trip.id, {
-      google_place_id: 'gp1',
-      google_ftid: 'gf1',
-      address: 'addr1',
-      website: 'https://x',
-      phone: 'ignored',
+      google_place_id: 'gp1', google_ftid: 'gf1', address: 'addr1', website: 'https://x', phone: 'ignored',
     });
 
     const row = await placeRow(place.id);
@@ -1333,116 +1093,34 @@ describe('PlacesRepository.listAllForTrip (TP40)', () => {
 
     // Every column named and given, in the order the old statement bound them.
     const columns = [
-      'trip',
-      'name',
-      'description',
-      'lat',
-      'lng',
-      'address',
-      'category',
-      'price',
-      'currency',
-      'reservation_status',
-      'reservation_notes',
-      'reservation_datetime',
-      'place_time',
-      'end_time',
-      'duration_minutes',
-      'notes',
-      'image_url',
-      'google_place_id',
-      'google_ftid',
-      'website',
-      'phone',
-      'transport_mode',
-      'created_at',
-      'updated_at',
-      'osm_id',
-      'route_geometry',
-      'route_color',
-      'stop_type',
-      'fill_percent',
-      'amap_poi_id',
-      'source',
+      'trip', 'name', 'description', 'lat', 'lng', 'address', 'category', 'price', 'currency',
+      'reservation_status', 'reservation_notes', 'reservation_datetime', 'place_time', 'end_time',
+      'duration_minutes', 'notes', 'image_url', 'google_place_id', 'google_ftid', 'website', 'phone',
+      'transport_mode', 'created_at', 'updated_at', 'osm_id', 'route_geometry', 'route_color', 'stop_type',
+      'fill_percent', 'amap_poi_id', 'source',
     ] as const;
     const insert = {
       run: (...values: unknown[]) =>
-        insertRow(
-          t.orm,
-          Places,
-          Object.fromEntries(columns.map((c, i) => [c, values[i]])) as RequiredEntityData<Places>,
-        ),
+        insertRow(t.orm, Places, Object.fromEntries(columns.map((c, i) => [c, values[i]])) as RequiredEntityData<Places>),
     };
 
     // Row A: every nullable column non-null — a unicode string and a
     // '007'-style digit string among the values (rule 19's fixture bar).
     const rowA = await insert.run(
-      trip.id,
-      'Café — 日本 ☕️',
-      'A description with 007-style digits',
-      48.1,
-      2.2,
-      '007 Rue de Paris',
-      category.id,
-      12.5,
-      'EUR',
-      'confirmed',
-      'notes-a',
-      '2026-01-01T10:00:00Z',
-      '10:00',
-      '11:00',
-      45,
-      'place notes',
-      '/img/a.png',
-      'gpid-007',
-      'gftid-a',
-      'https://a.example',
-      '+33 1 23 45 67 89',
-      'driving',
-      '2026-01-01 09:00:00',
-      '2026-01-01 09:30:00',
-      'osm-a',
-      '{"type":"LineString"}',
-      '#ff0000',
-      'hotel',
-      50,
-      'amap-a',
-      'manual',
+      trip.id, 'Café — 日本 ☕️', 'A description with 007-style digits', 48.1, 2.2, '007 Rue de Paris', category.id, 12.5, 'EUR',
+      'confirmed', 'notes-a', '2026-01-01T10:00:00Z', '10:00', '11:00',
+      45, 'place notes', '/img/a.png', 'gpid-007', 'gftid-a', 'https://a.example', '+33 1 23 45 67 89',
+      'driving', '2026-01-01 09:00:00', '2026-01-01 09:30:00', 'osm-a', '{"type":"LineString"}', '#ff0000', 'hotel',
+      50, 'amap-a', 'manual',
     );
 
     // Row B: every nullable column NULL.
     const rowB = await insert.run(
-      trip.id,
-      'Bare Place',
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
+      trip.id, 'Bare Place', null, null, null, null, null, null, null,
+      null, null, null, null, null,
+      null, null, null, null, null, null, null,
+      null, null, null, null, null, null, null,
+      null, null, null,
     );
 
     // A place on another trip — must not leak into this trip's listAllForTrip.
@@ -1522,7 +1200,7 @@ describe('PlacesRepository.findChargingProbe (CH1)', () => {
 // ---------------------------------------------------------------------------
 
 describe('PlacesRepository.setSource (DWS7)', () => {
-  it("DWS7-001: stamps source without touching updated_at, matching the legacy statement's own column list", async () => {
+  it('DWS7-001: stamps source without touching updated_at, matching the legacy statement\'s own column list', async () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id);
     const place = createPlace(testDb, trip.id, { name: 'Imported stay' });
@@ -1573,12 +1251,7 @@ describe('PlacesRepository.setImageUrlIfUnset (MAP9)', () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id);
     const place = createPlace(testDb, trip.id, { name: 'Custom photo' });
-    await updateRows(
-      t.orm,
-      Places,
-      { id: place.id },
-      { google_place_id: 'ChIJ_custom', image_url: '/uploads/custom.jpg' },
-    );
+    await updateRows(t.orm, Places, { id: place.id }, { google_place_id: 'ChIJ_custom', image_url: '/uploads/custom.jpg' });
 
     const n = await places.setImageUrlIfUnset('ChIJ_custom', '/uploads/photo-cache/should-not-land.jpg');
 
@@ -1620,12 +1293,7 @@ describe('PlacesRepository.listAssignedForPublicApi (Plan 4 Task 1, public-api.s
     createDayAssignment(testDb, dayA.id, placeA1.id, { order_index: 1 });
     createDayAssignment(testDb, dayB.id, placeB1.id, { order_index: 0 });
     // A booked-night stop: da.accommodation_id IS NOT NULL, must be excluded.
-    await insertRow(t.orm, DayAssignments, {
-      day: dayA.id,
-      place: hotelPlace.id,
-      order_index: 0,
-      accommodation_id: 999,
-    });
+    await insertRow(t.orm, DayAssignments, { day: dayA.id, place: hotelPlace.id, order_index: 0, accommodation_id: 999 });
     // Unassigned place in the same trip — never a candidate at all.
     createPlace(testDb, trip.id, { name: 'Unassigned' });
     // A place assigned on a DIFFERENT trip — must not leak in.
@@ -1658,11 +1326,9 @@ describe('PlacesRepository.listAssignedForPublicApi (Plan 4 Task 1, public-api.s
 describe('PlacesRepository.isTrackInTrip (RT13, RoadtripService.trackExists)', () => {
   const legacyIsTrackInTrip = (id: number, tripId: number): boolean =>
     // test-sql-allow: the legacy statement is the oracle the repository read is held to.
-    !!testDb
-      .prepare(
-        "SELECT id FROM places WHERE id = ? AND trip_id = ? AND route_geometry IS NOT NULL AND route_geometry != ''",
-      )
-      .get(id, tripId);
+    !!testDb.prepare(
+      "SELECT id FROM places WHERE id = ? AND trip_id = ? AND route_geometry IS NOT NULL AND route_geometry != ''",
+    ).get(id, tripId);
 
   it('PLACEREPO-055: a place with route_geometry set matches the legacy predicate — true', async () => {
     const { user } = createUser(testDb);
@@ -1684,7 +1350,7 @@ describe('PlacesRepository.isTrackInTrip (RT13, RoadtripService.trackExists)', (
     expect(await places.isTrackInTrip(place.id, trip.id)).toBe(false);
   });
 
-  it("PLACEREPO-057: route_geometry '' (empty string) matches the legacy predicate — false", async () => {
+  it('PLACEREPO-057: route_geometry \'\' (empty string) matches the legacy predicate — false', async () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id);
     const place = createPlace(testDb, trip.id);
@@ -1743,26 +1409,17 @@ describe('PlacesRepository.listAddressesForUser (AT41, AtlasService#getTravelSta
     addTripMember(testDb, trip.id, member.id);
     const place = createPlace(testDb, trip.id, { name: 'Tower', lat: 48.85, lng: 2.35 });
     await updateRows(t.orm, Places, { id: place.id }, { address: '5 Avenue Anatole France' });
-    await insertRow(t.orm, PlaceRegions, {
-      place: place.id,
-      country_code: 'FR',
-      region_code: 'FR-IDF',
-      region_name: 'Île-de-France',
-    });
+    await insertRow(t.orm, PlaceRegions, { place: place.id, country_code: 'FR', region_code: 'FR-IDF', region_name: 'Île-de-France' });
     const noAddress = createPlace(testDb, trip.id, { name: 'No address' });
     await updateRows(t.orm, Places, { id: noAddress.id }, { address: null, lat: null, lng: null });
 
     // test-sql-allow: the legacy statement is the oracle the repository read is held to.
-    const legacy = testDb
-      .prepare(
-        `
+    const legacy = testDb.prepare(`
       SELECT DISTINCT p.address, p.lat, p.lng, pr.region_name
       FROM places p JOIN trips t ON p.trip_id = t.id
       LEFT JOIN trip_members tm ON t.id = tm.trip_id
       LEFT JOIN place_regions pr ON pr.place_id = p.id
-      WHERE t.user_id = ? OR tm.user_id = ?`,
-      )
-      .all(owner.id, owner.id);
+      WHERE t.user_id = ? OR tm.user_id = ?`).all(owner.id, owner.id);
 
     const typedOwner = await places.listAddressesForUser(owner.id);
     expect(typedOwner).toEqual(legacy);
@@ -1792,9 +1449,7 @@ describe('PlacesRepository.listAddressesForUser (AT41, AtlasService#getTravelSta
 describe('PlacesRepository — share.service.ts SH12 read', () => {
   function legacyPublicForShare(tripId: number): unknown {
     // test-sql-allow: the legacy statement is the oracle the repository read is held to.
-    return testDb
-      .prepare(
-        `
+    return testDb.prepare(`
       SELECT p.id, p.trip_id, p.name, p.description, p.lat, p.lng, p.address, p.category_id,
         p.price, p.currency, p.place_time, p.end_time, p.duration_minutes, p.notes,
         p.image_url, p.website, p.phone, p.transport_mode, p.created_at, p.updated_at,
@@ -1802,9 +1457,7 @@ describe('PlacesRepository — share.service.ts SH12 read', () => {
       FROM places p
       LEFT JOIN categories c ON c.id = p.category_id
       WHERE p.trip_id = ?
-      ORDER BY p.created_at DESC`,
-      )
-      .all(tripId);
+      ORDER BY p.created_at DESC`).all(tripId);
   }
 
   it('listPublicForShare — matches the legacy statement, categorised and uncategorised, every nullable column both null and set', async () => {
@@ -1813,61 +1466,45 @@ describe('PlacesRepository — share.service.ts SH12 read', () => {
     const other = createTrip(testDb, user.id);
     const category = createCategory(testDb, { name: 'Museum', color: '#111111', icon: '🏛️' });
 
-    const withCategory = createPlace(testDb, trip.id, {
-      name: 'Louvre',
-      lat: 48.86,
-      lng: 2.34,
-      category_id: category.id,
-      description: 'Art museum',
+    const withCategory = createPlace(testDb, trip.id, { name: 'Louvre', lat: 48.86, lng: 2.34, category_id: category.id, description: 'Art museum' });
+    await updateRows(t.orm, Places, { id: withCategory.id }, {
+      address: 'Rue de Rivoli',
+      price: 17.5,
+      currency: 'EUR',
+      place_time: '10:00',
+      end_time: '12:00',
+      duration_minutes: 120,
+      notes: 'bring ID',
+      image_url: 'https://img/louvre.jpg',
+      website: 'https://louvre.fr',
+      phone: '+33140205050',
+      transport_mode: 'walking',
+      updated_at: '2026-09-01T09:00:00.000Z',
+      created_at: '2026-09-01T08:00:00.000Z',
+      reservation_status: 'confirmed',
+      google_place_id: 'ChIJ123',
     });
-    await updateRows(
-      t.orm,
-      Places,
-      { id: withCategory.id },
-      {
-        address: 'Rue de Rivoli',
-        price: 17.5,
-        currency: 'EUR',
-        place_time: '10:00',
-        end_time: '12:00',
-        duration_minutes: 120,
-        notes: 'bring ID',
-        image_url: 'https://img/louvre.jpg',
-        website: 'https://louvre.fr',
-        phone: '+33140205050',
-        transport_mode: 'walking',
-        updated_at: '2026-09-01T09:00:00.000Z',
-        created_at: '2026-09-01T08:00:00.000Z',
-        reservation_status: 'confirmed',
-        google_place_id: 'ChIJ123',
-      },
-    );
 
     const bare = createPlace(testDb, trip.id, { name: 'Unnamed spot' });
-    await updateRows(
-      t.orm,
-      Places,
-      { id: bare.id },
-      {
-        category: null,
-        lat: null,
-        lng: null,
-        address: null,
-        price: null,
-        currency: null,
-        place_time: null,
-        end_time: null,
-        duration_minutes: null,
-        notes: null,
-        image_url: null,
-        website: null,
-        phone: null,
-        transport_mode: null,
-        updated_at: null,
-        created_at: '2026-09-02T08:00:00.000Z',
-        description: null,
-      },
-    );
+    await updateRows(t.orm, Places, { id: bare.id }, {
+      category: null,
+      lat: null,
+      lng: null,
+      address: null,
+      price: null,
+      currency: null,
+      place_time: null,
+      end_time: null,
+      duration_minutes: null,
+      notes: null,
+      image_url: null,
+      website: null,
+      phone: null,
+      transport_mode: null,
+      updated_at: null,
+      created_at: '2026-09-02T08:00:00.000Z',
+      description: null,
+    });
 
     // A place on a different trip must never leak in.
     createPlace(testDb, other.id, { name: 'Foreign place' });
@@ -1878,15 +1515,10 @@ describe('PlacesRepository — share.service.ts SH12 read', () => {
     // ORDER BY p.created_at DESC: bare (2026-09-02) before withCategory (2026-09-01).
     expect(typed.map((r) => r.id)).toEqual([bare.id, withCategory.id]);
     expect(typed.find((r) => r.id === withCategory.id)).toMatchObject({
-      category_name: 'Museum',
-      category_color: '#111111',
-      category_icon: '🏛️',
+      category_name: 'Museum', category_color: '#111111', category_icon: '🏛️',
     });
     expect(typed.find((r) => r.id === bare.id)).toMatchObject({
-      category_id: null,
-      category_name: null,
-      category_color: null,
-      category_icon: null,
+      category_id: null, category_name: null, category_color: null, category_icon: null,
     });
     // Owner-only columns are withheld by omission — never present on the row at all.
     expect(typed[1]).not.toHaveProperty('reservation_status');
@@ -1904,28 +1536,11 @@ describe('PlacesRepository.insertTourPlace (TO10) / updateTourRoute (TO11)', () 
   it('PLACEREPO-TOUR-001: insertTourPlace writes the route place as a walking place and leaves the rest at its defaults', async () => {
     const { user } = createUser(testDb);
     const trip = createTrip(testDb, user.id);
-    const id = await places.insertTourPlace({
-      trip_id: trip.id,
-      name: 'Ridge walk',
-      lat: 47,
-      lng: 11,
-      route_geometry: '[[47,11],[47.1,11.1]]',
-      description: 'Lake ridge',
-      website: 'https://www.komoot.com/tour/42',
-    });
+    const id = await places.insertTourPlace({ trip_id: trip.id, name: 'Ridge walk', lat: 47, lng: 11, route_geometry: '[[47,11],[47.1,11.1]]', description: 'Lake ridge', website: 'https://www.komoot.com/tour/42' });
 
     expect(await places.findInTrip(id, trip.id)).toMatchObject({
-      trip_id: trip.id,
-      name: 'Ridge walk',
-      lat: 47,
-      lng: 11,
-      transport_mode: 'walking',
-      route_geometry: '[[47,11],[47.1,11.1]]',
-      description: 'Lake ridge',
-      website: 'https://www.komoot.com/tour/42',
-      duration_minutes: 60,
-      reservation_status: 'none',
-      category_id: null,
+      trip_id: trip.id, name: 'Ridge walk', lat: 47, lng: 11, transport_mode: 'walking',
+      route_geometry: '[[47,11],[47.1,11.1]]', description: 'Lake ridge', website: 'https://www.komoot.com/tour/42', duration_minutes: 60, reservation_status: 'none', category_id: null,
     });
   });
 
@@ -1935,21 +1550,10 @@ describe('PlacesRepository.insertTourPlace (TO10) / updateTourRoute (TO11)', () 
     const other = createTrip(testDb, user.id);
     const place = createPlace(testDb, trip.id, { name: 'Old', lat: 1, lng: 1 });
     await updateRows(t.orm, Places, { id: place.id }, { transport_mode: 'driving', updated_at: null });
-    const route = {
-      name: 'New',
-      lat: 47,
-      lng: 11,
-      route_geometry: '[[47,11],[47.2,11.2]]',
-      description: 'Updated details',
-      website: 'https://alltrails.com/trail/42',
-    };
+    const route = { name: 'New', lat: 47, lng: 11, route_geometry: '[[47,11],[47.2,11.2]]', description: 'Updated details', website: 'https://alltrails.com/trail/42' };
 
     expect(await places.updateTourRoute(place.id, other.id, route)).toBe(false);
-    expect(await places.findInTrip(place.id, trip.id)).toMatchObject({
-      name: 'Old',
-      transport_mode: 'driving',
-      updated_at: null,
-    });
+    expect(await places.findInTrip(place.id, trip.id)).toMatchObject({ name: 'Old', transport_mode: 'driving', updated_at: null });
 
     expect(await places.updateTourRoute(place.id, trip.id, route)).toBe(true);
     const row = await places.findInTrip(place.id, trip.id);
