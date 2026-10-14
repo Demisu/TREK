@@ -61,6 +61,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': '투어 이름',
   'tours.planner.namePlaceholder': '이름 없는 하이킹',
   'tours.planner.mapHint': '지도를 클릭해 지점을 추가하세요.',
+  'tours.planner.mapSearch': '장소 또는 주소 검색',
   'tours.planner.waypoints': '경로 지점',
   'tours.planner.waypointLabel': '지점 {n}',
   'tours.durationMinutes': '{count}분',

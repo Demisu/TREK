@@ -63,6 +63,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': 'Turun adı',
   'tours.planner.namePlaceholder': 'Adsız yürüş',
   'tours.planner.mapHint': 'Nöqtə əlavə etmək üçün xəritəyə klikləyin.',
+  'tours.planner.mapSearch': 'Yer və ya ünvan axtar',
   'tours.planner.waypoints': 'Yol nöqtələri',
   'tours.planner.waypointLabel': 'Yol nöqtəsi {n}',
   'tours.durationMinutes': '{count} dəq.',

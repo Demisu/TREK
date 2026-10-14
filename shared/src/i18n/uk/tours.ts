@@ -64,6 +64,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': 'Назва туру',
   'tours.planner.namePlaceholder': 'Похід без назви',
   'tours.planner.mapHint': 'Натисніть на карту, щоб додати точки.',
+  'tours.planner.mapSearch': 'Пошук місця або адреси',
   'tours.planner.waypoints': 'Маршрутні точки',
   'tours.planner.waypointLabel': 'Маршрутна точка {n}',
   'tours.durationMinutes': '{count} хв',

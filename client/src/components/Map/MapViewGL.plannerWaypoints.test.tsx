@@ -36,6 +36,10 @@ const glMap = vi.hoisted(() => ({
   removeLayer: vi.fn(),
   removeSource: vi.fn(),
   setLayoutProperty: vi.fn(),
+  setFilter: vi.fn(),
+  hasImage: vi.fn().mockReturnValue(false),
+  addImage: vi.fn(),
+  removeImage: vi.fn(),
   getStyle: vi.fn().mockReturnValue({ layers: [] }),
   isStyleLoaded: vi.fn().mockReturnValue(true),
   getCanvasContainer: vi.fn(() => glCanvasContainer),
@@ -227,6 +231,7 @@ vi.mock('../../services/photoService', () => ({
 
 import mapboxgl from 'mapbox-gl';
 import * as photoService from '../../services/photoService';
+import { groupFerratas } from '../Ferratas/ferrataGroups';
 import { MapViewGL as MapViewGLWithEngine } from './MapViewGL';
 import * as mapboxSetup from './mapboxSetup';
 
@@ -489,11 +494,14 @@ describe('MapViewGL', () => {
     ] as [number, number][],
     osmUrl: 'https://www.openstreetmap.org/way/42',
   };
+  const FERRATA_GROUPS = groupFerratas([FERRATA]);
   const ferrataLayer = (active: boolean) => ({
     active,
     onToggle: vi.fn(),
     status: active ? ('ready' as const) : ('idle' as const),
-    ferratas: [FERRATA],
+    count: active ? 1 : 0,
+    groups: FERRATA_GROUPS,
+    selectedId: null,
     onSelect: vi.fn(),
   });
   const addedFerratas = () => glMap.addSource.mock.calls.filter(([id]) => id === 'trek-ferratas');
@@ -529,7 +537,7 @@ describe('MapViewGL', () => {
     await act(async () => {});
     expect(addedFerratas()).toHaveLength(1);
     expect(view.getByRole('button', { name: 'Via ferratas' })).toHaveAttribute('aria-pressed', 'true');
-    expect(view.getByTestId('ferrata-status-pill')).toHaveTextContent('1 via ferrata route');
+    expect(view.getByTestId('ferrata-count-badge')).toHaveTextContent('1');
   });
 
   it('RC-10: a click on a drawn ferrata opens it and is not a map click, so no control point lands under it', async () => {
@@ -562,6 +570,6 @@ describe('MapViewGL', () => {
     };
     act(() => mapClicks.forEach((handler) => handler(click)));
     expect(onMapClick).not.toHaveBeenCalled();
-    expect(layer.onSelect).toHaveBeenCalledWith(FERRATA, { lat: 46.52, lng: 11.8 });
+    expect(layer.onSelect).toHaveBeenCalledWith(FERRATA_GROUPS[0], FERRATA, { lat: 46.52, lng: 11.8 });
   });
 });

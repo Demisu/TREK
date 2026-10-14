@@ -63,6 +63,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': 'Naam van de tocht',
   'tours.planner.namePlaceholder': 'Naamloze wandeling',
   'tours.planner.mapHint': 'Klik op de kaart om punten toe te voegen.',
+  'tours.planner.mapSearch': 'Zoek plaats of adres',
   'tours.planner.waypoints': 'Routepunten',
   'tours.planner.waypointLabel': 'Routepunt {n}',
   'tours.durationMinutes': '{count} min',

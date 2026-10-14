@@ -1,9 +1,11 @@
-import { lazy, Suspense, useState, type ReactElement } from 'react';
+import { lazy, Suspense, useMemo, useState, type ReactElement } from 'react';
 import FerrataDetailOverlay from '../../components/Ferratas/FerrataDetailOverlay';
 import { useFerrataMapLayer } from '../../components/Ferratas/useFerrataMapLayer';
+import { useOutsidePressGuard } from '../../components/Ferratas/useOutsidePressGuard';
 import { MAP_LAYER_SWITCHER_INSET, MAP_ROUND_CONTROL_SIZE } from '../../components/Map/MapLayerSwitcher';
 import { MapViewAuto as MapView } from '../../components/Map/MapViewAuto';
 import LocationSelect from '../../components/Planner/LocationSelect';
+import { isRtlLanguage, useTranslation } from '../../i18n';
 import { useSettingsStore } from '../../store/settingsStore';
 import type { useTripPlanner } from './useTripPlanner';
 import type { useTripPlannerPage } from './useTripPlannerPage';
@@ -49,8 +51,18 @@ export function TourPlannerMapStage({
   rightPanelPx,
 }: Readonly<TourPlannerMapStageProps>): ReactElement {
   const [terrain3d, setTerrain3d] = useState(false);
+  // How high the 3D map's controls reach: one row, or two once the grade legend moved above the dock.
+  const [terrainControlsPx, setTerrainControlsPx] = useState(MAP_ROUND_CONTROL_SIZE);
   // One via ferrata layer for both modes: it stays on, and keeps its card, across 2D and 3D.
-  const ferrata = useFerrataMapLayer(tripId);
+  // The trip's area for the layer to prefetch: the framed points and the tour's line.
+  const ferrataArea = useMemo(
+    () => [tourMap.focusPoints, ...(tourMap.route ?? [])],
+    [tourMap.focusPoints, tourMap.route]
+  );
+  const ferrata = useFerrataMapLayer(tripId, ferrataArea);
+  // The click that closes a ferrata's card must not also add a waypoint under it.
+  const closingPress = useOutsidePressGuard();
+  const { language } = useTranslation();
   const distanceUnit = useSettingsStore((s) => s.settings.distance_unit);
   const analysis = tourPlanner.mode.type === 'view-gpx' ? tourPlanner.readOnlyGpxAnalysis : tourPlanner.routeAnalysis;
   const editing = tourPlanner.mode.type === 'new-draft' || tourPlanner.mode.type === 'edit-saved';
@@ -60,7 +72,7 @@ export function TourPlannerMapStage({
     selectedId: editing ? tourPlanner.selectedWaypointId : null,
     onSelect: tourPlanner.setSelectedWaypointId,
     onMove: canEditRoute ? tourPlanner.setWaypointPosition : undefined,
-    onAdd: canEditRoute ? tourPlanner.addWaypoint : undefined,
+    onAdd: closingPress.guard(canEditRoute ? tourPlanner.addWaypoint : undefined),
   };
   // What each panel covers of the map, a collapsed one its rail.
   const leftInset = leftHidden ? 56 : leftPanelPx;
@@ -85,6 +97,7 @@ export function TourPlannerMapStage({
             framePoints={tourMap.focusPoints}
             ferrataLayer={ferrata.layer}
             onViewportChange={ferrata.onViewportChange}
+            onControlsHeightChange={setTerrainControlsPx}
           />
         </Suspense>
       ) : (
@@ -93,12 +106,12 @@ export function TourPlannerMapStage({
           places={[]}
           route={tourMap.route}
           followSelection={false}
-          onMapClick={
+          onMapClick={closingPress.guard(
             canEditRoute
               ? ({ latlng }: { latlng: { lat: number; lng: number } }) =>
                   tourPlanner.addWaypoint(latlng.lat, latlng.lng)
               : undefined
-          }
+          )}
           tileUrl={mapTileUrl}
           leftWidth={leftPanelPx}
           rightWidth={rightPanelPx}
@@ -116,11 +129,14 @@ export function TourPlannerMapStage({
           onViewportChange={ferrata.onViewportChange}
         />
       )}
+      {/* The card sits at the inline end; the panels keep their physical sides, so in a
+          right-to-left language that end is the left panel's. */}
       <FerrataDetailOverlay
-        ferrata={ferrata.selected}
+        selection={ferrata.selected}
         onClose={ferrata.close}
-        insetRight={rightInset + MAP_LAYER_SWITCHER_INSET}
-        bottom={FERRATA_CARD_BOTTOM}
+        onOutsidePress={closingPress.arm}
+        insetEnd={(isRtlLanguage(language) ? leftInset : rightInset) + MAP_LAYER_SWITCHER_INSET}
+        bottom={terrain3d ? CONTROL_GAP + terrainControlsPx + CONTROL_GAP : FERRATA_CARD_BOTTOM}
       />
       {/* Centred over the map between the two panels, which sit on fixed physical sides. */}
       <div
@@ -144,8 +160,9 @@ export function TourPlannerMapStage({
           <LocationSelect
             value={locationSearch.value}
             onChange={locationSearch.onChange}
-            placeholder={t('reservations.searchLocation')}
-            ariaLabel={t('reservations.searchLocation')}
+            placeholder={t('tours.planner.mapSearch')}
+            ariaLabel={t('tours.planner.mapSearch')}
+            floating
             showSearchStatus
             style={{ width: '100%' }}
           />

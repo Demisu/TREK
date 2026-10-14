@@ -1,4 +1,4 @@
-// FE-COMP-MAPLAYER-001 to FE-COMP-MAPLAYER-014
+// FE-COMP-MAPLAYER-001 to FE-COMP-MAPLAYER-016
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '../../../tests/helpers/render'
@@ -103,13 +103,15 @@ const ferrataLayer = (overrides: Partial<FerrataMapLayer> = {}): FerrataMapLayer
   active: false,
   onToggle: vi.fn(),
   status: 'idle',
-  ferratas: [],
+  count: 0,
+  groups: [],
+  selectedId: null,
   onSelect: vi.fn(),
   ...overrides,
 })
 
 describe('TourMapLayerSwitcher via ferrata switch', () => {
-  it('FE-COMP-MAPLAYER-011: offers no via ferrata switch without a layer, and no status row either', () => {
+  it('FE-COMP-MAPLAYER-011: offers no via ferrata switch without a layer', () => {
     const { container } = render(<TourMapLayerSwitcher active="default" onChange={() => {}} />)
     expect(screen.queryByRole('button', { name: 'Via ferratas' })).toBeNull()
     expect(container.firstElementChild).toHaveAttribute('role', 'group')
@@ -130,29 +132,51 @@ describe('TourMapLayerSwitcher via ferrata switch', () => {
     expect(on).toHaveClass('bg-accent', 'text-accent-text')
   })
 
-  it('FE-COMP-MAPLAYER-013: the status pill sits in the same row, right of the pill, and says nothing while the layer is off', () => {
-    const { rerender } = render(<TourMapLayerSwitcher active="default" onChange={() => {}} ferrataLayer={ferrataLayer()} />)
-    expect(screen.queryByTestId('ferrata-status-pill')).toBeNull()
+  it('FE-COMP-MAPLAYER-013: the count rides in the switch as a badge, nothing beside the pill, and none while off', () => {
+    const { container, rerender } = render(<TourMapLayerSwitcher active="default" onChange={() => {}} ferrataLayer={ferrataLayer({ count: 4 })} />)
+    expect(screen.queryByTestId('ferrata-count-badge')).toBeNull()
+    expect(container.firstElementChild).toHaveAttribute('role', 'group')
 
-    rerender(<TourMapLayerSwitcher active="default" onChange={() => {}} ferrataLayer={ferrataLayer({ active: true, status: 'tooLarge' })} />)
-    const pill = screen.getByTestId('ferrata-status-pill')
-    expect(pill).toHaveTextContent('Zoom in to load via ferratas')
-    const row = pill.parentElement as HTMLElement
-    expect(row.style.display).toBe('flex')
-    expect(row.firstElementChild).toHaveAttribute('role', 'group')
-    expect(row.lastElementChild).toBe(pill)
+    rerender(<TourMapLayerSwitcher active="default" onChange={() => {}} ferrataLayer={ferrataLayer({ active: true, status: 'ready', count: 4 })} />)
+    const badge = screen.getByTestId('ferrata-count-badge')
+    expect(badge).toHaveTextContent('4')
+    expect(badge).toHaveAttribute('data-tone', 'default')
+    expect(screen.getByRole('button', { name: 'Via ferratas' })).toContainElement(badge)
+    expect(screen.getByRole('status')).toHaveTextContent('4 via ferrata routes')
+    expect(screen.queryByTestId('ferrata-status-pill')).toBeNull()
   })
 
-  it('FE-COMP-MAPLAYER-014: sits beside the 3D switch behind one divider, and counts what the layer found', () => {
-    const found = [{ id: 'way/1' }, { id: 'way/2' }] as unknown as FerrataMapLayer['ferratas']
+  it('FE-COMP-MAPLAYER-014: a tiny spinner in the badge while tiles load', () => {
+    render(<TourMapLayerSwitcher active="default" onChange={() => {}} ferrataLayer={ferrataLayer({ active: true, status: 'loading', count: 2 })} />)
+    const badge = screen.getByTestId('ferrata-count-badge')
+    expect(badge).toContainElement(screen.getByTestId('ferrata-count-spinner'))
+    expect(badge).not.toHaveTextContent('2')
+    expect(screen.getByRole('status')).toHaveTextContent('Loading via ferratas…')
+  })
+
+  it('FE-COMP-MAPLAYER-015: offline, the mirrors down or the view too wide: a warning tone, the reason in the tooltip', async () => {
+    const { rerender } = render(<TourMapLayerSwitcher active="default" onChange={() => {}} ferrataLayer={ferrataLayer({ active: true, status: 'offline', count: 1 })} />)
+    expect(screen.getByTestId('ferrata-count-badge')).toHaveAttribute('data-tone', 'warning')
+    expect(screen.getByTestId('ferrata-count-badge')).toHaveClass('bg-warning-soft', 'text-warning')
+    expect(screen.getByRole('status')).toHaveTextContent('Via ferratas need a connection')
+
+    rerender(<TourMapLayerSwitcher active="default" onChange={() => {}} ferrataLayer={ferrataLayer({ active: true, status: 'tooLarge' })} />)
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'Via ferratas' }))
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Zoom in to load via ferratas')
+
+    rerender(<TourMapLayerSwitcher active="default" onChange={() => {}} ferrataLayer={ferrataLayer({ active: true, status: 'error' })} />)
+    expect(screen.getByTestId('ferrata-count-badge')).toHaveAttribute('data-tone', 'warning')
+    expect(screen.getByRole('status')).toHaveTextContent('Overpass unreachable')
+  })
+
+  it('FE-COMP-MAPLAYER-016: sits beside the 3D switch behind one divider', () => {
     render(
       <TourMapLayerSwitcher active="default" onChange={() => {}} onToggleTerrain={() => {}}
-        ferrataLayer={ferrataLayer({ active: true, status: 'ready', ferratas: found })} />
+        ferrataLayer={ferrataLayer({ active: true, status: 'ready', count: 2 })} />
     )
     const group = screen.getByRole('group')
-    expect(group.querySelectorAll('span[aria-hidden]')).toHaveLength(1)
-    const buttons = Array.from(group.querySelectorAll('button')).map((button) => button.textContent)
+    expect(group.querySelectorAll('span.bg-edge')).toHaveLength(1)
+    const buttons = Array.from(group.querySelectorAll('button')).map((button) => button.getAttribute('aria-label') ?? button.textContent)
     expect(buttons.slice(-2)).toEqual(['Via ferratas', '3D'])
-    expect(screen.getByTestId('ferrata-status-pill')).toHaveTextContent('2 via ferrata routes')
   })
 })

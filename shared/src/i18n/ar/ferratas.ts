@@ -13,6 +13,7 @@ const ferratas: TranslationStrings = {
   'ferratas.zoomIn': 'قرّب الخريطة لتحميل مسارات التسلق الحديدية',
   'ferratas.offline': 'تحتاج مسارات التسلق الحديدية إلى اتصال',
   'ferratas.unknownGrade': 'درجة الصعوبة غير معروفة',
+  'ferratas.gradeRange': '{from} إلى {to}',
   'ferratas.unnamed': 'مسار تسلق حديدي بلا اسم',
   'ferratas.viewInOsm': 'عرض في OpenStreetMap',
   'ferratas.attribution': 'البيانات © مساهمو OpenStreetMap',

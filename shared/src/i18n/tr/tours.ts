@@ -62,6 +62,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': 'Tur adı',
   'tours.planner.namePlaceholder': 'Adsız doğa yürüyüşü',
   'tours.planner.mapHint': 'Nokta eklemek için haritaya tıklayın.',
+  'tours.planner.mapSearch': 'Yer veya adres ara',
   'tours.planner.waypoints': 'Rota noktaları',
   'tours.planner.waypointLabel': 'Rota noktası {n}',
   'tours.durationMinutes': '{count} dk',

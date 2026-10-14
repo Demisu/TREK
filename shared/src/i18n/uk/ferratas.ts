@@ -11,6 +11,7 @@ const ferratas: TranslationStrings = {
   'ferratas.zoomIn': 'Наблизьте мапу, щоб завантажити віа ферати',
   'ferratas.offline': 'Для віа ферат потрібне з’єднання',
   'ferratas.unknownGrade': 'Складність невідома',
+  'ferratas.gradeRange': 'від {from} до {to}',
   'ferratas.unnamed': 'Віа ферата без назви',
   'ferratas.viewInOsm': 'Відкрити в OpenStreetMap',
   'ferratas.attribution': 'Дані © учасники OpenStreetMap',

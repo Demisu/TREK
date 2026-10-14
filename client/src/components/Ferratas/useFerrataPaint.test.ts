@@ -7,33 +7,33 @@ import { useFerrataPaint } from './useFerrataPaint';
 const root = document.documentElement;
 
 afterEach(() => {
-  root.style.removeProperty('--success');
+  root.style.removeProperty('--text-primary');
   root.classList.remove('dark', 'unrelated');
   root.removeAttribute('data-scheme');
 });
 
 describe('useFerrataPaint', () => {
   it('FE-FERRATA-USEPAINT-001: starts with the colours the tokens resolve to', () => {
-    root.style.setProperty('--success', 'green');
+    root.style.setProperty('--text-primary', 'black');
     const { result } = renderHook(() => useFerrataPaint());
-    expect(result.current.tone.easy).toBe('green');
+    expect(result.current.line).toBe('black');
   });
 
   it('FE-FERRATA-USEPAINT-002: resolves again when the scheme or a token on the root changes', async () => {
-    root.style.setProperty('--success', 'green');
+    root.style.setProperty('--text-primary', 'black');
     const { result } = renderHook(() => useFerrataPaint());
 
     await act(async () => {
       root.setAttribute('data-scheme', 'forest');
-      root.style.setProperty('--success', 'teal');
+      root.style.setProperty('--text-primary', 'ivory');
       await Promise.resolve();
     });
 
-    await waitFor(() => expect(result.current.tone.easy).toBe('teal'));
+    await waitFor(() => expect(result.current.line).toBe('ivory'));
   });
 
   it('FE-FERRATA-USEPAINT-003: keeps the same reference when a change leaves every colour as it was', async () => {
-    root.style.setProperty('--success', 'green');
+    root.style.setProperty('--text-primary', 'black');
     const { result } = renderHook(() => useFerrataPaint());
     const first = result.current;
 

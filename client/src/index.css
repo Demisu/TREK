@@ -1199,6 +1199,11 @@ body {
 .leaflet-tooltip-top.map-tooltip::before {
   display: none;
 }
+/* A clicked via ferrata opens a card with its own focus; the path's focus ring would only linger on the map. */
+.leaflet-interactive.trek-ferrata-hit:focus,
+.leaflet-interactive.trek-ferrata-hit:focus-visible {
+  outline: none;
+}
 
 /* Scrollbars — styled on desktop, hidden on mobile */
 ::-webkit-scrollbar {

@@ -1,4 +1,5 @@
 import type { JsonColumn } from '../utils/json-column';
+import { FERRATAS_RESULT_CAP, ferrataSchema, type Ferrata } from '@trek/shared';
 
 import { z } from 'zod';
 
@@ -104,5 +105,22 @@ export const BUDGET_ITEM_TICKET: JsonColumn<{ items: { price?: string | number; 
       ),
     })
     .loose(),
+  fallback: () => null,
+};
+
+/** What one cell of the via ferrata grid holds: its ferratas, and whether the Overpass answer they came from was cut. */
+export interface FerrataTilePayload {
+  ferratas: Ferrata[];
+  truncated: boolean;
+}
+
+/**
+ * One via ferrata grid cell, as Overpass answered it. Checked against the wire
+ * contract, so a stored row can go out as it is. A broken row reads as a cell
+ * never fetched (null), and the next request asks Overpass for it again.
+ */
+export const FERRATA_TILE_PAYLOAD: JsonColumn<FerrataTilePayload | null> = {
+  column: 'ferrata_tiles.payload',
+  schema: z.object({ ferratas: z.array(ferrataSchema).max(FERRATAS_RESULT_CAP), truncated: z.boolean() }).nullable(),
   fallback: () => null,
 };

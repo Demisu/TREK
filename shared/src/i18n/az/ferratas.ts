@@ -9,6 +9,7 @@ const ferratas: TranslationStrings = {
   'ferratas.zoomIn': 'Via ferrata marşrutlarını yükləmək üçün yaxınlaşdırın',
   'ferratas.offline': 'Via ferrata marşrutları üçün bağlantı lazımdır',
   'ferratas.unknownGrade': 'Çətinlik naməlumdur',
+  'ferratas.gradeRange': '{from} - {to}',
   'ferratas.unnamed': 'Adsız via ferrata marşrutu',
   'ferratas.viewInOsm': 'OpenStreetMap-də bax',
   'ferratas.attribution': 'Məlumatlar © OpenStreetMap iştirakçıları',

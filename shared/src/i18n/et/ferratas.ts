@@ -9,6 +9,7 @@ const ferratas: TranslationStrings = {
   'ferratas.zoomIn': 'Via ferrata radade laadimiseks suumi lähemale',
   'ferratas.offline': 'Via ferrata rajad vajavad ühendust',
   'ferratas.unknownGrade': 'Raskusaste teadmata',
+  'ferratas.gradeRange': '{from} kuni {to}',
   'ferratas.unnamed': 'Nimeta via ferrata',
   'ferratas.viewInOsm': 'Vaata OpenStreetMapis',
   'ferratas.attribution': 'Andmed © OpenStreetMapi kaastöötajad',

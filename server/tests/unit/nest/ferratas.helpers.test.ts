@@ -1,13 +1,16 @@
 import {
   FERRATA_QUERY_TIMEOUT_S,
   buildFerrataQuery,
-  ferrataCacheKey,
+  ferrataTileBlocks,
+  ferrataTileKeysFor,
+  ferrataTilesBbox,
   overpassFerrataAnswerSchema,
   parseFerrataGrade,
   snapFerrataBbox,
+  splitFerratasByTile,
   toFerratas,
 } from '../../../src/nest/ferratas/ferratas.helpers';
-import { FERRATAS_RESULT_CAP } from '@trek/shared';
+import { FERRATAS_RESULT_CAP, type Ferrata } from '@trek/shared';
 
 import { describe, expect, it } from 'vitest';
 
@@ -48,7 +51,7 @@ describe('parseFerrataGrade', () => {
   });
 });
 
-describe('snapFerrataBbox and ferrataCacheKey', () => {
+describe('snapFerrataBbox', () => {
   it('grows the box outwards to the 0.05 degree grid', () => {
     expect(snapFerrataBbox({ south: 47.12, west: 11.21, north: 47.38, east: 11.57 })).toEqual({
       south: 47.1,
@@ -71,12 +74,119 @@ describe('snapFerrataBbox and ferrataCacheKey', () => {
       east: -179.9,
     });
   });
+});
 
-  it('gives two nearby requests the same key', () => {
-    const a = ferrataCacheKey(snapFerrataBbox({ south: 47.11, west: 11.21, north: 47.39, east: 11.59 }));
-    const b = ferrataCacheKey(snapFerrataBbox({ south: 47.12, west: 11.22, north: 47.38, east: 11.58 }));
-    expect(a).toBe(b);
-    expect(a).toBe('47.1,11.2,47.4,11.6');
+describe('ferrataTileKeysFor', () => {
+  it('names every whole cell the snapped box covers, south to north and west to east', () => {
+    expect(ferrataTileKeysFor({ south: 47.12, west: 11.21, north: 47.18, east: 11.29 }, 200)).toEqual([
+      '942,224',
+      '942,225',
+      '943,224',
+      '943,225',
+    ]);
+  });
+
+  it('gives two nearby requests the same cells', () => {
+    const a = ferrataTileKeysFor({ south: 47.11, west: 11.21, north: 47.39, east: 11.59 }, 200);
+    const b = ferrataTileKeysFor({ south: 47.12, west: 11.22, north: 47.38, east: 11.58 }, 200);
+    expect(a).toEqual(b);
+    expect(a).toHaveLength(6 * 8);
+  });
+
+  it('a box on the grid covers exactly its own cells', () => {
+    expect(ferrataTileKeysFor({ south: 47.1, west: 11.2, north: 47.15, east: 11.25 }, 200)).toEqual(['942,224']);
+  });
+
+  it('keys cells south of the equator and west of Greenwich by negative indices', () => {
+    expect(ferrataTileKeysFor({ south: -0.04, west: -0.04, north: 0.04, east: 0.04 }, 200)).toEqual([
+      '-1,-1',
+      '-1,0',
+      '0,-1',
+      '0,0',
+    ]);
+  });
+
+  it('answers null for a box over the cell cap instead of walking it', () => {
+    expect(ferrataTileKeysFor({ south: 47, west: 11, north: 48, east: 12 }, 200)).toBeNull();
+    expect(ferrataTileKeysFor({ south: 47, west: 11, north: 47.5, east: 11.5 }, 100)).toHaveLength(100);
+    expect(ferrataTileKeysFor({ south: 47, west: 11, north: 47.5, east: 11.5 }, 99)).toBeNull();
+  });
+});
+
+describe('ferrataTileBlocks', () => {
+  it('groups cells into the grid-aligned blocks of two by two that one query covers', () => {
+    expect(ferrataTileBlocks(['942,224', '942,225', '943,224', '944,224', '942,226', '-1,-1', '-2,-1'])).toEqual([
+      ['942,224', '942,225', '943,224'],
+      ['944,224'],
+      ['942,226'],
+      ['-1,-1', '-2,-1'],
+    ]);
+    expect(ferrataTileBlocks([])).toEqual([]);
+  });
+
+  it('refuses a key that is not a cell', () => {
+    expect(() => ferrataTileBlocks(['nope'])).toThrow(/tile key/);
+  });
+});
+
+describe('ferrataTilesBbox', () => {
+  it('bounds one cell by its own edges', () => {
+    expect(ferrataTilesBbox(['942,224'])).toEqual({ south: 47.1, west: 11.2, north: 47.15, east: 11.25 });
+  });
+
+  it('bounds scattered cells by one box around all of them', () => {
+    expect(ferrataTilesBbox(['942,230', '945,224', '-1,-1'])).toEqual({
+      south: -0.05,
+      west: -0.05,
+      north: 47.3,
+      east: 11.55,
+    });
+  });
+
+  it('refuses no cells and a key that is not a cell', () => {
+    expect(() => ferrataTilesBbox([])).toThrow();
+    expect(() => ferrataTilesBbox(['947.1,11'])).toThrow(/tile key/);
+    expect(() => ferrataTilesBbox(['1,2,3'])).toThrow(/tile key/);
+  });
+});
+
+describe('splitFerratasByTile', () => {
+  const ferrata = (id: string, geometry: [number, number][]): Ferrata => ({
+    id,
+    name: null,
+    grade: { raw: null, level: null, plus: null },
+    routeName: null,
+    geometry,
+    osmUrl: `https://www.openstreetmap.org/${id}`,
+  });
+
+  it('hands a ferrata to every asked cell a point of its line lies in', () => {
+    const crossing = ferrata('way/1', [
+      [47.12, 11.21],
+      [47.17, 11.21],
+    ]);
+    const byTile = splitFerratasByTile([crossing], new Set(['942,224', '943,224', '942,225']));
+    expect(byTile.get('942,224')).toEqual([crossing]);
+    expect(byTile.get('943,224')).toEqual([crossing]);
+    expect(byTile.get('942,225')).toEqual([]);
+  });
+
+  it('counts a point on a cell edge for the cells on both sides', () => {
+    const onCorner = ferrata('way/2', [
+      [47.15, 11.25],
+      [47.15, 11.25],
+    ]);
+    const byTile = splitFerratasByTile([onCorner], new Set(['942,224', '942,225', '943,224', '943,225']));
+    expect([...byTile.values()].every((list) => list.length === 1)).toBe(true);
+  });
+
+  it('gives every asked cell a list, empty where nothing lies, and leaves cells it was not asked about out', () => {
+    const elsewhere = ferrata('way/3', [
+      [46.51, 12.06],
+      [46.52, 12.07],
+    ]);
+    const byTile = splitFerratasByTile([elsewhere], new Set(['942,224']));
+    expect([...byTile.entries()]).toEqual([['942,224', []]]);
   });
 });
 

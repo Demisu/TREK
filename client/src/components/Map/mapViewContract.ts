@@ -120,9 +120,10 @@ export interface MapViewProps {
   /** Offers the 3D terrain switch in the tour layer pill. */
   onToggleTerrain3d?: () => void;
   /**
-   * The via ferrata layer (RC-10): its switch and status pill join the tour layer
-   * pill, and while it is on its lines are drawn and a click on one hands the
-   * ferrata to `onSelect`. Both renderers mount it through the Ferratas modules.
+   * The via ferrata layer (RC-10): its switch, with the count as a badge, joins
+   * the tour layer pill, and while it is on its lines are drawn and a click on
+   * one hands the ferrata to `onSelect`. Both renderers mount it through the
+   * Ferratas modules.
    */
   ferrataLayer?: FerrataMapLayer;
   /**

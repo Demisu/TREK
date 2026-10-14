@@ -61,6 +61,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': 'ชื่อทัวร์',
   'tours.planner.namePlaceholder': 'เส้นทางเดินป่าที่ยังไม่มีชื่อ',
   'tours.planner.mapHint': 'คลิกแผนที่เพื่อเพิ่มจุด',
+  'tours.planner.mapSearch': 'ค้นหาสถานที่หรือที่อยู่',
   'tours.planner.waypoints': 'จุดแวะ',
   'tours.planner.waypointLabel': 'จุดแวะ {n}',
   'tours.durationMinutes': '{count} นาที',

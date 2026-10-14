@@ -1,14 +1,12 @@
 import { type Ferrata, type FerrataBbox, type FerrataGrade, ferrataBboxSpanOk } from '@trek/shared';
 
-/**
- * The pure half of the via ferrata layer: grade wording, the difficulty band a
- * badge and a line are coloured by, the map area a request asks for, and the
- * GeoJSON the GL renderer draws. React-free, so both renderers and the detail
- * card read the same answers.
- */
+import type { FerrataGroup } from './ferrataGroups';
 
-/** The difficulty band a grade falls into; `unknown` when OSM gave no 0 to 6 level. */
-export type FerrataTone = 'easy' | 'medium' | 'hard' | 'unknown';
+/**
+ * The pure half of the via ferrata layer: grade wording, the area checks a
+ * request makes, and the GeoJSON the GL renderer draws. React-free, so both
+ * renderers and the detail card read the same answers.
+ */
 
 /**
  * The grade as the K scale reads it: `K3`, `K4+`, `K2-`. Null when the way has
@@ -18,15 +16,6 @@ export type FerrataTone = 'easy' | 'medium' | 'hard' | 'unknown';
 export function ferrataGradeLabel(grade: FerrataGrade): string | null {
   if (grade.level === null || grade.level === undefined) return null;
   return `K${grade.level}${grade.plus ?? ''}`;
-}
-
-/** Levels 0 to 2 are easy, 3 and 4 medium, 5 and 6 hard. */
-export function ferrataGradeTone(grade: FerrataGrade): FerrataTone {
-  const level = grade.level;
-  if (level === null || level === undefined) return 'unknown';
-  if (level <= 2) return 'easy';
-  if (level <= 4) return 'medium';
-  return 'hard';
 }
 
 /**
@@ -52,27 +41,10 @@ export function ferrataOsmUrl(ferrata: Pick<Ferrata, 'id'>): string {
   return /^way\/\d+$/.test(ferrata.id) ? `${OSM_ORIGIN}${ferrata.id}` : OSM_ORIGIN;
 }
 
-/** Three decimals is about 100 m: small pans land on the same area and do not refetch. */
-const STEP = 1000;
-const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
-
-/**
- * The map area rounded outwards to the request grid, so the box asked for
- * always covers the box on screen.
- */
-export function roundFerrataBbox(bbox: FerrataBbox): FerrataBbox {
-  return {
-    south: clamp(Math.floor(bbox.south * STEP) / STEP, -90, 90),
-    west: clamp(Math.floor(bbox.west * STEP) / STEP, -180, 180),
-    north: clamp(Math.ceil(bbox.north * STEP) / STEP, -90, 90),
-    east: clamp(Math.ceil(bbox.east * STEP) / STEP, -180, 180),
-  };
-}
-
 /**
  * Whether the server takes this area: a real box no wider than
- * FERRATA_BBOX_MAX_SPAN_DEG per side. A wider one is refused with a 400, so
- * the client asks the user to zoom in instead of sending it.
+ * FERRATA_BBOX_MAX_SPAN_DEG per side. Past it the layer asks the user to zoom
+ * in instead of loading every tile of the view.
  */
 export function ferrataBboxFits(bbox: FerrataBbox): boolean {
   // The span check is the server's own, so a box the client sends is never refused as too large.
@@ -84,34 +56,54 @@ export function ferrataBboxParam(bbox: FerrataBbox): string {
   return [bbox.south, bbox.west, bbox.north, bbox.east].map((edge) => edge.toFixed(3)).join(',');
 }
 
-interface FerrataFeature {
+interface FerrataLineFeature {
   type: 'Feature';
-  properties: { id: string; tone: FerrataTone };
+  properties: { id: string; group: string };
   geometry: { type: 'LineString'; coordinates: Array<[number, number]> };
 }
 
-interface FerrataFeatureCollection {
-  type: 'FeatureCollection';
-  features: FerrataFeature[];
+interface FerrataLabelFeature {
+  type: 'Feature';
+  properties: { group: string };
+  geometry: { type: 'Point'; coordinates: [number, number] };
 }
 
+interface FeatureCollection<F> {
+  type: 'FeatureCollection';
+  features: F[];
+}
+
+const lngLat = ([lat, lng]: [number, number]): [number, number] => [lng, lat];
+
 /**
- * The ferratas as a GeoJSON FeatureCollection for MapLibre or Mapbox GL. The
- * contract carries [lat, lng] like the rest of TREK; GeoJSON wants [lng, lat],
- * and this is the one place the layer flips it. Only the id and the tone ride
- * along: a click looks the ferrata up by id, so names never pass through the
- * map's own feature state.
+ * The segments as a GeoJSON FeatureCollection for MapLibre or Mapbox GL, one
+ * line per OSM way. The contract carries [lat, lng] like the rest of TREK;
+ * GeoJSON wants [lng, lat], and this is the one place the layer flips it. Only
+ * the way and its group ride along: a click looks the ferrata up by id, so
+ * names never pass through the map's own feature state, and a highlight
+ * filters on the group.
  */
-export function ferrataFeatureCollection(ferratas: readonly Ferrata[]): FerrataFeatureCollection {
+export function ferrataFeatureCollection(groups: readonly FerrataGroup[]): FeatureCollection<FerrataLineFeature> {
   return {
     type: 'FeatureCollection',
-    features: ferratas.map((ferrata) => ({
+    features: groups.flatMap((group) =>
+      group.segments.map((segment) => ({
+        type: 'Feature' as const,
+        properties: { id: segment.id, group: group.id },
+        geometry: { type: 'LineString' as const, coordinates: ferrataPositions(segment).map(lngLat) },
+      }))
+    ),
+  };
+}
+
+/** One point per ferrata, halfway along it, where the GL renderer puts the route icon. */
+export function ferrataLabelCollection(groups: readonly FerrataGroup[]): FeatureCollection<FerrataLabelFeature> {
+  return {
+    type: 'FeatureCollection',
+    features: groups.map((group) => ({
       type: 'Feature' as const,
-      properties: { id: ferrata.id, tone: ferrataGradeTone(ferrata.grade) },
-      geometry: {
-        type: 'LineString' as const,
-        coordinates: ferrataPositions(ferrata).map(([lat, lng]): [number, number] => [lng, lat]),
-      },
+      properties: { group: group.id },
+      geometry: { type: 'Point' as const, coordinates: lngLat(group.midpoint) },
     })),
   };
 }

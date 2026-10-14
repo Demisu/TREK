@@ -1,9 +1,15 @@
-import { FERRATAS_RESULT_CAP, type Ferrata, type FerrataBbox, type FerrataGrade } from '@trek/shared';
+import {
+  FERRATAS_RESULT_CAP,
+  ferrataTileBlockKey,
+  type Ferrata,
+  type FerrataBbox,
+  type FerrataGrade,
+} from '@trek/shared';
 
 import { z } from 'zod';
 
 /**
- * Pure pieces of the via ferrata lookup: the Overpass query, the cache key, the
+ * Pure pieces of the via ferrata lookup: the Overpass query, the tile grid, the
  * grade parser and the mapping from Overpass elements to the wire rows. Kept
  * free of I/O so the service and its tests share them.
  */
@@ -11,7 +17,7 @@ import { z } from 'zod';
 /** How long Overpass itself may work on one query, in seconds (`[timeout:N]`). */
 export const FERRATA_QUERY_TIMEOUT_S = 15;
 
-/** The grid the box is snapped outwards to, so nearby requests share one cache entry. */
+/** The grid the box is snapped outwards to; one cell of it is the unit the answers are stored by. */
 const GRID_DEG = 0.05;
 
 const GRADE_RE = /^([0-6])([+-])?$/;
@@ -37,9 +43,8 @@ const snapUp = (v: number) => Math.ceil(v / GRID_DEG - 1e-9) * GRID_DEG;
 const fixed = (v: number) => Number(v.toFixed(2));
 
 /**
- * The box grown outwards to the 0.05 degree grid and clamped to the globe.
- * The query asks for the snapped box, so a cache entry always covers every
- * request that maps onto it.
+ * The box grown outwards to the 0.05 degree grid and clamped to the globe,
+ * so it is made of whole cells.
  */
 export function snapFerrataBbox(bbox: FerrataBbox): FerrataBbox {
   return {
@@ -50,8 +55,104 @@ export function snapFerrataBbox(bbox: FerrataBbox): FerrataBbox {
   };
 }
 
-export function ferrataCacheKey(snapped: FerrataBbox): string {
-  return `${snapped.south},${snapped.west},${snapped.north},${snapped.east}`;
+/**
+ * The grid cells a box covers, as tile keys (`"<lat index>,<lng index>"`, the
+ * cell's south-west corner divided by the grid), south to north and west to
+ * east. The box is snapped outwards first, so every cell is whole. `null` when
+ * the box covers more than `max` cells: the caller refuses it rather than
+ * walking a grid it never meant to ask for.
+ */
+export function ferrataTileKeysFor(bbox: FerrataBbox, max: number): string[] | null {
+  const snapped = snapFerrataBbox(bbox);
+  const lat0 = Math.round(snapped.south / GRID_DEG);
+  const lat1 = Math.round(snapped.north / GRID_DEG);
+  const lng0 = Math.round(snapped.west / GRID_DEG);
+  const lng1 = Math.round(snapped.east / GRID_DEG);
+  if ((lat1 - lat0) * (lng1 - lng0) > max) return null;
+  const keys: string[] = [];
+  for (let lat = lat0; lat < lat1; lat += 1) {
+    for (let lng = lng0; lng < lng1; lng += 1) keys.push(tileKey(lat, lng));
+  }
+  return keys;
+}
+
+const tileKey = (lat: number, lng: number) => `${lat},${lng}`;
+
+function tileIndices(key: string): [number, number] {
+  const parts = key.split(',').map(Number);
+  const lat = parts[0] ?? Number.NaN;
+  const lng = parts[1] ?? Number.NaN;
+  if (parts.length !== 2 || !Number.isInteger(lat) || !Number.isInteger(lng)) {
+    throw new Error(`Not a ferrata tile key: ${key}`);
+  }
+  return [lat, lng];
+}
+
+/** The one box around every given cell, which is what a batch asks Overpass for. */
+export function ferrataTilesBbox(keys: readonly string[]): FerrataBbox {
+  if (keys.length === 0) throw new Error('No ferrata tiles to bound');
+  let south = Infinity;
+  let west = Infinity;
+  let north = -Infinity;
+  let east = -Infinity;
+  for (const key of keys) {
+    const [lat, lng] = tileIndices(key);
+    south = Math.min(south, lat);
+    west = Math.min(west, lng);
+    north = Math.max(north, lat + 1);
+    east = Math.max(east, lng + 1);
+  }
+  return {
+    south: fixed(Math.max(-90, south * GRID_DEG)),
+    west: fixed(Math.max(-180, west * GRID_DEG)),
+    north: fixed(Math.min(90, north * GRID_DEG)),
+    east: fixed(Math.min(180, east * GRID_DEG)),
+  };
+}
+
+/**
+ * The cells grouped into the grid-aligned blocks of FERRATA_TILES_PER_REQUEST_SIDE
+ * cells a side that one Overpass query covers (the blocks the client asks in),
+ * each block's cells in the order given.
+ */
+export function ferrataTileBlocks(keys: readonly string[]): string[][] {
+  const blocks = new Map<string, string[]>();
+  for (const key of keys) {
+    const [lat, lng] = tileIndices(key);
+    const block = ferrataTileBlockKey(lat, lng);
+    const cells = blocks.get(block);
+    if (cells) cells.push(key);
+    else blocks.set(block, [key]);
+  }
+  return [...blocks.values()];
+}
+
+/** The grid rows (or columns) a coordinate lies in: two when it sits on the line between them. */
+function gridIndices(value: number): number[] {
+  const steps = value / GRID_DEG;
+  const nearest = Math.round(steps);
+  return Math.abs(steps - nearest) < 1e-9 ? [nearest - 1, nearest] : [Math.floor(steps)];
+}
+
+/**
+ * The ferratas of one Overpass answer, handed to every cell among `keys` that
+ * a point of their line lies in (a point on a cell edge counts for both
+ * cells). A cell no ferrata touches gets an empty list, which is an answer
+ * too: it is stored, so the cell is not asked for again.
+ */
+export function splitFerratasByTile(ferratas: readonly Ferrata[], keys: ReadonlySet<string>): Map<string, Ferrata[]> {
+  const byTile = new Map<string, Ferrata[]>();
+  for (const key of keys) byTile.set(key, []);
+  for (const ferrata of ferratas) {
+    const touched = new Set<string>();
+    for (const [lat, lng] of ferrata.geometry) {
+      for (const row of gridIndices(lat)) {
+        for (const column of gridIndices(lng)) touched.add(tileKey(row, column));
+      }
+    }
+    for (const key of touched) byTile.get(key)?.push(ferrata);
+  }
+  return byTile;
 }
 
 /**

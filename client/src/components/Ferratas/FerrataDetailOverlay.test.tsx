@@ -5,6 +5,8 @@ import type { Ferrata } from '@trek/shared';
 
 import { fireEvent, render, screen } from '../../../tests/helpers/render';
 import FerrataDetailOverlay from './FerrataDetailOverlay';
+import { groupFerratas } from './ferrataGroups';
+import type { FerrataSelection } from './useFerrataMapLayer';
 
 const FERRATA: Ferrata = {
   id: 'way/42',
@@ -18,38 +20,54 @@ const FERRATA: Ferrata = {
   osmUrl: 'https://www.openstreetmap.org/way/42',
 };
 
+const [GROUP] = groupFerratas([FERRATA]);
+if (!GROUP) throw new Error('no group');
+const SELECTION: FerrataSelection = { group: GROUP, segment: FERRATA };
+
 describe('FerrataDetailOverlay', () => {
   it('FE-FERRATA-OVERLAY-001: shows nothing while no ferrata is picked', () => {
-    render(<FerrataDetailOverlay ferrata={null} onClose={vi.fn()} insetRight={400} bottom={66} />);
+    render(<FerrataDetailOverlay selection={null} onClose={vi.fn()} insetEnd={400} bottom={66} />);
     expect(screen.queryByTestId('ferrata-detail-overlay')).toBeNull();
   });
 
-  it('FE-FERRATA-OVERLAY-002: anchors the card bottom right, clear of the right panel and the control row', () => {
-    render(<FerrataDetailOverlay ferrata={FERRATA} onClose={vi.fn()} insetRight={400} bottom={66} />);
+  it('FE-FERRATA-OVERLAY-002: anchors the card at the bottom of the inline end, clear of the panel and the control row', () => {
+    render(<FerrataDetailOverlay selection={SELECTION} onClose={vi.fn()} insetEnd={400} bottom={66} />);
     const overlay = screen.getByTestId('ferrata-detail-overlay');
-    expect(overlay.style.right).toBe('400px');
+    expect(overlay.style.insetInlineEnd).toBe('400px');
+    // Logical only: no physical side, so a right-to-left page mirrors it.
+    expect(overlay.style.right).toBe('');
+    expect(overlay.style.left).toBe('');
     expect(overlay.style.bottom).toBe('66px');
     expect(overlay).toContainElement(screen.getByTestId('ferrata-detail-card'));
   });
 
-  it('FE-FERRATA-OVERLAY-003: closes on a press outside it, not on one inside', () => {
+  it('FE-FERRATA-OVERLAY-003: closes on a press outside it, not on one inside, and reports the outside press', () => {
     const onClose = vi.fn();
+    const onOutsidePress = vi.fn();
     render(
       <div>
         <button type="button">map</button>
-        <FerrataDetailOverlay ferrata={FERRATA} onClose={onClose} insetRight={400} bottom={66} />
+        <FerrataDetailOverlay
+          selection={SELECTION}
+          onClose={onClose}
+          onOutsidePress={onOutsidePress}
+          insetEnd={400}
+          bottom={66}
+        />
       </div>
     );
     fireEvent.pointerDown(screen.getByText('Via delle Trincee'));
     expect(onClose).not.toHaveBeenCalled();
+    expect(onOutsidePress).not.toHaveBeenCalled();
 
     fireEvent.pointerDown(screen.getByRole('button', { name: 'map' }));
     expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onOutsidePress).toHaveBeenCalledTimes(1);
   });
 
   it('FE-FERRATA-OVERLAY-004: closes on Escape and on its own close button', () => {
     const onClose = vi.fn();
-    render(<FerrataDetailOverlay ferrata={FERRATA} onClose={onClose} insetRight={400} bottom={66} />);
+    render(<FerrataDetailOverlay selection={SELECTION} onClose={onClose} insetEnd={400} bottom={66} />);
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(onClose).toHaveBeenCalledTimes(1);
 

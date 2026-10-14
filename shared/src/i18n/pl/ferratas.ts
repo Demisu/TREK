@@ -11,6 +11,7 @@ const ferratas: TranslationStrings = {
   'ferratas.zoomIn': 'Przybliż mapę, aby wczytać ferraty',
   'ferratas.offline': 'Ferraty wymagają połączenia',
   'ferratas.unknownGrade': 'Nieznana trudność',
+  'ferratas.gradeRange': 'od {from} do {to}',
   'ferratas.unnamed': 'Ferrata bez nazwy',
   'ferratas.viewInOsm': 'Pokaż w OpenStreetMap',
   'ferratas.attribution': 'Dane © współtwórcy OpenStreetMap',

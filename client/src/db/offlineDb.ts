@@ -1,4 +1,4 @@
-import type { RoadtripPreferences, TourListItem, TourWaypoint } from '@trek/shared';
+import type { Ferrata, RoadtripPreferences, TourListItem, TourWaypoint } from '@trek/shared';
 import Dexie, { type Table } from 'dexie';
 import type { Trip, Day, Place, PackingItem, TodoItem, BudgetItem, Reservation, TripFile, Accommodation, TripMember, Tag, Category } from '../types';
 
@@ -26,6 +26,20 @@ export interface CachedBudgetSettlement {
   tripId: number;
   base: string;
   settlement: unknown;
+}
+
+/**
+ * One 0.05 degree tile of the via ferrata layer (see `ferrataGrid` in
+ * `@trek/shared`) as last loaded for a trip: the ferratas that reach into it,
+ * possibly none. Read straight from OpenStreetMap, not trip data; kept so the
+ * layer draws at once and offline, and refreshed after a week.
+ */
+interface CachedFerrataTile {
+  tripId: number;
+  /** The tile's key, `<row>:<col>`. */
+  tile: string;
+  fetchedAt: number;
+  ferratas: Ferrata[];
 }
 
 // ── Queue + sync types ────────────────────────────────────────────────────────
@@ -234,6 +248,7 @@ export class TrekOfflineDb extends Dexie {
   areaPlaces!: Table<CachedAreaPlace, [string, number]>;
   tours!: Table<CachedTour, number>;
   budgetSettlements!: Table<CachedBudgetSettlement, number>;
+  ferrataTiles!: Table<CachedFerrataTile, [number, string]>;
 
   constructor(name: string = ANON_DB_NAME) {
     super(name);
@@ -308,6 +323,10 @@ export class TrekOfflineDb extends Dexie {
 
     // v10: the Costs settlement, one per trip, so the balances read offline.
     this.version(10).stores({ budgetSettlements: 'tripId' });
+
+    // v11: the via ferrata layer's loaded tiles, per trip, so the lines draw at
+    // once and offline; `tripId` so they drop with the trip.
+    this.version(11).stores({ ferrataTiles: '[tripId+tile], tripId, fetchedAt' });
   }
 }
 
@@ -590,6 +609,7 @@ export async function clearTripData(tripId: number): Promise<void> {
       offlineDb.roadtripPreferences,
       offlineDb.tours,
       offlineDb.budgetSettlements,
+      offlineDb.ferrataTiles,
     ],
     async () => {
       await offlineDb.roadtripPreferences.delete(tripId);
@@ -611,6 +631,7 @@ export async function clearTripData(tripId: number): Promise<void> {
       // answering offline searches — and nothing else ever deleted them, so they
       // accumulated for the life of the install.
       await offlineDb.areaPlaces.where('tripId').equals(tripId).delete();
+      await offlineDb.ferrataTiles.where('tripId').equals(tripId).delete();
     },
   );
   // Remove the trip row itself outside the transaction since it's a separate table

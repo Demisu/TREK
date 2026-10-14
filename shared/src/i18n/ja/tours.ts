@@ -60,6 +60,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': 'ツアー名',
   'tours.planner.namePlaceholder': '名前のないハイキング',
   'tours.planner.mapHint': '地図をクリックして地点を追加します。',
+  'tours.planner.mapSearch': '場所や住所を検索',
   'tours.planner.waypoints': 'ルート上の地点',
   'tours.planner.waypointLabel': '地点{n}',
   'tours.durationMinutes': '{count}分',

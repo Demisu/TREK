@@ -64,6 +64,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': 'Nome do passeio',
   'tours.planner.namePlaceholder': 'Trilha sem título',
   'tours.planner.mapHint': 'Clique no mapa para adicionar pontos.',
+  'tours.planner.mapSearch': 'Buscar lugar ou endereço',
   'tours.planner.waypoints': 'Pontos de passagem',
   'tours.planner.waypointLabel': 'Ponto de passagem {n}',
   'tours.durationMinutes': '{count} min',

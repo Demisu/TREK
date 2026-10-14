@@ -65,6 +65,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': 'اسم الجولة',
   'tours.planner.namePlaceholder': 'جولة مشي بلا اسم',
   'tours.planner.mapHint': 'انقر على الخريطة لإضافة نقاط.',
+  'tours.planner.mapSearch': 'ابحث عن مكان أو عنوان',
   'tours.planner.waypoints': 'نقاط المرور',
   'tours.planner.waypointLabel': 'نقطة المرور {n}',
   'tours.durationMinutes': '{count} د',

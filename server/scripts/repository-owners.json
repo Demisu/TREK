@@ -31,6 +31,7 @@
   "DocumentProviderFields": "doc-sync",
   "DocumentProviders": "doc-sync",
   "DocumentSyncItems": "doc-sync",
+  "FerrataTiles": "ferratas",
   "FileLinks": "files",
   "GoogleApiUsage": "google-quota",
   "GooglePlacePhotoMeta": "place-photos",

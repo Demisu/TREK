@@ -9,6 +9,7 @@ const ferratas: TranslationStrings = {
   'ferratas.zoomIn': 'Zoomez pour charger les via ferrata',
   'ferratas.offline': 'Les via ferrata nécessitent une connexion',
   'ferratas.unknownGrade': 'Difficulté inconnue',
+  'ferratas.gradeRange': '{from} à {to}',
   'ferratas.unnamed': 'Via ferrata sans nom',
   'ferratas.viewInOsm': 'Voir dans OpenStreetMap',
   'ferratas.attribution': 'Données © contributeurs OpenStreetMap',

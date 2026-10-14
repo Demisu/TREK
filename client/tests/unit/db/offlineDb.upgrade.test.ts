@@ -53,6 +53,7 @@ const HISTORY: Record<number, StoreSpec> = {
   8: { areaPlaces: '[gers+tripId], gers, tripId, searchName' },
   9: { tours: 'place_id, trip_id' },
   10: { budgetSettlements: 'tripId' },
+  11: { ferrataTiles: '[tripId+tile], tripId, fetchedAt' },
 };
 
 const HISTORY_VERSIONS = Object.keys(HISTORY)
@@ -130,6 +131,7 @@ function rowsAt(version: number): Record<string, Record<string, unknown>> {
     roadtripPreferences: { tripId: 1, preferences: { avoid_tolls: true } },
     tours: { place_id: 21, trip_id: 1, name: 'Old town loop', distance: 4200 },
     budgetSettlements: { tripId: 1, base: 'EUR', settlement: { balances: [], flows: [] } },
+    ferrataTiles: { tripId: 1, tile: '930:236', fetchedAt: 11, ferratas: [] },
   };
   const tables = schemaAt(version);
   return Object.fromEntries(Object.entries(all).filter(([table]) => table in tables));
@@ -289,6 +291,21 @@ const UPGRADE_CASES: Record<number, UpgradeCase> = {
       expect(await db.tours.get(21)).toMatchObject({ name: 'Old town loop' });
       await db.table('budgetSettlements').put({ tripId: 3, base: 'USD', settlement: { flows: [] } });
       expect(await db.budgetSettlements.get(3)).toMatchObject({ base: 'USD' });
+    },
+  },
+  11: {
+    intent: 'adds the via ferrata tiles per trip and keeps the Costs settlement',
+    check: async (db) => {
+      expect(await db.budgetSettlements.get(1)).toMatchObject({ base: 'EUR' });
+      await db.table('ferrataTiles').bulkPut([
+        { tripId: 3, tile: '930:236', fetchedAt: 5, ferratas: [] },
+        { tripId: 3, tile: '930:237', fetchedAt: 6, ferratas: [] },
+        // The same tile for another trip is its own row.
+        { tripId: 4, tile: '930:236', fetchedAt: 7, ferratas: [] },
+      ]);
+      expect(await db.ferrataTiles.where('tripId').equals(3).count()).toBe(2);
+      expect(await db.ferrataTiles.get([4, '930:236'])).toMatchObject({ fetchedAt: 7 });
+      expect(await db.ferrataTiles.where('fetchedAt').below(6).count()).toBe(1);
     },
   },
 };

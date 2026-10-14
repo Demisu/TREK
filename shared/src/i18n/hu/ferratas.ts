@@ -9,6 +9,7 @@ const ferratas: TranslationStrings = {
   'ferratas.zoomIn': 'Nagyíts rá a vasalt utak betöltéséhez',
   'ferratas.offline': 'A vasalt utakhoz kapcsolat szükséges',
   'ferratas.unknownGrade': 'Ismeretlen nehézség',
+  'ferratas.gradeRange': '{from}–{to}',
   'ferratas.unnamed': 'Névtelen vasalt út',
   'ferratas.viewInOsm': 'Megtekintés az OpenStreetMapen',
   'ferratas.attribution': 'Adatok © OpenStreetMap-közreműködők',

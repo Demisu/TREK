@@ -8,6 +8,7 @@ const ferratas: TranslationStrings = {
   'ferratas.zoomIn': 'ซูมเข้าเพื่อโหลดเส้นทางเวียเฟอร์ราตา',
   'ferratas.offline': 'เส้นทางเวียเฟอร์ราตาต้องใช้การเชื่อมต่อ',
   'ferratas.unknownGrade': 'ไม่ทราบระดับความยาก',
+  'ferratas.gradeRange': '{from} ถึง {to}',
   'ferratas.unnamed': 'เส้นทางเวียเฟอร์ราตาไม่มีชื่อ',
   'ferratas.viewInOsm': 'ดูใน OpenStreetMap',
   'ferratas.attribution': 'ข้อมูล © ผู้ร่วมให้ข้อมูล OpenStreetMap',

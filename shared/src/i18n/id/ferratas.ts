@@ -8,6 +8,7 @@ const ferratas: TranslationStrings = {
   'ferratas.zoomIn': 'Perbesar peta untuk memuat jalur via ferrata',
   'ferratas.offline': 'Jalur via ferrata memerlukan koneksi',
   'ferratas.unknownGrade': 'Tingkat kesulitan tidak diketahui',
+  'ferratas.gradeRange': '{from} hingga {to}',
   'ferratas.unnamed': 'Via ferrata tanpa nama',
   'ferratas.viewInOsm': 'Lihat di OpenStreetMap',
   'ferratas.attribution': 'Data © kontributor OpenStreetMap',

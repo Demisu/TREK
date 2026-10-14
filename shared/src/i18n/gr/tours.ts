@@ -65,6 +65,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': 'Όνομα εκδρομής',
   'tours.planner.namePlaceholder': 'Πεζοπορία χωρίς όνομα',
   'tours.planner.mapHint': 'Κάντε κλικ στον χάρτη για να προσθέσετε σημεία.',
+  'tours.planner.mapSearch': 'Αναζήτηση τόπου ή διεύθυνσης',
   'tours.planner.waypoints': 'Σημεία διέλευσης',
   'tours.planner.waypointLabel': 'Σημείο διέλευσης {n}',
   'tours.durationMinutes': '{count} λεπτά',

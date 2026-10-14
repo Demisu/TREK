@@ -1,37 +1,43 @@
 import { useEffect, useRef } from 'react';
 
-import type { Ferrata } from '@trek/shared';
-
 import FerrataDetailCard from './FerrataDetailCard';
+import type { FerrataSelection } from './useFerrataMapLayer';
 
 /**
- * The picked ferrata's card over the map, anchored bottom right above the row
- * of map controls. `insetRight` is what the right panel covers plus the gap the
- * layer pill keeps to the left one, so the card mirrors the pill and never
- * slides under the panel; `bottom` clears the control row (the layer pill on
- * the flat map, the dock and the grade legend in 3D).
+ * The picked ferrata's card over the map, anchored at the bottom of the inline
+ * end, above the row of map controls. `insetEnd` is what the panel on that
+ * side covers plus the gap the layer pill keeps to the panel on the other, so
+ * the card mirrors the pill and never slides under the panel; `bottom` clears
+ * the control row (the layer pill on the flat map, the dock and the grade
+ * legend in 3D).
  *
  * It closes on a press anywhere outside it and on Escape. A press on another
- * ferrata closes this card first and the click then opens that one's.
+ * ferrata closes this card first and the click then opens that one's. The
+ * press outside is handed to `onOutsidePress` as well, so the map under it can
+ * leave the click that follows alone (see `useOutsidePressGuard`).
  */
 export default function FerrataDetailOverlay({
-  ferrata,
+  selection,
   onClose,
-  insetRight,
+  onOutsidePress,
+  insetEnd,
   bottom,
 }: {
-  ferrata: Ferrata | null;
+  selection: FerrataSelection | null;
   onClose: () => void;
-  insetRight: number;
+  onOutsidePress?: () => void;
+  insetEnd: number;
   bottom: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const open = !!selection;
 
   useEffect(() => {
-    if (!ferrata) return;
+    if (!open) return;
     const onDown = (event: PointerEvent) => {
       const card = ref.current;
       if (card && event.target instanceof Node && card.contains(event.target)) return;
+      onOutsidePress?.();
       onClose();
     };
     const onKey = (event: KeyboardEvent) => {
@@ -43,21 +49,17 @@ export default function FerrataDetailOverlay({
       document.removeEventListener('pointerdown', onDown, true);
       document.removeEventListener('keydown', onKey);
     };
-  }, [ferrata, onClose]);
+  }, [open, onClose, onOutsidePress]);
 
-  if (!ferrata) return null;
+  if (!selection) return null;
   return (
     <div
       ref={ref}
-      className="absolute z-[20]"
-      style={{
-        right: insetRight, // rtl-lint-disable: measured from the right panel, which stays on the physical right
-        bottom,
-        maxWidth: `calc(100% - ${insetRight + 32}px)`,
-      }}
+      className="absolute z-[20] flex justify-end"
+      style={{ insetInlineEnd: insetEnd, bottom, maxWidth: `calc(100% - ${insetEnd + 32}px)` }}
       data-testid="ferrata-detail-overlay"
     >
-      <FerrataDetailCard ferrata={ferrata} onClose={onClose} />
+      <FerrataDetailCard group={selection.group} segment={selection.segment} onClose={onClose} />
     </div>
   );
 }

@@ -1,42 +1,51 @@
-import { ExternalLink, Mountain, X } from 'lucide-react';
+import { ExternalLink, MoveHorizontal, Route, X } from 'lucide-react';
 
 import type { Ferrata } from '@trek/shared';
 
 import { useTranslation } from '../../i18n';
-import { type PillTone, SoftPill } from '../Planner/planParts';
-import { type FerrataTone, ferrataGradeLabel, ferrataGradeTone, ferrataOsmUrl } from './ferrataModel';
-
-/** The badge tone per difficulty band; the same bands colour the line on the map. */
-const PILL_TONE: Record<FerrataTone, PillTone> = {
-  easy: 'success',
-  medium: 'warning',
-  hard: 'danger',
-  unknown: 'neutral',
-};
+import { useSettingsStore } from '../../store/settingsStore';
+import { formatDistance } from '../../utils/units';
+import { SoftPill } from '../Planner/planParts';
+import { type FerrataGroup, ferrataLabel } from './ferrataGroups';
+import { ferrataOsmUrl } from './ferrataModel';
 
 /**
- * One via ferrata, picked on the map: its name, the grade as a badge, the
- * route it belongs to and the way back to the source. OpenStreetMap's data is
- * ODbL, which asks for the attribution next to anything shown from it, so the
- * card carries it rather than relying on the map's own corner.
+ * One via ferrata, picked on the map: its name, the route it belongs to, its
+ * grade range and total length as badges, and the way back to the source.
+ * `segment` is the OSM way that was clicked, which the source link opens.
+ * OpenStreetMap's data is ODbL, which asks for the attribution next to
+ * anything shown from it, so the card carries it rather than relying on the
+ * map's own corner.
  */
-export default function FerrataDetailCard({ ferrata, onClose }: { ferrata: Ferrata; onClose?: () => void }) {
+export default function FerrataDetailCard({
+  group,
+  segment,
+  onClose,
+}: {
+  group: FerrataGroup;
+  segment: Ferrata;
+  onClose?: () => void;
+}) {
   const { t } = useTranslation();
-  const name = ferrata.name ?? ferrata.routeName ?? t('ferratas.unnamed');
+  const unit = useSettingsStore((s) => s.settings.distance_unit);
+  const label = ferrataLabel(group, t);
+  const name = label.name;
   // The route line only adds something when it is not already the title.
-  const route = ferrata.routeName && ferrata.routeName !== name ? ferrata.routeName : null;
-  // A letter scale ("C/D") the contract keeps as `raw` still says more than "unknown".
-  const grade = ferrataGradeLabel(ferrata.grade) ?? ferrata.grade.raw ?? t('ferratas.unknownGrade');
+  const route = group.routeName && group.routeName !== name ? group.routeName : null;
+  // Without any grade the badge says so, rather than leaving a gap.
+  const grade = label.grade ?? t('ferratas.unknownGrade');
 
   return (
     <article
-      className="w-72 max-w-full rounded-xl border border-edge bg-surface-card p-3 text-content shadow-lg"
+      className="w-max min-w-[min(18rem,calc(100vw_-_2rem))] max-w-[22.5rem] rounded-xl border border-edge bg-surface-card p-3 text-content shadow-lg"
       data-testid="ferrata-detail-card"
     >
       <div className="flex items-start gap-2">
-        <Mountain size={16} className="mt-0.5 flex-none text-content-muted" aria-hidden="true" />
+        <Route size={16} className="mt-0.5 flex-none text-content-muted" aria-hidden="true" />
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-subtitle font-semibold">{name}</h3>
+          <h3 className="line-clamp-2 break-words text-subtitle font-semibold" title={name}>
+            {name}
+          </h3>
           {route && <p className="truncate text-caption text-content-muted">{route}</p>}
         </div>
         {onClose && (
@@ -50,11 +59,16 @@ export default function FerrataDetailCard({ ferrata, onClose }: { ferrata: Ferra
           </button>
         )}
       </div>
-      <div className="mt-2 flex items-center gap-2">
-        <SoftPill tone={PILL_TONE[ferrataGradeTone(ferrata.grade)]}>{grade}</SoftPill>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <SoftPill>{grade}</SoftPill>
+        {group.lengthM > 0 && (
+          <SoftPill icon={<MoveHorizontal size={11} aria-hidden="true" />}>
+            {formatDistance(group.lengthM / 1000, unit ?? 'metric')}
+          </SoftPill>
+        )}
       </div>
       <a
-        href={ferrataOsmUrl(ferrata)}
+        href={ferrataOsmUrl(segment)}
         target="_blank"
         rel="noopener noreferrer"
         className="mt-3 inline-flex items-center gap-1 text-body font-medium text-accent-on hover:underline"

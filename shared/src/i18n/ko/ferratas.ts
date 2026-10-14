@@ -8,6 +8,7 @@ const ferratas: TranslationStrings = {
   'ferratas.zoomIn': '비아 페라타를 불러오려면 확대하세요',
   'ferratas.offline': '비아 페라타를 보려면 연결이 필요합니다',
   'ferratas.unknownGrade': '난이도 알 수 없음',
+  'ferratas.gradeRange': '{from}~{to}',
   'ferratas.unnamed': '이름 없는 비아 페라타',
   'ferratas.viewInOsm': 'OpenStreetMap에서 보기',
   'ferratas.attribution': '데이터 © OpenStreetMap 기여자',

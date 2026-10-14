@@ -9,6 +9,7 @@ const ferratas: TranslationStrings = {
   'ferratas.zoomIn': 'Für Klettersteige näher heranzoomen',
   'ferratas.offline': 'Klettersteige brauchen eine Verbindung',
   'ferratas.unknownGrade': 'Schwierigkeit unbekannt',
+  'ferratas.gradeRange': '{from} bis {to}',
   'ferratas.unnamed': 'Klettersteig ohne Namen',
   'ferratas.viewInOsm': 'In OpenStreetMap ansehen',
   'ferratas.attribution': 'Daten © OpenStreetMap-Mitwirkende',

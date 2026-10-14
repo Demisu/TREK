@@ -10,6 +10,7 @@ const ferratas: TranslationStrings = {
   'ferratas.zoomIn': 'Přibližte mapu pro načtení ferrat',
   'ferratas.offline': 'Ferraty vyžadují připojení',
   'ferratas.unknownGrade': 'Obtížnost neznámá',
+  'ferratas.gradeRange': '{from} až {to}',
   'ferratas.unnamed': 'Ferrata bez názvu',
   'ferratas.viewInOsm': 'Zobrazit v OpenStreetMap',
   'ferratas.attribution': 'Data © přispěvatelé OpenStreetMap',

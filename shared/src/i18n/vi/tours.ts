@@ -62,6 +62,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': 'Tên chuyến tham quan',
   'tours.planner.namePlaceholder': 'Chuyến đi bộ đường dài chưa có tên',
   'tours.planner.mapHint': 'Nhấp vào bản đồ để thêm điểm.',
+  'tours.planner.mapSearch': 'Tìm địa điểm hoặc địa chỉ',
   'tours.planner.waypoints': 'Các điểm trên tuyến',
   'tours.planner.waypointLabel': 'Điểm {n}',
   'tours.durationMinutes': '{count} phút',

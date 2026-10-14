@@ -62,6 +62,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': 'Retke nimi',
   'tours.planner.namePlaceholder': 'Nimetu matk',
   'tours.planner.mapHint': 'Klõpsa kaardil punktide lisamiseks.',
+  'tours.planner.mapSearch': 'Otsi kohta või aadressi',
   'tours.planner.waypoints': 'Teekonnapunktid',
   'tours.planner.waypointLabel': 'Teekonnapunkt {n}',
   'tours.durationMinutes': '{count} min',

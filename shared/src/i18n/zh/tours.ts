@@ -58,6 +58,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': '游览名称',
   'tours.planner.namePlaceholder': '未命名的徒步活动',
   'tours.planner.mapHint': '点击地图添加地点。',
+  'tours.planner.mapSearch': '搜索地点或地址',
   'tours.planner.waypoints': '路线点',
   'tours.planner.waypointLabel': '路线点 {n}',
   'tours.durationMinutes': '{count} 分钟',

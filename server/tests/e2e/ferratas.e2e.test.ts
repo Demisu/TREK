@@ -3,10 +3,12 @@
  * TripAccessGuard over a migrated snapshot db. Only Overpass is faked, by stubbing
  * the global fetch; the response contract is checked on every 200 (NODE_ENV=test).
  */
+import { FerrataTiles } from '../../src/db/entities/FerrataTiles.entity';
 import { AppConfigModule } from '../../src/nest/app-config/app-config.module';
 import { TrekExceptionFilter } from '../../src/nest/common/trek-exception.filter';
 import { FerratasModule } from '../../src/nest/ferratas/ferratas.module';
 import { createSnapshotTestDb } from '../helpers/db-mock';
+import { countRows } from '../helpers/factories/rows';
 import { makeTrip } from '../helpers/factories/trips';
 import { makeUser } from '../helpers/factories/users';
 import { createTestMikroOrmModule } from '../helpers/test-orm';
@@ -157,6 +159,20 @@ describe('Ferratas e2e (real guards + snapshot SQLite)', () => {
       source: 'openstreetmap',
       attribution: FERRATAS_ATTRIBUTION,
     });
+  });
+
+  it('200 from the stored cells for the same box, without asking Overpass again', async () => {
+    const fetcher = vi.fn();
+    vi.stubGlobal('fetch', fetcher);
+    const res = await request(server)
+      .get(url())
+      .set('Cookie', sessionCookie(ownerId))
+      .query({ bbox: '46.5,12.05,46.6,12.2' });
+    expect(res.status).toBe(200);
+    expect(res.body.ferratas.map((f: { id: string }) => f.id)).toEqual(['way/4242']);
+    expect(fetcher).not.toHaveBeenCalled();
+    // 46.5 to 46.6 by 12.05 to 12.2: two rows of three cells.
+    expect(await countRows(app.get(MikroORM), FerrataTiles)).toBe(6);
   });
 
   it('502 { error, code } when no Overpass mirror answers', async () => {

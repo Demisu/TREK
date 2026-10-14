@@ -62,6 +62,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': 'Túra neve',
   'tours.planner.namePlaceholder': 'Névtelen gyalogtúra',
   'tours.planner.mapHint': 'Kattints a térképre pontok hozzáadásához.',
+  'tours.planner.mapSearch': 'Hely vagy cím keresése',
   'tours.planner.waypoints': 'Útvonalpontok',
   'tours.planner.waypointLabel': '{n}. útvonalpont',
   'tours.durationMinutes': '{count} perc',

@@ -34,6 +34,7 @@ import type { DocumentConnectionsTable } from './DocumentConnections.table';
 import type { DocumentProviderFieldsTable } from './DocumentProviderFields.table';
 import type { DocumentProvidersTable } from './DocumentProviders.table';
 import type { DocumentSyncItemsTable } from './DocumentSyncItems.table';
+import type { FerrataTilesTable } from './FerrataTiles.table';
 import type { FileLinksTable } from './FileLinks.table';
 import type { GoogleApiUsageTable } from './GoogleApiUsage.table';
 import type { GooglePlacePhotoMetaTable } from './GooglePlacePhotoMeta.table';
@@ -174,6 +175,7 @@ export interface DB {
   document_provider_fields: DocumentProviderFieldsTable;
   document_providers: DocumentProvidersTable;
   document_sync_items: DocumentSyncItemsTable;
+  ferrata_tiles: FerrataTilesTable;
   file_links: FileLinksTable;
   google_api_usage: GoogleApiUsageTable;
   google_place_photo_meta: GooglePlacePhotoMetaTable;

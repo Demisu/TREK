@@ -63,6 +63,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': "Nom de l'excursió",
   'tours.planner.namePlaceholder': 'Ruta de senderisme sense títol',
   'tours.planner.mapHint': 'Fes clic al mapa per afegir punts.',
+  'tours.planner.mapSearch': 'Cerca un lloc o una adreça',
   'tours.planner.waypoints': 'Punts de pas',
   'tours.planner.waypointLabel': 'Punt de pas {n}',
   'tours.durationMinutes': '{count} min',

@@ -1,6 +1,6 @@
 import type { FerrataBbox } from '@trek/shared';
 import { ChevronDown, ChevronUp, Gauge, Palette, Pause, Play, RotateCcw, Scan, TrendingUp } from 'lucide-react';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import type { DistanceUnit } from '../../../types';
 import type { DistanceIndexedProfileSample, RouteProfileFocus } from '../../../utils/routeGeometry';
@@ -12,6 +12,7 @@ import { SoftPill } from '../../Planner/planParts';
 import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
 import { GRADE_BANDS, terrainStats, type GradeBandKey, type TerrainStats } from './tourTerrainModel';
+import { useControlRowFit } from './useControlRowFit';
 import type { TerrainWaypoints } from './useTerrainPins';
 import { useTourTerrain } from './useTourTerrain';
 
@@ -34,6 +35,8 @@ export interface TourTerrainMapProps {
   ferrataLayer?: FerrataMapLayer;
   /** The visible area, for the via ferrata layer to ask for. */
   onViewportChange?: (bbox: FerrataBbox) => void;
+  /** How high the controls along the bottom edge reach, every row of them, for what floats above them. */
+  onControlsHeightChange?: (px: number) => void;
 }
 
 const SPEEDS = [1, 2, 4] as const;
@@ -53,47 +56,61 @@ const GLASS = {
  */
 export default function TourTerrainMap(props: TourTerrainMapProps) {
   const { samples, leftWidth, rightWidth, baseLayer, onBaseLayerChange, onExit, unit = 'metric' } = props;
+  const { onControlsHeightChange } = props;
   const { setContainer, ...terrain } = useTourTerrain({ ...props, panels: { leftWidth, rightWidth } });
   const stats = useMemo(() => terrainStats(samples), [samples]);
+  const { fit, height: controlsHeight, attachRow, attachStack } = useControlRowFit();
+  const legend = terrain.canReplay ? <GradeLegend stats={stats} unit={unit} /> : null;
+  const legendAbove = fit === 'stacked';
+
+  useEffect(() => {
+    if (controlsHeight !== null) onControlsHeightChange?.(controlsHeight);
+  }, [controlsHeight, onControlsHeightChange]);
 
   return (
     <div className="absolute inset-0">
       {/* MapLibre makes its container position: relative, so it is sized, not inset. */}
       <div ref={setContainer} className="h-full w-full bg-surface" />
 
-      {/* One row along the bottom edge, between the panels: the flat map's layer pill at
-          the same spot with 3D switched on (and the via ferrata status beside it), then the
-          flyover controls and the grade legend. The pill takes the width it needs, so a
-          longer pill moves the dock along instead of running under it. */}
+      {/* One row along the bottom edge, between the panels and the same inset from both:
+          the flat map's layer pill at the same spot with 3D switched on (the via ferrata
+          count rides inside its switch), then the flyover controls and the grade legend.
+          Where the row does not fit, the pill goes to its icons first, then the legend
+          moves onto a row of its own above, so nothing runs under a panel. */}
       <div
-        className="pointer-events-none absolute bottom-3 z-[19] flex items-end gap-3"
+        ref={attachStack}
+        className="pointer-events-none absolute bottom-3 z-[19] flex flex-col items-end gap-3"
         style={{
           insetInlineStart: leftWidth + MAP_LAYER_SWITCHER_INSET,
           insetInlineEnd: rightWidth + MAP_LAYER_SWITCHER_INSET,
         }}
       >
-        <div className="flex-none">
-          <TourMapLayerSwitcher
-            active={baseLayer}
-            onChange={onBaseLayerChange}
-            terrainActive
-            onToggleTerrain={onExit}
-            ferrataLayer={props.ferrataLayer}
-          />
-        </div>
-        <div className="grid min-w-0 flex-1 grid-cols-[1fr_auto_1fr] items-end gap-3">
-          <span />
-          {terrain.canReplay ? (
-            <TerrainDock terrain={terrain} />
-          ) : (
-            <div
-              className="pointer-events-auto rounded-full px-4 py-2.5 text-content-muted"
-              style={{ ...GLASS, ...fs(12, 'body') }}
-            >
-              <PickHint editing={!!props.waypoints.onAdd} />
-            </div>
-          )}
-          <div className="flex justify-end">{terrain.canReplay && <GradeLegend stats={stats} unit={unit} />}</div>
+        {legendAbove && legend}
+        <div ref={attachRow} className="flex w-full items-end gap-3" data-fit={fit} data-testid="terrain-control-row">
+          <div className="flex-none">
+            <TourMapLayerSwitcher
+              active={baseLayer}
+              onChange={onBaseLayerChange}
+              terrainActive
+              onToggleTerrain={onExit}
+              ferrataLayer={props.ferrataLayer}
+              compact={fit !== 'full'}
+            />
+          </div>
+          <div className="grid min-w-0 flex-1 grid-cols-[1fr_auto_1fr] items-end gap-3">
+            <span />
+            {terrain.canReplay ? (
+              <TerrainDock terrain={terrain} />
+            ) : (
+              <div
+                className="pointer-events-auto rounded-full px-4 py-2.5 text-content-muted"
+                style={{ ...GLASS, ...fs(12, 'body') }}
+              >
+                <PickHint editing={!!props.waypoints.onAdd} />
+              </div>
+            )}
+            <div className="flex justify-end">{!legendAbove && legend}</div>
+          </div>
         </div>
       </div>
     </div>

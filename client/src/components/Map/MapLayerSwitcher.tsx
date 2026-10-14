@@ -1,8 +1,9 @@
-import { Map as MapIcon, Mountain, MountainSnow, Rotate3d, Satellite } from 'lucide-react'
+import { Loader2, Map as MapIcon, Mountain, MountainSnow, Rotate3d, Satellite } from 'lucide-react'
 import type { CSSProperties } from 'react'
 import { useTranslation } from '../../i18n'
-import FerrataStatusPill from '../Ferratas/FerrataStatusPill'
 import type { FerrataMapLayer } from '../Ferratas/useFerrataMapLayer'
+import type { FerrataStatus } from '../Ferratas/useTripFerratas'
+import { fs } from '../shared/DialogShell'
 import { Tooltip } from '../shared/Tooltip'
 import { MAP_CONTROL_SHADOW } from './mapControlShadow'
 
@@ -82,59 +83,121 @@ const segmentStyle = (filled: boolean): CSSProperties => ({
   fontSize: 'calc(11px * var(--fs-scale-caption, 1))', fontWeight: 600,
 })
 
-/** Per-view Tours control. It never reads or writes the global map setting. */
+type Translate = (key: string, params?: Record<string, string | number>) => string
+
+/** What the via ferrata layer is doing, in words, for the toggle's tooltip and the screen reader. */
+function ferrataStatusLabel(status: Exclude<FerrataStatus, 'idle'>, count: number, t: Translate): string {
+  switch (status) {
+    case 'loading':
+      return t('ferratas.loading')
+    case 'error':
+      return t('ferratas.error')
+    case 'offline':
+      return t('ferratas.offline')
+    case 'tooLarge':
+      return t('ferratas.zoomIn')
+    case 'ready':
+      return t('ferratas.count', { count })
+  }
+}
+
+/**
+ * The via ferrata switch with its count as a badge: how many ferratas reach
+ * into the view, a small spinner while tiles load, and the warning tone when
+ * there is a reason it cannot load (offline, the mirrors down, the view too
+ * wide), which the tooltip names. Nothing beside the switch, so the bottom row
+ * stays one pill wide. `compact` drops the word and keeps the icon and the
+ * badge; the tooltip and the accessible name still say what it is.
+ */
+function FerrataToggle({ layer, compact = false }: { layer: FerrataMapLayer; compact?: boolean }) {
+  const { t } = useTranslation()
+  const { active, status, count } = layer
+  const live = active && status !== 'idle' ? ferrataStatusLabel(status, count, t) : null
+  const problem = status === 'error' || status === 'offline' || status === 'tooLarge'
+  return (
+    <>
+      <Tooltip label={live ?? t('ferratas.layer')} placement="top">
+        <button
+          type="button"
+          onClick={layer.onToggle}
+          aria-label={t('ferratas.layer')}
+          aria-pressed={active}
+          className={active ? 'bg-accent text-accent-text' : 'text-content-muted'}
+          style={segmentStyle(active)}
+        >
+          <MountainSnow size={15} strokeWidth={2} />
+          {!compact && <span>{t('ferratas.layer')}</span>}
+          {live && (
+            <span
+              aria-hidden
+              data-testid="ferrata-count-badge"
+              data-tone={problem ? 'warning' : 'default'}
+              className={`inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 font-semibold tabular-nums leading-none ${
+                problem ? 'bg-warning-soft text-warning' : 'bg-accent-text text-accent'
+              }`}
+              style={fs(10)}
+            >
+              {status === 'loading'
+                ? <Loader2 size={10} strokeWidth={2.5} className="motion-safe:animate-spin" data-testid="ferrata-count-spinner" />
+                : count}
+            </span>
+          )}
+        </button>
+      </Tooltip>
+      {/* Polite, so a screen reader hears the count arrive without being interrupted. */}
+      <span role="status" aria-live="polite" className="sr-only">{live ?? ''}</span>
+    </>
+  )
+}
+
+/**
+ * Per-view Tours control. It never reads or writes the global map setting.
+ * `compact` shows the base layers and the via ferrata switch by their icons
+ * alone, each named by its tooltip, for a bottom row that has to share its
+ * width (the 3D map's, beside the flyover dock).
+ */
 export function TourMapLayerSwitcher({
   active,
   onChange,
   onToggleTerrain,
   terrainActive = false,
   ferrataLayer,
+  compact = false,
 }: {
   active: TourBaseLayer
   onChange: (layer: TourBaseLayer) => void
   /** Offers the 3D terrain switch beside the base layers. */
   onToggleTerrain?: () => void
   terrainActive?: boolean
-  /**
-   * Offers the via ferrata switch beside the base layers, and puts the layer's
-   * status pill in the same row, right of this one.
-   */
+  /** Offers the via ferrata switch, with its count badge, beside the base layers. */
   ferrataLayer?: FerrataMapLayer
+  compact?: boolean
 }) {
   const { t } = useTranslation()
 
-  const pill = (
+  return (
     <div style={{ ...FROSTED_SHELL, gap: 2 }} role="group" aria-label={t('settings.mapStyle')}>
       {TOUR_LAYERS.map(({ id, labelKey, Icon }) => {
         const selected = active === id
         const label = labelKey ? t(labelKey) : 'Topo'
         return (
-          <button
-            key={id}
-            type="button"
-            onClick={() => onChange(id)}
-            aria-pressed={selected}
-            className={selected ? 'bg-accent-soft text-accent' : 'text-content-muted'}
-            style={segmentStyle(selected)}
-          >
-            <Icon size={15} strokeWidth={2} />
-            <span>{label}</span>
-          </button>
+          <Tooltip key={id} label={label} placement="top" disabled={!compact}>
+            <button
+              type="button"
+              onClick={() => onChange(id)}
+              aria-pressed={selected}
+              aria-label={compact ? label : undefined}
+              className={selected ? 'bg-accent-soft text-accent' : 'text-content-muted'}
+              style={segmentStyle(selected)}
+            >
+              <Icon size={15} strokeWidth={2} />
+              {!compact && <span>{label}</span>}
+            </button>
+          </Tooltip>
         )
       })}
       {(ferrataLayer || onToggleTerrain) && <span aria-hidden className="mx-0.5 h-5 w-px bg-edge" />}
-      {ferrataLayer && (
-        <button
-          type="button"
-          onClick={ferrataLayer.onToggle}
-          aria-pressed={ferrataLayer.active}
-          className={ferrataLayer.active ? 'bg-accent text-accent-text' : 'text-content-muted'}
-          style={segmentStyle(ferrataLayer.active)}
-        >
-          <MountainSnow size={15} strokeWidth={2} />
-          <span>{t('ferratas.layer')}</span>
-        </button>
-      )}
+      {ferrataLayer && <FerrataToggle layer={ferrataLayer} compact={compact} />}
       {onToggleTerrain && (
         <button
           type="button"
@@ -147,15 +210,6 @@ export function TourMapLayerSwitcher({
           <span>3D</span>
         </button>
       )}
-    </div>
-  )
-
-  if (!ferrataLayer) return pill
-  // The status pill keeps the column gap the lock pill keeps above, and says nothing while the layer is off.
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      {pill}
-      <FerrataStatusPill status={ferrataLayer.status} count={ferrataLayer.ferratas.length} />
     </div>
   )
 }

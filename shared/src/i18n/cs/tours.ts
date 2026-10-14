@@ -62,6 +62,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': 'Název výletu',
   'tours.planner.namePlaceholder': 'Túra bez názvu',
   'tours.planner.mapHint': 'Kliknutím do mapy přidáte body.',
+  'tours.planner.mapSearch': 'Hledat místo nebo adresu',
   'tours.planner.waypoints': 'Průjezdní body',
   'tours.planner.waypointLabel': 'Bod {n}',
   'tours.durationMinutes': '{count} min',

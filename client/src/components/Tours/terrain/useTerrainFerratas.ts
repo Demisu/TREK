@@ -39,5 +39,6 @@ export function useTerrainFerratas(
     };
   }, [gl, onViewportChange]);
 
-  useFerrataMapLayerGL(gl ? (gl.map as unknown as FerrataGlMap) : null, layer);
+  // Wider lines than the flat map's: seen at a slant over the hillshade, the thin ones get lost.
+  useFerrataMapLayerGL(gl ? (gl.map as unknown as FerrataGlMap) : null, layer, 'terrain');
 }

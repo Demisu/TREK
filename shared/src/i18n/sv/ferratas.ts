@@ -9,6 +9,7 @@ const ferratas: TranslationStrings = {
   'ferratas.zoomIn': 'Zooma in för att läsa in via ferrata-leder',
   'ferratas.offline': 'Via ferrata-leder kräver en anslutning',
   'ferratas.unknownGrade': 'Okänd svårighetsgrad',
+  'ferratas.gradeRange': '{from} till {to}',
   'ferratas.unnamed': 'Namnlös via ferrata',
   'ferratas.viewInOsm': 'Visa i OpenStreetMap',
   'ferratas.attribution': 'Data © OpenStreetMap-bidragsgivare',

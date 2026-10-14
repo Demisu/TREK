@@ -1,134 +1,160 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useSyncExternalStore } from 'react';
 
-import type { Ferrata, FerrataBbox, FerratasResponse } from '@trek/shared';
+import {
+  ferrataTileCount,
+  ferrataTileKey,
+  ferrataTileRange,
+  ferrataTilesOf,
+  growFerrataTileRange,
+  type Ferrata,
+  type FerrataBbox,
+  type FerrataTileRange,
+} from '@trek/shared';
 
 import { useNetworkMode } from '../../hooks/useNetworkMode';
 import { ferrataRepo } from '../../repo/ferrataRepo';
-import { ferrataBboxFits, ferrataBboxParam, roundFerrataBbox } from './ferrataModel';
+import { ferrataBboxFits, ferrataBboxParam } from './ferrataModel';
+import { FerrataTileStore, type FerrataTileSnapshot } from './ferrataTileStore';
 
 /**
- * Where the layer stands. `tooLarge` and `offline` are answers to "why are
- * there no lines" that need no request at all: the server refuses a box wider
- * than its limit, and an offline device should not fire one.
+ * Where the layer stands for the view on screen. `tooLarge` and `offline` are
+ * answers to "why are there no new lines" that need no request at all: the
+ * server refuses a box wider than its limit, and an offline device should not
+ * fire one. Whatever was loaded before stays drawn in both.
  */
 export type FerrataStatus = 'idle' | 'loading' | 'ready' | 'error' | 'tooLarge' | 'offline';
 
-/** Long enough that a pan or a zoom gesture settles before the request goes out. */
-const DEBOUNCE_MS = 400;
-
+/** Long enough that a pan or a zoom gesture settles before the missing tiles are asked for. */
+const DEBOUNCE_MS = 200;
+/** The ring of tiles around the view that loads behind it, so a short pan finds its lines already there. */
+const PREFETCH_RINGS = 1;
 /**
- * How long the layer waits before asking again for the same area after the
- * mirrors failed it. Past the last step it stays on the error until the map
- * moves or the layer is switched off and on.
+ * The trip's area is prefetched up to this many tiles (about 0.4 by 0.4
+ * degree, at most sixteen requests of 0.1 degree); a trip spread wider loads
+ * as the map gets there.
  */
-const RETRY_DELAYS_MS = [5_000, 15_000, 45_000];
+export const FERRATA_AREA_PREFETCH_MAX_TILES = 64;
 
-const NO_FERRATAS: Ferrata[] = [];
+const NO_TILES: readonly string[] = [];
 
-/**
- * What came back: the answer, a 400 (`refused`: the server would not take the
- * box, which reads as "zoom in" rather than as an outage) or anything else
- * (`unavailable`: the Overpass mirrors, worth another try).
- */
-type Outcome = FerratasResponse | 'refused' | 'unavailable';
+const EMPTY_SNAPSHOT: FerrataTileSnapshot = {
+  loaded: new Set(),
+  ferratas: [],
+  waiting: new Set(),
+  failure: null,
+  truncated: false,
+  hydrated: false,
+};
+const subscribeNothing = () => () => {};
+const emptySnapshot = () => EMPTY_SNAPSHOT;
 
-interface Answer {
-  key: string;
-  outcome: Outcome;
+/** A range as a dependency-friendly string, and back. */
+const rangeKeyOf = (range: FerrataTileRange) => `${range.minRow},${range.maxRow},${range.minCol},${range.maxCol}`;
+function rangeOfKey(key: string): FerrataTileRange {
+  const [minRow = 0, maxRow = 0, minCol = 0, maxCol = 0] = key.split(',').map(Number);
+  return { minRow, maxRow, minCol, maxCol };
 }
 
-function failureOf(error: unknown): 'refused' | 'unavailable' {
-  const status = (error as { response?: { status?: unknown } } | null)?.response?.status;
-  return status === 400 ? 'refused' : 'unavailable';
-}
-
-/** `current` is the outcome for the area on screen, or null while that one is still on its way. */
-function statusOf(active: boolean, offline: boolean, fits: boolean, current: Outcome | null): FerrataStatus {
+/** `missing`: some tile of the view is not loaded yet. */
+function statusOf(
+  active: boolean,
+  offline: boolean,
+  fits: boolean,
+  missing: boolean,
+  snapshot: FerrataTileSnapshot
+): FerrataStatus {
   if (!active) return 'idle';
   if (offline) return 'offline';
-  if (!fits || current === 'refused') return 'tooLarge';
-  if (!current) return 'loading';
-  return current === 'unavailable' ? 'error' : 'ready';
+  if (!fits || (missing && snapshot.failure === 'refused')) return 'tooLarge';
+  if (!missing) return 'ready';
+  return snapshot.failure === 'unavailable' ? 'error' : 'loading';
 }
 
-/** The area on screen as the request grid sees it, and the request it makes (null: none). */
-function requestOf(tripId: number | null | undefined, bbox: FerrataBbox | null, enabled: boolean, offline: boolean) {
-  const area = bbox ? roundFerrataBbox(bbox) : null;
-  const fits = !!area && ferrataBboxFits(area);
-  const active = enabled && !!tripId && !!area;
-  const param = active && fits && !offline && area ? ferrataBboxParam(area) : null;
-  return { fits, active, param, key: param ? `${tripId}:${param}` : null };
-}
-
-/** The answer that speaks for this attempt; while a retry is in flight, the failure it follows keeps the error up. */
-function answerFor(answer: Answer | null, key: string | null, attempt: number): Answer | null {
-  if (!answer || !key) return null;
-  if (answer.key === `${key}#${attempt}`) return answer;
-  return attempt > 0 && answer.key === `${key}#${attempt - 1}` ? answer : null;
-}
-
-function view(answer: Answer | null, status: FerrataStatus) {
-  // The last good answer stays up while the next area loads; any other state draws nothing.
-  const last = answer && typeof answer.outcome === 'object' ? answer.outcome : null;
-  const shown = status === 'ready' || status === 'loading' ? last : null;
-  return {
-    ferratas: shown?.ferratas ?? NO_FERRATAS,
-    status,
-    truncated: shown?.truncated ?? false,
-    attribution: shown?.attribution ?? null,
-  };
+/** One tile store per trip; it lives as long as the map surface does, so 2D, 3D and a toggle share it. */
+function useTileStore(tripId: number | null | undefined): FerrataTileStore | null {
+  return useMemo(() => {
+    if (!tripId) return null;
+    const cacheName = ferrataRepo.cacheName();
+    return new FerrataTileStore({
+      fetch: (bbox, signal) => ferrataRepo.list(tripId, ferrataBboxParam(bbox), signal),
+      persist: (rows) => ferrataRepo.saveTiles(tripId, rows, cacheName),
+    });
+  }, [tripId]);
 }
 
 /**
- * The via ferratas inside the visible map area of a trip, for the map layer.
+ * The via ferratas of a trip, for the map layer, loaded per tile of the shared
+ * 0.05 degree grid (see `FerrataTileStore`).
  *
- * Online only (see repo/ferrataRepo.ts). Nothing is requested while the layer is
- * off. A new area waits DEBOUNCE_MS before it is asked for, and a newer area,
- * a closed layer or an unmount aborts the request in flight, so a fast pan
- * across the Alps ends in one request for where the map stopped. While the
- * next area loads, the lines of the last one stay drawn instead of blinking out.
- * When the mirrors fail an area, it is asked for again after each of
- * RETRY_DELAYS_MS; a 400 is not retried, it reads as "zoom in".
+ * Nothing is read or requested while the layer is off. Switched on, the trip's
+ * cached tiles come back from the device first and draw at once, offline too;
+ * then the view's missing tiles are asked for DEBOUNCE_MS after the map
+ * settles, the ring around them behind that, and `area` (the trip's own
+ * extent) in the background once, after the same pause, so the view's tiles
+ * are always asked for first. Every ferrata loaded stays drawn: a pan, a
+ * zoom, a switch between 2D and 3D or the layer off and on again never drops
+ * one, and never asks again for a tile it has.
  */
-export function useTripFerratas(tripId: number | null | undefined, bbox: FerrataBbox | null, enabled: boolean) {
+export function useTripFerratas(
+  tripId: number | null | undefined,
+  view: FerrataBbox | null,
+  enabled: boolean,
+  area: FerrataBbox | null = null
+): { ferratas: readonly Ferrata[]; status: FerrataStatus; truncated: boolean } {
   const { offline } = useNetworkMode();
-  const { fits, active, param, key } = requestOf(tripId, bbox, enabled, offline);
-  const [answer, setAnswer] = useState<Answer | null>(null);
-  // Retries count per area: a new area starts again at zero without a reset.
-  const [retry, setRetry] = useState<{ key: string | null; attempt: number }>({ key: null, attempt: 0 });
-  const attempt = retry.key === key ? retry.attempt : 0;
-  const requestKey = key ? `${key}#${attempt}` : null;
+  const store = useTileStore(tripId);
+  const snapshot = useSyncExternalStore(
+    store ? store.subscribe : subscribeNothing,
+    store ? store.getSnapshot : emptySnapshot
+  );
+  const active = enabled && !!store;
+  const fits = !!view && ferrataBboxFits(view);
+  const viewKey = view && fits ? rangeKeyOf(ferrataTileRange(view)) : null;
+  const areaRange = area && ferrataBboxFitsArea(area) ? ferrataTileRange(area) : null;
+  const areaKey =
+    areaRange && ferrataTileCount(areaRange) <= FERRATA_AREA_PREFETCH_MAX_TILES ? rangeKeyOf(areaRange) : null;
+  const visibleKeys = useMemo(
+    () => (viewKey ? ferrataTilesOf(rangeOfKey(viewKey)).map(ferrataTileKey) : NO_TILES),
+    [viewKey]
+  );
 
   useEffect(() => {
-    if (!tripId || !param || !requestKey) return;
-    const areaKey = `${tripId}:${param}`;
-    const controller = new AbortController();
-    let retryTimer: number | undefined;
-    const timer = window.setTimeout(() => {
-      ferrataRepo.list(tripId, param, controller.signal).then(
-        (reply) => {
-          if (!controller.signal.aborted) setAnswer({ key: requestKey, outcome: reply });
-        },
-        (error: unknown) => {
-          if (controller.signal.aborted) return;
-          // The pill reports it ("Overpass unreachable" or "zoom in"); the error
-          // itself carries nothing more the user could act on.
-          const failure = failureOf(error);
-          setAnswer({ key: requestKey, outcome: failure });
-          const delay = RETRY_DELAYS_MS[attempt];
-          if (failure === 'unavailable' && delay !== undefined) {
-            retryTimer = window.setTimeout(() => setRetry({ key: areaKey, attempt: attempt + 1 }), delay);
-          }
-        }
+    if (!active || !store || !tripId) return;
+    if (store.beginHydration()) {
+      void ferrataRepo.cachedTiles(tripId).then(
+        (rows) => store.hydrate(rows),
+        // An unreadable cache is an empty one: the tiles load from the network instead.
+        () => store.hydrate([])
       );
-    }, DEBOUNCE_MS);
-    return () => {
-      window.clearTimeout(timer);
-      window.clearTimeout(retryTimer);
-      controller.abort();
-    };
-  }, [tripId, param, requestKey, attempt]);
+    }
+    return () => store.stop();
+  }, [active, store, tripId]);
 
-  const status = statusOf(active, offline, fits, answerFor(answer, key, attempt)?.outcome ?? null);
-  return view(answer, status);
+  useEffect(() => {
+    if (!active || !store || offline || !viewKey) return;
+    const timer = window.setTimeout(() => {
+      const range = rangeOfKey(viewKey);
+      store.want(ferrataTilesOf(range), 'visible');
+      store.want(ferrataTilesOf(growFerrataTileRange(range, PREFETCH_RINGS)), 'background');
+    }, DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [active, store, offline, viewKey]);
+
+  // Declared after the view's effect, so with both due its timer fires second.
+  useEffect(() => {
+    if (!active || !store || offline || !areaKey) return;
+    const timer = window.setTimeout(() => {
+      store.want(ferrataTilesOf(rangeOfKey(areaKey)), 'background');
+    }, DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [active, store, offline, areaKey]);
+
+  const missing = visibleKeys.some((key) => !snapshot.loaded.has(key));
+  const status = statusOf(active, offline, fits, missing, snapshot);
+  return { ferratas: snapshot.ferratas, status, truncated: active && snapshot.truncated };
+}
+
+/** A trip's area is any real box; only its tile count limits the prefetch. */
+function ferrataBboxFitsArea(bbox: FerrataBbox): boolean {
+  return bbox.north >= bbox.south && bbox.east >= bbox.west;
 }

@@ -1,23 +1,24 @@
 import type { Map } from 'mapbox-gl';
 
-import type { Ferrata } from '@trek/shared';
-
+import type { FerrataGroup } from './ferrataGroups';
 import { type FerrataSelectHandler, useFerrataLayerGL } from './useFerrataLayerGL';
 
 /**
  * The via ferrata layer as a mountable piece for a GL map view: it renders
  * nothing itself, the lines live on `map`. See useFerrataLayerGL for the
- * layering and the click handling.
+ * layering, the highlight and the click handling.
  */
 export default function FerrataLayerGL({
   map,
-  ferratas,
+  groups,
   onSelect,
+  selectedId = null,
 }: {
   map: Map | null;
-  ferratas: readonly Ferrata[];
+  groups: readonly FerrataGroup[];
   onSelect: FerrataSelectHandler;
+  selectedId?: string | null;
 }) {
-  useFerrataLayerGL(map, ferratas, onSelect);
+  useFerrataLayerGL(map, groups, onSelect, selectedId);
   return null;
 }

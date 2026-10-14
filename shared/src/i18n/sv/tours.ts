@@ -62,6 +62,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': 'Turens namn',
   'tours.planner.namePlaceholder': 'Vandring utan namn',
   'tours.planner.mapHint': 'Klicka på kartan för att lägga till punkter.',
+  'tours.planner.mapSearch': 'Sök plats eller adress',
   'tours.planner.waypoints': 'Ruttpunkter',
   'tours.planner.waypointLabel': 'Ruttpunkt {n}',
   'tours.durationMinutes': '{count} min',

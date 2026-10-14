@@ -31,6 +31,7 @@ import { DocumentConnectionsSchema } from './DocumentConnections.entity';
 import { DocumentProviderFieldsSchema } from './DocumentProviderFields.entity';
 import { DocumentProvidersSchema } from './DocumentProviders.entity';
 import { DocumentSyncItemsSchema } from './DocumentSyncItems.entity';
+import { FerrataTilesSchema } from './FerrataTiles.entity';
 import { FileLinksSchema } from './FileLinks.entity';
 import { GoogleApiUsageSchema } from './GoogleApiUsage.entity';
 import { GooglePlacePhotoMetaSchema } from './GooglePlacePhotoMeta.entity';
@@ -165,6 +166,7 @@ export const ALL_ENTITIES: readonly EntitySchema[] = [
   DocumentProviderFieldsSchema,
   DocumentProvidersSchema,
   DocumentSyncItemsSchema,
+  FerrataTilesSchema,
   FileLinksSchema,
   GoogleApiUsageSchema,
   GooglePlacePhotoMetaSchema,

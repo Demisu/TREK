@@ -58,6 +58,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': '遊程名稱',
   'tours.planner.namePlaceholder': '未命名的健行',
   'tours.planner.mapHint': '點選地圖以加入地點。',
+  'tours.planner.mapSearch': '搜尋地點或地址',
   'tours.planner.waypoints': '路線點',
   'tours.planner.waypointLabel': '路線點 {n}',
   'tours.durationMinutes': '{count} 分鐘',

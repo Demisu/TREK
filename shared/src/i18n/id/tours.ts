@@ -62,6 +62,7 @@ const tours: TranslationStrings = {
   'tours.planner.name': 'Nama tur',
   'tours.planner.namePlaceholder': 'Pendakian tanpa judul',
   'tours.planner.mapHint': 'Klik peta untuk menambahkan titik.',
+  'tours.planner.mapSearch': 'Cari tempat atau alamat',
   'tours.planner.waypoints': 'Titik lintasan',
   'tours.planner.waypointLabel': 'Titik lintasan {n}',
   'tours.durationMinutes': '{count} menit',
