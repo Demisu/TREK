@@ -55,7 +55,7 @@ function Fact({
             event.stopPropagation();
             if (event.key === 'Escape') setOpen(false);
           }}
-          className={`inline-flex items-center gap-1 whitespace-nowrap rounded-[6px] px-1.5 py-0.5 text-[0.65625rem] tabular-nums focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent ${mobile ? 'bg-[color:var(--m-ic)] text-m-muted' : 'bg-surface-card text-content-secondary'}`}
+          className={`inline-flex items-center gap-1 whitespace-nowrap rounded-[6px] px-1.5 py-0.5 text-caption tabular-nums focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent ${mobile ? 'bg-[color:var(--m-ic)] text-m-muted' : 'bg-surface-card text-content-secondary'}`}
         >
           <Icon size={11} aria-hidden="true" />
           {value}
@@ -65,7 +65,7 @@ function Fact({
         id={id}
         hidden={!open}
         role="note"
-        className={`absolute start-0 top-full z-30 mt-1 w-40 whitespace-normal rounded-[6px] border p-2 text-[0.6875rem] shadow-sm ${mobile ? 'bg-[color:var(--m-ic)] text-m-ink' : 'border-edge bg-surface-card text-content'}`}
+        className={`absolute start-0 top-full z-30 mt-1 w-40 whitespace-normal rounded-[6px] border p-2 text-caption shadow-sm ${mobile ? 'bg-[color:var(--m-ic)] text-m-ink' : 'border-edge bg-surface-card text-content'}`}
       >
         {label}
       </span>

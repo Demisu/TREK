@@ -663,24 +663,24 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
               viewBaseLayer={tourPlanner.mapBaseLayer}
               onViewBaseLayerChange={tourPlanner.setMapBaseLayer}
             />
-            <div
-              style={{
-                position: 'absolute',
-                top: 12,
-                left: `calc(50% + ${((leftHidden ? 56 : leftPanelPx) - (rightHidden ? 56 : rightPanelPx)) / 2}px)`,
-                transform: 'translateX(-50%)',
-                width: `min(360px, calc(100vw - ${(leftHidden ? 56 : leftPanelPx) + (rightHidden ? 56 : rightPanelPx) + 32}px))`,
-                zIndex: 19,
-              }}
-            >
-              <LocationSelect
-                value={locationSearch.value}
-                onChange={locationSearch.onChange}
-                placeholder={t('reservations.searchLocation')}
-                ariaLabel={t('reservations.searchLocation')}
-                showSearchStatus
-                style={{ width: '100%' }}
-              />
+            {/* Centred over the map between the two panels, which sit on fixed physical sides. */}
+            <div style={{ position: 'absolute', top: 12, insetInline: 0, display: 'flex', justifyContent: 'center', pointerEvents: 'none', zIndex: 19 }}>
+              <div
+                style={{
+                  transform: `translateX(${((leftHidden ? 56 : leftPanelPx) - (rightHidden ? 56 : rightPanelPx)) / 2}px)`,
+                  width: `min(360px, calc(100vw - ${(leftHidden ? 56 : leftPanelPx) + (rightHidden ? 56 : rightPanelPx) + 32}px))`,
+                  pointerEvents: 'auto',
+                }}
+              >
+                <LocationSelect
+                  value={locationSearch.value}
+                  onChange={locationSearch.onChange}
+                  placeholder={t('reservations.searchLocation')}
+                  ariaLabel={t('reservations.searchLocation')}
+                  showSearchStatus
+                  style={{ width: '100%' }}
+                />
+              </div>
             </div>
             <div className="hidden md:block" style={{ position: 'absolute', left: 10, top: 10, bottom: 10, zIndex: 20 }}>
               <PanelTab hidden={leftHidden} label={leftHidden ? t('trip.mobilePlan') : t('common.collapse')} onToggle={toggleLeft} />
