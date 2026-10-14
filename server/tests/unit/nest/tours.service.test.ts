@@ -463,8 +463,18 @@ describe('ToursService updates', () => {
 
   it('RS-01: updates informational fields without overwriting Place or Wanderer provenance', async () => {
     const created = await service.createTour(tripId, request);
-    await updateRows(await sharedTestOrm(testDb), Places, { id: created.tour.place_id }, { source: 'gpx-import:source-42' });
-    await updateRows(await sharedTestOrm(testDb), Tours, { place: created.tour.place_id }, { wanderer_ref: 'wanderer:trail-42' });
+    await updateRows(
+      await sharedTestOrm(testDb),
+      Places,
+      { id: created.tour.place_id },
+      { source: 'gpx-import:source-42' },
+    );
+    await updateRows(
+      await sharedTestOrm(testDb),
+      Tours,
+      { place: created.tour.place_id },
+      { wanderer_ref: 'wanderer:trail-42' },
+    );
     const metadataUpdate = { ...update, description: 'Updated details', website: 'https://outdooractive.com/route/42' };
 
     await service.updateTour(tripId, String(created.tour.place_id), metadataUpdate);
