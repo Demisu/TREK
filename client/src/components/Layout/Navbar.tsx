@@ -158,12 +158,9 @@ export default function Navbar({ tripTitle, tripId, onBack, showBack, onShare }:
         )}
 
         {tripTitle && (
-          <>
-            <span className="hidden sm:inline text-content-faint">/</span>
-            <span className="hidden sm:inline text-sm font-medium truncate max-w-48 text-content-muted">
-              {tripTitle}
-            </span>
-          </>
+          <span className="hidden sm:inline-flex min-w-0 max-w-56 items-center rounded-full bg-surface-card px-2.5 py-1 shadow-sm ring-1 ring-inset ring-edge-faint">
+            <span className="truncate text-caption font-semibold text-content">{tripTitle}</span>
+          </span>
         )}
       </div>
 
