@@ -6,7 +6,7 @@ import { useSettingsStore } from '../../store/settingsStore'
 import { useAddonStore } from '../../store/addonStore'
 import { usePluginStore } from '../../store/pluginStore'
 import { useTranslation } from '../../i18n'
-import { Plane, LogOut, Settings, ChevronDown, Shield, ArrowLeft, Users, Moon, Sun, Monitor, CalendarDays, Briefcase, Globe, Compass, BookOpen, Bookmark } from 'lucide-react'
+import { Plane, LogOut, Settings, ChevronDown, Shield, ArrowLeft, ChevronLeft, Users, Moon, Sun, Monitor, CalendarDays, Briefcase, Globe, Compass, BookOpen, Bookmark } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import InAppNotificationBell from './InAppNotificationBell.tsx'
 import HelpButton from '../Help/HelpButton'
@@ -130,7 +130,7 @@ export default function Navbar({ tripTitle, tripId, onBack, showBack, onShare }:
           labels and then by scrolling. On a trip page there is no pill, and the
           trip title truncates instead. */}
       <div className={`flex items-center gap-3 flex-1 basis-0 ${tripTitle ? 'min-w-0' : 'min-w-max'}`}>
-        {showBack && (
+        {showBack && !tripTitle && (
           <button type="button" onClick={onBack}
             className="trek-back-btn p-1.5 rounded-lg transition-colors flex items-center gap-1.5 text-sm flex-shrink-0 text-content-muted"
             onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
@@ -157,11 +157,22 @@ export default function Navbar({ tripTitle, tripId, onBack, showBack, onShare }:
           </span>
         )}
 
-        {tripTitle && (
+        {/* In a trip the way back lives in the trip's own pill: arrow and name in one. */}
+        {tripTitle && (showBack ? (
+          <button
+            type="button"
+            onClick={onBack}
+            aria-label={`${t('common.back')}: ${tripTitle}`}
+            className="trek-back-btn inline-flex min-w-0 max-w-64 items-center gap-1 rounded-full bg-surface-card py-1 ps-1.5 pe-3 text-content shadow-sm ring-1 ring-inset ring-edge-faint transition-colors hover:bg-surface-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+          >
+            <ChevronLeft className="trek-back-icon h-4 w-4 flex-none text-content-muted" aria-hidden="true" />
+            <span className="truncate text-caption font-semibold">{tripTitle}</span>
+          </button>
+        ) : (
           <span className="hidden sm:inline-flex min-w-0 max-w-56 items-center rounded-full bg-surface-card px-2.5 py-1 shadow-sm ring-1 ring-inset ring-edge-faint">
             <span className="truncate text-caption font-semibold text-content">{tripTitle}</span>
           </span>
-        )}
+        ))}
       </div>
 
       {/* Centred liquid-glass tab menu (design handoff).

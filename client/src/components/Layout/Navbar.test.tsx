@@ -106,6 +106,17 @@ describe('Navbar', () => {
     expect(backBtns.length).toBeGreaterThan(0);
   });
 
+  it('FE-COMP-NAVBAR-012b: in a trip the back arrow and the trip name are one pill', async () => {
+    const user = userEvent.setup();
+    const onBack = vi.fn();
+    render(<Navbar tripTitle="Paris 2026" showBack onBack={onBack} />);
+    const pill = screen.getByRole('button', { name: 'Back: Paris 2026' });
+    expect(pill).toHaveTextContent('Paris 2026');
+    expect(screen.queryByRole('button', { name: 'Back' })).not.toBeInTheDocument();
+    await user.click(pill);
+    expect(onBack).toHaveBeenCalledOnce();
+  });
+
   it('FE-COMP-NAVBAR-013: clicking back button calls onBack', async () => {
     const user = userEvent.setup();
     const onBack = vi.fn();
