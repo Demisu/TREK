@@ -3,6 +3,7 @@
  * places and assignments ask (TO3/TO4/TO5), the trip copy read and write
  * (TO6/TO8), and the create/edit writes (TO7/TO9).
  */
+import { Places } from '../../../../src/db/entities/Places.entity';
 import { TourWaypoints } from '../../../../src/db/entities/TourWaypoints.entity';
 import { Tours } from '../../../../src/db/entities/Tours.entity';
 import type { ToursRepository } from '../../../../src/db/repositories/Tours.repository';
@@ -60,7 +61,7 @@ describe('ToursRepository reads', () => {
     const { trip, other } = fixture();
     const older = createPlace(testDb, trip.id, { name: 'Older' });
     const newer = createPlace(testDb, trip.id, { name: 'Newer', description: 'Lake ridge' });
-    testDb.prepare('UPDATE places SET website = ? WHERE id = ?').run('https://www.komoot.com/tour/42', newer.id);
+    await updateRows(t, Places, { id: newer.id }, { website: 'https://www.komoot.com/tour/42' });
     const plain = createPlace(testDb, trip.id, { name: 'Not a tour' });
     const foreign = createPlace(testDb, other.id, { name: 'Foreign' });
     createTour(testDb, older.id, { created_at: '2026-01-01 10:00:00', distance: 5, match_confidence: 0.3 });

@@ -14,7 +14,7 @@ import { Tours } from '../../../src/db/entities/Tours.entity';
 import type { PlacesService } from '../../../src/nest/places/places.service';
 import { ToursService } from '../../../src/nest/tours/tours.service';
 import { createPlace, createTrip, createUser } from '../../helpers/factories';
-import { countRows, deleteRows, findRow, findRows } from '../../helpers/factories/rows';
+import { countRows, deleteRows, findRow, findRows, updateRows } from '../../helpers/factories/rows';
 import { buildPlaceImportService } from '../../helpers/place-import';
 import { resetTestDb } from '../../helpers/test-db';
 import { createTestPlacesRepo, createTestUnitOfWork, sharedTestOrm } from '../../helpers/test-uow';
@@ -372,7 +372,7 @@ describe('ToursService updates', () => {
 
   it('TOURS-SVC-005: atomically updates route data and replaces persisted control points', async () => {
     const created = await service.createTour(tripId, request);
-    testDb.prepare('UPDATE places SET duration_minutes = 35 WHERE id = ?').run(created.tour.place_id);
+    await updateRows(await sharedTestOrm(testDb), Places, { id: created.tour.place_id }, { duration_minutes: 35 });
     broadcast.mockReset();
     const writeStates: boolean[] = [];
     broadcast.mockImplementation(() => {
@@ -445,7 +445,7 @@ describe('ToursService updates', () => {
     expect(result.tour).toMatchObject({ description: request.description, website: request.website });
     expect(result.tour.planned_duration_minutes).toBe(request.planned_duration_minutes);
     expect(result.tour.break_additional_minutes).toBe(request.break_additional_minutes);
-    expect(testDb.prepare('SELECT description, website FROM places WHERE id = ?').get(created.tour.place_id)).toEqual({
+    expect(await findRow(await sharedTestOrm(testDb), Places, { id: created.tour.place_id })).toMatchObject({
       description: request.description,
       website: request.website,
     });
@@ -463,22 +463,18 @@ describe('ToursService updates', () => {
 
   it('RS-01: updates informational fields without overwriting Place or Wanderer provenance', async () => {
     const created = await service.createTour(tripId, request);
-    testDb.prepare('UPDATE places SET source = ? WHERE id = ?').run('gpx-import:source-42', created.tour.place_id);
-    testDb
-      .prepare('UPDATE tours SET wanderer_ref = ? WHERE place_id = ?')
-      .run('wanderer:trail-42', created.tour.place_id);
+    await updateRows(await sharedTestOrm(testDb), Places, { id: created.tour.place_id }, { source: 'gpx-import:source-42' });
+    await updateRows(await sharedTestOrm(testDb), Tours, { place: created.tour.place_id }, { wanderer_ref: 'wanderer:trail-42' });
     const metadataUpdate = { ...update, description: 'Updated details', website: 'https://outdooractive.com/route/42' };
 
     await service.updateTour(tripId, String(created.tour.place_id), metadataUpdate);
 
-    expect(
-      testDb.prepare('SELECT description, website, source FROM places WHERE id = ?').get(created.tour.place_id),
-    ).toEqual({
+    expect(await findRow(await sharedTestOrm(testDb), Places, { id: created.tour.place_id })).toMatchObject({
       description: 'Updated details',
       website: 'https://outdooractive.com/route/42',
       source: 'gpx-import:source-42',
     });
-    expect(testDb.prepare('SELECT wanderer_ref FROM tours WHERE place_id = ?').get(created.tour.place_id)).toEqual({
+    expect(await findRow(await sharedTestOrm(testDb), Tours, { place: created.tour.place_id })).toMatchObject({
       wanderer_ref: 'wanderer:trail-42',
     });
   });
