@@ -136,6 +136,9 @@ function addFerrataIcon(map: Map, paint: FerrataPaint, gone: () => boolean): voi
 }
 
 function removeFerrataLayers(map: Map): void {
+  // A map already removed with its view (leaving 3D) took its style and the layers with it;
+  // asking it for a layer then throws.
+  if (!map.getStyle?.()) return;
   for (const layer of [...LAYERS].reverse()) if (map.getLayer(layer)) map.removeLayer(layer);
   for (const source of [LABEL_SOURCE, SOURCE]) if (map.getSource(source)) map.removeSource(source);
   if (map.hasImage(FERRATA_ICON_IMAGE)) map.removeImage(FERRATA_ICON_IMAGE);

@@ -1,5 +1,5 @@
 /**
- * FE-FERRATA-GL-001 to FE-FERRATA-GL-012: the via ferrata layer on a
+ * FE-FERRATA-GL-001 to FE-FERRATA-GL-013: the via ferrata layer on a
  * MapLibre or Mapbox GL map.
  *
  * Pinned: the layers go in once per map (and wait for `idle` when tiles are
@@ -64,7 +64,7 @@ function fakeGlMap(styleLoaded = true) {
   const images = new Set<string>();
   const handlers = new Map<string, Set<Handler>>();
   const once = new Map<string, Set<Handler>>();
-  const state = { styleLoaded, hit: null as null | { properties: { id: string; group: string } } };
+  const state = { styleLoaded, removed: false, hit: null as null | { properties: { id: string; group: string } } };
   const canvas = document.createElement('canvas');
   const container = document.createElement('div');
   const keyOf = (type: string, layer?: unknown) => (typeof layer === 'string' ? `${type}:${layer}` : type);
@@ -77,7 +77,12 @@ function fakeGlMap(styleLoaded = true) {
     removeSource: vi.fn((id: string) => {
       sources.delete(id);
     }),
-    getLayer: vi.fn((id: string) => (layers.has(id) ? {} : undefined)),
+    // Like MapLibre: a removed map has no style, and asking it for a layer throws.
+    getStyle: vi.fn(() => (state.removed ? undefined : { version: 8 })),
+    getLayer: vi.fn((id: string) => {
+      if (state.removed) throw new TypeError('can\'t access property "getLayer", this.style is undefined');
+      return layers.has(id) ? {} : undefined;
+    }),
     addLayer: vi.fn((spec: { id: string }) => {
       layers.add(spec.id);
     }),
@@ -265,6 +270,15 @@ describe('useFerrataLayerGL', () => {
     expect(gl.images.size).toBe(0);
     expect(gl.listeners()).toBe(0);
     expect(() => renderHook(() => useFerrataLayerGL(null, GROUPS, vi.fn()))).not.toThrow();
+  });
+
+  it('FE-FERRATA-GL-013: a map already removed with its view (leaving 3D) is left alone on unmount', async () => {
+    const gl = fakeGlMap();
+    const { unmount } = render(<FerrataLayerGL map={gl.map} groups={GROUPS} onSelect={vi.fn()} />);
+    await waitFor(() => expect(gl.layers.has(LABEL)).toBe(true));
+    gl.state.removed = true;
+    expect(() => unmount()).not.toThrow();
+    expect(gl.listeners()).toBe(0);
   });
 
   it('FE-FERRATA-GL-010: a theme change repaints the installed layers without rebuilding them', async () => {
