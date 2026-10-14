@@ -124,7 +124,7 @@ describe('Tours English and German copy', () => {
     await waitFor(() => expect(screen.getByLabelText(toursText(de, 'tours.planner.difficulty.t2'))).toBeInTheDocument())
     const onAssignToDay = vi.fn()
     rerender(<TourPlannerToursRail planner={planner({ saveOutcome: tour, mode: { type: 'edit-saved', placeId: 42 } })} tours={[tour]} days={[{ id: 7, title: 'Gipfeltag', date: '2026-05-15' } as never]} loading={false} onAssignToDay={onAssignToDay} onViewGpxTour={vi.fn()} />)
-    expect(screen.queryByRole('button', { name: toursText(de, 'tours.planner.assignToDay') })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Einem Tag zuordnen' })).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: `${toursText(de, 'tours.addToDay')}: ${tour.name}` }))
     const dayOption = screen.getByRole('button', { name: /Gipfeltag/ })
     expect(dayOption).toHaveTextContent(/Tag 1/)

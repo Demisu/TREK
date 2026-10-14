@@ -140,7 +140,7 @@ describe('Tours permissions without database setup', () => {
     } as unknown as TourPlannerController
     const assign = vi.fn()
     render(<><TourPlannerRail planner={planner} canEdit={canEdit} canAssign={canAssign} /><TourPlannerToursRail planner={planner} tours={[tour]} days={days} loading={false} onAssignToDay={assign} onViewGpxTour={vi.fn()} canEdit={canEdit} canAssign={canAssign} /></>)
-    expect(screen.queryByRole('button', { name: 'tours.planner.assignToDay' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /assignToDay/ })).not.toBeInTheDocument()
     const save = screen.getByRole('button', { name: 'common.save' }) as HTMLButtonElement
     expect(save.disabled).toBe(!canEdit)
     fireEvent.click(save)

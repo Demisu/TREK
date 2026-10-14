@@ -83,25 +83,18 @@ const tours: TranslationStrings = {
   'tours.durationMinutes': '{count} λεπτά',
   'tours.durationMinutes.one': '{count} λεπτό',
   'tours.planner.plannedTotalDuration': 'Συνολική προγραμματισμένη διάρκεια',
-  'tours.planner.plannedDurationHint':
-    'Ακέραια λεπτά, συμπεριλαμβανομένων των διαλειμμάτων και των προγραμματισμένων στάσεων (0–1440).',
-  'tours.planner.plannedDurationInvalid': 'Εισαγάγετε ακέραια διάρκεια από 0 έως 1440 λεπτά.',
   'tours.planner.breaksAdditional': 'Διαλείμματα / πρόσθετος χρόνος',
-  'tours.planner.breaksAdditionalHint':
-    'Προαιρετικά ακέραια λεπτά που προστίθενται στον υπολογισμένο χρόνο περπατήματος.',
   'tours.planner.breaksAdditionalInfo':
     'Προαιρετικά ακέραια λεπτά που προστίθενται στον υπολογισμένο χρόνο περπατήματος.',
   'tours.planner.breaksAdditionalInfoLabel': 'Σχετικά με τα διαλείμματα και τον πρόσθετο χρόνο',
   'tours.planner.plannedTotalInfo': 'Υπολογισμένη συνολική προγραμματισμένη διάρκεια.',
   'tours.planner.plannedTotalInfoLabel': 'Σχετικά με τη συνολική προγραμματισμένη διάρκεια',
-  'tours.planner.plannedTotalAutomatic': 'Υπολογισμένο σύνολο',
   'tours.planner.plannedTotalManual': 'Χειροκίνητη τιμή',
   'tours.planner.timeValueInvalid': 'Εισαγάγετε ακέραια τιμή από 0 έως 1440 λεπτά.',
   'tours.planner.walkingTimeUnknown': 'Δεν έχει υπολογιστεί',
   'tours.planner.walkingShort': 'Περπάτημα',
   'tours.planner.breaksShort': 'Διαλείμματα',
   'tours.planner.plannedShort': 'Προγραμματισμένο',
-  'tours.planner.empty': 'Προσθέστε τουλάχιστον δύο σημεία για να υπολογιστεί μια διαδρομή πεζοπορίας.',
   'tours.planner.start': 'Αφετηρία',
   'tours.planner.via': 'Μέσω',
   'tours.planner.end': 'Τερματισμός',
@@ -114,7 +107,6 @@ const tours: TranslationStrings = {
   'tours.planner.discardBody':
     'Οι μη αποθηκευμένες αλλαγές θα απορριφθούν. Η αποθηκευμένη εκδρομή, τα σημεία, τα αρχεία και οι αντιστοιχίσεις της δεν θα αλλάξουν.',
   'tours.planner.saved': 'Η εκδρομή αποθηκεύτηκε',
-  'tours.planner.assignToDay': 'Αντιστοίχιση σε ημέρα',
   'tours.planner.tripTours': 'Εκδρομές αυτού του ταξιδιού',
   'tours.planner.safetyNote': 'Ο υπολογισμός διαδρομών βοηθά στον σχεδιασμό, αλλά δεν εγγυάται την ασφάλεια.',
   'tours.planner.maxDifficulty': 'Μέγιστη δυσκολία μονοπατιού',
@@ -142,9 +134,6 @@ const tours: TranslationStrings = {
   'tours.planner.status.saveFailed': 'Δεν ήταν δυνατή η αποθήκευση της εκδρομής. Το πρόχειρό σας παραμένει διαθέσιμο.',
   'tours.planner.retry': 'Επανάληψη',
   'tours.planner.inspector.title': 'Σύνοψη εκδρομής',
-  'tours.planner.inspector.empty':
-    'Οι λεπτομέρειες της διαδρομής εμφανίζονται εδώ μόλις συνδεθούν δύο σημεία διέλευσης.',
-  'tours.planner.inspector.distance': 'Απόσταση',
   'tours.planner.inspector.duration': 'Χρόνος πεζοπορίας',
   'tours.planner.inspector.elevation': 'Υψομετρικό προφίλ',
   'tours.planner.inspector.profileFocus': 'Στην απόσταση {distance}: {elevation}',
