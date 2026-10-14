@@ -15,6 +15,7 @@ describe('known migrations', () => {
     expect(known.has('Migration20200101043000_tour_break_additional_duration')).toBe(true);
     expect(known.has('Migration20200101043100_an_imported_tour_has_no_hiking_difficulty')).toBe(true);
     expect(known.has('Migration20200101043200_via_ferrata_tiles_outlive_a_restart')).toBe(true);
+    expect(known.has('Migration20200101043300_a_tour_leg_can_follow_a_via_ferrata')).toBe(true);
     expect(known.size).toBe(fs.readdirSync(path.join(__dirname, '../../../src/db/migrations')).length);
   });
 

@@ -1,4 +1,4 @@
-// FE-FERRATA-CARD-001 to FE-FERRATA-CARD-007: the card for one picked via ferrata.
+// FE-FERRATA-CARD-001 to FE-FERRATA-CARD-009: the card for one picked via ferrata.
 import { describe, expect, it, vi } from 'vitest';
 
 import type { Ferrata } from '@trek/shared';
@@ -94,5 +94,22 @@ describe('FerrataDetailCard', () => {
     const heading = screen.getByRole('heading', { name: long });
     expect(heading).toHaveClass('line-clamp-2');
     expect(heading).not.toHaveClass('truncate');
+  });
+
+  it('FE-FERRATA-CARD-008: offers "Add to tour" only where the tour can be edited, and hands over the ferrata', () => {
+    const group = groupOf(LOWER, UPPER);
+    const { rerender } = render(<FerrataDetailCard group={group} segment={UPPER} />);
+    expect(screen.queryByTestId('ferrata-adopt')).not.toBeInTheDocument();
+
+    const onAdopt = vi.fn();
+    rerender(<FerrataDetailCard group={group} segment={UPPER} onAdopt={onAdopt} />);
+    fireEvent.click(screen.getByTestId('ferrata-adopt'));
+    expect(onAdopt).toHaveBeenCalledWith(group);
+  });
+
+  it('FE-FERRATA-CARD-009: a ferrata the tour already climbs says so instead of offering it again', () => {
+    render(<FerrataDetailCard group={groupOf(LOWER, UPPER)} segment={UPPER} onAdopt={vi.fn()} onTour />);
+    expect(screen.getByTestId('ferrata-on-tour')).toHaveTextContent('Part of the tour');
+    expect(screen.queryByTestId('ferrata-adopt')).not.toBeInTheDocument();
   });
 });

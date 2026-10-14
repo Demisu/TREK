@@ -113,13 +113,51 @@ export type TourListResponse = z.infer<typeof tourListResponseSchema>;
 export const tourWaypointRoleSchema = z.enum(['start', 'via', 'end']);
 export type TourWaypointRole = z.infer<typeof tourWaypointRoleSchema>;
 
+/** The most points a fixed leg may carry: a long via ferrata is a few hundred. */
+export const TOUR_FIXED_LEG_MAX_POINTS = 5000;
+/** How far a fixed leg's ends may lie from the waypoints it joins, in metres. */
+export const TOUR_FIXED_LEG_END_TOLERANCE_M = 60;
+
+/**
+ * A leg the router does not plan: the line from this waypoint to the next is
+ * taken as it stands. Today that is a via ferrata put onto the tour from the
+ * map, whose own line from OpenStreetMap the tour follows, since a router
+ * walks around a ferrata wherever it can.
+ */
+export const tourFixedLegSchema = z.object({
+  kind: z.literal('ferrata'),
+  /** The OSM way or group the line came from, `way/<id>` style. */
+  ref: z.string().trim().min(1).max(64),
+  name: z.string().trim().max(255).nullable(),
+  geometry: z
+    .array(z.tuple([z.number().finite().min(-90).max(90), z.number().finite().min(-180).max(180)]))
+    .min(2)
+    .max(TOUR_FIXED_LEG_MAX_POINTS),
+});
+export type TourFixedLeg = z.infer<typeof tourFixedLegSchema>;
+
 export const tourWaypointSchema = z.object({
   lat: z.number().finite().min(-90).max(90),
   lng: z.number().finite().min(-180).max(180),
   role: tourWaypointRoleSchema,
   sequence: z.number().int().nonnegative(),
+  /** The leg to the next waypoint as a fixed line; absent or null for a routed one. */
+  fixed_leg: tourFixedLegSchema.nullable().optional(),
 });
 export type TourWaypoint = z.infer<typeof tourWaypointSchema>;
+
+/**
+ * Metres between two `[lat, lng]` points, close enough at the length of a
+ * leg's end gap. Read as plain arrays: a workspace compiled without strict
+ * mode sees the schema's tuples as "maybe two numbers".
+ */
+function fixedLegGapM(a: readonly unknown[], b: readonly unknown[]): number {
+  const [aLat, aLng, bLat, bLng] = [Number(a[0]), Number(a[1]), Number(b[0]), Number(b[1])];
+  const rad = Math.PI / 180;
+  const x = (bLng - aLng) * rad * Math.cos(((aLat + bLat) / 2) * rad);
+  const y = (bLat - aLat) * rad;
+  return Math.hypot(x, y) * 6_371_000;
+}
 
 const enrichedRoutePointSchema = z.tuple([
   z.number().finite().min(-90).max(90),
@@ -154,6 +192,25 @@ export const tourCreateRequestSchema = z
       });
     }
     value.waypoints.forEach((point, index) => {
+      const leg = point.fixed_leg;
+      const next = value.waypoints[index + 1];
+      if (leg) {
+        const first = leg.geometry[0];
+        const last = leg.geometry[leg.geometry.length - 1];
+        const joins =
+          !!next &&
+          !!first &&
+          !!last &&
+          fixedLegGapM(first, [point.lat, point.lng]) <= TOUR_FIXED_LEG_END_TOLERANCE_M &&
+          fixedLegGapM(last, [next.lat, next.lng]) <= TOUR_FIXED_LEG_END_TOLERANCE_M;
+        if (!joins) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['waypoints', index, 'fixed_leg'],
+            message: `Waypoint ${index}'s fixed leg must run from it to the next waypoint`,
+          });
+        }
+      }
       const expectedRole: TourWaypointRole =
         index === 0 ? 'start' : index === value.waypoints.length - 1 ? 'end' : 'via';
       if (point.sequence !== index || point.role !== expectedRole) {

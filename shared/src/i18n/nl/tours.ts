@@ -73,7 +73,8 @@ const tours: TranslationStrings = {
   'tours.planner.walkingEstimated': 'Geschatte looptijd',
   'tours.planner.walkingEstimatedShort': 'Geschatte tijd',
   'tours.planner.walkingEstimatedInfoLabel': 'Hoe de looptijd wordt geschat',
-  'tours.planner.walkingEstimatedInfo': 'Berekend uit afstand, stijging en daling met de gangbare wandeltijdregel (DIN 33466), zonder pauzes.',
+  'tours.planner.walkingEstimatedInfo':
+    'Berekend uit afstand, stijging en daling met de gangbare wandeltijdregel (DIN 33466), zonder pauzes.',
   'tours.planner.waypoints': 'Routepunten',
   'tours.planner.waypointLabel': 'Routepunt {n}',
   'tours.durationMinutes': '{count} min',
@@ -170,5 +171,11 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Zet Punten plaatsen aan om punten op het terrein te klikken.',
   'tours.terrain.clickToPlan':
     'Klik in het terrein om punten te zetten. Zodra er een route is, kun je eroverheen vliegen en hem op helling kleuren.',
+  'tours.ferrata.badge': 'Via ferrata {grade}',
+  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.crossingInfo':
+    'De route loopt {length} over „{name}”. Daarvoor heb je via-ferratamateriaal en ervaring nodig.',
+  'tours.ferrata.crossingShort': 'De route loopt over een via ferrata',
+  'tours.ferrata.waypointAtEnd': 'Begin of einde van „{name}”',
 };
 export default tours;

@@ -71,7 +71,8 @@ const tours: TranslationStrings = {
   'tours.planner.walkingEstimated': 'เวลาเดินโดยประมาณ',
   'tours.planner.walkingEstimatedShort': 'เวลาโดยประมาณ',
   'tours.planner.walkingEstimatedInfoLabel': 'วิธีประมาณเวลาเดิน',
-  'tours.planner.walkingEstimatedInfo': 'คำนวณจากระยะทาง ทางขึ้น และทางลง ตามกฎเวลาเดินป่าทั่วไป (DIN 33466) ไม่รวมเวลาพัก',
+  'tours.planner.walkingEstimatedInfo':
+    'คำนวณจากระยะทาง ทางขึ้น และทางลง ตามกฎเวลาเดินป่าทั่วไป (DIN 33466) ไม่รวมเวลาพัก',
   'tours.planner.waypoints': 'จุดแวะ',
   'tours.planner.waypointLabel': 'จุดแวะ {n}',
   'tours.durationMinutes': '{count} นาที',
@@ -164,5 +165,10 @@ const tours: TranslationStrings = {
   'tours.terrain.preloading': 'กำลังโหลดภูมิทัศน์: {percent} %',
   'tours.terrain.placeOff': 'เปิด วางจุด เพื่อคลิกวางจุดบนภูมิประเทศ',
   'tours.terrain.clickToPlan': 'คลิกบนภูมิประเทศเพื่อวางจุด เมื่อมีเส้นทางแล้ว จะบินผ่านและระบายสีตามความชันได้',
+  'tours.ferrata.badge': 'เวียเฟอร์ราตา {grade}',
+  'tours.ferrata.badgeNoGrade': 'เวียเฟอร์ราตา',
+  'tours.ferrata.crossingInfo': 'เส้นทางผ่าน “{name}” เป็นระยะ {length} ต้องใช้อุปกรณ์เวียเฟอร์ราตาและประสบการณ์',
+  'tours.ferrata.crossingShort': 'เส้นทางผ่านเวียเฟอร์ราตา',
+  'tours.ferrata.waypointAtEnd': 'จุดเริ่มหรือจุดสิ้นสุดของ “{name}”',
 };
 export default tours;

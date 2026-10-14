@@ -13,5 +13,7 @@ const ferratas: TranslationStrings = {
   'ferratas.unnamed': 'Vía ferrata sin nombre',
   'ferratas.viewInOsm': 'Ver en OpenStreetMap',
   'ferratas.attribution': 'Datos © colaboradores de OpenStreetMap',
+  'ferratas.adopt': 'Añadir a la ruta',
+  'ferratas.onTour': 'Parte de la ruta',
 };
 export default ferratas;

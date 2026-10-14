@@ -12,5 +12,7 @@ const ferratas: TranslationStrings = {
   'ferratas.unnamed': '名称未設定のヴィア・フェラータ',
   'ferratas.viewInOsm': 'OpenStreetMap で表示',
   'ferratas.attribution': 'データ © OpenStreetMap 貢献者',
+  'ferratas.adopt': 'ツアーに追加',
+  'ferratas.onTour': 'ツアーの一部',
 };
 export default ferratas;

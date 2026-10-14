@@ -69,11 +69,13 @@ const tours: TranslationStrings = {
   'tours.planner.safetyInfoLabel': 'Sobre la seguretat',
   'tours.planner.addPoint': 'Afegeix un punt',
   'tours.planner.addPointActive': 'Fes clic al mapa',
-  'tours.planner.emptyHint': 'Activa «Afegeix un punt» i fes clic al mapa. A partir de dos punts, TREK calcula la ruta.',
+  'tours.planner.emptyHint':
+    'Activa «Afegeix un punt» i fes clic al mapa. A partir de dos punts, TREK calcula la ruta.',
   'tours.planner.walkingEstimated': 'Temps a peu estimat',
   'tours.planner.walkingEstimatedShort': 'Temps est.',
   'tours.planner.walkingEstimatedInfoLabel': 'Com s’estima el temps a peu',
-  'tours.planner.walkingEstimatedInfo': 'Calculat a partir de la distància, la pujada i la baixada amb la regla habitual de temps de marxa (DIN 33466), sense pauses.',
+  'tours.planner.walkingEstimatedInfo':
+    'Calculat a partir de la distància, la pujada i la baixada amb la regla habitual de temps de marxa (DIN 33466), sense pauses.',
   'tours.planner.waypoints': 'Punts de pas',
   'tours.planner.waypointLabel': 'Punt de pas {n}',
   'tours.durationMinutes': '{count} min',
@@ -170,5 +172,10 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Activa Posar punts per afegir punts al terreny amb un clic.',
   'tours.terrain.clickToPlan':
     'Fes clic al terreny per afegir punts. Quan hi hagi una ruta, es podrà sobrevolar i acolorir segons el pendent.',
+  'tours.ferrata.badge': 'Via ferrada {grade}',
+  'tours.ferrata.badgeNoGrade': 'Via ferrada',
+  'tours.ferrata.crossingInfo': 'La ruta fa {length} per «{name}». Cal material de via ferrada i experiència.',
+  'tours.ferrata.crossingShort': 'La ruta passa per una via ferrada',
+  'tours.ferrata.waypointAtEnd': 'Inici o final de «{name}»',
 };
 export default tours;

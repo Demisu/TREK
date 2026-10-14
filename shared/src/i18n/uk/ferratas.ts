@@ -15,5 +15,7 @@ const ferratas: TranslationStrings = {
   'ferratas.unnamed': 'Віа ферата без назви',
   'ferratas.viewInOsm': 'Відкрити в OpenStreetMap',
   'ferratas.attribution': 'Дані © учасники OpenStreetMap',
+  'ferratas.adopt': 'Додати до туру',
+  'ferratas.onTour': 'Частина туру',
 };
 export default ferratas;

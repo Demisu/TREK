@@ -74,7 +74,8 @@ const tours: TranslationStrings = {
   'tours.planner.walkingEstimated': 'Орієнтовний час у дорозі',
   'tours.planner.walkingEstimatedShort': 'Орієнт. час',
   'tours.planner.walkingEstimatedInfoLabel': 'Як оцінюється час у дорозі',
-  'tours.planner.walkingEstimatedInfo': 'Розраховано за відстанню, підйомом і спуском за звичайним правилом часу ходьби (DIN 33466), без перерв.',
+  'tours.planner.walkingEstimatedInfo':
+    'Розраховано за відстанню, підйомом і спуском за звичайним правилом часу ходьби (DIN 33466), без перерв.',
   'tours.planner.waypoints': 'Маршрутні точки',
   'tours.planner.waypointLabel': 'Маршрутна точка {n}',
   'tours.durationMinutes': '{count} хв',
@@ -173,5 +174,11 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Увімкніть «Ставити точки», щоб ставити точки на рельєфі клацанням.',
   'tours.terrain.clickToPlan':
     "Натисніть на рельєф, щоб поставити точки. Коли з'явиться маршрут, його можна облетіти й розфарбувати за ухилом.",
+  'tours.ferrata.badge': 'Віа ферата {grade}',
+  'tours.ferrata.badgeNoGrade': 'Віа ферата',
+  'tours.ferrata.crossingInfo':
+    'Маршрут проходить {length} по «{name}». Для цього потрібні спорядження для віа ферати й досвід.',
+  'tours.ferrata.crossingShort': 'Маршрут проходить по віа фераті',
+  'tours.ferrata.waypointAtEnd': 'Початок або кінець «{name}»',
 };
 export default tours;

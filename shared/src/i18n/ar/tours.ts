@@ -75,7 +75,8 @@ const tours: TranslationStrings = {
   'tours.planner.walkingEstimated': 'وقت المشي التقديري',
   'tours.planner.walkingEstimatedShort': 'وقت المشي التقريبي',
   'tours.planner.walkingEstimatedInfoLabel': 'كيف يُقدَّر وقت المشي',
-  'tours.planner.walkingEstimatedInfo': 'محسوب من المسافة والصعود والنزول وفق قاعدة زمن المشي المعتادة (DIN 33466)، دون الاستراحات.',
+  'tours.planner.walkingEstimatedInfo':
+    'محسوب من المسافة والصعود والنزول وفق قاعدة زمن المشي المعتادة (DIN 33466)، دون الاستراحات.',
   'tours.planner.waypoints': 'نقاط المرور',
   'tours.planner.waypointLabel': 'نقطة المرور {n}',
   'tours.durationMinutes': '{count} د',
@@ -174,5 +175,10 @@ const tours: TranslationStrings = {
   'tours.terrain.preloading': 'جارٍ تحميل المشهد: {percent} %',
   'tours.terrain.placeOff': 'فعّل «تعيين النقاط» لوضع النقاط على التضاريس بالنقر.',
   'tours.terrain.clickToPlan': 'انقر على التضاريس لإضافة نقاط. بمجرد وجود مسار يمكن التحليق فوقه وتلوينه حسب الانحدار.',
+  'tours.ferrata.badge': 'طريق حديدي {grade}',
+  'tours.ferrata.badgeNoGrade': 'طريق حديدي',
+  'tours.ferrata.crossingInfo': 'يمر المسار {length} عبر «{name}». يتطلب ذلك معدات الطريق الحديدي وخبرة.',
+  'tours.ferrata.crossingShort': 'يمر المسار عبر طريق حديدي',
+  'tours.ferrata.waypointAtEnd': 'بداية أو نهاية «{name}»',
 };
 export default tours;

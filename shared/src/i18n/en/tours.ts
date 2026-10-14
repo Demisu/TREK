@@ -72,7 +72,8 @@ const tours: TranslationStrings = {
   'tours.planner.walkingEstimated': 'Estimated walking time',
   'tours.planner.walkingEstimatedShort': 'Est. walking time',
   'tours.planner.walkingEstimatedInfoLabel': 'How the walking time is estimated',
-  'tours.planner.walkingEstimatedInfo': 'Worked out from distance, climb and descent with the usual hiking time rule (DIN 33466), without breaks.',
+  'tours.planner.walkingEstimatedInfo':
+    'Worked out from distance, climb and descent with the usual hiking time rule (DIN 33466), without breaks.',
   'tours.planner.waypoints': 'Waypoints',
   'tours.planner.waypointLabel': 'Waypoint {n}',
   'tours.durationMinutes': '{count} min',
@@ -168,5 +169,10 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Turn on Set points to click points onto the terrain.',
   'tours.terrain.clickToPlan':
     'Click the terrain to set points. Once there is a route, it can be flown and coloured by grade.',
+  'tours.ferrata.badge': 'Via ferrata {grade}',
+  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.crossingInfo': 'The route climbs {length} of “{name}”. That takes via ferrata gear and experience.',
+  'tours.ferrata.crossingShort': 'The route climbs a via ferrata',
+  'tours.ferrata.waypointAtEnd': 'Start or end of “{name}”',
 };
 export default tours;

@@ -2,6 +2,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 
 import type { Ferrata, FerrataBbox } from '@trek/shared';
 
+import { type FerrataCrossing, ferrataTilesAlong, routeFerrataCrossings } from './ferrataCrossings';
 import {
   type FerrataGroup,
   ferrataGroupOf,
@@ -58,7 +59,9 @@ export function ferrataAreaOf(lines: ReadonlyArray<ReadonlyArray<readonly [numbe
  */
 export function useFerrataMapLayer(
   tripId: number | null | undefined,
-  areaLines: ReadonlyArray<ReadonlyArray<readonly [number, number]>> = []
+  areaLines: ReadonlyArray<ReadonlyArray<readonly [number, number]>> = [],
+  /** The tour's line as the elevation profile measures it; the ferratas along it load with the layer off too. */
+  routeLine: readonly (readonly [number, number])[] | null = null
 ) {
   const [active, setActive] = useState(false);
   const [bbox, setBbox] = useState<FerrataBbox | null>(null);
@@ -66,8 +69,10 @@ export function useFerrataMapLayer(
   const lastArea = useRef<FerrataBbox | null>(null);
   const activeRef = useRef(false);
   const area = ferrataAreaOf(areaLines);
-  const { ferratas, status } = useTripFerratas(tripId, bbox, active, area);
+  const routeTiles = useMemo(() => ferrataTilesAlong(routeLine), [routeLine]);
+  const { ferratas, status } = useTripFerratas(tripId, bbox, active, area, routeTiles);
   const groups = useMemo(() => groupFerratas(ferratas), [ferratas]);
+  const crossings = useMemo<FerrataCrossing[]>(() => routeFerrataCrossings(routeLine, groups), [routeLine, groups]);
   const count = active ? ferrataGroupsInView(groups, bbox) : 0;
 
   const onViewportChange = useCallback((next: FerrataBbox) => {
@@ -99,5 +104,5 @@ export function useFerrataMapLayer(
     [active, onToggle, status, count, groups, selectedId, onSelect]
   );
 
-  return { layer, onViewportChange, selected, close };
+  return { layer, onViewportChange, selected, close, crossings };
 }

@@ -68,7 +68,7 @@ function TourMetricPill({ icon: Icon, label, value, prefix }: { icon: LucideIcon
 }
 
 /** The facts of a tour as white pills, kept to one short row: how far, up and down, how long, how hard, and where it came from when that was not TREK. */
-export function TourFactPills({ tour, className = '' }: { tour: TourListItem; className?: string }) {
+export function TourFactPills({ tour, className = '', children }: { tour: TourListItem; className?: string; children?: ReactNode }) {
   const { t } = useTranslation()
   const unit = useSettingsStore(state => state.settings.distance_unit)
   const times = tourPlannedTimes(tour)
@@ -99,6 +99,7 @@ export function TourFactPills({ tour, className = '' }: { tour: TourListItem; cl
           </span>
         </Tooltip>
       )}
+      {children}
     </div>
   )
 }

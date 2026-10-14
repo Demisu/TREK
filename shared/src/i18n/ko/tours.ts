@@ -71,7 +71,8 @@ const tours: TranslationStrings = {
   'tours.planner.walkingEstimated': '예상 보행 시간',
   'tours.planner.walkingEstimatedShort': '예상 시간',
   'tours.planner.walkingEstimatedInfoLabel': '보행 시간을 추정하는 방법',
-  'tours.planner.walkingEstimatedInfo': '일반적인 산행 시간 규칙(DIN 33466)에 따라 거리, 오르막, 내리막으로 계산하며 휴식은 포함하지 않습니다.',
+  'tours.planner.walkingEstimatedInfo':
+    '일반적인 산행 시간 규칙(DIN 33466)에 따라 거리, 오르막, 내리막으로 계산하며 휴식은 포함하지 않습니다.',
   'tours.planner.waypoints': '경로 지점',
   'tours.planner.waypointLabel': '지점 {n}',
   'tours.durationMinutes': '{count}분',
@@ -166,5 +167,10 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': '지형을 클릭해 지점을 찍으려면 지점 찍기를 켜세요.',
   'tours.terrain.clickToPlan':
     '지형을 클릭해 지점을 추가하세요. 경로가 생기면 비행하고 경사별로 색을 입힐 수 있습니다.',
+  'tours.ferrata.badge': '비아 페라타 {grade}',
+  'tours.ferrata.badgeNoGrade': '비아 페라타',
+  'tours.ferrata.crossingInfo': '경로가 “{name}”을(를) {length} 지납니다. 비아 페라타 장비와 경험이 필요합니다.',
+  'tours.ferrata.crossingShort': '경로가 비아 페라타를 지납니다',
+  'tours.ferrata.waypointAtEnd': '“{name}”의 시작 또는 끝',
 };
 export default tours;

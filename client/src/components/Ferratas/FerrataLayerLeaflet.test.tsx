@@ -121,8 +121,8 @@ describe('FerrataLayerLeaflet', () => {
 
   it('FE-FERRATA-LEAFLET-002: a light casing, the dark dashed line, then the invisible hit line, in [lat, lng]', () => {
     const root = document.documentElement;
-    root.style.setProperty('--text-primary', 'black');
-    root.style.setProperty('--bg-primary', 'white');
+    root.style.setProperty('--map-ferrata', 'black');
+    root.style.setProperty('--map-ferrata-casing', 'white');
     render(<FerrataLayerLeaflet groups={groupFerratas([ferrata('way/1', 'Pisciadù', 3)])} onSelect={vi.fn()} />);
 
     expect(lines().map((line) => line.dataset.weight)).toEqual(['6', '2.5', '16']);
@@ -134,8 +134,8 @@ describe('FerrataLayerLeaflet', () => {
       [46.5, 11.7],
       [46.51, 11.71],
     ]);
-    root.style.removeProperty('--text-primary');
-    root.style.removeProperty('--bg-primary');
+    root.style.removeProperty('--map-ferrata');
+    root.style.removeProperty('--map-ferrata-casing');
   });
 
   it('FE-FERRATA-LEAFLET-003: the tooltip names the ferrata and its grade range, or falls back to the route and unnamed', () => {
@@ -178,9 +178,9 @@ describe('FerrataLayerLeaflet', () => {
     expect(tip.querySelector('span')?.textContent).toBe('K4');
   });
 
-  it('FE-FERRATA-LEAFLET-007: hovering a segment lights up the whole ferrata in the accent, and so does the open card', () => {
+  it('FE-FERRATA-LEAFLET-007: hovering a segment lights up the whole ferrata in the deeper violet, and so does the open card', () => {
     const root = document.documentElement;
-    root.style.setProperty('--accent', 'navy');
+    root.style.setProperty('--map-ferrata-lit', 'navy');
     const groups = groupFerratas([
       ferrata('way/1', 'Via A', 2),
       ferrata('way/2', 'Via A', 3, { lat: 46.51 }),
@@ -203,7 +203,7 @@ describe('FerrataLayerLeaflet', () => {
 
     rerender(<FerrataLayerLeaflet groups={groups} onSelect={vi.fn()} selectedId={groups[1]?.id ?? null} />);
     expect(lineColours().map((colour) => colour === 'navy')).toEqual([false, false, true]);
-    root.style.removeProperty('--accent');
+    root.style.removeProperty('--map-ferrata-lit');
   });
 
   it('FE-FERRATA-LEAFLET-008: shows a route icon halfway along each ferrata only once zoomed in, and it opens the card', () => {
@@ -226,17 +226,17 @@ describe('FerrataLayerLeaflet', () => {
 
   it('FE-FERRATA-LEAFLET-009: a theme change recolours the lines without a refetch', async () => {
     const root = document.documentElement;
-    root.style.setProperty('--text-primary', 'black');
+    root.style.setProperty('--map-ferrata', 'black');
     render(<FerrataLayerLeaflet groups={groupFerratas([ferrata('way/1', 'Pisciadù', 3)])} onSelect={vi.fn()} />);
     expect(lines()[1]?.dataset.color).toBe('black');
 
     await act(async () => {
-      root.style.setProperty('--text-primary', 'ivory');
+      root.style.setProperty('--map-ferrata', 'ivory');
       await Promise.resolve();
     });
 
     await waitFor(() => expect(lines()[1]?.dataset.color).toBe('ivory'));
-    root.style.removeProperty('--text-primary');
+    root.style.removeProperty('--map-ferrata');
   });
   it('FE-FERRATA-LEAFLET-010: a lit ferrata is drawn solid and wider on a wider casing, the hit line and tooltip carry their classes', () => {
     const groups = groupFerratas([ferrata('way/1', 'Via A', 2)]);

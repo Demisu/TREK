@@ -8,6 +8,7 @@ import { useSettingsStore } from '../../../store/settingsStore'
 import { analyzeRouteGeometry } from '../../../utils/routeGeometry'
 import type { TourPlannerController } from './useTourPlanner'
 import type { Day } from '../../../types'
+import { publishTourFerrataCrossings } from '../../../store/tourFerrataCrossingStore'
 import { TourPlannerRail, TourPlannerToursRail } from './TourPlannerPanels'
 
 vi.mock('../../../../../server/src/config', () => { throw new Error('Config initialization is forbidden in client tests') })
@@ -145,6 +146,19 @@ describe('TourPlannerToursRail', () => {
     expect(screen.getByText('50 m')).toBeInTheDocument()
     expect(document.querySelector('svg[viewBox="0 0 440 100"]')).toBeInTheDocument()
     expect(screen.queryByText('Routing is planning assistance, not a safety guarantee.')).not.toBeInTheDocument()
+  })
+
+  it('TOUR-PLANNER-RAIL-020: warns over the overview when the route climbs a via ferrata, with the stretch in the tooltip', () => {
+    publishTourFerrataCrossings([{ id: 'group/way/1', name: 'Alpspitz Ferrata', grade: 'K2', fromM: 1000, toM: 1600, afterWaypoint: null }])
+    try {
+      render(<TourPlannerToursRail planner={planner({ mode: { type: 'new-draft' } })} tours={[tour]} {...railProps} />)
+      const badges = screen.getByTestId('tour-ferrata-crossings')
+      expect(badges).toHaveTextContent('Via ferrata K2')
+      expect(within(badges).getByLabelText(/climbs 600 m of “Alpspitz Ferrata”/)).toBeInTheDocument()
+      expect(document.querySelectorAll('[data-profile-band]').length).toBeGreaterThan(0)
+    } finally {
+      publishTourFerrataCrossings([])
+    }
   })
 
   it('exposes permanent deletion in the visible TOUR-PLANNER Tours rail', () => {

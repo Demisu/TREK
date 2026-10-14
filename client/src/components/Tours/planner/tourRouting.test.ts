@@ -35,6 +35,41 @@ describe('routeWalkingTour', () => {
     })
   })
 
+  it('TOUR-ROUTING-020: takes a fixed leg as its own line and routes only the runs around it', async () => {
+    const leg = {
+      kind: 'ferrata' as const,
+      ref: 'way/1',
+      name: 'Via A',
+      geometry: [[47.39, 11.01], [47.391, 11.011], [47.392, 11.012]] as [number, number][],
+    }
+    valhallaRun
+      .mockResolvedValueOnce({ total: { coordinates: [[47.38, 11.0], [47.39, 11.01]], distance: 1500, duration: 1200 } })
+      .mockResolvedValueOnce({ total: { coordinates: [[47.392, 11.012], [47.4, 11.02]], distance: 1000, duration: 800 } })
+
+    const routed = await routeWalkingTour([
+      { lat: 47.38, lng: 11.0 },
+      { lat: 47.39, lng: 11.01, fixedLeg: leg },
+      { lat: 47.392, lng: 11.012 },
+      { lat: 47.4, lng: 11.02 },
+    ])
+
+    expect(valhallaRun).toHaveBeenCalledTimes(2)
+    expect(valhallaRun.mock.calls[0]?.[0]).toEqual([{ lat: 47.38, lng: 11.0 }, { lat: 47.39, lng: 11.01 }])
+    expect(valhallaRun.mock.calls[1]?.[0]).toEqual([{ lat: 47.392, lng: 11.012 }, { lat: 47.4, lng: 11.02 }])
+    expect(routed?.coordinates).toEqual([[47.38, 11.0], [47.39, 11.01], [47.391, 11.011], [47.392, 11.012], [47.4, 11.02]])
+    expect(routed?.distanceMeters).toBeGreaterThan(2500)
+  })
+
+  it('TOUR-ROUTING-021: a tour that is all fixed leg asks the router nothing, and a failed run fails the whole route', async () => {
+    const leg = { kind: 'ferrata' as const, ref: 'way/1', name: null, geometry: [[47.39, 11.01], [47.392, 11.012]] as [number, number][] }
+    const fixedOnly = await routeWalkingTour([{ lat: 47.39, lng: 11.01, fixedLeg: leg }, { lat: 47.392, lng: 11.012 }])
+    expect(valhallaRun).not.toHaveBeenCalled()
+    expect(fixedOnly?.coordinates).toEqual([[47.39, 11.01], [47.392, 11.012]])
+
+    valhallaRun.mockResolvedValueOnce(null)
+    expect(await routeWalkingTour([{ lat: 47.38, lng: 11.0 }, { lat: 47.39, lng: 11.01, fixedLeg: leg }, { lat: 47.392, lng: 11.012 }])).toBeNull()
+  })
+
   it.each([1, 2, 3, 4, 5, 6] as const)('TOUR-ROUTING-002: forwards T%i unchanged to Valhalla', async difficulty => {
     await routeWalkingTour(waypoints, undefined, difficulty)
 

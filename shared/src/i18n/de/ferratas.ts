@@ -13,5 +13,7 @@ const ferratas: TranslationStrings = {
   'ferratas.unnamed': 'Klettersteig ohne Namen',
   'ferratas.viewInOsm': 'In OpenStreetMap ansehen',
   'ferratas.attribution': 'Daten © OpenStreetMap-Mitwirkende',
+  'ferratas.adopt': 'In die Tour übernehmen',
+  'ferratas.onTour': 'Teil der Tour',
 };
 export default ferratas;

@@ -13,5 +13,7 @@ const ferratas: TranslationStrings = {
   'ferratas.unnamed': 'Névtelen vasalt út',
   'ferratas.viewInOsm': 'Megtekintés az OpenStreetMapen',
   'ferratas.attribution': 'Adatok © OpenStreetMap-közreműködők',
+  'ferratas.adopt': 'Hozzáadás a túrához',
+  'ferratas.onTour': 'A túra része',
 };
 export default ferratas;

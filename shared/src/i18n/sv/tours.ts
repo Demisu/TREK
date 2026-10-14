@@ -72,7 +72,8 @@ const tours: TranslationStrings = {
   'tours.planner.walkingEstimated': 'Uppskattad gångtid',
   'tours.planner.walkingEstimatedShort': 'Uppsk. gångtid',
   'tours.planner.walkingEstimatedInfoLabel': 'Hur gångtiden uppskattas',
-  'tours.planner.walkingEstimatedInfo': 'Beräknad utifrån sträcka, stigning och nedstigning enligt den vanliga vandringstidsregeln (DIN 33466), utan pauser.',
+  'tours.planner.walkingEstimatedInfo':
+    'Beräknad utifrån sträcka, stigning och nedstigning enligt den vanliga vandringstidsregeln (DIN 33466), utan pauser.',
   'tours.planner.waypoints': 'Ruttpunkter',
   'tours.planner.waypointLabel': 'Ruttpunkt {n}',
   'tours.durationMinutes': '{count} min',
@@ -168,5 +169,10 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Slå på Sätt punkter för att klicka ut punkter i terrängen.',
   'tours.terrain.clickToPlan':
     'Klicka i terrängen för att sätta ut punkter. När det finns en rutt kan du flyga över den och färga den efter lutning.',
+  'tours.ferrata.badge': 'Via ferrata {grade}',
+  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.crossingInfo': 'Rutten går {length} längs ”{name}”. Det kräver via ferrata-utrustning och erfarenhet.',
+  'tours.ferrata.crossingShort': 'Rutten går längs en via ferrata',
+  'tours.ferrata.waypointAtEnd': 'Början eller slutet av ”{name}”',
 };
 export default tours;

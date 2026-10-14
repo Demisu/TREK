@@ -161,5 +161,10 @@ const tours: TranslationStrings = {
   'tours.terrain.preloading': '正在載入地形：{percent} %',
   'tours.terrain.placeOff': '開啟「放置點」後，點擊地形即可放置點。',
   'tours.terrain.clickToPlan': '點擊地形來設定點。有了路線後，就可以飛越並依坡度著色。',
+  'tours.ferrata.badge': '岩釘路線 {grade}',
+  'tours.ferrata.badgeNoGrade': '岩釘路線',
+  'tours.ferrata.crossingInfo': '路線經過「{name}」{length}。需要岩釘路線裝備與經驗。',
+  'tours.ferrata.crossingShort': '路線經過岩釘路線',
+  'tours.ferrata.waypointAtEnd': '「{name}」的起點或終點',
 };
 export default tours;

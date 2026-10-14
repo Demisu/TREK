@@ -13,5 +13,7 @@ const ferratas: TranslationStrings = {
   'ferratas.unnamed': 'Adsız via ferrata',
   'ferratas.viewInOsm': "OpenStreetMap'te görüntüle",
   'ferratas.attribution': 'Veriler © OpenStreetMap katkıcıları',
+  'ferratas.adopt': 'Tura ekle',
+  'ferratas.onTour': 'Turun parçası',
 };
 export default ferratas;

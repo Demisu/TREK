@@ -72,7 +72,8 @@ const tours: TranslationStrings = {
   'tours.planner.walkingEstimated': 'Odhadovaný čas chůze',
   'tours.planner.walkingEstimatedShort': 'Odhad. čas chůze',
   'tours.planner.walkingEstimatedInfoLabel': 'Jak se čas chůze odhaduje',
-  'tours.planner.walkingEstimatedInfo': 'Vypočteno ze vzdálenosti, stoupání a klesání podle obvyklého pravidla pro čas chůze (DIN 33466), bez přestávek.',
+  'tours.planner.walkingEstimatedInfo':
+    'Vypočteno ze vzdálenosti, stoupání a klesání podle obvyklého pravidla pro čas chůze (DIN 33466), bez přestávek.',
   'tours.planner.waypoints': 'Průjezdní body',
   'tours.planner.waypointLabel': 'Bod {n}',
   'tours.durationMinutes': '{count} min',
@@ -169,5 +170,10 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Zapni Přidávat body a klikáním je přidávej do terénu.',
   'tours.terrain.clickToPlan':
     'Kliknutím do terénu přidáte body. Jakmile vznikne trasa, lze ji proletět a obarvit podle sklonu.',
+  'tours.ferrata.badge': 'Ferata {grade}',
+  'tours.ferrata.badgeNoGrade': 'Ferata',
+  'tours.ferrata.crossingInfo': 'Trasa vede {length} po „{name}“. Potřebujete feratové vybavení a zkušenosti.',
+  'tours.ferrata.crossingShort': 'Trasa vede po feratě',
+  'tours.ferrata.waypointAtEnd': 'Začátek nebo konec „{name}“',
 };
 export default tours;

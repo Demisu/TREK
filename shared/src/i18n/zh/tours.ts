@@ -161,5 +161,10 @@ const tours: TranslationStrings = {
   'tours.terrain.preloading': '正在加载地形：{percent} %',
   'tours.terrain.placeOff': '开启“放置点”后，点击地形即可放置点。',
   'tours.terrain.clickToPlan': '点击地形来设置点。有了路线后，就可以飞越并按坡度着色。',
+  'tours.ferrata.badge': '飞拉达 {grade}',
+  'tours.ferrata.badgeNoGrade': '飞拉达',
+  'tours.ferrata.crossingInfo': '路线经过“{name}”{length}。需要飞拉达装备和经验。',
+  'tours.ferrata.crossingShort': '路线经过飞拉达',
+  'tours.ferrata.waypointAtEnd': '“{name}”的起点或终点',
 };
 export default tours;

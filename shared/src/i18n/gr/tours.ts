@@ -71,11 +71,13 @@ const tours: TranslationStrings = {
   'tours.planner.safetyInfoLabel': 'Σχετικά με την ασφάλεια',
   'tours.planner.addPoint': 'Προσθήκη σημείου',
   'tours.planner.addPointActive': 'Κλικ στον χάρτη',
-  'tours.planner.emptyHint': 'Ενεργοποιήστε την «Προσθήκη σημείου» και κάντε κλικ στον χάρτη. Από δύο σημεία και πάνω, το TREK υπολογίζει τη διαδρομή.',
+  'tours.planner.emptyHint':
+    'Ενεργοποιήστε την «Προσθήκη σημείου» και κάντε κλικ στον χάρτη. Από δύο σημεία και πάνω, το TREK υπολογίζει τη διαδρομή.',
   'tours.planner.walkingEstimated': 'Εκτιμώμενος χρόνος πεζοπορίας',
   'tours.planner.walkingEstimatedShort': 'Εκτ. χρόνος',
   'tours.planner.walkingEstimatedInfoLabel': 'Πώς εκτιμάται ο χρόνος πεζοπορίας',
-  'tours.planner.walkingEstimatedInfo': 'Υπολογίζεται από την απόσταση, την ανάβαση και την κατάβαση με τον συνήθη κανόνα χρόνου πεζοπορίας (DIN 33466), χωρίς διαλείμματα.',
+  'tours.planner.walkingEstimatedInfo':
+    'Υπολογίζεται από την απόσταση, την ανάβαση και την κατάβαση με τον συνήθη κανόνα χρόνου πεζοπορίας (DIN 33466), χωρίς διαλείμματα.',
   'tours.planner.waypoints': 'Σημεία διέλευσης',
   'tours.planner.waypointLabel': 'Σημείο διέλευσης {n}',
   'tours.durationMinutes': '{count} λεπτά',
@@ -178,5 +180,11 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Ενεργοποίησε την Τοποθέτηση σημείων για να βάζεις σημεία στο έδαφος με κλικ.',
   'tours.terrain.clickToPlan':
     'Κάνε κλικ στο έδαφος για να ορίσεις σημεία. Μόλις υπάρξει διαδρομή, μπορείς να την πετάξεις και να τη χρωματίσεις κατά κλίση.',
+  'tours.ferrata.badge': 'Via ferrata {grade}',
+  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.crossingInfo':
+    'Η διαδρομή περνά {length} από το «{name}». Χρειάζεσαι εξοπλισμό via ferrata και εμπειρία.',
+  'tours.ferrata.crossingShort': 'Η διαδρομή περνά από via ferrata',
+  'tours.ferrata.waypointAtEnd': 'Αρχή ή τέλος του «{name}»',
 };
 export default tours;

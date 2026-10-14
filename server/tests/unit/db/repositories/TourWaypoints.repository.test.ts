@@ -1,6 +1,7 @@
 /**
  * `TourWaypointsRepository`: TW1 (`listForPlace`), TW2 (`listForTrip`), TW3
- * (`insertForPlace`) and TW4 (`deleteForPlace`).
+ * (`insertForPlace`) and TW4 (`deleteForPlace`), with a leg that follows a
+ * via ferrata's own line.
  */
 import { TourWaypoints } from '../../../../src/db/entities/TourWaypoints.entity';
 import type {
@@ -88,5 +89,41 @@ describe('TourWaypointsRepository', () => {
       [second.id, 2],
     ]);
     expect(rows[0]).toEqual({ place_id: place.id, lat: 47, lng: 11, role: 'start', sequence: 0 });
+  });
+
+  it('TWREPO-005: a fixed leg is stored with its waypoint and read back whole; routed legs carry none', async () => {
+    const { trip, place } = tourInTrip();
+    const fixed_leg = {
+      kind: 'ferrata' as const,
+      ref: 'way/23971675',
+      name: 'Alpspitz Ferrata',
+      geometry: [
+        [47.4343, 11.0501],
+        [47.432, 11.0485],
+        [47.4295, 11.0478],
+      ] as [number, number][],
+    };
+    await repo.insertForPlace(place.id, [
+      { lat: 47.4387, lng: 11.0523, role: 'start', sequence: 0 },
+      { lat: 47.4343, lng: 11.0501, role: 'via', sequence: 1, fixed_leg },
+      { lat: 47.4295, lng: 11.0478, role: 'end', sequence: 2 },
+    ]);
+
+    const points = await repo.listForPlace(place.id);
+    expect(points[1]).toEqual({ lat: 47.4343, lng: 11.0501, role: 'via', sequence: 1, fixed_leg });
+    expect(points[0]).not.toHaveProperty('fixed_leg');
+    expect(points[2]).not.toHaveProperty('fixed_leg');
+    expect((await repo.listForTrip(trip.id))[1]).toEqual({ place_id: place.id, ...points[1] });
+  });
+
+  it('TWREPO-006: a stored fixed leg that no longer decodes reads as a routed leg', async () => {
+    const { place } = tourInTrip();
+    await repo.insertForPlace(place.id, [
+      { lat: 47, lng: 11, role: 'start', sequence: 0 },
+      { lat: 47.1, lng: 11.1, role: 'end', sequence: 1 },
+    ]);
+    await t.em.nativeUpdate(TourWaypoints, { place: place.id, sequence: 0 }, { fixed_leg: '{"kind":"boat"}' });
+    t.clear();
+    expect((await repo.listForPlace(place.id))[0]).toEqual({ lat: 47, lng: 11, role: 'start', sequence: 0 });
   });
 });

@@ -19,7 +19,7 @@ import { useFerrataPaint } from './useFerrataPaint';
 const FERRATA_HIT_CLASS = 'trek-ferrata-hit';
 
 const ICON = L.divIcon({
-  html: ferrataIconSvg({ line: 'var(--text-primary)', casing: 'var(--bg-primary)' }),
+  html: ferrataIconSvg({ line: 'var(--map-ferrata)', casing: 'var(--map-ferrata-casing)' }),
   className: 'trek-ferrata-icon',
   iconSize: [FERRATA_ICON_SIZE, FERRATA_ICON_SIZE],
   iconAnchor: [FERRATA_ICON_SIZE / 2, FERRATA_ICON_SIZE / 2],

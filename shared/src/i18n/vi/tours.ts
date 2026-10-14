@@ -72,7 +72,8 @@ const tours: TranslationStrings = {
   'tours.planner.walkingEstimated': 'Thời gian đi bộ ước tính',
   'tours.planner.walkingEstimatedShort': 'TG ước tính',
   'tours.planner.walkingEstimatedInfoLabel': 'Cách ước tính thời gian đi bộ',
-  'tours.planner.walkingEstimatedInfo': 'Tính từ quãng đường, đoạn lên và đoạn xuống theo quy tắc thời gian đi bộ thông thường (DIN 33466), không tính nghỉ.',
+  'tours.planner.walkingEstimatedInfo':
+    'Tính từ quãng đường, đoạn lên và đoạn xuống theo quy tắc thời gian đi bộ thông thường (DIN 33466), không tính nghỉ.',
   'tours.planner.waypoints': 'Các điểm trên tuyến',
   'tours.planner.waypointLabel': 'Điểm {n}',
   'tours.durationMinutes': '{count} phút',
@@ -169,5 +170,10 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Bật Đặt điểm để nhấp đặt điểm trên địa hình.',
   'tours.terrain.clickToPlan':
     'Nhấp vào địa hình để đặt điểm. Khi đã có tuyến đường, bạn có thể bay qua và tô màu theo độ dốc.',
+  'tours.ferrata.badge': 'Via ferrata {grade}',
+  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.crossingInfo': 'Tuyến đi qua “{name}” dài {length}. Cần trang bị via ferrata và kinh nghiệm.',
+  'tours.ferrata.crossingShort': 'Tuyến đi qua một via ferrata',
+  'tours.ferrata.waypointAtEnd': 'Điểm đầu hoặc cuối của “{name}”',
 };
 export default tours;

@@ -1,6 +1,9 @@
+import { decodeJson, encodeJson } from '../../utils/json-column';
 import type { TourWaypoints } from '../entities/TourWaypoints.entity';
+import { TOUR_WAYPOINT_FIXED_LEG } from '../json-columns';
 import type { DB } from '../kysely/db';
 import { TrekRepository } from './_shared/trek-repository';
+import type { TourFixedLeg } from '@trek/shared';
 
 /** One saved routing control point of a tour, in route order. */
 export interface TourWaypointRow {
@@ -8,6 +11,23 @@ export interface TourWaypointRow {
   lng: number;
   role: 'start' | 'via' | 'end';
   sequence: number;
+  /** The leg to the next waypoint as a fixed line; absent for a routed leg. */
+  fixed_leg?: TourFixedLeg | null;
+}
+
+/** The row as stored, the fixed leg still JSON text. */
+interface StoredWaypoint {
+  lat: number;
+  lng: number;
+  role: TourWaypointRow['role'];
+  sequence: number;
+  fixed_leg: string | null;
+}
+
+/** A stored row as callers read it: the fixed leg decoded, and left out entirely for a routed leg. */
+function readWaypoint({ fixed_leg, ...point }: StoredWaypoint): TourWaypointRow {
+  const leg = decodeJson(TOUR_WAYPOINT_FIXED_LEG, fixed_leg, 'tour waypoint');
+  return leg ? { ...point, fixed_leg: leg } : point;
 }
 
 /** {@link TourWaypointRow} plus the tour it belongs to, as the trip copy reads it. */
@@ -30,37 +50,46 @@ export class TourWaypointsRepository extends TrekRepository<TourWaypoints> {
     return this.kysely<TourWaypointsKyselyDB>();
   }
 
-  /** TW1 — `SELECT lat, lng, role, sequence FROM tour_waypoints WHERE place_id = ? ORDER BY sequence`. */
+  /** TW1 — `SELECT lat, lng, role, sequence, fixed_leg FROM tour_waypoints WHERE place_id = ? ORDER BY sequence`. */
   async listForPlace(place_id: number): Promise<TourWaypointRow[]> {
-    return await this.db()
+    const rows = await this.db()
       .selectFrom('tour_waypoints')
-      .select(['lat', 'lng', 'role', 'sequence'])
+      .select(['lat', 'lng', 'role', 'sequence', 'fixed_leg'])
       .where('place_id', '=', place_id)
       .orderBy('sequence', 'asc')
       .execute();
+    return rows.map(readWaypoint);
   }
 
   /** TW2 — every waypoint of a trip's tours, for the trip copy to remap by place. */
   async listForTrip(trip_id: number): Promise<TourWaypointWithPlaceRow[]> {
-    return await this.db()
+    const rows = await this.db()
       .selectFrom('tour_waypoints as tw')
       .innerJoin('places as p', 'p.id', 'tw.place_id')
-      .select(['tw.place_id', 'tw.lat', 'tw.lng', 'tw.role', 'tw.sequence'])
+      .select(['tw.place_id', 'tw.lat', 'tw.lng', 'tw.role', 'tw.sequence', 'tw.fixed_leg'])
       .where('p.trip_id', '=', trip_id)
       .orderBy('tw.place_id', 'asc')
       .orderBy('tw.sequence', 'asc')
       .execute();
+    return rows.map(({ place_id, ...point }) => ({ place_id, ...readWaypoint(point) }));
   }
 
   /**
-   * TW3 — `INSERT INTO tour_waypoints (place_id, lat, lng, role, sequence)
+   * TW3 — `INSERT INTO tour_waypoints (place_id, lat, lng, role, sequence, fixed_leg)
    * VALUES (...)` for each point. The caller owns the transaction: a create
    * writes the tour first, an edit clears the old points first.
    */
   async insertForPlace(place_id: number, waypoints: readonly TourWaypointRow[]): Promise<void> {
     if (waypoints.length === 0) return;
     await this.insertMany(
-      waypoints.map((w) => ({ place: place_id, lat: w.lat, lng: w.lng, role: w.role, sequence: w.sequence })),
+      waypoints.map((w) => ({
+        place: place_id,
+        lat: w.lat,
+        lng: w.lng,
+        role: w.role,
+        sequence: w.sequence,
+        fixed_leg: w.fixed_leg ? encodeJson(TOUR_WAYPOINT_FIXED_LEG, w.fixed_leg) : null,
+      })),
     );
   }
 

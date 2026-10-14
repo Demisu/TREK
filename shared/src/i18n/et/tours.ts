@@ -68,11 +68,13 @@ const tours: TranslationStrings = {
   'tours.planner.safetyInfoLabel': 'Ohutusest',
   'tours.planner.addPoint': 'Lisa punkt',
   'tours.planner.addPointActive': 'Klõpsa kaardil',
-  'tours.planner.emptyHint': 'Lülita sisse „Lisa punkt“ ja klõpsa kaardil. Alates kahest punktist arvutab TREK marsruudi.',
+  'tours.planner.emptyHint':
+    'Lülita sisse „Lisa punkt“ ja klõpsa kaardil. Alates kahest punktist arvutab TREK marsruudi.',
   'tours.planner.walkingEstimated': 'Hinnanguline kõndimisaeg',
   'tours.planner.walkingEstimatedShort': 'Hinn. kõndimisaeg',
   'tours.planner.walkingEstimatedInfoLabel': 'Kuidas kõndimisaega hinnatakse',
-  'tours.planner.walkingEstimatedInfo': 'Arvutatud vahemaa, tõusu ja laskumise põhjal tavapärase matkaaja reegli (DIN 33466) järgi, ilma pausideta.',
+  'tours.planner.walkingEstimatedInfo':
+    'Arvutatud vahemaa, tõusu ja laskumise põhjal tavapärase matkaaja reegli (DIN 33466) järgi, ilma pausideta.',
   'tours.planner.waypoints': 'Teekonnapunktid',
   'tours.planner.waypointLabel': 'Teekonnapunkt {n}',
   'tours.durationMinutes': '{count} min',
@@ -169,5 +171,11 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Lülita sisse Lisa punkte, et maastikule klõpsates punkte lisada.',
   'tours.terrain.clickToPlan':
     'Klõpsa maastikul, et punkte lisada. Kui marsruut on olemas, saab selle üle lennata ja kalde järgi värvida.',
+  'tours.ferrata.badge': 'Via ferrata {grade}',
+  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.crossingInfo':
+    'Marsruut läbib {length} rajal „{name}“. Selleks on vaja via ferrata varustust ja kogemust.',
+  'tours.ferrata.crossingShort': 'Marsruut läbib via ferrata raja',
+  'tours.ferrata.waypointAtEnd': '„{name}“ algus või lõpp',
 };
 export default tours;

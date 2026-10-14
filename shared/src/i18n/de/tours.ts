@@ -69,11 +69,13 @@ const tours: TranslationStrings = {
   'tours.planner.safetyInfoLabel': 'Hinweis zur Sicherheit',
   'tours.planner.addPoint': 'Punkt hinzufügen',
   'tours.planner.addPointActive': 'Auf Karte klicken',
-  'tours.planner.emptyHint': 'Schalte „Punkt hinzufügen“ ein und klicke auf die Karte. Ab zwei Punkten berechnet TREK die Route.',
+  'tours.planner.emptyHint':
+    'Schalte „Punkt hinzufügen“ ein und klicke auf die Karte. Ab zwei Punkten berechnet TREK die Route.',
   'tours.planner.walkingEstimated': 'Geschätzte Gehzeit',
   'tours.planner.walkingEstimatedShort': 'Gesch. Gehzeit',
   'tours.planner.walkingEstimatedInfoLabel': 'Wie die Gehzeit geschätzt wird',
-  'tours.planner.walkingEstimatedInfo': 'Nach der üblichen Wanderzeit-Regel (DIN 33466) aus Strecke, Auf- und Abstieg berechnet, ohne Pausen.',
+  'tours.planner.walkingEstimatedInfo':
+    'Nach der üblichen Wanderzeit-Regel (DIN 33466) aus Strecke, Auf- und Abstieg berechnet, ohne Pausen.',
   'tours.planner.waypoints': 'Wegpunkte',
   'tours.planner.waypointLabel': 'Wegpunkt {n}',
   'tours.durationMinutes': '{count} Min.',
@@ -171,6 +173,12 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Schalte „Punkte setzen“ ein, um Punkte ins Gelände zu klicken.',
   'tours.terrain.clickToPlan':
     'Klicke ins Gelände, um Punkte zu setzen. Sobald eine Route steht, lässt sie sich abfliegen und nach Steigung einfärben.',
+  'tours.ferrata.badge': 'Klettersteig {grade}',
+  'tours.ferrata.badgeNoGrade': 'Klettersteig',
+  'tours.ferrata.crossingInfo':
+    'Die Route führt {length} über „{name}“. Dafür brauchst du Klettersteigausrüstung und Erfahrung.',
+  'tours.ferrata.crossingShort': 'Die Route führt über einen Klettersteig',
+  'tours.ferrata.waypointAtEnd': 'Anfang oder Ende von „{name}“',
 };
 
 export default tours;

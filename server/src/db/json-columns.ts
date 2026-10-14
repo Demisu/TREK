@@ -1,5 +1,5 @@
 import type { JsonColumn } from '../utils/json-column';
-import { FERRATAS_RESULT_CAP, ferrataSchema, type Ferrata } from '@trek/shared';
+import { FERRATAS_RESULT_CAP, ferrataSchema, tourFixedLegSchema, type Ferrata, type TourFixedLeg } from '@trek/shared';
 
 import { z } from 'zod';
 
@@ -122,5 +122,16 @@ export interface FerrataTilePayload {
 export const FERRATA_TILE_PAYLOAD: JsonColumn<FerrataTilePayload | null> = {
   column: 'ferrata_tiles.payload',
   schema: z.object({ ferratas: z.array(ferrataSchema).max(FERRATAS_RESULT_CAP), truncated: z.boolean() }).nullable(),
+  fallback: () => null,
+};
+
+/**
+ * A tour leg taken as a fixed line (a via ferrata's own line from OSM) rather
+ * than routed. A row that does not decode reads as a routed leg, which the
+ * editor then plans again.
+ */
+export const TOUR_WAYPOINT_FIXED_LEG: JsonColumn<TourFixedLeg | null> = {
+  column: 'tour_waypoints.fixed_leg',
+  schema: tourFixedLegSchema.nullable(),
   fallback: () => null,
 };

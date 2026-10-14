@@ -17,5 +17,7 @@ const ferratas: TranslationStrings = {
   'ferratas.unnamed': 'مسار تسلق حديدي بلا اسم',
   'ferratas.viewInOsm': 'عرض في OpenStreetMap',
   'ferratas.attribution': 'البيانات © مساهمو OpenStreetMap',
+  'ferratas.adopt': 'أضف إلى الجولة',
+  'ferratas.onTour': 'جزء من الجولة',
 };
 export default ferratas;

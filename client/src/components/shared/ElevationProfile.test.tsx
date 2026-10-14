@@ -154,4 +154,14 @@ describe('ElevationProfile', () => {
     expect(prepared).toHaveBeenCalledTimes(2)
     unmount()
   })
+
+  it('bands the stretches it is given behind the line, placed by distance along the route', () => {
+    const { container } = render(
+      <ElevationProfile samples={samples} color="currentColor" gradientId="banded" ariaLabel="Elevation profile" bands={[{ fromM: 150, toM: 300 }]} />,
+    )
+    const band = container.querySelector('[data-profile-band]')
+    expect(band).toHaveAttribute('x', '220')
+    expect(band).toHaveAttribute('width', '220')
+    expect(band).toHaveAttribute('fill', 'var(--map-ferrata)')
+  })
 })

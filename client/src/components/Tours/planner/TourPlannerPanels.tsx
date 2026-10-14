@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { TourListItem } from '@trek/shared'
-import { AlertTriangle, ArrowLeft, Circle, Info, Loader2, Plus, Redo2, RotateCcw, Save, Trash2, Undo2 } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Circle, Info, Loader2, Route, Plus, Redo2, RotateCcw, Save, Trash2, Undo2 } from 'lucide-react'
 import type { Day } from '../../../types'
 import { useTranslation } from '../../../i18n'
 import { useSettingsStore } from '../../../store/settingsStore'
+import { useTourFerrataCrossingStore } from '../../../store/tourFerrataCrossingStore'
 import { formatDistance, formatElevation } from '../../../utils/units'
 import ConfirmDialog from '../../shared/ConfirmDialog'
 import { DialogButton, NEUTRAL_TINT, fs } from '../../shared/DialogShell'
@@ -58,6 +59,41 @@ function RailTitle({ title, sub, aside }: { title: string; sub?: ReactNode; asid
   )
 }
 
+/**
+ * The via ferratas the tour climbs, one warning badge each over the overview,
+ * the stretch and what it asks of a hiker in its tooltip. The router takes a
+ * ferrata like any trail once the difficulty allows alpine routes, so this is
+ * the one place that says so.
+ */
+function FerrataCrossingBadges() {
+  const { t } = useTranslation()
+  const unit = useSettingsStore(state => state.settings.distance_unit)
+  const crossings = useTourFerrataCrossingStore(state => state.crossings)
+  if (crossings.length === 0) return null
+  const byFerrata = new Map<string, { name: string; grade: string | null; metres: number }>()
+  for (const crossing of crossings) {
+    const entry = byFerrata.get(crossing.id) ?? { name: crossing.name, grade: crossing.grade, metres: 0 }
+    entry.metres += crossing.toM - crossing.fromM
+    byFerrata.set(crossing.id, entry)
+  }
+  return (
+    <div data-testid="tour-ferrata-crossings" className="mb-2.5 flex min-w-0 flex-wrap gap-1">
+      {[...byFerrata].map(([id, ferrata]) => {
+        const info = t('tours.ferrata.crossingInfo', { length: formatDistance(ferrata.metres / 1000, unit ?? 'metric'), name: ferrata.name })
+        return (
+          <Tooltip key={id} label={info}>
+            <span aria-label={info} className="inline-flex min-w-0">
+              <SoftPill tone="warning" icon={<AlertTriangle size={10} strokeWidth={2.2} className="flex-none" />}>
+                <span className="min-w-0 truncate">{ferrata.grade ? t('tours.ferrata.badge', { grade: ferrata.grade }) : t('tours.ferrata.badgeNoGrade')}</span>
+              </SoftPill>
+            </span>
+          </Tooltip>
+        )
+      })}
+    </div>
+  )
+}
+
 /** A status as a small round icon beside the title, its words in the tooltip and for a screen reader. */
 function StatusDot({ label, tone, children }: { label: string; tone: 'neutral' | 'info' | 'warning'; children: ReactNode }) {
   const look = tone === 'warning' ? 'text-warning' : tone === 'info' ? 'text-info' : 'text-content-muted'
@@ -79,9 +115,10 @@ function RailStatusBadges({ planner }: { planner: TourPlannerController }) {
   const { t } = useTranslation()
   const statusKey = planner.isSaving ? STATUS_KEY.saving : STATUS_KEY[planner.status]
   const restored = planner.draftRestored && planner.hasUnsavedChanges
+  const onFerrata = useTourFerrataCrossingStore(state => state.crossings.length > 0)
   const failed = planner.error === 'save'
   const canRetry = planner.status === 'routing-failed' || planner.status === 'elevation-failed'
-  if (!restored && !statusKey && !failed) return null
+  if (!restored && !statusKey && !failed && !onFerrata) return null
   const warning = planner.error != null || canRetry
   const statusLabel = failed ? t('tours.planner.status.saveFailed') : statusKey ? t(statusKey) : null
   const busy = planner.isSaving || planner.status === 'routing' || planner.status === 'enriching-elevation'
@@ -90,6 +127,11 @@ function RailStatusBadges({ planner }: { planner: TourPlannerController }) {
       {restored && (
         <StatusDot label={t('tours.planner.restored')} tone="info">
           <RotateCcw size={11} strokeWidth={2.2} />
+        </StatusDot>
+      )}
+      {onFerrata && (
+        <StatusDot label={t('tours.ferrata.crossingShort')} tone="warning">
+          <Route size={11} strokeWidth={2.2} />
         </StatusDot>
       )}
       {statusLabel && (
@@ -266,6 +308,8 @@ function ElevationSection({ id, samples, gradientId, planner }: {
 }) {
   const { t } = useTranslation()
   const distanceUnit = useSettingsStore(state => state.settings.distance_unit)
+  // The stretches that climb a via ferrata, banded behind the line in the ferrata violet.
+  const crossings = useTourFerrataCrossingStore(state => state.crossings)
   if (samples.length < 2) {
     return (
       <TourSection label={t('tours.planner.inspector.elevation')}>
@@ -288,6 +332,7 @@ function ElevationSection({ id, samples, gradientId, planner }: {
           focus={planner.routeProfileFocus}
           onFocusChange={planner.setRouteProfileFocus}
           formatFocus={focus => profileFocusLabel(focus, t, distanceUnit)}
+          bands={crossings}
         />}
       </div>
     </TourSection>
@@ -396,6 +441,7 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
         {hasRoute && (
           <div data-testid="tour-planner-overview" className="flex flex-col gap-4 rounded-[14px] border border-edge-faint bg-surface-secondary p-3">
             <TourSection label={t('tours.planner.inspector.title')}>
+              <FerrataCrossingBadges />
               <TourMetricFields analysis={routeAnalysis} unit={distanceUnit} extra={tourTimeFields} columns={2} />
             </TourSection>
             {routeAnalysis && (

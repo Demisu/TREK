@@ -12,5 +12,7 @@ const ferratas: TranslationStrings = {
   'ferratas.unnamed': '未命名的飛拉達',
   'ferratas.viewInOsm': '在 OpenStreetMap 中檢視',
   'ferratas.attribution': '資料 © OpenStreetMap 貢獻者',
+  'ferratas.adopt': '加入行程',
+  'ferratas.onTour': '行程的一部分',
 };
 export default ferratas;

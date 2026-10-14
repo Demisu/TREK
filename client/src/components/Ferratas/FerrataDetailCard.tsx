@@ -1,4 +1,4 @@
-import { ExternalLink, MoveHorizontal, Route, X } from 'lucide-react';
+import { Check, ExternalLink, MapPinPlus, MoveHorizontal, Route, X } from 'lucide-react';
 
 import type { Ferrata } from '@trek/shared';
 
@@ -31,11 +31,17 @@ export default function FerrataDetailCard({
   group,
   segment,
   onClose,
+  onAdopt,
+  onTour = false,
   width,
 }: {
   group: FerrataGroup;
   segment: Ferrata;
   onClose?: () => void;
+  /** Puts the ferrata onto the tour being planned; absent where the tour cannot be edited. */
+  onAdopt?: (group: FerrataGroup) => void;
+  /** The tour on the map already climbs this ferrata: the card says so instead of offering it again. */
+  onTour?: boolean;
   /** Set when the card stands on another control and takes its width. */
   width?: number;
 }) {
@@ -81,6 +87,26 @@ export default function FerrataDetailCard({
           </SoftPill>
         )}
       </div>
+      {onTour ? (
+        <div className="mt-3 flex" data-testid="ferrata-on-tour">
+          <SoftPill tone="success" icon={<Check size={11} strokeWidth={2.4} className="flex-none" />}>
+            {t('ferratas.onTour')}
+          </SoftPill>
+        </div>
+      ) : (
+        onAdopt && (
+          <button
+            type="button"
+            onClick={() => onAdopt(group)}
+            data-testid="ferrata-adopt"
+            className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-full bg-accent px-3 py-1.5 font-semibold text-accent-text shadow-sm transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+            style={fs(12, 'body')}
+          >
+            <MapPinPlus size={13} strokeWidth={2.2} aria-hidden="true" />
+            {t('ferratas.adopt')}
+          </button>
+        )
+      )}
       <a
         href={ferrataOsmUrl(segment)}
         target="_blank"

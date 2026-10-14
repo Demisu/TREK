@@ -147,3 +147,42 @@ describe('Tour informational website', () => {
     expect(() => tourCreateRequestSchema.parse({ ...baseRequest, break_additional_minutes: value })).toThrow();
   });
 });
+
+describe('Tours fixed legs', () => {
+  const leg = (from: [number, number], to: [number, number]) => ({
+    kind: 'ferrata' as const,
+    ref: 'way/1',
+    name: 'Via A',
+    geometry: [from, [(from[0] + to[0]) / 2, (from[1] + to[1]) / 2] as [number, number], to],
+  });
+
+  it('accepts a fixed leg that runs from its waypoint to the next one', () => {
+    const request = {
+      ...baseRequest,
+      waypoints: [
+        { lat: 48, lng: 11, role: 'start' as const, sequence: 0, fixed_leg: leg([48, 11], [48.01, 11.02]) },
+        { lat: 48.01, lng: 11.02, role: 'end' as const, sequence: 1 },
+      ],
+    };
+    expect(tourCreateRequestSchema.parse(request).waypoints[0]?.fixed_leg?.ref).toBe('way/1');
+  });
+
+  it('refuses a fixed leg that does not join its waypoints, or hangs off the last one', () => {
+    const elsewhere = {
+      ...baseRequest,
+      waypoints: [
+        { lat: 48, lng: 11, role: 'start' as const, sequence: 0, fixed_leg: leg([47, 10], [48.01, 11.02]) },
+        { lat: 48.01, lng: 11.02, role: 'end' as const, sequence: 1 },
+      ],
+    };
+    expect(() => tourCreateRequestSchema.parse(elsewhere)).toThrow(/fixed leg/);
+    const dangling = {
+      ...baseRequest,
+      waypoints: [
+        { lat: 48, lng: 11, role: 'start' as const, sequence: 0 },
+        { lat: 48.01, lng: 11.02, role: 'end' as const, sequence: 1, fixed_leg: leg([48.01, 11.02], [48.02, 11.03]) },
+      ],
+    };
+    expect(() => tourCreateRequestSchema.parse(dangling)).toThrow(/fixed leg/);
+  });
+});

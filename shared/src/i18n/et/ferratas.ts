@@ -13,5 +13,7 @@ const ferratas: TranslationStrings = {
   'ferratas.unnamed': 'Nimeta via ferrata',
   'ferratas.viewInOsm': 'Vaata OpenStreetMapis',
   'ferratas.attribution': 'Andmed © OpenStreetMapi kaastöötajad',
+  'ferratas.adopt': 'Lisa matkale',
+  'ferratas.onTour': 'Matka osa',
 };
 export default ferratas;

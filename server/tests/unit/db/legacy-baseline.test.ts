@@ -44,6 +44,7 @@ const UNNUMBERED = [
   'Migration20200101043000_tour_break_additional_duration',
   'Migration20200101043100_an_imported_tour_has_no_hiking_difficulty',
   'Migration20200101043200_via_ferrata_tiles_outlive_a_restart',
+  'Migration20200101043300_a_tour_leg_can_follow_a_via_ferrata',
 ];
 // The last step the positional runner ever had; planLegacyBaseline refuses a
 // schema_version past it.

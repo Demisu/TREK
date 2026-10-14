@@ -12,5 +12,7 @@ const ferratas: TranslationStrings = {
   'ferratas.unnamed': 'เส้นทางเวียเฟอร์ราตาไม่มีชื่อ',
   'ferratas.viewInOsm': 'ดูใน OpenStreetMap',
   'ferratas.attribution': 'ข้อมูล © ผู้ร่วมให้ข้อมูล OpenStreetMap',
+  'ferratas.adopt': 'เพิ่มลงในทัวร์',
+  'ferratas.onTour': 'เป็นส่วนหนึ่งของทัวร์',
 };
 export default ferratas;

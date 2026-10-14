@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { MAX_PLANNED_TOUR_DURATION_MINUTES, tourWebsiteSchema, type TourCreateResponse, type TourListItem, type TourWaypointRole, type TourMaxHikingDifficulty } from '@trek/shared'
+import { MAX_PLANNED_TOUR_DURATION_MINUTES, tourWebsiteSchema, type TourCreateResponse, type TourFixedLeg, type TourListItem, type TourWaypointRole, type TourMaxHikingDifficulty } from '@trek/shared'
 import { tourRepo } from '../../../repo/tourRepo'
 import { randomId } from '../../../utils/randomId'
 import type { TourBaseLayer } from '../../Map/MapLayerSwitcher'
 import { analyzeRouteGeometry, type RouteProfileFocus } from '../../../utils/routeGeometry'
 import { enrichTourElevations, routeWalkingTour, type TourElevationPoint } from './tourRouting'
+import { keepJoinedFixedLegs } from './tourFixedLegs'
 import { hikingTimeMinutes } from '../hikingTime'
 import { useTourPermissions, type TourPermissionProps } from '../useTourPermissions'
 
@@ -13,6 +14,8 @@ export interface TourPlannerWaypoint {
   lat: number
   lng: number
   role: TourWaypointRole
+  /** The leg to the next waypoint as a fixed line (a via ferrata on the tour), not routed. */
+  fixedLeg?: TourFixedLeg | null
 }
 
 export type TourPlannerStatus =
@@ -51,14 +54,14 @@ function hasCompleteElevation(points: TourElevationPoint[] | null): points is [n
 }
 
 export function normalizePlannerWaypoints(points: TourPlannerWaypoint[]): TourPlannerWaypoint[] {
-  return points.map((point, index) => ({
+  return keepJoinedFixedLegs(points).map((point, index) => ({
     ...point,
     role: index === 0 ? 'start' : index === points.length - 1 ? 'end' : 'via',
   }))
 }
 
 export function tourWaypointKey(points: TourPlannerWaypoint[]): string {
-  return points.map(point => `${point.id}:${point.lat.toFixed(7)}:${point.lng.toFixed(7)}`).join('|')
+  return points.map(point => `${point.id}:${point.lat.toFixed(7)}:${point.lng.toFixed(7)}${point.fixedLeg ? `:${point.fixedLeg.ref}` : ''}`).join('|')
 }
 
 function sameWaypointSnapshot(a: TourPlannerWaypoint[], b: TourPlannerWaypoint[]): boolean {
@@ -280,6 +283,25 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     const id = randomId()
     commitWaypoints(current => [...current, { id, lat, lng, role: 'end' }])
     setSelectedWaypointId(id)
+  }, [commitWaypoints])
+
+  /**
+   * A fixed leg onto the end of the tour, as one step of the history: a
+   * waypoint at the line's start that carries it, and one at its end.
+   */
+  const appendFixedLeg = useCallback((leg: TourFixedLeg) => {
+    if (!editPermissionRef.current) return
+    const first = leg.geometry[0]
+    const last = leg.geometry[leg.geometry.length - 1]
+    if (!first || !last) return
+    const startId = randomId()
+    const endId = randomId()
+    commitWaypoints(current => [
+      ...current,
+      { id: startId, lat: Number(first[0]), lng: Number(first[1]), role: 'via', fixedLeg: leg },
+      { id: endId, lat: Number(last[0]), lng: Number(last[1]), role: 'end' },
+    ])
+    setSelectedWaypointId(endId)
   }, [commitWaypoints])
 
   const setWaypointPosition = useCallback((id: string, lat: number, lng: number) => {
@@ -562,6 +584,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
         lat: point.lat,
         lng: point.lng,
         role: point.role,
+        ...(point.fixed_leg ? { fixedLeg: point.fixed_leg } : {}),
       })))
       localStorage.removeItem(storageKey)
       contextGenerationRef.current += 1
@@ -716,6 +739,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
         lng: point.lng,
         role: point.role,
         sequence,
+        ...(point.fixedLeg ? { fixed_leg: point.fixedLeg } : {}),
       })),
       max_hiking_difficulty: maxHikingDifficulty,
       duration_seconds: walkingDurationMinutes === null ? durationSeconds : walkingDurationMinutes * 60,
@@ -770,7 +794,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     breakAdditionalMinutes, setBreakAdditionalMinutes, breakAdditionalInvalid,
     walkingDurationMinutes, plannedTotalMinutes, plannedTotalInvalid,
     waypoints, selectedWaypointId, setSelectedWaypointId,
-    addWaypoint, setWaypointPosition, removeWaypoint, moveWaypoint, reorderWaypoint,
+    addWaypoint, appendFixedLeg, setWaypointPosition, removeWaypoint, moveWaypoint, reorderWaypoint,
     undo, redo, canUndo: history.past.length > 0, canRedo: history.future.length > 0,
     status, error, retry, isSaving,
     route, enrichedGeometry, routeAnalysis, distanceMeters, durationSeconds,

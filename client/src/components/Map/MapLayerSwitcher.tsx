@@ -1,6 +1,7 @@
-import { Loader2, Map as MapIcon, MapPinPlus, Mountain, MountainSnow, Rotate3d, Satellite } from 'lucide-react'
+import { Loader2, Map as MapIcon, MapPinPlus, Mountain, Rotate3d, Satellite } from 'lucide-react'
 import type { CSSProperties } from 'react'
 import { useTranslation } from '../../i18n'
+import { FerrataLineIcon } from '../Ferratas/FerrataGlyph'
 import type { FerrataMapLayer } from '../Ferratas/useFerrataMapLayer'
 import type { FerrataStatus } from '../Ferratas/useTripFerratas'
 import { fs } from '../shared/DialogShell'
@@ -125,7 +126,7 @@ function FerrataToggle({ layer, compact = false }: { layer: FerrataMapLayer; com
           className={active ? 'bg-accent text-accent-text' : 'text-content-muted'}
           style={segmentStyle(active)}
         >
-          <MountainSnow size={15} strokeWidth={2} />
+          <FerrataLineIcon size={15} strokeWidth={2} />
           {!compact && <span>{t('ferratas.layer')}</span>}
           {live && (
             <span

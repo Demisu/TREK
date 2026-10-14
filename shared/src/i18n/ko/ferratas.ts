@@ -12,5 +12,7 @@ const ferratas: TranslationStrings = {
   'ferratas.unnamed': '이름 없는 비아 페라타',
   'ferratas.viewInOsm': 'OpenStreetMap에서 보기',
   'ferratas.attribution': '데이터 © OpenStreetMap 기여자',
+  'ferratas.adopt': '투어에 추가',
+  'ferratas.onTour': '투어의 일부',
 };
 export default ferratas;

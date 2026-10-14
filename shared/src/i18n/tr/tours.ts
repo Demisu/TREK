@@ -72,7 +72,8 @@ const tours: TranslationStrings = {
   'tours.planner.walkingEstimated': 'Tahmini yürüyüş süresi',
   'tours.planner.walkingEstimatedShort': 'Tahm. süre',
   'tours.planner.walkingEstimatedInfoLabel': 'Yürüyüş süresi nasıl tahmin edilir',
-  'tours.planner.walkingEstimatedInfo': 'Mesafe, çıkış ve inişten olağan yürüyüş süresi kuralıyla (DIN 33466) hesaplanır, molalar dahil değildir.',
+  'tours.planner.walkingEstimatedInfo':
+    'Mesafe, çıkış ve inişten olağan yürüyüş süresi kuralıyla (DIN 33466) hesaplanır, molalar dahil değildir.',
   'tours.planner.waypoints': 'Rota noktaları',
   'tours.planner.waypointLabel': 'Rota noktası {n}',
   'tours.durationMinutes': '{count} dk',
@@ -169,5 +170,11 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Araziye tıklayarak nokta koymak için Nokta koy aracını aç.',
   'tours.terrain.clickToPlan':
     'Nokta eklemek için araziye tıklayın. Bir rota oluştuğunda üzerinden uçabilir ve eğime göre renklendirebilirsiniz.',
+  'tours.ferrata.badge': 'Via ferrata {grade}',
+  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.crossingInfo':
+    'Rota {length} boyunca “{name}” üzerinden geçiyor. Bunun için via ferrata ekipmanı ve deneyim gerekir.',
+  'tours.ferrata.crossingShort': 'Rota bir via ferrata üzerinden geçiyor',
+  'tours.ferrata.waypointAtEnd': '“{name}” başlangıcı veya sonu',
 };
 export default tours;

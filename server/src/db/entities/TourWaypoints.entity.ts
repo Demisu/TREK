@@ -11,6 +11,7 @@ export class TourWaypoints {
   lng!: number;
   role!: string;
   sequence!: number;
+  fixed_leg?: string | null;
 }
 
 export const TourWaypointsSchema = defineEntity({
@@ -25,5 +26,6 @@ export const TourWaypointsSchema = defineEntity({
     lng: p.double(),
     role: p.text(),
     sequence: p.integer(),
+    fixed_leg: p.text().nullable(),
   },
 });

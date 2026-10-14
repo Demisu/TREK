@@ -11,10 +11,12 @@ interface ElevationProfileProps {
   focus?: RouteProfileFocus | null
   onFocusChange?: (focus: RouteProfileFocus | null) => void
   formatFocus?: (focus: RouteProfileFocus) => string
+  /** Stretches to mark behind the line, in metres along the route (the via ferratas a tour climbs). */
+  bands?: ReadonlyArray<{ fromM: number; toM: number }>
 }
 
 /** A route profile whose horizontal axis represents travelled distance. */
-export default function ElevationProfile({ samples, color, height = 100, gradientId, ariaLabel, focus = null, onFocusChange, formatFocus }: ElevationProfileProps) {
+export default function ElevationProfile({ samples, color, height = 100, gradientId, ariaLabel, focus = null, onFocusChange, formatFocus, bands }: ElevationProfileProps) {
   const [keyboardAnnouncement, setKeyboardAnnouncement] = useState('')
   const pointerFrameRef = useRef<number | null>(null)
   const pendingPointerDistanceRef = useRef<number | null>(null)
@@ -117,6 +119,11 @@ export default function ElevationProfile({ samples, color, height = 100, gradien
           <stop offset="100%" stopColor={color} stopOpacity="0.02" />
         </linearGradient>
       </defs>
+      {bands?.map(band => (
+        <rect key={`${band.fromM}-${band.toM}`} data-profile-band="true" x={(band.fromM / chart.maxDistance) * width} y={0}
+          width={Math.max(1, ((band.toM - band.fromM) / chart.maxDistance) * width)} height={height}
+          fill="var(--map-ferrata)" fillOpacity={0.16} />
+      ))}
       <path d={chart.areaPath} fill={`url(#${gradientId})`} />
       <path d={chart.linePath} fill="none" stroke={color} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
       {focusX != null && (

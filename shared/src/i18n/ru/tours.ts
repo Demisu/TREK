@@ -71,11 +71,13 @@ const tours: TranslationStrings = {
   'tours.planner.safetyInfoLabel': 'О безопасности',
   'tours.planner.addPoint': 'Добавить точку',
   'tours.planner.addPointActive': 'Нажмите на карту',
-  'tours.planner.emptyHint': 'Включите «Добавить точку» и нажмите на карту. Начиная с двух точек TREK рассчитает маршрут.',
+  'tours.planner.emptyHint':
+    'Включите «Добавить точку» и нажмите на карту. Начиная с двух точек TREK рассчитает маршрут.',
   'tours.planner.walkingEstimated': 'Примерное время в пути',
   'tours.planner.walkingEstimatedShort': 'Прим. время',
   'tours.planner.walkingEstimatedInfoLabel': 'Как оценивается время в пути',
-  'tours.planner.walkingEstimatedInfo': 'Рассчитано по расстоянию, подъёму и спуску по обычному правилу времени в пути (DIN 33466), без перерывов.',
+  'tours.planner.walkingEstimatedInfo':
+    'Рассчитано по расстоянию, подъёму и спуску по обычному правилу времени в пути (DIN 33466), без перерывов.',
   'tours.planner.waypoints': 'Путевые точки',
   'tours.planner.waypointLabel': 'Путевая точка {n}',
   'tours.durationMinutes': '{count} мин',
@@ -174,5 +176,11 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Включите «Ставить точки», чтобы ставить точки на рельефе щелчком.',
   'tours.terrain.clickToPlan':
     'Нажмите на рельеф, чтобы поставить точки. Когда появится маршрут, его можно облететь и раскрасить по уклону.',
+  'tours.ferrata.badge': 'Виа феррата {grade}',
+  'tours.ferrata.badgeNoGrade': 'Виа феррата',
+  'tours.ferrata.crossingInfo':
+    'Маршрут проходит {length} по «{name}». Для этого нужны снаряжение для виа ферраты и опыт.',
+  'tours.ferrata.crossingShort': 'Маршрут проходит по виа феррате',
+  'tours.ferrata.waypointAtEnd': 'Начало или конец «{name}»',
 };
 export default tours;

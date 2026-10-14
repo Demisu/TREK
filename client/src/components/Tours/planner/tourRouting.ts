@@ -1,5 +1,7 @@
+import type { TourFixedLeg } from '@trek/shared'
 import type { Waypoint } from '../../../types'
 import { valhallaBase, valhallaRun, valhallaTurn } from '../../Map/valhallaRoute'
+import { lineLengthM } from './tourFixedLegs'
 
 export interface TourRouteResult {
   coordinates: [number, number][]
@@ -13,21 +15,55 @@ export interface TourRouteResult {
  */
 const TOURS_MAX_HIKING_DIFFICULTY = 2
 
-/** Tours deliberately bypasses the OSRM-first RouteCalculator. */
+/** How fast a fixed leg is reckoned until the heights are in (a via ferrata climbs slowly). */
+const FIXED_LEG_KM_PER_HOUR = 1.5
+
+/**
+ * Tours deliberately bypasses the OSRM-first RouteCalculator. A waypoint whose
+ * leg is fixed (a via ferrata on the tour) hands its own line over for that
+ * leg; the router only plans the runs between fixed legs, one request each.
+ */
 export async function routeWalkingTour(
-  waypoints: Pick<Waypoint, 'lat' | 'lng'>[],
+  waypoints: Array<Pick<Waypoint, 'lat' | 'lng'> & { fixedLeg?: TourFixedLeg | null }>,
   signal?: AbortSignal,
   maxHikingDifficulty = TOURS_MAX_HIKING_DIFFICULTY,
 ): Promise<TourRouteResult | null> {
-  const run = await valhallaRun(waypoints, 'walking', [], signal, {
-    max_hiking_difficulty: maxHikingDifficulty,
-  })
-  if (!run) return null
-  return {
-    coordinates: run.total.coordinates,
-    distanceMeters: run.total.distance,
-    durationSeconds: run.total.duration,
+  const lines: [number, number][][] = []
+  let distanceMeters = 0
+  let durationSeconds = 0
+  const routeRun = async (run: Array<Pick<Waypoint, 'lat' | 'lng'>>) => {
+    if (run.length < 2) return true
+    const routed = await valhallaRun(run.map(({ lat, lng }) => ({ lat, lng })), 'walking', [], signal, {
+      max_hiking_difficulty: maxHikingDifficulty,
+    })
+    if (!routed) return false
+    lines.push(routed.total.coordinates)
+    distanceMeters += routed.total.distance
+    durationSeconds += routed.total.duration
+    return true
   }
+
+  let run: Array<Pick<Waypoint, 'lat' | 'lng'>> = waypoints.slice(0, 1)
+  for (let i = 0; i < waypoints.length - 1; i += 1) {
+    const leg = waypoints[i].fixedLeg
+    if (!leg) {
+      run.push(waypoints[i + 1])
+      continue
+    }
+    if (!(await routeRun(run))) return null
+    const line = leg.geometry.map(([lat, lng]): [number, number] => [lat, lng])
+    const length = lineLengthM(line)
+    lines.push(line)
+    distanceMeters += length
+    durationSeconds += (length / 1000 / FIXED_LEG_KM_PER_HOUR) * 3600
+    run = [waypoints[i + 1]]
+  }
+  if (!(await routeRun(run))) return null
+  if (lines.length === 0) return null
+
+  // One line: each part after the first starts where the one before it ended, so its first point goes.
+  const coordinates = lines.flatMap((line, index) => (index === 0 ? line : line.slice(1)))
+  return { coordinates, distanceMeters, durationSeconds }
 }
 
 const HEIGHT_CHUNK_SIZE = 500

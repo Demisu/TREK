@@ -1,5 +1,7 @@
-import { lazy, Suspense, useMemo, useState, type ReactElement } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState, type ReactElement } from 'react';
 import FerrataDetailOverlay from '../../components/Ferratas/FerrataDetailOverlay';
+import { crossingLegs, waypointsAtFerrataEnds } from '../../components/Ferratas/ferrataCrossings';
+import { ferrataLabel, type FerrataGroup } from '../../components/Ferratas/ferrataGroups';
 import { useFerrataMapLayer } from '../../components/Ferratas/useFerrataMapLayer';
 import { useOutsidePressGuard } from '../../components/Ferratas/useOutsidePressGuard';
 import { MAP_LAYER_SWITCHER_INSET, MAP_ROUND_CONTROL_SIZE } from '../../components/Map/MapLayerSwitcher';
@@ -9,6 +11,8 @@ import LocationSelect from '../../components/Planner/LocationSelect';
 import type { TerrainLegendLayout } from '../../components/Tours/terrain/TourTerrainMap';
 import { isRtlLanguage, useTranslation } from '../../i18n';
 import { useSettingsStore } from '../../store/settingsStore';
+import { publishTourFerrataCrossings } from '../../store/tourFerrataCrossingStore';
+import { useFerrataAdopt } from './useFerrataAdopt';
 import { useTourMapPoints } from './useTourMapPoints';
 import type { useTripPlanner } from './useTripPlanner';
 import type { useTripPlannerPage } from './useTripPlannerPage';
@@ -26,7 +30,22 @@ const FERRATA_CARD_BOTTOM = CONTROL_GAP + MAP_ROUND_CONTROL_SIZE + CONTROL_GAP;
 const PLACING_CURSOR =
   '[&_.leaflet-container]:!cursor-crosshair [&_.maplibregl-canvas-container]:!cursor-crosshair [&_.mapboxgl-canvas-container]:!cursor-crosshair';
 
+/**
+ * Where a via ferrata's card sits. On the flat map nothing is under its corner,
+ * so it rests at the edge gap; in 3D it stands on the dock row, as wide as the
+ * grade legend it sits over, and on the legend's bands while they are open.
+ */
+function ferrataCardPlacement(
+  terrain3d: boolean,
+  bottomRowTop: number,
+  legend: TerrainLegendLayout | null
+): { bottom: number; width?: number } {
+  if (!terrain3d) return { bottom: CONTROL_GAP };
+  return { bottom: bottomRowTop + (legend?.raisedBy ?? 0), width: legend?.width };
+}
+
 type Planner = ReturnType<typeof useTripPlanner>;
+const NO_POINTS: readonly { id: string; lat: number; lng: number }[] = [];
 type PageState = ReturnType<typeof useTripPlannerPage>;
 
 export interface TourPlannerMapStageProps
@@ -66,12 +85,34 @@ export function TourPlannerMapStage({
     () => [tourMap.focusPoints, ...(tourMap.route ?? [])],
     [tourMap.focusPoints, tourMap.route]
   );
-  const ferrata = useFerrataMapLayer(tripId, ferrataArea);
+  const analysis = tourPlanner.mode.type === 'view-gpx' ? tourPlanner.readOnlyGpxAnalysis : tourPlanner.routeAnalysis;
+  const ferrata = useFerrataMapLayer(tripId, ferrataArea, analysis?.routeCoordinates ?? null);
+  // The rails beside the map warn about the stretches that climb a ferrata, and band them on the profile.
+  const { t: translate, language } = useTranslation();
+  const tourWaypoints = tourPlanner.mode.type === 'view-gpx' ? NO_POINTS : tourPlanner.waypoints;
+  useEffect(() => {
+    const describe = (group: FerrataGroup) => {
+      const label = ferrataLabel(group, translate);
+      return { name: label.name, grade: label.grade };
+    };
+    const legs = crossingLegs(tourWaypoints, analysis?.distanceIndexedProfileSamples ?? [], ferrata.crossings);
+    publishTourFerrataCrossings(
+      ferrata.crossings.map(({ group, fromM, toM }, i) => ({
+        id: group.id,
+        ...describe(group),
+        fromM,
+        toM,
+        afterWaypoint: legs[i] ?? null,
+      })),
+      waypointsAtFerrataEnds(tourWaypoints, ferrata.crossings, describe)
+    );
+  }, [analysis, ferrata.crossings, tourWaypoints, translate]);
+  useEffect(() => () => publishTourFerrataCrossings([]), []);
   // The click that closes a ferrata's card must not also add a waypoint under it.
   const closingPress = useOutsidePressGuard();
-  const { language } = useTranslation();
+  const adoptFerrata = useFerrataAdopt(tourPlanner, canPlaceEdit, ferrata.close);
+  const ferrataOnTour = useMemo(() => new Set(ferrata.crossings.map(({ group }) => group.id)), [ferrata.crossings]);
   const distanceUnit = useSettingsStore((s) => s.settings.distance_unit);
-  const analysis = tourPlanner.mode.type === 'view-gpx' ? tourPlanner.readOnlyGpxAnalysis : tourPlanner.routeAnalysis;
   // The "set points" tool, per mode; only a real click places, never the end of a drag.
   const { waypoints, placeTool, placeOn, attachSurface, placedHint } = useTourMapPoints({
     tourPlanner,
@@ -154,10 +195,9 @@ export function TourPlannerMapStage({
         onClose={ferrata.close}
         onOutsidePress={closingPress.arm}
         insetEnd={(isRtlLanguage(language) ? leftInset : rightInset) + MAP_LAYER_SWITCHER_INSET}
-        // On the flat map nothing sits under the card's corner, so it rests at the edge gap; in 3D it
-        // stands on the dock row, and on the grade bands while they are open.
-        bottom={terrain3d ? bottomRowTop + (terrainLegend?.raisedBy ?? 0) : CONTROL_GAP}
-        width={terrain3d ? terrainLegend?.width : undefined}
+        {...ferrataCardPlacement(terrain3d, bottomRowTop, terrainLegend)}
+        onAdopt={adoptFerrata}
+        onTourIds={ferrataOnTour}
       />
       {/* "Point set", with the way back, above the bottom row and between the panels. */}
       {placedHint.shown && (

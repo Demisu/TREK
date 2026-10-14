@@ -72,7 +72,8 @@ const tours: TranslationStrings = {
   'tours.planner.walkingEstimated': 'Perkiraan waktu jalan',
   'tours.planner.walkingEstimatedShort': 'Perk. waktu jalan',
   'tours.planner.walkingEstimatedInfoLabel': 'Cara waktu jalan diperkirakan',
-  'tours.planner.walkingEstimatedInfo': 'Dihitung dari jarak, tanjakan, dan turunan dengan aturan waktu mendaki yang umum (DIN 33466), tanpa istirahat.',
+  'tours.planner.walkingEstimatedInfo':
+    'Dihitung dari jarak, tanjakan, dan turunan dengan aturan waktu mendaki yang umum (DIN 33466), tanpa istirahat.',
   'tours.planner.waypoints': 'Titik lintasan',
   'tours.planner.waypointLabel': 'Titik lintasan {n}',
   'tours.durationMinutes': '{count} menit',
@@ -169,5 +170,11 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Aktifkan Tempatkan titik untuk menaruh titik di medan dengan klik.',
   'tours.terrain.clickToPlan':
     'Klik medan untuk menambahkan titik. Setelah ada rute, rute itu bisa diterbangi dan diwarnai menurut kemiringan.',
+  'tours.ferrata.badge': 'Via ferrata {grade}',
+  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.crossingInfo':
+    'Rute melewati {length} di “{name}”. Ini butuh perlengkapan via ferrata dan pengalaman.',
+  'tours.ferrata.crossingShort': 'Rute melewati via ferrata',
+  'tours.ferrata.waypointAtEnd': 'Awal atau akhir “{name}”',
 };
 export default tours;

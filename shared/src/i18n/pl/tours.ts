@@ -75,7 +75,8 @@ const tours: TranslationStrings = {
   'tours.planner.walkingEstimated': 'Szacowany czas marszu',
   'tours.planner.walkingEstimatedShort': 'Szac. czas marszu',
   'tours.planner.walkingEstimatedInfoLabel': 'Jak szacowany jest czas marszu',
-  'tours.planner.walkingEstimatedInfo': 'Obliczony z odległości, podejścia i zejścia według zwykłej reguły czasu marszu (DIN 33466), bez przerw.',
+  'tours.planner.walkingEstimatedInfo':
+    'Obliczony z odległości, podejścia i zejścia według zwykłej reguły czasu marszu (DIN 33466), bez przerw.',
   'tours.planner.waypoints': 'Punkty trasy',
   'tours.planner.waypointLabel': 'Punkt trasy {n}',
   'tours.durationMinutes': '{count} min',
@@ -174,5 +175,11 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Włącz Ustawiaj punkty, aby klikaniem dodawać punkty w terenie.',
   'tours.terrain.clickToPlan':
     'Kliknij teren, aby dodać punkty. Gdy powstanie trasa, można nad nią przelecieć i pokolorować ją według nachylenia.',
+  'tours.ferrata.badge': 'Via ferrata {grade}',
+  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.crossingInfo':
+    'Trasa prowadzi {length} przez „{name}”. Potrzebny jest sprzęt do via ferraty i doświadczenie.',
+  'tours.ferrata.crossingShort': 'Trasa prowadzi przez via ferratę',
+  'tours.ferrata.waypointAtEnd': 'Początek lub koniec „{name}”',
 };
 export default tours;

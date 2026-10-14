@@ -68,11 +68,13 @@ const tours: TranslationStrings = {
   'tours.planner.safetyInfoLabel': 'A biztonságról',
   'tours.planner.addPoint': 'Pont hozzáadása',
   'tours.planner.addPointActive': 'Kattints a térképre',
-  'tours.planner.emptyHint': 'Kapcsold be a „Pont hozzáadása” gombot, és kattints a térképre. Két ponttól a TREK kiszámolja az útvonalat.',
+  'tours.planner.emptyHint':
+    'Kapcsold be a „Pont hozzáadása” gombot, és kattints a térképre. Két ponttól a TREK kiszámolja az útvonalat.',
   'tours.planner.walkingEstimated': 'Becsült gyaloglási idő',
   'tours.planner.walkingEstimatedShort': 'Becs. idő',
   'tours.planner.walkingEstimatedInfoLabel': 'Hogyan becsüljük a gyaloglási időt',
-  'tours.planner.walkingEstimatedInfo': 'A távolságból, az emelkedésből és a lejtésből számolva a szokásos túraidő-szabály (DIN 33466) szerint, szünetek nélkül.',
+  'tours.planner.walkingEstimatedInfo':
+    'A távolságból, az emelkedésből és a lejtésből számolva a szokásos túraidő-szabály (DIN 33466) szerint, szünetek nélkül.',
   'tours.planner.waypoints': 'Útvonalpontok',
   'tours.planner.waypointLabel': '{n}. útvonalpont',
   'tours.durationMinutes': '{count} perc',
@@ -172,5 +174,11 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Kapcsold be a Pontok elhelyezése eszközt, hogy kattintással pontokat tegyél a terepre.',
   'tours.terrain.clickToPlan':
     'Kattints a terepre pontok elhelyezéséhez. Ha már van útvonal, átrepülheted és meredekség szerint színezheted.',
+  'tours.ferrata.badge': 'Via ferrata {grade}',
+  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.crossingInfo':
+    'Az útvonal {length} hosszan a(z) „{name}” vasalt úton halad. Ehhez via ferrata felszerelés és gyakorlat kell.',
+  'tours.ferrata.crossingShort': 'Az útvonal vasalt úton halad',
+  'tours.ferrata.waypointAtEnd': '„{name}” eleje vagy vége',
 };
 export default tours;

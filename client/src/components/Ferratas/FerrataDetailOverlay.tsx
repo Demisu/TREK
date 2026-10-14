@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import FerrataDetailCard from './FerrataDetailCard';
+import type { FerrataGroup } from './ferrataGroups';
 import type { FerrataSelection } from './useFerrataMapLayer';
 
 /**
@@ -23,6 +24,8 @@ export default function FerrataDetailOverlay({
   insetEnd,
   bottom,
   width,
+  onAdopt,
+  onTourIds,
 }: {
   selection: FerrataSelection | null;
   onClose: () => void;
@@ -31,6 +34,9 @@ export default function FerrataDetailOverlay({
   bottom: number;
   /** A fixed width, to match what the card stands on (the grade legend in 3D). */
   width?: number;
+  onAdopt?: (group: FerrataGroup) => void;
+  /** The ferratas the tour on the map already climbs. */
+  onTourIds?: ReadonlySet<string>;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const open = !!selection;
@@ -62,7 +68,14 @@ export default function FerrataDetailOverlay({
       style={{ insetInlineEnd: insetEnd, bottom, maxWidth: `calc(100% - ${insetEnd + 32}px)` }}
       data-testid="ferrata-detail-overlay"
     >
-      <FerrataDetailCard group={selection.group} segment={selection.segment} onClose={onClose} width={width} />
+      <FerrataDetailCard
+        group={selection.group}
+        segment={selection.segment}
+        onClose={onClose}
+        onAdopt={onAdopt}
+        onTour={onTourIds?.has(selection.group.id) ?? false}
+        width={width}
+      />
     </div>
   );
 }

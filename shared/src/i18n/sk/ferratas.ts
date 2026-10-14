@@ -14,5 +14,7 @@ const ferratas: TranslationStrings = {
   'ferratas.unnamed': 'Ferrata bez názvu',
   'ferratas.viewInOsm': 'Zobraziť v OpenStreetMap',
   'ferratas.attribution': 'Údaje © prispievatelia OpenStreetMap',
+  'ferratas.adopt': 'Pridať do túry',
+  'ferratas.onTour': 'Súčasť túry',
 };
 export default ferratas;

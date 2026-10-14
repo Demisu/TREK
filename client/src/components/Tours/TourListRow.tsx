@@ -55,14 +55,13 @@ export default function TourListRow({ tour, selected = false, disabled = false, 
           </span>
         </div>
       )}
-      <TourFactPills tour={tour} className={tour.description ? 'mt-1.5' : 'mt-2.5'} />
-      {website && (
-        <div className="mt-1 flex min-w-0">
+      <TourFactPills tour={tour} className={tour.description ? 'mt-1.5' : 'mt-2.5'}>
+        {website && (
           <SoftPill icon={<Link2 size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
             <span className="min-w-0 truncate">{website.provider ?? website.domain}</span>
           </SoftPill>
-        </div>
-      )}
+        )}
+      </TourFactPills>
       {children}
     </li>
   )

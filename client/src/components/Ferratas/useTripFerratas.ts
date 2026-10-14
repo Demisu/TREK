@@ -6,8 +6,10 @@ import {
   ferrataTileRange,
   ferrataTilesOf,
   growFerrataTileRange,
+  parseFerrataTileKey,
   type Ferrata,
   type FerrataBbox,
+  type FerrataTile,
   type FerrataTileRange,
 } from '@trek/shared';
 
@@ -99,7 +101,8 @@ export function useTripFerratas(
   tripId: number | null | undefined,
   view: FerrataBbox | null,
   enabled: boolean,
-  area: FerrataBbox | null = null
+  area: FerrataBbox | null = null,
+  routeTiles: readonly FerrataTile[] | null = null
 ): { ferratas: readonly Ferrata[]; status: FerrataStatus; truncated: boolean } {
   const { offline } = useNetworkMode();
   const store = useTileStore(tripId);
@@ -107,7 +110,11 @@ export function useTripFerratas(
     store ? store.subscribe : subscribeNothing,
     store ? store.getSnapshot : emptySnapshot
   );
-  const active = enabled && !!store;
+  // The tiles a tour's line runs through load with the layer off too, for the warning
+  // that a route climbs a ferrata; only the layer's own state decides what it shows.
+  const routeKey = routeTiles && routeTiles.length > 0 ? routeTiles.map(ferrataTileKey).sort().join('|') : null;
+  const layerOn = enabled && !!store;
+  const active = layerOn || (!!routeKey && !!store);
   const fits = !!view && ferrataBboxFits(view);
   const viewKey = view && fits ? rangeKeyOf(ferrataTileRange(view)) : null;
   const areaRange = area && ferrataBboxFitsArea(area) ? ferrataTileRange(area) : null;
@@ -131,27 +138,36 @@ export function useTripFerratas(
   }, [active, store, tripId]);
 
   useEffect(() => {
-    if (!active || !store || offline || !viewKey) return;
+    if (!layerOn || !store || offline || !viewKey) return;
     const timer = window.setTimeout(() => {
       const range = rangeOfKey(viewKey);
       store.want(ferrataTilesOf(range), 'visible');
       store.want(ferrataTilesOf(growFerrataTileRange(range, PREFETCH_RINGS)), 'background');
     }, DEBOUNCE_MS);
     return () => window.clearTimeout(timer);
-  }, [active, store, offline, viewKey]);
+  }, [layerOn, store, offline, viewKey]);
 
   // Declared after the view's effect, so with both due its timer fires second.
   useEffect(() => {
-    if (!active || !store || offline || !areaKey) return;
+    if (!layerOn || !store || offline || !areaKey) return;
     const timer = window.setTimeout(() => {
       store.want(ferrataTilesOf(rangeOfKey(areaKey)), 'background');
     }, DEBOUNCE_MS);
     return () => window.clearTimeout(timer);
-  }, [active, store, offline, areaKey]);
+  }, [layerOn, store, offline, areaKey]);
+
+  useEffect(() => {
+    if (!active || !store || offline || !routeKey) return;
+    const timer = window.setTimeout(() => {
+      const tiles = routeKey.split('|').flatMap((key) => parseFerrataTileKey(key) ?? []);
+      store.want(tiles, 'background');
+    }, DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [active, store, offline, routeKey]);
 
   const missing = visibleKeys.some((key) => !snapshot.loaded.has(key));
-  const status = statusOf(active, offline, fits, missing, snapshot);
-  return { ferratas: snapshot.ferratas, status, truncated: active && snapshot.truncated };
+  const status = statusOf(layerOn, offline, fits, missing, snapshot);
+  return { ferratas: snapshot.ferratas, status, truncated: layerOn && snapshot.truncated };
 }
 
 /** A trip's area is any real box; only its tile count limits the prefetch. */

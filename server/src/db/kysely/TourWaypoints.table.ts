@@ -9,4 +9,5 @@ export interface TourWaypointsTable {
   lng: number;
   role: string;
   sequence: number;
+  fixed_leg: InsertOptional<string | null>;
 }

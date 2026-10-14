@@ -70,11 +70,13 @@ const tours: TranslationStrings = {
   'tours.planner.safetyInfoLabel': 'Sulla sicurezza',
   'tours.planner.addPoint': 'Aggiungi punto',
   'tours.planner.addPointActive': 'Clicca sulla mappa',
-  'tours.planner.emptyHint': 'Attiva «Aggiungi punto» e fai clic sulla mappa. Da due punti in poi TREK calcola il percorso.',
+  'tours.planner.emptyHint':
+    'Attiva «Aggiungi punto» e fai clic sulla mappa. Da due punti in poi TREK calcola il percorso.',
   'tours.planner.walkingEstimated': 'Tempo di cammino stimato',
   'tours.planner.walkingEstimatedShort': 'Tempo stim.',
   'tours.planner.walkingEstimatedInfoLabel': 'Come viene stimato il tempo di cammino',
-  'tours.planner.walkingEstimatedInfo': 'Calcolato da distanza, salita e discesa con la consueta regola dei tempi di cammino (DIN 33466), senza pause.',
+  'tours.planner.walkingEstimatedInfo':
+    'Calcolato da distanza, salita e discesa con la consueta regola dei tempi di cammino (DIN 33466), senza pause.',
   'tours.planner.waypoints': 'Punti di passaggio',
   'tours.planner.waypointLabel': 'Punto di passaggio {n}',
   'tours.durationMinutes': '{count} min',
@@ -171,5 +173,11 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Attiva Posiziona punti per aggiungere punti sul terreno con un clic.',
   'tours.terrain.clickToPlan':
     "Fai clic sul terreno per aggiungere punti. Appena c'è un percorso, puoi sorvolarlo e colorarlo in base alla pendenza.",
+  'tours.ferrata.badge': 'Via ferrata {grade}',
+  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.crossingInfo':
+    'Il percorso sale per {length} sulla «{name}». Servono attrezzatura da ferrata ed esperienza.',
+  'tours.ferrata.crossingShort': 'Il percorso passa per una via ferrata',
+  'tours.ferrata.waypointAtEnd': 'Inizio o fine di «{name}»',
 };
 export default tours;

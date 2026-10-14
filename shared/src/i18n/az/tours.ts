@@ -69,11 +69,13 @@ const tours: TranslationStrings = {
   'tours.planner.safetyInfoLabel': 'Təhlükəsizlik haqqında',
   'tours.planner.addPoint': 'Nöqtə əlavə et',
   'tours.planner.addPointActive': 'Xəritəyə klikləyin',
-  'tours.planner.emptyHint': '“Nöqtə əlavə et”i aktiv edin və xəritəyə klikləyin. İki nöqtədən sonra TREK marşrutu hesablayır.',
+  'tours.planner.emptyHint':
+    '“Nöqtə əlavə et”i aktiv edin və xəritəyə klikləyin. İki nöqtədən sonra TREK marşrutu hesablayır.',
   'tours.planner.walkingEstimated': 'Təxmini piyada vaxtı',
   'tours.planner.walkingEstimatedShort': 'Təxm. piyada vaxtı',
   'tours.planner.walkingEstimatedInfoLabel': 'Piyada vaxtı necə təxmin edilir',
-  'tours.planner.walkingEstimatedInfo': 'Məsafə, qalxma və enmədən adi yürüş vaxtı qaydası (DIN 33466) ilə hesablanır, fasilələr daxil deyil.',
+  'tours.planner.walkingEstimatedInfo':
+    'Məsafə, qalxma və enmədən adi yürüş vaxtı qaydası (DIN 33466) ilə hesablanır, fasilələr daxil deyil.',
   'tours.planner.waypoints': 'Yol nöqtələri',
   'tours.planner.waypointLabel': 'Yol nöqtəsi {n}',
   'tours.durationMinutes': '{count} dəq.',
@@ -170,5 +172,11 @@ const tours: TranslationStrings = {
   'tours.terrain.placeOff': 'Relyefə klikləyib nöqtə qoymaq üçün «Nöqtə qoy» alətini aç.',
   'tours.terrain.clickToPlan':
     'Nöqtə qoymaq üçün əraziyə klikləyin. Marşrut yarandıqdan sonra onun üzərindən uçmaq və meyilə görə rəngləmək olar.',
+  'tours.ferrata.badge': 'Via ferrata {grade}',
+  'tours.ferrata.badgeNoGrade': 'Via ferrata',
+  'tours.ferrata.crossingInfo':
+    'Marşrut {length} boyunca “{name}” üzərindən keçir. Bunun üçün via ferrata ləvazimatı və təcrübə lazımdır.',
+  'tours.ferrata.crossingShort': 'Marşrut via ferrata üzərindən keçir',
+  'tours.ferrata.waypointAtEnd': '“{name}” başlanğıcı və ya sonu',
 };
 export default tours;

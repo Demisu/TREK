@@ -70,7 +70,8 @@ const tours: TranslationStrings = {
   'tours.planner.walkingEstimated': '推定歩行時間',
   'tours.planner.walkingEstimatedShort': '推定時間',
   'tours.planner.walkingEstimatedInfoLabel': '歩行時間の推定方法',
-  'tours.planner.walkingEstimatedInfo': '一般的な歩行時間の規則（DIN 33466）で、距離と登り・下りから計算しています。休憩は含みません。',
+  'tours.planner.walkingEstimatedInfo':
+    '一般的な歩行時間の規則（DIN 33466）で、距離と登り・下りから計算しています。休憩は含みません。',
   'tours.planner.waypoints': 'ルート上の地点',
   'tours.planner.waypointLabel': '地点{n}',
   'tours.durationMinutes': '{count}分',
@@ -164,5 +165,10 @@ const tours: TranslationStrings = {
   'tours.terrain.preloading': '地形を読み込み中: {percent} %',
   'tours.terrain.placeOff': '地形をクリックしてポイントを置くには「ポイントを配置」をオンにしてください。',
   'tours.terrain.clickToPlan': '地形をクリックしてポイントを置きます。ルートができると、飛行して勾配で色分けできます。',
+  'tours.ferrata.badge': 'ヴィア・フェラータ {grade}',
+  'tours.ferrata.badgeNoGrade': 'ヴィア・フェラータ',
+  'tours.ferrata.crossingInfo': 'ルートは「{name}」を {length} 通ります。ヴィア・フェラータ用の装備と経験が必要です。',
+  'tours.ferrata.crossingShort': 'ルートがヴィア・フェラータを通ります',
+  'tours.ferrata.waypointAtEnd': '「{name}」の始点または終点',
 };
 export default tours;
