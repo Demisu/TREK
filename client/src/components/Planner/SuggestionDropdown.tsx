@@ -47,8 +47,23 @@ export function SuggestionInputBox({
       className={floating ? 'focus-within:ring-2 focus-within:ring-accent' : 'bg-surface-tertiary'}
       style={
         floating
-          ? { ...FLOATING_GLASS, display: 'flex', alignItems: 'center', gap: 8, height: 42, padding: '0 8px 0 14px', borderRadius: 999 }
-          : { display: 'flex', alignItems: 'center', gap: 6, padding: '8px 10px', borderRadius: 10, border: '1px solid var(--border-primary)' }
+          ? {
+              ...FLOATING_GLASS,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              height: 42,
+              padding: '0 8px 0 14px',
+              borderRadius: 999,
+            }
+          : {
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 10px',
+              borderRadius: 10,
+              border: '1px solid var(--border-primary)',
+            }
       }
     >
       {icon}
@@ -100,7 +115,14 @@ interface SuggestionListProps {
 }
 
 /** The floating list under the field. Rendered only while it is loading, has rows or a status; the caller checks `open`. */
-export function SuggestionList({ loading, rowCount, status, listbox, floating = false, children }: SuggestionListProps) {
+export function SuggestionList({
+  loading,
+  rowCount,
+  status,
+  listbox,
+  floating = false,
+  children,
+}: SuggestionListProps) {
   const { t } = useTranslation();
   if (!loading && rowCount === 0 && !status) return null;
   return (

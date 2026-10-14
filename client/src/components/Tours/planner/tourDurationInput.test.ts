@@ -35,7 +35,7 @@ describe('parseTourDuration', () => {
     'rejects %j',
     (text) => {
       expect(parseTourDuration(text)).toBe('invalid');
-    },
+    }
   );
 
   it('reads back everything it formats', () => {

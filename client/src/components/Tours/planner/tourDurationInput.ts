@@ -11,7 +11,8 @@ const CLOCK = /^(\d+):(\d{1,2})$/;
 // Hours with a unit, then minutes with an optional unit, or minutes alone with a unit:
 // "2 h 56", "2h56min", "1,5 h", "45 min". Each part is anchored on its unit, so the
 // pattern cannot match one text two ways.
-const WITH_UNITS = /^(?:(\d+(?:[.,]\d+)?) ?(?:h|hr|hrs|hours?|std|stunden?)\.?)? ?(?:(\d+) ?(?:m|min|mins|minutes?|minuten?)?\.?)?$/;
+const WITH_UNITS =
+  /^(?:(\d+(?:[.,]\d+)?) ?(?:h|hr|hrs|hours?|std|stunden?)\.?)? ?(?:(\d+) ?(?:m|min|mins|minutes?|minuten?)?\.?)?$/;
 
 /**
  * Reads what somebody typed into a duration field as whole minutes.

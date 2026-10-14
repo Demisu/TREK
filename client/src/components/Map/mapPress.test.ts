@@ -30,9 +30,9 @@ function setup() {
 describe('isPlacementTap', () => {
   it('FE-MAP-PRESS-001: a short press that barely moved places', () => {
     expect(isPlacementTap({ travelPx: 0, durationMs: 80, pointers: 1 })).toBe(true);
-    expect(isPlacementTap({ travelPx: TAP_MAX_TRAVEL_PX - 0.5, durationMs: TAP_MAX_DURATION_MS - 1, pointers: 1 })).toBe(
-      true
-    );
+    expect(
+      isPlacementTap({ travelPx: TAP_MAX_TRAVEL_PX - 0.5, durationMs: TAP_MAX_DURATION_MS - 1, pointers: 1 })
+    ).toBe(true);
   });
 
   it('FE-MAP-PRESS-002: 4 px of travel, 300 ms of hold or a second finger never place', () => {
@@ -41,7 +41,7 @@ describe('isPlacementTap', () => {
     expect(isPlacementTap({ travelPx: 0, durationMs: 50, pointers: 2 })).toBe(false);
   });
 
-  it('FE-MAP-PRESS-003: a click no press was seen for (keyboard, synthetic) is the map\'s own call', () => {
+  it("FE-MAP-PRESS-003: a click no press was seen for (keyboard, synthetic) is the map's own call", () => {
     expect(isPlacementTap(null)).toBe(true);
   });
 });

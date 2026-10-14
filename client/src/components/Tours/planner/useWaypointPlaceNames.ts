@@ -40,12 +40,12 @@ export function useWaypointPlaceNames(waypoints: WaypointCoordinate[]): Record<s
             setNames((current) =>
               current[point.id]?.key === point.key && current[point.id]?.name === name
                 ? current
-                : { ...current, [point.id]: { key: point.key, name } },
+                : { ...current, [point.id]: { key: point.key, name } }
             );
           },
           () => {
             // Offline or a failed lookup: the row keeps showing the coordinates.
-          },
+          }
         );
       }
     }, SETTLE_MS);

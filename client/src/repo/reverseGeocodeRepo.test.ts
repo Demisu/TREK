@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { reverseGeocodeRepo } from './reverseGeocodeRepo';
-import { isEffectivelyOffline } from '../sync/networkMode';
 import { mapsApi } from '../api/client';
+import { isEffectivelyOffline } from '../sync/networkMode';
+import { reverseGeocodeRepo } from './reverseGeocodeRepo';
 
 vi.mock('../sync/networkMode', () => ({ isEffectivelyOffline: vi.fn(() => false) }));
 vi.mock('../api/client', () => ({ mapsApi: { reverse: vi.fn() } }));
@@ -55,7 +55,7 @@ describe('reverse geocoded place names', () => {
       () =>
         new Promise((resolve) => {
           resolvers.push(resolve);
-        }),
+        })
     );
     const names = [1, 2, 3].map((n) => reverseGeocodeRepo.placeName(46 + n, 11, 'de'));
     expect(mapsApi.reverse).toHaveBeenCalledTimes(2);
