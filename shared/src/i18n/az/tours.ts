@@ -52,7 +52,6 @@ const tours: TranslationStrings = {
   'tours.planner.restored': 'Saxlanılmamış qaralama bərpa edildi',
   'tours.planner.discardChanges': 'Dəyişiklikləri ləğv et',
   'tours.planner.discardUnsaved': 'Saxlanılmamış dəyişiklikləri ləğv et',
-  'tours.planner.saveChanges': 'Dəyişiklikləri saxla',
   'tours.planner.newTourConfirmTitle': 'Yeni tur başlansın?',
   'tours.planner.newTourConfirmBody':
     'Bu turda saxlanılmamış dəyişiklikləriniz ləğv ediləcək. Saxlanılmış turlar dəyişməyəcək.',
@@ -95,11 +94,9 @@ const tours: TranslationStrings = {
   'tours.planner.remove': 'Yol nöqtəsini sil',
   'tours.planner.undo': 'Yol nöqtəsi dəyişikliyini geri al',
   'tours.planner.redo': 'Yol nöqtəsi dəyişikliyini təkrarla',
-  'tours.planner.discard': 'Qaralamanı ləğv et',
   'tours.planner.discardTitle': 'Turun saxlanılmamış dəyişiklikləri ləğv edilsin?',
   'tours.planner.discardBody':
     'Saxlanılmamış düzəlişləriniz ləğv ediləcək. Saxlanılmış tur, onun yol nöqtələri, faylları və günlərə təyinatları dəyişməyəcək.',
-  'tours.planner.save': 'Turu saxla',
   'tours.planner.saved': 'Tur saxlanıldı',
   'tours.planner.planAnother': 'Başqa tur planlaşdır',
   'tours.planner.assignToDay': 'Günə təyin et',

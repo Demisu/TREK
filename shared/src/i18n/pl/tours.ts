@@ -54,7 +54,6 @@ const tours: TranslationStrings = {
   'tours.planner.restored': 'Przywrócono niezapisany szkic',
   'tours.planner.discardChanges': 'Odrzuć zmiany',
   'tours.planner.discardUnsaved': 'Odrzuć niezapisane zmiany',
-  'tours.planner.saveChanges': 'Zapisz zmiany',
   'tours.planner.newTourConfirmTitle': 'Rozpocząć nową wycieczkę?',
   'tours.planner.newTourConfirmBody':
     'Niezapisane zmiany tej wycieczki zostaną odrzucone. Zapisane wycieczki nie zostaną zmienione.',
@@ -98,11 +97,9 @@ const tours: TranslationStrings = {
   'tours.planner.remove': 'Usuń punkt',
   'tours.planner.undo': 'Cofnij zmianę punktu',
   'tours.planner.redo': 'Ponów zmianę punktu',
-  'tours.planner.discard': 'Odrzuć szkic',
   'tours.planner.discardTitle': 'Odrzucić niezapisane zmiany wycieczki?',
   'tours.planner.discardBody':
     'Niezapisane zmiany zostaną odrzucone. Zapisana wycieczka, jej punkty, pliki i przypisania pozostaną bez zmian.',
-  'tours.planner.save': 'Zapisz wycieczkę',
   'tours.planner.saved': 'Wycieczka zapisana',
   'tours.planner.planAnother': 'Zaplanuj kolejną',
   'tours.planner.assignToDay': 'Przypisz do dnia',

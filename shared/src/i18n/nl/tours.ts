@@ -52,7 +52,6 @@ const tours: TranslationStrings = {
   'tours.planner.restored': 'Niet-opgeslagen concept hersteld',
   'tours.planner.discardChanges': 'Wijzigingen verwerpen',
   'tours.planner.discardUnsaved': 'Niet-opgeslagen wijzigingen verwerpen',
-  'tours.planner.saveChanges': 'Wijzigingen opslaan',
   'tours.planner.newTourConfirmTitle': 'Een nieuwe tocht starten?',
   'tours.planner.newTourConfirmBody':
     'Je niet-opgeslagen wijzigingen aan deze tocht worden verworpen. Opgeslagen tochten blijven ongewijzigd.',
@@ -94,11 +93,9 @@ const tours: TranslationStrings = {
   'tours.planner.remove': 'Routepunt verwijderen',
   'tours.planner.undo': 'Routepuntbewerking ongedaan maken',
   'tours.planner.redo': 'Routepuntbewerking opnieuw uitvoeren',
-  'tours.planner.discard': 'Concept verwerpen',
   'tours.planner.discardTitle': 'Niet-opgeslagen wijzigingen aan de tocht verwerpen?',
   'tours.planner.discardBody':
     'Je niet-opgeslagen wijzigingen worden verworpen. De opgeslagen tocht, de routepunten, bestanden en toewijzingen blijven ongewijzigd.',
-  'tours.planner.save': 'Tocht opslaan',
   'tours.planner.saved': 'Tocht opgeslagen',
   'tours.planner.planAnother': 'Nog een tocht plannen',
   'tours.planner.assignToDay': 'Aan een dag toewijzen',

@@ -51,7 +51,6 @@ const tours: TranslationStrings = {
   'tours.planner.restored': 'Kaydedilmemiş taslak geri yüklendi',
   'tours.planner.discardChanges': 'Değişiklikleri sil',
   'tours.planner.discardUnsaved': 'Kaydedilmemiş değişiklikleri sil',
-  'tours.planner.saveChanges': 'Değişiklikleri kaydet',
   'tours.planner.newTourConfirmTitle': 'Yeni bir tur başlatılsın mı?',
   'tours.planner.newTourConfirmBody':
     'Bu turdaki kaydedilmemiş değişiklikler silinecek. Kaydedilmiş turlar değişmeyecek.',
@@ -93,11 +92,9 @@ const tours: TranslationStrings = {
   'tours.planner.remove': 'Rota noktasını kaldır',
   'tours.planner.undo': 'Nokta düzenlemesini geri al',
   'tours.planner.redo': 'Nokta düzenlemesini yinele',
-  'tours.planner.discard': 'Taslağı sil',
   'tours.planner.discardTitle': 'Kaydedilmemiş tur değişiklikleri silinsin mi?',
   'tours.planner.discardBody':
     'Kaydedilmemiş düzenlemeler silinecek. Kaydedilmiş tur, rota noktaları, dosyaları ve gün atamaları değişmeyecek.',
-  'tours.planner.save': 'Turu kaydet',
   'tours.planner.saved': 'Tur kaydedildi',
   'tours.planner.planAnother': 'Başka tur planla',
   'tours.planner.assignToDay': 'Güne ata',

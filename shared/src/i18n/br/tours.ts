@@ -53,7 +53,6 @@ const tours: TranslationStrings = {
   'tours.planner.restored': 'Rascunho não salvo restaurado',
   'tours.planner.discardChanges': 'Descartar alterações',
   'tours.planner.discardUnsaved': 'Descartar alterações não salvas',
-  'tours.planner.saveChanges': 'Salvar alterações',
   'tours.planner.newTourConfirmTitle': 'Começar um novo passeio?',
   'tours.planner.newTourConfirmBody':
     'As alterações não salvas deste passeio serão descartadas. Os passeios salvos não serão alterados.',
@@ -95,11 +94,9 @@ const tours: TranslationStrings = {
   'tours.planner.remove': 'Remover ponto de passagem',
   'tours.planner.undo': 'Desfazer edição do ponto de passagem',
   'tours.planner.redo': 'Refazer edição do ponto de passagem',
-  'tours.planner.discard': 'Descartar rascunho',
   'tours.planner.discardTitle': 'Descartar as alterações não salvas do passeio?',
   'tours.planner.discardBody':
     'As alterações não salvas serão descartadas. O passeio salvo, seus pontos de passagem, arquivos e atribuições não serão alterados.',
-  'tours.planner.save': 'Salvar passeio',
   'tours.planner.saved': 'Passeio salvo',
   'tours.planner.planAnother': 'Planejar outro',
   'tours.planner.assignToDay': 'Atribuir a um dia',

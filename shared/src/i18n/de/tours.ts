@@ -52,7 +52,6 @@ const tours: TranslationStrings = {
   'tours.planner.restored': 'Ungespeicherter Entwurf wiederhergestellt',
   'tours.planner.discardChanges': 'Änderungen verwerfen',
   'tours.planner.discardUnsaved': 'Ungespeicherte Änderungen verwerfen',
-  'tours.planner.saveChanges': 'Änderungen speichern',
   'tours.planner.newTourConfirmTitle': 'Neue Tour beginnen?',
   'tours.planner.newTourConfirmBody':
     'Ungespeicherte Änderungen an dieser Tour gehen verloren. Gespeicherte Touren bleiben erhalten.',
@@ -94,11 +93,9 @@ const tours: TranslationStrings = {
   'tours.planner.remove': 'Wegpunkt entfernen',
   'tours.planner.undo': 'Wegpunkt-Änderung rückgängig machen',
   'tours.planner.redo': 'Wegpunkt-Änderung wiederholen',
-  'tours.planner.discard': 'Entwurf verwerfen',
   'tours.planner.discardTitle': 'Ungespeicherte Änderungen an der Tour verwerfen?',
   'tours.planner.discardBody':
     'Ungespeicherte Änderungen gehen verloren. Die gespeicherte Tour, ihre Wegpunkte, Dateien und Tageszuordnungen bleiben erhalten.',
-  'tours.planner.save': 'Tour speichern',
   'tours.planner.saved': 'Tour gespeichert',
   'tours.planner.planAnother': 'Weitere Tour planen',
   'tours.planner.assignToDay': 'Einem Tag zuordnen',

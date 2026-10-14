@@ -53,7 +53,6 @@ const tours: TranslationStrings = {
   'tours.planner.restored': 'Bozza non salvata ripristinata',
   'tours.planner.discardChanges': 'Scarta modifiche',
   'tours.planner.discardUnsaved': 'Scarta modifiche non salvate',
-  'tours.planner.saveChanges': 'Salva modifiche',
   'tours.planner.newTourConfirmTitle': 'Iniziare una nuova escursione?',
   'tours.planner.newTourConfirmBody':
     'Le modifiche non salvate a questa escursione verranno scartate. Le escursioni salvate non verranno modificate.',
@@ -95,11 +94,9 @@ const tours: TranslationStrings = {
   'tours.planner.remove': 'Rimuovi punto di passaggio',
   'tours.planner.undo': 'Annulla modifica al punto di passaggio',
   'tours.planner.redo': 'Ripeti modifica al punto di passaggio',
-  'tours.planner.discard': 'Scarta bozza',
   'tours.planner.discardTitle': "Scartare le modifiche non salvate all'escursione?",
   'tours.planner.discardBody':
     "Le modifiche non salvate verranno scartate. L'escursione salvata, i suoi punti di passaggio, file e assegnazioni non verranno modificati.",
-  'tours.planner.save': 'Salva escursione',
   'tours.planner.saved': 'Escursione salvata',
   'tours.planner.planAnother': "Pianificane un'altra",
   'tours.planner.assignToDay': 'Assegna a un giorno',

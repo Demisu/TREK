@@ -143,7 +143,7 @@ describe('Tours permissions without database setup', () => {
     const saveBanner = screen.getByText('tours.planner.saved').closest('[role="status"]') as HTMLElement
     expect(within(saveBanner).getByRole('button', { name: 'tours.planner.planAnother' })).toBeInTheDocument()
     expect(within(saveBanner).queryByRole('button', { name: 'tours.planner.assignToDay' })).not.toBeInTheDocument()
-    const save = screen.getByRole('button', { name: 'tours.planner.save' }) as HTMLButtonElement
+    const save = screen.getByRole('button', { name: 'common.save' }) as HTMLButtonElement
     expect(save.disabled).toBe(!canEdit)
     fireEvent.click(save)
     expect(planner.save).toHaveBeenCalledTimes(canEdit ? 1 : 0)

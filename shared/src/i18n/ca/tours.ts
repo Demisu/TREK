@@ -52,7 +52,6 @@ const tours: TranslationStrings = {
   'tours.planner.restored': 'Esborrany sense desar restaurat',
   'tours.planner.discardChanges': 'Descarta els canvis',
   'tours.planner.discardUnsaved': 'Descarta els canvis sense desar',
-  'tours.planner.saveChanges': 'Desa els canvis',
   'tours.planner.newTourConfirmTitle': 'Vols començar una nova excursió?',
   'tours.planner.newTourConfirmBody':
     "Es descartaran els canvis sense desar d'aquesta excursió. Les excursions desades no es modificaran.",
@@ -94,11 +93,9 @@ const tours: TranslationStrings = {
   'tours.planner.remove': 'Elimina el punt de pas',
   'tours.planner.undo': 'Desfés el canvi al punt de pas',
   'tours.planner.redo': 'Refés el canvi al punt de pas',
-  'tours.planner.discard': "Descarta l'esborrany",
   'tours.planner.discardTitle': "Vols descartar els canvis sense desar de l'excursió?",
   'tours.planner.discardBody':
     "Es descartaran els canvis sense desar. L'excursió desada, els seus punts de pas, fitxers i assignacions no es modificaran.",
-  'tours.planner.save': 'Desa excursió',
   'tours.planner.saved': 'Excursió desada',
   'tours.planner.planAnother': "Planifica'n una altra",
   'tours.planner.assignToDay': 'Assigna a un dia',

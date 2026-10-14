@@ -51,7 +51,6 @@ const tours: TranslationStrings = {
   'tours.planner.restored': 'Draf yang belum disimpan telah dipulihkan',
   'tours.planner.discardChanges': 'Buang perubahan',
   'tours.planner.discardUnsaved': 'Buang perubahan yang belum disimpan',
-  'tours.planner.saveChanges': 'Simpan perubahan',
   'tours.planner.newTourConfirmTitle': 'Mulai tur baru?',
   'tours.planner.newTourConfirmBody':
     'Perubahan yang belum disimpan pada tur ini akan dibuang. Tur yang sudah disimpan tidak akan diubah.',
@@ -92,11 +91,9 @@ const tours: TranslationStrings = {
   'tours.planner.remove': 'Hapus titik lintasan',
   'tours.planner.undo': 'Urungkan perubahan titik lintasan',
   'tours.planner.redo': 'Ulangi perubahan titik lintasan',
-  'tours.planner.discard': 'Buang draf',
   'tours.planner.discardTitle': 'Buang perubahan tur yang belum disimpan?',
   'tours.planner.discardBody':
     'Edit yang belum disimpan akan dibuang. Tur tersimpan beserta titik lintasan, berkas, dan penetapan harinya tidak akan diubah.',
-  'tours.planner.save': 'Simpan tur',
   'tours.planner.saved': 'Tur disimpan',
   'tours.planner.planAnother': 'Rencanakan tur lain',
   'tours.planner.assignToDay': 'Tetapkan ke hari',

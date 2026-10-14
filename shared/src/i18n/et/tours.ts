@@ -51,7 +51,6 @@ const tours: TranslationStrings = {
   'tours.planner.restored': 'Salvestamata mustand taastatud',
   'tours.planner.discardChanges': 'Loobu muudatustest',
   'tours.planner.discardUnsaved': 'Loobu salvestamata muudatustest',
-  'tours.planner.saveChanges': 'Salvesta muudatused',
   'tours.planner.newTourConfirmTitle': 'Kas alustada uut retke?',
   'tours.planner.newTourConfirmBody':
     'Selle retke salvestamata muudatused lähevad kaotsi. Salvestatud retki ei muudeta.',
@@ -93,11 +92,9 @@ const tours: TranslationStrings = {
   'tours.planner.remove': 'Eemalda teekonnapunkt',
   'tours.planner.undo': 'Võta teekonnapunkti muudatus tagasi',
   'tours.planner.redo': 'Tee teekonnapunkti muudatus uuesti',
-  'tours.planner.discard': 'Loobu mustandist',
   'tours.planner.discardTitle': 'Kas loobuda retke salvestamata muudatustest?',
   'tours.planner.discardBody':
     'Salvestamata muudatused lähevad kaotsi. Salvestatud retke, selle teekonnapunkte, faile ega päevadele lisamisi ei muudeta.',
-  'tours.planner.save': 'Salvesta retk',
   'tours.planner.saved': 'Retk salvestatud',
   'tours.planner.planAnother': 'Planeeri järgmine',
   'tours.planner.assignToDay': 'Lisa päevale',

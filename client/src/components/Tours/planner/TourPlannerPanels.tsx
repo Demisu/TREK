@@ -222,10 +222,10 @@ export function TourPlannerRail({ planner, canEdit: editPermission, canAssign: a
           </p>
           <div className="grid grid-cols-[auto_1fr] gap-2 [&>button]:justify-center">
             <DialogButton icon={<RotateCcw size={14} strokeWidth={2} />} onClick={requestClose} disabled={isSaving || (!planner.hasUnsavedChanges && !isSavedEdit)}>
-              {t(isSavedEdit ? 'tours.planner.discardChanges' : 'tours.planner.discard')}
+              {t('common.discard')}
             </DialogButton>
             <DialogButton variant="primary" icon={<Save size={14} strokeWidth={2} />} onClick={() => { if (canEdit && !isSaving) void planner.save() }} disabled={!canEdit || isSaving || !planner.canSave}>
-              {t(isSavedEdit ? 'tours.planner.saveChanges' : 'tours.planner.save')}
+              {t('common.save')}
             </DialogButton>
           </div>
         </div>
@@ -271,7 +271,7 @@ function TourTimeGrid({ planner, locked }: TourFieldProps) {
                   <div data-testid="tour-planner-time-grid" className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-3">
     <div className="min-w-0">
       <div className="mb-[5px] flex min-w-0 items-center gap-1">
-        <label className={`${LABEL} mb-0`} htmlFor="tour-planner-breaks">{t('tours.planner.breaksAdditional')}</label>
+        <label className={`${LABEL} !mb-0 leading-5`} htmlFor="tour-planner-breaks">{t('tours.planner.breaksAdditional')}</label>
         <DurationInfo
           label={t('tours.planner.breaksAdditionalInfoLabel')}
           description={t('tours.planner.breaksAdditionalInfo')}
@@ -303,7 +303,7 @@ function TourTimeGrid({ planner, locked }: TourFieldProps) {
     </div>
     <div className="min-w-0">
       <div className="mb-[5px] flex min-w-0 items-center gap-1">
-        <label className={`${LABEL} mb-0`} htmlFor="tour-planner-planned-duration">
+        <label className={`${LABEL} !mb-0 leading-5`} htmlFor="tour-planner-planned-duration">
           {t('tours.planner.plannedTotalDuration')}
           {planner.plannedDurationMinutes != null && <span className="ms-1 normal-case text-info">· {t('tours.planner.plannedTotalManual')}</span>}
         </label>

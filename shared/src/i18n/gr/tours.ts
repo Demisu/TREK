@@ -54,7 +54,6 @@ const tours: TranslationStrings = {
   'tours.planner.restored': 'Το μη αποθηκευμένο πρόχειρο επαναφέρθηκε',
   'tours.planner.discardChanges': 'Απόρριψη αλλαγών',
   'tours.planner.discardUnsaved': 'Απόρριψη μη αποθηκευμένων αλλαγών',
-  'tours.planner.saveChanges': 'Αποθήκευση αλλαγών',
   'tours.planner.newTourConfirmTitle': 'Έναρξη νέας εκδρομής;',
   'tours.planner.newTourConfirmBody':
     'Οι μη αποθηκευμένες αλλαγές αυτής της εκδρομής θα απορριφθούν. Οι αποθηκευμένες εκδρομές δεν θα αλλάξουν.',
@@ -99,11 +98,9 @@ const tours: TranslationStrings = {
   'tours.planner.remove': 'Αφαίρεση σημείου',
   'tours.planner.undo': 'Αναίρεση αλλαγής σημείου',
   'tours.planner.redo': 'Επανάληψη αλλαγής σημείου',
-  'tours.planner.discard': 'Απόρριψη πρόχειρου',
   'tours.planner.discardTitle': 'Απόρριψη μη αποθηκευμένων αλλαγών εκδρομής;',
   'tours.planner.discardBody':
     'Οι μη αποθηκευμένες αλλαγές θα απορριφθούν. Η αποθηκευμένη εκδρομή, τα σημεία, τα αρχεία και οι αντιστοιχίσεις της δεν θα αλλάξουν.',
-  'tours.planner.save': 'Αποθήκευση εκδρομής',
   'tours.planner.saved': 'Η εκδρομή αποθηκεύτηκε',
   'tours.planner.planAnother': 'Σχεδιασμός άλλης',
   'tours.planner.assignToDay': 'Αντιστοίχιση σε ημέρα',

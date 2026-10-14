@@ -50,7 +50,6 @@ const tours: TranslationStrings = {
   'tours.planner.restored': 'กู้คืนฉบับร่างที่ยังไม่บันทึกแล้ว',
   'tours.planner.discardChanges': 'ยกเลิกการเปลี่ยนแปลง',
   'tours.planner.discardUnsaved': 'ทิ้งการเปลี่ยนแปลงที่ยังไม่บันทึก',
-  'tours.planner.saveChanges': 'บันทึกการเปลี่ยนแปลง',
   'tours.planner.newTourConfirmTitle': 'เริ่มทัวร์ใหม่ไหม?',
   'tours.planner.newTourConfirmBody':
     'การเปลี่ยนแปลงของทัวร์นี้ที่ยังไม่บันทึกจะถูกทิ้ง ทัวร์ที่บันทึกแล้วจะไม่เปลี่ยนแปลง',
@@ -91,11 +90,9 @@ const tours: TranslationStrings = {
   'tours.planner.remove': 'ลบจุดแวะ',
   'tours.planner.undo': 'เลิกทำการแก้ไขจุดแวะ',
   'tours.planner.redo': 'ทำซ้ำการแก้ไขจุดแวะ',
-  'tours.planner.discard': 'ทิ้งฉบับร่าง',
   'tours.planner.discardTitle': 'ทิ้งการเปลี่ยนแปลงทัวร์ที่ยังไม่บันทึกไหม?',
   'tours.planner.discardBody':
     'การแก้ไขที่ยังไม่บันทึกจะถูกทิ้ง ทัวร์ที่บันทึกแล้ว รวมถึงจุดแวะ ไฟล์ และการจัดลงวันจะไม่เปลี่ยนแปลง',
-  'tours.planner.save': 'บันทึกทัวร์',
   'tours.planner.saved': 'บันทึกทัวร์แล้ว',
   'tours.planner.planAnother': 'วางแผนทัวร์อื่น',
   'tours.planner.assignToDay': 'เพิ่มไปยังวัน',

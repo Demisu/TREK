@@ -52,7 +52,6 @@ const tours: TranslationStrings = {
   'tours.planner.restored': 'Borrador sin guardar restaurado',
   'tours.planner.discardChanges': 'Descartar cambios',
   'tours.planner.discardUnsaved': 'Descartar cambios sin guardar',
-  'tours.planner.saveChanges': 'Guardar cambios',
   'tours.planner.newTourConfirmTitle': '¿Empezar una nueva excursión?',
   'tours.planner.newTourConfirmBody':
     'Se descartarán los cambios sin guardar de esta excursión. Las excursiones guardadas no se modificarán.',
@@ -94,11 +93,9 @@ const tours: TranslationStrings = {
   'tours.planner.remove': 'Eliminar punto de paso',
   'tours.planner.undo': 'Deshacer cambio de punto de paso',
   'tours.planner.redo': 'Rehacer cambio de punto de paso',
-  'tours.planner.discard': 'Descartar borrador',
   'tours.planner.discardTitle': '¿Descartar los cambios sin guardar de la excursión?',
   'tours.planner.discardBody':
     'Se descartarán los cambios sin guardar. La excursión guardada, sus puntos de paso, archivos y asignaciones no se modificarán.',
-  'tours.planner.save': 'Guardar excursión',
   'tours.planner.saved': 'Excursión guardada',
   'tours.planner.planAnother': 'Planificar otra',
   'tours.planner.assignToDay': 'Asignar a un día',

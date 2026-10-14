@@ -51,7 +51,6 @@ const tours: TranslationStrings = {
   'tours.planner.restored': 'Unsaved draft restored',
   'tours.planner.discardChanges': 'Discard changes',
   'tours.planner.discardUnsaved': 'Discard unsaved changes',
-  'tours.planner.saveChanges': 'Save changes',
   'tours.planner.newTourConfirmTitle': 'Start a new tour?',
   'tours.planner.newTourConfirmBody':
     'Your unsaved changes to this tour will be discarded. Saved tours will not be changed.',
@@ -93,11 +92,9 @@ const tours: TranslationStrings = {
   'tours.planner.remove': 'Remove waypoint',
   'tours.planner.undo': 'Undo waypoint edit',
   'tours.planner.redo': 'Redo waypoint edit',
-  'tours.planner.discard': 'Discard draft',
   'tours.planner.discardTitle': 'Discard unsaved tour changes?',
   'tours.planner.discardBody':
     'Your unsaved edits will be discarded. The saved Tour, its waypoints, files and assignments will not be changed.',
-  'tours.planner.save': 'Save tour',
   'tours.planner.saved': 'Tour saved',
   'tours.planner.planAnother': 'Plan another',
   'tours.planner.assignToDay': 'Assign to a day',

@@ -54,7 +54,6 @@ const tours: TranslationStrings = {
   'tours.planner.restored': 'Brouillon non enregistré restauré',
   'tours.planner.discardChanges': 'Abandonner les modifications',
   'tours.planner.discardUnsaved': 'Abandonner les modifications non enregistrées',
-  'tours.planner.saveChanges': 'Enregistrer les modifications',
   'tours.planner.newTourConfirmTitle': 'Commencer une nouvelle sortie ?',
   'tours.planner.newTourConfirmBody':
     'Les modifications non enregistrées de cette sortie seront perdues. Les sorties enregistrées resteront inchangées.',
@@ -96,11 +95,9 @@ const tours: TranslationStrings = {
   'tours.planner.remove': 'Supprimer le point de passage',
   'tours.planner.undo': 'Annuler la modification du point de passage',
   'tours.planner.redo': 'Rétablir la modification du point de passage',
-  'tours.planner.discard': 'Abandonner le brouillon',
   'tours.planner.discardTitle': 'Abandonner les modifications non enregistrées de la sortie ?',
   'tours.planner.discardBody':
     'Les modifications non enregistrées seront perdues. La sortie enregistrée, ses points de passage, ses fichiers et ses affectations resteront inchangés.',
-  'tours.planner.save': 'Enregistrer la sortie',
   'tours.planner.saved': 'Sortie enregistrée',
   'tours.planner.planAnother': 'En planifier une autre',
   'tours.planner.assignToDay': 'Affecter à une journée',

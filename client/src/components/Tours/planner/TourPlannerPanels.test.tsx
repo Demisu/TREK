@@ -564,7 +564,7 @@ describe('TourPlannerRail', () => {
 
     expect(screen.getByLabelText('Tour name')).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Maximum trail difficulty' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Save tour' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Back to Tours' })).toBeDisabled()
     expect(screen.getAllByLabelText('Move waypoint up')).toHaveLength(2)
     expect(screen.getAllByLabelText('Move waypoint up').every(element => element.getAttribute('aria-disabled') === 'true')).toBe(true)
@@ -595,7 +595,7 @@ describe('TourPlannerRail', () => {
     })
     render(<TourPlannerRail planner={controller} />)
 
-    const save = screen.getByRole('button', { name: 'Save tour' })
+    const save = screen.getByRole('button', { name: 'Save' })
     expect(save.parentElement?.parentElement).toHaveTextContent('Routing is planning assistance, not a safety guarantee.')
     expect(save).toHaveClass('bg-accent', 'text-accent-text')
     expect(save).toHaveClass('hover:opacity-90')

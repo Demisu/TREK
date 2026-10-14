@@ -51,7 +51,6 @@ const tours: TranslationStrings = {
   'tours.planner.restored': 'Đã khôi phục bản nháp chưa lưu',
   'tours.planner.discardChanges': 'Bỏ thay đổi',
   'tours.planner.discardUnsaved': 'Bỏ thay đổi chưa lưu',
-  'tours.planner.saveChanges': 'Lưu thay đổi',
   'tours.planner.newTourConfirmTitle': 'Bắt đầu chuyến tham quan mới?',
   'tours.planner.newTourConfirmBody':
     'Các thay đổi chưa lưu của chuyến tham quan này sẽ bị bỏ. Các chuyến tham quan đã lưu sẽ không thay đổi.',
@@ -93,11 +92,9 @@ const tours: TranslationStrings = {
   'tours.planner.remove': 'Xóa điểm',
   'tours.planner.undo': 'Hoàn tác chỉnh sửa điểm',
   'tours.planner.redo': 'Làm lại chỉnh sửa điểm',
-  'tours.planner.discard': 'Bỏ bản nháp',
   'tours.planner.discardTitle': 'Bỏ các thay đổi chưa lưu của chuyến tham quan?',
   'tours.planner.discardBody':
     'Các chỉnh sửa chưa lưu sẽ bị bỏ. Chuyến tham quan đã lưu cùng các điểm, tệp và ngày được gán sẽ không thay đổi.',
-  'tours.planner.save': 'Lưu chuyến tham quan',
   'tours.planner.saved': 'Đã lưu chuyến tham quan',
   'tours.planner.planAnother': 'Lên kế hoạch chuyến khác',
   'tours.planner.assignToDay': 'Gán vào ngày',

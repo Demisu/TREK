@@ -54,7 +54,6 @@ const tours: TranslationStrings = {
   'tours.planner.restored': 'Несохранённый черновик восстановлен',
   'tours.planner.discardChanges': 'Отменить изменения',
   'tours.planner.discardUnsaved': 'Отменить несохранённые изменения',
-  'tours.planner.saveChanges': 'Сохранить изменения',
   'tours.planner.newTourConfirmTitle': 'Начать новый тур?',
   'tours.planner.newTourConfirmBody':
     'Несохранённые изменения этого тура будут отменены. Сохранённые туры не изменятся.',
@@ -98,11 +97,9 @@ const tours: TranslationStrings = {
   'tours.planner.remove': 'Удалить точку',
   'tours.planner.undo': 'Отменить изменение точки',
   'tours.planner.redo': 'Повторить изменение точки',
-  'tours.planner.discard': 'Удалить черновик',
   'tours.planner.discardTitle': 'Отменить несохранённые изменения тура?',
   'tours.planner.discardBody':
     'Несохранённые изменения будут отменены. Сохранённый тур, его точки, файлы и назначения на дни не изменятся.',
-  'tours.planner.save': 'Сохранить тур',
   'tours.planner.saved': 'Тур сохранён',
   'tours.planner.planAnother': 'Спланировать ещё',
   'tours.planner.assignToDay': 'Назначить на день',

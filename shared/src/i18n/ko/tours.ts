@@ -50,7 +50,6 @@ const tours: TranslationStrings = {
   'tours.planner.restored': '저장하지 않은 초안을 복원했습니다',
   'tours.planner.discardChanges': '변경 사항 버리기',
   'tours.planner.discardUnsaved': '저장하지 않은 변경 사항 버리기',
-  'tours.planner.saveChanges': '변경 사항 저장',
   'tours.planner.newTourConfirmTitle': '새 투어를 시작할까요?',
   'tours.planner.newTourConfirmBody':
     '이 투어의 저장하지 않은 변경 사항은 삭제됩니다. 저장된 투어는 변경되지 않습니다.',
@@ -91,11 +90,9 @@ const tours: TranslationStrings = {
   'tours.planner.remove': '지점 삭제',
   'tours.planner.undo': '지점 편집 실행 취소',
   'tours.planner.redo': '지점 편집 다시 실행',
-  'tours.planner.discard': '초안 버리기',
   'tours.planner.discardTitle': '저장하지 않은 투어 변경 사항을 버릴까요?',
   'tours.planner.discardBody':
     '저장하지 않은 편집 내용은 삭제됩니다. 저장된 투어와 지점, 파일, 일정 배정은 변경되지 않습니다.',
-  'tours.planner.save': '투어 저장',
   'tours.planner.saved': '투어를 저장했습니다',
   'tours.planner.planAnother': '다른 투어 계획',
   'tours.planner.assignToDay': '날짜에 배정',
