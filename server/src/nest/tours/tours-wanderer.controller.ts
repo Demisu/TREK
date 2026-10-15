@@ -30,7 +30,7 @@ export class ToursWandererController {
   @HttpCode(200)
   @ResponseContract(wandererSearchResponseSchema)
   search(@Param('tripId') tripId: string, @CurrentUser() user: User, @Body() body: WandererSearchDto) {
-    return this.wanderer.search(tripId, user.id, { q: body.q ?? '', page: body.page ?? 1, bbox: body.bbox });
+    return this.wanderer.search(tripId, user.id, { q: body.q, page: body.page, bbox: body.bbox });
   }
 
   @RequirePermission('place_edit')

@@ -381,6 +381,17 @@ describe('wanderer e2e', () => {
       expect((await preview()).body).toMatchObject({ state: 'unchanged', snapshot: { editedLocally: true } });
     });
 
+    it('RS-05: an import that is written stays written when the realtime notification fails', async () => {
+      await connect();
+      const shown = await preview();
+      realtime.broadcastMock.mockImplementationOnce(() => {
+        throw new Error('socket closed');
+      });
+      const res = await importTrail(shown.body.contentHash);
+      expect(res.status).toBe(201);
+      expect(await countRows(orm, Places)).toBe(1);
+    });
+
     it("someone else's trail is neither previewed nor imported", async () => {
       await connect();
       client.searchById.mockResolvedValue(null);

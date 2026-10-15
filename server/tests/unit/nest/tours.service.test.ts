@@ -530,3 +530,92 @@ describe('ToursService updates', () => {
     expect(broadcast).not.toHaveBeenCalled();
   });
 });
+
+describe('ToursService restoring a recorded track (PR1-05B)', () => {
+  const recorded = [
+    [47.45, 11.1],
+    [47.46, 11.11],
+    [47.47, 11.12],
+  ];
+
+  /** A tour planned over in place: waypoints of its own, the import's line kept beside them. */
+  async function plannedOverImport(
+    fields: Partial<Pick<Tours, 'wanderer_ref' | 'difficulty' | 'recorded_route_geometry'>>,
+  ) {
+    const created = await service.createTour(tripId, request);
+    const placeId = created.tour.place_id;
+    await updateRows(
+      await sharedTestOrm(testDb),
+      Tours,
+      { place: placeId },
+      {
+        recorded_route_geometry: JSON.stringify(recorded),
+        ...fields,
+      },
+    );
+    (await sharedTestOrm(testDb)).clear();
+    broadcast.mockReset();
+    return String(placeId);
+  }
+
+  it('PR1-05B-SVC-001: a GPX import gets its line back without heights or grade, and loses its waypoints', async () => {
+    const placeId = await plannedOverImport({});
+    broadcast.mockImplementation((_tripId: string, event: string) => {
+      if (event === 'place:updated') throw new Error('socket closed');
+    });
+    const warn = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+
+    const restored = await service.restoreRecordedTrack(tripId, placeId, 'socket');
+
+    // Its stored waypoints are gone; the detail names the two ends from the line, as for any import.
+    expect(await count(TourWaypoints)).toBe(0);
+    expect(restored.waypoints.map((point) => point.role)).toEqual(['start', 'end']);
+    expect(restored.tour).toMatchObject({ max_hiking_difficulty: null, has_recorded_track: false });
+    const tour = await findRow(await sharedTestOrm(testDb), Tours, { place: Number(placeId) });
+    expect(tour).toMatchObject({ match_confidence: 0.3, recorded_route_geometry: null });
+    expect(JSON.parse(String((await placeById(Number(placeId)))?.route_geometry))).toEqual(recorded);
+    expect(warn).toHaveBeenCalled();
+  });
+
+  it('PR1-05B-SVC-002: a wanderer import gets the grade its source gave, on the SAC scale', async () => {
+    const placeId = await plannedOverImport({
+      wanderer_ref: 'https://w.example#trail1',
+      difficulty: 'difficult',
+      recorded_route_geometry: JSON.stringify(recorded.map(([lat, lng], i) => [lat, lng, 700 + i * 50])),
+    });
+    const restored = await service.restoreRecordedTrack(tripId, placeId);
+    expect(restored.tour).toMatchObject({ max_hiking_difficulty: 3 });
+    expect(await findRow(await sharedTestOrm(testDb), Tours, { place: Number(placeId) })).toMatchObject({
+      match_confidence: 1,
+    });
+    expect(broadcast).toHaveBeenCalledWith(tripId, 'tours:changed', { placeIds: [Number(placeId)] }, undefined);
+  });
+
+  it('PR1-05B-SVC-003: no kept track, or an empty one, is a 409 that changes nothing', async () => {
+    const created = await service.createTour(tripId, request);
+    const placeId = String(created.tour.place_id);
+    const refusal = { status: 409, details: { code: 'no_recorded_track' } };
+    await expect(service.restoreRecordedTrack(tripId, placeId)).rejects.toMatchObject(refusal);
+
+    await updateRows(
+      await sharedTestOrm(testDb),
+      Tours,
+      { place: created.tour.place_id },
+      { recorded_route_geometry: '[]' },
+    );
+    (await sharedTestOrm(testDb)).clear();
+    await expect(service.restoreRecordedTrack(tripId, placeId)).rejects.toMatchObject(refusal);
+    expect((await service.getTour(tripId, placeId)).waypoints).toEqual(request.waypoints);
+  });
+
+  it('PR1-05B-SVC-004: a plain place, a tour of another trip or a malformed id is a 404', async () => {
+    const plain = createPlace(testDb, Number(tripId), { name: 'Plain' });
+    const foreign = await service.createTour(otherTripId, request);
+    await expect(service.restoreRecordedTrack(tripId, String(plain.id))).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.restoreRecordedTrack(tripId, String(foreign.tour.place_id))).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    await expect(service.restoreRecordedTrack('abc', '1')).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.restoreRecordedTrack(tripId, 'abc')).rejects.toBeInstanceOf(NotFoundException);
+  });
+});

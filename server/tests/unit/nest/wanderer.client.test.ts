@@ -230,6 +230,36 @@ describe('WandererClient', () => {
     expect(await transport(new Error('ECONNREFUSED'))).toBe('unreachable');
   });
 
+  it('RS-03: a body that breaks off while it is read is a reach failure, for JSON and for the GPX', async () => {
+    answer({ '/api/v1/trail/abc': reply({ id: 'abc', name: 'x' }) });
+    readCappedJsonMock.mockRejectedValueOnce(new Error('socket hang up'));
+    expect((await failure(() => client.trail(CREDS, 'abc'))).code).toBe('unreachable');
+
+    answer({
+      '/api/v1/files/trails/abc/track.gpx': {
+        ok: true,
+        status: 200,
+        text: async () => {
+          throw new Error('socket hang up');
+        },
+      },
+    });
+    expect((await failure(() => client.gpx(CREDS, { id: 'abc', name: 'x', gpx: 'track.gpx' }))).code).toBe(
+      'unreachable',
+    );
+  });
+
+  it('RS-03: the test counts the owner trails from either total, and still connects when the count fails', async () => {
+    const countWith = async (search: Reply) => {
+      answer({ ...OWNER, '/api/v1/search/trails': search });
+      return (await client.check(CREDS)).trailCount;
+    };
+    expect(await countWith(reply({ hits: [], estimatedTotalHits: 7 }))).toBe(7);
+    expect(await countWith(reply({ hits: [], totalHits: 5 }))).toBe(5);
+    expect(await countWith(reply({ hits: [] }))).toBeNull();
+    expect(await countWith(reply('Bad gateway', 502))).toBeNull();
+  });
+
   it('RS-03: a self-signed certificate is accepted only when the user allowed it', async () => {
     answer({ '/api/v1/trail/abc': reply({ id: 'abc', name: 'x' }) });
     await client.trail({ ...CREDS, allowInsecureTls: true }, 'abc');
