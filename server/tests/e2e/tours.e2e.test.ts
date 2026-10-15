@@ -536,21 +536,21 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
       expect(await listed(derived)).toMatchObject({ derived_from_place_id: null });
     });
 
-    it('400 for an origin that is a planned tour, a tour of another trip or no tour at all', async () => {
-      const planned = await createViaApi();
-      const foreign = await importedTour(6);
-      const plain = await plainPlace(5, 'Cafe');
-      // One request per origin at once; each answers on its own.
-      const answers = await Promise.all(
-        [planned, foreign, plain, 999_999].map((id) =>
-          request(server)
-            .post('/api/trips/5/tours')
-            .set('Cookie', sessionCookie(OWNER))
-            .send(tourBody({ derived_from_place_id: id })),
-        ),
-      );
-      expect(answers.map((res) => res.status)).toEqual([400, 400, 400, 400]);
-      expect(await countRows(orm, Tours, { place: { $nin: [planned, foreign] } })).toBe(0);
+    const refusedOrigins: Record<string, () => Promise<number>> = {
+      'a planned tour': () => createViaApi(),
+      'a tour of another trip': () => importedTour(6),
+      'no tour at all': () => plainPlace(5, 'Cafe'),
+      'a place that does not exist': async () => 999_999,
+    };
+    it.each(Object.keys(refusedOrigins))('400 for an origin that is %s, and nothing is written', async (kind) => {
+      const origin = await refusedOrigins[kind]();
+      const before = await countRows(orm, Tours, {});
+      const res = await request(server)
+        .post('/api/trips/5/tours')
+        .set('Cookie', sessionCookie(OWNER))
+        .send(tourBody({ derived_from_place_id: origin }));
+      expect(res.status).toBe(400);
+      expect(await countRows(orm, Tours, {})).toBe(before);
     });
 
     it('planning an import over in place keeps its recorded track, and restoring brings it back', async () => {

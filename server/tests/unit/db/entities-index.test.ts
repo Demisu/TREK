@@ -30,7 +30,7 @@ describe('ALL_ENTITIES', () => {
   });
 
   /**
-   * Plan 2 Task 3: every one of the 133 entities the migrated schema
+   * Plan 2 Task 3: every one of the 135 entities the migrated schema
    * describes (120 rewritten + the 5 document-sync tables added this task,
    * + push_subscriptions and google_api_usage from legacy steps 245 and 254,
    * + tour_types, tours and tour_waypoints from the Tours migration,
@@ -42,8 +42,8 @@ describe('ALL_ENTITIES', () => {
    * `entity-schema-parity.test.ts` can't see — it iterates the metadata map,
    * which de-duplicates by class name).
    */
-  it('ENT-003: exactly 133 entities, every class name unique', () => {
-    expect(ALL_ENTITIES.length).toBe(133);
+  it('ENT-003: exactly 135 entities, every class name unique', () => {
+    expect(ALL_ENTITIES.length).toBe(135);
     const names = ALL_ENTITIES.map((s) => s.meta.className);
     expect(new Set(names).size).toBe(names.length);
   });

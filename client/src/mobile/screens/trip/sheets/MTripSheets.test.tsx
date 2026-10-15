@@ -98,13 +98,14 @@ describe('MSelectedTourDetail', () => {
   it('renders the selected tour through the shared detail dialog and elevation profile', () => {
     render(<MSelectedTourDetail planner={planner()} />)
 
-    expect(screen.getAllByText('Track Stats')).toHaveLength(1)
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(document.querySelector('#tour-elevation-42')).toBeInTheDocument()
   })
 
   it('renders nothing for an ordinary selected place', () => {
     render(<MSelectedTourDetail planner={planner({ selectedTour: null })} />)
 
-    expect(screen.queryByText('Track Stats')).not.toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(document.querySelector('#tour-elevation-42')).not.toBeInTheDocument()
   })
 })
