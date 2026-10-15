@@ -41,7 +41,7 @@ import PlaceHoverCard from './PlaceHoverCard'
 import { ratingBadgeHtml } from './ratingBadge'
 import type { Poi } from './poiCategories'
 import { poiPinParts } from './poiMarker'
-import { resolveTrackColor, hasManualTrackColor, TRACK_CASING_COLOR } from './trackColors'
+import { addGpxTrackLayers, GPX_HIT_LAYER_ID, hasGpxTrackLayers, selectGpxTrack, setGpxTracks } from './gpxTrackLayers'
 import { parseRenderableRouteGeometry } from '../../utils/routeGeometry'
 import { buildPoiPopupHtml } from './placePopup'
 import { pluginsApi, type PluginMapMarker, type PluginMapLayer } from '../../api/client'
@@ -66,9 +66,6 @@ const PLACE_CLUSTER_SOURCE_ID = 'trip-place-clusters'
 const PLACE_CLUSTER_CIRCLE_LAYER_ID = 'trip-place-clusters-circle'
 const PLACE_CLUSTER_COUNT_LAYER_ID = 'trip-place-clusters-count'
 const PLACE_UNCLUSTERED_LAYER_ID = 'trip-place-unclustered-hit'
-const GPX_HIT_LAYER_ID = 'trip-gpx-hit'
-const GPX_SELECTED_CASING_LAYER_ID = 'trip-gpx-selected-casing'
-const GPX_SELECTED_LAYER_ID = 'trip-gpx-selected'
 /**
  * The satellite base layer, the GL twin of the Leaflet one.
  *
@@ -1347,58 +1344,8 @@ export function MapViewGL({
         })
       }
       // gpx geometries source (place.route_geometry)
-      if (!map.getSource('trip-gpx')) {
-        map.addSource('trip-gpx', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } })
-        // Casing under the tracks that carry a picked colour (#776) — keeps them
-        // legible on satellite and dark styles. Untouched tracks are filtered
-        // out, so they look exactly as they did before.
-        map.addLayer({
-          id: 'trip-gpx-casing',
-          type: 'line',
-          source: 'trip-gpx',
-          filter: ['==', ['get', 'cased'], true],
-          paint: { 'line-color': '#ffffff', 'line-width': 6.5, 'line-opacity': 0.7 },
-          layout: { 'line-cap': 'round', 'line-join': 'round' },
-        })
-        map.addLayer({
-          id: 'trip-gpx-line',
-          type: 'line',
-          source: 'trip-gpx',
-          paint: {
-            'line-color': ['coalesce', ['get', 'color'], '#3b82f6'],
-            'line-width': 3.5,
-            'line-opacity': ['case', ['==', ['get', 'cased'], true], 0.9, 0.75],
-          },
-          layout: { 'line-cap': 'round', 'line-join': 'round' },
-        })
-        // PR1-08: the picked tour's track on top, wider with a light rim, as the Leaflet map draws
-        // it. The filter follows the selection; until something is picked it matches no track.
-        map.addLayer({
-          id: GPX_SELECTED_CASING_LAYER_ID,
-          type: 'line',
-          source: 'trip-gpx',
-          filter: ['==', ['get', 'place_id'], -1],
-          paint: { 'line-color': TRACK_CASING_COLOR, 'line-width': 9, 'line-opacity': 0.95 },
-          layout: { 'line-cap': 'round', 'line-join': 'round' },
-        })
-        map.addLayer({
-          id: GPX_SELECTED_LAYER_ID,
-          type: 'line',
-          source: 'trip-gpx',
-          filter: ['==', ['get', 'place_id'], -1],
-          paint: { 'line-color': ['coalesce', ['get', 'color'], '#3b82f6'], 'line-width': 5.5 },
-          layout: { 'line-cap': 'round', 'line-join': 'round' },
-        })
-        // Invisible fat line that catches the click — 3.5px is not a target,
-        // and the start markers cluster below zoom 11, so without this a track
-        // is unreachable at the very zoom where you compare walks side by side.
-        map.addLayer({
-          id: GPX_HIT_LAYER_ID,
-          type: 'line',
-          source: 'trip-gpx',
-          paint: { 'line-color': '#000', 'line-width': 14, 'line-opacity': 0 },
-          layout: { 'line-cap': 'round', 'line-join': 'round' },
-        })
+      if (!hasGpxTrackLayers(map)) {
+        addGpxTrackLayers(map)
         const selectTrack = (e: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
           // A click on a cluster bubble sitting over a track belongs to the
           // cluster (zoom-to-expand), not to the line underneath it.
@@ -2095,32 +2042,13 @@ export function MapViewGL({
   useEffect(() => {
     const map = mapRef.current
     if (!map) return
-    const src = map.getSource('trip-gpx') as mapboxgl.GeoJSONSource | undefined
-    if (!src) return
-    const features = places.flatMap(place => {
-      const coords = parseRenderableRouteGeometry(place.route_geometry)
-      if (!coords) return []
-      return [{
-        type: 'Feature' as const,
-        properties: {
-          color: resolveTrackColor(place),
-          cased: hasManualTrackColor(place),
-          place_id: place.id,
-        },
-        geometry: { type: 'LineString' as const, coordinates: coords.map(([lat, lng]) => [lng, lat]) },
-      }]
-    })
-    src.setData({ type: 'FeatureCollection', features })
+    setGpxTracks(map, places)
   }, [places, mapReady])
 
-  // The picked tour's track stands out (PR1-08); -1 matches no track.
+  // The picked tour's track stands out (PR1-08).
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !mapReady || typeof map.getLayer !== 'function') return
-    const filter = ['==', ['get', 'place_id'], selectedPlaceId ?? -1] as mapboxgl.FilterSpecification
-    for (const id of [GPX_SELECTED_CASING_LAYER_ID, GPX_SELECTED_LAYER_ID]) {
-      if (map.getLayer(id)) map.setFilter(id, filter)
-    }
+    if (map && mapReady) selectGpxTrack(map, selectedPlaceId)
   }, [selectedPlaceId, mapReady])
 
   // Reservation overlay — mirrors the Leaflet ReservationOverlay: great-

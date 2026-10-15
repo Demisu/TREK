@@ -60,7 +60,8 @@ import { NightPauseDrag } from './NightPauseDrag'
 import type { DayBoundaryControls } from './dayBoundaryDrag'
 import type { Poi } from './poiCategories'
 import { poiDetailRowKey, poiDetailRows, poiPinCacheKey, poiPinParts } from './poiMarker'
-import { resolveTrackColor, hasManualTrackColor, TRACK_CASING_COLOR } from './trackColors'
+import { resolveTrackColor, hasManualTrackColor } from './trackColors'
+import { SelectedTrackLine, TrackLines } from './TrackLines'
 import DawarichTrailLayer from './DawarichTrailLayer'
 import { OFM_POSITRON, DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM, MAP_MAX_ZOOM, OPENTOPOMAP_TILE_URL, OPENTOPOMAP_TILE_ATTRIBUTION, OPENTOPOMAP_TILE_MAXZOOM, SATELLITE_TILE_URL, SATELLITE_TILE_MAXZOOM, AMAP_SATELLITE, attributionForTile } from '../../constants/mapDefaults'
 import { crsForBasemap } from './gcj02Crs'
@@ -1034,77 +1035,10 @@ export const MapView = memo(function MapView({
     return [{ place, coords, cased: hasManualTrackColor(place), color: resolveTrackColor(place) }]
   }), [places])
 
-  // Keeps the click handler out of the polyline memo below: `handleMarkerClick`
+  // Keeps the click handler out of the track lines' memo (TrackLines): `handleMarkerClick`
   // changes on every selection, and depending on it would redraw all tracks.
   const markerClickRef = useRef(handleMarkerClick)
   markerClickRef.current = handleMarkerClick
-
-  const gpxPolylines = useMemo(() => (
-    <>
-      {/* Casings live in their own pane below the lines. Leaflet stacks paths by
-          insertion order, so drawing them inline would put the casing of a track
-          added later — or of one just given a colour — on top of an earlier
-          track's line. Always rendered, hidden via opacity when there is no
-          colour, so toggling one never remounts the path. */}
-      {gpxTracks.map(({ place, coords, cased }) => (
-        <Polyline
-          key={`gpx-${place.id}-casing`}
-          positions={coords}
-          pane={hasCasingPane ? TRACK_CASING_PANE : undefined}
-          pathOptions={{ color: TRACK_CASING_COLOR, weight: 6.5, opacity: cased ? 0.7 : 0, lineCap: 'round', lineJoin: 'round' }}
-          interactive={false}
-        />
-      ))}
-      {/* pathOptions, not bare color/weight props: react-leaflet only calls
-          setStyle when the pathOptions reference changes, so bare props would
-          stick at their mount-time colour and a repaint would never arrive. */}
-      {gpxTracks.map(({ place, coords, cased, color }) => (
-        <Polyline
-          key={`gpx-${place.id}`}
-          positions={coords}
-          pathOptions={{ color, weight: 3.5, opacity: cased ? 0.9 : 0.75 }}
-          interactive={false}
-        />
-      ))}
-      {/* Invisible fat line on top so the track can actually be hit — 3.5px is
-          not a target, least of all on touch, and the start markers cluster below
-          zoom 11. bubblingMouseEvents is essential: paths bubble to the map by
-          default (markers do not), and the map's own click handler clears the
-          selection this one just made. */}
-      {gpxTracks.map(({ place, coords }) => (
-        <Polyline
-          key={`gpx-${place.id}-hit`}
-          positions={coords}
-          pathOptions={{ color: '#000', weight: 14, opacity: 0, lineCap: 'round', lineJoin: 'round' }}
-          bubblingMouseEvents={false}
-          eventHandlers={{ click: () => markerClickRef.current(place.id) }}
-        />
-      ))}
-    </>
-  ), [gpxTracks, hasCasingPane])
-
-  // PR1-08: the track of the picked tour stands out, wider and with a light rim, so the line and
-  // the list's row read as one. Drawn on its own, so a selection never redraws every track.
-  const selectedTrack = useMemo(
-    () => (selectedPlaceId == null ? null : gpxTracks.find(track => track.place.id === selectedPlaceId) ?? null),
-    [gpxTracks, selectedPlaceId],
-  )
-  const selectedTrackLine = selectedTrack && (
-    <>
-      <Polyline
-        key={`gpx-selected-${selectedTrack.place.id}-casing`}
-        positions={selectedTrack.coords}
-        pathOptions={{ color: TRACK_CASING_COLOR, weight: 9, opacity: 0.95, lineCap: 'round', lineJoin: 'round' }}
-        interactive={false}
-      />
-      <Polyline
-        key={`gpx-selected-${selectedTrack.place.id}`}
-        positions={selectedTrack.coords}
-        pathOptions={{ color: selectedTrack.color, weight: 5.5, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
-        interactive={false}
-      />
-    </>
-  )
 
   const TooltipOverlay = !hoverDisabled && hoveredPlace && tooltipPos && !isTouchDevice
     && (!hoveredPlace.routeVia || routeVias.includes(hoveredPlace.routeVia))
@@ -1335,8 +1269,8 @@ export const MapView = memo(function MapView({
 
       {/* GPX imported route geometries */}
       <TrackCasingPane onReady={setHasCasingPane} />
-      {gpxPolylines}
-      {selectedTrackLine}
+      <TrackLines tracks={gpxTracks} casingPane={hasCasingPane ? TRACK_CASING_PANE : undefined} selectRef={markerClickRef} />
+      <SelectedTrackLine tracks={gpxTracks} selectedPlaceId={selectedPlaceId} />
 
       {routeProfileFocus && (
         <CircleMarker

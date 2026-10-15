@@ -62,7 +62,7 @@
   "components/Map/LocationButton.tsx": 1,
   "components/Map/MapPluginMarkers.tsx": 2,
   "components/Map/MapTogglePill.tsx": 1,
-  "components/Map/MapView.tsx": 9,
+  "components/Map/MapView.tsx": 8,
   "components/Map/MapViewGL.tsx": 11,
   "components/Map/NightPauseTooltip.tsx": 1,
   "components/Map/PlaceHoverCard.tsx": 1,

@@ -22,12 +22,12 @@ function FacetChip({ active, label, count, onClick }: { active: boolean; label: 
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`flex h-8 flex-none items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-[0.75rem] font-semibold ${
+      className={`flex h-8 flex-none items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-caption font-semibold ${
         active ? 'bg-m-act text-m-actfg' : 'bg-[color:var(--m-ic)] text-m-ink'
       }`}
     >
       {label}
-      <span className="font-geist text-[0.6875rem] opacity-60">{count}</span>
+      <span className="font-geist text-caption opacity-60">{count}</span>
     </button>
   )
 }
@@ -69,8 +69,8 @@ export default function MToursSelectionList({ planner, shell, filters, canAssign
       <>
       {facetRow}
       <div role="status" className="mt-3 rounded-2xl border border-[color:var(--m-rowbr)] bg-[color:var(--m-ic)] p-6 text-center">
-        <p className="font-geist text-[0.78125rem] text-m-muted">{t('tours.filter.empty')}</p>
-        <button type="button" onClick={filters.reset} className="mt-3 rounded-full bg-m-act px-4 py-2 text-[0.75rem] font-semibold text-m-actfg">
+        <p className="font-geist text-caption text-m-muted">{t('tours.filter.empty')}</p>
+        <button type="button" onClick={filters.reset} className="mt-3 rounded-full bg-m-act px-4 py-2 text-caption font-semibold text-m-actfg">
           {t('tours.filter.reset')}
         </button>
       </div>
