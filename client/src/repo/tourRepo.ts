@@ -1,5 +1,6 @@
 import { computeTourMetrics, type GeometryPoint, type TourCreateRequest, type TourCreateResponse, type TourDetailResponse, type TourImportGpxResponse, type TourListItem, type TourWaypoint } from '@trek/shared'
 import { toursApi } from '../api/client'
+import { recordedTrackApi } from '../api/recordedTrack'
 import { offlineDb, replaceTripTours, type CachedTour } from '../db/offlineDb'
 import { mutationQueue, generateUUID, nextTempId } from '../sync/mutationQueue'
 import { isEffectivelyOffline } from '../sync/networkMode'
@@ -178,7 +179,7 @@ export const tourRepo = {
 
   /** Online only, like the import: the recorded track is kept on the server, not in the cache. */
   async restoreRecorded(tripId: number | string, placeId: number): Promise<TourDetailResponse> {
-    const result = await toursApi.restoreRecorded(tripId, placeId)
+    const result = await recordedTrackApi.restore(tripId, placeId)
     await offlineDb.tours.put({ ...result.tour, trip_id: Number(tripId), waypoints: result.waypoints })
     return result
   },

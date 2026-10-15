@@ -1,6 +1,6 @@
 {
   "e2e/help/fixtures.ts": 2291,
-  "src/api/client.ts": 1881,
+  "src/api/client.ts": 1916,
   "src/components/Admin/AdminPluginsPanel.test.tsx": 2704,
   "src/components/Admin/AdminPluginsPanel.tsx": 1667,
   "src/components/Budget/CostsPanel.test.tsx": 2764,
@@ -24,7 +24,7 @@
   "src/mobile/screens/admin/MAdminPluginsPanel.tsx": 1507,
   "src/pages/JourneyDetailPage.test.tsx": 4030,
   "src/pages/LoginPage.tsx": 1348,
-  "src/pages/TripPlannerPage.tsx": 1148,
+  "src/pages/TripPlannerPage.tsx": 1150,
   "src/pages/atlas/useAtlas.ts": 1287,
   "src/pages/tripPlanner/useTripPlanner.roadtrip.test.tsx": 3518,
   "src/pages/tripPlanner/useTripPlanner.test.tsx": 3309,

@@ -1,6 +1,7 @@
 import { useEffect, useEffectEvent, useState } from 'react';
 
 import { adminApi } from '../../../api/client';
+import { wandererAdminApi } from '../../../api/wanderer';
 import { useTranslation } from '../../../i18n';
 import { useAddonStore } from '../../../store/addonStore';
 import { useToast } from '../../shared/Toast';
@@ -31,8 +32,8 @@ export function useAddonManager() {
 
   const loadOnMount = useEffectEvent(() => {
     void loadAddons().finally(() => setLoading(false));
-    adminApi
-      .getToursWanderer()
+    wandererAdminApi
+      .get()
       .then((flag) => setToursWanderer(flag.enabled))
       .catch(() => toast.error(t('admin.addons.toast.error')));
   });
@@ -67,7 +68,7 @@ export function useAddonManager() {
     const next = !toursWanderer;
     setToursWanderer(next);
     try {
-      await adminApi.updateToursWanderer(next);
+      await wandererAdminApi.update(next);
     } catch {
       setToursWanderer(!next);
       toast.error(t('admin.addons.toast.error'));

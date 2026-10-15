@@ -1,4 +1,5 @@
 import type {
+  AdminFeatureToggleResponse,
   WandererConnection,
   WandererImportPreview,
   WandererImportRequest,
@@ -38,4 +39,11 @@ export const wandererApi = {
       .then((r) => r.data),
   importTrail: (tripId: number, body: WandererImportRequest): Promise<WandererImportResponse> =>
     apiClient.post(`/trips/${tripId}/tours/wanderer/import`, body, upstream).then((r) => r.data),
+};
+
+/** The admin's switch for wanderer under the Tours addon. */
+export const wandererAdminApi = {
+  get: (): Promise<AdminFeatureToggleResponse> => apiClient.get('/admin/tours-wanderer').then((r) => r.data),
+  update: (enabled: boolean): Promise<AdminFeatureToggleResponse> =>
+    apiClient.put('/admin/tours-wanderer', { enabled }).then((r) => r.data),
 };

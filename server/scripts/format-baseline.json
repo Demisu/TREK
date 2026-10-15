@@ -20,6 +20,7 @@
   "src/nest/plugins/runtime/plugin-sdk.ts",
   "src/nest/reservations/reservations.mcp.ts",
   "src/nest/reservations/reservations.service.ts",
+  "src/nest/trips/trips.service.ts",
   "src/nest/vacay/vacay.service.ts",
   "tests/unit/db/repositories/Places.repository.test.ts",
   "tests/unit/nest/atlas.service.test.ts",

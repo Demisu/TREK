@@ -2,7 +2,7 @@ import { isEffectivelyOffline } from '../sync/networkMode'
 import axios, { AxiosInstance } from 'axios'
 import type { z } from 'zod'
 import type { Day, Place, Trip } from '../types'
-import type { AdminFeatureToggleResponse, MapsNearbyRequest, JourneyReorderEntryPhotosRequest, TransitProvider, GoogleQuotaUpdateRequest, NotificationDefaultsUpdateRequest, TourListItem, TourImportGpxResponse, TourCreateRequest, TourCreateResponse, TourDetailResponse } from '@trek/shared'
+import type { MapsNearbyRequest, JourneyReorderEntryPhotosRequest, TransitProvider, GoogleQuotaUpdateRequest, NotificationDefaultsUpdateRequest, TourListItem, TourImportGpxResponse, TourCreateRequest, TourCreateResponse, TourDetailResponse } from '@trek/shared'
 import { randomId } from '../utils/randomId'
 import { postProviderPhotosInBatches } from './providerPhotoBatches'
 import {
@@ -525,8 +525,6 @@ export const toursApi = {
     apiClient.post(`/trips/${tripId}/tours`, body).then(r => r.data),
   update: (tripId: number | string, placeId: number | string, body: TourCreateRequest): Promise<TourDetailResponse> =>
     apiClient.put(`/trips/${tripId}/tours/${placeId}`, body).then(r => r.data),
-  restoreRecorded: (tripId: number | string, placeId: number | string): Promise<TourDetailResponse> =>
-    apiClient.post(`/trips/${tripId}/tours/${placeId}/restore-recorded`).then(r => r.data),
   importGpx: (tripId: number | string, file: File): Promise<TourImportGpxResponse> => {
     const fd = new FormData()
     fd.append('file', file)
@@ -708,10 +706,6 @@ export const adminApi = {
   checkVersion: () => apiClient.get('/admin/version-check').then(r => r.data),
   getBagTracking: () => apiClient.get('/admin/bag-tracking').then(r => r.data),
   updateBagTracking: (enabled: boolean) => apiClient.put('/admin/bag-tracking', { enabled }).then(r => r.data),
-  getToursWanderer: (): Promise<AdminFeatureToggleResponse> =>
-    apiClient.get('/admin/tours-wanderer').then(r => r.data),
-  updateToursWanderer: (enabled: boolean): Promise<AdminFeatureToggleResponse> =>
-    apiClient.put('/admin/tours-wanderer', { enabled }).then(r => r.data),
   getPlacesPhotos: () => apiClient.get('/admin/places-photos').then(r => r.data),
   updatePlacesPhotos: (enabled: boolean) => apiClient.put('/admin/places-photos', { enabled }).then(r => r.data),
   getPlaceShadow: () => apiClient.get('/admin/place-shadow').then(r => r.data),
