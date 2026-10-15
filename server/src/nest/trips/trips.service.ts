@@ -738,13 +738,16 @@ export class TripsService {
       // The facet row goes first, since the waypoints and the import record reference it.
       const oldTours = await this.toursRepo.listRowsForTrip(Number(sourceTripId));
       const copiedTours = new Set<number>();
+      const copiedSources: Array<[number, number]> = [];
       for (const { place_id, ...tour } of oldTours) {
         const newPlaceId = placeMap.get(place_id);
         if (!newPlaceId) continue;
         await this.toursRepo.insertCopy(newPlaceId, tour, placeMap);
-        await this.toursRepo.copySource(place_id, newPlaceId);
+        copiedSources.push([place_id, newPlaceId]);
         copiedTours.add(place_id);
       }
+      // The import records after the facets they reference; the order among them does not matter.
+      await Promise.all(copiedSources.map(([from, to]) => this.toursRepo.copySource(from, to)));
 
       const waypointsByPlace = new Map<number, TourWaypointRow[]>();
       for (const { place_id, ...waypoint } of await this.tourWaypointsRepo.listForTrip(Number(sourceTripId))) {

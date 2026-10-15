@@ -159,17 +159,17 @@ export class ToursService {
     return rows.map((r) => this.toItem(r));
   }
 
-  /** One saved tour plus the persisted routing controls needed by the editor. */
   /** The days every tour of the trip sits on, for the MCP read tools. */
   async listTourDays(tripId: number): Promise<TourDayRow[]> {
     return await this.toursRepo.listTourDays(tripId);
   }
 
+  /** One saved tour plus the persisted routing controls needed by the editor. */
   async getTour(tripId: string, placeId: string): Promise<TourDetailResponse> {
     const tid = toRowId(tripId);
     const pid = toRowId(placeId);
     const row = tid !== null && pid !== null ? await this.toursRepo.findInTrip(tid, pid) : undefined;
-    if (!row) throw new NotFoundException('Tour not found');
+    if (!row || tid === null) throw new NotFoundException('Tour not found');
 
     let waypoints: TourWaypoint[] = await this.waypointsRepo.listForPlace(row.place_id);
     // GPX tours created before tour_waypoints existed still belong in this
@@ -177,7 +177,7 @@ export class ToursService {
     // expose their saved geometry endpoints as controls; the first edit/save
     // replaces them with normal persisted tour_waypoints transactionally.
     if (waypoints.length < 2) {
-      const place = await this.placesRepo.findInTrip(row.place_id, tid!);
+      const place = await this.placesRepo.findInTrip(row.place_id, tid);
       const geometry = parseRouteGeometry(place?.route_geometry);
       if (geometry.length >= 2) {
         const start = geometry[0];
@@ -189,7 +189,7 @@ export class ToursService {
       }
     }
 
-    return { tour: this.toItem(row), waypoints, provenance: await this.provenanceOf(tid!, row.place_id) };
+    return { tour: this.toItem(row), waypoints, provenance: await this.provenanceOf(tid, row.place_id) };
   }
 
   /**
@@ -548,7 +548,7 @@ export class ToursService {
 
 /** The file name a GPX import keeps: the name as uploaded, without a path, cut to what the column shows. */
 function gpxFileName(name: string | undefined): string | null {
-  const base = name?.split(/[\/]/).pop()?.trim();
+  const base = name?.split('/').pop()?.trim();
   return base ? base.slice(0, 255) : null;
 }
 
