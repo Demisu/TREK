@@ -112,7 +112,13 @@ export function useTripFerratas(
   );
   // The tiles a tour's line runs through load with the layer off too, for the warning
   // that a route climbs a ferrata; only the layer's own state decides what it shows.
-  const routeKey = routeTiles && routeTiles.length > 0 ? routeTiles.map(ferrataTileKey).sort().join('|') : null;
+  const routeKey =
+    routeTiles && routeTiles.length > 0
+      ? routeTiles
+          .map(ferrataTileKey)
+          .sort((a, b) => a.localeCompare(b))
+          .join('|')
+      : null;
   const layerOn = enabled && !!store;
   const active = layerOn || (!!routeKey && !!store);
   const fits = !!view && ferrataBboxFits(view);
