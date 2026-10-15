@@ -49,6 +49,7 @@ const UNNUMBERED = [
   'Migration20200101043500_wanderer_difficulty_on_the_sac_scale',
   'Migration20200101043600_a_tour_remembers_the_import_it_was_derived_from',
   'Migration20200101043700_an_import_planned_over_keeps_its_recorded_track',
+  'Migration20200101043800_a_tour_records_where_it_came_from',
 ];
 // The last step the positional runner ever had; planLegacyBaseline refuses a
 // schema_version past it.

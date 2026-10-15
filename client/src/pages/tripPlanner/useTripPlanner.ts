@@ -414,7 +414,7 @@ export function useTripPlanner() {
   useTripWebSocket(tripId, invalidateTourPlaceIds)
 
   const { expandedDayIds, setExpandedDayIds, mapPlaces, dayOrderMap, dayPlaces } = useMapPlaces({
-    places, assignments, selectedDayId, days, tripAccommodations, reservations, toursEnabled,
+    places, assignments, selectedDayId, days, tripAccommodations, reservations, toursEnabled, tripId, tourPlaceIds, isMobile,
   })
 
   // Fed whenever the addon is on, not only while the mode is being looked at.

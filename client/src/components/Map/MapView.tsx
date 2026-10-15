@@ -60,7 +60,7 @@ import { NightPauseDrag } from './NightPauseDrag'
 import type { DayBoundaryControls } from './dayBoundaryDrag'
 import type { Poi } from './poiCategories'
 import { poiDetailRowKey, poiDetailRows, poiPinCacheKey, poiPinParts } from './poiMarker'
-import { resolveTrackColor, hasManualTrackColor } from './trackColors'
+import { resolveTrackColor, hasManualTrackColor, TRACK_CASING_COLOR } from './trackColors'
 import DawarichTrailLayer from './DawarichTrailLayer'
 import { OFM_POSITRON, DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM, MAP_MAX_ZOOM, OPENTOPOMAP_TILE_URL, OPENTOPOMAP_TILE_ATTRIBUTION, OPENTOPOMAP_TILE_MAXZOOM, SATELLITE_TILE_URL, SATELLITE_TILE_MAXZOOM, AMAP_SATELLITE, attributionForTile } from '../../constants/mapDefaults'
 import { crsForBasemap } from './gcj02Crs'
@@ -1051,7 +1051,7 @@ export const MapView = memo(function MapView({
           key={`gpx-${place.id}-casing`}
           positions={coords}
           pane={hasCasingPane ? TRACK_CASING_PANE : undefined}
-          pathOptions={{ color: '#ffffff', weight: 6.5, opacity: cased ? 0.7 : 0, lineCap: 'round', lineJoin: 'round' }}
+          pathOptions={{ color: TRACK_CASING_COLOR, weight: 6.5, opacity: cased ? 0.7 : 0, lineCap: 'round', lineJoin: 'round' }}
           interactive={false}
         />
       ))}
@@ -1082,6 +1082,29 @@ export const MapView = memo(function MapView({
       ))}
     </>
   ), [gpxTracks, hasCasingPane])
+
+  // PR1-08: the track of the picked tour stands out, wider and with a light rim, so the line and
+  // the list's row read as one. Drawn on its own, so a selection never redraws every track.
+  const selectedTrack = useMemo(
+    () => (selectedPlaceId == null ? null : gpxTracks.find(track => track.place.id === selectedPlaceId) ?? null),
+    [gpxTracks, selectedPlaceId],
+  )
+  const selectedTrackLine = selectedTrack && (
+    <>
+      <Polyline
+        key={`gpx-selected-${selectedTrack.place.id}-casing`}
+        positions={selectedTrack.coords}
+        pathOptions={{ color: TRACK_CASING_COLOR, weight: 9, opacity: 0.95, lineCap: 'round', lineJoin: 'round' }}
+        interactive={false}
+      />
+      <Polyline
+        key={`gpx-selected-${selectedTrack.place.id}`}
+        positions={selectedTrack.coords}
+        pathOptions={{ color: selectedTrack.color, weight: 5.5, opacity: 1, lineCap: 'round', lineJoin: 'round' }}
+        interactive={false}
+      />
+    </>
+  )
 
   const TooltipOverlay = !hoverDisabled && hoveredPlace && tooltipPos && !isTouchDevice
     && (!hoveredPlace.routeVia || routeVias.includes(hoveredPlace.routeVia))
@@ -1313,6 +1336,7 @@ export const MapView = memo(function MapView({
       {/* GPX imported route geometries */}
       <TrackCasingPane onReady={setHasCasingPane} />
       {gpxPolylines}
+      {selectedTrackLine}
 
       {routeProfileFocus && (
         <CircleMarker

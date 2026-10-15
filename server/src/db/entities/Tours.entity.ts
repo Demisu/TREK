@@ -1,4 +1,4 @@
-import { Collection, EntityRepositoryType, PrimaryKeyProp, type Ref, defineEntity, p } from '@mikro-orm/core';
+import { Collection, EntityRepositoryType, type Opt, PrimaryKeyProp, type Ref, defineEntity, p } from '@mikro-orm/core';
 import { ToursRepository } from '../repositories/Tours.repository';
 import { Places } from './Places.entity';
 import { TourSources } from './TourSources.entity';
@@ -25,10 +25,20 @@ export class Tours {
   derivedFromPlace?: Ref<Places> | null;
   derived_from_place_id?: number | null;
   recorded_route_geometry?: string | null;
+  origin: TToursOrigin & Opt = ToursOrigin.TREK;
+  origin_file_name?: string | null;
   tourTypeRef!: Ref<TourTypes>;
   tour_sources: Ref<TourSources> | null = null;
   tour_waypoints_collection = new Collection<TourWaypoints>(this);
 }
+
+export const ToursOrigin = {
+  TREK: 'trek',
+  GPX: 'gpx',
+  WANDERER: 'wanderer',
+} as const;
+
+export type TToursOrigin = (typeof ToursOrigin)[keyof typeof ToursOrigin];
 
 export const ToursSchema = defineEntity({
   class: Tours,
@@ -58,6 +68,8 @@ export const ToursSchema = defineEntity({
     derivedFromPlace: () => p.manyToOne(Places).ref().nullable().hidden(),
     derived_from_place_id: p.integer().nullable().persist(false),
     recorded_route_geometry: p.text().nullable(),
+    origin: p.enum(() => ToursOrigin).default('trek'),
+    origin_file_name: p.text().nullable(),
     tourTypeRef: () => p.manyToOne(TourTypes).ref().joinColumn('tour_type').hidden().index('idx_tours_tour_type'),
     tour_sources: () => p.oneToOne(TourSources).ref().mappedBy('place').hidden(),
     tour_waypoints_collection: () => p.oneToMany(TourWaypoints).mappedBy('place').hidden(),

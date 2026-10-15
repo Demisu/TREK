@@ -10,7 +10,12 @@ import { WandererEnabledGuard } from '../wanderer/wanderer-enabled.guard';
 import { WandererImportDto, WandererSearchDto } from './dto/tours-wanderer.dto';
 import { ToursWandererService } from './tours-wanderer.service';
 import { Body, Controller, Get, Headers, HttpCode, Param, Post, UseGuards } from '@nestjs/common';
-import { wandererImportPreviewSchema, wandererImportResponseSchema, wandererSearchResponseSchema } from '@trek/shared';
+import {
+  tourSourceCheckResponseSchema,
+  wandererImportPreviewSchema,
+  wandererImportResponseSchema,
+  wandererSearchResponseSchema,
+} from '@trek/shared';
 
 /**
  * `/api/trips/:tripId/tours/wanderer`: the caller's wanderer trails, seen from
@@ -38,6 +43,15 @@ export class ToursWandererController {
   @ResponseContract(wandererImportPreviewSchema)
   preview(@Param('tripId') tripId: string, @Param('trailId') trailId: string, @CurrentUser() user: User) {
     return this.wanderer.preview(tripId, user.id, trailId);
+  }
+
+  /** MF-03: whether the trail a wanderer snapshot came from changed since; reads, writes nothing. */
+  @RequirePermission('place_edit')
+  @Post('sources/:placeId/check')
+  @HttpCode(200)
+  @ResponseContract(tourSourceCheckResponseSchema)
+  checkSource(@Param('tripId') tripId: string, @Param('placeId') placeId: string, @CurrentUser() user: User) {
+    return this.wanderer.checkSource(tripId, user.id, placeId);
   }
 
   @RequirePermission('place_edit')

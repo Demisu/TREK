@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { tourOriginSchema, tourProvenanceSchema } from './tour-provenance.schema';
 
 /**
  * Tours contracts — the generalisation of "hike" into a domain of self-contained,
@@ -106,6 +107,8 @@ export const tourListItemSchema = tourSchema.extend({
   has_waypoints: z.boolean().optional(),
   /** An import planned over in place still keeps the track it was recorded with, and can go back to it. */
   has_recorded_track: z.boolean().optional(),
+  /** Which way the tour came in; absent only in a list cached before TREK recorded it. */
+  origin: tourOriginSchema.optional(),
 });
 export type TourListItem = z.infer<typeof tourListItemSchema>;
 
@@ -236,6 +239,8 @@ export type TourCreateRequest = z.infer<typeof tourCreateRequestSchema>;
 export const tourCreateResponseSchema = z.object({
   tour: tourListItemSchema,
   waypoints: z.array(tourWaypointSchema),
+  /** Where the tour came from (P2C-02); absent only in a detail cached before TREK sent it. */
+  provenance: tourProvenanceSchema.optional(),
 });
 export type TourCreateResponse = z.infer<typeof tourCreateResponseSchema>;
 

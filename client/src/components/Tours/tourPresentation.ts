@@ -1,8 +1,8 @@
-import type { TourListItem } from '@trek/shared'
+import type { TourListItem, TourOrigin } from '@trek/shared'
 import { tourWebsiteSchema } from '@trek/shared'
 import { formatDurationShort } from '@trek/shared/roadtrip'
 
-export type TourSource = 'trek' | 'gpx' | 'wanderer'
+export type TourSource = TourOrigin
 
 /** All / Unplanned / Planned, the same three states as the Places pool. */
 export type TourFilter = 'all' | 'unplanned' | 'planned'
@@ -64,13 +64,15 @@ type Translate = (key: string, params?: Record<string, unknown>) => string
  * A wanderer reference is authoritative. Planner-authored TREK tours persist
  * routing controls, while GPX imports intentionally remain geometry-only.
  */
-export function tourSource(tour: Pick<TourListItem, 'wanderer_ref' | 'has_waypoints'>): TourSource {
+export function tourSource(tour: Pick<TourListItem, 'wanderer_ref' | 'has_waypoints' | 'origin'>): TourSource {
+  // The origin the server recorded; a list cached before it existed still reads off the tour's shape.
+  if (tour.origin) return tour.origin
   if (tour.wanderer_ref) return 'wanderer'
   return tour.has_waypoints === false ? 'gpx' : 'trek'
 }
 
 export function hikeSourceBadgeLabel(
-  tour: Pick<TourListItem, 'wanderer_ref' | 'has_waypoints'>,
+  tour: Pick<TourListItem, 'wanderer_ref' | 'has_waypoints' | 'origin'>,
   t: Translate,
 ): string {
   return t(`tours.badge.${tourSource(tour)}`)

@@ -3,7 +3,7 @@ import { TourSources } from '../../db/entities/TourSources.entity';
 import { Tours } from '../../db/entities/Tours.entity';
 import type { PlacesRepository } from '../../db/repositories/Places.repository';
 import type { TourSnapshotRow, TourSourcesRepository } from '../../db/repositories/TourSources.repository';
-import type { ToursRepository } from '../../db/repositories/Tours.repository';
+import type { TourProvenanceRow, ToursRepository } from '../../db/repositories/Tours.repository';
 import { thinLine } from '../../utils/polyline';
 import { DomainError } from '../common/domain-error';
 import { toRowId } from '../common/row-id';
@@ -11,7 +11,7 @@ import { UnitOfWork } from '../database/unit-of-work';
 import { PlaceImportService } from '../place-import/place-import.service';
 import { PlacesService } from '../places/places.service';
 import { WandererService } from '../wanderer/wanderer.service';
-import { computeTourMetrics, parseRouteGeometry, type GeometryPoint } from './tours.helpers';
+import { changedParts, computeTourMetrics, contentHashOf, localHashOf, parseRouteGeometry } from './tours.helpers';
 import { ToursService } from './tours.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, Logger } from '@nestjs/common';
@@ -19,50 +19,27 @@ import type {
   WandererImportPreview,
   WandererImportRequest,
   WandererImportResponse,
+  TourSourceCheckResponse,
   WandererSearchRequest,
   WandererSearchResponse,
 } from '@trek/shared';
 import { wandererDifficultyToSac } from '@trek/shared';
 
-import { createHash } from 'node:crypto';
-
 const PROVIDER = 'wanderer';
 /** The line the preview draws: the whole tour, thinned for the map. */
 const PREVIEW_LINE_POINTS = 800;
 
-/** A short stable fingerprint of one part of a trail. */
-function fingerprint(value: unknown): string {
-  return createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0, 16);
-}
-
-/** Coordinates to five places (a metre) and heights to the metre, so a re-export with other float noise reads the same. */
-function normalizedRoute(points: readonly GeometryPoint[]): number[][] {
-  return points.map(([lat, lng, ele]) =>
-    ele == null ? [+lat.toFixed(5), +lng.toFixed(5)] : [+lat.toFixed(5), +lng.toFixed(5), Math.round(ele)],
-  );
-}
-
-/** What the source delivered, part by part: `name.description.route`. */
-function contentHashOf(name: string, description: string | null, route: readonly GeometryPoint[]): string {
-  return [fingerprint(name.trim()), fingerprint((description ?? '').trim()), fingerprint(normalizedRoute(route))].join(
-    '.',
-  );
-}
-
-/** The tour as saved here: `name.route`, to tell later whether it was edited. */
-function localHashOf(name: string, route: readonly GeometryPoint[]): string {
-  return [fingerprint(name.trim()), fingerprint(normalizedRoute(route))].join('.');
-}
-
-const CONTENT_PARTS = ['name', 'description', 'route'] as const;
-
-function changedParts(before: string, now: string): Array<(typeof CONTENT_PARTS)[number]> {
-  const a = before.split('.');
-  const b = now.split('.');
-  return CONTENT_PARTS.filter((_, i) => a[i] !== b[i]);
-}
-
 /** The trip id the guard already resolved; a malformed one never got this far, and still answers 404. */
+/** The instance and trail a snapshot came from: its import record, else the reference the tour carries. */
+function sourceIdentity(row: TourProvenanceRow): { instance: string; externalId: string } {
+  if (row.source_instance !== null && row.source_external_id !== null) {
+    return { instance: row.source_instance, externalId: row.source_external_id };
+  }
+  const ref = row.wanderer_ref ?? '';
+  const at = ref.lastIndexOf('#');
+  return { instance: ref.slice(0, Math.max(at, 0)), externalId: ref.slice(at + 1) };
+}
+
 function tripRowId(tripId: string): number {
   const tid = toRowId(tripId);
   if (tid === null) throw new DomainError(404, 'Trip not found');
@@ -155,6 +132,58 @@ export class ToursWandererService {
     return await this.sources.listSnapshots(tid, PROVIDER, instance, [trailId]);
   }
 
+  /**
+   * MF-03: ask the source of one wanderer snapshot whether the trail changed
+   * since it came in, on the caller's own connection. Reads only: the
+   * snapshot stays as it is whatever the source says, and taking a change
+   * over is the confirmed reimport, with the hash this answer carries.
+   */
+  async checkSource(tripId: string, userId: number, placeId: string): Promise<TourSourceCheckResponse> {
+    const tid = tripRowId(tripId);
+    const pid = toRowId(placeId);
+    const row = pid === null ? undefined : await this.toursRepo.findProvenance(tid, pid);
+    if (!row) throw new DomainError(404, 'Tour not found');
+    if (row.origin !== 'wanderer') {
+      throw new DomainError(400, 'This tour has no wanderer source', {
+        code: 'wanderer_no_source',
+        details: { code: 'no_source' },
+      });
+    }
+    const { instance, externalId } = sourceIdentity(row);
+    const editedLocally =
+      row.source_local_hash === null
+        ? null
+        : localHashOf(row.name, parseRouteGeometry(row.route_geometry)) !== row.source_local_hash;
+    const answer = (state: TourSourceCheckResponse['state']): TourSourceCheckResponse => ({
+      state,
+      changes: [],
+      externalUpdated: null,
+      importedUpdated: row.source_external_updated,
+      editedLocally,
+      reimport: null,
+    });
+
+    const connected = await this.wanderer.getConnection(userId);
+    if (!connected.connected) return answer('not_connected');
+    if ((await this.wanderer.instanceOf(userId)) !== instance) return answer('other_instance');
+    let fetched: Awaited<ReturnType<ToursWandererService['fetchTrail']>>;
+    try {
+      fetched = await this.fetchTrail(userId, externalId);
+    } catch (err: unknown) {
+      // Gone, or no longer the caller's to read: said as such, the snapshot is not touched.
+      if (err instanceof DomainError && (err.getStatus() === 404 || err.getStatus() === 403))
+        return answer('unavailable');
+      throw err;
+    }
+    const reimport = { trailId: externalId, contentHash: fetched.contentHash };
+    const externalUpdated = fetched.trail.updated ?? null;
+    if (row.source_content_hash === null) return { ...answer('unknown'), externalUpdated, reimport };
+    const changes = changedParts(row.source_content_hash, fetched.contentHash);
+    return changes.length === 0
+      ? { ...answer('unchanged'), externalUpdated }
+      : { ...answer('changed'), changes, externalUpdated, reimport };
+  }
+
   async preview(tripId: string, userId: number, trailId: string): Promise<WandererImportPreview> {
     const tid = tripRowId(tripId);
     const fetched = await this.fetchTrail(userId, trailId);
@@ -242,6 +271,7 @@ export class ToursWandererService {
         max_hiking_difficulty: wandererDifficultyToSac(fetched.summary.difficulty),
         wanderer_ref: `${fetched.instance}#${trailId}`,
         difficulty: fetched.summary.difficulty,
+        origin: 'wanderer',
       });
       await this.sources.insertSource({
         place_id: id,

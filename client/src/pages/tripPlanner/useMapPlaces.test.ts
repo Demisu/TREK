@@ -7,6 +7,8 @@
 import { act, renderHook } from '@testing-library/react'
 import { useTripStore } from '../../store/tripStore'
 import { useSettingsStore } from '../../store/settingsStore'
+import { useAuthStore } from '../../store/authStore'
+import { tourVisibilityScope, useTourMapVisibilityStore } from '../../store/tourMapVisibilityStore'
 import { resetAllStores, seedStore } from '../../../tests/helpers/store'
 import { buildAssignment, buildDay, buildPlace, buildReservation } from '../../../tests/helpers/factories'
 import type { Accommodation, AssignmentsMap, Day, Place, Reservation } from '../../types'
@@ -20,6 +22,9 @@ interface Props {
   tripAccommodations: Accommodation[]
   reservations: Reservation[]
   toursEnabled: boolean
+  tripId: number
+  tourPlaceIds: ReadonlySet<number>
+  isMobile: boolean
 }
 
 // Four places: one on day 1, one on day 2 and two in the pool, one of which has no
@@ -47,6 +52,9 @@ function renderMapPlaces(over: Partial<Props> = {}) {
     tripAccommodations: [],
     reservations: [],
     toursEnabled: false,
+    tripId: 7,
+    tourPlaceIds: new Set<number>(),
+    isMobile: false,
     ...over,
   }
   return renderHook((props: Props) => useMapPlaces(props), { initialProps })
@@ -101,7 +109,7 @@ describe('useMapPlaces', () => {
     act(() => { useTripStore.setState({ placesFilter: 'unplanned' }) })
     rerender({
       places: [museum, harbour, bakery, nowhere], assignments, selectedDayId: 1, days,
-      tripAccommodations: [], reservations: [], toursEnabled: false,
+      tripAccommodations: [], reservations: [], toursEnabled: false, tripId: 7, tourPlaceIds: new Set<number>(), isMobile: false,
     })
     expect(ids(result.current.mapPlaces)).toEqual([3])
   })
@@ -179,5 +187,17 @@ describe('useMapPlaces', () => {
     expect(renderMapPlaces({ assignments: day }).result.current.dayPlaces).toEqual([])
     expect(renderMapPlaces({ assignments: day, selectedDayId: 9 }).result.current.dayPlaces).toEqual([])
     expect(renderMapPlaces({ assignments: day, selectedDayId: 3 }).result.current.dayPlaces).toEqual([bakery])
+  })
+
+  it('FE-TP-MAPPLACES-011: PR1-07 a tour the person hid stays off the desktop map, the phone map and a disabled addon keep it', () => {
+    seedStore(useAuthStore, { user: { id: 3 } as never })
+    useTourMapVisibilityStore.setState({ scope: tourVisibilityScope(3, 7), hidden: [3, 99] })
+    const tours = new Set([3])
+
+    expect(ids(renderMapPlaces({ toursEnabled: true, tourPlaceIds: tours }).result.current.mapPlaces)).toEqual([1, 2])
+    expect(ids(renderMapPlaces({ toursEnabled: true, tourPlaceIds: tours, isMobile: true }).result.current.mapPlaces)).toEqual([1, 2, 3])
+    expect(ids(renderMapPlaces({ toursEnabled: false, tourPlaceIds: tours }).result.current.mapPlaces)).toEqual([1, 2, 3])
+    // Another trip of the same person is not this choice.
+    expect(ids(renderMapPlaces({ toursEnabled: true, tourPlaceIds: tours, tripId: 8 }).result.current.mapPlaces)).toEqual([1, 2, 3])
   })
 })

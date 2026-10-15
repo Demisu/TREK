@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { isServiceStopType } from '../../components/Roadtrip/roadtripModel'
+import { useTourMapVisibility } from '../../components/Tours/useTourMapVisibility'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useTripStore, type TripStoreState } from '../../store/tripStore'
 import type { Accommodation, Place } from '../../types'
@@ -15,6 +16,11 @@ interface MapPlacesOptions {
   tripAccommodations: Accommodation[]
   reservations: TripStoreState['reservations']
   toursEnabled: boolean
+  tripId: number
+  /** The trip's tours, to read the person's hidden ones against. */
+  tourPlaceIds: ReadonlySet<number>
+  /** The phone map keeps every tour: its list has no switch to show one again. */
+  isMobile: boolean
 }
 
 /**
@@ -25,6 +31,9 @@ interface MapPlacesOptions {
  */
 export function useMapPlaces(options: MapPlacesOptions) {
   const { places, assignments, selectedDayId, days, tripAccommodations, reservations, toursEnabled } = options
+  // PR1-07: the tours this person hid from the map stay off it, line and marker alike.
+  const { hiddenIds: hiddenTourIds } = useTourMapVisibility(options.tripId, options.tourPlaceIds)
+  const hideTours = toursEnabled && !options.isMobile && hiddenTourIds.size > 0
   // Same filter the places sidebar renders, shared via the store so tab
   // switches can't desync the marker set from the filter UI (#1541).
   const placesFilter = useTripStore((s) => s.placesFilter)
@@ -71,6 +80,7 @@ export function useMapPlaces(options: MapPlacesOptions) {
     const filterState = { filter: placesFilter, categoryFilters: placesCategoryFilter, ratingFilter: placesRatingFilter }
     return places.filter(p => {
       if (!p.lat || !p.lng) return false
+      if (hideTours && hiddenTourIds.has(p.id)) return false
       // Collapsed-day declutter hides a day's stops on every filter EXCEPT 'planned':
       // there the user asked to see the whole plan on the map, so a collapsed day
       // must not drop its planned places.
@@ -83,7 +93,7 @@ export function useMapPlaces(options: MapPlacesOptions) {
       const pending = pendingIds.has(p.id)
       return compact || pending ? { ...p, _compact: compact, _pending: pending } : p
     })
-  }, [places, placesCategoryFilter, placesFilter, placesRatingFilter, assignments, expandedDayIds, selectedDayId, days, tripAccommodations, reservations, compactUnplanned])
+  }, [places, placesCategoryFilter, placesFilter, placesRatingFilter, assignments, expandedDayIds, selectedDayId, days, tripAccommodations, reservations, compactUnplanned, hideTours, hiddenTourIds])
 
   // The "Tracks" pool is only offered while a place carries a track. When the last
   // one goes (deleted here or by a collaborator), fall back to "all". That happens here

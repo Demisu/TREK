@@ -7,12 +7,12 @@ import { useTranslation } from '../../i18n'
 import { ContextMenu, useContextMenu } from '../shared/ContextMenu'
 import { DialogButton, fs } from '../shared/DialogShell'
 import { Tooltip } from '../shared/Tooltip'
-import { useTripStore } from '../../store/tripStore'
 import { BOX, Eyebrow } from '../Planner/bookings/bookingParts'
 import { SoftPill, WhiteBadge } from '../Planner/planParts'
 import { hikeSourceBadgeLabel, tourSource } from './tourPresentation'
 import { type TourDay, dayMenuLabel } from './tourDays'
 import { tourMetricFacts } from './tourFacts'
+import type { TourDayAssignment } from './useTourDayAssignment'
 
 /**
  * A tour's tile in a list: its T-scale grade in place of the mountain, named in
@@ -155,25 +155,25 @@ export function TourDayPills({
 
 /**
  * Putting a tour on a day: a round "+" on a row, or a footer button with a
- * chevron, both opening the trip's days as a menu.
+ * chevron, both opening the trip's days as a menu. Which days it offers and
+ * the write itself come from the shared assignment rules (PR1-18): a day that
+ * has the tour, or is getting it right now, is greyed out.
  */
-export function TourDayMenu({ days, placeId, onPick, disabled = false, label, variant = 'round', primary = false }: {
+export function TourDayMenu({ days, placeId, assignment, label, variant = 'round', primary = false }: {
   days: Day[]
-  placeId?: number
-  onPick: (day: Day, index: number) => void
-  disabled?: boolean
+  placeId: number
+  assignment: TourDayAssignment
   label: string
   variant?: 'round' | 'button'
   primary?: boolean
 }) {
   const { t, locale } = useTranslation()
   const menu = useContextMenu()
-  const assignments = useTripStore(state => state.assignments ?? {})
-  const assigned = (dayId: number) => placeId != null && (assignments[String(dayId)] ?? []).some(assignment => assignment.place_id === placeId)
+  const disabled = !assignment.canAssign
   const items = days.map((day, index) => ({
     label: dayMenuLabel(day, index, t, locale),
-    disabled: assigned(day.id),
-    onClick: () => onPick(day, index),
+    disabled: !assignment.isAvailable(placeId, day.id),
+    onClick: () => void assignment.assign(placeId, day.id),
   }))
   const hasAvailableDay = items.some(item => !item.disabled)
   const open = (event: React.MouseEvent<HTMLButtonElement>) => {

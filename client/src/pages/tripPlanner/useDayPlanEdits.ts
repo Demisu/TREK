@@ -10,6 +10,7 @@ import { restoreVisit, visitOf } from './placeUndo'
 import type { PlannerBase, PlannerHistory } from './plannerTypes'
 import type { PlaceEdits } from './usePlaceEdits'
 import type { RoadtripFeed } from './useRoadtripFeed'
+import { isTourOnDay } from '../../components/Tours/useTourDayAssignment'
 
 interface DayPlanEditsOptions
   extends Pick<PlannerBase, 'tripId' | 'tripActions' | 'toast' | 't'>,
@@ -46,7 +47,7 @@ export function useDayPlanEdits(options: DayPlanEditsOptions) {
     const target = dayId || selectedDayId
     if (!target) { toast.error(t('trip.toast.selectDay')); return false }
     // A tour is on a day at most once; a drop onto such a day still gets here, and says why nothing happens.
-    if (isTourPlace(placeId) && (storedAssignments[String(target)] ?? []).some(a => a.place_id === placeId)) { toast.info(t('tours.alreadyOnDay')); return false }
+    if (isTourPlace(placeId) && isTourOnDay(storedAssignments, placeId, target)) { toast.info(t('tours.alreadyOnDay')); return false }
     const place = places.find(p => p.id === placeId)
     // A place with a start of its own is drawn by it, so it is stored there too, the
     // way a stop moved over from another day is. Without one it goes where it was put.

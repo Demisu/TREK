@@ -18,4 +18,6 @@ export interface ToursTable {
   break_additional_minutes: InsertOptional<number | null>;
   derived_from_place_id: InsertOptional<number | null>;
   recorded_route_geometry: InsertOptional<string | null>;
+  origin: InsertOptional<string>;
+  origin_file_name: InsertOptional<string | null>;
 }

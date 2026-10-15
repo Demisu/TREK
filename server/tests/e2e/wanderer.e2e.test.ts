@@ -400,4 +400,116 @@ describe('wanderer e2e', () => {
       expect(client.gpx).not.toHaveBeenCalled();
     });
   });
+
+  describe('checking the source of a snapshot (MF-03)', () => {
+    const check = (placeId: number, userId = OWNER) =>
+      request(server).post(`/api/trips/5/tours/wanderer/sources/${placeId}/check`).set(as(userId));
+    const imported = async () => {
+      await connect();
+      const res = await importTrail((await preview()).body.contentHash);
+      expect(res.status).toBe(201);
+      return res.body.tour.place_id as number;
+    };
+
+    it('an unchanged trail says so and offers nothing to take in; the check writes nothing', async () => {
+      const placeId = await imported();
+      const before = await countRows(orm, Places);
+      const res = await check(placeId);
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject({
+        state: 'unchanged',
+        changes: [],
+        externalUpdated: RECORD.updated,
+        importedUpdated: RECORD.updated,
+        editedLocally: false,
+        reimport: null,
+      });
+      expect(await countRows(orm, Places)).toBe(before);
+    });
+
+    it('a changed trail names what changed, and its hash takes it in as a new snapshot beside the old one', async () => {
+      const placeId = await imported();
+      client.trail.mockResolvedValue({ ...RECORD, name: 'Partnachklamm (new route)', updated: '2026-10-14' });
+      const res = await check(placeId);
+      expect(res.body).toMatchObject({
+        state: 'changed',
+        changes: ['name'],
+        externalUpdated: '2026-10-14',
+        importedUpdated: '2026-10-01',
+        reimport: { trailId: HIT.id },
+      });
+      const again = await importTrail(res.body.reimport.contentHash);
+      expect(again.status).toBe(201);
+      expect(again.body.tour.place_id).not.toBe(placeId);
+      expect(await countRows(orm, Places)).toBe(2);
+    });
+
+    it('a trail that is gone or no longer the caller own leaves the snapshot alone', async () => {
+      const placeId = await imported();
+      client.searchById.mockResolvedValue(null);
+      expect((await check(placeId)).body).toMatchObject({ state: 'unavailable', reimport: null });
+      expect(await countRows(orm, Places)).toBe(1);
+    });
+
+    it('without a connection, or one to another instance, there is nothing to ask', async () => {
+      const placeId = await imported();
+      await request(server)
+        .put('/api/integrations/wanderer/settings')
+        .set(as(OWNER))
+        .send({ url: 'https://other.example.org/', token: TOKEN });
+      expect((await check(placeId)).body).toMatchObject({ state: 'other_instance' });
+      await request(server).delete('/api/integrations/wanderer/settings').set(as(OWNER));
+      expect((await check(placeId)).body).toMatchObject({ state: 'not_connected' });
+    });
+
+    it('a snapshot without its import record cannot be compared, the current trail can still come in', async () => {
+      const placeId = await imported();
+      await deleteRows(orm, TourSources, { place: placeId });
+      expect((await check(placeId)).body).toMatchObject({
+        state: 'unknown',
+        editedLocally: null,
+        reimport: { trailId: HIT.id },
+      });
+    });
+
+    it('only a wanderer snapshot of the trip is checked, and only by who may add places', async () => {
+      const placeId = await imported();
+      expect((await check(placeId, VIEWER)).status).toBe(403);
+      expect((await check(999_999)).status).toBe(404);
+      const planned = await request(server)
+        .post('/api/trips/5/tours')
+        .set(as(OWNER))
+        .send({
+          name: 'Drawn',
+          tour_type: 'hike',
+          route_geometry: [
+            [47.45, 11.1, 700],
+            [47.46, 11.11, 800],
+          ],
+          waypoints: [
+            { lat: 47.45, lng: 11.1, role: 'start', sequence: 0 },
+            { lat: 47.46, lng: 11.11, role: 'end', sequence: 1 },
+          ],
+        });
+      const res = await check(planned.body.tour.place_id as number);
+      expect(res.status).toBe(400);
+      expect(res.body).toMatchObject({ code: 'no_source' });
+    });
+
+    it('a wanderer import says where it came from in its detail, and a trip copy keeps it (P2C-02)', async () => {
+      const placeId = await imported();
+      const detail = await request(server).get(`/api/trips/5/tours/${placeId}`).set(as(OWNER));
+      expect(detail.body.provenance).toMatchObject({
+        origin: 'wanderer',
+        source: {
+          kind: 'wanderer',
+          instance: 'https://wanderer.example.org',
+          externalId: HIT.id,
+          externalUpdated: RECORD.updated,
+        },
+        editedLocally: false,
+      });
+      expect(detail.body.provenance.source.importedAt).toEqual(expect.any(String));
+    });
+  });
 });

@@ -225,5 +225,47 @@ const tours: TranslationStrings = {
     'L’itinéraire passe {length} sur « {name} ». Il faut l’équipement de via ferrata et de l’expérience.',
   'tours.ferrata.crossingShort': 'L’itinéraire passe par une via ferrata',
   'tours.ferrata.waypointAtEnd': 'Début ou fin de « {name} »',
+  'tours.provenance.label': 'Origine',
+  'tours.provenance.source': 'Source', // same-as-en
+  'tours.provenance.importedAt': 'Importé',
+  'tours.provenance.createdAt': 'Créé',
+  'tours.provenance.externalUpdated': 'Modifié sur wanderer',
+  'tours.provenance.externalUpdatedHint':
+    'La date de modification indiquée par wanderer lors de l’import. Un indice, pas la preuve d’une version.',
+  'tours.provenance.localState': 'Ici',
+  'tours.provenance.plannedOver': 'Replanifié, tracé enregistré conservé',
+  'tours.provenance.editedLocally': 'Modifié dans TREK',
+  'tours.provenance.asImported': 'Tel qu’importé',
+  'tours.provenance.openSource': 'Ouvrir dans wanderer',
+  'tours.provenance.check': 'Vérifier la source',
+  'tours.provenance.checkHint':
+    'Demande à wanderer si ce sentier a changé depuis l’import. Rien ne change dans le voyage.',
+  'tours.provenance.state.unchanged': 'Inchangé depuis l’import',
+  'tours.provenance.state.changed': 'Modifié sur wanderer',
+  'tours.provenance.state.unavailable': 'Plus disponible',
+  'tours.provenance.state.not_connected': 'Aucune connexion wanderer',
+  'tours.provenance.state.other_instance': 'Un autre wanderer est connecté',
+  'tours.provenance.state.unknown': 'Comparaison impossible',
+  'tours.provenance.body.unavailable':
+    'Le sentier a disparu ou n’est plus lisible avec votre connexion. Cette sortie reste telle qu’elle a été importée.',
+  'tours.provenance.body.not_connected':
+    'Connectez votre wanderer dans Paramètres, Intégrations pour vérifier la source.',
+  'tours.provenance.body.other_instance':
+    'Votre connexion pointe vers une autre instance que celle d’où vient cette sortie.',
+  'tours.provenance.body.unknown':
+    'Cet import ne contient rien à comparer. Vous pouvez quand même importer le sentier actuel comme nouvel instantané.',
+  'tours.provenance.change.name': 'Nom',
+  'tours.provenance.change.description': 'Description', // same-as-en
+  'tours.provenance.change.route': 'Itinéraire',
+  'tours.provenance.nowUpdated': 'wanderer indique {date} comme dernière modification',
+  'tours.provenance.reimport': 'Importer comme nouvel instantané',
+  'tours.provenance.reimportTitle': 'Importer le sentier modifié ?',
+  'tours.provenance.reimportBody':
+    'Il arrive comme nouvelle sortie à côté de celle-ci. Cette sortie, ses jours et ses notes restent inchangés.',
+  'tours.provenance.reimported': 'Nouvel instantané importé',
+  'tours.visibility.hidden': 'Masqué sur la carte',
+  'tours.visibility.showAll': 'Tout afficher',
+  'tours.visibility.show': 'Afficher sur la carte',
+  'tours.visibility.hide': 'Masquer sur la carte',
 };
 export default tours;

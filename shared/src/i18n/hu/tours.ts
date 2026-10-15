@@ -223,5 +223,46 @@ const tours: TranslationStrings = {
     'Az útvonal {length} hosszan a(z) „{name}” vasalt úton halad. Ehhez via ferrata felszerelés és gyakorlat kell.',
   'tours.ferrata.crossingShort': 'Az útvonal vasalt úton halad',
   'tours.ferrata.waypointAtEnd': '„{name}” eleje vagy vége',
+  'tours.provenance.label': 'Eredet',
+  'tours.provenance.source': 'Forrás',
+  'tours.provenance.importedAt': 'Importálva',
+  'tours.provenance.createdAt': 'Létrehozva',
+  'tours.provenance.externalUpdated': 'Módosítva a wandereren',
+  'tours.provenance.externalUpdatedHint':
+    'A wanderer által az importáláskor megadott módosítási dátum. Támpont, nem a verzió bizonyítéka.',
+  'tours.provenance.localState': 'Itt',
+  'tours.provenance.plannedOver': 'Újratervezve, a rögzített nyomvonal megőrizve',
+  'tours.provenance.editedLocally': 'Szerkesztve a TREK-ben',
+  'tours.provenance.asImported': 'Ahogy importálva',
+  'tours.provenance.openSource': 'Megnyitás a wandereren',
+  'tours.provenance.check': 'Forrás ellenőrzése',
+  'tours.provenance.checkHint':
+    'Megkérdezi a wanderert, változott-e ez az útvonal az importálás óta. Az utazásban semmi sem változik.',
+  'tours.provenance.state.unchanged': 'Változatlan az importálás óta',
+  'tours.provenance.state.changed': 'Módosítva a wandereren',
+  'tours.provenance.state.unavailable': 'Már nem érhető el',
+  'tours.provenance.state.not_connected': 'Nincs wanderer-kapcsolat',
+  'tours.provenance.state.other_instance': 'Másik wanderer van csatlakoztatva',
+  'tours.provenance.state.unknown': 'Nem összehasonlítható',
+  'tours.provenance.body.unavailable':
+    'Az útvonal megszűnt, vagy a kapcsolatoddal már nem olvasható. Ez a túra úgy marad, ahogy importálták.',
+  'tours.provenance.body.not_connected':
+    'Csatlakoztasd a wanderered a Beállítások, Integrációk alatt a forrás ellenőrzéséhez.',
+  'tours.provenance.body.other_instance': 'A kapcsolatod egy másik példányra mutat, mint ahonnan ez a túra származik.',
+  'tours.provenance.body.unknown':
+    'Ebben az importban nincs mihez hasonlítani. Az aktuális útvonalat így is behozhatod új pillanatképként.',
+  'tours.provenance.change.name': 'Név',
+  'tours.provenance.change.description': 'Leírás',
+  'tours.provenance.change.route': 'Nyomvonal',
+  'tours.provenance.nowUpdated': 'a wanderer szerint az utolsó módosítás: {date}',
+  'tours.provenance.reimport': 'Importálás új pillanatképként',
+  'tours.provenance.reimportTitle': 'Importálod a módosított útvonalat?',
+  'tours.provenance.reimportBody':
+    'Új túraként érkezik e mellé. Ez a túra, a napjai és jegyzetei változatlanok maradnak.',
+  'tours.provenance.reimported': 'Új pillanatkép importálva',
+  'tours.visibility.hidden': 'Elrejtve a térképen',
+  'tours.visibility.showAll': 'Összes megjelenítése',
+  'tours.visibility.show': 'Megjelenítés a térképen',
+  'tours.visibility.hide': 'Elrejtés a térképen',
 };
 export default tours;

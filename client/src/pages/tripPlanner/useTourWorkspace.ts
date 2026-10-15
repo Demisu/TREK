@@ -7,6 +7,7 @@ import { useTourGpxImport } from '../../components/Tours/useTourGpxImport';
 import { useWandererBrowser } from '../../components/Tours/wanderer/useWandererBrowser';
 import { useAddonStore } from '../../store/addonStore';
 import { useTripStore } from '../../store/tripStore';
+import type { Place } from '../../types';
 import type { useTripPlanner } from './useTripPlanner';
 
 /**
@@ -116,5 +117,28 @@ export function useTourWorkspace(
     },
   });
 
-  return { tourPlanner, viewImportedTour, tourGpxImport, wandererBrowser, tourConversion, recordedTrack };
+  // What the tour's detail does beyond a place's: a rename reloads the tours, a reimport from its
+  // source check takes the new snapshot in and opens it.
+  const tourDetailActions = {
+    onUpdatePlace: async (placeId: number, data: Partial<Place>) => {
+      await tripActions.updatePlace(tripId, placeId, data);
+      await reloadTourPlaceIds();
+    },
+    onSourceReimported: async (tour: TourListItem) => {
+      upsertTour(tour);
+      await useTripStore.getState().refreshPlaces(tripId);
+      void invalidateTourPlaceIds({ placeIds: [tour.place_id] });
+      planner.handlePlaceClick(tour.place_id);
+    },
+  };
+
+  return {
+    tourPlanner,
+    viewImportedTour,
+    tourGpxImport,
+    wandererBrowser,
+    tourConversion,
+    recordedTrack,
+    tourDetailActions,
+  };
 }

@@ -223,6 +223,48 @@ const tours: TranslationStrings = {
     'Die Route führt {length} über „{name}“. Dafür brauchst du Klettersteigausrüstung und Erfahrung.',
   'tours.ferrata.crossingShort': 'Die Route führt über einen Klettersteig',
   'tours.ferrata.waypointAtEnd': 'Anfang oder Ende von „{name}“',
+  'tours.provenance.label': 'Herkunft',
+  'tours.provenance.source': 'Quelle',
+  'tours.provenance.importedAt': 'Importiert',
+  'tours.provenance.createdAt': 'Angelegt',
+  'tours.provenance.externalUpdated': 'Geändert bei wanderer',
+  'tours.provenance.externalUpdatedHint':
+    'Das Änderungsdatum, das wanderer beim Import genannt hat. Ein Hinweis, kein Versionsnachweis.',
+  'tours.provenance.localState': 'Hier',
+  'tours.provenance.plannedOver': 'Überplant, Originalspur gesichert',
+  'tours.provenance.editedLocally': 'In TREK bearbeitet',
+  'tours.provenance.asImported': 'Wie importiert',
+  'tours.provenance.openSource': 'In wanderer öffnen',
+  'tours.provenance.check': 'Quelle prüfen',
+  'tours.provenance.checkHint':
+    'Fragt wanderer, ob sich dieser Trail seit dem Import geändert hat. Im Trip ändert sich dabei nichts.',
+  'tours.provenance.state.unchanged': 'Unverändert seit dem Import',
+  'tours.provenance.state.changed': 'Bei wanderer geändert',
+  'tours.provenance.state.unavailable': 'Nicht mehr verfügbar',
+  'tours.provenance.state.not_connected': 'Keine wanderer-Verbindung',
+  'tours.provenance.state.other_instance': 'Anderes wanderer verbunden',
+  'tours.provenance.state.unknown': 'Kein Vergleich möglich',
+  'tours.provenance.body.unavailable':
+    'Der Trail ist weg oder mit deiner Verbindung nicht mehr lesbar. Diese Tour bleibt so, wie sie importiert wurde.',
+  'tours.provenance.body.not_connected':
+    'Verbinde dein wanderer unter Einstellungen, Integrationen, um die Quelle zu prüfen.',
+  'tours.provenance.body.other_instance':
+    'Deine Verbindung zeigt auf eine andere Instanz als die, aus der diese Tour stammt.',
+  'tours.provenance.body.unknown':
+    'Dieser Import enthält nichts zum Vergleichen. Den aktuellen Trail kannst du trotzdem als neuen Snapshot übernehmen.',
+  'tours.provenance.change.name': 'Name', // same-as-en
+  'tours.provenance.change.description': 'Beschreibung',
+  'tours.provenance.change.route': 'Strecke',
+  'tours.provenance.nowUpdated': 'wanderer nennt {date} als letzte Änderung',
+  'tours.provenance.reimport': 'Als neuen Snapshot importieren',
+  'tours.provenance.reimportTitle': 'Geänderten Trail importieren?',
+  'tours.provenance.reimportBody':
+    'Er kommt als neue Tour neben diese. Diese Tour, ihre Tage und Notizen bleiben, wie sie sind.',
+  'tours.provenance.reimported': 'Neuer Snapshot importiert',
+  'tours.visibility.hidden': 'Auf der Karte ausgeblendet',
+  'tours.visibility.showAll': 'Alle einblenden',
+  'tours.visibility.show': 'Auf der Karte einblenden',
+  'tours.visibility.hide': 'Auf der Karte ausblenden',
 };
 
 export default tours;

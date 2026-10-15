@@ -41,7 +41,7 @@ import PlaceHoverCard from './PlaceHoverCard'
 import { ratingBadgeHtml } from './ratingBadge'
 import type { Poi } from './poiCategories'
 import { poiPinParts } from './poiMarker'
-import { resolveTrackColor, hasManualTrackColor } from './trackColors'
+import { resolveTrackColor, hasManualTrackColor, TRACK_CASING_COLOR } from './trackColors'
 import { parseRenderableRouteGeometry } from '../../utils/routeGeometry'
 import { buildPoiPopupHtml } from './placePopup'
 import { pluginsApi, type PluginMapMarker, type PluginMapLayer } from '../../api/client'
@@ -67,6 +67,8 @@ const PLACE_CLUSTER_CIRCLE_LAYER_ID = 'trip-place-clusters-circle'
 const PLACE_CLUSTER_COUNT_LAYER_ID = 'trip-place-clusters-count'
 const PLACE_UNCLUSTERED_LAYER_ID = 'trip-place-unclustered-hit'
 const GPX_HIT_LAYER_ID = 'trip-gpx-hit'
+const GPX_SELECTED_CASING_LAYER_ID = 'trip-gpx-selected-casing'
+const GPX_SELECTED_LAYER_ID = 'trip-gpx-selected'
 /**
  * The satellite base layer, the GL twin of the Leaflet one.
  *
@@ -1369,6 +1371,24 @@ export function MapViewGL({
           },
           layout: { 'line-cap': 'round', 'line-join': 'round' },
         })
+        // PR1-08: the picked tour's track on top, wider with a light rim, as the Leaflet map draws
+        // it. The filter follows the selection; until something is picked it matches no track.
+        map.addLayer({
+          id: GPX_SELECTED_CASING_LAYER_ID,
+          type: 'line',
+          source: 'trip-gpx',
+          filter: ['==', ['get', 'place_id'], -1],
+          paint: { 'line-color': TRACK_CASING_COLOR, 'line-width': 9, 'line-opacity': 0.95 },
+          layout: { 'line-cap': 'round', 'line-join': 'round' },
+        })
+        map.addLayer({
+          id: GPX_SELECTED_LAYER_ID,
+          type: 'line',
+          source: 'trip-gpx',
+          filter: ['==', ['get', 'place_id'], -1],
+          paint: { 'line-color': ['coalesce', ['get', 'color'], '#3b82f6'], 'line-width': 5.5 },
+          layout: { 'line-cap': 'round', 'line-join': 'round' },
+        })
         // Invisible fat line that catches the click — 3.5px is not a target,
         // and the start markers cluster below zoom 11, so without this a track
         // is unreachable at the very zoom where you compare walks side by side.
@@ -2092,6 +2112,16 @@ export function MapViewGL({
     })
     src.setData({ type: 'FeatureCollection', features })
   }, [places, mapReady])
+
+  // The picked tour's track stands out (PR1-08); -1 matches no track.
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !mapReady || typeof map.getLayer !== 'function') return
+    const filter = ['==', ['get', 'place_id'], selectedPlaceId ?? -1] as mapboxgl.FilterSpecification
+    for (const id of [GPX_SELECTED_CASING_LAYER_ID, GPX_SELECTED_LAYER_ID]) {
+      if (map.getLayer(id)) map.setFilter(id, filter)
+    }
+  }, [selectedPlaceId, mapReady])
 
   // Reservation overlay — mirrors the Leaflet ReservationOverlay: great-
   // circle arcs for flights/cruises, straight lines for trains/cars,

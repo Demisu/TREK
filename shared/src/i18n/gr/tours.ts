@@ -227,5 +227,47 @@ const tours: TranslationStrings = {
     'Η διαδρομή περνά {length} από το «{name}». Χρειάζεσαι εξοπλισμό via ferrata και εμπειρία.',
   'tours.ferrata.crossingShort': 'Η διαδρομή περνά από via ferrata',
   'tours.ferrata.waypointAtEnd': 'Αρχή ή τέλος του «{name}»',
+  'tours.provenance.label': 'Προέλευση',
+  'tours.provenance.source': 'Πηγή',
+  'tours.provenance.importedAt': 'Εισήχθη',
+  'tours.provenance.createdAt': 'Δημιουργήθηκε',
+  'tours.provenance.externalUpdated': 'Άλλαξε στο wanderer',
+  'tours.provenance.externalUpdatedHint':
+    'Η ημερομηνία αλλαγής που έδωσε το wanderer κατά την εισαγωγή. Ένδειξη, όχι απόδειξη έκδοσης.',
+  'tours.provenance.localState': 'Εδώ',
+  'tours.provenance.plannedOver': 'Ξανασχεδιάστηκε, η καταγεγραμμένη διαδρομή κρατήθηκε',
+  'tours.provenance.editedLocally': 'Επεξεργάστηκε στο TREK',
+  'tours.provenance.asImported': 'Όπως εισήχθη',
+  'tours.provenance.openSource': 'Άνοιγμα στο wanderer',
+  'tours.provenance.check': 'Έλεγχος πηγής',
+  'tours.provenance.checkHint':
+    'Ρωτά το wanderer αν αυτό το μονοπάτι άλλαξε από την εισαγωγή. Τίποτα δεν αλλάζει στο ταξίδι.',
+  'tours.provenance.state.unchanged': 'Αμετάβλητο από την εισαγωγή',
+  'tours.provenance.state.changed': 'Άλλαξε στο wanderer',
+  'tours.provenance.state.unavailable': 'Δεν είναι πλέον διαθέσιμο',
+  'tours.provenance.state.not_connected': 'Χωρίς σύνδεση wanderer',
+  'tours.provenance.state.other_instance': 'Είναι συνδεδεμένο άλλο wanderer',
+  'tours.provenance.state.unknown': 'Δεν γίνεται σύγκριση',
+  'tours.provenance.body.unavailable':
+    'Το μονοπάτι χάθηκε ή δεν διαβάζεται πια με τη σύνδεσή σου. Αυτή η εκδρομή μένει όπως εισήχθη.',
+  'tours.provenance.body.not_connected':
+    'Σύνδεσε το wanderer σου στις Ρυθμίσεις, Ενσωματώσεις για να ελέγξεις την πηγή.',
+  'tours.provenance.body.other_instance':
+    'Η σύνδεσή σου δείχνει σε άλλη εγκατάσταση από αυτή από την οποία ήρθε η εκδρομή.',
+  'tours.provenance.body.unknown':
+    'Αυτή η εισαγωγή δεν έχει τίποτα για σύγκριση. Μπορείς όμως να φέρεις το τρέχον μονοπάτι ως νέο στιγμιότυπο.',
+  'tours.provenance.change.name': 'Όνομα',
+  'tours.provenance.change.description': 'Περιγραφή',
+  'tours.provenance.change.route': 'Διαδρομή',
+  'tours.provenance.nowUpdated': 'Το wanderer δίνει τελευταία αλλαγή στις {date}',
+  'tours.provenance.reimport': 'Εισαγωγή ως νέο στιγμιότυπο',
+  'tours.provenance.reimportTitle': 'Εισαγωγή του αλλαγμένου μονοπατιού;',
+  'tours.provenance.reimportBody':
+    'Έρχεται ως νέα εκδρομή δίπλα σε αυτήν. Αυτή η εκδρομή, οι μέρες και οι σημειώσεις της μένουν ως έχουν.',
+  'tours.provenance.reimported': 'Εισήχθη νέο στιγμιότυπο',
+  'tours.visibility.hidden': 'Κρυμμένο στον χάρτη',
+  'tours.visibility.showAll': 'Εμφάνιση όλων',
+  'tours.visibility.show': 'Εμφάνιση στον χάρτη',
+  'tours.visibility.hide': 'Απόκρυψη στον χάρτη',
 };
 export default tours;

@@ -216,5 +216,46 @@ const tours: TranslationStrings = {
   'tours.ferrata.crossingInfo': 'Tuyến đi qua “{name}” dài {length}. Cần trang bị via ferrata và kinh nghiệm.',
   'tours.ferrata.crossingShort': 'Tuyến đi qua một via ferrata',
   'tours.ferrata.waypointAtEnd': 'Điểm đầu hoặc cuối của “{name}”',
+  'tours.provenance.label': 'Nguồn gốc',
+  'tours.provenance.source': 'Nguồn',
+  'tours.provenance.importedAt': 'Đã nhập',
+  'tours.provenance.createdAt': 'Đã tạo',
+  'tours.provenance.externalUpdated': 'Đã đổi trên wanderer',
+  'tours.provenance.externalUpdatedHint':
+    'Ngày thay đổi mà wanderer cho biết khi nhập. Chỉ là gợi ý, không phải bằng chứng phiên bản.',
+  'tours.provenance.localState': 'Tại đây',
+  'tours.provenance.plannedOver': 'Đã lên kế hoạch lại, giữ vết đã ghi',
+  'tours.provenance.editedLocally': 'Đã sửa trong TREK',
+  'tours.provenance.asImported': 'Như khi nhập',
+  'tours.provenance.openSource': 'Mở trong wanderer',
+  'tours.provenance.check': 'Kiểm tra nguồn',
+  'tours.provenance.checkHint':
+    'Hỏi wanderer xem tuyến này có thay đổi từ khi nhập không. Không có gì trong chuyến đi thay đổi.',
+  'tours.provenance.state.unchanged': 'Không đổi từ khi nhập',
+  'tours.provenance.state.changed': 'Đã đổi trên wanderer',
+  'tours.provenance.state.unavailable': 'Không còn khả dụng',
+  'tours.provenance.state.not_connected': 'Chưa kết nối wanderer',
+  'tours.provenance.state.other_instance': 'Đang kết nối một wanderer khác',
+  'tours.provenance.state.unknown': 'Không thể so sánh',
+  'tours.provenance.body.unavailable':
+    'Tuyến đã bị xóa hoặc kết nối của bạn không còn đọc được. Chuyến đi bộ này giữ nguyên như khi nhập.',
+  'tours.provenance.body.not_connected': 'Hãy kết nối wanderer của bạn trong Cài đặt, Tích hợp để kiểm tra nguồn.',
+  'tours.provenance.body.other_instance':
+    'Kết nối của bạn trỏ tới một máy chủ khác với nơi chuyến đi bộ này xuất phát.',
+  'tours.provenance.body.unknown':
+    'Lần nhập này không có gì để so sánh. Bạn vẫn có thể lấy tuyến hiện tại thành một bản chụp mới.',
+  'tours.provenance.change.name': 'Tên',
+  'tours.provenance.change.description': 'Mô tả',
+  'tours.provenance.change.route': 'Lộ trình',
+  'tours.provenance.nowUpdated': 'wanderer cho biết lần đổi cuối là {date}',
+  'tours.provenance.reimport': 'Nhập thành bản chụp mới',
+  'tours.provenance.reimportTitle': 'Nhập tuyến đã thay đổi?',
+  'tours.provenance.reimportBody':
+    'Tuyến sẽ thành một chuyến đi bộ mới bên cạnh chuyến này. Chuyến này, các ngày và ghi chú của nó giữ nguyên.',
+  'tours.provenance.reimported': 'Đã nhập bản chụp mới',
+  'tours.visibility.hidden': 'Đã ẩn trên bản đồ',
+  'tours.visibility.showAll': 'Hiện tất cả',
+  'tours.visibility.show': 'Hiện trên bản đồ',
+  'tours.visibility.hide': 'Ẩn trên bản đồ',
 };
 export default tours;

@@ -1,4 +1,4 @@
-import type { Tours } from '../entities/Tours.entity';
+import { type Tours, type TToursOrigin, ToursOrigin } from '../entities/Tours.entity';
 import type { DB } from '../kysely/db';
 import type { AssertRowKeys } from './_shared/rows';
 import { TrekRepository } from './_shared/trek-repository';
@@ -26,6 +26,7 @@ export interface TourListRow {
   match_confidence: number | null;
   max_hiking_difficulty: number | null;
   derived_from_place_id: number | null;
+  origin: string;
   has_recorded_track: number;
   planned: number;
   has_waypoints: number;
@@ -48,6 +49,8 @@ export interface TourRow {
   max_hiking_difficulty: number | null;
   derived_from_place_id: number | null;
   recorded_route_geometry: string | null;
+  origin: string;
+  origin_file_name: string | null;
 }
 const _tourRowKeys: AssertRowKeys<TourRow, Tours> = true;
 
@@ -71,7 +74,32 @@ export type TourUpdate = Omit<TourInsert, 'place_id' | 'planned_duration_minutes
   break_additional_minutes?: number | null;
 };
 
-type ToursKyselyDB = Pick<DB, 'tours' | 'places' | 'day_assignments' | 'tour_waypoints'>;
+type ToursKyselyDB = Pick<DB, 'tours' | 'places' | 'day_assignments' | 'tour_waypoints' | 'tour_sources'>;
+
+/**
+ * Where one tour came from, as the provenance contract reads it: the facet's
+ * own record (origin, the GPX file name, when it was saved, the wanderer
+ * reference), the import's snapshot row when there is one, and the name of the
+ * import a planned tour came from while that import is still in the trip.
+ */
+export interface TourProvenanceRow {
+  origin: string;
+  origin_file_name: string | null;
+  created_at: string | null;
+  wanderer_ref: string | null;
+  has_recorded_track: number;
+  derived_from_place_id: number | null;
+  derived_from_name: string | null;
+  source_instance: string | null;
+  source_external_id: string | null;
+  source_external_url: string | null;
+  source_external_updated: string | null;
+  source_imported_at: string | null;
+  source_content_hash: string | null;
+  source_local_hash: string | null;
+  route_geometry: string | null;
+  name: string;
+}
 
 /**
  * `tours` — the facet that makes a place a tour (#2586). Keyed on the owning
@@ -110,6 +138,7 @@ export class ToursRepository extends TrekRepository<Tours> {
         't.match_confidence as match_confidence',
         't.max_hiking_difficulty as max_hiking_difficulty',
         't.derived_from_place_id as derived_from_place_id',
+        't.origin as origin',
         eb('t.recorded_route_geometry', 'is not', null).as('has_recorded_track'),
         eb
           .exists(eb.selectFrom('day_assignments as da').select('da.id').whereRef('da.place_id', '=', 'p.id'))
@@ -139,6 +168,79 @@ export class ToursRepository extends TrekRepository<Tours> {
   async findInTrip(trip_id: number, place_id: number): Promise<TourListRow | undefined> {
     const row = await this.listQuery().where('p.trip_id', '=', trip_id).where('p.id', '=', place_id).executeTakeFirst();
     return row ? toListRow(row) : undefined;
+  }
+
+  /** Where a tour of this trip came from; `undefined` unless the place is a tour of that trip. */
+  async findProvenance(trip_id: number, place_id: number): Promise<TourProvenanceRow | undefined> {
+    return await this.db()
+      .selectFrom('tours as t')
+      .innerJoin('places as p', 'p.id', 't.place_id')
+      .leftJoin('tour_sources as s', 's.place_id', 't.place_id')
+      .leftJoin('places as d', (join) =>
+        join.onRef('d.id', '=', 't.derived_from_place_id').on('d.trip_id', '=', trip_id),
+      )
+      .select((eb) => [
+        't.origin as origin',
+        't.origin_file_name as origin_file_name',
+        't.created_at as created_at',
+        't.wanderer_ref as wanderer_ref',
+        eb('t.recorded_route_geometry', 'is not', null).as('has_recorded_track'),
+        't.derived_from_place_id as derived_from_place_id',
+        'd.name as derived_from_name',
+        's.instance as source_instance',
+        's.external_id as source_external_id',
+        's.external_url as source_external_url',
+        's.external_updated as source_external_updated',
+        's.imported_at as source_imported_at',
+        's.content_hash as source_content_hash',
+        's.local_hash as source_local_hash',
+        'p.route_geometry as route_geometry',
+        'p.name as name',
+      ])
+      .where('p.trip_id', '=', trip_id)
+      .where('p.id', '=', place_id)
+      .executeTakeFirst()
+      .then((row) => (row ? { ...row, has_recorded_track: Number(row.has_recorded_track) } : undefined));
+  }
+
+  /**
+   * A copied tour keeps the import record of the tour it was copied from, so a
+   * trip copy still says where its imports came from and when. Nothing happens
+   * for a tour without one.
+   */
+  async copySource(source_place_id: number, place_id: number): Promise<void> {
+    await this.db()
+      .insertInto('tour_sources')
+      .columns([
+        'place_id',
+        'provider',
+        'instance',
+        'external_id',
+        'external_url',
+        'external_updated',
+        'content_hash',
+        'local_hash',
+        'imported_by',
+        'imported_at',
+      ])
+      .expression((eb) =>
+        eb
+          .selectFrom('tour_sources')
+          .select((inner) => [
+            inner.val(place_id).as('place_id'),
+            'provider',
+            'instance',
+            'external_id',
+            'external_url',
+            'external_updated',
+            'content_hash',
+            'local_hash',
+            'imported_by',
+            'imported_at',
+          ])
+          .where('place_id', '=', source_place_id),
+      )
+      .execute();
   }
 
   /** TO3 — `SELECT 1 FROM tours WHERE place_id = ?`: whether the place is a tour. */
@@ -193,15 +295,21 @@ export class ToursRepository extends TrekRepository<Tours> {
   /**
    * `wanderer_ref` and `difficulty` are set only by an import from a source that
    * carries them, `derived_from_place_id` only by a tour planned from an import.
+   * `origin` says which way the tour came in (planned here unless an import
+   * says otherwise), `origin_file_name` the GPX file it was read from.
    */
   async insertTour(
     input: TourInsert & {
       wanderer_ref?: string | null;
       difficulty?: string | null;
       derived_from_place_id?: number | null;
+      origin?: TToursOrigin;
+      origin_file_name?: string | null;
     },
   ): Promise<void> {
     await this.insert({
+      origin: input.origin ?? ToursOrigin.TREK,
+      origin_file_name: input.origin_file_name ?? null,
       derivedFromPlace: input.derived_from_place_id ?? null,
       wanderer_ref: input.wanderer_ref ?? null,
       difficulty: input.difficulty ?? null,

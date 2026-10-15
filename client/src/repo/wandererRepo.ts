@@ -25,6 +25,11 @@ export const wandererRepo = {
     return await wandererApi.preview(tripId, trailId, signal);
   },
 
+  async checkSource(tripId: number, placeId: number) {
+    if (isEffectivelyOffline()) throw new WandererOfflineError();
+    return await wandererApi.checkSource(tripId, placeId);
+  },
+
   async importTrail(tripId: number, body: WandererImportRequest) {
     if (isEffectivelyOffline()) throw new WandererOfflineError();
     const result = await wandererApi.importTrail(tripId, body);

@@ -4,6 +4,7 @@
  * (TO6/TO8), and the create/edit writes (TO7/TO9).
  */
 import { Places } from '../../../../src/db/entities/Places.entity';
+import { TourSources } from '../../../../src/db/entities/TourSources.entity';
 import { TourWaypoints } from '../../../../src/db/entities/TourWaypoints.entity';
 import { Tours } from '../../../../src/db/entities/Tours.entity';
 import type { ToursRepository } from '../../../../src/db/repositories/Tours.repository';
@@ -90,6 +91,7 @@ describe('ToursRepository reads', () => {
         planned: 0,
         has_waypoints: 1,
         derived_from_place_id: null,
+        origin: 'trek',
         has_recorded_track: 0,
       },
       {
@@ -111,6 +113,7 @@ describe('ToursRepository reads', () => {
         planned: 1,
         has_waypoints: 0,
         derived_from_place_id: null,
+        origin: 'trek',
         has_recorded_track: 0,
       },
     ]);
@@ -188,6 +191,7 @@ describe('ToursRepository writes', () => {
       planned: 0,
       has_waypoints: 0,
       derived_from_place_id: null,
+      origin: 'trek',
       has_recorded_track: 0,
     });
   });
@@ -249,6 +253,8 @@ describe('ToursRepository writes', () => {
         max_hiking_difficulty: 4,
         derived_from_place_id: null,
         recorded_route_geometry: null,
+        origin: 'trek',
+        origin_file_name: null,
       },
     ]);
     expect(await repo.listRowsForTrip(other.id)).toEqual([]);
@@ -276,5 +282,87 @@ describe('ToursRepository writes', () => {
     const copied = await repo.listRowsForTrip(other.id);
     expect(copied.find((r) => r.place_id === copy.id)?.derived_from_place_id).toBe(copiedImport.id);
     expect(copied.find((r) => r.place_id === orphan.id)?.derived_from_place_id).toBeNull();
+  });
+
+  it('TOURREPO-010: findProvenance reads origin, file name, import record and the import it was planned from', async () => {
+    const { trip, other } = fixture();
+    const imported = createPlace(testDb, trip.id, { name: 'Ridge import' });
+    await repo.insertTour({ ...METRICS, place_id: imported.id, origin: 'gpx', origin_file_name: 'ridge.gpx' });
+    const planned = createPlace(testDb, trip.id, { name: 'Ridge planned' });
+    await repo.insertTour({ ...METRICS, place_id: planned.id, derived_from_place_id: imported.id });
+    const snapshot = createPlace(testDb, trip.id, { name: 'Gorge' });
+    await repo.insertTour({
+      ...METRICS,
+      place_id: snapshot.id,
+      origin: 'wanderer',
+      wanderer_ref: 'https://w.example#t1',
+    });
+    await t.repo(TourSources).insertSource({
+      place_id: snapshot.id,
+      provider: 'wanderer',
+      instance: 'https://w.example',
+      external_id: 't1',
+      external_url: 'https://w.example/trail/view/@me/t1',
+      external_updated: '2026-10-01 08:00:00Z',
+      content_hash: 'c.c.c',
+      local_hash: 'l.l',
+      imported_by: null,
+    });
+
+    expect(await repo.findProvenance(trip.id, imported.id)).toMatchObject({
+      origin: 'gpx',
+      origin_file_name: 'ridge.gpx',
+      derived_from_place_id: null,
+      derived_from_name: null,
+      source_instance: null,
+      has_recorded_track: 0,
+    });
+    expect(await repo.findProvenance(trip.id, planned.id)).toMatchObject({
+      origin: 'trek',
+      derived_from_place_id: imported.id,
+      derived_from_name: 'Ridge import',
+    });
+    expect(await repo.findProvenance(trip.id, snapshot.id)).toMatchObject({
+      origin: 'wanderer',
+      source_instance: 'https://w.example',
+      source_external_id: 't1',
+      source_content_hash: 'c.c.c',
+      source_local_hash: 'l.l',
+      name: 'Gorge',
+    });
+    expect(await repo.findProvenance(other.id, snapshot.id)).toBeUndefined();
+  });
+
+  it('TOURREPO-011: copySource copies the import record onto the copied tour, and nothing for a tour without one', async () => {
+    const { trip, other } = fixture();
+    const snapshot = createPlace(testDb, trip.id);
+    await repo.insertTour({ ...METRICS, place_id: snapshot.id, origin: 'wanderer' });
+    await t.repo(TourSources).insertSource({
+      place_id: snapshot.id,
+      provider: 'wanderer',
+      instance: 'https://w.example',
+      external_id: 't1',
+      external_url: null,
+      external_updated: null,
+      content_hash: 'c.c.c',
+      local_hash: 'l.l',
+      imported_by: null,
+    });
+    const planned = createPlace(testDb, trip.id);
+    await repo.insertTour({ ...METRICS, place_id: planned.id });
+    const copiedSnapshot = createPlace(testDb, other.id);
+    await repo.insertTour({ ...METRICS, place_id: copiedSnapshot.id, origin: 'wanderer' });
+    const copiedPlanned = createPlace(testDb, other.id);
+    await repo.insertTour({ ...METRICS, place_id: copiedPlanned.id });
+
+    await repo.copySource(snapshot.id, copiedSnapshot.id);
+    await repo.copySource(planned.id, copiedPlanned.id);
+
+    expect(await repo.findProvenance(other.id, copiedSnapshot.id)).toMatchObject({
+      source_instance: 'https://w.example',
+      source_external_id: 't1',
+      source_content_hash: 'c.c.c',
+    });
+    expect((await repo.findProvenance(other.id, copiedPlanned.id))?.source_instance).toBeNull();
   });
 });

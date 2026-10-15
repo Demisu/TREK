@@ -5,13 +5,24 @@ import { Tours } from '../../db/entities/Tours.entity';
 import type { PlacesRepository } from '../../db/repositories/Places.repository';
 import type { TourTypesRepository } from '../../db/repositories/TourTypes.repository';
 import type { TourWaypointsRepository } from '../../db/repositories/TourWaypoints.repository';
-import type { TourListRow, ToursRepository, TourUpdate } from '../../db/repositories/Tours.repository';
+import type {
+  TourListRow,
+  TourProvenanceRow,
+  ToursRepository,
+  TourUpdate,
+} from '../../db/repositories/Tours.repository';
 import { DomainError } from '../common/domain-error';
 import { toRowId } from '../common/row-id';
 import { UnitOfWork } from '../database/unit-of-work';
 import { PlaceImportService } from '../place-import/place-import.service';
 import { PlacesService } from '../places/places.service';
-import { computeTourMetrics, parseRouteGeometry, LOW_CONFIDENCE_THRESHOLD, type GeometryPoint } from './tours.helpers';
+import {
+  computeTourMetrics,
+  localHashOf,
+  parseRouteGeometry,
+  LOW_CONFIDENCE_THRESHOLD,
+  type GeometryPoint,
+} from './tours.helpers';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
@@ -22,6 +33,9 @@ import {
   type TourCreateResponse,
   type TourDetailResponse,
   type TourListItem,
+  type TourOrigin,
+  type TourProvenance,
+  type TourProvenanceSource,
   type TourWaypoint,
   type WandererDifficulty,
   wandererDifficultyToSac,
@@ -72,6 +86,7 @@ export class ToursService {
       match_confidence: r.match_confidence,
       max_hiking_difficulty: r.max_hiking_difficulty,
       derived_from_place_id: r.derived_from_place_id,
+      origin: r.origin as TourOrigin,
       has_recorded_track: Boolean(r.has_recorded_track),
       planned: Boolean(r.planned),
       caution: r.match_confidence !== null && r.match_confidence < LOW_CONFIDENCE_THRESHOLD,
@@ -168,7 +183,33 @@ export class ToursService {
       }
     }
 
-    return { tour: this.toItem(row), waypoints };
+    return { tour: this.toItem(row), waypoints, provenance: await this.provenanceOf(tid!, row.place_id) };
+  }
+
+  /**
+   * Where a tour came from (P2C-02): the origin it was saved with, what its
+   * source carried, the import it was planned from, and whether it still
+   * matches the import. Nothing here is guessed: a field the tour never
+   * recorded stays null.
+   */
+  private async provenanceOf(tripId: number, placeId: number): Promise<TourProvenance> {
+    const row = await this.toursRepo.findProvenance(tripId, placeId);
+    if (!row) throw new NotFoundException('Tour not found');
+    const origin = row.origin as TourOrigin;
+    return {
+      origin,
+      createdAt: row.created_at,
+      source: provenanceSource(origin, row),
+      derivedFrom:
+        row.derived_from_place_id !== null && row.derived_from_name !== null
+          ? { placeId: row.derived_from_place_id, name: row.derived_from_name }
+          : null,
+      plannedOver: row.has_recorded_track === 1,
+      editedLocally:
+        origin === 'wanderer' && row.source_local_hash !== null
+          ? localHashOf(row.name, parseRouteGeometry(row.route_geometry)) !== row.source_local_hash
+          : null,
+    };
   }
 
   /** Create the owning Place, Tours facet, and ordered control points as one write. */
@@ -187,7 +228,7 @@ export class ToursService {
       // read in the write so it cannot go meanwhile.
       if (derivedFrom !== null) {
         const source = await this.toursRepo.findInTrip(tid, derivedFrom);
-        if (!source || source.has_waypoints) {
+        if (!source || source.origin === 'trek' || source.has_waypoints) {
           throw new DomainError(400, 'derived_from_place_id is not an imported tour of this trip');
         }
       }
@@ -224,7 +265,7 @@ export class ToursService {
     } catch {
       this.logger.warn(`Committed Tour ${placeId}: place notification failed`);
     }
-    return { tour: this.toItem(row), waypoints };
+    return { tour: this.toItem(row), waypoints, provenance: await this.provenanceOf(tid, placeId) };
   }
 
   /**
@@ -360,14 +401,14 @@ export class ToursService {
   async importGpxAsTour(
     tripId: string,
     fileBuffer: Buffer,
-    defaultName?: string,
+    fileName?: string,
     socketId?: string,
   ): Promise<ImportGpxAsTourResult | null> {
     const rows = this.placeImport.readGpx(fileBuffer, {
       importWaypoints: false,
       importRoutes: true,
       importTracks: true,
-      defaultName,
+      defaultName: fileName,
     });
     if (rows.length === 0) return null;
 
@@ -389,6 +430,8 @@ export class ToursService {
           break_additional_minutes: null,
           match_confidence: matchConfidence,
           max_hiking_difficulty: null,
+          origin: 'gpx',
+          origin_file_name: gpxFileName(fileName),
         });
         tours.push(
           this.toItem({
@@ -408,6 +451,7 @@ export class ToursService {
             match_confidence: matchConfidence,
             max_hiking_difficulty: null,
             derived_from_place_id: null,
+            origin: 'gpx',
             has_recorded_track: 0,
             planned: 0,
             has_waypoints: 0,
@@ -432,4 +476,33 @@ export class ToursService {
     }
     return { tours, caution: tours.some((t) => t.caution), skipped: result.skipped };
   }
+}
+
+/** The file name a GPX import keeps: the name as uploaded, without a path, cut to what the column shows. */
+function gpxFileName(name: string | undefined): string | null {
+  const base = name?.split(/[\/]/).pop()?.trim();
+  return base ? base.slice(0, 255) : null;
+}
+
+/** What the source of a tour carried, read from the tour's own record and its import's snapshot row. */
+function provenanceSource(origin: TourOrigin, row: TourProvenanceRow): TourProvenanceSource {
+  if (origin === 'gpx') return { kind: 'gpx', fileName: row.origin_file_name };
+  if (origin === 'wanderer') {
+    // The reference `instance#trail` is on the tour itself, so a snapshot whose row is missing still names its source.
+    const [refInstance, refTrail] = splitWandererRef(row.wanderer_ref);
+    return {
+      kind: 'wanderer',
+      instance: row.source_instance ?? refInstance,
+      externalId: row.source_external_id ?? refTrail,
+      externalUrl: row.source_external_url,
+      externalUpdated: row.source_external_updated,
+      importedAt: row.source_imported_at,
+    };
+  }
+  return { kind: 'trek' };
+}
+
+function splitWandererRef(ref: string | null): [string, string] {
+  const at = ref?.lastIndexOf('#') ?? -1;
+  return ref && at > 0 ? [ref.slice(0, at), ref.slice(at + 1)] : ['', ''];
 }

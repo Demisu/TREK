@@ -5,6 +5,8 @@
  */
 import type { GeometryPoint } from '@trek/shared';
 
+import { createHash } from 'node:crypto';
+
 // The metrics are shared with the client, which computes them for a tour saved offline.
 export { computeTourMetrics, type GeometryPoint, type TourMetrics } from '@trek/shared';
 
@@ -30,3 +32,35 @@ export function parseRouteGeometry(routeGeometry: string | null | undefined): Ge
 
 /** Confidence threshold: below this, the tour imports with a caution flag. */
 export const LOW_CONFIDENCE_THRESHOLD = 0.5;
+
+/** A short stable fingerprint of one part of a trail. */
+function fingerprint(value: unknown): string {
+  return createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0, 16);
+}
+
+/** Coordinates to five places (a metre) and heights to the metre, so a re-export with other float noise reads the same. */
+function normalizedRoute(points: readonly GeometryPoint[]): number[][] {
+  return points.map(([lat, lng, ele]) =>
+    ele == null ? [+lat.toFixed(5), +lng.toFixed(5)] : [+lat.toFixed(5), +lng.toFixed(5), Math.round(ele)],
+  );
+}
+
+/** What the source delivered, part by part: `name.description.route`. */
+export function contentHashOf(name: string, description: string | null, route: readonly GeometryPoint[]): string {
+  return [fingerprint(name.trim()), fingerprint((description ?? '').trim()), fingerprint(normalizedRoute(route))].join(
+    '.',
+  );
+}
+
+/** The tour as saved here: `name.route`, to tell later whether it was edited. */
+export function localHashOf(name: string, route: readonly GeometryPoint[]): string {
+  return [fingerprint(name.trim()), fingerprint(normalizedRoute(route))].join('.');
+}
+
+const CONTENT_PARTS = ['name', 'description', 'route'] as const;
+
+export function changedParts(before: string, now: string): Array<(typeof CONTENT_PARTS)[number]> {
+  const a = before.split('.');
+  const b = now.split('.');
+  return CONTENT_PARTS.filter((_, i) => a[i] !== b[i]);
+}

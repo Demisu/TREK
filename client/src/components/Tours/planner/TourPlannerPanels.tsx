@@ -27,6 +27,7 @@ import TourConversionSection from '../conversion/TourConversionSection'
 import type { GpxConversion } from '../conversion/useGpxConversion'
 import type { RecordedTrack } from '../useRecordedTrack'
 import type { TourGpxImport } from '../useTourGpxImport'
+import { type AssignTourToDay, useTourDayAssignment } from '../useTourDayAssignment'
 import WandererMark from '../wanderer/WandererMark'
 
 const STATUS_KEY: Partial<Record<TourPlannerStatus, string>> = {
@@ -510,7 +511,7 @@ interface TourPlannerToursRailProps extends TourPermissionProps {
   tours: TourListItem[]
   days: Day[]
   loading: boolean
-  onAssignToDay: (placeId: number, dayId: number) => void | boolean | Promise<void | boolean>
+  onAssignToDay: AssignTourToDay
   onViewGpxTour: (tour: TourListItem) => void
   onDeleteTour?: (placeId: number) => void
   /** The workspace's GPX import; its button sits beside "New tour". */
@@ -524,6 +525,7 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
   const toast = useToast()
   const distanceUnit = useSettingsStore(state => state.settings.distance_unit)
   const [pendingTour, setPendingTour] = useState<TourListItem | null>(null)
+  const dayAssignment = useTourDayAssignment({ canAssign, onAssignToDay })
   const isSaving = planner.isSaving
   const hasRoute = (planner.mode.type === 'new-draft' || planner.mode.type === 'edit-saved') && planner.route !== null
   const routeAnalysis = planner.routeAnalysis
@@ -645,7 +647,7 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
                             days={days}
                             placeId={tour.place_id}
                             label={`${t('tours.addToDay')}: ${tour.name}`}
-                            onPick={day => { if (canAssign) void onAssignToDay(tour.place_id, day.id) }}
+                            assignment={dayAssignment}
                           />
                         )}
                         {canEdit && onDeleteTour && (

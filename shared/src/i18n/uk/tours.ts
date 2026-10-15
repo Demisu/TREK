@@ -229,5 +229,47 @@ const tours: TranslationStrings = {
     'Маршрут проходить {length} по «{name}». Для цього потрібні спорядження для віа ферати й досвід.',
   'tours.ferrata.crossingShort': 'Маршрут проходить по віа фераті',
   'tours.ferrata.waypointAtEnd': 'Початок або кінець «{name}»',
+  'tours.provenance.label': 'Походження',
+  'tours.provenance.source': 'Джерело',
+  'tours.provenance.importedAt': 'Імпортовано',
+  'tours.provenance.createdAt': 'Створено',
+  'tours.provenance.externalUpdated': 'Змінено у wanderer',
+  'tours.provenance.externalUpdatedHint':
+    'Дата зміни, яку wanderer вказав під час імпорту. Підказка, а не доказ версії.',
+  'tours.provenance.localState': 'Тут',
+  'tours.provenance.plannedOver': 'Перепланковано, записаний трек збережено',
+  'tours.provenance.editedLocally': 'Змінено в TREK',
+  'tours.provenance.asImported': 'Як імпортовано',
+  'tours.provenance.openSource': 'Відкрити у wanderer',
+  'tours.provenance.check': 'Перевірити джерело',
+  'tours.provenance.checkHint':
+    'Питає wanderer, чи змінився цей маршрут після імпорту. У подорожі нічого не змінюється.',
+  'tours.provenance.state.unchanged': 'Без змін після імпорту',
+  'tours.provenance.state.changed': 'Змінено у wanderer',
+  'tours.provenance.state.unavailable': 'Більше недоступно',
+  'tours.provenance.state.not_connected': 'Немає підключення до wanderer',
+  'tours.provenance.state.other_instance': 'Підключено інший wanderer',
+  'tours.provenance.state.unknown': 'Порівняти неможливо',
+  'tours.provenance.body.unavailable':
+    'Маршрут зник або більше не читається через ваше підключення. Цей похід лишається таким, яким його імпортовано.',
+  'tours.provenance.body.not_connected':
+    'Підключіть свій wanderer у розділі Налаштування, Інтеграції, щоб перевірити джерело.',
+  'tours.provenance.body.other_instance':
+    'Ваше підключення вказує на інший екземпляр, не той, звідки прийшов цей похід.',
+  'tours.provenance.body.unknown':
+    'У цьому імпорті немає з чим порівнювати. Поточний маршрут однаково можна забрати як новий знімок.',
+  'tours.provenance.change.name': 'Назва',
+  'tours.provenance.change.description': 'Опис',
+  'tours.provenance.change.route': 'Траса',
+  'tours.provenance.nowUpdated': 'wanderer вказує {date} як останню зміну',
+  'tours.provenance.reimport': 'Імпортувати як новий знімок',
+  'tours.provenance.reimportTitle': 'Імпортувати змінений маршрут?',
+  'tours.provenance.reimportBody':
+    'Він з’явиться як новий похід поруч із цим. Цей похід, його дні та нотатки лишаються як є.',
+  'tours.provenance.reimported': 'Новий знімок імпортовано',
+  'tours.visibility.hidden': 'Приховано на мапі',
+  'tours.visibility.showAll': 'Показати всі',
+  'tours.visibility.show': 'Показати на мапі',
+  'tours.visibility.hide': 'Приховати на мапі',
 };
 export default tours;

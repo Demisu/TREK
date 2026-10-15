@@ -1,4 +1,5 @@
 import { useId, type ReactNode } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 import type { TourListItem } from '@trek/shared'
 import { fs } from '../shared/DialogShell'
 import { TourCautionBadge, TourDaysBadge, TourGradeTile } from './tourParts'
@@ -6,6 +7,7 @@ import type { Day } from '../../types'
 import { endPlaceDrag, startPlaceDrag } from '../Map/markerDrag'
 import { TourDayRowPills } from './TourDayRowFacts'
 import { useTourDays } from './tourDays'
+import { Tooltip } from '../shared/Tooltip'
 
 const NO_DAYS: Day[] = []
 
@@ -20,6 +22,30 @@ interface TourListRowProps {
   onSelect: (tour: TourListItem, opener: HTMLElement) => void
   action?: ReactNode
   children?: ReactNode
+  /** The colour the tour's line has on the map, shown beside it so the two read as one. */
+  trackColor?: string
+  /** PR1-07: the person's switch for this tour's line on the trip map. */
+  mapToggle?: { hidden: boolean; onToggle: () => void; showLabel: string; hideLabel: string }
+}
+
+/** The eye beside a row: shown on hover like the other actions, and always while the tour is hidden. */
+function MapToggleButton({ toggle }: { toggle: NonNullable<TourListRowProps['mapToggle']> }) {
+  const label = toggle.hidden ? toggle.showLabel : toggle.hideLabel
+  return (
+    <Tooltip label={label}>
+      <button
+        type="button"
+        aria-label={label}
+        aria-pressed={toggle.hidden}
+        onClick={event => { event.stopPropagation(); toggle.onToggle() }}
+        className={`grid h-[26px] w-[26px] flex-none place-items-center rounded-full shadow-sm ring-1 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent ${toggle.hidden
+          ? 'bg-surface-tertiary text-content-muted ring-edge-faint hover:text-content'
+          : 'bg-surface-card text-content-muted ring-edge-faint hover:text-content'}`}
+      >
+        {toggle.hidden ? <EyeOff size={13} strokeWidth={2.2} /> : <Eye size={13} strokeWidth={2.2} />}
+      </button>
+    </Tooltip>
+  )
 }
 
 /**
@@ -31,7 +57,7 @@ interface TourListRowProps {
 export default function TourListRow({ tour,
   days = NO_DAYS,
   selected = false, disabled = false,
-  draggableToDay = false, onSelect, action, children }: TourListRowProps) {
+  draggableToDay = false, onSelect, action, children, trackColor, mapToggle }: TourListRowProps) {
   const nameId = useId()
   const tourDays = useTourDays(tour.place_id, days)
   const draggable = draggableToDay && !disabled
@@ -44,6 +70,7 @@ export default function TourListRow({ tour,
       aria-selected={selected}
       aria-disabled={disabled || undefined}
       aria-labelledby={nameId}
+      data-place-id={tour.place_id}
       draggable={draggable || undefined}
       onDragStart={draggable ? (event) => startPlaceDrag(event.dataTransfer, tour.place_id) : undefined}
       onDragEnd={draggable ? endPlaceDrag : undefined}
@@ -58,6 +85,11 @@ export default function TourListRow({ tour,
       }}
     >
       <div className="flex items-center gap-2.5">
+        {trackColor && (
+          // The line's colour on the map, as a plan row shows its category.
+          <span aria-hidden="true" className="-me-1 h-8 w-[3px] flex-none rounded-full" style={{ background: trackColor }} />
+        )}
+        <div className={`flex min-w-0 flex-1 items-center gap-2.5 transition-opacity ${mapToggle?.hidden ? 'opacity-55' : ''}`}>
         <TourGradeTile tour={tour} />
         <div className="min-w-0 flex-1">
           <span id={nameId} className="block min-w-0 truncate font-semibold leading-tight text-content"
@@ -81,11 +113,14 @@ export default function TourListRow({ tour,
             )}
           </div>
         </div>
-        {action && (
+        </div>
+        {mapToggle?.hidden && <MapToggleButton toggle={mapToggle} />}
+        {(action || (mapToggle && !mapToggle.hidden)) && (
           // Out on hover, focus or selection, as a plan row's controls are: the name and badges have the room otherwise.
           <div data-testid="tour-action-row" role="presentation"
             onClick={event => event.stopPropagation()}
             className={`flex-none items-center gap-1.5 group-focus-within:flex group-hover:flex ${selected ? 'flex' : 'hidden'}`}>
+            {mapToggle && !mapToggle.hidden && <MapToggleButton toggle={mapToggle} />}
             {action}
           </div>
         )}

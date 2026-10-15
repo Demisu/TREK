@@ -223,5 +223,46 @@ const tours: TranslationStrings = {
   'tours.ferrata.crossingInfo': 'La ruta fa {length} per «{name}». Cal material de via ferrada i experiència.',
   'tours.ferrata.crossingShort': 'La ruta passa per una via ferrada',
   'tours.ferrata.waypointAtEnd': 'Inici o final de «{name}»',
+  'tours.provenance.label': 'Origen',
+  'tours.provenance.source': 'Font',
+  'tours.provenance.importedAt': 'Importat',
+  'tours.provenance.createdAt': 'Creat',
+  'tours.provenance.externalUpdated': 'Modificat a wanderer',
+  'tours.provenance.externalUpdatedHint':
+    'La data de canvi que wanderer va indicar en importar. Una pista, no una prova de versió.',
+  'tours.provenance.localState': 'Aquí',
+  'tours.provenance.plannedOver': 'Replanificat, traça enregistrada conservada',
+  'tours.provenance.editedLocally': 'Editat a TREK',
+  'tours.provenance.asImported': 'Tal com es va importar',
+  'tours.provenance.openSource': 'Obre a wanderer',
+  'tours.provenance.check': 'Comprova la font',
+  'tours.provenance.checkHint':
+    'Pregunta a wanderer si aquesta ruta ha canviat des de la importació. No canvia res al viatge.',
+  'tours.provenance.state.unchanged': 'Sense canvis des de la importació',
+  'tours.provenance.state.changed': 'Modificat a wanderer',
+  'tours.provenance.state.unavailable': 'Ja no està disponible',
+  'tours.provenance.state.not_connected': 'Sense connexió amb wanderer',
+  'tours.provenance.state.other_instance': 'Hi ha un altre wanderer connectat',
+  'tours.provenance.state.unknown': 'No es pot comparar',
+  'tours.provenance.body.unavailable':
+    'La ruta ja no existeix o no es pot llegir amb la teva connexió. Aquesta excursió es queda tal com es va importar.',
+  'tours.provenance.body.not_connected': 'Connecta el teu wanderer a Configuració, Integracions per comprovar la font.',
+  'tours.provenance.body.other_instance':
+    'La teva connexió apunta a una instància diferent de la que va venir aquesta excursió.',
+  'tours.provenance.body.unknown':
+    'Aquesta importació no té res per comparar. Igualment pots portar la ruta actual com a nova instantània.',
+  'tours.provenance.change.name': 'Nom',
+  'tours.provenance.change.description': 'Descripció',
+  'tours.provenance.change.route': 'Recorregut',
+  'tours.provenance.nowUpdated': 'wanderer indica {date} com a darrer canvi',
+  'tours.provenance.reimport': 'Importa com a nova instantània',
+  'tours.provenance.reimportTitle': 'Vols importar la ruta modificada?',
+  'tours.provenance.reimportBody':
+    'Arriba com una excursió nova al costat d’aquesta. Aquesta excursió, els seus dies i notes es queden com estan.',
+  'tours.provenance.reimported': 'Nova instantània importada',
+  'tours.visibility.hidden': 'Amagada al mapa',
+  'tours.visibility.showAll': 'Mostra-les totes',
+  'tours.visibility.show': 'Mostra al mapa',
+  'tours.visibility.hide': 'Amaga al mapa',
 };
 export default tours;

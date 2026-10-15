@@ -46,6 +46,7 @@ import { Tooltip } from '../shared/Tooltip';
 import TrackColorPicker from '../shared/TrackColorPicker';
 import { markdownLinkComponents } from '../shared/markdownLink';
 import { TourDayRowAvatar } from './TourDayRowFacts';
+import { TourProvenanceBlock } from './provenance/TourProvenanceSection';
 import { tourDaysOf } from './tourDays';
 import { TourDayPills, TourFactFields, TourMetricFields, type TourMetricField } from './tourParts';
 import {
@@ -55,6 +56,7 @@ import {
   tourSource,
   tourWebsitePresentation,
 } from './tourPresentation';
+import { useTourDayAssignment } from './useTourDayAssignment';
 import { useTourPermissions, type TourPermissionProps } from './useTourPermissions';
 
 interface TourDetailDialogProps extends TourPermissionProps {
@@ -68,6 +70,8 @@ interface TourDetailDialogProps extends TourPermissionProps {
   onClose: () => void;
   onUpdatePlace?: (placeId: number, data: Partial<Place>) => Promise<void> | void;
   onFileUpload?: (formData: FormData) => Promise<unknown>;
+  /** A wanderer snapshot's source check brought the changed trail in as a new tour (MF-03). */
+  onSourceReimported?: (tour: TourListItem) => Promise<void> | void;
   onAssignToDay?: (placeId: number, dayId?: number) => void;
   onRemoveAssignment?: (dayId: number, assignmentId: number) => void;
   onDelete?: () => void;
@@ -298,6 +302,7 @@ export default function TourDetailDialog({
   onClose,
   onUpdatePlace,
   onFileUpload,
+  onSourceReimported,
   onAssignToDay,
   onRemoveAssignment,
   onDelete,
@@ -315,6 +320,7 @@ export default function TourDetailDialog({
     canAssign: assignPermission,
   });
   const canEdit = hasEditPermission && !readOnly;
+  const dayAssignment = useTourDayAssignment({ canAssign, onAssignToDay: (id, dayId) => onAssignToDay?.(id, dayId) });
   const { t } = useTranslation();
   const distanceUnit = useSettingsStore((state) => state.settings.distance_unit) ?? 'metric';
   const [colorOpen, setColorOpen] = useState(false);
@@ -453,9 +459,8 @@ export default function TourDetailDialog({
           : onAssignToDay && (
               <DialogButton
                 variant="primary"
-                onClick={() => {
-                  if (canAssign) onAssignToDay(place.id);
-                }}
+                onClick={() => void dayAssignment.assign(place.id, selectedDayId)}
+                disabled={!dayAssignment.isAvailable(place.id, selectedDayId)}
                 icon={<Plus size={14} strokeWidth={2} />}
               >
                 {t('inspector.addToDay')}
@@ -582,6 +587,7 @@ export default function TourDetailDialog({
         </DialogSection>
       )}
 
+      <TourProvenanceBlock tripId={place.trip_id} tour={tour} canCheck={canEdit} onReimported={onSourceReimported} />
       <TourFilesSection placeId={place.id} files={placeFiles} onFileUpload={canEdit ? onFileUpload : undefined} />
     </DetailShell>
   );

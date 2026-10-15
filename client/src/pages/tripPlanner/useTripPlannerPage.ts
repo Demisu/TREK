@@ -22,7 +22,7 @@ export function useTripPlannerPage() {
 
   const canPlaceEdit = can('place_edit', trip)
   const canDayEdit = can('day_edit', trip)
-  const { tourPlanner, viewImportedTour, tourGpxImport, wandererBrowser, tourConversion, recordedTrack } =
+  const { tourPlanner, viewImportedTour, tourGpxImport, wandererBrowser, tourConversion, recordedTrack, tourDetailActions } =
     useTourWorkspace(planner, canPlaceEdit, canDayEdit)
 
   const tourDetailOpenerRef = useRef<{ placeId: number; element: HTMLElement } | null>(null)
@@ -119,6 +119,7 @@ export function useTripPlannerPage() {
     tourDetails: { openerRef: tourDetailOpenerRef, onSelectTour },
     tourConversion,
     recordedTrack,
+    tourDetailActions,
     tourMap: { route,
       routeWalking: route && route.length === 2 && tourConversion.line ? [true, false] : null,
       previewPoints: tourConversion.status === 'idle' ? null : tourConversion.points,

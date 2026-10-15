@@ -1,4 +1,4 @@
-import type { Ferrata, RoadtripPreferences, TourListItem, TourWaypoint } from '@trek/shared';
+import type { Ferrata, RoadtripPreferences, TourListItem, TourProvenance, TourWaypoint } from '@trek/shared';
 import Dexie, { type Table } from 'dexie';
 import type { Trip, Day, Place, PackingItem, TodoItem, BudgetItem, Reservation, TripFile, Accommodation, TripMember, Tag, Category } from '../types';
 
@@ -15,6 +15,8 @@ export interface CachedTripMember extends TripMember {
 export interface CachedTour extends TourListItem {
   trip_id: number;
   waypoints?: TourWaypoint[];
+  /** Where the tour came from, as its detail last said; kept across list refreshes, since it does not change. */
+  provenance?: TourProvenance;
 }
 
 /**
@@ -464,7 +466,12 @@ export async function replaceTripTours(tripId: number, tours: TourListItem[]): P
         && previous.elevation_gain === tour.elevation_gain
         && previous.elevation_loss === tour.elevation_loss
         && previous.has_waypoints === tour.has_waypoints;
-      return { ...tour, trip_id: tripId, ...(sameRoute && previous.waypoints ? { waypoints: previous.waypoints } : {}) };
+      return {
+        ...tour,
+        trip_id: tripId,
+        ...(sameRoute && previous.waypoints ? { waypoints: previous.waypoints } : {}),
+        ...(previous?.provenance ? { provenance: previous.provenance } : {}),
+      };
     }));
   });
 }

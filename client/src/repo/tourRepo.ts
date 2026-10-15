@@ -8,7 +8,7 @@ import { onlineThenCache } from './withOfflineFallback'
 import type { Place } from '../types'
 
 /** The list item a cached row stands for: the cache-only fields stripped. */
-function toListItem({ trip_id: _tripId, waypoints: _waypoints, ...tour }: CachedTour): TourListItem {
+function toListItem({ trip_id: _tripId, waypoints: _waypoints, provenance: _provenance, ...tour }: CachedTour): TourListItem {
   return tour
 }
 
@@ -99,7 +99,12 @@ export const tourRepo = {
     return onlineThenCache(
       async () => {
         const result = await toursApi.detail(tripId, placeId, signal)
-        await offlineDb.tours.put({ ...result.tour, trip_id: Number(tripId), waypoints: result.waypoints })
+        await offlineDb.tours.put({
+          ...result.tour,
+          trip_id: Number(tripId),
+          waypoints: result.waypoints,
+          ...(result.provenance ? { provenance: result.provenance } : {}),
+        })
         return result
       },
       async () => {
@@ -110,7 +115,7 @@ export const tourRepo = {
         const waypoints = cached.waypoints?.length
           ? cached.waypoints
           : endpointsOf((await offlineDb.places.get(placeId))?.route_geometry)
-        return { tour: toListItem(cached), waypoints }
+        return { tour: toListItem(cached), waypoints, ...(cached.provenance ? { provenance: cached.provenance } : {}) }
       },
     )
   },

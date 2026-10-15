@@ -232,5 +232,47 @@ const tours: TranslationStrings = {
     'Маршрут проходит {length} по «{name}». Для этого нужны снаряжение для виа ферраты и опыт.',
   'tours.ferrata.crossingShort': 'Маршрут проходит по виа феррате',
   'tours.ferrata.waypointAtEnd': 'Начало или конец «{name}»',
+  'tours.provenance.label': 'Происхождение',
+  'tours.provenance.source': 'Источник',
+  'tours.provenance.importedAt': 'Импортировано',
+  'tours.provenance.createdAt': 'Создано',
+  'tours.provenance.externalUpdated': 'Изменено в wanderer',
+  'tours.provenance.externalUpdatedHint':
+    'Дата изменения, которую wanderer указал при импорте. Подсказка, а не доказательство версии.',
+  'tours.provenance.localState': 'Здесь',
+  'tours.provenance.plannedOver': 'Перепланировано, записанный трек сохранён',
+  'tours.provenance.editedLocally': 'Изменено в TREK',
+  'tours.provenance.asImported': 'Как импортировано',
+  'tours.provenance.openSource': 'Открыть в wanderer',
+  'tours.provenance.check': 'Проверить источник',
+  'tours.provenance.checkHint':
+    'Спрашивает wanderer, изменился ли этот маршрут после импорта. В поездке ничего не меняется.',
+  'tours.provenance.state.unchanged': 'Без изменений после импорта',
+  'tours.provenance.state.changed': 'Изменено в wanderer',
+  'tours.provenance.state.unavailable': 'Больше недоступно',
+  'tours.provenance.state.not_connected': 'Нет подключения к wanderer',
+  'tours.provenance.state.other_instance': 'Подключён другой wanderer',
+  'tours.provenance.state.unknown': 'Сравнить нельзя',
+  'tours.provenance.body.unavailable':
+    'Маршрут удалён или больше не читается через ваше подключение. Этот поход остаётся таким, каким был импортирован.',
+  'tours.provenance.body.not_connected':
+    'Подключите свой wanderer в разделе Настройки, Интеграции, чтобы проверить источник.',
+  'tours.provenance.body.other_instance':
+    'Ваше подключение указывает на другой экземпляр, не тот, откуда пришёл этот поход.',
+  'tours.provenance.body.unknown':
+    'В этом импорте не с чем сравнивать. Текущий маршрут всё равно можно забрать как новый снимок.',
+  'tours.provenance.change.name': 'Название',
+  'tours.provenance.change.description': 'Описание',
+  'tours.provenance.change.route': 'Маршрут',
+  'tours.provenance.nowUpdated': 'wanderer указывает {date} как последнее изменение',
+  'tours.provenance.reimport': 'Импортировать как новый снимок',
+  'tours.provenance.reimportTitle': 'Импортировать изменённый маршрут?',
+  'tours.provenance.reimportBody':
+    'Он появится как новый поход рядом с этим. Этот поход, его дни и заметки останутся как есть.',
+  'tours.provenance.reimported': 'Новый снимок импортирован',
+  'tours.visibility.hidden': 'Скрыто на карте',
+  'tours.visibility.showAll': 'Показать все',
+  'tours.visibility.show': 'Показать на карте',
+  'tours.visibility.hide': 'Скрыть на карте',
 };
 export default tours;

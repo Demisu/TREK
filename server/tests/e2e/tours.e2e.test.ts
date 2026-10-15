@@ -502,6 +502,52 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
     });
   });
 
+  describe('provenance (P2C-02)', () => {
+    const detail = async (placeId: number) =>
+      (await request(server).get(`/api/trips/5/tours/${placeId}`).set('Cookie', sessionCookie(OWNER))).body;
+
+    it('a planned tour says it was planned here, with no source invented', async () => {
+      const placeId = await createViaApi();
+      const body = await detail(placeId);
+      expect(body.tour.origin).toBe('trek');
+      expect(body.provenance).toMatchObject({
+        origin: 'trek',
+        source: { kind: 'trek' },
+        derivedFrom: null,
+        plannedOver: false,
+        editedLocally: null,
+      });
+      expect(body.provenance.createdAt).toEqual(expect.any(String));
+    });
+
+    it('a GPX import keeps its origin and file name, also after it is planned over in place', async () => {
+      const res = await importGpx(OWNER, TRACK_GPX);
+      const placeId = res.body.tours[0].place_id as number;
+      expect(res.body.tours[0].origin).toBe('gpx');
+      expect((await detail(placeId)).provenance).toMatchObject({
+        origin: 'gpx',
+        source: { kind: 'gpx', fileName: 'track.gpx' },
+        plannedOver: false,
+      });
+
+      await request(server).put(`/api/trips/5/tours/${placeId}`).set('Cookie', sessionCookie(OWNER)).send(tourBody());
+      const after = await detail(placeId);
+      expect(after.tour).toMatchObject({ origin: 'gpx', has_waypoints: true });
+      expect(after.provenance).toMatchObject({ origin: 'gpx', plannedOver: true });
+    });
+
+    it('a tour planned from an import names it while it is in the trip', async () => {
+      const res = await importGpx(OWNER, TRACK_GPX);
+      const source = res.body.tours[0].place_id as number;
+      const derived = await createViaApi(5, tourBody({ derived_from_place_id: source }));
+      const sourceName = (await placeColumns(source, 'name')).name;
+      expect((await detail(derived)).provenance).toMatchObject({
+        origin: 'trek',
+        derivedFrom: { placeId: source, name: sourceName },
+      });
+    });
+  });
+
   describe('planning over an import (PR1-05)', () => {
     /** An imported GPX tour on trip 5: no waypoints, the recorded line as it came. */
     const importedTour = async (tripId = 5) => {

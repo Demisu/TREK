@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { Check, ChevronDown, FileDown } from 'lucide-react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { Check, ChevronDown, EyeOff, FileDown } from 'lucide-react'
 import type { TourListItem } from '@trek/shared'
 import type { Day } from '../../types'
 import { useTranslation } from '../../i18n'
@@ -11,6 +11,10 @@ import EmptyState from '../shared/EmptyState'
 import { TourDayMenu } from './tourParts'
 import { filterTours, type TourFilter } from './tourPresentation'
 import { useTourGpxImport } from './useTourGpxImport'
+import { type AssignTourToDay, useTourDayAssignment } from './useTourDayAssignment'
+import { useTourMapVisibility } from './useTourMapVisibility'
+import { useTripStore } from '../../store/tripStore'
+import { resolveTrackColor } from '../Map/trackColors'
 
 interface ToursSidebarProps extends TourPermissionProps {
   tripId: number
@@ -18,7 +22,7 @@ interface ToursSidebarProps extends TourPermissionProps {
   tours: TourListItem[]
   loading?: boolean
   selectedPlaceId?: number | null
-  onAssignToDay: (placeId: number, dayId: number) => void | boolean | Promise<void | boolean>
+  onAssignToDay: AssignTourToDay
   pushUndo?: (label: string, undo: () => void | Promise<void>) => void
   /** Imported place ids are excluded immediately; no ids means refresh derived Tour metadata. */
   onToursChanged?: (placeIds?: number[]) => void | Promise<void>
@@ -45,9 +49,22 @@ export default function ToursSidebar({ tripId, days, tours, loading = false, sel
   const filterButtonRef = useRef<HTMLButtonElement>(null)
   const [filterOpen, setFilterOpen] = useState(false)
 
-  const handleAssign = (tour: TourListItem, day: Day) => {
-    if (canAssign) void onAssignToDay(tour.place_id, day.id)
-  }
+  const dayAssignment = useTourDayAssignment({ canAssign, onAssignToDay })
+  const tourIds = useMemo(() => new Set(tours.map(tour => tour.place_id)), [tours])
+  const visibility = useTourMapVisibility(tripId, tourIds)
+  // The colour each line has on the map, so a row and its line read as one (PR1-08).
+  const places = useTripStore(state => state.places)
+  const trackColors = useMemo(
+    () => new Map(places.filter(place => tourIds.has(place.id)).map(place => [place.id, resolveTrackColor(place)])),
+    [places, tourIds],
+  )
+  const listRef = useRef<HTMLUListElement>(null)
+  // A tour picked on the map shows in the list too, scrolled into view.
+  useEffect(() => {
+    if (selectedPlaceId == null) return
+    const row = listRef.current?.querySelector<HTMLElement>(`[data-place-id="${selectedPlaceId}"]`)
+    row?.scrollIntoView?.({ block: 'nearest' })
+  }, [selectedPlaceId])
 
   const counts = {
     all: tours.length,
@@ -118,6 +135,18 @@ export default function ToursSidebar({ tripId, days, tours, loading = false, sel
             </div>
           )}
         </div>
+        {visibility.hiddenCount > 0 && (
+          <div role="status" className="flex min-w-0 items-center gap-2 rounded-[10px] bg-surface-card px-2.5 py-1.5 shadow-sm ring-1 ring-inset ring-edge-faint">
+            <EyeOff size={13} strokeWidth={2.2} className="flex-none text-content-faint" />
+            <span className="min-w-0 flex-1 truncate text-content-secondary" style={fs(12, 'body')}>{t('tours.visibility.hidden')}</span>
+            <span className="font-geist tabular-nums text-content-faint" style={fs(10.5)}>{visibility.hiddenCount}</span>
+            <button type="button" onClick={visibility.showAll}
+              className="flex-none rounded-full px-2 py-0.5 font-semibold text-content-secondary transition-colors hover:bg-surface-hover hover:text-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+              style={fs(11.5, 'body')}>
+              {t('tours.visibility.showAll')}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="trek-stagger min-h-0 flex-1 overflow-y-auto px-2 pb-2 pt-1.5">
@@ -125,7 +154,7 @@ export default function ToursSidebar({ tripId, days, tours, loading = false, sel
           <EmptyState scene="tours" size={92} fill surface="var(--bg-secondary)" title={t('tours.empty.title')}
             action={<p className="m-0 max-w-[260px] text-content-muted" style={fs(12, 'body')}>{t('tours.empty.body')}</p>} />
         ) : (
-          <ul role="listbox" aria-label={t('tours.mode.tours')} className="m-0 list-none p-0">
+          <ul ref={listRef} role="listbox" aria-label={t('tours.mode.tours')} className="m-0 list-none p-0">
             {filtered.map(tour => (
               <TourListRow
                 key={tour.place_id}
@@ -133,8 +162,15 @@ export default function ToursSidebar({ tripId, days, tours, loading = false, sel
                 days={days}
                 draggableToDay={canAssign && days.length > 0}
                 selected={tour.place_id === selectedPlaceId}
+                trackColor={trackColors.get(tour.place_id)}
+                mapToggle={{
+                  hidden: visibility.isHidden(tour.place_id),
+                  onToggle: () => visibility.toggle(tour.place_id),
+                  showLabel: t('tours.visibility.show'),
+                  hideLabel: t('tours.visibility.hide'),
+                }}
                 onSelect={(selectedTour, opener) => onSelectTour?.(selectedTour, opener)}
-                action={<TourDayMenu days={days} placeId={tour.place_id} label={t('tours.addToDay')} disabled={!canAssign} onPick={(day) => handleAssign(tour, day)} />}
+                action={<TourDayMenu days={days} placeId={tour.place_id} label={t('tours.addToDay')} assignment={dayAssignment} />}
               />
             ))}
           </ul>

@@ -6,6 +6,7 @@ import { useTranslation } from '../../../../i18n'
 import { useAddonStore } from '../../../../store/addonStore'
 import { useSaveToCollectionStore } from '../../../../store/saveToCollectionStore'
 import { placeToSaveTarget } from '../../../../components/Collections/saveTarget'
+import { useTourDayAssignment } from '../../../../components/Tours/useTourDayAssignment'
 import type { Place } from '../../../../types'
 
 interface BrowseActionsPayload {
@@ -31,7 +32,8 @@ export default function MBrowseActionsSheet({ planner, shell }: MTripSheetsProps
   const openSavePicker = useSaveToCollectionStore(s => s.open)
 
   const [daysOpen, setDaysOpen] = useState(false)
-  const pendingTourDayIds = useRef(new Set<string>())
+  // A tour goes onto a day by the rules every tour list shares (PR1-18); a place keeps its own way.
+  const dayAssignment = useTourDayAssignment({ canAssign: canEditDays, onAssignToDay: planner.handleAssignToDay })
   useEffect(() => { setDaysOpen(open && Boolean(payload.dayPicker)) }, [open, payload.dayPicker])
 
   // Hold the last place so the card content survives the exit animation.
@@ -58,20 +60,13 @@ export default function MBrowseActionsSheet({ planner, shell }: MTripSheetsProps
     openSavePicker(placeToSaveTarget(place))
   }
 
-  const tourAlreadyAssignedToDay = (dayId: number) => isTourPlace(place.id)
-    && (planner.assignments[String(dayId)] ?? []).some(assignment => assignment.place_id === place.id)
+  const tourUnavailableOnDay = (dayId: number) => isTourPlace(place.id) && !dayAssignment.isAvailable(place.id, dayId)
 
   const assignToDay = async (dayId: number) => {
-    const isTour = isTourPlace(place.id)
-    const pendingKey = `${place.id}:${dayId}`
-    if (isTour && (tourAlreadyAssignedToDay(dayId) || pendingTourDayIds.current.has(pendingKey))) return
-    if (isTour) pendingTourDayIds.current.add(pendingKey)
-    try {
-      const assigned = await planner.handleAssignToDay(place.id, dayId)
-      if (assigned !== false) shell.closeSheet()
-    } finally {
-      if (isTour) pendingTourDayIds.current.delete(pendingKey)
-    }
+    const assigned = isTourPlace(place.id)
+      ? await dayAssignment.assign(place.id, dayId)
+      : await planner.handleAssignToDay(place.id, dayId)
+    if (assigned !== false) shell.closeSheet()
   }
 
   const deletePlace = () => {
@@ -124,7 +119,7 @@ export default function MBrowseActionsSheet({ planner, shell }: MTripSheetsProps
                   <button
                     key={d.id}
                     type="button"
-                    disabled={tourAlreadyAssignedToDay(d.id) || (isTourPlace(place.id) && pendingTourDayIds.current.has(`${place.id}:${d.id}`))}
+                    disabled={tourUnavailableOnDay(d.id)}
                     onClick={() => { void assignToDay(d.id) }}
                     className={`flex w-full items-center gap-2 px-3 py-[10px] text-start disabled:cursor-default disabled:opacity-40 ${i > 0 ? 'border-t border-[color:var(--m-rowbr)]' : ''}`}
                   >

@@ -138,6 +138,7 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
     wandererBrowser,
     viewImportedTour,
     tourConversion,
+    tourDetailActions,
     recordedTrack,
     permissions: { canPlaceEdit, canDayEdit },
     tourDetails,
@@ -230,10 +231,7 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
     onImageFromFile: async (placeId: number, fileId: number) => { await tripActions.setPlaceImageFromFile(tripId, placeId, fileId) },
     onRate: placeActions.ratePlace,
   }
-  const tourDetailProps = {
-    ...selectedPlaceProps,
-    onUpdatePlace: async (placeId: number, data: Partial<Place>) => { await tripActions.updatePlace(tripId, placeId, data); await reloadTourPlaceIds() },
-  }
+  const tourDetailProps = { ...selectedPlaceProps, ...tourDetailActions }
 
   // The trip is a family of help screens: the frame, then one per tab, and on
   // the plan one per overlay that is open. A screen that has no help yet falls

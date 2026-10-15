@@ -1,5 +1,6 @@
 import type {
   AdminFeatureToggleResponse,
+  TourSourceCheckResponse,
   WandererConnection,
   WandererImportPreview,
   WandererImportRequest,
@@ -39,6 +40,9 @@ export const wandererApi = {
       .then((r) => r.data),
   importTrail: (tripId: number, body: WandererImportRequest): Promise<WandererImportResponse> =>
     apiClient.post(`/trips/${tripId}/tours/wanderer/import`, body, upstream).then((r) => r.data),
+  /** MF-03: whether the trail a snapshot came from changed since; the server reads, it writes nothing. */
+  checkSource: (tripId: number, placeId: number): Promise<TourSourceCheckResponse> =>
+    apiClient.post(`/trips/${tripId}/tours/wanderer/sources/${placeId}/check`, {}, upstream).then((r) => r.data),
 };
 
 /** The admin's switch for wanderer under the Tours addon. */

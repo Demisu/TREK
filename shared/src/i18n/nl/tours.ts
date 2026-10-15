@@ -221,5 +221,47 @@ const tours: TranslationStrings = {
     'De route loopt {length} over „{name}”. Daarvoor heb je via-ferratamateriaal en ervaring nodig.',
   'tours.ferrata.crossingShort': 'De route loopt over een via ferrata',
   'tours.ferrata.waypointAtEnd': 'Begin of einde van „{name}”',
+  'tours.provenance.label': 'Herkomst',
+  'tours.provenance.source': 'Bron',
+  'tours.provenance.importedAt': 'Geïmporteerd',
+  'tours.provenance.createdAt': 'Aangemaakt',
+  'tours.provenance.externalUpdated': 'Gewijzigd op wanderer',
+  'tours.provenance.externalUpdatedHint':
+    'De wijzigingsdatum die wanderer bij de import gaf. Een aanwijzing, geen bewijs van een versie.',
+  'tours.provenance.localState': 'Hier',
+  'tours.provenance.plannedOver': 'Opnieuw gepland, opgenomen spoor bewaard',
+  'tours.provenance.editedLocally': 'Bewerkt in TREK',
+  'tours.provenance.asImported': 'Zoals geïmporteerd',
+  'tours.provenance.openSource': 'Openen in wanderer',
+  'tours.provenance.check': 'Bron controleren',
+  'tours.provenance.checkHint':
+    'Vraagt wanderer of deze route sinds de import is gewijzigd. In de reis verandert niets.',
+  'tours.provenance.state.unchanged': 'Ongewijzigd sinds de import',
+  'tours.provenance.state.changed': 'Gewijzigd op wanderer',
+  'tours.provenance.state.unavailable': 'Niet meer beschikbaar',
+  'tours.provenance.state.not_connected': 'Geen wanderer-verbinding',
+  'tours.provenance.state.other_instance': 'Er is een andere wanderer verbonden',
+  'tours.provenance.state.unknown': 'Vergelijken niet mogelijk',
+  'tours.provenance.body.unavailable':
+    'De route is weg of niet meer leesbaar met je verbinding. Deze tocht blijft zoals hij is geïmporteerd.',
+  'tours.provenance.body.not_connected':
+    'Verbind je wanderer onder Instellingen, Integraties om de bron te controleren.',
+  'tours.provenance.body.other_instance':
+    'Je verbinding wijst naar een andere instantie dan die waar deze tocht vandaan komt.',
+  'tours.provenance.body.unknown':
+    'Deze import bevat niets om mee te vergelijken. Je kunt de huidige route toch als nieuwe momentopname binnenhalen.',
+  'tours.provenance.change.name': 'Naam',
+  'tours.provenance.change.description': 'Beschrijving',
+  'tours.provenance.change.route': 'Traject',
+  'tours.provenance.nowUpdated': 'wanderer noemt {date} als laatste wijziging',
+  'tours.provenance.reimport': 'Importeren als nieuwe momentopname',
+  'tours.provenance.reimportTitle': 'Gewijzigde route importeren?',
+  'tours.provenance.reimportBody':
+    'Hij komt als nieuwe tocht naast deze. Deze tocht, zijn dagen en notities blijven zoals ze zijn.',
+  'tours.provenance.reimported': 'Nieuwe momentopname geïmporteerd',
+  'tours.visibility.hidden': 'Verborgen op de kaart',
+  'tours.visibility.showAll': 'Alles tonen',
+  'tours.visibility.show': 'Tonen op de kaart',
+  'tours.visibility.hide': 'Verbergen op de kaart',
 };
 export default tours;

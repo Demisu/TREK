@@ -733,17 +733,16 @@ export class TripsService {
         if (newPlaceId) await this.tagsRepo.insertIgnore(newPlaceId, [t.tag_id]); // TP47
       }
 
-      // A Tour is a place plus its `tours` facet and the waypoints its route was
-      // planned through. Without them the copy holds an ordinary place with a
-      // line on it: no longer listed as a Tour, and its route can't be edited
-      // because the points it was drawn from are gone. The facet row goes first,
-      // since the waypoints reference it.
+      // A Tour is a place plus its `tours` facet, its import record and the waypoints its route was planned
+      // through; without them the copy is a plain place with a line, no Tour, its route not editable.
+      // The facet row goes first, since the waypoints and the import record reference it.
       const oldTours = await this.toursRepo.listRowsForTrip(Number(sourceTripId));
       const copiedTours = new Set<number>();
       for (const { place_id, ...tour } of oldTours) {
         const newPlaceId = placeMap.get(place_id);
         if (!newPlaceId) continue;
         await this.toursRepo.insertCopy(newPlaceId, tour, placeMap);
+        await this.toursRepo.copySource(place_id, newPlaceId);
         copiedTours.add(place_id);
       }
 

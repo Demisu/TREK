@@ -216,5 +216,46 @@ const tours: TranslationStrings = {
   'tours.ferrata.crossingInfo': 'The route climbs {length} of “{name}”. That takes via ferrata gear and experience.',
   'tours.ferrata.crossingShort': 'The route climbs a via ferrata',
   'tours.ferrata.waypointAtEnd': 'Start or end of “{name}”',
+  'tours.provenance.label': 'Origin',
+  'tours.provenance.source': 'Source',
+  'tours.provenance.importedAt': 'Imported',
+  'tours.provenance.createdAt': 'Created',
+  'tours.provenance.externalUpdated': 'Changed on wanderer',
+  'tours.provenance.externalUpdatedHint':
+    'The change date wanderer gave at the import. A hint, not proof of a version.',
+  'tours.provenance.localState': 'Here',
+  'tours.provenance.plannedOver': 'Planned over, recorded track kept',
+  'tours.provenance.editedLocally': 'Edited in TREK',
+  'tours.provenance.asImported': 'As imported',
+  'tours.provenance.openSource': 'Open in wanderer',
+  'tours.provenance.check': 'Check source',
+  'tours.provenance.checkHint':
+    'Asks wanderer whether this trail changed since the import. Nothing in the trip changes.',
+  'tours.provenance.state.unchanged': 'Unchanged since the import',
+  'tours.provenance.state.changed': 'Changed on wanderer',
+  'tours.provenance.state.unavailable': 'No longer available',
+  'tours.provenance.state.not_connected': 'No wanderer connection',
+  'tours.provenance.state.other_instance': 'Another wanderer is connected',
+  'tours.provenance.state.unknown': 'Cannot compare',
+  'tours.provenance.body.unavailable':
+    'The trail is gone or can no longer be read with your connection. This tour stays as it was imported.',
+  'tours.provenance.body.not_connected': 'Connect your wanderer under Settings, Integrations to check the source.',
+  'tours.provenance.body.other_instance':
+    'Your connection points to a different instance than the one this tour came from.',
+  'tours.provenance.body.unknown':
+    'This import carries nothing to compare against. You can still bring in the current trail as a new snapshot.',
+  'tours.provenance.change.name': 'Name',
+  'tours.provenance.change.description': 'Description',
+  'tours.provenance.change.route': 'Route',
+  'tours.provenance.nowUpdated': 'wanderer gives {date} as the last change',
+  'tours.provenance.reimport': 'Import as new snapshot',
+  'tours.provenance.reimportTitle': 'Import the changed trail?',
+  'tours.provenance.reimportBody':
+    'It comes in as a new tour beside this one. This tour, its days and notes stay as they are.',
+  'tours.provenance.reimported': 'New snapshot imported',
+  'tours.visibility.hidden': 'Hidden on the map',
+  'tours.visibility.showAll': 'Show all',
+  'tours.visibility.show': 'Show on the map',
+  'tours.visibility.hide': 'Hide on the map',
 };
 export default tours;
