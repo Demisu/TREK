@@ -6,10 +6,12 @@ import type { TourMetricField } from './tourParts';
 /** A line's measures as label and value: distance, the extras, lowest and highest point, ascent, descent. */
 export function tourMetricFacts(
   analysis: Pick<RouteGeometryAnalysis, 'distanceKm' | 'minEle' | 'maxEle' | 'gain' | 'loss'> | null,
-  unit: DistanceUnit | undefined,
+  unitSetting: DistanceUnit | undefined,
   t: (key: string, params?: Record<string, unknown>) => string,
   extra: readonly TourMetricField[] = []
 ): TourMetricField[] {
+  // The setting is unset until the user picks one; metric is what the app shows then.
+  const unit = unitSetting ?? 'metric';
   const fields: TourMetricField[] = [
     { label: t('tours.detail.distance'), value: analysis ? formatDistance(analysis.distanceKm, unit) : '-' },
     ...extra,
