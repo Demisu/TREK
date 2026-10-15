@@ -19,6 +19,8 @@ export function useIntegrationGates({ reloadAddons }: { reloadAddons: boolean })
   const airtrailEnabled = addonEnabled('airtrail');
   const llmEnabled = addonEnabled('llm_parsing');
   const dawarichEnabled = addonEnabled('dawarich');
+  // The wanderer connection feeds the Tours workspace, while the admin allows it there.
+  const wandererEnabled = useAddonStore((s) => s.toursWanderer);
   const hasIntegrations = memoriesEnabled || mcpEnabled || airtrailEnabled || llmEnabled || dawarichEnabled;
 
   useEffect(() => {
@@ -31,6 +33,7 @@ export function useIntegrationGates({ reloadAddons }: { reloadAddons: boolean })
     airtrailEnabled,
     llmEnabled,
     dawarichEnabled,
+    wandererEnabled,
     hasIntegrations,
     managed,
     loadAddons,

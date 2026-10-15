@@ -16,6 +16,10 @@ describe('known migrations', () => {
     expect(known.has('Migration20200101043100_an_imported_tour_has_no_hiking_difficulty')).toBe(true);
     expect(known.has('Migration20200101043200_via_ferrata_tiles_outlive_a_restart')).toBe(true);
     expect(known.has('Migration20200101043300_a_tour_leg_can_follow_a_via_ferrata')).toBe(true);
+    expect(known.has('Migration20200101043400_wanderer_connection_and_tour_sources')).toBe(true);
+    expect(known.has('Migration20200101043500_wanderer_difficulty_on_the_sac_scale')).toBe(true);
+    expect(known.has('Migration20200101043600_a_tour_remembers_the_import_it_was_derived_from')).toBe(true);
+    expect(known.has('Migration20200101043700_an_import_planned_over_keeps_its_recorded_track')).toBe(true);
     expect(known.size).toBe(fs.readdirSync(path.join(__dirname, '../../../src/db/migrations')).length);
   });
 

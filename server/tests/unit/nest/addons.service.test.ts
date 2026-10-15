@@ -410,6 +410,21 @@ describe('AddonsService addon/feature flags', () => {
     expect(await storedAppSetting('bag_tracking_enabled')).toEqual({ key: 'bag_tracking_enabled', value: 'false' });
   });
 
+  it('wanderer under Tours is opt-in and usable only while Tours itself is on', async () => {
+    expect(await svc.getToursWanderer()).toEqual({ enabled: false }); // absent row → OFF
+    expect(await svc.updateToursWanderer(true)).toEqual({ enabled: true });
+    expect(await storedAppSetting('tours_wanderer_enabled')).toEqual({ key: 'tours_wanderer_enabled', value: 'true' });
+
+    expect(await svc.isWandererAvailable()).toBe(false); // Tours is off
+    await insertAddon({ id: 'tours', name: 'Tours', enabled: 1 });
+    expect(await svc.isWandererAvailable()).toBe(true);
+    expect((await svc.list()).toursWanderer).toBe(true);
+
+    await svc.updateToursWanderer(false);
+    expect(await svc.isWandererAvailable()).toBe(false);
+    expect((await svc.list()).toursWanderer).toBe(false);
+  });
+
   it('getCollabFeatures is opt-out: absent rows default ON, only false disables', async () => {
     await setAppSetting('collab_chat_enabled', 'false');
     await setAppSetting('collab_polls_enabled', 'true');

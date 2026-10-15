@@ -18,6 +18,22 @@ export interface TourPlannerWaypoint {
   fixedLeg?: TourFixedLeg | null
 }
 
+/** What a tour planned from an import starts with. */
+export interface DerivedTourDraft {
+  name: string
+  description?: string | null
+  website?: string | null
+  difficulty: TourMaxHikingDifficulty
+  points: Array<{ lat: number; lng: number }>
+  /** The import the points were taken from. */
+  sourcePlaceId: number
+  /**
+   * Plan the import over in place, keeping its id, days and notes (the server
+   * keeps the recorded track to go back to), rather than as a new tour beside it.
+   */
+  inPlace: boolean
+}
+
 export type TourPlannerStatus =
   | 'empty'
   | 'dirty'
@@ -39,6 +55,8 @@ interface DraftPayload {
   waypoints: TourPlannerWaypoint[]
   maxHikingDifficulty?: TourMaxHikingDifficulty
   editingPlaceId?: number | null
+  /** The import a new tour is being planned from; carried until it is saved. */
+  derivedFromPlaceId?: number | null
 }
 
 interface HistoryState {
@@ -83,6 +101,11 @@ function optionalPlaceId(value: number | null | undefined): boolean {
   return value == null || (Number.isInteger(value) && value > 0)
 }
 
+/** Where a new tour was planned from; an edit leaves it as it was saved. */
+function derivedFromField(placeId: number | null, derivedFrom: number | null): { derived_from_place_id?: number } {
+  return placeId === null && derivedFrom !== null ? { derived_from_place_id: derivedFrom } : {}
+}
+
 function optionalDifficulty(value: number | null | undefined): boolean {
   return value == null || (Number.isInteger(value) && value >= 1 && value <= 6)
 }
@@ -109,7 +132,8 @@ function validDraft(value: unknown): value is DraftPayload {
     && optionalString(draft.website)
     && optionalMinutes(draft.plannedDurationMinutes)
     && optionalMinutes(draft.breakAdditionalMinutes)
-    && optionalPlaceId(draft.editingPlaceId)
+    && optionalPlaceId(draft.editingPlaceId) &&
+    optionalPlaceId(draft.derivedFromPlaceId)
     && optionalDifficulty(draft.maxHikingDifficulty)
     && Array.isArray(draft.waypoints)
     && draft.waypoints.every(validDraftWaypoint)
@@ -174,6 +198,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const [isSaving, setIsSaving] = useState(false)
   const [draftRestored, setDraftRestored] = useState(Boolean(restored))
   const [editingPlaceId, setEditingPlaceId] = useState<number | null>(restored?.editingPlaceId ?? null)
+  const [derivedFromPlaceId, setDerivedFromPlaceId] = useState<number | null>(restored?.derivedFromPlaceId ?? null)
   const [openingTourId, setOpeningTourId] = useState<number | null>(null)
   const [saveOutcome, setSaveOutcome] = useState<TourListItem | null>(null)
   const [retryToken, setRetryToken] = useState(0)
@@ -489,6 +514,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     setDraftRestored(false)
     setEditingPlaceId(null)
     editingPlaceIdRef.current = null
+    setDerivedFromPlaceId(null)
     setOpeningTourId(null)
     setSaveOutcome(null)
     setReadOnlyGpxTour(null)
@@ -521,7 +547,40 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     }
     returnToNeutral()
     setHasUnsavedChanges(true)
-  }, [editingPlaceId, hasUnsavedChanges, name, returnToNeutral, waypoints.length])
+  }, [editingPlaceId, hasUnsavedChanges, name, returnToNeutral, waypoints.length]
+  )
+
+  /**
+   * A draft through the control points taken from an import: a new tour that
+   * remembers the import, or the import itself planned over in place. Nothing
+   * is stored until the draft is saved like any other.
+   */
+  const startDerivedTour = useCallback(
+    (draft: DerivedTourDraft) => {
+      if (!editPermissionRef.current || saveInFlightRef.current || draft.points.length < 2) return false
+      returnToNeutral()
+      const points = normalizePlannerWaypoints(
+        draft.points.map(({ lat, lng }) => ({ id: randomId(), lat, lng, role: 'via' as const }))
+      )
+      setNameState(draft.name)
+      setDescriptionState(draft.description ?? '')
+      setWebsiteState(draft.website ?? '')
+      setWaypoints(points)
+      waypointsRef.current = points
+      setMaxHikingDifficultyState(draft.difficulty)
+      difficultyRef.current = draft.difficulty
+      setSelectedWaypointId(points[0].id)
+      if (draft.inPlace) {
+        setEditingPlaceId(draft.sourcePlaceId)
+        editingPlaceIdRef.current = draft.sourcePlaceId
+      } else {
+        setDerivedFromPlaceId(draft.sourcePlaceId)
+      }
+      setStatus('dirty')
+      setHasUnsavedChanges(true)
+      return true
+    },
+    [returnToNeutral])
 
   const cancelNewTour = useCallback(() => setNewTourConfirmationOpen(false), [])
   const toggleElevationProfile = useCallback(() => {
@@ -703,9 +762,12 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
 
   useEffect(() => {
     if (!hasUnsavedChanges) return
-    const draft: DraftPayload = { version: 6, name, description, website, plannedDurationMinutes, breakAdditionalMinutes, waypoints, maxHikingDifficulty, editingPlaceId }
+    const draft: DraftPayload = { version: 6, name, description, website, plannedDurationMinutes, breakAdditionalMinutes, waypoints, maxHikingDifficulty, editingPlaceId,
+      derivedFromPlaceId,
+    }
     localStorage.setItem(storageKey, JSON.stringify(draft))
-  }, [breakAdditionalMinutes, description, editingPlaceId, hasUnsavedChanges, maxHikingDifficulty, name, plannedDurationMinutes, storageKey, waypoints, website])
+  }, [breakAdditionalMinutes,
+    derivedFromPlaceId, description, editingPlaceId, hasUnsavedChanges, maxHikingDifficulty, name, plannedDurationMinutes, storageKey, waypoints, website])
 
   useEffect(() => {
     if (!hasUnsavedChanges) return
@@ -745,6 +807,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       duration_seconds: walkingDurationMinutes === null ? durationSeconds : walkingDurationMinutes * 60,
       planned_duration_minutes: plannedDurationMinutes,
       break_additional_minutes: breakAdditionalMinutes,
+      ...derivedFromField(submittedPlaceId, derivedFromPlaceId),
     } as const
     setStatus('saving')
     setIsSaving(true)
@@ -784,7 +847,9 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
         setIsSaving(false)
       }
     }
-  }, [breakAdditionalMinutes, canSave, description, durationSeconds, walkingDurationMinutes, editingPlaceId, enrichedGeometry, invalidateDetailRequest, maxHikingDifficulty, name, onSaved, plannedDurationMinutes, storageKey, tripId, waypoints, website])
+  }, [breakAdditionalMinutes, canSave,
+    derivedFromPlaceId,
+    description, durationSeconds, walkingDurationMinutes, editingPlaceId, enrichedGeometry, invalidateDetailRequest, maxHikingDifficulty, name, onSaved, plannedDurationMinutes, storageKey, tripId, waypoints, website])
 
   return {
     canEdit, canAssign,
@@ -801,7 +866,10 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     routeProfileFocus, setRouteProfileFocus,
     mapBaseLayer, setMapBaseLayer,
     mode, readOnlyGpxTour, readOnlyGpxAnalysis, viewGpxTour, closeGpxTour,
-    startNewTour, newTourConfirmationOpen, cancelNewTour, forgetDeletedTour,
+    startNewTour,
+    startDerivedTour,
+    derivedFromPlaceId,
+    newTourConfirmationOpen, cancelNewTour, forgetDeletedTour,
     elevationProfileExpanded, toggleElevationProfile, newDraftGeneration, draftRestored, mapFocusKey,
     editingPlaceId, openingTourId, openTour,
     saveOutcome, hasUnsavedChanges, canSave, save, discard, returnToNeutral,

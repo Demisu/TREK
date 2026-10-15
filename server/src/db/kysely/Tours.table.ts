@@ -16,4 +16,6 @@ export interface ToursTable {
   max_hiking_difficulty: InsertOptional<number | null>;
   planned_duration_minutes: InsertOptional<number | null>;
   break_additional_minutes: InsertOptional<number | null>;
+  derived_from_place_id: InsertOptional<number | null>;
+  recorded_route_geometry: InsertOptional<string | null>;
 }

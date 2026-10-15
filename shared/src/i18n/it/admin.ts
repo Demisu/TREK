@@ -659,6 +659,13 @@ const admin: TranslationStrings = {
   'admin.addons.toast.updated': 'Modulo aggiornato',
   'admin.addons.toast.error': 'Impossibile aggiornare il modulo',
   'admin.addons.group.count': '{enabled} di {total} attivi',
+  'admin.addons.subOptions': '{count} opzioni',
+  'admin.addons.subOptions.one': '{count} opzione',
+  'admin.addons.subOptionsOn': '{count} attive',
+  'admin.addons.subOptionsOn.one': '{count} attiva',
+  'admin.toursWanderer.title': 'wanderer',
+  'admin.toursWanderer.subtitle':
+    'Gli utenti possono collegare la propria istanza wanderer e importarne i sentieri come escursioni',
   'admin.addons.noAddons': 'Nessun modulo disponibile',
   'admin.weather.title': 'Dati meteo',
   'admin.weather.badge': 'Dal 24 marzo 2026',

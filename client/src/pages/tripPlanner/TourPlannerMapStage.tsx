@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, useMemo, useState, type ReactElement } from 'react';
+import type { FerrataBbox } from '@trek/shared';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState, type ReactElement } from 'react';
 import FerrataDetailOverlay from '../../components/Ferratas/FerrataDetailOverlay';
 import { crossingLegs, waypointsAtFerrataEnds } from '../../components/Ferratas/ferrataCrossings';
 import { ferrataLabel, type FerrataGroup } from '../../components/Ferratas/ferrataGroups';
@@ -55,6 +56,8 @@ export interface TourPlannerMapStageProps
   canPlaceEdit: boolean;
   leftPanelPx: number;
   rightPanelPx: number;
+  /** Told the visible area too, besides the via ferrata layer (the wanderer area search). */
+  onViewportChange?: (bounds: FerrataBbox) => void;
 }
 
 /**
@@ -74,6 +77,7 @@ export function TourPlannerMapStage({
   canPlaceEdit,
   leftPanelPx,
   rightPanelPx,
+  onViewportChange,
 }: Readonly<TourPlannerMapStageProps>): ReactElement {
   const [terrain3d, setTerrain3d] = useState(false);
   // How high the 3D map's controls reach: one row, or two once the grade legend moved above the dock.
@@ -87,6 +91,14 @@ export function TourPlannerMapStage({
   );
   const analysis = tourPlanner.mode.type === 'view-gpx' ? tourPlanner.readOnlyGpxAnalysis : tourPlanner.routeAnalysis;
   const ferrata = useFerrataMapLayer(tripId, ferrataArea, analysis?.routeCoordinates ?? null);
+  const ferrataViewportChange = ferrata.onViewportChange;
+  const viewportChanged = useCallback(
+    (bounds: FerrataBbox) => {
+      ferrataViewportChange(bounds);
+      onViewportChange?.(bounds);
+    },
+    [ferrataViewportChange, onViewportChange]
+  );
   // The rails beside the map warn about the stretches that climb a ferrata, and band them on the profile.
   const { t: translate, language } = useTranslation();
   const tourWaypoints = tourPlanner.mode.type === 'view-gpx' ? NO_POINTS : tourPlanner.waypoints;
@@ -120,6 +132,7 @@ export function TourPlannerMapStage({
     mode: terrain3d ? '3d' : '2d',
     ferrataOpen: !!ferrata.selected,
     guard: closingPress.guard,
+    previewPoints: tourMap.previewPoints,
   });
   const onAdd = waypoints.onAdd;
   // What each panel covers of the map, a collapsed one its rail.
@@ -152,7 +165,7 @@ export function TourPlannerMapStage({
               waypoints={waypoints}
               framePoints={tourMap.focusPoints}
               ferrataLayer={ferrata.layer}
-              onViewportChange={ferrata.onViewportChange}
+              onViewportChange={viewportChanged}
               onControlsHeightChange={setTerrainControlsPx}
               onLegendLayout={setTerrainLegend}
               placeTool={placeTool}
@@ -163,6 +176,7 @@ export function TourPlannerMapStage({
             tripId={tripId}
             places={[]}
             route={tourMap.route}
+            routeWalking={tourMap.routeWalking}
             followSelection={false}
             onMapClick={
               onAdd
@@ -183,7 +197,7 @@ export function TourPlannerMapStage({
             onViewBaseLayerChange={tourPlanner.setMapBaseLayer}
             onToggleTerrain3d={() => setTerrain3d(true)}
             ferrataLayer={ferrata.layer}
-            onViewportChange={ferrata.onViewportChange}
+            onViewportChange={viewportChanged}
             placeTool={placeTool}
           />
         )}

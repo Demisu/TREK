@@ -77,6 +77,8 @@ export const tourSchema = z.object({
   match_confidence: z.number().min(0).max(1).nullable(),
   // NULL for a GPX import: the track carries no difficulty. A drawn tour always has one.
   max_hiking_difficulty: tourMaxHikingDifficultySchema.nullable(),
+  /** The import (a GPX file, a wanderer snapshot) this tour was planned from, while it is still in the trip. */
+  derived_from_place_id: z.number().int().positive().nullable().optional(),
 });
 export type Tour = z.infer<typeof tourSchema>;
 
@@ -102,6 +104,8 @@ export const tourListItemSchema = tourSchema.extend({
   caution: z.boolean(),
   /** Read-model provenance signal: planner-authored tours persist routing controls; GPX imports do not. */
   has_waypoints: z.boolean().optional(),
+  /** An import planned over in place still keeps the track it was recorded with, and can go back to it. */
+  has_recorded_track: z.boolean().optional(),
 });
 export type TourListItem = z.infer<typeof tourListItemSchema>;
 
@@ -177,6 +181,11 @@ export const tourCreateRequestSchema = z
     break_additional_minutes: plannedTourDurationMinutesSchema.optional(),
     description: z.string().trim().max(2000).nullable().optional(),
     website: tourWebsiteSchema.nullable().optional(),
+    /**
+     * Creating only: the import of this trip the tour was planned from. It is
+     * where the tour came from, so an edit later neither sets nor changes it.
+     */
+    derived_from_place_id: z.number().int().positive().nullable().optional(),
   })
   .superRefine((value, ctx) => {
     if (

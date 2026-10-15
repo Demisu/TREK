@@ -1,4 +1,3 @@
-// FE-MOB-AADD-001 to FE-MOB-AADD-037
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { delay, http, HttpResponse } from 'msw';
@@ -763,5 +762,23 @@ describe('MAdminAddonManager', () => {
     // applyAppearance() flips the .dark class when the OS theme changes under auto.
     act(() => document.documentElement.classList.add('dark'));
     await waitFor(() => expect(screen.getByAltText('TREK')).toHaveAttribute('src', '/text-light.svg'));
+  });
+  it('FE-MOB-AADD-030: wanderer hangs off an enabled Tours addon and saves its switch', async () => {
+    const user = userEvent.setup();
+    const puts: unknown[] = [];
+    server.use(
+      addonsRoute([buildAddon({ id: 'tours', name: 'Tours', icon: 'Mountain', enabled: true })]),
+      http.get('/api/admin/tours-wanderer', () => HttpResponse.json({ enabled: false })),
+      http.put('/api/admin/tours-wanderer', async ({ request }) => {
+        puts.push(await request.json());
+        return HttpResponse.json({ enabled: true });
+      })
+    );
+    render(<MAdminAddonManager />);
+
+    const toggle = await screen.findByRole('switch', { name: 'wanderer' });
+    expect(toggle).toHaveAttribute('aria-checked', 'false');
+    await user.click(toggle);
+    await waitFor(() => expect(puts).toEqual([{ enabled: true }]));
   });
 });

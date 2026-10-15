@@ -659,6 +659,13 @@ const admin: TranslationStrings = {
   'admin.addons.toast.updated': 'Addon aktualisiert',
   'admin.addons.toast.error': 'Addon konnte nicht aktualisiert werden',
   'admin.addons.group.count': '{enabled} von {total} aktiviert',
+  'admin.addons.subOptions': '{count} Optionen',
+  'admin.addons.subOptions.one': '{count} Option',
+  'admin.addons.subOptionsOn': '{count} aktiv',
+  'admin.addons.subOptionsOn.one': '{count} aktiv',
+  'admin.toursWanderer.title': 'wanderer',
+  'admin.toursWanderer.subtitle':
+    'Nutzer können ihre eigene wanderer-Instanz verbinden und deren Trails als Touren importieren',
   'admin.addons.noAddons': 'Keine Addons verfügbar',
   'admin.weather.title': 'Wetterdaten',
   'admin.weather.badge': 'Seit 24. März 2026',

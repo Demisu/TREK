@@ -1,6 +1,13 @@
-import type { ReactNode } from 'react'
+import { Children, type ReactNode, isValidElement, useId, useState } from 'react'
 import ToggleSwitch from '../Settings/ToggleSwitch'
 import { fs } from '../shared/DialogShell'
+import { ChevronDown } from 'lucide-react'
+import { useTranslation } from '../../i18n'
+
+/** How many of the shelf's rows are switched on, read from the rows' own `enabled`. */
+function enabledRows(rows: ReactNode[]): number {
+  return rows.filter((row) => isValidElement<{ enabled?: boolean }>(row) && row.props.enabled === true).length
+}
 
 /**
  * One addon in its type's card: a row like the bag sidebar's (#2541), with the
@@ -14,6 +21,10 @@ import { fs } from '../shared/DialogShell'
  *
  * The row is not a click target, only the switches are. No lift, no pointer
  * cursor, no `role="button"`.
+ *
+ * A shelf of more than one row starts folded behind a bar that says how many
+ * options there are and how many are on, so a page of addons stays short and
+ * the options are still plain to see.
  */
 export default function AddonTile({
   icon,
@@ -31,6 +42,13 @@ export default function AddonTile({
   /** The sub-shelf: `<AddonSubRow>` children. */
   children?: ReactNode
 }) {
+  const { t } = useTranslation()
+  const shelfId = useId()
+  const [open, setOpen] = useState(false)
+  const rows = Children.toArray(children)
+  const foldable = rows.length > 1
+  const active = enabledRows(rows)
+
   return (
     <article className="px-3.5 py-3 transition-colors duration-150 focus-within:bg-surface-secondary">
       <div className="flex items-start gap-3">
@@ -62,11 +80,40 @@ export default function AddonTile({
         </div>
       </div>
 
-      {children && (
+      {rows.length > 0 && (
         <div className="mt-3 overflow-hidden rounded-[12px] border border-edge-faint bg-surface-secondary">
+          {foldable && (
+            <button
+              type="button"
+              onClick={() => setOpen((value) => !value)}
+              aria-expanded={open}
+              aria-controls={shelfId}
+              className={`flex min-h-[44px] w-full items-center gap-2.5 px-3 py-1.5 text-start transition-colors hover:bg-surface-tertiary focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent ${open ? 'border-b border-edge-faint' : ''}`}
+            >
+              {/* The same slot and type as a row below, so the bar reads as one more row. */}
+              <span className="grid h-6 w-6 flex-none place-items-center text-content-muted">
+                <ChevronDown
+                  size={15}
+                  strokeWidth={2.2}
+                  className={`transition-transform duration-150 ${open ? 'rotate-180' : ''}`}
+                />
+              </span>
+              <span className="min-w-0 flex-1 truncate font-medium text-content" style={fs(12.5, 'body')}>
+                {t('admin.addons.subOptions', { count: rows.length })}
+              </span>
+              <span
+                className={`flex-none rounded-full px-2 py-0.5 font-semibold ${active > 0 ? 'bg-accent text-accent-text' : 'bg-surface-tertiary text-content-muted'}`}
+                style={fs(10.5, 'body')}
+              >
+                {t('admin.addons.subOptionsOn', { count: active })}
+              </span>
+            </button>
+          )}
           {/* Sitting inside the parent on its own fill is enough to say these belong
               to it: no rail, no indent guides. */}
-          <ul className="m-0 list-none divide-y divide-edge-faint p-0">{children}</ul>
+          {(!foldable || open) && (
+            <ul id={shelfId} className="m-0 list-none divide-y divide-edge-faint p-0">{children}</ul>
+          )}
         </div>
       )}
     </article>

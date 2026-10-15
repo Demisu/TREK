@@ -5,7 +5,7 @@ import { useTranslation } from '../../i18n';
 import type { Category, Place } from '../../types';
 import { formatTime } from '../../utils/formatters';
 import { fs } from '../shared/DialogShell';
-import TourDayRowFacts from '../Tours/TourDayRowFacts';
+import { TourDayRowPills } from '../Tours/TourDayRowFacts';
 import { formatPlannedTourDuration, type TourPlannedTimes } from '../Tours/tourPresentation';
 import { TimePill } from './planParts';
 
@@ -65,7 +65,7 @@ function PlannedTourPills({ tourTimes }: { tourTimes: DayRowTourTimes }) {
   );
 }
 
-// Description line; tour stops get two clamped lines instead of one.
+// Description line, one line like every stop's.
 function SublineDescription({ text, isTourPlace }: { text: string; isTourPlace: boolean }) {
   return (
     <div
@@ -75,10 +75,9 @@ function SublineDescription({ text, isTourPlace }: { text: string; isTourPlace: 
         ...fs(10.5),
         overflow: 'hidden',
         textOverflow: 'ellipsis',
-        whiteSpace: isTourPlace ? 'normal' : 'nowrap',
+        whiteSpace: 'nowrap',
         lineHeight: 1.3,
-        maxHeight: isTourPlace ? '2.6em' : '1.3em',
-        ...(isTourPlace ? { display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const } : {}),
+        maxHeight: '1.3em',
       }}
     >
       <Markdown remarkPlugins={[remarkGfm]}>{text}</Markdown>
@@ -94,14 +93,16 @@ export function DayPlanPlaceSubline({ place, cat, tourTimes, isTourPlace, timeFo
   const description = place.description || place.address || cat?.name;
   if (!(dayRowTour || place.place_time || hasPlannedTimes(tourTimes) || description)) return null;
   return (
-    <div className="mt-0.5 flex min-w-0 flex-wrap items-center gap-1.5">
+    // One line like the row's name: when the hover controls come out, the description
+    // gives way and the pills keep their place instead of wrapping onto a second line.
+    <div className="mt-0.5 flex min-w-0 flex-nowrap items-center gap-1.5 overflow-hidden">
       {place.place_time && (
         <TimePill quiet>
           {formatTime(place.place_time, locale, timeFormat)}
           {place.end_time ? ` – ${formatTime(place.end_time, locale, timeFormat)}` : ''}
         </TimePill>
       )}
-      {dayRowTour ? <TourDayRowFacts tour={dayRowTour} /> : tourTimes && <PlannedTourPills tourTimes={tourTimes} />}
+      {dayRowTour ? <TourDayRowPills tour={dayRowTour} /> : tourTimes && <PlannedTourPills tourTimes={tourTimes} />}
       {description && <SublineDescription text={description} isTourPlace={isTourPlace} />}
     </div>
   );

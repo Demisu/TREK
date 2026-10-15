@@ -1,4 +1,3 @@
-// FE-ADMIN-ADDON-001 to FE-ADMIN-ADDON-039
 import { render, screen, waitFor } from '../../../tests/helpers/render';
 import userEvent from '@testing-library/user-event';
 import { delay, http, HttpResponse } from 'msw';
@@ -56,6 +55,12 @@ function isOn(toggle: HTMLElement): boolean {
   return toggle.getAttribute('aria-pressed') === 'true';
 }
 
+/** A shelf of more than one row starts folded; open every one so its rows can be read. */
+async function unfoldShelves(): Promise<void> {
+  const bars = await screen.findAllByRole('button', { name: /\d+ options?/, expanded: false });
+  for (const bar of bars) await userEvent.click(bar);
+}
+
 beforeAll(() => {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
@@ -72,7 +77,8 @@ beforeEach(() => {
   seedStore(useSettingsStore, { settings: { dark_mode: false } });
   vi.spyOn(useAddonStore.getState(), 'loadAddons').mockResolvedValue(undefined);
   server.use(
-    http.get('/api/admin/addons', () => HttpResponse.json({ addons: [] }))
+    http.get('/api/admin/addons', () => HttpResponse.json({ addons: [] })),
+    http.get('/api/admin/tours-wanderer', () => HttpResponse.json({ enabled: false }))
   );
 });
 
@@ -228,6 +234,7 @@ describe('AddonManager', () => {
       )
     );
     render(<AddonManager />);
+    await unfoldShelves();
 
     // Provider sub-rows are visible under Journey addon
     await screen.findByText('Unsplash');
@@ -293,6 +300,7 @@ describe('AddonManager', () => {
       buildAddon({ id: 'unsplash', name: 'Unsplash', description: 'Stock photos', type: 'photo_provider', enabled: false }),
     ]));
     render(<AddonManager />);
+    await unfoldShelves();
 
     await screen.findByText('Immich');
     // immich and synologyphotos ship a vendor glyph, unsplash does not
@@ -427,6 +435,8 @@ describe('AddonManager', () => {
     ]));
     render(<AddonManager />);
 
+    await unfoldShelves();
+
     await screen.findByText('Paperless-ngx');
     const paperlessRow = screen.getByText('Paperless-ngx').closest('li') as HTMLElement;
     expect(paperlessRow.querySelector('svg')).toBeInTheDocument();
@@ -524,6 +534,8 @@ describe('AddonManager', () => {
       />,
     );
 
+    await unfoldShelves();
+
     await screen.findByText('Chat');
     expect(screen.getByText('Notes')).toBeInTheDocument();
     expect(screen.getByText('Polls')).toBeInTheDocument();
@@ -551,8 +563,9 @@ describe('AddonManager', () => {
       <AddonManager
         collabFeatures={{ chat: true, notes: true, links: true, polls: true, whatsnext: true }}
         onToggleCollabFeature={vi.fn()}
-      />,
+      />
     );
+    await unfoldShelves();
 
     const links = await screen.findByText('Links');
     expect(links).toHaveAttribute('title');
@@ -838,5 +851,90 @@ describe('AddonManager', () => {
 
     await waitFor(() => expect(screen.getByDisplayValue('https://proxy.local/v1')).toBeInTheDocument());
     expect(urls).toHaveLength(0);
+  });
+  it('FE-ADMIN-ADDON-040: a shelf of several options starts folded and says how many there are and how many are on', async () => {
+    server.use(addonsRoute([buildAddon({ id: 'collab', name: 'Collab', enabled: true })]));
+    render(
+      <AddonManager
+        collabFeatures={{ chat: true, notes: false, links: true, polls: false, whatsnext: false }}
+        onToggleCollabFeature={vi.fn()}
+      />
+    );
+
+    const bar = await screen.findByRole('button', { name: /5 options/, expanded: false });
+    expect(bar).toHaveTextContent('2 on');
+    expect(screen.queryByText('Chat')).not.toBeInTheDocument();
+
+    await userEvent.click(bar);
+    expect(bar).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText('Chat')).toBeInTheDocument();
+
+    await userEvent.click(bar);
+    expect(screen.queryByText('Chat')).not.toBeInTheDocument();
+  });
+
+  it('FE-ADMIN-ADDON-041: a shelf of one option shows it at once, without a fold', async () => {
+    server.use(addonsRoute([buildAddon({ id: 'packing', name: 'Lists', icon: 'ListChecks', enabled: true })]));
+    render(<AddonManager bagTrackingEnabled onToggleBagTracking={vi.fn()} />);
+
+    expect(await screen.findByRole('button', { name: 'Bag Tracking' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /\d+ options?/ })).not.toBeInTheDocument();
+  });
+
+  it('FE-ADMIN-ADDON-042: wanderer hangs off Tours and saves its switch', async () => {
+    const puts: unknown[] = [];
+    server.use(
+      addonsRoute([buildAddon({ id: 'tours', name: 'Tours', icon: 'Mountain', enabled: true })]),
+      http.put('/api/admin/tours-wanderer', async ({ request }) => {
+        puts.push(await request.json());
+        return HttpResponse.json({ enabled: true });
+      })
+    );
+    render(
+      <>
+        <AddonManager />
+        <ToastContainer />
+      </>
+    );
+
+    const toggle = await screen.findByRole('button', { name: 'wanderer' });
+    expect(isOn(toggle)).toBe(false);
+    await userEvent.click(toggle);
+
+    await waitFor(() => expect(puts).toEqual([{ enabled: true }]));
+    expect(isOn(screen.getByRole('button', { name: 'wanderer' }))).toBe(true);
+  });
+
+  it('FE-ADMIN-ADDON-043: a failed wanderer save puts the switch back', async () => {
+    server.use(
+      addonsRoute([buildAddon({ id: 'tours', name: 'Tours', icon: 'Mountain', enabled: true })]),
+      http.put('/api/admin/tours-wanderer', () => HttpResponse.json({ error: 'nope' }, { status: 500 }))
+    );
+    render(
+      <>
+        <AddonManager />
+        <ToastContainer />
+      </>
+    );
+
+    await userEvent.click(await screen.findByRole('button', { name: 'wanderer' }));
+
+    await waitFor(() => expect(isOn(screen.getByRole('button', { name: 'wanderer' }))).toBe(false));
+  });
+
+  it('FE-ADMIN-ADDON-044: Tours and Road trip show their own icons, not the fallback puzzle', async () => {
+    server.use(
+      addonsRoute([
+        buildAddon({ id: 'tours', name: 'Tours', icon: 'Mountain', enabled: false }),
+        buildAddon({ id: 'roadtrip', name: 'Road trip', icon: 'Route', enabled: false }),
+      ])
+    );
+    render(<AddonManager />);
+
+    const tours = (await screen.findByText('Tours')).closest('article') as HTMLElement;
+    const roadtrip = screen.getByText('Road trip').closest('article') as HTMLElement;
+    expect(tours.querySelector('svg.lucide-mountain')).toBeInTheDocument();
+    expect(roadtrip.querySelector('svg.lucide-car-front')).toBeInTheDocument();
+    expect(tours.querySelector('svg.lucide-puzzle')).not.toBeInTheDocument();
   });
 });

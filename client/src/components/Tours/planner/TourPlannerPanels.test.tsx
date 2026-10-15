@@ -612,7 +612,11 @@ describe('TourPlannerRail', () => {
     expect(firstNumber).toHaveAttribute('data-waypoint-number', '1')
     expect(secondNumber).toHaveAttribute('data-waypoint-number', '2')
     expect(firstNumber).toHaveClass('bg-accent', 'text-accent-text', 'font-geist', 'tabular-nums', 'h-7', 'w-7')
-    expect(secondNumber).toHaveClass('bg-surface-card', 'text-content', 'font-geist', 'tabular-nums', 'h-7', 'w-7')
+    // Round like the map's pins and the plan's avatars.
+    expect(secondNumber).toHaveClass(
+      'bg-edge', 'text-content', 'font-geist', 'tabular-nums', 'h-7', 'w-7',
+      'rounded-full'
+    )
   })
 
   it('TOUR-PLANNER-RAIL-007: acknowledges alpine routing once per planner session', () => {
@@ -761,17 +765,47 @@ describe('TourPlannerRail', () => {
     expect(screen.queryByRole('button', { name: 'Plan new tour' })).not.toBeInTheDocument()
   })
 
+  it('PR1-05B: an import planned over in place offers its recorded track back, after a confirm', async () => {
+    const restore = vi.fn()
+    const controller = planner({
+      mode: { type: 'edit-saved', placeId: tour.place_id },
+      waypoints: [],
+    } as Partial<TourPlannerController>)
+    const recordedTrack = { available: true, restoring: false, restore }
+    render(<TourPlannerRail planner={controller} recordedTrack={recordedTrack} />)
+
+    expect(screen.getByRole('region', { name: 'Recorded track' })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Restore recorded track' }))
+    expect(restore).not.toHaveBeenCalled()
+    expect(screen.getByText('Restore the recorded track?')).toBeInTheDocument()
+
+    const confirms = screen.getAllByRole('button', { name: 'Restore recorded track' })
+    await userEvent.click(confirms[confirms.length - 1])
+    expect(restore).toHaveBeenCalledOnce()
+  })
+
+  it('PR1-05B: a tour without a kept track shows no way back', () => {
+    const controller = planner({
+      mode: { type: 'edit-saved', placeId: tour.place_id },
+      waypoints: [],
+    } as Partial<TourPlannerController>)
+    render(
+      <TourPlannerRail planner={controller} recordedTrack={{ available: false, restoring: false, restore: vi.fn() }} />
+    )
+    expect(screen.queryByRole('region', { name: 'Recorded track' })).not.toBeInTheDocument()
+  })
+
   it('TOUR-PLANNER-RAIL-015: returns from GPX view to the blank editable Planner', () => {
     const controller = planner({
       readOnlyGpxTour: { tour: { ...tour, has_waypoints: false }, routeGeometry: null },
       readOnlyGpxAnalysis: null,
     })
     const { rerender } = render(<TourPlannerRail planner={controller} />)
-    expect(screen.getByText('GPX tours are view-only and cannot be edited in the planner yet.')).toBeInTheDocument()
+    expect(screen.getByText('Route geometry is unavailable for this GPX import.')).toBeInTheDocument()
 
     rerender(<TourPlannerRail planner={planner({ mode: { type: 'neutral' } })} />)
     expect(screen.getByText('Plan a tour')).toBeInTheDocument()
-    expect(screen.queryByText('GPX tours are view-only and cannot be edited in the planner yet.')).not.toBeInTheDocument()
+    expect(screen.queryByText('Route geometry is unavailable for this GPX import.')).not.toBeInTheDocument()
   })
 
   it('TOUR-PLANNER-RAIL-016: the master list reflects neutral, saved-edit, and GPX selection modes', () => {

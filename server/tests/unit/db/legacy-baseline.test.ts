@@ -45,6 +45,10 @@ const UNNUMBERED = [
   'Migration20200101043100_an_imported_tour_has_no_hiking_difficulty',
   'Migration20200101043200_via_ferrata_tiles_outlive_a_restart',
   'Migration20200101043300_a_tour_leg_can_follow_a_via_ferrata',
+  'Migration20200101043400_wanderer_connection_and_tour_sources',
+  'Migration20200101043500_wanderer_difficulty_on_the_sac_scale',
+  'Migration20200101043600_a_tour_remembers_the_import_it_was_derived_from',
+  'Migration20200101043700_an_import_planned_over_keeps_its_recorded_track',
 ];
 // The last step the positional runner ever had; planLegacyBaseline refuses a
 // schema_version past it.

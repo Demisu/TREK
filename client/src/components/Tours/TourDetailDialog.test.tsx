@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { fireEvent, render, screen, waitFor } from '../../../tests/helpers/render'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { TourListItem } from '@trek/shared'
@@ -6,6 +6,7 @@ import { buildPlace } from '../../../tests/helpers/factories'
 import { resetAllStores, seedStore } from '../../../tests/helpers/store'
 import { useSettingsStore } from '../../store/settingsStore'
 import TourDetailDialog from './TourDetailDialog'
+import { useTripStore } from '../../store/tripStore'
 
 vi.mock('../../../../server/src/config', () => { throw new Error('Config initialization is forbidden in client tests') })
 vi.mock('../../../../server/src/db/database', () => { throw new Error('Legacy database imports are forbidden in client tests') })
@@ -96,16 +97,19 @@ describe('TourDetailDialog', () => {
     expect(screen.getByText('Maximum altitude')).toBeInTheDocument()
     expect(screen.getByText('Ascent')).toBeInTheDocument()
     expect(screen.getByText('Descent')).toBeInTheDocument()
-    expect(screen.getByText('50 m')).toBeInTheDocument()
-    expect(screen.getByText('30 m')).toBeInTheDocument()
+    // The head's pills and the fields below both measure the line as it is now.
+    expect(screen.getAllByText('50 m').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('30 m').length).toBeGreaterThan(0)
     expect(screen.queryByText('999 m')).not.toBeInTheDocument()
+    expect(screen.queryByText('999 km')).not.toBeInTheDocument()
     expect(screen.getByText('Bring water')).toBeInTheDocument()
     expect(screen.queryByText('Opening Hours')).not.toBeInTheDocument()
     expect(screen.queryByText('Participants')).not.toBeInTheDocument()
   })
 
-  it('RS-01: shows Tour description and classified HTTPS information link without fetching it', () => {
+  it('RS-01: shows Tour description and opens the classified HTTPS information link without fetching it', () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
     render(
       <TourDetailDialog
         {...defaultProps}
@@ -115,19 +119,26 @@ describe('TourDetailDialog', () => {
     )
 
     expect(screen.getByText('Ridge above the lake')).toBeInTheDocument()
-    const link = screen.getByRole('link', { name: 'Komoot · komoot.com' })
-    expect(link).toHaveAttribute('href', 'https://www.komoot.com/tour/42')
-    expect(link).toHaveAttribute('rel', 'noopener noreferrer nofollow')
+    // The footer names the provider; the domain rides along in the tooltip.
+    const website = screen.getByRole('button', { name: 'Website: Komoot' })
+    expect(website).toHaveTextContent('Komoot')
+    fireEvent.click(website)
+    expect(openSpy).toHaveBeenCalledWith('https://www.komoot.com/tour/42', '_blank', 'noopener,noreferrer')
     expect(fetchSpy).not.toHaveBeenCalled()
     fetchSpy.mockRestore()
+    openSpy.mockRestore()
   })
 
   it('RS-02: labels calculated walking time and planned total as separate values', () => {
     render(<TourDetailDialog {...defaultProps} tour={{ ...tour, duration: 60, break_additional_minutes: 35, planned_duration_minutes: 125 }} />)
 
-    expect(screen.getByText('Walking time: 1 h')).toBeInTheDocument()
-    expect(screen.getByText('Breaks / additional time: 35 min')).toBeInTheDocument()
-    expect(screen.getByText('Planned total duration: 2 h 5 min · Manual override')).toBeInTheDocument()
+    // One time in the head, its parts named in full behind it; the fields below keep them apart.
+    expect(screen.getByLabelText('Walk: 1 h, Breaks: 35 min, Planned (Manual override): 2 h 5 min')).toHaveTextContent(
+      '2 h 5 min'
+    )
+    expect(screen.getByText('Walk')).toBeInTheDocument()
+    expect(screen.getByText('Breaks')).toBeInTheDocument()
+    expect(screen.getByText('Planned (Manual override)')).toBeInTheDocument()
   })
 
   it('RS-01: rejects an unsafe legacy Tour website for rendering', () => {
@@ -176,10 +187,31 @@ describe('TourDetailDialog', () => {
     expect(defaultProps.onUpdatePlace).toHaveBeenCalledWith(42, { name: 'New route name' })
   })
 
-  it('labels GPX imports as view-only planner content', () => {
+  it('RC-03: names a GPX import as such, without a read-only notice in the plan', () => {
     render(<TourDetailDialog {...defaultProps} tour={{ ...tour, has_waypoints: false }} />)
 
     expect(screen.getByText('GPX import')).toBeInTheDocument()
-    expect(screen.getByText('GPX tours are view-only and cannot be edited in the planner yet.')).toBeInTheDocument()
+    expect(screen.queryByText(/view-only/)).not.toBeInTheDocument()
+  })
+
+  it('PR1-05B: names the import a tour was planned from while it is still in the trip', () => {
+    seedStore(useTripStore, { places: [buildPlace({ id: 7, name: 'Recorded ridge' }), place] })
+    render(<TourDetailDialog {...defaultProps} tour={{ ...tour, derived_from_place_id: 7 }} />)
+
+    expect(screen.getByText('Planned from Recorded ridge')).toBeInTheDocument()
+  })
+
+  it('PR1-05B: says nothing of an origin that is gone from the trip', () => {
+    seedStore(useTripStore, { places: [place] })
+    render(<TourDetailDialog {...defaultProps} tour={{ ...tour, derived_from_place_id: 7 }} />)
+
+    expect(screen.queryByText(/Planned from/)).not.toBeInTheDocument()
+  })
+
+  it('shows the grade on the tile and no second difficulty scale', () => {
+    render(<TourDetailDialog {...defaultProps} tour={{ ...tour, difficulty: 'easy', max_hiking_difficulty: 1 }} />)
+
+    expect(screen.getAllByText('T1').length).toBeGreaterThan(0)
+    expect(screen.queryByText(/easy/i)).not.toBeInTheDocument()
   })
 })

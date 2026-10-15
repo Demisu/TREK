@@ -25,6 +25,8 @@ export interface TourListRow {
   wanderer_ref: string | null;
   match_confidence: number | null;
   max_hiking_difficulty: number | null;
+  derived_from_place_id: number | null;
+  has_recorded_track: number;
   planned: number;
   has_waypoints: number;
 }
@@ -44,6 +46,8 @@ export interface TourRow {
   match_confidence: number | null;
   created_at: string | null;
   max_hiking_difficulty: number | null;
+  derived_from_place_id: number | null;
+  recorded_route_geometry: string | null;
 }
 const _tourRowKeys: AssertRowKeys<TourRow, Tours> = true;
 
@@ -105,6 +109,8 @@ export class ToursRepository extends TrekRepository<Tours> {
         't.wanderer_ref as wanderer_ref',
         't.match_confidence as match_confidence',
         't.max_hiking_difficulty as max_hiking_difficulty',
+        't.derived_from_place_id as derived_from_place_id',
+        eb('t.recorded_route_geometry', 'is not', null).as('has_recorded_track'),
         eb
           .exists(eb.selectFrom('day_assignments as da').select('da.id').whereRef('da.place_id', '=', 'p.id'))
           .as('planned'),
@@ -184,8 +190,21 @@ export class ToursRepository extends TrekRepository<Tours> {
   }
 
   /** TO7 — `INSERT INTO tours (place_id, tour_type, distance, ...) VALUES (...)`. */
-  async insertTour(input: TourInsert): Promise<void> {
+  /**
+   * `wanderer_ref` and `difficulty` are set only by an import from a source that
+   * carries them, `derived_from_place_id` only by a tour planned from an import.
+   */
+  async insertTour(
+    input: TourInsert & {
+      wanderer_ref?: string | null;
+      difficulty?: string | null;
+      derived_from_place_id?: number | null;
+    },
+  ): Promise<void> {
     await this.insert({
+      derivedFromPlace: input.derived_from_place_id ?? null,
+      wanderer_ref: input.wanderer_ref ?? null,
+      difficulty: input.difficulty ?? null,
       place: input.place_id,
       tourTypeRef: input.tour_type,
       distance: input.distance,
@@ -238,10 +257,63 @@ export class ToursRepository extends TrekRepository<Tours> {
       .executeTakeFirst();
     return Number(result.numUpdatedRows ?? 0) > 0;
   }
+
+  /**
+   * Keeps an import's recorded line before it is planned over for the first
+   * time: copies the place's line into the tour while the tour has no
+   * waypoints and nothing kept yet. One statement, so it cannot keep a line
+   * that a concurrent edit already replaced.
+   */
+  async keepRecordedTrack(place_id: number): Promise<void> {
+    await this.db()
+      .updateTable('tours')
+      .set((eb) => ({
+        recorded_route_geometry: eb
+          .selectFrom('places')
+          .select('places.route_geometry')
+          .where('places.id', '=', place_id),
+      }))
+      .where('place_id', '=', place_id)
+      .where('recorded_route_geometry', 'is', null)
+      .where((eb) =>
+        eb.not(
+          eb.exists(
+            eb.selectFrom('tour_waypoints').select('tour_waypoints.id').where('tour_waypoints.place_id', '=', place_id),
+          ),
+        ),
+      )
+      .execute();
+  }
+
+  /** The recorded line kept for a tour of the trip, or null when it has none. */
+  async findRecordedTrack(trip_id: number, place_id: number): Promise<string | null> {
+    const row = await this.db()
+      .selectFrom('tours as t')
+      .innerJoin('places as p', 'p.id', 't.place_id')
+      .select('t.recorded_route_geometry')
+      .where('t.place_id', '=', place_id)
+      .where('p.trip_id', '=', trip_id)
+      .executeTakeFirst();
+    return row?.recorded_route_geometry ?? null;
+  }
+
+  /** Forgets the kept line once the tour has gone back to it. */
+  async clearRecordedTrack(place_id: number): Promise<void> {
+    await this.nativeUpdate({ place: place_id }, { recorded_route_geometry: null });
+  }
 }
 
 function toListRow<
-  R extends Omit<TourListRow, 'planned' | 'has_waypoints'> & { planned: unknown; has_waypoints: unknown },
+  R extends Omit<TourListRow, 'planned' | 'has_waypoints' | 'has_recorded_track'> & {
+    planned: unknown;
+    has_waypoints: unknown;
+    has_recorded_track: unknown;
+  },
 >(r: R): TourListRow {
-  return { ...r, planned: Number(r.planned), has_waypoints: Number(r.has_waypoints) };
+  return {
+    ...r,
+    planned: Number(r.planned),
+    has_waypoints: Number(r.has_waypoints),
+    has_recorded_track: Number(r.has_recorded_track),
+  };
 }

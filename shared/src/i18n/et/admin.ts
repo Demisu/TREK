@@ -723,6 +723,13 @@ const admin: TranslationStrings = {
   'admin.addons.toast.updated': 'Lisamoodul uuendatud',
   'admin.addons.toast.error': 'Lisamooduli uuendamine ebaõnnestus',
   'admin.addons.group.count': 'Lubatud {enabled}/{total}',
+  'admin.addons.subOptions': '{count} valikut',
+  'admin.addons.subOptions.one': '{count} valik',
+  'admin.addons.subOptionsOn': '{count} lubatud',
+  'admin.addons.subOptionsOn.one': '{count} lubatud',
+  'admin.toursWanderer.title': 'wanderer',
+  'admin.toursWanderer.subtitle':
+    'Kasutajad saavad ühendada oma wanderer-serveri ja importida selle matkarajad retkedena',
   'admin.addons.noAddons': 'Lisamooduleid pole saadaval',
   'admin.weather.title': 'Ilmaandmed',
   'admin.weather.badge': 'Alates 24. märtsist 2026',

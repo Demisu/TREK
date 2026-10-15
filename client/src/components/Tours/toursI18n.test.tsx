@@ -171,7 +171,6 @@ describe('Tours English and German copy', () => {
       readOnlyGpxTour: { tour, routeGeometry: null },
     })} />)
     expect(screen.getByText(toursText(de, 'tours.planner.gpxNoGeometry'))).toBeInTheDocument()
-    expect(screen.getByText(toursText(de, 'tours.detail.gpxReadOnly'))).toBeInTheDocument()
     assertNoRawToursKeys()
   })
 

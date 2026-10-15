@@ -24,8 +24,8 @@ export const RoadtripStopPopup = lazyWithRetry(() => import('../../components/Ro
 export const RoadtripStayModal = lazyWithRetry(() => import('../../components/Roadtrip/RoadtripStayModal'))
 export const RoadtripTrackModal = lazyWithRetry(() => import('../../components/Roadtrip/RoadtripTrackModal'))
 export const RoadtripAlternativesBar = lazyWithRetry(() => import('../../components/Roadtrip/RoadtripAlternativesBar'))
-export const TourPlannerRail = lazyWithRetry(() =>
-  import('../../components/Tours/planner/TourPlannerPanels').then(module => ({ default: module.TourPlannerRail }))
+export const TourWorkspaceRail = lazyWithRetry(() =>
+  import('../../components/Tours/TourWorkspaceRail')
 )
 export const TourPlannerToursRail = lazyWithRetry(() =>
   import('../../components/Tours/planner/TourPlannerPanels').then(module => ({ default: module.TourPlannerToursRail }))

@@ -6,6 +6,7 @@ import { useSettingsStore } from '../../store/settingsStore'
 import { useTripStore } from '../../store/tripStore'
 import { toursApi } from '../../api/client'
 import ToursSidebar from './ToursSidebar'
+import { pickFiles } from '../../../tests/helpers/filePicker'
 
 const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn(), warning: vi.fn(), info: vi.fn() }))
 
@@ -32,6 +33,8 @@ const tour: TourListItem = {
 }
 
 beforeEach(() => {
+  vi.restoreAllMocks()
+  Object.values(toast).forEach((notify) => notify.mockClear())
   resetAllStores()
   seedStore(useSettingsStore, { settings: { distance_unit: 'metric' } })
 })
@@ -56,15 +59,17 @@ describe('ToursSidebar', () => {
     expect(row).toHaveClass('bg-surface-selected')
   })
 
-  it('RS-01: previews the Tour description and classified information-link host', () => {
+  it('RS-01: trails the description after the badges on one line, as a plan row does', () => {
     const listed = { ...tour, description: 'A quiet path above the lake', website: 'https://www.komoot.com/tour/42', planned_duration_minutes: 95 }
     render(<ToursSidebar tripId={1} days={[]} tours={[listed]} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />)
     const row = screen.getByRole('option', { name: /Selected ridge walk/i })
-    expect(row).toHaveTextContent('A quiet path above the lake')
-    expect(row).toHaveTextContent('Komoot')
-    expect(row).not.toHaveTextContent('komoot.com')
-    expect(row).toHaveTextContent('1 h 35 min')
-    expect(row.querySelector('[data-testid="tour-description-preview"] > span')).toHaveStyle({ WebkitLineClamp: '2' })
+    const line = within(row).getByTestId('tour-metrics')
+    expect(line).toHaveClass('flex-nowrap', 'overflow-hidden')
+    expect(line).toHaveTextContent('1 h 35 min')
+    expect(within(line).getByTestId('tour-description-preview')).toHaveTextContent('A quiet path above the lake')
+    expect(within(line).getByTestId('tour-description-preview')).toHaveClass('truncate')
+    // The information link belongs to the detail, not the list row.
+    expect(row).not.toHaveTextContent('Komoot')
   })
 
   it('selects the tour from keyboard activation', () => {
@@ -98,11 +103,9 @@ describe('ToursSidebar', () => {
     const metrics = row.querySelector('[data-testid="tour-metrics"]')!
     expect(metrics).toHaveTextContent('1.9 km')
     expect(metrics).toHaveTextContent('13 m')
-    expect(metrics).toHaveTextContent('11 m')
     const labels = [...metrics.querySelectorAll('[aria-label]')].map(element => element.getAttribute('aria-label'))
     expect(labels[0]).toContain('1.9 km')
     expect(labels[1]).toContain('13 m')
-    expect(labels[2]).toContain('11 m')
     expect(within(row).queryByText('TREK')).not.toBeInTheDocument()
     expect(screen.getByLabelText(/Maximum trail difficulty|Maximale Wanderschwierigkeit|T2/)).toBeInTheDocument()
     const actionRow = row.querySelector('[data-testid="tour-action-row"]')!
@@ -205,7 +208,9 @@ describe('ToursSidebar', () => {
     })
     const onToursChanged = vi.fn()
     const loadTrip = vi.spyOn(useTripStore.getState(), 'loadTrip').mockResolvedValue(undefined)
-    const { container } = render(<ToursSidebar
+    const refreshPlaces = vi.fn().mockResolvedValue(undefined)
+    seedStore(useTripStore, { refreshPlaces })
+    render(<ToursSidebar
       tripId={1}
       days={[]}
       tours={[]}
@@ -215,13 +220,14 @@ describe('ToursSidebar', () => {
       onSelectTour={vi.fn()}
     />)
 
-    const input = container.querySelector('input[type="file"]')!
     const file = new File(['<gpx/>'], 'ridge.gpx', { type: 'application/gpx+xml' })
-    fireEvent.change(input, { target: { files: [file] } })
+    expect(pickFiles(screen.getByRole('button', { name: 'Import GPX' }), [file])).toHaveAttribute('accept', '.gpx')
 
-    await waitFor(() => expect(loadTrip).toHaveBeenCalledWith(1))
+    // Only the places are read again, not the whole trip: that would rebuild the workspace.
+    await waitFor(() => expect(refreshPlaces).toHaveBeenCalledWith(1))
+    expect(loadTrip).not.toHaveBeenCalled()
     expect(onToursChanged).toHaveBeenCalledWith([42])
-    expect(onToursChanged.mock.invocationCallOrder[0]).toBeLessThan(loadTrip.mock.invocationCallOrder[0])
+    expect(onToursChanged.mock.invocationCallOrder[0]).toBeLessThan(refreshPlaces.mock.invocationCallOrder[0])
     expect(importCall).toHaveBeenCalledOnce()
     vi.restoreAllMocks()
   })
@@ -230,7 +236,7 @@ describe('ToursSidebar', () => {
     vi.spyOn(toursApi, 'importGpx').mockResolvedValue({ tours: [], caution: false, skipped: 3 })
     const onToursChanged = vi.fn()
     const loadTrip = vi.spyOn(useTripStore.getState(), 'loadTrip').mockResolvedValue(undefined)
-    const { container } = render(<ToursSidebar
+    render(<ToursSidebar
       tripId={1}
       days={[]}
       tours={[]}
@@ -240,13 +246,62 @@ describe('ToursSidebar', () => {
       onSelectTour={vi.fn()}
     />)
 
-    fireEvent.change(container.querySelector('input[type=file]')!, {
-      target: { files: [new File(['<gpx/>'], 'already-imported.gpx', { type: 'application/gpx+xml' })] },
-    })
+    pickFiles(screen.getByRole('button', { name: 'Import GPX' }), [new File(['<gpx/>'], 'already-imported.gpx', { type: 'application/gpx+xml' }),
+    ])
 
-    await waitFor(() => expect(toast.warning).toHaveBeenCalledWith('All places were already in the trip.'))
+    await waitFor(() => expect(toast.warning).toHaveBeenCalledWith('Everything in that file is already in this trip.'))
     expect(onToursChanged).not.toHaveBeenCalled()
     expect(loadTrip).not.toHaveBeenCalled()
     vi.restoreAllMocks()
+  })
+  it('RC-04: names each file that fails and still imports the rest', async () => {
+    vi.spyOn(toursApi, 'importGpx')
+      .mockRejectedValueOnce({ response: { data: { error: 'No track or route found in GPX file' } } })
+      .mockResolvedValueOnce({ tours: [tour], caution: true, skipped: 0 })
+    seedStore(useTripStore, { refreshPlaces: vi.fn().mockResolvedValue(undefined) })
+    render(
+      <ToursSidebar tripId={1} days={[]} tours={[]} canEdit={true} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />
+    )
+
+    pickFiles(screen.getByRole('button', { name: 'Import GPX' }), [
+      new File(['<gpx/>'], 'empty.gpx', { type: 'application/gpx+xml' }),
+      new File(['<gpx/>'], 'ridge.gpx', { type: 'application/gpx+xml' }),
+    ])
+
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('1 tour imported from GPX'))
+    expect(toast.error).toHaveBeenCalledWith('No track or route found in empty.gpx')
+    expect(toast.info).toHaveBeenCalledWith('Imported with caution — elevation/metrics incomplete')
+    vi.restoreAllMocks()
+  })
+
+  it('RC-04: refuses files that are not GPX before uploading anything', async () => {
+    const importCall = vi.spyOn(toursApi, 'importGpx')
+    render(
+      <ToursSidebar tripId={1} days={[]} tours={[]} canEdit={true} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />
+    )
+
+    pickFiles(screen.getByRole('button', { name: 'Import GPX' }), [
+      new File(['x'], 'notes.txt', { type: 'text/plain' }),
+    ])
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('Only GPX files can be imported as tours.'))
+    expect(importCall).not.toHaveBeenCalled()
+    vi.restoreAllMocks()
+  })
+
+  it('RC-02: names the days a tour is on in one badge, in the order of the trip', () => {
+    const days = [
+      { id: 7, trip_id: 1, day_number: 1, title: null, date: null },
+      { id: 8, trip_id: 1, day_number: 2, title: null, date: null },
+      { id: 9, trip_id: 1, day_number: 3, title: 'Summit', date: null },
+    ] as never[]
+    seedStore(useTripStore, {
+      assignments: { '9': [{ id: 2, place_id: 42 }], '7': [{ id: 1, place_id: 42 }] } as never,
+    })
+    render(<ToursSidebar tripId={1} days={days} tours={[tour]} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />)
+
+    const badge = within(screen.getByRole('option', { name: /Selected ridge walk/ })).getByTestId('tour-days-badge')
+    expect(badge).toHaveTextContent('Days 1, 3')
+    expect(badge).toHaveAttribute('aria-label', 'Day 1, Day 3: Summit')
   })
 })

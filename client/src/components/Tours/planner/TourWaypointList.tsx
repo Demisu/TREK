@@ -13,7 +13,7 @@ import { FerrataGlyph } from '../../Ferratas/FerrataGlyph';
 import { SoftPill } from '../../Planner/planParts';
 import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
-import { TourSection } from '../tourParts';
+import { RailCard } from '../tourParts';
 import type { TourPlannerController } from './useTourPlanner';
 import { useWaypointPlaceNames } from './useWaypointPlaceNames';
 
@@ -133,7 +133,7 @@ function WaypointNumber({
       aria-label={ferrata ? `${label}, ${t('tours.ferrata.waypointAtEnd', { name: ferrata.name })}` : label}
       data-waypoint-number={index + 1}
       data-ferrata-end={ferrata ? 'true' : undefined}
-      className={`relative grid h-7 w-7 flex-none place-items-center rounded-[9px] font-geist font-semibold tabular-nums shadow-sm ${selected ? 'bg-accent text-accent-text' : 'bg-surface-card text-content'} ${ferrata ? 'ring-2 ring-inset ring-[color:var(--map-ferrata)]' : ''}`}
+      className={`relative grid h-7 w-7 flex-none place-items-center rounded-full font-geist font-semibold tabular-nums ${selected ? 'bg-accent text-accent-text' : 'bg-edge text-content'} ${ferrata ? 'ring-2 ring-inset ring-[color:var(--map-ferrata)]' : ''}`}
       style={fs(11.5)}
     >
       {index + 1}
@@ -201,18 +201,35 @@ export default function TourWaypointList({
     setDropTarget(null);
   };
 
+  // One card like a day in the plan: the head counts the points, the rows sit below.
+  const card = (children: ReactNode) => (
+    <RailCard
+      icon={<MapPin size={14} strokeWidth={2} />}
+      title={t('tours.planner.waypoints')}
+      aside={
+        planner.waypoints.length > 0 && (
+          <span className="flex-none tabular-nums text-content-faint" style={fs(11.5, 'body')}>
+            {planner.waypoints.length}
+          </span>
+        )
+      }
+    >
+      {children}
+    </RailCard>
+  );
+
   if (planner.waypoints.length === 0) {
-    return (
-      <TourSection label={t('tours.planner.waypoints')}>
+    return card(
+      <>
         <WaypointEmptyState />
         {canEdit && <AddPointRow disabled={isSaving} />}
-      </TourSection>
+      </>
     );
   }
 
-  return (
-    <TourSection label={t('tours.planner.waypoints')}>
-      <ol data-touch-drag className="m-0 flex list-none flex-col gap-px p-0">
+  return card(
+    <>
+      <ol data-touch-drag className="m-0 -mx-1.5 flex list-none flex-col gap-px p-0">
         {planner.waypoints.map((point, index) => {
           const selected = planner.selectedWaypointId === point.id;
           const isDropTarget = dropTarget?.id === point.id && draggedWaypointId !== point.id;
@@ -253,7 +270,7 @@ export default function TourWaypointList({
                   endDrag();
                 }}
                 onDragEnd={endDrag}
-                className={`relative rounded-[12px] ${draggedWaypointId === point.id ? 'opacity-45' : ''} ${isDropTarget ? 'bg-surface-hover' : ''}`}
+                className={`relative rounded-[10px] ${draggedWaypointId === point.id ? 'opacity-45' : ''} ${isDropTarget ? 'bg-surface-hover' : ''}`}
               >
                 {isDropTarget && (
                   <span
@@ -261,12 +278,15 @@ export default function TourWaypointList({
                     className={`pointer-events-none absolute inset-x-2 z-10 h-0.5 rounded bg-accent ${dropTarget.placement === 'before' ? 'top-0' : 'bottom-0'}`}
                   />
                 )}
-                <div className="group flex w-full items-center gap-2.5 rounded-[12px] px-2 py-1.5">
+                <div
+                  className={`group flex w-full items-center gap-2 rounded-[10px] px-1.5 py-1.5 transition-colors ${selected ? 'bg-surface-selected' : 'hover:bg-surface-hover'}`}
+                >
+                  {/* Out on hover, as a plan row's controls are; the row keeps its place for it. */}
                   <span
                     draggable={movable}
                     aria-hidden="true"
                     data-testid="tour-planner-waypoint-drag-handle"
-                    className={`grid h-6 w-5 flex-none place-items-center text-content-faint ${movable ? 'cursor-grab active:cursor-grabbing' : 'opacity-35'}`}
+                    className={`grid h-6 w-4 flex-none place-items-center text-content-faint transition-opacity ${movable ? 'cursor-grab opacity-0 active:cursor-grabbing group-focus-within:opacity-100 group-hover:opacity-100' : 'opacity-0'}`}
                   >
                     <GripVertical size={14} strokeWidth={1.8} />
                   </span>
@@ -285,7 +305,7 @@ export default function TourWaypointList({
                       >
                         {placeName ?? coordinates}
                       </span>
-                      <SoftPill>{t(ROLE_KEY[point.role])}</SoftPill>
+                      {point.role !== 'via' && <SoftPill>{t(ROLE_KEY[point.role])}</SoftPill>}
                     </span>
                     {placeName && (
                       <span
@@ -299,7 +319,7 @@ export default function TourWaypointList({
                   </button>
                   {canEdit && (
                     <span
-                      className={`flex flex-none items-center gap-0.5 transition-opacity ${selected ? '' : 'opacity-50 group-focus-within:opacity-100 group-hover:opacity-100'}`}
+                      className={`flex-none items-center gap-0.5 group-focus-within:flex group-hover:flex ${selected ? 'flex' : 'hidden'}`}
                     >
                       <WaypointAction
                         label={t('tours.planner.moveUp')}
@@ -335,6 +355,6 @@ export default function TourWaypointList({
         })}
       </ol>
       {canEdit && <AddPointRow disabled={isSaving} />}
-    </TourSection>
+    </>
   );
 }

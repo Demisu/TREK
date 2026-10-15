@@ -83,7 +83,7 @@ import type { DayDeleteQuestion } from '../../utils/dayImpactLines'
 import type { Trip, Day, Place, Category, Assignment, Accommodation, Reservation, AssignmentsMap, RouteResult, RouteSegment, DayNote } from '../../types'
 import type { TourPlannedTimes } from '../Tours/tourPresentation'
 import type { TourListItem } from '@trek/shared'
-import { TourDayRowIcon } from '../Tours/TourDayRowFacts'
+import { TourDayRowAvatar } from '../Tours/TourDayRowFacts'
 import { DayPlanPlaceSubline } from './DayPlanPlaceSubline'
 
 export interface DayPlanSidebarProps {
@@ -2000,7 +2000,7 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                                 onMouseLeave={() => setLockHoverId(null)}
                                 className="relative flex flex-none rounded-full"
                               >
-                                {dayRowTour ? <TourDayRowIcon type={dayRowTour.tour_type} size={32} /> : <PlaceAvatar place={place} category={cat} size={32} />}
+                                {dayRowTour ? <TourDayRowAvatar tour={dayRowTour} size={32} /> : <PlaceAvatar place={place} category={cat} size={32} />}
                                 {/* Hover/locked overlay */}
                                 {(lockHoverId === assignment.id || isLocked) && (
                                   <span className="absolute inset-0 grid place-items-center rounded-full transition-colors"
@@ -2141,7 +2141,7 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                                 <ChevronDown size={12} strokeWidth={2} />
                               </button>
                             </div>}
-                            {canEditDays && onAddBookingToAssignment && (
+                            {canEditDays && onAddBookingToAssignment && !isTourPlace && (
                               <Tooltip label={t('reservations.addBooking')} placement="top">
                                 <button type="button" aria-label={t('reservations.addBooking')}
                                   onClick={e => {

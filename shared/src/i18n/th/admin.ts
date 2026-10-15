@@ -628,6 +628,11 @@ const admin: TranslationStrings = {
   'admin.addons.toast.updated': 'อัพเดตแอดออนแล้ว',
   'admin.addons.toast.error': 'ไม่สามารถอัปเดต addon',
   'admin.addons.group.count': 'เปิดใช้งาน {enabled} จาก {total} แล้ว',
+  'admin.addons.subOptions': '{count} ตัวเลือก',
+  'admin.addons.subOptionsOn': 'เปิดอยู่ {count}',
+  'admin.toursWanderer.title': 'wanderer',
+  'admin.toursWanderer.subtitle':
+    'ผู้ใช้เชื่อมต่ออินสแตนซ์ wanderer ของตนเองและนำเข้าเส้นทางเดินจากที่นั่นเป็นทัวร์ได้',
   'admin.addons.noAddons': 'ไม่มีส่วนเสริมให้ใช้งาน',
   'admin.weather.title': 'ข้อมูลสภาพอากาศ',
   'admin.weather.badge': 'ตั้งแต่วันที่ 24 มีนาคม 2569',

@@ -668,6 +668,11 @@ const admin: TranslationStrings = {
   'admin.addons.toast.updated': 'アドオンを更新しました',
   'admin.addons.toast.error': 'アドオンの更新に失敗しました',
   'admin.addons.group.count': '{total} 件中 {enabled} 件が有効',
+  'admin.addons.subOptions': '{count}件のオプション',
+  'admin.addons.subOptionsOn': '{count}件が有効',
+  'admin.toursWanderer.title': 'wanderer',
+  'admin.toursWanderer.subtitle':
+    'ユーザーが自分のwandererインスタンスを接続し、そのトレイルをツアーとしてインポートできます',
   'admin.addons.noAddons': '利用可能なアドオンはありません',
   'admin.weather.title': '天気データ',
   'admin.weather.badge': '2026年3月24日以降',

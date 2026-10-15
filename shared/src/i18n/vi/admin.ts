@@ -718,6 +718,11 @@ const admin: TranslationStrings = {
   'admin.addons.toast.updated': 'Đã cập nhật tiện ích bổ sung',
   'admin.addons.toast.error': 'Không thể cập nhật tiện ích bổ sung',
   'admin.addons.group.count': '{enabled} trên {total} đã bật',
+  'admin.addons.subOptions': '{count} tùy chọn',
+  'admin.addons.subOptionsOn': '{count} đang bật',
+  'admin.toursWanderer.title': 'wanderer',
+  'admin.toursWanderer.subtitle':
+    'Người dùng có thể kết nối máy chủ wanderer riêng và nhập các cung đường của máy chủ đó thành chuyến tham quan',
   'admin.addons.noAddons': 'Không có tiện ích bổ sung nào',
   'admin.weather.title': 'Dữ liệu thời tiết',
   'admin.weather.badge': 'Kể từ ngày 24 tháng 3 năm 2026',

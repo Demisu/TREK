@@ -176,6 +176,13 @@ export const tourRepo = {
     return result
   },
 
+  /** Online only, like the import: the recorded track is kept on the server, not in the cache. */
+  async restoreRecorded(tripId: number | string, placeId: number): Promise<TourDetailResponse> {
+    const result = await toursApi.restoreRecorded(tripId, placeId)
+    await offlineDb.tours.put({ ...result.tour, trip_id: Number(tripId), waypoints: result.waypoints })
+    return result
+  },
+
   async importGpx(tripId: number | string, file: File): Promise<TourImportGpxResponse> {
     const result = await toursApi.importGpx(tripId, file)
     await offlineDb.tours.bulkPut(result.tours.map(tour => ({ ...tour, trip_id: Number(tripId) })))

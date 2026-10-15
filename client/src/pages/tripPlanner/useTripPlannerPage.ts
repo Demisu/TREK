@@ -1,46 +1,29 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { TourListItem } from '@trek/shared'
 import { usePoiExplore, type Bbox } from '../../components/Map/usePoiExplore'
 import { placeActions } from '../../components/Planner/usePlaceActions'
-import { useTourPlanner } from '../../components/Tours/planner/useTourPlanner'
 import { tourPlannedTimes as projectTourPlannedTimes } from '../../components/Tours/tourPresentation'
 import { usePlanMapViewport } from '../../hooks/usePlanMapViewport'
 import { useMapLocationSearch } from './useMapLocationSearch'
 import { useTripPlanner } from './useTripPlanner'
+import { useTourWorkspace } from './useTourWorkspace'
 
 export function useTripPlannerPage() {
   const planner = useTripPlanner()
   const {
     activeTab,
-    can,
-    enabledAddons,
-    isMobile,
-    places,
-    reloadTourPlaceIds,
+    can, places,
     setSelectedPlaceId,
     t,
     toast,
     tours,
     trip,
     tripActions,
-    tripId,
-    upsertTour,
-  } = planner
+    tripId } = planner
 
   const canPlaceEdit = can('place_edit', trip)
   const canDayEdit = can('day_edit', trip)
-  const tourPlanner = useTourPlanner({
-    tripId,
-    canEdit: canPlaceEdit,
-    canAssign: canDayEdit,
-    active: activeTab === 'tour-planner' && enabledAddons.tours && !isMobile,
-    onSaved: async result => {
-      upsertTour(result.tour)
-      toast.success(t('tours.planner.saved'))
-      await tripActions.loadTrip(tripId)
-      void reloadTourPlaceIds()
-    },
-  })
+  const { tourPlanner, viewImportedTour, tourGpxImport, wandererBrowser, tourConversion, recordedTrack } =
+    useTourWorkspace(planner, canPlaceEdit, canDayEdit)
 
   const tourDetailOpenerRef = useRef<{ placeId: number; element: HTMLElement } | null>(null)
   const lastPlanMapViewportRef = useRef<Bbox | null>(null)
@@ -64,6 +47,7 @@ export function useTripPlannerPage() {
   }, [places, plannerViewportSnapshot])
 
   const focusPoints = useMemo<[number, number][]>(() => {
+    if (wandererBrowser.open) return wandererBrowser.line ?? plannerFallbackFocusPoints
     if (tourPlanner.mode.type === 'view-gpx') return tourPlanner.readOnlyGpxAnalysis?.routeCoordinates ?? []
     if (tourPlanner.mode.type === 'new-draft') {
       return tourPlanner.waypoints.map(point => [point.lat, point.lng])
@@ -72,20 +56,31 @@ export function useTripPlannerPage() {
       return tourPlanner.waypoints.map(point => [point.lat, point.lng])
     }
     return plannerFallbackFocusPoints
-  }, [tourPlanner.mode.type, tourPlanner.readOnlyGpxAnalysis?.routeCoordinates, tourPlanner.waypoints, plannerFallbackFocusPoints])
+  }, [
+    wandererBrowser.open,
+    wandererBrowser.line,
+    tourPlanner.mode.type, tourPlanner.readOnlyGpxAnalysis?.routeCoordinates, tourPlanner.waypoints, plannerFallbackFocusPoints])
 
   const { mapFocusPoints, mapFocusKey, locationSearch } = useMapLocationSearch(tourPlanner.mapFocusKey, focusPoints)
 
   const route = useMemo<[number, number][][] | null>(() => {
+    if (wandererBrowser.open) return wandererBrowser.line ? [wandererBrowser.line] : null
     if (tourPlanner.mode.type === 'view-gpx') {
       const coordinates = tourPlanner.readOnlyGpxAnalysis?.routeCoordinates
-      return coordinates?.length ? [coordinates] : null
+      if (!coordinates?.length) return null
+      // While an editable version is previewed, the import (dashed) and the suggestion side by side.
+      return tourConversion.line ? [coordinates, tourConversion.line] : [coordinates]
     }
     if (tourPlanner.mode.type === 'new-draft' || tourPlanner.mode.type === 'edit-saved') {
       return tourPlanner.route ? [tourPlanner.route] : null
     }
     return null
-  }, [tourPlanner.mode.type, tourPlanner.readOnlyGpxAnalysis?.routeCoordinates, tourPlanner.route])
+  }, [
+    wandererBrowser.open,
+    wandererBrowser.line,
+    tourPlanner.mode.type, tourPlanner.readOnlyGpxAnalysis?.routeCoordinates, tourPlanner.route,
+    tourConversion.line,
+  ])
 
   const { closeGpxTour } = tourPlanner
   useEffect(() => {
@@ -106,7 +101,7 @@ export function useTripPlannerPage() {
   // Each tour's planned times keyed by its place, for the day plan's tour rows.
   const plannedTourDurations = new Map(tours.map(tour => [tour.place_id, { ...projectTourPlannedTimes(tour), tour }] as const))
 
-  const onSelectTour = (tour: TourListItem | null, opener?: HTMLElement) => {
+  const onSelectTour = (tour: (typeof tours)[number] | null, opener?: HTMLElement) => {
     tourDetailOpenerRef.current = tour && opener ? { placeId: tour.place_id, element: opener } : null
     setSelectedPlaceId(tour?.place_id ?? null)
   }
@@ -118,8 +113,20 @@ export function useTripPlannerPage() {
     placeActions: placeActions({ tripId, tripActions, toast, t }),
     permissions: { canPlaceEdit, canDayEdit },
     tourPlanner,
+    tourGpxImport,
+    wandererBrowser,
+    viewImportedTour,
     tourDetails: { openerRef: tourDetailOpenerRef, onSelectTour },
-    tourMap: { route, focusPoints: mapFocusPoints, focusKey: mapFocusKey, captureViewport },
+    tourConversion,
+    recordedTrack,
+    tourMap: { route,
+      routeWalking: route && route.length === 2 && tourConversion.line ? [true, false] : null,
+      previewPoints: tourConversion.status === 'idle' ? null : tourConversion.points,
+      focusPoints: mapFocusPoints,
+      // A picked wanderer trail frames itself; the rest follows the planner.
+      focusKey:
+        wandererBrowser.open && wandererBrowser.selected ? `wanderer:${wandererBrowser.selected.id}` : mapFocusKey, captureViewport,
+    },
     locationSearch,
     plannedTourDurations,
   }

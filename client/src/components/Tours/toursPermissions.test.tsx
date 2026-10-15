@@ -11,6 +11,7 @@ const state = vi.hoisted(() => ({
   user: { id: 2, role: 'user' } as { id: number; role: string } | null,
   importGpx: vi.fn(),
   loadTrip: vi.fn(),
+  refreshPlaces: vi.fn(),
   create: vi.fn(),
   update: vi.fn(),
   detail: vi.fn(),
@@ -18,7 +19,7 @@ const state = vi.hoisted(() => ({
   elevation: vi.fn(),
 }))
 
-vi.mock('../../store/tripStore', () => ({ useTripStore: (selector: (store: unknown) => unknown) => selector({ trip: state.trip, loadTrip: state.loadTrip }) }))
+vi.mock('../../store/tripStore', () => ({ useTripStore: (selector: (store: unknown) => unknown) => selector({ trip: state.trip, loadTrip: state.loadTrip, refreshPlaces: state.refreshPlaces, places: [] }) }))
 vi.mock('../../store/authStore', () => ({ useAuthStore: (selector: (store: unknown) => unknown) => selector({ user: state.user }) }))
 vi.mock('../../store/settingsStore', () => ({ useSettingsStore: (selector: (store: unknown) => unknown) => selector({ settings: { distance_unit: 'metric' } }) }))
 vi.mock('../../repo/tourRepo', () => ({ tourRepo: { importGpx: state.importGpx, create: state.create, update: state.update, detail: state.detail } }))
@@ -36,6 +37,7 @@ vi.mock('../shared/markdownLink', () => ({ markdownLinkComponents: {} }))
 vi.mock('../../utils/fileDownload', () => ({ openFile: vi.fn() }))
 vi.mock('../Planner/placeNavigation', () => ({ getNavigationTargets: () => [], openNavigationTarget: vi.fn() }))
 
+import { pickFiles } from '../../../tests/helpers/filePicker'
 import { usePermissionsStore } from '../../store/permissionsStore'
 import { useTourPermissions } from './useTourPermissions'
 import ToursSidebar from './ToursSidebar'
@@ -61,12 +63,16 @@ describe('Tours permissions without database setup', () => {
   it('revoking sidebar rights closes assignment choices and blocks file-input invocation', async () => {
     const assign = vi.fn()
     const props = { tripId: 7, days, tours: [tour], onAssignToDay: assign }
-    const { container, rerender } = render(<ToursSidebar {...props} canEdit canAssign />)
+    const { rerender } = render(<ToursSidebar {...props} canEdit canAssign />)
     fireEvent.click(screen.getByRole('button', { name: 'tours.addToDay' }))
     expect(screen.getByRole('button', { name: /Summit/ })).toBeTruthy()
     rerender(<ToursSidebar {...props} canEdit={false} canAssign={false} />)
     expect(screen.queryByRole('button', { name: /Summit/ })).toBeNull()
-    await act(async () => { fireEvent.change(container.querySelector('input[type=file]')!, { target: { files: [new File(['gpx'], 'ridge.gpx')] } }) })
+    // Without the right the import button opens no file picker at all.
+    await act(async () => {
+      expect(
+        pickFiles(screen.getByText('tours.import.button').closest('button')!, [new File(['gpx'], 'ridge.gpx')])
+      ).toBeNull() })
     expect(state.importGpx).not.toHaveBeenCalled()
     expect(assign).not.toHaveBeenCalled()
   })
@@ -105,8 +111,11 @@ describe('Tours permissions without database setup', () => {
     expect(Boolean(screen.queryByRole('button', { name: 'common.edit' }))).toBe(canEdit)
     expect(Boolean(screen.queryByRole('button', { name: 'common.delete' }))).toBe(canEdit)
     expect(Boolean(screen.queryByRole('button', { name: 'inspector.addToDay' }))).toBe(canAssign)
+    expect((screen.getByRole('button', { name: 'tours.detail.trackColor' }) as HTMLButtonElement).disabled).toBe(
+      !canEdit
+    )
     if (canEdit) {
-      fireEvent.click(screen.getByRole('button', { name: 'inspector.trackColorAuto' }))
+      fireEvent.click(screen.getByRole('button', { name: 'tours.detail.trackColor' }))
       fireEvent.click(screen.getByRole('button', { name: 'color' }))
       expect(update).toHaveBeenCalledWith(42, { route_color: '#ff0000' })
       fireEvent.click(screen.getByRole('button', { name: 'common.edit' }))
@@ -181,17 +190,19 @@ describe('Tours permissions without database setup', () => {
   it.each([[false, false], [true, false], [false, true], [true, true]])('sidebar edit=%s assign=%s keeps reads available and gates writes', async (canEdit, canAssign) => {
     const assign = vi.fn()
     const select = vi.fn()
-    const { container } = render(<ToursSidebar tripId={7} days={days} tours={[tour]} canEdit={canEdit} canAssign={canAssign} onAssignToDay={assign} onSelectTour={select} />)
+    render(<ToursSidebar tripId={7} days={days} tours={[tour]} canEdit={canEdit} canAssign={canAssign} onAssignToDay={assign} onSelectTour={select} />)
     const row = screen.getByRole('option')
     fireEvent.click(row)
     expect(select).toHaveBeenCalledWith(tour, row)
-    expect((screen.getByText('places.importFile').closest('button') as HTMLButtonElement).disabled).toBe(!canEdit)
+    const importButton = screen.getByText('tours.import.button').closest('button') as HTMLButtonElement
+    expect(importButton.disabled).toBe(!canEdit)
     const attach = screen.getByRole('button', { name: 'tours.addToDay' }) as HTMLButtonElement
     expect(attach.disabled).toBe(!canAssign)
     fireEvent.click(attach)
     if (canAssign) fireEvent.click(screen.getByRole('button', { name: /Summit/ }))
     expect(assign).toHaveBeenCalledTimes(canAssign ? 1 : 0)
-    await act(async () => { fireEvent.change(container.querySelector('input[type=file]')!, { target: { files: [new File(['gpx'], 'ridge.gpx')] } }) })
+    await act(async () => {
+      pickFiles(importButton, [new File(['gpx'], 'ridge.gpx')]) })
     expect(state.importGpx).toHaveBeenCalledTimes(canEdit ? 1 : 0)
   })
 

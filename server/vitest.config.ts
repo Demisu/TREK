@@ -1,5 +1,5 @@
-import { defineConfig } from 'vitest/config';
 import swc from 'unplugin-swc';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   // SWC transform so NestJS decorator metadata is emitted in tests
@@ -196,6 +196,7 @@ export default defineConfig({
         'src/nest/trips/**/*.ts': { statements: 95, branches: 86, functions: 95, lines: 96 },
         'src/nest/unsplash/**/*.ts': { statements: 99, branches: 88, functions: 99, lines: 99 },
         'src/nest/vacay/**/*.ts': { statements: 82, branches: 66, functions: 90, lines: 86 },
+        'src/nest/wanderer/**/*.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
         'src/nest/weather/**/*.ts': { statements: 93, branches: 78, functions: 91, lines: 97 },
         'src/nest/**/*.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
 
@@ -240,20 +241,20 @@ export default defineConfig({
       // Node nor Vite can resolve. Point directly at the CJS dist files.
       // Paths are relative to the monorepo root (packages are hoisted there).
       '@modelcontextprotocol/sdk/server/mcp': new URL(
-          '../node_modules/@modelcontextprotocol/sdk/dist/cjs/server/mcp.js',
-          import.meta.url
+        '../node_modules/@modelcontextprotocol/sdk/dist/cjs/server/mcp.js',
+        import.meta.url,
       ).pathname,
       '@modelcontextprotocol/sdk/server/streamableHttp': new URL(
-          '../node_modules/@modelcontextprotocol/sdk/dist/cjs/server/streamableHttp.js',
-          import.meta.url
+        '../node_modules/@modelcontextprotocol/sdk/dist/cjs/server/streamableHttp.js',
+        import.meta.url,
       ).pathname,
       '@modelcontextprotocol/sdk/inMemory': new URL(
-          '../node_modules/@modelcontextprotocol/sdk/dist/cjs/inMemory.js',
-          import.meta.url
+        '../node_modules/@modelcontextprotocol/sdk/dist/cjs/inMemory.js',
+        import.meta.url,
       ).pathname,
       '@modelcontextprotocol/sdk/client/index': new URL(
-          '../node_modules/@modelcontextprotocol/sdk/dist/cjs/client/index.js',
-          import.meta.url
+        '../node_modules/@modelcontextprotocol/sdk/dist/cjs/client/index.js',
+        import.meta.url,
       ).pathname,
     },
   },

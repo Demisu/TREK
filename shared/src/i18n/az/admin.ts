@@ -743,6 +743,13 @@ const admin: TranslationStrings = {
   'admin.addons.toast.updated': 'Əlavə yeniləndi',
   'admin.addons.toast.error': 'Əlavəni yeniləmək mümkün olmadı',
   'admin.addons.group.count': '{total} əlavədən {enabled} aktivdir',
+  'admin.addons.subOptions': '{count} seçim',
+  'admin.addons.subOptions.one': '{count} seçim',
+  'admin.addons.subOptionsOn': '{count} aktiv',
+  'admin.addons.subOptionsOn.one': '{count} aktiv',
+  'admin.toursWanderer.title': 'wanderer',
+  'admin.toursWanderer.subtitle':
+    'İstifadəçilər öz wanderer instansiyalarını qoşa və onun cığırlarını tur kimi idxal edə bilərlər',
   'admin.addons.noAddons': 'Heç bir əlavə mövcud deyil',
   'admin.weather.title': 'Hava məlumatları',
   'admin.weather.badge': '24 mart 2026-cı ildən',

@@ -155,7 +155,7 @@ beforeEach(() => {
 });
 
 describe('DayPlanSidebar', () => {
-  it('RS-01: previews Tour descriptions in two lines only while Tours is enabled', () => {
+  it('RS-01: previews a Tour description on one line like every stop, marked only while Tours is enabled', () => {
     const description = 'A long description of the ridge route, the lake overlook, and the return path.';
     const place = buildPlace({ id: 45, name: 'Ridge walk', description, tour_place_id: 45 });
     const day = buildDay({ id: 10, date: '2025-06-01', title: 'Day 1' });
@@ -172,9 +172,9 @@ describe('DayPlanSidebar', () => {
     const view = render(<DayPlanSidebar {...props} />);
     const tourPreview = view.container.querySelector('[data-testid="trip-plan-tour-description"]') as HTMLElement;
     expect(tourPreview).toHaveTextContent(description);
-    expect(tourPreview.style.display).toBe('-webkit-box');
-    expect(tourPreview.style.webkitLineClamp).toBe('2');
-    expect(tourPreview.style.maxHeight).toBe('2.6em');
+    // One line like the row's name, so hover controls make the description give way instead of wrapping.
+    expect(tourPreview).toHaveStyle({ whiteSpace: 'nowrap', maxHeight: '1.3em' });
+    expect(tourPreview.parentElement).toHaveClass('flex-nowrap', 'overflow-hidden');
     expect(screen.getByTestId('trip-plan-tour-walking-time')).toHaveTextContent('Walk: 1 h');
     expect(screen.getByTestId('trip-plan-tour-breaks')).toHaveTextContent('Breaks: 35 min');
     expect(screen.getByTestId('trip-plan-tour-planned-duration')).toHaveTextContent('Planned: 1 h 35 min');
@@ -231,14 +231,77 @@ describe('DayPlanSidebar', () => {
     });
     useAddonStore.setState({ addons: [{ id: 'tours', name: 'Tours', type: 'trip', icon: '', enabled: true }] });
     const view = render(<DayPlanSidebar {...props} />);
-    expect(screen.getByTestId('plan-tour-icon').querySelector('.lucide-mountain')).toBeTruthy();
+    // The tile carries the grade, as in the tour lists; the facts sit in the plan's white badges.
+    expect(screen.getByTestId('plan-tour-icon')).toHaveTextContent('T2');
     expect(screen.getByTestId('plan-tour-distance')).toHaveTextContent('4');
     expect(screen.getByTestId('plan-tour-ascent')).toHaveTextContent('100');
-    expect(screen.getByTestId('trip-plan-tour-walking-time')).toHaveAccessibleName('Walking time: 53 min');
-    expect(screen.getByTestId('trip-plan-tour-planned-duration')).toHaveTextContent('1 h 3 min');
+    const time = screen.getByTestId('trip-plan-tour-time');
+    expect(time).toHaveTextContent('1 h 3 min');
+    expect(time).toHaveAccessibleName(
+      'Walking time: 53 min, Breaks / additional time: 10 min, Planned total duration: 1 h 3 min'
+    );
     useAddonStore.setState({ addons: [{ id: 'tours', name: 'Tours', type: 'trip', icon: '', enabled: false }] });
     view.rerender(<DayPlanSidebar {...props} />);
     expect(screen.queryByTestId('plan-tour-icon')).not.toBeInTheDocument();
     expect(screen.queryByTestId('plan-tour-facts')).not.toBeInTheDocument();
+  });
+  it('RC-01: an imported tour without a grade shows its type on the tile', () => {
+    const place = buildPlace({ id: 46, name: 'Recorded loop', tour_place_id: 46 });
+    const day = buildDay({ id: 10, title: 'Day 1' });
+    const assignment = buildAssignment({ id: 102, day_id: 10, order_index: 0, place });
+    const tour = {
+      place_id: 46,
+      name: place.name,
+      tour_type: 'hike' as const,
+      distance: 6,
+      elevation_gain: 300,
+      elevation_loss: 300,
+      duration: null,
+      difficulty: null,
+      wanderer_ref: null,
+      match_confidence: 1,
+      max_hiking_difficulty: null,
+      planned: true,
+      caution: false,
+      has_waypoints: false,
+    };
+    const props = makeDefaultProps({
+      days: [day],
+      places: [place],
+      tourPlaceIds: new Set([46]),
+      assignments: { '10': [assignment] },
+      plannedTourDurations: new Map([
+        [46, { tour, walkingMinutes: null, breakMinutes: null, plannedTotalMinutes: null, manuallyOverridden: false }],
+      ]),
+    });
+    useAddonStore.setState({ addons: [{ id: 'tours', name: 'Tours', type: 'trip', icon: '', enabled: true }] });
+    render(<DayPlanSidebar {...props} />);
+
+    expect(screen.getByTestId('plan-tour-icon').querySelector('.lucide-mountain')).toBeTruthy();
+    expect(screen.queryByTestId('trip-plan-tour-time')).not.toBeInTheDocument();
+  });
+
+  it('RC-01: a tour row offers no booking, a tour is not booked', () => {
+    const place = buildPlace({ id: 45, name: 'Ridge walk', tour_place_id: 45 });
+    const cafe = buildPlace({ id: 47, name: 'Lakeside cafe' });
+    const day = buildDay({ id: 10, title: 'Day 1' });
+    const assignments = {
+      '10': [
+        buildAssignment({ id: 101, day_id: 10, order_index: 0, place }),
+        buildAssignment({ id: 103, day_id: 10, order_index: 1, place: cafe }),
+      ],
+    };
+    const props = makeDefaultProps({
+      days: [day],
+      places: [place, cafe],
+      tourPlaceIds: new Set([45]),
+      assignments,
+      onAddBookingToAssignment: vi.fn(),
+    });
+    useAddonStore.setState({ addons: [{ id: 'tours', name: 'Tours', type: 'trip', icon: '', enabled: true }] });
+    render(<DayPlanSidebar {...props} />);
+
+    // The cafe can be booked; the tour beside it cannot.
+    expect(screen.getAllByRole('button', { name: 'Add booking' })).toHaveLength(1);
   });
 });

@@ -1,30 +1,18 @@
 import { useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import type { TourListItem } from '@trek/shared'
-import { AlertTriangle, ArrowDown, ArrowUp, ChevronDown, Clock, Info, Mountain, Plus, Ruler, type LucideIcon } from 'lucide-react'
+import { AlertTriangle, CalendarDays, ChevronDown, Info, Mountain, Plus } from 'lucide-react'
 import type { Day, DistanceUnit } from '../../types'
 import type { RouteGeometryAnalysis } from '../../utils/routeGeometry'
 import { useTranslation } from '../../i18n'
-import { useSettingsStore } from '../../store/settingsStore'
-import { formatDistance, formatElevation } from '../../utils/units'
-import { formatDate } from '../../utils/formatters'
 import { ContextMenu, useContextMenu } from '../shared/ContextMenu'
 import { DialogButton, fs } from '../shared/DialogShell'
 import { Tooltip } from '../shared/Tooltip'
 import { useTripStore } from '../../store/tripStore'
 import { BOX, Eyebrow } from '../Planner/bookings/bookingParts'
-import { SoftPill } from '../Planner/planParts'
-import { formatPlannedTourDuration, hikeSourceBadgeLabel, tourPlannedTimes, tourSource } from './tourPresentation'
-
-type Translate = (key: string, params?: Record<string, unknown>) => string
-
-/** The round tile a tour stands behind in a list, where a place has its avatar. */
-export function TourTile({ size = 34, color, raised = false }: { size?: number; color?: string; raised?: boolean }) {
-  return (
-    <span className={`grid flex-none place-items-center rounded-full ${raised ? 'bg-surface-card shadow-sm' : 'bg-surface-tertiary'}`} style={{ width: size, height: size }}>
-      <Mountain size={Math.round(size * 0.44)} strokeWidth={1.9} style={{ color: color ?? 'var(--text-muted)' }} />
-    </span>
-  )
-}
+import { SoftPill, WhiteBadge } from '../Planner/planParts'
+import { hikeSourceBadgeLabel, tourSource } from './tourPresentation'
+import { type TourDay, dayMenuLabel } from './tourDays'
+import { tourMetricFacts } from './tourFacts'
 
 /**
  * A tour's tile in a list: its T-scale grade in place of the mountain, named in
@@ -44,11 +32,11 @@ export function TourGradeTile({ tour }: { tour: Pick<TourListItem, 'max_hiking_d
         </span>
       </Tooltip>
       {source !== 'trek' && (
-        <span className="absolute inset-x-0 -bottom-1.5 flex justify-center">
+        <span className="absolute inset-x-0 -bottom-1 flex justify-center">
           <Tooltip label={hikeSourceBadgeLabel(tour, t)}>
             <span data-testid="tour-source-badge" aria-label={hikeSourceBadgeLabel(tour, t)}
-              className="rounded-full bg-surface-card px-1 font-geist font-semibold uppercase leading-[14px] tracking-[.04em] text-content-secondary shadow-sm ring-1 ring-inset ring-edge-faint"
-              style={fs(8.5)}>
+              className="rounded-full bg-surface-card px-[3px] font-geist font-semibold uppercase leading-[11px] tracking-[.02em] text-content-secondary shadow-sm ring-1 ring-inset ring-edge-faint"
+              style={fs(7)}>
               {t(`tours.badgeShort.${source}`)}
             </span>
           </Tooltip>
@@ -58,57 +46,111 @@ export function TourGradeTile({ tour }: { tour: Pick<TourListItem, 'max_hiking_d
   )
 }
 
-/** One measured fact of a tour as a white pill: its icon, an optional short word and the value, named in full for a screen reader. */
-function TourMetricPill({ icon: Icon, label, value, prefix }: { icon: LucideIcon; label: string; value: string; prefix?: string }) {
+/**
+ * A list of tours as one card, the way the plan shows a day: a head band with
+ * an icon, a title and what it counts, the rows below it.
+ */
+export function TourListCard({ icon,
+  title,
+  aside, label,
+  children,
+}: { icon: ReactNode
+  title: string
+  aside?: ReactNode
+  /** The list's name for a screen reader. */
+  label: string
+  children: ReactNode
+}) {
   return (
-    <SoftPill className="tabular-nums" icon={<Icon size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
-      <span aria-label={`${label}: ${value}`}>{prefix ? `${prefix} ${value}` : value}</span>
-    </SoftPill>
-  )
-}
-
-/** The facts of a tour as white pills, kept to one short row: how far, up and down, how long, how hard, and where it came from when that was not TREK. */
-export function TourFactPills({ tour, className = '', children }: { tour: TourListItem; className?: string; children?: ReactNode }) {
-  const { t } = useTranslation()
-  const unit = useSettingsStore(state => state.settings.distance_unit)
-  const times = tourPlannedTimes(tour)
-  const shownMinutes = times.plannedTotalMinutes ?? times.walkingMinutes
-  const timeParts = [
-    times.walkingMinutes != null ? `${t('tours.planner.walkingShort')} ${formatPlannedTourDuration(times.walkingMinutes)}` : null,
-    times.breakMinutes != null ? `${t('tours.planner.breaksShort')} ${formatPlannedTourDuration(times.breakMinutes)}` : null,
-    times.plannedTotalMinutes != null
-      ? `${t('tours.planner.plannedShort')} ${formatPlannedTourDuration(times.plannedTotalMinutes)}${times.manuallyOverridden ? ` (${t('tours.planner.plannedTotalManual')})` : ''}`
-      : null,
-  ].filter((part): part is string => part !== null)
-  return (
-    <div data-testid="tour-metrics" className={`flex min-w-0 flex-wrap items-center gap-1 ${className}`}>
-      <TourMetricPill icon={Ruler} label={t('tours.detail.distance')} value={formatDistance(tour.distance ?? 0, unit)} />
-      {tour.elevation_gain != null && <TourMetricPill icon={ArrowUp} label={t('tours.detail.ascent')} value={formatElevation(tour.elevation_gain, unit)} />}
-      {tour.elevation_loss != null && <TourMetricPill icon={ArrowDown} label={t('tours.detail.descent')} value={formatElevation(tour.elevation_loss, unit)} />}
-      {shownMinutes != null && (
-        <Tooltip label={timeParts.join(', ')}>
-          <span className="inline-flex">
-            <TourMetricPill icon={Clock} label={timeParts.join(', ')} value={formatPlannedTourDuration(shownMinutes)} />
-          </span>
-        </Tooltip>
-      )}
-      {tour.caution && (
-        <Tooltip label={t('tours.caution.tooltip')}>
-          <span aria-label={t('tours.caution.badge')} className="inline-flex">
-            <SoftPill tone="warning" icon={<AlertTriangle size={10} strokeWidth={2.2} className="flex-none" />}>{t('tours.caution.badge')}</SoftPill>
-          </span>
-        </Tooltip>
-      )}
-      {children}
+    <div className="flex-none overflow-hidden rounded-2xl border border-edge-faint bg-surface-card">
+      <div className="flex items-center gap-2 border-b border-edge-faint bg-surface-secondary px-3 py-2">
+        <span className="grid h-4 w-4 flex-none place-items-center text-content-muted">{icon}</span>
+        <span className="min-w-0 flex-1 truncate font-semibold text-content" style={fs(12.5, 'body')}>
+          {title}
+        </span>
+        {aside}
+      </div>
+      <ul role="listbox" aria-label={label} className="m-0 list-none py-1">
+        {children}
+      </ul>
     </div>
   )
 }
 
-/** "Day 2, Tue, Jul 8: Lakes" as far as the day has a date and a title. */
-function dayMenuLabel(day: Day, index: number, t: Translate, locale: string): string {
-  const date = formatDate(day.date, locale)
-  const head = date ? `${t('dayplan.dayN', { n: index + 1 })}, ${date}` : t('dayplan.dayN', { n: index + 1 })
-  return day.title ? `${head}: ${day.title}` : head
+/** How many days a list row names before the rest fold into one "+n" pill. */
+const SHOWN_TOUR_DAYS = 3
+
+/** The days a tour is on as one white badge of a plan row: "Days 2, 4", each day named in full in the tooltip. */
+export function TourDaysBadge({ tourDays }: { tourDays: readonly TourDay[] }) {
+  const { t, locale } = useTranslation()
+  if (tourDays.length === 0) return null
+  const label = tourDays.map(({ day, index }) => dayMenuLabel(day, index, t, locale)).join(', ')
+  const numbers = tourDays.map(({ index }) => index + 1).join(', ')
+  return (
+    <Tooltip label={label}>
+      <span data-testid="tour-days-badge" aria-label={label} className="inline-flex flex-none">
+        <WhiteBadge icon={<CalendarDays size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
+          {t('tours.days.short', { count: tourDays.length, days: numbers })}
+        </WhiteBadge>
+      </span>
+    </Tooltip>
+  )
+}
+
+/** A tour that asks for care, as an icon-only warning badge whose tooltip says why. */
+export function TourCautionBadge({ tour }: { tour: Pick<TourListItem, 'caution'> }) {
+  const { t } = useTranslation()
+  if (!tour.caution) return null
+  return (
+        <Tooltip label={t('tours.caution.tooltip')}>
+          <span aria-label={t('tours.caution.badge')} className="inline-flex flex-none">
+            <WhiteBadge className="text-warning" icon={<AlertTriangle size={10} strokeWidth={2.2} className="flex-none" />}>{null}
+        </WhiteBadge>
+      </span>
+    </Tooltip>
+  )
+}
+
+/**
+ * The days a tour is on as small pills, "Day 2" each, the date and title in the
+ * tooltip. A tour on many days names the first ones and folds the rest into "+n",
+ * whose tooltip lists them. The pills come without a box of their own, so they
+ * flow on in the row of pills they are put into.
+ */
+export function TourDayPills({
+  tourDays,
+  shown: limit = SHOWN_TOUR_DAYS,
+}: {
+  tourDays: readonly TourDay[]
+  /** How many days to name before folding the rest; a detail with room names them all. */
+  shown?: number
+}) {
+  const { t, locale } = useTranslation()
+  if (tourDays.length === 0) return null
+  const fullLabel = ({ day, index }: TourDay) => dayMenuLabel(day, index, t, locale)
+  const shown = tourDays.length > limit ? tourDays.slice(0, limit - 1) : tourDays
+  const folded = tourDays.slice(shown.length)
+  const foldedLabel = folded.map(fullLabel).join(', ')
+  return (
+    <>
+      {shown.map((tourDay) => (
+        <Tooltip key={tourDay.day.id} label={fullLabel(tourDay)}>
+          <span data-testid="tour-day" aria-label={fullLabel(tourDay)} className="inline-flex">
+            <SoftPill icon={<CalendarDays size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
+              {t('dayplan.dayN', { n: tourDay.index + 1 })}</SoftPill>
+          </span>
+        </Tooltip>
+      ))}
+      {folded.length > 0 && (
+        <Tooltip label={foldedLabel}>
+          <span data-testid="tour-day" aria-label={foldedLabel} className="inline-flex">
+            <SoftPill className="tabular-nums">+{folded.length}
+    </SoftPill>
+          </span>
+        </Tooltip>
+  )}
+    </>
+  )
 }
 
 /**
@@ -212,7 +254,7 @@ export function FoldButton({ expanded, onToggle, controls, label }: { expanded: 
   )
 }
 
-interface TourMetricField {
+export interface TourMetricField {
   label: string
   /** Said instead of `label` where the field is too narrow for it, rather than cutting it off. */
   shortLabel?: string
@@ -248,6 +290,43 @@ function FitLabel({ full, short }: { full: string; short?: string }) {
   )
 }
 
+/** Fixed field rows; five only from the small breakpoint up, a phone gets two. */
+const FIELD_COLUMNS = { 2: 'grid-cols-2', 3: 'grid-cols-3', 5: 'grid-cols-2 sm:grid-cols-5' } as const
+type FieldColumns = keyof typeof FIELD_COLUMNS
+
+/**
+ * Labelled values in the booking-card look: a fixed number of columns where the
+ * caller wants one row per group, otherwise as many as fit.
+ */
+export function TourFactFields({ fields, columns }: { fields: readonly TourMetricField[]; columns?: FieldColumns }) {
+  return (
+    <dl
+      className={`m-0 grid gap-2 ${columns ? FIELD_COLUMNS[columns] : 'grid-cols-[repeat(auto-fit,minmax(104px,1fr))]'}`}
+    >
+      {fields.map((field) => (
+        <div key={field.label} className="min-w-0">
+          <dt className="mb-[3px] flex min-w-0 items-center gap-0.5">
+            <Eyebrow className="relative min-w-0 truncate">
+              <FitLabel full={field.label} short={field.shortLabel} />
+            </Eyebrow>
+            {field.info && (
+              <span className="-my-1 flex-none">
+                <InfoDot label={field.info.label} description={field.info.description} />
+              </span>
+            )}
+          </dt>
+          <dd
+            className={`${BOX} m-0 truncate px-[10px] py-[7px] text-center font-semibold tabular-nums text-content`}
+            style={fs(12.5, 'body')}
+          >
+            {field.value}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
+
 /**
  * A tour's numbers as labelled fields, the way a booking card shows its facts:
  * distance, any extra the caller has (the walking time), then the altitudes.
@@ -256,28 +335,84 @@ export function TourMetricFields({ analysis, unit, extra = [], columns }: {
   analysis: Pick<RouteGeometryAnalysis, 'distanceKm' | 'minEle' | 'maxEle' | 'gain' | 'loss'> | null
   unit?: DistanceUnit
   extra?: Array<TourMetricField>
-  /** A fixed column count for a narrow rail; the inspector lets the fields flow. */
-  columns?: 2
+  /** A fixed column count: two in a narrow rail, one row in the inspector. */
+  columns?: FieldColumns
 }) {
   const { t } = useTranslation()
-  const fields: TourMetricField[] = [
-    { label: t('tours.detail.distance'), value: analysis ? formatDistance(analysis.distanceKm, unit) : '-' },
-    ...extra,
-  ]
-  if (analysis?.minEle != null) fields.push({ label: t('tours.detail.minAltitude'), value: formatElevation(analysis.minEle, unit) })
-  if (analysis?.maxEle != null) fields.push({ label: t('tours.detail.maxAltitude'), value: formatElevation(analysis.maxEle, unit) })
-  if (analysis?.gain != null) fields.push({ label: t('tours.detail.ascent'), value: formatElevation(analysis.gain, unit) })
-  if (analysis?.loss != null) fields.push({ label: t('tours.detail.descent'), value: formatElevation(analysis.loss, unit) })
-  const grid = columns === 2 ? 'grid-cols-2' : 'grid-cols-[repeat(auto-fit,minmax(104px,1fr))]'
+  return <TourFactFields fields={tourMetricFacts(analysis, unit, t, extra)} columns={columns} />
+}
+
+/**
+ * A card of a rail, the way the plan shows a day: a head band with an icon and
+ * a title, the content below. Rails stack these instead of loose boxes.
+ */
+export function RailCard({
+  icon,
+  title,
+  aside,
+  children,
+  className = '',
+}: {
+  icon: ReactNode
+  title: string
+  aside?: ReactNode
+  children: ReactNode
+  className?: string
+}) {
   return (
-    <dl className={`m-0 grid gap-2 ${grid}`}>
-      {fields.map(field => (
-        <div key={field.label} className="min-w-0">
-          <dt className="mb-[3px] flex min-w-0 items-center gap-0.5">
-            <Eyebrow className="relative min-w-0 truncate"><FitLabel full={field.label} short={field.shortLabel} /></Eyebrow>
-            {field.info && <span className="-my-1 flex-none"><InfoDot label={field.info.label} description={field.info.description} /></span>}
+    <section
+      className={`flex-none overflow-hidden rounded-2xl border border-edge-faint bg-surface-card ${className}`}
+      aria-label={title}
+    >
+      <div className="flex items-center gap-2 border-b border-edge-faint bg-surface-secondary px-3 py-2">
+        <span className="grid h-4 w-4 flex-none place-items-center text-content-muted">{icon}</span>
+        <span className="min-w-0 flex-1 truncate font-semibold text-content" style={fs(12.5, 'body')}>
+          {title}
+        </span>
+        {aside}
+      </div>
+      <div className="px-3 py-3">{children}</div>
+    </section>
+  )
+}
+
+/** The one action of a rail card's text, a small pill rather than a dialog's full-size button. */
+export function CardAction({
+  icon,
+  onClick,
+  disabled = false,
+  children,
+}: {
+  icon: ReactNode
+  onClick: () => void
+  disabled?: boolean
+  children: ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="inline-flex h-7 max-w-full items-center gap-1.5 rounded-full bg-surface-card px-2.5 font-semibold text-content-secondary shadow-sm ring-1 ring-inset ring-edge-faint transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent enabled:hover:text-content disabled:cursor-default disabled:opacity-40"
+      style={fs(11.5, 'body')}
+    >
+      <span className="flex-none">{icon}</span>
+      <span className="min-w-0 truncate">{children}</span>
+    </button>
+  )
+}
+
+/** Facts as label over value, two to a row, without a box each: the compact form a rail card uses. */
+export function RailFacts({ facts }: { facts: readonly TourMetricField[] }) {
+  return (
+    <dl className="m-0 grid grid-cols-2 gap-x-4 gap-y-2.5">
+      {facts.map((fact) => (
+        <div key={fact.label} className="min-w-0">
+          <dt className="flex min-w-0 items-center gap-0.5 text-content-faint" style={fs(10.5, 'body')}>
+            <span className="relative min-w-0 truncate"><FitLabel full={fact.label} short={fact.shortLabel} /></span>
+            {fact.info && <span className="-my-1 flex-none"><InfoDot label={fact.info.label} description={fact.info.description} /></span>}
           </dt>
-          <dd className={`${BOX} m-0 truncate px-[10px] py-[7px] text-center font-semibold tabular-nums text-content`} style={fs(12.5, 'body')}>{field.value}</dd>
+          <dd className="m-0 truncate font-semibold tabular-nums text-content" style={fs(13, 'body')}>{fact.value}</dd>
         </div>
       ))}
     </dl>

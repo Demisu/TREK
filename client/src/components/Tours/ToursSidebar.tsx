@@ -2,10 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Check, ChevronDown, FileDown } from 'lucide-react'
 import type { TourListItem } from '@trek/shared'
 import type { Day } from '../../types'
-import { tourRepo } from '../../repo/tourRepo'
-import { useTripStore } from '../../store/tripStore'
 import { useTranslation } from '../../i18n'
-import { useToast } from '../shared/Toast'
 import TourListRow from './TourListRow'
 import { useTourPermissions, type TourPermissionProps } from './useTourPermissions'
 import { NEUTRAL_TINT, fs } from '../shared/DialogShell'
@@ -13,8 +10,7 @@ import { Tooltip } from '../shared/Tooltip'
 import EmptyState from '../shared/EmptyState'
 import { TourDayMenu } from './tourParts'
 import { filterTours, type TourFilter } from './tourPresentation'
-
-const MAX_FILE_BYTES = 10 * 1024 * 1024
+import { useTourGpxImport } from './useTourGpxImport'
 
 interface ToursSidebarProps extends TourPermissionProps {
   tripId: number
@@ -43,52 +39,14 @@ interface ToursSidebarProps extends TourPermissionProps {
 export default function ToursSidebar({ tripId, days, tours, loading = false, selectedPlaceId = null, onAssignToDay, onToursChanged, onSelectTour, canEdit: editPermission, canAssign: assignPermission }: ToursSidebarProps): React.ReactElement {
   const { t } = useTranslation()
   const { canEdit, canAssign } = useTourPermissions({ tripId, canEdit: editPermission, canAssign: assignPermission })
-  const toast = useToast()
-  const loadTrip = useTripStore(s => s.loadTrip)
+  const gpxImport = useTourGpxImport({ tripId, canEdit, onToursChanged })
   const [filter, setFilter] = useState<TourFilter>('all')
-  const [importing, setImporting] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const filterRef = useRef<HTMLDivElement>(null)
   const filterButtonRef = useRef<HTMLButtonElement>(null)
   const [filterOpen, setFilterOpen] = useState(false)
 
-  const handleImportClick = () => { if (canEdit) fileInputRef.current?.click() }
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    e.target.value = ''
-    if (!canEdit || !file) return
-    const ext = file.name.toLowerCase().split('.').pop()
-    if (ext !== 'gpx') { toast.error(t('places.importFileUnsupported')); return }
-    if (file.size > MAX_FILE_BYTES) { toast.error(t('places.importFileTooLarge', { maxMb: 10 })); return }
-
-    setImporting(true)
-    try {
-      const result = await tourRepo.importGpx(tripId, file)
-      if (result.tours.length > 0) {
-        // The server publishes place:created with sender echo suppression.
-        // Reload the importing client's trip so new places and route geometry
-        // enter the shared store used by the day map.
-        await onToursChanged?.(result.tours.map(tour => tour.place_id))
-        await loadTrip(tripId)
-        toast.success(t('tours.import.success', { count: result.tours.length }))
-        if (result.caution) toast.info(t('tours.import.caution'))
-      } else {
-        toast.warning(t('places.importAllSkipped'))
-      }
-    } catch (err: any) {
-      const message = err?.response?.data?.error
-      toast.error(message === 'No track or route found in GPX file' ? t('tours.import.noTrack') : t('tours.import.error'))
-    } finally {
-      setImporting(false)
-    }
-  }
-
-  const handleAssign = async (tour: TourListItem, day: Day, index: number) => {
-    if (!canAssign) return
-    const assigned = await onAssignToDay(tour.place_id, day.id)
-    if (assigned === false) return
-    toast.success(t('tours.addedToDay', { n: index + 1 }))
+  const handleAssign = (tour: TourListItem, day: Day) => {
+    if (canAssign) void onAssignToDay(tour.place_id, day.id)
   }
 
   const counts = {
@@ -126,15 +84,14 @@ export default function ToursSidebar({ tripId, days, tours, loading = false, sel
         {/* GPX import stays — the tour-appropriate import path. List Import
             (place/route-of-driving oriented) is deliberately absent here. */}
         <div>
-          <Tooltip label={t('places.importFile')}>
-            <button type="button" onClick={handleImportClick} disabled={!canEdit || importing}
+          <Tooltip label={t('tours.import.hint')}>
+            <button type="button" onClick={gpxImport.pick} disabled={!canEdit || gpxImport.importing}
               className="flex h-8 w-full min-w-0 items-center justify-center gap-1.5 overflow-hidden rounded-[10px] bg-accent px-3 font-semibold text-accent-text shadow-sm transition-opacity hover:opacity-90 disabled:cursor-default disabled:opacity-40"
               style={fs(12.5, 'body')}>
               <FileDown size={14} strokeWidth={2.2} className="flex-none" />
-              <span className="truncate">{t('places.importFile')}</span>
+              <span className="truncate">{t('tours.import.button')}</span>
             </button>
           </Tooltip>
-          <input ref={fileInputRef} type="file" accept=".gpx" onChange={handleFileChange} style={{ display: 'none' }} />
         </div>
         <div ref={filterRef} className="relative min-w-0">
           <button ref={filterButtonRef} type="button" onClick={() => setFilterOpen(value => !value)}
@@ -173,9 +130,11 @@ export default function ToursSidebar({ tripId, days, tours, loading = false, sel
               <TourListRow
                 key={tour.place_id}
                 tour={tour}
+                days={days}
+                draggableToDay={canAssign && days.length > 0}
                 selected={tour.place_id === selectedPlaceId}
                 onSelect={(selectedTour, opener) => onSelectTour?.(selectedTour, opener)}
-                action={<TourDayMenu days={days} placeId={tour.place_id} label={t('tours.addToDay')} disabled={!canAssign} onPick={(day, index) => { void handleAssign(tour, day, index) }} />}
+                action={<TourDayMenu days={days} placeId={tour.place_id} label={t('tours.addToDay')} disabled={!canAssign} onPick={(day) => handleAssign(tour, day)} />}
               />
             ))}
           </ul>

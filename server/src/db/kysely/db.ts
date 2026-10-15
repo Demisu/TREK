@@ -109,6 +109,7 @@ import type { ShareTokensTable } from './ShareTokens.table';
 import type { TagsTable } from './Tags.table';
 import type { TodoCategoryAssigneesTable } from './TodoCategoryAssignees.table';
 import type { TodoItemsTable } from './TodoItems.table';
+import type { TourSourcesTable } from './TourSources.table';
 import type { TourTypesTable } from './TourTypes.table';
 import type { TourWaypointsTable } from './TourWaypoints.table';
 import type { ToursTable } from './Tours.table';
@@ -136,6 +137,7 @@ import type { VacayUserYearsTable } from './VacayUserYears.table';
 import type { VacayYearsTable } from './VacayYears.table';
 import type { VisitedCountriesTable } from './VisitedCountries.table';
 import type { VisitedRegionsTable } from './VisitedRegions.table';
+import type { WandererConnectionsTable } from './WandererConnections.table';
 import type { WebauthnChallengesTable } from './WebauthnChallenges.table';
 import type { WebauthnCredentialsTable } from './WebauthnCredentials.table';
 
@@ -250,6 +252,7 @@ export interface DB {
   tags: TagsTable;
   todo_category_assignees: TodoCategoryAssigneesTable;
   todo_items: TodoItemsTable;
+  tour_sources: TourSourcesTable;
   tour_types: TourTypesTable;
   tour_waypoints: TourWaypointsTable;
   tours: ToursTable;
@@ -277,6 +280,7 @@ export interface DB {
   vacay_years: VacayYearsTable;
   visited_countries: VisitedCountriesTable;
   visited_regions: VisitedRegionsTable;
+  wanderer_connections: WandererConnectionsTable;
   webauthn_challenges: WebauthnChallengesTable;
   webauthn_credentials: WebauthnCredentialsTable;
 }

@@ -51,6 +51,7 @@ import { ShareTokens } from './ShareTokens.entity';
 import { Tags } from './Tags.entity';
 import { TodoCategoryAssignees } from './TodoCategoryAssignees.entity';
 import { TodoItems } from './TodoItems.entity';
+import { TourSources } from './TourSources.entity';
 import { TrekPhotos } from './TrekPhotos.entity';
 import { TripAlbumLinks } from './TripAlbumLinks.entity';
 import { TripDocumentLinks } from './TripDocumentLinks.entity';
@@ -70,6 +71,7 @@ import { VacayUserSettings } from './VacayUserSettings.entity';
 import { VacayUserYears } from './VacayUserYears.entity';
 import { VisitedCountries } from './VisitedCountries.entity';
 import { VisitedRegions } from './VisitedRegions.entity';
+import { WandererConnections } from './WandererConnections.entity';
 import { WebauthnChallenges } from './WebauthnChallenges.entity';
 import { WebauthnCredentials } from './WebauthnCredentials.entity';
 
@@ -174,6 +176,7 @@ export class Users {
   tags_collection = new Collection<Tags>(this);
   todo_category_assignees_collection = new Collection<TodoCategoryAssignees>(this);
   todo_items_collection = new Collection<TodoItems>(this);
+  tour_sources_collection = new Collection<TourSources>(this);
   trek_photos_collection = new Collection<TrekPhotos>(this);
   trip_album_links_collection = new Collection<TripAlbumLinks>(this);
   trip_document_links_collection = new Collection<TripDocumentLinks>(this);
@@ -195,6 +198,7 @@ export class Users {
   vacay_user_years_collection = new Collection<VacayUserYears>(this);
   visited_countries_collection = new Collection<VisitedCountries>(this);
   visited_regions_collection = new Collection<VisitedRegions>(this);
+  wanderer_connections: Ref<WandererConnections> | null = null;
   webauthn_challenges_collection = new Collection<WebauthnChallenges>(this);
   webauthn_credentials_collection = new Collection<WebauthnCredentials>(this);
 }
@@ -315,6 +319,7 @@ export const UsersSchema = defineEntity({
     tags_collection: () => p.oneToMany(Tags).mappedBy('user').hidden(),
     todo_category_assignees_collection: () => p.oneToMany(TodoCategoryAssignees).mappedBy('user').hidden(),
     todo_items_collection: () => p.oneToMany(TodoItems).mappedBy('assignedUser').hidden(),
+    tour_sources_collection: () => p.oneToMany(TourSources).mappedBy('importedByRef').hidden(),
     trek_photos_collection: () => p.oneToMany(TrekPhotos).mappedBy('owner').hidden(),
     trip_album_links_collection: () => p.oneToMany(TripAlbumLinks).mappedBy('user').hidden(),
     trip_document_links_collection: () => p.oneToMany(TripDocumentLinks).mappedBy('createdByRef').hidden(),
@@ -336,6 +341,7 @@ export const UsersSchema = defineEntity({
     vacay_user_years_collection: () => p.oneToMany(VacayUserYears).mappedBy('user').hidden(),
     visited_countries_collection: () => p.oneToMany(VisitedCountries).mappedBy('user').hidden(),
     visited_regions_collection: () => p.oneToMany(VisitedRegions).mappedBy('user').hidden(),
+    wanderer_connections: () => p.oneToOne(WandererConnections).ref().mappedBy('user').hidden(),
     webauthn_challenges_collection: () => p.oneToMany(WebauthnChallenges).mappedBy('user').hidden(),
     webauthn_credentials_collection: () => p.oneToMany(WebauthnCredentials).mappedBy('user').hidden(),
   },

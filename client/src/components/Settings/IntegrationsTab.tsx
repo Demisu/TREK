@@ -16,6 +16,7 @@ import { EditorField, INPUT, Segmented, TEXTAREA } from '../shared/dialogParts'
 import { SETTINGS_BUTTON, SETTINGS_BUTTON_PRIMARY, SETTINGS_ICON_BUTTON, SettingRows, SettingsHint, StatusPill } from './settingsKit'
 import { OAUTH_PRESETS, useMcpIntegration, type OAuthClient } from './useMcpIntegration'
 import { useIntegrationGates } from './useIntegrationGates'
+import WandererConnectionSection from './WandererConnectionSection'
 
 export default function IntegrationsTab(): React.ReactElement {
   const S = useIntegrations()
@@ -28,6 +29,7 @@ export default function IntegrationsTab(): React.ReactElement {
       {!managed && <PhotoProvidersSection />}
       {S.airtrailEnabled && !managed && <AirTrailConnectionSection />}
       {S.dawarichEnabled && !managed && <DawarichConnectionSection />}
+      {S.wandererEnabled && !managed && <WandererConnectionSection />}
       {/* Which model reads a booking, and what that costs, comes with the instance on
        a managed install. The per-user fallback exists for people who supply their
        own key, and there nobody does. */}
@@ -45,11 +47,14 @@ export default function IntegrationsTab(): React.ReactElement {
 function useIntegrations() {
   const { t, locale } = useTranslation()
   const toast = useToast()
-  const { mcpEnabled, airtrailEnabled, llmEnabled, dawarichEnabled, managed } = useIntegrationGates({ reloadAddons: true })
+  const { mcpEnabled, airtrailEnabled, llmEnabled, dawarichEnabled, wandererEnabled, managed } = useIntegrationGates({ reloadAddons: true })
 
   const mcp = useMcpIntegration({ enabled: mcpEnabled, reloadClientsAfterWrite: false })
 
-  return { t, locale, toast, mcpEnabled, airtrailEnabled, llmEnabled, dawarichEnabled, managed, ...mcp }
+  return { t, locale, toast, mcpEnabled, airtrailEnabled, llmEnabled, dawarichEnabled,
+    wandererEnabled,
+    managed, ...mcp,
+  }
 }
 
 type IntegrationsState = ReturnType<typeof useIntegrations>

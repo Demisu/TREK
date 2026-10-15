@@ -10,6 +10,7 @@ import { JwtAuthGuard } from '../auth-core/jwt-auth.guard';
 import { RegistrationInvitesService } from '../auth/registration-invites.service';
 import { KitineraryExtractorService } from '../booking-import/kitinerary-extractor.service';
 import { ManagedForbidden } from '../common/managed';
+import { ResponseContract } from '../common/response-contract';
 import { NotificationsService } from '../notifications/notifications.service';
 import { OauthService } from '../oauth/oauth.service';
 import { PluginRuntimeService } from '../plugins/plugin-runtime.service';
@@ -41,6 +42,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { adminFeatureToggleResponseSchema } from '@trek/shared';
 
 import type { Request } from 'express';
 
@@ -277,6 +279,25 @@ export class AdminController {
     await this.audit.writeAudit({
       userId: user.id,
       action: 'admin.bag_tracking',
+      ip: getClientIp(req),
+      details: { enabled: result.enabled },
+    });
+    return result;
+  }
+
+  @Get('tours-wanderer')
+  @ResponseContract(adminFeatureToggleResponseSchema)
+  getToursWanderer() {
+    return this.addons.getToursWanderer();
+  }
+
+  @Put('tours-wanderer')
+  @ResponseContract(adminFeatureToggleResponseSchema)
+  async updateToursWanderer(@CurrentUser() user: User, @Body() body: AdminFeatureToggleDto, @Req() req: Request) {
+    const result = await this.addons.updateToursWanderer(body.enabled);
+    await this.audit.writeAudit({
+      userId: user.id,
+      action: 'admin.tours_wanderer',
       ip: getClientIp(req),
       details: { enabled: result.enabled },
     });

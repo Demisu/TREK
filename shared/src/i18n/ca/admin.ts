@@ -260,6 +260,13 @@ const admin: TranslationStrings = {
   'admin.addons.toast.updated': 'Complement actualitzat',
   'admin.addons.toast.error': "No s'ha pogut actualitzar el complement",
   'admin.addons.group.count': '{enabled} de {total} actius',
+  'admin.addons.subOptions': '{count} opcions',
+  'admin.addons.subOptions.one': '{count} opció',
+  'admin.addons.subOptionsOn': '{count} actives',
+  'admin.addons.subOptionsOn.one': '{count} activa',
+  'admin.toursWanderer.title': 'wanderer',
+  'admin.toursWanderer.subtitle':
+    'Els usuaris poden connectar la seva pròpia instància de wanderer i importar-ne els senders com a excursions',
   'admin.addons.noAddons': 'No hi ha complements disponibles',
   'admin.weather.title': 'Dades meteorològiques',
   'admin.weather.badge': 'Des del 24 de març de 2026',

@@ -1,4 +1,3 @@
-// @vitest-environment jsdom
 import { act, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '../../../../tests/helpers/render'
@@ -70,6 +69,110 @@ describe('useTourPlanner', () => {
   })
 
   afterEach(() => vi.useRealTimers())
+
+  it('PR1-05B: a new tour planned from an import remembers it, and only a create sends that', async () => {
+    createTour.mockResolvedValue({ tour: { ...savedTour, place_id: 90 }, waypoints: [] })
+    const { result } = renderHook(() => useTourPlanner({ tripId: 7 }))
+    act(() => {
+      expect(
+        result.current.startDerivedTour({
+          name: 'Recorded ridge',
+          description: 'Above the lake',
+          website: null,
+          difficulty: 3,
+          points: [
+            { lat: 48, lng: 11 },
+            { lat: 48.005, lng: 11.01 },
+            { lat: 48.01, lng: 11.02 },
+          ],
+          sourcePlaceId: 14,
+          inPlace: false,
+        })
+      ).toBe(true)
+    })
+    expect(result.current.mode.type).toBe('new-draft')
+    expect(result.current.waypoints.map((point) => point.role)).toEqual(['start', 'via', 'end'])
+    expect(result.current.name).toBe('Recorded ridge')
+    expect(result.current.maxHikingDifficulty).toBe(3)
+    expect(result.current.derivedFromPlaceId).toBe(14)
+    // The draft keeps where it came from across a reload.
+    expect(JSON.parse(localStorage.getItem('tour-draft-7') ?? '{}').derivedFromPlaceId).toBe(14)
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(450)
+    })
+    await act(async () => {
+      await result.current.save()
+    })
+    expect(createTour).toHaveBeenCalledWith(
+      7,
+      expect.objectContaining({ derived_from_place_id: 14, name: 'Recorded ridge' })
+    )
+    expect(updateTour).not.toHaveBeenCalled()
+  })
+
+  it('PR1-05B: replacing an import edits that same tour, without claiming it was derived', async () => {
+    updateTour.mockResolvedValue({ tour: { ...savedTour, place_id: 14 }, waypoints: [] })
+    const { result } = renderHook(() => useTourPlanner({ tripId: 7 }))
+    act(() => {
+      result.current.startDerivedTour({
+        name: 'Recorded ridge',
+        difficulty: 1,
+        points: [
+          { lat: 48, lng: 11 },
+          { lat: 48.01, lng: 11.02 },
+        ],
+        sourcePlaceId: 14,
+        inPlace: true,
+      })
+    })
+    expect(result.current.mode).toMatchObject({ type: 'edit-saved', placeId: 14 })
+    expect(result.current.derivedFromPlaceId).toBeNull()
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(450)
+    })
+    await act(async () => {
+      await result.current.save()
+    })
+    expect(updateTour).toHaveBeenCalledWith(
+      7,
+      14,
+      expect.not.objectContaining({ derived_from_place_id: expect.anything() })
+    )
+    expect(createTour).not.toHaveBeenCalled()
+  })
+
+  it('PR1-05B: takes no import draft without the right to edit or with fewer than two points', () => {
+    const readOnly = renderHook(() => useTourPlanner({ tripId: 7, canEdit: false }))
+    act(() => {
+      expect(
+        readOnly.result.current.startDerivedTour({
+          name: 'x',
+          difficulty: 2,
+          points: [
+            { lat: 48, lng: 11 },
+            { lat: 48.01, lng: 11 },
+          ],
+          sourcePlaceId: 1,
+          inPlace: false,
+        })
+      ).toBe(false)
+    })
+    const { result } = renderHook(() => useTourPlanner({ tripId: 7 }))
+    act(() => {
+      expect(
+        result.current.startDerivedTour({
+          name: 'x',
+          difficulty: 2,
+          points: [{ lat: 48, lng: 11 }],
+          sourcePlaceId: 1,
+          inPlace: false,
+        })
+      ).toBe(false)
+    })
+    expect(result.current.waypoints).toHaveLength(0)
+  })
 
   it('TOUR-PLANNER-001: normalizes roles and stores settled waypoint undo/redo snapshots', () => {
     const { result } = renderHook(() => useTourPlanner({ tripId: 7 }))

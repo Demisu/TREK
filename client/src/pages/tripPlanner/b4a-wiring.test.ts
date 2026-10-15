@@ -14,6 +14,8 @@ const pageControllerPath = 'client/src/pages/tripPlanner/useTripPlannerPage.ts'
 const pageText = readFileSync(resolve(process.cwd(), 'src/pages/TripPlannerPage.tsx'), 'utf8')
 const hookText = readFileSync(resolve(process.cwd(), 'src/pages/tripPlanner/useTripPlanner.ts'), 'utf8')
 const pageControllerText = readFileSync(resolve(process.cwd(), 'src/pages/tripPlanner/useTripPlannerPage.ts'), 'utf8')
+// The tours workspace (editor, GPX import, wanderer) is wired in its own hook the page hook calls.
+const workspaceText = readFileSync(resolve(process.cwd(), 'src/pages/tripPlanner/useTourWorkspace.ts'), 'utf8')
 // The Tours map and its edit gates live in the map stage the page renders.
 const mapStageText = readFileSync(resolve(process.cwd(), 'src/pages/tripPlanner/TourPlannerMapStage.tsx'), 'utf8')
 // Which clicks place a point is decided by the map stage's points hook.
@@ -22,6 +24,7 @@ const parse = (file: string, text: string) => ts.createSourceFile(file, text, ts
 const page = parse(pagePath, pageText)
 const hook = parse(hookPath, hookText)
 const pageController = parse(pageControllerPath, pageControllerText)
+const workspace = parse('client/src/pages/tripPlanner/useTourWorkspace.ts', workspaceText)
 const mapStage = parse('client/src/pages/tripPlanner/TourPlannerMapStage.tsx', mapStageText)
 
 function collect(source: ts.Node, predicate: (node: ts.Node) => boolean): ts.Node[] {
@@ -127,7 +130,8 @@ test('B4A desktop page delegates Tours state and permissions to its page hook', 
     && ts.isIdentifier(node.expression) && node.expression.text === 'useTripPlannerPage')[0]
   assert.ok(pageHookCall)
 
-  assert.ok(callNamed(pageController, 'useTourPlanner'))
+  assert.ok(callNamed(pageController, 'useTourWorkspace'))
+  assert.ok(callNamed(workspace, 'useTourPlanner'))
   const mobileFiles = mobileSourceFiles(resolve(process.cwd(), 'src/mobile'))
   for (const file of mobileFiles) {
     const mobileSource = parse(file, readFileSync(file, 'utf8'))
@@ -153,11 +157,17 @@ test('B4A desktop page delegates Tours state and permissions to its page hook', 
   assert.ok(ts.isCallExpression(permissions) && ts.isIdentifier(permissions.expression)
     && permissions.expression.text === 'can')
 
-  const tourPlannerCall = callNamed(pageController, 'useTourPlanner')
+  // The page hook hands both rights to the tours workspace, which hands them to the planner.
+  const workspaceCall = callNamed(pageController, 'useTourWorkspace')
+  assert.deepEqual(
+    workspaceCall?.arguments.map((argument) => argument.getText(pageController)),
+    ['planner', 'canPlaceEdit', 'canDayEdit']
+  )
+  const tourPlannerCall = callNamed(workspace, 'useTourPlanner')
   assert.ok(tourPlannerCall && ts.isObjectLiteralExpression(tourPlannerCall.arguments[0]))
   const tourPlannerOptions = tourPlannerCall.arguments[0]
-  assert.equal(propertyValue(tourPlannerOptions, 'canEdit')?.getText(pageController), 'canPlaceEdit')
-  assert.equal(propertyValue(tourPlannerOptions, 'canAssign')?.getText(pageController), 'canDayEdit')
+  assert.equal(propertyValue(tourPlannerOptions, 'canEdit')?.getText(workspace), 'canPlaceEdit')
+  assert.equal(propertyValue(tourPlannerOptions, 'canAssign')?.getText(workspace), 'canDayEdit')
 
   const returnedViewModel = collect(pageController, node => ts.isReturnStatement(node)
     && !!node.expression && ts.isObjectLiteralExpression(node.expression))
@@ -170,7 +180,7 @@ test('B4A desktop page delegates Tours state and permissions to its page hook', 
   assert.ok(returnedPermissions.properties.some(property => ts.isShorthandPropertyAssignment(property)
     && property.name.text === 'canDayEdit'))
 
-  for (const name of ['TourPlannerRail', 'TourPlannerToursRail', 'ToursSidebar', 'TourDetailDialog']) {
+  for (const name of ['TourWorkspaceRail', 'TourPlannerToursRail', 'ToursSidebar', 'TourDetailDialog']) {
     const tags = jsxTags(page, name)
     assert.equal(tags.length, name === 'TourDetailDialog' ? 2 : 1)
     for (const tag of tags) {
@@ -197,14 +207,16 @@ test('B4A desktop page delegates Tours state and permissions to its page hook', 
 })
 
 test('B4A dedicated desktop controller retains GPX, draft, focus, and saved rail wiring', () => {
-  assert.ok(callNamed(pageController, 'useTourPlanner'))
+  assert.ok(callNamed(pageController, 'useTourWorkspace'))
+  assert.ok(callNamed(workspace, 'useTourPlanner'))
   assert.ok(pageText.includes('const pageState = useTripPlannerPage()'))
   assert.ok(pageControllerText.includes("tourPlanner.mode.type === 'view-gpx'"))
   for (const mode of ['new-draft', 'edit-saved']) assert.ok(mapPointsText.includes(`tourPlanner.mode.type === '${mode}'`))
   assert.match(pageControllerText, /readOnlyGpxAnalysis\?\.routeCoordinates/)
   assert.match(mapStageText, /routeProfileFocus=\{tourPlanner\.routeProfileFocus\}/)
-  assert.match(pageText, /tourPlanner\.viewGpxTour\(tour, place\?\.route_geometry \?\? null\)/)
-  assert.match(pageControllerText, /onSaved:[\s\S]*?upsertTour\(result\.tour\)/)
+  assert.match(workspaceText, /viewGpxTour\(tour, place\?\.route_geometry \?\? null\)/)
+  assert.match(pageText, /onViewGpxTour=\{viewImportedTour\}/)
+  assert.match(workspaceText, /onSaved:[\s\S]*?upsertTour\(result\.tour\)/)
   assert.doesNotMatch(pageText, /setSelectedPlaceId\(result\.tour/)
 })
 

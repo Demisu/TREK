@@ -66,4 +66,51 @@ describe('reverse geocoded place names', () => {
     resolvers[2]({ name: 'Three', address: null });
     await expect(Promise.all(names)).resolves.toEqual(['One', 'Two', 'Three']);
   });
+  it('FE-REVERSE-GEOCODE-007: an answered name outlives a reload and is not asked for again', async () => {
+    await reverseGeocodeRepo.placeName(47.42, 11.01, 'de');
+    vi.resetModules();
+    const reloaded = (await import('./reverseGeocodeRepo')).reverseGeocodeRepo;
+    const network = (await import('../api/client')).mapsApi;
+    vi.mocked(network.reverse).mockClear();
+
+    await expect(reloaded.placeName(47.42, 11.01, 'de')).resolves.toBe('Zugspitze');
+    expect(reloaded.knownName(47.42, 11.01, 'de')).toBe('Zugspitze');
+    expect(network.reverse).not.toHaveBeenCalled();
+  });
+
+  it('FE-REVERSE-GEOCODE-008: a name answered before is there offline too', async () => {
+    await reverseGeocodeRepo.placeName(47.43, 11.02, 'de');
+    vi.mocked(isEffectivelyOffline).mockReturnValue(true);
+    await expect(reverseGeocodeRepo.placeName(47.43, 11.02, 'de')).resolves.toBe('Zugspitze');
+  });
+
+  it('FE-REVERSE-GEOCODE-009: knows a name only once it was answered, and per language', async () => {
+    expect(reverseGeocodeRepo.knownName(47.44, 11.03, 'de')).toBeUndefined();
+    await reverseGeocodeRepo.placeName(47.44, 11.03, 'de');
+    expect(reverseGeocodeRepo.knownName(47.44, 11.03, 'de')).toBe('Zugspitze');
+    expect(reverseGeocodeRepo.knownName(47.44, 11.03, 'en')).toBeUndefined();
+  });
+
+  it('FE-REVERSE-GEOCODE-010: keeps no answer without a name, so it is asked again later', async () => {
+    vi.mocked(mapsApi.reverse).mockResolvedValueOnce({ name: null, address: null });
+    await expect(reverseGeocodeRepo.placeName(47.45, 11.04, 'de')).resolves.toBeNull();
+    expect(reverseGeocodeRepo.knownName(47.45, 11.04, 'de')).toBeUndefined();
+  });
+
+  it('FE-REVERSE-GEOCODE-011: drops the oldest kept name past the limit and survives broken storage', async () => {
+    const seeded = Array.from({ length: 2000 }, (_, n) => [`${n},0|de`, `Place ${n}`]);
+    localStorage.setItem('trek-place-names-v1', JSON.stringify(seeded));
+    vi.resetModules();
+    const reloaded = (await import('./reverseGeocodeRepo')).reverseGeocodeRepo;
+    await reloaded.placeName(47.46, 11.05, 'de');
+    const kept = JSON.parse(localStorage.getItem('trek-place-names-v1') ?? '[]') as [string, string][];
+    expect(kept).toHaveLength(2000);
+    expect(kept[0][0]).toBe('1,0|de');
+    expect(kept[kept.length - 1]).toEqual(['47.46000,11.05000|de', 'Zugspitze']);
+
+    localStorage.setItem('trek-place-names-v1', '{broken');
+    vi.resetModules();
+    const fresh = (await import('./reverseGeocodeRepo')).reverseGeocodeRepo;
+    expect(fresh.knownName(47.46, 11.05, 'de')).toBeUndefined();
+  });
 });

@@ -1028,7 +1028,6 @@
   "src/components/Todo/useTodoList.ts",
   "src/components/Tours/PlacesToursModeSwitch.tsx",
   "src/components/Tours/TourDetailDialog.test.tsx",
-  "src/components/Tours/TourDetailDialog.tsx",
   "src/components/Tours/TourListRow.tsx",
   "src/components/Tours/ToursSidebar.test.tsx",
   "src/components/Tours/ToursSidebar.tsx",

@@ -1,7 +1,7 @@
 import { useId, type ComponentType } from 'react'
 import { useTranslation } from '../../i18n'
 import { useIsDark } from '../../hooks/useIsDark'
-import { Puzzle, ListChecks, Wallet, FileText, CalendarDays, Globe, Briefcase, Image, Terminal, Link2, Compass, BookOpen, Sparkles, Luggage, Plane, Server, Cloud, Bookmark, Users, Loader2, RefreshCw } from 'lucide-react'
+import { Puzzle, ListChecks, Wallet, FileText, CalendarDays, Globe, Briefcase, Image, Terminal, Link2, Compass, BookOpen, Sparkles, Luggage, Plane, Server, Cloud, Bookmark, Users, Loader2, RefreshCw, Mountain, CarFront } from 'lucide-react'
 import CustomSelect from '../shared/CustomSelect'
 import { asLlmVision, LLM_VISION_MODES, type LlmVision } from '@trek/shared'
 import EmptyState from '../shared/EmptyState'
@@ -18,12 +18,16 @@ import { type Addon, type CollabFeatures, ANTHROPIC_HINT, COLLAB_SUB_FEATURES, g
 import { useAddonManager } from './addons/useAddonManager'
 import { useLlmParsingConfig } from './addons/useLlmParsingConfig'
 import { ImmichIcon, SynologyIcon } from './addons/PhotoProviderIcons'
+import WandererMark from '../Tours/wanderer/WandererMark'
 
 // Keys are the `icon` column from the addons table (see server seeds.ts); anything
 // unknown falls back to Puzzle. Users/Sparkles cover collab and llm_parsing, which
 // used to land on the fallback.
 const ICON_MAP = {
   ListChecks, Wallet, FileText, CalendarDays, Puzzle, Globe, Briefcase, Image, Terminal, Link2, Compass, BookOpen, Plane, Bookmark, Users, Sparkles,
+  Mountain,
+  // Road trip was seeded as 'Route'; the car says what it is better than a line does.
+  Route: CarFront,
   // Dawarich ships a brand mark rather than a lucide name, the same way the photo
   // providers below do. Keyed by the string in the addons table.
   Dawarich: DawarichIcon,
@@ -71,6 +75,8 @@ export default function AddonManager({ bagTrackingEnabled, onToggleBagTracking, 
   const dark = useIsDark()
   const {
     addons, loading, handleToggle, tripAddons, globalAddons, integrationAddons, providerOptions, documentProviderOptions,
+    toursWanderer,
+    toggleToursWanderer,
   } = useAddonManager()
 
   if (loading) {
@@ -146,6 +152,17 @@ export default function AddonManager({ bagTrackingEnabled, onToggleBagTracking, 
           />
         )
       })
+    }
+    if (addon.id === 'tours' && addon.enabled) {
+      return (
+        <AddonSubRow
+          icon={<WandererMark size={14} />}
+          title={t('admin.toursWanderer.title')}
+          description={t('admin.toursWanderer.subtitle')}
+          enabled={toursWanderer}
+          onToggle={() => void toggleToursWanderer()}
+        />
+      )
     }
     // The AI-parsing settings hang off their tile like every other sub-feature,
     // just as a form instead of toggle rows.

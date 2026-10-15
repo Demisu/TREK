@@ -103,6 +103,7 @@ import { ShareTokensSchema } from './ShareTokens.entity';
 import { TagsSchema } from './Tags.entity';
 import { TodoCategoryAssigneesSchema } from './TodoCategoryAssignees.entity';
 import { TodoItemsSchema } from './TodoItems.entity';
+import { TourSourcesSchema } from './TourSources.entity';
 import { TourTypesSchema } from './TourTypes.entity';
 import { TourWaypointsSchema } from './TourWaypoints.entity';
 import { ToursSchema } from './Tours.entity';
@@ -130,6 +131,7 @@ import { VacayUserYearsSchema } from './VacayUserYears.entity';
 import { VacayYearsSchema } from './VacayYears.entity';
 import { VisitedCountriesSchema } from './VisitedCountries.entity';
 import { VisitedRegionsSchema } from './VisitedRegions.entity';
+import { WandererConnectionsSchema } from './WandererConnections.entity';
 import { WebauthnChallengesSchema } from './WebauthnChallenges.entity';
 import { WebauthnCredentialsSchema } from './WebauthnCredentials.entity';
 
@@ -238,6 +240,7 @@ export const ALL_ENTITIES: readonly EntitySchema[] = [
   TagsSchema,
   TodoCategoryAssigneesSchema,
   TodoItemsSchema,
+  TourSourcesSchema,
   TourTypesSchema,
   TourWaypointsSchema,
   ToursSchema,
@@ -265,6 +268,7 @@ export const ALL_ENTITIES: readonly EntitySchema[] = [
   VacayYearsSchema,
   VisitedCountriesSchema,
   VisitedRegionsSchema,
+  WandererConnectionsSchema,
   WebauthnChallengesSchema,
   WebauthnCredentialsSchema,
 ];

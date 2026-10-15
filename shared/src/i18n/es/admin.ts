@@ -642,6 +642,13 @@ const admin: TranslationStrings = {
   'admin.addons.toast.updated': 'Complemento actualizado',
   'admin.addons.toast.error': 'No se pudo actualizar el complemento',
   'admin.addons.group.count': '{enabled} de {total} activados',
+  'admin.addons.subOptions': '{count} opciones',
+  'admin.addons.subOptions.one': '{count} opción',
+  'admin.addons.subOptionsOn': '{count} activas',
+  'admin.addons.subOptionsOn.one': '{count} activa',
+  'admin.toursWanderer.title': 'wanderer',
+  'admin.toursWanderer.subtitle':
+    'Los usuarios pueden conectar su propia instancia de wanderer e importar sus senderos como excursiones',
   'admin.addons.noAddons': 'No hay complementos disponibles',
   'admin.weather.title': 'Datos meteorológicos',
   'admin.weather.badge': 'Desde el 24 de marzo de 2026',

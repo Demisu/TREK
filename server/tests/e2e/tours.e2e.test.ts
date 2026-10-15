@@ -502,6 +502,127 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
     });
   });
 
+  describe('planning over an import (PR1-05)', () => {
+    /** An imported GPX tour on trip 5: no waypoints, the recorded line as it came. */
+    const importedTour = async (tripId = 5) => {
+      const res = await importGpx(OWNER, TRACK_GPX, tripId);
+      expect(res.status).toBe(201);
+      return res.body.tours[0].place_id as number;
+    };
+    const listed = async (placeId: number, tripId = 5) =>
+      (await request(server).get(`/api/trips/${tripId}/tours`).set('Cookie', sessionCookie(OWNER))).body.tours.find(
+        (tour: { place_id: number }) => tour.place_id === placeId,
+      );
+    const restore = (placeId: number, userId = OWNER, tripId = 5) =>
+      request(server)
+        .post(`/api/trips/${tripId}/tours/${placeId}/restore-recorded`)
+        .set('Cookie', sessionCookie(userId));
+
+    it('a new tour planned from an import remembers it; the import stays as it was', async () => {
+      const source = await importedTour();
+      const recorded = (await placeColumns(source, 'route_geometry')).route_geometry;
+      const derived = await createViaApi(5, tourBody({ derived_from_place_id: source }));
+
+      expect(await listed(derived)).toMatchObject({ derived_from_place_id: source, has_waypoints: true });
+      expect(await listed(source)).toMatchObject({
+        derived_from_place_id: null,
+        has_waypoints: false,
+        has_recorded_track: false,
+      });
+      expect((await placeColumns(source, 'route_geometry')).route_geometry).toBe(recorded);
+
+      // Deleting the import keeps the derived tour and forgets where it came from.
+      await request(server).delete(`/api/trips/5/places/${source}`).set('Cookie', sessionCookie(OWNER));
+      expect(await listed(derived)).toMatchObject({ derived_from_place_id: null });
+    });
+
+    it('400 for an origin that is a planned tour, a tour of another trip or no tour at all', async () => {
+      const planned = await createViaApi();
+      const foreign = await importedTour(6);
+      const plain = await plainPlace(5, 'Cafe');
+      // One request per origin at once; each answers on its own.
+      const answers = await Promise.all(
+        [planned, foreign, plain, 999_999].map((id) =>
+          request(server)
+            .post('/api/trips/5/tours')
+            .set('Cookie', sessionCookie(OWNER))
+            .send(tourBody({ derived_from_place_id: id })),
+        ),
+      );
+      expect(answers.map((res) => res.status)).toEqual([400, 400, 400, 400]);
+      expect(await countRows(orm, Tours, { place: { $nin: [planned, foreign] } })).toBe(0);
+    });
+
+    it('planning an import over in place keeps its recorded track, and restoring brings it back', async () => {
+      const placeId = await importedTour();
+      const recorded = (await placeColumns(placeId, 'route_geometry')).route_geometry;
+      const before = await listed(placeId);
+
+      const put = await request(server)
+        .put(`/api/trips/5/tours/${placeId}`)
+        .set('Cookie', sessionCookie(OWNER))
+        .send(tourBody());
+      expect(put.status).toBe(200);
+      expect(await listed(placeId)).toMatchObject({ has_waypoints: true, has_recorded_track: true });
+      // A second edit does not overwrite the track kept the first time.
+      await request(server)
+        .put(`/api/trips/5/tours/${placeId}`)
+        .set('Cookie', sessionCookie(OWNER))
+        .send(tourBody({ name: 'Edited again' }));
+
+      broadcast.mockClear();
+      const res = await restore(placeId);
+      expect(res.status).toBe(200);
+      // An import's detail names its two ends from the line, as before it was planned over.
+      expect(res.body.waypoints.map((point: { role: string }) => point.role)).toEqual(['start', 'end']);
+      expect(res.body.tour).toMatchObject({
+        place_id: placeId,
+        has_waypoints: false,
+        has_recorded_track: false,
+        distance: before.distance,
+        elevation_gain: before.elevation_gain,
+        elevation_loss: before.elevation_loss,
+        max_hiking_difficulty: null,
+      });
+      expect((await placeColumns(placeId, 'route_geometry')).route_geometry).toBe(recorded);
+      expect(await countRows(orm, TourWaypoints, { place: placeId })).toBe(0);
+      expect(broadcast.mock.calls.map((c) => c[1])).toEqual(expect.arrayContaining(['tours:changed', 'place:updated']));
+    });
+
+    it('409 restoring a tour that keeps no recorded track; 403 without place_edit; 404 for another trip', async () => {
+      const planned = await createViaApi();
+      await request(server)
+        .put(`/api/trips/5/tours/${planned}`)
+        .set('Cookie', sessionCookie(OWNER))
+        .send(tourBody({ name: 'Edited' }));
+      const none = await restore(planned);
+      expect(none.status).toBe(409);
+      expect(none.body).toMatchObject({ code: 'no_recorded_track' });
+
+      const replaced = await importedTour();
+      await request(server).put(`/api/trips/5/tours/${replaced}`).set('Cookie', sessionCookie(OWNER)).send(tourBody());
+      expect((await restore(replaced, VIEWER)).status).toBe(403);
+      expect((await restore(replaced, OWNER, 6)).status).toBe(404);
+      expect(await listed(replaced)).toMatchObject({ has_recorded_track: true });
+    });
+
+    it('copying the trip points a derived tour at the copied import, never back into the source', async () => {
+      const source = await importedTour();
+      await createViaApi(5, tourBody({ name: 'Planned from import', derived_from_place_id: source }));
+      const res = await request(server)
+        .post('/api/trips/5/copy')
+        .set('Cookie', sessionCookie(OWNER))
+        .send({ title: 'Copy' });
+      const copyId = res.body.trip.id as number;
+      const tours = (await request(server).get(`/api/trips/${copyId}/tours`).set('Cookie', sessionCookie(OWNER))).body
+        .tours;
+      const copiedImport = tours.find((tour: { name: string }) => tour.name === 'Alpine loop');
+      const copiedDerived = tours.find((tour: { name: string }) => tour.name === 'Planned from import');
+      expect(copiedDerived.derived_from_place_id).toBe(copiedImport.place_id);
+      expect(copiedDerived.derived_from_place_id).not.toBe(source);
+    });
+  });
+
   describe('other domains', () => {
     it('409 moving a tour onto a day that already holds it, on create and on move', async () => {
       const placeId = await createViaApi();

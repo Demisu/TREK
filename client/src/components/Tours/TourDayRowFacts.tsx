@@ -4,6 +4,8 @@ import { createElement, useId, useState } from 'react';
 import { useTranslation } from '../../i18n';
 import { useSettingsStore } from '../../store/settingsStore';
 import { formatDistance, formatElevation } from '../../utils/units';
+import { WhiteBadge } from '../Planner/planParts';
+import { fs } from '../shared/DialogShell';
 import { Tooltip } from '../shared/Tooltip';
 import { tourDayRowIcon } from './tourDayRowIcon';
 import { formatPlannedTourDuration, tourPlannedTimes } from './tourPresentation';
@@ -70,6 +72,121 @@ function Fact({
         {label}
       </span>
     </span>
+  );
+}
+
+/**
+ * A tour's tile in the day plan and in its detail: the T-scale grade in a round
+ * tile, the same tile the tour lists use, so a tour reads alike wherever it
+ * shows. A GPX import has no grade and shows its type's icon instead.
+ */
+export function TourDayRowAvatar({
+  tour,
+  size = 32,
+}: {
+  tour: Pick<TourListItem, 'tour_type' | 'max_hiking_difficulty'>;
+  size?: number;
+}) {
+  const { t } = useTranslation();
+  const level = tour.max_hiking_difficulty;
+  const known = ['hike', 'bike', 'walk', 'kayak'].includes(tour.tour_type);
+  const label =
+    level != null
+      ? t(`tours.planner.difficulty.t${level}`)
+      : known
+        ? t(`tourTypes.${tour.tour_type}`)
+        : t('tours.mode.tours');
+  return (
+    <span
+      data-testid="plan-tour-icon"
+      role="img"
+      aria-label={label}
+      className="grid flex-none place-items-center rounded-full bg-edge font-geist font-semibold tabular-nums text-content"
+      style={{ width: size, height: size, ...fs(size >= 44 ? 17 : 12, 'body') }}
+    >
+      {level != null
+        ? `T${level}`
+        : createElement(tourDayRowIcon(tour.tour_type), {
+            size: Math.round(size * 0.46),
+            strokeWidth: 1.9,
+            className: 'text-content-secondary',
+            'aria-hidden': 'true',
+          })}
+    </span>
+  );
+}
+
+/** One fact of a tour as the white badge a place's time sits in, named by its tooltip. */
+function TourDayRowPill({
+  icon: Icon,
+  value,
+  label,
+  testId,
+}: {
+  icon: LucideIcon;
+  value: string;
+  label: string;
+  testId: string;
+}) {
+  return (
+    <Tooltip label={label}>
+      <span data-testid={testId} aria-label={label} className="inline-flex">
+        <WhiteBadge icon={<Icon size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
+          {value}
+        </WhiteBadge>
+      </span>
+    </Tooltip>
+  );
+}
+
+/**
+ * A tour's facts on its day-plan row, in the badges every other stop uses: the
+ * time it takes (the planned total where there is one, otherwise the walking
+ * time, the parts in the tooltip), how far and how much climbing.
+ */
+export function TourDayRowPills({ tour }: { tour: TourListItem }) {
+  const { t } = useTranslation();
+  const unit = useSettingsStore((state) => state.settings.distance_unit) || 'metric';
+  const times = tourPlannedTimes(tour);
+  const shownMinutes = times.plannedTotalMinutes ?? times.walkingMinutes;
+  const timeParts = [
+    times.walkingMinutes != null
+      ? `${t('tours.planner.inspector.duration')}: ${formatPlannedTourDuration(times.walkingMinutes)}`
+      : null,
+    times.breakMinutes
+      ? `${t('tours.planner.breaksAdditional')}: ${formatPlannedTourDuration(times.breakMinutes)}`
+      : null,
+    times.plannedTotalMinutes != null
+      ? `${t('tours.planner.plannedTotalDuration')}: ${formatPlannedTourDuration(times.plannedTotalMinutes)}${times.manuallyOverridden ? ` (${t('tours.planner.plannedTotalManual')})` : ''}`
+      : null,
+  ].filter((part): part is string => part !== null);
+  return (
+    <>
+      {shownMinutes != null && (
+        <TourDayRowPill
+          icon={Clock}
+          value={formatPlannedTourDuration(shownMinutes)}
+          label={timeParts.join(', ')}
+          testId="trip-plan-tour-time"
+        />
+      )}
+      {tour.distance != null && (
+        <TourDayRowPill
+          icon={Ruler}
+          value={formatDistance(tour.distance, unit)}
+          label={`${t('tours.detail.distance')}: ${formatDistance(tour.distance, unit)}`}
+          testId="plan-tour-distance"
+        />
+      )}
+      {tour.elevation_gain != null && (
+        <TourDayRowPill
+          icon={ArrowUp}
+          value={formatElevation(tour.elevation_gain, unit)}
+          label={`${t('tours.detail.ascent')}: ${formatElevation(tour.elevation_gain, unit)}`}
+          testId="plan-tour-ascent"
+        />
+      )}
+    </>
   );
 }
 

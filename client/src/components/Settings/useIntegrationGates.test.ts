@@ -52,4 +52,11 @@ describe('useIntegrationGates', () => {
     renderHook(() => useIntegrationGates({ reloadAddons: true }));
     expect(loud).toHaveBeenCalledTimes(1);
   });
+  it('RS-03: offers the wanderer connection only while the admin allows wanderer under Tours', () => {
+    seedAddons(['tours']);
+    useAddonStore.setState({ toursWanderer: false });
+    expect(renderHook(() => useIntegrationGates({ reloadAddons: false })).result.current.wandererEnabled).toBe(false);
+    useAddonStore.setState({ toursWanderer: true });
+    expect(renderHook(() => useIntegrationGates({ reloadAddons: false })).result.current.wandererEnabled).toBe(true);
+  });
 });

@@ -26,6 +26,9 @@ interface DayPlanEditsOptions
   updateRouteForDay: ReturnType<typeof useRouteCalculation>['updateRouteForDay']
 }
 
+/** The day's number in the trip, as the plan shows it. */
+const dayNumberOf = (dayId: number) => useTripStore.getState().days.findIndex(day => day.id === dayId) + 1
+
 /**
  * Edits to the day plan, each with its undo where one makes sense: putting a place on
  * a day, moving a stop to another day, taking one off, reordering a day, renaming a
@@ -42,7 +45,8 @@ export function useDayPlanEdits(options: DayPlanEditsOptions) {
   const handleAssignToDay = useCallback(async (placeId: number, dayId?: number, position?: number) => {
     const target = dayId || selectedDayId
     if (!target) { toast.error(t('trip.toast.selectDay')); return false }
-    if (isTourPlace(placeId) && (storedAssignments[String(target)] ?? []).some(assignment => assignment.place_id === placeId)) return false
+    // A tour is on a day at most once; a drop onto such a day still gets here, and says why nothing happens.
+    if (isTourPlace(placeId) && (storedAssignments[String(target)] ?? []).some(a => a.place_id === placeId)) { toast.info(t('tours.alreadyOnDay')); return false }
     const place = places.find(p => p.id === placeId)
     // A place with a start of its own is drawn by it, so it is stored there too, the
     // way a stop moved over from another day is. Without one it goes where it was put.
@@ -56,7 +60,7 @@ export function useDayPlanEdits(options: DayPlanEditsOptions) {
       return false
     }
     if (isTourPlace(placeId)) await reloadTourPlaceIds()
-    toast.success(t('trip.toast.assignedToDay'))
+    toast.success(isTourPlace(placeId) ? t('tours.addedToDay', { n: dayNumberOf(target) }) : t('trip.toast.assignedToDay'))
     if (assignment?.id) {
       const capturedAssignmentId = assignment.id
       const capturedTarget = target

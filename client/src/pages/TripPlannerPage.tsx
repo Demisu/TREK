@@ -1,9 +1,7 @@
 import React, { useState, Suspense } from 'react'
 import { createPortal } from 'react-dom'
-import { useParams, useNavigate, useSearchParams } from 'react-router'
 import { useSettingsStore } from '../store/settingsStore'
 import type { CompassMap } from '../components/Map/MapCompassPill'
-import { getCached, fetchPhoto } from '../services/photoService'
 import DayPlanSidebar from '../components/Planner/DayPlanSidebar'
 import RoadtripModeSwitch from '../components/Roadtrip/RoadtripModeSwitch'
 import PlacesToursModeSwitch from '../components/Tours/PlacesToursModeSwitch'
@@ -22,7 +20,6 @@ import TransitJourneyModal from '../components/Planner/TransitJourneyModal'
 import { BookingDetailPopup } from '../components/Planner/bookings/BookingDetailHost'
 import BookingImportModal from '../components/Planner/BookingImportModal'
 import AirTrailImportModal from '../components/Planner/AirTrailImportModal'
-// MemoriesPanel moved to Journey addon
 import PluginFrame from '../components/Plugins/PluginFrame'
 import ErrorBoundary from '../components/shared/ErrorBoundary'
 import { getDayBookendHotels } from '../utils/dayOrder'
@@ -31,17 +28,10 @@ import TripWarningsBanner from '../components/Planner/TripWarningsBanner'
 import Navbar from '../components/Layout/Navbar'
 import HelpAnchor from '../components/Help/HelpAnchor'
 import { getHelpContext } from '../help/registry'
-import { useToast } from '../components/shared/Toast'
-import { Map, X, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, Ticket, Wallet, FolderOpen, Users, Train } from 'lucide-react'
-import { addonsApi, accommodationsApi, authApi, tripsApi, mapsApi } from '../api/client'
-import { accommodationRepo } from '../repo/accommodationRepo'
+import { X, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen } from 'lucide-react'
 import ConfirmDialog from '../components/shared/ConfirmDialog'
 import { Tooltip } from '../components/shared/Tooltip'
-import { useTripWebSocket } from '../hooks/useTripWebSocket'
-import { useRouteCalculation } from '../hooks/useRouteCalculation'
-import { usePlaceSelection } from '../hooks/usePlaceSelection'
-import { usePlannerHistory } from '../hooks/usePlannerHistory'
-import type { Accommodation, TripMember, Day, Place, Reservation } from '../types'
+import type { Place, Reservation } from '../types'
 import { useTripPlannerPage } from './tripPlanner/useTripPlannerPage'
 import { useBookingExpenseEditor } from './tripPlanner/useBookingExpenseEditor'
 import { applyTripCoverUpdate } from './tripPlanner/tripCover'
@@ -49,7 +39,7 @@ import { latestReservation } from './tripPlanner/transportEditorOpeners'
 import {
   ReservationsPanel, FileManager, CostsPanel, ExpenseModal, CollabPanel,
   RoadtripSidebar, RoadtripCorridorPanel, RoadtripLimitsCard, RoadtripStopPopup, RoadtripStayModal, RoadtripTrackModal,
-  TourPlannerRail, TourPlannerToursRail, TransportModal,
+  TourWorkspaceRail, TourPlannerToursRail, TransportModal,
 } from './tripPlanner/plannerLazy'
 import { LazyPanel } from './tripPlanner/LazyPanel'
 import { ListsContainer } from './tripPlanner/ListsContainer'
@@ -58,6 +48,7 @@ import { TourPlannerMapStage } from './tripPlanner/TourPlannerMapStage'
 import { useMergedMapPois } from '../components/Map/useMergedMapPois'
 import { useTouchDragBridge } from '../hooks/useTouchDragBridge'
 import PanelResizeHandle from '../components/Planner/PanelResizeHandle'
+import TourGpxDropZone from '../components/Tours/TourGpxDropZone'
 
 /** The tab ids are historical; the help screens carry the names the tabs show. */
 const TRIP_TAB_HELP: Record<string, string> = {
@@ -143,6 +134,11 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
     poi,
     placeActions,
     tourPlanner,
+    tourGpxImport,
+    wandererBrowser,
+    viewImportedTour,
+    tourConversion,
+    recordedTrack,
     permissions: { canPlaceEdit, canDayEdit },
     tourDetails,
     tourMap,
@@ -637,11 +633,12 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
         )}
 
         {activeTab === 'tour-planner' && enabledAddons.tours && !isMobile && (
-          <div style={{ position: 'absolute', inset: 0 }}>
+          <TourGpxDropZone gpxImport={tourGpxImport} canEdit={canPlaceEdit} className="absolute inset-0">
             <TourPlannerMapStage
               tripId={tripId} mapTileUrl={mapTileUrl} leftHidden={leftHidden} rightHidden={rightHidden} t={t}
               tourPlanner={tourPlanner} tourMap={tourMap} locationSearch={locationSearch} canPlaceEdit={canPlaceEdit}
               leftPanelPx={leftPanelPx} rightPanelPx={rightPanelPx}
+              onViewportChange={wandererBrowser.onViewportChange}
             />
             <div className="hidden md:block" style={{ position: 'absolute', left: 10, top: 10, bottom: 10, zIndex: 20 }}>
               <PanelTab hidden={leftHidden} label={leftHidden ? t('trip.mobilePlan') : t('common.collapse')} onToggle={toggleLeft} />
@@ -653,7 +650,11 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
                 transition: 'width 0.25s ease', opacity: leftHidden ? 0 : 1,
               }}>
                 {!leftHidden && <PanelResizeHandle side="left" width={leftWidth} min={resizeMin} max={resizeMax} onStart={startResizeLeft} onNudge={nudgeLeft} />}
-                <LazyPanel id="tour-planner-rail"><TourPlannerRail planner={tourPlanner} canEdit={canPlaceEdit} canAssign={canDayEdit} /></LazyPanel>
+                <LazyPanel id="tour-planner-rail"><TourWorkspaceRail
+                    planner={tourPlanner}
+                    wanderer={wandererBrowser}
+                    conversion={tourConversion}
+                    recordedTrack={recordedTrack} canEdit={canPlaceEdit} canAssign={canDayEdit} /></LazyPanel>
               </div>
             </div>
             <div className="absolute bottom-[10px] right-[10px] top-[10px] z-20 hidden md:block">
@@ -692,16 +693,14 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
                       loading={toursLoading}
                       onAssignToDay={(placeId, dayId) => handleAssignToDay(placeId, dayId)}
                       onDeleteTour={handleDeleteTour}
-                      onViewGpxTour={tour => {
-                        const place = places.find(item => item.id === tour.place_id)
-                        tourPlanner.viewGpxTour(tour, place?.route_geometry ?? null)
-                      }}
+                      gpxImport={tourGpxImport}
+                      onViewGpxTour={viewImportedTour}
                     />
                   </LazyPanel>
                 )}
               </div>
             </div>
-          </div>
+          </TourGpxDropZone>
         )}
 
         {activeTab === 'transports' && (

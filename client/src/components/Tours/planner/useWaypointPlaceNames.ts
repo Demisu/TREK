@@ -22,16 +22,29 @@ const coordinateKey = (point: WaypointCoordinate) => `${point.lat.toFixed(5)},${
 export function useWaypointPlaceNames(waypoints: WaypointCoordinate[]): Record<string, string> {
   const lang = usePlaceLanguage();
   const [names, setNames] = useState<Record<string, { key: string; name: string }>>({});
+  // Names answered before (on this visit or an earlier one) show at once; only new points wait for the lookup.
+  const known = useMemo(() => {
+    const result: Record<string, { key: string; name: string }> = {};
+    for (const point of waypoints) {
+      const name = reverseGeocodeRepo.knownName(point.lat, point.lng, lang);
+      if (name) result[point.id] = { key: coordinateKey(point), name };
+    }
+    return result;
+  }, [lang, waypoints]);
   const signature = waypoints.map((point) => `${point.id}@${coordinateKey(point)}`).join('|');
 
   useEffect(() => {
     if (!signature) return undefined;
     let cancelled = false;
-    const points = signature.split('|').map((entry) => {
-      const [id, key] = entry.split('@');
-      const [lat, lng] = key.split(',').map(Number);
-      return { id, key, lat, lng };
-    });
+    const points = signature
+      .split('|')
+      .map((entry) => {
+        const [id, key] = entry.split('@');
+        const [lat, lng] = key.split(',').map(Number);
+        return { id, key, lat, lng };
+      })
+      .filter((point) => reverseGeocodeRepo.knownName(point.lat, point.lng, lang) === undefined);
+    if (points.length === 0) return undefined;
     const timer = window.setTimeout(() => {
       for (const point of points) {
         reverseGeocodeRepo.placeName(point.lat, point.lng, lang).then(
@@ -59,9 +72,9 @@ export function useWaypointPlaceNames(waypoints: WaypointCoordinate[]): Record<s
   return useMemo(() => {
     const result: Record<string, string> = {};
     for (const point of waypoints) {
-      const entry = names[point.id];
+      const entry = known[point.id] ?? names[point.id];
       if (entry && entry.key === coordinateKey(point)) result[point.id] = entry.name;
     }
     return result;
-  }, [names, waypoints]);
+  }, [known, names, waypoints]);
 }

@@ -34,6 +34,8 @@ interface Options {
   ferrataOpen: boolean;
   /** Drops the click that closed a ferrata card. */
   guard: ReturnType<typeof useOutsidePressGuard>['guard'];
+  /** Control points of an editable version previewed over an import: shown, never moved. */
+  previewPoints?: readonly { lat: number; lng: number }[] | null;
 }
 
 /**
@@ -42,7 +44,7 @@ interface Options {
  * after a point went in. A click places a point only while the tool is on,
  * only when it was a click and not a drag, and never when it closed a card.
  */
-export function useTourMapPoints({ tourPlanner, canPlaceEdit, mode, ferrataOpen, guard }: Options) {
+export function useTourMapPoints({ tourPlanner, canPlaceEdit, mode, ferrataOpen, guard, previewPoints }: Options) {
   const { t } = useTranslation();
   const editing = tourPlanner.mode.type === 'new-draft' || tourPlanner.mode.type === 'edit-saved';
   // The same lookup as the waypoint list, so a pin is named on hover as its row is.
@@ -65,17 +67,28 @@ export function useTourMapPoints({ tourPlanner, canPlaceEdit, mode, ferrataOpen,
   const onAdd = guard(gate(placeOn ? addPoint : undefined));
   // Kept by identity while nothing about the points changed, so the map does not redraw its pins on every render.
   const { waypoints } = tourPlanner;
-  const points = useMemo(
-    () =>
-      editing
-        ? waypoints.map((point, index) => ({
-            ...point,
-            name: placeNames[point.id] ?? t('tours.planner.waypointLabel', { n: index + 1 }),
-            detail: t(ROLE_KEY[point.role]),
-          }))
-        : NO_POINTS,
-    [editing, waypoints, placeNames, t]
-  );
+  const points = useMemo(() => {
+    if (editing) {
+      return waypoints.map((point, index) => ({
+        ...point,
+        name: placeNames[point.id] ?? t('tours.planner.waypointLabel', { n: index + 1 }),
+        detail: t(ROLE_KEY[point.role]),
+      }));
+    }
+    if (!previewPoints?.length) return NO_POINTS;
+    const last = previewPoints.length - 1;
+    return previewPoints.map((point, index) => {
+      const role = index === 0 ? 'start' : index === last ? 'end' : 'via';
+      return {
+        id: `preview-${index}`,
+        lat: point.lat,
+        lng: point.lng,
+        role,
+        name: t('tours.planner.waypointLabel', { n: index + 1 }),
+        detail: t(ROLE_KEY[role]),
+      } as const;
+    });
+  }, [editing, waypoints, placeNames, previewPoints, t]);
 
   return {
     waypoints: {

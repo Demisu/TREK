@@ -106,6 +106,8 @@ export const APP_SETTINGS = {
   places_enrich_enabled: { schema: flag, default: 'true', publicConfig: true },
   place_shadow_enabled: { schema: flag, default: 'false', publicConfig: true },
   bag_tracking_enabled: { schema: flag, default: 'false' },
+  // Off until an admin allows it: every user's wanderer calls go out to an address of their choosing.
+  tours_wanderer_enabled: { schema: flag, default: 'false' },
   route_usage_enabled: { schema: flag, default: 'false' },
   airtrail_sync_enabled: { schema: flag, default: 'true' },
   airtrail_poll_interval_minutes: { schema: intText, default: null },

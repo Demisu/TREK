@@ -727,6 +727,13 @@ const admin: TranslationStrings = {
   'admin.addons.toast.updated': 'Το πρόσθετο ενημερώθηκε',
   'admin.addons.toast.error': 'Αποτυχία ενημέρωσης προσθέτου',
   'admin.addons.group.count': '{enabled} από {total} ενεργοποιημένα',
+  'admin.addons.subOptions': '{count} επιλογές',
+  'admin.addons.subOptions.one': '{count} επιλογή',
+  'admin.addons.subOptionsOn': '{count} ενεργές',
+  'admin.addons.subOptionsOn.one': '{count} ενεργή',
+  'admin.toursWanderer.title': 'wanderer',
+  'admin.toursWanderer.subtitle':
+    'Οι χρήστες μπορούν να συνδέσουν τη δική τους εγκατάσταση wanderer και να εισαγάγουν τα μονοπάτια της ως εκδρομές',
   'admin.addons.noAddons': 'Δεν υπάρχουν διαθέσιμα πρόσθετα',
   'admin.weather.title': 'Δεδομένα Καιρού',
   'admin.weather.badge': 'Από 24 Μαρτίου 2026',

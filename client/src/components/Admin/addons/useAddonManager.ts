@@ -18,6 +18,7 @@ export function useAddonManager() {
   const refreshGlobalAddons = useAddonStore((s) => s.loadAddons);
   const [addons, setAddons] = useState<Addon[]>([]);
   const [loading, setLoading] = useState(true);
+  const [toursWanderer, setToursWanderer] = useState(false);
 
   const loadAddons = async () => {
     try {
@@ -30,6 +31,10 @@ export function useAddonManager() {
 
   const loadOnMount = useEffectEvent(() => {
     void loadAddons().finally(() => setLoading(false));
+    adminApi
+      .getToursWanderer()
+      .then((flag) => setToursWanderer(flag.enabled))
+      .catch(() => toast.error(t('admin.addons.toast.error')));
   });
   useEffect(() => {
     loadOnMount();
@@ -54,6 +59,21 @@ export function useAddonManager() {
     // Same for Documents: switching it off disables every document provider in
     // the database, and the response carries only the addon itself.
     if (addon.id === 'journey' || addon.id === 'documents') await loadAddons();
+    toast.success(t('admin.addons.toast.updated'));
+  };
+
+  /** wanderer under Tours: flipped at once, put back when the save fails. */
+  const toggleToursWanderer = async () => {
+    const next = !toursWanderer;
+    setToursWanderer(next);
+    try {
+      await adminApi.updateToursWanderer(next);
+    } catch {
+      setToursWanderer(!next);
+      toast.error(t('admin.addons.toast.error'));
+      return;
+    }
+    void refreshGlobalAddons();
     toast.success(t('admin.addons.toast.updated'));
   };
 
@@ -83,5 +103,7 @@ export function useAddonManager() {
     integrationAddons,
     providerOptions,
     documentProviderOptions,
+    toursWanderer,
+    toggleToursWanderer,
   };
 }

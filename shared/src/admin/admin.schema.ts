@@ -54,6 +54,12 @@ export const adminFeatureToggleRequestSchema = z.object({
 });
 export type AdminFeatureToggleRequest = z.infer<typeof adminFeatureToggleRequestSchema>;
 
+/** What a feature toggle answers: the flag as it is stored now. */
+export const adminFeatureToggleResponseSchema = z.object({
+  enabled: z.boolean(),
+});
+export type AdminFeatureToggleResponse = z.infer<typeof adminFeatureToggleResponseSchema>;
+
 /**
  * PUT /api/admin/google-quota (#1582): the most Google API calls TREK may make
  * in one UTC day. Null or 0 removes the ceiling.

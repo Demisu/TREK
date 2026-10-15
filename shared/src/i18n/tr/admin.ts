@@ -714,6 +714,13 @@ const admin: TranslationStrings = {
   'admin.addons.toast.updated': 'Eklenti güncellendi',
   'admin.addons.toast.error': 'Eklenti güncellenemedi',
   'admin.addons.group.count': '{total} eklentiden {enabled} tanesi etkin',
+  'admin.addons.subOptions': '{count} seçenek',
+  'admin.addons.subOptions.one': '{count} seçenek',
+  'admin.addons.subOptionsOn': '{count} açık',
+  'admin.addons.subOptionsOn.one': '{count} açık',
+  'admin.toursWanderer.title': 'wanderer',
+  'admin.toursWanderer.subtitle':
+    'Kullanıcılar kendi wanderer sunucularını bağlayıp parkurlarını tur olarak içe aktarabilir',
   'admin.addons.noAddons': 'Kullanılabilir eklenti yok',
   'admin.weather.title': 'Hava Durumu Verileri',
   'admin.weather.badge': "24 Mart 2026'dan beri",

@@ -664,6 +664,13 @@ const admin: TranslationStrings = {
   'admin.addons.toast.updated': 'Extension mise à jour',
   'admin.addons.toast.error': "Échec de la mise à jour de l'extension",
   'admin.addons.group.count': '{enabled} sur {total} activés',
+  'admin.addons.subOptions': '{count} options', // same-as-en
+  'admin.addons.subOptions.one': '{count} option', // same-as-en
+  'admin.addons.subOptionsOn': '{count} activées',
+  'admin.addons.subOptionsOn.one': '{count} activée',
+  'admin.toursWanderer.title': 'wanderer',
+  'admin.toursWanderer.subtitle':
+    'Les utilisateurs peuvent connecter leur propre instance wanderer et importer ses sentiers comme sorties',
   'admin.addons.noAddons': 'Aucune extension disponible',
   'admin.weather.title': 'Données météo',
   'admin.weather.badge': 'Depuis le 24 mars 2026',

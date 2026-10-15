@@ -69,6 +69,7 @@ export class Places {
   reservations_collection = new Collection<Reservations>(this);
   roadtrip_day_tracks_collection = new Collection<RoadtripDayTracks>(this);
   tours: Ref<Tours> | null = null;
+  tours_collection = new Collection<Tours>(this);
   trip_files_collection = new Collection<TripFiles>(this);
 }
 
@@ -125,6 +126,7 @@ export const PlacesSchema = defineEntity({
     reservations_collection: () => p.oneToMany(Reservations).mappedBy('place').hidden(),
     roadtrip_day_tracks_collection: () => p.oneToMany(RoadtripDayTracks).mappedBy('place').hidden(),
     tours: () => p.oneToOne(Tours).ref().mappedBy('place').hidden(),
+    tours_collection: () => p.oneToMany(Tours).mappedBy('derivedFromPlace').hidden(),
     trip_files_collection: () => p.oneToMany(TripFiles).mappedBy('place').hidden(),
   },
 });

@@ -242,7 +242,7 @@
     "storage.ts": { "marked": 0, "identical": 4 },
     "system_notice.ts": { "marked": 0, "identical": 4 },
     "todo.ts": { "marked": 0, "identical": 1 },
-    "tours.ts": { "marked": 0, "identical": 3 },
+    "tours.ts": { "marked": 0, "identical": 2 },
     "transport.ts": { "marked": 0, "identical": 2 },
     "trip.ts": { "marked": 0, "identical": 7 },
     "undo.ts": { "marked": 0, "identical": 1 },
@@ -352,7 +352,6 @@
   },
   "ja": {
     "admin.ts": { "marked": 0, "identical": 9 },
-    "budget.ts": { "marked": 0, "identical": 1 },
     "common.ts": { "marked": 12, "identical": 0 },
     "help.ts": { "marked": 0, "identical": 2 },
     "journey.ts": { "marked": 110, "identical": 2 },

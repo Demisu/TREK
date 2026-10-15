@@ -130,7 +130,6 @@
   "src/mobile/screens/trip/tabs/MCollabNotes.tsx",
   "src/pages/JourneyDetailPage.tsx",
   "src/pages/OAuthAuthorizePage.tsx",
-  "src/pages/TripPlannerPage.tsx",
   "src/pages/admin/AdminSettingsTab.tsx",
   "src/pages/admin/useAdmin.ts",
   "src/pages/admin/useNotificationDefaults.ts",

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { TourListItem } from '@trek/shared'
-import { AlertTriangle, ArrowLeft, Circle, Info, Loader2, Route, Plus, Redo2, RotateCcw, Save, Trash2, Undo2 } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Circle, FileDown, History, Loader2, Mountain, Plus, Redo2, RotateCcw, Route, Save, Trash2, Undo2 } from 'lucide-react'
 import type { Day } from '../../../types'
 import { useTranslation } from '../../../i18n'
 import { useSettingsStore } from '../../../store/settingsStore'
@@ -16,12 +16,18 @@ import { BarButton, SoftPill } from '../../Planner/planParts'
 import TourListRow from '../TourListRow'
 import ElevationProfile from '../../shared/ElevationProfile'
 import { formatPlannedTourDuration, hikeSourceBadgeLabel, tourSource } from '../tourPresentation'
-import { FoldButton, TourDayMenu, TourMetricFields, TourNotice, TourSection } from '../tourParts'
+import { CardAction, FoldButton, RailCard, RailFacts, TourDayMenu, TourListCard, TourNotice, TourSection } from '../tourParts'
+import { tourMetricFacts } from '../tourFacts'
 import { TourDetailsSection, TourNameField } from './TourEditorFields'
 import TourWaypointList from './TourWaypointList'
 import type { DistanceIndexedProfileSample, RouteProfileFocus } from '../../../utils/routeGeometry'
 import type { TourPlannerController, TourPlannerStatus } from './useTourPlanner'
 import { useTourPermissions, type TourPermissionProps } from '../useTourPermissions'
+import TourConversionSection from '../conversion/TourConversionSection'
+import type { GpxConversion } from '../conversion/useGpxConversion'
+import type { RecordedTrack } from '../useRecordedTrack'
+import type { TourGpxImport } from '../useTourGpxImport'
+import WandererMark from '../wanderer/WandererMark'
 
 const STATUS_KEY: Partial<Record<TourPlannerStatus, string>> = {
   dirty: 'tours.planner.status.dirty',
@@ -33,7 +39,7 @@ const STATUS_KEY: Partial<Record<TourPlannerStatus, string>> = {
 }
 
 /** The tinted head band both rails open with, like every panel head in the planner. */
-const RAIL_HEAD = 'flex flex-none items-start gap-2 border-b border-edge-faint px-3 py-2.5'
+export const RAIL_HEAD = 'flex flex-none items-start gap-2 border-b border-edge-faint px-3 py-2.5'
 
 type Translate = (key: string, params?: Record<string, string | number | null>) => string
 
@@ -45,7 +51,7 @@ function profileFocusLabel(focus: RouteProfileFocus, t: Translate, unit: 'metric
 }
 
 /** The title of a rail's head band, with an optional line under it. */
-function RailTitle({ title, sub, aside }: { title: string; sub?: ReactNode; aside?: ReactNode }) {
+export function RailTitle({ title, sub, aside }: { title: string; sub?: ReactNode; aside?: ReactNode }) {
   return (
     <div className="min-w-0 flex-1 pt-[5px]">
       <div className="flex min-w-0 items-center gap-1.5">
@@ -152,10 +158,147 @@ function RailStatusBadges({ planner }: { planner: TourPlannerController }) {
   )
 }
 
-export function TourPlannerRail({ planner, canEdit: editPermission, canAssign: assignPermission }: { planner: TourPlannerController } & TourPermissionProps) {
+/** The rail while nothing is open: a new tour, or the wanderer trails. */
+function NeutralRail({
+  planner,
+  canEdit,
+  onOpenWanderer,
+}: {
+  planner: TourPlannerController
+  canEdit: boolean
+  onOpenWanderer?: () => void
+}) {
+  const { t } = useTranslation()
+  return (
+    <section className="flex h-full min-h-0 flex-col" aria-label={t('tours.planner.title')}>
+      <div className={RAIL_HEAD} style={{ background: NEUTRAL_TINT }}>
+        <button
+          type="button"
+          disabled={!canEdit}
+          onClick={() => {
+            if (canEdit) planner.startNewTour()
+          }}
+          className="flex h-8 min-w-0 flex-1 items-center justify-center gap-1.5 overflow-hidden whitespace-nowrap rounded-[10px] bg-accent px-3 font-semibold text-accent-text shadow-sm transition-opacity hover:opacity-90 disabled:cursor-default disabled:opacity-40"
+          style={fs(12.5, 'body')}
+        >
+          <Plus size={14} strokeWidth={2.2} className="flex-none" />
+          <span className="truncate">{t('tours.planner.newTour')}</span>
+        </button>
+        {canEdit && onOpenWanderer && (
+          <Tooltip label={t('wanderer.browser.openHint')}>
+            <button
+              type="button"
+              onClick={onOpenWanderer}
+              data-testid="tour-rail-open-wanderer"
+              className="flex h-8 flex-none items-center justify-center gap-1.5 whitespace-nowrap rounded-[10px] bg-surface-card px-3 font-semibold text-content-secondary shadow-sm ring-1 ring-inset ring-edge-faint transition-colors hover:text-content"
+              style={fs(12.5, 'body')}
+            >
+              <WandererMark size={14} className="flex-none" />
+              {t('wanderer.browser.open')}
+            </button>
+          </Tooltip>
+        )}
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <EmptyState
+          scene="tours"
+          size={116}
+          fill
+          surface="var(--bg-secondary)"
+          title={t('tours.planner.neutralTitle')}
+          action={
+            <p className="m-0 max-w-[260px] text-content-muted" style={fs(12, 'body')}>
+              {t('tours.planner.neutralBody')}
+            </p>
+          }
+        />
+      </div>
+    </section>
+  )
+}
+
+/** The rail for an imported tour: shown as it came in, measured, never edited. */
+function GpxViewRail({
+  planner,
+  canEdit,
+  conversion,
+}: {
+  planner: TourPlannerController
+  canEdit: boolean
+  conversion?: GpxConversion
+}) {
+  const { t } = useTranslation()
+  const distanceUnit = useSettingsStore((state) => state.settings.distance_unit)
+  if (planner.mode.type !== 'view-gpx') return null
+  const { readOnlyGpxTour } = planner
+  const { tour } = readOnlyGpxTour
+  const fromWanderer = tourSource(tour) === 'wanderer'
+  const analysis = planner.readOnlyGpxAnalysis
+  const extra =
+    tour.duration != null
+      ? [
+          {
+            label: t('tours.planner.inspector.duration'),
+            value: t('tours.durationMinutes', { count: Math.max(1, Math.round(tour.duration)) }),
+          },
+        ]
+      : []
+  return (
+    <>
+      <section className="flex h-full min-h-0 flex-col" aria-label={tour.name}>
+        <div className={RAIL_HEAD} style={{ background: NEUTRAL_TINT }}>
+          <BarButton
+            label={t('tours.planner.backToTours')}
+            onClick={() => planner.returnToNeutral()}
+            className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+          >
+            <ArrowLeft size={16} strokeWidth={2} />
+          </BarButton>
+          <RailTitle
+            title={t(fromWanderer ? 'wanderer.tourTitle' : 'tours.planner.gpxTitle')}
+            sub={tour.name}
+            aside={<SoftPill>{hikeSourceBadgeLabel(tour, t)}</SoftPill>}
+          />
+        </div>
+        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-3">
+          {conversion && <TourConversionSection conversion={conversion} />}
+          <RailCard icon={<Mountain size={14} strokeWidth={2} />} title={t('tours.planner.inspector.title')}>
+            {analysis ? (
+              <div className="flex flex-col gap-3">
+                <RailFacts facts={tourMetricFacts(analysis, distanceUnit, t, extra)} />
+                <ElevationSection
+                  id="tour-planner-gpx-elevation-profile"
+                  samples={analysis.distanceIndexedProfileSamples}
+                  gradientId={`planner-gpx-elevation-${tour.place_id}`}
+                  planner={planner}
+                />
+              </div>
+            ) : (
+              <p className="m-0 text-content-muted" style={fs(12, 'body')}>
+                {t('tours.planner.gpxNoGeometry')}
+              </p>
+            )}
+          </RailCard>
+        </div>
+      </section>
+      <NewTourConfirmDialog planner={planner} canEdit={canEdit} />
+    </>
+  )
+}
+
+export function TourPlannerRail({ planner,
+  onOpenWanderer,
+  conversion,
+  recordedTrack, canEdit: editPermission, canAssign: assignPermission }: { planner: TourPlannerController
+  /** Planning an editable tour from the import in view. */
+  conversion?: GpxConversion
+  /** The way back to the recorded track of an import planned over in place. */
+  recordedTrack?: RecordedTrack
+  /** Browse the user's wanderer trails instead; offered while nothing is being edited. */
+  onOpenWanderer?: () => void
+} & TourPermissionProps) {
   const { canEdit } = useTourPermissions({ canEdit: editPermission ?? planner.canEdit, canAssign: assignPermission ?? planner.canAssign })
   const { t } = useTranslation()
-  const distanceUnit = useSettingsStore(state => state.settings.distance_unit)
   const [confirmDiscard, setConfirmDiscard] = useState(false)
   const [pendingDifficulty, setPendingDifficulty] = useState<1 | 2 | 3 | 4 | 5 | 6 | null>(null)
   const alpineAcknowledged = useRef(false)
@@ -170,69 +313,11 @@ export function TourPlannerRail({ planner, canEdit: editPermission, canAssign: a
     else planner.setMaxHikingDifficulty(value)
   }
 
-  if (planner.mode.type === 'neutral') {
-    return (
-      <section className="flex h-full min-h-0 flex-col" aria-label={t('tours.planner.title')}>
-        <div className={RAIL_HEAD} style={{ background: NEUTRAL_TINT }}>
-          <button type="button" disabled={!canEdit} onClick={() => { if (canEdit) planner.startNewTour() }}
-            className="flex h-8 min-w-0 flex-1 items-center justify-center gap-1.5 overflow-hidden whitespace-nowrap rounded-[10px] bg-accent px-3 font-semibold text-accent-text shadow-sm transition-opacity hover:opacity-90 disabled:cursor-default disabled:opacity-40"
-            style={fs(12.5, 'body')}>
-            <Plus size={14} strokeWidth={2.2} className="flex-none" />
-            <span className="truncate">{t('tours.planner.newTour')}</span>
-          </button>
-        </div>
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          <EmptyState
-            scene="tours"
-            size={116}
-            fill
-            surface="var(--bg-secondary)"
-            title={t('tours.planner.neutralTitle')}
-            action={<p className="m-0 max-w-[260px] text-content-muted" style={fs(12, 'body')}>{t('tours.planner.neutralBody')}</p>}
+  if (planner.mode.type === 'neutral')
+    return <NeutralRail planner={planner} canEdit={canEdit} onOpenWanderer={onOpenWanderer}
           />
-        </div>
-      </section>
-    )
-  }
-
-  if (planner.mode.type === 'view-gpx') {
-    const { tour } = planner.readOnlyGpxTour
-    const analysis = planner.readOnlyGpxAnalysis
-    const extra = tour.duration != null
-      ? [{ label: t('tours.planner.inspector.duration'), value: t('tours.durationMinutes', { count: Math.max(1, Math.round(tour.duration)) }) }]
-      : []
-    return (
-      <>
-        <section className="flex h-full min-h-0 flex-col" aria-label={tour.name}>
-          <div className={RAIL_HEAD} style={{ background: NEUTRAL_TINT }}>
-            <BarButton label={t('tours.planner.backToTours')} onClick={() => planner.returnToNeutral()} className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
-              <ArrowLeft size={16} strokeWidth={2} />
-            </BarButton>
-            <RailTitle title={t('tours.planner.gpxTitle')} sub={tour.name} aside={<SoftPill>{hikeSourceBadgeLabel(tour, t)}</SoftPill>} />
-          </div>
-          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-3 py-3.5">
-            <TourNotice icon={<Info size={13} strokeWidth={2} className="text-content-faint" />}>{t('tours.detail.gpxReadOnly')}</TourNotice>
-            {analysis ? (
-              <>
-                <TourSection label={t('tours.planner.inspector.title')}>
-                  <TourMetricFields analysis={analysis} unit={distanceUnit} extra={extra} columns={2} />
-                </TourSection>
-                <ElevationSection
-                  id="tour-planner-gpx-elevation-profile"
-                  samples={analysis.distanceIndexedProfileSamples}
-                  gradientId={`planner-gpx-elevation-${tour.place_id}`}
-                  planner={planner}
-                />
-              </>
-            ) : (
-              <TourNotice>{t('tours.planner.gpxNoGeometry')}</TourNotice>
-            )}
-          </div>
-        </section>
-        <NewTourConfirmDialog planner={planner} canEdit={canEdit} />
-      </>
-    )
-  }
+  if (planner.mode.type === 'view-gpx')
+    return <GpxViewRail planner={planner} canEdit={canEdit} conversion={conversion} />
 
   const isSavedEdit = planner.mode.type === 'edit-saved'
 
@@ -254,6 +339,8 @@ export function TourPlannerRail({ planner, canEdit: editPermission, canAssign: a
 
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-3 py-3.5">
           <TourNameField planner={planner} locked={!canEdit || isSaving} />
+
+          {recordedTrack?.available && <RecordedTrackCard recordedTrack={recordedTrack} disabled={isSaving} />}
 
           <TourWaypointList planner={planner} canEdit={canEdit} isSaving={isSaving} />
 
@@ -296,6 +383,48 @@ export function TourPlannerRail({ planner, canEdit: editPermission, canAssign: a
         />
       </section>
     </>
+  )
+}
+
+/**
+ * In the editor of an import planned over in place: the recorded track is still
+ * kept, and one press (after a confirm) takes the tour back to it.
+ */
+function RecordedTrackCard({ recordedTrack, disabled }: { recordedTrack: RecordedTrack; disabled: boolean }) {
+  const { t } = useTranslation()
+  const [confirming, setConfirming] = useState(false)
+  return (
+    <RailCard icon={<History size={14} strokeWidth={2} />} title={t('tours.recorded.title')}>
+      <div className="flex flex-col items-start gap-2.5">
+        <p className="m-0 leading-snug text-content-secondary" style={fs(12, 'body')}>
+          {t('tours.recorded.hint')}
+        </p>
+        <CardAction
+          onClick={() => setConfirming(true)}
+          disabled={disabled || recordedTrack.restoring}
+          icon={
+            recordedTrack.restoring ? (
+              <Loader2 size={12} strokeWidth={2.2} className="animate-spin" />
+            ) : (
+              <History size={12} strokeWidth={2.2} />
+            )
+          }
+        >
+          {t('tours.recorded.restore')}
+        </CardAction>
+      </div>
+      <ConfirmDialog
+        isOpen={confirming}
+        onClose={() => setConfirming(false)}
+        onConfirm={() => {
+          setConfirming(false)
+          void recordedTrack.restore()
+        }}
+        title={t('tours.recorded.confirmTitle')}
+        message={t('tours.recorded.confirmBody')}
+        confirmLabel={t('tours.recorded.restore')}
+      />
+    </RailCard>
   )
 }
 
@@ -353,6 +482,29 @@ function NewTourConfirmDialog({ planner, canEdit }: { planner: TourPlannerContro
   )
 }
 
+/** The round GPX import button in the tours rail's head; the file drop on the workspace does the same. */
+function RailImportButton({ gpxImport, disabled }: { gpxImport: TourGpxImport; disabled: boolean }) {
+  const { t } = useTranslation()
+  return (
+    <Tooltip label={t('tours.import.hint')}>
+      <button
+        type="button"
+        aria-label={t('tours.import.button')}
+        data-testid="tour-rail-import-gpx"
+        disabled={gpxImport.importing || disabled}
+        onClick={gpxImport.pick}
+        className="mt-1 grid h-[26px] w-[26px] flex-none place-items-center rounded-full bg-surface-card text-content-muted shadow-sm ring-1 ring-edge-faint transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent enabled:hover:bg-accent enabled:hover:text-accent-text enabled:hover:ring-transparent disabled:cursor-default disabled:opacity-40"
+      >
+        {gpxImport.importing ? (
+          <Loader2 size={13} strokeWidth={2.4} className="animate-spin" />
+        ) : (
+          <FileDown size={13} strokeWidth={2.4} />
+        )}
+      </button>
+    </Tooltip>
+  )
+}
+
 interface TourPlannerToursRailProps extends TourPermissionProps {
   planner: TourPlannerController
   tours: TourListItem[]
@@ -361,9 +513,12 @@ interface TourPlannerToursRailProps extends TourPermissionProps {
   onAssignToDay: (placeId: number, dayId: number) => void | boolean | Promise<void | boolean>
   onViewGpxTour: (tour: TourListItem) => void
   onDeleteTour?: (placeId: number) => void
+  /** The workspace's GPX import; its button sits beside "New tour". */
+  gpxImport?: TourGpxImport
 }
 
-export function TourPlannerToursRail({ planner, tours, days, loading, onAssignToDay, onViewGpxTour, onDeleteTour, canEdit: editPermission, canAssign: assignPermission }: TourPlannerToursRailProps) {
+export function TourPlannerToursRail({ planner, tours, days, loading, onAssignToDay, onViewGpxTour, onDeleteTour,
+  gpxImport, canEdit: editPermission, canAssign: assignPermission }: TourPlannerToursRailProps) {
   const { canEdit, canAssign } = useTourPermissions({ canEdit: editPermission ?? planner.canEdit, canAssign: assignPermission ?? planner.canAssign })
   const { t } = useTranslation()
   const toast = useToast()
@@ -390,7 +545,8 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
   }
 
   const selectTour = (tour: TourListItem) => {
-    if (tourSource(tour) === 'gpx') onViewGpxTour(tour)
+    // An import (a GPX file, a wanderer snapshot) has no waypoints of its own and is viewed as it came in.
+    if (tour.has_waypoints === false) onViewGpxTour(tour)
     else void openTour(tour)
   }
 
@@ -426,6 +582,7 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
     <aside className="flex h-full min-h-0 flex-col" aria-label={t('tours.planner.tripTours')}>
       <div className={RAIL_HEAD} style={{ background: NEUTRAL_TINT }}>
         <RailTitle title={t('tours.planner.tripTours')} />
+        {canEdit && gpxImport && <RailImportButton gpxImport={gpxImport} disabled={isSaving} />}
         {canEdit && planner.mode.type !== 'neutral' && (
           <Tooltip label={t('tours.planner.newTour')}>
             <button type="button" aria-label={t('tours.planner.newTour')} data-testid="tour-rail-new-tour"
@@ -439,11 +596,11 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-3 py-3.5">
         {hasRoute && (
-          <div data-testid="tour-planner-overview" className="flex flex-col gap-4 rounded-[14px] border border-edge-faint bg-surface-secondary p-3">
-            <TourSection label={t('tours.planner.inspector.title')}>
-              <FerrataCrossingBadges />
-              <TourMetricFields analysis={routeAnalysis} unit={distanceUnit} extra={tourTimeFields} columns={2} />
-            </TourSection>
+          <div data-testid="tour-planner-overview">
+            <RailCard icon={<Route size={14} strokeWidth={2} />} title={t('tours.planner.inspector.title')}>
+              <div className="flex flex-col gap-3">
+                <FerrataCrossingBadges />
+              <RailFacts facts={tourMetricFacts(routeAnalysis, distanceUnit, t, tourTimeFields)} />
             {routeAnalysis && (
               <ElevationSection
                 id="tour-planner-editable-elevation-profile"
@@ -452,22 +609,32 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
                 planner={planner}
               />
             )}
+              </div>
+            </RailCard>
           </div>
         )}
 
         {!loading && tours.length === 0 ? (
           <EmptyState scene="tours" size={116} fill surface="var(--bg-secondary)" title={t('tours.empty.title')} className="flex-1"
             action={<p className="m-0 max-w-[260px] text-content-muted" style={fs(12, 'body')}>{t('tours.empty.body')}</p>} />
-        ) : (
-          <TourSection label={t('tours.mode.tours')}>
-            {tours.length === 0 ? (
+        ) : tours.length === 0 ? (
               <p className="m-0 py-6 text-center text-content-faint" style={fs(12, 'body')}>{t('common.loading')}</p>
             ) : (
-              <ul role="listbox" aria-label={t('tours.planner.tripTours')} className="-mx-1 m-0 list-none p-0">
+              <TourListCard
+            icon={<Mountain size={14} strokeWidth={2} />}
+            title={t('tours.mode.tours')}
+            aside={
+              <span className="flex-none tabular-nums text-content-faint" style={fs(11.5, 'body')}>
+                {tours.length}
+              </span>
+            }
+            label={t('tours.planner.tripTours')}
+          >
                 {tours.map(tour => (
                   <TourListRow
                     key={tour.place_id}
                     tour={tour}
+                days={days}
                     disabled={isSaving}
                     selected={(planner.mode.type === 'edit-saved' || planner.mode.type === 'view-gpx') && planner.mode.placeId === tour.place_id}
                     onSelect={requestOpenTour}
@@ -498,9 +665,7 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
                     ) : undefined}
                   />
                 ))}
-              </ul>
-            )}
-          </TourSection>
+              </TourListCard>
         )}
       </div>
 

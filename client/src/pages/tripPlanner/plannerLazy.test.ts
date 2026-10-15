@@ -1,7 +1,3 @@
-// FE-PAGE-PLANNER-LAZY-001 to FE-PAGE-PLANNER-LAZY-002
-//
-// Every planner panel loads as a chunk of its own. The targets are stubbed so
-// each loader, and each hop to a named export, is checked by what it renders.
 import { createElement, Suspense, type ComponentType } from 'react'
 import { render, screen } from '@testing-library/react'
 import * as lazy from './plannerLazy'
@@ -22,6 +18,7 @@ vi.mock('../../components/Roadtrip/RoadtripStopPopup', () => ({ default: label('
 vi.mock('../../components/Roadtrip/RoadtripStayModal', () => ({ default: label('roadtrip stay modal') }))
 vi.mock('../../components/Roadtrip/RoadtripTrackModal', () => ({ default: label('roadtrip track modal') }))
 vi.mock('../../components/Roadtrip/RoadtripAlternativesBar', () => ({ default: label('roadtrip alternatives bar') }))
+vi.mock('../../components/Tours/TourWorkspaceRail', () => ({ default: label('tour workspace rail') }))
 vi.mock('../../components/Tours/planner/TourPlannerPanels', () => ({
   TourPlannerRail: label('tour planner rail'),
   TourPlannerToursRail: label('tour planner tours rail'),
@@ -43,7 +40,7 @@ const cases: Array<[keyof typeof lazy, string]> = [
   ['RoadtripStayModal', 'roadtrip stay modal'],
   ['RoadtripTrackModal', 'roadtrip track modal'],
   ['RoadtripAlternativesBar', 'roadtrip alternatives bar'],
-  ['TourPlannerRail', 'tour planner rail'],
+  ['TourWorkspaceRail', 'tour workspace rail'],
   ['TourPlannerToursRail', 'tour planner tours rail'],
   ['TransportModal', 'transport modal'],
 ]

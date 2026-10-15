@@ -665,6 +665,13 @@ const admin: TranslationStrings = {
   'admin.addons.toast.updated': 'Bővítmény frissítve',
   'admin.addons.toast.error': 'Nem sikerült frissíteni a bővítményt',
   'admin.addons.group.count': '{total} közül {enabled} bekapcsolva',
+  'admin.addons.subOptions': '{count} beállítás',
+  'admin.addons.subOptions.one': '{count} beállítás',
+  'admin.addons.subOptionsOn': '{count} bekapcsolva',
+  'admin.addons.subOptionsOn.one': '{count} bekapcsolva',
+  'admin.toursWanderer.title': 'wanderer',
+  'admin.toursWanderer.subtitle':
+    'A felhasználók csatlakoztathatják saját wanderer-példányukat, és túraként importálhatják annak túraútvonalait',
   'admin.addons.noAddons': 'Nincsenek elérhető bővítmények',
   'admin.weather.title': 'Időjárás adatok',
   'admin.weather.badge': '2026. március 24. óta',

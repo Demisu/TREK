@@ -9,6 +9,7 @@ import { getCategoryIcon } from '../shared/categoryIcons'
 import { resolveTrackColor } from '../Map/trackColors'
 import { MoreButton, SoftPill, type MenuEntry } from './planParts'
 import type { Place, Category } from '../../types'
+import { startPlaceDrag } from '../Map/markerDrag'
 
 interface MemoPlaceRowProps {
   place: Place
@@ -73,9 +74,7 @@ export const MemoPlaceRow = React.memo(function MemoPlaceRow({
       draggable={!selectMode && !dragDisabled}
       onDragStart={e => {
         if (dragDisabled) { e.preventDefault(); return }
-        e.dataTransfer.setData('placeId', String(place.id))
-        e.dataTransfer.effectAllowed = 'copy'
-        window.__dragData = { placeId: String(place.id) }
+        startPlaceDrag(e.dataTransfer, place.id)
       }}
       onClick={activate}
       onKeyDown={e => {

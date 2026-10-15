@@ -6,6 +6,7 @@ import type { PlacesRepository } from '../../db/repositories/Places.repository';
 import type { TourTypesRepository } from '../../db/repositories/TourTypes.repository';
 import type { TourWaypointsRepository } from '../../db/repositories/TourWaypoints.repository';
 import type { TourListRow, ToursRepository, TourUpdate } from '../../db/repositories/Tours.repository';
+import { DomainError } from '../common/domain-error';
 import { toRowId } from '../common/row-id';
 import { UnitOfWork } from '../database/unit-of-work';
 import { PlaceImportService } from '../place-import/place-import.service';
@@ -22,6 +23,8 @@ import {
   type TourDetailResponse,
   type TourListItem,
   type TourWaypoint,
+  type WandererDifficulty,
+  wandererDifficultyToSac,
 } from '@trek/shared';
 
 export interface ImportGpxAsTourResult {
@@ -68,6 +71,8 @@ export class ToursService {
       wanderer_ref: r.wanderer_ref,
       match_confidence: r.match_confidence,
       max_hiking_difficulty: r.max_hiking_difficulty,
+      derived_from_place_id: r.derived_from_place_id,
+      has_recorded_track: Boolean(r.has_recorded_track),
       planned: Boolean(r.planned),
       caution: r.match_confidence !== null && r.match_confidence < LOW_CONFIDENCE_THRESHOLD,
       has_waypoints: Boolean(r.has_waypoints),
@@ -175,8 +180,17 @@ export class ToursService {
     this.validatePlannedTimes(input);
     const start = input.route_geometry[0];
     const fields = this.routeFields(input);
+    const derivedFrom = input.derived_from_place_id ?? null;
 
     const placeId = await this.uow.transactional(async () => {
+      // What it was planned from has to be an import (no waypoints of its own) of this same trip,
+      // read in the write so it cannot go meanwhile.
+      if (derivedFrom !== null) {
+        const source = await this.toursRepo.findInTrip(tid, derivedFrom);
+        if (!source || source.has_waypoints) {
+          throw new DomainError(400, 'derived_from_place_id is not an imported tour of this trip');
+        }
+      }
       const id = await this.placesRepo.insertTourPlace({
         trip_id: tid,
         name: input.name,
@@ -191,6 +205,7 @@ export class ToursService {
         ...fields,
         planned_duration_minutes: fields.planned_duration_minutes ?? null,
         break_additional_minutes: fields.break_additional_minutes ?? null,
+        derived_from_place_id: derivedFrom,
       });
       await this.waypointsRepo.insertForPlace(id, input.waypoints);
       return id;
@@ -210,6 +225,68 @@ export class ToursService {
       this.logger.warn(`Committed Tour ${placeId}: place notification failed`);
     }
     return { tour: this.toItem(row), waypoints };
+  }
+
+  /**
+   * Takes an import that was planned over in place back to the track it was
+   * recorded with: its line, the measures read from that line and the grade
+   * its source gave, without the waypoints. The tour keeps its id, days and notes.
+   */
+  async restoreRecordedTrack(tripId: string, placeId: string, socketId?: string): Promise<TourDetailResponse> {
+    const tid = toRowId(tripId);
+    const pid = toRowId(placeId);
+    if (tid === null || pid === null) throw new NotFoundException('Tour not found');
+
+    await this.uow.transactional(async () => {
+      const row = await this.toursRepo.findInTrip(tid, pid);
+      if (!row) throw new NotFoundException('Tour not found');
+      const recorded = await this.toursRepo.findRecordedTrack(tid, pid);
+      if (recorded === null) {
+        throw new DomainError(409, 'This tour keeps no recorded track to go back to', {
+          code: 'no_recorded_track',
+          details: { code: 'no_recorded_track' },
+        });
+      }
+      const geometry = parseRouteGeometry(recorded);
+      const start = geometry[0];
+      if (!start)
+        throw new DomainError(409, 'The recorded track of this tour is empty', {
+          code: 'no_recorded_track',
+          details: { code: 'no_recorded_track' },
+        });
+      const metrics = computeTourMetrics(geometry);
+      await this.placesRepo.updateTourRoute(pid, tid, {
+        name: row.name,
+        lat: start[0],
+        lng: start[1],
+        route_geometry: recorded,
+      });
+      await this.toursRepo.updateInTrip(tid, pid, {
+        tour_type: row.tour_type,
+        distance: metrics.distanceKm,
+        elevation_gain: metrics.elevationGainM,
+        elevation_loss: metrics.elevationLossM,
+        duration: null,
+        match_confidence: metrics.hasElevation ? 1 : 0.3,
+        // The grade its source gave, on the one scale tours use; a GPX file gives none.
+        max_hiking_difficulty: row.wanderer_ref
+          ? wandererDifficultyToSac(row.difficulty as WandererDifficulty | null)
+          : null,
+      });
+      await this.waypointsRepo.deleteForPlace(pid);
+      await this.toursRepo.clearRecordedTrack(pid);
+    });
+
+    const result = await this.getTour(tripId, placeId);
+    const place = await this.placesRepo.findWithTagsAndRatings(pid);
+    if (!place) throw new Error('Restored tour could not be loaded');
+    this.broadcastToursChanged(tripId, [pid], socketId);
+    try {
+      this.places.broadcast(tripId, 'place:updated', { place }, socketId);
+    } catch {
+      this.logger.warn(`Committed Tour ${placeId}: place notification failed`);
+    }
+    return result;
   }
 
   /** Replace a saved tour's derived route and routing controls as one write. */
@@ -234,6 +311,8 @@ export class ToursService {
       // one, and a place deleted meanwhile answers 404 instead of failing a
       // waypoint insert on its foreign key.
       if (!(await this.toursRepo.findInTrip(tid, pid))) throw new NotFoundException('Tour not found');
+      // An import planned over for the first time keeps the track it was recorded with.
+      await this.toursRepo.keepRecordedTrack(pid);
       const placeUpdated = await this.placesRepo.updateTourRoute(pid, tid, {
         name: input.name,
         lat: start[0],
@@ -328,6 +407,8 @@ export class ToursService {
             wanderer_ref: null,
             match_confidence: matchConfidence,
             max_hiking_difficulty: null,
+            derived_from_place_id: null,
+            has_recorded_track: 0,
             planned: 0,
             has_waypoints: 0,
           }),

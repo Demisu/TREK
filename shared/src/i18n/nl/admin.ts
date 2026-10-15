@@ -658,6 +658,13 @@ const admin: TranslationStrings = {
   'admin.addons.toast.updated': 'Add-on bijgewerkt',
   'admin.addons.toast.error': 'Add-on bijwerken mislukt',
   'admin.addons.group.count': '{enabled} van {total} ingeschakeld',
+  'admin.addons.subOptions': '{count} opties',
+  'admin.addons.subOptions.one': '{count} optie',
+  'admin.addons.subOptionsOn': '{count} aan',
+  'admin.addons.subOptionsOn.one': '{count} aan',
+  'admin.toursWanderer.title': 'wanderer',
+  'admin.toursWanderer.subtitle':
+    'Gebruikers kunnen hun eigen wanderer-instantie koppelen en de wandelroutes daarvan als tochten importeren',
   'admin.addons.noAddons': 'Geen add-ons beschikbaar',
   'admin.weather.title': 'Weergegevens',
   'admin.weather.badge': 'Sinds 24 maart 2026',

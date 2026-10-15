@@ -1,6 +1,7 @@
 import { Collection, EntityRepositoryType, PrimaryKeyProp, type Ref, defineEntity, p } from '@mikro-orm/core';
 import { ToursRepository } from '../repositories/Tours.repository';
 import { Places } from './Places.entity';
+import { TourSources } from './TourSources.entity';
 import { TourTypes } from './TourTypes.entity';
 import { TourWaypoints } from './TourWaypoints.entity';
 
@@ -21,13 +22,24 @@ export class Tours {
   max_hiking_difficulty?: number | null = 2;
   planned_duration_minutes?: number | null;
   break_additional_minutes?: number | null;
+  derivedFromPlace?: Ref<Places> | null;
+  derived_from_place_id?: number | null;
+  recorded_route_geometry?: string | null;
   tourTypeRef!: Ref<TourTypes>;
+  tour_sources: Ref<TourSources> | null = null;
   tour_waypoints_collection = new Collection<TourWaypoints>(this);
 }
 
 export const ToursSchema = defineEntity({
   class: Tours,
   repository: () => ToursRepository,
+  indexes: [
+    {
+      name: 'idx_tours_derived_from_place_id',
+      where: 'derived_from_place_id IS NOT NULL',
+      properties: ['derived_from_place_id'],
+    },
+  ],
   properties: {
     place: () => p.oneToOne(Places).primary().ref().deleteRule('cascade').nullable().hidden(),
     place_id: p.integer().nullable().persist(false),
@@ -43,7 +55,11 @@ export const ToursSchema = defineEntity({
     max_hiking_difficulty: p.integer().nullable(),
     planned_duration_minutes: p.integer().nullable(),
     break_additional_minutes: p.integer().nullable(),
+    derivedFromPlace: () => p.manyToOne(Places).ref().nullable().hidden(),
+    derived_from_place_id: p.integer().nullable().persist(false),
+    recorded_route_geometry: p.text().nullable(),
     tourTypeRef: () => p.manyToOne(TourTypes).ref().joinColumn('tour_type').hidden().index('idx_tours_tour_type'),
+    tour_sources: () => p.oneToOne(TourSources).ref().mappedBy('place').hidden(),
     tour_waypoints_collection: () => p.oneToMany(TourWaypoints).mappedBy('place').hidden(),
   },
 });

@@ -67,6 +67,22 @@ export class AddonsService {
     return { enabled: !!enabled };
   }
 
+  /** The admin's switch for wanderer under Tours, as stored; whether Tours is on is asked apart. */
+  async getToursWanderer() {
+    const value = await readAppSetting(this.appSettings, 'tours_wanderer_enabled');
+    return { enabled: value === 'true' };
+  }
+
+  async updateToursWanderer(enabled: boolean) {
+    await this.appSettings.setValue('tours_wanderer_enabled', enabled ? 'true' : 'false');
+    return { enabled: !!enabled };
+  }
+
+  /** wanderer may be used: Tours is on and the admin allowed it under Tours. */
+  async isWandererAvailable(): Promise<boolean> {
+    return (await this.isAddonEnabled(ADDON_IDS.TOURS)) && (await this.getToursWanderer()).enabled;
+  }
+
   /**
    * `AppSettingsRepository.getValues` drops a key from the returned `Map`
    * both when no row exists AND when the row's `value` is `NULL` (Task 0
@@ -146,6 +162,7 @@ export class AddonsService {
     return {
       collabFeatures: await this.getCollabFeatures(),
       bagTracking: (await this.getBagTracking()).enabled,
+      toursWanderer: await this.isWandererAvailable(),
       addons: [
         // The repository row carries every scalar column (description, config,
         // sort_order included); the legacy statement selected only these five,

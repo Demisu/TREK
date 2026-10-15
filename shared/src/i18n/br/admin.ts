@@ -651,6 +651,13 @@ const admin: TranslationStrings = {
   'admin.addons.toast.updated': 'Complemento atualizado',
   'admin.addons.toast.error': 'Falha ao atualizar complemento',
   'admin.addons.group.count': '{enabled} de {total} ativados',
+  'admin.addons.subOptions': '{count} opções',
+  'admin.addons.subOptions.one': '{count} opção',
+  'admin.addons.subOptionsOn': '{count} ativas',
+  'admin.addons.subOptionsOn.one': '{count} ativa',
+  'admin.toursWanderer.title': 'wanderer',
+  'admin.toursWanderer.subtitle':
+    'Os usuários podem conectar a própria instância do wanderer e importar as trilhas dela como passeios',
   'admin.addons.noAddons': 'Nenhum complemento disponível',
   'admin.addons.integrationHint': 'Serviços de backend e integrações de API sem página dedicada',
   'admin.weather.title': 'Dados meteorológicos',

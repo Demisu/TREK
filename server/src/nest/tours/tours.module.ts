@@ -1,4 +1,5 @@
 import { Places } from '../../db/entities/Places.entity';
+import { TourSources } from '../../db/entities/TourSources.entity';
 import { TourTypes } from '../../db/entities/TourTypes.entity';
 import { TourWaypoints } from '../../db/entities/TourWaypoints.entity';
 import { Tours } from '../../db/entities/Tours.entity';
@@ -6,7 +7,10 @@ import { AddonsModule } from '../addons/addons.module';
 import { PermissionsModule } from '../permissions/permissions.module';
 import { PlaceImportModule } from '../place-import/place-import.module';
 import { PlacesModule } from '../places/places.module';
+import { WandererModule } from '../wanderer/wanderer.module';
 import { ToursImportController } from './tours-import.controller';
+import { ToursWandererController } from './tours-wanderer.controller';
+import { ToursWandererService } from './tours-wanderer.service';
 import { ToursController } from './tours.controller';
 import { ToursService } from './tours.service';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
@@ -26,9 +30,11 @@ import { Module } from '@nestjs/common';
     PermissionsModule,
 
     AddonsModule,
-    MikroOrmModule.forFeature([Tours, TourTypes, TourWaypoints, Places]),
+    // The wanderer import reads trails through the caller's own connection.
+    WandererModule,
+    MikroOrmModule.forFeature([Tours, TourTypes, TourWaypoints, TourSources, Places]),
   ],
-  controllers: [ToursController, ToursImportController],
-  providers: [ToursService],
+  controllers: [ToursController, ToursImportController, ToursWandererController],
+  providers: [ToursService, ToursWandererService],
 })
 export class ToursModule {}

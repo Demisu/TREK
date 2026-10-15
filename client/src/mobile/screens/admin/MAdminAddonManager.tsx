@@ -3,7 +3,7 @@ import { useTranslation } from '../../../i18n'
 import { useIsDark } from '../../../hooks/useIsDark'
 import {
   Puzzle, ListChecks, Wallet, FileText, CalendarDays, Globe, Briefcase, Image, Terminal, Link2, Compass, BookOpen,
-  Sparkles, Luggage, Plane, Server, Cloud, Bookmark, Users, Check, Loader2,
+  Sparkles, Luggage, Plane, Server, Cloud, Bookmark, Users, Check, Loader2, Mountain, CarFront,
 } from 'lucide-react'
 import DawarichIcon from '../../../components/shared/DawarichIcon'
 import AirTrailIcon from '../../../components/shared/AirTrailIcon'
@@ -24,11 +24,15 @@ import { useAddonManager } from '../../../components/Admin/addons/useAddonManage
 import { useLlmParsingConfig } from '../../../components/Admin/addons/useLlmParsingConfig'
 import { ImmichIcon, SynologyIcon } from '../../../components/Admin/addons/PhotoProviderIcons'
 import { MAdminButton, MAdminCard, MAdminField, MAdminInput, MAdminSecretInput } from './MAdminUi'
+import WandererMark from '../../../components/Tours/wanderer/WandererMark'
 
 // Keys are the `icon` column from the addons table; anything unknown falls back to
 // Puzzle. Users/Sparkles cover collab and llm_parsing, as on the desktop.
 const ICON_MAP = {
   ListChecks, Wallet, FileText, CalendarDays, Puzzle, Globe, Briefcase, Image, Terminal, Link2, Compass, BookOpen, Plane, Bookmark, Users, Sparkles,
+  Mountain,
+  // Road trip was seeded as 'Route'; the car says what it is better than a line does.
+  Route: CarFront,
   Dawarich: DawarichIcon,
 }
 
@@ -60,6 +64,8 @@ export default function MAdminAddonManager({ bagTrackingEnabled, onToggleBagTrac
   const dark = useIsDark()
   const {
     addons, loading, handleToggle, tripAddons, globalAddons, integrationAddons, providerOptions, documentProviderOptions,
+    toursWanderer,
+    toggleToursWanderer,
   } = useAddonManager()
 
   if (loading) {
@@ -107,6 +113,15 @@ export default function MAdminAddonManager({ bagTrackingEnabled, onToggleBagTrac
                     />
                   )}
                   {addon.id === 'documents' && addon.enabled && <MProviderShelf options={documentProviderOptions} />}
+                  {addon.id === 'tours' && addon.enabled && (
+                    <MSubRow
+                      providerIcon={WandererMark}
+                      title={t('admin.toursWanderer.title')}
+                      subtitle={t('admin.toursWanderer.subtitle')}
+                      enabled={toursWanderer}
+                      onToggle={() => void toggleToursWanderer()}
+                    />
+                  )}
                   {addon.id === 'collab' && addon.enabled && collabFeatures && onToggleCollabFeature && (
                     <>
                       {COLLAB_SUB_FEATURES.map(feat => (

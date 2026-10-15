@@ -50,6 +50,7 @@ export * from './roadtrip/roadtrip.schema';
 export * from './place/track-colors';
 export * from './tours/tours.schema';
 export * from './tours/tours.metrics';
+export * from './wanderer/wanderer.schema';
 export * from './geo/haversine';
 export * from './collection/collection.schema';
 export * from './collection/collection-file.schema';

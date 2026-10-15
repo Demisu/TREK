@@ -1,25 +1,42 @@
 import { useId, type ReactNode } from 'react'
 import type { TourListItem } from '@trek/shared'
-import { Link2 } from 'lucide-react'
 import { fs } from '../shared/DialogShell'
-import { SoftPill } from '../Planner/planParts'
-import { TourFactPills, TourGradeTile } from './tourParts'
-import { tourWebsitePresentation } from './tourPresentation'
+import { TourCautionBadge, TourDaysBadge, TourGradeTile } from './tourParts'
+import type { Day } from '../../types'
+import { endPlaceDrag, startPlaceDrag } from '../Map/markerDrag'
+import { TourDayRowPills } from './TourDayRowFacts'
+import { useTourDays } from './tourDays'
+
+const NO_DAYS: Day[] = []
 
 interface TourListRowProps {
   tour: TourListItem
+  /** The trip's days, to name the ones the tour is on; without them the row names none. */
+  days?: Day[]
   selected?: boolean
   disabled?: boolean
+  /** The row can be picked up and dropped on a day of the plan, like a place. */
+  draggableToDay?: boolean
   onSelect: (tour: TourListItem, opener: HTMLElement) => void
   action?: ReactNode
   children?: ReactNode
 }
 
-/** A tour in a list, shaped like a place row: tile, name, its facts as pills and the day action on the right. */
-export default function TourListRow({ tour, selected = false, disabled = false, onSelect, action, children }: TourListRowProps) {
+/**
+ * A tour in a list, laid out like a stop in the day plan: its tile with the
+ * grade, the name, and one line of the plan's white badges (time, distance,
+ * ascent, the days it is on, a caution) with the description trailing after
+ * them. The day and delete actions sit on the right.
+ */
+export default function TourListRow({ tour,
+  days = NO_DAYS,
+  selected = false, disabled = false,
+  draggableToDay = false, onSelect, action, children }: TourListRowProps) {
   const nameId = useId()
+  const tourDays = useTourDays(tour.place_id, days)
+  const draggable = draggableToDay && !disabled
   const tone = selected ? 'bg-surface-selected' : disabled ? '' : 'hover:bg-surface-hover'
-  const website = tourWebsitePresentation(tour.website)
+  const cursor = disabled ? 'cursor-default opacity-60' : draggable ? 'cursor-grab' : 'cursor-pointer'
   return (
     <li
       role="option"
@@ -27,7 +44,10 @@ export default function TourListRow({ tour, selected = false, disabled = false, 
       aria-selected={selected}
       aria-disabled={disabled || undefined}
       aria-labelledby={nameId}
-      className={`group mb-px rounded-[12px] px-2.5 py-2 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[color:var(--text-primary)] ${tone} ${disabled ? 'cursor-default opacity-60' : 'cursor-pointer'}`}
+      draggable={draggable || undefined}
+      onDragStart={draggable ? (event) => startPlaceDrag(event.dataTransfer, tour.place_id) : undefined}
+      onDragEnd={draggable ? endPlaceDrag : undefined}
+      className={`group mx-1.5 rounded-[10px] px-1.5 py-2 outline-none transition-colors focus-visible:bg-surface-hover ${tone} ${cursor}`}
       onClick={event => { if (!disabled) onSelect(tour, event.currentTarget) }}
       onKeyDown={event => {
         if (disabled || event.target !== event.currentTarget) return
@@ -37,31 +57,39 @@ export default function TourListRow({ tour, selected = false, disabled = false, 
         }
       }}
     >
-      {/* The tile, the name and the day actions share the head line; the rest runs the
-          full width under them, below the tile too. */}
       <div className="flex items-center gap-2.5">
         <TourGradeTile tour={tour} />
-        <span id={nameId} className="block min-w-0 flex-1 truncate font-semibold leading-tight text-content" style={fs(13, 'body')}>{tour.name}</span>
+        <div className="min-w-0 flex-1">
+          <span id={nameId} className="block min-w-0 truncate font-semibold leading-tight text-content"
+            style={fs(13, 'body')}>{tour.name}</span>
+        {/* One line like a plan row's: the badges keep their place, the description gives way. */}
+          <div
+            data-testid="tour-metrics"
+            className="mt-0.5 flex min-w-0 flex-nowrap items-center gap-1.5 overflow-hidden"
+          >
+            <TourCautionBadge tour={tour} />
+            <TourDayRowPills tour={tour} />
+            <TourDaysBadge tourDays={tourDays} />
+            {tour.description && (
+              <span
+                data-testid="tour-description-preview"
+                className="min-w-0 flex-1 truncate text-content-faint"
+                style={fs(10.5)}
+              >
+                {tour.description}
+              </span>
+            )}
+          </div>
+        </div>
         {action && (
-          <div data-testid="tour-action-row" role="presentation" className="flex flex-none items-center gap-1.5" onClick={event => event.stopPropagation()}>
+          // Out on hover, focus or selection, as a plan row's controls are: the name and badges have the room otherwise.
+          <div data-testid="tour-action-row" role="presentation"
+            onClick={event => event.stopPropagation()}
+            className={`flex-none items-center gap-1.5 group-focus-within:flex group-hover:flex ${selected ? 'flex' : 'hidden'}`}>
             {action}
           </div>
         )}
       </div>
-      {tour.description && (
-        <div data-testid="tour-description-preview" className="mt-2.5 rounded-[10px] bg-surface-card px-2 py-1.5 text-content-secondary shadow-sm ring-1 ring-inset ring-edge-faint" style={fs(11)}>
-          <span className="overflow-hidden text-ellipsis" style={{ lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-            {tour.description}
-          </span>
-        </div>
-      )}
-      <TourFactPills tour={tour} className={tour.description ? 'mt-1.5' : 'mt-2.5'}>
-        {website && (
-          <SoftPill icon={<Link2 size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
-            <span className="min-w-0 truncate">{website.provider ?? website.domain}</span>
-          </SoftPill>
-        )}
-      </TourFactPills>
       {children}
     </li>
   )

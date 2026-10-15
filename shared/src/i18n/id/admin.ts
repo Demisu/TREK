@@ -705,6 +705,11 @@ const admin: TranslationStrings = {
   'admin.addons.toast.updated': 'Addon diperbarui',
   'admin.addons.toast.error': 'Gagal memperbarui addon',
   'admin.addons.group.count': '{enabled} dari {total} aktif',
+  'admin.addons.subOptions': '{count} opsi',
+  'admin.addons.subOptionsOn': '{count} aktif',
+  'admin.toursWanderer.title': 'wanderer',
+  'admin.toursWanderer.subtitle':
+    'Pengguna dapat menghubungkan instans wanderer milik sendiri dan mengimpor jalurnya sebagai tur',
   'admin.addons.noAddons': 'Tidak ada addon yang tersedia',
   'admin.weather.title': 'Data Cuaca',
   'admin.weather.badge': 'Sejak 24 Maret 2026',
