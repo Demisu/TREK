@@ -1,3 +1,4 @@
+import '../../styles/fadeEnd.css'
 import { useId, type ReactNode } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import type { TourListItem } from '@trek/shared'
@@ -38,13 +39,70 @@ function MapToggleButton({ toggle }: { toggle: NonNullable<TourListRowProps['map
         aria-label={label}
         aria-pressed={toggle.hidden}
         onClick={event => { event.stopPropagation(); toggle.onToggle() }}
-        className={`grid h-[26px] w-[26px] flex-none place-items-center rounded-full shadow-sm ring-1 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent ${toggle.hidden
-          ? 'bg-surface-tertiary text-content-muted ring-edge-faint hover:text-content'
-          : 'bg-surface-card text-content-muted ring-edge-faint hover:text-content'}`}
+        className={`grid h-[26px] w-[26px] flex-none place-items-center rounded-full text-content-muted shadow-sm ring-1 ring-edge-faint transition-colors hover:text-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent ${toggle.hidden ? 'bg-surface-tertiary' : 'bg-surface-card'}`}
       >
         {toggle.hidden ? <EyeOff size={13} strokeWidth={2.2} /> : <Eye size={13} strokeWidth={2.2} />}
       </button>
     </Tooltip>
+  )
+}
+
+/** The tile, the name and one line of badges with the description trailing after them. */
+function TourRowBody({ tour, nameId, tourDays, dimmed }: {
+  tour: TourListItem
+  nameId: string
+  tourDays: ReturnType<typeof useTourDays>
+  dimmed: boolean
+}) {
+  return (
+    <div className={`flex min-w-0 flex-1 items-center gap-2.5 transition-opacity ${dimmed ? 'opacity-55' : ''}`}>
+      <TourGradeTile tour={tour} />
+      <div className="min-w-0 flex-1">
+        <span id={nameId} className="block min-w-0 truncate font-semibold leading-tight text-content"
+          style={fs(13, 'body')}>{tour.name}</span>
+        {/* One line like a plan row's: the badges keep their place, the description gives way,
+            and what does not fit fades out instead of ending at a hard edge. */}
+        <div
+          data-testid="tour-metrics"
+          className="trek-fade-end mt-0.5 flex min-w-0 flex-nowrap items-center gap-1.5 overflow-hidden"
+        >
+          <TourCautionBadge tour={tour} />
+          <TourDayRowPills tour={tour} />
+          <TourDaysBadge tourDays={tourDays} />
+          {tour.description && (
+            <span
+              data-testid="tour-description-preview"
+              className="min-w-0 flex-1 truncate text-content-faint"
+              style={fs(10.5)}
+            >
+              {tour.description}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * The eye and the row's actions on the right. A hidden tour keeps its eye in
+ * sight; the rest come out on hover, focus or selection, as a plan row's
+ * controls do, so the name and badges have the room otherwise.
+ */
+function TourRowActions({ action, mapToggle, selected }: Pick<TourListRowProps, 'action' | 'mapToggle'> & { selected: boolean }) {
+  const hoverToggle = mapToggle && !mapToggle.hidden ? mapToggle : null
+  return (
+    <>
+      {mapToggle?.hidden && <MapToggleButton toggle={mapToggle} />}
+      {(action || hoverToggle) && (
+        <div data-testid="tour-action-row" role="presentation"
+          onClick={event => event.stopPropagation()}
+          className={`flex-none items-center gap-1.5 group-focus-within:flex group-hover:flex ${selected ? 'flex' : 'hidden'}`}>
+          {hoverToggle && <MapToggleButton toggle={hoverToggle} />}
+          {action}
+        </div>
+      )}
+    </>
   )
 }
 
@@ -89,41 +147,8 @@ export default function TourListRow({ tour,
           // The line's colour on the map, as a plan row shows its category.
           <span aria-hidden="true" className="-me-1 h-8 w-[3px] flex-none rounded-full" style={{ background: trackColor }} />
         )}
-        <div className={`flex min-w-0 flex-1 items-center gap-2.5 transition-opacity ${mapToggle?.hidden ? 'opacity-55' : ''}`}>
-        <TourGradeTile tour={tour} />
-        <div className="min-w-0 flex-1">
-          <span id={nameId} className="block min-w-0 truncate font-semibold leading-tight text-content"
-            style={fs(13, 'body')}>{tour.name}</span>
-        {/* One line like a plan row's: the badges keep their place, the description gives way. */}
-          <div
-            data-testid="tour-metrics"
-            className="mt-0.5 flex min-w-0 flex-nowrap items-center gap-1.5 overflow-hidden"
-          >
-            <TourCautionBadge tour={tour} />
-            <TourDayRowPills tour={tour} />
-            <TourDaysBadge tourDays={tourDays} />
-            {tour.description && (
-              <span
-                data-testid="tour-description-preview"
-                className="min-w-0 flex-1 truncate text-content-faint"
-                style={fs(10.5)}
-              >
-                {tour.description}
-              </span>
-            )}
-          </div>
-        </div>
-        </div>
-        {mapToggle?.hidden && <MapToggleButton toggle={mapToggle} />}
-        {(action || (mapToggle && !mapToggle.hidden)) && (
-          // Out on hover, focus or selection, as a plan row's controls are: the name and badges have the room otherwise.
-          <div data-testid="tour-action-row" role="presentation"
-            onClick={event => event.stopPropagation()}
-            className={`flex-none items-center gap-1.5 group-focus-within:flex group-hover:flex ${selected ? 'flex' : 'hidden'}`}>
-            {mapToggle && !mapToggle.hidden && <MapToggleButton toggle={mapToggle} />}
-            {action}
-          </div>
-        )}
+        <TourRowBody tour={tour} nameId={nameId} tourDays={tourDays} dimmed={!!mapToggle?.hidden} />
+        <TourRowActions action={action} mapToggle={mapToggle} selected={selected} />
       </div>
       {children}
     </li>

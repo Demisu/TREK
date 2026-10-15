@@ -31,7 +31,7 @@ import { getHelpContext } from '../help/registry'
 import { X, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen } from 'lucide-react'
 import ConfirmDialog from '../components/shared/ConfirmDialog'
 import { Tooltip } from '../components/shared/Tooltip'
-import type { Place, Reservation } from '../types'
+import type { Reservation } from '../types'
 import { useTripPlannerPage } from './tripPlanner/useTripPlannerPage'
 import { useBookingExpenseEditor } from './tripPlanner/useBookingExpenseEditor'
 import { applyTripCoverUpdate } from './tripPlanner/tripCover'
@@ -127,7 +127,7 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
     handleSaveReservation, handleSaveTransport, handleDeleteReservation,
     selectedPlace, dayOrderMap, dayPlaces,
     toursEnabled, toursMode, setToursMode, tours, toursLoading, tourDataReady, tourPlaceIds,
-    reloadTourPlaceIds, invalidateTourPlaceIds, selectedTour,
+    invalidateTourPlaceIds, selectedTour,
     mapTileUrl, fontStyle, splashDone,
   } = pageState.planner
   const {

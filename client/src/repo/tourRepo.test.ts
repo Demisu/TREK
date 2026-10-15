@@ -243,3 +243,42 @@ describe('replaceTripTours', () => {
     expect(rows.find(r => r.place_id === 2)!.waypoints).toBeUndefined()
   })
 })
+
+describe('tourRepo provenance and copies (P2C-02, P2C-07)', () => {
+  const provenance = {
+    origin: 'gpx' as const,
+    createdAt: '2026-07-01 10:00:00',
+    source: { kind: 'gpx' as const, fileName: 'ridge.gpx' },
+    derivedFrom: null,
+    plannedOver: false,
+    editedLocally: null,
+  }
+
+  it('FE-REPO-TOUR-020: the detail caches where the tour came from, offline gives it back, and a list refresh keeps it', async () => {
+    server.use(http.get('/api/trips/3/tours/40', () => HttpResponse.json({ tour: tour(), waypoints: body.waypoints, provenance })))
+    await tourRepo.detail(3, 40)
+    expect((await offlineDb.tours.get(40))?.provenance).toEqual(provenance)
+
+    await replaceTripTours(3, [tour({ name: 'Renamed' })])
+    expect((await offlineDb.tours.get(40))?.provenance).toEqual(provenance)
+
+    setOnline(false)
+    const offline = await tourRepo.detail(3, 40)
+    expect(offline.provenance).toEqual(provenance)
+    // The list item handed out carries none of the cache's own fields.
+    expect(offline.tour).not.toHaveProperty('provenance')
+  })
+
+  it('FE-REPO-TOUR-021: a copy is asked of the server under its name and cached as a tour of the trip', async () => {
+    let sent: unknown = null
+    server.use(http.post('/api/trips/3/tours/40/copy', async ({ request }) => {
+      sent = await request.json()
+      return HttpResponse.json({ tour: tour({ place_id: 41, name: 'Ridge walk (copy)', derived_from_place_id: 40 }), waypoints: body.waypoints }, { status: 201 })
+    }))
+    const result = await tourRepo.copy(3, 40, 'Ridge walk (copy)')
+    expect(sent).toEqual({ name: 'Ridge walk (copy)' })
+    expect(result.tour.place_id).toBe(41)
+    expect(await offlineDb.tours.get(41)).toMatchObject({ trip_id: 3, derived_from_place_id: 40, waypoints: body.waypoints })
+  })
+})
+

@@ -2,6 +2,7 @@ import type { TourListItem } from '@trek/shared';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useTranslation } from '../../i18n';
+import '../../styles/fadeEnd.css';
 import type { Category, Place } from '../../types';
 import { formatTime } from '../../utils/formatters';
 import { fs } from '../shared/DialogShell';
@@ -95,7 +96,7 @@ export function DayPlanPlaceSubline({ place, cat, tourTimes, isTourPlace, timeFo
   return (
     // One line like the row's name: when the hover controls come out, the description
     // gives way and the pills keep their place instead of wrapping onto a second line.
-    <div className="mt-0.5 flex min-w-0 flex-nowrap items-center gap-1.5 overflow-hidden">
+    <div className="trek-fade-end mt-0.5 flex min-w-0 flex-nowrap items-center gap-1.5 overflow-hidden">
       {place.place_time && (
         <TimePill quiet>
           {formatTime(place.place_time, locale, timeFormat)}

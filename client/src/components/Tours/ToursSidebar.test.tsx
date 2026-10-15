@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { TourListItem } from '@trek/shared'
 import { resetAllStores, seedStore } from '../../../tests/helpers/store'
 import { useSettingsStore } from '../../store/settingsStore'
+import { useAuthStore } from '../../store/authStore'
+import { useTourMapVisibilityStore } from '../../store/tourMapVisibilityStore'
 import { useTripStore } from '../../store/tripStore'
 import { toursApi } from '../../api/client'
 import ToursSidebar from './ToursSidebar'
@@ -303,5 +305,40 @@ describe('ToursSidebar', () => {
     const badge = within(screen.getByRole('option', { name: /Selected ridge walk/ })).getByTestId('tour-days-badge')
     expect(badge).toHaveTextContent('Days 1, 3')
     expect(badge).toHaveAttribute('aria-label', 'Day 1, Day 3: Summit')
+  })
+
+  it('PR1-13: offers the source and routing limit only where the list varies, and narrows by them', () => {
+    render(<ToursSidebar tripId={1} days={[]} tours={[
+      { ...tour, place_id: 1, name: 'Drawn', origin: 'trek', max_hiking_difficulty: 2 },
+      { ...tour, place_id: 2, name: 'Imported', origin: 'gpx', max_hiking_difficulty: null },
+      { ...tour, place_id: 3, name: 'Snapshot', origin: 'wanderer', max_hiking_difficulty: 3 },
+    ]} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Show' }))
+    const source = screen.getByRole('group', { name: 'Source' })
+    fireEvent.click(within(source).getByRole('button', { name: /GPX import\s*1/ }))
+    expect(screen.getAllByRole('option').map(row => row.textContent)).toEqual([expect.stringContaining('Imported')])
+    expect(screen.getByRole('button', { name: 'Show' })).toHaveTextContent('+1')
+    // Only one tour type in the list: no type filter.
+    expect(screen.queryByRole('group', { name: 'Type' })).toBeNull()
+    fireEvent.click(within(screen.getByRole('group', { name: 'Routing limit' })).getByRole('button', { name: /T3/ }))
+    expect(screen.getByRole('status')).toHaveTextContent('No tour matches these filters.')
+    fireEvent.click(screen.getByRole('button', { name: 'Reset filters' }))
+    expect(screen.getAllByRole('option')).toHaveLength(3)
+  })
+
+  it('PR1-07/08: a row shows its line colour, and its eye hides the tour from the map until shown again', () => {
+    seedStore(useAuthStore, { user: { id: 3 } as never })
+    seedStore(useTripStore, { places: [{ id: 42, route_color: '#e11d48' }] as never })
+    render(<ToursSidebar tripId={1} days={[]} tours={[tour]} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />)
+    const row = screen.getByRole('option', { name: /Selected ridge walk/ })
+    expect(row.querySelector('[aria-hidden="true"][style]')).toHaveStyle({ background: '#e11d48' })
+
+    fireEvent.click(within(row).getByRole('button', { name: 'Hide on the map' }))
+    expect(useTourMapVisibilityStore.getState().hidden).toEqual([42])
+    expect(screen.getByRole('status')).toHaveTextContent('Hidden on the map')
+    // A hidden tour keeps its eye in sight, not only on hover.
+    expect(within(row).getByRole('button', { name: 'Show on the map' })).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(screen.getByRole('button', { name: 'Show all' }))
+    expect(useTourMapVisibilityStore.getState().hidden).toEqual([])
   })
 })

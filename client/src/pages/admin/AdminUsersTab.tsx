@@ -17,7 +17,8 @@ interface AdminUsersTabProps {
   locale: string
 }
 
-const TH = 'px-3.5 py-2.5 font-geist font-bold uppercase tracking-[.08em] text-content-faint'
+const TH_BASE = 'px-3.5 py-2.5 font-geist font-bold uppercase tracking-[.08em] text-content-faint'
+const TH = `${TH_BASE} text-start`
 const TD = 'px-3.5 py-3 align-middle'
 
 /** An icon action of a row, named by its tooltip and its aria-label. */
@@ -74,7 +75,7 @@ export default function AdminUsersTab({ admin, t, locale }: AdminUsersTabProps):
                   <th className={TH}>{t('admin.table.role')}</th>
                   <th className={TH}>{t('admin.table.created')}</th>
                   <th className={TH}>{t('admin.table.lastActive')}</th>
-                  <th className={`${TH} text-end`}>{t('admin.table.actions')}</th>
+                  <th className={`${TH_BASE} text-center`}>{t('admin.table.actions')}</th>
                 </tr>
               </thead>
               <tbody className="trek-stagger divide-y divide-edge-faint">
@@ -118,7 +119,7 @@ export default function AdminUsersTab({ admin, t, locale }: AdminUsersTabProps):
                         {formatLastActive(u.last_active ?? u.last_login, locale, hour12)}
                       </td>
                       <td className={TD}>
-                        <div className="flex items-center justify-end gap-1.5">
+                        <div className="flex items-center justify-center gap-1.5">
                           <RowIconButton label={t('admin.editUser')} onClick={() => handleEditUser(u)}>
                             <Edit2 size={14} strokeWidth={2} />
                           </RowIconButton>

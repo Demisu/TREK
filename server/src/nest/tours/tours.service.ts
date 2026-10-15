@@ -354,7 +354,8 @@ export class ToursService {
         this.toursRepo.findProvenance(tid, pid),
         this.placesRepo.findInTrip(pid, tid),
       ]);
-      if (!source || !provenance || !place) throw new NotFoundException('Tour not found');
+      // A tour without a line has nothing to copy.
+      if (!source || !provenance || !place?.route_geometry) throw new NotFoundException('Tour not found');
       const start = parseRouteGeometry(place.route_geometry)[0];
       const id = await this.placesRepo.insertTourPlace({
         trip_id: tid,

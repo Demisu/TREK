@@ -29,6 +29,13 @@ describe('tourPresentation', () => {
     expect(hikeSourceBadgeLabel({ wanderer_ref: 'wanderer:123' }, t)).toBe('tours.badge.wanderer')
   })
 
+  it('P2C-02: takes the origin the server recorded over the shape of the tour', () => {
+    // An import planned over in place has waypoints, and is still an import.
+    expect(tourSource({ wanderer_ref: null, has_waypoints: true, origin: 'gpx' })).toBe('gpx')
+    expect(tourSource({ wanderer_ref: null, has_waypoints: false, origin: 'trek' })).toBe('trek')
+    expect(tourSource({ wanderer_ref: 'w#1', origin: 'wanderer' })).toBe('wanderer')
+  })
+
   it('filters tours by All, Unplanned and Planned, keeping their order', () => {
     const tours = [
       { id: 1, planned: true },

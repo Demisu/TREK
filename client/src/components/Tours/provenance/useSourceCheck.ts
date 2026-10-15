@@ -1,5 +1,5 @@
 import type { TourListItem, TourSourceCheckResponse } from '@trek/shared';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from '../../../i18n';
 import { wandererErrorCode, wandererRepo } from '../../../repo/wandererRepo';
 import { useToast } from '../../shared/Toast';
@@ -22,15 +22,24 @@ export function useSourceCheck({ tripId, placeId, onReimported }: SourceCheckOpt
   const { t } = useTranslation();
   const toast = useToast();
   const [checking, setChecking] = useState(false);
-  const [result, setResult] = useState<TourSourceCheckResponse | null>(null);
-  const [confirming, setConfirming] = useState(false);
   const [reimporting, setReimporting] = useState(false);
-
-  // Another tour shown in the same dialog starts unchecked.
-  useEffect(() => {
-    setResult(null);
-    setConfirming(false);
-  }, [placeId]);
+  // The answer and the question belong to the tour they were asked for:
+  // another tour shown in the same dialog starts unchecked.
+  const [state, setState] = useState<{ placeId: number; result: TourSourceCheckResponse | null; confirming: boolean }>({
+    placeId,
+    result: null,
+    confirming: false,
+  });
+  const result = state.placeId === placeId ? state.result : null;
+  const confirming = state.placeId === placeId && state.confirming;
+  const setResult = useCallback(
+    (next: TourSourceCheckResponse | null) => setState({ placeId, result: next, confirming: false }),
+    [placeId]
+  );
+  const setConfirming = useCallback(
+    (next: boolean) => setState((current) => ({ ...current, placeId, confirming: next })),
+    [placeId]
+  );
 
   const check = useCallback(async () => {
     if (checking) return;
@@ -43,7 +52,7 @@ export function useSourceCheck({ tripId, placeId, onReimported }: SourceCheckOpt
     } finally {
       setChecking(false);
     }
-  }, [checking, placeId, t, toast, tripId]);
+  }, [checking, placeId, setResult, t, toast, tripId]);
 
   const reimport = useCallback(async () => {
     const payload = result?.reimport;
@@ -61,7 +70,7 @@ export function useSourceCheck({ tripId, placeId, onReimported }: SourceCheckOpt
     } finally {
       setReimporting(false);
     }
-  }, [onReimported, reimporting, result, t, toast, tripId]);
+  }, [onReimported, reimporting, result, setConfirming, setResult, t, toast, tripId]);
 
   return {
     checking,
@@ -70,8 +79,8 @@ export function useSourceCheck({ tripId, placeId, onReimported }: SourceCheckOpt
     /** A reimport can be offered: the trail was read and differs, and someone takes the new snapshot in. */
     canReimport: !!result?.reimport && !!onReimported,
     confirming,
-    askReimport: useCallback(() => setConfirming(true), []),
-    cancelReimport: useCallback(() => setConfirming(false), []),
+    askReimport: useCallback(() => setConfirming(true), [setConfirming]),
+    cancelReimport: useCallback(() => setConfirming(false), [setConfirming]),
     reimporting,
     reimport,
   };

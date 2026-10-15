@@ -5,10 +5,9 @@ import { useTourPlanner } from '../../components/Tours/planner/useTourPlanner';
 import { useRecordedTrack } from '../../components/Tours/useRecordedTrack';
 import { useTourGpxImport } from '../../components/Tours/useTourGpxImport';
 import { useWandererBrowser } from '../../components/Tours/wanderer/useWandererBrowser';
-import { tourRepo } from '../../repo/tourRepo';
 import { useAddonStore } from '../../store/addonStore';
 import { useTripStore } from '../../store/tripStore';
-import type { Place } from '../../types';
+import { useTourDetailActions } from './useTourDetailActions';
 import type { useTripPlanner } from './useTripPlanner';
 
 /**
@@ -118,37 +117,7 @@ export function useTourWorkspace(
     },
   });
 
-  // What the tour's detail does beyond a place's: a rename reloads the tours, a reimport from its
-  // source check takes the new snapshot in and opens it.
-  const tourDetailActions = {
-    onUpdatePlace: async (placeId: number, data: Partial<Place>) => {
-      await tripActions.updatePlace(tripId, placeId, data);
-      await reloadTourPlaceIds();
-    },
-    onSourceReimported: async (tour: TourListItem) => {
-      upsertTour(tour);
-      await useTripStore.getState().refreshPlaces(tripId);
-      void invalidateTourPlaceIds({ placeIds: [tour.place_id] });
-      planner.handlePlaceClick(tour.place_id);
-    },
-    // P2C-07: the copy opens at once, under a name that says it is one; renaming it is the next step.
-    onSaveAsNew: async (tour: TourListItem) => {
-      try {
-        const { tour: copy } = await tourRepo.copy(
-          tripId,
-          tour.place_id,
-          t('tours.copy.name', { name: tour.name }).slice(0, 255)
-        );
-        upsertTour(copy);
-        await useTripStore.getState().refreshPlaces(tripId);
-        void invalidateTourPlaceIds({ placeIds: [copy.place_id] });
-        planner.handlePlaceClick(copy.place_id);
-        toast.success(t('tours.copy.saved'));
-      } catch {
-        toast.error(t('tours.copy.failed'));
-      }
-    },
-  };
+  const tourDetailActions = useTourDetailActions(planner);
 
   return {
     tourPlanner,

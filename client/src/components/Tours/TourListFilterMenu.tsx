@@ -3,23 +3,8 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from '../../i18n';
 import { fs } from '../shared/DialogShell';
 import { InfoDot } from './tourParts';
-import type { TourFilter } from './tourPresentation';
+import { ORIGIN_LABEL_KEY, statusLabel } from './tourPresentation';
 import type { TourListFilters } from './useTourListFilters';
-
-type Translate = (key: string, params?: Record<string, unknown>) => string;
-
-/** How each origin is named in a list, the words the source badge uses. */
-export const ORIGIN_LABEL_KEY = {
-  trek: 'tours.badge.planned',
-  gpx: 'tours.badge.gpx',
-  wanderer: 'tours.badge.wanderer',
-} as const;
-
-export function statusLabel(status: TourFilter, t: Translate): string {
-  if (status === 'unplanned') return t('places.unplanned');
-  if (status === 'planned') return t('places.planned');
-  return t('places.all');
-}
 
 function MenuRow({
   active,
@@ -132,7 +117,11 @@ export default function TourListFilterMenu({ filters }: { filters: TourListFilte
         />
       </button>
       {open && (
-        <div className="trek-popover-enter absolute start-0 top-full z-50 mt-1.5 flex max-h-[min(420px,60vh)] w-full min-w-[200px] flex-col gap-1.5 overflow-y-auto rounded-[12px] border border-edge-secondary bg-surface-card p-1.5 shadow-popover">
+        <div
+          role="group"
+          aria-label={t('places.filterShow')}
+          className="trek-popover-enter absolute start-0 top-full z-50 mt-1.5 flex max-h-[min(420px,60vh)] w-full min-w-[200px] flex-col gap-1.5 overflow-y-auto rounded-[12px] border border-edge-secondary bg-surface-card p-1.5 shadow-popover"
+        >
           <MenuSection label={t('tours.filter.status')}>
             {(['all', 'unplanned', 'planned'] as const).map((status) => (
               <MenuRow

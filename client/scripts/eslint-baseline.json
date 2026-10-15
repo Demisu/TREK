@@ -8,7 +8,7 @@
     "trek/no-swallowed-catch": 133,
     "max-params": 35,
     "trek/store-without-selector": 69,
-    "react-hooks/refs": 561,
+    "react-hooks/refs": 560,
     "react-hooks/set-state-in-effect": 197,
     "@typescript-eslint/no-floating-promises": 167,
     "react-hooks/exhaustive-deps": 121,
