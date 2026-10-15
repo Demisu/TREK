@@ -72,8 +72,8 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': 'Rencanakan sebagai tur baru',
   'tours.conversion.discard': 'Buang',
   'tours.conversion.adopted': 'Dibuka sebagai tur baru. Simpan untuk mempertahankannya; impor tetap seperti semula.',
-  'tours.derivedFrom': 'Direncanakan dari {name}',
-  'tours.derivedFromHint': 'Dirutekan ulang dari impor, jadi bisa berbeda dari jejak yang direkam.',
+  'tours.derivedFrom': 'Berdasarkan {name}',
+  'tours.derivedFromHint': 'Dibuat dari tur ini. Keduanya mandiri: perubahan pada satu tidak sampai ke yang lain.',
   'tours.delete.confirmBody':
     'Hapus tur ini secara permanen? Rute, titik arah yang dapat diedit, dan penetapan harinya akan dihapus. Tindakan ini tidak dapat dibatalkan.',
   'tours.delete.bulkConfirmBody':
@@ -265,5 +265,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Jenis',
   'tours.filter.empty': 'Tidak ada tur yang cocok dengan filter ini.',
   'tours.filter.reset': 'Atur ulang filter',
+  'tours.copy.action': 'Simpan sebagai tur baru',
+  'tours.copy.hint': 'Menyalin tur ini sebagai tur baru yang mandiri tanpa hari-harinya. Aslinya tetap seperti semula.',
+  'tours.copy.name': '{name} (salinan)',
+  'tours.copy.saved': 'Disimpan sebagai tur baru',
+  'tours.copy.failed': 'Tur tidak dapat disalin.',
 };
 export default tours;

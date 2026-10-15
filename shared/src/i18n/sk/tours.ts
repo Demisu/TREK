@@ -79,8 +79,8 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': 'Naplánovať ako novú túru',
   'tours.conversion.discard': 'Zahodiť',
   'tours.conversion.adopted': 'Otvorené ako nová túra. Uložte ju, aby sa zachovala; import zostane nezmenený.',
-  'tours.derivedFrom': 'Naplánované z {name}',
-  'tours.derivedFromHint': 'Trasa je z importu vypočítaná nanovo, preto sa môže od zaznamenanej stopy líšiť.',
+  'tours.derivedFrom': 'Vychádza z {name}',
+  'tours.derivedFromHint': 'Vznikla z tejto túry. Obe sú nezávislé: zmena jednej sa druhej nedotkne.',
   'tours.delete.confirmBody':
     'Naozaj chcete tento výlet natrvalo odstrániť? Odstráni sa jeho trasa, upraviteľné body a priradenia k dňom. Túto akciu nemožno vrátiť späť.',
   'tours.delete.bulkConfirmBody':
@@ -267,5 +267,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Druh',
   'tours.filter.empty': 'Týmto filtrom nezodpovedá žiadna túra.',
   'tours.filter.reset': 'Zrušiť filtre',
+  'tours.copy.action': 'Uložiť ako novú túru',
+  'tours.copy.hint': 'Skopíruje túto túru ako novú, samostatnú túru bez jej dní. Originál zostane, ako je.',
+  'tours.copy.name': '{name} (kópia)',
+  'tours.copy.saved': 'Uložené ako nová túra',
+  'tours.copy.failed': 'Túru sa nepodarilo skopírovať.',
 };
 export default tours;

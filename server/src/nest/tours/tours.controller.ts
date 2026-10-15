@@ -4,10 +4,10 @@ import { RequireAddon } from '../addons/require-addon.decorator';
 import { JwtAuthGuard } from '../auth-core/jwt-auth.guard';
 import { ResponseContract } from '../common/response-contract';
 import { RequirePermission, TripAccessGuard } from '../permissions/trip-access.guard';
-import { TourCreateDto } from './dto/tour-create.dto';
+import { TourCopyDto, TourCreateDto } from './dto/tour-create.dto';
 import { ToursService } from './tours.service';
 import { Body, Controller, Get, Headers, HttpCode, Param, Post, Put, UseGuards } from '@nestjs/common';
-import { tourDetailResponseSchema } from '@trek/shared';
+import { tourCreateResponseSchema, tourDetailResponseSchema } from '@trek/shared';
 
 /**
  * /api/trips/:tripId/tours: the Tours facet, read and route edits.
@@ -51,6 +51,19 @@ export class ToursController {
     @Headers('x-socket-id') socketId?: string,
   ) {
     return await this.tours.updateTour(tripId, placeId, body, socketId);
+  }
+
+  /** P2C-07: the tour saved again as a new, independent tour of the trip, without its days. */
+  @RequirePermission('place_edit')
+  @Post(':placeId/copy')
+  @ResponseContract(tourCreateResponseSchema)
+  async copy(
+    @Param('tripId') tripId: string,
+    @Param('placeId') placeId: string,
+    @Body() body: TourCopyDto,
+    @Headers('x-socket-id') socketId?: string,
+  ) {
+    return await this.tours.copyTour(tripId, placeId, body.name, socketId);
   }
 
   /** Takes an import planned over in place back to its recorded track; the planning is dropped. */

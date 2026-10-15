@@ -5,6 +5,7 @@ import { useTourPlanner } from '../../components/Tours/planner/useTourPlanner';
 import { useRecordedTrack } from '../../components/Tours/useRecordedTrack';
 import { useTourGpxImport } from '../../components/Tours/useTourGpxImport';
 import { useWandererBrowser } from '../../components/Tours/wanderer/useWandererBrowser';
+import { tourRepo } from '../../repo/tourRepo';
 import { useAddonStore } from '../../store/addonStore';
 import { useTripStore } from '../../store/tripStore';
 import type { Place } from '../../types';
@@ -129,6 +130,23 @@ export function useTourWorkspace(
       await useTripStore.getState().refreshPlaces(tripId);
       void invalidateTourPlaceIds({ placeIds: [tour.place_id] });
       planner.handlePlaceClick(tour.place_id);
+    },
+    // P2C-07: the copy opens at once, under a name that says it is one; renaming it is the next step.
+    onSaveAsNew: async (tour: TourListItem) => {
+      try {
+        const { tour: copy } = await tourRepo.copy(
+          tripId,
+          tour.place_id,
+          t('tours.copy.name', { name: tour.name }).slice(0, 255)
+        );
+        upsertTour(copy);
+        await useTripStore.getState().refreshPlaces(tripId);
+        void invalidateTourPlaceIds({ placeIds: [copy.place_id] });
+        planner.handlePlaceClick(copy.place_id);
+        toast.success(t('tours.copy.saved'));
+      } catch {
+        toast.error(t('tours.copy.failed'));
+      }
     },
   };
 

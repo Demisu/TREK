@@ -67,8 +67,8 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': '规划为新游览路线',
   'tours.conversion.discard': '放弃',
   'tours.conversion.adopted': '已作为新游览路线打开。保存后即可保留；导入的内容保持不变。',
-  'tours.derivedFrom': '根据 {name} 规划',
-  'tours.derivedFromHint': '根据导入内容重新规划，可能与录制的轨迹不同。',
+  'tours.derivedFrom': '基于 {name}',
+  'tours.derivedFromHint': '由此路线创建。两者相互独立：修改其中一个不会影响另一个。',
   'tours.delete.confirmBody': '要永久删除此行程吗？其路线、可编辑的途经点和日期安排都将被删除。此操作无法撤销。',
   'tours.delete.bulkConfirmBody':
     '所选内容至少包含一个行程。所有选中的地点都将被永久删除且无法恢复；行程路线、可编辑的途经点和日期安排也会一并删除。',
@@ -244,5 +244,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': '类型',
   'tours.filter.empty': '没有符合这些筛选条件的路线。',
   'tours.filter.reset': '重置筛选',
+  'tours.copy.action': '另存为新路线',
+  'tours.copy.hint': '将此路线复制为不含日程的独立新路线。原路线保持不变。',
+  'tours.copy.name': '{name}（副本）',
+  'tours.copy.saved': '已另存为新路线',
+  'tours.copy.failed': '无法复制路线。',
 };
 export default tours;

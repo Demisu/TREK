@@ -76,8 +76,9 @@ const tours: TranslationStrings = {
   'tours.conversion.discard': 'Verwerfen',
   'tours.conversion.adopted':
     'Als neue Tour geöffnet. Speichere sie, um sie zu behalten; der Import bleibt, wie er ist.',
-  'tours.derivedFrom': 'Geplant aus {name}',
-  'tours.derivedFromHint': 'Aus einem Import neu geroutet, kann daher von der aufgezeichneten Strecke abweichen.',
+  'tours.derivedFrom': 'Basiert auf {name}',
+  'tours.derivedFromHint':
+    'Aus dieser Tour entstanden. Beide sind unabhängig: Eine Änderung an der einen erreicht die andere nicht.',
   'tours.delete.confirmBody':
     'Diese Tour dauerhaft löschen? Ihre Route, bearbeitbaren Wegpunkte und Tageszuweisungen werden entfernt. Dieser Vorgang kann nicht rückgängig gemacht werden.',
   'tours.delete.bulkConfirmBody':
@@ -273,6 +274,11 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Art',
   'tours.filter.empty': 'Keine Tour passt zu diesen Filtern.',
   'tours.filter.reset': 'Filter zurücksetzen',
+  'tours.copy.action': 'Als neue Tour speichern',
+  'tours.copy.hint': 'Kopiert diese Tour als neue, eigenständige Tour ohne ihre Tage. Das Original bleibt, wie es ist.',
+  'tours.copy.name': '{name} (Kopie)',
+  'tours.copy.saved': 'Als neue Tour gespeichert',
+  'tours.copy.failed': 'Die Tour konnte nicht kopiert werden.',
 };
 
 export default tours;

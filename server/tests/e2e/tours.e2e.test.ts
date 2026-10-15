@@ -548,6 +548,66 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
     });
   });
 
+  describe('save as new tour (P2C-07)', () => {
+    const copy = (
+      placeId: number,
+      body: Record<string, unknown> = { name: 'Ridge (copy)' },
+      userId = OWNER,
+      tripId = 5,
+    ) =>
+      request(server)
+        .post(`/api/trips/${tripId}/tours/${placeId}/copy`)
+        .set('Cookie', sessionCookie(userId))
+        .send(body);
+    const detail = async (placeId: number) =>
+      (await request(server).get(`/api/trips/5/tours/${placeId}`).set('Cookie', sessionCookie(OWNER))).body;
+
+    it('makes an independent tour with its own line and control points, no days, pointing at its source', async () => {
+      const source = await createViaApi();
+      await makeDayAssignment(orm, 3, source, { order_index: 0 });
+      const res = await copy(source);
+      expect(res.status).toBe(201);
+      const copyId = res.body.tour.place_id as number;
+      expect(copyId).not.toBe(source);
+      expect(res.body.tour).toMatchObject({
+        name: 'Ridge (copy)',
+        derived_from_place_id: source,
+        planned: false,
+        origin: 'trek',
+      });
+      expect(res.body.waypoints).toEqual((await detail(source)).waypoints);
+      expect(res.body.provenance).toMatchObject({ derivedFrom: { placeId: source } });
+      expect((await placeColumns(copyId, 'route_geometry')).route_geometry).toBe(
+        (await placeColumns(source, 'route_geometry')).route_geometry,
+      );
+
+      // Editing the copy leaves the original as it was.
+      await request(server)
+        .put(`/api/trips/5/tours/${copyId}`)
+        .set('Cookie', sessionCookie(OWNER))
+        .send(tourBody({ name: 'Shorter ridge' }));
+      expect((await detail(source)).tour).toMatchObject({ name: tourBody().name, planned: true });
+    });
+
+    it('a copied GPX import stays a GPX import with its file name', async () => {
+      const imported = await importGpx(OWNER, TRACK_GPX);
+      const source = imported.body.tours[0].place_id as number;
+      const res = await copy(source, { name: 'Track again' });
+      expect(res.status).toBe(201);
+      expect(res.body.tour).toMatchObject({ origin: 'gpx', has_waypoints: false });
+      expect(res.body.provenance).toMatchObject({ source: { kind: 'gpx', fileName: 'track.gpx' } });
+    });
+
+    it('refuses an empty name, a tour of another trip, a plain place, and someone who may not add places', async () => {
+      const source = await createViaApi();
+      expect((await copy(source, { name: '  ' })).status).toBe(400);
+      expect((await copy(source, { name: 'x' }, VIEWER)).status).toBe(403);
+      expect((await copy(await plainPlace(5, 'Cafe'))).status).toBe(404);
+      const foreign = await createViaApi(6);
+      expect((await copy(foreign)).status).toBe(404);
+    });
+  });
+
   describe('planning over an import (PR1-05)', () => {
     /** An imported GPX tour on trip 5: no waypoints, the recorded line as it came. */
     const importedTour = async (tripId = 5) => {

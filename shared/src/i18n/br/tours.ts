@@ -76,9 +76,9 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': 'Planejar como novo passeio',
   'tours.conversion.discard': 'Descartar',
   'tours.conversion.adopted': 'Aberto como novo passeio. Salve para mantê-lo; a importação continua como está.',
-  'tours.derivedFrom': 'Planejado a partir de {name}',
+  'tours.derivedFrom': 'Baseado em {name}',
   'tours.derivedFromHint':
-    'Rota recalculada a partir de uma importação, por isso pode ser diferente do traçado gravado.',
+    'Criado a partir deste passeio. Os dois são independentes: uma mudança em um não chega ao outro.',
   'tours.delete.confirmBody':
     'Excluir este passeio permanentemente? A rota, os pontos editáveis e as atribuições aos dias serão removidos. Esta ação não pode ser desfeita.',
   'tours.delete.bulkConfirmBody':
@@ -271,5 +271,11 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Tipo',
   'tours.filter.empty': 'Nenhum passeio corresponde a esses filtros.',
   'tours.filter.reset': 'Limpar filtros',
+  'tours.copy.action': 'Salvar como novo passeio',
+  'tours.copy.hint':
+    'Copia este passeio como um novo passeio independente, sem os seus dias. O original fica como está.',
+  'tours.copy.name': '{name} (cópia)',
+  'tours.copy.saved': 'Salvo como novo passeio',
+  'tours.copy.failed': 'Não foi possível copiar o passeio.',
 };
 export default tours;

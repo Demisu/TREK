@@ -75,8 +75,8 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': 'Planeeri uue retkena',
   'tours.conversion.discard': 'Loobu',
   'tours.conversion.adopted': 'Avatud uue retkena. Salvesta see, et see alles jääks; import jääb muutmata.',
-  'tours.derivedFrom': 'Planeeritud allikast {name}',
-  'tours.derivedFromHint': 'Impordist uuesti arvutatud, seega võib see salvestatud rajast erineda.',
+  'tours.derivedFrom': 'Põhineb matkal {name}',
+  'tours.derivedFromHint': 'Tehtud sellest matkast. Need on sõltumatud: muudatus ühes ei jõua teise.',
   'tours.delete.confirmBody':
     'Kas kustutada see matk jäädavalt? Selle marsruut, muudetavad vahepunktid ja päevadele määramised eemaldatakse. Seda toimingut ei saa tagasi võtta.',
   'tours.delete.bulkConfirmBody':
@@ -268,5 +268,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Liik',
   'tours.filter.empty': 'Ükski matk ei vasta neile filtritele.',
   'tours.filter.reset': 'Lähtesta filtrid',
+  'tours.copy.action': 'Salvesta uue matkana',
+  'tours.copy.hint': 'Kopeerib selle matka uue, iseseisva matkana ilma päevadeta. Originaal jääb samaks.',
+  'tours.copy.name': '{name} (koopia)',
+  'tours.copy.saved': 'Salvestatud uue matkana',
+  'tours.copy.failed': 'Matka ei õnnestunud kopeerida.',
 };
 export default tours;

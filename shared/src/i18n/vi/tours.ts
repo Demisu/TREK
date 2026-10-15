@@ -73,8 +73,9 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': 'Lên kế hoạch thành chuyến tham quan mới',
   'tours.conversion.discard': 'Bỏ',
   'tours.conversion.adopted': 'Đã mở thành chuyến tham quan mới. Hãy lưu để giữ lại; bản nhập vẫn giữ nguyên.',
-  'tours.derivedFrom': 'Lên kế hoạch từ {name}',
-  'tours.derivedFromHint': 'Được định tuyến lại từ một bản nhập nên có thể khác với vệt hành trình đã ghi.',
+  'tours.derivedFrom': 'Dựa trên {name}',
+  'tours.derivedFromHint':
+    'Được tạo từ chuyến này. Hai chuyến độc lập: thay đổi ở chuyến này không ảnh hưởng chuyến kia.',
   'tours.delete.confirmBody':
     'Xóa vĩnh viễn chuyến đi này? Tuyến đường, các điểm trung gian có thể chỉnh sửa và lịch gán ngày sẽ bị xóa. Không thể hoàn tác thao tác này.',
   'tours.delete.bulkConfirmBody':
@@ -265,5 +266,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Loại',
   'tours.filter.empty': 'Không có chuyến đi bộ nào khớp với bộ lọc này.',
   'tours.filter.reset': 'Đặt lại bộ lọc',
+  'tours.copy.action': 'Lưu thành chuyến đi bộ mới',
+  'tours.copy.hint': 'Sao chép chuyến này thành một chuyến đi bộ mới, độc lập, không kèm các ngày. Bản gốc giữ nguyên.',
+  'tours.copy.name': '{name} (bản sao)',
+  'tours.copy.saved': 'Đã lưu thành chuyến đi bộ mới',
+  'tours.copy.failed': 'Không thể sao chép chuyến đi bộ.',
 };
 export default tours;

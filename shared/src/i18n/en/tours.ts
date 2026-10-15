@@ -74,8 +74,8 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': 'Plan as new tour',
   'tours.conversion.discard': 'Discard',
   'tours.conversion.adopted': 'Opened as a new tour. Save it to keep it; the import stays as it is.',
-  'tours.derivedFrom': 'Planned from {name}',
-  'tours.derivedFromHint': 'Routed anew from an import, so it can differ from the recorded track.',
+  'tours.derivedFrom': 'Based on {name}',
+  'tours.derivedFromHint': 'Made from this tour. The two are independent: a change to one does not reach the other.',
   'tours.delete.confirmBody':
     'Delete this Tour permanently? Its route, editable waypoints and day assignments will be removed. This action cannot be undone.',
   'tours.delete.bulkConfirmBody':
@@ -265,5 +265,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Type',
   'tours.filter.empty': 'No tour matches these filters.',
   'tours.filter.reset': 'Reset filters',
+  'tours.copy.action': 'Save as new tour',
+  'tours.copy.hint': 'Copies this tour as a new, independent tour without its days. The original stays as it is.',
+  'tours.copy.name': '{name} (copy)',
+  'tours.copy.saved': 'Saved as a new tour',
+  'tours.copy.failed': 'The tour could not be copied.',
 };
 export default tours;

@@ -78,8 +78,8 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': 'Naplánovat jako nový výlet',
   'tours.conversion.discard': 'Zahodit',
   'tours.conversion.adopted': 'Otevřeno jako nový výlet. Uložte ho, aby zůstal zachován; import zůstane beze změny.',
-  'tours.derivedFrom': 'Naplánováno z {name}',
-  'tours.derivedFromHint': 'Trasa je z importu vypočtena znovu, proto se může od zaznamenané stopy lišit.',
+  'tours.derivedFrom': 'Vychází z {name}',
+  'tours.derivedFromHint': 'Vznikla z této túry. Obě jsou nezávislé: změna jedné se druhé nedotkne.',
   'tours.delete.confirmBody':
     'Opravdu chcete tento výlet trvale odstranit? Jeho trasu, upravitelné body a přiřazení ke dnům odstraníte. Tuto akci nelze vrátit zpět.',
   'tours.delete.bulkConfirmBody':
@@ -266,5 +266,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Druh',
   'tours.filter.empty': 'Těmto filtrům neodpovídá žádná túra.',
   'tours.filter.reset': 'Zrušit filtry',
+  'tours.copy.action': 'Uložit jako novou túru',
+  'tours.copy.hint': 'Zkopíruje tuto túru jako novou, samostatnou túru bez jejích dnů. Originál zůstane, jak je.',
+  'tours.copy.name': '{name} (kopie)',
+  'tours.copy.saved': 'Uloženo jako nová túra',
+  'tours.copy.failed': 'Túru se nepodařilo zkopírovat.',
 };
 export default tours;

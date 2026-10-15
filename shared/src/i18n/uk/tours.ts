@@ -83,8 +83,8 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': 'Спланувати як новий тур',
   'tours.conversion.discard': 'Відхилити',
   'tours.conversion.adopted': 'Відкрито як новий тур. Збережіть його, щоб не втратити; імпорт залишиться без змін.',
-  'tours.derivedFrom': 'Сплановано на основі {name}',
-  'tours.derivedFromHint': 'Маршрут заново прокладено за імпортом, тому він може відрізнятися від записаного треку.',
+  'tours.derivedFrom': 'На основі: {name}',
+  'tours.derivedFromHint': 'Створено з цього походу. Вони незалежні: зміна одного не торкається іншого.',
   'tours.delete.confirmBody':
     'Видалити цей маршрут назавжди? Його шлях, редаговані точки та призначення на дні буде видалено. Цю дію не можна скасувати.',
   'tours.delete.bulkConfirmBody':
@@ -279,5 +279,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Тип',
   'tours.filter.empty': 'Жоден похід не відповідає цим фільтрам.',
   'tours.filter.reset': 'Скинути фільтри',
+  'tours.copy.action': 'Зберегти як новий похід',
+  'tours.copy.hint': 'Копіює цей похід як новий, самостійний похід без його днів. Оригінал лишається як є.',
+  'tours.copy.name': '{name} (копія)',
+  'tours.copy.saved': 'Збережено як новий похід',
+  'tours.copy.failed': 'Не вдалося скопіювати похід.',
 };
 export default tours;

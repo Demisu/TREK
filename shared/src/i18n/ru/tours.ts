@@ -84,8 +84,8 @@ const tours: TranslationStrings = {
   'tours.conversion.discard': 'Отклонить',
   'tours.conversion.adopted':
     'Открыто как новый тур. Сохраните его, чтобы не потерять; импорт останется без изменений.',
-  'tours.derivedFrom': 'Спланировано на основе {name}',
-  'tours.derivedFromHint': 'Маршрут заново проложен по импорту, поэтому может отличаться от записанного трека.',
+  'tours.derivedFrom': 'На основе: {name}',
+  'tours.derivedFromHint': 'Создан из этого похода. Они независимы: изменение одного не затрагивает другой.',
   'tours.delete.confirmBody':
     'Удалить этот маршрут навсегда? Его путь, редактируемые точки и назначения на дни будут удалены. Это действие нельзя отменить.',
   'tours.delete.bulkConfirmBody':
@@ -282,5 +282,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Тип',
   'tours.filter.empty': 'Ни один поход не подходит под эти фильтры.',
   'tours.filter.reset': 'Сбросить фильтры',
+  'tours.copy.action': 'Сохранить как новый поход',
+  'tours.copy.hint': 'Копирует этот поход как новый, самостоятельный поход без его дней. Оригинал остаётся как есть.',
+  'tours.copy.name': '{name} (копия)',
+  'tours.copy.saved': 'Сохранено как новый поход',
+  'tours.copy.failed': 'Не удалось скопировать поход.',
 };
 export default tours;

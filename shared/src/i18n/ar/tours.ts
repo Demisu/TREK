@@ -88,8 +88,8 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': 'تخطيط كجولة جديدة',
   'tours.conversion.discard': 'تجاهل',
   'tours.conversion.adopted': 'فُتح كجولة جديدة. احفظه للاحتفاظ به؛ يبقى الاستيراد كما هو.',
-  'tours.derivedFrom': 'مخطّطة من {name}',
-  'tours.derivedFromHint': 'محسوبة من جديد انطلاقًا من استيراد، لذا قد تختلف عن الأثر المسجّل.',
+  'tours.derivedFrom': 'مبنية على {name}',
+  'tours.derivedFromHint': 'أُنشئت من هذه الجولة. الجولتان مستقلتان: التغيير في إحداهما لا يصل إلى الأخرى.',
   'tours.delete.confirmBody':
     'هل تريد حذف هذه الجولة نهائيًا؟ ستُحذف مساراتها ونقاطها القابلة للتحرير وتعييناتها للأيام. لا يمكن التراجع عن هذا الإجراء.',
   'tours.delete.bulkConfirmBody':
@@ -277,5 +277,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'النوع',
   'tours.filter.empty': 'لا توجد جولة تطابق هذه المرشحات.',
   'tours.filter.reset': 'إعادة ضبط المرشحات',
+  'tours.copy.action': 'حفظ كجولة جديدة',
+  'tours.copy.hint': 'ينسخ هذه الجولة كجولة جديدة مستقلة دون أيامها. يبقى الأصل كما هو.',
+  'tours.copy.name': '{name} (نسخة)',
+  'tours.copy.saved': 'تم الحفظ كجولة جديدة',
+  'tours.copy.failed': 'تعذّر نسخ الجولة.',
 };
 export default tours;

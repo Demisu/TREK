@@ -68,8 +68,8 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': 'วางแผนเป็นทัวร์ใหม่',
   'tours.conversion.discard': 'ทิ้ง',
   'tours.conversion.adopted': 'เปิดเป็นทัวร์ใหม่แล้ว บันทึกเพื่อเก็บไว้ รายการที่นำเข้าจะยังคงเหมือนเดิม',
-  'tours.derivedFrom': 'วางแผนจาก {name}',
-  'tours.derivedFromHint': 'คำนวณเส้นทางใหม่จากรายการที่นำเข้า จึงอาจต่างจากแทร็กที่บันทึกไว้',
+  'tours.derivedFrom': 'อิงจาก {name}',
+  'tours.derivedFromHint': 'สร้างจากทัวร์นี้ ทั้งสองเป็นอิสระต่อกัน การเปลี่ยนแปลงอันหนึ่งจะไม่ไปถึงอีกอัน',
   'tours.delete.confirmBody':
     'ลบทัวร์นี้อย่างถาวรหรือไม่? เส้นทาง จุดแวะที่แก้ไขได้ และการจัดตารางลงวันจะถูกลบ การดำเนินการนี้ไม่สามารถยกเลิกได้',
   'tours.delete.bulkConfirmBody':
@@ -253,5 +253,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'ประเภท',
   'tours.filter.empty': 'ไม่มีทัวร์ที่ตรงกับตัวกรองเหล่านี้',
   'tours.filter.reset': 'รีเซ็ตตัวกรอง',
+  'tours.copy.action': 'บันทึกเป็นทัวร์ใหม่',
+  'tours.copy.hint': 'คัดลอกทัวร์นี้เป็นทัวร์ใหม่ที่แยกเป็นอิสระโดยไม่รวมวัน ต้นฉบับจะคงเดิม',
+  'tours.copy.name': '{name} (สำเนา)',
+  'tours.copy.saved': 'บันทึกเป็นทัวร์ใหม่แล้ว',
+  'tours.copy.failed': 'คัดลอกทัวร์ไม่สำเร็จ',
 };
 export default tours;

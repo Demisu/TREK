@@ -72,8 +72,8 @@ const tours: TranslationStrings = {
   'tours.conversion.discard': '破棄',
   'tours.conversion.adopted':
     '新しいツアーとして開きました。残すには保存してください。インポートしたものはそのまま残ります。',
-  'tours.derivedFrom': '{name}から計画',
-  'tours.derivedFromHint': 'インポートから改めてルートを引いたため、記録されたトラックと異なる場合があります。',
+  'tours.derivedFrom': '{name} をもとに作成',
+  'tours.derivedFromHint': 'このツアーから作成されました。2つは独立していて、一方の変更はもう一方に反映されません。',
   'tours.delete.confirmBody':
     'このツアーを完全に削除しますか？ルート、編集可能な経由地点、日程への割り当ても削除されます。この操作は取り消せません。',
   'tours.delete.bulkConfirmBody':
@@ -259,5 +259,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': '種類',
   'tours.filter.empty': 'この条件に合うツアーはありません。',
   'tours.filter.reset': 'フィルターをリセット',
+  'tours.copy.action': '新しいツアーとして保存',
+  'tours.copy.hint': 'このツアーを日程なしの独立した新しいツアーとしてコピーします。元のツアーはそのままです。',
+  'tours.copy.name': '{name}（コピー）',
+  'tours.copy.saved': '新しいツアーとして保存しました',
+  'tours.copy.failed': 'ツアーをコピーできませんでした。',
 };
 export default tours;

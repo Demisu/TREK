@@ -66,8 +66,8 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': '規劃為新遊程',
   'tours.conversion.discard': '捨棄',
   'tours.conversion.adopted': '已作為新遊程開啟。儲存後即可保留；匯入的內容會保持原樣。',
-  'tours.derivedFrom': '根據 {name} 規劃',
-  'tours.derivedFromHint': '根據匯入內容重新規劃，可能與記錄的軌跡不同。',
+  'tours.derivedFrom': '以 {name} 為基礎',
+  'tours.derivedFromHint': '由此遊程建立。兩者互相獨立：修改其中一個不會影響另一個。',
   'tours.delete.confirmBody': '要永久刪除此行程嗎？其路線、可編輯的途經點和日期指派都會一併移除。此操作無法復原。',
   'tours.delete.bulkConfirmBody':
     '所選內容至少包含一個行程。所有選取的地點都會永久刪除且無法復原；行程路線、可編輯的途經點和日期指派也會一併移除。',
@@ -243,5 +243,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': '類型',
   'tours.filter.empty': '沒有符合這些篩選條件的遊程。',
   'tours.filter.reset': '重設篩選',
+  'tours.copy.action': '另存為新遊程',
+  'tours.copy.hint': '將此遊程複製為不含日程的獨立新遊程。原遊程保持不變。',
+  'tours.copy.name': '{name}（副本）',
+  'tours.copy.saved': '已另存為新遊程',
+  'tours.copy.failed': '無法複製遊程。',
 };
 export default tours;

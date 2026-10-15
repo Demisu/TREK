@@ -1,5 +1,6 @@
-import { z } from 'zod';
 import { tourOriginSchema, tourProvenanceSchema } from './tour-provenance.schema';
+
+import { z } from 'zod';
 
 /**
  * Tours contracts — the generalisation of "hike" into a domain of self-contained,
@@ -243,6 +244,16 @@ export const tourCreateResponseSchema = z.object({
   provenance: tourProvenanceSchema.optional(),
 });
 export type TourCreateResponse = z.infer<typeof tourCreateResponseSchema>;
+
+/**
+ * P2C-07 "save as new tour": the name the copy gets. Everything else comes
+ * from the tour it is copied from; the copy has its own id, line and control
+ * points, and no days.
+ */
+export const tourCopyRequestSchema = z.object({
+  name: z.string().trim().min(1).max(255),
+});
+export type TourCopyRequest = z.infer<typeof tourCopyRequestSchema>;
 
 /** Saved-tour editor payload: list metadata plus its persisted routing controls. */
 export const tourDetailResponseSchema = tourCreateResponseSchema;

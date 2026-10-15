@@ -84,8 +84,8 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': 'Zaplanuj jako nową wycieczkę',
   'tours.conversion.discard': 'Odrzuć',
   'tours.conversion.adopted': 'Otwarto jako nową wycieczkę. Zapisz ją, aby ją zachować; import pozostaje bez zmian.',
-  'tours.derivedFrom': 'Zaplanowano na podstawie {name}',
-  'tours.derivedFromHint': 'Trasa wyznaczona od nowa z importu, więc może się różnić od zarejestrowanego śladu.',
+  'tours.derivedFrom': 'Na podstawie: {name}',
+  'tours.derivedFromHint': 'Utworzona z tej trasy. Obie są niezależne: zmiana w jednej nie dotyczy drugiej.',
   'tours.delete.confirmBody':
     'Usunąć tę trasę na stałe? Jej przebieg, edytowalne punkty trasy i przypisania do dni zostaną usunięte. Tej czynności nie można cofnąć.',
   'tours.delete.bulkConfirmBody':
@@ -279,5 +279,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Rodzaj',
   'tours.filter.empty': 'Żadna trasa nie pasuje do tych filtrów.',
   'tours.filter.reset': 'Wyczyść filtry',
+  'tours.copy.action': 'Zapisz jako nową trasę',
+  'tours.copy.hint': 'Kopiuje tę trasę jako nową, niezależną trasę bez jej dni. Oryginał zostaje bez zmian.',
+  'tours.copy.name': '{name} (kopia)',
+  'tours.copy.saved': 'Zapisano jako nową trasę',
+  'tours.copy.failed': 'Nie udało się skopiować trasy.',
 };
 export default tours;

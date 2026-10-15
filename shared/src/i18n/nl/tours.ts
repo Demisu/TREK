@@ -76,8 +76,9 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': 'Als nieuwe tocht plannen',
   'tours.conversion.discard': 'Verwerpen',
   'tours.conversion.adopted': 'Geopend als nieuwe tocht. Sla hem op om hem te bewaren; de import blijft zoals hij is.',
-  'tours.derivedFrom': 'Gepland op basis van {name}',
-  'tours.derivedFromHint': 'Opnieuw gerouteerd vanuit een import, dus kan afwijken van de opgenomen track.',
+  'tours.derivedFrom': 'Gebaseerd op {name}',
+  'tours.derivedFromHint':
+    'Gemaakt van deze tocht. Ze zijn onafhankelijk: een wijziging aan de ene bereikt de andere niet.',
   'tours.delete.confirmBody':
     'Deze tour definitief verwijderen? De route, bewerkbare routepunten en dagtoewijzingen worden verwijderd. Dit kan niet ongedaan worden gemaakt.',
   'tours.delete.bulkConfirmBody':
@@ -271,5 +272,11 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Soort',
   'tours.filter.empty': 'Geen tocht past bij deze filters.',
   'tours.filter.reset': 'Filters wissen',
+  'tours.copy.action': 'Opslaan als nieuwe tocht',
+  'tours.copy.hint':
+    'Kopieert deze tocht als nieuwe, zelfstandige tocht zonder zijn dagen. Het origineel blijft zoals het is.',
+  'tours.copy.name': '{name} (kopie)',
+  'tours.copy.saved': 'Opgeslagen als nieuwe tocht',
+  'tours.copy.failed': 'De tocht kon niet worden gekopieerd.',
 };
 export default tours;

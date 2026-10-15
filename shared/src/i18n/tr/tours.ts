@@ -74,8 +74,8 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': 'Yeni tur olarak planla',
   'tours.conversion.discard': 'Vazgeç',
   'tours.conversion.adopted': 'Yeni tur olarak açıldı. Saklamak için kaydedin; içe aktarım olduğu gibi kalır.',
-  'tours.derivedFrom': '{name} temel alınarak planlandı',
-  'tours.derivedFromHint': 'Bir içe aktarımdan yeniden rotalandı, bu yüzden kaydedilen izden farklı olabilir.',
+  'tours.derivedFrom': 'Temeli: {name}',
+  'tours.derivedFromHint': 'Bu turdan oluşturuldu. İkisi bağımsızdır: birindeki değişiklik diğerine ulaşmaz.',
   'tours.delete.confirmBody':
     'Bu tur kalıcı olarak silinsin mi? Rotası, düzenlenebilir ara noktaları ve gün atamaları kaldırılacak. Bu işlem geri alınamaz.',
   'tours.delete.bulkConfirmBody':
@@ -266,5 +266,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Tür',
   'tours.filter.empty': 'Bu filtrelere uyan tur yok.',
   'tours.filter.reset': 'Filtreleri sıfırla',
+  'tours.copy.action': 'Yeni tur olarak kaydet',
+  'tours.copy.hint': 'Bu turu günleri olmadan yeni ve bağımsız bir tur olarak kopyalar. Asıl tur olduğu gibi kalır.',
+  'tours.copy.name': '{name} (kopya)',
+  'tours.copy.saved': 'Yeni tur olarak kaydedildi',
+  'tours.copy.failed': 'Tur kopyalanamadı.',
 };
 export default tours;

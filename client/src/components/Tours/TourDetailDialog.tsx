@@ -7,11 +7,13 @@ import {
   ChevronDown,
   ChevronUp,
   Clock,
+  CopyPlus,
   ExternalLink,
   File,
   FileDown,
   FileImage,
   FileText,
+  Loader2,
   Minus,
   Mountain,
   Navigation,
@@ -72,6 +74,8 @@ interface TourDetailDialogProps extends TourPermissionProps {
   onFileUpload?: (formData: FormData) => Promise<unknown>;
   /** A wanderer snapshot's source check brought the changed trail in as a new tour (MF-03). */
   onSourceReimported?: (tour: TourListItem) => Promise<void> | void;
+  /** P2C-07: save this tour again as a new, independent one. */
+  onSaveAsNew?: (tour: TourListItem) => Promise<void> | void;
   onAssignToDay?: (placeId: number, dayId?: number) => void;
   onRemoveAssignment?: (dayId: number, assignmentId: number) => void;
   onDelete?: () => void;
@@ -303,6 +307,7 @@ export default function TourDetailDialog({
   onUpdatePlace,
   onFileUpload,
   onSourceReimported,
+  onSaveAsNew,
   onAssignToDay,
   onRemoveAssignment,
   onDelete,
@@ -506,6 +511,7 @@ export default function TourDetailDialog({
           </span>
         </Tooltip>
       )}
+      {canEdit && onSaveAsNew && <SaveAsNewButton onSave={() => onSaveAsNew(tour)} />}
       <FooterSpacer />
       {canEdit && onDelete && (
         <DeleteButton
@@ -590,6 +596,35 @@ export default function TourDetailDialog({
       <TourProvenanceBlock tripId={place.trip_id} tour={tour} canCheck={canEdit} onReimported={onSourceReimported} />
       <TourFilesSection placeId={place.id} files={placeFiles} onFileUpload={canEdit ? onFileUpload : undefined} />
     </DetailShell>
+  );
+}
+
+/** P2C-07 in the footer: one press, the copy opens; the button waits while the server makes it. */
+function SaveAsNewButton({ onSave }: { onSave: () => Promise<void> | void }) {
+  const { t } = useTranslation();
+  const [saving, setSaving] = useState(false);
+  const save = async () => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      await onSave();
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <Tooltip label={t('tours.copy.hint')}>
+      <span className="inline-flex">
+        <DialogButton
+          onClick={() => void save()}
+          disabled={saving}
+          icon={saving ? <Loader2 size={14} className="animate-spin" /> : <CopyPlus size={14} strokeWidth={2} />}
+          aria-label={t('tours.copy.action')}
+        >
+          <span className="max-sm:hidden">{t('tours.copy.action')}</span>
+        </DialogButton>
+      </span>
+    </Tooltip>
   );
 }
 

@@ -4,7 +4,7 @@ import {
   tourSourceCheckResponseSchema,
   type TourProvenance,
 } from './tour-provenance.schema';
-import { tourCreateResponseSchema, tourListItemSchema } from './tours.schema';
+import { tourCopyRequestSchema, tourCreateResponseSchema, tourListItemSchema } from './tours.schema';
 
 import { describe, expect, it } from 'vitest';
 
@@ -107,5 +107,13 @@ describe('source check answer (MF-03)', () => {
     expect(tourSourceCheckResponseSchema.safeParse({ ...base, state: 'changed', changes: ['author'] }).success).toBe(
       false,
     );
+  });
+});
+
+describe('save as new tour (P2C-07)', () => {
+  it('takes a trimmed name and refuses an empty or overlong one', () => {
+    expect(tourCopyRequestSchema.parse({ name: '  Ridge (copy) ' })).toEqual({ name: 'Ridge (copy)' });
+    expect(tourCopyRequestSchema.safeParse({ name: '   ' }).success).toBe(false);
+    expect(tourCopyRequestSchema.safeParse({ name: 'x'.repeat(256) }).success).toBe(false);
   });
 });

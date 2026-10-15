@@ -76,8 +76,8 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': 'Pianifica come nuova escursione',
   'tours.conversion.discard': 'Scarta',
   'tours.conversion.adopted': "Aperta come nuova escursione. Salvala per conservarla; l'importazione resta com'è.",
-  'tours.derivedFrom': 'Pianificata da {name}',
-  'tours.derivedFromHint': "Percorso ricalcolato da un'importazione, quindi può differire dalla traccia registrata.",
+  'tours.derivedFrom': 'Basato su {name}',
+  'tours.derivedFromHint': 'Creato da questo tour. Sono indipendenti: una modifica a uno non raggiunge l’altro.',
   'tours.delete.confirmBody':
     'Eliminare definitivamente questo tour? Verranno rimossi il percorso, i waypoint modificabili e le assegnazioni ai giorni. L’azione non può essere annullata.',
   'tours.delete.bulkConfirmBody':
@@ -272,5 +272,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Tipo',
   'tours.filter.empty': 'Nessun tour corrisponde a questi filtri.',
   'tours.filter.reset': 'Reimposta filtri',
+  'tours.copy.action': 'Salva come nuovo tour',
+  'tours.copy.hint': 'Copia questo tour come nuovo tour indipendente, senza i suoi giorni. L’originale resta com’è.',
+  'tours.copy.name': '{name} (copia)',
+  'tours.copy.saved': 'Salvato come nuovo tour',
+  'tours.copy.failed': 'Non è stato possibile copiare il tour.',
 };
 export default tours;

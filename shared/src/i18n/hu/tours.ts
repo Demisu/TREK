@@ -75,8 +75,8 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': 'Tervezés új túraként',
   'tours.conversion.discard': 'Elvetés',
   'tours.conversion.adopted': 'Megnyitva új túraként. Mentsd el, hogy megmaradjon; az import változatlan marad.',
-  'tours.derivedFrom': 'Tervezve ebből: {name}',
-  'tours.derivedFromHint': 'Importból újratervezve, ezért eltérhet a rögzített nyomvonaltól.',
+  'tours.derivedFrom': 'Alapja: {name}',
+  'tours.derivedFromHint': 'Ebből a túrából készült. A kettő független: az egyik módosítása nem éri el a másikat.',
   'tours.delete.confirmBody':
     'Végleg törli ezt a túrát? Az útvonala, szerkeszthető útvonalpontjai és a napokhoz rendelései is törlődnek. A művelet nem vonható vissza.',
   'tours.delete.bulkConfirmBody':
@@ -272,5 +272,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Fajta',
   'tours.filter.empty': 'Egy túra sem felel meg ezeknek a szűrőknek.',
   'tours.filter.reset': 'Szűrők törlése',
+  'tours.copy.action': 'Mentés új túraként',
+  'tours.copy.hint': 'Ezt a túrát új, önálló túraként másolja a napjai nélkül. Az eredeti változatlan marad.',
+  'tours.copy.name': '{name} (másolat)',
+  'tours.copy.saved': 'Új túraként mentve',
+  'tours.copy.failed': 'A túrát nem sikerült másolni.',
 };
 export default tours;

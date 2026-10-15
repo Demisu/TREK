@@ -76,9 +76,9 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': 'Σχεδιασμός ως νέα εκδρομή',
   'tours.conversion.discard': 'Απόρριψη',
   'tours.conversion.adopted': 'Άνοιξε ως νέα εκδρομή. Αποθηκεύστε την για να τη διατηρήσετε· η εισαγωγή μένει ως έχει.',
-  'tours.derivedFrom': 'Σχεδιάστηκε από {name}',
+  'tours.derivedFrom': 'Βασισμένη σε {name}',
   'tours.derivedFromHint':
-    'Δρομολογήθηκε εκ νέου από μια εισαγωγή, οπότε μπορεί να διαφέρει από το καταγεγραμμένο ίχνος.',
+    'Δημιουργήθηκε από αυτή την εκδρομή. Είναι ανεξάρτητες: μια αλλαγή στη μία δεν φτάνει στην άλλη.',
   'tours.delete.confirmBody':
     'Να διαγραφεί οριστικά αυτή η διαδρομή; Η πορεία, τα επεξεργάσιμα σημεία και οι αναθέσεις σε ημέρες θα αφαιρεθούν. Αυτή η ενέργεια δεν αναιρείται.',
   'tours.delete.bulkConfirmBody':
@@ -277,5 +277,11 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Είδος',
   'tours.filter.empty': 'Καμία εκδρομή δεν ταιριάζει με αυτά τα φίλτρα.',
   'tours.filter.reset': 'Επαναφορά φίλτρων',
+  'tours.copy.action': 'Αποθήκευση ως νέα εκδρομή',
+  'tours.copy.hint':
+    'Αντιγράφει αυτή την εκδρομή ως νέα, ανεξάρτητη εκδρομή χωρίς τις μέρες της. Το πρωτότυπο μένει ως έχει.',
+  'tours.copy.name': '{name} (αντίγραφο)',
+  'tours.copy.saved': 'Αποθηκεύτηκε ως νέα εκδρομή',
+  'tours.copy.failed': 'Η εκδρομή δεν αντιγράφηκε.',
 };
 export default tours;

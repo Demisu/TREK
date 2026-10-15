@@ -1,6 +1,7 @@
 import { computeTourMetrics, type GeometryPoint, type TourCreateRequest, type TourCreateResponse, type TourDetailResponse, type TourImportGpxResponse, type TourListItem, type TourWaypoint } from '@trek/shared'
 import { toursApi } from '../api/client'
 import { recordedTrackApi } from '../api/recordedTrack'
+import { tourCopiesApi } from '../api/tourCopies'
 import { offlineDb, replaceTripTours, type CachedTour } from '../db/offlineDb'
 import { mutationQueue, generateUUID, nextTempId } from '../sync/mutationQueue'
 import { isEffectivelyOffline } from '../sync/networkMode'
@@ -185,6 +186,16 @@ export const tourRepo = {
   /** Online only, like the import: the recorded track is kept on the server, not in the cache. */
   async restoreRecorded(tripId: number | string, placeId: number): Promise<TourDetailResponse> {
     const result = await recordedTrackApi.restore(tripId, placeId)
+    await offlineDb.tours.put({ ...result.tour, trip_id: Number(tripId), waypoints: result.waypoints })
+    return result
+  },
+
+  /**
+   * P2C-07, online only like the restore: the copy is made from the server's
+   * stored line and control points, so it needs the server to answer.
+   */
+  async copy(tripId: number | string, placeId: number, name: string): Promise<TourCreateResponse> {
+    const result = await tourCopiesApi.copy(tripId, placeId, { name })
     await offlineDb.tours.put({ ...result.tour, trip_id: Number(tripId), waypoints: result.waypoints })
     return result
   },

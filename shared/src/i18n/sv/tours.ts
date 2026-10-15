@@ -74,8 +74,8 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': 'Planera som ny tur',
   'tours.conversion.discard': 'Kasta',
   'tours.conversion.adopted': 'Öppnad som ny tur. Spara den för att behålla den; importen förblir som den är.',
-  'tours.derivedFrom': 'Planerad från {name}',
-  'tours.derivedFromHint': 'Nyberäknad från en import, så den kan skilja sig från det inspelade spåret.',
+  'tours.derivedFrom': 'Baserad på {name}',
+  'tours.derivedFromHint': 'Skapad från den här turen. De är oberoende: en ändring i den ena når inte den andra.',
   'tours.delete.confirmBody':
     'Ta bort den här turen permanent? Rutten, de redigerbara rutpunkterna och dagstilldelningarna tas bort. Åtgärden kan inte ångras.',
   'tours.delete.bulkConfirmBody':
@@ -264,5 +264,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Typ',
   'tours.filter.empty': 'Ingen tur matchar de här filtren.',
   'tours.filter.reset': 'Återställ filter',
+  'tours.copy.action': 'Spara som ny tur',
+  'tours.copy.hint': 'Kopierar turen som en ny, fristående tur utan dess dagar. Originalet förblir som det är.',
+  'tours.copy.name': '{name} (kopia)',
+  'tours.copy.saved': 'Sparad som ny tur',
+  'tours.copy.failed': 'Turen kunde inte kopieras.',
 };
 export default tours;

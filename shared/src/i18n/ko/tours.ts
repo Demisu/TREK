@@ -69,8 +69,8 @@ const tours: TranslationStrings = {
   'tours.conversion.adopt': '새 투어로 계획',
   'tours.conversion.discard': '취소',
   'tours.conversion.adopted': '새 투어로 열었습니다. 유지하려면 저장하세요. 가져온 항목은 그대로 유지됩니다.',
-  'tours.derivedFrom': '{name}에서 계획됨',
-  'tours.derivedFromHint': '가져온 항목에서 경로를 새로 계산했으므로 기록된 트랙과 다를 수 있습니다.',
+  'tours.derivedFrom': '{name} 기반',
+  'tours.derivedFromHint': '이 투어에서 만들어졌습니다. 둘은 독립적이라 한쪽을 바꿔도 다른 쪽에는 반영되지 않습니다.',
   'tours.delete.confirmBody':
     '이 투어를 영구 삭제할까요? 경로, 편집 가능한 경유 지점 및 날짜 배정이 삭제됩니다. 이 작업은 되돌릴 수 없습니다.',
   'tours.delete.bulkConfirmBody':
@@ -257,5 +257,10 @@ const tours: TranslationStrings = {
   'tours.filter.type': '종류',
   'tours.filter.empty': '이 필터에 맞는 투어가 없습니다.',
   'tours.filter.reset': '필터 초기화',
+  'tours.copy.action': '새 투어로 저장',
+  'tours.copy.hint': '이 투어를 날짜 없이 독립된 새 투어로 복사합니다. 원본은 그대로입니다.',
+  'tours.copy.name': '{name} (사본)',
+  'tours.copy.saved': '새 투어로 저장했습니다',
+  'tours.copy.failed': '투어를 복사하지 못했습니다.',
 };
 export default tours;

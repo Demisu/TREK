@@ -336,6 +336,67 @@ export class ToursService {
     return result;
   }
 
+  /**
+   * P2C-07 "save as new tour": an independent tour made from one of the trip,
+   * with its own id, its own copy of the line and the control points, the
+   * same measures and source, and none of the days. It points at the tour it
+   * came from (`derived_from_place_id`), so the detail can name it; nothing
+   * keeps the two in step afterwards.
+   */
+  async copyTour(tripId: string, placeId: string, name: string, socketId?: string): Promise<TourCreateResponse> {
+    const tid = toRowId(tripId);
+    const pid = toRowId(placeId);
+    if (tid === null || pid === null) throw new NotFoundException('Tour not found');
+
+    const copyId = await this.uow.transactional(async () => {
+      const [source, provenance, place] = await Promise.all([
+        this.toursRepo.findInTrip(tid, pid),
+        this.toursRepo.findProvenance(tid, pid),
+        this.placesRepo.findInTrip(pid, tid),
+      ]);
+      if (!source || !provenance || !place) throw new NotFoundException('Tour not found');
+      const start = parseRouteGeometry(place.route_geometry)[0];
+      const id = await this.placesRepo.insertTourPlace({
+        trip_id: tid,
+        name,
+        lat: start?.[0] ?? place.lat ?? 0,
+        lng: start?.[1] ?? place.lng ?? 0,
+        route_geometry: place.route_geometry,
+        description: place.description ?? null,
+        website: place.website ?? null,
+      });
+      await this.toursRepo.insertTour({
+        place_id: id,
+        tour_type: source.tour_type,
+        distance: source.distance,
+        elevation_gain: source.elevation_gain,
+        elevation_loss: source.elevation_loss,
+        duration: source.duration,
+        planned_duration_minutes: source.planned_duration_minutes,
+        break_additional_minutes: source.break_additional_minutes,
+        match_confidence: source.match_confidence,
+        max_hiking_difficulty: source.max_hiking_difficulty,
+        wanderer_ref: source.wanderer_ref,
+        difficulty: source.difficulty,
+        derived_from_place_id: pid,
+        origin: source.origin as TourOrigin,
+        origin_file_name: provenance.origin_file_name,
+      });
+      await this.waypointsRepo.insertForPlace(id, await this.waypointsRepo.listForPlace(pid));
+      return id;
+    });
+
+    const result = await this.getTour(tripId, String(copyId));
+    const created = await this.placesRepo.findWithTagsAndRatings(copyId);
+    this.broadcastToursChanged(tripId, [copyId], socketId);
+    try {
+      if (created) this.places.broadcast(tripId, 'place:created', { place: created }, socketId);
+    } catch {
+      this.logger.warn(`Committed Tour copy ${copyId}: place notification failed`);
+    }
+    return result;
+  }
+
   /** Replace a saved tour's derived route and routing controls as one write. */
   async updateTour(
     tripId: string,

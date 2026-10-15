@@ -77,9 +77,8 @@ const tours: TranslationStrings = {
   'tours.conversion.discard': 'Descarta',
   'tours.conversion.adopted':
     'Oberta com a excursió nova. Desa-la per conservar-la; la importació es queda tal com és.',
-  'tours.derivedFrom': 'Planificada a partir de {name}',
-  'tours.derivedFromHint':
-    "Ruta calculada de nou a partir d'una importació, així que pot diferir de la traça enregistrada.",
+  'tours.derivedFrom': 'Basada en {name}',
+  'tours.derivedFromHint': 'Creada a partir d’aquesta excursió. Són independents: un canvi en una no arriba a l’altra.',
   'tours.delete.confirmBody':
     'Vols eliminar aquest itinerari permanentment? Se n’eliminaran la ruta, els punts editables i les assignacions als dies. Aquesta acció no es pot desfer.',
   'tours.delete.bulkConfirmBody':
@@ -272,5 +271,11 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Tipus',
   'tours.filter.empty': 'Cap excursió no coincideix amb aquests filtres.',
   'tours.filter.reset': 'Restableix els filtres',
+  'tours.copy.action': 'Desa com a excursió nova',
+  'tours.copy.hint':
+    'Copia aquesta excursió com una excursió nova i independent, sense els seus dies. L’original es queda com està.',
+  'tours.copy.name': '{name} (còpia)',
+  'tours.copy.saved': 'Desada com a excursió nova',
+  'tours.copy.failed': 'No s’ha pogut copiar l’excursió.',
 };
 export default tours;
