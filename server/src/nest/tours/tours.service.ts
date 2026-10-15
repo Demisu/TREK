@@ -6,6 +6,7 @@ import type { PlacesRepository } from '../../db/repositories/Places.repository';
 import type { TourTypesRepository } from '../../db/repositories/TourTypes.repository';
 import type { TourWaypointsRepository } from '../../db/repositories/TourWaypoints.repository';
 import type {
+  TourDayRow,
   TourListRow,
   TourProvenanceRow,
   ToursRepository,
@@ -159,6 +160,11 @@ export class ToursService {
   }
 
   /** One saved tour plus the persisted routing controls needed by the editor. */
+  /** The days every tour of the trip sits on, for the MCP read tools. */
+  async listTourDays(tripId: number): Promise<TourDayRow[]> {
+    return await this.toursRepo.listTourDays(tripId);
+  }
+
   async getTour(tripId: string, placeId: string): Promise<TourDetailResponse> {
     const tid = toRowId(tripId);
     const pid = toRowId(placeId);

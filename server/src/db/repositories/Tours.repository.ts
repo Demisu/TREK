@@ -74,7 +74,16 @@ export type TourUpdate = Omit<TourInsert, 'place_id' | 'planned_duration_minutes
   break_additional_minutes?: number | null;
 };
 
-type ToursKyselyDB = Pick<DB, 'tours' | 'places' | 'day_assignments' | 'tour_waypoints' | 'tour_sources'>;
+type ToursKyselyDB = Pick<DB, 'tours' | 'places' | 'day_assignments' | 'tour_waypoints' | 'tour_sources' | 'days'>;
+
+/** One day a tour of the trip sits on, in the order of the trip. */
+export interface TourDayRow {
+  place_id: number;
+  day_id: number;
+  day_number: number;
+  date: string | null;
+  title: string | null;
+}
 
 /**
  * Where one tour came from, as the provenance contract reads it: the facet's
@@ -240,6 +249,26 @@ export class ToursRepository extends TrekRepository<Tours> {
           ])
           .where('place_id', '=', source_place_id),
       )
+      .execute();
+  }
+
+  /** The days every tour of a trip sits on, each tour and day once, in day order. */
+  async listTourDays(trip_id: number): Promise<TourDayRow[]> {
+    return await this.db()
+      .selectFrom('day_assignments as da')
+      .innerJoin('tours as t', 't.place_id', 'da.place_id')
+      .innerJoin('days as d', 'd.id', 'da.day_id')
+      .select([
+        'da.place_id as place_id',
+        'd.id as day_id',
+        'd.day_number as day_number',
+        'd.date as date',
+        'd.title as title',
+      ])
+      .where('d.trip_id', '=', trip_id)
+      .distinct()
+      .orderBy('d.day_number', 'asc')
+      .orderBy('da.place_id', 'asc')
       .execute();
   }
 

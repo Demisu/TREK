@@ -231,6 +231,16 @@ Each tool asks for the scope of what it writes, so the scopes differ per tool. T
 | `list_trip_document_sync_issues` | List the documents that need a person: conflicts, documents refused for their type or size, transfers that failed, and documents gone from the store. Returns `configured: false` for a trip that is not bound, and an empty list when everything is in step. |
 | `sync_trip_documents` | Run every binding of the trip now instead of waiting for the next scheduled check, and report how many documents came in, went out and are in conflict. Pass `full: true` to compare both sides in full. A binding whose owner left the trip, or whose store an admin switched off, is reported and not run. Safe to call repeatedly: a run already in progress is not started twice. |
 
+### Tours _(Tours addon required)_
+
+Read only: the saved tours of a trip, as the Tours list and the tour detail show them. Tours someone is still drawing in the planner are not saved yet and do not show here.
+
+| Tool | Description | Scope |
+|---|---|---|
+| `list_tours` | The saved tours of a trip: name, type, origin (`trek` for planned in TREK, `gpx` for a GPX import, `wanderer` for a wanderer snapshot), distance, ascent and descent, the stored routing limit on the SAC scale, and the days of the trip each tour is on | `trips:read` |
+| `get_tour_plan` | One tour: its facts, its ordered control points, its provenance (where it came from, when, and whether it was changed in TREK since) and its days. The full track geometry is not included | `trips:read` |
+| `find_tours_for_day` | The tours put on one day of a trip, with the same facts as `list_tours` | `trips:read` |
+
 ### Road trip _(Road trip addon required)_
 
 These tools work without an open browser. The external assistant chooses places based on the traveller's interests, uses the existing trip, day, place and assignment tools to save them, and recalculates to check the result. What each tool corresponds to in the planner is described on [Road-Trip](Road-Trip#mcp-tools).
