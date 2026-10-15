@@ -743,10 +743,7 @@ export class TripsService {
       for (const { place_id, ...tour } of oldTours) {
         const newPlaceId = placeMap.get(place_id);
         if (!newPlaceId) continue;
-        // A tour planned from an import points at the copied import, never back into the source trip.
-        const derivedFrom =
-          tour.derived_from_place_id === null ? null : (placeMap.get(tour.derived_from_place_id) ?? null);
-        await this.toursRepo.insertCopy(newPlaceId, { ...tour, derived_from_place_id: derivedFrom });
+        await this.toursRepo.insertCopy(newPlaceId, tour, placeMap);
         copiedTours.add(place_id);
       }
 

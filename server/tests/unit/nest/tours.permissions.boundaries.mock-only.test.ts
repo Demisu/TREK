@@ -261,6 +261,7 @@ function tourRepositoryFixture(ownerTripId: number) {
       tripId === ownerTripId && placeId === 42 ? row : undefined,
     ),
     updateInTrip: vi.fn(async () => true),
+    keepRecordedTrack: vi.fn(async () => undefined),
   };
   const waypointsRepo = {
     listForPlace: vi.fn(async () => input.waypoints),

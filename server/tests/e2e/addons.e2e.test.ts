@@ -134,6 +134,8 @@ describe('GET /api/addons e2e (real auth guard + temp SQLite)', () => {
     expect(res.body).toEqual({
       collabFeatures: { chat: true, notes: true, links: true, polls: true, whatsnext: true },
       bagTracking: true,
+      // Tours is off in this database, so wanderer is not offered either.
+      toursWanderer: false,
       addons: [
         { id: 'packing', name: 'Packing', type: 'trip', icon: 'Backpack', enabled: true },
         { id: 'journey', name: 'Journey', type: 'global', icon: 'Compass', enabled: true },

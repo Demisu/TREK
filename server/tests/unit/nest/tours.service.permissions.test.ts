@@ -89,6 +89,7 @@ function makeService() {
     findInTrip: vi.fn(async (): Promise<typeof row | undefined> => row),
     insertTour: inTx(undefined),
     updateInTrip: inTx(true),
+    keepRecordedTrack: inTx(undefined),
   };
   const waypointsRepo = {
     listForPlace: vi.fn(async () => request.waypoints),
@@ -147,6 +148,7 @@ describe('ToursService planner contracts (mock-only; SQLite rollback semantics a
     expect(setup.toursRepo.insertTour).toHaveBeenCalledExactlyOnceWith({
       place_id: 42,
       tour_type: 'hike',
+      derived_from_place_id: null,
       distance: expect.any(Number),
       elevation_gain: 50,
       elevation_loss: 20,

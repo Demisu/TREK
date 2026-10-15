@@ -89,6 +89,8 @@ describe('ToursRepository reads', () => {
         max_hiking_difficulty: 5,
         planned: 0,
         has_waypoints: 1,
+        derived_from_place_id: null,
+        has_recorded_track: 0,
       },
       {
         place_id: older.id,
@@ -108,6 +110,8 @@ describe('ToursRepository reads', () => {
         max_hiking_difficulty: 2,
         planned: 1,
         has_waypoints: 0,
+        derived_from_place_id: null,
+        has_recorded_track: 0,
       },
     ]);
     expect((await repo.listForTrip(trip.id)).map((r) => r.place_id)).not.toContain(plain.id);
@@ -183,6 +187,8 @@ describe('ToursRepository writes', () => {
       wanderer_ref: null,
       planned: 0,
       has_waypoints: 0,
+      derived_from_place_id: null,
+      has_recorded_track: 0,
     });
   });
 
@@ -241,13 +247,34 @@ describe('ToursRepository writes', () => {
         match_confidence: null,
         created_at: '2026-03-04 05:06:07',
         max_hiking_difficulty: 4,
+        derived_from_place_id: null,
+        recorded_route_geometry: null,
       },
     ]);
     expect(await repo.listRowsForTrip(other.id)).toEqual([]);
 
     const copy = createPlace(testDb, other.id);
     const { place_id: _sourceId, ...columns } = rows[0];
-    await repo.insertCopy(copy.id, columns);
+    await repo.insertCopy(copy.id, columns, new Map());
     expect(await repo.listRowsForTrip(other.id)).toEqual([{ ...rows[0], place_id: copy.id }]);
+  });
+
+  it('TOURREPO-009: insertCopy points a planned tour at the copied import, and drops a link the copy has no import for', async () => {
+    const { trip, other } = fixture();
+    const sourceImport = createPlace(testDb, trip.id);
+    const planned = createPlace(testDb, trip.id);
+    createTour(testDb, planned.id);
+    const [row] = await repo.listRowsForTrip(trip.id);
+    const { place_id: _sourceId, ...columns } = { ...row, derived_from_place_id: sourceImport.id };
+    const copiedImport = createPlace(testDb, other.id);
+    const copy = createPlace(testDb, other.id);
+    const orphan = createPlace(testDb, other.id);
+
+    await repo.insertCopy(copy.id, columns, new Map([[sourceImport.id, copiedImport.id]]));
+    await repo.insertCopy(orphan.id, columns, new Map());
+
+    const copied = await repo.listRowsForTrip(other.id);
+    expect(copied.find((r) => r.place_id === copy.id)?.derived_from_place_id).toBe(copiedImport.id);
+    expect(copied.find((r) => r.place_id === orphan.id)?.derived_from_place_id).toBeNull();
   });
 });

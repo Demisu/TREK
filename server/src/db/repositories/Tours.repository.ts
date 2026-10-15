@@ -220,12 +220,23 @@ export class ToursRepository extends TrekRepository<Tours> {
 
   /**
    * TO8 — a copied tour keeps every column, `created_at` included, so the
-   * copy lists its tours in the source's order.
+   * copy lists its tours in the source's order. A tour planned from an import
+   * points at the copied import (`copiedPlaceIds` maps source to copy), never
+   * back into the source trip.
    */
-  async insertCopy(place_id: number, row: Omit<TourRow, 'place_id'>): Promise<void> {
+  async insertCopy(
+    place_id: number,
+    row: Omit<TourRow, 'place_id'>,
+    copiedPlaceIds: ReadonlyMap<number, number>,
+  ): Promise<void> {
+    const derivedFrom = row.derived_from_place_id;
     await this.db()
       .insertInto('tours')
-      .values({ ...row, place_id })
+      .values({
+        ...row,
+        place_id,
+        derived_from_place_id: derivedFrom === null ? null : (copiedPlaceIds.get(derivedFrom) ?? null),
+      })
       .execute();
   }
 
