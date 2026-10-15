@@ -88,7 +88,7 @@ export function filterTours<T extends Pick<TourListItem, 'planned'>>(tours: T[],
 }
 
 /** How each origin is named in a list, the words the source badge uses. */
-export const ORIGIN_LABEL_KEY = { trek: 'tours.badge.planned', gpx: 'tours.badge.gpx', wanderer: 'tours.badge.wanderer' } as const
+export const ORIGIN_LABEL_KEY = { trek: 'tours.badge.trek', gpx: 'tours.badge.gpx', wanderer: 'tours.badge.wanderer' } as const
 
 /** The day status a tour list is filtered by, in words. */
 export function statusLabel(status: TourFilter, t: Translate): string {
