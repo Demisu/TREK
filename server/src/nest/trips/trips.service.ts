@@ -737,17 +737,14 @@ export class TripsService {
       // through; without them the copy is a plain place with a line, no Tour, its route not editable.
       // The facet row goes first, since the waypoints and the import record reference it.
       const oldTours = await this.toursRepo.listRowsForTrip(Number(sourceTripId));
-      const copiedTours = new Set<number>();
-      const copiedSources: Array<[number, number]> = [];
+      const copiedTours = new Map<number, number>();
       for (const { place_id, ...tour } of oldTours) {
         const newPlaceId = placeMap.get(place_id);
         if (!newPlaceId) continue;
         await this.toursRepo.insertCopy(newPlaceId, tour, placeMap);
-        copiedSources.push([place_id, newPlaceId]);
-        copiedTours.add(place_id);
+        copiedTours.set(place_id, newPlaceId);
       }
-      // The import records after the facets they reference; the order among them does not matter.
-      await Promise.all(copiedSources.map(([from, to]) => this.toursRepo.copySource(from, to)));
+      await Promise.all([...copiedTours].map(([from, to]) => this.toursRepo.copySource(from, to)));
 
       const waypointsByPlace = new Map<number, TourWaypointRow[]>();
       for (const { place_id, ...waypoint } of await this.tourWaypointsRepo.listForTrip(Number(sourceTripId))) {

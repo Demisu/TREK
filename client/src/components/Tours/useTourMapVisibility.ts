@@ -36,5 +36,3 @@ export function useTourMapVisibility(tripId: number, tourIds: ReadonlySet<number
 
   return { hiddenIds, isHidden, toggle, showAll, hiddenCount: hiddenIds.size };
 }
-
-export type TourMapVisibility = ReturnType<typeof useTourMapVisibility>;
