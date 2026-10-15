@@ -257,5 +257,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Show all',
   'tours.visibility.show': 'Show on the map',
   'tours.visibility.hide': 'Hide on the map',
+  'tours.filter.status': 'Status',
+  'tours.filter.source': 'Source',
+  'tours.filter.grade': 'Routing limit',
+  'tours.filter.gradeHint':
+    'The highest difficulty the route was planned to allow, as stored with the tour. Not the difficulty measured on the trail.',
+  'tours.filter.type': 'Type',
+  'tours.filter.empty': 'No tour matches these filters.',
+  'tours.filter.reset': 'Reset filters',
 };
 export default tours;

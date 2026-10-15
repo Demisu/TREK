@@ -264,5 +264,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Mostra-les totes',
   'tours.visibility.show': 'Mostra al mapa',
   'tours.visibility.hide': 'Amaga al mapa',
+  'tours.filter.status': 'Estat',
+  'tours.filter.source': 'Font',
+  'tours.filter.grade': 'Límit de ruta',
+  'tours.filter.gradeHint':
+    'La dificultat màxima que la ruta podia fer servir en planificar-la, tal com es va desar amb l’excursió. No la dificultat mesurada al camí.',
+  'tours.filter.type': 'Tipus',
+  'tours.filter.empty': 'Cap excursió no coincideix amb aquests filtres.',
+  'tours.filter.reset': 'Restableix els filtres',
 };
 export default tours;

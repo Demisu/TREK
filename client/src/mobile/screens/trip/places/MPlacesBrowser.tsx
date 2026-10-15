@@ -20,7 +20,7 @@ import MPlacesBulkCategorySheet from './MPlacesBulkCategorySheet'
 import MPlacesSaveToCollectionSheet from './MPlacesSaveToCollectionSheet'
 import MPlacesToursModeSwitch from './MPlacesToursModeSwitch'
 import MToursSelectionList from './MToursSelectionList'
-import type { TourFilter } from '../../../../components/Tours/tourPresentation'
+import { useTourListFilters } from '../../../../components/Tours/useTourListFilters'
 import { filterPool, firstPlannedDayNumbers, plannedPlaceIds } from './placesBrowserModel'
 import { MCategoryFilterList, MRatingFloorChips, SquareCheck } from './MPlacesFilterControls'
 import { countActivePlacesFilters } from '../../../../utils/placesFilter'
@@ -47,7 +47,7 @@ export default function MPlacesBrowser({ planner, shell }: MPlacesBrowserProps) 
   // Top level of the places browser, mirroring the desktop right add-panel's
   // Places <-> Tours switch placement.
   const [toursMode, setToursMode] = useState(false)
-  const [toursFilter, setToursFilter] = useState<TourFilter>('all')
+  const tourFilters = useTourListFilters(planner.tours)
 
   const poolPlaces = useMemo(
     // Places that are tours stay out of the Places pool while the addon is on.
@@ -124,11 +124,11 @@ export default function MPlacesBrowser({ planner, shell }: MPlacesBrowserProps) 
             {/* All / Unplanned / Planned only — no Tracks chip, no Import/Add/Select
                 buttons: tours are attached here, never created or bulk-managed. */}
             <div className="flex items-center gap-[6px]">
-              <FilterChip active={toursFilter === 'all'} label={t('places.all')} onClick={() => setToursFilter('all')} />
-              <FilterChip active={toursFilter === 'unplanned'} label={t('places.unplanned')} onClick={() => setToursFilter('unplanned')} />
-              <FilterChip active={toursFilter === 'planned'} label={t('places.planned')} onClick={() => setToursFilter('planned')} />
+              <FilterChip active={tourFilters.status === 'all'} label={t('places.all')} onClick={() => tourFilters.setStatus('all')} />
+              <FilterChip active={tourFilters.status === 'unplanned'} label={t('places.unplanned')} onClick={() => tourFilters.setStatus('unplanned')} />
+              <FilterChip active={tourFilters.status === 'planned'} label={t('places.planned')} onClick={() => tourFilters.setStatus('planned')} />
             </div>
-            <MToursSelectionList planner={planner} shell={shell} filter={toursFilter} />
+            <MToursSelectionList planner={planner} shell={shell} filters={tourFilters} />
           </>
         ) : (
         <>

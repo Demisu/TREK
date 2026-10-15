@@ -258,5 +258,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Hamısını göstər',
   'tours.visibility.show': 'Xəritədə göstər',
   'tours.visibility.hide': 'Xəritədə gizlət',
+  'tours.filter.status': 'Vəziyyət',
+  'tours.filter.source': 'Mənbə',
+  'tours.filter.grade': 'Marşrut həddi',
+  'tours.filter.gradeHint':
+    'Marşrutun planlaşdırılarkən istifadə edə biləcəyi ən yüksək çətinlik, turla birlikdə saxlandığı kimi. Cığırda ölçülən çətinlik deyil.',
+  'tours.filter.type': 'Növ',
+  'tours.filter.empty': 'Bu filtrlərə uyğun tur yoxdur.',
+  'tours.filter.reset': 'Filtrləri sıfırla',
 };
 export default tours;

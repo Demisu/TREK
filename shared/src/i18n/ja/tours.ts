@@ -251,5 +251,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'すべて表示',
   'tours.visibility.show': '地図に表示',
   'tours.visibility.hide': '地図で非表示にする',
+  'tours.filter.status': '状態',
+  'tours.filter.source': 'ソース',
+  'tours.filter.grade': 'ルートの上限',
+  'tours.filter.gradeHint':
+    '計画時にルートが使ってよい最大の難易度で、ツアーに保存されている値です。道で測った難易度ではありません。',
+  'tours.filter.type': '種類',
+  'tours.filter.empty': 'この条件に合うツアーはありません。',
+  'tours.filter.reset': 'フィルターをリセット',
 };
 export default tours;

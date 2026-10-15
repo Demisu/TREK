@@ -271,5 +271,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Pokaż wszystkie',
   'tours.visibility.show': 'Pokaż na mapie',
   'tours.visibility.hide': 'Ukryj na mapie',
+  'tours.filter.status': 'Stan',
+  'tours.filter.source': 'Źródło',
+  'tours.filter.grade': 'Limit trasy',
+  'tours.filter.gradeHint':
+    'Najwyższa trudność, jaką trasa mogła wykorzystać przy planowaniu, zapisana przy trasie. To nie zmierzona trudność szlaku.',
+  'tours.filter.type': 'Rodzaj',
+  'tours.filter.empty': 'Żadna trasa nie pasuje do tych filtrów.',
+  'tours.filter.reset': 'Wyczyść filtry',
 };
 export default tours;

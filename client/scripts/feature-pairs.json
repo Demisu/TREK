@@ -717,11 +717,16 @@
       "hooks": ["src/components/Tours/tourPresentation.ts"],
       "desktop": [
         "src/components/Tours/TourDetailDialog.tsx",
-        "src/components/Tours/ToursSidebar.tsx",
         "src/components/Tours/planner/TourPlannerPanels.tsx",
         "src/components/Tours/tourParts.tsx"
       ],
       "mobile": ["src/mobile/screens/trip/places/MToursSelectionList.tsx"]
+    },
+    {
+      "feature": "Tours list facets",
+      "hooks": ["src/components/Tours/useTourListFilters.ts"],
+      "desktop": ["src/components/Tours/ToursSidebar.tsx"],
+      "mobile": ["src/mobile/screens/trip/places/MPlacesBrowser.tsx"]
     },
     {
       "feature": "Transport booking detail view: reservationFiles",

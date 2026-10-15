@@ -264,5 +264,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Összes megjelenítése',
   'tours.visibility.show': 'Megjelenítés a térképen',
   'tours.visibility.hide': 'Elrejtés a térképen',
+  'tours.filter.status': 'Állapot',
+  'tours.filter.source': 'Forrás',
+  'tours.filter.grade': 'Útvonalkorlát',
+  'tours.filter.gradeHint':
+    'A legnagyobb nehézség, amelyet az útvonal tervezéskor használhatott, a túrával mentve. Nem az ösvényen mért nehézség.',
+  'tours.filter.type': 'Fajta',
+  'tours.filter.empty': 'Egy túra sem felel meg ezeknek a szűrőknek.',
+  'tours.filter.reset': 'Szűrők törlése',
 };
 export default tours;

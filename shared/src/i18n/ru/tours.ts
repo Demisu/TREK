@@ -274,5 +274,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Показать все',
   'tours.visibility.show': 'Показать на карте',
   'tours.visibility.hide': 'Скрыть на карте',
+  'tours.filter.status': 'Статус',
+  'tours.filter.source': 'Источник',
+  'tours.filter.grade': 'Предел маршрута',
+  'tours.filter.gradeHint':
+    'Наибольшая сложность, которую маршрут мог использовать при планировании, как она сохранена с походом. Это не измеренная сложность тропы.',
+  'tours.filter.type': 'Тип',
+  'tours.filter.empty': 'Ни один поход не подходит под эти фильтры.',
+  'tours.filter.reset': 'Сбросить фильтры',
 };
 export default tours;

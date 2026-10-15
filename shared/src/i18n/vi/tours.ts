@@ -257,5 +257,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Hiện tất cả',
   'tours.visibility.show': 'Hiện trên bản đồ',
   'tours.visibility.hide': 'Ẩn trên bản đồ',
+  'tours.filter.status': 'Trạng thái',
+  'tours.filter.source': 'Nguồn',
+  'tours.filter.grade': 'Giới hạn lộ trình',
+  'tours.filter.gradeHint':
+    'Độ khó cao nhất mà lộ trình được phép dùng khi lên kế hoạch, như đã lưu cùng chuyến đi bộ. Không phải độ khó đo được trên đường mòn.',
+  'tours.filter.type': 'Loại',
+  'tours.filter.empty': 'Không có chuyến đi bộ nào khớp với bộ lọc này.',
+  'tours.filter.reset': 'Đặt lại bộ lọc',
 };
 export default tours;

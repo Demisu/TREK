@@ -264,5 +264,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Mostra tutti',
   'tours.visibility.show': 'Mostra sulla mappa',
   'tours.visibility.hide': 'Nascondi sulla mappa',
+  'tours.filter.status': 'Stato',
+  'tours.filter.source': 'Fonte',
+  'tours.filter.grade': 'Limite di percorso',
+  'tours.filter.gradeHint':
+    'La difficoltà massima che il percorso poteva usare in fase di pianificazione, come salvata con il tour. Non la difficoltà misurata sul sentiero.',
+  'tours.filter.type': 'Tipo',
+  'tours.filter.empty': 'Nessun tour corrisponde a questi filtri.',
+  'tours.filter.reset': 'Reimposta filtri',
 };
 export default tours;

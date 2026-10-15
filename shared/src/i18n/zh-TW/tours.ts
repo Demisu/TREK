@@ -236,5 +236,12 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': '全部顯示',
   'tours.visibility.show': '在地圖上顯示',
   'tours.visibility.hide': '在地圖上隱藏',
+  'tours.filter.status': '狀態',
+  'tours.filter.source': '出處',
+  'tours.filter.grade': '路線上限',
+  'tours.filter.gradeHint': '規劃時允許路線使用的最高難度，隨遊程一起儲存。不是在步道上量測到的難度。',
+  'tours.filter.type': '類型',
+  'tours.filter.empty': '沒有符合這些篩選條件的遊程。',
+  'tours.filter.reset': '重設篩選',
 };
 export default tours;

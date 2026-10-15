@@ -263,5 +263,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Alles tonen',
   'tours.visibility.show': 'Tonen op de kaart',
   'tours.visibility.hide': 'Verbergen op de kaart',
+  'tours.filter.status': 'Status', // same-as-en
+  'tours.filter.source': 'Bron',
+  'tours.filter.grade': 'Routelimiet',
+  'tours.filter.gradeHint':
+    'De hoogste moeilijkheid die de route bij het plannen mocht gebruiken, zoals opgeslagen bij de tocht. Niet de gemeten moeilijkheid van het pad.',
+  'tours.filter.type': 'Soort',
+  'tours.filter.empty': 'Geen tocht past bij deze filters.',
+  'tours.filter.reset': 'Filters wissen',
 };
 export default tours;

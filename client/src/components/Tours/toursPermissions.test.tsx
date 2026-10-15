@@ -46,6 +46,14 @@ import type { TourPlannerController } from './planner/useTourPlanner'
 import { TourPlannerRail, TourPlannerToursRail } from './planner/TourPlannerPanels'
 import TourDetailDialog from './TourDetailDialog'
 import MToursSelectionList from '../../mobile/screens/trip/places/MToursSelectionList'
+import type { ComponentProps } from 'react'
+import { useTourListFilters } from './useTourListFilters'
+
+/** The list as the places browser mounts it: its filters from the shared hook (PR1-13). */
+function List(props: Omit<ComponentProps<typeof MToursSelectionList>, 'filters'>) {
+  const filters = useTourListFilters(props.planner.tours)
+  return <MToursSelectionList {...props} filters={filters} />
+}
 
 const tour = { place_id: 42, name: 'Ridge', tour_type: 'hike', max_hiking_difficulty: 2, planned: false } as TourListItem
 const days = [{ id: 3, title: 'Summit' }] as never
@@ -133,7 +141,7 @@ describe('Tours permissions without database setup', () => {
     expect(remove).toHaveBeenCalledTimes(canAssign ? 1 : 0)
     const view = vi.fn()
     const openSheet = vi.fn()
-    rerender(<MToursSelectionList planner={{ t: (key: string) => key, tours: [tour], handlePlaceClick: view, reloadTourPlaceIds: vi.fn() } as never} shell={{ sheet: 'other', openSheet } as never} filter="all" canEdit={canEdit} canAssign={canAssign} />)
+    rerender(<List planner={{ t: (key: string) => key, tours: [tour], handlePlaceClick: view, reloadTourPlaceIds: vi.fn() } as never} shell={{ sheet: 'other', openSheet } as never} canEdit={canEdit} canAssign={canAssign} />)
     fireEvent.click(screen.getByRole('option'))
     expect(view).toHaveBeenCalledWith(42)
     const attach = screen.getByRole('button', { name: 'tours.addToDay' }) as HTMLButtonElement

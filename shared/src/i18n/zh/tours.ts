@@ -237,5 +237,12 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': '全部显示',
   'tours.visibility.show': '在地图上显示',
   'tours.visibility.hide': '在地图上隐藏',
+  'tours.filter.status': '状态',
+  'tours.filter.source': '来源',
+  'tours.filter.grade': '路线上限',
+  'tours.filter.gradeHint': '规划时允许路线使用的最高难度，随路线一起保存。不是在步道上测得的难度。',
+  'tours.filter.type': '类型',
+  'tours.filter.empty': '没有符合这些筛选条件的路线。',
+  'tours.filter.reset': '重置筛选',
 };
 export default tours;

@@ -245,5 +245,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'แสดงทั้งหมด',
   'tours.visibility.show': 'แสดงบนแผนที่',
   'tours.visibility.hide': 'ซ่อนบนแผนที่',
+  'tours.filter.status': 'สถานะ',
+  'tours.filter.source': 'แหล่งข้อมูล',
+  'tours.filter.grade': 'ขีดจำกัดเส้นทาง',
+  'tours.filter.gradeHint':
+    'ความยากสูงสุดที่เส้นทางใช้ได้ตอนวางแผน ตามที่บันทึกไว้กับทัวร์ ไม่ใช่ความยากที่วัดได้บนเส้นทางจริง',
+  'tours.filter.type': 'ประเภท',
+  'tours.filter.empty': 'ไม่มีทัวร์ที่ตรงกับตัวกรองเหล่านี้',
+  'tours.filter.reset': 'รีเซ็ตตัวกรอง',
 };
 export default tours;

@@ -267,5 +267,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Tout afficher',
   'tours.visibility.show': 'Afficher sur la carte',
   'tours.visibility.hide': 'Masquer sur la carte',
+  'tours.filter.status': 'Statut',
+  'tours.filter.source': 'Source', // same-as-en
+  'tours.filter.grade': 'Limite d’itinéraire',
+  'tours.filter.gradeHint':
+    'La difficulté maximale que l’itinéraire pouvait emprunter à la planification, telle qu’enregistrée avec la sortie. Pas la difficulté mesurée sur le sentier.',
+  'tours.filter.type': 'Type', // same-as-en
+  'tours.filter.empty': 'Aucune sortie ne correspond à ces filtres.',
+  'tours.filter.reset': 'Réinitialiser les filtres',
 };
 export default tours;

@@ -263,5 +263,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Mostrar todos',
   'tours.visibility.show': 'Mostrar no mapa',
   'tours.visibility.hide': 'Ocultar no mapa',
+  'tours.filter.status': 'Situação',
+  'tours.filter.source': 'Fonte',
+  'tours.filter.grade': 'Limite de rota',
+  'tours.filter.gradeHint':
+    'A dificuldade máxima que a rota podia usar no planejamento, como salva no passeio. Não é a dificuldade medida na trilha.',
+  'tours.filter.type': 'Tipo',
+  'tours.filter.empty': 'Nenhum passeio corresponde a esses filtros.',
+  'tours.filter.reset': 'Limpar filtros',
 };
 export default tours;

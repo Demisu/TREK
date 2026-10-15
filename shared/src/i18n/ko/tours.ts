@@ -249,5 +249,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': '모두 표시',
   'tours.visibility.show': '지도에 표시',
   'tours.visibility.hide': '지도에서 숨기기',
+  'tours.filter.status': '상태',
+  'tours.filter.source': '소스',
+  'tours.filter.grade': '경로 한도',
+  'tours.filter.gradeHint':
+    '계획할 때 경로가 쓸 수 있었던 최고 난이도로, 투어에 저장된 값입니다. 길에서 측정한 난이도가 아닙니다.',
+  'tours.filter.type': '종류',
+  'tours.filter.empty': '이 필터에 맞는 투어가 없습니다.',
+  'tours.filter.reset': '필터 초기화',
 };
 export default tours;

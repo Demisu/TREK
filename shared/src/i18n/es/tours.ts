@@ -262,5 +262,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Mostrar todas',
   'tours.visibility.show': 'Mostrar en el mapa',
   'tours.visibility.hide': 'Ocultar en el mapa',
+  'tours.filter.status': 'Estado',
+  'tours.filter.source': 'Fuente',
+  'tours.filter.grade': 'Límite de ruta',
+  'tours.filter.gradeHint':
+    'La dificultad máxima que la ruta podía usar al planificarse, tal como se guardó con la excursión. No la dificultad medida en el sendero.',
+  'tours.filter.type': 'Tipo',
+  'tours.filter.empty': 'Ninguna excursión coincide con estos filtros.',
+  'tours.filter.reset': 'Restablecer filtros',
 };
 export default tours;

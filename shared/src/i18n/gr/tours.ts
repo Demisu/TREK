@@ -269,5 +269,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Εμφάνιση όλων',
   'tours.visibility.show': 'Εμφάνιση στον χάρτη',
   'tours.visibility.hide': 'Απόκρυψη στον χάρτη',
+  'tours.filter.status': 'Κατάσταση',
+  'tours.filter.source': 'Πηγή',
+  'tours.filter.grade': 'Όριο διαδρομής',
+  'tours.filter.gradeHint':
+    'Η μέγιστη δυσκολία που επιτρεπόταν στη διαδρομή κατά τον σχεδιασμό, όπως αποθηκεύτηκε με την εκδρομή. Όχι η μετρημένη δυσκολία του μονοπατιού.',
+  'tours.filter.type': 'Είδος',
+  'tours.filter.empty': 'Καμία εκδρομή δεν ταιριάζει με αυτά τα φίλτρα.',
+  'tours.filter.reset': 'Επαναφορά φίλτρων',
 };
 export default tours;

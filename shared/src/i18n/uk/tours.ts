@@ -271,5 +271,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Показати всі',
   'tours.visibility.show': 'Показати на мапі',
   'tours.visibility.hide': 'Приховати на мапі',
+  'tours.filter.status': 'Стан',
+  'tours.filter.source': 'Джерело',
+  'tours.filter.grade': 'Межа маршруту',
+  'tours.filter.gradeHint':
+    'Найвища складність, яку маршрут міг використати під час планування, як її збережено з походом. Це не виміряна складність стежки.',
+  'tours.filter.type': 'Тип',
+  'tours.filter.empty': 'Жоден похід не відповідає цим фільтрам.',
+  'tours.filter.reset': 'Скинути фільтри',
 };
 export default tours;

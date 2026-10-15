@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { Check, ChevronDown, EyeOff, FileDown } from 'lucide-react'
+import React, { useEffect, useMemo, useRef } from 'react'
+import { EyeOff, FileDown } from 'lucide-react'
 import type { TourListItem } from '@trek/shared'
 import type { Day } from '../../types'
 import { useTranslation } from '../../i18n'
@@ -9,7 +9,8 @@ import { NEUTRAL_TINT, fs } from '../shared/DialogShell'
 import { Tooltip } from '../shared/Tooltip'
 import EmptyState from '../shared/EmptyState'
 import { TourDayMenu } from './tourParts'
-import { filterTours, type TourFilter } from './tourPresentation'
+import TourListFilterMenu from './TourListFilterMenu'
+import { useTourListFilters } from './useTourListFilters'
 import { useTourGpxImport } from './useTourGpxImport'
 import { type AssignTourToDay, useTourDayAssignment } from './useTourDayAssignment'
 import { useTourMapVisibility } from './useTourMapVisibility'
@@ -44,10 +45,7 @@ export default function ToursSidebar({ tripId, days, tours, loading = false, sel
   const { t } = useTranslation()
   const { canEdit, canAssign } = useTourPermissions({ tripId, canEdit: editPermission, canAssign: assignPermission })
   const gpxImport = useTourGpxImport({ tripId, canEdit, onToursChanged })
-  const [filter, setFilter] = useState<TourFilter>('all')
-  const filterRef = useRef<HTMLDivElement>(null)
-  const filterButtonRef = useRef<HTMLButtonElement>(null)
-  const [filterOpen, setFilterOpen] = useState(false)
+  const filters = useTourListFilters(tours)
 
   const dayAssignment = useTourDayAssignment({ canAssign, onAssignToDay })
   const tourIds = useMemo(() => new Set(tours.map(tour => tour.place_id)), [tours])
@@ -66,35 +64,6 @@ export default function ToursSidebar({ tripId, days, tours, loading = false, sel
     row?.scrollIntoView?.({ block: 'nearest' })
   }, [selectedPlaceId])
 
-  const counts = {
-    all: tours.length,
-    unplanned: tours.filter(tr => !tr.planned).length,
-    planned: tours.filter(tr => tr.planned).length,
-  }
-  const filtered = filterTours(tours, filter)
-
-  useEffect(() => {
-    if (!filterOpen) return
-    const onDown = (event: MouseEvent) => {
-      if (!filterRef.current?.contains(event.target as Node)) setFilterOpen(false)
-    }
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return
-      event.stopPropagation()
-      setFilterOpen(false)
-      filterButtonRef.current?.focus()
-    }
-    document.addEventListener('mousedown', onDown)
-    document.addEventListener('keydown', onKey, true)
-    return () => {
-      document.removeEventListener('mousedown', onDown)
-      document.removeEventListener('keydown', onKey, true)
-    }
-  }, [filterOpen])
-
-  const filterLabel = filter === 'all' ? t('places.all') : filter === 'unplanned' ? t('places.unplanned') : t('places.planned')
-  const filterCount = counts[filter]
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', fontFamily: 'var(--font-system)' }}>
       <div className="flex flex-none flex-col gap-2 border-b border-edge-faint px-3 py-2.5" style={{ background: NEUTRAL_TINT }}>
@@ -110,31 +79,7 @@ export default function ToursSidebar({ tripId, days, tours, loading = false, sel
             </button>
           </Tooltip>
         </div>
-        <div ref={filterRef} className="relative min-w-0">
-          <button ref={filterButtonRef} type="button" onClick={() => setFilterOpen(value => !value)}
-            aria-expanded={filterOpen} aria-haspopup="listbox" aria-label={t('places.filterShow')}
-            className="flex h-8 w-full min-w-0 items-center gap-1.5 rounded-[10px] bg-surface-card px-2.5 font-semibold text-content-secondary shadow-sm transition-colors hover:text-content"
-            style={fs(12, 'body')}>
-            <span className="min-w-0 truncate text-start">{filterLabel}</span>
-            <span className="font-geist tabular-nums text-content-faint" style={fs(10.5)}>{filterCount}</span>
-            <ChevronDown size={13} strokeWidth={2.2} className={`ms-auto flex-none text-content-faint transition-transform ${filterOpen ? 'rotate-180' : ''}`} />
-          </button>
-          {filterOpen && (
-            <div role="group" aria-label={t('places.filterShow')} className="trek-popover-enter absolute start-0 top-full z-50 mt-1.5 flex w-full min-w-[180px] flex-col gap-px rounded-[12px] border border-edge-secondary bg-surface-card p-1.5 shadow-popover">
-              {(['all', 'unplanned', 'planned'] as const).map(id => {
-                const label = id === 'all' ? t('places.all') : id === 'unplanned' ? t('places.unplanned') : t('places.planned')
-                const active = filter === id
-                return <button key={id} type="button" onClick={() => { setFilter(id); setFilterOpen(false) }} aria-pressed={active}
-                  className={`flex w-full items-center gap-2 rounded-[9px] px-2 py-1.5 text-start transition-colors ${active ? 'bg-surface-tertiary' : 'hover:bg-surface-hover'}`}
-                  style={fs(12.5, 'body')}>
-                  <span className="min-w-0 flex-1 truncate text-content">{label}</span>
-                  <span className="font-geist tabular-nums text-content-faint" style={fs(11)}>{counts[id]}</span>
-                  <span className="grid w-3.5 flex-none place-items-center">{active && <Check size={13} strokeWidth={2.4} className="text-content-muted" />}</span>
-                </button>
-              })}
-            </div>
-          )}
-        </div>
+        <TourListFilterMenu filters={filters} />
         {visibility.hiddenCount > 0 && (
           <div role="status" className="flex min-w-0 items-center gap-2 rounded-[10px] bg-surface-card px-2.5 py-1.5 shadow-sm ring-1 ring-inset ring-edge-faint">
             <EyeOff size={13} strokeWidth={2.2} className="flex-none text-content-faint" />
@@ -150,12 +95,21 @@ export default function ToursSidebar({ tripId, days, tours, loading = false, sel
       </div>
 
       <div className="trek-stagger min-h-0 flex-1 overflow-y-auto px-2 pb-2 pt-1.5">
-        {!loading && filtered.length === 0 ? (
+        {!loading && filters.emptyByFilter ? (
+          <div role="status" className="mx-1.5 mt-2 flex flex-col items-center gap-2 rounded-[12px] bg-surface-card px-4 py-5 text-center shadow-sm ring-1 ring-inset ring-edge-faint">
+            <p className="m-0 text-content-muted" style={fs(12.5, 'body')}>{t('tours.filter.empty')}</p>
+            <button type="button" onClick={filters.reset}
+              className="rounded-full bg-surface-secondary px-3 py-1 font-semibold text-content-secondary transition-colors hover:text-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+              style={fs(11.5, 'body')}>
+              {t('tours.filter.reset')}
+            </button>
+          </div>
+        ) : !loading && filters.filtered.length === 0 ? (
           <EmptyState scene="tours" size={92} fill surface="var(--bg-secondary)" title={t('tours.empty.title')}
             action={<p className="m-0 max-w-[260px] text-content-muted" style={fs(12, 'body')}>{t('tours.empty.body')}</p>} />
         ) : (
           <ul ref={listRef} role="listbox" aria-label={t('tours.mode.tours')} className="m-0 list-none p-0">
-            {filtered.map(tour => (
+            {filters.filtered.map(tour => (
               <TourListRow
                 key={tour.place_id}
                 tour={tour}

@@ -7,6 +7,14 @@ import { resetAllStores, seedStore } from '../../../../../tests/helpers/store'
 import { useSettingsStore } from '../../../../store/settingsStore'
 import type { TripPlanner, MTripShellApi } from '../MTripShell'
 import MToursSelectionList from './MToursSelectionList'
+import type { ComponentProps } from 'react'
+import { useTourListFilters } from '../../../../components/Tours/useTourListFilters'
+
+/** The list as the places browser mounts it: its filters from the shared hook (PR1-13). */
+function List(props: Omit<ComponentProps<typeof MToursSelectionList>, 'filters'>) {
+  const filters = useTourListFilters(props.planner.tours)
+  return <MToursSelectionList {...props} filters={filters} />
+}
 
 const tour: TourListItem = {
   place_id: 42,
@@ -70,19 +78,19 @@ describe('MToursSelectionList', () => {
       const value = de[key] ?? en[key]
       return typeof value === 'string' ? value : key
     } }
-    const { rerender } = render(<MToursSelectionList planner={germanPlanner} shell={shell()} filter="all" />)
+    const { rerender } = render(<List planner={germanPlanner} shell={shell()} />)
 
     expect(screen.getByRole('button', { name: 'Zum Tag hinzufügen' })).toBeInTheDocument()
     expect(screen.getByTitle('T2 – Bergwandern')).toHaveAttribute('aria-label', 'T2 – Bergwandern')
     expect(screen.getByText(germanPlanner.t('tours.planner.mobileHint'))).toBeInTheDocument()
-    rerender(<MToursSelectionList planner={{ ...germanPlanner, tours: [] }} shell={shell()} filter="all" />)
+    rerender(<List planner={{ ...germanPlanner, tours: [] }} shell={shell()} />)
     expect(screen.getByText('Noch keine Touren')).toBeInTheDocument()
     expect(screen.getByText(germanPlanner.t('tours.empty.body'))).toBeInTheDocument()
     expect(document.body.textContent).not.toMatch(/\btours\.[a-zA-Z]/)
   })
 
   it('gives a tour name the full row and up to two lines', () => {
-    render(<MToursSelectionList planner={planner()} shell={shell()} filter="all" />)
+    render(<List planner={planner()} shell={shell()} />)
 
     const name = screen.getByText(tour.name)
     expect(name).toHaveClass('line-clamp-2', 'break-words')
@@ -91,7 +99,7 @@ describe('MToursSelectionList', () => {
   })
 
   it('keeps the mobile TRIP-PLAN Tours browse list limited to viewing and assignment', () => {
-    const { container } = render(<MToursSelectionList planner={{ ...planner(), selectedPlaceId: tour.place_id }} shell={shell()} filter="all" canEdit canAssign />)
+    const { container } = render(<List planner={{ ...planner(), selectedPlaceId: tour.place_id }} shell={shell()} canEdit canAssign />)
     expect(screen.getByRole('option', { name: new RegExp(tour.name) })).toHaveAttribute('aria-selected', 'true')
     const metrics = screen.getByTestId('mobile-tour-metrics')
     expect(metrics).toHaveTextContent('12.5 km')
@@ -120,7 +128,7 @@ describe('MToursSelectionList', () => {
         return typeof value === 'string' ? value : key
       },
     }
-    render(<MToursSelectionList planner={germanPlanner} shell={shell()} filter="all" />)
+    render(<List planner={germanPlanner} shell={shell()} />)
     expect(screen.getByRole('option', { name: /Eine sehr lange deutsche Wanderung/ })).toBeInTheDocument()
     expect(screen.getByText('GPX-Import')).toBeInTheDocument()
     expect(screen.getByLabelText('T2 – Bergwandern')).toBeInTheDocument()
@@ -129,7 +137,7 @@ describe('MToursSelectionList', () => {
 
   it('shows no T-badge for an imported tour that carries no difficulty', () => {
     const imported = { ...tour, has_waypoints: false, max_hiking_difficulty: null }
-    render(<MToursSelectionList planner={{ ...planner(), tours: [imported] }} shell={shell()} filter="all" />)
+    render(<List planner={{ ...planner(), tours: [imported] }} shell={shell()} />)
 
     const row = screen.getByRole('option', { name: new RegExp(tour.name) })
     expect(row).not.toHaveTextContent(/T\d/)
@@ -139,9 +147,9 @@ describe('MToursSelectionList', () => {
   })
 
   it('does not refresh Tours merely because the mobile assignment sheet closes', () => {
-    const { rerender } = render(<MToursSelectionList planner={planner()} shell={shell({ id: 'bract' })} filter="all" />)
+    const { rerender } = render(<List planner={planner()} shell={shell({ id: 'bract' })} />)
 
-    rerender(<MToursSelectionList planner={planner()} shell={shell()} filter="all" />)
+    rerender(<List planner={planner()} shell={shell()} />)
 
     expect(reloadTourPlaceIds).not.toHaveBeenCalled()
   })

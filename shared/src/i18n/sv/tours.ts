@@ -256,5 +256,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Visa alla',
   'tours.visibility.show': 'Visa på kartan',
   'tours.visibility.hide': 'Dölj på kartan',
+  'tours.filter.status': 'Status', // same-as-en
+  'tours.filter.source': 'Källa',
+  'tours.filter.grade': 'Ruttgräns',
+  'tours.filter.gradeHint':
+    'Den högsta svårighet som rutten fick använda vid planeringen, sparad med turen. Inte den uppmätta svårigheten på leden.',
+  'tours.filter.type': 'Typ',
+  'tours.filter.empty': 'Ingen tur matchar de här filtren.',
+  'tours.filter.reset': 'Återställ filter',
 };
 export default tours;

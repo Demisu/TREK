@@ -2,15 +2,34 @@ import { ArrowDown, ArrowUp, Mountain, AlertTriangle, CalendarDays } from 'lucid
 import type { TourListItem } from '@trek/shared'
 import { useSettingsStore } from '../../../../store/settingsStore'
 import { formatDistance, formatElevation } from '../../../../utils/units'
-import { filterTours, hikeSourceBadgeLabel, type TourFilter } from '../../../../components/Tours/tourPresentation'
+import { hikeSourceBadgeLabel } from '../../../../components/Tours/tourPresentation'
+import { ORIGIN_LABEL_KEY } from '../../../../components/Tours/TourListFilterMenu'
+import type { TourListFilters } from '../../../../components/Tours/useTourListFilters'
 import type { TripPlanner, MTripShellApi } from '../MTripShell'
 import { useTourPermissions, type TourPermissionProps } from '../../../../components/Tours/useTourPermissions'
 
 interface MToursSelectionListProps extends TourPermissionProps {
   planner: TripPlanner
   shell: MTripShellApi
-  /** All / Unplanned / Planned — same three states as the Places pool. */
-  filter: TourFilter
+  /** The list's filters (PR1-13): the day status chips sit above, the other dimensions here. */
+  filters: TourListFilters
+}
+
+/** One value of a dimension as a chip of the row; tapping a chosen one clears it. */
+function FacetChip({ active, label, count, onClick }: { active: boolean; label: string; count: number; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`flex h-8 flex-none items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-[0.75rem] font-semibold ${
+        active ? 'bg-m-act text-m-actfg' : 'bg-[color:var(--m-ic)] text-m-ink'
+      }`}
+    >
+      {label}
+      <span className="font-geist text-[0.6875rem] opacity-60">{count}</span>
+    </button>
+  )
 }
 
 /**
@@ -22,13 +41,42 @@ interface MToursSelectionListProps extends TourPermissionProps {
  * (the same one MPlacesBrowser's unplanned-place rows open) — a tour is a
  * Place under the hood, so no new linking code is needed here either.
  */
-export default function MToursSelectionList({ planner, shell, filter, canAssign: assignPermission }: MToursSelectionListProps) {
+export default function MToursSelectionList({ planner, shell, filters, canAssign: assignPermission }: MToursSelectionListProps) {
   const { canAssign } = useTourPermissions({ tripId: planner.tripId, canAssign: assignPermission })
   const { t } = planner
   const distanceUnit = useSettingsStore(s => s.settings.distance_unit)
-  const tours: TourListItem[] = planner.tours
+  const filtered: TourListItem[] = filters.filtered
+  const { facets, selection } = filters
+  const facetRow = filters.hasFacets && (
+    <div className="-mx-4 mt-2 flex gap-[6px] overflow-x-auto px-4 pb-1">
+      {facets.origin.map(option => (
+        <FacetChip key={`o-${option.value}`} active={selection.origin === option.value} label={t(ORIGIN_LABEL_KEY[option.value])}
+          count={option.count} onClick={() => filters.select('origin', option.value)} />
+      ))}
+      {facets.grade.map(option => (
+        <FacetChip key={`g-${option.value}`} active={selection.grade === option.value} label={`T${option.value}`}
+          count={option.count} onClick={() => filters.select('grade', option.value)} />
+      ))}
+      {facets.type.map(option => (
+        <FacetChip key={`t-${option.value}`} active={selection.type === option.value} label={t(`tourTypes.${option.value}`)}
+          count={option.count} onClick={() => filters.select('type', option.value)} />
+      ))}
+    </div>
+  )
 
-  const filtered = filterTours(tours, filter)
+  if (filters.emptyByFilter) {
+    return (
+      <>
+      {facetRow}
+      <div role="status" className="mt-3 rounded-2xl border border-[color:var(--m-rowbr)] bg-[color:var(--m-ic)] p-6 text-center">
+        <p className="font-geist text-[0.78125rem] text-m-muted">{t('tours.filter.empty')}</p>
+        <button type="button" onClick={filters.reset} className="mt-3 rounded-full bg-m-act px-4 py-2 text-[0.75rem] font-semibold text-m-actfg">
+          {t('tours.filter.reset')}
+        </button>
+      </div>
+      </>
+    )
+  }
 
   if (filtered.length === 0) {
     return (
@@ -50,6 +98,7 @@ export default function MToursSelectionList({ planner, shell, filter, canAssign:
     <p className="mt-3 rounded-xl border border-[color:var(--m-rowbr)] bg-[color:var(--m-ic)] px-3 py-2 font-geist text-[0.75rem] text-m-muted">
       {t('tours.planner.mobileHint')}
     </p>
+    {facetRow}
     <ul className="mt-3 space-y-2">
       {filtered.map(tour => {
         const isSelected = planner.selectedPlaceId === tour.place_id

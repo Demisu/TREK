@@ -260,5 +260,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Näita kõiki',
   'tours.visibility.show': 'Näita kaardil',
   'tours.visibility.hide': 'Peida kaardil',
+  'tours.filter.status': 'Olek',
+  'tours.filter.source': 'Allikas',
+  'tours.filter.grade': 'Marsruudi piir',
+  'tours.filter.gradeHint':
+    'Suurim raskusaste, mida marsruut planeerimisel kasutada tohtis, nagu see on matkaga salvestatud. Mitte rajal mõõdetud raskus.',
+  'tours.filter.type': 'Liik',
+  'tours.filter.empty': 'Ükski matk ei vasta neile filtritele.',
+  'tours.filter.reset': 'Lähtesta filtrid',
 };
 export default tours;

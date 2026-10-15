@@ -258,5 +258,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Zobrazit vše',
   'tours.visibility.show': 'Zobrazit na mapě',
   'tours.visibility.hide': 'Skrýt na mapě',
+  'tours.filter.status': 'Stav',
+  'tours.filter.source': 'Zdroj',
+  'tours.filter.grade': 'Limit trasy',
+  'tours.filter.gradeHint':
+    'Nejvyšší obtížnost, kterou trasa směla při plánování použít, jak je uložena u túry. Ne naměřená obtížnost cesty.',
+  'tours.filter.type': 'Druh',
+  'tours.filter.empty': 'Těmto filtrům neodpovídá žádná túra.',
+  'tours.filter.reset': 'Zrušit filtry',
 };
 export default tours;

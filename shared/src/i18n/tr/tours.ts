@@ -258,5 +258,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Tümünü göster',
   'tours.visibility.show': 'Haritada göster',
   'tours.visibility.hide': 'Haritada gizle',
+  'tours.filter.status': 'Durum',
+  'tours.filter.source': 'Kaynak',
+  'tours.filter.grade': 'Rota sınırı',
+  'tours.filter.gradeHint':
+    'Rotanın planlanırken kullanabileceği en yüksek zorluk, turla birlikte saklandığı gibi. Parkurda ölçülen zorluk değildir.',
+  'tours.filter.type': 'Tür',
+  'tours.filter.empty': 'Bu filtrelere uyan tur yok.',
+  'tours.filter.reset': 'Filtreleri sıfırla',
 };
 export default tours;

@@ -257,5 +257,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Tampilkan semua',
   'tours.visibility.show': 'Tampilkan di peta',
   'tours.visibility.hide': 'Sembunyikan di peta',
+  'tours.filter.status': 'Status', // same-as-en
+  'tours.filter.source': 'Sumber',
+  'tours.filter.grade': 'Batas rute',
+  'tours.filter.gradeHint':
+    'Tingkat kesulitan tertinggi yang boleh dipakai rute saat direncanakan, seperti tersimpan pada tur. Bukan kesulitan yang diukur di jalur.',
+  'tours.filter.type': 'Jenis',
+  'tours.filter.empty': 'Tidak ada tur yang cocok dengan filter ini.',
+  'tours.filter.reset': 'Atur ulang filter',
 };
 export default tours;

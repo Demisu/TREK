@@ -265,6 +265,14 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'Alle einblenden',
   'tours.visibility.show': 'Auf der Karte einblenden',
   'tours.visibility.hide': 'Auf der Karte ausblenden',
+  'tours.filter.status': 'Status', // same-as-en
+  'tours.filter.source': 'Quelle',
+  'tours.filter.grade': 'Routing-Grenze',
+  'tours.filter.gradeHint':
+    'Die höchste Schwierigkeit, die die Route beim Planen nutzen durfte, wie sie an der Tour gespeichert ist. Nicht die gemessene Schwierigkeit des Weges.',
+  'tours.filter.type': 'Art',
+  'tours.filter.empty': 'Keine Tour passt zu diesen Filtern.',
+  'tours.filter.reset': 'Filter zurücksetzen',
 };
 
 export default tours;

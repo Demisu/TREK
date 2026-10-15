@@ -269,5 +269,13 @@ const tours: TranslationStrings = {
   'tours.visibility.showAll': 'إظهار الكل',
   'tours.visibility.show': 'إظهار على الخريطة',
   'tours.visibility.hide': 'إخفاء على الخريطة',
+  'tours.filter.status': 'الحالة',
+  'tours.filter.source': 'المصدر',
+  'tours.filter.grade': 'حد المسار',
+  'tours.filter.gradeHint':
+    'أعلى صعوبة سُمح للمسار باستخدامها عند التخطيط، كما حُفظت مع الجولة. وليست الصعوبة المقاسة على الدرب.',
+  'tours.filter.type': 'النوع',
+  'tours.filter.empty': 'لا توجد جولة تطابق هذه المرشحات.',
+  'tours.filter.reset': 'إعادة ضبط المرشحات',
 };
 export default tours;
