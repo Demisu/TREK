@@ -45,13 +45,13 @@ export function useTourDayAssignment({ canAssign, onAssignToDay }: TourDayAssign
   );
 
   const assign = useCallback(
-    async (placeId: number, dayId: number, position?: number): Promise<boolean> => {
+    async (placeId: number, dayId: number): Promise<boolean> => {
       const key = `${placeId}:${dayId}`;
       if (!isAvailable(placeId, dayId) || inFlight.current.has(key)) return false;
       inFlight.current.add(key);
       setPending((current) => new Set(current).add(key));
       try {
-        return (await onAssignToDay(placeId, dayId, position)) !== false;
+        return (await onAssignToDay(placeId, dayId)) !== false;
       } finally {
         inFlight.current.delete(key);
         setPending((current) => {

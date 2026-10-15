@@ -1,6 +1,6 @@
+import { fireEvent, render, screen } from '@testing-library/react';
 import type { TourProvenance, TourSourceCheckResponse } from '@trek/shared';
 import { describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '../../../../tests/helpers/render';
 import TourProvenanceSection from './TourProvenanceSection';
 import type { SourceCheck } from './useSourceCheck';
 
@@ -28,6 +28,7 @@ function check(over: Partial<SourceCheck> = {}): SourceCheck {
   } as SourceCheck;
 }
 
+// Rendered without the translation provider: every text reads as its key, so the test pins which string each part shows.
 describe('TourProvenanceSection (P2C-02, MF-03)', () => {
   it('names a planned tour as planned here, with no local state and no check', () => {
     render(<TourProvenanceSection provenance={base} />);

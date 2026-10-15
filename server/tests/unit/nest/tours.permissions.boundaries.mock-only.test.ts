@@ -11,7 +11,7 @@ import 'reflect-metadata';
 import type { PlacesRepository } from '../../../src/db/repositories/Places.repository';
 import type { TourTypesRepository } from '../../../src/db/repositories/TourTypes.repository';
 import type { TourWaypointsRepository } from '../../../src/db/repositories/TourWaypoints.repository';
-import type { ToursRepository } from '../../../src/db/repositories/Tours.repository';
+import type { TourProvenanceRow, ToursRepository } from '../../../src/db/repositories/Tours.repository';
 import type { RuntimeEnvService } from '../../../src/nest/app-config/runtime-env.service';
 import { DayAssignmentsController } from '../../../src/nest/assignments/assignments.controller';
 import type { AssignmentsService } from '../../../src/nest/assignments/assignments.service';
@@ -252,13 +252,35 @@ function tourRepositoryFixture(ownerTripId: number) {
     wanderer_ref: null,
     match_confidence: 1,
     max_hiking_difficulty: 2,
+    origin: 'trek',
     planned: 0,
     has_waypoints: 1,
+  };
+  const provenance: TourProvenanceRow = {
+    origin: 'trek',
+    origin_file_name: null,
+    created_at: null,
+    wanderer_ref: null,
+    has_recorded_track: 0,
+    derived_from_place_id: null,
+    derived_from_name: null,
+    source_instance: null,
+    source_external_id: null,
+    source_external_url: null,
+    source_external_updated: null,
+    source_imported_at: null,
+    source_content_hash: null,
+    source_local_hash: null,
+    route_geometry: null,
+    name: 'Ridge walk',
   };
   const uow = { transactional: vi.fn(async <T>(fn: () => Promise<T>): Promise<T> => await fn()) };
   const toursRepo = {
     findInTrip: vi.fn(async (tripId: number, placeId: number) =>
       tripId === ownerTripId && placeId === 42 ? row : undefined,
+    ),
+    findProvenance: vi.fn(async (tripId: number, placeId: number) =>
+      tripId === ownerTripId && placeId === 42 ? provenance : undefined,
     ),
     updateInTrip: vi.fn(async () => true),
     keepRecordedTrack: vi.fn(async () => undefined),
@@ -291,6 +313,7 @@ describe('Real ToursService update trip boundary (stubbed repositories)', () => 
     const f = tourRepositoryFixture(8);
     expect((await f.service.getTour('8', '42')).tour.place_id).toBe(42);
     f.toursRepo.findInTrip.mockClear();
+    f.toursRepo.findProvenance.mockClear();
     f.waypointsRepo.listForPlace.mockClear();
 
     const error: unknown = await f.service.updateTour('7', '42', input, 'socket').catch((e: unknown) => e);
@@ -305,6 +328,7 @@ describe('Real ToursService update trip boundary (stubbed repositories)', () => 
       f.waypointsRepo.deleteForPlace,
       f.waypointsRepo.insertForPlace,
       f.waypointsRepo.listForPlace,
+      f.toursRepo.findProvenance,
       f.placesRepo.findWithTagsAndRatings,
       f.places.broadcast,
     ]) {
@@ -337,5 +361,6 @@ describe('Real ToursService update trip boundary (stubbed repositories)', () => 
     expect(f.waypointsRepo.insertForPlace).toHaveBeenCalledExactlyOnceWith(42, input.waypoints);
     expect(f.placesRepo.findWithTagsAndRatings).toHaveBeenCalledWith(42);
     expect(f.places.broadcast).toHaveBeenCalledWith('7', 'place:updated', { place: { id: 42, trip_id: 7 } }, 'socket');
+    expect(f.toursRepo.findProvenance).toHaveBeenCalledExactlyOnceWith(7, 42);
   });
 });

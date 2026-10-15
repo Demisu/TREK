@@ -15,8 +15,8 @@ vi.mock('../../store/settingsStore', () => ({
     selector({ settings: { language: 'en', distance_unit: 'metric' } }),
 }))
 vi.mock('../../store/tripStore', () => ({
-  useTripStore: (selector: (state: { loadTrip: () => Promise<void> }) => unknown) =>
-    selector({ loadTrip: vi.fn() }),
+  useTripStore: (selector: (state: { loadTrip: () => Promise<void>; places: never[]; assignments: Record<string, never> }) => unknown) =>
+    selector({ loadTrip: vi.fn(), places: [], assignments: {} }),
 }))
 
 const tour: TourListItem = {
@@ -95,16 +95,14 @@ describe('CustomSelect consumer contracts', () => {
       onAssignToDay={vi.fn()} onSelectTour={vi.fn()}
     /></TranslationProvider>)
     expect(screen.getAllByRole('option')).toHaveLength(2)
-    const filter = screen.getByRole('button', { name: 'Show' })
-    await user.click(filter)
+    // The menu stays open while the filters are set, so each pick is one click.
+    await user.click(screen.getByRole('button', { name: 'Show' }))
     await user.click(screen.getByRole('button', { name: /Unplanned\s*1/ }))
     expect(screen.getByRole('option', { name: /Ridge walk/ })).toBeInTheDocument()
     expect(screen.queryByRole('option', { name: /Planned walk/ })).toBeNull()
-    await user.click(filter)
-    await user.click(screen.getByRole('button', { name: /Planned\s*1/ }))
+    await user.click(screen.getByRole('button', { name: /^Planned\s*1/ }))
     expect(screen.getByRole('option', { name: /Planned walk/ })).toBeInTheDocument()
     expect(screen.queryByRole('option', { name: /Ridge walk/ })).toBeNull()
-    await user.click(filter)
     await user.click(screen.getByRole('button', { name: /All\s*2/ }))
     expect(screen.getAllByRole('option')).toHaveLength(2)
   })

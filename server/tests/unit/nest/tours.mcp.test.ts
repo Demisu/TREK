@@ -7,6 +7,7 @@
 import type { McpContext } from '../../../src/nest-mcp';
 import { ToursMcp } from '../../../src/nest/tours/tours.mcp';
 import { ToursModule } from '../../../src/nest/tours/tours.module';
+import { ToursService } from '../../../src/nest/tours/tours.service';
 import { createSnapshotTestDb } from '../../helpers/db-mock';
 import {
   addTripMember,
@@ -20,7 +21,7 @@ import { resetTestDb } from '../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../helpers/test-module';
 import { createTour } from '../../helpers/tours-repos';
 
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const db = createSnapshotTestDb();
 let t: TestModule;
@@ -110,5 +111,16 @@ describe('ToursMcp', () => {
     expect(read(await mcp.getTourPlan({ tripId: trip.id, placeId: cafe.id }, ctx(user.id)))).toEqual({
       error: 'Tour not found.',
     });
+  });
+
+  it('TOURS-MCP-005: a failure other than a missing tour is not passed off as not found', async () => {
+    const { user, trip, ridge } = fixture();
+    const failure = new Error('database gone');
+    const getTour = vi.spyOn(t.get(ToursService), 'getTour').mockRejectedValueOnce(failure);
+    try {
+      await expect(mcp.getTourPlan({ tripId: trip.id, placeId: ridge.id }, ctx(user.id))).rejects.toBe(failure);
+    } finally {
+      getTour.mockRestore();
+    }
   });
 });

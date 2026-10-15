@@ -1,10 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { TripPlanner } from '../../../../src/mobile/screens/trip/MTripShell';
 import MBrowseActionsSheet from '../../../../src/mobile/screens/trip/sheets/MBrowseActionsSheet';
+import { useTripStore } from '../../../../src/store/tripStore';
 import type { Place } from '../../../../src/types';
 import { buildPlanner, buildShell } from '../../../helpers/mobileTrip';
 import { act, fireEvent, render, screen, waitFor } from '../../../helpers/render';
-import { resetAllStores } from '../../../helpers/store';
+import { resetAllStores, seedStore } from '../../../helpers/store';
 
 function tourPlace(): Place {
   return {
@@ -51,6 +52,8 @@ function renderDayPicker(planner = mobilePlanner()) {
 describe('MBrowseActionsSheet Tour assignment picker', () => {
   it('disables assigned Tour days, blocks repeat clicks, and refreshes on reopen', async () => {
     resetAllStores();
+    // The days a tour is on are read from the trip store, the one place every tour view reads them from.
+    seedStore(useTripStore, { assignments: { '7': [{ id: 70, day_id: 7, place_id: 42 }] } as never });
     let finishAssignment!: (assigned: boolean) => void;
     const handleAssignToDay = vi.fn(
       () =>
@@ -80,12 +83,12 @@ describe('MBrowseActionsSheet Tour assignment picker', () => {
     });
     await waitFor(() => expect(shell.closeSheet).toHaveBeenCalledOnce());
 
-    const reopened = mobilePlanner({
-      assignments: {
-        '7': [{ id: 70, day_id: 7, place_id: 42 }],
-        '8': [{ id: 80, day_id: 8, place_id: 42 }],
-      } as never,
-    });
+    const assignedAfter = {
+      '7': [{ id: 70, day_id: 7, place_id: 42 }],
+      '8': [{ id: 80, day_id: 8, place_id: 42 }],
+    } as never;
+    act(() => seedStore(useTripStore, { assignments: assignedAfter }));
+    const reopened = mobilePlanner({ assignments: assignedAfter });
     rerender(<MBrowseActionsSheet planner={reopened} shell={shell} />);
     expect(screen.getByRole('button', { name: /Day one/ })).toBeDisabled();
     expect(screen.getByRole('button', { name: /Day two/ })).toBeDisabled();

@@ -111,7 +111,7 @@ describe('ToursSidebar', () => {
     expect(within(row).queryByText('TREK')).not.toBeInTheDocument()
     expect(screen.getByLabelText(/Maximum trail difficulty|Maximale Wanderschwierigkeit|T2/)).toBeInTheDocument()
     const actionRow = row.querySelector('[data-testid="tour-action-row"]')!
-    expect(actionRow.querySelector('button')).toHaveAttribute('aria-haspopup', 'menu')
+    expect(within(actionRow as HTMLElement).getByRole('button', { name: /Add to day|Zum Tag hinzufügen/ })).toHaveAttribute('aria-haspopup', 'menu')
     expect(container.querySelector('[data-testid="tour-metrics"]')).toBeTruthy()
 
     fireEvent.click(screen.getByRole('button', { name: /Add to day|Zum Tag hinzufügen/ }))
@@ -314,13 +314,20 @@ describe('ToursSidebar', () => {
       { ...tour, place_id: 3, name: 'Snapshot', origin: 'wanderer', max_hiking_difficulty: 3 },
     ]} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />)
     fireEvent.click(screen.getByRole('button', { name: 'Show' }))
-    const source = screen.getByRole('group', { name: 'Source' })
-    fireEvent.click(within(source).getByRole('button', { name: /GPX import\s*1/ }))
+    const limit = () => within(screen.getByRole('group', { name: 'Routing limit' })).getByRole('button', { name: /T3/ })
+    fireEvent.click(limit())
+    expect(screen.getAllByRole('option').map(row => row.textContent)).toEqual([expect.stringContaining('Snapshot')])
+    // Under that limit only the wanderer snapshot is left, so the source offers nothing else.
+    expect(within(screen.getByRole('group', { name: 'Source' })).queryByRole('button', { name: /GPX import/ })).toBeNull()
+    fireEvent.click(limit())
+    fireEvent.click(within(screen.getByRole('group', { name: 'Source' })).getByRole('button', { name: /GPX import\s*1/ }))
     expect(screen.getAllByRole('option').map(row => row.textContent)).toEqual([expect.stringContaining('Imported')])
     expect(screen.getByRole('button', { name: 'Show' })).toHaveTextContent('+1')
     // Only one tour type in the list: no type filter.
     expect(screen.queryByRole('group', { name: 'Type' })).toBeNull()
-    fireEvent.click(within(screen.getByRole('group', { name: 'Routing limit' })).getByRole('button', { name: /T3/ }))
+    // The import has no routing limit, so none is offered for it; the day status still narrows it away.
+    expect(screen.queryByRole('group', { name: 'Routing limit' })).toBeNull()
+    fireEvent.click(within(screen.getByRole('group', { name: 'Status' })).getByRole('button', { name: /^Planned/ }))
     expect(screen.getByRole('status')).toHaveTextContent('No tour matches these filters.')
     fireEvent.click(screen.getByRole('button', { name: 'Reset filters' }))
     expect(screen.getAllByRole('option')).toHaveLength(3)

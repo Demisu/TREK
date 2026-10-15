@@ -4,6 +4,7 @@ import { useAuthStore } from '../../src/store/authStore';
 import { useInAppNotificationStore } from '../../src/store/inAppNotificationStore';
 import { usePermissionsStore } from '../../src/store/permissionsStore';
 import { useSettingsStore } from '../../src/store/settingsStore';
+import { useTourMapVisibilityStore } from '../../src/store/tourMapVisibilityStore';
 import { useTripStore } from '../../src/store/tripStore';
 import { useVacayStore } from '../../src/store/vacayStore';
 
@@ -34,6 +35,7 @@ export const RESET_STORES: Record<string, ResettableStore> = {
   useAddonStore,
   useInAppNotificationStore,
   usePermissionsStore,
+  useTourMapVisibilityStore,
 };
 
 /** Not reset so far; moving one into RESET_STORES changes what every file that resets starts from. */

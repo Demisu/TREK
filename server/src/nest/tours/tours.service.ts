@@ -354,14 +354,14 @@ export class ToursService {
         this.toursRepo.findProvenance(tid, pid),
         this.placesRepo.findInTrip(pid, tid),
       ]);
+      const start = parseRouteGeometry(place?.route_geometry)[0];
       // A tour without a line has nothing to copy.
-      if (!source || !provenance || !place?.route_geometry) throw new NotFoundException('Tour not found');
-      const start = parseRouteGeometry(place.route_geometry)[0];
+      if (!source || !provenance || !place?.route_geometry || !start) throw new NotFoundException('Tour not found');
       const id = await this.placesRepo.insertTourPlace({
         trip_id: tid,
         name,
-        lat: start?.[0] ?? place.lat ?? 0,
-        lng: start?.[1] ?? place.lng ?? 0,
+        lat: start[0],
+        lng: start[1],
         route_geometry: place.route_geometry,
         description: place.description ?? null,
         website: place.website ?? null,

@@ -43,7 +43,7 @@ describe('useTourDayAssignment (PR1-18)', () => {
       second = result.current.assign(42, 4);
     });
     expect(onAssignToDay).toHaveBeenCalledTimes(1);
-    expect(onAssignToDay).toHaveBeenCalledWith(42, 4, undefined);
+    expect(onAssignToDay).toHaveBeenCalledWith(42, 4);
     expect(await second).toBe(false);
     expect(result.current.isPending(42, 4)).toBe(true);
     expect(result.current.isAvailable(42, 4)).toBe(false);
@@ -59,10 +59,10 @@ describe('useTourDayAssignment (PR1-18)', () => {
     const onAssignToDay = vi.fn(async () => false);
     const { result } = renderHook(() => useTourDayAssignment({ canAssign: true, onAssignToDay }));
     await act(async () => {
-      expect(await result.current.assign(42, 4, 2)).toBe(false);
+      expect(await result.current.assign(42, 4)).toBe(false);
       expect(await result.current.assign(42, 3)).toBe(false);
     });
     expect(onAssignToDay).toHaveBeenCalledTimes(1);
-    expect(onAssignToDay).toHaveBeenCalledWith(42, 4, 2);
+    expect(onAssignToDay).toHaveBeenCalledWith(42, 4);
   });
 });

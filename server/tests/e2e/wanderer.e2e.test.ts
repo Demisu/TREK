@@ -448,7 +448,25 @@ describe('wanderer e2e', () => {
       const placeId = await imported();
       client.searchById.mockResolvedValue(null);
       expect((await check(placeId)).body).toMatchObject({ state: 'unavailable', reimport: null });
+      client.searchById.mockResolvedValue(HIT);
+      client.trail.mockResolvedValue({ ...RECORD, author: 'someone-else' });
+      expect((await check(placeId)).body).toMatchObject({ state: 'unavailable', reimport: null });
       expect(await countRows(orm, Places)).toBe(1);
+    });
+
+    it('a trail that lost its track cannot be compared, and the check says why', async () => {
+      const placeId = await imported();
+      client.gpx.mockResolvedValue('<?xml version="1.0"?><gpx version="1.1"><wpt lat="47" lon="11"/></gpx>');
+      const res = await check(placeId);
+      expect(res.status).toBe(422);
+      expect(res.body).toMatchObject({ code: 'no_track' });
+      expect(await countRows(orm, Places)).toBe(1);
+    });
+
+    it('a trail without a change date still compares, and names no date', async () => {
+      const placeId = await imported();
+      client.trail.mockResolvedValue({ ...RECORD, updated: undefined });
+      expect((await check(placeId)).body).toMatchObject({ state: 'unchanged', externalUpdated: null });
     });
 
     it('without a connection, or one to another instance, there is nothing to ask', async () => {
@@ -476,6 +494,9 @@ describe('wanderer e2e', () => {
       const placeId = await imported();
       expect((await check(placeId, VIEWER)).status).toBe(403);
       expect((await check(999_999)).status).toBe(404);
+      expect((await request(server).post('/api/trips/5/tours/wanderer/sources/abc/check').set(as(OWNER))).status).toBe(
+        404,
+      );
       const planned = await request(server)
         .post('/api/trips/5/tours')
         .set(as(OWNER))
@@ -496,7 +517,7 @@ describe('wanderer e2e', () => {
       expect(res.body).toMatchObject({ code: 'no_source' });
     });
 
-    it('a wanderer import says where it came from in its detail, and a trip copy keeps it (P2C-02)', async () => {
+    it('a wanderer import says where it came from in its detail (P2C-02)', async () => {
       const placeId = await imported();
       const detail = await request(server).get(`/api/trips/5/tours/${placeId}`).set(as(OWNER));
       expect(detail.body.provenance).toMatchObject({

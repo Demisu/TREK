@@ -8,7 +8,7 @@
 import type { PlacesRepository } from '../../../src/db/repositories/Places.repository';
 import type { TourTypesRepository } from '../../../src/db/repositories/TourTypes.repository';
 import type { TourWaypointsRepository } from '../../../src/db/repositories/TourWaypoints.repository';
-import type { ToursRepository } from '../../../src/db/repositories/Tours.repository';
+import type { TourProvenanceRow, ToursRepository } from '../../../src/db/repositories/Tours.repository';
 import type { UnitOfWork } from '../../../src/nest/database/unit-of-work';
 import type { PlacesService } from '../../../src/nest/places/places.service';
 import { ToursService } from '../../../src/nest/tours/tours.service';
@@ -63,8 +63,27 @@ function makeService() {
     wanderer_ref: null,
     match_confidence: 1,
     max_hiking_difficulty: 2,
+    origin: 'trek',
     planned: 0,
     has_waypoints: 1,
+  };
+  const provenance: TourProvenanceRow = {
+    origin: 'trek',
+    origin_file_name: null,
+    created_at: '2026-10-01 08:00:00',
+    wanderer_ref: null,
+    has_recorded_track: 0,
+    derived_from_place_id: null,
+    derived_from_name: null,
+    source_instance: null,
+    source_external_id: null,
+    source_external_url: null,
+    source_external_updated: null,
+    source_imported_at: null,
+    source_content_hash: null,
+    source_local_hash: null,
+    route_geometry: JSON.stringify(request.route_geometry),
+    name: request.name,
   };
   const place = { id: 42, trip_id: 7 };
   let inTransaction = false;
@@ -87,6 +106,7 @@ function makeService() {
   };
   const toursRepo = {
     findInTrip: vi.fn(async (): Promise<typeof row | undefined> => row),
+    findProvenance: vi.fn(async (): Promise<TourProvenanceRow | undefined> => provenance),
     insertTour: inTx(undefined),
     updateInTrip: inTx(true),
     keepRecordedTrack: inTx(undefined),
@@ -163,6 +183,15 @@ describe('ToursService planner contracts (mock-only; SQLite rollback semantics a
     expect(setup.toursRepo.findInTrip).toHaveBeenCalledWith(7, 42);
     expect(result.tour).toMatchObject({ name: 'Ridge walk', planned: false, has_waypoints: true });
     expect(result.waypoints).toEqual(request.waypoints);
+    expect(setup.toursRepo.findProvenance).toHaveBeenCalledExactlyOnceWith(7, 42);
+    expect(result.provenance).toEqual({
+      origin: 'trek',
+      createdAt: '2026-10-01 08:00:00',
+      source: { kind: 'trek' },
+      derivedFrom: null,
+      plannedOver: false,
+      editedLocally: null,
+    });
     expect(setup.places.broadcast).toHaveBeenNthCalledWith(1, '7', 'tours:changed', { placeIds: [42] }, 'socket-1');
     expect(setup.places.broadcast).toHaveBeenNthCalledWith(2, '7', 'place:created', { place: setup.place }, 'socket-1');
   });
@@ -204,6 +233,11 @@ describe('ToursService planner contracts (mock-only; SQLite rollback semantics a
       { lat: 48, lng: 11, role: 'start', sequence: 0 },
       { lat: 48.02, lng: 11.04, role: 'end', sequence: 1 },
     ]);
+    expect(legacyGpx.provenance).toMatchObject({ origin: 'trek', source: { kind: 'trek' } });
+
+    // The provenance read is scoped to the trip as well: no row there is the same 404.
+    setup.toursRepo.findProvenance.mockResolvedValueOnce(undefined);
+    await expect(setup.service.getTour('7', '42')).rejects.toBeInstanceOf(NotFoundException);
     for (const method of [
       setup.uow.transactional,
       setup.placesRepo.insertTourPlace,

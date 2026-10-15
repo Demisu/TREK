@@ -15,6 +15,7 @@ import { db } from '../../src/db/database';
 import { DayAssignments } from '../../src/db/entities/DayAssignments.entity';
 import { Days } from '../../src/db/entities/Days.entity';
 import { Places } from '../../src/db/entities/Places.entity';
+import { TourSources } from '../../src/db/entities/TourSources.entity';
 import { TourWaypoints } from '../../src/db/entities/TourWaypoints.entity';
 import { Tours } from '../../src/db/entities/Tours.entity';
 import { Trips } from '../../src/db/entities/Trips.entity';
@@ -30,7 +31,7 @@ import { ToursModule } from '../../src/nest/tours/tours.module';
 import { TripsModule } from '../../src/nest/trips/trips.module';
 import { makeDayAssignment } from '../helpers/factories/itinerary';
 import { makePlace, type PlaceRow } from '../helpers/factories/places';
-import { countRows, deleteRows, findRow, insertRows } from '../helpers/factories/rows';
+import { countRows, deleteRows, findRow, insertRows, updateRows } from '../helpers/factories/rows';
 import { setAddonEnabled } from '../helpers/factories/settings';
 import { addTripMember } from '../helpers/factories/trips';
 import { makeUser } from '../helpers/factories/users';
@@ -546,6 +547,60 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
         derivedFrom: { placeId: source, name: sourceName },
       });
     });
+
+    it('a wanderer snapshot without its import record names its source from its reference, and invents none', async () => {
+      const placeId = await createViaApi();
+      await updateRows(orm, Tours, { place: placeId }, { origin: 'wanderer', wanderer_ref: 'https://w.example#t9' });
+      expect((await detail(placeId)).provenance.source).toEqual({
+        kind: 'wanderer',
+        instance: 'https://w.example',
+        externalId: 't9',
+        externalUrl: null,
+        externalUpdated: null,
+        importedAt: null,
+      });
+
+      await updateRows(orm, Tours, { place: placeId }, { wanderer_ref: null });
+      expect((await detail(placeId)).provenance.source).toMatchObject({ instance: '', externalId: '' });
+    });
+
+    it('a trip copy keeps the import record of a wanderer snapshot', async () => {
+      const placeId = await createViaApi(5, tourBody({ name: 'Snapshot' }));
+      await updateRows(orm, Tours, { place: placeId }, { origin: 'wanderer', wanderer_ref: 'https://w.example#t1' });
+      await insertRows(orm, TourSources, [
+        {
+          place: placeId,
+          provider: 'wanderer',
+          instance: 'https://w.example',
+          external_id: 't1',
+          external_url: 'https://w.example/trail/view/@me/t1',
+          external_updated: '2026-10-01',
+          content_hash: 'c.c.c',
+          local_hash: 'l.l',
+        },
+      ]);
+      const res = await request(server)
+        .post('/api/trips/5/copy')
+        .set('Cookie', sessionCookie(OWNER))
+        .send({ title: 'Copy' });
+      const copyId = res.body.trip.id as number;
+      const tours = (await request(server).get(`/api/trips/${copyId}/tours`).set('Cookie', sessionCookie(OWNER))).body
+        .tours;
+      const copied = tours.find((tour: { name: string }) => tour.name === 'Snapshot');
+      const copiedDetail = (
+        await request(server).get(`/api/trips/${copyId}/tours/${copied.place_id}`).set('Cookie', sessionCookie(OWNER))
+      ).body;
+
+      expect(copiedDetail.provenance).toMatchObject({
+        origin: 'wanderer',
+        source: (await detail(placeId)).provenance.source,
+      });
+      expect(copiedDetail.provenance.source).toMatchObject({ instance: 'https://w.example', externalId: 't1' });
+      expect(await findRow(orm, TourSources, { place: copied.place_id })).toMatchObject({
+        content_hash: 'c.c.c',
+        local_hash: 'l.l',
+      });
+    });
   });
 
   describe('save as new tour (P2C-07)', () => {
@@ -605,6 +660,19 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
       expect((await copy(await plainPlace(5, 'Cafe'))).status).toBe(404);
       const foreign = await createViaApi(6);
       expect((await copy(foreign)).status).toBe(404);
+      const notAnId = await request(server)
+        .post('/api/trips/5/tours/abc/copy')
+        .set('Cookie', sessionCookie(OWNER))
+        .send({ name: 'x' });
+      expect(notAnId.status).toBe(404);
+    });
+
+    it('a tour whose line holds no point has nothing to copy', async () => {
+      const source = await createViaApi();
+      await updateRows(orm, Places, { id: source }, { route_geometry: '[]' });
+      const before = await countRows(orm, Tours, {});
+      expect((await copy(source)).status).toBe(404);
+      expect(await countRows(orm, Tours, {})).toBe(before);
     });
   });
 

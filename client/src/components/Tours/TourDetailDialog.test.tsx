@@ -155,7 +155,7 @@ describe('TourDetailDialog', () => {
   it('uses existing assignment callbacks for add and remove actions', () => {
     const { rerender } = render(<TourDetailDialog {...defaultProps} days={[{ id: 7 } as never]} selectedDayId={7} />)
     fireEvent.click(screen.getByRole('button', { name: /Add to Day/i }))
-    expect(defaultProps.onAssignToDay).toHaveBeenCalledWith(42)
+    expect(defaultProps.onAssignToDay).toHaveBeenCalledWith(42, 7)
 
     rerender(<TourDetailDialog {...defaultProps} days={[{ id: 7 } as never]} selectedDayId={7} assignments={{ '7': [{ id: 9, place }] as never }} />)
     fireEvent.click(screen.getByRole('button', { name: /Remove from Day/i }))
@@ -198,14 +198,14 @@ describe('TourDetailDialog', () => {
     seedStore(useTripStore, { places: [buildPlace({ id: 7, name: 'Recorded ridge' }), place] })
     render(<TourDetailDialog {...defaultProps} tour={{ ...tour, derived_from_place_id: 7 }} />)
 
-    expect(screen.getByText('Planned from Recorded ridge')).toBeInTheDocument()
+    expect(screen.getByText('Based on Recorded ridge')).toBeInTheDocument()
   })
 
   it('PR1-05B: says nothing of an origin that is gone from the trip', () => {
     seedStore(useTripStore, { places: [place] })
     render(<TourDetailDialog {...defaultProps} tour={{ ...tour, derived_from_place_id: 7 }} />)
 
-    expect(screen.queryByText(/Planned from/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Based on/)).not.toBeInTheDocument()
   })
 
   it('shows the grade on the tile and no second difficulty scale', () => {

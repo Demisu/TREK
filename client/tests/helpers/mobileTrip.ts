@@ -69,6 +69,7 @@ export function buildPlanner(overrides: Partial<TripPlanner> = {}): TripPlanner 
     reservations: [],
     budgetItems: [],
     files: [],
+    tours: [],
 
     selectedDayId: null,
     isLoading: false,
