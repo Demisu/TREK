@@ -871,5 +871,35 @@ const admin: TranslationStrings = {
   'admin.amapKeyHintShort':
     'Para la búsqueda de lugares en China continental. Necesita una clave de servicio web, no de API JS.',
   'admin.collab.links.subtitle': 'Enlaces compartidos y marcadores',
+  'admin.paddleRegions.title': 'Datos de aguas para piragüismo',
+  'admin.paddleRegions.hint':
+    'Azudes, esclusas y normas de navegación de OpenStreetMap, leídos por región y de nuevo cada mes.',
+  'admin.paddleRegions.search': 'Añadir una región',
+  'admin.paddleRegions.searchPlaceholder': 'Buscar en Geofabrik, por ejemplo Oberpfalz',
+  'admin.paddleRegions.noHits': 'Ninguna región con ese nombre',
+  'admin.paddleRegions.added': 'Añadida',
+  'admin.paddleRegions.empty':
+    'Aún no hay ninguna región. Las rutas en piragua mostrarán entonces que no se conocen datos de obstáculos.',
+  'admin.paddleRegions.status.queued': 'En espera',
+  'admin.paddleRegions.status.importing': 'Leyendo',
+  'admin.paddleRegions.status.ready': 'Lista',
+  'admin.paddleRegions.status.failed': 'Error',
+  'admin.paddleRegions.phase.download': 'Descargando',
+  'admin.paddleRegions.phase.read': 'Leyendo',
+  'admin.paddleRegions.objects': '{count} objetos',
+  'admin.paddleRegions.objects.one': '{count} objeto',
+  'admin.paddleRegions.asOf': 'Datos del {date}',
+  'admin.paddleRegions.keptData': 'Se siguen usando los datos leídos anteriormente.',
+  'admin.paddleRegions.refresh': 'Volver a leer',
+  'admin.paddleRegions.remove': 'Eliminar región',
+  'admin.paddleRegions.removeMessage':
+    'Se eliminarán {name} y sus datos de obstáculos. Las rutas en piragua de esa zona dejarán de mostrar datos.',
+  'admin.paddleRegions.retry': 'Reintentar',
+  'admin.paddleRegions.offline': 'Las regiones solo se pueden gestionar con conexión.',
+  'admin.paddleRegions.catalogUnavailable': 'Ahora mismo no se puede acceder a Geofabrik. Inténtalo más tarde.',
+  'admin.paddleRegions.attribution':
+    'Datos © colaboradores de OpenStreetMap (ODbL), extractos regionales de Geofabrik. Se vuelven a leer el día 3 de cada mes.',
+  'admin.paddleRegions.toast.added': 'Región añadida. TREK la lee en segundo plano.',
+  'admin.paddleRegions.toast.removed': 'Región eliminada',
 };
 export default admin;

@@ -848,5 +848,34 @@ const admin: TranslationStrings = {
   'admin.mapsKeyHintShort': 'Menambahkan foto, penilaian, dan jam buka. Setiap pencarian lalu ke Google.',
   'admin.amapKeyHintShort': 'Untuk pencarian tempat di Tiongkok daratan. Perlu kunci layanan web, bukan kunci JS API.',
   'admin.collab.links.subtitle': 'Tautan bersama dan penanda',
+  'admin.paddleRegions.title': 'Data perairan dayung',
+  'admin.paddleRegions.hint':
+    'Bendung, pintu air, dan aturan mendayung dari OpenStreetMap, dibaca per wilayah dan dibaca ulang setiap bulan.',
+  'admin.paddleRegions.search': 'Tambah wilayah',
+  'admin.paddleRegions.searchPlaceholder': 'Cari di Geofabrik, misalnya Oberpfalz',
+  'admin.paddleRegions.noHits': 'Tidak ada wilayah dengan nama itu',
+  'admin.paddleRegions.added': 'Ditambahkan',
+  'admin.paddleRegions.empty':
+    'Belum ada wilayah. Tur dayung akan menampilkan bahwa tidak ada data rintangan yang diketahui.',
+  'admin.paddleRegions.status.queued': 'Menunggu',
+  'admin.paddleRegions.status.importing': 'Membaca',
+  'admin.paddleRegions.status.ready': 'Siap',
+  'admin.paddleRegions.status.failed': 'Gagal',
+  'admin.paddleRegions.phase.download': 'Mengunduh',
+  'admin.paddleRegions.phase.read': 'Membaca',
+  'admin.paddleRegions.objects': '{count} objek',
+  'admin.paddleRegions.asOf': 'Per {date}',
+  'admin.paddleRegions.keptData': 'Data yang dibaca sebelumnya tetap digunakan.',
+  'admin.paddleRegions.refresh': 'Baca ulang',
+  'admin.paddleRegions.remove': 'Hapus wilayah',
+  'admin.paddleRegions.removeMessage':
+    '{name} beserta data rintangannya akan dihapus. Tur dayung di sana tidak akan menampilkan data lagi.',
+  'admin.paddleRegions.retry': 'Coba lagi',
+  'admin.paddleRegions.offline': 'Wilayah hanya bisa dikelola saat ada koneksi.',
+  'admin.paddleRegions.catalogUnavailable': 'Geofabrik tidak dapat dijangkau saat ini. Coba lagi nanti.',
+  'admin.paddleRegions.attribution':
+    'Data © kontributor OpenStreetMap (ODbL), ekstrak regional dari Geofabrik. Dibaca ulang setiap tanggal 3 tiap bulan.',
+  'admin.paddleRegions.toast.added': 'Wilayah ditambahkan. TREK membacanya di latar belakang.',
+  'admin.paddleRegions.toast.removed': 'Wilayah dihapus',
 };
 export default admin;

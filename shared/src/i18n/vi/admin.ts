@@ -847,5 +847,34 @@ const admin: TranslationStrings = {
   'admin.amapKeyHintShort':
     'Cho tìm kiếm địa điểm tại Trung Quốc đại lục. Cần khóa dịch vụ web, không phải khóa JS API.',
   'admin.collab.links.subtitle': 'Liên kết chia sẻ và dấu trang',
+  'admin.paddleRegions.title': 'Dữ liệu mặt nước cho chèo thuyền',
+  'admin.paddleRegions.hint':
+    'Đập tràn, âu thuyền và quy định chèo thuyền từ OpenStreetMap, được đọc theo từng vùng và đọc lại mỗi tháng.',
+  'admin.paddleRegions.search': 'Thêm vùng',
+  'admin.paddleRegions.searchPlaceholder': 'Tìm trên Geofabrik, ví dụ Oberpfalz',
+  'admin.paddleRegions.noHits': 'Không có vùng nào có tên này',
+  'admin.paddleRegions.added': 'Đã thêm',
+  'admin.paddleRegions.empty':
+    'Chưa có vùng nào. Khi đó, các chuyến chèo thuyền sẽ cho biết chưa có dữ liệu chướng ngại vật nào.',
+  'admin.paddleRegions.status.queued': 'Đang chờ',
+  'admin.paddleRegions.status.importing': 'Đang đọc',
+  'admin.paddleRegions.status.ready': 'Sẵn sàng',
+  'admin.paddleRegions.status.failed': 'Thất bại',
+  'admin.paddleRegions.phase.download': 'Đang tải xuống',
+  'admin.paddleRegions.phase.read': 'Đang đọc',
+  'admin.paddleRegions.objects': '{count} đối tượng',
+  'admin.paddleRegions.asOf': 'Tính đến {date}',
+  'admin.paddleRegions.keptData': 'Dữ liệu đã đọc trước đó vẫn được sử dụng.',
+  'admin.paddleRegions.refresh': 'Đọc lại',
+  'admin.paddleRegions.remove': 'Xóa vùng',
+  'admin.paddleRegions.removeMessage':
+    '{name} và dữ liệu chướng ngại vật của vùng này sẽ bị xóa. Khi đó, các chuyến chèo thuyền ở đó sẽ không có dữ liệu.',
+  'admin.paddleRegions.retry': 'Thử lại',
+  'admin.paddleRegions.offline': 'Chỉ có thể quản lý các vùng khi có kết nối.',
+  'admin.paddleRegions.catalogUnavailable': 'Hiện không kết nối được Geofabrik. Hãy thử lại sau.',
+  'admin.paddleRegions.attribution':
+    'Dữ liệu © những người đóng góp OpenStreetMap (ODbL), bản trích xuất theo vùng của Geofabrik. Được đọc lại vào ngày 3 hằng tháng.',
+  'admin.paddleRegions.toast.added': 'Đã thêm vùng. TREK đang đọc vùng này trong nền.',
+  'admin.paddleRegions.toast.removed': 'Đã xóa vùng',
 };
 export default admin;

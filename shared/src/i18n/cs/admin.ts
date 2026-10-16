@@ -858,5 +858,36 @@ const admin: TranslationStrings = {
   'admin.mapsKeyHintShort': 'Přidá fotky, hodnocení a otevírací dobu. Každý dotaz pak jde na Google.',
   'admin.amapKeyHintShort': 'Pro vyhledávání míst v pevninské Číně. Potřebuje klíč webové služby, ne klíč JS API.',
   'admin.collab.links.subtitle': 'Sdílené odkazy a záložky',
+  'admin.paddleRegions.title': 'Vodácká data o vodách',
+  'admin.paddleRegions.hint':
+    'Jezy, zdymadla a pravidla plavby z OpenStreetMap, načítané po regionech a znovu každý měsíc.',
+  'admin.paddleRegions.search': 'Přidat region',
+  'admin.paddleRegions.searchPlaceholder': 'Hledat v Geofabrik, například Oberpfalz',
+  'admin.paddleRegions.noHits': 'Žádný region tohoto názvu',
+  'admin.paddleRegions.added': 'Přidáno',
+  'admin.paddleRegions.empty':
+    'Zatím žádný region. Vodácké túry pak ukazují, že nejsou známé žádné údaje o překážkách.',
+  'admin.paddleRegions.status.queued': 'Čeká',
+  'admin.paddleRegions.status.importing': 'Načítá',
+  'admin.paddleRegions.status.ready': 'Připraveno',
+  'admin.paddleRegions.status.failed': 'Selhalo',
+  'admin.paddleRegions.phase.download': 'Stahuje',
+  'admin.paddleRegions.phase.read': 'Čte data',
+  'admin.paddleRegions.objects': '{count} objektů',
+  'admin.paddleRegions.objects.one': '{count} objekt',
+  'admin.paddleRegions.asOf': 'Stav k {date}',
+  'admin.paddleRegions.keptData': 'Dříve načtená data se dál používají.',
+  'admin.paddleRegions.refresh': 'Načíst znovu',
+  'admin.paddleRegions.remove': 'Odstranit region',
+  'admin.paddleRegions.removeMessage':
+    '{name} a jeho údaje o překážkách budou odstraněny. Vodácké túry tam pak nezobrazí žádná data.',
+  'admin.paddleRegions.retry': 'Zkusit znovu',
+  'admin.paddleRegions.offline': 'Regiony lze spravovat jen s připojením.',
+  'admin.paddleRegions.catalogUnavailable': 'Geofabrik teď není dostupný. Zkuste to později znovu.',
+  'admin.paddleRegions.attribution':
+    'Data © přispěvatelé OpenStreetMap (ODbL), regionální výřezy od Geofabrik. Znovu načítáno 3. dne každého měsíce.',
+  'admin.paddleRegions.toast.added': 'Region přidán. TREK ho načítá na pozadí.',
+  'admin.paddleRegions.toast.removed': 'Region odstraněn',
+  'admin.paddleRegions.objects.few': '{count} objekty',
 };
 export default admin;

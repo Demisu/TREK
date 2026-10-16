@@ -880,6 +880,36 @@ const admin: TranslationStrings = {
     'Fotolar, reytinqlər və iş saatları əlavə edir. Bundan sonra hər sorğu Google-a göndərilir.',
   'admin.amapKeyHintShort': 'Materik Çinində məkan axtarışı üçün. JS API açarı deyil, veb xidməti açarı tələb olunur.',
   'admin.collab.links.subtitle': 'Paylaşılan keçidlər və əlfəcinlər',
+  'admin.paddleRegions.title': 'Avarçəkmə üçün su məlumatları',
+  'admin.paddleRegions.hint':
+    'OpenStreetMap-dən alçaq bəndlər, şlüzlər və avarçəkmə qaydaları, regionlar üzrə oxunur və hər ay yenidən oxunur.',
+  'admin.paddleRegions.search': 'Region əlavə et',
+  'admin.paddleRegions.searchPlaceholder': 'Geofabrik-də axtarın, məsələn, Oberpfalz',
+  'admin.paddleRegions.noHits': 'Bu adda region yoxdur',
+  'admin.paddleRegions.added': 'Əlavə edilib',
+  'admin.paddleRegions.empty':
+    'Hələ region yoxdur. Bu halda avarlı turlar heç bir maneə məlumatının məlum olmadığını göstərir.',
+  'admin.paddleRegions.status.queued': 'Gözləyir',
+  'admin.paddleRegions.status.importing': 'Oxunur',
+  'admin.paddleRegions.status.ready': 'Hazırdır',
+  'admin.paddleRegions.status.failed': 'Xəta',
+  'admin.paddleRegions.phase.download': 'Endirilir',
+  'admin.paddleRegions.phase.read': 'Oxunur',
+  'admin.paddleRegions.objects': '{count} obyekt',
+  'admin.paddleRegions.objects.one': '{count} obyekt',
+  'admin.paddleRegions.asOf': '{date} tarixinə',
+  'admin.paddleRegions.keptData': 'Əvvəl oxunmuş məlumatlar istifadədə qalır.',
+  'admin.paddleRegions.refresh': 'Yenidən oxu',
+  'admin.paddleRegions.remove': 'Regionu sil',
+  'admin.paddleRegions.removeMessage':
+    '{name} və onun maneə məlumatları silinir. Bundan sonra oradakı avarlı turlar heç bir məlumat göstərmir.',
+  'admin.paddleRegions.retry': 'Yenidən cəhd et',
+  'admin.paddleRegions.offline': 'Regionları yalnız bağlantı olduqda idarə etmək olar.',
+  'admin.paddleRegions.catalogUnavailable': 'Geofabrik hazırda əlçatan deyil. Sonra yenidən cəhd edin.',
+  'admin.paddleRegions.attribution':
+    'Məlumatlar © OpenStreetMap iştirakçıları (ODbL), regional çıxarışlar Geofabrik-dən. Hər ayın 3-də yenidən oxunur.',
+  'admin.paddleRegions.toast.added': 'Region əlavə edildi. TREK onu arxa planda oxuyur.',
+  'admin.paddleRegions.toast.removed': 'Region silindi',
 };
 
 export default admin;

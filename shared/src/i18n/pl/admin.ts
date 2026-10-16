@@ -896,5 +896,37 @@ const admin: TranslationStrings = {
   'admin.amapKeyHintShort':
     'Do wyszukiwania miejsc w Chinach kontynentalnych. Wymaga klucza usługi webowej, nie klucza JS API.',
   'admin.collab.links.subtitle': 'Udostępnione linki i zakładki',
+  'admin.paddleRegions.title': 'Dane wodne dla spływów',
+  'admin.paddleRegions.hint':
+    'Jazy, śluzy i zasady pływania z OpenStreetMap, wczytywane dla każdego regionu i ponownie co miesiąc.',
+  'admin.paddleRegions.search': 'Dodaj region',
+  'admin.paddleRegions.searchPlaceholder': 'Szukaj w Geofabrik, na przykład Oberpfalz',
+  'admin.paddleRegions.noHits': 'Brak regionu o tej nazwie',
+  'admin.paddleRegions.added': 'Dodano',
+  'admin.paddleRegions.empty':
+    'Nie ma jeszcze żadnego regionu. Spływy pokazują wtedy, że nie są znane żadne dane o przeszkodach.',
+  'admin.paddleRegions.status.queued': 'Oczekuje',
+  'admin.paddleRegions.status.importing': 'Wczytywanie',
+  'admin.paddleRegions.status.ready': 'Gotowe',
+  'admin.paddleRegions.status.failed': 'Błąd',
+  'admin.paddleRegions.phase.download': 'Pobieranie',
+  'admin.paddleRegions.phase.read': 'Odczytywanie',
+  'admin.paddleRegions.objects': '{count} obiektu',
+  'admin.paddleRegions.objects.one': '{count} obiekt',
+  'admin.paddleRegions.asOf': 'Stan na {date}',
+  'admin.paddleRegions.keptData': 'Wcześniej wczytane dane pozostają w użyciu.',
+  'admin.paddleRegions.refresh': 'Wczytaj ponownie',
+  'admin.paddleRegions.remove': 'Usuń region',
+  'admin.paddleRegions.removeMessage':
+    '{name} i jego dane o przeszkodach zostaną usunięte. Spływy w tym regionie nie będą wtedy pokazywać danych.',
+  'admin.paddleRegions.retry': 'Spróbuj ponownie',
+  'admin.paddleRegions.offline': 'Regionami można zarządzać tylko z połączeniem internetowym.',
+  'admin.paddleRegions.catalogUnavailable': 'Geofabrik jest teraz nieosiągalny. Spróbuj ponownie później.',
+  'admin.paddleRegions.attribution':
+    'Dane © współtwórcy OpenStreetMap (ODbL), wycinki regionalne z Geofabrik. Wczytywane ponownie 3. dnia każdego miesiąca.',
+  'admin.paddleRegions.toast.added': 'Dodano region. TREK wczytuje go w tle.',
+  'admin.paddleRegions.toast.removed': 'Usunięto region',
+  'admin.paddleRegions.objects.few': '{count} obiekty',
+  'admin.paddleRegions.objects.many': '{count} obiektów',
 };
 export default admin;

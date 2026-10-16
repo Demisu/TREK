@@ -368,7 +368,7 @@ const tours: TranslationStrings = {
   'tours.paddle.time.waterShort': 'Wasser',
   'tours.paddle.portageRemove': 'Portage entfernen',
   'tours.paddle.marks.title': 'Portagen und Schleusen',
-  'tours.paddle.marks.markPortage': 'Portage',
+  'tours.paddle.marks.markPortage': 'Portage', // same-as-en
   'tours.paddle.marks.markLock': 'Schleuse',
   'tours.paddle.marks.pickLock': 'Klicke auf der Linie, wo die Schleuse liegt.',
   'tours.paddle.marks.pickTakeOut': 'Klicke auf der Linie, wo du aussteigst.',
@@ -379,7 +379,7 @@ const tours: TranslationStrings = {
   'tours.paddle.marks.at': 'bei {distance}',
   'tours.paddle.marks.saved': 'Portagen und Schleusen gespeichert',
   'tours.paddle.marks.failed': 'Speichern hat nicht geklappt. Bitte versuche es erneut.',
-  'tours.paddle.wind.title': 'Wind',
+  'tours.paddle.wind.title': 'Wind', // same-as-en
   'tours.paddle.wind.hourInfo': '{hour} Uhr: {speed} km/h, Böen {gusts} km/h, aus {direction}',
   'tours.paddle.wind.hourUnknown': '{hour} Uhr: kein Wert',
   'tours.paddle.wind.error': 'Die Windvorhersage ist gerade nicht abrufbar.',

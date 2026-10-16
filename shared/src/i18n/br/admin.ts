@@ -853,5 +853,35 @@ const admin: TranslationStrings = {
   'admin.amapKeyHintShort':
     'Para busca de lugares na China continental. Precisa de uma chave de serviço web, não de API JS.',
   'admin.collab.links.subtitle': 'Ligações partilhadas e marcadores',
+  'admin.paddleRegions.title': 'Dados de águas para remo',
+  'admin.paddleRegions.hint':
+    'Açudes, eclusas e regras de navegação do OpenStreetMap, lidos por região e de novo todo mês.',
+  'admin.paddleRegions.search': 'Adicionar uma região',
+  'admin.paddleRegions.searchPlaceholder': 'Buscar no Geofabrik, por exemplo Oberpfalz',
+  'admin.paddleRegions.noHits': 'Nenhuma região com esse nome',
+  'admin.paddleRegions.added': 'Adicionada',
+  'admin.paddleRegions.empty':
+    'Nenhuma região ainda. Os passeios de remo vão mostrar que não há dados de obstáculos conhecidos.',
+  'admin.paddleRegions.status.queued': 'Aguardando',
+  'admin.paddleRegions.status.importing': 'Lendo',
+  'admin.paddleRegions.status.ready': 'Pronta',
+  'admin.paddleRegions.status.failed': 'Falhou',
+  'admin.paddleRegions.phase.download': 'Baixando',
+  'admin.paddleRegions.phase.read': 'Lendo',
+  'admin.paddleRegions.objects': '{count} objetos',
+  'admin.paddleRegions.objects.one': '{count} objeto',
+  'admin.paddleRegions.asOf': 'Dados de {date}',
+  'admin.paddleRegions.keptData': 'Os dados lidos antes continuam em uso.',
+  'admin.paddleRegions.refresh': 'Ler de novo',
+  'admin.paddleRegions.remove': 'Remover região',
+  'admin.paddleRegions.removeMessage':
+    '{name} e seus dados de obstáculos serão removidos. Os passeios de remo nessa região deixam de mostrar dados.',
+  'admin.paddleRegions.retry': 'Tentar novamente',
+  'admin.paddleRegions.offline': 'As regiões só podem ser gerenciadas com conexão.',
+  'admin.paddleRegions.catalogUnavailable': 'O Geofabrik não está acessível agora. Tente novamente mais tarde.',
+  'admin.paddleRegions.attribution':
+    'Dados © colaboradores do OpenStreetMap (ODbL), extratos regionais do Geofabrik. Lidos de novo no dia 3 de cada mês.',
+  'admin.paddleRegions.toast.added': 'Região adicionada. O TREK a lê em segundo plano.',
+  'admin.paddleRegions.toast.removed': 'Região removida',
 };
 export default admin;

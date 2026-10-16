@@ -878,5 +878,36 @@ const admin: TranslationStrings = {
     'Προσθέτει φωτογραφίες, βαθμολογίες και ώρες λειτουργίας. Κάθε αναζήτηση πηγαίνει τότε στη Google.',
   'admin.amapKeyHintShort': 'Για αναζήτηση τόπων στην ηπειρωτική Κίνα. Χρειάζεται κλειδί web service, όχι JS API.',
   'admin.collab.links.subtitle': 'Κοινόχρηστοι σύνδεσμοι και σελιδοδείκτες',
+  'admin.paddleRegions.title': 'Δεδομένα νερού για κωπηλασία',
+  'admin.paddleRegions.hint':
+    'Φράγματα υπερχείλισης, υδατοφράκτες και κανόνες πλεύσης από το OpenStreetMap, ανά περιοχή και με νέα ανάγνωση κάθε μήνα.',
+  'admin.paddleRegions.search': 'Προσθήκη περιοχής',
+  'admin.paddleRegions.searchPlaceholder': 'Αναζήτηση στο Geofabrik, για παράδειγμα Oberpfalz',
+  'admin.paddleRegions.noHits': 'Καμία περιοχή με αυτό το όνομα',
+  'admin.paddleRegions.added': 'Προστέθηκε',
+  'admin.paddleRegions.empty':
+    'Δεν υπάρχει ακόμη περιοχή. Οι διαδρομές με κουπί δείχνουν τότε ότι δεν υπάρχουν γνωστά δεδομένα εμποδίων.',
+  'admin.paddleRegions.status.queued': 'Σε αναμονή',
+  'admin.paddleRegions.status.importing': 'Ανάγνωση',
+  'admin.paddleRegions.status.ready': 'Έτοιμη',
+  'admin.paddleRegions.status.failed': 'Απέτυχε',
+  'admin.paddleRegions.phase.download': 'Λήψη',
+  'admin.paddleRegions.phase.read': 'Ανάγνωση',
+  'admin.paddleRegions.objects': '{count} αντικείμενα',
+  'admin.paddleRegions.objects.one': '{count} αντικείμενο',
+  'admin.paddleRegions.asOf': 'Ενημέρωση: {date}',
+  'admin.paddleRegions.keptData': 'Τα δεδομένα που διαβάστηκαν προηγουμένως παραμένουν σε χρήση.',
+  'admin.paddleRegions.refresh': 'Νέα ανάγνωση',
+  'admin.paddleRegions.remove': 'Αφαίρεση περιοχής',
+  'admin.paddleRegions.removeMessage':
+    'Η περιοχή «{name}» και τα δεδομένα εμποδίων της θα αφαιρεθούν. Οι διαδρομές με κουπί εκεί δεν θα δείχνουν πλέον δεδομένα.',
+  'admin.paddleRegions.retry': 'Δοκιμάστε ξανά',
+  'admin.paddleRegions.offline': 'Η διαχείριση περιοχών είναι δυνατή μόνο με σύνδεση.',
+  'admin.paddleRegions.catalogUnavailable':
+    'Το Geofabrik δεν είναι προσβάσιμο αυτή τη στιγμή. Δοκιμάστε ξανά αργότερα.',
+  'admin.paddleRegions.attribution':
+    'Δεδομένα © συντελεστές του OpenStreetMap (ODbL), τοπικά αποσπάσματα από το Geofabrik. Νέα ανάγνωση στις 3 κάθε μήνα.',
+  'admin.paddleRegions.toast.added': 'Η περιοχή προστέθηκε. Το TREK τη διαβάζει στο παρασκήνιο.',
+  'admin.paddleRegions.toast.removed': 'Η περιοχή αφαιρέθηκε',
 };
 export default admin;

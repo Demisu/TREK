@@ -864,5 +864,35 @@ const admin: TranslationStrings = {
   'admin.amapKeyHintShort':
     'Per la ricerca di luoghi nella Cina continentale. Richiede una chiave web service, non una chiave API JS.',
   'admin.collab.links.subtitle': 'Link condivisi e segnalibri',
+  'admin.paddleRegions.title': 'Dati sulle acque per la pagaia',
+  'admin.paddleRegions.hint':
+    'Traverse, chiuse e regole di navigazione da OpenStreetMap, letti per regione e di nuovo ogni mese.',
+  'admin.paddleRegions.search': 'Aggiungi una regione',
+  'admin.paddleRegions.searchPlaceholder': 'Cerca in Geofabrik, ad esempio Nord-Est',
+  'admin.paddleRegions.noHits': 'Nessuna regione con questo nome',
+  'admin.paddleRegions.added': 'Aggiunta',
+  'admin.paddleRegions.empty':
+    'Ancora nessuna regione. Le uscite in pagaia mostrano allora che non si conoscono dati sugli ostacoli.',
+  'admin.paddleRegions.status.queued': 'In attesa',
+  'admin.paddleRegions.status.importing': 'In lettura',
+  'admin.paddleRegions.status.ready': 'Pronta',
+  'admin.paddleRegions.status.failed': 'Errore',
+  'admin.paddleRegions.phase.download': 'Scaricamento',
+  'admin.paddleRegions.phase.read': 'Lettura',
+  'admin.paddleRegions.objects': '{count} oggetti',
+  'admin.paddleRegions.objects.one': '{count} oggetto',
+  'admin.paddleRegions.asOf': 'Dati al {date}',
+  'admin.paddleRegions.keptData': 'I dati letti in precedenza restano in uso.',
+  'admin.paddleRegions.refresh': 'Rileggi',
+  'admin.paddleRegions.remove': 'Rimuovi regione',
+  'admin.paddleRegions.removeMessage':
+    '{name} e i suoi dati sugli ostacoli vengono rimossi. Le uscite in pagaia in quella zona non mostreranno più dati.',
+  'admin.paddleRegions.retry': 'Riprova',
+  'admin.paddleRegions.offline': 'Le regioni si possono gestire solo con una connessione.',
+  'admin.paddleRegions.catalogUnavailable': 'Al momento Geofabrik non è raggiungibile. Riprova più tardi.',
+  'admin.paddleRegions.attribution':
+    'Dati © contributori di OpenStreetMap (ODbL), estratti regionali di Geofabrik. Riletti il 3 di ogni mese.',
+  'admin.paddleRegions.toast.added': 'Regione aggiunta. TREK la legge in background.',
+  'admin.paddleRegions.toast.removed': 'Regione rimossa',
 };
 export default admin;

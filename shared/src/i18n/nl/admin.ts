@@ -862,5 +862,34 @@ const admin: TranslationStrings = {
   'admin.amapKeyHintShort':
     'Voor plaatszoeken in het vasteland van China. Vereist een webservicesleutel, geen JS-API-sleutel.',
   'admin.collab.links.subtitle': 'Gedeelde links en bladwijzers',
+  'admin.paddleRegions.title': 'Watergegevens voor peddelen',
+  'admin.paddleRegions.hint':
+    'Stuwen, sluizen en vaarregels uit OpenStreetMap, per regio ingelezen en elke maand opnieuw.',
+  'admin.paddleRegions.search': 'Regio toevoegen',
+  'admin.paddleRegions.searchPlaceholder': 'Zoek in Geofabrik, bijvoorbeeld Oberpfalz',
+  'admin.paddleRegions.noHits': 'Geen regio met die naam',
+  'admin.paddleRegions.added': 'Toegevoegd',
+  'admin.paddleRegions.empty': 'Nog geen regio. Peddeltochten tonen dan dat er geen hindernisgegevens bekend zijn.',
+  'admin.paddleRegions.status.queued': 'Wacht',
+  'admin.paddleRegions.status.importing': 'Inlezen',
+  'admin.paddleRegions.status.ready': 'Gereed',
+  'admin.paddleRegions.status.failed': 'Mislukt',
+  'admin.paddleRegions.phase.download': 'Downloaden',
+  'admin.paddleRegions.phase.read': 'Inlezen',
+  'admin.paddleRegions.objects': '{count} objecten',
+  'admin.paddleRegions.objects.one': '{count} object', // same-as-en
+  'admin.paddleRegions.asOf': 'Stand van {date}',
+  'admin.paddleRegions.keptData': 'De eerder ingelezen gegevens blijven in gebruik.',
+  'admin.paddleRegions.refresh': 'Opnieuw inlezen',
+  'admin.paddleRegions.remove': 'Regio verwijderen',
+  'admin.paddleRegions.removeMessage':
+    '{name} en de bijbehorende hindernisgegevens worden verwijderd. Peddeltochten daar tonen dan geen gegevens.',
+  'admin.paddleRegions.retry': 'Opnieuw proberen',
+  'admin.paddleRegions.offline': 'Regio\'s kunnen alleen met een verbinding worden beheerd.',
+  'admin.paddleRegions.catalogUnavailable': 'Geofabrik is nu niet bereikbaar. Probeer het later opnieuw.',
+  'admin.paddleRegions.attribution':
+    'Gegevens © OpenStreetMap-bijdragers (ODbL), regionale extracten van Geofabrik. Elke maand op de 3e opnieuw ingelezen.',
+  'admin.paddleRegions.toast.added': 'Regio toegevoegd. TREK leest de regio op de achtergrond in.',
+  'admin.paddleRegions.toast.removed': 'Regio verwijderd',
 };
 export default admin;

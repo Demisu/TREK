@@ -866,5 +866,35 @@ const admin: TranslationStrings = {
   'admin.amapKeyHintShort':
     'Per a la cerca de llocs a la Xina continental. Cal una clau de servei web, no una clau API JS.',
   'admin.collab.links.subtitle': 'Enllaços compartits i adreces d’interès',
+  'admin.paddleRegions.title': 'Dades d’aigües per a piragua',
+  'admin.paddleRegions.hint':
+    'Assuts, rescloses i normes de navegació d’OpenStreetMap, llegits per regió i de nou cada mes.',
+  'admin.paddleRegions.search': 'Afegeix una regió',
+  'admin.paddleRegions.searchPlaceholder': 'Cerca a Geofabrik, per exemple Oberpfalz',
+  'admin.paddleRegions.noHits': 'Cap regió amb aquest nom',
+  'admin.paddleRegions.added': 'Afegida',
+  'admin.paddleRegions.empty':
+    'Encara no hi ha cap regió. Llavors, les rutes en piragua mostren que no es coneixen dades d’obstacles.',
+  'admin.paddleRegions.status.queued': 'En espera',
+  'admin.paddleRegions.status.importing': 'Llegint',
+  'admin.paddleRegions.status.ready': 'A punt',
+  'admin.paddleRegions.status.failed': 'Ha fallat',
+  'admin.paddleRegions.phase.download': 'Baixant',
+  'admin.paddleRegions.phase.read': 'Llegint',
+  'admin.paddleRegions.objects': '{count} objectes',
+  'admin.paddleRegions.objects.one': '{count} objecte',
+  'admin.paddleRegions.asOf': 'Data: {date}',
+  'admin.paddleRegions.keptData': 'Les dades llegides abans es continuen fent servir.',
+  'admin.paddleRegions.refresh': 'Torna a llegir',
+  'admin.paddleRegions.remove': 'Elimina la regió',
+  'admin.paddleRegions.removeMessage':
+    'S’eliminaran {name} i les seves dades d’obstacles. Les rutes en piragua d’aquella zona deixaran de mostrar dades.',
+  'admin.paddleRegions.retry': 'Torna-ho a provar',
+  'admin.paddleRegions.offline': 'Les regions només es poden gestionar amb connexió.',
+  'admin.paddleRegions.catalogUnavailable': 'Ara mateix no es pot accedir a Geofabrik. Torna-ho a provar més tard.',
+  'admin.paddleRegions.attribution':
+    'Dades © col·laboradors d’OpenStreetMap (ODbL), extractes regionals de Geofabrik. Es tornen a llegir el dia 3 de cada mes.',
+  'admin.paddleRegions.toast.added': 'Regió afegida. TREK la llegeix en segon pla.',
+  'admin.paddleRegions.toast.removed': 'Regió eliminada',
 };
 export default admin;

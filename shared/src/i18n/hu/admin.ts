@@ -870,5 +870,35 @@ const admin: TranslationStrings = {
     'Fényképeket, értékeléseket és nyitvatartást ad hozzá. Minden lekérdezés a Google-höz megy.',
   'admin.amapKeyHintShort': 'Helykereséshez a szárazföldi Kínában. Webszolgáltatás-kulcs kell, nem JS API-kulcs.',
   'admin.collab.links.subtitle': 'Megosztott linkek és könyvjelzők',
+  'admin.paddleRegions.title': 'Vízi adatok evezéshez',
+  'admin.paddleRegions.hint':
+    'Bukógátak, zsilipek és evezési szabályok az OpenStreetMapből, régiónként beolvasva és minden hónapban újraolvasva.',
+  'admin.paddleRegions.search': 'Régió hozzáadása',
+  'admin.paddleRegions.searchPlaceholder': 'Keresés a Geofabrikon, például Oberpfalz',
+  'admin.paddleRegions.noHits': 'Nincs ilyen nevű régió',
+  'admin.paddleRegions.added': 'Hozzáadva',
+  'admin.paddleRegions.empty':
+    'Még nincs régió. Az evezős túrák így azt mutatják, hogy nincsenek ismert akadályadatok.',
+  'admin.paddleRegions.status.queued': 'Várakozik',
+  'admin.paddleRegions.status.importing': 'Beolvasás',
+  'admin.paddleRegions.status.ready': 'Kész',
+  'admin.paddleRegions.status.failed': 'Sikertelen',
+  'admin.paddleRegions.phase.download': 'Letöltés',
+  'admin.paddleRegions.phase.read': 'Beolvasás',
+  'admin.paddleRegions.objects': '{count} objektum',
+  'admin.paddleRegions.objects.one': '{count} objektum',
+  'admin.paddleRegions.asOf': 'Állapot: {date}',
+  'admin.paddleRegions.keptData': 'A korábban beolvasott adatok használatban maradnak.',
+  'admin.paddleRegions.refresh': 'Újraolvasás',
+  'admin.paddleRegions.remove': 'Régió eltávolítása',
+  'admin.paddleRegions.removeMessage':
+    'A(z) {name} régió és akadályadatai törlődnek. Az ottani evezős túrák ezután nem mutatnak adatot.',
+  'admin.paddleRegions.retry': 'Próbáld újra',
+  'admin.paddleRegions.offline': 'A régiók csak kapcsolat mellett kezelhetők.',
+  'admin.paddleRegions.catalogUnavailable': 'A Geofabrik most nem érhető el. Próbáld újra később.',
+  'admin.paddleRegions.attribution':
+    'Adatok © OpenStreetMap-közreműködők (ODbL), regionális kivonatok: Geofabrik. Újraolvasás minden hónap 3-án.',
+  'admin.paddleRegions.toast.added': 'Régió hozzáadva. A TREK a háttérben olvassa be.',
+  'admin.paddleRegions.toast.removed': 'Régió eltávolítva',
 };
 export default admin;

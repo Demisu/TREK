@@ -869,5 +869,35 @@ const admin: TranslationStrings = {
   'admin.amapKeyHintShort':
     'Pour la recherche de lieux en Chine continentale. Nécessite une clé de service web, pas une clé API JS.',
   'admin.collab.links.subtitle': 'Liens partagés et favoris',
+  'admin.paddleRegions.title': 'Données des plans d’eau pour la pagaie',
+  'admin.paddleRegions.hint':
+    'Seuils, écluses et règles de navigation issus d’OpenStreetMap, lus par région puis de nouveau chaque mois.',
+  'admin.paddleRegions.search': 'Ajouter une région',
+  'admin.paddleRegions.searchPlaceholder': 'Rechercher dans Geofabrik, par exemple Bretagne',
+  'admin.paddleRegions.noHits': 'Aucune région de ce nom',
+  'admin.paddleRegions.added': 'Ajoutée',
+  'admin.paddleRegions.empty':
+    'Aucune région pour l’instant. Les sorties en pagaie indiquent alors qu’aucune donnée d’obstacles n’est connue.',
+  'admin.paddleRegions.status.queued': 'En attente',
+  'admin.paddleRegions.status.importing': 'Lecture',
+  'admin.paddleRegions.status.ready': 'Prête',
+  'admin.paddleRegions.status.failed': 'Échec',
+  'admin.paddleRegions.phase.download': 'Téléchargement',
+  'admin.paddleRegions.phase.read': 'Lecture',
+  'admin.paddleRegions.objects': '{count} objets',
+  'admin.paddleRegions.objects.one': '{count} objet',
+  'admin.paddleRegions.asOf': 'État au {date}',
+  'admin.paddleRegions.keptData': 'Les données lues précédemment restent utilisées.',
+  'admin.paddleRegions.refresh': 'Relire',
+  'admin.paddleRegions.remove': 'Supprimer la région',
+  'admin.paddleRegions.removeMessage':
+    '{name} et ses données d’obstacles seront supprimées. Les sorties en pagaie dans cette zone n’afficheront alors plus de données.',
+  'admin.paddleRegions.retry': 'Réessayer',
+  'admin.paddleRegions.offline': 'Les régions ne peuvent être gérées qu’avec une connexion.',
+  'admin.paddleRegions.catalogUnavailable': 'Geofabrik est injoignable pour le moment. Réessayez plus tard.',
+  'admin.paddleRegions.attribution':
+    'Données © les contributeurs d’OpenStreetMap (ODbL), extraits régionaux de Geofabrik. Relues le 3 de chaque mois.',
+  'admin.paddleRegions.toast.added': 'Région ajoutée. TREK la lit en arrière-plan.',
+  'admin.paddleRegions.toast.removed': 'Région supprimée',
 };
 export default admin;

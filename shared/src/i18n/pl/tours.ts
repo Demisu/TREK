@@ -344,5 +344,155 @@ const tours: TranslationStrings = {
     'Import to nagrany ślad. Zaplanuj edytowalny spływ: TREK pobiera z niego punkty kontrolne, łączy je prostymi liniami, tak jak rysuje się spływ, i pokazuje, jak blisko to wypada. Nic się nie zmienia, dopóki nie wybierzesz.',
   'tours.conversion.closePaddle':
     'Propozycja ściśle trzyma się śladu. Jej punkty łączą proste linie, więc to nie jest ta sama linia.',
+  'tours.planner.moreActions': 'Więcej działań',
+  'tours.paddle.role.put_in': 'Wodowanie',
+  'tours.paddle.role.take_out': 'Wyjście z wody',
+  'tours.paddle.role.re_entry': 'Ponowne wodowanie',
+  'tours.paddle.role.final_take_out': 'Końcowe wyjście z wody',
+  'tours.paddle.portage': 'Przenoska',
+  'tours.paddle.portageOn': 'Przenieś łódź od tego miejsca',
+  'tours.paddle.portageOff': 'Znów płyń tym odcinkiem',
+  'tours.paddle.portageInfo':
+    'Tutaj łódź jest przenoszona. Odcinek liczy się jako ląd, z czasem na wyjście z wody, rozładunek i ponowne wodowanie.',
+  'tours.paddle.portageExtra': 'Wyjście i wodowanie',
+  'tours.paddle.lock': 'Śluza',
+  'tours.paddle.lockAdd': 'Śluza w tym punkcie',
+  'tours.paddle.lockRemove': 'Usuń śluzę',
+  'tours.paddle.lockWait': 'Oczekiwanie',
+  'tours.paddle.lockTransit': 'Śluzowanie',
+  'tours.paddle.lockBypassed': 'Obnoszona, liczy się przenoska',
+  'tours.paddle.time.title': 'Szacowany czas',
+  'tours.paddle.time.assumption': 'Założenia do planowania',
+  'tours.paddle.time.assumptionInfo':
+    'TREK zaczyna od 4 km/h na wodzie, 2 km/h przy przenoszeniu i 10 minut na wyjście z wody i ponowne wodowanie przy każdej przenosce. To wartości początkowe do dostosowania, a nie normy ani pomiary. Czasy śluz to tylko to, co wpiszesz.',
+  'tours.paddle.time.water': 'Na wodzie',
+  'tours.paddle.time.carry': 'Przenoszenie',
+  'tours.paddle.time.carrySpeed': 'Tempo przenoszenia',
+  'tours.paddle.time.outIn': 'Wyjście i ponowne wodowanie',
+  'tours.paddle.time.locks': 'Śluzy',
+  'tours.paddle.time.estimate': 'Oszacowanie',
+  'tours.paddle.time.incomplete': 'Niepełne',
+  'tours.paddle.time.plannedOwn': 'Twój planowany czas łączny',
+  'tours.paddle.time.noSpeed': 'Bez tempa wiosłowania czas na wodzie pozostaje nieokreślony.',
+  'tours.paddle.time.locksMissing': '{count} śluzy nie ma jeszcze czasów.',
+  'tours.paddle.time.locksMissing.one': '{count} śluza nie ma jeszcze czasów.',
+  'tours.paddle.startValue': 'Wartość początkowa',
+  'tours.paddle.timeMissing': 'Nie podano czasu',
+  'tours.paddle.time.waterShort': 'Woda',
+  'tours.paddle.portageRemove': 'Usuń przenoskę',
+  'tours.paddle.marks.title': 'Przenoski i śluzy',
+  'tours.paddle.marks.markPortage': 'Przenoska',
+  'tours.paddle.marks.markLock': 'Śluza',
+  'tours.paddle.marks.pickLock': 'Kliknij na linii miejsce, w którym jest śluza.',
+  'tours.paddle.marks.pickTakeOut': 'Kliknij na linii miejsce, w którym wychodzisz z wody.',
+  'tours.paddle.marks.pickReEntry': 'Teraz kliknij, gdzie wracasz na wodę.',
+  'tours.paddle.marks.overlap': 'Tam jest już zaznaczona przenoska. Zaznacz nową obok.',
+  'tours.paddle.marks.offLine': 'To było za daleko od linii. Kliknij bezpośrednio na ślad.',
+  'tours.paddle.marks.empty': 'Nic jeszcze nie zaznaczono. Nagrany ślad pozostaje bez zmian.',
+  'tours.paddle.marks.at': 'na {distance}',
+  'tours.paddle.marks.saved': 'Zapisano przenoski i śluzy',
+  'tours.paddle.marks.failed': 'Nie udało się zapisać. Spróbuj ponownie.',
+  'tours.paddle.wind.title': 'Wiatr',
+  'tours.paddle.wind.hourInfo': '{hour}:00: {speed} km/h, porywy {gusts} km/h, z kierunku {direction}',
+  'tours.paddle.wind.hourUnknown': '{hour}:00: brak wartości',
+  'tours.paddle.wind.error': 'Nie można teraz pobrać prognozy wiatru.',
+  'tours.paddle.wind.retry': 'Spróbuj ponownie',
+  'tours.paddle.wind.offline': 'Bez połączenia nie ma prognozy wiatru.',
+  'tours.paddle.wind.beyond': 'Dla tego dnia nie ma jeszcze prognozy. Będzie dostępna od {date}.',
+  'tours.paddle.wind.past': 'Ten dzień już minął. Prognoza jest dostępna tylko dla nadchodzących dni.',
+  'tours.paddle.wind.no_day': 'Przypisz spływ do dnia podróży, aby zobaczyć prognozę wiatru na ten dzień.',
+  'tours.paddle.wind.no_date': 'Ten dzień podróży nie ma daty, więc nie ma dla niego prognozy.',
+  'tours.paddle.wind.no_place': 'Spływ nie ma jeszcze punktu startowego, dla którego można by pobrać prognozę.',
+  'tours.paddle.wind.hintsTitle': 'Co wiatr oznacza przy wiosłowaniu',
+  'tours.paddle.wind.dir.N': 'N', // same-as-en
+  'tours.paddle.wind.dir.NNE': 'NNE', // same-as-en
+  'tours.paddle.wind.dir.NE': 'NE', // same-as-en
+  'tours.paddle.wind.dir.ENE': 'ENE', // same-as-en
+  'tours.paddle.wind.dir.E': 'E', // same-as-en
+  'tours.paddle.wind.dir.ESE': 'ESE', // same-as-en
+  'tours.paddle.wind.dir.SE': 'SE', // same-as-en
+  'tours.paddle.wind.dir.SSE': 'SSE', // same-as-en
+  'tours.paddle.wind.dir.S': 'S', // same-as-en
+  'tours.paddle.wind.dir.SSW': 'SSW', // same-as-en
+  'tours.paddle.wind.dir.SW': 'SW', // same-as-en
+  'tours.paddle.wind.dir.WSW': 'WSW', // same-as-en
+  'tours.paddle.wind.dir.W': 'W', // same-as-en
+  'tours.paddle.wind.dir.WNW': 'WNW', // same-as-en
+  'tours.paddle.wind.dir.NW': 'NW', // same-as-en
+  'tours.paddle.wind.dir.NNW': 'NNW', // same-as-en
+  'tours.paddle.wind.legendMean': 'Wiatr średni',
+  'tours.paddle.wind.legendGusts': 'Porywy',
+  'tours.paddle.wind.mean': 'Średni',
+  'tours.paddle.wind.gusts': 'Porywy',
+  'tours.paddle.wind.fromInfo': 'Wiatr z kierunku {direction}, z którego wieje przez większość dnia',
+  'tours.paddle.wind.meanInfo': 'Najsilniejszy godzinowy wiatr średni w ciągu dnia',
+  'tours.paddle.wind.gustsInfo': 'Najsilniejszy poryw w ciągu dnia',
+  'tours.paddle.wind.source': '{source}, {time}, prognoza dla miejsca startu',
+  'tours.paddle.wind.hint.headwind': 'Wiatr przeciwny kosztuje czas i siły.',
+  'tours.paddle.wind.hint.drift': 'Boczny wiatr spycha łódź z kursu.',
+  'tours.paddle.wind.hint.crossing': 'Przeprawy przez otwartą wodę są bardziej narażone na wiatr niż okolice brzegu.',
+  'tours.paddle.wind.hint.gusts': 'Porywy są silniejsze od wiatru średniego i przychodzą nagle.',
+  'tours.paddle.wind.hint.local': 'Żadna wartość nie oznacza, że jest bezpiecznie. Sprawdź warunki na miejscu.',
+  'tours.paddle.obstacles.loading': 'Wczytywanie przeszkód wzdłuż trasy…',
+  'tours.paddle.obstacles.covered':
+    'Wzdłuż trasy: {count} przeszkody lub miejsca dostępu z OpenStreetMap, stan na {date}. Dane mogą mieć luki, więc sprawdź akwen samodzielnie.',
+  'tours.paddle.obstacles.covered.one':
+    'Wzdłuż trasy: {count} przeszkoda lub miejsce dostępu z OpenStreetMap, stan na {date}. Dane mogą mieć luki, więc sprawdź akwen samodzielnie.',
+  'tours.paddle.obstacles.coveredEmpty':
+    'Brak znanych przeszkód wzdłuż trasy (OpenStreetMap, stan na {date}). Mimo to sprawdź akwen samodzielnie.',
+  'tours.paddle.obstacles.partial':
+    'Dane o przeszkodach obejmują tylko część trasy (stan na {date}). Resztę sprawdź samodzielnie.',
+  'tours.paddle.obstacles.none':
+    'Brak danych o przeszkodach dla tego obszaru. Jazy, śluzy i przenoski sprawdź tu samodzielnie.',
+  'tours.paddle.obstacles.offline':
+    'Bez połączenia TREK nie wczytuje danych o przeszkodach. Sprawdź akwen samodzielnie.',
+  'tours.paddle.obstacles.error': 'Nie udało się wczytać danych o przeszkodach. Sprawdź akwen samodzielnie.',
+  'tours.paddle.obstacle.kind.weir': 'Jaz',
+  'tours.paddle.obstacle.kind.dam': 'Zapora',
+  'tours.paddle.obstacle.kind.lock': 'Śluza',
+  'tours.paddle.obstacle.kind.lock_gate': 'Wrota śluzy',
+  'tours.paddle.obstacle.kind.waterfall': 'Wodospad',
+  'tours.paddle.obstacle.kind.rapids': 'Bystrze',
+  'tours.paddle.obstacle.kind.hazard': 'Niebezpieczne miejsce',
+  'tours.paddle.obstacle.kind.put_in': 'Wodowanie',
+  'tours.paddle.obstacle.kind.egress': 'Wyjście z wody',
+  'tours.paddle.obstacle.kind.slipway': 'Slip',
+  'tours.paddle.obstacle.kind.portage': 'Przenoska',
+  'tours.paddle.obstacle.kind.access': 'Zasada pływania',
+  'tours.paddle.obstacles.truncated':
+    'TREK pokazuje tu tylko część obiektów; na tym obszarze jest ich więcej. Sprawdź akwen samodzielnie.',
+  'tours.paddle.obstacles.dateUnknown': 'nieznaną datę',
+  'tours.paddle.obstacleCard.onRoute': 'Na trasie po',
+  'tours.paddle.obstacleCard.near': 'W pobliżu trasy',
+  'tours.paddle.obstacleCard.area': 'W okolicy',
+  'tours.paddle.obstacleCard.uncertain': 'Powiązanie niepewne',
+  'tours.paddle.obstacleCard.alongInfo': 'Jak daleko od startu leży wzdłuż trasy',
+  'tours.paddle.obstacleCard.distanceInfo': 'Jak daleko od trasy leży. Może się znajdować na innej odnodze akwenu.',
+  'tours.paddle.obstacleCard.privateWay': 'Droga prywatna',
+  'tours.paddle.obstacleCard.noAccessInfo': 'Brak znanej zasady pływania',
+  'tours.paddle.obstacleCard.condition': 'Warunek',
+  'tours.paddle.obstacleCard.access.canoe': 'Kajak',
+  'tours.paddle.obstacleCard.access.boat': 'Łódź',
+  'tours.paddle.obstacleCard.access.access': 'Dostęp',
+  'tours.paddle.obstacleCard.accessValue.yes': 'tak',
+  'tours.paddle.obstacleCard.accessValue.no': 'nie',
+  'tours.paddle.obstacleCard.accessValue.private': 'prywatne',
+  'tours.paddle.obstacleCard.accessValue.permissive': 'tolerowane',
+  'tours.paddle.obstacleCard.accessValue.designated': 'wyznaczone',
+  'tours.paddle.obstacleCard.fact.height': 'Wysokość',
+  'tours.paddle.obstacleCard.fact.width': 'Szerokość',
+  'tours.paddle.obstacleCard.fact.grade': 'Trudność',
+  'tours.paddle.obstacleCard.fact.opening_hours': 'Godziny otwarcia',
+  'tours.paddle.obstacleCard.fact.seasonal': 'Sezonowo',
+  'tours.paddle.obstacleCard.fact.fee': 'Opłata',
+  'tours.paddle.obstacleCard.fact.operator': 'Zarządca',
+  'tours.paddle.obstacleCard.source': 'Dane OpenStreetMap, stan na {date}, bez weryfikacji na miejscu.',
+  'tours.paddle.obstacleCard.sourceUndated': 'Dane OpenStreetMap o nieznanej dacie, bez weryfikacji na miejscu.',
+  'tours.paddle.obstacles.covered.few':
+    'Wzdłuż trasy: {count} przeszkody i miejsca dostępu z OpenStreetMap, stan na {date}. Dane mogą mieć luki, więc sprawdź akwen samodzielnie.',
+  'tours.paddle.obstacles.covered.many':
+    'Wzdłuż trasy: {count} przeszkód i miejsc dostępu z OpenStreetMap, stan na {date}. Dane mogą mieć luki, więc sprawdź akwen samodzielnie.',
+  'tours.paddle.time.locksMissing.few': '{count} śluzy nie mają jeszcze czasów.',
+  'tours.paddle.time.locksMissing.many': '{count} śluz nie ma jeszcze czasów.',
 };
 export default tours;
