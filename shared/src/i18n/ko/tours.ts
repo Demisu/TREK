@@ -278,8 +278,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': '0.5~20 km/h 사이의 속도를 입력하세요.',
   'tours.paddle.chooseBoat': '이 패들 투어를 저장하려면 보트와 수역을 선택하세요.',
   'tours.paddle.chooseBoatImport': '패들 투어로 가져오려면 보트와 수역을 선택하세요.',
-  'tours.paddle.noWaterData':
-    'TREK은 아직 보, 갑문, 육상 운반 구간을 표시하지 않습니다. 출발 전에 수역과 규칙을 직접 확인하세요.',
   'tours.paddle.drawnByHand':
     '패들 투어는 손으로 그립니다. TREK은 지점들을 직선으로 이을 뿐 경로를 계산하지 않으며, 그 물길을 지날 수 있다고 알려주지도 않습니다.',
   'tours.paddle.timeEstimated': '패들 시간(추정)',

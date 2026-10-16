@@ -1,10 +1,10 @@
 import type { FerrataBbox } from '@trek/shared';
-import { type PaddleGlMap, usePaddleLayerGL } from '../paddle/usePaddleLayerGL';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { DistanceIndexedProfileSample, RouteProfileFocus } from '../../../utils/routeGeometry';
 import type { FerrataMapLayer } from '../../Ferratas/useFerrataMapLayer';
 import type { TourBaseLayer, TourLayerOffer } from '../../Map/MapLayerSwitcher';
 import { useRasterOverlaysGL, type RasterOverlayGlMap } from '../../Map/mapRasterOverlay';
+import { usePaddleLayerGL, type PaddleGlMap } from '../paddle/usePaddleLayerGL';
 import { trackData, type PanelWidths, type TrackColorMode } from './terrainLayers';
 import { useTerrainFerratas } from './useTerrainFerratas';
 import { frameCamera, useTerrainMap, type TerrainScene } from './useTerrainMap';

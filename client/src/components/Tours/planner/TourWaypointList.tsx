@@ -24,13 +24,13 @@ import { toggleTourPlacing, useTourPlaceToolStore } from '../../../store/tourPla
 import { formatDistance } from '../../../utils/units';
 import { FerrataGlyph } from '../../Ferratas/FerrataGlyph';
 import { SoftPill } from '../../Planner/planParts';
-import { fs } from '../../shared/DialogShell';
 import { ContextMenu, useContextMenu } from '../../shared/ContextMenu';
+import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
-import { RailCard, TourNotice } from '../tourParts';
 import { LockIcon, PortageIcon } from '../paddle/PaddleGlyph';
 import { LockRow, PaddleRolePill, PortageLegRow } from '../paddle/PaddleWaypointParts';
 import { usePaddleWaypointActions } from '../paddle/usePaddleWaypointActions';
+import { RailCard, TourNotice } from '../tourParts';
 import { paddlePlanPoints, paddleRolesById } from './paddlePlanOf';
 import { lineLengthM } from './tourFixedLegs';
 import type { TourPlannerController } from './useTourPlanner';
@@ -324,7 +324,12 @@ function WaypointRowActions({
   const portage = point.fixedLeg?.kind === 'portage';
   const hasLeg = index < lastIndex;
   const items = [
-    { label: t('tours.planner.moveUp'), icon: ArrowUp, disabled: index === 0, onClick: () => planner.moveWaypoint(point.id, -1) },
+    {
+      label: t('tours.planner.moveUp'),
+      icon: ArrowUp,
+      disabled: index === 0,
+      onClick: () => planner.moveWaypoint(point.id, -1),
+    },
     {
       label: t('tours.planner.moveDown'),
       icon: ArrowDown,
@@ -332,21 +337,26 @@ function WaypointRowActions({
       onClick: () => planner.moveWaypoint(point.id, 1),
     },
     ...(!planner.isPaddle && hasLeg && point.fixedLeg?.kind !== 'ferrata'
-      ? [{ divider: true }, {
-          label: t(free ? 'tours.planner.routeLeg' : 'tours.planner.freeLeg'),
-          icon: Spline,
-          onClick: () => planner.toggleWaypointFreeLeg(point.id),
-        }]
+      ? [
+          { divider: true },
+          {
+            label: t(free ? 'tours.planner.routeLeg' : 'tours.planner.freeLeg'),
+            icon: Spline,
+            onClick: () => planner.toggleWaypointFreeLeg(point.id),
+          },
+        ]
       : []),
     ...(planner.isPaddle
       ? [
           { divider: true },
           ...(hasLeg
-            ? [{
-                label: t(portage ? 'tours.paddle.portageOff' : 'tours.paddle.portageOn'),
-                icon: PortageIcon,
-                onClick: () => paddle.togglePortage(point.id),
-              }]
+            ? [
+                {
+                  label: t(portage ? 'tours.paddle.portageOff' : 'tours.paddle.portageOn'),
+                  icon: PortageIcon,
+                  onClick: () => paddle.togglePortage(point.id),
+                },
+              ]
             : []),
           {
             label: t(point.lock ? 'tours.paddle.lockRemove' : 'tours.paddle.lockAdd'),

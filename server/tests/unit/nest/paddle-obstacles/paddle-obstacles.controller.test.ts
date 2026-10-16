@@ -5,6 +5,7 @@
  */
 import { AddonGuard } from '../../../../src/nest/addons/addon.guard';
 import { REQUIRE_ADDON } from '../../../../src/nest/addons/require-addon.decorator';
+import type { AuditService } from '../../../../src/nest/audit/audit.service';
 import { AdminGuard } from '../../../../src/nest/auth-core/admin.guard';
 import { JwtAuthGuard } from '../../../../src/nest/auth-core/jwt-auth.guard';
 import { DomainError } from '../../../../src/nest/common/domain-error';
@@ -15,6 +16,7 @@ import {
 } from '../../../../src/nest/paddle-obstacles/paddle-obstacles.controller';
 import type { PaddleObstaclesService } from '../../../../src/nest/paddle-obstacles/paddle-obstacles.service';
 import type { PaddleRegionsService } from '../../../../src/nest/paddle-obstacles/paddle-regions.service';
+import type { User } from '../../../../src/types';
 import { RequestMethod } from '@nestjs/common';
 import { GUARDS_METADATA, HTTP_CODE_METADATA, METHOD_METADATA, PATH_METADATA } from '@nestjs/common/constants';
 import {
@@ -26,6 +28,7 @@ import {
   type PaddleRegion,
 } from '@trek/shared';
 
+import type { Request } from 'express';
 import { describe, expect, it, vi } from 'vitest';
 
 const region: PaddleRegion = {
@@ -84,7 +87,7 @@ describe('PaddleRegionsController', () => {
     }
   });
 
-  it('PADCTL-004: wraps the lists in { regions }, hands the ids on and answers { success: true } on remove', async () => {
+  it('PADCTL-004: wraps the lists in { regions }, hands the ids on, records each change and answers { success: true } on remove', async () => {
     const service = {
       list: vi.fn().mockResolvedValue([region]),
       catalog: vi.fn().mockResolvedValue([{ id: 'oberpfalz', name: 'Oberpfalz', path: ['Europe'] }]),
@@ -92,18 +95,44 @@ describe('PaddleRegionsController', () => {
       refresh: vi.fn().mockResolvedValue(region),
       remove: vi.fn().mockResolvedValue(undefined),
     };
-    const controller = new PaddleRegionsController(service as unknown as PaddleRegionsService);
+    const audit = { writeAudit: vi.fn().mockResolvedValue(undefined) };
+    const controller = new PaddleRegionsController(
+      service as unknown as PaddleRegionsService,
+      audit as unknown as AuditService,
+    );
+    const admin = { id: 2 } as User;
+    const req = { ip: '203.0.113.5', headers: {}, socket: { remoteAddress: '203.0.113.5' } } as unknown as Request;
 
     expect(await controller.list()).toEqual({ regions: [region] });
     expect(await controller.catalog({ q: 'ober' })).toEqual({
       regions: [{ id: 'oberpfalz', name: 'Oberpfalz', path: ['Europe'] }],
     });
     expect(service.catalog).toHaveBeenCalledWith('ober');
-    expect(await controller.add({ id: 'oberpfalz' })).toBe(region);
+    expect(await controller.add(admin, { id: 'oberpfalz' }, req)).toBe(region);
     expect(service.add).toHaveBeenCalledWith('oberpfalz');
-    expect(await controller.refresh({ id: 'oberpfalz' })).toBe(region);
+    expect(await controller.refresh(admin, { id: 'oberpfalz' }, req)).toBe(region);
     expect(service.refresh).toHaveBeenCalledWith('oberpfalz');
-    expect(await controller.remove({ id: 'oberpfalz' })).toEqual({ success: true });
+    expect(await controller.remove(admin, { id: 'oberpfalz' }, req)).toEqual({ success: true });
     expect(service.remove).toHaveBeenCalledWith('oberpfalz');
+    expect(audit.writeAudit.mock.calls.map(([entry]) => entry)).toEqual(
+      ['admin.paddle_region_add', 'admin.paddle_region_refresh', 'admin.paddle_region_remove'].map((action) => ({
+        userId: 2,
+        action,
+        ip: expect.any(String),
+        details: { region: 'oberpfalz' },
+      })),
+    );
+  });
+
+  it('PADCTL-005: a refused change leaves no audit row', async () => {
+    const refusal = new DomainError(404, 'Region not found');
+    const service = { remove: vi.fn().mockRejectedValue(refusal) };
+    const audit = { writeAudit: vi.fn() };
+    const controller = new PaddleRegionsController(
+      service as unknown as PaddleRegionsService,
+      audit as unknown as AuditService,
+    );
+    await expect(controller.remove({ id: 2 } as User, { id: 'bayern' }, {} as Request)).rejects.toBe(refusal);
+    expect(audit.writeAudit).not.toHaveBeenCalled();
   });
 });

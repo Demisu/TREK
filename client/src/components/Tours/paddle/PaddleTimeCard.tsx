@@ -18,8 +18,8 @@ import type { TourPlannerController } from '../planner/useTourPlanner';
 import { InfoDot, RailCard, TourNotice } from '../tourParts';
 import { formatPlannedTourDuration } from '../tourPresentation';
 import { PaddleGlyph } from './PaddleGlyph';
+import { PORTAGE_CSS_COLOR } from './paddlePaint';
 import { PaddleRouteStrip, WATER_COLOR } from './PaddleRouteStrip';
-import { PORTAGE_LINE_COLOR } from '../planner/tourRouteStyle';
 
 const minutes = (value: number | null) => (value === null ? '–' : formatPlannedTourDuration(value));
 
@@ -284,7 +284,7 @@ function PartTiles({
         <PartTile
           testId="paddle-time-carry"
           icon={<PaddleGlyph kind="portage" size={12} strokeWidth={2.4} />}
-          color={PORTAGE_LINE_COLOR}
+          color={PORTAGE_CSS_COLOR}
           label={t('tours.paddle.time.carry')}
           measures={
             <MeasureGroup
@@ -310,7 +310,7 @@ function PartTiles({
         <PartTile
           testId="paddle-time-out-in"
           icon={<PaddleGlyph kind="take_out" size={12} strokeWidth={2.4} />}
-          color={PORTAGE_LINE_COLOR}
+          color={PORTAGE_CSS_COLOR}
           label={t('tours.paddle.time.outIn')}
           measures={<MeasureBadge>{`${estimate.portageCount}×`}</MeasureBadge>}
           time={minutes(estimate.portageExtraMinutes)}

@@ -8,6 +8,7 @@
  * writes an extract the test builds (tests/helpers/osm-pbf-fixture.ts), which
  * the real reader then reads.
  */
+import { AuditLog } from '../../src/db/entities/AuditLog.entity';
 import { AppConfigModule } from '../../src/nest/app-config/app-config.module';
 import { DataPathsService } from '../../src/nest/app-config/data-paths.service';
 import { TrekExceptionFilter } from '../../src/nest/common/trek-exception.filter';
@@ -22,6 +23,7 @@ import {
   REGION_UNKNOWN_MESSAGE,
 } from '../../src/nest/paddle-obstacles/paddle-regions.service';
 import { createSnapshotTestDb } from '../helpers/db-mock';
+import { deleteRows, findRows } from '../helpers/factories/rows';
 import { setAddonEnabled } from '../helpers/factories/settings';
 import { makeAdmin, makeUser } from '../helpers/factories/users';
 import { pbfFile } from '../helpers/osm-pbf-fixture';
@@ -153,6 +155,7 @@ beforeEach(async () => {
   );
   geofabrik.download.mockImplementation((_url, target) => writeFile(target, EXTRACT));
   await setAddonEnabled(orm, 'tours', true);
+  await deleteRows(orm, AuditLog);
   await admin.remove(REGION.id);
   await admin.remove(BAYERN.id);
   await settle();
@@ -212,6 +215,9 @@ describe('/api/admin/paddle-regions', () => {
   it('PADE2E-005: an admin adds a region, its read lands, and the map reads the weir as a line with the date of the data', async () => {
     const added = await admin.add(REGION.id);
     expect(added.status).toBe(201);
+    expect(await findRows(orm, AuditLog, { action: 'admin.paddle_region_add' })).toMatchObject([
+      { details: JSON.stringify({ region: 'oberpfalz' }) },
+    ]);
     expect(added.body).toMatchObject({ id: 'oberpfalz', name: 'Oberpfalz', feature_count: 0 });
     await settle();
 

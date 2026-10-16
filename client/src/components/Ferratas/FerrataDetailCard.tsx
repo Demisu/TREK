@@ -5,19 +5,11 @@ import type { Ferrata } from '@trek/shared';
 import { useTranslation } from '../../i18n';
 import { useSettingsStore } from '../../store/settingsStore';
 import { formatDistance } from '../../utils/units';
-import { MAP_CONTROL_SHADOW } from '../Map/mapControlShadow';
+import { MAP_CARD_GLASS } from '../Map/mapControlShadow';
 import { SoftPill } from '../Planner/planParts';
 import { fs } from '../shared/DialogShell';
 import { type FerrataGroup, ferrataLabel } from './ferrataGroups';
 import { ferrataOsmUrl } from './ferrataModel';
-
-/** The map controls' frosted glass, so the card reads as one of them. */
-const MAP_GLASS = {
-  background: 'var(--sidebar-bg)',
-  backdropFilter: 'blur(20px) saturate(180%)',
-  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-  boxShadow: MAP_CONTROL_SHADOW,
-};
 
 /**
  * One via ferrata, picked on the map: its name, the route it belongs to, its
@@ -57,7 +49,7 @@ export default function FerrataDetailCard({
   return (
     <article
       className={`rounded-2xl p-3 text-content ${width ? '' : 'w-max min-w-[min(18rem,calc(100vw_-_2rem))] max-w-[22.5rem]'}`}
-      style={{ ...MAP_GLASS, width }}
+      style={{ ...MAP_CARD_GLASS, width }}
       data-testid="ferrata-detail-card"
     >
       <div className="flex items-start gap-2">

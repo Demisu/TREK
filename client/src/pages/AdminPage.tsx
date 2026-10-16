@@ -1,4 +1,5 @@
 import SchoolHolidayCatalog from '../components/Admin/SchoolHolidayCatalog'
+import PaddleRegionsPanel from '../components/Admin/paddle/PaddleRegionsPanel'
 import React, { Fragment } from 'react'
 import DevNotificationsPanel from '../components/Admin/DevNotificationsPanel'
 import DefaultUserSettingsTab from '../components/Admin/DefaultUserSettingsTab'
@@ -157,6 +158,7 @@ function AdminPageDesktop(): React.ReactElement {
           {activeTab === 'addons' && (
             <div className="space-y-6">
               <AddonManager bagTrackingEnabled={bagTrackingEnabled} onToggleBagTracking={toggleBagTracking} collabFeatures={collabFeatures} onToggleCollabFeature={toggleCollabFeature} />
+              <PaddleRegionsPanel />
             </div>
           )}
 

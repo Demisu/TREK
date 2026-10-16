@@ -287,8 +287,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': 'Nhập tốc độ từ 0,5 đến 20 km/h.',
   'tours.paddle.chooseBoat': 'Chọn thuyền và mặt nước để lưu chuyến chèo này.',
   'tours.paddle.chooseBoatImport': 'Chọn thuyền và mặt nước để nhập thành chuyến chèo thuyền.',
-  'tours.paddle.noWaterData':
-    'TREK chưa hiển thị đập tràn, âu thuyền hay điểm khiêng thuyền. Hãy tự kiểm tra mặt nước và quy định trước khi xuất phát.',
   'tours.paddle.drawnByHand':
     'Chuyến chèo thuyền được vẽ bằng tay: TREK nối các điểm của bạn bằng đường thẳng. Không có gì được định tuyến, và không gì cho biết mặt nước có chèo được hay không.',
   'tours.paddle.timeEstimated': 'Thời gian chèo (ước tính)',

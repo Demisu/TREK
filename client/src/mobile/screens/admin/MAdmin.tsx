@@ -1,4 +1,5 @@
 import SchoolHolidayCatalog from '../../../components/Admin/SchoolHolidayCatalog'
+import PaddleRegionsPanel from '../../../components/Admin/paddle/PaddleRegionsPanel'
 import { useState } from 'react'
 import {
   ArrowUp,
@@ -209,12 +210,15 @@ export default function MAdmin() {
         </div>
       )}
       {activeTab === 'addons' && (
-        <MAdminAddonManager
-          bagTrackingEnabled={bagTrackingEnabled}
-          onToggleBagTracking={toggleBagTracking}
-          collabFeatures={collabFeatures}
-          onToggleCollabFeature={toggleCollabFeature}
-        />
+        <div className="space-y-4">
+          <MAdminAddonManager
+            bagTrackingEnabled={bagTrackingEnabled}
+            onToggleBagTracking={toggleBagTracking}
+            collabFeatures={collabFeatures}
+            onToggleCollabFeature={toggleCollabFeature}
+          />
+          <PaddleRegionsPanel />
+        </div>
       )}
       {activeTab === 'plugins' && <MAdminPluginsPanel />}
       {activeTab === 'storage' && <MAdminStoragePanel />}

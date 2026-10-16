@@ -2,9 +2,11 @@ import type { StoreApi } from 'zustand';
 import { useAddonStore } from '../../src/store/addonStore';
 import { useAuthStore } from '../../src/store/authStore';
 import { useInAppNotificationStore } from '../../src/store/inAppNotificationStore';
+import { usePaddleObstacleStore } from '../../src/store/paddleObstacleStore';
 import { usePermissionsStore } from '../../src/store/permissionsStore';
 import { useSettingsStore } from '../../src/store/settingsStore';
 import { useTourMapVisibilityStore } from '../../src/store/tourMapVisibilityStore';
+import { useTrackMarkToolStore } from '../../src/store/trackMarkToolStore';
 import { useTripStore } from '../../src/store/tripStore';
 import { useVacayStore } from '../../src/store/vacayStore';
 
@@ -36,6 +38,8 @@ export const RESET_STORES: Record<string, ResettableStore> = {
   useInAppNotificationStore,
   usePermissionsStore,
   useTourMapVisibilityStore,
+  usePaddleObstacleStore,
+  useTrackMarkToolStore,
 };
 
 /** Not reset so far; moving one into RESET_STORES changes what every file that resets starts from. */

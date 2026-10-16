@@ -1,9 +1,9 @@
 import type { Map } from 'mapbox-gl';
-import type { PaddleMapLayer } from '../Tours/paddle/paddleMapLayer';
-import { type PaddleGlMap, usePaddleLayerGL } from '../Tours/paddle/usePaddleLayerGL';
 import { useEffect } from 'react';
-import { useFerrataMapLayerGL } from '../Ferratas/useFerrataLayerGL';
+import { isFerrataHit, useFerrataMapLayerGL } from '../Ferratas/useFerrataLayerGL';
 import type { FerrataMapLayer } from '../Ferratas/useFerrataMapLayer';
+import type { PaddleMapLayer } from '../Tours/paddle/paddleMapLayer';
+import { isPaddleHit, type PaddleGlMap, usePaddleLayerGL } from '../Tours/paddle/usePaddleLayerGL';
 import { OWN_LAYER_PREFIXES } from './glRasterLayers';
 
 /**
@@ -114,4 +114,13 @@ export function useTourMapLayersGL(
   useFerrataMapLayerGL(map, ferrataLayer);
   useRasterOverlaysGL(map, overlays);
   usePaddleLayerGL(map as unknown as PaddleGlMap | null, paddle);
+}
+
+/**
+ * Whether a click at `point` landed on an object of the tour layers, a via
+ * ferrata or a paddle obstacle. The maps ask this before their own click
+ * handler, so picking one opens its card instead of also setting a waypoint.
+ */
+export function isTourLayerHit<Point>(map: Parameters<typeof isFerrataHit<Point>>[0], point: Point): boolean {
+  return isFerrataHit(map, point) || isPaddleHit(map, point);
 }

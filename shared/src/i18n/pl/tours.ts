@@ -300,8 +300,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': 'Podaj tempo od 0,5 do 20 km/h.',
   'tours.paddle.chooseBoat': 'Wybierz łódź i wodę, aby zapisać ten spływ.',
   'tours.paddle.chooseBoatImport': 'Wybierz łódź i wodę, aby zaimportować jako spływ.',
-  'tours.paddle.noWaterData':
-    'TREK nie pokazuje jeszcze jazów, śluz ani przenosek. Przed wyruszeniem sprawdź sam wodę i obowiązujące zasady.',
   'tours.paddle.drawnByHand':
     'Spływ rysuje się ręcznie: TREK łączy Twoje punkty prostymi liniami. Nic nie jest wyznaczane i nic nie mówi, że woda jest spławna.',
   'tours.paddle.timeEstimated': 'Czas na wodzie (szacunkowo)',

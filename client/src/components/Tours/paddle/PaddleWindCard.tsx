@@ -1,12 +1,13 @@
 import { compassPointOf, type WindForecastResponse, type WindHour } from '@trek/shared';
 import { ChevronDown, RefreshCw, WifiOff, Wind } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { useTranslation } from '../../../i18n';
 import { formatDate } from '../../../utils/formatters';
 import { SoftPill } from '../../Planner/planParts';
 import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
 import { RailCard, TourNotice } from '../tourParts';
+import { FigureBadge } from './FigureBadge';
 import { useTourWind, type TourWind } from './useTourWind';
 
 type Translate = (key: string, params?: Record<string, unknown>) => string;
@@ -46,37 +47,6 @@ function directionName(degrees: number | null, t: Translate): string | null {
 }
 
 /**
- * A figure of the day as a badge holding its value as a white badge, in the
- * planner's badge-in-badge look; what it means exactly is in its tooltip.
- */
-function DayFigure({ label, value, icon, info, testId }: {
-  label?: string;
-  value: string;
-  icon?: ReactNode;
-  info: string;
-  testId: string;
-}) {
-  return (
-    <Tooltip label={info}>
-      <span
-        data-testid={testId}
-        className="inline-flex h-[24px] min-w-0 flex-none items-center gap-1 rounded-full bg-surface-secondary pe-[3px] ps-[3px] text-content-muted"
-        style={fs(10.5, 'body')}
-      >
-        {label && <span className="ps-1">{label}</span>}
-        <span
-          className="inline-flex h-[18px] flex-none items-center gap-1 rounded-full bg-surface-card px-1.5 font-geist font-semibold tabular-nums text-content shadow-sm"
-          style={fs(11)}
-        >
-          {icon}
-          {value}
-        </span>
-      </span>
-    </Tooltip>
-  );
-}
-
-/**
  * The day's hours as columns: the mean wind as a bar, the gusts as the paler
  * bar behind it, an arrow the way it blows on top. An hour the source left
  * out stays an empty column, never a calm one.
@@ -108,10 +78,16 @@ function HourStrip({ hours, t }: { hours: readonly WindHour[]; t: Translate }) {
                 className={`relative flex h-12 w-full items-end justify-center overflow-hidden rounded-[3px] ${known ? 'bg-surface-secondary' : 'border border-dashed border-edge'}`}
               >
                 {hour.gusts_kmh !== null && (
-                  <span className="absolute inset-x-0 bottom-0 bg-info-soft" style={{ height: height(hour.gusts_kmh) }} />
+                  <span
+                    className="absolute inset-x-0 bottom-0 bg-info-soft"
+                    style={{ height: height(hour.gusts_kmh) }}
+                  />
                 )}
                 {known && (
-                  <span className="relative w-full rounded-t-[2px] bg-info" style={{ height: height(hour.speed_kmh) }} />
+                  <span
+                    className="relative w-full rounded-t-[2px] bg-info"
+                    style={{ height: height(hour.speed_kmh) }}
+                  />
                 )}
               </span>
               <span className="font-geist tabular-nums text-content-faint" style={fs(9.5)}>
@@ -134,20 +110,20 @@ function Forecast({ forecast, t, locale }: { forecast: WindForecastResponse; t: 
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap gap-1">
         {from !== null && (
-          <DayFigure
+          <FigureBadge
             testId="paddle-wind-direction"
             value={directionName(from, t) ?? ''}
             icon={<FlowArrow from={from} size={11} />}
             info={t('tours.paddle.wind.fromInfo', { direction: directionName(from, t) ?? '' })}
           />
         )}
-        <DayFigure
+        <FigureBadge
           testId="paddle-wind-mean"
           label={t('tours.paddle.wind.mean')}
           value={day?.speed_max_kmh == null ? '–' : `${day.speed_max_kmh} km/h`}
           info={t('tours.paddle.wind.meanInfo')}
         />
-        <DayFigure
+        <FigureBadge
           testId="paddle-wind-gusts"
           label={t('tours.paddle.wind.gusts')}
           value={day?.gusts_max_kmh == null ? '–' : `${day.gusts_max_kmh} km/h`}
@@ -198,8 +174,9 @@ function Unavailable({ wind, t, locale }: { wind: TourWind; t: Translate; locale
       </TourNotice>
     );
   }
-  const key = state.kind === 'ready' ? 'tours.paddle.wind.past' : `tours.paddle.wind.${state.kind}`;
-  return <TourNotice icon={<Wind size={13} strokeWidth={2} />}>{t(key)}</TourNotice>;
+  // A day without a forecast to ask for: past, not on a day, a day without a date, a tour without a start.
+  const notice = state.kind === 'ready' ? t('tours.paddle.wind.past') : t(`tours.paddle.wind.${state.kind}`);
+  return <TourNotice icon={<Wind size={13} strokeWidth={2} />}>{notice}</TourNotice>;
 }
 
 /** What wind means for a paddler, in general terms; it rates no passage and clears nothing. */
@@ -215,7 +192,11 @@ function WindHints({ t }: { t: Translate }) {
         style={fs(11.5, 'body')}
       >
         <span className="min-w-0 flex-1 truncate">{t('tours.paddle.wind.hintsTitle')}</span>
-        <ChevronDown size={13} strokeWidth={2.2} className={`flex-none transition-transform ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown
+          size={13}
+          strokeWidth={2.2}
+          className={`flex-none transition-transform ${open ? 'rotate-180' : ''}`}
+        />
       </button>
       {open && (
         <ul className="m-0 mt-2 flex list-disc flex-col gap-1.5 ps-4 text-content-muted" style={fs(11.5, 'body')}>
@@ -263,7 +244,11 @@ export function PaddleWindCard({ wind }: { wind: TourWind }) {
       }
     >
       <div data-testid="paddle-wind-card" className="flex flex-col gap-3">
-        {ready ? <Forecast forecast={ready} t={t} locale={locale} /> : <Unavailable wind={wind} t={t} locale={locale} />}
+        {ready ? (
+          <Forecast forecast={ready} t={t} locale={locale} />
+        ) : (
+          <Unavailable wind={wind} t={t} locale={locale} />
+        )}
         <WindHints t={t} />
       </div>
     </RailCard>
@@ -271,7 +256,13 @@ export function PaddleWindCard({ wind }: { wind: TourWind }) {
 }
 
 /** The wind card for one tour: its days read from the trip, its start as the place the forecast is for. */
-export function PaddleWindSection({ placeId, start }: { placeId: number | null; start: { lat: number; lng: number } | null }) {
+export function PaddleWindSection({
+  placeId,
+  start,
+}: {
+  placeId: number | null;
+  start: { lat: number; lng: number } | null;
+}) {
   const wind = useTourWind(placeId, start);
   return <PaddleWindCard wind={wind} />;
 }

@@ -1,17 +1,12 @@
-import {
-  DEFAULT_PORTAGE_EXTRA_MINUTES,
-  MAX_PADDLE_STOP_MINUTES,
-  type PaddleLock,
-  type PaddleRole,
-} from '@trek/shared';
+import { DEFAULT_PORTAGE_EXTRA_MINUTES, MAX_PADDLE_STOP_MINUTES, type PaddleLock, type PaddleRole } from '@trek/shared';
 import { ChevronDown, X } from 'lucide-react';
 import { useCallback, useState, type ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import { useSettingsStore } from '../../../store/settingsStore';
 import { formatDistance } from '../../../utils/units';
 import { fs } from '../../shared/DialogShell';
-import { PORTAGE_LINE_COLOR } from '../planner/tourRouteStyle';
 import { PaddleGlyph } from './PaddleGlyph';
+import { PORTAGE_CSS_COLOR } from './paddlePaint';
 
 const ROLE_GLYPH = { put_in: 'put_in', take_out: 'take_out', re_entry: 'put_in', final_take_out: 'take_out' } as const;
 
@@ -29,7 +24,7 @@ export function PaddleRolePill({ role }: { role: PaddleRole }) {
         kind={ROLE_GLYPH[role]}
         size={11}
         strokeWidth={2.4}
-        style={land ? { color: PORTAGE_LINE_COLOR } : undefined}
+        style={land ? { color: PORTAGE_CSS_COLOR } : undefined}
       />
       {t(`tours.paddle.role.${role}`)}
     </span>
@@ -233,7 +228,7 @@ export function PortageLegRow({
     <StopCard
       testId="tour-planner-portage-leg"
       glyph={<PaddleGlyph kind="portage" size={12} strokeWidth={2.4} />}
-      color={PORTAGE_LINE_COLOR}
+      color={PORTAGE_CSS_COLOR}
       title={t('tours.paddle.portage')}
       pills={
         <>
@@ -306,7 +301,6 @@ export function LockRow({
         </>
       }
     >
-
       <StopField label={t('tours.paddle.lockWait')}>
         <MinutesInput
           testId="tour-planner-lock-wait"

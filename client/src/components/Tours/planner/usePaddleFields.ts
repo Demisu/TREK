@@ -15,7 +15,12 @@ export interface PaddleFieldValues {
   portageSpeedKmh?: number | null;
 }
 
-export const NO_PADDLE_FIELDS: PaddleFieldValues = { boatType: null, waterContext: null, speedKmh: null, portageSpeedKmh: null };
+export const NO_PADDLE_FIELDS: PaddleFieldValues = {
+  boatType: null,
+  waterContext: null,
+  speedKmh: null,
+  portageSpeedKmh: null,
+};
 
 /** The paddle fields of a saved tour, or none for a hike or a list cached before they existed. */
 export function paddleFieldsOf(

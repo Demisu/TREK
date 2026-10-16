@@ -1,3 +1,5 @@
+import { readMapPaint, sameMapPaint } from '../Map/mapPaint';
+
 /**
  * The colours the via ferrata lines are drawn in.
  *
@@ -10,9 +12,9 @@
  *
  * Map paint cannot take a `var(--token)`: Leaflet writes the colour into an
  * SVG `stroke` attribute and GL paint wants a resolved colour string. So the
- * `--map-ferrata*` tokens are read off the document when the layer draws (the
- * precedent is the hazard overlay in useHazardLayerGL), which keeps light and
- * dark mode apart without a colour literal in the layer.
+ * `--map-ferrata*` tokens are read off the document when the layer draws
+ * (`mapPaint.ts`; the precedent is the hazard overlay in useHazardLayerGL),
+ * which keeps light and dark mode apart without a colour literal in the layer.
  */
 export interface FerrataPaint {
   /** The dashed line itself. */
@@ -23,27 +25,16 @@ export interface FerrataPaint {
   highlight: string;
 }
 
-const TOKENS = {
+export const FERRATA_TOKENS = {
   line: '--map-ferrata',
   casing: '--map-ferrata-casing',
   highlight: '--map-ferrata-lit',
 } as const;
 
-/** What a token resolves to on the root, or `currentColor` where nothing defines it (a test DOM). */
-function token(name: string, style: CSSStyleDeclaration | null): string {
-  const value = style?.getPropertyValue(name).trim();
-  return value || 'currentColor';
-}
-
 export function ferrataPaint(): FerrataPaint {
-  const style = typeof document === 'undefined' ? null : getComputedStyle(document.documentElement);
-  return {
-    line: token(TOKENS.line, style),
-    casing: token(TOKENS.casing, style),
-    highlight: token(TOKENS.highlight, style),
-  };
+  return readMapPaint(FERRATA_TOKENS);
 }
 
 export function sameFerrataPaint(a: FerrataPaint, b: FerrataPaint): boolean {
-  return a.line === b.line && a.casing === b.casing && a.highlight === b.highlight;
+  return sameMapPaint(a, b);
 }

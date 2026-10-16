@@ -32,7 +32,10 @@ describe('TourTypeFields (PAD-01)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Lake' }));
     expect(paddleTour.paddle.setBoatType).toHaveBeenCalledWith('canoe');
     expect(paddleTour.paddle.setWaterContext).toHaveBeenCalledWith('lake');
-    expect(screen.getByRole('status')).toBeInTheDocument();
+    // Two notes speak here: what the tour still needs, and what is known about obstacles on the water.
+    const notes = screen.getAllByRole('status').map((note) => note.textContent);
+    expect(notes).toContain('Choose the boat and the water to save this paddle tour.');
+    expect(notes).toContain('Loading the obstacles along the route …');
   });
 
   it('reads a typed speed with either decimal separator, and an empty field as the suggestion', () => {

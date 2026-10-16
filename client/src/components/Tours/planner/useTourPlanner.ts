@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { MAX_PLANNED_TOUR_DURATION_MINUTES, paddleSpeedKmhSchema, plannableTourTypeSchema, tourWebsiteSchema, type PlannableTourType, type TourCreateResponse, type TourFixedLeg, type TourListItem, type TourWaypointRole, type TourMaxHikingDifficulty, type PaddleLock } from '@trek/shared'
+import { MAX_PLANNED_TOUR_DURATION_MINUTES, paddleSpeedKmhSchema, tourWebsiteSchema, type PlannableTourType, type TourCreateResponse, type TourFixedLeg, type TourListItem, type TourWaypointRole, type TourMaxHikingDifficulty, type PaddleLock } from '@trek/shared'
 import { tourRepo } from '../../../repo/tourRepo'
 import { randomId } from '../../../utils/randomId'
 import { analyzeRouteGeometry, type RouteProfileFocus } from '../../../utils/routeGeometry'

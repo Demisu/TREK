@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 
+import { useMapCardDismiss } from '../Map/useMapCardDismiss';
 import FerrataDetailCard from './FerrataDetailCard';
 import type { FerrataGroup } from './ferrataGroups';
 import type { FerrataSelection } from './useFerrataMapLayer';
@@ -39,26 +40,7 @@ export default function FerrataDetailOverlay({
   onTourIds?: ReadonlySet<string>;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const open = !!selection;
-
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (event: PointerEvent) => {
-      const card = ref.current;
-      if (card && event.target instanceof Node && card.contains(event.target)) return;
-      onOutsidePress?.();
-      onClose();
-    };
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !event.defaultPrevented) onClose();
-    };
-    document.addEventListener('pointerdown', onDown, true);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('pointerdown', onDown, true);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [open, onClose, onOutsidePress]);
+  useMapCardDismiss(ref, !!selection, onClose, onOutsidePress);
 
   if (!selection) return null;
   return (

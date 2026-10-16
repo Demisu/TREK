@@ -1,8 +1,14 @@
 import L from 'leaflet';
-import { useMemo } from 'react';
-import { Marker, Polyline, Tooltip } from 'react-leaflet';
+import { useMemo, useState } from 'react';
+import { Marker, Polyline, Tooltip, useMap, useMapEvents } from 'react-leaflet';
 import { useTranslation } from '../../../i18n';
-import { markerSize, paddleMarkerHtml, type PaddleMapItem, type PaddleMapLayer } from './paddleMapLayer';
+import {
+  markerSize,
+  paddleItemsAtZoom,
+  paddleMarkerHtml,
+  type PaddleMapItem,
+  type PaddleMapLayer,
+} from './paddleMapLayer';
 
 const LINE_WEIGHT = { on_route: 4, near: 3, area: 2 } as const;
 const LINE_OPACITY = { on_route: 1, near: 0.85, area: 0.5 } as const;
@@ -30,13 +36,18 @@ function useLabel() {
  * The paddle obstacles on the Leaflet map (PAD-05B): each line on a white
  * casing in its category's colour, dashed while it is only near the route,
  * and a round marker with its glyph; the quieter, the less it bears on the
- * route. A click picks the object and goes no further, so it never also sets
- * a waypoint under it.
+ * route, and the objects only in the area wait for a closer zoom. A click
+ * picks the object and goes no further, so it never also sets a waypoint
+ * under it.
  */
 export function PaddleLayerLeaflet({ layer }: { layer?: PaddleMapLayer }) {
   const label = useLabel();
-  const items = layer?.items;
+  const map = useMap();
+  const [zoom, setZoom] = useState(() => map.getZoom());
+  useMapEvents({ zoomend: () => setZoom(map.getZoom()) });
   const selectedRef = layer?.selectedRef ?? null;
+  const all = layer?.items;
+  const items = useMemo(() => (all ? paddleItemsAtZoom(all, zoom, selectedRef) : undefined), [all, zoom, selectedRef]);
   // Rebuilt only when the items or the selection change, not on every render of the map.
   const icons = useMemo(
     () => new Map((items ?? []).map((item) => [item.feature.ref, iconOf(item, item.feature.ref === selectedRef)])),
@@ -56,7 +67,11 @@ export function PaddleLayerLeaflet({ layer }: { layer?: PaddleMapLayer }) {
           <Polyline
             key={`${item.feature.ref}-casing`}
             positions={item.line}
-            pathOptions={{ color: '#ffffff', weight: LINE_WEIGHT[item.relation] + 3, opacity: LINE_OPACITY[item.relation] }} // theme-lint-disable map casing
+            pathOptions={{
+              color: item.disc,
+              weight: LINE_WEIGHT[item.relation] + 3,
+              opacity: LINE_OPACITY[item.relation],
+            }}
             interactive={false}
           />
         ) : null

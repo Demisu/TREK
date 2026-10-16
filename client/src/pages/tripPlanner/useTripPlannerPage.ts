@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { usePoiExplore, type Bbox } from '../../components/Map/usePoiExplore'
 import { placeActions } from '../../components/Planner/usePlaceActions'
 import { tourRouteStyle } from '../../components/Tours/planner/tourRouteStyle'
+import { usePaddlePaint } from '../../components/Tours/paddle/paddlePaint'
 import { useTrackPortageParts } from '../../components/Tours/paddle/useTrackPortageParts'
 import { usePaddleObstacleSync } from '../../components/Tours/paddle/usePaddleObstacleSync'
 import { tourPlannedTimes as projectTourPlannedTimes } from '../../components/Tours/tourPresentation'
@@ -96,9 +97,11 @@ export function useTripPlannerPage() {
   ])
   const editingRoute = tourPlanner.mode.type === 'new-draft' || tourPlanner.mode.type === 'edit-saved'
   // A hand-drawn stretch of a hike is dotted, a paddle tour's portages dotted and brown.
+  const paddlePaint = usePaddlePaint()
   const partStyle = tourRouteStyle(
     !wandererBrowser.open && editingRoute ? tourPlanner.routeParts : !tourConversion.line ? trackParts : null,
     tourPlanner.isPaddle || !!trackParts,
+    { line: paddlePaint.portage, casing: paddlePaint.disc },
   )
   const routeWalking = partStyle.walking ?? (route && route.length === 2 && tourConversion.line ? [true, false] : null)
 

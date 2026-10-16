@@ -287,8 +287,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': '0,5 ile 20 km/sa arasında bir hız gir.',
   'tours.paddle.chooseBoat': 'Bu kürek turunu kaydetmek için tekneyi ve suyu seç.',
   'tours.paddle.chooseBoatImport': 'Kürek turu olarak içe aktarmak için tekneyi ve suyu seç.',
-  'tours.paddle.noWaterData':
-    'TREK henüz savakları, kilitleri ve taşıma noktalarını göstermiyor. Yola çıkmadan önce suyu ve kurallarını kendin kontrol et.',
   'tours.paddle.drawnByHand':
     'Kürek turu elle çizilir: TREK noktalarını düz çizgilerle birleştirir. Hiçbir şey rotalanmaz ve hiçbir şey suyun geçilebilir olduğunu söylemez.',
   'tours.paddle.timeEstimated': 'Kürek süresi (tahmini)',

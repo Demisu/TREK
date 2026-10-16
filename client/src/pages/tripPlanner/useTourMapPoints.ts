@@ -33,9 +33,9 @@ interface Options {
   tourPlanner: PointsPlanner;
   canPlaceEdit: boolean;
   mode: TourMapMode;
-  /** A via ferrata card is open: the "point set" hint gives way to it. */
-  ferrataOpen: boolean;
-  /** Drops the click that closed a ferrata card. */
+  /** A card is open over the map (a via ferrata's, a paddle obstacle's): the "point set" hint gives way to it. */
+  cardOpen: boolean;
+  /** Drops the click that closed such a card. */
   guard: ReturnType<typeof useOutsidePressGuard>['guard'];
   /** Control points of an editable version previewed over an import: shown, never moved. */
   previewPoints?: readonly { lat: number; lng: number }[] | null;
@@ -47,7 +47,7 @@ interface Options {
  * after a point went in. A click places a point only while the tool is on,
  * only when it was a click and not a drag, and never when it closed a card.
  */
-export function useTourMapPoints({ tourPlanner, canPlaceEdit, mode, ferrataOpen, guard, previewPoints }: Options) {
+export function useTourMapPoints({ tourPlanner, canPlaceEdit, mode, cardOpen, guard, previewPoints }: Options) {
   const { t } = useTranslation();
   const editing = tourPlanner.mode.type === 'new-draft' || tourPlanner.mode.type === 'edit-saved';
   // The same lookup as the waypoint list, so a pin is named on hover as its row is.
@@ -59,7 +59,7 @@ export function useTourMapPoints({ tourPlanner, canPlaceEdit, mode, ferrataOpen,
     waypoints: tourPlanner.waypoints,
     difficulty: tourPlanner.maxHikingDifficulty,
     undo: tourPlanner.undo,
-    enabled: editing && !ferrataOpen,
+    enabled: editing && !cardOpen,
   });
   const { notePlacement } = placedHint;
   const { addWaypoint } = tourPlanner;

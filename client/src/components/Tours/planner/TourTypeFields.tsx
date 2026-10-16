@@ -4,7 +4,7 @@ import {
   type PaddleWaterContext,
   type PlannableTourType,
 } from '@trek/shared';
-import { AlertTriangle, Info, Mountain, Waves } from 'lucide-react';
+import { Info, Mountain, Waves } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from '../../../i18n';
 import { SoftPill } from '../../Planner/planParts';

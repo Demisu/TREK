@@ -274,8 +274,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': 'ใส่ความเร็วระหว่าง 0.5 ถึง 20 กม./ชม.',
   'tours.paddle.chooseBoat': 'เลือกเรือและแหล่งน้ำเพื่อบันทึกทริปพายเรือนี้',
   'tours.paddle.chooseBoatImport': 'เลือกเรือและแหล่งน้ำเพื่อนำเข้าเป็นทริปพายเรือ',
-  'tours.paddle.noWaterData':
-    'TREK ยังไม่แสดงฝาย ประตูน้ำ หรือจุดแบกเรือ โปรดตรวจสอบแหล่งน้ำและกฎด้วยตัวเองก่อนออกเดินทาง',
   'tours.paddle.drawnByHand':
     'ทริปพายเรือวาดด้วยมือ: TREK เชื่อมจุดของคุณด้วยเส้นตรง ไม่มีการคำนวณเส้นทาง และไม่มีอะไรบอกว่าแหล่งน้ำพายผ่านได้',
   'tours.paddle.timeEstimated': 'เวลาพาย (โดยประมาณ)',

@@ -298,8 +298,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': 'Saisissez une vitesse de 0,5 à 20 km/h.',
   'tours.paddle.chooseBoat': 'Choisissez l’embarcation et le plan d’eau pour enregistrer cette sortie.',
   'tours.paddle.chooseBoatImport': 'Choisissez l’embarcation et le plan d’eau pour importer en sortie en pagaie.',
-  'tours.paddle.noWaterData':
-    'TREK n’affiche pas encore les barrages, écluses ni portages. Vérifiez vous-même le plan d’eau et ses règles avant de partir.',
   'tours.paddle.drawnByHand':
     'Une sortie en pagaie se trace à la main : TREK relie vos points en lignes droites. Rien n’est calculé, et rien ne dit que l’eau est navigable.',
   'tours.paddle.timeEstimated': 'Temps de pagaie (estimé)',

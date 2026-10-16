@@ -289,8 +289,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': 'Sisesta kiirus vahemikus 0,5 kuni 20 km/h.',
   'tours.paddle.chooseBoat': 'Vali paat ja veekogu, et see matk salvestada.',
   'tours.paddle.chooseBoatImport': 'Vali paat ja veekogu, et importida aerutamismatkana.',
-  'tours.paddle.noWaterData':
-    'TREK ei näita veel paise, lüüse ega ülekandekohti. Kontrolli enne teele asumist veekogu ja selle reegleid ise.',
   'tours.paddle.drawnByHand':
     'Aerutamismatk joonistatakse käsitsi: TREK ühendab sinu punktid sirgjoontega. Midagi ei marsruudita ja miski ei ütle, et vesi on läbitav.',
   'tours.paddle.timeEstimated': 'Aerutamisaeg (hinnanguline)',

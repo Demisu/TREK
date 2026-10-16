@@ -69,10 +69,7 @@ function TrackMarksCard({ plan }: { plan: TrackPaddlePlan }) {
   const pick = (kind: TrackPick) => () => plan.startPick(kind);
   const empty = plan.marks.portages.length === 0 && plan.marks.locks.length === 0;
   return (
-    <RailCard
-      icon={<PaddleGlyph kind="portage" size={14} />}
-      title={t('tours.paddle.marks.title')}
-    >
+    <RailCard icon={<PaddleGlyph kind="portage" size={14} />} title={t('tours.paddle.marks.title')}>
       <div data-testid="track-marks-card" className="flex flex-col gap-2.5">
         {plan.canEdit && (
           <div className="flex gap-1.5">
@@ -97,7 +94,10 @@ function TrackMarksCard({ plan }: { plan: TrackPaddlePlan }) {
           </div>
         )}
         {hint && (
-          <TourNotice tone={plan.refused ? 'warning' : 'neutral'} icon={<MousePointerClick size={13} strokeWidth={2} />}>
+          <TourNotice
+            tone={plan.refused ? 'warning' : 'neutral'}
+            icon={<MousePointerClick size={13} strokeWidth={2} />}
+          >
             {hint}
           </TourNotice>
         )}

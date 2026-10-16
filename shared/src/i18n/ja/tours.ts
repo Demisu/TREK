@@ -280,8 +280,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': '0.5〜20 km/h の速度を入力してください。',
   'tours.paddle.chooseBoat': 'このパドルツアーを保存するには、ボートと水域を選んでください。',
   'tours.paddle.chooseBoatImport': 'パドルツアーとして取り込むには、ボートと水域を選んでください。',
-  'tours.paddle.noWaterData':
-    'TREK はまだ堰、閘門、陸上運搬区間を表示しません。出発前に水域とそのルールをご自身で確認してください。',
   'tours.paddle.drawnByHand':
     'パドルツアーは手で描きます。TREK はポイントを直線で結ぶだけで、ルート計算はせず、その水域を漕げることも示しません。',
   'tours.paddle.timeEstimated': 'パドル時間（推定）',

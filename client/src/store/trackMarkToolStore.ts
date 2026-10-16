@@ -53,7 +53,11 @@ export const useTrackMarkToolStore = create<TrackMarkToolState>(() => initial())
 
 const set = useTrackMarkToolStore.setState;
 
-export function loadTrackMarks(placeId: number | null, marks: TrackMarks | null | undefined, speeds: TrackSpeeds): void {
+export function loadTrackMarks(
+  placeId: number | null,
+  marks: TrackMarks | null | undefined,
+  speeds: TrackSpeeds
+): void {
   set({ ...initial(), placeId, marks: marks ?? NO_TRACK_MARKS, speeds });
 }
 

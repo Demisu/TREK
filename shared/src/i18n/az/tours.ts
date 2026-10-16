@@ -287,8 +287,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': '0,5 ilə 20 km/saat arasında sürət daxil et.',
   'tours.paddle.chooseBoat': 'Bu avarlı turu yadda saxlamaq üçün qayığı və suyu seç.',
   'tours.paddle.chooseBoatImport': 'Avarlı tur kimi idxal etmək üçün qayığı və suyu seç.',
-  'tours.paddle.noWaterData':
-    'TREK hələ bəndləri, şlüzləri və daşıma yerlərini göstərmir. Yola çıxmazdan əvvəl suyu və qaydalarını özün yoxla.',
   'tours.paddle.drawnByHand':
     'Avarlı tur əllə çəkilir: TREK nöqtələrini düz xətlərlə birləşdirir. Heç nə marşrutlaşdırılmır və heç nə suyun keçilə bilən olduğunu demir.',
   'tours.paddle.timeEstimated': 'Avar vaxtı (təxmini)',

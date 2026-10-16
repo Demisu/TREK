@@ -294,8 +294,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': 'Vul een tempo van 0,5 tot 20 km/h in.',
   'tours.paddle.chooseBoat': 'Kies boot en water om deze peddeltocht op te slaan.',
   'tours.paddle.chooseBoatImport': 'Kies boot en water om als peddeltocht te importeren.',
-  'tours.paddle.noWaterData':
-    'TREK toont nog geen stuwen, sluizen of overdraagplaatsen. Controleer het water en de regels zelf voor je vertrekt.',
   'tours.paddle.drawnByHand':
     'Een peddeltocht teken je met de hand: TREK verbindt je punten met rechte lijnen. Er wordt niets gerouteerd en niets zegt dat het water bevaarbaar is.',
   'tours.paddle.timeEstimated': 'Peddeltijd (geschat)',

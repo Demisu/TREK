@@ -300,8 +300,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': 'Введіть швидкість від 0,5 до 20 км/год.',
   'tours.paddle.chooseBoat': 'Виберіть човен і водойму, щоб зберегти цей сплав.',
   'tours.paddle.chooseBoatImport': 'Виберіть човен і водойму, щоб імпортувати як сплав.',
-  'tours.paddle.noWaterData':
-    'TREK поки не показує греблі, шлюзи й обноси. Перед виходом самі перевірте водойму та правила на ній.',
   'tours.paddle.drawnByHand':
     'Сплав малюється вручну: TREK з’єднує ваші точки прямими лініями. Нічого не прокладається, і ніщо не каже, що водою можна пройти.',
   'tours.paddle.timeEstimated': 'Час на воді (оцінка)',

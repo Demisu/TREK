@@ -286,8 +286,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': 'Masukkan kecepatan dari 0,5 hingga 20 km/jam.',
   'tours.paddle.chooseBoat': 'Pilih perahu dan perairan untuk menyimpan tur dayung ini.',
   'tours.paddle.chooseBoatImport': 'Pilih perahu dan perairan untuk mengimpor sebagai tur dayung.',
-  'tours.paddle.noWaterData':
-    'TREK belum menampilkan bendung, pintu air, atau titik angkut. Periksa sendiri perairan dan aturannya sebelum berangkat.',
   'tours.paddle.drawnByHand':
     'Tur dayung digambar dengan tangan: TREK menghubungkan titik-titikmu dengan garis lurus. Tidak ada yang dirutekan, dan tidak ada yang menyatakan perairan bisa didayung.',
   'tours.paddle.timeEstimated': 'Waktu mendayung (perkiraan)',

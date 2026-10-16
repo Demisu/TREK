@@ -80,7 +80,11 @@ describe('trackMarkToolStore', () => {
   });
 
   it('says why a click placed nothing: off the line, or on a portage already there', () => {
-    loadTrackMarks(7, { portages: [{ from_m: 100, to_m: 500, extra_minutes: null }], locks: [] }, { paddle: null, portage: null });
+    loadTrackMarks(
+      7,
+      { portages: [{ from_m: 100, to_m: 500, extra_minutes: null }], locks: [] },
+      { paddle: null, portage: null }
+    );
     startTrackPick('portage');
     refuseTrackPick();
     expect(useTrackMarkToolStore.getState().refused).toBe('off_line');

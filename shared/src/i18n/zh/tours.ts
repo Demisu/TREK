@@ -265,7 +265,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': '请输入 0.5 至 20 km/h 之间的速度。',
   'tours.paddle.chooseBoat': '请选择船只和水域以保存此划桨路线。',
   'tours.paddle.chooseBoatImport': '请选择船只和水域以导入为划桨路线。',
-  'tours.paddle.noWaterData': 'TREK 暂不显示堰坝、船闸或陆上搬运点。出发前请自行确认水域及其规定。',
   'tours.paddle.drawnByHand': '划桨路线需手动绘制：TREK 用直线连接你的点，不做路线规划，也不表示该水域可以通行。',
   'tours.paddle.timeEstimated': '划桨用时（估算）',
   'tours.paddle.timeEstimatedShort': '划桨',

@@ -5,16 +5,7 @@ import type { PaddleObstacleKind } from '@trek/shared';
  * React glyph and the map markers (Leaflet takes markup, not components).
  */
 export type PaddleGlyphKind =
-  | 'lock'
-  | 'weir'
-  | 'dam'
-  | 'rapids'
-  | 'waterfall'
-  | 'put_in'
-  | 'take_out'
-  | 'portage'
-  | 'hazard'
-  | 'access';
+  'lock' | 'weir' | 'dam' | 'rapids' | 'waterfall' | 'put_in' | 'take_out' | 'portage' | 'hazard' | 'access';
 
 const WAVE = 'M3 18c1.5-1.5 3-1.5 4.5 0s3 1.5 4.5 0 3-1.5 4.5 0 3 1.5 4.5 0';
 

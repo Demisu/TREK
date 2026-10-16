@@ -83,7 +83,11 @@ export function useTrackPaddlePlan({ tripId, planner, canEdit, onSaved }: TrackP
     if (!paddleTour || saving || !canEdit) return;
     setSaving(true);
     try {
-      const body = { paddle_speed_kmh: state.speeds.paddle, portage_speed_kmh: state.speeds.portage, track_marks: state.marks };
+      const body = {
+        paddle_speed_kmh: state.speeds.paddle,
+        portage_speed_kmh: state.speeds.portage,
+        track_marks: state.marks,
+      };
       const result = await tourRepo.updatePaddlePlan(tripId, paddleTour.place_id, body);
       markTrackMarksSaved(result.tour.track_marks, {
         paddle: result.tour.paddle_speed_kmh ?? null,

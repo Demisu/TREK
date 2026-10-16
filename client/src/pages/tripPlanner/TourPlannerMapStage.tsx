@@ -1,7 +1,7 @@
 import type { FerrataBbox } from '@trek/shared';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState, type ReactElement } from 'react';
-import FerrataDetailOverlay from '../../components/Ferratas/FerrataDetailOverlay';
 import { crossingLegs, waypointsAtFerrataEnds } from '../../components/Ferratas/ferrataCrossings';
+import FerrataDetailOverlay from '../../components/Ferratas/FerrataDetailOverlay';
 import { ferrataLabel, type FerrataGroup } from '../../components/Ferratas/ferrataGroups';
 import { useFerrataMapLayer } from '../../components/Ferratas/useFerrataMapLayer';
 import { useOutsidePressGuard } from '../../components/Ferratas/useOutsidePressGuard';
@@ -9,13 +9,15 @@ import { MAP_LAYER_SWITCHER_INSET, MAP_ROUND_CONTROL_SIZE } from '../../componen
 import { MapUndoHint } from '../../components/Map/MapUndoHint';
 import { MapViewAuto as MapView } from '../../components/Map/MapViewAuto';
 import LocationSelect from '../../components/Planner/LocationSelect';
+import PaddleObstacleOverlay from '../../components/Tours/paddle/PaddleObstacleOverlay';
 import type { TerrainLegendLayout } from '../../components/Tours/terrain/TourTerrainMap';
 import { isRtlLanguage, useTranslation } from '../../i18n';
+import { usePaddleObstacleStore } from '../../store/paddleObstacleStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { publishTourFerrataCrossings } from '../../store/tourFerrataCrossingStore';
-import { useFerrataAdopt } from './useFerrataAdopt';
 import { pickOnTrack, refuseTrackPick, useTrackMarkToolStore } from '../../store/trackMarkToolStore';
 import { projectOntoTrack, TRACK_PICK_TOLERANCE_M } from '../../utils/paddleTrackMarks';
+import { useFerrataAdopt } from './useFerrataAdopt';
 import { useTourMapPoints } from './useTourMapPoints';
 import { useTourStageLayers } from './useTourStageLayers';
 import type { useTripPlanner } from './useTripPlanner';
@@ -128,8 +130,9 @@ export function TourPlannerMapStage({
     );
   }, [analysis, ferrataCrossings, tourWaypoints, translate]);
   useEffect(() => () => publishTourFerrataCrossings([]), []);
-  // The click that closes a ferrata's card must not also add a waypoint under it.
+  // The click that closes a ferrata's or a paddle obstacle's card must not also add a waypoint under it.
   const closingPress = useOutsidePressGuard();
+  const paddleOpen = usePaddleObstacleStore((state) => state.selectedRef !== null);
   const adoptFerrata = useFerrataAdopt(tourPlanner, canPlaceEdit, ferrata.close);
   const ferrataOnTour = useMemo(() => new Set(ferrataCrossings.map(({ group }) => group.id)), [ferrataCrossings]);
   const distanceUnit = useSettingsStore((s) => s.settings.distance_unit);
@@ -138,7 +141,7 @@ export function TourPlannerMapStage({
     tourPlanner,
     canPlaceEdit,
     mode: terrain3d ? '3d' : '2d',
-    ferrataOpen: !!ferrataSelected,
+    cardOpen: !!ferrataSelected || paddleOpen,
     guard: closingPress.guard,
     previewPoints: tourMap.previewPoints,
   });
@@ -147,13 +150,15 @@ export function TourPlannerMapStage({
   const trackPick = useTrackMarkToolStore((state) => state.pick);
   const trackLine = tourPlanner.mode.type === 'view-gpx' ? analysis?.routeCoordinates : null;
   const pickOnLine = canPlaceEdit && trackPick !== null && !!trackLine?.length;
-  const onTrackClick = pickOnLine
-    ? (lat: number, lng: number) => {
-        const projected = projectOntoTrack(trackLine, { lat, lng });
-        if (!projected || projected.offM > TRACK_PICK_TOLERANCE_M) refuseTrackPick();
-        else pickOnTrack(projected.atM);
-      }
-    : undefined;
+  const onTrackClick = closingPress.guard(
+    pickOnLine
+      ? (lat: number, lng: number) => {
+          const projected = projectOntoTrack(trackLine, { lat, lng });
+          if (!projected || projected.offM > TRACK_PICK_TOLERANCE_M) refuseTrackPick();
+          else pickOnTrack(projected.atM);
+        }
+      : undefined
+  );
   const onAddOrMark = onAdd ?? onTrackClick;
   // What each panel covers of the map, a collapsed one its rail.
   const leftInset = leftHidden ? 56 : leftPanelPx;
@@ -235,6 +240,11 @@ export function TourPlannerMapStage({
         {...ferrataCardPlacement(terrain3d, bottomRowTop, terrainLegend)}
         onAdopt={adoptFerrata}
         onTourIds={ferrataOnTour}
+      />
+      <PaddleObstacleOverlay
+        onOutsidePress={closingPress.arm}
+        insetEnd={(isRtlLanguage(language) ? leftInset : rightInset) + MAP_LAYER_SWITCHER_INSET}
+        {...ferrataCardPlacement(terrain3d, bottomRowTop, terrainLegend)}
       />
       {/* "Point set", with the way back, above the bottom row and between the panels. */}
       {placedHint.shown && (

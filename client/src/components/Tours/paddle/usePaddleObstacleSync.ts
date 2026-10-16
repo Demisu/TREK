@@ -1,4 +1,4 @@
-import { relateObstaclesToRoute, type PaddleCoverageState } from '@trek/shared';
+import { measuredRouteLengthM, relateObstaclesToRoute, type PaddleCoverageState } from '@trek/shared';
 import { useEffect, useMemo, useState } from 'react';
 import {
   PaddleObstaclesOfflineError,
@@ -7,7 +7,11 @@ import {
   type PaddleObstaclesAround,
   type Tile,
 } from '../../../repo/paddleObstacleRepo';
-import { clearPaddleObstacles, publishPaddleObstacles, type PaddleObstacleStatus } from '../../../store/paddleObstacleStore';
+import {
+  clearPaddleObstacles,
+  publishPaddleObstacles,
+  type PaddleObstacleStatus,
+} from '../../../store/paddleObstacleStore';
 
 type Line = readonly (readonly [number, number])[];
 
@@ -59,6 +63,7 @@ export function usePaddleObstacleSync(line: Line | null, active: boolean) {
     () => (current?.data && line ? relateObstaclesToRoute(line, current.data.features) : []),
     [current, line]
   );
+  const routeLengthM = useMemo(() => (line ? measuredRouteLengthM(line) : 0), [line]);
 
   useEffect(() => {
     if (!key) {
@@ -70,11 +75,12 @@ export function usePaddleObstacleSync(line: Line | null, active: boolean) {
       status: current?.status ?? 'loading',
       features: current?.data?.features ?? [],
       related,
+      routeLengthM,
       coverage,
       regions: current?.data?.regions ?? [],
       truncated: current?.data?.truncated ?? false,
     });
-  }, [current, key, related]);
+  }, [current, key, related, routeLengthM]);
 
   useEffect(() => () => clearPaddleObstacles(), []);
 }

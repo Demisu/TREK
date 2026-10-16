@@ -1,6 +1,7 @@
 import { PaddleFeatures } from '../../db/entities/PaddleFeatures.entity';
 import { PaddleRegions } from '../../db/entities/PaddleRegions.entity';
 import { AddonsModule } from '../addons/addons.module';
+import { AuditModule } from '../audit/audit.module';
 import { SchedulingModule } from '../scheduling/scheduling.module';
 import { GeofabrikClient } from './geofabrik.client';
 import { PaddleObstaclesController, PaddleRegionsController } from './paddle-obstacles.controller';
@@ -17,7 +18,7 @@ import { Module } from '@nestjs/common';
  * domain's route checks (PAD-06, PAD-09).
  */
 @Module({
-  imports: [AddonsModule, SchedulingModule, MikroOrmModule.forFeature([PaddleRegions, PaddleFeatures])],
+  imports: [AddonsModule, AuditModule, SchedulingModule, MikroOrmModule.forFeature([PaddleRegions, PaddleFeatures])],
   controllers: [PaddleObstaclesController, PaddleRegionsController],
   providers: [GeofabrikClient, PaddleObstaclesService, PaddleRegionsService, PaddleRegionsJob],
   exports: [PaddleObstaclesService],

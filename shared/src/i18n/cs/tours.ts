@@ -287,8 +287,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': 'Zadejte rychlost od 0,5 do 20 km/h.',
   'tours.paddle.chooseBoat': 'Vyberte loď a vodu, abyste mohli tuto túru uložit.',
   'tours.paddle.chooseBoatImport': 'Vyberte loď a vodu pro import jako vodácké túry.',
-  'tours.paddle.noWaterData':
-    'TREK zatím nezobrazuje jezy, zdymadla ani přenášky. Před vyplutím si vodu a pravidla ověřte sami.',
   'tours.paddle.drawnByHand':
     'Vodácká túra se kreslí ručně: TREK spojí vaše body přímými čarami. Nic se nepočítá a nic neříká, že je voda sjízdná.',
   'tours.paddle.timeEstimated': 'Čas na vodě (odhad)',

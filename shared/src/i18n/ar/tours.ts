@@ -298,8 +298,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': 'أدخل سرعة بين 0.5 و20 كم/س.',
   'tours.paddle.chooseBoat': 'اختر القارب والمسطح المائي لحفظ جولة التجديف هذه.',
   'tours.paddle.chooseBoatImport': 'اختر القارب والمسطح المائي للاستيراد كجولة تجديف.',
-  'tours.paddle.noWaterData':
-    'لا يعرض TREK بعد السدود الصغيرة والأهوسة ونقاط حمل القارب. تحقق بنفسك من الماء وقواعده قبل الانطلاق.',
   'tours.paddle.drawnByHand':
     'تُرسم جولة التجديف يدويًا: يصل TREK نقاطك بخطوط مستقيمة. لا يُحسب أي مسار، ولا شيء يقول إن الماء صالح للتجديف.',
   'tours.paddle.timeEstimated': 'وقت التجديف (تقديري)',

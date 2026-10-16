@@ -1,11 +1,12 @@
 import { useCallback, useMemo } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import { paddleMapItems } from '../../components/Tours/paddle/paddleMapLayer';
-import { selectPaddleObstacle, usePaddleObstacleStore } from '../../store/paddleObstacleStore';
 import type { useFerrataMapLayer } from '../../components/Ferratas/useFerrataMapLayer';
+import { paddleMapItems } from '../../components/Tours/paddle/paddleMapLayer';
+import { usePaddlePaint } from '../../components/Tours/paddle/paddlePaint';
 import type { TourPlannerController } from '../../components/Tours/planner/useTourPlanner';
 import { baseLayerFor, SEAMARK_OVERLAY, tourMapLayersFor } from '../../components/Tours/tourMapLayers';
 import { useTourRasterOverlay } from '../../components/Tours/useTourRasterOverlay';
+import { selectPaddleObstacle, usePaddleObstacleStore } from '../../store/paddleObstacleStore';
 
 const NO_CROSSINGS: never[] = [];
 
@@ -38,7 +39,8 @@ export function useTourStageLayers(
   const { features, related, selectedRef } = usePaddleObstacleStore(
     useShallow((state) => ({ features: state.features, related: state.related, selectedRef: state.selectedRef }))
   );
-  const paddleItems = useMemo(() => paddleMapItems(features, related), [features, related]);
+  const paddlePaint = usePaddlePaint();
+  const paddleItems = useMemo(() => paddleMapItems(features, related, paddlePaint), [features, related, paddlePaint]);
   const paddle = useMemo(
     () => (paddleItems.length ? { items: paddleItems, selectedRef, onSelect: selectPaddleObstacle } : undefined),
     [paddleItems, selectedRef]

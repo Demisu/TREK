@@ -135,7 +135,9 @@ export function alignFreeLegs<T extends RoutePoint>(points: readonly T[], allFre
     }
     return {
       ...kept,
-      fixedLeg: isPortage(leg) ? portageLegBetween(point, next, leg.extra_minutes ?? null) : freeLegBetween(point, next),
+      fixedLeg: isPortage(leg)
+        ? portageLegBetween(point, next, leg.extra_minutes ?? null)
+        : freeLegBetween(point, next),
     };
   });
   return allFree ? extrasOnFirstLeg(aligned) : aligned;
@@ -170,7 +172,9 @@ export function setPortageExtraMinutes<T extends RoutePoint>(
   minutes: number | null
 ): T[] {
   return points.map((point) =>
-    point.id === id && isPortage(point.fixedLeg) ? { ...point, fixedLeg: { ...point.fixedLeg, extra_minutes: minutes } } : point
+    point.id === id && isPortage(point.fixedLeg)
+      ? { ...point, fixedLeg: { ...point.fixedLeg, extra_minutes: minutes } }
+      : point
   );
 }
 

@@ -264,7 +264,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': '請輸入 0.5 至 20 km/h 之間的速度。',
   'tours.paddle.chooseBoat': '請選擇船隻和水域以儲存此划槳行程。',
   'tours.paddle.chooseBoatImport': '請選擇船隻和水域以匯入為划槳行程。',
-  'tours.paddle.noWaterData': 'TREK 尚未顯示堰壩、船閘或陸上搬運點。出發前請自行確認水域及其規定。',
   'tours.paddle.drawnByHand': '划槳行程需手動繪製：TREK 以直線連接你的點，不進行路線規劃，也不表示該水域可以通行。',
   'tours.paddle.timeEstimated': '划槳時間（估算）',
   'tours.paddle.timeEstimatedShort': '划槳',

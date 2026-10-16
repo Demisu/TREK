@@ -54,11 +54,16 @@ function crosses(a: Local, b: Local, c: Local, d: Local): number | null {
   return t >= 0 && t <= 1 && u >= 0 && u <= 1 ? t : null;
 }
 
-/** The rings of an object: a point is one ring of one point, a line one open ring, an area its outline and holes. */
-function ringsOf(geometry: PaddleGeometry): ReadonlyArray<ReadonlyArray<readonly [number, number]>> {
-  if (geometry.type === 'Point') return [[geometry.coordinates, geometry.coordinates]];
-  if (geometry.type === 'LineString') return [geometry.coordinates];
-  return geometry.coordinates;
+/**
+ * The rings of an object: a point is one ring of one point, a line one open
+ * ring, an area its outline and holes. Read as plain numbers, since the client
+ * compiles this without strict mode, where the schema's pairs are "maybe two".
+ */
+function ringsOf(geometry: PaddleGeometry): Array<Array<readonly [number, number]>> {
+  const pair = (position: readonly unknown[]): readonly [number, number] => [Number(position[0]), Number(position[1])];
+  if (geometry.type === 'Point') return [[pair(geometry.coordinates), pair(geometry.coordinates)]];
+  if (geometry.type === 'LineString') return [geometry.coordinates.map(pair)];
+  return geometry.coordinates.map((ring) => ring.map(pair));
 }
 
 function segmentsOf(rings: ReadonlyArray<readonly Local[]>): Array<[Local, Local]> {
@@ -154,6 +159,29 @@ function closestApproach(
   return best;
 }
 
+/** The flat view of a route and the distance along it at each point, as the relations measure it. */
+function measured(route: readonly LatLng[]): { path: Local[]; along: number[] } {
+  const project = projector(route[0]?.[0] ?? 0);
+  const path = route.map(([lat, lng]) => project(lat, lng));
+  const along: number[] = [0];
+  for (let i = 1; i < path.length; i++) {
+    const a = path[i - 1] as Local;
+    const b = path[i] as Local;
+    along.push((along[i - 1] ?? 0) + Math.hypot(b.x - a.x, b.y - a.y));
+  }
+  return { path, along };
+}
+
+/**
+ * The length of a route as the relations measure along it, in metres: what
+ * their `alongM` is a part of, so a view that draws the route at another
+ * scale places an obstacle by its share of this length.
+ */
+export function measuredRouteLengthM(route: readonly LatLng[]): number {
+  const { along } = measured(route);
+  return along[along.length - 1] ?? 0;
+}
+
 /**
  * The obstacles on or near a route, in the order the route reaches them. The
  * route is `[lat, lng]` pairs as the planner draws it; an empty or one-point
@@ -167,13 +195,7 @@ export function relateObstaclesToRoute(
 ): RelatedObstacle[] {
   if (route.length < 2) return [];
   const project = projector(route[0]?.[0] ?? 0);
-  const path = route.map(([lat, lng]) => project(lat, lng));
-  const along: number[] = [0];
-  for (let i = 1; i < path.length; i++) {
-    const a = path[i - 1] as Local;
-    const b = path[i] as Local;
-    along.push((along[i - 1] ?? 0) + Math.hypot(b.x - a.x, b.y - a.y));
-  }
+  const { path, along } = measured(route);
   const routeBounds = boundsOf(path, NEAR_M);
   const related: RelatedObstacle[] = [];
   for (const feature of features) {

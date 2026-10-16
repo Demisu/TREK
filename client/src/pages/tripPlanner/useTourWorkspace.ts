@@ -1,8 +1,8 @@
 import type { TourListItem } from '@trek/shared';
 import { useCallback } from 'react';
 import { useGpxConversion } from '../../components/Tours/conversion/useGpxConversion';
-import { useTourPlanner } from '../../components/Tours/planner/useTourPlanner';
 import { useTrackPaddlePlan } from '../../components/Tours/paddle/useTrackPaddlePlan';
+import { useTourPlanner } from '../../components/Tours/planner/useTourPlanner';
 import { useRecordedTrack } from '../../components/Tours/useRecordedTrack';
 import { useTourGpxImport } from '../../components/Tours/useTourGpxImport';
 import { useWandererBrowser } from '../../components/Tours/wanderer/useWandererBrowser';

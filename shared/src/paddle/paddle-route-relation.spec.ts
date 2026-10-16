@@ -1,5 +1,5 @@
 import type { PaddleFeature, PaddleGeometry } from './paddle-obstacles.schema';
-import { NEAR_M, ON_ROUTE_M, relateObstaclesToRoute } from './paddle-route-relation';
+import { measuredRouteLengthM, NEAR_M, ON_ROUTE_M, relateObstaclesToRoute } from './paddle-route-relation';
 
 import { describe, expect, it } from 'vitest';
 
@@ -90,5 +90,13 @@ describe('relateObstaclesToRoute', () => {
   it('an object on the next arm of the river, 120 m off, stays near and so uncertain', () => {
     const otherArm = feature('way/11', { type: 'LineString', coordinates: [lngLat(100, 500), lngLat(160, 500)] });
     expect(relateObstaclesToRoute(route, [otherArm])[0]).toMatchObject({ relation: 'near', distanceM: 100 });
+  });
+});
+
+describe('measuredRouteLengthM', () => {
+  it('measures the route the way its relations do', () => {
+    expect(measuredRouteLengthM(route)).toBeCloseTo(2000, 0);
+    expect(measuredRouteLengthM([at(0, 0)])).toBe(0);
+    expect(measuredRouteLengthM([])).toBe(0);
   });
 });

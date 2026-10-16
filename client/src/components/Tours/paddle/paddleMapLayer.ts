@@ -1,5 +1,6 @@
-import type { PaddleFeature, PaddleObstacleKind, RelatedObstacle } from '@trek/shared';
+import type { PaddleFeature, RelatedObstacle } from '@trek/shared';
 import { OBSTACLE_GLYPH, PADDLE_GLYPH_PATHS, paddleGlyphSvg, type PaddleGlyphKind } from './paddleGlyphPaths';
+import { paddleKindPaint, type PaddlePaint } from './paddlePaint';
 
 /**
  * PAD-05B: the paddle obstacles as the planner maps draw them, one model for
@@ -10,34 +11,15 @@ import { OBSTACLE_GLYPH, PADDLE_GLYPH_PATHS, paddleGlyphSvg, type PaddleGlyphKin
  */
 
 export type PaddleMapRelation = 'on_route' | 'near' | 'area';
-type Category = 'obstacle' | 'access' | 'landing' | 'portage';
-
-const CATEGORY: Record<PaddleObstacleKind, Category> = {
-  weir: 'obstacle',
-  dam: 'obstacle',
-  lock: 'obstacle',
-  lock_gate: 'obstacle',
-  waterfall: 'obstacle',
-  rapids: 'obstacle',
-  hazard: 'obstacle',
-  access: 'access',
-  put_in: 'landing',
-  egress: 'landing',
-  slipway: 'landing',
-  portage: 'portage',
-};
-
-export const CATEGORY_COLOR: Record<Category, string> = {
-  obstacle: '#334155', // theme-lint-disable map colour
-  access: '#4338ca', // theme-lint-disable map colour
-  landing: '#0f766e', // theme-lint-disable map colour
-  portage: '#9a6233', // theme-lint-disable map colour
-};
 
 export interface PaddleMapItem {
   feature: PaddleFeature;
   relation: PaddleMapRelation;
+  /** Its kind's colour, resolved for map paint. */
   color: string;
+  /** The marker's disc and the lines' casing, in the map's own white (or dark). */
+  disc: string;
+  shadow: string;
   glyph: PaddleGlyphKind;
   /** Where its marker sits: the point itself, or the middle of its line. */
   marker: [number, number];
@@ -65,19 +47,46 @@ function markerOf(feature: PaddleFeature, line: [number, number][] | null): [num
 }
 
 /** The items to draw: the related ones as they stand to the route, the rest of the area quietly. */
-export function paddleMapItems(features: readonly PaddleFeature[], related: readonly RelatedObstacle[]): PaddleMapItem[] {
+export function paddleMapItems(
+  features: readonly PaddleFeature[],
+  related: readonly RelatedObstacle[],
+  paint: PaddlePaint
+): PaddleMapItem[] {
   const relations = new Map(related.map((entry) => [entry.feature.ref, entry.relation]));
   return features.map((feature) => {
     const line = lineOf(feature);
     return {
       feature,
       relation: relations.get(feature.ref) ?? 'area',
-      color: CATEGORY_COLOR[CATEGORY[feature.kind]],
+      color: paddleKindPaint(feature.kind, paint),
+      disc: paint.disc,
+      shadow: paint.shadow,
       glyph: OBSTACLE_GLYPH[feature.kind],
       marker: markerOf(feature, line),
       line,
     };
   });
+}
+
+/**
+ * Objects that are only in the area show from this zoom on, on Leaflet and GL
+ * alike, so an overview of a long tour stays calm; the ones on or near the
+ * route always show, and so does a picked one.
+ */
+export const PADDLE_AREA_MIN_ZOOM = 13;
+
+/** Whether an item is drawn as one of the area's quiet objects, which wait for PADDLE_AREA_MIN_ZOOM. */
+export function isAreaOnly(item: PaddleMapItem, selectedRef: string | null): boolean {
+  return item.relation === 'area' && item.feature.ref !== selectedRef;
+}
+
+/** The items a map at `zoom` shows. */
+export function paddleItemsAtZoom(
+  items: readonly PaddleMapItem[],
+  zoom: number,
+  selectedRef: string | null
+): PaddleMapItem[] {
+  return zoom >= PADDLE_AREA_MIN_ZOOM ? [...items] : items.filter((item) => !isAreaOnly(item, selectedRef));
 }
 
 /** The marker's size in pixels by how it stands to the route; a selected one is larger still. */
@@ -97,7 +106,7 @@ export function paddleMarkerHtml(item: PaddleMapItem, selected: boolean): string
   const dash = item.relation === 'near' && !selected ? 'dashed' : 'solid';
   const opacity = item.relation === 'area' && !selected ? 0.6 : 1;
   const glyph = paddleGlyphSvg(item.glyph, Math.round(size * 0.58), item.color);
-  const style = `width:${size}px;height:${size}px;border-radius:9999px;background:#fff;border:${ring}px ${dash} ${item.color};box-shadow:0 1px 3px rgba(15,23,42,.35);display:grid;place-items:center;box-sizing:border-box;opacity:${opacity}`; // theme-lint-disable map marker on the map's own white
+  const style = `width:${size}px;height:${size}px;border-radius:9999px;background:${item.disc};border:${ring}px ${dash} ${item.color};box-shadow:0 1px 3px ${item.shadow};display:grid;place-items:center;box-sizing:border-box;opacity:${opacity}`;
   return `<div style="${style}">${glyph}</div>`;
 }
 
@@ -117,12 +126,13 @@ export function paddleMarkerSvg(item: PaddleMapItem, selected: boolean): string 
   const paths = PADDLE_GLYPH_PATHS[item.glyph].map((d) => `<path d="${d}"/>`).join('');
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" opacity="${opacity}">` +
-    `<circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="#fff" stroke="${item.color}" stroke-width="${ring}"${dash}/>` + // theme-lint-disable marker disc
+    `<circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="${item.disc}" stroke="${item.color}" stroke-width="${ring}"${dash}/>` +
     `<svg x="${offset}" y="${offset}" width="${glyph}" height="${glyph}" viewBox="0 0 24 24" fill="none" stroke="${item.color}" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">${paths}</svg></svg>`
   );
 }
 
-/** The name of a marker's image on a GL map, one per look. */
+/** The name of a marker's image on a GL map, one per look; a theme change draws new ones. */
 export function paddleMarkerImageId(item: PaddleMapItem, selected: boolean): string {
-  return `trek-paddle-${item.glyph}-${item.color.slice(1)}-${item.relation}${selected ? '-sel' : ''}`;
+  const tint = `${item.color}-${item.disc}`.replace(/[^a-z0-9]/gi, '');
+  return `trek-paddle-${item.glyph}-${tint}-${item.relation}${selected ? '-sel' : ''}`;
 }

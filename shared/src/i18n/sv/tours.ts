@@ -285,8 +285,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': 'Ange ett tempo från 0,5 till 20 km/h.',
   'tours.paddle.chooseBoat': 'Välj båt och vatten för att spara paddelturen.',
   'tours.paddle.chooseBoatImport': 'Välj båt och vatten för att importera som paddeltur.',
-  'tours.paddle.noWaterData':
-    'TREK visar ännu inte dammar, slussar eller lyft. Kontrollera vattnet och dess regler själv innan du ger dig av.',
   'tours.paddle.drawnByHand':
     'En paddeltur ritas för hand: TREK förbinder dina punkter med raka linjer. Inget ruttas, och inget säger att vattnet går att paddla.',
   'tours.paddle.timeEstimated': 'Paddeltid (uppskattad)',

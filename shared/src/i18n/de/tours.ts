@@ -295,8 +295,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': 'Gib ein Tempo von 0,5 bis 20 km/h ein.',
   'tours.paddle.chooseBoat': 'Wähle Boot und Gewässer, um diese Paddeltour zu speichern.',
   'tours.paddle.chooseBoatImport': 'Wähle Boot und Gewässer, um als Paddeltour zu importieren.',
-  'tours.paddle.noWaterData':
-    'Wehre, Schleusen und Umtragestellen zeigt TREK noch nicht an. Prüfe das Gewässer und seine Regeln selbst, bevor du losfährst.',
   'tours.paddle.drawnByHand':
     'Eine Paddeltour wird von Hand gezeichnet: TREK verbindet deine Punkte mit geraden Linien. Nichts wird geroutet, und nichts sagt, dass das Gewässer befahrbar ist.',
   'tours.paddle.timeEstimated': 'Paddelzeit (geschätzt)',
@@ -448,6 +446,36 @@ const tours: TranslationStrings = {
   'tours.paddle.obstacle.kind.slipway': 'Slipanlage',
   'tours.paddle.obstacle.kind.portage': 'Umtragestelle',
   'tours.paddle.obstacle.kind.access': 'Befahrungsregel',
+  'tours.paddle.obstacles.truncated':
+    'TREK zeigt hier nur einen Teil der Objekte, das Gebiet enthält mehr. Prüfe das Gewässer selbst.',
+  'tours.paddle.obstacles.dateUnknown': 'unbekannt',
+  'tours.paddle.obstacleCard.onRoute': 'Auf der Route bei',
+  'tours.paddle.obstacleCard.near': 'In der Nähe',
+  'tours.paddle.obstacleCard.area': 'Im Gebiet',
+  'tours.paddle.obstacleCard.uncertain': 'Bezug unsicher',
+  'tours.paddle.obstacleCard.alongInfo': 'Wie weit es vom Start an der Route liegt',
+  'tours.paddle.obstacleCard.distanceInfo':
+    'Wie weit es von der Route entfernt liegt. Es kann an einem anderen Arm des Gewässers liegen.',
+  'tours.paddle.obstacleCard.privateWay': 'Privater Weg',
+  'tours.paddle.obstacleCard.noAccessInfo': 'Keine Befahrungsangabe',
+  'tours.paddle.obstacleCard.condition': 'Bedingung',
+  'tours.paddle.obstacleCard.access.canoe': 'Kanu',
+  'tours.paddle.obstacleCard.access.boat': 'Boot',
+  'tours.paddle.obstacleCard.access.access': 'Zugang',
+  'tours.paddle.obstacleCard.accessValue.yes': 'ja',
+  'tours.paddle.obstacleCard.accessValue.no': 'nein',
+  'tours.paddle.obstacleCard.accessValue.private': 'privat',
+  'tours.paddle.obstacleCard.accessValue.permissive': 'geduldet',
+  'tours.paddle.obstacleCard.accessValue.designated': 'ausgewiesen',
+  'tours.paddle.obstacleCard.fact.height': 'Höhe',
+  'tours.paddle.obstacleCard.fact.width': 'Breite',
+  'tours.paddle.obstacleCard.fact.grade': 'Schwierigkeit',
+  'tours.paddle.obstacleCard.fact.opening_hours': 'Öffnungszeiten',
+  'tours.paddle.obstacleCard.fact.seasonal': 'Saisonal',
+  'tours.paddle.obstacleCard.fact.fee': 'Gebühr',
+  'tours.paddle.obstacleCard.fact.operator': 'Betreiber',
+  'tours.paddle.obstacleCard.source': 'OpenStreetMap-Daten, Stand {date}, keine Prüfung vor Ort.',
+  'tours.paddle.obstacleCard.sourceUndated': 'OpenStreetMap-Daten unbekannten Stands, keine Prüfung vor Ort.',
 };
 
 export default tours;

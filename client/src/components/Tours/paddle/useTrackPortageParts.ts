@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useTrackMarkToolStore } from '../../../store/trackMarkToolStore';
 import { splitTrackByPortages } from '../../../utils/paddleTrackMarks';
-import type { TourPlannerController } from '../planner/useTourPlanner';
 import type { TourRoutePart } from '../planner/tourRouting';
+import type { TourPlannerController } from '../planner/useTourPlanner';
 
 /**
  * The recorded paddle track in view, cut where portages are marked on it, as

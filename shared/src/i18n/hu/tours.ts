@@ -293,8 +293,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': 'Adj meg egy tempót 0,5 és 20 km/h között.',
   'tours.paddle.chooseBoat': 'Válaszd ki a hajót és a vizet a túra mentéséhez.',
   'tours.paddle.chooseBoatImport': 'Válaszd ki a hajót és a vizet az evezős túraként való importáláshoz.',
-  'tours.paddle.noWaterData':
-    'A TREK még nem mutatja a gátakat, zsilipeket és átemelőket. Indulás előtt magad ellenőrizd a vizet és a szabályokat.',
   'tours.paddle.drawnByHand':
     'Az evezős túrát kézzel rajzolod: a TREK egyenes vonalakkal köti össze a pontjaidat. Semmi sincs útvonalra tervezve, és semmi sem mondja, hogy a víz járható.',
   'tours.paddle.timeEstimated': 'Evezési idő (becslés)',

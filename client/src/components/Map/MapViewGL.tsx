@@ -9,7 +9,7 @@ import type mapboxgl from 'mapbox-gl'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useTranslation } from '../../i18n/TranslationContext'
 import { applySatellite } from './glRasterLayers'
-import { useTourMapLayersGL } from './mapRasterOverlay'
+import { isTourLayerHit, useTourMapLayersGL } from './mapRasterOverlay'
 import { MapLayerSwitcher, TourMapLayerSwitcher, MAP_LAYER_SWITCHER_INSET, type BaseLayer, type TourBaseLayer } from './MapLayerSwitcher'
 import { MapLockPill } from './MapLockPill'
 import { useMarkerThumbs } from './useMarkerThumbs'
@@ -33,8 +33,7 @@ import { nightPauseMarker, NIGHT_PAUSE_MIN_ZOOM } from './nightPauseMarker'
 import { clusterPois, poiClusterMarkup, poiClusterList, POI_CLUSTER_DETAIL_ZOOM } from './poiClusters'
 import { groupCoincidentPlaces } from './coincidentPlaces'
 import { useHazardLayerGL } from './useHazardLayerGL'
-import { type FerrataGlMap, isFerrataHit } from '../Ferratas/useFerrataLayerGL'
-import { isPaddleHit } from '../Tours/paddle/usePaddleLayerGL'
+import type { FerrataGlMap } from '../Ferratas/useFerrataLayerGL'
 import { formatViaDwell } from './routeViaDwell'
 import { useDawarichTrailGL } from './useDawarichTrailGL'
 import { bindDayBoundaryDrag } from './dayBoundaryDrag'
@@ -1430,8 +1429,7 @@ export function MapViewGL({
         && typeof map.queryRenderedFeatures === 'function'
         && map.queryRenderedFeatures(e.point, { layers: ['trip-route-hit'] }).length > 0
       ) return
-      if (isFerrataHit(map, e.point)) return // a picked via ferrata opens its card instead
-      if (isPaddleHit(map, e.point)) return // so does a picked paddle obstacle
+      if (isTourLayerHit(map, e.point)) return // a picked via ferrata or paddle obstacle opens its card instead
       onClickRefs.current.map?.({ latlng: { lat: e.lngLat.lat, lng: e.lngLat.lng } })
     })
     // Emit the viewport bbox (pan/zoom + once on first idle) so the POI-explore

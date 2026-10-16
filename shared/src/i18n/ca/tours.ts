@@ -293,8 +293,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': 'Introdueix una velocitat de 0,5 a 20 km/h.',
   'tours.paddle.chooseBoat': 'Tria l’embarcació i l’aigua per desar aquesta ruta.',
   'tours.paddle.chooseBoatImport': 'Tria l’embarcació i l’aigua per importar com a ruta en piragua.',
-  'tours.paddle.noWaterData':
-    'TREK encara no mostra rescloses, preses ni transports per terra. Comprova tu mateix l’aigua i les normes abans de sortir.',
   'tours.paddle.drawnByHand':
     'Una ruta en piragua es dibuixa a mà: TREK uneix els punts amb línies rectes. No es calcula res i res no diu que l’aigua sigui navegable.',
   'tours.paddle.timeEstimated': 'Temps de rem (estimat)',

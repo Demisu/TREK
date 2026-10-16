@@ -292,8 +292,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': 'Introduce una velocidad de 0,5 a 20 km/h.',
   'tours.paddle.chooseBoat': 'Elige la embarcación y el agua para guardar esta ruta.',
   'tours.paddle.chooseBoatImport': 'Elige la embarcación y el agua para importar como ruta en piragua.',
-  'tours.paddle.noWaterData':
-    'TREK aún no muestra presas, esclusas ni porteos. Comprueba tú mismo el agua y sus normas antes de salir.',
   'tours.paddle.drawnByHand':
     'Una ruta en piragua se dibuja a mano: TREK une tus puntos con líneas rectas. Nada se calcula y nada indica que el agua sea navegable.',
   'tours.paddle.timeEstimated': 'Tiempo de remo (estimado)',

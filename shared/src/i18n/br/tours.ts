@@ -293,8 +293,6 @@ const tours: TranslationStrings = {
   'tours.paddle.speedInvalid': 'Informe uma velocidade de 0,5 a 20 km/h.',
   'tours.paddle.chooseBoat': 'Escolha a embarcação e a água para salvar este passeio.',
   'tours.paddle.chooseBoatImport': 'Escolha a embarcação e a água para importar como passeio de remo.',
-  'tours.paddle.noWaterData':
-    'O TREK ainda não mostra barragens, eclusas nem trechos de transbordo. Confira você mesmo a água e as regras antes de sair.',
   'tours.paddle.drawnByHand':
     'Um passeio de remo é desenhado à mão: o TREK liga seus pontos com linhas retas. Nada é roteado, e nada diz que a água é navegável.',
   'tours.paddle.timeEstimated': 'Tempo de remada (estimado)',

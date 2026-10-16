@@ -10,6 +10,8 @@ interface PaddleObstacleState {
   features: PaddleFeature[];
   /** The ones on or near the route, in the order the route reaches them. */
   related: RelatedObstacle[];
+  /** The length of the route the relations were measured along, in metres: what each `alongM` is a part of. */
+  routeLengthM: number;
   coverage: PaddleCoverageState;
   regions: PaddleCoverageRegion[];
   truncated: boolean;
@@ -21,6 +23,7 @@ const EMPTY: PaddleObstacleState = {
   status: 'idle',
   features: [],
   related: [],
+  routeLengthM: 0,
   coverage: 'none',
   regions: [],
   truncated: false,
