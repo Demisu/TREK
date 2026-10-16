@@ -1,9 +1,7 @@
-import type { PaddleRegions } from '../entities/PaddleRegions.entity';
+import { type PaddleRegions, PaddleRegionsStatus, type TPaddleRegionsStatus } from '../entities/PaddleRegions.entity';
 import type { DB } from '../kysely/db';
 import type { Box } from './PaddleFeatures.repository';
 import { TrekRepository } from './_shared/trek-repository';
-
-export type PaddleRegionStatus = 'queued' | 'importing' | 'ready' | 'failed';
 
 /** One region an admin chose, as stored; the boundary is still GeoJSON text. */
 export interface PaddleRegionRow {
@@ -14,7 +12,7 @@ export interface PaddleRegionRow {
   min_lng: number | null;
   max_lat: number | null;
   max_lng: number | null;
-  status: PaddleRegionStatus;
+  status: TPaddleRegionsStatus;
   source_timestamp: string | null;
   imported_at: string | null;
   feature_count: number;
@@ -23,7 +21,7 @@ export interface PaddleRegionRow {
 
 /** `status` narrowed to the four values the column's CHECK constraint allows. */
 type RegionsDB = {
-  paddle_regions: Omit<DB['paddle_regions'], 'status'> & { status: PaddleRegionStatus };
+  paddle_regions: Omit<DB['paddle_regions'], 'status'> & { status: TPaddleRegionsStatus };
 };
 
 const COLUMNS = [
@@ -78,7 +76,7 @@ export class PaddleRegionsRepository extends TrekRepository<PaddleRegions> {
     return await this.db()
       .selectFrom('paddle_regions')
       .select(COLUMNS)
-      .where('status', '=', 'queued')
+      .where('status', '=', PaddleRegionsStatus.QUEUED)
       .orderBy('created_at', 'asc')
       .executeTakeFirst();
   }
@@ -88,7 +86,7 @@ export class PaddleRegionsRepository extends TrekRepository<PaddleRegions> {
   ): Promise<void> {
     await this.db()
       .insertInto('paddle_regions')
-      .values({ ...row, status: 'queued', feature_count: 0 })
+      .values({ ...row, status: PaddleRegionsStatus.QUEUED, feature_count: 0 })
       .onConflict((oc) => oc.column('id').doNothing())
       .execute();
   }
@@ -117,15 +115,19 @@ export class PaddleRegionsRepository extends TrekRepository<PaddleRegions> {
   async queueReady(): Promise<number> {
     const result = await this.db()
       .updateTable('paddle_regions')
-      .set({ status: 'queued', error: null })
-      .where('status', 'in', ['ready', 'failed'])
+      .set({ status: PaddleRegionsStatus.QUEUED, error: null })
+      .where('status', 'in', [PaddleRegionsStatus.READY, PaddleRegionsStatus.FAILED])
       .executeTakeFirst();
     return Number(result.numUpdatedRows ?? 0);
   }
 
   /** A region left half read by a restart goes back to the queue. */
   async requeueInterrupted(): Promise<void> {
-    await this.db().updateTable('paddle_regions').set({ status: 'queued' }).where('status', '=', 'importing').execute();
+    await this.db()
+      .updateTable('paddle_regions')
+      .set({ status: PaddleRegionsStatus.QUEUED })
+      .where('status', '=', PaddleRegionsStatus.IMPORTING)
+      .execute();
   }
 
   async deleteRegion(id: string): Promise<boolean> {

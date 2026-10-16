@@ -36,7 +36,7 @@ export function PaddleRolePill({ role }: { role: PaddleRole }) {
  * whole number of minutes in range is dropped on leaving the field, and the
  * value before it stays.
  */
-export function MinutesInput({
+function MinutesInput({
   label,
   value,
   placeholder,

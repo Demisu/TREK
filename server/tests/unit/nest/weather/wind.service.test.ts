@@ -6,7 +6,7 @@
  * request is a 502 of its own rather than an empty forecast.
  */
 import { DomainError } from '../../../../src/nest/common/domain-error';
-import { WindService } from '../../../../src/nest/weather/wind.service';
+import { WIND_UNAVAILABLE_MESSAGE, WindService } from '../../../../src/nest/weather/wind.service';
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -97,6 +97,8 @@ describe('WindService', () => {
     vi.stubGlobal('fetch', answer({ hourly: 'nonsense' }));
     await expect(service.forecast({ lat: 47, lng: 9, date: '2026-10-19' }, NOW)).rejects.toMatchObject({
       code: 'wind_unavailable',
+      status: 502,
+      publicMessage: WIND_UNAVAILABLE_MESSAGE,
     });
   });
 

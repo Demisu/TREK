@@ -26,7 +26,7 @@ export const OBSTACLE_FACT_KEYS = [
   'fee',
   'operator',
 ] as const;
-export type ObstacleFactKey = (typeof OBSTACLE_FACT_KEYS)[number];
+type ObstacleFactKey = (typeof OBSTACLE_FACT_KEYS)[number];
 
 /** The access values the card puts into words; any other value is shown as OSM has it. */
 export const KNOWN_ACCESS_VALUES = ['yes', 'no', 'private', 'permissive', 'designated'] as const;

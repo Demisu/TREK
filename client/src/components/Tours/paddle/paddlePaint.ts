@@ -7,7 +7,7 @@ import { useMapPaint } from '../../Map/mapPaint';
  * reads them resolved (`usePaddlePaint`); markup on the page takes the CSS
  * variable itself (`paddleKindCss`), which follows the theme on its own.
  */
-export const PADDLE_PAINT_TOKENS = {
+const PADDLE_PAINT_TOKENS = {
   obstacle: '--map-paddle-obstacle',
   access: '--map-paddle-access',
   landing: '--map-paddle-landing',
