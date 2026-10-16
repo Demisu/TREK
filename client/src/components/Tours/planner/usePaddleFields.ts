@@ -11,25 +11,22 @@ export interface PaddleFieldValues {
   waterContext: PaddleWaterContext | null;
   /** The speed the paddler chose, km/h; null while the boat's suggested speed applies. */
   speedKmh: number | null;
+  /** PAD-07: the carrying speed the paddler chose, km/h; null while the starting value applies. Absent in an older draft. */
+  portageSpeedKmh?: number | null;
 }
 
-export const NO_PADDLE_FIELDS: PaddleFieldValues = { boatType: null, waterContext: null, speedKmh: null };
+export const NO_PADDLE_FIELDS: PaddleFieldValues = { boatType: null, waterContext: null, speedKmh: null, portageSpeedKmh: null };
 
 /** The paddle fields of a saved tour, or none for a hike or a list cached before they existed. */
 export function paddleFieldsOf(
-  tour: Pick<TourListItem, 'boat_type' | 'water_context' | 'paddle_speed_kmh'>
+  tour: Pick<TourListItem, 'boat_type' | 'water_context' | 'paddle_speed_kmh' | 'portage_speed_kmh'>
 ): PaddleFieldValues {
   return {
     boatType: tour.boat_type ?? null,
     waterContext: tour.water_context ?? null,
     speedKmh: tour.paddle_speed_kmh ?? null,
+    portageSpeedKmh: tour.portage_speed_kmh ?? null,
   };
-}
-
-/** Minutes on the water at a speed, unknown without a distance or a speed. */
-export function paddleMinutes(distanceKm: number | null | undefined, speedKmh: number | null): number | null {
-  if (distanceKm == null || speedKmh == null || speedKmh <= 0) return null;
-  return Math.round((distanceKm / speedKmh) * 60);
 }
 
 /**
@@ -48,7 +45,8 @@ export function usePaddleFields(initial: PaddleFieldValues, onEdit: () => boolea
       const same =
         merged.boatType === values.boatType &&
         merged.waterContext === values.waterContext &&
-        Object.is(merged.speedKmh, values.speedKmh);
+        Object.is(merged.speedKmh, values.speedKmh) &&
+        Object.is(merged.portageSpeedKmh ?? null, values.portageSpeedKmh ?? null);
       if (!same && onEdit()) setValues(merged);
     },
     [onEdit, values]
@@ -57,12 +55,15 @@ export function usePaddleFields(initial: PaddleFieldValues, onEdit: () => boolea
   const recommended = recommendedPaddleSpeedKmh(values.boatType);
   return {
     ...values,
+    portageSpeedKmh: values.portageSpeedKmh ?? null,
     recommendedSpeedKmh: recommended,
     /** The speed the time is worked out with: the chosen one, else the boat's suggestion. */
     effectiveSpeedKmh: values.speedKmh ?? recommended,
     setBoatType: useCallback((boatType: PaddleBoatType) => edit({ boatType }), [edit]),
     setWaterContext: useCallback((waterContext: PaddleWaterContext) => edit({ waterContext }), [edit]),
     setSpeedKmh: useCallback((speedKmh: number | null) => edit({ speedKmh }), [edit]),
+    /** PAD-07: the carrying speed, or back to the starting value with null. */
+    setPortageSpeedKmh: useCallback((portageSpeedKmh: number | null) => edit({ portageSpeedKmh }), [edit]),
     /** Back to the boat's suggestion, by choice. */
     adoptRecommendedSpeed: useCallback(() => edit({ speedKmh: null }), [edit]),
     /** Loaded from a tour or a draft, or cleared; not an edit. */

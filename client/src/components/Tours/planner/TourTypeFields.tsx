@@ -10,6 +10,7 @@ import { useTranslation } from '../../../i18n';
 import { SoftPill } from '../../Planner/planParts';
 import { INPUT, LABEL, Segmented } from '../../shared/dialogParts';
 import { fs } from '../../shared/DialogShell';
+import { PaddleObstacleNotice } from '../paddle/PaddleObstacleNotice';
 import { TourNotice } from '../tourParts';
 import type { TourPlannerController } from './useTourPlanner';
 
@@ -160,8 +161,8 @@ export function TourTypeFields({ planner, locked }: TourTypeFieldsProps) {
               )
             )}
           </div>
-          {/* PAD-04: what the map does not know yet stays visible, never read as open water. */}
-          <TourNotice icon={<AlertTriangle size={13} strokeWidth={2} />}>{t('tours.paddle.noWaterData')}</TourNotice>
+          {/* PAD-04/05B: what the map knows about the water, and where it knows nothing, never read as open water. */}
+          <PaddleObstacleNotice />
           {planner.paddleIncomplete && (
             <TourNotice role="status" icon={<Info size={13} strokeWidth={2} />}>
               {t('tours.paddle.chooseBoat')}

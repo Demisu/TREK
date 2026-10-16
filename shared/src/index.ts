@@ -13,6 +13,10 @@ export * from './common/pagination.schema';
 
 // Domain contracts
 export * from './weather/weather.schema';
+export * from './weather/wind.schema';
+export * from './paddle/paddle-obstacles.schema';
+export * from './paddle/paddle-route-relation';
+export * from './paddle/paddle-regions.schema';
 export * from './public-api/public-api.schema';
 export * from './airport/airport.schema';
 export * from './config/config.schema';
@@ -52,6 +56,8 @@ export * from './tours/tours.schema';
 export * from './tours/tour-provenance.schema';
 export * from './tours/tours.metrics';
 export * from './tours/tour-gpx-import.schema';
+export * from './tours/paddle-plan.schema';
+export * from './tours/paddle-plan';
 export * from './wanderer/wanderer.schema';
 export * from './geo/haversine';
 export * from './collection/collection.schema';

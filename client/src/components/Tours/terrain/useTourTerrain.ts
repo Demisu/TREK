@@ -1,4 +1,5 @@
 import type { FerrataBbox } from '@trek/shared';
+import { type PaddleGlMap, usePaddleLayerGL } from '../paddle/usePaddleLayerGL';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { DistanceIndexedProfileSample, RouteProfileFocus } from '../../../utils/routeGeometry';
 import type { FerrataMapLayer } from '../../Ferratas/useFerrataMapLayer';
@@ -65,6 +66,7 @@ export function useTourTerrain(options: Options) {
   useTerrainFerratas(gl, options.ferrataLayer, options.onViewportChange);
   // MapLibre answers every call the shared overlay hook makes, as it does the ferrata hook's.
   useRasterOverlaysGL(gl ? (gl.map as unknown as RasterOverlayGlMap) : null, options.tourLayers?.overlays);
+  usePaddleLayerGL(gl ? (gl.map as unknown as PaddleGlMap) : null, options.tourLayers?.paddle);
   const replay = useTerrainReplay({ gl, ready, samples, focus, onFocusChange, scene, preloaded });
   const { stop } = replay;
 

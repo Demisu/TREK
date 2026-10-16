@@ -47,6 +47,7 @@ import { Tooltip } from '../shared/Tooltip';
 import TrackColorPicker from '../shared/TrackColorPicker';
 import { markdownLinkComponents } from '../shared/markdownLink';
 import { TourDayRowAvatar } from './TourDayRowFacts';
+import { PaddleWindSection } from './paddle/PaddleWindCard';
 import { TourProvenanceBlock } from './provenance/TourProvenanceSection';
 import { tourDayRowIcon } from './tourDayRowIcon';
 import { tourDaysOf } from './tourDays';
@@ -154,6 +155,11 @@ function TourDetailMeasures({
       )}
     </div>
   );
+}
+
+/** Where a tour starts, the place its wind is asked for (PAD-08). */
+function placeStart(place: Place): { lat: number; lng: number } | null {
+  return place.lat != null && place.lng != null ? { lat: place.lat, lng: place.lng } : null;
 }
 
 type Translate = (key: string, params?: Record<string, unknown>) => string;
@@ -640,6 +646,7 @@ export default function TourDetailDialog({
           placeId={place.id}
         />
       )}
+      {tour.tour_type === 'kayak' && <PaddleWindSection placeId={place.id} start={placeStart(place)} />}
 
       {description && (
         <DialogSection className="flex-none" label={t('places.formDescription')}>

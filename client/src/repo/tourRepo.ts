@@ -1,7 +1,8 @@
-import { computeTourMetrics, type GeometryPoint, type TourCreateRequest, type TourCreateResponse, type TourDetailResponse, type TourGpxImportFields, type TourGpxPreviewResponse, type TourImportGpxResponse, type TourListItem, type TourWaypoint } from '@trek/shared'
+import { computeTourMetrics, estimatePaddleTime, paddleLayoutOfTrack, paddleMovingSeconds, recommendedPaddleSpeedKmh, type GeometryPoint, type TourPaddlePlanRequest, type TourCreateRequest, type TourCreateResponse, type TourDetailResponse, type TourGpxImportFields, type TourGpxPreviewResponse, type TourImportGpxResponse, type TourListItem, type TourWaypoint } from '@trek/shared'
 import { toursApi } from '../api/client'
 import { tourGpxApi } from '../api/tourGpx'
 import { recordedTrackApi } from '../api/recordedTrack'
+import { tourPaddlePlanApi } from '../api/tourPaddlePlan'
 import { tourCopiesApi } from '../api/tourCopies'
 import { offlineDb, replaceTripTours, type CachedTour } from '../db/offlineDb'
 import { mutationQueue, generateUUID, nextTempId } from '../sync/mutationQueue'
@@ -51,6 +52,7 @@ function routeFields(body: TourCreateRequest) {
     boat_type: body.boat_type ?? null,
     water_context: body.water_context ?? null,
     paddle_speed_kmh: body.paddle_speed_kmh ?? null,
+    portage_speed_kmh: body.portage_speed_kmh ?? null,
     duration: body.duration_seconds == null ? null : Math.round(body.duration_seconds / 60),
     match_confidence: 1,
     caution: false,
@@ -185,6 +187,48 @@ export const tourRepo = {
       return { tour: toListItem(tour), waypoints: body.waypoints }
     }
     const result = await toursApi.update(tripId, placeId, body)
+    await offlineDb.tours.put({ ...result.tour, trip_id: Number(tripId), waypoints: result.waypoints })
+    return result
+  },
+
+  /**
+   * PAD-03/PAD-07: a recorded paddle track's portages, locks and speeds. Made
+   * offline, the cached tour takes them at once, with the moving time the
+   * server will work out from them, and the write waits in the queue.
+   */
+  async updatePaddlePlan(tripId: number | string, placeId: number, body: TourPaddlePlanRequest): Promise<TourDetailResponse> {
+    if (await mutationQueue.mustQueue('tours', placeId)) {
+      const tid = Number(tripId)
+      const existing = await offlineDb.tours.get(placeId)
+      if (!existing) throw new Error('Tour not available offline')
+      const estimate = estimatePaddleTime(paddleLayoutOfTrack((existing.distance ?? 0) * 1000, body.track_marks), {
+        paddleSpeedKmh: body.paddle_speed_kmh ?? recommendedPaddleSpeedKmh(existing.boat_type),
+        portageSpeedKmh: body.portage_speed_kmh,
+        breakMinutes: null,
+      })
+      const moving = paddleMovingSeconds(estimate)
+      const empty = body.track_marks.portages.length === 0 && body.track_marks.locks.length === 0
+      const tour: CachedTour = {
+        ...existing,
+        paddle_speed_kmh: body.paddle_speed_kmh,
+        portage_speed_kmh: body.portage_speed_kmh,
+        track_marks: empty ? null : body.track_marks,
+        duration: moving === null ? null : Math.round(moving / 60),
+      }
+      await offlineDb.tours.put(tour)
+      await mutationQueue.enqueue({
+        id: generateUUID(),
+        tripId: tid,
+        method: 'PUT',
+        url: `/trips/${tripId}/tours/${placeId}/paddle-plan`,
+        body,
+        resource: 'tours',
+        entityId: placeId,
+      })
+      mutationQueue.sendSoon()
+      return { tour: toListItem(tour), waypoints: existing.waypoints ?? [] }
+    }
+    const result = await tourPaddlePlanApi.update(tripId, placeId, body)
     await offlineDb.tours.put({ ...result.tour, trip_id: Number(tripId), waypoints: result.waypoints })
     return result
   },

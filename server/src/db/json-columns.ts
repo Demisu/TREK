@@ -1,5 +1,15 @@
 import type { JsonColumn } from '../utils/json-column';
-import { FERRATAS_RESULT_CAP, ferrataSchema, tourFixedLegSchema, type Ferrata, type TourFixedLeg } from '@trek/shared';
+import {
+  FERRATAS_RESULT_CAP,
+  ferrataSchema,
+  paddleLockSchema,
+  tourFixedLegSchema,
+  trackMarksSchema,
+  type Ferrata,
+  type PaddleLock,
+  type TourFixedLeg,
+  type TrackMarks,
+} from '@trek/shared';
 
 import { z } from 'zod';
 
@@ -133,5 +143,26 @@ export const FERRATA_TILE_PAYLOAD: JsonColumn<FerrataTilePayload | null> = {
 export const TOUR_WAYPOINT_FIXED_LEG: JsonColumn<TourFixedLeg | null> = {
   column: 'tour_waypoints.fixed_leg',
   schema: tourFixedLegSchema.nullable(),
+  fallback: () => null,
+};
+
+/**
+ * PAD-07: a lock at a control point of a paddle tour, with the times the
+ * paddler expects there. A row that does not decode reads as no lock, so the
+ * estimate names nothing it cannot read.
+ */
+export const TOUR_WAYPOINT_LOCK: JsonColumn<PaddleLock | null> = {
+  column: 'tour_waypoints.lock',
+  schema: paddleLockSchema.nullable(),
+  fallback: () => null,
+};
+
+/**
+ * PAD-03: portages and locks laid onto a recorded track. A row that does not
+ * decode reads as no marks; the track itself is untouched either way.
+ */
+export const TOUR_TRACK_MARKS: JsonColumn<TrackMarks | null> = {
+  column: 'tours.track_marks',
+  schema: trackMarksSchema.nullable(),
   fallback: () => null,
 };

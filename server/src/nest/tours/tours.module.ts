@@ -9,6 +9,7 @@ import { PlaceImportModule } from '../place-import/place-import.module';
 import { PlacesModule } from '../places/places.module';
 import { TripMembershipModule } from '../trip-membership/trip-membership.module';
 import { WandererModule } from '../wanderer/wanderer.module';
+import { TourPaddlePlanService } from './tour-paddle-plan.service';
 import { ToursImportController } from './tours-import.controller';
 import { ToursWandererController } from './tours-wanderer.controller';
 import { ToursWandererService } from './tours-wanderer.service';
@@ -38,6 +39,6 @@ import { Module } from '@nestjs/common';
     MikroOrmModule.forFeature([Tours, TourTypes, TourWaypoints, TourSources, Places]),
   ],
   controllers: [ToursController, ToursImportController, ToursWandererController],
-  providers: [ToursService, ToursWandererService, ToursMcp],
+  providers: [ToursService, TourPaddlePlanService, ToursWandererService, ToursMcp],
 })
 export class ToursModule {}

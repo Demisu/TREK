@@ -23,4 +23,6 @@ export interface ToursTable {
   boat_type: InsertOptional<string | null>;
   water_context: InsertOptional<string | null>;
   paddle_speed_kmh: InsertOptional<number | null>;
+  portage_speed_kmh: InsertOptional<number | null>;
+  track_marks: InsertOptional<string | null>;
 }

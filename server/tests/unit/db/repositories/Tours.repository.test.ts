@@ -95,6 +95,8 @@ describe('ToursRepository reads', () => {
         boat_type: null,
         water_context: null,
         paddle_speed_kmh: null,
+        portage_speed_kmh: null,
+        track_marks: null,
         has_recorded_track: 0,
       },
       {
@@ -120,6 +122,8 @@ describe('ToursRepository reads', () => {
         boat_type: null,
         water_context: null,
         paddle_speed_kmh: null,
+        portage_speed_kmh: null,
+        track_marks: null,
         has_recorded_track: 0,
       },
     ]);
@@ -201,12 +205,14 @@ describe('ToursRepository writes', () => {
       boat_type: null,
       water_context: null,
       paddle_speed_kmh: null,
+      portage_speed_kmh: null,
+      track_marks: null,
       has_recorded_track: 0,
     });
   });
 
   // A route edit always writes the type's own fields; a hike's are empty.
-  const HIKE_UPDATE = { ...METRICS, boat_type: null, water_context: null, paddle_speed_kmh: null };
+  const HIKE_UPDATE = { ...METRICS, boat_type: null, water_context: null, paddle_speed_kmh: null, portage_speed_kmh: null };
 
   it('TOURREPO-007: updateInTrip replaces the metrics of a tour of that trip and refuses one of another trip', async () => {
     const { trip, other } = fixture();
@@ -270,6 +276,8 @@ describe('ToursRepository writes', () => {
         boat_type: null,
         water_context: null,
         paddle_speed_kmh: null,
+        portage_speed_kmh: null,
+        track_marks: null,
       },
     ]);
     expect(await repo.listRowsForTrip(other.id)).toEqual([]);

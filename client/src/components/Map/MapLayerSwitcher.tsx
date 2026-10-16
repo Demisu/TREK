@@ -1,4 +1,5 @@
 import { Anchor, Loader2, Map as MapIcon, MapPinPlus, Mountain, Rotate3d, Satellite } from 'lucide-react'
+import type { PaddleMapLayer } from '../Tours/paddle/paddleMapLayer'
 import type { CSSProperties } from 'react'
 import { useTranslation } from '../../i18n'
 import { FerrataLineIcon } from '../Ferratas/FerrataGlyph'
@@ -16,6 +17,8 @@ export type TourBaseLayer = BaseLayer | 'topo'
 export interface TourLayerOffer {
   bases?: readonly TourBaseLayer[]
   overlays?: readonly ToggleableRasterOverlay[]
+  /** PAD-05B: the paddle obstacles around a paddle tour, drawn by every renderer. */
+  paddle?: PaddleMapLayer
 }
 
 const FROSTED_SHELL = {

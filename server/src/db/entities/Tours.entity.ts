@@ -1,6 +1,7 @@
 import { Collection, EntityRepositoryType, type Opt, PrimaryKeyProp, type Ref, defineEntity, p } from '@mikro-orm/core';
 import { ToursRepository } from '../repositories/Tours.repository';
 import { Places } from './Places.entity';
+import { TourObstacleReviews } from './TourObstacleReviews.entity';
 import { TourSources } from './TourSources.entity';
 import { TourTypes } from './TourTypes.entity';
 import { TourWaypoints } from './TourWaypoints.entity';
@@ -30,7 +31,10 @@ export class Tours {
   boat_type?: TToursBoatType | null;
   water_context?: TToursWaterContext | null;
   paddle_speed_kmh?: number | null;
+  portage_speed_kmh?: number | null;
+  track_marks?: string | null;
   tourTypeRef!: Ref<TourTypes>;
+  tour_obstacle_reviews_collection = new Collection<TourObstacleReviews>(this);
   tour_sources: Ref<TourSources> | null = null;
   tour_waypoints_collection = new Collection<TourWaypoints>(this);
 }
@@ -92,7 +96,10 @@ export const ToursSchema = defineEntity({
     boat_type: p.enum(() => ToursBoatType).nullable(),
     water_context: p.enum(() => ToursWaterContext).nullable(),
     paddle_speed_kmh: p.double().nullable(),
+    portage_speed_kmh: p.double().nullable(),
+    track_marks: p.text().nullable(),
     tourTypeRef: () => p.manyToOne(TourTypes).ref().joinColumn('tour_type').hidden().index('idx_tours_tour_type'),
+    tour_obstacle_reviews_collection: () => p.oneToMany(TourObstacleReviews).mappedBy('place').hidden(),
     tour_sources: () => p.oneToOne(TourSources).ref().mappedBy('place').hidden(),
     tour_waypoints_collection: () => p.oneToMany(TourWaypoints).mappedBy('place').hidden(),
   },

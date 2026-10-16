@@ -140,6 +140,7 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
     tourConversion,
     tourDetailActions,
     recordedTrack,
+    trackPaddlePlan,
     permissions: { canPlaceEdit, canDayEdit },
     tourDetails,
     tourMap,
@@ -652,7 +653,7 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
                     planner={tourPlanner}
                     wanderer={wandererBrowser}
                     conversion={tourConversion}
-                    recordedTrack={recordedTrack} canEdit={canPlaceEdit} canAssign={canDayEdit} /></LazyPanel>
+                    recordedTrack={recordedTrack} trackPaddlePlan={trackPaddlePlan} canEdit={canPlaceEdit} canAssign={canDayEdit} /></LazyPanel>
               </div>
             </div>
             <div className="absolute bottom-[10px] right-[10px] top-[10px] z-20 hidden md:block">

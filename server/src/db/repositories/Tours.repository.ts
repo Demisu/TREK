@@ -31,6 +31,9 @@ export interface TourListRow {
   boat_type: string | null;
   water_context: string | null;
   paddle_speed_kmh: number | null;
+  portage_speed_kmh: number | null;
+  /** The marks laid onto a recorded track, still JSON text. */
+  track_marks: string | null;
   has_recorded_track: number;
   planned: number;
   has_waypoints: number;
@@ -58,6 +61,8 @@ export interface TourRow {
   boat_type: string | null;
   water_context: string | null;
   paddle_speed_kmh: number | null;
+  portage_speed_kmh: number | null;
+  track_marks: string | null;
 }
 const _tourRowKeys: AssertRowKeys<TourRow, Tours> = true;
 
@@ -77,6 +82,7 @@ export interface TourInsert {
   boat_type?: PaddleBoatType | null;
   water_context?: PaddleWaterContext | null;
   paddle_speed_kmh?: number | null;
+  portage_speed_kmh?: number | null;
 }
 
 /** What a route edit replaces on an existing tour: the type and everything that belongs to it. */
@@ -88,13 +94,23 @@ export type TourUpdate = Omit<
   | 'boat_type'
   | 'water_context'
   | 'paddle_speed_kmh'
+  | 'portage_speed_kmh'
 > & {
   planned_duration_minutes?: number | null;
   break_additional_minutes?: number | null;
   boat_type: PaddleBoatType | null;
   water_context: PaddleWaterContext | null;
   paddle_speed_kmh: number | null;
+  portage_speed_kmh: number | null;
 };
+
+/** A recorded track's paddle plan (PAD-03, PAD-07): its speeds, its marks and the time they make. */
+export interface TourPaddlePlanUpdate {
+  paddle_speed_kmh: number | null;
+  portage_speed_kmh: number | null;
+  track_marks: string | null;
+  duration: number | null;
+}
 
 type ToursKyselyDB = Pick<DB, 'tours' | 'places' | 'day_assignments' | 'tour_waypoints' | 'tour_sources' | 'days'>;
 
@@ -173,6 +189,8 @@ export class ToursRepository extends TrekRepository<Tours> {
         't.boat_type as boat_type',
         't.water_context as water_context',
         't.paddle_speed_kmh as paddle_speed_kmh',
+        't.portage_speed_kmh as portage_speed_kmh',
+        't.track_marks as track_marks',
         eb('t.recorded_route_geometry', 'is not', null).as('has_recorded_track'),
         eb
           .exists(eb.selectFrom('day_assignments as da').select('da.id').whereRef('da.place_id', '=', 'p.id'))
@@ -359,6 +377,7 @@ export class ToursRepository extends TrekRepository<Tours> {
       derived_from_place_id?: number | null;
       origin?: TToursOrigin;
       origin_file_name?: string | null;
+      track_marks?: string | null;
     },
   ): Promise<void> {
     await this.insert({
@@ -380,6 +399,8 @@ export class ToursRepository extends TrekRepository<Tours> {
       boat_type: input.boat_type ?? null,
       water_context: input.water_context ?? null,
       paddle_speed_kmh: input.paddle_speed_kmh ?? null,
+      portage_speed_kmh: input.portage_speed_kmh ?? null,
+      track_marks: input.track_marks ?? null,
     });
   }
 
@@ -430,6 +451,27 @@ export class ToursRepository extends TrekRepository<Tours> {
         boat_type: input.boat_type,
         water_context: input.water_context,
         paddle_speed_kmh: input.paddle_speed_kmh,
+        portage_speed_kmh: input.portage_speed_kmh,
+      })
+      .where('place_id', '=', place_id)
+      .where('place_id', 'in', (eb) => eb.selectFrom('places').select('id').where('trip_id', '=', trip_id))
+      .executeTakeFirst();
+    return Number(result.numUpdatedRows ?? 0) > 0;
+  }
+
+  /**
+   * The paddle plan of a recorded track of the trip: its speeds, the marks
+   * laid onto it and the moving time they make. The track itself is not
+   * touched. Returns whether a row of that trip was updated.
+   */
+  async updatePaddlePlanInTrip(trip_id: number, place_id: number, input: TourPaddlePlanUpdate): Promise<boolean> {
+    const result = await this.db()
+      .updateTable('tours')
+      .set({
+        paddle_speed_kmh: input.paddle_speed_kmh,
+        portage_speed_kmh: input.portage_speed_kmh,
+        track_marks: input.track_marks,
+        duration: input.duration,
       })
       .where('place_id', '=', place_id)
       .where('place_id', 'in', (eb) => eb.selectFrom('places').select('id').where('trip_id', '=', trip_id))

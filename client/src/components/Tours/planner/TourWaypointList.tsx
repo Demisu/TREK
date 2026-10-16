@@ -1,4 +1,4 @@
-import type { TourFixedLeg } from '@trek/shared';
+import { paddleLayoutOfPoints, type PaddleLayout, type PaddleRole, type TourFixedLeg } from '@trek/shared';
 import {
   ArrowDown,
   ArrowDownUp,
@@ -7,11 +7,12 @@ import {
   Info,
   MapPin,
   MapPinPlus,
+  MoreHorizontal,
   Repeat,
   Spline,
   Trash2,
 } from 'lucide-react';
-import { Fragment, useState, type ReactNode } from 'react';
+import { Fragment, useState, type MouseEvent, type ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import { useSettingsStore } from '../../../store/settingsStore';
 import {
@@ -24,8 +25,13 @@ import { formatDistance } from '../../../utils/units';
 import { FerrataGlyph } from '../../Ferratas/FerrataGlyph';
 import { SoftPill } from '../../Planner/planParts';
 import { fs } from '../../shared/DialogShell';
+import { ContextMenu, useContextMenu } from '../../shared/ContextMenu';
 import { Tooltip } from '../../shared/Tooltip';
 import { RailCard, TourNotice } from '../tourParts';
+import { LockIcon, PortageIcon } from '../paddle/PaddleGlyph';
+import { LockRow, PaddleRolePill, PortageLegRow } from '../paddle/PaddleWaypointParts';
+import { usePaddleWaypointActions } from '../paddle/usePaddleWaypointActions';
+import { paddlePlanPoints, paddleRolesById } from './paddlePlanOf';
 import { lineLengthM } from './tourFixedLegs';
 import type { TourPlannerController } from './useTourPlanner';
 import { useWaypointPlaceNames } from './useWaypointPlaceNames';
@@ -45,6 +51,7 @@ function WaypointAction({
   danger = false,
   active,
   onAct,
+  onPress,
   children,
 }: {
   label: string;
@@ -53,6 +60,8 @@ function WaypointAction({
   /** A switch rather than a one-off action: pressed while on. */
   active?: boolean;
   onAct: () => void;
+  /** Told the click itself, for a control that opens a menu at its place. */
+  onPress?: (event: MouseEvent<HTMLButtonElement>) => void;
   children: ReactNode;
 }) {
   return (
@@ -65,7 +74,9 @@ function WaypointAction({
         aria-pressed={active}
         onClick={(event) => {
           event.stopPropagation();
-          if (!disabled) onAct();
+          if (disabled) return;
+          if (onPress) onPress(event);
+          else onAct();
         }}
         className={`grid h-6 w-6 place-items-center rounded-full transition-colors ${disabled ? 'pointer-events-none opacity-25' : danger ? 'text-danger hover:bg-surface-card' : active ? 'bg-surface-card text-content shadow-sm' : 'text-content-muted hover:bg-surface-card hover:text-content'}`}
       >
@@ -246,10 +257,13 @@ function WaypointRowLabel({
   point,
   placeName,
   loopEnd,
+  paddleRole,
 }: {
   point: TourPlannerController['waypoints'][number];
   placeName: string | undefined;
   loopEnd: boolean;
+  /** On a paddle tour the badge names the point for the paddler: put-in, take-out, re-entry, final take-out. */
+  paddleRole?: PaddleRole | null;
 }) {
   const { t } = useTranslation();
   const coordinates = `${point.lat.toFixed(5)}, ${point.lng.toFixed(5)}`;
@@ -264,7 +278,9 @@ function WaypointRowLabel({
         >
           {name ?? coordinates}
         </span>
-        {point.role !== 'via' && !loopEnd && <SoftPill>{t(ROLE_KEY[point.role])}</SoftPill>}
+        {paddleRole !== undefined
+          ? paddleRole && !loopEnd && <PaddleRolePill role={paddleRole} />
+          : point.role !== 'via' && !loopEnd && <SoftPill>{t(ROLE_KEY[point.role])}</SoftPill>}
       </span>
       {name && !loopEnd && (
         <span
@@ -280,9 +296,11 @@ function WaypointRowLabel({
 }
 
 /**
- * The controls of a waypoint row, out on hover as a plan row's are: move it up
- * or down, draw the leg after it by hand (not on a paddle tour, where every leg
- * is, nor on a via ferrata), and remove it.
+ * The controls of a waypoint row, out on hover as a plan row's are: a menu for
+ * what is done now and then (move it up or down, draw the leg after it by
+ * hand on a hike, carry the boat from here or mark a lock on a paddle tour)
+ * and remove beside it. Two controls keep the place name readable in a narrow
+ * rail however many tools a tour type adds.
  */
 function WaypointRowActions({
   planner,
@@ -300,36 +318,57 @@ function WaypointRowActions({
   isSaving: boolean;
 }) {
   const { t } = useTranslation();
+  const menu = useContextMenu();
+  const paddle = usePaddleWaypointActions(planner);
   const free = point.fixedLeg?.kind === 'free';
-  const canDrawLeg = !planner.isPaddle && index < lastIndex && point.fixedLeg?.kind !== 'ferrata';
+  const portage = point.fixedLeg?.kind === 'portage';
+  const hasLeg = index < lastIndex;
+  const items = [
+    { label: t('tours.planner.moveUp'), icon: ArrowUp, disabled: index === 0, onClick: () => planner.moveWaypoint(point.id, -1) },
+    {
+      label: t('tours.planner.moveDown'),
+      icon: ArrowDown,
+      disabled: index === lastIndex,
+      onClick: () => planner.moveWaypoint(point.id, 1),
+    },
+    ...(!planner.isPaddle && hasLeg && point.fixedLeg?.kind !== 'ferrata'
+      ? [{ divider: true }, {
+          label: t(free ? 'tours.planner.routeLeg' : 'tours.planner.freeLeg'),
+          icon: Spline,
+          onClick: () => planner.toggleWaypointFreeLeg(point.id),
+        }]
+      : []),
+    ...(planner.isPaddle
+      ? [
+          { divider: true },
+          ...(hasLeg
+            ? [{
+                label: t(portage ? 'tours.paddle.portageOff' : 'tours.paddle.portageOn'),
+                icon: PortageIcon,
+                onClick: () => paddle.togglePortage(point.id),
+              }]
+            : []),
+          {
+            label: t(point.lock ? 'tours.paddle.lockRemove' : 'tours.paddle.lockAdd'),
+            icon: LockIcon,
+            onClick: () => paddle.setLock(point.id, point.lock ? null : { wait_minutes: null, transit_minutes: null }),
+          },
+        ]
+      : []),
+  ];
   return (
     <span
-      className={`flex-none items-center gap-0.5 group-focus-within:flex group-hover:flex ${selected ? 'flex' : 'hidden'}`}
+      className={`flex-none items-center gap-0.5 group-focus-within:flex group-hover:flex ${selected || menu.menu ? 'flex' : 'hidden'}`}
     >
       <WaypointAction
-        label={t('tours.planner.moveUp')}
-        disabled={isSaving || index === 0}
-        onAct={() => planner.moveWaypoint(point.id, -1)}
+        label={t('tours.planner.moreActions')}
+        disabled={isSaving}
+        active={!!menu.menu}
+        onAct={() => undefined}
+        onPress={(event) => (menu.menu ? menu.close() : menu.open(event, items, true))}
       >
-        <ArrowUp size={13} strokeWidth={2.2} />
+        <MoreHorizontal size={14} strokeWidth={2.2} />
       </WaypointAction>
-      <WaypointAction
-        label={t('tours.planner.moveDown')}
-        disabled={isSaving || index === lastIndex}
-        onAct={() => planner.moveWaypoint(point.id, 1)}
-      >
-        <ArrowDown size={13} strokeWidth={2.2} />
-      </WaypointAction>
-      {canDrawLeg && (
-        <WaypointAction
-          label={t(free ? 'tours.planner.routeLeg' : 'tours.planner.freeLeg')}
-          disabled={isSaving}
-          active={free}
-          onAct={() => planner.toggleWaypointFreeLeg(point.id)}
-        >
-          <Spline size={13} strokeWidth={2.2} />
-        </WaypointAction>
-      )}
       <WaypointAction
         label={t('tours.planner.remove')}
         disabled={isSaving}
@@ -338,7 +377,50 @@ function WaypointRowActions({
       >
         <Trash2 size={13} strokeWidth={2} />
       </WaypointAction>
+      <ContextMenu menu={menu.menu} onClose={menu.close} />
     </span>
+  );
+}
+
+/**
+ * What a paddle tour shows under a waypoint: the portage that starts there,
+ * and the lock at it with its times.
+ */
+function PaddleRowExtras({
+  planner,
+  point,
+  index,
+  layout,
+  editable,
+}: {
+  planner: TourPlannerController;
+  point: TourPlannerController['waypoints'][number];
+  index: number;
+  layout: PaddleLayout;
+  editable: boolean;
+}) {
+  const paddle = usePaddleWaypointActions(planner);
+  const portage = layout.stretches.find((stretch) => stretch.kind === 'portage' && stretch.startIndex === index);
+  const lock = point.lock ? layout.locks.find((stop) => stop.index === index) : undefined;
+  return (
+    <>
+      {portage && (
+        <PortageLegRow
+          lengthM={portage.toM - portage.fromM}
+          extraMinutes={portage.extraMinutes}
+          disabled={!editable}
+          onExtraChange={(minutes) => paddle.setPortageExtra(point.id, minutes)}
+        />
+      )}
+      {point.lock && (
+        <LockRow
+          lock={point.lock}
+          bypassed={!!lock?.bypassed}
+          disabled={!editable}
+          onChange={(next) => paddle.setLock(point.id, next)}
+        />
+      )}
+    </>
   );
 }
 
@@ -393,6 +475,10 @@ export default function TourWaypointList({
   }
   const lastIndex = planner.waypoints.length - 1;
   const movable = canEdit && !isSaving;
+  const paddleRoles = planner.isPaddle ? paddleRolesById(planner.waypoints) : null;
+  // A hike keeps its start and end badges (undefined); a paddle tour names each point for the paddler.
+  const paddleRoleOf = (id: string) => (paddleRoles ? (paddleRoles.get(id) ?? null) : undefined);
+  const paddleLayout = planner.isPaddle ? paddleLayoutOfPoints(paddlePlanPoints(planner.waypoints)) : null;
   const endDrag = () => {
     setDraggedWaypointId(null);
     setDropTarget(null);
@@ -523,7 +609,12 @@ export default function TourWaypointList({
                     className="flex min-w-0 flex-1 flex-col items-start gap-0.5 text-start outline-none focus-visible:rounded focus-visible:ring-2 focus-visible:ring-[color:var(--text-primary)]"
                     aria-current={selected ? 'true' : undefined}
                   >
-                    <WaypointRowLabel point={point} placeName={placeNames[point.id]} loopEnd={loopEnd} />
+                    <WaypointRowLabel
+                      point={point}
+                      placeName={placeNames[point.id]}
+                      loopEnd={loopEnd}
+                      paddleRole={paddleRoleOf(point.id)}
+                    />
                   </button>
                   {canEdit && (
                     <WaypointRowActions
@@ -542,6 +633,15 @@ export default function TourWaypointList({
               ))}
               {/* A paddle tour is drawn by hand throughout; the notice says it once instead of on every leg. */}
               {point.fixedLeg?.kind === 'free' && !planner.isPaddle && <FreeLegRow leg={point.fixedLeg} />}
+              {paddleLayout && (
+                <PaddleRowExtras
+                  planner={planner}
+                  point={point}
+                  index={index}
+                  layout={paddleLayout}
+                  editable={canEdit && !isSaving}
+                />
+              )}
             </Fragment>
           );
         })}

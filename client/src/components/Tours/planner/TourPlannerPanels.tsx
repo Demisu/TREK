@@ -19,6 +19,10 @@ import { formatPlannedTourDuration, hikeSourceBadgeLabel, tourSource } from '../
 import { CardAction, FoldButton, RailCard, RailFacts, TourDayMenu, TourListCard, TourNotice, TourSection } from '../tourParts'
 import { movingTimeLabel, tourMetricFacts, withoutHeights } from '../tourFacts'
 import { TourDetailsSection, TourNameField } from './TourEditorFields'
+import { PaddleTimeCard } from '../paddle/PaddleTimeCard'
+import { PaddleWindSection } from '../paddle/PaddleWindCard'
+import { TrackPaddlePlanCards } from '../paddle/TrackPaddlePlanCard'
+import type { TrackPaddlePlan } from '../paddle/useTrackPaddlePlan'
 import { TourTypeFields } from './TourTypeFields'
 import TourWaypointList from './TourWaypointList'
 import type { DistanceIndexedProfileSample, RouteProfileFocus } from '../../../utils/routeGeometry'
@@ -219,15 +223,23 @@ function NeutralRail({
   )
 }
 
+/** Where a recorded track starts, the place its wind is asked for. */
+function trackStart(line: readonly (readonly [number, number])[] | undefined): { lat: number; lng: number } | null {
+  const first = line?.[0]
+  return first ? { lat: first[0], lng: first[1] } : null
+}
+
 /** The rail for an imported tour: shown as it came in, measured, never edited. */
 function GpxViewRail({
   planner,
   canEdit,
   conversion,
+  trackPaddlePlan,
 }: {
   planner: TourPlannerController
   canEdit: boolean
   conversion?: GpxConversion
+  trackPaddlePlan?: TrackPaddlePlan
 }) {
   const { t } = useTranslation()
   const distanceUnit = useSettingsStore((state) => state.settings.distance_unit)
@@ -264,6 +276,10 @@ function GpxViewRail({
         </div>
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-3">
           {conversion && <TourConversionSection conversion={conversion} />}
+          {trackPaddlePlan && <TrackPaddlePlanCards plan={trackPaddlePlan} tour={tour} />}
+          {tour.tour_type === 'kayak' && (
+            <PaddleWindSection placeId={tour.place_id} start={trackStart(analysis?.routeCoordinates)} />
+          )}
           <RailCard icon={<Mountain size={14} strokeWidth={2} />} title={t('tours.planner.inspector.title')}>
             {analysis ? (
               <div className="flex flex-col gap-3">
@@ -291,11 +307,13 @@ function GpxViewRail({
 export function TourPlannerRail({ planner,
   onOpenWanderer,
   conversion,
-  recordedTrack, canEdit: editPermission, canAssign: assignPermission }: { planner: TourPlannerController
+  recordedTrack, trackPaddlePlan, canEdit: editPermission, canAssign: assignPermission }: { planner: TourPlannerController
   /** Planning an editable tour from the import in view. */
   conversion?: GpxConversion
   /** The way back to the recorded track of an import planned over in place. */
   recordedTrack?: RecordedTrack
+  /** The portages and locks of a recorded paddle track in view (PAD-03). */
+  trackPaddlePlan?: TrackPaddlePlan
   /** Browse the user's wanderer trails instead; offered while nothing is being edited. */
   onOpenWanderer?: () => void
 } & TourPermissionProps) {
@@ -321,7 +339,7 @@ export function TourPlannerRail({ planner,
     return <NeutralRail planner={planner} canEdit={canEdit} onOpenWanderer={onOpenWanderer}
           />
   if (planner.mode.type === 'view-gpx')
-    return <GpxViewRail planner={planner} canEdit={canEdit} conversion={conversion} />
+    return <GpxViewRail planner={planner} canEdit={canEdit} conversion={conversion} trackPaddlePlan={trackPaddlePlan} />
 
   const isSavedEdit = planner.mode.type === 'edit-saved'
 
@@ -349,6 +367,12 @@ export function TourPlannerRail({ planner,
           {recordedTrack?.available && <RecordedTrackCard recordedTrack={recordedTrack} disabled={isSaving} />}
 
           <TourWaypointList planner={planner} canEdit={canEdit} isSaving={isSaving} />
+
+          {planner.isPaddle && <PaddleTimeCard planner={planner} locked={locked} />}
+
+          {planner.isPaddle && (
+            <PaddleWindSection placeId={planner.editingPlaceId} start={planner.waypoints[0] ?? null} />
+          )}
 
           <TourDetailsSection planner={planner} locked={locked} onDifficultyChange={changeDifficulty} />
         </div>

@@ -2,6 +2,7 @@ import type { TourListItem } from '@trek/shared';
 import { useCallback } from 'react';
 import { useGpxConversion } from '../../components/Tours/conversion/useGpxConversion';
 import { useTourPlanner } from '../../components/Tours/planner/useTourPlanner';
+import { useTrackPaddlePlan } from '../../components/Tours/paddle/useTrackPaddlePlan';
 import { useRecordedTrack } from '../../components/Tours/useRecordedTrack';
 import { useTourGpxImport } from '../../components/Tours/useTourGpxImport';
 import { useWandererBrowser } from '../../components/Tours/wanderer/useWandererBrowser';
@@ -117,6 +118,17 @@ export function useTourWorkspace(
     },
   });
 
+  // PAD-03/PAD-07: portages and locks laid onto a recorded paddle track, without redrawing it.
+  const trackPaddlePlan = useTrackPaddlePlan({
+    tripId,
+    planner: tourPlanner,
+    canEdit: canPlaceEdit,
+    onSaved: (tour) => {
+      upsertTour(tour);
+      void invalidateTourPlaceIds({ placeIds: [tour.place_id] });
+    },
+  });
+
   const tourDetailActions = useTourDetailActions(planner);
 
   return {
@@ -126,6 +138,7 @@ export function useTourWorkspace(
     wandererBrowser,
     tourConversion,
     recordedTrack,
+    trackPaddlePlan,
     tourDetailActions,
   };
 }

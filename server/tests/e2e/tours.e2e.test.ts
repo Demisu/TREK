@@ -638,6 +638,142 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
     });
   });
 
+  describe('portages, locks and the paddle plan (PAD-03, PAD-07)', () => {
+    const leg = (kind: 'free' | 'portage', from: [number, number], to: [number, number], extra?: number) => ({
+      kind,
+      geometry: [from, to],
+      ...(extra === undefined ? {} : { extra_minutes: extra }),
+    });
+    const carried = (overrides: Record<string, unknown> = {}) =>
+      tourBody({
+        tour_type: 'kayak',
+        max_hiking_difficulty: null,
+        boat_type: 'canoe',
+        water_context: 'river',
+        portage_speed_kmh: 2.5,
+        route_geometry: GEOMETRY,
+        waypoints: [
+          { lat: 47, lng: 11, role: 'start', sequence: 0, fixed_leg: leg('free', [47, 11], [47.01, 11.01]) },
+          {
+            lat: 47.01,
+            lng: 11.01,
+            role: 'via',
+            sequence: 1,
+            fixed_leg: leg('portage', [47.01, 11.01], [47.02, 11.02], 15),
+            lock: { wait_minutes: 20, transit_minutes: null },
+          },
+          { lat: 47.02, lng: 11.02, role: 'end', sequence: 2 },
+        ],
+        ...overrides,
+      });
+    const paddlePlan = (placeId: number, body: Record<string, unknown>, userId = OWNER) =>
+      request(server).put(`/api/trips/5/tours/${placeId}/paddle-plan`).set('Cookie', sessionCookie(userId)).send(body);
+    const importPaddleTrack = async () => {
+      const res = await importGpx(OWNER, TRACK_GPX, 5, {
+        tour_type: 'kayak',
+        boat_type: 'kayak',
+        water_context: 'lake',
+      });
+      expect(res.status).toBe(201);
+      return res.body.tours[0] as { place_id: number; distance: number };
+    };
+
+    it('saves a portage with its time out and in, a lock with its times and the carrying speed, and reads them back', async () => {
+      const res = await request(server).post('/api/trips/5/tours').set('Cookie', sessionCookie(OWNER)).send(carried());
+      expect(res.status).toBe(201);
+      expect(res.body.tour).toMatchObject({ portage_speed_kmh: 2.5, track_marks: null });
+      expect(res.body.waypoints[1]).toMatchObject({
+        fixed_leg: { kind: 'portage', extra_minutes: 15 },
+        lock: { wait_minutes: 20, transit_minutes: null },
+      });
+      expect(res.body.waypoints[0].lock).toBeUndefined();
+      const detail = await request(server)
+        .get(`/api/trips/5/tours/${res.body.tour.place_id}`)
+        .set('Cookie', sessionCookie(OWNER));
+      expect(detail.body).toEqual(res.body);
+    });
+
+    it('400 for a portage, a lock or a carrying speed on a hike; nothing written', async () => {
+      const onHike = carried({ tour_type: 'hike', max_hiking_difficulty: 2, boat_type: null, water_context: null });
+      const res = await request(server).post('/api/trips/5/tours').set('Cookie', sessionCookie(OWNER)).send(onHike);
+      expect(res.status).toBe(400);
+      expect(await countRows(orm, Tours)).toBe(0);
+    });
+
+    it('lays portages and locks onto a recorded paddle track, works out its moving time and leaves the track as it was', async () => {
+      const track = await importPaddleTrack();
+      const before = await placeColumns(track.place_id, 'route_geometry');
+      const totalM = track.distance * 1000;
+      const res = await paddlePlan(track.place_id, {
+        paddle_speed_kmh: 4,
+        portage_speed_kmh: null,
+        track_marks: {
+          portages: [{ from_m: 400, to_m: 800, extra_minutes: null }],
+          locks: [{ at_m: Math.round(totalM - 200), wait_minutes: 15, transit_minutes: 10 }],
+        },
+      });
+      expect(res.status).toBe(200);
+      expect(res.body.tour.track_marks.portages).toEqual([{ from_m: 400, to_m: 800, extra_minutes: null }]);
+      // Water at 4 km/h, 400 m carried at 2 km/h, 10 minutes out and in, 25 minutes at the lock.
+      const waterMinutes = ((totalM - 400) / 1000 / 4) * 60;
+      expect(res.body.tour.duration).toBe(Math.round(waterMinutes + 12 + 10 + 25));
+      expect(await placeColumns(track.place_id, 'route_geometry')).toEqual(before);
+      expect(broadcast.mock.calls.map((c) => c[1])).toContain('tours:changed');
+
+      const cleared = await paddlePlan(track.place_id, {
+        paddle_speed_kmh: null,
+        portage_speed_kmh: null,
+        track_marks: { portages: [], locks: [] },
+      });
+      expect(cleared.body.tour.track_marks).toBeNull();
+    });
+
+    it('refuses a plan for a hike, for a planned tour, a mark past the end of the track and overlapping portages', async () => {
+      const hike = (await importGpx(OWNER, FLAT_GPX, 5)).body.tours[0].place_id as number;
+      const planned = await createViaApi(5, carried());
+      const track = await importPaddleTrack();
+      const none = { portages: [], locks: [] };
+      const plan = (marks: Record<string, unknown>) => ({
+        paddle_speed_kmh: null,
+        portage_speed_kmh: null,
+        track_marks: marks,
+      });
+      const results = await Promise.all([
+        paddlePlan(hike, plan(none)),
+        paddlePlan(planned, plan(none)),
+        paddlePlan(
+          track.place_id,
+          plan({ portages: [], locks: [{ at_m: 999999, wait_minutes: 1, transit_minutes: 1 }] }),
+        ),
+        paddlePlan(
+          track.place_id,
+          plan({
+            portages: [
+              { from_m: 100, to_m: 500, extra_minutes: null },
+              { from_m: 400, to_m: 900, extra_minutes: null },
+            ],
+            locks: [],
+          }),
+        ),
+      ]);
+      expect(results.map((res) => res.status)).toEqual([400, 400, 400, 400]);
+      expect(results[0].body.code).toBe('not_a_paddle_tour');
+      expect(results[1].body.code).toBe('planned_tour');
+      expect(results[2].body.code).toBe('mark_beyond_track');
+    });
+
+    it('403 without place_edit, 404 for a tour of another trip', async () => {
+      const track = await importPaddleTrack();
+      const body = { paddle_speed_kmh: null, portage_speed_kmh: null, track_marks: { portages: [], locks: [] } };
+      expect((await paddlePlan(track.place_id, body, VIEWER)).status).toBe(403);
+      const elsewhere = await request(server)
+        .put(`/api/trips/6/tours/${track.place_id}/paddle-plan`)
+        .set('Cookie', sessionCookie(OWNER))
+        .send(body);
+      expect(elsewhere.status).toBe(404);
+    });
+  });
+
   describe('GPX preview and typed import (PAD-02)', () => {
     it('shows every track with its whole line and measures, and stores nothing', async () => {
       const res = await previewGpx(OWNER, TRACK_GPX);

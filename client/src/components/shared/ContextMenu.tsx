@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useLayoutEffect, useRef } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useRef, type ComponentType, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import { LucideIcon } from 'lucide-react'
 
 interface MenuItem {
   label?: string
-  icon?: LucideIcon
+  /** A lucide icon, or any icon drawn the same way (TREK's own glyphs). */
+  icon?: LucideIcon | ComponentType<{ size?: number; style?: CSSProperties }>
   onClick?: () => void
   disabled?: boolean
   danger?: boolean

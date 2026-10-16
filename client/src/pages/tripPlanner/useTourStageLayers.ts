@@ -1,4 +1,7 @@
 import { useCallback, useMemo } from 'react';
+import { useShallow } from 'zustand/react/shallow';
+import { paddleMapItems } from '../../components/Tours/paddle/paddleMapLayer';
+import { selectPaddleObstacle, usePaddleObstacleStore } from '../../store/paddleObstacleStore';
 import type { useFerrataMapLayer } from '../../components/Ferratas/useFerrataMapLayer';
 import type { TourPlannerController } from '../../components/Tours/planner/useTourPlanner';
 import { baseLayerFor, SEAMARK_OVERLAY, tourMapLayersFor } from '../../components/Tours/tourMapLayers';
@@ -31,9 +34,18 @@ export function useTourStageLayers(
     tourPlanner.mapOverlays.has(SEAMARK_OVERLAY.id),
     toggleSeamarks
   );
+  // PAD-05B: the obstacles the sync hook read around the paddle tour, only while one is open.
+  const { features, related, selectedRef } = usePaddleObstacleStore(
+    useShallow((state) => ({ features: state.features, related: state.related, selectedRef: state.selectedRef }))
+  );
+  const paddleItems = useMemo(() => paddleMapItems(features, related), [features, related]);
+  const paddle = useMemo(
+    () => (paddleItems.length ? { items: paddleItems, selectedRef, onSelect: selectPaddleObstacle } : undefined),
+    [paddleItems, selectedRef]
+  );
   const tourLayers = useMemo(
-    () => ({ bases: layerSet.bases, overlays: layerSet.overlays.includes('seamarks') ? [seamarks] : [] }),
-    [layerSet, seamarks]
+    () => ({ bases: layerSet.bases, overlays: layerSet.overlays.includes('seamarks') ? [seamarks] : [], paddle }),
+    [layerSet, seamarks, paddle]
   );
   return {
     baseLayer: baseLayerFor(layerSet, tourPlanner.mapBaseLayer),

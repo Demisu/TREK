@@ -7,6 +7,8 @@ export interface TourRoutePart {
   coordinates: [number, number][]
   /** Drawn by hand: no router planned or checked it. */
   free: boolean
+  /** PAD-03: carried over land, a portage of a paddle tour; absent on water and on a hike. */
+  land?: boolean
 }
 
 export interface TourRouteResult {
@@ -24,7 +26,7 @@ export interface TourRouteResult {
 const TOURS_MAX_HIKING_DIFFICULTY = 2
 
 /** How fast a fixed leg is reckoned until the heights are in: a via ferrata climbs slowly, a free leg is walked. */
-const FIXED_LEG_KM_PER_HOUR = { ferrata: 1.5, free: 4 } as const
+const FIXED_LEG_KM_PER_HOUR = { ferrata: 1.5, free: 4, portage: 2 } as const
 
 /**
  * Tours deliberately bypasses the OSRM-first RouteCalculator. A waypoint whose
@@ -61,9 +63,9 @@ export async function routeWalkingTour(
     if (!(await routeRun(run))) return null
     const drawn = leg.geometry.map(([lat, lng]): [number, number] => [lat, lng])
     // A hand-drawn leg is sampled along its length, so its heights follow the ground between its ends.
-    const line = leg.kind === 'free' ? densifyLine(drawn) : drawn
+    const line = leg.kind === 'ferrata' ? drawn : densifyLine(drawn)
     const length = lineLengthM(line)
-    lines.push({ coordinates: line, free: leg.kind === 'free' })
+    lines.push({ coordinates: line, free: leg.kind !== 'ferrata', ...(leg.kind === 'portage' ? { land: true } : {}) })
     distanceMeters += length
     durationSeconds += (length / 1000 / FIXED_LEG_KM_PER_HOUR[leg.kind]) * 3600
     run = [waypoints[i + 1]]
@@ -76,13 +78,16 @@ export async function routeWalkingTour(
   return { coordinates, parts: mergeParts(lines), distanceMeters, durationSeconds }
 }
 
-/** Neighbouring parts of the same kind as one, so a run of hand-drawn legs is one dotted line. */
+/** Neighbouring parts of the same kind as one, so a run of hand-drawn legs is one dotted line and a portage one line on land. */
 function mergeParts(parts: TourRoutePart[]): TourRoutePart[] {
   const merged: TourRoutePart[] = []
   for (const part of parts) {
     const previous = merged[merged.length - 1]
-    if (previous && previous.free === part.free) previous.coordinates = [...previous.coordinates, ...part.coordinates.slice(1)]
-    else merged.push({ coordinates: [...part.coordinates], free: part.free })
+    if (previous && previous.free === part.free && !!previous.land === !!part.land) {
+      previous.coordinates = [...previous.coordinates, ...part.coordinates.slice(1)]
+    } else {
+      merged.push({ coordinates: [...part.coordinates], free: part.free, ...(part.land ? { land: true } : {}) })
+    }
   }
   return merged
 }

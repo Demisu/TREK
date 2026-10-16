@@ -5,6 +5,8 @@ import { JwtAuthGuard } from '../auth-core/jwt-auth.guard';
 import { ResponseContract } from '../common/response-contract';
 import { RequirePermission, TripAccessGuard } from '../permissions/trip-access.guard';
 import { TourCopyDto, TourCreateDto } from './dto/tour-create.dto';
+import { TourPaddlePlanDto } from './dto/tour-paddle-plan.dto';
+import { TourPaddlePlanService } from './tour-paddle-plan.service';
 import { ToursService } from './tours.service';
 import { Body, Controller, Get, Headers, HttpCode, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { tourCreateResponseSchema, tourDetailResponseSchema } from '@trek/shared';
@@ -20,7 +22,10 @@ import { tourCreateResponseSchema, tourDetailResponseSchema } from '@trek/shared
 @UseGuards(AddonGuard, JwtAuthGuard, TripAccessGuard)
 @RequireAddon(ADDON_IDS.TOURS, 'Tours')
 export class ToursController {
-  constructor(private readonly tours: ToursService) {}
+  constructor(
+    private readonly tours: ToursService,
+    private readonly paddlePlans: TourPaddlePlanService,
+  ) {}
 
   @Get()
   async list(@Param('tripId') tripId: string) {
@@ -64,6 +69,22 @@ export class ToursController {
     @Headers('x-socket-id') socketId?: string,
   ) {
     return await this.tours.copyTour(tripId, placeId, body.name, socketId);
+  }
+
+  /**
+   * PAD-03/PAD-07: the portages, locks and speeds of a recorded paddle track,
+   * laid onto it without redrawing it. A planned tour saves these with its route.
+   */
+  @RequirePermission('place_edit')
+  @Put(':placeId/paddle-plan')
+  @ResponseContract(tourDetailResponseSchema)
+  async updatePaddlePlan(
+    @Param('tripId') tripId: string,
+    @Param('placeId') placeId: string,
+    @Body() body: TourPaddlePlanDto,
+    @Headers('x-socket-id') socketId?: string,
+  ) {
+    return await this.paddlePlans.update(tripId, placeId, body, socketId);
   }
 
   /** Takes an import planned over in place back to its recorded track; the planning is dropped. */

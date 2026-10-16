@@ -1,6 +1,8 @@
 import { TileLayer } from 'react-leaflet';
 import { FerrataMapLayerLeaflet } from '../Ferratas/FerrataLayerLeaflet';
 import type { FerrataMapLayer } from '../Ferratas/useFerrataMapLayer';
+import { PaddleLayerLeaflet } from '../Tours/paddle/PaddleLayerLeaflet';
+import type { PaddleMapLayer } from '../Tours/paddle/paddleMapLayer';
 import type { MapRasterOverlay } from './mapRasterOverlay';
 
 /** Over the basemap's tiles (z-index 1) and every basemap raster, under the route's own panes. */
@@ -28,18 +30,21 @@ function RasterOverlaysLeaflet({ overlays }: { overlays?: readonly MapRasterOver
   );
 }
 
-/** The tour planner's layers on the Leaflet map: the via ferratas and the raster overlays its type offers. */
+/** The tour planner's layers on the Leaflet map: the via ferratas, the raster overlays its type offers and the paddle obstacles. */
 export function TourMapLayersLeaflet({
   ferrataLayer,
   overlays,
+  paddle,
 }: {
   ferrataLayer?: FerrataMapLayer;
   overlays?: readonly MapRasterOverlay[];
+  paddle?: PaddleMapLayer;
 }) {
   return (
     <>
       <FerrataMapLayerLeaflet layer={ferrataLayer} />
       <RasterOverlaysLeaflet overlays={overlays} />
+      <PaddleLayerLeaflet layer={paddle} />
     </>
   );
 }

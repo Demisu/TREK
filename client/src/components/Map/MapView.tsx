@@ -1291,7 +1291,7 @@ export const MapView = memo(function MapView({
       />
 
       {hazards?.length > 0 && <HazardLayers hazards={hazards} />}
-      <TourMapLayersLeaflet ferrataLayer={ferrataLayer} overlays={tourLayers?.overlays} />
+      <TourMapLayersLeaflet ferrataLayer={ferrataLayer} overlays={tourLayers?.overlays} paddle={tourLayers?.paddle} />
 
       {/* The route as it was actually recorded (#2279). Drawn in the casing
           pane's sibling order so it sits under the planned route rather than

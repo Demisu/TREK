@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import type { useOutsidePressGuard } from '../../components/Ferratas/useOutsidePressGuard';
+import { paddleRolesById } from '../../components/Tours/planner/paddlePlanOf';
 import { isClosedLoop } from '../../components/Tours/planner/tourRouteActions';
 import type { TourPlannerController } from '../../components/Tours/planner/useTourPlanner';
 import { useWaypointPlaceNames } from '../../components/Tours/planner/useWaypointPlaceNames';
@@ -25,6 +26,7 @@ type PointsPlanner = Pick<
   | 'addWaypoint'
   | 'undo'
   | 'maxHikingDifficulty'
+  | 'isPaddle'
 >;
 
 interface Options {
@@ -67,16 +69,23 @@ export function useTourMapPoints({ tourPlanner, canPlaceEdit, mode, ferrataOpen,
   };
   const onAdd = guard(gate(placeOn ? addPoint : undefined));
   // Kept by identity while nothing about the points changed, so the map does not redraw its pins on every render.
-  const { waypoints } = tourPlanner;
+  const { waypoints, isPaddle } = tourPlanner;
   const points = useMemo(() => {
     if (editing) {
       // The way back of a loop lies on the start; one pin stands for both, and moving it moves both.
       const shown = isClosedLoop(waypoints) ? waypoints.slice(0, -1) : waypoints;
-      return shown.map((point, index) => ({
-        ...point,
-        name: placeNames[point.id] ?? t('tours.planner.waypointLabel', { n: index + 1 }),
-        detail: t(ROLE_KEY[point.role]),
-      }));
+      // A paddle tour names a pin for the paddler (put-in, take-out, re-entry) and says where a lock is.
+      const roles = isPaddle ? paddleRolesById(waypoints) : null;
+      return shown.map((point, index) => {
+        const role = roles?.get(point.id);
+        const detail = role ? t(`tours.paddle.role.${role}`) : roles ? '' : t(ROLE_KEY[point.role]);
+        const lock = point.lock ? t('tours.paddle.lock') : '';
+        return {
+          ...point,
+          name: placeNames[point.id] ?? t('tours.planner.waypointLabel', { n: index + 1 }),
+          detail: [detail, lock].filter(Boolean).join(', ') || t(ROLE_KEY[point.role]),
+        };
+      });
     }
     if (!previewPoints?.length) return NO_POINTS;
     const last = previewPoints.length - 1;
@@ -91,7 +100,7 @@ export function useTourMapPoints({ tourPlanner, canPlaceEdit, mode, ferrataOpen,
         detail: t(ROLE_KEY[role]),
       } as const;
     });
-  }, [editing, waypoints, placeNames, previewPoints, t]);
+  }, [editing, isPaddle, waypoints, placeNames, previewPoints, t]);
 
   return {
     waypoints: {

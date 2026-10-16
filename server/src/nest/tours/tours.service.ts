@@ -12,6 +12,8 @@ import type {
   ToursRepository,
   TourUpdate,
 } from '../../db/repositories/Tours.repository';
+import { TOUR_TRACK_MARKS } from '../../db/json-columns';
+import { decodeJson } from '../../utils/json-column';
 import { DomainError } from '../common/domain-error';
 import { toRowId } from '../common/row-id';
 import { UnitOfWork } from '../database/unit-of-work';
@@ -95,6 +97,8 @@ export class ToursService {
       boat_type: r.boat_type as PaddleBoatType | null,
       water_context: r.water_context as PaddleWaterContext | null,
       paddle_speed_kmh: r.paddle_speed_kmh,
+      portage_speed_kmh: r.portage_speed_kmh,
+      track_marks: decodeJson(TOUR_TRACK_MARKS, r.track_marks, 'tour'),
       has_recorded_track: Boolean(r.has_recorded_track),
       planned: Boolean(r.planned),
       caution: r.match_confidence !== null && r.match_confidence < LOW_CONFIDENCE_THRESHOLD,
@@ -125,6 +129,7 @@ export class ToursService {
       boat_type: input.boat_type ?? null,
       water_context: input.water_context ?? null,
       paddle_speed_kmh: input.paddle_speed_kmh ?? null,
+      portage_speed_kmh: input.portage_speed_kmh ?? null,
     };
   }
 
@@ -336,6 +341,7 @@ export class ToursService {
         boat_type: row.boat_type as PaddleBoatType | null,
         water_context: row.water_context as PaddleWaterContext | null,
         paddle_speed_kmh: row.paddle_speed_kmh,
+        portage_speed_kmh: row.portage_speed_kmh,
       });
       await this.waypointsRepo.deleteForPlace(pid);
       await this.toursRepo.clearRecordedTrack(pid);
@@ -397,6 +403,8 @@ export class ToursService {
         boat_type: source.boat_type as PaddleBoatType | null,
         water_context: source.water_context as PaddleWaterContext | null,
         paddle_speed_kmh: source.paddle_speed_kmh,
+        portage_speed_kmh: source.portage_speed_kmh,
+        track_marks: source.track_marks,
         wanderer_ref: source.wanderer_ref,
         difficulty: source.difficulty,
         derived_from_place_id: pid,
@@ -544,6 +552,8 @@ export class ToursService {
             max_hiking_difficulty: null,
             derived_from_place_id: null,
             origin: 'gpx',
+            portage_speed_kmh: null,
+            track_marks: null,
             has_recorded_track: 0,
             planned: 0,
             has_waypoints: 0,

@@ -1,3 +1,4 @@
+import { paddleLockSchema, paddleStopMinutesSchema, portageSpeedKmhSchema, trackMarksSchema } from './paddle-plan.schema';
 import { tourOriginSchema, tourProvenanceSchema } from './tour-provenance.schema';
 
 import { z } from 'zod';
@@ -114,6 +115,10 @@ export const tourSchema = z.object({
   water_context: paddleWaterContextSchema.nullable().optional(),
   /** The speed the paddler chose; null while the boat's suggested speed applies. */
   paddle_speed_kmh: z.number().nullable().optional(),
+  /** PAD-07: the carrying speed of a paddle tour's portages; null while the starting value applies. */
+  portage_speed_kmh: z.number().nullable().optional(),
+  /** PAD-03: portages and locks laid onto a recorded track; null for a planned tour and a track without any. */
+  track_marks: trackMarksSchema.nullable().optional(),
 });
 export type Tour = z.infer<typeof tourSchema>;
 
@@ -170,7 +175,9 @@ const fixedLegGeometrySchema = z
  * own line from OpenStreetMap, since a router walks around a ferrata wherever
  * it can. A free leg (P2A-04) is drawn by hand, straight from one waypoint to
  * the next: off the path network, across a lake, wherever no router goes.
- * Nothing about a free leg was checked by a router.
+ * Nothing about a free leg was checked by a router. A portage (PAD-03) is a
+ * free leg on land: the boat is carried along it, so it counts as land and
+ * not as water, with the time getting out and back in takes.
  */
 export const tourFixedLegSchema = z.discriminatedUnion('kind', [
   z.object({
@@ -184,6 +191,12 @@ export const tourFixedLegSchema = z.discriminatedUnion('kind', [
     kind: z.literal('free'),
     geometry: fixedLegGeometrySchema,
   }),
+  z.object({
+    kind: z.literal('portage'),
+    geometry: fixedLegGeometrySchema,
+    /** Getting out, unloading and back in, on the first leg of a portage; null takes the starting value. */
+    extra_minutes: paddleStopMinutesSchema.nullable().optional(),
+  }),
 ]);
 export type TourFixedLeg = z.infer<typeof tourFixedLegSchema>;
 export type TourFixedLegKind = TourFixedLeg['kind'];
@@ -195,6 +208,8 @@ export const tourWaypointSchema = z.object({
   sequence: z.number().int().nonnegative(),
   /** The leg to the next waypoint as a fixed line; absent or null for a routed one. */
   fixed_leg: tourFixedLegSchema.nullable().optional(),
+  /** PAD-07: a lock at this point of a paddle tour, with the times the paddler expects there. */
+  lock: paddleLockSchema.nullable().optional(),
 });
 export type TourWaypoint = z.infer<typeof tourWaypointSchema>;
 
@@ -228,6 +243,7 @@ export const tourCreateRequestSchema = z
     boat_type: paddleBoatTypeSchema.nullable().optional(),
     water_context: paddleWaterContextSchema.nullable().optional(),
     paddle_speed_kmh: paddleSpeedKmhSchema.nullable().optional(),
+    portage_speed_kmh: portageSpeedKmhSchema.nullable().optional(),
     duration_seconds: z.number().finite().nonnegative().nullable().optional(),
     planned_duration_minutes: plannedTourDurationMinutesSchema.optional(),
     break_additional_minutes: plannedTourDurationMinutesSchema.optional(),
@@ -303,8 +319,10 @@ function tourTypeIssues(value: {
   boat_type?: PaddleBoatType | null;
   water_context?: PaddleWaterContext | null;
   paddle_speed_kmh?: number | null;
-}): Array<{ path: string[]; message: string }> {
-  const issues: Array<{ path: string[]; message: string }> = [];
+  portage_speed_kmh?: number | null;
+  waypoints?: ReadonlyArray<{ fixed_leg?: { kind: string } | null; lock?: unknown }>;
+}): Array<{ path: Array<string | number>; message: string }> {
+  const issues: Array<{ path: Array<string | number>; message: string }> = [];
   if (value.tour_type === 'kayak') {
     if (value.boat_type == null) issues.push({ path: ['boat_type'], message: 'a paddle tour needs a boat type' });
     if (value.water_context == null)
@@ -315,9 +333,15 @@ function tourTypeIssues(value: {
   }
   if (value.max_hiking_difficulty === null)
     issues.push({ path: ['max_hiking_difficulty'], message: 'a hike needs a hiking difficulty' });
-  for (const field of ['boat_type', 'water_context', 'paddle_speed_kmh'] as const) {
+  for (const field of ['boat_type', 'water_context', 'paddle_speed_kmh', 'portage_speed_kmh'] as const) {
     if (value[field] != null) issues.push({ path: [field], message: `${field} belongs to a paddle tour` });
   }
+  // A portage and a lock are a paddler's: a hike carries no boat.
+  (value.waypoints ?? []).forEach((point, index) => {
+    if (point.fixed_leg?.kind === 'portage')
+      issues.push({ path: ['waypoints', index, 'fixed_leg'], message: 'a portage belongs to a paddle tour' });
+    if (point.lock != null) issues.push({ path: ['waypoints', index, 'lock'], message: 'a lock belongs to a paddle tour' });
+  });
   return issues;
 }
 

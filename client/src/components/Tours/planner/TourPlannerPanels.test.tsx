@@ -536,9 +536,12 @@ describe('TourPlannerRail', () => {
     fireEvent.dragEnd(rows[0], { dataTransfer: transfer });
     expect(reorderWaypoint).not.toHaveBeenCalled();
 
-    const moveDown = screen.getAllByRole('button', { name: 'Move waypoint down' })[0];
-    expect(moveDown).toBeEnabled();
-    moveDown.focus();
+    // The row's menu opens from the keyboard and lands on its first action that can run.
+    const more = screen.getAllByRole('button', { name: 'More actions' })[0];
+    more.focus();
+    await user.keyboard(' ');
+    const moveDown = screen.getByRole('button', { name: 'Move waypoint down' });
+    expect(moveDown).toHaveFocus();
     await user.keyboard(' ');
     expect(moveWaypoint).toHaveBeenCalledWith('a', 1);
     expect(reorderWaypoint).not.toHaveBeenCalled();
@@ -573,9 +576,8 @@ describe('TourPlannerRail', () => {
     expect(screen.getByRole('button', { name: 'Maximum trail difficulty' })).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Back to Tours' })).toBeDisabled()
-    expect(screen.getAllByLabelText('Move waypoint up')).toHaveLength(2)
-    expect(screen.getAllByLabelText('Move waypoint up').every(element => element.getAttribute('aria-disabled') === 'true')).toBe(true)
-    expect(screen.getAllByLabelText('Move waypoint down').every(element => element.getAttribute('aria-disabled') === 'true')).toBe(true)
+    expect(screen.getAllByLabelText('More actions')).toHaveLength(2)
+    expect(screen.getAllByLabelText('More actions').every(element => element.getAttribute('aria-disabled') === 'true')).toBe(true)
     expect(screen.getAllByLabelText('Remove waypoint').every(element => element.getAttribute('aria-disabled') === 'true')).toBe(true)
     expect(within(screen.getByRole('status')).getByLabelText('Saving…')).toBeInTheDocument()
   })

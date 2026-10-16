@@ -34,6 +34,7 @@ import { clusterPois, poiClusterMarkup, poiClusterList, POI_CLUSTER_DETAIL_ZOOM 
 import { groupCoincidentPlaces } from './coincidentPlaces'
 import { useHazardLayerGL } from './useHazardLayerGL'
 import { type FerrataGlMap, isFerrataHit } from '../Ferratas/useFerrataLayerGL'
+import { isPaddleHit } from '../Tours/paddle/usePaddleLayerGL'
 import { formatViaDwell } from './routeViaDwell'
 import { useDawarichTrailGL } from './useDawarichTrailGL'
 import { bindDayBoundaryDrag } from './dayBoundaryDrag'
@@ -612,7 +613,7 @@ export function MapViewGL({
   const mapRef = useRef<any | null>(null)
   const hazardPopupFactory = useCallback(() => new gl.Popup({ className: 'map-tooltip trek-hazard-popup', maxWidth: '320px' }), [gl])
   useHazardLayerGL(mapRef.current, mapReady, hazards, hazardPopupFactory)
-  useTourMapLayersGL(mapReady ? readyMap : null, ferrataLayer, tourLayers?.overlays)
+  useTourMapLayersGL(mapReady ? readyMap : null, ferrataLayer, tourLayers?.overlays, tourLayers?.paddle)
   // Beneath the planned route's casing, the GL twin of the Leaflet pane order.
   useDawarichTrailGL(mapRef.current, mapReady, dawarichTrack, dawarichSelectedDate, 'trip-route-casing', dawarichHiddenDates)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1430,6 +1431,7 @@ export function MapViewGL({
         && map.queryRenderedFeatures(e.point, { layers: ['trip-route-hit'] }).length > 0
       ) return
       if (isFerrataHit(map, e.point)) return // a picked via ferrata opens its card instead
+      if (isPaddleHit(map, e.point)) return // so does a picked paddle obstacle
       onClickRefs.current.map?.({ latlng: { lat: e.lngLat.lat, lng: e.lngLat.lng } })
     })
     // Emit the viewport bbox (pan/zoom + once on first idle) so the POI-explore

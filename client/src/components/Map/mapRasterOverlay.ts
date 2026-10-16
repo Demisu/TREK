@@ -1,4 +1,6 @@
 import type { Map } from 'mapbox-gl';
+import type { PaddleMapLayer } from '../Tours/paddle/paddleMapLayer';
+import { type PaddleGlMap, usePaddleLayerGL } from '../Tours/paddle/usePaddleLayerGL';
 import { useEffect } from 'react';
 import { useFerrataMapLayerGL } from '../Ferratas/useFerrataLayerGL';
 import type { FerrataMapLayer } from '../Ferratas/useFerrataMapLayer';
@@ -102,12 +104,14 @@ export function useRasterOverlaysGL(map: RasterOverlayGlMap | null, overlays: re
   }, [map, overlays]);
 }
 
-/** The tour planner's layers on a GL map: the via ferratas and the raster overlays its type offers. */
+/** The tour planner's layers on a GL map: the via ferratas, the raster overlays its type offers and the paddle obstacles. */
 export function useTourMapLayersGL(
   map: RasterOverlayGlMap | null,
   ferrataLayer: FerrataMapLayer | undefined,
-  overlays: readonly MapRasterOverlay[] | undefined
+  overlays: readonly MapRasterOverlay[] | undefined,
+  paddle?: PaddleMapLayer
 ) {
   useFerrataMapLayerGL(map, ferrataLayer);
   useRasterOverlaysGL(map, overlays);
+  usePaddleLayerGL(map as unknown as PaddleGlMap | null, paddle);
 }

@@ -4,8 +4,12 @@ import {
   closeLoop,
   freeLegBetween,
   isClosedLoop,
+  portageLegBetween,
   reverseRoute,
+  setPortageExtraMinutes,
+  setWaypointLock,
   toggleFreeLeg,
+  togglePortageLeg,
   type RoutePoint,
 } from './tourRouteActions';
 
@@ -108,5 +112,43 @@ describe('free legs (P2A-04)', () => {
     const aligned = alignFreeLegs([A, { ...B, fixedLeg: FERRATA }, C], true);
     expect(aligned.map((point) => point.fixedLeg?.kind)).toEqual(['free', 'free', undefined]);
     expect(aligned[1].fixedLeg).toEqual(freeLegBetween(B, C));
+  });
+});
+
+describe('portages and locks (PAD-03, PAD-07)', () => {
+  const LOCK = { wait_minutes: 10, transit_minutes: null };
+
+  it('carries the leg after a point and paddles it again on the second press', () => {
+    const carried = togglePortageLeg(alignFreeLegs([A, B, C], true), 'a');
+    expect(carried[0].fixedLeg).toEqual(portageLegBetween(A, B));
+    expect(togglePortageLeg(carried, 'a')[0].fixedLeg).toEqual(freeLegBetween(A, B));
+    expect(togglePortageLeg(carried, 'c')).toEqual(carried);
+  });
+
+  it('keeps a portage and its time when a paddle tour is redrawn, and moves the time to the leg that leads it', () => {
+    const points = [{ ...A, fixedLeg: portageLegBetween(A, B) }, { ...B, fixedLeg: portageLegBetween(B, C, 25) }, C];
+    const aligned = alignFreeLegs(points, true);
+    expect(aligned.map((point) => point.fixedLeg?.kind)).toEqual(['portage', 'portage', undefined]);
+    expect(aligned[0].fixedLeg).toMatchObject({ extra_minutes: 25 });
+    expect(aligned[1].fixedLeg).toMatchObject({ extra_minutes: null });
+  });
+
+  it('a hike carries no boat: a portage becomes a routed leg and a lock goes', () => {
+    const aligned = alignFreeLegs([{ ...A, fixedLeg: portageLegBetween(A, B), lock: LOCK }, B]);
+    expect(aligned[0]).toEqual(A);
+  });
+
+  it('sets the time out and in of a portage, and a lock with its times or none', () => {
+    const carried = [{ ...A, fixedLeg: portageLegBetween(A, B) }, B];
+    expect(setPortageExtraMinutes(carried, 'a', 12)[0].fixedLeg).toMatchObject({ extra_minutes: 12 });
+    expect(setPortageExtraMinutes([A, B], 'a', 12)).toEqual([A, B]);
+    const locked = setWaypointLock([A, B], 'b', LOCK);
+    expect(locked[1].lock).toEqual(LOCK);
+    expect(setWaypointLock(locked, 'b', null)[1]).toEqual(B);
+  });
+
+  it('closing a loop leaves the lock at the start, not on the way back', () => {
+    const loop = closeLoop([{ ...A, lock: LOCK }, B, C], 'back');
+    expect(loop[3]).toEqual({ id: 'back', lat: A.lat, lng: A.lng });
   });
 });

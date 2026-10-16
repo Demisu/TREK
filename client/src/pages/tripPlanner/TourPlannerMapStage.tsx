@@ -14,6 +14,8 @@ import { isRtlLanguage, useTranslation } from '../../i18n';
 import { useSettingsStore } from '../../store/settingsStore';
 import { publishTourFerrataCrossings } from '../../store/tourFerrataCrossingStore';
 import { useFerrataAdopt } from './useFerrataAdopt';
+import { pickOnTrack, refuseTrackPick, useTrackMarkToolStore } from '../../store/trackMarkToolStore';
+import { projectOntoTrack, TRACK_PICK_TOLERANCE_M } from '../../utils/paddleTrackMarks';
 import { useTourMapPoints } from './useTourMapPoints';
 import { useTourStageLayers } from './useTourStageLayers';
 import type { useTripPlanner } from './useTripPlanner';
@@ -141,6 +143,18 @@ export function TourPlannerMapStage({
     previewPoints: tourMap.previewPoints,
   });
   const onAdd = waypoints.onAdd;
+  // PAD-03 on a recorded paddle track: with a marking tool on, a click on the line marks the spot on it.
+  const trackPick = useTrackMarkToolStore((state) => state.pick);
+  const trackLine = tourPlanner.mode.type === 'view-gpx' ? analysis?.routeCoordinates : null;
+  const pickOnLine = canPlaceEdit && trackPick !== null && !!trackLine?.length;
+  const onTrackClick = pickOnLine
+    ? (lat: number, lng: number) => {
+        const projected = projectOntoTrack(trackLine, { lat, lng });
+        if (!projected || projected.offM > TRACK_PICK_TOLERANCE_M) refuseTrackPick();
+        else pickOnTrack(projected.atM);
+      }
+    : undefined;
+  const onAddOrMark = onAdd ?? onTrackClick;
   // What each panel covers of the map, a collapsed one its rail.
   const leftInset = leftHidden ? 56 : leftPanelPx;
   const rightInset = rightHidden ? 56 : rightPanelPx;
@@ -150,7 +164,7 @@ export function TourPlannerMapStage({
       {/* Around either map, to follow its presses and show the crosshair while placing. */}
       <div
         ref={attachSurface}
-        className={`absolute inset-0 ${placeOn ? PLACING_CURSOR : ''}`}
+        className={`absolute inset-0 ${placeOn || pickOnLine ? PLACING_CURSOR : ''}`}
         data-testid="tour-map-surface"
         data-placing={placeOn || undefined}
       >
@@ -184,10 +198,11 @@ export function TourPlannerMapStage({
             places={[]}
             route={tourMap.route}
             routeWalking={tourMap.routeWalking}
+            routeColors={tourMap.routeColors}
             followSelection={false}
             onMapClick={
-              onAdd
-                ? ({ latlng }: { latlng: { lat: number; lng: number } }) => onAdd(latlng.lat, latlng.lng)
+              onAddOrMark
+                ? ({ latlng }: { latlng: { lat: number; lng: number } }) => onAddOrMark(latlng.lat, latlng.lng)
                 : undefined
             }
             tileUrl={mapTileUrl}

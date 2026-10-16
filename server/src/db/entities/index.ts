@@ -61,6 +61,8 @@ import { PackingItemsSchema } from './PackingItems.entity';
 import { PackingTemplateCategoriesSchema } from './PackingTemplateCategories.entity';
 import { PackingTemplateItemsSchema } from './PackingTemplateItems.entity';
 import { PackingTemplatesSchema } from './PackingTemplates.entity';
+import { PaddleFeaturesSchema } from './PaddleFeatures.entity';
+import { PaddleRegionsSchema } from './PaddleRegions.entity';
 import { PasswordResetTokensSchema } from './PasswordResetTokens.entity';
 import { PhotoProviderFieldsSchema } from './PhotoProviderFields.entity';
 import { PhotoProvidersSchema } from './PhotoProviders.entity';
@@ -103,6 +105,7 @@ import { ShareTokensSchema } from './ShareTokens.entity';
 import { TagsSchema } from './Tags.entity';
 import { TodoCategoryAssigneesSchema } from './TodoCategoryAssignees.entity';
 import { TodoItemsSchema } from './TodoItems.entity';
+import { TourObstacleReviewsSchema } from './TourObstacleReviews.entity';
 import { TourSourcesSchema } from './TourSources.entity';
 import { TourTypesSchema } from './TourTypes.entity';
 import { TourWaypointsSchema } from './TourWaypoints.entity';
@@ -198,6 +201,8 @@ export const ALL_ENTITIES: readonly EntitySchema[] = [
   PackingTemplateCategoriesSchema,
   PackingTemplateItemsSchema,
   PackingTemplatesSchema,
+  PaddleFeaturesSchema,
+  PaddleRegionsSchema,
   PasswordResetTokensSchema,
   PhotoProviderFieldsSchema,
   PhotoProvidersSchema,
@@ -240,6 +245,7 @@ export const ALL_ENTITIES: readonly EntitySchema[] = [
   TagsSchema,
   TodoCategoryAssigneesSchema,
   TodoItemsSchema,
+  TourObstacleReviewsSchema,
   TourSourcesSchema,
   TourTypesSchema,
   TourWaypointsSchema,

@@ -43,6 +43,7 @@ import { DaysModule } from './days/days.module';
 import { DocSyncModule } from './doc-sync/doc-sync.module';
 import { FeedsModule } from './feeds/feeds.module';
 import { FerratasModule } from './ferratas/ferratas.module';
+import { PaddleObstaclesModule } from './paddle-obstacles/paddle-obstacles.module';
 import { FilesModule } from './files/files.module';
 import { GeoModule } from './geo/geo.module';
 import { GoogleQuotaModule } from './google-quota/google-quota.module';
@@ -155,6 +156,7 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
     ToursModule,
     WandererModule,
     FerratasModule,
+    PaddleObstaclesModule,
     TripsModule,
     CollabModule,
     FilesModule,

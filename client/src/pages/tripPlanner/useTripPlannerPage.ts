@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { usePoiExplore, type Bbox } from '../../components/Map/usePoiExplore'
 import { placeActions } from '../../components/Planner/usePlaceActions'
+import { tourRouteStyle } from '../../components/Tours/planner/tourRouteStyle'
+import { useTrackPortageParts } from '../../components/Tours/paddle/useTrackPortageParts'
+import { usePaddleObstacleSync } from '../../components/Tours/paddle/usePaddleObstacleSync'
 import { tourPlannedTimes as projectTourPlannedTimes } from '../../components/Tours/tourPresentation'
 import { usePlanMapViewport } from '../../hooks/usePlanMapViewport'
 import { useMapLocationSearch } from './useMapLocationSearch'
@@ -22,7 +25,7 @@ export function useTripPlannerPage() {
 
   const canPlaceEdit = can('place_edit', trip)
   const canDayEdit = can('day_edit', trip)
-  const { tourPlanner, viewImportedTour, tourGpxImport, wandererBrowser, tourConversion, recordedTrack, tourDetailActions } =
+  const { tourPlanner, viewImportedTour, tourGpxImport, wandererBrowser, tourConversion, recordedTrack, trackPaddlePlan, tourDetailActions } =
     useTourWorkspace(planner, canPlaceEdit, canDayEdit)
 
   const tourDetailOpenerRef = useRef<{ placeId: number; element: HTMLElement } | null>(null)
@@ -63,13 +66,21 @@ export function useTripPlannerPage() {
 
   const { mapFocusPoints, mapFocusKey, locationSearch } = useMapLocationSearch(tourPlanner.mapFocusKey, focusPoints)
 
+  const trackParts = useTrackPortageParts(tourPlanner)
+  // PAD-05B: the obstacles around the paddle tour in view, for the map and the rails alike.
+  const paddleLine = tourPlanner.mode.type === 'view-gpx'
+    ? (tourPlanner.mode.tour.tour_type === 'kayak' ? tourPlanner.readOnlyGpxAnalysis?.routeCoordinates ?? null : null)
+    : tourPlanner.isPaddle ? tourPlanner.route : null
+  usePaddleObstacleSync(paddleLine, activeTab === 'tour-planner')
   const route = useMemo<[number, number][][] | null>(() => {
     if (wandererBrowser.open) return wandererBrowser.line ? [wandererBrowser.line] : null
     if (tourPlanner.mode.type === 'view-gpx') {
       const coordinates = tourPlanner.readOnlyGpxAnalysis?.routeCoordinates
       if (!coordinates?.length) return null
       // While an editable version is previewed, the import (dashed) and the suggestion side by side.
-      return tourConversion.line ? [coordinates, tourConversion.line] : [coordinates]
+      if (tourConversion.line) return [coordinates, tourConversion.line]
+      // A paddle track with portages marked on it: the carried stretches as their own lines.
+      return trackParts ? trackParts.map(part => part.coordinates) : [coordinates]
     }
     if (tourPlanner.mode.type === 'new-draft' || tourPlanner.mode.type === 'edit-saved') {
       // Routed and hand-drawn stretches as their own lines, so the map can tell them apart.
@@ -81,13 +92,15 @@ export function useTripPlannerPage() {
     wandererBrowser.open,
     wandererBrowser.line,
     tourPlanner.mode.type, tourPlanner.readOnlyGpxAnalysis?.routeCoordinates, tourPlanner.route, tourPlanner.routeParts,
-    tourConversion.line,
+    tourConversion.line, trackParts,
   ])
   const editingRoute = tourPlanner.mode.type === 'new-draft' || tourPlanner.mode.type === 'edit-saved'
-  // A hand-drawn stretch is drawn dotted, the way the map draws what no router planned.
-  const routeWalking = !wandererBrowser.open && editingRoute && tourPlanner.routeParts?.some(part => part.free)
-    ? tourPlanner.routeParts.map(part => part.free)
-    : route && route.length === 2 && tourConversion.line ? [true, false] : null
+  // A hand-drawn stretch of a hike is dotted, a paddle tour's portages dotted and brown.
+  const partStyle = tourRouteStyle(
+    !wandererBrowser.open && editingRoute ? tourPlanner.routeParts : !tourConversion.line ? trackParts : null,
+    tourPlanner.isPaddle || !!trackParts,
+  )
+  const routeWalking = partStyle.walking ?? (route && route.length === 2 && tourConversion.line ? [true, false] : null)
 
   const { closeGpxTour } = tourPlanner
   useEffect(() => {
@@ -126,9 +139,11 @@ export function useTripPlannerPage() {
     tourDetails: { openerRef: tourDetailOpenerRef, onSelectTour },
     tourConversion,
     recordedTrack,
+    trackPaddlePlan,
     tourDetailActions,
     tourMap: { route,
       routeWalking,
+      routeColors: partStyle.colors,
       previewPoints: tourConversion.status === 'idle' ? null : tourConversion.points,
       focusPoints: mapFocusPoints,
       // A picked wanderer trail frames itself; the rest follows the planner.
