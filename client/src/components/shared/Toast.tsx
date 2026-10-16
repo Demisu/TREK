@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useMemo } from 'react'
 import { CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-react'
 import { useToastQueue, type ToastType } from './useToastQueue'
 
@@ -101,19 +101,21 @@ export function ToastContainer() {
   )
 }
 
-export const useToast = () => {
-  const show = useCallback((message: string, type: ToastType, duration?: number) => {
-    if (window.__addToast) {
-      window.__addToast(message, type, duration)
+// One object for the life of the component: hooks list `toast` in their effect
+// dependencies, and a fresh object per render re-ran those effects on every keystroke.
+export const useToast = () =>
+  useMemo(() => {
+    const show = (message: string, type: ToastType, duration?: number) => {
+      if (window.__addToast) {
+        window.__addToast(message, type, duration)
+      }
+    }
+    return {
+      success: (message: string, duration?: number) => show(message, 'success', duration),
+      error: (message: string, duration?: number) => show(message, 'error', duration),
+      warning: (message: string, duration?: number) => show(message, 'warning', duration),
+      info: (message: string, duration?: number) => show(message, 'info', duration),
     }
   }, [])
-
-  return {
-    success: (message: string, duration?: number) => show(message, 'success', duration),
-    error: (message: string, duration?: number) => show(message, 'error', duration),
-    warning: (message: string, duration?: number) => show(message, 'warning', duration),
-    info: (message: string, duration?: number) => show(message, 'info', duration),
-  }
-}
 
 export default useToast
