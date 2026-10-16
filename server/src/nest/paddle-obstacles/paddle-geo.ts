@@ -1,14 +1,11 @@
 import type { Box } from '../../db/repositories/PaddleFeatures.repository';
-import { PADDLE_OBSTACLES_MAX_SPAN_DEG, type PaddleCoverageState } from '@trek/shared';
-import { z } from 'zod';
+import {
+  PADDLE_OBSTACLES_MAX_SPAN_DEG,
+  type PaddleCoverageState,
+  type PaddleRegionBoundary as RegionBoundary,
+} from '@trek/shared';
 
-/** Geofabrik's region boundaries: a polygon or several, rings of [lng, lat]. */
-const ring = z.array(z.tuple([z.number(), z.number()]));
-export const regionBoundarySchema = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('Polygon'), coordinates: z.array(ring) }),
-  z.object({ type: z.literal('MultiPolygon'), coordinates: z.array(z.array(ring)) }),
-]);
-export type RegionBoundary = z.infer<typeof regionBoundarySchema>;
+export type { RegionBoundary };
 
 /** `south,west,north,east` as a box, or null when it is not one or wider than a request may ask. */
 export function parseBox(text: string): Box | null {

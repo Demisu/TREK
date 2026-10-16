@@ -2,11 +2,15 @@ import type { JsonColumn } from '../utils/json-column';
 import {
   FERRATAS_RESULT_CAP,
   ferrataSchema,
+  paddleGeometrySchema,
   paddleLockSchema,
+  paddleRegionBoundarySchema,
   tourFixedLegSchema,
   trackMarksSchema,
   type Ferrata,
+  type PaddleGeometry,
   type PaddleLock,
+  type PaddleRegionBoundary,
   type TourFixedLeg,
   type TrackMarks,
 } from '@trek/shared';
@@ -164,5 +168,26 @@ export const TOUR_WAYPOINT_LOCK: JsonColumn<PaddleLock | null> = {
 export const TOUR_TRACK_MARKS: JsonColumn<TrackMarks | null> = {
   column: 'tours.track_marks',
   schema: trackMarksSchema.nullable(),
+  fallback: () => null,
+};
+
+/** A paddle object's own geometry (PAD-05A). A broken row has none, and the object is left out rather than drawn anywhere. */
+export const PADDLE_FEATURE_GEOMETRY: JsonColumn<PaddleGeometry | null> = {
+  column: 'paddle_features.geometry',
+  schema: paddleGeometrySchema.nullable(),
+  fallback: () => null,
+};
+
+/** The OSM tags a paddle object was judged by. A broken row shows none. */
+export const PADDLE_FEATURE_TAGS: JsonColumn<Record<string, string>> = {
+  column: 'paddle_features.tags',
+  schema: z.record(z.string(), z.string()),
+  fallback: () => ({}),
+};
+
+/** The boundary of a region TREK reads paddle data for. A broken row has none, and the region counts by its box. */
+export const PADDLE_REGION_BOUNDARY: JsonColumn<PaddleRegionBoundary | null> = {
+  column: 'paddle_regions.boundary',
+  schema: paddleRegionBoundarySchema.nullable(),
   fallback: () => null,
 };

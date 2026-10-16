@@ -109,6 +109,8 @@ const FLAT_GPX = `<?xml version="1.0"?>
 // Large enough that a guard rejecting before multer drained the body would
 // surface as a connection reset instead of a JSON response.
 const BIG_GPX = TRACK_GPX.replace('</gpx>', `<!-- ${'x'.repeat(512 * 1024)} --></gpx>`);
+/** A paddle plan without marks: enough for the gates, which answer before the body is read. */
+const NO_MARKS = { paddle_speed_kmh: null, portage_speed_kmh: null, track_marks: { portages: [], locks: [] } };
 
 describe('Tours e2e (real guards + temp SQLite)', () => {
   let server: Server;
@@ -221,6 +223,7 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
   describe('addon and access gates', () => {
     it('401 without a cookie', async () => {
       expect((await request(server).get('/api/trips/5/tours')).status).toBe(401);
+      expect((await request(server).put('/api/trips/5/tours/1/paddle-plan').send(NO_MARKS)).status).toBe(401);
     });
 
     it('404 on every route while the addon is disabled', async () => {
@@ -238,6 +241,7 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
           .send(tourBody({ name: 'Renamed' })),
         await importGpx(OWNER, BIG_GPX),
         await previewGpx(OWNER, BIG_GPX),
+        await request(server).put(`/api/trips/5/tours/${placeId}/paddle-plan`).set('Cookie', cookie).send(NO_MARKS),
       ];
       for (const res of responses) {
         expect(res.status).toBe(404);
@@ -257,6 +261,7 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
         await request(server).put(`/api/trips/5/tours/${placeId}`).set('Cookie', cookie).send(tourBody()),
         await importGpx(OUTSIDER, BIG_GPX),
         await previewGpx(OUTSIDER, BIG_GPX),
+        await request(server).put(`/api/trips/5/tours/${placeId}/paddle-plan`).set('Cookie', cookie).send(NO_MARKS),
         await request(server).get('/api/trips/999/tours').set('Cookie', sessionCookie(OWNER)),
       ];
       for (const res of responses) {
@@ -283,6 +288,7 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
           .send(tourBody({ name: 'Hijacked' })),
         await importGpx(VIEWER, BIG_GPX),
         await previewGpx(VIEWER, BIG_GPX),
+        await request(server).put(`/api/trips/5/tours/${placeId}/paddle-plan`).set('Cookie', cookie).send(NO_MARKS),
       ];
       for (const res of writes) {
         expect(res.status).toBe(403);
@@ -738,14 +744,15 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
         portage_speed_kmh: null,
         track_marks: marks,
       });
-      const results = await Promise.all([
-        paddlePlan(hike, plan(none)),
-        paddlePlan(planned, plan(none)),
-        paddlePlan(
+      // One after another: supertest binds the unstarted server per request, and requests at once reset each other.
+      const results = [
+        await paddlePlan(hike, plan(none)),
+        await paddlePlan(planned, plan(none)),
+        await paddlePlan(
           track.place_id,
           plan({ portages: [], locks: [{ at_m: 999999, wait_minutes: 1, transit_minutes: 1 }] }),
         ),
-        paddlePlan(
+        await paddlePlan(
           track.place_id,
           plan({
             portages: [
@@ -755,7 +762,7 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
             locks: [],
           }),
         ),
-      ]);
+      ];
       expect(results.map((res) => res.status)).toEqual([400, 400, 400, 400]);
       expect(results[0].body.code).toBe('not_a_paddle_tour');
       expect(results[1].body.code).toBe('planned_tour');

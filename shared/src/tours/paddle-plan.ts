@@ -142,7 +142,8 @@ export function paddleLayoutOfTrack(totalM: number, marks: TrackMarks | null | u
     });
     cursor = mark.to_m;
   }
-  if (totalM > cursor) stretches.push({ kind: 'water', fromM: cursor, toM: totalM, extraMinutes: null, startIndex: null });
+  if (totalM > cursor)
+    stretches.push({ kind: 'water', fromM: cursor, toM: totalM, extraMinutes: null, startIndex: null });
   const locks = (marks?.locks ?? [])
     .filter((lock) => lock.at_m <= totalM)
     .map((lock) => ({

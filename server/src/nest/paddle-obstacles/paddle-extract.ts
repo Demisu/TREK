@@ -3,6 +3,7 @@ import { keptTags, paddleKindOf, paddleNameOf } from './paddle-tags';
 import type { PaddleGeometry, PaddleObstacleKind } from '@trek/shared';
 
 import { createHash } from 'node:crypto';
+import { stat } from 'node:fs/promises';
 
 /**
  * PAD-05A: the paddle objects of one regional extract, read in two passes.
@@ -42,10 +43,12 @@ function hashOf(tags: Record<string, string>, geometry: PaddleGeometry): string 
   const rounded = JSON.stringify(geometry, (_key, value: unknown) =>
     typeof value === 'number' ? Math.round(value * 1e6) / 1e6 : value,
   );
-  return createHash('sha1').update(JSON.stringify(sorted)).update(rounded).digest('hex').slice(0, 16);
+  return createHash('sha256').update(JSON.stringify(sorted)).update(rounded).digest('hex').slice(0, 16);
 }
 
-function boxOf(points: ReadonlyArray<readonly [number, number]>): Pick<ExtractedFeature, 'min_lat' | 'min_lng' | 'max_lat' | 'max_lng'> {
+function boxOf(
+  points: ReadonlyArray<readonly [number, number]>,
+): Pick<ExtractedFeature, 'min_lat' | 'min_lng' | 'max_lat' | 'max_lng'> {
   let minLat = 90;
   let minLng = 180;
   let maxLat = -90;
@@ -88,7 +91,10 @@ function build(
   };
 }
 
-function wayFeature(pending: PendingWay, coords: ReadonlyMap<number, readonly [number, number]>): ExtractedFeature | null {
+function wayFeature(
+  pending: PendingWay,
+  coords: ReadonlyMap<number, readonly [number, number]>,
+): ExtractedFeature | null {
   const points = pending.way.refs.flatMap((ref) => {
     const at = coords.get(ref);
     return at ? [at] : [];
@@ -98,7 +104,9 @@ function wayFeature(pending: PendingWay, coords: ReadonlyMap<number, readonly [n
   const last = points[points.length - 1] as readonly [number, number];
   const closed = points.length >= 4 && first[0] === last[0] && first[1] === last[1];
   const line = points.map(([lng, lat]) => [lng, lat] as [number, number]);
-  const geometry: PaddleGeometry = closed ? { type: 'Polygon', coordinates: [line] } : { type: 'LineString', coordinates: line };
+  const geometry: PaddleGeometry = closed
+    ? { type: 'Polygon', coordinates: [line] }
+    : { type: 'LineString', coordinates: line };
   return build(`way/${pending.way.id}`, pending.kind, pending.way.tags, geometry, points);
 }
 
@@ -144,11 +152,18 @@ export function groupLockParts(features: ExtractedFeature[]): void {
   }
 }
 
-/** Every paddle object of the extract at `path`, and the date its data is current to. */
+/**
+ * Every paddle object of the extract at `path`, and the date its data is
+ * current to. `onProgress` hears the share of the work done: the first pass
+ * is the first half, the lookup of the ways' nodes the second.
+ */
 export async function extractPaddleFeatures(
   path: string,
-  onProgress?: (bytesRead: number) => Promise<void> | void,
+  onProgress?: (fraction: number) => void,
 ): Promise<{ timestamp: number | null; features: ExtractedFeature[] }> {
+  const { size } = await stat(path);
+  const progressOf = (pass: number) => (bytesRead: number) =>
+    onProgress?.(size > 0 ? (pass + Math.min(1, bytesRead / size)) / 2 : 1);
   const features: ExtractedFeature[] = [];
   const pending: PendingWay[] = [];
   const needed = new Set<number>();
@@ -170,20 +185,25 @@ export async function extractPaddleFeatures(
         for (const ref of refs) needed.add(ref);
       },
     },
-    onProgress,
+    progressOf(0),
   );
   if (pending.length > 0) {
     const coords = new Map<number, readonly [number, number]>();
-    await readPbfFile(path, {
-      node: (node) => {
-        if (needed.has(node.id)) coords.set(node.id, [node.lon, node.lat]);
+    await readPbfFile(
+      path,
+      {
+        node: (node) => {
+          if (needed.has(node.id)) coords.set(node.id, [node.lon, node.lat]);
+        },
       },
-    });
+      progressOf(1),
+    );
     for (const way of pending) {
       const feature = wayFeature(way, coords);
       if (feature) features.push(feature);
     }
   }
+  onProgress?.(1);
   groupLockParts(features);
   return { timestamp, features };
 }

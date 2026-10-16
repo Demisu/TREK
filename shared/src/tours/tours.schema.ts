@@ -1,4 +1,9 @@
-import { paddleLockSchema, paddleStopMinutesSchema, portageSpeedKmhSchema, trackMarksSchema } from './paddle-plan.schema';
+import {
+  paddleLockSchema,
+  paddleStopMinutesSchema,
+  portageSpeedKmhSchema,
+  trackMarksSchema,
+} from './paddle-plan.schema';
 import { tourOriginSchema, tourProvenanceSchema } from './tour-provenance.schema';
 
 import { z } from 'zod';
@@ -340,7 +345,8 @@ function tourTypeIssues(value: {
   (value.waypoints ?? []).forEach((point, index) => {
     if (point.fixed_leg?.kind === 'portage')
       issues.push({ path: ['waypoints', index, 'fixed_leg'], message: 'a portage belongs to a paddle tour' });
-    if (point.lock != null) issues.push({ path: ['waypoints', index, 'lock'], message: 'a lock belongs to a paddle tour' });
+    if (point.lock != null)
+      issues.push({ path: ['waypoints', index, 'lock'], message: 'a lock belongs to a paddle tour' });
   });
   return issues;
 }

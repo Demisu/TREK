@@ -1,9 +1,9 @@
 import { JwtAuthGuard } from '../auth-core/jwt-auth.guard';
+import { ResponseContract } from '../common/response-contract';
+import { WindQueryDto } from './dto/wind-query.dto';
 import { ApiError } from './weather.impl';
 import { WeatherService } from './weather.service';
-import { WindQueryDto } from './dto/wind-query.dto';
 import { WindService } from './wind.service';
-import { ResponseContract } from '../common/response-contract';
 import { Controller, Get, HttpException, Query, UseGuards } from '@nestjs/common';
 import { windForecastResponseSchema, type WeatherResult, type WindForecastResponse } from '@trek/shared';
 

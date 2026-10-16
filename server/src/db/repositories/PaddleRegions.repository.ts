@@ -1,7 +1,7 @@
 import type { PaddleRegions } from '../entities/PaddleRegions.entity';
 import type { DB } from '../kysely/db';
-import { TrekRepository } from './_shared/trek-repository';
 import type { Box } from './PaddleFeatures.repository';
+import { TrekRepository } from './_shared/trek-repository';
 
 export type PaddleRegionStatus = 'queued' | 'importing' | 'ready' | 'failed';
 
@@ -55,16 +55,21 @@ export class PaddleRegionsRepository extends TrekRepository<PaddleRegions> {
     return await this.db().selectFrom('paddle_regions').select(COLUMNS).where('id', '=', id).executeTakeFirst();
   }
 
-  /** The regions with data whose box reaches into `box`. */
-  async readyInBox(box: Box): Promise<PaddleRegionRow[]> {
+  /**
+   * The regions holding data whose box reaches into `box`, by name. A region
+   * read again, or whose last read failed, still holds the data of the read
+   * before, so it counts until it is removed.
+   */
+  async withDataInBox(box: Box): Promise<PaddleRegionRow[]> {
     return await this.db()
       .selectFrom('paddle_regions')
       .select(COLUMNS)
-      .where('status', '=', 'ready')
+      .where('imported_at', 'is not', null)
       .where('min_lat', '<=', box.north)
       .where('max_lat', '>=', box.south)
       .where('min_lng', '<=', box.east)
       .where('max_lng', '>=', box.west)
+      .orderBy('name', 'asc')
       .execute();
   }
 
@@ -78,7 +83,9 @@ export class PaddleRegionsRepository extends TrekRepository<PaddleRegions> {
       .executeTakeFirst();
   }
 
-  async insertRegion(row: Pick<PaddleRegionRow, 'id' | 'name' | 'boundary' | 'min_lat' | 'min_lng' | 'max_lat' | 'max_lng'>): Promise<void> {
+  async insertRegion(
+    row: Pick<PaddleRegionRow, 'id' | 'name' | 'boundary' | 'min_lat' | 'min_lng' | 'max_lat' | 'max_lng'>,
+  ): Promise<void> {
     await this.db()
       .insertInto('paddle_regions')
       .values({ ...row, status: 'queued', feature_count: 0 })
@@ -88,16 +95,29 @@ export class PaddleRegionsRepository extends TrekRepository<PaddleRegions> {
 
   async updateRegion(
     id: string,
-    patch: Partial<Pick<PaddleRegionRow, 'status' | 'source_timestamp' | 'imported_at' | 'feature_count' | 'error'>>,
+    patch: Partial<
+      Pick<
+        PaddleRegionRow,
+        | 'status'
+        | 'source_timestamp'
+        | 'imported_at'
+        | 'feature_count'
+        | 'error'
+        | 'min_lat'
+        | 'min_lng'
+        | 'max_lat'
+        | 'max_lng'
+      >
+    >,
   ): Promise<void> {
     await this.db().updateTable('paddle_regions').set(patch).where('id', '=', id).execute();
   }
 
-  /** Queues every region that has data again, for the monthly refresh; returns how many. */
+  /** Queues every region that has data or a failed read again, for the monthly refresh; returns how many. */
   async queueReady(): Promise<number> {
     const result = await this.db()
       .updateTable('paddle_regions')
-      .set({ status: 'queued' })
+      .set({ status: 'queued', error: null })
       .where('status', 'in', ['ready', 'failed'])
       .executeTakeFirst();
     return Number(result.numUpdatedRows ?? 0);

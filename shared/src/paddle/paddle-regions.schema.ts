@@ -3,7 +3,7 @@ import { z } from 'zod';
 /**
  * PAD-05A, the admin side: the regions TREK reads paddle data for. Each is
  * one of Geofabrik's regional OpenStreetMap extracts, chosen by its id there
- * (`germany/bayern/oberpfalz`); TREK downloads it, reads the paddle objects
+ * (`oberpfalz`, `us/california`); TREK downloads it, reads the paddle objects
  * out and keeps nothing else of it. A region is read again every month.
  */
 
@@ -21,6 +21,17 @@ export const paddleRegionSchema = z.object({
   feature_count: z.number().int(),
   /** Why the last read failed, as plain text; null otherwise. */
   error: z.string().nullable(),
+  /**
+   * How far the read under way has come: the download, then the reading of
+   * the file, each with the share done (null while the size is unknown).
+   * Null unless the region is being read.
+   */
+  progress: z
+    .object({
+      phase: z.enum(['download', 'read']),
+      fraction: z.number().min(0).max(1).nullable(),
+    })
+    .nullable(),
 });
 export type PaddleRegion = z.infer<typeof paddleRegionSchema>;
 
@@ -39,13 +50,21 @@ export const paddleRegionCatalogQuerySchema = z.object({ q: z.string().trim().mi
 export const paddleRegionCatalogResponseSchema = z.object({ regions: z.array(paddleRegionCatalogEntrySchema) });
 export type PaddleRegionCatalogResponse = z.infer<typeof paddleRegionCatalogResponseSchema>;
 
-/** Geofabrik's region ids: lower case words, digits and dashes. */
+/** Geofabrik's region ids: lower case words, digits and dashes, a few of them nested with a slash (`us/texas`). */
 export const paddleRegionIdSchema = z
   .string()
   .trim()
   .min(2)
   .max(120)
-  .regex(/^[a-z0-9-]+$/);
+  .regex(/^[a-z0-9-]+(\/[a-z0-9-]+)*$/);
+
+/** A region's boundary as Geofabrik draws it: a polygon or several, rings of [lng, lat]. */
+const boundaryRing = z.array(z.tuple([z.number(), z.number()]));
+export const paddleRegionBoundarySchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('Polygon'), coordinates: z.array(boundaryRing) }),
+  z.object({ type: z.literal('MultiPolygon'), coordinates: z.array(z.array(boundaryRing)) }),
+]);
+export type PaddleRegionBoundary = z.infer<typeof paddleRegionBoundarySchema>;
 
 export const paddleRegionRequestSchema = z.object({ id: paddleRegionIdSchema });
 export type PaddleRegionRequest = z.infer<typeof paddleRegionRequestSchema>;

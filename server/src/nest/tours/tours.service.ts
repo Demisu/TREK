@@ -2,6 +2,7 @@ import { Places } from '../../db/entities/Places.entity';
 import { TourTypes } from '../../db/entities/TourTypes.entity';
 import { TourWaypoints } from '../../db/entities/TourWaypoints.entity';
 import { Tours } from '../../db/entities/Tours.entity';
+import { TOUR_TRACK_MARKS } from '../../db/json-columns';
 import type { PlacesRepository } from '../../db/repositories/Places.repository';
 import type { TourTypesRepository } from '../../db/repositories/TourTypes.repository';
 import type { TourWaypointsRepository } from '../../db/repositories/TourWaypoints.repository';
@@ -12,7 +13,6 @@ import type {
   ToursRepository,
   TourUpdate,
 } from '../../db/repositories/Tours.repository';
-import { TOUR_TRACK_MARKS } from '../../db/json-columns';
 import { decodeJson } from '../../utils/json-column';
 import { DomainError } from '../common/domain-error';
 import { toRowId } from '../common/row-id';

@@ -54,28 +54,112 @@ function crosses(a: Local, b: Local, c: Local, d: Local): number | null {
   return t >= 0 && t <= 1 && u >= 0 && u <= 1 ? t : null;
 }
 
-/** The object's outline as segments (a point is one segment of length zero). */
-function segmentsOf(geometry: PaddleGeometry, project: (lat: number, lng: number) => Local): Array<[Local, Local]> {
-  const line =
-    geometry.type === 'Point'
-      ? [geometry.coordinates, geometry.coordinates]
-      : geometry.type === 'LineString'
-        ? geometry.coordinates
-        : (geometry.coordinates[0] ?? []);
-  const points = line.map(([lng, lat]) => project(lat, lng));
+/** The rings of an object: a point is one ring of one point, a line one open ring, an area its outline and holes. */
+function ringsOf(geometry: PaddleGeometry): ReadonlyArray<ReadonlyArray<readonly [number, number]>> {
+  if (geometry.type === 'Point') return [[geometry.coordinates, geometry.coordinates]];
+  if (geometry.type === 'LineString') return [geometry.coordinates];
+  return geometry.coordinates;
+}
+
+function segmentsOf(rings: ReadonlyArray<readonly Local[]>): Array<[Local, Local]> {
   const segments: Array<[Local, Local]> = [];
-  for (let i = 1; i < points.length; i++) {
-    const a = points[i - 1];
-    const b = points[i];
-    if (a && b) segments.push([a, b]);
+  for (const ring of rings) {
+    for (let i = 1; i < ring.length; i++) {
+      const a = ring[i - 1];
+      const b = ring[i];
+      if (a && b) segments.push([a, b]);
+    }
   }
   return segments;
+}
+
+function inRing(p: Local, ring: readonly Local[]): boolean {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const a = ring[i] as Local;
+    const b = ring[j] as Local;
+    if (a.y > p.y !== b.y > p.y && p.x < ((b.x - a.x) * (p.y - a.y)) / (b.y - a.y) + a.x) inside = !inside;
+  }
+  return inside;
+}
+
+/** Inside an area: within its outline and in none of its holes. */
+function inArea(p: Local, rings: readonly (readonly Local[])[]): boolean {
+  const [outer, ...holes] = rings;
+  return !!outer && inRing(p, outer) && !holes.some((hole) => inRing(p, hole));
+}
+
+interface Bounds {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+}
+
+function boundsOf(points: readonly Local[], margin: number): Bounds {
+  const bounds = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
+  for (const p of points) {
+    bounds.minX = Math.min(bounds.minX, p.x - margin);
+    bounds.minY = Math.min(bounds.minY, p.y - margin);
+    bounds.maxX = Math.max(bounds.maxX, p.x + margin);
+    bounds.maxY = Math.max(bounds.maxY, p.y + margin);
+  }
+  return bounds;
+}
+
+function overlaps(a: Bounds, b: Bounds): boolean {
+  return a.minX <= b.maxX && b.minX <= a.maxX && a.minY <= b.maxY && b.minY <= a.maxY;
+}
+
+/**
+ * The closest the route comes to one object: the distance and how far along
+ * the route that is. A route that crosses the outline, or runs inside an
+ * area, meets it at distance 0, at the first place it does.
+ */
+function closestApproach(
+  path: readonly Local[],
+  along: readonly number[],
+  rings: readonly (readonly Local[])[],
+  isArea: boolean,
+): { distance: number; alongM: number } {
+  const outline = segmentsOf(rings);
+  const reach = boundsOf(rings.flat(), NEAR_M);
+  let best = { distance: Number.POSITIVE_INFINITY, alongM: 0 };
+  const consider = (distance: number, alongM: number) => {
+    if (distance < best.distance || (distance === best.distance && alongM < best.alongM)) best = { distance, alongM };
+  };
+  path.forEach((p, i) => {
+    if (isArea && inArea(p, rings)) consider(0, along[i] ?? 0);
+  });
+  for (let i = 1; i < path.length; i++) {
+    const a = path[i - 1] as Local;
+    const b = path[i] as Local;
+    if (!overlaps(boundsOf([a, b], 0), reach)) continue;
+    const start = along[i - 1] ?? 0;
+    const length = (along[i] ?? start) - start;
+    for (const [c, d] of outline) {
+      const hit = crosses(a, b, c, d);
+      if (hit !== null) {
+        consider(0, start + hit * length);
+        continue;
+      }
+      for (const p of [c, d]) {
+        const near = closestOnSegment(p, a, b);
+        consider(near.distance, start + near.t * length);
+      }
+      consider(closestOnSegment(a, c, d).distance, start);
+      consider(closestOnSegment(b, c, d).distance, start + length);
+    }
+  }
+  return best;
 }
 
 /**
  * The obstacles on or near a route, in the order the route reaches them. The
  * route is `[lat, lng]` pairs as the planner draws it; an empty or one-point
- * route relates nothing.
+ * route relates nothing. The distance is measured both ways, from the route
+ * to the object's outline and from the object to the route, so a long weir
+ * passed in its middle and a route inside an area both count.
  */
 export function relateObstaclesToRoute(
   route: readonly LatLng[],
@@ -90,27 +174,12 @@ export function relateObstaclesToRoute(
     const b = path[i] as Local;
     along.push((along[i - 1] ?? 0) + Math.hypot(b.x - a.x, b.y - a.y));
   }
+  const routeBounds = boundsOf(path, NEAR_M);
   const related: RelatedObstacle[] = [];
   for (const feature of features) {
-    let best = { distance: Number.POSITIVE_INFINITY, alongM: 0 };
-    const outline = segmentsOf(feature.geometry, project);
-    for (let i = 1; i < path.length; i++) {
-      const a = path[i - 1] as Local;
-      const b = path[i] as Local;
-      const start = along[i - 1] ?? 0;
-      const length = (along[i] ?? start) - start;
-      for (const [c, d] of outline) {
-        const hit = crosses(a, b, c, d);
-        if (hit !== null) {
-          if (best.distance > 0 || start + hit * length < best.alongM) best = { distance: 0, alongM: start + hit * length };
-          continue;
-        }
-        for (const p of [c, d]) {
-          const near = closestOnSegment(p, a, b);
-          if (near.distance < best.distance) best = { distance: near.distance, alongM: start + near.t * length };
-        }
-      }
-    }
+    const rings = ringsOf(feature.geometry).map((ring) => ring.map(([lng, lat]) => project(lat, lng)));
+    if (!overlaps(boundsOf(rings.flat(), 0), routeBounds)) continue;
+    const best = closestApproach(path, along, rings, feature.geometry.type === 'Polygon');
     if (best.distance > NEAR_M) continue;
     related.push({
       feature,

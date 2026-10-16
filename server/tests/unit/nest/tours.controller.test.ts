@@ -14,9 +14,9 @@ import { REQUIRE_ADDON } from '../../../src/nest/addons/require-addon.decorator'
 import { JwtAuthGuard } from '../../../src/nest/auth-core/jwt-auth.guard';
 import { TRIP_PERMISSION_KEY, TripAccessGuard } from '../../../src/nest/permissions/trip-access.guard';
 import type { PlacesService } from '../../../src/nest/places/places.service';
+import type { TourPaddlePlanService } from '../../../src/nest/tours/tour-paddle-plan.service';
 import { ToursImportController } from '../../../src/nest/tours/tours-import.controller';
 import { ToursController } from '../../../src/nest/tours/tours.controller';
-import type { TourPaddlePlanService } from '../../../src/nest/tours/tour-paddle-plan.service';
 import type { ToursService } from '../../../src/nest/tours/tours.service';
 import type { User } from '../../../src/types';
 import { HttpException, RequestMethod } from '@nestjs/common';

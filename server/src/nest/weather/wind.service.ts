@@ -3,6 +3,7 @@ import { logWarn } from '../audit/audit-log.logger';
 import { DomainError } from '../common/domain-error';
 import { Injectable } from '@nestjs/common';
 import { WIND_FORECAST_DAYS, type WindForecastResponse, type WindForecastStatus, type WindQuery } from '@trek/shared';
+
 import { z } from 'zod';
 
 /** Open-Meteo on the request path: a deadline and a size cap, as the weather calls have. */
@@ -56,7 +57,7 @@ export class WindService {
     const hit = this.cache.get(key);
     if (hit && hit.expiresAt > now) return hit.value;
     const running = this.pending.get(key);
-    if (running) return running;
+    if (running !== undefined) return running;
     const request = this.fetchDay(query, now)
       .then((value) => {
         this.remember(key, value, now);

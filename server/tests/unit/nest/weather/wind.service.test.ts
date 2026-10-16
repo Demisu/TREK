@@ -29,7 +29,9 @@ function openMeteo(overrides: Record<string, unknown> = {}) {
 }
 
 function answer(body: unknown, status = 200) {
-  return vi.fn(async () => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } }));
+  return vi.fn(
+    async () => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } }),
+  );
 }
 
 afterEach(() => vi.unstubAllGlobals());
@@ -39,7 +41,12 @@ describe('WindService', () => {
     const fetchSpy = answer(openMeteo());
     vi.stubGlobal('fetch', fetchSpy);
     const result = await new WindService().forecast({ lat: 47.55, lng: 9.68, date: '2026-10-18' }, NOW);
-    expect(result).toMatchObject({ status: 'forecast', timezone: 'Europe/Berlin', source: 'Open-Meteo', horizon_days: 16 });
+    expect(result).toMatchObject({
+      status: 'forecast',
+      timezone: 'Europe/Berlin',
+      source: 'Open-Meteo',
+      horizon_days: 16,
+    });
     expect(result.hours).toEqual([
       { hour: 0, speed_kmh: 5, gusts_kmh: 9, direction_deg: 270 },
       { hour: 1, speed_kmh: null, gusts_kmh: null, direction_deg: null },

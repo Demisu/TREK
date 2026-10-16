@@ -1,5 +1,3 @@
-import { describe, expect, it } from 'vitest';
-
 import {
   estimatePaddleTime,
   paddleLayoutOfPoints,
@@ -11,12 +9,19 @@ import {
 import { tourPaddlePlanRequestSchema, trackMarksSchema } from './paddle-plan.schema';
 import { tourCreateRequestSchema } from './tours.schema';
 
+import { describe, expect, it } from 'vitest';
+
 /** A point `km` kilometres east of 53°N 13°E along the parallel, near enough for these sums. */
 function east(km: number): { lat: number; lng: number } {
   return { lat: 53, lng: 13 + km / (111.19493 * Math.cos((53 * Math.PI) / 180)) };
 }
 
-function leg(kind: 'free' | 'portage', from: { lat: number; lng: number }, to: { lat: number; lng: number }, extra?: number) {
+function leg(
+  kind: 'free' | 'portage',
+  from: { lat: number; lng: number },
+  to: { lat: number; lng: number },
+  extra?: number,
+) {
   return {
     kind,
     geometry: [
@@ -155,7 +160,13 @@ describe('paddle plan (PAD-03, PAD-07)', () => {
       name: 'Carry',
       route_geometry: route,
       waypoints: [
-        { lat: 53, lng: 13, role: 'start', sequence: 0, fixed_leg: leg('portage', { lat: 53, lng: 13 }, { lat: 53, lng: 13.01 }) },
+        {
+          lat: 53,
+          lng: 13,
+          role: 'start',
+          sequence: 0,
+          fixed_leg: leg('portage', { lat: 53, lng: 13 }, { lat: 53, lng: 13.01 }),
+        },
         { lat: 53, lng: 13.01, role: 'end', sequence: 1, lock: { wait_minutes: 5, transit_minutes: 5 } },
       ],
     };

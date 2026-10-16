@@ -1,4 +1,4 @@
-import { open } from 'node:fs/promises';
+import { createReadStream } from 'node:fs';
 import { inflateSync } from 'node:zlib';
 
 /**
@@ -13,9 +13,15 @@ import { inflateSync } from 'node:zlib';
  * megabytes). The format: https://wiki.openstreetmap.org/wiki/PBF_Format
  */
 
+/** A varint is at most ten bytes; more means the data is not protobuf. */
+const MAX_VARINT_BYTES = 10;
+const TWO_POW_63 = 2 ** 63;
+const TWO_POW_64 = 2 ** 64;
 /** A blob's size may not exceed this, by the format's own rule. */
 const MAX_BLOB_BYTES = 32 * 1024 * 1024;
 const MAX_HEADER_BYTES = 64 * 1024;
+/** Read a quarter megabyte at a time: a block or two, so no chunk holds the event loop for long. */
+const READ_CHUNK_BYTES = 256 * 1024;
 
 export interface OsmNode {
   id: number;
@@ -56,13 +62,20 @@ class Proto {
   varint(): number {
     let result = 0;
     let scale = 1;
-    for (;;) {
+    for (let read = 0; read < MAX_VARINT_BYTES; read++) {
       if (this.pos >= this.end) throw new Error('Truncated varint');
       const byte = this.buf[this.pos++] as number;
       result += (byte & 0x7f) * scale;
       if (byte < 0x80) return result;
       scale *= 128;
     }
+    throw new Error('Malformed varint');
+  }
+
+  /** A plain (not zigzag) signed 64-bit varint: a negative value is written as its two's complement. */
+  int64(): number {
+    const raw = this.varint();
+    return raw >= TWO_POW_63 ? raw - TWO_POW_64 : raw;
   }
 
   /** A zigzag-encoded signed varint. */
@@ -94,10 +107,15 @@ class Proto {
 
   skip(wire: number): void {
     if (wire === 0) this.varint();
-    else if (wire === 1) this.pos += 8;
+    else if (wire === 1) this.advance(8);
     else if (wire === 2) this.span();
-    else if (wire === 5) this.pos += 4;
+    else if (wire === 5) this.advance(4);
     else throw new Error(`Unsupported wire type ${wire}`);
+  }
+
+  private advance(bytes: number): void {
+    this.pos += bytes;
+    if (this.pos > this.end) throw new Error('Truncated field');
   }
 
   /** A packed field of varints (or zigzag varints), decoded whole. */
@@ -158,7 +176,11 @@ interface BlockContext {
   lonOffset: number;
 }
 
-function tagsOf(keys: readonly number[], values: readonly number[], strings: readonly string[]): Record<string, string> {
+function tagsOf(
+  keys: readonly number[],
+  values: readonly number[],
+  strings: readonly string[],
+): Record<string, string> {
   const tags: Record<string, string> = {};
   keys.forEach((key, index) => {
     const value = values[index];
@@ -260,8 +282,8 @@ export function readDataBlock(block: Buffer, visitor: OsmBlockVisitor): void {
       }
     } else if (key.field === 2 && key.wire === 2) groups.push(p.bytes());
     else if (key.field === 17 && key.wire === 0) ctx.granularity = p.varint();
-    else if (key.field === 19 && key.wire === 0) ctx.latOffset = p.svarint();
-    else if (key.field === 20 && key.wire === 0) ctx.lonOffset = p.svarint();
+    else if (key.field === 19 && key.wire === 0) ctx.latOffset = p.int64();
+    else if (key.field === 20 && key.wire === 0) ctx.lonOffset = p.int64();
     else p.skip(key.wire);
   }
   for (const group of groups) {
@@ -276,42 +298,86 @@ export function readDataBlock(block: Buffer, visitor: OsmBlockVisitor): void {
 }
 
 /**
- * Every block of a PBF file in order, read from disk one at a time. The
- * header block is answered with its timestamp; data blocks go to the visitor.
- * `onBlock` is told the bytes read so far, for progress and to give way to
- * other work between blocks.
+ * The bytes read from a file and not yet taken as a blob, kept as the chunks
+ * they arrived in and joined only when a blob reaches across chunks.
+ */
+class ByteQueue {
+  private chunks: Buffer[] = [];
+  length = 0;
+
+  push(chunk: Buffer): void {
+    this.chunks.push(chunk);
+    this.length += chunk.length;
+  }
+
+  /** The first `n` bytes, left in the queue; null while fewer have arrived. */
+  peek(n: number): Buffer | null {
+    if (this.length < n) return null;
+    const first = this.chunks[0];
+    if (first && first.length >= n) return first.subarray(0, n);
+    const joined = Buffer.concat(this.chunks);
+    this.chunks = [joined];
+    return joined.subarray(0, n);
+  }
+
+  /** Takes the first `n` bytes off the queue; the caller has peeked at least that many. */
+  drop(n: number): void {
+    let left = n;
+    while (left > 0) {
+      const first = this.chunks[0] as Buffer;
+      if (first.length <= left) {
+        this.chunks.shift();
+        left -= first.length;
+      } else {
+        this.chunks[0] = first.subarray(left);
+        left = 0;
+      }
+    }
+    this.length -= n;
+  }
+}
+
+/** The next whole blob at the head of the queue, taken off it; null while it has not all arrived. */
+function nextBlob(queue: ByteQueue): { type: string; data: Buffer } | null {
+  const prefix = queue.peek(4);
+  if (!prefix) return null;
+  const headerLength = prefix.readUInt32BE(0);
+  if (headerLength > MAX_HEADER_BYTES) throw new Error('Blob header too large');
+  const head = queue.peek(4 + headerLength);
+  if (!head) return null;
+  const header = readBlobHeader(head.subarray(4));
+  if (header.size > MAX_BLOB_BYTES) throw new Error('Blob too large');
+  const whole = queue.peek(4 + headerLength + header.size);
+  if (!whole) return null;
+  queue.drop(whole.length);
+  return { type: header.type, data: whole.subarray(4 + headerLength) };
+}
+
+/**
+ * Every block of a PBF file in order, streamed from disk. The header block is
+ * answered with its timestamp; data blocks go to the visitor. The blocks of
+ * one chunk are read at once, and the event loop gets its turn between
+ * chunks. `onProgress` is told the bytes read so far.
  */
 export async function readPbfFile(
   path: string,
   visitor: OsmBlockVisitor,
-  onBlock?: (bytesRead: number) => Promise<void> | void,
+  onProgress?: (bytesRead: number) => void,
 ): Promise<{ timestamp: number | null }> {
-  const file = await open(path, 'r');
+  const queue = new ByteQueue();
   let timestamp: number | null = null;
-  try {
-    let offset = 0;
-    const lengthBuf = Buffer.alloc(4);
-    for (;;) {
-      const { bytesRead } = await file.read(lengthBuf, 0, 4, offset);
-      if (bytesRead === 0) break;
-      if (bytesRead < 4) throw new Error('Truncated blob length');
-      const headerLength = lengthBuf.readUInt32BE(0);
-      if (headerLength > MAX_HEADER_BYTES) throw new Error('Blob header too large');
-      const headerBuf = Buffer.alloc(headerLength);
-      await file.read(headerBuf, 0, headerLength, offset + 4);
-      const header = readBlobHeader(headerBuf);
-      if (header.size > MAX_BLOB_BYTES) throw new Error('Blob too large');
-      const blobBuf = Buffer.alloc(header.size);
-      const read = await file.read(blobBuf, 0, header.size, offset + 4 + headerLength);
-      if (read.bytesRead < header.size) throw new Error('Truncated blob');
-      const block = readBlob(blobBuf);
-      if (header.type === 'OSMHeader') timestamp = readHeaderTimestamp(block);
-      else if (header.type === 'OSMData') readDataBlock(block, visitor);
-      offset += 4 + headerLength + header.size;
-      await onBlock?.(offset);
+  let bytesRead = 0;
+  for await (const chunk of createReadStream(path, { highWaterMark: READ_CHUNK_BYTES })) {
+    const bytes = chunk as Buffer;
+    queue.push(bytes);
+    bytesRead += bytes.length;
+    for (let blob = nextBlob(queue); blob; blob = nextBlob(queue)) {
+      const block = readBlob(blob.data);
+      if (blob.type === 'OSMHeader') timestamp = readHeaderTimestamp(block);
+      else if (blob.type === 'OSMData') readDataBlock(block, visitor);
     }
-  } finally {
-    await file.close();
+    onProgress?.(bytesRead);
   }
+  if (queue.length > 0) throw new Error('Truncated blob');
   return { timestamp };
 }

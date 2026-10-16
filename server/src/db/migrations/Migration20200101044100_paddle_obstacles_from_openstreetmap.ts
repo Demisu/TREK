@@ -58,6 +58,8 @@ export class Migration20200101044100_paddle_obstacles_from_openstreetmap extends
     this.addSql(
       'CREATE UNIQUE INDEX IF NOT EXISTS idx_paddle_features_region_ref ON paddle_features(region_id, osm_ref)',
     );
-    this.addSql('CREATE INDEX IF NOT EXISTS idx_paddle_features_box ON paddle_features(min_lat, max_lat, min_lng, max_lng)');
+    this.addSql(
+      'CREATE INDEX IF NOT EXISTS idx_paddle_features_box ON paddle_features(min_lat, max_lat, min_lng, max_lng)',
+    );
   }
 }

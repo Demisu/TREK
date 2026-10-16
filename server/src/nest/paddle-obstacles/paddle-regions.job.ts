@@ -16,10 +16,20 @@ export class PaddleRegionsJob implements OnApplicationBootstrap {
     private readonly registrar: CronRegistrarService,
   ) {}
 
+  /** @txIndependent the boot resume and the monthly tick are two separate runs, never one sequence of writes */
   onApplicationBootstrap(): void {
     if (!this.registrar.isEnabled()) return;
-    void this.registrar.runOnBoot('paddle-regions-resume', () => this.regions.resumeAfterRestart());
+    void this.registrar.runOnBoot('paddle-regions-resume', () => this.resume());
     this.registrar.register('paddle-regions-refresh', '20 4 3 * *', () => this.tick());
+  }
+
+  /** The boot's half: a failure is logged, never thrown at the boot. */
+  async resume(): Promise<void> {
+    try {
+      await this.regions.resumeAfterRestart();
+    } catch (err) {
+      logError(`[Paddle] resuming the reads after a restart: ${err instanceof Error ? err.message : String(err)}`);
+    }
   }
 
   async tick(): Promise<void> {

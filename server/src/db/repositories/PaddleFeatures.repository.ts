@@ -69,12 +69,17 @@ export class PaddleFeaturesRepository extends TrekRepository<PaddleFeatures> {
   /** Drops a region's objects and writes the new read in their place; the caller holds the transaction. */
   async replaceRegion(regionId: string, rows: readonly PaddleFeatureRow[]): Promise<void> {
     await this.db().deleteFrom('paddle_features').where('region_id', '=', regionId).execute();
-    for (let start = 0; start < rows.length; start += INSERT_CHUNK) {
-      await this.db()
-        .insertInto('paddle_features')
-        .values(rows.slice(start, start + INSERT_CHUNK).map((row) => ({ ...row, region_id: regionId })))
-        .onConflict((oc) => oc.columns(['region_id', 'osm_ref']).doNothing())
-        .execute();
-    }
+    await this.insertFrom(regionId, rows, 0);
+  }
+
+  /** The rows from `start` on, a chunk per statement, one after another on the transaction's connection. */
+  private async insertFrom(regionId: string, rows: readonly PaddleFeatureRow[], start: number): Promise<void> {
+    if (start >= rows.length) return;
+    await this.db()
+      .insertInto('paddle_features')
+      .values(rows.slice(start, start + INSERT_CHUNK).map((row) => ({ ...row, region_id: regionId })))
+      .onConflict((oc) => oc.columns(['region_id', 'osm_ref']).doNothing())
+      .execute();
+    await this.insertFrom(regionId, rows, start + INSERT_CHUNK);
   }
 }
