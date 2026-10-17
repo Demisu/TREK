@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import type { useFerrataMapLayer } from '../../components/Ferratas/useFerrataMapLayer';
-import { paddleMapItems } from '../../components/Tours/paddle/paddleMapLayer';
+import { paddleMapItems, selectedPaddleKey } from '../../components/Tours/paddle/paddleMapLayer';
 import { usePaddlePaint } from '../../components/Tours/paddle/paddlePaint';
 import type { TourPlannerController } from '../../components/Tours/planner/useTourPlanner';
 import { baseLayerFor, SEAMARK_OVERLAY, tourMapLayersFor } from '../../components/Tours/tourMapLayers';
@@ -42,8 +42,16 @@ export function useTourStageLayers(
   const paddlePaint = usePaddlePaint();
   const paddleItems = useMemo(() => paddleMapItems(features, related, paddlePaint), [features, related, paddlePaint]);
   const paddle = useMemo(
-    () => (paddleItems.length ? { items: paddleItems, selectedRef, onSelect: selectPaddleObstacle } : undefined),
-    [paddleItems, selectedRef]
+    () =>
+      paddleItems.length
+        ? {
+            items: paddleItems,
+            selectedRef,
+            selectedKey: selectedPaddleKey(features, selectedRef),
+            onSelect: selectPaddleObstacle,
+          }
+        : undefined,
+    [paddleItems, features, selectedRef]
   );
   const tourLayers = useMemo(
     () => ({ bases: layerSet.bases, overlays: layerSet.overlays.includes('seamarks') ? [seamarks] : [], paddle }),

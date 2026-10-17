@@ -1,4 +1,4 @@
-import type { PaddleFeature, RelatedObstacle } from '@trek/shared';
+import { paddleObstacleKeyOf, type PaddleFeature, type RelatedObstacle } from '@trek/shared';
 import { OBSTACLE_GLYPH, PADDLE_GLYPH_PATHS, paddleGlyphSvg, type PaddleGlyphKind } from './paddleGlyphPaths';
 import { paddleKindPaint, type PaddlePaint } from './paddlePaint';
 
@@ -30,7 +30,26 @@ export interface PaddleMapItem {
 export interface PaddleMapLayer {
   items: PaddleMapItem[];
   selectedRef: string | null;
+  /** The checklist key of the selected object (PAD-06): every part of a selected lock lights up with it. */
+  selectedKey: string | null;
   onSelect: (ref: string) => void;
+}
+
+/** The checklist key of the selected object among the features, or null when none is selected. */
+export function selectedPaddleKey(features: readonly PaddleFeature[], selectedRef: string | null): string | null {
+  const feature = selectedRef === null ? undefined : features.find((candidate) => candidate.ref === selectedRef);
+  return feature ? paddleObstacleKeyOf(feature) : null;
+}
+
+/** Whether an item shows as selected: the object itself, or another part of the same lock. */
+export function isPaddleItemSelected(
+  item: PaddleMapItem,
+  selectedRef: string | null,
+  selectedKey: string | null
+): boolean {
+  return (
+    item.feature.ref === selectedRef || (selectedKey !== null && paddleObstacleKeyOf(item.feature) === selectedKey)
+  );
 }
 
 function lineOf(feature: PaddleFeature): [number, number][] | null {

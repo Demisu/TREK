@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { Marker, Polyline, Tooltip, useMap, useMapEvents } from 'react-leaflet';
 import { useTranslation } from '../../../i18n';
 import {
+  isPaddleItemSelected,
   markerSize,
   paddleItemsAtZoom,
   paddleMarkerHtml,
@@ -46,12 +47,19 @@ export function PaddleLayerLeaflet({ layer }: { layer?: PaddleMapLayer }) {
   const [zoom, setZoom] = useState(() => map.getZoom());
   useMapEvents({ zoomend: () => setZoom(map.getZoom()) });
   const selectedRef = layer?.selectedRef ?? null;
+  const selectedKey = layer?.selectedKey ?? null;
   const all = layer?.items;
   const items = useMemo(() => (all ? paddleItemsAtZoom(all, zoom, selectedRef) : undefined), [all, zoom, selectedRef]);
   // Rebuilt only when the items or the selection change, not on every render of the map.
   const icons = useMemo(
-    () => new Map((items ?? []).map((item) => [item.feature.ref, iconOf(item, item.feature.ref === selectedRef)])),
-    [items, selectedRef]
+    () =>
+      new Map(
+        (items ?? []).map((item) => [
+          item.feature.ref,
+          iconOf(item, isPaddleItemSelected(item, selectedRef, selectedKey)),
+        ])
+      ),
+    [items, selectedRef, selectedKey]
   );
   if (!layer || !items?.length) return null;
   const select = (ref: string) => ({
@@ -98,7 +106,9 @@ export function PaddleLayerLeaflet({ layer }: { layer?: PaddleMapLayer }) {
           key={`${item.feature.ref}-pin`}
           position={item.marker}
           icon={icons.get(item.feature.ref) as L.DivIcon}
-          zIndexOffset={item.feature.ref === selectedRef ? 900 : item.relation === 'on_route' ? 600 : 300}
+          zIndexOffset={
+            isPaddleItemSelected(item, selectedRef, selectedKey) ? 900 : item.relation === 'on_route' ? 600 : 300
+          }
           eventHandlers={select(item.feature.ref)}
         >
           <Tooltip direction="top" offset={[0, -12]} opacity={1} className="map-tooltip">

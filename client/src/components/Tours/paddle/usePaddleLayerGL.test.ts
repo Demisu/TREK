@@ -87,7 +87,7 @@ function itemOf(ref: string): PaddleMapItem {
 }
 
 function layerOf(items: PaddleMapItem[], selectedRef: string | null = null, onSelect = vi.fn()): PaddleMapLayer {
-  return { items, selectedRef, onSelect };
+  return { items, selectedRef, selectedKey: null, onSelect };
 }
 
 const looksOf = (item: PaddleMapItem) => [paddleMarkerImageId(item, false), paddleMarkerImageId(item, true)];

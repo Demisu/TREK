@@ -1,18 +1,30 @@
-import { computeTourMetrics, estimatePaddleTime, paddleLayoutOfTrack, paddleMovingSeconds, recommendedPaddleSpeedKmh, type GeometryPoint, type TourPaddlePlanRequest, type TourCreateRequest, type TourCreateResponse, type TourDetailResponse, type TourGpxImportFields, type TourGpxPreviewResponse, type TourImportGpxResponse, type TourListItem, type TourWaypoint } from '@trek/shared'
+import { computeTourMetrics, estimatePaddleTime, paddleCheckSummaryOf, paddleLayoutOfTrack, paddleMovingSeconds, recommendedPaddleSpeedKmh, type GeometryPoint, type TourObstacleCheck, type TourObstacleReviewsRequest, type TourPaddlePlanRequest, type TourCreateRequest, type TourCreateResponse, type TourDetailResponse, type TourGpxImportFields, type TourGpxPreviewResponse, type TourImportGpxResponse, type TourListItem, type TourWaypoint } from '@trek/shared'
 import { toursApi } from '../api/client'
 import { tourGpxApi } from '../api/tourGpx'
 import { recordedTrackApi } from '../api/recordedTrack'
 import { tourPaddlePlanApi } from '../api/tourPaddlePlan'
 import { tourCopiesApi } from '../api/tourCopies'
+import { tourObstacleReviewsApi } from '../api/tourObstacleReviews'
+import { cacheTourAnswer } from '../db/cacheTour'
 import { offlineDb, replaceTripTours, type CachedTour } from '../db/offlineDb'
 import { mutationQueue, generateUUID, nextTempId } from '../sync/mutationQueue'
 import { isEffectivelyOffline } from '../sync/networkMode'
+import { applyObstacleOps } from './obstacleCheckLocal'
 import { onlineThenCache } from './withOfflineFallback'
 import type { Place } from '../types'
 
 /** The list item a cached row stands for: the cache-only fields stripped. */
-function toListItem({ trip_id: _tripId, waypoints: _waypoints, provenance: _provenance, ...tour }: CachedTour): TourListItem {
+function toListItem({ trip_id: _tripId, waypoints: _waypoints, provenance: _provenance, obstacle_check: _check, ...tour }: CachedTour): TourListItem {
   return tour
+}
+
+/**
+ * A paddle tour's bench after a route write made here offline: the server has
+ * not judged the new route yet, so its revision no longer matches any
+ * checklist and the checklist reads as stale until the write replays.
+ */
+function staleCheck(tour: CachedTour, mutationId: string): CachedTour {
+  return tour.paddle_check ? { ...tour, paddle_check: { ...tour.paddle_check, revision: `local:${mutationId}` } } : tour
 }
 
 /** Newest first, as the server lists them: offline creates (negative ids) on top. */
@@ -108,12 +120,7 @@ export const tourRepo = {
     return onlineThenCache(
       async () => {
         const result = await toursApi.detail(tripId, placeId, signal)
-        await offlineDb.tours.put({
-          ...result.tour,
-          trip_id: Number(tripId),
-          waypoints: result.waypoints,
-          ...(result.provenance ? { provenance: result.provenance } : {}),
-        })
+        await cacheTourAnswer(Number(tripId), result)
         return result
       },
       async () => {
@@ -124,7 +131,12 @@ export const tourRepo = {
         const waypoints = cached.waypoints?.length
           ? cached.waypoints
           : endpointsOf((await offlineDb.places.get(placeId))?.route_geometry)
-        return { tour: toListItem(cached), waypoints, ...(cached.provenance ? { provenance: cached.provenance } : {}) }
+        return {
+          tour: toListItem(cached),
+          waypoints,
+          ...(cached.provenance ? { provenance: cached.provenance } : {}),
+          ...(cached.obstacle_check ? { obstacle_check: cached.obstacle_check } : {}),
+        }
       },
     )
   },
@@ -155,7 +167,7 @@ export const tourRepo = {
       return { tour: toListItem(tour), waypoints: body.waypoints }
     }
     const result = await toursApi.create(tripId, body)
-    await offlineDb.tours.put({ ...result.tour, trip_id: Number(tripId), waypoints: result.waypoints })
+    await cacheTourAnswer(Number(tripId), result)
     return result
   },
 
@@ -163,10 +175,11 @@ export const tourRepo = {
     if (await mutationQueue.mustQueue('tours', placeId)) {
       const tid = Number(tripId)
       const existing = await offlineDb.tours.get(placeId)
-      const tour: CachedTour = {
+      const id = generateUUID()
+      const tour = staleCheck({
         difficulty: null, wanderer_ref: null, planned: false,
         ...existing, ...routeFields(body), place_id: placeId, trip_id: tid, waypoints: body.waypoints,
-      }
+      }, id)
       const place = await offlineDb.places.get(placeId)
       await offlineDb.transaction('rw', offlineDb.places, offlineDb.tours, async () => {
         await offlineDb.places.put({ ...(place ?? {} as Place), id: placeId, trip_id: tid, ...routePlaceFields(body) })
@@ -174,7 +187,7 @@ export const tourRepo = {
       })
       const isTemp = placeId < 0
       await mutationQueue.enqueue({
-        id: generateUUID(),
+        id,
         tripId: tid,
         method: 'PUT',
         url: isTemp ? `/trips/${tripId}/tours/{id}` : `/trips/${tripId}/tours/${placeId}`,
@@ -187,7 +200,7 @@ export const tourRepo = {
       return { tour: toListItem(tour), waypoints: body.waypoints }
     }
     const result = await toursApi.update(tripId, placeId, body)
-    await offlineDb.tours.put({ ...result.tour, trip_id: Number(tripId), waypoints: result.waypoints })
+    await cacheTourAnswer(Number(tripId), result)
     return result
   },
 
@@ -208,16 +221,17 @@ export const tourRepo = {
       })
       const moving = paddleMovingSeconds(estimate)
       const empty = body.track_marks.portages.length === 0 && body.track_marks.locks.length === 0
-      const tour: CachedTour = {
+      const id = generateUUID()
+      const tour = staleCheck({
         ...existing,
         paddle_speed_kmh: body.paddle_speed_kmh,
         portage_speed_kmh: body.portage_speed_kmh,
         track_marks: empty ? null : body.track_marks,
         duration: moving === null ? null : Math.round(moving / 60),
-      }
+      }, id)
       await offlineDb.tours.put(tour)
       await mutationQueue.enqueue({
-        id: generateUUID(),
+        id,
         tripId: tid,
         method: 'PUT',
         url: `/trips/${tripId}/tours/${placeId}/paddle-plan`,
@@ -229,14 +243,14 @@ export const tourRepo = {
       return { tour: toListItem(tour), waypoints: existing.waypoints ?? [] }
     }
     const result = await tourPaddlePlanApi.update(tripId, placeId, body)
-    await offlineDb.tours.put({ ...result.tour, trip_id: Number(tripId), waypoints: result.waypoints })
+    await cacheTourAnswer(Number(tripId), result)
     return result
   },
 
   /** Online only, like the import: the recorded track is kept on the server, not in the cache. */
   async restoreRecorded(tripId: number | string, placeId: number): Promise<TourDetailResponse> {
     const result = await recordedTrackApi.restore(tripId, placeId)
-    await offlineDb.tours.put({ ...result.tour, trip_id: Number(tripId), waypoints: result.waypoints })
+    await cacheTourAnswer(Number(tripId), result)
     return result
   },
 
@@ -246,7 +260,71 @@ export const tourRepo = {
    */
   async copy(tripId: number | string, placeId: number, name: string): Promise<TourCreateResponse> {
     const result = await tourCopiesApi.copy(tripId, placeId, { name })
-    await offlineDb.tours.put({ ...result.tour, trip_id: Number(tripId), waypoints: result.waypoints })
+    await cacheTourAnswer(Number(tripId), result)
+    return result
+  },
+
+  /**
+   * PAD-06: a paddle tour's checklist for the bench the list shows. The
+   * cached one serves while its revision matches; otherwise the detail is read
+   * (the cache standing in offline), and a checklist of another revision than
+   * the bench's reads as stale.
+   */
+  async obstacleCheck(
+    tripId: number | string,
+    placeId: number,
+    revision: string | null,
+    signal?: AbortSignal,
+  ): Promise<{ check: TourObstacleCheck | null; stale: boolean }> {
+    const cached = await offlineDb.tours.get(placeId)
+    if (revision !== null && cached?.obstacle_check?.revision === revision) return { check: cached.obstacle_check, stale: false }
+    const check = (await tourRepo.detail(tripId, placeId, signal)).obstacle_check ?? null
+    return { check, stale: check !== null && revision !== null && check.revision !== revision }
+  },
+
+  /**
+   * PAD-06: what the paddlers decided about the obstacles. Made offline, or
+   * behind a queued write of the same tour, the cached checklist and bench
+   * take the change at once under a local revision and the write waits in the
+   * queue; the server then binds each decision to the basis the user saw.
+   */
+  async saveObstacleReviews(
+    tripId: number | string,
+    placeId: number,
+    body: TourObstacleReviewsRequest,
+    userId: number | null,
+  ): Promise<TourDetailResponse> {
+    if (placeId < 0) throw new Error('Save the tour before deciding about its obstacles')
+    if (await mutationQueue.mustQueue('tours', placeId)) {
+      const existing = await offlineDb.tours.get(placeId)
+      if (!existing?.obstacle_check) throw new Error('Checklist not available offline')
+      const id = generateUUID()
+      const revision = `local:${id}`
+      const check = applyObstacleOps(existing.obstacle_check, body.ops, { now: new Date().toISOString(), userId, revision })
+      const bench = existing.paddle_check
+        ? { ...paddleCheckSummaryOf(check.entries, check.own, existing.paddle_check), revision }
+        : existing.paddle_check
+      const tour: CachedTour = { ...existing, obstacle_check: check, paddle_check: bench }
+      await offlineDb.tours.put(tour)
+      await mutationQueue.enqueue({
+        id,
+        tripId: Number(tripId),
+        method: 'PUT',
+        url: `/trips/${tripId}/tours/${placeId}/obstacle-reviews`,
+        body,
+        resource: 'tours',
+        entityId: placeId,
+      })
+      mutationQueue.sendSoon()
+      return {
+        tour: toListItem(tour),
+        waypoints: existing.waypoints ?? [],
+        obstacle_check: check,
+        ...(existing.provenance ? { provenance: existing.provenance } : {}),
+      }
+    }
+    const result = await tourObstacleReviewsApi.save(tripId, placeId, body)
+    await cacheTourAnswer(Number(tripId), result)
     return result
   },
 

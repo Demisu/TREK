@@ -6,6 +6,7 @@
  *   online trigger → flush() → replay REST with X-Idempotency-Key header → update Dexie
  */
 import { offlineDb, MUTATION_SCHEMA_VERSION } from '../db/offlineDb'
+import { cacheTourAnswer } from '../db/cacheTour'
 import { apiClient } from '../api/client'
 import { isAuthed } from './authGate'
 import { isEffectivelyOffline } from './networkMode'
@@ -428,7 +429,7 @@ async function reconcileTour(mutation: QueuedMutation, saved: TourCreateResponse
       await offlineDb.tours.delete(mutation.tempId)
       if (temp && !(await offlineDb.places.get(realId))) await offlineDb.places.put({ ...temp, id: realId })
     }
-    await offlineDb.tours.put({ ...saved.tour, trip_id: mutation.tripId, waypoints: saved.waypoints })
+    await cacheTourAnswer(mutation.tripId, saved)
   })
   await remapTempId(mutation, realId, idMap)
 }

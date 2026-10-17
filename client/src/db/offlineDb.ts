@@ -1,4 +1,4 @@
-import type { Ferrata, RoadtripPreferences, TourListItem, TourProvenance, TourWaypoint } from '@trek/shared';
+import type { Ferrata, RoadtripPreferences, TourListItem, TourObstacleCheck, TourProvenance, TourWaypoint } from '@trek/shared';
 import Dexie, { type Table } from 'dexie';
 import type { Trip, Day, Place, PackingItem, TodoItem, BudgetItem, Reservation, TripFile, Accommodation, TripMember, Tag, Category } from '../types';
 
@@ -17,6 +17,8 @@ export interface CachedTour extends TourListItem {
   waypoints?: TourWaypoint[];
   /** Where the tour came from, as its detail last said; kept across list refreshes, since it does not change. */
   provenance?: TourProvenance;
+  /** A paddle tour's obstacle checklist as its detail last said; its revision tells whether the list's bench still matches. */
+  obstacle_check?: TourObstacleCheck;
 }
 
 /**
@@ -471,6 +473,7 @@ export async function replaceTripTours(tripId: number, tours: TourListItem[]): P
         trip_id: tripId,
         ...(sameRoute && previous.waypoints ? { waypoints: previous.waypoints } : {}),
         ...(previous?.provenance ? { provenance: previous.provenance } : {}),
+        ...(previous?.obstacle_check ? { obstacle_check: previous.obstacle_check } : {}),
       };
     }));
   });

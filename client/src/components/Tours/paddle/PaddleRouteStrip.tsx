@@ -2,7 +2,7 @@ import type { PaddleLayout } from '@trek/shared';
 import { useMemo } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useTranslation } from '../../../i18n';
-import { selectPaddleObstacle, usePaddleObstacleStore } from '../../../store/paddleObstacleStore';
+import { focusPaddleObstacle, selectPaddleObstacle, usePaddleObstacleStore } from '../../../store/paddleObstacleStore';
 import { useSettingsStore } from '../../../store/settingsStore';
 import { formatDistance } from '../../../utils/units';
 import { fs } from '../../shared/DialogShell';
@@ -73,7 +73,7 @@ export function PaddleRouteStrip({ layout, compact = false }: { layout: PaddleLa
                 data-testid="paddle-route-strip-obstacle"
                 aria-label={obstacle.name ? `${kind}: ${obstacle.name}` : kind}
                 aria-pressed={picked}
-                onClick={() => selectPaddleObstacle(picked ? null : obstacle.ref)}
+                onClick={() => (picked ? selectPaddleObstacle(null) : focusPaddleObstacle(obstacle.ref))}
                 className={`absolute top-1/2 grid h-4 w-4 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-surface-card shadow-sm rtl:translate-x-1/2 ${picked ? 'z-30 scale-125' : 'z-20'} ${obstacle.relation === 'near' && !picked ? 'opacity-60' : ''}`}
                 style={{
                   insetInlineStart: `${(obstacle.atM / total) * 100}%`,

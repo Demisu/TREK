@@ -163,7 +163,7 @@ const layerOf = (
   items: PaddleMapItem[],
   selectedRef: string | null = null,
   onSelect: (ref: string) => void = vi.fn()
-): PaddleMapLayer => ({ items, selectedRef, onSelect });
+): PaddleMapLayer => ({ items, selectedRef, selectedKey: null, onSelect });
 
 const lines = () => screen.queryAllByTestId('polyline');
 const pins = () => screen.queryAllByTestId('pin');

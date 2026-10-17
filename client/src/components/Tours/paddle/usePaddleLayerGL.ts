@@ -2,6 +2,7 @@ import type { ExpressionSpecification, Map, MapMouseEvent } from 'mapbox-gl';
 import { useEffect, useRef } from 'react';
 import {
   isAreaOnly,
+  isPaddleItemSelected,
   markerSize,
   PADDLE_AREA_MIN_ZOOM,
   paddleMarkerImageId,
@@ -29,10 +30,14 @@ const HIT_LAYERS = [PINS, PINS_AREA, LINE, LINE_NEAR, LINE_AREA];
 const WIDTH = { on_route: 4, near: 3, area: 2 } as const;
 const OPACITY = { on_route: 1, near: 0.85, area: 0.5 } as const;
 
-function collection(items: readonly PaddleMapItem[], selectedRef: string | null): GeoJSON.FeatureCollection {
+function collection(
+  items: readonly PaddleMapItem[],
+  selectedRef: string | null,
+  selectedKey: string | null
+): GeoJSON.FeatureCollection {
   const features: GeoJSON.Feature[] = [];
   for (const item of items) {
-    const selected = item.feature.ref === selectedRef;
+    const selected = isPaddleItemSelected(item, selectedRef, selectedKey);
     const area = isAreaOnly(item, selectedRef);
     if (item.line) {
       features.push({
@@ -195,11 +200,12 @@ export function usePaddleLayerGL(map: PaddleGlMap | null, layer: PaddleMapLayer 
   }, [layer?.onSelect]);
   const items = layer?.items;
   const selectedRef = layer?.selectedRef ?? null;
+  const selectedKey = layer?.selectedKey ?? null;
 
   useEffect(() => {
     if (!map || !items?.length) return;
     let gone = false;
-    const data = collection(items, selectedRef);
+    const data = collection(items, selectedRef, selectedKey);
     let applied: GeoJSON.FeatureCollection | null = null;
     const apply = () => {
       try {
@@ -220,7 +226,7 @@ export function usePaddleLayerGL(map: PaddleGlMap | null, layer: PaddleMapLayer 
       gone = true;
       map.off('styledata', apply);
     };
-  }, [items, map, selectedRef]);
+  }, [items, map, selectedRef, selectedKey]);
 
   useEffect(() => {
     if (!map) return;
