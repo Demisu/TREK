@@ -26,6 +26,7 @@ import { resetTestDb } from '../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../helpers/test-module';
 import { MikroORM } from '@mikro-orm/core';
 import {
+  PADDLE_CHECK_MAX_ENTRIES,
   tourDetailResponseSchema,
   tourListItemSchema,
   type ObstacleDecision,
@@ -296,6 +297,21 @@ describe('TourPaddleCheckService: the checklist and the bench', () => {
     expect(read).not.toHaveProperty('obstacle_check');
     expect(read.tour).not.toHaveProperty('paddle_check');
   });
+
+  it('TPC-010: an area holding more obstacles than a checklist carries reads as cut short', async () => {
+    const { trip, paddle } = await fixture();
+    await region();
+    await insertRows(
+      orm(),
+      PaddleFeatures,
+      Array.from({ length: PADDLE_CHECK_MAX_ENTRIES + 1 }, (_, i) =>
+        weir(`node/${i + 1}`, 49.2, 12.0001 + i * 0.00003),
+      ),
+    );
+    const read = await detail(trip.id, paddle.id);
+    expect(read.tour.paddle_check).toMatchObject({ data: 'limited', entries: PADDLE_CHECK_MAX_ENTRIES });
+    expect(read.obstacle_check?.entries).toHaveLength(PADDLE_CHECK_MAX_ENTRIES);
+  });
 });
 
 describe('TourObstacleReviewsService.save', () => {
@@ -471,6 +487,30 @@ describe('TourObstacleReviewsService.save', () => {
     const read = await reviews.save(String(trip.id), String(lineless.id), { ops: [decide(entry, 'pass')] }, user.id);
     expect(read.tour.paddle_check).toBeNull();
     expect(await findRows(orm(), TourObstacleReviews, { place: lineless.id })).toEqual([]);
+  });
+
+  it('TOR-012: a save failing part way stores none of its changes', async () => {
+    const { user, trip, paddle, entry } = await decidedFixture();
+    await insertRows(orm(), PaddleFeatures, [weir('node/2', 49.2, 12.008)]);
+    const read = await detail(trip.id, paddle.id);
+    const second = read.obstacle_check?.entries.find((candidate) => candidate.key === 'node/2');
+    if (!second) throw new Error('no second entry');
+    await reviews.save(String(trip.id), String(paddle.id), { ops: [decide(second, 'pass')] }, user.id);
+    const repo = orm().em.getRepository(TourObstacleReviews) as unknown as { deleteKeys: () => Promise<number> };
+    vi.spyOn(repo, 'deleteKeys').mockRejectedValueOnce(new Error('disk full'));
+
+    await expect(
+      reviews.save(
+        String(trip.id),
+        String(paddle.id),
+        {
+          ops: [decide(entry, 'portage'), { key: 'node/2', op: 'clear', decision: null, note: null, basis: null }],
+        },
+        user.id,
+      ),
+    ).rejects.toThrow();
+    expect(await stored(paddle.id)).toBeNull();
+    expect(await findRows(orm(), TourObstacleReviews, { place: paddle.id })).toHaveLength(1);
   });
 
   it('TOR-011: a copied tour keeps its decisions, bound to what they were decided on', async () => {
