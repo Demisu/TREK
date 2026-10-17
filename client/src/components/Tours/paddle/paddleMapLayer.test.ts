@@ -1,4 +1,4 @@
-// FE-PADDLE-MAP-001 to FE-PADDLE-MAP-015: the paddle objects as the planner maps draw them, one model for Leaflet and GL.
+// FE-PADDLE-MAP-001 to FE-PADDLE-MAP-017: the paddle objects as the planner maps draw them, one model for Leaflet and GL.
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -12,6 +12,7 @@ import {
 import { OBSTACLE_GLYPH, PADDLE_GLYPH_PATHS, paddleGlyphSvg } from './paddleGlyphPaths';
 import {
   isAreaOnly,
+  isPaddleItemSelected,
   markerSize,
   PADDLE_AREA_MIN_ZOOM,
   paddleItemsAtZoom,
@@ -21,6 +22,7 @@ import {
   paddleMarkerHtml,
   paddleMarkerImageId,
   paddleMarkerSvg,
+  selectedPaddleKey,
 } from './paddleMapLayer';
 import { paddleKindPaint, type PaddlePaint } from './paddlePaint';
 
@@ -357,5 +359,28 @@ describe('paddle map layer', () => {
     ]);
     for (const text of markup) expect(text).not.toContain('onerror');
     expect(parseHtml(paddleMarkerHtml(drawn, true)).querySelector('img')).toBeNull();
+  });
+});
+
+describe('the selected lock (PAD-06)', () => {
+  const chamber = { ...feature('way/7', 'lock'), group_key: 'lock:node/3' };
+  const gate = { ...feature('node/3', 'lock_gate'), group_key: 'lock:node/3' };
+  const weir = feature('node/9', 'weir');
+  const items = paddleMapItems([chamber, gate, weir], [], PAINT);
+
+  it('FE-PADDLE-MAP-016: the key of the selected object is its lock, or its own ref, and nothing without a selection', () => {
+    expect(selectedPaddleKey([chamber, gate, weir], 'way/7')).toBe('lock:node/3');
+    expect(selectedPaddleKey([chamber, gate, weir], 'node/9')).toBe('node/9');
+    expect(selectedPaddleKey([chamber, gate, weir], 'node/404')).toBeNull();
+    expect(selectedPaddleKey([chamber, gate, weir], null)).toBeNull();
+  });
+
+  it('FE-PADDLE-MAP-017: every part of a selected lock shows as selected, another object does not', () => {
+    const selected = items.filter((item) => isPaddleItemSelected(item, 'way/7', 'lock:node/3'));
+    expect(selected.map((item) => item.feature.ref)).toEqual(['way/7', 'node/3']);
+    expect(items.filter((item) => isPaddleItemSelected(item, 'node/9', 'node/9')).map((i) => i.feature.ref)).toEqual([
+      'node/9',
+    ]);
+    expect(items.some((item) => isPaddleItemSelected(item, null, null))).toBe(false);
   });
 });

@@ -47,6 +47,7 @@ import { Tooltip } from '../shared/Tooltip';
 import TrackColorPicker from '../shared/TrackColorPicker';
 import { markdownLinkComponents } from '../shared/markdownLink';
 import { TourDayRowAvatar } from './TourDayRowFacts';
+import { PaddleCheckSection } from './paddle/PaddleCheckSection';
 import { PaddleWindSection } from './paddle/PaddleWindCard';
 import { TourProvenanceBlock } from './provenance/TourProvenanceSection';
 import { tourDayRowIcon } from './tourDayRowIcon';
@@ -646,6 +647,7 @@ export default function TourDetailDialog({
           placeId={place.id}
         />
       )}
+      {tour.tour_type === 'kayak' && <PaddleCheckSection tour={tour} />}
       {tour.tour_type === 'kayak' && <PaddleWindSection placeId={place.id} start={placeStart(place)} />}
 
       {description && (

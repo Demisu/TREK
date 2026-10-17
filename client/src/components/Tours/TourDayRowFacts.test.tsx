@@ -1,8 +1,9 @@
 import type { TourListItem } from '@trek/shared';
 import { Bike, Footprints, Mountain, Route } from 'lucide-react';
 import { describe, expect, it, vi } from 'vitest';
+import { paddleBench } from '../../../tests/helpers/paddleCheck';
 import { fireEvent, render, screen } from '../../../tests/helpers/render';
-import TourDayRowFacts, { TourDayRowIcon } from './TourDayRowFacts';
+import TourDayRowFacts, { TourDayRowIcon, TourDayRowPills } from './TourDayRowFacts';
 import { tourDayRowIcon } from './tourDayRowIcon';
 
 const tour: TourListItem = {
@@ -72,5 +73,41 @@ describe('RC-01 Tour day-row facts', () => {
     fireEvent.click(walking);
     expect(screen.getByRole('note')).toHaveTextContent('Walking time: 53 min');
     expect(openRow).not.toHaveBeenCalled();
+  });
+});
+
+describe('PAD-09 the check bench on a tour row', () => {
+  const kayak: TourListItem = { ...tour, tour_type: 'kayak', paddle_check: paddleBench() };
+
+  it('PCD-001: a kayak tour with a bench shows one checklist pill, its tooltip saying it is no clearance', () => {
+    render(<TourDayRowPills tour={kayak} />);
+    const pill = screen.getByTestId('plan-tour-paddle-check');
+    expect(pill).toHaveTextContent('1 open');
+    expect(pill.getAttribute('aria-label')).toContain('A checklist is no safety or legal clearance.');
+  });
+
+  it('PCD-002: missing obstacle data reads as such in the pill, never as a count', () => {
+    render(<TourDayRowPills tour={{ ...kayak, paddle_check: paddleBench({ data: 'none', open: 3 }) }} />);
+    expect(screen.getByTestId('plan-tour-paddle-check')).toHaveTextContent('No data');
+  });
+
+  it.each([false, true])('PCD-003: the day plan facts name the bench as one more fact (mobile=%s)', (mobile) => {
+    render(<TourDayRowFacts tour={kayak} mobile={mobile} />);
+    expect(screen.getByTestId('plan-tour-paddle-check')).toHaveAccessibleName('Checklist: 1 open');
+  });
+
+  const without: Array<[string, TourListItem]> = [
+    ['a hike with a bench', { ...tour, paddle_check: paddleBench() }],
+    ['a kayak tour without a bench', { ...tour, tour_type: 'kayak' }],
+    ['a kayak tour whose bench is null', { ...tour, tour_type: 'kayak', paddle_check: null }],
+  ];
+  it.each(without)('PCD-004: %s shows no checklist pill and no checklist fact', (_case, item) => {
+    render(
+      <>
+        <TourDayRowPills tour={item} />
+        <TourDayRowFacts tour={item} />
+      </>
+    );
+    expect(screen.queryByTestId('plan-tour-paddle-check')).not.toBeInTheDocument();
   });
 });

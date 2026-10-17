@@ -1,10 +1,11 @@
 // FE-PAGE-TOURSTAGE-001 to FE-PAGE-TOURSTAGE-016
-import type { Ferrata } from '@trek/shared';
+import type { Ferrata, PaddleFeature } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '../../../tests/helpers/render';
 import { useTripFerratas } from '../../components/Ferratas/useTripFerratas';
 import type { MapViewProps } from '../../components/Map/mapViewContract';
 import { useTourMapView } from '../../components/Tours/planner/useTourMapView';
+import { clearPaddleObstacles, publishPaddleObstacles, selectPaddleObstacle } from '../../store/paddleObstacleStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { initialTourPlaceToolState, useTourPlaceToolStore } from '../../store/tourPlaceToolStore';
 import { TourPlannerMapStage, type TourPlannerMapStageProps } from './TourPlannerMapStage';
@@ -89,6 +90,12 @@ vi.mock('../../components/Planner/LocationSelect', () => ({
 }));
 // What the layer asks the server is useTripFerratas' own suite; here it answers from memory.
 vi.mock('../../components/Ferratas/useTripFerratas', () => ({ useTripFerratas: vi.fn() }));
+// The checklist's part of the card is ObstacleDecisionPanel's own suite; here it shows what it was handed.
+vi.mock('../../components/Tours/paddle/ObstacleDecisionPanel', () => ({
+  ChecklistObstaclePanel: ({ checklist, featureRef }: { checklist: { status: string }; featureRef: string }) => (
+    <p data-testid="checklist-obstacle-panel">{`${checklist.status} ${featureRef}`}</p>
+  ),
+}));
 
 const FERRATA: Ferrata = {
   id: 'way/42',
@@ -191,6 +198,57 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+});
+
+describe('the paddle checklist in the obstacle card (PAD-06)', () => {
+  type Checklist = NonNullable<TourPlannerMapStageProps['paddleChecklist']>;
+
+  const WEIR: PaddleFeature = {
+    ref: 'node/101',
+    kind: 'weir',
+    group_key: null,
+    name: 'Hammer weir',
+    geometry: { type: 'Point', coordinates: [7, 46] },
+    tags: { waterway: 'weir' },
+    tag_hash: 'weir-hash',
+    region_id: 'valais',
+  };
+
+  /** The weir in the obstacle store and picked, as a click on its map pin or a row of the checklist picks it. */
+  function pickWeir() {
+    act(() => {
+      publishPaddleObstacles({
+        status: 'ready',
+        features: [WEIR],
+        related: [],
+        routeLengthM: 0,
+        coverage: 'covered',
+        regions: [],
+        truncated: false,
+      });
+      selectPaddleObstacle(WEIR.ref);
+    });
+  }
+
+  afterEach(() => {
+    act(() => clearPaddleObstacles());
+  });
+
+  it('PCM-001: the picked object card carries the checklist part for that object', () => {
+    const paddleChecklist = { status: 'ready' } as unknown as Checklist;
+    render(<TourPlannerMapStage {...stageProps(planner('edit-saved'))} paddleChecklist={paddleChecklist} />);
+    pickWeir();
+    const panel = screen.getByTestId('checklist-obstacle-panel');
+    expect(screen.getByTestId('paddle-obstacle-overlay')).toContainElement(panel);
+    expect(panel).toHaveTextContent('ready node/101');
+  });
+
+  it('PCM-002: without a checklist the card shows the object alone', () => {
+    renderStage(planner('edit-saved'));
+    pickWeir();
+    expect(screen.getByTestId('paddle-obstacle-overlay')).toBeInTheDocument();
+    expect(screen.queryByTestId('checklist-obstacle-panel')).not.toBeInTheDocument();
+  });
 });
 
 describe('TourPlannerMapStage', () => {

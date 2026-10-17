@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '../../../tests/helpers/rende
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { TourListItem } from '@trek/shared'
 import { buildPlace } from '../../../tests/helpers/factories'
+import { paddleBench } from '../../../tests/helpers/paddleCheck'
 import { resetAllStores, seedStore } from '../../../tests/helpers/store'
 import { useSettingsStore } from '../../store/settingsStore'
 import TourDetailDialog from './TourDetailDialog'
@@ -223,5 +224,20 @@ describe('TourDetailDialog', () => {
 
     expect(screen.getAllByText('T1').length).toBeGreaterThan(0)
     expect(screen.queryByText(/easy/i)).not.toBeInTheDocument()
+  })
+
+  it('PCT-001: a paddle tour shows its checklist and the safety row before the wind, a hike neither', () => {
+    const { unmount } = render(<TourDetailDialog {...defaultProps} tour={{ ...tour, tour_type: 'kayak', paddle_check: paddleBench() }} />)
+
+    expect(screen.getByText('Checklist')).toBeInTheDocument()
+    expect(screen.getByTestId('paddle-check-summary')).toBeInTheDocument()
+    const safety = screen.getByRole('button', { name: /Paddling has risks/ })
+    expect(safety.compareDocumentPosition(screen.getByTestId('paddle-wind-card'))).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    unmount()
+
+    render(<TourDetailDialog {...defaultProps} tour={{ ...tour, paddle_check: paddleBench() }} />)
+    expect(screen.queryByText('Checklist')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('paddle-check-summary')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Paddling has risks/ })).not.toBeInTheDocument()
   })
 })

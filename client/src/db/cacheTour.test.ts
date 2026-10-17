@@ -1,6 +1,6 @@
 // A tour answer written to the cache (PAD-06): its control points, and where it
 // came from and its checklist kept from the cached row when the answer lacks them.
-import type { TourListItem } from '@trek/shared';
+import type { TourListItem, TourProvenance } from '@trek/shared';
 import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, it } from 'vitest';
 
@@ -32,10 +32,10 @@ const waypoints = [
   { lat: 49.2, lng: 12, role: 'start' as const, sequence: 0 },
   { lat: 49.2, lng: 12.01, role: 'end' as const, sequence: 1 },
 ];
-const provenance = {
-  origin: 'trek' as const,
+const provenance: TourProvenance = {
+  origin: 'trek',
   createdAt: null,
-  source: null,
+  source: { kind: 'trek' },
   derivedFrom: null,
   plannedOver: false,
   editedLocally: null,

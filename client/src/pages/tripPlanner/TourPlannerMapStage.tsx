@@ -9,6 +9,7 @@ import { MAP_LAYER_SWITCHER_INSET, MAP_ROUND_CONTROL_SIZE } from '../../componen
 import { MapUndoHint } from '../../components/Map/MapUndoHint';
 import { MapViewAuto as MapView } from '../../components/Map/MapViewAuto';
 import LocationSelect from '../../components/Planner/LocationSelect';
+import { ChecklistObstaclePanel } from '../../components/Tours/paddle/ObstacleDecisionPanel';
 import PaddleObstacleOverlay from '../../components/Tours/paddle/PaddleObstacleOverlay';
 import type { TerrainLegendLayout } from '../../components/Tours/terrain/TourTerrainMap';
 import { isRtlLanguage, useTranslation } from '../../i18n';
@@ -63,6 +64,8 @@ export interface TourPlannerMapStageProps
   rightPanelPx: number;
   /** Told the visible area too, besides the via ferrata layer (the wanderer area search). */
   onViewportChange?: (bounds: FerrataBbox) => void;
+  /** The open paddle tour's checklist (PAD-06): its part for the picked object rides in the object's map card. */
+  paddleChecklist?: PageState['paddleChecklist'];
 }
 
 /**
@@ -83,6 +86,7 @@ export function TourPlannerMapStage({
   leftPanelPx,
   rightPanelPx,
   onViewportChange,
+  paddleChecklist,
 }: Readonly<TourPlannerMapStageProps>): ReactElement {
   const [terrain3d, setTerrain3d] = useState(false);
   // How high the 3D map's controls reach: one row, or two once the grade legend moved above the dock.
@@ -245,6 +249,11 @@ export function TourPlannerMapStage({
         onOutsidePress={closingPress.arm}
         insetEnd={(isRtlLanguage(language) ? leftInset : rightInset) + MAP_LAYER_SWITCHER_INSET}
         {...ferrataCardPlacement(terrain3d, bottomRowTop, terrainLegend)}
+        extra={
+          paddleChecklist
+            ? (detail) => <ChecklistObstaclePanel checklist={paddleChecklist} featureRef={detail.feature.ref} />
+            : undefined
+        }
       />
       {/* "Point set", with the way back, above the bottom row and between the panels. */}
       {placedHint.shown && (

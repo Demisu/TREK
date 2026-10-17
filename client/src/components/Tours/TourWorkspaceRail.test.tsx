@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '../../../tests/helpers/render';
 import TourWorkspaceRail, { type TourWorkspaceRailParts } from './TourWorkspaceRail';
 import type { GpxConversion } from './conversion/useGpxConversion';
+import type { PaddleChecklist } from './paddle/usePaddleChecklist';
+import type { TrackPaddlePlan } from './paddle/useTrackPaddlePlan';
 import type { TourPlannerController } from './planner/useTourPlanner';
 import type { RecordedTrack } from './useRecordedTrack';
 import type { WandererBrowser } from './wanderer/useWandererBrowser';
@@ -50,5 +52,15 @@ describe('TourWorkspaceRail', () => {
 
     view.rerender(<TourWorkspaceRail workspace={workspace(wanderer({ enabled: false }))} canEdit canAssign />);
     expect(seen.rail[seen.rail.length - 1]?.onOpenWanderer).toBeUndefined();
+  });
+
+  it('PCW-001: hands the paddle plan and the checklist of the tour in view on to the editor rail', () => {
+    const trackPaddlePlan = { pick: null } as unknown as TrackPaddlePlan;
+    const paddleChecklist = { status: 'ready' } as unknown as PaddleChecklist;
+    const parts = { ...workspace(wanderer({})), trackPaddlePlan, paddleChecklist };
+    seen.rail.length = 0;
+    render(<TourWorkspaceRail workspace={parts} canEdit canAssign />);
+    expect(seen.rail[seen.rail.length - 1]?.trackPaddlePlan).toBe(trackPaddlePlan);
+    expect(seen.rail[seen.rail.length - 1]?.paddleChecklist).toBe(paddleChecklist);
   });
 });

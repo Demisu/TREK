@@ -52,19 +52,19 @@ export function paddleCheckFact(check: PaddleCheck, t: Translate): { icon: Lucid
 
 const MONTH = /^(\d{4})-(\d{2})$/;
 
-/** A date of the checklist in the user's language: a bare `YYYY-MM` (an OSM check date) reads as month and year. */
-export function formatCheckDate(value: string, language: string): string {
+/** A date of the checklist in the user's locale: a bare `YYYY-MM` (an OSM check date) reads as month and year. */
+export function formatCheckDate(value: string, locale: string): string {
   const month = MONTH.exec(value);
   try {
     if (month) {
       const date = new Date(Date.UTC(Number(month[1]), Number(month[2]) - 1, 1));
-      return new Intl.DateTimeFormat(language, { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(date);
+      return new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(date);
     }
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return value;
     // A bare day is a calendar day, not an instant in the user's zone.
     const timeZone = /^\d{4}-\d{2}-\d{2}$/.test(value) ? 'UTC' : undefined;
-    return new Intl.DateTimeFormat(language, { dateStyle: 'medium', timeZone }).format(date);
+    return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeZone }).format(date);
   } catch {
     return value;
   }

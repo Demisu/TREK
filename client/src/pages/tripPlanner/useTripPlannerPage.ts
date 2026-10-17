@@ -7,6 +7,7 @@ import { useTrackPortageParts } from '../../components/Tours/paddle/useTrackPort
 import { usePaddleObstacleSync } from '../../components/Tours/paddle/usePaddleObstacleSync'
 import { tourPlannedTimes as projectTourPlannedTimes } from '../../components/Tours/tourPresentation'
 import { usePlanMapViewport } from '../../hooks/usePlanMapViewport'
+import { usePaddleObstacleStore } from '../../store/paddleObstacleStore'
 import { useMapLocationSearch } from './useMapLocationSearch'
 import { useTripPlanner } from './useTripPlanner'
 import { useTourWorkspace } from './useTourWorkspace'
@@ -26,7 +27,7 @@ export function useTripPlannerPage() {
 
   const canPlaceEdit = can('place_edit', trip)
   const canDayEdit = can('day_edit', trip)
-  const { tourPlanner, viewImportedTour, tourGpxImport, wandererBrowser, tourConversion, recordedTrack, trackPaddlePlan, tourDetailActions } =
+  const { tourPlanner, viewImportedTour, tourGpxImport, wandererBrowser, tourConversion, recordedTrack, trackPaddlePlan, paddleChecklist, tourDetailActions } =
     useTourWorkspace(planner, canPlaceEdit, canDayEdit)
 
   const tourDetailOpenerRef = useRef<{ placeId: number; element: HTMLElement } | null>(null)
@@ -65,7 +66,9 @@ export function useTripPlannerPage() {
     wandererBrowser.line,
     tourPlanner.mode.type, tourPlanner.readOnlyGpxAnalysis?.routeCoordinates, tourPlanner.waypoints, plannerFallbackFocusPoints])
 
-  const { mapFocusPoints, mapFocusKey, locationSearch } = useMapLocationSearch(tourPlanner.mapFocusKey, focusPoints)
+  // PAD-06: an obstacle or area the paddle checklist asks for moves the camera as a picked search result does.
+  const paddleFocus = usePaddleObstacleStore(state => state.focus)
+  const { mapFocusPoints, mapFocusKey, locationSearch } = useMapLocationSearch(tourPlanner.mapFocusKey, focusPoints, paddleFocus)
 
   const trackParts = useTrackPortageParts(tourPlanner)
   // PAD-05B: the obstacles around the paddle tour in view, for the map and the rails alike.
@@ -143,6 +146,7 @@ export function useTripPlannerPage() {
     tourConversion,
     recordedTrack,
     trackPaddlePlan,
+    paddleChecklist,
     tourDetailActions,
     tourMap: { route,
       routeWalking,

@@ -92,40 +92,43 @@ function waypointBefore(points: TourPlannerController['waypoints'], alongM: numb
   return points[points.length - 2]?.id ?? null;
 }
 
+/** Where the checklist of the open tour stands. */
+function checklistStatus(input: {
+  active: boolean;
+  newPaddleDraft: boolean;
+  tour: TourListItem | null;
+  current: Loaded | null;
+  offline: boolean;
+}): PaddleChecklistStatus {
+  if (!input.active) return 'off';
+  if (input.newPaddleDraft) return 'new';
+  if (!input.tour) return 'off';
+  if (!input.current) return 'loading';
+  if (input.current.check) return 'ready';
+  return input.offline ? 'offline-empty' : 'error';
+}
+
+/** The bench of the tour, recounted from a change shown before the server answered it. */
+function benchOf(tour: TourListItem | null, optimistic: TourObstacleCheck | null): PaddleCheck | null {
+  const bench = tour?.paddle_check ?? null;
+  if (!bench || !optimistic) return bench;
+  return { ...paddleCheckSummaryOf(optimistic.entries, optimistic.own, bench), revision: bench.revision };
+}
+
 /**
- * PAD-06 and PAD-09 in the tours workspace: the checklist of the open paddle
- * tour, read through the offline core for the bench the list shows, with the
- * paddlers' decisions saved optimistically and rolled back on a failure.
- * Deciding waits while the route has unsaved changes, since a decision binds
- * to the route the server judged.
+ * Moving between the entries: a click in the rail focuses the map on the
+ * object, or opens it in a dialog when the map does not hold it; an own
+ * portage selects its control point; planning a portage starts where the
+ * route can take one.
  */
-export function usePaddleChecklist(options: PaddleChecklistOptions) {
-  const { tripId, planner, tours, canEdit, active, trackPaddlePlan } = options;
+function useChecklistNavigation(
+  planner: TourPlannerController,
+  check: TourObstacleCheck | null,
+  trackPaddlePlan: PaddleChecklistOptions['trackPaddlePlan']
+) {
   const { mode, waypoints, setSelectedWaypointId } = planner;
-  const tour = useMemo(() => openPaddleTour(mode, tours), [mode, tours]);
-  const read = useChecklistRead(tripId, tour, active);
-  const writes = useChecklistWrites(options, tour, read);
   const selectedRef = usePaddleObstacleStore((state) => state.selectedRef);
   const [dialogKey, setDialogKey] = useState<string | null>(null);
-
-  const check = writes.optimistic ?? read.current?.check ?? null;
-  const dirty = planner.hasUnsavedChanges || !!trackPaddlePlan?.dirty;
-  let status: PaddleChecklistStatus = 'off';
-  if (active && mode.type === 'new-draft' && planner.isPaddle) status = 'new';
-  else if (active && tour) {
-    if (!read.current) status = 'loading';
-    else if (read.current.check) status = 'ready';
-    else status = read.offline ? 'offline-empty' : 'error';
-  }
-  const placeId = tour?.place_id ?? -1;
-  const summary: PaddleCheck | null =
-    writes.optimistic && tour?.paddle_check
-      ? {
-          ...paddleCheckSummaryOf(writes.optimistic.entries, writes.optimistic.own, tour.paddle_check),
-          revision: tour.paddle_check.revision,
-        }
-      : (tour?.paddle_check ?? null);
-
   const entryForRef = useCallback(
     (ref: string) => check?.entries.find((entry) => entry.refs.includes(ref)) ?? null,
     [check]
@@ -164,29 +167,58 @@ export function usePaddleChecklist(options: PaddleChecklistOptions) {
     [mode.type, setSelectedWaypointId, trackPaddlePlan, waypoints]
   );
   const nextOf = useCallback((entry: TourObstacleEntry) => (check ? nextPendingEntry(check, entry) : null), [check]);
-
+  const selectedEntry = selectedRef ? entryForRef(selectedRef) : null;
   return {
-    status,
-    tour,
-    check,
-    summary,
-    stale: read.current?.stale ?? false,
-    dirty,
-    canDecide: canEdit && status === 'ready' && !dirty && placeId > 0 && writes.savingKey === null,
-    savingKey: writes.savingKey,
-    selectedKey: (selectedRef ? entryForRef(selectedRef)?.key : null) ?? dialogKey,
+    selectedKey: selectedEntry?.key ?? dialogKey,
     dialogKey,
     entryForRef,
     select,
     selectOwn,
     closeDialog: () => setDialogKey(null),
-    ...writes.actions,
     nextOf,
     next: (entry: TourObstacleEntry) => {
       const following = nextOf(entry);
       if (following) select(following);
     },
     planPortage,
+  };
+}
+
+/**
+ * PAD-06 and PAD-09 in the tours workspace: the checklist of the open paddle
+ * tour, read through the offline core for the bench the list shows, with the
+ * paddlers' decisions saved optimistically and rolled back on a failure.
+ * Deciding waits while the route has unsaved changes, since a decision binds
+ * to the route the server judged.
+ */
+export function usePaddleChecklist(options: PaddleChecklistOptions) {
+  const { tripId, planner, tours, canEdit, active, trackPaddlePlan } = options;
+  const tour = useMemo(() => openPaddleTour(planner.mode, tours), [planner.mode, tours]);
+  const read = useChecklistRead(tripId, tour, active);
+  const writes = useChecklistWrites(options, tour, read);
+  const check = writes.optimistic ?? read.current?.check ?? null;
+  const navigation = useChecklistNavigation(planner, check, trackPaddlePlan);
+  const dirty = planner.hasUnsavedChanges || !!trackPaddlePlan?.dirty;
+  const status = checklistStatus({
+    active,
+    newPaddleDraft: planner.mode.type === 'new-draft' && planner.isPaddle,
+    tour,
+    current: read.current,
+    offline: read.offline,
+  });
+  const saved = (tour?.place_id ?? -1) > 0;
+
+  return {
+    status,
+    tour,
+    check,
+    summary: benchOf(tour, writes.optimistic),
+    stale: !!read.current?.stale,
+    dirty,
+    canDecide: canEdit && status === 'ready' && !dirty && saved && writes.savingKey === null,
+    savingKey: writes.savingKey,
+    ...navigation,
+    ...writes.actions,
     memberName: (id: number | null) => options.tripMembers.find((member) => member.id === id)?.username ?? null,
   };
 }

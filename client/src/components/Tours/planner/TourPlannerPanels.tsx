@@ -19,9 +19,12 @@ import { formatPlannedTourDuration, hikeSourceBadgeLabel, tourSource } from '../
 import { CardAction, FoldButton, RailCard, RailFacts, TourDayMenu, TourListCard, TourNotice, TourSection } from '../tourParts'
 import { movingTimeLabel, tourMetricFacts, withoutHeights } from '../tourFacts'
 import { TourDetailsSection, TourNameField } from './TourEditorFields'
+import { PaddleCheckCard } from '../paddle/PaddleCheckCard'
+import { PaddleSafetyRow } from '../paddle/PaddleSafety'
 import { PaddleTimeCard } from '../paddle/PaddleTimeCard'
 import { PaddleWindSection } from '../paddle/PaddleWindCard'
 import { TrackPaddlePlanCards } from '../paddle/TrackPaddlePlanCard'
+import type { PaddleChecklist } from '../paddle/usePaddleChecklist'
 import type { TrackPaddlePlan } from '../paddle/useTrackPaddlePlan'
 import { TourTypeFields } from './TourTypeFields'
 import TourWaypointList from './TourWaypointList'
@@ -235,11 +238,13 @@ function GpxViewRail({
   canEdit,
   conversion,
   trackPaddlePlan,
+  paddleChecklist,
 }: {
   planner: TourPlannerController
   canEdit: boolean
   conversion?: GpxConversion
   trackPaddlePlan?: TrackPaddlePlan
+  paddleChecklist?: PaddleChecklist
 }) {
   const { t } = useTranslation()
   const distanceUnit = useSettingsStore((state) => state.settings.distance_unit)
@@ -277,6 +282,7 @@ function GpxViewRail({
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-3">
           {conversion && <TourConversionSection conversion={conversion} />}
           {trackPaddlePlan && <TrackPaddlePlanCards plan={trackPaddlePlan} tour={tour} />}
+          {paddleChecklist && tour.tour_type === 'kayak' && <PaddleCheckCard checklist={paddleChecklist} />}
           {tour.tour_type === 'kayak' && (
             <PaddleWindSection placeId={tour.place_id} start={trackStart(analysis?.routeCoordinates)} />
           )}
@@ -298,8 +304,29 @@ function GpxViewRail({
             )}
           </RailCard>
         </div>
+        {tour.tour_type === 'kayak' && (
+          <div className="flex-none border-t border-edge-faint px-3 py-3">
+            <PaddleSafetyRow />
+          </div>
+        )}
       </section>
       <NewTourConfirmDialog planner={planner} canEdit={canEdit} />
+    </>
+  )
+}
+
+/** A paddle tour's cards in the editor, after its control points: the obstacle checklist, the time and the wind. */
+function PaddleEditorCards({ planner, locked, checklist }: {
+  planner: TourPlannerController
+  locked: boolean
+  checklist?: PaddleChecklist
+}) {
+  if (!planner.isPaddle) return null
+  return (
+    <>
+      {checklist && <PaddleCheckCard checklist={checklist} />}
+      <PaddleTimeCard planner={planner} locked={locked} />
+      <PaddleWindSection placeId={planner.editingPlaceId} start={planner.waypoints[0] ?? null} />
     </>
   )
 }
@@ -307,6 +334,7 @@ function GpxViewRail({
 export function TourPlannerRail({ planner,
   onOpenWanderer,
   conversion,
+  paddleChecklist,
   recordedTrack, trackPaddlePlan, canEdit: editPermission, canAssign: assignPermission }: { planner: TourPlannerController
   /** Planning an editable tour from the import in view. */
   conversion?: GpxConversion
@@ -314,6 +342,8 @@ export function TourPlannerRail({ planner,
   recordedTrack?: RecordedTrack
   /** The portages and locks of a recorded paddle track in view (PAD-03). */
   trackPaddlePlan?: TrackPaddlePlan
+  /** The obstacle checklist of the paddle tour open in the rail (PAD-06). */
+  paddleChecklist?: PaddleChecklist
   /** Browse the user's wanderer trails instead; offered while nothing is being edited. */
   onOpenWanderer?: () => void
 } & TourPermissionProps) {
@@ -339,7 +369,8 @@ export function TourPlannerRail({ planner,
     return <NeutralRail planner={planner} canEdit={canEdit} onOpenWanderer={onOpenWanderer}
           />
   if (planner.mode.type === 'view-gpx')
-    return <GpxViewRail planner={planner} canEdit={canEdit} conversion={conversion} trackPaddlePlan={trackPaddlePlan} />
+    return <GpxViewRail planner={planner} canEdit={canEdit} conversion={conversion} trackPaddlePlan={trackPaddlePlan}
+      paddleChecklist={paddleChecklist} />
 
   const isSavedEdit = planner.mode.type === 'edit-saved'
 
@@ -368,16 +399,13 @@ export function TourPlannerRail({ planner,
 
           <TourWaypointList planner={planner} canEdit={canEdit} isSaving={isSaving} />
 
-          {planner.isPaddle && <PaddleTimeCard planner={planner} locked={locked} />}
-
-          {planner.isPaddle && (
-            <PaddleWindSection placeId={planner.editingPlaceId} start={planner.waypoints[0] ?? null} />
-          )}
+          <PaddleEditorCards planner={planner} locked={locked} checklist={paddleChecklist} />
 
           <TourDetailsSection planner={planner} locked={locked} onDifficultyChange={changeDifficulty} />
         </div>
 
-        <div className="flex flex-none flex-col border-t border-edge-faint px-3 py-3">
+        <div className="flex flex-none flex-col gap-2 border-t border-edge-faint px-3 py-3">
+          {planner.isPaddle && <PaddleSafetyRow />}
           <div className="grid grid-cols-[auto_1fr] gap-2 [&>button]:justify-center">
             <DialogButton icon={<RotateCcw size={14} strokeWidth={2} />} onClick={requestClose} disabled={isSaving || (!planner.hasUnsavedChanges && !isSavedEdit)}>
               {t('common.discard')}

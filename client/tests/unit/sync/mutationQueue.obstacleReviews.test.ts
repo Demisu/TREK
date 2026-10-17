@@ -4,7 +4,7 @@
  * checklist this build cannot read never stalls the queue, a refused body is
  * parked as failed and an obstacle data outage waits for a retry.
  */
-import type { TourListItem } from '@trek/shared';
+import type { TourListItem, TourProvenance } from '@trek/shared';
 import 'fake-indexeddb/auto';
 import { http, HttpResponse } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -45,10 +45,10 @@ const waypoints = [
   { lat: 49.2, lng: 12, role: 'start' as const, sequence: 0 },
   { lat: 49.2, lng: 12.01, role: 'end' as const, sequence: 1 },
 ];
-const provenance = {
-  origin: 'trek' as const,
+const provenance: TourProvenance = {
+  origin: 'trek',
   createdAt: null,
-  source: null,
+  source: { kind: 'trek' },
   derivedFrom: null,
   plannedOver: false,
   editedLocally: null,

@@ -7,6 +7,7 @@ import { formatDistance, formatElevation } from '../../utils/units';
 import { WhiteBadge } from '../Planner/planParts';
 import { fs } from '../shared/DialogShell';
 import { Tooltip } from '../shared/Tooltip';
+import { paddleCheckFact } from './paddle/paddleCheckModel';
 import { tourDayRowIcon } from './tourDayRowIcon';
 import { movingTimeLabel } from './tourFacts';
 import { formatPlannedTourDuration, tourPlannedTimes } from './tourPresentation';
@@ -118,7 +119,7 @@ export function TourDayRowAvatar({
 }
 
 /** One fact of a tour as the white badge a place's time sits in, named by its tooltip. */
-function TourDayRowPill({
+export function TourDayRowPill({
   icon: Icon,
   value,
   label,
@@ -140,10 +141,16 @@ function TourDayRowPill({
   );
 }
 
+/** A paddle tour's check bench as one fact (PAD-09), or null for a hike or a tour listed without one. */
+function paddleCheckOf(tour: TourListItem, t: Parameters<typeof paddleCheckFact>[1]) {
+  return tour.tour_type === 'kayak' && tour.paddle_check ? paddleCheckFact(tour.paddle_check, t) : null;
+}
+
 /**
  * A tour's facts on its day-plan row, in the badges every other stop uses: the
  * time it takes (the planned total where there is one, otherwise the walking
- * time, the parts in the tooltip), how far and how much climbing.
+ * time, the parts in the tooltip), how far, how much climbing and, for a paddle
+ * tour, its check bench.
  */
 export function TourDayRowPills({ tour }: { tour: TourListItem }) {
   const { t } = useTranslation();
@@ -161,6 +168,7 @@ export function TourDayRowPills({ tour }: { tour: TourListItem }) {
       ? `${t('tours.planner.plannedTotalDuration')}: ${formatPlannedTourDuration(times.plannedTotalMinutes)}${times.manuallyOverridden ? ` (${t('tours.planner.plannedTotalManual')})` : ''}`
       : null,
   ].filter((part): part is string => part !== null);
+  const check = paddleCheckOf(tour, t);
   return (
     <>
       {shownMinutes != null && (
@@ -187,6 +195,7 @@ export function TourDayRowPills({ tour }: { tour: TourListItem }) {
           testId="plan-tour-ascent"
         />
       )}
+      {check && <TourDayRowPill {...check} testId="plan-tour-paddle-check" />}
     </>
   );
 }
@@ -223,6 +232,8 @@ export default function TourDayRowFacts({ tour, mobile = false }: { tour: TourLi
       `${t('tours.planner.plannedTotalDuration')}${times.manuallyOverridden ? `, ${t('tours.planner.plannedTotalManual')}` : ''}`,
       'trip-plan-tour-planned-duration'
     );
+  const check = paddleCheckOf(tour, t);
+  if (check) add(check.icon, check.value, t('tours.paddle.check.title'), 'plan-tour-paddle-check');
   return (
     <span data-testid="plan-tour-facts" className="flex min-w-0 flex-wrap items-center gap-1">
       {facts.map((fact) => (

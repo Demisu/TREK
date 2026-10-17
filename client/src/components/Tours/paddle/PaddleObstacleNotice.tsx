@@ -14,8 +14,8 @@ function dataDate(regions: readonly { source_timestamp?: string | null }[], lang
 }
 
 /**
- * PAD-05B: what TREK knows about the water along the route, in one line under
- * the boat fields and in the recorded track's rail. It never reads as an
+ * PAD-05B: what TREK knows about the water along the route, in one line of
+ * the checklist card until a new paddle tour is saved. It never reads as an
  * all-clear: covered or not, the paddler checks the water, where nothing is
  * known it says so instead of leaving an empty map to be read as open water,
  * and an answer cut at its limit says that more is there.

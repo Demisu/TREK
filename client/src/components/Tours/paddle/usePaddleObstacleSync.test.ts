@@ -294,6 +294,7 @@ describe('usePaddleObstacleSync', () => {
       regions: [],
       truncated: false,
       selectedRef: null,
+      focus: null,
     });
   });
 });

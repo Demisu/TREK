@@ -1,6 +1,7 @@
 import type { TourListItem } from '@trek/shared';
 import { useCallback } from 'react';
 import { useGpxConversion } from '../../components/Tours/conversion/useGpxConversion';
+import { usePaddleChecklist } from '../../components/Tours/paddle/usePaddleChecklist';
 import { useTrackPaddlePlan } from '../../components/Tours/paddle/useTrackPaddlePlan';
 import { useTourPlanner } from '../../components/Tours/planner/useTourPlanner';
 import { useRecordedTrack } from '../../components/Tours/useRecordedTrack';
@@ -32,6 +33,7 @@ export function useTourWorkspace(
     tours,
     tripActions,
     tripId,
+    tripMembers,
     upsertTour,
   } = planner;
   // wanderer only while the admin allows it under Tours (the store reads Tours being on into it too).
@@ -118,15 +120,28 @@ export function useTourWorkspace(
     },
   });
 
+  // A tour saved by a paddle card, its portages and locks or a checklist decision: lists and map take it in.
+  const takeInSavedTour = (tour: TourListItem) => {
+    upsertTour(tour);
+    void invalidateTourPlaceIds({ placeIds: [tour.place_id] });
+  };
   // PAD-03/PAD-07: portages and locks laid onto a recorded paddle track, without redrawing it.
   const trackPaddlePlan = useTrackPaddlePlan({
     tripId,
     planner: tourPlanner,
     canEdit: canPlaceEdit,
-    onSaved: (tour) => {
-      upsertTour(tour);
-      void invalidateTourPlaceIds({ placeIds: [tour.place_id] });
-    },
+    onSaved: takeInSavedTour,
+  });
+  // PAD-06/PAD-09: the obstacle checklist of the paddle tour open in the planner.
+  const paddleChecklist = usePaddleChecklist({
+    tripId,
+    planner: tourPlanner,
+    tours,
+    tripMembers,
+    canEdit: canPlaceEdit,
+    active: activeTab === 'tour-planner' && enabledAddons.tours && !isMobile,
+    trackPaddlePlan,
+    onSaved: takeInSavedTour,
   });
 
   const tourDetailActions = useTourDetailActions(planner);
@@ -139,6 +154,7 @@ export function useTourWorkspace(
     tourConversion,
     recordedTrack,
     trackPaddlePlan,
+    paddleChecklist,
     tourDetailActions,
   };
 }

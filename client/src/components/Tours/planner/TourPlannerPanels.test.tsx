@@ -7,6 +7,7 @@ import { resetAllStores, seedStore } from '../../../../tests/helpers/store'
 import { useSettingsStore } from '../../../store/settingsStore'
 import { analyzeRouteGeometry } from '../../../utils/routeGeometry'
 import type { TourPlannerController } from './useTourPlanner'
+import type { PaddleChecklist } from '../paddle/usePaddleChecklist'
 import type { Day } from '../../../types'
 import { publishTourFerrataCrossings } from '../../../store/tourFerrataCrossingStore'
 import { TourPlannerRail, TourPlannerToursRail } from './TourPlannerPanels'
@@ -15,6 +16,12 @@ import { hikePlannerDefaults } from '../../../../tests/helpers/tourPlannerStub'
 vi.mock('../../../../../server/src/config', () => { throw new Error('Config initialization is forbidden in client tests') })
 vi.mock('../../../../../server/src/db/database', () => { throw new Error('Legacy database imports are forbidden in client tests') })
 vi.mock('better-sqlite3', () => { throw new Error('SQLite imports are forbidden in client tests') })
+// The checklist card is its own suite's; here it only has to sit where the rails put it.
+vi.mock('../paddle/PaddleCheckCard', () => ({
+  PaddleCheckCard: ({ checklist }: { checklist: PaddleChecklist }) => (
+    <div data-testid="paddle-check-card" data-status={checklist.status} />
+  ),
+}))
 
 const tour: TourListItem = {
   place_id: 42,
@@ -870,5 +877,67 @@ describe('TourPlannerRail', () => {
     rerender(<TourPlannerRail planner={planner({ draftRestored: true, hasUnsavedChanges: true, editingPlaceId: tour.place_id, mode: { type: 'edit-saved', placeId: tour.place_id } })} />)
     expect(screen.getByLabelText('Unsaved draft restored')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Edit tour' })).toBeInTheDocument()
+  })
+})
+
+describe('the paddle checklist in the rails (PAD-06)', () => {
+  const checklist = { status: 'ready', select: vi.fn(), decide: vi.fn() } as unknown as PaddleChecklist
+  const kayak: TourListItem = { ...tour, tour_type: 'kayak', has_waypoints: false }
+  const geometry = JSON.stringify([[48, 11], [48.01, 11.02]])
+  const paddleEditor = (overrides: Partial<TourPlannerController> = {}) =>
+    planner({ mode: { type: 'new-draft' }, tourType: 'kayak', isPaddle: true, ...overrides })
+  const recorded = (recordedTour: TourListItem) => planner({
+    readOnlyGpxTour: { tour: recordedTour, routeGeometry: geometry },
+    readOnlyGpxAnalysis: analyzeRouteGeometry(geometry),
+  })
+  const safetyRow = () => screen.queryByRole('button', { name: /Paddling has risks/ })
+
+  it('PCR-001: a paddle tour shows its checklist after the control points and before the wind, the safety row above Save', () => {
+    render(<TourPlannerRail planner={paddleEditor()} paddleChecklist={checklist} />)
+
+    const card = screen.getByTestId('paddle-check-card')
+    expect(card).toHaveAttribute('data-status', 'ready')
+    expect(screen.getByTestId('tour-planner-empty-state').compareDocumentPosition(card)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    expect(card.compareDocumentPosition(screen.getByTestId('paddle-wind-card'))).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    const safety = screen.getByRole('button', { name: /Paddling has risks/ })
+    expect(safety.closest('fieldset')).toBeNull()
+    expect(safety.closest('.overflow-y-auto')).toBeNull()
+    expect(safety.compareDocumentPosition(screen.getByRole('button', { name: 'Save' }))).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+  })
+
+  it('PCR-002: the safety row stays open while a save locks the rail', () => {
+    render(<TourPlannerRail planner={paddleEditor({ isSaving: true })} paddleChecklist={checklist} />)
+
+    expect(screen.getByRole('button', { name: /Paddling has risks/ })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
+  })
+
+  it('PCR-003: a hike shows neither the checklist nor the safety row', () => {
+    render(<TourPlannerRail planner={planner({ mode: { type: 'new-draft' } })} paddleChecklist={checklist} />)
+
+    expect(screen.queryByTestId('paddle-check-card')).not.toBeInTheDocument()
+    expect(safetyRow()).not.toBeInTheDocument()
+  })
+
+  it('PCR-004: without a checklist a paddle tour still shows its safety row', () => {
+    render(<TourPlannerRail planner={paddleEditor()} />)
+
+    expect(screen.queryByTestId('paddle-check-card')).not.toBeInTheDocument()
+    expect(safetyRow()).toBeInTheDocument()
+  })
+
+  it('PCR-005: a recorded kayak track scrolls its checklist before the wind and keeps the safety row in a footer; a recorded hike neither', () => {
+    const { rerender } = render(<TourPlannerRail planner={recorded(kayak)} paddleChecklist={checklist} />)
+
+    const card = screen.getByTestId('paddle-check-card')
+    expect(card.closest('.overflow-y-auto')).not.toBeNull()
+    expect(card.compareDocumentPosition(screen.getByTestId('paddle-wind-card'))).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    const safety = screen.getByRole('button', { name: /Paddling has risks/ })
+    expect(safety.closest('.overflow-y-auto')).toBeNull()
+    expect(safety.closest('section')).toHaveAttribute('aria-label', kayak.name)
+
+    rerender(<TourPlannerRail planner={recorded({ ...tour, has_waypoints: false })} paddleChecklist={checklist} />)
+    expect(screen.queryByTestId('paddle-check-card')).not.toBeInTheDocument()
+    expect(safetyRow()).not.toBeInTheDocument()
   })
 })

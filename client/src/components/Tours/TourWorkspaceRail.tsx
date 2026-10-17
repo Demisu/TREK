@@ -1,4 +1,5 @@
 import type { GpxConversion } from './conversion/useGpxConversion';
+import type { PaddleChecklist } from './paddle/usePaddleChecklist';
 import type { TrackPaddlePlan } from './paddle/useTrackPaddlePlan';
 import { TourPlannerRail } from './planner/TourPlannerPanels';
 import type { TourPlannerController } from './planner/useTourPlanner';
@@ -14,6 +15,8 @@ export interface TourWorkspaceRailParts {
   recordedTrack: RecordedTrack;
   /** The portages and locks of a recorded paddle track in view. */
   trackPaddlePlan?: TrackPaddlePlan;
+  /** The obstacle checklist of the paddle tour open in the planner (PAD-06). */
+  paddleChecklist?: PaddleChecklist;
 }
 
 /** The tours workspace's left rail: the tour editor, or the wanderer trails while those are browsed. */
@@ -26,7 +29,14 @@ export default function TourWorkspaceRail({
   canEdit: boolean;
   canAssign: boolean;
 }) {
-  const { tourPlanner, wandererBrowser: wanderer, tourConversion, recordedTrack, trackPaddlePlan } = workspace;
+  const {
+    tourPlanner,
+    wandererBrowser: wanderer,
+    tourConversion,
+    recordedTrack,
+    trackPaddlePlan,
+    paddleChecklist,
+  } = workspace;
   return wanderer.open ? (
     <WandererBrowserRail browser={wanderer} />
   ) : (
@@ -37,6 +47,7 @@ export default function TourWorkspaceRail({
       conversion={tourConversion}
       recordedTrack={recordedTrack}
       trackPaddlePlan={trackPaddlePlan}
+      paddleChecklist={paddleChecklist}
       onOpenWanderer={wanderer.enabled ? wanderer.openBrowser : undefined}
     />
   );
