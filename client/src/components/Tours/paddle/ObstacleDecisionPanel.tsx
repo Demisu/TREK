@@ -18,7 +18,7 @@ import {
   Unlink,
   X,
 } from 'lucide-react';
-import { useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
@@ -197,6 +197,11 @@ function NoteEditor({
   onCancel: () => void;
 }) {
   const { t } = useTranslation();
+  const box = useRef<HTMLTextAreaElement>(null);
+  // The note opens for writing, so it takes the focus once, when it opens.
+  useEffect(() => {
+    box.current?.focus();
+  }, []);
   const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key !== 'Escape') return;
     // The map card and the dialog close on Escape; inside the note it only ends the edit.
@@ -209,8 +214,8 @@ function NoteEditor({
       <textarea
         rows={2}
         maxLength={NOTE_MAX}
+        ref={box}
         value={draft}
-        autoFocus
         aria-label={t('tours.paddle.check.note')}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={onKeyDown}

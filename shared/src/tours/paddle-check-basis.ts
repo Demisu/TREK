@@ -1,3 +1,4 @@
+import { compareCodeUnits } from '../common/compare';
 import { haversineMetres } from '../geo/haversine';
 import type { PaddleFeature } from '../paddle/paddle-obstacles.schema';
 import { paddleLayoutOfPoints, paddleLayoutOfTrack, type PaddlePlanPoint } from './paddle-plan';
@@ -214,14 +215,14 @@ const isCosmetic = (key: string) => COSMETIC.has(key) || key.startsWith('check_d
 /** The material data of an obstacle's members, as text to hash: what they are and the tags that bear on passing. */
 export function materialOf(members: readonly PaddleFeature[]): string {
   const rows = [...members]
-    .sort((a, b) => a.ref.localeCompare(b.ref))
+    .sort((a, b) => compareCodeUnits(a.ref, b.ref))
     .map((member) => [
       member.ref,
       member.kind,
       member.geometry.type,
       Object.keys(member.tags)
         .filter((key) => !isCosmetic(key))
-        .sort()
+        .sort(compareCodeUnits)
         .map((key) => [key, member.tags[key]]),
     ]);
   return JSON.stringify(rows);

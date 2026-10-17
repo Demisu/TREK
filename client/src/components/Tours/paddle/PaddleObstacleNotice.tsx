@@ -1,3 +1,4 @@
+import { compareCodeUnits } from '@trek/shared';
 import { AlertTriangle, Info, Loader2, WifiOff } from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
 import { useTranslation } from '../../../i18n';
@@ -9,7 +10,7 @@ function dataDate(regions: readonly { source_timestamp?: string | null }[], lang
   const times = regions
     .map((region) => region.source_timestamp)
     .filter((time): time is string => !!time)
-    .sort();
+    .sort(compareCodeUnits);
   return times[0] ? new Date(times[0]).toLocaleDateString(language, { dateStyle: 'medium' }) : null;
 }
 

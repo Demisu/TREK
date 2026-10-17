@@ -1,6 +1,6 @@
 import { readPbfFile, type OsmWay } from './osm-pbf.reader';
 import { keptTags, paddleKindOf, paddleNameOf } from './paddle-tags';
-import type { PaddleGeometry, PaddleObstacleKind } from '@trek/shared';
+import { compareCodeUnits, type PaddleGeometry, type PaddleObstacleKind } from '@trek/shared';
 
 import { createHash } from 'node:crypto';
 import { stat } from 'node:fs/promises';
@@ -38,7 +38,7 @@ interface PendingWay {
 
 function hashOf(tags: Record<string, string>, geometry: PaddleGeometry): string {
   const sorted = Object.keys(tags)
-    .sort()
+    .sort(compareCodeUnits)
     .map((key) => [key, tags[key]]);
   const rounded = JSON.stringify(geometry, (_key, value: unknown) =>
     typeof value === 'number' ? Math.round(value * 1e6) / 1e6 : value,
@@ -147,7 +147,7 @@ export function groupLockParts(features: ExtractedFeature[]): void {
   for (const part of parts) groups.set(root(part), [...(groups.get(root(part)) ?? []), part]);
   for (const members of groups.values()) {
     if (members.length < 2) continue;
-    const key = `lock:${members.map((member) => member.osm_ref).sort()[0]}`;
+    const key = `lock:${members.map((member) => member.osm_ref).sort(compareCodeUnits)[0]}`;
     for (const member of members) member.group_key = key;
   }
 }

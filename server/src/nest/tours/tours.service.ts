@@ -62,6 +62,9 @@ export interface ImportGpxAsTourResult {
  * PlacesService.importPreparedGpx. Places and facet rows are persisted in one transaction,
  * with tour metrics derived from each place's route_geometry.
  */
+/** A GPX file imported without a type is a hike. */
+const HIKE_IMPORT: TourGpxImportFields = { tour_type: 'hike' };
+
 @Injectable()
 export class ToursService {
   private readonly logger = new Logger(ToursService.name);
@@ -522,7 +525,7 @@ export class ToursService {
     fileBuffer: Buffer,
     fileName?: string,
     socketId?: string,
-    fields: TourGpxImportFields = { tour_type: 'hike' },
+    fields: TourGpxImportFields = HIKE_IMPORT,
   ): Promise<ImportGpxAsTourResult | null> {
     const rows = this.readGpxTracks(fileBuffer, fileName);
     if (rows.length === 0) return null;

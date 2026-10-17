@@ -17,6 +17,7 @@ import { parseRouteGeometry, shortHash } from './tours.helpers';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
 import {
+  compareCodeUnits,
   obstacleCandidatesOf,
   obstacleEntriesOf,
   ownEntriesOf,
@@ -66,7 +67,7 @@ export function storedReviewOf(row: TourObstacleReviewRow): StoredObstacleReview
 }
 
 function oldest(values: ReadonlyArray<string | null>): string | null {
-  return values.filter((value): value is string => !!value).sort()[0] ?? null;
+  return values.filter((value): value is string => !!value).sort(compareCodeUnits)[0] ?? null;
 }
 
 const UNAVAILABLE = { data: 'unavailable', data_as_of: null, read_at: null } as const;
@@ -126,7 +127,7 @@ export class TourPaddleCheckService {
         line,
         candidates,
         own,
-        dataKeys: new Set(along.features.map(paddleObstacleKeyOf)),
+        dataKeys: new Set(along.features.map((feature) => paddleObstacleKeyOf(feature))),
         complete: along.coverage === 'covered' && !limited,
         data: {
           data: along.coverage === 'none' ? 'none' : limited ? 'limited' : along.coverage,

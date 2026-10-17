@@ -1,3 +1,4 @@
+import { compareCodeUnits } from '../common/compare';
 import {
   PADDLE_BLOCKING_KINDS,
   paddleAccessOf,
@@ -166,7 +167,7 @@ function localCheckOf(members: readonly PaddleFeature[]): string | null {
       )
       .map(([, value]) => value),
   );
-  const sorted = dates.sort();
+  const sorted = dates.sort(compareCodeUnits);
   return sorted[sorted.length - 1] ?? null;
 }
 
@@ -239,7 +240,7 @@ export function obstacleCandidatesOf(input: {
         ...members
           .map((member) => member.ref)
           .filter((ref) => ref !== anchor.feature.ref)
-          .sort(),
+          .sort(compareCodeUnits),
       ].slice(0, OBSTACLE_REFS_MAX),
       kind,
       name: anchor.feature.name ?? members.find((member) => member.name)?.name ?? null,

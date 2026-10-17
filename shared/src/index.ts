@@ -10,6 +10,7 @@
  */
 export * from './common/primitives.schema';
 export * from './common/pagination.schema';
+export * from './common/compare';
 
 // Domain contracts
 export * from './weather/weather.schema';
