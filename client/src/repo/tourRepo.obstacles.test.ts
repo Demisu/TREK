@@ -1,4 +1,4 @@
-// FE-REPO-TOUR-030 to FE-REPO-TOUR-040
+// FE-REPO-TOUR-030 to FE-REPO-TOUR-041
 // A paddle tour's checklist through the offline core (PAD-06, PAD-09): read
 // from the cache while its revision matches the bench, decisions saved online
 // and cached, saved offline under a local revision and queued, and a route
@@ -233,5 +233,30 @@ describe('after review', () => {
     const read = await tourRepo.obstacleCheck(3, 40, 'local:abc');
     expect(flush).toHaveBeenCalled();
     expect(read).toMatchObject({ check: { revision: 'rev-5' }, tour: { paddle_check: { revision: 'rev-5' } } });
+  });
+
+  it('FE-REPO-TOUR-041: online, a checklist changed here and still queued waits for the queue before it is read', async () => {
+    await offlineDb.tours.put({
+      ...paddleTour({ paddle_check: paddleBench({ revision: 'rev-2' }) }),
+      trip_id: 3,
+      waypoints,
+      obstacle_check: obstacleCheck({ revision: 'local:x' }),
+    });
+    const order: string[] = [];
+    vi.spyOn(mutationQueue, 'flush').mockImplementation(async () => {
+      order.push('flush');
+    });
+    server.use(
+      http.get('/api/trips/3/tours/40', () => {
+        order.push('get');
+        return HttpResponse.json({
+          tour: paddleTour({ paddle_check: paddleBench({ revision: 'rev-3' }) }),
+          waypoints,
+          obstacle_check: obstacleCheck({ revision: 'rev-3' }),
+        });
+      })
+    );
+    await tourRepo.obstacleCheck(3, 40, 'rev-2');
+    expect(order).toEqual(['flush', 'get']);
   });
 });

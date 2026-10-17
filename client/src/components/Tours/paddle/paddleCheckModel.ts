@@ -108,17 +108,16 @@ export function checklistRows(check: TourObstacleCheck): { rows: ChecklistRow[];
   };
 }
 
-const PENDING = new Set(['open', 'todo', 'review']);
+/** The statuses that still ask for a look, as the bench counts them (a vanished object among them). */
+const PENDING = new Set(['open', 'todo', 'review', 'gone']);
 
 /**
  * The next entry still asking for a look, in the order the checklist lists
- * them (route order, entries at one metre in list order); from an earlier
- * decision, the first one.
+ * its rows (route order, entries at one metre in list order, then the
+ * vanished ones); from an earlier decision outside the rows, the first one.
  */
 export function nextPendingEntry(check: TourObstacleCheck, entry: TourObstacleEntry): TourObstacleEntry | null {
-  const current = check.entries
-    .filter((candidate) => candidate.relation !== null)
-    .sort((a, b) => (a.along_m ?? 0) - (b.along_m ?? 0));
-  const from = current.findIndex((candidate) => candidate.key === entry.key);
-  return current.slice(from + 1).find((candidate) => PENDING.has(candidate.status)) ?? null;
+  const listed = checklistRows(check).rows.flatMap((row) => (row.type === 'obstacle' ? [row.entry] : []));
+  const from = listed.findIndex((candidate) => candidate.key === entry.key);
+  return listed.slice(from + 1).find((candidate) => PENDING.has(candidate.status)) ?? null;
 }

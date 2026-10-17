@@ -125,6 +125,20 @@ function waypointBefore(points: TourPlannerController['waypoints'], alongM: numb
   return points[points.length - 2]?.id ?? null;
 }
 
+/**
+ * A new paddle draft, or a saved tour the list shows as another type that the
+ * planner turned into a paddle tour: no server check exists for either. A
+ * tour the list does not hold yet (still loading) is neither.
+ */
+function unsavedPaddleDraft(planner: TourPlannerController, tours: readonly TourListItem[]): boolean {
+  if (!planner.isPaddle) return false;
+  const { mode } = planner;
+  if (mode.type === 'new-draft') return true;
+  return (
+    mode.type === 'edit-saved' && tours.some((item) => item.place_id === mode.placeId && item.tour_type !== 'kayak')
+  );
+}
+
 /** Where the checklist of the open tour stands. */
 function checklistStatus(input: {
   active: boolean;
@@ -234,9 +248,7 @@ export function usePaddleChecklist(options: PaddleChecklistOptions) {
   const dirty = planner.hasUnsavedChanges || !!trackPaddlePlan?.dirty;
   const status = checklistStatus({
     active,
-    // A new paddle draft, or a saved tour turned into one and not saved yet: no server check exists for either.
-    newPaddleDraft:
-      planner.isPaddle && (planner.mode.type === 'new-draft' || (planner.mode.type === 'edit-saved' && !tour)),
+    newPaddleDraft: unsavedPaddleDraft(planner, tours),
     tour,
     current: read.current,
     offline: read.offline,
@@ -262,6 +274,22 @@ export function usePaddleChecklist(options: PaddleChecklistOptions) {
 
 export type PaddleChecklist = ReturnType<typeof usePaddleChecklist>;
 
+interface PendingSave {
+  key: string;
+  check: TourObstacleCheck;
+}
+
+/** The saves on their way without this one, once it is answered; a later save of the same tour stays. */
+function withoutSave(
+  all: Readonly<Record<number, PendingSave>>,
+  placeId: number,
+  done: PendingSave
+): Readonly<Record<number, PendingSave>> {
+  if (all[placeId] !== done) return all;
+  const { [placeId]: _done, ...rest } = all;
+  return rest;
+}
+
 /** The decisions saved through the offline core: shown at once, the server's answer taken in, a failure undone. */
 function useChecklistWrites(
   options: PaddleChecklistOptions,
@@ -272,7 +300,8 @@ function useChecklistWrites(
   const { t } = useTranslation();
   const toast = useToast();
   const userId = useAuthStore((state) => state.user?.id ?? null);
-  const [pending, setPending] = useState<{ placeId: number; key: string; check: TourObstacleCheck } | null>(null);
+  // The save on its way per tour, so one tour's answer never clears another's.
+  const [pending, setPending] = useState<Readonly<Record<number, PendingSave>>>({});
   const base = read.current?.check ?? null;
   const placeId = tour?.place_id ?? null;
   const { setLoaded, offline } = read;
@@ -280,11 +309,11 @@ function useChecklistWrites(
   const save = useCallback(
     async (key: string, op: ObstacleReviewOp) => {
       if (!base || placeId === null) return false;
-      setPending({
-        placeId,
+      const entry: PendingSave = {
         key,
         check: applyObstacleOps(base, [op], { now: new Date().toISOString(), userId, revision: 'pending' }),
-      });
+      };
+      setPending((all) => ({ ...all, [placeId]: entry }));
       try {
         const result = await tourRepo.saveObstacleReviews(tripId, placeId, { ops: [op] }, userId);
         const revision = result.tour.paddle_check?.revision ?? null;
@@ -305,7 +334,7 @@ function useChecklistWrites(
         toast.error(t('tours.paddle.marks.failed'));
         return false;
       } finally {
-        setPending(null);
+        setPending((all) => withoutSave(all, placeId, entry));
       }
     },
     [base, offline, onSaved, placeId, setLoaded, t, toast, tripId, userId]
@@ -331,6 +360,6 @@ function useChecklistWrites(
     [save]
   );
   // A save still running for a tour left meanwhile shows nothing on the one open now.
-  const mine = pending && pending.placeId === placeId ? pending : null;
+  const mine = placeId === null ? null : (pending[placeId] ?? null);
   return { optimistic: mine?.check ?? null, savingKey: mine?.key ?? null, actions };
 }

@@ -1,4 +1,4 @@
-// PCM-001 to PCM-018: the check bench of a paddle tour in one pill, how the dates of the checklist read, where the
+// PCM-001 to PCM-019: the check bench of a paddle tour in one pill, how the dates of the checklist read, where the
 // camera goes for an entry and the order the checklist lists its rows in (PAD-06, PAD-09).
 import { Ban, CircleDashed, ListChecks } from 'lucide-react';
 import { describe, expect, it } from 'vitest';
@@ -244,8 +244,9 @@ describe('nextPendingEntry', () => {
   });
   const last = obstacleEntry({ key: 'node/5', refs: ['node/5'], along_m: 1700, status: 'decided', decision });
   const gone = earlierEntry();
+  const offRoute = earlierEntry({ key: 'node/11', refs: ['node/11'], status: 'off_route' });
   // Listed out of route order: the next one is found by its metre, not by its place in the list.
-  const check = obstacleCheck({ entries: [review, last, gone, todo, first, decided] });
+  const check = obstacleCheck({ entries: [review, last, gone, offRoute, todo, first, decided] });
 
   it('PCM-016: skips what is decided and takes the next one after the entry, one to check again counted', () => {
     expect(nextPendingEntry(check, first)).toEqual(todo);
@@ -253,13 +254,14 @@ describe('nextPendingEntry', () => {
     expect(nextPendingEntry(check, todo)).toEqual(review);
   });
 
-  it('PCM-017: from an earlier decision the first pending entry of the route comes next', () => {
-    expect(nextPendingEntry(check, gone)).toEqual(first);
+  it('PCM-017: from an earlier decision outside the rows the first pending entry of the route comes next', () => {
+    expect(nextPendingEntry(check, offRoute)).toEqual(first);
   });
 
-  it('PCM-018: after the last pending entry there is none', () => {
-    expect(nextPendingEntry(check, review)).toBeNull();
-    expect(nextPendingEntry(check, last)).toBeNull();
+  it('PCM-018: a vanished object, listed after the route, comes after its last entry, and after it there is none', () => {
+    expect(nextPendingEntry(check, review)).toEqual(gone);
+    expect(nextPendingEntry(check, last)).toEqual(gone);
+    expect(nextPendingEntry(check, gone)).toBeNull();
     expect(nextPendingEntry(obstacleCheck({ entries: [first] }), first)).toBeNull();
   });
 });

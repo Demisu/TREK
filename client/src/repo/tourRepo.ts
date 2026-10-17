@@ -278,8 +278,13 @@ export const tourRepo = {
     revision: string | null,
     signal?: AbortSignal,
   ): Promise<{ check: TourObstacleCheck | null; stale: boolean; tour?: TourListItem }> {
-    if (revision?.startsWith('local:') && !isEffectivelyOffline()) await mutationQueue.flush()
-    const cached = await offlineDb.tours.get(placeId)
+    let cached = await offlineDb.tours.get(placeId)
+    // A bench or a checklist of a write made here offline waits for the queue to replay once online.
+    const queuedHere = !!revision?.startsWith('local:') || !!cached?.obstacle_check?.revision.startsWith('local:')
+    if (queuedHere && !isEffectivelyOffline()) {
+      await mutationQueue.flush()
+      cached = await offlineDb.tours.get(placeId)
+    }
     if (revision !== null && cached?.obstacle_check?.revision === revision) return { check: cached.obstacle_check, stale: false }
     const detail = await tourRepo.detail(tripId, placeId, signal)
     const check = detail.obstacle_check ?? null

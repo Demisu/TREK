@@ -1,5 +1,5 @@
 /**
- * UPC-001 to UPC-030: the obstacle checklist of the paddle tour open in the
+ * UPC-001 to UPC-032: the obstacle checklist of the paddle tour open in the
  * tours workspace (PAD-06, PAD-09), as its card and the map share it.
  *
  * Pinned: off for anything but an open paddle tour in an active workspace,
@@ -759,5 +759,43 @@ describe('usePaddleChecklist after review', () => {
       saved = await result.current.setNote(ENTRY, 'Links');
     });
     expect(saved).toBe(true);
+  });
+
+  it('UPC-031: a save on one tour and then on another keep their own pending state until each is answered', async () => {
+    const other = paddleTour({ place_id: 8, paddle_check: paddleBench({ revision: 'rev-8' }) });
+    const otherEntry = obstacleEntry({ key: 'node/8', refs: ['node/8'] });
+    const first = deferred<TourDetailResponse>();
+    const second = deferred<TourDetailResponse>();
+    repo.saveObstacleReviews.mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
+    const props = options({ tours: [TOUR, other] });
+    const { result, rerender } = await renderReady(props);
+    act(() => {
+      void result.current.decide(ENTRY, 'pass');
+    });
+    repo.obstacleCheck.mockResolvedValue({
+      check: obstacleCheck({ revision: 'rev-8', entries: [otherEntry] }),
+      stale: false,
+    });
+    rerender({ ...props, planner: planner({ mode: { type: 'edit-saved', placeId: 8 } }) });
+    await waitFor(() => expect(result.current.check?.entries[0]?.key).toBe('node/8'));
+    act(() => {
+      void result.current.decide(otherEntry, 'portage');
+    });
+    expect(result.current.savingKey).toBe('node/8');
+
+    await act(async () => {
+      first.resolve(answer(obstacleCheck({ revision: 'rev-2' }), 'rev-2'));
+      await first.promise;
+    });
+    expect(result.current.savingKey).toBe('node/8');
+    expect(result.current.check?.entries[0]).toMatchObject({ key: 'node/8', decision: { decision: 'portage' } });
+  });
+
+  it('UPC-032: a saved paddle tour the list has not loaded yet is off until it is there, then read', async () => {
+    const { result, rerender } = renderChecklist(options({ tours: [] }));
+    expect(result.current.status).toBe('off');
+    expect(repo.obstacleCheck).not.toHaveBeenCalled();
+    rerender(options());
+    await waitFor(() => expect(result.current.status).toBe('ready'));
   });
 });
