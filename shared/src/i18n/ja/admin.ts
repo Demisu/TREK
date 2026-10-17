@@ -827,11 +827,13 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.keptData': '以前に読み込んだデータを引き続き使用します。',
   'admin.paddleRegions.refresh': '再読み込み',
   'admin.paddleRegions.remove': '地域を削除',
-  'admin.paddleRegions.removeMessage': '{name} とその障害物データが削除されます。その地域のパドルツアーにはデータが表示されなくなります。',
+  'admin.paddleRegions.removeMessage':
+    '{name} とその障害物データが削除されます。その地域のパドルツアーにはデータが表示されなくなります。',
   'admin.paddleRegions.retry': '再試行',
   'admin.paddleRegions.offline': '地域の管理は接続中のみ行えます。',
   'admin.paddleRegions.catalogUnavailable': '現在 Geofabrik に接続できません。後でもう一度お試しください。',
-  'admin.paddleRegions.attribution': 'データ © OpenStreetMap 貢献者（ODbL）、地域別の抽出データは Geofabrik によるものです。毎月 3 日に読み直します。',
+  'admin.paddleRegions.attribution':
+    'データ © OpenStreetMap 貢献者（ODbL）、地域別の抽出データは Geofabrik によるものです。毎月 3 日に読み直します。',
   'admin.paddleRegions.toast.added': '地域を追加しました。TREK がバックグラウンドで読み込みます。',
   'admin.paddleRegions.toast.removed': '地域を削除しました',
 };

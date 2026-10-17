@@ -885,7 +885,7 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.removeMessage':
     '{name} en de bijbehorende hindernisgegevens worden verwijderd. Peddeltochten daar tonen dan geen gegevens.',
   'admin.paddleRegions.retry': 'Opnieuw proberen',
-  'admin.paddleRegions.offline': 'Regio\'s kunnen alleen met een verbinding worden beheerd.',
+  'admin.paddleRegions.offline': "Regio's kunnen alleen met een verbinding worden beheerd.",
   'admin.paddleRegions.catalogUnavailable': 'Geofabrik is nu niet bereikbaar. Probeer het later opnieuw.',
   'admin.paddleRegions.attribution':
     'Gegevens © OpenStreetMap-bijdragers (ODbL), regionale extracten van Geofabrik. Elke maand op de 3e opnieuw ingelezen.',

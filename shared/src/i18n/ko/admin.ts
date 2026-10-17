@@ -822,11 +822,13 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.keptData': '이전에 읽은 데이터를 계속 사용합니다.',
   'admin.paddleRegions.refresh': '다시 읽기',
   'admin.paddleRegions.remove': '지역 삭제',
-  'admin.paddleRegions.removeMessage': '{name} 및 해당 장애물 데이터가 삭제됩니다. 그 지역의 패들 투어에는 데이터가 표시되지 않습니다.',
+  'admin.paddleRegions.removeMessage':
+    '{name} 및 해당 장애물 데이터가 삭제됩니다. 그 지역의 패들 투어에는 데이터가 표시되지 않습니다.',
   'admin.paddleRegions.retry': '다시 시도',
   'admin.paddleRegions.offline': '지역은 연결된 상태에서만 관리할 수 있습니다.',
   'admin.paddleRegions.catalogUnavailable': '지금은 Geofabrik에 연결할 수 없습니다. 나중에 다시 시도하세요.',
-  'admin.paddleRegions.attribution': '데이터 © OpenStreetMap 기여자 (ODbL), 지역별 추출본은 Geofabrik 제공. 매달 3일에 다시 읽습니다.',
+  'admin.paddleRegions.attribution':
+    '데이터 © OpenStreetMap 기여자 (ODbL), 지역별 추출본은 Geofabrik 제공. 매달 3일에 다시 읽습니다.',
   'admin.paddleRegions.toast.added': '지역을 추가했습니다. TREK이 백그라운드에서 읽습니다.',
   'admin.paddleRegions.toast.removed': '지역을 삭제했습니다',
 };

@@ -796,7 +796,8 @@ const admin: TranslationStrings = {
   'admin.paddleRegions.retry': '重試',
   'admin.paddleRegions.offline': '只有在連線狀態下才能管理區域。',
   'admin.paddleRegions.catalogUnavailable': '目前無法連線 Geofabrik，請稍後再試。',
-  'admin.paddleRegions.attribution': '資料 © OpenStreetMap 貢獻者（ODbL），區域摘錄由 Geofabrik 提供。每月 3 日重新讀取。',
+  'admin.paddleRegions.attribution':
+    '資料 © OpenStreetMap 貢獻者（ODbL），區域摘錄由 Geofabrik 提供。每月 3 日重新讀取。',
   'admin.paddleRegions.toast.added': '已新增區域。TREK 會在背景讀取。',
   'admin.paddleRegions.toast.removed': '已移除區域',
 };
