@@ -162,9 +162,12 @@ export class TourPaddleCheckService {
       own = [];
       data = UNAVAILABLE;
     }
-    // The checklist carries as many entries and own portages and locks as its contract holds.
+    // The checklist carries as many entries and own portages and locks as its contract holds; a list cut
+    // short says so, since what it left out (a ban, a vanished object) no longer counts on the bench.
+    const cut = entries.length > PADDLE_CHECK_MAX_ENTRIES || own.length > PADDLE_CHECK_MAX_OWN;
     entries = entries.slice(0, PADDLE_CHECK_MAX_ENTRIES);
     own = own.slice(0, PADDLE_CHECK_MAX_OWN);
+    if (cut && (data.data === 'covered' || data.data === 'partial')) data = { ...data, data: 'limited' };
     const summary = paddleCheckSummaryOf(entries, own, data);
     return { entries, own, check: { ...summary, revision: shortHash(JSON.stringify({ entries, own, data })) } };
   }

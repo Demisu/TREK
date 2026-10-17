@@ -312,6 +312,45 @@ describe('TourPaddleCheckService: the checklist and the bench', () => {
     expect(read.tour.paddle_check).toMatchObject({ data: 'limited', entries: PADDLE_CHECK_MAX_ENTRIES });
     expect(read.obstacle_check?.entries).toHaveLength(PADDLE_CHECK_MAX_ENTRIES);
   });
+
+  it('TPC-011: a checklist cut short by an earlier decision past its cap says so too', async () => {
+    const { user, trip, paddle } = await fixture();
+    await region();
+    await insertRows(
+      orm(),
+      PaddleFeatures,
+      Array.from({ length: PADDLE_CHECK_MAX_ENTRIES }, (_, i) => weir(`node/${i + 1}`, 49.2, 12.0001 + i * 0.00003)),
+    );
+    const snapshot = {
+      v: 1,
+      kind: 'weir',
+      name: null,
+      refs: ['node/999'],
+      at: [49.2, 12.009],
+      bounds: [
+        [49.2, 12.009],
+        [49.2, 12.009],
+      ],
+      relation: 'on_route',
+      along_m: 650,
+      region_id: 'oberpfalz',
+      data_as_of: null,
+    };
+    await insertRow(orm(), TourObstacleReviews, {
+      place: paddle.id,
+      obstacle_key: 'node/999',
+      decision: 'pass',
+      note: null,
+      route_fingerprint: 'p1:o:_',
+      source_fingerprint: 's1:0123456789abcdef:4920000,1200900',
+      obstacle_snapshot: JSON.stringify(snapshot),
+      decided_at: '2026-10-03 10:00:00',
+      decided_by: user.id,
+    });
+    const read = await detail(trip.id, paddle.id);
+    expect(read.tour.paddle_check).toMatchObject({ data: 'limited' });
+    expect(read.obstacle_check?.entries).toHaveLength(PADDLE_CHECK_MAX_ENTRIES);
+  });
 });
 
 describe('TourObstacleReviewsService.save', () => {
