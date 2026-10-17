@@ -18,7 +18,7 @@ import {
   Unlink,
   X,
 } from 'lucide-react';
-import { useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
@@ -104,6 +104,8 @@ function DecisionChoices({
           >
             <span className="flex-none">{CHOICE_ICON[choice]}</span>
             <span className="min-w-0 truncate">{t(`tours.paddle.check.decision.${choice}`)}</span>
+            {/* The earlier choice is told apart by more than its dashed ring. */}
+            {look === 'earlier' && <span className="sr-only">{`, ${t('tours.paddle.check.status.review')}`}</span>}
           </button>
         );
       })}
@@ -236,15 +238,21 @@ function NoteBlock({
 }: {
   note: string | null;
   disabled: boolean;
-  onNote: (note: string | null) => void;
+  /** Resolves to whether the note was saved; a failed save keeps the text being written. */
+  onNote: (note: string | null) => Promise<boolean>;
 }) {
   const { t } = useTranslation();
   // The text being written, or null while the note is only read.
   const [draft, setDraft] = useState<string | null>(null);
   const save = (text: string) => {
     const next = text.trim() || null;
-    if (next !== note) onNote(next);
-    setDraft(null);
+    if (next === note) {
+      setDraft(null);
+      return;
+    }
+    void onNote(next).then((saved) => {
+      if (saved) setDraft(null);
+    });
   };
   if (draft !== null)
     return (
@@ -364,7 +372,7 @@ export function ObstacleDecisionPanel({
   saving: boolean;
   memberName: (id: number | null) => string | null;
   onDecide: (decision: ObstacleDecision) => void;
-  onNote: (note: string | null) => void;
+  onNote: (note: string | null) => Promise<boolean>;
   onClear: () => void;
   onKeep: () => void;
   /** Moves on to the next entry still asking for a look; null when there is none. */
@@ -376,8 +384,28 @@ export function ObstacleDecisionPanel({
   const locked = !canDecide || saving;
   const gone = entry.status === 'gone';
   const label = entry.name ?? t(`tours.paddle.obstacle.kind.${entry.kind}`);
+  const root = useRef<HTMLDivElement>(null);
+  const movedOn = useRef(false);
+  // Moving on keeps the focus in the panel, also when the next entry has no Next button of its own.
+  useLayoutEffect(() => {
+    if (!movedOn.current) return;
+    movedOn.current = false;
+    if (!root.current?.contains(document.activeElement)) root.current?.focus({ preventScroll: true });
+  });
+  const next = onNext
+    ? () => {
+        movedOn.current = true;
+        onNext();
+      }
+    : null;
   return (
-    <div data-testid="obstacle-decision-panel" aria-busy={saving || undefined} className="flex flex-col gap-2.5">
+    <div
+      ref={root}
+      tabIndex={-1}
+      data-testid="obstacle-decision-panel"
+      aria-busy={saving || undefined}
+      className="flex flex-col gap-2.5 outline-none"
+    >
       <div className="flex flex-wrap items-center gap-1.5 empty:hidden">
         <ObstacleStatusBadges entry={entry} />
       </div>
@@ -391,14 +419,14 @@ export function ObstacleDecisionPanel({
           value={entry.local_check ? formatCheckDate(entry.local_check, locale) : t('tours.paddle.check.unknown')}
         />
       </div>
-      {entry.decision && <NoteBlock note={entry.decision.note} disabled={locked} onNote={onNote} />}
+      {entry.decision && <NoteBlock key={entry.key} note={entry.decision.note} disabled={locked} onNote={onNote} />}
       <MetaLine
         decision={entry.decision}
         memberName={memberName}
         clearable={!gone}
         disabled={locked}
         onClear={onClear}
-        onNext={onNext}
+        onNext={next}
       />
     </div>
   );
@@ -408,17 +436,16 @@ export function ObstacleDecisionPanel({
 export function ChecklistEntryPanel({ checklist, entry }: { checklist: PaddleChecklist; entry: TourObstacleEntry }) {
   return (
     <ObstacleDecisionPanel
-      key={entry.key}
       entry={entry}
       canDecide={checklist.canDecide}
       saving={checklist.savingKey === entry.key}
       memberName={checklist.memberName}
       onDecide={(decision) => void checklist.decide(entry, decision)}
-      onNote={(note) => void checklist.setNote(entry, note)}
+      onNote={(note) => checklist.setNote(entry, note)}
       onClear={() => void checklist.clear(entry)}
       onKeep={() => void checklist.keep(entry)}
       onNext={checklist.nextOf(entry) ? () => checklist.next(entry) : null}
-      onPlanPortage={() => checklist.planPortage(entry)}
+      onPlanPortage={checklist.canPlanPortage ? () => checklist.planPortage(entry) : null}
     />
   );
 }
@@ -426,10 +453,11 @@ export function ChecklistEntryPanel({ checklist, entry }: { checklist: PaddleChe
 /**
  * The checklist's part of the map card of a paddle object (PAD-06): the
  * decision panel of the entry the object belongs to, below its facts, or
- * nothing while the checklist is not ready or does not list the object.
+ * nothing while there is no checklist or it does not list the object.
  */
 export function ChecklistObstaclePanel({ checklist, featureRef }: { checklist: PaddleChecklist; featureRef: string }) {
-  const entry = checklist.status === 'ready' ? checklist.entryForRef(featureRef) : null;
+  // While the checklist reads again it keeps showing, locked, so the panel open on an object stays open.
+  const entry = checklist.check ? checklist.entryForRef(featureRef) : null;
   if (!entry) return null;
   return (
     <div className="mt-3 border-t border-edge-faint pt-3">

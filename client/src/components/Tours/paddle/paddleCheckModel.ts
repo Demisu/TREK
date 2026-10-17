@@ -89,27 +89,36 @@ export type ChecklistRow = { type: 'obstacle'; entry: TourObstacleEntry } | { ty
 
 /**
  * The rows of a checklist in route order, the paddler's own portages and
- * locks among the obstacles at their metre, and apart from them the earlier
- * decisions the route or the data no longer carries.
+ * locks among the obstacles at their metre, then the decisions about objects
+ * the complete data no longer holds (they count as to check again, so they
+ * stay in view). Apart from them the earlier decisions the route no longer
+ * meets or the data cannot tell.
  */
 export function checklistRows(check: TourObstacleCheck): { rows: ChecklistRow[]; earlier: TourObstacleEntry[] } {
   const metreOf = (row: ChecklistRow) => (row.type === 'obstacle' ? (row.entry.along_m ?? 0) : row.own.from_m);
-  const rows: ChecklistRow[] = [
+  const onRoute: ChecklistRow[] = [
     ...check.entries.filter((entry) => entry.relation !== null).map((entry) => ({ type: 'obstacle' as const, entry })),
     ...check.own.map((own) => ({ type: 'own' as const, own })),
   ].sort((a, b) => metreOf(a) - metreOf(b));
-  return { rows, earlier: check.entries.filter((entry) => entry.relation === null) };
+  const earlier = check.entries.filter((entry) => entry.relation === null);
+  const gone = earlier.filter((entry) => entry.status === 'gone');
+  return {
+    rows: [...onRoute, ...gone.map((entry) => ({ type: 'obstacle' as const, entry }))],
+    earlier: earlier.filter((entry) => entry.status !== 'gone'),
+  };
 }
 
 const PENDING = new Set(['open', 'todo', 'review']);
 
-/** The next entry along the route still asking for a look; from an earlier decision, the first one. */
+/**
+ * The next entry still asking for a look, in the order the checklist lists
+ * them (route order, entries at one metre in list order); from an earlier
+ * decision, the first one.
+ */
 export function nextPendingEntry(check: TourObstacleCheck, entry: TourObstacleEntry): TourObstacleEntry | null {
-  const from = entry.along_m ?? -1;
-  return (
-    check.entries
-      .filter((candidate) => candidate.relation !== null && PENDING.has(candidate.status))
-      .filter((candidate) => candidate.key !== entry.key && (candidate.along_m ?? 0) > from)
-      .sort((a, b) => (a.along_m ?? 0) - (b.along_m ?? 0))[0] ?? null
-  );
+  const current = check.entries
+    .filter((candidate) => candidate.relation !== null)
+    .sort((a, b) => (a.along_m ?? 0) - (b.along_m ?? 0));
+  const from = current.findIndex((candidate) => candidate.key === entry.key);
+  return current.slice(from + 1).find((candidate) => PENDING.has(candidate.status)) ?? null;
 }

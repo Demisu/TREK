@@ -308,7 +308,8 @@ describe('TripPlannerPage — shell', () => {
     expect(await screen.findByText('Plan a tour')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Plan new tour' })).toBeInTheDocument()
     expect(screen.queryByLabelText('Tour name')).not.toBeInTheDocument()
-    expect(screen.getByRole('option', { name: /Editable ridge tour/i })).not.toHaveAttribute('aria-selected', 'true')
+    // The tours list fills in after the rail: wait for its row instead of reading it at once.
+    expect(await screen.findByRole('option', { name: /Editable ridge tour/i })).not.toHaveAttribute('aria-selected', 'true')
     expect(plannerActions.openTour).not.toHaveBeenCalled()
   })
 

@@ -1,5 +1,5 @@
 /**
- * UPC-001 to UPC-023: the obstacle checklist of the paddle tour open in the
+ * UPC-001 to UPC-030: the obstacle checklist of the paddle tour open in the
  * tours workspace (PAD-06, PAD-09), as its card and the map share it.
  *
  * Pinned: off for anything but an open paddle tour in an active workspace,
@@ -219,7 +219,7 @@ beforeEach(() => {
 describe('usePaddleChecklist: what it reads', () => {
   it('UPC-001: is off for a hike, a neutral planner and a new tour that is no paddle tour, and reads nothing', () => {
     const hike = paddleTour({ tour_type: 'hike', boat_type: null, water_context: null, paddle_check: null });
-    const { result, rerender } = renderChecklist(options({ tours: [hike] }));
+    const { result, rerender } = renderChecklist(options({ tours: [hike], planner: planner({ isPaddle: false }) }));
     expect(result.current).toMatchObject({ status: 'off', tour: null, check: null, summary: null, canDecide: false });
 
     rerender(options({ planner: planner({ mode: { type: 'neutral' } }) }));
@@ -375,7 +375,7 @@ describe('usePaddleChecklist: deciding', () => {
     const onSaved = vi.fn<(tour: TourListItem) => void>();
     const { result, rerender } = await renderReady(options({ onSaved }));
 
-    let saving: Promise<void> = Promise.resolve();
+    let saving: Promise<boolean> = Promise.resolve(true);
     act(() => {
       saving = result.current.decide(ENTRY, 'pass');
     });
@@ -436,7 +436,7 @@ describe('usePaddleChecklist: deciding', () => {
     const onSaved = vi.fn<(tour: TourListItem) => void>();
     const { result } = await renderReady(options({ onSaved }));
 
-    let saving: Promise<void> = Promise.resolve();
+    let saving: Promise<boolean> = Promise.resolve(true);
     act(() => {
       saving = result.current.decide(ENTRY, 'portage');
     });
@@ -660,5 +660,104 @@ describe('usePaddleChecklist: the map and the route', () => {
     act(() => result.current.selectOwn(ownPortage({ index: null })));
     expect(lastFocus()?.seq).toBe(2);
     expect(setSelectedWaypointId).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('usePaddleChecklist after review', () => {
+  const answer = (check: typeof CHECK, revision: string, place = 7): TourDetailResponse => ({
+    tour: paddleTour({ place_id: place, paddle_check: paddleBench({ revision }) }),
+    waypoints: [],
+    obstacle_check: check,
+  });
+
+  it('UPC-024: a save answered after another tour opened leaves that tour as it read itself', async () => {
+    const other = paddleTour({ place_id: 8, paddle_check: paddleBench({ revision: 'rev-8' }) });
+    const save = deferred<TourDetailResponse>();
+    repo.saveObstacleReviews.mockReturnValueOnce(save.promise);
+    const props = options({ tours: [TOUR, other] });
+    const { result, rerender } = await renderReady(props);
+    act(() => {
+      void result.current.decide(ENTRY, 'pass');
+    });
+    const otherCheck = obstacleCheck({
+      revision: 'rev-8',
+      entries: [obstacleEntry({ key: 'node/8', refs: ['node/8'] })],
+    });
+    repo.obstacleCheck.mockResolvedValue({ check: otherCheck, stale: false });
+    rerender({ ...props, planner: planner({ mode: { type: 'edit-saved', placeId: 8 } }) });
+    await waitFor(() => expect(result.current.check?.entries[0]?.key).toBe('node/8'));
+    expect(result.current.savingKey).toBeNull();
+
+    await act(async () => {
+      save.resolve(
+        answer(obstacleCheck({ revision: 'rev-2', entries: [obstacleEntry({ status: 'decided' })] }), 'rev-2')
+      );
+      await save.promise;
+    });
+    expect(result.current.status).toBe('ready');
+    expect(result.current.check?.entries[0]?.key).toBe('node/8');
+    expect(props.onSaved).toHaveBeenCalledWith(expect.objectContaining({ place_id: 7 }));
+  });
+
+  it('UPC-025: a save whose checklist is of another revision than its bench stays marked stale', async () => {
+    const { result, rerender } = await renderReady();
+    repo.saveObstacleReviews.mockResolvedValueOnce(answer(obstacleCheck({ revision: 'rev-1' }), 'local:u1'));
+    await act(async () => {
+      await result.current.decide(ENTRY, 'pass');
+    });
+    rerender(options({ tours: [paddleTour({ paddle_check: paddleBench({ revision: 'local:u1' }) })] }));
+    expect(result.current.stale).toBe(true);
+  });
+
+  it('UPC-026: a read that finds a newer bench on the server hands the tour on and is not stale', async () => {
+    const newer = paddleTour({ paddle_check: paddleBench({ revision: 'rev-9' }) });
+    repo.obstacleCheck.mockResolvedValue({ check: obstacleCheck({ revision: 'rev-9' }), stale: true, tour: newer });
+    const props = options({ tours: [paddleTour({ paddle_check: paddleBench({ revision: 'local:u1' }) })] });
+    const { result, rerender } = renderChecklist(props);
+    await waitFor(() => expect(props.onSaved).toHaveBeenCalledWith(newer));
+    rerender({ ...props, tours: [newer] });
+    expect(result.current).toMatchObject({ status: 'ready', stale: false });
+  });
+
+  it('UPC-027: while the same tour reads again its last checklist stays, locked', async () => {
+    const { result, rerender } = await renderReady();
+    const again = deferred<CheckRead>();
+    repo.obstacleCheck.mockReturnValueOnce(again.promise);
+    rerender(options({ tours: [paddleTour({ paddle_check: paddleBench({ revision: 'rev-3' }) })] }));
+    expect(result.current.status).toBe('loading');
+    expect(result.current.check).toEqual(CHECK);
+    expect(result.current.canDecide).toBe(false);
+    await act(async () => {
+      again.resolve({ check: obstacleCheck({ revision: 'rev-3' }), stale: false });
+      await again.promise;
+    });
+    expect(result.current.status).toBe('ready');
+  });
+
+  it('UPC-028: a saved tour turned into a paddle tour and not saved yet asks to be saved first', () => {
+    const hike = paddleTour({ tour_type: 'hike', boat_type: null, water_context: null, paddle_check: null });
+    const { result } = renderChecklist(options({ tours: [hike], planner: planner({ isPaddle: true }) }));
+    expect(result.current).toMatchObject({ status: 'new', tour: null, canDecide: false });
+    expect(repo.obstacleCheck).not.toHaveBeenCalled();
+  });
+
+  it('UPC-029: planning a portage is offered to editors only', async () => {
+    expect((await renderReady()).result.current.canPlanPortage).toBe(true);
+    expect((await renderReady(options({ canEdit: false }))).result.current.canPlanPortage).toBe(false);
+  });
+
+  it('UPC-030: a note whose save failed answers false, one that went through true', async () => {
+    const { result } = await renderReady();
+    repo.saveObstacleReviews.mockRejectedValueOnce(new Error('offline'));
+    let saved: boolean | undefined;
+    await act(async () => {
+      saved = await result.current.setNote(ENTRY, 'Links');
+    });
+    expect(saved).toBe(false);
+    repo.saveObstacleReviews.mockResolvedValueOnce(answer(CHECK, 'rev-1'));
+    await act(async () => {
+      saved = await result.current.setNote(ENTRY, 'Links');
+    });
+    expect(saved).toBe(true);
   });
 });

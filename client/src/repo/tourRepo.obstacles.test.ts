@@ -1,4 +1,4 @@
-// FE-REPO-TOUR-030 to FE-REPO-TOUR-038
+// FE-REPO-TOUR-030 to FE-REPO-TOUR-040
 // A paddle tour's checklist through the offline core (PAD-06, PAD-09): read
 // from the cache while its revision matches the bench, decisions saved online
 // and cached, saved offline under a local revision and queued, and a route
@@ -92,14 +92,14 @@ describe('tourRepo.obstacleCheck', () => {
         })
       )
     );
-    expect(await tourRepo.obstacleCheck(3, 40, 'rev-2')).toEqual({ check: fresh, stale: false });
+    expect(await tourRepo.obstacleCheck(3, 40, 'rev-2')).toMatchObject({ check: fresh, stale: false });
     expect((await offlineDb.tours.get(40))?.obstacle_check).toEqual(fresh);
   });
 
   it('FE-REPO-TOUR-032: offline, an older cached checklist stands in and reads as stale', async () => {
     setOnline(false);
     await offlineDb.tours.put({ ...paddleTour(), trip_id: 3, waypoints, obstacle_check: obstacleCheck() });
-    expect(await tourRepo.obstacleCheck(3, 40, 'local:abc')).toEqual({ check: obstacleCheck(), stale: true });
+    expect(await tourRepo.obstacleCheck(3, 40, 'local:abc')).toMatchObject({ check: obstacleCheck(), stale: true });
   });
 });
 
@@ -202,5 +202,36 @@ describe('a route written offline and the list cache', () => {
     setOnline(false);
     const { tours } = await tourRepo.list(3);
     expect(tours[0]).not.toHaveProperty('obstacle_check');
+  });
+});
+
+describe('after review', () => {
+  it('FE-REPO-TOUR-039: a decision queued on a checklist already stale keeps it stale against the bench', async () => {
+    setOnline(false);
+    vi.spyOn(mutationQueue, 'sendSoon').mockImplementation(() => undefined);
+    await offlineDb.tours.put({
+      ...paddleTour({ paddle_check: paddleBench({ revision: 'local:route' }) }),
+      trip_id: 3,
+      waypoints,
+      obstacle_check: obstacleCheck(),
+    });
+    const result = await tourRepo.saveObstacleReviews(3, 40, decide, 4);
+    expect(result.tour.paddle_check?.revision).toBe('local:route');
+    expect(result.obstacle_check?.revision).not.toBe('local:route');
+    expect((await tourRepo.obstacleCheck(3, 40, 'local:route')).stale).toBe(true);
+  });
+
+  it('FE-REPO-TOUR-040: online, a bench of a write made offline waits for the queue, then reads the server and hands its tour on', async () => {
+    await offlineDb.tours.put({ ...paddleTour(), trip_id: 3, waypoints, obstacle_check: obstacleCheck() });
+    const flush = vi.spyOn(mutationQueue, 'flush').mockResolvedValue();
+    const server_ = paddleTour({ paddle_check: paddleBench({ revision: 'rev-5' }) });
+    server.use(
+      http.get('/api/trips/3/tours/40', () =>
+        HttpResponse.json({ tour: server_, waypoints, obstacle_check: obstacleCheck({ revision: 'rev-5' }) })
+      )
+    );
+    const read = await tourRepo.obstacleCheck(3, 40, 'local:abc');
+    expect(flush).toHaveBeenCalled();
+    expect(read).toMatchObject({ check: { revision: 'rev-5' }, tour: { paddle_check: { revision: 'rev-5' } } });
   });
 });

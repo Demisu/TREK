@@ -110,10 +110,12 @@ const ADVISED_LOCK = ownPortage({
 const BYPASSED_LOCK = ownPortage({ kind: 'lock', index: 5, from_m: 5600, to_m: 5600, covers: [], bypassed: true });
 /** All of it out of route order, as the server may list it. */
 const ROUTE = obstacleCheck({ entries: [NEAR_LOCK, WEIR, BANNED_WEIR], own: [ADVISED_LOCK, OWN_PORTAGE] });
-/** The weir, and an earlier decision about a sill the data no longer holds. */
-const GONE = earlierEntry();
+/** The weir, and an earlier decision about a sill the route no longer meets. */
+const GONE = earlierEntry({ status: 'off_route' });
 const GONE_NAME = 'Alte Sohlschwelle';
 const WITH_EARLIER = obstacleCheck({ entries: [WEIR, GONE] });
+/** The weir, and a decision about a sill the complete data no longer holds: it counts, so it stays in view. */
+const VANISHED = earlierEntry({ key: 'node/8', refs: ['node/8'], name: 'Verschwundenes Wehr' });
 
 /** What usePaddleChecklist hands the card: a ready list matching the saved route, nothing selected, every action a spy. */
 function checklistOf(overrides: Partial<PaddleChecklist> = {}): PaddleChecklist {
@@ -125,6 +127,7 @@ function checklistOf(overrides: Partial<PaddleChecklist> = {}): PaddleChecklist 
     stale: false,
     dirty: false,
     canDecide: true,
+    canPlanPortage: true,
     savingKey: null,
     selectedKey: null,
     dialogKey: null,
@@ -132,10 +135,10 @@ function checklistOf(overrides: Partial<PaddleChecklist> = {}): PaddleChecklist 
     select: vi.fn(),
     selectOwn: vi.fn(),
     closeDialog: vi.fn(),
-    decide: vi.fn(async () => undefined),
-    setNote: vi.fn(async () => undefined),
-    clear: vi.fn(async () => undefined),
-    keep: vi.fn(async () => undefined),
+    decide: vi.fn(async () => true),
+    setNote: vi.fn(async () => true),
+    clear: vi.fn(async () => true),
+    keep: vi.fn(async () => true),
     nextOf: vi.fn(() => null),
     next: vi.fn(),
     planPortage: vi.fn(),
@@ -366,7 +369,7 @@ describe('PaddleCheckCard', () => {
     const earlier = screen.getByRole('button', { name: /^Alte Sohlschwelle/ });
     // No longer on the route, so no place along it.
     expect(earlier).not.toHaveTextContent('km');
-    expect(earlier).toHaveTextContent('status gone');
+    expect(earlier).toHaveTextContent('status off_route');
     fireEvent.click(earlier);
     expect(select).toHaveBeenCalledWith(GONE);
   });
@@ -387,6 +390,14 @@ describe('PaddleCheckCard', () => {
     fireEvent.click(fold);
     expect(fold).toHaveAttribute('aria-expanded', 'false');
     expect(screen.queryByText(GONE_NAME)).not.toBeInTheDocument();
+  });
+
+  it('FE-PADDLE-CHECKCARD-018: a decision about an object the data no longer holds stays among the rows, after the route', () => {
+    renderCard(checklistOf({ check: obstacleCheck({ entries: [VANISHED, WEIR] }) }));
+    const rows = rowButtons();
+    expect(rows).toHaveLength(2);
+    expect(rows[1]).toHaveTextContent('Verschwundenes Wehr');
+    expect(screen.queryByRole('button', { name: SAYS.earlier })).not.toBeInTheDocument();
   });
 
   it('FE-PADDLE-CHECKCARD-015: without rows it says nothing is known on covered data, and that there is none where none is', () => {

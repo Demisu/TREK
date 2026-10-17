@@ -188,7 +188,7 @@ describe('focusPointsOf', () => {
 });
 
 describe('checklistRows', () => {
-  it('PCM-014: lists the obstacles and the own portages and locks in route order, the earlier decisions apart', () => {
+  it('PCM-014: lists the obstacles and the own portages and locks in route order, then the vanished ones, the earlier decisions apart', () => {
     const weir = obstacleEntry();
     const rapids = obstacleEntry({
       key: 'node/2',
@@ -200,9 +200,10 @@ describe('checklistRows', () => {
     });
     const dam = obstacleEntry({ key: 'node/3', refs: ['node/3'], kind: 'dam', along_m: 2600 });
     const gone = earlierEntry();
+    const offRoute = earlierEntry({ key: 'node/10', refs: ['node/10'], status: 'off_route' });
     const portage = ownPortage();
     const lock = ownPortage({ kind: 'lock', index: 2, from_m: 2000, to_m: 2000, covers: [] });
-    const check = obstacleCheck({ entries: [dam, weir, gone, rapids], own: [lock, portage] });
+    const check = obstacleCheck({ entries: [dam, weir, gone, offRoute, rapids], own: [lock, portage] });
 
     expect(checklistRows(check)).toEqual({
       rows: [
@@ -211,8 +212,9 @@ describe('checklistRows', () => {
         { type: 'obstacle', entry: weir },
         { type: 'own', own: lock },
         { type: 'obstacle', entry: dam },
+        { type: 'obstacle', entry: gone },
       ],
-      earlier: [gone],
+      earlier: [offRoute],
     });
   });
 
@@ -259,5 +261,15 @@ describe('nextPendingEntry', () => {
     expect(nextPendingEntry(check, review)).toBeNull();
     expect(nextPendingEntry(check, last)).toBeNull();
     expect(nextPendingEntry(obstacleCheck({ entries: [first] }), first)).toBeNull();
+  });
+});
+
+describe('nextPendingEntry at one metre', () => {
+  it('PCM-019: two pending entries at the same metre follow each other in list order', () => {
+    const first = obstacleEntry({ key: 'node/1', along_m: 1200 });
+    const second = obstacleEntry({ key: 'node/2', refs: ['node/2'], along_m: 1200 });
+    const check = obstacleCheck({ entries: [first, second] });
+    expect(nextPendingEntry(check, first)?.key).toBe('node/2');
+    expect(nextPendingEntry(check, second)).toBeNull();
   });
 });

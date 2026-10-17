@@ -134,7 +134,7 @@ export default function PaddleObstacleCard({
   const color = paddleKindCss(feature.kind);
   return (
     <article
-      className={`rounded-2xl p-3 text-content ${width ? '' : 'w-max min-w-[min(18rem,calc(100vw_-_2rem))] max-w-[22.5rem]'}`}
+      className={`max-h-[70vh] overflow-y-auto overscroll-contain rounded-2xl p-3 text-content ${width ? '' : 'w-max min-w-[min(18rem,calc(100vw_-_2rem))] max-w-[22.5rem]'}`}
       style={{ ...MAP_CARD_GLASS, width }}
       data-testid="paddle-obstacle-card"
     >

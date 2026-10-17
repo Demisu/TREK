@@ -330,7 +330,8 @@ function EmptyLine({ summary }: { summary: PaddleCheck | null }) {
 /** The rows along the route, then the earlier decisions; dimmed, never hidden, while they may not match the route. */
 function CheckList({ checklist, check }: { checklist: PaddleChecklist; check: TourObstacleCheck }) {
   const { rows, earlier } = useMemo(() => checklistRows(check), [check]);
-  const dimmed = checklist.dirty || checklist.stale;
+  // Dimmed while it may not match the route, and while the list it came from reads again.
+  const dimmed = checklist.dirty || checklist.stale || checklist.status === 'loading';
   return (
     <div data-testid="paddle-check-list" className={`flex flex-col gap-1.5 ${dimmed ? 'opacity-60' : ''}`}>
       {rows.length > 0 ? (

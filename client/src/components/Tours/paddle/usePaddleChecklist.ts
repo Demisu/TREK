@@ -10,7 +10,7 @@ import {
   type TourOwnEntry,
   type TripMember,
 } from '@trek/shared';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useEffectEvent, useMemo, useState } from 'react';
 import { useNetworkMode } from '../../../hooks/useNetworkMode';
 import { useTranslation } from '../../../i18n';
 import { applyObstacleOps } from '../../../repo/obstacleCheckLocal';
@@ -43,6 +43,7 @@ interface PaddleChecklistOptions {
 }
 
 interface Loaded {
+  placeId: number;
   key: string;
   check: TourObstacleCheck | null;
   stale: boolean;
@@ -57,27 +58,59 @@ function openPaddleTour(mode: TourPlannerController['mode'], tours: readonly Tou
 }
 
 /** Reads the checklist for the bench the list shows, again whenever its revision or the connection changes. */
-function useChecklistRead(tripId: number, tour: TourListItem | null, active: boolean) {
+/** The read key of a tour's checklist: a new bench revision or a change of the connection reads it again. */
+const readKey = (placeId: number | null, revision: string | null, offline: boolean) =>
+  `${placeId}:${revision}:${offline}`;
+
+/**
+ * Reads the checklist for the bench the list shows, again whenever its
+ * revision or the connection changes. A read that finds the server further
+ * than the list (a queued write replayed meanwhile) hands the newer tour on,
+ * so the list and its bench catch up.
+ */
+function useChecklistRead(
+  tripId: number,
+  tour: TourListItem | null,
+  active: boolean,
+  onNewer: (tour: TourListItem) => void
+) {
   const { offline } = useNetworkMode();
   const placeId = tour?.place_id ?? null;
   const revision = tour?.paddle_check?.revision ?? null;
-  const key = `${placeId}:${revision}:${offline}`;
+  const key = readKey(placeId, revision, offline);
   const [loaded, setLoaded] = useState<Loaded | null>(null);
+  // Handing the newer tour on is no reason to read again.
+  const takeNewer = useEffectEvent(onNewer);
   useEffect(() => {
     if (!active || placeId === null) return;
     const controller = new AbortController();
     tourRepo
       .obstacleCheck(tripId, placeId, revision, controller.signal)
-      .then(({ check, stale }) => {
-        if (!controller.signal.aborted) setLoaded({ key, check, stale, failed: false });
+      .then(({ check, stale, tour: answered }) => {
+        if (controller.signal.aborted) return;
+        const newer = answered?.paddle_check?.revision;
+        if (answered && newer && newer !== revision) {
+          setLoaded({
+            placeId,
+            key: readKey(placeId, newer, offline),
+            check,
+            stale: check?.revision !== newer,
+            failed: false,
+          });
+          takeNewer(answered);
+          return;
+        }
+        setLoaded({ placeId, key, check, stale, failed: false });
       })
       .catch(() => {
-        if (!controller.signal.aborted) setLoaded({ key, check: null, stale: false, failed: true });
+        if (!controller.signal.aborted) setLoaded({ placeId, key, check: null, stale: false, failed: true });
       });
     return () => controller.abort();
-  }, [active, key, placeId, revision, tripId]);
+  }, [active, key, offline, placeId, revision, tripId]);
   const current = loaded?.key === key ? loaded : null;
-  return { current, offline, key, setLoaded };
+  // While the same tour reads again, what it read before stays in view, locked, so a panel open on it stays open.
+  const previous = !current && loaded?.placeId === placeId && loaded.check ? loaded : null;
+  return { current, previous, offline, key, setLoaded };
 }
 
 /** Where a portage for an obstacle starts on a planned tour: the control point whose leg passes it. */
@@ -194,14 +227,16 @@ function useChecklistNavigation(
 export function usePaddleChecklist(options: PaddleChecklistOptions) {
   const { tripId, planner, tours, canEdit, active, trackPaddlePlan } = options;
   const tour = useMemo(() => openPaddleTour(planner.mode, tours), [planner.mode, tours]);
-  const read = useChecklistRead(tripId, tour, active);
+  const read = useChecklistRead(tripId, tour, active, options.onSaved);
   const writes = useChecklistWrites(options, tour, read);
-  const check = writes.optimistic ?? read.current?.check ?? null;
+  const check = writes.optimistic ?? read.current?.check ?? read.previous?.check ?? null;
   const navigation = useChecklistNavigation(planner, check, trackPaddlePlan);
   const dirty = planner.hasUnsavedChanges || !!trackPaddlePlan?.dirty;
   const status = checklistStatus({
     active,
-    newPaddleDraft: planner.mode.type === 'new-draft' && planner.isPaddle,
+    // A new paddle draft, or a saved tour turned into one and not saved yet: no server check exists for either.
+    newPaddleDraft:
+      planner.isPaddle && (planner.mode.type === 'new-draft' || (planner.mode.type === 'edit-saved' && !tour)),
     tour,
     current: read.current,
     offline: read.offline,
@@ -216,6 +251,8 @@ export function usePaddleChecklist(options: PaddleChecklistOptions) {
     stale: !!read.current?.stale,
     dirty,
     canDecide: canEdit && status === 'ready' && !dirty && saved && writes.savingKey === null,
+    /** Planning a portage edits the tour, so only someone who may edit it is offered it. */
+    canPlanPortage: canEdit,
     savingKey: writes.savingKey,
     ...navigation,
     ...writes.actions,
@@ -235,30 +272,38 @@ function useChecklistWrites(
   const { t } = useTranslation();
   const toast = useToast();
   const userId = useAuthStore((state) => state.user?.id ?? null);
-  const [pending, setPending] = useState<{ key: string; check: TourObstacleCheck } | null>(null);
+  const [pending, setPending] = useState<{ placeId: number; key: string; check: TourObstacleCheck } | null>(null);
   const base = read.current?.check ?? null;
   const placeId = tour?.place_id ?? null;
   const { setLoaded, offline } = read;
 
   const save = useCallback(
     async (key: string, op: ObstacleReviewOp) => {
-      if (!base || placeId === null) return;
+      if (!base || placeId === null) return false;
       setPending({
+        placeId,
         key,
         check: applyObstacleOps(base, [op], { now: new Date().toISOString(), userId, revision: 'pending' }),
       });
       try {
         const result = await tourRepo.saveObstacleReviews(tripId, placeId, { ops: [op] }, userId);
         const revision = result.tour.paddle_check?.revision ?? null;
-        setLoaded({
-          key: `${placeId}:${revision}:${offline}`,
-          check: result.obstacle_check ?? base,
-          stale: false,
+        const check = result.obstacle_check ?? base;
+        const next: Loaded = {
+          placeId,
+          key: readKey(placeId, revision, offline),
+          check,
+          // A checklist still judged on an older route than the bench stays marked as such.
+          stale: revision !== null && check.revision !== revision,
           failed: false,
-        });
+        };
+        // Another tour opened meanwhile keeps what it read; this one's answer reaches the list and the cache.
+        setLoaded((current) => (current && !current.key.startsWith(`${placeId}:`) ? current : next));
         onSaved(result.tour);
+        return true;
       } catch {
         toast.error(t('tours.paddle.marks.failed'));
+        return false;
       } finally {
         setPending(null);
       }
@@ -285,5 +330,7 @@ function useChecklistWrites(
     }),
     [save]
   );
-  return { optimistic: pending?.check ?? null, savingKey: pending?.key ?? null, actions };
+  // A save still running for a tour left meanwhile shows nothing on the one open now.
+  const mine = pending && pending.placeId === placeId ? pending : null;
+  return { optimistic: mine?.check ?? null, savingKey: mine?.key ?? null, actions };
 }

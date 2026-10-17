@@ -268,18 +268,22 @@ export const tourRepo = {
    * PAD-06: a paddle tour's checklist for the bench the list shows. The
    * cached one serves while its revision matches; otherwise the detail is read
    * (the cache standing in offline), and a checklist of another revision than
-   * the bench's reads as stale.
+   * the bench's reads as stale. A bench of a write made here offline waits for
+   * the queue to replay once online, and the tour read with the detail comes
+   * back with it, so the list can take in the server's bench.
    */
   async obstacleCheck(
     tripId: number | string,
     placeId: number,
     revision: string | null,
     signal?: AbortSignal,
-  ): Promise<{ check: TourObstacleCheck | null; stale: boolean }> {
+  ): Promise<{ check: TourObstacleCheck | null; stale: boolean; tour?: TourListItem }> {
+    if (revision?.startsWith('local:') && !isEffectivelyOffline()) await mutationQueue.flush()
     const cached = await offlineDb.tours.get(placeId)
     if (revision !== null && cached?.obstacle_check?.revision === revision) return { check: cached.obstacle_check, stale: false }
-    const check = (await tourRepo.detail(tripId, placeId, signal)).obstacle_check ?? null
-    return { check, stale: check !== null && revision !== null && check.revision !== revision }
+    const detail = await tourRepo.detail(tripId, placeId, signal)
+    const check = detail.obstacle_check ?? null
+    return { check, stale: check !== null && revision !== null && check.revision !== revision, tour: detail.tour }
   },
 
   /**
@@ -300,9 +304,14 @@ export const tourRepo = {
       if (!existing?.obstacle_check) throw new Error('Checklist not available offline')
       const id = generateUUID()
       const revision = `local:${id}`
+      // A checklist still judged on an older route than the bench keeps that gap, so it stays marked stale.
+      const routeStale = !!existing.paddle_check && existing.paddle_check.revision !== existing.obstacle_check.revision
       const check = applyObstacleOps(existing.obstacle_check, body.ops, { now: new Date().toISOString(), userId, revision })
       const bench = existing.paddle_check
-        ? { ...paddleCheckSummaryOf(check.entries, check.own, existing.paddle_check), revision }
+        ? {
+          ...paddleCheckSummaryOf(check.entries, check.own, existing.paddle_check),
+          revision: routeStale ? existing.paddle_check.revision : revision,
+        }
         : existing.paddle_check
       const tour: CachedTour = { ...existing, obstacle_check: check, paddle_check: bench }
       await offlineDb.tours.put(tour)

@@ -1,4 +1,4 @@
-// FE-W4TIP-001 to FE-W4TIP-014
+// FE-W4TIP-001 to FE-W4TIP-015
 import { createRef, useRef } from 'react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent, act } from '../../../tests/helpers/render'
@@ -180,5 +180,17 @@ describe('Tooltip — inside a component that owns the ref', () => {
     fireEvent.click(screen.getByRole('button'))
 
     expect(screen.getByRole('button')).toHaveAttribute('data-clicked', '1')
+  })
+
+  it('FE-W4TIP-015: a label of several lines breaks at them and stays within the window, a single line does not wrap', () => {
+    const { unmount } = render(<Tooltip label={'3 open\nNo safety or legal clearance.'}><button>x</button></Tooltip>)
+    hover(screen.getByRole('button'))
+    expect(screen.getByRole('tooltip')).toHaveStyle({ whiteSpace: 'pre-line' })
+    expect(screen.getByRole('tooltip').style.maxWidth).toContain('100vw')
+    unmount()
+
+    render(<Tooltip label="Delete"><button>y</button></Tooltip>)
+    hover(screen.getByRole('button'))
+    expect(screen.getByRole('tooltip')).toHaveStyle({ whiteSpace: 'nowrap' })
   })
 })

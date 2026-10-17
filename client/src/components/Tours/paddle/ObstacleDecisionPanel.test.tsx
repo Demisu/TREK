@@ -7,7 +7,7 @@ import type { ObstacleDecision, ObstacleDecisionRecord, TourObstacleCheck, TourO
 
 import { buildSettings } from '../../../../tests/helpers/factories';
 import { earlierEntry, obstacleCheck, obstacleEntry } from '../../../../tests/helpers/paddleCheck';
-import { fireEvent, render, screen, within } from '../../../../tests/helpers/render';
+import { fireEvent, render, screen, waitFor, within } from '../../../../tests/helpers/render';
 import { seedStore } from '../../../../tests/helpers/store';
 import { useSettingsStore } from '../../../store/settingsStore';
 import { ChecklistObstaclePanel, ObstacleDecisionPanel } from './ObstacleDecisionPanel';
@@ -52,7 +52,7 @@ function decidedEntry(decision: ObstacleDecision = 'pass', note: string | null =
 type PanelProps = ComponentProps<typeof ObstacleDecisionPanel>;
 
 const onDecide = vi.fn<PanelProps['onDecide']>();
-const onNote = vi.fn<PanelProps['onNote']>();
+const onNote = vi.fn<PanelProps['onNote']>(() => Promise.resolve(true));
 const onClear = vi.fn<PanelProps['onClear']>();
 const onKeep = vi.fn<PanelProps['onKeep']>();
 /** Trip member 1 is Anna; anyone else has left the trip. */
@@ -98,6 +98,7 @@ function checklistOf(
     stale: false,
     dirty: false,
     canDecide: true,
+    canPlanPortage: true,
     savingKey: null,
     selectedKey: null,
     dialogKey: null,
@@ -108,10 +109,10 @@ function checklistOf(
     nextOf: () => null,
     next: vi.fn<PaddleChecklist['next']>(),
     planPortage: vi.fn<PaddleChecklist['planPortage']>(),
-    decide: vi.fn<PaddleChecklist['decide']>(() => Promise.resolve()),
-    setNote: vi.fn<PaddleChecklist['setNote']>(() => Promise.resolve()),
-    clear: vi.fn<PaddleChecklist['clear']>(() => Promise.resolve()),
-    keep: vi.fn<PaddleChecklist['keep']>(() => Promise.resolve()),
+    decide: vi.fn<PaddleChecklist['decide']>(() => Promise.resolve(true)),
+    setNote: vi.fn<PaddleChecklist['setNote']>(() => Promise.resolve(true)),
+    clear: vi.fn<PaddleChecklist['clear']>(() => Promise.resolve(true)),
+    keep: vi.fn<PaddleChecklist['keep']>(() => Promise.resolve(true)),
     memberName,
     ...overrides,
   };
@@ -166,7 +167,8 @@ describe('ObstacleDecisionPanel', () => {
   it('FE-PADDLE-DECIDE-003: in review the earlier choice keeps a dashed ring, nothing is checked, the reason shows', () => {
     renderPanel(obstacleEntry({ status: 'review', changed: ['route'], decision: record('pass') }));
 
-    const earlier = screen.getByRole('radio', { name: 'Paddle through' });
+    // Named with its review state too, so it is told apart by more than its ring.
+    const earlier = screen.getByRole('radio', { name: 'Paddle through, Check again' });
     expect(earlier).toHaveAttribute('aria-checked', 'false');
     expect(earlier).toHaveClass('border-dashed');
     expect(earlier).not.toHaveClass('bg-accent');
@@ -251,7 +253,7 @@ describe('ObstacleDecisionPanel', () => {
     expect(screen.getByTestId('obstacle-on-site')).toHaveTextContent('unknown');
   });
 
-  it('FE-PADDLE-DECIDE-009: a decision takes a note of two rows and at most 500 characters, saved trimmed', () => {
+  it('FE-PADDLE-DECIDE-009: a decision takes a note of two rows and at most 500 characters, saved trimmed', async () => {
     renderPanel(decidedEntry());
 
     fireEvent.click(screen.getByRole('button', { name: 'Note' }));
@@ -264,7 +266,18 @@ describe('ObstacleDecisionPanel', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
     expect(onNote).toHaveBeenCalledTimes(1);
     expect(onNote).toHaveBeenCalledWith('Links an der Bootsrutsche');
-    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('textbox')).not.toBeInTheDocument());
+  });
+
+  it('FE-PADDLE-DECIDE-021: a note whose save failed stays in the editor with its text', async () => {
+    onNote.mockResolvedValueOnce(false);
+    renderPanel(decidedEntry());
+    fireEvent.click(screen.getByRole('button', { name: 'Note' }));
+    fireEvent.change(screen.getByRole('textbox', { name: 'Note' }), { target: { value: 'Rechts umtragen' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(onNote).toHaveBeenCalledWith('Rechts umtragen'));
+    await Promise.resolve();
+    expect(screen.getByRole('textbox', { name: 'Note' })).toHaveValue('Rechts umtragen');
   });
 
   it('FE-PADDLE-DECIDE-010: a saved note reads clamped; Cancel and an unchanged save keep it, emptying it removes it', () => {
@@ -385,20 +398,28 @@ describe('ObstacleDecisionPanel', () => {
 });
 
 describe('ChecklistObstaclePanel', () => {
-  it('FE-PADDLE-DECIDE-017: shows nothing for an object the checklist does not list or while it is not ready', () => {
+  it('FE-PADDLE-DECIDE-017: shows nothing without a checklist or for an object it does not list, and stays while it reads again', () => {
     const { container, rerender } = render(<ChecklistObstaclePanel checklist={checklistOf()} featureRef="node/2" />);
     expect(container).toBeEmptyDOMElement();
 
-    rerender(
-      <ChecklistObstaclePanel checklist={checklistOf(obstacleCheck(), { status: 'loading' })} featureRef="node/1" />
-    );
+    rerender(<ChecklistObstaclePanel checklist={checklistOf(null, { status: 'loading' })} featureRef="node/1" />);
     expect(container).toBeEmptyDOMElement();
+
+    // Reading again keeps the panel open, locked, so a note being written is not lost.
+    rerender(
+      <ChecklistObstaclePanel
+        checklist={checklistOf(obstacleCheck(), { status: 'loading', canDecide: false })}
+        featureRef="node/1"
+      />
+    );
+    expect(screen.getByTestId('obstacle-decision-panel')).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: 'Paddle through' })).toBeDisabled();
 
     rerender(<ChecklistObstaclePanel checklist={checklistOf()} featureRef="node/1" />);
     expect(screen.getByTestId('obstacle-decision-panel')).toBeInTheDocument();
   });
 
-  it('FE-PADDLE-DECIDE-018: decides, plans the portage, notes, removes and moves on through the checklist', () => {
+  it('FE-PADDLE-DECIDE-018: decides, plans the portage, notes, removes and moves on through the checklist', async () => {
     const entry = obstacleEntry({ status: 'todo', decision: record('portage') });
     const following = obstacleEntry({ key: 'node/2', refs: ['node/2'], name: 'Wehr Pielenhofen', along_m: 3400 });
     const checklist = checklistOf(obstacleCheck({ entries: [entry, following] }), {
@@ -421,6 +442,37 @@ describe('ChecklistObstaclePanel', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     expect(checklist.next).toHaveBeenCalledWith(entry);
     expect(screen.getByText(`Decided ${DECIDED_ON} by Anna`)).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('textbox')).not.toBeInTheDocument());
+  });
+
+  it('FE-PADDLE-DECIDE-022: someone who may not edit the tour is not offered to plan the portage', () => {
+    const entry = obstacleEntry({ status: 'todo', decision: record('portage') });
+    render(
+      <ChecklistObstaclePanel
+        checklist={checklistOf(obstacleCheck({ entries: [entry] }), { canPlanPortage: false, canDecide: false })}
+        featureRef="node/1"
+      />
+    );
+    expect(screen.queryByRole('button', { name: 'Plan the portage' })).not.toBeInTheDocument();
+  });
+
+  it('FE-PADDLE-DECIDE-023: moving on keeps the focus in the panel when the next entry has no Next of its own', () => {
+    const entry = obstacleEntry({ status: 'todo', decision: record('portage') });
+    const following = obstacleEntry({ key: 'node/2', refs: ['node/2'], name: 'Wehr Pielenhofen', along_m: 3400 });
+    const check = obstacleCheck({ entries: [entry, following] });
+    let featureRef = 'node/1';
+    const checklist = checklistOf(check, {
+      nextOf: (item) => (item.key === entry.key ? following : null),
+      next: vi.fn<PaddleChecklist['next']>(() => {
+        featureRef = 'node/2';
+      }),
+    });
+    const { rerender } = render(<ChecklistObstaclePanel checklist={checklist} featureRef={featureRef} />);
+    const next = screen.getByRole('button', { name: 'Next' });
+    next.focus();
+    fireEvent.click(next);
+    rerender(<ChecklistObstaclePanel checklist={checklist} featureRef={featureRef} />);
+    expect(screen.getByTestId('obstacle-decision-panel')).toHaveFocus();
   });
 
   it('FE-PADDLE-DECIDE-019: a decision about an object the data no longer holds is kept through the checklist', () => {

@@ -92,7 +92,9 @@ export function Tooltip({ label, placement = 'bottom', delay = 250, disabled, ch
             fontWeight: 500,
             padding: '5px 10px',
             borderRadius: 8,
-            whiteSpace: 'nowrap',
+            // A label of several lines (the paddle check bench) breaks at its lines and wraps within the window.
+            whiteSpace: label.includes('\n') ? 'pre-line' : 'nowrap',
+            maxWidth: label.includes('\n') ? 'min(22rem, calc(100vw - 12px))' : undefined,
             boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
             fontFamily: "var(--font-system)",
             transformOrigin: placement === 'top' ? 'bottom center' : placement === 'bottom' ? 'top center' : placement === 'left' ? 'center right' : 'center left',
