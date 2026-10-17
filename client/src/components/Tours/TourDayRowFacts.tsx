@@ -141,18 +141,25 @@ export function TourDayRowPill({
   );
 }
 
-/** A paddle tour's check bench as one fact (PAD-09), or null for a hike or a tour listed without one. */
+/**
+ * A paddle tour's check bench as one fact (PAD-09), or null for a hike, a tour
+ * listed without one, or an area without obstacle data: a row has no room for
+ * a badge that says nothing, and the checklist itself still names the gap.
+ */
 function paddleCheckOf(tour: TourListItem, t: Parameters<typeof paddleCheckFact>[1]) {
-  return tour.tour_type === 'kayak' && tour.paddle_check ? paddleCheckFact(tour.paddle_check, t) : null;
+  const check = tour.tour_type === 'kayak' ? tour.paddle_check : null;
+  return check && check.data !== 'none' ? paddleCheckFact(check, t) : null;
 }
 
 /**
  * A tour's facts on its day-plan row, in the badges every other stop uses: the
  * time it takes (the planned total where there is one, otherwise the walking
  * time, the parts in the tooltip), how far, how much climbing and, for a paddle
- * tour, its check bench.
+ * tour, its check bench. `compact` (the tour list) keeps the three that matter
+ * most, in that order: the time, then a paddle tour's check bench and its
+ * distance, or a hike's distance and climbing.
  */
-export function TourDayRowPills({ tour }: { tour: TourListItem }) {
+export function TourDayRowPills({ tour, compact = false }: { tour: TourListItem; compact?: boolean }) {
   const { t } = useTranslation();
   const unit = useSettingsStore((state) => state.settings.distance_unit) || 'metric';
   const times = tourPlannedTimes(tour);
@@ -169,35 +176,37 @@ export function TourDayRowPills({ tour }: { tour: TourListItem }) {
       : null,
   ].filter((part): part is string => part !== null);
   const check = paddleCheckOf(tour, t);
-  return (
-    <>
-      {shownMinutes != null && (
-        <TourDayRowPill
-          icon={Clock}
-          value={formatPlannedTourDuration(shownMinutes)}
-          label={timeParts.join(', ')}
-          testId="trip-plan-tour-time"
-        />
-      )}
-      {tour.distance != null && (
-        <TourDayRowPill
-          icon={Ruler}
-          value={formatDistance(tour.distance, unit)}
-          label={`${t('tours.detail.distance')}: ${formatDistance(tour.distance, unit)}`}
-          testId="plan-tour-distance"
-        />
-      )}
-      {tour.elevation_gain != null && (
-        <TourDayRowPill
-          icon={ArrowUp}
-          value={formatElevation(tour.elevation_gain, unit)}
-          label={`${t('tours.detail.ascent')}: ${formatElevation(tour.elevation_gain, unit)}`}
-          testId="plan-tour-ascent"
-        />
-      )}
-      {check && <TourDayRowPill {...check} testId="plan-tour-paddle-check" />}
-    </>
+  const time = shownMinutes != null && (
+    <TourDayRowPill
+      key="time"
+      icon={Clock}
+      value={formatPlannedTourDuration(shownMinutes)}
+      label={timeParts.join(', ')}
+      testId="trip-plan-tour-time"
+    />
   );
+  const distance = tour.distance != null && (
+    <TourDayRowPill
+      key="distance"
+      icon={Ruler}
+      value={formatDistance(tour.distance, unit)}
+      label={`${t('tours.detail.distance')}: ${formatDistance(tour.distance, unit)}`}
+      testId="plan-tour-distance"
+    />
+  );
+  const ascent = tour.elevation_gain != null && (
+    <TourDayRowPill
+      key="ascent"
+      icon={ArrowUp}
+      value={formatElevation(tour.elevation_gain, unit)}
+      label={`${t('tours.detail.ascent')}: ${formatElevation(tour.elevation_gain, unit)}`}
+      testId="plan-tour-ascent"
+    />
+  );
+  const bench = check && <TourDayRowPill key="check" {...check} testId="plan-tour-paddle-check" />;
+  if (!compact) return <>{[time, distance, ascent, bench]}</>;
+  // A paddle tour's climbing is the river's fall, nothing to plan by; its check bench is.
+  return <>{tour.tour_type === 'kayak' ? [time, bench, distance] : [time, distance, ascent]}</>;
 }
 
 export default function TourDayRowFacts({ tour, mobile = false }: { tour: TourListItem; mobile?: boolean }) {

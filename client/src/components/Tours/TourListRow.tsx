@@ -47,7 +47,7 @@ function MapToggleButton({ toggle }: { toggle: NonNullable<TourListRowProps['map
   )
 }
 
-/** The tile, the name and one line of badges with the description trailing after them. */
+/** The tile, the name, the description on a line of its own and one line of badges. */
 function TourRowBody({ tour, nameId, tourDays, dimmed }: {
   tour: TourListItem
   nameId: string
@@ -60,24 +60,24 @@ function TourRowBody({ tour, nameId, tourDays, dimmed }: {
       <div className="min-w-0 flex-1">
         <span id={nameId} className="block min-w-0 truncate font-semibold leading-tight text-content"
           style={fs(13, 'body')}>{tour.name}</span>
-        {/* One line like a plan row's: the badges keep their place, the description gives way,
-            and what does not fit fades out instead of ending at a hard edge. */}
+        {tour.description && (
+          <span
+            data-testid="tour-description-preview"
+            className="mt-0.5 block min-w-0 truncate text-content-faint"
+            style={fs(10.5)}
+          >
+            {tour.description}
+          </span>
+        )}
+        {/* One line of whole badges, most important first: one that does not fit wraps onto a
+            second line the fixed height hides, so a narrow sidebar shows two and never half of one. */}
         <div
           data-testid="tour-metrics"
-          className="trek-fade-end mt-0.5 flex min-w-0 flex-nowrap items-center gap-1.5 overflow-hidden"
+          className="-mx-0.5 mt-0.5 flex h-6 min-w-0 flex-wrap content-start gap-x-1.5 gap-y-2 overflow-hidden px-0.5 pt-0.5"
         >
           <TourCautionBadge tour={tour} />
-          <TourDayRowPills tour={tour} />
+          <TourDayRowPills tour={tour} compact />
           <TourDaysBadge tourDays={tourDays} />
-          {tour.description && (
-            <span
-              data-testid="tour-description-preview"
-              className="min-w-0 flex-1 truncate text-content-faint"
-              style={fs(10.5)}
-            >
-              {tour.description}
-            </span>
-          )}
         </div>
       </div>
     </div>
@@ -108,9 +108,9 @@ function TourRowActions({ action, mapToggle, selected }: Pick<TourListRowProps, 
 
 /**
  * A tour in a list, laid out like a stop in the day plan: its tile with the
- * grade, the name, and one line of the plan's white badges (time, distance,
- * ascent, the days it is on, a caution) with the description trailing after
- * them. The day and delete actions sit on the right.
+ * grade, the name, the description below it, and one line of the plan's
+ * white badges (time, distance, ascent, the days it is on, a caution). The day
+ * and delete actions sit on the right.
  */
 export default function TourListRow({ tour,
   days = NO_DAYS,

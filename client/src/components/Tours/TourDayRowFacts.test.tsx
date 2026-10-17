@@ -86,9 +86,14 @@ describe('PAD-09 the check bench on a tour row', () => {
     expect(pill.getAttribute('aria-label')).toContain('A checklist is no safety or legal clearance.');
   });
 
-  it('PCD-002: missing obstacle data reads as such in the pill, never as a count', () => {
+  it('PCD-002: an area without obstacle data shows no pill at all, never a count', () => {
     render(<TourDayRowPills tour={{ ...kayak, paddle_check: paddleBench({ data: 'none', open: 3 }) }} />);
-    expect(screen.getByTestId('plan-tour-paddle-check')).toHaveTextContent('No data');
+    expect(screen.queryByTestId('plan-tour-paddle-check')).not.toBeInTheDocument();
+  });
+
+  it('PCD-002b: data that could not be read still shows, without a count', () => {
+    render(<TourDayRowPills tour={{ ...kayak, paddle_check: paddleBench({ data: 'unavailable', open: 3 }) }} />);
+    expect(screen.getByTestId('plan-tour-paddle-check')).not.toHaveTextContent('3');
   });
 
   it.each([false, true])('PCD-003: the day plan facts name the bench as one more fact (mobile=%s)', (mobile) => {
@@ -109,5 +114,33 @@ describe('PAD-09 the check bench on a tour row', () => {
       </>
     );
     expect(screen.queryByTestId('plan-tour-paddle-check')).not.toBeInTheDocument();
+  });
+});
+
+describe('the compact facts of a tour list row', () => {
+  const testIds = () =>
+    [...document.querySelectorAll('[data-testid^="plan-tour"], [data-testid="trip-plan-tour-time"]')].map((el) =>
+      el.getAttribute('data-testid')
+    );
+  const timed = { ...tour, distance: 4.2, elevation_gain: 478, planned_duration_minutes: 50 };
+
+  it('PCD-005: a hike keeps time, distance and climbing, in that order', () => {
+    render(<TourDayRowPills tour={timed} compact />);
+    expect(testIds()).toEqual(['trip-plan-tour-time', 'plan-tour-distance', 'plan-tour-ascent']);
+  });
+
+  it('PCD-006: a paddle tour puts its check bench second and leaves out the climbing', () => {
+    render(<TourDayRowPills tour={{ ...timed, tour_type: 'kayak', paddle_check: paddleBench() }} compact />);
+    expect(testIds()).toEqual(['trip-plan-tour-time', 'plan-tour-paddle-check', 'plan-tour-distance']);
+  });
+
+  it('PCD-007: the day plan still shows every fact', () => {
+    render(<TourDayRowPills tour={{ ...timed, tour_type: 'kayak', paddle_check: paddleBench() }} />);
+    expect(testIds()).toEqual([
+      'trip-plan-tour-time',
+      'plan-tour-distance',
+      'plan-tour-ascent',
+      'plan-tour-paddle-check',
+    ]);
   });
 });

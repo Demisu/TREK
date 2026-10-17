@@ -75,15 +75,18 @@ describe('ToursSidebar', () => {
     expect(row).toHaveClass('bg-surface-selected')
   })
 
-  it('RS-01: trails the description after the badges on one line, as a plan row does', () => {
+  it('RS-01: puts the description on its own line between the name and the badges', () => {
     const listed = { ...tour, description: 'A quiet path above the lake', website: 'https://www.komoot.com/tour/42', planned_duration_minutes: 95 }
     render(<ToursSidebar tripId={1} days={[]} tours={[listed]} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />)
     const row = screen.getByRole('option', { name: /Selected ridge walk/i })
     const line = within(row).getByTestId('tour-metrics')
-    expect(line).toHaveClass('flex-nowrap', 'overflow-hidden')
+    expect(line).toHaveClass('flex-wrap', 'h-6', 'overflow-hidden')
     expect(line).toHaveTextContent('1 h 35 min')
-    expect(within(line).getByTestId('tour-description-preview')).toHaveTextContent('A quiet path above the lake')
-    expect(within(line).getByTestId('tour-description-preview')).toHaveClass('truncate')
+    const description = within(row).getByTestId('tour-description-preview')
+    expect(line).not.toContainElement(description)
+    expect(description).toHaveTextContent('A quiet path above the lake')
+    expect(description).toHaveClass('truncate')
+    expect(description.compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     // The information link belongs to the detail, not the list row.
     expect(row).not.toHaveTextContent('Komoot')
   })
