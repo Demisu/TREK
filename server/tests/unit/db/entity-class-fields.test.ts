@@ -31,7 +31,9 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 // + tour_obstacle_reviews: place_id, obstacle_key, decision, both fingerprints, obstacle_snapshot, decided_at.
 // + trip_journal_links: id, trip_id, journey_id, created_at; trip_journal_link_members: link_id, user_id,
 //   added_at (a link and its members are always written whole).
-const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 482;
+// + paddle_water_graphs: file, rev, bytes, built_at, stats and its bounding box (a network is only ever written
+//   whole, from one build of its region).
+const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 491;
 
 describe('entity class fields never carry a NaN initialiser (task-4-review-shape.md, Important 1)', () => {
   it('CLASSFIELD-001: new X() has no own property whose value is NaN, across all 133 entities', () => {
