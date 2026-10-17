@@ -1,5 +1,13 @@
 import type { PaddleFeature, PaddleGeometry } from './paddle-obstacles.schema';
-import { measuredRouteLengthM, NEAR_M, ON_ROUTE_M, relateObstaclesToRoute } from './paddle-route-relation';
+import {
+  distanceToRouteM,
+  MAX_PASSAGES,
+  measuredRouteLengthM,
+  NEAR_M,
+  ON_ROUTE_M,
+  relateObstaclesToRoute,
+  routePassages,
+} from './paddle-route-relation';
 
 import { describe, expect, it } from 'vitest';
 
@@ -98,5 +106,61 @@ describe('measuredRouteLengthM', () => {
     expect(measuredRouteLengthM(route)).toBeCloseTo(2000, 0);
     expect(measuredRouteLengthM([at(0, 0)])).toBe(0);
     expect(measuredRouteLengthM([])).toBe(0);
+  });
+});
+
+describe('routePassages', () => {
+  const weir: PaddleGeometry = { type: 'LineString', coordinates: [lngLat(-40, 1200), lngLat(40, 1200)] };
+
+  it('finds the one place a route crosses an object, anchored where it crosses', () => {
+    expect(routePassages(route, weir, ON_ROUTE_M)).toEqual([{ segment: 1, t: expect.closeTo(0.2, 6), distanceM: 0 }]);
+    expect(routePassages([at(0, 0)], weir, ON_ROUTE_M)).toEqual([]);
+  });
+
+  it('an out-and-back tour passes twice, each passage on its own leg', () => {
+    const outAndBack = [at(0, 0), at(0, 2000), at(10, 2000), at(10, 0)];
+    const passages = routePassages(outAndBack, weir, ON_ROUTE_M);
+    expect(passages.map((p) => p.segment)).toEqual([0, 2]);
+    expect(passages.every((p) => p.distanceM === 0)).toBe(true);
+  });
+
+  it('two runs in reach closer than the gap along the route are one passage', () => {
+    // A bend that steps out of reach for 30 m and comes back.
+    const point: PaddleGeometry = { type: 'Point', coordinates: lngLat(0, 1000) };
+    const wiggle = [at(0, 980), at(0, 1000), at(30, 1010), at(0, 1020), at(0, 1040)];
+    expect(routePassages(wiggle, point, 20)).toHaveLength(1);
+  });
+
+  it('keeps the closest passages when the route passes more often than it keeps, in route order', () => {
+    const point: PaddleGeometry = { type: 'Point', coordinates: lngLat(0, 0) };
+    // Six passes at 10, 20, ... 60 m north, each 1 km apart along the route.
+    const zigzag = Array.from({ length: 6 }, (_, i) => [
+      at((i + 1) * 10, -100),
+      at((i + 1) * 10, 100),
+      at(500, 100),
+      at(500, -100),
+    ]).flat();
+    const passages = routePassages(zigzag, point, NEAR_M);
+    expect(passages).toHaveLength(MAX_PASSAGES);
+    expect(passages.map((p) => Math.round(p.distanceM))).toEqual([10, 20, 30, 40]);
+    expect([...passages].sort((x, y) => x.segment - y.segment)).toEqual(passages);
+  });
+
+  it('a route inside an area passes it at distance 0, and nothing out of reach counts', () => {
+    const basin: PaddleGeometry = {
+      type: 'Polygon',
+      coordinates: [[lngLat(-500, -500), lngLat(-500, 2500), lngLat(500, 2500), lngLat(500, -500), lngLat(-500, -500)]],
+    };
+    expect(routePassages(route, basin, ON_ROUTE_M)).toEqual([{ segment: 0, t: 0, distanceM: 0 }]);
+    const far: PaddleGeometry = { type: 'Point', coordinates: lngLat(400, 1000) };
+    expect(routePassages(route, far, NEAR_M)).toEqual([]);
+  });
+});
+
+describe('distanceToRouteM', () => {
+  it('is the shortest distance from a point to the route, Infinity without a line', () => {
+    expect(distanceToRouteM(route, at(100, 500))).toBeCloseTo(100, 0);
+    expect(distanceToRouteM(route, at(0, 2300))).toBeCloseTo(300, 0);
+    expect(distanceToRouteM([at(0, 0)], at(0, 10))).toBe(Number.POSITIVE_INFINITY);
   });
 });

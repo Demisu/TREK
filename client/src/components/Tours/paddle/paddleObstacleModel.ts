@@ -53,11 +53,6 @@ export function osmUrlOf(ref: string): string {
   return `https://www.openstreetmap.org/${ref}`;
 }
 
-/** The one an obstacle checklist decides about: a lock's parts together, everything else on its own. */
-export function obstacleKeyOf(feature: Pick<PaddleFeature, 'ref' | 'group_key'>): string {
-  return feature.group_key ?? feature.ref;
-}
-
 export function isBlockingKind(kind: PaddleObstacleKind): boolean {
   return PADDLE_BLOCKING_KINDS.includes(kind);
 }

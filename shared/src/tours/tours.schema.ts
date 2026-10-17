@@ -1,3 +1,4 @@
+import { paddleCheckSchema, tourObstacleCheckSchema } from './paddle-check.schema';
 import {
   paddleLockSchema,
   paddleStopMinutesSchema,
@@ -153,6 +154,12 @@ export const tourListItemSchema = tourSchema.extend({
   has_recorded_track: z.boolean().optional(),
   /** Which way the tour came in; absent only in a list cached before TREK recorded it. */
   origin: tourOriginSchema.optional(),
+  /**
+   * PAD-09: the check bench of a paddle tour, null when it has no line yet.
+   * Only paddle tours carry it. A value this build cannot read (a newer
+   * server) is dropped rather than refused, so a queued write still lands.
+   */
+  paddle_check: paddleCheckSchema.nullable().optional().catch(undefined),
 });
 export type TourListItem = z.infer<typeof tourListItemSchema>;
 
@@ -356,6 +363,8 @@ export const tourCreateResponseSchema = z.object({
   waypoints: z.array(tourWaypointSchema),
   /** Where the tour came from (P2C-02); absent only in a detail cached before TREK sent it. */
   provenance: tourProvenanceSchema.optional(),
+  /** PAD-06: a paddle tour's obstacle checklist; dropped, never refused, when this build cannot read it. */
+  obstacle_check: tourObstacleCheckSchema.optional().catch(undefined),
 });
 export type TourCreateResponse = z.infer<typeof tourCreateResponseSchema>;
 

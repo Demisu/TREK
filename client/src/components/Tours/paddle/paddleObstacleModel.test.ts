@@ -12,7 +12,6 @@ import {
   isBlockingKind,
   metresOf,
   OBSTACLE_FACT_KEYS,
-  obstacleKeyOf,
   osmUrlOf,
   paddleObstacleDetail,
   routeStripObstacles,
@@ -55,15 +54,10 @@ function detailOf(
   });
 }
 
-describe('osmUrlOf and obstacleKeyOf', () => {
+describe('osmUrlOf', () => {
   it('FE-PADDLE-OBSMODEL-001: links the object in OpenStreetMap by its own reference', () => {
     expect(osmUrlOf('way/29256405')).toBe('https://www.openstreetmap.org/way/29256405');
     expect(osmUrlOf('node/17')).toBe('https://www.openstreetmap.org/node/17');
-  });
-
-  it('FE-PADDLE-OBSMODEL-002: decides about the parts of a lock together and about everything else on its own', () => {
-    expect(obstacleKeyOf({ ref: 'way/2', group_key: 'lock:way/1' })).toBe('lock:way/1');
-    expect(obstacleKeyOf({ ref: 'node/3', group_key: null })).toBe('node/3');
   });
 });
 

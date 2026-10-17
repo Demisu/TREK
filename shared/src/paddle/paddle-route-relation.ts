@@ -212,3 +212,113 @@ export function relateObstaclesToRoute(
   }
   return related.sort((a, b) => a.alongM - b.alongM);
 }
+
+/** Two visits of the route closer than this along it are one passage (a bend that leaves the reach for a moment). */
+export const PASSAGE_GAP_M = 50;
+/** The most passages one object keeps: an out-and-back tour passes twice, a winding river a few times more. */
+export const MAX_PASSAGES = 4;
+
+/** One time the route comes within reach of an object: the segment, the share along it, and how close it comes. */
+export interface RoutePassage {
+  segment: number;
+  t: number;
+  distanceM: number;
+}
+
+/** The closest one route segment comes to an object's outline, and where along the segment that is. */
+function segmentApproach(
+  a: Local,
+  b: Local,
+  outline: ReadonlyArray<[Local, Local]>,
+  rings: readonly (readonly Local[])[],
+  isArea: boolean,
+): { distance: number; t: number } {
+  let best = { distance: Number.POSITIVE_INFINITY, t: 0 };
+  const consider = (distance: number, t: number) => {
+    if (distance < best.distance || (distance === best.distance && t < best.t)) best = { distance, t };
+  };
+  if (isArea && inArea(a, rings)) consider(0, 0);
+  if (isArea && inArea(b, rings)) consider(0, 1);
+  for (const [c, d] of outline) {
+    const hit = crosses(a, b, c, d);
+    if (hit !== null) {
+      consider(0, hit);
+      continue;
+    }
+    for (const p of [c, d]) {
+      const near = closestOnSegment(p, a, b);
+      consider(near.distance, near.t);
+    }
+    consider(closestOnSegment(a, c, d).distance, 0);
+    consider(closestOnSegment(b, c, d).distance, 1);
+  }
+  return best;
+}
+
+/**
+ * Every separate time the route comes within `reachM` of an object, in route
+ * order: a run of segments in reach is one visit, two runs closer than
+ * PASSAGE_GAP_M along the route are one, and each visit is anchored where it
+ * comes closest (the earlier point on a tie). An out-and-back tour passes an
+ * obstacle twice, so a change to its way back is not missed. At most
+ * MAX_PASSAGES are kept, the closest ones.
+ */
+export function routePassages(route: readonly LatLng[], geometry: PaddleGeometry, reachM: number): RoutePassage[] {
+  if (route.length < 2) return [];
+  const project = projector(route[0]?.[0] ?? 0);
+  const { path, along } = measured(route);
+  const rings = ringsOf(geometry).map((ring) => ring.map(([lng, lat]) => project(lat, lng)));
+  const outline = segmentsOf(rings);
+  const reach = boundsOf(rings.flat(), reachM);
+  const isArea = geometry.type === 'Polygon';
+  const visits: Array<RoutePassage & { atM: number }> = [];
+  let current: (RoutePassage & { atM: number }) | null = null;
+  for (let i = 1; i < path.length; i++) {
+    const a = path[i - 1] as Local;
+    const b = path[i] as Local;
+    const approach = overlaps(boundsOf([a, b], 0), reach)
+      ? segmentApproach(a, b, outline, rings, isArea)
+      : { distance: Number.POSITIVE_INFINITY, t: 0 };
+    if (approach.distance > reachM) {
+      current = null;
+      continue;
+    }
+    const startM = along[i - 1] ?? 0;
+    const atM = startM + approach.t * ((along[i] ?? startM) - startM);
+    const visit = { segment: i - 1, t: approach.t, distanceM: approach.distance, atM };
+    if (current === null) {
+      current = visit;
+      visits.push(current);
+    } else if (approach.distance < current.distanceM) {
+      Object.assign(current, visit);
+    }
+  }
+  // Two visits whose closest points lie within PASSAGE_GAP_M along the route are one passage.
+  const merged: typeof visits = [];
+  for (const visit of visits) {
+    const last = merged[merged.length - 1];
+    if (last && visit.atM - last.atM < PASSAGE_GAP_M) {
+      if (visit.distanceM < last.distanceM) Object.assign(last, visit);
+    } else {
+      merged.push({ ...visit });
+    }
+  }
+  return merged
+    .sort((x, y) => x.distanceM - y.distanceM || x.segment - y.segment)
+    .slice(0, MAX_PASSAGES)
+    .sort((x, y) => x.segment - y.segment || x.t - y.t)
+    .map(({ segment, t, distanceM }) => ({ segment, t, distanceM }));
+}
+
+/** The shortest distance from a point (`[lat, lng]`) to the route, in metres; Infinity for a route of fewer than two points. */
+export function distanceToRouteM(route: readonly LatLng[], point: readonly [number, number]): number {
+  if (route.length < 2) return Number.POSITIVE_INFINITY;
+  const project = projector(route[0]?.[0] ?? 0);
+  const { path } = measured(route);
+  const p = project(Number(point[0]), Number(point[1]));
+  let best = Number.POSITIVE_INFINITY;
+  for (let i = 1; i < path.length; i++) {
+    best = Math.min(best, closestOnSegment(p, path[i - 1] as Local, path[i] as Local).distance);
+  }
+  return best;
+}
