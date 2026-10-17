@@ -511,7 +511,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: kiểm tra việc khiêng thuyền',
   'tours.paddle.check.supLockInfo':
     'Với SUP, Liên đoàn Canoe Đức (Deutscher Kanu-Verband) và các tổ chức cứu hộ khuyên nên kiểm tra một đường khiêng thuyền được phép tại âu thuyền thay vì đi qua âu. Đây là khuyến nghị, không phải lệnh cấm ở mọi nơi, và quy định địa phương vẫn được áp dụng.',
-  'tours.paddle.check.drawPath': 'Vẽ đường khiêng thuyền, rồi nhấp vào đường tại chỗ bạn xuống nước lại.',
   'tours.paddle.safety.title': 'An toàn trên mặt nước',
   'tours.paddle.safety.short': 'Chèo thuyền có rủi ro. Hãy tự kiểm tra mặt nước, quy định và thời tiết.',
   'tours.paddle.safety.text':

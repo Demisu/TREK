@@ -520,7 +520,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: daşımanı yoxla',
   'tours.paddle.check.supLockInfo':
     'SUP üçün Almaniya Kanoe Federasiyası (Deutscher Kanu-Verband) və xilasetmə təşkilatları şlüzlərdə şlüzdən keçmək əvəzinə icazə verilən daşıma yolunu yoxlamağı tövsiyə edir. Bu tövsiyədir, hər yerdə qadağa deyil, yerli qaydalar isə yenə qüvvədədir.',
-  'tours.paddle.check.drawPath': 'Daşıma yolunu çək, sonra yenidən suya girdiyin yerdə xəttə kliklə.',
   'tours.paddle.safety.title': 'Suda təhlükəsizlik',
   'tours.paddle.safety.short': 'Avarçəkmənin riskləri var. Suyu, qaydaları və havanı özün yoxla.',
   'tours.paddle.safety.text':

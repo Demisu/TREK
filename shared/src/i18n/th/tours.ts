@@ -493,7 +493,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: ตรวจสอบการแบกเรือ',
   'tours.paddle.check.supLockInfo':
     'สำหรับ SUP สหพันธ์เรือแคนูเยอรมัน (Deutscher Kanu-Verband) และองค์กรกู้ภัยแนะนำให้ตรวจสอบจุดแบกเรือที่ได้รับอนุญาตที่ประตูน้ำ แทนการผ่านประตูน้ำ นี่เป็นคำแนะนำ ไม่ใช่ข้อห้ามที่ใช้ทุกแห่ง และกฎท้องถิ่นยังคงมีผลบังคับใช้',
-  'tours.paddle.check.drawPath': 'วาดเส้นทางแบกเรือ แล้วคลิกบนเส้นตรงจุดที่คุณลงเรืออีกครั้ง',
   'tours.paddle.safety.title': 'ความปลอดภัยบนน้ำ',
   'tours.paddle.safety.short': 'การพายเรือมีความเสี่ยง โปรดตรวจสอบแหล่งน้ำ กฎ และสภาพอากาศด้วยตนเอง',
   'tours.paddle.safety.text':

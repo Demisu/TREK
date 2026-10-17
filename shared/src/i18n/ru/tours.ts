@@ -543,7 +543,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: проверить обнос',
   'tours.paddle.check.supLockInfo':
     'Для SUP Немецкая федерация каноэ (Deutscher Kanu-Verband) и спасательные организации советуют у шлюзов не проходить шлюзование, а проверить разрешённый обнос. Это рекомендация, а не повсеместный запрет, и местные правила продолжают действовать.',
-  'tours.paddle.check.drawPath': 'Нарисуйте путь обноса, затем нажмите на линию там, где вы снова спускаетесь на воду.',
   'tours.paddle.safety.title': 'Безопасность на воде',
   'tours.paddle.safety.short': 'Гребля связана с рисками. Сами проверьте водоём, правила и погоду.',
   'tours.paddle.safety.text':

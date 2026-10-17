@@ -526,8 +526,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: valorar un porteo',
   'tours.paddle.check.supLockInfo':
     'Para el SUP, la Federación Alemana de Piragüismo (Deutscher Kanu-Verband) y las organizaciones de salvamento recomiendan valorar en las esclusas un porteo permitido en lugar de pasar por la esclusa. Es una recomendación, no una prohibición general, y las normas locales siguen aplicándose.',
-  'tours.paddle.check.drawPath':
-    'Dibuja el recorrido del porteo y luego haz clic en la línea donde vuelves a embarcar.',
   'tours.paddle.safety.title': 'Seguridad en el agua',
   'tours.paddle.safety.short': 'Remar conlleva riesgos. Comprueba por tu cuenta el agua, las normas y la meteorología.',
   'tours.paddle.safety.text':

@@ -531,7 +531,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: valuta un trasbordo',
   'tours.paddle.check.supLockInfo':
     'Per il SUP, la federazione canoistica tedesca (Deutscher Kanu-Verband) e le organizzazioni di soccorso consigliano, alle chiuse, di valutare un trasbordo consentito invece di passare la chiusa. È un consiglio, non un divieto valido ovunque, e le regole locali restano in vigore.',
-  'tours.paddle.check.drawPath': 'Disegna il tragitto del trasbordo, poi fai clic sulla linea dove ti reimbarchi.',
   'tours.paddle.safety.title': 'Sicurezza in acqua',
   'tours.paddle.safety.short': 'Pagaiare comporta dei rischi. Controlla di persona acqua, regole e meteo.',
   'tours.paddle.safety.text':

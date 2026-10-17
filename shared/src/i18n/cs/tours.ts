@@ -522,7 +522,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: prověřit přenášku',
   'tours.paddle.check.supLockInfo':
     'Pro SUP doporučují Německý kanoistický svaz (Deutscher Kanu-Verband) a záchranné organizace u zdymadel spíše prověřit povolenou přenášku než proplouvat zdymadlem. Jde o doporučení, ne o všude platný zákaz, a místní pravidla nadále platí.',
-  'tours.paddle.check.drawPath': 'Nakreslete trasu přenášky a pak klikněte na čáru tam, kde znovu nastupujete.',
   'tours.paddle.safety.title': 'Bezpečnost na vodě',
   'tours.paddle.safety.short': 'Pádlování s sebou nese rizika. Vodu, pravidla a počasí si ověřte sami.',
   'tours.paddle.safety.text':

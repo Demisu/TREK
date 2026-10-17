@@ -529,7 +529,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: avalie um transbordo',
   'tours.paddle.check.supLockInfo':
     'Para SUP, a federação alemã de canoagem (Deutscher Kanu-Verband) e organizações de resgate recomendam avaliar, nas eclusas, um transbordo permitido em vez de passar pela eclusa. É uma recomendação, não uma proibição em todo lugar, e as regras locais continuam valendo.',
-  'tours.paddle.check.drawPath': 'Desenhe o caminho por terra e depois clique na linha onde você embarca de novo.',
   'tours.paddle.safety.title': 'Segurança na água',
   'tours.paddle.safety.short': 'Remar tem riscos. Confira você mesmo a água, as regras e a previsão do tempo.',
   'tours.paddle.safety.text':

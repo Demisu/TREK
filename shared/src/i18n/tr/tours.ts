@@ -521,7 +521,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: taşımayı kontrol et',
   'tours.paddle.check.supLockInfo':
     'SUP için Alman Kano Federasyonu (Deutscher Kanu-Verband) ve kurtarma kuruluşları, kilitlerde kilitten geçmek yerine izin verilen bir taşıma yolunu kontrol etmeyi önerir. Bu bir öneridir, her yerde geçerli bir yasak değildir ve yerel kurallar yine geçerlidir.',
-  'tours.paddle.check.drawPath': 'Taşıma yolunu çiz, sonra suya yeniden girdiğin yerde çizgiye tıkla.',
   'tours.paddle.safety.title': 'Suda güvenlik',
   'tours.paddle.safety.short': 'Kürek çekmenin riskleri vardır. Suyu, kuralları ve havayı kendin kontrol et.',
   'tours.paddle.safety.text':

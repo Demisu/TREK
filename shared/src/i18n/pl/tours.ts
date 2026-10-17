@@ -541,7 +541,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: sprawdź przenoskę',
   'tours.paddle.check.supLockInfo':
     'W przypadku SUP Niemiecki Związek Kajakowy (Deutscher Kanu-Verband) i organizacje ratownicze zalecają, by przy śluzach zamiast śluzowania sprawdzić dozwoloną przenoskę. To zalecenie, a nie powszechny zakaz, i nadal obowiązują lokalne przepisy.',
-  'tours.paddle.check.drawPath': 'Narysuj trasę przenoski, a potem kliknij na linii miejsce, w którym wracasz na wodę.',
   'tours.paddle.safety.title': 'Bezpieczeństwo na wodzie',
   'tours.paddle.safety.short': 'Wiosłowanie wiąże się z ryzykiem. Samodzielnie sprawdź akwen, przepisy i pogodę.',
   'tours.paddle.safety.text':

@@ -517,7 +517,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: check a portage',
   'tours.paddle.check.supLockInfo':
     'For SUP, the German canoe federation and rescue organisations advise checking a permitted portage at locks rather than locking through. This is advice, not a ban everywhere, and local rules still apply.',
-  'tours.paddle.check.drawPath': 'Draw the carrying way, then click the line where you put back in.',
   'tours.paddle.safety.title': 'Safety on the water',
   'tours.paddle.safety.short': 'Paddling has risks. Check water, rules and weather yourself.',
   'tours.paddle.safety.text':

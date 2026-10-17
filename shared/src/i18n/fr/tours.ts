@@ -537,7 +537,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP : envisager un portage',
   'tours.paddle.check.supLockInfo':
     'En SUP, la fédération allemande de canoë-kayak (Deutscher Kanu-Verband) et les organismes de secours conseillent, aux écluses, d’envisager un portage autorisé plutôt que de passer l’écluse. C’est un conseil, pas une interdiction générale, et les règles locales s’appliquent toujours.',
-  'tours.paddle.check.drawPath': 'Tracez le chemin de portage, puis cliquez sur la ligne là où vous rembarquez.',
   'tours.paddle.safety.title': 'Sécurité sur l’eau',
   'tours.paddle.safety.short':
     'La pagaie comporte des risques. Vérifiez vous-même le plan d’eau, les règles et la météo.',

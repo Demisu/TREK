@@ -548,7 +548,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: تحقق من حمل القارب',
   'tours.paddle.check.supLockInfo':
     'عند التجديف بلوح SUP، ينصح الاتحاد الألماني للكانو (Deutscher Kanu-Verband) ومنظمات الإنقاذ بالتحقق من موضع مسموح لحمل القارب عند الأهوسة بدلًا من العبور عبر الهويس. هذه نصيحة وليست حظرًا في كل مكان، وتبقى القواعد المحلية سارية.',
-  'tours.paddle.check.drawPath': 'ارسم مسار الحمل، ثم انقر على الخط حيث تعود إلى الماء.',
   'tours.paddle.safety.title': 'السلامة على الماء',
   'tours.paddle.safety.short': 'للتجديف مخاطر. تحقق بنفسك من الماء والقواعد والطقس.',
   'tours.paddle.safety.text':

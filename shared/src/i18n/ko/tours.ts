@@ -500,7 +500,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: 육상 운반 확인',
   'tours.paddle.check.supLockInfo':
     'SUP의 경우 독일 카누 연맹(Deutscher Kanu-Verband)과 구조 단체는 갑문을 통과하기보다 허용된 육상 운반 경로를 확인할 것을 권장합니다. 이는 권고일 뿐 모든 곳에서 적용되는 금지는 아니며, 현지 규칙은 여전히 적용됩니다.',
-  'tours.paddle.check.drawPath': '운반 경로를 그린 다음, 다시 입수할 곳의 선을 클릭하세요.',
   'tours.paddle.safety.title': '수상 안전',
   'tours.paddle.safety.short': '패들링에는 위험이 따릅니다. 물길, 규칙, 날씨를 직접 확인하세요.',
   'tours.paddle.safety.text':

@@ -477,7 +477,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP：確認陸上搬運',
   'tours.paddle.check.supLockInfo':
     '對於 SUP，德國獨木舟協會（Deutscher Kanu-Verband）與救援組織建議在船閘處確認是否有允許的陸上搬運路線，而不是過閘。這是建議，並非各地一律適用的禁令，當地規定仍然適用。',
-  'tours.paddle.check.drawPath': '先畫出搬運路線，再在線上點擊你重新下水的位置。',
   'tours.paddle.safety.title': '水上安全',
   'tours.paddle.safety.short': '划槳有風險。請自行確認水域、規定與天氣。',
   'tours.paddle.safety.text':

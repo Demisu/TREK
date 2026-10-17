@@ -529,7 +529,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: átemelés ellenőrzése',
   'tours.paddle.check.supLockInfo':
     'SUP esetén a német kenuszövetség és a mentőszervezetek azt javasolják, hogy zsilipeknél zsilipelés helyett nézz utána egy engedélyezett átemelési lehetőségnek. Ez ajánlás, nem mindenhol érvényes tilalom, és a helyi szabályok továbbra is érvényesek.',
-  'tours.paddle.check.drawPath': 'Rajzold meg a hordozási utat, majd kattints a vonalon oda, ahol visszaszállsz.',
   'tours.paddle.safety.title': 'Biztonság a vízen',
   'tours.paddle.safety.short': 'Az evezés kockázatokkal jár. Ellenőrizd magad a vizet, a szabályokat és az időjárást.',
   'tours.paddle.safety.text':

@@ -521,7 +521,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: kontrolli ülekannet',
   'tours.paddle.check.supLockInfo':
     'SUP puhul soovitavad Saksa Kanuuliit ja päästeorganisatsioonid lüüside juures lüüsimise asemel uurida lubatud ülekande võimalust. See on soovitus, mitte igal pool kehtiv keeld, ja kohalikud reeglid kehtivad edasi.',
-  'tours.paddle.check.drawPath': 'Joonista kandmistee, seejärel klõpsa joonel kohas, kus lähed tagasi vette.',
   'tours.paddle.safety.title': 'Ohutus vee peal',
   'tours.paddle.safety.short': 'Aerutamisega kaasnevad riskid. Kontrolli ise veekogu, reegleid ja ilma.',
   'tours.paddle.safety.text':

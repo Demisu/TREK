@@ -511,7 +511,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: periksa angkut perahu',
   'tours.paddle.check.supLockInfo':
     'Untuk SUP, federasi kano Jerman (Deutscher Kanu-Verband) dan organisasi penyelamat menyarankan untuk memeriksa jalur angkut perahu yang diizinkan di pintu air daripada melintasi pintu air. Ini saran, bukan larangan di semua tempat, dan aturan setempat tetap berlaku.',
-  'tours.paddle.check.drawPath': 'Gambar jalur angkut, lalu klik garis di tempat kamu masuk kembali ke air.',
   'tours.paddle.safety.title': 'Keselamatan di air',
   'tours.paddle.safety.short': 'Mendayung punya risiko. Periksa sendiri perairan, aturan, dan cuaca.',
   'tours.paddle.safety.text':

@@ -529,7 +529,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: overdragen nagaan',
   'tours.paddle.check.supLockInfo':
     'Voor SUP raden de Duitse kanobond en reddingsorganisaties aan om bij sluizen een toegestane overdraagplaats na te gaan in plaats van te schutten. Dit is een advies, geen verbod dat overal geldt, en plaatselijke regels blijven van kracht.',
-  'tours.paddle.check.drawPath': 'Teken het draagtraject en klik dan op de lijn waar je weer instapt.',
   'tours.paddle.safety.title': 'Veiligheid op het water',
   'tours.paddle.safety.short': 'Peddelen is niet zonder risico. Controleer zelf het water, de regels en het weer.',
   'tours.paddle.safety.text':

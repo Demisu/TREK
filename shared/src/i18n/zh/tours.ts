@@ -478,7 +478,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP：检查陆上搬运',
   'tours.paddle.check.supLockInfo':
     '对于 SUP，德国皮划艇协会（Deutscher Kanu-Verband）和救援组织建议在船闸处查看是否有允许的陆上搬运路线，而不是过闸。这只是建议，并非处处适用的禁令，当地规定仍然适用。',
-  'tours.paddle.check.drawPath': '先画出搬运路线，然后在线路上点击你重新下水的位置。',
   'tours.paddle.safety.title': '水上安全',
   'tours.paddle.safety.short': '划桨有风险。请自行检查水域、规定和天气。',
   'tours.paddle.safety.text':

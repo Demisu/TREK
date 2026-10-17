@@ -518,7 +518,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: undersök lyft',
   'tours.paddle.check.supLockInfo':
     'För SUP rekommenderar det tyska kanotförbundet och räddningsorganisationer att man vid slussar undersöker ett tillåtet lyft i stället för att slussa. Det är en rekommendation, inte ett generellt förbud, och lokala regler gäller fortfarande.',
-  'tours.paddle.check.drawPath': 'Rita bärvägen och klicka sedan på linjen där du sätter i igen.',
   'tours.paddle.safety.title': 'Säkerhet på vattnet',
   'tours.paddle.safety.short': 'Paddling innebär risker. Kontrollera själv vattnet, reglerna och vädret.',
   'tours.paddle.safety.text':

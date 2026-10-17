@@ -529,7 +529,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: valora un transport per terra',
   'tours.paddle.check.supLockInfo':
     'Per al SUP, la federació alemanya de piragüisme (Deutscher Kanu-Verband) i les organitzacions de salvament recomanen valorar a les rescloses un transport per terra permès en lloc de passar per la resclosa. És una recomanació, no una prohibició general, i les normes locals continuen vigents.',
-  'tours.paddle.check.drawPath': 'Dibuixa el camí per terra i després fes clic a la línia on tornes a embarcar.',
   'tours.paddle.safety.title': 'Seguretat a l’aigua',
   'tours.paddle.safety.short': 'Remar comporta riscos. Comprova pel teu compte l’aigua, les normes i la meteorologia.',
   'tours.paddle.safety.text':

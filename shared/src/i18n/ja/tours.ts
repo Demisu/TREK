@@ -503,7 +503,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP：陸上運搬を確認',
   'tours.paddle.check.supLockInfo':
     'SUP の場合、ドイツカヌー連盟（Deutscher Kanu-Verband）や救助団体は、閘門を通航するのではなく、許可された陸上運搬ルートを確認するよう勧めています。これは推奨であり、どこでも適用される禁止ではありません。現地のルールも引き続き適用されます。',
-  'tours.paddle.check.drawPath': '運搬ルートを描いてから、再出艇する位置で線をクリックしてください。',
   'tours.paddle.safety.title': '水上での安全',
   'tours.paddle.safety.short': 'パドリングには危険が伴います。水域、ルール、天候は自分で確認してください。',
   'tours.paddle.safety.text':

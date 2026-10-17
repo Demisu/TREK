@@ -530,7 +530,6 @@ const tours: TranslationStrings = {
   'tours.paddle.check.supLock': 'SUP: Umtragen prüfen',
   'tours.paddle.check.supLockInfo':
     'Für SUP empfehlen der Deutsche Kanu-Verband und Rettungsorganisationen, an Schleusen eine zulässige Umtragung zu prüfen, statt zu schleusen. Das ist eine Empfehlung, kein überall geltendes Verbot, und örtliche Regeln gelten weiter.',
-  'tours.paddle.check.drawPath': 'Zeichne den Trageweg, dann klicke auf die Linie, wo du wieder einsetzt.',
   'tours.paddle.safety.title': 'Sicherheit beim Paddeln',
   'tours.paddle.safety.short': 'Paddeln birgt Risiken. Prüfe Gewässer, Regeln und Wetter selbst.',
   'tours.paddle.safety.text':
