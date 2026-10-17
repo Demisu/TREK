@@ -112,7 +112,10 @@ export interface TourPaddlePlanUpdate {
   duration: number | null;
 }
 
-type ToursKyselyDB = Pick<DB, 'tours' | 'places' | 'day_assignments' | 'tour_waypoints' | 'tour_sources' | 'days'>;
+type ToursKyselyDB = Pick<
+  DB,
+  'tours' | 'places' | 'day_assignments' | 'tour_waypoints' | 'tour_sources' | 'days' | 'tour_obstacle_reviews'
+>;
 
 /** One day a tour of the trip sits on, in the order of the trip. */
 export interface TourDayRow {
@@ -260,6 +263,52 @@ export class ToursRepository extends TrekRepository<Tours> {
    * trip copy still says where its imports came from and when. Nothing happens
    * for a tour without one.
    */
+  /** The line of every paddle tour of a trip, for its check bench (PAD-09). */
+  async listPaddleLinesForTrip(trip_id: number): Promise<Array<{ place_id: number; route_geometry: string | null }>> {
+    return await this.db()
+      .selectFrom('tours as t')
+      .innerJoin('places as p', 'p.id', 't.place_id')
+      .select(['t.place_id', 'p.route_geometry'])
+      .where('p.trip_id', '=', trip_id)
+      .where('t.tour_type', '=', 'kayak')
+      .orderBy('t.place_id', 'asc')
+      .execute();
+  }
+
+  /** A copied tour takes the decisions about its obstacles along, bound to what they were decided on. */
+  async copyObstacleReviews(source_place_id: number, place_id: number): Promise<void> {
+    await this.db()
+      .insertInto('tour_obstacle_reviews')
+      .columns([
+        'place_id',
+        'obstacle_key',
+        'decision',
+        'note',
+        'route_fingerprint',
+        'source_fingerprint',
+        'obstacle_snapshot',
+        'decided_at',
+        'decided_by',
+      ])
+      .expression((eb) =>
+        eb
+          .selectFrom('tour_obstacle_reviews')
+          .select((inner) => [
+            inner.val(place_id).as('place_id'),
+            'obstacle_key',
+            'decision',
+            'note',
+            'route_fingerprint',
+            'source_fingerprint',
+            'obstacle_snapshot',
+            'decided_at',
+            'decided_by',
+          ])
+          .where('place_id', '=', source_place_id),
+      )
+      .execute();
+  }
+
   async copySource(source_place_id: number, place_id: number): Promise<void> {
     await this.db()
       .insertInto('tour_sources')

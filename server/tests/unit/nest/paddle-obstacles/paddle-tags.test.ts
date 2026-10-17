@@ -83,3 +83,21 @@ describe('keptTags and paddleNameOf', () => {
     expect(paddleNameOf({ waterway: 'weir' })).toBeNull();
   });
 });
+
+describe('keptTags: checks on site', () => {
+  it('PTAG-006: keeps when someone last looked on site, the dated variants included', () => {
+    expect(
+      keptTags({
+        waterway: 'weir',
+        check_date: '2025-06-01',
+        'survey:date': '2024-05',
+        'check_date:canoe': '2026-04-02',
+      }),
+    ).toEqual({
+      waterway: 'weir',
+      check_date: '2025-06-01',
+      'survey:date': '2024-05',
+      'check_date:canoe': '2026-04-02',
+    });
+  });
+});

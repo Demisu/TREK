@@ -15,6 +15,7 @@ import type { PlacesService } from '../../../src/nest/places/places.service';
 import { ToursService } from '../../../src/nest/tours/tours.service';
 import { createPlace, createTrip, createUser } from '../../helpers/factories';
 import { countRows, deleteRows, findRow, findRows, updateRows } from '../../helpers/factories/rows';
+import { noPaddleChecks } from '../../helpers/fake-paddle-checks';
 import { buildPlaceImportService } from '../../helpers/place-import';
 import { resetTestDb } from '../../helpers/test-db';
 import { createTestPlacesRepo, createTestUnitOfWork, sharedTestOrm } from '../../helpers/test-uow';
@@ -82,6 +83,7 @@ beforeAll(async () => {
     await createTestTourWaypointsRepo(testDb),
     await createTestPlacesRepo(testDb),
     buildPlaceImportService(),
+    noPaddleChecks(),
   );
 });
 

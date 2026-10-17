@@ -6,6 +6,7 @@ import {
   boundaryContains,
   boxOfBoundary,
   coverageOf,
+  coverageOfLine,
   parseBox,
   type RegionBoundary,
 } from '../../../../src/nest/paddle-obstacles/paddle-geo';
@@ -152,5 +153,89 @@ describe('boxOfBoundary', () => {
   it('PGEO-012: spans the outer rings of every polygon', () => {
     expect(boxOfBoundary(holed)).toEqual({ south: 49, west: 11, north: 50, east: 13 });
     expect(boxOfBoundary(twoIslands)).toEqual({ south: 0, west: 0, north: 6, east: 6 });
+  });
+});
+
+describe('coverageOfLine', () => {
+  const region = { boundary: holed, box: null };
+
+  it('PGEO-013: a line wholly inside a region is covered, one leaving it partly, one outside every region not at all', () => {
+    expect(
+      coverageOfLine(
+        [
+          [49.1, 11.2],
+          [49.2, 11.4],
+        ],
+        [region],
+      ),
+    ).toBe('covered');
+    expect(
+      coverageOfLine(
+        [
+          [49.9, 12.5],
+          [50.2, 12.5],
+        ],
+        [region],
+      ),
+    ).toBe('partial');
+    expect(
+      coverageOfLine(
+        [
+          [48.1, 12.5],
+          [48.2, 12.5],
+        ],
+        [region],
+      ),
+    ).toBe('none');
+    expect(
+      coverageOfLine(
+        [
+          [49.1, 11.2],
+          [49.2, 11.4],
+        ],
+        [],
+      ),
+    ).toBe('none');
+    expect(coverageOfLine([], [region])).toBe('none');
+  });
+
+  it('PGEO-014: samples a long straight leg along its length, so crossing the hole is seen', () => {
+    // Both ends lie in the region, the middle runs through the hole at 49.5 north.
+    expect(
+      coverageOfLine(
+        [
+          [49.5, 11.5],
+          [49.5, 12.5],
+        ],
+        [region],
+      ),
+    ).toBe('partial');
+  });
+
+  it('PGEO-015: a region without a boundary counts by its box, and by nothing without one', () => {
+    const boxed = { boundary: null, box: { south: 0, west: 0, north: 1, east: 1 } };
+    expect(
+      coverageOfLine(
+        [
+          [0.2, 0.2],
+          [0.8, 0.8],
+        ],
+        [boxed],
+      ),
+    ).toBe('covered');
+    expect(
+      coverageOfLine(
+        [
+          [0.2, 0.2],
+          [0.8, 0.8],
+        ],
+        [{ boundary: null, box: null }],
+      ),
+    ).toBe('none');
+  });
+
+  it('PGEO-016: thins a very long line to a bounded number of samples', () => {
+    const long = Array.from({ length: 2000 }, (_, i): [number, number] => [49.1 + i * 0.0004, 11.6]);
+    expect(coverageOfLine(long, [region])).toBe('covered');
   });
 });

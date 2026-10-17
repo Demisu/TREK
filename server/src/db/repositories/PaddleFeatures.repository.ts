@@ -66,6 +66,18 @@ export class PaddleFeaturesRepository extends TrekRepository<PaddleFeatures> {
       .execute();
   }
 
+  /** How many objects TREK holds and the newest row's id: together they change whenever a read lands. */
+  async stats(): Promise<{ count: number; max_id: number | null }> {
+    const row = await this.db()
+      .selectFrom('paddle_features')
+      .select((eb) => [eb.fn.countAll<number>().as('count'), eb.fn.max('id').as('max_id')])
+      .executeTakeFirst();
+    return {
+      count: Number(row?.count ?? 0),
+      max_id: row?.max_id === null || row?.max_id === undefined ? null : Number(row.max_id),
+    };
+  }
+
   /** Drops a region's objects and writes the new read in their place; the caller holds the transaction. */
   async replaceRegion(regionId: string, rows: readonly PaddleFeatureRow[]): Promise<void> {
     await this.db().deleteFrom('paddle_features').where('region_id', '=', regionId).execute();

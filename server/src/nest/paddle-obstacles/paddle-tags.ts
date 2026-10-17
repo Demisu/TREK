@@ -68,8 +68,11 @@ const KEPT = new Set([
   'fee',
   'website',
   'motorboat',
+  // When someone last looked on site; the checklist shows it, a newer one never flips a decision.
+  'check_date',
+  'survey:date',
 ]);
-const KEPT_PREFIXES = ['canoe:', 'boat:', 'whitewater:', 'portage:', 'lock:', 'access:'];
+const KEPT_PREFIXES = ['canoe:', 'boat:', 'whitewater:', 'portage:', 'lock:', 'access:', 'check_date:'];
 
 /** The tags an object is judged and shown by; everything else of OSM's is left behind. */
 export function keptTags(tags: Readonly<Record<string, string>>): Record<string, string> {

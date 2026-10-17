@@ -1,11 +1,15 @@
 import { ADDON_IDS } from '../../addons';
+import type { User } from '../../types';
 import { AddonGuard } from '../addons/addon.guard';
 import { RequireAddon } from '../addons/require-addon.decorator';
+import { CurrentUser } from '../auth-core/current-user.decorator';
 import { JwtAuthGuard } from '../auth-core/jwt-auth.guard';
 import { ResponseContract } from '../common/response-contract';
 import { RequirePermission, TripAccessGuard } from '../permissions/trip-access.guard';
 import { TourCopyDto, TourCreateDto } from './dto/tour-create.dto';
+import { TourObstacleReviewsDto } from './dto/tour-obstacle-reviews.dto';
 import { TourPaddlePlanDto } from './dto/tour-paddle-plan.dto';
+import { TourObstacleReviewsService } from './tour-obstacle-reviews.service';
 import { TourPaddlePlanService } from './tour-paddle-plan.service';
 import { ToursService } from './tours.service';
 import { Body, Controller, Get, Headers, HttpCode, Param, Post, Put, UseGuards } from '@nestjs/common';
@@ -25,6 +29,7 @@ export class ToursController {
   constructor(
     private readonly tours: ToursService,
     private readonly paddlePlans: TourPaddlePlanService,
+    private readonly obstacleReviews: TourObstacleReviewsService,
   ) {}
 
   @Get()
@@ -85,6 +90,24 @@ export class ToursController {
     @Headers('x-socket-id') socketId?: string,
   ) {
     return await this.paddlePlans.update(tripId, placeId, body, socketId);
+  }
+
+  /**
+   * PAD-06: what the paddlers decided about the obstacles of a paddle tour,
+   * each bound to the route and the data the user saw. Answers the detail
+   * with its checklist; 503 while the obstacle data cannot be read.
+   */
+  @RequirePermission('place_edit')
+  @Put(':placeId/obstacle-reviews')
+  @ResponseContract(tourDetailResponseSchema)
+  async saveObstacleReviews(
+    @Param('tripId') tripId: string,
+    @Param('placeId') placeId: string,
+    @Body() body: TourObstacleReviewsDto,
+    @CurrentUser() user: User,
+    @Headers('x-socket-id') socketId?: string,
+  ) {
+    return await this.obstacleReviews.save(tripId, placeId, body, user.id, socketId);
   }
 
   /** Takes an import planned over in place back to its recorded track; the planning is dropped. */

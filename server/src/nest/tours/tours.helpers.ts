@@ -33,9 +33,14 @@ export function parseRouteGeometry(routeGeometry: string | null | undefined): Ge
 /** Confidence threshold: below this, the tour imports with a caution flag. */
 export const LOW_CONFIDENCE_THRESHOLD = 0.5;
 
+/** A short stable hash of a text, in hex: the paddle checklist's source basis and revisions take it. */
+export function shortHash(text: string, length = 16): string {
+  return createHash('sha256').update(text).digest('hex').slice(0, length);
+}
+
 /** A short stable fingerprint of one part of a trail. */
 function fingerprint(value: unknown): string {
-  return createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0, 16);
+  return shortHash(JSON.stringify(value));
 }
 
 /** Coordinates to five places (a metre) and heights to the metre, so a re-export with other float noise reads the same. */

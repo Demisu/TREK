@@ -24,6 +24,7 @@ import type { PlacesService } from '../../../src/nest/places/places.service';
 import type { StorageService } from '../../../src/nest/storage/storage.service';
 import { ToursService } from '../../../src/nest/tours/tours.service';
 import type { User } from '../../../src/types';
+import { noPaddleChecks } from '../../helpers/fake-paddle-checks';
 import { buildPlaceImportService } from '../../helpers/place-import';
 import type { EntityManager } from '@mikro-orm/core';
 import { HttpException, NotFoundException, RequestMethod, type ExecutionContext } from '@nestjs/common';
@@ -304,6 +305,7 @@ function tourRepositoryFixture(ownerTripId: number) {
     waypointsRepo as unknown as TourWaypointsRepository,
     placesRepo as unknown as PlacesRepository,
     buildPlaceImportService(),
+    noPaddleChecks(),
   );
   return { uow, toursRepo, waypointsRepo, placesRepo, places, service };
 }

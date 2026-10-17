@@ -85,3 +85,53 @@ export function boxOfBoundary(boundary: RegionBoundary): Box {
   }
   return box;
 }
+
+/** The line is checked about this often, in metres, and at no more than LINE_MAX_SAMPLES points. */
+const LINE_SAMPLE_M = 250;
+const LINE_MAX_SAMPLES = 400;
+
+function metres(a: readonly [number, number], b: readonly [number, number]): number {
+  const cos = Math.cos((((a[0] + b[0]) / 2) * Math.PI) / 180);
+  return Math.hypot((b[0] - a[0]) * 111_195, (b[1] - a[1]) * 111_195 * cos);
+}
+
+/** Points along a line about every LINE_SAMPLE_M, its ends included, at most LINE_MAX_SAMPLES. */
+function samplesAlong(points: readonly (readonly [number, number])[]): Array<[number, number]> {
+  const samples: Array<[number, number]> = [];
+  points.forEach((point, i) => {
+    const prev = points[i - 1];
+    if (!prev) {
+      samples.push([point[0], point[1]]);
+      return;
+    }
+    const steps = Math.max(1, Math.ceil(metres(prev, point) / LINE_SAMPLE_M));
+    for (let k = 1; k <= steps; k++) {
+      samples.push([prev[0] + ((point[0] - prev[0]) * k) / steps, prev[1] + ((point[1] - prev[1]) * k) / steps]);
+    }
+  });
+  if (samples.length <= LINE_MAX_SAMPLES) return samples;
+  const stride = samples.length / LINE_MAX_SAMPLES;
+  return Array.from({ length: LINE_MAX_SAMPLES }, (_, i) => samples[Math.floor(i * stride)] ?? samples[0] ?? [0, 0]);
+}
+
+/**
+ * How far TREK's data covers a paddle tour's line (PAD-09): covered when
+ * every sample along it lies inside a region, partial when some do, none
+ * otherwise. A region without a boundary counts by its box, and by nothing
+ * when that is unknown too.
+ */
+export function coverageOfLine(
+  points: readonly (readonly [number, number])[],
+  regions: ReadonlyArray<{ boundary: RegionBoundary | null; box: Box | null }>,
+): PaddleCoverageState {
+  if (regions.length === 0 || points.length === 0) return 'none';
+  const inside = samplesAlong(points).map(([lat, lng]) =>
+    regions.some(({ boundary, box }) =>
+      boundary
+        ? boundaryContains(boundary, lat, lng)
+        : !!box && lat >= box.south && lat <= box.north && lng >= box.west && lng <= box.east,
+    ),
+  );
+  if (inside.every(Boolean)) return 'covered';
+  return inside.some(Boolean) ? 'partial' : 'none';
+}

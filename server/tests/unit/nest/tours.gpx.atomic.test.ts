@@ -29,6 +29,7 @@ import { UnsplashService } from '../../../src/nest/unsplash/unsplash.service';
 import { accommodationsOver } from '../../helpers/accommodations-service';
 import { createTrip, createUser } from '../../helpers/factories';
 import { countRows, findRows } from '../../helpers/factories/rows';
+import { noPaddleChecks } from '../../helpers/fake-paddle-checks';
 import { createTestBudgetItemsRepo } from '../../helpers/files-repos';
 import { noGoogleQuota } from '../../helpers/google-quota';
 import {
@@ -166,6 +167,7 @@ beforeAll(async () => {
     await createTestTourWaypointsRepo(testDb),
     await createTestPlacesRepo(testDb),
     buildPlaceImportService(),
+    noPaddleChecks(),
   );
 });
 

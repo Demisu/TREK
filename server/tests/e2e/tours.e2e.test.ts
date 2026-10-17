@@ -14,7 +14,10 @@
 import { db } from '../../src/db/database';
 import { DayAssignments } from '../../src/db/entities/DayAssignments.entity';
 import { Days } from '../../src/db/entities/Days.entity';
+import { PaddleFeatures } from '../../src/db/entities/PaddleFeatures.entity';
+import { PaddleRegions } from '../../src/db/entities/PaddleRegions.entity';
 import { Places } from '../../src/db/entities/Places.entity';
+import { TourObstacleReviews } from '../../src/db/entities/TourObstacleReviews.entity';
 import { TourSources } from '../../src/db/entities/TourSources.entity';
 import { TourTypes } from '../../src/db/entities/TourTypes.entity';
 import { TourWaypoints } from '../../src/db/entities/TourWaypoints.entity';
@@ -45,7 +48,7 @@ import { Test } from '@nestjs/testing';
 import cookieParser from 'cookie-parser';
 import type { Server } from 'http';
 import request from 'supertest';
-import { describe, it, expect, beforeAll, afterAll, beforeEach, vi, type MockInstance } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, afterEach, beforeEach, vi, type MockInstance } from 'vitest';
 
 vi.mock('../../src/db/database', async () => {
   const { createSnapshotTestDb, buildDbMock } = await import('../helpers/db-mock');
@@ -111,6 +114,14 @@ const FLAT_GPX = `<?xml version="1.0"?>
 const BIG_GPX = TRACK_GPX.replace('</gpx>', `<!-- ${'x'.repeat(512 * 1024)} --></gpx>`);
 /** A paddle plan without marks: enough for the gates, which answer before the body is read. */
 const NO_MARKS = { paddle_speed_kmh: null, portage_speed_kmh: null, track_marks: { portages: [], locks: [] } };
+
+/** A change to a paddle tour's checklist: enough for the gates, which answer before the body is read. */
+const NO_OPS = { ops: [{ key: 'node/1', op: 'clear', decision: null, note: null, basis: null }] };
+
+/** A body as a second read answers it: a paddle tour's checklist is compared anew on every read, so its time moves. */
+function readAgain(body: { obstacle_check?: { evaluated_at: string } }): unknown {
+  return body.obstacle_check ? { ...body, obstacle_check: { ...body.obstacle_check, evaluated_at: 'read' } } : body;
+}
 
 describe('Tours e2e (real guards + temp SQLite)', () => {
   let server: Server;
@@ -224,6 +235,7 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
     it('401 without a cookie', async () => {
       expect((await request(server).get('/api/trips/5/tours')).status).toBe(401);
       expect((await request(server).put('/api/trips/5/tours/1/paddle-plan').send(NO_MARKS)).status).toBe(401);
+      expect((await request(server).put('/api/trips/5/tours/1/obstacle-reviews').send(NO_OPS)).status).toBe(401);
     });
 
     it('404 on every route while the addon is disabled', async () => {
@@ -242,6 +254,7 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
         await importGpx(OWNER, BIG_GPX),
         await previewGpx(OWNER, BIG_GPX),
         await request(server).put(`/api/trips/5/tours/${placeId}/paddle-plan`).set('Cookie', cookie).send(NO_MARKS),
+        await request(server).put(`/api/trips/5/tours/${placeId}/obstacle-reviews`).set('Cookie', cookie).send(NO_OPS),
       ];
       for (const res of responses) {
         expect(res.status).toBe(404);
@@ -262,6 +275,7 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
         await importGpx(OUTSIDER, BIG_GPX),
         await previewGpx(OUTSIDER, BIG_GPX),
         await request(server).put(`/api/trips/5/tours/${placeId}/paddle-plan`).set('Cookie', cookie).send(NO_MARKS),
+        await request(server).put(`/api/trips/5/tours/${placeId}/obstacle-reviews`).set('Cookie', cookie).send(NO_OPS),
         await request(server).get('/api/trips/999/tours').set('Cookie', sessionCookie(OWNER)),
       ];
       for (const res of responses) {
@@ -289,6 +303,7 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
         await importGpx(VIEWER, BIG_GPX),
         await previewGpx(VIEWER, BIG_GPX),
         await request(server).put(`/api/trips/5/tours/${placeId}/paddle-plan`).set('Cookie', cookie).send(NO_MARKS),
+        await request(server).put(`/api/trips/5/tours/${placeId}/obstacle-reviews`).set('Cookie', cookie).send(NO_OPS),
       ];
       for (const res of writes) {
         expect(res.status).toBe(403);
@@ -574,7 +589,7 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
       const detail = await request(server)
         .get(`/api/trips/5/tours/${res.body.tour.place_id}`)
         .set('Cookie', sessionCookie(OWNER));
-      expect(detail.body).toEqual(res.body);
+      expect(readAgain(detail.body)).toEqual(readAgain(res.body));
     });
 
     it('a change of boat keeps the chosen speed, and a paddle tour can become a hike again', async () => {
@@ -696,7 +711,7 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
       const detail = await request(server)
         .get(`/api/trips/5/tours/${res.body.tour.place_id}`)
         .set('Cookie', sessionCookie(OWNER));
-      expect(detail.body).toEqual(res.body);
+      expect(readAgain(detail.body)).toEqual(readAgain(res.body));
     });
 
     it('400 for a portage, a lock or a carrying speed on a hike; nothing written', async () => {
@@ -778,6 +793,129 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
         .set('Cookie', sessionCookie(OWNER))
         .send(body);
       expect(elsewhere.status).toBe(404);
+    });
+  });
+
+  describe('the obstacle checklist (PAD-06, PAD-09)', () => {
+    /** A paddle tour along the GEOMETRY line, a weir in the middle of its first leg. */
+    const paddleTour = () =>
+      createViaApi(
+        5,
+        tourBody({
+          tour_type: 'kayak',
+          max_hiking_difficulty: null,
+          boat_type: 'kayak',
+          water_context: 'river',
+        }),
+      );
+    const reviewsOf = (placeId: number, body: Record<string, unknown>, userId = OWNER) =>
+      request(server)
+        .put(`/api/trips/5/tours/${placeId}/obstacle-reviews`)
+        .set('Cookie', sessionCookie(userId))
+        .set('X-Socket-Id', 'sock-1')
+        .send(body);
+    const detailOf = async (placeId: number, tripId = 5) =>
+      (await request(server).get(`/api/trips/${tripId}/tours/${placeId}`).set('Cookie', sessionCookie(OWNER))).body;
+
+    beforeEach(async () => {
+      await insertRows(orm, PaddleRegions, [
+        {
+          id: 'tirol',
+          name: 'Tirol',
+          boundary: null,
+          min_lat: 46.9,
+          min_lng: 10.9,
+          max_lat: 47.1,
+          max_lng: 11.1,
+          status: 'ready',
+          feature_count: 1,
+          source_timestamp: '2026-10-01T00:00:00.000Z',
+          imported_at: '2026-10-02 04:20:00',
+        },
+      ]);
+      await insertRows(orm, PaddleFeatures, [
+        {
+          region: 'tirol',
+          osm_ref: 'node/1',
+          kind: 'weir',
+          group_key: null,
+          name: 'Wehr',
+          geometry: JSON.stringify({ type: 'Point', coordinates: [11.005, 47.005] }),
+          tags: JSON.stringify({ waterway: 'weir', name: 'Wehr' }),
+          tag_hash: 'hash-1',
+          min_lat: 47.005,
+          min_lng: 11.005,
+          max_lat: 47.005,
+          max_lng: 11.005,
+        },
+      ]);
+    });
+
+    afterEach(async () => {
+      await deleteRows(orm, PaddleRegions);
+    });
+
+    it('lists the weir as open, saves a decision against its basis, and the list carries the bench', async () => {
+      const placeId = await paddleTour();
+      const before = await detailOf(placeId);
+      expect(before.tour.paddle_check).toMatchObject({ data: 'covered', entries: 1, open: 1, decided: 0 });
+      const [entry] = before.obstacle_check.entries;
+      expect(entry).toMatchObject({ key: 'node/1', status: 'open', relation: 'on_route' });
+
+      broadcast.mockClear();
+      const res = await reviewsOf(placeId, {
+        ops: [{ key: 'node/1', op: 'decide', decision: 'pass', note: 'Rechts ueber die Rampe', basis: entry.basis }],
+      });
+      expect(res.status).toBe(200);
+      expect(res.body.obstacle_check.entries[0]).toMatchObject({
+        status: 'decided',
+        decision: { decision: 'pass', note: 'Rechts ueber die Rampe', decided_by: OWNER },
+      });
+      expect(broadcast).toHaveBeenCalledWith('5', 'tours:changed', { placeIds: [placeId] }, 'sock-1');
+      expect(await countRows(orm, TourObstacleReviews, { place: placeId })).toBe(1);
+
+      const list = await request(server).get('/api/trips/5/tours').set('Cookie', sessionCookie(OWNER));
+      expect(list.body.tours[0].paddle_check).toMatchObject({ open: 0, decided: 1 });
+    });
+
+    it('400 for a hike, for a decision without its basis and for one obstacle twice; 403 without place_edit', async () => {
+      const hike = await createViaApi();
+      const refused = await reviewsOf(hike, NO_OPS);
+      expect(refused.status).toBe(400);
+      expect(refused.body.error).toBe('Only a paddle tour has an obstacle checklist');
+
+      const placeId = await paddleTour();
+      const decision = { key: 'node/1', op: 'decide', decision: 'pass', note: null, basis: null };
+      expect((await reviewsOf(placeId, { ops: [decision] })).status).toBe(400);
+      expect((await reviewsOf(placeId, { ops: [NO_OPS.ops[0], NO_OPS.ops[0]] })).status).toBe(400);
+      expect((await reviewsOf(placeId, { ops: [] })).status).toBe(400);
+      expect((await reviewsOf(placeId, NO_OPS, VIEWER)).status).toBe(403);
+      expect(await countRows(orm, TourObstacleReviews)).toBe(0);
+    });
+
+    it('copying the trip carries the decisions, still bound to what they were decided on', async () => {
+      const placeId = await paddleTour();
+      const [entry] = (await detailOf(placeId)).obstacle_check.entries;
+      expect(
+        (
+          await reviewsOf(placeId, {
+            ops: [{ key: 'node/1', op: 'decide', decision: 'portage', note: null, basis: entry.basis }],
+          })
+        ).status,
+      ).toBe(200);
+      const res = await request(server)
+        .post('/api/trips/5/copy')
+        .set('Cookie', sessionCookie(OWNER))
+        .send({ title: 'Regen again' });
+      expect(res.status).toBe(201);
+      const copyId = res.body.trip.id as number;
+      const [copied] = (await request(server).get(`/api/trips/${copyId}/tours`).set('Cookie', sessionCookie(OWNER)))
+        .body.tours;
+      expect((await detailOf(copied.place_id, copyId)).obstacle_check.entries[0]).toMatchObject({
+        key: 'node/1',
+        status: 'todo',
+        decision: { decision: 'portage' },
+      });
     });
   });
 

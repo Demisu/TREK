@@ -19,6 +19,7 @@ import { toRowId } from '../common/row-id';
 import { UnitOfWork } from '../database/unit-of-work';
 import { PlaceImportService } from '../place-import/place-import.service';
 import { PlacesService } from '../places/places.service';
+import { TourPaddleCheckService } from './tour-paddle-check.service';
 import {
   computeTourMetrics,
   localHashOf,
@@ -73,6 +74,7 @@ export class ToursService {
     @InjectRepository(TourWaypoints) private readonly waypointsRepo: TourWaypointsRepository,
     @InjectRepository(Places) private readonly placesRepo: PlacesRepository,
     private readonly placeImport: PlaceImportService,
+    private readonly paddleChecks: TourPaddleCheckService,
   ) {}
 
   private toItem(r: TourListRow): TourListItem {
@@ -169,12 +171,15 @@ export class ToursService {
     }
   }
 
-  /** All tours (the facet + owning place) for a trip, newest first. */
+  /** All tours (the facet + owning place) for a trip, newest first; a paddle tour with its check bench (PAD-09). */
   async listTours(tripId: string): Promise<TourListItem[]> {
     const tid = toRowId(tripId);
     if (tid === null) return [];
     const rows = await this.toursRepo.listForTrip(tid);
-    return rows.map((r) => this.toItem(r));
+    return await this.paddleChecks.forTrip(
+      tid,
+      rows.map((r) => this.toItem(r)),
+    );
   }
 
   /** The days every tour of the trip sits on, for the MCP read tools. */
@@ -189,13 +194,16 @@ export class ToursService {
     const row = tid !== null && pid !== null ? await this.toursRepo.findInTrip(tid, pid) : undefined;
     if (!row || tid === null) throw new NotFoundException('Tour not found');
 
-    let waypoints: TourWaypoint[] = await this.waypointsRepo.listForPlace(row.place_id);
+    const stored: TourWaypoint[] = await this.waypointsRepo.listForPlace(row.place_id);
+    let waypoints = stored;
+    // A recorded paddle track's checklist reads its line, so the place is read for it as for the controls below.
+    const place =
+      waypoints.length < 2 || row.tour_type === 'kayak' ? await this.placesRepo.findInTrip(row.place_id, tid) : null;
     // GPX tours created before tour_waypoints existed still belong in this
     // all-tours rail. A read-only endpoint must not backfill the database, so
     // expose their saved geometry endpoints as controls; the first edit/save
     // replaces them with normal persisted tour_waypoints transactionally.
     if (waypoints.length < 2) {
-      const place = await this.placesRepo.findInTrip(row.place_id, tid);
       const geometry = parseRouteGeometry(place?.route_geometry);
       if (geometry.length >= 2) {
         const start = geometry[0];
@@ -207,7 +215,13 @@ export class ToursService {
       }
     }
 
-    return { tour: this.toItem(row), waypoints, provenance: await this.provenanceOf(tid, row.place_id) };
+    const checked = await this.paddleChecks.forTour(this.toItem(row), stored, place?.route_geometry ?? null);
+    return {
+      tour: checked.item,
+      waypoints,
+      provenance: await this.provenanceOf(tid, row.place_id),
+      ...(checked.obstacle_check ? { obstacle_check: checked.obstacle_check } : {}),
+    };
   }
 
   /**
@@ -289,7 +303,13 @@ export class ToursService {
     } catch {
       this.logger.warn(`Committed Tour ${placeId}: place notification failed`);
     }
-    return { tour: this.toItem(row), waypoints, provenance: await this.provenanceOf(tid, placeId) };
+    const checked = await this.paddleChecks.forTour(this.toItem(row), waypoints, place.route_geometry ?? null);
+    return {
+      tour: checked.item,
+      waypoints,
+      provenance: await this.provenanceOf(tid, placeId),
+      ...(checked.obstacle_check ? { obstacle_check: checked.obstacle_check } : {}),
+    };
   }
 
   /**
@@ -412,6 +432,8 @@ export class ToursService {
         origin_file_name: provenance.origin_file_name,
       });
       await this.waypointsRepo.insertForPlace(id, await this.waypointsRepo.listForPlace(pid));
+      // The copy keeps the decisions about its obstacles, bound to what they were decided on.
+      await this.toursRepo.copyObstacleReviews(pid, id);
       return id;
     });
 
@@ -476,7 +498,8 @@ export class ToursService {
     return result;
   }
 
-  private broadcastToursChanged(tripId: string, placeIds: number[], socketId?: string): void {
+  /** Tells the trip's other clients to reload these tours; a failed notice never fails the committed write. */
+  broadcastToursChanged(tripId: string, placeIds: number[], socketId?: string): void {
     try {
       this.places.broadcast(tripId, 'tours:changed', { placeIds }, socketId);
     } catch {

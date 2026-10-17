@@ -14,7 +14,7 @@ import {
   PaddleObstaclesService,
 } from '../../../../src/nest/paddle-obstacles/paddle-obstacles.service';
 import { createSnapshotTestDb } from '../../../helpers/db-mock';
-import { insertRow, insertRows, updateRows } from '../../../helpers/factories/rows';
+import { deleteRows, insertRow, insertRows, updateRows } from '../../../helpers/factories/rows';
 import { resetTestDb } from '../../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../../helpers/test-module';
 import { MikroORM } from '@mikro-orm/core';
@@ -206,4 +206,75 @@ describe('PaddleObstaclesService.inBox', () => {
       expect(err).toMatchObject({ status: 400, publicMessage: PADDLE_BOX_INVALID_MESSAGE });
     },
   );
+});
+
+describe('PaddleObstaclesService.readAlong', () => {
+  it('PADOBS-011: reads a long line run by run, answers an object two runs or regions hold once, and covers the line itself', async () => {
+    await region('oberpfalz');
+    await region('bayern');
+    // A line 0.3 degrees east, three runs: a weir at its start, one in its middle, held twice.
+    await insertRows(orm(), PaddleFeatures, [
+      weir('oberpfalz', 'node/1', 49.2, 12.0),
+      weir('oberpfalz', 'node/2', 49.2, 12.15),
+      weir('bayern', 'node/2', 49.2, 12.15),
+      weir('oberpfalz', 'node/3', 49.6, 12.15),
+    ]);
+    const along = await service.readAlong([
+      [49.2, 12.0],
+      [49.2, 12.3],
+    ]);
+    expect(along.features.map((feature) => feature.ref).sort()).toEqual(['node/1', 'node/2']);
+    expect(along.regions.map((entry) => entry.id).sort()).toEqual(['bayern', 'oberpfalz']);
+    expect(along).toMatchObject({ coverage: 'covered', truncated: false });
+  });
+
+  it('PADOBS-012: a line past the edge of the data is partly covered, one outside every region not at all', async () => {
+    await region('oberpfalz');
+    expect(
+      (
+        await service.readAlong([
+          [49.9, 12.5],
+          [50.2, 12.5],
+        ])
+      ).coverage,
+    ).toBe('partial');
+    expect(
+      await service.readAlong([
+        [53.2, 12.8],
+        [53.25, 12.9],
+      ]),
+    ).toEqual({ features: [], regions: [], coverage: 'none', truncated: false });
+  });
+
+  it('PADOBS-013: a run cut at the cap marks the whole answer as cut', async () => {
+    await region('oberpfalz');
+    const many = Array.from({ length: PADDLE_OBSTACLES_CAP + 1 }, (_, i) =>
+      weir('oberpfalz', `node/${i + 1}`, 49.2 + (i % 50) * 0.0001, 12.1 + Math.floor(i / 50) * 0.0001),
+    );
+    await insertRows(orm(), PaddleFeatures, many);
+    const along = await service.readAlong([
+      [49.2, 12.1],
+      [49.21, 12.11],
+    ]);
+    expect(along.truncated).toBe(true);
+    expect(along.features).toHaveLength(PADDLE_OBSTACLES_CAP);
+  });
+});
+
+describe('PaddleObstaclesService.dataVersion', () => {
+  it('PADOBS-014: changes when objects are added or removed and when a region is read again or removed', async () => {
+    const empty = await service.dataVersion();
+    await region('oberpfalz');
+    const withRegion = await service.dataVersion();
+    expect(withRegion).not.toBe(empty);
+    await insertRows(orm(), PaddleFeatures, [weir('oberpfalz', 'node/1', 49.2, 12.0)]);
+    const withObject = await service.dataVersion();
+    expect(withObject).not.toBe(withRegion);
+    expect(await service.dataVersion()).toBe(withObject);
+    await updateRows(orm(), PaddleRegions, { id: 'oberpfalz' }, { imported_at: '2026-11-03 04:20:00' });
+    const readAgain = await service.dataVersion();
+    expect(readAgain).not.toBe(withObject);
+    await deleteRows(orm(), PaddleRegions, { id: 'oberpfalz' });
+    expect(await service.dataVersion()).toBe(empty);
+  });
 });

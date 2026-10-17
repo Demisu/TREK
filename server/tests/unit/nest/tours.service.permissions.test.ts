@@ -12,6 +12,7 @@ import type { TourProvenanceRow, ToursRepository } from '../../../src/db/reposit
 import type { UnitOfWork } from '../../../src/nest/database/unit-of-work';
 import type { PlacesService } from '../../../src/nest/places/places.service';
 import { ToursService } from '../../../src/nest/tours/tours.service';
+import { noPaddleChecks } from '../../helpers/fake-paddle-checks';
 import { buildPlaceImportService } from '../../helpers/place-import';
 import { NotFoundException } from '@nestjs/common';
 import { tourCreateRequestSchema, type TourCreateRequest } from '@trek/shared';
@@ -138,6 +139,7 @@ function makeService() {
     waypointsRepo as unknown as TourWaypointsRepository,
     placesRepo as unknown as PlacesRepository,
     buildPlaceImportService(),
+    noPaddleChecks(),
   );
   return { uow, toursRepo, waypointsRepo, placesRepo, places, place, service };
 }
@@ -180,6 +182,7 @@ describe('ToursService planner contracts (mock-only; SQLite rollback semantics a
       boat_type: null,
       water_context: null,
       paddle_speed_kmh: null,
+      portage_speed_kmh: null,
     });
     expect((setup.toursRepo.insertTour.mock.calls[0][0] as { distance: number }).distance).toBeGreaterThan(0);
     expect(setup.waypointsRepo.insertForPlace).toHaveBeenCalledExactlyOnceWith(42, request.waypoints);
@@ -293,6 +296,7 @@ describe('ToursService planner contracts (mock-only; SQLite rollback semantics a
       boat_type: null,
       water_context: null,
       paddle_speed_kmh: null,
+      portage_speed_kmh: null,
     });
     expect(setup.waypointsRepo.deleteForPlace).toHaveBeenCalledExactlyOnceWith(42);
     expect(setup.waypointsRepo.insertForPlace).toHaveBeenCalledExactlyOnceWith(42, update.waypoints);

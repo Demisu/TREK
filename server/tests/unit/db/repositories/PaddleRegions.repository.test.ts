@@ -173,4 +173,13 @@ describe('PaddleFeaturesRepository', () => {
     const capped = await features.findInBox({ south: 49, west: 12, north: 50, east: 13 }, 2);
     expect(capped.map((row) => row.osm_ref)).toEqual(['node/1', 'node/2']);
   });
+
+  it('PADFEATREPO-003: counts the objects and names the newest row, nothing for an empty table', async () => {
+    expect(await features.stats()).toEqual({ count: 0, max_id: null });
+    await add('oberpfalz');
+    await features.replaceRegion('oberpfalz', [feature('node/1', 49.5, 12.5), feature('node/2', 49.6, 12.6)]);
+    const stats = await features.stats();
+    expect(stats.count).toBe(2);
+    expect(stats.max_id).toEqual(expect.any(Number));
+  });
 });

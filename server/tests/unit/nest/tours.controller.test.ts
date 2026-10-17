@@ -14,6 +14,7 @@ import { REQUIRE_ADDON } from '../../../src/nest/addons/require-addon.decorator'
 import { JwtAuthGuard } from '../../../src/nest/auth-core/jwt-auth.guard';
 import { TRIP_PERMISSION_KEY, TripAccessGuard } from '../../../src/nest/permissions/trip-access.guard';
 import type { PlacesService } from '../../../src/nest/places/places.service';
+import type { TourObstacleReviewsService } from '../../../src/nest/tours/tour-obstacle-reviews.service';
 import type { TourPaddlePlanService } from '../../../src/nest/tours/tour-paddle-plan.service';
 import { ToursImportController } from '../../../src/nest/tours/tours-import.controller';
 import { ToursController } from '../../../src/nest/tours/tours.controller';
@@ -100,6 +101,7 @@ function importFixture(
 }
 
 const paddlePlansStub = { update: vi.fn() } as unknown as TourPaddlePlanService;
+const reviewsStub = { save: vi.fn() } as unknown as TourObstacleReviewsService;
 
 describe('ToursController planner routes', () => {
   it('does not access the legacy global database initializer', () => {
@@ -119,6 +121,7 @@ describe('ToursController planner routes', () => {
       ['create', RequestMethod.POST, '/', 'place_edit'],
       ['update', RequestMethod.PUT, ':placeId', 'place_edit'],
       ['updatePaddlePlan', RequestMethod.PUT, ':placeId/paddle-plan', 'place_edit'],
+      ['saveObstacleReviews', RequestMethod.PUT, ':placeId/obstacle-reviews', 'place_edit'],
     ] as const;
     for (const [handler, method, path, permission] of routes) {
       const fn = ToursController.prototype[handler];
@@ -133,7 +136,7 @@ describe('ToursController planner routes', () => {
   it('TOURS-CTL-002: POST /tours delegates the validated payload and socket id', async () => {
     const result = { tour: { place_id: 1 }, waypoints: request.waypoints };
     const service = { createTour: vi.fn().mockResolvedValue(result) } as unknown as ToursService;
-    const controller = new ToursController(service, paddlePlansStub);
+    const controller = new ToursController(service, paddlePlansStub, reviewsStub);
 
     expect(await controller.create('7', request, 'socket-1')).toBe(result);
     expect(service.createTour).toHaveBeenCalledWith('7', request, 'socket-1');
@@ -142,7 +145,7 @@ describe('ToursController planner routes', () => {
   it('TOURS-CTL-003: GET /tours/:placeId delegates within the guarded trip', async () => {
     const result = { tour: { place_id: 1 }, waypoints: request.waypoints };
     const service = { getTour: vi.fn().mockResolvedValue(result) } as unknown as ToursService;
-    const controller = new ToursController(service, paddlePlansStub);
+    const controller = new ToursController(service, paddlePlansStub, reviewsStub);
 
     expect(await controller.detail('7', '1')).toBe(result);
     expect(service.getTour).toHaveBeenCalledWith('7', '1');
@@ -151,7 +154,7 @@ describe('ToursController planner routes', () => {
   it('TOURS-CTL-004: PUT /tours/:placeId delegates the validated payload and socket id', async () => {
     const result = { tour: { place_id: 1 }, waypoints: request.waypoints };
     const service = { updateTour: vi.fn().mockResolvedValue(result) } as unknown as ToursService;
-    const controller = new ToursController(service, paddlePlansStub);
+    const controller = new ToursController(service, paddlePlansStub, reviewsStub);
 
     expect(await controller.update('7', '1', request, 'socket-2')).toBe(result);
     expect(service.updateTour).toHaveBeenCalledWith('7', '1', request, 'socket-2');
@@ -160,18 +163,28 @@ describe('ToursController planner routes', () => {
   it('TOURS-CTL-006: PUT /tours/:placeId/paddle-plan delegates the validated plan and socket id (PAD-03)', async () => {
     const result = { tour: { place_id: 1 }, waypoints: [] };
     const paddlePlans = { update: vi.fn().mockResolvedValue(result) } as unknown as TourPaddlePlanService;
-    const controller = new ToursController({} as ToursService, paddlePlans);
+    const controller = new ToursController({} as ToursService, paddlePlans, reviewsStub);
     const plan = { paddle_speed_kmh: 4, portage_speed_kmh: null, track_marks: { portages: [], locks: [] } };
 
     expect(await controller.updatePaddlePlan('7', '1', plan, 'socket-3')).toBe(result);
     expect(paddlePlans.update).toHaveBeenCalledWith('7', '1', plan, 'socket-3');
   });
 
+  it('TOURS-CTL-007: PUT /tours/:placeId/obstacle-reviews delegates the changes with the user and socket id (PAD-06)', async () => {
+    const result = { tour: { place_id: 1 }, waypoints: [] };
+    const reviews = { save: vi.fn().mockResolvedValue(result) } as unknown as TourObstacleReviewsService;
+    const controller = new ToursController({} as ToursService, paddlePlansStub, reviews);
+    const body = { ops: [{ key: 'node/1', op: 'clear' as const, decision: null, note: null, basis: null }] };
+
+    expect(await controller.saveObstacleReviews('7', '1', body, { id: 4 } as User, 'socket-4')).toBe(result);
+    expect(reviews.save).toHaveBeenCalledWith('7', '1', body, 4, 'socket-4');
+  });
+
   it('TOURS-CTL-005: GET /tours wraps the list in { tours }', async () => {
     const tours = [{ place_id: 1 }];
     const service = { listTours: vi.fn().mockResolvedValue(tours) } as unknown as ToursService;
 
-    expect(await new ToursController(service, paddlePlansStub).list('7')).toEqual({ tours });
+    expect(await new ToursController(service, paddlePlansStub, reviewsStub).list('7')).toEqual({ tours });
     expect(service.listTours).toHaveBeenCalledWith('7');
   });
 });

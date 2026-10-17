@@ -2,12 +2,14 @@ import type { JsonColumn } from '../utils/json-column';
 import {
   FERRATAS_RESULT_CAP,
   ferrataSchema,
+  obstacleSnapshotSchema,
   paddleGeometrySchema,
   paddleLockSchema,
   paddleRegionBoundarySchema,
   tourFixedLegSchema,
   trackMarksSchema,
   type Ferrata,
+  type ObstacleSnapshot,
   type PaddleGeometry,
   type PaddleLock,
   type PaddleRegionBoundary,
@@ -189,5 +191,12 @@ export const PADDLE_FEATURE_TAGS: JsonColumn<Record<string, string>> = {
 export const PADDLE_REGION_BOUNDARY: JsonColumn<PaddleRegionBoundary | null> = {
   column: 'paddle_regions.boundary',
   schema: paddleRegionBoundarySchema.nullable(),
+  fallback: () => null,
+};
+
+/** What a paddle tour's obstacle decision keeps of its obstacle (PAD-06). A broken row has none, and the decision is left out. */
+export const TOUR_OBSTACLE_SNAPSHOT: JsonColumn<ObstacleSnapshot | null> = {
+  column: 'tour_obstacle_reviews.obstacle_snapshot',
+  schema: obstacleSnapshotSchema.nullable(),
   fallback: () => null,
 };

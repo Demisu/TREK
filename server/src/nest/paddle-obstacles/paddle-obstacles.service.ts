@@ -2,22 +2,83 @@ import { PaddleFeatures } from '../../db/entities/PaddleFeatures.entity';
 import { PaddleRegions } from '../../db/entities/PaddleRegions.entity';
 import { PADDLE_FEATURE_GEOMETRY, PADDLE_FEATURE_TAGS, PADDLE_REGION_BOUNDARY } from '../../db/json-columns';
 import type { Box, PaddleFeatureRow, PaddleFeaturesRepository } from '../../db/repositories/PaddleFeatures.repository';
-import type { PaddleRegionsRepository } from '../../db/repositories/PaddleRegions.repository';
+import type { PaddleRegionRow, PaddleRegionsRepository } from '../../db/repositories/PaddleRegions.repository';
 import { utcSuffix } from '../../db/types';
 import { decodeJson } from '../../utils/json-column';
 import { logWarn } from '../audit/audit-log.logger';
 import { badRequest } from '../common/domain-error';
-import { coverageOf, parseBox } from './paddle-geo';
+import { coverageOf, coverageOfLine, parseBox } from './paddle-geo';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
 import {
+  NEAR_M,
   PADDLE_OBSTACLES_CAP,
   paddleObstacleKindSchema,
+  type PaddleCoverageRegion,
+  type PaddleCoverageState,
   type PaddleFeature,
   type PaddleObstaclesResponse,
 } from '@trek/shared';
 
+/** The widest a run of a line is read at once, in degrees a side; a long tour is read run by run. */
+const RUN_SPAN_DEG = 0.1;
+
+/** What the data holds along a paddle tour's line, as the checklist reads it. */
+export interface PaddleObstaclesAlong {
+  features: PaddleFeature[];
+  regions: PaddleCoverageRegion[];
+  coverage: PaddleCoverageState;
+  truncated: boolean;
+}
+
+/** The boxes a line is read in: runs no wider than RUN_SPAN_DEG, each grown by NEAR_M so nothing near the line is missed. */
+function runBoxesOf(points: readonly (readonly [number, number])[]): Box[] {
+  const boxes: Box[] = [];
+  let box: Box | null = null;
+  let last: readonly [number, number] | null = null;
+  for (const [lat, lng] of points) {
+    if (
+      box &&
+      Math.max(box.north, lat) - Math.min(box.south, lat) <= RUN_SPAN_DEG &&
+      Math.max(box.east, lng) - Math.min(box.west, lng) <= RUN_SPAN_DEG
+    ) {
+      box = {
+        south: Math.min(box.south, lat),
+        west: Math.min(box.west, lng),
+        north: Math.max(box.north, lat),
+        east: Math.max(box.east, lng),
+      };
+    } else {
+      if (box) boxes.push(box);
+      // A new run starts at the last point of the one before, so the stretch between them is read too.
+      const [fromLat, fromLng] = last ?? [lat, lng];
+      box = {
+        south: Math.min(fromLat, lat),
+        west: Math.min(fromLng, lng),
+        north: Math.max(fromLat, lat),
+        east: Math.max(fromLng, lng),
+      };
+    }
+    last = [lat, lng];
+  }
+  if (box) boxes.push(box);
+  return boxes.map((run) => {
+    const dLat = NEAR_M / 111_195;
+    const dLng = dLat / Math.max(0.1, Math.cos((((run.south + run.north) / 2) * Math.PI) / 180));
+    return { south: run.south - dLat, west: run.west - dLng, north: run.north + dLat, east: run.east + dLng };
+  });
+}
+
 export const PADDLE_BOX_INVALID_MESSAGE = 'bbox must be south,west,north,east and at most one degree a side';
+
+function coverageRegionOf(region: PaddleRegionRow): PaddleCoverageRegion {
+  return {
+    id: region.id,
+    name: region.name,
+    source_timestamp: region.source_timestamp,
+    imported_at: utcSuffix(region.imported_at),
+  };
+}
 
 function featureOf(row: PaddleFeatureRow): PaddleFeature | null {
   const context = `${row.region_id}/${row.osm_ref}`;
@@ -59,6 +120,63 @@ export class PaddleObstaclesService {
     return await this.read(box);
   }
 
+  /**
+   * The objects along a paddle tour's line (`[lat, lng]` points) and how far
+   * the data covers the line itself, for the checklist (PAD-06, PAD-09). The
+   * line is read in runs; an object two runs or two regions hold is answered
+   * once, and a run cut at the cap marks the whole answer as cut.
+   */
+  async readAlong(points: readonly (readonly [number, number])[]): Promise<PaddleObstaclesAlong> {
+    const boxes = runBoxesOf(points);
+    const runs = await Promise.all(
+      boxes.map(async (box) => {
+        const [rows, regions] = await Promise.all([
+          this.features.findInBox(box, PADDLE_OBSTACLES_CAP + 1),
+          this.regions.withDataInBox(box),
+        ]);
+        return { rows, regions };
+      }),
+    );
+    const seen = new Set<string>();
+    const features: PaddleFeature[] = [];
+    const regions = new Map<string, PaddleRegionRow>();
+    for (const run of runs) {
+      for (const row of run.rows.slice(0, PADDLE_OBSTACLES_CAP)) {
+        if (seen.has(row.osm_ref)) continue;
+        seen.add(row.osm_ref);
+        const feature = featureOf(row);
+        if (feature) features.push(feature);
+      }
+      for (const region of run.regions) regions.set(region.id, region);
+    }
+    const held = [...regions.values()];
+    return {
+      features,
+      regions: held.map(coverageRegionOf),
+      coverage: coverageOfLine(
+        points,
+        held.map((region) => ({
+          boundary: decodeJson(PADDLE_REGION_BOUNDARY, region.boundary, region.id),
+          box:
+            region.min_lat === null || region.min_lng === null || region.max_lat === null || region.max_lng === null
+              ? null
+              : { south: region.min_lat, west: region.min_lng, north: region.max_lat, east: region.max_lng },
+        })),
+      ),
+      truncated: runs.some((run) => run.rows.length > PADDLE_OBSTACLES_CAP),
+    };
+  }
+
+  /**
+   * A text that changes whenever the data a checklist reads could have:
+   * an object added or removed, a region read again or removed. The checklist
+   * caches its reading under it.
+   */
+  async dataVersion(): Promise<string> {
+    const [stats, regions] = await Promise.all([this.features.stats(), this.regions.list()]);
+    return `${stats.count}:${stats.max_id ?? '-'}:${regions.map((region) => `${region.id}@${region.imported_at ?? '-'}`).join(';')}`;
+  }
+
   /** The same answer for a box already known to be valid, for the server's own route checks. */
   async read(box: Box): Promise<PaddleObstaclesResponse> {
     const [rows, regions] = await Promise.all([
@@ -78,12 +196,7 @@ export class PaddleObstaclesService {
           box,
           regions.map((region) => decodeJson(PADDLE_REGION_BOUNDARY, region.boundary, region.id)),
         ),
-        regions: regions.map((region) => ({
-          id: region.id,
-          name: region.name,
-          source_timestamp: region.source_timestamp,
-          imported_at: utcSuffix(region.imported_at),
-        })),
+        regions: regions.map(coverageRegionOf),
       },
       truncated: unique.length > PADDLE_OBSTACLES_CAP,
     };
