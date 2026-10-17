@@ -21,6 +21,7 @@ import {
   obstacleEntriesOf,
   ownEntriesOf,
   PADDLE_CHECK_MAX_ENTRIES,
+  PADDLE_CHECK_MAX_OWN,
   PADDLE_CHECK_VERSION,
   paddleCheckLineOfPoints,
   paddleCheckLineOfTrack,
@@ -107,8 +108,9 @@ export class TourPaddleCheckService {
   async evaluate(line: PaddleCheckLine, boat: PaddleBoatType | null): Promise<PaddleCheckEvaluation> {
     try {
       const version = await this.obstacles.dataVersion();
-      const key = `${PADDLE_CHECK_VERSION}|${shortHash(JSON.stringify([line.points, line.portages, line.locks]))}|${boat ?? ''}|${version}`;
-      const hit = this.cache.get(key);
+      this.cache.atVersion(version);
+      const key = `${PADDLE_CHECK_VERSION}|${shortHash(JSON.stringify([line.points, line.portages, line.locks]))}|${boat ?? ''}`;
+      const hit = this.cache.get(key, line);
       if (hit) return hit;
       const along = await this.obstacles.readAlong(line.points);
       const candidates = obstacleCandidatesOf({
@@ -160,7 +162,9 @@ export class TourPaddleCheckService {
       own = [];
       data = UNAVAILABLE;
     }
+    // The checklist carries as many entries and own portages and locks as its contract holds.
     entries = entries.slice(0, PADDLE_CHECK_MAX_ENTRIES);
+    own = own.slice(0, PADDLE_CHECK_MAX_OWN);
     const summary = paddleCheckSummaryOf(entries, own, data);
     return { entries, own, check: { ...summary, revision: shortHash(JSON.stringify({ entries, own, data })) } };
   }

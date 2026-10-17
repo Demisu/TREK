@@ -49,6 +49,11 @@ export class PaddleRegionsRepository extends TrekRepository<PaddleRegions> {
     return await this.db().selectFrom('paddle_regions').select(COLUMNS).orderBy('name', 'asc').execute();
   }
 
+  /** When each region was last read, by id: what the obstacle data's version is made of, without the boundaries. */
+  async readTimes(): Promise<Array<{ id: string; imported_at: string | null }>> {
+    return await this.db().selectFrom('paddle_regions').select(['id', 'imported_at']).orderBy('id', 'asc').execute();
+  }
+
   async findById(id: string): Promise<PaddleRegionRow | undefined> {
     return await this.db().selectFrom('paddle_regions').select(COLUMNS).where('id', '=', id).executeTakeFirst();
   }

@@ -26,13 +26,14 @@ import {
   sourceTokenOf,
   type PaddleCheckLine,
 } from './paddle-check-basis';
-import type {
-  ObstacleDecision,
-  ObstacleEntryStatus,
-  ObstacleSnapshot,
-  PaddleCheck,
-  TourObstacleEntry,
-  TourOwnEntry,
+import {
+  OBSTACLE_REFS_MAX,
+  type ObstacleDecision,
+  type ObstacleEntryStatus,
+  type ObstacleSnapshot,
+  type PaddleCheck,
+  type TourObstacleEntry,
+  type TourOwnEntry,
 } from './paddle-check.schema';
 import type { PaddleBoatType } from './tours.schema';
 
@@ -106,11 +107,16 @@ export function paddleGeometryPoints(geometry: PaddleGeometry): Array<[number, n
   return (geometry.coordinates[0] ?? []).map(pair);
 }
 
-/** Where an object stands as one point: a point itself, a line's middle vertex, an area's mean outline point. */
+/**
+ * Where an object stands as one point: a point itself, a line or an area the
+ * middle of its extent, so adding a node or turning a way round leaves it in
+ * place and only a change of its shape moves it.
+ */
 function representative(geometry: PaddleGeometry): [number, number] {
   const points = paddleGeometryPoints(geometry);
-  if (geometry.type === 'LineString') return points[Math.floor(points.length / 2)] ?? [0, 0];
-  return mean(points);
+  if (geometry.type === 'Point' || points.length === 0) return points[0] ?? [0, 0];
+  const [[south, west], [north, east]] = boundsOf(points);
+  return [(south + north) / 2, (west + east) / 2];
 }
 
 function mean(points: ReadonlyArray<readonly [number, number]>): [number, number] {
@@ -227,13 +233,14 @@ export function obstacleCandidatesOf(input: {
     const position = mean(members.map((member) => representative(member.geometry)));
     candidates.push({
       key,
+      // The part nearest the route first, the map selects it; a huge group names its first parts only.
       refs: [
         anchor.feature.ref,
         ...members
           .map((member) => member.ref)
           .filter((ref) => ref !== anchor.feature.ref)
           .sort(),
-      ],
+      ].slice(0, OBSTACLE_REFS_MAX),
       kind,
       name: anchor.feature.name ?? members.find((member) => member.name)?.name ?? null,
       at,
@@ -302,7 +309,8 @@ export function ownEntriesOf(input: {
             (m) => m >= portage.fromM - PORTAGE_PROOF_SLACK_M && m <= portage.toM + PORTAGE_PROOF_SLACK_M,
           ),
         )
-        .map((candidate) => candidate.key),
+        .map((candidate) => candidate.key)
+        .slice(0, OBSTACLE_REFS_MAX),
       bypassed: false,
       advice: null,
       conflict: restrictions.includes('forbidden') ? 'forbidden' : restrictions.includes('private') ? 'private' : null,
@@ -376,6 +384,31 @@ function decisionRecordOf(review: StoredObstacleReview) {
 }
 
 /**
+ * Whether the route still comes within NEAR_M of where an obstacle was, by
+ * its whole extent rather than the point of the passage, since an object
+ * near the route lies up to that far from it.
+ */
+function reachesRoute(line: PaddleCheckLine, bounds: ObstacleSnapshot['bounds']): boolean {
+  // Read as numbers: a consumer compiled without strict checks types the tuples loosely.
+  const [south, west] = [Number(bounds[0][0]), Number(bounds[0][1])];
+  const [north, east] = [Number(bounds[1][0]), Number(bounds[1][1])];
+  if (south === north && west === east) return distanceToRouteM(line.points, [south, west]) <= NEAR_M;
+  const extent: PaddleGeometry = {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [west, south],
+        [east, south],
+        [east, north],
+        [west, north],
+        [west, south],
+      ],
+    ],
+  };
+  return routePassages(line.points, extent, NEAR_M).length > 0;
+}
+
+/**
  * The checklist: the current candidates in route order with their status,
  * then the earlier decisions no candidate carries any more, newest first.
  * Such a decision is about an object still in the data the route no longer
@@ -408,11 +441,9 @@ export function obstacleEntriesOf(input: {
     .sort((a, b) => b.decided_at.localeCompare(a.decided_at))
     .map((review): TourObstacleEntry => {
       const { snapshot } = review;
-      // Read as numbers: a consumer compiled without strict checks types the tuple loosely.
-      const at: [number, number] = [Number(snapshot.at[0]), Number(snapshot.at[1])];
       let status: ObstacleEntryStatus;
       if (input.dataKeys.has(review.obstacle_key)) status = 'off_route';
-      else if (distanceToRouteM(input.line.points, at) > NEAR_M) status = 'off_route';
+      else if (!reachesRoute(input.line, snapshot.bounds)) status = 'off_route';
       else if (input.complete) status = review.source_fingerprint === 'gone' ? 'kept' : 'gone';
       else status = 'unknown';
       return {

@@ -278,3 +278,27 @@ describe('PaddleObstaclesService.dataVersion', () => {
     expect(await service.dataVersion()).toBe(empty);
   });
 });
+
+describe('PaddleObstaclesService.readAlong: whole locks', () => {
+  it('PADOBS-015: a lock the corridor cuts through comes with its parts beyond it, other locks and objects do not', async () => {
+    await region('oberpfalz');
+    const part = (ref: string, lat: number, lng: number, group: string | null) => ({
+      ...weir('oberpfalz', ref, lat, lng),
+      kind: 'lock_gate',
+      group_key: group,
+    });
+    await insertRows(orm(), PaddleFeatures, [
+      part('node/1', 49.2, 12.005, 'lock:node/1'),
+      // 1.1 km north of the line, out of the corridor but part of the same lock.
+      part('node/2', 49.21, 12.005, 'lock:node/1'),
+      // Another lock out there, and a lone weir.
+      part('node/3', 49.21, 12.006, 'lock:node/3'),
+      weir('oberpfalz', 'node/4', 49.21, 12.007),
+    ]);
+    const along = await service.readAlong([
+      [49.2, 12.0],
+      [49.2, 12.01],
+    ]);
+    expect(along.features.map((feature) => feature.ref).sort()).toEqual(['node/1', 'node/2']);
+  });
+});

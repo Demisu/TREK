@@ -18,6 +18,22 @@ export interface PaddleFeatureRow {
   max_lng: number;
 }
 
+/** The columns a stored object is read with. */
+const FEATURE_COLUMNS = [
+  'region_id',
+  'osm_ref',
+  'kind',
+  'group_key',
+  'name',
+  'geometry',
+  'tags',
+  'tag_hash',
+  'min_lat',
+  'min_lng',
+  'max_lat',
+  'max_lng',
+] as const;
+
 /** A box in degrees, south to north and west to east. */
 export interface Box {
   south: number;
@@ -43,20 +59,22 @@ export class PaddleFeaturesRepository extends TrekRepository<PaddleFeatures> {
   async findInBox(box: Box, limit: number): Promise<PaddleFeatureRow[]> {
     return await this.db()
       .selectFrom('paddle_features')
-      .select([
-        'region_id',
-        'osm_ref',
-        'kind',
-        'group_key',
-        'name',
-        'geometry',
-        'tags',
-        'tag_hash',
-        'min_lat',
-        'min_lng',
-        'max_lat',
-        'max_lng',
-      ])
+      .select(FEATURE_COLUMNS)
+      .where('min_lat', '<=', box.north)
+      .where('max_lat', '>=', box.south)
+      .where('min_lng', '<=', box.east)
+      .where('max_lng', '>=', box.west)
+      .orderBy('id', 'asc')
+      .limit(limit)
+      .execute();
+  }
+
+  /** The parts of the given locks whose box reaches into `box`, at most `limit` of them, in a stable order. */
+  async findGroupParts(keys: readonly string[], box: Box, limit: number): Promise<PaddleFeatureRow[]> {
+    return await this.db()
+      .selectFrom('paddle_features')
+      .select(FEATURE_COLUMNS)
+      .where('group_key', 'in', [...keys])
       .where('min_lat', '<=', box.north)
       .where('max_lat', '>=', box.south)
       .where('min_lng', '<=', box.east)

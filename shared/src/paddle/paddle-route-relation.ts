@@ -213,7 +213,7 @@ export function relateObstaclesToRoute(
   return related.sort((a, b) => a.alongM - b.alongM);
 }
 
-/** Two visits of the route closer than this along it are one passage (a bend that leaves the reach for a moment). */
+/** Two visits whose closest points lie closer than this along the route are one passage. */
 export const PASSAGE_GAP_M = 50;
 /** The most passages one object keeps: an out-and-back tour passes twice, a winding river a few times more. */
 export const MAX_PASSAGES = 4;
@@ -257,9 +257,12 @@ function segmentApproach(
 
 /**
  * Every separate time the route comes within `reachM` of an object, in route
- * order: a run of segments in reach is one visit, two runs closer than
- * PASSAGE_GAP_M along the route are one, and each visit is anchored where it
- * comes closest (the earlier point on a tie). An out-and-back tour passes an
+ * order: a run of segments in reach is one visit, anchored where it comes
+ * closest (the earlier point on a tie), and two visits whose anchors lie
+ * closer than PASSAGE_GAP_M along the route are one. Two runs whose anchors
+ * lie further apart stay two passages even when the route left the reach
+ * only briefly between them; that binds a decision to more of the route, so
+ * it errs towards asking for a look again. An out-and-back tour passes an
  * obstacle twice, so a change to its way back is not missed. At most
  * MAX_PASSAGES are kept, the closest ones.
  */

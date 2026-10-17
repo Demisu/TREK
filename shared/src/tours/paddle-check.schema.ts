@@ -112,11 +112,15 @@ export type ObstacleDecisionRecord = z.infer<typeof obstacleDecisionRecordSchema
 
 /** The most entries one checklist carries; an area holding more answers as cut short. */
 export const PADDLE_CHECK_MAX_ENTRIES = 300;
+/** The most own portages and locks one checklist lists. */
+export const PADDLE_CHECK_MAX_OWN = 100;
+/** The most objects one entry names, and the most obstacles one portage lists as carried round. */
+export const OBSTACLE_REFS_MAX = 30;
 
 export const tourObstacleEntrySchema = z.object({
   key: obstacleKeySchema,
   /** The objects it stands for, the one nearest the route first: the map selects that one. */
-  refs: z.array(osmRefSchema).min(1).max(30),
+  refs: z.array(osmRefSchema).min(1).max(OBSTACLE_REFS_MAX),
   kind: paddleObstacleKindSchema,
   name: z.string().nullable(),
   at: latLng,
@@ -152,7 +156,7 @@ export const tourOwnEntrySchema = z.object({
   at: latLng,
   bounds,
   /** The obstacles a portage carries round. */
-  covers: z.array(obstacleKeySchema).max(30),
+  covers: z.array(obstacleKeySchema).max(OBSTACLE_REFS_MAX),
   bypassed: z.boolean(),
   advice: z.literal('sup_lock_portage').nullable(),
   /** A carrying way the data records as forbidden or private. */
@@ -188,7 +192,7 @@ export const tourObstacleCheckSchema = z.object({
   revision: z.string().min(1).max(64),
   evaluated_at: z.string(),
   entries: z.array(tourObstacleEntrySchema).max(PADDLE_CHECK_MAX_ENTRIES),
-  own: z.array(tourOwnEntrySchema).max(100),
+  own: z.array(tourOwnEntrySchema).max(PADDLE_CHECK_MAX_OWN),
 });
 export type TourObstacleCheck = z.infer<typeof tourObstacleCheckSchema>;
 
@@ -197,7 +201,7 @@ export const obstacleSnapshotSchema = z.object({
   v: z.literal(1),
   kind: paddleObstacleKindSchema,
   name: z.string().nullable(),
-  refs: z.array(osmRefSchema).min(1).max(30),
+  refs: z.array(osmRefSchema).min(1).max(OBSTACLE_REFS_MAX),
   at: latLng,
   bounds,
   relation: z.enum(['on_route', 'near']),

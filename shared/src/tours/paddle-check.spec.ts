@@ -28,6 +28,7 @@ import {
   type PaddleCheckLine,
 } from './paddle-check-basis';
 import {
+  OBSTACLE_REFS_MAX,
   obstacleBasisSchema,
   obstacleSnapshotSchema,
   paddleCheckSchema,
@@ -223,7 +224,10 @@ function reviewOf(candidate: ObstacleCandidate, overrides: Partial<StoredObstacl
 /** A decision taken on a day about an object at a place, which no current candidate carries. */
 function earlierReview(key: string, place: [number, number], day: string, source = SOURCE): StoredObstacleReview {
   const decidedAt = `${day}T08:00:00.000Z`;
-  return reviewOf(candidateOf(key, { at: place }), { decided_at: decidedAt, source_fingerprint: source });
+  return reviewOf(candidateOf(key, { at: place, bounds: [place, place] }), {
+    decided_at: decidedAt,
+    source_fingerprint: source,
+  });
 }
 
 /** A checklist entry as obstacleEntriesOf makes one, open unless told otherwise. */
@@ -344,8 +348,8 @@ describe('obstacleCandidatesOf', () => {
     expect(lock.route.startsWith('p1:o:')).toBe(true);
     expect(sameRouteToken(lock.route, routeTokenOf(straight, [975], 'on_route'))).toBe(true);
     expect(lock.source.split(':')[1]).toBe(fnv1a(materialOf(features)));
-    // The mean of each part's own place: a gate's middle (here second) vertex, the chamber's mean outline point.
-    expect(gapM(positionOf(lock.source), at(6, 994))).toBeLessThan(1);
+    // The mean of each part's own place, the middle of its extent: the gates at 975 and 1015 m, the chamber at 995 m.
+    expect(gapM(positionOf(lock.source), at(0, 995))).toBeLessThan(1);
   });
 
   it('keeps the source through a new name or check on site, and changes it with a paddling rule on any part', () => {
@@ -501,6 +505,30 @@ describe('obstacleCandidatesOf', () => {
       expect(on([carry], [gate], 'sup')).toMatchObject({ portage: 'partial', advice: 'sup_lock_portage' });
       expect(on([carry, back], [gate], 'sup')).toMatchObject({ portage: 'planned', advice: null });
     });
+  });
+});
+
+describe('the caps of one entry', () => {
+  it('names a lock of more parts than an entry holds by its nearest part and the first others, as the schemas allow', () => {
+    // 40 gates along the chamber, all of one lock; the first one sits on the route.
+    const parts = Array.from({ length: 40 }, (_, i) =>
+      feature(`way/${500 + i}`, 'lock_gate', wayThrough([-10, 960 + i], [10, 960 + i]), { group_key: 'lock:way/500' }),
+    );
+    const [lock] = candidatesOf(straight, parts);
+    expect(lock?.refs).toHaveLength(OBSTACLE_REFS_MAX);
+    expect(new Set(lock?.refs).size).toBe(OBSTACLE_REFS_MAX);
+    if (!lock) throw new Error('no lock');
+    expect(obstacleSnapshotSchema.safeParse(obstacleSnapshotOf(lock)).success).toBe(true);
+  });
+
+  it('lists at most as many obstacles under one portage as an own entry holds', () => {
+    const line: PaddleCheckLine = { ...straight, portages: [{ fromM: 100, toM: 1900, index: 1 }] };
+    const candidates = Array.from({ length: 35 }, (_, i) =>
+      candidateOf(`node/${i + 1}`, { passage_m: [200 + i * 40] }),
+    );
+    const [portage] = ownEntriesOf({ line, candidates, features: [], boat: 'kayak' });
+    expect(portage?.covers).toHaveLength(OBSTACLE_REFS_MAX);
+    expect(tourOwnEntrySchema.safeParse(portage).success).toBe(true);
   });
 });
 
@@ -888,5 +916,42 @@ describe('paddleCheckSummaryOf', () => {
     });
     const own = ownEntriesOf({ line: straight, candidates: [candidate], features: [closed], boat: 'kayak' });
     expect(paddleCheckSummaryOf(entries, own, bench)).toMatchObject({ decided: 1, open: 0, review: 0, bans: 1 });
+  });
+});
+
+describe('where an object stands', () => {
+  it('keeps the place of a line through a node added on it or the way turned round', () => {
+    const weir = feature('way/70', 'weir', wayThrough([-20, 1000], [20, 1000]));
+    const noded = feature('way/70', 'weir', wayThrough([-20, 1000], [5, 1000], [20, 1000]));
+    const turned = feature('way/70', 'weir', wayThrough([20, 1000], [-20, 1000]));
+    const [source] = candidatesOf(straight, [weir]).map((candidate) => positionOf(candidate.source));
+    for (const other of [noded, turned]) {
+      const [moved] = candidatesOf(straight, [other]).map((candidate) => positionOf(candidate.source));
+      if (!source || !moved) throw new Error('no candidate');
+      expect(gapM(moved, source)).toBeLessThan(1);
+    }
+  });
+
+  it('keeps an earlier decision about an object beside the route as one still near it, by the object itself', () => {
+    // The weir stood 140 m north of the route; the route point of its passage was on the line.
+    const review = reviewOf(candidateOf('way/71', { at: at(0, 1000), bounds: [at(140, 1000), at(140, 1000)] }), {
+      decided_at: '2026-09-02T08:00:00.000Z',
+    });
+    const entries = obstacleEntriesOf({
+      candidates: [],
+      reviews: [review],
+      dataKeys: new Set(),
+      complete: true,
+      line: straight,
+    });
+    expect(entries.map((entry) => entry.status)).toEqual(['gone']);
+    const far = reviewOf(candidateOf('way/72', { at: at(0, 1000), bounds: [at(400, 1000), at(420, 1010)] }), {
+      decided_at: '2026-09-02T08:00:00.000Z',
+    });
+    expect(
+      obstacleEntriesOf({ candidates: [], reviews: [far], dataKeys: new Set(), complete: true, line: straight }).map(
+        (entry) => entry.status,
+      ),
+    ).toEqual(['off_route']);
   });
 });

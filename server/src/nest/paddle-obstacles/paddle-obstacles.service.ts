@@ -22,6 +22,8 @@ import {
 
 /** The widest a run of a line is read at once, in degrees a side; a long tour is read run by run. */
 const RUN_SPAN_DEG = 0.1;
+/** How far round the parts of a lock found along a line its other parts are looked for, in degrees (about 2 km). */
+const LOCK_PART_MARGIN_DEG = 0.02;
 
 /** What the data holds along a paddle tour's line, as the checklist reads it. */
 export interface PaddleObstaclesAlong {
@@ -140,15 +142,18 @@ export class PaddleObstaclesService {
     const seen = new Set<string>();
     const features: PaddleFeature[] = [];
     const regions = new Map<string, PaddleRegionRow>();
+    const take = (row: PaddleFeatureRow) => {
+      if (seen.has(row.osm_ref)) return;
+      seen.add(row.osm_ref);
+      const feature = featureOf(row);
+      if (feature) features.push(feature);
+    };
     for (const run of runs) {
-      for (const row of run.rows.slice(0, PADDLE_OBSTACLES_CAP)) {
-        if (seen.has(row.osm_ref)) continue;
-        seen.add(row.osm_ref);
-        const feature = featureOf(row);
-        if (feature) features.push(feature);
-      }
+      run.rows.slice(0, PADDLE_OBSTACLES_CAP).forEach(take);
       for (const region of run.regions) regions.set(region.id, region);
     }
+    // The parts of a lock the corridor cut off: its checklist entry reads the lock whole, however the route runs.
+    (await this.lockPartsAround(runs.flatMap((run) => run.rows.slice(0, PADDLE_OBSTACLES_CAP)))).forEach(take);
     const held = [...regions.values()];
     return {
       features,
@@ -167,13 +172,27 @@ export class PaddleObstaclesService {
     };
   }
 
+  /** Every stored part of the locks among the rows, within a margin round the parts found. */
+  private async lockPartsAround(rows: readonly PaddleFeatureRow[]): Promise<PaddleFeatureRow[]> {
+    const grouped = rows.filter((row) => row.group_key !== null);
+    if (grouped.length === 0) return [];
+    const keys = [...new Set(grouped.flatMap((row) => row.group_key ?? []))];
+    const box = {
+      south: Math.min(...grouped.map((row) => row.min_lat)) - LOCK_PART_MARGIN_DEG,
+      west: Math.min(...grouped.map((row) => row.min_lng)) - LOCK_PART_MARGIN_DEG,
+      north: Math.max(...grouped.map((row) => row.max_lat)) + LOCK_PART_MARGIN_DEG,
+      east: Math.max(...grouped.map((row) => row.max_lng)) + LOCK_PART_MARGIN_DEG,
+    };
+    return await this.features.findGroupParts(keys, box, PADDLE_OBSTACLES_CAP);
+  }
+
   /**
    * A text that changes whenever the data a checklist reads could have:
    * an object added or removed, a region read again or removed. The checklist
    * caches its reading under it.
    */
   async dataVersion(): Promise<string> {
-    const [stats, regions] = await Promise.all([this.features.stats(), this.regions.list()]);
+    const [stats, regions] = await Promise.all([this.features.stats(), this.regions.readTimes()]);
     return `${stats.count}:${stats.max_id ?? '-'}:${regions.map((region) => `${region.id}@${region.imported_at ?? '-'}`).join(';')}`;
   }
 

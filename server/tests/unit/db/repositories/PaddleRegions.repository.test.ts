@@ -182,4 +182,30 @@ describe('PaddleFeaturesRepository', () => {
     expect(stats.count).toBe(2);
     expect(stats.max_id).toEqual(expect.any(Number));
   });
+
+  it('PADFEATREPO-004: reads only the parts of the given locks inside a box', async () => {
+    await add('oberpfalz');
+    await features.replaceRegion('oberpfalz', [
+      { ...feature('node/1', 49.5, 12.5), group_key: 'lock:node/1' },
+      { ...feature('node/2', 49.51, 12.5), group_key: 'lock:node/1' },
+      { ...feature('node/3', 49.52, 12.5), group_key: 'lock:node/3' },
+      { ...feature('node/4', 49.9, 12.5), group_key: 'lock:node/1' },
+    ]);
+    const parts = await features.findGroupParts(
+      ['lock:node/1'],
+      { south: 49.4, west: 12.4, north: 49.6, east: 12.6 },
+      10,
+    );
+    expect(parts.map((row) => row.osm_ref)).toEqual(['node/1', 'node/2']);
+  });
+
+  it('PADREGREPO-010: names when each region was last read, without its boundary', async () => {
+    await add('oberpfalz');
+    await add('bayern');
+    await regions.updateRegion('oberpfalz', { status: 'ready', imported_at: '2026-10-02 04:20:00' });
+    expect(await regions.readTimes()).toEqual([
+      { id: 'bayern', imported_at: null },
+      { id: 'oberpfalz', imported_at: '2026-10-02 04:20:00' },
+    ]);
+  });
 });

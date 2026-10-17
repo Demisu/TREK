@@ -13,29 +13,39 @@ export interface PaddleCheckEvaluation {
   data: Pick<PaddleCheck, 'data' | 'data_as_of' | 'read_at'>;
 }
 
-const MAX_ENTRIES = 256;
+/** A reading as kept: without its line, which the caller holds and the key already stands for. */
+type CachedEvaluation = Omit<PaddleCheckEvaluation, 'line'>;
+
+const MAX_ENTRIES = 64;
 
 /**
- * The evaluations of the last lines read, keyed by the line, the boat and
- * the version of the obstacle data, so the tours list of a trip reads its
- * paddle tours' obstacles once and not on every call. Held in memory: one
- * process serves the app, and a new data version simply misses.
+ * The evaluations of the last lines read, keyed by the line and the boat,
+ * so the tours list of a trip reads its paddle tours' obstacles once and not
+ * on every call. Held in memory for one version of the obstacle data: a new
+ * version empties it, since nothing read before can be served again.
  */
 @Injectable()
 export class PaddleCheckCache {
-  private readonly entries = new Map<string, PaddleCheckEvaluation>();
+  private readonly entries = new Map<string, CachedEvaluation>();
+  private version: string | null = null;
 
-  get(key: string): PaddleCheckEvaluation | undefined {
-    const hit = this.entries.get(key);
-    if (hit) {
-      // Read again, kept longer: the map's order is the order of use.
-      this.entries.delete(key);
-      this.entries.set(key, hit);
-    }
-    return hit;
+  /** The obstacle data's current version; a different one drops every reading kept. */
+  atVersion(version: string): void {
+    if (version === this.version) return;
+    this.entries.clear();
+    this.version = version;
   }
 
-  set(key: string, value: PaddleCheckEvaluation): void {
+  get(key: string, line: PaddleCheckLine): PaddleCheckEvaluation | undefined {
+    const hit = this.entries.get(key);
+    if (!hit) return undefined;
+    // Read again, kept longer: the map's order is the order of use.
+    this.entries.delete(key);
+    this.entries.set(key, hit);
+    return { ...hit, line };
+  }
+
+  set(key: string, { line: _line, ...value }: PaddleCheckEvaluation): void {
     this.entries.delete(key);
     this.entries.set(key, value);
     if (this.entries.size > MAX_ENTRIES) {
