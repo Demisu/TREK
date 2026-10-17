@@ -16,11 +16,10 @@ import { isRtlLanguage, useTranslation } from '../../i18n';
 import { usePaddleObstacleStore } from '../../store/paddleObstacleStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { publishTourFerrataCrossings } from '../../store/tourFerrataCrossingStore';
-import { pickOnTrack, refuseTrackPick, useTrackMarkToolStore } from '../../store/trackMarkToolStore';
-import { projectOntoTrack, TRACK_PICK_TOLERANCE_M } from '../../utils/paddleTrackMarks';
 import { useFerrataAdopt } from './useFerrataAdopt';
 import { useTourMapPoints } from './useTourMapPoints';
 import { useTourStageLayers } from './useTourStageLayers';
+import { useTrackLinePick } from './useTrackLinePick';
 import type { useTripPlanner } from './useTripPlanner';
 import type { useTripPlannerPage } from './useTripPlannerPage';
 
@@ -149,21 +148,8 @@ export function TourPlannerMapStage({
     guard: closingPress.guard,
     previewPoints: tourMap.previewPoints,
   });
-  const onAdd = waypoints.onAdd;
   // PAD-03 on a recorded paddle track: with a marking tool on, a click on the line marks the spot on it.
-  const trackPick = useTrackMarkToolStore((state) => state.pick);
-  const trackLine = tourPlanner.mode.type === 'view-gpx' ? analysis?.routeCoordinates : null;
-  const pickOnLine = canPlaceEdit && trackPick !== null && !!trackLine?.length;
-  const onTrackClick = closingPress.guard(
-    pickOnLine
-      ? (lat: number, lng: number) => {
-          const projected = projectOntoTrack(trackLine, { lat, lng });
-          if (!projected || projected.offM > TRACK_PICK_TOLERANCE_M) refuseTrackPick();
-          else pickOnTrack(projected.atM);
-        }
-      : undefined
-  );
-  const onAddOrMark = onAdd ?? onTrackClick;
+  const { pickOnLine, onAddOrMark } = useTrackLinePick(tourPlanner, canPlaceEdit, closingPress.guard, waypoints.onAdd);
   // What each panel covers of the map, a collapsed one its rail.
   const leftInset = leftHidden ? 56 : leftPanelPx;
   const rightInset = rightHidden ? 56 : rightPanelPx;
@@ -249,10 +235,10 @@ export function TourPlannerMapStage({
         onOutsidePress={closingPress.arm}
         insetEnd={(isRtlLanguage(language) ? leftInset : rightInset) + MAP_LAYER_SWITCHER_INSET}
         {...ferrataCardPlacement(terrain3d, bottomRowTop, terrainLegend)}
-        extra={
-          paddleChecklist
-            ? (detail) => <ChecklistObstaclePanel checklist={paddleChecklist} featureRef={detail.feature.ref} />
-            : undefined
+        extra={(detail) =>
+          paddleChecklist ? (
+            <ChecklistObstaclePanel checklist={paddleChecklist} featureRef={detail.feature.ref} />
+          ) : null
         }
       />
       {/* "Point set", with the way back, above the bottom row and between the panels. */}

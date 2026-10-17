@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { usePoiExplore, type Bbox } from '../../components/Map/usePoiExplore'
 import { placeActions } from '../../components/Planner/usePlaceActions'
 import { tourRouteStyle } from '../../components/Tours/planner/tourRouteStyle'
@@ -9,6 +9,7 @@ import { tourPlannedTimes as projectTourPlannedTimes } from '../../components/To
 import { usePlanMapViewport } from '../../hooks/usePlanMapViewport'
 import { usePaddleObstacleStore } from '../../store/paddleObstacleStore'
 import { useMapLocationSearch } from './useMapLocationSearch'
+import { usePlannerFocusPoints } from './usePlannerFocusPoints'
 import { useTripPlanner } from './useTripPlanner'
 import { useTourWorkspace } from './useTourWorkspace'
 
@@ -31,40 +32,7 @@ export function useTripPlannerPage() {
     useTourWorkspace(planner, canPlaceEdit, canDayEdit)
 
   const tourDetailOpenerRef = useRef<{ placeId: number; element: HTMLElement } | null>(null)
-  const lastPlanMapViewportRef = useRef<Bbox | null>(null)
-  const [plannerViewportSnapshot, setPlannerViewportSnapshot] = useState<Bbox | null>(lastPlanMapViewportRef.current)
-  useEffect(() => {
-    if (activeTab === 'tour-planner') setPlannerViewportSnapshot(lastPlanMapViewportRef.current)
-  }, [activeTab, tourPlanner.newDraftGeneration])
-
-  const plannerFallbackFocusPoints = useMemo<[number, number][]>(() => {
-    const bounds = plannerViewportSnapshot
-    if (bounds) {
-      const latitudeSpan = bounds.north - bounds.south
-      const longitudeSpan = bounds.east - bounds.west
-      if (latitudeSpan > 0 && latitudeSpan < 160 && longitudeSpan > 0 && longitudeSpan < 340) {
-        return [[bounds.south, bounds.west], [bounds.north, bounds.east]]
-      }
-    }
-    return places
-      .filter(place => Number.isFinite(place.lat) && Number.isFinite(place.lng))
-      .map(place => [place.lat, place.lng] as [number, number])
-  }, [places, plannerViewportSnapshot])
-
-  const focusPoints = useMemo<[number, number][]>(() => {
-    if (wandererBrowser.open) return wandererBrowser.line ?? plannerFallbackFocusPoints
-    if (tourPlanner.mode.type === 'view-gpx') return tourPlanner.readOnlyGpxAnalysis?.routeCoordinates ?? []
-    if (tourPlanner.mode.type === 'new-draft') {
-      return tourPlanner.waypoints.map(point => [point.lat, point.lng])
-    }
-    if (tourPlanner.mode.type === 'edit-saved' && tourPlanner.waypoints.length) {
-      return tourPlanner.waypoints.map(point => [point.lat, point.lng])
-    }
-    return plannerFallbackFocusPoints
-  }, [
-    wandererBrowser.open,
-    wandererBrowser.line,
-    tourPlanner.mode.type, tourPlanner.readOnlyGpxAnalysis?.routeCoordinates, tourPlanner.waypoints, plannerFallbackFocusPoints])
+  const { focusPoints, lastPlanMapViewportRef } = usePlannerFocusPoints(activeTab, places, tourPlanner, wandererBrowser)
 
   // PAD-06: an obstacle or area the paddle checklist asks for moves the camera as a picked search result does.
   const paddleFocus = usePaddleObstacleStore(state => state.focus)
@@ -122,7 +90,7 @@ export function useTripPlannerPage() {
     lastPlanMapViewportRef.current = bounds
     poiViewportChangeRef.current(bounds)
     reportViewport(bounds)
-  }, [reportViewport])
+  }, [lastPlanMapViewportRef, reportViewport])
 
   // Each tour's planned times keyed by its place, for the day plan's tour rows.
   const plannedTourDurations = new Map(tours.map(tour => [tour.place_id, { ...projectTourPlannedTimes(tour), tour }] as const))
