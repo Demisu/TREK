@@ -112,9 +112,9 @@ describe('paddleRouteRepo', () => {
     await paddleRouteRepo.plan(103, [{ from: A, to: B }], { boat: 'kayak', lakeStyle: 'shore' });
     expect(paddleRouteApi.plan).toHaveBeenCalledTimes(3);
 
-    vi.mocked(paddleRouteApi.plan).mockResolvedValue({ legs: [{ status: 'failed', code: 'busy' }], graph_rev: null });
+    vi.mocked(paddleRouteApi.plan).mockResolvedValue({ legs: [{ status: 'failed', code: 'busy', at: null }], graph_rev: null });
     await expect(paddleRouteRepo.plan(103, [{ from: B, to: C }], KAYAK)).resolves.toEqual([
-      { status: 'failed', code: 'busy' },
+      { status: 'failed', code: 'busy', at: null },
     ]);
     answerAll();
     const again = await paddleRouteRepo.plan(103, [{ from: B, to: C }], KAYAK);
