@@ -205,7 +205,7 @@ async function reportNew(grown, { root, files, lintText, error }) {
 }
 
 /** Lints one file's text with the client's own config, for newWarningsOf. */
-export function lintTextClient(root) {
+function lintTextClient(root) {
   const eslint = new ESLint({ cwd: root });
   return (text, filePath) => eslint.lintText(text, { filePath });
 }
