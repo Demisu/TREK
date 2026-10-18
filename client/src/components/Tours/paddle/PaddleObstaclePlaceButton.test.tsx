@@ -1,7 +1,8 @@
 // FE-PADDLE-PLACE-001 to 004: a put-in, slipway or egress set as the next waypoint from its card (PAD-05B).
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '../../../../tests/helpers/render';
-import { PaddleObstaclePlaceButton, placeOf } from './PaddleObstaclePlaceButton';
+import { PaddleObstaclePlaceButton } from './PaddleObstaclePlaceButton';
+import { placeOf } from './paddleObstaclePlace';
 
 describe('placeOf', () => {
   it('FE-PADDLE-PLACE-001: takes a point as it is, the middle of a way and the middle of an outline', () => {

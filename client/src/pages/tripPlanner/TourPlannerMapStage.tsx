@@ -139,14 +139,7 @@ export function TourPlannerMapStage({
   const closingPress = useOutsidePressGuard();
   const paddleOpen = usePaddleObstacleStore((state) => state.selectedRef !== null);
   const adoptFerrata = useFerrataAdopt(tourPlanner, canPlaceEdit, ferrata.close);
-  // PAD-05B: a put-in, slipway or egress taken over from its card as the tour's next point.
-  const placeFromCard =
-    canPlaceEdit && tourPlanner.isPaddle && !tourPlanner.isSaving && tourPlanner.mode.type !== 'view-gpx'
-      ? (lat: number, lng: number) => {
-          tourPlanner.addWaypoint(lat, lng);
-          selectPaddleObstacle(null);
-        }
-      : undefined;
+  const placeFromCard = paddlePlaceFromCard(tourPlanner, canPlaceEdit);
   const ferrataOnTour = useMemo(() => new Set(ferrataCrossings.map(({ group }) => group.id)), [ferrataCrossings]);
   const distanceUnit = useSettingsStore((s) => s.settings.distance_unit);
   // The "set points" tool, per mode; only a real click places, never the end of a drag.
@@ -165,6 +158,8 @@ export function TourPlannerMapStage({
   // What each panel covers of the map, a collapsed one its rail.
   const leftInset = leftHidden ? 56 : leftPanelPx;
   const rightInset = rightHidden ? 56 : rightPanelPx;
+  // The cards over the map keep clear of the layer switcher, on the side the text ends.
+  const cardInsetEnd = (isRtlLanguage(language) ? leftInset : rightInset) + MAP_LAYER_SWITCHER_INSET;
   const bottomRowTop = terrain3d ? CONTROL_GAP + terrainControlsPx + CONTROL_GAP : FERRATA_CARD_BOTTOM;
   return (
     <>
@@ -240,14 +235,14 @@ export function TourPlannerMapStage({
         selection={ferrataSelected}
         onClose={ferrata.close}
         onOutsidePress={closingPress.arm}
-        insetEnd={(isRtlLanguage(language) ? leftInset : rightInset) + MAP_LAYER_SWITCHER_INSET}
+        insetEnd={cardInsetEnd}
         {...ferrataCardPlacement(terrain3d, bottomRowTop, terrainLegend)}
         onAdopt={adoptFerrata}
         onTourIds={ferrataOnTour}
       />
       <PaddleObstacleOverlay
         onOutsidePress={closingPress.arm}
-        insetEnd={(isRtlLanguage(language) ? leftInset : rightInset) + MAP_LAYER_SWITCHER_INSET}
+        insetEnd={cardInsetEnd}
         {...ferrataCardPlacement(terrain3d, bottomRowTop, terrainLegend)}
         extra={(detail) => (
           <>
@@ -318,4 +313,21 @@ export function TourPlannerMapStage({
       </div>
     </>
   );
+}
+
+/**
+ * PAD-05B: a put-in, slipway or egress taken over from its card as the tour's
+ * next point; undefined where the tour cannot take one now (not a paddle tour,
+ * saving, a GPX shown read only, or no right to edit).
+ */
+function paddlePlaceFromCard(
+  tourPlanner: PageState['tourPlanner'],
+  canPlaceEdit: boolean
+): ((lat: number, lng: number) => void) | undefined {
+  if (!canPlaceEdit || !tourPlanner.isPaddle || tourPlanner.isSaving || tourPlanner.mode.type === 'view-gpx')
+    return undefined;
+  return (lat, lng) => {
+    tourPlanner.addWaypoint(lat, lng);
+    selectPaddleObstacle(null);
+  };
 }

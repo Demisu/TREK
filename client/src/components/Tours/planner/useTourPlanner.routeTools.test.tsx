@@ -24,6 +24,12 @@ vi.mock('../useTourPermissions', () => ({
 
 import { useTourPlanner } from './useTourPlanner';
 
+/** The value, or a failure saying it is missing instead of a later undefined. */
+function must<T>(value: T | null | undefined): T {
+  if (value === null || value === undefined) throw new Error('expected a value');
+  return value;
+}
+
 const routed = {
   coordinates: [
     [48, 11],
@@ -393,17 +399,17 @@ describe('useTourPlanner route tools', () => {
       const [start, end] = result.current.waypoints;
       let id: string | null = null;
       act(() => {
-        id = result.current.insertShapingPoint(start!.id, 48.01, 11.005);
+        id = result.current.insertShapingPoint(must(start).id, 48.01, 11.005);
       });
       expect(result.current.waypoints.map((point) => !!point.shaping)).toEqual([false, true, false]);
       expect(result.current.waypoints[1]?.id).toBe(id);
       act(() => {
-        expect(result.current.insertShapingPoint(end!.id, 48.03, 11.03)).toBeNull();
-        expect(result.current.insertShapingPoint(start!.id, Number.NaN, 11)).toBeNull();
+        expect(result.current.insertShapingPoint(must(end).id, 48.03, 11.03)).toBeNull();
+        expect(result.current.insertShapingPoint(must(start).id, Number.NaN, 11)).toBeNull();
       });
-      act(() => result.current.setWaypointShaping(id!, false));
+      act(() => result.current.setWaypointShaping(must(id), false));
       expect(result.current.waypoints[1]).not.toHaveProperty('shaping');
-      act(() => result.current.setWaypointShaping(start!.id, true));
+      act(() => result.current.setWaypointShaping(must(start).id, true));
       expect(result.current.waypoints[0]).not.toHaveProperty('shaping');
       // One undo takes back one change.
       act(() => result.current.undo());
@@ -425,11 +431,11 @@ describe('useTourPlanner route tools', () => {
       await settle();
       expect(paddlePlan).toHaveBeenCalledTimes(1);
       const [start, end] = result.current.waypoints;
-      act(() => result.current.recomputeLeg(start!.id));
+      act(() => result.current.recomputeLeg(must(start).id));
       expect(paddleForget).toHaveBeenCalledWith(31, start, end, { boat: 'kayak', lakeStyle: 'direct' });
       await settle();
       expect(paddlePlan).toHaveBeenCalledTimes(2);
-      act(() => result.current.recomputeLeg(end!.id));
+      act(() => result.current.recomputeLeg(must(end).id));
       expect(paddleForget).toHaveBeenCalledTimes(1);
     });
 
@@ -502,7 +508,9 @@ describe('useTourPlanner route tools', () => {
       await settle();
       await settle();
       const end = result.current.waypoints[result.current.waypoints.length - 1];
-      act(() => result.current.setWaypointPosition(end.id, 48.2, 11));
+      act(() => {
+        void result.current.setWaypointPosition(end.id, 48.2, 11);
+      });
       await settle();
       expect(result.current.waypoints.filter((point) => point.auto).every((point) => point.auto?.to.lat === 48.2)).toBe(
         true

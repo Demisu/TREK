@@ -11,6 +11,13 @@ import {
   type PaddlePoint,
 } from './paddleRouting';
 
+/** The item at `i`, or a failure that names the index instead of a later undefined. */
+function at<T>(list: readonly T[], i: number): T {
+  const item = list[i];
+  if (item === undefined) throw new Error(`nothing at ${i}`);
+  return item;
+}
+
 vi.mock('../../../repo/paddleRouteRepo', () => ({ paddleRouteRepo: { plan: vi.fn(), forget: vi.fn() } }));
 
 const KAYAK = { boat: 'kayak' as const, lakeStyle: 'direct' as const };
@@ -83,7 +90,7 @@ describe('routePaddleTour', () => {
       [false, false],
     ]);
     expect(route.legLengths[1]).toBe(5500);
-    expect(route.distanceMeters).toBeCloseTo(route.legLengths[0]! + 5500);
+    expect(route.distanceMeters).toBeCloseTo(at(route.legLengths, 0) + 5500);
     expect(route.coordinates[0]).toEqual([A.lat, A.lng]);
     expect(route.coordinates[route.coordinates.length - 1]).toEqual([C.lat, C.lng]);
   });
@@ -171,7 +178,7 @@ describe('automatic points', () => {
     expect(pruneAutoPoints(points)).toEqual(points);
     const moved = points.map((point) => (point.id === 'b' ? { ...point, lat: point.lat + 0.01 } : point));
     expect(pruneAutoPoints(moved).map((point) => point.id)).toEqual(['a', 'b', 'c']);
-    const shaped = [points[0]!, { id: 's', lat: 49.095, lng: 12.105, shaping: true }, ...points.slice(1)];
+    const shaped = [at(points, 0), { id: 's', lat: 49.095, lng: 12.105, shaping: true }, ...points.slice(1)];
     expect(pruneAutoPoints(shaped).map((point) => point.id)).toEqual(['a', 's', 'b', 'c']);
   });
 

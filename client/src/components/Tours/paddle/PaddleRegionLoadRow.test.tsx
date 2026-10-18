@@ -2,7 +2,8 @@
 import type { PaddleRegionLoadState } from '@trek/shared';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '../../../../tests/helpers/render';
-import { isRegionLoadPending, PaddleRegionLoadRow, regionLoadFailure } from './PaddleRegionLoadRow';
+import { PaddleRegionLoadRow } from './PaddleRegionLoadRow';
+import { isRegionLoadPending, regionLoadFailure } from './paddleRegionLoad';
 
 const REF = { id: 'oberpfalz', name: 'Oberpfalz' };
 const t = (key: string, params?: Record<string, unknown>) => `${key}${params ? JSON.stringify(params) : ''}`;

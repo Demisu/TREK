@@ -2,6 +2,7 @@ import type { PaddleGeometry, PaddleObstacleKind } from '@trek/shared';
 import { MapPinPlus } from 'lucide-react';
 import { useTranslation } from '../../../i18n';
 import { fs } from '../../shared/DialogShell';
+import { placeOf } from './paddleObstaclePlace';
 
 /** Where a paddler gets in or out: these places can become a waypoint from their card. */
 const PLACEABLE: Partial<Record<PaddleObstacleKind, 'put_in' | 'egress'>> = {
@@ -9,28 +10,6 @@ const PLACEABLE: Partial<Record<PaddleObstacleKind, 'put_in' | 'egress'>> = {
   slipway: 'put_in',
   egress: 'egress',
 };
-
-/**
- * The spot a waypoint goes to: the place itself, the middle of a way (a
- * slipway drawn as a ramp), or the middle of an area's outline.
- */
-export function placeOf(geometry: PaddleGeometry): { lat: number; lng: number } | null {
-  const line =
-    geometry.type === 'Point'
-      ? [geometry.coordinates]
-      : geometry.type === 'LineString'
-        ? geometry.coordinates
-        : geometry.coordinates[0];
-  if (!line?.length) return null;
-  if (geometry.type === 'Polygon') {
-    const ring = line.slice(0, -1);
-    const lng = ring.reduce((sum, [x]) => sum + x, 0) / ring.length;
-    const lat = ring.reduce((sum, [, y]) => sum + y, 0) / ring.length;
-    return { lat, lng };
-  }
-  const [lng, lat] = line[Math.floor((line.length - 1) / 2)] ?? [];
-  return lat === undefined || lng === undefined ? null : { lat, lng };
-}
 
 /**
  * PAD-05B: a put-in, a slipway or an egress taken over as the tour's next

@@ -10,6 +10,13 @@ import type { PaddleTourRoute } from './paddleRouting';
 import TourWaypointList from './TourWaypointList';
 import type { TourPlannerController } from './useTourPlanner';
 
+/** The item at `i`, or a failure that names the index instead of a later undefined. */
+function at<T>(list: readonly T[], i: number): T {
+  const item = list[i];
+  if (item === undefined) throw new Error(`nothing at ${i}`);
+  return item;
+}
+
 vi.mock('./useWaypointPlaceNames', () => ({ useWaypointPlaceNames: () => ({}) }));
 
 const START = { id: 'a', lat: 49.1, lng: 12.1, role: 'start' as const };
@@ -67,7 +74,7 @@ describe('TourWaypointList', () => {
     render(<TourWaypointList planner={planner()} canEdit isSaving={false} />);
     const rows = screen.getAllByTestId('tour-planner-waypoint-row');
     expect(rows).toHaveLength(4);
-    expect(within(rows[1]!).getByLabelText('Shaping point')).toHaveAttribute('data-waypoint-shaping', 'true');
+    expect(within(at(rows, 1)).getByLabelText('Shaping point')).toHaveAttribute('data-waypoint-shaping', 'true');
     expect(
       [...document.querySelectorAll('[data-waypoint-number]')].map((el) => el.getAttribute('data-waypoint-number'))
     ).toEqual(['1', '2', '3']);
@@ -77,7 +84,7 @@ describe('TourWaypointList', () => {
   it('FE-TOUR-WAYPOINT-LIST-002: the menu plans a routed leg again, draws it by hand, and turns a stop into a shaping point', async () => {
     const controller = planner({ selectedWaypointId: 'b' });
     render(<TourWaypointList planner={controller} canEdit isSaving={false} />);
-    const row = screen.getAllByTestId('tour-planner-waypoint-row')[2]!;
+    const row = at(screen.getAllByTestId('tour-planner-waypoint-row'), 2);
     await userEvent.click(within(row).getByRole('button', { name: 'More actions' }));
     await userEvent.click(screen.getByRole('button', { name: 'Plan the next leg again' }));
     expect(controller.recomputeLeg).toHaveBeenCalledWith('b');
@@ -95,14 +102,14 @@ describe('TourWaypointList', () => {
     const controller = planner({ selectedWaypointId: 's' });
     const { rerender } = render(<TourWaypointList planner={controller} canEdit isSaving={false} />);
     await userEvent.click(
-      within(screen.getAllByTestId('tour-planner-waypoint-row')[1]!).getByRole('button', { name: 'More actions' })
+      within(at(screen.getAllByTestId('tour-planner-waypoint-row'), 1)).getByRole('button', { name: 'More actions' })
     );
     await userEvent.click(screen.getByRole('button', { name: 'Make it a stop' }));
     expect(controller.setWaypointShaping).toHaveBeenCalledWith('s', false);
 
     rerender(<TourWaypointList planner={planner({ selectedWaypointId: 'a' })} canEdit isSaving={false} />);
     await userEvent.click(
-      within(screen.getAllByTestId('tour-planner-waypoint-row')[0]!).getByRole('button', { name: 'More actions' })
+      within(at(screen.getAllByTestId('tour-planner-waypoint-row'), 0)).getByRole('button', { name: 'More actions' })
     );
     expect(screen.queryByRole('button', { name: 'Make it a shaping point' })).not.toBeInTheDocument();
   });

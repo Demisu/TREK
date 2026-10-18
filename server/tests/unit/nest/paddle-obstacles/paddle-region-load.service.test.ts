@@ -171,9 +171,11 @@ describe('PaddleRegionLoadService', () => {
   });
 
   it('PLOAD-004: holds TREK to a few regions a day and asks the admins for the next', async () => {
-    for (let i = 0; i < PADDLE_AUTO_REGIONS_PER_DAY; i += 1) {
-      await insertRow(orm(), PaddleRegions, { id: `auto-${i}`, name: `Auto ${i}`, origin: 'auto', status: 'ready' });
-    }
+    await Promise.all(
+      Array.from({ length: PADDLE_AUTO_REGIONS_PER_DAY }, (_, i) =>
+        insertRow(orm(), PaddleRegions, { id: `auto-${i}`, name: `Auto ${i}`, origin: 'auto', status: 'ready' }),
+      ),
+    );
     const [answer] = await ask(paddler);
     expect(answer).toMatchObject({ state: 'requested', reason: 'limit' });
   });
