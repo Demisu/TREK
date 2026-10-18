@@ -552,7 +552,8 @@ describe('Tool: search_pois', () => {
       const [lat, lng, opts] = trekNearbyMock.mock.calls[0];
       expect(lat).toBeCloseTo(48.86, 5);
       expect(lng).toBeCloseTo(2.345, 5);
-      expect(opts?.category).toBe('restaurant,casual_eatery,fast_food');
+      // Overture paths, so a pill cannot catch what is only spelled like it (#2663).
+      expect(opts?.category).toBe('food_and_drink>restaurant,food_and_drink>casual_eatery');
       // Sixty per category, the same allowance the Overpass path spends, rather
       // than a number this branch made up for itself.
       expect(opts?.limit).toBe(60);
