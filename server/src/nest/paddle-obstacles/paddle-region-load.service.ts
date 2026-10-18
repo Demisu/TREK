@@ -1,19 +1,17 @@
-import { AppSettings } from '../../db/entities/AppSettings.entity';
 import { PaddleRegionRequests } from '../../db/entities/PaddleRegionRequests.entity';
 import { PaddleRegions } from '../../db/entities/PaddleRegions.entity';
 import { PADDLE_REGION_BOUNDARY } from '../../db/json-columns';
-import type { AppSettingsRepository } from '../../db/repositories/AppSettings.repository';
 import type { PaddleRegionRequestsRepository } from '../../db/repositories/PaddleRegionRequests.repository';
 import type { PaddleRegionRow, PaddleRegionsRepository } from '../../db/repositories/PaddleRegions.repository';
 import { dbNow, utcSuffix } from '../../db/types';
 import type { User } from '../../types';
 import { decodeJson } from '../../utils/json-column';
 import { logError, logInfo } from '../audit/audit-log.logger';
-import { readAppSetting } from '../common/app-settings.registry';
 import { DemoService } from '../common/demo.service';
 import { DomainError } from '../common/domain-error';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PaddleRoutingService } from '../paddle-routing/paddle-routing.service';
+import { SettingsService } from '../settings/settings.service';
 import { GeofabrikClient, type GeofabrikRegion } from './geofabrik.client';
 import { boundaryContains, boxOfBoundary } from './paddle-geo';
 import { PaddleRegionsService, REGION_NOT_FOUND_MESSAGE } from './paddle-regions.service';
@@ -90,14 +88,14 @@ export class PaddleRegionLoadService {
     private readonly routing: PaddleRoutingService,
     private readonly notifications: NotificationsService,
     private readonly demo: DemoService,
+    private readonly instanceSettings: SettingsService,
     @InjectRepository(PaddleRegions) private readonly regions: PaddleRegionsRepository,
     @InjectRepository(PaddleRegionRequests) private readonly requests: PaddleRegionRequestsRepository,
-    @InjectRepository(AppSettings) private readonly appSettings: AppSettingsRepository,
   ) {}
 
   async settings(): Promise<PaddleRegionSettings> {
-    const mode = paddleRegionAutoModeSchema.safeParse(await readAppSetting(this.appSettings, 'paddle_auto_load'));
-    const maxMb = Number.parseInt((await readAppSetting(this.appSettings, 'paddle_auto_max_mb')) ?? '', 10);
+    const mode = paddleRegionAutoModeSchema.safeParse(await this.instanceSettings.getAppSetting('paddle_auto_load'));
+    const maxMb = Number.parseInt((await this.instanceSettings.getAppSetting('paddle_auto_max_mb')) ?? '', 10);
     return {
       mode: mode.success ? mode.data : 'auto',
       max_mb:
@@ -108,8 +106,10 @@ export class PaddleRegionLoadService {
   }
 
   async updateSettings(settings: PaddleRegionSettings): Promise<PaddleRegionSettings> {
-    await this.appSettings.setValue('paddle_auto_load', settings.mode);
-    await this.appSettings.setValue('paddle_auto_max_mb', String(settings.max_mb));
+    await this.instanceSettings.setAppSettings({
+      paddle_auto_load: settings.mode,
+      paddle_auto_max_mb: String(settings.max_mb),
+    });
     return await this.settings();
   }
 
@@ -125,6 +125,9 @@ export class PaddleRegionLoadService {
   /**
    * Where the water data around each place stands, in the order asked, after
    * starting what the setting allows. Places in one region share one decision.
+   *
+   * @txIndependent one decision per region, with Geofabrik asked for a size between them: a region added or a
+   * request filed is whole on its own and stays when a later place fails
    */
   async load(user: User, request: PaddleRegionLoadRequest): Promise<PaddleRegionLoadState[]> {
     const places = await Promise.all(request.points.map((point) => this.placeOf(point)));

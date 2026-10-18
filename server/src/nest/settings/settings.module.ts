@@ -9,7 +9,10 @@ import { SettingsService } from './settings.service';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 
-/** Exports SettingsService for in-container consumers (admin, share, llm-parse, journey, roadtrip, trips). */
+/**
+ * Exports SettingsService for in-container consumers (admin, share, llm-parse,
+ * journey, roadtrip, trips, and paddle-obstacles for its instance settings).
+ */
 @Module({
   // MikroOrmModule.forFeature
   // registers AppSettingsRepository/SettingsRepository for the

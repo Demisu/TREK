@@ -5,8 +5,10 @@
  * count say; a region TREK holds already answers how far its read is; the
  * admins hear of a request once.
  */
+import { AppSettings } from '../../../../src/db/entities/AppSettings.entity';
 import { PaddleRegionRequests } from '../../../../src/db/entities/PaddleRegionRequests.entity';
 import { PaddleRegions } from '../../../../src/db/entities/PaddleRegions.entity';
+import type { AppSettingsRepository } from '../../../../src/db/repositories/AppSettings.repository';
 import { AppConfigModule } from '../../../../src/nest/app-config/app-config.module';
 import { DataPathsService } from '../../../../src/nest/app-config/data-paths.service';
 import { DemoModule } from '../../../../src/nest/common/demo.module';
@@ -26,6 +28,7 @@ import { pbfFile } from '../../../helpers/osm-pbf-fixture';
 import { resetTestDb } from '../../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../../helpers/test-module';
 import { MikroORM } from '@mikro-orm/core';
+import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { PADDLE_AUTO_REGIONS_PER_DAY, paddleRegionLoadStateSchema } from '@trek/shared';
 
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
@@ -250,7 +253,6 @@ describe('PaddleRegionLoadService', () => {
   it('PLOAD-011: the setting starts automatic at 500 MB and falls back there from a broken row', async () => {
     expect(await load.settings()).toEqual({ mode: 'auto', max_mb: 500 });
     expect(await load.updateSettings({ mode: 'ask', max_mb: 1000 })).toEqual({ mode: 'ask', max_mb: 1000 });
-    const { AppSettings } = await import('../../../../src/db/entities/AppSettings.entity');
     await updateRows(orm(), AppSettings, { key: 'paddle_auto_load' }, { value: 'sometimes' });
     await updateRows(orm(), AppSettings, { key: 'paddle_auto_max_mb' }, { value: '99999' });
     expect(await load.settings()).toEqual({ mode: 'auto', max_mb: 500 });
@@ -262,5 +264,19 @@ describe('PaddleRegionLoadService', () => {
       state: 'loading',
       region: { id: 'mecklenburg-vorpommern' },
     });
+  });
+
+  it('PLOAD-013: the mode and the size are saved together: a failed second write leaves the first unchanged', async () => {
+    await load.updateSettings({ mode: 'ask', max_mb: 800 });
+    const repository = t?.get<AppSettingsRepository>(getRepositoryToken(AppSettings));
+    if (!repository) throw new Error('No repository');
+    const setValue = repository.setValue.bind(repository);
+    vi.spyOn(repository, 'setValue').mockImplementation(async (key, value) => {
+      if (key === 'paddle_auto_max_mb') throw new Error('database is locked');
+      await setValue(key, value);
+    });
+
+    await expect(load.updateSettings({ mode: 'off', max_mb: 1000 })).rejects.toThrow('database is locked');
+    expect(await load.settings()).toEqual({ mode: 'ask', max_mb: 800 });
   });
 });

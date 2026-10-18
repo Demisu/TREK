@@ -1,4 +1,3 @@
-import { AppSettings } from '../../db/entities/AppSettings.entity';
 import { PaddleFeatures } from '../../db/entities/PaddleFeatures.entity';
 import { PaddleRegionRequests } from '../../db/entities/PaddleRegionRequests.entity';
 import { PaddleRegions } from '../../db/entities/PaddleRegions.entity';
@@ -7,6 +6,7 @@ import { AuditModule } from '../audit/audit.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { PaddleRoutingModule } from '../paddle-routing/paddle-routing.module';
 import { SchedulingModule } from '../scheduling/scheduling.module';
+import { SettingsModule } from '../settings/settings.module';
 import { GeofabrikClient } from './geofabrik.client';
 import { PADDLE_IMPORT_RUNNER, importRunner } from './import-runner';
 import { PaddleObstaclesController, PaddleRegionsController } from './paddle-obstacles.controller';
@@ -33,7 +33,8 @@ import { Module } from '@nestjs/common';
     NotificationsModule,
     SchedulingModule,
     PaddleRoutingModule,
-    MikroOrmModule.forFeature([PaddleRegions, PaddleFeatures, PaddleRegionRequests, AppSettings]),
+    SettingsModule,
+    MikroOrmModule.forFeature([PaddleRegions, PaddleFeatures, PaddleRegionRequests]),
   ],
   controllers: [PaddleObstaclesController, PaddleRegionsController],
   providers: [

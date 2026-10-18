@@ -3,6 +3,7 @@ import { AppSettings } from '../../db/entities/AppSettings.entity';
 import { Settings } from '../../db/entities/Settings.entity';
 import type { AppSettingsRepository } from '../../db/repositories/AppSettings.repository';
 import type { SettingsRepository } from '../../db/repositories/Settings.repository';
+import { readAppSetting, type AppSettingKey } from '../common/app-settings.registry';
 import { decrypt_api_key, maybe_encrypt_api_key } from '../common/crypto/apiKeyCrypto';
 import { UnitOfWork } from '../database/unit-of-work';
 import { TripMembershipService } from '../trip-membership/trip-membership.service';
@@ -375,5 +376,21 @@ export class SettingsService {
     } catch {
       return row.value;
     }
+  }
+
+  /** The stored text of a registered instance setting, or null without a row, for a domain that keeps one there. */
+  async getAppSetting(key: AppSettingKey): Promise<string | null> {
+    return await readAppSetting(this.appSettings, key);
+  }
+
+  /** Registered instance settings written together: every value lands, or none does. */
+  async setAppSettings(values: Partial<Record<AppSettingKey, string>>): Promise<void> {
+    const entries = Object.entries(values).filter((entry): entry is [string, string] => entry[1] !== undefined);
+    await this.uow.transactional(() =>
+      entries.reduce<Promise<void>>(async (previous, [key, value]) => {
+        await previous;
+        await this.appSettings.setValue(key, value);
+      }, Promise.resolve()),
+    );
   }
 }
