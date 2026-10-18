@@ -193,7 +193,7 @@ export function useTripJournalLink(tripId: number) {
       setBusy(true);
       try {
         await write();
-        toast.success(t(done));
+        toast.success(done);
         cancel();
       } catch (err: unknown) {
         fail(err);
@@ -201,20 +201,20 @@ export function useTripJournalLink(tripId: number) {
         setBusy(false);
       }
     },
-    [cancel, fail, t, toast]
+    [cancel, fail, toast]
   );
 
   const save = useCallback(async () => {
     if (mode === 'pick' && pickedId != null) {
-      await run(() => store().link(tripId, pickedId, chosenMembers), 'trip.journal.linked');
+      await run(() => store().link(tripId, pickedId, chosenMembers), t('trip.journal.linked'));
     } else if (mode === 'members') {
-      await run(() => store().setMembers(tripId, chosenMembers), 'trip.journal.membersSaved');
+      await run(() => store().setMembers(tripId, chosenMembers), t('trip.journal.membersSaved'));
     }
-  }, [mode, pickedId, run, store, tripId, chosenMembers]);
+  }, [mode, pickedId, run, store, tripId, chosenMembers, t]);
 
   const unlink = useCallback(async () => {
-    await run(() => store().unlink(tripId), 'trip.journal.unlinked');
-  }, [run, store, tripId]);
+    await run(() => store().unlink(tripId), t('trip.journal.unlinked'));
+  }, [run, store, tripId, t]);
 
   return {
     /** The section shows at all: the addon is on and this person may link, or the trip has a journal they see. */

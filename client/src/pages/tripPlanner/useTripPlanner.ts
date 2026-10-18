@@ -215,7 +215,7 @@ export function useTripPlanner() {
     ...(enabledAddons.documents ? [{ id: 'dateien', label: t(TRIP_TAB_LABEL_KEYS.dateien), icon: FolderOpen }] : []),
     ...(enabledAddons.collab ? [{ id: 'collab', label: t(TRIP_TAB_LABEL_KEYS.collab), icon: Users }] : []),
     // A journal from the Journey addon tied to this trip, for whoever the link lets in.
-    ...(journal.openJournalId != null ? [{ id: 'journal', label: t(TRIP_TAB_LABEL_KEYS.journal), icon: LinkedJournalIcon }] : []),
+    ...(journal.openJournalId != null ? [{ id: 'journal', label: t('trip.tabs.journal'), icon: LinkedJournalIcon }] : []),
   ].filter(tab => tab.id === 'plan' || !replacedTabs.has(tab.id))
   // Positioned plugin tabs splice in ascending order so two positions stay stable;
   // the rest append, exactly as before this capability existed.
