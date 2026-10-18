@@ -5,7 +5,7 @@ import MIconBtn from '../../components/MIconBtn'
 import MToggle from '../../components/MToggle'
 import ConfirmDialog from '../../../components/shared/ConfirmDialog'
 import { useTranslation } from '../../../i18n'
-import type { JourneyDetail } from '../../../store/journeyStore'
+import type { JourneyDetail, JourneyTripAccess } from '../../../store/journeyStore'
 import { useJourneySettings, useJourneyTripLinking } from '../../../components/Journey/useJourneySettings'
 import { useJourneyShareLink } from '../../../components/Journey/useJourneyShareLink'
 import { pickGradient } from '../../../pages/journeyDetail/JourneyDetailPage.helpers'
@@ -234,25 +234,7 @@ export default function MJourneySettingsSheet({
           {t('journey.contributors.invite')}
         </button>
 
-        {/* Through a trip's linked journal (#2683): shown, but changed in that trip. */}
-        {!!journey.trip_access?.length && (
-          <>
-            <div className={`${eyebrow} mb-[6px] mt-[14px]`}>{t('journey.contributors.viaTrips')}</div>
-            <p className="m-0 mb-[6px] text-caption text-m-faint">{t('journey.contributors.viaTripsHint')}</p>
-            {journey.trip_access.map(a => (
-              <div key={`${a.user_id}-${a.trip_id}`} className="flex items-center gap-[10px] px-[2px] py-1">
-                <Link2 size={15} className="flex-none text-m-muted" />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-caption font-bold">{a.username}</span>
-                  <span className="block truncate text-caption text-m-faint">{t('journey.contributors.viaTrip', { trip: a.trip_title })}</span>
-                </span>
-                <span className="rounded-full bg-[color:var(--m-ic)] px-[10px] py-[3px] font-geist text-caption font-extrabold text-m-muted">
-                  {a.role}
-                </span>
-              </div>
-            ))}
-          </>
-        )}
+        <MTripAccessList access={journey.trip_access} eyebrow={eyebrow} />
 
         {/* Public share */}
         <div className={`${eyebrow} mb-[6px] mt-[14px]`}>{t('journey.share.publicShare')}</div>
@@ -348,5 +330,29 @@ export default function MJourneySettingsSheet({
         danger
       />
     </MSheet>
+  )
+}
+
+/** Who a trip's linked journal lets in (#2683): shown under the contributors, but changed in that trip. */
+function MTripAccessList({ access, eyebrow }: { access: JourneyTripAccess[] | undefined; eyebrow: string }) {
+  const { t } = useTranslation()
+  if (!access?.length) return null
+  return (
+    <>
+      <div className={`${eyebrow} mb-[6px] mt-[14px]`}>{t('journey.contributors.viaTrips')}</div>
+      <p className="m-0 mb-[6px] text-caption text-m-faint">{t('journey.contributors.viaTripsHint')}</p>
+      {access.map(a => (
+        <div key={`${a.user_id}-${a.trip_id}`} className="flex items-center gap-[10px] px-[2px] py-1">
+          <Link2 size={15} className="flex-none text-m-muted" />
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-caption font-bold">{a.username}</span>
+            <span className="block truncate text-caption text-m-faint">{t('journey.contributors.viaTrip', { trip: a.trip_title })}</span>
+          </span>
+          <span className="rounded-full bg-[color:var(--m-ic)] px-[10px] py-[3px] font-geist text-caption font-extrabold text-m-muted">
+            {a.role}
+          </span>
+        </div>
+      ))}
+    </>
   )
 }
