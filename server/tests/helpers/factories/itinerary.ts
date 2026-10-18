@@ -29,13 +29,12 @@ export async function makeDayAssignment(
   overrides: EntityData<DayAssignments> = {},
 ): Promise<DayAssignmentRow> {
   const orderIndex = overrides.order_index ?? (await nextOrderIndex(orm, dayId));
-  return createRow(orm, DayAssignments, {
-    day: dayId,
-    place: placeId,
-    notes: null,
-    ...overrides,
-    order_index: orderIndex,
-  });
+  return createRow(
+    orm,
+    DayAssignments,
+    { day: dayId, place: placeId, notes: null },
+    { ...overrides, order_index: orderIndex },
+  );
 }
 
 /** A note on the day, sorted last unless `sort_order` says otherwise. */
@@ -45,15 +44,19 @@ export function makeDayNote(
   tripId: number,
   overrides: EntityData<DayNotes> = {},
 ): Promise<DayNoteRow> {
-  return createRow(orm, DayNotes, {
-    day: dayId,
-    trip: tripId,
-    text: 'Test note',
-    time: null,
-    icon: '📝',
-    sort_order: 9999,
-    ...overrides,
-  });
+  return createRow(
+    orm,
+    DayNotes,
+    {
+      day: dayId,
+      trip: tripId,
+      text: 'Test note',
+      time: null,
+      icon: '📝',
+      sort_order: 9999,
+    },
+    overrides,
+  );
 }
 
 /** A stay at `placeId` from the start day to the end day. */
@@ -65,14 +68,18 @@ export function makeDayAccommodation(
   endDayId: number,
   overrides: EntityData<DayAccommodations> = {},
 ): Promise<DayAccommodationRow> {
-  return createRow(orm, DayAccommodations, {
-    trip: tripId,
-    place: placeId,
-    startDay: startDayId,
-    endDay: endDayId,
-    check_in: null,
-    check_out: null,
-    confirmation: null,
-    ...overrides,
-  });
+  return createRow(
+    orm,
+    DayAccommodations,
+    {
+      trip: tripId,
+      place: placeId,
+      startDay: startDayId,
+      endDay: endDayId,
+      check_in: null,
+      check_out: null,
+      confirmation: null,
+    },
+    overrides,
+  );
 }

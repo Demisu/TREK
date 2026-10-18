@@ -3,7 +3,8 @@
 import type { InsertOptional } from './columns';
 
 export interface TripJournalLinksTable {
-  trip_id: InsertOptional<number>;
+  id: InsertOptional<number>;
+  trip_id: number;
   journey_id: number;
   linked_by: InsertOptional<number | null>;
   created_at: number;

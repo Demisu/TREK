@@ -37,6 +37,7 @@ import { countRows, deleteRows, findRow, findRows, insertRow, updateRows } from 
 import { readUser } from '../../helpers/factories/users';
 import { FakeRealtimeService } from '../../helpers/fake-realtime';
 import { createTestBudgetItemsRepo } from '../../helpers/files-repos';
+import { journalLinksStub } from '../../helpers/journal-links';
 import {
   createTestJourneysRepo,
   createTestJourneyEntriesRepo,
@@ -143,6 +144,7 @@ beforeAll(async () => {
     new PermissionsService(await createTestAppSettingsRepo(testDb), await createTestUnitOfWork(testDb)),
     realtime,
     notificationsStub(notifySend),
+    journalLinksStub(),
     await createTestUnitOfWork(testDb),
     tripsRepo,
     tripMembersRepo,

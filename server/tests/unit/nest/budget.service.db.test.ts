@@ -56,6 +56,7 @@ import { CollabService } from '../../../src/nest/collab/collab.service';
 import { VacayService } from '../../../src/nest/vacay/vacay.service';
 import { QueryHelpersService } from '../../../src/nest/query-helpers/query-helpers.service';
 import { notificationsStub } from '../../helpers/notifications';
+import { journalLinksStub } from '../../helpers/journal-links';
 import { createTestUnitOfWork, createTestAppSettingsRepo, createTestUsersRepo, sharedTestOrm, createTestTripsRepo, createTestTripMembersRepo } from '../../helpers/test-uow';
 import { budgetRepoArgs, createTestBudgetItemMembersRepo, createTestBudgetItemPayersRepo, createTestBudgetSettlementsRepo } from '../../helpers/budget-repos';
 import { createTestShareTokensRepo, createTestPluginsRepo, createTestPluginUserErasureQueueRepo } from '../../helpers/share-repos';
@@ -161,6 +162,7 @@ beforeAll(async () => {
   new PermissionsService(await createTestAppSettingsRepo(testDb), await createTestUnitOfWork(testDb)),
   new RealtimeService(),
   notificationsStub(),
+  journalLinksStub(),
   await createTestUnitOfWork(testDb),
   await createTestTripsRepo(testDb),
   await createTestTripMembersRepo(testDb),

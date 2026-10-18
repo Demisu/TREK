@@ -3,7 +3,7 @@
 import type { InsertOptional } from './columns';
 
 export interface TripJournalLinkMembersTable {
-  trip_id: number;
+  link_id: number;
   user_id: number;
   role: InsertOptional<string>;
   hide_skeletons: InsertOptional<number>;

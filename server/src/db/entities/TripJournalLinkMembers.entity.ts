@@ -5,9 +5,9 @@ import { Users } from './Users.entity';
 
 export class TripJournalLinkMembers {
   [EntityRepositoryType]?: TripJournalLinkMembersRepository;
-  [PrimaryKeyProp]?: ['trip', 'user'];
-  trip!: Ref<TripJournalLinks>;
-  trip_id!: number;
+  [PrimaryKeyProp]?: ['link', 'user'];
+  link!: Ref<TripJournalLinks>;
+  link_id!: number;
   user!: Ref<Users>;
   user_id!: number;
   role: TTripJournalLinkMembersRole & Opt = TripJournalLinkMembersRole.VIEWER;
@@ -25,10 +25,10 @@ export type TTripJournalLinkMembersRole = (typeof TripJournalLinkMembersRole)[ke
 export const TripJournalLinkMembersSchema = defineEntity({
   class: TripJournalLinkMembers,
   repository: () => TripJournalLinkMembersRepository,
-  uniques: [{ properties: ['trip', 'user'] }],
+  uniques: [{ properties: ['link', 'user'] }],
   properties: {
-    trip: () => p.manyToOne(TripJournalLinks).primary().ref().name('trip_id').hidden(),
-    trip_id: p.integer().persist(false),
+    link: () => p.manyToOne(TripJournalLinks).primary().ref().hidden(),
+    link_id: p.integer().persist(false),
     user: () => p.manyToOne(Users).primary().ref().hidden().index('idx_trip_journal_link_members_user'),
     user_id: p.integer().persist(false).index('idx_trip_journal_link_members_user'),
     role: p.enum(() => TripJournalLinkMembersRole).default('viewer'),

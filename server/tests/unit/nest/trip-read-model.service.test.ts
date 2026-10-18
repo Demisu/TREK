@@ -57,6 +57,7 @@ import { insertRow, updateRows } from '../../helpers/factories/rows';
 import { FakeRealtimeService } from '../../helpers/fake-realtime';
 import { createTestTripFilesRepo, createTestFileLinksRepo, createTestBudgetItemsRepo } from '../../helpers/files-repos';
 import { noGoogleQuota } from '../../helpers/google-quota';
+import { journalLinksStub } from '../../helpers/journal-links';
 import {
   createTestJourneysRepo,
   createTestJourneyContributorsRepo,
@@ -258,6 +259,7 @@ beforeAll(async () => {
     new PermissionsService(await createTestAppSettingsRepo(testDb), await createTestUnitOfWork(testDb)),
     realtime,
     notificationsStub(),
+    journalLinksStub(),
     await createTestUnitOfWork(testDb),
     await createTestTripsRepo(testDb),
     await createTestTripMembersRepo(testDb),

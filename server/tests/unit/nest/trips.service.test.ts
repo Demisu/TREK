@@ -71,6 +71,7 @@ import { QueryHelpersService } from '../../../src/nest/query-helpers/query-helpe
 import fs from 'fs';
 import path from 'path';
 import { notificationsStub } from '../../helpers/notifications';
+import { journalLinksStub } from '../../helpers/journal-links';
 import { EphemeralTokenService } from '../../../src/nest/auth-core/ephemeral-token.service';
 import {
   createTestUnitOfWork, createTestAppSettingsRepo, createTestUsersRepo, sharedTestOrm,
@@ -305,7 +306,7 @@ beforeAll(async () => {
   (await sharedTestOrm(testDb)).em,
   new SettingsService(await createTestUnitOfWork(testDb), await createTestAppSettingsRepo(testDb), await createTestSettingsRepo(testDb), membership.get(TripMembershipService)),
 );
-  membersSvc = new TripMembersService(budgetSvc, new UserCleanupService(new MaintenanceRepository(dbsEm!), budgetSvc, await createTestUnitOfWork(testDb), await createTestUsersRepo(testDb), await createTestTripMembersRepo(testDb), await createTestBudgetItemsRepo(testDb), await createTestBudgetSettlementsRepo(testDb), await createTestJourneyShareTokensRepo(testDb), await createTestJourneysRepo(testDb), await createTestJourneyEntriesRepo(testDb), await createTestJourneyContributorsRepo(testDb), await createTestShareTokensRepo(testDb), await createTestPluginsRepo(testDb), await createTestPluginUserErasureQueueRepo(testDb)), new PermissionsService(await createTestAppSettingsRepo(testDb), await createTestUnitOfWork(testDb)), realtime, notificationsStub(), await createTestUnitOfWork(testDb), await createTestTripsRepo(testDb), await createTestTripMembersRepo(testDb), await createTestUsersRepo(testDb));
+  membersSvc = new TripMembersService(budgetSvc, new UserCleanupService(new MaintenanceRepository(dbsEm!), budgetSvc, await createTestUnitOfWork(testDb), await createTestUsersRepo(testDb), await createTestTripMembersRepo(testDb), await createTestBudgetItemsRepo(testDb), await createTestBudgetSettlementsRepo(testDb), await createTestJourneyShareTokensRepo(testDb), await createTestJourneysRepo(testDb), await createTestJourneyEntriesRepo(testDb), await createTestJourneyContributorsRepo(testDb), await createTestShareTokensRepo(testDb), await createTestPluginsRepo(testDb), await createTestPluginUserErasureQueueRepo(testDb)), new PermissionsService(await createTestAppSettingsRepo(testDb), await createTestUnitOfWork(testDb)), realtime, notificationsStub(), journalLinksStub(), await createTestUnitOfWork(testDb), await createTestTripsRepo(testDb), await createTestTripMembersRepo(testDb), await createTestUsersRepo(testDb));
   readModelSvc = new TripReadModelService(
   await createTestTripsRepo(testDb), membersSvc, daysSvc, accommodationsSvc, budgetSvc,
   new PackingService(

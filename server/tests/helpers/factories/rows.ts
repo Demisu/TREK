@@ -28,17 +28,26 @@ import type {
  * `SELECT *` returned.
  */
 
-/** Inserts one row and returns its primary key (the autoincrement id for most tables). */
+/**
+ * Inserts one row and returns its primary key (the autoincrement id for most tables).
+ *
+ * A factory hands its caller's `overrides` in as their own argument rather than
+ * spread into `data`: checking a spread `EntityData` against `RequiredEntityData`
+ * expands every relation the entity reaches, and for the itinerary and tour rows
+ * (day to trip, place to tour) that took tsc past its instantiation depth (TS2589).
+ */
 export function insertRow<T extends object>(
   orm: FactoryOrm,
   entity: EntityClass<T>,
   data: RequiredEntityData<T>,
+  overrides?: EntityData<T>,
 ): Promise<Primary<T>> {
+  const row = (overrides ? { ...data, ...overrides } : data) as RequiredEntityData<T>;
   // async, so a refused column rejects the returned promise rather than
   // throwing before the caller has one to await.
   return inContext(orm, async (em) => {
-    assertWritable(em, entity, data);
-    return em.insert(entity, data);
+    assertWritable(em, entity, row);
+    return em.insert(entity, row);
   });
 }
 
@@ -65,14 +74,15 @@ export function insertRows<T extends object>(
 /**
  * Inserts one row into a table keyed by a single autoincrement `id` and reads
  * it back, defaults and all. For a table with a composite or natural key use
- * `insertRow` and then `findRow` with the key columns.
+ * `insertRow` and then `findRow` with the key columns. `overrides` as for `insertRow`.
  */
 export async function createRow<T extends { id: number }>(
   orm: FactoryOrm,
   entity: EntityClass<T>,
   data: RequiredEntityData<T>,
+  overrides?: EntityData<T>,
 ): Promise<EntityDTO<T>> {
-  const id = await insertRow(orm, entity, data);
+  const id = await insertRow(orm, entity, data, overrides);
   const row = await findRow(orm, entity, { id } as FilterQuery<T>);
   if (!row) throw new Error(`createRow: ${entity.name} ${String(id)} is not there after its insert`);
   return row;

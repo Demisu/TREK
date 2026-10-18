@@ -111,6 +111,7 @@ import {
 } from './collab-repos';
 import { createTestTripFilesRepo, createTestFileLinksRepo, createTestBudgetItemsRepo } from './files-repos';
 import { noGoogleQuota } from './google-quota';
+import { journalLinksStub } from './journal-links';
 import {
   createTestJourneysRepo,
   createTestJourneyContributorsRepo,
@@ -532,6 +533,7 @@ export async function createPluginRpcHostParts(
     permissions,
     realtime,
     notificationsStub(),
+    journalLinksStub(),
     await createTestUnitOfWork(db),
     await createTestTripsRepo(db),
     await createTestTripMembersRepo(db),

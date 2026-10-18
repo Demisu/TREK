@@ -11,7 +11,7 @@ export type TourRow = EntityDTO<Tours>;
  * of its own; its type defaults to 'hike', the one the tours migration seeds.
  */
 export async function makeTour(orm: FactoryOrm, placeId: number, overrides: EntityData<Tours> = {}): Promise<TourRow> {
-  await insertRow(orm, Tours, { place: placeId, tourTypeRef: 'hike', ...overrides });
+  await insertRow(orm, Tours, { place: placeId, tourTypeRef: 'hike' }, overrides);
   const tour = await findRow(orm, Tours, { place: placeId });
   if (!tour) throw new Error(`makeTour: no tour for place ${placeId} after its insert`);
   return tour;

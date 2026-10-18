@@ -51,7 +51,7 @@ export interface TripJournalLinkMemberRow {
 export function linkReach(db: Kysely<TripJournalLinkKyselyDB>) {
   return db
     .selectFrom('trip_journal_links as l')
-    .innerJoin('trip_journal_link_members as m', 'm.trip_id', 'l.trip_id')
+    .innerJoin('trip_journal_link_members as m', 'm.link_id', 'l.id')
     .innerJoin('trips as t', 't.id', 'l.trip_id')
     .where((eb) =>
       eb.or([
@@ -133,9 +133,10 @@ export class TripJournalLinksRepository extends TrekRepository<TripJournalLinks>
   async listMembers(tripId: number): Promise<TripJournalLinkMemberRow[]> {
     const rows = await this.kysely<TripJournalLinkKyselyDB>()
       .selectFrom('trip_journal_link_members as m')
+      .innerJoin('trip_journal_links as l', 'l.id', 'm.link_id')
       .innerJoin('users as u', 'u.id', 'm.user_id')
       .select(['m.user_id', 'm.role', 'u.username', 'u.avatar'])
-      .where('m.trip_id', '=', tripId)
+      .where('l.trip_id', '=', tripId)
       .orderBy('u.username', 'asc')
       .execute();
     return rows.map((r) => ({ ...r, role: r.role === 'editor' ? 'editor' : 'viewer' }));
@@ -162,7 +163,7 @@ export class TripJournalLinksRepository extends TrekRepository<TripJournalLinks>
     return people.map((p) => ({ ...p, is_guest: p.is_guest === 1 }));
   }
 
-  /** Points the trip at a journal, replacing the one it showed. */
+  /** Points the trip at a journal, replacing the one it showed; the link keeps its id. */
   async upsertLink(tripId: number, journeyId: number, linkedBy: number, now: number): Promise<void> {
     await this.kysely<TripJournalLinkKyselyDB>()
       .insertInto('trip_journal_links')
@@ -173,6 +174,14 @@ export class TripJournalLinksRepository extends TrekRepository<TripJournalLinks>
       .execute();
   }
 
+  /** The id of the trip's link, as a subquery the member writes narrow by. */
+  private linkIdOf(tripId: number) {
+    return this.kysely<TripJournalLinkKyselyDB>()
+      .selectFrom('trip_journal_links')
+      .select('id')
+      .where('trip_id', '=', tripId);
+  }
+
   /** Sets who the trip's link lets in, replacing the list it had. */
   async replaceMembers(
     tripId: number,
@@ -180,11 +189,13 @@ export class TripJournalLinksRepository extends TrekRepository<TripJournalLinks>
     now: number,
   ): Promise<void> {
     const db = this.kysely<TripJournalLinkKyselyDB>();
-    await db.deleteFrom('trip_journal_link_members').where('trip_id', '=', tripId).execute();
+    const link = await this.linkIdOf(tripId).executeTakeFirst();
+    if (!link) return;
+    await db.deleteFrom('trip_journal_link_members').where('link_id', '=', link.id).execute();
     if (members.length === 0) return;
     await db
       .insertInto('trip_journal_link_members')
-      .values(members.map((m) => ({ trip_id: tripId, user_id: m.user_id, role: m.role, added_at: now })))
+      .values(members.map((m) => ({ link_id: link.id, user_id: m.user_id, role: m.role, added_at: now })))
       .execute();
   }
 
@@ -200,7 +211,7 @@ export class TripJournalLinksRepository extends TrekRepository<TripJournalLinks>
   async deleteMember(tripId: number, userId: number): Promise<void> {
     await this.kysely<TripJournalLinkKyselyDB>()
       .deleteFrom('trip_journal_link_members')
-      .where('trip_id', '=', tripId)
+      .where('link_id', 'in', this.linkIdOf(tripId))
       .where('user_id', '=', userId)
       .execute();
   }

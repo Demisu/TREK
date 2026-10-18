@@ -75,7 +75,7 @@ export class JourneyContributorsRepository extends TrekRepository<JourneyContrib
       .updateTable('trip_journal_link_members')
       .set({ hide_skeletons: value })
       .where('user_id', '=', userId)
-      .where('trip_id', 'in', db.selectFrom('trip_journal_links').select('trip_id').where('journey_id', '=', journeyId))
+      .where('link_id', 'in', db.selectFrom('trip_journal_links').select('id').where('journey_id', '=', journeyId))
       .execute();
   }
 
