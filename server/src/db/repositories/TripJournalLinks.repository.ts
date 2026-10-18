@@ -213,24 +213,4 @@ export class TripJournalLinksRepository extends TrekRepository<TripJournalLinks>
       .where('trip_id', '=', tripId)
       .execute();
   }
-
-  /** Everyone a journal's links let in, for its live updates. */
-  async linkRecipientUserIds(journeyId: number): Promise<number[]> {
-    const rows = await linkReach(this.kysely<TripJournalLinkKyselyDB>())
-      .select('m.user_id')
-      .distinct()
-      .where('l.journey_id', '=', journeyId)
-      .execute();
-    return rows.map((r) => r.user_id);
-  }
-
-  /** The trips that show this journal, for telling their members when it changes hands. */
-  async listTripIdsForJourney(journeyId: number): Promise<number[]> {
-    const rows = await this.kysely<TripJournalLinkKyselyDB>()
-      .selectFrom('trip_journal_links')
-      .select('trip_id')
-      .where('journey_id', '=', journeyId)
-      .execute();
-    return rows.map((r) => r.trip_id);
-  }
 }
