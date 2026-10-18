@@ -1,3 +1,7 @@
+import {
+  TripJournalLinkMembersRole,
+  type TTripJournalLinkMembersRole,
+} from '../entities/TripJournalLinkMembers.entity';
 import type { TripJournalLinks } from '../entities/TripJournalLinks.entity';
 import type { DB } from '../kysely/db';
 import { TrekRepository } from './_shared/trek-repository';
@@ -10,7 +14,10 @@ export type TripJournalLinkKyselyDB = Pick<
   'trip_journal_links' | 'trip_journal_link_members' | 'trips' | 'trip_members' | 'journeys' | 'users'
 >;
 
-export type TripJournalLinkRole = 'viewer' | 'editor';
+/** The role a link gives, as the migration's CHECK and the generated entity spell it. */
+export type TripJournalLinkRole = TTripJournalLinkMembersRole;
+
+const { EDITOR, VIEWER } = TripJournalLinkMembersRole;
 
 /** A trip's link with the journal it shows, as the settings dialog reads it. */
 export interface TripJournalLinkRow {
@@ -69,8 +76,8 @@ export function linkReach(db: Kysely<TripJournalLinkKyselyDB>) {
 
 /** The stronger of two link roles; a person linked through two trips gets the better one. */
 function strongest(roles: string[]): TripJournalLinkRole | null {
-  if (roles.includes('editor')) return 'editor';
-  return roles.length > 0 ? 'viewer' : null;
+  if (roles.includes(EDITOR)) return EDITOR;
+  return roles.length > 0 ? VIEWER : null;
 }
 
 /** The role a person holds on a journal through any trip's link, or null when none lets them in. */
@@ -139,7 +146,7 @@ export class TripJournalLinksRepository extends TrekRepository<TripJournalLinks>
       .where('l.trip_id', '=', tripId)
       .orderBy('u.username', 'asc')
       .execute();
-    return rows.map((r) => ({ ...r, role: r.role === 'editor' ? 'editor' : 'viewer' }));
+    return rows.map((r) => ({ ...r, role: r.role === EDITOR ? EDITOR : VIEWER }));
   }
 
   /** Everyone on the trip, its owner first, with what the member picker shows of them. */
