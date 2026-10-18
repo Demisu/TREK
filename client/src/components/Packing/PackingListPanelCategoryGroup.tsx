@@ -39,16 +39,14 @@ interface KategorieGruppeProps {
   // the reader cannot see.
   reorderable?: boolean
   // Moving the whole category among the others, wired by the list, which sees every
-  // card. `active` is true while any category is being dragged, so a dragged ITEM
-  // passing over a card is left to the item rows.
+  // card. `onDrop` gets the category that was dragged onto this one.
   categoryDrag?: {
-    active: boolean
     isDragging: boolean
     isOver: boolean
     onStart: () => void
     onOver: () => void
     onEnd: () => void
-    onDrop: () => void
+    onDrop: (dragged: string) => void
   }
   // Three-tier sharing (#858) — threaded down to each item's share control.
   currentUserId?: number
@@ -363,16 +361,28 @@ export function KategorieGruppe({ kategorie, items, tripId, allCategories, onRen
 
 type CategoryDrag = NonNullable<KategorieGruppeProps['categoryDrag']>
 
+/** The data type a dragged category carries, its name as the value. */
+const CATEGORY_DRAG_TYPE = 'application/x-trek-packing-category'
+
 /**
  * The card, and while a category is dragged its drop target. Captured, because
  * the item rows stop their own drops from bubbling.
  */
 function CategoryDropFrame({ drag, children }: { drag?: CategoryDrag; children: React.ReactNode }) {
-  const target = drag?.active ? drag : null
+  // Told apart by the drag's own data type, which is there from the first event on:
+  // a flag set in state on dragstart can still be unrendered when a quick drag
+  // arrives, and a dragged item must pass through to its rows untouched.
+  const isCategoryDrag = (e: React.DragEvent) => e.dataTransfer.types.includes(CATEGORY_DRAG_TYPE)
   return (
     <div
-      onDragOverCapture={target ? (e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; target.onOver() }) : undefined}
-      onDropCapture={target ? (e => { e.preventDefault(); e.stopPropagation(); target.onDrop() }) : undefined}
+      onDragOverCapture={drag ? (e => {
+        if (!isCategoryDrag(e)) return
+        e.preventDefault(); e.dataTransfer.dropEffect = 'move'; drag.onOver()
+      }) : undefined}
+      onDropCapture={drag ? (e => {
+        if (!isCategoryDrag(e)) return
+        e.preventDefault(); e.stopPropagation(); drag.onDrop(e.dataTransfer.getData(CATEGORY_DRAG_TYPE))
+      }) : undefined}
       style={{
         marginBottom: 6, background: 'var(--bg-card)', borderRadius: 16, border: '1px solid var(--border-secondary)', overflow: 'visible',
         opacity: drag?.isDragging ? 0.4 : 1,
@@ -394,7 +404,12 @@ function CategoryGrip({ drag, kategorie, label }: { drag?: CategoryDrag; kategor
       role="button"
       aria-label={label}
       title={label}
-      onDragStart={e => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', kategorie); drag.onStart() }}
+      onDragStart={e => {
+        e.dataTransfer.effectAllowed = 'move'
+        e.dataTransfer.setData(CATEGORY_DRAG_TYPE, kategorie)
+        e.dataTransfer.setData('text/plain', kategorie)
+        drag.onStart()
+      }}
       onDragEnd={drag.onEnd}
       style={{ cursor: 'grab', display: 'flex', alignItems: 'center', color: 'var(--text-faint)', flexShrink: 0, marginInlineStart: -6 }}
     >

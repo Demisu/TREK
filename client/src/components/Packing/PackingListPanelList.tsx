@@ -47,16 +47,12 @@ export function PackingList(S: PackingState) {
               onReorder={(orderedIds) => reorderPackingItems(tripId, orderedIds)}
               reorderable={sort === 'manual'}
               categoryDrag={canEdit ? {
-                active: draggedCategory !== null,
                 isDragging: draggedCategory === kat,
                 isOver: overCategory === kat && draggedCategory !== null && draggedCategory !== kat,
                 onStart: () => { setDraggedCategory(kat); setOverCategory(null) },
                 onOver: () => setOverCategory(kat),
                 onEnd: endCategoryDrag,
-                onDrop: () => {
-                  if (draggedCategory !== null) moveCategory(draggedCategory, kat)
-                  endCategoryDrag()
-                },
+                onDrop: (dragged) => { moveCategory(dragged, kat); endCategoryDrag() },
               } : undefined}
               currentUserId={currentUserId}
               onSetSharing={handleSetSharing}
