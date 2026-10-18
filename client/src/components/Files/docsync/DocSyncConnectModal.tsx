@@ -1,12 +1,13 @@
 import { useId, useState } from 'react'
 import { AlertTriangle, Check, Loader2, Plug, ShieldAlert } from 'lucide-react'
 import { DialogButton, DialogFooter, DialogHeader, DialogShell, DialogTile, FooterSpacer, NEUTRAL_TINT } from '../../shared/DialogShell'
+import { Tooltip } from '../../shared/Tooltip'
 import ToggleSwitch from '../../Settings/ToggleSwitch'
 import { useTranslation } from '../../../i18n/TranslationContext'
 import { useConnectForm } from './useConnectForm'
 import { Badge } from './DocSyncBits'
 import { DOCUMENT_PROVIDER_ICONS } from '../../shared/DocumentProviderIcons'
-import type { DocSyncProvider, useDocSync } from './useDocSync'
+import type { DocSyncProvider, DocSyncVerdict, useDocSync } from './useDocSync'
 
 /**
  * Connecting a store, as a dialog rather than a panel that unfolds in place.
@@ -32,7 +33,7 @@ export default function DocSyncConnectModal({
   const Icon = DOCUMENT_PROVIDER_ICONS[provider.id]
 
   const form = useConnectForm(provider, existing, sync)
-  const [verdict, setVerdict] = useState<{ connected: boolean; account?: string; error?: string } | null>(null)
+  const [verdict, setVerdict] = useState<DocSyncVerdict | null>(null)
 
   const test = async () => setVerdict(await form.probe())
   const labelId = useId()
@@ -134,7 +135,7 @@ function Verdict({
   busy,
   failure,
 }: {
-  verdict: { connected: boolean; account?: string; error?: string } | null
+  verdict: DocSyncVerdict | null
   busy: boolean
   /** A call that failed outside the connection test (saving, most of all). */
   failure: string | null
@@ -172,10 +173,16 @@ function Verdict({
     )
   }
   const blocked = verdict.error === 'ssrf_blocked' || verdict.error === 'tls_untrusted'
+  const message = t(`docsync.error.${verdict.error || 'unknown'}`)
+  // The footer shares its row with the buttons, and a refusal cut to "The
+  // credentials were re..." with no way to read the rest left nothing to go on
+  // (#2666). Two lines, and the whole of it with the store's reason on hover.
   return (
-    <span className="flex min-w-0 items-center gap-2 text-caption text-danger">
-      {blocked ? <ShieldAlert size={14} /> : <AlertTriangle size={14} />}
-      <span className="truncate">{t(`docsync.error.${verdict.error || 'unknown'}`)}</span>
-    </span>
+    <Tooltip label={verdict.detail ? `${message} ${verdict.detail}` : message} placement="top">
+      <span className="flex min-w-0 items-center gap-2 text-caption text-danger">
+        {blocked ? <ShieldAlert size={14} className="flex-none" /> : <AlertTriangle size={14} className="flex-none" />}
+        <span className="line-clamp-2 [overflow-wrap:anywhere]">{message}</span>
+      </span>
+    </Tooltip>
   )
 }

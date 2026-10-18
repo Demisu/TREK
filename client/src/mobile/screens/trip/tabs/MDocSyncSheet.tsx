@@ -12,7 +12,7 @@ import { useTranslation } from '../../../../i18n'
 import { DOCUMENT_PROVIDER_ICONS } from '../../../../components/shared/DocumentProviderIcons'
 import TrekIcon from '../../../../components/shared/TrekIcon'
 import {
-  bindingNotice, needsReauth, storeName, useDocSync, type DocSyncLink, type DocSyncProvider,
+  bindingNotice, needsReauth, storeName, useDocSync, type DocSyncLink, type DocSyncProvider, type DocSyncVerdict,
 } from '../../../../components/Files/docsync/useDocSync'
 import { useConnectForm } from '../../../../components/Files/docsync/useConnectForm'
 import { conflictPolicyKey, nextConflictPolicy } from '../../../../components/Files/docsync/DocSyncBits'
@@ -450,7 +450,7 @@ function ConnectView({
 }) {
   const { t } = useTranslation()
   const form = useConnectForm(provider, sync.connectionFor(provider.id), sync)
-  const [verdict, setVerdict] = useState<{ connected: boolean; account?: string; error?: string } | null>(null)
+  const [verdict, setVerdict] = useState<DocSyncVerdict | null>(null)
 
   return (
     <div className="mt-3 flex flex-col gap-3">
@@ -503,6 +503,10 @@ function ConnectView({
               ? t('docsync.connect.okAs', { account: verdict.account })
               : t('docsync.connected')
             : t(`docsync.error.${verdict.error ?? 'unknown'}`)}
+          {/* The store's own reason, so a refusal can be told apart from a typo (#2666). */}
+          {!verdict.connected && verdict.detail && (
+            <span className="mt-0.5 block text-m-muted [overflow-wrap:anywhere]">{verdict.detail}</span>
+          )}
         </p>
       )}
 

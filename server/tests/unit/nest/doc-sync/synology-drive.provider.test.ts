@@ -286,7 +286,7 @@ describe('SynologyDriveDocumentProvider: capabilities', () => {
 // ── login and session ────────────────────────────────────────────────────────
 
 describe('SynologyDriveDocumentProvider: login', () => {
-  it('SYNO-PROVIDER-010: logs in on auth.cgi with JSON-quoted values and asks for a CSRF token', async () => {
+  it('SYNO-PROVIDER-010: logs in on auth.cgi with plain values and asks for a CSRF token (#2666)', async () => {
     route({ 'SYNO.FileStation.Info:get': ok({ hostname: 'nas' }) });
     const result = await provider.probe(connection());
 
@@ -296,8 +296,9 @@ describe('SynologyDriveDocumentProvider: login', () => {
       api: 'SYNO.API.Auth',
       version: '6',
       method: 'login',
-      account: '"trek"',
-      passwd: '"nas-secret"',
+      // auth.cgi does not read JSON: a quoted account is a user named "trek" with quotes.
+      account: 'trek',
+      passwd: 'nas-secret',
       session: 'FileStation',
       format: 'sid',
       enable_syno_token: 'yes',
@@ -643,7 +644,7 @@ describe('SynologyDriveDocumentProvider: device tokens', () => {
     store.password = 'rotated';
     restart();
     await provider.listScopes(saved(store));
-    expect(logins()[0].params).toMatchObject({ device_id: 'DEVICE-111111', passwd: '"rotated"' });
+    expect(logins()[0].params).toMatchObject({ device_id: 'DEVICE-111111', passwd: 'rotated' });
     expect(logins()[0].params.otp_code).toBeUndefined();
 
     delete store.otp_code;
