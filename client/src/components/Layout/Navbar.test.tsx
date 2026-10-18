@@ -169,23 +169,24 @@ describe('Navbar', () => {
     expect(adminLink).toHaveAttribute('href', '/admin');
   });
 
-  it('FE-COMP-NAVBAR-019: share button rendered when onShare prop provided', () => {
-    render(<Navbar onShare={vi.fn()} />);
-    const shareBtn = screen.getByRole('button', { name: /share/i });
-    expect(shareBtn).toBeInTheDocument();
+  it('FE-COMP-NAVBAR-019: the trip settings button sits beside the back pill when onSettings is given', () => {
+    render(<Navbar tripTitle="Japan" showBack onBack={vi.fn()} onSettings={vi.fn()} />);
+    const back = screen.getByRole('button', { name: /back/i });
+    const settings = screen.getByRole('button', { name: 'Trip settings' });
+    expect(back.parentElement).toBe(settings.closest('div'));
   });
 
-  it('FE-COMP-NAVBAR-020: share button click calls onShare', async () => {
+  it('FE-COMP-NAVBAR-020: the trip settings button calls onSettings', async () => {
     const user = userEvent.setup();
-    const onShare = vi.fn();
-    render(<Navbar onShare={onShare} />);
-    const shareBtn = screen.getByRole('button', { name: /share/i });
-    await user.click(shareBtn);
-    expect(onShare).toHaveBeenCalled();
+    const onSettings = vi.fn();
+    render(<Navbar onSettings={onSettings} />);
+    await user.click(screen.getByRole('button', { name: 'Trip settings' }));
+    expect(onSettings).toHaveBeenCalled();
   });
 
-  it('FE-COMP-NAVBAR-021: share button NOT rendered when onShare prop omitted', () => {
+  it('FE-COMP-NAVBAR-021: no trip settings button without onSettings, and no share button any more', () => {
     render(<Navbar />);
+    expect(screen.queryByRole('button', { name: 'Trip settings' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /share/i })).not.toBeInTheDocument();
   });
 
@@ -453,8 +454,8 @@ describe('Navbar styling and menu details', () => {
     expect(screen.queryByText('3.5.0-rc1')).not.toBeInTheDocument();
   });
 
-  it('FE-W5NAV-009: the back, share and theme buttons reset their hover background', () => {
-    render(<Navbar showBack onBack={vi.fn()} onShare={vi.fn()} />);
+  it('FE-W5NAV-009: the back and theme buttons reset their hover background', () => {
+    render(<Navbar showBack onBack={vi.fn()} onSettings={vi.fn()} />);
 
     const back = screen.getByRole('button', { name: /back/i });
     fireEvent.mouseEnter(back);
@@ -462,11 +463,6 @@ describe('Navbar styling and menu details', () => {
     fireEvent.mouseLeave(back);
     expect(back.style.background).toBe('transparent');
 
-    const share = screen.getByRole('button', { name: /share/i });
-    fireEvent.mouseEnter(share);
-    expect(share.style.background).toBe('var(--bg-hover)');
-    fireEvent.mouseLeave(share);
-    expect(share.style.background).toBe('var(--bg-card)');
 
     const theme = document.querySelector('button[title]:not([data-help-button])') as HTMLElement;
     fireEvent.mouseEnter(theme);

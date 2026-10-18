@@ -7,7 +7,7 @@ import ContributorInviteDialog from '../../../components/Journey/ContributorInvi
 import ConfirmDialog from '../../../components/shared/ConfirmDialog'
 import { ProviderPicker } from '../../../components/Journey/JourneyDetailPageProviderPicker'
 import { photoUrl, posterlessVideo } from '../../../pages/journeyDetail/JourneyDetailPage.helpers'
-import { useJourneyDetail } from '../../../pages/journeyDetail/useJourneyDetail'
+import { useJourneyDetail, type JourneyDetailOptions } from '../../../pages/journeyDetail/useJourneyDetail'
 import { useJourneyStore } from '../../../store/journeyStore'
 import { useAddonStore } from '../../../store/addonStore'
 import DawarichIcon from '../../../components/shared/DawarichIcon'
@@ -32,8 +32,12 @@ import MJourneySettingsSheet from './MJourneySettingsSheet'
  * Journey detail — integrated map with the horizontal 280px card timeline
  * (Journey tab) and the 2-column photo gallery (Gallery tab). Cards and map
  * markers stay in sync; tapping the centered card opens the entry sheet.
+ *
+ * A trip that links the journal shows this same screen in its own tab
+ * (`embedded`): the trip's back button and controls sit on top, so the screen
+ * drops its own back button and leaves the trip's URL alone.
  */
-export default function MJourneyDetail() {
+export default function MJourneyDetail({ journeyId, embedded = false }: JourneyDetailOptions = {}) {
   const {
     id, navigate, toast, t,
     current, loading,
@@ -48,7 +52,7 @@ export default function MJourneyDetail() {
     dismissSuggestion, restoreSuggestions, openAtEntryId,
     loadJourney, updateEntry, deleteEntry, reorderEntries, uploadPhotos,
     addPickedProviderPhotos, addEntryProviderPhotos,
-  } = useJourneyDetail()
+  } = useJourneyDetail({ journeyId, embedded })
 
   // The dock's FAB is a sibling of this screen: on the Gallery it becomes the
   // upload button, so it has to know which tab is open — and it stops knowing
@@ -175,7 +179,7 @@ export default function MJourneyDetail() {
   const [params, setParams] = useSearchParams()
   const [pendingUpload, setPendingUpload] = useState(false)
   useEffect(() => {
-    if (params.get('create') !== 'photo') return
+    if (embedded || params.get('create') !== 'photo') return
     setParams(prev => {
       const next = new URLSearchParams(prev)
       next.delete('create')
@@ -184,7 +188,7 @@ export default function MJourneyDetail() {
     if (!canEditEntries) return
     setView('gallery')
     setPendingUpload(true)
-  }, [params, setParams, canEditEntries, setView])
+  }, [params, setParams, canEditEntries, setView, embedded])
 
   useEffect(() => {
     if (!pendingUpload || !providersReady) return
@@ -331,14 +335,18 @@ export default function MJourneyDetail() {
 
       {/* Header: back — segment — upload / overflow menu */}
       <div className="absolute inset-x-4 top-[var(--m-safe-top,12px)] z-10 flex items-center justify-between gap-2">
-        <button
-          type="button"
-          onClick={() => navigate('/journey')}
-          aria-label={t('journey.detail.backToJourney')}
-          className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-full bg-[color:var(--m-sheet)] text-m-ink shadow-[0_5px_14px_-6px_rgba(0,0,0,.3)]"
-        >
-          <ChevronLeft size={18} strokeWidth={2.2} />
-        </button>
+        {embedded ? (
+          <span className="w-[38px] flex-none" aria-hidden />
+        ) : (
+          <button
+            type="button"
+            onClick={() => navigate('/journey')}
+            aria-label={t('journey.detail.backToJourney')}
+            className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-full bg-[color:var(--m-sheet)] text-m-ink shadow-[0_5px_14px_-6px_rgba(0,0,0,.3)]"
+          >
+            <ChevronLeft size={18} strokeWidth={2.2} />
+          </button>
+        )}
         <div className="absolute left-1/2 top-0 flex -translate-x-1/2 rounded-full bg-[color:var(--m-sheet)] p-[3px] shadow-[0_5px_14px_-6px_rgba(0,0,0,.3)]">
           <button
             type="button"

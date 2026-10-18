@@ -132,6 +132,10 @@
   to { opacity: 0; transform: translateY(6px); }
 }
 
+/* A journal inside a trip's Journal tab starts below the trip's own floating
+   top controls rather than under them. */
+.m-embedded-journal { --m-safe-top: calc(env(safe-area-inset-top, 0px) + 62px); }
+
 .m-sheet-in { animation: m-sheet-in 280ms var(--ease-drawer) both; }
 .m-sheet-out { animation: m-sheet-out 280ms var(--ease-drawer) both; }
 .m-drawer-in { animation: m-drawer-in 280ms var(--ease-drawer) both; }

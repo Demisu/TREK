@@ -93,6 +93,10 @@ export const HANDLED_OUTSIDE_TRIP_STORE = [
   // the bag ping: what a run changed is per-binding server state, and the
   // files it moved arrive as file:* events.
   'docsync:changed',
+  // Linked journal: components/Trips/useTripJournalLink asks again which journal
+  // the trip shows and who it is open to. Content-free, because that answer is
+  // per person (a member left off the link must not learn its title).
+  'trip:journal:changed',
   // Booking import — BackgroundTasks/BackgroundTasksWidget ('import:' prefix listener)
   'import:progress',
   'import:done',

@@ -17,6 +17,8 @@ export const ExpenseModal = lazyWithRetry(() =>
   import('../../components/Budget/CostsPanel').then(m => ({ default: m.ExpenseModal }))
 )
 export const CollabPanel = lazyWithRetry(() => import('../../components/Collab/CollabPanel'))
+// The Journey addon's journal view, which only a trip with a linked journal opens.
+export const TripJournalPanel = lazyWithRetry(() => import('./TripJournalPanel'))
 export const RoadtripSidebar = lazyWithRetry(() => import('../../components/Roadtrip/RoadtripSidebar'))
 export const RoadtripCorridorPanel = lazyWithRetry(() => import('../../components/Roadtrip/RoadtripCorridorPanel'))
 export const RoadtripLimitsCard = lazyWithRetry(() => import('../../components/Roadtrip/RoadtripLimitsCard'))

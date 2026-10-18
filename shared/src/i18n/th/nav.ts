@@ -2,7 +2,6 @@ import type { TranslationStrings } from '../types';
 
 const nav: TranslationStrings = {
   'nav.trip': 'การเดินทาง',
-  'nav.share': 'แบ่งปัน',
   'nav.settings': 'การตั้งค่า',
   'nav.admin': 'ผู้ดูแลระบบ',
   'nav.logout': 'ออกจากระบบ',

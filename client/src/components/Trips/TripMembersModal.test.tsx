@@ -122,10 +122,10 @@ describe('TripMembersModal', () => {
     expect(document.body).toBeInTheDocument();
   });
 
-  it('FE-COMP-MEMBERS-002: shows Share Trip title', () => {
+  it('FE-COMP-MEMBERS-002: shows the Trip settings title', () => {
     render(<TripMembersModal {...defaultProps} />);
-    // members.shareTrip = "Share Trip"
-    expect(screen.getByText('Share Trip')).toBeInTheDocument();
+    // trip.settings.title = "Trip settings"
+    expect(screen.getByText('Trip settings')).toBeInTheDocument();
   });
 
   it('FE-COMP-MEMBERS-003: shows owner username after load', async () => {
@@ -245,7 +245,7 @@ describe('TripMembersModal', () => {
 
   it('FE-COMP-MEMBERS-015: modal renders when isOpen is true', () => {
     render(<TripMembersModal {...defaultProps} isOpen={true} />);
-    expect(screen.getByText('Share Trip')).toBeInTheDocument();
+    expect(screen.getByText('Trip settings')).toBeInTheDocument();
   });
 
   // ── Share Link Section (016-021) ───────────────────────────────────────────

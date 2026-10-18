@@ -1,7 +1,6 @@
 import type { TranslationStrings } from '../types';
 
 const members: TranslationStrings = {
-  'members.shareTrip': 'مشاركة الرحلة',
   'members.inviteUser': 'دعوة مستخدم',
   'members.selectUser': 'اختر مستخدمًا…',
   'members.invite': 'دعوة',

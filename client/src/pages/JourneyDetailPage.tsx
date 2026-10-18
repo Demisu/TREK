@@ -18,7 +18,7 @@ import JourneyDayDawarich from '../components/Journey/JourneyDayDawarich'
 import MobileEntryView from '../components/Journey/MobileEntryView'
 import { useJourneyStore } from '../store/journeyStore'
 import { computeJourneyLifecycle } from '../utils/journeyLifecycle'
-import { useJourneyDetail } from './journeyDetail/useJourneyDetail'
+import { useJourneyDetail, type JourneyDetailOptions } from './journeyDetail/useJourneyDetail'
 import { createDraftJourneyEntry, pickGradient, groupByDate, formatDate, photoUrl, matchJourneyEntries } from './journeyDetail/JourneyDetailPage.helpers'
 import { EntryCard, SkeletonCard, CheckinCard } from '../components/Journey/JourneyDetailPageEntryCard'
 import { GalleryView } from '../components/Journey/JourneyDetailPageGalleryView'
@@ -39,7 +39,12 @@ export default function JourneyDetailPage() {
   )
 }
 
-function JourneyDetailPageDesktop() {
+/**
+ * The journal screen. The journal page renders it for the route's journal; a trip
+ * that links a journal renders the same screen inside its own tab (`embedded`),
+ * so the trip shows the journal with nothing of it built twice.
+ */
+export function JourneyDetailPageDesktop({ journeyId, embedded = false }: JourneyDetailOptions = {}) {
   // Page = wiring container: load + live sync, view state, dialogs, the
   // scroll-synced map and the map/trip-date derivations live in the hook.
   const {
@@ -62,13 +67,17 @@ function JourneyDetailPageDesktop() {
     feedEdge, scrollFeedTo,
     loadJourney, updateEntry, deleteEntry, reorderEntries, uploadPhotos, deletePhoto,
     addPickedProviderPhotos, addEntryProviderPhotos,
-  } = useJourneyDetail()
+  } = useJourneyDetail({ journeyId, embedded })
+  // Inside a trip the trip draws the bar and owns the height; the journal fills
+  // the box it is given and starts at its top.
+  const frame = embedded ? 'h-full bg-zinc-50 dark:bg-zinc-950' : 'min-h-screen bg-zinc-50 dark:bg-zinc-950'
+  const below = embedded ? undefined : { paddingTop: 'var(--nav-h, 0px)' }
 
   if (loading || !current) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-        <Navbar />
-        <div style={{ paddingTop: 'var(--nav-h, 0px)' }} className="flex justify-center py-20">
+      <div className={frame}>
+        {!embedded && <Navbar />}
+        <div style={below} className="flex justify-center py-20">
           <div className="w-6 h-6 border-2 border-zinc-300 border-t-zinc-900 rounded-full animate-spin" />
         </div>
       </div>
@@ -166,8 +175,8 @@ function JourneyDetailPageDesktop() {
   ) : null
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <Navbar />
+    <div className={frame}>
+      {!embedded && <Navbar />}
 
       {/* Mobile combined map+timeline (Polarsteps-style) — renders as fullscreen overlay */}
       {showMobileCombined && (
@@ -206,13 +215,15 @@ function JourneyDetailPageDesktop() {
           className="fixed inset-x-0 z-30 flex items-start justify-between gap-2 px-4"
           style={{ top: 'calc(var(--nav-h, 56px) + 12px)' }}
         >
-          <button type="button"
-            onClick={() => navigate('/journey')}
-            aria-label={t('journey.detail.backToJourney')}
-            className={barButton}
-          >
-            <ArrowLeft size={16} />
-          </button>
+          {!embedded && (
+            <button type="button"
+              onClick={() => navigate('/journey')}
+              aria-label={t('journey.detail.backToJourney')}
+              className={barButton}
+            >
+              <ArrowLeft size={16} />
+            </button>
+          )}
 
           <div className="flex-1 min-w-0 flex justify-center">
             <div className="flex bg-surface-elevated backdrop-blur-lg border border-edge rounded-lg overflow-hidden shadow-lg">
@@ -270,7 +281,7 @@ function JourneyDetailPageDesktop() {
         </div>
       )}
 
-      <div style={{ paddingTop: 'var(--nav-h, 0px)' }} className={showMobileCombined ? 'hidden' : ''}>
+      <div style={below} className={showMobileCombined ? 'hidden' : embedded ? 'h-full' : ''}>
         <div
           className={
             isMobile
@@ -310,13 +321,15 @@ function JourneyDetailPageDesktop() {
 
                 <div className="relative z-[3] flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2">
-                    <button type="button"
-                      onClick={() => navigate('/journey')}
-                      aria-label={t('journey.detail.backToJourney')}
-                      className="w-[34px] h-[34px] rounded-full bg-white/15 backdrop-blur flex items-center justify-center hover:bg-white/25"
-                    >
-                      <ArrowLeft size={14} />
-                    </button>
+                    {!embedded && (
+                      <button type="button"
+                        onClick={() => navigate('/journey')}
+                        aria-label={t('journey.detail.backToJourney')}
+                        className="w-[34px] h-[34px] rounded-full bg-white/15 backdrop-blur flex items-center justify-center hover:bg-white/25"
+                      >
+                        <ArrowLeft size={14} />
+                      </button>
+                    )}
                     {/* Status badge — keep completed/upcoming/draft/archived, but drop live + synced-with-trips per UX trim */}
                     <div className="hidden md:flex items-center gap-2">
                       {lifecycle !== 'live' && lifecycle !== 'archived' && (
@@ -821,7 +834,7 @@ function JourneyDetailPageDesktop() {
 
       {/* TREK Studio. It portals itself over the page, so this journey keeps
           rendering underneath and shows through the panel's margin. */}
-      <Outlet />
+      {!embedded && <Outlet />}
     </div>
   )
 }

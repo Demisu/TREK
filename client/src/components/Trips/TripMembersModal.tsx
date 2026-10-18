@@ -1,3 +1,4 @@
+import { TripJournalLinkSection } from './TripJournalLinkSection'
 import Modal from '../shared/Modal'
 import { Crown, UserMinus, UserPlus, Users, LogOut, Link2, Trash2, Copy, Check, UserRound, Pencil, Plus } from 'lucide-react'
 import { useTranslation } from '../../i18n'
@@ -181,7 +182,7 @@ function TripMembersSheet({ isOpen, onClose, tripId, tripTitle, onMembersChanged
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={t('members.shareTrip')} size="3xl">
+    <Modal isOpen={isOpen} onClose={onClose} title={t('trip.settings.title')} size="3xl">
       <div style={{ display: 'grid', gridTemplateColumns: canManageShare ? '1fr 1fr' : '1fr', gap: 24, fontFamily: "var(--font-system)" }} className="share-modal-grid">
         <style>{`@media (max-width: 640px) { .share-modal-grid { grid-template-columns: 1fr !important; } }`}</style>
 
@@ -401,6 +402,8 @@ function TripMembersSheet({ isOpen, onClose, tripId, tripTitle, onMembersChanged
         <ShareLinkSection tripId={tripId} t={t} />
         <TripInviteLinkSection tripId={tripId} t={t} />
         </div>}
+
+        <TripJournalLinkSection tripId={tripId} />
 
         <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }`}</style>
       </div>

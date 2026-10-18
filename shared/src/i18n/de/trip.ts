@@ -99,5 +99,45 @@ const trip: TranslationStrings = {
     'Damit werden auch die in „{name}“ gebuchte Unterkunft, die Buchung „{booking}“ und alle damit verknüpften Ausgaben gelöscht.',
   'trip.confirm.deletePlaceBookedSame':
     'Damit werden auch die in „{name}“ gebuchte Unterkunft, ihre Buchung und alle damit verknüpften Ausgaben gelöscht.',
+  'trip.settings.title': 'Reiseeinstellungen',
+  'trip.settings.people': 'Personen',
+  'trip.settings.peopleHint': 'Wer auf dieser Reise ist, und Gäste ohne Konto.',
+  'trip.settings.sharing': 'Teilen',
+  'trip.settings.sharingHint': 'Ein Nur-Lesen-Link für alle und ein Einladungslink zum Beitreten.',
+  'trip.tabs.journal': 'Journal', // same-as-en
+  'trip.journal.title': 'Journal', // same-as-en
+  'trip.journal.hint':
+    'Verknüpfe eines deiner Journale mit dieser Reise. Wen du freigibst, der öffnet es direkt hier im Journal-Tab, live.',
+  'trip.journal.link': 'Journal verknüpfen',
+  'trip.journal.linkSubmit': 'Journal verknüpfen',
+  'trip.journal.change': 'Journal wechseln',
+  'trip.journal.editMembers': 'Zugriff bearbeiten',
+  'trip.journal.unlink': 'Lösen',
+  'trip.journal.unlinkTitle': 'Verknüpfung lösen?',
+  'trip.journal.unlinkMessage':
+    'Der Journal-Tab verschwindet aus dieser Reise. Mitglieder, die das Journal nur über diese Reise öffnen konnten, verlieren den Zugriff; wen du im Journal selbst hinzugefügt hast, behält ihn.',
+  'trip.journal.linkedBadge': 'Verknüpft',
+  'trip.journal.yourRole.owner': 'Dein Journal',
+  'trip.journal.yourRole.editor': 'Du kannst bearbeiten',
+  'trip.journal.yourRole.viewer': 'Du kannst lesen',
+  'trip.journal.onlyYou': 'Außer dir hat noch niemand aus dieser Reise Zugriff.',
+  'trip.journal.noJournals': 'Du hast noch kein Journal. Leg zuerst eines in Journey an.',
+  'trip.journal.pickPlaceholder': 'Journal auswählen',
+  'trip.journal.noMembers': 'Außer dir ist noch niemand auf dieser Reise.',
+  'trip.journal.members': 'Zugriff für Reisemitglieder',
+  'trip.journal.allRead': 'Alle lesen',
+  'trip.journal.allNone': 'Niemand',
+  'trip.journal.roleNone': 'Kein Zugriff',
+  'trip.journal.roleViewer': 'Lesen',
+  'trip.journal.roleEditor': 'Bearbeiten',
+  'trip.journal.hasAccess': 'Hat Zugriff',
+  'trip.journal.warnNew':
+    '{names} bekommt zum ersten Mal Zugriff auf dieses Journal und sieht es ab dann auch in der eigenen Journal-Liste.',
+  'trip.journal.errorOffline': 'Zum Verknüpfen eines Journals brauchst du eine Verbindung.',
+  'trip.journal.errorForbidden': 'Das darfst du nicht.',
+  'trip.journal.errorGeneric': 'Das hat nicht geklappt. Bitte versuch es noch einmal.',
+  'trip.journal.linked': 'Journal verknüpft',
+  'trip.journal.membersSaved': 'Zugriff gespeichert',
+  'trip.journal.unlinked': 'Verknüpfung gelöst',
 };
 export default trip;

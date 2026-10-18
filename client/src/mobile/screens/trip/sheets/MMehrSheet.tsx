@@ -1,4 +1,4 @@
-import { ChevronRight, FileDown, Settings, Share2 } from 'lucide-react'
+import { ChevronRight, FileDown, Settings, Settings2 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import MSheet from '../../../components/MSheet'
 import type { MTripSheetsProps } from '../MTripShell'
@@ -14,6 +14,7 @@ const TILE_COLORS: Record<string, string> = {
   finanzplan: '#E8A33D',
   dateien: '#68686F',
   collab: '#EC4899',
+  journal: '#C2410C',
 }
 
 /**
@@ -48,7 +49,7 @@ export default function MMehrSheet({ planner, shell }: MTripSheetsProps) {
   }
 
   const actions: { id: string; icon: LucideIcon; label: string; go: () => void }[] = [
-    { id: 'members', icon: Share2, label: t('members.shareTrip'), go: () => shell.openSheet('members') },
+    { id: 'members', icon: Settings2, label: t('trip.settings.title'), go: () => shell.openSheet('members') },
     { id: 'export', icon: FileDown, label: t('mobileTrip.export'), go: () => shell.openSheet('export') },
     ...(canEditTrip
       ? [{ id: 'tripedit', icon: Settings, label: t('dashboard.editTrip'), go: () => shell.openSheet('tripedit') }]

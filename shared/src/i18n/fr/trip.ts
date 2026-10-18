@@ -100,5 +100,45 @@ const trip: TranslationStrings = {
     'Le séjour réservé à « {name} », la réservation « {booking} » et toute dépense liée seront également supprimés.',
   'trip.confirm.deletePlaceBookedSame':
     'Le séjour réservé à « {name} », sa réservation et toute dépense liée seront également supprimés.',
+  'trip.settings.title': 'Paramètres du voyage',
+  'trip.settings.people': 'Personnes',
+  'trip.settings.peopleHint': 'Qui participe à ce voyage, et les invités sans compte.',
+  'trip.settings.sharing': 'Partage',
+  'trip.settings.sharingHint': "Un lien en lecture seule pour tous, et un lien d'invitation pour rejoindre.",
+  'trip.tabs.journal': 'Journal', // same-as-en
+  'trip.journal.title': 'Journal', // same-as-en
+  'trip.journal.hint':
+    "Liez l'un de vos journaux à ce voyage. Les personnes que vous autorisez l'ouvrent directement ici dans l'onglet Journal, en direct.",
+  'trip.journal.link': 'Lier un journal',
+  'trip.journal.linkSubmit': 'Lier le journal',
+  'trip.journal.change': 'Changer de journal',
+  'trip.journal.editMembers': "Modifier l'accès",
+  'trip.journal.unlink': 'Délier',
+  'trip.journal.unlinkTitle': 'Délier ce journal ?',
+  'trip.journal.unlinkMessage':
+    "L'onglet Journal disparaît de ce voyage. Les membres qui ne pouvaient ouvrir le journal que via ce voyage perdent l'accès ; les personnes ajoutées dans le journal lui-même le conservent.",
+  'trip.journal.linkedBadge': 'Lié',
+  'trip.journal.yourRole.owner': 'Votre journal',
+  'trip.journal.yourRole.editor': 'Vous pouvez modifier',
+  'trip.journal.yourRole.viewer': 'Vous pouvez lire',
+  'trip.journal.onlyYou': "Personne d'autre de ce voyage n'y a encore accès.",
+  'trip.journal.noJournals': "Vous n'avez pas encore de journal. Créez-en un d'abord dans Journal de voyage.",
+  'trip.journal.pickPlaceholder': 'Choisir un journal',
+  'trip.journal.noMembers': "Personne d'autre ne participe encore à ce voyage.",
+  'trip.journal.members': 'Accès des membres du voyage',
+  'trip.journal.allRead': 'Tous en lecture',
+  'trip.journal.allNone': 'Personne',
+  'trip.journal.roleNone': 'Aucun accès',
+  'trip.journal.roleViewer': 'Lire',
+  'trip.journal.roleEditor': 'Modifier',
+  'trip.journal.hasAccess': 'A accès',
+  'trip.journal.warnNew':
+    '{names} obtiendra accès à ce journal pour la première fois et le verra désormais aussi dans sa propre liste de journaux.',
+  'trip.journal.errorOffline': 'Lier un journal nécessite une connexion.',
+  'trip.journal.errorForbidden': "Vous n'êtes pas autorisé à faire cela.",
+  'trip.journal.errorGeneric': "Cela n'a pas fonctionné. Veuillez réessayer.",
+  'trip.journal.linked': 'Journal lié',
+  'trip.journal.membersSaved': 'Accès enregistré',
+  'trip.journal.unlinked': 'Journal délié',
 };
 export default trip;

@@ -20,6 +20,7 @@ export const TRIP_TAB_IDS = [
   'finanzplan',
   'dateien',
   'collab',
+  'journal',
 ] as const
 
 export type TripTabId = (typeof TRIP_TAB_IDS)[number]
@@ -40,6 +41,7 @@ export const TRIP_TAB_LABEL_KEYS: Record<TripTabId, string> = {
   finanzplan: 'trip.tabs.budget',
   dateien: 'trip.tabs.files',
   collab: 'admin.addons.catalog.collab.name',
+  journal: 'trip.tabs.journal',
 }
 
 export const isTripTabId = (value: unknown): value is TripTabId =>

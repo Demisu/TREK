@@ -6,7 +6,8 @@ import { useSettingsStore } from '../../store/settingsStore'
 import { useAddonStore } from '../../store/addonStore'
 import { usePluginStore } from '../../store/pluginStore'
 import { useTranslation } from '../../i18n'
-import { Plane, LogOut, Settings, ChevronDown, Shield, ArrowLeft, ChevronLeft, Users, Moon, Sun, Monitor, CalendarDays, Briefcase, Globe, Compass, BookOpen, Bookmark } from 'lucide-react'
+import { Plane, LogOut, Settings, ChevronDown, Shield, ArrowLeft, ChevronLeft, Moon, Sun, Monitor, CalendarDays, Briefcase, Globe, Compass, BookOpen, Bookmark } from 'lucide-react'
+import { Tooltip } from '../shared/Tooltip'
 import type { LucideIcon } from 'lucide-react'
 import InAppNotificationBell from './InAppNotificationBell.tsx'
 import HelpButton from '../Help/HelpButton'
@@ -21,7 +22,8 @@ interface NavbarProps {
   tripId?: number | string
   onBack?: () => void
   showBack?: boolean
-  onShare?: () => void
+  /** The trip's Settings: who is on it, its links and its journal. */
+  onSettings?: () => void
 }
 
 interface Addon {
@@ -32,7 +34,7 @@ interface Addon {
   enabled: boolean
 }
 
-export default function Navbar({ tripTitle, tripId, onBack, showBack, onShare }: NavbarProps): React.ReactElement {
+export default function Navbar({ tripTitle, tripId, onBack, showBack, onSettings }: NavbarProps): React.ReactElement {
   const { user, logout, isPrerelease, appVersion } = useAuthStore()
   const { settings, updateSetting } = useSettingsStore()
   const { addons: allAddons, loadAddons } = useAddonStore()
@@ -173,6 +175,21 @@ export default function Navbar({ tripTitle, tripId, onBack, showBack, onShare }:
             <span className="truncate text-caption font-semibold text-content">{tripTitle}</span>
           </span>
         ))}
+
+        {/* The trip's Settings sit with the trip, beside its pill: they are about this
+            trip, not about the app the right side of the bar belongs to. */}
+        {onSettings && (
+          <Tooltip label={t('trip.settings.title')}>
+            <button
+              type="button"
+              onClick={onSettings}
+              aria-label={t('trip.settings.title')}
+              className="inline-flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full bg-surface-card text-content-muted shadow-sm ring-1 ring-inset ring-edge-faint transition-colors hover:bg-surface-hover hover:text-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+            >
+              <Settings className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </Tooltip>
+        )}
       </div>
 
       {/* Centred liquid-glass tab menu (design handoff).
@@ -244,17 +261,6 @@ export default function Navbar({ tripTitle, tripId, onBack, showBack, onShare }:
           loose siblings, which centred nothing and left the pill to fend for
           itself on top of them. */}
       <div className="flex items-center gap-4 flex-1 basis-0 min-w-max justify-end">
-
-      {/* Share button */}
-      {onShare && (
-        <button type="button" onClick={onShare}
-          className="flex items-center gap-1.5 py-1.5 px-3 rounded-lg border transition-colors text-sm font-medium flex-shrink-0 border-edge text-content-secondary bg-surface-card"
-          onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-card)'}>
-          <Users className="w-4 h-4" />
-          <span className="hidden sm:inline">{t('nav.share')}</span>
-        </button>
-      )}
 
       {/* Contextual help for the current screen — same footprint as the theme toggle beside it */}
       {user && <HelpButton />}

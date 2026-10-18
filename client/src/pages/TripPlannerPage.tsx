@@ -39,7 +39,7 @@ import { latestReservation } from './tripPlanner/transportEditorOpeners'
 import {
   ReservationsPanel, FileManager, CostsPanel, ExpenseModal, CollabPanel,
   RoadtripSidebar, RoadtripCorridorPanel, RoadtripLimitsCard, RoadtripStopPopup, RoadtripStayModal, RoadtripTrackModal,
-  TourWorkspaceRail, TourPlannerToursRail, TransportModal,
+  TourWorkspaceRail, TourPlannerToursRail, TransportModal, TripJournalPanel,
 } from './tripPlanner/plannerLazy'
 import { LazyPanel } from './tripPlanner/LazyPanel'
 import { ListsContainer } from './tripPlanner/ListsContainer'
@@ -70,7 +70,7 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
     trip, days, places, assignments, packingItems, todoItems, categories, reservations, budgetItems, files,
     selectedDayId, isLoading, tripActions, can, canUploadFiles,
     pushUndo, undo, canUndo, lastActionLabel, handleUndo,
-    enabledAddons, collabFeatures, tripAccommodations, setTripAccommodations,
+    enabledAddons, collabFeatures, journalId, tripAccommodations, setTripAccommodations,
     roadtripMode, toggleRoadtripMode, roadtripActive, roadtripRoutes, roadtripLineColors, roadtripMapLines, roadtripMapPlaces, collapsedRoadtripDays, toggleRoadtripDay, roadtripCorridor,
     overviewActive, tripOverview, toggleOverview, overviewShown,
     dawarichEnabled, dawarichTrailShown, toggleDawarichTrail, dawarichTrail, dawarichHiddenDates,
@@ -242,7 +242,7 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
   return (
     <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', ...fontStyle }}>
       <HelpAnchor id={helpId} />
-      <Navbar tripTitle={trip.title} tripId={tripId} showBack onBack={() => navigate('/dashboard')} onShare={() => setShowMembersModal(true)} />
+      <Navbar tripTitle={trip.title} tripId={tripId} showBack onBack={() => navigate('/dashboard')} onSettings={() => setShowMembersModal(true)} />
 
       <div className="bg-surface-elevated border-b border-edge-faint" style={{
         position: 'fixed', top: 'var(--nav-h)', insetInline: 0, zIndex: 40,
@@ -792,7 +792,7 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
             </LazyPanel>
           </div>
         )}
-
+        {activeTab === 'journal' && <LazyPanel id="journal"><TripJournalPanel journeyId={journalId} /></LazyPanel>}
 
         {activeTab.startsWith('plugin:') && (
           <div style={{ position: 'absolute', top: 0, insetInline: 0, bottom: 'var(--bottom-nav-h)', overflow: 'hidden' }}>

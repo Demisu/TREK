@@ -1,12 +1,15 @@
 import { useId, useState, type ReactNode } from 'react'
-import { Check, Copy, Crown, Link2, LogOut, Pencil, Plus, Trash2, UserMinus, UserPlus, UserRound, Users } from 'lucide-react'
+import { Check, Copy, Crown, Link2, LogOut, Pencil, Plus, Settings, Trash2, UserMinus, UserPlus, UserRound, Users } from 'lucide-react'
 import { useTranslation } from '../../i18n'
 import CustomSelect from '../shared/CustomSelect'
 import ConfirmDialog from '../shared/ConfirmDialog'
 import { Tooltip } from '../shared/Tooltip'
 import { DialogButton, DialogHeader, DialogSection, DialogShell, DialogTile, NEUTRAL_TINT, PILL, fs } from '../shared/DialogShell'
 import { AddRowButton, INPUT, LABEL, PANEL } from '../shared/dialogParts'
+import { LinkedJournalIcon } from './LinkedJournalIcon'
+import { TripJournalLinkSection } from './TripJournalLinkSection'
 import { TripMemberAvatar } from './TripMemberAvatar'
+import { useTripJournalSectionVisible } from './useTripJournalLink'
 import { SHARE_OPTIONS, SHARE_SECTIONS, useShareLink, useTripInviteLink, useTripMembers, type TripMembersState } from './useTripShare'
 
 interface TripShareDialogProps {
@@ -29,18 +32,38 @@ const COUNT = 'rounded-full bg-surface-tertiary px-2 py-[2px] font-geist font-bo
 const ROWS = 'flex flex-col gap-0.5 rounded-[14px] border border-edge-faint bg-surface-secondary p-1.5'
 const ROW = 'flex min-h-[48px] items-center gap-3 rounded-[10px] px-2.5 py-1.5 hover:bg-surface-card'
 const BADGE = 'inline-flex flex-none items-center gap-1 rounded-full px-2 py-[2px] font-semibold'
+/** A fixed height on a wide screen, so the dialog does not jump when another area is picked. */
+const BODY = 'flex min-h-0 flex-1 max-md:flex-col md:h-[min(640px,calc(100dvh-240px))]'
+const NAV = 'flex flex-none gap-1 border-edge-faint bg-surface-secondary p-3 md:w-[236px] md:flex-col md:border-e max-md:overflow-x-auto max-md:border-b'
 const DANGER_BUTTON = 'inline-flex items-center gap-1.5 rounded-[10px] bg-surface-card px-3.5 py-2 font-medium text-danger shadow-sm ring-1 ring-edge-faint hover:bg-danger-soft disabled:cursor-default disabled:opacity-50'
 
-/** The desktop dialog behind Share: who is on the trip, its guests, and the two links that let others in. */
+/**
+ * The trip's Settings on the desktop: who is on the trip, its guests, the two
+ * links that let others in, and the journal the trip shows.
+ */
 export default function TripShareDialog(props: TripShareDialogProps) {
   return props.isOpen ? <OpenDialog {...props} /> : null
 }
+
+type Area = 'people' | 'sharing' | 'journal'
+
+/** The areas of the dialog, each with its icon, its name and the line under the name. */
+const AREAS: { id: Area; icon: (on: boolean) => ReactNode; labelKey: string; hintKey: string }[] = [
+  { id: 'people', icon: () => <Users size={16} strokeWidth={2} />, labelKey: 'trip.settings.people', hintKey: 'trip.settings.peopleHint' },
+  { id: 'sharing', icon: () => <Link2 size={16} strokeWidth={2} />, labelKey: 'trip.settings.sharing', hintKey: 'trip.settings.sharingHint' },
+  { id: 'journal', icon: () => <LinkedJournalIcon size={16} />, labelKey: 'trip.journal.title', hintKey: 'trip.journal.hint' },
+]
 
 function OpenDialog({ onClose, tripId, tripTitle, onMembersChanged }: TripShareDialogProps) {
   const { t } = useTranslation()
   const labelId = useId()
   const m = useTripMembers({ isOpen: true, tripId, onClose, onMembersChanged })
   const [ask, setAsk] = useState<Ask | null>(null)
+  const [area, setArea] = useState<Area>('people')
+  const journalSection = useTripJournalSectionVisible(tripId)
+  const areas = AREAS.filter(a => a.id === 'people' || (a.id === 'sharing' ? m.canManageShare : journalSection))
+  const current = areas.find(a => a.id === area) ?? areas[0]
+  const panelOf = (id: Area) => areas.find(a => a.id === id)
   const persons = `${m.realMembers.length} ${t('members.persons', { count: m.realMembers.length })}`
 
   return (
@@ -48,15 +71,17 @@ function OpenDialog({ onClose, tripId, tripTitle, onMembersChanged }: TripShareD
       <DialogShell
         onClose={onClose}
         labelledBy={labelId}
-        width={m.canManageShare ? 'wide' : 'detail'}
+        width={areas.length > 1 ? 'wide' : 'detail'}
+        align="top"
         blocked={!!ask}
+        bodyClassName={BODY}
         header={(
           <DialogHeader
-            tile={<DialogTile><Users size={20} strokeWidth={1.9} className="text-content-muted" /></DialogTile>}
+            tile={<DialogTile><Settings size={20} strokeWidth={1.9} className="text-content-muted" /></DialogTile>}
             tint={NEUTRAL_TINT}
             labelId={labelId}
             onClose={onClose}
-            eyebrow={t('members.shareTrip')}
+            eyebrow={t('trip.settings.title')}
             title={tripTitle}
             pills={m.loading ? undefined : (
               <>
@@ -67,17 +92,24 @@ function OpenDialog({ onClose, tripId, tripTitle, onMembersChanged }: TripShareD
           />
         )}
       >
-        <div className={m.canManageShare ? 'grid grid-cols-2 items-start gap-6 max-md:grid-cols-1' : ''}>
-          <div className="flex flex-col gap-5">
+        {areas.length > 1 && <AreaNav areas={areas} current={current.id} onPick={setArea} />}
+        <div className="min-h-0 flex-1 overflow-y-auto px-7 pb-7 pt-6 max-sm:px-5">
+          {/* Every area stays mounted, so its links and lists are loaded by the time it is picked. */}
+          <AreaPanel area={panelOf('people')} shown={current.id === 'people'} titled={areas.length > 1}>
             {m.canManageMembers && <InviteUser m={m} />}
             <MembersList m={m} onAsk={setAsk} />
             {(m.isCurrentOwner || m.guests.length > 0) && <GuestsList m={m} onAsk={setAsk} />}
-          </div>
+          </AreaPanel>
           {m.canManageShare && (
-            <div className="flex flex-col gap-5">
+            <AreaPanel area={panelOf('sharing')} shown={current.id === 'sharing'} titled>
               <PublicLink tripId={tripId} />
               <InviteLink tripId={tripId} />
-            </div>
+            </AreaPanel>
+          )}
+          {journalSection && (
+            <AreaPanel area={panelOf('journal')} shown={current.id === 'journal'} titled>
+              <TripJournalLinkSection tripId={tripId} framed={false} />
+            </AreaPanel>
           )}
         </div>
       </DialogShell>
@@ -90,6 +122,45 @@ function OpenDialog({ onClose, tripId, tripTitle, onMembersChanged }: TripShareD
         confirmLabel={ask?.confirmLabel}
       />
     </>
+  )
+}
+
+/** The areas down the side on a wide screen, a row of pills above the content on a narrow one. */
+function AreaNav({ areas, current, onPick }: { areas: typeof AREAS; current: Area; onPick: (area: Area) => void }) {
+  const { t } = useTranslation()
+  return (
+    <nav aria-label={t('trip.settings.title')} className={NAV}>
+      {areas.map(a => {
+        const on = a.id === current
+        return (
+          <button key={a.id} type="button" aria-current={on ? 'page' : undefined} onClick={() => onPick(a.id)}
+            className={`flex flex-none items-center gap-2.5 rounded-[12px] px-2.5 py-2 text-start transition-colors ${on ? 'bg-surface-card text-content shadow-sm ring-1 ring-edge-faint' : 'text-content-muted hover:bg-surface-hover hover:text-content'}`}>
+            <span className={`grid h-8 w-8 flex-none place-items-center rounded-[9px] ${on ? 'bg-accent text-accent-text' : 'bg-surface-tertiary'}`}>{a.icon(on)}</span>
+            <span className="min-w-0">
+              <span className="block truncate font-semibold" style={fs(13, 'body')}>{t(a.labelKey)}</span>
+              <span className="block truncate text-content-faint max-md:hidden" style={fs(11)}>{t(a.hintKey)}</span>
+            </span>
+          </button>
+        )
+      })}
+    </nav>
+  )
+}
+
+/** One area: its name and what it is for, then its parts. Hidden rather than unmounted while another one shows. */
+function AreaPanel({ area, shown, titled, children }: { area: (typeof AREAS)[number] | undefined; shown: boolean; titled: boolean; children: ReactNode }) {
+  const { t } = useTranslation()
+  return (
+    // The class, not the hidden attribute alone: flex would win over the attribute's display:none.
+    <section hidden={!shown} className={shown ? 'flex flex-col gap-5' : 'hidden'}>
+      {titled && area && (
+        <header>
+          <h3 className="m-0 font-semibold text-content" style={fs(17, 'subtitle')}>{t(area.labelKey)}</h3>
+          <p className="m-0 mt-1 max-w-[560px] leading-normal text-content-muted" style={fs(12.5, 'body')}>{t(area.hintKey)}</p>
+        </header>
+      )}
+      {children}
+    </section>
   )
 }
 
@@ -291,7 +362,7 @@ function LinkLine({ url, copied, onCopy }: { url: string; copied: boolean; onCop
   )
 }
 
-function LinkCard({ icon, title, hint, children }: { icon: ReactNode; title: string; hint: string; children: ReactNode }) {
+export function LinkCard({ icon, title, hint, children }: { icon: ReactNode; title: string; hint: string; children: ReactNode }) {
   return (
     <section className={PANEL}>
       <div className="flex items-start gap-2.5">

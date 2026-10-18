@@ -29,9 +29,23 @@ const NO_TRACKS: JourneyTrack[] = []
  * map/trip-date derivations. JourneyDetailPage stays a wiring container around
  * its large two-pane JSX and many presentational sub-components.
  * Behaviour is identical to the previous in-component logic.
+ *
+ * The journal can also show inside a trip that links it, as the same screen with
+ * the same dialogs. There the trip names the journal (`journeyId`) instead of the
+ * route, and `embedded` keeps the screen to its own box: no scroll lock on the
+ * page, no `?create=` handling on the trip's URL, and no trip out to the journal
+ * list when the journal goes away; the trip decides what shows then.
  */
-export function useJourneyDetail() {
-  const { id } = useParams()
+export interface JourneyDetailOptions {
+  /** The journal to show; the route's `:id` when left out. */
+  journeyId?: number
+  /** Shown inside another screen (a trip) rather than as the journal page. */
+  embedded?: boolean
+}
+
+export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailOptions = {}) {
+  const params = useParams()
+  const id = journeyId != null ? String(journeyId) : params.id
   const navigate = useNavigate()
   const toast = useToast()
   const { t, locale } = useTranslation()
@@ -67,9 +81,10 @@ export function useJourneyDetail() {
   const [showAddTrip, setShowAddTrip] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
 
-  // The bottom-nav "+" starts a new entry via ?create=entry.
+  // The bottom-nav "+" starts a new entry via ?create=entry. Not inside a trip:
+  // the trip's own `create` values live on that same URL.
   useEffect(() => {
-    if (searchParams.get('create') === 'entry' && current && canEditEntries) {
+    if (!embedded && searchParams.get('create') === 'entry' && current && canEditEntries) {
       setEditingEntry(createDraftJourneyEntry(current.id))
       setSearchParams(p => { p.delete('create'); return p }, { replace: true })
     }
@@ -119,11 +134,11 @@ export function useJourneyDetail() {
   }, [current?.hide_skeletons])
 
   useEffect(() => {
-    if (notFound) {
+    if (notFound && !embedded) {
       toast.error(t('journey.notFound'))
       navigate('/journey')
     }
-  }, [notFound])
+  }, [notFound, embedded])
 
   // WebSocket real-time updates
   useEffect(() => {
@@ -374,9 +389,9 @@ export function useJourneyDetail() {
   // the body must not scroll underneath it. Goes through the shared counter so a
   // modal opening on top of it cannot hand the page back early (#1809).
   useEffect(() => {
-    if (isMobile) return
+    if (isMobile || embedded) return
     return lockBodyScroll()
-  }, [isMobile])
+  }, [isMobile, embedded])
 
   // Map only shows real journal entries — skeletons are trip-derived
   // suggestions, not something the user actually journaled at that spot.
@@ -549,7 +564,7 @@ export function useJourneyDetail() {
   }, [])
 
   return {
-    id, navigate, toast, t, locale,
+    id, navigate, toast, t, locale, embedded, notFound,
     openStudio, prefetchStudio,
     current, loading,
     canEditEntries, canEditJourney, myRole,

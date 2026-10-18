@@ -24,6 +24,8 @@ import { isServiceStopType } from '../../components/Roadtrip/roadtripModel'
 import { inspectorStay } from '../../components/Roadtrip/stayReading'
 import { usePlaceSelection } from '../../hooks/usePlaceSelection'
 import { useTourPlaceIds } from '../../hooks/useTourPlaceIds'
+import { LinkedJournalIcon } from '../../components/Trips/LinkedJournalIcon'
+import { useTripJournal } from '../../components/Trips/useTripJournalLink'
 import { useAddonStore } from '../../store/addonStore'
 import { usePlannerHistory } from '../../hooks/usePlannerHistory'
 import { useIsTouch } from '../../hooks/useIsTouch'
@@ -198,6 +200,7 @@ export function useTripPlanner() {
 
   // A trip-page plugin may replace core tabs while it's active (its manifest names
   // them; 'plan' is never replaceable) and may pick where its own tab sits.
+  const journal = useTripJournal(Number.isFinite(tripId) ? tripId : null)
   const replacedTabs = new Set(tripPagePlugins.flatMap(p => p.tripPage?.replaces ?? []))
   const TRIP_TABS = [
     { id: 'plan', label: t(TRIP_TAB_LABEL_KEYS.plan), icon: Map },
@@ -211,6 +214,8 @@ export function useTripPlanner() {
     ...(enabledAddons.budget ? [{ id: 'finanzplan', label: t(TRIP_TAB_LABEL_KEYS.finanzplan), icon: Wallet }] : []),
     ...(enabledAddons.documents ? [{ id: 'dateien', label: t(TRIP_TAB_LABEL_KEYS.dateien), icon: FolderOpen }] : []),
     ...(enabledAddons.collab ? [{ id: 'collab', label: t(TRIP_TAB_LABEL_KEYS.collab), icon: Users }] : []),
+    // A journal from the Journey addon tied to this trip, for whoever the link lets in.
+    ...(journal.openJournalId != null ? [{ id: 'journal', label: t(TRIP_TAB_LABEL_KEYS.journal), icon: LinkedJournalIcon }] : []),
   ].filter(tab => tab.id === 'plan' || !replacedTabs.has(tab.id))
   // Positioned plugin tabs splice in ascending order so two positions stay stable;
   // the rest append, exactly as before this capability existed.
@@ -237,12 +242,14 @@ export function useTripPlanner() {
     // Same for the addon-owned tabs: until the feed answers, enabledAddons is a
     // guess, and evicting on a guess would drop a legitimately requested tab.
     if (!addonsLoaded) return
+    // And for the Journal tab, until the link has been asked for.
+    if (activeTab === 'journal' && !journal.settled) return
     const validTabIds = TRIP_TABS.map(t => t.id)
     if (!validTabIds.includes(activeTab)) {
       setActiveTab('plan')
       sessionStorage.setItem(`trip-tab-${tripId}`, 'plan')
     }
-  }, [activeTab, enabledAddons, addonsLoaded, tripPluginIds, pluginsLoaded, isMobile])
+  }, [activeTab, enabledAddons, addonsLoaded, tripPluginIds, pluginsLoaded, isMobile, journal.settled, journal.openJournalId])
 
   const handleTabChange = (rawTabId: string): void => {
     // A core tab a plugin replaced is gone from the bar, but a programmatic jump
@@ -653,7 +660,7 @@ export function useTripPlanner() {
     trip, days, places, assignments, storedAssignments, packingItems, todoItems, categories, reservations, budgetItems, files,
     selectedDayId, isLoading, tripActions, can, canUploadFiles,
     pushUndo, undo, canUndo, lastActionLabel, handleUndo,
-    enabledAddons, collabFeatures, tripAccommodations, setTripAccommodations,
+    enabledAddons, collabFeatures, journalId: journal.openJournalId, tripAccommodations, setTripAccommodations,
     roadtripMode, toggleRoadtripMode, roadtripActive, roadtripFeedActive, roadtripRoutes, roadtripLineColors, roadtripMapLines, roadtripMapPlaces, collapsedRoadtripDays, toggleRoadtripDay, roadtripCorridor,
     overviewShown, toggleOverview, overviewActive, tripOverview,
     dawarichTrailShown, toggleDawarichTrail, dawarichTrail, dawarichHiddenDates, dawarichEnabled: !!enabledAddons.dawarich,

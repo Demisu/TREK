@@ -7,6 +7,7 @@ import MFilesTab from './MFilesTab'
 import MCollabTab from './MCollabTab'
 import MListsTab from './MListsTab'
 import MRoadtripTab from '../roadtrip/MRoadtripTab'
+import MJourneyDetail from '../../journey/MJourneyDetail'
 import PluginFrame from '../../../../components/Plugins/PluginFrame'
 
 /**
@@ -61,6 +62,14 @@ export default function MTripTabPanel({ planner, shell, tab }: MTripTabPanelProp
     // switch between them must not lose it.
     case 'roadtrip':
       return <MRoadtripTab planner={planner} shell={shell} tab={tab} />
+    // The journal the trip links: the Journey addon's own phone screen, moved
+    // below the trip's floating top controls (see .m-embedded-journal).
+    case 'journal':
+      return planner.journalId == null ? null : (
+        <div className="m-embedded-journal absolute inset-0 overflow-hidden">
+          <MJourneyDetail journeyId={planner.journalId} embedded />
+        </div>
+      )
     default:
       return <TabScroller>{null}</TabScroller>
   }
