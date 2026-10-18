@@ -135,3 +135,8 @@ export function generateBackupCodes(count = MFA_BACKUP_CODE_COUNT): string[] {
 export function parseBackupCodeHashes(raw: string | null | undefined): string[] {
   return decodeJson(USER_MFA_BACKUP_CODES, raw).filter((v): v is string => typeof v === 'string');
 }
+
+/** Where `plaintext` sits among a user's stored backup-code hashes, or -1 when it is none of them. */
+export function backupCodeIndex(plaintext: string, raw: string | null | undefined): number {
+  return parseBackupCodeHashes(raw).findIndex((hash) => matchBackupCode(plaintext, hash));
+}

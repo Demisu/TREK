@@ -64,6 +64,7 @@ import {
   generateBackupCodes,
   hashBackupCodeBcrypt,
   mask_stored_api_key,
+  backupCodeIndex,
   matchBackupCode,
   parseBackupCodeHashes,
   stripUserForClient,
@@ -873,16 +874,10 @@ export class AuthService {
     const secret = decryptMfaSecret(user.mfa_secret);
     const tokenStr = String(code).trim();
     const okTotp = authenticator.verify({ token: tokenStr.replace(/\s/g, ''), secret });
-    // Recovery codes already work at login. Accept them here too, but only
-    // after the account password has been verified and while the existing
-    // rate limit / instance MFA policy allow this operation.
-    const okRecovery = !okTotp && parseBackupCodeHashes(user.mfa_backup_codes)
-      .some((hash) => matchBackupCode(tokenStr, hash));
-    if (!okTotp && !okRecovery) {
+    // A backup code proves the second factor as at login; disabling drops them all (#2665).
+    if (!okTotp && backupCodeIndex(tokenStr, user.mfa_backup_codes) === -1) {
       throw new DomainError(401, 'Invalid verification code');
     }
-    // Disabling MFA clears the old secret and *all* backup codes atomically.
-    // A recovery code used here cannot be replayed after re-enrolment.
     // Every other session ends with the second factor; this one just proved both.
     await this.uow.transactional(async () => {
       await this.usersRepo.disableMfa(userId);
@@ -1060,10 +1055,8 @@ export class AuthService {
       const secret = decryptMfaSecret(user.mfa_secret);
       const okTotp = authenticator.verify({ token: supplied.replace(/\s/g, ''), secret });
       if (!okTotp) {
-        const hashes = parseBackupCodeHashes(user.mfa_backup_codes);
-        const idx = hashes.findIndex((h) => matchBackupCode(supplied, h));
-        if (idx === -1) throw new DomainError(401, 'Invalid MFA code');
-        backupCodeConsumedIndex = idx;
+        backupCodeConsumedIndex = backupCodeIndex(supplied, user.mfa_backup_codes);
+        if (backupCodeConsumedIndex === -1) throw new DomainError(401, 'Invalid MFA code');
       }
     }
 
