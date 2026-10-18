@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import { useTripStore } from '../store/tripStore'
 import { useSettingsStore } from '../store/settingsStore'
 import { useAddonStore } from '../store/addonStore'
-import { calculateRouteWithLegs, type RouteProfileKey } from '../components/Map/RouteCalculator'
+import { calculateRouteWithRetries, type RouteProfileKey } from '../components/Map/routeRetry'
 import { buildDayRouteRuns, hotelBookendOf, TRANSPORT_TYPES } from '../components/Map/dayRoutePlan'
 import { dayViaLookup, foldViaLegs, threadVias, viaKeyOf, viasOnDayLeg } from '../utils/dayRouteVias'
 import { resolveLegMode } from '../components/Planner/legMode'
@@ -131,7 +131,8 @@ export function useRouteCalculation(tripStore: Pick<TripStoreState, 'assignments
           const straight = (): [number, number][] => chunk.map(p => [p.lat, p.lng] as [number, number])
           const { waypoints, stopAt } = threadVias(chunk, (from, to) => viasOnDayLeg(viaLookup, dayId, mode, from, to))
           try {
-            const r = await calculateRouteWithLegs(waypoints, { signal: controller.signal, profile: mode, tripId, dayId })
+            // A busy router is waited out rather than left as straight lines until the next edit.
+            const r = await calculateRouteWithRetries(waypoints, { signal: controller.signal, profile: mode, tripId, dayId })
             pushCoords(r.coordinates.length >= 2 ? r.coordinates : straight(), mode === 'walking')
             // Leg k runs from chunk[k] to chunk[k + 1]; a hotel bookend says so on the
             // segment, which is how the phone timeline finds it (#2501).

@@ -1,4 +1,5 @@
-import { calculateRouteWithLegs, RoutingRefusedError, type RouteProfileKey } from './RouteCalculator'
+import type { RouteProfileKey } from './RouteCalculator'
+import { calculateRouteWithRetries, sleepUnlessAborted as sleep } from './routeRetry'
 import { buildDayRouteRuns, type DayRouteInputs, type DayRoutePoint } from './dayRoutePlan'
 import { dayViaLookup, foldViaLegs, threadVias, viasOnDayLeg, type DayViaLookup } from '../../utils/dayRouteVias'
 import { projectDayItinerary } from './dayTourProjection'
@@ -185,20 +186,6 @@ export function summariseTripRoute(days: TripOverviewDay[]): TripRouteSummary {
 const REQUEST_SPACING_MS = 1100
 /** Anything answered faster than this came out of RouteCalculator's cache, not the network. */
 const CACHE_HIT_MS = 60
-/** How often a rate-limited leg is tried again, and how long after. */
-const RETRY_DELAYS_MS = [1500, 4000]
-
-const sleep = (ms: number, signal?: AbortSignal): Promise<void> =>
-  new Promise(resolve => {
-    if (signal?.aborted || ms <= 0) { resolve(); return }
-    const timer = setTimeout(done, ms)
-    function done(): void {
-      clearTimeout(timer)
-      signal?.removeEventListener('abort', done)
-      resolve()
-    }
-    signal?.addEventListener('abort', done, { once: true })
-  })
 
 /**
  * Ask the router for every leg of every day, one at a time.
@@ -233,23 +220,16 @@ export async function routeTripLegs(
     runs.forEach((chunks, r) => {
       chunks.forEach((chunk, c) => {
         tasks.push(async () => {
-          for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
-            if (signal?.aborted) return
-            try {
-              const answer = await calculateRouteWithLegs(
-                chunk.waypoints,
-                { signal, profile: chunk.mode, tripId, dayId: day.id },
-              )
-              routed[d][r][c] = { coordinates: answer.coordinates, legs: foldViaLegs(answer.legs, chunk.stopAt, unit) }
-              onAnswer?.(routed)
-              return
-            } catch (err) {
-              if (signal?.aborted) return
-              const rateLimit = err instanceof RoutingRefusedError && err.isRateLimit ? err : null
-              if (!rateLimit || attempt === RETRY_DELAYS_MS.length) return
-              // When the host says how long to wait, waiting less is just a second refusal.
-              await sleep(Math.max(RETRY_DELAYS_MS[attempt], rateLimit.retryAfterMs ?? 0), signal)
-            }
+          if (signal?.aborted) return
+          try {
+            const answer = await calculateRouteWithRetries(
+              chunk.waypoints,
+              { signal, profile: chunk.mode, tripId, dayId: day.id },
+            )
+            routed[d][r][c] = { coordinates: answer.coordinates, legs: foldViaLegs(answer.legs, chunk.stopAt, unit) }
+            onAnswer?.(routed)
+          } catch {
+            // Refused for good, or aborted: the leg keeps its straight line.
           }
         })
       })
