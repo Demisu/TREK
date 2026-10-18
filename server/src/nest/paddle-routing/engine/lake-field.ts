@@ -80,10 +80,11 @@ function weightOf(shore: number, profile: LakeProfile): number {
 
 /**
  * {@link weightOf} without the clearance: what the water costs for how far
- * out it lies. A shortcut is held to this, and to the path's own distance
- * from the shore (see `pull`), so a leg that starts or ends at the bank, as
- * every one from a river does, cannot lift the ceiling with the bank's cost
- * and pull a route along the shore straight across the open water.
+ * out it lies. A shortcut is priced with this against the stretch of path it
+ * replaces, and held to that stretch's distance from the shore (see `pull`),
+ * so neither a leg's end at the bank, as every one from a river has, nor one
+ * out on the lake lets a route the search kept along the shore, or within a
+ * boat's reach, be pulled straight across the open water.
  */
 function openWeightOf(shore: number, profile: LakeProfile): number {
   const weight = 1 + bandOf(shore, profile);
@@ -333,8 +334,8 @@ export class LakeField {
   /**
    * The line from one cell to another as a paddler would take it: the
    * cheapest cell path, then pulled straight wherever a straight line stays on
-   * open water no more costly than the cells it joins and no nearer the shore
-   * than the path it replaces.
+   * water, costs no more than the stretch it replaces and comes no nearer the
+   * shore than that stretch.
    */
   path(from: number, to: number, profile: LakeProfile): Array<[number, number]> | null {
     const cells = astar(this.fine(profile), from, to);
@@ -343,20 +344,34 @@ export class LakeField {
   }
 
   /**
-   * Straightens a cell path. A shortcut may not run nearer the shore than the
-   * stretch of path it replaces (up to the style's clearance): pulling a line
-   * taut round a bend otherwise draws it onto the bank the path kept off.
+   * Straightens a cell path. A shortcut may cost no more on open water than
+   * the stretch of path it replaces, and may not run nearer the shore than
+   * that stretch (up to the style's clearance): pulling a line taut otherwise
+   * draws it onto the bank the path kept off, or straight over the water the
+   * search went round.
    */
   private pull(cells: number[], profile: LakeProfile): number[] {
     const shore = this.shoreDistance();
     const clearance = CLEARANCE_M[profile.style];
     const depth = (cell: number) => Math.min(clearance, shore[cell] as number);
+    const open = (cell: number) => openWeightOf(shore[cell] as number, profile);
+    const { width, cell: size } = this.lake;
+    // What the path costs on open water from its first cell up to each cell.
+    const along = [0];
+    for (let i = 1; i < cells.length; i++) {
+      const from = cells[i - 1] as number;
+      const to = cells[i] as number;
+      const step =
+        Math.abs((to % width) - (from % width)) + Math.abs(Math.floor(to / width) - Math.floor(from / width));
+      along.push((along[i - 1] as number) + ((open(from) + open(to)) / 2) * size * (step === 2 ? Math.SQRT2 : 1));
+    }
     const kept = [cells[0] as number];
     let anchor = 0;
     let floor = depth(cells[0] as number);
     for (let i = 2; i < cells.length; i++) {
       floor = Math.min(floor, depth(cells[i - 1] as number), depth(cells[i] as number));
-      if (!this.clear(cells[anchor] as number, cells[i] as number, profile, floor)) {
+      const budget = ((along[i] as number) - (along[anchor] as number)) * 1.05;
+      if (!this.clear(cells[anchor] as number, cells[i] as number, profile, floor, budget)) {
         kept.push(cells[i - 1] as number);
         anchor = i - 1;
         floor = Math.min(depth(cells[i - 1] as number), depth(cells[i] as number));
@@ -367,11 +382,12 @@ export class LakeField {
   }
 
   /**
-   * Whether a straight line between two cells runs on open water no more
-   * costly than its ends ({@link openWeightOf}) and nowhere nearer the shore
-   * than `floor` (less half a cell, for the line's rounding onto cells).
+   * Whether a straight line between two cells runs on water, costs no more
+   * than `budget` on open water ({@link openWeightOf}) and comes nowhere
+   * nearer the shore than `floor` (less half a cell, for the line's rounding
+   * onto cells).
    */
-  private clear(a: number, b: number, profile: LakeProfile, floor: number): boolean {
+  private clear(a: number, b: number, profile: LakeProfile, floor: number, budget: number): boolean {
     const shore = this.shoreDistance();
     const open = (cell: number) => openWeightOf(shore[cell] as number, profile);
     const least = floor - this.lake.cell / 2;
@@ -380,13 +396,16 @@ export class LakeField {
     const ar = (a - ac) / width;
     const bc = b % width;
     const br = (b - bc) / width;
-    const ceiling = Math.max(open(a), open(b)) * 1.05;
     const steps = Math.max(Math.abs(bc - ac), Math.abs(br - ar)) * 2;
+    // Each sample stands for its share of the line; the two ends for half a share each.
+    const share = (Math.hypot(bc - ac, br - ar) * this.lake.cell) / steps;
+    let cost = ((open(a) + open(b)) / 2) * share;
     for (let s = 1; s < steps; s++) {
       const c = Math.round(ac + ((bc - ac) * s) / steps);
       const r = Math.round(ar + ((br - ar) * s) / steps);
       const cell = r * width + c;
-      if (!this.isWater(cell) || open(cell) > ceiling || (shore[cell] as number) < least) return false;
+      cost += open(cell) * share;
+      if (!this.isWater(cell) || cost > budget || (shore[cell] as number) < least) return false;
     }
     return true;
   }

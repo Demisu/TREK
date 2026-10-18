@@ -47,6 +47,35 @@ function ok(leg: PaddleRouteLeg): Extract<PaddleRouteLeg, { status: 'ok' }> {
 
 const kinds = (leg: PaddleRouteLeg) => [...new Set(ok(leg).segments.map((segment) => segment.kind))];
 
+/** In from the north, a lake 1 km wide and 3 km long (the Woblitz), out to the south. */
+function woblitz(): WaterWorld {
+  const world = new WaterWorld();
+  world.line(
+    [
+      [0, 6000],
+      [0, 4000],
+    ],
+    { waterway: 'river', name: 'Havel' },
+  );
+  world.ring(
+    [
+      [-500, 4000],
+      [500, 4000],
+      [500, 1000],
+      [-500, 1000],
+    ],
+    { natural: 'water', name: 'Woblitz' },
+  );
+  world.line(
+    [
+      [0, 1000],
+      [0, -1000],
+    ],
+    { waterway: 'river', name: 'Havel' },
+  );
+  return world;
+}
+
 /** A river 6 km long, flowing south, its centre line at east 0, a node every 100 m (node `k` at north 6000 - 100k). */
 function river(world: WaterWorld, tags: Record<string, string> = {}) {
   return world.line(
@@ -166,31 +195,7 @@ describe('water routing from an extract (PAD-11)', () => {
   });
 
   it('WATER-005: crosses a lake straight over, along its shore when asked, and a SUP keeps to the shore anyway', async () => {
-    const world = new WaterWorld();
-    // In from the north, a lake 1 km wide and 3 km long, out to the south.
-    world.line(
-      [
-        [0, 6000],
-        [0, 4000],
-      ],
-      { waterway: 'river', name: 'Havel' },
-    );
-    world.ring(
-      [
-        [-500, 4000],
-        [500, 4000],
-        [500, 1000],
-        [-500, 1000],
-      ],
-      { natural: 'water', name: 'Woblitz' },
-    );
-    world.line(
-      [
-        [0, 1000],
-        [0, -1000],
-      ],
-      { waterway: 'river', name: 'Havel' },
-    );
+    const world = woblitz();
     const { router, stats } = await built(world);
     expect(stats.lakes).toBe(1);
 
@@ -205,6 +210,20 @@ describe('water routing from an extract (PAD-11)', () => {
     expect(sup.distance_m).toBeGreaterThanOrEqual(direct.distance_m);
     // A point out on the lake is on the water too.
     expect(router.route(world.at(200, 2500), to, KAYAK).status).toBe('ok');
+  });
+
+  it('WATER-012: from a point out on a lake a SUP makes for the shore and the shore style follows it, neither drawn straight across', async () => {
+    const world = woblitz();
+    const { router } = await built(world);
+    // 500 m off both side banks: past a SUP's reach of open water, and beyond the shore style's band.
+    const from = world.at(0, 2500);
+    const to = world.at(0, 0);
+    const direct = ok(router.route(from, to, KAYAK));
+    expect(direct.distance_m).toBeLessThan(2550);
+    expect(ok(router.route(from, to, { ...KAYAK, lakeStyle: 'shore' })).distance_m).toBeGreaterThan(
+      direct.distance_m + 200,
+    );
+    expect(ok(router.route(from, to, SUP)).distance_m).toBeGreaterThan(direct.distance_m + 200);
   });
 
   it('WATER-006: goes round an island of a multipolygon lake, not across it', async () => {
