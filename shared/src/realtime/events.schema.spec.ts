@@ -148,16 +148,18 @@ const DRIFT_VARIANTS: Partial<Record<TrekWsEventName, Record<string, unknown>[]>
 };
 
 describe('@trek/shared realtime event registry', () => {
-  it('WSEVT-REG-001: pins the authoritative inventory counts (74 trip + 33 user = 107)', () => {
+  it('WSEVT-REG-001: pins the authoritative inventory counts (76 trip + 33 user = 109)', () => {
     // 67th to 69th trip event: the three collab:link:* a shared link emits.
     // 70th and 71st: the road trip's vias and tracks, which used to be written silently.
     // 74th: docsync:changed, so a sync run that moved documents refreshes the
     // panel without every member polling for it.
+    // 76th: trip:journal:changed, so the trip's Journal tab and Settings follow
+    // a journal being linked, changed or unlinked.
     // 33rd user event: journey:photos:updated, so the gallery re-sorts once the
     // capture times of an import have landed (#1587).
-    expect(TREK_WS_TRIP_EVENT_NAMES).toHaveLength(75);
+    expect(TREK_WS_TRIP_EVENT_NAMES).toHaveLength(76);
     expect(TREK_WS_USER_EVENT_NAMES).toHaveLength(33);
-    expect(TREK_WS_EVENT_NAMES).toHaveLength(108);
+    expect(TREK_WS_EVENT_NAMES).toHaveLength(109);
   });
 
   it('WSEVT-REG-002: every name is domain:action shaped and outside the reserved plugin: namespace', () => {
