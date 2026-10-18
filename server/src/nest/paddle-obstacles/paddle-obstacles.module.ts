@@ -3,6 +3,7 @@ import { PaddleRegionRequests } from '../../db/entities/PaddleRegionRequests.ent
 import { PaddleRegions } from '../../db/entities/PaddleRegions.entity';
 import { AddonsModule } from '../addons/addons.module';
 import { AuditModule } from '../audit/audit.module';
+import { DemoModule } from '../common/demo.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { PaddleRoutingModule } from '../paddle-routing/paddle-routing.module';
 import { SchedulingModule } from '../scheduling/scheduling.module';
@@ -24,12 +25,16 @@ import { Module } from '@nestjs/common';
  * which it hands to the paddle routing domain (PAD-11). Where a paddler plans
  * outside every region, the region around the place is loaded or asked for by
  * itself (PAD-11C). PaddleObstaclesService is exported for the tours domain's
- * route checks (PAD-06, PAD-09).
+ * route checks (PAD-06, PAD-09). DemoModule is @Global in the app graph and
+ * imported here for the region load's DemoService, so a TestingModule that
+ * pulls this module in through ToursModule resolves it too (BudgetModule's
+ * precedent).
  */
 @Module({
   imports: [
     AddonsModule,
     AuditModule,
+    DemoModule,
     NotificationsModule,
     SchedulingModule,
     PaddleRoutingModule,
