@@ -184,10 +184,22 @@ export async function newWarningsOf({ root, rule, area, keys, lintText, ref = ba
       .filter((key) => differs.has(key))
       .map(async (key) => {
         const path = join(root, key);
-        const now = ofRule(await lintText(readText(path), path), rule, area);
+        // A typed rule can trip over a text that is not the file on disk (the
+        // base version); then the file's own warnings are told, marked so.
+        const lint = async (text) => {
+          try {
+            return { messages: ofRule(await lintText(text, path), rule, area) };
+          } catch {
+            return null;
+          }
+        };
+        const now = await lint(readText(path));
+        if (!now) return [];
         const before = git(root, ['show', `${ref}:./${key}`]);
-        const was = before === null ? [] : ofRule(await lintText(before, path), rule, area);
-        return now.length > was.length ? now.map((m) => `${key}:${m.line ?? 0}  ${m.message}`) : [];
+        const was = before === null ? { messages: [] } : await lint(before);
+        if (was && now.messages.length <= was.messages.length) return [];
+        const note = was ? '' : '  (the base version could not be linted)';
+        return now.messages.map((m) => `${key}:${m.line ?? 0}  ${m.message}${note}`);
       })
   );
   return found.flat();
