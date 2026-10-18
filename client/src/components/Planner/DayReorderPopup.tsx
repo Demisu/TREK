@@ -159,7 +159,7 @@ export function DayReorderPopup({ isOpen, days, t, locale, onReorder, onAddDay, 
   )
 
   return (
-    <DialogShell open={isOpen} onClose={close} labelledBy={dialogTitleId} width="narrow" align="top" blocked={!!asking} header={header} footer={footer}>
+    <DialogShell open={isOpen} onClose={close} labelledBy={dialogTitleId} width="narrow" blocked={!!asking} header={header} footer={footer}>
       <div ref={bodyRef}>
         {asking ? (
           <section aria-labelledby={titleId} aria-describedby={bodyId} className="trek-page-enter">
