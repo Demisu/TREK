@@ -63,15 +63,31 @@ interface Grid {
   weight: (cell: number) => number;
 }
 
+/** With `shore`, what open water costs on top: nothing up to SHORE_NEAR_M, rising to SHORE_WEIGHT at SHORE_FAR_M. */
+function bandOf(shore: number, profile: LakeProfile): number {
+  if (profile.style !== 'shore') return 0;
+  return SHORE_WEIGHT * Math.min(1, Math.max(0, (shore - SHORE_NEAR_M) / (SHORE_FAR_M - SHORE_NEAR_M)));
+}
+
 function weightOf(shore: number, profile: LakeProfile): number {
   let weight = 1;
   const clearance = CLEARANCE_M[profile.style];
   if (shore < clearance) weight += CLEARANCE_WEIGHT * (1 - shore / clearance) ** 2;
-  if (profile.style === 'shore') {
-    weight += SHORE_WEIGHT * Math.min(1, Math.max(0, (shore - SHORE_NEAR_M) / (SHORE_FAR_M - SHORE_NEAR_M)));
-  }
+  weight += bandOf(shore, profile);
   if (shore > profile.maxCrossingM / 2) weight *= OVER_LIMIT_WEIGHT;
   return weight;
+}
+
+/**
+ * {@link weightOf} without the clearance: what the water costs for how far
+ * out it lies. A shortcut is held to this, and to the path's own distance
+ * from the shore (see `pull`), so a leg that starts or ends at the bank, as
+ * every one from a river does, cannot lift the ceiling with the bank's cost
+ * and pull a route along the shore straight across the open water.
+ */
+function openWeightOf(shore: number, profile: LakeProfile): number {
+  const weight = 1 + bandOf(shore, profile);
+  return shore > profile.maxCrossingM / 2 ? weight * OVER_LIMIT_WEIGHT : weight;
 }
 
 function step(grid: Grid, at: number, each: (next: number, length: number) => void): void {
@@ -244,11 +260,6 @@ export class LakeField {
     return d;
   }
 
-  /** What crossing a cell costs per metre, for this profile. */
-  weight(cell: number, profile: LakeProfile): number {
-    return weightOf(this.shoreDistance()[cell] as number, profile);
-  }
-
   private fine(profile: LakeProfile): Grid {
     const shore = this.shoreDistance();
     return {
@@ -322,8 +333,8 @@ export class LakeField {
   /**
    * The line from one cell to another as a paddler would take it: the
    * cheapest cell path, then pulled straight wherever a straight line stays on
-   * water no more costly than the cells it joins and no nearer the shore than
-   * the path it replaces.
+   * open water no more costly than the cells it joins and no nearer the shore
+   * than the path it replaces.
    */
   path(from: number, to: number, profile: LakeProfile): Array<[number, number]> | null {
     const cells = astar(this.fine(profile), from, to);
@@ -356,25 +367,26 @@ export class LakeField {
   }
 
   /**
-   * Whether a straight line between two cells runs on water no more costly
-   * than its ends and nowhere nearer the shore than `floor` (less half a cell,
-   * for the line's rounding onto cells).
+   * Whether a straight line between two cells runs on open water no more
+   * costly than its ends ({@link openWeightOf}) and nowhere nearer the shore
+   * than `floor` (less half a cell, for the line's rounding onto cells).
    */
   private clear(a: number, b: number, profile: LakeProfile, floor: number): boolean {
     const shore = this.shoreDistance();
+    const open = (cell: number) => openWeightOf(shore[cell] as number, profile);
     const least = floor - this.lake.cell / 2;
     const { width } = this.lake;
     const ac = a % width;
     const ar = (a - ac) / width;
     const bc = b % width;
     const br = (b - bc) / width;
-    const ceiling = Math.max(this.weight(a, profile), this.weight(b, profile)) * 1.05;
+    const ceiling = Math.max(open(a), open(b)) * 1.05;
     const steps = Math.max(Math.abs(bc - ac), Math.abs(br - ar)) * 2;
     for (let s = 1; s < steps; s++) {
       const c = Math.round(ac + ((bc - ac) * s) / steps);
       const r = Math.round(ar + ((br - ar) * s) / steps);
       const cell = r * width + c;
-      if (!this.isWater(cell) || this.weight(cell, profile) > ceiling || (shore[cell] as number) < least) return false;
+      if (!this.isWater(cell) || open(cell) > ceiling || (shore[cell] as number) < least) return false;
     }
     return true;
   }
