@@ -10,7 +10,7 @@ import { todayUtc } from '@trek/shared';
 import { TrekPhotoRegistrationService } from '../photos/trek-photo-registration.service';
 import { getCountryFromCoords } from '../atlas/atlas-geo';
 import { computeJourneyStats, type StatsInputPoint } from './journey-stats';
-import { makeRoomAtTime } from './journey-entry-order';
+import { newEntrySortOrder, placeMovedEntry } from './journey-entry-order';
 import { Journeys } from '../../db/entities/Journeys.entity';
 import type { JourneysRepository } from '../../db/repositories/Journeys.repository';
 import { JourneyContributors } from '../../db/entities/JourneyContributors.entity';
@@ -1210,13 +1210,8 @@ export class JourneyDomainService {
         ? JSON.stringify(data.pros_cons)
         : null;
 
-    // The position and the row that takes it in one transaction, so two entries
-    // added at once cannot both read the same MAX (JG74). A timed entry goes where
-    // its time puts it in the day, an untimed one last (#2679).
+    // Position and row in one transaction, so two adds cannot read the same MAX (JG74, #2679).
     const insertedId = await this.uow.transactional(async () => {
-      const sortOrder = data.entry_time
-        ? await makeRoomAtTime(this.entriesRepo, journeyId, data.entry_date, data.entry_time, now)
-        : ((await this.entriesRepo.maxSortOrderForDate(journeyId, data.entry_date)) ?? -1) + 1;
       return await this.entriesRepo.insertEntry({
         journey_id: journeyId,
         author_id: userId,
@@ -1234,7 +1229,7 @@ export class JourneyDomainService {
         tags: data.tags?.length ? JSON.stringify(data.tags) : null,
         pros_cons: prosConsJson,
         visibility: data.visibility || 'private',
-        sort_order: sortOrder,
+        sort_order: await newEntrySortOrder(this.entriesRepo, journeyId, data.entry_date, data.entry_time, now),
         is_draft: data.is_draft ? 1 : 0,
         created_at: now,
         updated_at: now,
@@ -1359,13 +1354,8 @@ export class JourneyDomainService {
     // was provided — the same condition the legacy field-count check tested.
     if (Object.keys(patch).length === 1) return decodeEntryRow(entry);
 
-    // A new time or day moves the entry to where it belongs in that day, unless the
-    // caller placed it itself (#2679).
-    const date = patch.entry_date ?? entry.entry_date;
-    const time = patch.entry_time !== undefined ? patch.entry_time : entry.entry_time;
-    const placeAt = patch.sort_order === undefined && (date !== entry.entry_date || time !== entry.entry_time) ? time : null;
     await this.uow.transactional(async () => {
-      if (placeAt) patch.sort_order = await makeRoomAtTime(this.entriesRepo, entry.journey_id, date, placeAt, this.ts(), entryId);
+      await placeMovedEntry(this.entriesRepo, entry, patch, this.ts());
       await this.entriesRepo.updateFields(entryId, patch);
       await this.journeysRepo.updateFields(entry.journey_id, { updated_at: this.ts() }); // touch the journey
     });

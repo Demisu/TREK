@@ -780,11 +780,8 @@ export class SynologyDriveClient {
       api: 'SYNO.API.Auth',
       version: '6',
       method: 'login',
-      // Plain, unlike the FileStation parameters below. entry.cgi reads a value
-      // as JSON where it can, auth.cgi takes it as it comes, so a quoted account
-      // logged in as `"trek"`, quotes included, and every account was refused (#2666).
-      account: creds.username,
-      passwd: creds.password,
+      // Plain: auth.cgi reads no JSON, a quoted account was refused as `"trek"` (#2666).
+      ...{ account: creds.username, passwd: creds.password },
       session: SESSION_NAME,
       format: 'sid',
       client: 'browser',

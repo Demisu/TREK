@@ -1,5 +1,10 @@
 import type { JourneyEntriesRepository } from '../../../src/db/repositories/JourneyEntries.repository';
-import { chronologicalSlot, makeRoomAtTime } from '../../../src/nest/journey/journey-entry-order';
+import {
+  chronologicalSlot,
+  makeRoomAtTime,
+  newEntrySortOrder,
+  placeMovedEntry,
+} from '../../../src/nest/journey/journey-entry-order';
 
 import { describe, it, expect, vi } from 'vitest';
 
@@ -63,6 +68,50 @@ describe('makeRoomAtTime (#2679)', () => {
   it('writes nothing when the entry goes last on an evenly numbered day', async () => {
     const { entries, updateSortOrder } = repo([{ id: 1, entry_time: '08:00', sort_order: 0 }]);
     expect(await makeRoomAtTime(entries, 7, '2026-04-01', '09:00', 99)).toBe(1);
+    expect(updateSortOrder).not.toHaveBeenCalled();
+  });
+});
+
+describe('newEntrySortOrder / placeMovedEntry (#2679)', () => {
+  const day = [
+    { id: 1, entry_time: '08:00', sort_order: 0 },
+    { id: 2, entry_time: '19:00', sort_order: 1 },
+  ];
+  function repo() {
+    const updateSortOrder = vi.fn(async () => {});
+    const entries = {
+      listDayOrder: vi.fn(async () => day),
+      updateSortOrder,
+      maxSortOrderForDate: vi.fn(async () => 4),
+    } as unknown as JourneyEntriesRepository;
+    return { entries, updateSortOrder };
+  }
+  const entry = { id: 2, journey_id: 7, entry_date: '2026-04-01', entry_time: '19:00' };
+
+  it('puts a timed entry by its time and an untimed one last', async () => {
+    expect(await newEntrySortOrder(repo().entries, 7, '2026-04-01', '12:00', 1)).toBe(1);
+    expect(await newEntrySortOrder(repo().entries, 7, '2026-04-01', null, 1)).toBe(5);
+  });
+
+  it('moves an entry whose time changed', async () => {
+    const patch: { entry_time?: string; sort_order?: number } = { entry_time: '07:00' };
+    await placeMovedEntry(repo().entries, entry, patch, 1);
+    expect(patch.sort_order).toBe(0);
+  });
+
+  it('leaves the patch alone for an unchanged time, no time, or a sort_order of its own', async () => {
+    const same: { entry_time?: string; sort_order?: number } = { entry_time: '19:00' };
+    await placeMovedEntry(repo().entries, entry, same, 1);
+    expect('sort_order' in same).toBe(false);
+
+    const cleared: { entry_time?: string | null; sort_order?: number } = { entry_time: null };
+    await placeMovedEntry(repo().entries, entry, cleared, 1);
+    expect('sort_order' in cleared).toBe(false);
+
+    const placed = { entry_time: '07:00', sort_order: 3 };
+    const { entries, updateSortOrder } = repo();
+    await placeMovedEntry(entries, entry, placed, 1);
+    expect(placed.sort_order).toBe(3);
     expect(updateSortOrder).not.toHaveBeenCalled();
   });
 });

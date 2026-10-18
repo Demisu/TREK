@@ -46,3 +46,33 @@ export async function makeRoomAtTime(
   await Promise.all(moves.map((m) => entries.updateSortOrder(m.id, m.to, now)));
   return slot;
 }
+
+/** The sort_order a new entry takes: where its time puts it in its day, last when it has none. */
+export async function newEntrySortOrder(
+  entries: JourneyEntriesRepository,
+  journeyId: number,
+  date: string,
+  time: string | null | undefined,
+  now: number,
+): Promise<number> {
+  if (time) return await makeRoomAtTime(entries, journeyId, date, time, now);
+  return ((await entries.maxSortOrderForDate(journeyId, date)) ?? -1) + 1;
+}
+
+/**
+ * Moves an edited entry to where its new time or day puts it, by giving the patch
+ * the sort_order it takes. Left alone when neither changed, so a save keeps an
+ * entry where it was dragged, and when the caller sent a sort_order of its own.
+ */
+export async function placeMovedEntry(
+  entries: JourneyEntriesRepository,
+  entry: { id: number; journey_id: number; entry_date: string; entry_time?: string | null },
+  patch: { entry_date?: string; entry_time?: string | null; sort_order?: number },
+  now: number,
+): Promise<void> {
+  if (patch.sort_order !== undefined) return;
+  const date = patch.entry_date ?? entry.entry_date;
+  const time = patch.entry_time !== undefined ? patch.entry_time : entry.entry_time;
+  if (!time || (date === entry.entry_date && time === entry.entry_time)) return;
+  patch.sort_order = await makeRoomAtTime(entries, entry.journey_id, date, time, now, entry.id);
+}
