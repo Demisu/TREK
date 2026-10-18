@@ -4,7 +4,6 @@ import { Users } from '../../db/entities/Users.entity';
 import { AuditModule } from '../audit/audit.module';
 import { AuthModule } from '../auth/auth.module';
 import { BudgetModule } from '../budget/budget.module';
-import { TripJournalLinkModule } from '../journey/trip-journal-link.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { PermissionsModule } from '../permissions/permissions.module';
 import { RealtimeModule } from '../realtime/realtime.module';
@@ -26,6 +25,9 @@ import { Module } from '@nestjs/common';
  * `DatabaseModule` is gone (Plan 4 Task 4) — `TripMembersService` is fully
  * repository-backed (`getTripForViewer` → `TripsRepository.findForViewer`,
  * `canAccessTrip` → `TripsRepository.findAccessible`).
+ *
+ * Leaving a trip also leaves its journal link, through the TRIP_MEMBER_DEPARTURE
+ * port the journey domain binds globally (TripMemberDepartureModule).
  */
 @Module({
   imports: [
@@ -35,7 +37,6 @@ import { Module } from '@nestjs/common';
     AuditModule,
     AuthModule,
     BudgetModule,
-    TripJournalLinkModule,
     MikroOrmModule.forFeature([Trips, TripMembers, Users]),
   ],
   controllers: [TripMembersController],

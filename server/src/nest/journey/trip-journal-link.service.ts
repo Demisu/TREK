@@ -7,6 +7,7 @@ import { forbidden, notFound } from '../common/domain-error';
 import { UnitOfWork } from '../database/unit-of-work';
 import { PermissionsService } from '../permissions/permissions.service';
 import { RealtimeService } from '../realtime/realtime.service';
+import type { TripMemberDeparture } from '../trip-members/trip-member-departure.types';
 import { TripAccessService } from '../trip-membership/trip-access.service';
 import { JourneyDomainService } from './journey-domain.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -41,7 +42,7 @@ const NOT_LINKED = 'No journal is linked to this trip';
  * alone or the journal's owner alone is enough.
  */
 @Injectable()
-export class TripJournalLinkService {
+export class TripJournalLinkService implements TripMemberDeparture {
   constructor(
     @InjectRepository(TripJournalLinks) private readonly links: TripJournalLinksRepository,
     @InjectRepository(JourneyContributors) private readonly contributors: JourneyContributorsRepository,
@@ -212,7 +213,7 @@ export class TripJournalLinkService {
    * later does not quietly reopen the journal. Their access already ended with
    * the membership; this only tidies the row. Runs in the caller's transaction.
    */
-  async dropMember(tripId: number, userId: number): Promise<void> {
+  async memberLeft(tripId: number, userId: number): Promise<void> {
     await this.links.deleteMember(tripId, userId);
   }
 }

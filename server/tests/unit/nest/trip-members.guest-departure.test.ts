@@ -19,6 +19,7 @@ import { createSnapshotTestDb } from '../../helpers/db-mock';
 import { countRows, findRow, findRows, updateRows } from '../../helpers/factories/rows';
 import { addTripMember, makeTrip } from '../../helpers/factories/trips';
 import { makeUser } from '../../helpers/factories/users';
+import { MemberDepartureStubModule } from '../../helpers/journey-share-repos';
 import { createTestModule, type TestModule } from '../../helpers/test-module';
 import { MikroORM } from '@mikro-orm/core';
 
@@ -31,7 +32,7 @@ let budget: BudgetService;
 const orm = () => t.get(MikroORM);
 
 beforeAll(async () => {
-  t = await createTestModule({ db, imports: [TripMembersModule] });
+  t = await createTestModule({ db, imports: [TripMembersModule, MemberDepartureStubModule] });
   members = t.get(TripMembersService);
   budget = t.get(BudgetService);
 });

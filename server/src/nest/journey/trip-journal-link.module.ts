@@ -14,11 +14,10 @@ import { Module } from '@nestjs/common';
 
 /**
  * A trip showing one journal from the Journey addon: the link, its routes and
- * its MCP tools. Its own module rather than part of JourneyModule, because the
- * trip roster needs `TripJournalLinkService.dropMember` when someone leaves,
- * and TripMembersModule must not pull in the whole journey surface (uploads,
- * memories, both photo providers) for that. It imports nothing from the trip
- * roster in return, so the edge runs one way.
+ * its MCP tools. Its own module rather than part of JourneyModule, so the
+ * binding of the trip roster's departure port (TripMemberDepartureModule) does
+ * not pull in the whole journey surface (uploads, memories, both photo
+ * providers).
  */
 @Module({
   imports: [
