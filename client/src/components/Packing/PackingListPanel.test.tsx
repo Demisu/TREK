@@ -271,7 +271,9 @@ describe('PackingListPanel', () => {
     ];
     const { container } = render(<PackingListPanel tripId={1} items={items} />);
     expect(screen.getByRole('button', { name: 'A to Z' })).toHaveAttribute('aria-pressed', 'true');
-    expect(container.querySelector('[draggable="true"]')).toBeNull();
+    // Only the category grip stays: the order of the categories is not the A to Z of their items.
+    const draggable = [...container.querySelectorAll('[draggable="true"]')];
+    expect(draggable.map((el) => el.getAttribute('aria-label'))).toEqual(['Drag to reorder the category']);
   });
 
   it('FE-COMP-PACKING-023: inline edit item name via pencil icon calls PUT', async () => {
