@@ -6,7 +6,7 @@
  *
  * Replaced: `GeofabrikClient`, so no test reaches Geofabrik; its download
  * writes an extract the test builds (tests/helpers/osm-pbf-fixture.ts), which
- * the real reader then reads.
+ * the real reader then reads. Broadcasts go to a FakeRealtimeService.
  */
 import { AuditLog } from '../../src/db/entities/AuditLog.entity';
 import { AppConfigModule } from '../../src/nest/app-config/app-config.module';
@@ -22,10 +22,13 @@ import {
   REGION_NOT_FOUND_MESSAGE,
   REGION_UNKNOWN_MESSAGE,
 } from '../../src/nest/paddle-obstacles/paddle-regions.service';
+import { RealtimeModule } from '../../src/nest/realtime/realtime.module';
+import { RealtimeService } from '../../src/nest/realtime/realtime.service';
 import { createSnapshotTestDb } from '../helpers/db-mock';
 import { deleteRows, findRows } from '../helpers/factories/rows';
 import { setAddonEnabled } from '../helpers/factories/settings';
 import { makeAdmin, makeUser } from '../helpers/factories/users';
+import { FakeRealtimeService } from '../helpers/fake-realtime';
 import { pbfFile } from '../helpers/osm-pbf-fixture';
 import { createTestMikroOrmModule, createTestOrm, type TestOrm } from '../helpers/test-orm';
 import { TestUnitOfWorkModule } from '../helpers/test-uow';
@@ -103,13 +106,17 @@ async function build() {
       await TestUnitOfWorkModule.forRoot(db),
       await createTestMikroOrmModule(db),
       AppConfigModule,
+      RealtimeModule,
       PaddleObstaclesModule,
     ],
   })
+    .overrideProvider(RealtimeService)
+    .useValue(new FakeRealtimeService())
     .overrideProvider(GeofabrikClient)
     .useValue(geofabrik)
     .overrideProvider(DataPathsService)
-    .useValue({ tmpDir: dir, dataDir: dir })
+    // The notices to the admins pull the storage registry in, which opens its local backends at init.
+    .useValue({ tmpDir: dir, dataDir: dir, uploadsDir: join(dir, 'uploads'), backupsDir: join(dir, 'backups') })
     .compile();
   const nest = moduleRef.createNestApplication();
   nest.use(cookieParser());
