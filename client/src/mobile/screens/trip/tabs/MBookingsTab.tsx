@@ -4,7 +4,7 @@ import { RES_ICONS } from '../../../../components/Planner/DayPlanSidebar.constan
 import { formatTime, formatPriceText } from '../../../../utils/formatters'
 import { useTranslation } from '../../../../i18n'
 import type { Reservation } from '../../../../types'
-import { CardActions, CardDeleteSheet, CardFiles, CardTitleButton, CardWhenAndCode } from './MReservationCardParts'
+import { CardActions, CardDeleteSheet, CardFiles, CardNotes, CardTitleButton, CardWhenAndCode } from './MReservationCardParts'
 import { Field, ReservationPluginSlots, SectionHeader, StatusDot, TabScroller, TravelerAvatars, TravelerFilterRow } from './tabChrome'
 import { STATUS_COLOR, type MTabScreenProps } from './tabModel'
 import { cardWhen, parseTransportMeta } from './transportsModel'
@@ -173,11 +173,7 @@ function BookingCard({ res, planner, canEdit, compact }: {
               </div>
             )}
 
-            {res.notes && (
-              <div className="mt-2 rounded-[10px] border border-[color:var(--m-rowbr)] bg-m-card px-[10px] py-2">
-                <p className="whitespace-pre-wrap font-geist text-[0.6875rem] leading-[1.5] text-m-muted">{res.notes}</p>
-              </div>
-            )}
+            <CardNotes notes={res.notes} />
 
             <CardFiles files={files} card={card} t={t} />
           </button>

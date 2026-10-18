@@ -3,7 +3,7 @@ import { RES_ICONS } from '../../../../components/Planner/DayPlanSidebar.constan
 import { formatPriceText } from '../../../../utils/formatters'
 import { useTranslation } from '../../../../i18n'
 import type { Reservation } from '../../../../types'
-import { CardActions, CardDeleteSheet, CardFiles, CardTitleButton, CardWhenAndCode } from './MReservationCardParts'
+import { CardActions, CardDeleteSheet, CardFiles, CardNotes, CardTitleButton, CardWhenAndCode } from './MReservationCardParts'
 import { Field, ReservationPluginSlots, SectionHeader, StatusDot, TabScroller, TravelerAvatars, TravelerFilterRow } from './tabChrome'
 import { STATUS_COLOR, type MTabScreenProps } from './tabModel'
 import { cardWhen, parseTransportMeta } from './transportsModel'
@@ -188,6 +188,8 @@ function TransportCard({ res, planner, shell, canEdit, compact }: {
             )}
 
             <TravelerAvatars travelers={res.travelers || []} label={t('reservations.travelers.label')} />
+
+            <CardNotes notes={res.notes} />
 
             <CardFiles files={files} card={card} t={t} />
           </button>

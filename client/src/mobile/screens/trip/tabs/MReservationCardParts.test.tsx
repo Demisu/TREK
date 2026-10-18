@@ -1,11 +1,18 @@
-// FE-COMP-MRESCARD-001 to FE-COMP-MRESCARD-009
+// FE-COMP-MRESCARD-001 to FE-COMP-MRESCARD-010
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Hotel, Plane } from 'lucide-react';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { useReservationCard } from '../../../../components/Planner/bookings/useReservationCard';
 import type { Reservation } from '../../../../types';
-import { CardActions, CardDeleteSheet, CardFiles, CardTitleButton, CardWhenAndCode } from './MReservationCardParts';
+import {
+  CardActions,
+  CardDeleteSheet,
+  CardFiles,
+  CardNotes,
+  CardTitleButton,
+  CardWhenAndCode,
+} from './MReservationCardParts';
 
 const t = (key: string, params?: Record<string, string | number>) =>
   params ? `${key}:${Object.values(params).join(',')}` : key;
@@ -148,5 +155,16 @@ describe('MReservationCardParts', () => {
     expect(date).toHaveClass('flex-none');
     expect(title.contains(date)).toBe(false);
     expect(container.querySelector('button > div')).toHaveClass('flex-col');
+  });
+
+  it('FE-COMP-MRESCARD-010: shows the notes of a booking, and nothing for empty ones (Discord, 15.10.2026)', () => {
+    const notes = 'Gate closes 40 min early\nBag drop at counter C';
+    const { container, rerender } = render(<CardNotes notes={notes} />);
+    expect(container.querySelector('p')?.textContent).toBe(notes);
+
+    rerender(<CardNotes notes="   " />);
+    expect(container).toBeEmptyDOMElement();
+    rerender(<CardNotes notes={null} />);
+    expect(container).toBeEmptyDOMElement();
   });
 });

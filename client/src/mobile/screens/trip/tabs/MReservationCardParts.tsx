@@ -128,6 +128,22 @@ export function CardWhenAndCode({
   );
 }
 
+/**
+ * The booking's notes, inside the card body button. A transport card on the phone
+ * never showed them, so notes typed into a flight were nowhere to be read
+ * (reported on Discord, 15.10.2026); both cards now take them from here.
+ */
+export function CardNotes({ notes }: { notes: string | null | undefined }) {
+  if (!notes?.trim()) return null;
+  return (
+    <div className="mt-2 rounded-[10px] border border-[color:var(--m-rowbr)] bg-m-card px-[10px] py-2">
+      <p className="whitespace-pre-wrap font-geist text-caption leading-[1.5] text-m-muted [overflow-wrap:anywhere]">
+        {notes}
+      </p>
+    </div>
+  );
+}
+
 /** Attached files, listed inside the card body button. */
 export function CardFiles({ files, card, t }: { files: ReturnType<typeof filesFor>; card: CardState; t: T }) {
   if (files.length === 0) return null;

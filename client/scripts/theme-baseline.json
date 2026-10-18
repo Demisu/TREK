@@ -269,7 +269,7 @@
   "mobile/screens/trip/sheets/PlSheetChrome.tsx": 7,
   "mobile/screens/trip/sheets/PlTimeFields.tsx": 3,
   "mobile/screens/trip/tabs/MBagsSheet.tsx": 13,
-  "mobile/screens/trip/tabs/MBookingsTab.tsx": 3,
+  "mobile/screens/trip/tabs/MBookingsTab.tsx": 2,
   "mobile/screens/trip/tabs/MCollabChat.tsx": 22,
   "mobile/screens/trip/tabs/MCollabNotes.tsx": 19,
   "mobile/screens/trip/tabs/MCollabPolls.tsx": 18,
