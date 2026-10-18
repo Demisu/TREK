@@ -72,7 +72,6 @@ function OpenDialog({ onClose, tripId, tripTitle, onMembersChanged }: TripShareD
         onClose={onClose}
         labelledBy={labelId}
         width={areas.length > 1 ? 'wide' : 'detail'}
-        align="top"
         blocked={!!ask}
         bodyClassName={BODY}
         header={(

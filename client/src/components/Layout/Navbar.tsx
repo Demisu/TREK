@@ -7,7 +7,6 @@ import { useAddonStore } from '../../store/addonStore'
 import { usePluginStore } from '../../store/pluginStore'
 import { useTranslation } from '../../i18n'
 import { Plane, LogOut, Settings, ChevronDown, Shield, ArrowLeft, ChevronLeft, Moon, Sun, Monitor, CalendarDays, Briefcase, Globe, Compass, BookOpen, Bookmark } from 'lucide-react'
-import { Tooltip } from '../shared/Tooltip'
 import type { LucideIcon } from 'lucide-react'
 import InAppNotificationBell from './InAppNotificationBell.tsx'
 import HelpButton from '../Help/HelpButton'
@@ -179,16 +178,16 @@ export default function Navbar({ tripTitle, tripId, onBack, showBack, onSettings
         {/* The trip's Settings sit with the trip, beside its pill: they are about this
             trip, not about the app the right side of the bar belongs to. */}
         {onSettings && (
-          <Tooltip label={t('trip.settings.title')}>
-            <button
-              type="button"
-              onClick={onSettings}
-              aria-label={t('trip.settings.title')}
-              className="inline-flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full bg-surface-card text-content-muted shadow-sm ring-1 ring-inset ring-edge-faint transition-colors hover:bg-surface-hover hover:text-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
-            >
-              <Settings className="h-4 w-4" aria-hidden="true" />
-            </button>
-          </Tooltip>
+          // The same pill as the trip's own beside it, so the two read as one pair.
+          <button
+            type="button"
+            onClick={onSettings}
+            aria-label={t('trip.settings.title')}
+            className="inline-flex flex-none items-center gap-1.5 rounded-full bg-surface-card py-1 ps-2 pe-3 text-content shadow-sm ring-1 ring-inset ring-edge-faint transition-colors hover:bg-surface-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+          >
+            <Settings className="h-4 w-4 flex-none text-content-muted" aria-hidden="true" />
+            <span className="text-caption font-semibold">{t('nav.settings')}</span>
+          </button>
         )}
       </div>
 
