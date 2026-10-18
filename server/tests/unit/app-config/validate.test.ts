@@ -74,6 +74,14 @@ describe('validateEnvAtBoot', () => {
     expect(() => validateEnvAtBoot({ LLM_TIMEOUT_MS: '' })).not.toThrow();
   });
 
+  it('refuses an LLM answer cap that is no whole token count or too small to hold a booking (#2677)', () => {
+    expect(() => validateEnvAtBoot({ LLM_MAX_OUTPUT_TOKENS: '8192.5' })).toThrow();
+    expect(() => validateEnvAtBoot({ LLM_MAX_OUTPUT_TOKENS: '100' })).toThrow();
+    expect(() => validateEnvAtBoot({ LLM_MAX_OUTPUT_TOKENS: 'lots' })).toThrow();
+    expect(() => validateEnvAtBoot({ LLM_MAX_OUTPUT_TOKENS: '16384' })).not.toThrow();
+    expect(() => validateEnvAtBoot({ LLM_MAX_OUTPUT_TOKENS: '' })).not.toThrow();
+  });
+
   it('refuses an ALLOW_LINK_LOCAL_IPS entry that is not a listable link-local address', () => {
     // A metadata address would be dropped silently at runtime; saying so at boot
     // is the difference between an OIDC login that works and a puzzling one.

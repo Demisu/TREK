@@ -114,8 +114,9 @@ Photographing a receipt for the Costs tab is covered in [Budget-Tracking](Budget
 
 ## Good to know
 
-- **Nothing to migrate**, and everything is set up in the UI. The only environment variable the addon reads is `LLM_TIMEOUT_MS` (see [Environment-Variables](Environment-Variables)).
+- **Nothing to migrate**, and everything is set up in the UI. The only environment variables the addon reads are `LLM_TIMEOUT_MS` and `LLM_MAX_OUTPUT_TOKENS` (see [Environment-Variables](Environment-Variables)).
 - **Local models can be slow.** On a CPU-only host one booking can take from tens of seconds to a couple of minutes. TREK gives a model 15 minutes per document by default; `LLM_TIMEOUT_MS` raises or lowers that. Uploads are parsed **one at a time** per user, so several files wait in line rather than run in parallel.
+- **A long booking list can outgrow the answer.** A model may write at most 4096 tokens per document (8192 on Anthropic). When a document holds more than that, the import says the answer was cut off; `LLM_MAX_OUTPUT_TOKENS` raises the cap, as far as your model's context allows.
 - **Parse jobs are kept for about 10 minutes** after they finish. Start the review within that time.
 - **Privacy**: with the Local provider nothing leaves your network. With OpenAI or Anthropic, the document's text (for Anthropic the PDF itself, and for either a photo) is sent to that provider.
 - **API keys are never sent back in plain text.** They are encrypted at rest and only ever shown masked.

@@ -129,6 +129,29 @@ describe('OpenAiCompatibleClient', () => {
     }
   });
 
+  it('caps the answer at 4096 tokens unless LLM_MAX_OUTPUT_TOKENS says otherwise (#2677)', async () => {
+    const fetchFn = mockFetch(() => jsonResponse({ choices: [{ message: { content: '{"reservations":[]}' } }] }));
+    await new OpenAiCompatibleClient().extract(baseInput);
+    expect(JSON.parse(fetchFn.mock.calls[0][1].body as string).max_tokens).toBe(4096);
+
+    vi.stubEnv('LLM_MAX_OUTPUT_TOKENS', '16384');
+    try {
+      await new OpenAiCompatibleClient().extract(baseInput);
+      expect(JSON.parse(fetchFn.mock.calls[1][1].body as string).max_tokens).toBe(16384);
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it('throws when the answer was cut off at the token cap instead of reading it as empty (#2677)', async () => {
+    mockFetch(() =>
+      jsonResponse({ choices: [{ message: { content: '{"reservations":[{"@type":"Flig' }, finish_reason: 'length' }] }),
+    );
+    await expect(new OpenAiCompatibleClient().extract(baseInput)).rejects.toThrow(
+      /cut off at the 4096-token limit — raise LLM_MAX_OUTPUT_TOKENS/,
+    );
+  });
+
   it('reads a single reservation the model answered on its own', async () => {
     mockFetch(() =>
       jsonResponse({ choices: [{ message: { content: '{"@type":"LodgingReservation","reservationNumber":"733"}' } }] }),
@@ -693,6 +716,22 @@ describe('AnthropicClient', () => {
       }),
     );
     await expect(new AnthropicClient().extract(baseInput)).rejects.toThrow(/cut off at the 8192-token limit/);
+  });
+
+  it('sends the cap LLM_MAX_OUTPUT_TOKENS sets and names it when the answer hits it (#2677)', async () => {
+    const fetchFn = mockFetch(() =>
+      jsonResponse({
+        stop_reason: 'max_tokens',
+        content: [{ type: 'tool_use', name: 'emit_reservations', input: {} }],
+      }),
+    );
+    vi.stubEnv('LLM_MAX_OUTPUT_TOKENS', '20000');
+    try {
+      await expect(new AnthropicClient().extract(baseInput)).rejects.toThrow(/cut off at the 20000-token limit/);
+      expect(JSON.parse(fetchFn.mock.calls[0][1].body as string).max_tokens).toBe(20000);
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it('throws when the forced tool was never called (#2375)', async () => {

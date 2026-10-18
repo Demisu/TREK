@@ -248,6 +248,12 @@ describe('deriveIntegrations', () => {
     expect(deriveIntegrations({ LLM_TIMEOUT_MS: '-1' }).llmTimeoutMs).toBe(900_000);
     expect(deriveIntegrations({ LLM_TIMEOUT_MS: '60000.5' }).llmTimeoutMs).toBe(60_000);
   });
+
+  it('leaves the LLM answer cap to each client unless one is set (#2677)', () => {
+    expect(deriveIntegrations({}).llmMaxOutputTokens).toBeUndefined();
+    expect(deriveIntegrations({ LLM_MAX_OUTPUT_TOKENS: '' }).llmMaxOutputTokens).toBeUndefined();
+    expect(deriveIntegrations({ LLM_MAX_OUTPUT_TOKENS: '16384' }).llmMaxOutputTokens).toBe(16384);
+  });
 });
 
 describe('deriveTransit (transitConfig token)', () => {

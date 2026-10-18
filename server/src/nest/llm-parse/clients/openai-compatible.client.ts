@@ -5,7 +5,8 @@ import type { LlmExtractionClient, LlmExtractionInput } from '../llm-provider.in
 import { isContextOverflow, LlmContextOverflowError } from './context-overflow';
 import { isNuExtractModel, buildNuExtractUserText, nuExtractToKiReservations } from './nuextract';
 
-const MAX_TOKENS = 4096;
+/** The answer cap when LLM_MAX_OUTPUT_TOKENS is unset. */
+const DEFAULT_MAX_TOKENS = 4096;
 
 /**
  * A response the client could not read at all: prose where JSON was asked for,
@@ -106,10 +107,11 @@ export class OpenAiCompatibleClient implements LlmExtractionClient {
     // local server (Ollama/vLLM/llama.cpp), but newer OpenAI models reject it
     // with a 400 and demand `max_completion_tokens`. Start with the broadly
     // supported spelling and swap on that specific rejection (#1760).
+    const maxTokens = readEnv().integrations.llmMaxOutputTokens ?? DEFAULT_MAX_TOKENS;
     const buildBody = (shape: RequestShape) => {
       const baseBody = {
         model: input.model,
-        [shape.tokenParam]: MAX_TOKENS,
+        [shape.tokenParam]: maxTokens,
         // Extraction is a deterministic task — Ollama defaults to 0.7, which makes
         // small models (NuExtract) drop fields or return empty. Pin to 0, and only
         // leave it out once a server has explicitly rejected the parameter (#2262).
@@ -193,8 +195,16 @@ export class OpenAiCompatibleClient implements LlmExtractionClient {
     console.debug(`[DEBUG] LLM answered with response_format=${sentFormat(shape, nuextract)}`);
 
     const data = (await res.json()) as {
-      choices?: { message?: { content?: string } }[];
+      choices?: { message?: { content?: string }; finish_reason?: string }[];
     };
+    // A run that hits the cap stops mid-list, and the fragment either reads as
+    // nothing or not at all: "no reservations" for a document full of them, with
+    // no hint that a setting would fix it (#2677). Same rule as the Anthropic client.
+    if (data.choices?.[0]?.finish_reason === 'length') {
+      throw new UnreadableLlmResponse(
+        `the answer was cut off at the ${maxTokens}-token limit — raise LLM_MAX_OUTPUT_TOKENS or import fewer bookings per document`,
+      );
+    }
     const content = data.choices?.[0]?.message?.content;
     return nuextract ? parseNuExtract(content) : parseReservations(content, rootKey);
   }

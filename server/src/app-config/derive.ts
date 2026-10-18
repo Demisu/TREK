@@ -295,6 +295,13 @@ export function deriveIntegrations(raw: RawEnv) {
      * rejects a fractional value.
      */
     llmTimeoutMs: Math.floor(positiveNumberOr(raw.LLM_TIMEOUT_MS, 900_000)),
+    /**
+     * How long one AI-parsing answer may get. Unset leaves each client the cap it
+     * has always sent (4096 to OpenAI-compatible servers, 8192 to Anthropic): a
+     * bigger default would make the server of a small local model refuse every
+     * request whose prompt plus cap overruns its context (#2677).
+     */
+    llmMaxOutputTokens: positiveIntOr(raw.LLM_MAX_OUTPUT_TOKENS, 0) || undefined,
     // TRANSIT_API_URL, KITINERARY_EXTRACTOR_PATH and PATH are boot-stable and
     // read only by Nest providers, so the transitConfig and kitineraryConfig
     // tokens own them (boot-derive.ts).
