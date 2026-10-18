@@ -89,6 +89,17 @@ describe('MJourneySettingsSheet', () => {
     expect(screen.getByText('8 places')).toBeInTheDocument();
   });
 
+  it('FE-MOB-JSET-2683: lists the people a linked trip lets in, and nothing without', async () => {
+    const { unmount } = setup();
+    expect(screen.queryByText('Through trips')).not.toBeInTheDocument();
+    unmount();
+
+    setup({ trip_access: [{ user_id: 7, role: 'editor', username: 'lena', avatar: null, trip_id: 3, trip_title: 'Tokyo trip' }] });
+    expect(await screen.findByText('Through trips')).toBeInTheDocument();
+    expect(screen.getByText('lena')).toBeInTheDocument();
+    expect(screen.getByText('via Tokyo trip')).toBeInTheDocument();
+  });
+
   it('FE-MOB-JSET-002: shows the empty hint when no trip is linked', async () => {
     setup({ trips: [] });
     expect(await screen.findByText('No trips linked')).toBeInTheDocument();

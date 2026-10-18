@@ -178,6 +178,10 @@ const journey: TranslationStrings = {
   'journey.contributors.removeConfirm': "{username} bu journey'den kaldırılsın mı?",
   'journey.contributors.removed': 'Katkıda bulunan kaldırıldı',
   'journey.contributors.removeFailed': 'Katkıda bulunan kaldırılamadı',
+  'journey.contributors.viaTrips': 'Seyahatler üzerinden',
+  'journey.contributors.viaTripsHint':
+    'Bir seyahat bu günlüğü bağladığı için açabiliyorlar. Bunu seyahatin ayarlarından değiştir.',
+  'journey.contributors.viaTrip': '{trip} üzerinden',
   'journey.share.publicShare': 'Herkese açık paylaşım',
   'journey.share.createLink': 'Paylaşım bağlantısı oluştur',
   'journey.share.linkCreated': 'Paylaşım bağlantısı oluşturuldu',

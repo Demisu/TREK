@@ -264,6 +264,10 @@ const journey: TranslationStrings = {
   'journey.contributors.removeConfirm': 'Remove {username} from this journey?', // en-fallback
   'journey.contributors.removed': 'Contributor removed', // en-fallback
   'journey.contributors.removeFailed': 'Failed to remove contributor', // en-fallback
+  'journey.contributors.viaTrips': 'Utazásokon át',
+  'journey.contributors.viaTripsHint':
+    'Azért nyithatják meg ezt a naplót, mert egy utazás kapcsolja. Ezt az utazás beállításaiban módosíthatod.',
+  'journey.contributors.viaTrip': '{trip} útján',
   'journey.editor.externalPhotos': 'External photos', // en-fallback
   'journey.editor.externalPhotosFor': 'Photos for {date}', // en-fallback
   'journey.editor.externalPhotosNearby': 'Nearby photos first', // en-fallback

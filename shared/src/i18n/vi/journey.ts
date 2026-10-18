@@ -176,6 +176,10 @@ const journey: TranslationStrings = {
   'journey.contributors.removeConfirm': 'Xóa {username} khỏi hành trình này?',
   'journey.contributors.removed': 'Đã xóa người đóng góp',
   'journey.contributors.removeFailed': 'Không thể xóa người đóng góp',
+  'journey.contributors.viaTrips': 'Qua chuyến đi',
+  'journey.contributors.viaTripsHint':
+    'Họ có thể mở nhật ký này vì một chuyến đi liên kết nó. Thay đổi trong cài đặt của chuyến đi.',
+  'journey.contributors.viaTrip': 'qua {trip}',
   'journey.share.publicShare': 'Chia sẻ công khai',
   'journey.share.createLink': 'Tạo liên kết chia sẻ',
   'journey.share.linkCreated': 'Đã tạo liên kết chia sẻ',

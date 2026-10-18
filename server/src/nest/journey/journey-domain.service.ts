@@ -270,12 +270,10 @@ export class JourneyDomainService {
     // linked trips (JG17)
     const trips = await this.journeyTripsRepo.listForJourney(journeyId);
 
-    // contributors (JG18)
-    const contributorsRaw = await this.contributorsRepo.listForJourney(journeyId);
-    const contributors = contributorsRaw.map((c) => ({
-      ...c,
-      avatar_url: avatarUrl(c),
-    }));
+    const withAvatar = <R extends { avatar: string | null }>(rows: R[]) => rows.map((r) => ({ ...r, avatar_url: avatarUrl(r) }));
+    const contributors = withAvatar(await this.contributorsRepo.listForJourney(journeyId)); // JG18
+    // Who a trip's journal link lets in besides them (#2683), shown apart in the settings.
+    const tripAccess = withAvatar(await this.contributorsRepo.listTripAccessForJourney(journeyId));
 
     // stats
     const entryCount = entries.filter((e) => e.type === 'entry').length;
@@ -306,6 +304,7 @@ export class JourneyDomainService {
       gallery,
       trips,
       contributors,
+      trip_access: tripAccess,
       stats: { entries: entryCount, photos: photoCount, places: places.length },
       hide_skeletons: hideSkeletons,
       // What the eye toggle cannot say: how much was waved away one at a time, and

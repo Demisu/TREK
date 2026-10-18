@@ -183,6 +183,10 @@ const journey: TranslationStrings = {
   'journey.contributors.removeConfirm': 'Αφαίρεση {username} από αυτό το ταξίδι;',
   'journey.contributors.removed': 'Ο συνεισφέρων αφαιρέθηκε',
   'journey.contributors.removeFailed': 'Αποτυχία αφαίρεσης συνεισφέροντα',
+  'journey.contributors.viaTrips': 'Μέσω ταξιδιών',
+  'journey.contributors.viaTripsHint':
+    'Μπορούν να ανοίξουν αυτό το ημερολόγιο επειδή ένα ταξίδι το συνδέει. Αλλάξτε το στις ρυθμίσεις του ταξιδιού.',
+  'journey.contributors.viaTrip': 'μέσω {trip}',
   'journey.share.publicShare': 'Δημόσια Κοινοποίηση',
   'journey.share.createLink': 'Δημιουργία συνδέσμου κοινής χρήσης',
   'journey.share.linkCreated': 'Ο σύνδεσμος κοινής χρήσης δημιουργήθηκε',

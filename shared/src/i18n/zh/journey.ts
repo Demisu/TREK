@@ -253,6 +253,9 @@ const journey: TranslationStrings = {
   'journey.contributors.removeConfirm': '要将 {username} 从此旅程中移除吗？',
   'journey.contributors.removed': '已移除贡献者',
   'journey.contributors.removeFailed': '移除贡献者失败',
+  'journey.contributors.viaTrips': '通过旅行',
+  'journey.contributors.viaTripsHint': '因为某个旅行关联了此日志，他们可以打开它。请在该旅行的设置中更改。',
+  'journey.contributors.viaTrip': '通过 {trip}',
   'journey.editor.externalPhotos': 'External photos', // en-fallback
   'journey.editor.externalPhotosFor': 'Photos for {date}', // en-fallback
   'journey.editor.externalPhotosNearby': 'Nearby photos first', // en-fallback

@@ -98,6 +98,19 @@ describe('JourneySettingsDialog', () => {
     await screen.findByRole('button', { name: /create share link/i })
   })
 
+  it('FE-JRN-SETTINGS-2683: lists the people a linked trip lets in under their own heading, and nothing without', () => {
+    const { unmount } = mountDialog()
+    expect(screen.queryByText('Through trips')).not.toBeInTheDocument()
+    unmount()
+
+    mountDialog(buildJourney({
+      trip_access: [{ user_id: 7, role: 'viewer', username: 'lena', avatar: null, trip_id: 5, trip_title: 'Italy Trip' }],
+    }))
+    expect(screen.getByText('Through trips')).toBeInTheDocument()
+    expect(screen.getByText('lena')).toBeInTheDocument()
+    expect(screen.getByText('via Italy Trip')).toBeInTheDocument()
+  })
+
   it('FE-JRN-SETTINGS-002: saves the edited title and subtitle', async () => {
     const user = userEvent.setup()
     const { onSaved } = mountDialog()

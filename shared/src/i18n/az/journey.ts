@@ -206,6 +206,10 @@ const journey: TranslationStrings = {
   'journey.contributors.removeConfirm': '{username} bu səyahət gündəliyindən çıxarılsın?',
   'journey.contributors.removed': 'İştirakçı çıxarıldı',
   'journey.contributors.removeFailed': 'İştirakçını çıxarmaq mümkün olmadı',
+  'journey.contributors.viaTrips': 'Səyahətlər vasitəsilə',
+  'journey.contributors.viaTripsHint':
+    'Bu gündəliyi aça bilirlər, çünki bir səyahət onu bağlayır. Bunu səyahətin parametrlərində dəyişin.',
+  'journey.contributors.viaTrip': '{trip} vasitəsilə',
 
   'journey.share.publicShare': 'İctimai paylaşım',
   'journey.share.createLink': 'Paylaşım linki yarat',

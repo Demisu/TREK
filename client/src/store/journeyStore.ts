@@ -141,11 +141,23 @@ export interface JourneyContributor {
   avatar?: string | null
 }
 
+/** Someone a trip's linked journal lets in, with the trip they come through (#2683). */
+export interface JourneyTripAccess {
+  user_id: number
+  role: 'editor' | 'viewer'
+  username: string
+  avatar?: string | null
+  trip_id: number
+  trip_title: string
+}
+
 export interface JourneyDetail extends Journey {
   entries: JourneyEntry[]
   gallery: GalleryPhoto[]
   trips: JourneyTrip[]
   contributors: JourneyContributor[]
+  /** Who the trips' journal links let in besides the contributors, managed in those trips. */
+  trip_access?: JourneyTripAccess[]
   stats: { entries: number; photos: number; places: number }
   hide_skeletons?: boolean
   /** How many suggestions were waved away one at a time, so the settings sheet can offer them back. */

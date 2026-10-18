@@ -1,6 +1,12 @@
 import type { JourneyContributors } from '../entities/JourneyContributors.entity';
 import type { DB } from '../kysely/db';
-import { readLinkHideSkeletons, readLinkRole, type TripJournalLinkKyselyDB } from './TripJournalLinks.repository';
+import {
+  linkReach,
+  readLinkHideSkeletons,
+  readLinkRole,
+  type TripJournalLinkKyselyDB,
+  type TripJournalLinkRole,
+} from './TripJournalLinks.repository';
 import { TrekRepository } from './_shared/trek-repository';
 
 /** JG18's contributor-list row (`getJourneyFull`) — the junction plus the joined username/avatar. */
@@ -15,6 +21,16 @@ export interface JourneyContributorListRow {
 
 /** The `journey_contributors`/`users` tables {@link JourneyContributorsRepository.listForJourney} reads. */
 type JourneyContributorListKyselyDB = Pick<DB, 'journey_contributors' | 'users'>;
+
+/** Someone a trip's journal link lets in, with the trip they come through (#2683). */
+export interface JourneyTripAccessRow {
+  user_id: number;
+  role: TripJournalLinkRole;
+  username: string;
+  avatar: string | null;
+  trip_id: number;
+  trip_title: string;
+}
 
 /** The table the access reads below take a person's own contributor row from. */
 type JourneyContributorRowKyselyDB = Pick<DB, 'journey_contributors'>;
@@ -77,6 +93,24 @@ export class JourneyContributorsRepository extends TrekRepository<JourneyContrib
       .where('user_id', '=', userId)
       .where('link_id', 'in', db.selectFrom('trip_journal_links').select('id').where('journey_id', '=', journeyId))
       .execute();
+  }
+
+  /**
+   * #2683 — the people the trips' journal links let into this journal, one row
+   * per trip they come through, leaving out whoever is a contributor already:
+   * the settings show them apart, since they are managed in the trip.
+   */
+  async listTripAccessForJourney(journeyId: number): Promise<JourneyTripAccessRow[]> {
+    const direct = new Set((await this.listForJourney(journeyId)).map((c) => c.user_id));
+    const rows = await linkReach(this.kysely<TripJournalLinkKyselyDB>())
+      .innerJoin('users as u', 'u.id', 'm.user_id')
+      .select(['m.user_id', 'm.role', 'u.username', 'u.avatar', 't.id as trip_id', 't.title as trip_title'])
+      .where('l.journey_id', '=', journeyId)
+      .orderBy('u.username', 'asc')
+      .execute();
+    return rows
+      .filter((r) => !direct.has(r.user_id))
+      .map((r) => ({ ...r, role: r.role === 'editor' ? 'editor' : 'viewer' }));
   }
 
   /** JG18 — `getJourneyFull`'s contributor list, joined to `users` for `username`/`avatar` (`avatar_url` is computed in the SERVICE, unchanged). */

@@ -181,6 +181,10 @@ const journey: TranslationStrings = {
   'journey.contributors.removeConfirm': 'Ta bort {username} från denna journey?',
   'journey.contributors.removed': 'Medverkare borttagen',
   'journey.contributors.removeFailed': 'Kunde inte ta bort medverkare',
+  'journey.contributors.viaTrips': 'Via resor',
+  'journey.contributors.viaTripsHint':
+    'De kan öppna dagboken eftersom en resa kopplar den. Ändra det i resans inställningar.',
+  'journey.contributors.viaTrip': 'via {trip}', // same-as-en
   'journey.share.publicShare': 'Offentlig delning',
   'journey.share.createLink': 'Skapa en delningslänk',
   'journey.share.linkCreated': 'Länk för delning har skapats',

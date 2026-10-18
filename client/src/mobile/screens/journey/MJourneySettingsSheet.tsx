@@ -1,8 +1,5 @@
 import { useRef, useState } from 'react'
-import {
-  X, Image, Plus, Trash2, UserPlus, Link as LinkIcon,
-  List, Grid3x3, MapPin, Route, Archive, ArchiveRestore, Undo2,
-} from 'lucide-react'
+import { X, Image, Plus, Trash2, UserPlus, Link as LinkIcon, List, Grid3x3, MapPin, Route, Archive, ArchiveRestore, Undo2, Link2 } from 'lucide-react'
 import MSheet from '../../components/MSheet'
 import MIconBtn from '../../components/MIconBtn'
 import MToggle from '../../components/MToggle'
@@ -236,6 +233,26 @@ export default function MJourneySettingsSheet({
           <UserPlus size={13} strokeWidth={2.2} />
           {t('journey.contributors.invite')}
         </button>
+
+        {/* Through a trip's linked journal (#2683): shown, but changed in that trip. */}
+        {!!journey.trip_access?.length && (
+          <>
+            <div className={`${eyebrow} mb-[6px] mt-[14px]`}>{t('journey.contributors.viaTrips')}</div>
+            <p className="m-0 mb-[6px] text-caption text-m-faint">{t('journey.contributors.viaTripsHint')}</p>
+            {journey.trip_access.map(a => (
+              <div key={`${a.user_id}-${a.trip_id}`} className="flex items-center gap-[10px] px-[2px] py-1">
+                <Link2 size={15} className="flex-none text-m-muted" />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-caption font-bold">{a.username}</span>
+                  <span className="block truncate text-caption text-m-faint">{t('journey.contributors.viaTrip', { trip: a.trip_title })}</span>
+                </span>
+                <span className="rounded-full bg-[color:var(--m-ic)] px-[10px] py-[3px] font-geist text-caption font-extrabold text-m-muted">
+                  {a.role}
+                </span>
+              </div>
+            ))}
+          </>
+        )}
 
         {/* Public share */}
         <div className={`${eyebrow} mb-[6px] mt-[14px]`}>{t('journey.share.publicShare')}</div>

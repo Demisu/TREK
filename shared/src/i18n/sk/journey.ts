@@ -193,6 +193,10 @@ const journey: TranslationStrings = {
   'journey.contributors.removeConfirm': 'Odstrániť {username} z tohto cestovného denníka?',
   'journey.contributors.removed': 'Prispievateľ odstránený',
   'journey.contributors.removeFailed': 'Odstránenie prispievateľa zlyhalo',
+  'journey.contributors.viaTrips': 'Cez cesty',
+  'journey.contributors.viaTripsHint':
+    'Môžu tento denník otvoriť, pretože ho cesta prepája. Zmeňte to v nastaveniach cesty.',
+  'journey.contributors.viaTrip': 'cez {trip}',
   'journey.share.publicShare': 'Verejné zdieľanie',
   'journey.share.createLink': 'Vytvoriť odkaz na zdieľanie',
   'journey.share.linkCreated': 'Odkaz na zdieľanie vytvorený',

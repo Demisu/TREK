@@ -171,4 +171,21 @@ describe('TripJournalLinksRepository', () => {
     expect(await links.findForTrip(s.trip.id)).toBeNull();
     expect(await links.listMembers(s.trip.id)).toEqual([]);
   });
+  it('TJLREPO-008: the journal lists who the links let in, per trip, apart from its contributors', async () => {
+    const s = await scene();
+    await links.upsertLink(s.trip.id, s.journal.id, s.owner.id, 1);
+    await links.replaceMembers(
+      s.trip.id,
+      [
+        { user_id: s.tom.id, role: 'editor' },
+        { user_id: s.lena.id, role: 'viewer' },
+      ],
+      1,
+    );
+    await addJourneyContributor(t, s.journal.id, s.tom.id, 'viewer');
+
+    const access = await contributors.listTripAccessForJourney(s.journal.id);
+    expect(access.map((a) => [a.username, a.role, a.trip_id])).toEqual([['Lena', 'viewer', s.trip.id]]);
+    expect(access[0]?.trip_title).toBe(s.trip.title);
+  });
 });

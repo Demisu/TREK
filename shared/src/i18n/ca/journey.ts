@@ -265,6 +265,10 @@ const journey: TranslationStrings = {
   'journey.contributors.removeConfirm': "Vols eliminar {username} d'aquesta travesia?",
   'journey.contributors.removed': 'Col·laborador eliminat',
   'journey.contributors.removeFailed': "No s'ha pogut eliminar el col·laborador",
+  'journey.contributors.viaTrips': 'A través de viatges',
+  'journey.contributors.viaTripsHint':
+    'Poden obrir aquest diari perquè un viatge el vincula. Canvia-ho a la configuració del viatge.',
+  'journey.contributors.viaTrip': 'a través de {trip}',
   'journey.editor.externalPhotos': 'External photos', // en-fallback
   'journey.editor.externalPhotosFor': 'Photos for {date}', // en-fallback
   'journey.editor.externalPhotosNearby': 'Nearby photos first', // en-fallback

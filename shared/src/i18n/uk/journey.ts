@@ -187,6 +187,10 @@ const journey: TranslationStrings = {
   'journey.contributors.remove': 'Вилучити учасника',
   'journey.contributors.removeConfirm': 'Вилучити {username} з цієї подорожі?',
   'journey.contributors.removeFailed': 'Не вдалося вилучити учасника',
+  'journey.contributors.viaTrips': 'Через подорожі',
+  'journey.contributors.viaTripsHint':
+    'Вони можуть відкрити цей щоденник, бо його привʼязала подорож. Змініть це в налаштуваннях подорожі.',
+  'journey.contributors.viaTrip': 'через {trip}',
   'journey.contributors.removed': 'Учасника вилучено',
   'journey.share.publicShare': 'Публічний доступ',
   'journey.share.createLink': 'Створити посилання для спільного доступу',

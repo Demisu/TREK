@@ -190,6 +190,10 @@ const journey: TranslationStrings = {
   'journey.contributors.removeConfirm': 'Kas eemaldada {username} sellest reisiloost?',
   'journey.contributors.removed': 'Kaasautor eemaldatud',
   'journey.contributors.removeFailed': 'Kaasautori eemaldamine ebaõnnestus',
+  'journey.contributors.viaTrips': 'Reiside kaudu',
+  'journey.contributors.viaTripsHint':
+    'Nad saavad selle päeviku avada, sest reis seob selle. Muuda seda reisi seadetes.',
+  'journey.contributors.viaTrip': '{trip} kaudu',
   'journey.share.publicShare': 'Avalik jagamine',
   'journey.share.createLink': 'Loo jagamislink',
   'journey.share.linkCreated': 'Jagamislink loodud',

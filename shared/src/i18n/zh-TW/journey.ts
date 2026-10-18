@@ -253,6 +253,9 @@ const journey: TranslationStrings = {
   'journey.contributors.removeConfirm': 'Remove {username} from this journey?', // en-fallback
   'journey.contributors.removed': 'Contributor removed', // en-fallback
   'journey.contributors.removeFailed': 'Failed to remove contributor', // en-fallback
+  'journey.contributors.viaTrips': '透過旅行',
+  'journey.contributors.viaTripsHint': '因為某個旅行連結了此日誌，他們可以開啟它。請在該旅行的設定中變更。',
+  'journey.contributors.viaTrip': '透過 {trip}',
   'journey.editor.externalPhotos': 'External photos', // en-fallback
   'journey.editor.externalPhotosFor': 'Photos for {date}', // en-fallback
   'journey.editor.externalPhotosNearby': 'Nearby photos first', // en-fallback

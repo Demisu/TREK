@@ -7,7 +7,7 @@ import { DeleteButton, DialogButton, DialogFooter, DialogHeader, DialogSection, 
 import { AddRowButton, EditorField, INPUT, Segmented } from '../shared/dialogParts'
 import JourneyShareSection from './JourneyShareSection'
 import { useJourneySettings } from './useJourneySettings'
-import type { JourneyContributor, JourneyDetail } from '../../store/journeyStore'
+import type { JourneyContributor, JourneyDetail, JourneyTripAccess } from '../../store/journeyStore'
 import { pickGradient } from '../../pages/journeyDetail/JourneyDetailPage.helpers'
 import { AddTripDialog } from './JourneyDetailPageAddTripDialog'
 import ToggleSwitch from '../Settings/ToggleSwitch'
@@ -277,6 +277,8 @@ export function JourneySettingsDialog({ journey, onClose, onSaved, onOpenInvite,
               </div>
               <AddRowButton onClick={onOpenInvite}>{t('journey.contributors.invite')}</AddRowButton>
             </DialogSection>
+
+            <TripAccessSection access={journey.trip_access} roleLabel={roleLabel} />
           </div>
         </div>
 
@@ -322,5 +324,34 @@ export function JourneySettingsDialog({ journey, onClose, onSaved, onOpenInvite,
         danger
       />
     </>
+  )
+}
+
+/**
+ * Who a trip's linked journal lets in (#2683), under its own heading below the
+ * contributors: shown here, but managed in that trip's settings, so read only.
+ */
+function TripAccessSection({ access, roleLabel }: {
+  access: JourneyTripAccess[] | undefined
+  roleLabel: (role: JourneyContributor['role']) => string
+}) {
+  const { t } = useTranslation()
+  if (!access?.length) return null
+  return (
+    <DialogSection label={t('journey.contributors.viaTrips')}>
+      <p className="m-0 mb-2.5 leading-normal text-content-faint" style={fs(11.5)}>{t('journey.contributors.viaTripsHint')}</p>
+      <div className={ROWS}>
+        {access.map(a => (
+          <div key={`${a.user_id}-${a.trip_id}`} className={ROW}>
+            <TripMemberAvatar username={a.username} avatarUrl={avatarSrc(a.avatar)} size={28} />
+            <div className="min-w-0 flex-1">
+              <div className="truncate font-semibold text-content" style={fs(13, 'body')}>{a.username}</div>
+              <div className="truncate text-content-faint" style={fs(11)}>{t('journey.contributors.viaTrip', { trip: a.trip_title })}</div>
+            </div>
+            <span className={`${BADGE} bg-surface-tertiary text-content-muted`} style={fs(10.5)}>{roleLabel(a.role)}</span>
+          </div>
+        ))}
+      </div>
+    </DialogSection>
   )
 }

@@ -188,6 +188,10 @@ const journey: TranslationStrings = {
   'journey.contributors.removeConfirm': 'Remove {username} from this journey?',
   'journey.contributors.removed': 'Contributor removed',
   'journey.contributors.removeFailed': 'Failed to remove contributor',
+  'journey.contributors.viaTrips': 'Through trips',
+  'journey.contributors.viaTripsHint':
+    "They can open this journal because a trip links it. Change that in the trip's settings.",
+  'journey.contributors.viaTrip': 'via {trip}',
   'journey.share.publicShare': 'Public Share',
   'journey.share.createLink': 'Create share link',
   'journey.share.linkCreated': 'Share link created',

@@ -241,6 +241,9 @@ const journey: TranslationStrings = {
   'journey.contributors.removeConfirm': 'Remove {username} from this journey?', // en-fallback
   'journey.contributors.removed': 'Contributor removed', // en-fallback
   'journey.contributors.removeFailed': 'Failed to remove contributor', // en-fallback
+  'journey.contributors.viaTrips': 'عبر الرحلات',
+  'journey.contributors.viaTripsHint': 'يمكنهم فتح هذه اليوميات لأن رحلة ترتبط بها. غيّر ذلك من إعدادات الرحلة.',
+  'journey.contributors.viaTrip': 'عبر {trip}',
   'journey.share.publicShare': 'Public Share', // en-fallback
   'journey.share.createLink': 'Create share link', // en-fallback
   'journey.share.linkCreated': 'Share link created', // en-fallback

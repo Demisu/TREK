@@ -266,6 +266,10 @@ const journey: TranslationStrings = {
   'journey.contributors.removeConfirm': 'Remove {username} from this journey?', // en-fallback
   'journey.contributors.removed': 'Contributor removed', // en-fallback
   'journey.contributors.removeFailed': 'Failed to remove contributor', // en-fallback
+  'journey.contributors.viaTrips': 'Via reizen',
+  'journey.contributors.viaTripsHint':
+    'Zij kunnen dit dagboek openen omdat een reis het koppelt. Wijzig dat in de instellingen van de reis.',
+  'journey.contributors.viaTrip': 'via {trip}', // same-as-en
   'journey.editor.externalPhotos': 'External photos', // en-fallback
   'journey.editor.externalPhotosFor': 'Photos for {date}', // en-fallback
   'journey.editor.externalPhotosNearby': 'Nearby photos first', // en-fallback

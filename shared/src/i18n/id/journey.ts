@@ -257,6 +257,10 @@ const journey: TranslationStrings = {
   'journey.contributors.removeConfirm': 'Remove {username} from this journey?', // en-fallback
   'journey.contributors.removed': 'Contributor removed', // en-fallback
   'journey.contributors.removeFailed': 'Failed to remove contributor', // en-fallback
+  'journey.contributors.viaTrips': 'Melalui perjalanan',
+  'journey.contributors.viaTripsHint':
+    'Mereka bisa membuka jurnal ini karena sebuah perjalanan menautkannya. Ubah di pengaturan perjalanan.',
+  'journey.contributors.viaTrip': 'melalui {trip}',
   'journey.editor.externalPhotos': 'External photos', // en-fallback
   'journey.editor.externalPhotosFor': 'Photos for {date}', // en-fallback
   'journey.editor.externalPhotosNearby': 'Nearby photos first', // en-fallback

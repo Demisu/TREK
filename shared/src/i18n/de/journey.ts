@@ -180,6 +180,10 @@ const journey: TranslationStrings = {
   'journey.contributors.removeConfirm': '{username} aus dieser Journey entfernen?',
   'journey.contributors.removed': 'Mitwirkender entfernt',
   'journey.contributors.removeFailed': 'Entfernen fehlgeschlagen',
+  'journey.contributors.viaTrips': 'Über Reisen',
+  'journey.contributors.viaTripsHint':
+    'Sie können dieses Journal öffnen, weil eine Reise es verknüpft. Ändern lässt sich das in den Einstellungen der Reise.',
+  'journey.contributors.viaTrip': 'über {trip}',
   'journey.share.publicShare': 'Öffentlicher Link',
   'journey.share.createLink': 'Link erstellen',
   'journey.share.linkCreated': 'Link erstellt',
