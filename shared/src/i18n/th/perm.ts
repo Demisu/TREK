@@ -32,6 +32,7 @@ const perm: TranslationStrings = {
   'perm.action.collab_edit': 'การทำงานร่วมกัน (บันทึกย่อ โพล แชท)',
   'perm.action.share_manage': 'จัดการลิงก์แชร์',
   'perm.actionHint.trip_create': 'ใครสามารถสร้างทริปใหม่ได้',
+  'perm.action.journal_link': 'เชื่อมโยงบันทึก',
   'perm.actionHint.trip_edit': 'ใครสามารถเปลี่ยนชื่อการเดินทาง วันที่ คำอธิบาย และสกุลเงินได้',
   'perm.actionHint.trip_delete': 'ใครสามารถลบการเดินทางได้อย่างถาวร',
   'perm.actionHint.trip_archive': 'ใครสามารถเก็บหรือยกเลิกการเก็บถาวรการเดินทาง',
@@ -47,5 +48,6 @@ const perm: TranslationStrings = {
   'perm.actionHint.packing_edit': 'ใครสามารถจัดการบรรจุสิ่งของและถุงได้',
   'perm.actionHint.collab_edit': 'ใครสามารถสร้างบันทึก โพล และส่งข้อความได้',
   'perm.actionHint.share_manage': 'ใครสามารถสร้างหรือลบลิงก์แชร์สาธารณะได้',
+  'perm.actionHint.journal_link': 'ใครสามารถเชื่อมโยงบันทึกจาก Journey กับทริปและเปิดให้สมาชิกเข้าถึงได้',
 };
 export default perm;

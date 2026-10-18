@@ -178,7 +178,7 @@ export class JourneyDomainService {
     // `SELECT *` read this repository now serves.
     const own = await this.journeysRepo.findOwnedByUser(journeyId, userId);
     if (own) return own as Journey;
-    const isContributor = await this.contributorsRepo.existsForUser(journeyId, userId);
+    const isContributor = await this.contributorsRepo.hasAccess(journeyId, userId);
     if (isContributor) return ((await this.journeysRepo.findById(journeyId)) as Journey) || null;
     return null;
   }
@@ -189,7 +189,7 @@ export class JourneyDomainService {
 
   async canEdit(journeyId: number, userId: number): Promise<boolean> {
     if (await this.isOwner(journeyId, userId)) return true;
-    const role = await this.contributorsRepo.findRole(journeyId, userId);
+    const role = await this.contributorsRepo.findAccessRole(journeyId, userId);
     return role === 'editor' || role === 'owner';
   }
 
@@ -293,7 +293,7 @@ export class JourneyDomainService {
       myRole = 'owner';
     } else {
       // JG21 — same text as JG7 (`findRole`).
-      const role = await this.contributorsRepo.findRole(journeyId, userId);
+      const role = await this.contributorsRepo.findAccessRole(journeyId, userId);
       myRole = (role as 'editor' | 'viewer' | undefined) ?? null;
     }
 

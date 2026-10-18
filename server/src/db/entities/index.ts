@@ -116,6 +116,8 @@ import { TripAlbumLinksSchema } from './TripAlbumLinks.entity';
 import { TripDocumentLinksSchema } from './TripDocumentLinks.entity';
 import { TripFilesSchema } from './TripFiles.entity';
 import { TripInviteTokensSchema } from './TripInviteTokens.entity';
+import { TripJournalLinkMembersSchema } from './TripJournalLinkMembers.entity';
+import { TripJournalLinksSchema } from './TripJournalLinks.entity';
 import { TripMembersSchema } from './TripMembers.entity';
 import { TripPhotosSchema } from './TripPhotos.entity';
 import { TripsSchema } from './Trips.entity';
@@ -256,6 +258,8 @@ export const ALL_ENTITIES: readonly EntitySchema[] = [
   TripDocumentLinksSchema,
   TripFilesSchema,
   TripInviteTokensSchema,
+  TripJournalLinkMembersSchema,
+  TripJournalLinksSchema,
   TripMembersSchema,
   TripPhotosSchema,
   TripsSchema,

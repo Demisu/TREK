@@ -655,7 +655,7 @@ describe('canAccessTrekPhoto — MA5 parity (TripsRepository.findAccessible rewr
 // ---------------------------------------------------------------------------
 // MA1/MA2/MA6 — the journey half of the cross-domain photo-access checks
 // (Plan 3g Task 4), onto `JourneysRepository.isOwnedByUser`/
-// `JourneyContributorsRepository.existsForUser` via the private
+// `JourneyContributorsRepository.hasAccess` via the private
 // `ownerOrContributor` helper. MEM-ACCESS-006/006b/006c/014/014b above
 // already cover owner (006b), editor (006/014) and viewer (006c/014b)
 // contributors passing, and MEM-ACCESS-007/008/016 cover a stranger/no-link
@@ -665,9 +665,9 @@ describe('canAccessTrekPhoto — MA5 parity (TripsRepository.findAccessible rewr
 // Mutation proof (performed once by hand, not run in CI): editing
 // `MemoriesAccessService.ownerOrContributor` from
 //   `if (await this.journeys.isOwnedByUser(...)) return true; return await
-//   this.journeyContributors.existsForUser(...);`
+//   this.journeyContributors.hasAccess(...);`
 // to an AND (`return (await this.journeys.isOwnedByUser(...)) &&
-// (await this.journeyContributors.existsForUser(...));`) — collapsing the
+// (await this.journeyContributors.hasAccess(...));`) — collapsing the
 // owner-OR-contributor union into an owner-AND-contributor intersection —
 // turns MEM-ACCESS-006 (an editor who is NOT also the owner) and
 // MEM-ACCESS-006c (a viewer who is NOT also the owner) red: both contributors

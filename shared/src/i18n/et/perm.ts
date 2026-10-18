@@ -32,6 +32,7 @@ const perm: TranslationStrings = {
   'perm.action.collab_edit': 'Koostöö (märkmed, küsitlused, vestlus)',
   'perm.action.share_manage': 'Jagamislinkide haldus',
   'perm.actionHint.trip_create': 'Kes saab uusi reise luua',
+  'perm.action.journal_link': 'Päeviku sidumine',
   'perm.actionHint.trip_edit': 'Kes saab muuta reisi nime, kuupäevi, kirjeldust ja valuutat',
   'perm.actionHint.trip_delete': 'Kes saab reisi jäädavalt kustutada',
   'perm.actionHint.trip_archive': 'Kes saab reisi arhiveerida või arhiivist taastada',
@@ -47,5 +48,6 @@ const perm: TranslationStrings = {
   'perm.actionHint.packing_edit': 'Kes saab hallata pakitavaid esemeid ja kotte',
   'perm.actionHint.collab_edit': 'Kes saab märkmeid ja küsitlusi luua ning sõnumeid saata',
   'perm.actionHint.share_manage': 'Kes saab avalikke jagamislinke luua või kustutada',
+  'perm.actionHint.journal_link': 'Kes saab Journey päeviku reisiga siduda ja selle liikmetele avada',
 };
 export default perm;

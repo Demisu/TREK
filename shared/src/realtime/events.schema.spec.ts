@@ -74,6 +74,7 @@ const FIXTURES: Record<TrekWsEventName, Record<string, unknown>> = {
   'trip:deleted': { id: 1 },
   'member:added': { member: { user_id: 2 } },
   'member:removed': { userId: 2 },
+  'trip:journal:changed': {},
   'docsync:changed': { linkId: 4, pulled: 2, pushed: 1 },
   'file:created': { file: { id: 13 } },
   'file:updated': { file: { id: 13 } },

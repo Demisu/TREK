@@ -1,5 +1,6 @@
 import type { JourneyContributors } from '../entities/JourneyContributors.entity';
 import type { DB } from '../kysely/db';
+import { readLinkHideSkeletons, readLinkRole, type TripJournalLinkKyselyDB } from './TripJournalLinks.repository';
 import { TrekRepository } from './_shared/trek-repository';
 
 /** JG18's contributor-list row (`getJourneyFull`) — the junction plus the joined username/avatar. */
@@ -15,6 +16,9 @@ export interface JourneyContributorListRow {
 /** The `journey_contributors`/`users` tables {@link JourneyContributorsRepository.listForJourney} reads. */
 type JourneyContributorListKyselyDB = Pick<DB, 'journey_contributors' | 'users'>;
 
+/** The table the access reads below take a person's own contributor row from. */
+type JourneyContributorRowKyselyDB = Pick<DB, 'journey_contributors'>;
+
 /**
  * `journey_contributors` — a genuine TWO-column composite primary key
  * (`journey` + `user`, both `.primary()`, R3 — pinned against
@@ -26,36 +30,53 @@ type JourneyContributorListKyselyDB = Pick<DB, 'journey_contributors' | 'users'>
  * pinned in `task-1-report.md`.
  */
 export class JourneyContributorsRepository extends TrekRepository<JourneyContributors> {
-  /** JG4 — `canAccessJourney`'s contributor-match primitive: `SELECT 1 FROM journey_contributors WHERE journey_id = ? AND user_id = ?`. */
-  async existsForUser(journeyId: number, userId: number): Promise<boolean> {
-    const row = await this.qb('jc')
-      .select(['jc.journey'])
-      .where({ journey: journeyId, user: userId })
-      .execute<unknown>('get', false);
-    return !!row;
+  /** The person's own contributor row on the journal, if they have one. */
+  private async directRow(journeyId: number, userId: number) {
+    return await this.kysely<JourneyContributorRowKyselyDB>()
+      .selectFrom('journey_contributors')
+      .select(['role', 'hide_skeletons'])
+      .where('journey_id', '=', journeyId)
+      .where('user_id', '=', userId)
+      .executeTakeFirst();
   }
 
-  /** JG7/JG21 — `canEdit`'s edit-access primitive and `getJourneyFull`'s `myRole` resolution: `SELECT role FROM journey_contributors WHERE journey_id = ? AND user_id = ?`. */
-  async findRole(journeyId: number, userId: number): Promise<string | undefined> {
-    const row = await this.qb('jc')
-      .select(['jc.role'])
-      .where({ journey: journeyId, user: userId })
-      .execute<{ role: string } | undefined>('get', false);
-    return row?.role;
+  /** JG4 — whether a person may open the journal: as a contributor, or through a trip's link. */
+  async hasAccess(journeyId: number, userId: number): Promise<boolean> {
+    return (await this.findAccessRole(journeyId, userId)) !== undefined;
   }
 
-  /** JG20/JG27 — `getJourneyFull`'s `hide_skeletons` preference read and `updateJourneyPreferences`'s re-read, one statement text. */
+  /**
+   * JG7/JG21 — the role a person acts with on the journal, for `canEdit` and
+   * `my_role`: their contributor role, or the role a trip's link gives them
+   * when that is the stronger one. Undefined with neither.
+   */
+  async findAccessRole(journeyId: number, userId: number): Promise<string | undefined> {
+    const direct = await this.directRow(journeyId, userId);
+    if (direct?.role === 'owner' || direct?.role === 'editor') return direct.role;
+    const linked = await readLinkRole(this.kysely<TripJournalLinkKyselyDB>(), journeyId, userId);
+    return linked ?? direct?.role;
+  }
+
+  /** JG20/JG27 — the person's "hide skeletons" choice, from their contributor row or else from their link. */
   async getHideSkeletons(journeyId: number, userId: number): Promise<boolean> {
-    const row = await this.qb('jc')
-      .select(['jc.hide_skeletons'])
-      .where({ journey: journeyId, user: userId })
-      .execute<{ hide_skeletons: number } | undefined>('get', false);
-    return !!row?.hide_skeletons;
+    const direct = await this.directRow(journeyId, userId);
+    if (direct) return !!direct.hide_skeletons;
+    return !!(await readLinkHideSkeletons(this.kysely<TripJournalLinkKyselyDB>(), journeyId, userId));
   }
 
-  /** JG26 — `updateJourneyPreferences`'s write: `UPDATE journey_contributors SET hide_skeletons = ? WHERE journey_id = ? AND user_id = ?`. */
+  /** JG26 — stores that choice where `getHideSkeletons` reads it: the contributor row, or else the person's links. */
   async setHideSkeletons(journeyId: number, userId: number, value: number): Promise<void> {
-    await this.nativeUpdate({ journey: journeyId, user: userId }, { hide_skeletons: value });
+    if (await this.directRow(journeyId, userId)) {
+      await this.nativeUpdate({ journey: journeyId, user: userId }, { hide_skeletons: value });
+      return;
+    }
+    const db = this.kysely<TripJournalLinkKyselyDB>();
+    await db
+      .updateTable('trip_journal_link_members')
+      .set({ hide_skeletons: value })
+      .where('user_id', '=', userId)
+      .where('trip_id', 'in', db.selectFrom('trip_journal_links').select('trip_id').where('journey_id', '=', journeyId))
+      .execute();
   }
 
   /** JG18 — `getJourneyFull`'s contributor list, joined to `users` for `username`/`avatar` (`avatar_url` is computed in the SERVICE, unchanged). */

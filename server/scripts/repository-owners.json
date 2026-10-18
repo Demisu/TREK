@@ -117,6 +117,8 @@
   "TripDocumentLinks": "doc-sync",
   "TripFiles": "files",
   "TripInviteTokens": "trip-invite",
+  "TripJournalLinkMembers": "journey",
+  "TripJournalLinks": "journey",
   "TripMembers": "trip-membership",
   "TripPhotos": "photos",
   "Trips": "trips",

@@ -57,7 +57,7 @@ export class MemoriesAccessService {
   /** MA2's owner-OR-contributor check, shared by MA2 and MA6's per-journey loop — the same two-branch `journeys`/`journey_contributors` logic `canAccessJourney` uses, re-implemented here (see the class docstring on why it isn't a call to `JourneyDomainService`). */
   private async ownerOrContributor(journeyId: number, userId: number): Promise<boolean> {
     if (await this.journeys.isOwnedByUser(journeyId, userId)) return true;
-    return await this.journeyContributors.existsForUser(journeyId, userId);
+    return await this.journeyContributors.hasAccess(journeyId, userId);
   }
 
   async canAccessUserPhoto(

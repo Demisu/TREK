@@ -52,6 +52,7 @@ import { AirtrailModule } from './integrations/airtrail.module';
 import { DawarichModule } from './integrations/dawarich.module';
 import { JourneyAccessModule } from './journey/journey-access.module';
 import { JourneyModule } from './journey/journey.module';
+import { TripJournalLinkModule } from './journey/trip-journal-link.module';
 import { LlmParseModule } from './llm-parse/llm-parse.module';
 import { ManagedExtModule } from './managed/managed-ext.module';
 import { MapsModule } from './maps/maps.module';
@@ -166,6 +167,7 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
     AirtrailModule,
     DawarichModule,
     JourneyModule,
+    TripJournalLinkModule,
     CollectionsModule,
     ShareModule,
     TripInviteModule,

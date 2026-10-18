@@ -11,6 +11,7 @@ import { BudgetService } from '../budget/budget.service';
 import { avatarUrl } from '../common/avatarUrl';
 import { NotFoundError, ValidationError } from '../common/domain-errors';
 import { UnitOfWork } from '../database/unit-of-work';
+import { TripJournalLinkService } from '../journey/trip-journal-link.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PermissionsService } from '../permissions/permissions.service';
 import { RealtimeService } from '../realtime/realtime.service';
@@ -79,6 +80,7 @@ export class TripMembersService {
     private readonly permissions: PermissionsService,
     private readonly realtime: RealtimeService,
     private readonly notifications: NotificationsService,
+    private readonly journalLinks: TripJournalLinkService,
     private readonly uow: UnitOfWork,
     @InjectRepository(Trips) private readonly tripsRepo: TripsRepository,
     @InjectRepository(TripMembers) private readonly tripMembersRepo: TripMembersRepository,
@@ -197,7 +199,12 @@ export class TripMembersService {
    * the route's one remaining raw-string caller).
    */
   async removeMember(tripId: number, targetUserId: number): Promise<void> {
-    await this.tripMembersRepo.remove(tripId, targetUserId);
+    // A linked journal stops being open to someone who left; coming back later
+    // must not quietly reopen it.
+    await this.uow.transactional(async () => {
+      await this.tripMembersRepo.remove(tripId, targetUserId);
+      await this.journalLinks.dropMember(tripId, targetUserId);
+    });
   }
 
   /**

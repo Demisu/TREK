@@ -56,6 +56,9 @@ export const PERMISSION_ACTIONS = [
 
   // Share link management
   { key: 'share_manage', defaultLevel: 'trip_owner', allowedLevels: ['trip_owner', 'trip_member'] },
+
+  // Linking a journal from the Journey addon, which opens it to the members chosen
+  { key: 'journal_link', defaultLevel: 'trip_owner', allowedLevels: ['trip_owner', 'trip_member'] },
 ] as const satisfies readonly PermissionAction[];
 
 /** The name of one configurable action, `'day_edit'`, `'budget_edit'`, … */

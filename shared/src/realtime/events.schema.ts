@@ -230,6 +230,9 @@ export const TREK_WS_EVENTS = {
   'trip:deleted': { scope: 'trip', payload: z.object({ id }) },
   'member:added': { scope: 'trip', payload: z.object({ member: entity }) },
   'member:removed': { scope: 'trip', payload: z.object({ userId: id }) },
+  // The trip's linked journal changed. A signal only: what each member may see of
+  // it differs, so every client asks for its own view of the link.
+  'trip:journal:changed': { scope: 'trip', payload: empty },
 
   // ── Files ────────────────────────────────────────────────────────────────
   'file:created': { scope: 'trip', payload: z.object({ file: entity }) },

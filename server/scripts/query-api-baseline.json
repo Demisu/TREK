@@ -15,7 +15,6 @@
     "src/db/repositories/Days.repository.ts": 7,
     "src/db/repositories/InviteTokens.repository.ts": 3,
     "src/db/repositories/JourneyBooks.repository.ts": 3,
-    "src/db/repositories/JourneyContributors.repository.ts": 3,
     "src/db/repositories/JourneyEntries.repository.ts": 9,
     "src/db/repositories/JourneyPhotos.repository.ts": 6,
     "src/db/repositories/Journeys.repository.ts": 4,

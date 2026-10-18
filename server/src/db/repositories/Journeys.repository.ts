@@ -1,5 +1,6 @@
 import type { Journeys } from '../entities/Journeys.entity';
 import type { DB } from '../kysely/db';
+import { linkReach, type TripJournalLinkKyselyDB } from './TripJournalLinks.repository';
 import { TrekRepository } from './_shared/trek-repository';
 
 /**
@@ -114,6 +115,12 @@ export class JourneysRepository extends TrekRepository<Journeys> {
       .where('journey_id', '=', id)
       .execute();
     const ids = new Set(contributors.map((c) => c.user_id));
+    // The trip members a trip's link lets in follow the journal live as well.
+    const linked = await linkReach(this.kysely<TripJournalLinkKyselyDB>())
+      .select('m.user_id')
+      .where('l.journey_id', '=', id)
+      .execute();
+    for (const l of linked) ids.add(l.user_id);
     const ownerId = await this.findOwnerId(id);
     if (ownerId !== undefined) ids.add(ownerId);
     return [...ids];
@@ -169,7 +176,18 @@ export class JourneysRepository extends TrekRepository<Journeys> {
           .whereRef('jt2.journey_id', '=', 'j.id')
           .as('trip_date_max'),
       ])
-      .where((eb) => eb.or([eb('j.user_id', '=', user_id), eb('jc.user_id', '=', user_id)]))
+      // A journal a trip's link lets this person into is theirs to open here too.
+      .where((eb) =>
+        eb.or([
+          eb('j.user_id', '=', user_id),
+          eb('jc.user_id', '=', user_id),
+          eb(
+            'j.id',
+            'in',
+            linkReach(this.kysely<TripJournalLinkKyselyDB>()).select('l.journey_id').where('m.user_id', '=', user_id),
+          ),
+        ]),
+      )
       .orderBy('j.updated_at', 'desc')
       .execute();
     return rows as JourneyListRow[];

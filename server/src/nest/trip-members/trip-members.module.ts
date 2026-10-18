@@ -4,6 +4,7 @@ import { Users } from '../../db/entities/Users.entity';
 import { AuditModule } from '../audit/audit.module';
 import { AuthModule } from '../auth/auth.module';
 import { BudgetModule } from '../budget/budget.module';
+import { TripJournalLinkModule } from '../journey/trip-journal-link.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { PermissionsModule } from '../permissions/permissions.module';
 import { RealtimeModule } from '../realtime/realtime.module';
@@ -34,6 +35,7 @@ import { Module } from '@nestjs/common';
     AuditModule,
     AuthModule,
     BudgetModule,
+    TripJournalLinkModule,
     MikroOrmModule.forFeature([Trips, TripMembers, Users]),
   ],
   controllers: [TripMembersController],
