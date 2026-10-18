@@ -1,4 +1,4 @@
-import { TRIP_MEMBER_DEPARTURE } from '../trip-members/trip-member-departure.types';
+import { TRIP_MEMBER_DEPARTURE } from '../common/trip-member-departure.types';
 import { TripJournalLinkModule } from './trip-journal-link.module';
 import { TripJournalLinkService } from './trip-journal-link.service';
 import { Global, Module } from '@nestjs/common';

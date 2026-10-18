@@ -4,10 +4,10 @@ import type { JourneyContributorsRepository } from '../../db/repositories/Journe
 import type { TripJournalLinksRepository, TripPersonRow } from '../../db/repositories/TripJournalLinks.repository';
 import { avatarUrl } from '../common/avatarUrl';
 import { forbidden, notFound } from '../common/domain-error';
+import type { TripMemberDeparture } from '../common/trip-member-departure.types';
 import { UnitOfWork } from '../database/unit-of-work';
 import { PermissionsService } from '../permissions/permissions.service';
 import { RealtimeService } from '../realtime/realtime.service';
-import type { TripMemberDeparture } from '../trip-members/trip-member-departure.types';
 import { TripAccessService } from '../trip-membership/trip-access.service';
 import { JourneyDomainService } from './journey-domain.service';
 import { InjectRepository } from '@mikro-orm/nestjs';

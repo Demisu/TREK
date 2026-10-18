@@ -2,10 +2,7 @@ import { JourneyBooks } from '../../src/db/entities/JourneyBooks.entity';
 import { JourneyShareTokens } from '../../src/db/entities/JourneyShareTokens.entity';
 import type { JourneyBooksRepository } from '../../src/db/repositories/JourneyBooks.repository';
 import type { JourneyShareTokensRepository } from '../../src/db/repositories/JourneyShareTokens.repository';
-import {
-  TRIP_MEMBER_DEPARTURE,
-  type TripMemberDeparture,
-} from '../../src/nest/trip-members/trip-member-departure.types';
+import { TRIP_MEMBER_DEPARTURE, type TripMemberDeparture } from '../../src/nest/common/trip-member-departure.types';
 import { sharedTestOrm } from './test-uow';
 import { Global, Module } from '@nestjs/common';
 

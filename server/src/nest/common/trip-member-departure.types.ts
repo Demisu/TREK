@@ -3,7 +3,8 @@
  *
  * A port rather than the journal link service itself: the journey domain
  * already depends on the trip roster through others, so reaching into it from
- * here closed a cycle. The journey domain binds the token
+ * the roster closed a cycle. It lives in common/ because either domain owning
+ * it would draw that edge again. The journey domain binds the token
  * (TripMemberDepartureModule), and the roster calls it inside the transaction
  * that removes the member.
  */
