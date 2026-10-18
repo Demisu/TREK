@@ -291,6 +291,7 @@ describe('TripMembersModal', () => {
     );
 
     render(<TripMembersModal {...defaultProps} />);
+    await user.click(await screen.findByRole('button', { name: 'Sharing' }));
     const createBtn = await screen.findByText('Create link');
     await user.click(createBtn);
 
@@ -689,6 +690,7 @@ describe('TripMembersModal', () => {
       http.delete('/api/trips/1/invite-link', () => HttpResponse.json({ success: true })),
     );
     const view = render(<TripMembersModal {...defaultProps} />);
+    await user.click(await screen.findByRole('button', { name: 'Sharing' }));
 
     const createBtn = await screen.findByRole('button', { name: /Create invite link/i });
     fireEvent.click(createBtn);
@@ -719,6 +721,7 @@ describe('TripMembersModal', () => {
     asShareOwner();
     server.use(http.post('/api/trips/1/invite-link', () => HttpResponse.json({}, { status: 500 })));
     render(<TripMembersModal {...defaultProps} />);
+    await user.click(await screen.findByRole('button', { name: 'Sharing' }));
 
     await user.click(await screen.findByRole('button', { name: /Create invite link/i }));
 
@@ -734,6 +737,7 @@ describe('TripMembersModal', () => {
       http.delete('/api/trips/1/invite-link', () => HttpResponse.json({}, { status: 500 })),
     );
     render(<TripMembersModal {...defaultProps} />);
+    await user.click(await screen.findByRole('button', { name: 'Sharing' }));
 
     await user.click(await screen.findByRole('button', { name: /Disable/i }));
 

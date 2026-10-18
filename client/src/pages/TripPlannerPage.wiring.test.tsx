@@ -657,14 +657,14 @@ describe('TripPlannerPage — shell', () => {
     expect(container).toBeEmptyDOMElement()
   })
 
-  it('FE-PAGE-TPW-005: the navbar gets the trip title and drives back / share', () => {
+  it('FE-PAGE-TPW-005: the navbar gets the trip title and drives back / settings', () => {
     renderPage()
 
     expect(props('navbar').tripTitle).toBe('Kyoto')
     act(() => { props('navbar').onBack() })
     expect(hookState.navigate).toHaveBeenCalledWith('/dashboard')
 
-    act(() => { props('navbar').onShare() })
+    act(() => { props('navbar').onSettings() })
     expect(hookState.setShowMembersModal).toHaveBeenCalledWith(true)
   })
 

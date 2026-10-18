@@ -206,7 +206,7 @@ describe('useTripJournalLink', () => {
       await result.current.save();
     });
     expect(writes).toEqual([{ method: 'PUT', body: { journey_id: 9, members: [{ user_id: 2, role: 'editor' }] } }]);
-    expect(toast.success).toHaveBeenCalledWith('Journal linked');
+    expect(toast.success).toHaveBeenCalledWith('trip.journal.linked');
     expect(result.current.mode).toBe('view');
     expect(result.current.link?.title).toBe('Japan');
   });
@@ -234,7 +234,7 @@ describe('useTripJournalLink', () => {
         },
       },
     ]);
-    expect(toast.success).toHaveBeenCalledWith('Access saved');
+    expect(toast.success).toHaveBeenCalledWith('trip.journal.membersSaved');
   });
 
   it('FE-TJL-HOOK-011: unlinking takes the journal off the trip', async () => {
@@ -246,7 +246,7 @@ describe('useTripJournalLink', () => {
     });
     expect(writes).toEqual([{ method: 'DELETE', body: null }]);
     expect(result.current.link).toBeNull();
-    expect(toast.success).toHaveBeenCalledWith('Journal unlinked');
+    expect(toast.success).toHaveBeenCalledWith('trip.journal.unlinked');
   });
 
   it('FE-TJL-HOOK-012: a refused save says it was not allowed and keeps the form open', async () => {
@@ -259,7 +259,7 @@ describe('useTripJournalLink', () => {
     await act(async () => {
       await result.current.save();
     });
-    expect(toast.error).toHaveBeenCalledWith('You are not allowed to do that.');
+    expect(toast.error).toHaveBeenCalledWith('trip.journal.errorForbidden');
     expect(result.current.mode).toBe('pick');
     expect(result.current.busy).toBe(false);
   });
@@ -269,7 +269,7 @@ describe('useTripJournalLink', () => {
     await waitFor(() => expect(result.current.visible).toBe(true));
     setForcedOffline(true);
     act(() => result.current.startPick());
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('Linking a journal needs a connection.'));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('trip.journal.errorOffline'));
     expect(result.current.journals).toEqual([]);
   });
 
@@ -281,7 +281,7 @@ describe('useTripJournalLink', () => {
     await waitFor(() => expect(result.current.visible).toBe(true));
     act(() => result.current.startPick());
     act(() => result.current.pickJournal(9));
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('That did not work. Please try again.'));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('trip.journal.errorGeneric'));
     expect(result.current.candidates).toEqual([]);
     act(() => result.current.cancel());
     expect(result.current.mode).toBe('view');

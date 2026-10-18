@@ -104,7 +104,7 @@ describe('MMehrSheet', () => {
 
   it('FE-MOB-MEHR-009: the action rows open the share, export and edit sheets', () => {
     const { shell } = renderSheet()
-    fireEvent.click(screen.getByRole('button', { name: 'Share Trip' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Trip settings' }))
     fireEvent.click(screen.getByRole('button', { name: 'Export' }))
     fireEvent.click(screen.getByRole('button', { name: 'Edit Trip' }))
     expect(shell.openSheet).toHaveBeenNthCalledWith(1, 'members')
@@ -116,7 +116,7 @@ describe('MMehrSheet', () => {
     const { planner } = renderSheet({ can: vi.fn(() => false) })
     expect(planner.can).toHaveBeenCalledWith('trip_edit', planner.trip)
     expect(screen.queryByRole('button', { name: 'Edit Trip' })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Share Trip' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Trip settings' })).toBeInTheDocument()
   })
 
   it('FE-MOB-MEHR-011: renders only the action rows when every section sits in the dock', () => {
@@ -124,13 +124,13 @@ describe('MMehrSheet', () => {
       TRIP_TABS: TABS.filter(tab => tab.id !== 'dateien' && tab.id !== 'collab') as TripPlanner['TRIP_TABS'],
     })
     expect(screen.queryByText(/files$/)).not.toBeInTheDocument()
-    const rows = screen.getByRole('button', { name: 'Share Trip' }).parentElement
+    const rows = screen.getByRole('button', { name: 'Trip settings' }).parentElement
     expect(rows).not.toHaveClass('mt-2')
   })
 
   it('FE-MOB-MEHR-012: separates the action rows from the tile grid when both are present', () => {
     renderSheet()
-    const rows = screen.getByRole('button', { name: 'Share Trip' }).parentElement
+    const rows = screen.getByRole('button', { name: 'Trip settings' }).parentElement
     expect(rows).toHaveClass('mt-2')
   })
 
@@ -172,7 +172,7 @@ describe('MMehrSheet', () => {
       // Five sections still fit beside the More button, so nothing overflows and the
       // sheet is the action rows alone.
       expect(screen.queryByRole('button', { name: 'Lists' })).not.toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Share Trip' }).parentElement).not.toHaveClass('mt-2')
+      expect(screen.getByRole('button', { name: 'Trip settings' }).parentElement).not.toHaveClass('mt-2')
     })
   })
 })

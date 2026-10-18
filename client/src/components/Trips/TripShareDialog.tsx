@@ -133,7 +133,7 @@ function AreaNav({ areas, current, onPick }: { areas: typeof AREAS; current: Are
       {areas.map(a => {
         const on = a.id === current
         return (
-          <button key={a.id} type="button" aria-current={on ? 'page' : undefined} onClick={() => onPick(a.id)}
+          <button key={a.id} type="button" aria-current={on ? 'page' : undefined} aria-label={t(a.labelKey)} onClick={() => onPick(a.id)}
             className={`flex flex-none items-center gap-2.5 rounded-[12px] px-2.5 py-2 text-start transition-colors ${on ? 'bg-surface-card text-content shadow-sm ring-1 ring-edge-faint' : 'text-content-muted hover:bg-surface-hover hover:text-content'}`}>
             <span className={`grid h-8 w-8 flex-none place-items-center rounded-[9px] ${on ? 'bg-accent text-accent-text' : 'bg-surface-tertiary'}`}>{a.icon(on)}</span>
             <span className="min-w-0">

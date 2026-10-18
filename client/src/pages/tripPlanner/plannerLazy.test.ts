@@ -24,6 +24,7 @@ vi.mock('../../components/Tours/planner/TourPlannerPanels', () => ({
   TourPlannerToursRail: label('tour planner tours rail'),
 }))
 vi.mock('../../components/Planner/TransportModal', () => ({ TransportModal: label('transport modal') }))
+vi.mock('./TripJournalPanel', () => ({ default: label('trip journal panel') }))
 
 const cases: Array<[keyof typeof lazy, string]> = [
   ['ReservationsPanel', 'reservations panel'],
@@ -43,6 +44,7 @@ const cases: Array<[keyof typeof lazy, string]> = [
   ['TourWorkspaceRail', 'tour workspace rail'],
   ['TourPlannerToursRail', 'tour planner tours rail'],
   ['TransportModal', 'transport modal'],
+  ['TripJournalPanel', 'trip journal panel'],
 ]
 
 function renderLazy(name: keyof typeof lazy) {
