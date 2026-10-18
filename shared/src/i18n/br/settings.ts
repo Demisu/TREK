@@ -203,7 +203,7 @@ const settings: TranslationStrings = {
   'settings.mfa.enable': 'Ativar 2FA',
   'settings.mfa.cancelSetup': 'Cancelar',
   'settings.mfa.disableTitle': 'Desativar 2FA',
-  'settings.mfa.disableHint': 'Digite sua senha e um código atual do autenticador.',
+  'settings.mfa.disableHint': 'Digite sua senha e um código atual do autenticador ou um código de backup não usado.',
   'settings.mfa.disable': 'Desativar 2FA',
   'settings.mfa.toastEnabled': 'Autenticação em duas etapas ativada',
   'settings.mfa.toastDisabled': 'Autenticação em duas etapas desativada',

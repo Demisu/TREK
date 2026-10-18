@@ -339,7 +339,7 @@ const settings: TranslationStrings = {
   'settings.mfa.enable': 'เปิดใช้งาน 2FA',
   'settings.mfa.cancelSetup': 'ยกเลิก',
   'settings.mfa.disableTitle': 'ปิดการใช้งาน 2FA',
-  'settings.mfa.disableHint': 'ป้อนรหัสผ่านบัญชีของคุณและรหัสปัจจุบันจากตัวตรวจสอบสิทธิ์ของคุณ',
+  'settings.mfa.disableHint': 'ป้อนรหัสผ่านบัญชีของคุณและรหัสปัจจุบันจากตัวตรวจสอบสิทธิ์ หรือรหัสสำรองที่ยังไม่ได้ใช้',
   'settings.mfa.disable': 'ปิดการใช้งาน 2FA',
   'settings.mfa.toastEnabled': 'เปิดใช้งานการรับรองความถูกต้องด้วยสองปัจจัย',
   'settings.mfa.toastDisabled': 'การรับรองความถูกต้องด้วยสองปัจจัยถูกปิดใช้งาน',

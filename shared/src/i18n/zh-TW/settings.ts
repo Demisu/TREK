@@ -311,7 +311,7 @@ const settings: TranslationStrings = {
   'settings.mfa.enable': '啟用 2FA',
   'settings.mfa.cancelSetup': '取消',
   'settings.mfa.disableTitle': '停用 2FA',
-  'settings.mfa.disableHint': '輸入您的賬戶密碼和身份驗證器中的當前驗證碼。',
+  'settings.mfa.disableHint': '輸入您的賬戶密碼，以及身份驗證器中的當前驗證碼或未使用的備用碼。',
   'settings.mfa.disable': '停用 2FA',
   'settings.mfa.toastEnabled': '雙因素認證已啟用',
   'settings.mfa.toastDisabled': '雙因素認證已停用',

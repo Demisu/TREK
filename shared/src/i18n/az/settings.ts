@@ -390,7 +390,8 @@ const settings: TranslationStrings = {
   'settings.mfa.enable': '2FA-nı aktivləşdir',
   'settings.mfa.cancelSetup': 'Ləğv et',
   'settings.mfa.disableTitle': '2FA-nı deaktiv et',
-  'settings.mfa.disableHint': 'Hesab parolunuzu və autentifikatorunuzdakı cari kodu daxil edin.',
+  'settings.mfa.disableHint':
+    'Hesab parolunuzu və autentifikatorunuzdakı cari kodu və ya istifadə olunmamış ehtiyat kodu daxil edin.',
   'settings.mfa.disable': '2FA-nı deaktiv et',
   'settings.mfa.toastEnabled': 'İki mərhələli autentifikasiya aktivləşdirildi',
   'settings.mfa.toastDisabled': 'İki mərhələli autentifikasiya deaktiv edildi',

@@ -275,7 +275,8 @@ const settings: TranslationStrings = {
   'settings.mfa.enable': 'Увімкнути 2FA',
   'settings.mfa.cancelSetup': 'Скасувати',
   'settings.mfa.disableTitle': 'Вимкнути 2FA',
-  'settings.mfa.disableHint': 'Введіть пароль акаунта та поточний код з автентифікатора.',
+  'settings.mfa.disableHint':
+    'Введіть пароль акаунта та поточний код з автентифікатора або невикористаний резервний код.',
   'settings.mfa.disable': 'Вимкнути 2FA',
   'settings.mfa.toastEnabled': 'Двофакторна автентифікація увімкнена',
   'settings.mfa.toastDisabled': 'Двофакторна автентифікація вимкнена',

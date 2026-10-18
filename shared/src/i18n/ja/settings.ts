@@ -313,7 +313,8 @@ const settings: TranslationStrings = {
   'settings.mfa.enable': '2FAを有効化',
   'settings.mfa.cancelSetup': 'キャンセル',
   'settings.mfa.disableTitle': '2FAを無効化',
-  'settings.mfa.disableHint': 'パスワードと現在のコードを入力してください。',
+  'settings.mfa.disableHint':
+    'パスワードと、認証アプリの現在のコードまたは未使用のバックアップコードを入力してください。',
   'settings.mfa.disable': '2FAを無効化',
   'settings.mfa.toastEnabled': '2FAを有効にしました',
   'settings.mfa.toastDisabled': '2FAを無効にしました',

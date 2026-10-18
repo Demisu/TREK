@@ -285,7 +285,8 @@ const settings: TranslationStrings = {
   'settings.mfa.enable': 'Włącz 2FA',
   'settings.mfa.cancelSetup': 'Anuluj',
   'settings.mfa.disableTitle': 'Wyłącz 2FA',
-  'settings.mfa.disableHint': 'Podaj hasło do konta i aktualny kod z aplikacji uwierzytelniającej.',
+  'settings.mfa.disableHint':
+    'Podaj hasło do konta i aktualny kod z aplikacji uwierzytelniającej lub nieużyty kod zapasowy.',
   'settings.mfa.disable': 'Wyłącz 2FA',
   'settings.mfa.toastEnabled': 'Uwierzytelnianie dwuskładnikowe zostało włączone',
   'settings.mfa.toastDisabled': 'Uwierzytelnianie dwuskładnikowe zostało wyłączone',

@@ -294,7 +294,7 @@ const settings: TranslationStrings = {
   'settings.mfa.enable': 'تفعيل 2FA',
   'settings.mfa.cancelSetup': 'إلغاء',
   'settings.mfa.disableTitle': 'تعطيل 2FA',
-  'settings.mfa.disableHint': 'أدخل كلمة مرور حسابك ورمزًا حاليًا من المصادقة.',
+  'settings.mfa.disableHint': 'أدخل كلمة مرور حسابك ورمزًا حاليًا من المصادقة أو رمزًا احتياطيًا غير مستخدم.',
   'settings.mfa.disable': 'تعطيل 2FA',
   'settings.mfa.toastEnabled': 'تم تفعيل المصادقة الثنائية',
   'settings.mfa.toastDisabled': 'تم تعطيل المصادقة الثنائية',

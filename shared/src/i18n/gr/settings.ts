@@ -354,7 +354,7 @@ const settings: TranslationStrings = {
   'settings.mfa.cancelSetup': 'Ακύρωση',
   'settings.mfa.disableTitle': 'Απενεργοποίηση 2FA',
   'settings.mfa.disableHint':
-    'Εισάγετε τον κωδικό του λογαριασμού σας και έναν τρέχοντα κωδικό από τον authenticator σας.',
+    'Εισαγάγετε τον κωδικό πρόσβασης του λογαριασμού σας και έναν τρέχοντα κωδικό από την εφαρμογή ελέγχου ταυτότητας ή έναν αχρησιμοποίητο εφεδρικό κωδικό.',
   'settings.mfa.disable': 'Απενεργοποίηση 2FA',
   'settings.mfa.toastEnabled': 'Ο έλεγχος ταυτότητας δύο παραγόντων ενεργοποιήθηκε',
   'settings.mfa.toastDisabled': 'Ο έλεγχος ταυτότητας δύο παραγόντων απενεργοποιήθηκε',

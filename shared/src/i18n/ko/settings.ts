@@ -329,7 +329,7 @@ const settings: TranslationStrings = {
   'settings.mfa.enable': '2FA 활성화',
   'settings.mfa.cancelSetup': '취소',
   'settings.mfa.disableTitle': '2FA 비활성화',
-  'settings.mfa.disableHint': '계정 비밀번호와 인증 앱의 현재 코드를 입력하세요.',
+  'settings.mfa.disableHint': '계정 비밀번호와 인증 앱의 현재 코드 또는 사용하지 않은 백업 코드를 입력하세요.',
   'settings.mfa.disable': '2FA 비활성화',
   'settings.mfa.toastEnabled': '2단계 인증이 활성화되었습니다',
   'settings.mfa.toastDisabled': '2단계 인증이 비활성화되었습니다',

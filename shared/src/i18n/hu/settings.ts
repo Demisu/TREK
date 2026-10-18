@@ -289,7 +289,8 @@ const settings: TranslationStrings = {
   'settings.mfa.enable': '2FA engedélyezése',
   'settings.mfa.cancelSetup': 'Mégse',
   'settings.mfa.disableTitle': '2FA kikapcsolása',
-  'settings.mfa.disableHint': 'Add meg a fiókod jelszavát és a hitelesítő alkalmazás aktuális kódját.',
+  'settings.mfa.disableHint':
+    'Add meg a fiókod jelszavát és a hitelesítő alkalmazás aktuális kódját vagy egy fel nem használt tartalékkódot.',
   'settings.mfa.disable': '2FA kikapcsolása',
   'settings.mfa.toastEnabled': 'Kétfaktoros hitelesítés engedélyezve',
   'settings.mfa.toastDisabled': 'Kétfaktoros hitelesítés kikapcsolva',

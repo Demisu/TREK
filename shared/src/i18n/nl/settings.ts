@@ -280,7 +280,8 @@ const settings: TranslationStrings = {
   'settings.mfa.enable': '2FA inschakelen',
   'settings.mfa.cancelSetup': 'Annuleren',
   'settings.mfa.disableTitle': '2FA uitschakelen',
-  'settings.mfa.disableHint': 'Voer je wachtwoord en een huidige code van je authenticator in.',
+  'settings.mfa.disableHint':
+    'Voer je wachtwoord en een huidige code van je authenticator of een ongebruikte back-upcode in.',
   'settings.mfa.disable': '2FA uitschakelen',
   'settings.mfa.toastEnabled': 'Tweefactorauthenticatie ingeschakeld',
   'settings.mfa.toastDisabled': 'Tweefactorauthenticatie uitgeschakeld',

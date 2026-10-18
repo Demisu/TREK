@@ -335,7 +335,8 @@ const settings: TranslationStrings = {
   'settings.mfa.enable': "2FA'yı Etkinleştir",
   'settings.mfa.cancelSetup': 'İptal etmek',
   'settings.mfa.disableTitle': "2FA'yı devre dışı bırak",
-  'settings.mfa.disableHint': 'Hesap şifrenizi ve kimlik doğrulayıcınızdan aldığınız geçerli kodu girin.',
+  'settings.mfa.disableHint':
+    'Hesap şifrenizi ve kimlik doğrulayıcınızdan aldığınız geçerli kodu veya kullanılmamış bir yedek kodu girin.',
   'settings.mfa.disable': "2FA'yı devre dışı bırak",
   'settings.mfa.toastEnabled': 'İki faktörlü kimlik doğrulama etkin',
   'settings.mfa.toastDisabled': 'İki faktörlü kimlik doğrulama devre dışı',

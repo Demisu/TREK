@@ -340,7 +340,8 @@ const settings: TranslationStrings = {
   'settings.mfa.enable': 'Aktifkan 2FA',
   'settings.mfa.cancelSetup': 'Batal',
   'settings.mfa.disableTitle': 'Nonaktifkan 2FA',
-  'settings.mfa.disableHint': 'Masukkan kata sandi akun dan kode terkini dari aplikasi autentikatormu.',
+  'settings.mfa.disableHint':
+    'Masukkan kata sandi akun dan kode terkini dari aplikasi autentikatormu atau kode cadangan yang belum dipakai.',
   'settings.mfa.disable': 'Nonaktifkan 2FA',
   'settings.mfa.toastEnabled': 'Autentikasi dua faktor diaktifkan',
   'settings.mfa.toastDisabled': 'Autentikasi dua faktor dinonaktifkan',

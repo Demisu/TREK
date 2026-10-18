@@ -348,7 +348,8 @@ const settings: TranslationStrings = {
   'settings.mfa.enable': 'Kích hoạt 2FA',
   'settings.mfa.cancelSetup': 'Hủy',
   'settings.mfa.disableTitle': 'Tắt 2FA',
-  'settings.mfa.disableHint': 'Nhập mật khẩu tài khoản của bạn và mã hiện tại từ trình xác thực của bạn.',
+  'settings.mfa.disableHint':
+    'Nhập mật khẩu tài khoản của bạn và mã hiện tại từ trình xác thực hoặc một mã dự phòng chưa dùng.',
   'settings.mfa.disable': 'Tắt 2FA',
   'settings.mfa.toastEnabled': 'Đã bật xác thực hai yếu tố',
   'settings.mfa.toastDisabled': 'Xác thực hai yếu tố bị vô hiệu hóa',

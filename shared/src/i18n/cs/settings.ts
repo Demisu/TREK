@@ -284,7 +284,7 @@ const settings: TranslationStrings = {
   'settings.mfa.enable': 'Zapnout 2FA',
   'settings.mfa.cancelSetup': 'Zrušit',
   'settings.mfa.disableTitle': 'Vypnout 2FA',
-  'settings.mfa.disableHint': 'Zadejte své heslo k účtu a aktuální kód z aplikace.',
+  'settings.mfa.disableHint': 'Zadejte své heslo k účtu a aktuální kód z aplikace nebo nepoužitý záložní kód.',
   'settings.mfa.disable': 'Vypnout 2FA',
   'settings.mfa.toastEnabled': 'Dvoufaktorové ověření bylo zapnuto',
   'settings.mfa.toastDisabled': 'Dvoufaktorové ověření bylo vypnuto',

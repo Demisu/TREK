@@ -355,7 +355,7 @@ const settings: TranslationStrings = {
   'settings.mfa.enable': 'Luba 2FA',
   'settings.mfa.cancelSetup': 'Tühista',
   'settings.mfa.disableTitle': 'Keela 2FA',
-  'settings.mfa.disableHint': 'Sisesta oma konto parool ja autentimisrakenduse kehtiv kood.',
+  'settings.mfa.disableHint': 'Sisesta oma konto parool ja autentimisrakenduse kehtiv kood või kasutamata varukood.',
   'settings.mfa.disable': 'Keela 2FA',
   'settings.mfa.toastEnabled': 'Kaheastmeline autentimine lubatud',
   'settings.mfa.toastDisabled': 'Kaheastmeline autentimine keelatud',

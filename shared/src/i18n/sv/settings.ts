@@ -346,7 +346,8 @@ const settings: TranslationStrings = {
   'settings.mfa.enable': 'Aktivera 2FA',
   'settings.mfa.cancelSetup': 'Avbryt',
   'settings.mfa.disableTitle': 'Inaktivera 2FA',
-  'settings.mfa.disableHint': 'Ange ditt kontolösenord och en aktuell kod från din autentiseringsapp.',
+  'settings.mfa.disableHint':
+    'Ange ditt kontolösenord och en aktuell kod från din autentiseringsapp eller en oanvänd reservkod.',
   'settings.mfa.disable': 'Inaktivera 2FA',
   'settings.mfa.toastEnabled': 'Tvåfaktorsautentisering är aktiverad',
   'settings.mfa.toastDisabled': 'Tvåfaktorsautentisering är inaktiverad',
