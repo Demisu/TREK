@@ -824,14 +824,6 @@ input[type="number"], input[type="time"], input[type="date"], input[type="dateti
   :root { --nav-h: calc(64px + env(safe-area-inset-top, 0px)); }
 }
 
-/* A journal shown inside a trip (its Journal tab): the journal's own fixed bars
-   measure themselves from --nav-h, so below the trip's navbar they also have to
-   clear the trip's tab bar. */
-.trip-embedded-journal { --nav-h: 44px; }
-@media (min-width: 768px) {
-  .trip-embedded-journal { --nav-h: calc(64px + env(safe-area-inset-top, 0px) + 44px); }
-}
-
 .dark {
   --bg-primary: #121215;
   --bg-secondary: #1a1a1e;
