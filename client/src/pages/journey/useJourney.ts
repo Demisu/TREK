@@ -11,24 +11,11 @@ function dismissedSuggestionsKey(userId: number | undefined): string {
   return `trek:journey:dismissed-suggestions:v1:${userId ?? 'anonymous'}`
 }
 
+/** The trips this user put away, as stored here; anything unreadable reads as none. */
 function readDismissedSuggestions(userId: number | undefined): Set<number> {
   try {
     const value: unknown = JSON.parse(window.localStorage.getItem(dismissedSuggestionsKey(userId)) || '[]')
-    if (!Array.isArray(value)) return new Set()
-
-    const dismissed = new Set<number>()
-    for (const item of value) {
-      if (Number.isInteger(item)) {
-        dismissed.add(item)
-        continue
-      }
-      if (!item || typeof item !== 'object') {
-        continue
-      }
-      const record = item as { id?: unknown; dismissedAt?: unknown }
-      if (typeof record.id === 'number' && Number.isInteger(record.id)) dismissed.add(record.id)
-    }
-    return dismissed
+    return new Set(Array.isArray(value) ? value.filter((id): id is number => Number.isInteger(id)) : [])
   } catch {
     return new Set()
   }
