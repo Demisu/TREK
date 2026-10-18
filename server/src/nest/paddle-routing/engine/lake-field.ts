@@ -6,10 +6,15 @@ import type { PaddleLakeStyle } from '@trek/shared';
 
 /**
  * Routing across one lake on its grid of water cells. Every cell knows how
- * far it lies from the shore; a crossing costs its length weighed by that:
- * straight over is cheapest with the default style, staying near the shore
- * is with `shore`, and water farther out than half a boat's open-water limit
- * costs so much that the route takes it only when there is no other way.
+ * far it lies from the shore; a crossing costs its length weighed by that.
+ * Closer to the shore than a style's clearance gets steadily dearer, so a
+ * route keeps off the bank and runs down the middle of anything narrower than
+ * twice that: without it the cheapest line hugs every inner bend one grid
+ * cell off the water's edge, which on the map reads as paddling over land.
+ * With `shore` the open water beyond a band along the bank costs more too, so
+ * the route follows the shore at a distance rather than on it. Water farther
+ * out than half a boat's open-water limit costs so much that the route takes
+ * it only when there is no other way.
  *
  * Two levels keep a large lake quick: the costs between the lake's portals
  * come from a coarse copy of the grid (a few ten thousand cells, however big
@@ -17,11 +22,13 @@ import type { PaddleLakeStyle } from '@trek/shared';
  * by A* towards its end.
  */
 
-/** Keep this far off the shore where the lake is wide enough, in metres. */
-const SHORE_MARGIN_M = 12;
+/** How far off the shore each style keeps where the water is wide enough, in metres. */
+const CLEARANCE_M: Readonly<Record<PaddleLakeStyle, number>> = { direct: 80, shore: 40 };
+/** What a metre right at the shore costs on top, falling off squared to nothing at the clearance. */
+const CLEARANCE_WEIGHT = 4;
 /** With `shore`, open water costs more from here out, up to SHORE_FAR_M. */
-const SHORE_NEAR_M = 40;
-const SHORE_FAR_M = 200;
+const SHORE_NEAR_M = 100;
+const SHORE_FAR_M = 350;
 const SHORE_WEIGHT = 1.5;
 /** Water beyond a boat's open-water reach costs this many times its length. */
 const OVER_LIMIT_WEIGHT = 20;
@@ -58,7 +65,8 @@ interface Grid {
 
 function weightOf(shore: number, profile: LakeProfile): number {
   let weight = 1;
-  if (shore < SHORE_MARGIN_M) weight += 0.5;
+  const clearance = CLEARANCE_M[profile.style];
+  if (shore < clearance) weight += CLEARANCE_WEIGHT * (1 - shore / clearance) ** 2;
   if (profile.style === 'shore') {
     weight += SHORE_WEIGHT * Math.min(1, Math.max(0, (shore - SHORE_NEAR_M) / (SHORE_FAR_M - SHORE_NEAR_M)));
   }
@@ -314,7 +322,8 @@ export class LakeField {
   /**
    * The line from one cell to another as a paddler would take it: the
    * cheapest cell path, then pulled straight wherever a straight line stays on
-   * water no more costly than the cells it joins.
+   * water no more costly than the cells it joins and no nearer the shore than
+   * the path it replaces.
    */
   path(from: number, to: number, profile: LakeProfile): Array<[number, number]> | null {
     const cells = astar(this.fine(profile), from, to);
@@ -322,21 +331,38 @@ export class LakeField {
     return this.pull(cells, profile).map((cell) => this.centre(cell));
   }
 
+  /**
+   * Straightens a cell path. A shortcut may not run nearer the shore than the
+   * stretch of path it replaces (up to the style's clearance): pulling a line
+   * taut round a bend otherwise draws it onto the bank the path kept off.
+   */
   private pull(cells: number[], profile: LakeProfile): number[] {
+    const shore = this.shoreDistance();
+    const clearance = CLEARANCE_M[profile.style];
+    const depth = (cell: number) => Math.min(clearance, shore[cell] as number);
     const kept = [cells[0] as number];
     let anchor = 0;
+    let floor = depth(cells[0] as number);
     for (let i = 2; i < cells.length; i++) {
-      if (!this.clear(cells[anchor] as number, cells[i] as number, profile)) {
+      floor = Math.min(floor, depth(cells[i - 1] as number), depth(cells[i] as number));
+      if (!this.clear(cells[anchor] as number, cells[i] as number, profile, floor)) {
         kept.push(cells[i - 1] as number);
         anchor = i - 1;
+        floor = Math.min(depth(cells[i - 1] as number), depth(cells[i] as number));
       }
     }
     if (cells.length > 1) kept.push(cells[cells.length - 1] as number);
     return kept;
   }
 
-  /** Whether a straight line between two cells runs on water no more costly than its ends. */
-  private clear(a: number, b: number, profile: LakeProfile): boolean {
+  /**
+   * Whether a straight line between two cells runs on water no more costly
+   * than its ends and nowhere nearer the shore than `floor` (less half a cell,
+   * for the line's rounding onto cells).
+   */
+  private clear(a: number, b: number, profile: LakeProfile, floor: number): boolean {
+    const shore = this.shoreDistance();
+    const least = floor - this.lake.cell / 2;
     const { width } = this.lake;
     const ac = a % width;
     const ar = (a - ac) / width;
@@ -348,7 +374,7 @@ export class LakeField {
       const c = Math.round(ac + ((bc - ac) * s) / steps);
       const r = Math.round(ar + ((br - ar) * s) / steps);
       const cell = r * width + c;
-      if (!this.isWater(cell) || this.weight(cell, profile) > ceiling) return false;
+      if (!this.isWater(cell) || this.weight(cell, profile) > ceiling || (shore[cell] as number) < least) return false;
     }
     return true;
   }
