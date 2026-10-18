@@ -241,6 +241,21 @@ export class JourneyEntriesRepository extends TrekRepository<JourneyEntries> {
     return rows as { entry_date: string; m: number }[];
   }
 
+  /** One day's entries in timeline order, with what placing a timed entry among them reads (#2679). */
+  async listDayOrder(
+    journeyId: number,
+    entryDate: string,
+  ): Promise<{ id: number; entry_time: string | null; sort_order: number | null }[]> {
+    return await this.kysely<JourneyEntriesDateSortKyselyDB>()
+      .selectFrom('journey_entries')
+      .select(['id', 'entry_time', 'sort_order'])
+      .where('journey_id', '=', journeyId)
+      .where('entry_date', '=', entryDate)
+      .orderBy('sort_order', 'asc')
+      .orderBy('id', 'asc')
+      .execute();
+  }
+
   /** JG42 — `onPlaceCreated`'s next-order lookup: `SELECT MAX(sort_order) AS m FROM journey_entries WHERE journey_id = ? AND entry_date = ?`. The `?? -1` fallback stays the SERVICE's, unchanged (same text as Task 2's own JG74). */
   async maxSortOrderForDate(journeyId: number, entryDate: string): Promise<number | null> {
     const row = await this.kysely<JourneyEntriesDateSortKyselyDB>()

@@ -261,6 +261,59 @@ describe('Journey entries', () => {
     expect(res.body.story).toBe('Now with a story');
   });
 
+  it('JOURNEY-INT-010b — a timed entry goes where its time puts it in the day, an untimed one last (#2679)', async () => {
+    const { user } = createUser(testDb);
+    const journey = createJourney(testDb, user.id);
+    const post = (title: string, entry_time?: string) =>
+      request(app)
+        .post(`/api/journeys/${journey.id}/entries`)
+        .set('Cookie', authCookie(user.id))
+        .send({ title, entry_date: '2026-04-01', ...(entry_time ? { entry_time } : {}) });
+
+    await post('two', '02:00');
+    await post('untimed');
+    await post('one', '01:00');
+    await post('three', '03:00');
+
+    const res = await request(app).get(`/api/journeys/${journey.id}`).set('Cookie', authCookie(user.id));
+    const titles = res.body.entries.map((e: { title: string }) => e.title);
+    expect(titles).toEqual(['one', 'two', 'untimed', 'three']);
+  });
+
+  it('JOURNEY-INT-011b — a new time moves the entry, an unchanged one keeps a hand-made order (#2679)', async () => {
+    const { user } = createUser(testDb);
+    const journey = createJourney(testDb, user.id);
+    const post = async (title: string, entry_time: string) =>
+      (
+        await request(app)
+          .post(`/api/journeys/${journey.id}/entries`)
+          .set('Cookie', authCookie(user.id))
+          .send({ title, entry_date: '2026-04-01', entry_time })
+      ).body.id as number;
+    const ids = [await post('morning', '08:00'), await post('noon', '12:00'), await post('evening', '19:00')];
+    const titles = async () =>
+      (await request(app).get(`/api/journeys/${journey.id}`).set('Cookie', authCookie(user.id))).body.entries.map(
+        (e: { title: string }) => e.title,
+      );
+
+    await request(app)
+      .patch(`/api/journeys/entries/${ids[2]}`)
+      .set('Cookie', authCookie(user.id))
+      .send({ entry_time: '07:00' });
+    expect(await titles()).toEqual(['evening', 'morning', 'noon']);
+
+    // Dragged out of time order, then saved again with the same time: it stays put.
+    await request(app)
+      .put(`/api/journeys/${journey.id}/entries/reorder`)
+      .set('Cookie', authCookie(user.id))
+      .send({ orderedIds: [ids[0], ids[1], ids[2]] });
+    await request(app)
+      .patch(`/api/journeys/entries/${ids[2]}`)
+      .set('Cookie', authCookie(user.id))
+      .send({ title: 'early', entry_time: '07:00' });
+    expect(await titles()).toEqual(['morning', 'noon', 'early']);
+  });
+
   it('JOURNEY-INT-012 — DELETE /api/journeys/entries/:id deletes entry', async () => {
     const { user } = createUser(testDb);
     const journey = createJourney(testDb, user.id);
