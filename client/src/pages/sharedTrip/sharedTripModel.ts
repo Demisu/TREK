@@ -3,6 +3,7 @@
  * page and its detail blocks can share them and a test can drive them
  * without rendering.
  */
+import { parseTimeToMinutes } from '../../utils/dayMerge'
 
 /**
  * Whether a string is a link the page may render as one.
@@ -20,6 +21,22 @@ export function isHttpUrl(value: unknown): value is string {
   } catch {
     return false
   }
+}
+
+/**
+ * How long the owner planned to stay, read off the stop's time window.
+ *
+ * Not `places.duration_minutes`: every place carries one, 60 unless someone
+ * set a road-trip stay, so a link showed "1 h" under every stop (#2676). The
+ * window is what the owner actually planned, and it can differ per visit.
+ * Without an end there is no stay to show. An end before the start runs past
+ * midnight.
+ */
+export function plannedStayMinutes(start: string | null | undefined, end: string | null | undefined): number | null {
+  const from = parseTimeToMinutes(start)
+  const to = parseTimeToMinutes(end)
+  if (from == null || to == null || from === to) return null
+  return to > from ? to - from : to + 24 * 60 - from
 }
 
 /**

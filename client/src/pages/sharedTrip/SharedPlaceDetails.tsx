@@ -4,7 +4,7 @@ import { fs } from '../../components/shared/DialogShell'
 import { Tooltip } from '../../components/shared/Tooltip'
 import { WhiteBadge } from '../../components/Planner/planParts'
 import { getGoogleMapsUrlForPlace } from '../../components/Planner/placeGoogleMaps'
-import { formatDurationMinutes, isHttpUrl } from './sharedTripModel'
+import { formatDurationMinutes, isHttpUrl, plannedStayMinutes } from './sharedTripModel'
 
 /**
  * The read-only detail of one stop on a shared plan (#2320).
@@ -14,7 +14,8 @@ import { formatDurationMinutes, isHttpUrl } from './sharedTripModel'
  * usually also left a note on the place and another on the day it was
  * planned for, and a link would show none of that. This shows what the owner
  * chose to share, laid out the way the planner lays it out: address, then
- * description, then the two notes, then how long they meant to stay, then
+ * description, then the two notes, then how long they meant to stay (from the
+ * stop's start and end time), then
  * the ways to reach the place.
  *
  * Nothing here is editable and nothing here is a route into the app: every
@@ -46,7 +47,7 @@ export function SharedPlaceDetails({ place, assignmentNotes }: { place: SharedPl
     name: place.name, address: place.address ?? null, lat: place.lat ?? null, lng: place.lng ?? null,
     google_place_id: null, google_ftid: null,
   })
-  const duration = formatDurationMinutes(place.duration_minutes)
+  const duration = formatDurationMinutes(plannedStayMinutes(place.place_time, place.end_time))
   const dayNote = assignmentNotes?.trim() || null
   const placeNote = place.notes?.trim() || null
   const hasLinks = !!(website || phone || mapsUrl)

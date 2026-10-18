@@ -1586,8 +1586,9 @@ describe('SharedTripPage', () => {
           id: 301, day_id: 21, order_index: 0, notes: 'go early, before the coaches',
           place: {
             id: 501, name: 'Louvre', description: 'The big one', address: 'Rue de Rivoli, Paris',
-            lat: 48.86, lng: 2.34, category_id: null, price: null, place_time: '09:00', end_time: null,
-            duration_minutes: 150, notes: 'Skip the pyramid queue', website: 'https://louvre.fr',
+            // The stay comes from the window; the place default of an hour is not a plan (#2676).
+            lat: 48.86, lng: 2.34, category_id: null, price: null, place_time: '09:00', end_time: '11:30',
+            duration_minutes: 60, notes: 'Skip the pyramid queue', website: 'https://louvre.fr',
             phone: '+33 1 40 20 50 50', image_url: null, transport_mode: 'walking', category: null, tags: [],
           },
         },
@@ -1638,6 +1639,23 @@ describe('SharedTripPage', () => {
       expect(screen.queryByRole('link', { name: /google maps/i })).toBeNull();
       expect(document.querySelector('a[href^="javascript:"]')).toBeNull();
       expect(screen.queryByText(/min$/)).toBeNull();
+    });
+
+    it('shows no stay for a stop with only a start, whatever the place default says (#2676)', async () => {
+      const startOnly = {
+        21: [{
+          id: 303, day_id: 21, order_index: 0, notes: null,
+          place: {
+            id: 503, name: 'Café', description: null, address: 'Somewhere 1', lat: null, lng: null,
+            duration_minutes: 60, notes: null, website: null, phone: null,
+            category_id: null, price: null, place_time: '15:00', end_time: null, image_url: null,
+            transport_mode: 'walking', category: null, tags: [],
+          },
+        }],
+      };
+      await open('start-only-token', payload({ days, assignments: startOnly }));
+      await waitFor(() => expect(screen.getByText('Somewhere 1')).toBeInTheDocument());
+      expect(screen.queryByText('1 h')).toBeNull();
     });
   });
 

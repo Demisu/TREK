@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { AxiosError, AxiosHeaders } from 'axios'
 import {
-  coverSrc, dayHasEntries, formatDateRange, formatDurationMinutes, groupInOrder, isHttpUrl, isSharedTripPayload, legFacts, linkHost,
+  coverSrc, dayHasEntries, formatDateRange, formatDurationMinutes, groupInOrder, isHttpUrl, isSharedTripPayload, legFacts, linkHost, plannedStayMinutes,
   sharedTripLoadError, spanLabelKey, stopNumbers, transportFacts, unplannedPlaces,
 } from './sharedTripModel'
 
@@ -23,6 +23,15 @@ describe('sharedTripModel (#2320)', () => {
     expect(formatDurationMinutes(60)).toBe('1 h')
     expect(formatDurationMinutes(150)).toBe('2 h 30 min')
     expect(formatDurationMinutes(89.6)).toBe('1 h 30 min')
+  })
+
+  it('reads the planned stay off the time window, never off the place default (#2676)', () => {
+    expect(plannedStayMinutes('10:00', '12:30')).toBe(150)
+    expect(plannedStayMinutes('22:30', '01:00')).toBe(150)
+    expect(plannedStayMinutes('10:00', null)).toBeNull()
+    expect(plannedStayMinutes(null, '12:00')).toBeNull()
+    expect(plannedStayMinutes('10:00', '10:00')).toBeNull()
+    expect(plannedStayMinutes(undefined, undefined)).toBeNull()
   })
 
   it('writes nothing for a missing, zero or nonsense figure', () => {
