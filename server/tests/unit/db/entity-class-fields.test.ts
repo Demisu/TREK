@@ -33,7 +33,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 //   added_at (a link and its members are always written whole).
 // + paddle_water_graphs: file, rev, bytes, built_at, stats and its bounding box (a network is only ever written
 //   whole, from one build of its region).
-const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 491;
+// + paddle_region_requests: region_id, name, reason (a request is only ever filed whole).
+const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 494;
 
 describe('entity class fields never carry a NaN initialiser (task-4-review-shape.md, Important 1)', () => {
   it('CLASSFIELD-001: new X() has no own property whose value is NaN, across all 133 entities', () => {

@@ -166,7 +166,8 @@ describe('getPreferencesMatrix', () => {
     const { event_types } = await getPreferencesMatrix(user.id, 'admin', 'admin');
     expect(event_types).toContain('version_available');
     expect(event_types).toContain('replica_failure');
-    expect(event_types.length).toBe(2);
+    expect(event_types).toContain('paddle_region_requested');
+    expect(event_types.length).toBe(3);
   });
 
   it('NPREF-006 — returns default true for all preferences when no stored prefs', async () => {
