@@ -9,6 +9,7 @@ import { buildOsmDetails, parsePoiCategories, samePlace, toApiLang } from './map
 import { POI_RESULT_CAP, type PoiSearchResult } from './providers/osm.client';
 import {
   POI_CATEGORY_TO_TREK,
+  indexRowTerm,
   isOsmHit,
   osmPlaceId,
   toPlaceRecord,
@@ -55,22 +56,15 @@ export function indexPoiPlan(category: string, bbox: PoiBbox, limit: number): In
   // by Overpass, and a mixed answer would silently drop it.
   const indexKnowsAll = wanted.length > 0 && wanted.every((key) => POI_CATEGORY_TO_TREK[key]?.length);
   if (!indexKnowsAll) return null;
-  // The index matches a term as a SUBSTRING of `category` and `category_path`
-  // (see POI_CATEGORY_TO_TREK), so an exact lookup misses every leaf that is
-  // not literally a term: `italian_restaurant` is a hit for `restaurant` and
-  // finds nothing here. Falling through to wanted[0] then labelled it with
-  // whichever pill the user happened to tap first, and the corridor panel
-  // groups and colours on exactly that field, so a trattoria came back as a
-  // petrol station. Longest match wins, because `fast_food` must not lose to
-  // `food` when both are terms of different categories.
+  // A row belongs to the term whose path it lies under, not to one it is merely
+  // spelled like: the leaf alone is rarely a term (`italian_restaurant` sits
+  // under `food_and_drink>restaurant`), and falling through to wanted[0] then
+  // labelled it with whichever pill the user tapped first, so a trattoria came
+  // back as a petrol station. The most specific term wins, so a water park
+  // answers the activity pill rather than the park it sits under.
   const labelFor = (leaf: string | null, path: string | null): string | undefined => {
-    const haystack = `${leaf ?? ''} ${path ?? ''}`;
-    let best: string | undefined;
-    for (const term of categoryOfTerm.keys()) {
-      if (!haystack.includes(term)) continue;
-      if (best === undefined || term.length > best.length) best = term;
-    }
-    return best === undefined ? undefined : categoryOfTerm.get(best);
+    const term = indexRowTerm(categoryOfTerm.keys(), leaf, path);
+    return term === undefined ? undefined : categoryOfTerm.get(term);
   };
   const lat = (bbox.south + bbox.north) / 2;
   const lng = (bbox.west + bbox.east) / 2;
@@ -109,7 +103,7 @@ export function indexPoiAnswer(
 ): PoiSearchResult {
   const { wanted, labelFor, cap, radius, reach } = plan;
   return {
-    pois: found.map((p) => ({
+    pois: belonging(found, plan).map((p) => ({
       osm_id: `gers:${p.gers}`,
       name: p.name,
       lat: p.lat,
@@ -138,11 +132,25 @@ export function indexPoiAnswer(
       source: 'trek-places' as const,
     })),
     source: 'trek-places' as const,
+    // The page the index sent, not what was left of it: a full page means more
+    // places, however many of them this one had to leave out.
     truncated: found.length >= cap,
     // A wide viewport is narrowed here too, and the caller is told so
     // for the same reason the Overpass path tells it.
     clamped: radius < reach,
   };
+}
+
+/**
+ * The rows that belong to a pill the request asked for. The index matches its
+ * terms inside the category text, so a near miss can still come back, and it
+ * is left out here (#2663). A row the index holds without any category cannot
+ * be told either way and stays, as it always has.
+ */
+export function belonging<T extends TrekPlace & { categoryPath?: string | null }>(found: T[], plan: IndexPoiPlan): T[] {
+  return found.filter(
+    (p) => (!p.category && !p.categoryPath) || plan.labelFor(p.category ?? null, p.categoryPath ?? null) !== undefined,
+  );
 }
 
 const regionNamesByLang = new Map<string, Intl.DisplayNames | null>();

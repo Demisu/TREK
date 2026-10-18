@@ -4,7 +4,7 @@ import type { AppSettingsRepository } from '../../db/repositories/AppSettings.re
 import type { GeoLane } from '../geo/nominatim.client';
 import { PlacePhotoCacheService } from '../place-photos/place-photo-cache.service';
 import type { ApiKeySource } from '../settings/instance-api-keys';
-import { indexPoiAnswer, indexPoiPlan, indexSuggestions } from './maps-index.helpers';
+import { belonging, indexPoiAnswer, indexPoiPlan, indexSuggestions } from './maps-index.helpers';
 import { NEARBY_DEFAULT_LIMIT, NEARBY_DEFAULT_RADIUS_M, nearbyCacheKey, nearestFirst } from './maps-nearby.helpers';
 import { MapsUrlResolver, type ResolvedMapsUrl } from './maps-url.resolver';
 import { toApiLang, mergeSearchResults } from './maps.helpers';
@@ -214,7 +214,8 @@ export class MapsService {
           limit: plan.cap,
           category: plan.terms.join(','),
         });
-        if (found.length > 0) return indexPoiAnswer(found, plan);
+        // A page of near misses only is a miss too, not an empty answer.
+        if (belonging(found, plan).length > 0) return indexPoiAnswer(found, plan);
       } catch (err: unknown) {
         console.warn('TREK Places nearby failed, falling back:', (err as Error).message);
       }

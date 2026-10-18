@@ -49,7 +49,7 @@ const FULL = {
   lat: 48.2101,
   lng: 16.3657,
   category: 'coffee_shop',
-  categoryPath: 'eat_and_drink>cafe>coffee_shop',
+  categoryPath: 'food_and_drink>non_alcoholic_beverage_venue>coffee_shop',
   confidence: 0.94,
   address: { freeform: 'Herrengasse 14', locality: 'Wien', postcode: '1010', region: null, country: 'AT' },
   contact: { website: 'https://cafecentral.wien/', phone: '+43 1 5333763', email: null, socials: null },
@@ -285,7 +285,7 @@ describe('MapsService.pois answered from the index', () => {
       radius: 7872,
       // The caller's budget, per category, the way the Overpass path spends it.
       limit: 60,
-      category: 'cafe,coffee_shop',
+      category: 'food_and_drink>casual_eatery>cafe,food_and_drink>non_alcoholic_beverage_venue>coffee_shop',
     });
     expect(out.clamped).toBe(false);
   });
@@ -296,8 +296,20 @@ describe('MapsService.pois answered from the index', () => {
     // Overpass — on the one path where that hurts most, because a single search
     // fans out over sixteen boxes and each races four public mirrors.
     mockNearby.mockResolvedValue([
-      { ...FULL, gers: 'f-1', name: 'Aral', category: 'gas_station' },
-      { ...FULL, gers: 'c-1', name: 'Ionity', category: 'ev_charging_station' },
+      {
+        ...FULL,
+        gers: 'f-1',
+        name: 'Aral',
+        category: 'gas_station',
+        categoryPath: 'travel_and_transportation>fueling_station>gas_station',
+      },
+      {
+        ...FULL,
+        gers: 'c-1',
+        name: 'Ionity',
+        category: 'ev_charging_station',
+        categoryPath: 'travel_and_transportation>fueling_station>ev_charging_station',
+      },
     ]);
     const svc = make();
     const overpass = stubOverpass(svc);
@@ -310,7 +322,8 @@ describe('MapsService.pois answered from the index', () => {
       0,
       0,
       expect.objectContaining({
-        category: 'gas_station,fueling_station,ev_charging_station',
+        category:
+          'travel_and_transportation>fueling_station>gas_station,travel_and_transportation>fueling_station>ev_charging_station',
         // Per category, so a mixed search does not spend the whole allowance on
         // whichever kind happens to be densest.
         limit: 120,
@@ -333,9 +346,15 @@ describe('MapsService.pois answered from the index', () => {
         gers: 'r-1',
         name: 'Trattoria',
         category: 'italian_restaurant',
-        categoryPath: 'eat_and_drink>restaurant>italian_restaurant',
+        categoryPath: 'food_and_drink>restaurant>european_restaurant>italian_restaurant',
       },
-      { ...FULL, gers: 'f-1', name: 'Aral', category: 'gas_station', categoryPath: 'automotive>gas_station' },
+      {
+        ...FULL,
+        gers: 'f-1',
+        name: 'Aral',
+        category: 'gas_station',
+        categoryPath: 'travel_and_transportation>fueling_station>gas_station',
+      },
     ]);
     const svc = make();
     stubOverpass(svc);
@@ -352,22 +371,66 @@ describe('MapsService.pois answered from the index', () => {
     expect(out.pois[0].poi_type).toBe('italian_restaurant');
   });
 
-  it('MAPS-POIS-013c: the longest matching term wins, so fast_food does not answer as a cafe', async () => {
+  it('MAPS-POIS-013c: the most specific term wins, so a cafe under casual_eatery answers the cafe pill', async () => {
     mockNearby.mockResolvedValue([
       {
         ...FULL,
         gers: 'q-1',
         name: 'Imbiss',
         category: 'fast_food_restaurant',
-        categoryPath: 'eat_and_drink>fast_food>fast_food_restaurant',
+        categoryPath: 'food_and_drink>casual_eatery>fast_food_restaurant',
       },
+      { ...FULL, gers: 'q-2', name: 'Kaffeehaus', category: 'cafe', categoryPath: 'food_and_drink>casual_eatery>cafe' },
     ]);
     const svc = make();
     stubOverpass(svc);
 
     const out = await svc.pois('cafe,restaurant', BOX);
 
-    expect(out.pois[0].category).toBe('restaurant');
+    expect(out.pois.map((p) => [p.name, p.category])).toEqual([
+      ['Imbiss', 'restaurant'],
+      ['Kaffeehaus', 'cafe'],
+    ]);
+  });
+
+  it('MAPS-POIS-013d: a place only spelled like the pill is left out, nature brings parks and no car parks (#2663)', async () => {
+    // What the index answered for Vienna: its terms match inside the category
+    // text, so `park` and `garden` brought car parks, furniture stores and a
+    // beer garden, and the parks were four in sixty.
+    const near = (gers: string, name: string, categoryPath: string) => ({
+      ...FULL,
+      gers,
+      name,
+      category: categoryPath.slice(categoryPath.lastIndexOf('>') + 1),
+      categoryPath,
+    });
+    mockNearby.mockResolvedValue([
+      near('n-1', 'Stadtpark', 'sports_and_recreation>park'),
+      near('n-2', 'Garage am Ring', 'travel_and_transportation>parking>parking_garage'),
+      near('n-3', 'Möbelhaus', 'shopping>specialty_store>hardware_home_and_garden_store>furniture_store'),
+      near('n-4', 'Schweizerhaus', 'food_and_drink>alcoholic_beverage_venue>beer_garden'),
+      near('n-5', 'Prater', 'arts_and_entertainment>amusement_attraction>amusement_park'),
+      near('n-6', 'Botanischer Garten', 'geographic_entities>built_feature>garden>botanical_garden'),
+      near('n-7', 'Hundezone', 'sports_and_recreation>park>dog_park'),
+    ]);
+    const svc = make();
+    const overpass = stubOverpass(svc);
+
+    const out = await svc.pois('nature', BOX);
+
+    expect(overpass).not.toHaveBeenCalled();
+    expect(out.pois.map((p) => p.name)).toEqual(['Stadtpark', 'Botanischer Garten', 'Hundezone']);
+    // Seven came back, so the page was not full; leaving four out does not make it so.
+    expect(out.truncated).toBe(false);
+  });
+
+  it('MAPS-POIS-013e: a page holding near misses only is a miss, and Overpass answers', async () => {
+    mockNearby.mockResolvedValue([{ ...FULL, category: 'parking', categoryPath: 'travel_and_transportation>parking' }]);
+    const svc = make();
+    const overpass = stubOverpass(svc);
+
+    expect(await svc.pois('nature', BOX, 'de')).toEqual(OVERPASS_ANSWER);
+    expect(overpass).toHaveBeenCalledWith('nature', BOX, 'de', 60);
   });
 
   it('MAPS-POIS-014: a category the index has no terms for sends the whole query to Overpass', async () => {

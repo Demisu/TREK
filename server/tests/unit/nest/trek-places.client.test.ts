@@ -8,6 +8,7 @@
 import {
   DEFAULT_TREK_PLACES_URL,
   POI_CATEGORY_TO_TREK,
+  indexRowTerm,
   toPlaceRecord,
   trekPlacesArea,
   trekPlacesBaseUrl,
@@ -744,5 +745,53 @@ describe('POI_CATEGORY_TO_TREK', () => {
     for (const [pill, terms] of Object.entries(POI_CATEGORY_TO_TREK)) {
       expect(terms.length, pill).toBeGreaterThan(0);
     }
+  });
+
+  it('names every category by its full path, so no bare word matches inside another (#2663)', () => {
+    // A bare `park` is inside `parking`, `bar` inside `barber`, `market` inside
+    // `marketing_agency`. Only the top-level `shopping` stands alone, and it is
+    // a whole branch on purpose.
+    for (const [pill, terms] of Object.entries(POI_CATEGORY_TO_TREK)) {
+      for (const term of terms) {
+        if (term === 'shopping' || term === 'lodging') continue;
+        expect(term, pill).toContain('>');
+      }
+    }
+  });
+});
+
+describe('indexRowTerm (#2663)', () => {
+  const nature = POI_CATEGORY_TO_TREK.nature;
+
+  it('takes a place whose path is the term or lies under it', () => {
+    expect(indexRowTerm(nature, 'park', 'sports_and_recreation>park')).toBe('sports_and_recreation>park');
+    expect(indexRowTerm(nature, 'national_park', 'sports_and_recreation>park>national_park')).toBe(
+      'sports_and_recreation>park',
+    );
+  });
+
+  it('leaves out a place whose path only contains the word', () => {
+    expect(indexRowTerm(nature, 'parking', 'travel_and_transportation>parking')).toBeUndefined();
+    expect(indexRowTerm(nature, 'beer_garden', 'food_and_drink>alcoholic_beverage_venue>beer_garden')).toBeUndefined();
+    expect(
+      indexRowTerm(
+        nature,
+        'furniture_store',
+        'shopping>specialty_store>hardware_home_and_garden_store>furniture_store',
+      ),
+    ).toBeUndefined();
+  });
+
+  it('judges a place without a path by its leaf', () => {
+    expect(indexRowTerm(nature, 'beach', null)).toBe('geographic_entities>land_feature>beach');
+    expect(indexRowTerm(nature, 'beach_bar', null)).toBeUndefined();
+    expect(indexRowTerm(nature, null, null)).toBeUndefined();
+  });
+
+  it('picks the most specific term when several fit', () => {
+    const terms = [...POI_CATEGORY_TO_TREK.nature, ...POI_CATEGORY_TO_TREK.activity];
+    expect(indexRowTerm(terms, 'water_park', 'sports_and_recreation>park>water_park')).toBe(
+      'sports_and_recreation>park>water_park',
+    );
   });
 });

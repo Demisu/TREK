@@ -345,30 +345,69 @@ export function indexHitsOnly(hits: TrekSearchHit[]): TrekPlace[] {
  *
  * Deliberately a hand-written map rather than a guess at runtime: the two
  * taxonomies do not line up, and a pill that quietly returns the wrong kind of
- * place is worse than one that returns none. Each entry is a substring matched
- * against `category` and `category_path`, so `eat_and_drink>cafe` answers the
- * cafe pill without listing every leaf.
+ * place is worse than one that returns none. Each entry is a category path, and
+ * a place belongs to it when its own path is that path or lies under it, so
+ * `food_and_drink>restaurant` answers the italian restaurant two levels down.
+ *
+ * Paths, not bare leaf names: the index matches a term anywhere inside
+ * `category` and `category_path`, and a bare `park` brought car parks, `garden`
+ * furniture stores and `bar` barbers (#2663). A full path does not occur inside
+ * an unrelated one, and {@link indexRowTerm} drops whatever still slips through.
+ * Overture renames a branch now and then; a path that stops existing answers
+ * nothing, and the pill falls back to Overpass instead of answering wrong.
  */
 export const POI_CATEGORY_TO_TREK: Record<string, string[]> = {
-  restaurant: ['restaurant', 'casual_eatery', 'fast_food'],
-  cafe: ['cafe', 'coffee_shop'],
-  bar: ['bar', 'pub', 'nightclub', 'brewery'],
-  hotel: ['hotel', 'lodging', 'hostel', 'motel', 'bed_and_breakfast'],
-  sights: ['historic_site', 'landmark_and_historical_building', 'monument', 'castle', 'tourist_attraction'],
-  museum: ['museum', 'art_gallery', 'performing_arts', 'theater'],
-  nature: ['park', 'garden', 'beach', 'nature_preserve', 'mountain'],
-  activity: ['amusement_park', 'zoo', 'aquarium', 'water_park', 'theme_park'],
-  shopping: ['shopping', 'shopping_center', 'department_store', 'market'],
-  supermarket: ['grocery_store', 'food_and_beverage_store', 'convenience_store', 'supermarket'],
+  restaurant: ['food_and_drink>restaurant', 'food_and_drink>casual_eatery'],
+  cafe: ['food_and_drink>casual_eatery>cafe', 'food_and_drink>non_alcoholic_beverage_venue>coffee_shop'],
+  bar: ['food_and_drink>alcoholic_beverage_venue', 'arts_and_entertainment>nightlife_venue'],
+  hotel: ['lodging'],
+  sights: ['cultural_and_historic>historic_site', 'cultural_and_historic>memorial_site>monument'],
+  museum: [
+    'arts_and_entertainment>museum',
+    'arts_and_entertainment>arts_and_crafts_space>art_gallery',
+    'arts_and_entertainment>performing_arts_venue',
+    'arts_and_entertainment>movie_theater',
+  ],
+  nature: [
+    'sports_and_recreation>park',
+    'geographic_entities>built_feature>garden',
+    'geographic_entities>land_feature>beach',
+    'geographic_entities>land_feature>nature_reserve',
+    'geographic_entities>land_feature>mountain',
+  ],
+  activity: [
+    'arts_and_entertainment>amusement_attraction>amusement_park',
+    'arts_and_entertainment>animal_attraction>zoo',
+    'arts_and_entertainment>animal_attraction>aquarium',
+    'sports_and_recreation>park>water_park',
+  ],
+  shopping: ['shopping'],
+  supermarket: ['shopping>food_and_beverage_store', 'shopping>convenience_store'],
   // What a drive needs rather than what a city visit does (#1797). The corridor
   // search asks for these by name, and without them every corridor query fell
   // through to Overpass — the one path where that hurts most, because a single
   // search fans out over sixteen boxes.
-  fuel: ['gas_station', 'fueling_station'],
-  charging: ['ev_charging_station'],
-  rest_area: ['rest_stop'],
-  campsite: ['campground', 'rv_park'],
+  fuel: ['travel_and_transportation>fueling_station>gas_station'],
+  charging: ['travel_and_transportation>fueling_station>ev_charging_station'],
+  rest_area: ['travel_and_transportation>ground_transport_facility_or_service>road_structures_and_service>rest_stop'],
+  campsite: ['lodging>campground', 'lodging>rv_park'],
 };
+
+/**
+ * The term of {@link POI_CATEGORY_TO_TREK} a row belongs to, the most specific
+ * one when several fit, or undefined when none does. A row is judged by its path
+ * where it has one and by its leaf where the index left the path empty.
+ */
+export function indexRowTerm(terms: Iterable<string>, leaf: string | null, path: string | null): string | undefined {
+  let best: string | undefined;
+  for (const term of terms) {
+    const fits = path
+      ? path === term || path.startsWith(`${term}>`)
+      : !!leaf && leaf === term.slice(term.lastIndexOf('>') + 1);
+    if (fits && (best === undefined || term.length > best.length)) best = term;
+  }
+  return best;
+}
 
 export interface TrekNearbyPlace extends TrekPlace {
   distanceMetres: number;
