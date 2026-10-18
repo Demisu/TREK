@@ -111,7 +111,6 @@ import {
 } from './collab-repos';
 import { createTestTripFilesRepo, createTestFileLinksRepo, createTestBudgetItemsRepo } from './files-repos';
 import { noGoogleQuota } from './google-quota';
-import { journalLinksStub } from './journal-links';
 import {
   createTestJourneysRepo,
   createTestJourneyContributorsRepo,
@@ -120,6 +119,7 @@ import {
   createTestJourneyPhotosRepo,
   createTestJourneyEntryPhotosRepo,
 } from './journey-repos';
+import { journalLinksStub } from './journey-share-repos';
 import { createTestJourneyShareTokensRepo } from './journey-share-repos';
 import { buildMapsService } from './maps-service';
 import { makeNotificationsService } from './notifications';

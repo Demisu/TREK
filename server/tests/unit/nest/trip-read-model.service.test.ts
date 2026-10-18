@@ -57,7 +57,6 @@ import { insertRow, updateRows } from '../../helpers/factories/rows';
 import { FakeRealtimeService } from '../../helpers/fake-realtime';
 import { createTestTripFilesRepo, createTestFileLinksRepo, createTestBudgetItemsRepo } from '../../helpers/files-repos';
 import { noGoogleQuota } from '../../helpers/google-quota';
-import { journalLinksStub } from '../../helpers/journal-links';
 import {
   createTestJourneysRepo,
   createTestJourneyContributorsRepo,
@@ -66,6 +65,7 @@ import {
   createTestJourneyPhotosRepo,
   createTestJourneyEntryPhotosRepo,
 } from '../../helpers/journey-repos';
+import { journalLinksStub } from '../../helpers/journey-share-repos';
 import { createTestJourneyShareTokensRepo } from '../../helpers/journey-share-repos';
 import { buildMapsService } from '../../helpers/maps-service';
 import { notificationsStub } from '../../helpers/notifications';

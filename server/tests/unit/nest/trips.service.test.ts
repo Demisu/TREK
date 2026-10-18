@@ -71,7 +71,6 @@ import { QueryHelpersService } from '../../../src/nest/query-helpers/query-helpe
 import fs from 'fs';
 import path from 'path';
 import { notificationsStub } from '../../helpers/notifications';
-import { journalLinksStub } from '../../helpers/journal-links';
 import { EphemeralTokenService } from '../../../src/nest/auth-core/ephemeral-token.service';
 import {
   createTestUnitOfWork, createTestAppSettingsRepo, createTestUsersRepo, sharedTestOrm,
@@ -109,7 +108,7 @@ import {
   createTestJourneysRepo, createTestJourneyContributorsRepo, createTestJourneyTripsRepo, createTestJourneyEntriesRepo,
   createTestJourneyPhotosRepo, createTestJourneyEntryPhotosRepo,
 } from '../../helpers/journey-repos';
-import { createTestJourneyShareTokensRepo } from '../../helpers/journey-share-repos';
+import { createTestJourneyShareTokensRepo, journalLinksStub } from '../../helpers/journey-share-repos';
 import { createTestShareTokensRepo, createTestPluginsRepo, createTestPluginUserErasureQueueRepo } from '../../helpers/share-repos';
 import { createTestCollectionPlacesRepo } from '../../helpers/test-uow';
 import { SettingsService } from '../../../src/nest/settings/settings.service';

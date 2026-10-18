@@ -37,12 +37,12 @@ import { countRows, deleteRows, findRow, findRows, insertRow, updateRows } from 
 import { readUser } from '../../helpers/factories/users';
 import { FakeRealtimeService } from '../../helpers/fake-realtime';
 import { createTestBudgetItemsRepo } from '../../helpers/files-repos';
-import { journalLinksStub } from '../../helpers/journal-links';
 import {
   createTestJourneysRepo,
   createTestJourneyEntriesRepo,
   createTestJourneyContributorsRepo,
 } from '../../helpers/journey-repos';
+import { journalLinksStub } from '../../helpers/journey-share-repos';
 import { createTestJourneyShareTokensRepo } from '../../helpers/journey-share-repos';
 import { notificationsStub } from '../../helpers/notifications';
 import {

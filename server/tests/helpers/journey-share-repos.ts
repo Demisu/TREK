@@ -2,6 +2,7 @@ import { JourneyBooks } from '../../src/db/entities/JourneyBooks.entity';
 import { JourneyShareTokens } from '../../src/db/entities/JourneyShareTokens.entity';
 import type { JourneyBooksRepository } from '../../src/db/repositories/JourneyBooks.repository';
 import type { JourneyShareTokensRepository } from '../../src/db/repositories/JourneyShareTokens.repository';
+import type { TripJournalLinkService } from '../../src/nest/journey/trip-journal-link.service';
 import { sharedTestOrm } from './test-uow';
 
 import type Database from 'better-sqlite3';
@@ -24,4 +25,16 @@ export function createTestJourneyShareTokensRepo(db: Database.Database): Promise
 
 export function createTestJourneyBooksRepo(db: Database.Database): Promise<JourneyBooksRepository> {
   return sharedTestOrm(db).then((t) => t.repo(JourneyBooks));
+}
+
+/**
+ * TripJournalLinkService for the suites that hand-build TripMembersService:
+ * leaving a trip only has to drop the member from a linked journal, and what
+ * that does to the journal's access is pinned by the TJL integration tests
+ * against the real service.
+ */
+export function journalLinksStub(
+  dropMember: TripJournalLinkService['dropMember'] = async () => {},
+): TripJournalLinkService {
+  return { dropMember } as unknown as TripJournalLinkService;
 }
