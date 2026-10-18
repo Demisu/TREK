@@ -1,4 +1,4 @@
-import type { TripJournalCandidate, TripJournalLinkRole } from '@trek/shared';
+import type { TripJournalCandidate, TripJournalLinkMember, TripJournalLinkRole } from '@trek/shared';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNetworkMode } from '../../hooks/useNetworkMode';
 import { useTranslation } from '../../i18n';
@@ -11,6 +11,9 @@ import { useToast } from '../shared/Toast';
 
 /** Who a link lets in, as the member list edits it: a role, or left out. */
 export type JournalMemberChoice = Record<number, TripJournalLinkRole | null>;
+
+/** One empty list for "the link holds nobody", so the member effect does not rerun on every render. */
+const NOBODY: TripJournalLinkMember[] = [];
 
 /** The status of a failed request, when the server gave one. */
 function statusOf(err: unknown): number | undefined {
@@ -56,31 +59,11 @@ export function useTripJournalSectionVisible(tripId: number): boolean {
   return journeyOn && !!answer && (answer.can_link || !!answer.link);
 }
 
-/**
- * The Journal section of the trip's Settings: link one of your journals, choose
- * who it is open to and as what, change it, or take it off. One hook for the
- * desktop dialog and the phone sheet, so both offer and warn about the same thing.
- *
- * Picking a journal asks the server who of the trip already has access to it;
- * whoever would be let in for the first time is named before anything is saved,
- * because they will see the journal in their own Journey list from then on.
- */
-export function useTripJournalLink(tripId: number) {
+/** The toast for a failed journal request: offline, refused, or anything else. */
+function useJournalFailure() {
   const { t } = useTranslation();
   const toast = useToast();
-  const userId = useAuthStore((s) => s.user?.id ?? null);
-  const { journeyOn, answer, link } = useTripJournal(tripId);
-  const store = useTripJournalLinkStore.getState;
-
-  /** 'view' shows the link; 'pick' chooses a journal; 'members' changes who it is open to. */
-  const [mode, setMode] = useState<'view' | 'pick' | 'members'>('view');
-  const [journals, setJournals] = useState<OwnJournal[] | null>(null);
-  const [pickedId, setPickedId] = useState<number | null>(null);
-  const [candidates, setCandidates] = useState<TripJournalCandidate[] | null>(null);
-  const [choice, setChoice] = useState<JournalMemberChoice>({});
-  const [busy, setBusy] = useState(false);
-
-  const fail = useCallback(
+  return useCallback(
     (err: unknown) => {
       if (err instanceof TripJournalOfflineError) toast.error(t('trip.journal.errorOffline'));
       else if (statusOf(err) === 403) toast.error(t('trip.journal.errorForbidden'));
@@ -88,77 +71,55 @@ export function useTripJournalLink(tripId: number) {
     },
     [t, toast]
   );
+}
 
-  // The people of the trip for the chosen journal, each ticked as they stand:
-  // on the link with their role, or (for a journal not linked yet) everybody as
-  // a reader, the default this section promises.
+/**
+ * The people of the trip for one journal, each with the role the save would
+ * give them. `current` is who the link holds now, to start from; without it
+ * everybody starts as a reader, the default the section promises.
+ *
+ * What loaded is kept with the journal it belongs to, so picking another one
+ * shows nothing until its own people are in, never the last journal's.
+ */
+function useJournalMemberChoice(
+  tripId: number,
+  journeyId: number | null,
+  current: TripJournalLinkMember[] | null,
+  fail: (err: unknown) => void
+) {
+  const [loaded, setLoaded] = useState<{ journeyId: number; list: TripJournalCandidate[] } | null>(null);
+  const [choice, setChoice] = useState<JournalMemberChoice>({});
+
   useEffect(() => {
-    const journeyId = mode === 'members' ? (link?.journey_id ?? null) : mode === 'pick' ? pickedId : null;
     if (journeyId == null) return;
     let cancelled = false;
     tripJournalLinkRepo
       .candidates(tripId, journeyId)
       .then((list) => {
         if (cancelled) return;
-        setCandidates(list);
-        const onLink = new Map(
-          (link?.journey_id === journeyId ? (link.members ?? []) : []).map((m) => [m.user_id, m.role])
-        );
-        const keepCurrent = mode === 'members' || onLink.size > 0;
-        setChoice(
-          Object.fromEntries(list.map((c) => [c.user_id, keepCurrent ? (onLink.get(c.user_id) ?? null) : 'viewer']))
-        );
+        const held = new Map((current ?? []).map((m) => [m.user_id, m.role]));
+        setLoaded({ journeyId, list });
+        setChoice(Object.fromEntries(list.map((c) => [c.user_id, current ? (held.get(c.user_id) ?? null) : 'viewer'])));
       })
       .catch((err: unknown) => {
-        if (!cancelled) {
-          fail(err);
-          setCandidates([]);
-        }
+        if (cancelled) return;
+        fail(err);
+        setLoaded({ journeyId, list: [] });
       });
     return () => {
       cancelled = true;
     };
-  }, [mode, pickedId, link, tripId, fail]);
+  }, [tripId, journeyId, current, fail]);
 
-  const startPick = useCallback(() => {
-    setCandidates(null);
-    setMode('pick');
-    setPickedId(null);
-    if (userId == null) return;
-    tripJournalLinkRepo
-      .ownJournals(userId)
-      .then(setJournals)
-      .catch((err: unknown) => {
-        fail(err);
-        setJournals([]);
-      });
-  }, [userId, fail]);
-
-  // A new pick shows its own people only: the last journal's stay out until they load.
-  const pickJournal = useCallback((journeyId: number | null) => {
-    setCandidates(null);
-    setPickedId(journeyId);
-  }, []);
-
-  const editMembers = useCallback(() => {
-    setCandidates(null);
-    setMode('members');
-  }, []);
-
-  const cancel = useCallback(() => {
-    setMode('view');
-    setPickedId(null);
-    setCandidates(null);
-  }, []);
+  const candidates = journeyId != null && loaded?.journeyId === journeyId ? loaded.list : null;
 
   const setRole = useCallback((memberId: number, role: TripJournalLinkRole | null) => {
     setChoice((prev) => ({ ...prev, [memberId]: role }));
   }, []);
 
   const setAll = useCallback(
-    (role: TripJournalLinkRole | null) => {
-      setChoice(Object.fromEntries((candidates ?? []).map((c) => [c.user_id, role])));
-    },
+    (role: TripJournalLinkRole | null) =>
+      setChoice(Object.fromEntries((candidates ?? []).map((c) => [c.user_id, role]))),
     [candidates]
   );
 
@@ -172,6 +133,60 @@ export function useTripJournalLink(tripId: number) {
     () => (candidates ?? []).filter((c) => c.access === null && choice[c.user_id]),
     [candidates, choice]
   );
+
+  return { candidates, choice, setRole, setAll, chosenMembers, newlyGranted };
+}
+
+/**
+ * The Journal section of the trip's Settings: link one of your journals, choose
+ * who it is open to and as what, change it, or take it off. One hook for the
+ * desktop dialog and the phone sheet, so both offer and warn about the same thing.
+ *
+ * Picking a journal asks the server who of the trip already has access to it;
+ * whoever would be let in for the first time is named before anything is saved,
+ * because they will see the journal in their own Journey list from then on.
+ */
+export function useTripJournalLink(tripId: number) {
+  const { t } = useTranslation();
+  const toast = useToast();
+  const fail = useJournalFailure();
+  const userId = useAuthStore((s) => s.user?.id ?? null);
+  const { journeyOn, answer, link } = useTripJournal(tripId);
+  const store = useTripJournalLinkStore.getState;
+
+  /** 'view' shows the link; 'pick' chooses a journal; 'members' changes who it is open to. */
+  const [mode, setMode] = useState<'view' | 'pick' | 'members'>('view');
+  const [journals, setJournals] = useState<OwnJournal[] | null>(null);
+  const [pickedId, setPickedId] = useState<number | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const journeyId = mode === 'members' ? (link?.journey_id ?? null) : mode === 'pick' ? pickedId : null;
+  // Who the link holds, to start from: when editing it, or when re-picking the
+  // journal it already shows with people on it.
+  const held = link?.members ?? NOBODY;
+  const current = mode === 'members' || (link?.journey_id === pickedId && held.length > 0) ? held : null;
+  const members = useJournalMemberChoice(tripId, journeyId, current, fail);
+  const { chosenMembers } = members;
+
+  const startPick = useCallback(() => {
+    setMode('pick');
+    setPickedId(null);
+    if (userId == null) return;
+    tripJournalLinkRepo
+      .ownJournals(userId)
+      .then(setJournals)
+      .catch((err: unknown) => {
+        fail(err);
+        setJournals([]);
+      });
+  }, [userId, fail]);
+
+  const editMembers = useCallback(() => setMode('members'), []);
+
+  const cancel = useCallback(() => {
+    setMode('view');
+    setPickedId(null);
+  }, []);
 
   const run = useCallback(
     async (write: () => Promise<void>, done: string) => {
@@ -214,12 +229,12 @@ export function useTripJournalLink(tripId: number) {
     editMembers,
     journals,
     pickedId,
-    pickJournal,
-    candidates,
-    choice,
-    setRole,
-    setAll,
-    newlyGranted,
+    pickJournal: setPickedId,
+    candidates: members.candidates,
+    choice: members.choice,
+    setRole: members.setRole,
+    setAll: members.setAll,
+    newlyGranted: members.newlyGranted,
     canSave: !busy && (mode === 'members' || (mode === 'pick' && pickedId != null)),
     busy,
     save,

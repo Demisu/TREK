@@ -53,7 +53,7 @@ async function scene() {
   const { user: mia } = await makeUser(orm, { username: 'Mia' });
   const { user: stranger } = await makeUser(orm, { username: 'Stranger' });
   const trip = await makeTrip(orm, owner.id);
-  for (const m of [lena, tom, mia]) await addTripMember(orm, trip.id, m.id);
+  await Promise.all([lena, tom, mia].map((m) => addTripMember(orm, trip.id, m.id)));
   const journal = await makeJourney(orm, owner.id, { title: 'New York, the long weekend' });
   return { owner, lena, tom, mia, stranger, trip, journal };
 }
