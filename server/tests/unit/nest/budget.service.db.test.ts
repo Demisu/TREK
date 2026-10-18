@@ -61,7 +61,7 @@ import { budgetRepoArgs, createTestBudgetItemMembersRepo, createTestBudgetItemPa
 import { createTestShareTokensRepo, createTestPluginsRepo, createTestPluginUserErasureQueueRepo } from '../../helpers/share-repos';
 import { createTestBudgetItemsRepo } from '../../helpers/files-repos';
 import { createTestJourneysRepo, createTestJourneyEntriesRepo, createTestJourneyContributorsRepo } from '../../helpers/journey-repos';
-import { createTestJourneyShareTokensRepo, journalLinksStub } from '../../helpers/journey-share-repos';
+import { createTestJourneyShareTokensRepo } from '../../helpers/journey-share-repos';
 import { BudgetItemMembers } from '../../../src/db/entities/BudgetItemMembers.entity';
 import { MaintenanceRepository } from '../../../src/db/repositories/MaintenanceRepository';
 import { BudgetCategoryOrder } from '../../../src/db/entities/BudgetCategoryOrder.entity';
@@ -160,7 +160,7 @@ beforeAll(async () => {
   new UserCleanupService(new MaintenanceRepository(dbsEm!), budget, await createTestUnitOfWork(testDb), await createTestUsersRepo(testDb), await createTestTripMembersRepo(testDb), await createTestBudgetItemsRepo(testDb), await createTestBudgetSettlementsRepo(testDb), await createTestJourneyShareTokensRepo(testDb), await createTestJourneysRepo(testDb), await createTestJourneyEntriesRepo(testDb), await createTestJourneyContributorsRepo(testDb), await createTestShareTokensRepo(testDb), await createTestPluginsRepo(testDb), await createTestPluginUserErasureQueueRepo(testDb)),
   new PermissionsService(await createTestAppSettingsRepo(testDb), await createTestUnitOfWork(testDb)),
   new RealtimeService(),
-  notificationsStub(), journalLinksStub(),
+  notificationsStub(),
   await createTestUnitOfWork(testDb),
   await createTestTripsRepo(testDb),
   await createTestTripMembersRepo(testDb),

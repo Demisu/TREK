@@ -10,13 +10,12 @@ import { UserCleanupService } from '../auth/user-cleanup.service';
 import { BudgetService } from '../budget/budget.service';
 import { avatarUrl } from '../common/avatarUrl';
 import { NotFoundError, ValidationError } from '../common/domain-errors';
-import { TRIP_MEMBER_DEPARTURE, type TripMemberDeparture } from '../common/trip-member-departure.types';
 import { UnitOfWork } from '../database/unit-of-work';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PermissionsService } from '../permissions/permissions.service';
 import { RealtimeService } from '../realtime/realtime.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import type { TrekWsPayload, TrekWsTripEventName } from '@trek/shared';
 
 import { randomUUID } from 'crypto';
@@ -80,7 +79,6 @@ export class TripMembersService {
     private readonly permissions: PermissionsService,
     private readonly realtime: RealtimeService,
     private readonly notifications: NotificationsService,
-    @Inject(TRIP_MEMBER_DEPARTURE) private readonly departure: TripMemberDeparture,
     private readonly uow: UnitOfWork,
     @InjectRepository(Trips) private readonly tripsRepo: TripsRepository,
     @InjectRepository(TripMembers) private readonly tripMembersRepo: TripMembersRepository,
@@ -203,7 +201,7 @@ export class TripMembersService {
     // must not quietly reopen it.
     await this.uow.transactional(async () => {
       await this.tripMembersRepo.remove(tripId, targetUserId);
-      await this.departure.memberLeft(tripId, targetUserId);
+      await this.tripMembersRepo.leaveJournalLink(tripId, targetUserId);
     });
   }
 

@@ -65,7 +65,6 @@ import {
   createTestJourneyPhotosRepo,
   createTestJourneyEntryPhotosRepo,
 } from '../../helpers/journey-repos';
-import { journalLinksStub } from '../../helpers/journey-share-repos';
 import { createTestJourneyShareTokensRepo } from '../../helpers/journey-share-repos';
 import { buildMapsService } from '../../helpers/maps-service';
 import { notificationsStub } from '../../helpers/notifications';
@@ -259,7 +258,6 @@ beforeAll(async () => {
     new PermissionsService(await createTestAppSettingsRepo(testDb), await createTestUnitOfWork(testDb)),
     realtime,
     notificationsStub(),
-    journalLinksStub(),
     await createTestUnitOfWork(testDb),
     await createTestTripsRepo(testDb),
     await createTestTripMembersRepo(testDb),

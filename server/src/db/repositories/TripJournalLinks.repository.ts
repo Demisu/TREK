@@ -214,15 +214,6 @@ export class TripJournalLinksRepository extends TrekRepository<TripJournalLinks>
       .execute();
   }
 
-  /** Takes one person off the trip's link, as when they leave the trip. */
-  async deleteMember(tripId: number, userId: number): Promise<void> {
-    await this.kysely<TripJournalLinkKyselyDB>()
-      .deleteFrom('trip_journal_link_members')
-      .where('link_id', 'in', this.linkIdOf(tripId))
-      .where('user_id', '=', userId)
-      .execute();
-  }
-
   /** Everyone a journal's links let in, for its live updates. */
   async linkRecipientUserIds(journeyId: number): Promise<number[]> {
     const rows = await linkReach(this.kysely<TripJournalLinkKyselyDB>())

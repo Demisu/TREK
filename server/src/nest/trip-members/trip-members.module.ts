@@ -25,9 +25,6 @@ import { Module } from '@nestjs/common';
  * `DatabaseModule` is gone (Plan 4 Task 4) — `TripMembersService` is fully
  * repository-backed (`getTripForViewer` → `TripsRepository.findForViewer`,
  * `canAccessTrip` → `TripsRepository.findAccessible`).
- *
- * Leaving a trip also leaves its journal link, through the TRIP_MEMBER_DEPARTURE
- * port the journey domain binds globally (TripMemberDepartureModule).
  */
 @Module({
   imports: [

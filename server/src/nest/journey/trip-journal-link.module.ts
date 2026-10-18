@@ -14,10 +14,7 @@ import { Module } from '@nestjs/common';
 
 /**
  * A trip showing one journal from the Journey addon: the link, its routes and
- * its MCP tools. Its own module rather than part of JourneyModule, so the
- * binding of the trip roster's departure port (TripMemberDepartureModule) does
- * not pull in the whole journey surface (uploads, memories, both photo
- * providers).
+ * its MCP tools.
  */
 @Module({
   imports: [

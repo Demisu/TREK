@@ -54,6 +54,7 @@ const UNNUMBERED = [
   'Migration20200101044000_a_paddle_tour_plans_its_portages_and_locks',
   'Migration20200101044100_paddle_obstacles_from_openstreetmap',
   'Migration20200101044200_a_paddle_tour_records_its_obstacle_decisions',
+  'Migration20200101044300_a_trip_links_a_journal',
 ];
 // The last step the positional runner ever had; planLegacyBaseline refuses a
 // schema_version past it.

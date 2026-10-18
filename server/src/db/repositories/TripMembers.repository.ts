@@ -1,6 +1,7 @@
 import { caseWhenEquals, coalesce } from '../dialect/sql-functions';
 import type { TripMembers } from '../entities/TripMembers.entity';
 import { Trips } from '../entities/Trips.entity';
+import type { DB } from '../kysely/db';
 import { TrekRepository } from './_shared/trek-repository';
 
 /**
@@ -264,6 +265,22 @@ export class TripMembersRepository extends TrekRepository<TripMembers> {
   async remove(trip_id: number, user_id: number): Promise<void> {
     if (!Number.isFinite(user_id)) return;
     await this.qb('m').delete().where({ trip: trip_id }).andWhere('m.user_id = ?', [user_id]).execute('run');
+  }
+
+  /**
+   * Takes someone who left the trip off its journal link, so coming back later
+   * does not quietly reopen the journal. Their access already ended with the
+   * membership (the link's reach requires it); this tidies the row. Here rather
+   * than in the journey domain because leaving is the roster's to finish, and
+   * reaching into journey from the roster closed a cycle between the two.
+   */
+  async leaveJournalLink(tripId: number, userId: number): Promise<void> {
+    const db = this.kysely<Pick<DB, 'trip_journal_links' | 'trip_journal_link_members'>>();
+    await db
+      .deleteFrom('trip_journal_link_members')
+      .where('user_id', '=', userId)
+      .where('link_id', 'in', db.selectFrom('trip_journal_links').select('id').where('trip_id', '=', tripId))
+      .execute();
   }
 
   // ---------------------------------------------------------------------------

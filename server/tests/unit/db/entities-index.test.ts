@@ -37,14 +37,15 @@ describe('ALL_ENTITIES', () => {
    * + scheduler_leases from the cron lease migration
    * + user_sessions, the session rows behind revocable session tokens
    * + ferrata_tiles, the stored via ferrata grid cells
-   * + paddle_regions, paddle_features and tour_obstacle_reviews, the paddle obstacle data and decisions)
+   * + paddle_regions, paddle_features and tour_obstacle_reviews, the paddle obstacle data and decisions
+   * + trip_journal_links and trip_journal_link_members, the journal a trip shows and who it is open to)
    * is registered, and no two share a class name (a silent duplicate would
    * shadow one of them in `orm.getMetadata()`, exactly the kind of drift
    * `entity-schema-parity.test.ts` can't see — it iterates the metadata map,
    * which de-duplicates by class name).
    */
-  it('ENT-003: exactly 138 entities, every class name unique', () => {
-    expect(ALL_ENTITIES.length).toBe(138);
+  it('ENT-003: exactly 140 entities, every class name unique', () => {
+    expect(ALL_ENTITIES.length).toBe(140);
     const names = ALL_ENTITIES.map((s) => s.meta.className);
     expect(new Set(names).size).toBe(names.length);
   });

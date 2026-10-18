@@ -45,13 +45,20 @@ beforeEach(async () => {
 
 const http = () => request(app.getHttpServer());
 
-/** A trip owned by `owner` with three members, and a journal of the owner's. */
+let scenes = 0;
+
+/**
+ * A trip owned by `owner` with three members, and a journal of the owner's.
+ * The names carry the scene's number, since usernames are unique and every
+ * case builds its own scene on the one database.
+ */
 async function scene() {
-  const { user: owner } = await makeUser(orm, { username: 'Owner' });
-  const { user: lena } = await makeUser(orm, { username: 'Lena' });
-  const { user: tom } = await makeUser(orm, { username: 'Tom' });
-  const { user: mia } = await makeUser(orm, { username: 'Mia' });
-  const { user: stranger } = await makeUser(orm, { username: 'Stranger' });
+  const n = ++scenes;
+  const { user: owner } = await makeUser(orm, { username: `Owner ${n}` });
+  const { user: lena } = await makeUser(orm, { username: `Lena ${n}` });
+  const { user: tom } = await makeUser(orm, { username: `Tom ${n}` });
+  const { user: mia } = await makeUser(orm, { username: `Mia ${n}` });
+  const { user: stranger } = await makeUser(orm, { username: `Stranger ${n}` });
   const trip = await makeTrip(orm, owner.id);
   await Promise.all([lena, tom, mia].map((m) => addTripMember(orm, trip.id, m.id)));
   const journal = await makeJourney(orm, owner.id, { title: 'New York, the long weekend' });
@@ -86,8 +93,8 @@ describe('linking a journal to a trip', () => {
       my_role: 'owner',
     });
     expect(res.body.link.members.map((m: { username: string; role: string }) => [m.username, m.role])).toEqual([
-      ['Lena', 'viewer'],
-      ['Tom', 'editor'],
+      [s.lena.username, 'viewer'],
+      [s.tom.username, 'editor'],
     ]);
     expect(res.body).toMatchObject({ can_link: true, can_unlink: true, can_edit_members: true });
     expect(broadcast).toHaveBeenCalledWith(s.trip.id, 'trip:journal:changed', {}, undefined);
@@ -200,7 +207,7 @@ describe('who a journal would be opened to', () => {
     const byName = Object.fromEntries(
       res.body.candidates.map((c: { username: string; access: string | null }) => [c.username, c.access]),
     );
-    expect(byName).toEqual({ Lena: null, Mia: null, Tom: 'editor' });
+    expect(byName).toEqual({ [s.lena.username]: null, [s.mia.username]: null, [s.tom.username]: 'editor' });
   });
 
   it('TJL-011: refuses a journey id that is not a number', async () => {

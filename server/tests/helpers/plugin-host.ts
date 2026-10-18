@@ -119,7 +119,6 @@ import {
   createTestJourneyPhotosRepo,
   createTestJourneyEntryPhotosRepo,
 } from './journey-repos';
-import { journalLinksStub } from './journey-share-repos';
 import { createTestJourneyShareTokensRepo } from './journey-share-repos';
 import { buildMapsService } from './maps-service';
 import { makeNotificationsService } from './notifications';
@@ -533,7 +532,6 @@ export async function createPluginRpcHostParts(
     permissions,
     realtime,
     notificationsStub(),
-    journalLinksStub(),
     await createTestUnitOfWork(db),
     await createTestTripsRepo(db),
     await createTestTripMembersRepo(db),
