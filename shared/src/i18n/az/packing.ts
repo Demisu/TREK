@@ -117,6 +117,7 @@ const packing: TranslationStrings = {
     '“{name}” siyahısını daxilindəki {count} elementlə birlikdə silmək istədiyinizə əminsiniz?',
 
   'packing.defaultCategory': 'Digər',
+  'packing.dragCategory': 'Kateqoriyanı yerini dəyişmək üçün sürüşdürün',
   'packing.toast.saveError': 'Yadda saxlamaq mümkün olmadı',
   'packing.toast.deleteError': 'Silmək mümkün olmadı',
   'packing.toast.renameError': 'Adını dəyişmək mümkün olmadı',

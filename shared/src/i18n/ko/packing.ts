@@ -75,6 +75,7 @@ const packing: TranslationStrings = {
   'packing.confirm.clearChecked': '체크된 {count}개 항목을 제거할까요?',
   'packing.confirm.deleteCat': '"{name}" 목록({count}개 항목)을 삭제하시겠습니까?',
   'packing.defaultCategory': '기타',
+  'packing.dragCategory': '드래그하여 카테고리 순서 변경',
   'packing.toast.saveError': '저장 실패',
   'packing.toast.deleteError': '삭제 실패',
   'packing.toast.renameError': '이름 변경 실패',

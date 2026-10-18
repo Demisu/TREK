@@ -97,6 +97,7 @@ const packing: TranslationStrings = {
   'packing.confirm.deleteCat.few': 'Czy na pewno chcesz usunąć listę „{name}” z {count} przedmiotami?',
   'packing.confirm.deleteCat.many': 'Czy na pewno chcesz usunąć listę „{name}” z {count} przedmiotami?',
   'packing.defaultCategory': 'Inne',
+  'packing.dragCategory': 'Przeciągnij, aby zmienić kolejność kategorii',
   'packing.toast.saveError': 'Nie udało się zapisać',
   'packing.toast.deleteError': 'Nie udało się usunąć',
   'packing.toast.renameError': 'Nie udało się zmienić nazwy',

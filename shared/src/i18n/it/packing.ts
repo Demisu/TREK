@@ -83,6 +83,7 @@ const packing: TranslationStrings = {
   'packing.confirm.deleteCat': 'Vuoi davvero eliminare la lista "{name}" con {count} elementi?',
   'packing.confirm.deleteCat.one': 'Vuoi davvero eliminare la lista "{name}" con {count} elemento?',
   'packing.defaultCategory': 'Altro',
+  'packing.dragCategory': 'Trascina per riordinare la categoria',
   'packing.toast.saveError': 'Impossibile salvare',
   'packing.toast.deleteError': 'Impossibile eliminare',
   'packing.toast.renameError': 'Impossibile rinominare',

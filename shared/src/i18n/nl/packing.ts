@@ -83,6 +83,7 @@ const packing: TranslationStrings = {
   'packing.confirm.deleteCat': 'Weet je zeker dat je de lijst "{name}" met {count} items wilt verwijderen?',
   'packing.confirm.deleteCat.one': 'Weet je zeker dat je de lijst "{name}" met {count} item wilt verwijderen?',
   'packing.defaultCategory': 'Overig',
+  'packing.dragCategory': 'Sleep om de categorie te verplaatsen',
   'packing.toast.saveError': 'Opslaan mislukt',
   'packing.toast.deleteError': 'Verwijderen mislukt',
   'packing.toast.renameError': 'Hernoemen mislukt',

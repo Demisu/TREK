@@ -82,6 +82,7 @@ const packing: TranslationStrings = {
   'packing.confirm.deleteCat': 'Tem certeza de que deseja excluir a lista "{name}" com {count} itens?',
   'packing.confirm.deleteCat.one': 'Tem certeza de que deseja excluir a lista "{name}" com {count} item?',
   'packing.defaultCategory': 'Outros',
+  'packing.dragCategory': 'Arraste para reordenar a categoria',
   'packing.toast.saveError': 'Falha ao salvar',
   'packing.toast.deleteError': 'Falha ao excluir',
   'packing.toast.renameError': 'Falha ao renomear',

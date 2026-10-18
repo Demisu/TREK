@@ -76,6 +76,7 @@ const packing: TranslationStrings = {
   'packing.confirm.clearChecked': 'Yakin ingin menghapus {count} item yang dicentang?',
   'packing.confirm.deleteCat': 'Yakin ingin menghapus daftar "{name}" dengan {count} item?',
   'packing.defaultCategory': 'Lainnya',
+  'packing.dragCategory': 'Seret untuk mengurutkan ulang kategori',
   'packing.toast.saveError': 'Gagal menyimpan',
   'packing.toast.deleteError': 'Gagal menghapus',
   'packing.toast.renameError': 'Gagal mengganti nama',

@@ -93,6 +93,7 @@ const packing: TranslationStrings = {
   'packing.confirm.clearChecked': 'คุณแน่ใจหรือไม่ว่าต้องการลบรายการที่ทำเครื่องหมายแล้ว {count} รายการ',
   'packing.confirm.deleteCat': 'คุณแน่ใจหรือไม่ว่าต้องการลบรายการ "{name}" ที่มี {count} รายการ',
   'packing.defaultCategory': 'อื่นๆ',
+  'packing.dragCategory': 'ลากเพื่อจัดลำดับหมวดหมู่ใหม่',
   'packing.toast.saveError': 'บันทึกไม่สำเร็จ',
   'packing.toast.deleteError': 'ลบไม่สำเร็จ',
   'packing.toast.renameError': 'เปลี่ยนชื่อไม่สำเร็จ',

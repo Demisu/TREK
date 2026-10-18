@@ -75,6 +75,7 @@ const packing: TranslationStrings = {
   'packing.confirm.clearChecked': 'チェック済み{count}件を削除しますか？',
   'packing.confirm.deleteCat': 'リスト「{name}」（{count}件）を削除してもよろしいですか？',
   'packing.defaultCategory': 'その他',
+  'packing.dragCategory': 'ドラッグしてカテゴリを並べ替え',
   'packing.toast.saveError': '保存に失敗しました',
   'packing.toast.deleteError': '削除に失敗しました',
   'packing.toast.renameError': '名前の変更に失敗しました',

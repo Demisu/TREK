@@ -101,6 +101,7 @@ const packing: TranslationStrings = {
   'packing.confirm.deleteCat': 'Are you sure you want to delete the list "{name}" with {count} items?',
   'packing.confirm.deleteCat.one': 'Are you sure you want to delete the list "{name}" with {count} item?',
   'packing.defaultCategory': 'Other',
+  'packing.dragCategory': 'Drag to reorder the category',
   'packing.toast.saveError': 'Failed to save',
   'packing.toast.deleteError': 'Failed to delete',
   'packing.toast.renameError': 'Failed to rename',

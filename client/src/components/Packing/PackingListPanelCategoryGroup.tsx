@@ -4,7 +4,7 @@ import { useToast } from '../shared/Toast'
 import { useTranslation } from '../../i18n'
 import {
   Trash2, Plus, ChevronDown, ChevronRight,
-  X, Pencil, Check, MoreHorizontal, CheckCheck, RotateCcw, UserPlus,
+  X, Pencil, Check, MoreHorizontal, CheckCheck, RotateCcw, UserPlus, GripVertical,
 } from 'lucide-react'
 import type { PackingItem, PackingBag } from '../../types'
 import { katColor } from './packingListPanel.helpers'
@@ -38,6 +38,18 @@ interface KategorieGruppeProps {
   // Off while the list is shown A-Z: a drop there would move an item in an order
   // the reader cannot see.
   reorderable?: boolean
+  // Moving the whole category among the others, wired by the list, which sees every
+  // card. `active` is true while any category is being dragged, so a dragged ITEM
+  // passing over a card is left to the item rows.
+  categoryDrag?: {
+    active: boolean
+    isDragging: boolean
+    isOver: boolean
+    onStart: () => void
+    onOver: () => void
+    onEnd: () => void
+    onDrop: () => void
+  }
   // Three-tier sharing (#858) — threaded down to each item's share control.
   currentUserId?: number
   onSetSharing?: (id: number, visibility: 'common' | 'personal' | 'shared', recipientIds: number[]) => void
@@ -46,7 +58,7 @@ interface KategorieGruppeProps {
   onLeave?: (id: number, userId: number) => void
 }
 
-export function KategorieGruppe({ kategorie, items, tripId, allCategories, onRename, onDeleteAll, onDeleteItem, onAddItem, assignees, tripMembers, onSetAssignees, bagTrackingEnabled, bags, onCreateBag, canEdit = true, allItems, onReorder, reorderable = true, currentUserId, onSetSharing, onClone, onJoin, onLeave }: KategorieGruppeProps) {
+export function KategorieGruppe({ kategorie, items, tripId, allCategories, onRename, onDeleteAll, onDeleteItem, onAddItem, assignees, tripMembers, onSetAssignees, bagTrackingEnabled, bags, onCreateBag, canEdit = true, allItems, onReorder, reorderable = true, categoryDrag, currentUserId, onSetSharing, onClone, onJoin, onLeave }: KategorieGruppeProps) {
   const [offen, setOffen] = useState(true)
   const [dragId, setDragId] = useState<number | null>(null)
   const [overId, setOverId] = useState<number | null>(null)
@@ -120,8 +132,9 @@ export function KategorieGruppe({ kategorie, items, tripId, allCategories, onRen
   return (
     // Shaped after the phone's category card: a tinted head band carrying the
     // name as written, the count, and the fold arrow on the far right.
-    <div style={{ marginBottom: 6, background: 'var(--bg-card)', borderRadius: 16, border: '1px solid var(--border-secondary)', overflow: 'visible' }}>
+    <CategoryDropFrame drag={categoryDrag}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBlock: 11, paddingInlineEnd: 12, paddingInlineStart: 14, background: 'var(--bg-tertiary)', borderRadius: offen ? '15px 15px 0 0' : 15 }}>
+        <CategoryGrip drag={categoryDrag} kategorie={kategorie} label={t('packing.dragCategory')} />
         <span style={{ width: 10, height: 10, borderRadius: '50%', background: dot, flexShrink: 0 }} />
 
         {editingName && canEdit ? (
@@ -344,6 +357,48 @@ export function KategorieGruppe({ kategorie, items, tripId, allCategories, onRen
           ))}
         </div>
       )}
+    </CategoryDropFrame>
+  )
+}
+
+type CategoryDrag = NonNullable<KategorieGruppeProps['categoryDrag']>
+
+/**
+ * The card, and while a category is dragged its drop target. Captured, because
+ * the item rows stop their own drops from bubbling.
+ */
+function CategoryDropFrame({ drag, children }: { drag?: CategoryDrag; children: React.ReactNode }) {
+  const target = drag?.active ? drag : null
+  return (
+    <div
+      onDragOverCapture={target ? (e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; target.onOver() }) : undefined}
+      onDropCapture={target ? (e => { e.preventDefault(); e.stopPropagation(); target.onDrop() }) : undefined}
+      style={{
+        marginBottom: 6, background: 'var(--bg-card)', borderRadius: 16, border: '1px solid var(--border-secondary)', overflow: 'visible',
+        opacity: drag?.isDragging ? 0.4 : 1,
+        boxShadow: drag?.isOver ? '0 0 0 2px var(--accent)' : 'none',
+        transition: 'opacity 0.15s, box-shadow 0.15s',
+      }}
+    >
+      {children}
     </div>
+  )
+}
+
+/** The handle a category is dragged by, in the head band before its colour dot. */
+function CategoryGrip({ drag, kategorie, label }: { drag?: CategoryDrag; kategorie: string; label: string }) {
+  if (!drag) return null
+  return (
+    <span
+      draggable
+      role="button"
+      aria-label={label}
+      title={label}
+      onDragStart={e => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', kategorie); drag.onStart() }}
+      onDragEnd={drag.onEnd}
+      style={{ cursor: 'grab', display: 'flex', alignItems: 'center', color: 'var(--text-faint)', flexShrink: 0, marginInlineStart: -6 }}
+    >
+      <GripVertical size={14} />
+    </span>
   )
 }

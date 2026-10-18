@@ -97,6 +97,7 @@ const packing: TranslationStrings = {
   'packing.confirm.deleteCat.few': 'Вы уверены, что хотите удалить список «{name}» с {count} предметами?',
   'packing.confirm.deleteCat.many': 'Вы уверены, что хотите удалить список «{name}» с {count} предметами?',
   'packing.defaultCategory': 'Другое',
+  'packing.dragCategory': 'Перетащите, чтобы изменить порядок категории',
   'packing.toast.saveError': 'Ошибка сохранения',
   'packing.toast.deleteError': 'Ошибка удаления',
   'packing.toast.renameError': 'Ошибка переименования',

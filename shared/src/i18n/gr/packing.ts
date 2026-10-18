@@ -84,6 +84,7 @@ const packing: TranslationStrings = {
   'packing.confirm.deleteCat': 'Είστε βέβαιοι ότι θέλετε να διαγράψετε τη λίστα "{name}" με {count} στοιχεία;',
   'packing.confirm.deleteCat.one': 'Είστε βέβαιοι ότι θέλετε να διαγράψετε τη λίστα "{name}" με {count} στοιχείο;',
   'packing.defaultCategory': 'Άλλα',
+  'packing.dragCategory': 'Σύρετε για να αλλάξετε τη σειρά της κατηγορίας',
   'packing.toast.saveError': 'Αποτυχία αποθήκευσης',
   'packing.toast.deleteError': 'Αποτυχία διαγραφής',
   'packing.toast.renameError': 'Αποτυχία μετονομασίας',

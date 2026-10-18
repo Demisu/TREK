@@ -25,6 +25,34 @@ export function packingCategoryOrder(viewItems: PackingItem[], defaultCategory: 
   return seen;
 }
 
+/**
+ * The whole list's item order with category `from` moved to where `to` stands.
+ *
+ * A category has no position of its own: it shows where its first item is. So a
+ * category is moved by moving its items, as one block, through the item reorder
+ * the list already has; nothing new is stored, and the order reaches every device
+ * the way a dragged item does. The view's items come first, grouped in the new
+ * order with each group in its own order; the other view's items follow in theirs,
+ * which leaves that view's categories as they were. Null when nothing would move.
+ */
+export function itemOrderWithCategoryMoved(
+  items: PackingItem[],
+  viewItems: PackingItem[],
+  from: string,
+  to: string,
+  defaultCategory: string
+): number[] | null {
+  const order = packingCategoryOrder(viewItems, defaultCategory);
+  const fromIndex = order.indexOf(from);
+  const toIndex = order.indexOf(to);
+  if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) return null;
+  order.splice(fromIndex, 1);
+  order.splice(toIndex, 0, from);
+  const inView = new Set(viewItems.map((i) => i.id));
+  const grouped = order.flatMap((cat) => viewItems.filter((i) => (i.category || defaultCategory) === cat));
+  return [...grouped, ...items.filter((i) => !inView.has(i.id))].map((i) => i.id);
+}
+
 export function packingStatusFiltered(items: PackingItem[], status: PackingStatusFilter): PackingItem[] {
   if (status === 'open') return items.filter((i) => !i.checked);
   if (status === 'done') return items.filter((i) => !!i.checked);

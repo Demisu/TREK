@@ -101,6 +101,7 @@ const packing: TranslationStrings = {
   'packing.confirm.deleteCat': 'Kas soovid kindlasti kustutada nimekirja "{name}" koos {count} esemega?',
   'packing.confirm.deleteCat.one': 'Kas soovid kindlasti kustutada nimekirja "{name}" koos {count} esemega?',
   'packing.defaultCategory': 'Muu',
+  'packing.dragCategory': 'Lohista kategooria järjekorra muutmiseks',
   'packing.toast.saveError': 'Salvestamine ebaõnnestus',
   'packing.toast.deleteError': 'Kustutamine ebaõnnestus',
   'packing.toast.renameError': 'Ümbernimetamine ebaõnnestus',

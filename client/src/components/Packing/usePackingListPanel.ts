@@ -8,7 +8,7 @@ import { tripsApi } from '../../api/client'
 import { useAddonStore } from '../../store/addonStore'
 import type { PackingItem } from '../../types'
 import { parseImportLines, sortItemsByName } from './packingListPanel.helpers'
-import { groupPackingItems, packingCategoryOrder, packingProgress, packingViewItems } from './packingListModel'
+import { groupPackingItems, itemOrderWithCategoryMoved, packingCategoryOrder, packingProgress, packingViewItems } from './packingListModel'
 import { usePackingBags } from './usePackingBags'
 import { usePackingCategoryAssignees } from './usePackingCategoryAssignees'
 import { usePackingImport } from './usePackingImport'
@@ -105,6 +105,13 @@ export function usePackingList({ tripId, items, openImportSignal = 0, addCategor
   }, [viewItems, filter, sort, locale, t])
 
   const { checked: abgehakt, pct: fortschritt } = packingProgress(viewItems)
+
+  // A category dropped onto another takes its place; the slice reorders
+  // optimistically and rolls back with a toast of its own.
+  const moveCategory = (from: string, to: string) => {
+    const orderedIds = itemOrderWithCategoryMoved(items, viewItems, from, to, t('packing.defaultCategory'))
+    if (orderedIds) void reorderPackingItems(tripId, orderedIds)
+  }
 
   const {
     addingCategory, setAddingCategory, newCategoryName: newCatName, setNewCategoryName: setNewCatName,
@@ -213,7 +220,7 @@ export function usePackingList({ tripId, items, openImportSignal = 0, addCategor
     handleSetSharing, handleCloneItem, handleJoinItem, handleLeaveItem,
     tripId, items, inlineHeader, t, canEdit, isAdmin, font, reorderPackingItems,
     filter, setFilter, sort, setSort, addingCategory, setAddingCategory, newCatName, setNewCatName,
-    tripMembers, categoryAssignees, handleSetAssignees, allCategories, gruppiert, abgehakt, fortschritt,
+    tripMembers, categoryAssignees, handleSetAssignees, allCategories, gruppiert, abgehakt, fortschritt, moveCategory,
     handleAddItemToCategory, handleAddNewCategory, handleRenameCategory, handleDeleteCategory, handleDeleteItem, handleClearChecked,
     bagTrackingEnabled, bags, unassignedWeightGrams, serverWeightsFresh, newBagName, setNewBagName, showAddBag, setShowAddBag, showBagModal, setShowBagModal,
     handleCreateBag, handleCreateBagByName, handleDeleteBag, handleUpdateBag, handleSetBagMembers,

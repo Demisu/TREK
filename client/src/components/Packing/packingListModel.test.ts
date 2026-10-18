@@ -6,6 +6,7 @@ import {
   groupPackingItems,
   isLastCustomItemInCategory,
   isPackingPlaceholder,
+  itemOrderWithCategoryMoved,
   packingCategoryOrder,
   packingItemWeight,
   packingProgress,
@@ -14,7 +15,7 @@ import {
 } from './packingListModel';
 import { PACKING_PLACEHOLDER_NAME } from './packingListPanel.constants';
 
-// FE-PACK-MODEL-001 to FE-PACK-MODEL-008
+// FE-PACK-MODEL-001 to FE-PACK-MODEL-009
 
 const shared = buildPackingItem({ id: 1, name: 'Tent', category: 'Camp', checked: 1 });
 const mine = buildPackingItem({ id: 2, name: 'Socks', category: 'Clothes', is_private: 1 });
@@ -75,5 +76,29 @@ describe('packingListModel', () => {
   it('FE-PACK-MODEL-008: the placeholder row is recognised by its name', () => {
     expect(isPackingPlaceholder({ name: PACKING_PLACEHOLDER_NAME })).toBe(true);
     expect(isPackingPlaceholder({ name: 'Tent' })).toBe(false);
+  });
+  it('FE-PACK-MODEL-009: moving a category moves its items as a block, the other view stays as it was', () => {
+    const day1 = buildPackingItem({ id: 11, name: 'Shirt', category: 'Day 1' });
+    const day2a = buildPackingItem({ id: 12, name: 'Shorts', category: 'Day 2' });
+    const own = buildPackingItem({ id: 13, name: 'Pills', category: 'Day 2', is_private: 1 });
+    const day3 = buildPackingItem({ id: 14, name: 'Jacket', category: 'Day 3' });
+    const day2b = buildPackingItem({ id: 15, name: 'Hat', category: 'Day 2' });
+    const items = [day1, day2a, own, day3, day2b];
+    const common = packingViewItems(items, 'common');
+
+    const order = itemOrderWithCategoryMoved(items, common, 'Day 3', 'Day 1', 'Other');
+    expect(order).toEqual([14, 11, 12, 15, 13]);
+    const moved = (order ?? []).flatMap((id) => items.filter((i) => i.id === id));
+    expect(packingCategoryOrder(packingViewItems(moved, 'common'), 'Other')).toEqual(['Day 3', 'Day 1', 'Day 2']);
+    expect(packingCategoryOrder(packingViewItems(moved, 'personal'), 'Other')).toEqual(['Day 2']);
+
+    expect(itemOrderWithCategoryMoved(items, common, 'Day 1', 'Day 3', 'Other')).toEqual([12, 15, 14, 11, 13]);
+  });
+
+  it('FE-PACK-MODEL-009b: nothing moves for the same category or one the view does not show', () => {
+    const items = [shared, stove, loose];
+    expect(itemOrderWithCategoryMoved(items, items, 'Camp', 'Camp', 'Other')).toBeNull();
+    expect(itemOrderWithCategoryMoved(items, items, 'Clothes', 'Camp', 'Other')).toBeNull();
+    expect(itemOrderWithCategoryMoved(items, items, 'Other', 'Camp', 'Other')).toEqual([4, 1, 3]);
   });
 });

@@ -83,6 +83,7 @@ const packing: TranslationStrings = {
   'packing.confirm.deleteCat': '"{name}" listesini {count} öğesiyle birlikte silmek istediğinizden emin misiniz?',
   'packing.confirm.deleteCat.one': '"{name}" listesini {count} öğesiyle birlikte silmek istediğinizden emin misiniz?',
   'packing.defaultCategory': 'Diğer',
+  'packing.dragCategory': 'Kategoriyi yeniden sıralamak için sürükleyin',
   'packing.toast.saveError': 'Kaydedilemedi',
   'packing.toast.deleteError': 'Silinemedi',
   'packing.toast.renameError': 'Yeniden adlandırılamadı',

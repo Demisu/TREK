@@ -83,6 +83,7 @@ const packing: TranslationStrings = {
   'packing.confirm.deleteCat': 'Är du säker på att du vill ta bort listan "{name}" med {count} föremål?',
   'packing.confirm.deleteCat.one': 'Är du säker på att du vill ta bort listan "{name}" med {count} föremål?',
   'packing.defaultCategory': 'Övrigt',
+  'packing.dragCategory': 'Dra för att ändra kategorins ordning',
   'packing.toast.saveError': 'Kunde inte spara',
   'packing.toast.deleteError': 'Kunde inte ta bort',
   'packing.toast.renameError': 'Kunde inte döpa om',

@@ -102,6 +102,7 @@ const packing: TranslationStrings = {
   'packing.confirm.deleteCat': 'Möchtest du die Liste „{name}“ mit {count} Einträgen wirklich löschen?',
   'packing.confirm.deleteCat.one': 'Möchtest du die Liste „{name}“ mit {count} Eintrag wirklich löschen?',
   'packing.defaultCategory': 'Sonstiges',
+  'packing.dragCategory': 'Ziehen, um die Kategorie umzusortieren',
   'packing.toast.saveError': 'Fehler beim Speichern',
   'packing.toast.deleteError': 'Fehler beim Löschen',
   'packing.toast.renameError': 'Fehler beim Umbenennen',

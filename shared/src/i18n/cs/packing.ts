@@ -90,6 +90,7 @@ const packing: TranslationStrings = {
   'packing.confirm.deleteCat.one': 'Opravdu chcete smazat seznam „{name}“ s {count} položkou?',
   'packing.confirm.deleteCat.few': 'Opravdu chcete smazat seznam „{name}“ s {count} položkami?',
   'packing.defaultCategory': 'Ostatní',
+  'packing.dragCategory': 'Přetažením změníte pořadí kategorie',
   'packing.toast.saveError': 'Uložení se nezdařilo',
   'packing.toast.deleteError': 'Smazání se nezdařilo',
   'packing.toast.renameError': 'Přejmenování se nezdařilo',

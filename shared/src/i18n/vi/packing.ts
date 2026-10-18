@@ -76,6 +76,7 @@ const packing: TranslationStrings = {
   'packing.confirm.clearChecked': 'Bạn có chắc chắn muốn xóa {count} mục đã chọn không?',
   'packing.confirm.deleteCat': 'Bạn có chắc muốn xóa danh sách "{name}" với {count} mục không?',
   'packing.defaultCategory': 'Khác',
+  'packing.dragCategory': 'Kéo để sắp xếp lại danh mục',
   'packing.toast.saveError': 'Không lưu được',
   'packing.toast.deleteError': 'Không thể xóa',
   'packing.toast.renameError': 'Không thể đổi tên',

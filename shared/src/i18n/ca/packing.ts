@@ -70,6 +70,7 @@ const packing: TranslationStrings = {
   'packing.confirm.deleteCat': 'Segur que vols eliminar la categoria "{name}" amb {count} elements?',
   'packing.confirm.deleteCat.one': 'Segur que vols eliminar la categoria "{name}" amb {count} element?',
   'packing.defaultCategory': 'Altres',
+  'packing.dragCategory': 'Arrossega per reordenar la categoria',
   'packing.toast.saveError': "No s'ha pogut desar",
   'packing.toast.deleteError': "No s'ha pogut eliminar",
   'packing.toast.renameError': "No s'ha pogut canviar el nom",

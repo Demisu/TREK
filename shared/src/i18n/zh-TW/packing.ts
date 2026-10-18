@@ -75,6 +75,7 @@ const packing: TranslationStrings = {
   'packing.confirm.clearChecked': '確定移除 {count} 個已勾選的物品？',
   'packing.confirm.deleteCat': '確定要刪除清單「{name}」及其 {count} 個物品嗎？',
   'packing.defaultCategory': '其他',
+  'packing.dragCategory': '拖曳以重新排列類別',
   'packing.toast.saveError': '儲存失敗',
   'packing.toast.deleteError': '刪除失敗',
   'packing.toast.renameError': '重新命名失敗',

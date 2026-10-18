@@ -109,6 +109,7 @@ const packing: TranslationStrings = {
   'packing.confirm.deleteCat.one': 'Naozaj chcete odstrániť zoznam „{name}“ s {count} položkou?',
   'packing.confirm.deleteCat.few': 'Naozaj chcete odstrániť zoznam „{name}“ s {count} položkami?',
   'packing.defaultCategory': 'Ostatné',
+  'packing.dragCategory': 'Potiahnutím zmeníte poradie kategórie',
   'packing.toast.saveError': 'Uloženie zlyhalo',
   'packing.toast.deleteError': 'Odstránenie zlyhalo',
   'packing.toast.renameError': 'Premenovanie zlyhalo',

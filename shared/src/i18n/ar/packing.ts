@@ -111,6 +111,7 @@ const packing: TranslationStrings = {
   'packing.confirm.deleteCat.few': 'هل أنت متأكد أنك تريد حذف القائمة "{name}" التي تحتوي على {count} عناصر؟',
   'packing.confirm.deleteCat.many': 'هل أنت متأكد أنك تريد حذف القائمة "{name}" التي تحتوي على {count} عنصرًا؟',
   'packing.defaultCategory': 'أخرى',
+  'packing.dragCategory': 'اسحب لإعادة ترتيب الفئة',
   'packing.toast.saveError': 'فشل الحفظ',
   'packing.toast.deleteError': 'فشل الحذف',
   'packing.toast.renameError': 'فشلت إعادة التسمية',

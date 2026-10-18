@@ -85,6 +85,7 @@ const packing: TranslationStrings = {
   'packing.confirm.deleteCat.one':
     'Biztosan törölni szeretnéd a(z) „{name}” listát a benne lévő {count} elemmel együtt?',
   'packing.defaultCategory': 'Egyéb',
+  'packing.dragCategory': 'Húzd a kategória átrendezéséhez',
   'packing.toast.saveError': 'Nem sikerült menteni',
   'packing.toast.deleteError': 'Nem sikerült törölni',
   'packing.toast.renameError': 'Nem sikerült átnevezni',
