@@ -257,6 +257,15 @@ jobs:
         # migration that changes a column regenerates it in the same change.
         run: cd server && npm run check:db-types
 
+      - name: Fetch the base the warnings are compared with
+        # lint:warnings names the file behind a grown count by linting it as
+        # it is on the base: the pushed-over commit on a push, the target
+        # branch on a pull request. A miss only drops that hint.
+        run: >-
+          git fetch --no-tags --depth=1 origin
+          "+${{ github.event_name == 'push' && github.event.before || format('refs/heads/{0}', github.base_ref || 'dev') }}:refs/remotes/lint-base"
+          || true
+
       - name: Lint
         # Errors fail, and the warnings per rule may not pass
         # scripts/eslint-baseline.json (src, tests and eslint-disable'd
@@ -264,6 +273,7 @@ jobs:
         # program, which outgrows Node's default ~4 GB heap on the runner.
         env:
           NODE_OPTIONS: --max-old-space-size=8192
+          TREK_LINT_BASE: refs/remotes/lint-base
         run: cd server && npm run lint:warnings
 
       - name: Formatting check
@@ -395,6 +405,15 @@ jobs:
         # one included, has to be clean (scripts/strict-lint.mjs).
         run: cd client && npm run lint:strict
 
+      - name: Fetch the base the warnings are compared with
+        # lint:warnings names the file behind a grown count by linting it as
+        # it is on the base: the pushed-over commit on a push, the target
+        # branch on a pull request. A miss only drops that hint.
+        run: >-
+          git fetch --no-tags --depth=1 origin
+          "+${{ github.event_name == 'push' && github.event.before || format('refs/heads/{0}', github.base_ref || 'dev') }}:refs/remotes/lint-base"
+          || true
+
       - name: Lint
         # Fails on any ESLint error, like lint:check did, and on any rule
         # whose warning count rises above scripts/eslint-baseline.json.
@@ -402,6 +421,7 @@ jobs:
         # whole TypeScript program, so it gets the heap the server lint gets.
         env:
           NODE_OPTIONS: --max-old-space-size=8192
+          TREK_LINT_BASE: refs/remotes/lint-base
         run: cd client && npm run lint:warnings
 
       - name: Page pattern check

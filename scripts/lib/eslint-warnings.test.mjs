@@ -1,9 +1,10 @@
 import { ESLint } from 'eslint';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, it } from 'node:test';
-import { areaCounts, check, inlineConfigsOf, lintWith, tally } from './eslint-warnings.mjs';
+import { areaCounts, check, inlineConfigsOf, lintWith, newWarningsOf, tally } from './eslint-warnings.mjs';
 import { RatchetError } from './ratchet.mjs';
 import { ratchetTree } from './tree-fixture.mjs';
 
@@ -90,6 +91,26 @@ describe('scripts/lib/eslint-warnings', () => {
     const out = tree.error.join('\n');
     assert.match(out, /src: 2 no-empty warning\(s\), baseline 1\. Most in: src\/a\.ts \(1\), src\/b\.ts \(1\)/);
     assert.match(out, /Fix the new warning rather than silencing it/);
+  });
+
+  it('names the file and line behind a grown count, measured against the base, and nothing without one', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'lint-new-'));
+    try {
+      mkdirSync(join(root, 'src'));
+      writeFileSync(join(root, 'src/new.ts'), 'two');
+      writeFileSync(join(root, 'src/old.ts'), 'one');
+      // new.ts held none of the rule on the base, old.ts already held its one
+      const git = (_root, args) => (args[0] === 'diff' ? 'src/new.ts\nsrc/old.ts\n' : args[1].endsWith('old.ts') ? 'one' : 'none');
+      const lintText = async (text) => [
+        { messages: Array.from({ length: { two: 2, one: 1, none: 0 }[text] }, (_, i) => ({ ...warn('no-empty', `w${i}`), line: i + 1 })) },
+      ];
+      const keys = ['src/new.ts', 'src/old.ts', 'src/untouched.ts'];
+      const lines = await newWarningsOf({ root, rule: 'no-empty', area: 'src', keys, lintText, ref: 'base', git });
+      assert.deepEqual(lines, ['src/new.ts:1  w0', 'src/new.ts:2  w1']);
+      assert.equal(await newWarningsOf({ root, rule: 'no-empty', area: 'src', keys, lintText, git: () => null }), null);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 
   it('counts a message an eslint-disable comment silenced', async () => {

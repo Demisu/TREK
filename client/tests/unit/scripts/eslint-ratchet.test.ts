@@ -1,7 +1,15 @@
-import { readFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { areaCounts, check, inlineConfigsOf, lintClient, tally } from '../../../scripts/lib/eslint-warnings.mjs';
+import {
+  areaCounts,
+  check,
+  inlineConfigsOf,
+  lintClient,
+  newWarningsOf,
+  tally,
+} from '../../../scripts/lib/eslint-warnings.mjs';
 import { RatchetError } from '../../../scripts/lib/ratchet.mjs';
 import { ratchetTree, type RatchetTree } from '../../helpers/ratchetFixture';
 
@@ -182,5 +190,34 @@ describe('lint:warnings', () => {
     expect(byKey['a.js'].inlineConfigs).toEqual(['1:1  /* eslint no-empty: off */']);
     expect(byKey['b.js'].messages.map((m) => m.ruleId)).toEqual(['no-empty']);
     expect(byKey['b.js'].inlineConfigs).toEqual([]);
+  });
+
+  it('names the file and line behind a grown count, measured against the base, and nothing without one', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'lint-new-'));
+    try {
+      mkdirSync(join(root, 'src'));
+      writeFileSync(join(root, 'src/new.ts'), 'two');
+      writeFileSync(join(root, 'src/old.ts'), 'one');
+      // new.ts held none of the rule on the base, old.ts already held its one
+      const git = (_root: string, args: string[]) =>
+        args[0] === 'diff' ? 'src/new.ts\nsrc/old.ts\n' : args[1]?.endsWith('old.ts') ? 'one' : 'none';
+      const counts: Record<string, number> = { two: 2, one: 1, none: 0 };
+      const lintText = async (text: string) => [
+        {
+          messages: Array.from({ length: counts[text] ?? 0 }, (_, i) => ({
+            ruleId: 'no-empty',
+            severity: 1,
+            message: `w${i}`,
+            line: i + 1,
+          })),
+        },
+      ];
+      const keys = ['src/new.ts', 'src/old.ts', 'src/untouched.ts'];
+      const lines = await newWarningsOf({ root, rule: 'no-empty', area: 'src', keys, lintText, ref: 'base', git });
+      expect(lines).toEqual(['src/new.ts:1  w0', 'src/new.ts:2  w1']);
+      expect(await newWarningsOf({ root, rule: 'no-empty', area: 'src', keys, lintText, git: () => null })).toBeNull();
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 });

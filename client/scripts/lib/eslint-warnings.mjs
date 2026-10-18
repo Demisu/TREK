@@ -2,6 +2,7 @@
  * The tally and the comparison behind lint:warnings (scripts/eslint-ratchet.mjs).
  */
 import { ESLint } from 'eslint';
+import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import ts from 'typescript';
 import {
@@ -137,6 +138,78 @@ export async function lintClient(root) {
   }));
 }
 
+/** The ref new warnings are measured against: TREK_LINT_BASE (the CI sets it), else origin/dev. */
+const baseRef = () => process.env.TREK_LINT_BASE || 'origin/dev';
+
+/** Git in the workspace: its output, or null when it fails (no repository, no such ref). */
+function gitIn(root, args) {
+  try {
+    return execFileSync('git', args, {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+      maxBuffer: 1 << 28,
+    });
+  } catch {
+    return null;
+  }
+}
+
+/** The messages of one rule in one area of a single file's lint result. */
+function ofRule(results, rule, area) {
+  const result = results[0];
+  if (!result) return [];
+  const pool =
+    area === 'suppressed' ? (result.suppressedMessages ?? []) : result.messages.filter((m) => m.severity === 1);
+  return pool.filter((m) => ruleOf(m) === rule);
+}
+
+/**
+ * Where a grown rule's new warnings sit: every file among `keys` (the files
+ * holding the rule now) that differs from `ref` and holds more of the rule
+ * than it did there, each of its warnings of the rule as `file:line  message`.
+ * The count alone names no file, and the files holding the most are old ones;
+ * this names the file that tipped it. Null when `ref` is not at hand (a clone
+ * without it), and the report then keeps to the files holding the most.
+ */
+export async function newWarningsOf({ root, rule, area, keys, lintText, ref = baseRef(), git = gitIn }) {
+  const changed = git(root, ['diff', '--name-only', '--relative', ref, '--', '.']);
+  if (changed === null) return null;
+  const differs = new Set(changed.split('\n').filter(Boolean));
+  const found = await Promise.all(
+    keys
+      .filter((key) => differs.has(key))
+      .map(async (key) => {
+        const path = join(root, key);
+        const now = ofRule(await lintText(readText(path), path), rule, area);
+        const before = git(root, ['show', `${ref}:./${key}`]);
+        const was = before === null ? [] : ofRule(await lintText(before, path), rule, area);
+        return now.length > was.length ? now.map((m) => `${key}:${m.line ?? 0}  ${m.message}`) : [];
+      })
+  );
+  return found.flat();
+}
+
+/** Prints, under the grown counts, the files and lines behind each one (see newWarningsOf). */
+async function reportNew(grown, { root, files, lintText, error }) {
+  if (!grown.length || !lintText) return;
+  const found = await Promise.all(
+    grown.map(({ area, rule }) => newWarningsOf({ root, rule, area, keys: Object.keys(files[area][rule]), lintText }))
+  );
+  grown.forEach(({ area, rule }, i) => {
+    const lines = found[i];
+    if (!lines?.length) return;
+    error(`New ${rule} warning(s) in ${area}, against ${baseRef()}:`);
+    for (const line of lines) error(`  ${line}`);
+  });
+}
+
+/** Lints one file's text with the client's own config, for newWarningsOf. */
+export function lintTextClient(root) {
+  const eslint = new ESLint({ cwd: root });
+  return (text, filePath) => eslint.lintText(text, { filePath });
+}
+
 const sum = (map) => Object.values(map).reduce((a, b) => a + b, 0);
 
 /**
@@ -148,6 +221,7 @@ export async function check({
   baselinePath = join(root, 'scripts/eslint-baseline.json'),
   update = false,
   lint = lintClient,
+  lintText = lint === lintClient ? lintTextClient : null,
   log = console.log,
   error = console.error,
 }) {
@@ -160,13 +234,13 @@ export async function check({
   }
 
   for (const line of errors) error(`FAIL  ${line}`);
-  let grown = 0;
+  const grown = [];
   let stale = 0;
   for (const area of AREAS) {
     for (const [rule, n] of Object.entries(counts[area])) {
       const allowed = baseline[area][rule] ?? 0;
       if (n <= allowed) continue;
-      grown++;
+      grown.push({ area, rule });
       const top = Object.entries(files[area][rule])
         .sort(([, a], [, b]) => b - a)
         .slice(0, 5)
@@ -182,7 +256,8 @@ export async function check({
     });
     stale += fallen.length;
   }
-  if (grown) {
+  await reportNew(grown, { root, files, lintText: lintText && lintText(root), error });
+  if (grown.length) {
     error(
       'Fix the new warning rather than silencing it: an eslint-disable comment is counted under "suppressed". ' +
         'Run npx eslint <file> to see each one.'
@@ -191,5 +266,5 @@ export async function check({
   log(
     `eslint: ${errors.length} error(s); warnings ${AREAS.map((area) => `${area} ${sum(counts[area])}/${sum(baseline[area])}`).join(', ')} (now/baseline)`
   );
-  return errors.length || grown || stale ? 1 : 0;
+  return errors.length || grown.length || stale ? 1 : 0;
 }
