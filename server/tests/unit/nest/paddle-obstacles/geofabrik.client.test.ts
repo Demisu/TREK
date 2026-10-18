@@ -230,3 +230,31 @@ describe('GeofabrikClient.download', () => {
     expect((await readFile(path)).toString()).toBe('pbf');
   });
 });
+
+describe('GeofabrikClient.sizeOf', () => {
+  it('GEOF-013: asks with HEAD and a deadline, and answers the size Geofabrik announces', async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 200, headers: { 'content-length': '83886080' } }));
+    expect(await client.sizeOf(EXTRACT)).toBe(83_886_080);
+    expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({ method: 'HEAD', redirect: 'manual' });
+    expect(fetchMock.mock.calls[0]?.[1]?.signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it('GEOF-014: no size, a size that is no number, or a failed answer reads as unknown', async () => {
+    fetchMock
+      .mockResolvedValueOnce(new Response(null, { status: 200 }))
+      .mockResolvedValueOnce(new Response(null, { status: 200, headers: { 'content-length': 'lots' } }))
+      .mockResolvedValueOnce(new Response(null, { status: 404, headers: { 'content-length': '42' } }));
+    expect(await client.sizeOf(EXTRACT)).toBeNull();
+    expect(await client.sizeOf(EXTRACT)).toBeNull();
+    expect(await client.sizeOf(EXTRACT)).toBeNull();
+  });
+
+  it('GEOF-015: a size that cannot be asked reads as unknown; an address the list could not name is refused unasked', async () => {
+    fetchMock.mockRejectedValueOnce(new Error('socket hang up')).mockRejectedValueOnce('reset');
+    expect(await client.sizeOf(EXTRACT)).toBeNull();
+    expect(await client.sizeOf(EXTRACT)).toBeNull();
+    fetchMock.mockClear();
+    await expect(client.sizeOf('https://evil.example/x-latest.osm.pbf')).rejects.toThrow('Not a Geofabrik extract');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});

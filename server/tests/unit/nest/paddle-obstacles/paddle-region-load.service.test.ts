@@ -9,6 +9,7 @@ import { AppSettings } from '../../../../src/db/entities/AppSettings.entity';
 import { PaddleRegionRequests } from '../../../../src/db/entities/PaddleRegionRequests.entity';
 import { PaddleRegions } from '../../../../src/db/entities/PaddleRegions.entity';
 import type { AppSettingsRepository } from '../../../../src/db/repositories/AppSettings.repository';
+import type { PaddleRegionRequestsRepository } from '../../../../src/db/repositories/PaddleRegionRequests.repository';
 import { AppConfigModule } from '../../../../src/nest/app-config/app-config.module';
 import { DataPathsService } from '../../../../src/nest/app-config/data-paths.service';
 import { DemoModule } from '../../../../src/nest/common/demo.module';
@@ -278,5 +279,61 @@ describe('PaddleRegionLoadService', () => {
 
     await expect(load.updateSettings({ mode: 'off', max_mb: 1000 })).rejects.toThrow('database is locked');
     expect(await load.settings()).toEqual({ mode: 'ask', max_mb: 800 });
+  });
+
+  it('PLOAD-014: a notice the admins cannot be sent never undoes the request, whatever it failed with', async () => {
+    await load.updateSettings({ mode: 'ask', max_mb: 500 });
+    send.mockRejectedValueOnce(new Error('smtp down')).mockRejectedValueOnce('no channel');
+    expect((await ask(paddler))[0]).toMatchObject({ state: 'requested', reason: 'ask' });
+    expect((await ask(paddler, [MUERITZ]))[0]).toMatchObject({ state: 'requested', reason: 'ask' });
+    const pending = await load.pending();
+    expect(pending).toHaveLength(2);
+    expect(pending).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'oberpfalz' }),
+        expect.objectContaining({ id: 'mecklenburg-vorpommern' }),
+      ]),
+    );
+    expect(log.logError).toHaveBeenCalledWith('[Paddle] telling the admins about oberpfalz: smtp down');
+    expect(log.logError).toHaveBeenCalledWith('[Paddle] telling the admins about mecklenburg-vorpommern: no channel');
+  });
+
+  it('PLOAD-015: the list out of reach with something other than an error still reads as unavailable', async () => {
+    regions.mockRejectedValue('offline');
+    expect((await ask(paddler))[0]).toEqual({ state: 'unavailable', region: null, reason: 'catalog_unavailable' });
+    expect(log.logError).toHaveBeenCalledWith('[Paddle] Geofabrik index: offline');
+  });
+
+  it('PLOAD-016: of the regions TREK holds around a place the smallest answers, asked without a retry', async () => {
+    const queued = { status: 'queued' as const, min_lat: 47, max_lat: 51, max_lng: 14 };
+    await insertRow(orm(), PaddleRegions, { ...queued, id: 'bayern', name: 'Bayern', min_lng: 9 });
+    await insertRow(orm(), PaddleRegions, {
+      ...queued,
+      id: 'oberpfalz',
+      name: 'Oberpfalz',
+      min_lat: 48.9,
+      max_lat: 50,
+      min_lng: 11.5,
+      max_lng: 13,
+    });
+    await insertRow(orm(), PaddleRegions, { ...queued, id: 'sueddeutschland', name: 'Sueddeutschland', min_lng: 7 });
+    const answers = await load.load(paddler, { points: [REGENSBURG] });
+    expect(answers).toEqual([
+      expect.objectContaining({ state: 'loading', region: { id: 'oberpfalz', name: 'Oberpfalz' } }),
+    ]);
+    expect(sizeOf).not.toHaveBeenCalled();
+  });
+
+  it('PLOAD-017: a request another ask filed in the meantime is answered, and not announced a second time', async () => {
+    await load.updateSettings({ mode: 'ask', max_mb: 500 });
+    const requests = t?.get<PaddleRegionRequestsRepository>(getRepositoryToken(PaddleRegionRequests));
+    if (!requests) throw new Error('No repository');
+    vi.spyOn(requests, 'file').mockResolvedValueOnce(false);
+    expect((await ask(paddler))[0]).toEqual({
+      state: 'requested',
+      region: { id: 'oberpfalz', name: 'Oberpfalz' },
+      reason: 'ask',
+    });
+    expect(send).not.toHaveBeenCalled();
   });
 });
