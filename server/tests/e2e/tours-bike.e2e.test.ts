@@ -16,7 +16,7 @@ import { TrekExceptionFilter } from '../../src/nest/common/trek-exception.filter
 import { ZodValidationPipe } from '../../src/nest/common/zod-validation.pipe';
 import { JourneyDomainService } from '../../src/nest/journey/journey-domain.service';
 import { MapsService } from '../../src/nest/maps/maps.service';
-import { OverpassElementsClient } from '../../src/nest/overpass/overpass-elements.client';
+import { OverpassElementsClient } from '../../src/nest/overpass/overpass-elements.service';
 import { PermissionsService } from '../../src/nest/permissions/permissions.service';
 import { RealtimeModule } from '../../src/nest/realtime/realtime.module';
 import { RealtimeService } from '../../src/nest/realtime/realtime.service';

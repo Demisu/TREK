@@ -1,4 +1,4 @@
-import { OverpassElementsClient } from '../overpass/overpass-elements.client';
+import { OverpassElementsClient } from '../overpass/overpass-elements.service';
 import { Injectable } from '@nestjs/common';
 import type { TourTrailGrade, TourTrailGradeRequest, TourTrailGradeResponse } from '@trek/shared';
 

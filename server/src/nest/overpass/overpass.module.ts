@@ -1,4 +1,4 @@
-import { OverpassElementsClient } from './overpass-elements.client';
+import { OverpassElementsClient } from './overpass-elements.service';
 import { Module } from '@nestjs/common';
 
 /**

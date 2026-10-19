@@ -1,4 +1,4 @@
-import { OverpassElementsClient } from '../../../src/nest/overpass/overpass-elements.client';
+import { OverpassElementsClient } from '../../../src/nest/overpass/overpass-elements.service';
 import { TourTrailGradeService } from '../../../src/nest/tours/tour-trail-grade.service';
 import { Test } from '@nestjs/testing';
 

@@ -1,6 +1,6 @@
 import { RuntimeEnvService } from '../../../src/nest/app-config/runtime-env.service';
 import { parseOverpassEndpoints } from '../../../src/nest/maps/overpass.constants';
-import { OverpassElementsClient, overpassAnswerSchema } from '../../../src/nest/overpass/overpass-elements.client';
+import { OverpassElementsClient, overpassAnswerSchema } from '../../../src/nest/overpass/overpass-elements.service';
 import { Test } from '@nestjs/testing';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';

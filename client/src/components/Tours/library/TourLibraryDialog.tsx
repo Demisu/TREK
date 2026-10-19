@@ -323,7 +323,7 @@ export function TourLibraryDialog({ library }: { library: TourLibrary }) {
           <ListState library={library} />
           {library.list && library.list.tours.length > 0 && (
             <ul
-              className={`m-0 flex max-h-[420px] list-none flex-col gap-0.5 overflow-y-auto py-0 ps-0 pe-2 transition-opacity [scrollbar-gutter:stable] ${library.listStatus === 'loading' ? 'opacity-60' : ''}`}
+              className={`m-0 flex max-h-[420px] list-none flex-col gap-0.5 overflow-y-auto py-0 pe-2 ps-0 transition-opacity [scrollbar-gutter:stable] ${library.listStatus === 'loading' ? 'opacity-60' : ''}`}
               data-testid="tour-library-list"
             >
               {library.list.tours.map((tour) => (

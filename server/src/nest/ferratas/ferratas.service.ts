@@ -6,7 +6,7 @@ import { logWarn } from '../audit/audit-log.logger';
 import { badRequest, DomainError } from '../common/domain-error';
 import { withRequestContext } from '../database/request-context';
 import { UnitOfWork } from '../database/unit-of-work';
-import { OverpassElementsClient } from '../overpass/overpass-elements.client';
+import { OverpassElementsClient } from '../overpass/overpass-elements.service';
 import {
   buildFerrataQuery,
   ferrataTileBlocks,

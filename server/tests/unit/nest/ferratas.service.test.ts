@@ -12,7 +12,7 @@ import {
   FERRATAS_UNAVAILABLE_MESSAGE,
   FerratasService,
 } from '../../../src/nest/ferratas/ferratas.service';
-import { OverpassElementsClient } from '../../../src/nest/overpass/overpass-elements.client';
+import { OverpassElementsClient } from '../../../src/nest/overpass/overpass-elements.service';
 import { createSnapshotTestDb } from '../../helpers/db-mock';
 import { countRows, deleteRows, findRow, findRows, insertRows } from '../../helpers/factories/rows';
 import { resetTestDb } from '../../helpers/test-db';
