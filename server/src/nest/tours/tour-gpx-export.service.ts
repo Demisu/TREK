@@ -19,7 +19,7 @@ const PADDLE_ACTIVITY: Record<PaddleBoatType, string> = {
   other: 'paddling',
 };
 
-export function gpxActivityOf(type: string, boat: string | null): string {
+function gpxActivityOf(type: string, boat: string | null): string {
   if (type === 'kayak') return PADDLE_ACTIVITY[(boat ?? 'other') as PaddleBoatType] ?? PADDLE_ACTIVITY.other;
   return type === 'hike' ? 'hiking' : type;
 }

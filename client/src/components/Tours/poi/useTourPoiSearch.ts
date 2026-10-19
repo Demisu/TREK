@@ -16,7 +16,7 @@ import type { TourPlannerController } from '../planner/useTourPlanner';
 
 /** What is ticked when a type is searched for the first time: the three most asked. */
 const STARTING_CATEGORIES = (type: PlannableTourType) => TOUR_POI_CATEGORIES_BY_TYPE[type].slice(0, 3);
-export const DEFAULT_CORRIDOR_M = 500;
+const DEFAULT_CORRIDOR_M = 500;
 
 type SearchStatus = 'idle' | 'loading' | 'ready' | 'error' | 'offline';
 

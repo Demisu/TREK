@@ -681,8 +681,7 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
                       canEdit={canPlaceEdit}
                       canAssign={canDayEdit}
                       tours={tours}
-                      days={days}
-                      loading={toursLoading}
+                      days={days} loading={toursLoading}
                       onAssignToDay={(placeId, dayId) => handleAssignToDay(placeId, dayId)}
                       onDeleteTour={handleDeleteTour}
                       gpxImport={tourGpxImport}

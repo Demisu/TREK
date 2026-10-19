@@ -267,7 +267,7 @@ function Preview({ library }: { library: TourLibrary }) {
  * list on the left, the chosen tour on the right; the copy is made only by the
  * button in its foot.
  */
-export function TourLibraryDialog({ library }: { library: TourLibrary }) {
+function TourLibraryDialog({ library }: { library: TourLibrary }) {
   const { t } = useTranslation();
   const labelId = useId();
   if (!library.open) return null;

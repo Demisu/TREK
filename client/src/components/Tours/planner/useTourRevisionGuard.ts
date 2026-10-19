@@ -66,5 +66,3 @@ export function useTourRevisionGuard(initial: number | null = null) {
 
   return { base, baseRef, conflict, remote, adopt, notice, refuse, takeOver, dismissConflict, dismissRemote };
 }
-
-export type TourRevisionGuard = ReturnType<typeof useTourRevisionGuard>;

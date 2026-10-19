@@ -116,5 +116,3 @@ export function tourPlannerFacts(input: TourPlannerFactsInput) {
         },
   };
 }
-
-export type TourPlannerFacts = ReturnType<typeof tourPlannerFacts>;
