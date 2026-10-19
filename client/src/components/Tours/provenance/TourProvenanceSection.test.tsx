@@ -39,6 +39,16 @@ describe('TourProvenanceSection (P2C-02, MF-03)', () => {
     expect(screen.queryByRole('button', { name: /tours.provenance.check/ })).toBeNull();
   });
 
+  it('names the trip and tour a tour was taken over from, and nothing for one that was not (LIB-02)', () => {
+    const { rerender } = render(
+      <TourProvenanceSection provenance={{ ...base, takenOverFrom: { tripTitle: 'Alps', tourName: 'Ridge' } }} />
+    );
+    expect(screen.getByText('tours.provenance.takenOverFrom')).toBeInTheDocument();
+    expect(screen.getByTestId('tour-provenance-taken-over')).toHaveTextContent('Alps: Ridge');
+    rerender(<TourProvenanceSection provenance={{ ...base, takenOverFrom: null }} />);
+    expect(screen.queryByTestId('tour-provenance-taken-over')).toBeNull();
+  });
+
   it('shows a GPX import with its file, and that it was planned over keeping its track', () => {
     render(
       <TourProvenanceSection

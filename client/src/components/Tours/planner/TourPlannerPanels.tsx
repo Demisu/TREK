@@ -43,6 +43,7 @@ import { TourRemoteChangeNotice, TourRevisionConflictDialog } from './TourRevisi
 import TourListFilterMenu, { TourFilterEmpty } from '../TourListFilterMenu'
 import { TourScopeSummary } from '../TourScopeSummary'
 import { useTourListFilters } from '../useTourListFilters'
+import { TourLibraryEntry } from '../library/TourLibraryDialog'
 
 const STATUS_KEY: Partial<Record<TourPlannerStatus, string>> = {
   dirty: 'tours.planner.status.dirty',
@@ -609,6 +610,8 @@ interface TourPlannerToursRailProps extends TourPermissionProps {
   onDeleteTour?: (placeId: number) => void
   /** The workspace's GPX import; its button sits beside "New tour". */
   gpxImport?: TourGpxImport
+  /** LIB-02: takes a tour of another trip in; its button sits beside the import. */
+  onTakenOver?: (tour: TourListItem) => Promise<void>
 }
 
 /** The time facts of the overview: the estimate (walking, or paddling for a paddle tour), the breaks and the planned total. */
@@ -641,7 +644,7 @@ function plannerTimeFields(planner: TourPlannerController, t: Translate) {
 }
 
 export function TourPlannerToursRail({ planner, tours, days, loading, onAssignToDay, onViewGpxTour, onDeleteTour,
-  gpxImport, canEdit: editPermission, canAssign: assignPermission }: TourPlannerToursRailProps) {
+  gpxImport, onTakenOver, canEdit: editPermission, canAssign: assignPermission }: TourPlannerToursRailProps) {
   const { canEdit, canAssign } = useTourPermissions({ canEdit: editPermission ?? planner.canEdit, canAssign: assignPermission ?? planner.canAssign })
   const { t } = useTranslation()
   const toast = useToast()
@@ -693,6 +696,7 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
       <div className={RAIL_HEAD} style={{ background: NEUTRAL_TINT }}>
         <RailTitle title={t('tours.planner.tripTours')} />
         {canEdit && gpxImport && <RailImportButton gpxImport={gpxImport} disabled={isSaving} />}
+        {canEdit && <TourLibraryEntry planner={planner} onTakenOver={onTakenOver} disabled={isSaving} />}
         {canEdit && planner.mode.type !== 'neutral' && (
           <BarButton label={t('tours.planner.newTour')} testId="tour-rail-new-tour" disabled={isSaving}
             onClick={() => { if (!isSaving) planner.startNewTour() }}

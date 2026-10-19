@@ -13,11 +13,15 @@ import type { useTripPlanner } from './useTripPlanner';
 export function useTourDetailActions(planner: ReturnType<typeof useTripPlanner>) {
   const { invalidateTourPlaceIds, reloadTourPlaceIds, t, toast, tripActions, tripId, upsertTour } = planner;
 
-  /** A tour that just came in: in the lists and on the map, then open. */
-  const takeIn = async (tour: TourListItem) => {
+  /** A tour that just came in: in the lists and on the map. */
+  const bringIn = async (tour: TourListItem) => {
     upsertTour(tour);
     await useTripStore.getState().refreshPlaces(tripId);
     void invalidateTourPlaceIds({ placeIds: [tour.place_id] });
+  };
+  /** ...and its detail open. */
+  const takeIn = async (tour: TourListItem) => {
+    await bringIn(tour);
     planner.handlePlaceClick(tour.place_id);
   };
 
@@ -27,6 +31,8 @@ export function useTourDetailActions(planner: ReturnType<typeof useTripPlanner>)
       await reloadTourPlaceIds();
     },
     onSourceReimported: takeIn,
+    /** LIB-02: a tour taken over from another trip; the tours rail opens it in the planner. */
+    onTakenOver: bringIn,
     onSaveAsNew: async (tour: TourListItem) => {
       try {
         const name = t('tours.copy.name', { name: tour.name }).slice(0, 255);

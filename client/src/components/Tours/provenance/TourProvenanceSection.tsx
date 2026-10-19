@@ -1,5 +1,5 @@
 import type { TourListItem, TourProvenance, TourSourceCheckResponse } from '@trek/shared';
-import { Download, ExternalLink, FileDown, Loader2, PenLine, RefreshCw } from 'lucide-react';
+import { CopyPlus, Download, ExternalLink, FileDown, Loader2, PenLine, RefreshCw } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import { formatDate } from '../../../utils/formatters';
@@ -224,6 +224,16 @@ export default function TourProvenanceSection({ provenance, check }: TourProvena
         <ProvenanceRow icon={sourceIcon} label={t('tours.provenance.source')}>
           <SourceValue provenance={provenance} t={t} />
         </ProvenanceRow>
+        {provenance.takenOverFrom && (
+          // LIB-02: the trip and tour it was taken from, as they were called then.
+          <ProvenanceRow icon={<CopyPlus size={13} strokeWidth={2} />} label={t('tours.provenance.takenOverFrom')}>
+            <span data-testid="tour-provenance-taken-over" className="min-w-0 truncate">
+              <span className="font-semibold">{provenance.takenOverFrom.tripTitle}</span>
+              {': '}
+              {provenance.takenOverFrom.tourName}
+            </span>
+          </ProvenanceRow>
+        )}
         {importedAt && (
           <ProvenanceRow
             icon={<Download size={13} strokeWidth={2} />}

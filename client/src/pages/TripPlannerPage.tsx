@@ -687,6 +687,7 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
                       onDeleteTour={handleDeleteTour}
                       gpxImport={tourGpxImport}
                       onViewGpxTour={viewImportedTour}
+                      onTakenOver={tourDetailActions.onTakenOver}
                     />
                   </LazyPanel>
                 )}
