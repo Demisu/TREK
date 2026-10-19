@@ -603,13 +603,15 @@ export class ToursService {
     const ids = waypoints.flatMap((point) => (point.linked_place_id ? [point.linked_place_id] : []));
     if (ids.length === 0) return waypoints;
     const linkable = await this.waypointsRepo.linkablePlaceIds(tripId, ids);
-    for (const id of ids) {
-      if (!linkable.has(id) && (await this.toursRepo.findInTrip(tripId, id))) {
-        throw new DomainError(400, 'A waypoint cannot stand for a tour', {
-          code: 'waypoint_links_a_tour',
-          details: { code: 'waypoint_links_a_tour' },
-        });
-      }
+    // A place that cannot be linked may be a tour of this trip, which a stop never stands for.
+    const tours = await Promise.all(
+      ids.filter((id) => !linkable.has(id)).map((id) => this.toursRepo.findInTrip(tripId, id)),
+    );
+    if (tours.some(Boolean)) {
+      throw new DomainError(400, 'A waypoint cannot stand for a tour', {
+        code: 'waypoint_links_a_tour',
+        details: { code: 'waypoint_links_a_tour' },
+      });
     }
     return waypoints.map((point) =>
       point.linked_place_id && !linkable.has(point.linked_place_id) ? { ...point, linked_place_id: null } : point,

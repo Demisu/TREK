@@ -301,7 +301,7 @@ describe('buildTourGpx (PR1-06A)', () => {
           [47.3, 11.3, 650],
         ]),
       ),
-    )!;
+    ) ?? '';
     expect(XMLValidator.validate(gpx)).toBe(true);
     const doc = parser.parse(gpx).gpx;
     expect(doc.metadata).toMatchObject({
@@ -327,7 +327,7 @@ describe('buildTourGpx (PR1-06A)', () => {
       description: '  ',
       website: null,
       stops: [],
-    })!;
+    }) ?? '';
     const doc = parser.parse(gpx).gpx;
     expect(doc.metadata).toEqual({ name: 'Grat <Ost>' });
     expect(doc.trk.desc).toBeUndefined();

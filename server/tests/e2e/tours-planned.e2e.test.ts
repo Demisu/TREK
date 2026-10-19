@@ -576,7 +576,8 @@ describe('Tours planned e2e (real guards + temp SQLite)', () => {
       const preview = await request(server).get(`/api/tours/library/${placeId}`).set('Cookie', sessionCookie(OWNER));
       expect(preview.body.line).toHaveLength(400);
       expect(preview.body.line[0]).toEqual([47, 11]);
-      expect(preview.body.line[399]).toEqual([long[1199]![0], long[1199]![1]]);
+      const last = long[long.length - 1] ?? [];
+      expect(preview.body.line[399]).toEqual([last[0], last[1]]);
     });
 
     it('takes a tour over as an independent tour of this trip, remembering where it came from', async () => {
@@ -728,17 +729,18 @@ describe('Tours planned e2e (real guards + temp SQLite)', () => {
         .set('Cookie', sessionCookie(OUTSIDER))
         .send(body);
       expect(outsider.status).toBe(404);
-      for (const bad of [
+      const bad = [
         { ...body, categories: ['fuel'] },
         { ...body, corridor_m: 9000 },
         { ...body, line: [[47, 11]] },
         { ...body, add: 1 },
-      ]) {
-        expect(
-          (await request(server).post('/api/trips/5/tours/poi-search').set('Cookie', sessionCookie(OWNER)).send(bad))
-            .status,
-        ).toBe(400);
-      }
+      ];
+      const refused = await Promise.all(
+        bad.map((sent) =>
+          request(server).post('/api/trips/5/tours/poi-search').set('Cookie', sessionCookie(OWNER)).send(sent),
+        ),
+      );
+      expect(refused.map((res) => res.status)).toEqual([400, 400, 400, 400]);
       expect((await request(server).post('/api/trips/5/tours/poi-search').send(body)).status).toBe(401);
     });
   });
