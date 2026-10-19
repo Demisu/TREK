@@ -9,20 +9,17 @@ import { decodePolyline } from '../../Map/transitGeometry';
  */
 
 /** Surfaces from smooth to rough; `unknown` where the data names none. */
-const SURFACE_CLASSES = ['paved', 'rough', 'compacted', 'gravel', 'ground', 'unknown'] as const;
-export type SurfaceClass = (typeof SURFACE_CLASSES)[number];
+export type SurfaceClass = 'paved' | 'rough' | 'compacted' | 'gravel' | 'ground' | 'unknown';
 
 /** Kinds of way, the ones a rider plans by. */
-const WAY_CLASSES = ['cyclePath', 'cycleLane', 'quiet', 'road', 'track', 'path', 'ferry', 'other'] as const;
-export type WayClass = (typeof WAY_CLASSES)[number];
+export type WayClass = 'cyclePath' | 'cycleLane' | 'quiet' | 'road' | 'track' | 'path' | 'ferry' | 'other';
 
 /**
  * mtb:scale steps as a rider reads them: S0 to S3 apart, S4 and up together
  * (rare, and all of them expert ground); `none` where OpenStreetMap gives the
  * way no grade, `unasked` where it could not be asked this time.
  */
-const TRAIL_CLASSES = ['s0', 's1', 's2', 's3', 's4', 'none', 'unasked'] as const;
-export type TrailClass = (typeof TRAIL_CLASSES)[number];
+export type TrailClass = 's0' | 's1' | 's2' | 's3' | 's4' | 'none' | 'unasked';
 
 /** Surfaces a road bike's rider calls unpaved (BIK-02): what is no paving of any kind. */
 export const UNPAVED: ReadonlySet<SurfaceClass> = new Set(['compacted', 'gravel', 'ground']);
