@@ -5,6 +5,7 @@ import { tourRepo } from '../../../repo/tourRepo'
 import { randomId } from '../../../utils/randomId'
 import { analyzeRouteGeometry, type RouteProfileFocus } from '../../../utils/routeGeometry'
 import { closeLoop, isClosedLoop, reverseRoute, toggleFreeLeg, withPointAppended } from './tourRouteActions'
+import { walkTimes } from './stationModel'
 import { hasCompleteElevation, useTourRoute } from './useTourRoute'
 import { normalizePlannerWaypoints, plannerWaypointsOf, ridablePoints, sameWaypointSnapshot, savedWaypointsOf, unlinkedPoint, type TourPlannerWaypoint } from './tourPlannerWaypoints'
 import { openedTourFields, tourPlannerFacts } from './tourPlannerFacts'
@@ -478,12 +479,14 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const routedLegLengths = paddleRoute && routeCurrent ? paddleRoute.legLengths : undefined
   const paddleEstimate = useMemo(() => isPaddle ? paddleEstimateOf(waypoints, { effectiveSpeedKmh, portageSpeedKmh }, paddleSpeedInvalid, routedLegLengths) : null,
     [effectiveSpeedKmh, isPaddle, paddleSpeedInvalid, portageSpeedKmh, routedLegLengths, waypoints])
+  // CW-02: a city walk's stays, what of them is known.
+  const stationStays = useMemo(() => (tourType === 'walk' ? walkTimes(waypoints, null) : null), [tourType, waypoints])
   const facts = useMemo(() => tourPlannerFacts({
     tourType, maxHikingDifficulty, hikingPreferences, bikeProfile, website, plannedDurationMinutes, breakAdditionalMinutes,
     paddle: { boatType, waterContext, speedKmh, portageSpeedKmh, lakeStyle },
-    paddleSpeedInvalid, paddleEstimate, routeAnalysis, durationSeconds,
+    paddleSpeedInvalid, paddleEstimate, routeAnalysis, durationSeconds, stationStayMinutes: stationStays?.stayMinutes ?? null,
   }), [bikeProfile, boatType, breakAdditionalMinutes, durationSeconds, hikingPreferences, lakeStyle, maxHikingDifficulty, paddleEstimate, paddleSpeedInvalid,
-    plannedDurationMinutes, portageSpeedKmh, routeAnalysis, speedKmh, tourType, waterContext, website])
+    plannedDurationMinutes, portageSpeedKmh, routeAnalysis, speedKmh, stationStays, tourType, waterContext, website])
   const { websiteInvalid, plannedDurationInvalid, breakAdditionalInvalid, paddleIncomplete, walkingDurationMinutes,
     plannedTotalMinutes, plannedTotalInvalid, savedDurationSeconds, typeFields } = facts
 
@@ -774,7 +777,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       website: parsedWebsiteOrNull(website),
       ...typeFields,
       route_geometry: enrichedGeometry.map(point => [point[0], point[1], point[2]]),
-      waypoints: savedWaypointsOf(waypoints),
+      waypoints: savedWaypointsOf(waypoints, tourType),
       duration_seconds: savedDurationSeconds,
       planned_duration_minutes: plannedDurationMinutes,
       break_additional_minutes: breakAdditionalMinutes,
@@ -834,7 +837,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     description, setDescription, website, setWebsite, websiteInvalid,
     plannedDurationMinutes, setPlannedDurationMinutes, plannedDurationInvalid,
     breakAdditionalMinutes, setBreakAdditionalMinutes, breakAdditionalInvalid,
-    walkingDurationMinutes, plannedTotalMinutes, plannedTotalInvalid,
+    walkingDurationMinutes, plannedTotalMinutes, plannedTotalInvalid, stationStays,
     waypoints, selectedWaypointId, setSelectedWaypointId,
     addWaypoint, appendFixedLeg, setWaypointPosition, removeWaypoint, moveWaypoint, reorderWaypoint, editWaypoints: commitWaypoints,
     reverse, returnToStart, isLoop: isClosedLoop(waypoints), toggleWaypointFreeLeg, editPaddlePoints, amendWaypoints, paddleEstimate,

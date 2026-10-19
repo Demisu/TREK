@@ -14,6 +14,7 @@ import { isTourRoute, type TourRouteUnreachable } from './tourRouteOutcome';
 import {
   enrichTourElevations,
   routeBikeTour,
+  routeCityWalk,
   routeWalkingTour,
   type TourElevationPoint,
   type TourRoutePart,
@@ -104,7 +105,9 @@ async function routeOnLand({ inputs, plannedKey, signal, stale, setPlanned, setU
   const routed =
     tourType === 'bike'
       ? await routeBikeTour(waypoints, bikeProfile, signal)
-      : await routeWalkingTour(waypoints, signal, maxHikingDifficulty, hikingPreferences);
+      : tourType === 'walk'
+        ? await routeCityWalk(waypoints, signal)
+        : await routeWalkingTour(waypoints, signal, maxHikingDifficulty, hikingPreferences);
   if (stale()) return;
   if (!isTourRoute(routed)) {
     setUnreachable(routed);

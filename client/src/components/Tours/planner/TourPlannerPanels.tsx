@@ -612,6 +612,7 @@ const ESTIMATE_KEYS = {
   hike: { labelKey: 'tours.planner.walkingEstimated', shortKey: 'tours.planner.walkingEstimatedShort', infoLabelKey: 'tours.planner.walkingEstimatedInfoLabel', infoKey: 'tours.planner.walkingEstimatedInfo' },
   bike: { labelKey: 'tours.bike.timeEstimated', shortKey: 'tours.bike.timeEstimatedShort', infoLabelKey: 'tours.bike.timeEstimatedInfoLabel', infoKey: 'tours.bike.timeEstimatedInfo' },
   kayak: { labelKey: 'tours.paddle.timeEstimated', shortKey: 'tours.paddle.timeEstimatedShort', infoLabelKey: 'tours.paddle.timeEstimatedInfoLabel', infoKey: 'tours.paddle.timeEstimatedInfo' },
+  walk: { labelKey: 'tours.walk.timeEstimated', shortKey: 'tours.walk.timeEstimatedShort', infoLabelKey: 'tours.walk.timeEstimatedInfoLabel', infoKey: 'tours.walk.timeEstimatedInfo' },
 } as const
 
 /**
@@ -645,6 +646,7 @@ function UnreachableNotice({ planner }: { planner: TourPlannerController }) {
 /** The time facts of the overview: the estimate (walking, riding or paddling), the breaks and the planned total. */
 function plannerTimeFields(planner: TourPlannerController, t: Translate) {
   const keys = ESTIMATE_KEYS[planner.tourType]
+  const stays = planner.stationStays
   return [
     {
       label: t(keys.labelKey),
@@ -654,13 +656,25 @@ function plannerTimeFields(planner: TourPlannerController, t: Translate) {
         ? t('tours.planner.walkingTimeUnknown')
         : formatPlannedTourDuration(planner.walkingDurationMinutes),
     },
-    {
-      label: t('tours.planner.breaksShort'),
-      value: planner.breakAdditionalMinutes == null ? '—' : formatPlannedTourDuration(planner.breakAdditionalMinutes),
-    },
+    stays
+      ? {
+          // CW-02: a city walk's stays in place of breaks, the unknown ones named, never counted as nothing.
+          label: t('tours.walk.stays'),
+          value: stays.unknownStays > 0
+            ? t('tours.walk.totalAtLeast', { time: formatPlannedTourDuration(stays.stayMinutes) })
+            : formatPlannedTourDuration(stays.stayMinutes),
+        }
+      : {
+          label: t('tours.planner.breaksShort'),
+          value: planner.breakAdditionalMinutes == null ? '—' : formatPlannedTourDuration(planner.breakAdditionalMinutes),
+        },
     {
       label: `${t('tours.planner.plannedShort')}${planner.plannedDurationMinutes != null ? ` (${t('tours.planner.plannedTotalManual')})` : ''}`,
-      value: planner.plannedTotalMinutes == null ? t('tours.planner.walkingTimeUnknown') : formatPlannedTourDuration(planner.plannedTotalMinutes),
+      value: planner.plannedTotalMinutes == null
+        ? t('tours.planner.walkingTimeUnknown')
+        : stays?.partial && planner.plannedDurationMinutes == null
+          ? t('tours.walk.totalAtLeast', { time: formatPlannedTourDuration(planner.plannedTotalMinutes) })
+          : formatPlannedTourDuration(planner.plannedTotalMinutes),
     },
   ]
 }

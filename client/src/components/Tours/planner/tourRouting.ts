@@ -103,6 +103,18 @@ export async function routeWalkingTour(
   }, signal)
 }
 
+/**
+ * CW-01: a city walk, on foot between its stations. No hiking limit is sent,
+ * so the router keeps to the ways it takes for walking anyway (T1), and no
+ * route choice of a hike.
+ */
+export async function routeCityWalk(
+  waypoints: LandWaypoint[],
+  signal?: AbortSignal,
+): Promise<TourRouteResult | TourRouteUnreachable | null> {
+  return routeOnLand(waypoints, 'walking', {}, signal)
+}
+
 /** BIK-01: a bike tour, routed for its profile; a leg drawn by hand is kept as drawn. */
 export async function routeBikeTour(
   waypoints: LandWaypoint[],

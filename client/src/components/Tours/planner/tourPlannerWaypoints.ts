@@ -1,4 +1,4 @@
-import type { PaddleLock, TourFixedLeg, TourWaypoint, TourWaypointRole } from '@trek/shared';
+import type { PaddleLock, PlannableTourType, StationImportance, TourFixedLeg, TourWaypoint, TourWaypointRole } from '@trek/shared';
 import type { AutoBase } from './paddleRouting';
 import { keepJoinedFixedLegs } from './tourFixedLegs';
 import { alignFreeLegs } from './tourRouteActions';
@@ -21,6 +21,18 @@ export interface TourPlannerWaypoint {
   carryNext?: boolean;
   /** PR1-10: the place of the trip this point stands for, chosen on purpose; the point keeps its own spot. */
   linkedPlaceId?: number;
+  /** CW-03: the point's saved key, the same across saves, which a city walk's visits hang on. */
+  key?: string;
+  /** The point's own name: a city walk's station, a place found along the route. */
+  name?: string | null;
+  /** CW-02: a station's stay; null not known, 0 a point passed through. */
+  stayMinutes?: number | null;
+  /** CW-03: how much a station matters; absent is normal. */
+  importance?: StationImportance | null;
+  /** CW-10: a station a proposed change must leave where it is. */
+  protected?: boolean;
+  /** CW-04: the station's opening hours as OpenStreetMap writes them. */
+  openingHours?: string | null;
 }
 
 /** A saved tour's waypoints as the editor holds them, each under a fresh id. */
@@ -34,6 +46,12 @@ export function plannerWaypointsOf(saved: readonly TourWaypoint[], newId: () => 
     ...(point.lock ? { lock: point.lock } : {}),
     ...(point.shaping ? { shaping: true } : {}),
     ...(point.linked_place_id ? { linkedPlaceId: point.linked_place_id } : {}),
+    ...(point.key ? { key: point.key } : {}),
+    ...(point.name ? { name: point.name } : {}),
+    ...(point.stay_minutes != null ? { stayMinutes: point.stay_minutes } : {}),
+    ...(point.importance ? { importance: point.importance } : {}),
+    ...(point.protected ? { protected: true } : {}),
+    ...(point.opening_hours ? { openingHours: point.opening_hours } : {}),
   }));
 }
 
@@ -42,7 +60,9 @@ export function plannerWaypointsOf(saved: readonly TourWaypoint[], newId: () => 
  * keeps and nothing of the editor's own (ids, automatic marks, a portage
  * waiting for its next point).
  */
-export function savedWaypointsOf(points: readonly TourPlannerWaypoint[]): TourWaypoint[] {
+export function savedWaypointsOf(points: readonly TourPlannerWaypoint[], tourType?: PlannableTourType): TourWaypoint[] {
+  // A stay, an importance and a protection belong to a city walk's stations; another type sends none.
+  const walk = tourType === 'walk';
   return points.map((point, sequence) => ({
     lat: point.lat,
     lng: point.lng,
@@ -52,6 +72,12 @@ export function savedWaypointsOf(points: readonly TourPlannerWaypoint[]): TourWa
     ...(point.lock ? { lock: point.lock } : {}),
     ...(point.shaping ? { shaping: true } : {}),
     ...(point.linkedPlaceId ? { linked_place_id: point.linkedPlaceId } : {}),
+    ...(point.key ? { key: point.key } : {}),
+    ...(point.name ? { name: point.name } : {}),
+    ...(walk && point.stayMinutes != null ? { stay_minutes: point.stayMinutes } : {}),
+    ...(walk && point.importance ? { importance: point.importance } : {}),
+    ...(walk && point.protected ? { protected: true } : {}),
+    ...(point.openingHours ? { opening_hours: point.openingHours } : {}),
   }));
 }
 

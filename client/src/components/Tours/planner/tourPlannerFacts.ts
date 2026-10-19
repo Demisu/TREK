@@ -52,6 +52,8 @@ export interface TourPlannerFactsInput {
   /** A paddle tour's estimate on the water; null for a hike. */
   paddleEstimate: { waterMinutes: number | null; estimateMinutes: number | null } | null;
   routeAnalysis: RouteGeometryAnalysis | null;
+  /** CW-02: a city walk's stays, summed as far as they are known; null for any other type, which takes its breaks. */
+  stationStayMinutes?: number | null;
   /** The router's own time, seconds: a bike tour's riding time; stands in for a hike until the heights are in. */
   durationSeconds: number | null;
 }
@@ -69,7 +71,8 @@ function invalidMinutes(value: number | null): boolean {
 function movingMinutes(input: TourPlannerFactsInput, routerMinutes: number | null): number | null {
   const { paddleEstimate, routeAnalysis } = input;
   if (paddleEstimate) return paddleEstimate.waterMinutes === null ? null : paddleEstimate.estimateMinutes;
-  if (input.tourType === 'bike') return routerMinutes;
+  // A bike tour is timed by the router for its profile, a city walk by the router on foot.
+  if (input.tourType === 'bike' || input.tourType === 'walk') return routerMinutes;
   return routeAnalysis?.gain != null && routeAnalysis.loss != null
     ? hikingTimeMinutes(routeAnalysis.distanceKm, routeAnalysis.gain, routeAnalysis.loss)
     : routerMinutes;
@@ -92,16 +95,17 @@ function typeFieldsOf(input: TourPlannerFactsInput) {
       hiking_preferences: null,
     };
   }
+  const isHike = input.tourType === 'hike';
   return {
     tour_type: input.tourType,
-    max_hiking_difficulty: isBike ? null : input.maxHikingDifficulty,
+    max_hiking_difficulty: isHike ? input.maxHikingDifficulty : null,
     bike_profile: isBike ? input.bikeProfile : null,
     boat_type: null,
     water_context: null,
     paddle_speed_kmh: null,
     portage_speed_kmh: null,
     paddle_lake_style: null,
-    hiking_preferences: isBike ? null : input.hikingPreferences,
+    hiking_preferences: isHike ? input.hikingPreferences : null,
   };
 }
 
@@ -114,8 +118,9 @@ export function tourPlannerFacts(input: TourPlannerFactsInput) {
   const { durationSeconds, breakAdditionalMinutes, plannedDurationMinutes } = input;
   const routerMinutes = durationSeconds === null ? null : Math.round(durationSeconds / 60);
   const walkingDurationMinutes = movingMinutes(input, routerMinutes);
-  const automaticPlannedTotalMinutes =
-    walkingDurationMinutes === null ? null : walkingDurationMinutes + (breakAdditionalMinutes ?? 0);
+  // A city walk's stops are its stays; it has no breaks on top, so nothing counts twice.
+  const onTop = input.tourType === 'walk' ? (input.stationStayMinutes ?? 0) : (breakAdditionalMinutes ?? 0);
+  const automaticPlannedTotalMinutes = walkingDurationMinutes === null ? null : walkingDurationMinutes + onTop;
   const { boatType, waterContext } = input.paddle;
   return {
     isPaddle,

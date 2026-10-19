@@ -17,6 +17,7 @@ import {
   Navigation,
   RefreshCw,
   Repeat,
+  SquarePen,
   Spline,
   Trash2,
   Unlink,
@@ -46,6 +47,8 @@ import { usePaddleRegionLoad } from '../paddle/usePaddleRegionLoad';
 import { usePaddleWaypointActions } from '../paddle/usePaddleWaypointActions';
 import { usePortageRouting, usePortageWay } from '../paddle/usePortageRouting';
 import { RailCard } from '../tourParts';
+import { StationDialog } from './StationDialog';
+import { StationPills } from './stationParts';
 import { paddlePlanPoints, paddleRolesById } from './paddlePlanOf';
 import type { PaddleLegFailure } from './paddleRouting';
 import { lineLengthM } from './tourFixedLegs';
@@ -297,6 +300,7 @@ function WaypointRowLabel({
   loopEnd,
   paddleRole,
   linked = false,
+  station = false,
 }: {
   point: TourPlannerController['waypoints'][number];
   placeName: string | undefined;
@@ -305,10 +309,12 @@ function WaypointRowLabel({
   paddleRole?: PaddleRole | null;
   /** PR1-10: the point stands for this place of the trip, named after it. */
   linked?: boolean;
+  /** CW-01: a city walk's station, which shows its stay, importance and protection. */
+  station?: boolean;
 }) {
   const { t } = useTranslation();
   const coordinates = `${point.lat.toFixed(5)}, ${point.lng.toFixed(5)}`;
-  const name = loopEnd ? t('tours.planner.loopEnd') : placeName;
+  const name = loopEnd ? t('tours.planner.loopEnd') : (point.name ?? placeName);
   return (
     <>
       <span className="flex w-full min-w-0 items-center gap-1.5">
@@ -332,6 +338,7 @@ function WaypointRowLabel({
         )}
         {point.auto && <AutoPointPill />}
       </span>
+      {station && !loopEnd && <StationPills point={point} />}
       {linked && !loopEnd ? (
         // A stop standing for a place of the trip says so where the coordinates would be (PR1-10).
         <Tooltip label={t('tours.placePicker.linkedHint')}>
@@ -451,6 +458,7 @@ function WaypointRowActions({
   selected,
   isSaving,
   onUnlink,
+  stationName,
 }: {
   planner: TourPlannerController;
   point: WaypointPoint;
@@ -460,11 +468,21 @@ function WaypointRowActions({
   isSaving: boolean;
   /** PR1-10: given for a point that stands for a place; the place itself stays. */
   onUnlink?: () => void;
+  /** CW-01: the name the row shows, for a station without one of its own. */
+  stationName?: string;
 }) {
   const { t } = useTranslation();
   const menu = useContextMenu();
   const paddle = usePaddleWaypointActions(planner);
+  const [stationOpen, setStationOpen] = useState(false);
+  const station = planner.tourType === 'walk' && !point.shaping;
   const items: MenuItems = [
+    ...(station
+      ? [
+          { label: t('tours.walk.station.edit'), icon: SquarePen, onClick: () => setStationOpen(true) },
+          { divider: true } as const,
+        ]
+      : []),
     {
       label: t('tours.planner.moveUp'),
       icon: ArrowUp,
@@ -505,6 +523,17 @@ function WaypointRowActions({
         <Trash2 size={13} strokeWidth={2} />
       </WaypointAction>
       <ContextMenu menu={menu.menu} onClose={menu.close} />
+      {stationOpen && (
+        <StationDialog
+          point={point}
+          fallbackName={stationName}
+          onClose={() => setStationOpen(false)}
+          onSave={(next) => {
+            planner.editWaypoints((current) => current.map((item) => (item.id === next.id ? next : item)));
+            setStationOpen(false);
+          }}
+        />
+      )}
     </span>
   );
 }
@@ -927,6 +956,7 @@ export default function TourWaypointList({
                       loopEnd={loopEnd}
                       paddleRole={paddleRoleOf(point.id)}
                       linked={!!linkedPlace}
+                      station={planner.tourType === 'walk' && !point.shaping}
                     />
                   </button>
                   {canEdit && (
@@ -938,6 +968,7 @@ export default function TourWaypointList({
                       selected={selected}
                       isSaving={isSaving}
                       onUnlink={point.linkedPlaceId ? () => tripPlaces.unlink(point.id) : undefined}
+                      stationName={linkedPlace?.name ?? placeNames[point.id]}
                     />
                   )}
                 </div>

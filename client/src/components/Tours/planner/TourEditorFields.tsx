@@ -157,31 +157,34 @@ function TourTimeFields({ planner, locked }: TourFieldProps) {
   const manual = planner.plannedDurationMinutes != null;
   return (
     <div data-testid="tour-planner-time-grid" className="grid grid-cols-2 gap-3">
-      <div className="min-w-0">
-        <FieldLabel
-          htmlFor="tour-planner-breaks"
-          aside={
-            <InfoDot
-              label={t('tours.planner.breaksAdditionalInfoLabel')}
-              description={t('tours.planner.breaksAdditionalInfo')}
-            />
-          }
-        >
-          {t('tours.planner.breaksShort')}
-        </FieldLabel>
-        <TourDurationInput
-          id="tour-planner-breaks"
-          label={t('tours.planner.breaksAdditional')}
-          value={planner.breakAdditionalMinutes}
-          invalid={planner.breakAdditionalInvalid}
-          errorId="tour-planner-breaks-error"
-          locked={locked}
-          onCommit={planner.setBreakAdditionalMinutes}
-        />
-        {planner.breakAdditionalInvalid && (
-          <FieldError id="tour-planner-breaks-error">{t('tours.planner.timeValueInvalid')}</FieldError>
-        )}
-      </div>
+      {/* CW-02: a city walk stops at its stations; their stays take the place of breaks. */}
+      {planner.tourType !== 'walk' && (
+        <div className="min-w-0">
+          <FieldLabel
+            htmlFor="tour-planner-breaks"
+            aside={
+              <InfoDot
+                label={t('tours.planner.breaksAdditionalInfoLabel')}
+                description={t('tours.planner.breaksAdditionalInfo')}
+              />
+            }
+          >
+            {t('tours.planner.breaksShort')}
+          </FieldLabel>
+          <TourDurationInput
+            id="tour-planner-breaks"
+            label={t('tours.planner.breaksAdditional')}
+            value={planner.breakAdditionalMinutes}
+            invalid={planner.breakAdditionalInvalid}
+            errorId="tour-planner-breaks-error"
+            locked={locked}
+            onCommit={planner.setBreakAdditionalMinutes}
+          />
+          {planner.breakAdditionalInvalid && (
+            <FieldError id="tour-planner-breaks-error">{t('tours.planner.timeValueInvalid')}</FieldError>
+          )}
+        </div>
+      )}
       <div className="min-w-0">
         <FieldLabel
           htmlFor="tour-planner-planned-duration"
