@@ -59,6 +59,35 @@ export function recommendedPaddleSpeedKmh(boat: PaddleBoatType | null | undefine
 export const tourMaxHikingDifficultySchema = z.number().int().min(1).max(6);
 export type TourMaxHikingDifficulty = z.infer<typeof tourMaxHikingDifficultySchema>;
 
+/**
+ * MF-08: what a hiker asks the router for besides the difficulty limit. Only
+ * preferences whose effect on the router was measured are offered; each is a
+ * weighting that gives way where there is no other path, never a ban, and
+ * none says anything about how hard the path is. A hike without any keeps
+ * null, which is what every tour saved before had.
+ */
+export const HIKING_PREFERENCE_KEYS = ['avoid_steps', 'avoid_ferries', 'prefer_paths', 'shortest'] as const;
+export type HikingPreferenceKey = (typeof HIKING_PREFERENCE_KEYS)[number];
+export const hikingPreferencesSchema = z
+  .object({
+    /** Steps and stairs only where there is no way round. */
+    avoid_steps: z.boolean().optional(),
+    /** A ferry only where there is no way round over land. */
+    avoid_ferries: z.boolean().optional(),
+    /** Footpaths of their own over roads and their pavements, where there are some. */
+    prefer_paths: z.boolean().optional(),
+    /** The way chosen by its length, not by the time it takes. */
+    shortest: z.boolean().optional(),
+  })
+  .strict();
+export type HikingPreferences = z.infer<typeof hikingPreferencesSchema>;
+
+/** The preferences a hike keeps: only those switched on, null when none is. */
+export function hikingPreferencesOf(value: HikingPreferences | null | undefined): HikingPreferences | null {
+  const kept = HIKING_PREFERENCE_KEYS.filter((key) => value?.[key] === true);
+  return kept.length === 0 ? null : Object.fromEntries(kept.map((key) => [key, true]));
+}
+
 /** Tours are single-day activities, so a planned total is bounded to 24 hours. */
 export const MAX_PLANNED_TOUR_DURATION_MINUTES = 24 * 60;
 export const plannedTourDurationMinutesSchema = z
@@ -118,6 +147,8 @@ export const tourSchema = z.object({
   match_confidence: z.number().min(0).max(1).nullable(),
   // NULL for a GPX import: the track carries no difficulty. A drawn tour always has one.
   max_hiking_difficulty: tourMaxHikingDifficultySchema.nullable(),
+  /** MF-08: what a hike asks the router for besides its limit; null for none and for a paddle tour. Absent in a list cached before it existed. */
+  hiking_preferences: hikingPreferencesSchema.nullable().optional(),
   /** The import (a GPX file, a wanderer snapshot) this tour was planned from, while it is still in the trip. */
   derived_from_place_id: z.number().int().positive().nullable().optional(),
   /** A paddle tour's boat and water; null for every other type. Absent in a list cached before they existed. */
@@ -294,6 +325,8 @@ export const tourCreateRequestSchema = z
     waypoints: z.array(tourWaypointSchema).min(2),
     /** A hike's routing limit (2 when left out); a paddle tour has none. */
     max_hiking_difficulty: tourMaxHikingDifficultySchema.nullable().optional(),
+    /** MF-08, a hike's only: what it asks the router for besides its limit. */
+    hiking_preferences: hikingPreferencesSchema.nullable().optional(),
     boat_type: paddleBoatTypeSchema.nullable().optional(),
     water_context: paddleWaterContextSchema.nullable().optional(),
     paddle_speed_kmh: paddleSpeedKmhSchema.nullable().optional(),
@@ -373,6 +406,7 @@ export type TourCreateInput = z.input<typeof tourCreateRequestSchema>;
 function tourTypeIssues(value: {
   tour_type: PlannableTourType;
   max_hiking_difficulty?: number | null;
+  hiking_preferences?: HikingPreferences | null;
   boat_type?: PaddleBoatType | null;
   water_context?: PaddleWaterContext | null;
   paddle_speed_kmh?: number | null;
@@ -387,6 +421,8 @@ function tourTypeIssues(value: {
       issues.push({ path: ['water_context'], message: 'a paddle tour needs a water context' });
     if (value.max_hiking_difficulty != null)
       issues.push({ path: ['max_hiking_difficulty'], message: 'a paddle tour has no hiking difficulty' });
+    if (hikingPreferencesOf(value.hiking_preferences) !== null)
+      issues.push({ path: ['hiking_preferences'], message: 'a paddle tour has no hiking preferences' });
     return issues;
   }
   if (value.max_hiking_difficulty === null)

@@ -317,6 +317,19 @@ const tours: TranslationStrings = {
   'tours.placePicker.linkedHint':
     'Ця зупинка позначає місце подорожі. Видалення чи відв’язування не змінює саме місце.',
   'tours.placePicker.unlink': 'Відв’язати від місця',
+  'tours.preferences.title': 'Вибір маршруту',
+  'tours.preferences.infoLabel': 'Що робить вибір маршруту',
+  'tours.preferences.info':
+    'Ці налаштування впливають на те, який шлях обирає маршрутизатор. Де іншого шляху немає, маршрут однаково йде там. Про складність стежки вони нічого не кажуть; що може використовувати маршрут, визначає межа складності вище.',
+  'tours.preferences.avoid_steps': 'Уникати сходів',
+  'tours.preferences.avoid_stepsHint': 'Сходи лише там, де їх не обійти.',
+  'tours.preferences.avoid_ferries': 'Уникати поромів',
+  'tours.preferences.avoid_ferriesHint': 'Суходолом, де є обхід, навіть якщо він довший.',
+  'tours.preferences.prefer_paths': 'Віддавати перевагу пішохідним стежкам',
+  'tours.preferences.prefer_pathsHint': 'Окремі стежки замість доріг і тротуарів, де вони є.',
+  'tours.preferences.shortest': 'Коротше, а не швидше',
+  'tours.preferences.shortestHint':
+    'Шлях обирається за довжиною, а не за часом; часто трохи коротший, не завжди швидший.',
   'tours.planner.tourType': 'Тип туру',
   'tours.paddle.boat': 'Човен',
   'tours.paddle.boat.kayak': 'Каяк',

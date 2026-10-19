@@ -310,6 +310,19 @@ const tours: TranslationStrings = {
   'tours.placePicker.linkedHint':
     'Aquesta parada representa un lloc del viatge. Treure-la o desfer l’enllaç no canvia el lloc.',
   'tours.placePicker.unlink': 'Desenllaça del lloc',
+  'tours.preferences.title': 'Elecció de ruta',
+  'tours.preferences.infoLabel': 'Què fa l’elecció de ruta',
+  'tours.preferences.info':
+    'Aquestes opcions ponderen el camí que tria el càlcul de ruta. On no hi ha cap altre camí, la ruta hi passa igualment. No diuen res de la dificultat d’un camí; el límit de dificultat de dalt fixa què pot fer servir la ruta.',
+  'tours.preferences.avoid_steps': 'Evita escales',
+  'tours.preferences.avoid_stepsHint': 'Escales només on no hi ha cap volta possible.',
+  'tours.preferences.avoid_ferries': 'Evita transbordadors',
+  'tours.preferences.avoid_ferriesHint': 'Per terra on hi hagi una volta, encara que sigui més llarga.',
+  'tours.preferences.prefer_paths': 'Prefereix camins de vianants',
+  'tours.preferences.prefer_pathsHint': 'Camins propis en lloc de carreteres i voreres, on n’hi hagi.',
+  'tours.preferences.shortest': 'Més curt que ràpid',
+  'tours.preferences.shortestHint':
+    'El camí triat per la llargada, no pel temps; sovint una mica més curt, no sempre més ràpid.',
   'tours.planner.tourType': 'Tipus de ruta',
   'tours.paddle.boat': 'Embarcació',
   'tours.paddle.boat.kayak': 'Caiac',

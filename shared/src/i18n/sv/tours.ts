@@ -302,6 +302,18 @@ const tours: TranslationStrings = {
   'tours.placePicker.linkedHint':
     'Det här stoppet står för en plats på resan. Att ta bort det eller lösa kopplingen ändrar inte platsen.',
   'tours.placePicker.unlink': 'Lossa från platsen',
+  'tours.preferences.title': 'Ruttval',
+  'tours.preferences.infoLabel': 'Vad ruttvalet gör',
+  'tours.preferences.info':
+    'De här valen väger vilken väg ruttplaneraren väljer. Där det inte finns någon annan väg går rutten ändå där. De säger inget om hur svår en stig är; svårighetsgränsen ovanför bestämmer vad rutten får använda.',
+  'tours.preferences.avoid_steps': 'Undvik trappor',
+  'tours.preferences.avoid_stepsHint': 'Trappor bara där det inte finns någon väg runt.',
+  'tours.preferences.avoid_ferries': 'Undvik färjor',
+  'tours.preferences.avoid_ferriesHint': 'Över land där det finns en väg runt, även om den är längre.',
+  'tours.preferences.prefer_paths': 'Föredra gångvägar',
+  'tours.preferences.prefer_pathsHint': 'Egna gångvägar i stället för vägar och trottoarer, där de finns.',
+  'tours.preferences.shortest': 'Kortare i stället för snabbare',
+  'tours.preferences.shortestHint': 'Vägen väljs efter längd, inte efter tid; ofta lite kortare, inte alltid snabbare.',
   'tours.planner.tourType': 'Turtyp',
   'tours.paddle.boat': 'Båt',
   'tours.paddle.boat.kayak': 'Kajak',

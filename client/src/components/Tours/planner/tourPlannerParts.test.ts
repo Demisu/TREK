@@ -7,6 +7,7 @@ import { useTourDraftStorage } from './useTourDraftStorage';
 const hike = (overrides: Partial<TourPlannerFactsInput> = {}): TourPlannerFactsInput => ({
   tourType: 'hike',
   maxHikingDifficulty: 3,
+  hikingPreferences: null,
   website: '',
   plannedDurationMinutes: null,
   breakAdditionalMinutes: null,

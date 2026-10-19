@@ -304,6 +304,18 @@ const tours: TranslationStrings = {
   'tours.placePicker.linkedHint':
     'Tato zastávka představuje místo cesty. Odebrání nebo zrušení propojení místo nezmění.',
   'tours.placePicker.unlink': 'Odpojit od místa',
+  'tours.preferences.title': 'Volba trasy',
+  'tours.preferences.infoLabel': 'Co volba trasy dělá',
+  'tours.preferences.info':
+    'Tato volba ovlivňuje, kterou cestu plánovač vybere. Kde jiná cesta není, vede trasa tudy i tak. O obtížnosti cesty neříká nic; co smí trasa použít, určuje limit obtížnosti výše.',
+  'tours.preferences.avoid_steps': 'Vyhnout se schodům',
+  'tours.preferences.avoid_stepsHint': 'Schody jen tam, kde není cesta kolem.',
+  'tours.preferences.avoid_ferries': 'Vyhnout se přívozům',
+  'tours.preferences.avoid_ferriesHint': 'Po souši, kde vede cesta kolem, i když je delší.',
+  'tours.preferences.prefer_paths': 'Upřednostnit pěšiny',
+  'tours.preferences.prefer_pathsHint': 'Samostatné cesty místo silnic a jejich chodníků, kde jsou.',
+  'tours.preferences.shortest': 'Kratší místo rychlejší',
+  'tours.preferences.shortestHint': 'Cesta vybraná podle délky, ne podle času; často o něco kratší, ne vždy rychlejší.',
   'tours.planner.tourType': 'Typ túry',
   'tours.paddle.boat': 'Loď',
   'tours.paddle.boat.kayak': 'Kajak',

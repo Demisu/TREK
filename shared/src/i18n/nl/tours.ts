@@ -311,6 +311,18 @@ const tours: TranslationStrings = {
   'tours.placePicker.linkedHint':
     'Deze stop staat voor een plek van de reis. Verwijderen of de koppeling opheffen laat de plek zoals ze is.',
   'tours.placePicker.unlink': 'Loskoppelen van de plek',
+  'tours.preferences.title': 'Routekeuze',
+  'tours.preferences.infoLabel': 'Wat de routekeuze doet',
+  'tours.preferences.info':
+    'Deze keuzes wegen welke weg de routeplanner kiest. Waar geen andere weg is, gaat de route er toch langs. Ze zeggen niets over hoe moeilijk een pad is; de moeilijkheidsgrens hierboven bepaalt wat de route mag gebruiken.',
+  'tours.preferences.avoid_steps': 'Trappen vermijden',
+  'tours.preferences.avoid_stepsHint': 'Trappen alleen waar er geen weg omheen is.',
+  'tours.preferences.avoid_ferries': 'Veerponten vermijden',
+  'tours.preferences.avoid_ferriesHint': 'Over land waar er een weg omheen is, ook als die langer is.',
+  'tours.preferences.prefer_paths': 'Voetpaden voorkeur geven',
+  'tours.preferences.prefer_pathsHint': 'Eigen paden in plaats van wegen en stoepen, waar ze er zijn.',
+  'tours.preferences.shortest': 'Korter in plaats van sneller',
+  'tours.preferences.shortestHint': 'De weg gekozen op lengte, niet op tijd; vaak iets korter, niet altijd sneller.',
   'tours.planner.tourType': 'Soort tocht',
   'tours.paddle.boat': 'Boot',
   'tours.paddle.boat.kayak': 'Kajak',

@@ -304,6 +304,19 @@ const tours: TranslationStrings = {
   'tours.placePicker.linkedHint':
     'Bu dayanacaq səfərin bir yerini göstərir. Silmək və ya əlaqəni ləğv etmək yerin özünü dəyişmir.',
   'tours.placePicker.unlink': 'Yerlə əlaqəni ləğv et',
+  'tours.preferences.title': 'Marşrut seçimi',
+  'tours.preferences.infoLabel': 'Marşrut seçimi nə edir',
+  'tours.preferences.info':
+    'Bu seçimlər marşrutlaşdırıcının hansı yolu seçəcəyinə təsir edir. Başqa yol yoxdursa, marşrut yenə oradan keçir. Yolun çətinliyi barədə heç nə demir; marşrutun nədən istifadə edə biləcəyini yuxarıdakı çətinlik həddi müəyyən edir.',
+  'tours.preferences.avoid_steps': 'Pilləkənlərdən qaç',
+  'tours.preferences.avoid_stepsHint': 'Pilləkən yalnız dolama yol olmayan yerdə.',
+  'tours.preferences.avoid_ferries': 'Bərələrdən qaç',
+  'tours.preferences.avoid_ferriesHint': 'Dolama yol varsa, daha uzun olsa da quru ilə.',
+  'tours.preferences.prefer_paths': 'Piyada yollarına üstünlük ver',
+  'tours.preferences.prefer_pathsHint': 'Olan yerdə yollar və səkilər əvəzinə ayrıca cığırlar.',
+  'tours.preferences.shortest': 'Daha sürətli yox, daha qısa',
+  'tours.preferences.shortestHint':
+    'Yol vaxta görə yox, uzunluğa görə seçilir; çox vaxt bir az qısa, həmişə daha sürətli deyil.',
   'tours.planner.tourType': 'Tur növü',
   'tours.paddle.boat': 'Qayıq',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

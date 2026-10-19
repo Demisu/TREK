@@ -2,7 +2,7 @@ import { Places } from '../../db/entities/Places.entity';
 import { TourTypes } from '../../db/entities/TourTypes.entity';
 import { TourWaypoints } from '../../db/entities/TourWaypoints.entity';
 import { Tours } from '../../db/entities/Tours.entity';
-import { TOUR_TRACK_MARKS } from '../../db/json-columns';
+import { TOUR_HIKING_PREFERENCES, TOUR_TRACK_MARKS } from '../../db/json-columns';
 import type { PlacesRepository } from '../../db/repositories/Places.repository';
 import type { TourTypesRepository } from '../../db/repositories/TourTypes.repository';
 import type { TourWaypointsRepository } from '../../db/repositories/TourWaypoints.repository';
@@ -13,7 +13,7 @@ import type {
   ToursRepository,
   TourUpdate,
 } from '../../db/repositories/Tours.repository';
-import { decodeJson } from '../../utils/json-column';
+import { decodeJson, encodeJson } from '../../utils/json-column';
 import { DomainError } from '../common/domain-error';
 import { toRowId } from '../common/row-id';
 import { UnitOfWork } from '../database/unit-of-work';
@@ -31,6 +31,7 @@ import {
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
+  hikingPreferencesOf,
   MAX_PLANNED_TOUR_DURATION_MINUTES,
   plannedTourDurationMinutesSchema,
   tourWebsiteSchema,
@@ -66,6 +67,12 @@ export interface ImportGpxAsTourResult {
  */
 /** A GPX file imported without a type is a hike. */
 const HIKE_IMPORT: TourGpxImportFields = { tour_type: 'hike' };
+
+/** MF-08: a save's hiking preferences as stored: a hike's switched-on ones as JSON, else NULL. */
+function hikingFields(input: TourCreateRequest): string | null {
+  const preferences = input.tour_type === 'hike' ? hikingPreferencesOf(input.hiking_preferences) : null;
+  return preferences ? encodeJson(TOUR_HIKING_PREFERENCES, preferences) : null;
+}
 
 @Injectable()
 export class ToursService {
@@ -112,6 +119,7 @@ export class ToursService {
       caution: r.match_confidence !== null && r.match_confidence < LOW_CONFIDENCE_THRESHOLD,
       has_waypoints: Boolean(r.has_waypoints),
       revision: r.revision,
+      hiking_preferences: decodeJson(TOUR_HIKING_PREFERENCES, r.hiking_preferences, 'tour'),
     };
   }
 
@@ -140,6 +148,8 @@ export class ToursService {
       paddle_speed_kmh: input.paddle_speed_kmh ?? null,
       portage_speed_kmh: input.portage_speed_kmh ?? null,
       paddle_lake_style: input.paddle_lake_style ?? null,
+      // MF-08: only a hike keeps preferences, and only those switched on; none is NULL.
+      hiking_preferences: hikingFields(input),
     };
   }
 
@@ -436,6 +446,7 @@ export class ToursService {
         portage_speed_kmh: source.portage_speed_kmh,
         paddle_lake_style: source.paddle_lake_style as PaddleLakeStyle | null,
         track_marks: source.track_marks,
+        hiking_preferences: source.hiking_preferences,
         wanderer_ref: source.wanderer_ref,
         difficulty: source.difficulty,
         derived_from_place_id: pid,
@@ -628,6 +639,7 @@ export class ToursService {
             planned: 0,
             has_waypoints: 0,
             revision: 1,
+            hiking_preferences: null,
           }),
         );
       }

@@ -312,6 +312,18 @@ const tours: TranslationStrings = {
   'tours.placePicker.linkedHint':
     'Diese Station steht für einen Ort der Reise. Entfernen oder Lösen ändert den Ort nicht.',
   'tours.placePicker.unlink': 'Vom Ort lösen',
+  'tours.preferences.title': 'Routenwahl',
+  'tours.preferences.infoLabel': 'Was die Routenwahl bewirkt',
+  'tours.preferences.info':
+    'Diese Wahl gewichtet, welchen Weg der Router nimmt. Gibt es keinen anderen Weg, führt die Route trotzdem dort entlang. Über die Schwierigkeit eines Weges sagt sie nichts; was die Route nutzen darf, legt das Schwierigkeitslimit darüber fest.',
+  'tours.preferences.avoid_steps': 'Treppen meiden',
+  'tours.preferences.avoid_stepsHint': 'Treppen nur, wo es keinen Weg außen herum gibt.',
+  'tours.preferences.avoid_ferries': 'Fähren meiden',
+  'tours.preferences.avoid_ferriesHint': 'Über Land, wo es einen Weg außen herum gibt, auch wenn er länger ist.',
+  'tours.preferences.prefer_paths': 'Fußwege bevorzugen',
+  'tours.preferences.prefer_pathsHint': 'Eigene Wege statt Straßen und ihrer Gehsteige, wo es sie gibt.',
+  'tours.preferences.shortest': 'Kürzer statt schneller',
+  'tours.preferences.shortestHint': 'Der Weg nach Länge statt nach Gehzeit; oft etwas kürzer, nicht immer schneller.',
   'tours.planner.tourType': 'Tourtyp',
   'tours.paddle.boat': 'Boot',
   'tours.paddle.boat.kayak': 'Kajak',

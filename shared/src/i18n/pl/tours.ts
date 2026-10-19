@@ -317,6 +317,19 @@ const tours: TranslationStrings = {
   'tours.placePicker.linkedHint':
     'Ten przystanek oznacza miejsce podróży. Usunięcie go lub rozłączenie nie zmienia miejsca.',
   'tours.placePicker.unlink': 'Odłącz od miejsca',
+  'tours.preferences.title': 'Wybór trasy',
+  'tours.preferences.infoLabel': 'Co robi wybór trasy',
+  'tours.preferences.info':
+    'Te ustawienia ważą, którą drogę wybiera wyznaczanie trasy. Gdzie nie ma innej drogi, trasa i tak tamtędy prowadzi. Nie mówią nic o trudności ścieżki; to, czego trasa może użyć, ustala limit trudności powyżej.',
+  'tours.preferences.avoid_steps': 'Unikaj schodów',
+  'tours.preferences.avoid_stepsHint': 'Schody tylko tam, gdzie nie da się ich obejść.',
+  'tours.preferences.avoid_ferries': 'Unikaj promów',
+  'tours.preferences.avoid_ferriesHint': 'Lądem, gdzie da się obejść, nawet jeśli dłużej.',
+  'tours.preferences.prefer_paths': 'Preferuj ścieżki piesze',
+  'tours.preferences.prefer_pathsHint': 'Osobne ścieżki zamiast dróg i chodników, gdzie są.',
+  'tours.preferences.shortest': 'Krócej zamiast szybciej',
+  'tours.preferences.shortestHint':
+    'Droga wybrana według długości, nie czasu; często trochę krótsza, nie zawsze szybsza.',
   'tours.planner.tourType': 'Rodzaj wycieczki',
   'tours.paddle.boat': 'Łódź',
   'tours.paddle.boat.kayak': 'Kajak',

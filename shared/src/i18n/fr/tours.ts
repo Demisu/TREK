@@ -315,6 +315,19 @@ const tours: TranslationStrings = {
   'tours.placePicker.linkedHint':
     'Cette étape représente un lieu du voyage. La retirer ou défaire le lien ne modifie pas le lieu.',
   'tours.placePicker.unlink': 'Détacher du lieu',
+  'tours.preferences.title': 'Choix de l’itinéraire',
+  'tours.preferences.infoLabel': 'Ce que fait le choix de l’itinéraire',
+  'tours.preferences.info':
+    'Ces choix pondèrent le chemin que choisit le calcul d’itinéraire. Là où il n’y a pas d’autre chemin, l’itinéraire y passe quand même. Ils ne disent rien de la difficulté d’un chemin ; la limite de difficulté ci-dessus fixe ce que l’itinéraire peut emprunter.',
+  'tours.preferences.avoid_steps': 'Éviter les escaliers',
+  'tours.preferences.avoid_stepsHint': 'Des escaliers seulement là où on ne peut pas les contourner.',
+  'tours.preferences.avoid_ferries': 'Éviter les bacs',
+  'tours.preferences.avoid_ferriesHint': 'Par voie terrestre là où on peut contourner, même si c’est plus long.',
+  'tours.preferences.prefer_paths': 'Préférer les sentiers',
+  'tours.preferences.prefer_pathsHint': 'Des chemins à part plutôt que les routes et leurs trottoirs, là où il y en a.',
+  'tours.preferences.shortest': 'Plus court plutôt que plus rapide',
+  'tours.preferences.shortestHint':
+    'Le chemin choisi selon sa longueur, pas selon le temps ; souvent un peu plus court, pas toujours plus rapide.',
   'tours.planner.tourType': 'Type de sortie',
   'tours.paddle.boat': 'Embarcation',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

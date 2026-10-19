@@ -310,6 +310,19 @@ const tours: TranslationStrings = {
   'tours.placePicker.linkedHint':
     'Esta parada representa um local da viagem. Removê-la ou desfazer o vínculo não altera o local.',
   'tours.placePicker.unlink': 'Desvincular do local',
+  'tours.preferences.title': 'Escolha da rota',
+  'tours.preferences.infoLabel': 'O que a escolha da rota faz',
+  'tours.preferences.info':
+    'Estas escolhas pesam o caminho que o roteador escolhe. Onde não há outro caminho, a rota passa por ali mesmo assim. Não dizem nada sobre a dificuldade de um caminho; o limite de dificuldade acima define o que a rota pode usar.',
+  'tours.preferences.avoid_steps': 'Evitar escadas',
+  'tours.preferences.avoid_stepsHint': 'Escadas só onde não há caminho alternativo.',
+  'tours.preferences.avoid_ferries': 'Evitar balsas',
+  'tours.preferences.avoid_ferriesHint': 'Por terra onde houver caminho alternativo, mesmo mais longo.',
+  'tours.preferences.prefer_paths': 'Preferir trilhas a pé',
+  'tours.preferences.prefer_pathsHint': 'Caminhos próprios em vez de estradas e calçadas, onde houver.',
+  'tours.preferences.shortest': 'Mais curto em vez de mais rápido',
+  'tours.preferences.shortestHint':
+    'O caminho escolhido pela distância, não pelo tempo; em geral um pouco mais curto, nem sempre mais rápido.',
   'tours.planner.tourType': 'Tipo de passeio',
   'tours.paddle.boat': 'Embarcação',
   'tours.paddle.boat.kayak': 'Caiaque',

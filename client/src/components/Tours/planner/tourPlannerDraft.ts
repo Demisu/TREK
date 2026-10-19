@@ -1,7 +1,9 @@
 import {
+  hikingPreferencesSchema,
   MAX_PLANNED_TOUR_DURATION_MINUTES,
   paddleLockSchema,
   plannableTourTypeSchema,
+  type HikingPreferences,
   type PlannableTourType,
   type TourMaxHikingDifficulty,
 } from '@trek/shared';
@@ -30,6 +32,8 @@ export interface DraftPayload {
   paddle?: PaddleFieldValues;
   /** P2C-03: the revision of the tour the draft edits, as it was loaded. */
   baseRevision?: number | null;
+  /** MF-08: what the hike asks the router for besides its limit. */
+  hikingPreferences?: HikingPreferences | null;
 }
 
 const DRAFT_VERSIONS: ReadonlyArray<DraftPayload['version']> = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -80,6 +84,7 @@ export function validDraft(value: unknown): value is DraftPayload {
     optionalPlaceId(draft.editingPlaceId) &&
     optionalPlaceId(draft.derivedFromPlaceId) &&
     optionalPlaceId(draft.baseRevision) &&
+    (draft.hikingPreferences == null || hikingPreferencesSchema.safeParse(draft.hikingPreferences).success) &&
     optionalDifficulty(draft.maxHikingDifficulty) &&
     (draft.tourType === undefined || plannableTourTypeSchema.safeParse(draft.tourType).success) &&
     Array.isArray(draft.waypoints) &&

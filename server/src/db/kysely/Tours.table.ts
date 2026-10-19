@@ -27,4 +27,5 @@ export interface ToursTable {
   track_marks: InsertOptional<string | null>;
   paddle_lake_style: InsertOptional<string | null>;
   revision: InsertOptional<number>;
+  hiking_preferences: InsertOptional<string | null>;
 }

@@ -425,4 +425,52 @@ describe('Tours planned e2e (real guards + temp SQLite)', () => {
       expect(detail.body.waypoints[0].linked_place_id).toBe(lake.id);
     });
   });
+
+  describe('hiking preferences (MF-08)', () => {
+    it('a hike keeps the preferences switched on, reads them back, and a copy carries them', async () => {
+      const placeId = await createViaApi(
+        5,
+        tourBody({ hiking_preferences: { avoid_steps: true, prefer_paths: true, shortest: false } }),
+      );
+      const detail = await request(server).get(`/api/trips/5/tours/${placeId}`).set('Cookie', sessionCookie(OWNER));
+      expect(detail.body.tour.hiking_preferences).toEqual({ avoid_steps: true, prefer_paths: true });
+      const copy = await request(server)
+        .post(`/api/trips/5/tours/${placeId}/copy`)
+        .set('Cookie', sessionCookie(OWNER))
+        .send({ name: 'Copy' });
+      expect(copy.body.tour.hiking_preferences).toEqual({ avoid_steps: true, prefer_paths: true });
+
+      // An edit that switches them all off keeps none; one without the field keeps none too.
+      const off = await request(server)
+        .put(`/api/trips/5/tours/${placeId}`)
+        .set('Cookie', sessionCookie(OWNER))
+        .send(tourBody({ hiking_preferences: { avoid_steps: false } }));
+      expect(off.body.tour.hiking_preferences).toBeNull();
+      expect((await findRow(orm, Tours, { place: placeId }))?.hiking_preferences).toBeNull();
+    });
+
+    it('a tour saved before keeps none, an unknown preference is refused, and a paddle tour has none', async () => {
+      const plain = await createViaApi();
+      const detail = await request(server).get(`/api/trips/5/tours/${plain}`).set('Cookie', sessionCookie(OWNER));
+      expect(detail.body.tour.hiking_preferences).toBeNull();
+      const unknown = await request(server)
+        .post('/api/trips/5/tours')
+        .set('Cookie', sessionCookie(OWNER))
+        .send(tourBody({ hiking_preferences: { avoid_hills: true } }));
+      expect(unknown.status).toBe(400);
+      const paddle = await request(server)
+        .post('/api/trips/5/tours')
+        .set('Cookie', sessionCookie(OWNER))
+        .send(
+          tourBody({
+            tour_type: 'kayak',
+            boat_type: 'kayak',
+            water_context: 'lake',
+            max_hiking_difficulty: null,
+            hiking_preferences: { avoid_steps: true },
+          }),
+        );
+      expect(paddle.status).toBe(400);
+    });
+  });
 });

@@ -191,7 +191,7 @@ export async function valhallaRun(
   profile: 'driving' | 'walking' | 'cycling',
   avoid: readonly AvoidClass[],
   signal?: AbortSignal,
-  costingOptions: Readonly<Record<string, number>> = {},
+  costingOptions: Readonly<Record<string, number | boolean>> = {},
 ): Promise<ValhallaRun | null> {
   const base = valhallaBase()
   if (!base || notValhalla.has(base) || waypoints.length < 2) return null
@@ -315,14 +315,14 @@ function routeBody(
   waypoints: Waypoint[],
   profile: 'driving' | 'walking' | 'cycling',
   avoid: readonly AvoidClass[],
-  costingOptions: Readonly<Record<string, number>> = {},
+  costingOptions: Readonly<Record<string, number | boolean>> = {},
 ): Record<string, unknown> {
   const costing = COSTING[profile]
   // All of them in one request: the options are independent weightings, so asking to
   // leave out tolls and ferries together is one question rather than two routes to
   // reconcile. Measured Hamburg to Copenhagen: tolls, motorways and ferries weighted
   // away together answered 656.9 km against 339.2 km for the plain route.
-  const options: Record<string, number> = { ...costingOptions }
+  const options: Record<string, number | boolean> = { ...costingOptions }
   for (const cls of avoid) options[AVOID_OPTION[cls]] = 0
   return {
     locations: waypoints.map(w => ({ lat: w.lat, lon: w.lng, radius: SNAP_RADIUS_M })),
@@ -366,7 +366,7 @@ async function requestRun(
   profile: 'driving' | 'walking' | 'cycling',
   avoid: readonly AvoidClass[],
   signal?: AbortSignal,
-  costingOptions: Readonly<Record<string, number>> = {},
+  costingOptions: Readonly<Record<string, number | boolean>> = {},
 ): Promise<Omit<ValhallaRun, 'snapped'> | null> {
   const data = await postRoute(base, routeBody(waypoints, profile, avoid, costingOptions), signal)
   return data === null ? null : runFrom(data)

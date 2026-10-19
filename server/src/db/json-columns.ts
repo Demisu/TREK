@@ -2,6 +2,7 @@ import type { JsonColumn } from '../utils/json-column';
 import {
   FERRATAS_RESULT_CAP,
   ferrataSchema,
+  hikingPreferencesSchema,
   obstacleSnapshotSchema,
   paddleGeometrySchema,
   paddleLockSchema,
@@ -10,6 +11,7 @@ import {
   tourFixedLegSchema,
   trackMarksSchema,
   type Ferrata,
+  type HikingPreferences,
   type ObstacleSnapshot,
   type PaddleGeometry,
   type PaddleLock,
@@ -172,6 +174,13 @@ export const TOUR_WAYPOINT_LOCK: JsonColumn<PaddleLock | null> = {
 export const TOUR_TRACK_MARKS: JsonColumn<TrackMarks | null> = {
   column: 'tours.track_marks',
   schema: trackMarksSchema.nullable(),
+  fallback: () => null,
+};
+
+/** MF-08: a hike's routing preferences. A broken row reads as none, so the hike routes as it would without. */
+export const TOUR_HIKING_PREFERENCES: JsonColumn<HikingPreferences | null> = {
+  column: 'tours.hiking_preferences',
+  schema: hikingPreferencesSchema.nullable(),
   fallback: () => null,
 };
 

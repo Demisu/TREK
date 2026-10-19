@@ -1,4 +1,5 @@
 import {
+  hikingPreferencesOf,
   MAX_PADDLE_SPEED_KMH,
   MAX_PLANNED_TOUR_DURATION_MINUTES,
   recommendedPaddleSpeedKmh,
@@ -300,5 +301,44 @@ describe('Tours paddle type', () => {
       caution: false,
     };
     expect(tourListItemSchema.parse(cached).boat_type).toBeUndefined();
+  });
+});
+
+describe('hiking preferences (MF-08)', () => {
+  const hike = {
+    name: 'Ridge',
+    route_geometry: [
+      [47, 11, 600],
+      [47.01, 11.01, 650],
+    ],
+    waypoints: [
+      { lat: 47, lng: 11, role: 'start', sequence: 0 },
+      { lat: 47.01, lng: 11.01, role: 'end', sequence: 1 },
+    ],
+  };
+
+  it('keeps only the preferences switched on, and none as null', () => {
+    expect(hikingPreferencesOf({ avoid_steps: true, shortest: false })).toEqual({ avoid_steps: true });
+    expect(hikingPreferencesOf({ avoid_steps: false })).toBeNull();
+    expect(hikingPreferencesOf(null)).toBeNull();
+    const parsed = tourCreateRequestSchema.parse({
+      ...hike,
+      hiking_preferences: { prefer_paths: true, avoid_ferries: false },
+    });
+    expect(hikingPreferencesOf(parsed.hiking_preferences)).toEqual({ prefer_paths: true });
+    expect(tourCreateRequestSchema.parse(hike).hiking_preferences).toBeUndefined();
+  });
+
+  it('refuses a preference it does not know, and any on a paddle tour', () => {
+    expect(tourCreateRequestSchema.safeParse({ ...hike, hiking_preferences: { avoid_hills: true } }).success).toBe(
+      false,
+    );
+    const paddle = { ...hike, tour_type: 'kayak', boat_type: 'kayak', water_context: 'lake' };
+    expect(tourCreateRequestSchema.safeParse({ ...paddle, hiking_preferences: { avoid_steps: true } }).success).toBe(
+      false,
+    );
+    expect(tourCreateRequestSchema.safeParse({ ...paddle, hiking_preferences: { avoid_steps: false } }).success).toBe(
+      true,
+    );
   });
 });

@@ -310,6 +310,19 @@ const tours: TranslationStrings = {
   'tours.placePicker.linkedHint':
     'Ez a megálló az út egy helyét jelöli. Eltávolítása vagy a kapcsolat bontása nem változtat a helyen.',
   'tours.placePicker.unlink': 'Leválasztás a helyről',
+  'tours.preferences.title': 'Útvonalválasztás',
+  'tours.preferences.infoLabel': 'Mit tesz az útvonalválasztás',
+  'tours.preferences.info':
+    'Ezek a beállítások azt súlyozzák, melyik utat választja az útvonaltervező. Ahol nincs más út, az útvonal mégis arra vezet. A nehézségről nem mondanak semmit; hogy mit használhat az útvonal, a fenti nehézségi korlát szabja meg.',
+  'tours.preferences.avoid_steps': 'Lépcsők kerülése',
+  'tours.preferences.avoid_stepsHint': 'Lépcső csak ott, ahol nincs kerülőút.',
+  'tours.preferences.avoid_ferries': 'Kompok kerülése',
+  'tours.preferences.avoid_ferriesHint': 'Szárazföldön, ahol van kerülőút, akkor is, ha hosszabb.',
+  'tours.preferences.prefer_paths': 'Gyalogutak előnyben',
+  'tours.preferences.prefer_pathsHint': 'Önálló utak az utak és járdáik helyett, ahol vannak.',
+  'tours.preferences.shortest': 'Rövidebb a gyorsabb helyett',
+  'tours.preferences.shortestHint':
+    'Az utat a hossza szerint választja, nem az idő szerint; gyakran kicsit rövidebb, nem mindig gyorsabb.',
   'tours.planner.tourType': 'Túratípus',
   'tours.paddle.boat': 'Hajó',
   'tours.paddle.boat.kayak': 'Kajak',

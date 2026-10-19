@@ -316,6 +316,19 @@ const tours: TranslationStrings = {
   'tours.placePicker.linkedHint':
     'Αυτή η στάση αντιστοιχεί σε ένα μέρος του ταξιδιού. Η αφαίρεση ή η αποσύνδεση δεν αλλάζει το μέρος.',
   'tours.placePicker.unlink': 'Αποσύνδεση από το μέρος',
+  'tours.preferences.title': 'Επιλογή διαδρομής',
+  'tours.preferences.infoLabel': 'Τι κάνει η επιλογή διαδρομής',
+  'tours.preferences.info':
+    'Αυτές οι επιλογές σταθμίζουν τον δρόμο που επιλέγει ο δρομολογητής. Όπου δεν υπάρχει άλλος δρόμος, η διαδρομή περνά από εκεί ούτως ή άλλως. Δεν λένε τίποτα για τη δυσκολία ενός μονοπατιού· το όριο δυσκολίας παραπάνω ορίζει τι μπορεί να χρησιμοποιήσει η διαδρομή.',
+  'tours.preferences.avoid_steps': 'Αποφυγή σκαλοπατιών',
+  'tours.preferences.avoid_stepsHint': 'Σκαλοπάτια μόνο όπου δεν υπάρχει παράκαμψη.',
+  'tours.preferences.avoid_ferries': 'Αποφυγή πορθμείων',
+  'tours.preferences.avoid_ferriesHint': 'Από ξηράς όπου υπάρχει παράκαμψη, ακόμη κι αν είναι μεγαλύτερη.',
+  'tours.preferences.prefer_paths': 'Προτίμηση πεζόδρομων',
+  'tours.preferences.prefer_pathsHint': 'Ξεχωριστά μονοπάτια αντί για δρόμους και πεζοδρόμια, όπου υπάρχουν.',
+  'tours.preferences.shortest': 'Συντομότερη αντί για ταχύτερη',
+  'tours.preferences.shortestHint':
+    'Ο δρόμος επιλέγεται με βάση το μήκος, όχι τον χρόνο· συχνά λίγο μικρότερος, όχι πάντα ταχύτερος.',
   'tours.planner.tourType': 'Τύπος διαδρομής',
   'tours.paddle.boat': 'Σκάφος',
   'tours.paddle.boat.kayak': 'Καγιάκ',

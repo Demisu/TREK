@@ -305,6 +305,19 @@ const tours: TranslationStrings = {
   'tours.placePicker.linkedHint':
     'Táto zastávka predstavuje miesto cesty. Odstránenie alebo zrušenie prepojenia miesto nezmení.',
   'tours.placePicker.unlink': 'Odpojiť od miesta',
+  'tours.preferences.title': 'Voľba trasy',
+  'tours.preferences.infoLabel': 'Čo robí voľba trasy',
+  'tours.preferences.info':
+    'Táto voľba ovplyvňuje, ktorú cestu plánovač vyberie. Kde iná cesta nie je, vedie trasa tadiaľ aj tak. O náročnosti cesty nehovorí nič; čo smie trasa použiť, určuje limit náročnosti vyššie.',
+  'tours.preferences.avoid_steps': 'Vyhnúť sa schodom',
+  'tours.preferences.avoid_stepsHint': 'Schody len tam, kde nie je cesta okolo.',
+  'tours.preferences.avoid_ferries': 'Vyhnúť sa prievozom',
+  'tours.preferences.avoid_ferriesHint': 'Po súši, kde vedie cesta okolo, aj keď je dlhšia.',
+  'tours.preferences.prefer_paths': 'Uprednostniť chodníky',
+  'tours.preferences.prefer_pathsHint': 'Samostatné cesty namiesto ciest a chodníkov, kde sú.',
+  'tours.preferences.shortest': 'Kratšie namiesto rýchlejšie',
+  'tours.preferences.shortestHint':
+    'Cesta vybraná podľa dĺžky, nie podľa času; často o niečo kratšia, nie vždy rýchlejšia.',
   'tours.planner.tourType': 'Typ túry',
   'tours.paddle.boat': 'Loď',
   'tours.paddle.boat.kayak': 'Kajak',

@@ -304,6 +304,19 @@ const tours: TranslationStrings = {
   'tours.placePicker.linkedHint':
     'Điểm dừng này đại diện cho một địa điểm của chuyến đi. Xóa hoặc bỏ liên kết không làm thay đổi địa điểm.',
   'tours.placePicker.unlink': 'Bỏ liên kết với địa điểm',
+  'tours.preferences.title': 'Chọn tuyến đường',
+  'tours.preferences.infoLabel': 'Chọn tuyến đường làm gì',
+  'tours.preferences.info':
+    'Các lựa chọn này điều chỉnh con đường bộ định tuyến chọn. Nơi không có đường khác, tuyến vẫn đi qua đó. Chúng không nói gì về độ khó của đường; giới hạn độ khó phía trên quyết định tuyến được dùng những gì.',
+  'tours.preferences.avoid_steps': 'Tránh bậc thang',
+  'tours.preferences.avoid_stepsHint': 'Chỉ đi bậc thang khi không có đường vòng.',
+  'tours.preferences.avoid_ferries': 'Tránh phà',
+  'tours.preferences.avoid_ferriesHint': 'Đi đường bộ nơi có đường vòng, kể cả khi dài hơn.',
+  'tours.preferences.prefer_paths': 'Ưu tiên lối đi bộ',
+  'tours.preferences.prefer_pathsHint': 'Lối riêng thay vì đường xe và vỉa hè, nơi có.',
+  'tours.preferences.shortest': 'Ngắn hơn thay vì nhanh hơn',
+  'tours.preferences.shortestHint':
+    'Chọn đường theo độ dài chứ không theo thời gian; thường ngắn hơn một chút, không phải lúc nào cũng nhanh hơn.',
   'tours.planner.tourType': 'Loại chuyến',
   'tours.paddle.boat': 'Thuyền',
   'tours.paddle.boat.kayak': 'Thuyền kayak',

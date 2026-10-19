@@ -35,6 +35,16 @@ describe('routeWalkingTour', () => {
     })
   })
 
+  it('TOUR-ROUTING-030: asks the router for the preferences of a hike beside its limit (MF-08)', async () => {
+    await routeWalkingTour(waypoints, undefined, 3, { avoid_steps: true, shortest: true })
+
+    expect(valhallaRun).toHaveBeenCalledWith(waypoints, 'walking', [], undefined, {
+      max_hiking_difficulty: 3,
+      step_penalty: 600,
+      shortest: true,
+    })
+  })
+
   it('TOUR-ROUTING-020: takes a fixed leg as its own line and routes only the runs around it', async () => {
     const leg = {
       kind: 'ferrata' as const,

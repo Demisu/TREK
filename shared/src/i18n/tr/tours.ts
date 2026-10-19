@@ -304,6 +304,19 @@ const tours: TranslationStrings = {
   'tours.placePicker.linkedHint':
     'Bu durak gezinin bir yerini temsil eder. Kaldırmak ya da bağlantıyı çözmek yeri değiştirmez.',
   'tours.placePicker.unlink': 'Yerden ayır',
+  'tours.preferences.title': 'Rota seçimi',
+  'tours.preferences.infoLabel': 'Rota seçimi ne yapar',
+  'tours.preferences.info':
+    'Bu seçimler rota planlayıcının hangi yolu seçeceğini ağırlıklandırır. Başka yol yoksa rota yine oradan geçer. Bir patikanın zorluğu hakkında bir şey söylemez; rotanın neyi kullanabileceğini yukarıdaki zorluk sınırı belirler.',
+  'tours.preferences.avoid_steps': 'Merdivenlerden kaçın',
+  'tours.preferences.avoid_stepsHint': 'Merdiven yalnızca dolaşacak yol yoksa.',
+  'tours.preferences.avoid_ferries': 'Feribotlardan kaçın',
+  'tours.preferences.avoid_ferriesHint': 'Dolaşacak yol varsa daha uzun olsa da karadan.',
+  'tours.preferences.prefer_paths': 'Yaya yollarını tercih et',
+  'tours.preferences.prefer_pathsHint': 'Varsa yollar ve kaldırımlar yerine ayrı patikalar.',
+  'tours.preferences.shortest': 'Hızlı yerine kısa',
+  'tours.preferences.shortestHint':
+    'Yol süreye göre değil uzunluğa göre seçilir; çoğu zaman biraz daha kısa, her zaman daha hızlı değil.',
   'tours.planner.tourType': 'Tur türü',
   'tours.paddle.boat': 'Tekne',
   'tours.paddle.boat.kayak': 'Kano (kayak)',

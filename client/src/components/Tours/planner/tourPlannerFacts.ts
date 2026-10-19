@@ -1,6 +1,7 @@
 import {
   MAX_PLANNED_TOUR_DURATION_MINUTES,
   tourWebsiteSchema,
+  type HikingPreferences,
   type PaddleBoatType,
   type PaddleLakeStyle,
   type PaddleWaterContext,
@@ -14,6 +15,8 @@ import { hikingTimeMinutes } from '../hikingTime';
 export interface TourPlannerFactsInput {
   tourType: PlannableTourType;
   maxHikingDifficulty: TourMaxHikingDifficulty;
+  /** MF-08: what the hike asks the router for besides its limit. */
+  hikingPreferences: HikingPreferences | null;
   website: string;
   plannedDurationMinutes: number | null;
   breakAdditionalMinutes: number | null;
@@ -84,6 +87,7 @@ export function tourPlannerFacts(input: TourPlannerFactsInput) {
           paddle_speed_kmh: speedKmh,
           portage_speed_kmh: portageSpeedKmh,
           paddle_lake_style: lakeStyle,
+          hiking_preferences: null,
         }
       : {
           tour_type: input.tourType,
@@ -93,6 +97,7 @@ export function tourPlannerFacts(input: TourPlannerFactsInput) {
           paddle_speed_kmh: null,
           portage_speed_kmh: null,
           paddle_lake_style: null,
+          hiking_preferences: input.hikingPreferences,
         },
   };
 }

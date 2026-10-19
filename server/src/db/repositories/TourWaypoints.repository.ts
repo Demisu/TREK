@@ -103,10 +103,18 @@ export class TourWaypointsRepository extends TrekRepository<TourWaypoints> {
   /**
    * TW3 — `INSERT INTO tour_waypoints (place_id, lat, lng, role, sequence, fixed_leg, lock, shaping)
    * VALUES (...)` for each point. The caller owns the transaction: a create
-   * writes the tour first, an edit clears the old points first.
+   * writes the tour first, an edit clears the old points first. A trip copy
+   * hands its map of copied places, which the links follow.
    */
-  async insertForPlace(place_id: number, waypoints: readonly TourWaypointRow[]): Promise<void> {
+  async insertForPlace(
+    place_id: number,
+    waypoints: readonly TourWaypointRow[],
+    copiedPlaceIds?: ReadonlyMap<number, number>,
+  ): Promise<void> {
     if (waypoints.length === 0) return;
+    // In a trip copy a point standing for a place of the trip stands for that place's copy (PR1-10).
+    const linkOf = (id: number | null | undefined) =>
+      id == null ? null : copiedPlaceIds ? (copiedPlaceIds.get(id) ?? null) : id;
     await this.insertMany(
       waypoints.map((w) => ({
         place: place_id,
@@ -117,7 +125,7 @@ export class TourWaypointsRepository extends TrekRepository<TourWaypoints> {
         fixed_leg: w.fixed_leg ? encodeJson(TOUR_WAYPOINT_FIXED_LEG, w.fixed_leg) : null,
         lock: w.lock ? encodeJson(TOUR_WAYPOINT_LOCK, w.lock) : null,
         shaping: w.shaping ? 1 : 0,
-        linkedPlace: w.linked_place_id ?? null,
+        linkedPlace: linkOf(w.linked_place_id),
       })),
     );
   }

@@ -1,4 +1,4 @@
-import type { TourFixedLeg } from '@trek/shared'
+import type { HikingPreferences, TourFixedLeg } from '@trek/shared'
 import type { Waypoint } from '../../../types'
 import { valhallaBase, valhallaRun, valhallaTurn } from '../../Map/valhallaRoute'
 import { densifyLine, lineLengthM } from './tourFixedLegs'
@@ -35,6 +35,31 @@ const TOURS_MAX_HIKING_DIFFICULTY = 2
 const FIXED_LEG_KM_PER_HOUR = { ferrata: 1.5, free: 4, portage: 2 } as const
 
 /**
+ * MF-08: a hike's preferences as Valhalla's pedestrian costing options. Each
+ * one was checked against the public instance before it was offered, and is a
+ * weighting that gives way where there is no other path:
+ * - avoid_steps, `step_penalty` 600 s: Würzburg Altstadt to the Festung went
+ *   from four flights of steps over 1.49 km to one over 2.67 km.
+ * - avoid_ferries, `use_ferry` 0: Kiel Reventlou to Dietrichsdorf went from the
+ *   Förde ferry (2.7 km) round the fjord on land (8.3 km); Hamburg
+ *   Landungsbrücken to Steinwerder through the old Elbe tunnel instead of the ferry.
+ * - prefer_paths, `walkway_factor` 0.5: footpaths of their own weigh half of a
+ *   road, which moved Garmisch station to the Partnachklamm onto the paths.
+ * - shortest, `shortest`: the way by its length, not its time (Garmisch to the
+ *   Eckbauer 5.09 km to 4.96 km); it still honours the penalties above.
+ * Left out because the router showed no effect on foot: `use_hills` and
+ * `use_tracks`; nor has it any option for marked, paved or rough ways.
+ */
+export function hikingCostingOptions(preferences: HikingPreferences | null | undefined): Record<string, number | boolean> {
+  return {
+    ...(preferences?.avoid_steps ? { step_penalty: 600 } : {}),
+    ...(preferences?.avoid_ferries ? { use_ferry: 0 } : {}),
+    ...(preferences?.prefer_paths ? { walkway_factor: 0.5 } : {}),
+    ...(preferences?.shortest ? { shortest: true } : {}),
+  }
+}
+
+/**
  * Tours deliberately bypasses the OSRM-first RouteCalculator. A waypoint whose
  * leg is fixed (a via ferrata on the tour) hands its own line over for that
  * leg; the router only plans the runs between fixed legs, one request each.
@@ -43,6 +68,7 @@ export async function routeWalkingTour(
   waypoints: Array<Pick<Waypoint, 'lat' | 'lng'> & { fixedLeg?: TourFixedLeg | null }>,
   signal?: AbortSignal,
   maxHikingDifficulty = TOURS_MAX_HIKING_DIFFICULTY,
+  preferences: HikingPreferences | null = null,
 ): Promise<TourRouteResult | null> {
   const lines: TourRoutePart[] = []
   let distanceMeters = 0
@@ -51,6 +77,7 @@ export async function routeWalkingTour(
     if (run.length < 2) return true
     const routed = await valhallaRun(run.map(({ lat, lng }) => ({ lat, lng })), 'walking', [], signal, {
       max_hiking_difficulty: maxHikingDifficulty,
+      ...hikingCostingOptions(preferences),
     })
     if (!routed) return false
     lines.push({ coordinates: routed.total.coordinates, free: false })

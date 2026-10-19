@@ -1018,7 +1018,7 @@ describe('useTourPlanner', () => {
     expect(result.current.waypoints.map(point => point.role)).toEqual(['start', 'end'])
     expect(result.current.hasUnsavedChanges).toBe(false)
     await act(async () => { await vi.advanceTimersByTimeAsync(450) })
-    expect(routeWalkingTour).toHaveBeenCalledWith(result.current.waypoints, expect.any(AbortSignal), 2)
+    expect(routeWalkingTour).toHaveBeenCalledWith(result.current.waypoints, expect.any(AbortSignal), 2, null)
     expect(result.current.status).toBe('ready')
     expect(result.current.route).toEqual(routed.coordinates)
 
@@ -1451,6 +1451,28 @@ describe('useTourPlanner', () => {
     expect(JSON.parse(localStorage.getItem('tour-draft-15') || 'null')).toMatchObject({
       maxHikingDifficulty: 4,
     })
+  })
+
+  it('TOUR-PLANNER-040: hiking preferences are a step of the history, kept in the draft and sent with the route (MF-08)', async () => {
+    const { result } = renderHook(() => useTourPlanner({ tripId: 41 }))
+    act(() => {
+      result.current.addWaypoint(48, 11)
+      result.current.addWaypoint(48.01, 11.02)
+    })
+    act(() => result.current.setHikingPreferences({ avoid_steps: true, shortest: false }))
+    expect(result.current.hikingPreferences).toEqual({ avoid_steps: true })
+    expect(JSON.parse(localStorage.getItem('tour-draft-41') || 'null')).toMatchObject({ hikingPreferences: { avoid_steps: true } })
+    await act(async () => { await vi.advanceTimersByTimeAsync(450) })
+    expect(routeWalkingTour).toHaveBeenLastCalledWith(expect.any(Array), expect.any(AbortSignal), 2, { avoid_steps: true })
+
+    // The same choice again is no step; an undo takes the preferences back with it.
+    act(() => result.current.setHikingPreferences({ avoid_steps: true }))
+    act(() => result.current.undo())
+    expect(result.current.hikingPreferences).toBeNull()
+    act(() => result.current.redo())
+    expect(result.current.hikingPreferences).toEqual({ avoid_steps: true })
+    act(() => result.current.startNewTour(true))
+    expect(result.current.hikingPreferences).toBeNull()
   })
 
   it('TOUR-PLANNER-010: starts a clean T2 draft and clears route, selection, history, and stored draft', async () => {

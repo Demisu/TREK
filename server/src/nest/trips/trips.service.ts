@@ -754,11 +754,7 @@ export class TripsService {
         waypointsByPlace.set(place_id, list);
       }
       for (const [placeId, waypoints] of waypointsByPlace) {
-        // A point standing for a place of the trip stands for that place's copy (PR1-10).
-        const remapped = waypoints.map((point) =>
-          point.linked_place_id ? { ...point, linked_place_id: placeMap.get(point.linked_place_id) ?? null } : point,
-        );
-        await this.tourWaypointsRepo.insertForPlace(placeMap.get(placeId)!, remapped);
+        await this.tourWaypointsRepo.insertForPlace(placeMap.get(placeId)!, waypoints, placeMap);
       }
 
       const oldAssignments = await this.dayAssignmentsRepo.listAllForTrip(sourceTripId); // TP48

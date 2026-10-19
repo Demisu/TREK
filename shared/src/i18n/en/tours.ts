@@ -303,6 +303,19 @@ const tours: TranslationStrings = {
   'tours.placePicker.linkedHint':
     'This stop stands for a place of the trip. Removing it, or undoing the link, leaves the place as it is.',
   'tours.placePicker.unlink': 'Unlink from the place',
+  'tours.preferences.title': 'Route choice',
+  'tours.preferences.infoLabel': 'What the route choice does',
+  'tours.preferences.info':
+    'These choices weigh the way the router picks. Where there is no other way, the route still goes there. They say nothing about how difficult a path is; the difficulty limit above sets what the route may use.',
+  'tours.preferences.avoid_steps': 'Avoid steps',
+  'tours.preferences.avoid_stepsHint': 'Steps and stairs only where there is no way round.',
+  'tours.preferences.avoid_ferries': 'Avoid ferries',
+  'tours.preferences.avoid_ferriesHint': 'Over land where there is a way round, even when it is longer.',
+  'tours.preferences.prefer_paths': 'Prefer footpaths',
+  'tours.preferences.prefer_pathsHint': 'Paths of their own over roads and their pavements, where there are some.',
+  'tours.preferences.shortest': 'Shorter over faster',
+  'tours.preferences.shortestHint':
+    'The way chosen by its length, not by the time it takes; often a little shorter, not always quicker.',
   'tours.planner.tourType': 'Tour type',
   'tours.paddle.boat': 'Boat',
   'tours.paddle.boat.kayak': 'Kayak',

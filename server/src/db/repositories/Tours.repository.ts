@@ -40,6 +40,8 @@ export interface TourListRow {
   has_waypoints: number;
   /** P2C-03: the tour's technical revision. */
   revision: number;
+  /** MF-08: a hike's routing preferences, still JSON text. */
+  hiking_preferences: string | null;
 }
 
 /** Every `tours` column, as the trip copy reads and re-inserts it. */
@@ -68,6 +70,7 @@ export interface TourRow {
   paddle_lake_style: string | null;
   track_marks: string | null;
   revision: number;
+  hiking_preferences: string | null;
 }
 const _tourRowKeys: AssertRowKeys<TourRow, Tours> = true;
 
@@ -89,6 +92,8 @@ export interface TourInsert {
   paddle_speed_kmh?: number | null;
   portage_speed_kmh?: number | null;
   paddle_lake_style?: PaddleLakeStyle | null;
+  /** MF-08: a hike's routing preferences as JSON text; left out, none. */
+  hiking_preferences?: string | null;
 }
 
 /** What a route edit replaces on an existing tour: the type and everything that belongs to it. */
@@ -204,6 +209,7 @@ export class ToursRepository extends TrekRepository<Tours> {
         't.paddle_lake_style as paddle_lake_style',
         't.track_marks as track_marks',
         't.revision as revision',
+        't.hiking_preferences as hiking_preferences',
         eb('t.recorded_route_geometry', 'is not', null).as('has_recorded_track'),
         eb
           .exists(eb.selectFrom('day_assignments as da').select('da.id').whereRef('da.place_id', '=', 'p.id'))
@@ -461,6 +467,7 @@ export class ToursRepository extends TrekRepository<Tours> {
       portage_speed_kmh: input.portage_speed_kmh ?? null,
       paddle_lake_style: input.paddle_lake_style ?? null,
       track_marks: input.track_marks ?? null,
+      hiking_preferences: input.hiking_preferences ?? null,
     });
   }
 
@@ -541,6 +548,7 @@ export class ToursRepository extends TrekRepository<Tours> {
         paddle_speed_kmh: input.paddle_speed_kmh,
         portage_speed_kmh: input.portage_speed_kmh,
         paddle_lake_style: input.paddle_lake_style,
+        ...(input.hiking_preferences !== undefined ? { hiking_preferences: input.hiking_preferences } : {}),
       })
       .where('place_id', '=', place_id)
       .where('place_id', 'in', (eb) => eb.selectFrom('places').select('id').where('trip_id', '=', trip_id))

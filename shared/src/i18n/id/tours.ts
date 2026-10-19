@@ -303,6 +303,19 @@ const tours: TranslationStrings = {
   'tours.placePicker.linkedHint':
     'Pemberhentian ini mewakili tempat dalam perjalanan. Menghapus atau melepas tautannya tidak mengubah tempat itu.',
   'tours.placePicker.unlink': 'Lepas dari tempat',
+  'tours.preferences.title': 'Pilihan rute',
+  'tours.preferences.infoLabel': 'Apa yang dilakukan pilihan rute',
+  'tours.preferences.info':
+    'Pilihan ini memberi bobot pada jalan yang dipilih perute. Jika tidak ada jalan lain, rute tetap lewat sana. Pilihan ini tidak mengatakan apa pun soal tingkat kesulitan jalur; batas kesulitan di atas menentukan apa yang boleh dipakai rute.',
+  'tours.preferences.avoid_steps': 'Hindari tangga',
+  'tours.preferences.avoid_stepsHint': 'Tangga hanya jika tidak ada jalan memutar.',
+  'tours.preferences.avoid_ferries': 'Hindari feri',
+  'tours.preferences.avoid_ferriesHint': 'Lewat darat jika ada jalan memutar, meski lebih panjang.',
+  'tours.preferences.prefer_paths': 'Utamakan jalur pejalan kaki',
+  'tours.preferences.prefer_pathsHint': 'Jalur tersendiri alih-alih jalan raya dan trotoarnya, bila ada.',
+  'tours.preferences.shortest': 'Lebih pendek ketimbang lebih cepat',
+  'tours.preferences.shortestHint':
+    'Jalan dipilih berdasarkan panjangnya, bukan waktunya; sering sedikit lebih pendek, tidak selalu lebih cepat.',
   'tours.planner.tourType': 'Jenis tur',
   'tours.paddle.boat': 'Perahu',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

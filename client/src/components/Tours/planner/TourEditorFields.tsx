@@ -6,6 +6,7 @@ import CustomSelect from '../../shared/CustomSelect';
 import { INPUT, LABEL } from '../../shared/dialogParts';
 import { fs } from '../../shared/DialogShell';
 import { FoldButton, InfoDot, TourNotice, TourSection } from '../tourParts';
+import { HikingPreferencesField } from './HikingPreferencesField';
 import { TOUR_DURATION_INPUT_MAX_LENGTH, formatTourDuration, parseTourDuration } from './tourDurationInput';
 import type { TourPlannerController } from './useTourPlanner';
 
@@ -350,7 +351,10 @@ export function TourDetailsSection({
             <TourWebsiteField planner={planner} locked={locked} />
             {/* A paddle tour is not graded on the hiking scale. */}
             {!planner.isPaddle && (
-              <TourDifficultyField planner={planner} locked={locked} onDifficultyChange={onDifficultyChange} />
+              <>
+                <TourDifficultyField planner={planner} locked={locked} onDifficultyChange={onDifficultyChange} />
+                <HikingPreferencesField planner={planner} locked={locked} />
+              </>
             )}
             <TourTimeFields planner={planner} locked={locked} />
           </>

@@ -35,6 +35,7 @@ export class Tours {
   track_marks?: string | null;
   paddle_lake_style?: TToursPaddleLakeStyle | null;
   revision: number & Opt = 1;
+  hiking_preferences?: string | null;
   tourTypeRef!: Ref<TourTypes>;
   tour_obstacle_reviews_collection = new Collection<TourObstacleReviews>(this);
   tour_sources: Ref<TourSources> | null = null;
@@ -110,6 +111,7 @@ export const ToursSchema = defineEntity({
     track_marks: p.text().nullable(),
     paddle_lake_style: p.enum(() => ToursPaddleLakeStyle).nullable(),
     revision: p.integer().default(1),
+    hiking_preferences: p.text().nullable(),
     tourTypeRef: () => p.manyToOne(TourTypes).ref().joinColumn('tour_type').hidden().index('idx_tours_tour_type'),
     tour_obstacle_reviews_collection: () => p.oneToMany(TourObstacleReviews).mappedBy('place').hidden(),
     tour_sources: () => p.oneToOne(TourSources).ref().mappedBy('place').hidden(),

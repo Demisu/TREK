@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { paddleSpeedKmhSchema, tourWebsiteSchema, type PlannableTourType, type TourCreateResponse, type TourFixedLeg, type TourListItem, type TourMaxHikingDifficulty } from '@trek/shared'
+import { hikingPreferencesOf, paddleSpeedKmhSchema, tourWebsiteSchema, type HikingPreferences, type PlannableTourType, type TourCreateResponse, type TourFixedLeg, type TourListItem, type TourMaxHikingDifficulty } from '@trek/shared'
 import { paddleRouteRepo } from '../../../repo/paddleRouteRepo'
 import { tourRepo } from '../../../repo/tourRepo'
 import { randomId } from '../../../utils/randomId'
@@ -52,7 +52,7 @@ export type TourPlannerStatus =
   | 'saved'
 
 /** One step of the history: the route, and what the route depends on. */
-interface HistoryEntry { waypoints: TourPlannerWaypoint[]; difficulty: TourMaxHikingDifficulty; tourType: PlannableTourType }
+interface HistoryEntry { waypoints: TourPlannerWaypoint[]; difficulty: TourMaxHikingDifficulty; preferences: HikingPreferences | null; tourType: PlannableTourType }
 
 const ROUTE_DEBOUNCE_MS = 450
 
@@ -112,6 +112,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const [breakAdditionalMinutes, setBreakAdditionalMinutesState] = useState<number | null>(restored?.breakAdditionalMinutes ?? null)
   const [waypoints, setWaypoints] = useState<TourPlannerWaypoint[]>(restored?.waypoints ?? [])
   const [maxHikingDifficulty, setMaxHikingDifficultyState] = useState<TourMaxHikingDifficulty>(restored?.maxHikingDifficulty ?? 2)
+  const [hikingPreferences, setHikingPreferencesState] = useState<HikingPreferences | null>(restored?.hikingPreferences ?? null)
   const [tourType, setTourTypeState] = useState<PlannableTourType>(restored?.tourType ?? 'hike')
   const [selectedWaypointId, setSelectedWaypointId] = useState<string | null>(restored?.waypoints[0]?.id ?? null)
   const history = usePlannerHistory<HistoryEntry>()
@@ -163,10 +164,12 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   editingPlaceIdRef.current = editingPlaceId
   const waypointsRef = useRef(waypoints)
   const difficultyRef = useRef(maxHikingDifficulty)
+  const preferencesRef = useRef(hikingPreferences)
   const tourTypeRef = useRef(tourType)
   waypointsRef.current = waypoints
   difficultyRef.current = maxHikingDifficulty
-  const snapshot = useCallback((): HistoryEntry => ({ waypoints: waypointsRef.current, difficulty: difficultyRef.current, tourType: tourTypeRef.current }), [])
+  preferencesRef.current = hikingPreferences
+  const snapshot = useCallback((): HistoryEntry => ({ waypoints: waypointsRef.current, difficulty: difficultyRef.current, preferences: preferencesRef.current, tourType: tourTypeRef.current }), [])
 
   useEffect(() => {
     mountedRef.current = true
@@ -236,20 +239,27 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     setStatus('dirty')
   }, [interruptRouting])
 
-  const setMaxHikingDifficulty = useCallback((value: TourMaxHikingDifficulty) => {
+  /** A hike's routing choices, its limit and its preferences (MF-08), as one step of the history; the route is planned again. */
+  const setRoutingChoice = useCallback((change: { difficulty?: TourMaxHikingDifficulty; preferences?: HikingPreferences | null }) => {
     if (!editPermissionRef.current) return
-    if (value === difficultyRef.current) return
+    const difficulty = change.difficulty ?? difficultyRef.current
+    const preferences = change.preferences === undefined ? preferencesRef.current : hikingPreferencesOf(change.preferences)
+    if (difficulty === difficultyRef.current && JSON.stringify(preferences) === JSON.stringify(preferencesRef.current)) return
     invalidateDetailRequest()
     interruptRouting()
     draftRevisionRef.current += 1
     recordStep(snapshot())
-    difficultyRef.current = value
-    setMaxHikingDifficultyState(value)
+    difficultyRef.current = difficulty
+    preferencesRef.current = preferences
+    setMaxHikingDifficultyState(difficulty)
+    setHikingPreferencesState(preferences)
     setHasUnsavedChanges(true)
     setSaveOutcome(null)
     setStatus('dirty')
     setError(null)
   }, [recordStep, invalidateDetailRequest, interruptRouting, snapshot])
+  const setMaxHikingDifficulty = useCallback((difficulty: TourMaxHikingDifficulty) => setRoutingChoice({ difficulty }), [setRoutingChoice])
+  const setHikingPreferences = useCallback((preferences: HikingPreferences | null) => setRoutingChoice({ preferences }), [setRoutingChoice])
 
   const addWaypoint = useCallback((lat: number, lng: number) => {
     if (!editPermissionRef.current) return
@@ -358,9 +368,11 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     draftRevisionRef.current += 1
     waypointsRef.current = entry.waypoints
     difficultyRef.current = entry.difficulty
+    preferencesRef.current = entry.preferences
     tourTypeRef.current = entry.tourType
     setWaypoints(entry.waypoints)
     setMaxHikingDifficultyState(entry.difficulty)
+    setHikingPreferencesState(entry.preferences)
     setTourTypeState(entry.tourType)
     setSelectedWaypointId(id => entry.waypoints.some(point => point.id === id) ? id : entry.waypoints[0]?.id ?? null)
     setHasUnsavedChanges(true)
@@ -451,10 +463,10 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const paddleEstimate = useMemo(() => isPaddle ? paddleEstimateOf(waypoints, { effectiveSpeedKmh, portageSpeedKmh }, paddleSpeedInvalid, routedLegLengths) : null,
     [effectiveSpeedKmh, isPaddle, paddleSpeedInvalid, portageSpeedKmh, routedLegLengths, waypoints])
   const facts = useMemo(() => tourPlannerFacts({
-    tourType, maxHikingDifficulty, website, plannedDurationMinutes, breakAdditionalMinutes,
+    tourType, maxHikingDifficulty, hikingPreferences, website, plannedDurationMinutes, breakAdditionalMinutes,
     paddle: { boatType, waterContext, speedKmh, portageSpeedKmh, lakeStyle },
     paddleSpeedInvalid, paddleEstimate, routeAnalysis, durationSeconds,
-  }), [boatType, breakAdditionalMinutes, durationSeconds, lakeStyle, maxHikingDifficulty, paddleEstimate, paddleSpeedInvalid,
+  }), [boatType, breakAdditionalMinutes, durationSeconds, hikingPreferences, lakeStyle, maxHikingDifficulty, paddleEstimate, paddleSpeedInvalid,
     plannedDurationMinutes, portageSpeedKmh, routeAnalysis, speedKmh, tourType, waterContext, website])
   const { websiteInvalid, plannedDurationInvalid, breakAdditionalInvalid, paddleIncomplete, walkingDurationMinutes,
     plannedTotalMinutes, plannedTotalInvalid, savedDurationSeconds, typeFields } = facts
@@ -478,6 +490,8 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     loadPaddle(NO_PADDLE_FIELDS)
     waypointsRef.current = []
     difficultyRef.current = 2
+    preferencesRef.current = null
+    setHikingPreferencesState(null)
     tourTypeRef.current = 'hike'
     setSelectedWaypointId(null)
     clearHistory()
@@ -641,6 +655,8 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       loadPaddle(paddleFieldsOf(result.tour))
       waypointsRef.current = nextWaypoints
       difficultyRef.current = result.tour.max_hiking_difficulty ?? 2
+      preferencesRef.current = result.tour.hiking_preferences ?? null
+      setHikingPreferencesState(preferencesRef.current)
       tourTypeRef.current = openedType
       setSelectedWaypointId(nextWaypoints[0]?.id ?? null)
       clearHistory()
@@ -750,7 +766,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
 
     const routeHike = async () => {
       setStatus('routing')
-      const routed = await routeWalkingTour(waypoints, controller.signal, maxHikingDifficulty)
+      const routed = await routeWalkingTour(waypoints, controller.signal, maxHikingDifficulty, hikingPreferences)
       if (stale()) return
       if (!routed) {
         setStatus('routing-failed')
@@ -797,18 +813,18 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       window.clearTimeout(timer)
       controller.abort()
     }
-  }, [interruptRouting, isPaddle, maxHikingDifficulty, paddleBoat, paddleLakeStyle, retryToken, tripId, waypointKey, waypoints])
+  }, [hikingPreferences, interruptRouting, isPaddle, maxHikingDifficulty, paddleBoat, paddleLakeStyle, retryToken, tripId, waypointKey, waypoints])
 
   useEffect(() => {
     if (!hasUnsavedChanges) return
     const draft: DraftPayload = { version: 9, name, description, website, plannedDurationMinutes, breakAdditionalMinutes, waypoints, maxHikingDifficulty, editingPlaceId,
-      derivedFromPlaceId, tourType, baseRevision: revision.base,
+      derivedFromPlaceId, tourType, baseRevision: revision.base, hikingPreferences,
       paddle: { boatType: paddle.boatType, waterContext: paddle.waterContext, speedKmh: paddle.speedKmh, portageSpeedKmh: paddle.portageSpeedKmh, lakeStyle: paddle.lakeStyle },
     }
     keepDraft(draft)
   }, [breakAdditionalMinutes,
     derivedFromPlaceId, description, editingPlaceId, hasUnsavedChanges, maxHikingDifficulty, name, plannedDurationMinutes, keepDraft, waypoints, website,
-    tourType, paddle.boatType, paddle.waterContext, paddle.speedKmh, paddle.portageSpeedKmh, paddle.lakeStyle, revision.base])
+    tourType, paddle.boatType, paddle.waterContext, paddle.speedKmh, paddle.portageSpeedKmh, paddle.lakeStyle, revision.base, hikingPreferences])
 
   useEffect(() => {
     if (!hasUnsavedChanges) return
@@ -899,7 +915,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
 
   return {
     tripId, canEdit, canAssign,
-    name, setName, maxHikingDifficulty, setMaxHikingDifficulty,
+    name, setName, maxHikingDifficulty, setMaxHikingDifficulty, hikingPreferences, setHikingPreferences,
     tourType, setTourType, isPaddle, paddle, paddleSpeedInvalid, paddleIncomplete,
     description, setDescription, website, setWebsite, websiteInvalid,
     plannedDurationMinutes, setPlannedDurationMinutes, plannedDurationInvalid,
