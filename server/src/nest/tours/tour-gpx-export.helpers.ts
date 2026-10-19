@@ -17,7 +17,11 @@ const BIKE_ACTIVITY: Record<BikeProfile, string> = {
 };
 
 /** The activity a tour's track names in GPX: a paddle tour its boat, a bike tour its profile, a hike hiking; whatever is missing falls back to the plainest. */
-export function gpxActivityOf(tour: { tour_type: string; boat_type?: string | null; bike_profile?: string | null }): string {
+export function gpxActivityOf(tour: {
+  tour_type: string;
+  boat_type?: string | null;
+  bike_profile?: string | null;
+}): string {
   const { tour_type: type, boat_type: boat, bike_profile: bike } = tour;
   if (type === 'kayak') return PADDLE_ACTIVITY[(boat ?? 'other') as PaddleBoatType] ?? PADDLE_ACTIVITY.other;
   if (type === 'bike') return BIKE_ACTIVITY[(bike ?? 'touring') as BikeProfile] ?? BIKE_ACTIVITY.touring;
