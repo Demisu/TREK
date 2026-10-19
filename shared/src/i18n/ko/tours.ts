@@ -262,6 +262,13 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (사본)',
   'tours.copy.saved': '새 투어로 저장했습니다',
   'tours.copy.failed': '투어를 복사하지 못했습니다.',
+  'tours.gpxExport.action': 'GPX 다운로드',
+  'tours.gpxExport.hint':
+    '저장된 투어를 GPX 파일로 다운로드합니다. 경로 전체와 있는 고도 정보를 담아 내비게이션 앱이나 GPS 기기에서 쓸 수 있습니다.',
+  'tours.gpxExport.saveFirst': 'GPX로 다운로드하려면 먼저 투어를 저장하세요',
+  'tours.gpxExport.offline': 'GPX 파일을 다운로드하려면 서버 연결이 필요합니다.',
+  'tours.gpxExport.noRoute': '이 투어에는 내보낼 저장된 경로가 없습니다.',
+  'tours.gpxExport.failed': 'GPX 파일을 만들지 못했습니다.',
   'tours.planner.tourType': '투어 유형',
   'tours.paddle.boat': '보트',
   'tours.paddle.boat.kayak': '카약',

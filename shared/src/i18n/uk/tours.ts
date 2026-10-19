@@ -284,6 +284,13 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (копія)',
   'tours.copy.saved': 'Збережено як новий похід',
   'tours.copy.failed': 'Не вдалося скопіювати похід.',
+  'tours.gpxExport.action': 'Завантажити GPX',
+  'tours.gpxExport.hint':
+    'Завантажує збережений похід як файл GPX: увесь маршрут із наявними висотами, для навігаційного застосунку чи GPS-пристрою.',
+  'tours.gpxExport.saveFirst': 'Спершу збережіть похід, щоб завантажити його в GPX',
+  'tours.gpxExport.offline': 'Для завантаження файлу GPX потрібне з’єднання із сервером.',
+  'tours.gpxExport.noRoute': 'У цього походу немає збереженого маршруту для експорту.',
+  'tours.gpxExport.failed': 'Не вдалося створити файл GPX.',
   'tours.planner.tourType': 'Тип туру',
   'tours.paddle.boat': 'Човен',
   'tours.paddle.boat.kayak': 'Каяк',

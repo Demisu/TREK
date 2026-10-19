@@ -4,16 +4,20 @@ import { AddonGuard } from '../addons/addon.guard';
 import { RequireAddon } from '../addons/require-addon.decorator';
 import { CurrentUser } from '../auth-core/current-user.decorator';
 import { JwtAuthGuard } from '../auth-core/jwt-auth.guard';
+import { contentDisposition } from '../common/content-disposition';
 import { ResponseContract } from '../common/response-contract';
 import { RequirePermission, TripAccessGuard } from '../permissions/trip-access.guard';
 import { TourCopyDto, TourCreateDto } from './dto/tour-create.dto';
 import { TourObstacleReviewsDto } from './dto/tour-obstacle-reviews.dto';
 import { TourPaddlePlanDto } from './dto/tour-paddle-plan.dto';
+import { TourGpxExportService } from './tour-gpx-export.service';
 import { TourObstacleReviewsService } from './tour-obstacle-reviews.service';
 import { TourPaddlePlanService } from './tour-paddle-plan.service';
 import { ToursService } from './tours.service';
-import { Body, Controller, Get, Headers, HttpCode, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpCode, Param, Post, Put, Res, UseGuards } from '@nestjs/common';
 import { tourCreateResponseSchema, tourDetailResponseSchema } from '@trek/shared';
+
+import type { Response } from 'express';
 
 /**
  * /api/trips/:tripId/tours: the Tours facet, read and route edits.
@@ -30,11 +34,25 @@ export class ToursController {
     private readonly tours: ToursService,
     private readonly paddlePlans: TourPaddlePlanService,
     private readonly obstacleReviews: TourObstacleReviewsService,
+    private readonly gpxExport: TourGpxExportService,
   ) {}
 
   @Get()
   async list(@Param('tripId') tripId: string) {
     return { tours: await this.tours.listTours(tripId) };
+  }
+
+  /**
+   * PR1-06A: the saved tour as a GPX file, its whole line with the heights it
+   * has. A read, so seeing the trip is enough; 422 when the tour has no line.
+   * response-contract-exempt: a file download written through @Res(), not a JSON body.
+   */
+  @Get(':placeId/export.gpx')
+  async exportGpx(@Param('tripId') tripId: string, @Param('placeId') placeId: string, @Res() res: Response) {
+    const { gpx, filename } = await this.gpxExport.export(tripId, placeId);
+    res.setHeader('Content-Type', 'application/gpx+xml; charset=utf-8');
+    res.setHeader('Content-Disposition', contentDisposition(filename, 'attachment'));
+    res.send(gpx);
   }
 
   @Get(':placeId')

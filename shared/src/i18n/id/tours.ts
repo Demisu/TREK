@@ -270,6 +270,13 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (salinan)',
   'tours.copy.saved': 'Disimpan sebagai tur baru',
   'tours.copy.failed': 'Tur tidak dapat disalin.',
+  'tours.gpxExport.action': 'Unduh GPX',
+  'tours.gpxExport.hint':
+    'Mengunduh tur yang disimpan sebagai file GPX: seluruh rute dengan ketinggian yang tersedia, untuk aplikasi navigasi atau perangkat GPS.',
+  'tours.gpxExport.saveFirst': 'Simpan tur dulu untuk mengunduhnya sebagai GPX',
+  'tours.gpxExport.offline': 'Mengunduh file GPX memerlukan koneksi ke server.',
+  'tours.gpxExport.noRoute': 'Tur ini tidak punya rute tersimpan untuk diekspor.',
+  'tours.gpxExport.failed': 'File GPX tidak dapat dibuat.',
   'tours.planner.tourType': 'Jenis tur',
   'tours.paddle.boat': 'Perahu',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

@@ -264,6 +264,13 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name}（コピー）',
   'tours.copy.saved': '新しいツアーとして保存しました',
   'tours.copy.failed': 'ツアーをコピーできませんでした。',
+  'tours.gpxExport.action': 'GPXをダウンロード',
+  'tours.gpxExport.hint':
+    '保存したツアーをGPXファイルとしてダウンロードします。ルート全体と記録されている標高を含み、ナビアプリやGPS機器で使えます。',
+  'tours.gpxExport.saveFirst': 'GPXでダウンロードするには先にツアーを保存してください',
+  'tours.gpxExport.offline': 'GPXファイルのダウンロードにはサーバーへの接続が必要です。',
+  'tours.gpxExport.noRoute': 'このツアーにはエクスポートできる保存済みルートがありません。',
+  'tours.gpxExport.failed': 'GPXファイルを作成できませんでした。',
   'tours.planner.tourType': 'ツアーの種類',
   'tours.paddle.boat': 'ボート',
   'tours.paddle.boat.kayak': 'カヤック',

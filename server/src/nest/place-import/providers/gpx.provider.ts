@@ -145,11 +145,58 @@ export function buildGpx(input: GpxExportInput, opts: GpxExportOptions = {}): st
   return writeGpx({ metadata: { name: input.tripTitle }, wpt, rte, trk });
 }
 
+/** One tour as the exporter needs it (PR1-06A). */
+export interface GpxTourExport {
+  name: string;
+  description: string | null;
+  /** The tour's own information link, written as the track's <link>. */
+  website: string | null;
+  /** The activity as GPX names it in <type>, e.g. `hiking`. */
+  activity: string;
+  /** JSON `[[lat, lng]]` or `[[lat, lng, ele]]`, the tour's saved line. */
+  route_geometry: string | null;
+  /** Named stops along the tour, written as waypoints in their order. */
+  stops: Array<{ name: string; lat: number; lng: number }>;
+}
+
+/**
+ * One tour as a GPX document: its whole saved line as one track, with the
+ * heights it has and none it lacks, and its named stops as waypoints. Null when
+ * the tour has no line of at least two points, so the caller refuses instead
+ * of handing over a file a device would read as nothing.
+ */
+export function buildTourGpx(tour: GpxTourExport): string | null {
+  const geometry = parseGeometry(tour.route_geometry);
+  if (geometry.length < 2) return null;
+  const desc = tour.description?.trim() || undefined;
+  const link = tour.website ? { '@_href': tour.website } : undefined;
+  return writeGpx({
+    metadata: { name: tour.name, ...(desc ? { desc } : {}), ...(link ? { link } : {}) },
+    wpt: tour.stops.map((stop) => ({ '@_lat': coord(stop.lat), '@_lon': coord(stop.lng), name: stop.name })),
+    trk: [
+      {
+        name: tour.name,
+        desc,
+        link,
+        type: tour.activity,
+        trkseg: {
+          trkpt: geometry.map((p) => ({
+            '@_lat': coord(p.lat),
+            '@_lon': coord(p.lng),
+            ...(p.ele != null ? { ele: coord(p.ele) } : {}),
+          })),
+        },
+      },
+    ],
+  });
+}
+
 /** Filenames land on the receiving filesystem, so its reserved characters are
  *  folded away rather than escaped. Header safety is contentDisposition()'s
  *  job since #2165, which is why the title's own script survives here —
- *  沖縄 stays 沖縄 instead of being mangled into underscores. */
-export function gpxFilename(tripTitle: string): string {
+ *  沖縄 stays 沖縄 instead of being mangled into underscores. `fallback`
+ *  names a file whose title folds away to nothing. */
+export function gpxFilename(tripTitle: string, fallback = 'trip'): string {
   const base = tripTitle
     // eslint-disable-next-line no-control-regex
     .replace(/[\x00-\x1f\x7f"\\/:*?<>|]+/g, ' ')
@@ -158,7 +205,7 @@ export function gpxFilename(tripTitle: string): string {
     .replaceAll(' ', '-');
   // Codepoints, not UTF-16 units: slice() would cut an emoji in half and the
   // lone surrogate is exactly what URI-encoding chokes on.
-  return `${[...base].slice(0, 60).join('') || 'trip'}.gpx`;
+  return `${[...base].slice(0, 60).join('') || fallback}.gpx`;
 }
 
 /**
@@ -273,5 +320,13 @@ export class GpxProvider {
 
   filename(tripTitle: string): string {
     return gpxFilename(tripTitle);
+  }
+
+  writeTour(tour: GpxTourExport): string | null {
+    return buildTourGpx(tour);
+  }
+
+  tourFilename(tourName: string): string {
+    return gpxFilename(tourName, 'tour');
   }
 }

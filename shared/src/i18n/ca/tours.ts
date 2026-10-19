@@ -277,6 +277,13 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (còpia)',
   'tours.copy.saved': 'Desada com a excursió nova',
   'tours.copy.failed': 'No s’ha pogut copiar l’excursió.',
+  'tours.gpxExport.action': 'Baixa el GPX',
+  'tours.gpxExport.hint':
+    'Baixa l’excursió desada com a fitxer GPX: tota la ruta amb les altituds que té, per a una aplicació de navegació o un GPS.',
+  'tours.gpxExport.saveFirst': 'Desa primer l’excursió per baixar-la en GPX',
+  'tours.gpxExport.offline': 'Per baixar un fitxer GPX cal connexió amb el servidor.',
+  'tours.gpxExport.noRoute': 'Aquesta excursió no té cap ruta desada per exportar.',
+  'tours.gpxExport.failed': 'No s’ha pogut crear el fitxer GPX.',
   'tours.planner.tourType': 'Tipus de ruta',
   'tours.paddle.boat': 'Embarcació',
   'tours.paddle.boat.kayak': 'Caiac',

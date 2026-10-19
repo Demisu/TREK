@@ -4,6 +4,7 @@ import { tourGpxApi } from '../api/tourGpx'
 import { recordedTrackApi } from '../api/recordedTrack'
 import { tourPaddlePlanApi } from '../api/tourPaddlePlan'
 import { tourCopiesApi } from '../api/tourCopies'
+import { tourGpxExportApi } from '../api/tourGpxExport'
 import { tourObstacleReviewsApi } from '../api/tourObstacleReviews'
 import { cacheTourAnswer } from '../db/cacheTour'
 import { offlineDb, replaceTripTours, type CachedTour } from '../db/offlineDb'
@@ -258,6 +259,20 @@ export const tourRepo = {
    * P2C-07, online only like the restore: the copy is made from the server's
    * stored line and control points, so it needs the server to answer.
    */
+  /**
+   * PR1-06A: the saved tour as the GPX file the server writes. Online only on
+   * purpose, since the file is the server's; offline it answers `offline`
+   * rather than a request that cannot reach anyone.
+   */
+  async exportGpx(
+    tripId: number | string,
+    placeId: number,
+    signal?: AbortSignal,
+  ): Promise<{ offline: true } | { offline: false; blob: Blob; filename: string | null }> {
+    if (isEffectivelyOffline()) return { offline: true }
+    return { offline: false, ...(await tourGpxExportApi.download(tripId, placeId, signal)) }
+  },
+
   async copy(tripId: number | string, placeId: number, name: string): Promise<TourCreateResponse> {
     const result = await tourCopiesApi.copy(tripId, placeId, { name })
     await cacheTourAnswer(Number(tripId), result)

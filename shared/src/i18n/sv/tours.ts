@@ -269,6 +269,13 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (kopia)',
   'tours.copy.saved': 'Sparad som ny tur',
   'tours.copy.failed': 'Turen kunde inte kopieras.',
+  'tours.gpxExport.action': 'Ladda ner GPX',
+  'tours.gpxExport.hint':
+    'Laddar ner den sparade turen som GPX-fil: hela rutten med de höjder som finns, för en navigeringsapp eller en GPS-enhet.',
+  'tours.gpxExport.saveFirst': 'Spara turen först för att ladda ner den som GPX',
+  'tours.gpxExport.offline': 'För att ladda ner en GPX-fil behövs en anslutning till servern.',
+  'tours.gpxExport.noRoute': 'Den här turen har ingen sparad rutt att exportera.',
+  'tours.gpxExport.failed': 'GPX-filen kunde inte skapas.',
   'tours.planner.tourType': 'Turtyp',
   'tours.paddle.boat': 'Båt',
   'tours.paddle.boat.kayak': 'Kajak',

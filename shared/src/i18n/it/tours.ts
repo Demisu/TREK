@@ -277,6 +277,13 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (copia)',
   'tours.copy.saved': 'Salvato come nuovo tour',
   'tours.copy.failed': 'Non è stato possibile copiare il tour.',
+  'tours.gpxExport.action': 'Scarica GPX',
+  'tours.gpxExport.hint':
+    'Scarica il tour salvato come file GPX: tutto il percorso con le quote disponibili, per un’app di navigazione o un GPS.',
+  'tours.gpxExport.saveFirst': 'Salva prima il tour per scaricarlo come GPX',
+  'tours.gpxExport.offline': 'Per scaricare un file GPX serve una connessione al server.',
+  'tours.gpxExport.noRoute': 'Questo tour non ha un percorso salvato da esportare.',
+  'tours.gpxExport.failed': 'Non è stato possibile creare il file GPX.',
   'tours.planner.tourType': 'Tipo di tour',
   'tours.paddle.boat': 'Imbarcazione',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

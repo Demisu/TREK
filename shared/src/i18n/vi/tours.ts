@@ -271,6 +271,13 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (bản sao)',
   'tours.copy.saved': 'Đã lưu thành chuyến đi bộ mới',
   'tours.copy.failed': 'Không thể sao chép chuyến đi bộ.',
+  'tours.gpxExport.action': 'Tải GPX',
+  'tours.gpxExport.hint':
+    'Tải chuyến đi bộ đã lưu dưới dạng tệp GPX: toàn bộ tuyến đường kèm độ cao hiện có, dùng cho ứng dụng dẫn đường hoặc thiết bị GPS.',
+  'tours.gpxExport.saveFirst': 'Hãy lưu chuyến đi bộ trước để tải về dạng GPX',
+  'tours.gpxExport.offline': 'Cần kết nối tới máy chủ để tải tệp GPX.',
+  'tours.gpxExport.noRoute': 'Chuyến đi bộ này không có tuyến đường đã lưu để xuất.',
+  'tours.gpxExport.failed': 'Không thể tạo tệp GPX.',
   'tours.planner.tourType': 'Loại chuyến',
   'tours.paddle.boat': 'Thuyền',
   'tours.paddle.boat.kayak': 'Thuyền kayak',

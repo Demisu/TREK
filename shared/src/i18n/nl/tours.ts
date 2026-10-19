@@ -278,6 +278,13 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (kopie)',
   'tours.copy.saved': 'Opgeslagen als nieuwe tocht',
   'tours.copy.failed': 'De tocht kon niet worden gekopieerd.',
+  'tours.gpxExport.action': 'GPX downloaden',
+  'tours.gpxExport.hint':
+    'Downloadt de opgeslagen tocht als GPX-bestand: de hele route met de beschikbare hoogtes, voor een navigatie-app of een gps-apparaat.',
+  'tours.gpxExport.saveFirst': 'Sla de tocht eerst op om hem als GPX te downloaden',
+  'tours.gpxExport.offline': 'Voor het downloaden van een GPX-bestand is een verbinding met de server nodig.',
+  'tours.gpxExport.noRoute': 'Deze tocht heeft geen opgeslagen route om te exporteren.',
+  'tours.gpxExport.failed': 'Het GPX-bestand kon niet worden gemaakt.',
   'tours.planner.tourType': 'Soort tocht',
   'tours.paddle.boat': 'Boot',
   'tours.paddle.boat.kayak': 'Kajak',

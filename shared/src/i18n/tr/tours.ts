@@ -271,6 +271,13 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (kopya)',
   'tours.copy.saved': 'Yeni tur olarak kaydedildi',
   'tours.copy.failed': 'Tur kopyalanamadı.',
+  'tours.gpxExport.action': 'GPX indir',
+  'tours.gpxExport.hint':
+    'Kayıtlı turu GPX dosyası olarak indirir: mevcut yükseltileriyle tüm rota, bir navigasyon uygulaması ya da GPS cihazı için.',
+  'tours.gpxExport.saveFirst': 'GPX olarak indirmek için önce turu kaydet',
+  'tours.gpxExport.offline': 'GPX dosyası indirmek için sunucuya bağlantı gerekir.',
+  'tours.gpxExport.noRoute': 'Bu turun dışa aktarılacak kayıtlı bir rotası yok.',
+  'tours.gpxExport.failed': 'GPX dosyası oluşturulamadı.',
   'tours.planner.tourType': 'Tur türü',
   'tours.paddle.boat': 'Tekne',
   'tours.paddle.boat.kayak': 'Kano (kayak)',

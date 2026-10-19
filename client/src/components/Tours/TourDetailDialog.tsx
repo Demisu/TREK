@@ -47,6 +47,7 @@ import { Tooltip } from '../shared/Tooltip';
 import TrackColorPicker from '../shared/TrackColorPicker';
 import { markdownLinkComponents } from '../shared/markdownLink';
 import { TourDayRowAvatar } from './TourDayRowFacts';
+import { TourGpxExportButton } from './TourGpxExportButton';
 import { PaddleCheckSection } from './paddle/PaddleCheckSection';
 import { PaddleWindSection } from './paddle/PaddleWindCard';
 import { TourProvenanceBlock } from './provenance/TourProvenanceSection';
@@ -587,6 +588,10 @@ export default function TourDetailDialog({
             </DialogButton>
           </span>
         </Tooltip>
+      )}
+      {/* A tour written here offline has no server copy to export until it syncs. */}
+      {analysis && place.id > 0 && (
+        <TourGpxExportButton target={{ tripId: place.trip_id, placeId: place.id, name: place.name }} />
       )}
       {canEdit && onSaveAsNew && <SaveAsNewButton onSave={() => onSaveAsNew(tour)} />}
       <FooterSpacer />

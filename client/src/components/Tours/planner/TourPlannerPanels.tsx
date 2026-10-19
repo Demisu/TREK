@@ -38,6 +38,7 @@ import type { RecordedTrack } from '../useRecordedTrack'
 import type { TourGpxImport } from '../useTourGpxImport'
 import { type AssignTourToDay, useTourDayAssignment } from '../useTourDayAssignment'
 import WandererMark from '../wanderer/WandererMark'
+import { TourGpxExportBarButton } from '../TourGpxExportButton'
 
 const STATUS_KEY: Partial<Record<TourPlannerStatus, string>> = {
   dirty: 'tours.planner.status.dirty',
@@ -291,6 +292,9 @@ function GpxViewRail({
             sub={tour.name}
             aside={<SoftPill>{hikeSourceBadgeLabel(tour, t)}</SoftPill>}
           />
+          {tour.place_id > 0 && (
+            <TourGpxExportBarButton target={{ tripId: planner.tripId, placeId: tour.place_id, name: tour.name }} unsaved={false} />
+          )}
         </div>
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-3">
           {conversion && <TourConversionSection conversion={conversion} />}
@@ -399,6 +403,12 @@ export function TourPlannerRail({ planner,
             <ArrowLeft size={16} strokeWidth={2} />
           </BarButton>
           <RailTitle title={t(isSavedEdit ? 'tours.planner.editTitle' : 'tours.planner.newTitle')} aside={<RailStatusBadges planner={planner} />} />
+          {planner.mode.type === 'edit-saved' && planner.mode.placeId > 0 && (
+            <TourGpxExportBarButton
+              target={{ tripId: planner.tripId, placeId: planner.mode.placeId, name: planner.name }}
+              unsaved={planner.hasUnsavedChanges}
+            />
+          )}
           <BarButton label={t('tours.planner.undo')} onClick={() => { if (canEdit && !isSaving) planner.undo() }} disabled={locked || !planner.canUndo}>
             <Undo2 size={15} strokeWidth={2} />
           </BarButton>
@@ -557,26 +567,20 @@ function NewTourConfirmDialog({ planner, canEdit }: { planner: TourPlannerContro
   )
 }
 
-/** The round GPX import button in the tours rail's head; the file drop on the workspace does the same. */
+/** The GPX import in the tours rail's head, an icon like the editor's; the file drop on the workspace does the same. */
 function RailImportButton({ gpxImport, disabled }: { gpxImport: TourGpxImport; disabled: boolean }) {
   const { t } = useTranslation()
   return (
-    <Tooltip label={t('tours.import.hint')}>
-      <button
-        type="button"
-        aria-label={t('tours.import.button')}
-        data-testid="tour-rail-import-gpx"
-        disabled={gpxImport.importing || disabled}
-        onClick={gpxImport.pick}
-        className="mt-1 grid h-[26px] w-[26px] flex-none place-items-center rounded-full bg-surface-card text-content-muted shadow-sm ring-1 ring-edge-faint transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent enabled:hover:bg-accent enabled:hover:text-accent-text enabled:hover:ring-transparent disabled:cursor-default disabled:opacity-40"
-      >
-        {gpxImport.importing ? (
-          <Loader2 size={13} strokeWidth={2.4} className="animate-spin" />
-        ) : (
-          <FileDown size={13} strokeWidth={2.4} />
-        )}
-      </button>
-    </Tooltip>
+    <BarButton
+      label={t('tours.import.button')}
+      tooltip={t('tours.import.hint')}
+      testId="tour-rail-import-gpx"
+      disabled={gpxImport.importing || disabled}
+      onClick={gpxImport.pick}
+      className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+    >
+      {gpxImport.importing ? <Loader2 size={15} strokeWidth={2} className="animate-spin" /> : <FileDown size={15} strokeWidth={2} />}
+    </BarButton>
   )
 }
 
@@ -673,13 +677,11 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
         <RailTitle title={t('tours.planner.tripTours')} />
         {canEdit && gpxImport && <RailImportButton gpxImport={gpxImport} disabled={isSaving} />}
         {canEdit && planner.mode.type !== 'neutral' && (
-          <Tooltip label={t('tours.planner.newTour')}>
-            <button type="button" aria-label={t('tours.planner.newTour')} data-testid="tour-rail-new-tour"
-              disabled={isSaving} onClick={() => { if (!isSaving) planner.startNewTour() }}
-              className="mt-1 grid h-[26px] w-[26px] flex-none place-items-center rounded-full bg-accent text-accent-text shadow-sm transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-default disabled:opacity-40">
-              <Plus size={14} strokeWidth={2.4} />
-            </button>
-          </Tooltip>
+          <BarButton label={t('tours.planner.newTour')} testId="tour-rail-new-tour" disabled={isSaving}
+            onClick={() => { if (!isSaving) planner.startNewTour() }}
+            className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
+            <Plus size={16} strokeWidth={2} />
+          </BarButton>
         )}
       </div>
 

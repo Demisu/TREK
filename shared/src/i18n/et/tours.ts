@@ -273,6 +273,13 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (koopia)',
   'tours.copy.saved': 'Salvestatud uue matkana',
   'tours.copy.failed': 'Matka ei õnnestunud kopeerida.',
+  'tours.gpxExport.action': 'Laadi GPX alla',
+  'tours.gpxExport.hint':
+    'Laadib salvestatud matka alla GPX-failina: kogu marsruut olemasolevate kõrgustega, navigatsioonirakenduse või GPS-seadme jaoks.',
+  'tours.gpxExport.saveFirst': 'Salvesta matk enne GPX-ina allalaadimist',
+  'tours.gpxExport.offline': 'GPX-faili allalaadimiseks on vaja ühendust serveriga.',
+  'tours.gpxExport.noRoute': 'Sellel matkal pole eksportimiseks salvestatud marsruuti.',
+  'tours.gpxExport.failed': 'GPX-faili ei õnnestunud luua.',
   'tours.planner.tourType': 'Matka tüüp',
   'tours.paddle.boat': 'Paat',
   'tours.paddle.boat.kayak': 'Süst',

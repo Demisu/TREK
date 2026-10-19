@@ -6,6 +6,7 @@
  */
 import {
   buildGpx,
+  buildTourGpx,
   gpxFilename,
   type GpxExportPlace,
   type GpxExportDay,
@@ -276,5 +277,72 @@ describe('gpxFilename', () => {
 
   it('trims on codepoint boundaries, never through the middle of an emoji', () => {
     expect(gpxFilename('\u{1F5FE}'.repeat(70))).toBe('\u{1F5FE}'.repeat(60) + '.gpx');
+  });
+});
+
+describe('buildTourGpx (PR1-06A)', () => {
+  const tour = (route_geometry: string | null) => ({
+    name: 'Grat <Ost>',
+    description: 'Früh los',
+    website: 'https://example.test/route?a=1&b=2',
+    activity: 'hiking',
+    route_geometry,
+    stops: [{ name: 'Hütte', lat: 47.5, lng: 11.1 }],
+  });
+  const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_' });
+
+  it('writes the line as one track with the heights it has and none it lacks', () => {
+    const gpx = buildTourGpx(
+      tour(
+        JSON.stringify([
+          [47, 11, 600.4],
+          [47.1, 11.1],
+          [47.2, 11.2, 'x'],
+          [47.3, 11.3, 650],
+        ]),
+      ),
+    )!;
+    expect(XMLValidator.validate(gpx)).toBe(true);
+    const doc = parser.parse(gpx).gpx;
+    expect(doc.metadata).toMatchObject({
+      name: 'Grat <Ost>',
+      desc: 'Früh los',
+      link: { '@_href': 'https://example.test/route?a=1&b=2' },
+    });
+    expect(doc.trk).toMatchObject({ name: 'Grat <Ost>', type: 'hiking' });
+    const points = doc.trk.trkseg.trkpt;
+    expect(points).toHaveLength(4);
+    expect(points.map((p: { ele?: number }) => p.ele ?? null)).toEqual([600.4, null, null, 650]);
+    expect(doc.wpt).toMatchObject({ '@_lat': '47.5', '@_lon': '11.1', name: 'Hütte' });
+  });
+
+  it('writes no description or link a tour has not got', () => {
+    const gpx = buildTourGpx({
+      ...tour(
+        JSON.stringify([
+          [47, 11],
+          [47.1, 11.1],
+        ]),
+      ),
+      description: '  ',
+      website: null,
+      stops: [],
+    })!;
+    const doc = parser.parse(gpx).gpx;
+    expect(doc.metadata).toEqual({ name: 'Grat <Ost>' });
+    expect(doc.trk.desc).toBeUndefined();
+    expect(doc.trk.link).toBeUndefined();
+    expect(doc.wpt).toBeUndefined();
+  });
+
+  it('refuses a line of fewer than two points, or none at all', () => {
+    expect(buildTourGpx(tour(JSON.stringify([[47, 11, 600]])))).toBeNull();
+    expect(buildTourGpx(tour('not json'))).toBeNull();
+    expect(buildTourGpx(tour(null))).toBeNull();
+  });
+
+  it('names a tour whose name folds away to nothing "tour"', () => {
+    expect(gpxFilename('///', 'tour')).toBe('tour.gpx');
+    expect(gpxFilename('Grat <Ost>', 'tour')).toBe('Grat-Ost.gpx');
   });
 });

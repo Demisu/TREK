@@ -11,6 +11,7 @@ import { PlaceImportModule } from '../place-import/place-import.module';
 import { PlacesModule } from '../places/places.module';
 import { TripMembershipModule } from '../trip-membership/trip-membership.module';
 import { WandererModule } from '../wanderer/wanderer.module';
+import { TourGpxExportService } from './tour-gpx-export.service';
 import { TourObstacleReviewsService } from './tour-obstacle-reviews.service';
 import { PaddleCheckCache } from './tour-paddle-check.cache';
 import { TourPaddleCheckService } from './tour-paddle-check.service';
@@ -52,6 +53,7 @@ import { Module } from '@nestjs/common';
     PaddleCheckCache,
     TourPaddleCheckService,
     TourObstacleReviewsService,
+    TourGpxExportService,
     ToursWandererService,
     ToursMcp,
   ],

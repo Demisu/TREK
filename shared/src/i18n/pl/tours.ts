@@ -284,6 +284,13 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (kopia)',
   'tours.copy.saved': 'Zapisano jako nową trasę',
   'tours.copy.failed': 'Nie udało się skopiować trasy.',
+  'tours.gpxExport.action': 'Pobierz GPX',
+  'tours.gpxExport.hint':
+    'Pobiera zapisaną trasę jako plik GPX: cały przebieg z dostępnymi wysokościami, do aplikacji nawigacyjnej lub urządzenia GPS.',
+  'tours.gpxExport.saveFirst': 'Najpierw zapisz trasę, aby pobrać ją jako GPX',
+  'tours.gpxExport.offline': 'Pobranie pliku GPX wymaga połączenia z serwerem.',
+  'tours.gpxExport.noRoute': 'Ta trasa nie ma zapisanego przebiegu do eksportu.',
+  'tours.gpxExport.failed': 'Nie udało się utworzyć pliku GPX.',
   'tours.planner.tourType': 'Rodzaj wycieczki',
   'tours.paddle.boat': 'Łódź',
   'tours.paddle.boat.kayak': 'Kajak',

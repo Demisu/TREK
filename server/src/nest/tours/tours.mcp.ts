@@ -5,6 +5,7 @@ import { McpController, Tool, TOOL_ANNOTATIONS_READONLY, errorResult, ok, type M
 import { addonGate } from '../addons/addon-gate';
 import { AddonsService } from '../addons/addons.service';
 import { TripAccessService } from '../trip-membership/trip-access.service';
+import { TourGpxExportService } from './tour-gpx-export.service';
 import { ToursService } from './tours.service';
 import { NotFoundException } from '@nestjs/common';
 import { idSchema, type TourListItem } from '@trek/shared';
@@ -30,6 +31,7 @@ export class ToursMcp {
   constructor(
     private readonly tours: ToursService,
     private readonly access: TripAccessService,
+    private readonly gpxExport: TourGpxExportService,
     // Read by the addon gate of every tool here.
     readonly addons: AddonsService,
   ) {}
@@ -94,5 +96,25 @@ export class ToursMcp {
     const [tours, days] = await Promise.all([this.tours.listTours(String(tripId)), this.daysByTour(tripId)]);
     const onDay = tours.filter((tour) => (days.get(tour.place_id) ?? []).some((day) => day.day_id === dayId));
     return ok({ tours: onDay.map((tour) => withDays(tour, days)) });
+  }
+
+  @Tool({
+    name: 'export_tour_gpx',
+    description:
+      'Export one saved tour of a trip as a GPX 1.1 document: its whole saved line as one track, with the heights it carries and none it lacks. Returns the GPX text and a file name. A tour without a line of at least two points cannot be exported. Nothing about the tour changes.',
+    inputSchema: { tripId: idSchema, placeId: idSchema.describe('The place id of the tour, as list_tours gives it') },
+    annotations: TOOL_ANNOTATIONS_READONLY,
+    when: addonGate(ADDON_IDS.TOURS),
+    access: { group: 'trips', mode: 'read' },
+  })
+  async exportTourGpx({ tripId, placeId }: { tripId: number; placeId: number }, ctx: McpContext) {
+    // A read, like the REST route: seeing the trip is enough.
+    if (!(await this.access.findAccessible(tripId, ctx.userId))) return noAccess();
+    try {
+      return ok(await this.gpxExport.export(String(tripId), String(placeId)));
+    } catch (err: unknown) {
+      if (err instanceof NotFoundException) return errorResult('Tour not found.');
+      throw err;
+    }
   }
 }

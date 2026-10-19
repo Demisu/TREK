@@ -282,6 +282,13 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (نسخة)',
   'tours.copy.saved': 'تم الحفظ كجولة جديدة',
   'tours.copy.failed': 'تعذّر نسخ الجولة.',
+  'tours.gpxExport.action': 'تنزيل GPX',
+  'tours.gpxExport.hint':
+    'ينزّل الجولة المحفوظة كملف GPX: المسار كاملًا مع الارتفاعات المتوفرة، لتطبيق ملاحة أو جهاز GPS.',
+  'tours.gpxExport.saveFirst': 'احفظ الجولة أولًا لتنزيلها بصيغة GPX',
+  'tours.gpxExport.offline': 'يتطلب تنزيل ملف GPX اتصالًا بالخادم.',
+  'tours.gpxExport.noRoute': 'لا يوجد لهذه الجولة مسار محفوظ للتصدير.',
+  'tours.gpxExport.failed': 'تعذّر إنشاء ملف GPX.',
   'tours.planner.tourType': 'نوع الجولة',
   'tours.paddle.boat': 'القارب',
   'tours.paddle.boat.kayak': 'كاياك',

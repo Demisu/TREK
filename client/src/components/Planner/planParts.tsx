@@ -15,8 +15,11 @@ import { fs } from '../shared/DialogShell'
 export const PANEL_BAR = 'flex min-h-[52px] flex-none items-center gap-1.5 border-b border-edge-faint px-3 py-2'
 
 /** A 32px icon control on a panel bar. Raised like an active filter tab while `active`. */
-export function BarButton({ label, onClick, active = false, disabled = false, children, className = '', ariaPressed, ariaExpanded, ariaHaspopup, placement = 'bottom' }: {
+export function BarButton({ label, tooltip, onClick, active = false, disabled = false, children, className = '', ariaPressed, ariaExpanded, ariaHaspopup, placement = 'bottom', testId }: {
   label: string
+  /** A longer explanation for the tooltip; the label still names the button. */
+  tooltip?: string
+  testId?: string
   onClick: (e: MouseEvent<HTMLButtonElement>) => void
   active?: boolean
   disabled?: boolean
@@ -28,8 +31,8 @@ export function BarButton({ label, onClick, active = false, disabled = false, ch
   placement?: 'top' | 'bottom' | 'left' | 'right'
 }) {
   return (
-    <Tooltip label={label} placement={placement}>
-      <button type="button" onClick={onClick} disabled={disabled} aria-label={label}
+    <Tooltip label={tooltip ?? label} placement={placement}>
+      <button type="button" onClick={onClick} disabled={disabled} aria-label={label} data-testid={testId}
         aria-pressed={ariaPressed} aria-expanded={ariaExpanded} aria-haspopup={ariaHaspopup}
         className={`grid h-8 w-8 flex-none place-items-center rounded-[10px] transition-colors disabled:cursor-default disabled:opacity-40 ${active ? 'bg-surface-card text-content shadow-sm' : 'text-content-muted enabled:hover:bg-surface-card enabled:hover:text-content'} ${className}`}>
         {children}

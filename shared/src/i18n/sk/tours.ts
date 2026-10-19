@@ -272,6 +272,13 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (kópia)',
   'tours.copy.saved': 'Uložené ako nová túra',
   'tours.copy.failed': 'Túru sa nepodarilo skopírovať.',
+  'tours.gpxExport.action': 'Stiahnuť GPX',
+  'tours.gpxExport.hint':
+    'Stiahne uloženú túru ako súbor GPX: celú trasu s dostupnými výškami, pre navigačnú aplikáciu alebo GPS zariadenie.',
+  'tours.gpxExport.saveFirst': 'Najprv túru ulož, potom ju stiahni ako GPX',
+  'tours.gpxExport.offline': 'Na stiahnutie súboru GPX je potrebné pripojenie k serveru.',
+  'tours.gpxExport.noRoute': 'Táto túra nemá uloženú trasu na export.',
+  'tours.gpxExport.failed': 'Súbor GPX sa nepodarilo vytvoriť.',
   'tours.planner.tourType': 'Typ túry',
   'tours.paddle.boat': 'Loď',
   'tours.paddle.boat.kayak': 'Kajak',

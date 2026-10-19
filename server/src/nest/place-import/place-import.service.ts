@@ -12,7 +12,7 @@ import type {
 import { CollectionGpxProvider, type ExportedCollectionFile } from './providers/collection-gpx.provider';
 import { GoogleDirectionsProvider } from './providers/google-directions.provider';
 import { GoogleListProvider } from './providers/google-list.provider';
-import { GpxProvider, type GpxExportInput, type GpxExportOptions } from './providers/gpx.provider';
+import { GpxProvider, type GpxExportInput, type GpxExportOptions, type GpxTourExport } from './providers/gpx.provider';
 import { KmlProvider } from './providers/kml.provider';
 import { NaverListProvider } from './providers/naver-list.provider';
 import { Injectable } from '@nestjs/common';
@@ -21,7 +21,13 @@ import type { CollectionGpxExport, CollectionGpxReadResult } from '@trek/shared'
 // The directions-link reading is also what the road trip planner reads a
 // shared route with, and what the import routes dispatch on.
 export { isDirectionsUrl, parseDirectionsUrl, MAX_DIR_WAYPOINTS } from './directions-url.helpers';
-export type { GpxExportDay, GpxExportInput, GpxExportOptions, GpxExportPlace } from './providers/gpx.provider';
+export type {
+  GpxExportDay,
+  GpxExportInput,
+  GpxExportOptions,
+  GpxExportPlace,
+  GpxTourExport,
+} from './providers/gpx.provider';
 export type { ExportedCollectionFile } from './providers/collection-gpx.provider';
 
 /** Places a name, or says nobody can. */
@@ -62,6 +68,15 @@ export class PlaceImportService {
 
   tripGpxFilename(tripTitle: string): string {
     return this.gpx.filename(tripTitle);
+  }
+
+  /** One tour as a GPX document (PR1-06A), or null when it has no line to write. */
+  writeTourGpx(tour: GpxTourExport): string | null {
+    return this.gpx.writeTour(tour);
+  }
+
+  tourGpxFilename(tourName: string): string {
+    return this.gpx.tourFilename(tourName);
   }
 
   /** A list file as GPX (#2301). */

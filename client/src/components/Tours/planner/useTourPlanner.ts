@@ -927,7 +927,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     description, savedDurationSeconds, editingPlaceId, enrichedGeometry, invalidateDetailRequest, name, onSaved, plannedDurationMinutes, storageKey, tripId, typeFields, waypoints, website])
 
   return {
-    canEdit, canAssign,
+    tripId, canEdit, canAssign,
     name, setName, maxHikingDifficulty, setMaxHikingDifficulty,
     tourType, setTourType, isPaddle, paddle, paddleSpeedInvalid, paddleIncomplete,
     description, setDescription, website, setWebsite, websiteInvalid,

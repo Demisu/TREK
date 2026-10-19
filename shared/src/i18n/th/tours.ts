@@ -258,6 +258,13 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (สำเนา)',
   'tours.copy.saved': 'บันทึกเป็นทัวร์ใหม่แล้ว',
   'tours.copy.failed': 'คัดลอกทัวร์ไม่สำเร็จ',
+  'tours.gpxExport.action': 'ดาวน์โหลด GPX',
+  'tours.gpxExport.hint':
+    'ดาวน์โหลดทัวร์ที่บันทึกไว้เป็นไฟล์ GPX ทั้งเส้นทางพร้อมความสูงที่มี สำหรับแอปนำทางหรืออุปกรณ์ GPS',
+  'tours.gpxExport.saveFirst': 'บันทึกทัวร์ก่อนเพื่อดาวน์โหลดเป็น GPX',
+  'tours.gpxExport.offline': 'การดาวน์โหลดไฟล์ GPX ต้องเชื่อมต่อกับเซิร์ฟเวอร์',
+  'tours.gpxExport.noRoute': 'ทัวร์นี้ไม่มีเส้นทางที่บันทึกไว้ให้ส่งออก',
+  'tours.gpxExport.failed': 'สร้างไฟล์ GPX ไม่สำเร็จ',
   'tours.planner.tourType': 'ประเภททริป',
   'tours.paddle.boat': 'เรือ',
   'tours.paddle.boat.kayak': 'เรือคายัก',

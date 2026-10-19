@@ -270,6 +270,13 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (copy)',
   'tours.copy.saved': 'Saved as a new tour',
   'tours.copy.failed': 'The tour could not be copied.',
+  'tours.gpxExport.action': 'Download GPX',
+  'tours.gpxExport.hint':
+    'Downloads the saved tour as a GPX file: its whole route with the heights it has, for a navigation app or a GPS device.',
+  'tours.gpxExport.saveFirst': 'Save the tour first to download it as GPX',
+  'tours.gpxExport.offline': 'Downloading a GPX file needs a connection to the server.',
+  'tours.gpxExport.noRoute': 'This tour has no saved route to export.',
+  'tours.gpxExport.failed': 'The GPX file could not be created.',
   'tours.planner.tourType': 'Tour type',
   'tours.paddle.boat': 'Boat',
   'tours.paddle.boat.kayak': 'Kayak',

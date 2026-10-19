@@ -4,6 +4,7 @@
  * container over a snapshot test db; the addon gate of the tools is the
  * registry's and is covered with the other addon-gated tools.
  */
+import { Places } from '../../../src/db/entities/Places.entity';
 import type { McpContext } from '../../../src/nest-mcp';
 import { ToursMcp } from '../../../src/nest/tours/tours.mcp';
 import { ToursModule } from '../../../src/nest/tours/tours.module';
@@ -17,8 +18,10 @@ import {
   createTrip,
   createUser,
 } from '../../helpers/factories';
+import { updateRows } from '../../helpers/factories/rows';
 import { resetTestDb } from '../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../helpers/test-module';
+import { createTestOrm } from '../../helpers/test-orm';
 import { createTour } from '../../helpers/tours-repos';
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -122,5 +125,37 @@ describe('ToursMcp', () => {
     } finally {
       getTour.mockRestore();
     }
+  });
+
+  it('TOURS-MCP-006: export_tour_gpx hands over the saved line as GPX, and only to someone who sees the trip', async () => {
+    const { user, member, outsider, trip, ridge, gorge } = fixture();
+    const orm = await createTestOrm(db);
+    await updateRows(
+      orm,
+      Places,
+      { id: ridge.id },
+      {
+        route_geometry: JSON.stringify([
+          [47, 11, 600],
+          [47.01, 11.01, 650],
+        ]),
+      },
+    );
+    await orm.close();
+    const exported = read(await mcp.exportTourGpx({ tripId: trip.id, placeId: ridge.id }, ctx(member.id)));
+    expect(exported.filename).toBe('Ridge.gpx');
+    expect(exported.gpx).toContain('<type>hiking</type>');
+    expect(exported.gpx.match(/<trkpt /g)).toHaveLength(2);
+    // The registry answers a DomainError with its message; called directly, the tool lets it through.
+    await expect(mcp.exportTourGpx({ tripId: trip.id, placeId: gorge.id }, ctx(user.id))).rejects.toThrow(
+      'This tour has no route to export',
+    );
+    expect(read(await mcp.exportTourGpx({ tripId: trip.id, placeId: ridge.id }, ctx(outsider.id)))).toEqual({
+      error: 'Trip not found or access denied.',
+    });
+    const cafe = createPlace(db, trip.id, { name: 'Plain' });
+    expect(read(await mcp.exportTourGpx({ tripId: trip.id, placeId: cafe.id }, ctx(user.id)))).toEqual({
+      error: 'Tour not found.',
+    });
   });
 });

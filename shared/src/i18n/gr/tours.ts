@@ -283,6 +283,13 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (αντίγραφο)',
   'tours.copy.saved': 'Αποθηκεύτηκε ως νέα εκδρομή',
   'tours.copy.failed': 'Η εκδρομή δεν αντιγράφηκε.',
+  'tours.gpxExport.action': 'Λήψη GPX',
+  'tours.gpxExport.hint':
+    'Κατεβάζει την αποθηκευμένη εκδρομή ως αρχείο GPX: όλη τη διαδρομή με τα διαθέσιμα υψόμετρα, για εφαρμογή πλοήγησης ή συσκευή GPS.',
+  'tours.gpxExport.saveFirst': 'Αποθηκεύστε πρώτα την εκδρομή για λήψη σε GPX',
+  'tours.gpxExport.offline': 'Η λήψη αρχείου GPX χρειάζεται σύνδεση με τον διακομιστή.',
+  'tours.gpxExport.noRoute': 'Αυτή η εκδρομή δεν έχει αποθηκευμένη διαδρομή για εξαγωγή.',
+  'tours.gpxExport.failed': 'Το αρχείο GPX δεν δημιουργήθηκε.',
   'tours.planner.tourType': 'Τύπος διαδρομής',
   'tours.paddle.boat': 'Σκάφος',
   'tours.paddle.boat.kayak': 'Καγιάκ',

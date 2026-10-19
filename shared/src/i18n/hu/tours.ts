@@ -277,6 +277,13 @@ const tours: TranslationStrings = {
   'tours.copy.name': '{name} (másolat)',
   'tours.copy.saved': 'Új túraként mentve',
   'tours.copy.failed': 'A túrát nem sikerült másolni.',
+  'tours.gpxExport.action': 'GPX letöltése',
+  'tours.gpxExport.hint':
+    'Letölti a mentett túrát GPX-fájlként: a teljes útvonalat a meglévő magasságokkal, navigációs apphoz vagy GPS-készülékhez.',
+  'tours.gpxExport.saveFirst': 'Előbb mentsd a túrát, aztán töltsd le GPX-ként',
+  'tours.gpxExport.offline': 'A GPX-fájl letöltéséhez kapcsolat kell a szerverrel.',
+  'tours.gpxExport.noRoute': 'Ennek a túrának nincs exportálható mentett útvonala.',
+  'tours.gpxExport.failed': 'A GPX-fájlt nem sikerült létrehozni.',
   'tours.planner.tourType': 'Túratípus',
   'tours.paddle.boat': 'Hajó',
   'tours.paddle.boat.kayak': 'Kajak',
