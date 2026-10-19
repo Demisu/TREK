@@ -1,8 +1,10 @@
 import {
+  bikeProfileSchema,
   hikingPreferencesSchema,
   MAX_PLANNED_TOUR_DURATION_MINUTES,
   paddleLockSchema,
   plannableTourTypeSchema,
+  type BikeProfile,
   type HikingPreferences,
   type PlannableTourType,
   type TourMaxHikingDifficulty,
@@ -17,7 +19,7 @@ import type { PaddleFieldValues } from './usePaddleFields';
  * half read.
  */
 export interface DraftPayload {
-  version: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+  version: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
   name: string;
   description?: string;
   website?: string;
@@ -34,9 +36,11 @@ export interface DraftPayload {
   baseRevision?: number | null;
   /** MF-08: what the hike asks the router for besides its limit. */
   hikingPreferences?: HikingPreferences | null;
+  /** BIK-01: the profile a bike tour is routed for. */
+  bikeProfile?: BikeProfile;
 }
 
-const DRAFT_VERSIONS: ReadonlyArray<DraftPayload['version']> = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+const DRAFT_VERSIONS: ReadonlyArray<DraftPayload['version']> = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 function optionalString(value: unknown): boolean {
   return value === undefined || typeof value === 'string';
@@ -70,6 +74,16 @@ function validDraftWaypoint(point: TourPlannerWaypoint): boolean {
   );
 }
 
+/** The type of a draft and what its route is planned by, each one absent in a draft older than it. */
+function validRouteChoices(draft: Partial<DraftPayload>): boolean {
+  return (
+    (draft.tourType === undefined || plannableTourTypeSchema.safeParse(draft.tourType).success) &&
+    (draft.bikeProfile === undefined || bikeProfileSchema.safeParse(draft.bikeProfile).success) &&
+    (draft.hikingPreferences == null || hikingPreferencesSchema.safeParse(draft.hikingPreferences).success) &&
+    optionalDifficulty(draft.maxHikingDifficulty)
+  );
+}
+
 export function validDraft(value: unknown): value is DraftPayload {
   if (!value || typeof value !== 'object') return false;
   const draft = value as Partial<DraftPayload>;
@@ -84,9 +98,7 @@ export function validDraft(value: unknown): value is DraftPayload {
     optionalPlaceId(draft.editingPlaceId) &&
     optionalPlaceId(draft.derivedFromPlaceId) &&
     optionalPlaceId(draft.baseRevision) &&
-    (draft.hikingPreferences == null || hikingPreferencesSchema.safeParse(draft.hikingPreferences).success) &&
-    optionalDifficulty(draft.maxHikingDifficulty) &&
-    (draft.tourType === undefined || plannableTourTypeSchema.safeParse(draft.tourType).success) &&
+    validRouteChoices(draft) &&
     Array.isArray(draft.waypoints) &&
     draft.waypoints.every(validDraftWaypoint)
   );

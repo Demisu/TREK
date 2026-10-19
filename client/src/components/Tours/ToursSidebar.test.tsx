@@ -349,7 +349,8 @@ describe('ToursSidebar', () => {
     // A file without heights says so instead of showing zero.
     expect(screen.getByTestId('gpx-preview-track')).toHaveTextContent('No heights in the file')
 
-    fireEvent.click(screen.getByRole('button', { name: 'Paddle tour' }))
+    fireEvent.click(screen.getByTestId('tour-type-select'))
+    fireEvent.click(screen.getByTestId('tour-type-option-kayak'))
     const confirm = screen.getByTestId('gpx-preview-import')
     expect(confirm).toBeDisabled()
     expect(screen.getByText('Choose the boat and the water to import as a paddle tour.')).toBeInTheDocument()

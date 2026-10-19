@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach, vi } from 'vitest'
 import { http, HttpResponse } from 'msw'
 import { server } from '../../../tests/helpers/msw/server'
 import { useSettingsStore } from '../../store/settingsStore'
-import { valhallaBase, valhallaAvailable, valhallaTurn, resetValhallaTurns, valhallaRouteAvoiding, valhallaRun, valhallaAlternates, alternatesFrom, runFrom, legAvoids } from './valhallaRoute'
+import { valhallaBase, valhallaAvailable, valhallaTurn, resetValhallaTurns, valhallaRouteAvoiding, valhallaRun, valhallaAlternates, alternatesFrom, runFrom, legAvoids, valhallaTraceAttributes } from './valhallaRoute'
 
 const FOSSGIS_VALHALLA = 'https://valhalla1.openstreetmap.de/route'
 
@@ -529,5 +529,57 @@ describe('valhallaAlternates', () => {
     setSettings({ routing_base_url: 'https://osrm.example.org' })
     await expect(valhallaAlternates(HAMBURG, BERLIN, 'driving', ['toll'], 2)).resolves.toBeNull()
     expect(calls).toBe(2)
+  })
+})
+
+describe('valhallaTraceAttributes (BIK-01)', () => {
+  const TRACE = 'https://valhalla1.openstreetmap.de/trace_attributes'
+
+  it('VALHALLA-TRACE-001: asks for the ways under the line, matched as a mountain bike rides, and hands the answer on', async () => {
+    const bodies: Record<string, unknown>[] = []
+    server.use(http.post(TRACE, async ({ request }) => {
+      bodies.push(await request.json() as Record<string, unknown>)
+      return HttpResponse.json({ shape: SHAPE, edges: [] })
+    }))
+    await expect(valhallaTraceAttributes(SHAPE_POINTS)).resolves.toEqual({ shape: SHAPE, edges: [] })
+    expect(bodies[0]).toMatchObject({
+      costing: 'bicycle',
+      costing_options: { bicycle: { bicycle_type: 'Mountain' } },
+      shape_match: 'map_snap',
+      filters: { action: 'include' },
+    })
+    expect(bodies[0].shape).toEqual(SHAPE_POINTS.map(([lat, lon]) => ({ lat, lon })))
+  })
+
+  it('VALHALLA-TRACE-002: a long line is thinned evenly to what one request carries, its ends kept', async () => {
+    let shape: unknown[] = []
+    server.use(http.post(TRACE, async ({ request }) => {
+      shape = ((await request.json()) as { shape: unknown[] }).shape
+      return HttpResponse.json({})
+    }))
+    const line = Array.from({ length: 9001 }, (_, i): [number, number] => [47 + i / 1e5, 11])
+    await valhallaTraceAttributes(line)
+    expect(shape.length).toBeLessThanOrEqual(4001)
+    expect(shape[0]).toEqual({ lat: 47, lon: 11 })
+    expect(shape[shape.length - 1]).toEqual({ lat: line[9000][0], lon: 11 })
+  })
+
+  it('VALHALLA-TRACE-003: null for a refusal, a network failure, a line of one point or a router that is not Valhalla', async () => {
+    server.use(http.post(TRACE, () => new HttpResponse(null, { status: 400 })))
+    await expect(valhallaTraceAttributes(SHAPE_POINTS)).resolves.toBeNull()
+    server.use(http.post(TRACE, () => HttpResponse.error()))
+    await expect(valhallaTraceAttributes(SHAPE_POINTS)).resolves.toBeNull()
+    await expect(valhallaTraceAttributes(SHAPE_POINTS.slice(0, 1))).resolves.toBeNull()
+    setSettings({ routing_base_url: 'https://osrm.example' })
+    await expect(valhallaTraceAttributes(SHAPE_POINTS)).resolves.toBeNull()
+  })
+
+  it('VALHALLA-TRACE-004: a caller gone before its turn asks nothing', async () => {
+    let asked = false
+    server.use(http.post(TRACE, () => { asked = true; return HttpResponse.json({}) }))
+    const controller = new AbortController()
+    controller.abort()
+    await expect(valhallaTraceAttributes(SHAPE_POINTS, controller.signal)).resolves.toBeNull()
+    expect(asked).toBe(false)
   })
 })

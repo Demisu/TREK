@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import type { useFerrataMapLayer } from '../../components/Ferratas/useFerrataMapLayer';
 import { paddleMapItems, selectedPaddleKey } from '../../components/Tours/paddle/paddleMapLayer';
 import { usePaddlePaint } from '../../components/Tours/paddle/paddlePaint';
 import type { TourPlannerController } from '../../components/Tours/planner/useTourPlanner';
 import { baseLayerFor, SEAMARK_OVERLAY, tourMapLayersFor } from '../../components/Tours/tourMapLayers';
-import { useTileHealth, useTourRasterOverlay } from '../../components/Tours/useTourRasterOverlay';
+import { useBaseMapHealth, useTourRasterOverlay } from '../../components/Tours/useTourRasterOverlay';
 import { useAddonStore } from '../../store/addonStore';
 import { selectPaddleObstacle, usePaddleObstacleStore } from '../../store/paddleObstacleStore';
 
@@ -26,21 +26,18 @@ export function useTourStageLayers(
   ferrata: FerrataLayerState
 ) {
   const { mode } = tourPlanner;
-  // MAP-01: OpenHikingMap while a hike is being planned (a draft or a saved tour in the editor),
-  // never over an import viewed as it came in or with no tour open, and only while the admin offers it.
+  // MAP-01, BIK-06: a type's own map (OpenHikingMap for a hike, CyclOSM for a bike tour) while a
+  // tour of that type is open, planned or viewed as it came in, never with no tour open, and only
+  // while the admin offers it.
   const hikingMapAllowed = useAddonStore((state) => state.toursHikingMap);
-  const planning = mode.type === 'new-draft' || mode.type === 'edit-saved';
+  const cycleMapAllowed = useAddonStore((state) => state.toursCycleMap);
+  const tourOpen = mode.type !== 'neutral';
   const layerSet = tourMapLayersFor(mode.type === 'view-gpx' ? mode.tour.tour_type : tourPlanner.tourType, {
-    hikingMap: hikingMapAllowed && planning,
+    hikingMap: hikingMapAllowed && tourOpen,
+    cycleMap: cycleMapAllowed && tourOpen,
   });
   const baseLayer = baseLayerFor(layerSet, tourPlanner.mapBaseLayer);
-  // Whether OpenHikingMap answers, asked afresh each time it becomes the base map.
-  const hikingMap = useTileHealth();
-  const { reset: resetHikingMap } = hikingMap;
-  const showsHikingMap = baseLayer === 'hiking';
-  useEffect(() => {
-    if (showsHikingMap) resetHikingMap();
-  }, [showsHikingMap, resetHikingMap]);
+  const baseHealth = useBaseMapHealth(baseLayer);
   // With no tour open nothing is a hike yet: the ferratas wait for one, as the seamarks wait for a paddle tour.
   const offersFerratas = mode.type !== 'neutral' && layerSet.overlays.includes('ferratas');
   const { toggleMapOverlay } = tourPlanner;
@@ -74,9 +71,9 @@ export function useTourStageLayers(
       bases: layerSet.bases,
       overlays: layerSet.overlays.includes('seamarks') ? [seamarks] : [],
       paddle,
-      hikingMap: showsHikingMap ? hikingMap : undefined,
+      baseHealth,
     }),
-    [layerSet, seamarks, paddle, showsHikingMap, hikingMap]
+    [layerSet, seamarks, paddle, baseHealth]
   );
   return {
     baseLayer,

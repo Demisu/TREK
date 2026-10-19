@@ -1,4 +1,4 @@
-import type { MouseEvent, ReactNode } from 'react'
+import type { MouseEvent, ReactNode, Ref } from 'react'
 import { Clock, MoreHorizontal, type LucideIcon } from 'lucide-react'
 import { Tooltip } from '../shared/Tooltip'
 import { ContextMenu, useContextMenu } from '../shared/ContextMenu'
@@ -15,7 +15,7 @@ import { fs } from '../shared/DialogShell'
 export const PANEL_BAR = 'flex min-h-[52px] flex-none items-center gap-1.5 border-b border-edge-faint px-3 py-2'
 
 /** A 32px icon control on a panel bar. Raised like an active filter tab while `active`. */
-export function BarButton({ label, tooltip, onClick, active = false, disabled = false, children, className = '', ariaPressed, ariaExpanded, ariaHaspopup, placement = 'bottom', testId }: {
+export function BarButton({ label, tooltip, onClick, active = false, disabled = false, children, className = '', ariaPressed, ariaExpanded, ariaHaspopup, placement = 'bottom', testId, ref }: {
   label: string
   /** A longer explanation for the tooltip; the label still names the button. */
   tooltip?: string
@@ -29,10 +29,12 @@ export function BarButton({ label, tooltip, onClick, active = false, disabled = 
   ariaExpanded?: boolean
   ariaHaspopup?: 'dialog' | 'menu'
   placement?: 'top' | 'bottom' | 'left' | 'right'
+  /** The button itself, for a list or a menu that opens beside it. */
+  ref?: Ref<HTMLButtonElement>
 }) {
   return (
     <Tooltip label={tooltip ?? label} placement={placement}>
-      <button type="button" onClick={onClick} disabled={disabled} aria-label={label} data-testid={testId}
+      <button ref={ref} type="button" onClick={onClick} disabled={disabled} aria-label={label} data-testid={testId}
         aria-pressed={ariaPressed} aria-expanded={ariaExpanded} aria-haspopup={ariaHaspopup}
         className={`grid h-8 w-8 flex-none place-items-center rounded-[10px] transition-colors disabled:cursor-default disabled:opacity-40 ${active ? 'bg-surface-card text-content shadow-sm' : 'text-content-muted enabled:hover:bg-surface-card enabled:hover:text-content'} ${className}`}>
         {children}

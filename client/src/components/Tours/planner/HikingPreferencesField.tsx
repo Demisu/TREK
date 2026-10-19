@@ -1,5 +1,5 @@
 import { HIKING_PREFERENCE_KEYS, type HikingPreferenceKey } from '@trek/shared';
-import { ChartNoAxesColumnIncreasing, Footprints, Ruler, Ship } from 'lucide-react';
+import { ChartNoAxesColumnIncreasing, Mountain, Ship } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { useTranslation } from '../../../i18n';
 import { BOX } from '../../Planner/bookings/bookingParts';
@@ -9,10 +9,9 @@ import { InfoDot } from '../tourParts';
 import type { TourPlannerController } from './useTourPlanner';
 
 const ICON: Record<HikingPreferenceKey, ComponentType<{ size?: number; strokeWidth?: number; className?: string }>> = {
+  avoid_climbs: Mountain,
   avoid_steps: ChartNoAxesColumnIncreasing,
   avoid_ferries: Ship,
-  prefer_paths: Footprints,
-  shortest: Ruler,
 };
 
 /**

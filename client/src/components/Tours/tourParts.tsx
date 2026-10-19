@@ -1,6 +1,7 @@
 import { useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import type { TourListItem } from '@trek/shared'
-import { AlertTriangle, CalendarDays, ChevronDown, Info, Mountain, Plus, Waves } from 'lucide-react'
+import { AlertTriangle, CalendarDays, ChevronDown, Info, Plus } from 'lucide-react'
+import { createElement } from 'react'
 import type { Day, DistanceUnit } from '../../types'
 import type { RouteGeometryAnalysis } from '../../utils/routeGeometry'
 import { useTranslation } from '../../i18n'
@@ -14,6 +15,7 @@ import { type TourDay, dayMenuLabel } from './tourDays'
 import { tourMetricFacts } from './tourFacts'
 import type { TourDayAssignment } from './useTourDayAssignment'
 import { useRailFold } from './railFold'
+import { tourDayRowIcon } from './tourDayRowIcon'
 
 /**
  * A tour's tile in a list: its T-scale grade in place of the mountain, named in
@@ -24,16 +26,14 @@ export function TourGradeTile({ tour }: { tour: Pick<TourListItem, 'max_hiking_d
   const { t } = useTranslation()
   const level = tour.max_hiking_difficulty
   const source = tourSource(tour)
-  // A paddle tour has no grade; its tile names the type instead.
-  const paddle = tour.tour_type === 'kayak'
-  const label = level != null ? t(`tours.planner.difficulty.t${level}`) : paddle ? t('tourTypes.kayak') : null
+  // A tour without a grade (a paddle or a bike tour, an import) names its type instead; a hike keeps the mountain.
+  const type = tour.tour_type === 'kayak' || tour.tour_type === 'bike' ? tour.tour_type : 'hike'
+  const label = level != null ? t(`tours.planner.difficulty.t${level}`) : type !== 'hike' ? t(`tourTypes.${type}`) : null
   return (
     <span className="relative flex-none">
       <Tooltip label={label ?? ''} disabled={label == null}>
         <span aria-label={label ?? undefined} className="grid h-[34px] w-[34px] place-items-center rounded-full bg-edge font-geist font-semibold tabular-nums text-content" style={fs(12, 'body')}>
-          {level != null ? `T${level}` : paddle
-            ? <Waves size={15} strokeWidth={1.9} className="text-content-secondary" />
-            : <Mountain size={15} strokeWidth={1.9} className="text-content-secondary" />}
+          {level != null ? `T${level}` : createElement(tourDayRowIcon(type), { size: 15, strokeWidth: 1.9, className: 'text-content-secondary' })}
         </span>
       </Tooltip>
       {source !== 'trek' && (

@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '../../../../tests/helpers/render';
 import { OnlineOnlyError } from '../../../repo/onlineOnly';
 import { tourLibraryRepo } from '../../../repo/tourLibraryRepo';
-import { TourLibraryButton } from './TourLibraryDialog';
+import { TourLibraryDialog } from './TourLibraryDialog';
 import { useTourLibrary } from './useTourLibrary';
 
 // FE-TOUR-LIBRARY-001 to FE-TOUR-LIBRARY-008
@@ -149,7 +149,15 @@ describe('useTourLibrary', () => {
 describe('TourLibraryDialog', () => {
   function Harness({ onTakenOver = vi.fn() }: { onTakenOver?: () => void }) {
     const library = useTourLibrary({ tripId: 5, onTakenOver });
-    return <TourLibraryButton library={library} />;
+    // The way in is the rail's Add tour menu (TourAddMenu); here a plain button stands in for it.
+    return (
+      <>
+        <button type="button" data-testid="tour-rail-library" onClick={library.show}>
+          open
+        </button>
+        <TourLibraryDialog library={library} />
+      </>
+    );
   }
 
   it('FE-TOUR-LIBRARY-006: lists the tours with their trip and measures, a missing one left out', async () => {

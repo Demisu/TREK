@@ -1,7 +1,7 @@
 import { useId, type ComponentType } from 'react'
 import { useTranslation } from '../../i18n'
 import { useIsDark } from '../../hooks/useIsDark'
-import { Puzzle, ListChecks, Wallet, FileText, CalendarDays, Globe, Briefcase, Image, Terminal, Link2, Compass, BookOpen, Sparkles, Luggage, Plane, Server, Cloud, Bookmark, Users, Loader2, RefreshCw, Mountain, CarFront, Footprints } from 'lucide-react'
+import { Puzzle, ListChecks, Wallet, FileText, CalendarDays, Globe, Briefcase, Image, Terminal, Link2, Compass, BookOpen, Sparkles, Luggage, Plane, Server, Cloud, Bookmark, Users, Loader2, RefreshCw, Mountain, CarFront } from 'lucide-react'
 import CustomSelect from '../shared/CustomSelect'
 import { asLlmVision, LLM_VISION_MODES, type LlmVision } from '@trek/shared'
 import EmptyState from '../shared/EmptyState'
@@ -77,8 +77,7 @@ export default function AddonManager({ bagTrackingEnabled, onToggleBagTracking, 
     addons, loading, handleToggle, tripAddons, globalAddons, integrationAddons, providerOptions, documentProviderOptions,
     toursWanderer,
     toggleToursWanderer,
-    toursHikingMap,
-    toggleToursHikingMap,
+    mapSwitches,
   } = useAddonManager()
 
   if (loading) {
@@ -165,13 +164,16 @@ export default function AddonManager({ bagTrackingEnabled, onToggleBagTracking, 
             enabled={toursWanderer}
             onToggle={() => void toggleToursWanderer()}
           />
-          <AddonSubRow
-            icon={<Footprints size={14} />}
-            title={t('admin.toursHikingMap.title')}
-            description={t('admin.toursHikingMap.subtitle')}
-            enabled={toursHikingMap}
-            onToggle={() => void toggleToursHikingMap()}
-          />
+          {mapSwitches.map(({ key, Icon, titleKey, subtitleKey, enabled, toggle }) => (
+            <AddonSubRow
+              key={key}
+              icon={<Icon size={14} />}
+              title={t(titleKey)}
+              description={t(subtitleKey)}
+              enabled={enabled}
+              onToggle={() => void toggle()}
+            />
+          ))}
         </>
       )
     }

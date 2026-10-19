@@ -1,7 +1,8 @@
-import type { HikingPreferences, TourFixedLeg } from '@trek/shared'
+import type { BikeProfile, HikingPreferences, TourFixedLeg } from '@trek/shared'
 import type { Waypoint } from '../../../types'
-import { valhallaBase, valhallaRun, valhallaTurn } from '../../Map/valhallaRoute'
+import { valhallaBase, valhallaRun, valhallaTurn, type CostingOptions } from '../../Map/valhallaRoute'
 import { densifyLine, lineLengthM } from './tourFixedLegs'
+import { MAX_TOUR_SNAP_M, type TourRouteUnreachable } from './tourRouteOutcome'
 
 export interface TourRoutePart {
   coordinates: [number, number][]
@@ -33,31 +34,57 @@ const TOURS_MAX_HIKING_DIFFICULTY = 2
 
 /** How fast a fixed leg is reckoned until the heights are in: a via ferrata climbs slowly, a free leg is walked. */
 const FIXED_LEG_KM_PER_HOUR = { ferrata: 1.5, free: 4, portage: 2 } as const
+/** A leg drawn by hand on a bike tour is reckoned at an easy riding pace: no router saw it. */
+const FREE_LEG_RIDING_KM_PER_HOUR = 15
 
 /**
- * MF-08: a hike's preferences as Valhalla's pedestrian costing options. Each
- * one was checked against the public instance before it was offered, and is a
- * weighting that gives way where there is no other path:
+ * MF-08, RTE-01: a hike's preferences as Valhalla's pedestrian costing
+ * options. Each one was checked against the public instance before it was
+ * offered, and is a weighting that gives way where there is no other path:
+ * - avoid_climbs, `use_hills` 0.2: Freiburg Martinstor to the Schlossberg went
+ *   from 1.64 km with a 37 % pitch and 30 m over 25 % to 1.73 km whose steepest
+ *   stretch is 23 % (heights every 30 m). It weighs the grade, not the climb in
+ *   sum: the same height is still gained. 0.1 and below sent Garmisch station
+ *   to the Eckbauer round a 10 km detour with more steep metres, 0.25 and up
+ *   left Freiburg as it was; 0.2 does neither.
  * - avoid_steps, `step_penalty` 600 s: Würzburg Altstadt to the Festung went
  *   from four flights of steps over 1.49 km to one over 2.67 km.
  * - avoid_ferries, `use_ferry` 0: Kiel Reventlou to Dietrichsdorf went from the
  *   Förde ferry (2.7 km) round the fjord on land (8.3 km); Hamburg
  *   Landungsbrücken to Steinwerder through the old Elbe tunnel instead of the ferry.
- * - prefer_paths, `walkway_factor` 0.5: footpaths of their own weigh half of a
- *   road, which moved Garmisch station to the Partnachklamm onto the paths.
- * - shortest, `shortest`: the way by its length, not its time (Garmisch to the
- *   Eckbauer 5.09 km to 4.96 km); it still honours the penalties above.
- * Left out because the router showed no effect on foot: `use_hills` and
- * `use_tracks`; nor has it any option for marked, paved or rough ways.
+ * The router has no option for marked, paved or rough ways on foot.
  */
-export function hikingCostingOptions(preferences: HikingPreferences | null | undefined): Record<string, number | boolean> {
+export function hikingCostingOptions(preferences: HikingPreferences | null | undefined): Record<string, number> {
   return {
+    ...(preferences?.avoid_climbs ? { use_hills: 0.2 } : {}),
     ...(preferences?.avoid_steps ? { step_penalty: 600 } : {}),
     ...(preferences?.avoid_ferries ? { use_ferry: 0 } : {}),
-    ...(preferences?.prefer_paths ? { walkway_factor: 0.5 } : {}),
-    ...(preferences?.shortest ? { shortest: true } : {}),
   }
 }
+
+/**
+ * BIK-01 to BIK-04: what each bike profile asks Valhalla's bicycle costing for.
+ * Every one was checked against the public instance with trace_attributes over
+ * the routes it gave, before it was offered (shares of the length):
+ * - touring, Hybrid with bad surfaces avoided: Garmisch station to the Eckbauer
+ *   92 % asphalt and no gravel, where gravel took 18 % gravel on farm tracks.
+ * - road, Road at full surface avoidance: Herrsching to Andechs 100 % asphalt
+ *   over 6.2 km, where touring took 4.98 km with 7 % dirt and 10 % compacted.
+ * - gravel, Cross with surfaces barely avoided: Munich Marienplatz to the
+ *   Englischer Garten 39 % compacted paths along the Isar, touring 9 %.
+ * - mtb, Mountain with no surface avoidance and roads least wanted: Garmisch
+ *   to the Eckbauer 63 % tracks and 38 % gravel.
+ * `use_roads` and the bicycle type also set the router's riding speed, so the
+ * time it gives is the profile's. None of it says a way is rideable or safe.
+ */
+export const BIKE_COSTING: Record<BikeProfile, Readonly<CostingOptions>> = {
+  touring: { bicycle_type: 'Hybrid', use_roads: 0.2, avoid_bad_surfaces: 1 },
+  road: { bicycle_type: 'Road', use_roads: 0.5, avoid_bad_surfaces: 1 },
+  gravel: { bicycle_type: 'Cross', use_roads: 0.1, avoid_bad_surfaces: 0.25 },
+  mtb: { bicycle_type: 'Mountain', use_roads: 0, avoid_bad_surfaces: 0 },
+}
+
+type LandWaypoint = Pick<Waypoint, 'lat' | 'lng'> & { fixedLeg?: TourFixedLeg | null }
 
 /**
  * Tours deliberately bypasses the OSRM-first RouteCalculator. A waypoint whose
@@ -65,21 +92,46 @@ export function hikingCostingOptions(preferences: HikingPreferences | null | und
  * leg; the router only plans the runs between fixed legs, one request each.
  */
 export async function routeWalkingTour(
-  waypoints: Array<Pick<Waypoint, 'lat' | 'lng'> & { fixedLeg?: TourFixedLeg | null }>,
+  waypoints: LandWaypoint[],
   signal?: AbortSignal,
   maxHikingDifficulty = TOURS_MAX_HIKING_DIFFICULTY,
   preferences: HikingPreferences | null = null,
-): Promise<TourRouteResult | null> {
+): Promise<TourRouteResult | TourRouteUnreachable | null> {
+  return routeOnLand(waypoints, 'walking', {
+    max_hiking_difficulty: maxHikingDifficulty,
+    ...hikingCostingOptions(preferences),
+  }, signal)
+}
+
+/** BIK-01: a bike tour, routed for its profile; a leg drawn by hand is kept as drawn. */
+export async function routeBikeTour(
+  waypoints: LandWaypoint[],
+  profile: BikeProfile,
+  signal?: AbortSignal,
+): Promise<TourRouteResult | TourRouteUnreachable | null> {
+  return routeOnLand(waypoints, 'cycling', BIKE_COSTING[profile], signal)
+}
+
+async function routeOnLand(
+  waypoints: LandWaypoint[],
+  mode: 'walking' | 'cycling',
+  costingOptions: Readonly<CostingOptions>,
+  signal?: AbortSignal,
+): Promise<TourRouteResult | TourRouteUnreachable | null> {
   const lines: TourRoutePart[] = []
   let distanceMeters = 0
   let durationSeconds = 0
-  const routeRun = async (run: Array<Pick<Waypoint, 'lat' | 'lng'>>) => {
+  let unreachable: TourRouteUnreachable | null = null
+  // `first`: where the run starts along the tour, so a point it cannot reach is named by its place in the tour.
+  const routeRun = async (run: Array<Pick<Waypoint, 'lat' | 'lng'>>, first: number) => {
     if (run.length < 2) return true
-    const routed = await valhallaRun(run.map(({ lat, lng }) => ({ lat, lng })), 'walking', [], signal, {
-      max_hiking_difficulty: maxHikingDifficulty,
-      ...hikingCostingOptions(preferences),
-    })
+    const routed = await valhallaRun(run.map(({ lat, lng }) => ({ lat, lng })), mode, [], signal, costingOptions)
     if (!routed) return false
+    const far = routed.snapped.findIndex((point) => point.meters > MAX_TOUR_SNAP_M)
+    if (far >= 0) {
+      unreachable = { unreachable: first + far, snappedMeters: Math.round(routed.snapped[far].meters) }
+      return false
+    }
     lines.push({ coordinates: routed.total.coordinates, free: false })
     distanceMeters += routed.total.distance
     durationSeconds += routed.total.duration
@@ -87,23 +139,26 @@ export async function routeWalkingTour(
   }
 
   let run: Array<Pick<Waypoint, 'lat' | 'lng'>> = waypoints.slice(0, 1)
+  let runStart = 0
   for (let i = 0; i < waypoints.length - 1; i += 1) {
     const leg = waypoints[i].fixedLeg
     if (!leg) {
       run.push(waypoints[i + 1])
       continue
     }
-    if (!(await routeRun(run))) return null
+    if (!(await routeRun(run, runStart))) return unreachable
     const drawn = leg.geometry.map(([lat, lng]): [number, number] => [lat, lng])
     // A hand-drawn leg is sampled along its length, so its heights follow the ground between its ends.
     const line = leg.kind === 'ferrata' ? drawn : densifyLine(drawn)
     const length = lineLengthM(line)
+    const kmPerHour = mode === 'cycling' && leg.kind === 'free' ? FREE_LEG_RIDING_KM_PER_HOUR : FIXED_LEG_KM_PER_HOUR[leg.kind]
     lines.push({ coordinates: line, free: leg.kind !== 'ferrata', ...(leg.kind === 'portage' ? { land: true } : {}) })
     distanceMeters += length
-    durationSeconds += (length / 1000 / FIXED_LEG_KM_PER_HOUR[leg.kind]) * 3600
+    durationSeconds += (length / 1000 / kmPerHour) * 3600
     run = [waypoints[i + 1]]
+    runStart = i + 1
   }
-  if (!(await routeRun(run))) return null
+  if (!(await routeRun(run, runStart))) return unreachable
   if (lines.length === 0) return null
 
   // One line: each part after the first starts where the one before it ended, so its first point goes.

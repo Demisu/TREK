@@ -1,7 +1,8 @@
+import { Bike, Footprints } from 'lucide-react';
 import { useEffect, useEffectEvent, useState } from 'react';
 
 import { adminApi } from '../../../api/client';
-import { hikingMapAdminApi } from '../../../api/hikingMap';
+import { cycleMapAdminApi, hikingMapAdminApi } from '../../../api/tourBaseMaps';
 import { wandererAdminApi } from '../../../api/wanderer';
 import { useTranslation } from '../../../i18n';
 import { useAddonStore } from '../../../store/addonStore';
@@ -22,6 +23,7 @@ export function useAddonManager() {
   const [loading, setLoading] = useState(true);
   const [toursWanderer, setToursWanderer] = useState(false);
   const [toursHikingMap, setToursHikingMap] = useState(false);
+  const [toursCycleMap, setToursCycleMap] = useState(false);
 
   const loadAddons = async () => {
     try {
@@ -41,6 +43,10 @@ export function useAddonManager() {
     hikingMapAdminApi
       .get()
       .then((flag) => setToursHikingMap(flag.enabled))
+      .catch(() => toast.error(t('admin.addons.toast.error')));
+    cycleMapAdminApi
+      .get()
+      .then((flag) => setToursCycleMap(flag.enabled))
       .catch(() => toast.error(t('admin.addons.toast.error')));
   });
   useEffect(() => {
@@ -69,7 +75,7 @@ export function useAddonManager() {
     toast.success(t('admin.addons.toast.updated'));
   };
 
-  /** A switch under Tours (wanderer, OpenHikingMap): flipped at once, put back when the save fails. */
+  /** A switch under Tours (wanderer, OpenHikingMap, CyclOSM): flipped at once, put back when the save fails. */
   const flipToursSwitch = async (
     current: boolean,
     set: (enabled: boolean) => void,
@@ -88,7 +94,25 @@ export function useAddonManager() {
     toast.success(t('admin.addons.toast.updated'));
   };
   const toggleToursWanderer = () => flipToursSwitch(toursWanderer, setToursWanderer, wandererAdminApi.update);
-  const toggleToursHikingMap = () => flipToursSwitch(toursHikingMap, setToursHikingMap, hikingMapAdminApi.update);
+  /** The maps the Tours planner offers on their operators' terms, one switch each (MAP-01, BIK-06). */
+  const mapSwitches = [
+    {
+      key: 'hiking',
+      Icon: Footprints,
+      titleKey: 'admin.toursHikingMap.title',
+      subtitleKey: 'admin.toursHikingMap.subtitle',
+      enabled: toursHikingMap,
+      toggle: () => flipToursSwitch(toursHikingMap, setToursHikingMap, hikingMapAdminApi.update),
+    },
+    {
+      key: 'cycle',
+      Icon: Bike,
+      titleKey: 'admin.toursCycleMap.title',
+      subtitleKey: 'admin.toursCycleMap.subtitle',
+      enabled: toursCycleMap,
+      toggle: () => flipToursSwitch(toursCycleMap, setToursCycleMap, cycleMapAdminApi.update),
+    },
+  ] as const;
 
   const asOption = (provider: Addon): ProviderOption => ({
     key: provider.id,
@@ -118,7 +142,6 @@ export function useAddonManager() {
     documentProviderOptions,
     toursWanderer,
     toggleToursWanderer,
-    toursHikingMap,
-    toggleToursHikingMap,
+    mapSwitches,
   };
 }

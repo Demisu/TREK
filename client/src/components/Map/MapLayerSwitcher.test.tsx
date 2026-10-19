@@ -1,4 +1,4 @@
-// FE-COMP-MAPLAYER-001 to FE-COMP-MAPLAYER-019
+// FE-COMP-MAPLAYER-001 to FE-COMP-MAPLAYER-020
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '../../../tests/helpers/render'
@@ -70,8 +70,8 @@ describe('MapLayerSwitcher', () => {
   })
 
   it('FE-COMP-MAPLAYER-019: a hiking map that stopped answering says so on its segment, and only while it is shown', () => {
-    const hikingMap = { down: true, onTileError: vi.fn(), onTileLoad: vi.fn() }
-    const layers = { bases: ['default', 'hiking'] as const, hikingMap }
+    const baseHealth = { base: 'hiking' as const, down: true, onTileError: vi.fn(), onTileLoad: vi.fn() }
+    const layers = { bases: ['default', 'hiking'] as const, baseHealth }
     const { rerender } = render(<TourMapLayerSwitcher active="hiking" onChange={() => {}} layers={layers} />)
     const segment = screen.getByRole('button', { name: 'Hiking' })
     expect(segment).toHaveAttribute('aria-pressed', 'true')
@@ -81,6 +81,14 @@ describe('MapLayerSwitcher', () => {
     rerender(<TourMapLayerSwitcher active="default" onChange={() => {}} layers={layers} />)
     expect(screen.getByRole('button', { name: 'Hiking' })).not.toHaveTextContent('!')
     expect(screen.queryByRole('status')).toBeNull()
+  })
+
+  it('FE-COMP-MAPLAYER-020: CyclOSM sits in the switch as Cycling and says so when it stops answering (BIK-06)', () => {
+    const baseHealth = { base: 'cycle' as const, down: true, onTileError: vi.fn(), onTileLoad: vi.fn() }
+    render(<TourMapLayerSwitcher active="cycle" onChange={() => {}} layers={{ bases: ['default', 'cycle'], baseHealth }} />)
+    expect(screen.getByRole('button', { name: 'Cycling' })).toHaveTextContent('!')
+    expect(screen.getByRole('status')).toHaveTextContent('CyclOSM is not answering right now')
+    expect(screen.queryByRole('button', { name: 'Hiking' })).toBeNull()
   })
 
   it('FE-COMP-MAPLAYER-008: the shell is as wide as the size its neighbours are placed off', () => {

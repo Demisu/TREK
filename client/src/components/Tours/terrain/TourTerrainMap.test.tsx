@@ -385,6 +385,17 @@ describe('TourTerrainMap', () => {
     expect(gl.map.addLayer).toHaveBeenCalledTimes(3);
   });
 
+  it('FE-COMP-TERRAIN-013b: a map on terms shows its credit above the controls, the others none (MAP-01, BIK-06)', async () => {
+    const { rerender } = await renderTerrain({ samples: TOUR, baseLayer: 'cycle' });
+    const credit = screen.getByTestId('base-map-credit');
+    expect(credit).toHaveTextContent('CyclOSM');
+    expect(credit.querySelectorAll('a')).toHaveLength(2);
+    rerender(<TourTerrainMap {...props({ samples: TOUR, baseLayer: 'hiking' })} />);
+    expect(screen.getByTestId('base-map-credit')).toHaveTextContent('Donation');
+    rerender(<TourTerrainMap {...props({ samples: TOUR, baseLayer: 'topo' })} />);
+    expect(screen.queryByTestId('base-map-credit')).toBeNull();
+  });
+
   it('FE-COMP-TERRAIN-014: removes the map with the view', async () => {
     const { unmount } = await renderTerrain({
       waypoints: { points: [{ id: 'a', lat: 46, lng: 7 }], selectedId: null, onSelect: vi.fn() },

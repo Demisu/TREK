@@ -2,7 +2,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { adminApi } from '../../../api/client';
-import { hikingMapAdminApi } from '../../../api/hikingMap';
+import { cycleMapAdminApi, hikingMapAdminApi } from '../../../api/tourBaseMaps';
 import { wandererAdminApi } from '../../../api/wanderer';
 import { useAddonStore } from '../../../store/addonStore';
 import type { Addon } from './addonModel';
@@ -39,6 +39,7 @@ beforeEach(() => {
   vi.spyOn(adminApi, 'updateAddon').mockResolvedValue({});
   vi.spyOn(wandererAdminApi, 'get').mockResolvedValue({ enabled: false });
   vi.spyOn(hikingMapAdminApi, 'get').mockResolvedValue({ enabled: true });
+  vi.spyOn(cycleMapAdminApi, 'get').mockResolvedValue({ enabled: true });
 });
 afterEach(() => vi.restoreAllMocks());
 
@@ -49,6 +50,13 @@ async function loaded() {
 }
 
 const enabledOf = (addons: Addon[], id: string) => addons.find((a) => a.id === id)?.enabled;
+
+/** One of the map switches under Tours, by its key. */
+function mapSwitch(manager: ReturnType<typeof useAddonManager>, key: 'hiking' | 'cycle') {
+  const found = manager.mapSwitches.find((entry) => entry.key === key);
+  if (!found) throw new Error(`no ${key} map switch`);
+  return found;
+}
 
 describe('useAddonManager', () => {
   it('FE-HOOK-ADDONMGR-001: loads once and sorts addons into trip, global, integration and the two shelves', async () => {
@@ -123,12 +131,22 @@ describe('useAddonManager', () => {
   it('FE-HOOK-ADDONMGR-007: the hiking map switch under Tours loads, flips, saves and refreshes the store (MAP-01)', async () => {
     const update = vi.spyOn(hikingMapAdminApi, 'update').mockResolvedValue({ enabled: false });
     const { result } = await loaded();
-    await waitFor(() => expect(result.current.toursHikingMap).toBe(true));
-    await act(() => result.current.toggleToursHikingMap());
+    await waitFor(() => expect(mapSwitch(result.current, 'hiking').enabled).toBe(true));
+    await act(() => mapSwitch(result.current, 'hiking').toggle());
     expect(update).toHaveBeenCalledWith(false);
-    expect(result.current.toursHikingMap).toBe(false);
+    expect(mapSwitch(result.current, 'hiking').enabled).toBe(false);
     expect(loadAddons).toHaveBeenCalled();
     expect(toast.success).toHaveBeenCalledWith('admin.addons.toast.updated');
+  });
+
+  it('FE-HOOK-ADDONMGR-009: the cycling map switch under Tours loads, flips and saves on its own (BIK-06)', async () => {
+    const update = vi.spyOn(cycleMapAdminApi, 'update').mockResolvedValue({ enabled: false });
+    const { result } = await loaded();
+    await waitFor(() => expect(mapSwitch(result.current, 'cycle').enabled).toBe(true));
+    await act(() => mapSwitch(result.current, 'cycle').toggle());
+    expect(update).toHaveBeenCalledWith(false);
+    expect(mapSwitch(result.current, 'cycle').enabled).toBe(false);
+    expect(mapSwitch(result.current, 'hiking').enabled).toBe(true);
   });
 
   it('FE-HOOK-ADDONMGR-008: a failed save puts the switch under Tours back and says so', async () => {

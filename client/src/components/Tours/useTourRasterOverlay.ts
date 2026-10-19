@@ -1,6 +1,6 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { MapRasterOverlay, ToggleableRasterOverlay } from '../Map/mapRasterOverlay';
-import type { TileHealth } from '../Map/tourRasterBases';
+import { isOnTermsBase, type BaseMapHealth, type TileHealth } from '../Map/tourRasterBases';
 
 /** Failed tiles in a row, with none arriving between them, before the source counts as down. */
 const FAILURES_UNTIL_DOWN = 4;
@@ -22,6 +22,23 @@ export function useTileHealth(): TileHealth & { reset: () => void } {
     if (failures.current >= FAILURES_UNTIL_DOWN) setDown(true);
   }, []);
   return useMemo(() => ({ down, onTileError, onTileLoad: reset, reset }), [down, onTileError, reset]);
+}
+
+/**
+ * Whether the base map answers while it is a map on its operator's terms
+ * (OpenHikingMap, CyclOSM), asked afresh each time one becomes the base map;
+ * nothing for any other base map.
+ */
+export function useBaseMapHealth(baseLayer: string): BaseMapHealth | undefined {
+  const { down, onTileError, onTileLoad, reset } = useTileHealth();
+  const onTerms = isOnTermsBase(baseLayer) ? baseLayer : null;
+  useEffect(() => {
+    if (onTerms) reset();
+  }, [onTerms, reset]);
+  return useMemo(
+    () => (onTerms ? { base: onTerms, down, onTileError, onTileLoad } : undefined),
+    [onTerms, down, onTileError, onTileLoad]
+  );
 }
 
 /**

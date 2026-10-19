@@ -51,7 +51,7 @@ export function sidePadding(panels: PanelWidths, margin: number) {
 }
 
 /**
- * The source of a base map whose operator forbids prefetching (OpenHikingMap, MAP-01): it
+ * The source of a base map whose operator forbids prefetching (OpenHikingMap, CyclOSM): it
  * loads only what the camera shows, and the flyover's warm-up passes it by.
  */
 const VIEW_ONLY_SOURCE = 'base-view-only';
@@ -68,8 +68,8 @@ function rasterStyle(tiles: string[], maxzoom: number, sourceId = 'base', attrib
 export function styleFor(layer: TourBaseLayer): string | StyleSpecification {
   if (layer === 'satellite') return rasterStyle([SATELLITE_TILE_URL], 19);
   if (layer === 'topo') return rasterStyle(TOUR_RASTER_BASES.topo.tiles, TOUR_RASTER_BASES.topo.maxZoom);
-  if (layer === 'hiking') {
-    const { tiles, maxZoom, attribution } = TOUR_RASTER_BASES.hiking;
+  if (layer === 'hiking' || layer === 'cycle') {
+    const { tiles, maxZoom, attribution } = TOUR_RASTER_BASES[layer];
     return rasterStyle(tiles, maxZoom, VIEW_ONLY_SOURCE, attribution);
   }
   return OPENFREEMAP_DEFAULT_STYLE;

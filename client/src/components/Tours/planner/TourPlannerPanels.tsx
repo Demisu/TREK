@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { TourListItem } from '@trek/shared'
-import { AlertTriangle, ArrowLeft, Circle, FileDown, History, Loader2, Mountain, Plus, Redo2, RotateCcw, Route, Save, Trash2, Undo2 } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Circle, History, Loader2, MapPin, Mountain, Plus, Redo2, RotateCcw, Route, Save, Trash2, Undo2 } from 'lucide-react'
 import type { Day } from '../../../types'
 import { useTranslation } from '../../../i18n'
 import { useSettingsStore } from '../../../store/settingsStore'
@@ -36,6 +36,7 @@ import TourConversionSection from '../conversion/TourConversionSection'
 import type { GpxConversion } from '../conversion/useGpxConversion'
 import type { RecordedTrack } from '../useRecordedTrack'
 import type { TourGpxImport } from '../useTourGpxImport'
+import { TourAddMenu } from './TourAddMenu'
 import { type AssignTourToDay, useTourDayAssignment } from '../useTourDayAssignment'
 import WandererMark from '../wanderer/WandererMark'
 import { TourGpxExportBarButton } from '../TourGpxExportButton'
@@ -43,8 +44,8 @@ import { TourRemoteChangeNotice, TourRevisionConflictDialog } from './TourRevisi
 import TourListFilterMenu, { TourFilterEmpty } from '../TourListFilterMenu'
 import { TourScopeSummary } from '../TourScopeSummary'
 import { useTourListFilters } from '../useTourListFilters'
-import { TourLibraryEntry } from '../library/TourLibraryDialog'
 import { TourPoiSearchCard } from '../poi/TourPoiSearchCard'
+import { BikeWaysCard } from '../bike/BikeWaysCard'
 
 const STATUS_KEY: Partial<Record<TourPlannerStatus, string>> = {
   dirty: 'tours.planner.status.dirty',
@@ -131,13 +132,15 @@ function StatusDot({ label, tone, children }: { label: string; tone: 'neutral' |
 
 /** Whether the head offers to try again; a paddle leg that failed has its own actions on its row (PAD-11). */
 function retryable(planner: TourPlannerController): boolean {
-  if (planner.error === 'paddle-route') return false
+  // A point no way reaches stays unreachable until it moves; asking again changes nothing.
+  if (planner.error === 'paddle-route' || planner.error === 'unreachable') return false
   return planner.status === 'routing-failed' || planner.status === 'elevation-failed'
 }
 
 /** The status in words; a paddle tour with legs the router could not plan says how many (PAD-11). */
 function statusText(planner: TourPlannerController, key: string, t: Translate): string {
   if (planner.error === 'paddle-route') return t('tours.paddle.status.unrouted', { count: planner.paddleRoute?.failures.length ?? 1 })
+  if (planner.unreachable) return t('tours.planner.status.unreachable', { point: planner.unreachable.unreachable + 1 })
   return t(key)
 }
 
@@ -275,8 +278,8 @@ function GpxViewRail({
 }) {
   const { t } = useTranslation()
   const distanceUnit = useSettingsStore((state) => state.settings.distance_unit)
-  if (planner.mode.type !== 'view-gpx') return null
   const { readOnlyGpxTour } = planner
+  if (planner.mode.type !== 'view-gpx' || !readOnlyGpxTour) return null
   const { tour } = readOnlyGpxTour
   const fromWanderer = tourSource(tour) === 'wanderer'
   const analysis = planner.readOnlyGpxAnalysis
@@ -440,7 +443,11 @@ export function TourPlannerRail({ planner,
 
           {recordedTrack?.available && <RecordedTrackCard recordedTrack={recordedTrack} disabled={isSaving} />}
 
+          <UnreachableNotice planner={planner} />
+
           <TourWaypointList planner={planner} canEdit={canEdit} isSaving={isSaving} tourPlaceIds={tourPlaceIds} />
+
+          <BikeWaysCard planner={planner} />
 
           <TourPoiSearchCard planner={planner} />
 
@@ -586,23 +593,6 @@ function NewTourConfirmDialog({ planner, canEdit }: { planner: TourPlannerContro
   )
 }
 
-/** The GPX import in the tours rail's head, an icon like the editor's; the file drop on the workspace does the same. */
-function RailImportButton({ gpxImport, disabled }: { gpxImport: TourGpxImport; disabled: boolean }) {
-  const { t } = useTranslation()
-  return (
-    <BarButton
-      label={t('tours.import.button')}
-      tooltip={t('tours.import.hint')}
-      testId="tour-rail-import-gpx"
-      disabled={gpxImport.importing || disabled}
-      onClick={gpxImport.pick}
-      className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
-    >
-      {gpxImport.importing ? <Loader2 size={15} strokeWidth={2} className="animate-spin" /> : <FileDown size={15} strokeWidth={2} />}
-    </BarButton>
-  )
-}
-
 interface TourPlannerToursRailProps extends TourPermissionProps {
   planner: TourPlannerController
   tours: TourListItem[]
@@ -611,26 +601,55 @@ interface TourPlannerToursRailProps extends TourPermissionProps {
   onAssignToDay: AssignTourToDay
   onViewGpxTour: (tour: TourListItem) => void
   onDeleteTour?: (placeId: number) => void
-  /** The workspace's GPX import; its button sits beside "New tour". */
+  /** The workspace's GPX import, an entry of "Add tour". */
   gpxImport?: TourGpxImport
-  /** LIB-02: takes a tour of another trip in; its button sits beside the import. */
+  /** LIB-02: takes a tour of another trip in, an entry of "Add tour". */
   onTakenOver?: (tour: TourListItem) => Promise<void>
 }
 
-/** The time facts of the overview: the estimate (walking, or paddling for a paddle tour), the breaks and the planned total. */
+/** The words of the time estimate: walking, riding (BIK-01) or paddling, each saying how it is reckoned. */
+const ESTIMATE_KEYS = {
+  hike: { labelKey: 'tours.planner.walkingEstimated', shortKey: 'tours.planner.walkingEstimatedShort', infoLabelKey: 'tours.planner.walkingEstimatedInfoLabel', infoKey: 'tours.planner.walkingEstimatedInfo' },
+  bike: { labelKey: 'tours.bike.timeEstimated', shortKey: 'tours.bike.timeEstimatedShort', infoLabelKey: 'tours.bike.timeEstimatedInfoLabel', infoKey: 'tours.bike.timeEstimatedInfo' },
+  kayak: { labelKey: 'tours.paddle.timeEstimated', shortKey: 'tours.paddle.timeEstimatedShort', infoLabelKey: 'tours.paddle.timeEstimatedInfoLabel', infoKey: 'tours.paddle.timeEstimatedInfo' },
+} as const
+
+/**
+ * A point no way of the tour's type reaches: the router would have bound it
+ * that far off, so no route is drawn to a place the tour does not go. The
+ * notice names the point and what helps; the last route that was planned stays.
+ */
+function UnreachableNotice({ planner }: { planner: TourPlannerController }) {
+  const { t } = useTranslation()
+  const distanceUnit = useSettingsStore(state => state.settings.distance_unit)
+  const point = planner.unreachable
+  if (!point) return null
+  const select = () => planner.setSelectedWaypointId(planner.waypoints[point.unreachable]?.id ?? null)
+  return (
+    <TourNotice tone="warning" icon={<AlertTriangle size={13} strokeWidth={2} />}>
+      <span className="flex flex-col items-start gap-1.5">
+        <span data-testid="tour-planner-unreachable">
+          {t(planner.isBike ? 'tours.planner.unreachable.bike' : 'tours.planner.unreachable.hike', {
+            point: point.unreachable + 1,
+            distance: formatDistance(point.snappedMeters / 1000, distanceUnit),
+          })}
+        </span>
+        <CardAction icon={<MapPin size={12} strokeWidth={2} />} onClick={select}>
+          {t('tours.planner.unreachable.show', { point: point.unreachable + 1 })}
+        </CardAction>
+      </span>
+    </TourNotice>
+  )
+}
+
+/** The time facts of the overview: the estimate (walking, riding or paddling), the breaks and the planned total. */
 function plannerTimeFields(planner: TourPlannerController, t: Translate) {
+  const keys = ESTIMATE_KEYS[planner.tourType]
   return [
-    planner.isPaddle ? {
-      label: t('tours.paddle.timeEstimated'),
-      shortLabel: t('tours.paddle.timeEstimatedShort'),
-      info: { label: t('tours.paddle.timeEstimatedInfoLabel'), description: t('tours.paddle.timeEstimatedInfo') },
-      value: planner.walkingDurationMinutes == null
-        ? t('tours.planner.walkingTimeUnknown')
-        : formatPlannedTourDuration(planner.walkingDurationMinutes),
-    } : {
-      label: t('tours.planner.walkingEstimated'),
-      shortLabel: t('tours.planner.walkingEstimatedShort'),
-      info: { label: t('tours.planner.walkingEstimatedInfoLabel'), description: t('tours.planner.walkingEstimatedInfo') },
+    {
+      label: t(keys.labelKey),
+      shortLabel: t(keys.shortKey),
+      info: { label: t(keys.infoLabelKey), description: t(keys.infoKey) },
       value: planner.walkingDurationMinutes == null
         ? t('tours.planner.walkingTimeUnknown')
         : formatPlannedTourDuration(planner.walkingDurationMinutes),
@@ -698,15 +717,7 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
     <aside className="flex h-full min-h-0 flex-col" aria-label={t('tours.planner.tripTours')}>
       <div className={RAIL_HEAD} style={{ background: NEUTRAL_TINT }}>
         <RailTitle title={t('tours.planner.tripTours')} />
-        {canEdit && gpxImport && <RailImportButton gpxImport={gpxImport} disabled={isSaving} />}
-        {canEdit && <TourLibraryEntry planner={planner} onTakenOver={onTakenOver} disabled={isSaving} />}
-        {canEdit && planner.mode.type !== 'neutral' && (
-          <BarButton label={t('tours.planner.newTour')} testId="tour-rail-new-tour" disabled={isSaving}
-            onClick={() => { if (!isSaving) planner.startNewTour() }}
-            className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
-            <Plus size={16} strokeWidth={2} />
-          </BarButton>
-        )}
+        {canEdit && <TourAddMenu planner={planner} gpxImport={gpxImport} onTakenOver={onTakenOver} disabled={isSaving} />}
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-3 py-3.5">

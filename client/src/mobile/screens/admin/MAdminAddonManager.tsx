@@ -3,7 +3,7 @@ import { useTranslation } from '../../../i18n'
 import { useIsDark } from '../../../hooks/useIsDark'
 import {
   Puzzle, ListChecks, Wallet, FileText, CalendarDays, Globe, Briefcase, Image, Terminal, Link2, Compass, BookOpen,
-  Sparkles, Luggage, Plane, Server, Cloud, Bookmark, Users, Check, Loader2, Mountain, CarFront, Footprints,
+  Sparkles, Luggage, Plane, Server, Cloud, Bookmark, Users, Check, Loader2, Mountain, CarFront,
 } from 'lucide-react'
 import DawarichIcon from '../../../components/shared/DawarichIcon'
 import AirTrailIcon from '../../../components/shared/AirTrailIcon'
@@ -66,8 +66,7 @@ export default function MAdminAddonManager({ bagTrackingEnabled, onToggleBagTrac
     addons, loading, handleToggle, tripAddons, globalAddons, integrationAddons, providerOptions, documentProviderOptions,
     toursWanderer,
     toggleToursWanderer,
-    toursHikingMap,
-    toggleToursHikingMap,
+    mapSwitches,
   } = useAddonManager()
 
   if (loading) {
@@ -124,13 +123,16 @@ export default function MAdminAddonManager({ bagTrackingEnabled, onToggleBagTrac
                         enabled={toursWanderer}
                         onToggle={() => void toggleToursWanderer()}
                       />
-                      <MSubRow
-                        icon={Footprints}
-                        title={t('admin.toursHikingMap.title')}
-                        subtitle={t('admin.toursHikingMap.subtitle')}
-                        enabled={toursHikingMap}
-                        onToggle={() => void toggleToursHikingMap()}
-                      />
+                      {mapSwitches.map(({ key, Icon, titleKey, subtitleKey, enabled, toggle }) => (
+                        <MSubRow
+                          key={key}
+                          icon={Icon}
+                          title={t(titleKey)}
+                          subtitle={t(subtitleKey)}
+                          enabled={enabled}
+                          onToggle={() => void toggle()}
+                        />
+                      ))}
                     </>
                   )}
                   {addon.id === 'collab' && addon.enabled && collabFeatures && onToggleCollabFeature && (

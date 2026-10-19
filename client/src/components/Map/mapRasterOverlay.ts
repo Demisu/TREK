@@ -5,7 +5,7 @@ import type { FerrataMapLayer } from '../Ferratas/useFerrataMapLayer';
 import type { PaddleMapLayer } from '../Tours/paddle/paddleMapLayer';
 import { isPaddleHit, type PaddleGlMap, usePaddleLayerGL } from '../Tours/paddle/usePaddleLayerGL';
 import { OWN_LAYER_PREFIXES, tourRasterSourceId } from './glRasterLayers';
-import type { TileHealth } from './tourRasterBases';
+import type { BaseMapHealth, TileHealth } from './tourRasterBases';
 
 /**
  * A transparent raster layer laid over the basemap and under the route, such
@@ -135,17 +135,17 @@ export function useSourceTileHealthGL(
 
 /**
  * The tour planner's layers on a GL map: the via ferratas, the raster overlays its type offers,
- * the paddle obstacles, and whether OpenHikingMap answers while it is the base map.
+ * the paddle obstacles, and whether the map on terms (OpenHikingMap, CyclOSM) answers while it is the base map.
  */
 export function useTourMapLayersGL(
   map: RasterOverlayGlMap | null,
   ferrataLayer: FerrataMapLayer | undefined,
-  layers: { overlays?: readonly MapRasterOverlay[]; paddle?: PaddleMapLayer; hikingMap?: TileHealth } | undefined
+  layers: { overlays?: readonly MapRasterOverlay[]; paddle?: PaddleMapLayer; baseHealth?: BaseMapHealth } | undefined
 ) {
   useFerrataMapLayerGL(map, ferrataLayer);
   useRasterOverlaysGL(map, layers?.overlays);
   usePaddleLayerGL(map as unknown as PaddleGlMap | null, layers?.paddle);
-  useSourceTileHealthGL(map, tourRasterSourceId('hiking'), layers?.hikingMap);
+  useSourceTileHealthGL(map, tourRasterSourceId(layers?.baseHealth?.base ?? 'hiking'), layers?.baseHealth);
 }
 
 /**

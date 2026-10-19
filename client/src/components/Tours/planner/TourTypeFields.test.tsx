@@ -21,8 +21,37 @@ describe('TourTypeFields (PAD-01)', () => {
     const hike = planner({ tourType: 'hike', isPaddle: false });
     render(<TourTypeFields planner={hike} locked={false} />);
     expect(screen.queryByTestId('tour-planner-paddle-fields')).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: /Paddle tour/ }));
+    expect(screen.queryByTestId('tour-planner-bike-fields')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('tour-type-select'));
+    fireEvent.click(screen.getByTestId('tour-type-option-kayak'));
     expect(hike.setTourType).toHaveBeenCalledWith('kayak');
+  });
+
+  it('BIK-01: the type is one field that lists every type with what it plans, the one chosen marked', () => {
+    const hike = planner({ tourType: 'hike', isPaddle: false });
+    render(<TourTypeFields planner={hike} locked={false} />);
+    const field = screen.getByTestId('tour-type-select');
+    expect(field).toHaveTextContent('Hike');
+    expect(field).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(field);
+    expect(field).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByTestId('tour-type-option-hike')).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByTestId('tour-type-option-bike')).toHaveTextContent(
+      'By bike, routed for touring, road, gravel or MTB'
+    );
+    fireEvent.click(screen.getByTestId('tour-type-option-bike'));
+    expect(hike.setTourType).toHaveBeenCalledWith('bike');
+    expect(field).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('BIK-01 to BIK-04: a bike tour names its profile like a boat, with what the profile asks for', () => {
+    const bike = planner({ tourType: 'bike', isPaddle: false, isBike: true, bikeProfile: 'gravel' });
+    render(<TourTypeFields planner={bike} locked={false} />);
+    expect(screen.queryByTestId('tour-planner-paddle-fields')).not.toBeInTheDocument();
+    const fields = screen.getByTestId('tour-planner-bike-fields');
+    expect(fields).toHaveTextContent('Takes gravel and farm tracks, not technical singletrails.');
+    fireEvent.click(screen.getByRole('button', { name: 'MTB' }));
+    expect(bike.setBikeProfile).toHaveBeenCalledWith('mtb');
   });
 
   it('a paddle tour asks for exactly one boat and its water, and says so until both are chosen', () => {

@@ -1,10 +1,11 @@
 import {
+  BIKE_PROFILES,
   MAX_PADDLE_SPEED_KMH,
+  type BikeProfile,
   type PaddleBoatType,
   type PaddleWaterContext,
-  type PlannableTourType,
 } from '@trek/shared';
-import { Info, Mountain, Waves } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from '../../../i18n';
 import { SoftPill } from '../../Planner/planParts';
@@ -13,6 +14,7 @@ import { fs } from '../../shared/DialogShell';
 import { crossesLake } from '../paddle/lakeStyleAdvice';
 import { PaddleLakeStyleField } from '../paddle/PaddleLakeStyleField';
 import { TourNotice } from '../tourParts';
+import { TourTypeSelect } from './TourTypeSelect';
 import type { TourPlannerController } from './useTourPlanner';
 
 const BOATS: readonly PaddleBoatType[] = ['kayak', 'canoe', 'sup', 'other'];
@@ -78,10 +80,34 @@ function PaddleSpeedInput({ planner, locked }: TourTypeFieldsProps) {
 }
 
 /**
- * PAD-01: what the tour is. A hike keeps its fields where they were; a paddle
- * tour asks for exactly one boat and the water it is on, and offers the
- * boat's planning speed beside the paddler's own. Nothing here routes the
- * tour or puts it on a day.
+ * BIK-01 to BIK-04: what a bike tour is ridden on, the way a paddle tour names
+ * its boat, with a line on what the profile asks the router for. A profile
+ * plans the route again; it says nothing about whether a way can be ridden.
+ */
+function BikeProfileField({ planner }: { planner: TourPlannerController }) {
+  const { t } = useTranslation();
+  return (
+    <div data-testid="tour-planner-bike-fields" className="min-w-0">
+      <span className={LABEL}>{t('tours.bike.profile')}</span>
+      <Segmented<BikeProfile>
+        value={planner.bikeProfile}
+        onChange={planner.setBikeProfile}
+        label={t('tours.bike.profile')}
+        fill
+        options={BIKE_PROFILES.map((profile) => ({ value: profile, label: t(`tours.bike.profile.${profile}`) }))}
+      />
+      <span className="mt-1.5 block text-content-faint" style={fs(11, 'body')}>
+        {t(`tours.bike.profileHint.${planner.bikeProfile}`)}
+      </span>
+    </div>
+  );
+}
+
+/**
+ * PAD-01, BIK-01: what the tour is. A hike keeps its fields where they were; a
+ * bike tour names its profile; a paddle tour asks for exactly one boat and the
+ * water it is on, and offers the boat's planning speed beside the paddler's
+ * own. Nothing here puts the tour on a day.
  */
 export function TourTypeFields({ planner, locked }: TourTypeFieldsProps) {
   const { t } = useTranslation();
@@ -94,17 +120,15 @@ export function TourTypeFields({ planner, locked }: TourTypeFieldsProps) {
         <span className={LABEL} id="tour-planner-type-label">
           {t('tours.planner.tourType')}
         </span>
-        <Segmented<PlannableTourType>
+        <TourTypeSelect
           value={planner.tourType}
           onChange={planner.setTourType}
-          label={t('tours.planner.tourType')}
-          fill
-          options={[
-            { value: 'hike', label: t('tourTypes.hike'), icon: <Mountain size={13} strokeWidth={2} /> },
-            { value: 'kayak', label: t('tourTypes.kayak'), icon: <Waves size={13} strokeWidth={2} /> },
-          ]}
+          disabled={locked}
+          labelId="tour-planner-type-label"
         />
       </div>
+
+      {planner.isBike && <BikeProfileField planner={planner} />}
 
       {planner.isPaddle && (
         <div data-testid="tour-planner-paddle-fields" className="flex min-w-0 flex-col gap-3">

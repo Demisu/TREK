@@ -8,6 +8,7 @@ import { usePaddleObstacleSync } from '../../components/Tours/paddle/usePaddleOb
 import { tourPlannedTimes as projectTourPlannedTimes } from '../../components/Tours/tourPresentation'
 import { usePlanMapViewport } from '../../hooks/usePlanMapViewport'
 import { usePaddleObstacleStore } from '../../store/paddleObstacleStore'
+import { useHighlightedRoute } from '../../components/Tours/bike/useHighlightedRoute'
 import { useMapLocationSearch } from './useMapLocationSearch'
 import { usePlannerFocusPoints } from './usePlannerFocusPoints'
 import { useTripPlanner } from './useTripPlanner'
@@ -75,6 +76,8 @@ export function useTripPlannerPage() {
     { portage: paddlePaint.portage, rapids: paddlePaint.rapids, gap: paddlePaint.gap, casing: paddlePaint.disc },
   )
   const routeWalking = partStyle.walking ?? (route && route.length === 2 && tourConversion.line ? [true, false] : null)
+  // BIK-01 to BIK-05: the stretches a bike tour's card points at, over the route being edited.
+  const drawn = useHighlightedRoute(editingRoute && !wandererBrowser.open, route, routeWalking, partStyle.colors)
 
   const { closeGpxTour } = tourPlanner
   useEffect(() => {
@@ -116,9 +119,9 @@ export function useTripPlannerPage() {
     trackPaddlePlan,
     paddleChecklist,
     tourDetailActions,
-    tourMap: { route,
-      routeWalking,
-      routeColors: partStyle.colors,
+    tourMap: { route: drawn.route,
+      routeWalking: drawn.walking,
+      routeColors: drawn.colors,
       previewPoints: tourConversion.status === 'idle' ? null : tourConversion.points,
       focusPoints: mapFocusPoints,
       // A picked wanderer trail frames itself; the rest follows the planner.

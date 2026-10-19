@@ -14,6 +14,7 @@ import {
   type TourLayerOffer,
 } from '../../Map/MapLayerSwitcher';
 import { MAP_CONTROL_SHADOW } from '../../Map/mapControlShadow';
+import { tourRasterBaseOf } from '../../Map/tourRasterBases';
 import { SoftPill } from '../../Planner/planParts';
 import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
@@ -108,7 +109,7 @@ export default function TourTerrainMap(props: TourTerrainMapProps) {
           insetInlineEnd: rightWidth + MAP_LAYER_SWITCHER_INSET,
         }}
       >
-        {baseLayer === 'hiking' && <HikingMapCredit />}
+        <BaseMapCredit layer={baseLayer} />
         {legendAbove && legend}
         <div ref={attachRow} className="flex w-full items-end gap-3" data-fit={fit} data-testid="terrain-control-row">
           <div className="flex-none">
@@ -144,29 +145,28 @@ export default function TourTerrainMap(props: TourTerrainMapProps) {
 }
 
 /**
- * OpenHikingMap's credit and donation link, which its operator wants readable without a
- * click (MAP-01). The 3D map's own attribution is folded away and sits under the panel,
- * so it rides above the control row while that map is shown.
+ * The credit of a map on terms (OpenHikingMap with its donation link, CyclOSM), which its
+ * operator wants readable without a click (MAP-01, BIK-06). The 3D map's own attribution is
+ * folded away and sits under the panel, so it rides above the control row while that map is shown.
  */
-function HikingMapCredit() {
+function BaseMapCredit({ layer }: { layer: TourBaseLayer }) {
+  const credit = tourRasterBaseOf(layer)?.onTerms?.credit;
+  if (!credit) return null;
   const link = 'text-content-secondary underline-offset-2 hover:underline';
   return (
     <div
       className="pointer-events-auto flex items-center gap-1.5 rounded-full px-3 py-1 text-content-faint"
       style={{ ...GLASS, ...fs(10) }}
-      data-testid="hiking-map-credit"
+      data-testid="base-map-credit"
     >
-      <a className={link} href="https://wiki.openstreetmap.org/wiki/OpenHikingMap" target="_blank" rel="noreferrer">
-        &copy; OpenHikingMap
-      </a>
-      <span aria-hidden>|</span>
-      <a className={link} href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
-        &copy; OpenStreetMap
-      </a>
-      <span aria-hidden>|</span>
-      <a className={link} href="https://openmaps.fr/donate" target="_blank" rel="noreferrer">
-        {'❤️'} Donation
-      </a>
+      {credit.map((part, index) => (
+        <span key={part.href} className="flex items-center gap-1.5">
+          {index > 0 && <span aria-hidden>|</span>}
+          <a className={link} href={part.href} target="_blank" rel="noreferrer">
+            {part.label}
+          </a>
+        </span>
+      ))}
     </div>
   );
 }

@@ -1459,7 +1459,7 @@ describe('useTourPlanner', () => {
       result.current.addWaypoint(48, 11)
       result.current.addWaypoint(48.01, 11.02)
     })
-    act(() => result.current.setHikingPreferences({ avoid_steps: true, shortest: false }))
+    act(() => result.current.setHikingPreferences({ avoid_steps: true, avoid_climbs: false }))
     expect(result.current.hikingPreferences).toEqual({ avoid_steps: true })
     expect(JSON.parse(localStorage.getItem('tour-draft-41') || 'null')).toMatchObject({ hikingPreferences: { avoid_steps: true } })
     await act(async () => { await vi.advanceTimersByTimeAsync(450) })
@@ -1618,7 +1618,7 @@ describe('useTourPlanner', () => {
 
     expect(result.current.mode).toEqual({ type: 'new-draft' })
     expect(JSON.parse(localStorage.getItem('tour-draft-23') || 'null')).toMatchObject({
-      version: 9,
+      version: 10,
       tourType: 'hike',
       name: '',
       waypoints: [],

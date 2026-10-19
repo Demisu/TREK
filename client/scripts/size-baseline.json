@@ -5,7 +5,7 @@
   "src/components/Admin/AdminPluginsPanel.tsx": 1667,
   "src/components/Budget/CostsPanel.test.tsx": 2764,
   "src/components/Budget/CostsPanel.tsx": 1816,
-  "src/components/Map/MapView.tsx": 1402,
+  "src/components/Map/MapView.tsx": 1401,
   "src/components/Map/MapViewGL.test.tsx": 2920,
   "src/components/Map/MapViewGL.tsx": 2296,
   "src/components/Map/RouteCalculator.ts": 1195,

@@ -1,10 +1,10 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronDown, Plus } from 'lucide-react'
-import { useAnchoredPosition } from '../../hooks/useAnchoredPosition'
 import { POPOVER } from '../Packing/packingPopoverStyles'
 import { PopoverItem } from '../Packing/PackingPopover'
 import { PILL, fs } from './DialogShell'
+import { usePopoverList } from './usePopoverList'
 
 // The editors' fields in the cards' language: framed white boxes under small
 // Geist eyebrows. The sizes are classes, not fs() styles, so components that
@@ -94,8 +94,6 @@ export interface PillOption<T extends string> {
   hint?: string
 }
 
-const itemsOf = (list: HTMLElement | null) => Array.from(list?.querySelectorAll('button') ?? [])
-
 /**
  * A head band pill that opens a list to pick from, such as the booking type.
  * Opening moves the focus onto the current choice; the arrow keys walk the
@@ -116,71 +114,14 @@ export function PillSelect<T extends string>({ value, options, onChange, label, 
   /** In the body of a dialog instead of on its head band. */
   quiet?: boolean
 }) {
-  const [open, setOpen] = useState(false)
-  const triggerRef = useRef<HTMLButtonElement>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
-  const startAt = useRef(0)
-  const listId = useId()
-  const box = useAnchoredPosition(triggerRef, open, { matchWidth: false, estimatedHeight: 320 })
+  const list = usePopoverList(options.findIndex(o => o.value === value))
+  const { open, toggle, triggerRef, listId } = list
   const current = options.find(o => o.value === value)
   const shown = current ?? fallback
-  const listShown = open && !!box
-
-  const toggle = () => {
-    if (!open) startAt.current = Math.max(0, options.findIndex(o => o.value === value))
-    setOpen(o => !o)
-  }
-
-  useEffect(() => {
-    if (listShown) itemsOf(menuRef.current)[startAt.current]?.focus({ preventScroll: true })
-  }, [listShown])
-
-  useEffect(() => {
-    if (!open) return
-    const onDown = (e: MouseEvent) => {
-      const target = e.target as Node
-      if (triggerRef.current?.contains(target) || menuRef.current?.contains(target)) return
-      setOpen(false)
-    }
-    // Captured and stopped, so the key takes back the list and not the dialog under it.
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return
-      e.stopPropagation()
-      setOpen(false)
-      triggerRef.current?.focus()
-    }
-    document.addEventListener('mousedown', onDown)
-    document.addEventListener('keydown', onKey, true)
-    return () => {
-      document.removeEventListener('mousedown', onDown)
-      document.removeEventListener('keydown', onKey, true)
-    }
-  }, [open])
 
   const pick = (next: T) => {
-    setOpen(false)
+    list.close()
     onChange(next)
-    triggerRef.current?.focus()
-  }
-
-  const onListKey = (e: ReactKeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Tab') {
-      // Back on the pill before the browser moves on, so Tab carries on from there.
-      setOpen(false)
-      triggerRef.current?.focus()
-      return
-    }
-    const items = itemsOf(menuRef.current)
-    const at = items.indexOf(document.activeElement as HTMLButtonElement)
-    const last = items.length - 1
-    let next: number
-    if (e.key === 'ArrowDown') next = at < 0 || at === last ? 0 : at + 1
-    else if (e.key === 'ArrowUp') next = at <= 0 ? last : at - 1
-    else if (e.key === 'Home') next = 0
-    else if (e.key === 'End') next = last
-    else return
-    e.preventDefault()
-    items[next]?.focus()
   }
 
   return (
@@ -193,18 +134,36 @@ export function PillSelect<T extends string>({ value, options, onChange, label, 
         {shown?.hint && <span className="font-medium text-content-muted">{shown.hint}</span>}
         <ChevronDown size={12} strokeWidth={2.2} className={`-me-0.5 flex-none text-content-faint transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
-      {open && box && createPortal(
-        <div ref={menuRef} id={listId} role="group" aria-label={label} onKeyDown={onListKey}
-          className="fixed z-[var(--z-toast)] min-w-[200px] overflow-y-auto"
-          style={{ ...POPOVER, top: box.top, bottom: box.bottom, left: box.left, maxHeight: box.maxHeight }}>
-          {options.map(o => (
-            <PopoverItem key={o.value} icon={o.icon ?? null} label={o.label} active={o.value === value} onClick={() => pick(o.value)}
-              trailing={o.hint ? <span className="font-geist text-content-faint" style={fs(11)}>{o.hint}</span> : undefined} />
-          ))}
-        </div>,
-        document.body,
-      )}
+      <PopoverListPanel list={list} label={label} className="min-w-[200px]">
+        {options.map(o => (
+          <PopoverItem key={o.value} icon={o.icon ?? null} label={o.label} active={o.value === value} onClick={() => pick(o.value)}
+            trailing={o.hint ? <span className="font-geist text-content-faint" style={fs(11)}>{o.hint}</span> : undefined} />
+        ))}
+      </PopoverListPanel>
     </>
+  )
+}
+
+/**
+ * The open list of a `usePopoverList` button, in the popover look, laid over
+ * the page beside its button: where the button sits decides where it opens.
+ */
+export function PopoverListPanel({ list, label, className = '', children }: {
+  list: ReturnType<typeof usePopoverList>
+  /** The list's name for a screen reader. */
+  label: string
+  className?: string
+  children: ReactNode
+}) {
+  const { open, box, menuRef, listId, onListKey } = list
+  if (!open || !box) return null
+  return createPortal(
+    <div ref={menuRef} id={listId} role="group" aria-label={label} onKeyDown={onListKey}
+      className={`fixed z-[var(--z-toast)] overflow-y-auto ${className}`}
+      style={{ ...POPOVER, top: box.top, bottom: box.bottom, left: box.left, maxHeight: box.maxHeight }}>
+      {children}
+    </div>,
+    document.body,
   )
 }
 

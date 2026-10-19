@@ -55,6 +55,9 @@ const COSTING: Record<'driving' | 'walking' | 'cycling', string> = {
   cycling: 'bicycle',
 }
 
+/** What a caller tunes in the costing model: a weighting, a switch, or a bicycle type by name. */
+export type CostingOptions = Record<string, number | string | boolean>
+
 /**
  * What a caller can ask to be left out, against the costing option that asks for it.
  *
@@ -191,7 +194,7 @@ export async function valhallaRun(
   profile: 'driving' | 'walking' | 'cycling',
   avoid: readonly AvoidClass[],
   signal?: AbortSignal,
-  costingOptions: Readonly<Record<string, number | boolean>> = {},
+  costingOptions: Readonly<CostingOptions> = {},
 ): Promise<ValhallaRun | null> {
   const base = valhallaBase()
   if (!base || notValhalla.has(base) || waypoints.length < 2) return null
@@ -315,14 +318,14 @@ function routeBody(
   waypoints: Waypoint[],
   profile: 'driving' | 'walking' | 'cycling',
   avoid: readonly AvoidClass[],
-  costingOptions: Readonly<Record<string, number | boolean>> = {},
+  costingOptions: Readonly<CostingOptions> = {},
 ): Record<string, unknown> {
   const costing = COSTING[profile]
   // All of them in one request: the options are independent weightings, so asking to
   // leave out tolls and ferries together is one question rather than two routes to
   // reconcile. Measured Hamburg to Copenhagen: tolls, motorways and ferries weighted
   // away together answered 656.9 km against 339.2 km for the plain route.
-  const options: Record<string, number | boolean> = { ...costingOptions }
+  const options: CostingOptions = { ...costingOptions }
   for (const cls of avoid) options[AVOID_OPTION[cls]] = 0
   return {
     locations: waypoints.map(w => ({ lat: w.lat, lon: w.lng, radius: SNAP_RADIUS_M })),
@@ -359,6 +362,51 @@ async function postRoute(base: string, body: Record<string, unknown>, signal?: A
   }
 }
 
+/** The most points a description of a line asks about; a longer line is thinned evenly, its ends kept. */
+const TRACE_MAX_POINTS = 4000
+/** How long a description may take before it counts as failed, so a router that hangs does not leave its card waiting. */
+const TRACE_TIMEOUT_MS = 30_000
+
+/**
+ * BIK-01: how the router describes the ways under a line (`trace_attributes`):
+ * the surface, the use and road class, the cycle lane and the OpenStreetMap way
+ * of every edge, with the line as matched. The edges are matched as a mountain
+ * bike would ride them, the costing that refuses the fewest ways, so a road
+ * bike's route and a gravel one are described alike. Null for every failure:
+ * the description is an addition beside a route that already exists.
+ */
+export async function valhallaTraceAttributes(line: readonly [number, number][], signal?: AbortSignal): Promise<unknown> {
+  const base = valhallaBase()
+  if (!base || line.length < 2) return null
+  const step = Math.max(1, Math.ceil(line.length / TRACE_MAX_POINTS))
+  const shape = line.filter((_, index) => index % step === 0 || index === line.length - 1).map(([lat, lon]) => ({ lat, lon }))
+  const bounded = signal ? AbortSignal.any([signal, AbortSignal.timeout(TRACE_TIMEOUT_MS)]) : AbortSignal.timeout(TRACE_TIMEOUT_MS)
+  try {
+    await valhallaTurn(base, signal)
+    if (signal?.aborted) return null
+    const response = await fetch(`${base}/trace_attributes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Client-Id': 'trek' },
+      body: JSON.stringify({
+        shape,
+        costing: 'bicycle',
+        costing_options: { bicycle: { bicycle_type: 'Mountain' } },
+        shape_match: 'map_snap',
+        filters: {
+          attributes: ['shape', 'edge.surface', 'edge.use', 'edge.road_class', 'edge.cycle_lane', 'edge.length', 'edge.way_id',
+            'edge.begin_shape_index', 'edge.end_shape_index'],
+          action: 'include',
+        },
+      }),
+      signal: bounded,
+    })
+    if (!response.ok) return null
+    return await response.json()
+  } catch {
+    return null
+  }
+}
+
 /** One request, at most ten locations. */
 async function requestRun(
   base: string,
@@ -366,7 +414,7 @@ async function requestRun(
   profile: 'driving' | 'walking' | 'cycling',
   avoid: readonly AvoidClass[],
   signal?: AbortSignal,
-  costingOptions: Readonly<Record<string, number | boolean>> = {},
+  costingOptions: Readonly<CostingOptions> = {},
 ): Promise<Omit<ValhallaRun, 'snapped'> | null> {
   const data = await postRoute(base, routeBody(waypoints, profile, avoid, costingOptions), signal)
   return data === null ? null : runFrom(data)

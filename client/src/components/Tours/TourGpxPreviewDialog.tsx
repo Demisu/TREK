@@ -1,5 +1,12 @@
-import type { PaddleBoatType, PaddleWaterContext, PlannableTourType, TourGpxImportFields } from '@trek/shared';
-import { AlertTriangle, FileDown, Info, Mountain, Waves } from 'lucide-react';
+import {
+  BIKE_PROFILES,
+  type BikeProfile,
+  type PaddleBoatType,
+  type PaddleWaterContext,
+  type PlannableTourType,
+  type TourGpxImportFields,
+} from '@trek/shared';
+import { AlertTriangle, FileDown, Info } from 'lucide-react';
 import { useId, useMemo, useState } from 'react';
 import { OFM_POSITRON } from '../../constants/mapDefaults';
 import { useTileUrl } from '../../hooks/useTileUrl';
@@ -20,6 +27,7 @@ import {
   fs,
   NEUTRAL_TINT,
 } from '../shared/DialogShell';
+import { TourTypeSelect } from './planner/TourTypeSelect';
 import { TourNotice } from './tourParts';
 import type { GpxPreviewFile, TourGpxImport } from './useTourGpxImport';
 
@@ -76,10 +84,12 @@ export default function TourGpxPreviewDialog({ gpxImport }: { gpxImport: TourGpx
 function PreviewDialog({ gpxImport, files }: { gpxImport: TourGpxImport; files: GpxPreviewFile[] }) {
   const { t } = useTranslation();
   const labelId = useId();
+  const typeLabelId = useId();
   const tileUrl = useTileUrl(OFM_POSITRON);
   const [type, setType] = useState<PlannableTourType>('hike');
   const [boat, setBoat] = useState<PaddleBoatType | null>(null);
   const [water, setWater] = useState<PaddleWaterContext | null>(null);
+  const [bikeProfile, setBikeProfile] = useState<BikeProfile>('touring');
 
   const tracks = files.flatMap((file) => file.tracks.map((track) => ({ file: file.file, track })));
   const fresh = tracks.filter(({ track }) => !track.duplicate).length;
@@ -96,7 +106,9 @@ function PreviewDialog({ gpxImport, files }: { gpxImport: TourGpxImport; files: 
   const fields: TourGpxImportFields =
     type === 'kayak' && boat && water
       ? { tour_type: 'kayak', boat_type: boat, water_context: water }
-      : { tour_type: 'hike' };
+      : type === 'bike'
+        ? { tour_type: 'bike', bike_profile: bikeProfile }
+        : { tour_type: 'hike' };
   const title = files.length === 1 ? files[0].file.name : t('tours.import.previewFiles', { count: files.length });
 
   return (
@@ -168,18 +180,21 @@ function PreviewDialog({ gpxImport, files }: { gpxImport: TourGpxImport; files: 
         )}
       </DialogSection>
 
-      <DialogSection label={t('tours.import.previewAs')}>
+      <DialogSection label={<span id={typeLabelId}>{t('tours.import.previewAs')}</span>}>
         <div className="flex flex-col gap-3">
-          <Segmented<PlannableTourType>
-            value={type}
-            onChange={setType}
-            label={t('tours.import.previewAs')}
-            fill
-            options={[
-              { value: 'hike', label: t('tourTypes.hike'), icon: <Mountain size={13} strokeWidth={2} /> },
-              { value: 'kayak', label: t('tourTypes.kayak'), icon: <Waves size={13} strokeWidth={2} /> },
-            ]}
-          />
+          <TourTypeSelect value={type} onChange={setType} labelId={typeLabelId} />
+          {type === 'bike' && (
+            <div data-testid="gpx-preview-bike" className="min-w-0">
+              <span className={LABEL}>{t('tours.bike.profile')}</span>
+              <Segmented<BikeProfile>
+                value={bikeProfile}
+                onChange={setBikeProfile}
+                label={t('tours.bike.profile')}
+                fill
+                options={BIKE_PROFILES.map((value) => ({ value, label: t(`tours.bike.profile.${value}`) }))}
+              />
+            </div>
+          )}
           {type === 'kayak' && (
             <div data-testid="gpx-preview-paddle" className="grid grid-cols-1 gap-3 sm:grid-cols-[3fr_2fr]">
               <div className="min-w-0">

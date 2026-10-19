@@ -1,4 +1,4 @@
-import { Utensils, Coffee, Wine, BedDouble, Camera, Landmark, Trees, Ticket, Fuel, Zap, ParkingSquare, Tent, Binoculars, Mountain, Warehouse, Droplet, Toilet, Sandwich, Anchor, Sailboat, type LucideIcon } from 'lucide-react'
+import { Utensils, Coffee, Wine, BedDouble, Camera, Landmark, Trees, Ticket, Fuel, Zap, ParkingSquare, Tent, Binoculars, Mountain, Warehouse, Droplet, Toilet, Sandwich, Anchor, Sailboat, Wrench, type LucideIcon } from 'lucide-react'
 import type { TourPoiCategory } from '@trek/shared'
 import { parsePluginPoiCategoryKey, type PluginPoiDetail } from '@trek/shared'
 // The road-trip kinds take their colour from the one place that defines it, so the
@@ -45,7 +45,7 @@ const CORE_COLOR = new Map(POI_CATEGORIES.map(c => [c.key, c.color] as const))
 const coreColor = (key: string) => CORE_COLOR.get(key) ?? POI_DEFAULT_COLOR
 
 /**
- * What a hike or a paddle tour stops for (PLN-02), searched along a tour in the
+ * What a hike, a ride or a paddle tour stops for (PLN-02), searched along a tour in the
  * planner and drawn on its map. Each takes the colour of the explore category
  * it is closest to, so the map keeps one palette.
  */
@@ -61,6 +61,7 @@ export const TOUR_POI_LOOKS: Record<TourPoiCategory, PoiCategory> = {
   sights: { key: 'sights', labelKey: 'tours.poi.cat.sights', Icon: Camera, color: coreColor('sights') },
   slipway: { key: 'slipway', labelKey: 'tours.poi.cat.slipway', Icon: Anchor, color: coreColor('museum') },
   boat_rental: { key: 'boat_rental', labelKey: 'tours.poi.cat.boat_rental', Icon: Sailboat, color: coreColor('cafe') },
+  bike_repair: { key: 'bike_repair', labelKey: 'tours.poi.cat.bike_repair', Icon: Wrench, color: coreColor('activity') },
 }
 
 // A Map rather than an object, so a category named after an Object.prototype member

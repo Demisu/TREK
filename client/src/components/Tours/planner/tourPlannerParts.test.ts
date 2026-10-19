@@ -8,6 +8,7 @@ const hike = (overrides: Partial<TourPlannerFactsInput> = {}): TourPlannerFactsI
   tourType: 'hike',
   maxHikingDifficulty: 3,
   hikingPreferences: null,
+  bikeProfile: 'touring',
   website: '',
   plannedDurationMinutes: null,
   breakAdditionalMinutes: null,
@@ -20,6 +21,28 @@ const hike = (overrides: Partial<TourPlannerFactsInput> = {}): TourPlannerFactsI
 });
 
 describe('tourPlannerFacts', () => {
+  it('times a bike tour by the router even with its heights in, and saves its profile and nothing of a hike', () => {
+    const analysis = { distanceKm: 30, gain: 400, loss: 400 } as TourPlannerFactsInput['routeAnalysis'];
+    const facts = tourPlannerFacts(
+      hike({
+        tourType: 'bike',
+        bikeProfile: 'gravel',
+        routeAnalysis: analysis,
+        durationSeconds: 5_400,
+        hikingPreferences: { avoid_steps: true },
+      })
+    );
+    expect(facts.walkingDurationMinutes).toBe(90);
+    expect(facts.typeFields).toMatchObject({
+      tour_type: 'bike',
+      bike_profile: 'gravel',
+      max_hiking_difficulty: null,
+      hiking_preferences: null,
+      boat_type: null,
+    });
+    expect(tourPlannerFacts(hike()).typeFields).toMatchObject({ bike_profile: null, max_hiking_difficulty: 3 });
+  });
+
   it('times a hike by the router until its heights are in, then by the signposts, breaks on top', () => {
     expect(tourPlannerFacts(hike({ durationSeconds: 3_570 })).walkingDurationMinutes).toBe(60);
     const analysis = { distanceKm: 8, gain: 600, loss: 600 } as TourPlannerFactsInput['routeAnalysis'];

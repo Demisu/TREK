@@ -1,4 +1,4 @@
-import type { TourLibraryItem, TourListItem, TourTypeKey } from '@trek/shared';
+import { plannableTourTypeSchema, type TourLibraryItem, type TourTypeKey } from '@trek/shared';
 import { AlertTriangle, ArrowUp, Clock, CopyPlus, Library, Loader2, Ruler, Search, WifiOff } from 'lucide-react';
 import { useId, useMemo } from 'react';
 import { OFM_POSITRON } from '../../../constants/mapDefaults';
@@ -7,7 +7,6 @@ import { useTranslation } from '../../../i18n';
 import { useSettingsStore } from '../../../store/settingsStore';
 import { formatDistance, formatElevation } from '../../../utils/units';
 import { MapViewAuto } from '../../Map/MapViewAuto';
-import { BarButton } from '../../Planner/planParts';
 import { EditorField, INPUT, PillSelect } from '../../shared/dialogParts';
 import {
   DialogButton,
@@ -19,11 +18,10 @@ import {
   fs,
   NEUTRAL_TINT,
 } from '../../shared/DialogShell';
-import type { TourPlannerController } from '../planner/useTourPlanner';
 import { TourDayRowPill } from '../TourDayRowFacts';
 import { RailFacts, TourNotice, type TourMetricField } from '../tourParts';
 import { formatPlannedTourDuration, tourPlannedTimes } from '../tourPresentation';
-import { useTourLibrary, type TourLibrary } from './useTourLibrary';
+import { type TourLibrary } from './useTourLibrary';
 
 type Translate = (key: string, params?: Record<string, unknown>) => string;
 type Unit = Parameters<typeof formatDistance>[1];
@@ -141,7 +139,7 @@ function ListFilters({ library }: { library: TourLibrary }) {
   ];
   const typeOptions = [
     { value: ALL, label: t('tours.library.allTypes') },
-    ...(['hike', 'kayak'] as const).map((type) => ({ value: type, label: t(`tourTypes.${type}`) })),
+    ...plannableTourTypeSchema.options.map((type) => ({ value: type, label: t(`tourTypes.${type}`) })),
   ];
   return (
     <div className="flex flex-col gap-2">
@@ -267,7 +265,8 @@ function Preview({ library }: { library: TourLibrary }) {
  * list on the left, the chosen tour on the right; the copy is made only by the
  * button in its foot.
  */
-function TourLibraryDialog({ library }: { library: TourLibrary }) {
+/** LIB-02: the dialog that takes a tour of another trip into this one, opened from "Add tour". */
+export function TourLibraryDialog({ library }: { library: TourLibrary }) {
   const { t } = useTranslation();
   const labelId = useId();
   if (!library.open) return null;
@@ -342,47 +341,4 @@ function TourLibraryDialog({ library }: { library: TourLibrary }) {
       </div>
     </DialogShell>
   );
-}
-
-/** The rail head's way in, beside the GPX import: a button, and the dialog it opens. */
-export function TourLibraryButton({ library, disabled }: { library: TourLibrary; disabled?: boolean }) {
-  const { t } = useTranslation();
-  return (
-    <>
-      <BarButton
-        label={t('tours.library.open')}
-        testId="tour-rail-library"
-        disabled={disabled}
-        onClick={library.show}
-        className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
-      >
-        <Library size={16} strokeWidth={2} />
-      </BarButton>
-      <TourLibraryDialog library={library} />
-    </>
-  );
-}
-
-/**
- * The tours rail's way in, with the dialog's state: a tour taken over comes
- * into the trip and opens in the editor, unless the editor holds unsaved work.
- */
-export function TourLibraryEntry({
-  planner,
-  onTakenOver,
-  disabled,
-}: {
-  planner: Pick<TourPlannerController, 'tripId' | 'hasUnsavedChanges' | 'openTour'>;
-  /** Where the tour goes into the trip; without it there is no way in. */
-  onTakenOver?: (tour: TourListItem) => Promise<void>;
-  disabled?: boolean;
-}) {
-  const library = useTourLibrary({
-    tripId: Number(planner.tripId),
-    onTakenOver: async (tour) => {
-      await onTakenOver?.(tour);
-      if (!planner.hasUnsavedChanges) void planner.openTour(tour);
-    },
-  });
-  return onTakenOver ? <TourLibraryButton library={library} disabled={disabled} /> : null;
 }

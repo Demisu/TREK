@@ -293,6 +293,11 @@ describe('useTourPlanner route tools', () => {
 
       act(() => result.current.paddle.setBoatType('canoe'));
       act(() => result.current.paddle.setWaterContext('lake'));
+      // A route planned for another boat is not this one's: Save waits for the canoe's.
+      expect(result.current.canSave).toBe(false);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(450);
+      });
       expect(result.current.canSave).toBe(true);
       await act(async () => {
         await result.current.save();
@@ -324,6 +329,9 @@ describe('useTourPlanner route tools', () => {
 
       act(() => result.current.paddle.setSpeedKmh(6));
       act(() => result.current.paddle.setBoatType('other'));
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(450);
+      });
       expect(result.current.paddle.speedKmh).toBe(6);
       expect(result.current.walkingDurationMinutes).toBe(12);
 

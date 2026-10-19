@@ -14,6 +14,8 @@ import type { TourBaseLayer } from '../Map/MapLayerSwitcher';
  *
  * - Hike: the standard map first, as before; topo, OpenHikingMap (MAP-01, while the admin
  *   allows it) and satellite beside it; via ferratas.
+ * - Bike (BIK-01): the standard map, topo for the climbs, CyclOSM (BIK-06, while the admin
+ *   allows it) and satellite. No ferratas, a bike tour climbs none.
  * - Paddle: the standard map, whose water reads clearly, and satellite. No topo and
  *   no ferratas, those are hiking maps. Seamarks as an overlay.
  * - Any other type (switched off, or one this build does not plan): the standard map
@@ -35,15 +37,18 @@ const HIKE: TourMapLayerSet = {
   overlays: ['ferratas'],
 };
 const HIKE_WITH_HIKING_MAP: TourMapLayerSet = { ...HIKE, bases: ['default', 'topo', 'hiking', 'satellite'] };
+const BIKE: TourMapLayerSet = { bases: ['default', 'topo', 'satellite'], defaultBase: 'default', overlays: [] };
+const BIKE_WITH_CYCLE_MAP: TourMapLayerSet = { ...BIKE, bases: ['default', 'topo', 'cycle', 'satellite'] };
 const PADDLE: TourMapLayerSet = { bases: ['default', 'satellite'], defaultBase: 'default', overlays: ['seamarks'] };
 const OTHER: TourMapLayerSet = { bases: ['default', 'satellite'], defaultBase: 'default', overlays: [] };
 
-/** `hikingMap`: the admin allows OpenHikingMap on this install (MAP-01). */
+/** `hikingMap`, `cycleMap`: the admin allows OpenHikingMap (MAP-01) and CyclOSM (BIK-06) on this install. */
 export function tourMapLayersFor(
   type: TourTypeKey | null | undefined,
-  { hikingMap = false }: { hikingMap?: boolean } = {}
+  { hikingMap = false, cycleMap = false }: { hikingMap?: boolean; cycleMap?: boolean } = {}
 ): TourMapLayerSet {
   if (type === 'hike') return hikingMap ? HIKE_WITH_HIKING_MAP : HIKE;
+  if (type === 'bike') return cycleMap ? BIKE_WITH_CYCLE_MAP : BIKE;
   if (type === 'kayak') return PADDLE;
   return OTHER;
 }

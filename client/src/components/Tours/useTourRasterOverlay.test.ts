@@ -1,8 +1,23 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { useTileHealth, useTourRasterOverlay } from './useTourRasterOverlay';
+import { useBaseMapHealth, useTileHealth, useTourRasterOverlay } from './useTourRasterOverlay';
 
 const SEAMARKS = { id: 'seamarks', url: 'https://x/{z}/{x}/{y}.png', attribution: 'x', minZoom: 6, maxZoom: 18 };
+
+describe('useBaseMapHealth (MAP-01, BIK-06)', () => {
+  it('watches a map on terms only, names it, and asks afresh when another becomes the base map', () => {
+    const { result, rerender } = renderHook((layer: string) => useBaseMapHealth(layer), { initialProps: 'topo' });
+    expect(result.current).toBeUndefined();
+    rerender('cycle');
+    expect(result.current).toMatchObject({ base: 'cycle', down: false });
+    act(() => {
+      for (let i = 0; i < 4; i += 1) result.current?.onTileError();
+    });
+    expect(result.current?.down).toBe(true);
+    rerender('hiking');
+    expect(result.current).toMatchObject({ base: 'hiking', down: false });
+  });
+});
 
 describe('useTileHealth', () => {
   it('counts a source down after a run of failures, never after a stray one, and up again on one tile', () => {

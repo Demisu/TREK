@@ -1,0 +1,193 @@
+import type { TourTrailGrade } from '@trek/shared';
+import { decodePolyline } from '../../Map/transitGeometry';
+
+/**
+ * BIK-01 to BIK-05: what a bike tour runs on, read from the router's own
+ * description of the ways along its line (Valhalla's trace attributes): the
+ * surface, the kind of way, and the OpenStreetMap way behind each stretch.
+ * Pure, so the classes and their shares are tested apart from the request.
+ */
+
+/** Surfaces from smooth to rough; `unknown` where the data names none. */
+export const SURFACE_CLASSES = ['paved', 'rough', 'compacted', 'gravel', 'ground', 'unknown'] as const;
+export type SurfaceClass = (typeof SURFACE_CLASSES)[number];
+
+/** Kinds of way, the ones a rider plans by. */
+export const WAY_CLASSES = ['cyclePath', 'cycleLane', 'quiet', 'road', 'track', 'path', 'ferry', 'other'] as const;
+export type WayClass = (typeof WAY_CLASSES)[number];
+
+/**
+ * mtb:scale steps as a rider reads them: S0 to S3 apart, S4 and up together
+ * (rare, and all of them expert ground); `none` where OpenStreetMap gives the
+ * way no grade, `unasked` where it could not be asked this time.
+ */
+export const TRAIL_CLASSES = ['s0', 's1', 's2', 's3', 's4', 'none', 'unasked'] as const;
+export type TrailClass = (typeof TRAIL_CLASSES)[number];
+
+/** Surfaces a road bike's rider calls unpaved (BIK-02): what is no paving of any kind. */
+export const UNPAVED: ReadonlySet<SurfaceClass> = new Set(['compacted', 'gravel', 'ground']);
+
+export interface RouteWayEdge {
+  /** Where on the line the stretch starts and ends, as indices into `RouteWays.line`. */
+  from: number;
+  to: number;
+  lengthM: number;
+  surface: SurfaceClass;
+  way: WayClass;
+  /** The OpenStreetMap way, where the router names it. */
+  wayId: number | null;
+}
+
+export interface RouteWays {
+  /** The line as the router matched it, which the stretches index into. */
+  line: [number, number][];
+  edges: RouteWayEdge[];
+}
+
+const SURFACE_OF: Record<string, SurfaceClass> = {
+  paved_smooth: 'paved',
+  paved: 'paved',
+  paved_rough: 'rough',
+  compacted: 'compacted',
+  gravel: 'gravel',
+  dirt: 'ground',
+  path: 'ground',
+};
+
+const PATH_USES = new Set([
+  'path',
+  'footway',
+  'pedestrian',
+  'bridleway',
+  'mountain_bike',
+  'steps',
+  'sidewalk',
+  'pedestrian_crossing',
+  'elevator',
+]);
+const QUIET_ROAD_CLASSES = new Set(['residential', 'service_other', 'unclassified']);
+
+function wayOf(use: string | undefined, roadClass: string | undefined, cycleLane: string | undefined): WayClass {
+  if (use === 'cycleway' || use === 'cycle_street') return 'cyclePath';
+  if (use === 'ferry' || use === 'rail_ferry') return 'ferry';
+  if (use === 'track') return 'track';
+  if (use && PATH_USES.has(use)) return 'path';
+  if (
+    use === 'living_street' ||
+    use === 'service_road' ||
+    use === 'driveway' ||
+    use === 'alley' ||
+    use === 'parking_aisle'
+  )
+    return 'quiet';
+  if (use === 'road') {
+    if (cycleLane === 'dedicated' || cycleLane === 'separated') return 'cycleLane';
+    return roadClass && QUIET_ROAD_CLASSES.has(roadClass) ? 'quiet' : 'road';
+  }
+  return 'other';
+}
+
+interface TraceEdge {
+  surface?: unknown;
+  use?: unknown;
+  road_class?: unknown;
+  cycle_lane?: unknown;
+  length?: unknown;
+  way_id?: unknown;
+  begin_shape_index?: unknown;
+  end_shape_index?: unknown;
+}
+
+const text = (value: unknown) => (typeof value === 'string' ? value : undefined);
+const count = (value: unknown) => (typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : null);
+
+/**
+ * The router's answer read into stretches, or null when it is no answer of
+ * that kind. Edge lengths come in kilometres; an edge without its place on the
+ * line is dropped rather than placed by guess.
+ */
+export function routeWaysFrom(answer: unknown): RouteWays | null {
+  const data = answer as { shape?: unknown; edges?: unknown } | null;
+  if (!data || typeof data.shape !== 'string' || !Array.isArray(data.edges)) return null;
+  const line = decodePolyline(data.shape, 6);
+  if (line.length < 2) return null;
+  const edges: RouteWayEdge[] = [];
+  for (const raw of data.edges as TraceEdge[]) {
+    const from = count(raw.begin_shape_index);
+    const to = count(raw.end_shape_index);
+    const km = count(raw.length);
+    if (from === null || to === null || km === null || to < from || to >= line.length) continue;
+    const surface = SURFACE_OF[text(raw.surface) ?? ''] ?? 'unknown';
+    const wayId = count(raw.way_id);
+    edges.push({
+      from,
+      to,
+      lengthM: km * 1000,
+      surface,
+      way: wayOf(text(raw.use), text(raw.road_class), text(raw.cycle_lane)),
+      wayId: wayId && wayId > 0 ? wayId : null,
+    });
+  }
+  return edges.length ? { line, edges } : null;
+}
+
+/** A trail grade's class: the step of mtb:scale, S4 and up together. */
+export function trailClassOf(grade: Pick<TourTrailGrade, 'mtb_scale'> | undefined): TrailClass {
+  const step = grade?.mtb_scale ? Number(grade.mtb_scale[0]) : null;
+  if (step === null || Number.isNaN(step)) return 'none';
+  return step >= 4 ? 's4' : (`s${step}` as TrailClass);
+}
+
+export interface ClassShare<C extends string> {
+  key: C;
+  lengthM: number;
+  /** Of the whole line, 0 to 1. */
+  share: number;
+}
+
+/** How much of the line falls in each class, the largest first; classes it has none of are left out. */
+export function sharesBy<C extends string>(ways: RouteWays, classOf: (edge: RouteWayEdge) => C): ClassShare<C>[] {
+  const total = ways.edges.reduce((sum, edge) => sum + edge.lengthM, 0);
+  const sums = new Map<C, number>();
+  for (const edge of ways.edges) sums.set(classOf(edge), (sums.get(classOf(edge)) ?? 0) + edge.lengthM);
+  return [...sums]
+    .filter(([, lengthM]) => lengthM > 0)
+    .map(([key, lengthM]) => ({ key, lengthM, share: total > 0 ? lengthM / total : 0 }))
+    .sort((a, b) => b.lengthM - a.lengthM);
+}
+
+/** The stretches of the line in one class, neighbours joined, each as its own line for the map. */
+export function stretchesOf(ways: RouteWays, inClass: (edge: RouteWayEdge) => boolean): [number, number][][] {
+  const stretches: [number, number][][] = [];
+  let open: { from: number; to: number } | null = null;
+  const close = () => {
+    if (open && open.to > open.from) stretches.push(ways.line.slice(open.from, open.to + 1));
+    open = null;
+  };
+  for (const edge of ways.edges) {
+    if (!inClass(edge)) {
+      close();
+      continue;
+    }
+    if (open && edge.from <= open.to) open.to = Math.max(open.to, edge.to);
+    else {
+      close();
+      open = { from: edge.from, to: edge.to };
+    }
+  }
+  close();
+  return stretches;
+}
+
+/** The ways along the line OpenStreetMap could grade, each once, in the order they are ridden. */
+export function wayIdsOf(ways: RouteWays, limit: number): number[] {
+  const ids: number[] = [];
+  const seen = new Set<number>();
+  for (const edge of ways.edges) {
+    if (edge.wayId === null || seen.has(edge.wayId)) continue;
+    seen.add(edge.wayId);
+    ids.push(edge.wayId);
+    if (ids.length === limit) break;
+  }
+  return ids;
+}

@@ -60,5 +60,7 @@ export const UNRESET_STORES: Record<string, string> = {
   useTourFerrataCrossingStore: 'set by the tour map stage; the tests that read it reset it in their own beforeEach',
   useTourPlaceToolStore: 'reset in the tour tests themselves to initialTourPlaceToolState()',
   useTourPoiStore: 'the places found along a tour; the tests that read it clear it in their own beforeEach',
+  useTourRouteHighlightStore:
+    'the stretches a bike card points at; the tests that read it clear it in their own beforeEach',
   useTripJournalLinkStore: 'the journal link per trip; the tests that read it reset it in their own beforeEach',
 };

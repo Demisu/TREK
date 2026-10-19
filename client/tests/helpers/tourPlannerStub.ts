@@ -10,6 +10,10 @@ export function hikePlannerDefaults() {
     tourType: 'hike' as const,
     setTourType: vi.fn(),
     isPaddle: false,
+    isBike: false,
+    bikeProfile: 'touring' as const,
+    setBikeProfile: vi.fn(),
+    unreachable: null,
     paddle: {
       boatType: null,
       waterContext: null,

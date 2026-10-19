@@ -12,7 +12,10 @@ vi.mock('../../Map/valhallaRoute', () => ({
   valhallaTurn,
 }))
 
-import { enrichTourElevations, parseValhallaElevation, routeWalkingTour } from './tourRouting'
+import { enrichTourElevations, parseValhallaElevation, routeBikeTour, routeWalkingTour, type TourRouteResult } from './tourRouting'
+
+/** A route as the planner reads it, for the cases that expect one. */
+const route = async (...args: Parameters<typeof routeWalkingTour>) => (await routeWalkingTour(...args)) as TourRouteResult | null
 
 const waypoints = [
   { lat: 47.3822621, lng: 10.9888935 },
@@ -36,12 +39,12 @@ describe('routeWalkingTour', () => {
   })
 
   it('TOUR-ROUTING-030: asks the router for the preferences of a hike beside its limit (MF-08)', async () => {
-    await routeWalkingTour(waypoints, undefined, 3, { avoid_steps: true, shortest: true })
+    await routeWalkingTour(waypoints, undefined, 3, { avoid_climbs: true, avoid_steps: true })
 
     expect(valhallaRun).toHaveBeenCalledWith(waypoints, 'walking', [], undefined, {
       max_hiking_difficulty: 3,
+      use_hills: 0.2,
       step_penalty: 600,
-      shortest: true,
     })
   })
 
@@ -53,10 +56,10 @@ describe('routeWalkingTour', () => {
       geometry: [[47.39, 11.01], [47.391, 11.011], [47.392, 11.012]] as [number, number][],
     }
     valhallaRun
-      .mockResolvedValueOnce({ total: { coordinates: [[47.38, 11.0], [47.39, 11.01]], distance: 1500, duration: 1200 } })
-      .mockResolvedValueOnce({ total: { coordinates: [[47.392, 11.012], [47.4, 11.02]], distance: 1000, duration: 800 } })
+      .mockResolvedValueOnce({ total: { coordinates: [[47.38, 11.0], [47.39, 11.01]], distance: 1500, duration: 1200 }, snapped: [] })
+      .mockResolvedValueOnce({ total: { coordinates: [[47.392, 11.012], [47.4, 11.02]], distance: 1000, duration: 800 }, snapped: [] })
 
-    const routed = await routeWalkingTour([
+    const routed = await route([
       { lat: 47.38, lng: 11.0 },
       { lat: 47.39, lng: 11.01, fixedLeg: leg },
       { lat: 47.392, lng: 11.012 },
@@ -72,7 +75,7 @@ describe('routeWalkingTour', () => {
 
   it('TOUR-ROUTING-021: a tour that is all fixed leg asks the router nothing, and a failed run fails the whole route', async () => {
     const leg = { kind: 'ferrata' as const, ref: 'way/1', name: null, geometry: [[47.39, 11.01], [47.392, 11.012]] as [number, number][] }
-    const fixedOnly = await routeWalkingTour([{ lat: 47.39, lng: 11.01, fixedLeg: leg }, { lat: 47.392, lng: 11.012 }])
+    const fixedOnly = await route([{ lat: 47.39, lng: 11.01, fixedLeg: leg }, { lat: 47.392, lng: 11.012 }])
     expect(valhallaRun).not.toHaveBeenCalled()
     expect(fixedOnly?.coordinates).toEqual([[47.39, 11.01], [47.392, 11.012]])
 
@@ -82,9 +85,9 @@ describe('routeWalkingTour', () => {
 
   it('TOUR-ROUTING-022: hand-drawn legs ask no router and come back as their own parts, routed runs as theirs', async () => {
     const free = (from: [number, number], to: [number, number]) => ({ kind: 'free' as const, geometry: [from, to] })
-    valhallaRun.mockResolvedValueOnce({ total: { coordinates: [[47.392, 11.012], [47.395, 11.015], [47.4, 11.02]], distance: 900, duration: 700 } })
+    valhallaRun.mockResolvedValueOnce({ total: { coordinates: [[47.392, 11.012], [47.395, 11.015], [47.4, 11.02]], distance: 900, duration: 700 }, snapped: [] })
 
-    const routed = await routeWalkingTour([
+    const routed = await route([
       { lat: 47.38, lng: 11.0, fixedLeg: free([47.38, 11.0], [47.39, 11.01]) },
       { lat: 47.39, lng: 11.01, fixedLeg: free([47.39, 11.01], [47.392, 11.012]) },
       { lat: 47.392, lng: 11.012 },
@@ -105,7 +108,7 @@ describe('routeWalkingTour', () => {
 
   it('TOUR-ROUTING-023: a tour drawn wholly by hand, a paddle tour, never asks the router', async () => {
     const free = (from: [number, number], to: [number, number]) => ({ kind: 'free' as const, geometry: [from, to] })
-    const routed = await routeWalkingTour([
+    const routed = await route([
       { lat: 53.3, lng: 12.9, fixedLeg: free([53.3, 12.9], [53.31, 12.92]) },
       { lat: 53.31, lng: 12.92 },
     ])
@@ -184,5 +187,46 @@ describe('routeWalkingTour', () => {
     const coordinates: [number, number][] = [[48, 11], [48.01, 11.01]]
 
     await expect(enrichTourElevations(coordinates)).resolves.toEqual(coordinates)
+  })
+})
+
+describe('routing on land, bike profiles and unreachable points (BIK-01)', () => {
+  beforeEach(() => {
+    valhallaRun.mockReset().mockResolvedValue(null)
+    valhallaBase.mockReset().mockReturnValue('https://valhalla.test')
+  })
+
+  const run = (snappedMeters: number[]) => ({
+    total: { coordinates: [[47, 11], [47.01, 11.01]], distance: 1500, duration: 300 },
+    snapped: snappedMeters.map((meters) => ({ asked: [47, 11], at: [47, 11], meters })),
+  })
+
+  it('TOUR-ROUTING-030: asks the bicycle costing with each profile\'s own options', async () => {
+    valhallaRun.mockResolvedValue(run([3, 4]))
+    for (const profile of ['touring', 'road', 'gravel', 'mtb'] as const) {
+      await routeBikeTour(waypoints, profile)
+    }
+    expect(valhallaRun.mock.calls.map((call) => [call[1], (call[4] as { bicycle_type: string }).bicycle_type])).toEqual([
+      ['cycling', 'Hybrid'],
+      ['cycling', 'Road'],
+      ['cycling', 'Cross'],
+      ['cycling', 'Mountain'],
+    ])
+  })
+
+  it('TOUR-ROUTING-031: a point the router could only bind far off is named, not routed to', async () => {
+    valhallaRun.mockResolvedValueOnce(run([12, 2900]))
+    expect(await routeBikeTour(waypoints, 'touring')).toEqual({ unreachable: 1, snappedMeters: 2900 })
+    // Within the limit the route stands.
+    valhallaRun.mockResolvedValueOnce(run([12, 280]))
+    expect(await routeBikeTour(waypoints, 'touring')).toMatchObject({ distanceMeters: 1500 })
+  })
+
+  it('TOUR-ROUTING-032: a point after a fixed leg is counted along the whole tour', async () => {
+    const free = { kind: 'free' as const, geometry: [[47.39, 11.01], [47.392, 11.012]] as [number, number][] }
+    valhallaRun.mockResolvedValueOnce(run([400, 5]))
+    expect(
+      await routeWalkingTour([{ lat: 47.39, lng: 11.01, fixedLeg: free }, { lat: 47.392, lng: 11.012 }, { lat: 47.4, lng: 11.02 }])
+    ).toEqual({ unreachable: 1, snappedMeters: 400 })
   })
 })

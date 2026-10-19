@@ -63,6 +63,13 @@ export function unlinkedPoint<T extends TourPlannerWaypoint>(point: T): T {
 }
 
 /** Roles from the order; free legs follow their points, and a paddle tour keeps its portages and locks. */
+/** BIK-01: a bike tour rides no via ferrata; a leg that followed one is planned by the router again. */
+export function ridablePoints(points: TourPlannerWaypoint[]): TourPlannerWaypoint[] {
+  return points.some((point) => point.fixedLeg?.kind === 'ferrata')
+    ? points.map((point) => (point.fixedLeg?.kind === 'ferrata' ? { ...point, fixedLeg: null } : point))
+    : points;
+}
+
 export function normalizePlannerWaypoints(points: TourPlannerWaypoint[], paddle = false): TourPlannerWaypoint[] {
   return keepJoinedFixedLegs(alignFreeLegs(points, paddle)).map((point, index) => ({
     ...point,

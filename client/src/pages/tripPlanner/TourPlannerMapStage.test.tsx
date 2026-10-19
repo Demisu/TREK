@@ -561,14 +561,19 @@ describe('TourPlannerMapStage', () => {
       ]);
     });
 
-    it('an imported paddle tour is shown with the paddle maps, a type nobody plans with the standard set', () => {
+    it('an imported paddle tour is shown with the paddle maps, a bike tour with its own, a type nobody plans with the standard set', () => {
       const { unmount } = renderStage(
         planner('view-gpx', { mode: { type: 'view-gpx', placeId: 9, tour: { place_id: 9, tour_type: 'kayak' } } })
       );
       expect(flat().tourLayers?.bases).toEqual(['default', 'satellite']);
       unmount();
-      renderStage(
+      const bike = renderStage(
         planner('view-gpx', { mode: { type: 'view-gpx', placeId: 9, tour: { place_id: 9, tour_type: 'bike' } } })
+      );
+      expect(flat().tourLayers?.bases).toEqual(['default', 'topo', 'satellite']);
+      bike.unmount();
+      renderStage(
+        planner('view-gpx', { mode: { type: 'view-gpx', placeId: 9, tour: { place_id: 9, tour_type: 'run' } } })
       );
       expect(flat().tourLayers?.bases).toEqual(['default', 'satellite']);
       expect(flat().tourLayers?.overlays).toEqual([]);

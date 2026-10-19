@@ -222,7 +222,7 @@ export default function TourDayRowFacts({ tour, mobile = false }: { tour: TourLi
     add(ArrowUp, formatElevation(tour.elevation_gain, unit), t('tours.detail.ascent'), 'plan-tour-ascent');
   if (times.walkingMinutes != null)
     add(
-      tourDayRowIcon(tour.tour_type === 'kayak' ? 'kayak' : 'walk'),
+      tourDayRowIcon(tour.tour_type === 'kayak' || tour.tour_type === 'bike' ? tour.tour_type : 'walk'),
       formatPlannedTourDuration(times.walkingMinutes),
       movingTimeLabel(tour, t('tours.planner.inspector.duration'), t),
       'trip-plan-tour-walking-time'

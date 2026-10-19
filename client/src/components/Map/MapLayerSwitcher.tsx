@@ -1,4 +1,4 @@
-import { Anchor, Footprints, Loader2, Map as MapIcon, MapPinPlus, Mountain, Rotate3d, Satellite } from 'lucide-react'
+import { Anchor, Bike, Footprints, Loader2, Map as MapIcon, MapPinPlus, Mountain, Rotate3d, Satellite } from 'lucide-react'
 import type { PaddleMapLayer } from '../Tours/paddle/paddleMapLayer'
 import type { CSSProperties } from 'react'
 import { useTranslation } from '../../i18n'
@@ -9,7 +9,7 @@ import { fs } from '../shared/DialogShell'
 import { Tooltip } from '../shared/Tooltip'
 import { MAP_CONTROL_SHADOW } from './mapControlShadow'
 import type { ToggleableRasterOverlay } from './mapRasterOverlay'
-import type { TileHealth, TourRasterBase } from './tourRasterBases'
+import type { BaseMapHealth, TourRasterBase } from './tourRasterBases'
 
 export type BaseLayer = 'default' | 'satellite'
 export type TourBaseLayer = BaseLayer | TourRasterBase
@@ -20,8 +20,8 @@ export interface TourLayerOffer {
   overlays?: readonly ToggleableRasterOverlay[]
   /** PAD-05B: the paddle obstacles around a paddle tour, drawn by every renderer. */
   paddle?: PaddleMapLayer
-  /** MAP-01: whether OpenHikingMap answers while it is the base map; the maps report into it. */
-  hikingMap?: TileHealth
+  /** MAP-01, BIK-06: whether the map on terms shown (OpenHikingMap, CyclOSM) answers; the maps report into it. */
+  baseHealth?: BaseMapHealth
 }
 
 const FROSTED_SHELL = {
@@ -87,6 +87,7 @@ const TOUR_LAYERS = [
   { id: 'default', labelKey: 'map.baseLayer.default', Icon: MapIcon },
   { id: 'topo', labelKey: null, Icon: Mountain },
   { id: 'hiking', labelKey: 'map.baseLayer.hiking', Icon: Footprints },
+  { id: 'cycle', labelKey: 'map.baseLayer.cycle', Icon: Bike },
   { id: 'satellite', labelKey: 'map.baseLayer.satellite', Icon: Satellite },
 ] as const
 
@@ -274,17 +275,18 @@ export function TourMapLayerSwitcher({
   const { t } = useTranslation()
   const bases = layers?.bases
   const overlays = layers?.overlays
-  // OpenHikingMap is a best-effort service: while it is shown and stops answering, its segment says so.
-  const hikingDown = active === 'hiking' && !!layers?.hikingMap?.down
+  // A map on terms is a best-effort service: while it is shown and stops answering, its segment says so.
+  const health = layers?.baseHealth
 
   return (
     <div style={{ ...FROSTED_SHELL, gap: 2 }} role="group" aria-label={t('settings.mapStyle')}>
       {TOUR_LAYERS.filter(({ id }) => !bases || bases.includes(id)).map(({ id, labelKey, Icon }) => {
         const selected = active === id
         const label = labelKey ? t(labelKey) : 'Topo'
-        const down = id === 'hiking' && hikingDown
+        const down = !!health?.down && health.base === id && active === id
+        const downLabel = id === 'cycle' ? t('map.baseLayer.cycleDown') : t('map.baseLayer.hikingDown')
         return (
-          <Tooltip key={id} label={down ? t('map.baseLayer.hikingDown') : label} placement="top" disabled={!compact && !down}>
+          <Tooltip key={id} label={down ? downLabel : label} placement="top" disabled={!compact && !down}>
             <button
               type="button"
               onClick={() => onChange(id)}
@@ -300,7 +302,11 @@ export function TourMapLayerSwitcher({
           </Tooltip>
         )
       })}
-      {hikingDown && <span role="status" aria-live="polite" className="sr-only">{t('map.baseLayer.hikingDown')}</span>}
+      {health?.down && active === health.base && (
+        <span role="status" aria-live="polite" className="sr-only">
+          {health.base === 'cycle' ? t('map.baseLayer.cycleDown') : t('map.baseLayer.hikingDown')}
+        </span>
+      )}
       {(ferrataLayer || onToggleTerrain || placeTool || !!overlays?.length) && <span aria-hidden className="mx-0.5 h-5 w-px bg-edge" />}
       {placeTool && <PlaceToolToggle tool={placeTool} />}
       {ferrataLayer && <FerrataToggle layer={ferrataLayer} compact={compact} />}

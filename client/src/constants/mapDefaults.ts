@@ -41,6 +41,17 @@ export const OPENHIKINGMAP_TILE_ATTRIBUTION =
 export const OPENHIKINGMAP_TILE_MAXZOOM = 18
 
 /**
+ * BIK-06: CyclOSM, the cycling base map the Tours planner offers a bike tour while the admin
+ * allows it. Served by OpenStreetMap France on three shards, free for moderate use with a
+ * Referer under its usage policy; loaded only as viewed, like OpenHikingMap. Checked on
+ * 19.10.2026: zoom 0 to 20, CORS open, a day's Cache-Control.
+ */
+export const CYCLOSM_TILE_URL = 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png'
+export const CYCLOSM_TILE_ATTRIBUTION =
+  '&copy; <a href="https://www.cyclosm.org">CyclOSM</a> | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+export const CYCLOSM_TILE_MAXZOOM = 20
+
+/**
  * The basemap for a browser that will not give MapLibre a WebGL context (#2288).
  *
  * OpenFreeMap serves vector tiles only, so the app default needs a GL canvas, and

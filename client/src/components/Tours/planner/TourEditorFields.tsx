@@ -74,7 +74,13 @@ export function TourNameField({ planner, locked }: TourFieldProps) {
           if (!locked) planner.setName(event.target.value);
         }}
         maxLength={255}
-        placeholder={t('tours.planner.namePlaceholder')}
+        placeholder={
+          {
+            hike: t('tours.planner.namePlaceholder'),
+            bike: t('tours.planner.namePlaceholder.bike'),
+            kayak: t('tours.planner.namePlaceholder.kayak'),
+          }[planner.tourType]
+        }
         className={INPUT}
       />
     </div>
@@ -350,7 +356,7 @@ export function TourDetailsSection({
             <TourDescriptionField planner={planner} locked={locked} />
             <TourWebsiteField planner={planner} locked={locked} />
             {/* A paddle tour is not graded on the hiking scale. */}
-            {!planner.isPaddle && (
+            {planner.tourType === 'hike' && (
               <>
                 <TourDifficultyField planner={planner} locked={locked} onDifficultyChange={onDifficultyChange} />
                 <HikingPreferencesField planner={planner} locked={locked} />
