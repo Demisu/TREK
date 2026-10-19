@@ -226,6 +226,7 @@ describe('ToursRepository writes', () => {
   // A route edit always writes the type's own fields; a hike's are empty.
   const HIKE_UPDATE = {
     ...METRICS,
+    bike_profile: null,
     boat_type: null,
     water_context: null,
     paddle_speed_kmh: null,

@@ -39,6 +39,7 @@ export function TourAddMenu({
 }) {
   const { t } = useTranslation();
   const list = usePopoverList(0, { estimatedHeight: 140 });
+  const { open, toggle, close, triggerRef } = list;
   const library = useTourLibrary({
     tripId: Number(planner.tripId),
     onTakenOver: async (tour) => {
@@ -77,21 +78,21 @@ export function TourAddMenu({
 
   // Run inside the click that picked it: the file picker opens only from a user's own tap.
   const pick = (entry: AddEntry) => {
-    list.close();
+    close();
     entry.run();
   };
 
   return (
     <>
       <BarButton
-        ref={list.triggerRef}
+        ref={triggerRef}
         label={t('tours.planner.addTour')}
         tooltip={t('tours.planner.addTourHint')}
         testId="tour-rail-add"
         disabled={disabled || importing}
-        onClick={list.toggle}
-        ariaExpanded={list.open}
-        active={list.open}
+        onClick={toggle}
+        ariaExpanded={open}
+        active={open}
         className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
       >
         {importing ? (

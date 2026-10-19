@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { act, fireEvent, render, screen } from '../../../tests/helpers/render';
+import { fireEvent, render, screen } from '../../../tests/helpers/render';
 import { PopoverListPanel } from './dialogParts';
 import { usePopoverList } from './usePopoverList';
 
@@ -7,9 +7,10 @@ import { usePopoverList } from './usePopoverList';
 
 function Picker({ current = 1, onPick = vi.fn() }: { current?: number; onPick?: (index: number) => void }) {
   const list = usePopoverList(current);
+  const { open, toggle, close, triggerRef } = list;
   return (
     <>
-      <button type="button" ref={list.triggerRef} onClick={list.toggle} aria-expanded={list.open}>
+      <button type="button" ref={triggerRef} onClick={toggle} aria-expanded={open}>
         trigger
       </button>
       <PopoverListPanel list={list} label="choices">
@@ -19,7 +20,7 @@ function Picker({ current = 1, onPick = vi.fn() }: { current?: number; onPick?: 
             type="button"
             onClick={() => {
               onPick(index);
-              list.close();
+              close();
             }}
           >
             {name}
@@ -99,7 +100,7 @@ describe('usePopoverList', () => {
       return { left, right: left + 240, top: 10, bottom: 40, width: 240, height: 30, x: left, y: 10 } as DOMRect;
     });
     render(<Picker />);
-    act(() => fireEvent.click(trigger()));
+    fireEvent.click(trigger());
     // 240 wide from 100 short of the edge: 140 past it, and the 8 kept clear of it.
     expect(screen.getByRole('group').style.translate).toBe('-148px 0');
   });
