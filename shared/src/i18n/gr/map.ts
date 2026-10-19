@@ -21,6 +21,8 @@ const map: TranslationStrings = {
   'map.baseLayer.hiking': 'Πεζοπορία',
   'map.baseLayer.hikingDown':
     'Το OpenHikingMap δεν απαντά αυτή τη στιγμή. Άλλαξε σε άλλο χάρτη· η διαδρομή σου μένει ως έχει.',
+  'map.baseLayer.cycle': 'Ποδήλατο',
+  'map.baseLayer.cycleDown': 'Το CyclOSM δεν απαντά αυτή τη στιγμή. Άλλαξε σε άλλον χάρτη· η διαδρομή σου μένει ίδια.',
   'map.baseLayer.switchToSatellite': 'Εναλλαγή σε δορυφορική προβολή',
   'map.baseLayer.switchToDefault': 'Εναλλαγή σε προβολή χάρτη',
   'map.location.denied':

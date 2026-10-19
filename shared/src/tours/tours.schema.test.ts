@@ -1,4 +1,7 @@
+import { tourGpxImportFieldsSchema } from './tour-gpx-import.schema';
 import {
+  BIKE_PROFILES,
+  HIKING_PREFERENCE_KEYS,
   hikingPreferencesOf,
   MAX_PADDLE_SPEED_KMH,
   MAX_PLANNED_TOUR_DURATION_MINUTES,
@@ -275,7 +278,7 @@ describe('Tours paddle type', () => {
   it('refuses boat fields on a hike, and a type nobody can plan yet', () => {
     expect(() => tourCreateRequestSchema.parse({ ...baseRequest, boat_type: 'sup' })).toThrow(/paddle tour/);
     expect(() => tourCreateRequestSchema.parse({ ...baseRequest, paddle_speed_kmh: 4 })).toThrow(/paddle tour/);
-    expect(() => tourCreateRequestSchema.parse({ ...baseRequest, tour_type: 'bike' })).toThrow();
+    expect(() => tourCreateRequestSchema.parse({ ...baseRequest, tour_type: 'run' })).toThrow();
   });
 
   it('suggests 4 km/h for kayak, canoe and SUP, and nothing for any other boat', () => {
@@ -318,15 +321,21 @@ describe('hiking preferences (MF-08)', () => {
   };
 
   it('keeps only the preferences switched on, and none as null', () => {
-    expect(hikingPreferencesOf({ avoid_steps: true, shortest: false })).toEqual({ avoid_steps: true });
+    expect(hikingPreferencesOf({ avoid_steps: true, avoid_climbs: false })).toEqual({ avoid_steps: true });
     expect(hikingPreferencesOf({ avoid_steps: false })).toBeNull();
     expect(hikingPreferencesOf(null)).toBeNull();
     const parsed = tourCreateRequestSchema.parse({
       ...hike,
-      hiking_preferences: { prefer_paths: true, avoid_ferries: false },
+      hiking_preferences: { avoid_climbs: true, avoid_ferries: false },
     });
-    expect(hikingPreferencesOf(parsed.hiking_preferences)).toEqual({ prefer_paths: true });
+    expect(hikingPreferencesOf(parsed.hiking_preferences)).toEqual({ avoid_climbs: true });
     expect(tourCreateRequestSchema.parse(hike).hiking_preferences).toBeUndefined();
+  });
+
+  it('RTE-01: offers exactly the three preferences, and refuses a key it does not know', () => {
+    expect(HIKING_PREFERENCE_KEYS).toEqual(['avoid_climbs', 'avoid_steps', 'avoid_ferries']);
+    const unknown = tourCreateRequestSchema.safeParse({ ...hike, hiking_preferences: { shortest: true } });
+    expect(unknown.success).toBe(false);
   });
 
   it('refuses a preference it does not know, and any on a paddle tour', () => {
@@ -340,5 +349,66 @@ describe('hiking preferences (MF-08)', () => {
     expect(tourCreateRequestSchema.safeParse({ ...paddle, hiking_preferences: { avoid_steps: false } }).success).toBe(
       true,
     );
+  });
+});
+
+describe('bike tours (BIK-01 to BIK-04)', () => {
+  const bike = { ...baseRequest, tour_type: 'bike' as const, bike_profile: 'gravel' as const };
+  const ferrata = {
+    kind: 'ferrata' as const,
+    ref: 'way/1',
+    name: null,
+    geometry: [
+      [48, 11],
+      [48.01, 11.02],
+    ],
+  };
+
+  it('saves a bike tour with its one profile and nothing of a hike or a paddle tour', () => {
+    expect(BIKE_PROFILES).toEqual(['touring', 'road', 'gravel', 'mtb']);
+    expect(tourCreateRequestSchema.parse(bike)).toMatchObject({
+      tour_type: 'bike',
+      bike_profile: 'gravel',
+      max_hiking_difficulty: null,
+    });
+  });
+
+  it('refuses a bike tour without a profile, with a hike or a paddler field, or over a via ferrata', () => {
+    expect(() => tourCreateRequestSchema.parse({ ...bike, bike_profile: null })).toThrow(/bike profile/);
+    expect(() => tourCreateRequestSchema.parse({ ...bike, bike_profile: 'ebike' })).toThrow();
+    expect(() => tourCreateRequestSchema.parse({ ...bike, max_hiking_difficulty: 3 })).toThrow(/hiking difficulty/);
+    expect(() => tourCreateRequestSchema.parse({ ...bike, hiking_preferences: { avoid_steps: true } })).toThrow(
+      /hiking preferences/,
+    );
+    expect(() => tourCreateRequestSchema.parse({ ...bike, boat_type: 'sup' })).toThrow(/paddle tour/);
+    const overFerrata = {
+      ...bike,
+      waypoints: [{ ...bike.waypoints[0], fixed_leg: ferrata }, bike.waypoints[1]],
+    };
+    expect(() => tourCreateRequestSchema.parse(overFerrata)).toThrow(/via ferrata/);
+  });
+
+  it('keeps a profile to a bike tour', () => {
+    expect(() => tourCreateRequestSchema.parse({ ...baseRequest, bike_profile: 'road' })).toThrow(/bike tour/);
+    const paddle = {
+      ...baseRequest,
+      tour_type: 'kayak',
+      boat_type: 'kayak',
+      water_context: 'lake',
+      bike_profile: 'mtb',
+    };
+    expect(() => tourCreateRequestSchema.parse(paddle)).toThrow(/bike tour/);
+  });
+
+  it('imports a GPX file as a bike tour only with its profile, and a profile only for one', () => {
+    expect(tourGpxImportFieldsSchema.parse({ tour_type: 'bike', bike_profile: 'road' })).toMatchObject({
+      tour_type: 'bike',
+      bike_profile: 'road',
+    });
+    expect(tourGpxImportFieldsSchema.safeParse({ tour_type: 'bike' }).success).toBe(false);
+    expect(tourGpxImportFieldsSchema.safeParse({ bike_profile: 'road' }).success).toBe(false);
+    expect(
+      tourGpxImportFieldsSchema.safeParse({ tour_type: 'kayak', boat_type: 'sup', water_context: 'lake' }).success,
+    ).toBe(true);
   });
 });

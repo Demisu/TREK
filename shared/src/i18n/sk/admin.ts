@@ -740,6 +740,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'Turistická mapa (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     'Ponúka OpenHikingMap ako podkladovú mapu v plánovači túr. Zadarmo pre nekomerčné inštalácie do 500 000 dlaždíc mesačne; komerčná alebo väčšia inštalácia potrebuje najprv dohodu s openmaps.fr',
+  'admin.toursCycleMap.title': 'Cyklomapa (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    'Ponúka CyclOSM ako podkladovú mapu pre cyklotúry v plánovači. OpenStreetMap France ju poskytuje na primerané používanie; silne využívaná alebo komerčná inštalácia ju vypne, alebo sa najprv dohodne s prevádzkovateľom',
   'admin.addons.noAddons': 'Žiadne doplnky nie sú dostupné',
   'admin.weather.title': 'Dáta o počasí',
   'admin.weather.badge': 'Od 24. marca 2026',

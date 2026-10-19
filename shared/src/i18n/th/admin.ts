@@ -636,6 +636,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'แผนที่เดินป่า (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     'เสนอ OpenHikingMap เป็นแผนที่ฐานในตัววางแผนทัวร์ ใช้ฟรีสำหรับการติดตั้งที่ไม่ใช่เชิงพาณิชย์ได้ถึง 500,000 ไทล์ต่อเดือน การติดตั้งเชิงพาณิชย์หรือขนาดใหญ่กว่าต้องทำข้อตกลงกับ openmaps.fr ก่อน',
+  'admin.toursCycleMap.title': 'แผนที่จักรยาน (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    'ให้ CyclOSM เป็นแผนที่พื้นฐานสำหรับทริปจักรยานในตัววางแผนทัวร์ OpenStreetMap France ให้บริการสำหรับการใช้งานปานกลาง การติดตั้งที่ใช้งานหนักหรือเชิงพาณิชย์ควรปิดไว้หรือทำข้อตกลงกับผู้ให้บริการก่อน',
   'admin.addons.noAddons': 'ไม่มีส่วนเสริมให้ใช้งาน',
   'admin.weather.title': 'ข้อมูลสภาพอากาศ',
   'admin.weather.badge': 'ตั้งแต่วันที่ 24 มีนาคม 2569',

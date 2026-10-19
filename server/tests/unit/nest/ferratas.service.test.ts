@@ -6,13 +6,13 @@
 import { FerrataTiles } from '../../../src/db/entities/FerrataTiles.entity';
 import { FerrataTilesRepository } from '../../../src/db/repositories/FerrataTiles.repository';
 import { DomainError } from '../../../src/nest/common/domain-error';
-import { FerratasOverpassClient } from '../../../src/nest/ferratas/ferratas-overpass.client';
 import { FerratasModule } from '../../../src/nest/ferratas/ferratas.module';
 import {
   FERRATA_TILE_STALE_MS,
   FERRATAS_UNAVAILABLE_MESSAGE,
   FerratasService,
 } from '../../../src/nest/ferratas/ferratas.service';
+import { OverpassElementsClient } from '../../../src/nest/overpass/overpass-elements.client';
 import { createSnapshotTestDb } from '../../helpers/db-mock';
 import { countRows, deleteRows, findRow, findRows, insertRows } from '../../helpers/factories/rows';
 import { resetTestDb } from '../../helpers/test-db';
@@ -73,7 +73,7 @@ async function boot(): Promise<void> {
   t = await createTestModule({
     db,
     imports: [FerratasModule],
-    overrides: [{ provide: FerratasOverpassClient, useValue: { query } }],
+    overrides: [{ provide: OverpassElementsClient, useValue: { query } }],
   });
   service = t.get(FerratasService);
 }

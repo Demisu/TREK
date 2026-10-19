@@ -676,6 +676,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'ハイキング地図 (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     'ツアープランナーのベースマップとして OpenHikingMap を提供します。非商用の環境では月 500,000 タイルまで無料です。商用またはそれ以上の規模の環境では、先に openmaps.fr との合意が必要です',
+  'admin.toursCycleMap.title': 'サイクリング地図（CyclOSM）',
+  'admin.toursCycleMap.subtitle':
+    'ツアープランナーで自転車ツアーのベース地図として CyclOSM を提供します。OpenStreetMap France が適度な利用向けに配信しています。利用の多い、または商用のインストールでは無効にするか、事前に運営者と合意してください',
   'admin.addons.noAddons': '利用可能なアドオンはありません',
   'admin.weather.title': '天気データ',
   'admin.weather.badge': '2026年3月24日以降',

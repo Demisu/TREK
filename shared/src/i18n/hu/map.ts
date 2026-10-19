@@ -20,6 +20,8 @@ const map: TranslationStrings = {
   'map.baseLayer.satellite': 'Műhold',
   'map.baseLayer.hiking': 'Túrázás',
   'map.baseLayer.hikingDown': 'Az OpenHikingMap most nem válaszol. Válts másik térképre, a túrád változatlan marad.',
+  'map.baseLayer.cycle': 'Kerékpár',
+  'map.baseLayer.cycleDown': 'A CyclOSM most nem válaszol. Válts másik térképre, a túrád változatlan marad.',
   'map.baseLayer.switchToSatellite': 'Váltás műholdas nézetre',
   'map.baseLayer.switchToDefault': 'Váltás térkép nézetre',
   'map.location.denied':

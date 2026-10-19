@@ -669,6 +669,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'Mappa escursionistica (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     "Offre OpenHikingMap come mappa di base nel pianificatore di percorsi. Gratuito per installazioni non commerciali fino a 500.000 tile al mese; un'installazione commerciale o più grande richiede prima un accordo con openmaps.fr",
+  'admin.toursCycleMap.title': 'Mappa ciclabile (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    "Offre CyclOSM come mappa di base per i giri in bici nel pianificatore. OpenStreetMap France la fornisce per un uso moderato; un'installazione molto usata o commerciale la disattiva o prende prima un accordo con il gestore",
   'admin.addons.noAddons': 'Nessun modulo disponibile',
   'admin.weather.title': 'Dati meteo',
   'admin.weather.badge': 'Dal 24 marzo 2026',

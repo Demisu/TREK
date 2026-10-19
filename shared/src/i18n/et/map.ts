@@ -20,6 +20,8 @@ const map: TranslationStrings = {
   'map.baseLayer.satellite': 'Satelliit',
   'map.baseLayer.hiking': 'Matkamine',
   'map.baseLayer.hikingDown': 'OpenHikingMap ei vasta praegu. Vaheta teisele kaardile, sinu matk jääb samaks.',
+  'map.baseLayer.cycle': 'Ratas',
+  'map.baseLayer.cycleDown': 'CyclOSM ei vasta praegu. Vaheta teise kaardi vastu, sinu matk jääb samaks.',
   'map.baseLayer.switchToSatellite': 'Lülitu satelliidivaatele',
   'map.baseLayer.switchToDefault': 'Lülitu kaardivaatele',
   'map.location.denied':

@@ -435,15 +435,15 @@ describe('Tours planned e2e (real guards + temp SQLite)', () => {
     it('a hike keeps the preferences switched on, reads them back, and a copy carries them', async () => {
       const placeId = await createViaApi(
         5,
-        tourBody({ hiking_preferences: { avoid_steps: true, prefer_paths: true, shortest: false } }),
+        tourBody({ hiking_preferences: { avoid_climbs: true, avoid_steps: true, avoid_ferries: false } }),
       );
       const detail = await request(server).get(`/api/trips/5/tours/${placeId}`).set('Cookie', sessionCookie(OWNER));
-      expect(detail.body.tour.hiking_preferences).toEqual({ avoid_steps: true, prefer_paths: true });
+      expect(detail.body.tour.hiking_preferences).toEqual({ avoid_climbs: true, avoid_steps: true });
       const copy = await request(server)
         .post(`/api/trips/5/tours/${placeId}/copy`)
         .set('Cookie', sessionCookie(OWNER))
         .send({ name: 'Copy' });
-      expect(copy.body.tour.hiking_preferences).toEqual({ avoid_steps: true, prefer_paths: true });
+      expect(copy.body.tour.hiking_preferences).toEqual({ avoid_climbs: true, avoid_steps: true });
 
       // An edit that switches them all off keeps none; one without the field keeps none too.
       const off = await request(server)

@@ -598,6 +598,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': '徒步地图 (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     '在路线规划器中提供 OpenHikingMap 作为底图。非商业安装每月 500,000 个瓦片以内免费；商业或更大规模的安装需要先与 openmaps.fr 达成协议',
+  'admin.toursCycleMap.title': '骑行地图（CyclOSM）',
+  'admin.toursCycleMap.subtitle':
+    '在行程规划器中为骑行提供 CyclOSM 作为底图。OpenStreetMap France 为适度使用提供该地图；使用量大或商业的安装应关闭它，或先与运营方达成协议',
   'admin.addons.noAddons': '暂无可用扩展',
   'admin.weather.title': '天气数据',
   'admin.weather.badge': '自 2026 年 3 月 24 日起',

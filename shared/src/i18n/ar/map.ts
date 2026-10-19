@@ -20,6 +20,8 @@ const map: TranslationStrings = {
   'map.baseLayer.satellite': 'قمر صناعي',
   'map.baseLayer.hiking': 'المشي',
   'map.baseLayer.hikingDown': 'لا يستجيب OpenHikingMap حاليًا. انتقل إلى خريطة أخرى، وتبقى جولتك كما هي.',
+  'map.baseLayer.cycle': 'دراجات',
+  'map.baseLayer.cycleDown': 'لا يستجيب CyclOSM الآن. انتقل إلى خريطة أخرى؛ تبقى جولتك كما هي.',
   'map.baseLayer.switchToSatellite': 'التبديل إلى عرض القمر الصناعي',
   'map.baseLayer.switchToDefault': 'التبديل إلى عرض الخريطة',
   'map.location.denied':

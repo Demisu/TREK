@@ -4,7 +4,6 @@ import {
   ferrataTileBlocks,
   ferrataTileKeysFor,
   ferrataTilesBbox,
-  overpassFerrataAnswerSchema,
   parseFerrataGrade,
   snapFerrataBbox,
   splitFerratasByTile,
@@ -208,18 +207,6 @@ describe('buildFerrataQuery', () => {
   it('asks for one way more than the cap, with geometry, and the relations with their members', () => {
     expect(query).toContain(`.ways out geom qt ${FERRATAS_RESULT_CAP + 1};`);
     expect(query).toContain('.routes out body qt;');
-  });
-});
-
-describe('overpassFerrataAnswerSchema', () => {
-  it('accepts an element list with or without a remark', () => {
-    expect(overpassFerrataAnswerSchema.safeParse({ elements: [] }).success).toBe(true);
-    expect(overpassFerrataAnswerSchema.safeParse({ elements: [], remark: 'runtime error' }).success).toBe(true);
-  });
-
-  it('refuses a body without elements', () => {
-    expect(overpassFerrataAnswerSchema.safeParse({ error: 'x' }).success).toBe(false);
-    expect(overpassFerrataAnswerSchema.safeParse(undefined).success).toBe(false);
   });
 });
 

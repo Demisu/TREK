@@ -21,6 +21,8 @@ const map: TranslationStrings = {
   'map.baseLayer.hiking': 'Excursionisme',
   'map.baseLayer.hikingDown':
     'OpenHikingMap no respon ara mateix. Canvia a un altre mapa; la teva ruta es queda tal com és.',
+  'map.baseLayer.cycle': 'Bicicleta',
+  'map.baseLayer.cycleDown': 'CyclOSM no respon ara mateix. Canvia a un altre mapa; la teva ruta es queda igual.',
   'map.baseLayer.switchToSatellite': 'Canvia a vista de satèl·lit',
   'map.baseLayer.switchToDefault': 'Canvia a vista de mapa',
   'map.location.denied':

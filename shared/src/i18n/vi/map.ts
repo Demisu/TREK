@@ -21,6 +21,9 @@ const map: TranslationStrings = {
   'map.baseLayer.hiking': 'Đi bộ đường dài',
   'map.baseLayer.hikingDown':
     'OpenHikingMap hiện không phản hồi. Hãy chuyển sang bản đồ khác; chuyến đi của bạn vẫn giữ nguyên.',
+  'map.baseLayer.cycle': 'Xe đạp',
+  'map.baseLayer.cycleDown':
+    'CyclOSM hiện không phản hồi. Hãy chuyển sang bản đồ khác; chuyến đi của bạn vẫn giữ nguyên.',
   'map.baseLayer.switchToSatellite': 'Chuyển sang chế độ xem vệ tinh',
   'map.baseLayer.switchToDefault': 'Chuyển sang chế độ xem bản đồ',
   'map.location.denied':

@@ -693,6 +693,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'Туристическая карта (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     'Предлагает OpenHikingMap как базовую карту в планировщике маршрутов. Бесплатно для некоммерческих установок до 500 000 тайлов в месяц; коммерческой или более крупной установке сначала нужно соглашение с openmaps.fr',
+  'admin.toursCycleMap.title': 'Велокарта (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    'Предлагает CyclOSM как базовую карту для велопоездок в планировщике. OpenStreetMap France предоставляет её для умеренного использования; нагруженная или коммерческая установка отключает её или сначала договаривается с оператором',
   'admin.addons.noAddons': 'Нет доступных дополнений',
   'admin.weather.title': 'Данные о погоде',
   'admin.weather.badge': 'С 24 марта 2026',

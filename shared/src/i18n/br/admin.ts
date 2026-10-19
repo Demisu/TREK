@@ -661,6 +661,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'Mapa de trilhas (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     'Oferece o OpenHikingMap como mapa base no planejador de passeios. Gratuito para instalações não comerciais até 500.000 blocos por mês; uma instalação comercial ou maior precisa antes de um acordo com o openmaps.fr',
+  'admin.toursCycleMap.title': 'Mapa de ciclismo (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    'Oferece o CyclOSM como mapa base para passeios de bicicleta no planejador. O OpenStreetMap France o fornece para uso moderado; uma instalação de uso intenso ou comercial o desativa ou faz antes um acordo com o operador',
   'admin.addons.noAddons': 'Nenhum complemento disponível',
   'admin.addons.integrationHint': 'Serviços de backend e integrações de API sem página dedicada',
   'admin.weather.title': 'Dados meteorológicos',

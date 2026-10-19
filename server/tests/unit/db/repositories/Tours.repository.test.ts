@@ -101,6 +101,7 @@ describe('ToursRepository reads', () => {
         has_recorded_track: 0,
         revision: 1,
         hiking_preferences: null,
+        bike_profile: null,
       },
       {
         place_id: older.id,
@@ -131,6 +132,7 @@ describe('ToursRepository reads', () => {
         has_recorded_track: 0,
         revision: 1,
         hiking_preferences: null,
+        bike_profile: null,
       },
     ]);
     expect((await repo.listForTrip(trip.id)).map((r) => r.place_id)).not.toContain(plain.id);
@@ -217,6 +219,7 @@ describe('ToursRepository writes', () => {
       has_recorded_track: 0,
       revision: 1,
       hiking_preferences: null,
+      bike_profile: null,
     });
   });
 
@@ -297,6 +300,7 @@ describe('ToursRepository writes', () => {
         track_marks: null,
         revision: 1,
         hiking_preferences: null,
+        bike_profile: null,
         taken_over_from_trip_title: null,
         taken_over_from_tour_name: null,
       },

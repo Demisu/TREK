@@ -21,6 +21,8 @@ const map: TranslationStrings = {
   'map.baseLayer.hiking': 'ハイキング',
   'map.baseLayer.hikingDown':
     'OpenHikingMap が現在応答していません。別の地図に切り替えてください。ツアーはそのまま残ります。',
+  'map.baseLayer.cycle': '自転車',
+  'map.baseLayer.cycleDown': 'CyclOSM が現在応答していません。別の地図に切り替えてください。ツアーはそのままです。',
   'map.baseLayer.switchToSatellite': '衛星表示に切り替える',
   'map.baseLayer.switchToDefault': '地図表示に切り替える',
   'map.location.denied':

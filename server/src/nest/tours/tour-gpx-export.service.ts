@@ -9,7 +9,7 @@ import { toRowId } from '../common/row-id';
 import { PlaceImportService } from '../place-import/place-import.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { PaddleBoatType } from '@trek/shared';
+import type { BikeProfile, PaddleBoatType } from '@trek/shared';
 
 /** What GPX calls the activity in a track's <type>; a paddle tour says what it is paddled in. */
 const PADDLE_ACTIVITY: Record<PaddleBoatType, string> = {
@@ -19,8 +19,18 @@ const PADDLE_ACTIVITY: Record<PaddleBoatType, string> = {
   other: 'paddling',
 };
 
-function gpxActivityOf(type: string, boat: string | null): string {
+/** A bike tour says what it is ridden on, in the words Garmin and Strava read. */
+const BIKE_ACTIVITY: Record<BikeProfile, string> = {
+  touring: 'cycling',
+  road: 'road_biking',
+  gravel: 'gravel_cycling',
+  mtb: 'mountain_biking',
+};
+
+function gpxActivityOf(tour: { tour_type: string; boat_type?: string | null; bike_profile?: string | null }): string {
+  const { tour_type: type, boat_type: boat, bike_profile: bike } = tour;
   if (type === 'kayak') return PADDLE_ACTIVITY[(boat ?? 'other') as PaddleBoatType] ?? PADDLE_ACTIVITY.other;
+  if (type === 'bike') return BIKE_ACTIVITY[(bike ?? 'touring') as BikeProfile] ?? BIKE_ACTIVITY.touring;
   return type === 'hike' ? 'hiking' : type;
 }
 
@@ -51,7 +61,7 @@ export class TourGpxExportService {
       name: tour.name,
       description: tour.description ?? null,
       website: tour.website ?? null,
-      activity: gpxActivityOf(tour.tour_type, tour.boat_type),
+      activity: gpxActivityOf(tour),
       route_geometry: place.route_geometry ?? null,
       stops,
     });

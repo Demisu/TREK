@@ -27,10 +27,22 @@ export type TourTypeKey = z.infer<typeof tourTypeKeySchema>;
 /**
  * The types a tour can be planned, saved and imported as. `kayak` is the key
  * the paddle tour has had in `tour_types` from the start; the app calls it a
- * paddle tour, and the boat is a field of its own.
+ * paddle tour, and the boat is a field of its own. A bike tour (BIK-01) names
+ * its profile the same way.
  */
-export const plannableTourTypeSchema = z.enum(['hike', 'kayak']);
+export const plannableTourTypeSchema = z.enum(['hike', 'bike', 'kayak']);
 export type PlannableTourType = z.infer<typeof plannableTourTypeSchema>;
+
+/**
+ * BIK-01 to BIK-04: what a bike tour is ridden on, the one profile it is routed
+ * for. Touring/city keeps to paved ways, cycle paths and quiet roads; road
+ * keeps to asphalt; gravel takes gravel and farm tracks; mtb takes rough tracks
+ * as they come. Each asks the router for something else (see the client's
+ * bike routing for what was measured); none says a way is rideable or safe.
+ */
+export const BIKE_PROFILES = ['touring', 'road', 'gravel', 'mtb'] as const;
+export const bikeProfileSchema = z.enum(BIKE_PROFILES);
+export type BikeProfile = z.infer<typeof bikeProfileSchema>;
 
 /** PAD-01: the one boat a paddle tour is planned for. */
 export const paddleBoatTypeSchema = z.enum(['kayak', 'canoe', 'sup', 'other']);
@@ -60,24 +72,22 @@ export const tourMaxHikingDifficultySchema = z.number().int().min(1).max(6);
 export type TourMaxHikingDifficulty = z.infer<typeof tourMaxHikingDifficultySchema>;
 
 /**
- * MF-08: what a hiker asks the router for besides the difficulty limit. Only
- * preferences whose effect on the router was measured are offered; each is a
- * weighting that gives way where there is no other path, never a ban, and
- * none says anything about how hard the path is. A hike without any keeps
- * null, which is what every tour saved before had.
+ * MF-08, RTE-01: what a hiker asks the router for besides the difficulty
+ * limit: steep climbs, steps and ferries, each avoided where there is a way
+ * round. Each is a weighting whose effect on the router was measured, never a
+ * ban, and none says anything about how hard the path is. A hike without any
+ * keeps null, which is what every tour saved before had.
  */
-export const HIKING_PREFERENCE_KEYS = ['avoid_steps', 'avoid_ferries', 'prefer_paths', 'shortest'] as const;
+export const HIKING_PREFERENCE_KEYS = ['avoid_climbs', 'avoid_steps', 'avoid_ferries'] as const;
 export type HikingPreferenceKey = (typeof HIKING_PREFERENCE_KEYS)[number];
 export const hikingPreferencesSchema = z
   .object({
+    /** Gentler ways where there are some, even when they are longer. */
+    avoid_climbs: z.boolean().optional(),
     /** Steps and stairs only where there is no way round. */
     avoid_steps: z.boolean().optional(),
     /** A ferry only where there is no way round over land. */
     avoid_ferries: z.boolean().optional(),
-    /** Footpaths of their own over roads and their pavements, where there are some. */
-    prefer_paths: z.boolean().optional(),
-    /** The way chosen by its length, not by the time it takes. */
-    shortest: z.boolean().optional(),
   })
   .strict();
 export type HikingPreferences = z.infer<typeof hikingPreferencesSchema>;
@@ -151,6 +161,8 @@ export const tourSchema = z.object({
   hiking_preferences: hikingPreferencesSchema.nullable().optional(),
   /** The import (a GPX file, a wanderer snapshot) this tour was planned from, while it is still in the trip. */
   derived_from_place_id: z.number().int().positive().nullable().optional(),
+  /** BIK-01: a bike tour's profile; null for every other type. Absent in a list cached before it existed. */
+  bike_profile: bikeProfileSchema.nullable().optional(),
   /** A paddle tour's boat and water; null for every other type. Absent in a list cached before they existed. */
   boat_type: paddleBoatTypeSchema.nullable().optional(),
   water_context: paddleWaterContextSchema.nullable().optional(),
@@ -327,6 +339,8 @@ export const tourCreateRequestSchema = z
     max_hiking_difficulty: tourMaxHikingDifficultySchema.nullable().optional(),
     /** MF-08, a hike's only: what it asks the router for besides its limit. */
     hiking_preferences: hikingPreferencesSchema.nullable().optional(),
+    /** BIK-01, a bike tour's only, and its one requirement. */
+    bike_profile: bikeProfileSchema.nullable().optional(),
     boat_type: paddleBoatTypeSchema.nullable().optional(),
     water_context: paddleWaterContextSchema.nullable().optional(),
     paddle_speed_kmh: paddleSpeedKmhSchema.nullable().optional(),
@@ -399,49 +413,66 @@ export type TourCreateRequest = z.infer<typeof tourCreateRequestSchema>;
 /** What a client sends: the fields the server fills in may be left out. */
 export type TourCreateInput = z.input<typeof tourCreateRequestSchema>;
 
+type Issue = { path: Array<string | number>; message: string };
+
+const PADDLE_FIELDS = [
+  'boat_type',
+  'water_context',
+  'paddle_speed_kmh',
+  'portage_speed_kmh',
+  'paddle_lake_style',
+] as const;
+
 /**
  * What belongs to which type: a hike carries a routing limit and no boat; a
- * paddle tour carries exactly one boat and its water, and no hiking limit.
+ * bike tour exactly one profile and nothing of a hike's or a paddler's; a
+ * paddle tour exactly one boat and its water, and no hiking limit.
  */
 function tourTypeIssues(value: {
   tour_type: PlannableTourType;
   max_hiking_difficulty?: number | null;
   hiking_preferences?: HikingPreferences | null;
+  bike_profile?: BikeProfile | null;
   boat_type?: PaddleBoatType | null;
   water_context?: PaddleWaterContext | null;
   paddle_speed_kmh?: number | null;
   portage_speed_kmh?: number | null;
   paddle_lake_style?: PaddleLakeStyle | null;
   waypoints?: ReadonlyArray<{ fixed_leg?: { kind: string } | null; lock?: unknown }>;
-}): Array<{ path: Array<string | number>; message: string }> {
-  const issues: Array<{ path: Array<string | number>; message: string }> = [];
-  if (value.tour_type === 'kayak') {
+}): Issue[] {
+  const issues: Issue[] = [];
+  const type = value.tour_type;
+  const named = type === 'kayak' ? 'a paddle tour' : type === 'bike' ? 'a bike tour' : 'a hike';
+  if (type === 'kayak') {
     if (value.boat_type == null) issues.push({ path: ['boat_type'], message: 'a paddle tour needs a boat type' });
     if (value.water_context == null)
       issues.push({ path: ['water_context'], message: 'a paddle tour needs a water context' });
+  } else {
+    for (const field of PADDLE_FIELDS) {
+      if (value[field] != null) issues.push({ path: [field], message: `${field} belongs to a paddle tour` });
+    }
+  }
+  if (type === 'hike') {
+    if (value.max_hiking_difficulty === null)
+      issues.push({ path: ['max_hiking_difficulty'], message: 'a hike needs a hiking difficulty' });
+  } else {
     if (value.max_hiking_difficulty != null)
-      issues.push({ path: ['max_hiking_difficulty'], message: 'a paddle tour has no hiking difficulty' });
+      issues.push({ path: ['max_hiking_difficulty'], message: `${named} has no hiking difficulty` });
     if (hikingPreferencesOf(value.hiking_preferences) !== null)
-      issues.push({ path: ['hiking_preferences'], message: 'a paddle tour has no hiking preferences' });
-    return issues;
+      issues.push({ path: ['hiking_preferences'], message: `${named} has no hiking preferences` });
   }
-  if (value.max_hiking_difficulty === null)
-    issues.push({ path: ['max_hiking_difficulty'], message: 'a hike needs a hiking difficulty' });
-  for (const field of [
-    'boat_type',
-    'water_context',
-    'paddle_speed_kmh',
-    'portage_speed_kmh',
-    'paddle_lake_style',
-  ] as const) {
-    if (value[field] != null) issues.push({ path: [field], message: `${field} belongs to a paddle tour` });
-  }
-  // A portage and a lock are a paddler's: a hike carries no boat.
+  if (type === 'bike' && value.bike_profile == null)
+    issues.push({ path: ['bike_profile'], message: 'a bike tour needs a bike profile' });
+  if (type !== 'bike' && value.bike_profile != null)
+    issues.push({ path: ['bike_profile'], message: 'bike_profile belongs to a bike tour' });
+  // A portage and a lock are a paddler's; a via ferrata is climbed, never ridden.
   (value.waypoints ?? []).forEach((point, index) => {
-    if (point.fixed_leg?.kind === 'portage')
+    if (type !== 'kayak' && point.fixed_leg?.kind === 'portage')
       issues.push({ path: ['waypoints', index, 'fixed_leg'], message: 'a portage belongs to a paddle tour' });
-    if (point.lock != null)
+    if (type !== 'kayak' && point.lock != null)
       issues.push({ path: ['waypoints', index, 'lock'], message: 'a lock belongs to a paddle tour' });
+    if (type === 'bike' && point.fixed_leg?.kind === 'ferrata')
+      issues.push({ path: ['waypoints', index, 'fixed_leg'], message: 'a bike tour has no via ferrata' });
   });
   return issues;
 }

@@ -675,6 +675,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'Túratérkép (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     'Az OpenHikingMapet alaptérképként kínálja a túratervezőben. Nem kereskedelmi telepítéseknek havi 500 000 csempéig ingyenes; kereskedelmi vagy nagyobb telepítéshez előbb megállapodás kell az openmaps.fr-rel',
+  'admin.toursCycleMap.title': 'Kerékpáros térkép (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    'A CyclOSM-et kínálja alaptérképként a kerékpártúrákhoz a túratervezőben. Az OpenStreetMap France mérsékelt használatra biztosítja; egy erősen használt vagy kereskedelmi telepítés kikapcsolja, vagy előbb megállapodik az üzemeltetővel',
   'admin.addons.noAddons': 'Nincsenek elérhető bővítmények',
   'admin.weather.title': 'Időjárás adatok',
   'admin.weather.badge': '2026. március 24. óta',

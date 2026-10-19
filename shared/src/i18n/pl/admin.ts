@@ -688,6 +688,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'Mapa turystyczna (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     'Udostępnia OpenHikingMap jako mapę bazową w planerze tras. Bezpłatnie dla niekomercyjnych instalacji do 500 000 kafelków miesięcznie; instalacja komercyjna lub większa wymaga najpierw porozumienia z openmaps.fr',
+  'admin.toursCycleMap.title': 'Mapa rowerowa (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    'Udostępnia CyclOSM jako mapę bazową dla wycieczek rowerowych w planerze. OpenStreetMap France udostępnia ją do umiarkowanego użytku; instalacja intensywnie używana lub komercyjna wyłącza ją albo najpierw zawiera porozumienie z operatorem',
   'admin.addons.noAddons': 'Brak dostępnych dodatków',
   'admin.weather.title': 'Dane pogodowe',
   'admin.weather.badge': 'Od 24 marca 2026',

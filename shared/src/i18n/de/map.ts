@@ -21,6 +21,9 @@ const map: TranslationStrings = {
   'map.baseLayer.hiking': 'Wandern',
   'map.baseLayer.hikingDown':
     'OpenHikingMap antwortet gerade nicht. Wechsle auf eine andere Karte, deine Tour bleibt unverändert.',
+  'map.baseLayer.cycle': 'Rad',
+  'map.baseLayer.cycleDown':
+    'CyclOSM antwortet gerade nicht. Wechsle auf eine andere Karte, deine Tour bleibt unverändert.',
   'map.baseLayer.switchToSatellite': 'Zur Satellitenansicht wechseln',
   'map.baseLayer.switchToDefault': 'Zur Kartenansicht wechseln',
   'map.location.denied':

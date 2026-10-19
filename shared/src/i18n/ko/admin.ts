@@ -674,6 +674,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': '하이킹 지도 (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     '투어 플래너에서 OpenHikingMap을 기본 지도로 제공합니다. 비상업적 설치는 월 500,000 타일까지 무료이며, 상업적이거나 더 큰 설치는 먼저 openmaps.fr과의 협의가 필요합니다',
+  'admin.toursCycleMap.title': '자전거 지도 (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    '투어 플래너에서 자전거 투어의 기본 지도로 CyclOSM을 제공합니다. OpenStreetMap France가 적당한 사용을 위해 제공하며, 사용량이 많거나 상업적인 설치는 이를 끄거나 먼저 운영자와 합의합니다',
   'admin.addons.noAddons': '사용 가능한 애드온이 없습니다',
   'admin.weather.title': '날씨 데이터',
   'admin.weather.badge': '2026년 3월 24일부터',

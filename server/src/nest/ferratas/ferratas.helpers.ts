@@ -202,11 +202,6 @@ type WayElement = z.infer<typeof wayElementSchema>;
 type RelationElement = z.infer<typeof relationElementSchema>;
 
 /** What an Overpass mirror answers with, at the boundary. */
-export const overpassFerrataAnswerSchema = z.object({
-  elements: z.array(z.unknown()).max(50000),
-  remark: z.string().optional(),
-});
-
 function cleanName(value: string | undefined): string | null {
   const name = value?.trim() ?? '';
   return name === '' ? null : name.slice(0, NAME_MAX);

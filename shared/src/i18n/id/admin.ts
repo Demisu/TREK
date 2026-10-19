@@ -713,6 +713,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'Peta pendakian (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     'Menawarkan OpenHikingMap sebagai peta dasar di perencana tur. Gratis untuk instalasi nonkomersial hingga 500.000 ubin per bulan; instalasi komersial atau yang lebih besar perlu perjanjian dengan openmaps.fr terlebih dahulu',
+  'admin.toursCycleMap.title': 'Peta sepeda (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    'Menawarkan CyclOSM sebagai peta dasar untuk tur sepeda di perencana tur. OpenStreetMap France menyediakannya untuk penggunaan wajar; instalasi dengan penggunaan berat atau komersial mematikannya atau terlebih dahulu membuat kesepakatan dengan operator',
   'admin.addons.noAddons': 'Tidak ada addon yang tersedia',
   'admin.weather.title': 'Data Cuaca',
   'admin.weather.badge': 'Sejak 24 Maret 2026',

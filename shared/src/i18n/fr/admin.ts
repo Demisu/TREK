@@ -674,6 +674,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'Carte de randonnée (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     "Propose OpenHikingMap comme fond de carte dans le planificateur d'itinéraires. Gratuit pour les installations non commerciales jusqu'à 500 000 tuiles par mois ; une installation commerciale ou plus importante nécessite d'abord un accord avec openmaps.fr",
+  'admin.toursCycleMap.title': 'Carte vélo (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    "Propose CyclOSM comme fond de carte pour les sorties vélo dans le planificateur. OpenStreetMap France le sert pour un usage modéré ; une installation à fort trafic ou commerciale le désactive ou conclut d'abord un accord avec l'opérateur",
   'admin.addons.noAddons': 'Aucune extension disponible',
   'admin.weather.title': 'Données météo',
   'admin.weather.badge': 'Depuis le 24 mars 2026',

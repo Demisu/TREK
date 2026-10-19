@@ -6,7 +6,7 @@ import { logWarn } from '../audit/audit-log.logger';
 import { badRequest, DomainError } from '../common/domain-error';
 import { withRequestContext } from '../database/request-context';
 import { UnitOfWork } from '../database/unit-of-work';
-import { FerratasOverpassClient } from './ferratas-overpass.client';
+import { OverpassElementsClient } from '../overpass/overpass-elements.client';
 import {
   buildFerrataQuery,
   ferrataTileBlocks,
@@ -98,7 +98,7 @@ export class FerratasService {
   private readonly waiting: Array<() => void> = [];
 
   constructor(
-    private readonly overpass: FerratasOverpassClient,
+    private readonly overpass: OverpassElementsClient,
     @InjectRepository(FerrataTiles) private readonly tiles: FerrataTilesRepository,
     private readonly uow: UnitOfWork,
     private readonly orm: MikroORM,
@@ -242,7 +242,7 @@ export class FerratasService {
   private async queryOverpass(keys: readonly string[]): Promise<unknown[]> {
     await this.turn();
     try {
-      return await this.overpass.query(buildFerrataQuery(ferrataTilesBbox(keys)));
+      return await this.overpass.query(buildFerrataQuery(ferrataTilesBbox(keys)), 'Ferratas');
     } catch {
       // The client already logged why each mirror failed.
       throw new DomainError(502, FERRATAS_UNAVAILABLE_MESSAGE, {

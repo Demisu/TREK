@@ -7,6 +7,7 @@ import { Tours } from '../../db/entities/Tours.entity';
 import { AddonsModule } from '../addons/addons.module';
 import { MapsModule } from '../maps/maps.module';
 import { McpSharedModule } from '../mcp-shared/mcp-shared.module';
+import { OverpassModule } from '../overpass/overpass.module';
 import { PaddleObstaclesModule } from '../paddle-obstacles/paddle-obstacles.module';
 import { PermissionsModule } from '../permissions/permissions.module';
 import { PlaceImportModule } from '../place-import/place-import.module';
@@ -23,6 +24,8 @@ import { TourPaddleCheckService } from './tour-paddle-check.service';
 import { TourPaddlePlanService } from './tour-paddle-plan.service';
 import { TourPoiSearchController } from './tour-poi-search.controller';
 import { TourPoiSearchService } from './tour-poi-search.service';
+import { TourTrailGradeController } from './tour-trail-grade.controller';
+import { TourTrailGradeService } from './tour-trail-grade.service';
 import { ToursImportController } from './tours-import.controller';
 import { ToursWandererController } from './tours-wanderer.controller';
 import { ToursWandererService } from './tours-wanderer.service';
@@ -49,7 +52,8 @@ import { Module } from '@nestjs/common';
     McpSharedModule,
     // PLN-02 searches places along a tour through the map search.
     MapsModule,
-
+    // BIK-05 reads the trail grades along a mountain bike tour from OpenStreetMap.
+    OverpassModule,
     AddonsModule,
     // The wanderer import reads trails through the caller's own connection.
     WandererModule,
@@ -60,6 +64,7 @@ import { Module } from '@nestjs/common';
   controllers: [
     TourTakeOverController,
     TourPoiSearchController,
+    TourTrailGradeController,
     ToursController,
     ToursImportController,
     ToursWandererController,
@@ -75,6 +80,7 @@ import { Module } from '@nestjs/common';
     ToursWandererService,
     TourLibraryService,
     TourPoiSearchService,
+    TourTrailGradeService,
     ToursMcp,
     TourLibraryMcp,
   ],

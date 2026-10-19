@@ -250,7 +250,7 @@ describe('ToursService planner creation', () => {
   it('TOURS-SVC-010: a type the catalogue holds but has not enabled is a 400 without a write', async () => {
     // The contract only lets `hike` through today; this pins what happens the
     // day it lets more keys in before the planner offers them.
-    const bike = { ...request, tour_type: 'bike' } as unknown as typeof request;
+    const bike = { ...request, tour_type: 'run' } as unknown as typeof request;
 
     await expect(service.createTour(tripId, bike)).rejects.toBeInstanceOf(BadRequestException);
 
@@ -262,7 +262,7 @@ describe('ToursService planner creation', () => {
   it('TOURS-SVC-011: an edit to a disabled type is a 400 and leaves the saved tour alone', async () => {
     const created = await service.createTour(tripId, request);
     broadcast.mockReset();
-    const bike = { ...request, name: 'Renamed', tour_type: 'bike' } as unknown as typeof request;
+    const bike = { ...request, name: 'Renamed', tour_type: 'run' } as unknown as typeof request;
 
     await expect(service.updateTour(tripId, String(created.tour.place_id), bike)).rejects.toBeInstanceOf(
       BadRequestException,

@@ -724,6 +724,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'Yürüyüş haritası (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     "OpenHikingMap'i tur planlayıcısında temel harita olarak sunar. Ticari olmayan kurulumlar için ayda 500.000 karoya kadar ücretsizdir; ticari veya daha büyük bir kurulum önce openmaps.fr ile anlaşma gerektirir",
+  'admin.toursCycleMap.title': 'Bisiklet haritası (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    "Tur planlayıcısında bisiklet turları için CyclOSM'i temel harita olarak sunar. OpenStreetMap France onu ölçülü kullanım için sağlar; yoğun veya ticari bir kurulum onu kapatır ya da önce işletmeciyle anlaşır",
   'admin.addons.noAddons': 'Kullanılabilir eklenti yok',
   'admin.weather.title': 'Hava Durumu Verileri',
   'admin.weather.badge': "24 Mart 2026'dan beri",

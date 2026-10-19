@@ -733,6 +733,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'Matkakaart (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     'Pakub OpenHikingMapi matkaplaneerija aluskaardina. Mitteäriliste paigalduste jaoks tasuta kuni 500 000 paani kuus; äriline või suurem paigaldus vajab enne kokkulepet openmaps.fr-iga',
+  'admin.toursCycleMap.title': 'Rattakaart (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    'Pakub CyclOSM-i rattamatkade aluskaardina matkaplaneerijas. OpenStreetMap France pakub seda mõõdukaks kasutuseks; tugeva kasutusega või äriline paigaldus lülitab selle välja või lepib enne operaatoriga kokku',
   'admin.addons.noAddons': 'Lisamooduleid pole saadaval',
   'admin.weather.title': 'Ilmaandmed',
   'admin.weather.badge': 'Alates 24. märtsist 2026',

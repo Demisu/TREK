@@ -669,6 +669,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'Wanderkarte (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     'Bietet OpenHikingMap als Grundkarte im Tourplaner an. Kostenlos für nichtkommerzielle Installationen bis 500.000 Kacheln im Monat; eine kommerzielle oder größere Installation braucht vorher eine Vereinbarung mit openmaps.fr',
+  'admin.toursCycleMap.title': 'Fahrradkarte (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    'Bietet CyclOSM als Grundkarte für Radtouren im Tourplaner an. OpenStreetMap France stellt sie für moderate Nutzung bereit; eine stark genutzte oder kommerzielle Installation schaltet sie ab oder trifft vorher eine Vereinbarung mit dem Betreiber',
   'admin.addons.noAddons': 'Keine Addons verfügbar',
   'admin.weather.title': 'Wetterdaten',
   'admin.weather.badge': 'Seit 24. März 2026',

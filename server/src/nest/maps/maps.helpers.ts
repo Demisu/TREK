@@ -367,8 +367,8 @@ export const CATEGORY_OSM_FILTERS: Record<string, string[]> = {
   charging: ['amenity=charging_station'],
   rest_area: ['highway=rest_area', 'highway=services'],
   campsite: ['tourism=camp_site', 'tourism=caravan_site'],
-  // What a hike or a paddle tour stops for along its line (PLN-02). Asked for by the Tours
-  // search along a route, never offered by the explore pill.
+  // What a hike, a ride or a paddle tour stops for along its line (PLN-02). Asked for by the
+  // Tours search along a route, never offered by the explore pill.
   viewpoint: ['tourism=viewpoint'],
   peak: ['natural=peak'],
   shelter: ['amenity=shelter', 'tourism=wilderness_hut', 'tourism=alpine_hut'],
@@ -377,6 +377,7 @@ export const CATEGORY_OSM_FILTERS: Record<string, string[]> = {
   picnic: ['tourism=picnic_site', 'leisure=picnic_table'],
   slipway: ['leisure=slipway', 'canoe=put_in'],
   boat_rental: ['amenity=boat_rental'],
+  bike_repair: ['amenity=bicycle_repair_station', 'shop=bicycle'],
 };
 
 export const POI_CATEGORY_KEYS = Object.keys(CATEGORY_OSM_FILTERS);

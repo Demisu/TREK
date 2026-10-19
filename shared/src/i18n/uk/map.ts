@@ -21,6 +21,8 @@ const map: TranslationStrings = {
   'map.baseLayer.hiking': 'Походи',
   'map.baseLayer.hikingDown':
     'OpenHikingMap зараз не відповідає. Перемкніться на іншу карту, ваш маршрут залишиться без змін.',
+  'map.baseLayer.cycle': 'Вело',
+  'map.baseLayer.cycleDown': 'CyclOSM зараз не відповідає. Перемкнися на іншу карту, маршрут залишиться без змін.',
   'map.baseLayer.switchToSatellite': 'Перемкнути на супутниковий вигляд',
   'map.baseLayer.switchToDefault': 'Перемкнути на вигляд карти',
   'map.location.denied':

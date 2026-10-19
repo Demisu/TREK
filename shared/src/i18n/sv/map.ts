@@ -20,6 +20,8 @@ const map: TranslationStrings = {
   'map.baseLayer.satellite': 'Satellit',
   'map.baseLayer.hiking': 'Vandring',
   'map.baseLayer.hikingDown': 'OpenHikingMap svarar inte just nu. Byt till en annan karta; din tur förblir som den är.',
+  'map.baseLayer.cycle': 'Cykel',
+  'map.baseLayer.cycleDown': 'CyclOSM svarar inte just nu. Byt till en annan karta; din tur förblir som den är.',
   'map.baseLayer.switchToSatellite': 'Byt till satellitvy',
   'map.baseLayer.switchToDefault': 'Byt till kartvy',
   'map.location.denied':

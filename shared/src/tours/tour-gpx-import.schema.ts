@@ -1,4 +1,9 @@
-import { paddleBoatTypeSchema, paddleWaterContextSchema, plannableTourTypeSchema } from './tours.schema';
+import {
+  bikeProfileSchema,
+  paddleBoatTypeSchema,
+  paddleWaterContextSchema,
+  plannableTourTypeSchema,
+} from './tours.schema';
 
 import { z } from 'zod';
 
@@ -33,21 +38,24 @@ export type TourGpxPreviewResponse = z.infer<typeof tourGpxPreviewResponseSchema
 /**
  * The fields of the multipart import beside the file, as strings the way a
  * form sends them. Left out, the import is a hike, as it always was; a paddle
- * import names its boat and water like a planned paddle tour does.
+ * import names its boat and water, and a bike import its profile, like a
+ * planned tour of that type does.
  */
 export const tourGpxImportFieldsSchema = z
   .object({
     tour_type: plannableTourTypeSchema.default('hike'),
+    bike_profile: bikeProfileSchema.optional(),
     boat_type: paddleBoatTypeSchema.optional(),
     water_context: paddleWaterContextSchema.optional(),
   })
   .superRefine((value, ctx) => {
-    const paddle = value.tour_type === 'kayak';
-    for (const field of ['boat_type', 'water_context'] as const) {
-      if (paddle && value[field] === undefined)
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: [field], message: `a paddle import needs ${field}` });
-      if (!paddle && value[field] !== undefined)
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: [field], message: `${field} belongs to a paddle import` });
+    const owners = { bike_profile: 'bike', boat_type: 'kayak', water_context: 'kayak' } as const;
+    for (const [field, owner] of Object.entries(owners) as Array<[keyof typeof owners, string]>) {
+      const name = owner === 'bike' ? 'a bike import' : 'a paddle import';
+      if (value.tour_type === owner && value[field] === undefined)
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: [field], message: `${name} needs ${field}` });
+      if (value.tour_type !== owner && value[field] !== undefined)
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: [field], message: `${field} belongs to ${name}` });
     }
   });
 export type TourGpxImportFields = z.infer<typeof tourGpxImportFieldsSchema>;

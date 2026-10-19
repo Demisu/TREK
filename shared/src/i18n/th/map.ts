@@ -20,6 +20,8 @@ const map: TranslationStrings = {
   'map.baseLayer.satellite': 'ดาวเทียม',
   'map.baseLayer.hiking': 'เดินป่า',
   'map.baseLayer.hikingDown': 'OpenHikingMap ไม่ตอบสนองในขณะนี้ เปลี่ยนไปใช้แผนที่อื่น ทัวร์ของคุณยังคงเหมือนเดิม',
+  'map.baseLayer.cycle': 'จักรยาน',
+  'map.baseLayer.cycleDown': 'CyclOSM ไม่ตอบสนองในขณะนี้ เปลี่ยนไปใช้แผนที่อื่น ทริปของคุณยังเหมือนเดิม',
   'map.baseLayer.switchToSatellite': 'สลับไปที่มุมมองดาวเทียม',
   'map.baseLayer.switchToDefault': 'สลับไปที่มุมมองแผนที่',
   'map.location.denied':

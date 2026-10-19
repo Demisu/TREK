@@ -58,6 +58,7 @@ export * from './tours/tours.schema';
 export * from './tours/tour-provenance.schema';
 export * from './tours/tour-library.schema';
 export * from './tours/tour-poi-search.schema';
+export * from './tours/tour-trail-grade.schema';
 export * from './tours/tours.metrics';
 export * from './tours/tour-gpx-import.schema';
 export * from './tours/paddle-plan.schema';

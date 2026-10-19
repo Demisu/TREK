@@ -137,6 +137,7 @@ describe('GET /api/addons e2e (real auth guard + temp SQLite)', () => {
       // Tours is off in this database, so wanderer is not offered either.
       toursWanderer: false,
       toursHikingMap: false,
+      toursCycleMap: false,
       addons: [
         { id: 'packing', name: 'Packing', type: 'trip', icon: 'Backpack', enabled: true },
         { id: 'journey', name: 'Journey', type: 'global', icon: 'Compass', enabled: true },

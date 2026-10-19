@@ -91,6 +91,16 @@ export class AddonsService {
     return this.writeFlag('tours_hiking_map_enabled', enabled);
   }
 
+  /** BIK-06: the admin's switch for CyclOSM under Tours, as stored; fail-open like OpenHikingMap's. */
+  async getToursCycleMap() {
+    const value = await readAppSetting(this.appSettings, 'tours_cycle_map_enabled');
+    return { enabled: value !== 'false' };
+  }
+
+  async updateToursCycleMap(enabled: boolean) {
+    return this.writeFlag('tours_cycle_map_enabled', enabled);
+  }
+
   /** wanderer may be used: Tours is on and the admin allowed it under Tours. */
   async isWandererAvailable(): Promise<boolean> {
     return (await this.isAddonEnabled(ADDON_IDS.TOURS)) && (await this.getToursWanderer()).enabled;
@@ -177,6 +187,7 @@ export class AddonsService {
       bagTracking: (await this.getBagTracking()).enabled,
       toursWanderer: await this.isWandererAvailable(),
       toursHikingMap: (await this.isAddonEnabled(ADDON_IDS.TOURS)) && (await this.getToursHikingMap()).enabled,
+      toursCycleMap: (await this.isAddonEnabled(ADDON_IDS.TOURS)) && (await this.getToursCycleMap()).enabled,
       addons: [
         // The repository row carries every scalar column (description, config,
         // sort_order included); the legacy statement selected only these five,

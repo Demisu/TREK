@@ -21,6 +21,8 @@ const map: TranslationStrings = {
   'map.baseLayer.hiking': 'Hiking',
   'map.baseLayer.hikingDown':
     'OpenHikingMap is not answering right now. Switch to another map; your tour stays as it is.',
+  'map.baseLayer.cycle': 'Cycling',
+  'map.baseLayer.cycleDown': 'CyclOSM is not answering right now. Switch to another map; your tour stays as it is.',
   'map.baseLayer.switchToSatellite': 'Switch to satellite view',
   'map.baseLayer.switchToDefault': 'Switch to map view',
   'map.location.denied':

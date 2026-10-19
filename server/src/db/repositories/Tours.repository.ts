@@ -2,7 +2,7 @@ import { type Tours, type TToursOrigin, ToursOrigin } from '../entities/Tours.en
 import type { DB } from '../kysely/db';
 import type { AssertRowKeys } from './_shared/rows';
 import { TrekRepository } from './_shared/trek-repository';
-import type { PaddleBoatType, PaddleLakeStyle, PaddleWaterContext } from '@trek/shared';
+import type { BikeProfile, PaddleBoatType, PaddleLakeStyle, PaddleWaterContext } from '@trek/shared';
 
 /**
  * A tour as the Tours list and detail read it: the `tours` facet joined with
@@ -28,6 +28,8 @@ export interface TourListRow {
   max_hiking_difficulty: number | null;
   derived_from_place_id: number | null;
   origin: string;
+  /** BIK-01: a bike tour's profile; NULL on every other type. */
+  bike_profile: string | null;
   boat_type: string | null;
   water_context: string | null;
   paddle_speed_kmh: number | null;
@@ -92,6 +94,7 @@ export interface TourRow {
   hiking_preferences: string | null;
   taken_over_from_trip_title: string | null;
   taken_over_from_tour_name: string | null;
+  bike_profile: string | null;
 }
 const _tourRowKeys: AssertRowKeys<TourRow, Tours> = true;
 
@@ -107,6 +110,8 @@ export interface TourInsert {
   break_additional_minutes?: number | null;
   match_confidence: number | null;
   max_hiking_difficulty: number | null;
+  /** BIK-01: a bike tour's profile; left out, NULL. */
+  bike_profile?: BikeProfile | null;
   /** A paddle tour's boat, water and chosen speed; left out, a hike's NULLs. */
   boat_type?: PaddleBoatType | null;
   water_context?: PaddleWaterContext | null;
@@ -123,6 +128,7 @@ export type TourUpdate = Omit<
   | 'place_id'
   | 'planned_duration_minutes'
   | 'break_additional_minutes'
+  | 'bike_profile'
   | 'boat_type'
   | 'water_context'
   | 'paddle_speed_kmh'
@@ -131,6 +137,7 @@ export type TourUpdate = Omit<
 > & {
   planned_duration_minutes?: number | null;
   break_additional_minutes?: number | null;
+  bike_profile: BikeProfile | null;
   boat_type: PaddleBoatType | null;
   water_context: PaddleWaterContext | null;
   paddle_speed_kmh: number | null;
@@ -232,6 +239,7 @@ export class ToursRepository extends TrekRepository<Tours> {
         't.max_hiking_difficulty as max_hiking_difficulty',
         't.derived_from_place_id as derived_from_place_id',
         't.origin as origin',
+        't.bike_profile as bike_profile',
         't.boat_type as boat_type',
         't.water_context as water_context',
         't.paddle_speed_kmh as paddle_speed_kmh',
@@ -585,6 +593,7 @@ export class ToursRepository extends TrekRepository<Tours> {
       break_additional_minutes: input.break_additional_minutes ?? null,
       match_confidence: input.match_confidence,
       max_hiking_difficulty: input.max_hiking_difficulty,
+      bike_profile: input.bike_profile ?? null,
       boat_type: input.boat_type ?? null,
       water_context: input.water_context ?? null,
       paddle_speed_kmh: input.paddle_speed_kmh ?? null,
@@ -669,6 +678,7 @@ export class ToursRepository extends TrekRepository<Tours> {
           : {}),
         match_confidence: input.match_confidence,
         max_hiking_difficulty: input.max_hiking_difficulty,
+        bike_profile: input.bike_profile,
         boat_type: input.boat_type,
         water_context: input.water_context,
         paddle_speed_kmh: input.paddle_speed_kmh,

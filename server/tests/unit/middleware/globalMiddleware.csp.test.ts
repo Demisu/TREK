@@ -60,6 +60,12 @@ describe('global CSP: the other shipped raster presets (#2180)', () => {
     expect(await connectSrcSources()).toContain('https://tile.openmaps.fr');
   });
 
+  it('allows the CyclOSM shards the Tours planner offers as a cycling base map (BIK-06), and nothing wider', async () => {
+    const sources = await connectSrcSources();
+    for (const shard of ['a', 'b', 'c']) expect(sources).toContain(`https://${shard}.tile-cyclosm.openstreetmap.fr`);
+    expect(sources).not.toContain('https://*.openstreetmap.fr');
+  });
+
   it('keeps the routing host, which is a different host and covers nothing here', async () => {
     // routing.openstreetmap.de was on the list all along and looks close enough
     // to hide the gap: a CSP source matches a host, not a suffix of one.

@@ -737,6 +737,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'Χάρτης πεζοπορίας (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     'Προσφέρει το OpenHikingMap ως χάρτη βάσης στον σχεδιαστή διαδρομών. Δωρεάν για μη εμπορικές εγκαταστάσεις έως 500.000 πλακίδια τον μήνα· μια εμπορική ή μεγαλύτερη εγκατάσταση χρειάζεται πρώτα συμφωνία με το openmaps.fr',
+  'admin.toursCycleMap.title': 'Ποδηλατικός χάρτης (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    'Προσφέρει το CyclOSM ως βασικό χάρτη για ποδηλατικές διαδρομές στον σχεδιαστή. Το OpenStreetMap France το παρέχει για μέτρια χρήση· μια εγκατάσταση με μεγάλη ή εμπορική χρήση το απενεργοποιεί ή συμφωνεί πρώτα με τον πάροχο',
   'admin.addons.noAddons': 'Δεν υπάρχουν διαθέσιμα πρόσθετα',
   'admin.weather.title': 'Δεδομένα Καιρού',
   'admin.weather.badge': 'Από 24 Μαρτίου 2026',

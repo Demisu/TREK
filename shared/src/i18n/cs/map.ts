@@ -20,6 +20,8 @@ const map: TranslationStrings = {
   'map.baseLayer.satellite': 'Satelit',
   'map.baseLayer.hiking': 'Turistika',
   'map.baseLayer.hikingDown': 'OpenHikingMap teď neodpovídá. Přepni na jinou mapu, tvoje túra zůstane beze změny.',
+  'map.baseLayer.cycle': 'Cyklo',
+  'map.baseLayer.cycleDown': 'CyclOSM teď neodpovídá. Přepni na jinou mapu, tvoje túra zůstává beze změny.',
   'map.baseLayer.switchToSatellite': 'Přepnout na satelitní zobrazení',
   'map.baseLayer.switchToDefault': 'Přepnout na mapové zobrazení',
   'map.location.denied':

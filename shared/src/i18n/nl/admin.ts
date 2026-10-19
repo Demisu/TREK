@@ -668,6 +668,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'Wandelkaart (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     'Biedt OpenHikingMap aan als basiskaart in de tochtplanner. Gratis voor niet-commerciële installaties tot 500.000 tegels per maand; een commerciële of grotere installatie heeft eerst een afspraak met openmaps.fr nodig',
+  'admin.toursCycleMap.title': 'Fietskaart (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    'Biedt CyclOSM aan als basiskaart voor fietstochten in de tourplanner. OpenStreetMap France levert hem voor gematigd gebruik; een intensief gebruikte of commerciële installatie zet hem uit of maakt eerst afspraken met de beheerder',
   'admin.addons.noAddons': 'Geen add-ons beschikbaar',
   'admin.weather.title': 'Weergegevens',
   'admin.weather.badge': 'Sinds 24 maart 2026',

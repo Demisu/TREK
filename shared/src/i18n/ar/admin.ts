@@ -720,6 +720,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'خريطة المشي (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     'يعرض OpenHikingMap كخريطة أساسية في مخطط الجولات. مجاني للتثبيتات غير التجارية حتى 500,000 مربع شهريًا؛ أما التثبيت التجاري أو الأكبر فيحتاج أولًا إلى اتفاق مع openmaps.fr',
+  'admin.toursCycleMap.title': 'خريطة الدراجات (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    'يعرض CyclOSM كخريطة أساس لجولات الدراجات في مخطط الجولات. تقدمها OpenStreetMap France للاستخدام المعتدل؛ والتثبيت ذو الاستخدام الكثيف أو التجاري يوقفها أو يتفق مع المشغّل أولًا',
   'admin.addons.noAddons': 'لا توجد إضافات متاحة',
   'admin.weather.title': 'بيانات الطقس',
   'admin.weather.badge': 'منذ 24 مارس 2026',

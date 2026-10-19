@@ -8,7 +8,7 @@ import { z } from 'zod';
  * the line as drawn, never a detour someone walked or paddled.
  */
 
-/** What can be looked for along a tour on foot or on the water. */
+/** What can be looked for along a tour on foot, by bike or on the water. */
 export const TOUR_POI_CATEGORIES = [
   'viewpoint',
   'peak',
@@ -21,6 +21,7 @@ export const TOUR_POI_CATEGORIES = [
   'sights',
   'slipway',
   'boat_rental',
+  'bike_repair',
 ] as const;
 export const tourPoiCategorySchema = z.enum(TOUR_POI_CATEGORIES);
 export type TourPoiCategory = z.infer<typeof tourPoiCategorySchema>;
@@ -28,6 +29,7 @@ export type TourPoiCategory = z.infer<typeof tourPoiCategorySchema>;
 /** The categories each planned tour type offers, the most asked first. */
 export const TOUR_POI_CATEGORIES_BY_TYPE: Record<PlannableTourType, readonly TourPoiCategory[]> = {
   hike: ['viewpoint', 'shelter', 'drinking_water', 'food', 'peak', 'toilets', 'picnic', 'campsite', 'sights'],
+  bike: ['drinking_water', 'bike_repair', 'food', 'viewpoint', 'toilets', 'shelter', 'picnic', 'campsite', 'sights'],
   kayak: ['slipway', 'boat_rental', 'drinking_water', 'food', 'toilets', 'picnic', 'campsite', 'shelter'],
 };
 

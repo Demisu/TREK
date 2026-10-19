@@ -1,0 +1,97 @@
+import { OverpassElementsClient } from '../overpass/overpass-elements.client';
+import { Injectable } from '@nestjs/common';
+import type { TourTrailGrade, TourTrailGradeRequest, TourTrailGradeResponse } from '@trek/shared';
+
+import { z } from 'zod';
+
+/** Ways per Overpass question: a query names them all, and a shorter one answers sooner. */
+const WAYS_PER_QUERY = 400;
+/** How long a way's grades are kept: OpenStreetMap changes slowly, the mirrors are shared. */
+const KEPT_MS = 24 * 60 * 60 * 1000;
+/** The most ways kept at once; the oldest go first. */
+const MAX_KEPT = 50_000;
+
+const wayElementSchema = z.object({
+  type: z.literal('way'),
+  id: z.number().int().positive(),
+  tags: z.record(z.string(), z.string()).optional(),
+});
+
+/** A tag's value as a step of its scale (`S2` and ` 2 ` read as 2), or null when it is none. */
+function step(value: string | undefined, top: number, signed: boolean): string | null {
+  const match = /^\s*S?([0-9])([+-])?\s*$/i.exec(value ?? '');
+  if (!match || Number(match[1]) > top) return null;
+  return signed ? `${match[1]}${match[2] ?? ''}` : (match[1] ?? null);
+}
+
+function gradeOf(id: number, tags: Record<string, string> = {}): TourTrailGrade | null {
+  const grade = {
+    id,
+    mtb_scale: step(tags['mtb:scale'], 6, true),
+    mtb_scale_uphill: step(tags['mtb:scale:uphill'], 5, true),
+    mtb_scale_imba: step(tags['mtb:scale:imba'], 4, false),
+  };
+  return grade.mtb_scale || grade.mtb_scale_uphill || grade.mtb_scale_imba ? grade : null;
+}
+
+/**
+ * BIK-05: the trail grades of the ways a mountain bike tour runs on, read from
+ * OpenStreetMap through the operator's Overpass mirrors. What was read is kept
+ * a day, so the same tour asked about again costs the mirrors nothing; ways a
+ * mirror could not answer are said, never guessed.
+ */
+@Injectable()
+export class TourTrailGradeService {
+  private readonly kept = new Map<number, { grade: TourTrailGrade | null; at: number }>();
+
+  constructor(private readonly overpass: OverpassElementsClient) {}
+
+  async grades(request: TourTrailGradeRequest): Promise<TourTrailGradeResponse> {
+    const now = Date.now();
+    const ids = [...new Set(request.way_ids)];
+    const unknown = ids.filter((id) => {
+      const known = this.kept.get(id);
+      return !known || now - known.at > KEPT_MS;
+    });
+    const parts = Array.from({ length: Math.ceil(unknown.length / WAYS_PER_QUERY) }, (_, index) =>
+      unknown.slice(index * WAYS_PER_QUERY, (index + 1) * WAYS_PER_QUERY),
+    );
+    // One question after another, so a long tour does not flood the shared mirrors.
+    const unanswered = await parts.reduce<Promise<number[]>>(async (done, part) => {
+      const failed = await done;
+      return (await this.ask(part, now)) ? failed : [...failed, ...part];
+    }, Promise.resolve([]));
+    const ways = ids.flatMap((id) => {
+      const grade = this.kept.get(id)?.grade;
+      return grade ? [grade] : [];
+    });
+    return { ways, unanswered };
+  }
+
+  /** Reads one part's grades into what is kept; false when no mirror answered. */
+  private async ask(ids: number[], now: number): Promise<boolean> {
+    let elements: unknown[];
+    try {
+      elements = await this.overpass.query(`[out:json][timeout:25];way(id:${ids.join(',')});out tags;`, 'Tours');
+    } catch {
+      return false;
+    }
+    const tagged = new Map<number, Record<string, string> | undefined>();
+    for (const element of elements) {
+      const way = wayElementSchema.safeParse(element);
+      if (way.success) tagged.set(way.data.id, way.data.tags);
+    }
+    // A way the answer leaves out has no tags worth naming, or no longer exists: no grade either way.
+    for (const id of ids) this.keep(id, gradeOf(id, tagged.get(id)), now);
+    return true;
+  }
+
+  private keep(id: number, grade: TourTrailGrade | null, at: number): void {
+    this.kept.delete(id);
+    this.kept.set(id, { grade, at });
+    if (this.kept.size > MAX_KEPT) {
+      const oldest = this.kept.keys().next().value;
+      if (oldest !== undefined) this.kept.delete(oldest);
+    }
+  }
+}

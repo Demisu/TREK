@@ -726,6 +726,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'Bản đồ đi bộ đường dài (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     'Cung cấp OpenHikingMap làm bản đồ nền trong trình lập kế hoạch chuyến đi. Miễn phí cho các bản cài đặt phi thương mại đến 500.000 ô bản đồ mỗi tháng; bản cài đặt thương mại hoặc lớn hơn cần thỏa thuận với openmaps.fr trước',
+  'admin.toursCycleMap.title': 'Bản đồ xe đạp (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    'Cung cấp CyclOSM làm bản đồ nền cho chuyến đạp xe trong trình lập kế hoạch. OpenStreetMap France phục vụ nó cho mức dùng vừa phải; bản cài đặt dùng nhiều hoặc thương mại cần tắt nó hoặc thỏa thuận trước với nhà vận hành',
   'admin.addons.noAddons': 'Không có tiện ích bổ sung nào',
   'admin.weather.title': 'Dữ liệu thời tiết',
   'admin.weather.badge': 'Kể từ ngày 24 tháng 3 năm 2026',

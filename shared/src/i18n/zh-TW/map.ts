@@ -20,6 +20,8 @@ const map: TranslationStrings = {
   'map.baseLayer.satellite': '衛星',
   'map.baseLayer.hiking': '健行',
   'map.baseLayer.hikingDown': 'OpenHikingMap 目前沒有回應。請切換到其他地圖，你的路線保持不變。',
+  'map.baseLayer.cycle': '騎乘',
+  'map.baseLayer.cycleDown': 'CyclOSM 目前沒有回應。請切換到其他地圖，你的行程保持不變。',
   'map.baseLayer.switchToSatellite': '切換到衛星檢視',
   'map.baseLayer.switchToDefault': '切換到地圖檢視',
   'map.location.denied': '定位權限已被封鎖。請檢查裝置設定,已安裝的應用程式擁有與瀏覽器分開的定位權限。',

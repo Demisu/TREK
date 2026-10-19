@@ -135,6 +135,9 @@ export default defineConfig({
         'src/nest/notifications/**/*.ts': { statements: 83, branches: 72, functions: 85, lines: 87 },
         'src/nest/oauth/**/*.ts': { statements: 96, branches: 95, functions: 97, lines: 97 },
         'src/nest/oidc/**/*.ts': { statements: 88, branches: 83, functions: 91, lines: 92 },
+        // The Overpass client the ferratas and the tours share, moved out of ferratas in this
+        // change with its tests: pinned at the 80 floor until a full run measures it.
+        'src/nest/overpass/**/*.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
         'src/nest/packing/**/*.ts': { statements: 92, branches: 83, functions: 99, lines: 97 },
         'src/nest/paddle-obstacles/**/*.ts': { statements: 96, branches: 92, functions: 94, lines: 97 },
         // PAD-11, new in this change: measured by its unit and e2e suites, one point of slack.

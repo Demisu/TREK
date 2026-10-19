@@ -23,6 +23,8 @@ const map: TranslationStrings = {
   'map.baseLayer.satellite': 'Peyk',
   'map.baseLayer.hiking': 'Gəzinti',
   'map.baseLayer.hikingDown': 'OpenHikingMap hazırda cavab vermir. Başqa xəritəyə keçin; turunuz olduğu kimi qalır.',
+  'map.baseLayer.cycle': 'Velosiped',
+  'map.baseLayer.cycleDown': 'CyclOSM hazırda cavab vermir. Başqa xəritəyə keç; turun olduğu kimi qalır.',
   'map.baseLayer.switchToSatellite': 'Peyk görünüşünə keç',
   'map.baseLayer.switchToDefault': 'Xəritə görünüşünə keç',
 

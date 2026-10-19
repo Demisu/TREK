@@ -20,6 +20,8 @@ const map: TranslationStrings = {
   'map.baseLayer.satellite': 'Satélite',
   'map.baseLayer.hiking': 'Senderismo',
   'map.baseLayer.hikingDown': 'OpenHikingMap no responde ahora mismo. Cambia a otro mapa; tu ruta se queda como está.',
+  'map.baseLayer.cycle': 'Bici',
+  'map.baseLayer.cycleDown': 'CyclOSM no responde ahora mismo. Cambia a otro mapa; tu ruta sigue igual.',
   'map.baseLayer.switchToSatellite': 'Cambiar a vista de satélite',
   'map.baseLayer.switchToDefault': 'Cambiar a vista de mapa',
   'map.location.denied':

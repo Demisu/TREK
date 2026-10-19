@@ -323,6 +323,25 @@ export class AdminController {
     return result;
   }
 
+  @Get('tours-cycle-map')
+  @ResponseContract(adminFeatureToggleResponseSchema)
+  getToursCycleMap() {
+    return this.addons.getToursCycleMap();
+  }
+
+  @Put('tours-cycle-map')
+  @ResponseContract(adminFeatureToggleResponseSchema)
+  async updateToursCycleMap(@CurrentUser() user: User, @Body() body: AdminFeatureToggleDto, @Req() req: Request) {
+    const result = await this.addons.updateToursCycleMap(body.enabled);
+    await this.audit.writeAudit({
+      userId: user.id,
+      action: 'admin.tours_cycle_map',
+      ip: getClientIp(req),
+      details: { enabled: result.enabled },
+    });
+    return result;
+  }
+
   @Get('places-photos')
   getPlacesPhotos() {
     return this.addons.getPlacesPhotos();

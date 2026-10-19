@@ -664,6 +664,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'Turistická mapa (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     'Nabízí OpenHikingMap jako podkladovou mapu v plánovači túr. Zdarma pro nekomerční instalace do 500 000 dlaždic měsíčně; komerční nebo větší instalace potřebuje nejdřív dohodu s openmaps.fr',
+  'admin.toursCycleMap.title': 'Cyklomapa (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    'Nabízí CyclOSM jako podkladovou mapu pro cyklotúry v plánovači. OpenStreetMap France ji poskytuje pro přiměřené používání; silně využívaná nebo komerční instalace ji vypne, nebo se nejprve dohodne s provozovatelem',
   'admin.addons.noAddons': 'Žádné doplňky nejsou k dispozici',
   'admin.addons.catalog.mcp.name': 'MCP',
   'admin.addons.catalog.mcp.description': 'Model Context Protocol pro integraci AI asistentů',

@@ -35,6 +35,7 @@ import {
   MAX_PLANNED_TOUR_DURATION_MINUTES,
   plannedTourDurationMinutesSchema,
   tourWebsiteSchema,
+  type BikeProfile,
   type PaddleBoatType,
   type PaddleLakeStyle,
   type PaddleWaterContext,
@@ -108,6 +109,7 @@ export class ToursService {
       max_hiking_difficulty: r.max_hiking_difficulty,
       derived_from_place_id: r.derived_from_place_id,
       origin: r.origin as TourOrigin,
+      bike_profile: r.bike_profile as BikeProfile | null,
       boat_type: r.boat_type as PaddleBoatType | null,
       water_context: r.water_context as PaddleWaterContext | null,
       paddle_speed_kmh: r.paddle_speed_kmh,
@@ -143,6 +145,7 @@ export class ToursService {
         : {}),
       match_confidence: 1,
       max_hiking_difficulty: input.max_hiking_difficulty,
+      bike_profile: input.tour_type === 'bike' ? (input.bike_profile ?? null) : null,
       boat_type: input.boat_type ?? null,
       water_context: input.water_context ?? null,
       paddle_speed_kmh: input.paddle_speed_kmh ?? null,
@@ -381,6 +384,7 @@ export class ToursService {
           row.wanderer_ref && row.tour_type === 'hike'
             ? wandererDifficultyToSac(row.difficulty as WandererDifficulty | null)
             : null,
+        bike_profile: row.bike_profile as BikeProfile | null,
         boat_type: row.boat_type as PaddleBoatType | null,
         water_context: row.water_context as PaddleWaterContext | null,
         paddle_speed_kmh: row.paddle_speed_kmh,
@@ -486,6 +490,7 @@ export class ToursService {
       break_additional_minutes: row.break_additional_minutes,
       match_confidence: row.match_confidence,
       max_hiking_difficulty: row.max_hiking_difficulty,
+      bike_profile: row.bike_profile as BikeProfile | null,
       boat_type: row.boat_type as PaddleBoatType | null,
       water_context: row.water_context as PaddleWaterContext | null,
       paddle_speed_kmh: row.paddle_speed_kmh,
@@ -647,7 +652,9 @@ export class ToursService {
     const rows = this.readGpxTracks(fileBuffer, fileName);
     if (rows.length === 0) return null;
     await this.assertTourTypeEnabled(fields.tour_type);
-    const paddle = {
+    // What the type adds to each imported tour: a bike tour its profile, a paddle tour its boat and water.
+    const typeFields = {
+      bike_profile: fields.bike_profile ?? null,
       boat_type: fields.boat_type ?? null,
       water_context: fields.water_context ?? null,
       paddle_speed_kmh: null,
@@ -663,7 +670,7 @@ export class ToursService {
         await this.toursRepo.insertTour({
           place_id: place.id,
           tour_type: fields.tour_type,
-          ...paddle,
+          ...typeFields,
           distance: metrics.distanceKm,
           elevation_gain: metrics.elevationGainM,
           elevation_loss: metrics.elevationLossM,
@@ -682,7 +689,7 @@ export class ToursService {
             description: place.description ?? null,
             website: place.website ?? null,
             tour_type: fields.tour_type,
-            ...paddle,
+            ...typeFields,
             distance: metrics.distanceKm,
             elevation_gain: metrics.elevationGainM,
             elevation_loss: metrics.elevationLossM,

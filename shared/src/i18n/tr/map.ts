@@ -20,6 +20,8 @@ const map: TranslationStrings = {
   'map.baseLayer.satellite': 'Uydu',
   'map.baseLayer.hiking': 'Yürüyüş',
   'map.baseLayer.hikingDown': 'OpenHikingMap şu anda yanıt vermiyor. Başka bir haritaya geç; turun olduğu gibi kalır.',
+  'map.baseLayer.cycle': 'Bisiklet',
+  'map.baseLayer.cycleDown': 'CyclOSM şu anda yanıt vermiyor. Başka bir haritaya geç; turun olduğu gibi kalır.',
   'map.baseLayer.switchToSatellite': 'Uydu görünümüne geç',
   'map.baseLayer.switchToDefault': 'Harita görünümüne geç',
   'map.location.denied':

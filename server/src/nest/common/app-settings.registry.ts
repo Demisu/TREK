@@ -112,6 +112,10 @@ export const APP_SETTINGS = {
   // the installs TREK is made for; an admin whose install is commercial or larger switches it off
   // until there is an agreement with the operator (openmaps.fr/tile-usage-policy.html).
   tours_hiking_map_enabled: { schema: flag, default: 'true' },
+  // BIK-06: CyclOSM as a base map of a bike tour in the Tours planner, on the same terms: its
+  // tiles are OpenStreetMap France's, free for moderate use with a Referer; a heavy or commercial
+  // install switches it off (or reaches an agreement) under the operator's usage policy.
+  tours_cycle_map_enabled: { schema: flag, default: 'true' },
   route_usage_enabled: { schema: flag, default: 'false' },
   // PAD-11C: how TREK gets the water data of a place a paddler plans in (auto, ask, off) and the largest extract it loads by itself.
   paddle_auto_load: { schema: z.enum(['auto', 'ask', 'off']), default: 'auto' },

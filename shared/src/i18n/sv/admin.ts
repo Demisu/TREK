@@ -735,6 +735,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': 'Vandringskarta (OpenHikingMap)',
   'admin.toursHikingMap.subtitle':
     'Erbjuder OpenHikingMap som baskarta i turplaneraren. Gratis för icke-kommersiella installationer upp till 500 000 rutor i månaden; en kommersiell eller större installation behöver först ett avtal med openmaps.fr',
+  'admin.toursCycleMap.title': 'Cykelkarta (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    'Erbjuder CyclOSM som baskarta för cykelturer i turplaneraren. OpenStreetMap France tillhandahåller den för måttlig användning; en tungt använd eller kommersiell installation stänger av den eller kommer först överens med operatören',
   'admin.addons.noAddons': 'Inga tillägg tillgängliga',
   'admin.weather.title': 'Väderdata',
   'admin.weather.badge': 'Sedan den 24 mars 2026',

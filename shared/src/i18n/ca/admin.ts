@@ -270,6 +270,9 @@ const admin: TranslationStrings = {
   'admin.toursHikingMap.title': "Mapa d'excursionisme (OpenHikingMap)",
   'admin.toursHikingMap.subtitle':
     'Ofereix OpenHikingMap com a mapa base al planificador de rutes. Gratuït per a instal·lacions no comercials fins a 500.000 tessel·les al mes; una instal·lació comercial o més gran necessita abans un acord amb openmaps.fr',
+  'admin.toursCycleMap.title': 'Mapa ciclista (CyclOSM)',
+  'admin.toursCycleMap.subtitle':
+    "Ofereix CyclOSM com a mapa base per a rutes en bici al planificador. OpenStreetMap France el serveix per a un ús moderat; una instal·lació d'ús intens o comercial el desactiva o primer arriba a un acord amb l'operador",
   'admin.addons.noAddons': 'No hi ha complements disponibles',
   'admin.weather.title': 'Dades meteorològiques',
   'admin.weather.badge': 'Des del 24 de març de 2026',
