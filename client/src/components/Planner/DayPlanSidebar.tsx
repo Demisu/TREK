@@ -2033,7 +2033,7 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                                   </Tooltip>
                                 )}
                               </div>
-                              <DayPlanPlaceSubline place={place} cat={cat} tourTimes={tourTimes} isTourPlace={!!isTourPlace} timeFormat={timeFormat} />
+                              <DayPlanPlaceSubline place={place} cat={cat} tourTimes={tourTimes} isTourPlace={!!isTourPlace} timeFormat={timeFormat} assignmentId={assignment.id} />
                               {assignment.notes && (
                                 // Day-specific note on this stop (#2163) — one muted
                                 // caption line so the timeline shows the note exists

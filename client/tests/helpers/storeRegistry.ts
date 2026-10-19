@@ -62,5 +62,6 @@ export const UNRESET_STORES: Record<string, string> = {
   useTourPoiStore: 'the places found along a tour; the tests that read it clear it in their own beforeEach',
   useTourRouteHighlightStore:
     'the stretches a bike card points at; the tests that read it clear it in their own beforeEach',
+  useTourVisitStore: 'the visits of city walks per day; the tests that read it reset it in their own beforeEach',
   useTripJournalLinkStore: 'the journal link per trip; the tests that read it reset it in their own beforeEach',
 };

@@ -19,6 +19,8 @@ export const HANDLED_OUTSIDE_TRIP_STORE = [
   // Tours facet invalidation — hooks/useTripWebSocket forwards tours:changed to
   // useTourPlaceIds so the active trip refreshes its Tours/Places read model.
   'tours:changed',
+  // CW-03 — components/Tours/walk/useTourVisitsSync keeps the visits store current.
+  'tours:visits',
   // Collab — Collab/MCollab components + useTripWebSocket's collabFileSync
   'collab:note:created',
   'collab:note:updated',

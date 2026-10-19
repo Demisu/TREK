@@ -64,6 +64,7 @@ import {
 } from './tourPresentation';
 import { useTourDayAssignment } from './useTourDayAssignment';
 import { useTourPermissions, type TourPermissionProps } from './useTourPermissions';
+import { WalkStationsCard } from './walk/WalkStations';
 
 interface TourDetailDialogProps extends TourPermissionProps {
   tour: TourListItem;
@@ -651,6 +652,9 @@ export default function TourDetailDialog({
           trackColor={trackColor}
           placeId={place.id}
         />
+      )}
+      {tour.tour_type === 'walk' && (
+        <WalkStationsCard tour={tour} tripId={place.trip_id} assignmentId={assignment?.id ?? null} canMark={canAssign} />
       )}
       {tour.tour_type === 'kayak' && <PaddleCheckSection tour={tour} />}
       {tour.tour_type === 'kayak' && <PaddleWindSection placeId={place.id} start={placeStart(place)} />}

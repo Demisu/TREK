@@ -1,3 +1,4 @@
+import { useTourVisitsSync } from '../../components/Tours/walk/useTourVisitsSync'
 import { useRoadtripSettings } from '../../hooks/useRoadtripSettings'
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router'
@@ -284,6 +285,8 @@ export function useTripPlanner() {
   const [toursMode, setToursMode] = useState(false)
   const previousToursModeRef = useRef(false)
   const { tours, toursLoading, tourDataReady, tourPlaceIds, reloadTourPlaceIds, invalidateTourPlaceIds, upsertTour } = useTourPlaceIds(tripId, toursEnabled)
+  // CW-03: how far the trip's city walks got on their days, for the day plan and the walks' stations.
+  useTourVisitsSync(tripId, toursEnabled)
 
   useEffect(() => {
     if (!toursEnabled) {

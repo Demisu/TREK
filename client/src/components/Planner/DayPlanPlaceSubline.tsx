@@ -7,6 +7,7 @@ import type { Category, Place } from '../../types';
 import { formatTime } from '../../utils/formatters';
 import { fs } from '../shared/DialogShell';
 import { TourDayRowPills } from '../Tours/TourDayRowFacts';
+import { WalkProgressPill } from '../Tours/walk/WalkStations';
 import { movingTimeLabel } from '../Tours/tourFacts';
 import { formatPlannedTourDuration, type TourPlannedTimes } from '../Tours/tourPresentation';
 import { TimePill } from './planParts';
@@ -19,6 +20,8 @@ interface DayPlanPlaceSublineProps {
   tourTimes: DayRowTourTimes | undefined;
   isTourPlace: boolean;
   timeFormat: string;
+  /** CW-03: the row's day assignment, which a city walk's progress belongs to. */
+  assignmentId?: number;
 }
 
 function hasPlannedTimes(tourTimes: DayRowTourTimes | undefined): boolean {
@@ -90,7 +93,7 @@ function SublineDescription({ text, isTourPlace }: { text: string; isTourPlace: 
 
 // Second line of a place row in the day plan: time, tour facts or planned
 // tour durations, then the clamped description.
-export function DayPlanPlaceSubline({ place, cat, tourTimes, isTourPlace, timeFormat }: DayPlanPlaceSublineProps) {
+export function DayPlanPlaceSubline({ place, cat, tourTimes, isTourPlace, timeFormat, assignmentId }: DayPlanPlaceSublineProps) {
   const { locale } = useTranslation();
   const dayRowTour = tourTimes?.tour;
   const description = place.description || place.address || cat?.name;
@@ -106,6 +109,7 @@ export function DayPlanPlaceSubline({ place, cat, tourTimes, isTourPlace, timeFo
         </TimePill>
       )}
       {dayRowTour ? <TourDayRowPills tour={dayRowTour} /> : tourTimes && <PlannedTourPills tourTimes={tourTimes} />}
+      {dayRowTour && <WalkProgressPill tour={dayRowTour} assignmentId={assignmentId} />}
       {description && <SublineDescription text={description} isTourPlace={isTourPlace} />}
     </div>
   );
