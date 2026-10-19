@@ -28,6 +28,8 @@ export interface DraftPayload {
   derivedFromPlaceId?: number | null;
   tourType?: PlannableTourType;
   paddle?: PaddleFieldValues;
+  /** P2C-03: the revision of the tour the draft edits, as it was loaded. */
+  baseRevision?: number | null;
 }
 
 const DRAFT_VERSIONS: ReadonlyArray<DraftPayload['version']> = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -77,6 +79,7 @@ export function validDraft(value: unknown): value is DraftPayload {
     optionalMinutes(draft.breakAdditionalMinutes) &&
     optionalPlaceId(draft.editingPlaceId) &&
     optionalPlaceId(draft.derivedFromPlaceId) &&
+    optionalPlaceId(draft.baseRevision) &&
     optionalDifficulty(draft.maxHikingDifficulty) &&
     (draft.tourType === undefined || plannableTourTypeSchema.safeParse(draft.tourType).success) &&
     Array.isArray(draft.waypoints) &&

@@ -38,6 +38,8 @@ export interface TourListRow {
   has_recorded_track: number;
   planned: number;
   has_waypoints: number;
+  /** P2C-03: the tour's technical revision. */
+  revision: number;
 }
 
 /** Every `tours` column, as the trip copy reads and re-inserts it. */
@@ -65,6 +67,7 @@ export interface TourRow {
   portage_speed_kmh: number | null;
   paddle_lake_style: string | null;
   track_marks: string | null;
+  revision: number;
 }
 const _tourRowKeys: AssertRowKeys<TourRow, Tours> = true;
 
@@ -200,6 +203,7 @@ export class ToursRepository extends TrekRepository<Tours> {
         't.portage_speed_kmh as portage_speed_kmh',
         't.paddle_lake_style as paddle_lake_style',
         't.track_marks as track_marks',
+        't.revision as revision',
         eb('t.recorded_route_geometry', 'is not', null).as('has_recorded_track'),
         eb
           .exists(eb.selectFrom('day_assignments as da').select('da.id').whereRef('da.place_id', '=', 'p.id'))
@@ -478,8 +482,36 @@ export class ToursRepository extends TrekRepository<Tours> {
         ...row,
         place_id,
         derived_from_place_id: derivedFrom === null ? null : (copiedPlaceIds.get(derivedFrom) ?? null),
+        // A copy is a tour of its own, not a revision of the one it came from.
+        revision: 1,
       })
       .execute();
+  }
+
+  /**
+   * P2C-03: raises the tour's revision by one and answers the new one. Given
+   * the revision a write was based on, only that revision is raised, so a
+   * write against a tour that moved on meanwhile changes nothing and answers
+   * null. Runs inside the write's transaction, as the first change it makes.
+   */
+  async advanceRevision(place_id: number, expected?: number | null): Promise<number | null> {
+    let query = this.db()
+      .updateTable('tours')
+      .set((eb) => ({ revision: eb('revision', '+', 1) }))
+      .where('place_id', '=', place_id);
+    if (expected != null) query = query.where('revision', '=', expected);
+    const row = await query.returning('revision').executeTakeFirst();
+    return row?.revision ?? null;
+  }
+
+  /** The tour's current revision, `undefined` when the place is no tour. */
+  async revisionOf(place_id: number): Promise<number | undefined> {
+    const row = await this.db()
+      .selectFrom('tours')
+      .select('revision')
+      .where('place_id', '=', place_id)
+      .executeTakeFirst();
+    return row?.revision;
   }
 
   /**

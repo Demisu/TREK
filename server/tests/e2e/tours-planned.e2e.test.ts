@@ -8,7 +8,6 @@
  * Fixtures: user 1 owns trips 5 and 6, user 2 is a member of trip 5 whom the
  * permission spy denies 'place_edit', user 3 has no access to either trip.
  */
-import { db } from '../../src/db/database';
 import { DayAssignments } from '../../src/db/entities/DayAssignments.entity';
 import { Places } from '../../src/db/entities/Places.entity';
 import { Tours } from '../../src/db/entities/Tours.entity';
@@ -20,6 +19,7 @@ import { PermissionsService } from '../../src/nest/permissions/permissions.servi
 import { RealtimeModule } from '../../src/nest/realtime/realtime.module';
 import { RealtimeService } from '../../src/nest/realtime/realtime.service';
 import { ToursModule } from '../../src/nest/tours/tours.module';
+import { createSnapshotTestDb } from '../helpers/db-mock';
 import { makePlace } from '../helpers/factories/places';
 import { deleteRows, findRow, insertRows } from '../helpers/factories/rows';
 import { setAddonEnabled } from '../helpers/factories/settings';
@@ -37,10 +37,6 @@ import type { Server } from 'http';
 import request from 'supertest';
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi, type MockInstance } from 'vitest';
 
-vi.mock('../../src/db/database', async () => {
-  const { createSnapshotTestDb, buildDbMock } = await import('../helpers/db-mock');
-  return buildDbMock(createSnapshotTestDb());
-});
 vi.mock('../../src/nest/audit/audit-log.logger', () => ({
   LOG_LEVEL: 'error',
   logInfo: vi.fn(),
@@ -58,6 +54,7 @@ const { journeyHooks } = vi.hoisted(() => ({
   },
 }));
 
+const db = createSnapshotTestDb();
 const realtime = new FakeRealtimeService();
 
 let orm: TestOrm;
@@ -249,6 +246,107 @@ describe('Tours planned e2e (real guards + temp SQLite)', () => {
         .set('Cookie', sessionCookie(OWNER));
       expect(off.status).toBe(404);
       expect(off.body).toEqual({ error: 'Tours addon is not enabled' });
+    });
+  });
+
+  describe('revisions and conflicts (P2C-03)', () => {
+    const put = (placeId: number, body: Record<string, unknown>) =>
+      request(server).put(`/api/trips/5/tours/${placeId}`).set('Cookie', sessionCookie(OWNER)).send(body);
+
+    it('a tour starts at 1, and every saved change raises it by one, in the list and the detail', async () => {
+      const placeId = await createViaApi();
+      const detail = await request(server).get(`/api/trips/5/tours/${placeId}`).set('Cookie', sessionCookie(OWNER));
+      expect(detail.body.tour.revision).toBe(1);
+
+      const saved = await put(placeId, tourBody({ name: 'Renamed', expected_revision: 1 }));
+      expect(saved.status).toBe(200);
+      expect(saved.body.tour).toMatchObject({ name: 'Renamed', revision: 2 });
+      const list = await request(server).get('/api/trips/5/tours').set('Cookie', sessionCookie(OWNER));
+      expect(list.body.tours[0].revision).toBe(2);
+    });
+
+    it('409 for a draft based on a revision the tour has left, and nothing of it is written', async () => {
+      const placeId = await createViaApi();
+      expect((await put(placeId, tourBody({ name: 'First', expected_revision: 1 }))).status).toBe(200);
+      realtime.broadcastMock.mockClear();
+
+      const stale = await put(
+        placeId,
+        tourBody({
+          name: 'Stale',
+          expected_revision: 1,
+          waypoints: [
+            { lat: 47, lng: 11, role: 'start', sequence: 0 },
+            { lat: 47.01, lng: 11.01, role: 'via', sequence: 1 },
+            { lat: 47.02, lng: 11.02, role: 'end', sequence: 2 },
+          ],
+        }),
+      );
+      expect(stale.status).toBe(409);
+      expect(stale.body).toEqual({
+        error: 'This tour was changed in the meantime',
+        code: 'tour_revision_conflict',
+        revision: 2,
+      });
+      const after = await request(server).get(`/api/trips/5/tours/${placeId}`).set('Cookie', sessionCookie(OWNER));
+      expect(after.body.tour).toMatchObject({ name: 'First', revision: 2 });
+      expect(after.body.waypoints).toHaveLength(2);
+      expect(realtime.broadcastMock).not.toHaveBeenCalled();
+    });
+
+    it('a write naming no revision writes as before, so an older client or a queued write still lands', async () => {
+      const placeId = await createViaApi();
+      expect((await put(placeId, tourBody({ name: 'One', expected_revision: 1 }))).status).toBe(200);
+      const blind = await put(placeId, tourBody({ name: 'Two' }));
+      expect(blind.status).toBe(200);
+      expect(blind.body.tour).toMatchObject({ name: 'Two', revision: 3 });
+    });
+
+    it('a copy starts at 1 of its own, and the original keeps its count', async () => {
+      const placeId = await createViaApi();
+      await put(placeId, tourBody({ expected_revision: 1 }));
+      const copy = await request(server)
+        .post(`/api/trips/5/tours/${placeId}/copy`)
+        .set('Cookie', sessionCookie(OWNER))
+        .send({ name: 'Copy' });
+      expect(copy.status).toBe(201);
+      expect(copy.body.tour.revision).toBe(1);
+      expect((await findRow(orm, Tours, { place: placeId }))?.revision).toBe(2);
+    });
+
+    it('the plan laid onto a recorded paddle track names its revision too', async () => {
+      const place = await makePlace(orm, 5, {
+        name: 'Canal',
+        route_geometry: JSON.stringify([
+          [48, 12],
+          [48.01, 12.01],
+        ]),
+      });
+      await makeTour(orm, place.id, {
+        tourTypeRef: 'kayak',
+        boat_type: 'kayak',
+        water_context: 'river',
+        origin: 'gpx',
+      });
+      const plan = { paddle_speed_kmh: 5, portage_speed_kmh: null, track_marks: { portages: [], locks: [] } };
+      const putPlan = (body: Record<string, unknown>) =>
+        request(server)
+          .put(`/api/trips/5/tours/${place.id}/paddle-plan`)
+          .set('Cookie', sessionCookie(OWNER))
+          .send(body);
+
+      const first = await putPlan({ ...plan, expected_revision: 1 });
+      expect(first.status).toBe(200);
+      expect(first.body.tour.revision).toBe(2);
+      const stale = await putPlan({ ...plan, paddle_speed_kmh: 3, expected_revision: 1 });
+      expect(stale.status).toBe(409);
+      expect(stale.body).toMatchObject({ code: 'tour_revision_conflict', revision: 2 });
+      expect((await findRow(orm, Tours, { place: place.id }))?.paddle_speed_kmh).toBe(5);
+    });
+
+    it('rejects a revision below 1 at the boundary', async () => {
+      const placeId = await createViaApi();
+      expect((await put(placeId, tourBody({ expected_revision: 0 }))).status).toBe(400);
     });
   });
 });

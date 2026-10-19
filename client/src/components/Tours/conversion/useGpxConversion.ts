@@ -99,6 +99,7 @@ export function useGpxConversion(planner: TourPlannerController) {
         points: current.points,
         sourcePlaceId: tour.place_id,
         inPlace: how === 'replace',
+        revision: tour.revision,
         ...(paddle ? { tourType: 'kayak' as const, paddle: paddleFieldsOf(tour) } : {}),
       });
       if (started) setState(IDLE);

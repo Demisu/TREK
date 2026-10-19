@@ -20,6 +20,7 @@ import { UnitOfWork } from '../database/unit-of-work';
 import { PlaceImportService } from '../place-import/place-import.service';
 import { PlacesService } from '../places/places.service';
 import { TourPaddleCheckService } from './tour-paddle-check.service';
+import { advanceTourRevision } from './tour-revision';
 import {
   computeTourMetrics,
   localHashOf,
@@ -110,6 +111,7 @@ export class ToursService {
       planned: Boolean(r.planned),
       caution: r.match_confidence !== null && r.match_confidence < LOW_CONFIDENCE_THRESHOLD,
       has_waypoints: Boolean(r.has_waypoints),
+      revision: r.revision,
     };
   }
 
@@ -346,6 +348,7 @@ export class ToursService {
           details: { code: 'no_recorded_track' },
         });
       const metrics = computeTourMetrics(geometry);
+      await advanceTourRevision(this.toursRepo, pid);
       await this.placesRepo.updateTourRoute(pid, tid, {
         name: row.name,
         lat: start[0],
@@ -478,6 +481,8 @@ export class ToursService {
       // one, and a place deleted meanwhile answers 404 instead of failing a
       // waypoint insert on its foreign key.
       if (!(await this.toursRepo.findInTrip(tid, pid))) throw new NotFoundException('Tour not found');
+      // P2C-03: refused here, before anything is written, while the draft's tour has moved on.
+      await advanceTourRevision(this.toursRepo, pid, input.expected_revision);
       // An import planned over for the first time keeps the track it was recorded with.
       await this.toursRepo.keepRecordedTrack(pid);
       const placeUpdated = await this.placesRepo.updateTourRoute(pid, tid, {
@@ -589,6 +594,7 @@ export class ToursService {
             has_recorded_track: 0,
             planned: 0,
             has_waypoints: 0,
+            revision: 1,
           }),
         );
       }

@@ -28,6 +28,17 @@ function staleCheck(tour: CachedTour, mutationId: string): CachedTour {
   return tour.paddle_check ? { ...tour, paddle_check: { ...tour.paddle_check, revision: `local:${mutationId}` } } : tour
 }
 
+/**
+ * P2C-03: a write that waits in the queue goes without the revision its draft
+ * was based on. By the time it replays the revision is history (an earlier
+ * queued write of this device raised it), and the queue has no way to ask the
+ * user about a tour that moved on; queued tour writes land as they always did.
+ */
+function withoutRevisionBase<T extends { expected_revision?: number | null }>(body: T): Omit<T, 'expected_revision'> {
+  const { expected_revision: _base, ...rest } = body
+  return rest
+}
+
 /** Newest first, as the server lists them: offline creates (negative ids) on top. */
 function newestFirst(a: CachedTour, b: CachedTour): number {
   if ((a.place_id < 0) !== (b.place_id < 0)) return a.place_id < 0 ? -1 : 1
@@ -192,7 +203,7 @@ export const tourRepo = {
         tripId: tid,
         method: 'PUT',
         url: isTemp ? `/trips/${tripId}/tours/{id}` : `/trips/${tripId}/tours/${placeId}`,
-        body,
+        body: withoutRevisionBase(body),
         resource: 'tours',
         entityId: placeId,
         ...(isTemp ? { tempEntityId: placeId } : {}),
@@ -236,7 +247,7 @@ export const tourRepo = {
         tripId: tid,
         method: 'PUT',
         url: `/trips/${tripId}/tours/${placeId}/paddle-plan`,
-        body,
+        body: withoutRevisionBase(body),
         resource: 'tours',
         entityId: placeId,
       })
@@ -256,10 +267,6 @@ export const tourRepo = {
   },
 
   /**
-   * P2C-07, online only like the restore: the copy is made from the server's
-   * stored line and control points, so it needs the server to answer.
-   */
-  /**
    * PR1-06A: the saved tour as the GPX file the server writes. Online only on
    * purpose, since the file is the server's; offline it answers `offline`
    * rather than a request that cannot reach anyone.
@@ -273,6 +280,10 @@ export const tourRepo = {
     return { offline: false, ...(await tourGpxExportApi.download(tripId, placeId, signal)) }
   },
 
+  /**
+   * P2C-07, online only like the restore: the copy is made from the server's
+   * stored line and control points, so it needs the server to answer.
+   */
   async copy(tripId: number | string, placeId: number, name: string): Promise<TourCreateResponse> {
     const result = await tourCopiesApi.copy(tripId, placeId, { name })
     await cacheTourAnswer(Number(tripId), result)

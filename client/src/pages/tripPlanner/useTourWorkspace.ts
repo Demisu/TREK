@@ -4,6 +4,7 @@ import { useGpxConversion } from '../../components/Tours/conversion/useGpxConver
 import { usePaddleChecklist } from '../../components/Tours/paddle/usePaddleChecklist';
 import { useTrackPaddlePlan } from '../../components/Tours/paddle/useTrackPaddlePlan';
 import { useTourPlanner } from '../../components/Tours/planner/useTourPlanner';
+import { useTourRevisionWatch } from '../../components/Tours/planner/useTourRevisionWatch';
 import { useRecordedTrack } from '../../components/Tours/useRecordedTrack';
 import { useTourGpxImport } from '../../components/Tours/useTourGpxImport';
 import { useWandererBrowser } from '../../components/Tours/wanderer/useWandererBrowser';
@@ -51,6 +52,9 @@ export function useTourWorkspace(
       void reloadTourPlaceIds();
     },
   });
+
+  // P2C-03: someone else saved the tour open in the editor; the trip's tours follow every save live.
+  useTourRevisionWatch(tourPlanner, tours);
 
   // A tour of the trip opened in the planner: an import has no waypoints of its own and
   // shows as it came in, a planned tour opens in the editor. Never over an edit it would

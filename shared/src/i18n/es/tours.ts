@@ -283,6 +283,20 @@ const tours: TranslationStrings = {
   'tours.gpxExport.offline': 'Para descargar un archivo GPX hace falta conexión con el servidor.',
   'tours.gpxExport.noRoute': 'Esta excursión no tiene una ruta guardada que exportar.',
   'tours.gpxExport.failed': 'No se pudo crear el archivo GPX.',
+  'tours.revision.remoteTitle': 'Esta excursión se guardó en otro lugar',
+  'tours.revision.remoteBody':
+    'Alguien, o tú en otro dispositivo, la guardó mientras la editabas. Tus cambios se mantienen hasta que decidas.',
+  'tours.revision.loadNewer': 'Cargar la más reciente',
+  'tours.revision.loadNewerTitle': '¿Cargar la versión más reciente?',
+  'tours.revision.loadNewerBody': 'Se descartarán los cambios sin guardar de esta excursión.',
+  'tours.revision.conflictEyebrow': 'No guardado',
+  'tours.revision.conflictTitle': 'Cambiada mientras tanto',
+  'tours.revision.conflictBody':
+    'La excursión se guardó en otro lugar después de abrirla, así que no se sobrescribió nada. Guarda la tuya como nueva excursión para conservar ambas, carga la versión más reciente o sobrescríbela a propósito.',
+  'tours.revision.overwrite': 'Sobrescribir',
+  'tours.revision.saveAsNew': 'Guardar como nueva excursión',
+  'tours.revision.mineName': '{name} (mi versión)',
+  'tours.revision.reloaded': 'Esta excursión se guardó en otro lugar y ahora muestra su versión más reciente.',
   'tours.planner.tourType': 'Tipo de ruta',
   'tours.paddle.boat': 'Embarcación',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

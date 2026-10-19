@@ -99,6 +99,7 @@ describe('ToursRepository reads', () => {
         paddle_lake_style: null,
         track_marks: null,
         has_recorded_track: 0,
+        revision: 1,
       },
       {
         place_id: older.id,
@@ -127,6 +128,7 @@ describe('ToursRepository reads', () => {
         paddle_lake_style: null,
         track_marks: null,
         has_recorded_track: 0,
+        revision: 1,
       },
     ]);
     expect((await repo.listForTrip(trip.id)).map((r) => r.place_id)).not.toContain(plain.id);
@@ -211,6 +213,7 @@ describe('ToursRepository writes', () => {
       paddle_lake_style: null,
       track_marks: null,
       has_recorded_track: 0,
+      revision: 1,
     });
   });
 
@@ -289,14 +292,35 @@ describe('ToursRepository writes', () => {
         portage_speed_kmh: null,
         paddle_lake_style: null,
         track_marks: null,
+        revision: 1,
       },
     ]);
     expect(await repo.listRowsForTrip(other.id)).toEqual([]);
 
+    // A copy is a tour of its own: every column comes along but the revision, which starts again at 1.
+    await repo.advanceRevision(source.id);
+    const [advanced] = await repo.listRowsForTrip(trip.id);
+    expect(advanced.revision).toBe(2);
     const copy = createPlace(testDb, other.id);
-    const { place_id: _sourceId, ...columns } = rows[0];
+    const { place_id: _sourceId, ...columns } = advanced;
     await repo.insertCopy(copy.id, columns, new Map());
-    expect(await repo.listRowsForTrip(other.id)).toEqual([{ ...rows[0], place_id: copy.id }]);
+    expect(await repo.listRowsForTrip(other.id)).toEqual([{ ...advanced, place_id: copy.id, revision: 1 }]);
+  });
+
+  it('TOURREPO-012: advanceRevision raises the revision, only from the one expected, and revisionOf reads it (P2C-03)', async () => {
+    const { trip } = fixture();
+    const place = createPlace(testDb, trip.id);
+    createTour(testDb, place.id);
+    expect(await repo.revisionOf(place.id)).toBe(1);
+    expect(await repo.advanceRevision(place.id)).toBe(2);
+    expect(await repo.advanceRevision(place.id, 2)).toBe(3);
+    // A write based on a revision the tour has left changes nothing.
+    expect(await repo.advanceRevision(place.id, 2)).toBeNull();
+    expect(await repo.revisionOf(place.id)).toBe(3);
+    expect(await repo.advanceRevision(place.id, null)).toBe(4);
+    const plain = createPlace(testDb, trip.id);
+    expect(await repo.advanceRevision(plain.id)).toBeNull();
+    expect(await repo.revisionOf(plain.id)).toBeUndefined();
   });
 
   it('TOURREPO-009: insertCopy points a planned tour at the copied import, and drops a link the copy has no import for', async () => {

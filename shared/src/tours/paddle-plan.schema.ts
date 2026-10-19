@@ -77,5 +77,7 @@ export const tourPaddlePlanRequestSchema = z.object({
   paddle_speed_kmh: z.number().finite().min(0.5).max(20).nullable(),
   portage_speed_kmh: portageSpeedKmhSchema.nullable(),
   track_marks: trackMarksSchema,
+  /** P2C-03: the revision the plan was laid onto; refused with a 409 once the tour moved on. */
+  expected_revision: z.number().int().min(1).nullable().optional(),
 });
 export type TourPaddlePlanRequest = z.infer<typeof tourPaddlePlanRequestSchema>;

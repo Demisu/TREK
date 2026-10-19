@@ -8,6 +8,7 @@ import { DomainError } from '../common/domain-error';
 import { toRowId } from '../common/row-id';
 import { UnitOfWork } from '../database/unit-of-work';
 import { PlacesService } from '../places/places.service';
+import { advanceTourRevision } from './tour-revision';
 import { computeTourMetrics, parseRouteGeometry } from './tours.helpers';
 import { ToursService } from './tours.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -91,6 +92,7 @@ export class TourPaddlePlanService {
       });
       const moving = paddleMovingSeconds(estimate);
       const empty = marks.portages.length === 0 && marks.locks.length === 0;
+      await advanceTourRevision(this.toursRepo, pid, input.expected_revision);
       await this.toursRepo.updatePaddlePlanInTrip(tid, pid, {
         paddle_speed_kmh: input.paddle_speed_kmh,
         portage_speed_kmh: input.portage_speed_kmh,

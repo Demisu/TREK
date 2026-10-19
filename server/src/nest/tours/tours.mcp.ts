@@ -48,7 +48,7 @@ export class ToursMcp {
   @Tool({
     name: 'list_tours',
     description:
-      'List the saved tours of a trip (hikes and paddle tours planned or imported in the Tours addon): name, type (hike, or kayak for a paddle tour), where it came from (origin: trek, gpx or wanderer), distance in km, ascent and descent in metres, the stored routing limit of a hike (max_hiking_difficulty, SAC T1 to T6), the boat, water and chosen speed of a paddle tour (boat_type, water_context, paddle_speed_kmh in km/h, null while the suggested speed of the boat applies), the check bench of a paddle tour (paddle_check: how far the OpenStreetMap obstacle data covers its line and how many obstacles are open, to check again or decided by the travellers; a planning status, never a safety or legal clearance), and the days of the trip each tour is on.',
+      'List the saved tours of a trip (hikes and paddle tours planned or imported in the Tours addon): name, type (hike, or kayak for a paddle tour), where it came from (origin: trek, gpx or wanderer), distance in km, ascent and descent in metres, the stored routing limit of a hike (max_hiking_difficulty, SAC T1 to T6), the boat, water and chosen speed of a paddle tour (boat_type, water_context, paddle_speed_kmh in km/h, null while the suggested speed of the boat applies), the check bench of a paddle tour (paddle_check: how far the OpenStreetMap obstacle data covers its line and how many obstacles are open, to check again or decided by the travellers; a planning status, never a safety or legal clearance), the revision (raised by every saved change of the tour), and the days of the trip each tour is on.',
     inputSchema: { tripId: idSchema },
     annotations: TOOL_ANNOTATIONS_READONLY,
     when: addonGate(ADDON_IDS.TOURS),

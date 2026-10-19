@@ -134,6 +134,29 @@ export const tourSchema = z.object({
 });
 export type Tour = z.infer<typeof tourSchema>;
 
+/**
+ * P2C-03: the technical revision of a saved tour, raised by every write that
+ * changes it. Not the version of a source the tour was imported from (that is
+ * its provenance), and not a copy (a copy is a tour of its own at 1).
+ */
+export const tourRevisionSchema = z.number().int().min(1);
+
+/**
+ * The revision a write was based on. Given, the write is refused with a 409
+ * while the tour has moved on; left out, it writes as before, so an older
+ * client or a queued offline write keeps working.
+ */
+export const expectedTourRevisionSchema = tourRevisionSchema.nullable().optional();
+
+/** The 409 a write against a tour that has moved on answers with: the revision it has now. */
+export const TOUR_REVISION_CONFLICT = 'tour_revision_conflict';
+export const tourRevisionConflictSchema = z.object({
+  error: z.string(),
+  code: z.literal(TOUR_REVISION_CONFLICT),
+  revision: tourRevisionSchema,
+});
+export type TourRevisionConflict = z.infer<typeof tourRevisionConflictSchema>;
+
 export const tourTypeListResponseSchema = z.object({
   tourTypes: z.array(tourTypeSchema),
 });
@@ -166,6 +189,8 @@ export const tourListItemSchema = tourSchema.extend({
    * server) is dropped rather than refused, so a queued write still lands.
    */
   paddle_check: paddleCheckSchema.nullable().optional().catch(undefined),
+  /** P2C-03: the revision a write names to be refused once the tour moved on; absent in a list cached before it existed. */
+  revision: tourRevisionSchema.optional(),
 });
 export type TourListItem = z.infer<typeof tourListItemSchema>;
 
@@ -278,6 +303,8 @@ export const tourCreateRequestSchema = z
      * where the tour came from, so an edit later neither sets nor changes it.
      */
     derived_from_place_id: z.number().int().positive().nullable().optional(),
+    /** P2C-03, editing only: the revision the draft was opened at. A create ignores it. */
+    expected_revision: expectedTourRevisionSchema,
   })
   .superRefine((value, ctx) => {
     if (

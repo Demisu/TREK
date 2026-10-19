@@ -39,6 +39,7 @@ import type { TourGpxImport } from '../useTourGpxImport'
 import { type AssignTourToDay, useTourDayAssignment } from '../useTourDayAssignment'
 import WandererMark from '../wanderer/WandererMark'
 import { TourGpxExportBarButton } from '../TourGpxExportButton'
+import { TourRemoteChangeNotice, TourRevisionConflictDialog } from './TourRevisionNotice'
 
 const STATUS_KEY: Partial<Record<TourPlannerStatus, string>> = {
   dirty: 'tours.planner.status.dirty',
@@ -145,11 +146,13 @@ function RailStatusBadges({ planner }: { planner: TourPlannerController }) {
   const statusKey = planner.isSaving ? STATUS_KEY.saving : STATUS_KEY[planner.status]
   const restored = planner.draftRestored && planner.hasUnsavedChanges
   const onFerrata = useTourFerrataCrossingStore(state => state.crossings.length > 0)
-  const failed = planner.error === 'save'
+  const failed = planner.error === 'save' || planner.error === 'conflict'
   const canRetry = retryable(planner)
   if (!restored && !statusKey && !failed && !onFerrata) return null
   const warning = planner.error != null || canRetry
-  const statusLabel = failed ? t('tours.planner.status.saveFailed') : statusKey ? statusText(planner, statusKey, t) : null
+  const statusLabel = failed
+    ? t(planner.error === 'conflict' ? 'tours.revision.conflictTitle' : 'tours.planner.status.saveFailed')
+    : statusKey ? statusText(planner, statusKey, t) : null
   const busy = planner.isSaving || planner.status === 'routing' || planner.status === 'enriching-elevation'
   return (
     <span role="status" data-testid="tour-planner-status" className="ms-1.5 flex flex-none items-center gap-1">
@@ -418,6 +421,7 @@ export function TourPlannerRail({ planner,
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-3 py-3.5">
+          <TourRemoteChangeNotice planner={planner} />
           <TourNameField planner={planner} locked={locked} />
 
           <TourTypeFields planner={planner} locked={locked} />
@@ -452,6 +456,7 @@ export function TourPlannerRail({ planner,
           confirmLabel={t('tours.planner.discardChanges')}
         />
         <NewTourConfirmDialog planner={planner} canEdit={canEdit} />
+        <TourRevisionConflictDialog planner={planner} />
         <ConfirmDialog
           isOpen={pendingDifficulty !== null && !isSaving}
           onClose={() => setPendingDifficulty(null)}

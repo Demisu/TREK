@@ -111,6 +111,7 @@ function makeService() {
     insertTour: inTx(undefined),
     updateInTrip: inTx(true),
     keepRecordedTrack: inTx(undefined),
+    advanceRevision: inTx(2),
   };
   const waypointsRepo = {
     listForPlace: vi.fn(async () => request.waypoints),

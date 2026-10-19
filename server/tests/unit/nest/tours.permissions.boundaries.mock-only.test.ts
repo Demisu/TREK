@@ -285,6 +285,7 @@ function tourRepositoryFixture(ownerTripId: number) {
     ),
     updateInTrip: vi.fn(async () => true),
     keepRecordedTrack: vi.fn(async () => undefined),
+    advanceRevision: vi.fn(async () => 2),
   };
   const waypointsRepo = {
     listForPlace: vi.fn(async () => input.waypoints),

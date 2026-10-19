@@ -278,6 +278,20 @@ const tours: TranslationStrings = {
   'tours.gpxExport.offline': 'GPX faylını endirmək üçün serverə bağlantı lazımdır.',
   'tours.gpxExport.noRoute': 'Bu turun ixrac ediləcək saxlanmış marşrutu yoxdur.',
   'tours.gpxExport.failed': 'GPX faylını yaratmaq olmadı.',
+  'tours.revision.remoteTitle': 'Bu tur başqa yerdə saxlanıb',
+  'tours.revision.remoteBody':
+    'Siz redaktə edərkən kimsə və ya başqa cihazda siz özünüz onu saxladı. Dəyişiklikləriniz qərar verənə qədər qalır.',
+  'tours.revision.loadNewer': 'Yenisini yüklə',
+  'tours.revision.loadNewerTitle': 'Yeni versiya yüklənsin?',
+  'tours.revision.loadNewerBody': 'Bu turdakı saxlanmamış dəyişiklikləriniz silinəcək.',
+  'tours.revision.conflictEyebrow': 'Saxlanmadı',
+  'tours.revision.conflictTitle': 'Bu arada dəyişib',
+  'tours.revision.conflictBody':
+    'Siz açandan sonra tur başqa yerdə saxlanıb, ona görə heç nə üzərinə yazılmayıb. Hər ikisini saxlamaq üçün özünüzünkünü yeni tur kimi saxlayın, yeni versiyanı yükləyin və ya bilərəkdən üzərinə yazın.',
+  'tours.revision.overwrite': 'Üzərinə yaz',
+  'tours.revision.saveAsNew': 'Yeni tur kimi saxla',
+  'tours.revision.mineName': '{name} (mənim versiyam)',
+  'tours.revision.reloaded': 'Bu tur başqa yerdə saxlanıb və indi yeni versiyası göstərilir.',
   'tours.planner.tourType': 'Tur növü',
   'tours.paddle.boat': 'Qayıq',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

@@ -289,6 +289,20 @@ const tours: TranslationStrings = {
   'tours.gpxExport.offline': 'Le téléchargement d’un fichier GPX nécessite une connexion au serveur.',
   'tours.gpxExport.noRoute': 'Cette sortie n’a pas d’itinéraire enregistré à exporter.',
   'tours.gpxExport.failed': 'Le fichier GPX n’a pas pu être créé.',
+  'tours.revision.remoteTitle': 'Cette sortie a été enregistrée ailleurs',
+  'tours.revision.remoteBody':
+    'Quelqu’un, ou vous sur un autre appareil, l’a enregistrée pendant votre modification. Vos changements restent jusqu’à votre décision.',
+  'tours.revision.loadNewer': 'Charger la plus récente',
+  'tours.revision.loadNewerTitle': 'Charger la version plus récente ?',
+  'tours.revision.loadNewerBody': 'Vos modifications non enregistrées de cette sortie seront abandonnées.',
+  'tours.revision.conflictEyebrow': 'Non enregistré',
+  'tours.revision.conflictTitle': 'Modifiée entre-temps',
+  'tours.revision.conflictBody':
+    'La sortie a été enregistrée ailleurs après son ouverture, donc rien n’a été écrasé. Enregistrez la vôtre comme nouvelle sortie pour garder les deux, chargez la version récente ou écrasez-la en connaissance de cause.',
+  'tours.revision.overwrite': 'Écraser',
+  'tours.revision.saveAsNew': 'Enregistrer comme nouvelle sortie',
+  'tours.revision.mineName': '{name} (ma version)',
+  'tours.revision.reloaded': 'Cette sortie a été enregistrée ailleurs et affiche maintenant sa version récente.',
   'tours.planner.tourType': 'Type de sortie',
   'tours.paddle.boat': 'Embarcation',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

@@ -284,6 +284,20 @@ const tours: TranslationStrings = {
   'tours.gpxExport.offline': 'Per scaricare un file GPX serve una connessione al server.',
   'tours.gpxExport.noRoute': 'Questo tour non ha un percorso salvato da esportare.',
   'tours.gpxExport.failed': 'Non è stato possibile creare il file GPX.',
+  'tours.revision.remoteTitle': 'Questo tour è stato salvato altrove',
+  'tours.revision.remoteBody':
+    'Qualcuno, o tu su un altro dispositivo, l’ha salvato mentre lo modificavi. Le tue modifiche restano finché non decidi.',
+  'tours.revision.loadNewer': 'Carica la più recente',
+  'tours.revision.loadNewerTitle': 'Caricare la versione più recente?',
+  'tours.revision.loadNewerBody': 'Le modifiche non salvate a questo tour andranno perse.',
+  'tours.revision.conflictEyebrow': 'Non salvato',
+  'tours.revision.conflictTitle': 'Modificato nel frattempo',
+  'tours.revision.conflictBody':
+    'Il tour è stato salvato altrove dopo che l’hai aperto, quindi non è stato sovrascritto nulla. Salva il tuo come nuovo tour per tenerli entrambi, carica la versione più recente o sovrascrivilo di proposito.',
+  'tours.revision.overwrite': 'Sovrascrivi',
+  'tours.revision.saveAsNew': 'Salva come nuovo tour',
+  'tours.revision.mineName': '{name} (la mia versione)',
+  'tours.revision.reloaded': 'Questo tour è stato salvato altrove e ora mostra la versione più recente.',
   'tours.planner.tourType': 'Tipo di tour',
   'tours.paddle.boat': 'Imbarcazione',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

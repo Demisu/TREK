@@ -225,6 +225,27 @@ describe('tourRepo.update', () => {
   })
 })
 
+describe('tourRepo writes and the revision (P2C-03)', () => {
+  it('FE-REPO-TOUR-030: online, the revision the draft was based on goes along; queued, it stays behind', async () => {
+    let sentBody: Record<string, unknown> | null = null
+    server.use(http.put('/api/trips/3/tours/40', async ({ request }) => {
+      sentBody = await request.json() as Record<string, unknown>
+      return HttpResponse.json({ tour: tour({ revision: 5 }), waypoints: body.waypoints })
+    }))
+    const online = await tourRepo.update(3, 40, { ...body, expected_revision: 4 })
+    expect(sentBody).toMatchObject({ expected_revision: 4 })
+    expect(online.tour.revision).toBe(5)
+
+    setOnline(false)
+    await tourRepo.update(3, 40, { ...body, expected_revision: 5 })
+    await offlineDb.tours.put({ ...tour({ tour_type: 'kayak', has_waypoints: false }), trip_id: 3 })
+    await tourRepo.updatePaddlePlan(3, 40, { paddle_speed_kmh: 4, portage_speed_kmh: null, track_marks: { portages: [], locks: [] }, expected_revision: 5 })
+    const queued = await offlineDb.mutationQueue.toArray()
+    expect(queued).toHaveLength(2)
+    for (const mutation of queued) expect(mutation.body).not.toHaveProperty('expected_revision')
+  })
+})
+
 describe('replaceTripTours', () => {
   it('FE-REPO-TOUR-013: keeps control points only while the route reads the same, drops what the server no longer lists, keeps unsynced tours', async () => {
     await offlineDb.tours.bulkPut([

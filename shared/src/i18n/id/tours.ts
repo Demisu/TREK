@@ -277,6 +277,20 @@ const tours: TranslationStrings = {
   'tours.gpxExport.offline': 'Mengunduh file GPX memerlukan koneksi ke server.',
   'tours.gpxExport.noRoute': 'Tur ini tidak punya rute tersimpan untuk diekspor.',
   'tours.gpxExport.failed': 'File GPX tidak dapat dibuat.',
+  'tours.revision.remoteTitle': 'Tur ini disimpan di tempat lain',
+  'tours.revision.remoteBody':
+    'Seseorang, atau kamu di perangkat lain, menyimpannya saat kamu mengedit. Perubahanmu tetap ada sampai kamu memutuskan.',
+  'tours.revision.loadNewer': 'Muat yang terbaru',
+  'tours.revision.loadNewerTitle': 'Muat versi yang lebih baru?',
+  'tours.revision.loadNewerBody': 'Perubahan yang belum disimpan pada tur ini akan dibuang.',
+  'tours.revision.conflictEyebrow': 'Belum disimpan',
+  'tours.revision.conflictTitle': 'Diubah sementara itu',
+  'tours.revision.conflictBody':
+    'Tur ini disimpan di tempat lain setelah kamu membukanya, jadi tidak ada yang ditimpa. Simpan versimu sebagai tur baru agar keduanya tetap ada, muat versi terbaru, atau timpa dengan sengaja.',
+  'tours.revision.overwrite': 'Timpa',
+  'tours.revision.saveAsNew': 'Simpan sebagai tur baru',
+  'tours.revision.mineName': '{name} (versiku)',
+  'tours.revision.reloaded': 'Tur ini disimpan di tempat lain dan kini menampilkan versi terbaru.',
   'tours.planner.tourType': 'Jenis tur',
   'tours.paddle.boat': 'Perahu',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en
