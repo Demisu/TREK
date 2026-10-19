@@ -65,6 +65,8 @@ export const TREK_WS_EVENTS = {
   'place:deleted': { scope: 'trip', payload: z.object({ placeId: id }) },
   // Invalidate the trip's Tours list; affected ids let peers exclude new Tours immediately.
   'tours:changed': { scope: 'trip', payload: z.object({ placeIds: idList.optional() }) },
+  // CW-03: the stations of a city walk visited or skipped on one of its days, all of them as they are now.
+  'tours:visits': { scope: 'trip', payload: z.object({ assignmentId: id, visits: z.array(entity) }) },
 
   // ── Assignments ──────────────────────────────────────────────────────────
   'assignment:created': { scope: 'trip', payload: z.object({ assignment: entity }) },

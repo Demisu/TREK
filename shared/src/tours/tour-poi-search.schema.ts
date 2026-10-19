@@ -22,6 +22,11 @@ export const TOUR_POI_CATEGORIES = [
   'slipway',
   'boat_rental',
   'bike_repair',
+  'museum',
+  'park',
+  'cafe',
+  'restaurant',
+  'market',
 ] as const;
 export const tourPoiCategorySchema = z.enum(TOUR_POI_CATEGORIES);
 export type TourPoiCategory = z.infer<typeof tourPoiCategorySchema>;
@@ -31,7 +36,22 @@ export const TOUR_POI_CATEGORIES_BY_TYPE: Record<PlannableTourType, readonly Tou
   hike: ['viewpoint', 'shelter', 'drinking_water', 'food', 'peak', 'toilets', 'picnic', 'campsite', 'sights'],
   bike: ['drinking_water', 'bike_repair', 'food', 'viewpoint', 'toilets', 'shelter', 'picnic', 'campsite', 'sights'],
   kayak: ['slipway', 'boat_rental', 'drinking_water', 'food', 'toilets', 'picnic', 'campsite', 'shelter'],
+  walk: ['sights', 'museum', 'park', 'viewpoint', 'cafe', 'restaurant', 'market', 'toilets', 'drinking_water'],
 };
+
+/**
+ * CW-05: the four themes a city walk can be filled from, each a set of the
+ * walk's own categories. A suggestion says which theme and category brought
+ * it; nothing is claimed beyond what the source tags say.
+ */
+export const WALK_THEMES = {
+  culture: ['museum', 'sights'],
+  parks: ['park', 'viewpoint'],
+  food: ['cafe', 'restaurant', 'market'],
+  mixed: ['sights', 'museum', 'park', 'viewpoint', 'cafe', 'market'],
+} as const satisfies Record<string, readonly TourPoiCategory[]>;
+export type WalkTheme = keyof typeof WALK_THEMES;
+export const WALK_THEME_KEYS = Object.keys(WALK_THEMES) as WalkTheme[];
 
 /** How far from the line a place may lie, the choices offered, in metres. */
 export const TOUR_POI_CORRIDORS_M = [250, 500, 1000, 2000] as const;

@@ -32,6 +32,11 @@ const MAPS_CATEGORIES: Record<TourPoiCategory, readonly string[]> = {
   slipway: ['slipway'],
   boat_rental: ['boat_rental'],
   bike_repair: ['bike_repair'],
+  museum: ['museum'],
+  park: ['nature'],
+  cafe: ['cafe'],
+  restaurant: ['restaurant'],
+  market: ['market'],
 };
 
 /**

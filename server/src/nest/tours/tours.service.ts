@@ -1,10 +1,13 @@
+import { randomUUID } from 'node:crypto';
 import { Places } from '../../db/entities/Places.entity';
 import { TourTypes } from '../../db/entities/TourTypes.entity';
+import { TourStationVisits } from '../../db/entities/TourStationVisits.entity';
 import { TourWaypoints } from '../../db/entities/TourWaypoints.entity';
 import { Tours } from '../../db/entities/Tours.entity';
 import { TOUR_HIKING_PREFERENCES, TOUR_TRACK_MARKS } from '../../db/json-columns';
 import type { PlacesRepository } from '../../db/repositories/Places.repository';
 import type { TourTypesRepository } from '../../db/repositories/TourTypes.repository';
+import type { TourStationVisitsRepository } from '../../db/repositories/TourStationVisits.repository';
 import type { TourWaypointsRepository } from '../../db/repositories/TourWaypoints.repository';
 import type {
   TourDayRow,
@@ -75,6 +78,14 @@ function hikingFields(input: TourCreateRequest): string | null {
   return preferences ? encodeJson(TOUR_HIKING_PREFERENCES, preferences) : null;
 }
 
+/**
+ * CW-03: every point with its key, kept from the write where it came with one,
+ * so the visits of a city walk's stations outlast a reorder or a new point.
+ */
+function keyedWaypoints(waypoints: TourWaypoint[]): TourWaypoint[] {
+  return waypoints.map((point) => (point.key ? point : { ...point, key: randomUUID() }));
+}
+
 @Injectable()
 export class ToursService {
   private readonly logger = new Logger(ToursService.name);
@@ -85,6 +96,7 @@ export class ToursService {
     @InjectRepository(Tours) private readonly toursRepo: ToursRepository,
     @InjectRepository(TourTypes) private readonly tourTypesRepo: TourTypesRepository,
     @InjectRepository(TourWaypoints) private readonly waypointsRepo: TourWaypointsRepository,
+    @InjectRepository(TourStationVisits) private readonly visitsRepo: TourStationVisitsRepository,
     @InjectRepository(Places) private readonly placesRepo: PlacesRepository,
     private readonly placeImport: PlaceImportService,
     private readonly paddleChecks: TourPaddleCheckService,
@@ -122,6 +134,7 @@ export class ToursService {
       has_waypoints: Boolean(r.has_waypoints),
       revision: r.revision,
       hiking_preferences: decodeJson(TOUR_HIKING_PREFERENCES, r.hiking_preferences, 'tour'),
+      station_count: r.tour_type === 'walk' ? r.station_count : null,
     };
   }
 
@@ -311,7 +324,7 @@ export class ToursService {
         break_additional_minutes: fields.break_additional_minutes ?? null,
         derived_from_place_id: derivedFrom,
       });
-      await this.waypointsRepo.insertForPlace(id, await this.linkedWaypoints(tid, input.waypoints));
+      await this.waypointsRepo.insertForPlace(id, keyedWaypoints(await this.linkedWaypoints(tid, input.waypoints)));
       return id;
     });
 
@@ -573,7 +586,11 @@ export class ToursService {
       if (!placeUpdated) throw new NotFoundException('Tour not found');
       if (!(await this.toursRepo.updateInTrip(tid, pid, fields))) throw new NotFoundException('Tour not found');
       await this.waypointsRepo.deleteForPlace(pid);
-      await this.waypointsRepo.insertForPlace(pid, await this.linkedWaypoints(tid, input.waypoints));
+      const waypoints = keyedWaypoints(await this.linkedWaypoints(tid, input.waypoints));
+      await this.waypointsRepo.insertForPlace(pid, waypoints);
+      // CW-03: a station that is gone takes its visits with it; a tour that is no city walk keeps none.
+      const stations = input.tour_type === 'walk' ? waypoints.flatMap((point) => (point.key ? [point.key] : [])) : [];
+      await this.visitsRepo.dropStationsNotIn(pid, stations);
     });
 
     const result = await this.getTour(tripId, placeId);
@@ -710,6 +727,7 @@ export class ToursService {
             has_waypoints: 0,
             revision: 1,
             hiking_preferences: null,
+            station_count: 0,
           }),
         );
       }

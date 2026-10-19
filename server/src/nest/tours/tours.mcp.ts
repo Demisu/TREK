@@ -7,6 +7,7 @@ import { AddonsService } from '../addons/addons.service';
 import { TripAccessService } from '../trip-membership/trip-access.service';
 import { TourGpxExportService } from './tour-gpx-export.service';
 import { TourPoiSearchService } from './tour-poi-search.service';
+import { TourVisitsService } from './tour-visits.service';
 import { ToursService } from './tours.service';
 import { NotFoundException } from '@nestjs/common';
 import { idSchema, tourPoiSearchRequestSchema, type TourListItem, type TourPoiSearchRequest } from '@trek/shared';
@@ -36,6 +37,7 @@ export class ToursMcp {
     private readonly access: TripAccessService,
     private readonly gpxExport: TourGpxExportService,
     private readonly poiSearch: TourPoiSearchService,
+    private readonly visits: TourVisitsService,
     // Read by the addon gate of every tool here.
     readonly addons: AddonsService,
   ) {}
@@ -88,6 +90,32 @@ export class ToursMcp {
       return ok({ ...detail, waypoints, tour: withDays(detail.tour, days) });
     } catch (err: unknown) {
       if (err instanceof NotFoundException) return errorResult('Tour not found.');
+      throw err;
+    }
+  }
+
+  @Tool({
+    name: 'get_city_walk_progress',
+    description:
+      'Read how far a city walk (tour_type walk) got on one day it is on: every station in order with its status that day (planned, visited or skipped, as the travellers checked them off in the day plan), its importance (normal, optional, must), whether it is protected (a station a proposed change must leave where it is, neither removed, replaced nor moved), its stay in minutes (null when not known, 0 for a point passed through) and its linked place. "open" sums what is still planned: the stations, their known stays and how many stays are unknown; walking_minutes is the walking time of the whole walk. Visits belong to that day only: the same walk on another day, or a copy, has none. Anything the traveller tells you besides (for instance "continue from 2 pm") is theirs to say, not stored here. Reading changes nothing.',
+    inputSchema: {
+      tripId: idSchema,
+      placeId: idSchema.describe('The place id of the city walk, as list_tours gives it'),
+      dayId: idSchema.describe('The day the walk is on, as find_tours_for_day gives it'),
+    },
+    annotations: TOOL_ANNOTATIONS_READONLY,
+    when: addonGate(ADDON_IDS.TOURS),
+    access: { group: 'trips', mode: 'read' },
+  })
+  async getCityWalkProgress(
+    { tripId, placeId, dayId }: { tripId: number; placeId: number; dayId: number },
+    ctx: McpContext,
+  ) {
+    if (!(await this.access.findAccessible(tripId, ctx.userId))) return noAccess();
+    try {
+      return ok(await this.visits.progress(tripId, placeId, dayId));
+    } catch (err: unknown) {
+      if (err instanceof NotFoundException) return errorResult('No city walk of this trip is on that day.');
       throw err;
     }
   }

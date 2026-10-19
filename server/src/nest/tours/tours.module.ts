@@ -1,4 +1,5 @@
 import { Places } from '../../db/entities/Places.entity';
+import { TourStationVisits } from '../../db/entities/TourStationVisits.entity';
 import { TourObstacleReviews } from '../../db/entities/TourObstacleReviews.entity';
 import { TourSources } from '../../db/entities/TourSources.entity';
 import { TourTypes } from '../../db/entities/TourTypes.entity';
@@ -26,6 +27,8 @@ import { TourPoiSearchController } from './tour-poi-search.controller';
 import { TourPoiSearchService } from './tour-poi-search.service';
 import { TourTrailGradeController } from './tour-trail-grade.controller';
 import { TourTrailGradeService } from './tour-trail-grade.service';
+import { TourVisitsController } from './tour-visits.controller';
+import { TourVisitsService } from './tour-visits.service';
 import { ToursImportController } from './tours-import.controller';
 import { ToursWandererController } from './tours-wanderer.controller';
 import { ToursWandererService } from './tours-wanderer.service';
@@ -59,12 +62,13 @@ import { Module } from '@nestjs/common';
     WandererModule,
     // The obstacle data a paddle tour's checklist reads (PAD-06, PAD-09).
     PaddleObstaclesModule,
-    MikroOrmModule.forFeature([Tours, TourTypes, TourWaypoints, TourSources, TourObstacleReviews, Places]),
+    MikroOrmModule.forFeature([Tours, TourTypes, TourWaypoints, TourSources, TourObstacleReviews, TourStationVisits, Places]),
   ],
   controllers: [
     TourTakeOverController,
     TourPoiSearchController,
     TourTrailGradeController,
+    TourVisitsController,
     ToursController,
     ToursImportController,
     ToursWandererController,
@@ -81,6 +85,7 @@ import { Module } from '@nestjs/common';
     TourLibraryService,
     TourPoiSearchService,
     TourTrailGradeService,
+    TourVisitsService,
     ToursMcp,
     TourLibraryMcp,
   ],

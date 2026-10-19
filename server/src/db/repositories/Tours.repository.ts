@@ -44,6 +44,8 @@ export interface TourListRow {
   revision: number;
   /** MF-08: a hike's routing preferences, still JSON text. */
   hiking_preferences: string | null;
+  /** CW-03: the points that are no shaping points, the stations of a city walk. */
+  station_count: number;
 }
 
 /** LIB-02: a tour of another trip as the take-over list reads it, with the trip it is in. */
@@ -255,6 +257,12 @@ export class ToursRepository extends TrekRepository<Tours> {
         eb
           .exists(eb.selectFrom('tour_waypoints as tw').select('tw.id').whereRef('tw.place_id', '=', 'p.id'))
           .as('has_waypoints'),
+        eb
+          .selectFrom('tour_waypoints as sw')
+          .select((sub) => sub.fn.countAll<number>().as('n'))
+          .whereRef('sw.place_id', '=', 'p.id')
+          .where('sw.shaping', '=', 0)
+          .as('station_count'),
       ]);
   }
 
@@ -780,10 +788,11 @@ function toLibraryRow<R extends Omit<TourLibraryRow, 'has_waypoints'> & { has_wa
 }
 
 function toListRow<
-  R extends Omit<TourListRow, 'planned' | 'has_waypoints' | 'has_recorded_track'> & {
+  R extends Omit<TourListRow, 'planned' | 'has_waypoints' | 'has_recorded_track' | 'station_count'> & {
     planned: unknown;
     has_waypoints: unknown;
     has_recorded_track: unknown;
+    station_count: unknown;
   },
 >(r: R): TourListRow {
   return {
@@ -791,5 +800,6 @@ function toListRow<
     planned: Number(r.planned),
     has_waypoints: Number(r.has_waypoints),
     has_recorded_track: Number(r.has_recorded_track),
+    station_count: Number(r.station_count ?? 0),
   };
 }

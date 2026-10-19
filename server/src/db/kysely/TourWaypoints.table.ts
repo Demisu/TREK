@@ -13,4 +13,10 @@ export interface TourWaypointsTable {
   lock: InsertOptional<string | null>;
   shaping: InsertOptional<number>;
   linked_place_id: InsertOptional<number | null>;
+  station_key: InsertOptional<string | null>;
+  name: InsertOptional<string | null>;
+  stay_minutes: InsertOptional<number | null>;
+  importance: InsertOptional<string | null>;
+  protected: InsertOptional<number>;
+  opening_hours: InsertOptional<string | null>;
 }

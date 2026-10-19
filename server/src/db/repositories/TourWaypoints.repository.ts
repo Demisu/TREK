@@ -1,5 +1,5 @@
 import { decodeJson, encodeJson } from '../../utils/json-column';
-import type { TourWaypoints } from '../entities/TourWaypoints.entity';
+import type { TourWaypoints, TTourWaypointsImportance } from '../entities/TourWaypoints.entity';
 import { TOUR_WAYPOINT_FIXED_LEG, TOUR_WAYPOINT_LOCK } from '../json-columns';
 import type { DB } from '../kysely/db';
 import { TrekRepository } from './_shared/trek-repository';
@@ -19,6 +19,18 @@ export interface TourWaypointRow {
   shaping?: boolean;
   /** PR1-10: the place of the trip this point stands for; absent for a free point. */
   linked_place_id?: number | null;
+  /** CW-03: the point's key, the same across saves; absent on a point saved before keys. */
+  key?: string;
+  /** The point's own name; absent where it has none. */
+  name?: string | null;
+  /** CW-02: a city walk station's stay; absent where it is not known, 0 for a point passed through. */
+  stay_minutes?: number | null;
+  /** CW-03: how much a station matters; absent for normal. */
+  importance?: TTourWaypointsImportance | null;
+  /** CW-10: a station a proposed change keeps; absent when it is not protected. */
+  protected?: boolean;
+  /** CW-04: the station's opening hours as OpenStreetMap writes them; absent where there are none. */
+  opening_hours?: string | null;
 }
 
 /** The row as stored, the fixed leg still JSON text. */
@@ -31,18 +43,52 @@ interface StoredWaypoint {
   lock: string | null;
   shaping: number;
   linked_place_id: number | null;
+  station_key: string | null;
+  name: string | null;
+  stay_minutes: number | null;
+  importance: TTourWaypointsImportance | null;
+  protected: number;
+  opening_hours: string | null;
 }
 
-/** A stored row as callers read it: the fixed leg, the lock and the shaping flag, each left out entirely where there is none. */
-function readWaypoint({ fixed_leg, lock, shaping, linked_place_id, ...point }: StoredWaypoint): TourWaypointRow {
+/** The columns a waypoint is read with, as the stored row names them. */
+const WAYPOINT_COLUMNS = [
+  'lat',
+  'lng',
+  'role',
+  'sequence',
+  'fixed_leg',
+  'lock',
+  'shaping',
+  'linked_place_id',
+  'station_key',
+  'name',
+  'stay_minutes',
+  'importance',
+  'protected',
+  'opening_hours',
+] as const;
+
+/** A stored row as callers read it: every optional part left out entirely where there is none. */
+function readWaypoint(row: StoredWaypoint): TourWaypointRow {
+  const { fixed_leg, lock, shaping, linked_place_id, station_key, name, stay_minutes, importance, opening_hours } = row;
   const leg = decodeJson(TOUR_WAYPOINT_FIXED_LEG, fixed_leg, 'tour waypoint');
   const stop = decodeJson(TOUR_WAYPOINT_LOCK, lock, 'tour waypoint');
   return {
-    ...point,
+    lat: row.lat,
+    lng: row.lng,
+    role: row.role,
+    sequence: row.sequence,
     ...(leg ? { fixed_leg: leg } : {}),
     ...(stop ? { lock: stop } : {}),
     ...(shaping ? { shaping: true } : {}),
     ...(linked_place_id != null ? { linked_place_id } : {}),
+    ...(station_key ? { key: station_key } : {}),
+    ...(name ? { name } : {}),
+    ...(stay_minutes != null ? { stay_minutes } : {}),
+    ...(importance ? { importance } : {}),
+    ...(row.protected ? { protected: true } : {}),
+    ...(opening_hours ? { opening_hours } : {}),
   };
 }
 
@@ -51,9 +97,12 @@ export interface TourWaypointWithPlaceRow extends TourWaypointRow {
   place_id: number;
 }
 
-/** `role` narrowed to the three values the column's CHECK constraint allows. */
+/** `role` and `importance` narrowed to the values the columns' CHECK constraints allow. */
 type TourWaypointsKyselyDB = Pick<DB, 'places' | 'tours'> & {
-  tour_waypoints: Omit<DB['tour_waypoints'], 'role'> & { role: TourWaypointRow['role'] };
+  tour_waypoints: Omit<DB['tour_waypoints'], 'role' | 'importance'> & {
+    role: TourWaypointRow['role'];
+    importance: TTourWaypointsImportance | null;
+  };
 };
 
 /**
@@ -70,7 +119,7 @@ export class TourWaypointsRepository extends TrekRepository<TourWaypoints> {
   async listForPlace(place_id: number): Promise<TourWaypointRow[]> {
     const rows = await this.db()
       .selectFrom('tour_waypoints')
-      .select(['lat', 'lng', 'role', 'sequence', 'fixed_leg', 'lock', 'shaping', 'linked_place_id'])
+      .select(WAYPOINT_COLUMNS)
       .where('place_id', '=', place_id)
       .orderBy('sequence', 'asc')
       .execute();
@@ -82,17 +131,7 @@ export class TourWaypointsRepository extends TrekRepository<TourWaypoints> {
     const rows = await this.db()
       .selectFrom('tour_waypoints as tw')
       .innerJoin('places as p', 'p.id', 'tw.place_id')
-      .select([
-        'tw.place_id',
-        'tw.lat',
-        'tw.lng',
-        'tw.role',
-        'tw.sequence',
-        'tw.fixed_leg',
-        'tw.lock',
-        'tw.shaping',
-        'tw.linked_place_id',
-      ])
+      .select(['tw.place_id', ...WAYPOINT_COLUMNS.map((column) => `tw.${column}` as const)])
       .where('p.trip_id', '=', trip_id)
       .orderBy('tw.place_id', 'asc')
       .orderBy('tw.sequence', 'asc')
@@ -126,6 +165,12 @@ export class TourWaypointsRepository extends TrekRepository<TourWaypoints> {
         lock: w.lock ? encodeJson(TOUR_WAYPOINT_LOCK, w.lock) : null,
         shaping: w.shaping ? 1 : 0,
         linkedPlace: linkOf(w.linked_place_id),
+        station_key: w.key ?? null,
+        name: w.name ?? null,
+        stay_minutes: w.stay_minutes ?? null,
+        importance: w.importance ?? null,
+        protected: w.protected ? 1 : 0,
+        opening_hours: w.opening_hours ?? null,
       })),
     );
   }

@@ -115,6 +115,7 @@ import type { TodoCategoryAssigneesTable } from './TodoCategoryAssignees.table';
 import type { TodoItemsTable } from './TodoItems.table';
 import type { TourObstacleReviewsTable } from './TourObstacleReviews.table';
 import type { TourSourcesTable } from './TourSources.table';
+import type { TourStationVisitsTable } from './TourStationVisits.table';
 import type { TourTypesTable } from './TourTypes.table';
 import type { TourWaypointsTable } from './TourWaypoints.table';
 import type { ToursTable } from './Tours.table';
@@ -265,6 +266,7 @@ export interface DB {
   todo_items: TodoItemsTable;
   tour_obstacle_reviews: TourObstacleReviewsTable;
   tour_sources: TourSourcesTable;
+  tour_station_visits: TourStationVisitsTable;
   tour_types: TourTypesTable;
   tour_waypoints: TourWaypointsTable;
   tours: ToursTable;

@@ -25,12 +25,13 @@ export const tourTypeKeySchema = z.enum(['hike', 'bike', 'run', 'ski', 'kayak', 
 export type TourTypeKey = z.infer<typeof tourTypeKeySchema>;
 
 /**
- * The types a tour can be planned, saved and imported as. `kayak` is the key
- * the paddle tour has had in `tour_types` from the start; the app calls it a
- * paddle tour, and the boat is a field of its own. A bike tour (BIK-01) names
- * its profile the same way.
+ * The types a tour can be planned, saved and imported as, in the order they
+ * are offered. `kayak` is the key the paddle tour has had in `tour_types` from
+ * the start; the app calls it a paddle tour, and the boat is a field of its
+ * own. A bike tour (BIK-01) names its profile the same way. `walk` is the city
+ * walk (CW-01): stations joined on foot, without a hiking limit.
  */
-export const plannableTourTypeSchema = z.enum(['hike', 'bike', 'kayak']);
+export const plannableTourTypeSchema = z.enum(['hike', 'walk', 'bike', 'kayak']);
 export type PlannableTourType = z.infer<typeof plannableTourTypeSchema>;
 
 /**
@@ -234,6 +235,8 @@ export const tourListItemSchema = tourSchema.extend({
   paddle_check: paddleCheckSchema.nullable().optional().catch(undefined),
   /** P2C-03: the revision a write names to be refused once the tour moved on; absent in a list cached before it existed. */
   revision: tourRevisionSchema.optional(),
+  /** CW-03: a city walk's stations, its points that are no shaping points; null for any other type. */
+  station_count: z.number().int().nonnegative().nullable().optional(),
 });
 export type TourListItem = z.infer<typeof tourListItemSchema>;
 
@@ -287,6 +290,19 @@ export const tourFixedLegSchema = z.discriminatedUnion('kind', [
 export type TourFixedLeg = z.infer<typeof tourFixedLegSchema>;
 export type TourFixedLegKind = TourFixedLeg['kind'];
 
+/** CW-02: the longest stay a station takes, a whole day. */
+export const MAX_STATION_STAY_MINUTES = 24 * 60;
+/** The longest name a tour point keeps. */
+export const TOUR_STATION_NAME_MAX = 200;
+/** The longest opening hours a station keeps, as OpenStreetMap writes them. */
+export const TOUR_STATION_HOURS_MAX = 500;
+/** CW-03: a station's key, the same across saves. */
+export const stationKeySchema = z.string().regex(/^[A-Za-z0-9_-]{6,64}$/);
+/** CW-03: how much a station matters, besides normal (null). */
+export const STATION_IMPORTANCES = ['optional', 'must'] as const;
+export const stationImportanceSchema = z.enum(STATION_IMPORTANCES);
+export type StationImportance = z.infer<typeof stationImportanceSchema>;
+
 export const tourWaypointSchema = z.object({
   lat: z.number().finite().min(-90).max(90),
   lng: z.number().finite().min(-180).max(180),
@@ -307,6 +323,22 @@ export const tourWaypointSchema = z.object({
    * that is gone (or not of this trip) leaves the point unlinked.
    */
   linked_place_id: z.number().int().positive().nullable().optional(),
+  /**
+   * CW-03: the point's own key, kept across saves, so the visits of a city
+   * walk's stations outlast a reorder. The server gives one to a point that
+   * comes without.
+   */
+  key: stationKeySchema.optional(),
+  /** The point's name where it has one: a station of a city walk, a place found along the route. */
+  name: z.string().trim().max(TOUR_STATION_NAME_MAX).nullable().optional(),
+  /** CW-02: how long a city walk's station is stayed at; 0 is a point passed through, null not known. */
+  stay_minutes: z.number().int().min(0).max(MAX_STATION_STAY_MINUTES).nullable().optional(),
+  /** CW-03: how much a station matters; null is normal. */
+  importance: stationImportanceSchema.nullable().optional(),
+  /** CW-10: a station a proposed change keeps where it is; the traveller can still edit it. */
+  protected: z.boolean().optional(),
+  /** CW-04: the station's opening hours as OpenStreetMap writes them, where it was found there. */
+  opening_hours: z.string().trim().max(TOUR_STATION_HOURS_MAX).nullable().optional(),
 });
 export type TourWaypoint = z.infer<typeof tourWaypointSchema>;
 
@@ -438,11 +470,17 @@ function tourTypeIssues(value: {
   paddle_speed_kmh?: number | null;
   portage_speed_kmh?: number | null;
   paddle_lake_style?: PaddleLakeStyle | null;
-  waypoints?: ReadonlyArray<{ fixed_leg?: { kind: string } | null; lock?: unknown }>;
+  waypoints?: ReadonlyArray<{
+    fixed_leg?: { kind: string } | null;
+    lock?: unknown;
+    stay_minutes?: number | null;
+    importance?: string | null;
+    protected?: boolean;
+  }>;
 }): Issue[] {
   const issues: Issue[] = [];
   const type = value.tour_type;
-  const named = type === 'kayak' ? 'a paddle tour' : type === 'bike' ? 'a bike tour' : 'a hike';
+  const named = { kayak: 'a paddle tour', bike: 'a bike tour', walk: 'a city walk', hike: 'a hike' }[type];
   if (type === 'kayak') {
     if (value.boat_type == null) issues.push({ path: ['boat_type'], message: 'a paddle tour needs a boat type' });
     if (value.water_context == null)
@@ -471,8 +509,11 @@ function tourTypeIssues(value: {
       issues.push({ path: ['waypoints', index, 'fixed_leg'], message: 'a portage belongs to a paddle tour' });
     if (type !== 'kayak' && point.lock != null)
       issues.push({ path: ['waypoints', index, 'lock'], message: 'a lock belongs to a paddle tour' });
-    if (type === 'bike' && point.fixed_leg?.kind === 'ferrata')
-      issues.push({ path: ['waypoints', index, 'fixed_leg'], message: 'a bike tour has no via ferrata' });
+    if ((type === 'bike' || type === 'walk') && point.fixed_leg?.kind === 'ferrata')
+      issues.push({ path: ['waypoints', index, 'fixed_leg'], message: `${named} has no via ferrata` });
+    // A stay, an importance and a protection are a city walk's stations'.
+    if (type !== 'walk' && (point.stay_minutes != null || point.importance != null || point.protected === true))
+      issues.push({ path: ['waypoints', index], message: 'stations belong to a city walk' });
   });
   return issues;
 }

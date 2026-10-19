@@ -17,7 +17,20 @@ export class TourWaypoints {
   shaping: number & Opt = 0;
   linkedPlace?: Ref<Places> | null;
   linked_place_id?: number | null;
+  station_key?: string | null;
+  name?: string | null;
+  stay_minutes?: number | null;
+  importance?: TTourWaypointsImportance | null;
+  protected: number & Opt = 0;
+  opening_hours?: string | null;
 }
+
+export const TourWaypointsImportance = {
+  OPTIONAL: 'optional',
+  MUST: 'must',
+} as const;
+
+export type TTourWaypointsImportance = (typeof TourWaypointsImportance)[keyof typeof TourWaypointsImportance];
 
 export const TourWaypointsSchema = defineEntity({
   class: TourWaypoints,
@@ -31,6 +44,11 @@ export const TourWaypointsSchema = defineEntity({
   ],
   uniques: [{ properties: ['place', 'sequence'] }],
   checks: [
+    { name: 'tour_waypoints_protected_check', expression: 'protected IN (0, 1)' },
+    {
+      name: 'tour_waypoints_stay_minutes_check',
+      expression: 'stay_minutes IS NULL OR (stay_minutes >= 0 AND stay_minutes <= 1440)',
+    },
     { name: 'tour_waypoints_shaping_check', expression: 'shaping IN (0, 1)' },
   ],
   properties: {
@@ -46,5 +64,11 @@ export const TourWaypointsSchema = defineEntity({
     shaping: p.integer().default(0),
     linkedPlace: () => p.manyToOne(Places).ref().nullable().hidden(),
     linked_place_id: p.integer().nullable().persist(false),
+    station_key: p.text().nullable(),
+    name: p.text().nullable(),
+    stay_minutes: p.integer().nullable(),
+    importance: p.enum(() => TourWaypointsImportance).nullable(),
+    protected: p.integer().default(0),
+    opening_hours: p.text().nullable(),
   },
 });

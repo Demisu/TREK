@@ -378,6 +378,8 @@ export const CATEGORY_OSM_FILTERS: Record<string, string[]> = {
   slipway: ['leisure=slipway', 'canoe=put_in'],
   boat_rental: ['amenity=boat_rental'],
   bike_repair: ['amenity=bicycle_repair_station', 'shop=bicycle'],
+  // A city walk's market (CW-05): the square itself, not the shops of a mall as `shopping` has them.
+  market: ['amenity=marketplace'],
 };
 
 export const POI_CATEGORY_KEYS = Object.keys(CATEGORY_OSM_FILTERS);

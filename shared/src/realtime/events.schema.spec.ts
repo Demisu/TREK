@@ -20,6 +20,7 @@ const FIXTURES: Record<TrekWsEventName, Record<string, unknown>> = {
   'place:updated': { place: { id: 3, name: 'Louvre' } },
   'place:deleted': { placeId: 3 },
   'tours:changed': { placeIds: [3] },
+  'tours:visits': { assignmentId: 9, visits: [{ assignment_id: 9, station_key: 'abcdef', status: 'visited' }] },
   'assignment:created': { assignment: { id: 9, day_id: 2 } },
   'assignment:updated': { assignment: { id: 9, day_id: 2 } },
   'assignment:deleted': { assignmentId: 9, dayId: 2 },
