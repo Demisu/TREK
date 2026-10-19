@@ -32,7 +32,7 @@ function thinned(line: Array<[number, number]>, most: number): Array<[number, nu
 /** What a search was asked with, so a later change of the route or the choices shows it is out of date. */
 function keyOf(route: Array<[number, number]> | null, type: string, categories: readonly string[], corridor: number) {
   const ends = route && route.length > 1 ? [route[0], route[route.length - 1], route.length] : [];
-  return JSON.stringify([ends, type, [...categories].sort(), corridor]);
+  return JSON.stringify([ends, type, [...categories].sort((a, b) => a.localeCompare(b)), corridor]);
 }
 
 export type TourPoiPlanner = Pick<TourPlannerController, 'tripId' | 'tourType' | 'route' | 'mode'>;
