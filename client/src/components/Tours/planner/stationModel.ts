@@ -19,7 +19,7 @@ export interface WalkTimes {
 }
 
 /** The stations of a city walk: its points that are no shaping points. */
-export function stationsOf(points: readonly TourPlannerWaypoint[]): TourPlannerWaypoint[] {
+function stationsOf(points: readonly TourPlannerWaypoint[]): TourPlannerWaypoint[] {
   return points.filter((point) => !point.shaping);
 }
 

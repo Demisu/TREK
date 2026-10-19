@@ -49,7 +49,7 @@ function daysOf(spec: string): Set<number> | null {
 }
 
 /** The windows a place is open on a date, in minutes; null where the hours cannot be read. */
-export function openWindows(hours: string, date: string): Array<[number, number]> | null {
+function openWindows(hours: string, date: string): Array<[number, number]> | null {
   const weekday = weekdayOf(date);
   if (weekday === null) return null;
   const text = hours.trim();

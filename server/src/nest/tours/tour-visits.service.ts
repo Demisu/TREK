@@ -111,7 +111,7 @@ export class TourVisitsService {
 }
 
 /** CW-09: one station of a walk on a day, as an assistant reads it. */
-export interface WalkProgressStation {
+interface WalkProgressStation {
   position: number;
   name: string | null;
   lat: number;
