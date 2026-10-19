@@ -1,7 +1,9 @@
 /**
  * MAPS-ALONG-010..019: places near a line (PLN-02), from the index in circles
  * along it and from Overpass, in stretches of the whole line, for the kinds
- * the index does not know.
+ * the index does not know. After every Overpass mirror failed, its kinds are
+ * named unavailable at once for a cooldown instead of after its deadline,
+ * unless Overpass answered meanwhile or the stretch is still cached.
  *
  * The index is asked through a stub here, Overpass through a spy on the OSM
  * client: these cases are about who is asked for what, and how a source that
@@ -10,6 +12,7 @@
 import type { AppSettingsRepository } from '../../../src/db/repositories/AppSettings.repository';
 import type { UsersRepository } from '../../../src/db/repositories/Users.repository';
 import { ownedByAsked } from '../../../src/nest/maps/maps-index.helpers';
+import { OVERPASS_ALONG_COOLDOWN_MS } from '../../../src/nest/maps/providers/osm.client';
 import { INDEX_MAX_CATEGORY_CHARS, INDEX_MAX_LIMIT } from '../../../src/nest/maps/trek-places.client';
 import type { PlacePhotoCacheService } from '../../../src/nest/place-photos/place-photo-cache.service';
 import { noGoogleQuota } from '../../helpers/google-quota';
@@ -103,11 +106,18 @@ function make(enabled = true) {
   const overpass = vi
     .spyOn(osm, 'searchOverpassPoisAlong')
     .mockResolvedValue({ pois: [SPRING], source: 'openstreetmap', truncated: false, clamped: false });
-  return { svc, overpass };
+  return { svc, overpass, osm };
 }
 
 /** The lines logged as warnings. */
 const mapsWarnings = () => logWarn.mock.calls.map((call) => String(call[0]));
+
+/** What every Overpass mirror answers while it is down. */
+const DOWN = { ok: false, status: 504, json: async () => ({}) };
+
+/** How many different Overpass queries a stubbed fetch was sent; each goes to every mirror. */
+const queriesSent = (fetchMock: { mock: { calls: unknown[][] } }) =>
+  new Set(fetchMock.mock.calls.map((call) => decodeURIComponent(String((call[1] as RequestInit).body)))).size;
 
 /** A line due north from 47°N 11°E, `degrees` of latitude long: about 111 km each. */
 const north = (degrees: number) => [
@@ -359,6 +369,55 @@ describe('MapsService.poisAlong', () => {
     expect(seen.most).toBe(3);
   });
 
+  it('MAPS-ALONG-019c: after every Overpass mirror failed, the next searches name its kinds at once for a while', async () => {
+    vi.useFakeTimers({ now: new Date('2026-10-19T10:00:00Z') });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    // Mirrors that never answer: each request waits out its deadline and is aborted.
+    const fetchMock = vi.fn(
+      (_url: unknown, init?: RequestInit) =>
+        new Promise((_resolve, reject) => init?.signal?.addEventListener('abort', () => reject(new Error('aborted')))),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    mockNearby.mockResolvedValue([row('c-1', 'Kaffeehaus', CAFE)]);
+    const { svc, overpass } = make();
+    overpass.mockRestore();
+    try {
+      const first = svc.poisAlong(['cafe', 'viewpoint', 'drinking_water'], LINE, 500, 'de', 30);
+      await vi.advanceTimersByTimeAsync(15_000);
+      expect(await first).toMatchObject({ failed: ['viewpoint', 'drinking_water'], partial: false });
+      const asked = fetchMock.mock.calls.length;
+
+      // Without waiting for any deadline: nothing is asked, the index places stay, the kinds are named.
+      const again = await svc.poisAlong(['cafe', 'viewpoint', 'drinking_water'], LINE, 500, 'de', 30);
+      const hike = await svc.poisAlong(['viewpoint', 'shelter'], north(0.1), 500, 'de', 30);
+      expect(fetchMock).toHaveBeenCalledTimes(asked);
+      expect(again).toMatchObject({ failed: ['viewpoint', 'drinking_water'], partial: false });
+      expect(again.pois.map((poi) => poi.name)).toEqual(['Kaffeehaus']);
+      expect(hike.failed).toEqual(['viewpoint', 'shelter']);
+      // The search that waited out its twelve seconds says why; the skips after it are one line for the
+      // whole cooldown, three minutes from that failure.
+      expect(mapsWarnings()).toEqual([
+        expect.stringContaining('[Maps] OpenStreetMap along a line: viewpoint, drinking_water: 1 of 1 requests failed'),
+        expect.stringContaining('every Overpass endpoint failed, so it is not asked until 2026-10-19T10:03:12.000Z'),
+      ]);
+
+      // After the cooldown it is asked again for real, and an answer ends the pause for good.
+      vi.advanceTimersByTime(OVERPASS_ALONG_COOLDOWN_MS);
+      fetchMock.mockResolvedValue({ ok: true, json: async () => ({ elements: [] }) });
+      const later = await svc.poisAlong(['viewpoint'], LINE, 500, 'de', 30);
+      expect(later.failed).toEqual([]);
+      expect(fetchMock.mock.calls.length).toBeGreaterThan(asked);
+      const answered = fetchMock.mock.calls.length;
+      await svc.poisAlong(['shelter'], LINE, 500, 'de', 30);
+      expect(fetchMock.mock.calls.length).toBeGreaterThan(answered);
+      expect(mapsWarnings()).toHaveLength(2);
+    } finally {
+      vi.useRealTimers();
+      vi.unstubAllGlobals();
+      vi.restoreAllMocks();
+    }
+  });
+
   it('MAPS-ALONG-019b: one stretch failing keeps the places of the others and marks the answer partial', async () => {
     const { svc, overpass } = make();
     overpass.mockRejectedValueOnce(new Error('rate limited'));
@@ -371,5 +430,96 @@ describe('MapsService.poisAlong', () => {
         '[Maps] OpenStreetMap along a line: drinking_water: 1 of 3 requests failed: rate limited',
       ),
     ]);
+  });
+
+  it('MAPS-ALONG-019d: a stretch failing after the others answered starts no cooldown, so the rest of a long line is asked', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    // The first of five stretches fails on every mirror, after the two asked beside it answered.
+    const fetchMock = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      const first = decodeURIComponent(String(init?.body)).includes('47.00000,11.00000');
+      await new Promise((resolve) => setTimeout(resolve, first ? 30 : 5));
+      return first ? DOWN : { ok: true, json: async () => ({ elements: [] }) };
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    const { svc, overpass, osm } = make();
+    overpass.mockRestore();
+    try {
+      const out = await svc.poisAlong(['viewpoint'], north(2), 500, 'de', 30);
+
+      expect(out).toMatchObject({ failed: [], partial: true });
+      // Stretches 4 and 5 are asked as well: Overpass answered while the first one was failing.
+      expect(queriesSent(fetchMock)).toBe(5);
+      expect(osm.skipsOverpassAlong()).toBe(false);
+      expect(mapsWarnings()).toEqual([
+        expect.stringContaining('OpenStreetMap along a line: viewpoint: 1 of 5 requests failed: Could not reach any'),
+      ]);
+    } finally {
+      vi.unstubAllGlobals();
+      vi.restoreAllMocks();
+    }
+  });
+
+  it('MAPS-ALONG-019e: a line answered before the cooldown keeps its Overpass places during it, from the cache', async () => {
+    vi.useFakeTimers({ now: new Date('2026-10-19T11:00:00Z'), toFake: ['Date'] });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const view = { type: 'node', id: 77, lat: 47.01, lon: 12, tags: { tourism: 'viewpoint', name: 'Aussicht' } };
+    const fetchMock = vi
+      .fn<(url: unknown, init?: RequestInit) => Promise<unknown>>()
+      .mockResolvedValue({ ok: true, json: async () => ({ elements: [view] }) });
+    vi.stubGlobal('fetch', fetchMock);
+    const { svc, overpass } = make();
+    overpass.mockRestore();
+    const at = (lng: number) => [
+      { lat: 47, lng },
+      { lat: 47.0269, lng },
+    ];
+    try {
+      const first = await svc.poisAlong(['viewpoint'], at(12), 500, 'de', 30);
+      expect(first.pois.map((poi) => poi.name)).toEqual(['Aussicht']);
+
+      // A second later every mirror fails another line, and the cooldown starts.
+      vi.setSystemTime(new Date('2026-10-19T11:00:01Z'));
+      fetchMock.mockResolvedValue(DOWN);
+      expect((await svc.poisAlong(['viewpoint'], at(12.5), 500, 'de', 30)).failed).toEqual(['viewpoint']);
+      const asked = fetchMock.mock.calls.length;
+
+      // A minute on, the first line is answered from the cache as before; a line not asked yet is named at once.
+      vi.setSystemTime(new Date('2026-10-19T11:01:01Z'));
+      const again = await svc.poisAlong(['viewpoint'], at(12), 500, 'de', 30);
+      expect(again).toMatchObject({ failed: [], partial: false });
+      expect(again.pois.map((poi) => poi.name)).toEqual(['Aussicht']);
+      expect((await svc.poisAlong(['viewpoint'], at(13), 500, 'de', 30)).failed).toEqual(['viewpoint']);
+      expect(fetchMock).toHaveBeenCalledTimes(asked);
+      expect(mapsWarnings()).toEqual([
+        expect.stringContaining('OpenStreetMap along a line: viewpoint: 1 of 1 requests failed: Could not reach any'),
+        expect.stringContaining('every Overpass endpoint failed, so it is not asked until 2026-10-19T11:03:01.000Z'),
+      ]);
+    } finally {
+      vi.useRealTimers();
+      vi.unstubAllGlobals();
+      vi.restoreAllMocks();
+    }
+  });
+
+  it('MAPS-ALONG-019f: the stretches a cooldown leaves out are counted, and the log names why the first ones failed', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const fetchMock = vi.fn(async (_url: unknown, _init?: RequestInit) => DOWN);
+    vi.stubGlobal('fetch', fetchMock);
+    const { svc, overpass } = make();
+    overpass.mockRestore();
+    try {
+      const out = await svc.poisAlong(['shelter'], north(2), 500, 'de', 30);
+
+      expect(out).toMatchObject({ pois: [], failed: ['shelter'], partial: false });
+      // Stretches 4 and 5 are not sent: every mirror had just failed the first three.
+      expect(queriesSent(fetchMock)).toBe(3);
+      expect(mapsWarnings()).toEqual([
+        expect.stringContaining('every Overpass endpoint failed, so it is not asked until'),
+        expect.stringContaining('OpenStreetMap along a line: shelter: 5 of 5 requests failed: Could not reach any'),
+      ]);
+    } finally {
+      vi.unstubAllGlobals();
+      vi.restoreAllMocks();
+    }
   });
 });

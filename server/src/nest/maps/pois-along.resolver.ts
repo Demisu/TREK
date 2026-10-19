@@ -10,7 +10,9 @@
  * Overpass at the same time, one query near each stretch of the whole line,
  * with a short deadline. A source that fails is logged and its kinds named in
  * `failed`, so the caller can say what could not be searched instead of
- * reporting nothing found.
+ * reporting nothing found. Once every Overpass endpoint failed, the next
+ * searches for a few minutes name its kinds at once instead of waiting out the
+ * deadline each time, while a stretch still cached keeps its places.
  *
  * MapsService.poisAlong delegates here and hands in whether the index is
  * switched on, which is a deployment property it owns.
@@ -25,7 +27,7 @@ import {
   ownedByAsked,
 } from './maps-index.helpers';
 import type { OverpassPoi } from './maps.helpers';
-import { OsmClient } from './providers/osm.client';
+import { OsmClient, OverpassCoolingDown } from './providers/osm.client';
 import { trekPlacesNearby } from './trek-places.client';
 import { Injectable } from '@nestjs/common';
 import type { LatLng } from '@trek/shared/roadtrip';
@@ -89,7 +91,9 @@ function oncePerPlace(pois: OverpassPoi[]): OverpassPoi[] {
 
 /**
  * Requests a few at a time, each batch after the last, so no more than a
- * batch is ever in flight; a failed one leaves the others.
+ * batch is ever in flight; a failed one leaves the others. A stretch refused
+ * while Overpass cools down is missed like any other, but makes no error of
+ * its own: the client logs the cooldown once, not with every search.
  */
 async function inBatches(requests: Array<() => Promise<Page>>, parallel: number): Promise<Batched> {
   const batches = Array.from({ length: Math.ceil(requests.length / parallel) }, (_, index) =>
@@ -100,13 +104,14 @@ async function inBatches(requests: Array<() => Promise<Page>>, parallel: number)
     Promise.resolve([]),
   );
   const pages = settled.flatMap((entry) => (entry.status === 'fulfilled' ? [entry.value] : []));
-  const misses = settled.flatMap((entry) => (entry.status === 'rejected' ? [reason(entry.reason)] : []));
+  const misses = settled.flatMap((entry): unknown[] => (entry.status === 'rejected' ? [entry.reason] : []));
+  const reported = misses.filter((miss) => !(miss instanceof OverpassCoolingDown));
   return {
     pois: pages.flatMap((page) => page.pois),
     truncated: pages.some((page) => page.truncated),
     answered: pages.length,
     missed: misses.length,
-    error: misses.length ? `${misses.length} of ${settled.length} requests failed: ${misses[0]}` : null,
+    error: reported.length ? `${misses.length} of ${settled.length} requests failed: ${reason(reported[0])}` : null,
   };
 }
 
@@ -167,7 +172,9 @@ export class PoisAlongResolver {
 
   /**
    * The other kinds near each stretch of the whole line, one Overpass query
-   * per stretch; nothing to ask is nothing found.
+   * per stretch; nothing to ask is nothing found. While the client cools down
+   * after every Overpass endpoint failed, a stretch it holds no cached answer
+   * for is refused at once, so its kinds are unavailable without the wait.
    */
   private async askOverpass(kinds: string[], query: PoisAlongQuery): Promise<SourceAnswer> {
     if (!kinds.length) return NOTHING;

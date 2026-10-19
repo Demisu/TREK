@@ -11,11 +11,14 @@
  *
  * The POI cache and the mirror list are module state on purpose, frozen at load
  * the way they were in the service ("frozen on purpose", see
- * src/app-config/README.md), so every instance shares one cache.
+ * src/app-config/README.md), so every instance shares one cache. The pause the
+ * search along a line takes after every Overpass endpoint failed it is the
+ * instance's own: MapsModule provides one client per process.
  *
  * Never imports MapsService: providers sit below the orchestrator
  * (lint:boundaries holds that).
  */
+import { logWarn } from '../../audit/audit-log.logger';
 import { nominatimFetch, type GeoLane } from '../../geo/nominatim.client';
 import { OVERPASS_ALONG_QUERY_TIMEOUT_S, aroundPath, overpassAlongQuery } from '../maps-along.helpers';
 import { nearbyOverpassQuery, overpassNearbyRecords } from '../maps-nearby.helpers';
@@ -317,8 +320,34 @@ function readPois(
  */
 const OVERPASS_ALONG_TIMEOUT_MS = (OVERPASS_ALONG_QUERY_TIMEOUT_S + 2) * 1000;
 
+/**
+ * How long the search along a line leaves Overpass alone once every endpoint
+ * failed it. While the public mirrors do not answer, each search would wait
+ * out the whole deadline only to name the same kinds unavailable; after the
+ * pause the next search asks again for real.
+ */
+export const OVERPASS_ALONG_COOLDOWN_MS = 3 * 60 * 1000;
+
+/**
+ * A stretch of a search along a line refused during the cooldown: nothing was
+ * asked, and the cooldown is logged once rather than with every search.
+ */
+export class OverpassCoolingDown extends Error {
+  constructor() {
+    super('Overpass unreachable, not retrying yet');
+    this.name = 'OverpassCoolingDown';
+  }
+}
+
 @Injectable()
 export class OsmClient {
+  /** Until when the search along a line leaves Overpass alone after every endpoint failed it; 0 while it asks. */
+  private overpassAlongCooldownUntil = 0;
+  /** When an along query was last answered, so a failure that settles after an answer starts no cooldown. */
+  private overpassAlongAnsweredAt = 0;
+  /** Whether this cooldown's first skip was logged, so the log holds one line per cooldown. */
+  private overpassAlongSkipLogged = false;
+
   // ── Nominatim search ───────────────────────────────────────────────────────
 
   /**
@@ -721,7 +750,9 @@ export class OsmClient {
    * the cap is spent on the corridor rather than on the box. Unnamed taps,
    * huts and the like stay, because they are what a hike looks for, while an
    * unnamed garden or cafe is dropped as on the explore pill. A short deadline
-   * of its own; failing throws as the explore pill's search does.
+   * of its own; failing throws as the explore pill's search does. During the
+   * cooldown after every endpoint failed, a stretch still cached is answered
+   * from the cache and any other throws OverpassCoolingDown at once.
    */
   async searchOverpassPoisAlong(
     category: string,
@@ -739,8 +770,10 @@ export class OsmClient {
     const cacheKey = `along|${kinds}|${osmLang}|${path.radiusM}|${points}|${cap}`;
     const cached = cachedPoiAnswer(cacheKey);
     if (cached) return cached;
+    // Neither a new search nor a later stretch of one under way waits for mirrors that just failed.
+    if (this.skipsOverpassAlong()) throw new OverpassCoolingDown();
 
-    const elements = await overpassFetch(overpassAlongQuery(match.filters, path, cap), OVERPASS_ALONG_TIMEOUT_MS);
+    const elements = await this.fetchOverpassAlong(overpassAlongQuery(match.filters, path, cap));
     const pois = readPois(elements, match, osmLang, KEPT_UNNAMED_ALONG);
     const value: PoiSearchResult = {
       pois: pois.slice(0, cap),
@@ -750,5 +783,43 @@ export class OsmClient {
     };
     cachePoiAnswer(cacheKey, value);
     return value;
+  }
+
+  /**
+   * Whether the search along a line leaves Overpass alone right now, because
+   * every endpoint failed it within the last OVERPASS_ALONG_COOLDOWN_MS. Its
+   * kinds are then unavailable at once instead of after the whole deadline.
+   * The first skip of each cooldown is logged.
+   */
+  skipsOverpassAlong(): boolean {
+    if (Date.now() >= this.overpassAlongCooldownUntil) return false;
+    if (!this.overpassAlongSkipLogged) {
+      this.overpassAlongSkipLogged = true;
+      const until = new Date(this.overpassAlongCooldownUntil).toISOString();
+      logWarn(`[Maps] OpenStreetMap along a line: every Overpass endpoint failed, so it is not asked until ${until}`);
+    }
+    return true;
+  }
+
+  /**
+   * The along query on the mirrors. An answer ends the cooldown; every
+   * endpoint failing starts it, unless another along query was answered while
+   * this one was in flight: Overpass is up then, and only this query failed.
+   */
+  private async fetchOverpassAlong(query: string): Promise<OverpassPoiElement[]> {
+    const askedAt = Date.now();
+    try {
+      const elements = await overpassFetch(query, OVERPASS_ALONG_TIMEOUT_MS);
+      this.overpassAlongAnsweredAt = Date.now();
+      this.overpassAlongCooldownUntil = 0;
+      return elements;
+    } catch (err) {
+      // overpassFetch throws only once every mirror has failed.
+      if (this.overpassAlongAnsweredAt < askedAt) {
+        this.overpassAlongCooldownUntil = Date.now() + OVERPASS_ALONG_COOLDOWN_MS;
+        this.overpassAlongSkipLogged = false;
+      }
+      throw err;
+    }
   }
 }

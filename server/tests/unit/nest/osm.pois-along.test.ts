@@ -1,15 +1,29 @@
 /**
- * MAPS-ALONG-020..026: the Overpass query near a line (PLN-02). One query for
+ * MAPS-ALONG-020..029: the Overpass query near a line (PLN-02). One query for
  * every kind the index does not know, the candidates of the line's box kept
  * within reach of the line itself, and unnamed taps and huts kept, because
- * they are what a hike looks for, while an unnamed garden or cafe is not. The
- * network is a stubbed global fetch.
+ * they are what a hike looks for, while an unnamed garden or cafe is not.
+ * After every mirror failed, the next queries are refused at once for a
+ * cooldown, unless Overpass answered meanwhile or the answer is still cached.
+ * The network is a stubbed global fetch.
  */
-import { OsmClient } from '../../../src/nest/maps/providers/osm.client';
+import {
+  OVERPASS_ALONG_COOLDOWN_MS,
+  OsmClient,
+  OverpassCoolingDown,
+} from '../../../src/nest/maps/providers/osm.client';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const osm = new OsmClient();
+const { logWarn } = vi.hoisted(() => ({ logWarn: vi.fn() }));
+// The skip after every mirror failed is logged once per cooldown; the logger itself writes to trek.log.
+vi.mock('../../../src/nest/audit/audit-log.logger', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../src/nest/audit/audit-log.logger')>()),
+  logWarn,
+}));
+
+/** A client of its own per case: the cooldown after every mirror failed is the instance's state. */
+let osm: OsmClient;
 
 /** A line of two points, a little apart per case, so no case is answered from another's cache. */
 const line = (n: number) => [
@@ -19,11 +33,19 @@ const line = (n: number) => [
 
 const answer = (elements: unknown[]) => ({ ok: true, json: async () => ({ elements }) });
 
+/** What every mirror answers while Overpass is down. */
+const down = () => ({ ok: false, status: 504, json: async () => ({}) });
+
+/** The line a skip writes, once per cooldown, before the time it ends. */
+const SKIP_LOGGED = '[Maps] OpenStreetMap along a line: every Overpass endpoint failed, so it is not asked until';
+
 /** The query of a fetch call, read back the way Overpass reads the form. */
 const queryOf = (call: unknown[] | undefined) =>
   decodeURIComponent(String((call?.[1] as RequestInit | undefined)?.body ?? '')).replace(/^data=/, '');
 
 beforeEach(() => {
+  osm = new OsmClient();
+  logWarn.mockClear();
   vi.spyOn(console, 'error').mockImplementation(() => {});
 });
 
@@ -93,9 +115,103 @@ describe('OsmClient.searchOverpassPoisAlong', () => {
   });
 
   it('MAPS-ALONG-023: every mirror down throws, so the caller can name the kinds as unavailable', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 504, json: async () => ({}) }));
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(down()));
 
     await expect(osm.searchOverpassPoisAlong('viewpoint', line(3), 500)).rejects.toMatchObject({ status: 502 });
+  });
+
+  it('MAPS-ALONG-027: after every mirror failed it is not asked for a cooldown, logged once, then asked again', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(down());
+    vi.stubGlobal('fetch', fetchMock);
+    vi.useFakeTimers({ now: new Date('2026-10-19T10:00:00Z'), toFake: ['Date'] });
+    try {
+      await expect(osm.searchOverpassPoisAlong('viewpoint', line(7), 500)).rejects.toMatchObject({ status: 502 });
+      const asked = fetchMock.mock.calls.length;
+      expect(asked).toBeGreaterThan(0);
+
+      // Inside the cooldown no line and no kind is asked, and the skip is logged once.
+      vi.setSystemTime(new Date(Date.now() + OVERPASS_ALONG_COOLDOWN_MS - 1));
+      await expect(osm.searchOverpassPoisAlong('viewpoint', line(8), 500)).rejects.toThrow('not retrying yet');
+      await expect(osm.searchOverpassPoisAlong('drinking_water', line(7), 500)).rejects.toThrow('not retrying yet');
+      expect(osm.skipsOverpassAlong()).toBe(true);
+      // An unknown kind is still refused as one.
+      await expect(osm.searchOverpassPoisAlong('unicorns', line(7), 500)).rejects.toMatchObject({ status: 400 });
+      expect(fetchMock).toHaveBeenCalledTimes(asked);
+      expect(logWarn).toHaveBeenCalledTimes(1);
+      expect(logWarn).toHaveBeenCalledWith(`${SKIP_LOGGED} 2026-10-19T10:03:00.000Z`);
+
+      // Three minutes on it is asked again for real; still down, it starts a new cooldown with a line of its own.
+      vi.setSystemTime(new Date('2026-10-19T10:03:00Z'));
+      expect(osm.skipsOverpassAlong()).toBe(false);
+      await expect(osm.searchOverpassPoisAlong('viewpoint', line(8), 500)).rejects.toMatchObject({ status: 502 });
+      expect(fetchMock).toHaveBeenCalledTimes(2 * asked);
+      await expect(osm.searchOverpassPoisAlong('viewpoint', line(8), 500)).rejects.toThrow('not retrying yet');
+      expect(logWarn).toHaveBeenCalledTimes(2);
+      expect(logWarn).toHaveBeenLastCalledWith(`${SKIP_LOGGED} 2026-10-19T10:06:00.000Z`);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('MAPS-ALONG-028: an answer ends the cooldown, so the next search asks at once', async () => {
+    // The first line's query fails on every mirror at once, the second one's answers a moment later.
+    const fetchMock = vi.fn(async (url: unknown, init?: RequestInit) => {
+      if (queryOf([url, init]).includes('47.49000')) return down();
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      return answer([]);
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    await Promise.all([
+      expect(osm.searchOverpassPoisAlong('viewpoint', line(9), 500)).rejects.toMatchObject({ status: 502 }),
+      expect(osm.searchOverpassPoisAlong('viewpoint', line(11), 500)).resolves.toMatchObject({ pois: [] }),
+    ]);
+    const asked = fetchMock.mock.calls.length;
+
+    expect(osm.skipsOverpassAlong()).toBe(false);
+    await osm.searchOverpassPoisAlong('viewpoint', line(13), 500);
+    expect(fetchMock.mock.calls.length).toBeGreaterThan(asked);
+    expect(logWarn).not.toHaveBeenCalled();
+  });
+
+  it('MAPS-ALONG-029: a query failing after another was answered starts no cooldown, one sent after the answer does', async () => {
+    vi.useFakeTimers({ now: new Date('2026-10-19T10:00:00Z') });
+    // The query along line(15) is answered after a second, every other one fails on every mirror after three.
+    const fetchMock = vi.fn(async (url: unknown, init?: RequestInit) => {
+      const answers = queryOf([url, init]).includes('47.55000,11.10000');
+      await new Promise((resolve) => setTimeout(resolve, answers ? 1000 : 3000));
+      return answers ? answer([]) : down();
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    try {
+      const answered = osm.searchOverpassPoisAlong('viewpoint', line(15), 500);
+      const failed = expect(osm.searchOverpassPoisAlong('viewpoint', line(17), 500)).rejects.toMatchObject({
+        status: 502,
+      });
+      await vi.advanceTimersByTimeAsync(5000);
+      await expect(answered).resolves.toMatchObject({ pois: [] });
+      await failed;
+      // Overpass answered while the failing query was in flight: it is up, and the next search asks.
+      expect(osm.skipsOverpassAlong()).toBe(false);
+      const asked = fetchMock.mock.calls.length;
+      const again = expect(osm.searchOverpassPoisAlong('viewpoint', line(17), 500)).rejects.toMatchObject({
+        status: 502,
+      });
+      await vi.advanceTimersByTimeAsync(5000);
+      await again;
+      expect(fetchMock.mock.calls.length).toBeGreaterThan(asked);
+
+      // That query was sent after the last answer and failed: now the cooldown starts.
+      expect(osm.skipsOverpassAlong()).toBe(true);
+      await expect(osm.searchOverpassPoisAlong('viewpoint', line(19), 500)).rejects.toBeInstanceOf(OverpassCoolingDown);
+      // A line still cached is answered from the cache during it.
+      const sent = fetchMock.mock.calls.length;
+      await expect(osm.searchOverpassPoisAlong('viewpoint', line(15), 500)).resolves.toMatchObject({ pois: [] });
+      expect(fetchMock).toHaveBeenCalledTimes(sent);
+      expect(logWarn).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('MAPS-ALONG-024b: an answer older than five minutes is asked again, and the oldest of a full cache goes', async () => {
