@@ -5,6 +5,7 @@ import { TourTypes } from '../../db/entities/TourTypes.entity';
 import { TourWaypoints } from '../../db/entities/TourWaypoints.entity';
 import { Tours } from '../../db/entities/Tours.entity';
 import { AddonsModule } from '../addons/addons.module';
+import { McpSharedModule } from '../mcp-shared/mcp-shared.module';
 import { PaddleObstaclesModule } from '../paddle-obstacles/paddle-obstacles.module';
 import { PermissionsModule } from '../permissions/permissions.module';
 import { PlaceImportModule } from '../place-import/place-import.module';
@@ -12,6 +13,9 @@ import { PlacesModule } from '../places/places.module';
 import { TripMembershipModule } from '../trip-membership/trip-membership.module';
 import { WandererModule } from '../wanderer/wanderer.module';
 import { TourGpxExportService } from './tour-gpx-export.service';
+import { TourLibraryController, TourTakeOverController } from './tour-library.controller';
+import { TourLibraryMcp } from './tour-library.mcp';
+import { TourLibraryService } from './tour-library.service';
 import { TourObstacleReviewsService } from './tour-obstacle-reviews.service';
 import { PaddleCheckCache } from './tour-paddle-check.cache';
 import { TourPaddleCheckService } from './tour-paddle-check.service';
@@ -38,6 +42,8 @@ import { Module } from '@nestjs/common';
     PlaceImportModule,
     PermissionsModule,
     TripMembershipModule,
+    // The take-over tool checks 'place_edit' on the trip it writes into (LIB-02).
+    McpSharedModule,
 
     AddonsModule,
     // The wanderer import reads trails through the caller's own connection.
@@ -46,7 +52,13 @@ import { Module } from '@nestjs/common';
     PaddleObstaclesModule,
     MikroOrmModule.forFeature([Tours, TourTypes, TourWaypoints, TourSources, TourObstacleReviews, Places]),
   ],
-  controllers: [ToursController, ToursImportController, ToursWandererController],
+  controllers: [
+    TourTakeOverController,
+    ToursController,
+    ToursImportController,
+    ToursWandererController,
+    TourLibraryController,
+  ],
   providers: [
     ToursService,
     TourPaddlePlanService,
@@ -55,7 +67,9 @@ import { Module } from '@nestjs/common';
     TourObstacleReviewsService,
     TourGpxExportService,
     ToursWandererService,
+    TourLibraryService,
     ToursMcp,
+    TourLibraryMcp,
   ],
 })
 export class ToursModule {}

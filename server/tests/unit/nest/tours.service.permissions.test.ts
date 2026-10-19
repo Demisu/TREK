@@ -76,6 +76,8 @@ function makeService() {
     has_recorded_track: 0,
     derived_from_place_id: null,
     derived_from_name: null,
+    taken_over_from_trip_title: null,
+    taken_over_from_tour_name: null,
     source_instance: null,
     source_external_id: null,
     source_external_url: null,
@@ -185,6 +187,7 @@ describe('ToursService planner contracts (mock-only; SQLite rollback semantics a
       paddle_speed_kmh: null,
       portage_speed_kmh: null,
       paddle_lake_style: null,
+      hiking_preferences: null,
     });
     expect((setup.toursRepo.insertTour.mock.calls[0][0] as { distance: number }).distance).toBeGreaterThan(0);
     expect(setup.waypointsRepo.insertForPlace).toHaveBeenCalledExactlyOnceWith(42, request.waypoints);
@@ -199,6 +202,7 @@ describe('ToursService planner contracts (mock-only; SQLite rollback semantics a
       derivedFrom: null,
       plannedOver: false,
       editedLocally: null,
+      takenOverFrom: null,
     });
     expect(setup.places.broadcast).toHaveBeenNthCalledWith(1, '7', 'tours:changed', { placeIds: [42] }, 'socket-1');
     expect(setup.places.broadcast).toHaveBeenNthCalledWith(2, '7', 'place:created', { place: setup.place }, 'socket-1');
@@ -300,6 +304,7 @@ describe('ToursService planner contracts (mock-only; SQLite rollback semantics a
       paddle_speed_kmh: null,
       portage_speed_kmh: null,
       paddle_lake_style: null,
+      hiking_preferences: null,
     });
     expect(setup.waypointsRepo.deleteForPlace).toHaveBeenCalledExactlyOnceWith(42);
     expect(setup.waypointsRepo.insertForPlace).toHaveBeenCalledExactlyOnceWith(42, update.waypoints);

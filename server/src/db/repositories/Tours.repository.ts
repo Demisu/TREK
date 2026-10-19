@@ -44,6 +44,25 @@ export interface TourListRow {
   hiking_preferences: string | null;
 }
 
+/** LIB-02: a tour of another trip as the take-over list reads it, with the trip it is in. */
+export interface TourLibraryRow {
+  place_id: number;
+  name: string;
+  description: string | null;
+  tour_type: string;
+  distance: number | null;
+  elevation_gain: number | null;
+  elevation_loss: number | null;
+  duration: number | null;
+  planned_duration_minutes: number | null;
+  break_additional_minutes: number | null;
+  max_hiking_difficulty: number | null;
+  origin: string;
+  trip_id: number;
+  trip_title: string;
+  has_waypoints: number;
+}
+
 /** Every `tours` column, as the trip copy reads and re-inserts it. */
 export interface TourRow {
   place_id: number;
@@ -71,6 +90,8 @@ export interface TourRow {
   track_marks: string | null;
   revision: number;
   hiking_preferences: string | null;
+  taken_over_from_trip_title: string | null;
+  taken_over_from_tour_name: string | null;
 }
 const _tourRowKeys: AssertRowKeys<TourRow, Tours> = true;
 
@@ -127,7 +148,14 @@ export interface TourPaddlePlanUpdate {
 
 type ToursKyselyDB = Pick<
   DB,
-  'tours' | 'places' | 'day_assignments' | 'tour_waypoints' | 'tour_sources' | 'days' | 'tour_obstacle_reviews'
+  | 'tours'
+  | 'places'
+  | 'day_assignments'
+  | 'tour_waypoints'
+  | 'tour_sources'
+  | 'days'
+  | 'tour_obstacle_reviews'
+  | 'trips'
 >;
 
 /** One day a tour of the trip sits on, in the order of the trip. */
@@ -147,6 +175,8 @@ export interface TourDayRow {
  */
 export interface TourProvenanceRow {
   origin: string;
+  taken_over_from_trip_title: string | null;
+  taken_over_from_tour_name: string | null;
   origin_file_name: string | null;
   created_at: string | null;
   wanderer_ref: string | null;
@@ -241,6 +271,96 @@ export class ToursRepository extends TrekRepository<Tours> {
     return row ? toListRow(row) : undefined;
   }
 
+  /**
+   * LIB-02: the tours of the given trips, as the take-over list reads them,
+   * narrowed by a type or one of those trips; the newest trip first, its
+   * newest tour first, at most `limit`. Never a trip outside `trip_ids`, which
+   * the caller resolved from the user's own access.
+   */
+  async listForLibrary(
+    trip_ids: readonly number[],
+    filter: { tour_type?: string; trip_id?: number },
+    limit: number,
+  ): Promise<TourLibraryRow[]> {
+    if (trip_ids.length === 0) return [];
+    let query = this.libraryQuery().where('p.trip_id', 'in', [...trip_ids]);
+    if (filter.trip_id !== undefined) query = query.where('p.trip_id', '=', filter.trip_id);
+    if (filter.tour_type) query = query.where('t.tour_type', '=', filter.tour_type);
+    const rows = await query
+      .orderBy('p.trip_id', 'desc')
+      .orderBy('t.created_at', 'desc')
+      .orderBy('t.place_id', 'desc')
+      .limit(limit)
+      .execute();
+    return rows.map(toLibraryRow);
+  }
+
+  /** LIB-02: how many tours each of the given trips holds, with its title, for the trip filter. */
+  async countForLibrary(
+    trip_ids: readonly number[],
+  ): Promise<Array<{ id: number; title: string; tour_count: number }>> {
+    if (trip_ids.length === 0) return [];
+    const rows = await this.db()
+      .selectFrom('tours as t')
+      .innerJoin('places as p', 'p.id', 't.place_id')
+      .innerJoin('trips as tr', 'tr.id', 'p.trip_id')
+      .select((eb) => ['tr.id as id', 'tr.title as title', eb.fn.countAll<number>().as('tour_count')])
+      .where('p.trip_id', 'in', [...trip_ids])
+      .groupBy(['tr.id', 'tr.title'])
+      .orderBy('tr.id', 'desc')
+      .execute();
+    return rows.map((row) => ({ id: row.id, title: row.title, tour_count: Number(row.tour_count) }));
+  }
+
+  /** LIB-02: one tour of the given trips for its preview, with its line and how many control points it has. */
+  async findForLibrary(
+    trip_ids: readonly number[],
+    place_id: number,
+  ): Promise<(TourLibraryRow & { route_geometry: string | null; waypoint_count: number }) | undefined> {
+    if (trip_ids.length === 0) return undefined;
+    const row = await this.libraryQuery()
+      .select((eb) => [
+        'p.route_geometry as route_geometry',
+        eb
+          .selectFrom('tour_waypoints as tw')
+          .select(eb.fn.countAll<number>().as('n'))
+          .whereRef('tw.place_id', '=', 'p.id')
+          .as('waypoint_count'),
+      ])
+      .where('p.trip_id', 'in', [...trip_ids])
+      .where('p.id', '=', place_id)
+      .executeTakeFirst();
+    return row
+      ? { ...toLibraryRow(row), route_geometry: row.route_geometry, waypoint_count: Number(row.waypoint_count ?? 0) }
+      : undefined;
+  }
+
+  private libraryQuery() {
+    return this.db()
+      .selectFrom('tours as t')
+      .innerJoin('places as p', 'p.id', 't.place_id')
+      .innerJoin('trips as tr', 'tr.id', 'p.trip_id')
+      .select((eb) => [
+        'p.id as place_id',
+        'p.name as name',
+        'p.description as description',
+        't.tour_type as tour_type',
+        't.distance as distance',
+        't.elevation_gain as elevation_gain',
+        't.elevation_loss as elevation_loss',
+        't.duration as duration',
+        't.planned_duration_minutes as planned_duration_minutes',
+        't.break_additional_minutes as break_additional_minutes',
+        't.max_hiking_difficulty as max_hiking_difficulty',
+        't.origin as origin',
+        'tr.id as trip_id',
+        'tr.title as trip_title',
+        eb
+          .exists(eb.selectFrom('tour_waypoints as tw').select('tw.id').whereRef('tw.place_id', '=', 'p.id'))
+          .as('has_waypoints'),
+      ]);
+  }
+
   /** Where a tour of this trip came from; `undefined` unless the place is a tour of that trip. */
   async findProvenance(trip_id: number, place_id: number): Promise<TourProvenanceRow | undefined> {
     return await this.db()
@@ -253,6 +373,8 @@ export class ToursRepository extends TrekRepository<Tours> {
       .select((eb) => [
         't.origin as origin',
         't.origin_file_name as origin_file_name',
+        't.taken_over_from_trip_title as taken_over_from_trip_title',
+        't.taken_over_from_tour_name as taken_over_from_tour_name',
         't.created_at as created_at',
         't.wanderer_ref as wanderer_ref',
         eb('t.recorded_route_geometry', 'is not', null).as('has_recorded_track'),
@@ -443,6 +565,8 @@ export class ToursRepository extends TrekRepository<Tours> {
       origin?: TToursOrigin;
       origin_file_name?: string | null;
       track_marks?: string | null;
+      taken_over_from_trip_title?: string | null;
+      taken_over_from_tour_name?: string | null;
     },
   ): Promise<void> {
     await this.insert({
@@ -468,6 +592,8 @@ export class ToursRepository extends TrekRepository<Tours> {
       paddle_lake_style: input.paddle_lake_style ?? null,
       track_marks: input.track_marks ?? null,
       hiking_preferences: input.hiking_preferences ?? null,
+      taken_over_from_trip_title: input.taken_over_from_trip_title ?? null,
+      taken_over_from_tour_name: input.taken_over_from_tour_name ?? null,
     });
   }
 
@@ -619,6 +745,28 @@ export class ToursRepository extends TrekRepository<Tours> {
   async clearRecordedTrack(place_id: number): Promise<void> {
     await this.nativeUpdate({ place: place_id }, { recorded_route_geometry: null });
   }
+}
+
+function toLibraryRow<R extends Omit<TourLibraryRow, 'has_waypoints'> & { has_waypoints: unknown }>(
+  r: R,
+): TourLibraryRow {
+  return {
+    place_id: r.place_id,
+    name: r.name,
+    description: r.description,
+    tour_type: r.tour_type,
+    distance: r.distance,
+    elevation_gain: r.elevation_gain,
+    elevation_loss: r.elevation_loss,
+    duration: r.duration,
+    planned_duration_minutes: r.planned_duration_minutes,
+    break_additional_minutes: r.break_additional_minutes,
+    max_hiking_difficulty: r.max_hiking_difficulty,
+    origin: r.origin,
+    trip_id: r.trip_id,
+    trip_title: r.trip_title,
+    has_waypoints: Number(r.has_waypoints),
+  };
 }
 
 function toListRow<

@@ -28,4 +28,6 @@ export interface ToursTable {
   paddle_lake_style: InsertOptional<string | null>;
   revision: InsertOptional<number>;
   hiking_preferences: InsertOptional<string | null>;
+  taken_over_from_trip_title: InsertOptional<string | null>;
+  taken_over_from_tour_name: InsertOptional<string | null>;
 }

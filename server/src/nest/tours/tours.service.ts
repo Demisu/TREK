@@ -265,6 +265,10 @@ export class ToursService {
         origin === 'wanderer' && row.source_local_hash !== null
           ? localHashOf(row.name, parseRouteGeometry(row.route_geometry)) !== row.source_local_hash
           : null,
+      takenOverFrom:
+        row.taken_over_from_trip_title != null && row.taken_over_from_tour_name != null
+          ? { tripTitle: row.taken_over_from_trip_title, tourName: row.taken_over_from_tour_name }
+          : null,
     };
   }
 
@@ -410,55 +414,112 @@ export class ToursService {
     const tid = toRowId(tripId);
     const pid = toRowId(placeId);
     if (tid === null || pid === null) throw new NotFoundException('Tour not found');
+    // Within the trip: the copy points at the tour it was planned from, keeps its
+    // stops' links to the trip's places and the decisions about its obstacles.
+    const copyId = await this.uow.transactional(() =>
+      this.insertCopyOf({ tid, pid }, { tid, name }, { derivedFrom: pid, sameTrip: true }),
+    );
+    return await this.announceCopy(tripId, copyId, socketId);
+  }
 
-    const copyId = await this.uow.transactional(async () => {
-      const [source, provenance, place] = await Promise.all([
-        this.toursRepo.findInTrip(tid, pid),
-        this.toursRepo.findProvenance(tid, pid),
-        this.placesRepo.findInTrip(pid, tid),
-      ]);
-      const start = parseRouteGeometry(place?.route_geometry)[0];
-      // A tour without a line has nothing to copy.
-      if (!source || !provenance || !place?.route_geometry || !start) throw new NotFoundException('Tour not found');
-      const id = await this.placesRepo.insertTourPlace({
-        trip_id: tid,
-        name,
-        lat: start[0],
-        lng: start[1],
-        route_geometry: place.route_geometry,
-        description: place.description ?? null,
-        website: place.website ?? null,
-      });
-      await this.toursRepo.insertTour({
-        place_id: id,
-        tour_type: source.tour_type,
-        distance: source.distance,
-        elevation_gain: source.elevation_gain,
-        elevation_loss: source.elevation_loss,
-        duration: source.duration,
-        planned_duration_minutes: source.planned_duration_minutes,
-        break_additional_minutes: source.break_additional_minutes,
-        match_confidence: source.match_confidence,
-        max_hiking_difficulty: source.max_hiking_difficulty,
-        boat_type: source.boat_type as PaddleBoatType | null,
-        water_context: source.water_context as PaddleWaterContext | null,
-        paddle_speed_kmh: source.paddle_speed_kmh,
-        portage_speed_kmh: source.portage_speed_kmh,
-        paddle_lake_style: source.paddle_lake_style as PaddleLakeStyle | null,
-        track_marks: source.track_marks,
-        hiking_preferences: source.hiking_preferences,
-        wanderer_ref: source.wanderer_ref,
-        difficulty: source.difficulty,
-        derived_from_place_id: pid,
-        origin: source.origin as TourOrigin,
-        origin_file_name: provenance.origin_file_name,
-      });
-      await this.waypointsRepo.insertForPlace(id, await this.waypointsRepo.listForPlace(pid));
-      // The copy keeps the decisions about its obstacles, bound to what they were decided on.
-      await this.toursRepo.copyObstacleReviews(pid, id);
-      return id;
+  /**
+   * LIB-02: an independent copy of a tour of another trip, written into this
+   * trip. The caller has checked that the user may open the source trip; the
+   * source is read here again, inside the write, so a tour gone meanwhile
+   * leaves nothing behind. The copy keeps where it came from as text, and none
+   * of what belongs to the other trip: no link to its places or its import, no
+   * decisions its people took about obstacles, no days.
+   */
+  async takeOverTour(
+    tripId: string,
+    source: { tripId: number; placeId: number; tripTitle: string; tourName: string },
+    name: string,
+    socketId?: string,
+  ): Promise<TourCreateResponse> {
+    const tid = toRowId(tripId);
+    if (tid === null) throw new NotFoundException('Tour not found');
+    const copyId = await this.uow.transactional(() =>
+      this.insertCopyOf(
+        { tid: source.tripId, pid: source.placeId },
+        { tid, name },
+        { derivedFrom: null, sameTrip: false, takenOverFrom: source },
+      ),
+    );
+    return await this.announceCopy(tripId, copyId, socketId);
+  }
+
+  /**
+   * One copy of a tour: its place with the same line, its facet with every
+   * measure and setting, its control points. Inside the caller's transaction.
+   */
+  private async insertCopyOf(
+    source: { tid: number; pid: number },
+    target: { tid: number; name: string },
+    how: { derivedFrom: number | null; sameTrip: boolean; takenOverFrom?: { tripTitle: string; tourName: string } },
+  ): Promise<number> {
+    const [row, provenance, place] = await Promise.all([
+      this.toursRepo.findInTrip(source.tid, source.pid),
+      this.toursRepo.findProvenance(source.tid, source.pid),
+      this.placesRepo.findInTrip(source.pid, source.tid),
+    ]);
+    const start = parseRouteGeometry(place?.route_geometry)[0];
+    // A tour without a line has nothing to copy.
+    if (!row || !provenance || !place?.route_geometry || !start) throw new NotFoundException('Tour not found');
+    if (!how.sameTrip) await this.assertTourTypeEnabled(row.tour_type);
+    const id = await this.placesRepo.insertTourPlace({
+      trip_id: target.tid,
+      name: target.name,
+      lat: start[0],
+      lng: start[1],
+      route_geometry: place.route_geometry,
+      description: place.description ?? null,
+      website: place.website ?? null,
     });
+    await this.toursRepo.insertTour({
+      place_id: id,
+      tour_type: row.tour_type,
+      distance: row.distance,
+      elevation_gain: row.elevation_gain,
+      elevation_loss: row.elevation_loss,
+      duration: row.duration,
+      planned_duration_minutes: row.planned_duration_minutes,
+      break_additional_minutes: row.break_additional_minutes,
+      match_confidence: row.match_confidence,
+      max_hiking_difficulty: row.max_hiking_difficulty,
+      boat_type: row.boat_type as PaddleBoatType | null,
+      water_context: row.water_context as PaddleWaterContext | null,
+      paddle_speed_kmh: row.paddle_speed_kmh,
+      portage_speed_kmh: row.portage_speed_kmh,
+      paddle_lake_style: row.paddle_lake_style as PaddleLakeStyle | null,
+      track_marks: row.track_marks,
+      hiking_preferences: row.hiking_preferences,
+      wanderer_ref: row.wanderer_ref,
+      difficulty: row.difficulty,
+      derived_from_place_id: how.derivedFrom,
+      origin: row.origin as TourOrigin,
+      origin_file_name: provenance.origin_file_name,
+      // A copy of a copy names where the first one came from.
+      taken_over_from_trip_title: how.takenOverFrom?.tripTitle ?? provenance.taken_over_from_trip_title,
+      taken_over_from_tour_name: how.takenOverFrom?.tourName ?? provenance.taken_over_from_tour_name,
+    });
+    const waypoints = await this.waypointsRepo.listForPlace(source.pid);
+    // A stop standing for a place of the source trip stands for nothing in another trip.
+    await this.waypointsRepo.insertForPlace(
+      id,
+      how.sameTrip ? waypoints : waypoints.map((point) => ({ ...point, linked_place_id: null })),
+    );
+    if (how.sameTrip) {
+      // The copy keeps the decisions about its obstacles, bound to what they were decided on.
+      await this.toursRepo.copyObstacleReviews(source.pid, id);
+    } else {
+      // The import record says where the line itself came from, whichever trip holds it.
+      await this.toursRepo.copySource(source.pid, id);
+    }
+    return id;
+  }
 
+  /** After a copy committed: the trip's tours and places follow it live, and the copy is answered as the editor reads it. */
+  private async announceCopy(tripId: string, copyId: number, socketId?: string): Promise<TourCreateResponse> {
     const result = await this.getTour(tripId, String(copyId));
     const created = await this.placesRepo.findWithTagsAndRatings(copyId);
     this.broadcastToursChanged(tripId, [copyId], socketId);

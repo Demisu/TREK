@@ -473,4 +473,204 @@ describe('Tours planned e2e (real guards + temp SQLite)', () => {
       expect(paddle.status).toBe(400);
     });
   });
+  describe('taking a tour over from another trip (LIB-02)', () => {
+    beforeAll(async () => {
+      // A trip of someone else's, which the owner never sees.
+      await insertRows(orm, Trips, [{ id: 7, user: 3, title: 'Elsewhere' }]);
+    });
+
+    const outsiderTour = async () => {
+      const res = await request(server)
+        .post('/api/trips/7/tours')
+        .set('Cookie', sessionCookie(OUTSIDER))
+        .send(tourBody({ name: 'Secret ridge' }));
+      expect(res.status).toBe(201);
+      return res.body.tour.place_id as number;
+    };
+
+    it('lists the tours of the trips the user can open, with their trip, never one of another user', async () => {
+      const ridge = await createViaApi(5, tourBody({ name: 'Ridge 100% walk' }));
+      await createViaApi(
+        5,
+        tourBody({
+          name: 'Lake loop',
+          tour_type: 'kayak',
+          boat_type: 'kayak',
+          water_context: 'lake',
+          max_hiking_difficulty: null,
+        }),
+      );
+      await createViaApi(6, tourBody({ name: 'Valley walk' }));
+      await outsiderTour();
+
+      const all = await request(server).get('/api/tours/library').set('Cookie', sessionCookie(OWNER));
+      expect(all.status).toBe(200);
+      expect(all.body.tours.map((tour: { name: string }) => tour.name).sort()).toEqual([
+        'Lake loop',
+        'Ridge 100% walk',
+        'Valley walk',
+      ]);
+      expect(all.body.tours.find((tour: { place_id: number }) => tour.place_id === ridge)).toMatchObject({
+        trip: { id: 5, title: 'Alps' },
+        tour_type: 'hike',
+        has_waypoints: true,
+        origin: 'trek',
+      });
+      expect(all.body.trips).toEqual([
+        { id: 6, title: 'Other', tour_count: 1 },
+        { id: 5, title: 'Alps', tour_count: 2 },
+      ]);
+      expect(all.body.truncated).toBe(false);
+      expect(JSON.stringify(all.body)).not.toContain('Secret ridge');
+
+      // Leaving the asking trip out, by name (case and a literal "%" alike), by type and by trip.
+      const from6 = await request(server)
+        .get('/api/tours/library?exclude_trip_id=6')
+        .set('Cookie', sessionCookie(OWNER));
+      expect(from6.body.tours.every((tour: { trip: { id: number } }) => tour.trip.id === 5)).toBe(true);
+      expect(from6.body.trips).toEqual([{ id: 5, title: 'Alps', tour_count: 2 }]);
+      const named = await request(server).get('/api/tours/library?q=100%25').set('Cookie', sessionCookie(OWNER));
+      expect(named.body.tours.map((tour: { name: string }) => tour.name)).toEqual(['Ridge 100% walk']);
+      const anyCase = await request(server).get('/api/tours/library?q=VALLEY').set('Cookie', sessionCookie(OWNER));
+      expect(anyCase.body.tours.map((tour: { name: string }) => tour.name)).toEqual(['Valley walk']);
+      const paddle = await request(server).get('/api/tours/library?type=kayak').set('Cookie', sessionCookie(OWNER));
+      expect(paddle.body.tours.map((tour: { name: string }) => tour.name)).toEqual(['Lake loop']);
+      const trip6 = await request(server).get('/api/tours/library?trip_id=6').set('Cookie', sessionCookie(OWNER));
+      expect(trip6.body.tours.map((tour: { name: string }) => tour.name)).toEqual(['Valley walk']);
+      const bad = await request(server).get('/api/tours/library?type=car').set('Cookie', sessionCookie(OWNER));
+      expect(bad.status).toBe(400);
+
+      // A member sees the trips they belong to.
+      const member = await request(server).get('/api/tours/library').set('Cookie', sessionCookie(VIEWER));
+      expect(member.body.trips.map((trip: { id: number }) => trip.id)).toEqual([5]);
+    });
+
+    it("previews one tour with its line and control points; another user's tour or none is not found", async () => {
+      const ridge = await createViaApi(5);
+      const preview = await request(server).get(`/api/tours/library/${ridge}`).set('Cookie', sessionCookie(OWNER));
+      expect(preview.status).toBe(200);
+      expect(preview.body.line).toEqual(GEOMETRY.map(([lat, lng]) => [lat, lng]));
+      expect(preview.body.waypoint_count).toBe(2);
+      expect(preview.body.tour).toMatchObject({ name: 'Ridge walk', trip: { id: 5, title: 'Alps' } });
+
+      const secret = await outsiderTour();
+      const hidden = await request(server).get(`/api/tours/library/${secret}`).set('Cookie', sessionCookie(OWNER));
+      expect(hidden.status).toBe(404);
+      expect(hidden.body).toEqual({ error: 'Tour not found' });
+      expect((await request(server).get('/api/tours/library/999999').set('Cookie', sessionCookie(OWNER))).status).toBe(
+        404,
+      );
+      expect((await request(server).get('/api/tours/library/abc').set('Cookie', sessionCookie(OWNER))).status).toBe(
+        404,
+      );
+    });
+
+    it('a long line is thinned for the preview, its ends kept', async () => {
+      const long = Array.from({ length: 1200 }, (_, index) => [47 + index / 10000, 11 + index / 10000, 600]);
+      const placeId = await createViaApi(5, tourBody({ route_geometry: long }));
+      const preview = await request(server).get(`/api/tours/library/${placeId}`).set('Cookie', sessionCookie(OWNER));
+      expect(preview.body.line).toHaveLength(400);
+      expect(preview.body.line[0]).toEqual([47, 11]);
+      expect(preview.body.line[399]).toEqual([long[1199]![0], long[1199]![1]]);
+    });
+
+    it('takes a tour over as an independent tour of this trip, remembering where it came from', async () => {
+      const hut = await makePlace(orm, 5, { name: 'Hut', lat: 47.01, lng: 11.01 });
+      const source = await createViaApi(
+        5,
+        tourBody({
+          waypoints: [
+            { lat: 47, lng: 11, role: 'start', sequence: 0 },
+            { lat: 47.01, lng: 11.01, role: 'via', sequence: 1, linked_place_id: hut.id },
+            { lat: 47.02, lng: 11.02, role: 'end', sequence: 2 },
+          ],
+        }),
+      );
+      realtime.broadcastMock.mockClear();
+      const res = await request(server)
+        .post('/api/trips/6/tours/take-over')
+        .set('Cookie', sessionCookie(OWNER))
+        .send({ source_trip_id: 5, source_place_id: source });
+      expect(res.status).toBe(201);
+      const copy = res.body.tour.place_id as number;
+      expect(copy).not.toBe(source);
+      expect(res.body.tour).toMatchObject({
+        name: 'Ridge walk',
+        revision: 1,
+        planned: false,
+        max_hiking_difficulty: 3,
+      });
+      expect(res.body.provenance).toMatchObject({
+        derivedFrom: null,
+        takenOverFrom: { tripTitle: 'Alps', tourName: 'Ridge walk' },
+      });
+      // The stop stood for a place of the other trip: in this one it stands for nothing.
+      expect(
+        res.body.waypoints.map((point: { linked_place_id?: number | null }) => point.linked_place_id ?? null),
+      ).toEqual([null, null, null]);
+      expect(await findRow(orm, Places, { id: copy })).toMatchObject({ trip_id: 6 });
+      expect(await countRows(orm, DayAssignments, { place: copy })).toBe(0);
+      expect(realtime.broadcastMock.mock.calls.every(([tripId]) => String(tripId) === '6')).toBe(true);
+
+      // The source is untouched, and a later change to one leaves the other as it is.
+      const original = await request(server).get(`/api/trips/5/tours/${source}`).set('Cookie', sessionCookie(OWNER));
+      expect(original.body.provenance.takenOverFrom).toBeNull();
+      expect(original.body.waypoints[1].linked_place_id).toBe(hut.id);
+      await request(server)
+        .put(`/api/trips/6/tours/${copy}`)
+        .set('Cookie', sessionCookie(OWNER))
+        .send(tourBody({ name: 'Renamed copy' }));
+      expect((await findRow(orm, Places, { id: source }))?.name).toBe('Ridge walk');
+
+      // A copy of the copy still names where the line came from.
+      const again = await request(server)
+        .post(`/api/trips/6/tours/${copy}/copy`)
+        .set('Cookie', sessionCookie(OWNER))
+        .send({ name: 'Again' });
+      expect(again.body.provenance.takenOverFrom).toEqual({ tripTitle: 'Alps', tourName: 'Ridge walk' });
+    });
+
+    it('a name can be given; a source out of reach or gone is not found and leaves nothing behind', async () => {
+      const source = await createViaApi(5);
+      const named = await request(server)
+        .post('/api/trips/6/tours/take-over')
+        .set('Cookie', sessionCookie(OWNER))
+        .send({ source_trip_id: 5, source_place_id: source, name: 'My ridge' });
+      expect(named.body.tour.name).toBe('My ridge');
+
+      const before = await countRows(orm, Places, { trip: 7 });
+      const stolen = await request(server)
+        .post('/api/trips/7/tours/take-over')
+        .set('Cookie', sessionCookie(OUTSIDER))
+        .send({ source_trip_id: 5, source_place_id: source });
+      expect(stolen.status).toBe(404);
+      expect(stolen.body).toEqual({ error: 'Tour not found' });
+      // The place id named with the wrong trip is not found either.
+      const mismatched = await request(server)
+        .post('/api/trips/6/tours/take-over')
+        .set('Cookie', sessionCookie(OWNER))
+        .send({ source_trip_id: 6, source_place_id: source });
+      expect(mismatched.status).toBe(404);
+      expect(await countRows(orm, Places, { trip: 7 })).toBe(before);
+    });
+
+    it('needs place_edit on the trip it writes into, the addon on, a session and a well-formed body', async () => {
+      const source = await createViaApi(6);
+      const viewer = await request(server)
+        .post('/api/trips/5/tours/take-over')
+        .set('Cookie', sessionCookie(VIEWER))
+        .send({ source_trip_id: 6, source_place_id: source });
+      expect(viewer.status).toBe(403);
+      const extra = await request(server)
+        .post('/api/trips/5/tours/take-over')
+        .set('Cookie', sessionCookie(OWNER))
+        .send({ source_trip_id: 6, source_place_id: source, day_id: 1 });
+      expect(extra.status).toBe(400);
+      expect((await request(server).get('/api/tours/library')).status).toBe(401);
+      await setAddonEnabled(orm, 'tours', false);
+      const off = await request(server).get('/api/tours/library').set('Cookie', sessionCookie(OWNER));
+      expect(off.status).toBe(404);
+      expect(off.body).toEqual({ error: 'Tours addon is not enabled' });
+    });
+  });
 });

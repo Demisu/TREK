@@ -265,6 +265,8 @@ function tourRepositoryFixture(ownerTripId: number) {
     has_recorded_track: 0,
     derived_from_place_id: null,
     derived_from_name: null,
+    taken_over_from_trip_title: null,
+    taken_over_from_tour_name: null,
     source_instance: null,
     source_external_id: null,
     source_external_url: null,

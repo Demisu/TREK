@@ -58,6 +58,11 @@ export const tourProvenanceSchema = z.object({
    * import, a snapshot whose import record is missing.
    */
   editedLocally: z.boolean().nullable(),
+  /**
+   * LIB-02: the trip and tour this tour was taken over from, as they were
+   * called then; null for every other tour, absent in a detail cached before.
+   */
+  takenOverFrom: z.object({ tripTitle: z.string(), tourName: z.string() }).nullable().optional(),
 });
 export type TourProvenance = z.infer<typeof tourProvenanceSchema>;
 
