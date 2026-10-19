@@ -78,10 +78,11 @@ describe('TourTrailGradeService (BIK-05)', () => {
 
   it('TOUR-GRADE-006: keeps at most fifty thousand ways, forgetting the longest kept first', async () => {
     query.mockResolvedValue([]);
-    for (let part = 0; part < 26; part += 1) {
-      const ids = Array.from({ length: 2000 }, (_, index) => part * 2000 + index + 1);
-      await service.grades({ way_ids: ids });
-    }
+    // One request after another, as the planner sends them.
+    await Array.from({ length: 26 }, (_, part) => part).reduce(async (previous, part) => {
+      await previous;
+      await service.grades({ way_ids: Array.from({ length: 2000 }, (_, index) => part * 2000 + index + 1) });
+    }, Promise.resolve());
     query.mockClear();
     // The first way was forgotten, so it is asked about again; the last one is still kept.
     await service.grades({ way_ids: [1] });
