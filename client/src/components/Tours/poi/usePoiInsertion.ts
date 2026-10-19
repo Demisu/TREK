@@ -74,7 +74,15 @@ export function usePoiInsertion(planner: PoiInsertionPlanner) {
     (poi: TourPoi) => {
       const afterId = afterIdFor(poi);
       if (!afterId || !planner.canEdit || planner.isSaving) return false;
-      const point: TourPlannerWaypoint = { id: randomId(), lat: poi.lat, lng: poi.lng, role: 'via' };
+      // The place keeps its name, and on a city walk its opening hours to check the arrival against (CW-04).
+      const point: TourPlannerWaypoint = {
+        id: randomId(),
+        lat: poi.lat,
+        lng: poi.lng,
+        role: 'via',
+        ...(poi.name ? { name: poi.name } : {}),
+        ...(poi.opening_hours ? { openingHours: poi.opening_hours } : {}),
+      };
       const next = withPointAfter(planner.waypoints, afterId, point);
       if (!next) return false;
       const before = measuresOf(planner);

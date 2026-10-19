@@ -1,5 +1,5 @@
-import type { TourPoi, TourPoiCategory } from '@trek/shared';
-import { TOUR_POI_CORRIDORS_M } from '@trek/shared';
+import type { TourPoi, TourPoiCategory, WalkTheme } from '@trek/shared';
+import { TOUR_POI_CORRIDORS_M, WALK_THEMES } from '@trek/shared';
 import {
   AlertTriangle,
   Clock,
@@ -150,12 +150,15 @@ function PoiRow({
   planner,
   insertion,
   unit,
+  theme = null,
 }: {
   poi: TourPoi;
   selected: boolean;
   planner: TourPlannerController;
   insertion: ReturnType<typeof usePoiInsertion>;
   unit: Unit;
+  /** CW-05: the theme the place was suggested for, said as its reason. */
+  theme?: WalkTheme | null;
 }) {
   const { t } = useTranslation();
   const select = useTourPoiStore((state) => state.select);
@@ -201,6 +204,7 @@ function PoiRow({
         <div className="flex flex-col gap-2 px-2 pb-2.5">
           <p className="m-0 flex flex-wrap gap-x-3 text-content-faint" style={fs(10.5, 'body')}>
             <span>{t(look.labelKey)}</span>
+            {theme && <span>{t('tours.walk.themeReason', { theme: t(`tours.walk.theme.${theme}`) })}</span>}
             <span>{t(poi.source === 'trek-places' ? 'tours.poi.source.trek' : 'tours.poi.source.osm')}</span>
           </p>
           {poi.address && (
@@ -307,6 +311,20 @@ export function TourPoiSearchCard({ planner }: { planner: TourPlannerController 
         <p className="m-0 text-content-faint" style={fs(11, 'body')}>
           {t('tours.poi.intro')}
         </p>
+        {search.themes.length > 0 && (
+          <div className="flex flex-col gap-1.5" data-testid="tour-poi-themes">
+            <Segmented<string>
+              fill
+              value={search.theme ?? ''}
+              onChange={(key) => search.chooseTheme(key as WalkTheme)}
+              label={t('tours.walk.themes')}
+              options={search.themes.map((key) => ({ value: key, label: t(`tours.walk.theme.${key}`) }))}
+            />
+            <span className="text-content-faint" style={fs(11, 'body')}>
+              {search.theme ? t(`tours.walk.themeHint.${search.theme}`) : t('tours.walk.themeHint.own')}
+            </span>
+          </div>
+        )}
         <div className="flex flex-wrap gap-1.5" role="group" aria-label={t('tours.poi.categories')}>
           {search.offered.map((category) => (
             <CategoryChip
@@ -363,6 +381,7 @@ export function TourPoiSearchCard({ planner }: { planner: TourPlannerController 
                 planner={planner}
                 insertion={insertion}
                 unit={unit}
+                theme={search.theme && (WALK_THEMES[search.theme] as readonly string[]).includes(poi.category) ? search.theme : null}
               />
             ))}
           </ul>

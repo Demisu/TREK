@@ -2,10 +2,13 @@ import {
   TOUR_POI_CATEGORIES_BY_TYPE,
   TOUR_POI_MAX_CATEGORIES,
   TOUR_POI_MAX_LINE_POINTS,
+  WALK_THEME_KEYS,
+  WALK_THEMES,
   type PlannableTourType,
   type TourPoi,
   type TourPoiCategory,
   type TourPoiSearchResponse,
+  type WalkTheme,
 } from '@trek/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from '../../../i18n';
@@ -27,6 +30,10 @@ function thinned(line: Array<[number, number]>, most: number): Array<[number, nu
   return Array.from({ length: most }, (_, index) => line[Math.min(line.length - 1, Math.round(index * step))]).filter(
     (point): point is [number, number] => !!point
   );
+}
+
+function sameSet(a: readonly string[], b: readonly string[]): boolean {
+  return a.length === b.length && a.every((item) => b.includes(item));
 }
 
 /** What a search was asked with, so a later change of the route or the choices shows it is out of date. */
@@ -63,6 +70,13 @@ export function useTourPoiSearch(planner: TourPoiPlanner) {
   const route = planner.route;
   const currentKey = keyOf(route, type, categories, corridorM);
   const canSearch = !!route && route.length > 1 && categories.length > 0 && loadingKey === null;
+
+  // CW-05: a city walk's theme is a set of its categories; the one the categories match exactly is the theme on.
+  const theme = type === 'walk' ? (WALK_THEME_KEYS.find((key) => sameSet(WALK_THEMES[key], categories)) ?? null) : null;
+  const chooseTheme = useCallback(
+    (key: WalkTheme) => setChosen((current) => ({ ...current, walk: [...WALK_THEMES[key]] })),
+    []
+  );
 
   const toggleCategory = useCallback(
     (category: TourPoiCategory) =>
@@ -125,6 +139,10 @@ export function useTourPoiSearch(planner: TourPoiPlanner) {
     offered: TOUR_POI_CATEGORIES_BY_TYPE[type],
     categories,
     toggleCategory,
+    /** CW-05: a city walk's themes; none for any other type. */
+    themes: type === 'walk' ? WALK_THEME_KEYS : [],
+    theme,
+    chooseTheme,
     corridorM,
     setCorridorM,
     canSearch,

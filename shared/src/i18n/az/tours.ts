@@ -504,6 +504,18 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isSkipped': 'Bu gün keçildi',
   'tours.walk.visit.fromDay': 'Dayanacaqları o gün üçün qeyd etmək üçün gəzintini plandakı bir gündən aç.',
   'tours.walk.visit.failed': 'Dayanacaq qeyd edilə bilmədi. Bunun üçün bağlantı lazımdır; bir azdan yenidən cəhd et.',
+  'tours.walk.themes': 'Gəzinti mövzusu',
+  'tours.walk.theme.culture': 'Mədəniyyət və tarix',
+  'tours.walk.theme.parks': 'Parklar və mənzərələr',
+  'tours.walk.theme.food': 'Yemək və yerli həyat',
+  'tours.walk.theme.mixed': 'Hər şeydən bir az',
+  'tours.walk.themeHint.culture': 'Marşrut boyunca muzeylər, qalereyalar, abidələr və tarixi yerlər.',
+  'tours.walk.themeHint.parks': 'Marşrut boyunca parklar, bağlar və seyr nöqtələri.',
+  'tours.walk.themeHint.food': 'Marşrut boyunca kafelər, yemək yerləri və bazarlar.',
+  'tours.walk.themeHint.mixed':
+    'Hər şeydən bir az: görməli yerlər, muzeylər, parklar, mənzərələr, kafelər və bazarlar.',
+  'tours.walk.themeHint.own': 'Aşağıda öz kateqoriya seçimin; mövzu onları sənin üçün qurur.',
+  'tours.walk.themeReason': '{theme} üçün təklif olunur',
   'tours.planner.tourType': 'Tur növü',
   'tours.paddle.boat': 'Qayıq',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

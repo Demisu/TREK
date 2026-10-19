@@ -503,6 +503,18 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isSkipped': 'Dilewati pada hari ini',
   'tours.walk.visit.fromDay': 'Buka rute dari salah satu hari di rencana untuk mencentang titiknya pada hari itu.',
   'tours.walk.visit.failed': 'Titik tidak dapat ditandai. Perlu koneksi; coba lagi sebentar lagi.',
+  'tours.walk.themes': 'Tema rute',
+  'tours.walk.theme.culture': 'Budaya dan sejarah',
+  'tours.walk.theme.parks': 'Taman dan pemandangan',
+  'tours.walk.theme.food': 'Kuliner dan kehidupan lokal',
+  'tours.walk.theme.mixed': 'Sedikit dari semuanya',
+  'tours.walk.themeHint.culture': 'Museum, galeri, monumen, dan tempat bersejarah di sepanjang rute.',
+  'tours.walk.themeHint.parks': 'Taman, kebun, dan titik pandang di sepanjang rute.',
+  'tours.walk.themeHint.food': 'Kedai kopi, tempat makan, dan pasar di sepanjang rute.',
+  'tours.walk.themeHint.mixed':
+    'Sedikit dari semuanya: tempat wisata, museum, taman, pemandangan, kedai kopi, dan pasar.',
+  'tours.walk.themeHint.own': 'Pilihan kategorimu sendiri di bawah; tema mengaturnya untukmu.',
+  'tours.walk.themeReason': 'Disarankan untuk {theme}',
   'tours.planner.tourType': 'Jenis tur',
   'tours.paddle.boat': 'Perahu',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en
