@@ -6,6 +6,7 @@
  * SQLite database is covered by tours.service.test.ts.
  */
 import type { PlacesRepository } from '../../../src/db/repositories/Places.repository';
+import type { TourStationVisitsRepository } from '../../../src/db/repositories/TourStationVisits.repository';
 import type { TourTypesRepository } from '../../../src/db/repositories/TourTypes.repository';
 import type { TourWaypointsRepository } from '../../../src/db/repositories/TourWaypoints.repository';
 import type { TourProvenanceRow, ToursRepository } from '../../../src/db/repositories/Tours.repository';
@@ -140,6 +141,7 @@ function makeService() {
     toursRepo as unknown as ToursRepository,
     { isEnabled: vi.fn(async () => true) } as unknown as TourTypesRepository,
     waypointsRepo as unknown as TourWaypointsRepository,
+    { dropStationsNotIn: vi.fn(async () => undefined) } as unknown as TourStationVisitsRepository,
     placesRepo as unknown as PlacesRepository,
     buildPlaceImportService(),
     noPaddleChecks(),

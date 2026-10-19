@@ -17,8 +17,8 @@ import {
   Navigation,
   RefreshCw,
   Repeat,
-  SquarePen,
   Spline,
+  SquarePen,
   Trash2,
   Unlink,
   Waves,
@@ -47,10 +47,10 @@ import { usePaddleRegionLoad } from '../paddle/usePaddleRegionLoad';
 import { usePaddleWaypointActions } from '../paddle/usePaddleWaypointActions';
 import { usePortageRouting, usePortageWay } from '../paddle/usePortageRouting';
 import { RailCard } from '../tourParts';
-import { StationDialog } from './StationDialog';
-import { StationPills } from './stationParts';
 import { paddlePlanPoints, paddleRolesById } from './paddlePlanOf';
 import type { PaddleLegFailure } from './paddleRouting';
+import { StationDialog } from './StationDialog';
+import { StationPills } from './stationParts';
 import { lineLengthM } from './tourFixedLegs';
 import { TripPlacePicker } from './TripPlacePicker';
 import type { TourPlannerController } from './useTourPlanner';

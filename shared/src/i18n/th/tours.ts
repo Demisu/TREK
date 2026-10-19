@@ -107,6 +107,7 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder': 'เส้นทางเดินป่าที่ยังไม่มีชื่อ',
   'tours.planner.namePlaceholder.bike': 'ทริปจักรยานไม่มีชื่อ',
   'tours.planner.namePlaceholder.kayak': 'ทริปพายเรือไม่มีชื่อ',
+  'tours.planner.namePlaceholder.walk': 'การเดินเที่ยวเมืองที่ยังไม่มีชื่อ',
   'tours.planner.mapSearch': 'ค้นหาสถานที่หรือที่อยู่',
   'tours.planner.placePoints': 'วางจุด',
   'tours.planner.pointPlaced': 'วางจุดแล้ว',

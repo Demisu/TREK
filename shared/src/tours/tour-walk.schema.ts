@@ -23,9 +23,7 @@ export const tourVisitListResponseSchema = z.object({ visits: z.array(tourVisitS
 export type TourVisitListResponse = z.infer<typeof tourVisitListResponseSchema>;
 
 /** Planned takes a station back to where it started: nothing visited, nothing skipped. */
-export const tourVisitUpdateRequestSchema = z
-  .object({ status: z.enum(['planned', ...TOUR_VISIT_STATUSES]) })
-  .strict();
+export const tourVisitUpdateRequestSchema = z.object({ status: z.enum(['planned', ...TOUR_VISIT_STATUSES]) }).strict();
 export type TourVisitUpdateRequest = z.infer<typeof tourVisitUpdateRequestSchema>;
 
 /**
@@ -34,7 +32,9 @@ export type TourVisitUpdateRequest = z.infer<typeof tourVisitUpdateRequestSchema
  * way between the stations is TREK's own, planned afresh.
  */
 export const WALK_IMPORT_URL_MAX = 2048;
-export const walkImportPreviewRequestSchema = z.object({ url: z.string().trim().min(1).max(WALK_IMPORT_URL_MAX) }).strict();
+export const walkImportPreviewRequestSchema = z
+  .object({ url: z.string().trim().min(1).max(WALK_IMPORT_URL_MAX) })
+  .strict();
 export type WalkImportPreviewRequest = z.infer<typeof walkImportPreviewRequestSchema>;
 
 /** A stop as the link names it; a stop without coordinates in the link is not guessed at. */

@@ -59,7 +59,12 @@ import {
   createTestCollectionPlacesRepo,
   sharedTestOrm,
 } from '../../helpers/test-uow';
-import { createTestToursRepo, createTestTourTypesRepo, createTestTourWaypointsRepo } from '../../helpers/tours-repos';
+import {
+  createTestToursRepo,
+  createTestTourStationVisitsRepo,
+  createTestTourTypesRepo,
+  createTestTourWaypointsRepo,
+} from '../../helpers/tours-repos';
 import type { EntityClass } from '@mikro-orm/core';
 import { Logger } from '@nestjs/common';
 
@@ -165,6 +170,7 @@ beforeAll(async () => {
     await createTestToursRepo(testDb),
     await createTestTourTypesRepo(testDb),
     await createTestTourWaypointsRepo(testDb),
+    await createTestTourStationVisitsRepo(testDb),
     await createTestPlacesRepo(testDb),
     buildPlaceImportService(),
     noPaddleChecks(),

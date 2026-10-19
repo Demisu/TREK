@@ -117,6 +117,7 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder': 'Trilha sem título',
   'tours.planner.namePlaceholder.bike': 'Passeio de bicicleta sem nome',
   'tours.planner.namePlaceholder.kayak': 'Passeio de remo sem nome',
+  'tours.planner.namePlaceholder.walk': 'Passeio pela cidade sem nome',
   'tours.planner.mapSearch': 'Buscar lugar ou endereço',
   'tours.planner.placePoints': 'Marcar pontos',
   'tours.planner.pointPlaced': 'Ponto marcado',

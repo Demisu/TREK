@@ -110,6 +110,7 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder': '名前のないハイキング',
   'tours.planner.namePlaceholder.bike': '名前のないサイクリング',
   'tours.planner.namePlaceholder.kayak': '名前のないパドルツアー',
+  'tours.planner.namePlaceholder.walk': '名前のない街歩き',
   'tours.planner.mapSearch': '場所や住所を検索',
   'tours.planner.placePoints': 'ポイントを配置',
   'tours.planner.pointPlaced': 'ポイントを配置しました',

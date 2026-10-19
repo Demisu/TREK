@@ -85,7 +85,7 @@ export class TourStationVisitsRepository extends TrekRepository<TourStationVisit
         oc.columns(['assignment_id', 'station_key']).doUpdateSet((eb) => ({
           status: eb.ref('excluded.status'),
           updated_at: eb.fn<string>('CURRENT_TIMESTAMP', []),
-        }))
+        })),
       )
       .execute();
   }
@@ -101,10 +101,7 @@ export class TourStationVisitsRepository extends TrekRepository<TourStationVisit
 
   /** Drops the visits of stations a walk no longer has, on every day it is on. */
   async dropStationsNotIn(place_id: number, keep: readonly string[]): Promise<void> {
-    const assignments = this.db()
-      .selectFrom('day_assignments')
-      .select('id')
-      .where('place_id', '=', place_id);
+    const assignments = this.db().selectFrom('day_assignments').select('id').where('place_id', '=', place_id);
     let query = this.db().deleteFrom('tour_station_visits').where('assignment_id', 'in', assignments);
     if (keep.length > 0) query = query.where('station_key', 'not in', [...keep]);
     await query.execute();

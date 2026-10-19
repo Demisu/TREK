@@ -1,7 +1,7 @@
 import { Places } from '../../db/entities/Places.entity';
-import { TourStationVisits } from '../../db/entities/TourStationVisits.entity';
 import { TourObstacleReviews } from '../../db/entities/TourObstacleReviews.entity';
 import { TourSources } from '../../db/entities/TourSources.entity';
+import { TourStationVisits } from '../../db/entities/TourStationVisits.entity';
 import { TourTypes } from '../../db/entities/TourTypes.entity';
 import { TourWaypoints } from '../../db/entities/TourWaypoints.entity';
 import { Tours } from '../../db/entities/Tours.entity';
@@ -62,7 +62,15 @@ import { Module } from '@nestjs/common';
     WandererModule,
     // The obstacle data a paddle tour's checklist reads (PAD-06, PAD-09).
     PaddleObstaclesModule,
-    MikroOrmModule.forFeature([Tours, TourTypes, TourWaypoints, TourSources, TourObstacleReviews, TourStationVisits, Places]),
+    MikroOrmModule.forFeature([
+      Tours,
+      TourTypes,
+      TourWaypoints,
+      TourSources,
+      TourObstacleReviews,
+      TourStationVisits,
+      Places,
+    ]),
   ],
   controllers: [
     TourTakeOverController,

@@ -7,9 +7,9 @@ import type { Category, Place } from '../../types';
 import { formatTime } from '../../utils/formatters';
 import { fs } from '../shared/DialogShell';
 import { TourDayRowPills } from '../Tours/TourDayRowFacts';
-import { WalkProgressPill } from '../Tours/walk/WalkStations';
 import { movingTimeLabel } from '../Tours/tourFacts';
 import { formatPlannedTourDuration, type TourPlannedTimes } from '../Tours/tourPresentation';
+import { WalkProgressPill } from '../Tours/walk/WalkStations';
 import { TimePill } from './planParts';
 
 type DayRowTourTimes = TourPlannedTimes & { tour?: TourListItem };
@@ -93,7 +93,14 @@ function SublineDescription({ text, isTourPlace }: { text: string; isTourPlace: 
 
 // Second line of a place row in the day plan: time, tour facts or planned
 // tour durations, then the clamped description.
-export function DayPlanPlaceSubline({ place, cat, tourTimes, isTourPlace, timeFormat, assignmentId }: DayPlanPlaceSublineProps) {
+export function DayPlanPlaceSubline({
+  place,
+  cat,
+  tourTimes,
+  isTourPlace,
+  timeFormat,
+  assignmentId,
+}: DayPlanPlaceSublineProps) {
   const { locale } = useTranslation();
   const dayRowTour = tourTimes?.tour;
   const description = place.description || place.address || cat?.name;

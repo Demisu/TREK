@@ -1,4 +1,11 @@
-import type { PaddleLock, PlannableTourType, StationImportance, TourFixedLeg, TourWaypoint, TourWaypointRole } from '@trek/shared';
+import type {
+  PaddleLock,
+  PlannableTourType,
+  StationImportance,
+  TourFixedLeg,
+  TourWaypoint,
+  TourWaypointRole,
+} from '@trek/shared';
 import type { AutoBase } from './paddleRouting';
 import { keepJoinedFixedLegs } from './tourFixedLegs';
 import { alignFreeLegs } from './tourRouteActions';

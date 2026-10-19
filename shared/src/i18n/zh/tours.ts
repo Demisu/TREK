@@ -104,6 +104,7 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder': '未命名的徒步活动',
   'tours.planner.namePlaceholder.bike': '未命名的骑行',
   'tours.planner.namePlaceholder.kayak': '未命名的划船行程',
+  'tours.planner.namePlaceholder.walk': '未命名的城市漫步',
   'tours.planner.mapSearch': '搜索地点或地址',
   'tours.planner.placePoints': '放置点',
   'tours.planner.pointPlaced': '已放置点',

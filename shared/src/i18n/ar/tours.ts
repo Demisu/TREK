@@ -126,6 +126,7 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder': 'جولة مشي بلا اسم',
   'tours.planner.namePlaceholder.bike': 'جولة دراجة بلا اسم',
   'tours.planner.namePlaceholder.kayak': 'جولة تجديف بلا اسم',
+  'tours.planner.namePlaceholder.walk': 'جولة مشي في المدينة بلا اسم',
   'tours.planner.mapSearch': 'ابحث عن مكان أو عنوان',
   'tours.planner.placePoints': 'تعيين النقاط',
   'tours.planner.pointPlaced': 'تم تعيين النقطة',

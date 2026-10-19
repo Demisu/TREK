@@ -114,6 +114,7 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder': 'Nimetu matk',
   'tours.planner.namePlaceholder.bike': 'Nimetu rattamatk',
   'tours.planner.namePlaceholder.kayak': 'Nimetu aerutusmatk',
+  'tours.planner.namePlaceholder.walk': 'Nimetu linnajalutuskäik',
   'tours.planner.mapSearch': 'Otsi kohta või aadressi',
   'tours.planner.placePoints': 'Lisa punkte',
   'tours.planner.pointPlaced': 'Punkt lisatud',

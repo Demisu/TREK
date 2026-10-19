@@ -114,6 +114,7 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder': 'Névtelen gyalogtúra',
   'tours.planner.namePlaceholder.bike': 'Névtelen kerékpártúra',
   'tours.planner.namePlaceholder.kayak': 'Névtelen evezőstúra',
+  'tours.planner.namePlaceholder.walk': 'Névtelen városi séta',
   'tours.planner.mapSearch': 'Hely vagy cím keresése',
   'tours.planner.placePoints': 'Pontok elhelyezése',
   'tours.planner.pointPlaced': 'Pont elhelyezve',

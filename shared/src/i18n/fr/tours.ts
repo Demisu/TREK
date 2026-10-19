@@ -120,6 +120,7 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder': 'Randonnée sans titre',
   'tours.planner.namePlaceholder.bike': 'Sortie vélo sans titre',
   'tours.planner.namePlaceholder.kayak': 'Sortie en pagaie sans titre',
+  'tours.planner.namePlaceholder.walk': 'Balade en ville sans titre',
   'tours.planner.mapSearch': 'Rechercher un lieu ou une adresse',
   'tours.planner.placePoints': 'Placer des points',
   'tours.planner.pointPlaced': 'Point placé',

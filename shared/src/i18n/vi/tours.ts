@@ -114,6 +114,7 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder': 'Chuyến đi bộ đường dài chưa có tên',
   'tours.planner.namePlaceholder.bike': 'Chuyến đạp xe chưa đặt tên',
   'tours.planner.namePlaceholder.kayak': 'Chuyến chèo thuyền chưa đặt tên',
+  'tours.planner.namePlaceholder.walk': 'Chuyến dạo phố chưa đặt tên',
   'tours.planner.mapSearch': 'Tìm địa điểm hoặc địa chỉ',
   'tours.planner.placePoints': 'Đặt điểm',
   'tours.planner.pointPlaced': 'Đã đặt điểm',

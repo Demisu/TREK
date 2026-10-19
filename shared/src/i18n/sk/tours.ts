@@ -117,6 +117,7 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder': 'Pešia túra bez názvu',
   'tours.planner.namePlaceholder.bike': 'Cyklotúra bez názvu',
   'tours.planner.namePlaceholder.kayak': 'Vodácky výlet bez názvu',
+  'tours.planner.namePlaceholder.walk': 'Prechádzka mestom bez názvu',
   'tours.planner.mapSearch': 'Hľadať miesto alebo adresu',
   'tours.planner.placePoints': 'Pridávať body',
   'tours.planner.pointPlaced': 'Bod pridaný',

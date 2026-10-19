@@ -113,6 +113,7 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder': 'Vandring utan namn',
   'tours.planner.namePlaceholder.bike': 'Cykeltur utan namn',
   'tours.planner.namePlaceholder.kayak': 'Paddeltur utan namn',
+  'tours.planner.namePlaceholder.walk': 'Stadspromenad utan namn',
   'tours.planner.mapSearch': 'Sök plats eller adress',
   'tours.planner.placePoints': 'Sätt punkter',
   'tours.planner.pointPlaced': 'Punkt satt',

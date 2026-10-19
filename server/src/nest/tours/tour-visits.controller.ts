@@ -6,7 +6,17 @@ import { ResponseContract } from '../common/response-contract';
 import { RequirePermission, TripAccessGuard } from '../permissions/trip-access.guard';
 import { TourVisitUpdateDto } from './dto/tour-visit.dto';
 import { TourVisitsService } from './tour-visits.service';
-import { BadRequestException, Body, Controller, Get, Headers, Param, ParseIntPipe, Put, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Param,
+  ParseIntPipe,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { stationKeySchema, tourVisitListResponseSchema } from '@trek/shared';
 
 /**

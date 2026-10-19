@@ -118,6 +118,7 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder': 'Πεζοπορία χωρίς όνομα',
   'tours.planner.namePlaceholder.bike': 'Ποδηλατάδα χωρίς όνομα',
   'tours.planner.namePlaceholder.kayak': 'Κουπί χωρίς όνομα',
+  'tours.planner.namePlaceholder.walk': 'Βόλτα στην πόλη χωρίς όνομα',
   'tours.planner.mapSearch': 'Αναζήτηση τόπου ή διεύθυνσης',
   'tours.planner.placePoints': 'Τοποθέτηση σημείων',
   'tours.planner.pointPlaced': 'Το σημείο τοποθετήθηκε',

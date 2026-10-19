@@ -108,6 +108,7 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder': '이름 없는 하이킹',
   'tours.planner.namePlaceholder.bike': '이름 없는 자전거 투어',
   'tours.planner.namePlaceholder.kayak': '이름 없는 패들 투어',
+  'tours.planner.namePlaceholder.walk': '이름 없는 도시 산책',
   'tours.planner.mapSearch': '장소 또는 주소 검색',
   'tours.planner.placePoints': '지점 찍기',
   'tours.planner.pointPlaced': '지점을 찍었습니다',

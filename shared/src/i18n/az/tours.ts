@@ -113,6 +113,7 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder': 'Adsız yürüş',
   'tours.planner.namePlaceholder.bike': 'Adsız velosiped turu',
   'tours.planner.namePlaceholder.kayak': 'Adsız avarçəkmə turu',
+  'tours.planner.namePlaceholder.walk': 'Adsız şəhər gəzintisi',
   'tours.planner.mapSearch': 'Yer və ya ünvan axtar',
   'tours.planner.placePoints': 'Nöqtə qoy',
   'tours.planner.pointPlaced': 'Nöqtə qoyuldu',

@@ -113,6 +113,7 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder': 'Untitled hike',
   'tours.planner.namePlaceholder.bike': 'Untitled bike tour',
   'tours.planner.namePlaceholder.kayak': 'Untitled paddle tour',
+  'tours.planner.namePlaceholder.walk': 'Untitled city walk',
   'tours.planner.mapSearch': 'Search place or address',
   'tours.planner.placePoints': 'Set points',
   'tours.planner.pointPlaced': 'Point set',

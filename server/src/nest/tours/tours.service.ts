@@ -1,13 +1,12 @@
-import { randomUUID } from 'node:crypto';
 import { Places } from '../../db/entities/Places.entity';
-import { TourTypes } from '../../db/entities/TourTypes.entity';
 import { TourStationVisits } from '../../db/entities/TourStationVisits.entity';
+import { TourTypes } from '../../db/entities/TourTypes.entity';
 import { TourWaypoints } from '../../db/entities/TourWaypoints.entity';
 import { Tours } from '../../db/entities/Tours.entity';
 import { TOUR_HIKING_PREFERENCES, TOUR_TRACK_MARKS } from '../../db/json-columns';
 import type { PlacesRepository } from '../../db/repositories/Places.repository';
-import type { TourTypesRepository } from '../../db/repositories/TourTypes.repository';
 import type { TourStationVisitsRepository } from '../../db/repositories/TourStationVisits.repository';
+import type { TourTypesRepository } from '../../db/repositories/TourTypes.repository';
 import type { TourWaypointsRepository } from '../../db/repositories/TourWaypoints.repository';
 import type {
   TourDayRow,
@@ -55,6 +54,8 @@ import {
   type WandererDifficulty,
   wandererDifficultyToSac,
 } from '@trek/shared';
+
+import { randomUUID } from 'node:crypto';
 
 export interface ImportGpxAsTourResult {
   tours: TourListItem[];

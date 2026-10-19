@@ -70,13 +70,13 @@ function CategoryPicker({ search }: { search: TourPoiSearch }) {
         className="flex w-full min-w-0 items-center gap-2 rounded-[10px] border border-edge bg-surface-input px-2.5 py-1.5 text-start hover:border-content-faint"
       >
         <span className="sr-only">{t('tours.poi.categories')}: </span>
-        <span className="flex flex-none -space-x-1 rtl:space-x-reverse" aria-hidden="true">
-          {chosen.slice(0, 3).map((category) => {
+        <span className="flex flex-none" aria-hidden="true">
+          {chosen.slice(0, 3).map((category, index) => {
             const look = TOUR_POI_LOOKS[category];
             return (
               <span
                 key={category}
-                className="grid h-5 w-5 place-items-center rounded-full bg-surface-card ring-2 ring-[color:var(--bg-card)]"
+                className={`grid h-5 w-5 place-items-center rounded-full bg-surface-card ring-2 ring-[color:var(--bg-card)] ${index > 0 ? '-ms-1' : ''}`}
                 style={{ color: look.color }}
               >
                 <look.Icon size={11} strokeWidth={2.2} />

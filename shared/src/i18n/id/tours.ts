@@ -112,6 +112,7 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder': 'Pendakian tanpa judul',
   'tours.planner.namePlaceholder.bike': 'Tur sepeda tanpa nama',
   'tours.planner.namePlaceholder.kayak': 'Tur dayung tanpa nama',
+  'tours.planner.namePlaceholder.walk': 'Jalan kaki kota tanpa nama',
   'tours.planner.mapSearch': 'Cari tempat atau alamat',
   'tours.planner.placePoints': 'Tempatkan titik',
   'tours.planner.pointPlaced': 'Titik ditempatkan',

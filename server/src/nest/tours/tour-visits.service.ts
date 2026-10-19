@@ -1,7 +1,10 @@
 import { TourStationVisits } from '../../db/entities/TourStationVisits.entity';
 import { TourWaypoints } from '../../db/entities/TourWaypoints.entity';
 import { Tours } from '../../db/entities/Tours.entity';
-import type { TourStationVisitRow, TourStationVisitsRepository } from '../../db/repositories/TourStationVisits.repository';
+import type {
+  TourStationVisitRow,
+  TourStationVisitsRepository,
+} from '../../db/repositories/TourStationVisits.repository';
 import type { TourWaypointRow, TourWaypointsRepository } from '../../db/repositories/TourWaypoints.repository';
 import type { ToursRepository } from '../../db/repositories/Tours.repository';
 import { PlacesService } from '../places/places.service';

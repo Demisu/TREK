@@ -122,6 +122,7 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder': 'Похід без назви',
   'tours.planner.namePlaceholder.bike': 'Велопоїздка без назви',
   'tours.planner.namePlaceholder.kayak': 'Сплав без назви',
+  'tours.planner.namePlaceholder.walk': 'Прогулянка містом без назви',
   'tours.planner.mapSearch': 'Пошук місця або адреси',
   'tours.planner.placePoints': 'Ставити точки',
   'tours.planner.pointPlaced': 'Точку поставлено',
