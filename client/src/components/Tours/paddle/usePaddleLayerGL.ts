@@ -15,6 +15,8 @@ import {
 export type PaddleGlMap = Map;
 
 const SOURCE = 'trek-paddle';
+/** The casing of the route the map draws (MapViewGL), which the paddle lines go under. */
+const ROUTE_CASING = 'trip-route-casing';
 const CASING = 'trek-paddle-casing';
 const CASING_AREA = 'trek-paddle-casing-area';
 const LINE = 'trek-paddle-line';
@@ -116,7 +118,11 @@ function addLayers(map: PaddleGlMap, data: GeoJSON.FeatureCollection): void {
   };
   // The objects only in the area wait for PADDLE_AREA_MIN_ZOOM; a hidden layer is also no click target.
   const area = { minzoom: PADDLE_AREA_MIN_ZOOM };
-  const add = map.addLayer.bind(map);
+  // The lines go under the tour's own route, so a rule that covers a whole river never hides
+  // the line planned along it; the pins stay on top, where they are picked.
+  const underRoute = map.getLayer?.(ROUTE_CASING) ? ROUTE_CASING : undefined;
+  const add = (layer: Parameters<PaddleGlMap['addLayer']>[0]) =>
+    map.addLayer(layer, layer.type === 'line' ? underRoute : undefined);
   add({
     id: CASING_AREA,
     type: 'line',

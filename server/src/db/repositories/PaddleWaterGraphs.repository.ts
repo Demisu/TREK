@@ -83,4 +83,18 @@ export class PaddleWaterGraphsRepository extends TrekRepository<PaddleWaterGraph
       )
       .execute();
   }
+
+  /**
+   * Forgets a region's network when its file is gone, but only that file: a
+   * network built again meanwhile under another name stays. Answers whether
+   * one was forgotten.
+   */
+  async forgetMissing(regionId: string, file: string): Promise<boolean> {
+    const result = await this.db()
+      .deleteFrom('paddle_water_graphs')
+      .where('region_id', '=', regionId)
+      .where('file', '=', file)
+      .executeTakeFirst();
+    return Number(result.numDeletedRows ?? 0) > 0;
+  }
 }

@@ -22,6 +22,12 @@ import { join } from 'node:path';
 
 const GRAPH_SUFFIX = '.wgraph';
 
+/** Whether the router failed because the network's file is not there. */
+function isMissingFile(err: unknown): boolean {
+  if (typeof err === 'object' && err !== null && (err as { code?: unknown }).code === 'ENOENT') return true;
+  return err instanceof Error && err.message.startsWith('ENOENT');
+}
+
 type Network = NonNullable<PaddleRegion['network']>;
 
 /**
@@ -62,7 +68,12 @@ export class PaddleRoutingService implements OnApplicationBootstrap, OnApplicati
   }
 
   async sweep(): Promise<void> {
-    const kept = new Set((await this.graphs.list()).map((row) => row.file));
+    const rows = await this.graphs.list();
+    // A database that knows no network at all did not write these files: a test's, or a fresh
+    // one restored without the data folder. Clearing them would only throw away networks
+    // another database still names; an empty one leaves them be.
+    if (rows.length === 0) return;
+    const kept = new Set(rows.map((row) => row.file));
     let entries: string[];
     try {
       entries = await readdir(this.dir());
@@ -194,7 +205,11 @@ export class PaddleRoutingService implements OnApplicationBootstrap, OnApplicati
     );
   }
 
-  /** One region's legs planned in the router's thread; a thread that fails or hangs fails them all, as busy or timeout. */
+  /**
+   * One region's legs planned in the router's thread; a thread that fails or hangs fails them all, as busy or timeout.
+   *
+   * @txStandalone forgetting a network whose file is gone repairs the record on its own; nothing else is written with it.
+   */
   private async planOn(
     row: PaddleWaterGraphRow,
     legs: PaddleRouteRequest['legs'],
@@ -205,6 +220,13 @@ export class PaddleRoutingService implements OnApplicationBootstrap, OnApplicati
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       logInfo(`[Paddle] routing on ${row.region_id}: ${message}`);
+      // The network's file is gone (a data folder moved or restored without it): the region
+      // has no network any more rather than a busy router. Forgotten, its legs say so, and
+      // loading the region (PAD-11C) builds the network again.
+      if (isMissingFile(err) && (await this.graphs.forgetMissing(row.region_id, row.file))) {
+        this.runner.forget(this.pathOf(row.file));
+        return legs.map((leg): PaddleRouteLeg => ({ status: 'failed', code: 'no_region', at: leg.from }));
+      }
       const code = message === 'timeout' ? 'timeout' : 'busy';
       return legs.map((): PaddleRouteLeg => ({ status: 'failed', code, at: null }));
     }

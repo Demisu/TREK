@@ -6,6 +6,7 @@
  */
 import { PaddleRegions } from '../../../../src/db/entities/PaddleRegions.entity';
 import { PaddleWaterGraphs } from '../../../../src/db/entities/PaddleWaterGraphs.entity';
+import { PaddleWaterGraphsRepository } from '../../../../src/db/repositories/PaddleWaterGraphs.repository';
 import { AppConfigModule } from '../../../../src/nest/app-config/app-config.module';
 import { DataPathsService } from '../../../../src/nest/app-config/data-paths.service';
 import { withRequestContext } from '../../../../src/nest/database/request-context';
@@ -228,5 +229,42 @@ describe('PaddleRoutingService', () => {
     vi.spyOn(service, 'sweep').mockRejectedValueOnce(new Error('disk gone'));
     await service.onApplicationBootstrap();
     expect(log.logError).toHaveBeenCalledWith(expect.stringContaining('disk gone'));
+  });
+
+  it('PADROUTE-SVC-009: a sweep over a database that knows no network leaves every file on disk', async () => {
+    await mkdir(graphsDir(), { recursive: true });
+    const elsewhere = await service.writeGraphFile('oberpfalz', westGraph);
+    await inContext(() => service.sweep());
+    expect(await readdir(graphsDir())).toEqual([elsewhere]);
+  });
+
+  it('PADROUTE-SVC-010: a network whose file is gone is forgotten and its legs say no region, so loading the region builds it again', async () => {
+    const file = await install('oberpfalz', westGraph);
+    await rm(join(graphsDir(), file));
+    const leg = { from: west.at(0, 5000), to: west.at(0, 1000) };
+    expect((await plan({ legs: [leg] })).legs).toEqual([
+      { status: 'failed', code: 'no_region', at: paddleRouteRequestSchema.parse({ legs: [leg] }).legs[0]?.from },
+    ]);
+    expect(await countRows(orm(), PaddleWaterGraphs)).toBe(0);
+    expect((await inContext(() => service.networks())).has('oberpfalz')).toBe(false);
+    // Asked again, there is no network to fail on: the region answers as one without.
+    expect((await plan({ legs: [leg] })).legs[0]).toMatchObject({ status: 'failed', code: 'no_region' });
+  });
+
+  it('PADROUTE-SVC-011: a missing file of a network built anew meanwhile forgets nothing', async () => {
+    const runner: RouterRunner = {
+      run: vi.fn().mockRejectedValue(Object.assign(new Error('ENOENT: no such file'), { code: 'ENOENT' })),
+      forget: vi.fn(),
+      close: vi.fn().mockResolvedValue(undefined),
+    };
+    await boot(runner);
+    await install('oberpfalz', westGraph);
+    await updateRows(orm(), PaddleWaterGraphs, { region_id: 'oberpfalz' }, { file: 'oberpfalz.rebuilt.wgraph' });
+    const leg = { from: west.at(0, 5000), to: west.at(0, 1000) };
+    // The row names another file by now, so the one that failed is not this network's: busy, nothing forgotten.
+    const raced = vi.spyOn(PaddleWaterGraphsRepository.prototype, 'forgetMissing').mockResolvedValueOnce(false);
+    expect((await plan({ legs: [leg] })).legs).toEqual([{ status: 'failed', code: 'busy', at: null }]);
+    expect(raced).toHaveBeenCalled();
+    expect(await countRows(orm(), PaddleWaterGraphs)).toBe(1);
   });
 });
