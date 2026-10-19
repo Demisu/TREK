@@ -26,9 +26,10 @@ describe('tourPlannerFacts', () => {
     const facts = tourPlannerFacts(
       hike({ routeAnalysis: analysis, durationSeconds: 3_600, breakAdditionalMinutes: 30 })
     );
-    expect(facts.walkingDurationMinutes).toBeGreaterThan(60);
-    expect(facts.plannedTotalMinutes).toBe(facts.walkingDurationMinutes! + 30);
-    expect(facts.savedDurationSeconds).toBe(facts.walkingDurationMinutes! * 60);
+    const walking = facts.walkingDurationMinutes ?? 0;
+    expect(walking).toBeGreaterThan(60);
+    expect(facts.plannedTotalMinutes).toBe(walking + 30);
+    expect(facts.savedDurationSeconds).toBe(walking * 60);
     expect(facts.typeFields).toMatchObject({ tour_type: 'hike', max_hiking_difficulty: 3, boat_type: null });
   });
 

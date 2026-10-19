@@ -53,12 +53,9 @@ export function useTourWorkspace(
     },
   });
 
-  // P2C-03: someone else saved the tour open in the editor; the trip's tours follow every save live.
-  useTourRevisionWatch(tourPlanner, tours);
-
-  // A tour of the trip opened in the planner: an import has no waypoints of its own and
-  // shows as it came in, a planned tour opens in the editor. Never over an edit it would
-  // replace.
+  useTourRevisionWatch(tourPlanner, tours); // P2C-03: a save made elsewhere reaches the open editor
+  // A tour of the trip opened in the planner: an import (no waypoints of its own) shows as it
+  // came in, a planned tour opens in the editor. Never over an edit it would replace.
   const { hasUnsavedChanges, viewGpxTour, openTour } = tourPlanner;
   /** An import shown as it came in, over whatever the planner shows; the caller asked before discarding. */
   const viewImportedTour = useCallback(
@@ -148,8 +145,6 @@ export function useTourWorkspace(
     onSaved: takeInSavedTour,
   });
 
-  const tourDetailActions = useTourDetailActions(planner);
-
   return {
     tourPlanner,
     viewImportedTour,
@@ -159,6 +154,6 @@ export function useTourWorkspace(
     recordedTrack,
     trackPaddlePlan,
     paddleChecklist,
-    tourDetailActions,
+    tourDetailActions: useTourDetailActions(planner),
   };
 }

@@ -1,5 +1,5 @@
 import L from 'leaflet';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Marker, Polyline, Tooltip, useMap, useMapEvents } from 'react-leaflet';
 import { useTranslation } from '../../../i18n';
 import {
@@ -21,23 +21,25 @@ const LINE_WEIGHT = { on_route: 4, near: 3, area: 2 } as const;
  */
 const LINE_PANE = 'trek-paddle-lines';
 
-/** The line pane, made once per map; undefined where the renderer has no panes, which then stacks by order. */
+/** Makes the line pane on a map that has none yet; undefined where the renderer has no panes, which then stacks by order. */
+function ensureLinePane(map: L.Map): string | undefined {
+  if (typeof map.getPane !== 'function' || typeof map.createPane !== 'function') return undefined;
+  if (!map.getPane(LINE_PANE)) {
+    const pane = map.createPane(LINE_PANE);
+    pane.style.zIndex = '397';
+    // The app's stylesheet levels every pane (`.leaflet-pane { z-index: 0 !important }`), so
+    // the order in the map pane decides: right before the overlay pane, under the route.
+    const overlay = map.getPane('overlayPane');
+    if (overlay?.parentElement) overlay.parentElement.insertBefore(pane, overlay);
+  }
+  return LINE_PANE;
+}
+
+/** The line pane, made once per map before the first line is drawn into it. */
 function useLinePane(): string | undefined {
   const map = useMap();
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    if (typeof map.getPane !== 'function' || typeof map.createPane !== 'function') return;
-    if (!map.getPane(LINE_PANE)) {
-      const pane = map.createPane(LINE_PANE);
-      pane.style.zIndex = '397';
-      // The app's stylesheet levels every pane (`.leaflet-pane { z-index: 0 !important }`), so
-      // the order in the map pane decides: right before the overlay pane, under the route.
-      const overlay = map.getPane('overlayPane');
-      if (overlay?.parentElement) overlay.parentElement.insertBefore(pane, overlay);
-    }
-    setReady(true);
-  }, [map]);
-  return ready ? LINE_PANE : undefined;
+  const [pane] = useState(() => ensureLinePane(map));
+  return pane;
 }
 const LINE_OPACITY = { on_route: 1, near: 0.85, area: 0.5 } as const;
 

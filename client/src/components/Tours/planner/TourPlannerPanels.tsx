@@ -141,6 +141,13 @@ function statusText(planner: TourPlannerController, key: string, t: Translate): 
  * a restored draft, routing or saving, and a failure with its retry. Nothing
  * when there is nothing to say.
  */
+/** The status badge's words: a failed save (or the conflict that refused it) first, else what the editor is doing. */
+function statusLabelOf(planner: TourPlannerController, statusKey: string | null | undefined, t: Translate) {
+  if (planner.error === 'conflict') return t('tours.revision.conflictTitle')
+  if (planner.error === 'save') return t('tours.planner.status.saveFailed')
+  return statusKey ? statusText(planner, statusKey, t) : null
+}
+
 function RailStatusBadges({ planner }: { planner: TourPlannerController }) {
   const { t } = useTranslation()
   const statusKey = planner.isSaving ? STATUS_KEY.saving : STATUS_KEY[planner.status]
@@ -150,9 +157,7 @@ function RailStatusBadges({ planner }: { planner: TourPlannerController }) {
   const canRetry = retryable(planner)
   if (!restored && !statusKey && !failed && !onFerrata) return null
   const warning = planner.error != null || canRetry
-  const statusLabel = failed
-    ? t(planner.error === 'conflict' ? 'tours.revision.conflictTitle' : 'tours.planner.status.saveFailed')
-    : statusKey ? statusText(planner, statusKey, t) : null
+  const statusLabel = statusLabelOf(planner, statusKey, t)
   const busy = planner.isSaving || planner.status === 'routing' || planner.status === 'enriching-elevation'
   return (
     <span role="status" data-testid="tour-planner-status" className="ms-1.5 flex flex-none items-center gap-1">

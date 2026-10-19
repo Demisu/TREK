@@ -7,7 +7,7 @@ import { analyzeRouteGeometry, type RouteProfileFocus } from '../../../utils/rou
 import { enrichTourElevations, routeWalkingTour, type TourElevationPoint, type TourRoutePart } from './tourRouting'
 import { closeLoop, isClosedLoop, reverseRoute, toggleFreeLeg, withPointAppended } from './tourRouteActions'
 import { normalizePlannerWaypoints, plannerWaypointsOf, sameWaypointSnapshot, savedWaypointsOf, tourWaypointKey, unlinkedPoint, type TourPlannerWaypoint } from './tourPlannerWaypoints'
-import { tourPlannerFacts } from './tourPlannerFacts'
+import { openedTourFields, tourPlannerFacts } from './tourPlannerFacts'
 import { usePlannerHistory } from './usePlannerHistory'
 import { useTourDraftStorage } from './useTourDraftStorage'
 import { useTourRevisionGuard } from './useTourRevisionGuard'
@@ -168,7 +168,6 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const tourTypeRef = useRef(tourType)
   waypointsRef.current = waypoints
   difficultyRef.current = maxHikingDifficulty
-  preferencesRef.current = hikingPreferences
   const snapshot = useCallback((): HistoryEntry => ({ waypoints: waypointsRef.current, difficulty: difficultyRef.current, preferences: preferencesRef.current, tourType: tourTypeRef.current }), [])
 
   useEffect(() => {
@@ -517,7 +516,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     setElevationProfileExpanded(true)
     setNewDraftGeneration(generation => generation + 1)
     setMapFocusKey(key => key + 1)
-  }, [clearHistory, invalidateDetailRequest, interruptRouting, loadPaddle, forgetDraft])
+  }, [adoptRevision, clearHistory, invalidateDetailRequest, interruptRouting, loadPaddle, forgetDraft])
 
   const forgetDeletedTour = useCallback((placeId: number) => {
     deletedTourPlaceIdsRef.current.add(placeId)
@@ -581,7 +580,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       setHasUnsavedChanges(true)
       return true
     },
-    [loadPaddle, returnToNeutral])
+    [adoptRevision, loadPaddle, returnToNeutral])
 
   const cancelNewTour = useCallback(() => setNewTourConfirmationOpen(false), [])
   const toggleElevationProfile = useCallback(() => {
@@ -639,25 +638,25 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       }
 
       interruptRouting()
-      const openedType: PlannableTourType = result.tour.tour_type === 'kayak' ? 'kayak' : 'hike'
-      const nextWaypoints = normalizePlannerWaypoints(plannerWaypointsOf(result.waypoints, randomId), openedType === 'kayak')
+      const opened = openedTourFields(result.tour)
+      const nextWaypoints = normalizePlannerWaypoints(plannerWaypointsOf(result.waypoints, randomId), opened.tourType === 'kayak')
       forgetDraft()
       contextGenerationRef.current += 1
       draftRevisionRef.current += 1
-      setNameState(result.tour.name)
-      setDescriptionState(result.tour.description ?? '')
-      setWebsiteState(result.tour.website ?? '')
-      setPlannedDurationMinutesState(result.tour.planned_duration_minutes ?? null)
-      setBreakAdditionalMinutesState(result.tour.break_additional_minutes ?? null)
+      setNameState(opened.name)
+      setDescriptionState(opened.description)
+      setWebsiteState(opened.website)
+      setPlannedDurationMinutesState(opened.plannedDurationMinutes)
+      setBreakAdditionalMinutesState(opened.breakAdditionalMinutes)
       setWaypoints(nextWaypoints)
-      setMaxHikingDifficultyState(result.tour.max_hiking_difficulty ?? 2)
-      setTourTypeState(openedType)
+      setMaxHikingDifficultyState(opened.difficulty)
+      setTourTypeState(opened.tourType)
       loadPaddle(paddleFieldsOf(result.tour))
       waypointsRef.current = nextWaypoints
-      difficultyRef.current = result.tour.max_hiking_difficulty ?? 2
-      preferencesRef.current = result.tour.hiking_preferences ?? null
-      setHikingPreferencesState(preferencesRef.current)
-      tourTypeRef.current = openedType
+      difficultyRef.current = opened.difficulty
+      preferencesRef.current = opened.preferences
+      setHikingPreferencesState(opened.preferences)
+      tourTypeRef.current = opened.tourType
       setSelectedWaypointId(nextWaypoints[0]?.id ?? null)
       clearHistory()
       setStatus('dirty')
@@ -687,7 +686,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
         setOpeningTourId(null)
       }
     }
-  }, [clearHistory, interruptRouting, loadPaddle, forgetDraft, tripId])
+  }, [adoptRevision, clearHistory, interruptRouting, loadPaddle, forgetDraft, tripId])
 
   const retry = useCallback(() => {
     if (waypointsRef.current.length < 2) return
@@ -909,7 +908,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
         setIsSaving(false)
       }
     }
-  }, [clearHistory, breakAdditionalMinutes, canSave,
+  }, [adoptRevision, refuseRevision, revisionBaseRef, clearHistory, breakAdditionalMinutes, canSave,
     derivedFromPlaceId,
     description, savedDurationSeconds, editingPlaceId, enrichedGeometry, invalidateDetailRequest, name, onSaved, plannedDurationMinutes, forgetDraft, tripId, typeFields, waypoints, website])
 

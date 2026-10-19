@@ -6,10 +6,25 @@ import {
   type PaddleLakeStyle,
   type PaddleWaterContext,
   type PlannableTourType,
+  type TourListItem,
   type TourMaxHikingDifficulty,
 } from '@trek/shared';
 import type { RouteGeometryAnalysis } from '../../../utils/routeGeometry';
 import { hikingTimeMinutes } from '../hikingTime';
+
+/** The editable fields of a saved tour as the planner opens them, each with its empty value. */
+export function openedTourFields(tour: TourListItem) {
+  return {
+    name: tour.name,
+    description: tour.description ?? '',
+    website: tour.website ?? '',
+    plannedDurationMinutes: tour.planned_duration_minutes ?? null,
+    breakAdditionalMinutes: tour.break_additional_minutes ?? null,
+    difficulty: tour.max_hiking_difficulty ?? 2,
+    preferences: tour.hiking_preferences ?? null,
+    tourType: (tour.tour_type === 'kayak' ? 'kayak' : 'hike') as PlannableTourType,
+  };
+}
 
 /** What the planner's facts are read from: the draft's fields and the route as last computed. */
 export interface TourPlannerFactsInput {

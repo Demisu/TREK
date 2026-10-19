@@ -418,7 +418,8 @@ describe('useTourPlanner route tools', () => {
       expect(routeWalkingTour).toHaveBeenLastCalledWith(
         expect.arrayContaining([expect.objectContaining({ shaping: true })]),
         expect.any(AbortSignal),
-        2
+        2,
+        null
       );
     });
 
