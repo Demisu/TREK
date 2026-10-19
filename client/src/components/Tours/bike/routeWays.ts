@@ -9,11 +9,11 @@ import { decodePolyline } from '../../Map/transitGeometry';
  */
 
 /** Surfaces from smooth to rough; `unknown` where the data names none. */
-export const SURFACE_CLASSES = ['paved', 'rough', 'compacted', 'gravel', 'ground', 'unknown'] as const;
+const SURFACE_CLASSES = ['paved', 'rough', 'compacted', 'gravel', 'ground', 'unknown'] as const;
 export type SurfaceClass = (typeof SURFACE_CLASSES)[number];
 
 /** Kinds of way, the ones a rider plans by. */
-export const WAY_CLASSES = ['cyclePath', 'cycleLane', 'quiet', 'road', 'track', 'path', 'ferry', 'other'] as const;
+const WAY_CLASSES = ['cyclePath', 'cycleLane', 'quiet', 'road', 'track', 'path', 'ferry', 'other'] as const;
 export type WayClass = (typeof WAY_CLASSES)[number];
 
 /**
@@ -21,7 +21,7 @@ export type WayClass = (typeof WAY_CLASSES)[number];
  * (rare, and all of them expert ground); `none` where OpenStreetMap gives the
  * way no grade, `unasked` where it could not be asked this time.
  */
-export const TRAIL_CLASSES = ['s0', 's1', 's2', 's3', 's4', 'none', 'unasked'] as const;
+const TRAIL_CLASSES = ['s0', 's1', 's2', 's3', 's4', 'none', 'unasked'] as const;
 export type TrailClass = (typeof TRAIL_CLASSES)[number];
 
 /** Surfaces a road bike's rider calls unpaved (BIK-02): what is no paving of any kind. */

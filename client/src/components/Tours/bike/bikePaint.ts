@@ -7,7 +7,7 @@ import type { SurfaceClass, TrailClass } from './routeWays';
  * own; the map reads them resolved (`useBikePaint`). A kind of way has no
  * colour of its own: it is pointed at in the accent.
  */
-export const BIKE_PAINT_TOKENS = {
+const BIKE_PAINT_TOKENS = {
   paved: '--bike-surface-paved',
   rough: '--bike-surface-rough',
   compacted: '--bike-surface-compacted',

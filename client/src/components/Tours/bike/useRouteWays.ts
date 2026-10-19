@@ -10,7 +10,7 @@ import { routeWaysFrom, wayIdsOf, type RouteWays } from './routeWays';
 /** How long a route has to stay before its ways are asked about, so a route being shaped asks once. */
 const SETTLE_MS = 600;
 
-export type RouteWaysStatus = 'idle' | 'loading' | 'ready' | 'failed' | 'offline';
+type RouteWaysStatus = 'idle' | 'loading' | 'ready' | 'failed' | 'offline';
 
 export interface TrailGrades {
   status: 'loading' | 'ready' | 'failed' | 'offline';

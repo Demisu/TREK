@@ -77,7 +77,7 @@ export function hikingCostingOptions(preferences: HikingPreferences | null | und
  * `use_roads` and the bicycle type also set the router's riding speed, so the
  * time it gives is the profile's. None of it says a way is rideable or safe.
  */
-export const BIKE_COSTING: Record<BikeProfile, Readonly<CostingOptions>> = {
+const BIKE_COSTING: Record<BikeProfile, Readonly<CostingOptions>> = {
   touring: { bicycle_type: 'Hybrid', use_roads: 0.2, avoid_bad_surfaces: 1 },
   road: { bicycle_type: 'Road', use_roads: 0.5, avoid_bad_surfaces: 1 },
   gravel: { bicycle_type: 'Cross', use_roads: 0.1, avoid_bad_surfaces: 0.25 },
