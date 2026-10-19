@@ -6,11 +6,14 @@ import { addonGate } from '../addons/addon-gate';
 import { AddonsService } from '../addons/addons.service';
 import { TripAccessService } from '../trip-membership/trip-access.service';
 import { TourGpxExportService } from './tour-gpx-export.service';
+import { TourPoiSearchService } from './tour-poi-search.service';
 import { ToursService } from './tours.service';
 import { NotFoundException } from '@nestjs/common';
-import { idSchema, type TourListItem } from '@trek/shared';
+import { idSchema, tourPoiSearchRequestSchema, type TourListItem, type TourPoiSearchRequest } from '@trek/shared';
 
 type TourDay = Pick<TourDayRow, 'day_id' | 'day_number' | 'date' | 'title'>;
+
+const poiFields = tourPoiSearchRequestSchema.shape;
 
 /** A tour as a client reads it: its list facts and the days of the trip it is on. */
 function withDays(tour: TourListItem, days: ReadonlyMap<number, TourDay[]>) {
@@ -32,6 +35,7 @@ export class ToursMcp {
     private readonly tours: ToursService,
     private readonly access: TripAccessService,
     private readonly gpxExport: TourGpxExportService,
+    private readonly poiSearch: TourPoiSearchService,
     // Read by the addon gate of every tool here.
     readonly addons: AddonsService,
   ) {}
@@ -117,6 +121,38 @@ export class ToursMcp {
     if (!(await this.access.findAccessible(tripId, ctx.userId))) return noAccess();
     try {
       return ok(await this.gpxExport.export(String(tripId), String(placeId)));
+    } catch (err: unknown) {
+      if (err instanceof NotFoundException) return errorResult('Tour not found.');
+      throw err;
+    }
+  }
+
+  @Tool({
+    name: 'search_tour_pois',
+    description:
+      'Search places along the saved line of a tour: what a hike or a paddle tour stops for (viewpoint, peak, shelter, drinking_water, food, toilets, picnic, campsite, sights, slipway, boat_rental), within corridor_m metres of the line. Answers each place with its source, kind, address, website and phone where known, opening hours as the source has them (a hint to check, never a promise), distance_m (straight across to the line, not a detour) and along_m (from the start along the line), nearest the start first, up to 60. partial says some stretches could not be searched, capped that only the first part of a long line was. Nothing is added to the tour or the trip.',
+    inputSchema: {
+      tripId: idSchema,
+      placeId: idSchema.describe('The place id of the tour, as list_tours gives it'),
+      categories: poiFields.categories,
+      corridor_m: poiFields.corridor_m,
+      lang: poiFields.lang,
+    },
+    annotations: TOOL_ANNOTATIONS_READONLY,
+    when: addonGate(ADDON_IDS.TOURS),
+    access: { group: 'trips', mode: 'read' },
+  })
+  async searchTourPois(
+    {
+      tripId,
+      placeId,
+      ...request
+    }: { tripId: number; placeId: number } & Pick<TourPoiSearchRequest, 'categories' | 'corridor_m' | 'lang'>,
+    ctx: McpContext,
+  ) {
+    if (!(await this.access.findAccessible(tripId, ctx.userId))) return noAccess();
+    try {
+      return ok(await this.poiSearch.searchSavedTour(tripId, placeId, request));
     } catch (err: unknown) {
       if (err instanceof NotFoundException) return errorResult('Tour not found.');
       throw err;

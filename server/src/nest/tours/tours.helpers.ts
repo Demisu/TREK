@@ -69,3 +69,18 @@ export function changedParts(before: string, now: string): Array<(typeof CONTENT
   const b = now.split('.');
   return CONTENT_PARTS.filter((_, i) => a[i] !== b[i]);
 }
+
+/**
+ * At most `most` points of a line, evenly spread along it with its ends kept:
+ * a preview or a search gets the whole shape without the thousands of points.
+ */
+export function thinnedLine<P>(line: readonly P[], most: number): P[] {
+  if (line.length <= most) return [...line];
+  const step = (line.length - 1) / (most - 1);
+  return Array.from({ length: most }, (_, index) => Math.min(line.length - 1, Math.round(index * step))).flatMap(
+    (index) => {
+      const point = line[index];
+      return point === undefined ? [] : [point];
+    },
+  );
+}

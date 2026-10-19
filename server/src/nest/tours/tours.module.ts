@@ -5,6 +5,7 @@ import { TourTypes } from '../../db/entities/TourTypes.entity';
 import { TourWaypoints } from '../../db/entities/TourWaypoints.entity';
 import { Tours } from '../../db/entities/Tours.entity';
 import { AddonsModule } from '../addons/addons.module';
+import { MapsModule } from '../maps/maps.module';
 import { McpSharedModule } from '../mcp-shared/mcp-shared.module';
 import { PaddleObstaclesModule } from '../paddle-obstacles/paddle-obstacles.module';
 import { PermissionsModule } from '../permissions/permissions.module';
@@ -20,6 +21,8 @@ import { TourObstacleReviewsService } from './tour-obstacle-reviews.service';
 import { PaddleCheckCache } from './tour-paddle-check.cache';
 import { TourPaddleCheckService } from './tour-paddle-check.service';
 import { TourPaddlePlanService } from './tour-paddle-plan.service';
+import { TourPoiSearchController } from './tour-poi-search.controller';
+import { TourPoiSearchService } from './tour-poi-search.service';
 import { ToursImportController } from './tours-import.controller';
 import { ToursWandererController } from './tours-wanderer.controller';
 import { ToursWandererService } from './tours-wanderer.service';
@@ -44,6 +47,8 @@ import { Module } from '@nestjs/common';
     TripMembershipModule,
     // The take-over tool checks 'place_edit' on the trip it writes into (LIB-02).
     McpSharedModule,
+    // PLN-02 searches places along a tour through the map search.
+    MapsModule,
 
     AddonsModule,
     // The wanderer import reads trails through the caller's own connection.
@@ -54,6 +59,7 @@ import { Module } from '@nestjs/common';
   ],
   controllers: [
     TourTakeOverController,
+    TourPoiSearchController,
     ToursController,
     ToursImportController,
     ToursWandererController,
@@ -68,6 +74,7 @@ import { Module } from '@nestjs/common';
     TourGpxExportService,
     ToursWandererService,
     TourLibraryService,
+    TourPoiSearchService,
     ToursMcp,
     TourLibraryMcp,
   ],

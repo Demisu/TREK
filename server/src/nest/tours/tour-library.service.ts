@@ -1,7 +1,7 @@
 import { Tours } from '../../db/entities/Tours.entity';
 import type { ToursRepository, TourLibraryRow } from '../../db/repositories/Tours.repository';
 import { TripMembershipService } from '../trip-membership/trip-membership.service';
-import { parseRouteGeometry } from './tours.helpers';
+import { parseRouteGeometry, thinnedLine } from './tours.helpers';
 import { ToursService } from './tours.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -38,18 +38,6 @@ function toItem(row: TourLibraryRow): TourLibraryItem {
     origin: row.origin as TourOrigin,
     trip: { id: row.trip_id, title: row.trip_title },
   };
-}
-
-/** Every `step`-th point of a line, its last point always kept, so a preview draws the whole tour lightly. */
-function thinned(line: Array<[number, number]>, most: number): Array<[number, number]> {
-  if (line.length <= most) return line;
-  const step = (line.length - 1) / (most - 1);
-  return Array.from({ length: most }, (_, index) => Math.min(line.length - 1, Math.round(index * step))).flatMap(
-    (index) => {
-      const point = line[index];
-      return point ? [point] : [];
-    },
-  );
 }
 
 /**
@@ -97,7 +85,11 @@ export class TourLibraryService {
     const row = await this.toursRepo.findForLibrary(await this.reachableTrips(userId), placeId);
     if (!row) throw new NotFoundException('Tour not found');
     const line = parseRouteGeometry(row.route_geometry).map((point): [number, number] => [point[0], point[1]]);
-    return { tour: toItem(row), line: thinned(line, TOUR_LIBRARY_PREVIEW_POINTS), waypoint_count: row.waypoint_count };
+    return {
+      tour: toItem(row),
+      line: thinnedLine(line, TOUR_LIBRARY_PREVIEW_POINTS),
+      waypoint_count: row.waypoint_count,
+    };
   }
 
   /**

@@ -15,6 +15,7 @@ import { Trips } from '../../src/db/entities/Trips.entity';
 import { TrekExceptionFilter } from '../../src/nest/common/trek-exception.filter';
 import { ZodValidationPipe } from '../../src/nest/common/zod-validation.pipe';
 import { JourneyDomainService } from '../../src/nest/journey/journey-domain.service';
+import { MapsService } from '../../src/nest/maps/maps.service';
 import { PermissionsService } from '../../src/nest/permissions/permissions.service';
 import { RealtimeModule } from '../../src/nest/realtime/realtime.module';
 import { RealtimeService } from '../../src/nest/realtime/realtime.service';
@@ -55,6 +56,8 @@ const { journeyHooks } = vi.hoisted(() => ({
 }));
 
 const db = createSnapshotTestDb();
+// The map search behind the POI search (PLN-02): no network in a test.
+const mapsPois = vi.fn();
 const realtime = new FakeRealtimeService();
 
 let orm: TestOrm;
@@ -98,6 +101,8 @@ describe('Tours planned e2e (real guards + temp SQLite)', () => {
       .useValue(realtime)
       .overrideProvider(JourneyDomainService)
       .useValue(journeyHooks)
+      .overrideProvider(MapsService)
+      .useValue({ pois: mapsPois })
       .compile();
     const nest = moduleRef.createNestApplication();
     nest.use(cookieParser());
@@ -671,6 +676,70 @@ describe('Tours planned e2e (real guards + temp SQLite)', () => {
       const off = await request(server).get('/api/tours/library').set('Cookie', sessionCookie(OWNER));
       expect(off.status).toBe(404);
       expect(off.body).toEqual({ error: 'Tours addon is not enabled' });
+    });
+  });
+  describe('places along a tour (PLN-02)', () => {
+    const body = {
+      tour_type: 'hike',
+      categories: ['drinking_water'],
+      corridor_m: 500,
+      line: [
+        [47, 11],
+        [47.02, 11],
+      ],
+    };
+    const spring = {
+      osm_id: 'node:7',
+      name: 'Spring',
+      lat: 47.01,
+      lng: 11.001,
+      category: 'drinking_water',
+      poi_type: 'amenity=drinking_water',
+      address: null,
+      website: null,
+      phone: null,
+      opening_hours: null,
+      cuisine: null,
+      brand: null,
+      brand_wikidata: null,
+      charging: null,
+      source: 'openstreetmap',
+    };
+
+    it('answers the places along a draft line to anyone who sees the trip, and writes nothing', async () => {
+      mapsPois.mockResolvedValue({ pois: [spring], source: 'openstreetmap', truncated: false, clamped: false });
+      const places = await countRows(orm, Places);
+      const res = await request(server)
+        .post('/api/trips/5/tours/poi-search')
+        .set('Cookie', sessionCookie(VIEWER))
+        .send(body);
+      expect(res.status).toBe(200);
+      expect(res.body.pois).toEqual([
+        expect.objectContaining({ id: 'node:7', name: 'Spring', category: 'drinking_water' }),
+      ]);
+      expect(res.body).toMatchObject({ truncated: false, partial: false, capped: false });
+      expect(await countRows(orm, Places)).toBe(places);
+      expect(realtime.broadcastMock).not.toHaveBeenCalled();
+    });
+
+    it('404 for someone outside the trip, 400 for a body it does not know, 401 without a session', async () => {
+      const outsider = await request(server)
+        .post('/api/trips/5/tours/poi-search')
+        .set('Cookie', sessionCookie(OUTSIDER))
+        .send(body);
+      expect(outsider.status).toBe(404);
+      for (const bad of [
+        { ...body, categories: ['fuel'] },
+        { ...body, corridor_m: 9000 },
+        { ...body, line: [[47, 11]] },
+        { ...body, add: 1 },
+      ]) {
+        expect(
+          (await request(server).post('/api/trips/5/tours/poi-search').set('Cookie', sessionCookie(OWNER)).send(bad))
+            .status,
+        ).toBe(400);
+      }
+      expect((await request(server).post('/api/trips/5/tours/poi-search').send(body)).status).toBe(401);
     });
   });
 });
