@@ -735,12 +735,16 @@ describe('Tours planned e2e (real guards + temp SQLite)', () => {
         { ...body, line: [[47, 11]] },
         { ...body, add: 1 },
       ];
-      const refused = await Promise.all(
-        bad.map((sent) =>
-          request(server).post('/api/trips/5/tours/poi-search').set('Cookie', sessionCookie(OWNER)).send(sent),
-        ),
+      // One after another: the server under test takes one connection at a time.
+      const refused = await bad.reduce<Promise<number[]>>(
+        async (done, sent) => [
+          ...(await done),
+          (await request(server).post('/api/trips/5/tours/poi-search').set('Cookie', sessionCookie(OWNER)).send(sent))
+            .status,
+        ],
+        Promise.resolve([]),
       );
-      expect(refused.map((res) => res.status)).toEqual([400, 400, 400, 400]);
+      expect(refused).toEqual([400, 400, 400, 400]);
       expect((await request(server).post('/api/trips/5/tours/poi-search').send(body)).status).toBe(401);
     });
   });
