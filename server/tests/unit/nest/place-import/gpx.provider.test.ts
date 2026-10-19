@@ -292,16 +292,17 @@ describe('buildTourGpx (PR1-06A)', () => {
   const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_' });
 
   it('writes the line as one track with the heights it has and none it lacks', () => {
-    const gpx = buildTourGpx(
-      tour(
-        JSON.stringify([
-          [47, 11, 600.4],
-          [47.1, 11.1],
-          [47.2, 11.2, 'x'],
-          [47.3, 11.3, 650],
-        ]),
-      ),
-    ) ?? '';
+    const gpx =
+      buildTourGpx(
+        tour(
+          JSON.stringify([
+            [47, 11, 600.4],
+            [47.1, 11.1],
+            [47.2, 11.2, 'x'],
+            [47.3, 11.3, 650],
+          ]),
+        ),
+      ) ?? '';
     expect(XMLValidator.validate(gpx)).toBe(true);
     const doc = parser.parse(gpx).gpx;
     expect(doc.metadata).toMatchObject({
@@ -317,17 +318,18 @@ describe('buildTourGpx (PR1-06A)', () => {
   });
 
   it('writes no description or link a tour has not got', () => {
-    const gpx = buildTourGpx({
-      ...tour(
-        JSON.stringify([
-          [47, 11],
-          [47.1, 11.1],
-        ]),
-      ),
-      description: '  ',
-      website: null,
-      stops: [],
-    }) ?? '';
+    const gpx =
+      buildTourGpx({
+        ...tour(
+          JSON.stringify([
+            [47, 11],
+            [47.1, 11.1],
+          ]),
+        ),
+        description: '  ',
+        website: null,
+        stops: [],
+      }) ?? '';
     const doc = parser.parse(gpx).gpx;
     expect(doc.metadata).toEqual({ name: 'Grat <Ost>' });
     expect(doc.trk.desc).toBeUndefined();

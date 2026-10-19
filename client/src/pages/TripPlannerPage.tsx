@@ -646,7 +646,7 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
                 transition: 'width 0.25s ease', opacity: leftHidden ? 0 : 1,
               }}>
                 {!leftHidden && <PanelResizeHandle side="left" width={leftWidth} min={resizeMin} max={resizeMax} onStart={startResizeLeft} onNudge={nudgeLeft} />}
-                <LazyPanel id="tour-planner-rail"><TourWorkspaceRail workspace={pageState} canEdit={canPlaceEdit} canAssign={canDayEdit} tourPlaceIds={tourPlaceIds} /></LazyPanel>
+                <LazyPanel id="tour-planner-rail"><TourWorkspaceRail workspace={pageState} canEdit={canPlaceEdit} canAssign={canDayEdit} /></LazyPanel>
               </div>
             </div>
             <div className="absolute bottom-[10px] right-[10px] top-[10px] z-20 hidden md:block">

@@ -17,6 +17,8 @@ export interface TourWorkspaceRailParts {
   trackPaddlePlan?: TrackPaddlePlan;
   /** The obstacle checklist of the paddle tour open in the planner (PAD-06). */
   paddleChecklist?: PaddleChecklist;
+  /** The trip's tours, never offered as a stop of another tour (PR1-10). */
+  tourPlaceIds?: ReadonlySet<number>;
 }
 
 /** The tours workspace's left rail: the tour editor, or the wanderer trails while those are browsed. */
@@ -24,13 +26,10 @@ export default function TourWorkspaceRail({
   workspace,
   canEdit,
   canAssign,
-  tourPlaceIds,
 }: {
   workspace: TourWorkspaceRailParts;
   canEdit: boolean;
   canAssign: boolean;
-  /** The trip's tours, never offered as a stop of another tour (PR1-10). */
-  tourPlaceIds?: ReadonlySet<number>;
 }) {
   const {
     tourPlanner,
@@ -39,6 +38,7 @@ export default function TourWorkspaceRail({
     recordedTrack,
     trackPaddlePlan,
     paddleChecklist,
+    tourPlaceIds,
   } = workspace;
   return wanderer.open ? (
     <WandererBrowserRail browser={wanderer} />
