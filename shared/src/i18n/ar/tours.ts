@@ -278,11 +278,8 @@ const tours: TranslationStrings = {
   'tours.filter.empty': 'لا توجد جولة تطابق هذه المرشحات.',
   'tours.filter.reset': 'إعادة ضبط المرشحات',
   'tours.scope.title': 'إجمالي الرحلة',
-  'tours.scope.info':
-    'ما تجمعه الجولات المعروضة أدناه حسب النوع، والفلتر يحدّ من الاثنين. الجولة في عدة أيام تُحسب مرة واحدة. تبقى أنواع الوقت الثلاثة منفصلة: ما حسبه التوجيه، وما جاء مع الاستيراد، وما خُطط له مع الاستراحات. لا يُجمع شيء عبر الأنواع.',
-  'tours.scope.partial': 'مجموع غير مكتمل',
-  'tours.scope.partialBody':
-    'معروف لـ {known} من {of} جولات؛ الباقي بلا قيمة ومستبعد، لذا المجموع على الأقل بهذا القدر.',
+  'tours.scope.info': 'كل جولة تُحسب مرة واحدة. تبقى الأوقات منفصلة حسب نوعها ولا تُجمع عبر الأنواع.',
+  'tours.scope.partialBody': 'معروف لـ {known} من {of} جولات',
   'tours.scope.routed': 'وقت المسار المحسوب',
   'tours.scope.imported': 'الوقت من الاستيراد',
   'tours.scope.planned': 'المخطط مع الاستراحات',
@@ -426,7 +423,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': 'العبور',
   'tours.paddle.lockBypassed': 'يُحمل القارب حوله، فيُحتسب الحمل',
   'tours.paddle.time.title': 'تقدير الوقت',
-  'tours.paddle.time.assumption': 'قيم التخطيط',
   'tours.paddle.time.assumptionInfo':
     'يبدأ TREK بسرعة 4 km/h على الماء، و2 km/h عند الحمل، و10 دقائق للخروج والعودة إلى الماء عند كل حمل للقارب. هذه قيم بداية قابلة للتعديل، لا معايير ولا قياسات. أوقات الأهوسة هي ما تدخله أنت فقط.',
   'tours.paddle.time.water': 'على الماء',

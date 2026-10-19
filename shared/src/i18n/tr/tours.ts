@@ -267,11 +267,8 @@ const tours: TranslationStrings = {
   'tours.filter.empty': 'Bu filtrelere uyan tur yok.',
   'tours.filter.reset': 'Filtreleri sıfırla',
   'tours.scope.title': 'Gezinin toplamı',
-  'tours.scope.info':
-    'Aşağıda gösterilen turların türe göre toplamı; filtre ikisini de daraltır. Birkaç günde olan bir tur bir kez sayılır. Üç zaman türü ayrı kalır: rotalamanın hesapladığı, bir içe aktarmanın getirdiği ve molalarla planlanan. Türler arasında hiçbir şey toplanmaz.',
-  'tours.scope.partial': 'Eksik toplam',
-  'tours.scope.partialBody':
-    '{of} turdan {known} için biliniyor; diğerlerinin değeri yok ve dışarıda kalıyor, bu yüzden toplam en az bu kadar.',
+  'tours.scope.info': 'Her tur bir kez sayılır. Süreler türüne göre ayrı kalır ve türler arasında toplanmaz.',
+  'tours.scope.partialBody': '{of} turdan {known} için biliniyor',
   'tours.scope.routed': 'Hesaplanan süre',
   'tours.scope.imported': 'İçe aktarmalardan süre',
   'tours.scope.planned': 'Molalarla planlanan',
@@ -405,7 +402,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': 'Geçiş',
   'tours.paddle.lockBypassed': 'Etrafından taşınıyor, taşıma sayılır',
   'tours.paddle.time.title': 'Süre tahmini',
-  'tours.paddle.time.assumption': 'Planlama değerleri',
   'tours.paddle.time.assumptionInfo':
     'TREK suda 4 km/sa, taşırken 2 km/sa ve her taşımada sudan çıkıp yeniden girmek için 10 dakika ile başlar. Bunlar ayarlanacak başlangıç değerleridir, norm ya da ölçüm değildir. Kilit süreleri yalnızca senin girdiğin değerlerdir.',
   'tours.paddle.time.water': 'Suda',

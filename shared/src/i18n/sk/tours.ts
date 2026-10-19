@@ -268,11 +268,8 @@ const tours: TranslationStrings = {
   'tours.filter.empty': 'Týmto filtrom nezodpovedá žiadna túra.',
   'tours.filter.reset': 'Zrušiť filtre',
   'tours.scope.title': 'Rozsah cesty',
-  'tours.scope.info':
-    'Čo dávajú spolu túry zobrazené nižšie, podľa typu; filter obmedzuje oboje. Túra na viacerých dňoch sa počíta raz. Tri druhy času zostávajú oddelené: čo vypočítalo trasovanie, čo priniesol import a čo je naplánované s prestávkami. Naprieč typmi sa nič nesčítava.',
-  'tours.scope.partial': 'Neúplný súčet',
-  'tours.scope.partialBody':
-    'Známe pre {known} z {of} túr; ostatné hodnotu nemajú a chýbajú, súčet je teda najmenej toľko.',
+  'tours.scope.info': 'Každá túra sa počíta raz. Časy zostávajú oddelené podľa druhu a medzi typmi sa nesčítavajú.',
+  'tours.scope.partialBody': 'známe pre {known} z {of} túr',
   'tours.scope.routed': 'Vypočítaný čas',
   'tours.scope.imported': 'Čas z importov',
   'tours.scope.planned': 'Plán s prestávkami',
@@ -410,7 +407,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': 'Prejazd',
   'tours.paddle.lockBypassed': 'Prenesené okolo, počíta sa prenáška',
   'tours.paddle.time.title': 'Odhad času',
-  'tours.paddle.time.assumption': 'Plánovacie hodnoty',
   'tours.paddle.time.assumptionInfo':
     'TREK začína so 4 km/h na vode, 2 km/h pri prenášaní a 10 minútami na vystúpenie a opätovný nástup pri každej prenáške. Sú to východiskové hodnoty na úpravu, nie normy ani merania. Časy plavebných komôr sú len to, čo zadáte.',
   'tours.paddle.time.water': 'Na vode',

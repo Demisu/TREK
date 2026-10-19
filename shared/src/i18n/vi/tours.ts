@@ -267,11 +267,8 @@ const tours: TranslationStrings = {
   'tours.filter.empty': 'Không có chuyến đi bộ nào khớp với bộ lọc này.',
   'tours.filter.reset': 'Đặt lại bộ lọc',
   'tours.scope.title': 'Tổng của chuyến đi',
-  'tours.scope.info':
-    'Tổng của các chuyến hiển thị bên dưới, theo loại; bộ lọc thu hẹp cả hai. Một chuyến ở nhiều ngày chỉ tính một lần. Ba loại thời gian luôn tách riêng: thời gian định tuyến tính ra, thời gian đi kèm bản nhập và thời gian đã lên kế hoạch kể cả nghỉ. Không cộng gộp giữa các loại.',
-  'tours.scope.partial': 'Tổng chưa đầy đủ',
-  'tours.scope.partialBody':
-    'Đã biết cho {known} trên {of} chuyến; các chuyến còn lại không có giá trị và bị bỏ qua, nên tổng ít nhất là chừng này.',
+  'tours.scope.info': 'Mỗi chuyến chỉ tính một lần. Thời gian tách theo loại và không cộng giữa các kiểu.',
+  'tours.scope.partialBody': 'đã biết cho {known} trên {of} chuyến',
   'tours.scope.routed': 'Thời gian định tuyến',
   'tours.scope.imported': 'Thời gian từ bản nhập',
   'tours.scope.planned': 'Kế hoạch gồm nghỉ',
@@ -401,7 +398,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': 'Qua âu',
   'tours.paddle.lockBypassed': 'Khiêng vòng qua, tính theo đoạn khiêng thuyền',
   'tours.paddle.time.title': 'Ước tính thời gian',
-  'tours.paddle.time.assumption': 'Giá trị lập kế hoạch',
   'tours.paddle.time.assumptionInfo':
     'TREK bắt đầu với 4 km/h trên nước, 2 km/h khi khiêng thuyền và 10 phút để lên bờ rồi xuống nước lại ở mỗi đoạn khiêng thuyền. Đây là giá trị ban đầu để bạn điều chỉnh, không phải tiêu chuẩn và không phải số đo. Thời gian qua âu thuyền chỉ là những gì bạn nhập.',
   'tours.paddle.time.water': 'Trên nước',

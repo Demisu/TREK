@@ -15,7 +15,7 @@ import { SoftPill } from '../../Planner/planParts';
 import { fs } from '../../shared/DialogShell';
 import { paddlePlanPoints } from '../planner/paddlePlanOf';
 import type { TourPlannerController } from '../planner/useTourPlanner';
-import { InfoDot, RailCard, TourNotice } from '../tourParts';
+import { RailCard, TourNotice } from '../tourParts';
 import { formatPlannedTourDuration } from '../tourPresentation';
 import { PaddleGlyph } from './PaddleGlyph';
 import { PORTAGE_CSS_COLOR } from './paddlePaint';
@@ -364,7 +364,7 @@ export function PaddleEstimateBody({
   return (
     <div data-testid="paddle-time-card" className="flex flex-col gap-3">
       <EstimateHead
-        total={estimate.estimateMinutes + (breakMinutes ?? 0)}
+        total={paddleTotal(estimate, breakMinutes).minutes}
         complete={estimate.complete}
         planned={planned}
         t={t}
@@ -386,23 +386,45 @@ export function PaddleEstimateBody({
   );
 }
 
-/** The card's head: its title, and that its values are planning values to adjust. */
-export function PaddleTimeCardShell({ children }: { children: ReactNode }) {
+/**
+ * The card: its title with the estimate as a badge (so a folded card still
+ * says it, in the warning tone while parts are unknown), the figures, and
+ * under them that its values are starting values to adjust.
+ */
+export function PaddleTimeCardShell({
+  children,
+  estimate,
+  breakMinutes,
+}: {
+  children: ReactNode;
+  estimate: PaddleTimeEstimate;
+  breakMinutes: number | null;
+}) {
   const { t } = useTranslation();
+  const total = paddleTotal(estimate, breakMinutes);
   return (
     <RailCard
       icon={<Timer size={14} strokeWidth={2} />}
       title={t('tours.paddle.time.title')}
+      foldId="paddle-time"
       aside={
-        <span className="flex flex-none items-center gap-1">
-          <SoftPill tone="info">{t('tours.paddle.time.assumption')}</SoftPill>
-          <InfoDot label={t('tours.paddle.time.assumption')} description={t('tours.paddle.time.assumptionInfo')} />
+        <span data-testid="paddle-time-badge" className="flex flex-none">
+          <SoftPill tone={total.complete ? 'neutral' : 'warning'}>{formatPlannedTourDuration(total.minutes)}</SoftPill>
         </span>
       }
     >
       {children}
+      {/* What the starting values are, said once under the figures rather than behind a dot. */}
+      <p className="m-0 mt-3 text-content-faint" style={fs(10.5, 'body')}>
+        {t('tours.paddle.time.assumptionInfo')}
+      </p>
     </RailCard>
   );
+}
+
+/** The estimate with the breaks added, as the card's head and its body say it. */
+function paddleTotal(estimate: PaddleTimeEstimate, breakMinutes: number | null) {
+  return { minutes: estimate.estimateMinutes + (breakMinutes ?? 0), complete: estimate.complete };
 }
 
 /**
@@ -416,7 +438,7 @@ export function PaddleTimeCard({ planner, locked }: { planner: TourPlannerContro
   const estimate = planner.paddleEstimate;
   if (!estimate || planner.waypoints.length < 2) return null;
   return (
-    <PaddleTimeCardShell>
+    <PaddleTimeCardShell estimate={estimate} breakMinutes={planner.breakAdditionalMinutes}>
       <PaddleEstimateBody
         estimate={estimate}
         layout={paddleLayoutOfPoints(paddlePlanPoints(planner.waypoints))}

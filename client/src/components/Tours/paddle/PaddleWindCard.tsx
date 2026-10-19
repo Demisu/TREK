@@ -266,6 +266,7 @@ export function PaddleWindCard({ wind, lakes }: { wind: TourWind; lakes?: LakeSt
     <RailCard
       icon={<Wind size={14} strokeWidth={2} />}
       title={t('tours.paddle.wind.title')}
+      foldId="paddle-wind"
       aside={
         wind.tourDays.length > 1 ? (
           <span className="flex flex-none items-center gap-1">

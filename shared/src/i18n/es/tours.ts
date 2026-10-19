@@ -272,10 +272,8 @@ const tours: TranslationStrings = {
   'tours.filter.reset': 'Restablecer filtros',
   'tours.scope.title': 'Totales del viaje',
   'tours.scope.info':
-    'Lo que suman las rutas mostradas abajo, por tipo; el filtro acota ambos. Una ruta en varios días cuenta una vez. Los tres tipos de tiempo se mantienen separados: lo que calculó el enrutamiento, lo que trajo una importación y lo planificado con pausas. No se suma nada entre tipos.',
-  'tours.scope.partial': 'Suma incompleta',
-  'tours.scope.partialBody':
-    'Conocido para {known} de {of} rutas; las demás no tienen valor y quedan fuera, así que el total es al menos esto.',
+    'Cada ruta cuenta una vez. Los tiempos se mantienen separados por clase y no se suman entre tipos.',
+  'tours.scope.partialBody': 'conocido para {known} de {of} rutas',
   'tours.scope.routed': 'Tiempo calculado',
   'tours.scope.imported': 'Tiempo de las importaciones',
   'tours.scope.planned': 'Planificado con pausas',
@@ -411,7 +409,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': 'Tránsito',
   'tours.paddle.lockBypassed': 'Rodeada a pie: cuenta el porteo',
   'tours.paddle.time.title': 'Estimación de tiempo',
-  'tours.paddle.time.assumption': 'Valores de planificación',
   'tours.paddle.time.assumptionInfo':
     'TREK parte de 4 km/h en el agua, 2 km/h porteando y 10 minutos para desembarcar y volver a embarcar en cada porteo. Son valores iniciales para ajustar, no normas ni mediciones. Los tiempos de esclusa son solo los que introduces.',
   'tours.paddle.time.water': 'En el agua',

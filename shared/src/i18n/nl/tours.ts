@@ -274,10 +274,8 @@ const tours: TranslationStrings = {
   'tours.filter.reset': 'Filters wissen',
   'tours.scope.title': 'Totalen van de reis',
   'tours.scope.info':
-    'Wat de hieronder getoonde tochten per type samen opleveren; het filter beperkt beide. Een tocht op meerdere dagen telt één keer. De drie soorten tijd blijven gescheiden: wat de routeplanner berekende, wat een import meebracht en wat met pauzes is gepland. Over types heen wordt niets opgeteld.',
-  'tours.scope.partial': 'Onvolledige som',
-  'tours.scope.partialBody':
-    'Bekend voor {known} van {of} tochten; de andere hebben geen waarde en blijven buiten beschouwing, dus het totaal is minstens zoveel.',
+    'Elke tocht telt één keer. Tijden blijven per soort gescheiden en worden niet over types opgeteld.',
+  'tours.scope.partialBody': 'bekend voor {known} van {of} tochten',
   'tours.scope.routed': 'Berekende tijd',
   'tours.scope.imported': 'Tijd uit imports',
   'tours.scope.planned': 'Gepland met pauzes',
@@ -411,7 +409,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': 'Doorvaart',
   'tours.paddle.lockBypassed': 'Omgedragen, het overdragen telt',
   'tours.paddle.time.title': 'Tijdschatting',
-  'tours.paddle.time.assumption': 'Planwaarden',
   'tours.paddle.time.assumptionInfo':
     'TREK begint met 4 km/h op het water, 2 km/h bij het dragen en 10 minuten om uit en weer in te stappen bij elke overdraagplaats. Dit zijn startwaarden om aan te passen, geen normen en geen metingen. Sluistijden zijn alleen wat je zelf invult.',
   'tours.paddle.time.water': 'Op het water',

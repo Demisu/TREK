@@ -274,10 +274,8 @@ const tours: TranslationStrings = {
   'tours.filter.reset': 'Szűrők törlése',
   'tours.scope.title': 'Az út összesítése',
   'tours.scope.info':
-    'Amit az alább mutatott túrák típusonként kiadnak; a szűrő mindkettőt szűkíti. A több napon szereplő túra egyszer számít. A háromféle idő külön marad: amit az útvonaltervező számolt, amit egy import hozott, és ami szünetekkel van tervezve. Típusok között semmi sem adódik össze.',
-  'tours.scope.partial': 'Hiányos összeg',
-  'tours.scope.partialBody':
-    '{of} túrából {known} esetén ismert; a többinek nincs értéke és kimarad, így az összeg legalább ennyi.',
+    'Minden túra egyszer számít. Az idők fajtánként külön maradnak, és típusok között nem adódnak össze.',
+  'tours.scope.partialBody': '{of} túrából {known} esetén ismert',
   'tours.scope.routed': 'Számított idő',
   'tours.scope.imported': 'Idő az importokból',
   'tours.scope.planned': 'Tervezett, szünetekkel',
@@ -411,7 +409,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': 'Zsilipelés',
   'tours.paddle.lockBypassed': 'Megkerülve, az átemelés számít',
   'tours.paddle.time.title': 'Időbecslés',
-  'tours.paddle.time.assumption': 'Tervezési értékek',
   'tours.paddle.time.assumptionInfo':
     'A TREK kiindulásként 4 km/h-val számol a vízen, 2 km/h-val hordozáskor és átemelésenként 10 perccel a ki- és visszaszállásra. Ezek állítható kiinduló értékek, nem normák és nem mérések. Zsilipidőként csak az számít, amit megadsz.',
   'tours.paddle.time.water': 'A vízen',

@@ -266,11 +266,8 @@ const tours: TranslationStrings = {
   'tours.filter.empty': 'No tour matches these filters.',
   'tours.filter.reset': 'Reset filters',
   'tours.scope.title': 'Trip totals',
-  'tours.scope.info':
-    'What the tours shown below add up to, by type; the filter narrows both. A tour on several days counts once. The three kinds of time stay apart: what the router worked out, what an import brought, and what is planned with breaks. Nothing is added up across types.',
-  'tours.scope.partial': 'Incomplete sum',
-  'tours.scope.partialBody':
-    'Known for {known} of {of} tours; the others have no value and are left out, so the total is at least this much.',
+  'tours.scope.info': 'Each tour counts once. Times stay apart by kind and are never added across types.',
+  'tours.scope.partialBody': 'known for {known} of {of} tours',
   'tours.scope.routed': 'Routed time',
   'tours.scope.imported': 'Time from imports',
   'tours.scope.planned': 'Planned with breaks',
@@ -404,7 +401,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': 'Passage',
   'tours.paddle.lockBypassed': 'Carried round, the portage counts',
   'tours.paddle.time.title': 'Time estimate',
-  'tours.paddle.time.assumption': 'Planning values',
   'tours.paddle.time.assumptionInfo':
     'TREK starts with 4 km/h on the water, 2 km/h carrying and 10 minutes to get out and back in at each portage. These are starting values to adjust, not norms and not measurements. Lock times are only what you enter.',
   'tours.paddle.time.water': 'On the water',

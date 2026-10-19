@@ -281,10 +281,8 @@ const tours: TranslationStrings = {
   'tours.filter.reset': 'Wyczyść filtry',
   'tours.scope.title': 'Podsumowanie podróży',
   'tours.scope.info':
-    'Ile dają razem trasy pokazane poniżej, według typu; filtr zawęża jedno i drugie. Trasa na kilku dniach liczy się raz. Trzy rodzaje czasu pozostają osobno: to, co obliczyło wyznaczanie trasy, to, co przyniósł import, i to, co zaplanowano z przerwami. Nic nie jest sumowane między typami.',
-  'tours.scope.partial': 'Niepełna suma',
-  'tours.scope.partialBody':
-    'Znane dla {known} z {of} tras; pozostałe nie mają wartości i są pominięte, więc suma wynosi co najmniej tyle.',
+    'Każda trasa liczy się raz. Czasy pozostają rozdzielone według rodzaju i nie są sumowane między typami.',
+  'tours.scope.partialBody': 'znane dla {known} z {of} tras',
   'tours.scope.routed': 'Czas wyliczony',
   'tours.scope.imported': 'Czas z importów',
   'tours.scope.planned': 'Plan z przerwami',
@@ -426,7 +424,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': 'Śluzowanie',
   'tours.paddle.lockBypassed': 'Obnoszona, liczy się przenoska',
   'tours.paddle.time.title': 'Szacowany czas',
-  'tours.paddle.time.assumption': 'Założenia do planowania',
   'tours.paddle.time.assumptionInfo':
     'TREK zaczyna od 4 km/h na wodzie, 2 km/h przy przenoszeniu i 10 minut na wyjście z wody i ponowne wodowanie przy każdej przenosce. To wartości początkowe do dostosowania, a nie normy ani pomiary. Czasy śluz to tylko to, co wpiszesz.',
   'tours.paddle.time.water': 'Na wodzie',

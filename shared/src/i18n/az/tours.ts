@@ -267,11 +267,8 @@ const tours: TranslationStrings = {
   'tours.filter.empty': 'Bu filtrlərə uyğun tur yoxdur.',
   'tours.filter.reset': 'Filtrləri sıfırla',
   'tours.scope.title': 'Səfərin həcmi',
-  'tours.scope.info':
-    'Aşağıda göstərilən turların növə görə cəmi; filtr hər ikisini daraldır. Bir neçə gündə olan tur bir dəfə sayılır. Üç vaxt növü ayrı qalır: marşrutlaşdırmanın hesabladığı, idxalın gətirdiyi və fasilələrlə planlaşdırılan. Növlər arasında heç nə toplanmır.',
-  'tours.scope.partial': 'Natamam cəm',
-  'tours.scope.partialBody':
-    '{of} turdan {known} üçün məlumdur; qalanlarının dəyəri yoxdur və daxil edilmir, ona görə cəm ən azı bu qədərdir.',
+  'tours.scope.info': 'Hər tur bir dəfə sayılır. Vaxtlar növünə görə ayrı qalır və növlər arasında toplanmır.',
+  'tours.scope.partialBody': '{of} turdan {known} üçün məlumdur',
   'tours.scope.routed': 'Marşrut vaxtı',
   'tours.scope.imported': 'İdxaldan vaxt',
   'tours.scope.planned': 'Fasilələrlə planlaşdırılan',
@@ -405,7 +402,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': 'Keçid',
   'tours.paddle.lockBypassed': 'Ətrafından daşınır, daşıma hesablanır',
   'tours.paddle.time.title': 'Vaxt təxmini',
-  'tours.paddle.time.assumption': 'Planlaşdırma dəyərləri',
   'tours.paddle.time.assumptionInfo':
     'TREK suda 4 km/saat, daşımada 2 km/saat və hər daşımada sudan çıxıb yenidən suya girmək üçün 10 dəqiqə ilə başlayır. Bunlar dəyişdirmək üçün başlanğıc dəyərlərdir, nə norma, nə də ölçmədir. Şlüz vaxtları yalnız sənin daxil etdiklərindir.',
   'tours.paddle.time.water': 'Suda',

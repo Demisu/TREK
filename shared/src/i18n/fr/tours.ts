@@ -278,10 +278,8 @@ const tours: TranslationStrings = {
   'tours.filter.reset': 'Réinitialiser les filtres',
   'tours.scope.title': 'Totaux du voyage',
   'tours.scope.info':
-    "Ce que totalisent les itinéraires affichés ci-dessous, par type ; le filtre limite les deux. Un itinéraire sur plusieurs jours compte une fois. Les trois sortes de temps restent séparées : ce que le calcul d'itinéraire a donné, ce qu'un import a apporté et ce qui est prévu avec les pauses. Rien n'est additionné entre les types.",
-  'tours.scope.partial': 'Somme incomplète',
-  'tours.scope.partialBody':
-    "Connu pour {known} itinéraires sur {of} ; les autres n'ont pas de valeur et sont laissés de côté, le total est donc au moins celui-ci.",
+    "Chaque itinéraire compte une fois. Les temps restent séparés par sorte et ne s'additionnent jamais entre types.",
+  'tours.scope.partialBody': 'connu pour {known} itinéraires sur {of}',
   'tours.scope.routed': 'Temps calculé',
   'tours.scope.imported': 'Temps des imports',
   'tours.scope.planned': 'Prévu avec pauses',
@@ -417,7 +415,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': 'Éclusage',
   'tours.paddle.lockBypassed': 'Contournée, le portage compte',
   'tours.paddle.time.title': 'Estimation du temps',
-  'tours.paddle.time.assumption': 'Valeurs de planification',
   'tours.paddle.time.assumptionInfo':
     'TREK part de 4 km/h sur l’eau, 2 km/h en portant et 10 minutes pour débarquer et rembarquer à chaque portage. Ce sont des valeurs de départ à ajuster, ni des normes ni des mesures. Les temps d’écluse sont uniquement ceux que vous saisissez.',
   'tours.paddle.time.water': 'Sur l’eau',

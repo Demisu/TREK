@@ -1,12 +1,27 @@
 import type { TourListItem, TourTypeKey } from '@trek/shared';
-import { ChartColumnBig, ChevronDown, Mountain, Route, Waves } from 'lucide-react';
-import { useMemo, useState, type ComponentType } from 'react';
+import {
+  ArrowDown,
+  ArrowUp,
+  CalendarClock,
+  ChartColumnBig,
+  ChevronDown,
+  Clock,
+  FileDown,
+  Mountain,
+  Route,
+  Ruler,
+  Waves,
+  type LucideIcon,
+} from 'lucide-react';
+import { useMemo, type ComponentType } from 'react';
 import { useTranslation } from '../../i18n';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useTripStore } from '../../store/tripStore';
 import { formatDistance, formatElevation } from '../../utils/units';
 import { fs } from '../shared/DialogShell';
-import { InfoDot, RailCard, RailFacts, type TourMetricField } from './tourParts';
+import { useRailFold } from './railFold';
+import { TourDayRowPill } from './TourDayRowFacts';
+import { InfoDot, RailCard } from './tourParts';
 import { formatPlannedTourDuration } from './tourPresentation';
 import { tourScopeSummary, type ScopeSum, type TourTypeScope } from './tourScope';
 
@@ -16,23 +31,6 @@ const TYPE_ICON: Partial<Record<TourTypeKey, ComponentType<{ size?: number; stro
   hike: Mountain,
   kayak: Waves,
 };
-
-/** Whether the card is folded, kept per browser like other view conveniences; a blocked storage keeps it open. */
-const FOLDED_KEY = 'trek.tours.scopeSummary.folded';
-function readFolded(): boolean {
-  try {
-    return localStorage.getItem(FOLDED_KEY) === '1';
-  } catch {
-    return false;
-  }
-}
-function storeFolded(folded: boolean): void {
-  try {
-    localStorage.setItem(FOLDED_KEY, folded ? '1' : '0');
-  } catch {
-    // Private mode or blocked storage: the card simply opens again next time.
-  }
-}
 
 /** A count as a white badge of the card: the number, then what it counts. */
 function CountBadge({ value, label, tone = 'neutral' }: { value: number; label: string; tone?: 'neutral' | 'faint' }) {
@@ -47,53 +45,71 @@ function CountBadge({ value, label, tone = 'neutral' }: { value: number; label: 
   );
 }
 
+/** One measure of a type as a badge: its icon and sum, its name (and how complete it is) in the tooltip. */
+interface ScopeBadge {
+  key: string;
+  icon: LucideIcon;
+  value: string;
+  label: string;
+}
+
 /**
- * A sum as a fact: nothing when no tour has the value, else the sum, marked as
- * at least that much with the reason in its info dot when some tours lack it.
+ * A sum as a badge: nothing when no tour has the value, else the sum, marked
+ * as at least that much when some tours lack it, the tooltip saying for how many.
  */
-function sumFact(
-  label: string,
+function sumBadge(
+  { key, icon, name }: Pick<ScopeBadge, 'key' | 'icon'> & { name: string },
   sum: ScopeSum,
   format: (value: number) => string,
   t: Translate
-): TourMetricField | null {
+): ScopeBadge | null {
   if (sum.value === null) return null;
   const partial = sum.known < sum.of;
-  return {
-    label,
-    value: partial ? `≥ ${format(sum.value)}` : format(sum.value),
-    info: partial
-      ? {
-          label: t('tours.scope.partial'),
-          description: t('tours.scope.partialBody', { known: sum.known, of: sum.of }),
-        }
-      : undefined,
-  };
+  const value = partial ? `≥ ${format(sum.value)}` : format(sum.value);
+  const label = partial
+    ? `${name}: ${value} (${t('tours.scope.partialBody', { known: sum.known, of: sum.of })})`
+    : `${name}: ${value}`;
+  return { key, icon, value, label };
 }
 
-function typeFacts(scope: TourTypeScope, unit: Parameters<typeof formatDistance>[1], t: Translate): TourMetricField[] {
+function typeBadges(scope: TourTypeScope, unit: Parameters<typeof formatDistance>[1], t: Translate): ScopeBadge[] {
   const distance = (km: number) => formatDistance(km, unit);
   const height = (m: number) => formatElevation(m, unit);
   return [
-    sumFact(t('tours.detail.distance'), scope.distanceKm, distance, t),
-    sumFact(t('tours.detail.ascent'), scope.ascentM, height, t),
-    sumFact(t('tours.detail.descent'), scope.descentM, height, t),
-    sumFact(t('tours.scope.routed'), scope.routedMinutes, formatPlannedTourDuration, t),
-    sumFact(t('tours.scope.imported'), scope.importedMinutes, formatPlannedTourDuration, t),
-    sumFact(t('tours.scope.planned'), scope.plannedMinutes, formatPlannedTourDuration, t),
-  ].filter((fact): fact is TourMetricField => fact !== null);
+    sumBadge({ key: 'distance', icon: Ruler, name: t('tours.detail.distance') }, scope.distanceKm, distance, t),
+    sumBadge({ key: 'ascent', icon: ArrowUp, name: t('tours.detail.ascent') }, scope.ascentM, height, t),
+    sumBadge({ key: 'descent', icon: ArrowDown, name: t('tours.detail.descent') }, scope.descentM, height, t),
+    sumBadge(
+      { key: 'routed', icon: Clock, name: t('tours.scope.routed') },
+      scope.routedMinutes,
+      formatPlannedTourDuration,
+      t
+    ),
+    sumBadge(
+      { key: 'imported', icon: FileDown, name: t('tours.scope.imported') },
+      scope.importedMinutes,
+      formatPlannedTourDuration,
+      t
+    ),
+    sumBadge(
+      { key: 'planned', icon: CalendarClock, name: t('tours.scope.planned') },
+      scope.plannedMinutes,
+      formatPlannedTourDuration,
+      t
+    ),
+  ].filter((badge): badge is ScopeBadge => badge !== null);
 }
 
-/** One tour type: its name with how many tours and how many are on a day, then its sums. */
+/** One tour type: its name and how many tours, then its sums as a line of badges. */
 function TypeScope({ scope }: { scope: TourTypeScope }) {
   const { t } = useTranslation();
   const unit = useSettingsStore((state) => state.settings.distance_unit) ?? 'metric';
   const Icon = TYPE_ICON[scope.type] ?? Route;
-  const facts = typeFacts(scope, unit, t);
+  const badges = typeBadges(scope, unit, t);
   return (
     <section
       aria-label={t(`tourTypes.${scope.type}`)}
-      className="flex flex-col gap-2.5"
+      className="flex flex-col gap-1.5"
       data-testid={`tour-scope-${scope.type}`}
     >
       <div className="flex min-w-0 items-center gap-1.5">
@@ -107,10 +123,20 @@ function TypeScope({ scope }: { scope: TourTypeScope }) {
           {scope.count}
         </span>
       </div>
-      {facts.length > 0 ? (
-        <RailFacts facts={facts} />
+      {badges.length > 0 ? (
+        <div className="flex flex-wrap gap-1.5 ps-[22px]">
+          {badges.map((badge) => (
+            <TourDayRowPill
+              key={badge.key}
+              icon={badge.icon}
+              value={badge.value}
+              label={badge.label}
+              testId={`tour-scope-${scope.type}-${badge.key}`}
+            />
+          ))}
+        </div>
       ) : (
-        <p className="m-0 text-content-faint" style={fs(11.5, 'body')}>
+        <p className="m-0 ps-[22px] text-content-faint" style={fs(11.5, 'body')}>
           {t('tours.scope.noMeasures')}
         </p>
       )}
@@ -124,12 +150,13 @@ function TypeScope({ scope }: { scope: TourTypeScope }) {
  * time apart (the router's, an import's, the planned one with breaks), never
  * added up across types. It reads the list as filtered, so a type chosen in the
  * filter narrows both. A value no tour has is left out rather than shown as
- * zero; a sum some tours lack is marked as at least that much. Folding it is
- * remembered in this browser.
+ * zero; a sum some tours lack is marked as at least that much. It starts folded
+ * to its counts, and opening it is remembered in this browser.
  */
 export function TourScopeSummary({ tours }: { tours: readonly TourListItem[] }) {
   const { t } = useTranslation();
-  const [folded, setFolded] = useState(readFolded);
+  // Folded until opened: the list is what the rail is for, the totals a look on demand.
+  const { folded, toggle } = useRailFold('trip-totals', true);
   // On a day as the day lists say, not the list's flag, so a tour put on a day counts at once (as its row's badge does).
   const assignments = useTripStore((state) => state.assignments);
   const scope = useMemo(() => {
@@ -137,12 +164,6 @@ export function TourScopeSummary({ tours }: { tours: readonly TourListItem[] }) 
     return tourScopeSummary(tours, (tour) => onDays.has(tour.place_id));
   }, [assignments, tours]);
   if (scope.count === 0) return null;
-  const toggle = () => {
-    setFolded((value) => {
-      storeFolded(!value);
-      return !value;
-    });
-  };
   const toggleLabel = folded ? t('common.expand') : t('common.collapse');
   return (
     <RailCard
@@ -170,7 +191,7 @@ export function TourScopeSummary({ tours }: { tours: readonly TourListItem[] }) 
         <CountBadge value={scope.count - scope.onDays} label={t('places.unplanned')} tone="faint" />
       </div>
       {!folded && (
-        <div className="mt-3.5 flex flex-col gap-4 border-t border-edge-faint pt-3.5">
+        <div className="mt-3 flex flex-col gap-3 border-t border-edge-faint pt-3">
           {scope.types.map((typeScope) => (
             <TypeScope key={typeScope.type} scope={typeScope} />
           ))}

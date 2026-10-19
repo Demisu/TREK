@@ -260,11 +260,8 @@ const tours: TranslationStrings = {
   'tours.filter.empty': 'この条件に合うツアーはありません。',
   'tours.filter.reset': 'フィルターをリセット',
   'tours.scope.title': '旅の合計',
-  'tours.scope.info':
-    '下に表示されたツアーの種類ごとの合計です。フィルターは両方に適用されます。複数の日にあるツアーは 1 回だけ数えます。3 種類の時間は分けたままです：ルーティングが計算した時間、インポートに含まれていた時間、休憩を含めて計画した時間。種類をまたいで合算はしません。',
-  'tours.scope.partial': '不完全な合計',
-  'tours.scope.partialBody':
-    '{of} 件中 {known} 件のツアーで判明しています。残りは値がないため含まれず、合計は少なくともこの値です。',
+  'tours.scope.info': '各ツアーは 1 回だけ数えます。時間は種類ごとに分け、種類をまたいで合算しません。',
+  'tours.scope.partialBody': '{of} 件中 {known} 件で判明',
   'tours.scope.routed': 'ルート計算の時間',
   'tours.scope.imported': 'インポートの時間',
   'tours.scope.planned': '休憩込みの計画',
@@ -392,7 +389,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': '通過',
   'tours.paddle.lockBypassed': '運んで迂回、陸上運搬を計上',
   'tours.paddle.time.title': '所要時間の見積もり',
-  'tours.paddle.time.assumption': '計画値',
   'tours.paddle.time.assumptionInfo':
     'TREK は水上 4 km/h、運搬 2 km/h、陸上運搬ごとの上陸と再出艇に 10 分を初期値とします。これは調整するための初期値で、基準でも測定値でもありません。閘門の時間は入力した値だけが使われます。',
   'tours.paddle.time.water': '水上',

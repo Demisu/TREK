@@ -159,7 +159,7 @@ export function TrackPaddlePlanCards({ plan, tour }: { plan: TrackPaddlePlan; to
   const locked = !plan.canEdit || plan.saving;
   return (
     <>
-      <PaddleTimeCardShell>
+      <PaddleTimeCardShell estimate={plan.estimate} breakMinutes={tour.break_additional_minutes ?? null}>
         <PaddleEstimateBody
           estimate={plan.estimate}
           layout={plan.layout}

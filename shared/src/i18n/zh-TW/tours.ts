@@ -244,10 +244,8 @@ const tours: TranslationStrings = {
   'tours.filter.empty': '沒有符合這些篩選條件的遊程。',
   'tours.filter.reset': '重設篩選',
   'tours.scope.title': '行程總覽',
-  'tours.scope.info':
-    '下方顯示的路線依類型的合計；篩選同時作用於兩者。在多天中的路線只計一次。三種時間分開顯示：路線規劃計算的時間、匯入自帶的時間，以及含休息的計畫時間。不同類型之間不相加。',
-  'tours.scope.partial': '不完整的合計',
-  'tours.scope.partialBody': '{of} 條路線中有 {known} 條有此值；其餘沒有數值未計入，因此合計至少為此數。',
+  'tours.scope.info': '每條路線只計一次。時間依種類分開，不跨類型相加。',
+  'tours.scope.partialBody': '{of} 條路線中 {known} 條已知',
   'tours.scope.routed': '規劃時間',
   'tours.scope.imported': '匯入時間',
   'tours.scope.planned': '含休息的計畫',
@@ -369,7 +367,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': '過閘',
   'tours.paddle.lockBypassed': '繞行搬運，以陸上搬運計算',
   'tours.paddle.time.title': '時間估算',
-  'tours.paddle.time.assumption': '規劃假設',
   'tours.paddle.time.assumptionInfo':
     'TREK 預設水上速度 4 km/h、搬運速度 2 km/h，每次陸上搬運另計 10 分鐘上岸與重新下水。這些是可調整的起始值，不是標準，也不是量測值。船閘時間只採用你輸入的數值。',
   'tours.paddle.time.water': '水上划行',

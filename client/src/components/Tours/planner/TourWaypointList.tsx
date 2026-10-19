@@ -820,6 +820,7 @@ export default function TourWaypointList({
     <RailCard
       icon={<MapPin size={14} strokeWidth={2} />}
       title={t('tours.planner.waypoints')}
+      foldId="waypoints"
       aside={
         planner.waypoints.length > 0 && (
           <span className="flex flex-none items-center gap-1.5">

@@ -272,11 +272,8 @@ const tours: TranslationStrings = {
   'tours.filter.empty': 'Nenhum passeio corresponde a esses filtros.',
   'tours.filter.reset': 'Limpar filtros',
   'tours.scope.title': 'Totais da viagem',
-  'tours.scope.info':
-    'O que os passeios mostrados abaixo somam, por tipo; o filtro restringe os dois. Um passeio em vários dias conta uma vez. Os três tipos de tempo ficam separados: o que o roteamento calculou, o que uma importação trouxe e o que está planejado com pausas. Nada é somado entre tipos.',
-  'tours.scope.partial': 'Soma incompleta',
-  'tours.scope.partialBody':
-    'Conhecido para {known} de {of} passeios; os outros não têm valor e ficam de fora, então o total é pelo menos isso.',
+  'tours.scope.info': 'Cada passeio conta uma vez. Os tempos ficam separados por tipo e nunca são somados entre tipos.',
+  'tours.scope.partialBody': 'conhecido para {known} de {of} passeios',
   'tours.scope.routed': 'Tempo calculado',
   'tours.scope.imported': 'Tempo das importações',
   'tours.scope.planned': 'Planejado com pausas',
@@ -411,7 +408,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': 'Passagem',
   'tours.paddle.lockBypassed': 'Contornada por terra, conta o transbordo',
   'tours.paddle.time.title': 'Estimativa de tempo',
-  'tours.paddle.time.assumption': 'Valores de planejamento',
   'tours.paddle.time.assumptionInfo':
     'O TREK começa com 4 km/h na água, 2 km/h carregando e 10 minutos para desembarcar e embarcar de novo em cada transbordo. São valores iniciais para ajustar, não normas nem medições. Os tempos de eclusa são apenas os que você informar.',
   'tours.paddle.time.water': 'Na água',

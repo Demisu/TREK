@@ -269,11 +269,8 @@ const tours: TranslationStrings = {
   'tours.filter.empty': 'Ükski matk ei vasta neile filtritele.',
   'tours.filter.reset': 'Lähtesta filtrid',
   'tours.scope.title': 'Reisi kogumaht',
-  'tours.scope.info':
-    'Mida allpool näidatud matkad tüübi kaupa kokku annavad; filter kitsendab mõlemat. Mitmel päeval olev matk loetakse üks kord. Kolm ajaliiki jäävad eraldi: mida marsruutija arvutas, mida import kaasa tõi ja mis on pausidega planeeritud. Tüüpide vahel midagi kokku ei liideta.',
-  'tours.scope.partial': 'Mittetäielik summa',
-  'tours.scope.partialBody':
-    'Teada {known} matka puhul {of}-st; ülejäänutel väärtus puudub ja need jäävad välja, seega on summa vähemalt nii suur.',
+  'tours.scope.info': 'Iga matk loetakse üks kord. Ajad jäävad liigi kaupa eraldi ega liitu tüüpide vahel.',
+  'tours.scope.partialBody': 'teada {known} matka puhul {of}-st',
   'tours.scope.routed': 'Arvutatud aeg',
   'tours.scope.imported': 'Aeg importidest',
   'tours.scope.planned': 'Planeeritud koos pausidega',
@@ -405,7 +402,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': 'Läbimine',
   'tours.paddle.lockBypassed': 'Ümber kantud, arvesse läheb ülekanne',
   'tours.paddle.time.title': 'Ajahinnang',
-  'tours.paddle.time.assumption': 'Planeerimisväärtused',
   'tours.paddle.time.assumptionInfo':
     'TREK alustab väärtustega 4 km/h vee peal, 2 km/h kandes ja 10 minutit iga ülekande juures väljumiseks ja tagasi vette minekuks. Need on lähteväärtused, mida kohandada, mitte normid ega mõõtmised. Lüüsiajad on ainult need, mille ise sisestad.',
   'tours.paddle.time.water': 'Vee peal',

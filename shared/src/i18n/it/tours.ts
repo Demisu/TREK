@@ -274,10 +274,8 @@ const tours: TranslationStrings = {
   'tours.filter.reset': 'Reimposta filtri',
   'tours.scope.title': 'Totali del viaggio',
   'tours.scope.info':
-    "Quanto sommano i percorsi mostrati sotto, per tipo; il filtro limita entrambi. Un percorso su più giorni conta una volta. I tre tipi di tempo restano separati: quello calcolato dal routing, quello portato da un'importazione e quello pianificato con le pause. Nulla viene sommato tra tipi diversi.",
-  'tours.scope.partial': 'Somma incompleta',
-  'tours.scope.partialBody':
-    'Noto per {known} percorsi su {of}; gli altri non hanno un valore e restano fuori, quindi il totale è almeno questo.',
+    'Ogni percorso conta una volta. I tempi restano separati per tipo e non si sommano tra tipi diversi.',
+  'tours.scope.partialBody': 'noto per {known} percorsi su {of}',
   'tours.scope.routed': 'Tempo calcolato',
   'tours.scope.imported': 'Tempo dalle importazioni',
   'tours.scope.planned': 'Pianificato con pause',
@@ -411,7 +409,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': 'Passaggio',
   'tours.paddle.lockBypassed': 'Aggirata a piedi, conta il trasbordo',
   'tours.paddle.time.title': 'Stima dei tempi',
-  'tours.paddle.time.assumption': 'Valori di pianificazione',
   'tours.paddle.time.assumptionInfo':
     'TREK parte da 4 km/h in acqua, 2 km/h durante il trasporto e 10 minuti per sbarcare e reimbarcarsi a ogni trasbordo. Sono valori iniziali da adattare, non norme né misurazioni. I tempi delle chiuse sono solo quelli che inserisci.',
   'tours.paddle.time.water': 'In acqua',

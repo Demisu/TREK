@@ -705,7 +705,7 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-3 py-3.5">
         {hasRoute && (
           <div data-testid="tour-planner-overview">
-            <RailCard icon={<Route size={14} strokeWidth={2} />} title={t('tours.planner.inspector.title')}>
+            <RailCard icon={<Route size={14} strokeWidth={2} />} title={t('tours.planner.inspector.title')} foldId="tour-summary">
               <div className="flex flex-col gap-3">
                 <FerrataCrossingBadges />
               <RailFacts facts={tourMetricFacts(routeAnalysis, distanceUnit, t, tourTimeFields)} />

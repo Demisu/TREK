@@ -275,11 +275,8 @@ const tours: TranslationStrings = {
   'tours.filter.empty': 'Keine Tour passt zu diesen Filtern.',
   'tours.filter.reset': 'Filter zurücksetzen',
   'tours.scope.title': 'Umfang der Reise',
-  'tours.scope.info':
-    'Was die unten gezeigten Touren zusammen ergeben, nach Typ; der Filter grenzt beides ein. Eine Tour an mehreren Tagen zählt einmal. Die drei Zeitarten bleiben getrennt: was das Routing berechnet hat, was ein Import mitgebracht hat und was mit Pausen geplant ist. Über Typen hinweg wird nichts addiert.',
-  'tours.scope.partial': 'Unvollständige Summe',
-  'tours.scope.partialBody':
-    'Bekannt für {known} von {of} Touren; die übrigen haben keinen Wert und fehlen, die Summe ist also mindestens so groß.',
+  'tours.scope.info': 'Jede Tour zählt einmal. Zeiten bleiben nach Art getrennt und werden nicht über Typen addiert.',
+  'tours.scope.partialBody': 'bekannt für {known} von {of} Touren',
   'tours.scope.routed': 'Routingzeit',
   'tours.scope.imported': 'Zeit laut Import',
   'tours.scope.planned': 'Geplant mit Pausen',
@@ -412,7 +409,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': 'Durchfahrt',
   'tours.paddle.lockBypassed': 'Umtragen, es zählt die Portage',
   'tours.paddle.time.title': 'Zeitschätzung',
-  'tours.paddle.time.assumption': 'Planannahmen',
   'tours.paddle.time.assumptionInfo':
     'TREK beginnt mit 4 km/h auf dem Wasser, 2 km/h beim Tragen und 10 Minuten zum Aus- und Einsetzen je Portage. Das sind Startwerte zum Anpassen, keine Norm und keine Messung. Schleusenzeiten sind nur, was du einträgst.',
   'tours.paddle.time.water': 'Auf dem Wasser',

@@ -266,11 +266,8 @@ const tours: TranslationStrings = {
   'tours.filter.empty': 'Tidak ada tur yang cocok dengan filter ini.',
   'tours.filter.reset': 'Atur ulang filter',
   'tours.scope.title': 'Total perjalanan',
-  'tours.scope.info':
-    'Jumlah tur yang ditampilkan di bawah, per jenis; filter mempersempit keduanya. Tur di beberapa hari dihitung sekali. Tiga jenis waktu tetap terpisah: yang dihitung perutean, yang dibawa impor, dan yang direncanakan dengan istirahat. Tidak ada yang dijumlahkan antar jenis.',
-  'tours.scope.partial': 'Jumlah tidak lengkap',
-  'tours.scope.partialBody':
-    'Diketahui untuk {known} dari {of} tur; yang lain tidak punya nilai dan tidak dihitung, jadi totalnya setidaknya sebesar ini.',
+  'tours.scope.info': 'Setiap tur dihitung sekali. Waktu tetap terpisah per jenis dan tidak dijumlahkan antar tipe.',
+  'tours.scope.partialBody': 'diketahui untuk {known} dari {of} tur',
   'tours.scope.routed': 'Waktu perutean',
   'tours.scope.imported': 'Waktu dari impor',
   'tours.scope.planned': 'Rencana dengan istirahat',
@@ -401,7 +398,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': 'Melintas',
   'tours.paddle.lockBypassed': 'Diangkut memutar, dihitung sebagai angkut perahu',
   'tours.paddle.time.title': 'Perkiraan waktu',
-  'tours.paddle.time.assumption': 'Nilai perencanaan',
   'tours.paddle.time.assumptionInfo':
     'TREK memulai dengan 4 km/h di air, 2 km/h saat mengangkut, dan 10 menit untuk keluar dan masuk kembali di setiap angkut perahu. Ini nilai awal untuk disesuaikan, bukan patokan dan bukan hasil pengukuran. Waktu pintu air hanya yang kamu masukkan.',
   'tours.paddle.time.water': 'Di air',

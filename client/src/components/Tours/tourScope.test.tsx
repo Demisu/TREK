@@ -1,6 +1,6 @@
 import type { TourListItem } from '@trek/shared';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { fireEvent, render, screen, within } from '../../../tests/helpers/render';
+import { fireEvent, render, screen } from '../../../tests/helpers/render';
 import { useTripStore } from '../../store/tripStore';
 import { TourScopeSummary } from './TourScopeSummary';
 import { tourScopeSummary } from './tourScope';
@@ -116,24 +116,28 @@ describe('TourScopeSummary', () => {
     expect(counts).toHaveTextContent('3Tours');
     expect(counts).toHaveTextContent('2Planned');
     expect(counts).toHaveTextContent('1Unplanned');
-    const hike = screen.getByTestId('tour-scope-hike');
-    expect(within(hike).getByText('15.5 km')).toBeInTheDocument();
-    expect(within(hike).getByText('≥ 600 m')).toBeInTheDocument();
-    expect(within(hike).getByText('Routed time')).toBeInTheDocument();
-    expect(within(hike).queryByText('Time from imports')).toBeNull();
-    // The paddle tour has no heights: no ascent, rather than 0 m.
-    expect(within(screen.getByTestId('tour-scope-kayak')).queryByText('Ascent')).toBeNull();
+    fireEvent.click(screen.getByTestId('tour-scope-toggle'));
+    expect(screen.getByTestId('tour-scope-hike-distance')).toHaveTextContent('15.5 km');
+    const ascent = screen.getByTestId('tour-scope-hike-ascent');
+    expect(ascent).toHaveTextContent('≥ 600 m');
+    expect(ascent).toHaveAccessibleName('Ascent: ≥ 600 m (known for 1 of 2 tours)');
+    expect(screen.getByTestId('tour-scope-hike-routed')).toHaveAccessibleName('Routed time: 5 h');
+    expect(screen.queryByTestId('tour-scope-hike-imported')).toBeNull();
+    // Paddling sums no heights: no ascent badge, rather than 0 m.
+    expect(screen.queryByTestId('tour-scope-kayak-ascent')).toBeNull();
+    expect(screen.getByTestId('tour-scope-kayak-distance')).toHaveTextContent('12 km');
   });
 
-  it('folds to its counts, and remembers that in this browser', () => {
+  it('starts folded to its counts, and remembers an opening in this browser', () => {
     const { unmount } = render(<TourScopeSummary tours={[HIKE_A]} />);
-    fireEvent.click(screen.getByTestId('tour-scope-toggle'));
     expect(screen.queryByTestId('tour-scope-hike')).toBeNull();
     expect(screen.getByTestId('tour-scope-counts')).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('tour-scope-toggle'));
+    expect(screen.getByTestId('tour-scope-hike')).toBeInTheDocument();
     unmount();
     render(<TourScopeSummary tours={[HIKE_A]} />);
-    expect(screen.queryByTestId('tour-scope-hike')).toBeNull();
-    expect(screen.getByTestId('tour-scope-toggle')).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByTestId('tour-scope-hike')).toBeInTheDocument();
+    expect(screen.getByTestId('tour-scope-toggle')).toHaveAttribute('aria-expanded', 'true');
   });
 
   it('shows nothing for a trip without tours', () => {

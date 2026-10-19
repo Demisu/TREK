@@ -13,6 +13,7 @@ import { hikeSourceBadgeLabel, tourSource } from './tourPresentation'
 import { type TourDay, dayMenuLabel } from './tourDays'
 import { tourMetricFacts } from './tourFacts'
 import type { TourDayAssignment } from './useTourDayAssignment'
+import { useRailFold } from './railFold'
 
 /**
  * A tour's tile in a list: its T-scale grade in place of the mountain, named in
@@ -356,26 +357,46 @@ export function RailCard({
   aside,
   children,
   className = '',
+  foldId,
 }: {
   icon: ReactNode
   title: string
   aside?: ReactNode
   children: ReactNode
   className?: string
+  /** Lets the card fold to its head, remembered in this browser under this id across reloads. */
+  foldId?: string
 }) {
+  const { t } = useTranslation()
+  const bodyId = useId()
+  const { folded: storedFolded, toggle } = useRailFold(foldId ?? '')
+  const folded = !!foldId && storedFolded
   return (
     <section
       className={`flex-none overflow-hidden rounded-2xl border border-edge-faint bg-surface-card ${className}`}
       aria-label={title}
     >
-      <div className="flex items-center gap-2 border-b border-edge-faint bg-surface-secondary px-3 py-2">
+      <div className={`flex items-center gap-2 bg-surface-secondary px-3 py-2 ${folded ? '' : 'border-b border-edge-faint'}`}>
         <span className="grid h-4 w-4 flex-none place-items-center text-content-muted">{icon}</span>
-        <span className="min-w-0 flex-1 truncate font-semibold text-content" style={fs(12.5, 'body')}>
-          {title}
-        </span>
+        {foldId ? (
+          // The title folds the card too: a wide target, not only the chevron.
+          <button type="button" onClick={toggle} aria-expanded={!folded} aria-controls={bodyId}
+            className="min-w-0 flex-1 truncate text-start font-semibold text-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+            style={fs(12.5, 'body')}>
+            {title}
+          </button>
+        ) : (
+          <span className="min-w-0 flex-1 truncate font-semibold text-content" style={fs(12.5, 'body')}>
+            {title}
+          </span>
+        )}
         {aside}
+        {foldId && (
+          <FoldButton expanded={!folded} onToggle={toggle} controls={bodyId}
+            label={`${t(folded ? 'common.expand' : 'common.collapse')}: ${title}`} />
+        )}
       </div>
-      <div className="px-3 py-3">{children}</div>
+      {!folded && <div id={bodyId} className="px-3 py-3">{children}</div>}
     </section>
   )
 }

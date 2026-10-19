@@ -265,11 +265,8 @@ const tours: TranslationStrings = {
   'tours.filter.empty': 'Ingen tur matchar de här filtren.',
   'tours.filter.reset': 'Återställ filter',
   'tours.scope.title': 'Resans omfattning',
-  'tours.scope.info':
-    'Vad turerna nedan blir tillsammans, per typ; filtret begränsar båda. En tur på flera dagar räknas en gång. De tre slagen av tid hålls isär: vad ruttplaneringen räknade fram, vad en import hade med sig och vad som är planerat med pauser. Inget läggs ihop mellan typer.',
-  'tours.scope.partial': 'Ofullständig summa',
-  'tours.scope.partialBody':
-    'Känt för {known} av {of} turer; de övriga saknar värde och räknas inte, så summan är minst så här mycket.',
+  'tours.scope.info': 'Varje tur räknas en gång. Tiderna hålls isär per slag och läggs aldrig ihop mellan typer.',
+  'tours.scope.partialBody': 'känt för {known} av {of} turer',
   'tours.scope.routed': 'Beräknad tid',
   'tours.scope.imported': 'Tid från importer',
   'tours.scope.planned': 'Planerat med pauser',
@@ -402,7 +399,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': 'Slussning',
   'tours.paddle.lockBypassed': 'Bärs runt, lyftet räknas',
   'tours.paddle.time.title': 'Tidsuppskattning',
-  'tours.paddle.time.assumption': 'Planeringsvärden',
   'tours.paddle.time.assumptionInfo':
     'TREK utgår från 4 km/h på vattnet, 2 km/h vid bärning och 10 minuter för att kliva ur och i igen vid varje lyft. Det är startvärden att justera, inte normer och inte mätningar. Slusstider är bara det du anger.',
   'tours.paddle.time.water': 'På vattnet',

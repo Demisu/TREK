@@ -367,21 +367,25 @@ export function PaddleCheckCard({ checklist }: { checklist: PaddleChecklist }) {
   const notice = noticeOf(checklist);
   const { summary, check } = checklist;
   return (
-    <RailCard
-      icon={<ListChecks size={14} strokeWidth={2} />}
-      title={t('tours.paddle.check.title')}
-      aside={summary ? <PaddleCheckPill check={summary} /> : null}
-    >
-      <div data-testid="paddle-check-card" className="flex flex-col gap-2.5">
-        {notice && <CheckNoticeLine notice={notice} evaluatedAt={check?.evaluated_at ?? null} />}
-        {notice === 'new' && <PaddleObstacleNotice />}
-        {summary && <PaddleCheckDataLine check={summary} />}
-        {check && <CheckList checklist={checklist} check={check} />}
-        <p className="m-0 text-content-faint" style={fs(10.5, 'body')}>
-          {t('tours.paddle.check.notClearance')}
-        </p>
-      </div>
+    <>
+      <RailCard
+        icon={<ListChecks size={14} strokeWidth={2} />}
+        title={t('tours.paddle.check.title')}
+        foldId="paddle-check"
+        aside={summary ? <PaddleCheckPill check={summary} /> : null}
+      >
+        <div data-testid="paddle-check-card" className="flex flex-col gap-2.5">
+          {notice && <CheckNoticeLine notice={notice} evaluatedAt={check?.evaluated_at ?? null} />}
+          {notice === 'new' && <PaddleObstacleNotice />}
+          {summary && <PaddleCheckDataLine check={summary} />}
+          {check && <CheckList checklist={checklist} check={check} />}
+          <p className="m-0 text-content-faint" style={fs(10.5, 'body')}>
+            {t('tours.paddle.check.notClearance')}
+          </p>
+        </div>
+      </RailCard>
+      {/* Outside the card's body: an obstacle picked on the map opens its entry with the card folded too. */}
       {checklist.dialogKey !== null && <ObstacleEntryDialog checklist={checklist} />}
-    </RailCard>
+    </>
   );
 }

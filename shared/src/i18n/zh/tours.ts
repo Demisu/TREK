@@ -245,10 +245,8 @@ const tours: TranslationStrings = {
   'tours.filter.empty': '没有符合这些筛选条件的路线。',
   'tours.filter.reset': '重置筛选',
   'tours.scope.title': '行程汇总',
-  'tours.scope.info':
-    '下方显示的路线按类型的合计；筛选同时作用于两者。在多天中的路线只计一次。三种时间分开显示：路线规划计算的时间、导入自带的时间，以及含休息的计划时间。不同类型之间不相加。',
-  'tours.scope.partial': '不完整的合计',
-  'tours.scope.partialBody': '{of} 条路线中有 {known} 条有此值；其余没有数值未计入，因此合计至少为此数。',
+  'tours.scope.info': '每条路线只计一次。时间按种类分开，不跨类型相加。',
+  'tours.scope.partialBody': '{of} 条路线中 {known} 条已知',
   'tours.scope.routed': '规划时间',
   'tours.scope.imported': '导入时间',
   'tours.scope.planned': '含休息的计划',
@@ -370,7 +368,6 @@ const tours: TranslationStrings = {
   'tours.paddle.lockTransit': '过闸',
   'tours.paddle.lockBypassed': '已搬运绕过，按陆上搬运计',
   'tours.paddle.time.title': '用时估算',
-  'tours.paddle.time.assumption': '规划假设',
   'tours.paddle.time.assumptionInfo':
     'TREK 的初始值为：水上 4 km/h，搬运 2 km/h，每处陆上搬运的上岸和重新下水共计 10 分钟。这些是可调整的初始值，不是标准，也不是实测值。船闸用时只取你输入的数值。',
   'tours.paddle.time.water': '水上',
