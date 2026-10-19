@@ -9,7 +9,7 @@ import { NEUTRAL_TINT, fs } from '../shared/DialogShell'
 import { Tooltip } from '../shared/Tooltip'
 import EmptyState from '../shared/EmptyState'
 import { TourDayMenu } from './tourParts'
-import TourListFilterMenu from './TourListFilterMenu'
+import TourListFilterMenu, { TourFilterEmpty } from './TourListFilterMenu'
 import { useTourListFilters } from './useTourListFilters'
 import TourGpxPreviewDialog from './TourGpxPreviewDialog'
 import { useTourGpxImport } from './useTourGpxImport'
@@ -97,14 +97,7 @@ export default function ToursSidebar({ tripId, days, tours, loading = false, sel
 
       <div className="trek-stagger min-h-0 flex-1 overflow-y-auto px-2 pb-2 pt-1.5">
         {!loading && filters.emptyByFilter ? (
-          <div role="status" className="mx-1.5 mt-2 flex flex-col items-center gap-2 rounded-[12px] bg-surface-card px-4 py-5 text-center shadow-sm ring-1 ring-inset ring-edge-faint">
-            <p className="m-0 text-content-muted" style={fs(12.5, 'body')}>{t('tours.filter.empty')}</p>
-            <button type="button" onClick={filters.reset}
-              className="rounded-full bg-surface-secondary px-3 py-1 font-semibold text-content-secondary transition-colors hover:text-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
-              style={fs(11.5, 'body')}>
-              {t('tours.filter.reset')}
-            </button>
-          </div>
+          <TourFilterEmpty filters={filters} />
         ) : !loading && filters.filtered.length === 0 ? (
           <EmptyState scene="tours" size={92} fill surface="var(--bg-secondary)" title={t('tours.empty.title')}
             action={<p className="m-0 max-w-[260px] text-content-muted" style={fs(12, 'body')}>{t('tours.empty.body')}</p>} />

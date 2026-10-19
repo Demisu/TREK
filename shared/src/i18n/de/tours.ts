@@ -274,6 +274,16 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Art',
   'tours.filter.empty': 'Keine Tour passt zu diesen Filtern.',
   'tours.filter.reset': 'Filter zurücksetzen',
+  'tours.scope.title': 'Umfang der Reise',
+  'tours.scope.info':
+    'Was die unten gezeigten Touren zusammen ergeben, nach Typ; der Filter grenzt beides ein. Eine Tour an mehreren Tagen zählt einmal. Die drei Zeitarten bleiben getrennt: was das Routing berechnet hat, was ein Import mitgebracht hat und was mit Pausen geplant ist. Über Typen hinweg wird nichts addiert.',
+  'tours.scope.partial': 'Unvollständige Summe',
+  'tours.scope.partialBody':
+    'Bekannt für {known} von {of} Touren; die übrigen haben keinen Wert und fehlen, die Summe ist also mindestens so groß.',
+  'tours.scope.routed': 'Routingzeit',
+  'tours.scope.imported': 'Zeit laut Import',
+  'tours.scope.planned': 'Geplant mit Pausen',
+  'tours.scope.noMeasures': 'Noch keine Distanz, Höhen oder Zeiten bekannt.',
   'tours.copy.action': 'Als neue Tour speichern',
   'tours.copy.hint': 'Kopiert diese Tour als neue, eigenständige Tour ohne ihre Tage. Das Original bleibt, wie es ist.',
   'tours.copy.name': '{name} (Kopie)',

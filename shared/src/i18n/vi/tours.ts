@@ -266,6 +266,16 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Loại',
   'tours.filter.empty': 'Không có chuyến đi bộ nào khớp với bộ lọc này.',
   'tours.filter.reset': 'Đặt lại bộ lọc',
+  'tours.scope.title': 'Tổng của chuyến đi',
+  'tours.scope.info':
+    'Tổng của các chuyến hiển thị bên dưới, theo loại; bộ lọc thu hẹp cả hai. Một chuyến ở nhiều ngày chỉ tính một lần. Ba loại thời gian luôn tách riêng: thời gian định tuyến tính ra, thời gian đi kèm bản nhập và thời gian đã lên kế hoạch kể cả nghỉ. Không cộng gộp giữa các loại.',
+  'tours.scope.partial': 'Tổng chưa đầy đủ',
+  'tours.scope.partialBody':
+    'Đã biết cho {known} trên {of} chuyến; các chuyến còn lại không có giá trị và bị bỏ qua, nên tổng ít nhất là chừng này.',
+  'tours.scope.routed': 'Thời gian định tuyến',
+  'tours.scope.imported': 'Thời gian từ bản nhập',
+  'tours.scope.planned': 'Kế hoạch gồm nghỉ',
+  'tours.scope.noMeasures': 'Chưa biết quãng đường, độ cao hay thời gian.',
   'tours.copy.action': 'Lưu thành chuyến đi bộ mới',
   'tours.copy.hint': 'Sao chép chuyến này thành một chuyến đi bộ mới, độc lập, không kèm các ngày. Bản gốc giữ nguyên.',
   'tours.copy.name': '{name} (bản sao)',

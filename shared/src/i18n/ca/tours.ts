@@ -271,6 +271,16 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Tipus',
   'tours.filter.empty': 'Cap excursió no coincideix amb aquests filtres.',
   'tours.filter.reset': 'Restableix els filtres',
+  'tours.scope.title': 'Totals del viatge',
+  'tours.scope.info':
+    "El que sumen les rutes mostrades a sota, per tipus; el filtre limita totes dues coses. Una ruta en diversos dies compta una vegada. Els tres tipus de temps es mantenen separats: el que ha calculat l'encaminament, el que ha portat una importació i el que està planificat amb pauses. No se suma res entre tipus.",
+  'tours.scope.partial': 'Suma incompleta',
+  'tours.scope.partialBody':
+    'Conegut per a {known} de {of} rutes; les altres no tenen valor i queden fora, així que el total és com a mínim això.',
+  'tours.scope.routed': 'Temps calculat',
+  'tours.scope.imported': 'Temps de les importacions',
+  'tours.scope.planned': 'Planificat amb pauses',
+  'tours.scope.noMeasures': 'Encara no hi ha distància, alçades ni temps coneguts.',
   'tours.copy.action': 'Desa com a excursió nova',
   'tours.copy.hint':
     'Copia aquesta excursió com una excursió nova i independent, sense els seus dies. L’original es queda com està.',

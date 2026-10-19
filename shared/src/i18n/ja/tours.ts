@@ -259,6 +259,16 @@ const tours: TranslationStrings = {
   'tours.filter.type': '種類',
   'tours.filter.empty': 'この条件に合うツアーはありません。',
   'tours.filter.reset': 'フィルターをリセット',
+  'tours.scope.title': '旅の合計',
+  'tours.scope.info':
+    '下に表示されたツアーの種類ごとの合計です。フィルターは両方に適用されます。複数の日にあるツアーは 1 回だけ数えます。3 種類の時間は分けたままです：ルーティングが計算した時間、インポートに含まれていた時間、休憩を含めて計画した時間。種類をまたいで合算はしません。',
+  'tours.scope.partial': '不完全な合計',
+  'tours.scope.partialBody':
+    '{of} 件中 {known} 件のツアーで判明しています。残りは値がないため含まれず、合計は少なくともこの値です。',
+  'tours.scope.routed': 'ルート計算の時間',
+  'tours.scope.imported': 'インポートの時間',
+  'tours.scope.planned': '休憩込みの計画',
+  'tours.scope.noMeasures': '距離、高度、時間はまだわかりません。',
   'tours.copy.action': '新しいツアーとして保存',
   'tours.copy.hint': 'このツアーを日程なしの独立した新しいツアーとしてコピーします。元のツアーはそのままです。',
   'tours.copy.name': '{name}（コピー）',

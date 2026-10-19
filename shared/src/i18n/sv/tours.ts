@@ -264,6 +264,16 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Typ',
   'tours.filter.empty': 'Ingen tur matchar de här filtren.',
   'tours.filter.reset': 'Återställ filter',
+  'tours.scope.title': 'Resans omfattning',
+  'tours.scope.info':
+    'Vad turerna nedan blir tillsammans, per typ; filtret begränsar båda. En tur på flera dagar räknas en gång. De tre slagen av tid hålls isär: vad ruttplaneringen räknade fram, vad en import hade med sig och vad som är planerat med pauser. Inget läggs ihop mellan typer.',
+  'tours.scope.partial': 'Ofullständig summa',
+  'tours.scope.partialBody':
+    'Känt för {known} av {of} turer; de övriga saknar värde och räknas inte, så summan är minst så här mycket.',
+  'tours.scope.routed': 'Beräknad tid',
+  'tours.scope.imported': 'Tid från importer',
+  'tours.scope.planned': 'Planerat med pauser',
+  'tours.scope.noMeasures': 'Ingen sträcka, höjd eller tid känd ännu.',
   'tours.copy.action': 'Spara som ny tur',
   'tours.copy.hint': 'Kopierar turen som en ny, fristående tur utan dess dagar. Originalet förblir som det är.',
   'tours.copy.name': '{name} (kopia)',

@@ -257,6 +257,16 @@ const tours: TranslationStrings = {
   'tours.filter.type': '종류',
   'tours.filter.empty': '이 필터에 맞는 투어가 없습니다.',
   'tours.filter.reset': '필터 초기화',
+  'tours.scope.title': '여행 합계',
+  'tours.scope.info':
+    '아래 표시된 투어의 유형별 합계입니다. 필터는 둘 다에 적용됩니다. 여러 날에 있는 투어는 한 번만 셉니다. 세 가지 시간은 따로 유지됩니다: 경로 계산이 낸 시간, 가져오기에 포함된 시간, 휴식을 포함해 계획한 시간. 유형 간에는 더하지 않습니다.',
+  'tours.scope.partial': '불완전한 합계',
+  'tours.scope.partialBody':
+    '{of}개 투어 중 {known}개만 값이 있습니다. 나머지는 값이 없어 빠졌으므로 합계는 최소 이만큼입니다.',
+  'tours.scope.routed': '경로 계산 시간',
+  'tours.scope.imported': '가져오기 시간',
+  'tours.scope.planned': '휴식 포함 계획',
+  'tours.scope.noMeasures': '아직 알려진 거리, 고도, 시간이 없습니다.',
   'tours.copy.action': '새 투어로 저장',
   'tours.copy.hint': '이 투어를 날짜 없이 독립된 새 투어로 복사합니다. 원본은 그대로입니다.',
   'tours.copy.name': '{name} (사본)',

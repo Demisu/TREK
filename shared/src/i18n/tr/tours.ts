@@ -266,6 +266,16 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Tür',
   'tours.filter.empty': 'Bu filtrelere uyan tur yok.',
   'tours.filter.reset': 'Filtreleri sıfırla',
+  'tours.scope.title': 'Gezinin toplamı',
+  'tours.scope.info':
+    'Aşağıda gösterilen turların türe göre toplamı; filtre ikisini de daraltır. Birkaç günde olan bir tur bir kez sayılır. Üç zaman türü ayrı kalır: rotalamanın hesapladığı, bir içe aktarmanın getirdiği ve molalarla planlanan. Türler arasında hiçbir şey toplanmaz.',
+  'tours.scope.partial': 'Eksik toplam',
+  'tours.scope.partialBody':
+    '{of} turdan {known} için biliniyor; diğerlerinin değeri yok ve dışarıda kalıyor, bu yüzden toplam en az bu kadar.',
+  'tours.scope.routed': 'Hesaplanan süre',
+  'tours.scope.imported': 'İçe aktarmalardan süre',
+  'tours.scope.planned': 'Molalarla planlanan',
+  'tours.scope.noMeasures': 'Henüz bilinen mesafe, yükseklik veya süre yok.',
   'tours.copy.action': 'Yeni tur olarak kaydet',
   'tours.copy.hint': 'Bu turu günleri olmadan yeni ve bağımsız bir tur olarak kopyalar. Asıl tur olduğu gibi kalır.',
   'tours.copy.name': '{name} (kopya)',

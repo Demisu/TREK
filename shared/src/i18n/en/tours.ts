@@ -265,6 +265,16 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Type',
   'tours.filter.empty': 'No tour matches these filters.',
   'tours.filter.reset': 'Reset filters',
+  'tours.scope.title': 'Trip totals',
+  'tours.scope.info':
+    'What the tours shown below add up to, by type; the filter narrows both. A tour on several days counts once. The three kinds of time stay apart: what the router worked out, what an import brought, and what is planned with breaks. Nothing is added up across types.',
+  'tours.scope.partial': 'Incomplete sum',
+  'tours.scope.partialBody':
+    'Known for {known} of {of} tours; the others have no value and are left out, so the total is at least this much.',
+  'tours.scope.routed': 'Routed time',
+  'tours.scope.imported': 'Time from imports',
+  'tours.scope.planned': 'Planned with breaks',
+  'tours.scope.noMeasures': 'No distance, heights or times known yet.',
   'tours.copy.action': 'Save as new tour',
   'tours.copy.hint': 'Copies this tour as a new, independent tour without its days. The original stays as it is.',
   'tours.copy.name': '{name} (copy)',

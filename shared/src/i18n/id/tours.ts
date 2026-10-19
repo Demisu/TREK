@@ -265,6 +265,16 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Jenis',
   'tours.filter.empty': 'Tidak ada tur yang cocok dengan filter ini.',
   'tours.filter.reset': 'Atur ulang filter',
+  'tours.scope.title': 'Total perjalanan',
+  'tours.scope.info':
+    'Jumlah tur yang ditampilkan di bawah, per jenis; filter mempersempit keduanya. Tur di beberapa hari dihitung sekali. Tiga jenis waktu tetap terpisah: yang dihitung perutean, yang dibawa impor, dan yang direncanakan dengan istirahat. Tidak ada yang dijumlahkan antar jenis.',
+  'tours.scope.partial': 'Jumlah tidak lengkap',
+  'tours.scope.partialBody':
+    'Diketahui untuk {known} dari {of} tur; yang lain tidak punya nilai dan tidak dihitung, jadi totalnya setidaknya sebesar ini.',
+  'tours.scope.routed': 'Waktu perutean',
+  'tours.scope.imported': 'Waktu dari impor',
+  'tours.scope.planned': 'Rencana dengan istirahat',
+  'tours.scope.noMeasures': 'Belum ada jarak, ketinggian, atau waktu yang diketahui.',
   'tours.copy.action': 'Simpan sebagai tur baru',
   'tours.copy.hint': 'Menyalin tur ini sebagai tur baru yang mandiri tanpa hari-harinya. Aslinya tetap seperti semula.',
   'tours.copy.name': '{name} (salinan)',

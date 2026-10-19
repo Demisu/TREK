@@ -40,6 +40,9 @@ import { type AssignTourToDay, useTourDayAssignment } from '../useTourDayAssignm
 import WandererMark from '../wanderer/WandererMark'
 import { TourGpxExportBarButton } from '../TourGpxExportButton'
 import { TourRemoteChangeNotice, TourRevisionConflictDialog } from './TourRevisionNotice'
+import TourListFilterMenu, { TourFilterEmpty } from '../TourListFilterMenu'
+import { TourScopeSummary } from '../TourScopeSummary'
+import { useTourListFilters } from '../useTourListFilters'
 
 const STATUS_KEY: Partial<Record<TourPlannerStatus, string>> = {
   dirty: 'tours.planner.status.dirty',
@@ -645,6 +648,8 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
   const distanceUnit = useSettingsStore(state => state.settings.distance_unit)
   const [pendingTour, setPendingTour] = useState<TourListItem | null>(null)
   const dayAssignment = useTourDayAssignment({ canAssign, onAssignToDay })
+  // STA-01: one filter for the list and the summary above it, the same as the plan's tour list.
+  const filters = useTourListFilters(tours)
   const isSaving = planner.isSaving
   const hasRoute = (planner.mode.type === 'new-draft' || planner.mode.type === 'edit-saved') && planner.route !== null
   // A paddle tour's heights are read off the banks, not the water: they stay unknown.
@@ -723,17 +728,21 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
         ) : tours.length === 0 ? (
               <p className="m-0 py-6 text-center text-content-faint" style={fs(12, 'body')}>{t('common.loading')}</p>
             ) : (
+          <>
+            <TourListFilterMenu filters={filters} />
+            <TourScopeSummary tours={filters.filtered} />
+            {filters.emptyByFilter ? <TourFilterEmpty filters={filters} /> : (
               <TourListCard
             icon={<Mountain size={14} strokeWidth={2} />}
             title={t('tours.mode.tours')}
             aside={
               <span className="flex-none tabular-nums text-content-faint" style={fs(11.5, 'body')}>
-                {tours.length}
+                {filters.filtered.length}
               </span>
             }
             label={t('tours.planner.tripTours')}
           >
-                {tours.map(tour => (
+                {filters.filtered.map(tour => (
                   <TourListRow
                     key={tour.place_id}
                     tour={tour}
@@ -769,6 +778,8 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
                   />
                 ))}
               </TourListCard>
+            )}
+          </>
         )}
       </div>
 

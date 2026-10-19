@@ -266,6 +266,16 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Druh',
   'tours.filter.empty': 'Těmto filtrům neodpovídá žádná túra.',
   'tours.filter.reset': 'Zrušit filtry',
+  'tours.scope.title': 'Rozsah cesty',
+  'tours.scope.info':
+    'Co dávají dohromady túry zobrazené níže, podle typu; filtr omezuje obojí. Túra na více dnech se počítá jednou. Tři druhy času zůstávají oddělené: co spočítalo trasování, co přinesl import a co je naplánováno s přestávkami. Napříč typy se nic nesčítá.',
+  'tours.scope.partial': 'Neúplný součet',
+  'tours.scope.partialBody':
+    'Známo pro {known} z {of} túr; ostatní hodnotu nemají a chybí, součet je tedy nejméně tolik.',
+  'tours.scope.routed': 'Vypočtený čas',
+  'tours.scope.imported': 'Čas z importů',
+  'tours.scope.planned': 'Plán s přestávkami',
+  'tours.scope.noMeasures': 'Zatím není známa vzdálenost, výšky ani časy.',
   'tours.copy.action': 'Uložit jako novou túru',
   'tours.copy.hint': 'Zkopíruje tuto túru jako novou, samostatnou túru bez jejích dnů. Originál zůstane, jak je.',
   'tours.copy.name': '{name} (kopie)',

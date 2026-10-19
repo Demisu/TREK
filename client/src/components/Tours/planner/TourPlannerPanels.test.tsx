@@ -151,8 +151,9 @@ describe('TourPlannerToursRail', () => {
 
     expect(screen.getByRole('complementary', { name: 'Tours of this trip' })).toBeInTheDocument()
     expect(screen.getByRole('option', { name: /Saved ridge walk/i })).toHaveTextContent('4 km')
-    expect(screen.getByText('Ascent')).toBeInTheDocument()
-    expect(screen.getByText('50 m')).toBeInTheDocument()
+    const overview = screen.getByTestId('tour-planner-overview')
+    expect(within(overview).getByText('Ascent')).toBeInTheDocument()
+    expect(within(overview).getByText('50 m')).toBeInTheDocument()
     expect(document.querySelector('svg[viewBox="0 0 440 100"]')).toBeInTheDocument()
     expect(screen.queryByText('Routing is planning assistance, not a safety guarantee.')).not.toBeInTheDocument()
   })

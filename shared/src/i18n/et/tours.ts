@@ -268,6 +268,16 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Liik',
   'tours.filter.empty': 'Ükski matk ei vasta neile filtritele.',
   'tours.filter.reset': 'Lähtesta filtrid',
+  'tours.scope.title': 'Reisi kogumaht',
+  'tours.scope.info':
+    'Mida allpool näidatud matkad tüübi kaupa kokku annavad; filter kitsendab mõlemat. Mitmel päeval olev matk loetakse üks kord. Kolm ajaliiki jäävad eraldi: mida marsruutija arvutas, mida import kaasa tõi ja mis on pausidega planeeritud. Tüüpide vahel midagi kokku ei liideta.',
+  'tours.scope.partial': 'Mittetäielik summa',
+  'tours.scope.partialBody':
+    'Teada {known} matka puhul {of}-st; ülejäänutel väärtus puudub ja need jäävad välja, seega on summa vähemalt nii suur.',
+  'tours.scope.routed': 'Arvutatud aeg',
+  'tours.scope.imported': 'Aeg importidest',
+  'tours.scope.planned': 'Planeeritud koos pausidega',
+  'tours.scope.noMeasures': 'Vahemaa, kõrgused ja ajad pole veel teada.',
   'tours.copy.action': 'Salvesta uue matkana',
   'tours.copy.hint': 'Kopeerib selle matka uue, iseseisva matkana ilma päevadeta. Originaal jääb samaks.',
   'tours.copy.name': '{name} (koopia)',

@@ -272,6 +272,16 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Fajta',
   'tours.filter.empty': 'Egy túra sem felel meg ezeknek a szűrőknek.',
   'tours.filter.reset': 'Szűrők törlése',
+  'tours.scope.title': 'Az út összesítése',
+  'tours.scope.info':
+    'Amit az alább mutatott túrák típusonként kiadnak; a szűrő mindkettőt szűkíti. A több napon szereplő túra egyszer számít. A háromféle idő külön marad: amit az útvonaltervező számolt, amit egy import hozott, és ami szünetekkel van tervezve. Típusok között semmi sem adódik össze.',
+  'tours.scope.partial': 'Hiányos összeg',
+  'tours.scope.partialBody':
+    '{of} túrából {known} esetén ismert; a többinek nincs értéke és kimarad, így az összeg legalább ennyi.',
+  'tours.scope.routed': 'Számított idő',
+  'tours.scope.imported': 'Idő az importokból',
+  'tours.scope.planned': 'Tervezett, szünetekkel',
+  'tours.scope.noMeasures': 'Még nem ismert távolság, magasság vagy idő.',
   'tours.copy.action': 'Mentés új túraként',
   'tours.copy.hint': 'Ezt a túrát új, önálló túraként másolja a napjai nélkül. Az eredeti változatlan marad.',
   'tours.copy.name': '{name} (másolat)',

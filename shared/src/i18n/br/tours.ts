@@ -271,6 +271,16 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Tipo',
   'tours.filter.empty': 'Nenhum passeio corresponde a esses filtros.',
   'tours.filter.reset': 'Limpar filtros',
+  'tours.scope.title': 'Totais da viagem',
+  'tours.scope.info':
+    'O que os passeios mostrados abaixo somam, por tipo; o filtro restringe os dois. Um passeio em vários dias conta uma vez. Os três tipos de tempo ficam separados: o que o roteamento calculou, o que uma importação trouxe e o que está planejado com pausas. Nada é somado entre tipos.',
+  'tours.scope.partial': 'Soma incompleta',
+  'tours.scope.partialBody':
+    'Conhecido para {known} de {of} passeios; os outros não têm valor e ficam de fora, então o total é pelo menos isso.',
+  'tours.scope.routed': 'Tempo calculado',
+  'tours.scope.imported': 'Tempo das importações',
+  'tours.scope.planned': 'Planejado com pausas',
+  'tours.scope.noMeasures': 'Ainda sem distância, altitudes ou tempos conhecidos.',
   'tours.copy.action': 'Salvar como novo passeio',
   'tours.copy.hint':
     'Copia este passeio como um novo passeio independente, sem os seus dias. O original fica como está.',

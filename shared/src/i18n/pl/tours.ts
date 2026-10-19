@@ -279,6 +279,16 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Rodzaj',
   'tours.filter.empty': 'Żadna trasa nie pasuje do tych filtrów.',
   'tours.filter.reset': 'Wyczyść filtry',
+  'tours.scope.title': 'Podsumowanie podróży',
+  'tours.scope.info':
+    'Ile dają razem trasy pokazane poniżej, według typu; filtr zawęża jedno i drugie. Trasa na kilku dniach liczy się raz. Trzy rodzaje czasu pozostają osobno: to, co obliczyło wyznaczanie trasy, to, co przyniósł import, i to, co zaplanowano z przerwami. Nic nie jest sumowane między typami.',
+  'tours.scope.partial': 'Niepełna suma',
+  'tours.scope.partialBody':
+    'Znane dla {known} z {of} tras; pozostałe nie mają wartości i są pominięte, więc suma wynosi co najmniej tyle.',
+  'tours.scope.routed': 'Czas wyliczony',
+  'tours.scope.imported': 'Czas z importów',
+  'tours.scope.planned': 'Plan z przerwami',
+  'tours.scope.noMeasures': 'Brak jeszcze znanego dystansu, wysokości i czasów.',
   'tours.copy.action': 'Zapisz jako nową trasę',
   'tours.copy.hint': 'Kopiuje tę trasę jako nową, niezależną trasę bez jej dni. Oryginał zostaje bez zmian.',
   'tours.copy.name': '{name} (kopia)',

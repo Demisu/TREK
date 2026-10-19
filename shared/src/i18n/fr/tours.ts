@@ -276,6 +276,16 @@ const tours: TranslationStrings = {
   'tours.filter.type': 'Type', // same-as-en
   'tours.filter.empty': 'Aucune sortie ne correspond à ces filtres.',
   'tours.filter.reset': 'Réinitialiser les filtres',
+  'tours.scope.title': 'Totaux du voyage',
+  'tours.scope.info':
+    "Ce que totalisent les itinéraires affichés ci-dessous, par type ; le filtre limite les deux. Un itinéraire sur plusieurs jours compte une fois. Les trois sortes de temps restent séparées : ce que le calcul d'itinéraire a donné, ce qu'un import a apporté et ce qui est prévu avec les pauses. Rien n'est additionné entre les types.",
+  'tours.scope.partial': 'Somme incomplète',
+  'tours.scope.partialBody':
+    "Connu pour {known} itinéraires sur {of} ; les autres n'ont pas de valeur et sont laissés de côté, le total est donc au moins celui-ci.",
+  'tours.scope.routed': 'Temps calculé',
+  'tours.scope.imported': 'Temps des imports',
+  'tours.scope.planned': 'Prévu avec pauses',
+  'tours.scope.noMeasures': "Aucune distance, altitude ni durée connue pour l'instant.",
   'tours.copy.action': 'Enregistrer comme nouvelle sortie',
   'tours.copy.hint':
     'Copie cette sortie en une nouvelle sortie indépendante, sans ses jours. L’original reste tel quel.',
