@@ -291,6 +291,18 @@ const tours: TranslationStrings = {
   'tours.revision.saveAsNew': 'Simpan sebagai tur baru',
   'tours.revision.mineName': '{name} (versiku)',
   'tours.revision.reloaded': 'Tur ini disimpan di tempat lain dan kini menampilkan versi terbaru.',
+  'tours.placePicker.open': 'Tempat perjalanan',
+  'tours.placePicker.search': 'Cari tempat perjalanan',
+  'tours.placePicker.near': 'Dekat tur',
+  'tours.placePicker.further': 'Tempat lain dalam perjalanan',
+  'tours.placePicker.all': 'Tempat dalam perjalanan',
+  'tours.placePicker.inTour': 'Di tur',
+  'tours.placePicker.empty': 'Perjalanan ini belum punya tempat dengan lokasi di peta.',
+  'tours.placePicker.noMatch': 'Tidak ada tempat yang cocok.',
+  'tours.placePicker.linked': 'Tempat perjalanan',
+  'tours.placePicker.linkedHint':
+    'Pemberhentian ini mewakili tempat dalam perjalanan. Menghapus atau melepas tautannya tidak mengubah tempat itu.',
+  'tours.placePicker.unlink': 'Lepas dari tempat',
   'tours.planner.tourType': 'Jenis tur',
   'tours.paddle.boat': 'Perahu',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

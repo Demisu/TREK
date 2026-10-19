@@ -11,6 +11,7 @@ import {
   ArrowUp,
   GripVertical,
   MapPin,
+  MapPinned,
   MapPinPlus,
   MoreHorizontal,
   Navigation,
@@ -18,6 +19,7 @@ import {
   Repeat,
   Spline,
   Trash2,
+  Unlink,
   Waves,
 } from 'lucide-react';
 import { Fragment, useState, type MouseEvent, type ReactNode } from 'react';
@@ -47,10 +49,15 @@ import { RailCard } from '../tourParts';
 import { paddlePlanPoints, paddleRolesById } from './paddlePlanOf';
 import type { PaddleLegFailure } from './paddleRouting';
 import { lineLengthM } from './tourFixedLegs';
+import { TripPlacePicker } from './TripPlacePicker';
 import type { TourPlannerController } from './useTourPlanner';
+import { useTripPlaceWaypoints } from './useTripPlaceWaypoints';
 import { useWaypointPlaceNames } from './useWaypointPlaceNames';
 
 type DropTarget = { id: string; placement: 'before' | 'after' };
+
+/** No tours known: every place with a spot is offered. */
+const NO_TOUR_PLACES: ReadonlySet<number> = new Set();
 
 const ROLE_KEY = {
   start: 'tours.planner.start',
@@ -289,12 +296,15 @@ function WaypointRowLabel({
   placeName,
   loopEnd,
   paddleRole,
+  linked = false,
 }: {
   point: TourPlannerController['waypoints'][number];
   placeName: string | undefined;
   loopEnd: boolean;
   /** On a paddle tour the badge names the point for the paddler: put-in, take-out, re-entry, final take-out. */
   paddleRole?: PaddleRole | null;
+  /** PR1-10: the point stands for this place of the trip, named after it. */
+  linked?: boolean;
 }) {
   const { t } = useTranslation();
   const coordinates = `${point.lat.toFixed(5)}, ${point.lng.toFixed(5)}`;
@@ -322,14 +332,29 @@ function WaypointRowLabel({
         )}
         {point.auto && <AutoPointPill />}
       </span>
-      {name && !loopEnd && (
-        <span
-          data-testid="tour-planner-waypoint-coordinates"
-          className="block min-w-0 truncate font-geist tabular-nums leading-tight text-content-faint"
-          style={fs(10.5)}
-        >
-          {coordinates}
-        </span>
+      {linked && !loopEnd ? (
+        // A stop standing for a place of the trip says so where the coordinates would be (PR1-10).
+        <Tooltip label={t('tours.placePicker.linkedHint')}>
+          <span
+            data-testid="tour-planner-waypoint-linked"
+            className="flex min-w-0 items-center gap-1 leading-tight text-content-faint"
+            style={fs(10.5)}
+          >
+            <MapPinned size={10} strokeWidth={2.2} className="flex-none" />
+            <span className="min-w-0 truncate">{t('tours.placePicker.linked')}</span>
+          </span>
+        </Tooltip>
+      ) : (
+        name &&
+        !loopEnd && (
+          <span
+            data-testid="tour-planner-waypoint-coordinates"
+            className="block min-w-0 truncate font-geist tabular-nums leading-tight text-content-faint"
+            style={fs(10.5)}
+          >
+            {coordinates}
+          </span>
+        )
       )}
     </>
   );
@@ -425,6 +450,7 @@ function WaypointRowActions({
   lastIndex,
   selected,
   isSaving,
+  onUnlink,
 }: {
   planner: TourPlannerController;
   point: WaypointPoint;
@@ -432,6 +458,8 @@ function WaypointRowActions({
   lastIndex: number;
   selected: boolean;
   isSaving: boolean;
+  /** PR1-10: given for a point that stands for a place; the place itself stays. */
+  onUnlink?: () => void;
 }) {
   const { t } = useTranslation();
   const menu = useContextMenu();
@@ -451,6 +479,9 @@ function WaypointRowActions({
     },
     ...routeMenuItems(planner, point, index, lastIndex, t),
     ...(planner.isPaddle ? paddleMenuItems(paddle, point, index < lastIndex, t) : []),
+    ...(onUnlink
+      ? [{ divider: true } as const, { label: t('tours.placePicker.unlink'), icon: Unlink, onClick: onUnlink }]
+      : []),
   ];
   return (
     <span
@@ -530,22 +561,49 @@ function PaddleRowExtras({
  * planner shows, the same switch as the one in the map's layer pill; while it
  * is on, the row says where to click and a second click turns it off again.
  */
-function AddPointRow({ disabled }: { disabled: boolean }) {
+function AddPointRow({
+  disabled,
+  placesOpen,
+  onTogglePlaces,
+}: {
+  disabled: boolean;
+  /** PR1-10: whether the trip's places are unfolded to pick a stop from. */
+  placesOpen: boolean;
+  onTogglePlaces: () => void;
+}) {
   const { t } = useTranslation();
   const active = useTourPlaceToolStore((state) => state.placing[state.mode]);
+  const look = (on: boolean) =>
+    `flex min-w-0 items-center justify-center gap-1.5 rounded-[12px] border border-dashed px-3 py-2.5 font-semibold transition-colors disabled:cursor-default disabled:opacity-40 ${on ? 'border-accent bg-surface-card text-content' : 'border-edge text-content-muted enabled:hover:border-content-faint enabled:hover:text-content'}`;
   return (
-    <button
-      type="button"
-      data-testid="tour-planner-add-point"
-      aria-pressed={active}
-      disabled={disabled}
-      onClick={() => toggleTourPlacing()}
-      className={`mt-1.5 flex w-full items-center justify-center gap-1.5 rounded-[12px] border border-dashed px-3 py-2.5 font-semibold transition-colors disabled:cursor-default disabled:opacity-40 ${active ? 'border-accent bg-surface-card text-content' : 'border-edge text-content-muted enabled:hover:border-content-faint enabled:hover:text-content'}`}
-      style={fs(12, 'body')}
-    >
-      <MapPinPlus size={14} strokeWidth={2} className="flex-none" />
-      <span className="min-w-0 truncate">{t(active ? 'tours.planner.addPointActive' : 'tours.planner.addPoint')}</span>
-    </button>
+    <div className="mt-1.5 grid grid-cols-[minmax(0,1fr)_auto] gap-1.5">
+      <button
+        type="button"
+        data-testid="tour-planner-add-point"
+        aria-pressed={active}
+        disabled={disabled}
+        onClick={() => toggleTourPlacing()}
+        className={look(active)}
+        style={fs(12, 'body')}
+      >
+        <MapPinPlus size={14} strokeWidth={2} className="flex-none" />
+        <span className="min-w-0 truncate">
+          {t(active ? 'tours.planner.addPointActive' : 'tours.planner.addPoint')}
+        </span>
+      </button>
+      <button
+        type="button"
+        data-testid="tour-planner-add-place"
+        aria-expanded={placesOpen}
+        disabled={disabled}
+        onClick={onTogglePlaces}
+        className={look(placesOpen)}
+        style={fs(12, 'body')}
+      >
+        <MapPinned size={14} strokeWidth={2} className="flex-none" />
+        <span className="min-w-0 truncate">{t('tours.placePicker.open')}</span>
+      </button>
+    </div>
   );
 }
 
@@ -706,12 +764,23 @@ export default function TourWaypointList({
   planner,
   canEdit,
   isSaving,
+  tourPlaceIds = NO_TOUR_PLACES,
 }: {
   planner: TourPlannerController;
   canEdit: boolean;
   isSaving: boolean;
+  /** The trip's tours, which are never offered as a stop (PR1-10). */
+  tourPlaceIds?: ReadonlySet<number>;
 }) {
   const { t } = useTranslation();
+  const tripPlaces = useTripPlaceWaypoints(planner, tourPlaceIds);
+  const [placesOpen, setPlacesOpen] = useState(false);
+  const addRows = canEdit && (
+    <>
+      <AddPointRow disabled={isSaving} placesOpen={placesOpen} onTogglePlaces={() => setPlacesOpen((open) => !open)} />
+      {placesOpen && !isSaving && <TripPlacePicker picker={tripPlaces} onClose={() => setPlacesOpen(false)} />}
+    </>
+  );
   const [draggedWaypointId, setDraggedWaypointId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
   const placeNames = useWaypointPlaceNames(planner.waypoints);
@@ -767,7 +836,7 @@ export default function TourWaypointList({
     return card(
       <>
         <WaypointEmptyState />
-        {canEdit && <AddPointRow disabled={isSaving} />}
+        {addRows}
       </>
     );
   }
@@ -779,6 +848,7 @@ export default function TourWaypointList({
           const selected = planner.selectedWaypointId === point.id;
           const isDropTarget = dropTarget?.id === point.id && draggedWaypointId !== point.id;
           const loopEnd = planner.isLoop && index === lastIndex;
+          const linkedPlace = tripPlaces.linkedPlaceOf(point);
           return (
             <Fragment key={point.id}>
               <li
@@ -849,9 +919,10 @@ export default function TourWaypointList({
                   >
                     <WaypointRowLabel
                       point={point}
-                      placeName={placeNames[point.id]}
+                      placeName={linkedPlace?.name ?? placeNames[point.id]}
                       loopEnd={loopEnd}
                       paddleRole={paddleRoleOf(point.id)}
+                      linked={!!linkedPlace}
                     />
                   </button>
                   {canEdit && (
@@ -862,6 +933,7 @@ export default function TourWaypointList({
                       lastIndex={lastIndex}
                       selected={selected}
                       isSaving={isSaving}
+                      onUnlink={point.linkedPlaceId ? () => tripPlaces.unlink(point.id) : undefined}
                     />
                   )}
                 </div>
@@ -881,7 +953,7 @@ export default function TourWaypointList({
           );
         })}
       </ol>
-      {canEdit && <AddPointRow disabled={isSaving} />}
+      {addRows}
       <ShapeOnLineHint planner={planner} canEdit={canEdit} />
     </>
   );

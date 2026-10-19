@@ -138,4 +138,26 @@ describe('TourWaypointsRepository', () => {
     expect(points[1]).toEqual({ lat: 47.05, lng: 11.05, role: 'via', sequence: 1, shaping: true });
     expect(points[0]).not.toHaveProperty('shaping');
   });
+
+  it('TWREPO-008: a point that stands for a place keeps it, and the place lists as linkable only in its own trip (PR1-10)', async () => {
+    const { trip, place } = tourInTrip();
+    const hut = createPlace(testDb, trip.id, { name: 'Hut' });
+    const otherTour = createPlace(testDb, trip.id, { name: 'Other tour' });
+    createTour(testDb, otherTour.id);
+    const { user } = createUser(testDb);
+    const elsewhere = createPlace(testDb, createTrip(testDb, user.id).id, { name: 'Elsewhere' });
+
+    await repo.insertForPlace(place.id, [
+      { lat: 47, lng: 11, role: 'start', sequence: 0, linked_place_id: hut.id },
+      { lat: 47.1, lng: 11.1, role: 'end', sequence: 1 },
+    ]);
+    expect((await repo.listForPlace(place.id)).map((point) => point.linked_place_id ?? null)).toEqual([hut.id, null]);
+    expect((await repo.listForTrip(trip.id))[0]).toMatchObject({ linked_place_id: hut.id });
+
+    const linkable = await repo.linkablePlaceIds(trip.id, [hut.id, otherTour.id, elsewhere.id, 999_999, hut.id]);
+    expect([...linkable]).toEqual([hut.id]);
+    expect(await repo.linkablePlaceIds(trip.id, [])).toEqual(new Set());
+    expect(await repo.placeNames(trip.id, [hut.id, elsewhere.id])).toEqual(new Map([[hut.id, 'Hut']]));
+    expect(await repo.placeNames(trip.id, [])).toEqual(new Map());
+  });
 });

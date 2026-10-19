@@ -24,10 +24,13 @@ export default function TourWorkspaceRail({
   workspace,
   canEdit,
   canAssign,
+  tourPlaceIds,
 }: {
   workspace: TourWorkspaceRailParts;
   canEdit: boolean;
   canAssign: boolean;
+  /** The trip's tours, never offered as a stop of another tour (PR1-10). */
+  tourPlaceIds?: ReadonlySet<number>;
 }) {
   const {
     tourPlanner,
@@ -48,6 +51,7 @@ export default function TourWorkspaceRail({
       recordedTrack={recordedTrack}
       trackPaddlePlan={trackPaddlePlan}
       paddleChecklist={paddleChecklist}
+      tourPlaceIds={tourPlaceIds}
       onOpenWanderer={wanderer.enabled ? wanderer.openBrowser : undefined}
     />
   );

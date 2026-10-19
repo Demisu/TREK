@@ -5,8 +5,8 @@ import { tourRepo } from '../../../repo/tourRepo'
 import { randomId } from '../../../utils/randomId'
 import { analyzeRouteGeometry, type RouteProfileFocus } from '../../../utils/routeGeometry'
 import { enrichTourElevations, routeWalkingTour, type TourElevationPoint, type TourRoutePart } from './tourRouting'
-import { closeLoop, isClosedLoop, reverseRoute, toggleFreeLeg } from './tourRouteActions'
-import { normalizePlannerWaypoints, plannerWaypointsOf, sameWaypointSnapshot, savedWaypointsOf, tourWaypointKey, type TourPlannerWaypoint } from './tourPlannerWaypoints'
+import { closeLoop, isClosedLoop, reverseRoute, toggleFreeLeg, withPointAppended } from './tourRouteActions'
+import { normalizePlannerWaypoints, plannerWaypointsOf, sameWaypointSnapshot, savedWaypointsOf, tourWaypointKey, unlinkedPoint, type TourPlannerWaypoint } from './tourPlannerWaypoints'
 import { tourPlannerFacts } from './tourPlannerFacts'
 import { usePlannerHistory } from './usePlannerHistory'
 import { useTourDraftStorage } from './useTourDraftStorage'
@@ -254,10 +254,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const addWaypoint = useCallback((lat: number, lng: number) => {
     if (!editPermissionRef.current) return
     const id = randomId()
-    // A loop keeps returning to its start: the new point goes in before the way back.
-    commitWaypoints(current => isClosedLoop(current)
-      ? [...current.slice(0, -1), { id, lat, lng, role: 'via' }, current[current.length - 1]]
-      : [...current, { id, lat, lng, role: 'end' }])
+    commitWaypoints(current => withPointAppended<TourPlannerWaypoint>(current, { id, lat, lng, role: 'end' }))
     setSelectedWaypointId(id)
   }, [commitWaypoints])
 
@@ -290,7 +287,8 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     const loopEnds = isClosedLoop(points) && (id === points[0].id || id === points[points.length - 1].id)
       ? new Set([points[0].id, points[points.length - 1].id])
       : new Set([id])
-    commitWaypoints(list => list.map(point => loopEnds.has(point.id) ? { ...point, lat, lng } : point))
+    // A point moved stands for no place any more (PR1-10): it is where the hand put it.
+    commitWaypoints(list => list.map(point => loopEnds.has(point.id) ? unlinkedPoint({ ...point, lat, lng }) : point))
     return true
   }, [commitWaypoints])
 
@@ -908,7 +906,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     breakAdditionalMinutes, setBreakAdditionalMinutes, breakAdditionalInvalid,
     walkingDurationMinutes, plannedTotalMinutes, plannedTotalInvalid,
     waypoints, selectedWaypointId, setSelectedWaypointId,
-    addWaypoint, appendFixedLeg, setWaypointPosition, removeWaypoint, moveWaypoint, reorderWaypoint,
+    addWaypoint, appendFixedLeg, setWaypointPosition, removeWaypoint, moveWaypoint, reorderWaypoint, editWaypoints: commitWaypoints,
     reverse, returnToStart, isLoop: isClosedLoop(waypoints), toggleWaypointFreeLeg, editPaddlePoints, amendWaypoints, paddleEstimate,
     ...shaping, paddleRoute, routeCurrent: routeForKey === waypointKey,
     undo, redo, canUndo: history.canUndo, canRedo: history.canRedo,

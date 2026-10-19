@@ -63,6 +63,7 @@ export * from './tours/paddle-plan';
 export * from './tours/paddle-check.schema';
 export * from './tours/paddle-check-basis';
 export * from './tours/paddle-check';
+export * from './tours/route-corridor';
 export * from './wanderer/wanderer.schema';
 export * from './geo/haversine';
 export * from './collection/collection.schema';

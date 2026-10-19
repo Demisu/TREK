@@ -19,6 +19,8 @@ export interface TourPlannerWaypoint {
   auto?: AutoBase;
   /** PAD-03: at the last point, the boat is carried on to the next point once it is set; never saved. */
   carryNext?: boolean;
+  /** PR1-10: the place of the trip this point stands for, chosen on purpose; the point keeps its own spot. */
+  linkedPlaceId?: number;
 }
 
 /** A saved tour's waypoints as the editor holds them, each under a fresh id. */
@@ -31,6 +33,7 @@ export function plannerWaypointsOf(saved: readonly TourWaypoint[], newId: () => 
     ...(point.fixed_leg ? { fixedLeg: point.fixed_leg } : {}),
     ...(point.lock ? { lock: point.lock } : {}),
     ...(point.shaping ? { shaping: true } : {}),
+    ...(point.linked_place_id ? { linkedPlaceId: point.linked_place_id } : {}),
   }));
 }
 
@@ -48,7 +51,15 @@ export function savedWaypointsOf(points: readonly TourPlannerWaypoint[]): TourWa
     ...(point.fixedLeg ? { fixed_leg: point.fixedLeg } : {}),
     ...(point.lock ? { lock: point.lock } : {}),
     ...(point.shaping ? { shaping: true } : {}),
+    ...(point.linkedPlaceId ? { linked_place_id: point.linkedPlaceId } : {}),
   }));
+}
+
+/** PR1-10: the point no longer standing for a place; moved away from it, it is a point of its own. */
+export function unlinkedPoint<T extends TourPlannerWaypoint>(point: T): T {
+  if (!point.linkedPlaceId) return point;
+  const { linkedPlaceId: _place, ...free } = point;
+  return free as T;
 }
 
 /** Roles from the order; free legs follow their points, and a paddle tour keeps its portages and locks. */
@@ -74,7 +85,10 @@ export function tourWaypointKey(points: TourPlannerWaypoint[]): string {
     .join('|');
 }
 
-/** The line, and what a paddler planned along it that draws no line: a portage's time, a lock, a point the router set. */
+/**
+ * The line, and what was planned along it that draws no line: a portage's
+ * time, a lock, a point the router set, the place a point stands for.
+ */
 export function sameWaypointSnapshot(a: TourPlannerWaypoint[], b: TourPlannerWaypoint[]): boolean {
   const extras = (points: TourPlannerWaypoint[]) =>
     JSON.stringify(
@@ -83,6 +97,7 @@ export function sameWaypointSnapshot(a: TourPlannerWaypoint[], b: TourPlannerWay
         point.lock ?? null,
         !!point.auto,
         !!point.carryNext,
+        point.linkedPlaceId ?? null,
       ])
     );
   return tourWaypointKey(a) === tourWaypointKey(b) && extras(a) === extras(b);

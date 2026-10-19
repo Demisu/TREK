@@ -63,7 +63,7 @@ export class ToursMcp {
   @Tool({
     name: 'get_tour_plan',
     description:
-      'Read one saved tour of a trip: its facts, its ordered control points (start, via and end; an import without its own shows the two ends of its track), where it came from (provenance) and the days it is on. A control point whose fixed_leg is set leads to the next one along a line the router did not plan: kind ferrata follows a via ferrata, kind free is drawn by hand and was checked by nothing. A paddle tour also carries its obstacle checklist (obstacle_check): the obstacles of the OpenStreetMap data along its line, the decisions the travellers made about them and their own portages and locks; a planning aid, never a safety or legal clearance. The full track geometry is not included.',
+      'Read one saved tour of a trip: its facts, its ordered control points (start, via and end; an import without its own shows the two ends of its track), where it came from (provenance) and the days it is on. A control point with linked_place_id stands for that place of the trip (linked_place_name names it); it keeps its own coordinates. A control point whose fixed_leg is set leads to the next one along a line the router did not plan: kind ferrata follows a via ferrata, kind free is drawn by hand and was checked by nothing. A paddle tour also carries its obstacle checklist (obstacle_check): the obstacles of the OpenStreetMap data along its line, the decisions the travellers made about them and their own portages and locks; a planning aid, never a safety or legal clearance. The full track geometry is not included.',
     inputSchema: { tripId: idSchema, placeId: idSchema.describe('The place id of the tour, as list_tours gives it') },
     annotations: TOOL_ANNOTATIONS_READONLY,
     when: addonGate(ADDON_IDS.TOURS),
@@ -76,7 +76,12 @@ export class ToursMcp {
         this.tours.getTour(String(tripId), String(placeId)),
         this.daysByTour(tripId),
       ]);
-      return ok({ ...detail, tour: withDays(detail.tour, days) });
+      // A point standing for a place of the trip (PR1-10) says which, by name.
+      const names = await this.tours.linkedPlaceNames(tripId, detail.waypoints);
+      const waypoints = detail.waypoints.map((point) =>
+        point.linked_place_id ? { ...point, linked_place_name: names.get(point.linked_place_id) ?? null } : point,
+      );
+      return ok({ ...detail, waypoints, tour: withDays(detail.tour, days) });
     } catch (err: unknown) {
       if (err instanceof NotFoundException) return errorResult('Tour not found.');
       throw err;

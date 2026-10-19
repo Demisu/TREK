@@ -292,6 +292,18 @@ const tours: TranslationStrings = {
   'tours.revision.saveAsNew': 'Yeni tur kimi saxla',
   'tours.revision.mineName': '{name} (mənim versiyam)',
   'tours.revision.reloaded': 'Bu tur başqa yerdə saxlanıb və indi yeni versiyası göstərilir.',
+  'tours.placePicker.open': 'Səfər yerləri',
+  'tours.placePicker.search': 'Səfərin yerlərində axtar',
+  'tours.placePicker.near': 'Tura yaxın',
+  'tours.placePicker.further': 'Səfərin digər yerləri',
+  'tours.placePicker.all': 'Səfərin yerləri',
+  'tours.placePicker.inTour': 'Turda',
+  'tours.placePicker.empty': 'Bu səfərdə hələ xəritədə yeri olan məkan yoxdur.',
+  'tours.placePicker.noMatch': 'Axtarışa uyğun yer yoxdur.',
+  'tours.placePicker.linked': 'Səfərin yeri',
+  'tours.placePicker.linkedHint':
+    'Bu dayanacaq səfərin bir yerini göstərir. Silmək və ya əlaqəni ləğv etmək yerin özünü dəyişmir.',
+  'tours.placePicker.unlink': 'Yerlə əlaqəni ləğv et',
   'tours.planner.tourType': 'Tur növü',
   'tours.paddle.boat': 'Qayıq',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

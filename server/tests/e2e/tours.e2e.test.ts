@@ -1394,6 +1394,33 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
       expect(await countRows(orm, TourWaypoints, { place: placeId })).toBe(3);
     });
 
+    it('copying the trip points a waypoint that stands for a place at the copied place (PR1-10)', async () => {
+      const hut = await makePlace(orm, 5, { name: 'Hut' });
+      const placeId = await createViaApi(
+        5,
+        tourBody({
+          waypoints: [
+            { lat: 47, lng: 11, role: 'start', sequence: 0, linked_place_id: hut.id },
+            { lat: 47.02, lng: 11.02, role: 'end', sequence: 1 },
+          ],
+        }),
+      );
+      const res = await request(server)
+        .post('/api/trips/5/copy')
+        .set('Cookie', sessionCookie(OWNER))
+        .send({ title: 'Alps again' });
+      const copyId = res.body.trip.id as number;
+      const copiedHut = await findRow(orm, Places, { trip: copyId, name: 'Hut' });
+      const list = await request(server).get(`/api/trips/${copyId}/tours`).set('Cookie', sessionCookie(OWNER));
+      const detail = await request(server)
+        .get(`/api/trips/${copyId}/tours/${list.body.tours[0].place_id}`)
+        .set('Cookie', sessionCookie(OWNER));
+      expect(copiedHut?.id).toBeDefined();
+      expect(copiedHut?.id).not.toBe(hut.id);
+      expect(detail.body.waypoints[0].linked_place_id).toBe(copiedHut?.id);
+      expect(await countRows(orm, TourWaypoints, { place: placeId, linkedPlace: hut.id })).toBe(1);
+    });
+
     it('deleting the place removes its tour and waypoints and reports the tour id', async () => {
       const placeId = await createViaApi();
       const res = await request(server).delete(`/api/trips/5/places/${placeId}`).set('Cookie', sessionCookie(OWNER));

@@ -14,6 +14,7 @@ import { PlaceRegions } from './PlaceRegions.entity';
 import { Reservations } from './Reservations.entity';
 import { RoadtripDayTracks } from './RoadtripDayTracks.entity';
 import { Tags } from './Tags.entity';
+import { TourWaypoints } from './TourWaypoints.entity';
 import { Tours } from './Tours.entity';
 import { TripFiles } from './TripFiles.entity';
 import { Trips } from './Trips.entity';
@@ -68,6 +69,7 @@ export class Places {
   place_regions: Ref<PlaceRegions> | null = null;
   reservations_collection = new Collection<Reservations>(this);
   roadtrip_day_tracks_collection = new Collection<RoadtripDayTracks>(this);
+  tour_waypoints_collection = new Collection<TourWaypoints>(this);
   tours: Ref<Tours> | null = null;
   tours_collection = new Collection<Tours>(this);
   trip_files_collection = new Collection<TripFiles>(this);
@@ -125,6 +127,7 @@ export const PlacesSchema = defineEntity({
     place_regions: () => p.oneToOne(PlaceRegions).ref().mappedBy('place').hidden(),
     reservations_collection: () => p.oneToMany(Reservations).mappedBy('place').hidden(),
     roadtrip_day_tracks_collection: () => p.oneToMany(RoadtripDayTracks).mappedBy('place').hidden(),
+    tour_waypoints_collection: () => p.oneToMany(TourWaypoints).mappedBy('linkedPlace').hidden(),
     tours: () => p.oneToOne(Tours).ref().mappedBy('place').hidden(),
     tours_collection: () => p.oneToMany(Tours).mappedBy('derivedFromPlace').hidden(),
     trip_files_collection: () => p.oneToMany(TripFiles).mappedBy('place').hidden(),

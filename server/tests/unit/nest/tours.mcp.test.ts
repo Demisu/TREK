@@ -5,6 +5,7 @@
  * registry's and is covered with the other addon-gated tools.
  */
 import { Places } from '../../../src/db/entities/Places.entity';
+import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
 import type { McpContext } from '../../../src/nest-mcp';
 import { ToursMcp } from '../../../src/nest/tours/tours.mcp';
 import { ToursModule } from '../../../src/nest/tours/tours.module';
@@ -18,7 +19,7 @@ import {
   createTrip,
   createUser,
 } from '../../helpers/factories';
-import { updateRows } from '../../helpers/factories/rows';
+import { insertRows, updateRows } from '../../helpers/factories/rows';
 import { resetTestDb } from '../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../helpers/test-module';
 import { createTestOrm } from '../../helpers/test-orm';
@@ -157,5 +158,19 @@ describe('ToursMcp', () => {
     expect(read(await mcp.exportTourGpx({ tripId: trip.id, placeId: cafe.id }, ctx(user.id)))).toEqual({
       error: 'Tour not found.',
     });
+  });
+
+  it('TOURS-MCP-007: get_tour_plan names the place a control point stands for (PR1-10)', async () => {
+    const { user, trip, ridge } = fixture();
+    const hut = createPlace(db, trip.id, { name: 'Hut' });
+    const orm = await createTestOrm(db);
+    await insertRows(orm, TourWaypoints, [
+      { place: ridge.id, lat: 47, lng: 11, role: 'start', sequence: 0, linkedPlace: hut.id },
+      { place: ridge.id, lat: 47.1, lng: 11.1, role: 'end', sequence: 1 },
+    ]);
+    await orm.close();
+    const plan = read(await mcp.getTourPlan({ tripId: trip.id, placeId: ridge.id }, ctx(user.id)));
+    expect(plan.waypoints[0]).toMatchObject({ linked_place_id: hut.id, linked_place_name: 'Hut' });
+    expect(plan.waypoints[1].linked_place_name).toBeUndefined();
   });
 });

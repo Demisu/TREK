@@ -294,7 +294,7 @@ export class ToursService {
         break_additional_minutes: fields.break_additional_minutes ?? null,
         derived_from_place_id: derivedFrom,
       });
-      await this.waypointsRepo.insertForPlace(id, input.waypoints);
+      await this.waypointsRepo.insertForPlace(id, await this.linkedWaypoints(tid, input.waypoints));
       return id;
     });
 
@@ -496,7 +496,7 @@ export class ToursService {
       if (!placeUpdated) throw new NotFoundException('Tour not found');
       if (!(await this.toursRepo.updateInTrip(tid, pid, fields))) throw new NotFoundException('Tour not found');
       await this.waypointsRepo.deleteForPlace(pid);
-      await this.waypointsRepo.insertForPlace(pid, input.waypoints);
+      await this.waypointsRepo.insertForPlace(pid, await this.linkedWaypoints(tid, input.waypoints));
     });
 
     const result = await this.getTour(tripId, placeId);
@@ -509,6 +509,39 @@ export class ToursService {
       this.logger.warn(`Committed Tour ${placeId}: place notification failed`);
     }
     return result;
+  }
+
+  /** PR1-10: the names of the places the points stand for, for a reader that wants them spelled out. */
+  async linkedPlaceNames(tripId: number, waypoints: readonly TourWaypoint[]): Promise<Map<number, string>> {
+    return await this.waypointsRepo.placeNames(
+      tripId,
+      waypoints.flatMap((point) => (point.linked_place_id ? [point.linked_place_id] : [])),
+    );
+  }
+
+  /**
+   * PR1-10: the points of a write with their links checked, inside its
+   * transaction. A point may stand for a place of the tour's trip that is not
+   * a tour itself; naming a tour of the trip is refused. A place that is gone,
+   * or one this trip does not have, leaves the point unlinked, the same either
+   * way, so a draft or a queued write that outlived its place still saves and
+   * no answer tells another trip's ids apart.
+   */
+  private async linkedWaypoints(tripId: number, waypoints: TourWaypoint[]): Promise<TourWaypoint[]> {
+    const ids = waypoints.flatMap((point) => (point.linked_place_id ? [point.linked_place_id] : []));
+    if (ids.length === 0) return waypoints;
+    const linkable = await this.waypointsRepo.linkablePlaceIds(tripId, ids);
+    for (const id of ids) {
+      if (!linkable.has(id) && (await this.toursRepo.findInTrip(tripId, id))) {
+        throw new DomainError(400, 'A waypoint cannot stand for a tour', {
+          code: 'waypoint_links_a_tour',
+          details: { code: 'waypoint_links_a_tour' },
+        });
+      }
+    }
+    return waypoints.map((point) =>
+      point.linked_place_id && !linkable.has(point.linked_place_id) ? { ...point, linked_place_id: null } : point,
+    );
   }
 
   /** Tells the trip's other clients to reload these tours; a failed notice never fails the committed write. */

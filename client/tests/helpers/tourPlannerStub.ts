@@ -44,5 +44,20 @@ export function hikePlannerDefaults() {
     routeParts: null,
     mapOverlays: new Set<string>(),
     toggleMapOverlay: vi.fn(),
+    tripId: 1,
+    editWaypoints: vi.fn(),
+    // P2C-03: a tour opened at its first revision, with nothing known about others.
+    revision: {
+      base: null,
+      baseRef: { current: null },
+      conflict: null,
+      remote: null,
+      adopt: vi.fn(),
+      notice: vi.fn(() => false),
+      refuse: vi.fn(() => false),
+      takeOver: vi.fn(),
+      dismissConflict: vi.fn(),
+      dismissRemote: vi.fn(),
+    },
   };
 }

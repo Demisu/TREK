@@ -359,7 +359,7 @@ export function TourPlannerRail({ planner,
   onOpenWanderer,
   conversion,
   paddleChecklist,
-  recordedTrack, trackPaddlePlan, canEdit: editPermission, canAssign: assignPermission }: { planner: TourPlannerController
+  recordedTrack, trackPaddlePlan, tourPlaceIds, canEdit: editPermission, canAssign: assignPermission }: { planner: TourPlannerController
   /** Planning an editable tour from the import in view. */
   conversion?: GpxConversion
   /** The way back to the recorded track of an import planned over in place. */
@@ -370,6 +370,8 @@ export function TourPlannerRail({ planner,
   paddleChecklist?: PaddleChecklist
   /** Browse the user's wanderer trails instead; offered while nothing is being edited. */
   onOpenWanderer?: () => void
+  /** The trip's tours, never offered as a stop of another tour (PR1-10). */
+  tourPlaceIds?: ReadonlySet<number>
 } & TourPermissionProps) {
   const { canEdit } = useTourPermissions({ canEdit: editPermission ?? planner.canEdit, canAssign: assignPermission ?? planner.canAssign })
   const { t } = useTranslation()
@@ -428,7 +430,7 @@ export function TourPlannerRail({ planner,
 
           {recordedTrack?.available && <RecordedTrackCard recordedTrack={recordedTrack} disabled={isSaving} />}
 
-          <TourWaypointList planner={planner} canEdit={canEdit} isSaving={isSaving} />
+          <TourWaypointList planner={planner} canEdit={canEdit} isSaving={isSaving} tourPlaceIds={tourPlaceIds} />
 
           <PaddleEditorCards planner={planner} locked={locked} checklist={paddleChecklist} />
 

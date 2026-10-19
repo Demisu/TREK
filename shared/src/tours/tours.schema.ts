@@ -258,6 +258,12 @@ export const tourWaypointSchema = z.object({
    * to get in or out. Absent means a stop, as every point saved before was.
    */
   shaping: z.boolean().optional(),
+  /**
+   * PR1-10: the place of the trip this point stands for, chosen on purpose.
+   * The point keeps its own coordinates and the place stays a place; a place
+   * that is gone (or not of this trip) leaves the point unlinked.
+   */
+  linked_place_id: z.number().int().positive().nullable().optional(),
 });
 export type TourWaypoint = z.infer<typeof tourWaypointSchema>;
 

@@ -298,6 +298,18 @@ const tours: TranslationStrings = {
   'tours.revision.saveAsNew': 'Salva come nuovo tour',
   'tours.revision.mineName': '{name} (la mia versione)',
   'tours.revision.reloaded': 'Questo tour è stato salvato altrove e ora mostra la versione più recente.',
+  'tours.placePicker.open': 'Luoghi del viaggio',
+  'tours.placePicker.search': 'Cerca tra i luoghi del viaggio',
+  'tours.placePicker.near': 'Vicino al tour',
+  'tours.placePicker.further': 'Altri luoghi del viaggio',
+  'tours.placePicker.all': 'Luoghi del viaggio',
+  'tours.placePicker.inTour': 'Nel tour',
+  'tours.placePicker.empty': 'Questo viaggio non ha ancora luoghi con una posizione sulla mappa.',
+  'tours.placePicker.noMatch': 'Nessun luogo corrisponde alla ricerca.',
+  'tours.placePicker.linked': 'Luogo del viaggio',
+  'tours.placePicker.linkedHint':
+    'Questa tappa rappresenta un luogo del viaggio. Toglierla o sciogliere il collegamento non cambia il luogo.',
+  'tours.placePicker.unlink': 'Scollega dal luogo',
   'tours.planner.tourType': 'Tipo di tour',
   'tours.paddle.boat': 'Imbarcazione',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

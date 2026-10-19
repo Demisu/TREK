@@ -21,7 +21,7 @@ import { RealtimeService } from '../../src/nest/realtime/realtime.service';
 import { ToursModule } from '../../src/nest/tours/tours.module';
 import { createSnapshotTestDb } from '../helpers/db-mock';
 import { makePlace } from '../helpers/factories/places';
-import { deleteRows, findRow, insertRows } from '../helpers/factories/rows';
+import { countRows, deleteRows, findRow, insertRows } from '../helpers/factories/rows';
 import { setAddonEnabled } from '../helpers/factories/settings';
 import { makeTour } from '../helpers/factories/tours';
 import { addTripMember } from '../helpers/factories/trips';
@@ -347,6 +347,82 @@ describe('Tours planned e2e (real guards + temp SQLite)', () => {
     it('rejects a revision below 1 at the boundary', async () => {
       const placeId = await createViaApi();
       expect((await put(placeId, tourBody({ expected_revision: 0 }))).status).toBe(400);
+    });
+  });
+
+  describe('trip places as waypoints (PR1-10)', () => {
+    const linked = (placeId: number | null) => [
+      { lat: 47, lng: 11, role: 'start', sequence: 0 },
+      { lat: 47.01, lng: 11.01, role: 'via', sequence: 1, linked_place_id: placeId },
+      { lat: 47.02, lng: 11.02, role: 'end', sequence: 2 },
+    ];
+
+    it('a waypoint stands for a place of the trip, read back with it, and the place stays as it was', async () => {
+      const hut = await makePlace(orm, 5, { name: 'Höllentalangerhütte', lat: 47.4, lng: 11.0 });
+      const placeId = await createViaApi(5, tourBody({ waypoints: linked(hut.id) }));
+      const detail = await request(server).get(`/api/trips/5/tours/${placeId}`).set('Cookie', sessionCookie(OWNER));
+      expect(detail.body.waypoints.map((point: { linked_place_id?: number }) => point.linked_place_id ?? null)).toEqual(
+        [null, hut.id, null],
+      );
+      // The waypoint keeps its own coordinates; the place keeps its own.
+      expect(detail.body.waypoints[1]).toMatchObject({ lat: 47.01, lng: 11.01 });
+      expect(await findRow(orm, Places, { id: hut.id })).toMatchObject({ name: 'Höllentalangerhütte', lat: 47.4 });
+      expect(await countRows(orm, DayAssignments, { place: hut.id })).toBe(0);
+    });
+
+    it('a place of another trip, or one that is gone, leaves the point unlinked; a tour cannot be stood for', async () => {
+      const foreign = await makePlace(orm, 6, { name: 'Elsewhere' });
+      const placeId = await createViaApi(5, tourBody({ waypoints: linked(foreign.id) }));
+      const detail = await request(server).get(`/api/trips/5/tours/${placeId}`).set('Cookie', sessionCookie(OWNER));
+      expect(detail.body.waypoints[1].linked_place_id).toBeUndefined();
+
+      const missing = await request(server)
+        .put(`/api/trips/5/tours/${placeId}`)
+        .set('Cookie', sessionCookie(OWNER))
+        .send(tourBody({ waypoints: linked(999_999) }));
+      expect(missing.status).toBe(200);
+      expect(missing.body.waypoints[1].linked_place_id).toBeUndefined();
+
+      const otherTour = await createViaApi();
+      const refused = await request(server)
+        .put(`/api/trips/5/tours/${placeId}`)
+        .set('Cookie', sessionCookie(OWNER))
+        .send(tourBody({ waypoints: linked(otherTour) }));
+      expect(refused.status).toBe(400);
+      expect(refused.body).toEqual({ error: 'A waypoint cannot stand for a tour', code: 'waypoint_links_a_tour' });
+    });
+
+    it('deleting the place keeps the waypoint and only drops the link; the GPX names the stops that stand for a place', async () => {
+      const hut = await makePlace(orm, 5, { name: 'Kreuzeckhaus' });
+      const lake = await makePlace(orm, 5, { name: 'Eibsee' });
+      const placeId = await createViaApi(
+        5,
+        tourBody({
+          waypoints: [
+            { lat: 47, lng: 11, role: 'start', sequence: 0, linked_place_id: lake.id },
+            { lat: 47.01, lng: 11.01, role: 'via', sequence: 1, linked_place_id: hut.id },
+            { lat: 47.02, lng: 11.02, role: 'end', sequence: 2 },
+          ],
+        }),
+      );
+      const gpx = await request(server)
+        .get(`/api/trips/5/tours/${placeId}/export.gpx`)
+        .set('Cookie', sessionCookie(OWNER))
+        .buffer(true)
+        .parse((res, done) => {
+          let text = '';
+          res.setEncoding('utf8');
+          res.on('data', (chunk: string) => (text += chunk));
+          res.on('end', () => done(null, text));
+        });
+      expect((gpx.body as string).match(/<wpt /g)).toHaveLength(2);
+      expect(gpx.body).toContain('<name>Kreuzeckhaus</name>');
+
+      await deleteRows(orm, Places, { id: hut.id });
+      const detail = await request(server).get(`/api/trips/5/tours/${placeId}`).set('Cookie', sessionCookie(OWNER));
+      expect(detail.body.waypoints).toHaveLength(3);
+      expect(detail.body.waypoints[1].linked_place_id).toBeUndefined();
+      expect(detail.body.waypoints[0].linked_place_id).toBe(lake.id);
     });
   });
 });
