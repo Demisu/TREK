@@ -15,6 +15,7 @@ import type { PlacesService } from '../../../src/nest/places/places.service';
 import { ToursService } from '../../../src/nest/tours/tours.service';
 import { noPaddleChecks } from '../../helpers/fake-paddle-checks';
 import { buildPlaceImportService } from '../../helpers/place-import';
+import { keyed } from '../../helpers/tour-keys';
 import { NotFoundException } from '@nestjs/common';
 import { tourCreateRequestSchema, type TourCreateRequest } from '@trek/shared';
 
@@ -121,6 +122,7 @@ function makeService() {
     insertForPlace: inTx(undefined),
     deleteForPlace: inTx(undefined),
   };
+  const visitsRepo = { dropStationsNotIn: inTx(undefined) };
   const placesRepo = {
     insertTourPlace: inTx(42),
     updateTourRoute: inTx(true),
@@ -141,12 +143,12 @@ function makeService() {
     toursRepo as unknown as ToursRepository,
     { isEnabled: vi.fn(async () => true) } as unknown as TourTypesRepository,
     waypointsRepo as unknown as TourWaypointsRepository,
-    { dropStationsNotIn: vi.fn(async () => undefined) } as unknown as TourStationVisitsRepository,
+    visitsRepo as unknown as TourStationVisitsRepository,
     placesRepo as unknown as PlacesRepository,
     buildPlaceImportService(),
     noPaddleChecks(),
   );
-  return { uow, toursRepo, waypointsRepo, placesRepo, places, place, service };
+  return { uow, toursRepo, waypointsRepo, visitsRepo, placesRepo, places, place, service };
 }
 
 describe('ToursService planner contracts (mock-only; SQLite rollback semantics are covered in tours.service.test.ts)', () => {
@@ -193,7 +195,7 @@ describe('ToursService planner contracts (mock-only; SQLite rollback semantics a
       bike_profile: null,
     });
     expect((setup.toursRepo.insertTour.mock.calls[0][0] as { distance: number }).distance).toBeGreaterThan(0);
-    expect(setup.waypointsRepo.insertForPlace).toHaveBeenCalledExactlyOnceWith(42, request.waypoints);
+    expect(setup.waypointsRepo.insertForPlace).toHaveBeenCalledExactlyOnceWith(42, keyed(request.waypoints));
     expect(setup.toursRepo.findInTrip).toHaveBeenCalledWith(7, 42);
     expect(result.tour).toMatchObject({ name: 'Ridge walk', planned: false, has_waypoints: true });
     expect(result.waypoints).toEqual(request.waypoints);
@@ -311,9 +313,14 @@ describe('ToursService planner contracts (mock-only; SQLite rollback semantics a
       bike_profile: null,
     });
     expect(setup.waypointsRepo.deleteForPlace).toHaveBeenCalledExactlyOnceWith(42);
-    expect(setup.waypointsRepo.insertForPlace).toHaveBeenCalledExactlyOnceWith(42, update.waypoints);
+    expect(setup.waypointsRepo.insertForPlace).toHaveBeenCalledExactlyOnceWith(42, keyed(update.waypoints));
     expect(setup.waypointsRepo.deleteForPlace.mock.invocationCallOrder[0]).toBeLessThan(
       setup.waypointsRepo.insertForPlace.mock.invocationCallOrder[0],
+    );
+    // CW-03: a hike keeps no visits; they are dropped in the same transaction, after the new points.
+    expect(setup.visitsRepo.dropStationsNotIn).toHaveBeenCalledExactlyOnceWith(42, []);
+    expect(setup.waypointsRepo.insertForPlace.mock.invocationCallOrder[0]).toBeLessThan(
+      setup.visitsRepo.dropStationsNotIn.mock.invocationCallOrder[0],
     );
     expect(setup.places.broadcast).toHaveBeenCalledWith('7', 'place:updated', { place: setup.place }, 'socket-2');
   });

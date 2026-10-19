@@ -42,6 +42,7 @@ import { makeUser } from '../helpers/factories/users';
 import { FakeRealtimeService } from '../helpers/fake-realtime';
 import { createTestMikroOrmModule, createTestOrm, type TestOrm } from '../helpers/test-orm';
 import { TestUnitOfWorkModule } from '../helpers/test-uow';
+import { keyed } from '../helpers/tour-keys';
 import { sessionCookie } from './harness';
 import { Test } from '@nestjs/testing';
 
@@ -337,7 +338,7 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
       expect(res.body.tour.distance).toBeGreaterThan(0);
       expect(res.body.tour.elevation_gain).toBe(100);
       expect(res.body.tour.elevation_loss).toBe(50);
-      expect(res.body.waypoints).toEqual(tourBody().waypoints);
+      expect(res.body.waypoints).toEqual(keyed(tourBody().waypoints));
 
       expect(await placeColumns(placeId, 'trip_id', 'lat', 'lng', 'transport_mode', 'route_geometry')).toEqual({
         trip_id: 5,
@@ -458,7 +459,7 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
         duration: null,
         max_hiking_difficulty: 5,
       });
-      expect(res.body.waypoints).toEqual(waypoints);
+      expect(res.body.waypoints).toEqual(keyed(waypoints));
       expect(await placeColumns(placeId, 'name', 'lat', 'lng', 'route_geometry')).toEqual({
         name: 'Summit',
         lat: 46,

@@ -44,6 +44,23 @@ describe('TourTypeFields (PAD-01)', () => {
     expect(field).toHaveAttribute('aria-expanded', 'false');
   });
 
+  it('CW-01: a city walk is a type of its own, on foot from stop to stop, with no fields of a bike or a boat', () => {
+    const hike = planner({ tourType: 'hike', isPaddle: false });
+    const { unmount } = render(<TourTypeFields planner={hike} locked={false} />);
+    fireEvent.click(screen.getByTestId('tour-type-select'));
+    const option = screen.getByTestId('tour-type-option-walk');
+    expect(option).toHaveTextContent('City / sightseeing walk');
+    expect(option).toHaveTextContent('On foot from stop to stop, without a hiking limit');
+    fireEvent.click(option);
+    expect(hike.setTourType).toHaveBeenCalledWith('walk');
+    unmount();
+
+    render(<TourTypeFields planner={planner({ tourType: 'walk', isPaddle: false })} locked={false} />);
+    expect(screen.getByTestId('tour-type-select')).toHaveTextContent('City / sightseeing walk');
+    expect(screen.queryByTestId('tour-planner-paddle-fields')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('tour-planner-bike-fields')).not.toBeInTheDocument();
+  });
+
   it('BIK-01 to BIK-04: a bike tour names its profile like a boat, with what the profile asks for', () => {
     const bike = planner({ tourType: 'bike', isPaddle: false, isBike: true, bikeProfile: 'gravel' });
     render(<TourTypeFields planner={bike} locked={false} />);

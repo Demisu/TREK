@@ -1,3 +1,4 @@
+import { currentTimestampKysely } from '../dialect/kysely-functions';
 import type { TourStationVisits, TTourStationVisitsStatus } from '../entities/TourStationVisits.entity';
 import type { DB } from '../kysely/db';
 import { TrekRepository } from './_shared/trek-repository';
@@ -40,7 +41,10 @@ export class TourStationVisitsRepository extends TrekRepository<TourStationVisit
       .executeTakeFirst();
   }
 
-  /** The assignment that puts this place on this day of this trip; undefined where there is none. */
+  /**
+   * The assignment that puts this place on this day of this trip; undefined where there is none.
+   * A walk put on one day twice answers its first assignment, the one with the lowest id.
+   */
   async assignmentOnDay(trip_id: number, place_id: number, day_id: number): Promise<number | undefined> {
     const row = await this.db()
       .selectFrom('day_assignments as da')
@@ -49,6 +53,7 @@ export class TourStationVisitsRepository extends TrekRepository<TourStationVisit
       .where('da.place_id', '=', place_id)
       .where('da.day_id', '=', day_id)
       .where('d.trip_id', '=', trip_id)
+      .orderBy('da.id', 'asc')
       .executeTakeFirst();
     return row?.id;
   }
@@ -78,13 +83,15 @@ export class TourStationVisitsRepository extends TrekRepository<TourStationVisit
 
   /** Marks a station visited or skipped on that day, replacing what it was. */
   async set(assignment_id: number, station_key: string, status: TTourStationVisitsStatus): Promise<void> {
+    const platform = this.getEntityManager().getPlatform();
     await this.db()
       .insertInto('tour_station_visits')
       .values({ assignment_id, station_key, status })
       .onConflict((oc) =>
         oc.columns(['assignment_id', 'station_key']).doUpdateSet((eb) => ({
           status: eb.ref('excluded.status'),
-          updated_at: eb.fn<string>('CURRENT_TIMESTAMP', []),
+          // The clock in the spelling of the live database: CURRENT_TIMESTAMP is no function call.
+          updated_at: currentTimestampKysely(platform),
         })),
       )
       .execute();

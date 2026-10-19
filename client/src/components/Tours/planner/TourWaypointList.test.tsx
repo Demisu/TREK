@@ -1,4 +1,5 @@
-// FE-TOUR-WAYPOINT-LIST-001 to FE-TOUR-WAYPOINT-LIST-006: shaping points and the water router's answers in the list (P2A-03, P2A-05, PAD-11).
+// FE-TOUR-WAYPOINT-LIST-001 to FE-TOUR-WAYPOINT-LIST-007: shaping points, the water router's answers
+// and a city walk's stops in the list (P2A-03, P2A-05, PAD-11, CW-01).
 import userEvent from '@testing-library/user-event';
 import type { PaddleRouteLeg } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -170,5 +171,49 @@ describe('TourWaypointList', () => {
     expect(screen.getByTestId('tour-planner-auto-point')).toHaveAttribute('aria-label', 'Found');
     await userEvent.click(screen.getByTestId('tour-planner-route-on-water'));
     expect(controller.routeDrawnLegsOnWater).toHaveBeenCalled();
+  });
+
+  it('FE-TOUR-WAYPOINT-LIST-007: a city walk names its stops, shows their stay and edits one stop from its menu', async () => {
+    const cathedral = {
+      ...STOP,
+      key: 'stop-cathedral',
+      name: 'Cathedral',
+      stayMinutes: 30,
+      importance: 'must' as const,
+    };
+    const controller = planner({
+      tourType: 'walk',
+      waypoints: [START, SHAPE, cathedral, END],
+      selectedWaypointId: 'b',
+    });
+    render(<TourWaypointList planner={controller} canEdit isSaving={false} />);
+    const rows = screen.getAllByTestId('tour-planner-waypoint-row');
+    expect(within(at(rows, 2)).getByTestId('tour-planner-waypoint-name')).toHaveTextContent('Cathedral');
+    expect(within(at(rows, 2)).getByTestId('station-pills')).toHaveTextContent('Must see');
+    expect(within(at(rows, 0)).getByTestId('station-pills')).toHaveTextContent('Stay unknown');
+    expect(within(at(rows, 1)).queryByTestId('station-pills')).not.toBeInTheDocument();
+
+    await userEvent.click(within(at(rows, 2)).getByRole('button', { name: 'More actions' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Edit stop' }));
+    const stay = screen.getByLabelText('Stay in minutes');
+    await userEvent.clear(stay);
+    await userEvent.type(stay, '45');
+    await userEvent.click(screen.getByTestId('station-save'));
+    expect(screen.queryByTestId('station-dialog')).not.toBeInTheDocument();
+    expect(controller.editWaypoints).toHaveBeenCalledTimes(1);
+    const update = vi.mocked(controller.editWaypoints).mock.calls[0]?.[0] as (
+      points: TourPlannerController['waypoints']
+    ) => TourPlannerController['waypoints'];
+    expect(update([START, SHAPE, cathedral, END])).toEqual([START, SHAPE, { ...cathedral, stayMinutes: 45 }, END]);
+  });
+
+  it('FE-TOUR-WAYPOINT-LIST-007b: a hike has no stop pills and no stop to edit', async () => {
+    const controller = planner({ selectedWaypointId: 'b' });
+    render(<TourWaypointList planner={controller} canEdit isSaving={false} />);
+    expect(screen.queryByTestId('station-pills')).not.toBeInTheDocument();
+    await userEvent.click(
+      within(at(screen.getAllByTestId('tour-planner-waypoint-row'), 2)).getByRole('button', { name: 'More actions' })
+    );
+    expect(screen.queryByRole('button', { name: 'Edit stop' })).not.toBeInTheDocument();
   });
 });

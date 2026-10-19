@@ -749,7 +749,7 @@ describe('TourPlannerRail', () => {
     expect(controller.cancelNewTour).toHaveBeenCalledOnce()
 
     rerender(<TourPlannerRail planner={controller} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Discard changes and start new tour' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Discard and start' }))
     expect(controller.startNewTour).toHaveBeenCalledWith(true)
   })
 

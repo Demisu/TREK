@@ -34,7 +34,9 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 // + paddle_water_graphs: file, rev, bytes, built_at, stats and its bounding box (a network is only ever written
 //   whole, from one build of its region).
 // + paddle_region_requests: region_id, name, reason (a request is only ever filed whole).
-const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 494;
+// + tour_station_visits: assignment_id, station_key, status (a visit is only ever written whole, by the
+//   day plan that checks a city walk's station off).
+const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 497;
 
 describe('entity class fields never carry a NaN initialiser (task-4-review-shape.md, Important 1)', () => {
   it('CLASSFIELD-001: new X() has no own property whose value is NaN, across all 133 entities', () => {

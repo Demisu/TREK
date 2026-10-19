@@ -27,6 +27,7 @@ import { ToursService } from '../../../src/nest/tours/tours.service';
 import type { User } from '../../../src/types';
 import { noPaddleChecks } from '../../helpers/fake-paddle-checks';
 import { buildPlaceImportService } from '../../helpers/place-import';
+import { keyed } from '../../helpers/tour-keys';
 import type { EntityManager } from '@mikro-orm/core';
 import { HttpException, NotFoundException, RequestMethod, type ExecutionContext } from '@nestjs/common';
 import { GUARDS_METADATA, METHOD_METADATA, PATH_METADATA } from '@nestjs/common/constants';
@@ -365,7 +366,7 @@ describe('Real ToursService update trip boundary (stubbed repositories)', () => 
       expect.objectContaining({ tour_type: 'hike', duration: null }),
     );
     expect(f.waypointsRepo.deleteForPlace).toHaveBeenCalledExactlyOnceWith(42);
-    expect(f.waypointsRepo.insertForPlace).toHaveBeenCalledExactlyOnceWith(42, input.waypoints);
+    expect(f.waypointsRepo.insertForPlace).toHaveBeenCalledExactlyOnceWith(42, keyed(input.waypoints));
     expect(f.placesRepo.findWithTagsAndRatings).toHaveBeenCalledWith(42);
     expect(f.places.broadcast).toHaveBeenCalledWith('7', 'place:updated', { place: { id: 42, trip_id: 7 } }, 'socket');
     expect(f.toursRepo.findProvenance).toHaveBeenCalledExactlyOnceWith(7, 42);

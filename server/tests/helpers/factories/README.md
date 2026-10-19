@@ -44,7 +44,7 @@ of the entity, the `SELECT *` shape with the `*_id` columns filled in):
 | `todos.ts` | `makeTodoItem` |
 | `files.ts` | `makeTripFile`, `linkFile` |
 | `journeys.ts` | `makeJourney` (owner added as contributor), `makeJourneyEntry`, `addJourneyContributor`, `linkTripToJourney` |
-| `tours.ts` | `makeTour`, `addTourWaypoints` |
+| `tours.ts` | `makeTour`, `addTourWaypoints` (with a city walk's station columns), `markStationVisit` |
 | `collections.ts` | `makeCollection`, `addCollectionMember`, `makeCollectionPlace`, `tagCollectionPlace`, `labelCollectionPlace` |
 | `notifications.ts` | `makeNotification`, `setNotificationChannels`, `disableNotificationPref` |
 | `settings.ts` | `setAppSetting`, `readAppSetting`, `setUserSetting`, `readUserSetting`, `setAddonEnabled`, `setCollabFeature` |

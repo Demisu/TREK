@@ -5,8 +5,10 @@ import {
   hikingPreferencesOf,
   MAX_PADDLE_SPEED_KMH,
   MAX_PLANNED_TOUR_DURATION_MINUTES,
+  MAX_STATION_STAY_MINUTES,
   recommendedPaddleSpeedKmh,
   plannedTourDurationMinutesSchema,
+  stationKeySchema,
   tourCreateRequestSchema,
   tourListItemSchema,
   tourMaxHikingDifficultySchema,
@@ -410,5 +412,102 @@ describe('bike tours (BIK-01 to BIK-04)', () => {
     expect(
       tourGpxImportFieldsSchema.safeParse({ tour_type: 'kayak', boat_type: 'sup', water_context: 'lake' }).success,
     ).toBe(true);
+  });
+});
+
+describe('city walks (CW-01 to CW-03, CW-10)', () => {
+  const walk = { ...baseRequest, tour_type: 'walk' as const };
+  const station = {
+    key: '0b7e7c5a-5d43-4c79-9b52-2f7f0d0e2c11',
+    name: 'Cathedral',
+    stay_minutes: 30,
+    importance: 'must' as const,
+    protected: true,
+    opening_hours: 'Mo-Su 09:00-18:00',
+  };
+  const withFirst = <T extends { waypoints: typeof baseRequest.waypoints }>(request: T, extra: object) => ({
+    ...request,
+    waypoints: [{ ...request.waypoints[0], ...extra }, request.waypoints[1]],
+  });
+
+  it('saves a walk with its stations, and no hiking limit', () => {
+    const parsed = tourCreateRequestSchema.parse(withFirst(walk, station));
+    expect(parsed).toMatchObject({ tour_type: 'walk', max_hiking_difficulty: null });
+    expect(parsed.waypoints[0]).toMatchObject(station);
+  });
+
+  it("keeps a station's stay, importance and protection to a city walk", () => {
+    for (const extra of [{ stay_minutes: 20 }, { importance: 'optional' }, { protected: true }]) {
+      expect(() => tourCreateRequestSchema.parse(withFirst(baseRequest, extra))).toThrow(
+        /stations belong to a city walk/,
+      );
+    }
+    // A key, a name and opening hours are any point's, and protection switched off is no protection.
+    const named = withFirst(baseRequest, { key: 'stop-a1', name: 'Hut', opening_hours: '24/7', protected: false });
+    expect(tourCreateRequestSchema.safeParse(named).success).toBe(true);
+  });
+
+  it('refuses a walk over a via ferrata, with a hiking limit or with hiking preferences', () => {
+    const ferrata = {
+      kind: 'ferrata' as const,
+      ref: 'way/1',
+      name: null,
+      geometry: [
+        [48, 11],
+        [48.01, 11.02],
+      ],
+    };
+    expect(() => tourCreateRequestSchema.parse(withFirst(walk, { fixed_leg: ferrata }))).toThrow(
+      /a city walk has no via ferrata/,
+    );
+    expect(() => tourCreateRequestSchema.parse({ ...walk, max_hiking_difficulty: 3 })).toThrow(
+      /a city walk has no hiking difficulty/,
+    );
+    expect(() => tourCreateRequestSchema.parse({ ...walk, hiking_preferences: { avoid_steps: true } })).toThrow(
+      /a city walk has no hiking preferences/,
+    );
+  });
+
+  it('takes a station key of 6 to 64 letters, digits, dashes and underscores', () => {
+    expect(stationKeySchema.safeParse('0b7e7c5a-5d43-4c79-9b52-2f7f0d0e2c11').success).toBe(true);
+    expect(stationKeySchema.safeParse('stop_1').success).toBe(true);
+    expect(stationKeySchema.safeParse('x'.repeat(64)).success).toBe(true);
+    for (const key of ['stop1', 'x'.repeat(65), 'stop/1', 'stop 1', 'stöp-1']) {
+      expect(stationKeySchema.safeParse(key).success).toBe(false);
+    }
+  });
+
+  it('takes a stay from 0, a point passed through, to a whole day', () => {
+    expect(MAX_STATION_STAY_MINUTES).toBe(1440);
+    for (const stay_minutes of [0, 1440, null]) {
+      expect(tourCreateRequestSchema.safeParse(withFirst(walk, { stay_minutes })).success).toBe(true);
+    }
+    for (const stay_minutes of [1441, -1, 12.5]) {
+      expect(tourCreateRequestSchema.safeParse(withFirst(walk, { stay_minutes })).success).toBe(false);
+    }
+  });
+
+  it("lists a walk's station count, and reads an item cached before it existed", () => {
+    const item = tourListItemSchema.parse({
+      place_id: 1,
+      name: 'Old town',
+      tour_type: 'walk',
+      distance: null,
+      elevation_gain: null,
+      elevation_loss: null,
+      duration: null,
+      difficulty: null,
+      wanderer_ref: null,
+      match_confidence: null,
+      max_hiking_difficulty: null,
+      planned: false,
+      caution: false,
+      has_waypoints: true,
+      station_count: 3,
+    });
+    expect(item.station_count).toBe(3);
+    const { station_count: _count, ...cached } = item;
+    expect(tourListItemSchema.parse(cached).station_count).toBeUndefined();
+    expect(tourListItemSchema.safeParse({ ...item, station_count: -1 }).success).toBe(false);
   });
 });

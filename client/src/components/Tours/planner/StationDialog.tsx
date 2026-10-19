@@ -49,7 +49,9 @@ export function StationDialog({
   const stayMinutes = parseStay(stay);
   const stayInvalid = stayMinutes === undefined;
 
-  const save = () => {
+  // The footer sits outside the dialog's form: its button saves by its own click, and a submit of the form stays here.
+  const save = (event?: { preventDefault: () => void }) => {
+    event?.preventDefault();
     if (stayInvalid) return;
     onSave(
       withStationFields(point, {
@@ -85,7 +87,7 @@ export function StationDialog({
         <DialogFooter>
           <FooterSpacer />
           <DialogButton onClick={onClose}>{t('common.cancel')}</DialogButton>
-          <DialogButton variant="primary" type="submit" disabled={stayInvalid} data-testid="station-save">
+          <DialogButton variant="primary" onClick={() => save()} disabled={stayInvalid} data-testid="station-save">
             {t('common.save')}
           </DialogButton>
         </DialogFooter>

@@ -81,10 +81,17 @@ function hikingFields(input: TourCreateRequest): string | null {
 
 /**
  * CW-03: every point with its key, kept from the write where it came with one,
- * so the visits of a city walk's stations outlast a reorder or a new point.
+ * so the visits of a city walk's stations outlast a reorder or a new point. A
+ * key sent twice stays with its first point; a later one gets a fresh key, so
+ * checking one station off never marks another.
  */
-function keyedWaypoints(waypoints: TourWaypoint[]): TourWaypoint[] {
-  return waypoints.map((point) => (point.key ? point : { ...point, key: randomUUID() }));
+function keyedWaypoints(waypoints: TourWaypoint[]): Array<TourWaypoint & { key: string }> {
+  const taken = new Set<string>();
+  return waypoints.map((point) => {
+    const key = point.key && !taken.has(point.key) ? point.key : randomUUID();
+    taken.add(key);
+    return { ...point, key };
+  });
 }
 
 @Injectable()
@@ -590,7 +597,7 @@ export class ToursService {
       const waypoints = keyedWaypoints(await this.linkedWaypoints(tid, input.waypoints));
       await this.waypointsRepo.insertForPlace(pid, waypoints);
       // CW-03: a station that is gone takes its visits with it; a tour that is no city walk keeps none.
-      const stations = input.tour_type === 'walk' ? waypoints.flatMap((point) => (point.key ? [point.key] : [])) : [];
+      const stations = input.tour_type === 'walk' ? waypoints.map((point) => point.key) : [];
       await this.visitsRepo.dropStationsNotIn(pid, stations);
     });
 

@@ -800,6 +800,6 @@ function toListRow<
     planned: Number(r.planned),
     has_waypoints: Number(r.has_waypoints),
     has_recorded_track: Number(r.has_recorded_track),
-    station_count: Number(r.station_count ?? 0),
+    station_count: Number(r.station_count),
   };
 }

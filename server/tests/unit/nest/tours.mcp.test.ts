@@ -1,12 +1,14 @@
 /**
  * ToursMcp (P2D-MCP-01): the saved tours of a trip, read only, over the same
- * service the REST list and detail use. The suite takes its subject from the
- * container over a snapshot test db; the addon gate of the tools is the
- * registry's and is covered with the other addon-gated tools.
+ * services the REST list, detail and city walk visits (CW-09) use. The suite
+ * takes its subject from the container over a snapshot test db; the addon gate
+ * of the tools is the registry's and is covered with the other addon-gated tools.
  */
 import { Places } from '../../../src/db/entities/Places.entity';
+import { TourStationVisits } from '../../../src/db/entities/TourStationVisits.entity';
 import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
 import type { McpContext } from '../../../src/nest-mcp';
+import { TourVisitsService } from '../../../src/nest/tours/tour-visits.service';
 import { ToursMcp } from '../../../src/nest/tours/tours.mcp';
 import { ToursModule } from '../../../src/nest/tours/tours.module';
 import { ToursService } from '../../../src/nest/tours/tours.service';
@@ -19,7 +21,8 @@ import {
   createTrip,
   createUser,
 } from '../../helpers/factories';
-import { insertRows, updateRows } from '../../helpers/factories/rows';
+import { countRows, insertRows, updateRows } from '../../helpers/factories/rows';
+import { addTourWaypoints, makeTour, markStationVisit } from '../../helpers/factories/tours';
 import { resetTestDb } from '../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../helpers/test-module';
 import { createTestOrm } from '../../helpers/test-orm';
@@ -172,5 +175,79 @@ describe('ToursMcp', () => {
     const plan = read(await mcp.getTourPlan({ tripId: trip.id, placeId: ridge.id }, ctx(user.id)));
     expect(plan.waypoints[0]).toMatchObject({ linked_place_id: hut.id, linked_place_name: 'Hut' });
     expect(plan.waypoints[1].linked_place_name).toBeUndefined();
+  });
+
+  /** CW-09: a city walk on day 1 with three stops, the first visited and the second skipped that day. */
+  async function walkFixture() {
+    const base = fixture();
+    const walk = createPlace(db, base.trip.id, { name: 'Old town' });
+    const orm = await createTestOrm(db);
+    await makeTour(orm, walk.id, { tourTypeRef: 'walk', duration: 80 });
+    await addTourWaypoints(orm, walk.id, [
+      { lat: 48.1, lng: 11.5, station_key: 'stop-cathedral', name: 'Cathedral', stay_minutes: 30 },
+      { lat: 48.11, lng: 11.51, station_key: 'stop-market', stay_minutes: 20 },
+      { lat: 48.12, lng: 11.52, station_key: 'stop-park', importance: 'must' },
+    ]);
+    const onDay1 = createDayAssignment(db, base.day1.id, walk.id);
+    await markStationVisit(orm, onDay1.id, 'stop-cathedral', 'visited');
+    await markStationVisit(orm, onDay1.id, 'stop-market', 'skipped');
+    await orm.close();
+    return { ...base, walk, onDay1 };
+  }
+
+  it('TOURS-MCP-008: get_city_walk_progress reads the stations of a walk with their status that day, and changes nothing', async () => {
+    const { member, trip, day1, walk, onDay1 } = await walkFixture();
+    const orm = await createTestOrm(db);
+    const before = await countRows(orm, TourStationVisits, {});
+    const progress = read(
+      await mcp.getCityWalkProgress({ tripId: trip.id, placeId: walk.id, dayId: day1.id }, ctx(member.id)),
+    );
+    expect(progress).toMatchObject({ place_id: walk.id, day_id: day1.id, assignment_id: onDay1.id });
+    expect(
+      progress.stations.map((station: { name: string | null; status: string }) => [station.name, station.status]),
+    ).toEqual([
+      ['Cathedral', 'visited'],
+      [null, 'skipped'],
+      [null, 'planned'],
+    ]);
+    expect(progress.open).toEqual({ stations: 1, stay_minutes_known: 0, stays_unknown: 1 });
+    expect(progress.walking_minutes).toBe(80);
+    expect(await countRows(orm, TourStationVisits, {})).toBe(before);
+    await orm.close();
+  });
+
+  it('TOURS-MCP-009: someone outside the trip learns nothing, and a day without the walk names no walk', async () => {
+    const { user, outsider, trip, day1, day2, ridge, walk } = await walkFixture();
+    expect(
+      read(await mcp.getCityWalkProgress({ tripId: trip.id, placeId: walk.id, dayId: day1.id }, ctx(outsider.id))),
+    ).toEqual({ error: 'Trip not found or access denied.' });
+    const cafe = createPlace(db, trip.id, { name: 'Plain' });
+    createDayAssignment(db, day1.id, cafe.id);
+    const notThere = [
+      { placeId: walk.id, dayId: day2.id },
+      { placeId: ridge.id, dayId: day1.id },
+      { placeId: cafe.id, dayId: day1.id },
+    ];
+    const answers = await notThere.reduce<Promise<unknown[]>>(
+      async (done, args) => [
+        ...(await done),
+        read(await mcp.getCityWalkProgress({ tripId: trip.id, ...args }, ctx(user.id))),
+      ],
+      Promise.resolve([]),
+    );
+    expect(answers).toEqual(notThere.map(() => ({ error: 'No city walk of this trip is on that day.' })));
+  });
+
+  it('TOURS-MCP-010: a failure other than a missing walk is not passed off as no walk', async () => {
+    const { user, trip, day1, walk } = await walkFixture();
+    const failure = new Error('database gone');
+    const progress = vi.spyOn(t.get(TourVisitsService), 'progress').mockRejectedValueOnce(failure);
+    try {
+      await expect(
+        mcp.getCityWalkProgress({ tripId: trip.id, placeId: walk.id, dayId: day1.id }, ctx(user.id)),
+      ).rejects.toBe(failure);
+    } finally {
+      progress.mockRestore();
+    }
   });
 });

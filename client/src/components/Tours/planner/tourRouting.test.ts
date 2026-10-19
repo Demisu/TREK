@@ -12,7 +12,7 @@ vi.mock('../../Map/valhallaRoute', () => ({
   valhallaTurn,
 }))
 
-import { enrichTourElevations, parseValhallaElevation, routeBikeTour, routeWalkingTour, type TourRouteResult } from './tourRouting'
+import { enrichTourElevations, parseValhallaElevation, routeBikeTour, routeCityWalk, routeWalkingTour, type TourRouteResult } from './tourRouting'
 
 /** A route as the planner reads it, for the cases that expect one. */
 const route = async (...args: Parameters<typeof routeWalkingTour>) => (await routeWalkingTour(...args)) as TourRouteResult | null
@@ -228,5 +228,11 @@ describe('routing on land, bike profiles and unreachable points (BIK-01)', () =>
     expect(
       await routeWalkingTour([{ lat: 47.39, lng: 11.01, fixedLeg: free }, { lat: 47.392, lng: 11.012 }, { lat: 47.4, lng: 11.02 }])
     ).toEqual({ unreachable: 1, snappedMeters: 400 })
+  })
+
+  it('TOUR-ROUTING-033: a city walk goes on foot with no hiking limit and no choice of a hike (CW-01)', async () => {
+    valhallaRun.mockResolvedValueOnce(run([3, 4]))
+    expect(await routeCityWalk(waypoints)).toMatchObject({ distanceMeters: 1500, durationSeconds: 300 })
+    expect(valhallaRun).toHaveBeenCalledWith(waypoints, 'walking', [], undefined, {})
   })
 })

@@ -1,8 +1,11 @@
 import {
   TOUR_POI_CATEGORIES,
   TOUR_POI_CATEGORIES_BY_TYPE,
+  TOUR_POI_MAX_CATEGORIES,
   tourPoiSearchRequestSchema,
   tourPoiSearchResponseSchema,
+  WALK_THEME_KEYS,
+  WALK_THEMES,
 } from './tour-poi-search.schema';
 
 import { describe, expect, it } from 'vitest';
@@ -76,5 +79,27 @@ describe('tour POI search contracts (PLN-02)', () => {
     ]);
     expect(tourPoiSearchResponseSchema.safeParse({ ...answer, unavailable: ['fuel'] }).success).toBe(false);
     expect(tourPoiSearchResponseSchema.safeParse(answer).success).toBe(false);
+  });
+});
+
+describe('city walk themes (CW-05)', () => {
+  it('offers four themes, each a search a walk may ask for', () => {
+    expect(WALK_THEME_KEYS).toEqual(['culture', 'parks', 'food', 'mixed']);
+    for (const key of WALK_THEME_KEYS) {
+      const categories = WALK_THEMES[key];
+      expect(categories.length).toBeGreaterThan(0);
+      expect(categories.length).toBeLessThanOrEqual(TOUR_POI_MAX_CATEGORIES);
+      for (const category of categories) expect(TOUR_POI_CATEGORIES_BY_TYPE.walk).toContain(category);
+      const search = { tour_type: 'walk', categories: [...categories], corridor_m: 250, line };
+      expect(tourPoiSearchRequestSchema.safeParse(search).success).toBe(true);
+    }
+  });
+
+  it("keeps a walk's own kinds to a walk's list, and a hike's to a hike's", () => {
+    for (const category of ['museum', 'park', 'cafe', 'restaurant', 'market'] as const) {
+      expect(TOUR_POI_CATEGORIES_BY_TYPE.walk).toContain(category);
+      expect(TOUR_POI_CATEGORIES_BY_TYPE.hike).not.toContain(category);
+    }
+    expect(TOUR_POI_CATEGORIES_BY_TYPE.walk).not.toContain('peak');
   });
 });

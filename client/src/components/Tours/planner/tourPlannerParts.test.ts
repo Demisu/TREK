@@ -88,6 +88,34 @@ describe('tourPlannerFacts', () => {
     expect(unknown.walkingDurationMinutes).toBeNull();
     expect(unknown.savedDurationSeconds).toBeNull();
   });
+
+  it('CW-02: times a city walk by the router on foot, its stays on top in place of breaks, and saves no hiking limit', () => {
+    const analysis = { distanceKm: 4, gain: 300, loss: 300 } as TourPlannerFactsInput['routeAnalysis'];
+    const walk = hike({
+      tourType: 'walk',
+      routeAnalysis: analysis,
+      durationSeconds: 3_000,
+      breakAdditionalMinutes: 40,
+      stationStayMinutes: 75,
+      hikingPreferences: { avoid_steps: true },
+    });
+    const facts = tourPlannerFacts(walk);
+    expect(facts.walkingDurationMinutes).toBe(50);
+    expect(facts.automaticPlannedTotalMinutes).toBe(125);
+    expect(facts.plannedTotalMinutes).toBe(125);
+    expect(facts.savedDurationSeconds).toBe(3_000);
+    expect(facts.typeFields).toMatchObject({
+      tour_type: 'walk',
+      max_hiking_difficulty: null,
+      hiking_preferences: null,
+      bike_profile: null,
+      boat_type: null,
+    });
+    // Stays nobody entered count for nothing; a total typed by hand still wins.
+    expect(tourPlannerFacts({ ...walk, stationStayMinutes: null }).automaticPlannedTotalMinutes).toBe(50);
+    expect(tourPlannerFacts({ ...walk, plannedDurationMinutes: 180 }).plannedTotalMinutes).toBe(180);
+    expect(tourPlannerFacts({ ...walk, durationSeconds: null }).automaticPlannedTotalMinutes).toBeNull();
+  });
 });
 
 describe('usePlannerHistory', () => {

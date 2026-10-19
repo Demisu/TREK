@@ -160,4 +160,40 @@ describe('TourWaypointsRepository', () => {
     expect(await repo.placeNames(trip.id, [hut.id, elsewhere.id])).toEqual(new Map([[hut.id, 'Hut']]));
     expect(await repo.placeNames(trip.id, [])).toEqual(new Map());
   });
+
+  it("TWREPO-009: a city walk's station keeps its key, name, stay, importance, protection and hours; a plain point carries none (CW-01 to CW-04)", async () => {
+    const { trip, place } = tourInTrip();
+    const station: TourWaypointRow = {
+      lat: 48.1,
+      lng: 11.5,
+      role: 'start',
+      sequence: 0,
+      key: 'stop-cathedral',
+      name: 'Cathedral',
+      stay_minutes: 30,
+      importance: 'must',
+      protected: true,
+      opening_hours: 'Mo-Su 09:00-18:00',
+    };
+    const passedThrough: TourWaypointRow = {
+      lat: 48.11,
+      lng: 11.51,
+      role: 'via',
+      sequence: 1,
+      key: 'stop-bridge',
+      stay_minutes: 0,
+      importance: 'optional',
+    };
+    const plain: TourWaypointRow = { lat: 48.12, lng: 11.52, role: 'end', sequence: 2 };
+    await repo.insertForPlace(place.id, [station, passedThrough, plain]);
+
+    const points = await repo.listForPlace(place.id);
+    expect(points).toEqual([station, passedThrough, plain]);
+    for (const field of ['key', 'name', 'stay_minutes', 'importance', 'protected', 'opening_hours']) {
+      expect(points[2]).not.toHaveProperty(field);
+    }
+    expect(points[1]).not.toHaveProperty('protected');
+    expect(points[1]).not.toHaveProperty('name');
+    expect(await repo.listForTrip(trip.id)).toEqual(points.map((point) => ({ place_id: place.id, ...point })));
+  });
 });

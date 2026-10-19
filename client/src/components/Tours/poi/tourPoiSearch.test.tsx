@@ -13,7 +13,7 @@ import { usePoiInsertion, type PoiInsertionPlanner } from './usePoiInsertion';
 import { useTourPoiMarkers } from './useTourPoiMarkers';
 import { useTourPoiSearch } from './useTourPoiSearch';
 
-// FE-TOUR-POI-001 to FE-TOUR-POI-010
+// FE-TOUR-POI-001 to FE-TOUR-POI-015
 
 vi.mock('../planner/useWaypointPlaceNames', () => ({ useWaypointPlaceNames: () => ({}) }));
 
@@ -244,5 +244,109 @@ describe('TourPoiSearchCard', () => {
     taking = insertionPlanner({ waypoints: withPoint, routeCurrent: false, status: 'routing' });
     rerender();
     expect(result.current.outcome).toEqual({ kind: 'measuring', name: 'Drinking water' });
+  });
+});
+
+describe('a city walk along its places (CW-05)', () => {
+  const CAFE: TourPoi = {
+    ...SPRING,
+    id: 'node:3',
+    name: 'Cafe Luitpold',
+    category: 'cafe',
+    kind: 'amenity=cafe',
+    opening_hours: null,
+  };
+  const walkPlanner = () =>
+    ({ ...searchPlanner({ tourType: 'walk' }), ...insertionPlanner() }) as unknown as TourPlannerController;
+  const themeButton = (theme: string) => screen.getByTestId(`tour-poi-theme-${theme}`);
+
+  it('FE-TOUR-POI-011: a walk offers four themes; one sets its categories at once, a change of them leaves it', async () => {
+    const planner = walkPlanner();
+    render(<TourPoiSearchCard planner={planner} />);
+    const themes = screen.getByTestId('tour-poi-themes');
+    expect(
+      within(themes)
+        .getAllByRole('button')
+        .map((button) => button.textContent)
+    ).toEqual(['Culture and history', 'Parks and views', 'Food and local life', 'A bit of everything']);
+    // The walk starts with its first three categories, which no theme is.
+    for (const theme of ['culture', 'parks', 'food', 'mixed'])
+      expect(themeButton(theme)).toHaveAttribute('aria-pressed', 'false');
+    expect(themes).toHaveTextContent('Your own pick of categories below; a theme sets them for you.');
+
+    fireEvent.click(themeButton('food'));
+    expect(themeButton('food')).toHaveAttribute('aria-pressed', 'true');
+    expect(themes).toHaveTextContent('Coffee shops, places to eat and markets along the route.');
+    expect(screen.getByTestId('tour-poi-categories')).toHaveTextContent('Coffee shops, Places to eat +1');
+    fireEvent.click(screen.getByTestId('tour-poi-search'));
+    await waitFor(() =>
+      expect(search).toHaveBeenCalledWith(
+        4,
+        expect.objectContaining({ tour_type: 'walk', categories: ['cafe', 'restaurant', 'market'] }),
+        expect.any(AbortSignal)
+      )
+    );
+
+    fireEvent.click(screen.getByTestId('tour-poi-categories'));
+    fireEvent.click(screen.getByRole('button', { name: 'Markets' }));
+    expect(themeButton('food')).toHaveAttribute('aria-pressed', 'false');
+    expect(themes).toHaveTextContent('Your own pick of categories below; a theme sets them for you.');
+  });
+
+  it('FE-TOUR-POI-012: the category field names two categories, counts the rest, and says when none is chosen', () => {
+    render(<TourPoiSearchCard planner={walkPlanner()} />);
+    const field = screen.getByTestId('tour-poi-categories');
+    expect(field).toHaveTextContent('Sights, Museums and galleries +1');
+    expect(field).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(field);
+    expect(field).toHaveAttribute('aria-expanded', 'true');
+    const list = screen.getByRole('group', { name: 'What to look for' });
+    fireEvent.click(within(list).getByRole('button', { name: 'Parks and gardens' }));
+    expect(field).toHaveTextContent('Sights, Museums and galleries');
+    expect(field).not.toHaveTextContent('+1');
+    fireEvent.click(within(list).getByRole('button', { name: 'Sights' }));
+    fireEvent.click(within(list).getByRole('button', { name: 'Museums and galleries' }));
+    expect(field).toHaveTextContent('No category chosen');
+    expect(screen.getByTestId('tour-poi-search')).toBeDisabled();
+  });
+
+  it('FE-TOUR-POI-013: a place found for a theme says which theme suggested it', async () => {
+    search.mockResolvedValue({ ...ANSWER, pois: [CAFE, SPRING] });
+    render(<TourPoiSearchCard planner={walkPlanner()} />);
+    fireEvent.click(themeButton('food'));
+    fireEvent.click(screen.getByTestId('tour-poi-search'));
+    const cafe = await screen.findByTestId('tour-poi-node:3');
+    fireEvent.click(within(cafe).getByRole('button', { name: /Cafe Luitpold/ }));
+    expect(within(cafe).getByText('Suggested for Food and local life')).toBeInTheDocument();
+    fireEvent.click(within(screen.getByTestId('tour-poi-node:1')).getByRole('button', { name: /Spring/ }));
+    expect(screen.queryByText('Suggested for Food and local life')).not.toBeInTheDocument();
+  });
+
+  it('FE-TOUR-POI-014: a hike has no themes', () => {
+    render(<TourPoiSearchCard planner={searchPlanner()} />);
+    expect(screen.queryByTestId('tour-poi-themes')).not.toBeInTheDocument();
+    expect(screen.getByTestId('tour-poi-categories')).toHaveTextContent('Viewpoints, Huts and shelters +1');
+  });
+
+  it('FE-TOUR-POI-015: a place taken in keeps its name and opening hours, and a place without them adds none', () => {
+    const planner = insertionPlanner();
+    const { result } = renderHook(() => usePoiInsertion(planner), { wrapper: TranslationProvider });
+    act(() => {
+      result.current.insert(SPRING);
+    });
+    act(() => {
+      result.current.insert({ ...CAFE, id: 'node:4', name: '', along_m: 400 });
+    });
+    const added = vi
+      .mocked(planner.editWaypoints)
+      .mock.calls.map(
+        ([update]) =>
+          (update as (points: TourPlannerWaypoint[]) => TourPlannerWaypoint[])(POINTS).find(
+            (point) => !POINTS.includes(point)
+          ) as TourPlannerWaypoint
+      );
+    expect(added[0]).toMatchObject({ name: 'Spring', openingHours: 'Mo-Su 08:00-18:00' });
+    expect(added[1]).not.toHaveProperty('name');
+    expect(added[1]).not.toHaveProperty('openingHours');
   });
 });

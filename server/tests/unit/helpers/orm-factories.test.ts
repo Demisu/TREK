@@ -14,6 +14,7 @@ import { NotificationChannelPreferences } from '../../../src/db/entities/Notific
 import { PackingBags } from '../../../src/db/entities/PackingBags.entity';
 import { PluginUserConfig } from '../../../src/db/entities/PluginUserConfig.entity';
 import { Tags } from '../../../src/db/entities/Tags.entity';
+import { TourStationVisits } from '../../../src/db/entities/TourStationVisits.entity';
 import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
 import { TrekPhotos } from '../../../src/db/entities/TrekPhotos.entity';
 import { TripMembers } from '../../../src/db/entities/TripMembers.entity';
@@ -60,7 +61,7 @@ import {
 } from '../../helpers/factories/settings';
 import { makeTodoItem } from '../../helpers/factories/todos';
 import { makeInviteToken, makeMcpToken, makeOauthClient } from '../../helpers/factories/tokens';
-import { addTourWaypoints, makeTour } from '../../helpers/factories/tours';
+import { addTourWaypoints, makeTour, markStationVisit } from '../../helpers/factories/tours';
 import {
   addTripMember,
   datesBetween,
@@ -281,6 +282,23 @@ describe('ORM test factories: journeys, tours, collections and the rest', () => 
     ]);
     const roles = (await findRows(orm, TourWaypoints, { place: place.id }, { sequence: 'asc' })).map((w) => w.role);
     expect(roles).toEqual(['start', 'via', 'end']);
+
+    // A city walk's station keeps its columns, and a visit lands on the day assignment (CW-03).
+    const walk = await makePlace(orm, trip.id);
+    await makeTour(orm, walk.id, { tourTypeRef: 'walk' });
+    await addTourWaypoints(orm, walk.id, [
+      { lat: 1, lng: 1, station_key: 'stop-a1', name: 'Cathedral', stay_minutes: 0, importance: 'must', protected: 1 },
+      { lat: 2, lng: 2, shaping: 1 },
+    ]);
+    const [station, shaping] = await findRows(orm, TourWaypoints, { place: walk.id }, { sequence: 'asc' });
+    expect(station).toMatchObject({ station_key: 'stop-a1', name: 'Cathedral', stay_minutes: 0, importance: 'must' });
+    expect([station?.protected, shaping?.shaping, shaping?.station_key]).toEqual([1, 1, null]);
+    const assignment = await makeDayAssignment(orm, (await makeDay(orm, trip.id)).id, walk.id);
+    await markStationVisit(orm, assignment.id, 'stop-a1', 'skipped');
+    expect(await findRow(orm, TourStationVisits, { assignment: assignment.id })).toMatchObject({
+      station_key: 'stop-a1',
+      status: 'skipped',
+    });
   });
 
   it('ORMF-032: collections, notifications, settings, plugins and tokens land where the app reads them', async () => {

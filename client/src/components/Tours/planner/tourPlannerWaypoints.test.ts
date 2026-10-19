@@ -1,8 +1,12 @@
-// FE-TOUR-WAYPOINTS-001 to FE-TOUR-WAYPOINTS-005: the editor's waypoint model, shaping points and drawn legs (P2A-03, PAD-11).
+// FE-TOUR-WAYPOINTS-001 to FE-TOUR-WAYPOINTS-007: the editor's waypoint model, shaping points, drawn legs
+// and a city walk's stations (P2A-03, PAD-11, CW-01 to CW-04).
+import type { TourWaypoint } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
 import {
   normalizePlannerWaypoints,
+  plannerWaypointsOf,
   sameWaypointSnapshot,
+  savedWaypointsOf,
   tourWaypointKey,
   withDrawnLegsRouted,
   withShaping,
@@ -79,5 +83,67 @@ describe('tourPlannerWaypoints', () => {
     expect(sameWaypointSnapshot([A, B, C], [A, { ...B, auto }, C])).toBe(false);
     expect(sameWaypointSnapshot([A, B, C], [A, B, C])).toBe(true);
     expect(normalizePlannerWaypoints([C, A, B]).map((point) => point.role)).toEqual(['start', 'via', 'end']);
+  });
+
+  const SAVED: TourWaypoint[] = [
+    {
+      lat: 48.1,
+      lng: 11.5,
+      role: 'start',
+      sequence: 0,
+      key: 'stop-cathedral',
+      name: 'Cathedral',
+      stay_minutes: 30,
+      importance: 'must',
+      protected: true,
+      opening_hours: 'Mo-Su 09:00-18:00',
+    },
+    { lat: 48.105, lng: 11.505, role: 'via', sequence: 1, key: 'shape-1', shaping: true },
+    { lat: 48.11, lng: 11.51, role: 'end', sequence: 2, key: 'stop-market', stay_minutes: 0 },
+  ];
+  const ids = () => {
+    let next = 0;
+    return () => `p${++next}`;
+  };
+
+  it("FE-TOUR-WAYPOINTS-006: a saved walk's stations come into the editor with their key, name, stay, importance and hours", () => {
+    const points = plannerWaypointsOf(SAVED, ids());
+    expect(points).toEqual([
+      {
+        id: 'p1',
+        lat: 48.1,
+        lng: 11.5,
+        role: 'start',
+        key: 'stop-cathedral',
+        name: 'Cathedral',
+        stayMinutes: 30,
+        importance: 'must',
+        protected: true,
+        openingHours: 'Mo-Su 09:00-18:00',
+      },
+      { id: 'p2', lat: 48.105, lng: 11.505, role: 'via', key: 'shape-1', shaping: true },
+      // A stay of 0 is a point passed through, kept as such.
+      { id: 'p3', lat: 48.11, lng: 11.51, role: 'end', key: 'stop-market', stayMinutes: 0 },
+    ]);
+    expect(savedWaypointsOf(points, 'walk')).toEqual(SAVED);
+  });
+
+  it("FE-TOUR-WAYPOINTS-007: another type sends a station's key, name and hours, but no stay, importance or protection", () => {
+    const points = plannerWaypointsOf(SAVED, ids());
+    const plain = [
+      {
+        lat: 48.1,
+        lng: 11.5,
+        role: 'start',
+        sequence: 0,
+        key: 'stop-cathedral',
+        name: 'Cathedral',
+        opening_hours: 'Mo-Su 09:00-18:00',
+      },
+      { lat: 48.105, lng: 11.505, role: 'via', sequence: 1, key: 'shape-1', shaping: true },
+      { lat: 48.11, lng: 11.51, role: 'end', sequence: 2, key: 'stop-market' },
+    ];
+    expect(savedWaypointsOf(points, 'hike')).toEqual(plain);
+    expect(savedWaypointsOf(points)).toEqual(plain);
   });
 });

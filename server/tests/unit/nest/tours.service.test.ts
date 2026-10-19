@@ -19,6 +19,7 @@ import { noPaddleChecks } from '../../helpers/fake-paddle-checks';
 import { buildPlaceImportService } from '../../helpers/place-import';
 import { resetTestDb } from '../../helpers/test-db';
 import { createTestPlacesRepo, createTestUnitOfWork, sharedTestOrm } from '../../helpers/test-uow';
+import { keyed } from '../../helpers/tour-keys';
 import {
   createTestToursRepo,
   createTestTourStationVisitsRepo,
@@ -179,7 +180,7 @@ describe('ToursService planner creation', () => {
       description: 'A quiet ridge above the lake.',
       website: 'https://www.komoot.com/tour/42',
     });
-    expect(result.waypoints).toEqual(request.waypoints);
+    expect(result.waypoints).toEqual(keyed(request.waypoints));
     expect(broadcast).toHaveBeenNthCalledWith(1, tripId, 'tours:changed', { placeIds: [placeId] }, 'socket-1');
     expect(broadcast).toHaveBeenNthCalledWith(
       2,
@@ -386,7 +387,7 @@ describe('ToursService updates', () => {
     const result = await service.updateTour(tripId, String(created.tour.place_id), update, 'socket-2');
 
     expect(result.tour).toMatchObject({ place_id: created.tour.place_id, name: 'Updated ridge walk' });
-    expect(result.waypoints).toEqual(update.waypoints);
+    expect(result.waypoints).toEqual(keyed(update.waypoints));
     const storedPlace = await firstPlace();
     expect({
       name: storedPlace.name,
@@ -501,7 +502,7 @@ describe('ToursService updates', () => {
     ).rejects.toThrow();
 
     expect((await firstPlace()).name).toBe('Ridge walk');
-    expect((await service.getTour(tripId, String(created.tour.place_id))).waypoints).toEqual(request.waypoints);
+    expect((await service.getTour(tripId, String(created.tour.place_id))).waypoints).toEqual(keyed(request.waypoints));
     expect(broadcast).not.toHaveBeenCalled();
   });
 
@@ -518,7 +519,9 @@ describe('ToursService updates', () => {
       trip_id: Number(otherTripId),
       name: 'Ridge walk',
     });
-    expect((await service.getTour(otherTripId, String(created.tour.place_id))).waypoints).toEqual(request.waypoints);
+    expect((await service.getTour(otherTripId, String(created.tour.place_id))).waypoints).toEqual(
+      keyed(request.waypoints),
+    );
     expect(broadcast).not.toHaveBeenCalled();
   });
 
@@ -609,7 +612,7 @@ describe('ToursService restoring a recorded track (PR1-05B)', () => {
     );
     (await sharedTestOrm(testDb)).clear();
     await expect(service.restoreRecordedTrack(tripId, placeId)).rejects.toMatchObject(refusal);
-    expect((await service.getTour(tripId, placeId)).waypoints).toEqual(request.waypoints);
+    expect((await service.getTour(tripId, placeId)).waypoints).toEqual(keyed(request.waypoints));
   });
 
   it('PR1-05B-SVC-004: a plain place, a tour of another trip or a malformed id is a 404', async () => {
