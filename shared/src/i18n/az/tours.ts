@@ -106,7 +106,7 @@ const tours: TranslationStrings = {
   'tours.planner.newTourConfirmTitle': 'Yeni tur başlansın?',
   'tours.planner.newTourConfirmBody':
     'Bu turda saxlanılmamış dəyişiklikləriniz ləğv ediləcək. Saxlanılmış turlar dəyişməyəcək.',
-  'tours.planner.newTourConfirm': 'Dəyişiklikləri ləğv et və yeni tur başlat',
+  'tours.planner.newTourConfirm': 'Ləğv et və başla',
   'tours.planner.collapseElevation': 'Yüksəklik profilini yığ',
   'tours.planner.expandElevation': 'Yüksəklik profilini aç',
   'tours.planner.name': 'Turun adı',
@@ -516,6 +516,16 @@ const tours: TranslationStrings = {
     'Hər şeydən bir az: görməli yerlər, muzeylər, parklar, mənzərələr, kafelər və bazarlar.',
   'tours.walk.themeHint.own': 'Aşağıda öz kateqoriya seçimin; mövzu onları sənin üçün qurur.',
   'tours.walk.themeReason': '{theme} üçün təklif olunur',
+  'tours.walk.arrival': 'Təxmini çatma {time}',
+  'tours.walk.arrivalAtLeast': 'Ən tez {time} çatma',
+  'tours.walk.hours.closed': 'Açılış saatlarına görə {arrival} vaxtı bağlıdır',
+  'tours.walk.hours.closes': 'Çatma {arrival}, qalma {leave} qədər, amma {closes} vaxtı bağlanır',
+  'tours.walk.hours.unread': 'Açılış saatları burada oxunmadı: {text}',
+  'tours.walk.hours.source':
+    'Açılış saatları OpenStreetMap-dakı kimi, təxmini çatma vaxtı ilə; getməzdən əvvəl yoxla. Saatı olmayan dayanacaq məlum deyil, açıq deyil.',
+  'tours.walk.hours.noStart': 'Çatma vaxtlarını və açılış saatlarını görmək üçün gəzintiyə bu gün vaxt ver.',
+  'tours.poi.categoriesNone': 'Kateqoriya seçilməyib',
+  'tours.poi.categoriesMore': '{first} +{more}',
   'tours.planner.tourType': 'Tur növü',
   'tours.paddle.boat': 'Qayıq',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

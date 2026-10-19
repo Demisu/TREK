@@ -111,7 +111,7 @@ const tours: TranslationStrings = {
   'tours.planner.newTourConfirmTitle': '¿Empezar una nueva excursión?',
   'tours.planner.newTourConfirmBody':
     'Se descartarán los cambios sin guardar de esta excursión. Las excursiones guardadas no se modificarán.',
-  'tours.planner.newTourConfirm': 'Descartar y empezar nueva excursión',
+  'tours.planner.newTourConfirm': 'Descartar y empezar',
   'tours.planner.collapseElevation': 'Contraer perfil de altitud',
   'tours.planner.expandElevation': 'Expandir perfil de altitud',
   'tours.planner.name': 'Nombre de la excursión',
@@ -520,6 +520,16 @@ const tours: TranslationStrings = {
   'tours.walk.themeHint.mixed': 'Un poco de cada: lugares de interés, museos, parques, vistas, cafeterías y mercados.',
   'tours.walk.themeHint.own': 'Tu propia selección de categorías abajo; un tema las elige por ti.',
   'tours.walk.themeReason': 'Sugerido para {theme}',
+  'tours.walk.arrival': 'Llegada hacia las {time}',
+  'tours.walk.arrivalAtLeast': 'Llegada no antes de las {time}',
+  'tours.walk.hours.closed': 'Cerrado a las {arrival} según su horario',
+  'tours.walk.hours.closes': 'Llegada {arrival}, estancia hasta las {leave}, pero cierra a las {closes}',
+  'tours.walk.hours.unread': 'Horario no interpretado aquí: {text}',
+  'tours.walk.hours.source':
+    'Horario tal como figura en OpenStreetMap, frente a la llegada estimada; compruébalo antes de ir. Una parada sin horario es desconocida, no abierta.',
+  'tours.walk.hours.noStart': 'Pon al paseo una hora en este día para ver llegadas y horarios.',
+  'tours.poi.categoriesNone': 'Ninguna categoría elegida',
+  'tours.poi.categoriesMore': '{first} +{more}',
   'tours.planner.tourType': 'Tipo de ruta',
   'tours.paddle.boat': 'Embarcación',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

@@ -1,16 +1,22 @@
-import type { TourPoi, TourPoiCategory, WalkTheme } from '@trek/shared';
+import type { TourPoi, WalkTheme } from '@trek/shared';
 import { TOUR_POI_CORRIDORS_M, WALK_THEMES } from '@trek/shared';
 import {
   AlertTriangle,
+  ChevronDown,
   Clock,
+  Coffee,
   ExternalLink,
+  Landmark,
   Loader2,
   MoveHorizontal,
   Plus,
   RefreshCw,
   Route,
   Search,
+  Shuffle,
+  Trees,
   WifiOff,
+  type LucideIcon,
 } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from '../../../i18n';
@@ -18,9 +24,11 @@ import { useSettingsStore } from '../../../store/settingsStore';
 import { useTourPoiStore } from '../../../store/tourPoiStore';
 import { formatDistance } from '../../../utils/units';
 import { TOUR_POI_LOOKS } from '../../Map/poiCategories';
+import { PopoverItem } from '../../Packing/PackingPopover';
 import { WhiteBadge } from '../../Planner/planParts';
-import { PillSelect, Segmented } from '../../shared/dialogParts';
+import { PillSelect, PopoverListPanel, Segmented } from '../../shared/dialogParts';
 import { fs } from '../../shared/DialogShell';
+import { usePopoverList } from '../../shared/usePopoverList';
 import type { TourPlannerController } from '../planner/useTourPlanner';
 import { useWaypointPlaceNames } from '../planner/useWaypointPlaceNames';
 import { RailCard, TourNotice } from '../tourParts';
@@ -33,21 +41,114 @@ type Unit = Parameters<typeof formatDistance>[1];
 const km = (metres: number) => metres / 1000;
 
 /** A category to search for, as a chip: its icon in its map colour, ticked or not. */
-function CategoryChip({ category, on, onToggle }: { category: TourPoiCategory; on: boolean; onToggle: () => void }) {
+/**
+ * What is searched for, in one line: the chosen categories' icons and names,
+ * with every category the tour type offers in a list that stays open while
+ * they are ticked. A theme of a city walk sets them all at once above it.
+ */
+function CategoryPicker({ search }: { search: TourPoiSearch }) {
   const { t } = useTranslation();
-  const look = TOUR_POI_LOOKS[category];
+  const list = usePopoverList(0, { estimatedHeight: 320 });
+  const { open, toggle, triggerRef, listId } = list;
+  const chosen = search.offered.filter((category) => search.categories.includes(category));
+  const names = chosen.map((category) => t(TOUR_POI_LOOKS[category].labelKey));
+  const summary =
+    names.length === 0
+      ? t('tours.poi.categoriesNone')
+      : names.length <= 2
+        ? names.join(', ')
+        : t('tours.poi.categoriesMore', { first: names.slice(0, 2).join(', '), more: names.length - 2 });
   return (
-    <button
-      type="button"
-      onClick={onToggle}
-      aria-pressed={on}
-      data-testid={`tour-poi-category-${category}`}
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-medium transition-colors ${on ? 'bg-surface-card text-content shadow-sm ring-1 ring-inset ring-edge-faint' : 'bg-surface-tertiary text-content-muted hover:text-content'}`}
-      style={fs(11.5, 'body')}
-    >
-      <look.Icon size={12} strokeWidth={2.2} style={{ color: on ? look.color : undefined }} />
-      {t(look.labelKey)}
-    </button>
+    <>
+      <button
+        ref={triggerRef}
+        type="button"
+        onClick={toggle}
+        aria-expanded={open}
+        aria-controls={open ? listId : undefined}
+        data-testid="tour-poi-categories"
+        className="flex w-full min-w-0 items-center gap-2 rounded-[10px] border border-edge bg-surface-input px-2.5 py-1.5 text-start hover:border-content-faint"
+      >
+        <span className="sr-only">{t('tours.poi.categories')}: </span>
+        <span className="flex flex-none -space-x-1 rtl:space-x-reverse" aria-hidden="true">
+          {chosen.slice(0, 3).map((category) => {
+            const look = TOUR_POI_LOOKS[category];
+            return (
+              <span
+                key={category}
+                className="grid h-5 w-5 place-items-center rounded-full bg-surface-card ring-2 ring-[color:var(--bg-card)]"
+                style={{ color: look.color }}
+              >
+                <look.Icon size={11} strokeWidth={2.2} />
+              </span>
+            );
+          })}
+        </span>
+        <span className="min-w-0 flex-1 truncate font-medium text-content" style={fs(12, 'body')}>
+          {summary}
+        </span>
+        <ChevronDown
+          size={14}
+          strokeWidth={2.2}
+          aria-hidden="true"
+          className={`flex-none text-content-faint transition-transform ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+      <PopoverListPanel list={list} label={t('tours.poi.categories')} className="min-w-[240px]">
+        {search.offered.map((category) => {
+          const look = TOUR_POI_LOOKS[category];
+          return (
+            <PopoverItem
+              key={category}
+              icon={<look.Icon size={13} strokeWidth={2.2} style={{ color: look.color }} />}
+              label={t(look.labelKey)}
+              active={search.categories.includes(category)}
+              onClick={() => search.toggleCategory(category)}
+            />
+          );
+        })}
+      </PopoverListPanel>
+    </>
+  );
+}
+
+const THEME_ICONS: Record<WalkTheme, LucideIcon> = { culture: Landmark, parks: Trees, food: Coffee, mixed: Shuffle };
+
+/**
+ * CW-05: a city walk's four themes as a grid of two by two, each naming
+ * itself in full; the one the categories below match is on.
+ */
+function ThemeGrid({
+  themes,
+  active,
+  onChoose,
+}: {
+  themes: readonly WalkTheme[];
+  active: WalkTheme | null;
+  onChoose: (theme: WalkTheme) => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <div className="grid grid-cols-2 gap-1.5" role="group" aria-label={t('tours.walk.themes')}>
+      {themes.map((theme) => {
+        const Icon = THEME_ICONS[theme];
+        const on = theme === active;
+        return (
+          <button
+            key={theme}
+            type="button"
+            onClick={() => onChoose(theme)}
+            aria-pressed={on}
+            data-testid={`tour-poi-theme-${theme}`}
+            className={`flex min-w-0 items-center gap-2 rounded-[10px] px-2.5 py-2 text-start font-medium leading-tight transition-colors ${on ? 'bg-surface-card text-content shadow-sm ring-1 ring-inset ring-edge-faint' : 'bg-surface-tertiary text-content-muted hover:text-content'}`}
+            style={fs(11.5, 'body')}
+          >
+            <Icon size={13} strokeWidth={2.2} className="flex-none" aria-hidden="true" />
+            <span className="min-w-0">{t(`tours.walk.theme.${theme}`)}</span>
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -313,28 +414,13 @@ export function TourPoiSearchCard({ planner }: { planner: TourPlannerController 
         </p>
         {search.themes.length > 0 && (
           <div className="flex flex-col gap-1.5" data-testid="tour-poi-themes">
-            <Segmented<string>
-              fill
-              value={search.theme ?? ''}
-              onChange={(key) => search.chooseTheme(key as WalkTheme)}
-              label={t('tours.walk.themes')}
-              options={search.themes.map((key) => ({ value: key, label: t(`tours.walk.theme.${key}`) }))}
-            />
+            <ThemeGrid themes={search.themes} active={search.theme} onChoose={search.chooseTheme} />
             <span className="text-content-faint" style={fs(11, 'body')}>
               {search.theme ? t(`tours.walk.themeHint.${search.theme}`) : t('tours.walk.themeHint.own')}
             </span>
           </div>
         )}
-        <div className="flex flex-wrap gap-1.5" role="group" aria-label={t('tours.poi.categories')}>
-          {search.offered.map((category) => (
-            <CategoryChip
-              key={category}
-              category={category}
-              on={search.categories.includes(category)}
-              onToggle={() => search.toggleCategory(category)}
-            />
-          ))}
-        </div>
+        <CategoryPicker search={search} />
         <div className="flex flex-col gap-1.5">
           <span className="text-content-muted" style={fs(11, 'body')}>
             {t('tours.poi.within')}
@@ -381,7 +467,11 @@ export function TourPoiSearchCard({ planner }: { planner: TourPlannerController 
                 planner={planner}
                 insertion={insertion}
                 unit={unit}
-                theme={search.theme && (WALK_THEMES[search.theme] as readonly string[]).includes(poi.category) ? search.theme : null}
+                theme={
+                  search.theme && (WALK_THEMES[search.theme] as readonly string[]).includes(poi.category)
+                    ? search.theme
+                    : null
+                }
               />
             ))}
           </ul>

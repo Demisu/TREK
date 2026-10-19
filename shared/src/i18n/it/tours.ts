@@ -109,7 +109,7 @@ const tours: TranslationStrings = {
   'tours.planner.newTourConfirmTitle': 'Iniziare una nuova escursione?',
   'tours.planner.newTourConfirmBody':
     'Le modifiche non salvate a questa escursione verranno scartate. Le escursioni salvate non verranno modificate.',
-  'tours.planner.newTourConfirm': 'Scarta e inizia nuova escursione',
+  'tours.planner.newTourConfirm': 'Scarta e inizia',
   'tours.planner.collapseElevation': 'Comprimi profilo altimetrico',
   'tours.planner.expandElevation': 'Espandi profilo altimetrico',
   'tours.planner.name': "Nome dell'escursione",
@@ -521,6 +521,16 @@ const tours: TranslationStrings = {
   'tours.walk.themeHint.mixed': "Un po' di tutto: attrazioni, musei, parchi, panorami, caffetterie e mercati.",
   'tours.walk.themeHint.own': 'La tua scelta di categorie qui sotto; un tema le imposta per te.',
   'tours.walk.themeReason': 'Suggerito per {theme}',
+  'tours.walk.arrival': 'Arrivo verso le {time}',
+  'tours.walk.arrivalAtLeast': 'Arrivo non prima delle {time}',
+  'tours.walk.hours.closed': 'Chiuso alle {arrival} secondo gli orari',
+  'tours.walk.hours.closes': 'Arrivo {arrival}, sosta fino alle {leave}, ma chiude alle {closes}',
+  'tours.walk.hours.unread': 'Orari non interpretati qui: {text}',
+  'tours.walk.hours.source':
+    "Orari come riportati su OpenStreetMap, rispetto all'arrivo stimato; verifica prima di andare. Una tappa senza orari è sconosciuta, non aperta.",
+  'tours.walk.hours.noStart': 'Dai un orario al percorso in questo giorno per vedere arrivi e orari.',
+  'tours.poi.categoriesNone': 'Nessuna categoria scelta',
+  'tours.poi.categoriesMore': '{first} +{more}',
   'tours.planner.tourType': 'Tipo di tour',
   'tours.paddle.boat': 'Imbarcazione',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

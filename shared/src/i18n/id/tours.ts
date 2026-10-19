@@ -105,7 +105,7 @@ const tours: TranslationStrings = {
   'tours.planner.newTourConfirmTitle': 'Mulai tur baru?',
   'tours.planner.newTourConfirmBody':
     'Perubahan yang belum disimpan pada tur ini akan dibuang. Tur yang sudah disimpan tidak akan diubah.',
-  'tours.planner.newTourConfirm': 'Buang perubahan dan mulai tur baru',
+  'tours.planner.newTourConfirm': 'Buang dan mulai',
   'tours.planner.collapseElevation': 'Ciutkan profil elevasi',
   'tours.planner.expandElevation': 'Perluas profil elevasi',
   'tours.planner.name': 'Nama tur',
@@ -515,6 +515,16 @@ const tours: TranslationStrings = {
     'Sedikit dari semuanya: tempat wisata, museum, taman, pemandangan, kedai kopi, dan pasar.',
   'tours.walk.themeHint.own': 'Pilihan kategorimu sendiri di bawah; tema mengaturnya untukmu.',
   'tours.walk.themeReason': 'Disarankan untuk {theme}',
+  'tours.walk.arrival': 'Tiba sekitar {time}',
+  'tours.walk.arrivalAtLeast': 'Tiba paling cepat {time}',
+  'tours.walk.hours.closed': 'Tutup pada {arrival} menurut jam bukanya',
+  'tours.walk.hours.closes': 'Tiba {arrival}, singgah sampai {leave}, tetapi tutup pukul {closes}',
+  'tours.walk.hours.unread': 'Jam buka tidak terbaca di sini: {text}',
+  'tours.walk.hours.source':
+    'Jam buka sesuai OpenStreetMap, dibandingkan dengan perkiraan tiba; periksa sebelum berangkat. Titik tanpa jam buka tidak diketahui, bukan buka.',
+  'tours.walk.hours.noStart': 'Beri rute waktu mulai di hari ini untuk melihat waktu tiba dan jam buka.',
+  'tours.poi.categoriesNone': 'Belum ada kategori',
+  'tours.poi.categoriesMore': '{first} +{more}',
   'tours.planner.tourType': 'Jenis tur',
   'tours.paddle.boat': 'Perahu',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

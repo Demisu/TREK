@@ -113,7 +113,7 @@ const tours: TranslationStrings = {
   'tours.planner.newTourConfirmTitle': 'Commencer une nouvelle sortie ?',
   'tours.planner.newTourConfirmBody':
     'Les modifications non enregistrées de cette sortie seront perdues. Les sorties enregistrées resteront inchangées.',
-  'tours.planner.newTourConfirm': 'Abandonner et commencer une nouvelle sortie',
+  'tours.planner.newTourConfirm': 'Abandonner et commencer',
   'tours.planner.collapseElevation': 'Réduire le profil altimétrique',
   'tours.planner.expandElevation': 'Déployer le profil altimétrique',
   'tours.planner.name': 'Nom de la sortie',
@@ -530,6 +530,16 @@ const tours: TranslationStrings = {
   'tours.walk.themeHint.mixed': 'Un peu de chaque : sites, musées, parcs, points de vue, cafés et marchés.',
   'tours.walk.themeHint.own': 'Ta propre sélection de catégories ci-dessous ; un thème les choisit pour toi.',
   'tours.walk.themeReason': 'Suggéré pour {theme}',
+  'tours.walk.arrival': 'Arrivée vers {time}',
+  'tours.walk.arrivalAtLeast': 'Arrivée au plus tôt à {time}',
+  'tours.walk.hours.closed': 'Fermé à {arrival} selon ses horaires',
+  'tours.walk.hours.closes': "Arrivée {arrival}, arrêt jusqu'à {leave}, mais fermeture à {closes}",
+  'tours.walk.hours.unread': 'Horaires non lus ici : {text}',
+  'tours.walk.hours.source':
+    "Horaires tels qu'indiqués sur OpenStreetMap, face à l'arrivée estimée ; vérifie avant d'y aller. Une étape sans horaires est inconnue, pas ouverte.",
+  'tours.walk.hours.noStart': 'Donne une heure à la balade ce jour-là pour voir les arrivées et les horaires.',
+  'tours.poi.categoriesNone': 'Aucune catégorie choisie',
+  'tours.poi.categoriesMore': '{first} +{more}',
   'tours.planner.tourType': 'Type de sortie',
   'tours.paddle.boat': 'Embarcation',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en
