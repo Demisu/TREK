@@ -95,6 +95,18 @@ describe('TourPoiSearchService', () => {
     expect(result).toMatchObject({ truncated: false, partial: false, capped: false });
   });
 
+  it('TOUR-POI-006: one name in one spot is one place, mapped twice as a point and an outline', async () => {
+    pois.mockResolvedValue(
+      answer([
+        poi('node:9', 47.41, 11.1003, 'viewpoint', { name: 'AlpspiX' }),
+        poi('way:9', 47.4101, 11.1004, 'viewpoint', { name: 'AlpspiX' }),
+        poi('node:10', 47.4102, 11.1003, 'viewpoint', { name: 'Other' }),
+      ]),
+    );
+    const result = await service.search({ tour_type: 'hike', categories: ['viewpoint'], corridor_m: 500, line: LINE });
+    expect(result.pois.map((found) => found.id)).toEqual(['node:9', 'node:10']);
+  });
+
   it('TOUR-POI-002: asks the map search for what each category means, and names a hit by the category asked', async () => {
     pois.mockResolvedValue(answer([poi('node:cafe', 47.41, 11.1, 'cafe')]));
     const result = await service.search({

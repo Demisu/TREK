@@ -1,4 +1,5 @@
-import { Utensils, Coffee, Wine, BedDouble, Camera, Landmark, Trees, Ticket, Fuel, Zap, ParkingSquare, Tent, type LucideIcon } from 'lucide-react'
+import { Utensils, Coffee, Wine, BedDouble, Camera, Landmark, Trees, Ticket, Fuel, Zap, ParkingSquare, Tent, Binoculars, Mountain, Warehouse, Droplet, Toilet, Sandwich, Anchor, Sailboat, type LucideIcon } from 'lucide-react'
+import type { TourPoiCategory } from '@trek/shared'
 import { parsePluginPoiCategoryKey, type PluginPoiDetail } from '@trek/shared'
 // The road-trip kinds take their colour from the one place that defines it, so the
 // search result, the map pin and the road-trip rail cannot drift apart.
@@ -40,9 +41,34 @@ export const ROADTRIP_POI_CATEGORIES: PoiCategory[] = CORRIDOR_CATEGORIES.map(
   ({ key, labelKey, Icon, color }) => ({ key, labelKey, Icon, color }),
 )
 
+const CORE_COLOR = new Map(POI_CATEGORIES.map(c => [c.key, c.color] as const))
+const coreColor = (key: string) => CORE_COLOR.get(key) ?? POI_DEFAULT_COLOR
+
+/**
+ * What a hike or a paddle tour stops for (PLN-02), searched along a tour in the
+ * planner and drawn on its map. Each takes the colour of the explore category
+ * it is closest to, so the map keeps one palette.
+ */
+export const TOUR_POI_LOOKS: Record<TourPoiCategory, PoiCategory> = {
+  viewpoint: { key: 'viewpoint', labelKey: 'tours.poi.cat.viewpoint', Icon: Binoculars, color: coreColor('sights') },
+  peak: { key: 'peak', labelKey: 'tours.poi.cat.peak', Icon: Mountain, color: coreColor('nature') },
+  shelter: { key: 'shelter', labelKey: 'tours.poi.cat.shelter', Icon: Warehouse, color: HOTEL_COLOR },
+  drinking_water: { key: 'drinking_water', labelKey: 'tours.poi.cat.drinking_water', Icon: Droplet, color: coreColor('museum') },
+  food: { key: 'food', labelKey: 'tours.poi.cat.food', Icon: Utensils, color: coreColor('restaurant') },
+  toilets: { key: 'toilets', labelKey: 'tours.poi.cat.toilets', Icon: Toilet, color: coreColor('bar') },
+  picnic: { key: 'picnic', labelKey: 'tours.poi.cat.picnic', Icon: Sandwich, color: coreColor('nature') },
+  campsite: { key: 'campsite', labelKey: 'tours.poi.cat.campsite', Icon: Tent, color: coreColor('activity') },
+  sights: { key: 'sights', labelKey: 'tours.poi.cat.sights', Icon: Camera, color: coreColor('sights') },
+  slipway: { key: 'slipway', labelKey: 'tours.poi.cat.slipway', Icon: Anchor, color: coreColor('museum') },
+  boat_rental: { key: 'boat_rental', labelKey: 'tours.poi.cat.boat_rental', Icon: Sailboat, color: coreColor('cafe') },
+}
+
 // A Map rather than an object, so a category named after an Object.prototype member
-// (`constructor`, `toString`) finds nothing rather than a function.
-const CATEGORY_BY_KEY = new Map([...POI_CATEGORIES, ...ROADTRIP_POI_CATEGORIES].map(c => [c.key, c] as const))
+// (`constructor`, `toString`) finds nothing rather than a function. A Tours category
+// that shares a key with an explore one (`sights`, `campsite`) keeps the explore look.
+const CATEGORY_BY_KEY = new Map(
+  [...Object.values(TOUR_POI_LOOKS), ...POI_CATEGORIES, ...ROADTRIP_POI_CATEGORIES].map(c => [c.key, c] as const),
+)
 
 // One POI result from /api/maps/pois (mirror of the server's OverpassPoi).
 export interface Poi {

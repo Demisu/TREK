@@ -43,6 +43,17 @@ const PARALLEL_TILES = 3;
 /** The most places one stretch is asked for. */
 const PER_TILE_LIMIT = 60;
 
+/** Within this many metres, two places of one name are one place mapped twice. */
+const SAME_PLACE_M = 60;
+
+function sameSpot(a: Pick<TourPoi, 'name' | 'lat' | 'lng'>, b: { name: string; lat: number; lng: number }): boolean {
+  if (a.name.trim().toLocaleLowerCase() !== b.name.trim().toLocaleLowerCase()) return false;
+  const metresPerDegree = 111_320;
+  const dLat = (a.lat - b.lat) * metresPerDegree;
+  const dLng = (a.lng - b.lng) * metresPerDegree * Math.cos((a.lat * Math.PI) / 180);
+  return Math.hypot(dLat, dLng) <= SAME_PLACE_M;
+}
+
 function tourCategoryOf(mapsCategory: string, asked: readonly TourPoiCategory[]): TourPoiCategory | undefined {
   return asked.find((category) => MAPS_CATEGORIES[category].includes(mapsCategory));
 }
@@ -99,6 +110,8 @@ export class TourPoiSearchService {
         const category = tourCategoryOf(poi.category, body.categories);
         const near = nearnessToLine({ lat: poi.lat, lng: poi.lng }, line);
         if (!category || !near || near.distanceM > body.corridor_m || found.has(poi.osm_id)) continue;
+        // OpenStreetMap often maps one place twice, as a point and as its outline: one name in one spot is one place.
+        if (poi.name && [...found.values()].some((other) => sameSpot(other, poi))) continue;
         found.set(poi.osm_id, {
           id: poi.osm_id,
           name: poi.name,

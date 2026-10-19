@@ -13,6 +13,7 @@ import { ChecklistObstaclePanel } from '../../components/Tours/paddle/ObstacleDe
 import PaddleObstacleOverlay from '../../components/Tours/paddle/PaddleObstacleOverlay';
 import { PaddleObstaclePlaceButton } from '../../components/Tours/paddle/PaddleObstaclePlaceButton';
 import { useShapingClick } from '../../components/Tours/planner/useShapingClick';
+import { useTourPoiMarkers } from '../../components/Tours/poi/useTourPoiMarkers';
 import type { TerrainLegendLayout } from '../../components/Tours/terrain/TourTerrainMap';
 import { isRtlLanguage, useTranslation } from '../../i18n';
 import { selectPaddleObstacle, usePaddleObstacleStore } from '../../store/paddleObstacleStore';
@@ -154,6 +155,8 @@ export function TourPlannerMapStage({
   // PAD-03 on a recorded paddle track: with a marking tool on, a click on the line marks the spot on it.
   const { pickOnLine, onAddOrMark } = useTrackLinePick(tourPlanner, canPlaceEdit, closingPress.guard, waypoints.onAdd);
   // P2A-03: a click on the route being edited sets a shaping point there.
+  // PLN-02: the places found along the tour, drawn on the map and picked from it.
+  const poiMarkers = useTourPoiMarkers();
   const shapeAt = useShapingClick(tourPlanner, { editable: !!waypoints.onMove, picking: pickOnLine });
   // What each panel covers of the map, a collapsed one its rail.
   const leftInset = leftHidden ? 56 : leftPanelPx;
@@ -226,6 +229,7 @@ export function TourPlannerMapStage({
             ferrataLayer={ferrataLayer}
             onViewportChange={viewportChanged}
             placeTool={placeTool}
+            {...poiMarkers}
           />
         )}
       </div>

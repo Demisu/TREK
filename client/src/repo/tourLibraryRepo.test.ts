@@ -1,7 +1,8 @@
 import type { TourCreateResponse } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { tourLibraryApi } from '../api/tourLibrary';
-import { TourLibraryOfflineError, tourLibraryRepo } from './tourLibraryRepo';
+import { OnlineOnlyError } from './onlineOnly';
+import { tourLibraryRepo } from './tourLibraryRepo';
 
 // FE-REPO-TOUR-LIBRARY-001 to FE-REPO-TOUR-LIBRARY-002
 
@@ -20,10 +21,10 @@ describe('tourLibraryRepo', () => {
   it('FE-REPO-TOUR-LIBRARY-001: reads and takes over only online, never from a cache', async () => {
     network.offline = true;
     const list = vi.spyOn(tourLibraryApi, 'list');
-    await expect(tourLibraryRepo.list({})).rejects.toBeInstanceOf(TourLibraryOfflineError);
-    await expect(tourLibraryRepo.detail(3)).rejects.toBeInstanceOf(TourLibraryOfflineError);
+    await expect(tourLibraryRepo.list({})).rejects.toBeInstanceOf(OnlineOnlyError);
+    await expect(tourLibraryRepo.detail(3)).rejects.toBeInstanceOf(OnlineOnlyError);
     await expect(tourLibraryRepo.takeOver(5, { source_trip_id: 2, source_place_id: 3 })).rejects.toBeInstanceOf(
-      TourLibraryOfflineError
+      OnlineOnlyError
     );
     expect(list).not.toHaveBeenCalled();
   });

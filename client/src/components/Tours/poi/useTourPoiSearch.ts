@@ -1,0 +1,144 @@
+import {
+  TOUR_POI_CATEGORIES_BY_TYPE,
+  TOUR_POI_MAX_CATEGORIES,
+  TOUR_POI_MAX_LINE_POINTS,
+  type PlannableTourType,
+  type TourPoi,
+  type TourPoiCategory,
+  type TourPoiSearchResponse,
+} from '@trek/shared';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from '../../../i18n';
+import { OnlineOnlyError } from '../../../repo/onlineOnly';
+import { tourPoiSearchRepo } from '../../../repo/tourPoiSearchRepo';
+import { useTourPoiStore } from '../../../store/tourPoiStore';
+import type { TourPlannerController } from '../planner/useTourPlanner';
+
+/** What is ticked when a type is searched for the first time: the three most asked. */
+const STARTING_CATEGORIES = (type: PlannableTourType) => TOUR_POI_CATEGORIES_BY_TYPE[type].slice(0, 3);
+export const DEFAULT_CORRIDOR_M = 500;
+
+type SearchStatus = 'idle' | 'loading' | 'ready' | 'error' | 'offline';
+
+/** At most `most` points of a line, its ends kept. */
+function thinned(line: Array<[number, number]>, most: number): Array<[number, number]> {
+  if (line.length <= most) return line;
+  const step = (line.length - 1) / (most - 1);
+  return Array.from({ length: most }, (_, index) => line[Math.min(line.length - 1, Math.round(index * step))]).filter(
+    (point): point is [number, number] => !!point
+  );
+}
+
+/** What a search was asked with, so a later change of the route or the choices shows it is out of date. */
+function keyOf(route: Array<[number, number]> | null, type: string, categories: readonly string[], corridor: number) {
+  const ends = route && route.length > 1 ? [route[0], route[route.length - 1], route.length] : [];
+  return JSON.stringify([ends, type, [...categories].sort(), corridor]);
+}
+
+export type TourPoiPlanner = Pick<TourPlannerController, 'tripId' | 'tourType' | 'route' | 'mode'>;
+
+/**
+ * PLN-02: places along the tour open in the planner, searched only when asked.
+ * The categories offered are the tour type's; the corridor is how far from the
+ * line a place may lie. The answer is shown until the next search: once the
+ * route or the choices change, it says it was found for the route as it was.
+ * Nothing about the tour changes here; taking a place in is usePoiInsertion's.
+ */
+export function useTourPoiSearch(planner: TourPoiPlanner) {
+  const { locale } = useTranslation();
+  const type = planner.tourType;
+  const [chosen, setChosen] = useState<Partial<Record<PlannableTourType, TourPoiCategory[]>>>({});
+  const categories = chosen[type] ?? STARTING_CATEGORIES(type);
+  const [corridorM, setCorridorM] = useState(DEFAULT_CORRIDOR_M);
+  const [answer, setAnswer] = useState<{
+    key: string;
+    status: Exclude<SearchStatus, 'idle' | 'loading'>;
+    data?: TourPoiSearchResponse;
+  } | null>(null);
+  const [loadingKey, setLoadingKey] = useState<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const publish = useTourPoiStore((state) => state.publish);
+  const clear = useTourPoiStore((state) => state.clear);
+
+  const route = planner.route;
+  const currentKey = keyOf(route, type, categories, corridorM);
+  const canSearch = !!route && route.length > 1 && categories.length > 0 && loadingKey === null;
+
+  const toggleCategory = useCallback(
+    (category: TourPoiCategory) =>
+      setChosen((current) => {
+        const now = current[type] ?? STARTING_CATEGORIES(type);
+        const next = now.includes(category)
+          ? now.filter((item) => item !== category)
+          : now.length < TOUR_POI_MAX_CATEGORIES
+            ? [...now, category]
+            : now;
+        return { ...current, [type]: next };
+      }),
+    [type]
+  );
+
+  const search = useCallback(async () => {
+    if (!route || route.length < 2 || !categories.length) return;
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    const key = currentKey;
+    setLoadingKey(key);
+    try {
+      const data = await tourPoiSearchRepo.search(
+        planner.tripId,
+        {
+          tour_type: type,
+          categories: [...categories],
+          corridor_m: corridorM,
+          line: thinned(route, TOUR_POI_MAX_LINE_POINTS),
+          lang: locale,
+        },
+        controller.signal
+      );
+      setAnswer({ key, status: 'ready', data });
+      publish(data.pois);
+    } catch (err: unknown) {
+      if (controller.signal.aborted) return;
+      setAnswer({ key, status: err instanceof OnlineOnlyError ? 'offline' : 'error' });
+      clear();
+    } finally {
+      if (abortRef.current === controller) {
+        abortRef.current = null;
+        setLoadingKey(null);
+      }
+    }
+  }, [categories, clear, corridorM, currentKey, locale, planner.tripId, publish, route, type]);
+
+  // Leaving the planner, or a tour closed, takes the places off the map.
+  useEffect(
+    () => () => {
+      abortRef.current?.abort();
+      clear();
+    },
+    [clear]
+  );
+
+  const status: SearchStatus = loadingKey !== null ? 'loading' : (answer?.status ?? 'idle');
+  return {
+    offered: TOUR_POI_CATEGORIES_BY_TYPE[type],
+    categories,
+    toggleCategory,
+    corridorM,
+    setCorridorM,
+    canSearch,
+    search,
+    status,
+    answer: answer?.data ?? null,
+    /** The answer was found for the route or the choices as they were before. */
+    outdated: !!answer && answer.key !== currentKey,
+  };
+}
+
+export type TourPoiSearch = ReturnType<typeof useTourPoiSearch>;
+
+/** The place chosen in the list or on the map, while it is one of the answer's. */
+export function useSelectedPoi(): TourPoi | null {
+  return useTourPoiStore((state) => state.pois.find((poi) => poi.id === state.selectedId) ?? null);
+}

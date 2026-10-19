@@ -44,6 +44,7 @@ import TourListFilterMenu, { TourFilterEmpty } from '../TourListFilterMenu'
 import { TourScopeSummary } from '../TourScopeSummary'
 import { useTourListFilters } from '../useTourListFilters'
 import { TourLibraryEntry } from '../library/TourLibraryDialog'
+import { TourPoiSearchCard } from '../poi/TourPoiSearchCard'
 
 const STATUS_KEY: Partial<Record<TourPlannerStatus, string>> = {
   dirty: 'tours.planner.status.dirty',
@@ -440,6 +441,8 @@ export function TourPlannerRail({ planner,
           {recordedTrack?.available && <RecordedTrackCard recordedTrack={recordedTrack} disabled={isSaving} />}
 
           <TourWaypointList planner={planner} canEdit={canEdit} isSaving={isSaving} tourPlaceIds={tourPlaceIds} />
+
+          <TourPoiSearchCard planner={planner} />
 
           <PaddleEditorCards planner={planner} locked={locked} checklist={paddleChecklist} />
 

@@ -7,19 +7,7 @@ import type {
 } from '@trek/shared';
 import { tourLibraryApi } from '../api/tourLibrary';
 import { cacheTourAnswer } from '../db/cacheTour';
-import { isEffectivelyOffline } from '../sync/networkMode';
-
-/** What a library call answers while there is no connection: nothing read, and the view says why. */
-export class TourLibraryOfflineError extends Error {
-  constructor() {
-    super('The tour library needs a connection');
-    this.name = 'TourLibraryOfflineError';
-  }
-}
-
-function requireOnline(): void {
-  if (isEffectivelyOffline()) throw new TourLibraryOfflineError();
-}
+import { requireOnline } from './onlineOnly';
 
 /**
  * LIB-02, online only on purpose: the list reads across trips this device may

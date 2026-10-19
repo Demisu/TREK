@@ -7,7 +7,8 @@ import type {
 } from '@trek/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from '../../../i18n';
-import { TourLibraryOfflineError, tourLibraryRepo } from '../../../repo/tourLibraryRepo';
+import { OnlineOnlyError } from '../../../repo/onlineOnly';
+import { tourLibraryRepo } from '../../../repo/tourLibraryRepo';
 import { useToast } from '../../shared/Toast';
 
 /** How long typing rests before the list is asked again. */
@@ -22,7 +23,7 @@ interface Answer<T> {
   data?: T;
 }
 
-const failure = (err: unknown): 'error' | 'offline' => (err instanceof TourLibraryOfflineError ? 'offline' : 'error');
+const failure = (err: unknown): 'error' | 'offline' => (err instanceof OnlineOnlyError ? 'offline' : 'error');
 
 interface ListFilters {
   query: string;

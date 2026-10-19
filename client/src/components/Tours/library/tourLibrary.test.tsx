@@ -2,7 +2,8 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import type { TourCreateResponse, TourLibraryItem, TourLibraryResponse } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '../../../../tests/helpers/render';
-import { TourLibraryOfflineError, tourLibraryRepo } from '../../../repo/tourLibraryRepo';
+import { OnlineOnlyError } from '../../../repo/onlineOnly';
+import { tourLibraryRepo } from '../../../repo/tourLibraryRepo';
 import { TourLibraryButton } from './TourLibraryDialog';
 import { useTourLibrary } from './useTourLibrary';
 
@@ -101,7 +102,7 @@ describe('useTourLibrary', () => {
   });
 
   it('FE-TOUR-LIBRARY-003: says when it is offline or failed, and asks again on retry', async () => {
-    list.mockRejectedValueOnce(new TourLibraryOfflineError()).mockRejectedValueOnce(new Error('500'));
+    list.mockRejectedValueOnce(new OnlineOnlyError()).mockRejectedValueOnce(new Error('500'));
     const { result } = renderHook(() => useTourLibrary({ tripId: 5, onTakenOver: vi.fn() }));
     act(() => result.current.show());
     await waitFor(() => expect(result.current.listStatus).toBe('offline'));

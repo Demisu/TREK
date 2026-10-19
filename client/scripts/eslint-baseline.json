@@ -12,7 +12,7 @@
     "react-hooks/set-state-in-effect": 197,
     "@typescript-eslint/no-floating-promises": 167,
     "react-hooks/exhaustive-deps": 121,
-    "@typescript-eslint/no-unused-vars": 130,
+    "@typescript-eslint/no-unused-vars": 129,
     "react-hooks/immutability": 28,
     "max-lines-per-function": 133,
     "react-hooks/static-components": 78,
