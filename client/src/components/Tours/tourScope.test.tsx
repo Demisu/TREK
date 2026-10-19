@@ -1,6 +1,7 @@
 import type { TourListItem } from '@trek/shared';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { fireEvent, render, screen, within } from '../../../tests/helpers/render';
+import { useTripStore } from '../../store/tripStore';
 import { TourScopeSummary } from './TourScopeSummary';
 import { tourScopeSummary } from './tourScope';
 
@@ -60,6 +61,12 @@ const PADDLE = tour({
 });
 
 describe('tourScopeSummary (STA-01)', () => {
+  it('counts a tour on a day by the caller, once however many days it is on', () => {
+    const scope = tourScopeSummary([HIKE_A, HIKE_B], (tour) => tour.place_id === 2);
+    expect(scope.onDays).toBe(1);
+    expect(scope.types[0].onDays).toBe(1);
+  });
+
   it('counts each tour once, by type, the most tours first, with how many are on a day', () => {
     const scope = tourScopeSummary([HIKE_A, PADDLE, HIKE_B, GPX_HIKE, HIKE_A]);
     expect(scope.count).toBe(4);
@@ -95,7 +102,13 @@ describe('tourScopeSummary (STA-01)', () => {
 });
 
 describe('TourScopeSummary', () => {
-  beforeEach(() => localStorage.clear());
+  beforeEach(() => {
+    localStorage.clear();
+    // The day lists say which tours are on a day: HIKE_B on two days, PADDLE on one; the flags say otherwise.
+    useTripStore.setState({
+      assignments: { 1: [{ place_id: 2 }], 2: [{ place_id: 2 }, { place_id: 4 }] },
+    } as unknown as Parameters<typeof useTripStore.setState>[0]);
+  });
 
   it('shows the counts and each type with its sums, an incomplete one marked as at least', () => {
     render(<TourScopeSummary tours={[HIKE_A, HIKE_B, PADDLE]} />);

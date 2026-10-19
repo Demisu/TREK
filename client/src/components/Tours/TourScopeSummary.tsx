@@ -3,6 +3,7 @@ import { ChartColumnBig, ChevronDown, Mountain, Route, Waves } from 'lucide-reac
 import { useMemo, useState, type ComponentType } from 'react';
 import { useTranslation } from '../../i18n';
 import { useSettingsStore } from '../../store/settingsStore';
+import { useTripStore } from '../../store/tripStore';
 import { formatDistance, formatElevation } from '../../utils/units';
 import { fs } from '../shared/DialogShell';
 import { InfoDot, RailCard, RailFacts, type TourMetricField } from './tourParts';
@@ -129,7 +130,12 @@ function TypeScope({ scope }: { scope: TourTypeScope }) {
 export function TourScopeSummary({ tours }: { tours: readonly TourListItem[] }) {
   const { t } = useTranslation();
   const [folded, setFolded] = useState(readFolded);
-  const scope = useMemo(() => tourScopeSummary(tours), [tours]);
+  // On a day as the day lists say, not the list's flag, so a tour put on a day counts at once (as its row's badge does).
+  const assignments = useTripStore((state) => state.assignments);
+  const scope = useMemo(() => {
+    const onDays = new Set(Object.values(assignments ?? {}).flatMap((list) => list.map((item) => item.place_id)));
+    return tourScopeSummary(tours, (tour) => onDays.has(tour.place_id));
+  }, [assignments, tours]);
   if (scope.count === 0) return null;
   const toggle = () => {
     setFolded((value) => {

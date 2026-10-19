@@ -48,7 +48,7 @@ function sumOf(values: Array<number | null | undefined>): ScopeSum {
   };
 }
 
-function scopeOfType(type: TourTypeKey, tours: readonly TourListItem[]): TourTypeScope {
+function scopeOfType(type: TourTypeKey, tours: readonly TourListItem[], onDay: OnDay): TourTypeScope {
   const planned = tours.filter((tour) => tourSource(tour) === 'trek');
   const imported = tours.filter((tour) => tourSource(tour) !== 'trek');
   // A paddle tour drawn in TREK has no true heights (they would be the banks'), so it does not count as having them.
@@ -58,7 +58,7 @@ function scopeOfType(type: TourTypeKey, tours: readonly TourListItem[]): TourTyp
   return {
     type,
     count: tours.length,
-    onDays: tours.filter((tour) => tour.planned).length,
+    onDays: tours.filter(onDay).length,
     distanceKm: sumOf(tours.map((tour) => tour.distance)),
     ascentM: heights ? sumOf(withHeights.map((tour) => tour?.elevation_gain)) : NO_SUM,
     descentM: heights ? sumOf(withHeights.map((tour) => tour?.elevation_loss)) : NO_SUM,
@@ -68,18 +68,22 @@ function scopeOfType(type: TourTypeKey, tours: readonly TourListItem[]): TourTyp
   };
 }
 
+/** Whether a tour is on a day of the trip. */
+type OnDay = (tour: TourListItem) => boolean;
+
 /**
  * STA-01: what the tours of a trip add up to, by type. Each tour counts once,
  * however many days it is on; the list is the trip's tours, one row each, so
- * a tour on three days is still one tour and one distance.
+ * a tour on three days is still one tour and one distance. `onDay` reads the
+ * day lists where the caller has them; the list's own flag is the fallback.
  */
-export function tourScopeSummary(tours: readonly TourListItem[]): TourScope {
+export function tourScopeSummary(tours: readonly TourListItem[], onDay: OnDay = (tour) => tour.planned): TourScope {
   const byType = new Map<TourTypeKey, TourListItem[]>();
   for (const tour of new Map(tours.map((tour) => [tour.place_id, tour])).values()) {
     byType.set(tour.tour_type, [...(byType.get(tour.tour_type) ?? []), tour]);
   }
   const types = [...byType.entries()]
-    .map(([type, ofType]) => scopeOfType(type, ofType))
+    .map(([type, ofType]) => scopeOfType(type, ofType, onDay))
     .sort((a, b) => b.count - a.count || a.type.localeCompare(b.type));
   return {
     count: types.reduce((total, scope) => total + scope.count, 0),
