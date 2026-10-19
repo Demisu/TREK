@@ -21,7 +21,7 @@ const wayElementSchema = z.object({
 function step(value: string | undefined, top: number, signed: boolean): string | null {
   const match = /^\s*S?([0-9])([+-])?\s*$/i.exec(value ?? '');
   if (!match || Number(match[1]) > top) return null;
-  return signed ? `${match[1]}${match[2] ?? ''}` : (match[1] ?? null);
+  return signed ? `${match[1]}${match[2] ?? ''}` : match[1];
 }
 
 function gradeOf(id: number, tags: Record<string, string> = {}): TourTrailGrade | null {

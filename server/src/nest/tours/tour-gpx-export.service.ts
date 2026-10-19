@@ -7,32 +7,9 @@ import type { ToursRepository } from '../../db/repositories/Tours.repository';
 import { DomainError } from '../common/domain-error';
 import { toRowId } from '../common/row-id';
 import { PlaceImportService } from '../place-import/place-import.service';
+import { gpxActivityOf } from './tour-gpx-export.helpers';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { BikeProfile, PaddleBoatType } from '@trek/shared';
-
-/** What GPX calls the activity in a track's <type>; a paddle tour says what it is paddled in. */
-const PADDLE_ACTIVITY: Record<PaddleBoatType, string> = {
-  kayak: 'kayaking',
-  canoe: 'canoeing',
-  sup: 'stand_up_paddling',
-  other: 'paddling',
-};
-
-/** A bike tour says what it is ridden on, in the words Garmin and Strava read. */
-const BIKE_ACTIVITY: Record<BikeProfile, string> = {
-  touring: 'cycling',
-  road: 'road_biking',
-  gravel: 'gravel_cycling',
-  mtb: 'mountain_biking',
-};
-
-function gpxActivityOf(tour: { tour_type: string; boat_type?: string | null; bike_profile?: string | null }): string {
-  const { tour_type: type, boat_type: boat, bike_profile: bike } = tour;
-  if (type === 'kayak') return PADDLE_ACTIVITY[(boat ?? 'other') as PaddleBoatType] ?? PADDLE_ACTIVITY.other;
-  if (type === 'bike') return BIKE_ACTIVITY[(bike ?? 'touring') as BikeProfile] ?? BIKE_ACTIVITY.touring;
-  return type === 'hike' ? 'hiking' : type;
-}
 
 /**
  * PR1-06A: one saved tour as a GPX file, its whole saved line with the heights

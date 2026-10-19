@@ -4,7 +4,7 @@ import { Test } from '@nestjs/testing';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// TOUR-GRADE-001 to TOUR-GRADE-005
+// TOUR-GRADE-001 to TOUR-GRADE-006
 
 const query = vi.fn<(q: string, caller: string) => Promise<unknown[]>>();
 let service: TourTrailGradeService;
@@ -74,5 +74,20 @@ describe('TourTrailGradeService (BIK-05)', () => {
   it('TOUR-GRADE-005: skips what is no way in the answer', async () => {
     query.mockResolvedValue([{ type: 'node', id: 1, tags: { 'mtb:scale': '1' } }, { nonsense: true }]);
     expect(await service.grades({ way_ids: [1] })).toEqual({ ways: [], unanswered: [] });
+  });
+
+  it('TOUR-GRADE-006: keeps at most fifty thousand ways, forgetting the longest kept first', async () => {
+    query.mockResolvedValue([]);
+    for (let part = 0; part < 26; part += 1) {
+      const ids = Array.from({ length: 2000 }, (_, index) => part * 2000 + index + 1);
+      await service.grades({ way_ids: ids });
+    }
+    query.mockClear();
+    // The first way was forgotten, so it is asked about again; the last one is still kept.
+    await service.grades({ way_ids: [1] });
+    expect(query).toHaveBeenCalledTimes(1);
+    query.mockClear();
+    await service.grades({ way_ids: [52_000] });
+    expect(query).not.toHaveBeenCalled();
   });
 });
