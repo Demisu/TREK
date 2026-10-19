@@ -327,6 +327,7 @@ const tours: TranslationStrings = {
   'tours.poi.failed': 'Het zoeken lukte niet. Probeer het zo opnieuw.',
   'tours.poi.outdated': 'Gevonden voor de route zoals die eerst was. Zoek opnieuw voor de huidige.',
   'tours.poi.partial': 'Sommige stukken konden niet worden doorzocht; daar kunnen plekken ontbreken.',
+  'tours.poi.unavailable': 'Kon nu niet worden doorzocht: {kinds}. Probeer het zo opnieuw.',
   'tours.poi.capped': 'De tocht is lang: alleen het eerste deel is doorzocht.',
   'tours.poi.truncated': 'Er zijn meer plekken dan getoond. Verklein de afstand of de soorten.',
   'tours.poi.empty': 'Niets gevonden binnen {distance} van de route.',

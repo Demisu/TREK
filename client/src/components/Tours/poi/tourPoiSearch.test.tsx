@@ -2,6 +2,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import type { TourPoi, TourPoiSearchResponse } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '../../../../tests/helpers/render';
+import { TranslationProvider } from '../../../i18n/TranslationContext';
 import { OnlineOnlyError } from '../../../repo/onlineOnly';
 import { tourPoiSearchRepo } from '../../../repo/tourPoiSearchRepo';
 import { useTourPoiStore } from '../../../store/tourPoiStore';
@@ -9,9 +10,10 @@ import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 import type { TourPlannerController } from '../planner/useTourPlanner';
 import { TourPoiSearchCard } from './TourPoiSearchCard';
 import { usePoiInsertion, type PoiInsertionPlanner } from './usePoiInsertion';
+import { useTourPoiMarkers } from './useTourPoiMarkers';
 import { useTourPoiSearch } from './useTourPoiSearch';
 
-// FE-TOUR-POI-001 to FE-TOUR-POI-008
+// FE-TOUR-POI-001 to FE-TOUR-POI-010
 
 vi.mock('../planner/useWaypointPlaceNames', () => ({ useWaypointPlaceNames: () => ({}) }));
 
@@ -39,7 +41,13 @@ const SPRING: TourPoi = {
   distance_m: 80,
   along_m: 1650,
 };
-const ANSWER: TourPoiSearchResponse = { pois: [SPRING], truncated: false, partial: false, capped: false };
+const ANSWER: TourPoiSearchResponse = {
+  pois: [SPRING],
+  truncated: false,
+  partial: false,
+  capped: false,
+  unavailable: [],
+};
 
 let search: ReturnType<typeof vi.spyOn>;
 beforeEach(() => {
@@ -202,5 +210,39 @@ describe('TourPoiSearchCard', () => {
     expect(within(row).getByText('As the source has them; check before you go.')).toBeInTheDocument();
     fireEvent.click(within(row).getByTestId('tour-poi-add'));
     await waitFor(() => expect(planner.editWaypoints).toHaveBeenCalledTimes(1));
+  });
+
+  it('FE-TOUR-POI-009: names the kinds that could not be searched, and does not claim nothing was found', async () => {
+    search.mockResolvedValue({ ...ANSWER, pois: [], unavailable: ['viewpoint', 'shelter'] });
+    render(<TourPoiSearchCard planner={searchPlanner()} />);
+    fireEvent.click(screen.getByTestId('tour-poi-search'));
+    expect(
+      await screen.findByText('Could not be searched right now: Viewpoints, Huts and shelters. Try again in a moment.')
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Nothing found/)).not.toBeInTheDocument();
+  });
+
+  it('FE-TOUR-POI-010: an unnamed place is named by its kind in the list, on the map and once taken in', async () => {
+    const tap: TourPoi = { ...SPRING, id: 'node:2', name: '' };
+    search.mockResolvedValue({ ...ANSWER, pois: [tap] });
+    const planner = { ...searchPlanner(), ...insertionPlanner() } as unknown as TourPlannerController;
+    render(<TourPoiSearchCard planner={planner} />);
+    fireEvent.click(screen.getByTestId('tour-poi-search'));
+    const row = await screen.findByTestId('tour-poi-node:2');
+    expect(within(row).getByRole('button', { name: /Drinking water/ })).toBeInTheDocument();
+
+    const markers = renderHook(() => useTourPoiMarkers(), { wrapper: TranslationProvider });
+    expect(markers.result.current.pois.map((poi) => poi.name)).toEqual(['Drinking water']);
+
+    let taking = insertionPlanner();
+    const { result, rerender } = renderHook(() => usePoiInsertion(taking), { wrapper: TranslationProvider });
+    act(() => {
+      result.current.insert(tap);
+    });
+    const added = vi.mocked(taking.setSelectedWaypointId).mock.calls[0]?.[0] as string;
+    const withPoint = [PA, PB, { id: added, lat: tap.lat, lng: tap.lng, role: 'via' as const }, PC];
+    taking = insertionPlanner({ waypoints: withPoint, routeCurrent: false, status: 'routing' });
+    rerender();
+    expect(result.current.outcome).toEqual({ kind: 'measuring', name: 'Drinking water' });
   });
 });

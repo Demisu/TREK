@@ -63,8 +63,18 @@ describe('tour POI search contracts (PLN-02)', () => {
       truncated: false,
       partial: true,
       capped: false,
+      unavailable: [],
     });
     expect(answer.partial).toBe(true);
     expect(answer.pois[0]?.distance_m).toBe(40);
+  });
+
+  it('names the kinds that could not be searched, each a known category, and always says so', () => {
+    const answer = { pois: [], truncated: false, partial: false, capped: false };
+    expect(tourPoiSearchResponseSchema.parse({ ...answer, unavailable: ['viewpoint'] }).unavailable).toEqual([
+      'viewpoint',
+    ]);
+    expect(tourPoiSearchResponseSchema.safeParse({ ...answer, unavailable: ['fuel'] }).success).toBe(false);
+    expect(tourPoiSearchResponseSchema.safeParse(answer).success).toBe(false);
   });
 });

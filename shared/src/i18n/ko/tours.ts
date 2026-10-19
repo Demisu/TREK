@@ -310,6 +310,7 @@ const tours: TranslationStrings = {
   'tours.poi.failed': '검색하지 못했습니다. 잠시 후 다시 시도하세요.',
   'tours.poi.outdated': '이전 경로 기준의 결과입니다. 지금 경로에 맞추려면 다시 검색하세요.',
   'tours.poi.partial': '일부 구간은 검색하지 못했습니다. 그 구간의 장소가 빠졌을 수 있습니다.',
+  'tours.poi.unavailable': '지금은 검색할 수 없었습니다: {kinds}. 잠시 후 다시 시도하세요.',
   'tours.poi.capped': '투어가 길어서 앞부분만 검색했습니다.',
   'tours.poi.truncated': '표시된 것보다 장소가 더 많습니다. 거리나 종류를 줄이세요.',
   'tours.poi.empty': '경로에서 {distance} 이내에 찾은 것이 없습니다.',

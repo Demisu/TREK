@@ -16,7 +16,6 @@ import {
   type TourPoiSearchRequest,
   type TourPoiSearchResponse,
 } from '@trek/shared';
-import { corridorTiles, simplifyLine } from '@trek/shared/roadtrip';
 
 /** The map search's own categories each Tours category asks for. */
 const MAPS_CATEGORIES: Record<TourPoiCategory, readonly string[]> = {
@@ -32,28 +31,24 @@ const MAPS_CATEGORIES: Record<TourPoiCategory, readonly string[]> = {
   slipway: ['slipway'],
   boat_rental: ['boat_rental'],
   bike_repair: ['bike_repair'],
-  museum: ['museum'],
-  park: ['nature'],
+  // Museums and galleries alone, parks and gardens alone: the explore pill's
+  // `museum` also brings theatres and cinemas, its `nature` beaches and summits.
+  museum: ['museum_gallery'],
+  park: ['park'],
   cafe: ['cafe'],
   restaurant: ['restaurant'],
   market: ['market'],
 };
 
-/**
- * How many stretches of the line one search covers, each at most about half a
- * degree, so a long tour is searched along its first stretches and the answer
- * says so. Three are asked at a time, so the public mirrors are not flooded.
- */
-const MAX_TILES = 12;
-const PARALLEL_TILES = 3;
-/** The most places one stretch is asked for. */
-const PER_TILE_LIMIT = 60;
+/** The most places of one kind the map search answers from each source. */
+const PER_KIND_LIMIT = 30;
 
 /** Within this many metres, two places of one name are one place mapped twice. */
 const SAME_PLACE_M = 60;
 
-function sameSpot(a: Pick<TourPoi, 'name' | 'lat' | 'lng'>, b: { name: string; lat: number; lng: number }): boolean {
-  if (a.name.trim().toLocaleLowerCase() !== b.name.trim().toLocaleLowerCase()) return false;
+type MapsPoi = Awaited<ReturnType<MapsService['poisAlong']>>['pois'][number];
+
+function withinSamePlace(a: Pick<TourPoi, 'lat' | 'lng'>, b: { lat: number; lng: number }): boolean {
   const metresPerDegree = 111_320;
   const dLat = (a.lat - b.lat) * metresPerDegree;
   const dLng = (a.lng - b.lng) * metresPerDegree * Math.cos((a.lat * Math.PI) / 180);
@@ -65,13 +60,51 @@ function tourCategoryOf(mapsCategory: string, asked: readonly TourPoiCategory[])
 }
 
 /**
- * PLN-02: places along a tour, searched on purpose. The line is cut into
- * stretches as the road trip's corridor search does, each searched through
- * the map search (the TREK places index first, OpenStreetMap after), the
- * places kept that lie within the corridor of the line itself, nearest the
- * start first. Nothing is written. A stretch that fails leaves the others'
- * places and marks the answer partial; the distance is measured straight
- * across to the line, never a way someone walked or paddled.
+ * The places found, each once and within the corridor, with where they lie.
+ * OpenStreetMap often maps one place twice, as a point and as its outline, and
+ * the index may hold it beside OpenStreetMap: one name in one spot is one
+ * place. An unnamed place (a tap, a bench) is never merged with another.
+ */
+function placesWithin(found: MapsPoi[], body: TourPoiSearchRequest, line: Array<[number, number]>): TourPoi[] {
+  const kept = new Map<string, TourPoi>();
+  const byName = new Map<string, TourPoi[]>();
+  for (const poi of found) {
+    const category = tourCategoryOf(poi.category, body.categories);
+    const near = nearnessToLine({ lat: poi.lat, lng: poi.lng }, line);
+    if (!category || !near || near.distanceM > body.corridor_m || kept.has(poi.osm_id)) continue;
+    const name = poi.name.trim().toLocaleLowerCase();
+    const namesakes = name ? (byName.get(name) ?? []) : [];
+    if (namesakes.some((other) => withinSamePlace(other, poi))) continue;
+    const place: TourPoi = {
+      id: poi.osm_id,
+      name: poi.name,
+      lat: poi.lat,
+      lng: poi.lng,
+      category,
+      kind: poi.poi_type,
+      source: poi.source,
+      address: poi.address,
+      website: poi.website,
+      phone: poi.phone,
+      opening_hours: poi.opening_hours,
+      distance_m: Math.round(near.distanceM),
+      along_m: Math.round(near.alongM),
+    };
+    kept.set(poi.osm_id, place);
+    if (name) byName.set(name, [...namesakes, place]);
+  }
+  return [...kept.values()];
+}
+
+/**
+ * PLN-02: places along a tour, searched on purpose. The map search asks the
+ * TREK places index in circles along the line and OpenStreetMap near it for
+ * the kinds the index does not know; the places kept are those within the
+ * corridor of the line itself, the nearest to it when there are more than one
+ * answer carries, listed from the start. Nothing is written. A kind no source
+ * could be asked for is named as unavailable, so a failed source never reads
+ * as nothing found; the distance is measured straight across to the line,
+ * never a way someone walked or paddled.
  */
 @Injectable()
 export class TourPoiSearchService {
@@ -82,65 +115,27 @@ export class TourPoiSearchService {
   ) {}
 
   async search(body: TourPoiSearchRequest): Promise<TourPoiSearchResponse> {
-    const corridorKm = body.corridor_m / 1000;
     // The contract's tuples, spelled out as pairs once for the measures below.
     const line = body.line.map((point): [number, number] => [Number(point[0]), Number(point[1])]);
-    const simplified = simplifyLine(
+    const asked = [...new Set(body.categories.flatMap((category) => MAPS_CATEGORIES[category]))];
+    const along = await this.maps.poisAlong(
+      asked,
       line.map(([lat, lng]) => ({ lat, lng })),
-      Math.max(0.05, corridorKm / 4),
+      body.corridor_m,
+      body.lang,
+      PER_KIND_LIMIT,
     );
-    const tiles = corridorTiles(simplified, corridorKm);
-    const searched = tiles.slice(0, MAX_TILES);
-    const asked = [...new Set(body.categories.flatMap((category) => MAPS_CATEGORIES[category]))].join(',');
-
-    // Three stretches at a time, each batch after the last, so no more than three are ever in flight.
-    const batches = Array.from({ length: Math.ceil(searched.length / PARALLEL_TILES) }, (_, index) =>
-      searched.slice(index * PARALLEL_TILES, (index + 1) * PARALLEL_TILES),
-    );
-    const answers = await batches.reduce<
-      Promise<Array<PromiseSettledResult<Awaited<ReturnType<MapsService['pois']>>>>>
-    >(
-      async (done, batch) => [
-        ...(await done),
-        ...(await Promise.allSettled(batch.map((tile) => this.maps.pois(asked, tile, body.lang, PER_TILE_LIMIT)))),
-      ],
-      Promise.resolve([]),
-    );
-
-    const found = new Map<string, TourPoi>();
-    let truncated = false;
-    for (const answer of answers) {
-      if (answer.status !== 'fulfilled') continue;
-      truncated ||= answer.value.truncated || answer.value.clamped;
-      for (const poi of answer.value.pois) {
-        const category = tourCategoryOf(poi.category, body.categories);
-        const near = nearnessToLine({ lat: poi.lat, lng: poi.lng }, line);
-        if (!category || !near || near.distanceM > body.corridor_m || found.has(poi.osm_id)) continue;
-        // OpenStreetMap often maps one place twice, as a point and as its outline: one name in one spot is one place.
-        if (poi.name && [...found.values()].some((other) => sameSpot(other, poi))) continue;
-        found.set(poi.osm_id, {
-          id: poi.osm_id,
-          name: poi.name,
-          lat: poi.lat,
-          lng: poi.lng,
-          category,
-          kind: poi.poi_type,
-          source: poi.source ?? 'openstreetmap',
-          address: poi.address,
-          website: poi.website,
-          phone: poi.phone,
-          opening_hours: poi.opening_hours,
-          distance_m: Math.round(near.distanceM),
-          along_m: Math.round(near.alongM),
-        });
-      }
-    }
-    const pois = [...found.values()].sort((a, b) => a.along_m - b.along_m || a.distance_m - b.distance_m);
+    const places = placesWithin(along.pois, body, line);
+    // The nearest to the line when there are too many, then in the order the tour meets them.
+    const nearest = [...places].sort((a, b) => a.distance_m - b.distance_m).slice(0, TOUR_POI_LIMIT);
     return {
-      pois: pois.slice(0, TOUR_POI_LIMIT),
-      truncated: truncated || pois.length > TOUR_POI_LIMIT,
-      partial: answers.some((answer) => answer.status === 'rejected'),
-      capped: tiles.length > MAX_TILES,
+      pois: nearest.sort((a, b) => a.along_m - b.along_m || a.distance_m - b.distance_m),
+      truncated: along.truncated || places.length > TOUR_POI_LIMIT,
+      partial: along.partial,
+      capped: along.capped,
+      unavailable: body.categories.filter((category) =>
+        MAPS_CATEGORIES[category].every((mapsCategory) => along.failed.includes(mapsCategory)),
+      ),
     };
   }
 

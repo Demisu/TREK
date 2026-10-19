@@ -319,6 +319,7 @@ const tours: TranslationStrings = {
   'tours.poi.failed': 'Axtarış alınmadı. Bir azdan yenidən cəhd et.',
   'tours.poi.outdated': 'Marşrutun əvvəlki halı üçün tapılıb. İndikinə uyğun olması üçün yenidən axtar.',
   'tours.poi.partial': 'Bəzi hissələrdə axtarış aparılmadı; orada yerlər çatışmaya bilər.',
+  'tours.poi.unavailable': 'Bunlar hazırda axtarıla bilmədi: {kinds}. Bir azdan yenidən cəhd et.',
   'tours.poi.capped': 'Tur uzundur: yalnız ilk hissəsində axtarış aparıldı.',
   'tours.poi.truncated': 'Göstəriləndən çox yer var. Məsafəni və ya növləri azalt.',
   'tours.poi.empty': 'Marşrutdan {distance} məsafədə heç nə tapılmadı.',

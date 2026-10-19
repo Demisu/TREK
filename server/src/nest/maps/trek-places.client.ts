@@ -29,6 +29,15 @@ const TIMEOUT_MS = 3500;
 const MAX_BYTES = 1_000_000;
 
 /**
+ * The service's own limits on one /v1/nearby request: it refuses a `limit`
+ * above the first and a `category` list longer than the second with a 422.
+ * A refused request reads like a failure to the caller, so a request is cut to
+ * fit them before it leaves (maps-index.helpers' indexRequests).
+ */
+export const INDEX_MAX_LIMIT = 100;
+export const INDEX_MAX_CATEGORY_CHARS = 200;
+
+/**
  * The area download is the one call that is neither short nor interactive.
  *
  * It runs from the offline prefetch, asks for thousands of rows at once, and
@@ -391,6 +400,15 @@ export const POI_CATEGORY_TO_TREK: Record<string, string[]> = {
   charging: ['travel_and_transportation>fueling_station>ev_charging_station'],
   rest_area: ['travel_and_transportation>ground_transport_facility_or_service>road_structures_and_service>rest_stop'],
   campsite: ['lodging>campground', 'lodging>rv_park'],
+  // What the search along a tour asks for (PLN-02, CW-05), each path checked
+  // against a live answer of the index: museums and galleries alone, without
+  // the theatres and cinemas of `museum`; parks and gardens alone, without the
+  // beaches and mountains `nature` brings; the market square and its farmers'
+  // and night markets; a summit.
+  museum_gallery: ['arts_and_entertainment>museum', 'arts_and_entertainment>arts_and_crafts_space>art_gallery'],
+  park: ['sports_and_recreation>park', 'geographic_entities>built_feature>garden'],
+  market: ['shopping>market'],
+  peak: ['geographic_entities>land_feature>mountain'],
 };
 
 /**

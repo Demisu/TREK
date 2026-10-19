@@ -1,7 +1,9 @@
 import type { TourPoi } from '@trek/shared';
 import { useCallback, useState } from 'react';
+import { useTranslation } from '../../../i18n';
 import { useTourPoiStore } from '../../../store/tourPoiStore';
 import { randomId } from '../../../utils/randomId';
+import { TOUR_POI_LOOKS } from '../../Map/poiCategories';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 import type { TourPlannerController, TourPlannerStatus } from '../planner/useTourPlanner';
 import { defaultAfterId, insertionBlock, withPointAfter } from './poiInsertion';
@@ -57,6 +59,7 @@ function measuresOf(planner: PoiInsertionPlanner): Measures | null {
  * hand or a fixed line is never cut: the point after which it would go says why.
  */
 export function usePoiInsertion(planner: PoiInsertionPlanner) {
+  const { t } = useTranslation();
   const select = useTourPoiStore((state) => state.select);
   const [afterChoice, setAfterChoice] = useState<{ poiId: string; afterId: string } | null>(null);
   const [inserted, setInserted] = useState<Inserted | null>(null);
@@ -88,11 +91,13 @@ export function usePoiInsertion(planner: PoiInsertionPlanner) {
       const before = measuresOf(planner);
       planner.editWaypoints((current) => withPointAfter(current, afterId, point) ?? current);
       planner.setSelectedWaypointId(point.id);
-      setInserted({ pointId: point.id, name: poi.name, before, pointCount: next.length });
+      // An unnamed place (a tap, a bench) is told by its kind, as the list names it.
+      const name = poi.name || t(TOUR_POI_LOOKS[poi.category].labelKey);
+      setInserted({ pointId: point.id, name, before, pointCount: next.length });
       select(null);
       return true;
     },
-    [afterIdFor, planner, select]
+    [afterIdFor, planner, select, t]
   );
 
   const dismiss = useCallback(() => setInserted(null), []);

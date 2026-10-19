@@ -17,6 +17,7 @@
  * (lint:boundaries holds that).
  */
 import { nominatimFetch, type GeoLane } from '../../geo/nominatim.client';
+import { OVERPASS_ALONG_QUERY_TIMEOUT_S, aroundPath, overpassAlongQuery } from '../maps-along.helpers';
 import { nearbyOverpassQuery, overpassNearbyRecords } from '../maps-nearby.helpers';
 import {
   UA,
@@ -37,6 +38,7 @@ import {
 import { readWikiIdentity } from './wiki-identity';
 import { Injectable } from '@nestjs/common';
 import { normalizePlaceWebsite } from '@trek/shared';
+import type { LatLng } from '@trek/shared/roadtrip';
 
 function nominatimCategory(item: { class?: string; type?: string }): string | null {
   if (!item.class || !item.type || item.type === 'yes') return null;
@@ -130,14 +132,14 @@ export const POI_RESULT_CAP = 240;
 // valid JSON. Throws {status:502} only if every mirror fails. Racing (rather than
 // trying one-by-one) keeps latency at the fastest reachable mirror instead of the
 // sum of every dead mirror's timeout.
-async function overpassFetch(query: string): Promise<OverpassPoiElement[]> {
+async function overpassFetch(query: string, timeoutMs = OVERPASS_TIMEOUT_MS): Promise<OverpassPoiElement[]> {
   const body = `data=${encodeURIComponent(query)}`;
   const controllers: AbortController[] = [];
 
   const attempt = async (url: string): Promise<OverpassPoiElement[]> => {
     const ctrl = new AbortController();
     controllers.push(ctrl);
-    const timer = setTimeout(() => ctrl.abort(), OVERPASS_TIMEOUT_MS);
+    const timer = setTimeout(() => ctrl.abort(), timeoutMs);
     try {
       const res = await fetch(url, {
         method: 'POST',
@@ -187,6 +189,133 @@ async function overpassFetch(query: string): Promise<OverpassPoiElement[]> {
     });
   }
 }
+
+/** The kinds of a POI request and the OSM selectors that answer each, every selector labelled with its kind. */
+interface PoiFilters {
+  categories: string[];
+  filters: string[];
+  categoryOfFilter: Map<string, string>;
+}
+
+/** One or several categories as Overpass selectors; an unknown one refuses the whole request. */
+function poiFilters(category: string): PoiFilters {
+  // Each OSM selector belongs to exactly one category, so a hit can still be
+  // labelled with the category it answered.
+  const categories = parsePoiCategories(category);
+  if (!categories.length) throw Object.assign(new Error('Unknown POI category'), { status: 400 });
+  const categoryOfFilter = new Map<string, string>();
+  for (const key of categories) {
+    const own = CATEGORY_OSM_FILTERS[key];
+    if (!own) throw Object.assign(new Error('Unknown POI category'), { status: 400 });
+    for (const f of own) categoryOfFilter.set(f, key);
+  }
+  return { categories, filters: [...categoryOfFilter.keys()], categoryOfFilter };
+}
+
+/** Keeps an answer in the POI cache, dropping the oldest entry once the cache is full. */
+function cachePoiAnswer(cacheKey: string, value: PoiSearchResult): void {
+  // FIFO eviction: a Map preserves insertion order, so the first key is the oldest.
+  if (POI_CACHE.size >= POI_CACHE_MAX) POI_CACHE.delete(POI_CACHE.keys().next().value as string);
+  POI_CACHE.set(cacheKey, { at: Date.now(), value });
+}
+
+/** A fresh cached answer, or undefined; an expired one is dropped on the way. */
+function cachedPoiAnswer(cacheKey: string): PoiSearchResult | undefined {
+  const cached = POI_CACHE.get(cacheKey);
+  if (cached && Date.now() - cached.at < POI_CACHE_TTL_MS) return cached.value;
+  if (cached) POI_CACHE.delete(cacheKey); // expired: drop it before refetching
+  return undefined;
+}
+
+/**
+ * The kinds whose places OSM rarely names, kept unnamed by the search along a
+ * tour: a tap, a hut, a bench with a view. An unnamed garden or memorial
+ * plaque is no place to suggest, so every other kind still needs a name.
+ */
+const KEPT_UNNAMED_ALONG: ReadonlySet<string> = new Set([
+  'drinking_water',
+  'toilets',
+  'shelter',
+  'picnic',
+  'viewpoint',
+  'peak',
+  'slipway',
+  'bike_repair',
+]);
+
+/**
+ * Overpass elements as POI rows, each labelled with the category its selector
+ * belongs to. An unnamed element is dropped unless its category is one of
+ * `keptUnnamed`; a shut-down place never comes back.
+ */
+function readPois(
+  elements: OverpassPoiElement[],
+  match: PoiFilters,
+  osmLang: string,
+  keptUnnamed: ReadonlySet<string>,
+): OverpassPoi[] {
+  const { filters, categoryOfFilter, categories } = match;
+  const pois: OverpassPoi[] = [];
+  for (const el of elements) {
+    const tags = el.tags || {};
+    const matched =
+      filters.find((f) => {
+        const [k, v] = f.split('=');
+        return tags[k] === v;
+      }) || filters[0];
+    const category = categoryOfFilter.get(matched) ?? categories[0];
+    // `operator` comes last but matters for the road categories: petrol stations,
+    // charging points and service areas are routinely mapped with an operator and no
+    // name, and dropping those would empty the road trip corridor over long stretches.
+    const name = tags[`name:${osmLang}`] || tags['int_name'] || tags.name || tags.brand || tags.operator || null;
+    if (!name && !keptUnnamed.has(category)) continue; // unnamed POIs aren't useful to add to a plan
+    // A shut-down place is not somewhere to plan a visit (#1341). OSM usually
+    // re-tags one with a `disused:`/`abandoned:` prefix, and those never match
+    // the selectors above, but plenty keep their original tag and gain a marker
+    // instead, and those do come back. `opening_hours=closed`/`off` is the same
+    // statement in the hours field.
+    if (tags.disused === 'yes' || tags.abandoned === 'yes') continue;
+    if (tags.opening_hours === 'closed' || tags.opening_hours === 'off') continue;
+    const lat = el.lat ?? el.center?.lat;
+    const lng = el.lon ?? el.center?.lon;
+    if (lat == null || lng == null) continue;
+    const addr =
+      [tags['addr:street'], tags['addr:housenumber'], tags['addr:postcode'], tags['addr:city']]
+        .filter(Boolean)
+        .join(' ') || null;
+    pois.push({
+      osm_id: `${el.type}:${el.id}`,
+      name: name ?? '',
+      lat,
+      lng,
+      category,
+      poi_type: matched,
+      address: addr,
+      website: normalizePlaceWebsite(tags.website) ?? normalizePlaceWebsite(tags['contact:website']),
+      phone: tags.phone || tags['contact:phone'] || null,
+      opening_hours: tags.opening_hours || null,
+      cuisine: tags.cuisine || null,
+      brand: tags.brand || tags.operator || null,
+      // Only the plain Q-id form is passed on; anything else would be a lookup we
+      // would have to guess at.
+      brand_wikidata: /^Q[0-9]+$/.test(tags['brand:wikidata'] || '') ? tags['brand:wikidata'] : null,
+      // Only where it means something. Every POI carries `capacity` and `fee` for its
+      // own reasons (a restaurant's capacity is seats), so reading them as charging
+      // data anywhere else would be wrong on most of the map.
+      charging: category === 'charging' ? readChargingInfo(tags) : null,
+      source: 'openstreetmap',
+    });
+  }
+  return pois;
+}
+
+/**
+ * How long the search along a line waits for Overpass: the query's own
+ * deadline and two seconds to hand the answer back. It sits inside one request
+ * a person is waiting on, beside the index, so it gives up well before the
+ * explore pill's budget, and OVERPASS_TIMEOUT_MS does not apply to it.
+ */
+const OVERPASS_ALONG_TIMEOUT_MS = (OVERPASS_ALONG_QUERY_TIMEOUT_S + 2) * 1000;
 
 @Injectable()
 export class OsmClient {
@@ -542,17 +671,9 @@ export class OsmClient {
     lang?: string,
     limit = 60,
   ): Promise<PoiSearchResult> {
-    // One or several categories in one query. Each OSM selector belongs to exactly one
-    // category, so a hit can still be labelled with the category it answered.
-    const categories = parsePoiCategories(category);
-    if (!categories.length) throw Object.assign(new Error('Unknown POI category'), { status: 400 });
-    const categoryOfFilter = new Map<string, string>();
-    for (const key of categories) {
-      const own = CATEGORY_OSM_FILTERS[key];
-      if (!own) throw Object.assign(new Error('Unknown POI category'), { status: 400 });
-      for (const f of own) categoryOfFilter.set(f, key);
-    }
-    const filters = [...categoryOfFilter.keys()];
+    // One or several categories in one query.
+    const match = poiFilters(category);
+    const { categories, filters } = match;
     // Each category gets its own share of the cap, or a mixed search would spend the
     // whole budget on whichever kind happens to be densest.
     const cap = Math.min(limit * categories.length, POI_RESULT_CAP);
@@ -572,9 +693,8 @@ export class OsmClient {
 
     // Serve repeat pans/toggles of the same area straight from the cache.
     const cacheKey = `${[...categories].sort((a, b) => a.localeCompare(b)).join('+')}|${osmLang}|${south.toFixed(2)},${west.toFixed(2)},${north.toFixed(2)},${east.toFixed(2)}|${cap}`;
-    const cached = POI_CACHE.get(cacheKey);
-    if (cached && Date.now() - cached.at < POI_CACHE_TTL_MS) return cached.value;
-    if (cached) POI_CACHE.delete(cacheKey); // expired — drop it before refetching
+    const cached = cachedPoiAnswer(cacheKey);
+    if (cached) return cached;
 
     // Overpass wants the box as (south,west,north,east) = (minLat,minLng,maxLat,maxLng).
     const box = `(${south},${west},${north},${east})`;
@@ -588,63 +708,47 @@ export class OsmClient {
     // the result count in one round-trip.
     const query = `[out:json][timeout:${OVERPASS_QUERY_TIMEOUT_S}];\n(\n${selectors}\n);\nout center tags ${cap + 25};`;
 
-    const elements = await overpassFetch(query);
-
-    const pois: OverpassPoi[] = [];
-    for (const el of elements) {
-      const tags = el.tags || {};
-      // `operator` comes last but matters for the road categories: petrol stations,
-      // charging points and service areas are routinely mapped with an operator and no
-      // name, and dropping those would empty the road trip corridor over long stretches.
-      const name = tags[`name:${osmLang}`] || tags['int_name'] || tags.name || tags.brand || tags.operator || null;
-      if (!name) continue; // unnamed POIs aren't useful to add to a plan
-      // A shut-down place is not somewhere to plan a visit (#1341). OSM usually
-      // re-tags one with a `disused:`/`abandoned:` prefix, and those never match
-      // the selectors above — but plenty keep their original tag and gain a marker
-      // instead, and those do come back. `opening_hours=closed`/`off` is the same
-      // statement in the hours field.
-      if (tags.disused === 'yes' || tags.abandoned === 'yes') continue;
-      if (tags.opening_hours === 'closed' || tags.opening_hours === 'off') continue;
-      const lat = el.lat ?? el.center?.lat;
-      const lng = el.lon ?? el.center?.lon;
-      if (lat == null || lng == null) continue;
-      const matched =
-        filters.find((f) => {
-          const [k, v] = f.split('=');
-          return tags[k] === v;
-        }) || filters[0];
-      const addr =
-        [tags['addr:street'], tags['addr:housenumber'], tags['addr:postcode'], tags['addr:city']]
-          .filter(Boolean)
-          .join(' ') || null;
-      pois.push({
-        osm_id: `${el.type}:${el.id}`,
-        name,
-        lat,
-        lng,
-        category: categoryOfFilter.get(matched) ?? categories[0],
-        poi_type: matched,
-        address: addr,
-        website: normalizePlaceWebsite(tags.website) ?? normalizePlaceWebsite(tags['contact:website']),
-        phone: tags.phone || tags['contact:phone'] || null,
-        opening_hours: tags.opening_hours || null,
-        cuisine: tags.cuisine || null,
-        brand: tags.brand || tags.operator || null,
-        // Only the plain Q-id form is passed on; anything else would be a lookup we
-        // would have to guess at.
-        brand_wikidata: /^Q[0-9]+$/.test(tags['brand:wikidata'] || '') ? tags['brand:wikidata'] : null,
-        // Only where it means something. Every POI carries `capacity` and `fee` for its
-        // own reasons — a restaurant's capacity is seats — so reading them as charging
-        // data anywhere else would be wrong on most of the map.
-        charging: categoryOfFilter.get(matched) === 'charging' ? readChargingInfo(tags) : null,
-        source: 'openstreetmap',
-      });
-    }
+    const pois = readPois(await overpassFetch(query), match, osmLang, new Set());
     const truncated = pois.length > cap;
     const value: PoiSearchResult = { pois: pois.slice(0, cap), source: 'openstreetmap', truncated, clamped };
-    // FIFO eviction: a Map preserves insertion order, so the first key is the oldest.
-    if (POI_CACHE.size >= POI_CACHE_MAX) POI_CACHE.delete(POI_CACHE.keys().next().value as string);
-    POI_CACHE.set(cacheKey, { at: Date.now(), value });
+    cachePoiAnswer(cacheKey, value);
+    return value;
+  }
+
+  /**
+   * POIs of one or several categories near a line (PLN-02): one Overpass query
+   * for the candidates of the line's box within reach of the line itself, so
+   * the cap is spent on the corridor rather than on the box. Unnamed taps,
+   * huts and the like stay, because they are what a hike looks for, while an
+   * unnamed garden or cafe is dropped as on the explore pill. A short deadline
+   * of its own; failing throws as the explore pill's search does.
+   */
+  async searchOverpassPoisAlong(
+    category: string,
+    line: LatLng[],
+    corridorM: number,
+    lang?: string,
+    limit = 30,
+  ): Promise<PoiSearchResult> {
+    const match = poiFilters(category);
+    const cap = Math.min(limit * match.categories.length, POI_RESULT_CAP);
+    const path = aroundPath(line, corridorM);
+    const osmLang = toApiLang(lang).split('-')[0].toLowerCase();
+    const kinds = [...match.categories].sort((a, b) => a.localeCompare(b)).join('+');
+    const points = path.points.map((point) => `${point.lat.toFixed(5)},${point.lng.toFixed(5)}`).join(';');
+    const cacheKey = `along|${kinds}|${osmLang}|${path.radiusM}|${points}|${cap}`;
+    const cached = cachedPoiAnswer(cacheKey);
+    if (cached) return cached;
+
+    const elements = await overpassFetch(overpassAlongQuery(match.filters, path, cap), OVERPASS_ALONG_TIMEOUT_MS);
+    const pois = readPois(elements, match, osmLang, KEPT_UNNAMED_ALONG);
+    const value: PoiSearchResult = {
+      pois: pois.slice(0, cap),
+      source: 'openstreetmap',
+      truncated: pois.length > cap,
+      clamped: false,
+    };
+    cachePoiAnswer(cacheKey, value);
     return value;
   }
 }

@@ -152,7 +152,11 @@ function ThemeGrid({
   );
 }
 
-/** What the search answered beyond its places: out of date, offline, failed, partly searched, cut, or empty. */
+/**
+ * What the search answered beyond its places: out of date, offline, failed,
+ * kinds that could not be searched, partly searched, cut, or empty. Nothing
+ * found is said only when every kind was searched.
+ */
 function SearchNotices({ search, unit }: { search: TourPoiSearch; unit: Unit }) {
   const { t } = useTranslation();
   const { status, answer, outdated } = search;
@@ -166,7 +170,9 @@ function SearchNotices({ search, unit }: { search: TourPoiSearch; unit: Unit }) 
     );
   if (!answer) return null;
   // Out of date is no fault, the route was just changed (often by adding a place from here): said plainly.
+  const unavailable = answer.unavailable.map((category) => t(TOUR_POI_LOOKS[category].labelKey)).join(', ');
   const notes = [
+    unavailable && t('tours.poi.unavailable', { kinds: unavailable }),
     answer.partial && t('tours.poi.partial'),
     answer.capped && t('tours.poi.capped'),
     answer.truncated && t('tours.poi.truncated'),
@@ -179,7 +185,7 @@ function SearchNotices({ search, unit }: { search: TourPoiSearch; unit: Unit }) 
           {note}
         </TourNotice>
       ))}
-      {answer.pois.length === 0 && (
+      {answer.pois.length === 0 && answer.unavailable.length === 0 && (
         <p className="m-0 text-content-muted" style={fs(12, 'body')}>
           {t('tours.poi.empty', { distance: formatDistance(km(search.corridorM), unit) })}
         </p>

@@ -324,6 +324,7 @@ const tours: TranslationStrings = {
   'tours.poi.failed': 'La búsqueda no funcionó. Inténtalo de nuevo en un momento.',
   'tours.poi.outdated': 'Encontrado para la ruta tal como era antes. Busca de nuevo para que coincida con la actual.',
   'tours.poi.partial': 'Algunos tramos no se pudieron buscar; pueden faltar lugares allí.',
+  'tours.poi.unavailable': 'No se ha podido buscar ahora: {kinds}. Inténtalo de nuevo en un momento.',
   'tours.poi.capped': 'La ruta es larga: solo se buscó su primera parte.',
   'tours.poi.truncated': 'Hay más lugares de los que se muestran. Reduce la distancia o los tipos.',
   'tours.poi.empty': 'No se encontró nada a menos de {distance} de la ruta.',

@@ -1,5 +1,5 @@
 /**
- * MAPS-POIS-001..012 — the explore pill, answered from the index.
+ * MAPS-POIS-001..018: the explore pill, answered from the index.
  *
  * The pill used to be Overpass and nothing else, and the public mirrors it asks
  * are regularly overloaded. The index answers first now, so the two things that
@@ -9,8 +9,16 @@
  */
 import type { AppSettingsRepository } from '../../../src/db/repositories/AppSettings.repository';
 import type { UsersRepository } from '../../../src/db/repositories/Users.repository';
+import {
+  indexKnowsCategory,
+  indexPoiAnswer,
+  indexPoiPlanAround,
+  indexRequests,
+  indexRequestsPerKind,
+} from '../../../src/nest/maps/maps-index.helpers';
 import { MapsService } from '../../../src/nest/maps/maps.service';
 import type { OsmClient } from '../../../src/nest/maps/providers/osm.client';
+import { INDEX_MAX_CATEGORY_CHARS } from '../../../src/nest/maps/trek-places.client';
 import type { PlacePhotoCacheService } from '../../../src/nest/place-photos/place-photo-cache.service';
 import { noGoogleQuota } from '../../helpers/google-quota';
 import { buildMapsParts } from '../../helpers/maps-service';
@@ -290,7 +298,7 @@ describe('MapsService.pois answered from the index', () => {
     expect(out.clamped).toBe(false);
   });
 
-  it('MAPS-POIS-013: a corridor search asks the index once for all its categories', async () => {
+  it('MAPS-POIS-013: a corridor search asks the index for all its categories, in one request while they fit', async () => {
     // The corridor sends a comma-separated list. Looking the whole string up as
     // one key missed every time, so every corridor query fell through to
     // Overpass — on the one path where that hurts most, because a single search
@@ -314,10 +322,11 @@ describe('MapsService.pois answered from the index', () => {
     const svc = make();
     const overpass = stubOverpass(svc);
 
-    const out = await svc.pois('fuel,charging', BOX);
+    const out = await svc.pois('fuel,charging', BOX, undefined, 40);
 
     expect(overpass).not.toHaveBeenCalled();
     // One request carrying every term the two categories map to.
+    expect(mockNearby).toHaveBeenCalledTimes(1);
     expect(mockNearby).toHaveBeenCalledWith(
       0,
       0,
@@ -326,13 +335,29 @@ describe('MapsService.pois answered from the index', () => {
           'travel_and_transportation>fueling_station>gas_station,travel_and_transportation>fueling_station>ev_charging_station',
         // Per category, so a mixed search does not spend the whole allowance on
         // whichever kind happens to be densest.
-        limit: 120,
+        limit: 80,
       }),
     );
     // Each hit carries the category that produced it, not the list that was
     // asked for: the client colours and groups its markers by that field, and
     // "fuel,charging" is not a category.
     expect(out.pois.map((p) => p.category)).toEqual(['fuel', 'charging']);
+
+    // At the pill's own budget the two together ask for 120 rows, and the
+    // service refuses more than 100 with a 422: one request each, then.
+    mockNearby.mockClear();
+    const split = await svc.pois('fuel,charging', BOX);
+
+    expect(overpass).not.toHaveBeenCalled();
+    expect(mockNearby.mock.calls.map(([, , opts]) => opts)).toEqual([
+      { radius: 7872, limit: 60, category: 'travel_and_transportation>fueling_station>gas_station' },
+      { radius: 7872, limit: 60, category: 'travel_and_transportation>fueling_station>ev_charging_station' },
+    ]);
+    // Both requests answered both rows here: each place is listed once.
+    expect(split.pois.map((p) => [p.name, p.category])).toEqual([
+      ['Aral', 'fuel'],
+      ['Ionity', 'charging'],
+    ]);
   });
 
   it('MAPS-POIS-013b: a leaf category that is only a substring of a term is still labelled by it', async () => {
@@ -496,6 +521,71 @@ describe('MapsService.pois answered from the index', () => {
     expect(mockNearby).toHaveBeenCalledWith(0, 0, expect.objectContaining({ radius: 300 }));
     // Widened, so nothing in view is missing — the opposite of clamped.
     expect(out.clamped).toBe(false);
+  });
+});
+
+describe('MapsService.pois within the index service limits', () => {
+  it('MAPS-POIS-016: knows which categories the index answers, and narrows or widens a circle as for a viewport', () => {
+    expect(['nature', 'park', 'market', 'peak', 'museum_gallery'].map(indexKnowsCategory)).toEqual([
+      true,
+      true,
+      true,
+      true,
+      true,
+    ]);
+    expect(['viewpoint', 'drinking_water', 'toilets', 'shelter'].map(indexKnowsCategory)).toEqual([
+      false,
+      false,
+      false,
+      false,
+    ]);
+    const centre = { lat: 48.1, lng: 11.5 };
+    expect(indexPoiPlanAround('park', centre, 120, 30)).toMatchObject({ radius: 300, reach: 120, cap: 30, ...centre });
+    expect(indexPoiPlanAround('park', centre, 50_000, 30)?.radius).toBe(20000);
+    expect(indexPoiPlanAround('park,viewpoint', centre, 1000, 30)).toBeNull();
+    expect(indexPoiPlanAround('', centre, 1000, 30)).toBeNull();
+  });
+
+  it('MAPS-POIS-017: many categories are asked one by one, each its share, a full page cut and every place once', async () => {
+    mockNearby.mockImplementation(async (_lat, _lng, opts) =>
+      opts?.category?.startsWith('food_and_drink>restaurant')
+        ? rows(48).map((r) => ({ ...r, categoryPath: 'food_and_drink>restaurant' }))
+        : [{ ...FULL, gers: 'shared-1' }],
+    );
+    const svc = make();
+    const overpass = stubOverpass(svc);
+
+    const out = await svc.pois('restaurant,cafe,bar,hotel,sights', BOX);
+
+    expect(overpass).not.toHaveBeenCalled();
+    expect(mockNearby).toHaveBeenCalledTimes(5);
+    for (const [, , opts] of mockNearby.mock.calls) {
+      // 240 over five categories, and never above what the service takes.
+      expect(opts?.limit).toBe(48);
+      expect(opts?.category?.length).toBeLessThanOrEqual(INDEX_MAX_CATEGORY_CHARS);
+    }
+    // The restaurants' page was full, so there are more of them.
+    expect(out.truncated).toBe(true);
+    expect(out.pois.filter((p) => p.osm_id === 'gers:shared-1')).toHaveLength(1);
+    expect(out.pois).toHaveLength(49);
+  });
+
+  it('MAPS-POIS-018: pages that together run past the cap are cut to it', () => {
+    const plan = indexPoiPlanAround('cafe', { lat: 0, lng: 0 }, 1000, 2);
+    if (!plan) throw new Error('cafe has index terms');
+    const answer = indexPoiAnswer(rows(3), plan, false);
+    expect(answer.pois).toHaveLength(2);
+    expect(answer.truncated).toBe(true);
+    expect(indexRequests(plan)).toEqual([
+      {
+        category: 'food_and_drink>casual_eatery>cafe,food_and_drink>non_alcoholic_beverage_venue>coffee_shop',
+        limit: 2,
+      },
+    ]);
+    const food = indexPoiPlanAround('restaurant,cafe', { lat: 0, lng: 0 }, 1000, 30);
+    // Together they fit one request; one per kind gives each its own thirty.
+    expect(food && indexRequests(food)).toHaveLength(1);
+    expect(food && indexRequestsPerKind(food).map((request) => request.limit)).toEqual([30, 30]);
   });
 });
 

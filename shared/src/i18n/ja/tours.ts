@@ -312,6 +312,7 @@ const tours: TranslationStrings = {
   'tours.poi.failed': '検索できませんでした。少ししてからもう一度お試しください。',
   'tours.poi.outdated': '以前のルートで見つかった結果です。現在のルートに合わせるにはもう一度検索してください。',
   'tours.poi.partial': '一部の区間は検索できませんでした。その区間の場所が欠けている可能性があります。',
+  'tours.poi.unavailable': '現在は検索できませんでした：{kinds}。少ししてからもう一度お試しください。',
   'tours.poi.capped': 'ツアーが長いため、最初の部分だけを検索しました。',
   'tours.poi.truncated': '表示されている以上の場所があります。距離か種類を絞り込んでください。',
   'tours.poi.empty': 'ルートから {distance} 以内には見つかりませんでした。',

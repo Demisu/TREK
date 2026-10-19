@@ -380,6 +380,10 @@ export const CATEGORY_OSM_FILTERS: Record<string, string[]> = {
   bike_repair: ['amenity=bicycle_repair_station', 'shop=bicycle'],
   // A city walk's market (CW-05): the square itself, not the shops of a mall as `shopping` has them.
   market: ['amenity=marketplace'],
+  // A city walk's museums and galleries (CW-05), without the theatres and public art of `museum`.
+  museum_gallery: ['tourism=museum', 'tourism=gallery'],
+  // A city walk's parks and gardens (CW-05), without the beaches and summits of `nature`.
+  park: ['leisure=park', 'leisure=garden'],
 };
 
 export const POI_CATEGORY_KEYS = Object.keys(CATEGORY_OSM_FILTERS);

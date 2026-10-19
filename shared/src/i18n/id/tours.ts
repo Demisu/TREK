@@ -318,6 +318,7 @@ const tours: TranslationStrings = {
   'tours.poi.failed': 'Pencarian gagal. Coba lagi sebentar lagi.',
   'tours.poi.outdated': 'Ditemukan untuk rute seperti sebelumnya. Cari lagi agar cocok dengan yang sekarang.',
   'tours.poi.partial': 'Beberapa ruas tidak dapat dicari; tempat di sana mungkin terlewat.',
+  'tours.poi.unavailable': 'Saat ini tidak dapat dicari: {kinds}. Coba lagi sebentar lagi.',
   'tours.poi.capped': 'Turnya panjang: hanya bagian pertamanya yang dicari.',
   'tours.poi.truncated': 'Ada lebih banyak tempat daripada yang ditampilkan. Persempit jarak atau jenisnya.',
   'tours.poi.empty': 'Tidak ada yang ditemukan dalam {distance} dari rute.',

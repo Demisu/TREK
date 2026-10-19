@@ -57,7 +57,7 @@ const { journeyHooks } = vi.hoisted(() => ({
 
 const db = createSnapshotTestDb();
 // The map search behind the POI search (PLN-02): no network in a test.
-const mapsPois = vi.fn();
+const mapsPoisAlong = vi.fn();
 const realtime = new FakeRealtimeService();
 
 let orm: TestOrm;
@@ -102,7 +102,7 @@ describe('Tours planned e2e (real guards + temp SQLite)', () => {
       .overrideProvider(JourneyDomainService)
       .useValue(journeyHooks)
       .overrideProvider(MapsService)
-      .useValue({ pois: mapsPois })
+      .useValue({ poisAlong: mapsPoisAlong })
       .compile();
     const nest = moduleRef.createNestApplication();
     nest.use(cookieParser());
@@ -708,7 +708,7 @@ describe('Tours planned e2e (real guards + temp SQLite)', () => {
     };
 
     it('answers the places along a draft line to anyone who sees the trip, and writes nothing', async () => {
-      mapsPois.mockResolvedValue({ pois: [spring], source: 'openstreetmap', truncated: false, clamped: false });
+      mapsPoisAlong.mockResolvedValue({ pois: [spring], failed: [], partial: false, truncated: false, capped: false });
       const places = await countRows(orm, Places);
       const res = await request(server)
         .post('/api/trips/5/tours/poi-search')
@@ -718,9 +718,31 @@ describe('Tours planned e2e (real guards + temp SQLite)', () => {
       expect(res.body.pois).toEqual([
         expect.objectContaining({ id: 'node:7', name: 'Spring', category: 'drinking_water' }),
       ]);
-      expect(res.body).toMatchObject({ truncated: false, partial: false, capped: false });
+      expect(res.body).toMatchObject({ truncated: false, partial: false, capped: false, unavailable: [] });
       expect(await countRows(orm, Places)).toBe(places);
       expect(realtime.broadcastMock).not.toHaveBeenCalled();
+    });
+
+    it('names the kinds that could not be searched right now instead of reporting nothing found', async () => {
+      mapsPoisAlong.mockResolvedValue({
+        pois: [],
+        failed: ['viewpoint', 'shelter'],
+        partial: false,
+        truncated: false,
+        capped: false,
+      });
+      const res = await request(server)
+        .post('/api/trips/5/tours/poi-search')
+        .set('Cookie', sessionCookie(VIEWER))
+        .send({ ...body, categories: ['viewpoint', 'shelter', 'drinking_water'] });
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({
+        pois: [],
+        truncated: false,
+        partial: false,
+        capped: false,
+        unavailable: ['viewpoint', 'shelter'],
+      });
     });
 
     it('404 for someone outside the trip, 400 for a body it does not know, 401 without a session', async () => {

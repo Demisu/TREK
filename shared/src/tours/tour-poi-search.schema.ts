@@ -55,7 +55,7 @@ export const WALK_THEME_KEYS = Object.keys(WALK_THEMES) as WalkTheme[];
 
 /** How far from the line a place may lie, the choices offered, in metres. */
 export const TOUR_POI_CORRIDORS_M = [250, 500, 1000, 2000] as const;
-/** The most places one answer carries, nearest the start first. */
+/** The most places one answer carries: the nearest to the line, listed from the start. */
 export const TOUR_POI_LIMIT = 60;
 /** The most points the line sent may have; a longer line is thinned first. */
 export const TOUR_POI_MAX_LINE_POINTS = 1000;
@@ -108,5 +108,7 @@ export const tourPoiSearchResponseSchema = z.object({
   partial: z.boolean(),
   /** The line was longer than one search covers; only its first part was searched. */
   capped: z.boolean(),
+  /** Kinds no source could be asked for right now; their places are missing, not absent. */
+  unavailable: z.array(tourPoiCategorySchema),
 });
 export type TourPoiSearchResponse = z.infer<typeof tourPoiSearchResponseSchema>;

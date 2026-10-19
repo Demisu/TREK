@@ -319,6 +319,7 @@ const tours: TranslationStrings = {
   'tours.poi.failed': 'Tìm kiếm không thành công. Hãy thử lại sau giây lát.',
   'tours.poi.outdated': 'Kết quả cho lộ trình trước đó. Hãy tìm lại để khớp với lộ trình hiện tại.',
   'tours.poi.partial': 'Một số đoạn không tìm được; có thể thiếu địa điểm ở đó.',
+  'tours.poi.unavailable': 'Hiện không thể tìm: {kinds}. Hãy thử lại sau giây lát.',
   'tours.poi.capped': 'Chuyến đi dài: chỉ phần đầu được tìm.',
   'tours.poi.truncated': 'Có nhiều địa điểm hơn số hiển thị. Hãy thu hẹp khoảng cách hoặc loại.',
   'tours.poi.empty': 'Không tìm thấy gì trong khoảng {distance} tới lộ trình.',

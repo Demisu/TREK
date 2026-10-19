@@ -8,6 +8,8 @@ import { getCountryFromCoords } from '../../utils/country-borders';
 import { buildOsmDetails, parsePoiCategories, samePlace, toApiLang } from './maps.helpers';
 import { POI_RESULT_CAP, type PoiSearchResult } from './providers/osm.client';
 import {
+  INDEX_MAX_CATEGORY_CHARS,
+  INDEX_MAX_LIMIT,
   POI_CATEGORY_TO_TREK,
   indexRowTerm,
   isOsmHit,
@@ -25,6 +27,8 @@ type PoiBbox = { south: number; west: number; north: number; east: number };
 export interface IndexPoiPlan {
   wanted: string[];
   terms: string[];
+  /** The category each term answers for, so a request can be cut per category. */
+  kindOfTerm: ReadonlyMap<string, string>;
   lat: number;
   lng: number;
   radius: number;
@@ -32,6 +36,11 @@ export interface IndexPoiPlan {
   reach: number;
   cap: number;
   labelFor: (leaf: string | null, path: string | null) => string | undefined;
+}
+
+/** Whether the index has terms for a category, so it can answer it at all. */
+export function indexKnowsCategory(key: string): boolean {
+  return (POI_CATEGORY_TO_TREK[key]?.length ?? 0) > 0;
 }
 
 /**
@@ -44,28 +53,6 @@ export interface IndexPoiPlan {
  * sixteen boxes, and each of those races four public mirrors.
  */
 export function indexPoiPlan(category: string, bbox: PoiBbox, limit: number): IndexPoiPlan | null {
-  const wanted = parsePoiCategories(category);
-  // Which category each Overture term belongs to, so a hit can be labelled
-  // with the category that actually produced it rather than with the whole
-  // list. The client colours and groups its markers by that field.
-  const categoryOfTerm = new Map<string, string>();
-  for (const key of wanted) {
-    for (const term of POI_CATEGORY_TO_TREK[key] ?? []) categoryOfTerm.set(term, key);
-  }
-  // All or nothing: a category the index has no terms for has to be answered
-  // by Overpass, and a mixed answer would silently drop it.
-  const indexKnowsAll = wanted.length > 0 && wanted.every((key) => POI_CATEGORY_TO_TREK[key]?.length);
-  if (!indexKnowsAll) return null;
-  // A row belongs to the term whose path it lies under, not to one it is merely
-  // spelled like: the leaf alone is rarely a term (`italian_restaurant` sits
-  // under `food_and_drink>restaurant`), and falling through to wanted[0] then
-  // labelled it with whichever pill the user tapped first, so a trattoria came
-  // back as a petrol station. The most specific term wins, so a water park
-  // answers the activity pill rather than the park it sits under.
-  const labelFor = (leaf: string | null, path: string | null): string | undefined => {
-    const term = indexRowTerm(categoryOfTerm.keys(), leaf, path);
-    return term === undefined ? undefined : categoryOfTerm.get(term);
-  };
   const lat = (bbox.south + bbox.north) / 2;
   const lng = (bbox.west + bbox.east) / 2;
   // Half the diagonal, so the circle covers the viewport corners rather
@@ -76,12 +63,117 @@ export function indexPoiPlan(category: string, bbox: PoiBbox, limit: number): In
       (bbox.east - bbox.west) * 111_320 * Math.cos((lat * Math.PI) / 180),
     ) / 2,
   );
+  return indexPoiPlanAround(category, { lat, lng }, reach, limit);
+}
+
+/** The same plan for a circle the caller chose: a viewport's, or one bead of a line searched along. */
+export function indexPoiPlanAround(
+  category: string,
+  centre: { lat: number; lng: number },
+  reach: number,
+  limit: number,
+): IndexPoiPlan | null {
+  const wanted = parsePoiCategories(category);
+  // Which category each Overture term belongs to, so a hit can be labelled
+  // with the category that actually produced it rather than with the whole
+  // list. The client colours and groups its markers by that field.
+  const categoryOfTerm = new Map<string, string>();
+  for (const key of wanted) {
+    for (const term of POI_CATEGORY_TO_TREK[key] ?? []) categoryOfTerm.set(term, key);
+  }
+  // All or nothing: a category the index has no terms for has to be answered
+  // by Overpass, and a mixed answer would silently drop it.
+  if (wanted.length === 0 || !wanted.every(indexKnowsCategory)) return null;
+  // A row belongs to the term whose path it lies under, not to one it is merely
+  // spelled like: the leaf alone is rarely a term (`italian_restaurant` sits
+  // under `food_and_drink>restaurant`), and falling through to wanted[0] then
+  // labelled it with whichever pill the user tapped first, so a trattoria came
+  // back as a petrol station. The most specific term wins, so a water park
+  // answers the activity pill rather than the park it sits under.
+  const labelFor = (leaf: string | null, path: string | null): string | undefined => {
+    const term = indexRowTerm(categoryOfTerm.keys(), leaf, path);
+    return term === undefined ? undefined : categoryOfTerm.get(term);
+  };
   const radius = Math.min(20000, Math.max(300, reach));
   // The same budget the Overpass path spends: per category, capped, so a
   // mixed search does not spend the whole allowance on whichever kind
   // happens to be densest.
   const cap = Math.min(limit * wanted.length, POI_RESULT_CAP);
-  return { wanted, terms: [...categoryOfTerm.keys()], lat, lng, radius, reach, cap, labelFor };
+  const terms = [...categoryOfTerm.keys()];
+  return { wanted, terms, kindOfTerm: categoryOfTerm, lat: centre.lat, lng: centre.lng, radius, reach, cap, labelFor };
+}
+
+/** One request to the index: the comma-joined terms it asks for and how many rows. */
+interface IndexRequest {
+  category: string;
+  limit: number;
+}
+
+/** Terms joined with commas into as few lists as the service takes, none longer than its limit. */
+function packTerms(terms: readonly string[]): string[] {
+  return terms.reduce<string[]>((lists, term) => {
+    const last = lists.at(-1);
+    if (last !== undefined && last.length + 1 + term.length <= INDEX_MAX_CATEGORY_CHARS) {
+      lists[lists.length - 1] = `${last},${term}`;
+    } else lists.push(term);
+    return lists;
+  }, []);
+}
+
+/**
+ * The requests that answer a plan within the service's limits. One request,
+ * exactly as before, while the whole plan fits; otherwise one per category
+ * (its terms packed into lists the service takes), each with that category's
+ * share of the budget. A plan of several categories used to ask for their
+ * budgets together, and above 100 rows the service refused the request.
+ */
+export function indexRequests(plan: IndexPoiPlan): IndexRequest[] {
+  const all = plan.terms.join(',');
+  if (plan.cap <= INDEX_MAX_LIMIT && all.length <= INDEX_MAX_CATEGORY_CHARS) {
+    return [{ category: all, limit: plan.cap }];
+  }
+  return indexRequestsPerKind(plan);
+}
+
+/**
+ * One request per category, each with its share of the budget and its terms
+ * packed into lists the service takes. The search along a tour always asks
+ * this way, so the restaurants of a city centre cannot take the place of its
+ * one market among the nearest rows.
+ */
+export function indexRequestsPerKind(plan: IndexPoiPlan): IndexRequest[] {
+  const share = Math.max(1, Math.min(INDEX_MAX_LIMIT, Math.floor(plan.cap / plan.wanted.length)));
+  return plan.wanted.flatMap((key) =>
+    packTerms(plan.terms.filter((term) => plan.kindOfTerm.get(term) === key)).map((category) => ({
+      category,
+      limit: share,
+    })),
+  );
+}
+
+/** Every term the index is asked by, whichever kind asks for it. */
+const EVERY_TERM = Object.values(POI_CATEGORY_TO_TREK).flat();
+
+/**
+ * Whether a row's most specific known term is one an asked kind asks for. A
+ * water park lies under the parks' path, but `activity` names its own path for
+ * it, so a search for parks alone does not list it; a row no term knows is
+ * left to {@link belonging}. The search along a tour asks this; the explore
+ * pill keeps every row its pills' paths hold.
+ */
+export function ownedByAsked(
+  row: { category: string | null; categoryPath: string | null },
+  asked: readonly string[],
+): boolean {
+  const term = indexRowTerm(EVERY_TERM, row.category, row.categoryPath);
+  return term === undefined || asked.some((kind) => POI_CATEGORY_TO_TREK[kind]?.includes(term));
+}
+
+/** The rows of several pages as one list, each place once, in the order they came. */
+export function mergeIndexPages<T extends { gers: string }>(pages: readonly T[][]): T[] {
+  const byId = new Map<string, T>();
+  for (const row of pages.flat()) if (!byId.has(row.gers)) byId.set(row.gers, row);
+  return [...byId.values()];
 }
 
 /**
@@ -100,10 +192,13 @@ export function indexPoiPlan(category: string, bbox: PoiBbox, limit: number): In
 export function indexPoiAnswer(
   found: (TrekPlace & { categoryPath?: string | null })[],
   plan: IndexPoiPlan,
+  pageFull: boolean,
 ): PoiSearchResult {
   const { wanted, labelFor, cap, radius, reach } = plan;
+  // Pages asked per category can together run past the cap.
+  const kept = belonging(found, plan).slice(0, cap);
   return {
-    pois: belonging(found, plan).map((p) => ({
+    pois: kept.map((p) => ({
       osm_id: `gers:${p.gers}`,
       name: p.name,
       lat: p.lat,
@@ -133,8 +228,9 @@ export function indexPoiAnswer(
     })),
     source: 'trek-places' as const,
     // The page the index sent, not what was left of it: a full page means more
-    // places, however many of them this one had to leave out.
-    truncated: found.length >= cap,
+    // places, however many of them this one had to leave out. Pages asked per
+    // category say so for themselves, and their sum may run past the cap.
+    truncated: pageFull || found.length > cap,
     // A wide viewport is narrowed here too, and the caller is told so
     // for the same reason the Overpass path tells it.
     clamped: radius < reach,

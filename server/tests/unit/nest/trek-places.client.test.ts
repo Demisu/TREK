@@ -718,11 +718,13 @@ describe('toPlaceRecord', () => {
 });
 
 describe('POI_CATEGORY_TO_TREK', () => {
-  it('covers every pill the planner offers', () => {
+  it('covers every pill the planner offers, and the kinds of the search along a tour it holds', () => {
     // The keys are the contract with the client's POI_CATEGORIES. A missing one
     // silently drops that pill back to Overpass, which is the slow path — and
     // for the four a drive needs that is the worst path of all, because the
-    // corridor search asks for them sixteen boxes at a time.
+    // corridor search asks for them sixteen boxes at a time. Museums and
+    // galleries, park, market and peak are asked along a tour (PLN-02,
+    // CW-05), each path checked against a live answer of the index.
     expect(Object.keys(POI_CATEGORY_TO_TREK).sort()).toEqual([
       'activity',
       'bar',
@@ -731,8 +733,12 @@ describe('POI_CATEGORY_TO_TREK', () => {
       'charging',
       'fuel',
       'hotel',
+      'market',
       'museum',
+      'museum_gallery',
       'nature',
+      'park',
+      'peak',
       'rest_area',
       'restaurant',
       'shopping',

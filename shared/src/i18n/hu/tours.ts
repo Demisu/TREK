@@ -326,6 +326,7 @@ const tours: TranslationStrings = {
   'tours.poi.failed': 'A keresés nem sikerült. Próbáld újra egy kicsit később.',
   'tours.poi.outdated': 'Az útvonal korábbi állapotához találva. Keress újra, hogy a mostanihoz illjen.',
   'tours.poi.partial': 'Néhány szakaszt nem sikerült átkeresni; ott helyek hiányozhatnak.',
+  'tours.poi.unavailable': 'Ezeket most nem lehetett keresni: {kinds}. Próbáld újra egy kicsit később.',
   'tours.poi.capped': 'A túra hosszú: csak az első részét kerestük át.',
   'tours.poi.truncated': 'Több hely van, mint amennyi látszik. Szűkítsd a távolságot vagy a fajtákat.',
   'tours.poi.empty': 'Az útvonaltól {distance} távolságon belül nincs találat.',

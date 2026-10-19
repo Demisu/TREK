@@ -296,6 +296,7 @@ const tours: TranslationStrings = {
   'tours.poi.failed': '搜索未成功。请稍后再试。',
   'tours.poi.outdated': '这是按之前的路线找到的。请重新搜索以匹配当前路线。',
   'tours.poi.partial': '有些路段无法搜索，那里可能缺少地点。',
+  'tours.poi.unavailable': '暂时无法搜索：{kinds}。请稍后再试。',
   'tours.poi.capped': '路线较长：只搜索了前一段。',
   'tours.poi.truncated': '地点比显示的更多。请缩小范围或类型。',
   'tours.poi.empty': '距路线 {distance} 内没有找到任何地点。',

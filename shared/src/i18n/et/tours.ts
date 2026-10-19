@@ -321,6 +321,7 @@ const tours: TranslationStrings = {
   'tours.poi.failed': 'Otsing ei õnnestunud. Proovi kohe uuesti.',
   'tours.poi.outdated': 'Leitud marsruudi varasema kuju jaoks. Otsi uuesti, et see sobiks praegusega.',
   'tours.poi.partial': 'Mõnda lõiku ei saanud läbi otsida; sealt võivad kohad puududa.',
+  'tours.poi.unavailable': 'Praegu ei saanud otsida: {kinds}. Proovi kohe uuesti.',
   'tours.poi.capped': 'Matk on pikk: läbi otsiti ainult selle esimene osa.',
   'tours.poi.truncated': 'Kohti on rohkem, kui näidatakse. Vähenda kaugust või liike.',
   'tours.poi.empty': 'Marsruudist {distance} kaugusel ei leitud midagi.',

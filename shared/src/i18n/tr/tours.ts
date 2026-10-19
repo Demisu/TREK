@@ -319,6 +319,7 @@ const tours: TranslationStrings = {
   'tours.poi.failed': 'Arama olmadı. Birazdan tekrar dene.',
   'tours.poi.outdated': 'Rotanın önceki hâli için bulundu. Şimdikine uyması için yeniden ara.',
   'tours.poi.partial': 'Bazı kısımlarda arama yapılamadı; orada yerler eksik olabilir.',
+  'tours.poi.unavailable': 'Şu anda aranamadı: {kinds}. Birazdan tekrar dene.',
   'tours.poi.capped': 'Tur uzun: yalnızca ilk kısmında arama yapıldı.',
   'tours.poi.truncated': 'Gösterilenden fazla yer var. Mesafeyi veya türleri daralt.',
   'tours.poi.empty': 'Rotaya {distance} mesafe içinde bir şey bulunamadı.',

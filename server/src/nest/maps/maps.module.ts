@@ -12,6 +12,7 @@ import { MapsService } from './maps.service';
 import { PlaceDetailsResolver } from './place-details.resolver';
 import { PlacePhotoResolver } from './place-photo.resolver';
 import { PlacesProviderSelector } from './places-provider.selector';
+import { PoisAlongResolver } from './pois-along.resolver';
 import { GooglePlacesClient } from './providers/google-places.provider';
 import { OsmClient } from './providers/osm.client';
 import { WikimediaClient } from './providers/wikimedia.client';
@@ -54,6 +55,7 @@ import { Module } from '@nestjs/common';
     PlacePhotoResolver,
     MapsUrlResolver,
     PlaceDetailsResolver,
+    PoisAlongResolver,
   ],
   exports: [MapsService, GooglePlacesClient, OsmClient, WikimediaClient],
 })

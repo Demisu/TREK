@@ -320,6 +320,7 @@ const tours: TranslationStrings = {
   'tours.poi.failed': 'Hľadanie sa nepodarilo. Skús to o chvíľu znova.',
   'tours.poi.outdated': 'Nájdené pre trasu v predchádzajúcej podobe. Hľadaj znova pre súčasnú.',
   'tours.poi.partial': 'Niektoré úseky sa nepodarilo prehľadať; miesta tam môžu chýbať.',
+  'tours.poi.unavailable': 'Teraz sa nepodarilo prehľadať: {kinds}. Skús to o chvíľu znova.',
   'tours.poi.capped': 'Túra je dlhá: prehľadaná bola len jej prvá časť.',
   'tours.poi.truncated': 'Miest je viac, než sa zobrazuje. Zmenši vzdialenosť alebo druhy.',
   'tours.poi.empty': 'Do {distance} od trasy sa nič nenašlo.',

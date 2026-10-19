@@ -1,7 +1,7 @@
 /**
- * TourPoiSearchService (PLN-02): places along a tour's line through the map
- * search. The map search is a stub here: these tests are about which
- * stretches are asked, what is kept and how the answer says what it missed.
+ * TourPoiSearchService (PLN-02, CW-05): places along a tour's line through
+ * the map search. The map search is a stub here: these tests are about what is
+ * asked for, what is kept and how the answer says what it missed.
  */
 import { Places } from '../../../src/db/entities/Places.entity';
 import type { McpContext } from '../../../src/nest-mcp';
@@ -20,17 +20,21 @@ import { createTour } from '../../helpers/tours-repos';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const db = createSnapshotTestDb();
-const pois = vi.fn();
+const poisAlong = vi.fn();
 let t: TestModule;
 let service: TourPoiSearchService;
 
 beforeAll(async () => {
-  t = await createTestModule({ db, imports: [ToursModule], overrides: [{ provide: MapsService, useValue: { pois } }] });
+  t = await createTestModule({
+    db,
+    imports: [ToursModule],
+    overrides: [{ provide: MapsService, useValue: { poisAlong } }],
+  });
   service = t.get(TourPoiSearchService);
 });
 beforeEach(() => {
   resetTestDb(db);
-  pois.mockReset();
+  poisAlong.mockReset();
 });
 afterAll(async () => {
   await t.close();
@@ -66,15 +70,16 @@ function poi(id: string, lat: number, lng: number, category = 'viewpoint', over:
 
 const answer = (list: unknown[], over: Record<string, unknown> = {}) => ({
   pois: list,
-  source: 'openstreetmap',
+  failed: [],
+  partial: false,
   truncated: false,
-  clamped: false,
+  capped: false,
   ...over,
 });
 
 describe('TourPoiSearchService', () => {
   it('TOUR-POI-001: keeps the places within the corridor, once each, nearest the start first, with where they lie', async () => {
-    pois.mockResolvedValue(
+    poisAlong.mockResolvedValue(
       answer([
         poi('node:far', 47.41, 11.2),
         poi('node:late', 47.418, 11.1005),
@@ -96,7 +101,7 @@ describe('TourPoiSearchService', () => {
   });
 
   it('TOUR-POI-006: one name in one spot is one place, mapped twice as a point and an outline', async () => {
-    pois.mockResolvedValue(
+    poisAlong.mockResolvedValue(
       answer([
         poi('node:9', 47.41, 11.1003, 'viewpoint', { name: 'AlpspiX' }),
         poi('way:9', 47.4101, 11.1004, 'viewpoint', { name: 'AlpspiX' }),
@@ -107,8 +112,8 @@ describe('TourPoiSearchService', () => {
     expect(result.pois.map((found) => found.id)).toEqual(['node:9', 'node:10']);
   });
 
-  it('TOUR-POI-002: asks the map search for what each category means, and names a hit by the category asked', async () => {
-    pois.mockResolvedValue(answer([poi('node:cafe', 47.41, 11.1, 'cafe')]));
+  it('TOUR-POI-002: asks the map search along the line for what each category means, and names a hit by the category asked', async () => {
+    poisAlong.mockResolvedValue(answer([poi('node:cafe', 47.41, 11.1, 'cafe')]));
     const result = await service.search({
       tour_type: 'hike',
       categories: ['food', 'drinking_water'],
@@ -116,28 +121,28 @@ describe('TourPoiSearchService', () => {
       line: LINE,
       lang: 'de',
     });
-    expect(pois).toHaveBeenCalledWith('restaurant,cafe,drinking_water', expect.any(Object), 'de', 60);
+    expect(poisAlong).toHaveBeenCalledWith(
+      ['restaurant', 'cafe', 'drinking_water'],
+      [
+        { lat: 47.4, lng: 11.1 },
+        { lat: 47.42, lng: 11.1 },
+      ],
+      250,
+      'de',
+      30,
+    );
     expect(result.pois[0]?.category).toBe('food');
   });
 
-  it('TOUR-POI-003: a stretch that fails leaves the others and marks the answer partial; a cut answer is truncated', async () => {
-    // A line long enough to need several stretches.
-    const long: Array<[number, number]> = [
-      [47.0, 11.0],
-      [48.6, 11.0],
-    ];
-    pois
-      .mockRejectedValueOnce(new Error('overpass down'))
-      .mockResolvedValue(answer([poi('node:a', 47.6, 11.0005)], { truncated: true }));
-    const result = await service.search({ tour_type: 'hike', categories: ['viewpoint'], corridor_m: 500, line: long });
-    expect(pois.mock.calls.length).toBeGreaterThan(1);
-    expect(result.partial).toBe(true);
-    expect(result.truncated).toBe(true);
+  it('TOUR-POI-003: says when parts of the line could not be searched or more places matched than came back', async () => {
+    poisAlong.mockResolvedValue(answer([poi('node:a', 47.41, 11.1005)], { partial: true, truncated: true }));
+    const result = await service.search({ tour_type: 'hike', categories: ['viewpoint'], corridor_m: 500, line: LINE });
+    expect(result).toMatchObject({ partial: true, truncated: true, capped: false, unavailable: [] });
     expect(result.pois.map((found) => found.id)).toEqual(['node:a']);
   });
 
-  it('TOUR-POI-004: a line longer than one search covers is searched along its first stretches and says so', async () => {
-    pois.mockResolvedValue(answer([]));
+  it('TOUR-POI-004: a line longer than one search covers says it was searched along its first part', async () => {
+    poisAlong.mockResolvedValue(answer([], { capped: true }));
     const result = await service.search({
       tour_type: 'kayak',
       categories: ['slipway'],
@@ -147,8 +152,84 @@ describe('TourPoiSearchService', () => {
         [52.0, 14.0],
       ],
     });
-    expect(pois).toHaveBeenCalledTimes(12);
     expect(result.capped).toBe(true);
+    expect(result.truncated).toBe(false);
+  });
+
+  it('TOUR-POI-007: names the kinds no source could search, a kind of two only when both failed', async () => {
+    poisAlong.mockResolvedValue(answer([], { failed: ['viewpoint', 'cafe', 'market'] }));
+    const walk = await service.search({
+      tour_type: 'walk',
+      categories: ['market', 'sights', 'viewpoint'],
+      corridor_m: 500,
+      line: LINE,
+    });
+    expect(walk.unavailable).toEqual(['market', 'viewpoint']);
+    const hike = await service.search({ tour_type: 'hike', categories: ['food'], corridor_m: 500, line: LINE });
+    expect(hike.unavailable).toEqual([]);
+    poisAlong.mockResolvedValue(answer([], { failed: ['restaurant', 'cafe'] }));
+    expect(
+      (await service.search({ tour_type: 'hike', categories: ['food'], corridor_m: 500, line: LINE })).unavailable,
+    ).toEqual(['food']);
+  });
+
+  it('TOUR-POI-008: an unnamed place is kept and never merged with another unnamed one nearby', async () => {
+    poisAlong.mockResolvedValue(
+      answer([
+        poi('node:1', 47.41, 11.1003, 'drinking_water', { name: '' }),
+        poi('node:2', 47.4101, 11.1003, 'drinking_water', { name: '' }),
+        // Across the line from the first: as far along, a little further off it.
+        poi('node:3', 47.41, 11.0995, 'drinking_water', { name: '' }),
+      ]),
+    );
+    const result = await service.search({
+      tour_type: 'hike',
+      categories: ['drinking_water'],
+      corridor_m: 500,
+      line: LINE,
+    });
+    expect(result.pois.map((found) => [found.id, found.name])).toEqual([
+      ['node:1', ''],
+      ['node:3', ''],
+      ['node:2', ''],
+    ]);
+  });
+
+  it('TOUR-POI-009: of more places than an answer carries, the nearest to the line are listed from the start', async () => {
+    // Seventy cafes along the line, every other one a little further off it.
+    const many = Array.from({ length: 70 }, (_, i) =>
+      poi(`node:${i}`, 47.4 + (i + 1) * 0.0002, 11.1 + (i % 2 === 0 ? 0.0001 : 0.003), 'cafe'),
+    );
+    poisAlong.mockResolvedValue(answer(many));
+    const result = await service.search({ tour_type: 'walk', categories: ['cafe'], corridor_m: 500, line: LINE });
+    expect(result.pois).toHaveLength(60);
+    expect(result.truncated).toBe(true);
+    // All 35 near ones are in, from the start of the line to its end.
+    const ids = new Set(result.pois.map((found) => found.id));
+    expect(many.filter((_, i) => i % 2 === 0).every((near) => ids.has(near.osm_id))).toBe(true);
+    const along = result.pois.map((found) => found.along_m);
+    expect(along).toEqual([...along].sort((a, b) => a - b));
+  });
+
+  it('TOUR-POI-010: a place of a circle outside the corridor and one of a kind not asked for are left out', async () => {
+    poisAlong.mockResolvedValue(
+      answer([
+        poi('gers:in', 47.41, 11.101, 'park', { source: 'trek-places' }),
+        poi('gers:off', 47.41, 11.115, 'park', { source: 'trek-places' }),
+        poi('gers:other', 47.41, 11.1001, 'nature', { source: 'trek-places' }),
+      ]),
+    );
+    const result = await service.search({
+      tour_type: 'walk',
+      categories: ['park', 'museum'],
+      corridor_m: 500,
+      line: LINE,
+    });
+    // Parks and gardens alone, museums and galleries alone: not the beaches, theatres and cinemas of the explore pill.
+    expect(poisAlong.mock.calls[0]?.[0]).toEqual(['park', 'museum_gallery']);
+    expect(result.pois.map((found) => [found.id, found.category, found.source])).toEqual([
+      ['gers:in', 'park', 'trek-places'],
+    ]);
   });
 
   it('TOUR-POI-005: searches along a saved tour for MCP, and a tour without a line is not found', async () => {
@@ -156,7 +237,7 @@ describe('TourPoiSearchService', () => {
     const trip = createTrip(db, user.id);
     const ridge = createPlace(db, trip.id, { name: 'Ridge' });
     createTour(db, ridge.id);
-    pois.mockResolvedValue(answer([poi('node:x', 47.41, 11.1)]));
+    poisAlong.mockResolvedValue(answer([poi('node:x', 47.41, 11.1)]));
     await expect(
       service.searchSavedTour(trip.id, ridge.id, { categories: ['viewpoint'], corridor_m: 500 }),
     ).rejects.toThrow('Tour not found');

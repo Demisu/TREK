@@ -331,6 +331,7 @@ const tours: TranslationStrings = {
   'tours.poi.failed': "La recherche n'a pas abouti. Réessaie dans un instant.",
   'tours.poi.outdated': "Trouvé pour l'itinéraire tel qu'il était avant. Cherche à nouveau pour l'actuel.",
   'tours.poi.partial': "Certains tronçons n'ont pas pu être cherchés ; des lieux peuvent y manquer.",
+  'tours.poi.unavailable': 'Recherche impossible pour le moment : {kinds}. Réessaie dans un instant.',
   'tours.poi.capped': "L'itinéraire est long : seule sa première partie a été cherchée.",
   'tours.poi.truncated': "Il y a plus de lieux qu'affichés. Réduis la distance ou les types.",
   'tours.poi.empty': "Rien trouvé à moins de {distance} de l'itinéraire.",

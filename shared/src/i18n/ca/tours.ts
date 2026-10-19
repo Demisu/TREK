@@ -325,6 +325,7 @@ const tours: TranslationStrings = {
   'tours.poi.failed': "La cerca no ha funcionat. Torna-ho a provar d'aquí a una estona.",
   'tours.poi.outdated': "Trobat per a la ruta tal com era abans. Torna a cercar perquè encaixi amb l'actual.",
   'tours.poi.partial': "No s'han pogut cercar alguns trams; hi poden faltar llocs.",
+  'tours.poi.unavailable': "Ara no s'ha pogut cercar: {kinds}. Torna-ho a provar d'aquí a una estona.",
   'tours.poi.capped': "La ruta és llarga: només se n'ha cercat la primera part.",
   'tours.poi.truncated': 'Hi ha més llocs dels que es mostren. Redueix la distància o els tipus.',
   'tours.poi.empty': "No s'ha trobat res a menys de {distance} de la ruta.",

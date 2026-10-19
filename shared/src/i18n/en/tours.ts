@@ -318,6 +318,7 @@ const tours: TranslationStrings = {
   'tours.poi.failed': 'The search did not work. Try again in a moment.',
   'tours.poi.outdated': 'Found for the route as it was before. Search again to match it now.',
   'tours.poi.partial': 'Some stretches could not be searched; places there may be missing.',
+  'tours.poi.unavailable': 'Could not be searched right now: {kinds}. Try again in a moment.',
   'tours.poi.capped': 'The tour is long: only its first part was searched.',
   'tours.poi.truncated': 'There are more places than shown. Narrow the distance or the kinds.',
   'tours.poi.empty': 'Nothing found within {distance} of the route.',

@@ -333,6 +333,7 @@ const tours: TranslationStrings = {
   'tours.poi.failed': 'Wyszukiwanie się nie powiodło. Spróbuj ponownie za chwilę.',
   'tours.poi.outdated': 'Znalezione dla trasy w poprzedniej postaci. Wyszukaj ponownie dla obecnej.',
   'tours.poi.partial': 'Niektórych odcinków nie udało się przeszukać; może tam brakować miejsc.',
+  'tours.poi.unavailable': 'Nie udało się teraz wyszukać: {kinds}. Spróbuj ponownie za chwilę.',
   'tours.poi.capped': 'Trasa jest długa: przeszukano tylko jej pierwszą część.',
   'tours.poi.truncated': 'Miejsc jest więcej, niż pokazano. Zmniejsz odległość lub liczbę rodzajów.',
   'tours.poi.empty': 'Nic nie znaleziono w odległości {distance} od trasy.',

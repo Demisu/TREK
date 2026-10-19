@@ -8,6 +8,7 @@ import { MapsService } from '../../src/nest/maps/maps.service';
 import { PlaceDetailsResolver } from '../../src/nest/maps/place-details.resolver';
 import { PlacePhotoResolver } from '../../src/nest/maps/place-photo.resolver';
 import { PlacesProviderSelector } from '../../src/nest/maps/places-provider.selector';
+import { PoisAlongResolver } from '../../src/nest/maps/pois-along.resolver';
 import { GooglePlacesClient } from '../../src/nest/maps/providers/google-places.provider';
 import { OsmClient } from '../../src/nest/maps/providers/osm.client';
 import { WikimediaClient } from '../../src/nest/maps/providers/wikimedia.client';
@@ -44,7 +45,8 @@ export function buildMapsParts(
   const photos = new PlacePhotoResolver(photoCache, places, google, wiki, selector);
   const links = new MapsUrlResolver(osm);
   const details = new PlaceDetailsResolver(placeDetailsCache, google, osm, selector);
-  const svc = new MapsService(photoCache, appSettings, google, osm, wiki, selector, photos, links, details);
+  const along = new PoisAlongResolver(osm);
+  const svc = new MapsService(photoCache, appSettings, google, osm, wiki, selector, photos, links, details, along);
   return { svc, google, osm, wiki, selector };
 }
 

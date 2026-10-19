@@ -4,13 +4,21 @@ import type { AppSettingsRepository } from '../../db/repositories/AppSettings.re
 import type { GeoLane } from '../geo/nominatim.client';
 import { PlacePhotoCacheService } from '../place-photos/place-photo-cache.service';
 import type { ApiKeySource } from '../settings/instance-api-keys';
-import { belonging, indexPoiAnswer, indexPoiPlan, indexSuggestions } from './maps-index.helpers';
+import {
+  belonging,
+  indexPoiAnswer,
+  indexPoiPlan,
+  indexRequests,
+  indexSuggestions,
+  mergeIndexPages,
+} from './maps-index.helpers';
 import { NEARBY_DEFAULT_LIMIT, NEARBY_DEFAULT_RADIUS_M, nearbyCacheKey, nearestFirst } from './maps-nearby.helpers';
 import { MapsUrlResolver, type ResolvedMapsUrl } from './maps-url.resolver';
 import { toApiLang, mergeSearchResults } from './maps.helpers';
 import { PlaceDetailsResolver } from './place-details.resolver';
 import { PlacePhotoResolver } from './place-photo.resolver';
 import { PlacesProviderSelector, type KeyedProvider } from './places-provider.selector';
+import { PoisAlongResolver, type PoisAlongResult } from './pois-along.resolver';
 import type { AmapPlacesProvider } from './providers/amap.provider';
 import { GooglePlacesClient } from './providers/google-places.provider';
 import { OsmClient, type PoiSearchResult } from './providers/osm.client';
@@ -75,6 +83,7 @@ export class MapsService {
     private readonly photos: PlacePhotoResolver,
     private readonly links: MapsUrlResolver,
     private readonly placeDetails: PlaceDetailsResolver,
+    private readonly along: PoisAlongResolver,
   ) {}
 
   private async isSettingDisabled(key: string): Promise<boolean> {
@@ -209,18 +218,38 @@ export class MapsService {
     const plan = indexPoiPlan(category, bbox, limit);
     if (this.trekPlacesEnabled() && plan) {
       try {
-        const found = await trekPlacesNearby(plan.lat, plan.lng, {
-          radius: plan.radius,
-          limit: plan.cap,
-          category: plan.terms.join(','),
-        });
+        // One request while the plan fits the service's limits, one per category beyond them.
+        const pages = await Promise.all(
+          indexRequests(plan).map(async ({ category: terms, limit: rows }) => ({
+            rows,
+            found: await trekPlacesNearby(plan.lat, plan.lng, { radius: plan.radius, limit: rows, category: terms }),
+          })),
+        );
+        const found = mergeIndexPages(pages.map((page) => page.found));
+        const pageFull = pages.some((page) => page.found.length >= page.rows);
         // A page of near misses only is a miss too, not an empty answer.
-        if (belonging(found, plan).length > 0) return indexPoiAnswer(found, plan);
+        if (belonging(found, plan).length > 0) return indexPoiAnswer(found, plan, pageFull);
       } catch (err: unknown) {
         console.warn('TREK Places nearby failed, falling back:', (err as Error).message);
       }
     }
     return this.osm.searchOverpassPois(category, bbox, lang, limit);
+  }
+
+  /**
+   * Places of some kinds near a line (PLN-02): the index in circles along it,
+   * Overpass for the kinds the index does not know, side by side. Never calls
+   * Google. `limit` is each kind's budget per source; `failed` names the kinds
+   * no source could be asked for.
+   */
+  poisAlong(
+    categories: string[],
+    line: { lat: number; lng: number }[],
+    corridorM: number,
+    lang?: string,
+    limit = 30,
+  ): Promise<PoisAlongResult> {
+    return this.along.search({ categories, line, corridorM, lang, limit }, this.trekPlacesEnabled());
   }
 
   // ── Keys and the keyed provider (resolved by PlacesProviderSelector) ─────

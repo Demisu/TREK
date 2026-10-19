@@ -317,6 +317,7 @@ const tours: TranslationStrings = {
   'tours.poi.failed': 'Sökningen fungerade inte. Försök igen om en stund.',
   'tours.poi.outdated': 'Hittat för rutten som den var tidigare. Sök igen för den nuvarande.',
   'tours.poi.partial': 'Vissa sträckor kunde inte genomsökas; platser där kan saknas.',
+  'tours.poi.unavailable': 'Gick inte att söka efter just nu: {kinds}. Försök igen om en stund.',
   'tours.poi.capped': 'Turen är lång: bara den första delen genomsöktes.',
   'tours.poi.truncated': 'Det finns fler platser än som visas. Minska avståndet eller slagen.',
   'tours.poi.empty': 'Inget hittades inom {distance} från rutten.',
