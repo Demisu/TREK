@@ -573,24 +573,27 @@ function AddPointRow({
 }) {
   const { t } = useTranslation();
   const active = useTourPlaceToolStore((state) => state.placing[state.mode]);
+  // The look of the editor's segmented switches (Hike | Paddle tour): one quiet bar, two equal halves,
+  // the one in use raised. Two ways in to one list, not two boxes competing for it.
   const look = (on: boolean) =>
-    `flex min-w-0 items-center justify-center gap-1.5 rounded-[12px] border border-dashed px-3 py-2.5 font-semibold transition-colors disabled:cursor-default disabled:opacity-40 ${on ? 'border-accent bg-surface-card text-content' : 'border-edge text-content-muted enabled:hover:border-content-faint enabled:hover:text-content'}`;
+    `inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-[8px] px-3 py-1.5 font-medium transition-colors disabled:cursor-default disabled:opacity-40 ${on ? 'bg-surface-card text-content shadow-sm' : 'text-content-muted enabled:hover:text-content'}`;
   return (
-    <div className="mt-1.5 grid grid-cols-[minmax(0,1fr)_auto] gap-1.5">
-      <button
-        type="button"
-        data-testid="tour-planner-add-point"
-        aria-pressed={active}
-        disabled={disabled}
-        onClick={() => toggleTourPlacing()}
-        className={look(active)}
-        style={fs(12, 'body')}
-      >
-        <MapPinPlus size={14} strokeWidth={2} className="flex-none" />
-        <span className="min-w-0 truncate">
-          {t(active ? 'tours.planner.addPointActive' : 'tours.planner.addPoint')}
-        </span>
-      </button>
+    <div className="mt-2 flex gap-0.5 rounded-[10px] bg-surface-tertiary p-[3px]">
+      {/* One label in both states, so the halves never shift; the raised half and the tooltip say it is on. */}
+      <Tooltip label={t('tours.planner.addPointActive')} placement="top" disabled={!active}>
+        <button
+          type="button"
+          data-testid="tour-planner-add-point"
+          aria-pressed={active}
+          disabled={disabled}
+          onClick={() => toggleTourPlacing()}
+          className={look(active)}
+          style={fs(12.5, 'body')}
+        >
+          <MapPinPlus size={14} strokeWidth={2} className={`flex-none ${active ? 'text-accent' : ''}`} />
+          <span className="min-w-0 truncate">{t('tours.planner.addPoint')}</span>
+        </button>
+      </Tooltip>
       <button
         type="button"
         data-testid="tour-planner-add-place"
@@ -598,7 +601,7 @@ function AddPointRow({
         disabled={disabled}
         onClick={onTogglePlaces}
         className={look(placesOpen)}
-        style={fs(12, 'body')}
+        style={fs(12.5, 'body')}
       >
         <MapPinned size={14} strokeWidth={2} className="flex-none" />
         <span className="min-w-0 truncate">{t('tours.placePicker.open')}</span>
