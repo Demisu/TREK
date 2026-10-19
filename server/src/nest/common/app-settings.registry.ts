@@ -108,6 +108,10 @@ export const APP_SETTINGS = {
   bag_tracking_enabled: { schema: flag, default: 'false' },
   // Off until an admin allows it: every user's wanderer calls go out to an address of their choosing.
   tours_wanderer_enabled: { schema: flag, default: 'false' },
+  // MAP-01: OpenHikingMap as a base map of the Tours planner. On, since its tiles are free for
+  // the installs TREK is made for; an admin whose install is commercial or larger switches it off
+  // until there is an agreement with the operator (openmaps.fr/tile-usage-policy.html).
+  tours_hiking_map_enabled: { schema: flag, default: 'true' },
   route_usage_enabled: { schema: flag, default: 'false' },
   // PAD-11C: how TREK gets the water data of a place a paddler plans in (auto, ask, off) and the largest extract it loads by itself.
   paddle_auto_load: { schema: z.enum(['auto', 'ask', 'off']), default: 'auto' },

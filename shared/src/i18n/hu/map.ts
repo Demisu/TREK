@@ -18,6 +18,8 @@ const map: TranslationStrings = {
   'map.hideAllConnections': 'Összes foglalási útvonal elrejtése',
   'map.baseLayer.default': 'Térkép',
   'map.baseLayer.satellite': 'Műhold',
+  'map.baseLayer.hiking': 'Túrázás',
+  'map.baseLayer.hikingDown': 'Az OpenHikingMap most nem válaszol. Válts másik térképre, a túrád változatlan marad.',
   'map.baseLayer.switchToSatellite': 'Váltás műholdas nézetre',
   'map.baseLayer.switchToDefault': 'Váltás térkép nézetre',
   'map.location.denied':

@@ -1,4 +1,4 @@
-import { Anchor, Loader2, Map as MapIcon, MapPinPlus, Mountain, Rotate3d, Satellite } from 'lucide-react'
+import { Anchor, Footprints, Loader2, Map as MapIcon, MapPinPlus, Mountain, Rotate3d, Satellite } from 'lucide-react'
 import type { PaddleMapLayer } from '../Tours/paddle/paddleMapLayer'
 import type { CSSProperties } from 'react'
 import { useTranslation } from '../../i18n'
@@ -9,9 +9,10 @@ import { fs } from '../shared/DialogShell'
 import { Tooltip } from '../shared/Tooltip'
 import { MAP_CONTROL_SHADOW } from './mapControlShadow'
 import type { ToggleableRasterOverlay } from './mapRasterOverlay'
+import type { TileHealth, TourRasterBase } from './tourRasterBases'
 
 export type BaseLayer = 'default' | 'satellite'
-export type TourBaseLayer = BaseLayer | 'topo'
+export type TourBaseLayer = BaseLayer | TourRasterBase
 
 /** What a tour's type offers on the planner map (P2B-06): its base layers, and the overlays beside the ferratas. */
 export interface TourLayerOffer {
@@ -19,6 +20,8 @@ export interface TourLayerOffer {
   overlays?: readonly ToggleableRasterOverlay[]
   /** PAD-05B: the paddle obstacles around a paddle tour, drawn by every renderer. */
   paddle?: PaddleMapLayer
+  /** MAP-01: whether OpenHikingMap answers while it is the base map; the maps report into it. */
+  hikingMap?: TileHealth
 }
 
 const FROSTED_SHELL = {
@@ -83,6 +86,7 @@ export function MapLayerSwitcher({ active, onToggle }: { active: BaseLayer; onTo
 const TOUR_LAYERS = [
   { id: 'default', labelKey: 'map.baseLayer.default', Icon: MapIcon },
   { id: 'topo', labelKey: null, Icon: Mountain },
+  { id: 'hiking', labelKey: 'map.baseLayer.hiking', Icon: Footprints },
   { id: 'satellite', labelKey: 'map.baseLayer.satellite', Icon: Satellite },
 ] as const
 
@@ -199,6 +203,15 @@ const OVERLAY_LOOK: Record<string, { Icon: typeof Anchor; labelKey: string; down
  * once its source stopped answering, which the tooltip names. The map and the
  * planning go on without it.
  */
+/** The warning mark on a switch whose source stopped answering; the tooltip says what it means. */
+function DownBadge() {
+  return (
+    <span aria-hidden className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-warning-soft px-1 font-semibold leading-none text-warning" style={fs(10)}>
+      !
+    </span>
+  )
+}
+
 function OverlayToggle({ overlay, compact }: { overlay: ToggleableRasterOverlay; compact: boolean }) {
   const { t } = useTranslation()
   const look = OVERLAY_LOOK[overlay.id]
@@ -221,11 +234,7 @@ function OverlayToggle({ overlay, compact }: { overlay: ToggleableRasterOverlay;
         >
           <look.Icon size={15} strokeWidth={2} />
           {!compact && <span>{label}</span>}
-          {down && (
-            <span aria-hidden className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-warning-soft px-1 font-semibold leading-none text-warning" style={fs(10)}>
-              !
-            </span>
-          )}
+          {down && <DownBadge />}
         </button>
       </Tooltip>
       <span role="status" aria-live="polite" className="sr-only">{down ? t(look.downKey) : ''}</span>
@@ -265,14 +274,17 @@ export function TourMapLayerSwitcher({
   const { t } = useTranslation()
   const bases = layers?.bases
   const overlays = layers?.overlays
+  // OpenHikingMap is a best-effort service: while it is shown and stops answering, its segment says so.
+  const hikingDown = active === 'hiking' && !!layers?.hikingMap?.down
 
   return (
     <div style={{ ...FROSTED_SHELL, gap: 2 }} role="group" aria-label={t('settings.mapStyle')}>
       {TOUR_LAYERS.filter(({ id }) => !bases || bases.includes(id)).map(({ id, labelKey, Icon }) => {
         const selected = active === id
         const label = labelKey ? t(labelKey) : 'Topo'
+        const down = id === 'hiking' && hikingDown
         return (
-          <Tooltip key={id} label={label} placement="top" disabled={!compact}>
+          <Tooltip key={id} label={down ? t('map.baseLayer.hikingDown') : label} placement="top" disabled={!compact && !down}>
             <button
               type="button"
               onClick={() => onChange(id)}
@@ -283,10 +295,12 @@ export function TourMapLayerSwitcher({
             >
               <Icon size={15} strokeWidth={2} />
               {!compact && <span>{label}</span>}
+              {down && <DownBadge />}
             </button>
           </Tooltip>
         )
       })}
+      {hikingDown && <span role="status" aria-live="polite" className="sr-only">{t('map.baseLayer.hikingDown')}</span>}
       {(ferrataLayer || onToggleTerrain || placeTool || !!overlays?.length) && <span aria-hidden className="mx-0.5 h-5 w-px bg-edge" />}
       {placeTool && <PlaceToolToggle tool={placeTool} />}
       {ferrataLayer && <FerrataToggle layer={ferrataLayer} compact={compact} />}

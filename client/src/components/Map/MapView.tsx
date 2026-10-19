@@ -63,7 +63,8 @@ import { poiDetailRowKey, poiDetailRows, poiPinCacheKey, poiPinParts } from './p
 import { resolveTrackColor, hasManualTrackColor } from './trackColors'
 import { SelectedTrackLine, TrackLines } from './TrackLines'
 import DawarichTrailLayer from './DawarichTrailLayer'
-import { OFM_POSITRON, DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM, MAP_MAX_ZOOM, OPENTOPOMAP_TILE_URL, OPENTOPOMAP_TILE_ATTRIBUTION, OPENTOPOMAP_TILE_MAXZOOM, SATELLITE_TILE_URL, SATELLITE_TILE_MAXZOOM, AMAP_SATELLITE, attributionForTile } from '../../constants/mapDefaults'
+import { OFM_POSITRON, DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM, MAP_MAX_ZOOM, SATELLITE_TILE_URL, SATELLITE_TILE_MAXZOOM, AMAP_SATELLITE, attributionForTile } from '../../constants/mapDefaults'
+import { tourRasterBaseOf } from './tourRasterBases'
 import { crsForBasemap } from './gcj02Crs'
 import { isGcj02Basemap, resolveBasemap } from '../../utils/tileUrl'
 import VectorBasemap from './VectorBasemap'
@@ -839,7 +840,7 @@ export const MapView = memo(function MapView({
   const baseLayer = (viewBaseLayer ?? globalBaseLayer) as TourBaseLayer
   const hasViewBaseLayer = viewBaseLayer !== undefined && typeof onViewBaseLayerChange === 'function'
   const isSatellite = baseLayer === 'satellite'
-  const isTopo = baseLayer === 'topo'
+  const tourRaster = tourRasterBaseOf(baseLayer) // topo or OpenHikingMap, the Tours planner's own
   // The caller hands over whatever the user configured; what kind of basemap
   // that is decides which layer draws it. A saved raster template still wins,
   // the default is a vector style.
@@ -851,7 +852,7 @@ export const MapView = memo(function MapView({
    * decided before the map is constructed, because Leaflet cannot change a map's
    * CRS afterwards — hence the whole map, not just the tile layer.
    */
-  const isGcjBasemap = !isTopo && basemap.kind === 'raster' && isGcj02Basemap(basemap.url)
+  const isGcjBasemap = !tourRaster && basemap.kind === 'raster' && isGcj02Basemap(basemap.url)
   const gcjCrs = useMemo(() => crsForBasemap(isGcjBasemap), [isGcjBasemap])
   const poiMarkers = useMemo(() => (pois as Poi[]).map((poi: Poi) => (
     <Marker
@@ -1116,17 +1117,16 @@ export const MapView = memo(function MapView({
           updateWhenIdle={true}
           referrerPolicy="strict-origin-when-cross-origin"
         />
-      ) : isTopo ? (
+      ) : tourRaster ? (
         <TileLayer
-          key="topo"
-          url={OPENTOPOMAP_TILE_URL}
-          attribution={OPENTOPOMAP_TILE_ATTRIBUTION}
-          maxNativeZoom={OPENTOPOMAP_TILE_MAXZOOM}
+          key={baseLayer}
+          url={tourRaster.url}
+          attribution={tourRaster.attribution}
+          maxNativeZoom={tourRaster.maxZoom}
           maxZoom={MAP_MAX_ZOOM}
-          keepBuffer={8}
-          updateWhenZooming={false}
-          updateWhenIdle={true}
+          keepBuffer={8} updateWhenZooming={false} updateWhenIdle={true}
           referrerPolicy="strict-origin-when-cross-origin"
+          eventHandlers={baseLayer === 'hiking' && tourLayers?.hikingMap ? { tileerror: tourLayers.hikingMap.onTileError, tileload: tourLayers.hikingMap.onTileLoad } : undefined}
         />
       ) : basemap.kind === 'vector' ? (
         <VectorBasemap style={basemap.style} />

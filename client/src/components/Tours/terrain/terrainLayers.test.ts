@@ -46,6 +46,22 @@ describe('styleFor', () => {
     expect(JSON.stringify(topo)).not.toContain('{s}');
     expect(satellite.sources.base).toMatchObject({ type: 'raster', maxzoom: 19 });
   });
+
+  it('draws OpenHikingMap with its credit, from a source the flyover never warms up (MAP-01)', () => {
+    const hiking = styleFor('hiking');
+    if (typeof hiking === 'string') throw new Error('expected a raster style');
+    const [id, source] = Object.entries(hiking.sources)[0];
+    expect(source).toMatchObject({
+      type: 'raster',
+      tiles: ['https://tile.openmaps.fr/openhikingmap/{z}/{x}/{y}.png'],
+      maxzoom: 18,
+    });
+    expect(JSON.stringify(source)).toContain('openmaps.fr/donate');
+    expect(hiking.layers[0]).toMatchObject({ source: id });
+
+    const { gl } = fakeMap({ [id]: source });
+    expect(loadedTemplates(gl)).toEqual([]);
+  });
 });
 
 describe('trackData', () => {

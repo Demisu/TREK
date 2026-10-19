@@ -252,7 +252,7 @@ describe('MapView', () => {
     const route = [[[39.9042, 116.4074], [39.9052, 116.4084]]] as [number, number][][]
     const plannerWaypoints = [{ id: 'start', lat: 39.9042, lng: 116.4074, role: 'start' as const }]
     const routeProfileFocus = { distanceMeters: 100, elevationMeters: 0, lat: 39.9047, lng: 116.4079, sampleIndex: 0 }
-    const props = (viewBaseLayer: 'default' | 'topo' | 'satellite') => ({
+    const props = (viewBaseLayer: 'default' | 'topo' | 'hiking' | 'satellite') => ({
       places: [beijing], center: [39.9042, 116.4074] as [number, number], zoom: 15,
       route, plannerWaypoints, routeProfileFocus, tileUrl: AMAP_ROAD, viewBaseLayer, onViewBaseLayerChange,
     })
@@ -278,6 +278,11 @@ describe('MapView', () => {
     expect(screen.getByTestId('tile-layer')).toHaveAttribute('data-url', OPENTOPOMAP_TILE_URL)
     expect(screen.getAllByTestId('polyline').every(polyline => polyline.getAttribute('data-points') === JSON.stringify(route[0]))).toBe(true)
     expect(screen.getByTestId('profile-focus-marker')).toHaveAttribute('data-center', JSON.stringify([routeProfileFocus.lat, routeProfileFocus.lng]))
+
+    // MAP-01: OpenHikingMap is drawn in WGS-84 like topo, from its own template.
+    rerender(<MapView {...props('hiking')} />)
+    expect(screen.getByTestId('map-container')).toHaveAttribute('data-crs', 'EPSG:3857')
+    expect(screen.getByTestId('tile-layer')).toHaveAttribute('data-url', 'https://tile.openmaps.fr/openhikingmap/{z}/{x}/{y}.png')
 
     rerender(<MapView {...props('satellite')} />)
     const satelliteMap = screen.getByTestId('map-container')

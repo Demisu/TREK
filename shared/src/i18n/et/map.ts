@@ -18,6 +18,8 @@ const map: TranslationStrings = {
   'map.hideAllConnections': 'Peida kõik broneeringute marsruudid',
   'map.baseLayer.default': 'Kaart',
   'map.baseLayer.satellite': 'Satelliit',
+  'map.baseLayer.hiking': 'Matkamine',
+  'map.baseLayer.hikingDown': 'OpenHikingMap ei vasta praegu. Vaheta teisele kaardile, sinu matk jääb samaks.',
   'map.baseLayer.switchToSatellite': 'Lülitu satelliidivaatele',
   'map.baseLayer.switchToDefault': 'Lülitu kaardivaatele',
   'map.location.denied':

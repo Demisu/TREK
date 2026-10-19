@@ -18,6 +18,9 @@ const map: TranslationStrings = {
   'map.hideAllConnections': 'Скрыть все маршруты бронирований',
   'map.baseLayer.default': 'Карта',
   'map.baseLayer.satellite': 'Спутник',
+  'map.baseLayer.hiking': 'Походы',
+  'map.baseLayer.hikingDown':
+    'OpenHikingMap сейчас не отвечает. Переключитесь на другую карту, ваш маршрут останется без изменений.',
   'map.baseLayer.switchToSatellite': 'Переключить на спутниковый вид',
   'map.baseLayer.switchToDefault': 'Переключить на вид карты',
   'map.location.denied':

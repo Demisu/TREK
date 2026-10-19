@@ -1,6 +1,7 @@
 import { useEffect, useEffectEvent, useState } from 'react';
 
 import { adminApi } from '../../../api/client';
+import { hikingMapAdminApi } from '../../../api/hikingMap';
 import { wandererAdminApi } from '../../../api/wanderer';
 import { useTranslation } from '../../../i18n';
 import { useAddonStore } from '../../../store/addonStore';
@@ -20,6 +21,7 @@ export function useAddonManager() {
   const [addons, setAddons] = useState<Addon[]>([]);
   const [loading, setLoading] = useState(true);
   const [toursWanderer, setToursWanderer] = useState(false);
+  const [toursHikingMap, setToursHikingMap] = useState(false);
 
   const loadAddons = async () => {
     try {
@@ -35,6 +37,10 @@ export function useAddonManager() {
     wandererAdminApi
       .get()
       .then((flag) => setToursWanderer(flag.enabled))
+      .catch(() => toast.error(t('admin.addons.toast.error')));
+    hikingMapAdminApi
+      .get()
+      .then((flag) => setToursHikingMap(flag.enabled))
       .catch(() => toast.error(t('admin.addons.toast.error')));
   });
   useEffect(() => {
@@ -63,20 +69,26 @@ export function useAddonManager() {
     toast.success(t('admin.addons.toast.updated'));
   };
 
-  /** wanderer under Tours: flipped at once, put back when the save fails. */
-  const toggleToursWanderer = async () => {
-    const next = !toursWanderer;
-    setToursWanderer(next);
+  /** A switch under Tours (wanderer, OpenHikingMap): flipped at once, put back when the save fails. */
+  const flipToursSwitch = async (
+    current: boolean,
+    set: (enabled: boolean) => void,
+    save: (enabled: boolean) => Promise<unknown>
+  ) => {
+    const next = !current;
+    set(next);
     try {
-      await wandererAdminApi.update(next);
+      await save(next);
     } catch {
-      setToursWanderer(!next);
+      set(!next);
       toast.error(t('admin.addons.toast.error'));
       return;
     }
     void refreshGlobalAddons();
     toast.success(t('admin.addons.toast.updated'));
   };
+  const toggleToursWanderer = () => flipToursSwitch(toursWanderer, setToursWanderer, wandererAdminApi.update);
+  const toggleToursHikingMap = () => flipToursSwitch(toursHikingMap, setToursHikingMap, hikingMapAdminApi.update);
 
   const asOption = (provider: Addon): ProviderOption => ({
     key: provider.id,
@@ -106,5 +118,7 @@ export function useAddonManager() {
     documentProviderOptions,
     toursWanderer,
     toggleToursWanderer,
+    toursHikingMap,
+    toggleToursHikingMap,
   };
 }

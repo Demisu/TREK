@@ -18,6 +18,8 @@ const map: TranslationStrings = {
   'map.hideAllConnections': 'Skrýt všechny trasy rezervací',
   'map.baseLayer.default': 'Mapa',
   'map.baseLayer.satellite': 'Satelit',
+  'map.baseLayer.hiking': 'Turistika',
+  'map.baseLayer.hikingDown': 'OpenHikingMap teď neodpovídá. Přepni na jinou mapu, tvoje túra zůstane beze změny.',
   'map.baseLayer.switchToSatellite': 'Přepnout na satelitní zobrazení',
   'map.baseLayer.switchToDefault': 'Přepnout na mapové zobrazení',
   'map.location.denied':

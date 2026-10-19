@@ -108,6 +108,7 @@ export default function TourTerrainMap(props: TourTerrainMapProps) {
           insetInlineEnd: rightWidth + MAP_LAYER_SWITCHER_INSET,
         }}
       >
+        {baseLayer === 'hiking' && <HikingMapCredit />}
         {legendAbove && legend}
         <div ref={attachRow} className="flex w-full items-end gap-3" data-fit={fit} data-testid="terrain-control-row">
           <div className="flex-none">
@@ -138,6 +139,34 @@ export default function TourTerrainMap(props: TourTerrainMapProps) {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * OpenHikingMap's credit and donation link, which its operator wants readable without a
+ * click (MAP-01). The 3D map's own attribution is folded away and sits under the panel,
+ * so it rides above the control row while that map is shown.
+ */
+function HikingMapCredit() {
+  const link = 'text-content-secondary underline-offset-2 hover:underline';
+  return (
+    <div
+      className="pointer-events-auto flex items-center gap-1.5 rounded-full px-3 py-1 text-content-faint"
+      style={{ ...GLASS, ...fs(10) }}
+      data-testid="hiking-map-credit"
+    >
+      <a className={link} href="https://wiki.openstreetmap.org/wiki/OpenHikingMap" target="_blank" rel="noreferrer">
+        &copy; OpenHikingMap
+      </a>
+      <span aria-hidden>|</span>
+      <a className={link} href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
+        &copy; OpenStreetMap
+      </a>
+      <span aria-hidden>|</span>
+      <a className={link} href="https://openmaps.fr/donate" target="_blank" rel="noreferrer">
+        {'❤️'} Donation
+      </a>
     </div>
   );
 }

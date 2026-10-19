@@ -649,6 +649,9 @@ const admin: TranslationStrings = {
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle':
     'Los usuarios pueden conectar su propia instancia de wanderer e importar sus senderos como excursiones',
+  'admin.toursHikingMap.title': 'Mapa de senderismo (OpenHikingMap)',
+  'admin.toursHikingMap.subtitle':
+    'Ofrece OpenHikingMap como mapa base en el planificador de rutas. Gratis para instalaciones no comerciales hasta 500.000 teselas al mes; una instalación comercial o mayor necesita antes un acuerdo con openmaps.fr',
   'admin.addons.noAddons': 'No hay complementos disponibles',
   'admin.weather.title': 'Datos meteorológicos',
   'admin.weather.badge': 'Desde el 24 de marzo de 2026',

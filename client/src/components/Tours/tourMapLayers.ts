@@ -9,10 +9,11 @@ import type { TourBaseLayer } from '../Map/MapLayerSwitcher';
  * A base layer is the map itself (one at a time). An overlay is information
  * laid over it and switched on its own; it is off until the user turns it on.
  * Only sources TREK already ships or that a card cleared are listed: OpenTopoMap
- * and the Esri imagery the planner had, the via ferrata layer (RC-10) and
- * OpenSeaMap's seamarks (PAD-10).
+ * and the Esri imagery the planner had, OpenHikingMap (MAP-01), the via ferrata
+ * layer (RC-10) and OpenSeaMap's seamarks (PAD-10).
  *
- * - Hike: the standard map first, as before; topo and satellite beside it; via ferratas.
+ * - Hike: the standard map first, as before; topo, OpenHikingMap (MAP-01, while the admin
+ *   allows it) and satellite beside it; via ferratas.
  * - Paddle: the standard map, whose water reads clearly, and satellite. No topo and
  *   no ferratas, those are hiking maps. Seamarks as an overlay.
  * - Any other type (switched off, or one this build does not plan): the standard map
@@ -33,11 +34,16 @@ const HIKE: TourMapLayerSet = {
   defaultBase: 'default',
   overlays: ['ferratas'],
 };
+const HIKE_WITH_HIKING_MAP: TourMapLayerSet = { ...HIKE, bases: ['default', 'topo', 'hiking', 'satellite'] };
 const PADDLE: TourMapLayerSet = { bases: ['default', 'satellite'], defaultBase: 'default', overlays: ['seamarks'] };
 const OTHER: TourMapLayerSet = { bases: ['default', 'satellite'], defaultBase: 'default', overlays: [] };
 
-export function tourMapLayersFor(type: TourTypeKey | null | undefined): TourMapLayerSet {
-  if (type === 'hike') return HIKE;
+/** `hikingMap`: the admin allows OpenHikingMap on this install (MAP-01). */
+export function tourMapLayersFor(
+  type: TourTypeKey | null | undefined,
+  { hikingMap = false }: { hikingMap?: boolean } = {}
+): TourMapLayerSet {
+  if (type === 'hike') return hikingMap ? HIKE_WITH_HIKING_MAP : HIKE;
   if (type === 'kayak') return PADDLE;
   return OTHER;
 }

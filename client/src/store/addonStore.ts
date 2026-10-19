@@ -27,6 +27,8 @@ interface AddonState {
   bagTracking: boolean
   /** Tours is on and the admin allows wanderer under it. */
   toursWanderer: boolean
+  /** Tours is on and the admin offers OpenHikingMap in its planner (MAP-01). */
+  toursHikingMap: boolean
   loaded: boolean
   loadAddons: () => Promise<void>
   isEnabled: (id: string) => boolean
@@ -36,6 +38,7 @@ export const useAddonStore = create<AddonState>((set, get) => ({
   addons: [],
   bagTracking: false,
   toursWanderer: false,
+  toursHikingMap: false,
   loaded: false,
 
   loadAddons: async () => {
@@ -43,6 +46,7 @@ export const useAddonStore = create<AddonState>((set, get) => ({
       const data = await addonsApi.enabled()
       set({ addons: data.addons || [], bagTracking: !!data.bagTracking,
         toursWanderer: !!data.toursWanderer,
+        toursHikingMap: !!data.toursHikingMap,
         loaded: true,
       })
     } catch {

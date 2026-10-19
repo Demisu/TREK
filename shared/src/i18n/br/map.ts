@@ -18,6 +18,9 @@ const map: TranslationStrings = {
   'map.hideAllConnections': 'Ocultar todas as rotas de reservas',
   'map.baseLayer.default': 'Mapa',
   'map.baseLayer.satellite': 'Satélite',
+  'map.baseLayer.hiking': 'Trilhas',
+  'map.baseLayer.hikingDown':
+    'O OpenHikingMap não está respondendo agora. Mude para outro mapa; seu passeio continua como está.',
   'map.baseLayer.switchToSatellite': 'Mudar para vista de satélite',
   'map.baseLayer.switchToDefault': 'Mudar para vista de mapa',
   'map.location.denied':

@@ -1,6 +1,11 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { useRasterOverlaysGL, type MapRasterOverlay, type RasterOverlayGlMap } from './mapRasterOverlay';
+import {
+  useRasterOverlaysGL,
+  useSourceTileHealthGL,
+  type MapRasterOverlay,
+  type RasterOverlayGlMap,
+} from './mapRasterOverlay';
 
 type Handler = (event: Record<string, unknown>) => void;
 
@@ -101,5 +106,29 @@ describe('useRasterOverlaysGL', () => {
     renderHook(() => useRasterOverlaysGL(null, [overlay(true)]));
     renderHook(() => useRasterOverlaysGL(gl, []));
     expect(map.on).not.toHaveBeenCalled();
+  });
+});
+
+describe('useSourceTileHealthGL (MAP-01)', () => {
+  it("reports one source's failed and arrived tiles into its health, nothing else's", () => {
+    const { gl, fire } = fakeMap();
+    const health = { down: false, onTileError: vi.fn(), onTileLoad: vi.fn() };
+    renderHook(() => useSourceTileHealthGL(gl, 'trip-hiking', health));
+    fire('error', { sourceId: 'trip-hiking', error: new Error('503') });
+    fire('error', { sourceId: 'trip-topo', error: new Error('503') });
+    fire('sourcedata', { sourceId: 'trip-hiking', tile: {} });
+    fire('sourcedata', { sourceId: 'trip-hiking' });
+    expect(health.onTileError).toHaveBeenCalledTimes(1);
+    expect(health.onTileLoad).toHaveBeenCalledTimes(1);
+  });
+
+  it('listens to nothing while the map is not shown, and lets go when it goes', () => {
+    const { map, gl } = fakeMap();
+    const health = { down: false, onTileError: vi.fn(), onTileLoad: vi.fn() };
+    renderHook(() => useSourceTileHealthGL(gl, 'trip-hiking', undefined));
+    expect(map.on).not.toHaveBeenCalled();
+    const { unmount } = renderHook(() => useSourceTileHealthGL(gl, 'trip-hiking', health));
+    unmount();
+    expect(map.off).toHaveBeenCalledTimes(2);
   });
 });

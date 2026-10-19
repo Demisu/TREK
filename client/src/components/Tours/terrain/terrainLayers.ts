@@ -1,9 +1,10 @@
 import type { Map as MapLibreMap, StyleSpecification } from 'maplibre-gl';
-import { OPENTOPOMAP_TILE_URL, SATELLITE_TILE_URL } from '../../../constants/mapDefaults';
+import { SATELLITE_TILE_URL } from '../../../constants/mapDefaults';
 import type { DistanceIndexedProfileSample } from '../../../utils/routeGeometry';
 import { OPENFREEMAP_DEFAULT_STYLE } from '../../Map/glProviders';
 import type { TourBaseLayer } from '../../Map/MapLayerSwitcher';
 import { plannerPinShape, type PlannerPinPoint } from '../../Map/plannerPinShape';
+import { TOUR_RASTER_BASES } from '../../Map/tourRasterBases';
 import type { TileTemplate } from './terrainPrefetch';
 import { gradeBand, gradeSegments } from './tourTerrainModel';
 
@@ -49,22 +50,28 @@ export function sidePadding(panels: PanelWidths, margin: number) {
   return { left, right };
 }
 
-function rasterStyle(tiles: string[], maxzoom: number): StyleSpecification {
+/**
+ * The source of a base map whose operator forbids prefetching (OpenHikingMap, MAP-01): it
+ * loads only what the camera shows, and the flyover's warm-up passes it by.
+ */
+const VIEW_ONLY_SOURCE = 'base-view-only';
+
+function rasterStyle(tiles: string[], maxzoom: number, sourceId = 'base', attribution?: string): StyleSpecification {
   return {
     version: 8,
-    sources: { base: { type: 'raster', tiles, tileSize: 256, maxzoom } },
-    layers: [{ id: 'base', type: 'raster', source: 'base' }],
+    sources: { [sourceId]: { type: 'raster', tiles, tileSize: 256, maxzoom, attribution } },
+    layers: [{ id: 'base', type: 'raster', source: sourceId }],
   };
 }
 
-/** The same three looks as the flat planner map, draped over the terrain. */
+/** The same looks as the flat planner map, draped over the terrain. */
 export function styleFor(layer: TourBaseLayer): string | StyleSpecification {
   if (layer === 'satellite') return rasterStyle([SATELLITE_TILE_URL], 19);
-  if (layer === 'topo')
-    return rasterStyle(
-      ['a', 'b', 'c'].map((s) => OPENTOPOMAP_TILE_URL.replace('{s}', s)),
-      17
-    );
+  if (layer === 'topo') return rasterStyle(TOUR_RASTER_BASES.topo.tiles, TOUR_RASTER_BASES.topo.maxZoom);
+  if (layer === 'hiking') {
+    const { tiles, maxZoom, attribution } = TOUR_RASTER_BASES.hiking;
+    return rasterStyle(tiles, maxZoom, VIEW_ONLY_SOURCE, attribution);
+  }
   return OPENFREEMAP_DEFAULT_STYLE;
 }
 
@@ -165,11 +172,11 @@ export function addTerrainLayers(map: MapLibreMap, data: TrackData, exaggeration
   map.setSky({ 'sky-color': '#9cc3f0', 'horizon-color': '#e8f0fb', 'fog-color': '#f4f7fb', 'sky-horizon-blend': 0.5 });
 }
 
-/** Every tiled source the loaded style draws from, the elevation model included. */
+/** Every tiled source the loaded style draws from, the elevation model included, but no view-only one. */
 export function loadedTemplates(map: MapLibreMap): TileTemplate[] {
   const templates: TileTemplate[] = [];
   for (const id of Object.keys(map.getStyle().sources)) {
-    if (id === HILLSHADE_SOURCE || id === TRACK_SOURCE) continue;
+    if (id === HILLSHADE_SOURCE || id === TRACK_SOURCE || id === VIEW_ONLY_SOURCE) continue;
     const source = map.getSource(id) as { tiles?: string[]; minzoom?: number; maxzoom?: number } | undefined;
     const url = source?.tiles?.[0];
     if (url) templates.push({ url, minzoom: source.minzoom ?? 0, maxzoom: source.maxzoom ?? 22 });

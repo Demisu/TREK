@@ -633,6 +633,9 @@ const admin: TranslationStrings = {
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle':
     'ผู้ใช้เชื่อมต่ออินสแตนซ์ wanderer ของตนเองและนำเข้าเส้นทางเดินจากที่นั่นเป็นทัวร์ได้',
+  'admin.toursHikingMap.title': 'แผนที่เดินป่า (OpenHikingMap)',
+  'admin.toursHikingMap.subtitle':
+    'เสนอ OpenHikingMap เป็นแผนที่ฐานในตัววางแผนทัวร์ ใช้ฟรีสำหรับการติดตั้งที่ไม่ใช่เชิงพาณิชย์ได้ถึง 500,000 ไทล์ต่อเดือน การติดตั้งเชิงพาณิชย์หรือขนาดใหญ่กว่าต้องทำข้อตกลงกับ openmaps.fr ก่อน',
   'admin.addons.noAddons': 'ไม่มีส่วนเสริมให้ใช้งาน',
   'admin.weather.title': 'ข้อมูลสภาพอากาศ',
   'admin.weather.badge': 'ตั้งแต่วันที่ 24 มีนาคม 2569',

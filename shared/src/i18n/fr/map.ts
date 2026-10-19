@@ -18,6 +18,9 @@ const map: TranslationStrings = {
   'map.hideAllConnections': 'Masquer tous les itinéraires',
   'map.baseLayer.default': 'Carte',
   'map.baseLayer.satellite': 'Satellite',
+  'map.baseLayer.hiking': 'Randonnée',
+  'map.baseLayer.hikingDown':
+    'OpenHikingMap ne répond pas pour le moment. Passe à une autre carte ; ton itinéraire reste inchangé.',
   'map.baseLayer.switchToSatellite': 'Passer à la vue satellite',
   'map.baseLayer.switchToDefault': 'Passer à la vue carte',
   'map.location.denied':

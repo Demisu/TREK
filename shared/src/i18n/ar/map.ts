@@ -18,6 +18,8 @@ const map: TranslationStrings = {
   'map.hideAllConnections': 'إخفاء جميع مسارات الحجوزات',
   'map.baseLayer.default': 'خريطة',
   'map.baseLayer.satellite': 'قمر صناعي',
+  'map.baseLayer.hiking': 'المشي',
+  'map.baseLayer.hikingDown': 'لا يستجيب OpenHikingMap حاليًا. انتقل إلى خريطة أخرى، وتبقى جولتك كما هي.',
   'map.baseLayer.switchToSatellite': 'التبديل إلى عرض القمر الصناعي',
   'map.baseLayer.switchToDefault': 'التبديل إلى عرض الخريطة',
   'map.location.denied':

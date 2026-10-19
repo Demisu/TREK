@@ -425,6 +425,20 @@ describe('AddonsService addon/feature flags', () => {
     expect((await svc.list()).toursWanderer).toBe(false);
   });
 
+  it('OpenHikingMap under Tours is on until an admin switches it off, and offered only with Tours (MAP-01)', async () => {
+    expect(await svc.getToursHikingMap()).toEqual({ enabled: true }); // absent row → ON
+    expect((await svc.list()).toursHikingMap).toBe(false); // Tours is off
+    await insertAddon({ id: 'tours', name: 'Tours', enabled: 1 });
+    expect((await svc.list()).toursHikingMap).toBe(true);
+
+    expect(await svc.updateToursHikingMap(false)).toEqual({ enabled: false });
+    expect(await storedAppSetting('tours_hiking_map_enabled')).toEqual({
+      key: 'tours_hiking_map_enabled',
+      value: 'false',
+    });
+    expect((await svc.list()).toursHikingMap).toBe(false);
+  });
+
   it('getCollabFeatures is opt-out: absent rows default ON, only false disables', async () => {
     await setAppSetting('collab_chat_enabled', 'false');
     await setAppSetting('collab_polls_enabled', 'true');

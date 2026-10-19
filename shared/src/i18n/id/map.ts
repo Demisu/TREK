@@ -18,6 +18,8 @@ const map: TranslationStrings = {
   'map.hideAllConnections': 'Sembunyikan semua rute pemesanan',
   'map.baseLayer.default': 'Peta',
   'map.baseLayer.satellite': 'Satelit',
+  'map.baseLayer.hiking': 'Pendakian',
+  'map.baseLayer.hikingDown': 'OpenHikingMap sedang tidak merespons. Beralih ke peta lain; turmu tetap seperti semula.',
   'map.baseLayer.switchToSatellite': 'Beralih ke tampilan satelit',
   'map.baseLayer.switchToDefault': 'Beralih ke tampilan peta',
   'map.location.denied':

@@ -1,4 +1,4 @@
-// FE-COMP-MAPLAYER-001 to FE-COMP-MAPLAYER-017
+// FE-COMP-MAPLAYER-001 to FE-COMP-MAPLAYER-019
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '../../../tests/helpers/render'
@@ -57,6 +57,30 @@ describe('MapLayerSwitcher', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Topo' }))
     expect(onChange).toHaveBeenCalledWith('topo')
+  })
+
+  it('FE-COMP-MAPLAYER-018: offers the hiking map only where the tour type and the admin offer it (MAP-01)', () => {
+    const onChange = vi.fn()
+    const { rerender } = render(<TourMapLayerSwitcher active="default" onChange={onChange} layers={{ bases: ['default', 'topo', 'satellite'] }} />)
+    expect(screen.queryByRole('button', { name: 'Hiking' })).toBeNull()
+
+    rerender(<TourMapLayerSwitcher active="default" onChange={onChange} layers={{ bases: ['default', 'topo', 'hiking', 'satellite'] }} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Hiking' }))
+    expect(onChange).toHaveBeenCalledWith('hiking')
+  })
+
+  it('FE-COMP-MAPLAYER-019: a hiking map that stopped answering says so on its segment, and only while it is shown', () => {
+    const hikingMap = { down: true, onTileError: vi.fn(), onTileLoad: vi.fn() }
+    const layers = { bases: ['default', 'hiking'] as const, hikingMap }
+    const { rerender } = render(<TourMapLayerSwitcher active="hiking" onChange={() => {}} layers={layers} />)
+    const segment = screen.getByRole('button', { name: 'Hiking' })
+    expect(segment).toHaveAttribute('aria-pressed', 'true')
+    expect(segment).toHaveTextContent('!')
+    expect(screen.getByRole('status')).toHaveTextContent('OpenHikingMap is not answering right now')
+
+    rerender(<TourMapLayerSwitcher active="default" onChange={() => {}} layers={layers} />)
+    expect(screen.getByRole('button', { name: 'Hiking' })).not.toHaveTextContent('!')
+    expect(screen.queryByRole('status')).toBeNull()
   })
 
   it('FE-COMP-MAPLAYER-008: the shell is as wide as the size its neighbours are placed off', () => {

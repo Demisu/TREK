@@ -721,6 +721,9 @@ const admin: TranslationStrings = {
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle':
     'Kullanıcılar kendi wanderer sunucularını bağlayıp parkurlarını tur olarak içe aktarabilir',
+  'admin.toursHikingMap.title': 'Yürüyüş haritası (OpenHikingMap)',
+  'admin.toursHikingMap.subtitle':
+    "OpenHikingMap'i tur planlayıcısında temel harita olarak sunar. Ticari olmayan kurulumlar için ayda 500.000 karoya kadar ücretsizdir; ticari veya daha büyük bir kurulum önce openmaps.fr ile anlaşma gerektirir",
   'admin.addons.noAddons': 'Kullanılabilir eklenti yok',
   'admin.weather.title': 'Hava Durumu Verileri',
   'admin.weather.badge': "24 Mart 2026'dan beri",

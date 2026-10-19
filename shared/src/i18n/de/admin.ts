@@ -666,6 +666,9 @@ const admin: TranslationStrings = {
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle':
     'Nutzer können ihre eigene wanderer-Instanz verbinden und deren Trails als Touren importieren',
+  'admin.toursHikingMap.title': 'Wanderkarte (OpenHikingMap)',
+  'admin.toursHikingMap.subtitle':
+    'Bietet OpenHikingMap als Grundkarte im Tourplaner an. Kostenlos für nichtkommerzielle Installationen bis 500.000 Kacheln im Monat; eine kommerzielle oder größere Installation braucht vorher eine Vereinbarung mit openmaps.fr',
   'admin.addons.noAddons': 'Keine Addons verfügbar',
   'admin.weather.title': 'Wetterdaten',
   'admin.weather.badge': 'Seit 24. März 2026',

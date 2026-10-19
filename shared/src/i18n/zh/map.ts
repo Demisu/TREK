@@ -18,6 +18,8 @@ const map: TranslationStrings = {
   'map.hideAllConnections': '隐藏所有预订路线',
   'map.baseLayer.default': '地图',
   'map.baseLayer.satellite': '卫星',
+  'map.baseLayer.hiking': '徒步',
+  'map.baseLayer.hikingDown': 'OpenHikingMap 当前无响应。请切换到其他地图，你的路线保持不变。',
   'map.baseLayer.switchToSatellite': '切换到卫星视图',
   'map.baseLayer.switchToDefault': '切换到地图视图',
   'map.location.denied': '定位权限已被阻止。请检查设备设置,已安装的应用拥有与浏览器分开的定位权限。',

@@ -18,6 +18,9 @@ const map: TranslationStrings = {
   'map.hideAllConnections': 'Alle boekingsroutes verbergen',
   'map.baseLayer.default': 'Kaart',
   'map.baseLayer.satellite': 'Satelliet',
+  'map.baseLayer.hiking': 'Wandelen',
+  'map.baseLayer.hikingDown':
+    'OpenHikingMap reageert op dit moment niet. Schakel over naar een andere kaart; je tocht blijft zoals hij is.',
   'map.baseLayer.switchToSatellite': 'Overschakelen naar satellietweergave',
   'map.baseLayer.switchToDefault': 'Overschakelen naar kaartweergave',
   'map.location.denied':

@@ -18,6 +18,8 @@ const map: TranslationStrings = {
   'map.hideAllConnections': 'Tüm rezervasyon rotalarını gizle',
   'map.baseLayer.default': 'Harita',
   'map.baseLayer.satellite': 'Uydu',
+  'map.baseLayer.hiking': 'Yürüyüş',
+  'map.baseLayer.hikingDown': 'OpenHikingMap şu anda yanıt vermiyor. Başka bir haritaya geç; turun olduğu gibi kalır.',
   'map.baseLayer.switchToSatellite': 'Uydu görünümüne geç',
   'map.baseLayer.switchToDefault': 'Harita görünümüne geç',
   'map.location.denied':

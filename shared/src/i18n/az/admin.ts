@@ -750,6 +750,9 @@ const admin: TranslationStrings = {
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle':
     'İstifadəçilər öz wanderer instansiyalarını qoşa və onun cığırlarını tur kimi idxal edə bilərlər',
+  'admin.toursHikingMap.title': 'Gəzinti xəritəsi (OpenHikingMap)',
+  'admin.toursHikingMap.subtitle':
+    'OpenHikingMap-i tur planlayıcısında əsas xəritə kimi təklif edir. Qeyri-kommersiya quraşdırmalar üçün ayda 500.000 plitəyə qədər pulsuzdur; kommersiya və ya daha böyük quraşdırma əvvəlcə openmaps.fr ilə razılaşma tələb edir',
   'admin.addons.noAddons': 'Heç bir əlavə mövcud deyil',
   'admin.weather.title': 'Hava məlumatları',
   'admin.weather.badge': '24 mart 2026-cı ildən',

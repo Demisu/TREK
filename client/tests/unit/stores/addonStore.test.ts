@@ -33,7 +33,9 @@ describe('addonStore', () => {
     });
 
     it('captures whether wanderer may be used under Tours', async () => {
-      server.use(http.get('/api/addons', () => HttpResponse.json({ toursWanderer: true, addons: [] })));
+      server.use(
+        http.get('/api/addons', () => HttpResponse.json({ toursWanderer: true, toursHikingMap: true, addons: [] }))
+      );
       await useAddonStore.getState().loadAddons();
       expect(useAddonStore.getState().toursWanderer).toBe(true);
 

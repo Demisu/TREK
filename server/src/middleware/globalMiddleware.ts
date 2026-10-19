@@ -325,6 +325,9 @@ export function applyGlobalMiddleware(
             // Tours planner (PAD-10). Leaflet loads it as an <img>; the GL map reads it
             // through fetch and needs it here.
             'https://tiles.openseamap.org',
+            // OpenHikingMap, the hiking base map of the Tours planner (MAP-01), loaded only
+            // while a user shows it and the admin allows it; GL reads it through fetch.
+            'https://tile.openmaps.fr',
             // Amap's raster tiles, for an install whose users are in China, for the
             // same reason as the hosts above (#2180). Road (webrd01..04) and
             // satellite (webst01..04) are numbered shards of one domain, so the

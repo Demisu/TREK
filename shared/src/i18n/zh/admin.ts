@@ -595,6 +595,9 @@ const admin: TranslationStrings = {
   'admin.addons.subOptionsOn': '已开启 {count} 个',
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle': '用户可以连接自己的 wanderer 实例，并将其中的步道作为游览路线导入',
+  'admin.toursHikingMap.title': '徒步地图 (OpenHikingMap)',
+  'admin.toursHikingMap.subtitle':
+    '在路线规划器中提供 OpenHikingMap 作为底图。非商业安装每月 500,000 个瓦片以内免费；商业或更大规模的安装需要先与 openmaps.fr 达成协议',
   'admin.addons.noAddons': '暂无可用扩展',
   'admin.weather.title': '天气数据',
   'admin.weather.badge': '自 2026 年 3 月 24 日起',

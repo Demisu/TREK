@@ -734,6 +734,9 @@ const admin: TranslationStrings = {
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle':
     'Οι χρήστες μπορούν να συνδέσουν τη δική τους εγκατάσταση wanderer και να εισαγάγουν τα μονοπάτια της ως εκδρομές',
+  'admin.toursHikingMap.title': 'Χάρτης πεζοπορίας (OpenHikingMap)',
+  'admin.toursHikingMap.subtitle':
+    'Προσφέρει το OpenHikingMap ως χάρτη βάσης στον σχεδιαστή διαδρομών. Δωρεάν για μη εμπορικές εγκαταστάσεις έως 500.000 πλακίδια τον μήνα· μια εμπορική ή μεγαλύτερη εγκατάσταση χρειάζεται πρώτα συμφωνία με το openmaps.fr',
   'admin.addons.noAddons': 'Δεν υπάρχουν διαθέσιμα πρόσθετα',
   'admin.weather.title': 'Δεδομένα Καιρού',
   'admin.weather.badge': 'Από 24 Μαρτίου 2026',

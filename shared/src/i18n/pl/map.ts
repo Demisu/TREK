@@ -18,6 +18,9 @@ const map: TranslationStrings = {
   'map.hideAllConnections': 'Ukryj wszystkie trasy rezerwacji',
   'map.baseLayer.default': 'Mapa',
   'map.baseLayer.satellite': 'Satelita',
+  'map.baseLayer.hiking': 'Turystyka',
+  'map.baseLayer.hikingDown':
+    'OpenHikingMap w tej chwili nie odpowiada. Przełącz na inną mapę; twoja trasa pozostaje bez zmian.',
   'map.baseLayer.switchToSatellite': 'Przełącz na widok satelitarny',
   'map.baseLayer.switchToDefault': 'Przełącz na widok mapy',
   'map.location.denied':

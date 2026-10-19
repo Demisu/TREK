@@ -732,6 +732,9 @@ const admin: TranslationStrings = {
   'admin.addons.subOptionsOn.one': '{count} aktiv',
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle': 'Användare kan ansluta sin egen wanderer-instans och importera dess leder som turer',
+  'admin.toursHikingMap.title': 'Vandringskarta (OpenHikingMap)',
+  'admin.toursHikingMap.subtitle':
+    'Erbjuder OpenHikingMap som baskarta i turplaneraren. Gratis för icke-kommersiella installationer upp till 500 000 rutor i månaden; en kommersiell eller större installation behöver först ett avtal med openmaps.fr',
   'admin.addons.noAddons': 'Inga tillägg tillgängliga',
   'admin.weather.title': 'Väderdata',
   'admin.weather.badge': 'Sedan den 24 mars 2026',

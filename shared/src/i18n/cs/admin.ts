@@ -661,6 +661,9 @@ const admin: TranslationStrings = {
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle':
     'Uživatelé mohou připojit vlastní instanci wanderer a importovat z ní trasy jako výlety',
+  'admin.toursHikingMap.title': 'Turistická mapa (OpenHikingMap)',
+  'admin.toursHikingMap.subtitle':
+    'Nabízí OpenHikingMap jako podkladovou mapu v plánovači túr. Zdarma pro nekomerční instalace do 500 000 dlaždic měsíčně; komerční nebo větší instalace potřebuje nejdřív dohodu s openmaps.fr',
   'admin.addons.noAddons': 'Žádné doplňky nejsou k dispozici',
   'admin.addons.catalog.mcp.name': 'MCP',
   'admin.addons.catalog.mcp.description': 'Model Context Protocol pro integraci AI asistentů',

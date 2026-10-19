@@ -658,6 +658,9 @@ const admin: TranslationStrings = {
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle':
     'Os usuários podem conectar a própria instância do wanderer e importar as trilhas dela como passeios',
+  'admin.toursHikingMap.title': 'Mapa de trilhas (OpenHikingMap)',
+  'admin.toursHikingMap.subtitle':
+    'Oferece o OpenHikingMap como mapa base no planejador de passeios. Gratuito para instalações não comerciais até 500.000 blocos por mês; uma instalação comercial ou maior precisa antes de um acordo com o openmaps.fr',
   'admin.addons.noAddons': 'Nenhum complemento disponível',
   'admin.addons.integrationHint': 'Serviços de backend e integrações de API sem página dedicada',
   'admin.weather.title': 'Dados meteorológicos',

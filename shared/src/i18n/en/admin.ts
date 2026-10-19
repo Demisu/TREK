@@ -710,6 +710,9 @@ const admin: TranslationStrings = {
   'admin.addons.subOptionsOn.one': '{count} on',
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle': 'Users can connect their own wanderer instance and import its trails as tours',
+  'admin.toursHikingMap.title': 'Hiking map (OpenHikingMap)',
+  'admin.toursHikingMap.subtitle':
+    'Offers OpenHikingMap as a base map in the tour planner. Free for non-commercial installs up to 500,000 tiles a month; a commercial or larger install needs an agreement with openmaps.fr first',
   'admin.addons.noAddons': 'No addons available',
   'admin.weather.title': 'Weather Data',
   'admin.weather.badge': 'Since March 24, 2026',

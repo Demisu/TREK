@@ -18,6 +18,9 @@ const map: TranslationStrings = {
   'map.hideAllConnections': 'Hide all booking routes',
   'map.baseLayer.default': 'Map',
   'map.baseLayer.satellite': 'Satellite',
+  'map.baseLayer.hiking': 'Hiking',
+  'map.baseLayer.hikingDown':
+    'OpenHikingMap is not answering right now. Switch to another map; your tour stays as it is.',
   'map.baseLayer.switchToSatellite': 'Switch to satellite view',
   'map.baseLayer.switchToDefault': 'Switch to map view',
   'map.location.denied':

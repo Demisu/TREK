@@ -78,6 +78,19 @@ export class AddonsService {
     return { enabled: !!enabled };
   }
 
+  /**
+   * MAP-01: the admin's switch for OpenHikingMap under Tours, as stored. Fail-open: an install
+   * that never saved it offers the map, one whose admin switched it off does not.
+   */
+  async getToursHikingMap() {
+    const value = await readAppSetting(this.appSettings, 'tours_hiking_map_enabled');
+    return { enabled: value !== 'false' };
+  }
+
+  async updateToursHikingMap(enabled: boolean) {
+    return this.writeFlag('tours_hiking_map_enabled', enabled);
+  }
+
   /** wanderer may be used: Tours is on and the admin allowed it under Tours. */
   async isWandererAvailable(): Promise<boolean> {
     return (await this.isAddonEnabled(ADDON_IDS.TOURS)) && (await this.getToursWanderer()).enabled;
@@ -163,6 +176,7 @@ export class AddonsService {
       collabFeatures: await this.getCollabFeatures(),
       bagTracking: (await this.getBagTracking()).enabled,
       toursWanderer: await this.isWandererAvailable(),
+      toursHikingMap: (await this.isAddonEnabled(ADDON_IDS.TOURS)) && (await this.getToursHikingMap()).enabled,
       addons: [
         // The repository row carries every scalar column (description, config,
         // sort_order included); the legacy statement selected only these five,

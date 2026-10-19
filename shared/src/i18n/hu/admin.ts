@@ -672,6 +672,9 @@ const admin: TranslationStrings = {
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle':
     'A felhasználók csatlakoztathatják saját wanderer-példányukat, és túraként importálhatják annak túraútvonalait',
+  'admin.toursHikingMap.title': 'Túratérkép (OpenHikingMap)',
+  'admin.toursHikingMap.subtitle':
+    'Az OpenHikingMapet alaptérképként kínálja a túratervezőben. Nem kereskedelmi telepítéseknek havi 500 000 csempéig ingyenes; kereskedelmi vagy nagyobb telepítéshez előbb megállapodás kell az openmaps.fr-rel',
   'admin.addons.noAddons': 'Nincsenek elérhető bővítmények',
   'admin.weather.title': 'Időjárás adatok',
   'admin.weather.badge': '2026. március 24. óta',

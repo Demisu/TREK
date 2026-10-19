@@ -8,7 +8,7 @@ import { renderIconMarkup } from '../../utils/iconMarkup'
 import type mapboxgl from 'mapbox-gl'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useTranslation } from '../../i18n/TranslationContext'
-import { applySatellite } from './glRasterLayers'
+import { applyBaseLayer } from './glRasterLayers'
 import { isTourLayerHit, useTourMapLayersGL } from './mapRasterOverlay'
 import { MapLayerSwitcher, TourMapLayerSwitcher, MAP_LAYER_SWITCHER_INSET, type BaseLayer, type TourBaseLayer } from './MapLayerSwitcher'
 import { MapLockPill } from './MapLockPill'
@@ -612,7 +612,7 @@ export function MapViewGL({
   const mapRef = useRef<any | null>(null)
   const hazardPopupFactory = useCallback(() => new gl.Popup({ className: 'map-tooltip trek-hazard-popup', maxWidth: '320px' }), [gl])
   useHazardLayerGL(mapRef.current, mapReady, hazards, hazardPopupFactory)
-  useTourMapLayersGL(mapReady ? readyMap : null, ferrataLayer, tourLayers?.overlays, tourLayers?.paddle)
+  useTourMapLayersGL(mapReady ? readyMap : null, ferrataLayer, tourLayers)
   // Beneath the planned route's casing, the GL twin of the Leaflet pane order.
   useDawarichTrailGL(mapRef.current, mapReady, dawarichTrack, dawarichSelectedDate, 'trip-route-casing', dawarichHiddenDates)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -2185,14 +2185,11 @@ export function MapViewGL({
   useEffect(() => {
     const map = mapRef.current
     if (!map || !mapReady) return
-    const apply = () => {
-      applySatellite(map, isSatellite)
-      applySatellite(map, baseLayer === 'topo', true)
-    }
+    const apply = () => applyBaseLayer(map, baseLayer)
     apply()
     map.on('styledata', apply)
     return () => { map.off('styledata', apply) }
-  }, [isSatellite, baseLayer, mapReady, glProvider])
+  }, [baseLayer, mapReady, glProvider])
 
   if (!isMapLibre && !mapboxToken) {
     return (

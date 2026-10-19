@@ -710,6 +710,9 @@ const admin: TranslationStrings = {
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle':
     'Pengguna dapat menghubungkan instans wanderer milik sendiri dan mengimpor jalurnya sebagai tur',
+  'admin.toursHikingMap.title': 'Peta pendakian (OpenHikingMap)',
+  'admin.toursHikingMap.subtitle':
+    'Menawarkan OpenHikingMap sebagai peta dasar di perencana tur. Gratis untuk instalasi nonkomersial hingga 500.000 ubin per bulan; instalasi komersial atau yang lebih besar perlu perjanjian dengan openmaps.fr terlebih dahulu',
   'admin.addons.noAddons': 'Tidak ada addon yang tersedia',
   'admin.weather.title': 'Data Cuaca',
   'admin.weather.badge': 'Sejak 24 Maret 2026',

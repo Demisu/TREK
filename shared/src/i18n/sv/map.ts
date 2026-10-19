@@ -18,6 +18,8 @@ const map: TranslationStrings = {
   'map.hideAllConnections': 'Dölj alla bokningsvägar',
   'map.baseLayer.default': 'Karta',
   'map.baseLayer.satellite': 'Satellit',
+  'map.baseLayer.hiking': 'Vandring',
+  'map.baseLayer.hikingDown': 'OpenHikingMap svarar inte just nu. Byt till en annan karta; din tur förblir som den är.',
   'map.baseLayer.switchToSatellite': 'Byt till satellitvy',
   'map.baseLayer.switchToDefault': 'Byt till kartvy',
   'map.location.denied':

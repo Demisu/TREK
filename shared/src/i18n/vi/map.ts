@@ -18,6 +18,9 @@ const map: TranslationStrings = {
   'map.hideAllConnections': 'Ẩn tất cả lộ trình đặt chỗ',
   'map.baseLayer.default': 'Bản đồ',
   'map.baseLayer.satellite': 'Vệ tinh',
+  'map.baseLayer.hiking': 'Đi bộ đường dài',
+  'map.baseLayer.hikingDown':
+    'OpenHikingMap hiện không phản hồi. Hãy chuyển sang bản đồ khác; chuyến đi của bạn vẫn giữ nguyên.',
   'map.baseLayer.switchToSatellite': 'Chuyển sang chế độ xem vệ tinh',
   'map.baseLayer.switchToDefault': 'Chuyển sang chế độ xem bản đồ',
   'map.location.denied':

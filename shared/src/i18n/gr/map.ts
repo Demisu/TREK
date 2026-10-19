@@ -18,6 +18,9 @@ const map: TranslationStrings = {
   'map.hideAllConnections': 'Απόκρυψη όλων των διαδρομών κρατήσεων',
   'map.baseLayer.default': 'Χάρτης',
   'map.baseLayer.satellite': 'Δορυφόρος',
+  'map.baseLayer.hiking': 'Πεζοπορία',
+  'map.baseLayer.hikingDown':
+    'Το OpenHikingMap δεν απαντά αυτή τη στιγμή. Άλλαξε σε άλλο χάρτη· η διαδρομή σου μένει ως έχει.',
   'map.baseLayer.switchToSatellite': 'Εναλλαγή σε δορυφορική προβολή',
   'map.baseLayer.switchToDefault': 'Εναλλαγή σε προβολή χάρτη',
   'map.location.denied':

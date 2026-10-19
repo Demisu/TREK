@@ -1,15 +1,9 @@
-import {
-  OPENTOPOMAP_TILE_ATTRIBUTION,
-  OPENTOPOMAP_TILE_MAXZOOM,
-  OPENTOPOMAP_TILE_URL,
-  SATELLITE_TILE_ATTRIBUTION,
-  SATELLITE_TILE_MAXZOOM,
-  SATELLITE_TILE_URL,
-} from '../../constants/mapDefaults';
+import { SATELLITE_TILE_ATTRIBUTION, SATELLITE_TILE_MAXZOOM, SATELLITE_TILE_URL } from '../../constants/mapDefaults';
+import { TOUR_RASTER_BASE_IDS, TOUR_RASTER_BASES, type TourRasterBase } from './tourRasterBases';
 
 /*
  * The raster layers a GL map draws between its basemap style and what TREK
- * adds on top: the satellite and topo base layers, and (in mapRasterOverlay.ts)
+ * adds on top: the satellite, topo and hiking base layers, and (in mapRasterOverlay.ts)
  * the transparent overlays such as the seamarks.
  */
 
@@ -50,9 +44,10 @@ export const OWN_LAYER_PREFIXES = ['trip-', 'trek-', 'route-alt-'];
  * yet. The catch covers that case, and `styledata` brings the pass back once it is in.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function applySatellite(map: any, on: boolean, topo = false): void {
-  const layerId = topo ? 'trip-topo-raster' : SATELLITE_LAYER_ID;
-  const sourceId = topo ? 'trip-topo' : SATELLITE_SOURCE_ID;
+export function applySatellite(map: any, on: boolean, raster?: TourRasterBase): void {
+  const layerId = raster ? `trip-${raster}-raster` : SATELLITE_LAYER_ID;
+  const sourceId = raster ? tourRasterSourceId(raster) : SATELLITE_SOURCE_ID;
+  const source = raster ? TOUR_RASTER_BASES[raster] : null;
   try {
     if (map.getLayer(layerId)) {
       map.setLayoutProperty(layerId, 'visibility', on ? 'visible' : 'none');
@@ -65,12 +60,10 @@ export function applySatellite(map: any, on: boolean, topo = false): void {
     if (!map.getSource(sourceId)) {
       map.addSource(sourceId, {
         type: 'raster',
-        tiles: topo
-          ? ['a', 'b', 'c'].map((subdomain) => OPENTOPOMAP_TILE_URL.replace('{s}', subdomain))
-          : [SATELLITE_TILE_URL],
+        tiles: source ? source.tiles : [SATELLITE_TILE_URL],
         tileSize: 256,
-        maxzoom: topo ? OPENTOPOMAP_TILE_MAXZOOM : SATELLITE_TILE_MAXZOOM,
-        attribution: topo ? OPENTOPOMAP_TILE_ATTRIBUTION : SATELLITE_TILE_ATTRIBUTION,
+        maxzoom: source ? source.maxZoom : SATELLITE_TILE_MAXZOOM,
+        attribution: source ? source.attribution : SATELLITE_TILE_ATTRIBUTION,
       });
     }
     // Under the first thing TREK draws, over everything the basemap style draws.
@@ -89,4 +82,15 @@ export function applySatellite(map: any, on: boolean, topo = false): void {
   } catch {
     /* a style that refuses the layer keeps the plain basemap */
   }
+}
+
+/** The GL source a Tours raster base map is drawn from, which its tile events name. */
+export function tourRasterSourceId(raster: TourRasterBase): string {
+  return `trip-${raster}`;
+}
+
+/** The base layer on a GL map: the imagery, a Tours raster map, or neither over the user's own style. */
+export function applyBaseLayer(map: Parameters<typeof applySatellite>[0], baseLayer: string): void {
+  applySatellite(map, baseLayer === 'satellite');
+  for (const raster of TOUR_RASTER_BASE_IDS) applySatellite(map, baseLayer === raster, raster);
 }

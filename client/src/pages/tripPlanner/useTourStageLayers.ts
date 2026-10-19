@@ -1,11 +1,12 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import type { useFerrataMapLayer } from '../../components/Ferratas/useFerrataMapLayer';
 import { paddleMapItems, selectedPaddleKey } from '../../components/Tours/paddle/paddleMapLayer';
 import { usePaddlePaint } from '../../components/Tours/paddle/paddlePaint';
 import type { TourPlannerController } from '../../components/Tours/planner/useTourPlanner';
 import { baseLayerFor, SEAMARK_OVERLAY, tourMapLayersFor } from '../../components/Tours/tourMapLayers';
-import { useTourRasterOverlay } from '../../components/Tours/useTourRasterOverlay';
+import { useTileHealth, useTourRasterOverlay } from '../../components/Tours/useTourRasterOverlay';
+import { useAddonStore } from '../../store/addonStore';
 import { selectPaddleObstacle, usePaddleObstacleStore } from '../../store/paddleObstacleStore';
 
 const NO_CROSSINGS: never[] = [];
@@ -17,14 +18,29 @@ type FerrataLayerState = ReturnType<typeof useFerrataMapLayer>;
  * and overlays of its type, an import with its own type's and a draft with the
  * one chosen. A type without the via ferrata layer, or no tour open at all,
  * neither draws nor warns about ferratas, even if the layer was switched on before; a base layer it
- * does not offer falls back to its default without changing the choice kept.
+ * does not offer falls back to its default without changing the choice kept,
+ * which is also what an install whose admin withdrew OpenHikingMap sees.
  */
 export function useTourStageLayers(
   tourPlanner: Pick<TourPlannerController, 'mode' | 'tourType' | 'mapBaseLayer' | 'mapOverlays' | 'toggleMapOverlay'>,
   ferrata: FerrataLayerState
 ) {
   const { mode } = tourPlanner;
-  const layerSet = tourMapLayersFor(mode.type === 'view-gpx' ? mode.tour.tour_type : tourPlanner.tourType);
+  // MAP-01: OpenHikingMap while a hike is being planned (a draft or a saved tour in the editor),
+  // never over an import viewed as it came in or with no tour open, and only while the admin offers it.
+  const hikingMapAllowed = useAddonStore((state) => state.toursHikingMap);
+  const planning = mode.type === 'new-draft' || mode.type === 'edit-saved';
+  const layerSet = tourMapLayersFor(mode.type === 'view-gpx' ? mode.tour.tour_type : tourPlanner.tourType, {
+    hikingMap: hikingMapAllowed && planning,
+  });
+  const baseLayer = baseLayerFor(layerSet, tourPlanner.mapBaseLayer);
+  // Whether OpenHikingMap answers, asked afresh each time it becomes the base map.
+  const hikingMap = useTileHealth();
+  const { reset: resetHikingMap } = hikingMap;
+  const showsHikingMap = baseLayer === 'hiking';
+  useEffect(() => {
+    if (showsHikingMap) resetHikingMap();
+  }, [showsHikingMap, resetHikingMap]);
   // With no tour open nothing is a hike yet: the ferratas wait for one, as the seamarks wait for a paddle tour.
   const offersFerratas = mode.type !== 'neutral' && layerSet.overlays.includes('ferratas');
   const { toggleMapOverlay } = tourPlanner;
@@ -54,11 +70,16 @@ export function useTourStageLayers(
     [paddleItems, features, selectedRef]
   );
   const tourLayers = useMemo(
-    () => ({ bases: layerSet.bases, overlays: layerSet.overlays.includes('seamarks') ? [seamarks] : [], paddle }),
-    [layerSet, seamarks, paddle]
+    () => ({
+      bases: layerSet.bases,
+      overlays: layerSet.overlays.includes('seamarks') ? [seamarks] : [],
+      paddle,
+      hikingMap: showsHikingMap ? hikingMap : undefined,
+    }),
+    [layerSet, seamarks, paddle, showsHikingMap, hikingMap]
   );
   return {
-    baseLayer: baseLayerFor(layerSet, tourPlanner.mapBaseLayer),
+    baseLayer,
     tourLayers,
     ferrataLayer: offersFerratas ? ferrata.layer : undefined,
     ferrataCrossings: offersFerratas ? ferrata.crossings : NO_CROSSINGS,

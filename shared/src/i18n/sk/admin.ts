@@ -737,6 +737,9 @@ const admin: TranslationStrings = {
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle':
     'Používatelia môžu pripojiť vlastnú inštanciu wanderer a importovať z nej trasy ako túry',
+  'admin.toursHikingMap.title': 'Turistická mapa (OpenHikingMap)',
+  'admin.toursHikingMap.subtitle':
+    'Ponúka OpenHikingMap ako podkladovú mapu v plánovači túr. Zadarmo pre nekomerčné inštalácie do 500 000 dlaždíc mesačne; komerčná alebo väčšia inštalácia potrebuje najprv dohodu s openmaps.fr',
   'admin.addons.noAddons': 'Žiadne doplnky nie sú dostupné',
   'admin.weather.title': 'Dáta o počasí',
   'admin.weather.badge': 'Od 24. marca 2026',

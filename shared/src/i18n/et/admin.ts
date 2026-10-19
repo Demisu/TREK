@@ -730,6 +730,9 @@ const admin: TranslationStrings = {
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle':
     'Kasutajad saavad ühendada oma wanderer-serveri ja importida selle matkarajad retkedena',
+  'admin.toursHikingMap.title': 'Matkakaart (OpenHikingMap)',
+  'admin.toursHikingMap.subtitle':
+    'Pakub OpenHikingMapi matkaplaneerija aluskaardina. Mitteäriliste paigalduste jaoks tasuta kuni 500 000 paani kuus; äriline või suurem paigaldus vajab enne kokkulepet openmaps.fr-iga',
   'admin.addons.noAddons': 'Lisamooduleid pole saadaval',
   'admin.weather.title': 'Ilmaandmed',
   'admin.weather.badge': 'Alates 24. märtsist 2026',

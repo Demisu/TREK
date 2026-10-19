@@ -665,6 +665,9 @@ const admin: TranslationStrings = {
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle':
     'Gebruikers kunnen hun eigen wanderer-instantie koppelen en de wandelroutes daarvan als tochten importeren',
+  'admin.toursHikingMap.title': 'Wandelkaart (OpenHikingMap)',
+  'admin.toursHikingMap.subtitle':
+    'Biedt OpenHikingMap aan als basiskaart in de tochtplanner. Gratis voor niet-commerciële installaties tot 500.000 tegels per maand; een commerciële of grotere installatie heeft eerst een afspraak met openmaps.fr nodig',
   'admin.addons.noAddons': 'Geen add-ons beschikbaar',
   'admin.weather.title': 'Weergegevens',
   'admin.weather.badge': 'Sinds 24 maart 2026',

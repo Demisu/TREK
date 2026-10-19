@@ -1,15 +1,33 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import type { MapRasterOverlay, ToggleableRasterOverlay } from '../Map/mapRasterOverlay';
+import type { TileHealth } from '../Map/tourRasterBases';
 
 /** Failed tiles in a row, with none arriving between them, before the source counts as down. */
 const FAILURES_UNTIL_DOWN = 4;
 
 /**
+ * Whether a best-effort tile source answers. A run of failed tiles marks it
+ * down; one tile arriving clears that, and `reset` tries afresh. One stray
+ * failure alone never marks it down.
+ */
+export function useTileHealth(): TileHealth & { reset: () => void } {
+  const [down, setDown] = useState(false);
+  const failures = useRef(0);
+  const reset = useCallback(() => {
+    failures.current = 0;
+    setDown(false);
+  }, []);
+  const onTileError = useCallback(() => {
+    failures.current += 1;
+    if (failures.current >= FAILURES_UNTIL_DOWN) setDown(true);
+  }, []);
+  return useMemo(() => ({ down, onTileError, onTileLoad: reset, reset }), [down, onTileError, reset]);
+}
+
+/**
  * An overlay the planner offers, off until switched on; whether it is on is
- * the planner's (`active`, `onToggle`), so it outlasts the map. A run of failed
- * tiles marks it down, which the switch shows; one tile arriving clears that,
- * and switching it off and on again tries afresh. One stray failure alone
- * never marks it down.
+ * the planner's (`active`, `onToggle`), so it outlasts the map. Its tile
+ * health shows on the switch, and switching it off and on again tries afresh.
  */
 export function useTourRasterOverlay(
   definition: Pick<MapRasterOverlay, 'id' | 'url' | 'attribution' | 'minZoom' | 'maxZoom'>,
@@ -17,23 +35,13 @@ export function useTourRasterOverlay(
   active: boolean,
   toggle: () => void
 ): ToggleableRasterOverlay {
-  const [down, setDown] = useState(false);
-  const failures = useRef(0);
+  const { down, onTileError, onTileLoad, reset } = useTileHealth();
   const on = active && offered;
 
   const onToggle = useCallback(() => {
-    failures.current = 0;
-    setDown(false);
+    reset();
     toggle();
-  }, [toggle]);
-  const onTileError = useCallback(() => {
-    failures.current += 1;
-    if (failures.current >= FAILURES_UNTIL_DOWN) setDown(true);
-  }, []);
-  const onTileLoad = useCallback(() => {
-    failures.current = 0;
-    setDown(false);
-  }, []);
+  }, [reset, toggle]);
 
   return useMemo(
     () => ({

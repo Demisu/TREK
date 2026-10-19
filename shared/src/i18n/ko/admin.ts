@@ -671,6 +671,9 @@ const admin: TranslationStrings = {
   'admin.addons.subOptionsOn': '{count}개 켜짐',
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle': '사용자가 자신의 wanderer 인스턴스를 연결하고 그 트레일을 투어로 가져올 수 있습니다',
+  'admin.toursHikingMap.title': '하이킹 지도 (OpenHikingMap)',
+  'admin.toursHikingMap.subtitle':
+    '투어 플래너에서 OpenHikingMap을 기본 지도로 제공합니다. 비상업적 설치는 월 500,000 타일까지 무료이며, 상업적이거나 더 큰 설치는 먼저 openmaps.fr과의 협의가 필요합니다',
   'admin.addons.noAddons': '사용 가능한 애드온이 없습니다',
   'admin.weather.title': '날씨 데이터',
   'admin.weather.badge': '2026년 3월 24일부터',

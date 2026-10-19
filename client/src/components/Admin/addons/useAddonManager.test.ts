@@ -2,11 +2,13 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { adminApi } from '../../../api/client';
+import { hikingMapAdminApi } from '../../../api/hikingMap';
+import { wandererAdminApi } from '../../../api/wanderer';
 import { useAddonStore } from '../../../store/addonStore';
 import type { Addon } from './addonModel';
 import { useAddonManager } from './useAddonManager';
 
-// FE-HOOK-ADDONMGR-001 to FE-HOOK-ADDONMGR-006
+// FE-HOOK-ADDONMGR-001 to FE-HOOK-ADDONMGR-008
 
 const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
 vi.mock('../../shared/Toast', () => ({ useToast: () => toast }));
@@ -35,6 +37,8 @@ beforeEach(() => {
   useAddonStore.setState({ loadAddons });
   vi.spyOn(adminApi, 'addons').mockResolvedValue({ addons: ADDONS });
   vi.spyOn(adminApi, 'updateAddon').mockResolvedValue({});
+  vi.spyOn(wandererAdminApi, 'get').mockResolvedValue({ enabled: false });
+  vi.spyOn(hikingMapAdminApi, 'get').mockResolvedValue({ enabled: true });
 });
 afterEach(() => vi.restoreAllMocks());
 
@@ -114,5 +118,24 @@ describe('useAddonManager', () => {
     expect(result.current.providerOptions[0].enabled).toBe(true);
     await act(() => result.current.documentProviderOptions[0].toggle());
     expect(adminApi.updateAddon).toHaveBeenLastCalledWith('gdrive', { enabled: false });
+  });
+
+  it('FE-HOOK-ADDONMGR-007: the hiking map switch under Tours loads, flips, saves and refreshes the store (MAP-01)', async () => {
+    const update = vi.spyOn(hikingMapAdminApi, 'update').mockResolvedValue({ enabled: false });
+    const { result } = await loaded();
+    await waitFor(() => expect(result.current.toursHikingMap).toBe(true));
+    await act(() => result.current.toggleToursHikingMap());
+    expect(update).toHaveBeenCalledWith(false);
+    expect(result.current.toursHikingMap).toBe(false);
+    expect(loadAddons).toHaveBeenCalled();
+    expect(toast.success).toHaveBeenCalledWith('admin.addons.toast.updated');
+  });
+
+  it('FE-HOOK-ADDONMGR-008: a failed save puts the switch under Tours back and says so', async () => {
+    vi.spyOn(wandererAdminApi, 'update').mockRejectedValue(new Error('500'));
+    const { result } = await loaded();
+    await act(() => result.current.toggleToursWanderer());
+    expect(result.current.toursWanderer).toBe(false);
+    expect(toast.error).toHaveBeenCalledWith('admin.addons.toast.error');
   });
 });

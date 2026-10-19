@@ -267,6 +267,9 @@ const admin: TranslationStrings = {
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle':
     'Els usuaris poden connectar la seva pròpia instància de wanderer i importar-ne els senders com a excursions',
+  'admin.toursHikingMap.title': "Mapa d'excursionisme (OpenHikingMap)",
+  'admin.toursHikingMap.subtitle':
+    'Ofereix OpenHikingMap com a mapa base al planificador de rutes. Gratuït per a instal·lacions no comercials fins a 500.000 tessel·les al mes; una instal·lació comercial o més gran necessita abans un acord amb openmaps.fr',
   'admin.addons.noAddons': 'No hi ha complements disponibles',
   'admin.weather.title': 'Dades meteorològiques',
   'admin.weather.badge': 'Des del 24 de març de 2026',

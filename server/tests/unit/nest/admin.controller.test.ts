@@ -46,6 +46,8 @@ const addonsStub = () =>
     updateBagTracking: vi.fn((enabled: boolean) => ({ enabled })),
     getToursWanderer: vi.fn(() => ({ enabled: false })),
     updateToursWanderer: vi.fn((enabled: boolean) => ({ enabled })),
+    getToursHikingMap: vi.fn(() => ({ enabled: true })),
+    updateToursHikingMap: vi.fn((enabled: boolean) => ({ enabled })),
     getPlacesPhotos: vi.fn(() => ({ enabled: false })),
     updatePlacesPhotos: vi.fn((enabled: boolean) => ({ enabled })),
     getPlacesAutocomplete: vi.fn(() => ({ enabled: false })),
@@ -492,6 +494,7 @@ describe('AdminController feature toggles', () => {
     const cases: Array<[() => Promise<unknown>, string, keyof AddonsService]> = [
       [() => c.updateBagTracking(user, { enabled: true }, req), 'admin.bag_tracking', 'updateBagTracking'],
       [() => c.updateToursWanderer(user, { enabled: true }, req), 'admin.tours_wanderer', 'updateToursWanderer'],
+      [() => c.updateToursHikingMap(user, { enabled: true }, req), 'admin.tours_hiking_map', 'updateToursHikingMap'],
       [() => c.updatePlacesPhotos(user, { enabled: true }, req), 'admin.places_photos', 'updatePlacesPhotos'],
       [
         () => c.updatePlacesAutocomplete(user, { enabled: true }, req),
@@ -513,6 +516,7 @@ describe('AdminController feature toggles', () => {
     const c = adminCtl(svc());
     expect(await c.getBagTracking()).toEqual({ enabled: false });
     expect(await c.getToursWanderer()).toEqual({ enabled: false });
+    expect(await c.getToursHikingMap()).toEqual({ enabled: true });
     expect(await c.getPlacesPhotos()).toEqual({ enabled: false });
     expect(await c.getPlacesAutocomplete()).toEqual({ enabled: false });
     expect(await c.getPlacesDetails()).toEqual({ enabled: false });

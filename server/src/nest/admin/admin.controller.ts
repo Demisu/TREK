@@ -304,6 +304,25 @@ export class AdminController {
     return result;
   }
 
+  @Get('tours-hiking-map')
+  @ResponseContract(adminFeatureToggleResponseSchema)
+  getToursHikingMap() {
+    return this.addons.getToursHikingMap();
+  }
+
+  @Put('tours-hiking-map')
+  @ResponseContract(adminFeatureToggleResponseSchema)
+  async updateToursHikingMap(@CurrentUser() user: User, @Body() body: AdminFeatureToggleDto, @Req() req: Request) {
+    const result = await this.addons.updateToursHikingMap(body.enabled);
+    await this.audit.writeAudit({
+      userId: user.id,
+      action: 'admin.tours_hiking_map',
+      ip: getClientIp(req),
+      details: { enabled: result.enabled },
+    });
+    return result;
+  }
+
   @Get('places-photos')
   getPlacesPhotos() {
     return this.addons.getPlacesPhotos();

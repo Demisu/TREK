@@ -4,7 +4,8 @@ import { isFerrataHit, useFerrataMapLayerGL } from '../Ferratas/useFerrataLayerG
 import type { FerrataMapLayer } from '../Ferratas/useFerrataMapLayer';
 import type { PaddleMapLayer } from '../Tours/paddle/paddleMapLayer';
 import { isPaddleHit, type PaddleGlMap, usePaddleLayerGL } from '../Tours/paddle/usePaddleLayerGL';
-import { OWN_LAYER_PREFIXES } from './glRasterLayers';
+import { OWN_LAYER_PREFIXES, tourRasterSourceId } from './glRasterLayers';
+import type { TileHealth } from './tourRasterBases';
 
 /**
  * A transparent raster layer laid over the basemap and under the route, such
@@ -104,16 +105,47 @@ export function useRasterOverlaysGL(map: RasterOverlayGlMap | null, overlays: re
   }, [map, overlays]);
 }
 
-/** The tour planner's layers on a GL map: the via ferratas, the raster overlays its type offers and the paddle obstacles. */
+/**
+ * Reports the tiles of one GL source into its health while `health` is given:
+ * a failure carries the source it came from, an arrival a tile. The base layer
+ * itself is drawn by applyBaseLayer.
+ */
+export function useSourceTileHealthGL(
+  map: RasterOverlayGlMap | null,
+  sourceId: string,
+  health: TileHealth | undefined
+) {
+  const { onTileError, onTileLoad } = health ?? {};
+  useEffect(() => {
+    if (!map || !onTileError || !onTileLoad) return;
+    const failed = (event: { error?: Error; sourceId?: string }) => {
+      if (event.sourceId === sourceId) onTileError();
+    };
+    const loaded = (event: { sourceId?: string; tile?: unknown }) => {
+      if (event.sourceId === sourceId && event.tile) onTileLoad();
+    };
+    map.on('error', failed);
+    map.on('sourcedata', loaded);
+    return () => {
+      map.off('error', failed);
+      map.off('sourcedata', loaded);
+    };
+  }, [map, sourceId, onTileError, onTileLoad]);
+}
+
+/**
+ * The tour planner's layers on a GL map: the via ferratas, the raster overlays its type offers,
+ * the paddle obstacles, and whether OpenHikingMap answers while it is the base map.
+ */
 export function useTourMapLayersGL(
   map: RasterOverlayGlMap | null,
   ferrataLayer: FerrataMapLayer | undefined,
-  overlays: readonly MapRasterOverlay[] | undefined,
-  paddle?: PaddleMapLayer
+  layers: { overlays?: readonly MapRasterOverlay[]; paddle?: PaddleMapLayer; hikingMap?: TileHealth } | undefined
 ) {
   useFerrataMapLayerGL(map, ferrataLayer);
-  useRasterOverlaysGL(map, overlays);
-  usePaddleLayerGL(map as unknown as PaddleGlMap | null, paddle);
+  useRasterOverlaysGL(map, layers?.overlays);
+  usePaddleLayerGL(map as unknown as PaddleGlMap | null, layers?.paddle);
+  useSourceTileHealthGL(map, tourRasterSourceId('hiking'), layers?.hikingMap);
 }
 
 /**

@@ -671,6 +671,9 @@ const admin: TranslationStrings = {
   'admin.toursWanderer.title': 'wanderer',
   'admin.toursWanderer.subtitle':
     'Les utilisateurs peuvent connecter leur propre instance wanderer et importer ses sentiers comme sorties',
+  'admin.toursHikingMap.title': 'Carte de randonnée (OpenHikingMap)',
+  'admin.toursHikingMap.subtitle':
+    "Propose OpenHikingMap comme fond de carte dans le planificateur d'itinéraires. Gratuit pour les installations non commerciales jusqu'à 500 000 tuiles par mois ; une installation commerciale ou plus importante nécessite d'abord un accord avec openmaps.fr",
   'admin.addons.noAddons': 'Aucune extension disponible',
   'admin.weather.title': 'Données météo',
   'admin.weather.badge': 'Depuis le 24 mars 2026',
