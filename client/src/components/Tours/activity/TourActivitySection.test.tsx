@@ -102,6 +102,10 @@ describe('TourActivitySection (ACT-01)', () => {
     expect(screen.getByTestId('tour-activity-compare-time')).toHaveTextContent('tours.activity.noTime');
     expect(screen.getByTestId('tour-activity-day')).toHaveTextContent('tours.activity.noDay');
     expect(screen.queryByText('tours.activity.recordedOn')).toBeNull();
+    // The recording's tile goes by the done mark every actual track has, never footprints.
+    const head = screen.getByTestId('tour-activity').querySelector('header') as HTMLElement;
+    expect(head.querySelector('svg.lucide-check-check')).not.toBeNull();
+    expect(head.querySelector('svg.lucide-footprints')).toBeNull();
   });
 
   it('FE-ACT-SECTION-003: someone who may change the tour links, changes and unlinks; the dialog opens when asked', () => {

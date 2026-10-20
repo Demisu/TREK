@@ -4,7 +4,7 @@ import { TourDayRowAvatar } from '../TourDayRowFacts';
 import { TourGradeTile } from '../tourParts';
 import { WinterActivityPill, WinterCornerMark } from './winterMarks';
 
-// FE-TOUR-WINTER-MARK-001 to FE-TOUR-WINTER-MARK-004
+// FE-TOUR-WINTER-MARK-001 to FE-TOUR-WINTER-MARK-005
 
 const hike = { tour_type: 'hike' as const, max_hiking_difficulty: 2, wanderer_ref: null, has_waypoints: true };
 
@@ -39,5 +39,17 @@ describe('winter marks (HIK-01)', () => {
     rerender(<TourDayRowAvatar tour={{ ...hike, winter_activity: 'snowshoe' }} size={50} />);
     expect(screen.getByTestId('plan-tour-icon')).toHaveTextContent('T2');
     expect(screen.getByTestId('tour-winter-mark')).toHaveStyle({ width: '22px' });
+  });
+
+  it('FE-TOUR-WINTER-MARK-005: the corner mark goes by the same icon as the head pill of its label', () => {
+    for (const activity of ['winter_hike', 'snowshoe'] as const) {
+      const icon = activity === 'snowshoe' ? 'lucide-footprints' : 'lucide-snowflake';
+      const mark = render(<WinterCornerMark activity={activity} />);
+      expect(mark.container.querySelector(`svg.${icon}`)).not.toBeNull();
+      mark.unmount();
+      const pill = render(<WinterActivityPill activity={activity} className="head-pill" />);
+      expect(pill.container.querySelector(`svg.${icon}`)).not.toBeNull();
+      pill.unmount();
+    }
   });
 });

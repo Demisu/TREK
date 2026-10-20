@@ -1,6 +1,6 @@
 import { useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import type { TourListItem } from '@trek/shared'
-import { AlertTriangle, CalendarDays, ChevronDown, Footprints, Info, Plus } from 'lucide-react'
+import { AlertTriangle, CalendarDays, CheckCheck, ChevronDown, Info, Plus } from 'lucide-react'
 import { createElement } from 'react'
 import type { Day, DistanceUnit } from '../../types'
 import type { RouteGeometryAnalysis } from '../../utils/routeGeometry'
@@ -134,7 +134,7 @@ export function TourActivityBadge({ tour }: { tour: Pick<TourListItem, 'activity
   return (
     <Tooltip label={label}>
       <span data-testid="tour-activity-badge" aria-label={label} className="inline-flex flex-none">
-        <WhiteBadge className="text-success" icon={<Footprints size={10} strokeWidth={2.2} className="flex-none" />}>
+        <WhiteBadge className="text-success" icon={<CheckCheck size={10} strokeWidth={2.2} className="flex-none" />}>
           {null}
         </WhiteBadge>
       </span>

@@ -12,9 +12,10 @@ export const WINTER_ACTIVITY_ICON: Record<WinterActivity, LucideIcon> = {
 };
 
 /**
- * HIK-01: a hike's winter label on its round tile, a frosted snowflake badge
- * at the tile's top corner, the way the tile carries where a tour came from at
- * its foot. Its tooltip names the label; nothing is drawn for a hike without one.
+ * HIK-01: a hike's winter label on its round tile, a frosted badge at the
+ * tile's top corner with the label's own icon, the one its head pill shows,
+ * the way the tile carries where a tour came from at its foot. Its tooltip
+ * names the label; nothing is drawn for a hike without one.
  */
 export function WinterCornerMark({
   activity,
@@ -28,7 +29,7 @@ export function WinterCornerMark({
   if (!activity) return null;
   return (
     <TourCornerMark
-      icon={Snowflake}
+      icon={WINTER_ACTIVITY_ICON[activity]}
       label={t(`tours.winter.activity.${activity}`)}
       size={size}
       testId="tour-winter-mark"

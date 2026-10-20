@@ -4,6 +4,7 @@ import {
   ArrowDown,
   ArrowUp,
   Check,
+  CheckCheck,
   ChevronDown,
   ChevronUp,
   Clock,
@@ -13,7 +14,6 @@ import {
   FileDown,
   FileImage,
   FileText,
-  Footprints,
   Loader2,
   Minus,
   Navigation,
@@ -301,7 +301,7 @@ function TourHeadPills({
       {documentsName && (
         <Tooltip label={t('tours.activity.isTrackHint')}>
           <span data-testid="tour-detail-track-of" className={`${HEAD_PILL} max-w-[220px]`} style={fs(10.5)}>
-            <Footprints size={11} strokeWidth={2} className="flex-none text-success" />
+            <CheckCheck size={11} strokeWidth={2} className="flex-none text-success" />
             <span className="min-w-0 truncate">{t('tours.activity.ofTour', { name: documentsName })}</span>
           </span>
         </Tooltip>

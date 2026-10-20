@@ -1,5 +1,5 @@
 import type { TourActivity, TourListItem } from '@trek/shared';
-import { CalendarDays, Clock, CloudOff, FileDown, Footprints, Plus, RefreshCw, Unlink } from 'lucide-react';
+import { CalendarDays, CheckCheck, Clock, CloudOff, FileDown, Plus, RefreshCw, Unlink } from 'lucide-react';
 import { useMemo } from 'react';
 import { useTranslation } from '../../../i18n';
 import { useSettingsStore } from '../../../store/settingsStore';
@@ -29,11 +29,16 @@ interface PlanSide {
   comparison: ActivityComparisonState | null;
 }
 
-/** The tile of a recording: footprints, with a small dot at its foot that says it was recorded. */
+/**
+ * The tile of a recording: the done mark every actual track goes by (on the
+ * list row, in the tour's head and here), with a small dot at its foot that
+ * says it was recorded. Never footprints, which name a snowshoe hike and a
+ * walk's moving time.
+ */
 function RecordedTile() {
   return (
     <span className="relative grid h-9 w-9 flex-none place-items-center rounded-full bg-surface-secondary text-content-secondary">
-      <Footprints size={15} strokeWidth={2} aria-hidden="true" />
+      <CheckCheck size={15} strokeWidth={2} aria-hidden="true" />
       <span
         aria-hidden="true"
         className="absolute -bottom-0.5 -end-0.5 h-3 w-3 rounded-full bg-success ring-2 ring-surface-card"

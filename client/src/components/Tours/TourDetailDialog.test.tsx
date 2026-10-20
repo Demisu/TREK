@@ -321,6 +321,7 @@ describe('TourDetailDialog', () => {
     render(<TourDetailDialog {...defaultProps} tour={{ ...tour, has_waypoints: false, origin: 'gpx', activity_of: 7 }} />)
 
     expect(screen.getByTestId('tour-detail-track-of')).toHaveTextContent('Actual track of Lake loop')
+    expect(screen.getByTestId('tour-detail-track-of').querySelector('svg.lucide-check-check')).not.toBeNull()
   })
 
   it('ACT-02: an actual track stands beside the plan the head shows, and only the map detail offers to compare it there', async () => {
