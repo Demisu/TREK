@@ -19,7 +19,7 @@ export function RunHeadPills({
 }) {
   const { t } = useTranslation();
   if (tour.tour_type !== 'run') return null;
-  const pace = runPaceText(tour);
+  const pace = runPaceText(tour, t);
   return (
     <>
       {tour.run_profile && (

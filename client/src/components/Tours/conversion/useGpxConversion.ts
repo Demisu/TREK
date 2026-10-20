@@ -44,7 +44,8 @@ export function useGpxConversion(planner: TourPlannerController) {
   const paddle = tour?.tour_type === 'kayak';
   // BIK-01: a bike import is planned for its profile.
   const bikeProfile = tour?.tour_type === 'bike' ? (tour.bike_profile ?? 'touring') : null;
-  // RUN-01: a run import is planned as a run for its profile; its pace is the runner's to enter.
+  // RUN-01: a run import is planned as a run for its profile, at the pace it holds; a fresh
+  // import holds none, so its pace is the runner's to enter.
   const runProfile = tour?.tour_type === 'run' ? (tour.run_profile ?? 'running') : null;
 
   useEffect(() => () => abort.current?.abort(), []);
@@ -111,7 +112,9 @@ export function useGpxConversion(planner: TourPlannerController) {
         revision: tour.revision,
         ...(paddle ? { tourType: 'kayak' as const, paddle: paddleFieldsOf(tour) } : {}),
         ...(bikeProfile ? { tourType: 'bike' as const, bikeProfile } : {}),
-        ...(runProfile ? { tourType: 'run' as const, runProfile } : {}),
+        ...(runProfile
+          ? { tourType: 'run' as const, runProfile, runPaceSecondsPerKm: tour.run_pace_seconds_per_km ?? null }
+          : {}),
       });
       if (started) setState(IDLE);
       return started;

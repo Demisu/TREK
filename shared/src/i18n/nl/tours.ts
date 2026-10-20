@@ -424,6 +424,7 @@ const tours: TranslationStrings = {
   'tours.run.paceInfoLabel': 'Hoe de looptijd wordt berekend',
   'tours.run.paceInfo':
     'Je eigen tempo per kilometer. De looptijd is afstand × tempo; hoogtemeters en technische moeilijkheid tellen niet mee.',
+  'tours.run.paceUnit': 'min/km',
   'tours.run.paceInvalid': 'Vul het tempo in als min:sec per km, van {fastest} tot {slowest}.',
   'tours.run.paceNeeded': 'Vul je tempo in om de looptijd te plannen en deze looptocht op te slaan.',
   'tours.run.timeEstimated': 'Looptijd (gepland)',

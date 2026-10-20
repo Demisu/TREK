@@ -435,6 +435,7 @@ const tours: TranslationStrings = {
   'tours.run.paceInfoLabel': 'Как считается время бега',
   'tours.run.paceInfo':
     'Ваш собственный темп на километр. Время бега равно расстоянию × темп; набор высоты и техническая сложность не учитываются.',
+  'tours.run.paceUnit': 'мин/км',
   'tours.run.paceInvalid': 'Введите темп как мин:с на км, от {fastest} до {slowest}.',
   'tours.run.paceNeeded': 'Введите свой темп, чтобы рассчитать время бега и сохранить эту пробежку.',
   'tours.run.timeEstimated': 'Время бега (план)',

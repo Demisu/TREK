@@ -413,6 +413,7 @@ const tours: TranslationStrings = {
   'tours.run.paceInfoLabel': 'Så räknas löptiden ut',
   'tours.run.paceInfo':
     'Ditt eget tempo per kilometer. Löptiden är sträcka × tempo; stigningar och teknisk svårighet räknas inte in.',
+  'tours.run.paceUnit': 'min/km',
   'tours.run.paceInvalid': 'Ange tempot som min:sek per km, från {fastest} till {slowest}.',
   'tours.run.paceNeeded': 'Ange ditt tempo för att planera löptiden och spara löpturen.',
   'tours.run.timeEstimated': 'Löptid (planerad)',

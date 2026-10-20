@@ -417,6 +417,7 @@ const tours: TranslationStrings = {
   'tours.run.paceInfoLabel': 'Kuidas jooksuaeg arvutatakse',
   'tours.run.paceInfo':
     'Sinu enda tempo kilomeetri kohta. Jooksuaeg on vahemaa × tempo; tõusud, langused ja tehniline raskus ei lähe arvesse.',
+  'tours.run.paceUnit': 'min/km',
   'tours.run.paceInvalid': 'Sisesta tempo kujul min:s kilomeetri kohta, vahemikus {fastest} kuni {slowest}.',
   'tours.run.paceNeeded': 'Sisesta oma tempo, et jooksuaeg planeerida ja see jooks salvestada.',
   'tours.run.timeEstimated': 'Jooksuaeg (planeeritud)',

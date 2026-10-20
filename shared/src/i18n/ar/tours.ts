@@ -426,6 +426,7 @@ const tours: TranslationStrings = {
   'tours.run.paceInfoLabel': 'كيف يُحسب وقت الجري',
   'tours.run.paceInfo':
     'وتيرتك الخاصة لكل كيلومتر. وقت الجري هو المسافة × الوتيرة؛ ولا تُحتسب الصعودات والنزولات ولا الصعوبة التقنية.',
+  'tours.run.paceUnit': 'دقيقة/كم',
   'tours.run.paceInvalid': 'أدخل الوتيرة بصيغة دقيقة:ثانية لكل كم، من {fastest} إلى {slowest}.',
   'tours.run.paceNeeded': 'أدخل وتيرتك لتخطيط وقت الجري وحفظ هذا الجري.',
   'tours.run.timeEstimated': 'وقت الجري (مخطط)',

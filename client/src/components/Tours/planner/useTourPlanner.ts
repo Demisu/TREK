@@ -43,6 +43,8 @@ export interface DerivedTourDraft {
   paddle?: PaddleFieldValues
   bikeProfile?: BikeProfile
   runProfile?: RunProfile
+  /** RUN-01: a run planned over keeps the pace it was planned at, so the runner need not type it again. */
+  runPaceSecondsPerKm?: number | null
   /** CW-07: where the points came from, said in the planner until the draft is saved. */
   source?: DraftSource
 }
@@ -639,6 +641,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
         runProfileRef.current = draft.runProfile
         setRunProfileState(draft.runProfile)
       }
+      loadRunPace(draft.runPaceSecondsPerKm ?? null)
       setNameState(draft.name)
       setDescriptionState(draft.description ?? '')
       setWebsiteState(draft.website ?? '')
@@ -658,7 +661,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       setHasUnsavedChanges(true)
       return true
     },
-    [adoptRevision, loadPaddle, returnToNeutral])
+    [adoptRevision, loadPaddle, loadRunPace, returnToNeutral])
 
   const cancelNewTour = useCallback(() => setNewTourConfirmationOpen(false), [])
   const toggleElevationProfile = useCallback(() => {

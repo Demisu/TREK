@@ -416,6 +416,7 @@ const tours: TranslationStrings = {
   'tours.run.paceInfoLabel': 'Qaçış vaxtı necə hesablanır',
   'tours.run.paceInfo':
     'Kilometr başına öz tempiniz. Qaçış vaxtı məsafə × tempdir; yoxuşlar, enişlər və texniki çətinlik nəzərə alınmır.',
+  'tours.run.paceUnit': 'dəq/km',
   'tours.run.paceInvalid': 'Tempi km başına dəq:san kimi, {fastest} ilə {slowest} arasında daxil edin.',
   'tours.run.paceNeeded': 'Qaçış vaxtını planlaşdırmaq və bu qaçışı saxlamaq üçün tempinizi daxil edin.',
   'tours.run.timeEstimated': 'Qaçış vaxtı (planlaşdırılan)',

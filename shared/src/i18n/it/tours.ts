@@ -425,6 +425,7 @@ const tours: TranslationStrings = {
   'tours.run.paceInfoLabel': 'Come si calcola il tempo di corsa',
   'tours.run.paceInfo':
     'Il tuo passo al chilometro. Il tempo di corsa è distanza × passo; dislivello e difficoltà tecnica non sono considerati.',
+  'tours.run.paceUnit': 'min/km',
   'tours.run.paceInvalid': 'Inserisci il passo come min:s al km, da {fastest} a {slowest}.',
   'tours.run.paceNeeded': 'Inserisci il tuo passo per pianificare il tempo di corsa e salvare questa corsa.',
   'tours.run.timeEstimated': 'Tempo di corsa (previsto)',

@@ -187,8 +187,32 @@ describe('useGpxConversion', () => {
       result.current.adopt('new');
     });
     const draft = vi.mocked(controller.startDerivedTour).mock.calls[0]?.[0];
-    expect(draft).toMatchObject({ tourType: 'run', runProfile: 'running' });
+    expect(draft).toMatchObject({ tourType: 'run', runProfile: 'running', runPaceSecondsPerKm: null });
     expect(draft).not.toHaveProperty('paddle');
+  });
+
+  it('RUN-01: a run planned over in place again keeps the pace it holds', async () => {
+    const run = {
+      ...imported,
+      tour_type: 'run' as const,
+      run_profile: 'running' as const,
+      run_pace_seconds_per_km: 330,
+      max_hiking_difficulty: null,
+    };
+    const controller = planner({
+      mode: { type: 'view-gpx', placeId: run.place_id, tour: run },
+      readOnlyGpxTour: { tour: run, routeGeometry: null },
+    } as Partial<TourPlannerController>);
+    const { result } = renderHook(() => useGpxConversion(controller));
+    await act(async () => {
+      await result.current.analyze();
+    });
+    act(() => {
+      result.current.adopt('replace');
+    });
+    expect(controller.startDerivedTour).toHaveBeenCalledWith(
+      expect.objectContaining({ inPlace: true, tourType: 'run', runProfile: 'running', runPaceSecondsPerKm: 330 })
+    );
   });
 
   it('PR1-05B: nothing is adopted before the suggestion is ready', () => {

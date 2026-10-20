@@ -423,6 +423,7 @@ const tours: TranslationStrings = {
   'tours.run.paceInfoLabel': 'Com es calcula el temps de cursa',
   'tours.run.paceInfo':
     'El teu ritme per quilòmetre. El temps de cursa és distància × ritme; el desnivell i la dificultat tècnica no hi compten.',
+  'tours.run.paceUnit': 'min/km',
   'tours.run.paceInvalid': 'Introdueix el ritme com a min:s per km, de {fastest} a {slowest}.',
   'tours.run.paceNeeded': 'Introdueix el teu ritme per planificar el temps de cursa i desar aquesta cursa.',
   'tours.run.timeEstimated': 'Temps de cursa (previst)',

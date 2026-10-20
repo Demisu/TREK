@@ -415,6 +415,7 @@ const tours: TranslationStrings = {
   'tours.run.paceInfoLabel': 'Jak se počítá čas běhu',
   'tours.run.paceInfo':
     'Vaše vlastní tempo na kilometr. Čas běhu je vzdálenost × tempo; převýšení a technická obtížnost se nezapočítávají.',
+  'tours.run.paceUnit': 'min/km',
   'tours.run.paceInvalid': 'Zadejte tempo jako min:s na km, od {fastest} do {slowest}.',
   'tours.run.paceNeeded': 'Zadejte své tempo, aby se naplánoval čas běhu a běh šel uložit.',
   'tours.run.timeEstimated': 'Čas běhu (plánovaný)',

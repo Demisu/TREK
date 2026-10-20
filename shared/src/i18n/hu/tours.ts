@@ -422,6 +422,7 @@ const tours: TranslationStrings = {
   'tours.run.paceInfoLabel': 'Hogyan számoljuk a futásidőt',
   'tours.run.paceInfo':
     'A saját tempód kilométerenként. A futásidő távolság × tempó; a szintemelkedés és a technikai nehézség nem számít bele.',
+  'tours.run.paceUnit': 'perc/km',
   'tours.run.paceInvalid': 'Add meg a tempót perc:mp/km formában, {fastest} és {slowest} között.',
   'tours.run.paceNeeded': 'Add meg a tempódat a futásidő tervezéséhez és a futás mentéséhez.',
   'tours.run.timeEstimated': 'Futásidő (tervezett)',

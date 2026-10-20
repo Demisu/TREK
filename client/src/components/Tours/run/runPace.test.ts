@@ -4,18 +4,22 @@ import { formatRunPace, parseRunPace, runPaceInvalid } from './runPace';
 // FE-TOUR-RUN-PACE-001 to FE-TOUR-RUN-PACE-003
 
 describe('run pace (RUN-01)', () => {
-  it('FE-TOUR-RUN-PACE-001: reads min:s, whole minutes and minutes with a part, and nothing as no pace', () => {
+  it('FE-TOUR-RUN-PACE-001: reads min:s, whole minutes, minutes and a tenth, two digits after a point as seconds, and nothing as no pace', () => {
     expect(parseRunPace('6:00')).toBe(360);
     expect(parseRunPace(' 5:07 ')).toBe(307);
     expect(parseRunPace('6')).toBe(360);
     expect(parseRunPace('5,5')).toBe(330);
-    expect(parseRunPace('5.25')).toBe(315);
+    expect(parseRunPace('5.5')).toBe(330);
+    // "5.30" and "5,45" are 5:30 and 5:45 as written in much of Europe, not 5.3 or 5.45 minutes.
+    expect(parseRunPace('5.30')).toBe(330);
+    expect(parseRunPace('5,45')).toBe(345);
+    expect(parseRunPace('5.05')).toBe(305);
     expect(parseRunPace('')).toBeNull();
     expect(parseRunPace('   ')).toBeNull();
   });
 
   it('FE-TOUR-RUN-PACE-002: anything else is no pace, seconds of 60 or more included', () => {
-    for (const text of ['5:60', '5:7', 'fast', '6 min', '-5', '5:30:00', '123']) {
+    for (const text of ['5:60', '5:7', '5.60', '5,75', '5.305', 'fast', '6 min', '-5', '5:30:00', '123']) {
       expect(parseRunPace(text)).toBeNaN();
     }
   });

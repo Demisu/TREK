@@ -416,6 +416,7 @@ const tours: TranslationStrings = {
   'tours.run.paceInfoLabel': 'Koşu süresi nasıl hesaplanır',
   'tours.run.paceInfo':
     'Kilometre başına kendi tempon. Koşu süresi mesafe × tempodur; tırmanışlar, inişler ve teknik zorluk hesaba katılmaz.',
+  'tours.run.paceUnit': 'dk/km',
   'tours.run.paceInvalid': 'Tempoyu km başına dk:sn olarak, {fastest} ile {slowest} arasında gir.',
   'tours.run.paceNeeded': 'Koşu süresini planlamak ve bu koşuyu kaydetmek için temponu gir.',
   'tours.run.timeEstimated': 'Koşu süresi (planlanan)',

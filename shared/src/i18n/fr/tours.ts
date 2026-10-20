@@ -428,6 +428,7 @@ const tours: TranslationStrings = {
   'tours.run.paceInfoLabel': 'Comment le temps de course est calculé',
   'tours.run.paceInfo':
     'Ton allure à toi, par kilomètre. Le temps de course est distance × allure ; dénivelé et difficulté technique ne sont pas pris en compte.',
+  'tours.run.paceUnit': 'min/km',
   'tours.run.paceInvalid': 'Saisis l’allure en min:s par km, de {fastest} à {slowest}.',
   'tours.run.paceNeeded': 'Saisis ton allure pour planifier le temps de course et enregistrer cette course.',
   'tours.run.timeEstimated': 'Temps de course (prévu)',

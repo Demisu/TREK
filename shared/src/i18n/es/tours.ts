@@ -422,6 +422,7 @@ const tours: TranslationStrings = {
   'tours.run.paceInfoLabel': 'Cómo se calcula el tiempo de carrera',
   'tours.run.paceInfo':
     'Tu propio ritmo por kilómetro. El tiempo de carrera es distancia × ritmo; el desnivel y la dificultad técnica no se tienen en cuenta.',
+  'tours.run.paceUnit': 'min/km',
   'tours.run.paceInvalid': 'Introduce el ritmo como min:s por km, de {fastest} a {slowest}.',
   'tours.run.paceNeeded': 'Introduce tu ritmo para planificar el tiempo de carrera y guardar esta carrera.',
   'tours.run.timeEstimated': 'Tiempo de carrera (previsto)',

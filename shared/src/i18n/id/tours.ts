@@ -417,6 +417,7 @@ const tours: TranslationStrings = {
   'tours.run.paceInfoLabel': 'Cara waktu lari dihitung',
   'tours.run.paceInfo':
     'Pace milikmu sendiri per kilometer. Waktu lari adalah jarak × pace; tanjakan, turunan, dan tingkat kesulitan teknis tidak dihitung.',
+  'tours.run.paceUnit': 'mnt/km',
   'tours.run.paceInvalid': 'Masukkan pace sebagai mnt:dtk per km, dari {fastest} sampai {slowest}.',
   'tours.run.paceNeeded': 'Masukkan pace-mu untuk merencanakan waktu lari dan menyimpan lari ini.',
   'tours.run.timeEstimated': 'Waktu lari (rencana)',

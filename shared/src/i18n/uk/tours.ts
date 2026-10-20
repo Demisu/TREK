@@ -430,6 +430,7 @@ const tours: TranslationStrings = {
   'tours.run.paceInfoLabel': 'Як рахується час бігу',
   'tours.run.paceInfo':
     'Ваш власний темп на кілометр. Час бігу дорівнює відстані × темп; набір висоти й технічна складність не враховуються.',
+  'tours.run.paceUnit': 'хв/км',
   'tours.run.paceInvalid': 'Введіть темп як хв:с на км, від {fastest} до {slowest}.',
   'tours.run.paceNeeded': 'Введіть свій темп, щоб розрахувати час бігу й зберегти цю пробіжку.',
   'tours.run.timeEstimated': 'Час бігу (план)',

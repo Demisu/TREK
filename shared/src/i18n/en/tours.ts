@@ -414,6 +414,7 @@ const tours: TranslationStrings = {
   'tours.run.paceInfoLabel': 'How the running time is worked out',
   'tours.run.paceInfo':
     'Your own pace per kilometre. The running time is distance × pace; climbs, descents and how technical the way is are not included.',
+  'tours.run.paceUnit': 'min/km',
   'tours.run.paceInvalid': 'Enter the pace as min:sec per km, from {fastest} to {slowest}.',
   'tours.run.paceNeeded': 'Enter your pace to plan the running time and save this run.',
   'tours.run.timeEstimated': 'Running time (planned)',

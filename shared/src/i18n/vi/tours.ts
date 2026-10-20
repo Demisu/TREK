@@ -414,6 +414,7 @@ const tours: TranslationStrings = {
   'tours.run.paceInfoLabel': 'Cách tính thời gian chạy',
   'tours.run.paceInfo':
     'Nhịp chạy của riêng bạn trên mỗi kilômét. Thời gian chạy là quãng đường × nhịp chạy; độ dốc lên xuống và độ khó kỹ thuật không được tính.',
+  'tours.run.paceUnit': 'phút/km',
   'tours.run.paceInvalid': 'Nhập nhịp chạy dạng phút:giây mỗi km, từ {fastest} đến {slowest}.',
   'tours.run.paceNeeded': 'Nhập nhịp chạy của bạn để lên kế hoạch thời gian chạy và lưu buổi chạy này.',
   'tours.run.timeEstimated': 'Thời gian chạy (dự kiến)',

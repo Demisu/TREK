@@ -55,7 +55,7 @@ describe('RunFields (RUN-01)', () => {
     render(<Stateful />);
     expect(paceField()).toHaveValue('');
     expect(paceField()).toHaveAttribute('placeholder', '0:00');
-    expect(screen.getByText('min/km')).toBeInTheDocument();
+    expect(screen.getByText('tours.run.paceUnit')).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('tours.run.paceNeeded');
     expect(screen.queryByTestId('tour-run-time-sum')).toBeNull();
     expect(screen.getByRole('button', { name: 'tours.run.paceInfoLabel' })).toHaveAccessibleDescription(
@@ -70,7 +70,7 @@ describe('RunFields (RUN-01)', () => {
     expect(screen.getByTestId('pace')).toHaveTextContent('360');
     const sum = screen.getByTestId('tour-run-time-sum');
     expect(sum).toHaveTextContent('8 km');
-    expect(sum).toHaveTextContent('6:00 /km');
+    expect(sum).toHaveTextContent('6:00 tours.run.paceUnit');
     expect(sum).toHaveTextContent('48 min');
     expect(sum).toHaveAttribute('aria-label', 'tours.run.timeSum');
     expect(screen.queryByRole('status')).toBeNull();
@@ -99,11 +99,23 @@ describe('RunFields (RUN-01)', () => {
     expect(screen.queryByRole('alert')).toBeNull();
   });
 
-  it('FE-TOUR-RUN-FIELDS-005: a pace out of bounds is marked, and clearing the field leaves no pace', () => {
+  it('FE-TOUR-RUN-FIELDS-005: a pace out of bounds is marked on leaving the field, not while typed, and clearing it leaves no pace', () => {
     render(<Stateful />);
     fireEvent.focus(paceField());
+    // The first digit of "12:30" reads as 1:00, under the fastest pace: no error while typing on.
+    fireEvent.change(paceField(), { target: { value: '1' } });
+    expect(screen.getByTestId('pace')).toHaveTextContent('none');
+    expect(screen.queryByRole('alert')).toBeNull();
+    fireEvent.change(paceField(), { target: { value: '12:30' } });
+    expect(screen.getByTestId('pace')).toHaveTextContent('750');
     fireEvent.change(paceField(), { target: { value: '1:30' } });
+    expect(screen.getByTestId('pace')).toHaveTextContent('750');
+    expect(screen.queryByRole('alert')).toBeNull();
+    fireEvent.blur(paceField());
+    expect(screen.getByTestId('pace')).toHaveTextContent('90');
+    expect(paceField()).toHaveValue('1:30');
     expect(screen.getByRole('alert')).toHaveTextContent('tours.run.paceInvalid');
+    fireEvent.focus(paceField());
     fireEvent.change(paceField(), { target: { value: '' } });
     fireEvent.keyDown(paceField(), { key: 'Enter' });
     expect(screen.getByTestId('pace')).toHaveTextContent('none');

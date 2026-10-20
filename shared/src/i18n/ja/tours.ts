@@ -405,6 +405,7 @@ const tours: TranslationStrings = {
   'tours.run.pace': '予定ペース',
   'tours.run.paceInfoLabel': '走行時間の計算方法',
   'tours.run.paceInfo': '1 kmあたりのあなた自身のペースです。走行時間は距離 × ペースで、登り、下り、技術的な難しさは含みません。',
+  'tours.run.paceUnit': '分/km',
   'tours.run.paceInvalid': 'ペースは km あたり 分:秒 で、{fastest} から {slowest} の間で入力してください。',
   'tours.run.paceNeeded': '走行時間を計画してこのランを保存するには、ペースを入力してください。',
   'tours.run.timeEstimated': '走行時間 (予定)',

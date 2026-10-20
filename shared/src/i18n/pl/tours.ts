@@ -431,6 +431,7 @@ const tours: TranslationStrings = {
   'tours.run.paceInfoLabel': 'Jak liczony jest czas biegu',
   'tours.run.paceInfo':
     'Twoje własne tempo na kilometr. Czas biegu to dystans × tempo; przewyższenia i trudność techniczna nie są uwzględniane.',
+  'tours.run.paceUnit': 'min/km',
   'tours.run.paceInvalid': 'Wpisz tempo jako min:s na km, od {fastest} do {slowest}.',
   'tours.run.paceNeeded': 'Wpisz swoje tempo, aby zaplanować czas biegu i zapisać ten bieg.',
   'tours.run.timeEstimated': 'Czas biegu (planowany)',

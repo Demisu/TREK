@@ -14,9 +14,9 @@ vi.mock('./tourRouting', () => ({ routeWalkingTour, routeRun, enrichTourElevatio
 vi.mock('../../../repo/tourRepo', () => ({ tourRepo: { create: createTour, detail: detailTour, update: updateTour } }));
 vi.mock('../useTourPermissions', () => ({ useTourPermissions: () => ({ canEdit: true, canAssign: true }) }));
 
-import { useTourPlanner } from './useTourPlanner';
+import { useTourPlanner, type DerivedTourDraft } from './useTourPlanner';
 
-// FE-TOUR-RUN-001 to FE-TOUR-RUN-007
+// FE-TOUR-RUN-001 to FE-TOUR-RUN-008
 
 const routed = {
   coordinates: [
@@ -210,5 +210,36 @@ describe("useTourPlanner, a run at the runner's own pace (RUN-01)", () => {
     act(() => result.current.redo());
     expect(result.current.tourType).toBe('run');
     expect(result.current.runProfile).toBe('running');
+  });
+
+  it('FE-TOUR-RUN-008: a run planned over keeps the pace it holds, and a draft without one starts with none', async () => {
+    const { result } = renderHook(() => useTourPlanner({ tripId: 78 }));
+    const draft: DerivedTourDraft = {
+      name: 'River loop',
+      difficulty: 1,
+      points: [
+        { lat: 48, lng: 11 },
+        { lat: 48.01, lng: 11.02 },
+      ],
+      sourcePlaceId: 91,
+      inPlace: true,
+      revision: 3,
+      tourType: 'run',
+      runProfile: 'running',
+    };
+    act(() => {
+      result.current.runPace.load(400);
+      result.current.startDerivedTour({ ...draft, runPaceSecondsPerKm: 330 });
+    });
+    await settle();
+    expect(result.current.tourType).toBe('run');
+    expect(result.current.runPace.paceSecondsPerKm).toBe(330);
+    expect(result.current.runPaceMissing).toBe(false);
+    expect(result.current.canSave).toBe(true);
+    act(() => {
+      result.current.startDerivedTour(draft);
+    });
+    expect(result.current.runPace.paceSecondsPerKm).toBeNull();
+    expect(result.current.runPaceMissing).toBe(true);
   });
 });

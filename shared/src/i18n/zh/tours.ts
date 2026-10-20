@@ -377,6 +377,7 @@ const tours: TranslationStrings = {
   'tours.run.pace': '计划配速',
   'tours.run.paceInfoLabel': '跑步时间如何计算',
   'tours.run.paceInfo': '你自己的每公里配速。跑步时间等于距离 × 配速；爬升、下降和技术难度不计入。',
+  'tours.run.paceUnit': '分/公里',
   'tours.run.paceInvalid': '请按每公里 分:秒 输入配速，范围 {fastest} 至 {slowest}。',
   'tours.run.paceNeeded': '输入你的配速，以计划跑步时间并保存这次跑步。',
   'tours.run.timeEstimated': '跑步时间（计划）',

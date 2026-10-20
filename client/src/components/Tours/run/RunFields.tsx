@@ -14,7 +14,7 @@ import { FigureBadge } from '../paddle/FigureBadge';
 import type { TourPlannerController } from '../planner/useTourPlanner';
 import { InfoDot, TourNotice } from '../tourParts';
 import { formatPlannedTourDuration } from '../tourPresentation';
-import { formatRunPace, parseRunPace, RUN_PACE_INPUT_MAX_LENGTH } from './runPace';
+import { formatRunPace, parseRunPace, RUN_PACE_INPUT_MAX_LENGTH, runPaceInvalid } from './runPace';
 
 const PROFILE_ICON: Record<RunProfile, LucideIcon> = { running: Activity };
 
@@ -55,12 +55,15 @@ type RunPlanner = Pick<
 > & { walkingDurationMinutes: number | null };
 
 /**
- * The pace as min:s per km. A readable pace reaches the planner while it is
- * typed; text that is no pace reaches it as NaN on leaving the field, so the
- * planner marks it and holds Save back, and the text stays for the runner to
- * fix. The field never offers a pace of its own: the placeholder is the format.
+ * The pace as min:s per km. A pace a run can be saved with reaches the planner
+ * while it is typed. Anything else waits for leaving the field (or Enter), so
+ * the first digit of "12:30" flashes no error: then a pace out of bounds
+ * reaches the planner as it is and text that is no pace as NaN, the planner
+ * marks either and holds Save back, and the text stays for the runner to fix.
+ * The field never offers a pace of its own: the placeholder is the format.
  */
 function RunPaceInput({ planner, locked }: { planner: RunPlanner; locked: boolean }) {
+  const { t } = useTranslation();
   const [draft, setDraft] = useState<string | null>(null);
   const [focused, setFocused] = useState(false);
   const { paceSecondsPerKm: pace, setPace } = planner.runPace;
@@ -86,12 +89,14 @@ function RunPaceInput({ planner, locked }: { planner: RunPlanner; locked: boolea
         onChange={(event) => {
           setDraft(event.target.value);
           const parsed = parseRunPace(event.target.value);
-          if (parsed === null || !Number.isNaN(parsed)) setPace(parsed);
+          if (!runPaceInvalid(parsed)) setPace(parsed);
         }}
         onBlur={() => {
           setFocused(false);
-          if (draft !== null && Number.isNaN(parseRunPace(draft))) setPace(Number.NaN);
-          else setDraft(null);
+          if (draft === null) return;
+          const parsed = parseRunPace(draft);
+          setPace(parsed);
+          if (!Number.isNaN(parsed)) setDraft(null);
         }}
         onKeyDown={(event) => {
           if (event.key === 'Enter') event.currentTarget.blur();
@@ -105,7 +110,7 @@ function RunPaceInput({ planner, locked }: { planner: RunPlanner; locked: boolea
         className="pointer-events-none absolute inset-y-0 end-3 flex items-center text-content-faint"
         style={fs(12, 'body')}
       >
-        min/km
+        {t('tours.run.paceUnit')}
       </span>
     </div>
   );
@@ -137,7 +142,10 @@ function RunTimeSum({ planner }: { planner: RunPlanner }) {
       <span aria-hidden="true" className={operator} style={fs(12)}>
         ×
       </span>
-      <FigureBadge icon={<Gauge size={11} strokeWidth={2} aria-hidden="true" />} value={`${formatRunPace(pace)} /km`} />
+      <FigureBadge
+        icon={<Gauge size={11} strokeWidth={2} aria-hidden="true" />}
+        value={`${formatRunPace(pace)} ${t('tours.run.paceUnit')}`}
+      />
       <span aria-hidden="true" className={operator} style={fs(12)}>
         =
       </span>

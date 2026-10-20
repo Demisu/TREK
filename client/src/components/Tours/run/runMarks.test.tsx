@@ -35,10 +35,12 @@ const run: TourListItem = {
 
 describe('a run wherever a tour shows (RUN-01)', () => {
   it('FE-TOUR-RUN-MARK-001: says a run pace as min:s per km, and nothing for a run without one or another type', () => {
-    expect(runPaceText(run)).toBe('6:00 min/km');
-    expect(runPaceText({ ...run, run_pace_seconds_per_km: null })).toBeNull();
-    expect(runPaceText({ ...run, run_pace_seconds_per_km: 5 })).toBeNull();
-    expect(runPaceText({ ...run, tour_type: 'hike' })).toBeNull();
+    const t = (key: string) => (key === 'tours.run.paceUnit' ? 'мин/км' : key);
+    // The unit is the user's language's, as the sum the time is reads it.
+    expect(runPaceText(run, t)).toBe('6:00 мин/км');
+    expect(runPaceText({ ...run, run_pace_seconds_per_km: null }, t)).toBeNull();
+    expect(runPaceText({ ...run, run_pace_seconds_per_km: 5 }, t)).toBeNull();
+    expect(runPaceText({ ...run, tour_type: 'hike' }, t)).toBeNull();
   });
 
   it('FE-TOUR-RUN-MARK-002: the time is named as planned, and the run goes by its own icon and maps', () => {

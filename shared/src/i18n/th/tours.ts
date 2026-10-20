@@ -394,6 +394,7 @@ const tours: TranslationStrings = {
   'tours.run.pace': 'เพซที่วางแผนไว้',
   'tours.run.paceInfoLabel': 'วิธีคำนวณเวลาวิ่ง',
   'tours.run.paceInfo': 'เพซของคุณเองต่อกิโลเมตร เวลาวิ่งคือระยะทาง × เพซ ไม่รวมทางขึ้น ทางลง และความยากทางเทคนิค',
+  'tours.run.paceUnit': 'นาที/km',
   'tours.run.paceInvalid': 'ใส่เพซในรูปแบบ นาที:วินาที ต่อ km ตั้งแต่ {fastest} ถึง {slowest}',
   'tours.run.paceNeeded': 'ใส่เพซของคุณเพื่อวางแผนเวลาวิ่งและบันทึกการวิ่งนี้',
   'tours.run.timeEstimated': 'เวลาวิ่ง (ตามแผน)',

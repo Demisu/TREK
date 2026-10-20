@@ -403,6 +403,7 @@ const tours: TranslationStrings = {
   'tours.run.pace': '계획 페이스',
   'tours.run.paceInfoLabel': '달리기 시간 계산 방법',
   'tours.run.paceInfo': '킬로미터당 나만의 페이스입니다. 달리기 시간은 거리 × 페이스이며, 오르막, 내리막, 기술적 난이도는 포함되지 않습니다.',
+  'tours.run.paceUnit': '분/km',
   'tours.run.paceInvalid': '페이스를 km당 분:초로, {fastest}에서 {slowest} 사이로 입력하세요.',
   'tours.run.paceNeeded': '달리기 시간을 계획하고 이 달리기를 저장하려면 페이스를 입력하세요.',
   'tours.run.timeEstimated': '달리기 시간 (계획)',
