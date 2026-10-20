@@ -68,13 +68,13 @@ describe('the detail button and the dialog', () => {
   it('FE-TOUR-STAGE-SPREAD-019: the detail adds a day tour at once and offers a multi-day tour both ways', async () => {
     const props = { placeId: 81, dayId: 4, days: DAYS, assignment };
     const { unmount } = render(<TourDayAddButton {...props} stageCount={0} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Add to day' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Add to Day' }));
     expect(assignment.assign).toHaveBeenCalledWith(81, 4);
     unmount();
 
     vi.mocked(assignment.isOnDay).mockReturnValue(true);
     render(<TourDayAddButton {...props} stageCount={3} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Add to day' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Add to Day' }));
     const whole = screen.getByRole('button', { name: /^Whole tour on this day/ });
     expect(whole).toBeDisabled();
     expect(whole).toHaveTextContent('This day already holds the tour.');

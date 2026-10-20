@@ -1,5 +1,12 @@
 import type { TourListItem } from '@trek/shared';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import {
+  isEmptyReanchoring,
+  reanchorAfterInsert,
+  reanchorAfterRemove,
+  type Reanchoring,
+} from '../../components/Roadtrip/roadtripModel';
+import type { RoadtripVias } from '../../components/Roadtrip/useRoadtripVias';
 import {
   planStageSpread,
   stageKeysOfTour,
@@ -9,13 +16,6 @@ import {
   type TourDayHow,
   type TourDayQuestion,
 } from '../../components/Tours/stages/stageSpread';
-import {
-  isEmptyReanchoring,
-  reanchorAfterInsert,
-  reanchorAfterRemove,
-  type Reanchoring,
-} from '../../components/Roadtrip/roadtripModel';
-import type { RoadtripVias } from '../../components/Roadtrip/useRoadtripVias';
 import { isTourOnDay } from '../../components/Tours/useTourDayAssignment';
 import { useTripStore } from '../../store/tripStore';
 import type { Day, Place } from '../../types';
@@ -39,7 +39,7 @@ interface TourDayChoiceOptions {
   pushUndo: (label: string, undoFn: () => Promise<void> | void, dayIds?: number[], placeIds?: number[]) => void;
   /** The plan's one way of putting a place on a day, which puts a tour there whole. */
   assignWhole: (placeId: number, dayId?: number, position?: number) => Promise<boolean>;
-  updateRouteForDay: (dayId: number) => void;
+  updateRouteForDay: (dayId: number) => Promise<unknown> | void;
   onToursChanged: () => Promise<unknown> | void;
   /** The road trip's vias, which every write that shifts the stops of a day carries along. */
   roadtripVias: Pick<RoadtripVias, 'byDay' | 'reanchor'>;
@@ -123,12 +123,7 @@ type Undo = (road: ViaKeeper) => Promise<void>;
  * middle of one carries the day's vias along (`viaKeeper`). The undo runs
  * later, and is handed the keeper of its own run.
  */
-async function runStep(
-  tripId: number,
-  placeId: number,
-  step: SpreadStep,
-  road: ViaKeeper
-): Promise<Undo> {
+async function runStep(tripId: number, placeId: number, step: SpreadStep, road: ViaKeeper): Promise<Undo> {
   const store = useTripStore.getState();
   if (step.kind === 'move') {
     await road.takeOff(step.fromDayId, step.assignmentId, () =>
@@ -193,12 +188,14 @@ function spreadMessage(plan: StageSpread, days: readonly Day[], t: Translate): s
  */
 export function useTourDayChoice(options: TourDayChoiceOptions) {
   const { tripId, days, tours, selectedDayId, t, toast } = options;
-  const { pushUndo, assignWhole, updateRouteForDay, onToursChanged } = options;
+  const { pushUndo, assignWhole, updateRouteForDay, onToursChanged, roadtripVias, viaLiesBefore } = options;
   const [tourDayQuestion, setTourDayQuestion] = useState<TourDayQuestion | null>(null);
   const answer = useRef<((how: TourDayHow | null) => void) | null>(null);
   // The vias as the plan has them now: an undo runs long after the spread that pushed it.
-  const viaFeed = useRef<ViaFeed>(options);
-  viaFeed.current = { roadtripVias: options.roadtripVias, viaLiesBefore: options.viaLiesBefore };
+  const viaFeed = useRef<ViaFeed>({ roadtripVias, viaLiesBefore });
+  useLayoutEffect(() => {
+    viaFeed.current = { roadtripVias, viaLiesBefore };
+  }, [roadtripVias, viaLiesBefore]);
 
   const answerTourDay = useCallback((how: TourDayHow | null) => {
     const resolve = answer.current;
@@ -247,7 +244,7 @@ export function useTourDayChoice(options: TourDayChoiceOptions) {
       const touched = [...new Set(plan.steps.flatMap(daysOf))];
       const redraw = () => {
         const selected = useTripStore.getState().selectedDayId;
-        if (selected != null && touched.includes(selected)) updateRouteForDay(selected);
+        if (selected != null && touched.includes(selected)) void updateRouteForDay(selected);
       };
       redraw();
       await onToursChanged();

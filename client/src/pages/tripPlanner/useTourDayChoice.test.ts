@@ -4,7 +4,7 @@
 // their legs.
 import { act, renderHook } from '@testing-library/react';
 import type { TourListItem } from '@trek/shared';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { buildAssignment, buildDay, buildPlace } from '../../../tests/helpers/factories';
 import { resetAllStores, seedStore } from '../../../tests/helpers/store';
 import { useTripStore } from '../../store/tripStore';
@@ -22,7 +22,7 @@ const TOURS = [
 ] as unknown as TourListItem[];
 const t = (key: string, params?: Record<string, unknown>) => (params ? `${key} ${JSON.stringify(params)}` : key);
 
-let writes: Record<string, ReturnType<typeof vi.fn>>;
+let writes: Record<string, Mock>;
 let options: Options;
 
 function seed(assignments: AssignmentsMap) {
@@ -66,15 +66,23 @@ function writesThatLand() {
   const setDay = (dayId: number, items: Assignment[]) =>
     useTripStore.setState((state) => ({ assignments: { ...state.assignments, [String(dayId)]: items } }));
   writes.removeAssignment.mockImplementation(async (_trip: number, dayId: number, id: number) => {
-    setDay(dayId, dayOf(dayId).filter((item) => item.id !== id));
+    setDay(
+      dayId,
+      dayOf(dayId).filter((item) => item.id !== id)
+    );
   });
   writes.assignPlaceToDay.mockImplementation(
     async (_trip: number, dayId: number, placeId: number, position: number | null, key?: string) => {
-      const rows = dayOf(dayId).slice().sort((a, b) => a.order_index - b.order_index);
+      const rows = dayOf(dayId)
+        .slice()
+        .sort((a, b) => a.order_index - b.order_index);
       const added = buildAssignment({ id: 900 + dayId, day_id: dayId, place: buildPlace({ id: placeId }) });
       added.tour_stage_key = key ?? null;
       rows.splice(position ?? rows.length, 0, added);
-      setDay(dayId, rows.map((item, index) => ({ ...item, order_index: index })));
+      setDay(
+        dayId,
+        rows.map((item, index) => ({ ...item, order_index: index }))
+      );
       return added;
     }
   );
@@ -218,12 +226,23 @@ describe('useTourDayChoice', () => {
     seed({ '1': [], '2': [stop(50, 0, 100), whole, stop(51, 2, 101), stop(52, 3, 102)], '3': [] });
     writesThatLand();
     // One via on the leg into the tour, one on the leg after it (stop 51 to stop 52).
-    options.roadtripVias.byDay = {
+    const road = options.roadtripVias;
+    road.byDay = {
       2: [
         { id: 701, day_id: 2, after_order_index: 0, lat: 1, lng: 1 },
         { id: 700, day_id: 2, after_order_index: 2, lat: 2, lng: 2 },
       ] as never,
     };
+    // The real one writes the new anchors and loads the day's vias again, so the undo reads them from there.
+    vi.mocked(road.reanchor).mockImplementation(async (dayId, plan) => {
+      const moved = new Map(plan.vias.map((via) => [via.id, via.after_order_index] as const));
+      road.byDay = {
+        ...road.byDay,
+        [dayId]: (road.byDay[dayId] ?? [])
+          .filter((via) => !plan.remove.includes(via.id))
+          .map((via) => ({ ...via, after_order_index: moved.get(via.id) ?? via.after_order_index })),
+      };
+    });
     const { result } = render();
     await act(async () => {
       expect(await result.current.handleAssignToDay(9, 1, undefined, 'stages')).toBe(true);

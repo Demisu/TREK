@@ -9,7 +9,7 @@ import { ContextMenu, useContextMenu } from '../shared/ContextMenu'
 import { DialogButton, fs } from '../shared/DialogShell'
 import { Tooltip } from '../shared/Tooltip'
 import { BOX, Eyebrow } from '../Planner/bookings/bookingParts'
-import { SoftPill, WhiteBadge } from '../Planner/planParts'
+import { WhiteBadge } from '../Planner/planParts'
 import { hikeSourceBadgeLabel, tourSource } from './tourPresentation'
 import { type TourDay, dayMenuLabel } from './tourDays'
 import { formatDate } from '../../utils/formatters'
@@ -18,7 +18,7 @@ import type { TourDayAssignment } from './useTourDayAssignment'
 import { useRailFold } from './railFold'
 import { tourDayRowIcon } from './tourDayRowIcon'
 import { SkiCornerMark } from './ski/skiMarks'
-import { tourDayHowItems } from './stages/TourDayAddButton'
+import { tourDayHowItems } from './stages/tourDayHowItems'
 
 /**
  * A tour's tile in a list: its T-scale grade in place of the mountain, named in
@@ -86,9 +86,6 @@ export function TourListCard({ icon,
     </div>
   )
 }
-
-/** How many days a list row names before the rest fold into one "+n" pill. */
-const SHOWN_TOUR_DAYS = 3
 
 /** The days a tour is on as one white badge of a plan row: "Days 2, 4", each day named in full in the tooltip. */
 export function TourDaysBadge({ tourDays }: { tourDays: readonly TourDay[] }) {
