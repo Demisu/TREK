@@ -10,9 +10,9 @@ const { valhallaRun, enrichTourElevations } = vi.hoisted(() => ({
 vi.mock('../../Map/valhallaRoute', () => ({ valhallaRun }));
 vi.mock('./tourRouting', () => ({ enrichTourElevations }));
 
-import { fitsWish, type RoundRequest } from './roundHikes';
 import { spotToward } from './roundHikeGeometry';
 import { findRoundHikes, MAX_ROUND_ASKS, type RoundSearchReport } from './roundHikeRouting';
+import { fitsWish, type RoundRequest } from './roundHikes';
 
 type Spot = { lat: number; lng: number };
 

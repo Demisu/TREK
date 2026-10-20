@@ -1,9 +1,4 @@
-import {
-  MAX_RUN_PACE_SECONDS_PER_KM,
-  MIN_RUN_PACE_SECONDS_PER_KM,
-  RUN_PROFILES,
-  type RunProfile,
-} from '@trek/shared';
+import { MAX_RUN_PACE_SECONDS_PER_KM, MIN_RUN_PACE_SECONDS_PER_KM, RUN_PROFILES, type RunProfile } from '@trek/shared';
 import { Clock, Gauge, Info, Ruler } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from '../../../i18n';

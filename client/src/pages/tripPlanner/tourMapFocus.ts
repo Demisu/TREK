@@ -1,18 +1,20 @@
-import type { useMapLocationSearch } from './useMapLocationSearch'
-import type { useTourWorkspace } from './useTourWorkspace'
+import type { useMapLocationSearch } from './useMapLocationSearch';
+import type { useTourWorkspace } from './useTourWorkspace';
 
 // The planner page hook's pure helpers: what the Tours map draws and frames.
 // They live apart so the page hook's one object-literal return stays its view model.
 
-type Workspace = ReturnType<typeof useTourWorkspace>
-type TourPlanner = Workspace['tourPlanner']
+type Workspace = ReturnType<typeof useTourWorkspace>;
+type TourPlanner = Workspace['tourPlanner'];
 
 /** PAD-05B: the paddle line in view, a recorded paddle track's or the paddle tour's being planned; none for any other. */
 export function paddleLineOf(tourPlanner: TourPlanner) {
   if (tourPlanner.mode.type === 'view-gpx') {
-    return tourPlanner.mode.tour.tour_type === 'kayak' ? tourPlanner.readOnlyGpxAnalysis?.routeCoordinates ?? null : null
+    return tourPlanner.mode.tour.tour_type === 'kayak'
+      ? (tourPlanner.readOnlyGpxAnalysis?.routeCoordinates ?? null)
+      : null;
   }
-  return tourPlanner.isPaddle ? tourPlanner.route : null
+  return tourPlanner.isPaddle ? tourPlanner.route : null;
 }
 
 /**
@@ -21,21 +23,21 @@ export function paddleLineOf(tourPlanner: TourPlanner) {
  * round hikes ask the map for while they are looked for and shown.
  */
 export function offeredWaysOf(tourPlanner: TourPlanner, offering: boolean) {
-  const { comparison, focus: variantFocus } = tourPlanner.legVariants
-  const { view: rounds, focus: roundFocus, frame: roundFrame } = tourPlanner.roundHikes
+  const { comparison, focus: variantFocus } = tourPlanner.legVariants;
+  const { view: rounds, focus: roundFocus, frame: roundFrame } = tourPlanner.roundHikes;
   return {
-    ways: offering ? comparison?.variants ?? rounds?.candidates ?? null : null,
+    ways: offering ? (comparison?.variants ?? rounds?.candidates ?? null) : null,
     focus: comparison ? variantFocus : roundFocus,
     frame: offering ? roundFrame : null,
-  }
+  };
 }
 
 /** What frames the map: a picked wanderer trail itself, else round hikes being framed, else the planner. */
 export function mapFocusKeyOf(
   wandererBrowser: Workspace['wandererBrowser'],
   frame: ReturnType<typeof offeredWaysOf>['frame'],
-  plannerKey: ReturnType<typeof useMapLocationSearch>['mapFocusKey'],
+  plannerKey: ReturnType<typeof useMapLocationSearch>['mapFocusKey']
 ) {
-  if (wandererBrowser.open && wandererBrowser.selected) return `wanderer:${wandererBrowser.selected.id}`
-  return frame?.key ?? plannerKey
+  if (wandererBrowser.open && wandererBrowser.selected) return `wanderer:${wandererBrowser.selected.id}`;
+  return frame?.key ?? plannerKey;
 }

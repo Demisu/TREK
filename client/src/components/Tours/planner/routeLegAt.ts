@@ -25,7 +25,8 @@ function alongLine(
       const t =
         length === 0 ? 0 : Math.max(0, Math.min(1, ((lng - aLng) * cos * dx + (lat - aLat) * dy) / (length * length)));
       const distance = Math.hypot(aLng * cos + dx * t - lng * cos, aLat + dy * t - lat);
-      if (distance < best.distance) best = { at: travelled + length * t, index: i, vertex: t < 0.5 ? i : i + 1, distance };
+      if (distance < best.distance)
+        best = { at: travelled + length * t, index: i, vertex: t < 0.5 ? i : i + 1, distance };
     }
     travelled += length;
   }

@@ -13,16 +13,7 @@ import type { HikePaintKey } from './hikePaint';
  */
 
 type HikeSurfaceClass =
-  | 'paved'
-  | 'sett'
-  | 'compacted'
-  | 'gravel'
-  | 'ground'
-  | 'grass'
-  | 'rock'
-  | 'wood'
-  | 'unpaved'
-  | 'other';
+  'paved' | 'sett' | 'compacted' | 'gravel' | 'ground' | 'grass' | 'rock' | 'wood' | 'unpaved' | 'other';
 
 type HikeWayClass = 'path' | 'footway' | 'steps' | 'track' | 'cycleway' | 'quietRoad' | 'road' | 'viaFerrata' | 'other';
 

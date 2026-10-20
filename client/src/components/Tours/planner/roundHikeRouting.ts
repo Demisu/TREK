@@ -3,8 +3,8 @@ import { valhallaRun } from '../../Map/valhallaRoute';
 import { figuresOf } from './legVariants';
 import { loopSpots, retracedShare, sharedShare, STRAIGHT_PER_RADIUS_M } from './roundHikeGeometry';
 import { fitsWish, ROUND_KEYS, type RoundCandidate, type RoundRequest } from './roundHikes';
-import { enrichTourElevations } from './tourRouting';
 import { MAX_TOUR_SNAP_M } from './tourRouteOutcome';
+import { enrichTourElevations } from './tourRouting';
 
 type Spot = { lat: number; lng: number };
 

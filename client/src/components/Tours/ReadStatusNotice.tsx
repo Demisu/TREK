@@ -25,7 +25,8 @@ export function ReadStatusNotice({
         {messages.loading}
       </span>
     );
-  if (status === 'offline') return <TourNotice icon={<WifiOff size={13} strokeWidth={2} />}>{messages.offline}</TourNotice>;
+  if (status === 'offline')
+    return <TourNotice icon={<WifiOff size={13} strokeWidth={2} />}>{messages.offline}</TourNotice>;
   if (status !== 'failed') return null;
   return (
     <TourNotice tone="warning" icon={<AlertTriangle size={13} strokeWidth={2} />}>

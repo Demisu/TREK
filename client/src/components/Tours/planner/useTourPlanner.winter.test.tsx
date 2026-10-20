@@ -87,10 +87,7 @@ describe('useTourPlanner, the winter label of a hike (HIK-01)', () => {
     await act(async () => {
       await result.current.save();
     });
-    expect(createTour).toHaveBeenCalledWith(
-      61,
-      expect.objectContaining({ tour_type: 'hike', winter_activity: null })
-    );
+    expect(createTour).toHaveBeenCalledWith(61, expect.objectContaining({ tour_type: 'hike', winter_activity: null }));
   });
 
   it('FE-TOUR-WINTER-002: the label plans nothing again, is no step of the history and is kept in the draft', async () => {
@@ -179,10 +176,7 @@ describe('useTourPlanner, the winter label of a hike (HIK-01)', () => {
     await act(async () => {
       await result.current.save();
     });
-    expect(createTour).toHaveBeenCalledWith(
-      65,
-      expect.objectContaining({ tour_type: 'walk', winter_activity: null })
-    );
+    expect(createTour).toHaveBeenCalledWith(65, expect.objectContaining({ tour_type: 'walk', winter_activity: null }));
   });
 
   it('FE-TOUR-WINTER-006: keeps the label the switch brings back with the tour, winter hiking for the next one', async () => {

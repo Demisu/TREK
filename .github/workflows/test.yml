@@ -261,8 +261,11 @@ jobs:
         # constructor parameter does not break its hand-wired call sites at
         # compile time: the argument arrives as undefined and throws at
         # runtime, if anything reads it at all. This is the step that
-        # catches it.
+        # catches it. src and tests together are past 570,000 lines and need
+        # about 4.3 GB, over Node's default heap.
         run: cd server && npm run typecheck:tests
+        env:
+          NODE_OPTIONS: --max-old-space-size=8192
 
       - name: Typecheck entity generator
         # tsconfig.scripts.json covers generate-entities.ts and migrate-encryption.ts;

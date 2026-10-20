@@ -4,8 +4,8 @@ import { convertDistance } from '../../../utils/units';
 import type { CostingOptions } from '../../Map/valhallaRoute';
 import { OTHER_WAY_KEYS, type LegVariant } from './legVariants';
 import { spotToward } from './roundHikeGeometry';
-import { closeLoop } from './tourRouteActions';
 import type { TourPlannerWaypoint } from './tourPlannerWaypoints';
+import { closeLoop } from './tourRouteActions';
 
 /**
  * RTE-03: round hikes of about a wished length out of a start point, as a
@@ -139,9 +139,13 @@ export function roundPlanOf(
   newId: () => string
 ): TourPlannerWaypoint[] {
   const { fixedLeg: _leg, lock: _lock, carryNext: _carry, auto: _auto, shaping: _shaping, ...own } = start;
-  const steering = via.map(
-    ({ lat, lng }): TourPlannerWaypoint => ({ id: newId(), lat, lng, role: 'via', shaping: true })
-  );
+  const steering = via.map(({ lat, lng }): TourPlannerWaypoint => ({
+    id: newId(),
+    lat,
+    lng,
+    role: 'via',
+    shaping: true,
+  }));
   return closeLoop([{ ...own, role: 'start' }, ...steering], newId());
 }
 

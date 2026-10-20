@@ -7,6 +7,5 @@ export const tourSkiApi = {
     tripId: number | string,
     placeId: number | string,
     body: TourSkiClassificationRequest
-  ): Promise<TourDetailResponse> =>
-    apiClient.put(`/trips/${tripId}/tours/${placeId}/ski`, body).then((r) => r.data),
+  ): Promise<TourDetailResponse> => apiClient.put(`/trips/${tripId}/tours/${placeId}/ski`, body).then((r) => r.data),
 };

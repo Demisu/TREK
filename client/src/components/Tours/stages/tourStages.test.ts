@@ -132,9 +132,7 @@ describe('tourStages', () => {
 
   it('FE-TOUR-STAGE-MODEL-013: a run stage is its distance at the pace, a ride on horseback has no time (RUN-01, HOR-01)', () => {
     const run = tourStagesOf(input(withEnds('b'), { tourType: 'run', runPaceSecondsPerKm: 360 }));
-    expect(run.map((stage) => stage.minutes)).toEqual(
-      run.map((stage) => runMinutesAtPace(stage.distanceKm ?? 0, 360))
-    );
+    expect(run.map((stage) => stage.minutes)).toEqual(run.map((stage) => runMinutesAtPace(stage.distanceKm ?? 0, 360)));
     // The router's walking time never stands in, neither without a pace nor with one out of bounds.
     const noPace = tourStagesOf(input(withEnds('b'), { tourType: 'run' }));
     expect(noPace.map((stage) => stage.minutes)).toEqual([null, null]);

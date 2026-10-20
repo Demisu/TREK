@@ -6,8 +6,8 @@ import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
 import { lineLengthM } from '../planner/tourFixedLegs';
 import { ACCESS_TONE_DOT, accessText, accessToneOf } from './horseAccess';
-import { Horseshoe } from './HorseshoeIcon';
 import type { HorseSectionLeg } from './horseSection';
+import { Horseshoe } from './HorseshoeIcon';
 
 /**
  * HOR-01: a section of a horse route the ride follows, as a badge on its leg

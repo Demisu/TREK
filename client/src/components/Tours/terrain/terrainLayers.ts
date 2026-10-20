@@ -81,7 +81,12 @@ function line(color: string, coordinates: [number, number][]): TrackData['featur
 
 /** A line of the planner, [lat, lng] each, as the terrain's [lng, lat]; null for one too short to draw. */
 function plannerLine(color: string, route: [number, number][]): TrackData['features'][number] | null {
-  return route.length > 1 ? line(color, route.map(([lat, lng]) => [lng, lat] as [number, number])) : null;
+  return route.length > 1
+    ? line(
+        color,
+        route.map(([lat, lng]) => [lng, lat] as [number, number])
+      )
+    : null;
 }
 
 /** A line laid over the track in its own colour, [lat, lng] each. */

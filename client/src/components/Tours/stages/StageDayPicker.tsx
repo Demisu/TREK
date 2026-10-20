@@ -18,7 +18,11 @@ interface StageDayPickerProps {
 }
 
 /** The days a stage can go on, the one it is on checked, and a way back to none. */
-function dayItems({ stageKey, days, stageDays }: StageDayPickerProps, label: (day: Day, index: number) => string, noDay: string) {
+function dayItems(
+  { stageKey, days, stageDays }: StageDayPickerProps,
+  label: (day: Day, index: number) => string,
+  noDay: string
+) {
   const current = stageDays.dayOf(stageKey);
   const items: MenuItems = days.map((day, index) => ({
     label: label(day, index),
@@ -27,7 +31,11 @@ function dayItems({ stageKey, days, stageDays }: StageDayPickerProps, label: (da
     onClick: () => void stageDays.setDay(stageKey, day.id),
   }));
   if (current === null) return items;
-  return [...items, { divider: true }, { label: noDay, icon: CalendarX2, onClick: () => void stageDays.setDay(stageKey, null) }];
+  return [
+    ...items,
+    { divider: true },
+    { label: noDay, icon: CalendarX2, onClick: () => void stageDays.setDay(stageKey, null) },
+  ];
 }
 
 /**
@@ -55,7 +63,11 @@ export function StageDayPicker(props: StageDayPickerProps) {
       menu.close();
       return;
     }
-    menu.open(event, dayItems(props, (option, at) => dayMenuLabel(option, at, t, locale), t('tours.stages.noDay')), true);
+    menu.open(
+      event,
+      dayItems(props, (option, at) => dayMenuLabel(option, at, t, locale), t('tours.stages.noDay')),
+      true
+    );
   };
 
   const look = day
@@ -86,7 +98,9 @@ export function StageDayPicker(props: StageDayPickerProps) {
           <span className={day ? 'font-geist tabular-nums' : undefined}>
             {day ? t('dayplan.dayN', { n: index + 1 }) : t('tours.stages.noDay')}
           </span>
-          {interactive && <ChevronDown size={11} strokeWidth={2.2} aria-hidden="true" className="flex-none text-content-faint" />}
+          {interactive && (
+            <ChevronDown size={11} strokeWidth={2.2} aria-hidden="true" className="flex-none text-content-faint" />
+          )}
         </button>
       </Tooltip>
       <ContextMenu menu={interactive ? menu.menu : null} onClose={menu.close} />

@@ -29,8 +29,7 @@ export function useSkiClassification({ tripId, planner, tours, canEdit, onSaved 
   const [draft, setDraft] = useState<SkiChoice | null>(null);
   const [saving, setSaving] = useState(false);
   const viewed = planner.mode.type === 'view-gpx' ? planner.mode.tour : null;
-  const tour =
-    viewed?.tour_type === 'ski' ? (tours.find((item) => item.place_id === viewed.place_id) ?? viewed) : null;
+  const tour = viewed?.tour_type === 'ski' ? (tours.find((item) => item.place_id === viewed.place_id) ?? viewed) : null;
   const saved = useMemo(() => (tour ? skiChoiceOf(tour) : NO_SKI_CHOICE), [tour]);
 
   const open = useCallback(() => {

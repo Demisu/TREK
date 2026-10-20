@@ -20,7 +20,7 @@ export function skiChoiceMissing(choice: SkiChoice): 'discipline' | 'technique' 
 
 /** The fields a complete choice is sent as; null while something is missing. */
 export function skiFieldsOf(
-  choice: SkiChoice,
+  choice: SkiChoice
 ): Pick<TourSkiClassificationRequest, 'ski_discipline' | 'ski_technique'> | null {
   if (choice.discipline === null || skiChoiceMissing(choice)) return null;
   return choice.discipline === 'cross_country'

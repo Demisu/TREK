@@ -1,5 +1,5 @@
-import { TOUR_TRAIL_GRADE_MAX_WAYS } from '@trek/shared';
 import { act, renderHook } from '@testing-library/react';
+import { TOUR_TRAIL_GRADE_MAX_WAYS } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { encodePolyline } from '../../../../tests/helpers/polyline';
 import { OnlineOnlyError } from '../../../repo/onlineOnly';

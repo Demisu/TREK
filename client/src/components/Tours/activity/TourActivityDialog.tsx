@@ -236,9 +236,7 @@ export default function TourActivityDialog({
               variant="primary"
               data-testid="tour-activity-confirm"
               disabled={!assignment.ready || state.busy || importing}
-              icon={
-                state.busy ? <Loader2 size={14} className="animate-spin" /> : <Link2 size={14} strokeWidth={2} />
-              }
+              icon={state.busy ? <Loader2 size={14} className="animate-spin" /> : <Link2 size={14} strokeWidth={2} />}
               onClick={confirm}
             >
               {t('tours.activity.confirm')}

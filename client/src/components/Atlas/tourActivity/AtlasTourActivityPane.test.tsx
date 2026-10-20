@@ -5,8 +5,8 @@
 import userEvent from '@testing-library/user-event';
 import { summarizeTourActivities, type TourActivityStatsEntry, type TourActivityStatsResponse } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '../../../../tests/helpers/render';
 import { buildSettings } from '../../../../tests/helpers/factories';
+import { render, screen } from '../../../../tests/helpers/render';
 import { resetAllStores, seedStore } from '../../../../tests/helpers/store';
 import { useSettingsStore } from '../../../store/settingsStore';
 import { AtlasTourActivityPane } from './AtlasTourActivityPane';

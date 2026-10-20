@@ -132,9 +132,24 @@ describe('horse route sections on a ride (HOR-01)', () => {
     expect(accessToneOf(undefined)).toBeNull();
     expect(accessToneOf([])).toBeNull();
     expect(accessToneOf([{ value: 'yes', length_m: 10 }])).toBe('open');
-    expect(accessToneOf([{ value: 'yes', length_m: 10 }, { value: 'unknown', length_m: 1 }])).toBe('unknown');
-    expect(accessToneOf([{ value: 'unknown', length_m: 10 }, { value: 'destination', length_m: 1 }])).toBe('limited');
-    expect(accessToneOf([{ value: 'designated', length_m: 10 }, { value: 'private', length_m: 1 }])).toBe('closed');
+    expect(
+      accessToneOf([
+        { value: 'yes', length_m: 10 },
+        { value: 'unknown', length_m: 1 },
+      ])
+    ).toBe('unknown');
+    expect(
+      accessToneOf([
+        { value: 'unknown', length_m: 10 },
+        { value: 'destination', length_m: 1 },
+      ])
+    ).toBe('limited');
+    expect(
+      accessToneOf([
+        { value: 'designated', length_m: 10 },
+        { value: 'private', length_m: 1 },
+      ])
+    ).toBe('closed');
   });
 
   it('FE-HORSE-MODEL-009: spells the tags out with the metres each covers', () => {

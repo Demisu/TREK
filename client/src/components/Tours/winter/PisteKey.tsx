@@ -2,8 +2,8 @@ import { CableCar, ExternalLink, Info, ZoomIn } from 'lucide-react';
 import { useEffect } from 'react';
 import { useTranslation } from '../../../i18n';
 import { SoftPill } from '../../Planner/planParts';
-import { fs } from '../../shared/DialogShell';
 import { LABEL, PopoverListPanel } from '../../shared/dialogParts';
+import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
 import { usePopoverList } from '../../shared/usePopoverList';
 import { TourNotice } from '../tourParts';
@@ -63,7 +63,8 @@ function RunBand({ colour }: { colour: string }) {
 
 /** A trail as a line in its colour, or as a row of dots where the map dots it. */
 function WayLine({ colour, dotted = false }: { colour: string; dotted?: boolean }) {
-  if (!dotted) return <span aria-hidden className="h-[3px] w-6 flex-none rounded-full" style={{ background: colour }} />;
+  if (!dotted)
+    return <span aria-hidden className="h-[3px] w-6 flex-none rounded-full" style={{ background: colour }} />;
   return (
     <span aria-hidden className="flex w-6 flex-none items-center justify-between px-px">
       {[0, 1, 2].map((dot) => (
@@ -92,7 +93,7 @@ function PisteKeyBody({ belowMinZoom }: { belowMinZoom: boolean }) {
       </div>
       {belowMinZoom && (
         <p
-          className="flex items-center gap-1.5 rounded-lg bg-accent-soft px-2 py-1.5 font-medium text-accent"
+          className="bg-accent-soft flex items-center gap-1.5 rounded-lg px-2 py-1.5 font-medium text-accent"
           style={fs(11)}
           data-testid="piste-key-zoom-in"
         >

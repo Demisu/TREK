@@ -12,9 +12,14 @@ export const toursHandlers = [
     visits: [],
   })),
   // P2D-XD-01: a tour's detail reads its packing link; a tour points at none unless a test says so.
-  contractHandler('get', '/api/trips/:id/tours/:placeId/packing-link', { response: tourPackingLinkResponseSchema }, () => ({
-    packing_link: null,
-  })),
+  contractHandler(
+    'get',
+    '/api/trips/:id/tours/:placeId/packing-link',
+    { response: tourPackingLinkResponseSchema },
+    () => ({
+      packing_link: null,
+    })
+  ),
   // WAN-02: the wanderer watch is off and leaves no hint on a tour unless a test says so.
   contractHandler('get', '/api/integrations/wanderer/watch', { response: wandererWatchSchema }, () => ({
     enabled: false,

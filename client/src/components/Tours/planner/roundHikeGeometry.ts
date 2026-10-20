@@ -102,9 +102,9 @@ function hasNeighbour(grid: Map<string, Sample[]>, sample: Sample, counts: (othe
   const cy = cellOf(sample.y);
   for (let dx = -1; dx <= 1; dx += 1) {
     for (let dy = -1; dy <= 1; dy += 1) {
-      const near = grid.get(`${cx + dx}:${cy + dy}`)?.some(
-        (other) => Math.hypot(other.x - sample.x, other.y - sample.y) <= SAME_GROUND_M && counts(other)
-      );
+      const near = grid
+        .get(`${cx + dx}:${cy + dy}`)
+        ?.some((other) => Math.hypot(other.x - sample.x, other.y - sample.y) <= SAME_GROUND_M && counts(other));
       if (near) return true;
     }
   }

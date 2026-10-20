@@ -34,9 +34,11 @@ describe('GPX import choices', () => {
       tour_type: 'ski',
       ski_discipline: 'touring',
     });
-    expect(
-      importFields({ ...base, type: 'ski', ski: { discipline: 'cross_country', technique: 'unknown' } })
-    ).toEqual({ tour_type: 'ski', ski_discipline: 'cross_country', ski_technique: 'unknown' });
+    expect(importFields({ ...base, type: 'ski', ski: { discipline: 'cross_country', technique: 'unknown' } })).toEqual({
+      tour_type: 'ski',
+      ski_discipline: 'cross_country',
+      ski_technique: 'unknown',
+    });
   });
 
   it('FE-TOUR-GPX-CHOICES-002: holds the import back while a paddle tour or a ski track lacks what it must name', () => {

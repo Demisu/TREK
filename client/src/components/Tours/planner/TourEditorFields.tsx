@@ -7,9 +7,9 @@ import { INPUT, LABEL } from '../../shared/dialogParts';
 import { fs } from '../../shared/DialogShell';
 import { FoldButton, InfoDot, TourNotice, TourSection } from '../tourParts';
 import { HikingPreferencesField } from './HikingPreferencesField';
-import { WinterActivityField } from './WinterActivityField';
 import { TOUR_DURATION_INPUT_MAX_LENGTH, formatTourDuration, parseTourDuration } from './tourDurationInput';
 import type { TourPlannerController } from './useTourPlanner';
+import { WinterActivityField } from './WinterActivityField';
 
 type Difficulty = 1 | 2 | 3 | 4 | 5 | 6;
 

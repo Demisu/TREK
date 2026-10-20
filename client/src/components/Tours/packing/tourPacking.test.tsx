@@ -22,7 +22,16 @@ const GEAR: TourPackingLink = { category: 'Hiking gear', linked_at: '2026-10-20 
 
 let nextId = 1;
 function item(name: string, category: string | null, over: Partial<PackingItem> = {}): PackingItem {
-  return { id: nextId++, trip_id: 5, name, category, checked: 0, sort_order: nextId, quantity: 1, ...over } as PackingItem;
+  return {
+    id: nextId++,
+    trip_id: 5,
+    name,
+    category,
+    checked: 0,
+    sort_order: nextId,
+    quantity: 1,
+    ...over,
+  } as PackingItem;
 }
 
 const ITEMS = [

@@ -1,9 +1,9 @@
 import type { TourFixedLeg } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
-import { tourMapLayersFor } from '../tourMapLayers';
 import { normalizePlannerWaypoints, tourWaypointKey, type TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 import { toggleFreeLeg } from '../planner/tourRouteActions';
 import { rideTour, routeWalkingTour } from '../planner/tourRouting';
+import { tourMapLayersFor } from '../tourMapLayers';
 
 // FE-HORSE-ROUTE-001 to FE-HORSE-ROUTE-006
 

@@ -35,7 +35,11 @@ function tour(overrides: Partial<TourListItem> = {}): TourListItem {
 }
 
 const gear: TourPackingLink = { category: 'Hiking gear', linked_at: '2026-10-20 09:00:00' };
-const answer = (packing_link: TourPackingLink | null): TourDetailResponse => ({ tour: tour(), waypoints: [], packing_link });
+const answer = (packing_link: TourPackingLink | null): TourDetailResponse => ({
+  tour: tour(),
+  waypoints: [],
+  packing_link,
+});
 const cachedLink = async (placeId = 40) => (await offlineDb.tours.get(placeId))?.packing_link;
 
 beforeEach(async () => {

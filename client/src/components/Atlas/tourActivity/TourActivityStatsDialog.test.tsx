@@ -5,9 +5,9 @@
 import userEvent from '@testing-library/user-event';
 import { summarizeTourActivities, type TourActivityStatsEntry, type TourActivityStatsResponse } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { buildSettings } from '../../../../tests/helpers/factories';
 import { render, screen, within } from '../../../../tests/helpers/render';
 import { resetAllStores, seedStore } from '../../../../tests/helpers/store';
-import { buildSettings } from '../../../../tests/helpers/factories';
 import { useSettingsStore } from '../../../store/settingsStore';
 import { TourActivityStatsDialog } from './TourActivityStatsDialog';
 import type { TourActivityStats } from './useTourActivityStats';

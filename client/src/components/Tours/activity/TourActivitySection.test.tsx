@@ -120,7 +120,17 @@ describe('TourActivitySection (ACT-01)', () => {
     expect(current.askRemove).toHaveBeenCalledWith(current.activities?.[0]);
 
     hook.state = state({ assigning: {}, removing: activity() });
-    rerender(<TourActivitySection tripId={1} tour={tour} days={days} assignments={assignments} canEdit plan={plan} planColor="plan-paint" />);
+    rerender(
+      <TourActivitySection
+        tripId={1}
+        tour={tour}
+        days={days}
+        assignments={assignments}
+        canEdit
+        plan={plan}
+        planColor="plan-paint"
+      />
+    );
     expect(screen.getByTestId('tour-activity-dialog')).toBeInTheDocument();
     expect(screen.getByText('tours.activity.removeTitle')).toBeInTheDocument();
   });
@@ -193,6 +203,9 @@ describe('TourActivitySection (ACT-01)', () => {
     expect(screen.queryByRole('button', { name: /tours.activity.compare.(show|hide)/ })).toBeNull();
 
     act(() => useTourActivityCompareStore.getState().setMapAvailable(true));
-    expect(screen.getByRole('button', { name: /tours.activity.compare.show/ })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: /tours.activity.compare.show/ })).toHaveAttribute(
+      'aria-pressed',
+      'false'
+    );
   });
 });

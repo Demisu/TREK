@@ -1,7 +1,11 @@
 import { paddleSpeedKmhSchema, recommendedPaddleSpeedKmh, type TourListItem, type TourWaypoint } from '@trek/shared';
 import { parseRenderableRouteGeometry } from '../../../utils/routeGeometry';
 import { openedTourFields } from '../planner/tourPlannerFacts';
-import { normalizePlannerWaypoints, plannerWaypointsOf, type TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
+import {
+  normalizePlannerWaypoints,
+  plannerWaypointsOf,
+  type TourPlannerWaypoint,
+} from '../planner/tourPlannerWaypoints';
 import { legLengthsAlong, tourStagesOf, type PaddleStageInputs, type TourStage } from './tourStages';
 
 /** MDT-02: a stage of a saved tour, with the key of the stop it starts at, by which a day holds it. */
@@ -21,7 +25,11 @@ export function savedStagePoints(tour: TourListItem, saved: readonly TourWaypoin
  * the paddler chose, else the boat's suggestion, and each leg as long as the
  * saved line runs it. Null for any other type.
  */
-function paddleInputsOf(tour: TourListItem, points: readonly TourPlannerWaypoint[], line: ReadonlyArray<readonly number[]>): PaddleStageInputs | null {
+function paddleInputsOf(
+  tour: TourListItem,
+  points: readonly TourPlannerWaypoint[],
+  line: ReadonlyArray<readonly number[]>
+): PaddleStageInputs | null {
   if (tour.tour_type !== 'kayak') return null;
   const chosen = tour.paddle_speed_kmh ?? null;
   return {

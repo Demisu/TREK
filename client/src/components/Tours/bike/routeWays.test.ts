@@ -183,7 +183,12 @@ describe('the paints and the highlight (BIK-01 to BIK-05)', () => {
 
   it('FE-TOUR-WAYS-014: lines of different paints each take their own, an unknown key the accent (MAP-03)', () => {
     const drawn = withRouteHighlight(
-      { id: 'sac', lines: [LINE.slice(0, 2), LINE.slice(1, 3), LINE.slice(2)], paint: 'gravel', paints: ['way', 'nope'] },
+      {
+        id: 'sac',
+        lines: [LINE.slice(0, 2), LINE.slice(1, 3), LINE.slice(2)],
+        paint: 'gravel',
+        paints: ['way', 'nope'],
+      },
       [LINE],
       null,
       null,

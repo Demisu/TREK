@@ -1,16 +1,16 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen, within } from '../../../../tests/helpers/render';
-import { TourDayRowIcon } from '../TourDayRowFacts';
-import { tourDayRowIcon } from '../tourDayRowIcon';
-import { movingTimeLabel } from '../tourFacts';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 import { useShapingClick } from '../planner/useShapingClick';
 import type { TourPlannerController } from '../planner/useTourPlanner';
 import { WaypointLegRows } from '../planner/WaypointLegRows';
+import { TourDayRowIcon } from '../TourDayRowFacts';
+import { tourDayRowIcon } from '../tourDayRowIcon';
+import { movingTimeLabel } from '../tourFacts';
 import { HorseLegRow } from './HorseLegRow';
-import { Horseshoe } from './HorseshoeIcon';
 import type { HorseSectionLeg } from './horseSection';
+import { Horseshoe } from './HorseshoeIcon';
 
 // FE-HORSE-LEG-001 to FE-HORSE-LEG-005
 

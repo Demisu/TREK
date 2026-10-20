@@ -117,7 +117,9 @@ describe('useActivityCompareMap (ACT-02)', () => {
   });
 
   it('FE-ACT-COMPARE-MAP-006: tells the store whether it can compare, and ends a comparison where it no longer can or is gone', () => {
-    const { rerender, unmount } = renderHook((props: typeof input) => useActivityCompareMap(props), { initialProps: input });
+    const { rerender, unmount } = renderHook((props: typeof input) => useActivityCompareMap(props), {
+      initialProps: input,
+    });
     expect(useTourActivityCompareStore.getState().mapAvailable).toBe(true);
     act(() => useTourActivityCompareStore.getState().show({ tourPlaceId: 7, trackPlaceId: 20 }));
 

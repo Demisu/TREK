@@ -1,5 +1,5 @@
-import type { TourTrailGrade } from '@trek/shared';
 import { act, renderHook } from '@testing-library/react';
+import type { TourTrailGrade } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useTourRouteHighlightStore } from '../../../store/tourRouteHighlightStore';
 import type { RouteWayEdge, RouteWays } from '../bike/routeWays';
