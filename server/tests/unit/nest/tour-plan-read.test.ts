@@ -4,7 +4,7 @@ import type { TourDetailResponse, TourWaypoint } from '@trek/shared';
 
 import { describe, expect, it } from 'vitest';
 
-// TOUR-PLAN-READ-001 to TOUR-PLAN-READ-005
+// TOUR-PLAN-READ-001 to TOUR-PLAN-READ-006
 
 /** The detail of a tour of this type, only as far as the plan reads it. */
 function detailOf(tourType: TourDetailResponse['tour']['tour_type']): TourDetailResponse {
@@ -66,10 +66,10 @@ describe('tour plan read (MCP-T01)', () => {
         ],
       },
     });
-    expect(planLegs([portage, point(1)])).toEqual([
+    expect(planLegs([portage, point(1)], { recorded: false })).toEqual([
       expect.objectContaining({ kind: 'portage', name: null, length_km: 1.11 }),
     ]);
-    expect(planLegs([point(0)])).toEqual([]);
+    expect(planLegs([point(0)], { recorded: false })).toEqual([]);
   });
 
   it('TOUR-PLAN-READ-004: a line of fewer than two points is no line', () => {
@@ -87,5 +87,24 @@ describe('tour plan read (MCP-T01)', () => {
     expect(walk).toEqual(expect.arrayContaining(['tour.station_count', 'tour.station_stays_unknown']));
     expect(walk).not.toContain('tour.paddle_check');
     expect(walk).not.toContain('run.open');
+  });
+
+  it('TOUR-PLAN-READ-006: a leg of a recorded track is a track, never routed, and a fixed leg keeps its own kind', () => {
+    expect(planLegs([point(0), point(1)], { recorded: false })).toEqual([
+      expect.objectContaining({ kind: 'routed', length_km: null }),
+    ]);
+    expect(planLegs([point(0), point(1)], { recorded: true })).toEqual([
+      expect.objectContaining({ kind: 'track', name: null, length_km: null }),
+    ]);
+    const free = point(0, {
+      fixed_leg: {
+        kind: 'free',
+        geometry: [
+          [48, 11],
+          [48.01, 11],
+        ],
+      },
+    });
+    expect(planLegs([free, point(1)], { recorded: true })).toEqual([expect.objectContaining({ kind: 'free' })]);
   });
 });

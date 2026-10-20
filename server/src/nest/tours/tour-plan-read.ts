@@ -61,11 +61,15 @@ interface PlanLeg {
   /** The keys of its two points, the same across saves; null for a point that has none. */
   from_key: string | null;
   to_key: string | null;
-  /** routed: planned by the router; ferrata, free and portage: a fixed line taken as it stands. */
-  kind: 'routed' | TourFixedLegKind;
+  /**
+   * routed: planned by the router; track: part of a recorded line (an import
+   * without control points of its own), which no router planned; ferrata, free
+   * and portage: a fixed line taken as it stands.
+   */
+  kind: 'routed' | 'track' | TourFixedLegKind;
   /** The via ferrata's name where OpenStreetMap gives one. */
   name: string | null;
-  /** Derived: the length of a fixed leg's own line; null for a routed leg, whose length is not stored apart. */
+  /** Derived: the length of a fixed leg's own line; null for a routed or track leg, whose length is not stored apart. */
   length_km: number | null;
 }
 
@@ -74,8 +78,18 @@ function roundKm(km: number): number {
   return Math.round(km * 100) / 100;
 }
 
-/** The legs between consecutive control points, each saying whether the router planned it or it is a fixed line. */
-export function planLegs(points: readonly TourWaypoint[]): PlanLeg[] {
+/** How the line between the control points came to be, as far as the tour itself says. */
+interface PlanLegSource {
+  /** The line is a recorded track (the tour stores no control points of its own), so no router planned it. */
+  recorded: boolean;
+}
+
+/**
+ * The legs between consecutive control points, each saying whether the router
+ * planned it, it follows a recorded track, or it is a fixed line.
+ */
+export function planLegs(points: readonly TourWaypoint[], { recorded }: PlanLegSource): PlanLeg[] {
+  const unfixed = recorded ? 'track' : 'routed';
   return points.slice(1).map((to, index) => {
     const from = points[index] as TourWaypoint;
     const leg = from.fixed_leg ?? null;
@@ -84,7 +98,7 @@ export function planLegs(points: readonly TourWaypoint[]): PlanLeg[] {
       to_sequence: to.sequence,
       from_key: from.key ?? null,
       to_key: to.key ?? null,
-      kind: leg?.kind ?? 'routed',
+      kind: leg?.kind ?? unfixed,
       name: leg?.kind === 'ferrata' ? leg.name : null,
       length_km: leg ? roundKm(computeTourMetrics(leg.geometry).distanceKm) : null,
     };

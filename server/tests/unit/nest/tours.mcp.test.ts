@@ -432,7 +432,7 @@ describe('ToursMcp', () => {
     await orm.close();
   });
 
-  it('TOURS-MCP-017: an import without control points answers the ends of its track as worked out, a tour without a line none', async () => {
+  it('TOURS-MCP-017: an import without control points answers the ends of its track as worked out and its leg as track, a tour without a line none', async () => {
     const { user, trip, ridge, gorge } = fixture();
     const orm = await createTestOrm(db);
     const track = [
@@ -448,7 +448,7 @@ describe('ToursMcp', () => {
       [47.01, undefined],
     ]);
     expect(plan.legs).toEqual([
-      { from_sequence: 0, to_sequence: 1, from_key: null, to_key: null, kind: 'routed', name: null, length_km: null },
+      { from_sequence: 0, to_sequence: 1, from_key: null, to_key: null, kind: 'track', name: null, length_km: null },
     ]);
     expect(plan.line).toEqual({ point_count: 3, has_heights: false, preview: track });
     expect(plan.derived).toContain('waypoints');
