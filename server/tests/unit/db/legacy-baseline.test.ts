@@ -80,6 +80,7 @@ const UNNUMBERED = [
   'Migration20200101046110_a_tour_points_at_its_packing_list',
   'Migration20200101046120_a_wanderer_connection_can_watch_its_sources',
   'Migration20200101046130_snowshoeing_and_winter_hiking_are_ski_disciplines',
+  'Migration20200101046140_tours_are_on_for_every_install',
 ];
 // The last step the positional runner ever had; planLegacyBaseline refuses a
 // schema_version past it.

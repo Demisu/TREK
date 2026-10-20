@@ -13,7 +13,7 @@ interface AddonRow {
   sort_order: number;
 }
 
-const DEFAULT_ADDONS: AddonRow[] = [
+export const DEFAULT_ADDONS: AddonRow[] = [
   {
     id: 'packing',
     name: 'Lists',
@@ -101,7 +101,7 @@ const DEFAULT_ADDONS: AddonRow[] = [
     description: 'Hikes and other single-day tours that follow a route',
     type: 'trip',
     icon: 'Mountain',
-    enabled: 0,
+    enabled: 1,
     sort_order: 8,
   },
   {
