@@ -75,6 +75,15 @@ const fr: NotificationLocale = {
       title: 'Session Synology effacée',
       body: 'Votre compte ou URL Synology a changé. Vous avez été déconnecté de Synology Photos.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `Sentier wanderer: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `« ${p.tour} » dans « ${p.trip} » a été modifié dans wanderer. Ouvrez le parcours et vérifiez sa source pour voir tous les changements. Rien ne change de lui-même dans le voyage.`
+          : p.state === 'unverifiable'
+            ? `« ${p.tour} » dans « ${p.trip} » ne peut plus être vérifié dans wanderer. Le parcours de votre voyage reste tel quel.`
+            : `« ${p.tour} » dans « ${p.trip} » a peut-être changé dans wanderer. Ouvrez le parcours et vérifiez sa source pour le savoir. Rien ne change de lui-même dans le voyage.`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

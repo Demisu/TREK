@@ -75,6 +75,15 @@ const nl: NotificationLocale = {
       title: 'Synology-sessie gewist',
       body: 'Je Synology-account of URL is gewijzigd. Je bent uitgelogd bij Synology Photos.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `wanderer-trail: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `‘${p.tour}’ in ‘${p.trip}’ is gewijzigd in wanderer. Open de tocht en controleer de bron om alle wijzigingen te zien. In de reis verandert niets vanzelf.`
+          : p.state === 'unverifiable'
+            ? `‘${p.tour}’ in ‘${p.trip}’ kan niet meer worden gecontroleerd in wanderer. De tocht in je reis blijft zoals hij is.`
+            : `‘${p.tour}’ in ‘${p.trip}’ is mogelijk gewijzigd in wanderer. Open de tocht en controleer de bron om het te zien. In de reis verandert niets vanzelf.`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

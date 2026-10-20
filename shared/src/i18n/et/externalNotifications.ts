@@ -76,6 +76,15 @@ const et: NotificationLocale = {
       title: 'Synology seanss tühjendatud',
       body: 'Sinu Synology konto või URL muutus. Sind on Synology Photosist välja logitud.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `wanderer rada: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `„${p.tour}“ reisil „${p.trip}“ muudeti wandereris. Ava matk ja kontrolli selle allikat, et näha kõiki muudatusi. Reisis ei muutu midagi iseenesest.`
+          : p.state === 'unverifiable'
+            ? `„${p.tour}“ reisil „${p.trip}“ ei saa wandereris enam kontrollida. Matk sinu reisis jääb samaks.`
+            : `„${p.tour}“ reisil „${p.trip}“ võib olla wandereris muutunud. Ava matk ja kontrolli selle allikat. Reisis ei muutu midagi iseenesest.`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

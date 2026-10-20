@@ -48,6 +48,7 @@ import { usePlaceLanguage } from '../../hooks/usePlaceLanguage'
 import { useDayDelete } from './useDayDelete'
 import { useDayAdd } from './useDayAdd'
 import { usePlannerDialogs } from './usePlannerDialogs'
+import { usePlaceDeepLink } from './usePlaceDeepLink'
 import { usePlannerMapView } from './usePlannerMapView'
 import { useMapPlaces } from './useMapPlaces'
 import { useRoadtripFeed } from './useRoadtripFeed'
@@ -308,6 +309,12 @@ export function useTripPlanner() {
   // takes the request once, then hands it back so a later opening stays plain.
   const [stayPickerDayId, setStayPickerDayId] = useState<number | null>(null)
   const plannerDialogs = usePlannerDialogs({ tripId, tripActions, searchParams, setSearchParams })
+  // Only this trip's: the store may still hold the last trip's places for a moment.
+  const allPlaceIds = useMemo(
+    () => allPlaces.filter(place => place.trip_id === tripId).map(place => place.id),
+    [allPlaces, tripId],
+  )
+  usePlaceDeepLink({ searchParams, setSearchParams, placeIds: allPlaceIds, selectPlace: setSelectedPlaceId })
   // The dialog state this hook reads further down as well as returning it.
   const {
     setShowPlaceForm, editingPlace, setEditingPlace, setPrefillCoords, editingAssignmentId, setEditingAssignmentId,

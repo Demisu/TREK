@@ -72,6 +72,15 @@ const it: NotificationLocale = {
       title: 'Sessione Synology rimossa',
       body: 'Il tuo account o URL Synology è cambiato. Sei stato disconnesso da Synology Photos.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `Sentiero wanderer: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `«${p.tour}» in «${p.trip}» è stato modificato in wanderer. Apri il percorso e controlla la sua fonte per vedere tutte le modifiche. Nel viaggio non cambia nulla da solo.`
+          : p.state === 'unverifiable'
+            ? `«${p.tour}» in «${p.trip}» non si può più controllare in wanderer. Il percorso nel tuo viaggio resta com'è.`
+            : `«${p.tour}» in «${p.trip}» potrebbe essere cambiato in wanderer. Apri il percorso e controlla la sua fonte per saperlo. Nel viaggio non cambia nulla da solo.`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

@@ -103,6 +103,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': '공유된 사진 (Immich)',
   'settings.notifyCollabMessage': '채팅 메시지 (Collab)',
   'settings.notifyPackingTagged': '짐 목록: 배정',
+  'settings.notifyWandererSourceHint': 'wanderer: 내 트레일에 관한 알림',
   'settings.notifyWebhook': '웹훅 알림',
   'settings.notifyVersionAvailable': '새 버전 사용 가능',
   'settings.notifyReplicaFailure': '스토리지 복제본 오류',

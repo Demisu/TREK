@@ -116,6 +116,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': 'Zdieľané fotky (Immich)',
   'settings.notifyCollabMessage': 'Správy v chate (Collab)',
   'settings.notifyPackingTagged': 'Zoznam balenia: priradenia',
+  'settings.notifyWandererSourceHint': 'wanderer: upozornenia k vašim trasám',
   'settings.notifyWebhook': 'Webhook oznámenia',
   'settings.notifyVersionAvailable': 'Nová verzia k dispozícii',
   'settings.notifyReplicaFailure': 'Zlyhanie repliky úložiska',

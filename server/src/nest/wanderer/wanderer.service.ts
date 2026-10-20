@@ -43,6 +43,34 @@ export interface WandererTrailDownload {
   gpx: string;
 }
 
+/**
+ * WAN-02: a trail as the background watch sees it, from its small record
+ * alone: its texts and its change time, or `gone` when it was deleted, is
+ * refused or is no longer the user's own.
+ */
+export type WandererTrailLook =
+  | { kind: 'record'; name: string; description: string | null; updated: string | null }
+  | { kind: 'gone' };
+
+/**
+ * WAN-02: what one look of the watch read: a look per trail, or why the
+ * instance itself could not be asked, for the watch to back off from.
+ */
+export type WandererWatchLooks =
+  | { ok: true; looks: Map<string, WandererTrailLook> }
+  | { ok: false; code: WandererErrorCode };
+
+/** WAN-02: the background watch of one user's connection. */
+interface WandererWatchState {
+  connected: boolean;
+  enabled: boolean;
+  lastRunAt: string | null;
+  failures: number;
+  pausedUntil: string | null;
+  /** wanderer refused the token; the watch asks nothing until a test passes or a new token is saved. */
+  blocked: boolean;
+}
+
 /** An upstream failure as the API answers it: never a 401, which the app reads as its own session ending. */
 function refusalOf(err: WandererError): DomainError {
   const status = err.code === 'not_found' ? 404 : err.code === 'forbidden' || err.code === 'not_own_trail' ? 403 : 502;
@@ -145,12 +173,7 @@ export class WandererService {
   private async credentials(userId: number): Promise<WandererCreds> {
     const row = await this.connections.findRow(userId);
     const token = row?.token ? decrypt_api_key(row.token) : null;
-    if (!row?.url || !token) {
-      throw new DomainError(409, 'wanderer is not connected', {
-        code: 'wanderer_not_connected',
-        details: { code: 'not_connected' },
-      });
-    }
+    if (!row?.url || !token) throw notConnected();
     return { baseUrl: row.url, token, allowInsecureTls: !!row.allow_insecure_tls };
   }
 
@@ -216,6 +239,95 @@ export class WandererService {
     }
   }
 
+  /** WAN-02: whether the user's connection is watched in the background, and how its last run went. */
+  async watchState(userId: number): Promise<WandererWatchState> {
+    const row = await this.connections.findRow(userId);
+    const watch = await this.connections.findWatch(userId);
+    return {
+      connected: !!(row?.url && row.token),
+      enabled: watch?.watch_enabled === 1,
+      lastRunAt: watch?.watch_last_run_at ?? null,
+      failures: watch?.watch_failures ?? 0,
+      pausedUntil: watch?.watch_paused_until ?? null,
+      blocked: row?.last_check_ok === 0 && row.last_check_error === 'unauthorized',
+    };
+  }
+
+  /**
+   * WAN-02: switch the background watch on or off. It only ever acts on the
+   * user's own connection, so there has to be one to switch it on for.
+   */
+  async setWatch(userId: number, enabled: boolean, clientIp: string | null): Promise<void> {
+    if (enabled && !(await this.watchState(userId)).connected) throw notConnected();
+    await this.connections.setWatch(userId, enabled);
+    await this.audit.writeAudit({
+      userId,
+      action: enabled ? 'wanderer.watch_enabled' : 'wanderer.watch_disabled',
+      ip: clientIp,
+      details: {},
+    });
+  }
+
+  /** WAN-02: the users whose connection the watch may ask now, longest waiting first. */
+  async watchableUserIds(now: string, limit: number): Promise<number[]> {
+    return await this.connections.listWatchable(now, limit);
+  }
+
+  /**
+   * WAN-02: note how a run of the watch went on the connection.
+   * @txStandalone the run's bookkeeping stands on its own: it is true whatever the hints written beside it say
+   */
+  async noteWatchRun(
+    userId: number,
+    run: { lastRunAt: string; failures: number; pausedUntil: string | null },
+  ): Promise<void> {
+    await this.connections.recordWatchRun(userId, run);
+  }
+
+  /**
+   * WAN-02: the records of the given trails, for the background watch. One
+   * small read per trail, one after another, and never its GPX: the change
+   * time and the texts are what a look can afford. A trail that is gone,
+   * refused or someone else's reads as `gone`; a failure of the instance
+   * itself (unreachable, an error, a refused token, which is noted on the
+   * connection) ends the whole look with its reason.
+   */
+  async lookAtTrails(userId: number, trailIds: readonly string[]): Promise<WandererWatchLooks> {
+    const creds = await this.credentials(userId);
+    const looks = new Map<string, WandererTrailLook>();
+    try {
+      const authors = await this.client.ownActors(creds);
+      await [...new Set(trailIds)].reduce(async (previous, id) => {
+        await previous;
+        looks.set(id, await this.lookAt(creds, id, authors));
+      }, Promise.resolve());
+    } catch (err: unknown) {
+      if (!(err instanceof WandererError)) throw err;
+      if (err.code === 'unauthorized') await this.noteCheck(userId, false, err.code);
+      return { ok: false, code: err.code };
+    }
+    return { ok: true, looks };
+  }
+
+  private async lookAt(creds: WandererCreds, id: string, authors: readonly string[]): Promise<WandererTrailLook> {
+    try {
+      const trail = await this.client.trail(creds, id);
+      if (!trail.author || !authors.includes(trail.author)) return { kind: 'gone' };
+      return {
+        kind: 'record',
+        name: trail.name,
+        description: trail.description ?? null,
+        updated: trail.updated ?? null,
+      };
+    } catch (err: unknown) {
+      // Deleted or refused: the trail is out of reach, not the instance.
+      if (err instanceof WandererError && (err.code === 'not_found' || err.code === 'forbidden')) {
+        return { kind: 'gone' };
+      }
+      throw err;
+    }
+  }
+
   /** The list row of a trail by its id, as the search would show it. */
   async findTrail(userId: number, trailId: string): Promise<WandererTrailFound | null> {
     const creds = await this.credentials(userId);
@@ -227,6 +339,13 @@ export class WandererService {
       return await this.failed(userId, err);
     }
   }
+}
+
+function notConnected(): DomainError {
+  return new DomainError(409, 'wanderer is not connected', {
+    code: 'wanderer_not_connected',
+    details: { code: 'not_connected' },
+  });
 }
 
 function summaryOf(instance: string, hit: WandererSearchHit): WandererTrailFound {

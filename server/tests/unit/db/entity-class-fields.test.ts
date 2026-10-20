@@ -42,7 +42,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 // + tour_activity_exclusions: id, user_id, place_id (an exclusion always names its user and its tour).
 // + collection_tours: id, collection_id, name, waypoints, tour_type, origin, source_trip_title, source_tour_name
 //   (a kept tour is only ever written whole, from the tour it was saved from).
-const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 518;
+// + tour_source_hints: user_id (a hint is only ever written for the user whose snapshot it is about).
+const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 519;
 
 describe('entity class fields never carry a NaN initialiser (task-4-review-shape.md, Important 1)', () => {
   it('CLASSFIELD-001: new X() has no own property whose value is NaN, across all 133 entities', () => {

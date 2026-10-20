@@ -25,19 +25,35 @@ export function useSourceCheck({ tripId, placeId, onReimported }: SourceCheckOpt
   const [reimporting, setReimporting] = useState(false);
   // The answer and the question belong to the tour they were asked for:
   // another tour shown in the same dialog starts unchecked.
-  const [state, setState] = useState<{ placeId: number; result: TourSourceCheckResponse | null; confirming: boolean }>({
-    placeId,
-    result: null,
-    confirming: false,
-  });
+  // `answered` stays once the source answered for this tour, through a reimport
+  // too: the server then holds no background hint on it any more (WAN-02).
+  const [state, setState] = useState<{
+    placeId: number;
+    result: TourSourceCheckResponse | null;
+    confirming: boolean;
+    answered: boolean;
+  }>({ placeId, result: null, confirming: false, answered: false });
   const result = state.placeId === placeId ? state.result : null;
   const confirming = state.placeId === placeId && state.confirming;
+  const answered = state.placeId === placeId && state.answered;
   const setResult = useCallback(
-    (next: TourSourceCheckResponse | null) => setState({ placeId, result: next, confirming: false }),
+    (next: TourSourceCheckResponse | null) =>
+      setState((current) => ({
+        placeId,
+        result: next,
+        confirming: false,
+        answered: (current.placeId === placeId && current.answered) || next !== null,
+      })),
     [placeId]
   );
   const setConfirming = useCallback(
-    (next: boolean) => setState((current) => ({ ...current, placeId, confirming: next })),
+    (next: boolean) =>
+      setState((current) => ({
+        ...current,
+        placeId,
+        confirming: next,
+        answered: current.placeId === placeId && current.answered,
+      })),
     [placeId]
   );
 
@@ -76,6 +92,8 @@ export function useSourceCheck({ tripId, placeId, onReimported }: SourceCheckOpt
     checking,
     result,
     check,
+    /** The source answered a check of this tour; a background hint on it is spent. */
+    answered,
     /** A reimport can be offered: the trail was read and differs, and someone takes the new snapshot in. */
     canReimport: !!result?.reimport && !!onReimported,
     confirming,

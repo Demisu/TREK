@@ -66,6 +66,15 @@ const ko: NotificationLocale = {
       title: 'Synology 세션이 초기화되었습니다',
       body: 'Synology 계정 또는 URL이 변경되었습니다. Synology Photos에서 로그아웃되었습니다.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `wanderer 트레일: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `"${p.trip}"의 "${p.tour}"이(가) wanderer에서 변경되었습니다. 투어를 열고 소스를 확인하면 모든 변경을 볼 수 있습니다. 여행의 내용은 저절로 바뀌지 않습니다.`
+          : p.state === 'unverifiable'
+            ? `"${p.trip}"의 "${p.tour}"은(는) 더 이상 wanderer에서 확인할 수 없습니다. 여행의 투어는 그대로 유지됩니다.`
+            : `"${p.trip}"의 "${p.tour}"이(가) wanderer에서 바뀌었을 수 있습니다. 투어를 열고 소스를 확인하세요. 여행의 내용은 저절로 바뀌지 않습니다.`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

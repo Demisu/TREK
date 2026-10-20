@@ -55,6 +55,7 @@ import trips from './trips';
 import undo from './undo';
 import vacay from './vacay';
 import wanderer from './wanderer';
+import wandererWatch from './wandererWatch';
 
 const locale = {
   ...common,
@@ -76,6 +77,7 @@ const locale = {
   ...tourCollection,
   ...tourPacking,
   ...wanderer,
+  ...wandererWatch,
   ...places,
   ...inspector,
   ...reservations,

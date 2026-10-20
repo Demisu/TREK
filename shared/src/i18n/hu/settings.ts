@@ -104,6 +104,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': 'Megosztott fotók (Immich)',
   'settings.notifyCollabMessage': 'Csevegés üzenetek (Collab)',
   'settings.notifyPackingTagged': 'Csomagolási lista: hozzárendelések',
+  'settings.notifyWandererSourceHint': 'wanderer: jelzések az útvonalaidról',
   'settings.notifyWebhook': 'Webhook értesítések',
   'settings.notificationsDisabled':
     'Az értesítések nincsenek beállítva. Kérje meg a rendszergazdát, hogy engedélyezze az e-mail vagy webhook értesítéseket.',

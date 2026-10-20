@@ -36,6 +36,7 @@ export type NotificationEventKey =
   | 'replica_failure'
   | 'paddle_region_requested'
   | 'synology_session_cleared'
+  | 'wanderer_source_hint'
   | 'plugin_notification';
 
 export interface NotificationLocale {

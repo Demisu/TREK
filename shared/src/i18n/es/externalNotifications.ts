@@ -75,6 +75,15 @@ const es: NotificationLocale = {
       title: 'Sesión de Synology cerrada',
       body: 'Tu cuenta o URL de Synology ha cambiado. Has cerrado sesión en Synology Photos.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `Ruta de wanderer: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `«${p.tour}» en «${p.trip}» se cambió en wanderer. Abre el recorrido y comprueba su fuente para ver todos los cambios. Nada del viaje cambia por sí solo.`
+          : p.state === 'unverifiable'
+            ? `«${p.tour}» en «${p.trip}» ya no se puede comprobar en wanderer. El recorrido de tu viaje se queda como está.`
+            : `«${p.tour}» en «${p.trip}» puede haber cambiado en wanderer. Abre el recorrido y comprueba su fuente para saberlo. Nada del viaje cambia por sí solo.`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

@@ -102,6 +102,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': 'Udostępnione zdjęcia (Immich)',
   'settings.notifyCollabMessage': 'Wiadomości czatu (Collab)',
   'settings.notifyPackingTagged': 'Lista pakowania: przypisania',
+  'settings.notifyWandererSourceHint': 'wanderer: wskazówki dotyczące twoich szlaków',
   'settings.notifyWebhook': 'Powiadomienia Webhook',
   'settings.notifyVersionAvailable': 'Nowa wersja dostępna',
   'settings.notifyReplicaFailure': 'Awaria repliki magazynu',

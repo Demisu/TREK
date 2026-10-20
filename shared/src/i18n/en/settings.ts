@@ -115,6 +115,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': 'Shared photos (Immich)',
   'settings.notifyCollabMessage': 'Chat messages (Collab)',
   'settings.notifyPackingTagged': 'Packing list: assignments',
+  'settings.notifyWandererSourceHint': 'wanderer: hints on your trails',
   'settings.notifyWebhook': 'Webhook notifications',
   'settings.notifyVersionAvailable': 'New version available',
   'settings.notifyReplicaFailure': 'Storage replica failure',

@@ -1,5 +1,6 @@
 /**
- * wanderer e2e: the personal connection (/api/integrations/wanderer) and the
+ * wanderer e2e: the personal connection (/api/integrations/wanderer), its
+ * optional background watch (/api/integrations/wanderer/watch, WAN-02) and the
  * trip-side search, preview and import (/api/trips/:tripId/tours/wanderer)
  * through the real JwtAuthGuard, AddonGuard, WandererEnabledGuard and
  * TripAccessGuard, over the real services and repositories on a migrated temp
@@ -16,11 +17,13 @@ import { Trips } from '../../src/db/entities/Trips.entity';
 import { WandererConnections } from '../../src/db/entities/WandererConnections.entity';
 import { TrekExceptionFilter } from '../../src/nest/common/trek-exception.filter';
 import { ZodValidationPipe } from '../../src/nest/common/zod-validation.pipe';
+import { withRequestContext } from '../../src/nest/database/request-context';
 import { JourneyDomainService } from '../../src/nest/journey/journey-domain.service';
 import { PermissionsService } from '../../src/nest/permissions/permissions.service';
 import { RealtimeModule } from '../../src/nest/realtime/realtime.module';
 import { RealtimeService } from '../../src/nest/realtime/realtime.service';
 import { ToursModule } from '../../src/nest/tours/tours.module';
+import { WandererWatchService } from '../../src/nest/tours/wanderer-watch.service';
 import { WandererClient, WandererError, type WandererSearchHit } from '../../src/nest/wanderer/wanderer.client';
 import { WandererModule } from '../../src/nest/wanderer/wanderer.module';
 import { createSnapshotTestDb } from '../helpers/db-mock';
@@ -32,6 +35,7 @@ import { FakeRealtimeService } from '../helpers/fake-realtime';
 import { createTestMikroOrmModule, createTestOrm, type TestOrm } from '../helpers/test-orm';
 import { TestUnitOfWorkModule } from '../helpers/test-uow';
 import { sessionCookie } from './harness';
+import { MikroORM } from '@mikro-orm/core';
 import { Test } from '@nestjs/testing';
 
 import cookieParser from 'cookie-parser';
@@ -531,6 +535,74 @@ describe('wanderer e2e', () => {
         editedLocally: false,
       });
       expect(detail.body.provenance.source.importedAt).toEqual(expect.any(String));
+    });
+  });
+
+  describe('the background watch over the caller own snapshots (WAN-02)', () => {
+    const watchRoute = (userId = OWNER) => request(server).get('/api/integrations/wanderer/watch').set(as(userId));
+    const switchWatch = (enabled: unknown, userId = OWNER) =>
+      request(server).put('/api/integrations/wanderer/watch').set(as(userId)).send({ enabled });
+    const hint = (placeId: number, userId = OWNER) =>
+      request(server).get(`/api/trips/5/tours/wanderer/sources/${placeId}/hint`).set(as(userId));
+    const imported = async () => {
+      await connect();
+      const res = await importTrail((await preview()).body.contentHash);
+      return res.body.tour.place_id as number;
+    };
+
+    it('is off until switched on, and only for a connection that exists', async () => {
+      expect((await watchRoute()).body).toEqual({
+        enabled: false,
+        connected: false,
+        lastRunAt: null,
+        pausedUntil: null,
+        blocked: false,
+        hints: [],
+      });
+      const refused = await switchWatch(true);
+      expect(refused.status).toBe(409);
+      expect(refused.body).toMatchObject({ code: 'not_connected' });
+      expect((await switchWatch('yes')).status).toBe(400);
+
+      await connect();
+      expect((await switchWatch(true)).body).toMatchObject({ enabled: true, connected: true });
+      expect((await switchWatch(false)).body).toMatchObject({ enabled: false });
+    });
+
+    it('a moved trail leaves a hint for its importer, the manual check clears it, and no tour changes', async () => {
+      const placeId = await imported();
+      await switchWatch(true);
+      client.trail.mockResolvedValue({ ...RECORD, updated: '2026-10-14' });
+      const before = await countRows(orm, Places);
+      const gpxReads = client.gpx.mock.calls.length;
+      // The cron's tick, in the request context the registrar gives every tick.
+      await withRequestContext(app.get(MikroORM), () => app.get(WandererWatchService).run());
+      expect(client.gpx).toHaveBeenCalledTimes(gpxReads);
+      expect(await countRows(orm, Places)).toBe(before);
+
+      expect((await watchRoute()).body.hints).toEqual([
+        expect.objectContaining({ placeId, tripId: 5, tripTitle: 'Alps', state: 'possible_change' }),
+      ]);
+      expect((await hint(placeId)).body).toEqual({ hint: expect.objectContaining({ state: 'possible_change' }) });
+
+      const checked = await request(server).post(`/api/trips/5/tours/wanderer/sources/${placeId}/check`).set(as(OWNER));
+      expect(checked.body).toMatchObject({ state: 'unchanged' });
+      expect((await hint(placeId)).body).toEqual({ hint: null });
+      expect((await watchRoute()).body.hints).toEqual([]);
+    });
+
+    it('the hint of a tour is the caller own and asks the right of the check', async () => {
+      const placeId = await imported();
+      expect((await hint(placeId, VIEWER)).status).toBe(403);
+      expect((await hint(placeId, OUTSIDER)).status).toBe(404);
+      checkPermission.mockReturnValue(true);
+      expect((await hint(placeId, VIEWER)).body).toEqual({ hint: null });
+    });
+
+    it('404 while the admin has not allowed wanderer under Tours', async () => {
+      await setAppSetting(orm, 'tours_wanderer_enabled', 'false');
+      expect((await watchRoute()).status).toBe(404);
+      expect((await switchWatch(true)).status).toBe(404);
     });
   });
 });

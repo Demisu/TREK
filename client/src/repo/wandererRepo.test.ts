@@ -65,6 +65,27 @@ describe('wandererRepo', () => {
     ).rejects.toBeInstanceOf(WandererOfflineError);
   });
 
+  it('WAN-02: reads and switches the watch, and a snapshot hint only while online', async () => {
+    const watch = { enabled: true, connected: true, lastRunAt: null, pausedUntil: null, blocked: false, hints: [] };
+    const sent: unknown[] = [];
+    const hint = { state: 'possible_change', changes: [], reason: null, externalUpdated: null, checkedAt: 'x' };
+    server.use(
+      http.get('/api/integrations/wanderer/watch', () => HttpResponse.json(watch)),
+      http.put('/api/integrations/wanderer/watch', async ({ request }) => {
+        sent.push(await request.json());
+        return HttpResponse.json(watch);
+      }),
+      http.get('/api/trips/3/tours/wanderer/sources/70/hint', () => HttpResponse.json({ hint }))
+    );
+    await expect(wandererRepo.getWatch()).resolves.toEqual(watch);
+    await wandererRepo.setWatch(false);
+    expect(sent).toEqual([{ enabled: false }]);
+    await expect(wandererRepo.sourceHint(3, 70)).resolves.toEqual(hint);
+
+    vi.mocked(isEffectivelyOffline).mockReturnValue(true);
+    await expect(wandererRepo.sourceHint(3, 70)).resolves.toBeNull();
+  });
+
   it('RS-03: reads the reason of a failed call from the server, the offline case or nothing', () => {
     expect(wandererErrorCode(new WandererOfflineError())).toBe('offline');
     expect(wandererErrorCode({ response: { data: { code: 'not_own_trail' } } })).toBe('not_own_trail');

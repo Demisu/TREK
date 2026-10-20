@@ -104,6 +104,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': 'Спільні фото (Immich)',
   'settings.notifyCollabMessage': 'Повідомлення чату (Collab)',
   'settings.notifyPackingTagged': 'Список речей: призначення',
+  'settings.notifyWandererSourceHint': 'wanderer: підказки щодо ваших маршрутів',
   'settings.notifyWebhook': 'Webhook-сповіщення',
   'settings.notificationsDisabled':
     'Сповіщення не налаштовані. Попросіть адміністратора ввімкнути сповіщення електронною поштою або webhook.',

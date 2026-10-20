@@ -1,4 +1,4 @@
-import type { TourListItem, TourProvenance, TourSourceCheckResponse } from '@trek/shared';
+import type { TourListItem, TourProvenance, TourSourceCheckResponse, TourSourceHint } from '@trek/shared';
 import { CopyPlus, Download, ExternalLink, FileDown, Loader2, PenLine, RefreshCw } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
@@ -9,8 +9,10 @@ import ConfirmDialog from '../../shared/ConfirmDialog';
 import { DialogSection, fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
 import { CardAction, InfoDot } from '../tourParts';
+import { hintWhen, SourceHintPills, SourceHintTile } from '../wanderer/sourceHintParts';
 import WandererMark from '../wanderer/WandererMark';
 import { type SourceCheck, useSourceCheck } from './useSourceCheck';
+import { useSourceHint } from './useSourceHint';
 import { useTourProvenance } from './useTourProvenance';
 
 type Translate = (key: string, params?: Record<string, unknown>) => string;
@@ -177,10 +179,73 @@ function CheckResult({ check, locale, t }: { check: SourceCheck; locale: string;
   );
 }
 
+/** The check button, in the head of the section or on the hint it answers. */
+function CheckButton({ check, t }: { check: SourceCheck; t: Translate }) {
+  return (
+    <Tooltip label={t('tours.provenance.checkHint')}>
+      <span className="inline-flex">
+        <CardAction
+          icon={
+            check.checking ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} strokeWidth={2.2} />
+          }
+          onClick={() => void check.check()}
+          disabled={check.checking}
+        >
+          {t('tours.provenance.check')}
+        </CardAction>
+      </span>
+    </Tooltip>
+  );
+}
+
+/**
+ * WAN-02: what the reader's background watch found about this snapshot's
+ * source. A hint, never the answer: it leads to the check, which reads the
+ * source in full and from which a change can be taken in.
+ */
+function HintNotice({
+  hint,
+  check,
+  locale,
+  t,
+}: {
+  hint: TourSourceHint;
+  check: SourceCheck;
+  locale: string;
+  t: Translate;
+}) {
+  const when = hintWhen(hint.checkedAt, locale);
+  return (
+    <div
+      role="status"
+      data-testid="tour-source-hint"
+      className="flex items-center gap-2.5 border-t border-edge-faint px-3 py-2.5"
+    >
+      <SourceHintTile state={hint.state} />
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <span className="text-content-faint" style={fs(11)}>
+          {t('wanderer.watch.noticeLabel')}
+        </span>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <SourceHintPills hint={hint} />
+          {when && (
+            <span className="text-content-faint" style={fs(11)}>
+              {t('wanderer.watch.checkedAt', { date: when })}
+            </span>
+          )}
+        </div>
+      </div>
+      <CheckButton check={check} t={t} />
+    </div>
+  );
+}
+
 interface TourProvenanceSectionProps {
   provenance: TourProvenance;
   /** Given for a wanderer snapshot the user may change: the check of its source and the reimport. */
   check?: SourceCheck;
+  /** WAN-02: the reader's own background hint on the source, shown until the check answers. */
+  hint?: TourSourceHint | null;
 }
 
 /**
@@ -189,13 +254,15 @@ interface TourProvenanceSectionProps {
  * came in. For a wanderer snapshot, MF-03: the check of its source, on purpose
  * and read only, and from a change the confirmed reimport as a new snapshot.
  */
-export default function TourProvenanceSection({ provenance, check }: TourProvenanceSectionProps) {
+export default function TourProvenanceSection({ provenance, check, hint }: TourProvenanceSectionProps) {
   const { t, locale } = useTranslation();
   const { source } = provenance;
   const imported = source.kind !== 'trek';
   const importedAt = dayOf((source.kind === 'wanderer' ? source.importedAt : null) ?? provenance.createdAt, locale);
   const externalUpdated = source.kind === 'wanderer' ? dayOf(source.externalUpdated, locale) : null;
   const local = <LocalState provenance={provenance} t={t} />;
+  // The hint carries the check button until the source answered a check, which spends it.
+  const openHint = check && hint && !check.answered ? hint : null;
   const sourceIcon =
     source.kind === 'gpx' ? (
       <FileDown size={13} strokeWidth={2} />
@@ -209,27 +276,7 @@ export default function TourProvenanceSection({ provenance, check }: TourProvena
     <DialogSection
       className="flex-none"
       label={t('tours.provenance.label')}
-      action={
-        check && (
-          <Tooltip label={t('tours.provenance.checkHint')}>
-            <span className="inline-flex">
-              <CardAction
-                icon={
-                  check.checking ? (
-                    <Loader2 size={12} className="animate-spin" />
-                  ) : (
-                    <RefreshCw size={12} strokeWidth={2.2} />
-                  )
-                }
-                onClick={() => void check.check()}
-                disabled={check.checking}
-              >
-                {t('tours.provenance.check')}
-              </CardAction>
-            </span>
-          </Tooltip>
-        )
-      }
+      action={check && !openHint && <CheckButton check={check} t={t} />}
     >
       <div className={`${BOX} divide-y divide-edge-faint`}>
         <ProvenanceRow icon={sourceIcon} label={t('tours.provenance.source')}>
@@ -267,6 +314,7 @@ export default function TourProvenanceSection({ provenance, check }: TourProvena
             {local}
           </ProvenanceRow>
         )}
+        {check && openHint && <HintNotice hint={openHint} check={check} locale={locale} t={t} />}
         {check && <CheckResult check={check} locale={locale} t={t} />}
       </div>
       {check && (
@@ -287,7 +335,8 @@ export default function TourProvenanceSection({ provenance, check }: TourProvena
 /**
  * The section as the tour's detail places it: reads the provenance with the
  * detail, and offers the source check only on a wanderer snapshot the user
- * may change, where a reimport has somewhere to go.
+ * may change, where a reimport has somewhere to go, with the reader's own
+ * background hint on it (WAN-02).
  */
 export function TourProvenanceBlock({
   tripId,
@@ -302,7 +351,15 @@ export function TourProvenanceBlock({
 }) {
   const provenance = useTourProvenance(tripId, tour);
   const check = useSourceCheck({ tripId, placeId: tour.place_id, onReimported });
+  const fromWanderer = (provenance?.origin ?? tour.origin) === 'wanderer';
+  const hint = useSourceHint({ tripId, placeId: tour.place_id, enabled: canCheck && fromWanderer });
   if (!provenance) return null;
   const checkable = canCheck && provenance.origin === 'wanderer';
-  return <TourProvenanceSection provenance={provenance} check={checkable ? check : undefined} />;
+  return (
+    <TourProvenanceSection
+      provenance={provenance}
+      check={checkable ? check : undefined}
+      hint={checkable ? hint : null}
+    />
+  );
 }

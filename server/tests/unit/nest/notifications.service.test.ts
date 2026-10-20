@@ -580,6 +580,34 @@ describe('send() — in-app notification content', () => {
     expect(notifs.length).toBe(1);
     expect(notifs[0].text_key).toBe('notif.replica_failure.text');
   });
+
+  it('NOTIF-WAN-001 a wanderer hint names its state in the text and leads to its tour (WAN-02)', async () => {
+    const { user } = createUser(testDb);
+    setNotificationChannels(testDb, 'none');
+    const hint = (state: string, placeId: string) =>
+      send({
+        event: 'wanderer_source_hint',
+        actorId: null,
+        scope: 'user',
+        targetId: user.id,
+        params: { state, tour: 'Ridge', trip: 'Alps', tripId: '5', placeId },
+      });
+    await hint('possible_change', '11');
+    await hint('changed', '12');
+    await hint('unverifiable', '13');
+    await hint('changed', '');
+
+    const notifs = await getInAppNotifications(user.id);
+    expect(notifs.map((n) => [n.text_key, n.navigate_target])).toEqual(
+      expect.arrayContaining([
+        ['notif.wanderer_source_hint.possible_change', '/trips/5?tab=plan&place=11'],
+        ['notif.wanderer_source_hint.changed', '/trips/5?tab=plan&place=12'],
+        ['notif.wanderer_source_hint.unverifiable', '/trips/5?tab=plan&place=13'],
+        ['notif.wanderer_source_hint.changed', null],
+      ]),
+    );
+    expect(notifs.every((n) => n.title_key === 'notif.wanderer_source_hint.title')).toBe(true);
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

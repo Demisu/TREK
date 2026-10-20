@@ -75,6 +75,15 @@ const en: NotificationLocale = {
       title: 'Synology session rensad',
       body: 'Ditt Synology-konto eller din webbadress har ändrats. Du har loggats ut från Synology Photos.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `wanderer-led: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `”${p.tour}” i ”${p.trip}” har ändrats i wanderer. Öppna turen och kontrollera dess källa för att se alla ändringar. Inget i resan ändras av sig självt.`
+          : p.state === 'unverifiable'
+            ? `”${p.tour}” i ”${p.trip}” kan inte längre kontrolleras i wanderer. Turen i din resa förblir som den är.`
+            : `”${p.tour}” i ”${p.trip}” kan ha ändrats i wanderer. Öppna turen och kontrollera dess källa. Inget i resan ändras av sig självt.`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

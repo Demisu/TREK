@@ -1,6 +1,7 @@
 import type {
   AdminFeatureToggleResponse,
   TourSourceCheckResponse,
+  TourSourceHintResponse,
   WandererConnection,
   WandererImportPreview,
   WandererImportRequest,
@@ -11,6 +12,7 @@ import type {
   WandererSettingsRequest,
   WandererTestRequest,
   WandererTestResponse,
+  WandererWatch,
 } from '@trek/shared';
 import apiClient from './client';
 
@@ -31,6 +33,10 @@ export const wandererApi = {
   disconnect: (): Promise<{ success: true }> => apiClient.delete('/integrations/wanderer/settings').then((r) => r.data),
   test: (data: WandererTestRequest): Promise<WandererTestResponse> =>
     apiClient.post('/integrations/wanderer/test', data, upstream).then((r) => r.data),
+  /** WAN-02: the optional background watch of the connection, with the open hints. */
+  getWatch: (): Promise<WandererWatch> => apiClient.get('/integrations/wanderer/watch').then((r) => r.data),
+  setWatch: (enabled: boolean): Promise<WandererWatch> =>
+    apiClient.put('/integrations/wanderer/watch', { enabled }).then((r) => r.data),
 
   search: (tripId: number, body: WandererSearchRequest, signal?: AbortSignal): Promise<WandererSearchResponse> =>
     apiClient.post(`/trips/${tripId}/tours/wanderer/search`, body, { ...upstream, signal }).then((r) => r.data),
@@ -43,6 +49,9 @@ export const wandererApi = {
   /** MF-03: whether the trail a snapshot came from changed since; the server reads, it writes nothing. */
   checkSource: (tripId: number, placeId: number): Promise<TourSourceCheckResponse> =>
     apiClient.post(`/trips/${tripId}/tours/wanderer/sources/${placeId}/check`, {}, upstream).then((r) => r.data),
+  /** WAN-02: the caller's own background hint on a snapshot; the server only reads its own rows. */
+  sourceHint: (tripId: number, placeId: number, signal?: AbortSignal): Promise<TourSourceHintResponse> =>
+    apiClient.get(`/trips/${tripId}/tours/wanderer/sources/${placeId}/hint`, { signal }).then((r) => r.data),
 };
 
 /** The admin's switch for wanderer under the Tours addon. */

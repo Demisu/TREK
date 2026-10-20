@@ -87,6 +87,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': 'Fotos compartides (Immich)',
   'settings.notifyCollabMessage': 'Missatges de xat (Col·laboració)',
   'settings.notifyPackingTagged': "Llista d'equipatge: assignacions",
+  'settings.notifyWandererSourceHint': 'wanderer: avisos sobre els teus camins',
   'settings.notifyWebhook': 'Notificacions webhook',
   'settings.notificationsDisabled':
     'Les notificacions no estan configurades. Demana a un administrador que activi les notificacions per correu o webhook.',

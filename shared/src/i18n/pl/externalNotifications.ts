@@ -84,6 +84,15 @@ const pl: NotificationLocale = {
       title: 'Sesja Synology wyczyszczona',
       body: 'Twoje konto lub URL Synology uległo zmianie. Zostałeś wylogowany z Synology Photos.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `Szlak wanderer: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `„${p.tour}” w „${p.trip}” został zmieniony w wanderer. Otwórz trasę i sprawdź jej źródło, aby zobaczyć wszystkie zmiany. W podróży nic nie zmienia się samo.`
+          : p.state === 'unverifiable'
+            ? `„${p.tour}” w „${p.trip}” nie da się już sprawdzić w wanderer. Trasa w twojej podróży pozostaje bez zmian.`
+            : `„${p.tour}” w „${p.trip}” mógł się zmienić w wanderer. Otwórz trasę i sprawdź jej źródło. W podróży nic nie zmienia się samo.`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

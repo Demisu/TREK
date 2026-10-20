@@ -110,6 +110,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': 'Ảnh được chia sẻ (Immich)',
   'settings.notifyCollabMessage': 'Tin nhắn trò chuyện (Cộng tác)',
   'settings.notifyPackingTagged': 'Danh sách đóng gói: phân công',
+  'settings.notifyWandererSourceHint': 'wanderer: gợi ý về các tuyến của bạn',
   'settings.notifyWebhook': 'Thông báo webhook',
   'settings.notifyVersionAvailable': 'Đã có phiên bản mới',
   'settings.notifyReplicaFailure': 'Lỗi bản sao lưu trữ',

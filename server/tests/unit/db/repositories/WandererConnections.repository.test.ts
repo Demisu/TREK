@@ -92,6 +92,68 @@ describe('WandererConnectionsRepository', () => {
     expect(await connections.findRow(user.id)).toBeNull();
     expect(await connections.findRow(other.id)).not.toBeNull();
   });
+
+  const connect = (id: number) =>
+    connections.save(id, { url: 'https://a.example', allowInsecureTls: false, token: 'enc', hostChanged: false });
+
+  it('WANDREPO-004: a new token forgets what the last check said about the old one', async () => {
+    const { user } = createUser(testDb);
+    await connect(user.id);
+    await connections.recordCheck(user.id, false, 'unauthorized');
+    await connect(user.id);
+    expect(await connections.findRow(user.id)).toMatchObject({ last_check_ok: null, last_check_error: null });
+  });
+
+  it('WANDREPO-005: the watch is off by default, and switching it on starts without an old pause', async () => {
+    const { user } = createUser(testDb);
+    expect(await connections.findWatch(user.id)).toBeUndefined();
+    await connect(user.id);
+    expect(await connections.findWatch(user.id)).toEqual({
+      watch_enabled: 0,
+      watch_last_run_at: null,
+      watch_failures: 0,
+      watch_paused_until: null,
+    });
+
+    await connections.recordWatchRun(user.id, {
+      lastRunAt: '2026-10-19 10:00:00',
+      failures: 2,
+      pausedUntil: '2026-10-19 12:00:00',
+    });
+    await connections.setWatch(user.id, true);
+    expect(await connections.findWatch(user.id)).toEqual({
+      watch_enabled: 1,
+      watch_last_run_at: '2026-10-19 10:00:00',
+      watch_failures: 0,
+      watch_paused_until: null,
+    });
+    await connections.setWatch(user.id, false);
+    expect((await connections.findWatch(user.id))?.watch_enabled).toBe(0);
+  });
+
+  it('WANDREPO-006: only switched-on connections with an accepted token and no pause are watchable, longest waiting first', async () => {
+    const ids = Array.from({ length: 6 }, () => createUser(testDb).user.id);
+    await Promise.all(
+      ids.map(async (id) => {
+        await connect(id);
+        await connections.setWatch(id, true);
+      }),
+    );
+    const [never, ranEarly, ranLate, off, refused, paused] = ids;
+    await connections.recordWatchRun(ranEarly, { lastRunAt: '2026-10-19 08:00:00', failures: 0, pausedUntil: null });
+    await connections.recordWatchRun(ranLate, { lastRunAt: '2026-10-19 09:00:00', failures: 0, pausedUntil: null });
+    await connections.setWatch(off, false);
+    await connections.recordCheck(refused, false, 'unauthorized');
+    await connections.recordWatchRun(paused, {
+      lastRunAt: '2026-10-19 07:00:00',
+      failures: 1,
+      pausedUntil: '2026-10-19 11:00:00',
+    });
+
+    expect(await connections.listWatchable('2026-10-19 10:00:00', 10)).toEqual([never, ranEarly, ranLate]);
+    expect(await connections.listWatchable('2026-10-19 12:00:00', 10)).toEqual([never, paused, ranEarly, ranLate]);
+    expect(await connections.listWatchable('2026-10-19 12:00:00', 2)).toEqual([never, paused]);
+  });
 });
 
 describe('TourSourcesRepository', () => {

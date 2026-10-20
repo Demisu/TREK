@@ -66,6 +66,15 @@ const ja: NotificationLocale = {
       title: 'Synologyセッションがクリアされました',
       body: 'SynologyアカウントまたはURLが変更されました。Synology Photosからログアウトされました。',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `wanderer のトレイル: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `「${p.trip}」の「${p.tour}」が wanderer で変更されました。ツアーを開いてソースを確認すると、すべての変更を確認できます。旅行の内容が勝手に変わることはありません。`
+          : p.state === 'unverifiable'
+            ? `「${p.trip}」の「${p.tour}」は wanderer で確認できなくなりました。旅行内のツアーはそのまま残ります。`
+            : `「${p.trip}」の「${p.tour}」が wanderer で変更された可能性があります。ツアーを開いてソースを確認してください。旅行の内容が勝手に変わることはありません。`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

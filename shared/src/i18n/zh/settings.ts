@@ -98,6 +98,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': '共享照片 (Immich)',
   'settings.notifyCollabMessage': '聊天消息（协作）',
   'settings.notifyPackingTagged': '行李清单：分配',
+  'settings.notifyWandererSourceHint': 'wanderer：关于你的路线的提示',
   'settings.notifyWebhook': 'Webhook 通知',
   'settings.notificationsDisabled': '通知尚未配置。请联系管理员启用电子邮件或 Webhook 通知。',
   'settings.notificationsActive': '活跃频道',

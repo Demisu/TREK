@@ -42,6 +42,7 @@ export type NotifEventType =
   | 'replica_failure'
   | 'paddle_region_requested'
   | 'synology_session_cleared'
+  | 'wanderer_source_hint'
   | 'plugin_notification';
 
 /** Every event, in the order the preferences UI lists them. */
@@ -60,6 +61,7 @@ export const ALL_EVENT_TYPES: NotifEventType[] = [
   'replica_failure',
   'paddle_region_requested',
   'synology_session_cleared',
+  'wanderer_source_hint',
   'plugin_notification',
 ];
 

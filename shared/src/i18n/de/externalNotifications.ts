@@ -75,6 +75,15 @@ const de: NotificationLocale = {
       title: 'Synology-Sitzung beendet',
       body: 'Dein Synology-Konto oder die URL hat sich geändert. Du wurdest von Synology Photos abgemeldet.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `wanderer-Trail: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `„${p.tour}“ in „${p.trip}“ wurde in wanderer geändert. Öffne die Tour und prüfe ihre Quelle, um alle Änderungen zu sehen. In der Reise ändert sich nichts von selbst.`
+          : p.state === 'unverifiable'
+            ? `„${p.tour}“ in „${p.trip}“ lässt sich in wanderer nicht mehr prüfen. Die Tour in deiner Reise bleibt, wie sie ist.`
+            : `„${p.tour}“ in „${p.trip}“ hat sich in wanderer möglicherweise geändert. Öffne die Tour und prüfe ihre Quelle, um es zu sehen. In der Reise ändert sich nichts von selbst.`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

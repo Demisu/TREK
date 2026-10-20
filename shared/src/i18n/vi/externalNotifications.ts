@@ -68,6 +68,15 @@ const en: NotificationLocale = {
       title: 'Đã xóa phiên Synology',
       body: 'Tài khoản Synology của bạn hoặc URL đã thay đổi. Bạn đã đăng xuất khỏi Synology Photos.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `Tuyến wanderer: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `“${p.tour}” trong “${p.trip}” đã được thay đổi trên wanderer. Hãy mở chuyến đi và kiểm tra nguồn để xem mọi thay đổi. Không có gì trong chuyến du lịch tự thay đổi.`
+          : p.state === 'unverifiable'
+            ? `“${p.tour}” trong “${p.trip}” không còn kiểm tra được trên wanderer. Chuyến đi trong chuyến du lịch của bạn vẫn giữ nguyên.`
+            : `“${p.tour}” trong “${p.trip}” có thể đã thay đổi trên wanderer. Hãy mở chuyến đi và kiểm tra nguồn của nó. Không có gì trong chuyến du lịch tự thay đổi.`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

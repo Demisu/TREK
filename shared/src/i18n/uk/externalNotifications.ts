@@ -79,6 +79,15 @@ const uk: NotificationLocale = {
       title: 'Сеанс Synology скинуто',
       body: 'Ваш обліковий запис або URL Synology змінився. Ви вийшли з Synology Photos.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `Маршрут wanderer: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `«${p.tour}» у «${p.trip}» змінено в wanderer. Відкрийте тур і перевірте його джерело, щоб побачити всі зміни. У подорожі нічого не змінюється само.`
+          : p.state === 'unverifiable'
+            ? `«${p.tour}» у «${p.trip}» більше не можна перевірити в wanderer. Тур у вашій подорожі залишається як є.`
+            : `«${p.tour}» у «${p.trip}», можливо, змінено в wanderer. Відкрийте тур і перевірте його джерело. У подорожі нічого не змінюється само.`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

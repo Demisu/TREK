@@ -101,6 +101,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': 'Sdílené fotky (Immich)',
   'settings.notifyCollabMessage': 'Zprávy v chatu (Collab)',
   'settings.notifyPackingTagged': 'Seznam balení: přiřazení',
+  'settings.notifyWandererSourceHint': 'wanderer: upozornění k vašim trasám',
   'settings.notifyWebhook': 'Webhook oznámení',
   'settings.notificationsDisabled':
     'Oznámení nejsou nakonfigurována. Požádejte správce o aktivaci e-mailových nebo webhookových oznámení.',

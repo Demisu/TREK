@@ -102,6 +102,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': 'Foto dibagikan (Immich)',
   'settings.notifyCollabMessage': 'Pesan chat (Collab)',
   'settings.notifyPackingTagged': 'Daftar bawaan: penugasan',
+  'settings.notifyWandererSourceHint': 'wanderer: petunjuk tentang jalur Anda',
   'settings.notifyWebhook': 'Notifikasi webhook',
   'settings.notifyVersionAvailable': 'Versi baru tersedia',
   'settings.notifyReplicaFailure': 'Kegagalan replika penyimpanan',

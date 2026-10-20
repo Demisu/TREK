@@ -78,6 +78,15 @@ const gr: NotificationLocale = {
       title: 'Η σύνδεση Synology τερματίστηκε',
       body: 'Ο λογαριασμός σας Synology ή το URL άλλαξε. Έχετε αποσυνδεθεί από το Synology Photos.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `Μονοπάτι wanderer: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `«${p.tour}» στο «${p.trip}» άλλαξε στο wanderer. Άνοιξε τη διαδρομή και έλεγξε την πηγή της για να δεις όλες τις αλλαγές. Στο ταξίδι τίποτα δεν αλλάζει από μόνο του.`
+          : p.state === 'unverifiable'
+            ? `«${p.tour}» στο «${p.trip}» δεν ελέγχεται πια στο wanderer. Η διαδρομή στο ταξίδι σου μένει ως έχει.`
+            : `«${p.tour}» στο «${p.trip}» ίσως άλλαξε στο wanderer. Άνοιξε τη διαδρομή και έλεγξε την πηγή της. Στο ταξίδι τίποτα δεν αλλάζει από μόνο του.`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

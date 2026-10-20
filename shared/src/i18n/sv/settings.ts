@@ -109,6 +109,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': 'Delade foton (Immich)',
   'settings.notifyCollabMessage': 'Chatt meddelande (Samarbete)',
   'settings.notifyPackingTagged': 'Packningslista: uppgifter',
+  'settings.notifyWandererSourceHint': 'wanderer: tips om dina leder',
   'settings.notifyWebhook': 'Webhook meddelanden',
   'settings.notifyVersionAvailable': 'Ny version tillgänglig',
   'settings.notifyReplicaFailure': 'Fel i lagringsreplik',

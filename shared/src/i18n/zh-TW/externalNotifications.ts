@@ -69,6 +69,15 @@ const zhTW: NotificationLocale = {
       title: 'Synology 工作階段已清除',
       body: '您的 Synology 帳戶或 URL 已變更，您已登出 Synology Photos。',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `wanderer 路線: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `「${p.trip}」中的「${p.tour}」已在 wanderer 中變更。開啟行程並檢查其來源即可查看所有變更。旅行中的內容不會自行改變。`
+          : p.state === 'unverifiable'
+            ? `「${p.trip}」中的「${p.tour}」已無法在 wanderer 中檢查。你旅行中的行程保持不變。`
+            : `「${p.trip}」中的「${p.tour}」可能已在 wanderer 中變更。請開啟行程並檢查其來源。旅行中的內容不會自行改變。`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

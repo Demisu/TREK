@@ -71,6 +71,23 @@ export function changedParts(before: string, now: string): Array<(typeof CONTENT
 }
 
 /**
+ * WAN-02: the parts of a content fingerprint a trail's record alone proves
+ * changed. The record carries the name and the description, never the line,
+ * so a changed route is never claimed here.
+ */
+export function recordChangedParts(
+  contentHash: string,
+  name: string,
+  description: string | null,
+): Array<'name' | 'description'> {
+  const [nameHash, descriptionHash] = contentHash.split('.');
+  return [
+    ...(fingerprint(name.trim()) === nameHash ? [] : (['name'] as const)),
+    ...(fingerprint((description ?? '').trim()) === descriptionHash ? [] : (['description'] as const)),
+  ];
+}
+
+/**
  * At most `most` points of a line, evenly spread along it with its ends kept:
  * a preview or a search gets the whole shape without the thousands of points.
  */

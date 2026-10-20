@@ -10,6 +10,7 @@ import {
   paddleRegionGraphStatsSchema,
   tourChangeSchema,
   tourFixedLegSchema,
+  tourSourceHintChangeSchema,
   tourWaypointSchema,
   trackMarksSchema,
   type Ferrata,
@@ -22,6 +23,7 @@ import {
   type PaddleRegionGraphStats,
   type TourChange,
   type TourFixedLeg,
+  type TourSourceHintChange,
   type TourWaypoint,
   type TrackMarks,
 } from '@trek/shared';
@@ -276,5 +278,16 @@ export const TOUR_CHANGE_STEP_BEFORE: JsonColumn<TourChangeStepBefore | null> = 
 export const COLLECTION_TOUR_WAYPOINTS: JsonColumn<TourWaypoint[]> = {
   column: 'collection_tours.waypoints',
   schema: z.array(tourWaypointSchema),
+  fallback: () => [],
+};
+
+/**
+ * WAN-02: the parts of a trail the background watch found proven changed in
+ * its record, for one snapshot's hint. A broken row names none; the hint's
+ * state still says that something changed.
+ */
+export const TOUR_SOURCE_HINT_CHANGES: JsonColumn<TourSourceHintChange[]> = {
+  column: 'tour_source_hints.changes',
+  schema: z.array(tourSourceHintChangeSchema),
   fallback: () => [],
 };

@@ -111,6 +111,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': 'Κοινόχρηστες φωτογραφίες (Immich)',
   'settings.notifyCollabMessage': 'Μηνύματα συνομιλίας (Collab)',
   'settings.notifyPackingTagged': 'Λίστα πακεταρίσματος: αναθέσεις',
+  'settings.notifyWandererSourceHint': 'wanderer: υποδείξεις για τα μονοπάτια σου',
   'settings.notifyWebhook': 'Ειδοποιήσεις Webhook',
   'settings.notifyVersionAvailable': 'Διαθέσιμη νέα έκδοση',
   'settings.notifyReplicaFailure': 'Αποτυχία αντιγράφου αποθήκευσης',

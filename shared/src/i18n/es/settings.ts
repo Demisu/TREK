@@ -104,6 +104,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': 'Fotos compartidas (Immich)',
   'settings.notifyCollabMessage': 'Mensajes de chat (Collab)',
   'settings.notifyPackingTagged': 'Lista de equipaje: asignaciones',
+  'settings.notifyWandererSourceHint': 'wanderer: avisos sobre tus rutas',
   'settings.notifyWebhook': 'Notificaciones webhook',
   'settings.notificationsDisabled':
     'Las notificaciones no están configuradas. Pida a un administrador que active las notificaciones por correo o webhook.',

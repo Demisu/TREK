@@ -101,6 +101,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': 'صور مشتركة (Immich)',
   'settings.notifyCollabMessage': 'رسائل الدردشة (Collab)',
   'settings.notifyPackingTagged': 'قائمة الأمتعة: التعيينات',
+  'settings.notifyWandererSourceHint': 'wanderer: تنبيهات حول دروبك',
   'settings.notifyWebhook': 'إشعارات Webhook',
   'settings.notifyVersionAvailable': 'إصدار جديد متاح',
   'settings.notifyReplicaFailure': 'فشل النسخة المتماثلة للتخزين',

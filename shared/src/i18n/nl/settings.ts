@@ -103,6 +103,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': "Gedeelde foto's (Immich)",
   'settings.notifyCollabMessage': 'Chatberichten (Collab)',
   'settings.notifyPackingTagged': 'Inpaklijst: toewijzingen',
+  'settings.notifyWandererSourceHint': 'wanderer: meldingen over je trails',
   'settings.notifyWebhook': 'Webhook-meldingen',
   'settings.notificationsDisabled':
     'Meldingen zijn niet geconfigureerd. Vraag een beheerder om e-mail- of webhookmeldingen in te schakelen.',

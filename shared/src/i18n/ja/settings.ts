@@ -103,6 +103,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': '共有写真（Immich）',
   'settings.notifyCollabMessage': 'チャットメッセージ（Collab）',
   'settings.notifyPackingTagged': '持ち物リスト：割り当て',
+  'settings.notifyWandererSourceHint': 'wanderer：トレイルに関するお知らせ',
   'settings.notifyWebhook': 'Webhook通知',
   'settings.notifyVersionAvailable': '新しいバージョン',
   'settings.notifyReplicaFailure': 'ストレージレプリカの障害',

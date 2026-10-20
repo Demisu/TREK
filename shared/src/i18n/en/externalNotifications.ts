@@ -75,6 +75,15 @@ const en: NotificationLocale = {
       title: 'Synology session cleared',
       body: 'Your Synology account or URL changed. You have been logged out of Synology Photos.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `wanderer trail: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `"${p.tour}" in "${p.trip}" was changed in wanderer. Open the tour and check its source to see everything that changed. Nothing in the trip changes by itself.`
+          : p.state === 'unverifiable'
+            ? `"${p.tour}" in "${p.trip}" can no longer be checked in wanderer. The tour in your trip stays as it is.`
+            : `"${p.tour}" in "${p.trip}" may have changed in wanderer. Open the tour and check its source to see whether it did. Nothing in the trip changes by itself.`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

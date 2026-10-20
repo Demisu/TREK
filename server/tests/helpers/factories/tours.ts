@@ -1,5 +1,6 @@
 import { TourActivities } from '../../../src/db/entities/TourActivities.entity';
 import { TourPackingLinks } from '../../../src/db/entities/TourPackingLinks.entity';
+import { TourSources } from '../../../src/db/entities/TourSources.entity';
 import { TourStationVisits, type TTourStationVisitsStatus } from '../../../src/db/entities/TourStationVisits.entity';
 import { TourWaypoints, type TTourWaypointsImportance } from '../../../src/db/entities/TourWaypoints.entity';
 import { Tours } from '../../../src/db/entities/Tours.entity';
@@ -96,4 +97,30 @@ export async function linkTourPacking(
   linkedBy: number | null = null,
 ): Promise<void> {
   await insertRow(orm, TourPackingLinks, { place: placeId, category, linkedByRef: linkedBy });
+}
+
+/**
+ * RS-05: the import record of a tour copied in from wanderer, as the import
+ * writes it; the content and local fingerprints default to placeholders.
+ */
+export async function makeTourSource(
+  orm: FactoryOrm,
+  placeId: number,
+  importedBy: number | null,
+  overrides: EntityData<TourSources> = {},
+): Promise<void> {
+  await insertRow(
+    orm,
+    TourSources,
+    {
+      place: placeId,
+      provider: 'wanderer',
+      instance: 'https://wanderer.example.org',
+      external_id: 'trail1',
+      content_hash: 'n.d.r',
+      local_hash: 'n.r',
+      importedByRef: importedBy,
+    },
+    overrides,
+  );
 }

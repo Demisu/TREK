@@ -106,6 +106,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': 'รูปภาพที่แชร์ (อิมมิช)',
   'settings.notifyCollabMessage': 'ข้อความแชท (ร่วมกัน)',
   'settings.notifyPackingTagged': 'รายการจัดกระเป๋า: มีการมอบหมายรายการให้คุณ',
+  'settings.notifyWandererSourceHint': 'wanderer: ข้อสังเกตเกี่ยวกับเส้นทางของคุณ',
   'settings.notifyWebhook': 'การแจ้งเตือนของเว็บฮุค',
   'settings.notifyVersionAvailable': 'มีเวอร์ชันใหม่แล้ว',
   'settings.notificationPreferences.email': 'อีเมล',

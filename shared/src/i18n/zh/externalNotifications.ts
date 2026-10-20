@@ -69,6 +69,15 @@ const zh: NotificationLocale = {
       title: 'Synology 会话已清除',
       body: '您的 Synology 账户或 URL 已更改，您已退出 Synology Photos。',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `wanderer 路线: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `“${p.trip}”中的“${p.tour}”已在 wanderer 中更改。打开行程并检查其来源即可查看所有变化。旅行中的内容不会自行改变。`
+          : p.state === 'unverifiable'
+            ? `“${p.trip}”中的“${p.tour}”已无法在 wanderer 中检查。你旅行中的行程保持不变。`
+            : `“${p.trip}”中的“${p.tour}”可能已在 wanderer 中变化。请打开行程并检查其来源。旅行中的内容不会自行改变。`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

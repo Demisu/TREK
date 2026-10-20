@@ -16,6 +16,10 @@ export class WandererConnections {
   last_check_error?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
+  watch_enabled: number & Opt = 0;
+  watch_last_run_at?: string | null;
+  watch_failures: number & Opt = 0;
+  watch_paused_until?: string | null;
 }
 
 export const WandererConnectionsSchema = defineEntity({
@@ -32,5 +36,9 @@ export const WandererConnectionsSchema = defineEntity({
     last_check_error: p.text().nullable(),
     created_at: p.type(DbTimestampType).nullable().defaultRaw(`CURRENT_TIMESTAMP`),
     updated_at: p.type(DbTimestampType).nullable().defaultRaw(`CURRENT_TIMESTAMP`),
+    watch_enabled: p.integer().default(0),
+    watch_last_run_at: p.text().nullable(),
+    watch_failures: p.integer().default(0),
+    watch_paused_until: p.text().nullable(),
   },
 });

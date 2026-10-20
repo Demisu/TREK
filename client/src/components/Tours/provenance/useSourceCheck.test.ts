@@ -100,4 +100,33 @@ describe('useSourceCheck (MF-03)', () => {
     rerender({ placeId: 8 });
     expect(result.current.result).toBeNull();
   });
+
+  it('remembers that the source answered for this tour, through a reimport, and not for another (WAN-02)', async () => {
+    const onReimported = vi.fn();
+    const { result, rerender } = renderHook(({ placeId }) => useSourceCheck({ tripId: 1, placeId, onReimported }), {
+      initialProps: { placeId: 7 },
+    });
+    expect(result.current.answered).toBe(false);
+    repo.checkSource.mockRejectedValueOnce({ code: 'unreachable' });
+    await act(async () => {
+      await result.current.check();
+    });
+    expect(result.current.answered).toBe(false);
+
+    await act(async () => {
+      await result.current.check();
+    });
+    expect(result.current.answered).toBe(true);
+    act(() => result.current.askReimport());
+    await act(async () => {
+      await result.current.reimport();
+    });
+    expect(result.current.result).toBeNull();
+    expect(result.current.answered).toBe(true);
+
+    rerender({ placeId: 8 });
+    expect(result.current.answered).toBe(false);
+    act(() => result.current.askReimport());
+    expect(result.current.answered).toBe(false);
+  });
 });

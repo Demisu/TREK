@@ -39,12 +39,18 @@ function hit(over: Partial<WandererSearchHit> = {}): WandererSearchHit {
   return { id: 'trail1', name: 'Ridge', ...over };
 }
 
-const state: { row: Row } = { row: undefined };
+type Watch = Awaited<ReturnType<WandererConnectionsRepository['findWatch']>>;
+
+const state: { row: Row; watch: Watch } = { row: undefined, watch: undefined };
 const connections = {
   findRow: vi.fn(async () => state.row),
   save: vi.fn(async () => undefined),
   remove: vi.fn(async () => undefined),
   recordCheck: vi.fn(async () => undefined),
+  findWatch: vi.fn(async () => state.watch),
+  setWatch: vi.fn(async () => undefined),
+  listWatchable: vi.fn(async () => [3, 4]),
+  recordWatchRun: vi.fn(async () => undefined),
 };
 const client = {
   check: vi.fn(),
@@ -77,8 +83,9 @@ afterAll(async () => {
 });
 
 /** The service over a saved row (or none), every collaborator answering the happy path. */
-function setup(row: Row = undefined) {
+function setup(row: Row = undefined, watch: Watch = undefined) {
   state.row = row;
+  state.watch = watch;
   for (const mock of [...Object.values(connections), ...Object.values(client), audit.writeAudit]) mock.mockClear();
   client.check.mockReset().mockResolvedValue({ trailCount: 4 });
   client.ownActors.mockReset().mockResolvedValue(['actor1']);
@@ -373,5 +380,101 @@ describe('WandererService reads for an import', () => {
     const { service, client } = setup(savedRow());
     client.trail.mockRejectedValueOnce(new TypeError('bug'));
     await expect(service.download(1, 'trail1')).rejects.toThrow(TypeError);
+  });
+});
+
+describe('WandererService background watch (WAN-02)', () => {
+  it('WAND-SVC-020: the watch state reads the switch, the last run and a refused token', async () => {
+    const none = setup();
+    expect(await none.service.watchState(1)).toEqual({
+      connected: false,
+      enabled: false,
+      lastRunAt: null,
+      failures: 0,
+      pausedUntil: null,
+      blocked: false,
+    });
+    const watched = setup(savedRow({ last_check_ok: 0, last_check_error: 'unauthorized' }), {
+      watch_enabled: 1,
+      watch_last_run_at: '2026-10-19 10:00:00',
+      watch_failures: 2,
+      watch_paused_until: '2026-10-19 14:00:00',
+    });
+    expect(await watched.service.watchState(1)).toEqual({
+      connected: true,
+      enabled: true,
+      lastRunAt: '2026-10-19 10:00:00',
+      failures: 2,
+      pausedUntil: '2026-10-19 14:00:00',
+      blocked: true,
+    });
+  });
+
+  it('WAND-SVC-021: switching on needs a connection; either way the switch is audited', async () => {
+    const none = setup();
+    expect((await refusal(none.service.setWatch(1, true, null))).getStatus()).toBe(409);
+    expect(none.connections.setWatch).not.toHaveBeenCalled();
+
+    const { service, connections, audit } = setup(savedRow());
+    await service.setWatch(1, true, '10.0.0.1');
+    expect(connections.setWatch).toHaveBeenCalledWith(1, true);
+    expect(audit.writeAudit).toHaveBeenCalledWith(expect.objectContaining({ action: 'wanderer.watch_enabled' }));
+    await setup().service.setWatch(1, false, null);
+    expect(connections.setWatch).toHaveBeenLastCalledWith(1, false);
+    expect(audit.writeAudit).toHaveBeenLastCalledWith(expect.objectContaining({ action: 'wanderer.watch_disabled' }));
+  });
+
+  it('WAND-SVC-022: lists the watchable users and notes a run as given', async () => {
+    const { service, connections } = setup(savedRow());
+    expect(await service.watchableUserIds('2026-10-19 10:00:00', 5)).toEqual([3, 4]);
+    expect(connections.listWatchable).toHaveBeenCalledWith('2026-10-19 10:00:00', 5);
+    const run = { lastRunAt: '2026-10-19 10:00:00', failures: 0, pausedUntil: null };
+    await service.noteWatchRun(1, run);
+    expect(connections.recordWatchRun).toHaveBeenCalledWith(1, run);
+  });
+
+  it('WAND-SVC-023: reads each trail record once, never a GPX, and calls the gone ones gone', async () => {
+    const { service, client } = setup(savedRow());
+    client.trail.mockImplementation(async (_creds: unknown, id: string) => {
+      if (id === 'deleted') throw new WandererError('not_found', 'gone');
+      if (id === 'hidden') throw new WandererError('forbidden', 'no');
+      if (id === 'theirs') return { id, name: 'Theirs', author: 'stranger' };
+      return { id, name: 'Ridge', description: 'Up', updated: '2026-10-02', author: 'actor1' };
+    });
+    const read = await service.lookAtTrails(1, ['trail1', 'trail1', 'deleted', 'hidden', 'theirs']);
+    expect(read.ok).toBe(true);
+    if (!read.ok) return;
+    expect(Object.fromEntries(read.looks)).toEqual({
+      trail1: { kind: 'record', name: 'Ridge', description: 'Up', updated: '2026-10-02' },
+      deleted: { kind: 'gone' },
+      hidden: { kind: 'gone' },
+      theirs: { kind: 'gone' },
+    });
+    expect(client.trail).toHaveBeenCalledTimes(4);
+    expect(client.gpx).not.toHaveBeenCalled();
+
+    client.trail.mockResolvedValue({ id: 'bare', name: 'Bare', author: 'actor1' });
+    const bare = await service.lookAtTrails(1, ['bare']);
+    expect(bare.ok && bare.looks.get('bare')).toEqual({
+      kind: 'record',
+      name: 'Bare',
+      description: null,
+      updated: null,
+    });
+  });
+
+  it('WAND-SVC-024: a failing instance ends the look with its reason, and a refused token is noted', async () => {
+    const { service, client, connections } = setup(savedRow());
+    client.trail.mockRejectedValue(new WandererError('unreachable', 'down'));
+    expect(await service.lookAtTrails(1, ['trail1'])).toEqual({ ok: false, code: 'unreachable' });
+    expect(connections.recordCheck).not.toHaveBeenCalled();
+
+    client.ownActors.mockRejectedValue(new WandererError('unauthorized', 'revoked'));
+    expect(await service.lookAtTrails(1, ['trail1'])).toEqual({ ok: false, code: 'unauthorized' });
+    expect(connections.recordCheck).toHaveBeenCalledWith(1, false, 'unauthorized');
+
+    client.ownActors.mockRejectedValue(new Error('bug'));
+    await expect(service.lookAtTrails(1, ['trail1'])).rejects.toThrow('bug');
+    expect((await refusal(setup().service.lookAtTrails(1, ['trail1']))).getStatus()).toBe(409);
   });
 });

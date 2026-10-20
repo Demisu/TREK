@@ -1,4 +1,9 @@
-import { tourPackingLinkResponseSchema, tourVisitListResponseSchema } from '@trek/shared';
+import {
+  tourPackingLinkResponseSchema,
+  tourSourceHintResponseSchema,
+  tourVisitListResponseSchema,
+  wandererWatchSchema,
+} from '@trek/shared';
 import { contractHandler } from '../contract';
 
 export const toursHandlers = [
@@ -10,4 +15,19 @@ export const toursHandlers = [
   contractHandler('get', '/api/trips/:id/tours/:placeId/packing-link', { response: tourPackingLinkResponseSchema }, () => ({
     packing_link: null,
   })),
+  // WAN-02: the wanderer watch is off and leaves no hint on a tour unless a test says so.
+  contractHandler('get', '/api/integrations/wanderer/watch', { response: wandererWatchSchema }, () => ({
+    enabled: false,
+    connected: false,
+    lastRunAt: null,
+    pausedUntil: null,
+    blocked: false,
+    hints: [],
+  })),
+  contractHandler(
+    'get',
+    '/api/trips/:id/tours/wanderer/sources/:placeId/hint',
+    { response: tourSourceHintResponseSchema },
+    () => ({ hint: null })
+  ),
 ];

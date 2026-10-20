@@ -13,6 +13,7 @@ import { PlacesService } from '../places/places.service';
 import { WandererService } from '../wanderer/wanderer.service';
 import { changedParts, computeTourMetrics, contentHashOf, localHashOf, parseRouteGeometry } from './tours.helpers';
 import { ToursService } from './tours.service';
+import { WandererWatchService } from './wanderer-watch.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, Logger } from '@nestjs/common';
 import type {
@@ -64,6 +65,7 @@ export class ToursWandererService {
     private readonly placeImport: PlaceImportService,
     private readonly places: PlacesService,
     private readonly tours: ToursService,
+    private readonly watch: WandererWatchService,
     @InjectRepository(Tours) private readonly toursRepo: ToursRepository,
     @InjectRepository(Places) private readonly placesRepo: PlacesRepository,
     @InjectRepository(TourSources) private readonly sources: TourSourcesRepository,
@@ -136,13 +138,15 @@ export class ToursWandererService {
    * MF-03: ask the source of one wanderer snapshot whether the trail changed
    * since it came in, on the caller's own connection. Reads only: the
    * snapshot stays as it is whatever the source says, and taking a change
-   * over is the confirmed reimport, with the hash this answer carries.
+   * over is the confirmed reimport, with the hash this answer carries. What
+   * the check read is what the caller has now seen of the trail, so their
+   * background hint on the snapshot goes (WAN-02).
    */
   async checkSource(tripId: string, userId: number, placeId: string): Promise<TourSourceCheckResponse> {
     const tid = tripRowId(tripId);
     const pid = toRowId(placeId);
     const row = pid === null ? undefined : await this.toursRepo.findProvenance(tid, pid);
-    if (!row) throw new DomainError(404, 'Tour not found');
+    if (!row || pid === null) throw new DomainError(404, 'Tour not found');
     if (row.origin !== 'wanderer') {
       throw new DomainError(400, 'This tour has no wanderer source', {
         code: 'wanderer_no_source',
@@ -177,6 +181,7 @@ export class ToursWandererService {
     }
     const reimport = { trailId: externalId, contentHash: fetched.contentHash };
     const externalUpdated = fetched.trail.updated ?? null;
+    await this.watch.noteSeen(pid, userId, { contentHash: fetched.contentHash, externalUpdated });
     if (row.source_content_hash === null) return { ...answer('unknown'), externalUpdated, reimport };
     const changes = changedParts(row.source_content_hash, fetched.contentHash);
     return changes.length === 0

@@ -81,6 +81,15 @@ const cs: NotificationLocale = {
       title: 'Relace Synology byla zrušena',
       body: 'Váš účet nebo URL Synology se změnil. Byli jste odhlášeni ze Synology Photos.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `Trasa wanderer: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `„${p.tour}“ v „${p.trip}“ byla ve wanderer změněna. Otevřete túru a zkontrolujte její zdroj, abyste viděli všechny změny. V cestě se nic nezmění samo.`
+          : p.state === 'unverifiable'
+            ? `„${p.tour}“ v „${p.trip}“ už nelze ve wanderer ověřit. Túra ve vaší cestě zůstává, jak je.`
+            : `„${p.tour}“ v „${p.trip}“ se ve wanderer možná změnila. Otevřete túru a zkontrolujte její zdroj. V cestě se nic nezmění samo.`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

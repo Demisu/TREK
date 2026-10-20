@@ -99,6 +99,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': '共享照片 (Immich)',
   'settings.notifyCollabMessage': '聊天訊息 (Collab)',
   'settings.notifyPackingTagged': '行李清單：分配',
+  'settings.notifyWandererSourceHint': 'wanderer：關於你的路線的提示',
   'settings.notifyWebhook': 'Webhook 通知',
   'settings.notifyVersionAvailable': '有新版本可用',
   'settings.notifyReplicaFailure': '儲存複本故障',

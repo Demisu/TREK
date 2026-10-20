@@ -33,7 +33,7 @@ Each sub-toggle can be disabled independently while the parent addon remains ena
 
 **Road trip** plans a trip as one continuous drive: search along the route, driving limits, daily travel times, via points and avoidance of toll roads, motorways and ferries. **Disabled by default.** It needs no key: routing runs on the public OSRM and Valhalla servers until you set your own under **User Defaults** (**Own routing engine**, **Own Valhalla instance**, restart required). See [Road-Trip](Road-Trip).
 
-**Tours** plans hikes and paddle tours (kayak, canoe, SUP) as tours of their own and adds them to the days of a trip. **Disabled by default.** Underneath its tile, the **wanderer** sub-toggle lets users connect their own wanderer instance and import its trails.
+**Tours** plans hikes and paddle tours (kayak, canoe, SUP) as tours of their own and adds them to the days of a trip. **Disabled by default.** Underneath its tile, the **wanderer** sub-toggle lets users connect their own wanderer instance and import its trails. Each user can also switch on a background check of the trails they imported (Settings, Integrations, wanderer): TREK then reads the small record of each such trail at most once a day, never its GPX, and leaves a notification when the trail may have changed. It never changes a tour; taking a change in stays the user's own check and confirmed reimport. Switching wanderer off here stops those checks too.
 
 #### Paddle water data
 

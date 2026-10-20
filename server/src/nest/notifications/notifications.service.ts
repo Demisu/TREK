@@ -228,6 +228,20 @@ const EVENT_NOTIFICATION_CONFIG: Record<string, EventNotifConfig> = {
     navigateTextKey: 'notif.action.view_admin',
     navigateTarget: () => '/admin?tab=addons',
   },
+  // WAN-02: the wanderer watch found something about a snapshot's source; the
+  // text says which of the three it is, the button opens the tour in its trip.
+  wanderer_source_hint: {
+    inAppType: 'navigate',
+    titleKey: 'notif.wanderer_source_hint.title',
+    textKey: (p) =>
+      p.state === 'changed'
+        ? 'notif.wanderer_source_hint.changed'
+        : p.state === 'unverifiable'
+          ? 'notif.wanderer_source_hint.unverifiable'
+          : 'notif.wanderer_source_hint.possible_change',
+    navigateTextKey: 'notif.action.view_tour',
+    navigateTarget: (p) => (p.tripId && p.placeId ? `/trips/${p.tripId}?tab=plan&place=${p.placeId}` : null),
+  },
   synology_session_cleared: {
     inAppType: 'simple',
     titleKey: 'notifications.synologySessionCleared.title',

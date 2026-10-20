@@ -90,6 +90,15 @@ const ar: NotificationLocale = {
       title: 'تمت إعادة تعيين جلسة Synology',
       body: 'تغيّر حسابك أو رابط Synology. تم تسجيل خروجك من Synology Photos.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `درب wanderer: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `تغيّر «${p.tour}» في «${p.trip}» على wanderer. افتح الجولة وتحقق من مصدرها لترى كل التغييرات. لا يتغير شيء في الرحلة من تلقاء نفسه.`
+          : p.state === 'unverifiable'
+            ? `لم يعد بالإمكان التحقق من «${p.tour}» في «${p.trip}» على wanderer. تبقى الجولة في رحلتك كما هي.`
+            : `ربما تغيّر «${p.tour}» في «${p.trip}» على wanderer. افتح الجولة وتحقق من مصدرها. لا يتغير شيء في الرحلة من تلقاء نفسه.`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

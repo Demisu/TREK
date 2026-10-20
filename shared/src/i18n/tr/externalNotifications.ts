@@ -78,6 +78,15 @@ const tr: NotificationLocale = {
       title: 'Synology oturumu temizlendi',
       body: 'Synology hesabınız veya URL değişti. Synology Photos oturumunuz kapatıldı.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `wanderer rotası: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `"${p.trip}" içindeki "${p.tour}" wanderer'da değiştirildi. Tüm değişiklikleri görmek için turu aç ve kaynağını denetle. Gezide hiçbir şey kendiliğinden değişmez.`
+          : p.state === 'unverifiable'
+            ? `"${p.trip}" içindeki "${p.tour}" artık wanderer'da denetlenemiyor. Gezindeki tur olduğu gibi kalır.`
+            : `"${p.trip}" içindeki "${p.tour}" wanderer'da değişmiş olabilir. Turu aç ve kaynağını denetle. Gezide hiçbir şey kendiliğinden değişmez.`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

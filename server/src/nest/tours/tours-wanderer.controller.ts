@@ -9,9 +9,11 @@ import { RequirePermission, TripAccessGuard } from '../permissions/trip-access.g
 import { WandererEnabledGuard } from '../wanderer/wanderer-enabled.guard';
 import { WandererImportDto, WandererSearchDto } from './dto/tours-wanderer.dto';
 import { ToursWandererService } from './tours-wanderer.service';
+import { WandererWatchService } from './wanderer-watch.service';
 import { Body, Controller, Get, Headers, HttpCode, Param, Post, UseGuards } from '@nestjs/common';
 import {
   tourSourceCheckResponseSchema,
+  tourSourceHintResponseSchema,
   wandererImportPreviewSchema,
   wandererImportResponseSchema,
   wandererSearchResponseSchema,
@@ -28,7 +30,10 @@ import {
 @UseGuards(AddonGuard, JwtAuthGuard, WandererEnabledGuard, TripAccessGuard)
 @RequireAddon(ADDON_IDS.TOURS, 'Tours')
 export class ToursWandererController {
-  constructor(private readonly wanderer: ToursWandererService) {}
+  constructor(
+    private readonly wanderer: ToursWandererService,
+    private readonly watch: WandererWatchService,
+  ) {}
 
   @RequirePermission('place_edit')
   @Post('search')
@@ -52,6 +57,17 @@ export class ToursWandererController {
   @ResponseContract(tourSourceCheckResponseSchema)
   checkSource(@Param('tripId') tripId: string, @Param('placeId') placeId: string, @CurrentUser() user: User) {
     return this.wanderer.checkSource(tripId, user.id, placeId);
+  }
+
+  /**
+   * WAN-02: the caller's own background hint on a wanderer snapshot, when
+   * their watch left one; it leads to the check above, so it asks the same right.
+   */
+  @RequirePermission('place_edit')
+  @Get('sources/:placeId/hint')
+  @ResponseContract(tourSourceHintResponseSchema)
+  hint(@Param('tripId') tripId: string, @Param('placeId') placeId: string, @CurrentUser() user: User) {
+    return this.watch.hintFor(tripId, user.id, placeId);
   }
 
   @RequirePermission('place_edit')

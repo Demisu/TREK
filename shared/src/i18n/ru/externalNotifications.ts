@@ -79,6 +79,15 @@ const ru: NotificationLocale = {
       title: 'Сессия Synology сброшена',
       body: 'Ваш аккаунт или URL Synology изменился. Вы вышли из Synology Photos.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `Маршрут wanderer: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `«${p.tour}» в «${p.trip}» изменён в wanderer. Откройте тур и проверьте его источник, чтобы увидеть все изменения. В поездке ничего не меняется само.`
+          : p.state === 'unverifiable'
+            ? `«${p.tour}» в «${p.trip}» больше нельзя проверить в wanderer. Тур в вашей поездке остаётся как есть.`
+            : `«${p.tour}» в «${p.trip}», возможно, изменён в wanderer. Откройте тур и проверьте его источник. В поездке ничего не меняется само.`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

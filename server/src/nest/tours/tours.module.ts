@@ -5,6 +5,7 @@ import { TourActivityExclusions } from '../../db/entities/TourActivityExclusions
 import { TourChangeSteps } from '../../db/entities/TourChangeSteps.entity';
 import { TourObstacleReviews } from '../../db/entities/TourObstacleReviews.entity';
 import { TourPackingLinks } from '../../db/entities/TourPackingLinks.entity';
+import { TourSourceHints } from '../../db/entities/TourSourceHints.entity';
 import { TourSources } from '../../db/entities/TourSources.entity';
 import { TourStationVisits } from '../../db/entities/TourStationVisits.entity';
 import { TourTypes } from '../../db/entities/TourTypes.entity';
@@ -15,6 +16,7 @@ import { AssignmentsDomainModule } from '../assignments/assignments-domain.modul
 import { CollectionsModule } from '../collections/collections.module';
 import { MapsModule } from '../maps/maps.module';
 import { McpSharedModule } from '../mcp-shared/mcp-shared.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { OverpassModule } from '../overpass/overpass.module';
 import { PackingModule } from '../packing/packing.module';
 import { PaddleObstaclesModule } from '../paddle-obstacles/paddle-obstacles.module';
@@ -22,6 +24,7 @@ import { PermissionsModule } from '../permissions/permissions.module';
 import { PlaceImportModule } from '../place-import/place-import.module';
 import { PlacesModule } from '../places/places.module';
 import { RoadtripModule } from '../roadtrip/roadtrip.module';
+import { SchedulingModule } from '../scheduling/scheduling.module';
 import { TripMembershipModule } from '../trip-membership/trip-membership.module';
 import { WandererModule } from '../wanderer/wanderer.module';
 import { CityWalkBriefingService } from './city-walk-briefing.service';
@@ -71,6 +74,9 @@ import { ToursWandererService } from './tours-wanderer.service';
 import { ToursController } from './tours.controller';
 import { ToursMcp } from './tours.mcp';
 import { ToursService } from './tours.service';
+import { WandererWatchController } from './wanderer-watch.controller';
+import { WandererWatchJob } from './wanderer-watch.job';
+import { WandererWatchService } from './wanderer-watch.service';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 
@@ -97,7 +103,10 @@ import { Module } from '@nestjs/common';
  * collection (LIB-03) are this domain's own rows; the collection's roles and
  * its live notice to its members come from CollectionsService. A tour points at
  * the packing list of its trip (P2D-XD-01) through a row of its own; the list
- * and who sees which of its items stay PackingService's.
+ * and who sees which of its items stay PackingService's. The optional watch
+ * over a user's own wanderer snapshots (WAN-02) reads through WandererService,
+ * keeps its hints in this domain's own rows, tells the user through
+ * NotificationsService and runs hourly on SchedulingModule's registrar.
  */
 @Module({
   imports: [
@@ -125,12 +134,16 @@ import { Module } from '@nestjs/common';
     CollectionsModule,
     // A tour's packing link is read against the items Packing lets the user see (P2D-XD-01).
     PackingModule,
+    // The wanderer watch tells the user of a new hint (WAN-02) and runs as a cron.
+    NotificationsModule,
+    SchedulingModule,
     MikroOrmModule.forFeature([
       CollectionTours,
       Tours,
       TourTypes,
       TourWaypoints,
       TourSources,
+      TourSourceHints,
       TourObstacleReviews,
       TourPackingLinks,
       TourStationVisits,
@@ -158,6 +171,7 @@ import { Module } from '@nestjs/common';
     TourLibraryController,
     CollectionToursController,
     TourPackingLinkController,
+    WandererWatchController,
   ],
   providers: [
     ToursService,
@@ -183,6 +197,8 @@ import { Module } from '@nestjs/common';
     TourActivityStatsService,
     CollectionToursService,
     TourPackingLinkService,
+    WandererWatchService,
+    WandererWatchJob,
     ToursMcp,
     TourLibraryMcp,
     TourWalkImportMcp,

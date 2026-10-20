@@ -120,6 +120,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': 'Jagatud fotod (Immich)',
   'settings.notifyCollabMessage': 'Vestlussõnumid (koostöö)',
   'settings.notifyPackingTagged': 'Pakkimisnimekiri: määrangud',
+  'settings.notifyWandererSourceHint': 'wanderer: vihjed sinu radade kohta',
   'settings.notifyWebhook': 'Veebihaagi teavitused',
   'settings.notifyVersionAvailable': 'Uus versioon saadaval',
   'settings.notifyReplicaFailure': 'Salvestuskoopia tõrge',

@@ -75,6 +75,15 @@ const az: NotificationLocale = {
       title: 'Synology sessiyası təmizləndi',
       body: 'Synology hesabınız və ya URL-iniz dəyişib. Synology Photos sessiyanız bağlanıb.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `wanderer marşrutu: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `"${p.trip}" içində "${p.tour}" wanderer-də dəyişdirildi. Bütün dəyişiklikləri görmək üçün turu aç və mənbəyini yoxla. Səfərdə heç nə özbaşına dəyişmir.`
+          : p.state === 'unverifiable'
+            ? `"${p.trip}" içində "${p.tour}" artıq wanderer-də yoxlanıla bilmir. Səfərindəki tur olduğu kimi qalır.`
+            : `"${p.trip}" içində "${p.tour}" wanderer-də dəyişmiş ola bilər. Turu aç və mənbəyini yoxla. Səfərdə heç nə özbaşına dəyişmir.`,
+    }),
     plugin_notification: (p) => ({
       title: p.title ?? '',
       body: p.body ?? '',

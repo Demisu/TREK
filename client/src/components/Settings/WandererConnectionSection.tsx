@@ -16,11 +16,14 @@ import {
 } from './settingsKit';
 import ToggleSwitch from './ToggleSwitch';
 import { useWandererConnection } from './useWandererConnection';
+import WandererWatchRow from './WandererWatchRow';
 
 /**
  * Settings → Integrations → wanderer: the reader's own trail database, from
  * which the Tours workspace imports trails. Laid out like the Dawarich and
  * AirTrail cards beside it; the behaviour is in `useWandererConnection`.
+ * Under the form, the optional background check of the imported trails
+ * (WAN-02), which switches on its own and needs no save.
  */
 export default function WandererConnectionSection(): React.ReactElement {
   const { t } = useTranslation();
@@ -136,6 +139,8 @@ export default function WandererConnectionSection(): React.ReactElement {
           )}
         </div>
       )}
+
+      <WandererWatchRow connected={S.connected} />
     </Section>
   );
 }

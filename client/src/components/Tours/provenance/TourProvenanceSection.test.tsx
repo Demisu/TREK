@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import type { TourProvenance, TourSourceCheckResponse } from '@trek/shared';
+import type { TourProvenance, TourSourceCheckResponse, TourSourceHint } from '@trek/shared';
 import { describe, expect, it, vi } from 'vitest';
 import TourProvenanceSection from './TourProvenanceSection';
 import type { SourceCheck } from './useSourceCheck';
@@ -157,5 +157,52 @@ describe('TourProvenanceSection (P2C-02, MF-03)', () => {
     );
     expect(screen.getByText('tours.provenance.body.unavailable')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /tours.provenance.reimport/ })).toBeNull();
+  });
+
+  it('shows the background hint with its own check button until the source answered (WAN-02)', () => {
+    const onCheck = vi.fn();
+    const wanderer: TourProvenance = {
+      ...base,
+      origin: 'wanderer',
+      source: {
+        kind: 'wanderer',
+        instance: 'https://t.example',
+        externalId: 't1',
+        externalUrl: null,
+        externalUpdated: null,
+        importedAt: null,
+      },
+    };
+    const hint: TourSourceHint = {
+      state: 'changed',
+      changes: ['description'],
+      reason: null,
+      externalUpdated: '2026-10-14',
+      checkedAt: '2026-10-20T10:00:00Z',
+    };
+    const { rerender } = render(
+      <TourProvenanceSection provenance={wanderer} check={check({ check: onCheck })} hint={hint} />
+    );
+    const notice = screen.getByTestId('tour-source-hint');
+    expect(notice).toHaveTextContent('wanderer.watch.noticeLabel');
+    expect(screen.getByTestId('source-hint-state')).toHaveAttribute('data-state', 'changed');
+    expect(screen.getByText('tours.provenance.change.description')).toBeInTheDocument();
+    const buttons = screen.getAllByRole('button', { name: /tours.provenance.check$/ });
+    expect(buttons).toHaveLength(1);
+    fireEvent.click(buttons[0]);
+    expect(onCheck).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <TourProvenanceSection
+        provenance={wanderer}
+        check={check({ answered: true })}
+        hint={{ ...hint, state: 'unverifiable', changes: [], reason: 'unavailable' }}
+      />
+    );
+    expect(screen.queryByTestId('tour-source-hint')).toBeNull();
+    expect(screen.getAllByRole('button', { name: /tours.provenance.check$/ })).toHaveLength(1);
+
+    rerender(<TourProvenanceSection provenance={wanderer} hint={hint} />);
+    expect(screen.queryByTestId('tour-source-hint')).toBeNull();
   });
 });

@@ -134,6 +134,7 @@ const settings: TranslationStrings = {
   'settings.notifyPhotosShared': 'Paylaşılan fotolar (Immich)',
   'settings.notifyCollabMessage': 'Çat mesajları (Collab)',
   'settings.notifyPackingTagged': 'Baqaj siyahısı: təyinatlar',
+  'settings.notifyWandererSourceHint': 'wanderer: marşrutların barədə xəbərdarlıqlar',
   'settings.notifyWebhook': 'Webhook bildirişləri',
   'settings.notifyVersionAvailable': 'Yeni versiya əlçatandır',
   'settings.notifyReplicaFailure': 'Yaddaş replikası xətası',

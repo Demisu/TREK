@@ -68,6 +68,15 @@ const th: NotificationLocale = {
       title: 'ล้างเซสชัน Synology แล้ว',
       body: 'บัญชีหรือ URL ของ Synology เปลี่ยนแปลง คุณจึงออกจากระบบ Synology Photos แล้ว',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `เส้นทาง wanderer: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `"${p.tour}" ใน "${p.trip}" ถูกเปลี่ยนใน wanderer เปิดทัวร์และตรวจแหล่งที่มาเพื่อดูการเปลี่ยนแปลงทั้งหมด ไม่มีสิ่งใดในทริปเปลี่ยนเอง`
+          : p.state === 'unverifiable'
+            ? `"${p.tour}" ใน "${p.trip}" ตรวจใน wanderer ไม่ได้อีกต่อไป ทัวร์ในทริปของคุณยังคงเหมือนเดิม`
+            : `"${p.tour}" ใน "${p.trip}" อาจเปลี่ยนแปลงใน wanderer เปิดทัวร์และตรวจแหล่งที่มา ไม่มีสิ่งใดในทริปเปลี่ยนเอง`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

@@ -75,6 +75,15 @@ const hu: NotificationLocale = {
       title: 'Synology munkamenet törölve',
       body: 'A Synology fiókja vagy URL-je megváltozott. Kijelentkeztek a Synology Photos-ból.',
     }),
+    wanderer_source_hint: (p) => ({
+      title: `wanderer útvonal: ${p.tour}`,
+      body:
+        p.state === 'changed'
+          ? `„${p.tour}” („${p.trip}”) megváltozott a wandererben. Nyisd meg a túrát, és ellenőrizd a forrását, hogy minden változást láss. Az utazásban semmi sem változik magától.`
+          : p.state === 'unverifiable'
+            ? `„${p.tour}” („${p.trip}”) már nem ellenőrizhető a wandererben. A túra az utazásodban változatlan marad.`
+            : `„${p.tour}” („${p.trip}”) megváltozhatott a wandererben. Nyisd meg a túrát, és ellenőrizd a forrását. Az utazásban semmi sem változik magától.`,
+    }),
     plugin_notification: (p) => ({ title: p.title ?? '', body: p.body ?? '' }),
   },
   passwordReset: {

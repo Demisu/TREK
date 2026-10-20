@@ -12,4 +12,8 @@ export interface WandererConnectionsTable {
   last_check_error: InsertOptional<string | null>;
   created_at: InsertOptional<string | null>;
   updated_at: InsertOptional<string | null>;
+  watch_enabled: InsertOptional<number>;
+  watch_last_run_at: InsertOptional<string | null>;
+  watch_failures: InsertOptional<number>;
+  watch_paused_until: InsertOptional<string | null>;
 }

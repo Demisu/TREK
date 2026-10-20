@@ -14,6 +14,8 @@ export const wandererRepo = {
   saveSettings: wandererApi.saveSettings,
   disconnect: wandererApi.disconnect,
   test: wandererApi.test,
+  getWatch: wandererApi.getWatch,
+  setWatch: wandererApi.setWatch,
 
   async search(tripId: number, body: WandererSearchRequest, signal?: AbortSignal) {
     if (isEffectivelyOffline()) throw new WandererOfflineError();
@@ -28,6 +30,12 @@ export const wandererRepo = {
   async checkSource(tripId: number, placeId: number) {
     if (isEffectivelyOffline()) throw new WandererOfflineError();
     return await wandererApi.checkSource(tripId, placeId);
+  },
+
+  /** WAN-02: the caller's own background hint on a snapshot; offline there is none to show. */
+  async sourceHint(tripId: number, placeId: number, signal?: AbortSignal) {
+    if (isEffectivelyOffline()) return null;
+    return (await wandererApi.sourceHint(tripId, placeId, signal)).hint;
   },
 
   async importTrail(tripId: number, body: WandererImportRequest) {

@@ -1,5 +1,6 @@
 import { EntityRepositoryType, PrimaryKeyProp, type Ref, defineEntity, p } from '@mikro-orm/core';
 import { TourSourcesRepository } from '../repositories/TourSources.repository';
+import { TourSourceHints } from './TourSourceHints.entity';
 import { DbTimestampType } from '../types';
 import { Tours } from './Tours.entity';
 import { Users } from './Users.entity';
@@ -19,6 +20,7 @@ export class TourSources {
   imported_at?: string | null;
   imported_by?: number | null;
   importedByRef?: Ref<Users> | null;
+  tour_source_hints: Ref<TourSourceHints> | null = null;
 }
 
 export const TourSourcesSchema = defineEntity({
@@ -43,5 +45,6 @@ export const TourSourcesSchema = defineEntity({
     imported_at: p.type(DbTimestampType).nullable().defaultRaw(`CURRENT_TIMESTAMP`),
     imported_by: p.integer().nullable().persist(false).index('idx_tour_sources_imported_by'),
     importedByRef: () => p.manyToOne(Users).ref().joinColumn('imported_by').nullable().hidden().index('idx_tour_sources_imported_by'),
+    tour_source_hints: () => p.oneToOne(TourSourceHints).ref().mappedBy('place').hidden(),
   },
 });

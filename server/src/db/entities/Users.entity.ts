@@ -55,6 +55,7 @@ import { TodoItems } from './TodoItems.entity';
 import { TourActivities } from './TourActivities.entity';
 import { TourActivityExclusions } from './TourActivityExclusions.entity';
 import { TourPackingLinks } from './TourPackingLinks.entity';
+import { TourSourceHints } from './TourSourceHints.entity';
 import { TourSources } from './TourSources.entity';
 import { TrekPhotos } from './TrekPhotos.entity';
 import { TripAlbumLinks } from './TripAlbumLinks.entity';
@@ -186,6 +187,7 @@ export class Users {
   tour_activities_collection = new Collection<TourActivities>(this);
   tour_activity_exclusions_collection = new Collection<TourActivityExclusions>(this);
   tour_packing_links_collection = new Collection<TourPackingLinks>(this);
+  tour_source_hints_collection = new Collection<TourSourceHints>(this);
   tour_sources_collection = new Collection<TourSources>(this);
   trek_photos_collection = new Collection<TrekPhotos>(this);
   trip_album_links_collection = new Collection<TripAlbumLinks>(this);
@@ -335,6 +337,7 @@ export const UsersSchema = defineEntity({
     tour_activities_collection: () => p.oneToMany(TourActivities).mappedBy('assignedByRef').hidden(),
     tour_activity_exclusions_collection: () => p.oneToMany(TourActivityExclusions).mappedBy('user').hidden(),
     tour_packing_links_collection: () => p.oneToMany(TourPackingLinks).mappedBy('linkedByRef').hidden(),
+    tour_source_hints_collection: () => p.oneToMany(TourSourceHints).mappedBy('user').hidden(),
     tour_sources_collection: () => p.oneToMany(TourSources).mappedBy('importedByRef').hidden(),
     trek_photos_collection: () => p.oneToMany(TrekPhotos).mappedBy('owner').hidden(),
     trip_album_links_collection: () => p.oneToMany(TripAlbumLinks).mappedBy('user').hidden(),
