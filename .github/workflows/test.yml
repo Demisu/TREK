@@ -19,8 +19,8 @@ permissions:
 #                            the server's src, tests and scripts, smokes the
 #                            production require chain, the strict ratchet,
 #                            the generated entities and Kysely types
-#   Server: Lint             ESLint (typed), errors and warning counts
-#   Server: Checks           Prettier, the plugin facts, the DB call graph,
+#   Server: Lint & Checks    ESLint (typed), errors and warning counts; then
+#                            Prettier, the plugin facts, the DB call graph,
 #                            the shared ratchet code, the source ratchets
 #                            (size, boundaries, dialect, tx, test SQL, test
 #                            mocks, hand-built services, query API, MCP zod,
@@ -32,12 +32,12 @@ permissions:
 #   Server: S3 Contract (MinIO)
 #                            the storage driver against MinIO
 #   Server: Postgres Probe   the repository SQL against Postgres
-#   Client: Types            typecheck and the strict ratchet
+#   Client: Types & Checks   typecheck and the strict ratchet; then the page
+#                            pattern and the source ratchets (RTL, size,
+#                            Prettier, layers, offline path, duplication,
+#                            desktop/phone pairs, skips, i18n keys, theme
+#                            tokens)
 #   Client: Lint             ESLint (typed), errors and warning counts
-#   Client: Checks           the page pattern and the source ratchets (RTL,
-#                            size, Prettier, layers, offline path,
-#                            duplication, desktop/phone pairs, skips, i18n
-#                            keys, theme tokens)
 #   Client: Tests n/7        one slice of the client suite, with coverage
 #   Client: Coverage         merges the slices, checks the thresholds,
 #                            uploads lcov
@@ -50,25 +50,28 @@ permissions:
 #   ci-ok                    the one required check (below)
 #
 # Job layout:
-#   - Everything starts right after changes: the gates (types, lint, checks)
-#     and the tests run side by side, so a run takes as long as its slowest
-#     job and not the gates plus the tests. The tests used to wait for the
-#     gates, which put ~9 minutes in front of every test result, and the
-#     gates were one job per package (~8-9 minutes each) before they were
-#     split into types, lint and checks.
+#   - Everything starts right after changes: the gates and the tests run side
+#     by side, so a run takes as long as its slowest job and not the gates
+#     plus the tests. The tests used to wait for the gates, which put ~9
+#     minutes in front of every test result. The gates were one job per
+#     package (~8-9 minutes each); each is now two jobs of ~4-5 minutes,
+#     split where the time is (the server's typechecks, the client's lint),
+#     so neither outlasts a test shard.
 #   - The client and server suites run in shards (client-tests,
 #     server-tests), each running a slice with coverage and uploading a blob
 #     report; client-coverage and server-coverage merge the blobs, check the
 #     thresholds against the whole and upload lcov. A red shard is usually a
 #     failing test, a red merge job usually a threshold. None of the other
 #     test jobs feeds the scan.
-#   - Shard counts: GitHub runs at most 20 jobs of the organisation at once.
-#     A code change starts about fifteen jobs besides the shards; about half
-#     of them (parity, the SDK, the bundle, S3, Postgres, shared coverage,
-#     the chart) are done within a minute or two, so the shards that queue at
-#     the start wait about that long. The counts are sized so the coverage
-#     merges finish about when the slowest gate does; more shards would wait
-#     in the queue rather than finish sooner.
+#   - Job count: GitHub runs at most 20 jobs of the organisation at once and
+#     does not say in which order it starts queued ones. A code change starts
+#     the 14 shards and about a dozen other jobs; seven of those (parity, the
+#     SDK, the bundle, S3, Postgres, shared coverage, the chart) are done in
+#     a minute or two, so what queues at the start waits about that long. The
+#     jobs that run for minutes (shards, gates, e2e, the image) must not
+#     outnumber the 20 slots, or one of them waits for another to finish and
+#     the run grows by a whole job: a layout with six gate jobs did exactly
+#     that. Check the count before adding a long job or a shard.
 #   - Scan `needs:` the gates and the four coverage jobs. A coverage job
 #     failing must stop the scan — a missing lcov file would make every line
 #     of that package report as uncovered, and the dashboard would show a
@@ -276,8 +279,8 @@ jobs:
         # migration that changes a column regenerates it in the same change.
         run: cd server && npm run check:db-types
 
-  server-lint:
-    name: 'Server: Lint'
+  server-lint-checks:
+    name: 'Server: Lint & Checks'
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
@@ -315,27 +318,6 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=8192
           TREK_LINT_BASE: refs/remotes/lint-base
         run: cd server && npm run lint:warnings
-
-  server-checks:
-    name: 'Server: Checks'
-    needs: changes
-    if: needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-          cache-dependency-path: package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build shared
-        run: npm run build --workspace=shared
 
       # The plugin permission facts live once, in
       # server/src/nest/plugins/protocol/envelope.ts. Every other copy — the
@@ -440,12 +422,12 @@ jobs:
         # knip (knip.jsonc) over client, server and shared: unused files,
         # exports, types and dependencies per file may not rise above
         # scripts/ci/knip-baseline.json (scripts/ci/knip-ratchet.mjs). Here
-        # rather than in client-checks because it needs every workspace's
+        # rather than in client-types-checks because it needs every workspace's
         # dependencies, which the client jobs do not install.
         run: npm run lint:knip
 
-  client-types:
-    name: 'Client: Types'
+  client-types-checks:
+    name: 'Client: Types & Checks'
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
@@ -475,69 +457,6 @@ jobs:
         # scripts/strict-baseline.json, and a file without an entry, every new
         # one included, has to be clean (scripts/strict-lint.mjs).
         run: cd client && npm run lint:strict
-
-  client-lint:
-    name: 'Client: Lint'
-    needs: changes
-    if: needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 45
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-          cache-dependency-path: package-lock.json
-
-      - name: Install dependencies
-        run: npm ci --workspace shared --workspace client
-
-      - name: Build shared
-        run: npm run build --workspace=shared
-
-      - name: Fetch the base the warnings are compared with
-        # lint:warnings names the file behind a grown count by linting it as
-        # it is on the base: the pushed-over commit on a push, the target
-        # branch on a pull request. A miss only drops that hint.
-        run: >-
-          git fetch --no-tags --depth=1 origin
-          "+${{ github.event_name == 'push' && github.event.before || format('refs/heads/{0}', github.base_ref || 'dev') }}:refs/remotes/lint-base"
-          || true
-
-      - name: Lint
-        # Fails on any ESLint error, like lint:check did, and on any rule
-        # whose warning count rises above scripts/eslint-baseline.json.
-        # Typed linting (no-floating-promises, no-misused-promises) loads the
-        # whole TypeScript program, so it gets the heap the server lint gets.
-        env:
-          NODE_OPTIONS: --max-old-space-size=8192
-          TREK_LINT_BASE: refs/remotes/lint-base
-        run: cd client && npm run lint:warnings
-
-  client-checks:
-    name: 'Client: Checks'
-    needs: changes
-    if: needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 45
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-          cache-dependency-path: package-lock.json
-
-      - name: Install dependencies
-        run: npm ci --workspace shared --workspace client
-
-      - name: Build shared
-        run: npm run build --workspace=shared
 
       - name: Page pattern check
         run: cd client && npm run lint:pages
@@ -601,6 +520,47 @@ jobs:
         # no more than scripts/theme-disable-baseline.json, so new surfaces
         # follow the user's scheme, accent and text size (scripts/theme-lint.mjs).
         run: cd client && npm run theme:lint
+
+  client-lint:
+    name: 'Client: Lint'
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --workspace shared --workspace client
+
+      - name: Build shared
+        run: npm run build --workspace=shared
+
+      - name: Fetch the base the warnings are compared with
+        # lint:warnings names the file behind a grown count by linting it as
+        # it is on the base: the pushed-over commit on a push, the target
+        # branch on a pull request. A miss only drops that hint.
+        run: >-
+          git fetch --no-tags --depth=1 origin
+          "+${{ github.event_name == 'push' && github.event.before || format('refs/heads/{0}', github.base_ref || 'dev') }}:refs/remotes/lint-base"
+          || true
+
+      - name: Lint
+        # Fails on any ESLint error, like lint:check did, and on any rule
+        # whose warning count rises above scripts/eslint-baseline.json.
+        # Typed linting (no-floating-promises, no-misused-promises) loads the
+        # whole TypeScript program, so it gets the heap the server lint gets.
+        env:
+          NODE_OPTIONS: --max-old-space-size=8192
+          TREK_LINT_BASE: refs/remotes/lint-base
+        run: cd client && npm run lint:warnings
 
   client-bundle:
     name: 'Client: Bundle'
@@ -1097,11 +1057,9 @@ jobs:
     needs:
       - i18n-parity
       - server-types
-      - server-lint
-      - server-checks
-      - client-types
+      - server-lint-checks
+      - client-types-checks
       - client-lint
-      - client-checks
       - server-coverage
       - client-coverage
       - shared-coverage
@@ -1316,11 +1274,9 @@ jobs:
       - changes
       - i18n-parity
       - server-types
-      - server-lint
-      - server-checks
-      - client-types
+      - server-lint-checks
+      - client-types-checks
       - client-lint
-      - client-checks
       - client-bundle
       - client-e2e
       - s3-contract
