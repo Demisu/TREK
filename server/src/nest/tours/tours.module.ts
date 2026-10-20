@@ -17,7 +17,10 @@ import { RoadtripModule } from '../roadtrip/roadtrip.module';
 import { TripMembershipModule } from '../trip-membership/trip-membership.module';
 import { WandererModule } from '../wanderer/wanderer.module';
 import { CityWalkBriefingService } from './city-walk-briefing.service';
+import { CityWalkFootWayService } from './city-walk-foot-way.service';
 import { CityWalkMcp } from './city-walk.mcp';
+import { TourChangePreviewService } from './tour-change-preview.service';
+import { TourChangeMcp } from './tour-change.mcp';
 import { TourGpxExportService } from './tour-gpx-export.service';
 import { TourHorseRoutesController } from './tour-horse-routes.controller';
 import { TourHorseRoutesService } from './tour-horse-routes.service';
@@ -58,7 +61,9 @@ import { Module } from '@nestjs/common';
  * link followed by the narrow resolver there (CW-06). A city walk an assistant
  * prepares from a briefing reads the day and places of the trip through the
  * tours' own repositories, is planned on foot by RoadtripModule's router and
- * is created through ToursService (CW-11).
+ * is created through ToursService (CW-11). A change to a saved city walk an
+ * assistant prepares for review is laid onto its saved points and planned on
+ * foot by the same router, and saves nothing (MCP-T02).
  */
 @Module({
   imports: [
@@ -118,11 +123,14 @@ import { Module } from '@nestjs/common';
     TourTrailGradeService,
     TourVisitsService,
     TourWalkImportService,
+    CityWalkFootWayService,
     CityWalkBriefingService,
+    TourChangePreviewService,
     ToursMcp,
     TourLibraryMcp,
     TourWalkImportMcp,
     CityWalkMcp,
+    TourChangeMcp,
   ],
 })
 export class ToursModule {}

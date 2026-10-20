@@ -64,6 +64,7 @@ export * from './tours/tour-trail-grade.schema';
 export * from './tours/tour-walk.schema';
 export * from './tours/tour-walk';
 export * from './tours/tour-walk-briefing.schema';
+export * from './tours/tour-change.schema';
 export * from './tours/walk-hours';
 export * from './tours/tours.metrics';
 export * from './tours/tour-gpx-import.schema';

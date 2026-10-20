@@ -124,7 +124,23 @@ describe('TourStationVisitsRepository', () => {
     ]);
   });
 
-  it('TSVREPO-006: dropStationsNotIn keeps the named stations on every day, drops the rest, leaves other walks alone and names the days', async () => {
+  it('TSVREPO-008: listForPlace lists the visits of one walk on all its days with the day, none of another walk or trip', async () => {
+    const { trip, day1, day2, walk, onDay1, onDay2, other, otherWalk, foreign } = await fixture();
+    await markStationVisit(t, onDay2.id, 'stop-a', 'skipped');
+    await markStationVisit(t, onDay1.id, 'stop-b', 'visited');
+    await markStationVisit(t, onDay1.id, 'stop-a', 'visited');
+    await markStationVisit(t, foreign.id, 'stop-a', 'visited');
+
+    expect(await repo.listForPlace(trip.id, walk.id)).toEqual([
+      { day_id: day1.id, assignment_id: onDay1.id, station_key: 'stop-a', status: 'visited' },
+      { day_id: day1.id, assignment_id: onDay1.id, station_key: 'stop-b', status: 'visited' },
+      { day_id: day2.id, assignment_id: onDay2.id, station_key: 'stop-a', status: 'skipped' },
+    ]);
+    expect(await repo.listForPlace(other.id, walk.id)).toEqual([]);
+    expect(await repo.listForPlace(trip.id, otherWalk.id)).toEqual([]);
+  });
+
+  it('TSVREPO-006:dropStationsNotIn keeps the named stations on every day, drops the rest, leaves other walks alone and names the days', async () => {
     const { walk, onDay1, onDay2, foreign } = await fixture();
     await markStationVisit(t, onDay1.id, 'stop-a', 'visited');
     await markStationVisit(t, onDay1.id, 'stop-b', 'visited');

@@ -71,6 +71,24 @@ export class TourStationVisitsRepository extends TrekRepository<TourStationVisit
       .execute();
   }
 
+  /**
+   * MCP-T02: every visit of one walk of this trip, on every day it is on, with
+   * the day; a proposed change keeps each of these stations as it is. Ordered
+   * by day and key; none of another trip.
+   */
+  async listForPlace(trip_id: number, place_id: number): Promise<Array<{ day_id: number } & TourStationVisitRow>> {
+    return await this.db()
+      .selectFrom('tour_station_visits as v')
+      .innerJoin('day_assignments as da', 'da.id', 'v.assignment_id')
+      .innerJoin('days as d', 'd.id', 'da.day_id')
+      .select(['da.day_id', 'v.assignment_id', 'v.station_key', 'v.status'])
+      .where('da.place_id', '=', place_id)
+      .where('d.trip_id', '=', trip_id)
+      .orderBy('da.day_id', 'asc')
+      .orderBy('v.station_key', 'asc')
+      .execute();
+  }
+
   /** The visits of one day assignment. */
   async listForAssignment(assignment_id: number): Promise<TourStationVisitRow[]> {
     return await this.db()

@@ -4,21 +4,18 @@ import { Tours } from '../../db/entities/Tours.entity';
 import type { PlaceRow, PlacesRepository } from '../../db/repositories/Places.repository';
 import type { TourWaypointsRepository } from '../../db/repositories/TourWaypoints.repository';
 import type { ToursRepository } from '../../db/repositories/Tours.repository';
-import { logWarn } from '../audit/audit-log.logger';
 import { notFound } from '../common/domain-error';
-import { RoadtripRouterService } from '../roadtrip/roadtrip-router.service';
 import {
   briefingCategories,
   describeWalk,
-  footWayOf,
   frameOf,
   planWalk,
   themeCandidates,
-  type FootWay,
   type LeftOut,
   type LeftOutReason,
   type WalkCandidate,
 } from './city-walk-briefing.helpers';
+import { CityWalkFootWayService } from './city-walk-foot-way.service';
 import { TourPoiSearchService } from './tour-poi-search.service';
 import { ToursService } from './tours.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -33,13 +30,6 @@ import {
 
 /** How far from the start, the wishes and the appointments the themes are searched when the briefing does not say. */
 const DEFAULT_CORRIDOR_M = 1000;
-
-/**
- * The day the router is asked for. A way on foot does not depend on the day:
- * the router only keys its cache by one and hands it to a routing plugin,
- * which a walk on foot never asks.
- */
-const ANY_DAY = 0;
 
 /** The places of the trip a briefing names, and which of them a station may stand for (no tour). */
 interface NamedPlaces {
@@ -105,7 +95,7 @@ function tripPlaceOf(
 export class CityWalkBriefingService {
   constructor(
     private readonly poiSearch: TourPoiSearchService,
-    private readonly router: RoadtripRouterService,
+    private readonly footWays: CityWalkFootWayService,
     private readonly tours: ToursService,
     @InjectRepository(Tours) private readonly toursRepo: ToursRepository,
     @InjectRepository(TourWaypoints) private readonly waypointsRepo: TourWaypointsRepository,
@@ -146,7 +136,7 @@ export class CityWalkBriefingService {
       themeLimit: theme.limit,
     });
     return {
-      ...describeWalk(plan.route, frame, await this.footWay(userId, tripId, plan.route)),
+      ...describeWalk(plan.route, frame, await this.footWays.plan(userId, tripId, plan.route)),
       left_out: [...leftOut, ...plan.leftOut],
       searched: theme.searched,
     };
@@ -159,28 +149,12 @@ export class CityWalkBriefingService {
    * stations only and says why; no straight line is stored as a route.
    */
   async create(tripId: number, userId: number, body: CityWalkCreateRequest) {
-    const way = await this.footWay(userId, tripId, body.stations);
+    const way = await this.footWays.plan(userId, tripId, body.stations);
     const created = await this.tours.createCityWalk(String(tripId), body, way.kind === 'routed' ? way : null);
     return {
       ...created,
       foot_way: way.kind === 'routed' ? { planned: true } : { planned: false, why: way.why, position: way.position },
     };
-  }
-
-  /** The way on foot through the stations in their order, or why there is none. */
-  private async footWay(
-    userId: number,
-    tripId: number,
-    stations: ReadonlyArray<{ lat: number; lng: number }>,
-  ): Promise<FootWay> {
-    if (stations.length < 2) return { kind: 'unrouted', why: 'nothing_to_route', position: null };
-    const points = stations.map(({ lat, lng }) => ({ lat, lng }));
-    try {
-      return footWayOf(await this.router.route(userId, tripId, ANY_DAY, points, 'walking', []));
-    } catch (err: unknown) {
-      logWarn(`[CityWalk] no way on foot for trip ${tripId}: ${err instanceof Error ? err.message : String(err)}`);
-      return { kind: 'unrouted', why: 'router_unavailable', position: null };
-    }
   }
 
   /** The date of the day the walk is for, null without one; a day of another trip is not found. */
