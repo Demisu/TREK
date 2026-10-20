@@ -69,7 +69,8 @@ import { RouteConnector, HotelRouteConnector } from './DayPlanSidebarRouteConnec
 import { resolveLegMode } from './legMode'
 import { useLegModeActions } from './useLegModeActions'
 import { dayExportStops, fillAroundLocked } from './dayRoute'
-import { projectDayItinerary, type TourStageStops } from '../Map/dayTourProjection'
+import { projectDayItinerary, projectedById, type TourStageStops } from '../Map/dayTourProjection'
+import type { DayRoutePoint } from '../Map/dayRoutePlan'
 import { usePluginDaySchedule, usePluginDayTints, dayTintBackground, dayTinted, PluginDayScheduleRow, formatScheduleMinutes } from '../Plugins/PluginDaySchedule'
 import { MobileAddPlaceButton } from './DayPlanSidebarMobileAddPlaceButton'
 import { DayPlanSidebarToolbar } from './DayPlanSidebarToolbar'
@@ -623,12 +624,12 @@ function useDayPlanSidebar(props: DayPlanSidebarProps) {
     // legs to draw. Side-effect free, so the async loop below only does OSRM I/O.
     const planDay = (dayId: number) => {
       const merged = mergedItemsMap[dayId] || []
-      const projected = new Map(projectDayItinerary(assignments[String(dayId)] || [], toursEnabled, places, props.tourStageStops).map(item => [item.assignment.id, item]))
+      const projected = projectedById(assignments[String(dayId)] || [], toursEnabled, places, props.tourStageStops)
       // Each run point carries the ORIGIN assignment's per-segment travel mode
       // (#1281): the leg from this point to the next is routed with `mode` (null =
       // inherit the day default). Transport endpoints carry no mode → day default.
-      const runs: { id: number; lat: number; lng: number; isPlace: boolean; leg_transport_mode?: string | null; incoming_leg_transport_mode?: string | null; assignmentId?: number }[][] = []
-      let cur: { id: number; lat: number; lng: number; isPlace: boolean; leg_transport_mode?: string | null; incoming_leg_transport_mode?: string | null; assignmentId?: number }[] = []
+      const runs: (DayRoutePoint & { id: number })[][] = []
+      let cur: (DayRoutePoint & { id: number })[] = []
       // A run is only a real drive when it holds an actual place. Two back-to-back
       // transports (e.g. two flights on one day) would otherwise pair the first's
       // arrival with the second's departure into a phantom airport→airport leg — the

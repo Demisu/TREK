@@ -86,3 +86,13 @@ export function projectDayItinerary(
       valid: !!end } as const
   })
 }
+
+/** The day's stops projected as `projectDayItinerary` does, by assignment id, for the route that runs through them. */
+export function projectedById(
+  assignments: Assignment[],
+  toursEnabled: boolean,
+  places?: readonly Place[],
+  stageStops?: TourStageStops,
+): Map<number, DayItineraryItem> {
+  return new Map(projectDayItinerary(assignments, toursEnabled, places, stageStops).map(item => [item.assignment.id, item]))
+}

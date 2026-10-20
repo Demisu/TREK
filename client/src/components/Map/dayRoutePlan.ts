@@ -3,7 +3,7 @@ import { getTransportRouteEndpoints, getTransportForDay, getMergedItems, isCarri
 import { getDayBookendHotels, shouldDrawMorningLeg, shouldDrawEveningLeg, type CarrierEdge } from '../../utils/dayOrder'
 import { withinDriveRange } from '@trek/shared/roadtrip'
 import type { Accommodation, AssignmentsMap, Day, Place, Reservation } from '../../types'
-import { projectDayItinerary, type TourStageStops } from './dayTourProjection'
+import { projectedById, type TourStageStops } from './dayTourProjection'
 
 export const TRANSPORT_TYPES = ['flight', 'train', 'bus', 'car', 'taxi', 'bicycle', 'cruise', 'ferry', 'cable_car', 'transit', 'transport_other']
 
@@ -85,7 +85,7 @@ export function buildDayRouteRuns(dayId: number, input: DayRouteInputs): DayRout
     days: allDays,
   })
   const merged = getMergedItems({ dayAssignments: da, dayNotes: [], dayTransports, dayId })
-  const projected = new Map(projectDayItinerary(da, input.toursEnabled ?? false, input.places, input.tourStageStops).map(item => [item.assignment.id, item]))
+  const projected = projectedById(da, input.toursEnabled ?? false, input.places, input.tourStageStops)
 
   type Entry =
     | { kind: 'place'; id: number; lat: number; lng: number; pos: number; time: string | null; mode: string | null; incoming: string | null }
