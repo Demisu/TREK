@@ -60,6 +60,7 @@
         // The package entry points tsdown builds, one per locale for the lazy chunks.
         "src/index.ts",
         "src/roadtrip/planning.ts",
+        "src/sanitize/sanitize.ts",
         "src/i18n/index.ts",
         "src/i18n/*/index.ts",
         // open-request-schemas.d.mts types the .mjs script beside it.

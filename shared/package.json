@@ -50,6 +50,16 @@
         "types": "./dist/roadtrip/planning.d.cts",
         "default": "./dist/roadtrip/planning.cjs"
       }
+    },
+    "./sanitize": {
+      "import": {
+        "types": "./dist/sanitize/sanitize.d.mts",
+        "default": "./dist/sanitize/sanitize.mjs"
+      },
+      "require": {
+        "types": "./dist/sanitize/sanitize.d.cts",
+        "default": "./dist/sanitize/sanitize.cjs"
+      }
     }
   },
   "typesVersions": {

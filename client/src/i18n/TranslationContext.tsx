@@ -8,8 +8,8 @@ import {
   getIntlLanguage,
   isRtlLanguage,
   escapeHtml,
-  sanitizeInlineHtml,
 } from '@trek/shared'
+import { sanitizeInlineHtml } from '@trek/shared/sanitize'
 import type { TranslationStrings } from '@trek/shared/i18n'
 import { importChunk } from '../utils/chunkReload'
 import { resolveTemplate } from './resolveTemplate'

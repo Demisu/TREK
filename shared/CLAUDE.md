@@ -25,7 +25,7 @@ Single test: `npx vitest run src/i18n/i18n-parity.spec.ts`, or `npx vitest run -
 
 ## Build & exports
 
-`tsdown.config.ts` emits the root barrel, the i18n metadata barrel, and **one entry per locale** so each locale is its own lazy-loadable chunk (the client dynamic-imports them). `zod` is never bundled. The `exports` map exposes `@trek/shared` (contracts), `@trek/shared/i18n` (metadata/types) and `@trek/shared/i18n/<locale>`.
+`tsdown.config.ts` emits the root barrel, the i18n metadata barrel, and **one entry per locale** so each locale is its own lazy-loadable chunk (the client dynamic-imports them). `zod` is never bundled. The `exports` map exposes `@trek/shared` (contracts), `@trek/shared/i18n` (metadata/types), `@trek/shared/i18n/<locale>`, `@trek/shared/roadtrip` and `@trek/shared/sanitize` (the DOMPurify sanitisers, kept out of the root barrel, see below).
 
 ## Contracts (`src/<domain>/<domain>.schema.ts`)
 
@@ -59,9 +59,9 @@ The parity rule governs **existing** routes; it is not a license to mint new deb
 - **Further i18n specs run in `npm test`** and fail changes that parity lets through: placeholder parity (every `{placeholder}` in an `en` string must appear in each translation), no `en` string may call TREK "self-hosted" (the same build runs on managed installs; exemptions live in the spec), and a wording regression test for plugin permission descriptions (currently one string; add a case there when a permission's real behavior changes). None of these are part of `i18n:parity`, which checks key sets, plural forms, count strings and the untranslated ratchet.
 - **The i18n scripts read the tables as text** through `scripts/i18n-catalog.mjs`: a value must be one string literal on the key's line or the next, and anything else (a concatenation, a template literal) is an error rather than a skipped key. Their specs use the fixtures in `scripts/fixtures/`. That en holds every key the client names is checked on the client side (`npm run lint:i18n-keys` in `client/`).
 
-## Sanitization (`src/sanitize/sanitize.ts`)
+## Sanitization (`src/sanitize/sanitize.ts`, `src/sanitize/escape.ts`)
 
-`isomorphic-dompurify` with a minimal inline-only allow-list (a rich-text variant already exists there for when rich text ships). `sanitizeInlineHtml` backs the client's HTML translation path; `escapeHtml` is used wherever the client builds markup from user strings (map popups, account screens). This is meant to be the one home for escaping. No lint rule enforces that yet and a handful of client files still carry a local `escapeHtml` — that is debt to fold in, not a pattern to copy.
+`isomorphic-dompurify` with a minimal inline-only allow-list (a rich-text variant already exists there for when rich text ships). The sanitisers are imported from `@trek/shared/sanitize`, never re-exported from the root barrel: on Node, `isomorphic-dompurify` builds a jsdom window as soon as it loads, and the root barrel is what the server and each of its test files import. `sanitizeInlineHtml` backs the client's HTML translation path; `escapeHtml` (DOM-free, in the root barrel) is used wherever the client builds markup from user strings (map popups, account screens). This is meant to be the one home for escaping. No lint rule enforces that yet and a handful of client files still carry a local `escapeHtml` — that is debt to fold in, not a pattern to copy.
 
 ## Money (`src/money/money.ts`)
 

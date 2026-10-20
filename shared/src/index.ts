@@ -98,9 +98,10 @@ export * from './admin/admin.schema';
 export * from './realtime/events.schema';
 export * from './roadtrip/day-boundary.schema';
 
-// Sanitisation helpers — used by the client today, scoped here so the server
-// has them ready if rich-text input ever ships.
-export * from './sanitize/sanitize';
+// HTML escaping. The DOMPurify sanitisers live behind `@trek/shared/sanitize`
+// instead (see sanitize/sanitize.ts): on Node they build a jsdom window when
+// they load, and this barrel is what the server imports.
+export * from './sanitize/escape';
 
 // WGS-84 ⇄ GCJ-02. Shared because the two boundaries that need it sit on
 // opposite sides: the Amap provider on the server, the Leaflet CRS on the client.
