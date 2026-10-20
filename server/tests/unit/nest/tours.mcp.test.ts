@@ -699,7 +699,7 @@ describe('ToursMcp', () => {
     const planEntry = getEntry(ToursMcp as unknown as ClassRef, 'getTourPlan');
     const planDescription = planEntry?.kind === 'tool' ? (planEntry.options.description ?? '') : '';
     expect(planDescription).toContain(
-      'never present them as saved facts. tour.time_estimate is one of them where present'
+      'never present them as saved facts. tour.time_estimate is one of them where present',
     );
   });
 });
