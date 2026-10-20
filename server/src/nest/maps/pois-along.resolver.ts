@@ -28,12 +28,15 @@ import {
 } from './maps-index.helpers';
 import type { OverpassPoi } from './maps.helpers';
 import { OsmClient, OverpassCoolingDown } from './providers/osm.client';
-import { trekPlacesNearby } from './trek-places.client';
+import { trekPlacesHighlights, trekPlacesNearby, type TrekHighlight, type TrekHighlights } from './trek-places.client';
 import { Injectable } from '@nestjs/common';
 import type { LatLng } from '@trek/shared/roadtrip';
 
 /** How many index requests are in flight at once, so one search never floods the service. */
 const PARALLEL_INDEX_REQUESTS = 8;
+
+/** The most well known places one circle is asked for: the best known come first, so a few are plenty. */
+const HIGHLIGHTS_PER_CIRCLE = 20;
 
 /** How many stretches one source asks Overpass for at once, so the public mirrors are not flooded. */
 const PARALLEL_OVERPASS_STRETCHES = 3;
@@ -146,6 +149,48 @@ export class PoisAlongResolver {
       // A source that answered nothing searched nothing: its kinds are failed or asked of Overpass instead.
       capped: sources.some((answer) => answer.answered > 0 && answer.capped),
     };
+  }
+
+  /**
+   * The best known places near a line, from the index's OpenStreetMap layer in
+   * the same circles the kinds are asked in, each place once. Highlights only
+   * add to a search: an index switched off, down or without ranks answers
+   * none, logged once, and never fails the search they were asked beside.
+   */
+  async highlights(
+    line: LatLng[],
+    corridorM: number,
+    lang: string | undefined,
+    indexEnabled: boolean,
+  ): Promise<TrekHighlight[]> {
+    if (!indexEnabled) return [];
+    const plan = alongPlan(line, corridorM);
+    const perCircle = { limit: HIGHLIGHTS_PER_CIRCLE, lang };
+    const batches = Array.from({ length: Math.ceil(plan.beads.length / PARALLEL_INDEX_REQUESTS) }, (_, index) =>
+      plan.beads.slice(index * PARALLEL_INDEX_REQUESTS, (index + 1) * PARALLEL_INDEX_REQUESTS),
+    );
+    // A few circles at a time, each batch after the last, as the kinds are asked.
+    const settled = await batches.reduce<Promise<PromiseSettledResult<TrekHighlights>[]>>(
+      async (done, batch) => [
+        ...(await done),
+        ...(await Promise.allSettled(
+          batch.map((bead) => trekPlacesHighlights(bead.lat, bead.lng, { ...perCircle, radius: bead.radiusM })),
+        )),
+      ],
+      Promise.resolve([]),
+    );
+    const found = new Map<string, TrekHighlight>();
+    const failure = settled.find((entry): entry is PromiseRejectedResult => entry.status === 'rejected');
+    for (const entry of settled) {
+      if (entry.status === 'fulfilled') {
+        for (const row of entry.value.highlights) {
+          const key = `${row.osmType}:${row.osmId}`;
+          if (!found.has(key)) found.set(key, row);
+        }
+      }
+    }
+    if (failure) logWarn(`[Maps] TREK places highlights along a line: ${reason(failure.reason)}`);
+    return [...found.values()];
   }
 
   /** The index kinds in every circle, a few requests at a time; a failed request leaves the others. */

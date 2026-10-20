@@ -10,6 +10,7 @@ import {
   Route,
   Search,
   Shuffle,
+  Star,
   Trees,
   WifiOff,
   X,
@@ -219,6 +220,18 @@ function PoiRow({ poi, selected, unit }: { poi: TourPoi; selected: boolean; unit
         >
           <look.Icon size={12} strokeWidth={2.2} />
         </span>
+        {/* One of the best known places along the route: a star before its name. */}
+        {poi.highlight && (
+          <span
+            role="img"
+            aria-label={t('tours.poi.highlight')}
+            title={t('tours.poi.highlightHint')}
+            className="flex-none text-warning"
+            data-testid="tour-poi-highlight"
+          >
+            <Star size={12} strokeWidth={2.2} fill="currentColor" aria-hidden="true" />
+          </span>
+        )}
         <span className="min-w-0 flex-1 truncate font-medium text-content" style={fs(12, 'body')}>
           {poi.name || t(look.labelKey)}
         </span>

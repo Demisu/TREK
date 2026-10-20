@@ -30,6 +30,7 @@ import {
   trekPlacesArea,
   trekPlacesNearby,
   toPlaceRecord,
+  type TrekHighlight,
   type TrekPlace,
 } from './trek-places.client';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -250,6 +251,15 @@ export class MapsService {
     limit = 30,
   ): Promise<PoisAlongResult> {
     return this.along.search({ categories, line, corridorM, lang, limit }, this.trekPlacesEnabled());
+  }
+
+  /**
+   * The best known places near a line, from the index's OpenStreetMap layer in
+   * the same circles as {@link poisAlong}. None when the index is switched off
+   * or cannot be asked: highlights add to a search, they never fail it.
+   */
+  highlightsAlong(line: { lat: number; lng: number }[], corridorM: number, lang?: string): Promise<TrekHighlight[]> {
+    return this.along.highlights(line, corridorM, lang, this.trekPlacesEnabled());
   }
 
   // ── Keys and the keyed provider (resolved by PlacesProviderSelector) ─────

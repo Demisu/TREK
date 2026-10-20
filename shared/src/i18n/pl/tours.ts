@@ -617,6 +617,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': 'Przyjazd po rozpoczęciu trasy {walk} o {time}',
   'tours.poi.categoriesNone': 'Nie wybrano kategorii',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': 'Perełka',
+  'tours.poi.highlightHint': 'Jedno z najbardziej znanych miejsc w okolicy',
   'tours.planner.tourType': 'Rodzaj wycieczki',
   'tours.paddle.boat': 'Łódź',
   'tours.paddle.boat.kayak': 'Kajak',

@@ -607,6 +607,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': 'Chega depois do início de {walk}, às {time}',
   'tours.poi.categoriesNone': 'Nenhuma categoria escolhida',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': 'Destaque',
+  'tours.poi.highlightHint': 'Um dos lugares mais conhecidos daqui',
   'tours.planner.tourType': 'Tipo de passeio',
   'tours.paddle.boat': 'Embarcação',
   'tours.paddle.boat.kayak': 'Caiaque',

@@ -20,8 +20,15 @@ import { buildMapsParts } from '../../helpers/maps-service';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { mockNearby, logWarn } = vi.hoisted(() => ({
+const { mockNearby, mockHighlights, logWarn } = vi.hoisted(() => ({
   logWarn: vi.fn(),
+  mockHighlights: vi.fn(
+    async (
+      _lat: number,
+      _lng: number,
+      _opts?: { radius?: number; limit?: number; lang?: string },
+    ): Promise<{ highlights: unknown[]; qrankRelease: string | null }> => ({ highlights: [], qrankRelease: null }),
+  ),
   mockNearby: vi.fn(
     async (
       _lat: number,
@@ -38,6 +45,7 @@ vi.mock('../../../src/nest/audit/audit-log.logger', async (importOriginal) => ({
 vi.mock('../../../src/nest/maps/trek-places.client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../../src/nest/maps/trek-places.client')>()),
   trekPlacesNearby: mockNearby,
+  trekPlacesHighlights: mockHighlights,
 }));
 
 const noAppSettings = { getValue: async () => null } as unknown as AppSettingsRepository;
@@ -141,6 +149,8 @@ function inFlight(overpass: ReturnType<typeof make>['overpass']) {
 beforeEach(() => {
   mockNearby.mockReset();
   mockNearby.mockResolvedValue([]);
+  mockHighlights.mockReset();
+  mockHighlights.mockResolvedValue({ highlights: [], qrankRelease: null });
   logWarn.mockClear();
 });
 
@@ -521,5 +531,53 @@ describe('MapsService.poisAlong', () => {
       vi.unstubAllGlobals();
       vi.restoreAllMocks();
     }
+  });
+});
+
+describe('MapsService.highlightsAlong', () => {
+  /** A well known place of the index's OpenStreetMap layer. */
+  const famous = (osmType: string, osmId: number, qrank: number) => ({
+    osmType,
+    osmId,
+    name: `${osmType} ${osmId}`,
+    lat: 47.01,
+    lng: 11,
+    category: 'sehenswuerdigkeit',
+    osmTag: 'place=square',
+    wikidata: 'Q1',
+    qrank,
+    distanceMetres: 10,
+  });
+
+  it('MAPS-ALONG-030: asks the best known places in the circles the kinds are asked in, each place once', async () => {
+    const { svc } = make();
+    mockHighlights
+      .mockResolvedValueOnce({ highlights: [famous('way', 1, 900), famous('node', 1, 50)], qrankRelease: null })
+      .mockResolvedValueOnce({ highlights: [famous('way', 1, 900), famous('relation', 2, 70)], qrankRelease: null });
+
+    const out = await svc.highlightsAlong(LINE, 500, 'de');
+
+    expect(mockHighlights).toHaveBeenCalledTimes(4);
+    for (const [, , opts] of mockHighlights.mock.calls) expect(opts).toEqual({ radius: 1000, limit: 20, lang: 'de' });
+    expect(out.map((row) => `${row.osmType}:${row.osmId}`)).toEqual(['way:1', 'node:1', 'relation:2']);
+    expect(mockNearby).not.toHaveBeenCalled();
+  });
+
+  it('MAPS-ALONG-031: a circle failing keeps the others, an index down or switched off answers none, never an error', async () => {
+    const { svc } = make();
+    mockHighlights
+      .mockRejectedValueOnce(new Error('TREK Places API 503'))
+      .mockResolvedValue({ highlights: [famous('way', 1, 900)], qrankRelease: null });
+    expect((await svc.highlightsAlong(LINE, 500)).map((row) => row.osmId)).toEqual([1]);
+    expect(mapsWarnings()).toEqual(['[Maps] TREK places highlights along a line: TREK Places API 503']);
+
+    mockHighlights.mockReset();
+    mockHighlights.mockRejectedValue(new Error('timeout'));
+    await expect(svc.highlightsAlong(LINE, 500)).resolves.toEqual([]);
+
+    mockHighlights.mockClear();
+    const off = make(false);
+    await expect(off.svc.highlightsAlong(LINE, 500)).resolves.toEqual([]);
+    expect(mockHighlights).not.toHaveBeenCalled();
   });
 });

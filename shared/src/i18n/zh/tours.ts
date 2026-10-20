@@ -552,6 +552,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': '到达晚于 {walk} 的开始时间 {time}',
   'tours.poi.categoriesNone': '未选择类别',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': '亮点',
+  'tours.poi.highlightHint': '这里最知名的地方之一',
   'tours.planner.tourType': '路线类型',
   'tours.paddle.boat': '船只',
   'tours.paddle.boat.kayak': '皮划艇',

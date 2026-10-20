@@ -608,6 +608,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': 'Arriba després que comenci {walk}, a les {time}',
   'tours.poi.categoriesNone': 'Cap categoria triada',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': 'Imprescindible',
+  'tours.poi.highlightHint': "Un dels llocs més coneguts d'aquí",
   'tours.planner.tourType': 'Tipus de ruta',
   'tours.paddle.boat': 'Embarcació',
   'tours.paddle.boat.kayak': 'Caiac',

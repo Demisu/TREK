@@ -608,6 +608,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': 'Érkezés a séta kezdete után: {walk}, {time}',
   'tours.poi.categoriesNone': 'Nincs kategória kiválasztva',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': 'Kiemelt',
+  'tours.poi.highlightHint': 'Az itteni legismertebb helyek egyike',
   'tours.planner.tourType': 'Túratípus',
   'tours.paddle.boat': 'Hajó',
   'tours.paddle.boat.kayak': 'Kajak',

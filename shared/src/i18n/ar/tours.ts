@@ -601,6 +601,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': 'الوصول بعد بدء جولة {walk} في {time}',
   'tours.poi.categoriesNone': 'لم تُختر أي فئة',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': 'أبرز المعالم',
+  'tours.poi.highlightHint': 'من أشهر الأماكن هنا',
   'tours.planner.tourType': 'نوع الجولة',
   'tours.paddle.boat': 'القارب',
   'tours.paddle.boat.kayak': 'كاياك',

@@ -12,6 +12,13 @@ import { z } from 'zod';
 // The categories live in a module of their own, so the tour contract can name
 // one on a waypoint without importing this one, which imports it.
 export { TOUR_POI_CATEGORIES, tourPoiCategorySchema, type TourPoiCategory } from './tour-poi-category';
+// Which places found are highlights, read by the server that marks them.
+export {
+  TOUR_HIGHLIGHT_FALLBACK_MIN_QRANK,
+  TOUR_HIGHLIGHT_MIN_COUNT,
+  TOUR_HIGHLIGHT_MIN_QRANK,
+  tourHighlightIds,
+} from './tour-highlights';
 
 /** The categories each planned tour type offers, the most asked first. */
 export const TOUR_POI_CATEGORIES_BY_TYPE: Record<PlannableTourType, readonly TourPoiCategory[]> = {
@@ -80,6 +87,8 @@ export const tourPoiSchema = z.object({
   distance_m: z.number().nonnegative(),
   /** Metres along the line from its start to the point nearest the place. */
   along_m: z.number().nonnegative(),
+  /** One of the best known places along the line (tour-highlights); absent means not one. */
+  highlight: z.boolean().optional(),
 });
 export type TourPoi = z.infer<typeof tourPoiSchema>;
 

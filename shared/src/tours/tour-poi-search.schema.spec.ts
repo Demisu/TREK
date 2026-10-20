@@ -72,6 +72,29 @@ describe('tour POI search contracts (PLN-02)', () => {
     expect(answer.pois[0]?.distance_m).toBe(40);
   });
 
+  it('TOUR-HIGHLIGHT-005: marks a highlight with a flag that may be left off, and refuses one that is no flag', () => {
+    const poi = {
+      id: 'way:9',
+      name: 'Piazza San Marco',
+      lat: 45.434,
+      lng: 12.338,
+      category: 'sights',
+      kind: 'place=square',
+      source: 'openstreetmap',
+      address: null,
+      website: null,
+      phone: null,
+      opening_hours: null,
+      distance_m: 12,
+      along_m: 300,
+    };
+    const answer = { truncated: false, partial: false, capped: false, unavailable: [] };
+    const parsed = tourPoiSearchResponseSchema.parse({ ...answer, pois: [{ ...poi, highlight: true }, poi] });
+    expect(parsed.pois.map((found) => found.highlight)).toEqual([true, undefined]);
+    const notAFlag = { ...answer, pois: [{ ...poi, highlight: 'yes' }] };
+    expect(tourPoiSearchResponseSchema.safeParse(notAFlag).success).toBe(false);
+  });
+
   it('names the kinds that could not be searched, each a known category, and always says so', () => {
     const answer = { pois: [], truncated: false, partial: false, capped: false };
     expect(tourPoiSearchResponseSchema.parse({ ...answer, unavailable: ['viewpoint'] }).unavailable).toEqual([

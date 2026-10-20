@@ -584,6 +584,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': '{walk} 시작({time}) 이후 도착',
   'tours.poi.categoriesNone': '선택한 카테고리 없음',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': '하이라이트',
+  'tours.poi.highlightHint': '이곳에서 가장 잘 알려진 장소 중 하나',
   'tours.planner.tourType': '투어 유형',
   'tours.paddle.boat': '보트',
   'tours.paddle.boat.kayak': '카약',

@@ -595,6 +595,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': 'Příjezd až po začátku procházky {walk} v {time}',
   'tours.poi.categoriesNone': 'Žádná kategorie',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': 'Top místo',
+  'tours.poi.highlightHint': 'Jedno z nejznámějších míst v okolí',
   'tours.planner.tourType': 'Typ túry',
   'tours.paddle.boat': 'Loď',
   'tours.paddle.boat.kayak': 'Kajak',

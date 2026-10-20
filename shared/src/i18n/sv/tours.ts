@@ -596,6 +596,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': 'Ankomst efter att {walk} börjar kl. {time}',
   'tours.poi.categoriesNone': 'Ingen kategori vald',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': 'Höjdpunkt',
+  'tours.poi.highlightHint': 'En av de mest kända platserna här',
   'tours.planner.tourType': 'Turtyp',
   'tours.paddle.boat': 'Båt',
   'tours.paddle.boat.kayak': 'Kajak',

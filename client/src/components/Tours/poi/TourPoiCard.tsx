@@ -1,6 +1,6 @@
 import type { TourPoi, WalkTheme } from '@trek/shared';
 import { WALK_THEMES } from '@trek/shared';
-import { Clock, ExternalLink, MoveHorizontal, Plus, Route, X } from 'lucide-react';
+import { Clock, ExternalLink, MoveHorizontal, Plus, Route, Star, X } from 'lucide-react';
 import { useCallback, useRef } from 'react';
 import { useTranslation } from '../../../i18n';
 import { useSettingsStore } from '../../../store/settingsStore';
@@ -9,7 +9,7 @@ import { formatDistance } from '../../../utils/units';
 import { MAP_CARD_GLASS } from '../../Map/mapControlShadow';
 import { TOUR_POI_LOOKS } from '../../Map/poiCategories';
 import { useMapCardDismiss } from '../../Map/useMapCardDismiss';
-import { WhiteBadge } from '../../Planner/planParts';
+import { SoftPill, WhiteBadge } from '../../Planner/planParts';
 import { PillSelect } from '../../shared/dialogParts';
 import { fs } from '../../shared/DialogShell';
 import type { TourPlannerController } from '../planner/useTourPlanner';
@@ -157,7 +157,22 @@ function TourPoiCard({
           <h3 className="line-clamp-2 break-words font-semibold" style={fs(14, 'body')} title={poi.name || kind}>
             {poi.name || kind}
           </h3>
-          {poi.name && <p className="truncate text-caption text-content-muted">{kind}</p>}
+          {(poi.name || poi.highlight) && (
+            <div className="flex min-w-0 items-center gap-1.5">
+              {poi.name && <p className="min-w-0 truncate text-caption text-content-muted">{kind}</p>}
+              {/* One of the best known places along the route, as the star in the list marks it. */}
+              {poi.highlight && (
+                <span className="flex-none" title={t('tours.poi.highlightHint')} data-testid="tour-poi-highlight-badge">
+                  <SoftPill
+                    tone="warning"
+                    icon={<Star size={10} strokeWidth={2.2} fill="currentColor" aria-hidden="true" />}
+                  >
+                    {t('tours.poi.highlight')}
+                  </SoftPill>
+                </span>
+              )}
+            </div>
+          )}
         </div>
         <button
           type="button"

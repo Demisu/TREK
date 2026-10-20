@@ -620,6 +620,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': 'Прибытие после начала прогулки {walk} в {time}',
   'tours.poi.categoriesNone': 'Категория не выбрана',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': 'Главное',
+  'tours.poi.highlightHint': 'Одно из самых известных мест здесь',
   'tours.planner.tourType': 'Тип тура',
   'tours.paddle.boat': 'Лодка',
   'tours.paddle.boat.kayak': 'Каяк',

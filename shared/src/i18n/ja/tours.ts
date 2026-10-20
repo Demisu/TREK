@@ -587,6 +587,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': '{walk} の開始（{time}）より後に到着',
   'tours.poi.categoriesNone': 'カテゴリー未選択',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': '注目スポット',
+  'tours.poi.highlightHint': 'このあたりで特に有名な場所のひとつ',
   'tours.planner.tourType': 'ツアーの種類',
   'tours.paddle.boat': 'ボート',
   'tours.paddle.boat.kayak': 'カヤック',

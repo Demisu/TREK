@@ -609,6 +609,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': 'Aankomst na de start van {walk} om {time}',
   'tours.poi.categoriesNone': 'Geen categorie gekozen',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': 'Topper',
+  'tours.poi.highlightHint': 'Een van de bekendste plekken hier',
   'tours.planner.tourType': 'Soort tocht',
   'tours.paddle.boat': 'Boot',
   'tours.paddle.boat.kayak': 'Kajak',

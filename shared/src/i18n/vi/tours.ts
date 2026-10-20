@@ -595,6 +595,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': 'Đến sau khi {walk} bắt đầu lúc {time}',
   'tours.poi.categoriesNone': 'Chưa chọn danh mục',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': 'Nổi bật',
+  'tours.poi.highlightHint': 'Một trong những nơi nổi tiếng nhất ở đây',
   'tours.planner.tourType': 'Loại chuyến',
   'tours.paddle.boat': 'Thuyền',
   'tours.paddle.boat.kayak': 'Thuyền kayak',

@@ -602,6 +602,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': '{walk} {time} başlayır, çatma isə daha gec olur',
   'tours.poi.categoriesNone': 'Kateqoriya seçilməyib',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': 'Diqqətəlayiq',
+  'tours.poi.highlightHint': 'Buradakı ən tanınmış yerlərdən biri',
   'tours.planner.tourType': 'Tur növü',
   'tours.paddle.boat': 'Qayıq',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

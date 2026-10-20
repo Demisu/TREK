@@ -571,6 +571,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': 'ถึงหลังจาก {walk} เริ่มเวลา {time}',
   'tours.poi.categoriesNone': 'ยังไม่ได้เลือกหมวดหมู่',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': 'ไฮไลต์',
+  'tours.poi.highlightHint': 'หนึ่งในสถานที่ที่มีชื่อเสียงที่สุดในบริเวณนี้',
   'tours.planner.tourType': 'ประเภททริป',
   'tours.paddle.boat': 'เรือ',
   'tours.paddle.boat.kayak': 'เรือคายัก',

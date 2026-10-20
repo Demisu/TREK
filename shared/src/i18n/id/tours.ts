@@ -600,6 +600,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': 'Tiba setelah {walk} dimulai pukul {time}',
   'tours.poi.categoriesNone': 'Belum ada kategori',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': 'Sorotan',
+  'tours.poi.highlightHint': 'Salah satu tempat paling terkenal di sini',
   'tours.planner.tourType': 'Jenis tur',
   'tours.paddle.boat': 'Perahu',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

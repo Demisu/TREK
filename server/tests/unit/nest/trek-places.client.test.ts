@@ -13,6 +13,7 @@ import {
   trekPlacesArea,
   trekPlacesBaseUrl,
   trekPlacesById,
+  trekPlacesHighlights,
   trekPlacesNearby,
   trekPlacesSearch,
   resetTrekPlacesBreaker,
@@ -598,6 +599,78 @@ describe('trekPlacesNearby', () => {
   it('survives a malformed results field', async () => {
     stubFetch({ results: { 0: PLACE } });
     await expect(trekPlacesNearby(54.1, 12.1)).resolves.toEqual([]);
+  });
+});
+
+describe('trekPlacesHighlights', () => {
+  const SQUARE = {
+    osmType: 'way',
+    osmId: 4_567,
+    name: 'Piazza San Marco',
+    lat: 45.4341,
+    lng: 12.3388,
+    category: 'sehenswuerdigkeit',
+    osmTag: 'place=square',
+    wikidata: 'Q190092',
+    qrank: 912_345,
+    distanceMetres: 42,
+  };
+
+  it('TREK-PLACES-HL-01: asks /v1/highlights around a point in the reader language and reads its rows', async () => {
+    stubFetch({ highlights: [SQUARE], qrankRelease: '2026-10-01' });
+    const out = await trekPlacesHighlights(45.434, 12.338, { radius: 812.6, limit: 12, lang: 'de' });
+    const url = new URL(calls[0].url);
+    expect(url.pathname).toBe('/v1/highlights');
+    expect(url.searchParams.get('lat')).toBe('45.434');
+    expect(url.searchParams.get('lng')).toBe('12.338');
+    expect(url.searchParams.get('radius')).toBe('813');
+    expect(url.searchParams.get('limit')).toBe('12');
+    expect(url.searchParams.get('lang')).toBe('de');
+    expect(out).toEqual({ highlights: [SQUARE], qrankRelease: '2026-10-01' });
+  });
+
+  it('TREK-PLACES-HL-02: keeps every request inside the bounds the service takes, and asks nothing for no coordinate', async () => {
+    stubFetch({ highlights: [] });
+    await trekPlacesHighlights(45.4, 12.3);
+    await trekPlacesHighlights(45.4, 12.3, { radius: 1, limit: 0 });
+    await trekPlacesHighlights(45.4, 12.3, { radius: 90_000, limit: 500 });
+    await trekPlacesHighlights(45.4, 12.3, { radius: Number.NaN, limit: Number.POSITIVE_INFINITY });
+    const asked = calls.map((call) => new URL(call.url).searchParams);
+    expect(asked.map((params) => [params.get('radius'), params.get('limit')])).toEqual([
+      ['1000', '30'],
+      ['10', '1'],
+      ['20000', '100'],
+      ['10', '1'],
+    ]);
+    expect(asked[0]?.has('lang')).toBe(false);
+    await expect(trekPlacesHighlights(Number.NaN, 12.3)).resolves.toEqual({ highlights: [], qrankRelease: null });
+    await expect(trekPlacesHighlights(91, 12.3)).resolves.toEqual({ highlights: [], qrankRelease: null });
+    expect(calls).toHaveLength(4);
+  });
+
+  it('TREK-PLACES-HL-03: drops a row of another shape on its own, and reads an old layer without ranks as none', async () => {
+    stubFetch({
+      highlights: [SQUARE, { ...SQUARE, osmId: 5, wikidata: 'L12' }, { ...SQUARE, osmId: 6, qrank: -1 }, 'row'],
+      qrankRelease: 20261001,
+    });
+    expect(await trekPlacesHighlights(45.4, 12.3)).toEqual({ highlights: [SQUARE], qrankRelease: null });
+    stubFetch({ highlights: { 0: SQUARE } });
+    expect(await trekPlacesHighlights(45.4, 12.3)).toEqual({ highlights: [], qrankRelease: null });
+    stubFetch(null);
+    expect(await trekPlacesHighlights(45.4, 12.3)).toEqual({ highlights: [], qrankRelease: null });
+  });
+
+  it('TREK-PLACES-HL-04: throws on an error status and when the index is switched off, so the caller goes on without', async () => {
+    stubFetch({}, 503);
+    await expect(trekPlacesHighlights(45.4, 12.3)).rejects.toThrow('TREK Places API 503');
+    env.maps.trekPlacesEnabled = false;
+    await expect(trekPlacesHighlights(45.4, 12.3)).rejects.toThrow('switched off');
+    expect(calls).toHaveLength(1);
+  });
+
+  it('TREK-PLACES-HL-05: a service older than the endpoint answers 404, read as no highlights', async () => {
+    stubFetch({}, 404);
+    await expect(trekPlacesHighlights(45.4, 12.3)).resolves.toEqual({ highlights: [], qrankRelease: null });
   });
 });
 

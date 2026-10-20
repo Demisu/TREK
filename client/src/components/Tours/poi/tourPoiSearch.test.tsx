@@ -14,7 +14,7 @@ import { usePoiInsertion, type PoiInsertionPlanner } from './usePoiInsertion';
 import { useTourPoiMarkers } from './useTourPoiMarkers';
 import { useTourPoiSearch } from './useTourPoiSearch';
 
-// FE-TOUR-POI-001 to FE-TOUR-POI-016
+// FE-TOUR-POI-001 to FE-TOUR-POI-018
 
 vi.mock('../planner/useWaypointPlaceNames', () => ({ useWaypointPlaceNames: () => ({}) }));
 
@@ -285,6 +285,46 @@ describe('TourPoiSearchCard', () => {
     taking = insertionPlanner({ waypoints: withPoint, routeCurrent: false, status: 'routing' });
     rerender();
     expect(result.current.outcome).toEqual({ kind: 'measuring', name: 'Drinking water' });
+  });
+});
+
+describe('highlights along a tour', () => {
+  const SQUARE: TourPoi = {
+    ...SPRING,
+    id: 'way:1',
+    name: 'Piazza San Marco',
+    category: 'sights',
+    kind: 'place=square',
+    opening_hours: null,
+    website: null,
+    highlight: true,
+  };
+
+  it('FE-TOUR-POI-017: a highlight carries a star before its name in the list, a place that is none carries none', async () => {
+    search.mockResolvedValue({ ...ANSWER, pois: [SQUARE, SPRING] });
+    render(<TourPoiSearchCard planner={searchPlanner()} />);
+    fireEvent.click(screen.getByTestId('tour-poi-search'));
+    const square = await screen.findByTestId('tour-poi-way:1');
+    const star = within(square).getByTestId('tour-poi-highlight');
+    expect(star).toHaveAttribute('aria-label', 'Highlight');
+    expect(star).toHaveAttribute('title', 'One of the best-known places here');
+    expect(within(square).getByRole('button', { name: /Highlight.*Piazza San Marco/ })).toBeInTheDocument();
+    expect(within(screen.getByTestId('tour-poi-node:1')).queryByTestId('tour-poi-highlight')).not.toBeInTheDocument();
+  });
+
+  it('FE-TOUR-POI-018: the card over the map says Highlight beside the kind, and only for a highlight', async () => {
+    search.mockResolvedValue({ ...ANSWER, pois: [SQUARE, SPRING] });
+    const planner = { ...searchPlanner(), ...insertionPlanner() } as unknown as TourPlannerController;
+    renderAlong(planner);
+    fireEvent.click(screen.getByTestId('tour-poi-search'));
+    fireEvent.click(within(await screen.findByTestId('tour-poi-way:1')).getByRole('button', { name: /Piazza/ }));
+    const badge = within(screen.getByTestId('tour-poi-overlay')).getByTestId('tour-poi-highlight-badge');
+    expect(badge).toHaveTextContent('Highlight');
+    expect(badge).toHaveAttribute('title', 'One of the best-known places here');
+    expect(screen.getByTestId('tour-poi-overlay')).toHaveTextContent('Sights');
+
+    fireEvent.click(within(screen.getByTestId('tour-poi-node:1')).getByRole('button', { name: /Spring/ }));
+    expect(screen.queryByTestId('tour-poi-highlight-badge')).not.toBeInTheDocument();
   });
 });
 

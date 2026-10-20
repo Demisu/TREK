@@ -598,6 +598,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': 'Saabub pärast seda, kui {walk} algab kell {time}',
   'tours.poi.categoriesNone': 'Kategooriat pole valitud',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': 'Tippkoht',
+  'tours.poi.highlightHint': 'Üks siinseid tuntuimaid paiku',
   'tours.planner.tourType': 'Matka tüüp',
   'tours.paddle.boat': 'Paat',
   'tours.paddle.boat.kayak': 'Süst',

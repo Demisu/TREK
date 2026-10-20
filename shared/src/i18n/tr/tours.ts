@@ -603,6 +603,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': 'Varış, {walk} {time} saatinde başladıktan sonra',
   'tours.poi.categoriesNone': 'Kategori seçilmedi',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': 'Öne çıkan',
+  'tours.poi.highlightHint': 'Buradaki en bilinen yerlerden biri',
   'tours.planner.tourType': 'Tur türü',
   'tours.paddle.boat': 'Tekne',
   'tours.paddle.boat.kayak': 'Kano (kayak)',

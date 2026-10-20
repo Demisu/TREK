@@ -551,6 +551,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': '抵達晚於 {walk} 的開始時間 {time}',
   'tours.poi.categoriesNone': '未選擇類別',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': '亮點',
+  'tours.poi.highlightHint': '這裡最知名的地方之一',
   'tours.planner.tourType': '路線類型',
   'tours.paddle.boat': '船隻',
   'tours.paddle.boat.kayak': '獨木舟（Kayak）',

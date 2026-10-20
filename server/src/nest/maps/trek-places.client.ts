@@ -15,6 +15,8 @@ import { readEnv, getAppUrl } from '../../app-config';
 import { toApiLang } from './maps.helpers';
 import { normalizePlaceWebsite } from '@trek/shared';
 
+import { z } from 'zod';
+
 /** The public instance. An operator may point at their own copy instead. */
 export const DEFAULT_TREK_PLACES_URL = 'https://places.liketrek.com';
 
@@ -450,6 +452,93 @@ export async function trekPlacesNearby(
     lang: serviceLang(opts.lang),
   });
   return Array.isArray(body.results) ? body.results : [];
+}
+
+/**
+ * The bounds of one /v1/highlights request, as the service takes them: a
+ * request outside them is refused with a 422, so one is clamped to fit before
+ * it leaves, and a coordinate that is no coordinate is not asked at all.
+ */
+const HIGHLIGHTS_MIN_RADIUS_M = 10;
+const HIGHLIGHTS_MAX_RADIUS_M = 20_000;
+const HIGHLIGHTS_DEFAULT_RADIUS_M = 1000;
+const HIGHLIGHTS_MAX_LIMIT = 100;
+const HIGHLIGHTS_DEFAULT_LIMIT = 30;
+
+/**
+ * One well known place of the service's OpenStreetMap layer: a row with a
+ * Wikidata item that QRank ranks, `qrank` its page views. `name` is in the
+ * language asked where the layer has it, else the local one.
+ */
+const trekHighlightSchema = z.object({
+  osmType: z.enum(['node', 'way', 'relation']),
+  osmId: z.number().int().positive(),
+  name: z.string().trim().min(1),
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180),
+  category: z.string().nullable(),
+  osmTag: z.string(),
+  wikidata: z.string().regex(/^Q\d+$/),
+  qrank: z.number().int().nonnegative(),
+  distanceMetres: z.number().nonnegative(),
+});
+export type TrekHighlight = z.infer<typeof trekHighlightSchema>;
+
+export interface TrekHighlights {
+  highlights: TrekHighlight[];
+  /** The QRank release the ranks are from, or null when the service does not say. */
+  qrankRelease: string | null;
+}
+
+/** A whole number within the bounds; anything that is no number takes the lower one. */
+const clampedInt = (value: number, min: number, max: number) =>
+  Number.isFinite(value) ? Math.min(max, Math.max(min, Math.round(value))) : min;
+
+/**
+ * The service's answer as rows TREK can trust: a row of another shape is
+ * dropped on its own rather than failing the others, since the layer is read
+ * beside the rest of a search and a broken row should cost that row only.
+ */
+function readHighlights(body: unknown): TrekHighlights {
+  const answer = z
+    .object({ highlights: z.array(z.unknown()).catch([]), qrankRelease: z.string().nullable().catch(null) })
+    .catch({ highlights: [], qrankRelease: null })
+    .parse(body);
+  const highlights = answer.highlights.flatMap((row) => {
+    const parsed = trekHighlightSchema.safeParse(row);
+    return parsed.success ? [parsed.data] : [];
+  });
+  return { highlights, qrankRelease: answer.qrankRelease };
+}
+
+/**
+ * The best known places around a coordinate, by QRank and then nearest. An
+ * older layer without ranks answers an empty list, never an error; a service
+ * that is down throws like every other call here, and the caller goes on
+ * without highlights.
+ */
+export async function trekPlacesHighlights(
+  lat: number,
+  lng: number,
+  opts: { radius?: number; limit?: number; lang?: string } = {},
+): Promise<TrekHighlights> {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+    return { highlights: [], qrankRelease: null };
+  }
+  try {
+    const body = await getJson<unknown>('/v1/highlights', {
+      lat,
+      lng,
+      radius: clampedInt(opts.radius ?? HIGHLIGHTS_DEFAULT_RADIUS_M, HIGHLIGHTS_MIN_RADIUS_M, HIGHLIGHTS_MAX_RADIUS_M),
+      limit: clampedInt(opts.limit ?? HIGHLIGHTS_DEFAULT_LIMIT, 1, HIGHLIGHTS_MAX_LIMIT),
+      lang: serviceLang(opts.lang),
+    });
+    return readHighlights(body);
+  } catch (err) {
+    // A service older than the endpoint knows no highlights, as an old layer knows no ranks.
+    if ((err as { status?: number }).status === 404) return { highlights: [], qrankRelease: null };
+    throw err;
+  }
 }
 
 export interface TrekPlacesArea {

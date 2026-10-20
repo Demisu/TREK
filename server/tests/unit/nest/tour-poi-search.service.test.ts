@@ -21,6 +21,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 
 const db = createSnapshotTestDb();
 const poisAlong = vi.fn();
+const highlightsAlong = vi.fn();
 let t: TestModule;
 let service: TourPoiSearchService;
 
@@ -28,13 +29,15 @@ beforeAll(async () => {
   t = await createTestModule({
     db,
     imports: [ToursModule],
-    overrides: [{ provide: MapsService, useValue: { poisAlong } }],
+    overrides: [{ provide: MapsService, useValue: { poisAlong, highlightsAlong } }],
   });
   service = t.get(TourPoiSearchService);
 });
 beforeEach(() => {
   resetTestDb(db);
   poisAlong.mockReset();
+  highlightsAlong.mockReset();
+  highlightsAlong.mockResolvedValue([]);
 });
 afterAll(async () => {
   await t.close();
@@ -65,6 +68,30 @@ function poi(id: string, lat: number, lng: number, category = 'viewpoint', over:
     charging: null,
     source: 'openstreetmap',
     ...over,
+  };
+}
+
+/** A well known place of the index's OpenStreetMap layer, as MapsService.highlightsAlong answers it. */
+function famous(
+  osmType: string,
+  osmId: number,
+  name: string,
+  lat: number,
+  lng: number,
+  qrank: number,
+  category: string | null = 'sehenswuerdigkeit',
+) {
+  return {
+    osmType,
+    osmId,
+    name,
+    lat,
+    lng,
+    category,
+    osmTag: 'place=square',
+    wikidata: `Q${osmId}`,
+    qrank,
+    distanceMetres: 0,
   };
 }
 
@@ -230,6 +257,144 @@ describe('TourPoiSearchService', () => {
     expect(result.pois.map((found) => [found.id, found.category, found.source])).toEqual([
       ['gers:in', 'park', 'trek-places'],
     ]);
+  });
+
+  it('TOUR-POI-011: a search for sights asks the best known places along the line and adds a square no kind names', async () => {
+    poisAlong.mockResolvedValue(answer([poi('node:gate', 47.405, 11.1003, 'sights', { name: 'Town gate' })]));
+    highlightsAlong.mockResolvedValue([famous('way', 1, 'Piazza San Marco', 47.41, 11.1004, 900_000)]);
+    const result = await service.search({
+      tour_type: 'walk',
+      categories: ['sights', 'cafe'],
+      corridor_m: 500,
+      line: LINE,
+      lang: 'it',
+    });
+    expect(highlightsAlong).toHaveBeenCalledWith(
+      [
+        { lat: 47.4, lng: 11.1 },
+        { lat: 47.42, lng: 11.1 },
+      ],
+      500,
+      'it',
+    );
+    expect(result.pois.map((found) => [found.id, found.highlight])).toEqual([
+      ['way:1', true],
+      ['node:gate', undefined],
+    ]);
+    expect(result.pois[0]).toMatchObject({
+      name: 'Piazza San Marco',
+      category: 'sights',
+      kind: 'place=square',
+      source: 'openstreetmap',
+      address: null,
+      opening_hours: null,
+    });
+    expect(result.pois[0]?.distance_m).toBeGreaterThan(20);
+    expect(result.pois[0]?.distance_m).toBeLessThan(40);
+    expect(result.pois[0]?.along_m).toBeGreaterThan(1050);
+    expect(result.pois[0]?.along_m).toBeLessThan(1180);
+
+    // Without sights nothing of the kind is asked, on a walk or a hike.
+    highlightsAlong.mockClear();
+    await service.search({ tour_type: 'walk', categories: ['cafe'], corridor_m: 500, line: LINE });
+    await service.search({ tour_type: 'hike', categories: ['viewpoint'], corridor_m: 500, line: LINE });
+    expect(highlightsAlong).not.toHaveBeenCalled();
+  });
+
+  it('TOUR-POI-012: a highlight a row already has marks that row, by object, by name or by a like name in one spot, once', async () => {
+    poisAlong.mockResolvedValue(
+      answer([
+        poi('node:basilica', 47.405, 11.1003, 'sights', { name: 'Basilica di San Marco' }),
+        poi('node:museo', 47.41, 11.1003, 'museum_gallery', { name: 'Museo Correr' }),
+        poi('way:7', 47.415, 11.1002, 'sights', { name: 'Campanile' }),
+        poi('node:cafe', 47.402, 11.1003, 'cafe', { name: 'Caffe Florian' }),
+      ]),
+    );
+    highlightsAlong.mockResolvedValue([
+      famous('way', 7, 'Campanile di San Marco', 47.415, 11.1002, 45_000),
+      famous('node', 2, 'Piazza San Marco', 47.4102, 11.1004, 80_000),
+      famous('way', 1, 'Piazza San Marco', 47.4101, 11.1004, 900_000),
+      famous('node', 3, 'Basilica San Marco', 47.4052, 11.1003, 500_000),
+      famous('node', 4, 'MUSEO CORRER', 47.4127, 11.1003, 60_000),
+      // Far outside the corridor: not along this walk, however well known.
+      famous('way', 99, 'Rialto', 47.41, 11.2, 1_000_000),
+    ]);
+    const result = await service.search({
+      tour_type: 'walk',
+      categories: ['sights', 'museum', 'cafe'],
+      corridor_m: 500,
+      line: LINE,
+    });
+    expect(result.pois.map((found) => [found.id, found.highlight ?? false])).toEqual([
+      ['way:1', true],
+      ['node:basilica', true],
+      ['node:museo', true],
+      ['way:7', true],
+      ['node:cafe', false],
+    ]);
+    // The rows a highlight marks keep what their own source said of them.
+    expect(result.pois[2]).toMatchObject({ name: 'Museo Correr', category: 'museum', kind: 'tourism=museum_gallery' });
+  });
+
+  it('TOUR-POI-013: with fewer than three famous places the best known three are highlights, a lesser one gets no row', async () => {
+    poisAlong.mockResolvedValue(answer([]));
+    highlightsAlong.mockResolvedValue([
+      famous('node', 1, 'Old bridge', 47.402, 11.1002, 4_000),
+      famous('node', 2, 'Town hall', 47.404, 11.1002, 6_000),
+      famous('node', 3, 'Cathedral', 47.406, 11.1002, 30_000),
+      famous('node', 4, 'Castle', 47.408, 11.1002, 8_000),
+    ]);
+    const result = await service.search({ tour_type: 'hike', categories: ['sights'], corridor_m: 500, line: LINE });
+    expect(result.pois.map((found) => [found.name, found.highlight ?? false])).toEqual([
+      ['Cathedral', true],
+      ['Castle', true],
+      ['Town hall', true],
+    ]);
+  });
+
+  it('TOUR-POI-015: a famous station or hotel ranks a row it matches but is never added as a sight', async () => {
+    poisAlong.mockResolvedValue(answer([poi('node:cafe', 47.402, 11.1003, 'cafe', { name: 'Caffe Florian' })]));
+    highlightsAlong.mockResolvedValue([
+      famous('node', 1, 'Venezia Santa Lucia', 47.404, 11.1002, 300_000, 'verkehr'),
+      famous('node', 2, 'Hotel Danieli', 47.406, 11.1002, 90_000, 'uebernachtung'),
+      famous('node', 3, 'Mystery', 47.408, 11.1002, 90_000, null),
+      famous('node', 4, 'Caffe Florian', 47.402, 11.1003, 70_000, 'gastronomie'),
+    ]);
+    const result = await service.search({
+      tour_type: 'walk',
+      categories: ['sights', 'cafe'],
+      corridor_m: 500,
+      line: LINE,
+    });
+    expect(result.pois.map((found) => [found.id, found.highlight ?? false])).toEqual([['node:cafe', true]]);
+  });
+
+  it('TOUR-POI-016: names are matched by whole words, so a cathedral does not swallow its square or a like-named palace', async () => {
+    poisAlong.mockResolvedValue(
+      answer([
+        poi('node:dom', 47.405, 11.1003, 'sights', { name: 'Dom' }),
+        poi('node:reale', 47.41, 11.1003, 'sights', { name: 'Palazzo Reale' }),
+      ]),
+    );
+    highlightsAlong.mockResolvedValue([
+      famous('way', 1, 'Domplatz', 47.4052, 11.1003, 120_000),
+      famous('way', 2, 'Palazzo Ducale', 47.4101, 11.1003, 380_000),
+    ]);
+    const result = await service.search({ tour_type: 'walk', categories: ['sights'], corridor_m: 500, line: LINE });
+    expect(result.pois.map((found) => [found.id, found.highlight ?? false])).toEqual([
+      ['way:2', true],
+      ['way:1', true],
+      ['node:dom', false],
+      ['node:reale', false],
+    ]);
+  });
+
+  it('TOUR-POI-014: an index that cannot give highlights leaves the search as it was', async () => {
+    poisAlong.mockResolvedValue(answer([poi('node:gate', 47.405, 11.1003, 'sights', { name: 'Town gate' })]));
+    highlightsAlong.mockRejectedValue(new Error('TREK Places API 503'));
+    const result = await service.search({ tour_type: 'walk', categories: ['sights'], corridor_m: 500, line: LINE });
+    expect(result.pois.map((found) => [found.id, found.highlight])).toEqual([['node:gate', undefined]]);
+    expect(result).toMatchObject({ truncated: false, partial: false, unavailable: [] });
   });
 
   it('TOUR-POI-005: searches along a saved tour for MCP, and a tour without a line is not found', async () => {

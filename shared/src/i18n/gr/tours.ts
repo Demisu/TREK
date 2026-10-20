@@ -618,6 +618,8 @@ const tours: TranslationStrings = {
   'tours.walk.transit.late': 'Άφιξη μετά την έναρξη της βόλτας {walk} στις {time}',
   'tours.poi.categoriesNone': 'Δεν επιλέχθηκε κατηγορία',
   'tours.poi.categoriesMore': '{first} +{more}',
+  'tours.poi.highlight': 'Κορυφαίο',
+  'tours.poi.highlightHint': 'Ένα από τα πιο γνωστά μέρη εδώ',
   'tours.planner.tourType': 'Τύπος διαδρομής',
   'tours.paddle.boat': 'Σκάφος',
   'tours.paddle.boat.kayak': 'Καγιάκ',
