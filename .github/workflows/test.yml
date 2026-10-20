@@ -9,23 +9,36 @@ permissions:
 # analysis; pull requests get PR analysis with decoration on the PR itself
 # (the scanner picks the context up from the Actions environment).
 #
-# Job layout — three tiers:
-#   - Preflight: plugin-facts, i18n-parity and the quality jobs
-#     (server-quality, client-quality, plugin-sdk-quality) hold the cheap
-#     generated-code/typecheck/lint/smoke gates. Every test job `needs:` all
-#     of them, so a gate failure stops the run before the expensive coverage
-#     fan-out spends ~15 runner-minutes on a result the gates already sank.
-#   - Tests: the *-coverage jobs run the suites and upload lcov; s3-contract
-#     runs the MinIO contract suite. Coverage jobs run tests only — with the
-#     gates cleared in preflight, they can only fail because tests failed.
-#     client-e2e drives the real app in Chromium and WebKit, client-bundle
-#     builds the client and checks each map engine keeps a chunk of its own,
-#     and postgres-probe runs the dialect helpers and the repository
-#     statements it reaches against a Postgres service. None of them feeds the scan.
-#   - Scan `needs:` exactly the four coverage jobs. A coverage job failing
-#     must stop the scan — a missing lcov file would make every line of that
-#     package report as uncovered, and the dashboard would show a collapse
-#     that did not happen. (The preflight gates stop it transitively.)
+# Job layout:
+#   - Gates: plugin-facts, i18n-parity and the quality jobs (server-quality,
+#     client-quality, plugin-sdk-quality) hold the generated-code, typecheck,
+#     lint and smoke gates.
+#   - Tests run beside the gates, not after them, so a run takes as long as
+#     its slowest job and not the gates plus the tests. They used to wait for
+#     the gates, which put ~9 minutes in front of every test result. The
+#     client and server suites are split into shards (client-tests,
+#     server-tests), each running a slice with coverage and uploading a blob
+#     report; client-coverage and server-coverage merge the blobs, check the
+#     thresholds against the whole and upload lcov. A red shard is usually a
+#     failing test, a red merge job usually a threshold. shared-coverage and
+#     plugin-sdk-coverage are small enough to run in one job each, and
+#     s3-contract runs the MinIO contract suite. client-e2e drives the real
+#     app in Chromium and WebKit, client-bundle builds the client and checks
+#     each map engine keeps a chunk of its own, and postgres-probe runs the
+#     dialect helpers and the repository statements it reaches against a
+#     Postgres service. None of these feeds the scan.
+#   - Shard counts: GitHub runs at most 20 jobs of the organisation at once.
+#     A code change starts about a dozen jobs besides the shards; eight of
+#     them (the parity, facts and SDK checks, the bundle, the S3 and Postgres
+#     jobs, the small coverage jobs) are done within a minute or two, so the
+#     few shards that queue at the start wait about that long. The counts are
+#     sized so the coverage merges finish about when the quality jobs do
+#     (~9 minutes); more shards would wait in the queue rather than finish
+#     sooner.
+#   - Scan `needs:` the gates and the four coverage jobs. A coverage job
+#     failing must stop the scan — a missing lcov file would make every line
+#     of that package report as uncovered, and the dashboard would show a
+#     collapse that did not happen.
 #   - Fork PRs and runs Dependabot triggers don't receive the repo's Actions
 #     secrets, so the two jobs that need them skip themselves: s3-contract
 #     (MINIO_LICENSE_KEY) and scan (SONAR_TOKEN). ci-ok counts a skip as
@@ -38,7 +51,7 @@ permissions:
 #     required check that never reports blocks the PR for good.
 #   - docker-image builds the Dockerfile and boots the result, and
 #     deploy-manifests lints and renders the Helm chart and checks the
-#     compose files. Both run beside the preflight rather than after it.
+#     compose files. Both run beside the gates rather than after them.
 #   - ci-ok `needs:` every gate, test, image and chart job, and is the one
 #     check the branch ruleset requires. It fails when any of them failed or
 #     was cancelled and passes when they passed or were skipped (by changes,
@@ -514,9 +527,10 @@ jobs:
 
   client-bundle:
     name: Client Bundle
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
-    needs: [plugin-facts, i18n-parity, server-quality, client-quality, plugin-sdk-quality]
     steps:
       - uses: actions/checkout@v6
 
@@ -544,9 +558,10 @@ jobs:
 
   client-e2e:
     name: Client End-to-End
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
-    needs: [plugin-facts, i18n-parity, server-quality, client-quality, plugin-sdk-quality]
     steps:
       - uses: actions/checkout@v6
 
@@ -603,14 +618,14 @@ jobs:
     name: S3 Driver Contract (MinIO)
     runs-on: ubuntu-24.04
     timeout-minutes: 45
-    needs: [plugin-facts, i18n-parity, server-quality, client-quality, plugin-sdk-quality]
+    needs: changes
     # Fork PRs don't get repo secrets, so MINIO_LICENSE_KEY would be empty and
     # the AIStor container would fail to boot. A run Dependabot triggers gets
     # only Dependabot secrets, so its PRs (same repo, not a fork) hit the same
     # wall. Pushes and manual dispatches by anyone else do have secrets, so
-    # only those two are filtered out. (The implicit success() on this
-    # expression also keeps the job skipped when a preflight fails.)
+    # only those two are filtered out.
     if: >-
+      needs.changes.outputs.code == 'true' &&
       github.actor != 'dependabot[bot]' &&
       (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
 
@@ -694,7 +709,7 @@ jobs:
     name: Postgres Probe
     runs-on: ubuntu-24.04
     timeout-minutes: 10
-    needs: [changes, plugin-facts, i18n-parity, server-quality, client-quality, plugin-sdk-quality]
+    needs: changes
     if: needs.changes.outputs.code == 'true'
     services:
       postgres:
@@ -747,11 +762,20 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-  server-coverage:
-    name: Server Coverage
+  # The server suite in six slices. vitest.shard.config.ts is vitest.config.ts
+  # without the thresholds and the coverage reports: a slice's blob carries
+  # its coverage to server-coverage, which checks the whole. fail-fast is off,
+  # so one red run shows every failing slice and not just the first.
+  server-tests:
+    name: Server Tests (${{ matrix.shard }}/6)
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
-    needs: [plugin-facts, i18n-parity, server-quality, client-quality, plugin-sdk-quality]
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6]
     steps:
       - uses: actions/checkout@v6
 
@@ -776,8 +800,57 @@ jobs:
       - name: Build shared
         run: npm run build --workspace=shared
 
-      - name: Run tests with coverage
-        run: cd server && npm run test:coverage
+      - name: Run a slice of the tests with coverage
+        run: >-
+          cd server && npx vitest run --config vitest.shard.config.ts --coverage
+          --shard=${{ matrix.shard }}/6
+          --reporter=default --reporter=github-actions --reporter=blob
+
+      - name: Upload the blob report
+        uses: actions/upload-artifact@v6
+        with:
+          name: server-blob-${{ matrix.shard }}
+          path: server/.vitest-reports/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
+  server-coverage:
+    name: Server Coverage
+    needs: server-tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Ensure @swc/core's Linux binary for unplugin-swc
+        # vitest.config.ts loads unplugin-swc even when it only merges.
+        run: |
+          SWC_VERSION=$(node -p "require('@swc/core/package.json').version")
+          npm install --no-save --legacy-peer-deps "@swc/core-linux-x64-gnu@$SWC_VERSION"
+
+      - name: Download the blob reports
+        uses: actions/download-artifact@v7
+        with:
+          pattern: server-blob-*
+          path: server/.vitest-reports/
+          merge-multiple: true
+
+      - name: Merge the slices and check the thresholds
+        # Every blob holds a whole coverage map, and the merge reads them all
+        # into one process.
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: cd server && npx vitest run --merge-reports --coverage
 
       - name: Upload coverage
         uses: actions/upload-artifact@v6
@@ -786,11 +859,18 @@ jobs:
           path: server/coverage/
           retention-days: 1
 
-  client-coverage:
-    name: Client Coverage
+  # The client suite in eight slices, the same way as server-tests. It is the
+  # slowest suite (~35 minutes on one runner), so it gets the most.
+  client-tests:
+    name: Client Tests (${{ matrix.shard }}/8)
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
-    needs: [plugin-facts, i18n-parity, server-quality, client-quality, plugin-sdk-quality]
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - uses: actions/checkout@v6
 
@@ -810,8 +890,51 @@ jobs:
       - name: Build shared
         run: npm run build --workspace=shared
 
-      - name: Run tests with coverage
-        run: cd client && npm run test:coverage
+      - name: Run a slice of the tests with coverage
+        run: >-
+          cd client && npx vitest run --config vitest.shard.config.ts --coverage
+          --shard=${{ matrix.shard }}/8
+          --reporter=default --reporter=github-actions --reporter=blob
+
+      - name: Upload the blob report
+        uses: actions/upload-artifact@v6
+        with:
+          name: client-blob-${{ matrix.shard }}
+          path: client/.vitest-reports/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
+  client-coverage:
+    name: Client Coverage
+    needs: client-tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --workspace shared && npm ci --workspace client
+
+      - name: Download the blob reports
+        uses: actions/download-artifact@v7
+        with:
+          pattern: client-blob-*
+          path: client/.vitest-reports/
+          merge-multiple: true
+
+      - name: Merge the slices and check the thresholds
+        # Every blob holds a whole coverage map, and the merge reads them all
+        # into one process.
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: cd client && npx vitest run --merge-reports --coverage
 
       - name: Upload coverage
         uses: actions/upload-artifact@v6
@@ -822,9 +945,10 @@ jobs:
 
   shared-coverage:
     name: Shared Coverage
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
-    needs: [plugin-facts, i18n-parity, server-quality, client-quality, plugin-sdk-quality]
     steps:
       - uses: actions/checkout@v6
 
@@ -849,9 +973,10 @@ jobs:
 
   plugin-sdk-coverage:
     name: Plugin SDK Coverage
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
-    needs: [plugin-facts, i18n-parity, server-quality, client-quality, plugin-sdk-quality]
     defaults:
       run:
         working-directory: plugin-sdk
@@ -891,9 +1016,18 @@ jobs:
       (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
     # Coverage jobs failing must stop the scan: a missing lcov file would make
     # every line of that package report as uncovered, and the dashboard would
-    # show a collapse that did not happen. The preflight gates already stop it
-    # transitively through these four, so they aren't repeated here.
-    needs: [server-coverage, client-coverage, shared-coverage, plugin-sdk-coverage]
+    # show a collapse that did not happen. The gates run beside the tests now,
+    # so they are listed here too, and a failed gate still stops the scan.
+    needs:
+      - plugin-facts
+      - i18n-parity
+      - server-quality
+      - client-quality
+      - plugin-sdk-quality
+      - server-coverage
+      - client-coverage
+      - shared-coverage
+      - plugin-sdk-coverage
 
     steps:
       - uses: actions/checkout@v6
@@ -1111,7 +1245,9 @@ jobs:
       - client-e2e
       - s3-contract
       - postgres-probe
+      - server-tests
       - server-coverage
+      - client-tests
       - client-coverage
       - shared-coverage
       - plugin-sdk-coverage

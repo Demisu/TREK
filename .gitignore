@@ -55,6 +55,8 @@ coverage
 coverage-*/
 *.lcov
 .nyc_output
+# Blob reports of a sharded vitest run (test.yml)
+.vitest-reports
 
 # Cache
 .npm

@@ -249,7 +249,7 @@ Then open a Pull Request from your fork to `liketrek/TREK` targeting the `dev` b
 ## Tips
 
 - Always branch off from an up-to-date `dev` — run `git fetch upstream && git rebase upstream/dev` before starting new work.
-- Run tests before pushing: `npm test` at the repo root runs all workspaces. That alone is not the full CI gate. With `shared` built, these are the checks CI runs before any test (`.github/workflows/test.yml` is the source of truth):
+- Run tests before pushing: `npm test` at the repo root runs all workspaces. That alone is not the full CI gate. With `shared` built, these are the checks CI runs beside the tests (`.github/workflows/test.yml` is the source of truth):
   - in `shared/`: `npm run typecheck && npm run contracts:open`
   - in `server/`: `npm run build && npm run typecheck && npm run typecheck:tests && npm run typecheck:scripts && npm run check:entities && npm run check:db-types && npm run lint:check && npm run db:call-graph -- --sync --tx && npm run lint:size && npm run lint:boundaries && npm run lint:tx && npm run lint:test-sql && npm run lint:query-api && npm run lint:dialect && npm run check:plugin-facts`
   - in `client/`: `npm run typecheck && npm run lint:warnings && npm run lint:pages && npm run lint:rtl && npm run lint:size && npm run lint:format && npm run lint:layers && npm run lint:offline && npm run lint:dup && npm run lint:pairs && npm run lint:skips && npm run lint:i18n-keys`
