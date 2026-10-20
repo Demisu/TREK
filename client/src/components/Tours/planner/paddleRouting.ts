@@ -28,6 +28,7 @@ export interface PaddlePoint {
   fixedLeg?: TourFixedLeg | null;
   lock?: PaddleLock | null;
   shaping?: boolean;
+  stageEnd?: boolean;
   /** Set by the planner where the router found a portage or a lock; gone once the paddler touches the point. */
   auto?: AutoBase;
 }
@@ -224,7 +225,11 @@ export function materializePaddleLegs<T extends PaddlePoint>(
   return result;
 }
 
-/** A point the paddler changed is theirs from then on: it loses its automatic mark. */
+/**
+ * A point the paddler changed is theirs from then on: it loses its automatic
+ * mark. Ending a stage there counts as a change (MDT-01), so the router never
+ * drops a stage end with the leg around it.
+ */
 export function adoptChangedPoints<T extends PaddlePoint>(before: readonly T[], after: readonly T[]): T[] {
   const previous = new Map(before.map((point) => [point.id, point]));
   return after.map((point) => {
@@ -233,6 +238,7 @@ export function adoptChangedPoints<T extends PaddlePoint>(before: readonly T[], 
     const same =
       !!was &&
       samePlace(was, point) &&
+      !!was.stageEnd === !!point.stageEnd &&
       JSON.stringify(was.lock ?? null) === JSON.stringify(point.lock ?? null) &&
       JSON.stringify(was.fixedLeg ?? null) === JSON.stringify(point.fixedLeg ?? null);
     if (same) return point;

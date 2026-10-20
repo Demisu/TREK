@@ -162,8 +162,9 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const [routeProfileFocus, setRouteProfileFocus] = useState<RouteProfileFocus | null>(null)
   const [newDraftGeneration, setNewDraftGeneration] = useState(0)
   const [mapFocusKey, setMapFocusKey] = useState(0)
-  // MDT-01: stage ends a change of the points could not keep, said while those points are the planner's.
-  const [stageLoss, setStageLoss] = useState<{ count: number; after: TourPlannerWaypoint[] } | null>(null)
+  // MDT-01: stage ends the last change of the points could not keep. Said until the user's next change,
+  // undo or redo, or another draft, so a point the router lays in afterwards does not take the notice away.
+  const [stageLoss, setStageLoss] = useState(0)
   const draftRevisionRef = useRef(0)
   const saveRequestIdRef = useRef(0)
   const saveInFlightRef = useRef(false)
@@ -268,7 +269,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     waypointsRef.current = next
     setWaypoints(next)
     const lost = lostStageEnds(current, changed, next)
-    setStageLoss(lost > 0 ? { count: lost, after: next } : null)
+    setStageLoss(lost)
     // CW-02: a station's own fields (its stay, its name) plan no route: the routing goes on, and Save stays as it was.
     if (routeInputsKey(current) === routeInputsKey(next)) {
       markEdited()
@@ -451,6 +452,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     runProfileRef.current = entry.runProfile
     tourTypeRef.current = entry.tourType
     setWaypoints(entry.waypoints)
+    setStageLoss(0)
     setMaxHikingDifficultyState(entry.difficulty)
     setHikingPreferencesState(entry.preferences)
     setBikeProfileState(entry.bikeProfile)
@@ -519,6 +521,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     recordStep(snapshot())
     tourTypeRef.current = value
     setTourTypeState(value)
+    setStageLoss(0)
     const noFerrata = value === 'bike' || value === 'run'
     const next = normalizePlannerWaypoints(noFerrata ? ridablePoints(waypointsRef.current) : waypointsRef.current, value)
     waypointsRef.current = next
@@ -551,7 +554,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     waypoints, line: routeCurrent ? (enrichedGeometry ?? route) : null, tourType, routerSeconds: durationSeconds,
     paddle: stagePaddle, commit: commitWaypoints, mayEdit: mayEditPoints,
     draftKey: `${editingPlaceId ?? 'new'}:${newDraftGeneration}`,
-    lost: stageLoss?.after === waypoints ? stageLoss.count : 0,
+    lost: stageLoss,
   })
   const stageCount = Math.max(1, stages.stages.length)
   const facts = useMemo(() => tourPlannerFacts({
@@ -598,6 +601,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     tourTypeRef.current = 'hike'
     setSelectedWaypointId(null)
     clearHistory()
+    setStageLoss(0)
     setStatus('empty')
     clearRoute()
     setError(null)
@@ -778,6 +782,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       tourTypeRef.current = opened.tourType
       setSelectedWaypointId(nextWaypoints[0]?.id ?? null)
       clearHistory()
+      setStageLoss(0)
       setStatus('dirty')
       clearRoute()
       // CW-11: a walk without its way yet is planned on opening and can be saved with it at once.
@@ -921,6 +926,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
         setRoutePending(false)
         setStatus('saved')
         clearHistory()
+        setStageLoss(0)
         setEditingPlaceId(result.tour.place_id)
         editingPlaceIdRef.current = result.tour.place_id
         setDraftSource(null)

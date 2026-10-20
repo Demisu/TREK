@@ -1,4 +1,4 @@
-// FE-PADDLE-ROUTING-001 to FE-PADDLE-ROUTING-010: a paddle tour's route put together from the water router's legs (PAD-11).
+// FE-PADDLE-ROUTING-001 to FE-PADDLE-ROUTING-011: a paddle tour's route put together from the water router's legs (PAD-11).
 import type { PaddleRouteLeg, PaddleRouteSegment } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { paddleRouteRepo } from '../../../repo/paddleRouteRepo';
@@ -190,6 +190,18 @@ describe('automatic points', () => {
     const adopted = adoptChangedPoints(points, edited);
     expect(adopted.find((point) => point.id === 'auto-3')?.auto).toBeUndefined();
     expect(adopted.find((point) => point.id === 'auto-1')?.auto).toBeDefined();
+  });
+
+  it('FE-PADDLE-ROUTING-011: an automatic point made a stage end belongs to the paddler and stays when its leg changes', () => {
+    const points = materializePaddleLegs([A, B, C], { legs: [WEIR_AND_LOCK, straight(B, C)] }, newId);
+    const marked = adoptChangedPoints(
+      points,
+      points.map((point) => (point.id === 'auto-3' ? { ...point, stageEnd: true } : point))
+    );
+    expect(marked.find((point) => point.id === 'auto-3')).toMatchObject({ stageEnd: true });
+    expect(marked.find((point) => point.id === 'auto-3')?.auto).toBeUndefined();
+    const moved = marked.map((point) => (point.id === 'b' ? { ...point, lat: point.lat + 0.01 } : point));
+    expect(pruneAutoPoints(moved).map((point) => point.id)).toEqual(['a', 'auto-3', 'b', 'c']);
   });
 });
 

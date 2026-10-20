@@ -1,16 +1,18 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { routeWalkingTour, enrichTourElevations, createTour, detailTour, updateTour } = vi.hoisted(() => ({
+const { routeWalkingTour, enrichTourElevations, createTour, detailTour, updateTour, paddlePlan } = vi.hoisted(() => ({
   routeWalkingTour: vi.fn(),
   enrichTourElevations: vi.fn(),
   createTour: vi.fn(),
   detailTour: vi.fn(),
   updateTour: vi.fn(),
+  paddlePlan: vi.fn(),
 }));
 
 vi.mock('./tourRouting', () => ({ routeWalkingTour, enrichTourElevations }));
 vi.mock('../../../repo/tourRepo', () => ({ tourRepo: { create: createTour, detail: detailTour, update: updateTour } }));
+vi.mock('../../../repo/paddleRouteRepo', () => ({ paddleRouteRepo: { plan: paddlePlan, forget: vi.fn() } }));
 vi.mock('../useTourPermissions', () => ({
   useTourPermissions: ({ canEdit = true, canAssign = true }: { canEdit?: boolean; canAssign?: boolean }) => ({
     canEdit,
@@ -21,7 +23,7 @@ vi.mock('../useTourPermissions', () => ({
 import { validDraft } from './tourPlannerDraft';
 import { useTourPlanner } from './useTourPlanner';
 
-// FE-TOUR-STAGES-001 to FE-TOUR-STAGES-008 (MDT-01)
+// FE-TOUR-STAGES-001 to FE-TOUR-STAGES-009 (MDT-01)
 
 const POINTS: Array<[number, number]> = [
   [48, 11],
@@ -54,6 +56,23 @@ const savedHike = {
   stage_count: 2,
 };
 
+type LegAsked = { from: { lat: number; lng: number }; to: { lat: number; lng: number } };
+/** The water router's answer for every leg asked: water, a portage round a weir, water. */
+const withPortage = (legs: LegAsked[]) =>
+  legs.map(({ from, to }) => {
+    const at = (t: number): [number, number] => [
+      from.lat + (to.lat - from.lat) * t,
+      from.lng + (to.lng - from.lng) * t,
+    ];
+    const segments = [
+      { kind: 'water', from: 0, to: 1 },
+      { kind: 'portage', from: 1, to: 2, source: 'tagged' },
+      { kind: 'water', from: 2, to: 3 },
+    ].map((segment) => ({ name: null, source: null, osm_ref: null, grade: null, ...segment }));
+    const geometry = [at(0), at(0.3), at(0.4), at(1)];
+    return { status: 'ok', geometry, segments, distance_m: 3000, snapped_m: { from: 0, to: 0 } };
+  });
+
 async function settle() {
   await act(async () => {
     await vi.advanceTimersByTimeAsync(450);
@@ -79,6 +98,7 @@ describe('useTourPlanner, multi-day tours (MDT-01)', () => {
     createTour.mockReset();
     detailTour.mockReset();
     updateTour.mockReset();
+    paddlePlan.mockReset().mockImplementation(async (_trip: number, legs: LegAsked[]) => withPortage(legs));
   });
 
   afterEach(() => vi.useRealTimers());
@@ -228,5 +248,27 @@ describe('useTourPlanner, multi-day tours (MDT-01)', () => {
     expect(validDraft(draft)).toBe(true);
     draft.waypoints[1].stageEnd = 'yes';
     expect(validDraft(draft)).toBe(false);
+  });
+
+  it('FE-TOUR-STAGES-009: on a paddle tour the loss stays said while the router lays its points in again', async () => {
+    const { result } = await plannedHike(70);
+    act(() => result.current.setTourType('kayak'));
+    await settle();
+    await settle();
+    expect(result.current.waypoints.some((point) => point.auto)).toBe(true);
+    const stop = result.current.waypoints.filter((point) => !point.auto)[1].id;
+    act(() => result.current.stages.toggleStageEnd(stop));
+    act(() => result.current.removeWaypoint(stop));
+    const removed = result.current.waypoints;
+    expect(result.current.stages.lost).toBe(1);
+    await settle();
+    await settle();
+    await settle();
+    // The router dropped and set its points around the gap without a step of the history.
+    expect(result.current.waypoints).not.toBe(removed);
+    expect(result.current.stages.lost).toBe(1);
+    act(() => result.current.undo());
+    expect(result.current.stages.lost).toBe(0);
+    expect(result.current.waypoints.find((point) => point.id === stop)?.stageEnd).toBe(true);
   });
 });
