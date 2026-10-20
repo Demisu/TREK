@@ -10,8 +10,8 @@ import { Migration } from '@mikro-orm/migrations';
  * can be offered instead of applied. A tour kept in a collection keeps the
  * same column, so a copy made from it is planned as the tour it was saved from.
  */
-export class Migration20200101046140_a_ski_tour_keeps_its_piste_router_options extends Migration {
-  override name = 'Migration20200101046140_a_ski_tour_keeps_its_piste_router_options';
+export class Migration20200101046150_a_ski_tour_keeps_its_piste_router_options extends Migration {
+  override name = 'Migration20200101046150_a_ski_tour_keeps_its_piste_router_options';
 
   override up(): void {
     this.addSql('ALTER TABLE tours ADD COLUMN ski_options TEXT');

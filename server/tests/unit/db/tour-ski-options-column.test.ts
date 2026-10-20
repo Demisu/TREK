@@ -1,5 +1,5 @@
 /**
- * `Migration20200101046140_a_ski_tour_keeps_its_piste_router_options` gives a
+ * `Migration20200101046150_a_ski_tour_keeps_its_piste_router_options` gives a
  * tour one more column, `ski_options`: the JSON text of the piste router's
  * options and the build its legs ran on. Every tour that was there keeps its
  * columns and reads NULL in the new one; the column takes the server's JSON.
@@ -9,7 +9,7 @@ import { createMigrationOrm, migrateTo, pendingNames, rawExec, rawQuery } from '
 
 import { describe, expect, it } from 'vitest';
 
-const TARGET = 'Migration20200101046140_a_ski_tour_keeps_its_piste_router_options';
+const TARGET = 'Migration20200101046150_a_ski_tour_keeps_its_piste_router_options';
 
 describe('the ski options column', () => {
   it('TOURSKIOPT-001: adds a nullable column, leaves every tour as it was and takes the JSON the server writes', async () => {
