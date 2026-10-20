@@ -4,7 +4,10 @@ import { useShallow } from 'zustand/react/shallow';
 import { useTranslation } from '../../../i18n';
 import { OnlineOnlyError } from '../../../repo/onlineOnly';
 import { useAddonStore } from '../../../store/addonStore';
+import { useAuthStore } from '../../../store/authStore';
+import { useCollectionStore } from '../../../store/collectionStore';
 import { useCollectionTourStore, watchCollectionTours } from '../../../store/collectionTourStore';
+import { canRemoveFromCollection, collectionRoleOf } from '../../../utils/collectionAccess';
 import { useToast } from '../../shared/Toast';
 
 /**
@@ -54,3 +57,24 @@ export function useCollectionTours(collectionId: number) {
 }
 
 export type CollectionTours = ReturnType<typeof useCollectionTours>;
+
+/** The kept tours whose name holds the list's search, all of them without one. */
+export function toursMatching(tours: readonly CollectionTourItem[], search: string): CollectionTourItem[] {
+  const query = search.trim().toLocaleLowerCase();
+  return query ? tours.filter((tour) => tour.name.toLocaleLowerCase().includes(query)) : [...tours];
+}
+
+/**
+ * The list open on the collections page and whether this user may remove its
+ * tours (its owner or an admin of it), read from the list itself; no list on
+ * "All saved" or before one opens. Desktop and phone both ask here.
+ */
+export function useActiveCollectionTourList(): { collectionId: number | null; canRemove: boolean } {
+  const { activeId, collections, members } = useCollectionStore(
+    useShallow((state) => ({ activeId: state.activeId, collections: state.collections, members: state.members }))
+  );
+  const userId = useAuthStore((state) => state.user?.id);
+  if (typeof activeId !== 'number') return { collectionId: null, canRemove: false };
+  const isOwner = collections.find((collection) => collection.id === activeId)?.is_owner ?? false;
+  return { collectionId: activeId, canRemove: canRemoveFromCollection(collectionRoleOf(isOwner, members, userId)) };
+}

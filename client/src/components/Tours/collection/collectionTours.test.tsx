@@ -18,7 +18,7 @@ import { TourSaveToCollectionBarButton, TourSaveToCollectionButton } from './Tou
 import { useCollectionTourTakeOver } from './useCollectionTourTakeOver';
 import { useSaveTourToCollection } from './useSaveTourToCollection';
 
-// FE-COLLECTION-TOURS-001 to FE-COLLECTION-TOURS-016
+// FE-COLLECTION-TOURS-001 to FE-COLLECTION-TOURS-017
 
 vi.mock('../../Map/MapViewAuto', () => ({
   MapViewAuto: ({ route }: { route: Array<Array<[number, number]>> }) => (
@@ -432,5 +432,17 @@ describe('CollectionToursSection', () => {
     } finally {
       useCollectionStore.setState(before, true);
     }
+  });
+
+  it('FE-COLLECTION-TOURS-017: the rows follow the list search by name, and a click on the row itself starts the take-over', async () => {
+    vi.spyOn(collectionToursRepo, 'list').mockResolvedValue({ tours: [kept(), kept({ id: 5, name: 'Lake loop' })] });
+    const { rerender } = render(<CollectionToursSection collectionId={3} canRemove search="lake" />);
+    expect(await screen.findByTestId('kept-tour-5')).toBeInTheDocument();
+    expect(screen.queryByTestId('kept-tour-4')).toBeNull();
+    rerender(<CollectionToursSection collectionId={3} canRemove search="nothing" />);
+    expect(screen.queryByTestId('collection-tours')).toBeNull();
+    rerender(<CollectionToursSection collectionId={3} canRemove search="" />);
+    fireEvent.click(await screen.findByTestId('kept-tour-4'));
+    expect(await screen.findByTestId('kept-tour-preview')).toBeInTheDocument();
   });
 });

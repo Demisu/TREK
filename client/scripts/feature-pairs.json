@@ -224,6 +224,15 @@
       "mobile": ["src/mobile/screens/collections/MCollections.tsx"]
     },
     {
+      "feature": "Collection tours (LIB-03): useCollectionTours, useCollectionTourTakeOver",
+      "hooks": [
+        "src/components/Tours/collection/useCollectionTours.ts",
+        "src/components/Tours/collection/useCollectionTourTakeOver.ts"
+      ],
+      "desktop": ["src/components/Tours/collection/CollectionToursSection.tsx"],
+      "mobile": ["src/mobile/screens/collections/MCollTours.tsx"]
+    },
+    {
       "feature": "Copy collection places to a trip",
       "hooks": ["src/components/Collections/useTripCopyPicker.ts"],
       "desktop": ["src/components/Collections/CopyToTripModal.tsx"],

@@ -1,26 +1,24 @@
 import type { CollectionTourItem } from '@trek/shared';
 import { AlertTriangle, CopyPlus, Gauge, Moon, Route, Trash2, Waypoints, WifiOff } from 'lucide-react';
+import type { MouseEvent } from 'react';
 import { useTranslation } from '../../../i18n';
-import { useAuthStore } from '../../../store/authStore';
-import { useCollectionStore } from '../../../store/collectionStore';
 import { useSettingsStore } from '../../../store/settingsStore';
-import { canRemoveFromCollection, collectionRoleOf } from '../../../utils/collectionAccess';
 import { WhiteBadge } from '../../Planner/planParts';
 import ConfirmDialog from '../../shared/ConfirmDialog';
-import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
 import { TourMeasurePills } from '../library/tourPreviewParts';
 import { runPaceText } from '../run/runPaceText';
-import { CardAction, TourGradeTile, TourNotice } from '../tourParts';
+import { tourDayRowIcon } from '../tourDayRowIcon';
+import { TourGradeTile, TourNotice } from '../tourParts';
 import { CollectionTourTakeOverDialog } from './CollectionTourTakeOverDialog';
+import { sourceText } from './keptTourText';
+import {
+  toursMatching,
+  useActiveCollectionTourList,
+  useCollectionTours,
+  type CollectionTours,
+} from './useCollectionTours';
 import { useCollectionTourTakeOver } from './useCollectionTourTakeOver';
-import { useCollectionTours, type CollectionTours } from './useCollectionTours';
-
-/** Where a kept tour came from and who kept it, as one tooltip. */
-function sourceText(tour: CollectionTourItem, t: (key: string, params?: Record<string, unknown>) => string) {
-  const source = t('tours.collection.source', { tour: tour.source.tourName, trip: tour.source.tripTitle });
-  return tour.saved_by ? `${source}. ${t('tours.collection.keptBy', { name: tour.saved_by })}` : source;
-}
 
 /**
  * What the trip's list shows of a kept tour beyond its measures: a run's pace
@@ -51,12 +49,13 @@ function KeptTourTypeBadges({ tour }: { tour: CollectionTourItem }) {
 }
 
 /**
- * One kept tour as a card: its grade tile with where it came from, its name
- * and type, its measures and waypoints as badges, the trip it was saved from,
- * and the way into a trip. Removing it sits quietly in its corner, dimmed
- * but always there (a phone has no hover), raised on hover or focus.
+ * One kept tour as a row of the collection's list, the way a saved place is:
+ * its grade tile where a place has its photo, its name with its type and the
+ * trip it was kept from, then its measures, the way into a trip and, for its
+ * owner or an admin, removing it. The whole row takes it into a trip, as the
+ * whole row of a place opens the place.
  */
-function KeptTourCard({
+function KeptTourRow({
   tour,
   canRemove,
   onTake,
@@ -69,68 +68,82 @@ function KeptTourCard({
 }) {
   const { t } = useTranslation();
   const tile = { ...tour, has_waypoints: tour.waypoint_count > 0 };
+  const TypeIcon = tourDayRowIcon(tour.tour_type);
+  const points = t('tours.collection.points', { count: tour.waypoint_count });
+  const stop = (act: () => void) => (event: MouseEvent) => {
+    event.stopPropagation();
+    act();
+  };
   return (
-    <article
+    <div
+      role="button"
+      tabIndex={0}
+      data-no-press
       data-testid={`kept-tour-${tour.id}`}
-      className="group flex min-w-0 flex-col gap-2.5 rounded-2xl border border-edge-faint bg-surface-card p-3 shadow-sm transition-shadow hover:shadow-md"
+      onClick={onTake}
+      onKeyDown={(event) => {
+        if (event.target !== event.currentTarget || (event.key !== 'Enter' && event.key !== ' ')) return;
+        event.preventDefault();
+        onTake();
+      }}
+      className="col-lrow col-lrow-tour group"
     >
-      <div className="flex min-w-0 items-start gap-3">
+      <span className="col-lrow-tile">
         <TourGradeTile tour={tile} />
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5 pt-0.5">
-          <h3 className="m-0 truncate font-semibold text-content" style={fs(13.5, 'body')}>
-            {tour.name}
-          </h3>
-          <span className="truncate text-content-faint" style={fs(11, 'body')}>
-            {t(`tourTypes.${tour.tour_type}`)}
-          </span>
+      </span>
+      <div className="li">
+        <div className="t">{tour.name}</div>
+        <div className="s">
+          <TypeIcon size={11} />
+          <span>{t(`tourTypes.${tour.tour_type}`)}</span>
+          <Tooltip label={sourceText(tour, t)}>
+            <span className="col-lrow-from">
+              <Route size={11} />
+              <span>{tour.source.tripTitle}</span>
+            </span>
+          </Tooltip>
         </div>
+      </div>
+      <div className="col-lrow-end">
+        <span className="col-lrow-measures">
+          <TourMeasurePills tour={tour} testPrefix="kept-tour" />
+          <KeptTourTypeBadges tour={tour} />
+          {tour.waypoint_count > 0 && (
+            <Tooltip label={points}>
+              <span className="inline-flex" aria-label={points}>
+                <WhiteBadge icon={<Waypoints size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
+                  {tour.waypoint_count}
+                </WhiteBadge>
+              </span>
+            </Tooltip>
+          )}
+        </span>
+        <span className="col-lrow-div" aria-hidden />
+        <Tooltip label={t('tours.collection.addHint')}>
+          <button type="button" className="col-lrow-act" onClick={stop(onTake)}>
+            <CopyPlus size={13} strokeWidth={2} />
+            {t('tours.collection.add')}
+          </button>
+        </Tooltip>
         {canRemove && (
           <Tooltip label={t('tours.collection.remove')}>
             <button
               type="button"
-              onClick={onRemove}
+              onClick={stop(onRemove)}
               aria-label={t('tours.collection.remove')}
               data-testid={`kept-tour-remove-${tour.id}`}
-              className="grid h-7 w-7 flex-none place-items-center rounded-full text-content-faint opacity-50 transition-opacity hover:bg-danger-soft hover:text-danger focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent group-hover:opacity-100"
+              className="col-lrow-remove opacity-50 focus-visible:opacity-100 group-hover:opacity-100"
             >
-              <Trash2 size={13} strokeWidth={2} />
+              <Trash2 size={14} strokeWidth={2} />
             </button>
           </Tooltip>
         )}
       </div>
-      <div className="flex flex-wrap gap-1.5">
-        <TourMeasurePills tour={tour} testPrefix="kept-tour" />
-        <KeptTourTypeBadges tour={tour} />
-        {tour.waypoint_count > 0 && (
-          <Tooltip label={t('tours.collection.points', { count: tour.waypoint_count })}>
-            <span className="inline-flex" aria-label={t('tours.collection.points', { count: tour.waypoint_count })}>
-              <WhiteBadge icon={<Waypoints size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
-                {tour.waypoint_count}
-              </WhiteBadge>
-            </span>
-          </Tooltip>
-        )}
-      </div>
-      <div className="mt-auto flex min-w-0 items-center gap-2 border-t border-edge-faint pt-2.5">
-        <Tooltip label={sourceText(tour, t)}>
-          <span className="flex min-w-0 flex-1 items-center gap-1.5 text-content-muted" style={fs(11, 'body')}>
-            <Route size={12} strokeWidth={2} className="flex-none text-content-faint" />
-            <span className="truncate">{tour.source.tripTitle}</span>
-          </span>
-        </Tooltip>
-        <Tooltip label={t('tours.collection.addHint')}>
-          <span className="inline-flex">
-            <CardAction icon={<CopyPlus size={12} strokeWidth={2} />} onClick={onTake}>
-              {t('tours.collection.add')}
-            </CardAction>
-          </span>
-        </Tooltip>
-      </div>
-    </article>
+    </div>
   );
 }
 
-/** What stands above the cards while they cannot be shown: offline, or failed with a retry. */
+/** What stands above the rows while they cannot be shown: offline, or failed with a retry. */
 function SectionProblem({ kept }: { kept: CollectionTours }) {
   const { t } = useTranslation();
   if (kept.status === 'offline')
@@ -149,41 +162,38 @@ function SectionProblem({ kept }: { kept: CollectionTours }) {
 }
 
 /**
- * LIB-03 on a collection's page: the whole tours it keeps, above its places,
- * each ready to be taken into a trip. Nothing shows while it keeps none, or
- * while the Tours addon is off.
+ * LIB-03 on a collection's page: the whole tours it keeps, as the first rows
+ * of its list, each ready to be taken into a trip. The list's search narrows
+ * them by name as it narrows the places. Nothing shows while it keeps none,
+ * or while the Tours addon is off.
  */
-export function CollectionToursSection({ collectionId, canRemove }: { collectionId: number; canRemove: boolean }) {
+export function CollectionToursSection({
+  collectionId,
+  canRemove,
+  search = '',
+}: {
+  collectionId: number;
+  canRemove: boolean;
+  search?: string;
+}) {
   const { t } = useTranslation();
   const kept = useCollectionTours(collectionId);
   const takeOver = useCollectionTourTakeOver(collectionId);
   const problem = kept.status === 'error' || kept.status === 'offline';
-  if (!kept.enabled || (kept.tours.length === 0 && !problem)) return null;
+  const shown = toursMatching(kept.tours, search);
+  if (!kept.enabled || (shown.length === 0 && !problem)) return null;
   return (
-    <section aria-label={t('tours.title')} className="mb-5 flex flex-col gap-2.5" data-testid="collection-tours">
-      <div className="flex items-center gap-2">
-        <span className="grid h-6 w-6 place-items-center rounded-full bg-accent-subtle text-accent-on">
-          <Route size={13} strokeWidth={2.2} />
-        </span>
-        <h2 className="m-0 font-semibold text-content" style={fs(13, 'body')}>
-          {t('tours.title')}
-        </h2>
-        {kept.tours.length > 0 && <WhiteBadge>{kept.tours.length}</WhiteBadge>}
-      </div>
+    <section aria-label={t('tours.title')} className="col-listview col-tourrows" data-testid="collection-tours">
       <SectionProblem kept={kept} />
-      {kept.tours.length > 0 && (
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
-          {kept.tours.map((tour) => (
-            <KeptTourCard
-              key={tour.id}
-              tour={tour}
-              canRemove={canRemove}
-              onTake={() => takeOver.show(tour)}
-              onRemove={() => kept.askRemove(tour)}
-            />
-          ))}
-        </div>
-      )}
+      {shown.map((tour) => (
+        <KeptTourRow
+          key={tour.id}
+          tour={tour}
+          canRemove={canRemove}
+          onTake={() => takeOver.show(tour)}
+          onRemove={() => kept.askRemove(tour)}
+        />
+      ))}
       <CollectionTourTakeOverDialog takeOver={takeOver} />
       <ConfirmDialog
         isOpen={kept.removing !== null}
@@ -199,17 +209,9 @@ export function CollectionToursSection({ collectionId, canRemove }: { collection
   );
 }
 
-/**
- * The tours of the list open on the collections page, with what the user may
- * do there read from the list itself; nothing on "All saved" or before a list opens.
- */
-export function ActiveCollectionTours() {
-  const activeId = useCollectionStore((state) => state.activeId);
-  const collections = useCollectionStore((state) => state.collections);
-  const members = useCollectionStore((state) => state.members);
-  const userId = useAuthStore((state) => state.user?.id);
-  if (typeof activeId !== 'number') return null;
-  const isOwner = collections.find((collection) => collection.id === activeId)?.is_owner ?? false;
-  const canRemove = canRemoveFromCollection(collectionRoleOf(isOwner, members, userId));
-  return <CollectionToursSection collectionId={activeId} canRemove={canRemove} />;
+/** The tours of the list open on the collections page; nothing on "All saved" or before a list opens. */
+export function ActiveCollectionTours({ search = '' }: { search?: string }) {
+  const { collectionId, canRemove } = useActiveCollectionTourList();
+  if (collectionId === null) return null;
+  return <CollectionToursSection collectionId={collectionId} canRemove={canRemove} search={search} />;
 }

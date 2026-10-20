@@ -20,7 +20,9 @@ function KeepButton({ target }: { target: TourSaveTarget }) {
             aria-label={t('tours.collection.save')}
             data-testid="tour-keep-in-collection"
             icon={<BookmarkPlus size={14} strokeWidth={2} />}
-          />
+          >
+            <span className="max-sm:hidden">{t('tours.collection.list')}</span>
+          </DialogButton>
         </span>
       </Tooltip>
       <SaveTourToCollectionDialog keep={keep} tourName={target.name} />

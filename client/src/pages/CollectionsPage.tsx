@@ -146,9 +146,12 @@ function CollectionsPageDesktop(): React.ReactElement {
       t={t}
     />
   ) : null
+  // The whole tours the list keeps (LIB-03) open its list, as rows like its places.
+  const tourRows = isRealList ? <ActiveCollectionTours search={c.search} /> : null
   const listColumn = (
     <>
       {filterBar}
+      {tourRows}
       {c.visiblePlaces.length > 0
         ? listEl
         : <EmptyState scene="search" title={t('collections.empty.noMatchTitle')} />}
@@ -161,6 +164,7 @@ function CollectionsPageDesktop(): React.ReactElement {
   } else if (!hasPlaces) {
     body = (
       <div className="flex flex-col items-center">
+        {tourRows && <div className="w-full pb-2">{tourRows}</div>}
         <EmptyState scene="collections" title={t('collections.empty.title')} className={canAddPlace ? 'pb-4' : undefined} />
         {canAddPlace && (
           <div className="flex flex-wrap items-center justify-center gap-2">
@@ -316,8 +320,6 @@ function CollectionsPageDesktop(): React.ReactElement {
                   </div>
                 )}
 
-                {/* The whole tours the list keeps (LIB-03), above its places. */}
-                {isRealList && <ActiveCollectionTours />}
                 {body}
               </>
             )}

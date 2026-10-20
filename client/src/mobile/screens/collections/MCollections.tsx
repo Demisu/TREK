@@ -21,6 +21,7 @@ import MCollEditSheet from './MCollEditSheet'
 import MCollLabelsSheet from './MCollLabelsSheet'
 import MCollTripPickerSheet from './MCollTripPickerSheet'
 import MCollListPickerSheet from './MCollListPickerSheet'
+import MCollTours from './MCollTours'
 import MCollInvites from './MCollInvites'
 import { STATUS_SPEC } from './collectionsMobileModel'
 import { CancelPill, PrimaryPill } from './MCollSheetKit'
@@ -412,6 +413,8 @@ export default function MCollections() {
           </div>
 
           {/* List view */}
+          {/* The whole tours the list keeps (LIB-03) open it, as rows like its places. */}
+          {c.view === 'list' && <MCollTours search={c.search} />}
           {c.view === 'list' && (
             c.placesLoading && !hasPlaces ? (
               <div className="flex items-center justify-center py-16 text-m-faint">
