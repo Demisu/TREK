@@ -248,6 +248,7 @@ export default function MTransportFormSheet({ planner, onOpenExpense }: MTranspo
                     initialFrom={transitPrefill?.from ?? null}
                     initialTo={transitPrefill?.to ?? null}
                     initialTime={transitPrefill?.time ?? null}
+                    walk={transitPrefill?.walk ?? null}
                   />
                 </div>
               )

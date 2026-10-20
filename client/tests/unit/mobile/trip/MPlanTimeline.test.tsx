@@ -123,6 +123,7 @@ function buildTl(over: Record<string, unknown> = {}): MPlanTimelineController {
     setLegMode: vi.fn(),
     transitLegFor: vi.fn(() => null),
     planTransitLeg: vi.fn(),
+    journeyLate: vi.fn(() => null),
     ...over,
   } as unknown as MPlanTimelineController
 }
@@ -331,6 +332,13 @@ describe('MPlanTimeline', () => {
       expect(screen.getByText('transit.min:15')).toBeInTheDocument()
     })
 
+    it('FE-MOB-PLTL-014b: a transit row says when it now arrives after the next city walk starts (CW-08)', () => {
+      renderTimeline({ journeyLate: vi.fn(() => ({ walk: 'Harbour', time: '13:00' })) })
+
+      expect(mocks.tl.journeyLate).toHaveBeenCalledWith(expect.objectContaining({ type: 'transport' }))
+      expect(screen.getByTestId('transit-walk-late')).toBeInTheDocument()
+    })
+
     it('FE-MOB-PLTL-015: a note row opens the note sheet with its note in edit mode', () => {
       const { shell } = renderTimeline({}, {}, { mode: 'edit' })
 
@@ -427,7 +435,7 @@ describe('MPlanTimeline', () => {
       expect(mocks.tl.transitLegFor).toHaveBeenCalledWith(SEG)
       fireEvent.click(screen.getByText('transit.title'))
 
-      expect(mocks.tl.planTransitLeg).toHaveBeenCalledWith(leg)
+      expect(mocks.tl.planTransitLeg).toHaveBeenCalledWith(leg, 11)
       expect(mocks.tl.setLegMode).not.toHaveBeenCalled()
     })
 

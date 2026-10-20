@@ -19,6 +19,8 @@ import { formatScheduleMinutes } from '../../../../components/Plugins/PluginDayS
 import type { PluginDayScheduleItem } from '../../../../api/client'
 import type { TourListItem } from '@trek/shared'
 import TourDayRowFacts, { TourDayRowIcon } from '../../../../components/Tours/TourDayRowFacts'
+import { WalkLateLine } from '../../../../components/Tours/walk/WalkTransitNote'
+import type { WalkLate } from '../../../../components/Tours/walk/walkTransit'
 
 /**
  * The five row types of the mobile day timeline (place / manual transport /
@@ -389,7 +391,7 @@ function TransitLegRows({ legs, t }: { legs: TransitLegDisplay[]; t: Translation
   )
 }
 
-export function TransitRow({ res, transit, dayId, open, chrome, reorder, drag, onToggle, onOpenJourney }: {
+export function TransitRow({ res, transit, dayId, open, chrome, reorder, drag, onToggle, onOpenJourney, late }: {
   res: TransportEntry
   transit: TransitMeta
   dayId: number
@@ -399,6 +401,8 @@ export function TransitRow({ res, transit, dayId, open, chrome, reorder, drag, o
   drag?: RowDrag
   onToggle: () => void
   onOpenJourney: () => void
+  /** CW-08: the city walk this journey now arrives too late for. */
+  late?: WalkLate | null
 }) {
   const { t } = chrome
   const Icon = RES_ICONS.transit
@@ -436,6 +440,7 @@ export function TransitRow({ res, transit, dayId, open, chrome, reorder, drag, o
             <Chevron size={15} strokeWidth={2} className={`flex-none text-m-faint ${start ? '' : 'ms-auto'}`} />
           </div>
           <TransitStrip legs={transit.legs} />
+          <WalkLateLine late={late} />
         </div>
         {open && <TransitLegRows legs={transit.legs} t={t} />}
       </div>

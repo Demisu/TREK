@@ -16,7 +16,7 @@
     "react-hooks/immutability": 28,
     "max-lines-per-function": 133,
     "react-hooks/static-components": 78,
-    "react-hooks/preserve-manual-memoization": 15,
+    "react-hooks/preserve-manual-memoization": 12,
     "no-useless-assignment": 7,
     "no-empty": 19,
     "trek/no-window-globals": 41,

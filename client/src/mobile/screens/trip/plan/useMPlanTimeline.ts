@@ -9,7 +9,8 @@ import { dayWeatherAnchor } from '../../../../utils/dayWeather'
 import { metadataWithLegPositions, planMergedOrder, withTransportPositions } from '../../../../utils/mergedOrder'
 import { getDisplayTimeForDay, getMergedItems, getTransportForDay, hasCarrierEndpointOnDay, isCarrierTransport, stopDayIds } from '../../../../utils/dayMerge'
 import { dayCoMapsUrl, dayExportStops, dayGoogleMapsUrl, optimizeDayOrder, type DayCarrier } from '../../../../components/Planner/dayRoute'
-import { buildTransitLeg, buildTransitNameIndex, type TransitLeg } from '../../../../components/Planner/transitLeg'
+import type { PlannedTransitLeg, TransitLeg } from '../../../../components/Planner/transitLeg'
+import { useTransitLegPlanner } from '../../../../components/Planner/useTransitLegPlanner'
 import {
   buildPlanRows, breaksChronology, findUpNext, hotelChipsForDay, hotelLegsForDay, itemHasTime,
   type HotelLegs, type PlanRow, type TransportEntry,
@@ -352,26 +353,30 @@ export function useMPlanTimeline(planner: TripPlanner) {
 
   // ── Public transit for one leg (#2398) ──
   // The entry the desktop connector menu carries: the automated search, seeded with
-  // the leg's two ends and the time the stop it leaves is planned for. It needs the
-  // trip's dates, as on the desktop and as the day sheet's own transit button does.
+  // the leg's two ends and the time the stop it leaves is planned for, between two city
+  // walks from the first one's end (CW-08). It needs the trip's dates, as on the desktop
+  // and as the day sheet's own transit button does.
   const tripHasDates = Boolean(planner.trip?.start_date && planner.trip?.end_date)
-  const transitNames = useMemo(
-    () => buildTransitNameIndex(assignments, tripAccommodations, reservations),
-    [assignments, tripAccommodations, reservations],
-  )
-  const transitLegFor = useCallback((seg: RouteSegment): TransitLeg | null => {
-    if (!day || !tripHasDates) return null
-    return buildTransitLeg(seg, day.id, transitNames, assignments, reservations)
-  }, [day, tripHasDates, transitNames, assignments, reservations])
-
-  const planTransitLeg = useCallback((leg: TransitLeg) => {
-    if (!day) return
-    planner.setTransportModalDayId(day.id)
+  const openTransitSearch = useCallback(({ dayId, ...prefill }: PlannedTransitLeg) => {
+    planner.setTransportModalDayId(dayId)
     planner.setEditingTransport(null)
-    planner.setTransitPrefill(leg)
+    planner.setTransitPrefill(prefill)
     planner.setTransportModalAutomated(true)
     planner.setShowTransportModal(true)
-  }, [planner, day])
+  }, [planner])
+  const tourOf = useCallback((placeId: number) => planner.tours.find(tour => tour.place_id === placeId), [planner.tours])
+  const { legFor, plan, lateBefore } = useTransitLegPlanner({
+    tripId, assignments, accommodations: tripAccommodations, reservations, places: planner.places,
+    toursEnabled: planner.toursEnabled, tourOf, onPlan: tripHasDates ? openTransitSearch : undefined,
+  })
+  const transitLegFor = useCallback((seg: RouteSegment): TransitLeg | null => (day ? legFor(day.id, seg) : null), [day, legFor])
+  // `originId` is the stop the leg leaves, which tells two walks ending at one spot apart.
+  const planTransitLeg = useCallback((leg: TransitLeg, originId: number) => {
+    if (day) plan(day.id, leg, originId)
+  }, [day, plan])
+  // A saved journey that now arrives after the walk it leads to starts (CW-08).
+  const journeyLate = useCallback((item: MergedItem) =>
+    (day ? lateBefore(day, item.data, merged.slice(merged.indexOf(item) + 1)) : null), [day, lateBefore, merged])
 
   return {
     day, rows, hotelLegs, merged, hotelChips, weather, weatherTemp, upNext,
@@ -382,7 +387,7 @@ export function useMPlanTimeline(planner: TripPlanner) {
     moveRowTo,
     addPlace, addBooking, addTransport,
     optimize, canExportRoute, exportGoogleMaps, exportCoMaps, renameDay, fullPlaceOf,
-    routeModeOptions, setLegMode, transitLegFor, planTransitLeg,
+    routeModeOptions, setLegMode, transitLegFor, planTransitLeg, journeyLate,
   }
 }
 

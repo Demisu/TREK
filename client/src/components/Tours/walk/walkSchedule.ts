@@ -1,5 +1,5 @@
 import { minutesOf, stationArrivals, stationFit, stationHoursOn, type StationFit } from '@trek/shared';
-import type { Day, Place } from '../../../types';
+import type { Assignment, Day, Place } from '../../../types';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 
 /**
@@ -44,6 +44,15 @@ export interface WalkScheduleInput {
   /** The day it is looked at, with the walk's start that day; null when it is on none. */
   day: { day: Pick<Day, 'date'>; start: string | null } | null;
   placeOf: LinkedPlaceOf;
+}
+
+/**
+ * CW-02, CW-04, CW-08: when a walk starts on a day, in minutes after midnight:
+ * the time set on that day's entry, else the place's own time, as the plan
+ * shows it. Null where neither is set or it cannot be read.
+ */
+export function walkStartOf(assignment: Pick<Assignment, 'assignment_time' | 'place'>): number | null {
+  return minutesOf(assignment.assignment_time ?? assignment.place?.place_time);
 }
 
 function emptySchedule(state: WalkScheduleState): WalkSchedule {

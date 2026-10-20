@@ -80,15 +80,17 @@ vi.mock('../../../../src/components/Planner/LocationSelect', () => ({
 }))
 
 vi.mock('../../../../src/components/Planner/TransitSearchPanel', () => ({
-  default: ({ day, places, onAdd, initialFrom, initialTime }: {
+  default: ({ day, places, onAdd, initialFrom, initialTime, walk }: {
     day: { id: number }
     places: { name: string }[]
     onAdd: (p: Record<string, unknown>) => void
     initialFrom: { name: string } | null
     initialTime: string | null
+    walk: { fromWalk: string } | null
   }) => (
     <div>
       <span data-testid="transit-day">{day.id}</span>
+      <span data-testid="transit-walk">{walk?.fromWalk ?? ''}</span>
       <span data-testid="transit-places">{places.map(p => p.name).join(',')}</span>
       <span data-testid="transit-from">{initialFrom?.name ?? ''}</span>
       <span data-testid="transit-time">{initialTime ?? ''}</span>
@@ -964,6 +966,17 @@ describe('MTransportFormSheet', () => {
     expect(screen.getByTestId('transit-from')).toHaveTextContent('Hotel')
     // A leg picked from the timeline's connector menu carries its departure (#2398).
     expect(screen.getByTestId('transit-time')).toHaveTextContent('08:15')
+    expect(screen.getByTestId('transit-walk')).toBeEmptyDOMElement()
+  })
+
+  it('FE-MOB-TRFRM-039b: a leg between two city walks hands the panel what it says of them (CW-08)', () => {
+    const walk = { dayId: 12, fromWalk: 'Old town', toWalk: 'Harbour', ends: null, endsNextDay: false, endsAtLeast: false, nextStarts: '13:00' }
+    renderSheet(makePlanner({
+      transportModalAutomated: true,
+      transportModalDayId: 12,
+      transitPrefill: { from: { name: 'Old bridge', lat: 52.51, lng: 13.42 }, to: null, time: null, walk },
+    }))
+    expect(screen.getByTestId('transit-walk')).toHaveTextContent('Old town')
   })
 
   it('FE-MOB-TRFRM-040: the transit panel saves its itinerary through the shared save path', async () => {

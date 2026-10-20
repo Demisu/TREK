@@ -375,6 +375,14 @@ describe('TransitRow', () => {
 
     expect(onOpenJourney).toHaveBeenCalledTimes(1)
   })
+
+  it('FE-MOB-PLROW-026b: a journey that now arrives after the next city walk starts says so under its strip (CW-08)', () => {
+    const { rerender } = render(<TransitRow {...base} open={false} late={{ walk: 'Harbour', time: '13:00' }} />)
+    expect(screen.getByTestId('transit-walk-late')).toHaveTextContent('Arrives after Harbour starts at 13:00')
+
+    rerender(<TransitRow {...base} open={false} late={null} />)
+    expect(screen.queryByTestId('transit-walk-late')).not.toBeInTheDocument()
+  })
 })
 
 describe('ConnRow', () => {

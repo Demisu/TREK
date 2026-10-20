@@ -19,7 +19,8 @@ import { TravelerPicker } from './TravelerPicker'
 import type { TripMember } from '../Budget/BudgetPanelMemberChips'
 import type { BookingExpenseRequest } from './BookingCostsSection.types'
 import type { BookingReviewDraft } from './parsedItemToDraft'
-import TransitSearchPanel, { type PickedPlace } from './TransitSearchPanel'
+import TransitSearchPanel from './TransitSearchPanel'
+import type { TransitPrefill } from './transitLeg'
 import { BookingDialogHeader, StatusPill } from './bookings/BookingDialogShell'
 import { DialogShell, DialogSection, DialogFooter, FooterSpacer, DialogButton, DeleteButton } from '../shared/DialogShell'
 import { INPUT, READONLY_BOX, GRID_2, GRID_3, PANEL, SEARCH_ON_PANEL, EditorField, Segmented, PillSelect, AddRowButton } from '../shared/dialogParts'
@@ -70,7 +71,7 @@ interface TransportModalProps {
   /** Transit search needs real dates to depart on, so the Automated mode is hidden on a dateless trip. */
   tripHasDates?: boolean
   /** Pre-seed the transit search — used by "change route" and by per-leg planning. */
-  transitPrefill?: { from?: PickedPlace | null; to?: PickedPlace | null; time?: string | null } | null
+  transitPrefill?: TransitPrefill | null
   /** Trip members + guests, for the traveler picker (#1517). */
   tripMembers?: TripMember[]
 }
@@ -304,6 +305,7 @@ export function TransportModal({ isOpen, onClose, onSave, reservation, days, sel
         initialFrom={transitPrefill?.from ?? null}
         initialTo={transitPrefill?.to ?? null}
         initialTime={transitPrefill?.time ?? null}
+        walk={transitPrefill?.walk ?? null}
       />
     )
   }

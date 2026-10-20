@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { RoadtripStopType } from '@trek/shared'
 import { airtrailApi } from '../../api/client'
 import type { RoadtripStopDraft } from '../../components/Roadtrip/RoadtripStopPopup'
+import type { TransitPrefill } from '../../components/Planner/transitLeg'
 import { useAirtrailConnection } from '../../hooks/useAirtrailConnection'
 import type { Place, Reservation } from '../../types'
 import type { PlannerBase, PlannerSearchParams } from './plannerTypes'
@@ -128,7 +129,7 @@ export function usePlannerDialogs(options: PlannerDialogsOptions) {
   // Public transit (#1065): open the TransportModal in its Automated mode, seed
   // the search (change-route), and show the journey view for a saved entry.
   const [transportModalAutomated, setTransportModalAutomated] = useState<boolean>(false)
-  const [transitPrefill, setTransitPrefill] = useState<{ from?: { name: string; lat: number; lng: number } | null; to?: { name: string; lat: number; lng: number } | null; time?: string | null } | null>(null)
+  const [transitPrefill, setTransitPrefill] = useState<TransitPrefill | null>(null)
   const [transitJourney, setTransitJourney] = useState<Reservation | null>(null)
   // The booking whose detail is open over the desktop plan: a day row, a rental pill,
   // the inspector's booking card, a map endpoint or the road-trip rail opened it.

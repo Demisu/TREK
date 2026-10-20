@@ -14,6 +14,8 @@ import { useTripStore } from '../../store/tripStore'
 import { isCarrierTransport } from '../../utils/dayMerge'
 import type { TransitProvider } from '@trek/shared'
 import { useIsPhone } from '../../mobile/useIsPhone'
+import { WalkLateLine, WalkTransitNote } from '../Tours/walk/WalkTransitNote'
+import { lateForWalk, type WalkLate, type WalkTransitContext } from '../Tours/walk/walkTransit'
 
 /**
  * Public transit route search (#1065), backed by Transitous (MOTIS) through the
@@ -314,7 +316,7 @@ function LineBadge({ leg }: { leg: TransitLeg }) {
   )
 }
 
-function ItineraryCard({ it, tzFrom, tzTo, is12h, expanded, onToggle, onAdd, adding, t }: {
+function ItineraryCard({ it, tzFrom, tzTo, is12h, expanded, onToggle, onAdd, adding, late, t }: {
   it: TransitItinerary
   tzFrom: string
   tzTo: string
@@ -323,6 +325,8 @@ function ItineraryCard({ it, tzFrom, tzTo, is12h, expanded, onToggle, onAdd, add
   onToggle: () => void
   onAdd: () => void
   adding: boolean
+  /** CW-08: the next city walk this connection arrives too late for. */
+  late: WalkLate | null
   t: (k: string, p?: Record<string, string | number>) => string
 }) {
   const transitLegs = it.legs.filter(l => l.mode !== 'WALK')
@@ -352,6 +356,7 @@ function ItineraryCard({ it, tzFrom, tzTo, is12h, expanded, onToggle, onAdd, add
             </React.Fragment>
           ))}
         </div>
+        <WalkLateLine late={late} />
       </button>
 
       {expanded && (
@@ -460,9 +465,11 @@ interface TransitSearchPanelProps {
   initialTo?: PickedPlace | null
   /** Pre-seed the departure time ('HH:mm') — used when planning a specific leg. */
   initialTime?: string | null
+  /** CW-08: the two city walks the leg runs between; said only while the search is for their day. */
+  walk?: WalkTransitContext | null
 }
 
-export default function TransitSearchPanel({ day, days, places, accommodations = [], onAdd, initialFrom = null, initialTo = null, initialTime = null }: TransitSearchPanelProps) {
+export default function TransitSearchPanel({ day, days, places, accommodations = [], onAdd, initialFrom = null, initialTo = null, initialTime = null, walk = null }: TransitSearchPanelProps) {
   const { t, language } = useTranslation()
   const toast = useToast()
   const is12h = useSettingsStore(s => s.settings.time_format) === '12h'
@@ -470,7 +477,9 @@ export default function TransitSearchPanel({ day, days, places, accommodations =
 
   const [from, setFrom] = useState<PickedPlace | null>(initialFrom)
   const [to, setTo] = useState<PickedPlace | null>(initialTo)
-  const [time, setTime] = useState(initialTime || '09:00')
+  const walkHere = walk?.dayId === day.id ? walk : null
+  // Between two walks the time is when the first one ends, never one made up: unknown, it is chosen.
+  const [time, setTime] = useState(initialTime || (walkHere ? '' : '09:00'))
   const [arriveBy, setArriveBy] = useState(false)
   const [activeModes, setActiveModes] = useState<Set<string>>(() => new Set(MODE_GROUPS.map(m => m.key)))
   const [pref, setPref] = useState<'best' | 'transfers' | 'walking'>('best')
@@ -629,6 +638,7 @@ export default function TransitSearchPanel({ day, days, places, accommodations =
 
   const tzFrom = from ? tzAt(from.lat, from.lng) : 'UTC'
   const tzTo = to ? tzAt(to.lat, to.lng) : tzFrom
+  const canSearch = !!from && !!to && !!time && !loading
 
   const segBtn = (active: boolean): React.CSSProperties => ({
     padding: isMobile ? '6px 5px' : '6px 11px', fontSize: isMobile ? 'calc(11px * var(--fs-scale-body, 1))' : 'calc(12px * var(--fs-scale-body, 1))', borderRadius: 7, fontWeight: 500,
@@ -639,6 +649,7 @@ export default function TransitSearchPanel({ day, days, places, accommodations =
 
   return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, fontFamily: 'var(--font-system)' }}>
+        <WalkTransitNote walk={walkHere} />
         {/* from / to — stacked tight on mobile, swap button on desktop only */}
         <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 8, alignItems: isMobile ? 'stretch' : 'flex-end' }}>
           <StopPicker label={t('transit.from')} value={from} onPick={setFrom} quickPicks={quickPicks} near={near} placeholder={t('transit.searchStop')} />
@@ -707,9 +718,9 @@ export default function TransitSearchPanel({ day, days, places, accommodations =
             </div>
             <button type="button"
               onClick={search}
-              disabled={!from || !to || loading}
+              disabled={!canSearch}
               className="bg-accent text-accent-text"
-              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, border: 'none', borderRadius: 10, padding: '9px 18px', fontWeight: 600, fontSize: 'calc(13px * var(--fs-scale-body, 1))', cursor: (!from || !to || loading) ? 'default' : 'pointer', fontFamily: 'inherit', opacity: (!from || !to || loading) ? 0.55 : 1, flexShrink: 0, width: isMobile ? '100%' : undefined }}
+              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, border: 'none', borderRadius: 10, padding: '9px 18px', fontWeight: 600, fontSize: 'calc(13px * var(--fs-scale-body, 1))', cursor: canSearch ? 'pointer' : 'default', fontFamily: 'inherit', opacity: canSearch ? 1 : 0.55, flexShrink: 0, width: isMobile ? '100%' : undefined }}
             >
               <Search size={14} strokeWidth={2.2} />
               {loading ? t('transit.searching') : t('transit.search')}
@@ -743,6 +754,7 @@ export default function TransitSearchPanel({ day, days, places, accommodations =
                 onToggle={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
                 onAdd={() => addItinerary(it, idx)}
                 adding={addingIdx === idx}
+                late={lateForWalk(walkHere, day.date ?? null, { date: dateYMDInTz(it.endTime, tzTo), time: timeHHmmInTz(it.endTime, tzTo) })}
                 t={t}
               />
             ))}

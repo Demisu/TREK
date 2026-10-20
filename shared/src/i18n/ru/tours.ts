@@ -608,6 +608,16 @@ const tours: TranslationStrings = {
   'tours.walk.hours.sourcePlace': 'Место поездки',
   'tours.walk.hours.sourceOsmHint': 'Найдено вместе с остановкой в OpenStreetMap; может быть устаревшим.',
   'tours.walk.hours.sourcePlaceHint': 'Указано для этого места поездки.',
+  'tours.walk.transit.endOf': 'Конец прогулки {walk}',
+  'tours.walk.transit.startOf': 'Начало прогулки {walk}',
+  'tours.walk.transit.ends': 'Прогулка {walk} заканчивается около {time}.',
+  'tours.walk.transit.endsAtLeast': 'Прогулка {walk} заканчивается не раньше {time}; известно ещё не всё время.',
+  'tours.walk.transit.endUnknown':
+    'Пока неизвестно, когда заканчивается прогулка {walk}, поэтому выбери время отправления.',
+  'tours.walk.transit.endsNextDay':
+    'Прогулка {walk} заканчивается только после полуночи, поэтому выбери время отправления.',
+  'tours.walk.transit.nextStarts': 'Прогулка {walk} начинается в {time}.',
+  'tours.walk.transit.late': 'Прибытие после начала прогулки {walk} в {time}',
   'tours.poi.categoriesNone': 'Категория не выбрана',
   'tours.poi.categoriesMore': '{first} +{more}',
   'tours.planner.tourType': 'Тип тура',

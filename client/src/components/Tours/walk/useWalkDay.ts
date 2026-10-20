@@ -1,6 +1,7 @@
-import { clockOf, minutesOf } from '@trek/shared';
+import { clockOf } from '@trek/shared';
 import { useMemo, useState } from 'react';
 import type { AssignmentsMap, Day } from '../../../types';
+import { walkStartOf } from './walkSchedule';
 
 /** A day the walk is on, with its place in the trip and the walk's start that day. */
 export interface WalkDayOption {
@@ -12,15 +13,14 @@ export interface WalkDayOption {
 }
 
 /**
- * CW-02: the days a walk is on, in the order of the trip, each with its start:
- * the time set on that day's entry, else the place's own time, as the plan
- * shows it. A time that cannot be read is no start.
+ * CW-02: the days a walk is on, in the order of the trip, each with its start
+ * on that day (`walkStartOf`). A time that cannot be read is no start.
  */
 function walkDayOptions(placeId: number, days: readonly Day[], assignments: AssignmentsMap): WalkDayOption[] {
   return days.flatMap((day, index) => {
     const assignment = (assignments[String(day.id)] ?? []).find((entry) => entry.place_id === placeId);
     if (!assignment) return [];
-    const minutes = minutesOf(assignment.assignment_time ?? assignment.place?.place_time);
+    const minutes = walkStartOf(assignment);
     return [{ day, index, start: minutes === null ? null : clockOf(minutes) }];
   });
 }

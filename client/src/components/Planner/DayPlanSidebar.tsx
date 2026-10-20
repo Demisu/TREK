@@ -8,8 +8,9 @@ import React, { useState, useEffect, useLayoutEffect, useRef, useMemo, useCallba
 import { avatarSrc } from '../../utils/avatarSrc'
 import { safeHttpUrl } from '../../utils/safeUrl'
 import { ChevronDown, ChevronRight, ChevronUp, Compass, RotateCcw, ExternalLink, Pencil, GripVertical, Ticket, Plus, FileText, Trash2, Car, Lock, Hotel, Eraser, Route as RouteIcon, RouteOff, Bookmark, StickyNote, TramFront, Zap, MapPin, Globe } from 'lucide-react'
-import { type PickedPlace } from './TransitSearchPanel'
-import { buildTransitLeg, buildTransitNameIndex } from './transitLeg'
+import type { PlannedTransitLeg } from './transitLeg'
+import { useTransitLegPlanner } from './useTransitLegPlanner'
+import { WalkLateLine } from '../Tours/walk/WalkTransitNote'
 import { optimizeRoute, generateGoogleMapsUrl, generateCoMapsUrl } from '../Map/RouteCalculator'
 import { dayViaLookup, type ViasByDay } from '../../utils/dayRouteVias'
 import { routeLeg, type LegEnd } from '../Map/dayRouteLeg'
@@ -161,8 +162,9 @@ export interface DayPlanSidebarProps {
    * Opens the public-transit search pre-filled for a single leg (#1281 follow-up):
    * the leg's origin and destination endpoints plus the origin's departure time,
    * so "public transport" becomes an option on any connector, not just the day header.
+   * Between two city walks it carries what the search says of them (CW-08).
    */
-  onPlanTransitLeg?: (leg: { dayId: number; from: PickedPlace; to: PickedPlace; time: string | null }) => void
+  onPlanTransitLeg?: (leg: PlannedTransitLeg) => void
   /** Opens the journey view for a saved transit entry (#1065). */
   onOpenTransit?: (reservation: Reservation) => void
   onEditTransport?: (reservation: Reservation) => void
@@ -789,6 +791,8 @@ function useDayPlanSidebar(props: DayPlanSidebarProps) {
           for (let i = 0; i < run.length - 1; i++) {
             const from = run[i]
             const to = run[i + 1]
+            // A booking whose station is the stop itself leaves a leg that goes nowhere, as on the phone (CW-08).
+            if ((!from.isPlace || !to.isPlace) && from.lat === to.lat && from.lng === to.lng) continue
             const mode = resolveLegMode(from, to, dfMode)
             tasks.push(async () => {
               const seg = await legBetween(from, to, dayId, mode)
@@ -1405,26 +1409,19 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
     })
   }
 
-  // Coordinates back to names for the transit search, over every located place,
-  // hotel and booking endpoint on the trip (see transitLeg.ts).
-  const transitNameIndex = useMemo(
-    () => buildTransitNameIndex(assignments, accommodations, reservations),
-    [assignments, accommodations, reservations],
-  )
-
-  // The extra connector-menu entry (#1281 follow-up): search public transit for this
-  // leg instead of drawing a road route. Only when a handler is wired (day has dates).
-  const transitLegPlanner = (dayId: number, seg?: RouteSegment) => {
-    if (!onPlanTransitLeg) return undefined
-    const leg = buildTransitLeg(seg, dayId, transitNameIndex, assignments, reservations)
-    if (!leg) return undefined
-    return () => onPlanTransitLeg({ dayId, from: leg.from, to: leg.to, time: leg.time })
+  // The extra connector-menu entry (#1281 follow-up): public transit for this leg while a handler is wired (day has
+  // dates); between two city walks from the end of the one it leaves, `originId`, as two can end at one spot (CW-08).
+  const transitLegs = useTransitLegPlanner({ tripId, assignments, accommodations, reservations, places, toursEnabled,
+    onPlan: onPlanTransitLeg, tourOf: placeId => props.plannedTourDurations?.get(placeId)?.tour })
+  const transitLegPlanner = (dayId: number, seg?: RouteSegment, originId?: number) => {
+    const leg = transitLegs.legFor(dayId, seg)
+    return leg ? () => transitLegs.plan(dayId, leg, originId) : undefined
   }
 
   // Open the mode menu at the clicked connector: every route profile, the optional
   // "public transport" entry, plus a "use day default" entry that clears the override.
   const openLegModeMenu = (e: React.MouseEvent, assignmentId: number, dayId: number, seg?: RouteSegment) => {
-    ctxMenu.open(e, legModeMenu(mode => setLegMode(assignmentId, dayId, mode), transitLegPlanner(dayId, seg)))
+    ctxMenu.open(e, legModeMenu(m => setLegMode(assignmentId, dayId, m), transitLegPlanner(dayId, seg, assignmentId)))
   }
 
   // Set the mode of the leg ENTERING this stop (a booking arrival or the morning
@@ -2359,6 +2356,7 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                                   </div>
                                 )
                               })()}
+                              <WalkLateLine late={transitLegs.lateBefore(day, res, merged.slice(idx + 1))} />
                             </div>
                             {transitMeta && (() => {
                               const expanded = expandedTransitIds.has(res.id)

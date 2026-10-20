@@ -606,6 +606,16 @@ const tours: TranslationStrings = {
   'tours.walk.hours.sourcePlace': 'Μέρος του ταξιδιού',
   'tours.walk.hours.sourceOsmHint': 'Βρέθηκε μαζί με τη στάση στο OpenStreetMap. Μπορεί να μην είναι ενημερωμένο.',
   'tours.walk.hours.sourcePlaceHint': 'Καταχωρίστηκε για αυτό το μέρος του ταξιδιού.',
+  'tours.walk.transit.endOf': 'Τέλος της βόλτας {walk}',
+  'tours.walk.transit.startOf': 'Αρχή της βόλτας {walk}',
+  'tours.walk.transit.ends': 'Η βόλτα {walk} τελειώνει γύρω στις {time}.',
+  'tours.walk.transit.endsAtLeast':
+    'Η βόλτα {walk} τελειώνει το νωρίτερο στις {time}, αφού δεν είναι ακόμη γνωστοί όλοι οι χρόνοι.',
+  'tours.walk.transit.endUnknown':
+    'Δεν είναι ακόμη γνωστό πότε τελειώνει η βόλτα {walk}, οπότε διάλεξε ώρα αναχώρησης.',
+  'tours.walk.transit.endsNextDay': 'Η βόλτα {walk} τελειώνει μετά τα μεσάνυχτα, οπότε διάλεξε ώρα αναχώρησης.',
+  'tours.walk.transit.nextStarts': 'Η βόλτα {walk} ξεκινά στις {time}.',
+  'tours.walk.transit.late': 'Άφιξη μετά την έναρξη της βόλτας {walk} στις {time}',
   'tours.poi.categoriesNone': 'Δεν επιλέχθηκε κατηγορία',
   'tours.poi.categoriesMore': '{first} +{more}',
   'tours.planner.tourType': 'Τύπος διαδρομής',

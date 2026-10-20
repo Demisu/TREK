@@ -1,16 +1,28 @@
 // RS-01 / RC-01: how a Tour stop reads in the day plan while the Tours addon is on,
 // and that it falls back to the plain Place row when it is off. The mocks are the
 // ones DayPlanSidebar.test.tsx renders the sidebar with.
+// CW-08: public transit between two city walks from the day plan's connector.
+import userEvent from '@testing-library/user-event';
+import type { TourListItem } from '@trek/shared';
 import { http, HttpResponse } from 'msw';
-import { buildAssignment, buildDay, buildPlace, buildTrip, buildUser } from '../../../tests/helpers/factories';
+import {
+  buildAssignment,
+  buildDay,
+  buildPlace,
+  buildReservation,
+  buildTrip,
+  buildUser,
+} from '../../../tests/helpers/factories';
 import { server } from '../../../tests/helpers/msw/server';
-import { render, screen } from '../../../tests/helpers/render';
+import { render, screen, waitFor, within } from '../../../tests/helpers/render';
 import { resetAllStores, seedStore } from '../../../tests/helpers/store';
 import { clearExchangeRateCache } from '../../hooks/useExchangeRates';
 import { useAddonStore } from '../../store/addonStore';
 import { useAuthStore } from '../../store/authStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useTripStore } from '../../store/tripStore';
+import type { Reservation } from '../../types';
+import { tourPlannedTimes } from '../Tours/tourPresentation';
 import DayPlanSidebar from './DayPlanSidebar';
 // ── Hoisted mock state (accessible in vi.mock factories) ────────────────────
 const mockDayNotesState = vi.hoisted(() => ({
@@ -56,12 +68,14 @@ vi.mock('../Map/RouteCalculator', () => ({
   generateGoogleMapsUrl: vi.fn().mockReturnValue('https://maps.google.com/...'),
   generateCoMapsUrl: vi.fn().mockReturnValue('https://comaps.at/...'),
   optimizeRoute: vi.fn().mockImplementation((places) => places),
-  // One leg per waypoint gap; the connector between two stops reads distanceText.
-  calculateRouteWithLegs: vi.fn().mockImplementation((waypoints) =>
+  // One leg per waypoint gap, carrying its two ends as the real one does; the connector between two stops reads distanceText.
+  calculateRouteWithLegs: vi.fn().mockImplementation((waypoints: { lat: number; lng: number }[] = []) =>
     Promise.resolve({
       distanceText: '2 km',
       durationText: '10 min',
-      legs: Array.from({ length: Math.max(0, (waypoints?.length ?? 0) - 1) }, () => ({
+      legs: waypoints.slice(1).map((to, index) => ({
+        from: [waypoints[index]?.lat, waypoints[index]?.lng],
+        to: [to.lat, to.lng],
         distanceText: '2 km',
         durationText: '10 min',
         drivingText: '10 min',
@@ -70,6 +84,13 @@ vi.mock('../Map/RouteCalculator', () => ({
     })
   ),
 }));
+
+// CW-08: a walk's stops are read for the names of a transit leg's two ends.
+const mockTourDetail = vi.hoisted(() => vi.fn());
+vi.mock('../../repo/tourRepo', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../repo/tourRepo')>();
+  return { ...actual, tourRepo: { ...actual.tourRepo, detail: mockTourDetail } };
+});
 
 // PlaceAvatar needs IntersectionObserver
 class MockIO {
@@ -326,5 +347,216 @@ describe('DayPlanSidebar', () => {
 
     // The cafe can be booked; the tour beside it cannot.
     expect(screen.getAllByRole('button', { name: 'Add booking' })).toHaveLength(1);
+  });
+});
+
+// CW-08: the old town walk ends at the bridge, the harbour walk starts at the fish market.
+const TOURS_ON = [{ id: 'tours', name: 'Tours', type: 'trip', icon: '', enabled: true }];
+const oldTown = buildPlace({
+  id: 51,
+  name: 'Old town',
+  tour_place_id: 51,
+  lat: 52.52,
+  lng: 13.4,
+  route_geometry: '[[52.52,13.4],[52.515,13.41],[52.51,13.42]]',
+});
+const harbour = buildPlace({
+  id: 52,
+  name: 'Harbour',
+  tour_place_id: 52,
+  lat: 52.5,
+  lng: 13.45,
+  route_geometry: '[[52.5,13.45],[52.49,13.46]]',
+});
+const cafe = buildPlace({ id: 53, name: 'Corner cafe', lat: 52.48, lng: 13.47 });
+
+function walkTour(place: { id: number; name: string }, overrides: Partial<TourListItem> = {}): TourListItem {
+  return {
+    place_id: place.id,
+    name: place.name,
+    tour_type: 'walk',
+    distance: 3,
+    elevation_gain: null,
+    elevation_loss: null,
+    duration: 90,
+    break_additional_minutes: null,
+    planned_duration_minutes: null,
+    difficulty: null,
+    wanderer_ref: null,
+    match_confidence: 1,
+    max_hiking_difficulty: null,
+    planned: true,
+    caution: false,
+    station_count: 2,
+    station_stay_minutes: 45,
+    station_stays_unknown: 0,
+    ...overrides,
+  } as TourListItem;
+}
+
+function walkDayProps(extra: { reservations?: Reservation[]; withCafe?: boolean; onPlanTransitLeg?: () => void }) {
+  const day = buildDay({ id: 10, date: '2025-06-01', title: 'Day 1' });
+  const assignments = {
+    '10': [
+      buildAssignment({
+        id: 201,
+        day_id: 10,
+        order_index: 0,
+        tour_place_id: 51,
+        place: { ...oldTown, place_time: '10:00' },
+      }),
+      buildAssignment({
+        id: 202,
+        day_id: 10,
+        order_index: 1,
+        tour_place_id: 52,
+        place: { ...harbour, place_time: '13:00' },
+      }),
+      ...(extra.withCafe ? [buildAssignment({ id: 203, day_id: 10, order_index: 2, place: cafe })] : []),
+    ],
+  };
+  const tours = [walkTour(oldTown), walkTour(harbour)];
+  return makeDefaultProps({
+    days: [day],
+    places: [oldTown, harbour, cafe],
+    assignments,
+    selectedDayId: 10,
+    routeShown: true,
+    tourPlaceIds: new Set([51, 52]),
+    plannedTourDurations: new Map(tours.map((tour) => [tour.place_id, { ...tourPlannedTimes(tour), tour }])),
+    reservations: extra.reservations ?? [],
+    onPlanTransitLeg: extra.onPlanTransitLeg,
+  });
+}
+
+/** A journey saved from the old town walk's end to the harbour walk's start, arriving at `arrives`. */
+function savedJourney(arrives: string): Reservation {
+  return {
+    ...buildReservation({
+      id: 300,
+      type: 'transit',
+      title: 'Old bridge → Fish market',
+      reservation_time: '2025-06-01T12:20',
+      reservation_end_time: `2025-06-01T${arrives}`,
+      day_id: 10,
+    }),
+    endpoints: [
+      {
+        role: 'from',
+        sequence: 0,
+        name: 'Old bridge',
+        lat: 52.51,
+        lng: 13.42,
+        local_date: '2025-06-01',
+        local_time: '12:20',
+      },
+      {
+        role: 'to',
+        sequence: 1,
+        name: 'Fish market',
+        lat: 52.5,
+        lng: 13.45,
+        local_date: '2025-06-01',
+        local_time: arrives,
+      },
+    ],
+    metadata: {
+      transit: {
+        provider: 'transitous',
+        duration: 1800,
+        transfers: 0,
+        legs: [{ mode: 'TRAM', line: 'M1', duration: 1500 }],
+      },
+    },
+  } as unknown as Reservation;
+}
+
+function contextMenu() {
+  return within(document.querySelector('[style*="z-index: 999999"]') as HTMLElement);
+}
+
+describe('DayPlanSidebar, public transit between two city walks (CW-08)', () => {
+  beforeEach(() => {
+    useAddonStore.setState({ addons: TOURS_ON });
+    mockTourDetail.mockImplementation((_tripId: number, placeId: number) =>
+      Promise.resolve({
+        tour: walkTour(placeId === 51 ? oldTown : harbour),
+        waypoints:
+          placeId === 51
+            ? [
+                { lat: 52.52, lng: 13.4, role: 'start', sequence: 0, key: 'a1', name: 'Town hall', stay_minutes: 30 },
+                { lat: 52.51, lng: 13.42, role: 'end', sequence: 1, key: 'a2', name: 'Old bridge', stay_minutes: 15 },
+              ]
+            : [
+                { lat: 52.5, lng: 13.45, role: 'start', sequence: 0, key: 'b1', name: 'Fish market' },
+                { lat: 52.49, lng: 13.46, role: 'end', sequence: 1, key: 'b2', name: 'Lighthouse' },
+              ],
+      })
+    );
+  });
+
+  it('CW-08: the connector between two walks opens the search from the last stop to the first, when the first walk ends', async () => {
+    const user = userEvent.setup();
+    const onPlanTransitLeg = vi.fn();
+    render(<DayPlanSidebar {...walkDayProps({ onPlanTransitLeg })} />);
+
+    await user.click(await screen.findByLabelText('Change travel mode'));
+    await user.click(contextMenu().getByRole('button', { name: 'Public transit' }));
+
+    // The walk's end at 10:00 plus 90 min walking and 45 min of stays; nothing is saved.
+    await waitFor(() =>
+      expect(onPlanTransitLeg).toHaveBeenCalledWith({
+        dayId: 10,
+        from: { name: 'Old bridge', lat: 52.51, lng: 13.42 },
+        to: { name: 'Fish market', lat: 52.5, lng: 13.45 },
+        time: '12:15',
+        walk: {
+          dayId: 10,
+          fromWalk: 'Old town',
+          toWalk: 'Harbour',
+          ends: '12:15',
+          endsNextDay: false,
+          endsAtLeast: false,
+          nextStarts: '13:00',
+        },
+      })
+    );
+    expect(mockTourDetail).toHaveBeenCalledTimes(2);
+  });
+
+  it('CW-08: a leg from a walk to a place keeps the search as for any leg, and reads no stops', async () => {
+    const user = userEvent.setup();
+    const onPlanTransitLeg = vi.fn();
+    render(<DayPlanSidebar {...walkDayProps({ onPlanTransitLeg, withCafe: true })} />);
+
+    const connectors = await screen.findAllByLabelText('Change travel mode');
+    expect(connectors).toHaveLength(2);
+    await user.click(connectors[1]);
+    await user.click(contextMenu().getByRole('button', { name: 'Public transit' }));
+
+    expect(onPlanTransitLeg).toHaveBeenCalledWith({
+      dayId: 10,
+      from: { name: '', lat: 52.49, lng: 13.46 },
+      to: { name: 'Corner cafe', lat: 52.48, lng: 13.47 },
+      time: null,
+    });
+    expect(mockTourDetail).not.toHaveBeenCalled();
+  });
+
+  it('CW-08: a journey saved at the walks’ ends adds no walk of nothing on either side of it', async () => {
+    render(<DayPlanSidebar {...walkDayProps({ withCafe: true, reservations: [savedJourney('12:50')] })} />);
+
+    // The only leg left is the one from the harbour walk to the cafe; the journey covers the rest.
+    await screen.findByLabelText('Change travel mode');
+    expect(screen.getAllByLabelText('Change travel mode')).toHaveLength(1);
+    expect(screen.queryByTestId('transit-walk-late')).not.toBeInTheDocument();
+  });
+
+  it('CW-08: a saved journey that now arrives after the next walk starts says so, and changes nothing', () => {
+    const onPlanTransitLeg = vi.fn();
+    render(<DayPlanSidebar {...walkDayProps({ onPlanTransitLeg, reservations: [savedJourney('13:10')] })} />);
+
+    expect(screen.getByTestId('transit-walk-late')).toHaveTextContent('Arrives after Harbour starts at 13:00');
+    expect(onPlanTransitLeg).not.toHaveBeenCalled();
   });
 });

@@ -519,6 +519,15 @@ describe('TransportModal', () => {
     expect(screen.getAllByPlaceholderText('Search stop or station…')).toHaveLength(2);
   });
 
+  it('FE-PLANNER-TRANSMODAL-023b: a leg between two city walks opens the search with what it says of them (CW-08)', () => {
+    const days = [{ id: 10, trip_id: 1, day_number: 1, date: '2025-06-01', title: 'Day 1' }] as Day[];
+    const walk = { dayId: 10, fromWalk: 'Old town', toWalk: 'Harbour', ends: '12:15', endsNextDay: false, endsAtLeast: false, nextStarts: '13:00' };
+    const transitPrefill = { from: { name: 'Old bridge', lat: 52.51, lng: 13.42 }, to: { name: 'Fish market', lat: 52.5, lng: 13.45 }, time: '12:15', walk };
+    render(<TransportModal {...defaultProps} days={days} selectedDayId={10} initialAutomated transitPrefill={transitPrefill} places={[]} accommodations={[]} />);
+    expect(screen.getByTestId('transit-walk-end')).toHaveTextContent('Old town ends at about 12:15.');
+    expect(screen.getByTestId('transit-walk-next')).toHaveTextContent('Harbour starts at 13:00.');
+  });
+
   it('FE-PLANNER-TRANSMODAL-028: automated quick picks only offer the chosen day\'s places (#1460)', async () => {
     const days = [
       buildDay({ id: 10, date: '2025-06-01' }),

@@ -1,18 +1,6 @@
-import { walkStationsOf } from '@trek/shared';
 import { useEffect, useState } from 'react';
-import { tourRepo } from '../../../repo/tourRepo';
-import { randomId } from '../../../utils/randomId';
-import { plannerWaypointsOf, type TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
-
-/**
- * CW-03: a synced walk's stations all carry a key. Points without any are the
- * route's ends, which this device reads in their place while it holds none of
- * the stations, so they are not listed as the walk's. A walk saved offline has
- * no keys before it synced, and its stations stay.
- */
-function ownStations(points: TourPlannerWaypoint[], placeId: number): TourPlannerWaypoint[] {
-  return placeId < 0 || points.some((point) => point.key) ? points : [];
-}
+import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
+import { readWalkStations } from './walkStationsRead';
 
 /**
  * CW-03: a saved walk's stations in order: null while they load, none where
@@ -30,12 +18,9 @@ export function useWalkStations(
   useEffect(() => {
     if (!enabled) return;
     const controller = new AbortController();
-    tourRepo
-      .detail(tripId, placeId, controller.signal)
-      .then((detail) => {
-        if (controller.signal.aborted) return;
-        const points = walkStationsOf(plannerWaypointsOf(detail.waypoints, randomId));
-        setStations({ placeId, points: ownStations(points, placeId) });
+    readWalkStations(tripId, placeId, controller.signal)
+      .then((points) => {
+        if (!controller.signal.aborted) setStations({ placeId, points });
       })
       .catch(() => {
         if (!controller.signal.aborted) setStations({ placeId, points: [] });

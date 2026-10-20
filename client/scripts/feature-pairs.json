@@ -572,6 +572,12 @@
       "mobile": ["src/mobile/screens/admin/MAdminPluginsPanel.tsx"]
     },
     {
+      "feature": "Public transit for one leg, between two city walks from the first one's end, and a journey late for the next walk",
+      "hooks": ["src/components/Planner/useTransitLegPlanner.ts"],
+      "desktop": ["src/components/Planner/DayPlanSidebar.tsx"],
+      "mobile": ["src/mobile/screens/trip/plan/useMPlanTimeline.ts"]
+    },
+    {
       "feature": "Reservation form incl. hotel accommodation creation",
       "hooks": ["src/components/Planner/reservationFormModel.ts", "src/components/Planner/useReservationForm.ts"],
       "desktop": ["src/components/Planner/ReservationModal.tsx"],

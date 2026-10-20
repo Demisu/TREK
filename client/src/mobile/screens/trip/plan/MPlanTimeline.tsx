@@ -51,7 +51,7 @@ export default function MPlanTimeline({ planner, shell }: MPlanTimelineProps) {
       tl.routeModeOptions,
       mode => tl.setLegMode(assignmentId, mode),
       t,
-      transitLeg ? () => tl.planTransitLeg(transitLeg) : undefined,
+      transitLeg ? () => tl.planTransitLeg(transitLeg, assignmentId) : undefined,
     ))
   }
   // Plugin time contributions in the day plan (dayScheduleProvider hook) —
@@ -242,6 +242,7 @@ export default function MPlanTimeline({ planner, shell }: MPlanTimelineProps) {
                     drag={dragFor(row)}
                     onToggle={() => tl.toggleTransit(row.key)}
                     onOpenJourney={() => tl.openTransitJourney(row.res)}
+                    late={tl.journeyLate(row.item)}
                   />
                   {dayScheduleFor('reservation', row.res.id)}
                 </Fragment>
