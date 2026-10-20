@@ -10,11 +10,42 @@ import { TourPoiSearchService } from './tour-poi-search.service';
 import { TourVisitsService } from './tour-visits.service';
 import { ToursService } from './tours.service';
 import { NotFoundException } from '@nestjs/common';
-import { idSchema, tourPoiSearchRequestSchema, type TourListItem, type TourPoiSearchRequest } from '@trek/shared';
+import {
+  idSchema,
+  tourPoiSearchRequestSchema,
+  walkStationsOf,
+  type TourListItem,
+  type TourPoiSearchRequest,
+  type TourWaypoint,
+} from '@trek/shared';
 
 type TourDay = Pick<TourDayRow, 'day_id' | 'day_number' | 'date' | 'title'>;
 
 const poiFields = tourPoiSearchRequestSchema.shape;
+
+/**
+ * CW-10: a station of a city walk with every field it has spelled out, so an
+ * assistant reads a stay nobody entered as null and never as missing: null
+ * for an unknown stay, a normal importance and no known hours, false for an
+ * unprotected station. REST answers the stored fields as they are.
+ */
+function spelledOut<T extends TourWaypoint>(station: T) {
+  return {
+    ...station,
+    key: station.key ?? null,
+    name: station.name ?? null,
+    stay_minutes: station.stay_minutes ?? null,
+    importance: station.importance ?? null,
+    protected: station.protected === true,
+    opening_hours: station.opening_hours ?? null,
+  };
+}
+
+/** The points of a tour as get_tour_plan answers them: a city walk's stations spelled out, every other point as stored. */
+function planPoints<T extends TourWaypoint>(tourType: string, points: T[]) {
+  const stations = new Set<T>(tourType === 'walk' ? walkStationsOf(points) : []);
+  return points.map((point) => (stations.has(point) ? spelledOut(point) : point));
+}
 
 /** A tour as a client reads it: its list facts and the days of the trip it is on. */
 function withDays(tour: TourListItem, days: ReadonlyMap<number, TourDay[]>) {
@@ -54,7 +85,7 @@ export class ToursMcp {
   @Tool({
     name: 'list_tours',
     description:
-      'List the saved tours of a trip (hikes, bike tours and paddle tours planned or imported in the Tours addon): name, type (hike, bike, or kayak for a paddle tour), where it came from (origin: trek, gpx or wanderer), distance in km, ascent and descent in metres, the stored routing limit of a hike (max_hiking_difficulty, SAC T1 to T6) and its route choices (hiking_preferences: avoid_climbs for gentler ways, avoid_steps, avoid_ferries; weightings, never a grade of the path), the profile a bike tour is routed for (bike_profile: touring for paved cycle paths and quiet roads, road for asphalt, gravel for gravel and farm tracks, mtb for rough tracks; a routing preference, never a statement that a way is rideable or safe), the boat, water and chosen speed of a paddle tour (boat_type, water_context, paddle_speed_kmh in km/h, null while the suggested speed of the boat applies), the check bench of a paddle tour (paddle_check: how far the OpenStreetMap obstacle data covers its line and how many obstacles are open, to check again or decided by the travellers; a planning status, never a safety or legal clearance), the revision (raised by every saved change of the tour), and the days of the trip each tour is on.',
+      'List the saved tours of a trip (hikes, city walks, bike tours and paddle tours planned or imported in the Tours addon): name, type (hike, walk for a city walk, bike, or kayak for a paddle tour), where it came from (origin: trek, gpx or wanderer), distance in km, ascent and descent in metres, the stored routing limit of a hike (max_hiking_difficulty, SAC T1 to T6) and its route choices (hiking_preferences: avoid_climbs for gentler ways, avoid_steps, avoid_ferries; weightings, never a grade of the path), the profile a bike tour is routed for (bike_profile: touring for paved cycle paths and quiet roads, road for asphalt, gravel for gravel and farm tracks, mtb for rough tracks; a routing preference, never a statement that a way is rideable or safe), the boat, water and chosen speed of a paddle tour (boat_type, water_context, paddle_speed_kmh in km/h, null while the suggested speed of the boat applies), the check bench of a paddle tour (paddle_check: how far the OpenStreetMap obstacle data covers its line and how many obstacles are open, to check again or decided by the travellers; a planning status, never a safety or legal clearance), for a city walk the number of its stations (station_count: its points without the shaping points and the way back of a loop), their stays as far as entered (station_stay_minutes) and how many have none (station_stays_unknown), whether a tour still waits for its way to be planned (route_pending: saved with its points only, so its distance and walking time stay null until someone opens it in the planner and saves it), the revision (raised by every saved change of the tour), and the days of the trip each tour is on.',
     inputSchema: { tripId: idSchema },
     annotations: TOOL_ANNOTATIONS_READONLY,
     when: addonGate(ADDON_IDS.TOURS),
@@ -69,7 +100,7 @@ export class ToursMcp {
   @Tool({
     name: 'get_tour_plan',
     description:
-      'Read one saved tour of a trip: its facts, its ordered control points (start, via and end; an import without its own shows the two ends of its track), where it came from (provenance) and the days it is on. A control point with linked_place_id stands for that place of the trip (linked_place_name names it); it keeps its own coordinates. A control point whose fixed_leg is set leads to the next one along a line the router did not plan: kind ferrata follows a via ferrata, kind free is drawn by hand and was checked by nothing. A paddle tour also carries its obstacle checklist (obstacle_check): the obstacles of the OpenStreetMap data along its line, the decisions the travellers made about them and their own portages and locks; a planning aid, never a safety or legal clearance. The full track geometry is not included.',
+      'Read one saved tour of a trip: its facts, its ordered control points (start, via and end; an import without its own shows the two ends of its track), where it came from (provenance) and the days it is on. A control point with linked_place_id stands for that place of the trip (linked_place_name names it); it keeps its own coordinates. A control point whose fixed_leg is set leads to the next one along a line the router did not plan: kind ferrata follows a via ferrata, kind free is drawn by hand and was checked by nothing. A paddle tour also carries its obstacle checklist (obstacle_check): the obstacles of the OpenStreetMap data along its line, the decisions the travellers made about them and their own portages and locks; a planning aid, never a safety or legal clearance. A city walk (tour_type walk) has stations for control points, shaping points and the way back of a loop aside, each with every field spelled out: key (its own id, the same across saves; the visits of a day are kept by it), name, stay_minutes (the stay in minutes; 0 for a point only passed through, null when not known), importance (optional or must; null for a normal station), protected (true for a station any change you propose has to keep where it is: neither removed, replaced nor moved; the travellers can still edit it themselves in the app) and opening_hours (as OpenStreetMap writes them; a hint to check, never a promise; null when none is known). How far a walk got on a day is get_city_walk_progress. The full track geometry is not included.',
     inputSchema: { tripId: idSchema, placeId: idSchema.describe('The place id of the tour, as list_tours gives it') },
     annotations: TOOL_ANNOTATIONS_READONLY,
     when: addonGate(ADDON_IDS.TOURS),
@@ -84,9 +115,10 @@ export class ToursMcp {
       ]);
       // A point standing for a place of the trip (PR1-10) says which, by name.
       const names = await this.tours.linkedPlaceNames(tripId, detail.waypoints);
-      const waypoints = detail.waypoints.map((point) =>
+      const named = detail.waypoints.map((point) =>
         point.linked_place_id ? { ...point, linked_place_name: names.get(point.linked_place_id) ?? null } : point,
       );
+      const waypoints = planPoints(detail.tour.tour_type, named);
       return ok({ ...detail, waypoints, tour: withDays(detail.tour, days) });
     } catch (err: unknown) {
       if (err instanceof NotFoundException) return errorResult('Tour not found.');
@@ -97,7 +129,7 @@ export class ToursMcp {
   @Tool({
     name: 'get_city_walk_progress',
     description:
-      'Read how far a city walk (tour_type walk) got on one day it is on: every station in order with its status that day (planned, visited or skipped, as the travellers checked them off in the day plan), its importance (normal, optional, must), whether it is protected (a station a proposed change must leave where it is, neither removed, replaced nor moved), its stay in minutes (null when not known, 0 for a point passed through) and its linked place. "open" sums what is still planned: the stations, their known stays and how many stays are unknown; walking_minutes is the walking time of the whole walk. Visits belong to that day only: the same walk on another day, or a copy, has none. Anything the traveller tells you besides (for instance "continue from 2 pm") is theirs to say, not stored here. Reading changes nothing.',
+      'Read how far a city walk (tour_type walk) got on one day it is on: every station in order with its key (its own id, as get_tour_plan gives it), its status that day (planned, visited or skipped, as the travellers checked them off in the day plan), its importance (normal, optional, must; get_tour_plan says null for normal), whether it is protected (a station a proposed change must leave where it is, neither removed, replaced nor moved), its stay in minutes (null when not known, 0 for a point passed through), its opening hours as OpenStreetMap writes them (null when none is known) and its linked place. "open" sums what is still planned: the stations, their known stays and how many stays are unknown; walking_minutes is the walking time of the whole walk. Visits belong to that day only: the same walk on another day, or a copy, has none. Anything the traveller tells you besides (for instance "continue from 2 pm") is theirs to say, not stored here. Reading changes nothing.',
     inputSchema: {
       tripId: idSchema,
       placeId: idSchema.describe('The place id of the city walk, as list_tours gives it'),
@@ -158,7 +190,7 @@ export class ToursMcp {
   @Tool({
     name: 'search_tour_pois',
     description:
-      'Search places along the saved line of a tour: what a hike, a bike tour, a paddle tour or a city walk stops for (viewpoint, peak, shelter, drinking_water, food, toilets, picnic, campsite, sights, slipway, boat_rental, bike_repair for repair stations and bike shops, and for a city walk museum for museums and galleries, park for parks and gardens, cafe, restaurant and market), within corridor_m metres of the line. Answers each place with its source (TREK places index or OpenStreetMap), kind, address, website and phone where known, opening hours as the source has them (a hint to check, never a promise), distance_m (straight across to the line, not a detour) and along_m (from the start along the line); up to 60, the nearest to the line when more match, listed from the start. A place OpenStreetMap has no name for (a tap, a bench) comes with an empty name. unavailable lists the categories no source could be searched for right now: their places are missing, not absent, so ask again later rather than reporting none. partial says some stretches could not be searched, capped that only the first part of a long line was, truncated that more places matched. Nothing is added to the tour or the trip.',
+      'Search places along the saved line of a tour: what a hike, a bike tour, a paddle tour or a city walk stops for (viewpoint, peak, shelter, drinking_water, food, toilets, picnic, campsite, sights, slipway, boat_rental, bike_repair for repair stations and bike shops, and for a city walk museum for museums and galleries, park for parks and gardens, cafe, restaurant and market), within corridor_m metres of the line. Answers each place with its source (TREK places index or OpenStreetMap), kind, address, website and phone where known, opening hours as the source has them (a hint to check, never a promise), distance_m (straight across to the line, not a detour) and along_m (from the start along the line); up to 60, the nearest to the line when more match, listed from the start. A place OpenStreetMap has no name for (a tap, a bench) comes with an empty name. unavailable lists the categories no source could be searched for right now: their places are missing, not absent, so ask again later rather than reporting none. partial says some stretches could not be searched, capped that only the first part of a long line was, truncated that more places matched. A tour saved with its points only (route_pending) has no line to search along yet. Nothing is added to the tour or the trip.',
     inputSchema: {
       tripId: idSchema,
       placeId: idSchema.describe('The place id of the tour, as list_tours gives it'),

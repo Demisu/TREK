@@ -544,6 +544,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'Lopen',
   'tours.walk.timeEstimatedInfoLabel': 'Hoe de looptijd wordt berekend',
   'tours.walk.timeEstimatedInfo': 'De looptijd van de routeplanner tussen de haltes, zonder het verblijf.',
+  'tours.walk.routePending':
+    'Alleen met de haltes opgeslagen. De weg ertussen wordt gepland zodra de wandeling in de planner wordt geopend en opgeslagen.',
+  'tours.walk.routePendingPlanner':
+    'Alleen met de haltes opgeslagen. De weg ertussen is net gepland; sla de wandeling op om hem te bewaren.',
   'tours.walk.stays': 'Verblijven',
   'tours.walk.totalAtLeast': 'minstens {time}',
   'tours.walk.totalComputed': 'Berekend',

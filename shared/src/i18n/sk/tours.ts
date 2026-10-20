@@ -534,6 +534,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'Chôdza',
   'tours.walk.timeEstimatedInfoLabel': 'Ako sa počíta čas chôdze',
   'tours.walk.timeEstimatedInfo': 'Čas chôdze medzi zastávkami podľa plánovača trasy, bez pobytov.',
+  'tours.walk.routePending':
+    'Uložené len so zastávkami. Cesta medzi nimi sa naplánuje, keď sa prechádzka otvorí v plánovači a uloží.',
+  'tours.walk.routePendingPlanner':
+    'Uložené len so zastávkami. Cesta medzi nimi sa práve naplánovala; ulož prechádzku, aby zostala.',
   'tours.walk.stays': 'Pobyty',
   'tours.walk.totalAtLeast': 'najmenej {time}',
   'tours.walk.totalComputed': 'Vypočítané',

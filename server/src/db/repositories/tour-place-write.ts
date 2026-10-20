@@ -1,9 +1,9 @@
-/** What a drawn tour writes onto its owning place. */
+/** What a drawn tour writes onto its owning place; a city walk saved with its stations only has no line yet (CW-11). */
 export interface TourPlaceWrite {
   name: string;
   lat: number;
   lng: number;
-  route_geometry: string;
+  route_geometry: string | null;
   description?: string | null;
   website?: string | null;
 }

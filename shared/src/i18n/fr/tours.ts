@@ -550,6 +550,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'Marche',
   'tours.walk.timeEstimatedInfoLabel': 'Comment le temps de marche est calculé',
   'tours.walk.timeEstimatedInfo': "Le temps à pied du calcul d'itinéraire entre les étapes, sans les arrêts.",
+  'tours.walk.routePending':
+    'Enregistrée avec ses étapes seulement. Le chemin entre elles est tracé quand la balade est ouverte dans le planificateur et enregistrée.',
+  'tours.walk.routePendingPlanner':
+    "Enregistrée avec ses étapes seulement. Le chemin entre elles vient d'être tracé ; enregistre la balade pour le garder.",
   'tours.walk.stays': 'Arrêts',
   'tours.walk.totalAtLeast': 'au moins {time}',
   'tours.walk.totalComputed': 'Calculé',

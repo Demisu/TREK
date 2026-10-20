@@ -4,13 +4,16 @@
  * container over a snapshot test db; the addon gate is the registry's.
  */
 import { Places } from '../../../src/db/entities/Places.entity';
+import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
 import type { McpContext } from '../../../src/nest-mcp';
 import { McpToolGuardsService } from '../../../src/nest/mcp-shared/mcp-tool-guards.service';
 import { TourLibraryMcp } from '../../../src/nest/tours/tour-library.mcp';
 import { ToursModule } from '../../../src/nest/tours/tours.module';
 import { createSnapshotTestDb } from '../../helpers/db-mock';
 import { createPlace, createTrip, createUser } from '../../helpers/factories';
-import { findRow, updateRows } from '../../helpers/factories/rows';
+import { makePlace } from '../../helpers/factories/places';
+import { findRow, findRows, updateRows } from '../../helpers/factories/rows';
+import { addTourWaypoints, makeTour } from '../../helpers/factories/tours';
 import { resetTestDb } from '../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../helpers/test-module';
 import { createTestOrm } from '../../helpers/test-orm';
@@ -126,5 +129,49 @@ describe('TourLibraryMcp', () => {
     expect(denied).toHaveBeenCalledWith('place_edit', next.id, user.id);
     expect(read(await mcp.listTourLibrary({ trip_id: next.id }, ctx(user.id))).tours).toEqual([]);
     denied.mockRestore();
+  });
+
+  it('TOUR-LIB-MCP-005: a city walk taken over keeps its stations, protected ones included, even before its way is planned', async () => {
+    const { user, alps, next } = await fixture();
+    const orm = await createTestOrm(db);
+    // Saved with its stations only (CW-11): no line yet.
+    const walk = await makePlace(orm, alps.id, { name: 'Old town', lat: 48.1, lng: 11.5 });
+    await makeTour(orm, walk.id, { tourTypeRef: 'walk' });
+    await addTourWaypoints(orm, walk.id, [
+      {
+        lat: 48.1,
+        lng: 11.5,
+        station_key: 'stop-gate',
+        name: 'Gate',
+        stay_minutes: 20,
+        importance: 'must',
+        protected: 1,
+        opening_hours: 'Mo-Su 09:00-18:00',
+        linkedPlace: createPlace(db, alps.id, { name: 'Museum' }).id,
+      },
+      { lat: 48.11, lng: 11.51, station_key: 'stop-park', importance: 'optional' },
+    ]);
+    const stationsOf = async (placeId: number) =>
+      (await findRows(orm, TourWaypoints, { place: placeId }, { sequence: 'asc' })).map((point) => ({
+        key: point.station_key,
+        name: point.name ?? null,
+        stay: point.stay_minutes ?? null,
+        importance: point.importance ?? null,
+        protected: point.protected,
+        hours: point.opening_hours ?? null,
+        linked: point.linked_place_id ?? null,
+      }));
+    const before = await stationsOf(walk.id);
+
+    const result = read(
+      await mcp.takeOverTour({ tripId: next.id, source_trip_id: alps.id, source_place_id: walk.id }, ctx(user.id)),
+    );
+    expect(result.tour).toMatchObject({ tour_type: 'walk', route_pending: true, station_count: 2 });
+    const copied = await findRow(orm, Places, { id: result.tour.place_id });
+    expect([copied?.trip_id, copied?.route_geometry, copied?.lat, copied?.lng]).toEqual([next.id, null, 48.1, 11.5]);
+    // Everything of a station but its link to a place of the other trip.
+    expect(await stationsOf(result.tour.place_id)).toEqual(before.map((station) => ({ ...station, linked: null })));
+    expect(await stationsOf(walk.id)).toEqual(before);
+    await orm.close();
   });
 });

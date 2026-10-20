@@ -57,7 +57,7 @@ export class TourLibraryMcp {
   @Tool({
     name: 'take_over_tour',
     description:
-      'Copy a saved tour of another trip (as list_tour_library gives it) into a trip, as an independent tour of that trip: its line, measures, settings and control points, without its days, its links to places of the other trip or the decisions taken there about obstacles. The copy remembers which trip and tour it was taken from. Nothing changes in the source trip.',
+      'Copy a saved tour of another trip (as list_tour_library gives it) into a trip, as an independent tour of that trip: its line, measures, settings and control points, without its days, its links to places of the other trip or the decisions taken there about obstacles. The copy remembers which trip and tour it was taken from. A city walk keeps its stations with their keys, names, stays, importance, protection and opening hours; what was checked off on the days of the other trip stays there, and a walk still waiting for its way (route_pending) is copied as it is. Nothing changes in the source trip.',
     inputSchema: {
       tripId: idSchema.describe('The trip to copy the tour into'),
       source_trip_id: takeOver.source_trip_id,

@@ -11,12 +11,13 @@ import { z } from 'zod';
  */
 export const PLACE_HOURS_DAYS = 7;
 
-const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
+/** A time of day on the 24-hour clock, `HH:MM`. */
+export const clockTimeSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 
 export const placeHoursDaySchema = z.object({
   closed: z.boolean(),
-  open: z.string().regex(TIME).optional(),
-  close: z.string().regex(TIME).optional(),
+  open: clockTimeSchema.optional(),
+  close: clockTimeSchema.optional(),
 });
 export type PlaceHoursDay = z.infer<typeof placeHoursDaySchema>;
 

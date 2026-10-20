@@ -549,6 +549,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'Ходьба',
   'tours.walk.timeEstimatedInfoLabel': 'Як рахується час ходьби',
   'tours.walk.timeEstimatedInfo': 'Час пішки між зупинками за розрахунком маршруту, без перебування.',
+  'tours.walk.routePending':
+    'Збережено лише із зупинками. Дорогу між ними прокладають, коли прогулянку відкривають у планувальнику й зберігають.',
+  'tours.walk.routePendingPlanner':
+    'Збережено лише із зупинками. Дорогу між ними щойно прокладено; збережи прогулянку, щоб її залишити.',
   'tours.walk.stays': 'Перебування',
   'tours.walk.totalAtLeast': 'щонайменше {time}',
   'tours.walk.totalComputed': 'Розрахунок',

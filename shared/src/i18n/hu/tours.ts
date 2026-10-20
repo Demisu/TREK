@@ -542,6 +542,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'Gyaloglás',
   'tours.walk.timeEstimatedInfoLabel': 'Hogyan számoljuk a gyaloglási időt',
   'tours.walk.timeEstimatedInfo': 'Az útvonaltervező gyalogos ideje a megállók között, a tartózkodások nélkül.',
+  'tours.walk.routePending':
+    'Csak a megállóival mentve. A köztük lévő utat a TREK akkor tervezi meg, amikor a sétát megnyitják a tervezőben és mentik.',
+  'tours.walk.routePendingPlanner':
+    'Csak a megállóival mentve. A köztük lévő utat épp most tervezte meg a TREK; mentsd a sétát, hogy megmaradjon.',
   'tours.walk.stays': 'Tartózkodások',
   'tours.walk.totalAtLeast': 'legalább {time}',
   'tours.walk.totalComputed': 'Számított',

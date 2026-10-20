@@ -552,6 +552,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'Περπάτημα',
   'tours.walk.timeEstimatedInfoLabel': 'Πώς υπολογίζεται ο χρόνος περπατήματος',
   'tours.walk.timeEstimatedInfo': 'Ο χρόνος με τα πόδια του δρομολογητή ανάμεσα στις στάσεις, χωρίς τις παραμονές.',
+  'tours.walk.routePending':
+    'Αποθηκεύτηκε μόνο με τις στάσεις της. Η διαδρομή ανάμεσά τους σχεδιάζεται όταν η βόλτα ανοίξει στον σχεδιαστή και αποθηκευτεί.',
+  'tours.walk.routePendingPlanner':
+    'Αποθηκεύτηκε μόνο με τις στάσεις της. Η διαδρομή ανάμεσά τους μόλις σχεδιάστηκε· αποθήκευσε τη βόλτα για να την κρατήσεις.',
   'tours.walk.stays': 'Παραμονές',
   'tours.walk.totalAtLeast': 'τουλάχιστον {time}',
   'tours.walk.totalComputed': 'Υπολογισμένο',

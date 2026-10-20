@@ -512,6 +512,8 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'เดิน',
   'tours.walk.timeEstimatedInfoLabel': 'วิธีคำนวณเวลาเดิน',
   'tours.walk.timeEstimatedInfo': 'เวลาเดินระหว่างจุดแวะจากตัวคำนวณเส้นทาง ไม่รวมเวลาแวะพัก',
+  'tours.walk.routePending': 'บันทึกไว้เพียงจุดแวะ ทางระหว่างจุดแวะจะถูกวางแผนเมื่อเปิดทริปในตัววางแผนและบันทึก',
+  'tours.walk.routePendingPlanner': 'บันทึกไว้เพียงจุดแวะ ทางระหว่างจุดแวะเพิ่งถูกวางแผน บันทึกทริปเพื่อเก็บไว้',
   'tours.walk.stays': 'เวลาแวะพัก',
   'tours.walk.totalAtLeast': 'อย่างน้อย {time}',
   'tours.walk.totalComputed': 'ค่าคำนวณ',

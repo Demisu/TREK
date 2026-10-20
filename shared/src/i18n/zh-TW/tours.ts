@@ -492,6 +492,8 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': '步行',
   'tours.walk.timeEstimatedInfoLabel': '步行時間如何計算',
   'tours.walk.timeEstimatedInfo': '路線規劃給出的站點間步行時間，不含停留時間。',
+  'tours.walk.routePending': '僅儲存了站點。站點之間的道路會在規劃器中開啟並儲存漫步時規劃。',
+  'tours.walk.routePendingPlanner': '先前僅儲存了站點。站點之間的道路剛剛規劃好；儲存漫步即可保留。',
   'tours.walk.stays': '停留',
   'tours.walk.totalAtLeast': '至少 {time}',
   'tours.walk.totalComputed': '計算值',

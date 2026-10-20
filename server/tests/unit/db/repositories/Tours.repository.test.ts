@@ -99,6 +99,7 @@ describe('ToursRepository reads', () => {
         paddle_lake_style: null,
         track_marks: null,
         has_recorded_track: 0,
+        route_missing: 1,
         revision: 1,
         hiking_preferences: null,
         bike_profile: null,
@@ -130,6 +131,7 @@ describe('ToursRepository reads', () => {
         paddle_lake_style: null,
         track_marks: null,
         has_recorded_track: 0,
+        route_missing: 1,
         revision: 1,
         hiking_preferences: null,
         bike_profile: null,
@@ -161,6 +163,31 @@ describe('ToursRepository reads', () => {
     });
     expect(await repo.findInTrip(other.id, tour.id)).toBeUndefined();
     expect(await repo.findInTrip(trip.id, plain.id)).toBeUndefined();
+  });
+
+  it('TOURREPO-014: the list and the detail say whether the owning place still has no line (CW-11)', async () => {
+    const { trip } = fixture();
+    const pending = createPlace(testDb, trip.id, { name: 'Stations only' });
+    const drawn = createPlace(testDb, trip.id, { name: 'Drawn' });
+    createTour(testDb, pending.id);
+    createTour(testDb, drawn.id);
+    await updateRows(t, Places, { id: drawn.id }, { route_geometry: '[[47,11,500],[47.1,11.1,520]]' });
+
+    const listed = new Map((await repo.listForTrip(trip.id)).map((row) => [row.place_id, row.route_missing]));
+    expect([listed.get(pending.id), listed.get(drawn.id)]).toEqual([1, 0]);
+    expect((await repo.findInTrip(trip.id, pending.id))?.route_missing).toBe(1);
+    expect((await repo.findInTrip(trip.id, drawn.id))?.route_missing).toBe(0);
+  });
+
+  it('TOURREPO-015: dayOfTrip reads a day of the trip with its date, and nothing for a day of another trip', async () => {
+    const { trip, other } = fixture();
+    const dated = createDay(testDb, trip.id, { date: '2026-07-12' });
+    const undated = createDay(testDb, trip.id);
+    const elsewhere = createDay(testDb, other.id, { date: '2026-07-12' });
+
+    expect(await repo.dayOfTrip(trip.id, dated.id)).toEqual({ id: dated.id, date: '2026-07-12' });
+    expect(await repo.dayOfTrip(trip.id, undated.id)).toEqual({ id: undated.id, date: null });
+    expect(await repo.dayOfTrip(trip.id, elsewhere.id)).toBeUndefined();
   });
 
   it('TOURREPO-004: existsForPlace and listTourPlaceIds tell tours from plain places', async () => {
@@ -217,6 +244,7 @@ describe('ToursRepository writes', () => {
       paddle_lake_style: null,
       track_marks: null,
       has_recorded_track: 0,
+      route_missing: 1,
       revision: 1,
       hiking_preferences: null,
       bike_profile: null,

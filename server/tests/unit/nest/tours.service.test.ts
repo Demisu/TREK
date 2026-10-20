@@ -11,6 +11,7 @@ import { db as testDb } from '../../../src/db/database';
 import { Places } from '../../../src/db/entities/Places.entity';
 import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
 import { Tours } from '../../../src/db/entities/Tours.entity';
+import { catchDomainError, DomainError } from '../../../src/nest/common/domain-error';
 import type { PlacesService } from '../../../src/nest/places/places.service';
 import { ToursService } from '../../../src/nest/tours/tours.service';
 import { createPlace, createTrip, createUser } from '../../helpers/factories';
@@ -28,7 +29,7 @@ import {
   createTour,
 } from '../../helpers/tours-repos';
 import type { EntityClass } from '@mikro-orm/core';
-import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
+import { Logger, NotFoundException } from '@nestjs/common';
 import { tourCreateRequestSchema, type TourCreateRequest } from '@trek/shared';
 
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -255,7 +256,12 @@ describe('ToursService planner creation', () => {
     // day it lets more keys in before the planner offers them.
     const bike = { ...request, tour_type: 'run' } as unknown as typeof request;
 
-    await expect(service.createTour(tripId, bike)).rejects.toBeInstanceOf(BadRequestException);
+    // A DomainError: REST answers its text as { error } at 400, an MCP tool as its error result.
+    const refusal = await catchDomainError(() => service.createTour(tripId, bike));
+    expect(refusal instanceof DomainError && [refusal.getStatus(), refusal.publicMessage]).toEqual([
+      400,
+      'Tour type is not available',
+    ]);
 
     expect(await count(Places)).toBe(0);
     expect(await count(Tours)).toBe(0);
@@ -267,9 +273,11 @@ describe('ToursService planner creation', () => {
     broadcast.mockReset();
     const bike = { ...request, name: 'Renamed', tour_type: 'run' } as unknown as typeof request;
 
-    await expect(service.updateTour(tripId, String(created.tour.place_id), bike)).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
+    const refusal = await catchDomainError(() => service.updateTour(tripId, String(created.tour.place_id), bike));
+    expect(refusal instanceof DomainError && [refusal.getStatus(), refusal.publicMessage]).toEqual([
+      400,
+      'Tour type is not available',
+    ]);
 
     const storedTour = await firstTour();
     expect({ tour_type: storedTour.tour_type, name: (await placeById(Number(storedTour.place_id)))?.name }).toEqual({

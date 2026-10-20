@@ -9,9 +9,12 @@ import {
   recommendedPaddleSpeedKmh,
   plannedTourDurationMinutesSchema,
   stationKeySchema,
+  tourCopyRequestSchema,
   tourCreateRequestSchema,
+  tourDescriptionSchema,
   tourListItemSchema,
   tourMaxHikingDifficultySchema,
+  tourNameSchema,
   tourWebsiteSchema,
 } from './tours.schema';
 
@@ -487,27 +490,47 @@ describe('city walks (CW-01 to CW-03, CW-10)', () => {
     }
   });
 
+  const listed = {
+    place_id: 1,
+    name: 'Old town',
+    tour_type: 'walk',
+    distance: null,
+    elevation_gain: null,
+    elevation_loss: null,
+    duration: null,
+    difficulty: null,
+    wanderer_ref: null,
+    match_confidence: null,
+    max_hiking_difficulty: null,
+    planned: false,
+    caution: false,
+    has_waypoints: true,
+    station_count: 3,
+  };
+
   it("lists a walk's station count, and reads an item cached before it existed", () => {
-    const item = tourListItemSchema.parse({
-      place_id: 1,
-      name: 'Old town',
-      tour_type: 'walk',
-      distance: null,
-      elevation_gain: null,
-      elevation_loss: null,
-      duration: null,
-      difficulty: null,
-      wanderer_ref: null,
-      match_confidence: null,
-      max_hiking_difficulty: null,
-      planned: false,
-      caution: false,
-      has_waypoints: true,
-      station_count: 3,
-    });
+    const item = tourListItemSchema.parse(listed);
     expect(item.station_count).toBe(3);
     const { station_count: _count, ...cached } = item;
     expect(tourListItemSchema.parse(cached).station_count).toBeUndefined();
     expect(tourListItemSchema.safeParse({ ...item, station_count: -1 }).success).toBe(false);
+  });
+
+  it('lists whether a walk still waits for its way, and reads a list cached before it was said (CW-11)', () => {
+    expect(tourListItemSchema.parse({ ...listed, route_pending: true }).route_pending).toBe(true);
+    expect(tourListItemSchema.parse(listed).route_pending).toBeUndefined();
+    expect(tourListItemSchema.safeParse({ ...listed, route_pending: 1 }).success).toBe(false);
+  });
+
+  it('holds a create, an edit and a copy to one name and one description', () => {
+    expect(tourNameSchema.parse('  Old town  ')).toBe('Old town');
+    expect(['', '   ', 'x'.repeat(256)].map((name) => tourNameSchema.safeParse(name).success)).toEqual([
+      false,
+      false,
+      false,
+    ]);
+    expect(tourCopyRequestSchema.safeParse({ name: 'x'.repeat(256) }).success).toBe(false);
+    expect(tourDescriptionSchema.parse(null)).toBeNull();
+    expect(tourDescriptionSchema.safeParse('x'.repeat(2001)).success).toBe(false);
   });
 });

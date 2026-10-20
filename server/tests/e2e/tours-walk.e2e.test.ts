@@ -1,7 +1,8 @@
 /**
- * Tours e2e for city walks (CW-01 to CW-03, CW-10): a walk saved and read with
- * its stations, the keys of its stations kept through an edit, and the
- * stations checked off on the days the walk is on, through the real
+ * Tours e2e for city walks (CW-01 to CW-03, CW-10, CW-11): a walk saved and read
+ * with its stations, one saved with its stations only waiting for its way, the
+ * keys of its stations kept through an edit, and the stations checked off on
+ * the days the walk is on, through the real
  * JwtAuthGuard, AddonGuard and TripAccessGuard against a migrated and seeded
  * temp SQLite db. The permission check is a container spy and the broadcast
  * goes to a FakeRealtimeService, as in tours.e2e.test.ts.
@@ -25,8 +26,10 @@ import { RealtimeModule } from '../../src/nest/realtime/realtime.module';
 import { RealtimeService } from '../../src/nest/realtime/realtime.service';
 import { ToursModule } from '../../src/nest/tours/tours.module';
 import { createSnapshotTestDb } from '../helpers/db-mock';
+import { makePlace } from '../helpers/factories/places';
 import { countRows, deleteRows, insertRows } from '../helpers/factories/rows';
 import { setAddonEnabled } from '../helpers/factories/settings';
+import { addTourWaypoints, makeTour } from '../helpers/factories/tours';
 import { addTripMember } from '../helpers/factories/trips';
 import { makeUser } from '../helpers/factories/users';
 import { FakeRealtimeService } from '../helpers/fake-realtime';
@@ -214,6 +217,69 @@ describe('City walks e2e (real guards + temp SQLite)', () => {
     expect(res.status).toBe(200);
     return res.body.visits as Array<{ assignment_id: number; station_key: string; status: string }>;
   };
+
+  describe('a walk saved with its stations only (CW-11)', () => {
+    /** A walk an assistant created from confirmed stations: no line, no distance, no walking time. */
+    const pendingWalk = async () => {
+      const place = await makePlace(orm, 5, { name: 'Briefed walk', lat: 48.1, lng: 11.5, route_geometry: null });
+      await makeTour(orm, place.id, { tourTypeRef: 'walk' });
+      await addTourWaypoints(orm, place.id, [
+        {
+          lat: 48.1,
+          lng: 11.5,
+          station_key: 'stop-cathedral',
+          name: 'Cathedral',
+          stay_minutes: 30,
+          importance: 'must',
+          protected: 1,
+        },
+        { lat: 48.13, lng: 11.53, station_key: 'stop-park', name: 'Park' },
+      ]);
+      return place.id;
+    };
+    const listed = async (placeId: number) =>
+      (await request(server).get('/api/trips/5/tours').set('Cookie', cookie(VIEWER))).body.tours.find(
+        (tour: { place_id: number }) => tour.place_id === placeId,
+      );
+
+    it('the list and the detail say it waits for its way, until a save with a line plans it', async () => {
+      const { placeId: planned } = await saveWalk();
+      const placeId = await pendingWalk();
+      expect(await listed(planned)).toMatchObject({ route_pending: false });
+      expect(await listed(placeId)).toMatchObject({
+        route_pending: true,
+        distance: null,
+        duration: null,
+        station_count: 2,
+      });
+      const detail = await request(server).get(`/api/trips/5/tours/${placeId}`).set('Cookie', cookie(VIEWER));
+      expect(detail.status).toBe(200);
+      expect(detail.body.tour.route_pending).toBe(true);
+      const [cathedral, park] = detail.body.waypoints as Point[];
+      expect(cathedral).toMatchObject({ name: 'Cathedral', protected: true, stay_minutes: 30 });
+
+      const saved = await request(server)
+        .put(`/api/trips/5/tours/${placeId}`)
+        .set('Cookie', cookie())
+        .send(walkBody({ waypoints: inOrder([cathedral, park]), expected_revision: 1 }));
+      expect(saved.status).toBe(200);
+      expect(saved.body.tour).toMatchObject({ route_pending: false, duration: 60 });
+      expect(await listed(placeId)).toMatchObject({ route_pending: false });
+    });
+
+    it('is copied as it is, and a create over REST still needs its line', async () => {
+      const placeId = await pendingWalk();
+      const copy = await request(server)
+        .post(`/api/trips/5/tours/${placeId}/copy`)
+        .set('Cookie', cookie())
+        .send({ name: 'Briefed walk again' });
+      expect(copy.status).toBe(201);
+      expect(copy.body.tour).toMatchObject({ name: 'Briefed walk again', route_pending: true, station_count: 2 });
+      const { route_geometry: _line, ...withoutLine } = walkBody();
+      const refused = await request(server).post('/api/trips/5/tours').set('Cookie', cookie()).send(withoutLine);
+      expect(refused.status).toBe(400);
+    });
+  });
 
   describe('a walk and its stations (CW-01, CW-02, CW-10)', () => {
     it('saves a walk with a key on every point and its station fields, and lists how many stations it has', async () => {

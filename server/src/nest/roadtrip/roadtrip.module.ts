@@ -129,6 +129,7 @@ import { Module } from '@nestjs/common';
     RoadtripPlanService,
     RoadtripPlanningMcp,
   ],
-  exports: [RoadtripService],
+  // The router also plans a city walk on foot that an assistant prepares (CW-11).
+  exports: [RoadtripService, RoadtripRouterService],
 })
 export class RoadtripModule {}

@@ -541,6 +541,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'A pie',
   'tours.walk.timeEstimatedInfoLabel': 'Cómo se calcula el tiempo a pie',
   'tours.walk.timeEstimatedInfo': 'El tiempo a pie del planificador entre paradas, sin las estancias.',
+  'tours.walk.routePending':
+    'Guardado solo con sus paradas. El camino entre ellas se traza al abrir el paseo en el planificador y guardarlo.',
+  'tours.walk.routePendingPlanner':
+    'Guardado solo con sus paradas. El camino entre ellas se acaba de trazar; guarda el paseo para conservarlo.',
   'tours.walk.stays': 'Estancias',
   'tours.walk.totalAtLeast': 'al menos {time}',
   'tours.walk.totalComputed': 'Calculado',

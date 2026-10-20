@@ -536,6 +536,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'Berjalan',
   'tours.walk.timeEstimatedInfoLabel': 'Cara waktu jalan dihitung',
   'tours.walk.timeEstimatedInfo': 'Waktu jalan kaki dari perute di antara titik singgah, tanpa lama singgah.',
+  'tours.walk.routePending':
+    'Disimpan hanya dengan titik singgahnya. Jalan di antaranya direncanakan saat rute dibuka di perencana lalu disimpan.',
+  'tours.walk.routePendingPlanner':
+    'Disimpan hanya dengan titik singgahnya. Jalan di antaranya baru saja direncanakan; simpan rute ini untuk mempertahankannya.',
   'tours.walk.stays': 'Lama singgah',
   'tours.walk.totalAtLeast': 'setidaknya {time}',
   'tours.walk.totalComputed': 'Dihitung',

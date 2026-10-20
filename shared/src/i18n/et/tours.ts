@@ -534,6 +534,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'Kõnd',
   'tours.walk.timeEstimatedInfoLabel': 'Kuidas kõndimisaeg arvutatakse',
   'tours.walk.timeEstimatedInfo': 'Marsruutija kõndimisaeg peatuste vahel, ilma peatumisteta.',
+  'tours.walk.routePending':
+    'Salvestatud ainult peatustega. Tee nende vahel planeeritakse, kui jalutus planeerijas avatakse ja salvestatakse.',
+  'tours.walk.routePendingPlanner':
+    'Salvestatud ainult peatustega. Tee nende vahel planeeriti just praegu; salvesta jalutus, et see alles jääks.',
   'tours.walk.stays': 'Peatumised',
   'tours.walk.totalAtLeast': 'vähemalt {time}',
   'tours.walk.totalComputed': 'Arvutatud',

@@ -276,7 +276,7 @@ export class PlacesMcp {
 
   @Tool({
     name: 'delete_place',
-    description: 'Permanently delete a place from a trip. Removes its day assignments, its linked expenses and any nights booked at it, including each night\'s reservation and that reservation\'s expense. If the place is a Tour, its route and editable waypoints are also permanently deleted. Warn the user before calling: this cannot be undone.',
+    description: 'Permanently delete a place from a trip. Removes its day assignments, its linked expenses and any nights booked at it, including each night\'s reservation and that reservation\'s expense. If the place is a Tour, its route and editable waypoints are also permanently deleted. A city walk takes all its stations with it, protected ones included: name those to the traveller and ask first. Warn the user before calling: this cannot be undone.',
     inputSchema: {
       tripId: idSchema,
       placeId: idSchema,
@@ -447,7 +447,7 @@ export class PlacesMcp {
 
   @Tool({
     name: 'bulk_delete_places',
-    description: 'Permanently delete multiple places from a trip at once. Removes all day assignments for each place as well, plus each place\'s linked expenses and any nights booked at it, with their reservations and expenses. Any Tours in the selection also lose their routes and editable waypoints. Warn the user before calling: this cannot be undone.',
+    description: 'Permanently delete multiple places from a trip at once. Removes all day assignments for each place as well, plus each place\'s linked expenses and any nights booked at it, with their reservations and expenses. Any Tours in the selection also lose their routes and editable waypoints. A city walk in the selection takes all its stations with it, protected ones included: name those to the traveller and ask first. Warn the user before calling: this cannot be undone.',
     inputSchema: {
       tripId: idSchema,
       placeIds: z.array(idSchema).min(1).max(200),

@@ -553,6 +553,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'Пешком',
   'tours.walk.timeEstimatedInfoLabel': 'Как считается время в пути',
   'tours.walk.timeEstimatedInfo': 'Время пешком между остановками по расчёту маршрута, без остановок на месте.',
+  'tours.walk.routePending':
+    'Сохранена только с остановками. Путь между ними прокладывается, когда прогулку открывают в планировщике и сохраняют.',
+  'tours.walk.routePendingPlanner':
+    'Сохранена только с остановками. Путь между ними только что проложен; сохрани прогулку, чтобы его оставить.',
   'tours.walk.stays': 'Остановки',
   'tours.walk.totalAtLeast': 'не меньше {time}',
   'tours.walk.totalComputed': 'Расчёт',

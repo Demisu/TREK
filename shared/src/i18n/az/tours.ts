@@ -535,6 +535,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'Yürüş',
   'tours.walk.timeEstimatedInfoLabel': 'Yürüş vaxtı necə hesablanır',
   'tours.walk.timeEstimatedInfo': 'Dayanacaqlar arasında marşrutlaşdırıcının piyada vaxtı, qalma müddətləri olmadan.',
+  'tours.walk.routePending':
+    'Yalnız dayanacaqları ilə yadda saxlanılıb. Aralarındakı yol gəzinti planlayıcıda açılıb yadda saxlananda planlaşdırılır.',
+  'tours.walk.routePendingPlanner':
+    'Yalnız dayanacaqları ilə yadda saxlanılıb. Aralarındakı yol indicə planlaşdırıldı; onu saxlamaq üçün gəzintini yadda saxla.',
   'tours.walk.stays': 'Qalmalar',
   'tours.walk.totalAtLeast': 'ən azı {time}',
   'tours.walk.totalComputed': 'Hesablanmış',

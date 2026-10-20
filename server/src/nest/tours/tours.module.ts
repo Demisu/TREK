@@ -13,8 +13,11 @@ import { PaddleObstaclesModule } from '../paddle-obstacles/paddle-obstacles.modu
 import { PermissionsModule } from '../permissions/permissions.module';
 import { PlaceImportModule } from '../place-import/place-import.module';
 import { PlacesModule } from '../places/places.module';
+import { RoadtripModule } from '../roadtrip/roadtrip.module';
 import { TripMembershipModule } from '../trip-membership/trip-membership.module';
 import { WandererModule } from '../wanderer/wanderer.module';
+import { CityWalkBriefingService } from './city-walk-briefing.service';
+import { CityWalkMcp } from './city-walk.mcp';
 import { TourGpxExportService } from './tour-gpx-export.service';
 import { TourLibraryController, TourTakeOverController } from './tour-library.controller';
 import { TourLibraryMcp } from './tour-library.mcp';
@@ -48,7 +51,10 @@ import { Module } from '@nestjs/common';
  * through PlacesRepository, registered here because forFeature only reaches
  * this module's own providers. A Google Maps walking route is read into the
  * stops of a city walk through PlaceImportModule as well (CW-07), its short
- * link followed by the narrow resolver there (CW-06).
+ * link followed by the narrow resolver there (CW-06). A city walk an assistant
+ * prepares from a briefing reads the day and places of the trip through the
+ * tours' own repositories, is planned on foot by RoadtripModule's router and
+ * is created through ToursService (CW-11).
  */
 @Module({
   imports: [
@@ -67,6 +73,8 @@ import { Module } from '@nestjs/common';
     WandererModule,
     // The obstacle data a paddle tour's checklist reads (PAD-06, PAD-09).
     PaddleObstaclesModule,
+    // A city walk prepared over MCP is planned on foot by the router the road trip uses (CW-11).
+    RoadtripModule,
     MikroOrmModule.forFeature([
       Tours,
       TourTypes,
@@ -101,9 +109,11 @@ import { Module } from '@nestjs/common';
     TourTrailGradeService,
     TourVisitsService,
     TourWalkImportService,
+    CityWalkBriefingService,
     ToursMcp,
     TourLibraryMcp,
     TourWalkImportMcp,
+    CityWalkMcp,
   ],
 })
 export class ToursModule {}

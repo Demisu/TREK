@@ -1,4 +1,10 @@
-import { hasPlaceHours, parsePlaceHours, placeEmailField, placeOpeningHoursField } from './place-hours';
+import {
+  clockTimeSchema,
+  hasPlaceHours,
+  parsePlaceHours,
+  placeEmailField,
+  placeOpeningHoursField,
+} from './place-hours';
 import { placeCreateRequestSchema, placeUpdateRequestSchema } from './place.schema';
 
 import { describe, expect, it } from 'vitest';
@@ -35,5 +41,16 @@ describe('place hours and e-mail (#2472)', () => {
     expect(placeEmailField.safeParse('  a.b@mail.example.org ').success).toBe(true);
     expect(placeCreateRequestSchema.safeParse({ name: 'X', email: 'nope' }).success).toBe(false);
     expect(placeUpdateRequestSchema.safeParse({ opening_hours: WEEK, email: null }).success).toBe(true);
+  });
+
+  it('reads a time of day on the 24-hour clock, HH:MM, and nothing else', () => {
+    expect(['00:00', '09:30', '23:59'].map((time) => clockTimeSchema.safeParse(time).success)).toEqual([
+      true,
+      true,
+      true,
+    ]);
+    expect(
+      ['9:30', '24:00', '12:60', '09:30:00', 'noon'].map((time) => clockTimeSchema.safeParse(time).success),
+    ).toEqual([false, false, false, false, false]);
   });
 });

@@ -7,6 +7,7 @@
  */
 import { TourStationVisits } from '../../../src/db/entities/TourStationVisits.entity';
 import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
+import { catchDomainError, DomainError } from '../../../src/nest/common/domain-error';
 import { JourneyDomainService } from '../../../src/nest/journey/journey-domain.service';
 import { TourLibraryService } from '../../../src/nest/tours/tour-library.service';
 import { TourVisitsService } from '../../../src/nest/tours/tour-visits.service';
@@ -314,6 +315,93 @@ describe('ToursService and city walks', () => {
       }),
     ]);
     expect((await tours.listTours(tripId))[0]).toMatchObject({ tour_type: 'walk', station_count: 0 });
+  });
+
+  it("TOURS-WALK-008: a walk made from its stations alone waits for its way; a save with a line plans it, and a protected stop stays the traveller's to move", async () => {
+    const { tripId } = await tripWithDays();
+    const created = await tours.createCityWalk(
+      tripId,
+      {
+        name: 'Old town',
+        stations: [
+          { lat: 48.1, lng: 11.5, name: 'Cathedral', stay_minutes: 30, importance: 'must', protected: true },
+          { lat: 48.11, lng: 11.51, name: 'Market' },
+          { lat: 48.13, lng: 11.53, name: 'Park', opening_hours: 'Mo-Su 08:00-20:00' },
+        ],
+      },
+      null,
+    );
+    expect(created.tour).toMatchObject({ route_pending: true, distance: null, duration: null, station_count: 3 });
+    expect(created.waypoints.map((point) => [point.role, point.sequence])).toEqual([
+      ['start', 0],
+      ['via', 1],
+      ['end', 2],
+    ]);
+
+    // The planner's save: the protected cathedral moved a little and the market left out, by the traveller.
+    const [cathedral, , park] = created.waypoints;
+    const saved = await tours.updateTour(
+      tripId,
+      String(created.tour.place_id),
+      walkBody({
+        waypoints: inOrder([{ ...cathedral, lat: 48.1005 }, park]),
+        route_geometry: [
+          [48.1005, 11.5, 520],
+          [48.13, 11.53, 528],
+        ],
+        expected_revision: created.tour.revision,
+      }),
+    );
+    expect(saved.tour).toMatchObject({ route_pending: false, station_count: 2, duration: 60 });
+    expect(saved.tour.distance).toBeGreaterThan(0);
+    expect(saved.waypoints[0]).toMatchObject({ key: cathedral.key, lat: 48.1005, protected: true });
+  });
+
+  it('TOURS-WALK-009: a walk still waiting for its way is copied from its first stop; a tour without a line or points is refused', async () => {
+    const { tripId } = await tripWithDays();
+    const created = await tours.createCityWalk(
+      tripId,
+      {
+        name: 'Old town',
+        stations: [
+          { lat: 48.1, lng: 11.5, name: 'Cathedral' },
+          { lat: 48.11, lng: 11.51, name: 'Market' },
+        ],
+      },
+      null,
+    );
+    const copy = await tours.copyTour(tripId, String(created.tour.place_id), 'Old town again');
+    expect(copy.tour).toMatchObject({ name: 'Old town again', route_pending: true, station_count: 2 });
+    expect(copy.waypoints.map((point) => point.key)).toEqual(created.waypoints.map((point) => point.key));
+
+    // Without a line a tour needs two points of its own: none, or one alone, is no tour.
+    const refusals = await Promise.all(
+      [[], walkBody().waypoints.slice(0, 1)].map((waypoints) =>
+        catchDomainError(() => tours.createTour(tripId, { ...walkBody(), route_geometry: null, waypoints })),
+      ),
+    );
+    expect(
+      refusals.map((refusal) => refusal instanceof DomainError && [refusal.getStatus(), refusal.publicMessage]),
+    ).toEqual([
+      [400, 'A tour needs at least two points'],
+      [400, 'A tour needs at least two points'],
+    ]);
+    // The bounds REST's contract holds are the service's too, so an assistant's call meets them as well.
+    const tooLong = await catchDomainError(() =>
+      tours.createCityWalk(
+        tripId,
+        {
+          name: 'Old town',
+          description: 'x'.repeat(2001),
+          stations: [
+            { lat: 48.1, lng: 11.5 },
+            { lat: 48.11, lng: 11.51 },
+          ],
+        },
+        null,
+      ),
+    );
+    expect(tooLong instanceof DomainError && tooLong.publicMessage).toBe('description must be 2000 characters or less');
   });
 });
 

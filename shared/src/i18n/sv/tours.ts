@@ -533,6 +533,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'Gång',
   'tours.walk.timeEstimatedInfoLabel': 'Hur gångtiden räknas fram',
   'tours.walk.timeEstimatedInfo': 'Ruttplanerarens gångtid mellan stoppen, utan vistelserna.',
+  'tours.walk.routePending':
+    'Sparad med bara sina stopp. Vägen mellan dem planeras när promenaden öppnas i planeraren och sparas.',
+  'tours.walk.routePendingPlanner':
+    'Sparad med bara sina stopp. Vägen mellan dem har just planerats; spara promenaden för att behålla den.',
   'tours.walk.stays': 'Vistelser',
   'tours.walk.totalAtLeast': 'minst {time}',
   'tours.walk.totalComputed': 'Beräknad',

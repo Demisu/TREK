@@ -44,14 +44,15 @@ export const TOUR_POI_CATEGORIES_BY_TYPE: Record<PlannableTourType, readonly Tou
  * walk's own categories. A suggestion says which theme and category brought
  * it; nothing is claimed beyond what the source tags say.
  */
+export const WALK_THEME_KEYS = ['culture', 'parks', 'food', 'mixed'] as const;
+export const walkThemeSchema = z.enum(WALK_THEME_KEYS);
+export type WalkTheme = z.infer<typeof walkThemeSchema>;
 export const WALK_THEMES = {
   culture: ['museum', 'sights'],
   parks: ['park', 'viewpoint'],
   food: ['cafe', 'restaurant', 'market'],
   mixed: ['sights', 'museum', 'park', 'viewpoint', 'cafe', 'market'],
-} as const satisfies Record<string, readonly TourPoiCategory[]>;
-export type WalkTheme = keyof typeof WALK_THEMES;
-export const WALK_THEME_KEYS = Object.keys(WALK_THEMES) as WalkTheme[];
+} as const satisfies Record<WalkTheme, readonly TourPoiCategory[]>;
 
 /** How far from the line a place may lie, the choices offered, in metres. */
 export const TOUR_POI_CORRIDORS_M = [250, 500, 1000, 2000] as const;

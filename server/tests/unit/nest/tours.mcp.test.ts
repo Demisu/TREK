@@ -8,6 +8,9 @@ import { Places } from '../../../src/db/entities/Places.entity';
 import { TourStationVisits } from '../../../src/db/entities/TourStationVisits.entity';
 import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
 import type { McpContext } from '../../../src/nest-mcp';
+import { getEntry, type ClassRef } from '../../../src/nest-mcp/metadata';
+import { PlacesMcp } from '../../../src/nest/places/places.mcp';
+import { TourLibraryMcp } from '../../../src/nest/tours/tour-library.mcp';
 import { TourVisitsService } from '../../../src/nest/tours/tour-visits.service';
 import { ToursMcp } from '../../../src/nest/tours/tours.mcp';
 import { ToursModule } from '../../../src/nest/tours/tours.module';
@@ -188,7 +191,7 @@ describe('ToursMcp', () => {
     await addTourWaypoints(orm, walk.id, [
       { lat: 48.1, lng: 11.5, station_key: 'stop-cathedral', name: 'Cathedral', stay_minutes: 30 },
       { lat: 48.11, lng: 11.51, station_key: 'stop-market', stay_minutes: 20 },
-      { lat: 48.12, lng: 11.52, station_key: 'stop-park', importance: 'must' },
+      { lat: 48.12, lng: 11.52, station_key: 'stop-park', importance: 'must', opening_hours: 'Mo-Su 09:00-18:00' },
     ]);
     const onDay1 = await makeDayAssignment(orm, base.day1.id, walk.id);
     await markStationVisit(orm, onDay1.id, 'stop-cathedral', 'visited');
@@ -252,6 +255,103 @@ describe('ToursMcp', () => {
       ).rejects.toBe(failure);
     } finally {
       progress.mockRestore();
+    }
+  });
+
+  it("TOURS-MCP-011: get_tour_plan spells out every field of a city walk's stations, and leaves its other points and a hike as stored", async () => {
+    const { user, trip, ridge } = fixture();
+    const orm = await createTestOrm(db);
+    const walk = await makePlace(orm, trip.id, { name: 'Loop' });
+    await makeTour(orm, walk.id, { tourTypeRef: 'walk' });
+    await addTourWaypoints(orm, walk.id, [
+      {
+        lat: 48.1,
+        lng: 11.5,
+        station_key: 'stop-gate',
+        name: 'Gate',
+        stay_minutes: 15,
+        importance: 'optional',
+        protected: 1,
+        opening_hours: 'Mo-Su 08:00-20:00',
+      },
+      { lat: 48.105, lng: 11.505, station_key: 'shape-1', shaping: 1 },
+      { lat: 48.11, lng: 11.51, station_key: 'stop-bare' },
+      { lat: 48.1, lng: 11.5, station_key: 'stop-back' },
+    ]);
+    await addTourWaypoints(orm, ridge.id, [
+      { lat: 47, lng: 11 },
+      { lat: 47.1, lng: 11.1 },
+    ]);
+    await orm.close();
+
+    const plan = read(await mcp.getTourPlan({ tripId: trip.id, placeId: walk.id }, ctx(user.id)));
+    const fields = ['key', 'name', 'stay_minutes', 'importance', 'protected', 'opening_hours'] as const;
+    const spelled = (point: Record<string, unknown>) => fields.map((field) => point[field]);
+    expect(spelled(plan.waypoints[0])).toEqual(['stop-gate', 'Gate', 15, 'optional', true, 'Mo-Su 08:00-20:00']);
+    expect(spelled(plan.waypoints[2])).toEqual(['stop-bare', null, null, null, false, null]);
+    // A shaping point and the way back of a loop are no stations: as stored.
+    expect('stay_minutes' in plan.waypoints[1] || 'protected' in plan.waypoints[1]).toBe(false);
+    expect('stay_minutes' in plan.waypoints[3] || 'protected' in plan.waypoints[3]).toBe(false);
+    const hike = read(await mcp.getTourPlan({ tripId: trip.id, placeId: ridge.id }, ctx(user.id)));
+    expect(hike.waypoints.some((point: object) => 'stay_minutes' in point || 'protected' in point)).toBe(false);
+  });
+
+  it("TOURS-MCP-012: list_tours counts a walk's stations and says while its way waits to be planned", async () => {
+    const { user, trip, walk, gorge } = await walkFixture();
+    const listed = async () => {
+      const { tours } = read(await mcp.listTours({ tripId: trip.id }, ctx(user.id)));
+      return new Map(tours.map((tour: { place_id: number }) => [tour.place_id, tour]));
+    };
+    expect((await listed()).get(walk.id)).toMatchObject({ station_count: 3, route_pending: true });
+    // A tour without points has nothing to plan a way between.
+    expect((await listed()).get(gorge.id)).toMatchObject({ station_count: null, route_pending: false });
+    const orm = await createTestOrm(db);
+    await updateRows(
+      orm,
+      Places,
+      { id: walk.id },
+      {
+        route_geometry: JSON.stringify([
+          [48.1, 11.5, 520],
+          [48.12, 11.52, 530],
+        ]),
+      },
+    );
+    await orm.close();
+    expect((await listed()).get(walk.id)).toMatchObject({ station_count: 3, route_pending: false });
+  });
+
+  it('TOURS-MCP-013: get_city_walk_progress names each station by its key and gives its opening hours', async () => {
+    const { member, trip, day1, walk } = await walkFixture();
+    const { stations } = read(
+      await mcp.getCityWalkProgress({ tripId: trip.id, placeId: walk.id, dayId: day1.id }, ctx(member.id)),
+    );
+    expect(
+      stations.map((station: { key: string; opening_hours: string | null }) => [station.key, station.opening_hours]),
+    ).toEqual([
+      ['stop-cathedral', null],
+      ['stop-market', null],
+      ['stop-park', 'Mo-Su 09:00-18:00'],
+    ]);
+  });
+
+  it('TOURS-MCP-014: the tools name the station fields, and the deletes ask before a walk takes its protected stations along', () => {
+    const description = (ctor: unknown, method: string) => {
+      const entry = getEntry(ctor as ClassRef, method);
+      if (!entry || entry.kind !== 'tool') throw new Error(`${method} is no MCP tool`);
+      return entry.options.description ?? '';
+    };
+    expect(description(ToursMcp, 'listTours')).toMatch(/station_count.*route_pending/);
+    for (const field of ['key', 'stay_minutes', 'importance', 'protected', 'opening_hours']) {
+      expect(description(ToursMcp, 'getTourPlan')).toContain(field);
+    }
+    expect(description(ToursMcp, 'getCityWalkProgress')).toMatch(/key .*opening hours/);
+    expect(description(ToursMcp, 'searchTourPois')).toContain('route_pending');
+    expect(description(TourLibraryMcp, 'takeOverTour')).toContain('protection');
+    for (const method of ['deletePlace', 'bulkDeletePlaces']) {
+      expect(description(PlacesMcp, method)).toContain(
+        'protected ones included: name those to the traveller and ask first',
+      );
     }
   });
 });

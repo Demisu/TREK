@@ -83,14 +83,12 @@ export function stayFormFrom<P>(
 }
 
 /**
- * The places a stay can be at (no GPX tracks, but always the one already picked),
+ * The places a stay can be at (no GPX tracks or tours, but always the one already picked),
  * narrowed to a category when one is chosen.
  */
-export function stayPlaceChoices<P extends { id: number; route_geometry?: string | null; category_id?: number | null }>(
-  places: P[],
-  placeId: number | string | null | undefined,
-  categoryId: number | null
-): P[] {
+export function stayPlaceChoices<
+  P extends { id: number; route_geometry?: string | null; tour_place_id?: number | null; category_id?: number | null },
+>(places: P[], placeId: number | string | null | undefined, categoryId: number | null): P[] {
   const offered = stayPlaces<P>(places, placeId);
   return categoryId != null ? offered.filter((p) => p.category_id === categoryId) : offered;
 }

@@ -20,8 +20,9 @@ vi.mock('../useTourPermissions', () => ({ useTourPermissions: () => ({ canEdit: 
 import type { TourPlannerWaypoint } from './tourPlannerWaypoints';
 import { useTourPlanner } from './useTourPlanner';
 
-// FE-TOUR-WALK-PLANNER-001 to FE-TOUR-WALK-PLANNER-007: a city walk's stays in the planner, edited without
-// planning its route again, and saved without breaks (CW-02).
+// FE-TOUR-WALK-PLANNER-001 to FE-TOUR-WALK-PLANNER-008: a city walk's stays in the planner, edited without
+// planning its route again, and saved without breaks (CW-02). FE-TOUR-WALK-PLANNER-009 and 010: a walk an
+// assistant saved with its stops only, planned when it is opened (CW-11).
 
 /** 45 minutes on foot between the stops. */
 const routed = {
@@ -276,5 +277,70 @@ describe('useTourPlanner, city walks (CW-02)', () => {
     expect(result.current.waypoints[0]?.stayMinutes).toBe(20);
     expect(result.current.waypoints[3]?.stayMinutes).toBeUndefined();
     expect(result.current.stationStays).toMatchObject({ stayMinutes: 20, stations: 3, unknownStays: 2 });
+  });
+
+  /** A saved walk of two stops as the detail answers it, with or without its way. */
+  const savedWalk = (routePending: boolean) => ({
+    tour: {
+      place_id: 42,
+      name: 'Briefed walk',
+      tour_type: 'walk' as const,
+      distance: routePending ? null : 3.2,
+      elevation_gain: null,
+      elevation_loss: null,
+      duration: routePending ? null : 45,
+      difficulty: null,
+      wanderer_ref: null,
+      match_confidence: 1,
+      max_hiking_difficulty: null,
+      planned: false,
+      caution: false,
+      has_waypoints: true,
+      revision: 1,
+      route_pending: routePending,
+    },
+    waypoints: [
+      { lat: 48, lng: 11, role: 'start' as const, sequence: 0, key: 'stop-cathedral', name: 'Cathedral' },
+      { lat: 48.01, lng: 11.02, role: 'end' as const, sequence: 1, key: 'stop-park', name: 'Park' },
+    ],
+  });
+
+  it('FE-TOUR-WALK-PLANNER-009: a walk saved with its stops only is planned on opening and can be saved with its way at once', async () => {
+    detailTour.mockResolvedValue(savedWalk(true));
+    updateTour.mockImplementation(async (_trip: number, _place: number, body: TourCreateRequest) => answered(body));
+    const { result } = renderHook(() => useTourPlanner({ tripId: 31 }));
+    await act(async () => {
+      await result.current.openTour({ place_id: 42 });
+    });
+    expect(result.current.routePending).toBe(true);
+    expect(result.current.hasUnsavedChanges).toBe(true);
+
+    await settle();
+    expect(routeCityWalk).toHaveBeenCalledTimes(1);
+    expect(result.current.status).toBe('ready');
+    expect(result.current.canSave).toBe(true);
+    await act(async () => {
+      await result.current.save();
+    });
+    expect(updateTour).toHaveBeenCalledWith(
+      31,
+      42,
+      expect.objectContaining({ route_geometry: enriched, tour_type: 'walk', expected_revision: 1 })
+    );
+    expect(result.current.routePending).toBe(false);
+    expect(result.current.hasUnsavedChanges).toBe(false);
+    expect(result.current.status).toBe('saved');
+  });
+
+  it('FE-TOUR-WALK-PLANNER-010: a walk with its way opens with nothing to save', async () => {
+    detailTour.mockResolvedValue(savedWalk(false));
+    const { result } = renderHook(() => useTourPlanner({ tripId: 31 }));
+    await act(async () => {
+      await result.current.openTour({ place_id: 42 });
+    });
+    await settle();
+    expect(result.current.routePending).toBe(false);
+    expect(result.current.hasUnsavedChanges).toBe(false);
+    expect(result.current.canSave).toBe(false);
   });
 });

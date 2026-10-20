@@ -1,3 +1,4 @@
+import { TOUR_MAX_SNAP_M } from '@trek/shared';
 import type { TourRouteResult } from './tourRouting';
 
 /**
@@ -17,4 +18,4 @@ export function isTourRoute(value: TourRouteResult | TourRouteUnreachable | null
 }
 
 /** How far the router may move a point onto its way before the point counts as unreachable for the tour's type. */
-export const MAX_TOUR_SNAP_M = 300;
+export const MAX_TOUR_SNAP_M = TOUR_MAX_SNAP_M;

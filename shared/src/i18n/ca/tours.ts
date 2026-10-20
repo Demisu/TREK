@@ -543,6 +543,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'A peu',
   'tours.walk.timeEstimatedInfoLabel': 'Com es calcula el temps a peu',
   'tours.walk.timeEstimatedInfo': 'El temps a peu del càlcul de ruta entre parades, sense les estades.',
+  'tours.walk.routePending':
+    "Desada només amb les parades. El camí entre elles es traça quan la ruta s'obre al planificador i es desa.",
+  'tours.walk.routePendingPlanner':
+    "Desada només amb les parades. El camí entre elles s'acaba de traçar; desa la ruta per conservar-lo.",
   'tours.walk.stays': 'Estades',
   'tours.walk.totalAtLeast': 'com a mínim {time}',
   'tours.walk.totalComputed': 'Calculat',

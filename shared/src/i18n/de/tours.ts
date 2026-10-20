@@ -546,6 +546,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'Gehzeit',
   'tours.walk.timeEstimatedInfoLabel': 'Wie die Gehzeit entsteht',
   'tours.walk.timeEstimatedInfo': 'Die Zeit des Routers zu Fuß zwischen den Stationen, ohne die Aufenthalte.',
+  'tours.walk.routePending':
+    'Nur mit seinen Stationen gespeichert. Der Weg dazwischen wird geplant, sobald der Walk im Planer geöffnet und gespeichert wird.',
+  'tours.walk.routePendingPlanner':
+    'Nur mit seinen Stationen gespeichert. Der Weg dazwischen wurde eben geplant; speichere den Walk, um ihn zu behalten.',
   'tours.walk.stays': 'Aufenthalte',
   'tours.walk.totalAtLeast': 'mindestens {time}',
   'tours.walk.totalComputed': 'Berechnet',

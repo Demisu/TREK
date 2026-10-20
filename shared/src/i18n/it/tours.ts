@@ -543,6 +543,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'A piedi',
   'tours.walk.timeEstimatedInfoLabel': 'Come si calcola il tempo a piedi',
   'tours.walk.timeEstimatedInfo': 'Il tempo a piedi del calcolo percorso tra le tappe, senza le soste.',
+  'tours.walk.routePending':
+    'Salvato solo con le tappe. Il cammino tra di esse viene tracciato quando il percorso viene aperto nel pianificatore e salvato.',
+  'tours.walk.routePendingPlanner':
+    'Salvato solo con le tappe. Il cammino tra di esse è stato appena tracciato; salva il percorso per tenerlo.',
   'tours.walk.stays': 'Soste',
   'tours.walk.totalAtLeast': 'almeno {time}',
   'tours.walk.totalComputed': 'Calcolato',

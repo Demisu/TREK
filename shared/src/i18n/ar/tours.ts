@@ -542,6 +542,8 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'المشي',
   'tours.walk.timeEstimatedInfoLabel': 'كيف يُحسب وقت المشي',
   'tours.walk.timeEstimatedInfo': 'وقت المسار سيرًا بين المحطات، دون مدد البقاء.',
+  'tours.walk.routePending': 'حُفظت الجولة بمحطاتها فقط. يُخطَّط الطريق بينها عند فتح الجولة في المخطِّط وحفظها.',
+  'tours.walk.routePendingPlanner': 'حُفظت الجولة بمحطاتها فقط. خُطِّط الطريق بينها للتو؛ احفظ الجولة للاحتفاظ به.',
   'tours.walk.stays': 'مدد البقاء',
   'tours.walk.totalAtLeast': '{time} على الأقل',
   'tours.walk.totalComputed': 'محسوب',

@@ -542,6 +542,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'Caminhada',
   'tours.walk.timeEstimatedInfoLabel': 'Como o tempo de caminhada é calculado',
   'tours.walk.timeEstimatedInfo': 'O tempo a pé do roteador entre as paradas, sem as permanências.',
+  'tours.walk.routePending':
+    'Salvo só com as paradas. O caminho entre elas é traçado quando o passeio é aberto no planejador e salvo.',
+  'tours.walk.routePendingPlanner':
+    'Salvo só com as paradas. O caminho entre elas acabou de ser traçado; salve o passeio para mantê-lo.',
   'tours.walk.stays': 'Permanências',
   'tours.walk.totalAtLeast': 'pelo menos {time}',
   'tours.walk.totalComputed': 'Calculado',

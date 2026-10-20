@@ -521,6 +521,9 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': '도보',
   'tours.walk.timeEstimatedInfoLabel': '도보 시간 계산 방법',
   'tours.walk.timeEstimatedInfo': '경로 계산기가 낸 정류지 사이 도보 시간이며, 머무는 시간은 빠져 있습니다.',
+  'tours.walk.routePending': '정류지만 저장되어 있습니다. 그 사이의 길은 산책을 플래너에서 열고 저장하면 계획됩니다.',
+  'tours.walk.routePendingPlanner':
+    '정류지만 저장되어 있었습니다. 그 사이의 길을 방금 계획했습니다. 유지하려면 산책을 저장하세요.',
   'tours.walk.stays': '머무는 시간',
   'tours.walk.totalAtLeast': '최소 {time}',
   'tours.walk.totalComputed': '계산값',

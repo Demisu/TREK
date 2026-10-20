@@ -20,7 +20,7 @@ import type {
   TourUpdate,
 } from '../../db/repositories/Tours.repository';
 import { decodeJson, encodeJson } from '../../utils/json-column';
-import { DomainError } from '../common/domain-error';
+import { badRequest, DomainError } from '../common/domain-error';
 import { toRowId } from '../common/row-id';
 import { UnitOfWork } from '../database/unit-of-work';
 import { PlaceImportService } from '../place-import/place-import.service';
@@ -36,13 +36,14 @@ import {
   type GeometryPoint,
 } from './tours.helpers';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   hikingPreferencesOf,
   MAX_PLANNED_TOUR_DURATION_MINUTES,
   plannedTourDurationMinutesSchema,
   tourWebsiteSchema,
   type BikeProfile,
+  type CityWalkCreateRequest,
   type PaddleBoatType,
   type PaddleLakeStyle,
   type PaddleWaterContext,
@@ -80,8 +81,24 @@ export interface ImportGpxAsTourResult {
 /** A GPX file imported without a type is a hike. */
 const HIKE_IMPORT: TourGpxImportFields = { tour_type: 'hike' };
 
+/**
+ * What a create writes: the request as the contract reads it, or for a city
+ * walk an assistant created from its stations (CW-11) the way the server's
+ * router planned on foot, which has no heights, or no line when it planned
+ * none, which the planner then plans when the walk is opened.
+ */
+export type TourCreateCommand = Omit<TourCreateRequest, 'route_geometry'> & {
+  route_geometry: GeometryPoint[] | null;
+};
+
+/** The way on foot the server's router planned for a city walk (CW-11): its line, and how long it walks in seconds. */
+interface CityWalkFootRoute {
+  line: Array<[number, number]>;
+  seconds: number;
+}
+
 /** MF-08: a save's hiking preferences as stored: a hike's switched-on ones as JSON, else NULL. */
-function hikingFields(input: TourCreateRequest): string | null {
+function hikingFields(input: TourCreateCommand): string | null {
   const preferences = input.tour_type === 'hike' ? hikingPreferencesOf(input.hiking_preferences) : null;
   return preferences ? encodeJson(TOUR_HIKING_PREFERENCES, preferences) : null;
 }
@@ -151,20 +168,24 @@ export class ToursService {
       revision: r.revision,
       hiking_preferences: decodeJson(TOUR_HIKING_PREFERENCES, r.hiking_preferences, 'tour'),
       ...walkStationFacts(r.tour_type, points),
+      route_pending: Boolean(r.route_missing) && Boolean(r.has_waypoints),
     };
   }
 
-  /** The route a create or an update writes: metrics derived from the geometry, duration stored in minutes. */
-  private routeFields(input: TourCreateRequest): TourUpdate {
-    const metrics = computeTourMetrics(input.route_geometry as GeometryPoint[]);
+  /**
+   * The route a create or an update writes: metrics derived from the geometry, duration stored in minutes.
+   * Without a line (CW-11) distance, heights and walking time stay unknown until the planner plans the way.
+   */
+  private routeFields(input: TourCreateCommand): TourUpdate {
+    const metrics = input.route_geometry ? computeTourMetrics(input.route_geometry) : null;
     // A paddle tour drawn here has its heights read off the banks at the points set, not
     // off the water: its ascent and descent stay unknown rather than wrong.
     const heightsKnown = input.tour_type !== 'kayak';
     return {
       tour_type: input.tour_type,
-      distance: metrics.distanceKm,
-      elevation_gain: heightsKnown ? metrics.elevationGainM : null,
-      elevation_loss: heightsKnown ? metrics.elevationLossM : null,
+      distance: metrics?.distanceKm ?? null,
+      elevation_gain: heightsKnown ? (metrics?.elevationGainM ?? null) : null,
+      elevation_loss: heightsKnown ? (metrics?.elevationLossM ?? null) : null,
       duration: input.duration_seconds == null ? null : Math.round(input.duration_seconds / 60),
       ...(input.planned_duration_minutes !== undefined
         ? { planned_duration_minutes: input.planned_duration_minutes }
@@ -188,25 +209,26 @@ export class ToursService {
   /**
    * `tour_types` knows every key the contract accepts, most of them disabled.
    * Checked before the write, so a disabled type is a 400 and not a tour the
-   * planner cannot show.
+   * planner cannot show. The refusals here are DomainErrors, so REST answers
+   * `{ error }` and an MCP tool the same text as its error result.
    */
   private async assertTourTypeEnabled(key: string): Promise<void> {
-    if (!(await this.tourTypesRepo.isEnabled(key))) throw new BadRequestException('Tour type is not available');
+    if (!(await this.tourTypesRepo.isEnabled(key))) throw badRequest('Tour type is not available');
   }
 
-  private validateInformationalMetadata(input: TourCreateRequest): void {
+  private validateInformationalMetadata(input: TourCreateCommand): void {
     if (input.description != null && input.description.length > 2000) {
-      throw new BadRequestException('description must be 2000 characters or less');
+      throw badRequest('description must be 2000 characters or less');
     }
     if (input.website != null && !tourWebsiteSchema.safeParse(input.website).success) {
-      throw new BadRequestException('website must be a valid HTTPS URL without credentials');
+      throw badRequest('website must be a valid HTTPS URL without credentials');
     }
   }
 
-  private validatePlannedTimes(input: TourCreateRequest): void {
+  private validatePlannedTimes(input: TourCreateCommand): void {
     for (const value of [input.planned_duration_minutes, input.break_additional_minutes]) {
       if (value !== undefined && !plannedTourDurationMinutesSchema.safeParse(value).success) {
-        throw new BadRequestException('planned Tour times must be whole minutes from 0 to 1440');
+        throw badRequest('planned Tour times must be whole minutes from 0 to 1440');
       }
     }
     if (
@@ -215,9 +237,7 @@ export class ToursService {
       Math.round(input.duration_seconds / 60) + (input.break_additional_minutes ?? 0) >
         MAX_PLANNED_TOUR_DURATION_MINUTES
     ) {
-      throw new BadRequestException(
-        'walking time plus breaks must be 1440 minutes or less unless a total is overridden',
-      );
+      throw badRequest('walking time plus breaks must be 1440 minutes or less unless a total is overridden');
     }
   }
 
@@ -323,14 +343,20 @@ export class ToursService {
     };
   }
 
-  /** Create the owning Place, Tours facet, and ordered control points as one write. */
-  async createTour(tripId: string, input: TourCreateRequest, socketId?: string): Promise<TourCreateResponse> {
+  /**
+   * Create the owning Place, Tours facet, and ordered control points as one write. A create
+   * without a line (CW-11) puts the place at its first point.
+   */
+  async createTour(tripId: string, input: TourCreateCommand, socketId?: string): Promise<TourCreateResponse> {
     // The controller's TripAccessGuard already resolved this trip id.
     const tid = toRowId(tripId)!;
     await this.assertTourTypeEnabled(input.tour_type);
     this.validateInformationalMetadata(input);
     this.validatePlannedTimes(input);
-    const start = input.route_geometry[0];
+    const start = input.route_geometry ? input.route_geometry[0] : firstPointOf(input.waypoints);
+    if (!start || (input.route_geometry === null && input.waypoints.length < 2)) {
+      throw badRequest('A tour needs at least two points');
+    }
     const fields = this.routeFields(input);
     const derivedFrom = input.derived_from_place_id ?? null;
 
@@ -348,7 +374,7 @@ export class ToursService {
         name: input.name,
         lat: start[0],
         lng: start[1],
-        route_geometry: JSON.stringify(input.route_geometry),
+        route_geometry: input.route_geometry ? JSON.stringify(input.route_geometry) : null,
         description: input.description ?? null,
         website: input.website ?? null,
       });
@@ -387,6 +413,36 @@ export class ToursService {
       provenance: await this.provenanceOf(tid, placeId),
       ...(checked.obstacle_check ? { obstacle_check: checked.obstacle_check } : {}),
     };
+  }
+
+  /**
+   * CW-11: a city walk the traveller confirmed through an assistant, made the
+   * way the planner's save makes one, in the same write with the same checks:
+   * its stations in order, each with a key of its own, its links to the trip's
+   * places checked. Its distance and walking time come from the way the
+   * server's router planned on foot. Without one it is saved with its stations
+   * only: no line, no distance and no walking time, until the planner plans the
+   * way when it is opened.
+   */
+  async createCityWalk(
+    tripId: string,
+    input: CityWalkCreateRequest,
+    way: CityWalkFootRoute | null,
+  ): Promise<TourCreateResponse> {
+    const last = input.stations.length - 1;
+    return await this.createTour(tripId, {
+      name: input.name,
+      description: input.description,
+      tour_type: 'walk',
+      route_geometry: way?.line ?? null,
+      duration_seconds: way?.seconds ?? null,
+      max_hiking_difficulty: null,
+      waypoints: input.stations.map((station, sequence) => ({
+        ...station,
+        role: sequence === 0 ? 'start' : sequence === last ? 'end' : 'via',
+        sequence,
+      })),
+    });
   }
 
   /**
@@ -513,21 +569,23 @@ export class ToursService {
     target: { tid: number; name: string },
     how: { derivedFrom: number | null; sameTrip: boolean; takenOverFrom?: { tripTitle: string; tourName: string } },
   ): Promise<number> {
-    const [row, provenance, place] = await Promise.all([
+    const [row, provenance, place, waypoints] = await Promise.all([
       this.toursRepo.findInTrip(source.tid, source.pid),
       this.toursRepo.findProvenance(source.tid, source.pid),
       this.placesRepo.findInTrip(source.pid, source.tid),
+      this.waypointsRepo.listForPlace(source.pid),
     ]);
-    const start = parseRouteGeometry(place?.route_geometry)[0];
-    // A tour without a line has nothing to copy.
-    if (!row || !provenance || !place?.route_geometry || !start) throw new NotFoundException('Tour not found');
+    // A city walk saved with its stations only (CW-11) is copied from its first one, its way still to plan;
+    // a line that holds no point has nothing to copy.
+    const start = place?.route_geometry == null ? firstPointOf(waypoints) : parseRouteGeometry(place.route_geometry)[0];
+    if (!row || !provenance || !place || !start) throw new NotFoundException('Tour not found');
     if (!how.sameTrip) await this.assertTourTypeEnabled(row.tour_type);
     const id = await this.placesRepo.insertTourPlace({
       trip_id: target.tid,
       name: target.name,
       lat: start[0],
       lng: start[1],
-      route_geometry: place.route_geometry,
+      route_geometry: place.route_geometry ?? null,
       description: place.description ?? null,
       website: place.website ?? null,
     });
@@ -559,7 +617,6 @@ export class ToursService {
       taken_over_from_trip_title: how.takenOverFrom?.tripTitle ?? provenance.taken_over_from_trip_title,
       taken_over_from_tour_name: how.takenOverFrom?.tourName ?? provenance.taken_over_from_tour_name,
     });
-    const waypoints = await this.waypointsRepo.listForPlace(source.pid);
     // A stop standing for a place of the source trip stands for nothing in another trip.
     await this.waypointsRepo.insertForPlace(
       id,
@@ -783,6 +840,7 @@ export class ToursService {
             has_recorded_track: 0,
             planned: 0,
             has_waypoints: 0,
+            route_missing: 0,
             revision: 1,
             hiking_preferences: null,
           }),
@@ -842,6 +900,12 @@ export class ToursService {
       defaultName: fileName,
     });
   }
+}
+
+/** Where a tour without a line starts (CW-11): at its first point. */
+function firstPointOf(points: readonly { lat: number; lng: number }[]): [number, number] | undefined {
+  const point = points[0];
+  return point ? [point.lat, point.lng] : undefined;
 }
 
 /** The file name a GPX import keeps: the name as uploaded, without a path, cut to what the column shows. */

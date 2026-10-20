@@ -40,6 +40,8 @@ export interface TourListRow {
   has_recorded_track: number;
   planned: number;
   has_waypoints: number;
+  /** CW-11: 1 while the owning place has no line, a city walk saved with its stations only. */
+  route_missing: number;
   /** P2C-03: the tour's technical revision. */
   revision: number;
   /** MF-08: a hike's routing preferences, still JSON text. */
@@ -249,6 +251,7 @@ export class ToursRepository extends TrekRepository<Tours> {
         't.revision as revision',
         't.hiking_preferences as hiking_preferences',
         eb('t.recorded_route_geometry', 'is not', null).as('has_recorded_track'),
+        eb('p.route_geometry', 'is', null).as('route_missing'),
         eb
           .exists(eb.selectFrom('day_assignments as da').select('da.id').whereRef('da.place_id', '=', 'p.id'))
           .as('planned'),
@@ -508,6 +511,16 @@ export class ToursRepository extends TrekRepository<Tours> {
       .orderBy('d.day_number', 'asc')
       .orderBy('da.place_id', 'asc')
       .execute();
+  }
+
+  /** CW-11: a day of this trip with its date, for a city walk proposed on it; `undefined` for a day of another trip. */
+  async dayOfTrip(trip_id: number, day_id: number): Promise<{ id: number; date: string | null } | undefined> {
+    return await this.db()
+      .selectFrom('days')
+      .select(['id', 'date'])
+      .where('id', '=', day_id)
+      .where('trip_id', '=', trip_id)
+      .executeTakeFirst();
   }
 
   /** TO3 — `SELECT 1 FROM tours WHERE place_id = ?`: whether the place is a tour. */
@@ -780,10 +793,11 @@ function toLibraryRow<R extends Omit<TourLibraryRow, 'has_waypoints'> & { has_wa
 }
 
 function toListRow<
-  R extends Omit<TourListRow, 'planned' | 'has_waypoints' | 'has_recorded_track'> & {
+  R extends Omit<TourListRow, 'planned' | 'has_waypoints' | 'has_recorded_track' | 'route_missing'> & {
     planned: unknown;
     has_waypoints: unknown;
     has_recorded_track: unknown;
+    route_missing: unknown;
   },
 >(r: R): TourListRow {
   return {
@@ -791,5 +805,6 @@ function toListRow<
     planned: Number(r.planned),
     has_waypoints: Number(r.has_waypoints),
     has_recorded_track: Number(r.has_recorded_track),
+    route_missing: Number(r.route_missing),
   };
 }

@@ -137,6 +137,8 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const [editingPlaceId, setEditingPlaceId] = useState<number | null>(restored?.editingPlaceId ?? null)
   const [derivedFromPlaceId, setDerivedFromPlaceId] = useState<number | null>(restored?.derivedFromPlaceId ?? null)
   const [draftSource, setDraftSource] = useState<DraftSource | null>(restored?.draftSource ?? null)
+  // CW-11: the open walk was saved with its stations only; its way is planned here and kept by the next save.
+  const [routePending, setRoutePending] = useState(false)
   const [openingTourId, setOpeningTourId] = useState<number | null>(null)
   const [saveOutcome, setSaveOutcome] = useState<TourListItem | null>(null)
   const [retryToken, setRetryToken] = useState(0)
@@ -545,6 +547,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     editingPlaceIdRef.current = null
     setDerivedFromPlaceId(null)
     setDraftSource(null)
+    setRoutePending(false)
     adoptRevision(null)
     setOpeningTourId(null)
     setSaveOutcome(null)
@@ -707,7 +710,10 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       clearHistory()
       setStatus('dirty')
       clearRoute()
-      setHasUnsavedChanges(false)
+      // CW-11: a walk without its way yet is planned on opening and can be saved with it at once.
+      const pending = result.tour.route_pending === true
+      setRoutePending(pending)
+      setHasUnsavedChanges(pending && editPermissionRef.current)
       setDraftRestored(false)
       setEditingPlaceId(result.tour.place_id)
       editingPlaceIdRef.current = result.tour.place_id
@@ -833,6 +839,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
         adoptRevision(result.tour.revision)
         if (options.name) setNameState(options.name.trim())
         setHasUnsavedChanges(false)
+        setRoutePending(false)
         setStatus('saved')
         clearHistory()
         setEditingPlaceId(result.tour.place_id)
@@ -886,7 +893,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     draftSource,
     newTourConfirmationOpen, cancelNewTour, forgetDeletedTour,
     elevationProfileExpanded, toggleElevationProfile, newDraftGeneration, draftRestored, mapFocusKey,
-    editingPlaceId, openingTourId, openTour,
+    editingPlaceId, openingTourId, openTour, routePending,
     saveOutcome, hasUnsavedChanges, canSave, save, discard, returnToNeutral, revision,
   }
 }

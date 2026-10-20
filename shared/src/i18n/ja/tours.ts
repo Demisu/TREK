@@ -524,6 +524,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': '歩行',
   'tours.walk.timeEstimatedInfoLabel': '歩行時間の求め方',
   'tours.walk.timeEstimatedInfo': 'ルート計算による立ち寄り先間の徒歩時間。滞在時間は含みません。',
+  'tours.walk.routePending':
+    '立ち寄り先だけで保存されています。間の道は、街歩きをプランナーで開いて保存すると計画されます。',
+  'tours.walk.routePendingPlanner':
+    '立ち寄り先だけで保存されていました。間の道をいま計画しました。残すには街歩きを保存してください。',
   'tours.walk.stays': '滞在',
   'tours.walk.totalAtLeast': '{time} 以上',
   'tours.walk.totalComputed': '計算値',

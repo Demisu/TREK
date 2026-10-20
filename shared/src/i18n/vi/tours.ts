@@ -532,6 +532,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'Đi bộ',
   'tours.walk.timeEstimatedInfoLabel': 'Cách tính thời gian đi bộ',
   'tours.walk.timeEstimatedInfo': 'Thời gian đi bộ giữa các điểm dừng do bộ định tuyến tính, không gồm thời gian dừng.',
+  'tours.walk.routePending':
+    'Chỉ được lưu cùng các điểm dừng. Đường đi giữa chúng sẽ được lên khi lộ trình được mở trong trình lập kế hoạch và lưu lại.',
+  'tours.walk.routePendingPlanner':
+    'Chỉ được lưu cùng các điểm dừng. Đường đi giữa chúng vừa được lên; hãy lưu lộ trình để giữ lại.',
   'tours.walk.stays': 'Thời gian dừng',
   'tours.walk.totalAtLeast': 'ít nhất {time}',
   'tours.walk.totalComputed': 'Đã tính',

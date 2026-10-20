@@ -209,6 +209,24 @@ describe('TourDetailDialog', () => {
     expect(screen.getByText(/Open 10:00 to 18:00/)).toBeInTheDocument()
   })
 
+  it('CW-11: a walk saved with its stops only says once that its way is planned in the planner, and shows no measures yet', async () => {
+    const pending = {
+      ...tour, tour_type: 'walk' as const, max_hiking_difficulty: null, distance: null, elevation_gain: null, elevation_loss: null,
+      station_count: 2, route_pending: true,
+    }
+    vi.spyOn(tourRepo, 'detail').mockResolvedValue({ tour: pending, waypoints: [] })
+    const view = render(<TourDetailDialog {...defaultProps} tour={pending} place={{ ...place, route_geometry: null }} />)
+
+    expect(screen.getByText(
+      'Saved with its stops only. The way between them is planned when the walk is opened in the planner and saved.'
+    )).toBeInTheDocument()
+    expect(screen.queryByText('Distance')).not.toBeInTheDocument()
+    expect(await screen.findByTestId('walk-stations')).toBeInTheDocument()
+
+    view.rerender(<TourDetailDialog {...defaultProps} tour={{ ...pending, route_pending: false }} />)
+    expect(screen.queryByText(/Saved with its stops only/)).not.toBeInTheDocument()
+  })
+
   it('PAD-01: a paddle tour without heights shows distance, paddling and total side by side in one row', () => {
     render(<TourDetailDialog {...defaultProps} tour={{ ...tour, tour_type: 'kayak', has_waypoints: true, duration: 50 }} />)
 

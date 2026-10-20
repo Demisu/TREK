@@ -533,6 +533,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'Walking',
   'tours.walk.timeEstimatedInfoLabel': 'How the walking time is worked out',
   'tours.walk.timeEstimatedInfo': "The router's time on foot between the stops, without the stays.",
+  'tours.walk.routePending':
+    'Saved with its stops only. The way between them is planned when the walk is opened in the planner and saved.',
+  'tours.walk.routePendingPlanner':
+    'Saved with its stops only. The way between them was planned just now; save the walk to keep it.',
   'tours.walk.stays': 'Stays',
   'tours.walk.totalAtLeast': 'at least {time}',
   'tours.walk.totalComputed': 'Computed',

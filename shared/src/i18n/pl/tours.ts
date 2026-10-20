@@ -551,6 +551,10 @@ const tours: TranslationStrings = {
   'tours.walk.timeEstimatedShort': 'Marsz',
   'tours.walk.timeEstimatedInfoLabel': 'Jak liczony jest czas marszu',
   'tours.walk.timeEstimatedInfo': 'Czas marszu między przystankami według planera trasy, bez postojów.',
+  'tours.walk.routePending':
+    'Zapisano tylko z przystankami. Droga między nimi zostanie wyznaczona, gdy trasa zostanie otwarta w planerze i zapisana.',
+  'tours.walk.routePendingPlanner':
+    'Zapisano tylko z przystankami. Droga między nimi została właśnie wyznaczona; zapisz trasę, aby ją zachować.',
   'tours.walk.stays': 'Postoje',
   'tours.walk.totalAtLeast': 'co najmniej {time}',
   'tours.walk.totalComputed': 'Obliczono',

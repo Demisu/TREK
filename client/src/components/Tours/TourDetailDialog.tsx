@@ -66,6 +66,7 @@ import {
 } from './tourPresentation';
 import { useTourDayAssignment } from './useTourDayAssignment';
 import { useTourPermissions, type TourPermissionProps } from './useTourPermissions';
+import { WalkRoutePendingHint } from './walk/WalkRoutePending';
 import { WalkStationsCard } from './walk/WalkStations';
 import { walkTimeFields } from './walk/walkTimeFields';
 
@@ -675,6 +676,7 @@ export default function TourDetailDialog({
         )}
       </DialogSection>
 
+      {tour.route_pending && <WalkRoutePendingHint />}
       {analysis && (
         <TourDetailMeasures
           analysis={analysis}

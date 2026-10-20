@@ -66,6 +66,7 @@ export class TourVisitsService {
     const statusOf = new Map(walk.visits.map((visit) => [visit.station_key, visit.status]));
     const stations: WalkProgressStation[] = walk.stations.map((station, index) => ({
       position: index + 1,
+      key: station.key ?? null,
       name: station.name ?? null,
       lat: station.lat,
       lng: station.lng,
@@ -73,6 +74,7 @@ export class TourVisitsService {
       importance: station.importance ?? 'normal',
       protected: station.protected === true,
       stay_minutes: station.stay_minutes ?? null,
+      opening_hours: station.opening_hours ?? null,
       linked_place_id: station.linked_place_id ?? null,
     }));
     const open = stations.filter((station) => station.status === 'planned');
@@ -113,6 +115,8 @@ export class TourVisitsService {
 /** CW-09: one station of a walk on a day, as an assistant reads it. */
 interface WalkProgressStation {
   position: number;
+  /** The station's own key, the same across saves; null only for a point saved before keys existed. */
+  key: string | null;
   name: string | null;
   lat: number;
   lng: number;
@@ -121,6 +125,8 @@ interface WalkProgressStation {
   protected: boolean;
   /** Null where the stay is not known; 0 is a station passed through. */
   stay_minutes: number | null;
+  /** As OpenStreetMap writes them; a hint to check, null when none is known. */
+  opening_hours: string | null;
   linked_place_id: number | null;
 }
 

@@ -241,6 +241,12 @@ export const tourListItemSchema = tourSchema.extend({
   station_stay_minutes: z.number().int().nonnegative().nullable().optional(),
   /** CW-02: how many of a city walk's stations have no stay entered yet; null for any other type. */
   station_stays_unknown: z.number().int().nonnegative().nullable().optional(),
+  /**
+   * CW-11: a tour saved with its points only, its way not planned yet (a city
+   * walk an assistant created). The planner plans the way when the tour is
+   * opened, and a save keeps it. Absent in a list cached before it existed.
+   */
+  route_pending: z.boolean().optional(),
 });
 export type TourListItem = z.infer<typeof tourListItemSchema>;
 
@@ -300,12 +306,23 @@ export const MAX_STATION_STAY_MINUTES = 24 * 60;
 export const TOUR_STATION_NAME_MAX = 200;
 /** The longest opening hours a station keeps, as OpenStreetMap writes them. */
 export const TOUR_STATION_HOURS_MAX = 500;
+/**
+ * How far a router may move a point of a tour onto its way before the point
+ * counts as one no way of the tour's type reaches: the planner's limit, and
+ * the server's for a city walk it plans on foot (CW-11).
+ */
+export const TOUR_MAX_SNAP_M = 300;
 /** CW-03: a station's key, the same across saves. */
 export const stationKeySchema = z.string().regex(/^[A-Za-z0-9_-]{6,64}$/);
 /** CW-03: how much a station matters, besides normal (null). */
 export const STATION_IMPORTANCES = ['optional', 'must'] as const;
 export const stationImportanceSchema = z.enum(STATION_IMPORTANCES);
 export type StationImportance = z.infer<typeof stationImportanceSchema>;
+
+/** A tour's name, as a create, an edit and a copy take it. */
+export const tourNameSchema = z.string().trim().min(1).max(255);
+/** A tour's description, as a create and an edit take it. */
+export const tourDescriptionSchema = z.string().trim().max(2000).nullable().optional();
 
 export const tourWaypointSchema = z.object({
   lat: z.number().finite().min(-90).max(90),
@@ -367,7 +384,7 @@ const enrichedRoutePointSchema = z.tuple([
 
 export const tourCreateRequestSchema = z
   .object({
-    name: z.string().trim().min(1).max(255),
+    name: tourNameSchema,
     tour_type: plannableTourTypeSchema.default('hike'),
     route_geometry: z.array(enrichedRoutePointSchema).min(2),
     waypoints: z.array(tourWaypointSchema).min(2),
@@ -385,7 +402,7 @@ export const tourCreateRequestSchema = z
     duration_seconds: z.number().finite().nonnegative().nullable().optional(),
     planned_duration_minutes: plannedTourDurationMinutesSchema.optional(),
     break_additional_minutes: plannedTourDurationMinutesSchema.optional(),
-    description: z.string().trim().max(2000).nullable().optional(),
+    description: tourDescriptionSchema,
     website: tourWebsiteSchema.nullable().optional(),
     /**
      * Creating only: the import of this trip the tour was planned from. It is
@@ -538,7 +555,7 @@ export type TourCreateResponse = z.infer<typeof tourCreateResponseSchema>;
  * points, and no days.
  */
 export const tourCopyRequestSchema = z.object({
-  name: z.string().trim().min(1).max(255),
+  name: tourNameSchema,
 });
 export type TourCopyRequest = z.infer<typeof tourCopyRequestSchema>;
 
