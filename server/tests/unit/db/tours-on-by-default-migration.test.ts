@@ -10,6 +10,11 @@ import { describe, expect, it } from 'vitest';
 
 const TARGET = 'Migration20200101046140_tours_are_on_for_every_install';
 
+interface AddonRow {
+  id: string;
+  enabled: number;
+}
+
 describe('tours on by default', () => {
   it('ADDON-TOURS-001: an existing install has Tours switched on once, the other addons stay as they were', async () => {
     const orm = await createMigrationOrm();
@@ -23,12 +28,15 @@ describe('tours on by default', () => {
         "INSERT INTO addons (id, name, type, enabled, sort_order) VALUES ('tours', 'Tours', 'trip', 0, 8), ('roadtrip', 'Road trip', 'trip', 0, 7)",
       );
 
+      const before = await rawQuery<AddonRow>(orm, 'SELECT id, enabled FROM addons ORDER BY id');
+      expect(before).toContainEqual({ id: 'roadtrip', enabled: 0 });
+      expect(before).toContainEqual({ id: 'tours', enabled: 0 });
+
       await migrateTo(orm, TARGET);
 
-      expect(await rawQuery(orm, 'SELECT id, enabled FROM addons ORDER BY id')).toEqual([
-        { id: 'roadtrip', enabled: 0 },
-        { id: 'tours', enabled: 1 },
-      ]);
+      const after = await rawQuery<AddonRow>(orm, 'SELECT id, enabled FROM addons ORDER BY id');
+      expect(after).toEqual(before.map((row) => (row.id === 'tours' ? { ...row, enabled: 1 } : row)));
+      expect(after).toContainEqual({ id: 'roadtrip', enabled: 0 });
     } finally {
       await orm.close(true);
     }
