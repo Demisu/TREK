@@ -52,13 +52,13 @@ export default function InAppNotificationBell(): React.ReactElement {
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
           <span
-            className="absolute -top-0.5 -end-0.5 flex items-center justify-center rounded-full text-white font-bold"
+            className="absolute -top-1 -end-1 flex items-center justify-center rounded-full text-white font-bold tabular-nums ring-2 ring-surface-card"
             style={{
               background: '#ef4444',
-              fontSize: 'calc(9px * var(--fs-scale-caption, 1))',
-              minWidth: 14,
-              height: 14,
-              padding: '0 3px',
+              fontSize: 'calc(10px * var(--fs-scale-caption, 1))',
+              minWidth: 18,
+              height: 18,
+              padding: '0 5px',
               lineHeight: 1,
             }}
           >
