@@ -203,6 +203,26 @@ function scheduleRoute(run: RouteRun): () => void {
 }
 
 /**
+ * What a route was planned for: its points and the choices besides them, as a
+ * route of another type or profile is not this one's. A ski tour's choice
+ * counts as far as its routing lays the legs by it (nothing while they are
+ * drawn straight).
+ */
+function plannedKeyOf(waypointKey: string, inputs: TourRouteInputs): string {
+  const choices = [
+    inputs.tourType,
+    inputs.bikeProfile,
+    inputs.runProfile,
+    inputs.maxHikingDifficulty,
+    inputs.hikingPreferences,
+    inputs.paddleBoat,
+    inputs.paddleLakeStyle,
+    skiRouteKey(inputs.skiChoice),
+  ];
+  return `${waypointKey}#${JSON.stringify(choices)}`;
+}
+
+/**
  * The route of the planner's draft, planned again a moment after its points
  * or its choices change: a hike on foot within its limit, a bike tour and a
  * run for their profile (BIK-01, RUN-01), a paddle tour on the water by the
@@ -248,20 +268,7 @@ export function useTourRoute(inputs: TourRouteInputs) {
   const clearRoute = useCallback(() => setPlanned(NO_ROUTE), []);
 
   const waypointKey = useMemo(() => tourWaypointKey(waypoints), [waypoints]);
-  // What a route was planned for besides its points: a route of another type or profile is not this one's.
-  // A ski tour's choice counts as far as its routing lays the legs by it (nothing while they are drawn straight).
-  const skiKey = skiRouteKey(skiChoice);
-  const choices = [
-    tourType,
-    bikeProfile,
-    runProfile,
-    maxHikingDifficulty,
-    hikingPreferences,
-    paddleBoat,
-    paddleLakeStyle,
-    skiKey,
-  ];
-  const plannedKey = `${waypointKey}#${JSON.stringify(choices)}`;
+  const plannedKey = plannedKeyOf(waypointKey, inputs);
   // CW-02, CW-03: a station's own fields and the keys a save answered are no part of what a route is planned from,
   // so a change to them alone plans nothing again.
   const routeInputs = useMemo(() => routeInputsKey(waypoints), [waypoints]);

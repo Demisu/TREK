@@ -20,7 +20,7 @@ const Snowboard = createLucideIcon('snowboard', [
  * mean a city walk and a walk's moving time, so a snowshoe tile marked with
  * them would read as a walk.
  */
-export const Snowshoe = createLucideIcon('snowshoe', [
+const Snowshoe = createLucideIcon('snowshoe', [
   ['path', { d: 'M12 3c3.3 0 5.5 2.8 5.5 6.5 0 4-2.4 7.6-5.5 12-3.1-4.4-5.5-8-5.5-12S8.7 3 12 3z', key: 'frame' }],
   ['path', { d: 'M7 7.5h10', key: 'lacing-front' }],
   ['path', { d: 'M7.3 13.5h9.4', key: 'lacing-back' }],

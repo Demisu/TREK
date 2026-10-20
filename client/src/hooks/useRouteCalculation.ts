@@ -5,8 +5,7 @@ import { useTripStore } from '../store/tripStore'
 import { useSettingsStore } from '../store/settingsStore'
 import { useAddonStore } from '../store/addonStore'
 import { calculateRouteWithRetries, type RouteProfileKey } from '../components/Map/routeRetry'
-import { buildDayRouteRuns, hotelBookendOf, TRANSPORT_TYPES } from '../components/Map/dayRoutePlan'
-import type { TourStageStops } from '../components/Map/dayTourProjection'
+import { buildDayRouteRuns, hotelBookendOf, TRANSPORT_TYPES, type DayRouteInputs } from '../components/Map/dayRoutePlan'
 import { dayViaLookup, foldViaLegs, threadVias, viaKeyOf, viasOnDayLeg } from '../utils/dayRouteVias'
 import { resolveLegMode } from '../components/Planner/legMode'
 import type { RoadtripVia } from '@trek/shared'
@@ -24,7 +23,7 @@ const NO_VIAS: Record<number, RoadtripVia[]> = {}
  * `roadtripVias` are the road trip's vias by day: a road picked there is the road this
  * day drives too (#2580). Absent, or empty while the road trip addon is off.
  */
-export function useRouteCalculation(tripStore: Pick<TripStoreState, 'assignments'> & { roadtripVias?: Record<number, RoadtripVia[]>; tourStageStops?: TourStageStops }, selectedDayId: number | null, enabled: boolean = true, profile: RouteProfileKey = 'driving', accommodations: Accommodation[] = NO_ACCOMMODATIONS) {
+export function useRouteCalculation(tripStore: Pick<TripStoreState, 'assignments'> & { roadtripVias?: Record<number, RoadtripVia[]>; tourStageStops?: DayRouteInputs['tourStageStops'] }, selectedDayId: number | null, enabled: boolean = true, profile: RouteProfileKey = 'driving', accommodations: Accommodation[] = NO_ACCOMMODATIONS) {
   const viasByDay = tripStore.roadtripVias ?? NO_VIAS
   // MDT-02: a day holding one stage of a multi-day tour routes to that stage.
   const tourStageStops = tripStore.tourStageStops

@@ -167,6 +167,20 @@ function typeFieldsOf(input: TourPlannerFactsInput) {
   };
 }
 
+/** The types whose time is not the router's: a paddle tour has only its speed, a run its pace, a ride and a ski tour none. */
+const UNTIMED_BY_ROUTER: ReadonlySet<PlannableTourType> = new Set(['kayak', 'run', 'horse', 'ski']);
+
+/** The moving time a save carries: the planner's own, else the router's time standing in for a hike without heights. */
+function savedDurationSecondsOf(input: TourPlannerFactsInput, walkingDurationMinutes: number | null): number | null {
+  if (walkingDurationMinutes !== null) return walkingDurationMinutes * 60;
+  return UNTIMED_BY_ROUTER.has(input.tourType) ? null : input.durationSeconds;
+}
+
+/** SKI-02: a ski tour is saved with its discipline, a cross-country one with its technique too; null for any other type. */
+function skiMissingOf(input: TourPlannerFactsInput) {
+  return input.tourType === 'ski' ? skiChoiceMissing(input.ski ?? NO_SKI_CHOICE) : null;
+}
+
 /**
  * What the planner derives from its draft, worked out in one place: whether
  * the fields hold, the times, and the fields the tour type adds to a save.
@@ -189,7 +203,7 @@ export function tourPlannerFacts(input: TourPlannerFactsInput) {
     breakAdditionalInvalid: input.tourType !== 'walk' && invalidMinutes(breakAdditionalMinutes),
     paddleIncomplete: isPaddle && (boatType === null || waterContext === null),
     /** SKI-02: a ski tour is saved with its discipline, a cross-country one with its technique too. */
-    skiMissing: input.tourType === 'ski' ? skiChoiceMissing(input.ski ?? NO_SKI_CHOICE) : null,
+    skiMissing: skiMissingOf(input),
     /** RUN-01: a run is planned with a pace; without one Save waits, and a pace that is none is marked. */
     runPaceMissing: isRun && input.runPaceSecondsPerKm === null,
     runPaceInvalid: isRun && runPaceInvalid(input.runPaceSecondsPerKm),
@@ -204,14 +218,7 @@ export function tourPlannerFacts(input: TourPlannerFactsInput) {
       automaticPlannedTotalMinutes > maxTourMinutesFor(input.stageCount ?? 1),
     // A city walk's stops are its stays: it saves no breaks, so a cafe never counts as a stay and a break at once.
     savedBreakAdditionalMinutes: input.tourType === 'walk' ? null : breakAdditionalMinutes,
-    // The router's own time stands in for a hike without heights; a paddle tour has only its speed, a run its pace,
-    // a ride and a ski tour none.
-    savedDurationSeconds:
-      walkingDurationMinutes === null
-        ? isPaddle || isRun || input.tourType === 'horse' || input.tourType === 'ski'
-          ? null
-          : durationSeconds
-        : walkingDurationMinutes * 60,
+    savedDurationSeconds: savedDurationSecondsOf(input, walkingDurationMinutes),
     typeFields: typeFieldsOf(input),
   };
 }
