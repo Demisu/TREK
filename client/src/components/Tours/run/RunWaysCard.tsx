@@ -26,10 +26,10 @@ const sacOf = (edge: RouteWayEdge) => edge.sac;
 /** The steps from easy to hard, so the hardest one along the route is the last one found. */
 const SAC_STEPS: readonly GradedClass[] = ['t1', 't2', 't3', 't4', 't5', 't6'];
 
-/** A hiking grade in the words the hiking limit uses for it, a way without one as unknown. */
+/** A hiking grade in the card's own words, a way without one as unknown. */
 function useSacLabel() {
   const { t } = useTranslation();
-  return (key: SacClass) => (key === 'none' ? t('tours.bike.trail.none') : t(`tours.planner.difficulty.${key}`));
+  return (key: SacClass) => (key === 'none' ? t('tours.bike.trail.none') : t(`tours.run.ways.sac.${key}`));
 }
 
 /** The hardest graded step along the route, or null when no way on it carries a grade. */

@@ -447,6 +447,12 @@ const tours: TranslationStrings = {
   'tours.run.ways.gradeInfo':
     'Stopnie trudności szlaków nadane przez maperów OpenStreetMap. Droga bez stopnia jest nieznana, a nie łatwa. Nie mówią, czy da się nią biec ani czy jest dla ciebie.',
   'tours.run.ways.gradeTop': 'Najtrudniejsza oceniona ścieżka: {grade}',
+  'tours.run.ways.sac.t1': 'T1, turystyka piesza',
+  'tours.run.ways.sac.t2': 'T2, turystyka górska',
+  'tours.run.ways.sac.t3': 'T3, wymagająca turystyka górska',
+  'tours.run.ways.sac.t4': 'T4, turystyka wysokogórska',
+  'tours.run.ways.sac.t5': 'T5, wymagająca turystyka wysokogórska',
+  'tours.run.ways.sac.t6': 'T6, trudna turystyka wysokogórska',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Turystyka',
   'tours.bike.profile.road': 'Szosa',

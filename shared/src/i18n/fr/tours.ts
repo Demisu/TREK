@@ -445,6 +445,12 @@ const tours: TranslationStrings = {
   'tours.run.ways.gradeInfo':
     'Cotations de randonnée telles que les contributeurs OpenStreetMap les ont saisies. Un chemin sans cotation est inconnu, pas facile. Elles ne disent pas si un chemin se court ni s’il vous convient.',
   'tours.run.ways.gradeTop': 'Chemin coté le plus difficile : {grade}',
+  'tours.run.ways.sac.t1': 'T1, randonnée',
+  'tours.run.ways.sac.t2': 'T2, randonnée en montagne',
+  'tours.run.ways.sac.t3': 'T3, randonnée en montagne exigeante',
+  'tours.run.ways.sac.t4': 'T4, randonnée alpine',
+  'tours.run.ways.sac.t5': 'T5, randonnée alpine exigeante',
+  'tours.run.ways.sac.t6': 'T6, randonnée alpine difficile',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Voyage',
   'tours.bike.profile.road': 'Route',

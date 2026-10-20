@@ -442,6 +442,12 @@ const tours: TranslationStrings = {
   'tours.run.ways.gradeInfo':
     'درجات المشي كما حددها مساهمو OpenStreetMap. الطريق بلا درجة مجهول، وليس سهلًا. لا تقول شيئًا عن إمكانية الجري عليه أو مدى ملاءمته لك.',
   'tours.run.ways.gradeTop': 'أصعب مسار مصنّف: {grade}',
+  'tours.run.ways.sac.t1': 'T1، المشي الطويل',
+  'tours.run.ways.sac.t2': 'T2، المشي الجبلي',
+  'tours.run.ways.sac.t3': 'T3، المشي الجبلي الشاق',
+  'tours.run.ways.sac.t4': 'T4، المشي في التضاريس الألبية',
+  'tours.run.ways.sac.t5': 'T5، المشي الشاق في التضاريس الألبية',
+  'tours.run.ways.sac.t6': 'T6، المشي الصعب في التضاريس الألبية',
   'tours.bike.profile': 'الملف',
   'tours.bike.profile.touring': 'تجوال',
   'tours.bike.profile.road': 'طريق',

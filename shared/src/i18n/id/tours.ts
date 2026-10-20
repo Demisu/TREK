@@ -433,6 +433,12 @@ const tours: TranslationStrings = {
   'tours.run.ways.gradeInfo':
     'Tingkat pendakian seperti yang diberikan pemeta OpenStreetMap. Jalan tanpa tingkat tidak diketahui, bukan mudah. Tingkat ini tidak menyatakan apakah jalan bisa dilari atau cocok untukmu.',
   'tours.run.ways.gradeTop': 'Jalur bertingkat tersulit: {grade}',
+  'tours.run.ways.sac.t1': 'T1, pendakian',
+  'tours.run.ways.sac.t2': 'T2, pendakian gunung',
+  'tours.run.ways.sac.t3': 'T3, pendakian gunung menantang',
+  'tours.run.ways.sac.t4': 'T4, pendakian alpin',
+  'tours.run.ways.sac.t5': 'T5, pendakian alpin menantang',
+  'tours.run.ways.sac.t6': 'T6, pendakian alpin sulit',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Touring', // same-as-en
   'tours.bike.profile.road': 'Road', // same-as-en

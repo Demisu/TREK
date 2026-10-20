@@ -451,6 +451,12 @@ const tours: TranslationStrings = {
   'tours.run.ways.gradeInfo':
     'Категории сложности троп, как их указали участники OpenStreetMap. Путь без категории неизвестен, а не прост. Они ничего не говорят о том, можно ли по пути бежать и подходит ли он вам.',
   'tours.run.ways.gradeTop': 'Самая сложная оцененная тропа: {grade}',
+  'tours.run.ways.sac.t1': 'T1, пеший поход',
+  'tours.run.ways.sac.t2': 'T2, горный поход',
+  'tours.run.ways.sac.t3': 'T3, сложный горный поход',
+  'tours.run.ways.sac.t4': 'T4, высокогорный поход',
+  'tours.run.ways.sac.t5': 'T5, сложный высокогорный поход',
+  'tours.run.ways.sac.t6': 'T6, очень сложный высокогорный поход',
   'tours.bike.profile': 'Профиль',
   'tours.bike.profile.touring': 'Туризм',
   'tours.bike.profile.road': 'Шоссе',

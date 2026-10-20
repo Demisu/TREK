@@ -446,6 +446,12 @@ const tours: TranslationStrings = {
   'tours.run.ways.gradeInfo':
     'Категорії складності стежок, як їх вказали учасники OpenStreetMap. Шлях без категорії невідомий, а не легкий. Вони нічого не кажуть про те, чи можна ним бігти і чи підходить він вам.',
   'tours.run.ways.gradeTop': 'Найскладніша оцінена стежка: {grade}',
+  'tours.run.ways.sac.t1': 'T1, піший похід',
+  'tours.run.ways.sac.t2': 'T2, гірський похід',
+  'tours.run.ways.sac.t3': 'T3, складний гірський похід',
+  'tours.run.ways.sac.t4': 'T4, високогірний похід',
+  'tours.run.ways.sac.t5': 'T5, складний високогірний похід',
+  'tours.run.ways.sac.t6': 'T6, дуже складний високогірний похід',
   'tours.bike.profile': 'Профіль',
   'tours.bike.profile.touring': 'Туризм',
   'tours.bike.profile.road': 'Шосе',

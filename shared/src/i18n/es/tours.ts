@@ -438,6 +438,12 @@ const tours: TranslationStrings = {
   'tours.run.ways.gradeInfo':
     'Grados de senderismo tal como los asignaron los mapeadores de OpenStreetMap. Un camino sin grado es desconocido, no fácil. No dicen si un camino se puede correr ni si te conviene.',
   'tours.run.ways.gradeTop': 'Camino graduado más difícil: {grade}',
+  'tours.run.ways.sac.t1': 'T1, senderismo',
+  'tours.run.ways.sac.t2': 'T2, senderismo de montaña',
+  'tours.run.ways.sac.t3': 'T3, senderismo de montaña exigente',
+  'tours.run.ways.sac.t4': 'T4, senderismo alpino',
+  'tours.run.ways.sac.t5': 'T5, senderismo alpino exigente',
+  'tours.run.ways.sac.t6': 'T6, senderismo alpino difícil',
   'tours.bike.profile': 'Perfil',
   'tours.bike.profile.touring': 'Cicloturismo',
   'tours.bike.profile.road': 'Carretera',

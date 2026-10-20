@@ -429,6 +429,12 @@ const tours: TranslationStrings = {
   'tours.run.ways.gradeInfo':
     'Vandringsgrader som OpenStreetMap-kartläggare har angett dem. En väg utan grad är okänd, inte lätt. De säger inget om huruvida en väg går att springa eller passar dig.',
   'tours.run.ways.gradeTop': 'Svåraste graderade led: {grade}',
+  'tours.run.ways.sac.t1': 'T1, vandring',
+  'tours.run.ways.sac.t2': 'T2, bergsvandring',
+  'tours.run.ways.sac.t3': 'T3, krävande bergsvandring',
+  'tours.run.ways.sac.t4': 'T4, alpin vandring',
+  'tours.run.ways.sac.t5': 'T5, krävande alpin vandring',
+  'tours.run.ways.sac.t6': 'T6, svår alpin vandring',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Tur',
   'tours.bike.profile.road': 'Landsväg',

@@ -439,6 +439,12 @@ const tours: TranslationStrings = {
   'tours.run.ways.gradeInfo':
     'Graus d’excursionisme tal com els han posat els mapejadors d’OpenStreetMap. Un camí sense grau és desconegut, no fàcil. No diuen si un camí es pot córrer ni si et convé.',
   'tours.run.ways.gradeTop': 'Camí classificat més difícil: {grade}',
+  'tours.run.ways.sac.t1': 'T1, senderisme',
+  'tours.run.ways.sac.t2': 'T2, senderisme de muntanya',
+  'tours.run.ways.sac.t3': 'T3, senderisme de muntanya exigent',
+  'tours.run.ways.sac.t4': 'T4, senderisme alpí',
+  'tours.run.ways.sac.t5': 'T5, senderisme alpí exigent',
+  'tours.run.ways.sac.t6': 'T6, senderisme alpí difícil',
   'tours.bike.profile': 'Perfil',
   'tours.bike.profile.touring': 'Cicloturisme',
   'tours.bike.profile.road': 'Carretera',

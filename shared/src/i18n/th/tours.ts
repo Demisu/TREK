@@ -410,6 +410,12 @@ const tours: TranslationStrings = {
   'tours.run.ways.gradeInfo':
     'ระดับการเดินป่าตามที่ผู้ทำแผนที่ OpenStreetMap ระบุไว้ ทางที่ไม่มีระดับคือไม่ทราบ ไม่ใช่ง่าย และไม่ได้บอกว่าทางนั้นวิ่งได้หรือเหมาะกับคุณหรือไม่',
   'tours.run.ways.gradeTop': 'ทางที่มีระดับยากที่สุด: {grade}',
+  'tours.run.ways.sac.t1': 'T1 เดินป่า',
+  'tours.run.ways.sac.t2': 'T2 เดินป่าบนภูเขา',
+  'tours.run.ways.sac.t3': 'T3 เดินป่าบนภูเขาระดับท้าทาย',
+  'tours.run.ways.sac.t4': 'T4 เดินป่าแบบอัลไพน์',
+  'tours.run.ways.sac.t5': 'T5 เดินป่าแบบอัลไพน์ระดับท้าทาย',
+  'tours.run.ways.sac.t6': 'T6 เดินป่าแบบอัลไพน์ระดับยาก',
   'tours.bike.profile': 'โปรไฟล์',
   'tours.bike.profile.touring': 'ทัวริ่ง',
   'tours.bike.profile.road': 'เสือหมอบ',

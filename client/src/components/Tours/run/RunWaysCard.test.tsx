@@ -59,7 +59,7 @@ describe('RunWaysCard (RUN-02)', () => {
     show({});
     expect(within(screen.getByTestId('route-ways-row-surface-paved')).getByText('60 %')).toBeInTheDocument();
     expect(screen.getByTestId('route-ways-row-surface-gravel')).toHaveTextContent('300 m');
-    expect(screen.getByTestId('route-ways-row-grade-t1')).toHaveTextContent('T1');
+    expect(screen.getByTestId('route-ways-row-grade-t1')).toHaveTextContent('T1, hiking');
     expect(screen.getByTestId('route-ways-row-grade-t2')).toHaveTextContent('10 %');
     expect(screen.getByTestId('route-ways-row-grade-none')).toHaveTextContent('No grade in the data');
     expect(screen.getByTestId('route-ways-row-way-track')).toBeInTheDocument();
@@ -73,7 +73,8 @@ describe('RunWaysCard (RUN-02)', () => {
     expect(screen.getByText('40 % unpaved')).toBeInTheDocument();
     const hardest = screen.getByTestId('run-ways-hardest');
     expect(hardest).toHaveTextContent('T2');
-    expect(hardest).toHaveTextContent(/Hardest graded path: T2/);
+    expect(hardest).toHaveTextContent('Hardest graded path: T2, mountain hiking');
+    expect(hardest.textContent).not.toMatch(/[\u2013\u2014]/);
   });
 
   it('FE-TOUR-RUNWAYS-003: a grade row points at its stretches on the map in the grade colour, and lets go', () => {

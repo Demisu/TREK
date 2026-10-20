@@ -438,6 +438,12 @@ const tours: TranslationStrings = {
   'tours.run.ways.gradeInfo':
     'Graus de caminhada como os mapeadores do OpenStreetMap os informaram. Um caminho sem grau é desconhecido, não fácil. Eles não dizem se dá para correr no caminho nem se ele combina com você.',
   'tours.run.ways.gradeTop': 'Trilha classificada mais difícil: {grade}',
+  'tours.run.ways.sac.t1': 'T1, caminhada',
+  'tours.run.ways.sac.t2': 'T2, caminhada em montanha',
+  'tours.run.ways.sac.t3': 'T3, caminhada exigente em montanha',
+  'tours.run.ways.sac.t4': 'T4, caminhada alpina',
+  'tours.run.ways.sac.t5': 'T5, caminhada alpina exigente',
+  'tours.run.ways.sac.t6': 'T6, caminhada alpina difícil',
   'tours.bike.profile': 'Perfil',
   'tours.bike.profile.touring': 'Cicloturismo',
   'tours.bike.profile.road': 'Estrada',

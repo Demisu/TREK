@@ -430,6 +430,12 @@ const tours: TranslationStrings = {
   'tours.run.ways.gradeInfo':
     'Cấp độ đi bộ đường dài do người vẽ bản đồ OpenStreetMap gán. Đường không có cấp là chưa rõ, không phải dễ. Chúng không cho biết đường có chạy được hay có hợp với bạn không.',
   'tours.run.ways.gradeTop': 'Đường được xếp cấp khó nhất: {grade}',
+  'tours.run.ways.sac.t1': 'T1, đi bộ đường dài',
+  'tours.run.ways.sac.t2': 'T2, đi bộ đường dài trên núi',
+  'tours.run.ways.sac.t3': 'T3, đi bộ đường dài trên núi đòi hỏi kỹ năng cao',
+  'tours.run.ways.sac.t4': 'T4, đi bộ đường dài trên núi cao',
+  'tours.run.ways.sac.t5': 'T5, đi bộ đường dài trên núi cao đòi hỏi kỹ năng cao',
+  'tours.run.ways.sac.t6': 'T6, đi bộ đường dài trên núi cao rất khó',
   'tours.bike.profile': 'Hồ sơ',
   'tours.bike.profile.touring': 'Du lịch',
   'tours.bike.profile.road': 'Đường trường',

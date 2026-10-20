@@ -431,6 +431,12 @@ const tours: TranslationStrings = {
   'tours.run.ways.gradeInfo':
     'Turistické stupně, jak je zadali mapovači OpenStreetMap. Cesta bez stupně je neznámá, ne snadná. Neříkají nic o tom, zda se po cestě dá běžet nebo zda se pro tebe hodí.',
   'tours.run.ways.gradeTop': 'Nejtěžší hodnocená cesta: {grade}',
+  'tours.run.ways.sac.t1': 'T1, pěší turistika',
+  'tours.run.ways.sac.t2': 'T2, horská turistika',
+  'tours.run.ways.sac.t3': 'T3, náročná horská turistika',
+  'tours.run.ways.sac.t4': 'T4, vysokohorská turistika',
+  'tours.run.ways.sac.t5': 'T5, náročná vysokohorská turistika',
+  'tours.run.ways.sac.t6': 'T6, obtížná vysokohorská turistika',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Treking',
   'tours.bike.profile.road': 'Silnice',

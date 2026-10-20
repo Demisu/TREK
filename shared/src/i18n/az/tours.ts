@@ -432,6 +432,12 @@ const tours: TranslationStrings = {
   'tours.run.ways.gradeInfo':
     'OpenStreetMap xəritəçilərinin verdiyi yürüş dərəcələri. Dərəcəsi olmayan yol asan deyil, naməlumdur. Onlar yolun qaçmağa yararlı olub-olmadığı və ya sizə uyğun olub-olmadığı barədə heç nə demir.',
   'tours.run.ways.gradeTop': 'Ən çətin qiymətləndirilmiş cığır: {grade}',
+  'tours.run.ways.sac.t1': 'T1, yürüş',
+  'tours.run.ways.sac.t2': 'T2, dağ yürüşü',
+  'tours.run.ways.sac.t3': 'T3, yüksək hazırlıq tələb edən dağ yürüşü',
+  'tours.run.ways.sac.t4': 'T4, alp yürüşü',
+  'tours.run.ways.sac.t5': 'T5, yüksək hazırlıq tələb edən alp yürüşü',
+  'tours.run.ways.sac.t6': 'T6, çətin alp yürüşü',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Turinq',
   'tours.bike.profile.road': 'Yol',

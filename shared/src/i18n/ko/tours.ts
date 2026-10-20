@@ -418,6 +418,12 @@ const tours: TranslationStrings = {
   'tours.run.ways.gradeInfo':
     'OpenStreetMap 매퍼가 매긴 하이킹 등급입니다. 등급이 없는 길은 쉬운 것이 아니라 알 수 없는 것입니다. 길을 달릴 수 있는지, 나에게 맞는지는 알려 주지 않습니다.',
   'tours.run.ways.gradeTop': '가장 어려운 등급의 길: {grade}',
+  'tours.run.ways.sac.t1': 'T1, 하이킹',
+  'tours.run.ways.sac.t2': 'T2, 산악 하이킹',
+  'tours.run.ways.sac.t3': 'T3, 고난도 산악 하이킹',
+  'tours.run.ways.sac.t4': 'T4, 고산 하이킹',
+  'tours.run.ways.sac.t5': 'T5, 고난도 고산 하이킹',
+  'tours.run.ways.sac.t6': 'T6, 매우 어려운 고산 하이킹',
   'tours.bike.profile': '프로필',
   'tours.bike.profile.touring': '투어링',
   'tours.bike.profile.road': '로드',

@@ -447,6 +447,12 @@ const tours: TranslationStrings = {
   'tours.run.ways.gradeInfo':
     'Βαθμοί πεζοπορίας όπως τους έδωσαν οι χαρτογράφοι του OpenStreetMap. Ένας δρόμος χωρίς βαθμό είναι άγνωστος, όχι εύκολος. Δεν λένε τίποτα για το αν ένας δρόμος τρέχεται ή αν σου ταιριάζει.',
   'tours.run.ways.gradeTop': 'Δυσκολότερο βαθμολογημένο μονοπάτι: {grade}',
+  'tours.run.ways.sac.t1': 'T1, πεζοπορία',
+  'tours.run.ways.sac.t2': 'T2, ορεινή πεζοπορία',
+  'tours.run.ways.sac.t3': 'T3, απαιτητική ορεινή πεζοπορία',
+  'tours.run.ways.sac.t4': 'T4, αλπική πεζοπορία',
+  'tours.run.ways.sac.t5': 'T5, απαιτητική αλπική πεζοπορία',
+  'tours.run.ways.sac.t6': 'T6, δύσκολη αλπική πεζοπορία',
   'tours.bike.profile': 'Προφίλ',
   'tours.bike.profile.touring': 'Περιήγηση',
   'tours.bike.profile.road': 'Δρόμου',

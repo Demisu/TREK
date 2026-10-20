@@ -430,6 +430,12 @@ const tours: TranslationStrings = {
   'tours.run.ways.gradeInfo':
     'Hiking grades as OpenStreetMap mappers gave them. A way without one is unknown, not easy. They say nothing about whether a way can be run or suits you.',
   'tours.run.ways.gradeTop': 'Hardest graded path: {grade}',
+  'tours.run.ways.sac.t1': 'T1, hiking',
+  'tours.run.ways.sac.t2': 'T2, mountain hiking',
+  'tours.run.ways.sac.t3': 'T3, demanding mountain hiking',
+  'tours.run.ways.sac.t4': 'T4, alpine hiking',
+  'tours.run.ways.sac.t5': 'T5, demanding alpine hiking',
+  'tours.run.ways.sac.t6': 'T6, difficult alpine hiking',
   'tours.bike.profile': 'Profile',
   'tours.bike.profile.touring': 'Touring',
   'tours.bike.profile.road': 'Road',
