@@ -538,6 +538,24 @@ describe('ToursSidebar', () => {
     expect(badge).toHaveAttribute('aria-label', 'Day 1, Day 3: Summit')
   })
 
+  it('MDT-02: the days come before the measures in the badge line, and a multi-day tour counts its stages beside the row', () => {
+    const days = [{ id: 7, trip_id: 1, day_number: 1, title: null, date: null }] as never[]
+    seedStore(useTripStore, { assignments: { '7': [{ id: 1, place_id: 42 }] } as never })
+    render(<ToursSidebar tripId={1} days={days} tours={[{ ...tour, stage_count: 3 }]} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />)
+
+    const row = screen.getByRole('option', { name: /Selected ridge walk/ })
+    const metrics = within(row).getByTestId('tour-metrics')
+    const daysBadge = within(metrics).getByTestId('tour-days-badge')
+    const measures = [...metrics.querySelectorAll('[aria-label]')].filter(element => !daysBadge.contains(element))
+    expect(measures.length).toBeGreaterThan(0)
+    for (const measure of measures) {
+      expect(daysBadge.compareDocumentPosition(measure) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    }
+    expect(metrics).not.toHaveTextContent(/stages/)
+    expect(within(row).getByRole('img', { name: '3 stages' })).toBeInTheDocument()
+    expect(metrics).not.toContainElement(within(row).getByTestId('tour-stages-badge'))
+  })
+
   it('PR1-13: offers the source and routing limit only where the list varies, and narrows by them', () => {
     render(<ToursSidebar tripId={1} days={[]} tours={[
       { ...tour, place_id: 1, name: 'Drawn', origin: 'trek', max_hiking_difficulty: 2 },

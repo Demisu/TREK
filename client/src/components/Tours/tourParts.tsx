@@ -274,12 +274,28 @@ export function TourNotice({ tone = 'neutral', icon, children, role }: { tone?: 
 }
 
 /** The chevron that folds a section away, quiet like the rest of a panel's controls. */
-export function FoldButton({ expanded, onToggle, controls, label }: { expanded: boolean; onToggle: () => void; controls: string; label: string }) {
+/**
+ * A chevron that folds what `controls` names. `corner` sits at its top corner
+ * (a count of what unfolds), and `hint` says the same in words: in the tooltip
+ * after the label, and as the button's description for assistive tech.
+ */
+export function FoldButton({ expanded, onToggle, controls, label, corner, hint }: {
+  expanded: boolean
+  onToggle: () => void
+  controls: string
+  label: string
+  corner?: ReactNode
+  hint?: string
+}) {
+  const hintId = useId()
   return (
-    <Tooltip label={label}>
+    <Tooltip label={hint ? `${label}: ${hint}` : label}>
       <button type="button" onClick={onToggle} aria-expanded={expanded} aria-controls={controls} aria-label={label}
-        className="grid h-6 w-6 place-items-center rounded-full text-content-faint transition-colors hover:bg-surface-card hover:text-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
+        aria-describedby={hint ? hintId : undefined}
+        className="relative grid h-6 w-6 place-items-center rounded-full text-content-faint transition-colors hover:bg-surface-card hover:text-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
         <ChevronDown size={14} strokeWidth={2.2} className={`transition-transform ${expanded ? '' : '-rotate-90'}`} />
+        {corner}
+        {hint && <span id={hintId} className="sr-only">{hint}</span>}
       </button>
     </Tooltip>
   )

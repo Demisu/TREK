@@ -199,15 +199,46 @@ export function stageMenuItems(stages: TourStagesController, point: { id: string
   return items;
 }
 
-/** MDT-01: a multi-day tour in a list says how many stages it has, with the moon of its nights. */
+/**
+ * MDT-02: how many stages a multi-day tour has, as a small moon with the
+ * number beside it, in the corner of what it sits on. Its words are said by
+ * whatever carries it.
+ */
+export function StageCountCorner({ count }: { count: number }) {
+  return (
+    <span
+      aria-hidden="true"
+      data-testid="tour-stages-count"
+      className="pointer-events-none absolute -end-1.5 -top-1 inline-flex h-3.5 items-center gap-px rounded-full bg-accent px-1 font-geist font-semibold tabular-nums leading-none text-accent-text"
+      style={fs(9)}
+    >
+      <Moon size={7} strokeWidth={2.6} />
+      {count}
+    </span>
+  );
+}
+
+/**
+ * MDT-01: a multi-day tour in a list says how many stages it has: a moon with
+ * the count at its corner, beside the row rather than in its line of badges,
+ * so it is always in sight and never pushes the days it is on out of it. A row
+ * that unfolds its stages carries the count on its fold button instead.
+ */
 export function TourStagesBadge({ tour }: { tour: Pick<TourListItem, 'stage_count'> }) {
   const { t } = useTranslation();
   if (!tour.stage_count) return null;
+  const label = t('tours.stages.count', { count: tour.stage_count });
   return (
-    <span data-testid="tour-stages-badge" className="inline-flex">
-      <WhiteBadge icon={<Moon size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
-        {t('tours.stages.count', { count: tour.stage_count })}
-      </WhiteBadge>
-    </span>
+    <Tooltip label={label}>
+      <span
+        data-testid="tour-stages-badge"
+        role="img"
+        aria-label={label}
+        className="relative grid h-6 w-6 flex-none place-items-center text-content-faint"
+      >
+        <Moon size={13} strokeWidth={2.2} aria-hidden="true" />
+        <StageCountCorner count={tour.stage_count} />
+      </span>
+    </Tooltip>
   );
 }

@@ -93,7 +93,8 @@ describe('stage views', () => {
 
   it('FE-TOUR-STAGE-VIEW-003: a multi-day tour in a list says how many stages it has; a day tour says nothing', () => {
     const { rerender } = render(<TourStagesBadge tour={{ stage_count: 3 }} />);
-    expect(screen.getByTestId('tour-stages-badge')).toHaveTextContent('3 stages');
+    expect(screen.getByRole('img', { name: '3 stages' })).toBe(screen.getByTestId('tour-stages-badge'));
+    expect(screen.getByTestId('tour-stages-count')).toHaveTextContent('3');
     rerender(<TourStagesBadge tour={{ stage_count: null }} />);
     expect(screen.queryByTestId('tour-stages-badge')).toBeNull();
   });

@@ -137,6 +137,12 @@ describe('TourPlannerToursRail', () => {
     const hutToHut = { ...tour, place_id: 43, name: 'Hut to hut', stage_count: 2 }
     render(<TourPlannerToursRail planner={planner({ mode: { type: 'new-draft' } })} tours={[tour, hutToHut]} {...railProps} />)
     expect(screen.getAllByRole('button', { name: 'Show stages' })).toHaveLength(1)
+    // The count sits on the fold button, always in sight, never in the row's line of badges.
+    const unfold = screen.getByRole('button', { name: 'Show stages' })
+    expect(unfold).toHaveAccessibleDescription('2 stages')
+    expect(within(unfold).getByTestId('tour-stages-count')).toHaveTextContent('2')
+    const row = screen.getByRole('option', { name: /Hut to hut/ })
+    expect(within(within(row).getByTestId('tour-metrics')).queryByText(/stages/)).toBeNull()
     expect(screen.queryByTestId('tour-stage-overview')).toBeNull()
     await userEvent.click(screen.getByRole('button', { name: 'Show stages' }))
     expect(screen.getByTestId('tour-stage-overview')).toHaveAttribute('id', 'tour-stages-43')

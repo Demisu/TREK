@@ -7,9 +7,10 @@ import { FoldButton, TourActivityBadge, TourCautionBadge, TourDaysBadge, TourGra
 import type { Day } from '../../types'
 import { endPlaceDrag, startPlaceDrag } from '../Map/markerDrag'
 import { TourDayRowPills } from './TourDayRowFacts'
-import { TourStagesBadge } from './stages/StageParts'
+import { StageCountCorner, TourStagesBadge } from './stages/StageParts'
 import { useTourDays } from './tourDays'
 import { Tooltip } from '../shared/Tooltip'
+import { useTranslation } from '../../i18n'
 
 const NO_DAYS: Day[] = []
 
@@ -73,16 +74,16 @@ function TourRowBody({ tour, nameId, tourDays, dimmed }: {
           </span>
         )}
         {/* One line of whole badges, most important first: one that does not fit wraps onto a
-            second line the fixed height hides, so a narrow sidebar shows two and never half of one. */}
+            second line the fixed height hides, so a narrow sidebar shows two and never half of one.
+            The days come before the measures, so the ascent is what goes, never the days. */}
         <div
           data-testid="tour-metrics"
           className="-mx-0.5 mt-0.5 flex h-6 min-w-0 flex-wrap content-start gap-x-1.5 gap-y-2 overflow-hidden px-0.5 pt-0.5"
         >
           <TourCautionBadge tour={tour} />
           <TourActivityBadge tour={tour} />
-          <TourStagesBadge tour={tour} />
-          <TourDayRowPills tour={tour} compact />
           <TourDaysBadge tourDays={tourDays} />
+          <TourDayRowPills tour={tour} compact />
         </div>
       </div>
     </div>
@@ -108,6 +109,24 @@ function TourRowActions({ action, mapToggle, selected }: Pick<TourListRowProps, 
         </div>
       )}
     </>
+  )
+}
+
+/**
+ * MDT-02: how many stages the tour has, always in sight beside the row: on
+ * the fold button where the row unfolds them, as a mark of its own otherwise.
+ */
+function TourRowStages({ tour, fold }: Pick<TourListRowProps, 'tour' | 'fold'>) {
+  const { t } = useTranslation()
+  if (!fold) return <TourStagesBadge tour={tour} />
+  const count = tour.stage_count ?? 0
+  return (
+    // Always in sight, unlike the hover actions: the stages are part of what the row is.
+    <span role="presentation" className="flex-none" onClick={event => event.stopPropagation()}>
+      <FoldButton expanded={fold.expanded} onToggle={fold.onToggle} controls={fold.controls} label={fold.label}
+        corner={count > 0 ? <StageCountCorner count={count} /> : undefined}
+        hint={count > 0 ? t('tours.stages.count', { count }) : undefined} />
+    </span>
   )
 }
 
@@ -154,12 +173,7 @@ export default function TourListRow({ tour,
         )}
         <TourRowBody tour={tour} nameId={nameId} tourDays={tourDays} dimmed={!!mapToggle?.hidden} />
         <TourRowActions action={action} mapToggle={mapToggle} selected={selected} />
-        {fold && (
-          // Always in sight, unlike the hover actions: the stages are part of what the row is.
-          <span role="presentation" className="flex-none" onClick={event => event.stopPropagation()}>
-            <FoldButton expanded={fold.expanded} onToggle={fold.onToggle} controls={fold.controls} label={fold.label} />
-          </span>
-        )}
+        <TourRowStages tour={tour} fold={fold} />
       </div>
       {children}
     </li>
