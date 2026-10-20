@@ -230,9 +230,8 @@ describe('TourPoiSearchCard', () => {
     );
     fireEvent.click(within(card).getByTestId('tour-poi-add'));
     await waitFor(() => expect(planner.editWaypoints).toHaveBeenCalledTimes(1));
-    // The card closes once the place is in, and the list says what it did.
+    // The card closes once the place is in. What it did is said in the list once the route has it (FE-TOUR-POI-006).
     expect(screen.queryByTestId('tour-poi-overlay')).not.toBeInTheDocument();
-    expect(screen.getByTestId('tour-poi-outcome')).toHaveTextContent('Spring');
   });
 
   it('FE-TOUR-POI-016: the card over the map closes on its button and on Escape, and a pin on the map opens it too', async () => {
