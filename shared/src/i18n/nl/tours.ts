@@ -1224,6 +1224,8 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Werkelijke track gekoppeld',
   'tours.activity.removed': 'Werkelijke track ontkoppeld',
   'tours.activity.failed': 'De werkelijke track kon niet worden gewijzigd',
+  'tours.activity.offline':
+    'De werkelijke track wijzigen vraagt een verbinding, en de wachtende wijzigingen van deze tocht gaan voor',
   'tours.activity.dialogEyebrow': 'Werkelijke track toevoegen',
   'tours.activity.dialogHint': 'De planning blijft zoals ze is. De track wordt alleen gekoppeld.',
   'tours.activity.execution': 'Gedaan op',

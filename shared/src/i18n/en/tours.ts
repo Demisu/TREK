@@ -1193,6 +1193,7 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Actual track linked',
   'tours.activity.removed': 'Actual track unlinked',
   'tours.activity.failed': 'The actual track could not be changed',
+  'tours.activity.offline': 'Changing the actual track needs a connection, and this tour’s waiting changes go first',
   'tours.activity.dialogEyebrow': 'Add actual track',
   'tours.activity.dialogHint': 'The plan stays as it is. The track is only linked.',
   'tours.activity.execution': 'Done on',

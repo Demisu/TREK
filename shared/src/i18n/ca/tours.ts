@@ -1224,6 +1224,7 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Traç real vinculat',
   'tours.activity.removed': 'Traç real desvinculat',
   'tours.activity.failed': 'No s’ha pogut canviar el traç real',
+  'tours.activity.offline': 'Canviar el traç real necessita connexió, i els canvis pendents d’aquesta ruta van primer',
   'tours.activity.dialogEyebrow': 'Afegeix el traç real',
   'tours.activity.dialogHint': 'El pla es queda com està. El traç només es vincula.',
   'tours.activity.execution': 'Feta el',

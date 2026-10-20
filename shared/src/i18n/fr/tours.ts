@@ -1242,6 +1242,8 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Trace réelle liée',
   'tours.activity.removed': 'Trace réelle déliée',
   'tours.activity.failed': 'La trace réelle n’a pas pu être modifiée',
+  'tours.activity.offline':
+    'Modifier la trace réelle demande une connexion, et les modifications en attente de cette sortie passent d’abord',
   'tours.activity.dialogEyebrow': 'Ajouter la trace réelle',
   'tours.activity.dialogHint': 'Le plan reste tel quel. La trace est seulement liée.',
   'tours.activity.execution': 'Réalisée le',

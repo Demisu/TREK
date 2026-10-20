@@ -1232,6 +1232,8 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Traccia effettiva collegata',
   'tours.activity.removed': 'Traccia effettiva scollegata',
   'tours.activity.failed': 'Non è stato possibile modificare la traccia effettiva',
+  'tours.activity.offline':
+    'Per modificare la traccia effettiva serve una connessione, e le modifiche in attesa di questo tour vanno prima',
   'tours.activity.dialogEyebrow': 'Aggiungi traccia effettiva',
   'tours.activity.dialogHint': 'Il piano resta com’è. La traccia viene solo collegata.',
   'tours.activity.execution': 'Svolto il',

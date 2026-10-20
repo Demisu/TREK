@@ -1,6 +1,7 @@
 import type { TourActivity, TourDetailResponse, TourListItem } from '@trek/shared';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from '../../../i18n';
+import { OnlineOnlyError } from '../../../repo/onlineOnly';
 import { tourRepo } from '../../../repo/tourRepo';
 import { useToast } from '../../shared/Toast';
 import { inDayOrder, refusalOf, type TourExecution } from './tourActivityModel';
@@ -83,6 +84,11 @@ export function useTourActivities({ tripId, tour, executions, canEdit, onToursCh
         toast.success(t(success));
         return true;
       } catch (error: unknown) {
+        // Offline, or behind a write of the tour still waiting: said as such, not as a failure.
+        if (error instanceof OnlineOnlyError) {
+          toast.error(t('tours.activity.offline'));
+          return false;
+        }
         const refusal = refusalOf(error);
         toast.error(t(refusal ? `tours.activity.refused.${refusal}` : 'tours.activity.failed'));
         return false;

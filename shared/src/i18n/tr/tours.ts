@@ -1203,6 +1203,8 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Gerçek iz bağlandı',
   'tours.activity.removed': 'Gerçek izin bağlantısı kaldırıldı',
   'tours.activity.failed': 'Gerçek iz değiştirilemedi',
+  'tours.activity.offline':
+    'Gerçek izi değiştirmek bağlantı gerektirir ve bu turun bekleyen değişiklikleri önce gönderilir',
   'tours.activity.dialogEyebrow': 'Gerçek iz ekle',
   'tours.activity.dialogHint': 'Plan olduğu gibi kalır. İz yalnızca bağlanır.',
   'tours.activity.execution': 'Yapıldığı gün',

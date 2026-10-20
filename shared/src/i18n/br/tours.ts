@@ -1218,6 +1218,8 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Trilha real vinculada',
   'tours.activity.removed': 'Trilha real desvinculada',
   'tours.activity.failed': 'Não foi possível alterar a trilha real',
+  'tours.activity.offline':
+    'Alterar a trilha real precisa de conexão, e as alterações pendentes deste passeio vão primeiro',
   'tours.activity.dialogEyebrow': 'Adicionar trilha real',
   'tours.activity.dialogHint': 'O plano continua como está. A trilha é apenas vinculada.',
   'tours.activity.execution': 'Feito em',

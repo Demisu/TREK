@@ -1211,6 +1211,7 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Skutočná trasa prepojená',
   'tours.activity.removed': 'Skutočná trasa odpojená',
   'tours.activity.failed': 'Skutočnú trasu sa nepodarilo zmeniť',
+  'tours.activity.offline': 'Zmena skutočnej trasy potrebuje pripojenie a čakajúce zmeny tejto túry idú prvé',
   'tours.activity.dialogEyebrow': 'Pridať skutočnú trasu',
   'tours.activity.dialogHint': 'Plán zostáva, ako je. Trasa sa len prepojí.',
   'tours.activity.execution': 'Uskutočnené',

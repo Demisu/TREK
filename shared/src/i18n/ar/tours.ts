@@ -1250,6 +1250,7 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'تم ربط المسار الفعلي',
   'tours.activity.removed': 'تم فك ربط المسار الفعلي',
   'tours.activity.failed': 'تعذّر تغيير المسار الفعلي',
+  'tours.activity.offline': 'تغيير المسار الفعلي يحتاج إلى اتصال، وتُرسَل التغييرات المنتظرة لهذه الجولة أولًا',
   'tours.activity.dialogEyebrow': 'إضافة المسار الفعلي',
   'tours.activity.dialogHint': 'تبقى الخطة كما هي. يُربط المسار فقط.',
   'tours.activity.execution': 'نُفّذت في',

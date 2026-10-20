@@ -1200,6 +1200,8 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Jejak aktual ditautkan',
   'tours.activity.removed': 'Jejak aktual dilepaskan',
   'tours.activity.failed': 'Jejak aktual tidak dapat diubah',
+  'tours.activity.offline':
+    'Mengubah jejak aktual memerlukan koneksi, dan perubahan tur ini yang masih menunggu dikirim lebih dulu',
   'tours.activity.dialogEyebrow': 'Tambah jejak aktual',
   'tours.activity.dialogHint': 'Rencana tetap seperti semula. Jejak hanya ditautkan.',
   'tours.activity.execution': 'Dilakukan pada',

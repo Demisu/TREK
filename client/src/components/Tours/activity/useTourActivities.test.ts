@@ -1,10 +1,11 @@
-// FE-ACT-HOOK-001 to FE-ACT-HOOK-006
+// FE-ACT-HOOK-001 to FE-ACT-HOOK-007
 // ACT-01: the actual tracks read with the tour's detail, linked from the
 // dialog and unlinked after confirming, each write telling the lists and the
 // user, and a refusal named in the user's words without changing anything.
 import { act, renderHook, waitFor } from '@testing-library/react';
 import type { TourActivity, TourListItem } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { OnlineOnlyError } from '../../../repo/onlineOnly';
 import type { TourExecution } from './tourActivityModel';
 import { useTourActivities } from './useTourActivities';
 
@@ -111,6 +112,21 @@ describe('useTourActivities', () => {
     expect(toast.error).toHaveBeenLastCalledWith('tours.activity.failed');
     act(() => result.current.closeAssign());
     expect(result.current.assigning).toBeNull();
+  });
+
+  it('FE-ACT-HOOK-007: offline or behind a waiting write of the tour, it says so rather than that the change failed', async () => {
+    repo.assignActivity.mockRejectedValue(new OnlineOnlyError());
+    repo.unassignActivity.mockRejectedValue(new OnlineOnlyError());
+    const { result } = render();
+    await waitFor(() => expect(result.current.activities).not.toBeNull());
+    act(() => result.current.openAssign());
+    await act(async () => result.current.assign(30, null));
+    expect(toast.error).toHaveBeenLastCalledWith('tours.activity.offline');
+    expect(result.current.assigning).toEqual({});
+    act(() => result.current.askRemove(activity(1, null)));
+    await act(async () => result.current.remove());
+    expect(toast.error).toHaveBeenLastCalledWith('tours.activity.offline');
+    expect(toast.error).not.toHaveBeenCalledWith('tours.activity.failed');
   });
 
   it('FE-ACT-HOOK-005: unlinks only after the question, and nothing for someone who may not change the tour', async () => {

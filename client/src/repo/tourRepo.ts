@@ -14,7 +14,30 @@ import { mutationQueue, generateUUID, nextTempId } from '../sync/mutationQueue'
 import { isEffectivelyOffline } from '../sync/networkMode'
 import { applyObstacleOps } from './obstacleCheckLocal'
 import { onlineThenCache } from './withOfflineFallback'
+import { OnlineOnlyError } from './onlineOnly'
 import type { Place } from '../types'
+
+/**
+ * ACT-01: an assignment change goes out only for a tour the server has, while
+ * no older write of it waits in the queue; `mustQueue` is true offline too.
+ */
+async function requireActivityWrite(placeId: number): Promise<void> {
+  if (placeId < 0 || (await mutationQueue.mustQueue('tours', placeId))) throw new OnlineOnlyError()
+}
+
+/**
+ * ACT-01: the answer to an assignment change taken into the cached tour: its
+ * recordings and the list's word on them, nothing else of the row, so a plan
+ * the server has not seen yet is never overwritten. A tour not cached yet
+ * takes the whole answer.
+ */
+async function cacheActivities(tripId: number | string, placeId: number, result: TourDetailResponse): Promise<void> {
+  const changed = await offlineDb.tours.update(placeId, {
+    activities: result.activities ?? [],
+    activity_tracks: result.tour.activity_tracks ?? [],
+  })
+  if (changed === 0) await cacheTourAnswer(Number(tripId), result)
+}
 
 /** The list item a cached row stands for: the cache-only fields stripped. */
 function toListItem({ trip_id: _tripId, waypoints: _waypoints, provenance: _provenance, obstacle_check: _check, activities: _activities, packing_link: _packingLink, ...tour }: CachedTour): TourListItem {
@@ -326,19 +349,24 @@ export const tourRepo = {
   /**
    * ACT-01, online only like the GPX import a recording comes through: the
    * assignment points at a recording the server keeps, so it needs the server
-   * to answer. Nothing of the plan changes, so nothing waits in the queue; the
-   * answer keeps the cached detail fresh.
+   * to answer. It goes out only while nothing older of the tour waits in the
+   * queue (an offline edit, a ski classification): the answer is the server's
+   * tour before that write, and is never laid over it. A tour not yet on the
+   * server (a temporary id) has nothing to assign to. Nothing of the plan
+   * changes, so only the recordings of the cached tour take the answer in.
    */
   async assignActivity(tripId: number | string, placeId: number, body: TourActivityAssignRequest): Promise<TourDetailResponse> {
+    await requireActivityWrite(placeId)
     const result = await tourActivitiesApi.assign(tripId, placeId, body)
-    await cacheTourAnswer(Number(tripId), result)
+    await cacheActivities(tripId, placeId, result)
     return result
   },
 
-  /** ACT-01: a recorded track taken off the tour again; online only, like the assignment. */
+  /** ACT-01: a recorded track taken off the tour again; online only and held back like the assignment. */
   async unassignActivity(tripId: number | string, placeId: number, activityId: number): Promise<TourDetailResponse> {
+    await requireActivityWrite(placeId)
     const result = await tourActivitiesApi.unassign(tripId, placeId, activityId)
-    await cacheTourAnswer(Number(tripId), result)
+    await cacheActivities(tripId, placeId, result)
     return result
   },
 

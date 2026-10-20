@@ -1190,6 +1190,8 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Đã liên kết lộ trình thực tế',
   'tours.activity.removed': 'Đã bỏ liên kết lộ trình thực tế',
   'tours.activity.failed': 'Không thể thay đổi lộ trình thực tế',
+  'tours.activity.offline':
+    'Thay đổi lộ trình thực tế cần kết nối mạng, và các thay đổi đang chờ của tour này được gửi trước',
   'tours.activity.dialogEyebrow': 'Thêm lộ trình thực tế',
   'tours.activity.dialogHint': 'Kế hoạch giữ nguyên. Lộ trình chỉ được liên kết.',
   'tours.activity.execution': 'Thực hiện vào',

@@ -1202,6 +1202,7 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Tegelik rada seotud',
   'tours.activity.removed': 'Tegeliku raja seos eemaldatud',
   'tours.activity.failed': 'Tegelikku rada ei õnnestunud muuta',
+  'tours.activity.offline': 'Tegeliku raja muutmiseks on vaja ühendust ja selle matka ootel muudatused lähevad enne',
   'tours.activity.dialogEyebrow': 'Lisa tegelik rada',
   'tours.activity.dialogHint': 'Plaan jääb samaks. Rada ainult seotakse.',
   'tours.activity.execution': 'Läbitud',

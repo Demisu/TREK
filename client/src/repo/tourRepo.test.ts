@@ -7,6 +7,7 @@ import { http, HttpResponse } from 'msw'
 import type { TourCreateRequest, TourListItem } from '@trek/shared'
 import { server } from '../../tests/helpers/msw/server'
 import { tourRepo } from './tourRepo'
+import { OnlineOnlyError } from './onlineOnly'
 import { offlineDb, clearAll, replaceTripTours } from '../db/offlineDb'
 import { buildPlace } from '../../tests/helpers/factories'
 import { plannedTotalText, tourPlannedTimes } from '../components/Tours/tourPresentation'
@@ -448,6 +449,42 @@ describe('tourRepo provenance and copies (P2C-02, P2C-07)', () => {
     const unlinked = await tourRepo.unassignActivity(3, 40, 5)
     expect(unlinked.activities).toEqual([])
     expect((await offlineDb.tours.get(40))?.activities).toEqual([])
+  })
+
+  it('FE-REPO-TOUR-046: an actual track is not changed offline, behind a queued write or on a tour the server has not got, and its answer touches only the recordings (ACT-01)', async () => {
+    let sent = 0
+    server.use(
+      http.put('/api/trips/3/tours/40/activities', () => {
+        sent++
+        return HttpResponse.json({ tour: tour({ name: 'Old name', activity_tracks: [{ id: 5, track_place_id: 41, assignment_id: null }] }), waypoints: [], activities: [] })
+      }),
+      http.delete('/api/trips/3/tours/40/activities/5', () => { sent++; return HttpResponse.json({ tour: tour(), waypoints: [], activities: [] }) }),
+    )
+    const link = { track_place_id: 41, assignment_id: null }
+
+    setOnline(false)
+    await expect(tourRepo.assignActivity(3, 40, link)).rejects.toBeInstanceOf(OnlineOnlyError)
+    await expect(tourRepo.unassignActivity(3, 40, 5)).rejects.toBeInstanceOf(OnlineOnlyError)
+    setOnline(true)
+
+    await expect(tourRepo.assignActivity(3, -7, link)).rejects.toBeInstanceOf(OnlineOnlyError)
+
+    await offlineDb.tours.put({ ...tour({ name: 'Edited here' }), trip_id: 3 })
+    await offlineDb.mutationQueue.put({
+      id: 'queued-tour', tripId: 3, method: 'PUT', url: '/trips/3/tours/40', body, createdAt: 1,
+      status: 'pending', attempts: 0, lastError: null, resource: 'tours', entityId: 40,
+    })
+    await expect(tourRepo.assignActivity(3, 40, link)).rejects.toBeInstanceOf(OnlineOnlyError)
+    expect(sent).toBe(0)
+    await offlineDb.mutationQueue.clear()
+
+    // Once nothing waits, the change goes out and the cached tour takes its recordings in, its own edits kept.
+    await tourRepo.assignActivity(3, 40, link)
+    expect(sent).toBe(1)
+    const cached = await offlineDb.tours.get(40)
+    expect(cached?.name).toBe('Edited here')
+    expect(cached?.activities).toEqual([])
+    expect(cached?.activity_tracks).toEqual([{ id: 5, track_place_id: 41, assignment_id: null }])
   })
 
   it('FE-REPO-TOUR-021: a copy is asked of the server under its name and cached as a tour of the trip', async () => {

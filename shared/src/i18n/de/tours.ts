@@ -1231,6 +1231,8 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Ist-Track verknüpft',
   'tours.activity.removed': 'Ist-Track gelöst',
   'tours.activity.failed': 'Der Ist-Track konnte nicht geändert werden',
+  'tours.activity.offline':
+    'Den Ist-Track zu ändern braucht eine Verbindung, und die wartenden Änderungen dieser Tour gehen vor',
   'tours.activity.dialogEyebrow': 'Ist-Track hinzufügen',
   'tours.activity.dialogHint': 'Die Planung bleibt, wie sie ist. Der Track wird nur verknüpft.',
   'tours.activity.execution': 'Durchgeführt am',

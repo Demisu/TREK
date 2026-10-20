@@ -1258,6 +1258,8 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Фактический трек привязан',
   'tours.activity.removed': 'Фактический трек отвязан',
   'tours.activity.failed': 'Не удалось изменить фактический трек',
+  'tours.activity.offline':
+    'Для изменения фактического трека нужно подключение, и сначала отправляются ожидающие изменения этого маршрута',
   'tours.activity.dialogEyebrow': 'Добавить фактический трек',
   'tours.activity.dialogHint': 'План остаётся прежним. Трек только привязывается.',
   'tours.activity.execution': 'Пройден',

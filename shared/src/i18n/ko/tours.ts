@@ -1163,6 +1163,7 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': '실제 트랙을 연결했습니다',
   'tours.activity.removed': '실제 트랙 연결을 해제했습니다',
   'tours.activity.failed': '실제 트랙을 변경할 수 없습니다',
+  'tours.activity.offline': '실제 트랙을 변경하려면 연결이 필요하며, 이 투어의 대기 중인 변경이 먼저 전송됩니다',
   'tours.activity.dialogEyebrow': '실제 트랙 추가',
   'tours.activity.dialogHint': '계획은 그대로입니다. 트랙만 연결됩니다.',
   'tours.activity.execution': '진행일',

@@ -1244,6 +1244,8 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Η πραγματική διαδρομή συνδέθηκε',
   'tours.activity.removed': 'Η πραγματική διαδρομή αποσυνδέθηκε',
   'tours.activity.failed': 'Δεν ήταν δυνατή η αλλαγή της πραγματικής διαδρομής',
+  'tours.activity.offline':
+    'Η αλλαγή της πραγματικής διαδρομής χρειάζεται σύνδεση, και οι εκκρεμείς αλλαγές αυτής της διαδρομής στέλνονται πρώτα',
   'tours.activity.dialogEyebrow': 'Προσθήκη πραγματικής διαδρομής',
   'tours.activity.dialogHint': 'Το σχέδιο μένει ως έχει. Η διαδρομή απλώς συνδέεται.',
   'tours.activity.execution': 'Έγινε στις',

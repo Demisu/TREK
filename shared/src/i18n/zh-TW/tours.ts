@@ -1107,6 +1107,7 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': '已連結實際軌跡',
   'tours.activity.removed': '已取消連結實際軌跡',
   'tours.activity.failed': '無法變更實際軌跡',
+  'tours.activity.offline': '變更實際軌跡需要網路連線，此路線待傳送的變更會先傳送',
   'tours.activity.dialogEyebrow': '新增實際軌跡',
   'tours.activity.dialogHint': '計畫維持不變，只會連結軌跡。',
   'tours.activity.execution': '完成於',

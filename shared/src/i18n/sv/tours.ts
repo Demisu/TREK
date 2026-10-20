@@ -1197,6 +1197,8 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Faktiskt spår kopplat',
   'tours.activity.removed': 'Faktiskt spår bortkopplat',
   'tours.activity.failed': 'Det faktiska spåret kunde inte ändras',
+  'tours.activity.offline':
+    'Att ändra det faktiska spåret kräver en anslutning, och turens väntande ändringar skickas först',
   'tours.activity.dialogEyebrow': 'Lägg till faktiskt spår',
   'tours.activity.dialogHint': 'Planen förblir som den är. Spåret kopplas bara.',
   'tours.activity.execution': 'Genomförd',

@@ -1217,6 +1217,8 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Track real vinculado',
   'tours.activity.removed': 'Track real desvinculado',
   'tours.activity.failed': 'No se pudo cambiar el track real',
+  'tours.activity.offline':
+    'Cambiar el track real necesita conexión, y los cambios pendientes de esta ruta van primero',
   'tours.activity.dialogEyebrow': 'Añadir track real',
   'tours.activity.dialogHint': 'El plan queda como está. El track solo se vincula.',
   'tours.activity.execution': 'Hecha el',

@@ -1146,6 +1146,7 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'เชื่อมเส้นทางจริงแล้ว',
   'tours.activity.removed': 'ยกเลิกการเชื่อมเส้นทางจริงแล้ว',
   'tours.activity.failed': 'ไม่สามารถเปลี่ยนเส้นทางจริงได้',
+  'tours.activity.offline': 'การเปลี่ยนเส้นทางจริงต้องใช้การเชื่อมต่อ และการเปลี่ยนแปลงที่รอส่งของทัวร์นี้จะถูกส่งก่อน',
   'tours.activity.dialogEyebrow': 'เพิ่มเส้นทางจริง',
   'tours.activity.dialogHint': 'แผนยังคงเหมือนเดิม เส้นทางถูกเชื่อมเท่านั้น',
   'tours.activity.execution': 'ทำเมื่อ',

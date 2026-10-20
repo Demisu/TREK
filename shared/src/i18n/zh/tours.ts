@@ -1108,6 +1108,7 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': '已关联实际轨迹',
   'tours.activity.removed': '已取消关联实际轨迹',
   'tours.activity.failed': '无法更改实际轨迹',
+  'tours.activity.offline': '更改实际轨迹需要网络连接，此路线待发送的更改会先发送',
   'tours.activity.dialogEyebrow': '添加实际轨迹',
   'tours.activity.dialogHint': '计划保持不变，只关联轨迹。',
   'tours.activity.execution': '完成于',

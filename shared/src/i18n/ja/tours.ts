@@ -1166,6 +1166,7 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': '実際のトラックをリンクしました',
   'tours.activity.removed': '実際のトラックのリンクを解除しました',
   'tours.activity.failed': '実際のトラックを変更できませんでした',
+  'tours.activity.offline': '実際のトラックを変更するには接続が必要です。このツアーの未送信の変更が先に送られます',
   'tours.activity.dialogEyebrow': '実際のトラックを追加',
   'tours.activity.dialogHint': '計画はそのままです。トラックをリンクするだけです。',
   'tours.activity.execution': '実施日',

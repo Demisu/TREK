@@ -1206,6 +1206,8 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Faktiki iz bağlandı',
   'tours.activity.removed': 'Faktiki izin əlaqəsi silindi',
   'tours.activity.failed': 'Faktiki izi dəyişmək mümkün olmadı',
+  'tours.activity.offline':
+    'Faktiki izi dəyişmək üçün bağlantı lazımdır və bu turun gözləyən dəyişiklikləri əvvəlcə göndərilir',
   'tours.activity.dialogEyebrow': 'Faktiki iz əlavə et',
   'tours.activity.dialogHint': 'Plan olduğu kimi qalır. İz sadəcə bağlanır.',
   'tours.activity.execution': 'Keçirildiyi gün',

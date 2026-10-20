@@ -1222,6 +1222,8 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Tényleges nyomvonal összekapcsolva',
   'tours.activity.removed': 'Tényleges nyomvonal leválasztva',
   'tours.activity.failed': 'A tényleges nyomvonalat nem sikerült módosítani',
+  'tours.activity.offline':
+    'A tényleges nyomvonal módosításához kapcsolat kell, és a túra várakozó módosításai mennek előbb',
   'tours.activity.dialogEyebrow': 'Tényleges nyomvonal hozzáadása',
   'tours.activity.dialogHint': 'A terv változatlan marad. A nyomvonalat csak összekapcsoljuk.',
   'tours.activity.execution': 'Teljesítve',

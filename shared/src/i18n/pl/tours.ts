@@ -1253,6 +1253,8 @@ const tours: TranslationStrings = {
   'tours.activity.assigned': 'Połączono rzeczywistą trasę',
   'tours.activity.removed': 'Odłączono rzeczywistą trasę',
   'tours.activity.failed': 'Nie udało się zmienić rzeczywistej trasy',
+  'tours.activity.offline':
+    'Zmiana rzeczywistej trasy wymaga połączenia, a oczekujące zmiany tej wycieczki idą najpierw',
   'tours.activity.dialogEyebrow': 'Dodaj rzeczywistą trasę',
   'tours.activity.dialogHint': 'Plan pozostaje bez zmian. Trasa jest tylko połączona.',
   'tours.activity.execution': 'Odbyta dnia',
