@@ -81,7 +81,10 @@ function writesThatLand() {
 }
 
 const render = () => renderHook(() => useTourDayChoice(options));
-const lastUndo = () => vi.mocked(options.pushUndo).mock.calls.at(-1)?.[1] as Undo;
+const lastUndo = () => {
+  const calls = vi.mocked(options.pushUndo).mock.calls;
+  return calls[calls.length - 1]?.[1] as Undo;
+};
 
 describe('useTourDayChoice', () => {
   it('FE-TOUR-STAGE-SPREAD-010: a place, a day tour and a tour put whole on purpose go on at once', async () => {
