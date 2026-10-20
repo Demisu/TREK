@@ -661,6 +661,49 @@ export class ToursRepository extends TrekRepository<Tours> {
     }));
   }
 
+  /**
+   * MDT-02: the day assignment holding this stage of a tour (by the key of the
+   * stop it starts at), with its day; `undefined` while the stage is on no day.
+   */
+  async findTourStage(place_id: number, tour_stage_key: string): Promise<{ id: number; day_id: number } | undefined> {
+    return await this.db()
+      .selectFrom('day_assignments')
+      .select(['id', 'day_id'])
+      .where('place_id', '=', place_id)
+      .where('tour_stage_key', '=', tour_stage_key)
+      .executeTakeFirst();
+  }
+
+  /**
+   * MDT-02: takes off their days the stages of a tour whose starting stop is
+   * not among `keys` (every stage, for none), and answers what it took, so a
+   * stage a changed tour no longer has leaves no day holding it. The caller
+   * owns the transaction: the tour's points are written in the same one.
+   */
+  async deleteTourStagesNotIn(
+    place_id: number,
+    keys: readonly string[],
+  ): Promise<Array<{ id: number; day_id: number }>> {
+    let query = this.db()
+      .selectFrom('day_assignments')
+      .select(['id', 'day_id'])
+      .where('place_id', '=', place_id)
+      .where('tour_stage_key', 'is not', null);
+    if (keys.length > 0) query = query.where('tour_stage_key', 'not in', [...keys]);
+    const gone = await query.orderBy('id', 'asc').execute();
+    if (gone.length > 0) {
+      await this.db()
+        .deleteFrom('day_assignments')
+        .where(
+          'id',
+          'in',
+          gone.map((row) => row.id),
+        )
+        .execute();
+    }
+    return gone;
+  }
+
   /** TO6 — every `tours` row of a trip's places, for the trip copy to remap. */
   async listRowsForTrip(trip_id: number): Promise<TourRow[]> {
     return await this.db()

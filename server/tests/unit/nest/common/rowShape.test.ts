@@ -1,4 +1,4 @@
-import type { AssignmentWithPlaceRow } from '../../../../src/db/repositories/DayAssignments.repository';
+import type { AssignmentWithPlaceRow } from '../../../../src/db/repositories/day-assignment-rows';
 import { formatAssignmentWithPlace, ratingAggregate } from '../../../../src/nest/common/rowShape';
 import type { Tag, Participant } from '../../../../src/types';
 

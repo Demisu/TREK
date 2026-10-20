@@ -1,4 +1,4 @@
-import type { AssignmentWithPlaceRow } from '../../db/repositories/DayAssignments.repository';
+import type { AssignmentWithPlaceRow } from '../../db/repositories/day-assignment-rows';
 import type { Tag, Participant } from '../../types';
 import type { PlaceRatingRow } from '../query-helpers/query-helpers.service';
 

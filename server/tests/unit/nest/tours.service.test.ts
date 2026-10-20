@@ -21,12 +21,7 @@ import { noPaddleChecks } from '../../helpers/fake-paddle-checks';
 import { tourStageDays } from '../../helpers/fake-tour-stage-days';
 import { buildPlaceImportService } from '../../helpers/place-import';
 import { resetTestDb } from '../../helpers/test-db';
-import {
-  createTestDayAssignmentsRepo,
-  createTestPlacesRepo,
-  createTestUnitOfWork,
-  sharedTestOrm,
-} from '../../helpers/test-uow';
+import { createTestPlacesRepo, createTestUnitOfWork, sharedTestOrm } from '../../helpers/test-uow';
 import { keyed } from '../../helpers/tour-keys';
 import {
   createTestTourActivitiesRepo,
@@ -97,7 +92,7 @@ beforeAll(async () => {
     await createTestTourActivitiesRepo(testDb),
     buildPlaceImportService(),
     noPaddleChecks(),
-    tourStageDays(await createTestDayAssignmentsRepo(testDb)),
+    tourStageDays(await createTestToursRepo(testDb)),
   );
 });
 

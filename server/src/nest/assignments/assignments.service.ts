@@ -6,13 +6,14 @@ import { RoadtripVias } from '../../db/entities/RoadtripVias.entity';
 import { Tours } from '../../db/entities/Tours.entity';
 import { TripMembers } from '../../db/entities/TripMembers.entity';
 import type { AssignmentParticipantsRepository } from '../../db/repositories/AssignmentParticipants.repository';
-import type { DayAssignmentsRepository, DayStopRow } from '../../db/repositories/DayAssignments.repository';
+import type { DayAssignmentsRepository } from '../../db/repositories/DayAssignments.repository';
 import type { DaysRepository } from '../../db/repositories/Days.repository';
 import type { PlacesRepository } from '../../db/repositories/Places.repository';
 import type { RoadtripViasRepository } from '../../db/repositories/RoadtripVias.repository';
 import type { ToursRepository } from '../../db/repositories/Tours.repository';
 import type { TripMembersRepository } from '../../db/repositories/TripMembers.repository';
 import type { TripAccess } from '../../db/repositories/Trips.repository';
+import type { DayStopRow } from '../../db/repositories/day-assignment-rows';
 import type { User } from '../../types';
 import { DomainError } from '../common/domain-error';
 import { toRowId } from '../common/row-id';
@@ -416,7 +417,7 @@ export class AssignmentsService {
     if (!tourStageKeysOf(await this.toursRepo.listStagePoints(placeId)).includes(key)) {
       throw new DomainError(400, 'Tour has no such stage', { code: 'tour_stage_unknown' });
     }
-    if (await this.dayAssignmentsRepo.findTourStage(placeId, key)) {
+    if (await this.toursRepo.findTourStage(placeId, key)) {
       throw new DomainError(409, 'Stage is already on a day', { code: 'tour_stage_taken' });
     }
   }
@@ -427,7 +428,7 @@ export class AssignmentsService {
    * can tell the trip once the change is committed.
    */
   async dropStaleTourStages(placeId: number, keys: readonly string[]): Promise<Array<{ id: number; day_id: number }>> {
-    return await this.dayAssignmentsRepo.deleteTourStagesNotIn(placeId, keys);
+    return await this.toursRepo.deleteTourStagesNotIn(placeId, keys);
   }
 
   /** AS15 — `AssignmentParticipantsRepository.listWithDisplayName`, the same AS2/AS31 statement. */

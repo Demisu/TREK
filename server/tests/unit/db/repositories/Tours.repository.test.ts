@@ -1,17 +1,20 @@
 /**
  * `ToursRepository`: the list/detail projection (TO1/TO2), the facet probes
- * places and assignments ask (TO3/TO4/TO5), the trip copy read and write
+ * places and assignments ask (TO3/TO4/TO5), the stages of a multi-day tour
+ * days hold (MDT-02), the trip copy read and write
  * (TO6/TO8), and the create/edit writes (TO7/TO9).
  */
+import { DayAssignments } from '../../../../src/db/entities/DayAssignments.entity';
 import { Places } from '../../../../src/db/entities/Places.entity';
 import { TourSources } from '../../../../src/db/entities/TourSources.entity';
 import { TourWaypoints } from '../../../../src/db/entities/TourWaypoints.entity';
 import { Tours } from '../../../../src/db/entities/Tours.entity';
 import type { ToursRepository } from '../../../../src/db/repositories/Tours.repository';
+import { UnitOfWork } from '../../../../src/nest/database/unit-of-work';
 import { createSnapshotTestDb } from '../../../helpers/db-mock';
 import { createDay, createDayAssignment, createPlace, createTrip, createUser } from '../../../helpers/factories';
 import { makePlace } from '../../../helpers/factories/places';
-import { insertRow, insertRows, updateRows } from '../../../helpers/factories/rows';
+import { findRows, insertRow, insertRows, updateRows } from '../../../helpers/factories/rows';
 import { makeDay } from '../../../helpers/factories/trips';
 import { resetTestDb } from '../../../helpers/test-db';
 import { createTestOrm, type TestOrm } from '../../../helpers/test-orm';
@@ -298,6 +301,50 @@ describe('ToursRepository stages on days (MDT-02)', () => {
       [first.id, null],
       [second.id, 'stop-hut'],
     ]);
+  });
+
+  /** A tour on a trip with three days, none holding anything yet. */
+  function tourOnDays() {
+    const { trip } = fixture();
+    const days = [createDay(testDb, trip.id), createDay(testDb, trip.id), createDay(testDb, trip.id)];
+    const place = createPlace(testDb, trip.id);
+    createTour(testDb, place.id);
+    return { trip, days, place };
+  }
+
+  it('TOURREPO-019: findTourStage finds the day a stage is on, and nothing for a stage on none or of another tour', async () => {
+    const { trip, days, place } = tourOnDays();
+    const held = createDayAssignment(testDb, days[1].id, place.id, { tour_stage_key: 'stage-two' });
+    expect(await repo.findTourStage(place.id, 'stage-two')).toEqual({ id: held.id, day_id: days[1].id });
+    expect(await repo.findTourStage(place.id, 'stage-one')).toBeUndefined();
+    const other = createPlace(testDb, trip.id);
+    expect(await repo.findTourStage(other.id, 'stage-two')).toBeUndefined();
+  });
+
+  it('TOURREPO-020: deleteTourStagesNotIn takes off only the stages not kept, leaving the whole tour and other tours alone', async () => {
+    const { trip, days, place } = tourOnDays();
+    const first = createDayAssignment(testDb, days[0].id, place.id, { tour_stage_key: 'stage-one' });
+    const second = createDayAssignment(testDb, days[1].id, place.id, { tour_stage_key: 'stage-two' });
+    const whole = createDayAssignment(testDb, days[2].id, place.id);
+    const other = createPlace(testDb, trip.id);
+    createTour(testDb, other.id);
+    const otherStage = createDayAssignment(testDb, days[2].id, other.id, { tour_stage_key: 'stage-two' });
+
+    const gone = await new UnitOfWork(t.em).transactional(() => repo.deleteTourStagesNotIn(place.id, ['stage-one']));
+    expect(gone).toEqual([{ id: second.id, day_id: days[1].id }]);
+    const left = (await findRows(t, DayAssignments, {}, { id: 'asc' })).map((row) => row.id);
+    expect(left).toEqual([first.id, whole.id, otherStage.id]);
+  });
+
+  it('TOURREPO-021: deleteTourStagesNotIn takes every stage off with no key kept, and writes nothing when no stage is held', async () => {
+    const { days, place } = tourOnDays();
+    const first = createDayAssignment(testDb, days[0].id, place.id, { tour_stage_key: 'stage-one' });
+    const second = createDayAssignment(testDb, days[1].id, place.id, { tour_stage_key: 'stage-two' });
+    expect(await repo.deleteTourStagesNotIn(place.id, [])).toEqual([
+      { id: first.id, day_id: days[0].id },
+      { id: second.id, day_id: days[1].id },
+    ]);
+    expect(await repo.deleteTourStagesNotIn(place.id, [])).toEqual([]);
   });
 });
 

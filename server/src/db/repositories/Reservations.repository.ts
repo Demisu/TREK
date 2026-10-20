@@ -4,7 +4,7 @@ import { Days } from '../entities/Days.entity';
 import { coalesceOverride, columnRef, dayDistance } from '../dialect/sql-functions';
 import { castIntegerKysely, concatKysely, startsWithIsoDateKysely, substringKysely } from '../dialect/kysely-functions';
 import { publicReservationExpr, publicStayExists, type ReservationVisibilityKyselyDB } from './_shared/reservation-visibility';
-import type { DayAssignmentRow } from './DayAssignments.repository';
+import type { DayAssignmentRow } from './day-assignment-rows';
 import { TrekRepository } from './_shared/trek-repository';
 import type { DB } from '../kysely/db';
 import { ROADTRIP_RESERVATION_TYPES } from '@trek/shared';
