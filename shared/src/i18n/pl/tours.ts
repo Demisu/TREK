@@ -360,6 +360,8 @@ const tours: TranslationStrings = {
     'Krótki link prowadzi gdzie indziej niż do Google Maps, więc nie został otwarty.',
   'tours.walkImport.refusal.short_link_failed':
     'Nie udało się teraz otworzyć krótkiego linku. Spróbuj ponownie albo wklej długi link.',
+  'tours.walkImport.refusal.short_link_unknown':
+    'Google Maps nie zna tego krótkiego linku. Udostępnij trasę ponownie w Google Maps.',
   'tours.walkImport.refusal.too_few_stops': 'Z tego linku udało się odczytać mniej niż dwa przystanki.',
   'tours.walkImport.refusal.too_many_stops': 'Ta trasa ma więcej przystanków, niż zmieści spacer.',
   'tours.provenance.takenOverFrom': 'Przejęto z',

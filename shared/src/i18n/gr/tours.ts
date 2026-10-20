@@ -358,6 +358,8 @@ const tours: TranslationStrings = {
     'Ο σύντομος σύνδεσμος οδηγεί κάπου αλλού και όχι στο Google Maps, γι’ αυτό δεν ακολουθήθηκε.',
   'tours.walkImport.refusal.short_link_failed':
     'Ο σύντομος σύνδεσμος δεν ακολουθήθηκε αυτή τη στιγμή. Δοκίμασε ξανά ή επικόλλησε τον μεγάλο σύνδεσμο.',
+  'tours.walkImport.refusal.short_link_unknown':
+    'Το Google Maps δεν αναγνωρίζει αυτόν τον σύντομο σύνδεσμο. Μοιράσου ξανά τη διαδρομή από το Google Maps.',
   'tours.walkImport.refusal.too_few_stops': 'Από αυτόν τον σύνδεσμο διαβάστηκαν λιγότερες από δύο στάσεις.',
   'tours.walkImport.refusal.too_many_stops': 'Αυτή η διαδρομή έχει περισσότερες στάσεις απ’ όσες χωράει μια βόλτα.',
   'tours.provenance.takenOverFrom': 'Μεταφέρθηκε από',

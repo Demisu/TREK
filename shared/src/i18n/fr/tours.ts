@@ -356,6 +356,8 @@ const tours: TranslationStrings = {
     "Le lien court mène ailleurs que vers Google Maps, il n'a donc pas été suivi.",
   'tours.walkImport.refusal.short_link_failed':
     "Le lien court n'a pas pu être suivi pour l'instant. Réessaie, ou colle le lien long.",
+  'tours.walkImport.refusal.short_link_unknown':
+    "Google Maps ne reconnaît pas ce lien court. Partage de nouveau l'itinéraire depuis Google Maps.",
   'tours.walkImport.refusal.too_few_stops': 'Moins de deux étapes ont pu être lues dans ce lien.',
   'tours.walkImport.refusal.too_many_stops': "Cet itinéraire compte plus d'étapes qu'une balade ne peut en prendre.",
   'tours.provenance.takenOverFrom': 'Repris de',

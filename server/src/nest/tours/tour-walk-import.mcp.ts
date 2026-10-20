@@ -1,6 +1,6 @@
 import { ADDON_IDS } from '../../addons';
 import { noAccess, permissionDenied } from '../../mcp/tools/_shared';
-import { McpController, Tool, TOOL_ANNOTATIONS_READONLY, ok, type McpContext } from '../../nest-mcp';
+import { McpController, Tool, TOOL_ANNOTATIONS_OPEN_WORLD_READONLY, ok, type McpContext } from '../../nest-mcp';
 import { addonGate } from '../addons/addon-gate';
 import { AddonsService } from '../addons/addons.service';
 import { McpToolGuardsService } from '../mcp-shared/mcp-tool-guards.service';
@@ -36,7 +36,8 @@ export class TourWalkImportMcp {
       tripId: idSchema.describe('The trip the walk is meant for'),
       url: preview.url,
     },
-    annotations: TOOL_ANNOTATIONS_READONLY,
+    // Open world: a short link is followed to Google on every call.
+    annotations: TOOL_ANNOTATIONS_OPEN_WORLD_READONLY,
     when: addonGate(ADDON_IDS.TOURS),
     access: { group: 'trips', mode: 'read' },
   })

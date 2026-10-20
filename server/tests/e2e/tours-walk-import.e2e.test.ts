@@ -230,4 +230,21 @@ describe('Tours walk import e2e (real guards + temp SQLite)', () => {
     });
     expect(await countRows(orm, Tours, {})).toBe(0);
   });
+
+  it('502 when the short link name does not resolve just now, and 400 when Google does not know the link', async () => {
+    lookup.mockRejectedValue(Object.assign(new Error('getaddrinfo EAI_AGAIN maps.app.goo.gl'), { code: 'EAI_AGAIN' }));
+    const offline = await preview(OWNER, { url: SHORT });
+    expect([offline.status, offline.body.reason]).toEqual([502, 'short_link_failed']);
+    expect(fetchSpy).not.toHaveBeenCalled();
+
+    lookup.mockResolvedValue([{ address: '142.250.185.14', family: 4 }] as never);
+    fetchSpy.mockResolvedValueOnce(new Response('not found', { status: 404 }));
+    const unknown = await preview(OWNER, { url: SHORT });
+    expect(unknown.status).toBe(400);
+    expect(unknown.body).toEqual({
+      error: 'Google Maps does not know that short link. Share the route in Google Maps again.',
+      reason: 'short_link_unknown',
+    });
+    expect(await countRows(orm, Tours, {})).toBe(0);
+  });
 });

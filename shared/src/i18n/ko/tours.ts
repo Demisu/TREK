@@ -334,6 +334,8 @@ const tours: TranslationStrings = {
   'tours.walkImport.refusal.short_link_refused': '단축 링크가 Google Maps가 아닌 곳으로 이어져서 따라가지 않았습니다.',
   'tours.walkImport.refusal.short_link_failed':
     '지금은 단축 링크를 따라가지 못했습니다. 다시 시도하거나 긴 링크를 붙여 넣으세요.',
+  'tours.walkImport.refusal.short_link_unknown':
+    'Google Maps에서 이 단축 링크를 찾을 수 없습니다. Google Maps에서 경로를 다시 공유하세요.',
   'tours.walkImport.refusal.too_few_stops': '이 링크에서 읽은 정류지가 두 곳보다 적습니다.',
   'tours.walkImport.refusal.too_many_stops': '이 경로에는 산책 하나에 담을 수 있는 것보다 많은 정류지가 있습니다.',
   'tours.provenance.takenOverFrom': '가져온 곳',

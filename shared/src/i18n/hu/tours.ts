@@ -351,6 +351,8 @@ const tours: TranslationStrings = {
   'tours.walkImport.refusal.short_link_refused': 'A rövid link nem a Google Mapsre vezet, ezért nem követtük.',
   'tours.walkImport.refusal.short_link_failed':
     'A rövid linket most nem sikerült követni. Próbáld újra, vagy illeszd be a hosszú linket.',
+  'tours.walkImport.refusal.short_link_unknown':
+    'A Google Maps nem ismeri ezt a rövid linket. Oszd meg újra az útvonalat a Google Mapsben.',
   'tours.walkImport.refusal.too_few_stops': 'Ebből a linkből kettőnél kevesebb megállót sikerült beolvasni.',
   'tours.walkImport.refusal.too_many_stops': 'Ennek az útvonalnak több megállója van, mint amennyit egy séta elbír.',
   'tours.provenance.takenOverFrom': 'Átvéve innen',

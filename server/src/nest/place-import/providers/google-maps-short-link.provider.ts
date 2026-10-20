@@ -31,6 +31,15 @@ export interface ShortLinkLimits {
 
 export const SHORT_LINK_LIMITS: ShortLinkLimits = { hops: 3, deadlineMs: 8_000, locationChars: 8_192 };
 
+/** Google's final answer that it has no such link (404), or no longer (410); asking again changes nothing. */
+const NO_SUCH_LINK: ReadonlySet<number> = new Set([404, 410]);
+
+/** What one hop answered: its status, and the Location of a 3xx or null. */
+interface HopAnswer {
+  status: number;
+  location: string | null;
+}
+
 /** The lookup inside the SSRF guard cannot be aborted; this holds it to the chain's deadline as well. */
 function beforeDeadline<T>(work: Promise<T>, signal: AbortSignal): Promise<T> {
   return new Promise<T>((resolve, reject) => {
@@ -58,7 +67,7 @@ export class GoogleMapsShortLinkProvider {
     try {
       return await this.hop(start, 0, signal, limits);
     } catch (err: unknown) {
-      // A deadline passed, a name that does not resolve, a connection that failed.
+      // A deadline passed, a name lookup that hung, a connection that failed.
       logDebug(`[walk import] Google Maps short link not followed: ${err instanceof Error ? err.name : 'error'}`);
       return { ok: false, why: 'unreachable' };
     }
@@ -77,8 +86,10 @@ export class GoogleMapsShortLinkProvider {
     // Strict: a private address stays refused whatever ALLOW_INTERNAL_NETWORK says.
     const ssrf = await beforeDeadline(checkSsrf(url.href, true), signal);
     const addresses = ssrf.allowed ? (ssrf.resolvedIps ?? []) : [];
-    if (addresses.length === 0) return { ok: false, why: 'refused' };
-    const location = await this.locationOf(url, addresses, signal);
+    // A name leading into this network is refused; one that does not resolve just now is Google's side, not the link's.
+    if (addresses.length === 0) return { ok: false, why: ssrf.isPrivate ? 'refused' : 'unreachable' };
+    const { status, location } = await this.answerOf(url, addresses, signal);
+    if (NO_SUCH_LINK.has(status)) return { ok: false, why: 'not_found' };
     if (location === null) return { ok: false, why: 'no_redirect' };
     if (location.length > limits.locationChars) return { ok: false, why: 'unreachable' };
     let next: URL;
@@ -92,8 +103,8 @@ export class GoogleMapsShortLinkProvider {
     return isGoogleMapsLongLink(next) ? { ok: true, url: next.href } : { ok: false, why: 'refused' };
   }
 
-  /** One request through the pinned dispatcher, nothing followed and no body read: the Location of a 3xx, or null. */
-  private async locationOf(url: URL, addresses: string[], signal: AbortSignal): Promise<string | null> {
+  /** One request through the pinned dispatcher, nothing followed and no body read. */
+  private async answerOf(url: URL, addresses: string[], signal: AbortSignal): Promise<HopAnswer> {
     const dispatcher = createOutboundDispatcher(url.href, addresses);
     // Nothing of the caller's goes along: no cookie, no authorization, no referrer.
     // Node's fetch keeps no cookie jar, and credentials 'omit' says so for the record.
@@ -110,7 +121,8 @@ export class GoogleMapsShortLinkProvider {
       // Object.assign joins the two without casting either away.
       const response = await fetch(url.href, Object.assign(init, { dispatcher }));
       discardBody(response);
-      return response.status >= 300 && response.status < 400 ? response.headers.get('location') : null;
+      const { status } = response;
+      return { status, location: status >= 300 && status < 400 ? response.headers.get('location') : null };
     } finally {
       void dispatcher.close().catch((err: unknown) => logDebug(`[walk import] dispatcher not closed: ${String(err)}`));
     }

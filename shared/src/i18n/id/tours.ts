@@ -344,6 +344,8 @@ const tours: TranslationStrings = {
     'Tautan pendek mengarah ke tempat selain Google Maps, jadi tidak diikuti.',
   'tours.walkImport.refusal.short_link_failed':
     'Tautan pendek belum bisa diikuti saat ini. Coba lagi, atau tempel tautan panjangnya.',
+  'tours.walkImport.refusal.short_link_unknown':
+    'Google Maps tidak mengenali tautan pendek ini. Bagikan lagi rutenya dari Google Maps.',
   'tours.walkImport.refusal.too_few_stops': 'Kurang dari dua titik singgah yang bisa dibaca dari tautan itu.',
   'tours.walkImport.refusal.too_many_stops':
     'Rute ini punya lebih banyak titik singgah daripada yang muat dalam satu rute jalan kaki.',

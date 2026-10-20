@@ -326,6 +326,8 @@ const tours: TranslationStrings = {
     'ลิงก์ไม่ได้บอกชัดว่าเส้นทางนี้เป็นการเดินเท้า เลือกโหมดเดินใน Google Maps แล้วแชร์อีกครั้ง',
   'tours.walkImport.refusal.short_link_refused': 'ลิงก์สั้นนี้พาไปที่อื่นที่ไม่ใช่ Google Maps จึงไม่ได้ตามไป',
   'tours.walkImport.refusal.short_link_failed': 'ตอนนี้ตามลิงก์สั้นไม่ได้ ลองอีกครั้งหรือวางลิงก์แบบยาว',
+  'tours.walkImport.refusal.short_link_unknown':
+    'Google Maps ไม่รู้จักลิงก์สั้นนี้ แชร์เส้นทางจาก Google Maps อีกครั้ง',
   'tours.walkImport.refusal.too_few_stops': 'อ่านจุดแวะจากลิงก์นี้ได้ไม่ถึงสองจุด',
   'tours.walkImport.refusal.too_many_stops': 'เส้นทางนี้มีจุดแวะมากกว่าที่ทริปเดินเท้าหนึ่งทริปรับได้',
   'tours.provenance.takenOverFrom': 'นำมาจาก',

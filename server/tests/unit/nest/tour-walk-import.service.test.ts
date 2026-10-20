@@ -12,7 +12,13 @@ import { ToursModule } from '../../../src/nest/tours/tours.module';
 import { PORTO_ALIADOS, PORTO_RIBEIRA } from '../../fixtures/google-maps-walks';
 import { createSnapshotTestDb } from '../../helpers/db-mock';
 import { createTestModule, type TestModule } from '../../helpers/test-module';
-import { TOUR_STATION_NAME_MAX, WALK_IMPORT_STATIONS_MAX, type WalkImportRefusal } from '@trek/shared';
+import {
+  TOUR_STATION_NAME_MAX,
+  WALK_IMPORT_REFUSALS,
+  WALK_IMPORT_STATIONS_MAX,
+  type WalkImportRefusal,
+} from '@trek/shared';
+import en from '@trek/shared/i18n/en';
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -132,6 +138,9 @@ describe('TourWalkImportService.preview', () => {
   it('WALK-IMPORT-007: a short link the resolver refuses or cannot follow says which, the second as Google’s failure', async () => {
     resolve.mockResolvedValueOnce({ ok: false, why: 'refused' });
     expect(await refusal('https://maps.app.goo.gl/abc')).toMatchObject({ status: 400, reason: 'short_link_refused' });
+    // Google's final answer that it has no such link is the link's, and asking again changes nothing.
+    resolve.mockResolvedValueOnce({ ok: false, why: 'not_found' });
+    expect(await refusal('https://maps.app.goo.gl/abc')).toMatchObject({ status: 400, reason: 'short_link_unknown' });
     // Each one Google's failure, not the link's.
     const failed = await Promise.all(
       (['unreachable', 'too_many_redirects', 'no_redirect'] as const).map((why) => {
@@ -149,5 +158,32 @@ describe('TourWalkImportService.preview', () => {
     const most = await service.preview(walk(many.slice(0, WALK_IMPORT_STATIONS_MAX)));
     expect(most.stations).toHaveLength(WALK_IMPORT_STATIONS_MAX);
     expect(most.stations.every((station) => station.lat !== null)).toBe(true);
+  });
+
+  it('WALK-IMPORT-009: every reason is sent with the English text the planner shows for it', async () => {
+    const SHORT = 'https://maps.app.goo.gl/abc';
+    const shortLink = (why: string) => () => resolve.mockResolvedValueOnce({ ok: false, why });
+    const nothing = () => undefined;
+    const cases: Record<WalkImportRefusal, [string, () => unknown]> = {
+      not_google_maps: ['not a link', nothing],
+      not_a_route: ['https://www.google.com/maps/place/Cathedral/@48.1,11.5,17z', nothing],
+      not_walking: [walk(['A', 'B'], '!3e0'), nothing],
+      mode_unknown: [walk(['A', 'B'], ''), nothing],
+      short_link_refused: [SHORT, shortLink('refused')],
+      short_link_failed: [SHORT, shortLink('unreachable')],
+      short_link_unknown: [SHORT, shortLink('not_found')],
+      too_few_stops: [`${DIR}Cathedral/data=!3e2`, nothing],
+      too_many_stops: [walk(Array.from({ length: WALK_IMPORT_STATIONS_MAX + 1 }, (_, i) => `Stop${i}`)), nothing],
+    };
+    expect(Object.keys(cases).sort()).toEqual([...WALK_IMPORT_REFUSALS].sort());
+    const english: Record<string, string> = en;
+    const sent = await WALK_IMPORT_REFUSALS.reduce<Promise<Array<[string, string]>>>(async (previous, reason) => {
+      const done = await previous;
+      const [url, arrange] = cases[reason];
+      arrange();
+      const answer = await refusal(url);
+      return [...done, [answer.reason, answer.error]];
+    }, Promise.resolve([]));
+    expect(sent).toEqual(WALK_IMPORT_REFUSALS.map((reason) => [reason, english[`tours.walkImport.refusal.${reason}`]]));
   });
 });

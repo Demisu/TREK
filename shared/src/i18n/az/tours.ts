@@ -344,6 +344,8 @@ const tours: TranslationStrings = {
   'tours.walkImport.refusal.short_link_refused': 'Qısa keçid Google Maps-dən başqa yerə aparır, ona görə də izlənmədi.',
   'tours.walkImport.refusal.short_link_failed':
     'Qısa keçidi indi izləmək mümkün olmadı. Yenidən cəhd et və ya uzun keçidi yapışdır.',
+  'tours.walkImport.refusal.short_link_unknown':
+    'Google Maps bu qısa keçidi tanımır. Marşrutu Google Maps-də yenidən paylaş.',
   'tours.walkImport.refusal.too_few_stops': 'Bu keçiddən ikidən az dayanacaq oxuna bildi.',
   'tours.walkImport.refusal.too_many_stops': 'Bu marşrutda bir gəzintinin götürə biləcəyindən çox dayanacaq var.',
   'tours.provenance.takenOverFrom': 'Götürüldüyü yer',

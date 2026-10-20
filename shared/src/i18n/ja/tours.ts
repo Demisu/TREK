@@ -335,6 +335,8 @@ const tours: TranslationStrings = {
   'tours.walkImport.refusal.short_link_refused': '短縮リンクの行き先が Google Maps ではないため、たどりませんでした。',
   'tours.walkImport.refusal.short_link_failed':
     'いまは短縮リンクをたどれませんでした。もう一度試すか、長いリンクを貼り付けてください。',
+  'tours.walkImport.refusal.short_link_unknown':
+    'この短縮リンクは Google Maps に見つかりません。Google Maps でルートをもう一度共有してください。',
   'tours.walkImport.refusal.too_few_stops': 'このリンクから読み取れた立ち寄り先は 2 件未満でした。',
   'tours.walkImport.refusal.too_many_stops': 'このルートの立ち寄り先は、街歩きに入る数を超えています。',
   'tours.provenance.takenOverFrom': '取り込み元',

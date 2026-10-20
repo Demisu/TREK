@@ -101,6 +101,7 @@ describe('city walk import preview contract (CW-06, CW-07)', () => {
       'mode_unknown',
       'short_link_refused',
       'short_link_failed',
+      'short_link_unknown',
       'too_few_stops',
       'too_many_stops',
     ]);

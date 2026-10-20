@@ -342,6 +342,8 @@ const tours: TranslationStrings = {
     'Kortlänken leder någon annanstans än till Google Maps och följdes därför inte.',
   'tours.walkImport.refusal.short_link_failed':
     'Kortlänken kunde inte följas just nu. Försök igen eller klistra in den långa länken.',
+  'tours.walkImport.refusal.short_link_unknown':
+    'Google Maps känner inte till den här kortlänken. Dela rutten i Google Maps igen.',
   'tours.walkImport.refusal.too_few_stops': 'Färre än två stopp kunde läsas från den länken.',
   'tours.walkImport.refusal.too_many_stops': 'Den rutten har fler stopp än en promenad rymmer.',
   'tours.provenance.takenOverFrom': 'Hämtad från',

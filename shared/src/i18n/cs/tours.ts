@@ -344,6 +344,8 @@ const tours: TranslationStrings = {
   'tours.walkImport.refusal.short_link_refused': 'Krátký odkaz vede jinam než do Google Maps, proto se nesledoval.',
   'tours.walkImport.refusal.short_link_failed':
     'Krátký odkaz se teď nepodařilo sledovat. Zkus to znovu, nebo vlož dlouhý odkaz.',
+  'tours.walkImport.refusal.short_link_unknown':
+    'Google Maps tento krátký odkaz nezná. Sdílej trasu v Google Maps znovu.',
   'tours.walkImport.refusal.too_few_stops': 'Z tohoto odkazu se podařilo přečíst méně než dvě zastávky.',
   'tours.walkImport.refusal.too_many_stops': 'Tato trasa má víc zastávek, než procházka pojme.',
   'tours.provenance.takenOverFrom': 'Převzato z',

@@ -363,6 +363,8 @@ const tours: TranslationStrings = {
     'Короткая ссылка ведёт не в Google Maps, поэтому по ней не переходили.',
   'tours.walkImport.refusal.short_link_failed':
     'Не удалось перейти по короткой ссылке сейчас. Попробуй ещё раз или вставь длинную ссылку.',
+  'tours.walkImport.refusal.short_link_unknown':
+    'Google Maps не знает такой короткой ссылки. Поделись маршрутом в Google Maps ещё раз.',
   'tours.walkImport.refusal.too_few_stops': 'Из этой ссылки удалось прочитать меньше двух остановок.',
   'tours.walkImport.refusal.too_many_stops': 'В этом маршруте больше остановок, чем вмещает прогулка.',
   'tours.provenance.takenOverFrom': 'Взят из',

@@ -357,6 +357,8 @@ const tours: TranslationStrings = {
   'tours.walkImport.refusal.short_link_refused': 'يقود الرابط المختصر إلى مكان غير Google Maps، لذلك لم يُتابَع.',
   'tours.walkImport.refusal.short_link_failed':
     'تعذرت متابعة الرابط المختصر الآن. حاول مرة أخرى أو الصق الرابط الطويل.',
+  'tours.walkImport.refusal.short_link_unknown':
+    'لا يعرف Google Maps هذا الرابط المختصر. شارك المسار من Google Maps مرة أخرى.',
   'tours.walkImport.refusal.too_few_stops': 'أمكن قراءة أقل من محطتين من هذا الرابط.',
   'tours.walkImport.refusal.too_many_stops': 'في هذا المسار محطات أكثر مما تتسع له جولة المشي.',
   'tours.provenance.takenOverFrom': 'منقولة من',

@@ -358,6 +358,8 @@ const tours: TranslationStrings = {
   'tours.walkImport.refusal.short_link_refused': 'Коротке посилання веде не в Google Maps, тому за ним не переходили.',
   'tours.walkImport.refusal.short_link_failed':
     'Не вдалося перейти за коротким посиланням зараз. Спробуй ще раз або встав довге посилання.',
+  'tours.walkImport.refusal.short_link_unknown':
+    'Google Maps не знає такого короткого посилання. Поділися маршрутом у Google Maps ще раз.',
   'tours.walkImport.refusal.too_few_stops': 'З цього посилання вдалося прочитати менше двох зупинок.',
   'tours.walkImport.refusal.too_many_stops': 'У цьому маршруті більше зупинок, ніж уміщує прогулянка.',
   'tours.provenance.takenOverFrom': 'Взято з',

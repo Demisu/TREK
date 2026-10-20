@@ -313,6 +313,7 @@ const tours: TranslationStrings = {
   'tours.walkImport.refusal.mode_unknown': '链接没有明确表明这是步行路线。请在 Google Maps 中选择步行，再分享一次。',
   'tours.walkImport.refusal.short_link_refused': '该短链接指向 Google Maps 以外的地方，因此没有跟随。',
   'tours.walkImport.refusal.short_link_failed': '暂时无法跟随该短链接。请再试一次，或粘贴完整的长链接。',
+  'tours.walkImport.refusal.short_link_unknown': 'Google Maps 无法识别该短链接。请在 Google Maps 中重新分享路线。',
   'tours.walkImport.refusal.too_few_stops': '从该链接只读取到不足两个站点。',
   'tours.walkImport.refusal.too_many_stops': '这条路线的站点比一次漫步能容纳的更多。',
   'tours.provenance.takenOverFrom': '引入自',

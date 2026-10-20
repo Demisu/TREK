@@ -7,6 +7,7 @@ import {
   PlaceImportService,
   type DirWaypoint,
 } from '../place-import/place-import.service';
+import type { ShortLinkFailure } from '../place-import/place-import.types';
 import { Injectable } from '@nestjs/common';
 import {
   TOUR_STATION_NAME_MAX,
@@ -25,12 +26,26 @@ const REFUSAL_TEXT: Readonly<Record<WalkImportRefusal, string>> = {
     'The link does not say clearly that the route is on foot. Choose walking in Google Maps and share it again.',
   short_link_refused: 'The short link leads somewhere other than Google Maps, so it was not followed.',
   short_link_failed: 'The short link could not be followed just now. Try again, or paste the long link.',
+  short_link_unknown: 'Google Maps does not know that short link. Share the route in Google Maps again.',
   too_few_stops: 'Fewer than two stops could be read from that link.',
   too_many_stops: 'That route has more stops than a walk can take.',
 };
 
 /** Reasons that are Google's answer rather than the link's. */
 const UPSTREAM: ReadonlySet<WalkImportRefusal> = new Set<WalkImportRefusal>(['short_link_failed']);
+
+/**
+ * Why a short link was not followed, as the walk import says it: a link that
+ * leaves Google Maps, one Google does not know, and the rest a failure on
+ * the way that may pass.
+ */
+const SHORT_LINK_REFUSAL: Readonly<Record<ShortLinkFailure, WalkImportRefusal>> = {
+  refused: 'short_link_refused',
+  not_found: 'short_link_unknown',
+  unreachable: 'short_link_failed',
+  too_many_redirects: 'short_link_failed',
+  no_redirect: 'short_link_failed',
+};
 
 function refuse(reason: WalkImportRefusal): DomainError {
   return new DomainError(UPSTREAM.has(reason) ? 502 : 400, REFUSAL_TEXT[reason], { code: reason, details: { reason } });
@@ -76,7 +91,7 @@ export class TourWalkImportService {
 
   private async followed(link: URL): Promise<URL> {
     const outcome = await this.placeImport.resolveGoogleShortLink(link.href);
-    if ('why' in outcome) throw refuse(outcome.why === 'refused' ? 'short_link_refused' : 'short_link_failed');
+    if ('why' in outcome) throw refuse(SHORT_LINK_REFUSAL[outcome.why]);
     return new URL(outcome.url);
   }
 }

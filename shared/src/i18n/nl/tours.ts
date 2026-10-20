@@ -352,6 +352,8 @@ const tours: TranslationStrings = {
     'De korte link leidt ergens anders heen dan Google Maps en is daarom niet gevolgd.',
   'tours.walkImport.refusal.short_link_failed':
     'De korte link kon nu niet worden gevolgd. Probeer het opnieuw of plak de lange link.',
+  'tours.walkImport.refusal.short_link_unknown':
+    'Google Maps kent deze korte link niet. Deel de route opnieuw vanuit Google Maps.',
   'tours.walkImport.refusal.too_few_stops': 'Uit deze link konden minder dan twee haltes worden gelezen.',
   'tours.walkImport.refusal.too_many_stops': 'Deze route heeft meer haltes dan een wandeling kan bevatten.',
   'tours.provenance.takenOverFrom': 'Overgenomen uit',

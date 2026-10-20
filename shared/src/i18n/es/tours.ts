@@ -350,6 +350,8 @@ const tours: TranslationStrings = {
     'El enlace corto lleva a otro sitio que no es Google Maps, así que no se siguió.',
   'tours.walkImport.refusal.short_link_failed':
     'No se pudo seguir el enlace corto ahora. Vuelve a intentarlo o pega el enlace largo.',
+  'tours.walkImport.refusal.short_link_unknown':
+    'Google Maps no reconoce este enlace corto. Vuelve a compartir la ruta desde Google Maps.',
   'tours.walkImport.refusal.too_few_stops': 'De ese enlace se pudieron leer menos de dos paradas.',
   'tours.walkImport.refusal.too_many_stops': 'Esa ruta tiene más paradas de las que admite un paseo.',
   'tours.provenance.takenOverFrom': 'Traída de',

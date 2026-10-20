@@ -65,6 +65,7 @@ export const WALK_IMPORT_REFUSALS = [
   'mode_unknown',
   'short_link_refused',
   'short_link_failed',
+  'short_link_unknown',
   'too_few_stops',
   'too_many_stops',
 ] as const;

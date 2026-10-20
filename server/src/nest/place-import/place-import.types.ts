@@ -106,8 +106,10 @@ export class CollectionGpxError extends Error {
 /**
  * CW-06: where a Google Maps short link led. `refused` when a hop or the
  * landing link is not one the walk import may follow or read, `unreachable`
- * when the chain could not be followed in time or answered nonsense,
- * `too_many_redirects` and `no_redirect` as they say.
+ * when the chain could not be followed in time, a name did not resolve, or it
+ * answered nonsense, `not_found` when Google answered that it has no such
+ * link (404 or 410), `too_many_redirects` and `no_redirect` as they say.
  */
-export type ShortLinkOutcome =
-  { ok: true; url: string } | { ok: false; why: 'refused' | 'unreachable' | 'too_many_redirects' | 'no_redirect' };
+export type ShortLinkOutcome = { ok: true; url: string } | { ok: false; why: ShortLinkFailure };
+
+export type ShortLinkFailure = 'refused' | 'unreachable' | 'not_found' | 'too_many_redirects' | 'no_redirect';

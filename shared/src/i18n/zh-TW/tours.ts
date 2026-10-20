@@ -312,6 +312,7 @@ const tours: TranslationStrings = {
   'tours.walkImport.refusal.mode_unknown': '連結沒有明確表示這是步行路線。請在 Google Maps 中選擇步行，再分享一次。',
   'tours.walkImport.refusal.short_link_refused': '這個短網址指向 Google Maps 以外的地方，因此沒有跟隨。',
   'tours.walkImport.refusal.short_link_failed': '暫時無法跟隨這個短網址。請再試一次，或貼上完整的長連結。',
+  'tours.walkImport.refusal.short_link_unknown': 'Google Maps 無法辨識這個短網址。請在 Google Maps 中重新分享路線。',
   'tours.walkImport.refusal.too_few_stops': '從這個連結只讀取到不足兩個站點。',
   'tours.walkImport.refusal.too_many_stops': '這條路線的站點比一次漫步能容納的更多。',
   'tours.provenance.takenOverFrom': '引入自',

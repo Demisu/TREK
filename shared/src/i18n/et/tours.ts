@@ -345,6 +345,8 @@ const tours: TranslationStrings = {
   'tours.walkImport.refusal.short_link_refused': 'Lühilink viib mujale kui Google Mapsi, seepärast seda ei järgitud.',
   'tours.walkImport.refusal.short_link_failed':
     'Lühilinki ei õnnestunud praegu järgida. Proovi uuesti või kleebi pikk link.',
+  'tours.walkImport.refusal.short_link_unknown':
+    'Google Maps ei tunne seda lühilinki. Jaga marsruuti Google Mapsis uuesti.',
   'tours.walkImport.refusal.too_few_stops': 'Sellest lingist õnnestus lugeda vähem kui kaks peatust.',
   'tours.walkImport.refusal.too_many_stops': 'Sellel marsruudil on rohkem peatusi, kui jalutuskäiku mahub.',
   'tours.provenance.takenOverFrom': 'Üle võetud',

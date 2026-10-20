@@ -194,7 +194,12 @@ describe('GoogleMapsShortLinkProvider', () => {
   });
 
   it('SHORT-010: an answer that is no redirect, and a redirect relative to the short host', async () => {
-    answers(new Response('not found', { status: 404 }));
+    answers(new Response('<html></html>', { status: 200 }));
+    expect(await provider.resolve(SHORT)).toEqual({ ok: false, why: 'no_redirect' });
+    // Busy or blocked just now is no answer about the link either.
+    answers(new Response(null, { status: 503 }));
+    expect(await provider.resolve(SHORT)).toEqual({ ok: false, why: 'no_redirect' });
+    answers(new Response(null, { status: 429 }));
     expect(await provider.resolve(SHORT)).toEqual({ ok: false, why: 'no_redirect' });
     answers(redirect('/elsewhere'), redirect(PORTO_RIBEIRA));
     expect(await provider.resolve(SHORT)).toEqual({ ok: true, url: PORTO_RIBEIRA });
@@ -227,5 +232,34 @@ describe('GoogleMapsShortLinkProvider', () => {
     expect(await provider.resolve(SHORT)).toEqual({ ok: true, url: PORTO_RIBEIRA });
     expect(close).toHaveBeenCalledTimes(1);
     close.mockRestore();
+  });
+
+  it('SHORT-014: a name that does not resolve just now is unreachable, not a link that leads elsewhere', async () => {
+    const noAnswer = (code: string) => Object.assign(new Error(`getaddrinfo ${code}`), { code });
+    await inTurn(['EAI_AGAIN', 'ENOTFOUND'], async (code) => {
+      lookup.mockReset();
+      lookup.mockRejectedValue(noAnswer(code));
+      const fetchSpy = answers();
+      expect(await provider.resolve(SHORT)).toEqual({ ok: false, why: 'unreachable' });
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+    // A later hop whose name does not resolve says the same.
+    lookup.mockReset();
+    lookup.mockResolvedValueOnce([{ address: PUBLIC_IP, family: 4 }] as never);
+    lookup.mockRejectedValueOnce(noAnswer('EAI_AGAIN'));
+    const fetchSpy = answers(redirect('https://goo.gl/maps/next'));
+    expect(await provider.resolve(SHORT)).toEqual({ ok: false, why: 'unreachable' });
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(lookedUp()).toEqual(['maps.app.goo.gl', 'goo.gl']);
+  });
+
+  it('SHORT-015: a short link Google does not know is not_found, at the first hop or a later one', async () => {
+    await inTurn([404, 410], async (status) => {
+      answers(new Response('not found', { status }));
+      expect(await provider.resolve(SHORT)).toEqual({ ok: false, why: 'not_found' });
+    });
+    const fetchSpy = answers(redirect('https://goo.gl/maps/next'), new Response(null, { status: 404 }));
+    expect(await provider.resolve(SHORT)).toEqual({ ok: false, why: 'not_found' });
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
   });
 });

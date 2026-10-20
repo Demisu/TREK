@@ -344,6 +344,8 @@ const tours: TranslationStrings = {
     'Kısa bağlantı Google Maps dışında bir yere gidiyor, bu yüzden takip edilmedi.',
   'tours.walkImport.refusal.short_link_failed':
     'Kısa bağlantı şu anda takip edilemedi. Yeniden dene ya da uzun bağlantıyı yapıştır.',
+  'tours.walkImport.refusal.short_link_unknown':
+    "Google Maps bu kısa bağlantıyı tanımıyor. Rotayı Google Maps'te yeniden paylaş.",
   'tours.walkImport.refusal.too_few_stops': 'Bu bağlantıdan ikiden az durak okunabildi.',
   'tours.walkImport.refusal.too_many_stops': 'Bu rotada bir yürüyüşün alabileceğinden fazla durak var.',
   'tours.provenance.takenOverFrom': 'Alındığı yer',

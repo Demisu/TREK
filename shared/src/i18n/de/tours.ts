@@ -353,6 +353,8 @@ const tours: TranslationStrings = {
     'Der Kurzlink führt nicht zu Google Maps und wurde deshalb nicht aufgerufen.',
   'tours.walkImport.refusal.short_link_failed':
     'Der Kurzlink ließ sich gerade nicht auflösen. Versuch es noch einmal oder füge den langen Link ein.',
+  'tours.walkImport.refusal.short_link_unknown':
+    'Google Maps kennt diesen Kurzlink nicht. Teile die Route in Google Maps noch einmal.',
   'tours.walkImport.refusal.too_few_stops': 'Aus diesem Link ließen sich keine zwei Stationen lesen.',
   'tours.walkImport.refusal.too_many_stops': 'Diese Route hat mehr Stationen, als ein Walk aufnehmen kann.',
   'tours.provenance.takenOverFrom': 'Übernommen aus',

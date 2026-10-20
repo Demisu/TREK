@@ -343,6 +343,8 @@ const tours: TranslationStrings = {
     'Liên kết rút gọn dẫn đến nơi khác chứ không phải Google Maps, nên không được mở theo.',
   'tours.walkImport.refusal.short_link_failed':
     'Hiện chưa mở theo được liên kết rút gọn. Hãy thử lại hoặc dán liên kết đầy đủ.',
+  'tours.walkImport.refusal.short_link_unknown':
+    'Google Maps không nhận ra liên kết rút gọn này. Hãy chia sẻ lại tuyến đường từ Google Maps.',
   'tours.walkImport.refusal.too_few_stops': 'Chỉ đọc được ít hơn hai điểm dừng từ liên kết này.',
   'tours.walkImport.refusal.too_many_stops': 'Tuyến này có nhiều điểm dừng hơn mức một lộ trình đi bộ chứa được.',
   'tours.provenance.takenOverFrom': 'Lấy từ',

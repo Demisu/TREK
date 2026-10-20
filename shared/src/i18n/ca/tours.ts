@@ -351,6 +351,8 @@ const tours: TranslationStrings = {
     "L'enllaç curt porta a un lloc que no és Google Maps, així que no s'ha seguit.",
   'tours.walkImport.refusal.short_link_failed':
     "Ara no s'ha pogut seguir l'enllaç curt. Torna-ho a provar o enganxa l'enllaç llarg.",
+  'tours.walkImport.refusal.short_link_unknown':
+    'Google Maps no reconeix aquest enllaç curt. Torna a compartir la ruta des de Google Maps.',
   'tours.walkImport.refusal.too_few_stops': "D'aquest enllaç s'han pogut llegir menys de dues parades.",
   'tours.walkImport.refusal.too_many_stops': 'Aquesta ruta té més parades de les que admet un passeig.',
   'tours.provenance.takenOverFrom': 'Agafada de',
