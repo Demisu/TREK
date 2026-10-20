@@ -3,6 +3,7 @@ import { CalendarDays, Clock, CloudOff, FileDown, Footprints, Plus, RefreshCw, U
 import { useMemo } from 'react';
 import { useTranslation } from '../../../i18n';
 import { useSettingsStore } from '../../../store/settingsStore';
+import { useTourActivityCompareStore } from '../../../store/tourActivityCompareStore';
 import type { AssignmentsMap, Day } from '../../../types';
 import { BOX } from '../../Planner/bookings/bookingParts';
 import { SoftPill } from '../../Planner/planParts';
@@ -215,7 +216,7 @@ interface TourActivitySectionProps {
   plan: PlanValues;
   /** The plan's track colour, as the map and the table draw it. */
   planColor: string;
-  /** Offers to compare a track on the plan map; only where one is beside the detail. */
+  /** Offers to compare a track on the plan map; only where one is beside the detail and the map can draw it. */
   mapCompare?: boolean;
   onToursChanged?: (placeIds: number[]) => Promise<void> | void;
 }
@@ -245,7 +246,9 @@ export default function TourActivitySection({
   const state = useTourActivities({ tripId, tour, executions, canEdit, onToursChanged });
   const { activities, unavailable } = state;
   const comparison = useActivityComparison(tour.place_id, activities);
-  const side: PlanSide = { plan, planColor, comparison: mapCompare ? comparison : null };
+  // The plan map says whether it can draw a comparison; where it cannot, no switch is offered.
+  const mapAvailable = useTourActivityCompareStore((store) => store.mapAvailable);
+  const side: PlanSide = { plan, planColor, comparison: mapCompare && mapAvailable ? comparison : null };
   if (activities === null || tour.activity_of != null || (activities.length === 0 && !canEdit && !unavailable)) {
     return null;
   }

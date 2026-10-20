@@ -1,8 +1,9 @@
-// FE-ACT-COMPARE-MAP-001 to FE-ACT-COMPARE-MAP-005
+// FE-ACT-COMPARE-MAP-001 to FE-ACT-COMPARE-MAP-006
 // ACT-02 on the plan map: while a tour is compared with its actual track, the
 // track leaves the map as a tour of its own and comes back as one dotted line
 // of the route, the plan stays on the map, and the legend names both; off,
-// the map gets exactly what it would have had.
+// the map gets exactly what it would have had. The map also says whether it
+// can compare at all, and ends a comparison where it no longer can.
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { buildPlace } from '../../../../tests/helpers/factories';
@@ -41,7 +42,7 @@ const input = {
 };
 
 beforeEach(() => {
-  useTourActivityCompareStore.getState().clear();
+  useTourActivityCompareStore.setState({ comparison: null, mapAvailable: false });
 });
 
 describe('compareMapLines (ACT-02)', () => {
@@ -113,5 +114,20 @@ describe('useActivityCompareMap (ACT-02)', () => {
     } finally {
       document.documentElement.style.removeProperty('--success');
     }
+  });
+
+  it('FE-ACT-COMPARE-MAP-006: tells the store whether it can compare, and ends a comparison where it no longer can or is gone', () => {
+    const { rerender, unmount } = renderHook((props: typeof input) => useActivityCompareMap(props), { initialProps: input });
+    expect(useTourActivityCompareStore.getState().mapAvailable).toBe(true);
+    act(() => useTourActivityCompareStore.getState().show({ tourPlaceId: 7, trackPlaceId: 20 }));
+
+    rerender({ ...input, enabled: false });
+    expect(useTourActivityCompareStore.getState()).toMatchObject({ mapAvailable: false, comparison: null });
+
+    rerender(input);
+    expect(useTourActivityCompareStore.getState().mapAvailable).toBe(true);
+    act(() => useTourActivityCompareStore.getState().show({ tourPlaceId: 7, trackPlaceId: 20 }));
+    unmount();
+    expect(useTourActivityCompareStore.getState()).toMatchObject({ mapAvailable: false, comparison: null });
   });
 });

@@ -1,9 +1,9 @@
-// FE-ACT-SECTION-001 to FE-ACT-SECTION-007
+// FE-ACT-SECTION-001 to FE-ACT-SECTION-008
 // ACT-01 in the tour's detail, rendered without the translation provider so
 // every text reads as its key: the actual tracks with their own values marked
 // as such beside the plan's (ACT-02), a time only where the track measured
 // one, the actions only for someone who may change the tour, and the map
-// comparison only where a plan map is beside the detail.
+// comparison only where a plan map is beside the detail and can draw it.
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { TourActivity, TourListItem } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -81,7 +81,7 @@ const show = (canEdit = true, item: TourListItem = tour, mapCompare = false) =>
 
 beforeEach(() => {
   hook.state = state();
-  useTourActivityCompareStore.getState().clear();
+  useTourActivityCompareStore.setState({ comparison: null, mapAvailable: true });
 });
 
 describe('TourActivitySection (ACT-01)', () => {
@@ -177,5 +177,18 @@ describe('TourActivitySection (ACT-01)', () => {
 
     show(false);
     expect(screen.queryByRole('button', { name: /tours.activity.compare.show/ })).toBeNull();
+  });
+
+  it('FE-ACT-SECTION-008: in road trip mode or with the overview open the map draws other lines, so no switch is offered and a running comparison ends', () => {
+    show(false, tour, true);
+    fireEvent.click(screen.getByRole('button', { name: /tours.activity.compare.show/ }));
+    expect(useTourActivityCompareStore.getState().comparison).not.toBeNull();
+
+    act(() => useTourActivityCompareStore.getState().setMapAvailable(false));
+    expect(useTourActivityCompareStore.getState().comparison).toBeNull();
+    expect(screen.queryByRole('button', { name: /tours.activity.compare.(show|hide)/ })).toBeNull();
+
+    act(() => useTourActivityCompareStore.getState().setMapAvailable(true));
+    expect(screen.getByRole('button', { name: /tours.activity.compare.show/ })).toHaveAttribute('aria-pressed', 'false');
   });
 });

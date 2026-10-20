@@ -69,7 +69,7 @@ function renderStage(overrides: Partial<Record<keyof PlanMapStageProps, unknown>
 
 beforeEach(() => {
   for (const key of Object.keys(captured)) delete captured[key]
-  useTourActivityCompareStore.getState().clear()
+  useTourActivityCompareStore.setState({ comparison: null, mapAvailable: false })
 })
 
 describe('PlanMapStage', () => {
@@ -222,10 +222,18 @@ describe('PlanMapStage', () => {
 
     expect(recorded('map')).toMatchObject({ places: [plan], route: [[[47, 11], [47.01, 11]]], routeWalking: [true] })
     expect(screen.getByTestId('activity-compare-legend')).toHaveTextContent('Watch export')
+    expect(useTourActivityCompareStore.getState().mapAvailable).toBe(true)
 
-    // The road trip and the trip overview draw other lines; nothing is compared there.
+    // The road trip and the trip overview draw other lines; nothing is compared
+    // there, the detail is told so and the comparison ends.
     rerender(<PlanMapStage {...stageProps({ ...compared, overviewActive: true })} />)
     expect(recorded('map')).toMatchObject({ route: ['overview'] })
     expect(screen.queryByTestId('activity-compare-legend')).toBeNull()
+    expect(useTourActivityCompareStore.getState()).toMatchObject({ mapAvailable: false, comparison: null })
+
+    rerender(<PlanMapStage {...stageProps(compared)} />)
+    expect(useTourActivityCompareStore.getState().mapAvailable).toBe(true)
+    rerender(<PlanMapStage {...stageProps({ ...compared, roadtripActive: true })} />)
+    expect(useTourActivityCompareStore.getState().mapAvailable).toBe(false)
   })
 })

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTourActivityCompareStore } from '../../../store/tourActivityCompareStore';
 import type { Place } from '../../../types';
 import { parseRenderableRouteGeometry } from '../../../utils/routeGeometry';
@@ -80,11 +80,22 @@ export function compareMapLines<P extends Place>(
   };
 }
 
-/** ACT-02 on the plan map: `compareMapLines` with the comparison of the store and the theme's colours. */
+/**
+ * ACT-02 on the plan map: `compareMapLines` with the comparison of the store
+ * and the theme's colours. The map also tells the store whether it can
+ * compare at all, so the detail offers the switch only where pressing it
+ * draws something; turning to the road trip or the overview, or leaving the
+ * map, ends a running comparison.
+ */
 export function useActivityCompareMap<P extends Place>(input: CompareMapInput<P>) {
   const comparison = useTourActivityCompareStore((state) => state.comparison);
   const paint = useMapPaint(ACTUAL_PAINT);
   const { enabled, places, mapPlaces, route, routeWalking, selectedPlaceId } = input;
+  useEffect(() => {
+    const { setMapAvailable } = useTourActivityCompareStore.getState();
+    setMapAvailable(enabled);
+    return () => setMapAvailable(false);
+  }, [enabled]);
   return useMemo(
     () => compareMapLines({ enabled, places, mapPlaces, route, routeWalking, selectedPlaceId }, comparison, paint),
     [comparison, enabled, mapPlaces, paint, places, route, routeWalking, selectedPlaceId]

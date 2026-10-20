@@ -15,12 +15,23 @@ interface ActivityComparison {
 
 interface TourActivityCompareState {
   comparison: ActivityComparison | null;
+  /**
+   * Whether the plan map can draw a comparison right now. The map says so
+   * itself: in road trip mode, with the trip overview open or on the phone it
+   * draws other lines, and the detail then offers no switch that would do
+   * nothing.
+   */
+  mapAvailable: boolean;
   show: (comparison: ActivityComparison | null) => void;
   clear: () => void;
+  /** Set by the plan map; a map that can no longer compare ends the comparison too. */
+  setMapAvailable: (available: boolean) => void;
 }
 
 export const useTourActivityCompareStore = create<TourActivityCompareState>((set) => ({
   comparison: null,
+  mapAvailable: false,
   show: (comparison) => set({ comparison }),
   clear: () => set({ comparison: null }),
+  setMapAvailable: (available) => set(available ? { mapAvailable: true } : { mapAvailable: false, comparison: null }),
 }));
