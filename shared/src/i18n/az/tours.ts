@@ -571,7 +571,7 @@ const tours: TranslationStrings = {
     '{name} {closes} vaxtı bağlanır, {arrival} ilə {leave} arası qalma zamanı (açıqdır {window})',
   'tours.walk.hours.unread': 'Açılış saatları burada oxunmadı: {text}',
   'tours.walk.hours.source':
-    'Açılış saatları OpenStreetMap-dən və ya öz yerlərindən götürülür, planın yerli vaxtı ilə təxmini çatma vaxtına qarşı müqayisə olunur; getməzdən əvvəl yoxla. Saatları olmayan dayanacaq naməlumdur, açıq deyil.',
+    'Açılış saatları OpenStreetMap-dən və ya səyahətin yerlərindən götürülür, planın yerli vaxtı ilə təxmini çatma vaxtına qarşı müqayisə olunur; getməzdən əvvəl yoxla. Saatları olmayan dayanacaq naməlumdur, açıq deyil.',
   'tours.walk.hours.noStart': 'Çatma vaxtlarını və açılış saatlarını görmək üçün gəzintiyə bu gün vaxt ver.',
   'tours.walk.day.label': 'Vaxtlar üçün gün',
   'tours.walk.day.start': '{day}, başlanğıc {time}',

@@ -555,7 +555,7 @@ const tours: TranslationStrings = {
     '{name}은(는) {closes}에 문을 닫습니다. {arrival}부터 {leave}까지 머무는 중입니다(영업 {window})',
   'tours.walk.hours.unread': '여기서는 영업시간을 읽지 못했습니다: {text}',
   'tours.walk.hours.source':
-    'OpenStreetMap 또는 직접 입력한 장소의 영업시간을 계획 현지 시간 기준의 예상 도착 시간과 비교합니다. 가기 전에 확인하세요. 영업시간이 없는 정류지는 영업 중이 아니라 미상입니다.',
+    'OpenStreetMap 또는 여행 장소의 영업시간을 계획 현지 시간 기준의 예상 도착 시간과 비교합니다. 가기 전에 확인하세요. 영업시간이 없는 정류지는 영업 중이 아니라 미상입니다.',
   'tours.walk.hours.noStart': '이날 산책에 시간을 지정하면 도착 시간과 영업시간을 볼 수 있습니다.',
   'tours.walk.day.label': '시간 기준',
   'tours.walk.day.start': '{day}, 시작 {time}',

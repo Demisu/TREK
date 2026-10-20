@@ -572,7 +572,7 @@ const tours: TranslationStrings = {
   'tours.walk.hours.closes': '{name} يغلق في {closes}، أثناء البقاء من {arrival} إلى {leave} (مفتوح {window})',
   'tours.walk.hours.unread': 'لم تُقرأ ساعات العمل هنا: {text}',
   'tours.walk.hours.source':
-    'ساعات العمل من OpenStreetMap أو من أماكنك التي أدخلتها بنفسك، مقارنةً بوقت الوصول المقدّر بالتوقيت المحلي للخطة؛ تحقق منها قبل الذهاب. المحطة بلا ساعات عمل غير معروفة، وليست مفتوحة.',
+    'ساعات العمل من OpenStreetMap أو من أماكن الرحلة، مقارنةً بوقت الوصول المقدّر بالتوقيت المحلي للخطة؛ تحقق منها قبل الذهاب. المحطة بلا ساعات عمل غير معروفة، وليست مفتوحة.',
   'tours.walk.hours.noStart': 'حدد وقتًا للجولة في هذا اليوم لرؤية أوقات الوصول وساعات العمل.',
   'tours.walk.day.label': 'الأوقات حسب',
   'tours.walk.day.start': '{day}، البدء {time}',

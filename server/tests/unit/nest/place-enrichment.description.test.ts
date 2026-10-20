@@ -47,7 +47,8 @@ vi.mock('../../../src/utils/ssrfGuard', () => ({
 const { mockTrekPlacesById } = vi.hoisted(() => ({
   mockTrekPlacesById: vi.fn(async (_gers: string): Promise<unknown> => null),
 }));
-vi.mock('../../../src/nest/maps/trek-places.client', () => ({
+vi.mock('../../../src/nest/maps/trek-places.client', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../src/nest/maps/trek-places.client')>()),
   trekPlacesById: mockTrekPlacesById,
 }));
 

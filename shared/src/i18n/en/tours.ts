@@ -567,7 +567,7 @@ const tours: TranslationStrings = {
   'tours.walk.hours.closes': '{name} closes at {closes}, during the stay from {arrival} to {leave} (open {window})',
   'tours.walk.hours.unread': 'Opening hours not read here: {text}',
   'tours.walk.hours.source':
-    'Opening hours from OpenStreetMap or your own place entries, compared with the estimated arrival in the local time of the plan; check before you go. A stop without hours is unknown, not open.',
+    "Opening hours from OpenStreetMap or the trip's places, compared with the estimated arrival in the local time of the plan; check before you go. A stop without hours is unknown, not open.",
   'tours.walk.hours.noStart': 'Give the walk a time on this day to see arrivals and opening hours.',
   'tours.walk.day.label': 'Times for',
   'tours.walk.day.start': '{day}, start {time}',

@@ -522,7 +522,7 @@ const tours: TranslationStrings = {
   'tours.walk.hours.closes': '{name} 在 {closes} 關門，正值 {arrival} 至 {leave} 的停留期間（營業時間 {window}）',
   'tours.walk.hours.unread': '此處無法解析營業時間：{text}',
   'tours.walk.hours.source':
-    '營業時間來自 OpenStreetMap 或你自己填寫的地點，並按計畫的當地時間與預計抵達時間對照；出發前請再確認。沒有營業時間的站點視為未知，而非營業中。',
+    '營業時間來自 OpenStreetMap 或行程中的地點，並按計畫的當地時間與預計抵達時間對照；出發前請再確認。沒有營業時間的站點視為未知，而非營業中。',
   'tours.walk.hours.noStart': '為當天的漫步設定時間，即可查看抵達時間和營業時間。',
   'tours.walk.day.label': '時間依據',
   'tours.walk.day.start': '{day}，{time} 出發',

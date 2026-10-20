@@ -584,7 +584,7 @@ const tours: TranslationStrings = {
   'tours.walk.hours.closes': "{name} ferme à {closes}, pendant l'arrêt de {arrival} à {leave} (ouvert {window})",
   'tours.walk.hours.unread': 'Horaires non lus ici : {text}',
   'tours.walk.hours.source':
-    "Horaires d'OpenStreetMap ou de tes propres lieux, comparés à l'arrivée estimée à l'heure locale du plan ; vérifie avant d'y aller. Une étape sans horaires est inconnue, pas ouverte.",
+    "Horaires d'OpenStreetMap ou des lieux du voyage, comparés à l'arrivée estimée à l'heure locale du plan ; vérifie avant d'y aller. Une étape sans horaires est inconnue, pas ouverte.",
   'tours.walk.hours.noStart': 'Donne une heure à la balade ce jour-là pour voir les arrivées et les horaires.',
   'tours.walk.day.label': 'Horaires pour',
   'tours.walk.day.start': '{day}, départ à {time}',

@@ -572,7 +572,7 @@ const tours: TranslationStrings = {
     '{name} {closes} saatinde kapanıyor, {arrival} ile {leave} arasındaki kalış sırasında (açık {window})',
   'tours.walk.hours.unread': 'Açılış saatleri burada okunamadı: {text}',
   'tours.walk.hours.source':
-    "Açılış saatleri OpenStreetMap'ten veya kendi yerlerinden, planın yerel saatine göre tahmini varışla karşılaştırılır; gitmeden önce kontrol et. Saati olmayan durak bilinmiyordur, açık değildir.",
+    "Açılış saatleri OpenStreetMap'ten veya seyahatin yerlerinden, planın yerel saatine göre tahmini varışla karşılaştırılır; gitmeden önce kontrol et. Saati olmayan durak bilinmiyordur, açık değildir.",
   'tours.walk.hours.noStart': 'Varışları ve açılış saatlerini görmek için yürüyüşe bu gün bir saat ver.',
   'tours.walk.day.label': 'Saatler:',
   'tours.walk.day.start': '{day}, başlangıç {time}',

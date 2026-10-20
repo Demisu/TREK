@@ -566,7 +566,7 @@ const tours: TranslationStrings = {
   'tours.walk.hours.closes': '{name}: zavírá v {closes}, během pobytu od {arrival} do {leave} (otevřeno {window})',
   'tours.walk.hours.unread': 'Otevírací dobu zde nelze vyhodnotit: {text}',
   'tours.walk.hours.source':
-    'Otevírací doby z OpenStreetMap nebo z tvých vlastních míst, porovnané s odhadovaným příchodem v místním čase plánu; před cestou si je ověř. Zastávka bez časů je neznámá, ne otevřená.',
+    'Otevírací doby z OpenStreetMap nebo z míst výletu, porovnané s odhadovaným příchodem v místním čase plánu; před cestou si je ověř. Zastávka bez časů je neznámá, ne otevřená.',
   'tours.walk.hours.noStart': 'Dej procházce v tento den čas, abys viděl příchody a otevírací doby.',
   'tours.walk.day.label': 'Časy pro',
   'tours.walk.day.start': '{day}, začátek {time}',

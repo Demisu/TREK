@@ -579,7 +579,7 @@ const tours: TranslationStrings = {
     '{name} sluit om {closes}, tijdens het verblijf van {arrival} tot {leave} (geopend {window})',
   'tours.walk.hours.unread': 'Openingstijden hier niet gelezen: {text}',
   'tours.walk.hours.source':
-    'Openingstijden uit OpenStreetMap of je eigen plekken, vergeleken met de geschatte aankomst in de lokale tijd van het plan; controleer ze voor je gaat. Een halte zonder tijden is onbekend, niet open.',
+    'Openingstijden uit OpenStreetMap of de plekken van de reis, vergeleken met de geschatte aankomst in de lokale tijd van het plan; controleer ze voor je gaat. Een halte zonder tijden is onbekend, niet open.',
   'tours.walk.hours.noStart': 'Geef de wandeling op deze dag een tijd om aankomsten en openingstijden te zien.',
   'tours.walk.day.label': 'Tijden voor',
   'tours.walk.day.start': '{day}, vertrek {time}',

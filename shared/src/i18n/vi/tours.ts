@@ -566,7 +566,7 @@ const tours: TranslationStrings = {
   'tours.walk.hours.closes': '{name} đóng cửa lúc {closes}, trong lúc ở từ {arrival} đến {leave} (mở {window})',
   'tours.walk.hours.unread': 'Không đọc được giờ mở cửa ở đây: {text}',
   'tours.walk.hours.source':
-    'Giờ mở cửa từ OpenStreetMap hoặc từ các địa điểm bạn tự nhập, so với giờ đến ước tính theo giờ địa phương của kế hoạch; hãy kiểm tra trước khi đi. Điểm dừng không có giờ là chưa rõ, không phải đang mở.',
+    'Giờ mở cửa từ OpenStreetMap hoặc từ các địa điểm của chuyến đi, so với giờ đến ước tính theo giờ địa phương của kế hoạch; hãy kiểm tra trước khi đi. Điểm dừng không có giờ là chưa rõ, không phải đang mở.',
   'tours.walk.hours.noStart': 'Đặt giờ cho lộ trình trong ngày này để xem giờ đến và giờ mở cửa.',
   'tours.walk.day.label': 'Thời gian theo',
   'tours.walk.day.start': '{day}, bắt đầu {time}',

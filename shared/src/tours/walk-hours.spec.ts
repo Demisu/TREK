@@ -21,7 +21,11 @@ const SATURDAY = '2026-10-24';
 const SUNDAY = '2026-10-25';
 
 const at = (clock: string, atLeast = false) => ({ arrival: minutesOf(clock) ?? Number.NaN, atLeast });
-const osm = (windows: Array<[number, number]>): StationHours => ({ source: 'osm', windows });
+const osm = (windows: Array<[number, number]>, continues = false): StationHours => ({
+  source: 'osm',
+  windows,
+  continues,
+});
 
 describe('minutesOf and clockOf', () => {
   it('reads a time as TREK stores it, with or without seconds or a leading zero', () => {
@@ -92,6 +96,8 @@ describe('openWindows (OpenStreetMap)', () => {
       expect(openWindows(text, MONDAY)).toBeNull();
     }
     expect(openWindows(week, '19.10.2026')).toBeNull();
+    expect(openWindows(week, '2026-02-31')).toBeNull();
+    expect(openWindows(week, '2026-13-01')).toBeNull();
   });
 });
 
@@ -148,6 +154,7 @@ describe('stationHoursOn', () => {
     expect(stationHoursOn({ place, osm: 'Mo-Fr 09:00-18:00' }, MONDAY)).toEqual({
       source: 'place',
       windows: [[660, 1020]],
+      continues: false,
     });
   });
 
@@ -155,13 +162,42 @@ describe('stationHoursOn', () => {
     expect(stationHoursOn({ place, osm: 'Mo-Fr 09:00-18:00' }, TUESDAY)).toEqual({
       source: 'osm',
       windows: [[540, 1080]],
+      continues: false,
     });
     expect(stationHoursOn({ osm: 'sunrise-sunset' }, TUESDAY)).toEqual({ source: 'osm', unread: 'sunrise-sunset' });
   });
 
-  it('is null where neither says anything', () => {
+  it('is null where neither says anything, or for a date it cannot read', () => {
     expect(stationHoursOn({ place, osm: '  ' }, TUESDAY)).toBeNull();
     expect(stationHoursOn({}, MONDAY)).toBeNull();
+    expect(stationHoursOn({ place, osm: 'Mo-Fr 09:00-18:00' }, '2026-02-31')).toBeNull();
+  });
+
+  it('runs an OpenStreetMap last window on past midnight only where the next date opens at midnight', () => {
+    const continuesOn = (text: string, date: string) => {
+      const hours = stationHoursOn({ osm: text }, date);
+      return hours && 'continues' in hours ? hours.continues : null;
+    };
+    expect(continuesOn('24/7', SUNDAY)).toBe(true);
+    expect(continuesOn('Mo 18:00-24:00; Tu 00:00-02:00', MONDAY)).toBe(true);
+    expect(continuesOn('Mo-Su 10:00-24:00', MONDAY)).toBe(false);
+    expect(continuesOn('Mo-Su 10:00-18:00', MONDAY)).toBe(false);
+    expect(continuesOn('Mo 18:00-24:00; Tu off', MONDAY)).toBe(false);
+  });
+
+  it("runs a trip place's last window on past midnight only where the next date opens at midnight", () => {
+    const week = (monday: object, tuesday: object) =>
+      JSON.stringify([monday, tuesday, ...Array.from({ length: 5 }, () => ({ closed: true }))]);
+    const continuesOn = (raw: string) => {
+      const hours = stationHoursOn({ place: raw }, MONDAY);
+      return hours && 'continues' in hours ? hours.continues : null;
+    };
+    expect(continuesOn(week({ closed: false, open: '18:00', close: '02:00' }, { closed: true }))).toBe(true);
+    const allDay = { closed: false, open: '00:00', close: '00:00' };
+    expect(continuesOn(week(allDay, allDay))).toBe(true);
+    expect(continuesOn(week({ closed: false, open: '18:00', close: '00:00' }, { closed: true }))).toBe(false);
+    expect(continuesOn(week({ closed: false, open: '18:00', close: '00:00' }, { closed: false }))).toBe(false);
+    expect(continuesOn(week({ closed: true }, allDay))).toBe(false);
   });
 });
 
@@ -181,14 +217,27 @@ describe('stationFit', () => {
   it('is closed at an arrival outside the windows, with the windows of the day', () => {
     expect(stationFit(museum, at('09:00'), 30)).toEqual({ kind: 'closed', source: 'osm', windows: [[600, 1080]] });
     expect(stationFit(museum, at('18:00'), null)).toEqual({ kind: 'closed', source: 'osm', windows: [[600, 1080]] });
-    expect(stationFit({ source: 'place', windows: [] }, at('12:00'), 30)).toEqual({
+    expect(stationFit({ source: 'place', windows: [], continues: false }, at('12:00'), 30)).toEqual({
       kind: 'closedAllDay',
       source: 'place',
     });
   });
 
-  it('takes a window running to midnight as open past it', () => {
-    expect(stationFit(osm([[600, 1440]]), at('23:20'), 90).kind).toBe('open');
+  it('takes a window to midnight as open past it only where the hours run on into the next date', () => {
+    expect(stationFit(osm([[600, 1440]], true), at('23:20'), 90).kind).toBe('open');
+    expect(stationFit(osm([[600, 1440]]), at('23:30'), 60)).toEqual({
+      kind: 'closes',
+      source: 'osm',
+      window: [600, 1440],
+    });
+    expect(stationFit(osm([[600, 1440]]), at('23:20'), 30).kind).toBe('open');
+    expect(stationFit(osm([[600, 1440]]), at('23:30', true), 60).kind).toBe('closes');
+  });
+
+  it('names the closing at midnight of OpenStreetMap hours ending at 24:00 for a stay past it', () => {
+    const hours = stationHoursOn({ osm: 'Mo-Su 10:00-24:00' }, MONDAY);
+    expect(stationFit(hours, at('23:30'), 60)).toEqual({ kind: 'closes', source: 'osm', window: [600, 1440] });
+    expect(stationFit(stationHoursOn({ osm: '24/7' }, MONDAY), at('23:30'), 60).kind).toBe('open');
   });
 
   it('says nothing for hours not known, and gives unread hours back as written', () => {

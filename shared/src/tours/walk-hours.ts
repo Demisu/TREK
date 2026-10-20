@@ -28,8 +28,14 @@ export type HoursWindow = readonly [number, number];
 /** Where a stop's hours come from: OpenStreetMap, or the trip place's own entry. */
 export type HoursSource = 'osm' | 'place';
 
-/** A stop's hours on one date: its open windows (none when closed all day), or text that could not be read. */
-export type StationHours = { source: HoursSource; windows: readonly HoursWindow[] } | { source: 'osm'; unread: string };
+/**
+ * A stop's hours on one date: its open windows (none when closed all day), or
+ * text that could not be read. `continues` says the last window, ending at
+ * midnight, runs on into the next date, as it does around the clock or for a
+ * night past midnight; a place closing at midnight does not.
+ */
+export type StationHours =
+  { source: HoursSource; windows: readonly HoursWindow[]; continues: boolean } | { source: 'osm'; unread: string };
 
 function clockMinutes(hours: number, minutes: number): number | null {
   return hours < 24 && minutes < 60 ? hours * 60 + minutes : null;
@@ -58,8 +64,12 @@ export function clockOf(minutes: number): string {
 function weekdayOf(date: string): number | null {
   const match = ISO_DATE.exec(date);
   if (!match) return null;
-  const day = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]))).getUTCDay();
-  return Number.isNaN(day) ? null : (day + 6) % 7;
+  const month = Number(match[2]) - 1;
+  const dayOfMonth = Number(match[3]);
+  const day = new Date(Date.UTC(Number(match[1]), month, dayOfMonth));
+  // A date that does not exist, such as 2026-02-31, would roll over into the next month.
+  if (day.getUTCMonth() !== month || day.getUTCDate() !== dayOfMonth) return null;
+  return (day.getUTCDay() + 6) % 7;
 }
 
 /** The weekdays of an OpenStreetMap day list such as `Mo-Fr,Su`; a range may wrap round the week (`Sa-Mo`). */
@@ -106,8 +116,11 @@ function ruleOf(rule: string): { days: Set<number>; windows: HoursWindow[] } | n
 /** The windows OpenStreetMap's hours give a date, in minutes; null where they cannot be read. */
 export function openWindows(hours: string, date: string): HoursWindow[] | null {
   const weekday = weekdayOf(date);
-  if (weekday === null) return null;
-  const text = hours.trim();
+  return weekday === null ? null : osmWindows(hours.trim(), weekday);
+}
+
+/** The windows OpenStreetMap's hours give a weekday, Monday 0; null where they cannot be read. */
+function osmWindows(text: string, weekday: number): HoursWindow[] | null {
   if (text === '24/7') return [[0, DAY_MINUTES]];
   let windows: HoursWindow[] = [];
   for (const raw of text.split(';')) {
@@ -147,7 +160,11 @@ function spillOf(day: PlaceHoursDay | undefined): HoursWindow | null {
 export function placeWindows(raw: string | null | undefined, date: string): HoursWindow[] | null {
   const week = parsePlaceHours(raw);
   const weekday = weekdayOf(date);
-  if (!week || weekday === null) return null;
+  return week && weekday !== null ? placeWeekWindows(week, weekday) : null;
+}
+
+/** The windows of one weekday of a place's own week, Monday 0, with the night of the day before. */
+function placeWeekWindows(week: readonly PlaceHoursDay[], weekday: number): HoursWindow[] | null {
   const today = dayWindows(week[weekday]);
   if (today === null) return null;
   const spill = spillOf(week[(weekday + 6) % 7]);
@@ -157,18 +174,35 @@ export function placeWindows(raw: string | null | undefined, date: string): Hour
 /**
  * A stop's hours on a date: the trip place it stands for first, as the
  * travellers entered them, else what OpenStreetMap had for it; null where
- * neither says anything.
+ * neither says anything or the date cannot be read.
  */
 export function stationHoursOn(
   hours: { place?: string | null; osm?: string | null },
   date: string,
 ): StationHours | null {
-  const own = placeWindows(hours.place, date);
-  if (own) return { source: 'place', windows: own };
+  const weekday = weekdayOf(date);
+  if (weekday === null) return null;
+  const tomorrow = (weekday + 1) % 7;
+  const week = parsePlaceHours(hours.place);
+  const own = week && placeWeekWindows(week, weekday);
+  if (week && own) {
+    return { source: 'place', windows: own, continues: runsOn(own, placeWeekWindows(week, tomorrow)) };
+  }
   const text = hours.osm?.trim();
   if (!text) return null;
-  const windows = openWindows(text, date);
-  return windows ? { source: 'osm', windows } : { source: 'osm', unread: text };
+  const windows = osmWindows(text, weekday);
+  return windows
+    ? { source: 'osm', windows, continues: runsOn(windows, osmWindows(text, tomorrow)) }
+    : { source: 'osm', unread: text };
+}
+
+/**
+ * Whether a window of the day ends at midnight and the next day opens at
+ * midnight, so the hours run on past it. Every window is looked at, as the
+ * hours text keeps the order it was written in.
+ */
+function runsOn(today: readonly HoursWindow[], tomorrow: readonly HoursWindow[] | null): boolean {
+  return today.some(([, to]) => to === DAY_MINUTES) && (tomorrow?.some(([from]) => from === 0) ?? false);
 }
 
 /**
@@ -202,10 +236,10 @@ function fitInWindow(
   source: HoursSource,
   window: HoursWindow,
   leave: number | null,
-  later: { atLeast: boolean; windowAfter: boolean },
+  later: { atLeast: boolean; windowAfter: boolean; continues: boolean },
 ): StationFit {
-  // A window running to midnight is taken as open past it.
-  const closes = leave !== null && leave > window[1] && window[1] !== DAY_MINUTES;
+  // A window to midnight is open past it only where the hours run on into the next date.
+  const closes = leave !== null && leave > window[1] && !(window[1] === DAY_MINUTES && later.continues);
   // An arrival that may come later can still miss the closing, or reach the next window instead.
   if (later.atLeast)
     return closes && !later.windowAfter ? { kind: 'closes', source, window } : { kind: 'uncertain', source };
@@ -221,12 +255,12 @@ export function stationFit(hours: StationHours | null, at: WalkArrival, stay: nu
   if (at.arrival >= DAY_MINUTES) return { kind: 'nextDay' };
   if (!hours) return { kind: 'unknown' };
   if ('unread' in hours) return { kind: 'unread', text: hours.unread };
-  const { source, windows } = hours;
+  const { source, windows, continues } = hours;
   if (windows.length === 0) return { kind: 'closedAllDay', source };
   const leave = stay === null ? null : at.arrival + stay;
   const window = windows.find(([from, to]) => at.arrival >= from && at.arrival < to);
   const windowAfter = windows.some(([from]) => from > at.arrival);
-  if (window) return fitInWindow(source, window, leave, { atLeast: at.atLeast, windowAfter });
+  if (window) return fitInWindow(source, window, leave, { atLeast: at.atLeast, windowAfter, continues });
   return at.atLeast && windowAfter ? { kind: 'uncertain', source } : { kind: 'closed', source, windows };
 }
 

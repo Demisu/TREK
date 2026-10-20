@@ -206,7 +206,7 @@ describe('WalkStationsCard', () => {
 
   it('on the day it was opened from, shows each arrival, the end of each stay and what the opening hours say', async () => {
     card(onMonday());
-    expect(screen.getByTestId('walk-day')).toHaveTextContent('Day 1, start 09:00');
+    expect(screen.getByTestId('walk-day')).toHaveTextContent(/^Day 1, .+, start 09:00$/);
     expect(screen.queryByTestId('walk-day-picker')).not.toBeInTheDocument();
     const museum = await rowOf('Museum');
     expect(within(museum).getByText('Arrival about 09:00, stay until 09:30')).toBeInTheDocument();
@@ -224,7 +224,7 @@ describe('WalkStationsCard', () => {
       within(cafe).getByText('Opening hours not checked: a stay before this stop is not entered yet.')
     ).toBeInTheDocument();
     expect(within(cafe).queryByTestId('walk-station-conflict')).not.toBeInTheDocument();
-    expect(screen.getByText(/Opening hours from OpenStreetMap or your own place entries/)).toBeInTheDocument();
+    expect(screen.getByText(/Opening hours from OpenStreetMap or the trip's places/)).toBeInTheDocument();
   });
 
   it("names a stop by the trip place it stands for and checks the place's own hours: 17:20 to 18:20 against 18:00", async () => {
@@ -259,7 +259,7 @@ describe('WalkStationsCard', () => {
     seedStore(useSettingsStore, { settings: { time_format: '12h' } });
     card(onMonday());
     expect(within(await rowOf('Museum')).getByText('Arrival about 9:00 AM, stay until 9:30 AM')).toBeInTheDocument();
-    expect(screen.getByTestId('walk-day')).toHaveTextContent('Day 1, start 9:00 AM');
+    expect(screen.getByTestId('walk-day')).toHaveTextContent(/^Day 1, .+, start 9:00 AM$/);
   });
 
   it('on a day without a start, asks for one and leaves arrivals and hours unsaid', async () => {
@@ -267,7 +267,7 @@ describe('WalkStationsCard', () => {
     expect(
       await screen.findByText('Give the walk a time on this day to see arrivals and opening hours.')
     ).toBeInTheDocument();
-    expect(screen.getByTestId('walk-day')).toHaveTextContent('Day 1, no start time');
+    expect(screen.getByTestId('walk-day')).toHaveTextContent(/^Day 1, .+, no start time$/);
     await screen.findAllByTestId('walk-station');
     expect(screen.queryByText(/Arrival/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Opening hours from OpenStreetMap/)).not.toBeInTheDocument();
@@ -306,7 +306,7 @@ describe('WalkStationsCard', () => {
       route: ROUTE,
     });
     const picker = screen.getByTestId('walk-day-picker');
-    expect(picker).toHaveTextContent('Day 2, start 10:00');
+    expect(picker).toHaveTextContent(/^Day 2, .+, start 10:00$/);
     // Tuesday from 10:00: the museum closed at 09:20 already.
     expect(within(await rowOf('Museum')).getByTestId('walk-station-conflict')).toHaveTextContent(
       'Museum is closed at 10:00, the stay would last until 10:30; open 09:00 to 09:20'
@@ -319,7 +319,7 @@ describe('WalkStationsCard', () => {
     fireEvent.click(picker);
     const monday = screen.getByRole('button', { name: /^Day 1, .*no start time$/ });
     fireEvent.click(monday);
-    expect(screen.getByTestId('walk-day-picker')).toHaveTextContent('Day 1, no start time');
+    expect(screen.getByTestId('walk-day-picker')).toHaveTextContent(/^Day 1, .+, no start time$/);
     expect(screen.getByText('Give the walk a time on this day to see arrivals and opening hours.')).toBeInTheDocument();
     expect(screen.queryByText(/Arrival/)).not.toBeInTheDocument();
   });

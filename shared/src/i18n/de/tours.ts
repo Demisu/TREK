@@ -582,7 +582,7 @@ const tours: TranslationStrings = {
     '{name} schließt um {closes}, während des Aufenthalts von {arrival} bis {leave} (geöffnet {window})',
   'tours.walk.hours.unread': 'Öffnungszeiten hier nicht auswertbar: {text}',
   'tours.walk.hours.source':
-    'Öffnungszeiten aus OpenStreetMap oder aus deinen eigenen Ortsangaben, verglichen mit der geschätzten Ankunft in der Ortszeit des Plans; vor Ort lieber prüfen. Eine Station ohne Zeiten ist unbekannt, nicht geöffnet.',
+    'Öffnungszeiten aus OpenStreetMap oder den Orten der Reise, verglichen mit der geschätzten Ankunft in der Ortszeit des Plans; vor Ort lieber prüfen. Eine Station ohne Zeiten ist unbekannt, nicht geöffnet.',
   'tours.walk.hours.noStart': 'Gib dem Walk an diesem Tag eine Uhrzeit, um Ankünfte und Öffnungszeiten zu sehen.',
   'tours.walk.day.label': 'Zeiten für',
   'tours.walk.day.start': '{day}, Beginn {time}',

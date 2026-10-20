@@ -568,7 +568,7 @@ const tours: TranslationStrings = {
   'tours.walk.hours.closes': '{name} suletakse kell {closes}, viibimise ajal {arrival} kuni {leave} (avatud {window})',
   'tours.walk.hours.unread': 'Lahtiolekuaegu siin ei loetud: {text}',
   'tours.walk.hours.source':
-    'Lahtiolekuajad OpenStreetMapist või sinu enda kohtadest, võrreldud hinnangulise saabumisega plaani kohaliku aja järgi; kontrolli enne minekut. Ajata peatus on teadmata, mitte avatud.',
+    'Lahtiolekuajad OpenStreetMapist või reisi kohtadest, võrreldud hinnangulise saabumisega plaani kohaliku aja järgi; kontrolli enne minekut. Ajata peatus on teadmata, mitte avatud.',
   'tours.walk.hours.noStart': 'Anna jalutusele sel päeval kellaaeg, et näha saabumisi ja lahtiolekuaegu.',
   'tours.walk.day.label': 'Ajad päeval',
   'tours.walk.day.start': '{day}, algus {time}',

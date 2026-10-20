@@ -10,7 +10,9 @@ import { Tours } from '../../../../src/db/entities/Tours.entity';
 import type { ToursRepository } from '../../../../src/db/repositories/Tours.repository';
 import { createSnapshotTestDb } from '../../../helpers/db-mock';
 import { createDay, createDayAssignment, createPlace, createTrip, createUser } from '../../../helpers/factories';
+import { makePlace } from '../../../helpers/factories/places';
 import { insertRow, updateRows } from '../../../helpers/factories/rows';
+import { makeDay } from '../../../helpers/factories/trips';
 import { resetTestDb } from '../../../helpers/test-db';
 import { createTestOrm, type TestOrm } from '../../../helpers/test-orm';
 import { createTour } from '../../../helpers/tours-repos';
@@ -167,8 +169,8 @@ describe('ToursRepository reads', () => {
 
   it('TOURREPO-014: the list and the detail say whether the owning place still has no line (CW-11)', async () => {
     const { trip } = fixture();
-    const pending = createPlace(testDb, trip.id, { name: 'Stations only' });
-    const drawn = createPlace(testDb, trip.id, { name: 'Drawn' });
+    const pending = await makePlace(t, trip.id, { name: 'Stations only' });
+    const drawn = await makePlace(t, trip.id, { name: 'Drawn' });
     createTour(testDb, pending.id);
     createTour(testDb, drawn.id);
     await updateRows(t, Places, { id: drawn.id }, { route_geometry: '[[47,11,500],[47.1,11.1,520]]' });
@@ -181,9 +183,9 @@ describe('ToursRepository reads', () => {
 
   it('TOURREPO-015: dayOfTrip reads a day of the trip with its date, and nothing for a day of another trip', async () => {
     const { trip, other } = fixture();
-    const dated = createDay(testDb, trip.id, { date: '2026-07-12' });
-    const undated = createDay(testDb, trip.id);
-    const elsewhere = createDay(testDb, other.id, { date: '2026-07-12' });
+    const dated = await makeDay(t, trip.id, { date: '2026-07-12' });
+    const undated = await makeDay(t, trip.id);
+    const elsewhere = await makeDay(t, other.id, { date: '2026-07-12' });
 
     expect(await repo.dayOfTrip(trip.id, dated.id)).toEqual({ id: dated.id, date: '2026-07-12' });
     expect(await repo.dayOfTrip(trip.id, undated.id)).toEqual({ id: undated.id, date: null });

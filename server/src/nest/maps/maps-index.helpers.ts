@@ -23,6 +23,9 @@ import type { MapsAutocompleteResult } from '@trek/shared';
 
 type PoiBbox = { south: number; west: number; north: number; east: number };
 
+/** Every term the index is asked by, whichever kind asks for it. */
+const EVERY_TERM = Object.values(POI_CATEGORY_TO_TREK).flat();
+
 /** What one POI request asks the index, and how its answer is labelled. */
 export interface IndexPoiPlan {
   wanted: string[];
@@ -162,9 +165,7 @@ export function ownedByAsked(
   row: { category: string | null; categoryPath: string | null },
   asked: readonly string[],
 ): boolean {
-  // Every term the index is asked by, whichever kind asks for it; read here, not
-  // when the module loads, so a suite that stubs the index client stays loadable.
-  const term = indexRowTerm(Object.values(POI_CATEGORY_TO_TREK).flat(), row.category, row.categoryPath);
+  const term = indexRowTerm(EVERY_TERM, row.category, row.categoryPath);
   return term === undefined || asked.some((kind) => POI_CATEGORY_TO_TREK[kind]?.includes(term));
 }
 

@@ -523,7 +523,7 @@ const tours: TranslationStrings = {
   'tours.walk.hours.closes': '{name} 在 {closes} 关门，正值 {arrival} 至 {leave} 的停留期间（营业时间 {window}）',
   'tours.walk.hours.unread': '此处无法解析营业时间：{text}',
   'tours.walk.hours.source':
-    '营业时间来自 OpenStreetMap 或你自己填写的地点，并按计划的当地时间与预计到达时间对照；出发前请再确认。没有营业时间的站点视为未知，而非营业中。',
+    '营业时间来自 OpenStreetMap 或行程中的地点，并按计划的当地时间与预计到达时间对照；出发前请再确认。没有营业时间的站点视为未知，而非营业中。',
   'tours.walk.hours.noStart': '为当天的漫步设定时间，即可查看到达时间和营业时间。',
   'tours.walk.day.label': '时间依据',
   'tours.walk.day.start': '{day}，{time} 出发',

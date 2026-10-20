@@ -10,6 +10,7 @@ import type {
 } from '../../../../src/db/repositories/TourWaypoints.repository';
 import { createSnapshotTestDb } from '../../../helpers/db-mock';
 import { createPlace, createTrip, createUser } from '../../../helpers/factories';
+import { makePlace } from '../../../helpers/factories/places';
 import { resetTestDb } from '../../../helpers/test-db';
 import { createTestOrm, type TestOrm } from '../../../helpers/test-orm';
 import { createTour } from '../../../helpers/tours-repos';
@@ -222,9 +223,9 @@ describe('TourWaypointsRepository', () => {
 
   it('TWREPO-010: listForPlaces reads the waypoints of the tours asked for, by place and sequence, and none for none (CW-02)', async () => {
     const { trip, place } = tourInTrip();
-    const second = createPlace(testDb, trip.id);
+    const second = await makePlace(t, trip.id);
     createTour(testDb, second.id);
-    const unasked = createPlace(testDb, trip.id);
+    const unasked = await makePlace(t, trip.id);
     createTour(testDb, unasked.id);
     await repo.insertForPlace(second.id, [{ lat: 47.2, lng: 11.2, role: 'start', sequence: 0, stay_minutes: 30 }]);
     await repo.insertForPlace(place.id, ROUTE);

@@ -294,7 +294,7 @@ describe('TourWaypointList', () => {
 
     it('FE-TOUR-WAYPOINT-LIST-009: names the day above the stops and the conflict at the stop it is about', () => {
       render(<TourWaypointList planner={walkPlanner()} canEdit isSaving={false} />);
-      expect(screen.getByTestId('walk-day')).toHaveTextContent('Day 1, start 17:20');
+      expect(screen.getByTestId('walk-day')).toHaveTextContent(/^Day 1, Mon, Oct 19(, 2026)?, start 17:20$/);
       const rows = screen.getAllByTestId('tour-planner-waypoint-row');
       const first = within(at(rows, 0)).getByTestId('walk-station-schedule');
       expect(within(first).getByText('Arrival about 17:20, stay until 18:20')).toBeInTheDocument();
@@ -312,7 +312,7 @@ describe('TourWaypointList', () => {
 
     it('FE-TOUR-WAYPOINT-LIST-010: shows no arrival while the route is not planned for the points as they are', () => {
       render(<TourWaypointList planner={walkPlanner({ routeCurrent: false })} canEdit isSaving={false} />);
-      expect(screen.getByTestId('walk-day')).toHaveTextContent('Day 1, start 17:20');
+      expect(screen.getByTestId('walk-day')).toHaveTextContent(/^Day 1, Mon, Oct 19(, 2026)?, start 17:20$/);
       expect(screen.queryByTestId('walk-station-schedule')).not.toBeInTheDocument();
       expect(screen.queryByTestId('walk-station-conflict')).not.toBeInTheDocument();
     });

@@ -577,7 +577,7 @@ const tours: TranslationStrings = {
     '{name} {closes} órakor zár, a {arrival} és {leave} közötti tartózkodás alatt (nyitva {window})',
   'tours.walk.hours.unread': 'A nyitvatartás itt nem értelmezhető: {text}',
   'tours.walk.hours.source':
-    'Nyitvatartás az OpenStreetMapből vagy a saját helyeidből, a becsült érkezéshez mérve a terv helyi ideje szerint; indulás előtt ellenőrizd. Az időpontok nélküli megálló ismeretlen, nem nyitva.',
+    'Nyitvatartás az OpenStreetMapből vagy az utazás helyeiből, a becsült érkezéshez mérve a terv helyi ideje szerint; indulás előtt ellenőrizd. Az időpontok nélküli megálló ismeretlen, nem nyitva.',
   'tours.walk.hours.noStart': 'Adj időpontot a sétának ezen a napon, hogy lásd az érkezéseket és a nyitvatartást.',
   'tours.walk.day.label': 'Időpontok:',
   'tours.walk.day.start': '{day}, kezdés {time}',

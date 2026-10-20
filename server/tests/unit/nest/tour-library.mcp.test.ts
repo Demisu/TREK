@@ -147,7 +147,7 @@ describe('TourLibraryMcp', () => {
         importance: 'must',
         protected: 1,
         opening_hours: 'Mo-Su 09:00-18:00',
-        linkedPlace: createPlace(db, alps.id, { name: 'Museum' }).id,
+        linkedPlace: (await makePlace(orm, alps.id, { name: 'Museum' })).id,
       },
       { lat: 48.11, lng: 11.51, station_key: 'stop-park', importance: 'optional' },
     ]);

@@ -571,7 +571,7 @@ const tours: TranslationStrings = {
   'tours.walk.hours.closes': '{name} tutup pukul {closes}, saat singgah dari {arrival} sampai {leave} (buka {window})',
   'tours.walk.hours.unread': 'Jam buka tidak terbaca di sini: {text}',
   'tours.walk.hours.source':
-    'Jam buka dari OpenStreetMap atau dari tempat yang kamu isi sendiri, dibandingkan dengan perkiraan waktu tiba menurut waktu setempat rencana; periksa sebelum berangkat. Titik tanpa jam buka berarti tidak diketahui, bukan buka.',
+    'Jam buka dari OpenStreetMap atau dari tempat-tempat perjalanan, dibandingkan dengan perkiraan waktu tiba menurut waktu setempat rencana; periksa sebelum berangkat. Titik tanpa jam buka berarti tidak diketahui, bukan buka.',
   'tours.walk.hours.noStart': 'Beri rute waktu mulai di hari ini untuk melihat waktu tiba dan jam buka.',
   'tours.walk.day.label': 'Waktu untuk',
   'tours.walk.day.start': '{day}, mulai {time}',

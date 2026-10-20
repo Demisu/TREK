@@ -558,7 +558,7 @@ const tours: TranslationStrings = {
   'tours.walk.hours.closes': '{name} は {closes} に閉まります。{arrival} から {leave} の滞在中です（営業 {window}）',
   'tours.walk.hours.unread': '営業時間はここでは読み取れません：{text}',
   'tours.walk.hours.source':
-    'OpenStreetMap または自分で入力した場所の営業時間を、計画の現地時刻での推定到着時刻と照合しています。出かける前に確認してください。営業時間のない立ち寄り先は「不明」で、営業中とはみなしません。',
+    'OpenStreetMap または旅行の場所の営業時間を、計画の現地時刻での推定到着時刻と照合しています。出かける前に確認してください。営業時間のない立ち寄り先は「不明」で、営業中とはみなしません。',
   'tours.walk.hours.noStart': 'この日の開始時刻を設定すると、到着時刻と営業時間が表示されます。',
   'tours.walk.day.label': '時刻の基準日',
   'tours.walk.day.start': '{day}、開始 {time}',

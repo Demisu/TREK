@@ -36,12 +36,16 @@ describe('StationScheduleLine', () => {
 
   it('follows the 12 hour format, a window to midnight included', () => {
     seedStore(useSettingsStore, { settings: { time_format: '12h' } });
-    line(at({ leave: 1130, fit: { kind: 'closes', source: 'place', window: [600, 1080] } }));
+    const { unmount } = line(at({ leave: 1130, fit: { kind: 'closes', source: 'place', window: [600, 1080] } }));
     expect(screen.getByText('Arrival about 5:20 PM, stay until 6:50 PM')).toBeInTheDocument();
     expect(screen.getByTestId('walk-station-conflict')).toHaveTextContent(
       'Lenbachhaus closes at 6:00 PM, during the stay from 5:20 PM to 6:50 PM (open 10:00 AM to 6:00 PM)'
     );
     expect(screen.getByTestId('walk-hours-source')).toHaveTextContent('Trip place');
+    // In 12 hours a window to midnight ends at 12:00 AM, never at 24:00.
+    unmount();
+    line(at({ fit: { kind: 'open', source: 'place', window: [600, 1440] } }));
+    expect(screen.getByText(/Open 10:00 AM to 12:00 AM/)).toBeInTheDocument();
   });
 
   it('shows the window an open station is checked against; one to midnight reads 24:00', () => {

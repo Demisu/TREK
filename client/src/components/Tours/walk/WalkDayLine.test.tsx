@@ -44,7 +44,8 @@ describe('WalkDayLine', () => {
     render(<Picker />);
     expect(screen.getByText('Times for')).toBeInTheDocument();
     const picker = screen.getByTestId('walk-day-picker');
-    expect(picker).toHaveTextContent('Day 2, start 09:30');
+    // The pill names the date the hours are for, as the menu does.
+    expect(picker).toHaveTextContent(/^Day 2, Tue, Oct 20(, 2026)?, start 09:30$/);
     expect(picker).toHaveAttribute('aria-expanded', 'false');
 
     fireEvent.click(picker);
@@ -56,7 +57,9 @@ describe('WalkDayLine', () => {
     ]);
     expect(items.map((item) => !!item.querySelector('svg'))).toEqual([false, true]);
     fireEvent.click(screen.getByRole('button', { name: /^Day 1, / }));
-    expect(screen.getByTestId('walk-day-picker')).toHaveTextContent('Day 1, no start time');
+    expect(screen.getByTestId('walk-day-picker')).toHaveTextContent(
+      /^Day 1, Mon, Oct 19(, 2026)?: Old town, no start time$/
+    );
   });
 
   it('closes the menu again from its pill', () => {
@@ -72,7 +75,7 @@ describe('WalkDayLine', () => {
     const { rerender } = render(
       <WalkDayLine choice={choice({ fixed: true })} schedule={schedule('ready')} stationCount={3} />
     );
-    expect(screen.getByTestId('walk-day')).toHaveTextContent('Day 2, start 09:30');
+    expect(screen.getByTestId('walk-day')).toHaveTextContent(/^Day 2, Tue, Oct 20(, 2026)?, start 09:30$/);
     expect(screen.queryByTestId('walk-day-picker')).not.toBeInTheDocument();
     rerender(
       <WalkDayLine
@@ -81,7 +84,7 @@ describe('WalkDayLine', () => {
         stationCount={3}
       />
     );
-    expect(screen.getByTestId('walk-day')).toHaveTextContent('Day 1, no start time');
+    expect(screen.getByTestId('walk-day')).toHaveTextContent(/^Day 1, .+: Old town, no start time$/);
     expect(screen.getByText('Give the walk a time on this day to see arrivals and opening hours.')).toBeInTheDocument();
   });
 
@@ -102,7 +105,7 @@ describe('WalkDayLine', () => {
     const { rerender, container } = render(
       <WalkDayLine choice={choice()} schedule={schedule('ready', true)} stationCount={3} />
     );
-    expect(screen.getByText(/Opening hours from OpenStreetMap or your own place entries/)).toBeInTheDocument();
+    expect(screen.getByText(/Opening hours from OpenStreetMap or the trip's places/)).toBeInTheDocument();
     rerender(<WalkDayLine choice={choice()} schedule={schedule('noRoute', true)} stationCount={3} />);
     expect(screen.queryByText(/Opening hours from OpenStreetMap/)).not.toBeInTheDocument();
     rerender(<WalkDayLine enabled={false} choice={choice()} schedule={schedule('ready', true)} stationCount={3} />);

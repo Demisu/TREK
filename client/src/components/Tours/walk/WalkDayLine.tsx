@@ -15,7 +15,7 @@ type Translate = ReturnType<typeof useTranslation>['t'];
 const PILL =
   'inline-flex min-w-0 items-center gap-1 rounded-full bg-surface-card px-2 py-0.5 text-start font-medium text-content-secondary shadow-sm';
 
-/** "Day 2, start 09:00", or that it has no start time; `day` names the day as the place needs it. */
+/** "Day 2, Tue, Jul 8, start 09:00", or that it has no start time; `day` names the day with its date. */
 function optionLabel(option: WalkDayOption, day: string, t: Translate, is12h: boolean): string {
   return option.start
     ? t('tours.walk.day.start', { day, time: formatClockTime(option.start, is12h) })
@@ -30,12 +30,15 @@ function missingNote(state: WalkScheduleState, choice: WalkDayChoice, stationCou
   return null;
 }
 
-/** The day as a pill: a menu of the walk's days where there is a choice, its name alone where there is none. */
+/**
+ * The day as a pill: a menu of the walk's days where there is a choice, its name alone where there is none.
+ * It names the day with its date as the menu does, so the opening hours below read for a day that is in view.
+ */
 function DayPill({ choice, day }: { choice: WalkDayChoice; day: WalkDayOption }) {
   const { t, locale } = useTranslation();
   const is12h = useSettingsStore((state) => state.settings.time_format) === '12h';
   const menu = useContextMenu();
-  const label = optionLabel(day, t('dayplan.dayN', { n: day.index + 1 }), t, is12h);
+  const label = optionLabel(day, dayMenuLabel(day.day, day.index, t, locale), t, is12h);
   if (choice.fixed || choice.options.length < 2) {
     return (
       <span data-testid="walk-day" className={`${PILL} break-words`} style={fs(11, 'body')}>

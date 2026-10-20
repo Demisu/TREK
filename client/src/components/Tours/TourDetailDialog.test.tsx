@@ -192,7 +192,7 @@ describe('TourDetailDialog', () => {
     }
     const view = render(<TourDetailDialog {...defaultProps} tour={walk} days={days} assignments={assignments} selectedDayId={7} />)
 
-    expect(screen.getByTestId('walk-day')).toHaveTextContent('Day 1, start 09:00')
+    expect(screen.getByTestId('walk-day')).toHaveTextContent(/^Day 1, Mon, Oct 19(, 2026)?, start 09:00$/)
     expect(screen.queryByTestId('walk-day-picker')).not.toBeInTheDocument()
     expect(await screen.findByText('Arrival about 09:00, stay until 09:30')).toBeInTheDocument()
     expect(screen.getByTestId('walk-station-conflict'))
@@ -200,7 +200,7 @@ describe('TourDetailDialog', () => {
     expect(screen.getByText('Mark visited')).toBeInTheDocument()
 
     view.rerender(<TourDetailDialog {...defaultProps} tour={walk} days={days} assignments={assignments} />)
-    expect(screen.getByTestId('walk-day-picker')).toHaveTextContent('Day 1, start 09:00')
+    expect(screen.getByTestId('walk-day-picker')).toHaveTextContent(/^Day 1, Mon, Oct 19(, 2026)?, start 09:00$/)
     expect(screen.queryByText('Mark visited')).not.toBeInTheDocument()
     fireEvent.click(screen.getByTestId('walk-day-picker'))
     fireEvent.click(screen.getByRole('button', { name: /^Day 2, .*start 11:00$/ }))

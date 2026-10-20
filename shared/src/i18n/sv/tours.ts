@@ -567,7 +567,7 @@ const tours: TranslationStrings = {
   'tours.walk.hours.closes': '{name} stänger kl. {closes}, under vistelsen {arrival} till {leave} (öppet {window})',
   'tours.walk.hours.unread': 'Öppettiderna kunde inte läsas här: {text}',
   'tours.walk.hours.source':
-    'Öppettider från OpenStreetMap eller dina egna platser, jämförda med beräknad ankomst i planens lokala tid; kontrollera innan du går. Ett stopp utan tider är okänt, inte öppet.',
+    'Öppettider från OpenStreetMap eller resans platser, jämförda med beräknad ankomst i planens lokala tid; kontrollera innan du går. Ett stopp utan tider är okänt, inte öppet.',
   'tours.walk.hours.noStart': 'Ge promenaden en tid den här dagen för att se ankomster och öppettider.',
   'tours.walk.day.label': 'Tider för',
   'tours.walk.day.start': '{day}, start kl. {time}',
