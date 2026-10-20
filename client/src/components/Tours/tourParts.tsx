@@ -18,7 +18,7 @@ import type { TourDayAssignment } from './useTourDayAssignment'
 import { useRailFold } from './railFold'
 import { tourDayRowIcon } from './tourDayRowIcon'
 import { SkiCornerMark } from './ski/skiMarks'
-import { tourDayHowItems } from './stages/tourDayHowItems'
+import { tourDayHowItems } from './stages/stageSpread'
 
 /**
  * A tour's tile in a list: its T-scale grade in place of the mountain, named in

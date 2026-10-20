@@ -3,7 +3,7 @@ import type { MouseEvent } from 'react';
 import { useTranslation } from '../../../i18n';
 import { ContextMenu, useContextMenu } from '../../shared/ContextMenu';
 import { DialogButton } from '../../shared/DialogShell';
-import { tourDayHowItems, type TourDayHowInput } from './tourDayHowItems';
+import { tourDayHowItems, type TourDayHowInput } from './stageSpread';
 
 /**
  * The detail's "Add to day" for the day selected in the plan. A day tour goes

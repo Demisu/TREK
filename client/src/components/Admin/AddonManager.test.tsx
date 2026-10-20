@@ -78,7 +78,11 @@ beforeEach(() => {
   vi.spyOn(useAddonStore.getState(), 'loadAddons').mockResolvedValue(undefined);
   server.use(
     http.get('/api/admin/addons', () => HttpResponse.json({ addons: [] })),
-    http.get('/api/admin/tours-wanderer', () => HttpResponse.json({ enabled: false }))
+    http.get('/api/admin/tours-wanderer', () => HttpResponse.json({ enabled: false })),
+    // The Tours switches load beside the list; unanswered, each would toast the same error as a failed list.
+    http.get('/api/admin/tours-hiking-map', () => HttpResponse.json({ enabled: false })),
+    http.get('/api/admin/tours-cycle-map', () => HttpResponse.json({ enabled: false })),
+    http.get('/api/admin/tours-ski-routing', () => HttpResponse.json({ enabled: false }))
   );
 });
 
