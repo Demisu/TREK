@@ -1100,5 +1100,13 @@ const tours: TranslationStrings = {
   'tours.horse.leg.info': 'Odcinek oznakowanego szlaku konnego z OpenStreetMap. Dostęp dla koni: {access}',
   'tours.horse.leg.manual': 'Ręczny, niesprawdzony',
   'tours.horse.leg.manualInfo': 'Narysowany ręcznie, prosto. Nie sprawdził go żaden szlak konny ani planer tras.',
+  'tours.horse.recorded.title': 'Nagrana przejażdżka',
+  'tours.horse.recorded.asRecorded': 'Tak jak nagrano',
+  'tours.horse.recorded.asRecordedInfo': 'Linia pozostaje taka, jak zapisał ją plik. Nic nie jest wyznaczane ponownie.',
+  'tours.horse.recorded.noTime': 'Bez czasu jazdy',
+  'tours.horse.recorded.noTimeInfo': 'TREK nie oblicza czasu jazdy dla przejażdżki: tempo zależy od konia i jeźdźca.',
+  'tours.horse.recorded.accessUnchecked': 'Dostęp niesprawdzony',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'Import nie sprawdza, czy po drogach wolno jeździć konno. Obowiązują znaki na miejscu.',
 };
 export default tours;

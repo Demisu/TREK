@@ -11,6 +11,7 @@ import { useTranslation } from '../../i18n';
 import { LABEL, Segmented } from '../shared/dialogParts';
 import { DialogSection } from '../shared/DialogShell';
 import type { GpxImportChoicesState } from './gpxImportChoices';
+import { RecordedRideFacts } from './horse/RecordedRideFacts';
 import { TourTypeSelect } from './planner/TourTypeSelect';
 import { RunProfileField } from './run/RunFields';
 import { SkiClassificationFields } from './ski/SkiClassificationFields';
@@ -61,7 +62,8 @@ function PaddleImportFields({ choices }: { choices: GpxImportChoicesState }) {
 /**
  * The preview's "import as" section: the type, and below it what that type
  * names: a bike or run profile, a paddle tour's boat and water, a ski track's
- * discipline and technique (SKI-02).
+ * discipline and technique (SKI-02), and for a ride (HOR-02) what the import
+ * keeps and does not work out.
  */
 export function GpxImportTypeSection({ choices }: { choices: GpxImportChoicesState }) {
   const { t } = useTranslation();
@@ -86,6 +88,11 @@ export function GpxImportTypeSection({ choices }: { choices: GpxImportChoicesSta
         {chosen.type === 'run' && <RunProfileField value={chosen.runProfile} onChange={choices.setRunProfile} />}
         {chosen.type === 'kayak' && <PaddleImportFields choices={choices} />}
         {chosen.type === 'ski' && <SkiClassificationFields choice={chosen.ski} onChange={choices.setSki} />}
+        {chosen.type === 'horse' && (
+          <div data-testid="gpx-preview-horse">
+            <RecordedRideFacts />
+          </div>
+        )}
       </div>
     </DialogSection>
   );

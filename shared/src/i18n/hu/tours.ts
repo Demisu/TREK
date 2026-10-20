@@ -1071,5 +1071,14 @@ const tours: TranslationStrings = {
   'tours.horse.leg.info': 'Jelzett lovas útvonal szakasza az OpenStreetMapből. Lovas hozzáférés: {access}',
   'tours.horse.leg.manual': 'Kézi, ellenőrizetlen',
   'tours.horse.leg.manualInfo': 'Kézzel, egyenesen húzva. Sem lovas útvonal, sem útvonaltervező nem ellenőrizte.',
+  'tours.horse.recorded.title': 'Rögzített lovastúra',
+  'tours.horse.recorded.asRecorded': 'Ahogy rögzítették',
+  'tours.horse.recorded.asRecordedInfo': 'A vonal úgy marad, ahogy a fájl rögzítette. Semmit nem tervez újra.',
+  'tours.horse.recorded.noTime': 'Nincs lovaglási idő',
+  'tours.horse.recorded.noTimeInfo':
+    'A TREK nem számol lovaglási időt egy lovastúrához: a tempót a ló és a lovas adja.',
+  'tours.horse.recorded.accessUnchecked': 'Hozzáférés ellenőrizetlen',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'Az importálás nem ellenőrzi, hogy szabad-e lovagolni az utakon. A helyszíni táblák a mérvadók.',
 };
 export default tours;

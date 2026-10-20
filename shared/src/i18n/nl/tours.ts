@@ -1074,5 +1074,14 @@ const tours: TranslationStrings = {
   'tours.horse.leg.manual': 'Handmatig, niet gecontroleerd',
   'tours.horse.leg.manualInfo':
     'Met de hand getrokken, recht. Geen ruiterroute en geen routeplanner heeft het gecontroleerd.',
+  'tours.horse.recorded.title': 'Opgenomen rit',
+  'tours.horse.recorded.asRecorded': 'Zoals opgenomen',
+  'tours.horse.recorded.asRecordedInfo':
+    'De lijn blijft zoals het bestand haar heeft opgenomen. Er wordt niets opnieuw gepland.',
+  'tours.horse.recorded.noTime': 'Geen rijtijd',
+  'tours.horse.recorded.noTimeInfo': 'TREK berekent geen rijtijd voor een rit: het tempo is aan paard en ruiter.',
+  'tours.horse.recorded.accessUnchecked': 'Toegang niet gecontroleerd',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'De import controleert niet of de wegen bereden mogen worden. Ter plekke gelden de borden.',
 };
 export default tours;

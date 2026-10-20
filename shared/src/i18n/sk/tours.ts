@@ -1063,5 +1063,13 @@ const tours: TranslationStrings = {
   'tours.horse.leg.info': 'Úsek značenej jazdeckej trasy z OpenStreetMap. Prístup pre kone: {access}',
   'tours.horse.leg.manual': 'Ručne, neoverené',
   'tours.horse.leg.manualInfo': 'Nakreslené ručne, rovno. Neoverila ho žiadna jazdecká trasa ani plánovač.',
+  'tours.horse.recorded.title': 'Zaznamenaná vychádzka',
+  'tours.horse.recorded.asRecorded': 'Ako bolo zaznamenané',
+  'tours.horse.recorded.asRecordedInfo': 'Trasa zostáva tak, ako ju súbor zaznamenal. Nič sa znova neplánuje.',
+  'tours.horse.recorded.noTime': 'Bez času jazdy',
+  'tours.horse.recorded.noTimeInfo': 'TREK pre vychádzku nepočíta čas jazdy: tempo určuje kôň a jazdec.',
+  'tours.horse.recorded.accessUnchecked': 'Prístup neoverený',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'Import neoveruje, či sa po cestách smie jazdiť na koni. Platí značenie na mieste.',
 };
 export default tours;

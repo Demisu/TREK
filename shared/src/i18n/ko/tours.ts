@@ -1021,5 +1021,14 @@ const tours: TranslationStrings = {
   'tours.horse.leg.info': 'OpenStreetMap의 표지가 있는 승마 루트의 구간입니다. 말 통행: {access}',
   'tours.horse.leg.manual': '수동, 확인되지 않음',
   'tours.horse.leg.manualInfo': '손으로 그은 직선 구간입니다. 승마 루트도 경로 계산기도 확인하지 않았습니다.',
+  'tours.horse.recorded.title': '기록된 승마',
+  'tours.horse.recorded.asRecorded': '기록된 그대로',
+  'tours.horse.recorded.asRecordedInfo': '선은 파일에 기록된 그대로 유지됩니다. 경로를 다시 계산하지 않습니다.',
+  'tours.horse.recorded.noTime': '승마 시간 없음',
+  'tours.horse.recorded.noTimeInfo':
+    'TREK은 승마 투어의 승마 시간을 계산하지 않습니다. 속도는 말과 기수에게 달려 있습니다.',
+  'tours.horse.recorded.accessUnchecked': '통행 여부 미확인',
+  'tours.horse.recorded.accessUncheckedInfo':
+    '가져오기는 길을 말로 지나가도 되는지 확인하지 않습니다. 현장 표지판을 따르세요.',
 };
 export default tours;

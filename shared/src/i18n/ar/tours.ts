@@ -1095,5 +1095,13 @@ const tours: TranslationStrings = {
   'tours.horse.leg.info': 'مقطع من مسار فروسية معلّم من OpenStreetMap. وصول الخيل: {access}',
   'tours.horse.leg.manual': 'يدوي، غير مُتحقق منه',
   'tours.horse.leg.manualInfo': 'مرسوم باليد، مستقيم. لم يتحقق منه أي مسار فروسية ولا أي مخطط مسارات.',
+  'tours.horse.recorded.title': 'جولة مسجّلة',
+  'tours.horse.recorded.asRecorded': 'كما سُجّلت',
+  'tours.horse.recorded.asRecordedInfo': 'يبقى المسار كما سجّله الملف. لا يُعاد تخطيط أي جزء منه.',
+  'tours.horse.recorded.noTime': 'بلا وقت ركوب',
+  'tours.horse.recorded.noTimeInfo': 'لا يحسب TREK وقت ركوب للجولة: الإيقاع يحدده الحصان والفارس.',
+  'tours.horse.recorded.accessUnchecked': 'الوصول غير مُتحقق منه',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'لا يتحقق الاستيراد مما إذا كان يُسمح بركوب الطرق. العبرة باللافتات في المكان.',
 };
 export default tours;

@@ -52,6 +52,7 @@ import { TourPoiSearchCard } from '../poi/TourPoiSearchCard'
 import { BikeWaysCard } from '../bike/BikeWaysCard'
 import { RunWaysCard } from '../run/RunWaysCard'
 import { HorseRoutesCard } from '../horse/HorseRoutesCard'
+import { RecordedRideCard } from '../horse/RecordedRideFacts'
 import { walkTimeFields } from '../walk/walkTimeFields'
 
 const STATUS_KEY: Partial<Record<TourPlannerStatus, string>> = {
@@ -329,6 +330,8 @@ function GpxViewRail({
           {tour.tour_type === 'kayak' && (
             <PaddleWindSection placeId={tour.place_id} start={trackStart(analysis?.routeCoordinates)} />
           )}
+          {/* HOR-02: a recorded ride says what the import did not do for it. */}
+          {tour.tour_type === 'horse' && <RecordedRideCard heightsMissing={!!analysis && analysis.gain == null} />}
           <RailCard icon={<Mountain size={14} strokeWidth={2} />} title={t('tours.planner.inspector.title')}>
             {analysis ? (
               <div className="flex flex-col gap-3">

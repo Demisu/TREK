@@ -64,7 +64,9 @@ function PreviewTrackRow({ name, track }: { name: string; track: GpxPreviewFile[
  * map, every track with its measures, the tracks the trip already holds named
  * as skipped, and the type to import them as; a paddle import names its boat
  * and water, as a planned paddle tour does, a ski import its discipline
- * (SKI-02). Closing it stores nothing.
+ * (SKI-02); a ride (HOR-02) says before anything is stored that its line stays
+ * as recorded, gets no riding time and is not checked for access. Closing it
+ * stores nothing.
  */
 export default function TourGpxPreviewDialog({ gpxImport }: { gpxImport: TourGpxImport }) {
   const { preview } = gpxImport;

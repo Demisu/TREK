@@ -1071,5 +1071,14 @@ const tours: TranslationStrings = {
   'tours.horse.leg.info': 'Trecho de uma rota equestre sinalizada do OpenStreetMap. Acesso a cavalo: {access}',
   'tours.horse.leg.manual': 'Manual, não verificado',
   'tours.horse.leg.manualInfo': 'Traçado à mão, em linha reta. Nenhuma rota equestre e nenhum roteador o verificou.',
+  'tours.horse.recorded.title': 'Passeio gravado',
+  'tours.horse.recorded.asRecorded': 'Como gravado',
+  'tours.horse.recorded.asRecordedInfo': 'A linha fica como o arquivo a gravou. Nada é roteado de novo.',
+  'tours.horse.recorded.noTime': 'Sem tempo a cavalo',
+  'tours.horse.recorded.noTimeInfo':
+    'O TREK não calcula tempo a cavalo para um passeio: o ritmo é do cavalo e do cavaleiro.',
+  'tours.horse.recorded.accessUnchecked': 'Acesso não verificado',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'A importação não verifica se as vias podem ser percorridas a cavalo. Valem as placas no local.',
 };
 export default tours;

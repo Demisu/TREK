@@ -1008,5 +1008,13 @@ const tours: TranslationStrings = {
   'tours.horse.leg.info': 'ช่วงหนึ่งของเส้นทางขี่ม้าที่มีป้ายบอกจาก OpenStreetMap การเข้าถึงสำหรับม้า: {access}',
   'tours.horse.leg.manual': 'วาดเอง ยังไม่ตรวจสอบ',
   'tours.horse.leg.manualInfo': 'วาดด้วยมือเป็นเส้นตรง ไม่มีเส้นทางขี่ม้าหรือตัววางเส้นทางใดตรวจสอบ',
+  'tours.horse.recorded.title': 'ทริปขี่ม้าที่บันทึกไว้',
+  'tours.horse.recorded.asRecorded': 'ตามที่บันทึก',
+  'tours.horse.recorded.asRecordedInfo': 'เส้นยังคงเป็นไปตามที่ไฟล์บันทึกไว้ ไม่มีการวางเส้นทางใหม่',
+  'tours.horse.recorded.noTime': 'ไม่มีเวลาขี่ม้า',
+  'tours.horse.recorded.noTimeInfo': 'TREK ไม่คำนวณเวลาขี่ม้าให้ทริปขี่ม้า จังหวะขึ้นอยู่กับม้าและผู้ขี่',
+  'tours.horse.recorded.accessUnchecked': 'ยังไม่ตรวจสอบสิทธิ์ผ่าน',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'การนำเข้าไม่ได้ตรวจสอบว่าขี่ม้าผ่านเส้นทางได้หรือไม่ ให้ถือป้ายในพื้นที่เป็นหลัก',
 };
 export default tours;

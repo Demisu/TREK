@@ -1024,5 +1024,13 @@ const tours: TranslationStrings = {
   'tours.horse.leg.info': 'OpenStreetMap の標識付き乗馬ルートの区間です。乗馬でのアクセス: {access}',
   'tours.horse.leg.manual': '手動、未確認',
   'tours.horse.leg.manualInfo': '手で直線に引いた区間です。乗馬ルートもルーターも確認していません。',
+  'tours.horse.recorded.title': '記録された乗馬',
+  'tours.horse.recorded.asRecorded': '記録のまま',
+  'tours.horse.recorded.asRecordedInfo': '線はファイルに記録されたままです。ルートを計算し直すことはありません。',
+  'tours.horse.recorded.noTime': '乗馬時間なし',
+  'tours.horse.recorded.noTimeInfo': 'TREK は乗馬ツアーの乗馬時間を計算しません。ペースは馬と乗り手次第です。',
+  'tours.horse.recorded.accessUnchecked': '通行可否は未確認',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'インポートでは、道を馬で通れるかどうかを確認しません。現地の標識が優先されます。',
 };
 export default tours;

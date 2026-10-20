@@ -1077,6 +1077,16 @@ const tours: TranslationStrings = {
   'tours.horse.leg.info': 'Abschnitt einer ausgeschilderten Reitroute aus OpenStreetMap. Reitzugang: {access}',
   'tours.horse.leg.manual': 'Manuell, ungeprüft',
   'tours.horse.leg.manualInfo': 'Von Hand gezogen, gerade. Weder eine Reitroute noch ein Router hat ihn geprüft.',
+  'tours.horse.recorded.title': 'Aufgezeichneter Ausritt',
+  'tours.horse.recorded.asRecorded': 'Wie aufgezeichnet',
+  'tours.horse.recorded.asRecordedInfo':
+    'Die Linie bleibt, wie die Datei sie aufgezeichnet hat. Nichts wird neu geplant.',
+  'tours.horse.recorded.noTime': 'Keine Reitzeit',
+  'tours.horse.recorded.noTimeInfo':
+    'TREK berechnet für einen Ausritt keine Reitzeit: Das Tempo bestimmen Pferd und Reiter.',
+  'tours.horse.recorded.accessUnchecked': 'Zugang nicht geprüft',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'Der Import prüft nicht, ob die Wege geritten werden dürfen. Es gilt die Beschilderung vor Ort.',
 };
 
 export default tours;

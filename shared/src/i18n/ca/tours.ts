@@ -1074,5 +1074,15 @@ const tours: TranslationStrings = {
   'tours.horse.leg.manual': 'Manual, sense comprovar',
   'tours.horse.leg.manualInfo':
     "Traçat a mà, en línia recta. Ni una ruta eqüestre ni un planificador no l'ha comprovat.",
+  'tours.horse.recorded.title': 'Ruta enregistrada',
+  'tours.horse.recorded.asRecorded': 'Tal com es va enregistrar',
+  'tours.horse.recorded.asRecordedInfo':
+    'La línia queda tal com la va enregistrar el fitxer. No es torna a calcular res.',
+  'tours.horse.recorded.noTime': 'Sense temps a cavall',
+  'tours.horse.recorded.noTimeInfo':
+    'TREK no calcula temps a cavall per a una ruta: el ritme és del cavall i del genet.',
+  'tours.horse.recorded.accessUnchecked': 'Accés sense comprovar',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'La importació no comprova si es pot anar a cavall pels camins. Valen els senyals sobre el terreny.',
 };
 export default tours;

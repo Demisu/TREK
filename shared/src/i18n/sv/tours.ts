@@ -1052,5 +1052,14 @@ const tours: TranslationStrings = {
   'tours.horse.leg.info': 'Delsträcka av en skyltad ridled från OpenStreetMap. Tillträde för häst: {access}',
   'tours.horse.leg.manual': 'Manuell, okontrollerad',
   'tours.horse.leg.manualInfo': 'Dragen för hand, rakt. Ingen ridled och ingen ruttplanerare har kontrollerat den.',
+  'tours.horse.recorded.title': 'Inspelad ridtur',
+  'tours.horse.recorded.asRecorded': 'Som inspelad',
+  'tours.horse.recorded.asRecordedInfo': 'Linjen förblir som filen spelade in den. Inget planeras om.',
+  'tours.horse.recorded.noTime': 'Ingen ridtid',
+  'tours.horse.recorded.noTimeInfo':
+    'TREK räknar inte ut någon ridtid för en ridtur: takten bestäms av hästen och ryttaren.',
+  'tours.horse.recorded.accessUnchecked': 'Tillträde okontrollerat',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'Importen kontrollerar inte om vägarna får ridas. Skyltarna på plats gäller.',
 };
 export default tours;

@@ -1089,5 +1089,14 @@ const tours: TranslationStrings = {
   'tours.horse.leg.info': 'Τμήμα σηματοδοτημένης ιππικής διαδρομής από το OpenStreetMap. Πρόσβαση με άλογο: {access}',
   'tours.horse.leg.manual': 'Χειροκίνητο, χωρίς έλεγχο',
   'tours.horse.leg.manualInfo': 'Σχεδιασμένο με το χέρι, ευθύ. Ούτε ιππική διαδρομή ούτε δρομολογητής το έλεγξε.',
+  'tours.horse.recorded.title': 'Καταγεγραμμένη βόλτα',
+  'tours.horse.recorded.asRecorded': 'Όπως καταγράφηκε',
+  'tours.horse.recorded.asRecordedInfo': 'Η γραμμή μένει όπως την κατέγραψε το αρχείο. Τίποτα δεν δρομολογείται ξανά.',
+  'tours.horse.recorded.noTime': 'Χωρίς χρόνο ιππασίας',
+  'tours.horse.recorded.noTimeInfo':
+    'Το TREK δεν υπολογίζει χρόνο ιππασίας για μια βόλτα: τον ρυθμό τον ορίζουν το άλογο και ο αναβάτης.',
+  'tours.horse.recorded.accessUnchecked': 'Πρόσβαση χωρίς έλεγχο',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'Η εισαγωγή δεν ελέγχει αν επιτρέπεται η ιππασία στους δρόμους. Ισχύουν οι πινακίδες επί τόπου.',
 };
 export default tours;

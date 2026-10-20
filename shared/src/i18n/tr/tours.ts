@@ -1060,5 +1060,13 @@ const tours: TranslationStrings = {
   'tours.horse.leg.info': "OpenStreetMap'teki işaretli bir binicilik rotasının bölümü. At erişimi: {access}",
   'tours.horse.leg.manual': 'Elle, denetlenmemiş',
   'tours.horse.leg.manualInfo': 'Elle, düz çizildi. Ne bir binicilik rotası ne de bir rota planlayıcı denetledi.',
+  'tours.horse.recorded.title': 'Kaydedilmiş at gezisi',
+  'tours.horse.recorded.asRecorded': 'Kaydedildiği gibi',
+  'tours.horse.recorded.asRecordedInfo': 'Çizgi, dosyanın kaydettiği gibi kalır. Hiçbir şey yeniden rotalanmaz.',
+  'tours.horse.recorded.noTime': 'Sürüş süresi yok',
+  'tours.horse.recorded.noTimeInfo': 'TREK at gezisi için sürüş süresi hesaplamaz: tempoyu at ve binici belirler.',
+  'tours.horse.recorded.accessUnchecked': 'Erişim denetlenmedi',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'İçe aktarma, yollarda ata binilip binilemeyeceğini denetlemez. Yerindeki tabelalar geçerlidir.',
 };
 export default tours;

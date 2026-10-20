@@ -1104,5 +1104,15 @@ const tours: TranslationStrings = {
   'tours.horse.leg.info': 'Участок маркированного конного маршрута из OpenStreetMap. Доступ для лошадей: {access}',
   'tours.horse.leg.manual': 'Вручную, не проверено',
   'tours.horse.leg.manualInfo': 'Нарисован вручную, по прямой. Ни конный маршрут, ни маршрутизатор его не проверяли.',
+  'tours.horse.recorded.title': 'Записанная прогулка',
+  'tours.horse.recorded.asRecorded': 'Как записано',
+  'tours.horse.recorded.asRecordedInfo':
+    'Линия остаётся такой, какой её записал файл. Ничего не прокладывается заново.',
+  'tours.horse.recorded.noTime': 'Без времени в седле',
+  'tours.horse.recorded.noTimeInfo':
+    'TREK не рассчитывает время в седле для конной прогулки: темп задают лошадь и всадник.',
+  'tours.horse.recorded.accessUnchecked': 'Доступ не проверен',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'Импорт не проверяет, можно ли ехать по этим дорогам верхом. На месте действуют знаки.',
 };
 export default tours;

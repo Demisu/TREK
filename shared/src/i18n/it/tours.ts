@@ -1079,5 +1079,14 @@ const tours: TranslationStrings = {
   'tours.horse.leg.manual': 'Manuale, non verificato',
   'tours.horse.leg.manualInfo':
     'Tracciato a mano, dritto. Né un itinerario equestre né un pianificatore lo ha verificato.',
+  'tours.horse.recorded.title': 'Escursione registrata',
+  'tours.horse.recorded.asRecorded': 'Come registrato',
+  'tours.horse.recorded.asRecordedInfo': 'Il tracciato resta come lo ha registrato il file. Nulla viene ricalcolato.',
+  'tours.horse.recorded.noTime': 'Nessun tempo a cavallo',
+  'tours.horse.recorded.noTimeInfo':
+    'TREK non calcola un tempo a cavallo per un’escursione: il ritmo è quello del cavallo e del cavaliere.',
+  'tours.horse.recorded.accessUnchecked': 'Accesso non verificato',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'L’importazione non verifica se le strade si possono percorrere a cavallo. Valgono i cartelli sul posto.',
 };
 export default tours;

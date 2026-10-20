@@ -1061,5 +1061,13 @@ const tours: TranslationStrings = {
   'tours.horse.leg.info': 'OpenStreetMap-dən nişanlanmış atçılıq marşrutunun hissəsi. At üçün giriş: {access}',
   'tours.horse.leg.manual': 'Əl ilə, yoxlanılmayıb',
   'tours.horse.leg.manualInfo': 'Əl ilə, düz çəkilib. Nə atçılıq marşrutu, nə də marşrut planlayıcısı yoxlayıb.',
+  'tours.horse.recorded.title': 'Qeydə alınmış gəzinti',
+  'tours.horse.recorded.asRecorded': 'Qeydə alındığı kimi',
+  'tours.horse.recorded.asRecordedInfo': 'Xətt faylın qeydə aldığı kimi qalır. Heç nə yenidən planlanmır.',
+  'tours.horse.recorded.noTime': 'Sürmə vaxtı yoxdur',
+  'tours.horse.recorded.noTimeInfo': 'TREK at gəzintisi üçün sürmə vaxtı hesablamır: tempi at və atlı müəyyən edir.',
+  'tours.horse.recorded.accessUnchecked': 'Giriş yoxlanılmayıb',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'İdxal yollarda at sürməyə icazə olub-olmadığını yoxlamır. Yerdəki lövhələr əsasdır.',
 };
 export default tours;

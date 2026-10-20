@@ -970,5 +970,12 @@ const tours: TranslationStrings = {
   'tours.horse.leg.info': '來自 OpenStreetMap 有標示騎馬路線的一段。馬匹通行：{access}',
   'tours.horse.leg.manual': '手動，未經檢查',
   'tours.horse.leg.manualInfo': '手動繪製的直線。沒有任何騎馬路線或路線規劃器檢查過它。',
+  'tours.horse.recorded.title': '已記錄的騎馬遊',
+  'tours.horse.recorded.asRecorded': '依記錄保留',
+  'tours.horse.recorded.asRecordedInfo': '路線維持檔案記錄時的樣子，不會重新規劃。',
+  'tours.horse.recorded.noTime': '無騎乘時間',
+  'tours.horse.recorded.noTimeInfo': 'TREK 不為騎馬遊計算騎乘時間：節奏取決於馬和騎手。',
+  'tours.horse.recorded.accessUnchecked': '通行未經檢查',
+  'tours.horse.recorded.accessUncheckedInfo': '匯入不會檢查這些道路是否允許騎馬通行。以現場標誌為準。',
 };
 export default tours;

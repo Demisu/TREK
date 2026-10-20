@@ -1053,5 +1053,14 @@ const tours: TranslationStrings = {
   'tours.horse.leg.manual': 'Manual, belum diperiksa',
   'tours.horse.leg.manualInfo':
     'Digambar tangan, lurus. Tidak ada rute berkuda maupun perencana rute yang memeriksanya.',
+  'tours.horse.recorded.title': 'Tur berkuda terekam',
+  'tours.horse.recorded.asRecorded': 'Sesuai rekaman',
+  'tours.horse.recorded.asRecordedInfo': 'Garis tetap seperti yang direkam berkas. Tidak ada yang dirutekan ulang.',
+  'tours.horse.recorded.noTime': 'Tanpa waktu berkuda',
+  'tours.horse.recorded.noTimeInfo':
+    'TREK tidak menghitung waktu berkuda untuk tur berkuda: lajunya milik kuda dan penunggangnya.',
+  'tours.horse.recorded.accessUnchecked': 'Akses belum diperiksa',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'Impor tidak memeriksa apakah jalan boleh dilalui dengan berkuda. Rambu di lokasi yang berlaku.',
 };
 export default tours;

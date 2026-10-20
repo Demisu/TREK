@@ -1044,5 +1044,14 @@ const tours: TranslationStrings = {
   'tours.horse.leg.info': 'Một đoạn của tuyến cưỡi ngựa có biển chỉ dẫn từ OpenStreetMap. Quyền đi ngựa: {access}',
   'tours.horse.leg.manual': 'Thủ công, chưa kiểm tra',
   'tours.horse.leg.manualInfo': 'Vẽ tay, đường thẳng. Không tuyến cưỡi ngựa hay công cụ dẫn đường nào kiểm tra.',
+  'tours.horse.recorded.title': 'Chuyến cưỡi ngựa đã ghi',
+  'tours.horse.recorded.asRecorded': 'Như đã ghi',
+  'tours.horse.recorded.asRecordedInfo': 'Đường đi giữ nguyên như tệp đã ghi. Không có gì được dẫn đường lại.',
+  'tours.horse.recorded.noTime': 'Không có thời gian cưỡi ngựa',
+  'tours.horse.recorded.noTimeInfo':
+    'TREK không tính thời gian cưỡi ngựa cho chuyến cưỡi ngựa: nhịp độ là của ngựa và người cưỡi.',
+  'tours.horse.recorded.accessUnchecked': 'Chưa kiểm tra quyền đi',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'Việc nhập không kiểm tra liệu có được cưỡi ngựa trên các con đường hay không. Biển báo tại chỗ mới là căn cứ.',
 };
 export default tours;

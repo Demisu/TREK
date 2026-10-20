@@ -1048,5 +1048,14 @@ const tours: TranslationStrings = {
   'tours.horse.leg.info': 'A section of a signposted horse route from OpenStreetMap. Riding access: {access}',
   'tours.horse.leg.manual': 'Manual, unchecked',
   'tours.horse.leg.manualInfo': 'Drawn by hand, straight. No horse route and no router checked it.',
+  'tours.horse.recorded.title': 'Recorded ride',
+  'tours.horse.recorded.asRecorded': 'As recorded',
+  'tours.horse.recorded.asRecordedInfo': 'The line stays as the file recorded it. Nothing is routed again.',
+  'tours.horse.recorded.noTime': 'No riding time',
+  'tours.horse.recorded.noTimeInfo':
+    "TREK works out no riding time for a ride: the pace is the horse's and the rider's.",
+  'tours.horse.recorded.accessUnchecked': 'Access not checked',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'The import does not check whether the ways may be ridden. The signs on site count.',
 };
 export default tours;

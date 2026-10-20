@@ -1056,5 +1056,13 @@ const tours: TranslationStrings = {
   'tours.horse.leg.manual': 'Käsitsi, kontrollimata',
   'tours.horse.leg.manualInfo':
     'Käsitsi joonistatud, sirge. Seda ei kontrollinud ükski ratsarada ega marsruudiplaneerija.',
+  'tours.horse.recorded.title': 'Salvestatud ratsamatk',
+  'tours.horse.recorded.asRecorded': 'Nagu salvestatud',
+  'tours.horse.recorded.asRecordedInfo': 'Joon jääb selliseks, nagu fail selle salvestas. Midagi ei planeerita uuesti.',
+  'tours.horse.recorded.noTime': 'Ratsutamisaega pole',
+  'tours.horse.recorded.noTimeInfo': 'TREK ei arvuta ratsamatkale ratsutamisaega: tempo määravad hobune ja ratsanik.',
+  'tours.horse.recorded.accessUnchecked': 'Ligipääs kontrollimata',
+  'tours.horse.recorded.accessUncheckedInfo':
+    'Import ei kontrolli, kas teedel tohib ratsutada. Kohapeal kehtivad sildid.',
 };
 export default tours;

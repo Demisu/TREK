@@ -971,5 +971,12 @@ const tours: TranslationStrings = {
   'tours.horse.leg.info': '来自 OpenStreetMap 有标识骑马路线的一段。马匹通行：{access}',
   'tours.horse.leg.manual': '手动，未经检查',
   'tours.horse.leg.manualInfo': '手动绘制的直线。没有任何骑马路线或路线规划器检查过它。',
+  'tours.horse.recorded.title': '已记录的骑马游',
+  'tours.horse.recorded.asRecorded': '按记录保留',
+  'tours.horse.recorded.asRecordedInfo': '路线保持文件记录时的样子，不会重新规划。',
+  'tours.horse.recorded.noTime': '无骑行时间',
+  'tours.horse.recorded.noTimeInfo': 'TREK 不为骑马游计算骑行时间：节奏取决于马和骑手。',
+  'tours.horse.recorded.accessUnchecked': '通行未经检查',
+  'tours.horse.recorded.accessUncheckedInfo': '导入不会检查这些道路是否允许骑马通行。以现场标志为准。',
 };
 export default tours;

@@ -1090,5 +1090,14 @@ const tours: TranslationStrings = {
   'tours.horse.leg.manual': 'Manuel, non vérifié',
   'tours.horse.leg.manualInfo':
     "Tracé à la main, en ligne droite. Ni un itinéraire équestre ni un calculateur d'itinéraire ne l'a vérifié.",
+  'tours.horse.recorded.title': 'Sortie enregistrée',
+  'tours.horse.recorded.asRecorded': 'Tel qu’enregistré',
+  'tours.horse.recorded.asRecordedInfo': "Le tracé reste tel que le fichier l'a enregistré. Rien n'est recalculé.",
+  'tours.horse.recorded.noTime': 'Pas de temps à cheval',
+  'tours.horse.recorded.noTimeInfo':
+    'TREK ne calcule aucun temps à cheval pour une sortie : le rythme est celui du cheval et du cavalier.',
+  'tours.horse.recorded.accessUnchecked': 'Accès non vérifié',
+  'tours.horse.recorded.accessUncheckedInfo':
+    "L'import ne vérifie pas si les voies peuvent être empruntées à cheval. Les panneaux sur place font foi.",
 };
 export default tours;
