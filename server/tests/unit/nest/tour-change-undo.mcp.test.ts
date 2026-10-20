@@ -45,6 +45,7 @@ import { MikroORM } from '@mikro-orm/core';
 import { TOUR_REVISION_CONFLICT, type TourChange, type TourChangeUndoRequest } from '@trek/shared';
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { z, type ZodRawShape } from 'zod';
 
 const db = createSnapshotTestDb();
 const route = vi.fn();
@@ -507,8 +508,10 @@ describe('TourChangeUndoMcp (MCP-T04)', () => {
     const entry = getEntry(TourChangeUndoMcp as unknown as ClassRef, 'undoTourChange');
     if (!entry || entry.kind !== 'tool') throw new Error('undoTourChange is no MCP tool');
     // The fields are zod schemas from @trek/shared, read here by what they answer.
-    const shape = entry.options.inputSchema as Record<string, { safeParse(value: unknown): { success: boolean } }>;
-    const yes = [true, false, undefined].map((value) => shape.confirmed?.safeParse(value).success);
+    const shape = entry.options.inputSchema as ZodRawShape;
+    const confirmed = shape.confirmed;
+    if (!confirmed) throw new Error('the tool takes no confirmed field');
+    const yes = [true, false, undefined].map((value) => z.safeParse(confirmed, value).success);
     expect(yes).toEqual([true, false, false]);
     for (const term of ['prepare_tour_undo', 'expected_revision', 'conflict', 'get_tour_plan']) {
       expect(entry.options.description).toContain(term);

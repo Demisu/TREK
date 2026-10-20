@@ -132,7 +132,7 @@ describe('Tour activities e2e (ACT-01)', () => {
     return res.body.tours[0] as { place_id: number; track_started_at: string | null };
   };
 
-  const assign = (placeId: number, body: unknown, userId = OWNER) =>
+  const assign = (placeId: number, body: object, userId = OWNER) =>
     request(server).put(`/api/trips/${TRIP}/tours/${placeId}/activities`).set(as(userId)).send(body);
   const unassign = (placeId: number, activityId: number, userId = OWNER) =>
     request(server).delete(`/api/trips/${TRIP}/tours/${placeId}/activities/${activityId}`).set(as(userId));

@@ -111,7 +111,7 @@ describe('Tour activity stats e2e (STA-02)', () => {
     return { placeId, assignmentId };
   };
 
-  const exclude = (body: unknown, userId = OWNER) =>
+  const exclude = (body: object, userId = OWNER) =>
     request(server).put(`${STATS}/exclusions`).set(as(userId)).send(body);
 
   beforeAll(async () => {

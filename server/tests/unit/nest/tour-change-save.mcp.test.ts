@@ -40,6 +40,7 @@ import { MikroORM } from '@mikro-orm/core';
 import { stationKeySchema, TOUR_REVISION_CONFLICT, type TourChange, type TourChangeSaveRequest } from '@trek/shared';
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { z, type ZodRawShape } from 'zod';
 
 const db = createSnapshotTestDb();
 const route = vi.fn();
@@ -381,7 +382,13 @@ describe('TourChangeMcp.saveTourChange (MCP-T03)', () => {
 
   it('TCHG-SAVE-008: the write of a tour needs a point to start at when it comes without a line', async () => {
     const err = await refusal(
-      t.get(ToursService).routeWrite({ name: 'Old town', tour_type: 'walk', route_geometry: null, waypoints: [] }),
+      t.get(ToursService).routeWrite({
+        name: 'Old town',
+        tour_type: 'walk',
+        max_hiking_difficulty: null,
+        route_geometry: null,
+        waypoints: [],
+      }),
     );
     expect([err.getStatus(), err.publicMessage]).toEqual([400, 'A tour needs at least two points']);
   });
@@ -406,10 +413,12 @@ describe('TourChangeMcp.saveTourChange (MCP-T03)', () => {
     ];
     for (const term of terms) expect(options.description).toContain(term);
     // The fields are zod schemas from @trek/shared, read here by what they answer.
-    const shape = options.inputSchema as Record<string, { safeParse(value: unknown): { success: boolean } }>;
+    const shape = options.inputSchema as ZodRawShape;
     const fields = ['tripId', 'placeId', 'changes', 'expected_revision', 'proposal_id', 'confirmed'];
     expect(Object.keys(shape)).toEqual(fields);
-    const yes = [true, false, undefined].map((value) => shape.confirmed?.safeParse(value).success);
+    const confirmed = shape.confirmed;
+    if (!confirmed) throw new Error('the tool takes no confirmed field');
+    const yes = [true, false, undefined].map((value) => z.safeParse(confirmed, value).success);
     expect(yes).toEqual([true, false, false]);
     const isAddonEnabled = vi.fn(async (id: string) => id === 'tours');
     expect(await options.when?.(ctx(1), { addons: { isAddonEnabled } })).toBe(true);

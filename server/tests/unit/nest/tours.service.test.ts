@@ -785,6 +785,10 @@ describe('ToursService stages on days (MDT-02)', () => {
     return { created, placeId, keys, days, held };
   }
 
+  /** An edit of the hut-to-hut tour as the API takes it: the points a read gave back go through the request contract. */
+  const editOf = (changes: Record<string, unknown>): TourCreateRequest =>
+    tourCreateRequestSchema.parse({ ...hutToHut, ...changes });
+
   const heldStages = async (placeId: number) =>
     (await findRows(await sharedTestOrm(testDb), DayAssignments, { place: placeId }, { id: 'asc' })).map(
       (row) => row.tour_stage_key,
@@ -810,7 +814,7 @@ describe('ToursService stages on days (MDT-02)', () => {
     const joined = created.waypoints.map(({ stage_end: _end, ...point }, index) =>
       index === 1 ? { ...point, stage_end: true } : point,
     );
-    await service.updateTour(tripId, String(placeId), { ...hutToHut, waypoints: joined }, 'socket');
+    await service.updateTour(tripId, String(placeId), editOf({ waypoints: joined }), 'socket');
     expect(await heldStages(placeId)).toEqual([keys[0], keys[1]]);
     expect(broadcast).toHaveBeenCalledWith(
       tripId,
@@ -825,7 +829,7 @@ describe('ToursService stages on days (MDT-02)', () => {
 
   it('MDT-SVC-006: a change that keeps every stage leaves every day as it was and says nothing', async () => {
     const { created, placeId, keys } = await onThreeDays();
-    await service.updateTour(tripId, String(placeId), { ...hutToHut, name: 'Renamed', waypoints: created.waypoints });
+    await service.updateTour(tripId, String(placeId), editOf({ name: 'Renamed', waypoints: created.waypoints }));
     expect(await heldStages(placeId)).toEqual(keys.slice(0, 3));
     expect(broadcast.mock.calls.filter(([, event]) => event === 'assignment:deleted')).toEqual([]);
   });
@@ -852,7 +856,7 @@ describe('ToursService stages on days (MDT-02)', () => {
     const warn = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
     const dayTour = created.waypoints.map(({ stage_end: _end, ...point }) => point);
     await expect(
-      service.updateTour(tripId, String(placeId), { ...hutToHut, duration_seconds: 3600, waypoints: dayTour }),
+      service.updateTour(tripId, String(placeId), editOf({ duration_seconds: 3600, waypoints: dayTour })),
     ).resolves.toMatchObject({ tour: { stage_count: null } });
     expect(await heldStages(placeId)).toEqual([]);
     expect(warn).toHaveBeenCalled();
