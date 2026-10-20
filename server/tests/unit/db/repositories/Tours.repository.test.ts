@@ -6,6 +6,7 @@
  */
 import { DayAssignments } from '../../../../src/db/entities/DayAssignments.entity';
 import { Places } from '../../../../src/db/entities/Places.entity';
+import { TourPackingLinks } from '../../../../src/db/entities/TourPackingLinks.entity';
 import { TourSources } from '../../../../src/db/entities/TourSources.entity';
 import { TourWaypoints } from '../../../../src/db/entities/TourWaypoints.entity';
 import { Tours } from '../../../../src/db/entities/Tours.entity';
@@ -14,7 +15,8 @@ import { UnitOfWork } from '../../../../src/nest/database/unit-of-work';
 import { createSnapshotTestDb } from '../../../helpers/db-mock';
 import { createDay, createDayAssignment, createPlace, createTrip, createUser } from '../../../helpers/factories';
 import { makePlace } from '../../../helpers/factories/places';
-import { findRows, insertRow, insertRows, updateRows } from '../../../helpers/factories/rows';
+import { countRows, findRow, findRows, insertRow, insertRows, updateRows } from '../../../helpers/factories/rows';
+import { linkTourPacking } from '../../../helpers/factories/tours';
 import { makeDay } from '../../../helpers/factories/trips';
 import { resetTestDb } from '../../../helpers/test-db';
 import { createTestOrm, type TestOrm } from '../../../helpers/test-orm';
@@ -666,5 +668,28 @@ describe('ToursRepository writes', () => {
       source_content_hash: 'c.c.c',
     });
     expect((await repo.findProvenance(other.id, copiedPlanned.id))?.source_instance).toBeNull();
+  });
+
+  it('TOURREPO-012: a trip copy takes a tour’s packing link onto its copy, and nothing for a tour that had none', async () => {
+    const { trip, other } = fixture();
+    const linked = createPlace(testDb, trip.id);
+    await repo.insertTour({ ...METRICS, place_id: linked.id });
+    await linkTourPacking(t, linked.id, 'Hiking gear');
+    const plain = createPlace(testDb, trip.id);
+    await repo.insertTour({ ...METRICS, place_id: plain.id });
+    const linkedCopy = createPlace(testDb, other.id);
+    await repo.insertTour({ ...METRICS, place_id: linkedCopy.id });
+    const plainCopy = createPlace(testDb, other.id);
+    await repo.insertTour({ ...METRICS, place_id: plainCopy.id });
+
+    await repo.copyTourRelations(linked.id, linkedCopy.id);
+    await repo.copyTourRelations(plain.id, plainCopy.id);
+
+    const source = await findRow(t, TourPackingLinks, { place: linked.id });
+    expect(await findRow(t, TourPackingLinks, { place: linkedCopy.id })).toMatchObject({
+      category: 'Hiking gear',
+      linked_at: source?.linked_at,
+    });
+    expect(await countRows(t, TourPackingLinks, { place: plainCopy.id })).toBe(0);
   });
 });

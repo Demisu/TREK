@@ -1,4 +1,4 @@
-import type { Ferrata, RoadtripPreferences, TourActivity, TourListItem, TourObstacleCheck, TourProvenance, TourVisit, TourWaypoint } from '@trek/shared';
+import type { Ferrata, RoadtripPreferences, TourActivity, TourListItem, TourObstacleCheck, TourPackingLink, TourProvenance, TourVisit, TourWaypoint } from '@trek/shared';
 import Dexie, { type Table } from 'dexie';
 import type { Trip, Day, Place, PackingItem, TodoItem, BudgetItem, Reservation, TripFile, Accommodation, TripMember, Tag, Category } from '../types';
 
@@ -21,6 +21,8 @@ export interface CachedTour extends TourListItem {
   obstacle_check?: TourObstacleCheck;
   /** ACT-01: the recorded tracks its detail last answered, kept while the list names the same ones. */
   activities?: TourActivity[];
+  /** P2D-XD-01: the packing list or category the tour points at as last read, null for none; absent while never read. */
+  packing_link?: TourPackingLink | null;
 }
 
 /**
@@ -500,6 +502,8 @@ export async function replaceTripTours(tripId: number, tours: TourListItem[]): P
         ...(previous?.provenance ? { provenance: previous.provenance } : {}),
         ...(previous?.obstacle_check ? { obstacle_check: previous.obstacle_check } : {}),
         ...keptActivities(previous, tour),
+        // The list carries no packing link (P2D-XD-01); the one last read stays.
+        ...(previous?.packing_link !== undefined ? { packing_link: previous.packing_link } : {}),
       };
     }));
   });

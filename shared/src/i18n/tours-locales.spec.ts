@@ -14,9 +14,9 @@ type DomainModules = Record<string, { default: TranslationStrings }>;
 const toursModules = import.meta.glob<{ default: TranslationStrings }>('./*/tours.ts', { eager: true });
 
 // The tours strings live in more than one file per locale, so that none of
-// them grows past the size limit: `tours.ts` holds the planner, and
-// `tourCollection.ts` the tours kept in a collection. Each file is held to
-// its own count.
+// them grows past the size limit: `tours.ts` holds the planner,
+// `tourCollection.ts` the tours kept in a collection and `tourPacking.ts` the
+// packing list a tour points at. Each file is held to its own count.
 const TOUR_DOMAINS: { file: string; generalKeyCount: number; modules: DomainModules }[] = [
   {
     file: 'tours',
@@ -27,6 +27,11 @@ const TOUR_DOMAINS: { file: string; generalKeyCount: number; modules: DomainModu
     file: 'tourCollection',
     generalKeyCount: 41,
     modules: import.meta.glob<{ default: TranslationStrings }>('./*/tourCollection.ts', { eager: true }),
+  },
+  {
+    file: 'tourPacking',
+    generalKeyCount: 23,
+    modules: import.meta.glob<{ default: TranslationStrings }>('./*/tourPacking.ts', { eager: true }),
   },
 ];
 const aggregates = import.meta.glob<{ default: TranslationStrings }>('./*/index.ts', { eager: true });

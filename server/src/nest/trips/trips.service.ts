@@ -733,8 +733,9 @@ export class TripsService {
         if (newPlaceId) await this.tagsRepo.insertIgnore(newPlaceId, [t.tag_id]); // TP47
       }
 
-      // A Tour is its place plus the `tours` facet, its import record, its obstacle decisions and the waypoints its
-      // route was planned through. The facet row goes first, since the others reference it; without them it is no Tour.
+      // A Tour is its place plus the `tours` facet, its import record, its obstacle decisions, its packing link and
+      // the waypoints its route was planned through. The facet row goes first, since the others reference it;
+      // without them it is no Tour.
       const oldTours = await this.toursRepo.listRowsForTrip(Number(sourceTripId));
       const copiedTours = new Map<number, number>();
       for (const { place_id, ...tour } of oldTours) {
@@ -743,8 +744,7 @@ export class TripsService {
         await this.toursRepo.insertCopy(newPlaceId, tour, placeMap);
         copiedTours.set(place_id, newPlaceId);
       }
-      await Promise.all([...copiedTours].map(([from, to]) => this.toursRepo.copySource(from, to)));
-      await Promise.all([...copiedTours].map(([from, to]) => this.toursRepo.copyObstacleReviews(from, to)));
+      for (const [from, to] of copiedTours) await this.toursRepo.copyTourRelations(from, to);
 
       const waypointsByPlace = new Map<number, TourWaypointRow[]>();
       for (const { place_id, ...waypoint } of await this.tourWaypointsRepo.listForTrip(Number(sourceTripId))) {

@@ -4,6 +4,7 @@ import { TourActivities } from '../../db/entities/TourActivities.entity';
 import { TourActivityExclusions } from '../../db/entities/TourActivityExclusions.entity';
 import { TourChangeSteps } from '../../db/entities/TourChangeSteps.entity';
 import { TourObstacleReviews } from '../../db/entities/TourObstacleReviews.entity';
+import { TourPackingLinks } from '../../db/entities/TourPackingLinks.entity';
 import { TourSources } from '../../db/entities/TourSources.entity';
 import { TourStationVisits } from '../../db/entities/TourStationVisits.entity';
 import { TourTypes } from '../../db/entities/TourTypes.entity';
@@ -15,6 +16,7 @@ import { CollectionsModule } from '../collections/collections.module';
 import { MapsModule } from '../maps/maps.module';
 import { McpSharedModule } from '../mcp-shared/mcp-shared.module';
 import { OverpassModule } from '../overpass/overpass.module';
+import { PackingModule } from '../packing/packing.module';
 import { PaddleObstaclesModule } from '../paddle-obstacles/paddle-obstacles.module';
 import { PermissionsModule } from '../permissions/permissions.module';
 import { PlaceImportModule } from '../place-import/place-import.module';
@@ -46,6 +48,9 @@ import { TourLibraryController, TourTakeOverController } from './tour-library.co
 import { TourLibraryMcp } from './tour-library.mcp';
 import { TourLibraryService } from './tour-library.service';
 import { TourObstacleReviewsService } from './tour-obstacle-reviews.service';
+import { TourPackingLinkController } from './tour-packing-link.controller';
+import { TourPackingLinkService } from './tour-packing-link.service';
+import { TourPackingMcp } from './tour-packing.mcp';
 import { PaddleCheckCache } from './tour-paddle-check.cache';
 import { TourPaddleCheckService } from './tour-paddle-check.service';
 import { TourPaddlePlanService } from './tour-paddle-plan.service';
@@ -90,7 +95,9 @@ import { Module } from '@nestjs/common';
  * TourActivityStatsService, over the trips TripMembershipModule says they can
  * open, with the tours the user left out of them. Whole tours kept in a
  * collection (LIB-03) are this domain's own rows; the collection's roles and
- * its live notice to its members come from CollectionsService.
+ * its live notice to its members come from CollectionsService. A tour points at
+ * the packing list of its trip (P2D-XD-01) through a row of its own; the list
+ * and who sees which of its items stay PackingService's.
  */
 @Module({
   imports: [
@@ -116,6 +123,8 @@ import { Module } from '@nestjs/common';
     AssignmentsDomainModule,
     // A collection keeps whole tours (LIB-03): its roles decide who sees, keeps and removes one.
     CollectionsModule,
+    // A tour's packing link is read against the items Packing lets the user see (P2D-XD-01).
+    PackingModule,
     MikroOrmModule.forFeature([
       CollectionTours,
       Tours,
@@ -123,6 +132,7 @@ import { Module } from '@nestjs/common';
       TourWaypoints,
       TourSources,
       TourObstacleReviews,
+      TourPackingLinks,
       TourStationVisits,
       TourChangeSteps,
       TourActivities,
@@ -147,6 +157,7 @@ import { Module } from '@nestjs/common';
     ToursWandererController,
     TourLibraryController,
     CollectionToursController,
+    TourPackingLinkController,
   ],
   providers: [
     ToursService,
@@ -171,6 +182,7 @@ import { Module } from '@nestjs/common';
     TourActivitiesService,
     TourActivityStatsService,
     CollectionToursService,
+    TourPackingLinkService,
     ToursMcp,
     TourLibraryMcp,
     TourWalkImportMcp,
@@ -180,6 +192,7 @@ import { Module } from '@nestjs/common';
     TourActivitiesMcp,
     TourActivityStatsMcp,
     CollectionToursMcp,
+    TourPackingMcp,
   ],
 })
 export class ToursModule {}

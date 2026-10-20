@@ -9,6 +9,7 @@ import {
 import { runPaceSecondsPerKmSchema } from './run-pace';
 import { skiDisciplineSchema, skiTechniqueSchema } from './ski.schema';
 import { tourActivityRefSchema, tourActivitySchema } from './tour-activity.schema';
+import { tourPackingLinkSchema } from './tour-packing-link.schema';
 import { tourPoiCategorySchema } from './tour-poi-category';
 import { tourOriginSchema, tourProvenanceSchema } from './tour-provenance.schema';
 import { maxTourMinutesFor, TOUR_DAY_MINUTES, tourStageCountOf, tourStageIssues } from './tour-stages';
@@ -728,6 +729,12 @@ export const tourCreateResponseSchema = z.object({
   obstacle_check: tourObstacleCheckSchema.optional().catch(undefined),
   /** ACT-01: the recorded tracks assigned to the tour; absent only in a detail cached before TREK sent them. */
   activities: z.array(tourActivitySchema).optional(),
+  /**
+   * P2D-XD-01: the packing list or category the tour points at, null for none.
+   * The packing link writes answer with it; an answer without it says nothing
+   * about the link, so a cache keeps the one it had.
+   */
+  packing_link: tourPackingLinkSchema.nullable().optional(),
 });
 export type TourCreateResponse = z.infer<typeof tourCreateResponseSchema>;
 

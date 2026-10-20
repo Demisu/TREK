@@ -186,6 +186,10 @@ Packing lists can be saved and reused across trips:
 
 Templates are managed by admins in [Admin-Packing-Templates](Admin-Packing-Templates). See also [Packing-Templates](Packing-Templates).
 
+## Linked to a tour
+
+With the Tours addon on, a tour can point at the packing list of its trip, as a whole or at one of its categories (say "Hiking gear" for a hike). The **Packing list** section of the tour's detail links one, shows its items with how many are packed, and opens the list here with **Open packing list**. It is only a link: the items stay in this list, are ticked off and edited here, and each traveller sees in the tour only the items this list shows them. Removing the link, or the tour, leaves the list and every item as they are. When a linked category is renamed or emptied, the tour says so instead of showing an empty list.
+
 ## Permissions
 
 Every write needs the `packing_edit` permission. Saving a list as a template also needs an instance admin account; applying a template does not.

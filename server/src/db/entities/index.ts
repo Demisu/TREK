@@ -112,6 +112,7 @@ import { TourActivitiesSchema } from './TourActivities.entity';
 import { TourActivityExclusionsSchema } from './TourActivityExclusions.entity';
 import { TourChangeStepsSchema } from './TourChangeSteps.entity';
 import { TourObstacleReviewsSchema } from './TourObstacleReviews.entity';
+import { TourPackingLinksSchema } from './TourPackingLinks.entity';
 import { TourSourcesSchema } from './TourSources.entity';
 import { TourStationVisitsSchema } from './TourStationVisits.entity';
 import { TourTypesSchema } from './TourTypes.entity';
@@ -261,6 +262,7 @@ export const ALL_ENTITIES: readonly EntitySchema[] = [
   TourActivityExclusionsSchema,
   TourChangeStepsSchema,
   TourObstacleReviewsSchema,
+  TourPackingLinksSchema,
   TourSourcesSchema,
   TourStationVisitsSchema,
   TourTypesSchema,

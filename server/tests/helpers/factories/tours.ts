@@ -1,4 +1,5 @@
 import { TourActivities } from '../../../src/db/entities/TourActivities.entity';
+import { TourPackingLinks } from '../../../src/db/entities/TourPackingLinks.entity';
 import { TourStationVisits, type TTourStationVisitsStatus } from '../../../src/db/entities/TourStationVisits.entity';
 import { TourWaypoints, type TTourWaypointsImportance } from '../../../src/db/entities/TourWaypoints.entity';
 import { Tours } from '../../../src/db/entities/Tours.entity';
@@ -85,4 +86,14 @@ export function makeTourActivity(
   overrides: EntityData<TourActivities> = {},
 ): Promise<TourActivityRow> {
   return createRow(orm, TourActivities, { place: placeId, trackPlace: trackPlaceId }, overrides);
+}
+
+/** P2D-XD-01: points the tour at its trip's packing list (category null) or at one category of it. */
+export async function linkTourPacking(
+  orm: FactoryOrm,
+  placeId: number,
+  category: string | null,
+  linkedBy: number | null = null,
+): Promise<void> {
+  await insertRow(orm, TourPackingLinks, { place: placeId, category, linkedByRef: linkedBy });
 }

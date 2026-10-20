@@ -6,6 +6,7 @@ import { TourActivities } from './TourActivities.entity';
 import { TourActivityExclusions } from './TourActivityExclusions.entity';
 import { TourChangeSteps } from './TourChangeSteps.entity';
 import { TourObstacleReviews } from './TourObstacleReviews.entity';
+import { TourPackingLinks } from './TourPackingLinks.entity';
 import { TourSources } from './TourSources.entity';
 import { TourTypes } from './TourTypes.entity';
 import { TourWaypoints } from './TourWaypoints.entity';
@@ -56,6 +57,7 @@ export class Tours {
   tour_activity_exclusions_collection = new Collection<TourActivityExclusions>(this);
   tour_change_steps_collection = new Collection<TourChangeSteps>(this);
   tour_obstacle_reviews_collection = new Collection<TourObstacleReviews>(this);
+  tour_packing_links: Ref<TourPackingLinks> | null = null;
   tour_sources: Ref<TourSources> | null = null;
   tour_waypoints_collection = new Collection<TourWaypoints>(this);
 }
@@ -192,6 +194,7 @@ export const ToursSchema = defineEntity({
     tour_activity_exclusions_collection: () => p.oneToMany(TourActivityExclusions).mappedBy('place').hidden(),
     tour_change_steps_collection: () => p.oneToMany(TourChangeSteps).mappedBy('place').hidden(),
     tour_obstacle_reviews_collection: () => p.oneToMany(TourObstacleReviews).mappedBy('place').hidden(),
+    tour_packing_links: () => p.oneToOne(TourPackingLinks).ref().mappedBy('place').hidden(),
     tour_sources: () => p.oneToOne(TourSources).ref().mappedBy('place').hidden(),
     tour_waypoints_collection: () => p.oneToMany(TourWaypoints).mappedBy('place').hidden(),
   },

@@ -17,7 +17,7 @@ import { onlineThenCache } from './withOfflineFallback'
 import type { Place } from '../types'
 
 /** The list item a cached row stands for: the cache-only fields stripped. */
-function toListItem({ trip_id: _tripId, waypoints: _waypoints, provenance: _provenance, obstacle_check: _check, activities: _activities, ...tour }: CachedTour): TourListItem {
+function toListItem({ trip_id: _tripId, waypoints: _waypoints, provenance: _provenance, obstacle_check: _check, activities: _activities, packing_link: _packingLink, ...tour }: CachedTour): TourListItem {
   return tour
 }
 

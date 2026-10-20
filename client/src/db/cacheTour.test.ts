@@ -90,4 +90,13 @@ describe('cacheTourAnswer', () => {
     const row = await cacheTourAnswer(3, { tour: tour({ tour_type: 'hike' }), waypoints });
     expect(row).not.toHaveProperty('obstacle_check');
   });
+
+  it('CT-004: a packing link answer is kept, null lets it go, and an answer without one keeps the cached one', async () => {
+    const link = { category: 'Hiking gear', linked_at: '2026-10-20 09:00:00' };
+    expect(await cacheTourAnswer(3, { tour: tour(), waypoints, packing_link: link })).toMatchObject({ packing_link: link });
+    expect(await cacheTourAnswer(3, { tour: tour({ name: 'Renamed' }), waypoints })).toMatchObject({ packing_link: link });
+    expect((await cacheTourAnswer(3, { tour: tour(), waypoints, packing_link: null })).packing_link).toBeNull();
+    const fresh = await cacheTourAnswer(4, { tour: tour({ place_id: 41 }), waypoints });
+    expect(fresh).not.toHaveProperty('packing_link');
+  });
 });

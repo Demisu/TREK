@@ -215,6 +215,7 @@ type ToursKyselyDB = Pick<
   | 'tour_sources'
   | 'days'
   | 'tour_obstacle_reviews'
+  | 'tour_packing_links'
   | 'trips'
 >;
 
@@ -567,6 +568,35 @@ export class ToursRepository extends TrekRepository<Tours> {
           .where('place_id', '=', source_place_id),
       )
       .execute();
+  }
+
+  /**
+   * P2D-XD-01: the packing list or category a copied tour pointed at, onto its
+   * copy in the copied trip, whose packing list is copied too. Nothing for a
+   * tour that pointed at nothing.
+   */
+  async copyPackingLink(source_place_id: number, place_id: number): Promise<void> {
+    await this.db()
+      .insertInto('tour_packing_links')
+      .columns(['place_id', 'category', 'linked_by', 'linked_at'])
+      .expression((eb) =>
+        eb
+          .selectFrom('tour_packing_links')
+          .select((inner) => [inner.val(place_id).as('place_id'), 'category', 'linked_by', 'linked_at'])
+          .where('place_id', '=', source_place_id),
+      )
+      .execute();
+  }
+
+  /**
+   * What a copied trip's tour keeps besides its facet and its points: its
+   * import record, its obstacle decisions and its packing link, onto its copy.
+   * Called inside the trip copy's transaction.
+   */
+  async copyTourRelations(source_place_id: number, place_id: number): Promise<void> {
+    await this.copySource(source_place_id, place_id);
+    await this.copyObstacleReviews(source_place_id, place_id);
+    await this.copyPackingLink(source_place_id, place_id);
   }
 
   /** The days every tour of a trip sits on, each tour and day once, in day order, with the stage a day holds (MDT-02). */

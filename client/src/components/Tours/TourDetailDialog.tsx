@@ -53,6 +53,7 @@ import TourActivitySection from './activity/TourActivitySection';
 import type { PlanValues } from './activity/tourActivityCompare';
 import { TourSaveToCollectionButton } from './collection/TourSaveToCollectionButton';
 import { PaddleCheckSection } from './paddle/PaddleCheckSection';
+import { TourPackingSection } from './packing/TourPackingSection';
 import { PaddleWindSection } from './paddle/PaddleWindCard';
 import { TourProvenanceBlock } from './provenance/TourProvenanceSection';
 import { RunHeadPills } from './run/RunHeadPills';
@@ -94,6 +95,8 @@ interface TourDetailDialogProps extends TourPermissionProps {
   onSaveAsNew?: (tour: TourListItem) => Promise<void> | void;
   /** ACT-01: a recorded track was assigned, taken off or imported; the lists take in these tours. */
   onToursChanged?: (placeIds: number[]) => Promise<void> | void;
+  /** P2D-XD-01: opens the trip's packing list the tour points at. */
+  onOpenPacking?: () => void;
   onAssignToDay?: (placeId: number, dayId?: number) => void;
   onRemoveAssignment?: (dayId: number, assignmentId: number) => void;
   onDelete?: () => void;
@@ -502,6 +505,7 @@ export default function TourDetailDialog({
   onSourceReimported,
   onSaveAsNew,
   onToursChanged,
+  onOpenPacking,
   onAssignToDay,
   onRemoveAssignment,
   onDelete,
@@ -756,6 +760,13 @@ export default function TourDetailDialog({
           onToursChanged={onToursChanged}
         />
       )}
+      <TourPackingSection
+        tripId={place.trip_id}
+        tour={tour}
+        tourName={place.name}
+        canEdit={canEdit}
+        onOpenPacking={onOpenPacking}
+      />
 
       {description && (
         <DialogSection className="flex-none" label={t('places.formDescription')}>

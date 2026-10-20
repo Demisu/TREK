@@ -36,6 +36,11 @@ export function useTourDetailActions(planner: ReturnType<typeof useTripPlanner>)
     onToursChanged: (placeIds: number[]) => invalidateTourPlaceIds({ placeIds }),
     /** LIB-02: a tour taken over from another trip; the tours rail opens it in the planner. */
     onTakenOver: bringIn,
+    /** P2D-XD-01: the packing list a tour points at, in the trip's Lists tab. */
+    onOpenPacking: () => {
+      planner.setSelectedPlaceId(null);
+      planner.handleTabChange('listen');
+    },
     onSaveAsNew: async (tour: TourListItem) => {
       try {
         const name = t('tours.copy.name', { name: tour.name }).slice(0, 255);
