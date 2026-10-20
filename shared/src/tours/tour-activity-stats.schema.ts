@@ -9,17 +9,20 @@ import { z } from 'zod';
  *
  * - The plan's values stand in for the tour while nothing was recorded
  *   (`basis: 'plan'`), and say so. A tour on several days still counts once
- *   (`day_count` says on how many), on the first of them.
+ *   (`day_count` says on how many), on the last of them, so a tour still under
+ *   way is not done yet.
  * - A recorded track linked to an execution of the tour (ACT-01) takes the
  *   plan's place (`basis: 'track'`), one entry per recording; the plan of that
  *   tour is then not counted besides it, and the recording is never counted as
  *   a tour of its own.
  * - An import some other tour of the trip was planned from (the whole route a
- *   multi-day tour's stages were cut from) is left out while one of those
- *   tours counts, so the route and its stages are never added up together.
+ *   multi-day tour's stages were cut from) is named by those tours in
+ *   `derived_from_place_id`, and the summary leaves it out while one of them
+ *   counts, so the route and its stages are never added up together. A stage
+ *   still ahead or left out does not hide the route.
  * - Only the user's own part counts: an execution names the user as one of its
- *   participants, or names none and the trip is the user's own. Being able to
- *   open someone else's trip makes none of its tours the user's.
+ *   participants, or names nobody, which in the planner means everyone of the
+ *   trip. A day that names participants without the user is not theirs.
  *
  * Whether an entry is done is the reader's question (`date` before today, in
  * the reader's own time zone): the server answers every entry it found, the
@@ -39,7 +42,9 @@ export const tourActivityStatsEntrySchema = z.object({
   name: z.string(),
   tour_type: tourTypeKeySchema,
   trip: z.object({ id: idSchema, title: z.string() }),
-  /** The day it was done on: the recording's day, else the first of the user's dated days the tour is on. */
+  /** The whole route this tour was planned from, a stage of it; null for any other tour. */
+  derived_from_place_id: idSchema.nullable(),
+  /** The day it was done on: the recording's day, else the last of the user's dated days the tour is on. */
   date: tourActivityDateSchema,
   basis: tourActivityBasisSchema,
   /** The recording whose values these are; null for the plan. */
@@ -59,8 +64,9 @@ export const tourActivityStatsResponseSchema = z.object({
   /** The newest first. */
   entries: z.array(tourActivityStatsEntrySchema),
   /**
-   * Tours of the user's own trips that cannot count as done: on no day at all,
-   * or only on days without a date. Said, so a missing tour is not a mystery.
+   * Tours of the user's trips that cannot count as done: on no day at all, or
+   * only on the user's days without a date. A whole route whose stages are on
+   * the user's days is not among them. Said, so a missing tour is not a mystery.
    */
   uncounted: z.object({
     unassigned: z.number().int().nonnegative(),

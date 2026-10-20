@@ -1231,7 +1231,7 @@ const tours: TranslationStrings = {
   'tours.stats.title': 'Tamamladığım turlar',
   'tours.stats.sub': 'Səyahət planına əsasən; əlaqələndirilmiş faktiki izlər onu əvəz edir',
   'tours.stats.basisInfo':
-    'Tur günü bitəndə planlamanın dəyərləri ilə sayılır. Əlaqələndirilmiş faktiki iz onları əvəz edir. Yalnız iştirak etdiyin günlər sayılır.',
+    'Tur son günü bitəndə planlamanın dəyərləri ilə sayılır. Əlaqələndirilmiş faktiki iz onları əvəz edir. İştirakçıları göstərilən gün yalnız onlar üçün sayılır.',
   'tours.stats.basisPlan': 'Planlaşdırılıb',
   'tours.stats.basisPlanHint': 'Səyahət planından, ölçülməyib',
   'tours.stats.basisTrack': 'Qeydə alınıb',

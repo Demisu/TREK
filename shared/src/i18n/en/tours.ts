@@ -1218,7 +1218,7 @@ const tours: TranslationStrings = {
   'tours.stats.title': 'My tour activities',
   'tours.stats.sub': 'Based on your trip planning; linked actual tracks replace it',
   'tours.stats.basisInfo':
-    'A tour counts once its day is over, with the values of your planning. A linked actual track replaces them. Only days you take part in count.',
+    'A tour counts once its last day is over, with the values of your planning. A linked actual track replaces them. A day that names participants counts only for them.',
   'tours.stats.basisPlan': 'Planned',
   'tours.stats.basisPlanHint': 'From your trip planning, not measured',
   'tours.stats.basisTrack': 'Recorded',

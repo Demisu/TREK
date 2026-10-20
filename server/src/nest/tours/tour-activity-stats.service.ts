@@ -34,7 +34,7 @@ export class TourActivityStatsService {
       this.activitiesRepo.listTracksForStats(tripIds),
       this.exclusionsRepo.listPlaceIds(userId),
     ]);
-    return buildActivityStats({ userId, executions, tracks, excluded: new Set(excluded) });
+    return buildActivityStats({ executions, tracks, excluded: new Set(excluded) });
   }
 
   /**

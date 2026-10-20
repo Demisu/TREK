@@ -3,7 +3,9 @@
  * of the trips the user can open, once per day it is on, and the recordings
  * assigned to them; what comes out is the list of the user's done (or still
  * upcoming) tours the shared summary adds up, see `tour-activity-stats.schema`
- * in @trek/shared for the rules this follows.
+ * in @trek/shared for the rules this follows. Whether an entry is done, and
+ * which whole route its counted stages stand in for, is up to that summary:
+ * both depend on the reader's today.
  */
 import type { TourStatsExecutionRow, TourStatsTrackRow } from '../../db/repositories/TourActivities.repository';
 import { computeTourMetrics, parseRouteGeometry } from './tours.helpers';
@@ -22,7 +24,6 @@ interface DatedExecution {
 }
 
 interface ActivityStatsInput {
-  userId: number;
   executions: readonly TourStatsExecutionRow[];
   tracks: readonly TourStatsTrackRow[];
   /** The tours the user left out of their own sums. */
@@ -31,12 +32,12 @@ interface ActivityStatsInput {
 
 /**
  * Whether an execution is the user's own: it names the user among those taking
- * part, or names nobody on a trip that is the user's. Being able to open
- * someone else's trip alone makes none of its tours the user's.
+ * part, or names nobody, which in the planner means everyone of the trip. The
+ * rows only hold trips the user owns or is a member of, so a day that names
+ * participants without the user is the only one that is not theirs.
  */
-export function isOwnExecution(row: TourStatsExecutionRow, userId: number): boolean {
-  if (row.joined === 1) return true;
-  return row.participant_count === 0 && row.trip_owner_id === userId;
+export function isOwnExecution(row: TourStatsExecutionRow): boolean {
+  return row.joined === 1 || row.participant_count === 0;
 }
 
 /** A trip day's date as a calendar day, null when the day has none. */
@@ -56,8 +57,8 @@ function groupByTour(rows: readonly TourStatsExecutionRow[]): TourOfStats[] {
 }
 
 /** The user's executions of a tour, and of those the ones on a dated day, the earliest first. */
-function ownExecutions(tour: TourOfStats, userId: number): { own: number; dated: DatedExecution[] } {
-  const own = tour.executions.filter((row) => isOwnExecution(row, userId));
+function ownExecutions(tour: TourOfStats): { own: number; dated: DatedExecution[] } {
+  const own = tour.executions.filter(isOwnExecution);
   const dated: DatedExecution[] = [];
   for (const row of own) {
     const date = calendarDay(row.date);
@@ -84,21 +85,25 @@ function baseEntry(tour: TourOfStats, excluded: ReadonlySet<number>) {
     name: row.name,
     tour_type: row.tour_type as TourTypeKey,
     trip: { id: row.trip_id, title: row.trip_title },
+    derived_from_place_id: row.derived_from_place_id,
     excluded: excluded.has(row.place_id),
   };
 }
 
-/** The plan standing in for the tour: once, on the first of its days, however many there are. */
+/**
+ * The plan standing in for the tour: once, however many days it is on, on the
+ * last of them, so a tour still under way does not count before it is done.
+ */
 function planEntry(
   tour: TourOfStats,
-  first: DatedExecution,
+  last: DatedExecution,
   dayCount: number,
   excluded: ReadonlySet<number>,
 ): TourActivityStatsEntry {
   const { row } = tour;
   return {
     ...baseEntry(tour, excluded),
-    date: first.date,
+    date: last.date,
     basis: 'plan',
     track: null,
     day_count: dayCount,
@@ -129,55 +134,58 @@ function trackEntry(
 
 /**
  * A tour's entries: one per recording of one of the user's executions (a
- * recording on no day counts with the first of them), or else the plan once.
- * A recording of someone else's execution is theirs, not the user's.
+ * recording on no day stands for the whole tour, so it counts with the last of
+ * them), or else the plan once. A recording of someone else's execution is
+ * theirs, not the user's.
  */
 function entriesOfTour(
   tour: TourOfStats,
-  [first, ...rest]: [DatedExecution, ...DatedExecution[]],
+  dated: readonly DatedExecution[],
+  last: DatedExecution,
   tracks: readonly TourStatsTrackRow[],
   excluded: ReadonlySet<number>,
 ): TourActivityStatsEntry[] {
-  const dateOf = new Map([first, ...rest].map((execution) => [execution.assignmentId, execution.date]));
+  const dateOf = new Map(dated.map((execution) => [execution.assignmentId, execution.date]));
   const recorded = tracks
     .filter((track) => track.place_id === tour.row.place_id)
-    .map((track) => ({ track, date: track.assignment_id === null ? first.date : dateOf.get(track.assignment_id) }))
+    .map((track) => ({ track, date: track.assignment_id === null ? last.date : dateOf.get(track.assignment_id) }))
     .filter((item): item is { track: TourStatsTrackRow; date: string } => item.date !== undefined);
-  if (recorded.length === 0) return [planEntry(tour, first, rest.length + 1, excluded)];
+  if (recorded.length === 0) return [planEntry(tour, last, dated.length, excluded)];
   return recorded.map(({ track, date }) => trackEntry(tour, track, date, excluded));
 }
 
-/** What became of one tour: its entries, or why a tour of the user's own trip cannot count. */
+/** What became of one tour: its entries, or why a tour of the user's cannot count. */
 type TourOutcome = TourActivityStatsEntry[] | 'unassigned' | 'undated' | null;
 
 function outcomeOf(tour: TourOfStats, input: ActivityStatsInput): TourOutcome {
-  const { own, dated } = ownExecutions(tour, input.userId);
-  const [first, ...rest] = dated;
-  if (first) return entriesOfTour(tour, [first, ...rest], input.tracks, input.excluded);
-  if (tour.row.trip_owner_id !== input.userId) return null;
+  const { own, dated } = ownExecutions(tour);
+  const last = dated.at(-1);
+  if (last) return entriesOfTour(tour, dated, last, input.tracks, input.excluded);
   if (tour.executions.length === 0) return 'unassigned';
   return own > 0 ? 'undated' : null;
 }
 
 /**
- * The user's activity entries and what of their own trips cannot count. A
- * recording is never a tour of its own here, and an import other tours were
- * planned from (a whole route and its stages) is left out while one of those
- * tours counts, so nothing is added up twice.
+ * The user's activity entries and what of their trips cannot count. A
+ * recording is never a tour of its own here. A whole route other tours were
+ * planned from keeps its entries and each stage names it in
+ * `derived_from_place_id`: the shared summary leaves the route out only while
+ * one of its stages counts, which takes the reader's today. A route whose
+ * stages are on the user's days is not named as uncounted either, since they
+ * stand in for it.
  */
 export function buildActivityStats(input: ActivityStatsInput): TourActivityStatsResponse {
   const recordings = new Set(input.tracks.map((track) => track.track_place_id));
   const tours = groupByTour(input.executions).filter((tour) => !recordings.has(tour.row.place_id));
   const outcomes = tours.map((tour) => ({ tour, outcome: outcomeOf(tour, input) }));
-  const stagesCounted = new Set(
+  const routesOfPlannedStages = new Set(
     outcomes.filter(({ outcome }) => Array.isArray(outcome)).map(({ tour }) => tour.row.derived_from_place_id),
   );
   const uncounted = { unassigned: 0, undated: 0 };
   const entries: TourActivityStatsEntry[] = [];
   for (const { tour, outcome } of outcomes) {
-    if (outcome === null || stagesCounted.has(tour.row.place_id)) continue;
     if (Array.isArray(outcome)) entries.push(...outcome);
-    else uncounted[outcome] += 1;
+    else if (outcome !== null && !routesOfPlannedStages.has(tour.row.place_id)) uncounted[outcome] += 1;
   }
   entries.sort((a, b) => b.date.localeCompare(a.date) || a.name.localeCompare(b.name) || a.place_id - b.place_id);
   return { entries, uncounted };

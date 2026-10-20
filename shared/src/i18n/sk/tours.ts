@@ -1233,7 +1233,7 @@ const tours: TranslationStrings = {
   'tours.stats.title': 'Moje absolvované túry',
   'tours.stats.sub': 'Podľa plánu cesty; prepojené skutočné trasy ho nahrádzajú',
   'tours.stats.basisInfo':
-    'Túra sa započíta, keď jej deň skončí, s hodnotami z tvojho plánu. Prepojená skutočná trasa ich nahradí. Počítajú sa len dni, na ktorých sa zúčastňuješ.',
+    'Túra sa započíta, keď skončí jej posledný deň, s hodnotami z tvojho plánu. Prepojená skutočná trasa ich nahradí. Deň, ktorý uvádza účastníkov, sa počíta len im.',
   'tours.stats.basisPlan': 'Plánované',
   'tours.stats.basisPlanHint': 'Z plánu cesty, nemerané',
   'tours.stats.basisTrack': 'Zaznamenané',

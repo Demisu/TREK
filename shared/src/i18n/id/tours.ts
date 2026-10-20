@@ -1229,7 +1229,7 @@ const tours: TranslationStrings = {
   'tours.stats.title': 'Tur yang sudah kulakukan',
   'tours.stats.sub': 'Berdasarkan perencanaan perjalananmu; jejak aktual yang ditautkan menggantikannya',
   'tours.stats.basisInfo':
-    'Tur dihitung setelah harinya berakhir, dengan nilai dari perencanaanmu. Jejak aktual yang ditautkan menggantikannya. Hanya hari yang kamu ikuti yang dihitung.',
+    'Tur dihitung setelah hari terakhirnya berakhir, dengan nilai dari perencanaanmu. Jejak aktual yang ditautkan menggantikannya. Hari yang menyebut peserta hanya dihitung untuk mereka.',
   'tours.stats.basisPlan': 'Direncanakan',
   'tours.stats.basisPlanHint': 'Dari perencanaan perjalanan, tidak diukur',
   'tours.stats.basisTrack': 'Terekam',

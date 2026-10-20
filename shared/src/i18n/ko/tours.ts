@@ -1191,7 +1191,7 @@ const tours: TranslationStrings = {
   'tours.stats.title': '나의 투어 기록',
   'tours.stats.sub': '여행 계획 기준이며, 연결된 실제 트랙이 있으면 그것으로 대체됩니다',
   'tours.stats.basisInfo':
-    '투어는 해당 날짜가 지나면 계획 값으로 집계됩니다. 연결된 실제 트랙이 있으면 그 값으로 대체됩니다. 참여하는 날만 집계됩니다.',
+    '투어는 마지막 날이 지나면 계획 값으로 집계됩니다. 연결된 실제 트랙이 있으면 그 값으로 대체됩니다. 참가자가 지정된 날은 그 참가자에게만 집계됩니다.',
   'tours.stats.basisPlan': '계획',
   'tours.stats.basisPlanHint': '여행 계획의 값이며 측정값이 아닙니다',
   'tours.stats.basisTrack': '기록',

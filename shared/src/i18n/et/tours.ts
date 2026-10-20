@@ -1227,7 +1227,7 @@ const tours: TranslationStrings = {
   'tours.stats.title': 'Minu tehtud retked',
   'tours.stats.sub': 'Reisi planeerimise põhjal; lingitud tegelikud rajad asendavad selle',
   'tours.stats.basisInfo':
-    'Retk läheb arvesse, kui selle päev on läbi, sinu planeerimise väärtustega. Lingitud tegelik rada asendab need. Arvesse lähevad ainult päevad, millest võtad osa.',
+    'Retk läheb arvesse, kui selle viimane päev on läbi, sinu planeerimise väärtustega. Lingitud tegelik rada asendab need. Päev, millel on osalejad nimetatud, läheb arvesse ainult neile.',
   'tours.stats.basisPlan': 'Planeeritud',
   'tours.stats.basisPlanHint': 'Reisi planeerimisest, mõõtmata',
   'tours.stats.basisTrack': 'Salvestatud',

@@ -1243,7 +1243,7 @@ const tours: TranslationStrings = {
   'tours.stats.title': 'Meus passeios realizados',
   'tours.stats.sub': 'Com base no planejamento da viagem; trilhas reais vinculadas o substituem',
   'tours.stats.basisInfo':
-    'Um passeio conta quando o dia dele termina, com os valores do seu planejamento. Uma trilha real vinculada os substitui. Só contam os dias em que você participa.',
+    'Um passeio conta quando o último dia dele termina, com os valores do seu planejamento. Uma trilha real vinculada os substitui. Um dia que indica participantes conta só para eles.',
   'tours.stats.basisPlan': 'Planejado',
   'tours.stats.basisPlanHint': 'Do planejamento da viagem, não medido',
   'tours.stats.basisTrack': 'Gravado',

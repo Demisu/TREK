@@ -84,7 +84,6 @@ describe('TourActivitiesRepository stats reads (STA-02)', () => {
       derived_from_place_id: null,
       trip_id: trip.id,
       trip_title: 'Alps',
-      trip_owner_id: user.id,
       participant_count: 1,
       joined: 0,
     });

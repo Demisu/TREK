@@ -1134,7 +1134,8 @@ const tours: TranslationStrings = {
   'tours.activity.compare.hide': '结束比较',
   'tours.stats.title': '我的游览记录',
   'tours.stats.sub': '基于你的行程规划；已关联的实际轨迹会替代规划值',
-  'tours.stats.basisInfo': '游览在其日期结束后计入，使用你的规划值。已关联的实际轨迹会替代这些值。只计入你参加的日子。',
+  'tours.stats.basisInfo':
+    '游览在其最后一天结束后计入，使用你的规划值。已关联的实际轨迹会替代这些值。指定了参与者的日子只为这些参与者计入。',
   'tours.stats.basisPlan': '规划',
   'tours.stats.basisPlanHint': '来自行程规划，并非实测',
   'tours.stats.basisTrack': '已记录',

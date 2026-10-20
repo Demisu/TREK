@@ -1250,7 +1250,7 @@ const tours: TranslationStrings = {
   'tours.stats.title': 'Les meves excursions fetes',
   'tours.stats.sub': 'Segons la planificació del viatge; els traços reals vinculats la substitueixen',
   'tours.stats.basisInfo':
-    'Una excursió compta quan el seu dia s’ha acabat, amb els valors de la teva planificació. Un traç real vinculat els substitueix. Només compten els dies en què participes.',
+    'Una excursió compta quan el seu últim dia s’ha acabat, amb els valors de la teva planificació. Un traç real vinculat els substitueix. Un dia que indica participants només compta per a ells.',
   'tours.stats.basisPlan': 'Planificat',
   'tours.stats.basisPlanHint': 'De la planificació del viatge, no mesurat',
   'tours.stats.basisTrack': 'Enregistrat',

@@ -1267,7 +1267,7 @@ const tours: TranslationStrings = {
   'tours.stats.title': 'Mes sorties réalisées',
   'tours.stats.sub': 'D’après la planification de ton voyage ; les traces réelles liées la remplacent',
   'tours.stats.basisInfo':
-    'Une sortie compte une fois sa journée terminée, avec les valeurs de ta planification. Une trace réelle liée les remplace. Seuls les jours auxquels tu participes comptent.',
+    'Une sortie compte une fois son dernier jour terminé, avec les valeurs de ta planification. Une trace réelle liée les remplace. Un jour qui nomme des participants ne compte que pour eux.',
   'tours.stats.basisPlan': 'Planifié',
   'tours.stats.basisPlanHint': 'D’après la planification du voyage, non mesuré',
   'tours.stats.basisTrack': 'Enregistré',

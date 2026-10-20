@@ -1218,7 +1218,7 @@ const tours: TranslationStrings = {
   'tours.stats.title': 'Các chuyến tôi đã đi',
   'tours.stats.sub': 'Dựa trên kế hoạch chuyến đi; lộ trình thực tế được liên kết sẽ thay thế',
   'tours.stats.basisInfo':
-    'Một chuyến được tính khi ngày của nó đã qua, với các giá trị từ kế hoạch của bạn. Lộ trình thực tế được liên kết sẽ thay thế chúng. Chỉ tính những ngày bạn tham gia.',
+    'Một chuyến được tính khi ngày cuối của nó đã qua, với các giá trị từ kế hoạch của bạn. Lộ trình thực tế được liên kết sẽ thay thế chúng. Ngày có ghi người tham gia chỉ được tính cho những người đó.',
   'tours.stats.basisPlan': 'Theo kế hoạch',
   'tours.stats.basisPlanHint': 'Từ kế hoạch chuyến đi, không đo thực tế',
   'tours.stats.basisTrack': 'Đã ghi',

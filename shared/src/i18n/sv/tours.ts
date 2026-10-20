@@ -1222,7 +1222,7 @@ const tours: TranslationStrings = {
   'tours.stats.title': 'Mina genomförda turer',
   'tours.stats.sub': 'Utifrån din reseplanering; länkade faktiska spår ersätter den',
   'tours.stats.basisInfo':
-    'En tur räknas när dess dag är över, med värdena från din planering. Ett länkat faktiskt spår ersätter dem. Bara dagar du deltar i räknas.',
+    'En tur räknas när dess sista dag är över, med värdena från din planering. Ett länkat faktiskt spår ersätter dem. En dag som anger deltagare räknas bara för dem.',
   'tours.stats.basisPlan': 'Planerat',
   'tours.stats.basisPlanHint': 'Från reseplaneringen, inte uppmätt',
   'tours.stats.basisTrack': 'Inspelat',

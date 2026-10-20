@@ -1250,7 +1250,7 @@ const tours: TranslationStrings = {
   'tours.stats.title': 'Mijn gemaakte tochten',
   'tours.stats.sub': 'Op basis van je reisplanning; gekoppelde werkelijke tracks vervangen die',
   'tours.stats.basisInfo':
-    'Een tocht telt zodra zijn dag voorbij is, met de waarden van je planning. Een gekoppelde werkelijke track vervangt ze. Alleen dagen waaraan je meedoet tellen.',
+    'Een tocht telt zodra zijn laatste dag voorbij is, met de waarden van je planning. Een gekoppelde werkelijke track vervangt ze. Een dag die deelnemers noemt, telt alleen voor hen.',
   'tours.stats.basisPlan': 'Gepland',
   'tours.stats.basisPlanHint': 'Uit je reisplanning, niet gemeten',
   'tours.stats.basisTrack': 'Opgenomen',

@@ -1257,7 +1257,7 @@ const tours: TranslationStrings = {
   'tours.stats.title': 'Le mie escursioni svolte',
   'tours.stats.sub': 'In base alla pianificazione del viaggio; le tracce effettive collegate la sostituiscono',
   'tours.stats.basisInfo':
-    'Un’escursione conta quando il suo giorno è finito, con i valori della tua pianificazione. Una traccia effettiva collegata li sostituisce. Contano solo i giorni a cui partecipi.',
+    'Un’escursione conta quando il suo ultimo giorno è finito, con i valori della tua pianificazione. Una traccia effettiva collegata li sostituisce. Un giorno che indica dei partecipanti conta solo per loro.',
   'tours.stats.basisPlan': 'Pianificato',
   'tours.stats.basisPlanHint': 'Dalla pianificazione del viaggio, non misurato',
   'tours.stats.basisTrack': 'Registrato',

@@ -1257,7 +1257,7 @@ const tours: TranslationStrings = {
   'tours.stats.title': 'Meine Touraktivitäten',
   'tours.stats.sub': 'Auf Basis deiner Reiseplanung; verknüpfte Ist-Tracks ersetzen sie',
   'tours.stats.basisInfo':
-    'Eine Tour zählt, sobald ihr Tag vorbei ist, mit den Werten deiner Planung. Ein verknüpfter Ist-Track ersetzt sie. Es zählen nur Tage, an denen du teilnimmst.',
+    'Eine Tour zählt, sobald ihr letzter Tag vorbei ist, mit den Werten deiner Planung. Ein verknüpfter Ist-Track ersetzt sie. Ein Tag, der Teilnehmende nennt, zählt nur für sie.',
   'tours.stats.basisPlan': 'Geplant',
   'tours.stats.basisPlanHint': 'Aus deiner Reiseplanung, nicht gemessen',
   'tours.stats.basisTrack': 'Aufgezeichnet',

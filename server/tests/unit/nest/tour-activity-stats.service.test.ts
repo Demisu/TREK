@@ -46,8 +46,9 @@ const RECORDED = JSON.stringify([
 
 /**
  * The user's trip with a hike on a day and a paddle tour recorded on another;
- * a trip of a friend the user is a member of, with one tour the friend did
- * alone and one the user is named on; and a trip the user cannot open.
+ * a trip of a friend the user is a member of, with one tour whose day names
+ * only the friend, one naming only the user and one naming nobody, which is
+ * everyone's; and a trip the user cannot open.
  */
 async function fixture() {
   const { user } = await makeUser(orm());
@@ -74,7 +75,11 @@ async function fixture() {
   const theirDay = await makeDay(orm(), theirs.id, { date: '2026-08-10' });
   const alone = await makePlace(orm(), theirs.id, { name: 'Alone' });
   await makeTour(orm(), alone.id, { distance: 30 });
-  await makeDayAssignment(orm(), theirDay.id, alone.id);
+  const aloneOn = await makeDayAssignment(orm(), theirDay.id, alone.id);
+  await insertRow(orm(), AssignmentParticipants, { assignment: aloneOn.id, user: friend.id });
+  const everyone = await makePlace(orm(), theirs.id, { name: 'Everyone' });
+  await makeTour(orm(), everyone.id, { distance: 5 });
+  await makeDayAssignment(orm(), theirDay.id, everyone.id);
   const together = await makePlace(orm(), theirs.id, { name: 'Together' });
   await makeTour(orm(), together.id, { distance: 7 });
   const togetherOn = await makeDayAssignment(orm(), theirDay.id, together.id);
@@ -85,34 +90,35 @@ async function fixture() {
   const hidden = await makePlace(orm(), closed.id, { name: 'Hidden' });
   await makeTour(orm(), hidden.id);
   await makeDayAssignment(orm(), closedDay.id, hidden.id);
-  return { user, friend, hike, paddle, watch, alone, together, togetherOn, hidden };
+  return { user, friend, hike, paddle, watch, alone, everyone, together, togetherOn, hidden };
 }
 
 describe('TourActivityStatsService', () => {
   it('STA2-SVC-001: lists the own tours of every trip the user can open, plan or recording, newest first', async () => {
-    const { user, hike, paddle, watch, together } = await fixture();
+    const { user, hike, paddle, watch, everyone, together } = await fixture();
     const result = await service.stats(user.id);
     expect(result.entries.map((entry) => [entry.place_id, entry.basis, entry.date])).toEqual([
+      [everyone.id, 'plan', '2026-08-10'],
       [together.id, 'plan', '2026-08-10'],
       [paddle.id, 'track', '2026-07-03'],
       [hike.id, 'plan', '2026-07-02'],
     ]);
-    expect(result.entries[1]).toMatchObject({
+    expect(result.entries[2]).toMatchObject({
       tour_type: 'kayak',
       trip: { title: 'Alps' },
       track: { place_id: watch.id, name: 'Watch export' },
       ascent_m: null,
       descent_m: null,
     });
-    expect(result.entries[1]?.distance_km).toBeCloseTo(2.35, 1);
+    expect(result.entries[2]?.distance_km).toBeCloseTo(2.35, 1);
     expect(result.uncounted).toEqual({ unassigned: 1, undated: 0 });
   });
 
-  it('STA2-SVC-002: the friend sees the tour they did alone, and not the user’s trip they cannot open', async () => {
-    const { friend, alone, together } = await fixture();
+  it('STA2-SVC-002: the friend sees their own and everyone’s tours, and not the user’s trip they cannot open', async () => {
+    const { friend, alone, everyone, together } = await fixture();
     const result = await service.stats(friend.id);
     // Together names only the user, so it is not the friend's, owner or not.
-    expect(result.entries.map((entry) => entry.place_id)).toEqual([alone.id]);
+    expect(result.entries.map((entry) => entry.place_id)).toEqual([alone.id, everyone.id]);
     expect(result.entries.some((entry) => entry.place_id === together.id)).toBe(false);
   });
 

@@ -1133,7 +1133,8 @@ const tours: TranslationStrings = {
   'tours.activity.compare.hide': '結束比較',
   'tours.stats.title': '我的遊程紀錄',
   'tours.stats.sub': '以你的行程規劃為準；已連結的實際軌跡會取代規劃值',
-  'tours.stats.basisInfo': '遊程在其日期結束後計入，使用你的規劃值。已連結的實際軌跡會取代這些值。只計入你參加的日子。',
+  'tours.stats.basisInfo':
+    '遊程在其最後一天結束後計入，使用你的規劃值。已連結的實際軌跡會取代這些值。指定了參與者的日子只為這些參與者計入。',
   'tours.stats.basisPlan': '規劃',
   'tours.stats.basisPlanHint': '來自行程規劃，並非實測',
   'tours.stats.basisTrack': '已記錄',

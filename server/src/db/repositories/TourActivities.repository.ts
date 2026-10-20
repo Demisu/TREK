@@ -36,9 +36,9 @@ export interface TourActivityRow extends TourActivityRefRow {
 /**
  * STA-02: one tour of a trip the user can open, once per day assignment it has
  * (once with `assignment_id` NULL when it is on no day), with what the activity
- * sums need: its plan's measures, the day's date, the trip's owner, and who the
- * execution names as taking part (`participant_count`, and `joined` 1 when the
- * user is one of them).
+ * sums need: its plan's measures, the import it was planned from, the day's
+ * date, and who the execution names as taking part (`participant_count`, and
+ * `joined` 1 when the user is one of them).
  */
 export interface TourStatsExecutionRow {
   place_id: number;
@@ -50,7 +50,6 @@ export interface TourStatsExecutionRow {
   derived_from_place_id: number | null;
   trip_id: number;
   trip_title: string;
-  trip_owner_id: number;
   assignment_id: number | null;
   date: string | null;
   participant_count: number;
@@ -191,7 +190,6 @@ export class TourActivitiesRepository extends TrekRepository<TourActivities> {
         't.derived_from_place_id as derived_from_place_id',
         'tr.id as trip_id',
         'tr.title as trip_title',
-        'tr.user_id as trip_owner_id',
         'da.id as assignment_id',
         'd.date as date',
         eb

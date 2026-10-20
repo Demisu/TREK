@@ -1193,7 +1193,7 @@ const tours: TranslationStrings = {
   'tours.stats.title': '自分のツアー実績',
   'tours.stats.sub': '旅行の計画に基づく値。リンクした実際のトラックがあればそちらに置き換わります',
   'tours.stats.basisInfo':
-    'ツアーはその日が終わると、計画の値で集計されます。リンクした実際のトラックがあればその値に置き換わります。参加している日だけが集計されます。',
+    'ツアーは最終日が終わると、計画の値で集計されます。リンクした実際のトラックがあればその値に置き換わります。参加者が指定された日は、その参加者だけに集計されます。',
   'tours.stats.basisPlan': '計画',
   'tours.stats.basisPlanHint': '旅行の計画による値で、計測値ではありません',
   'tours.stats.basisTrack': '記録',

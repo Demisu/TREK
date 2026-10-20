@@ -76,14 +76,29 @@ function totalsOf(entries: readonly TourActivityStatsEntry[]): TourActivityTotal
   };
 }
 
+/**
+ * A whole route counts only while none of the stages planned from it does:
+ * once a stage is done, counted and in the reader's period and type, the
+ * stages stand for the route. A stage still ahead or left out hides nothing.
+ */
+function withoutRoutesOfCountedStages(
+  entries: readonly TourActivityStatsEntry[],
+  counted: readonly TourActivityStatsEntry[],
+): TourActivityStatsEntry[] {
+  const routes = new Set(counted.map((entry) => entry.derived_from_place_id));
+  return entries.filter((entry) => !routes.has(entry.place_id));
+}
+
 /** The entries of the period and type, done and counted, summed as a whole and by type. */
 export function summarizeTourActivities(
   entries: readonly TourActivityStatsEntry[],
   filter: TourActivityFilter,
 ): TourActivitySummary {
-  const matching = entries.filter(
+  const inScope = entries.filter(
     (entry) => inPeriod(entry.date, filter) && (!filter.type || entry.tour_type === filter.type),
   );
+  const countedInScope = inScope.filter((entry) => !entry.excluded && isTourActivityDone(entry, filter.today));
+  const matching = withoutRoutesOfCountedStages(inScope, countedInScope);
   const done = matching.filter((entry) => isTourActivityDone(entry, filter.today));
   const counted = done.filter((entry) => !entry.excluded);
   const byType = new Map<TourTypeKey, TourActivityStatsEntry[]>();

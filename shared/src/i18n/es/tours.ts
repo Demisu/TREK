@@ -1243,7 +1243,7 @@ const tours: TranslationStrings = {
   'tours.stats.title': 'Mis excursiones realizadas',
   'tours.stats.sub': 'Según la planificación de tu viaje; los tracks reales vinculados la sustituyen',
   'tours.stats.basisInfo':
-    'Una excursión cuenta cuando su día ha terminado, con los valores de tu planificación. Un track real vinculado los sustituye. Solo cuentan los días en los que participas.',
+    'Una excursión cuenta cuando su último día ha terminado, con los valores de tu planificación. Un track real vinculado los sustituye. Un día que indica participantes solo cuenta para ellos.',
   'tours.stats.basisPlan': 'Planificado',
   'tours.stats.basisPlanHint': 'Según la planificación del viaje, no medido',
   'tours.stats.basisTrack': 'Grabado',

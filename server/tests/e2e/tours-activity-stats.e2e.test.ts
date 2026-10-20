@@ -2,7 +2,8 @@
  * STA-02 e2e: the user's own tour activities for the Atlas, through the real
  * JwtAuthGuard and AddonGuard against a real migrated temp SQLite db. Tours
  * are created through the tours API and put on dated days; whose they are
- * follows the day's participants and the trip's owner, never mere access.
+ * follows the day's participants as the planner reads them: a day naming
+ * nobody is everyone's in the trip, a day naming people is only theirs.
  *
  * Fixtures: user 1 owns trip 5 (two dated days, one without a date), user 2 is
  * a member, user 3 has no access.
@@ -163,15 +164,21 @@ describe('Tour activity stats e2e (STA-02)', () => {
       }),
     ]);
     expect(res.body.uncounted).toEqual({ unassigned: 1, undated: 1 });
+    // The days name nobody, so they are the member's as much as the owner's.
+    const member = await request(server).get(STATS).set(as(MEMBER));
+    expect(member.body).toEqual(res.body);
   });
 
-  it('STA2-E2E-002: a member counts only the days naming them; an outsider gets nothing', async () => {
+  it('STA2-E2E-002: a day naming people counts only for them, one naming nobody for all; no outsider', async () => {
     const ridge = await tourOnDay('Ridge', 3);
     const lake = await tourOnDay('Lake', 4);
     await insertRow(orm, AssignmentParticipants, { assignment: lake.assignmentId, user: MEMBER });
 
     const member = await request(server).get(STATS).set(as(MEMBER));
-    expect(member.body.entries.map((entry: { place_id: number }) => entry.place_id)).toEqual([lake.placeId]);
+    expect(member.body.entries.map((entry: { place_id: number }) => entry.place_id)).toEqual([
+      lake.placeId,
+      ridge.placeId,
+    ]);
     expect(member.body.uncounted).toEqual({ unassigned: 0, undated: 0 });
     // The owner is not on Lake's day any more, only on Ridge's.
     const owner = await request(server).get(STATS).set(as(OWNER));
@@ -212,5 +219,14 @@ describe('Tour activity stats e2e (STA-02)', () => {
     const off = await request(server).get(STATS).set(as(OWNER));
     expect(off.status).toBe(404);
     expect(off.body).toEqual({ error: 'Tours addon is not enabled' });
+  });
+
+  it('STA2-E2E-005: a tour on two days counts once, dated on the last of them', async () => {
+    const ridge = await tourOnDay('Ridge', 3);
+    await makeDayAssignment(orm, 4, ridge.placeId);
+    const res = await request(server).get(STATS).set(as(OWNER));
+    expect(res.body.entries).toEqual([
+      expect.objectContaining({ place_id: ridge.placeId, date: '2026-07-03', day_count: 2 }),
+    ]);
   });
 });

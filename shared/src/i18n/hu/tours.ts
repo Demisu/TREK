@@ -1248,7 +1248,7 @@ const tours: TranslationStrings = {
   'tours.stats.title': 'Teljesített túráim',
   'tours.stats.sub': 'Az utazás tervezése alapján; az összekapcsolt tényleges nyomvonalak felváltják',
   'tours.stats.basisInfo':
-    'Egy túra akkor számít, ha a napja véget ért, a tervezésed értékeivel. Egy összekapcsolt tényleges nyomvonal felváltja ezeket. Csak azok a napok számítanak, amelyeken részt veszel.',
+    'Egy túra akkor számít, ha az utolsó napja véget ért, a tervezésed értékeivel. Egy összekapcsolt tényleges nyomvonal felváltja ezeket. Egy nap, amely résztvevőket nevez meg, csak nekik számít.',
   'tours.stats.basisPlan': 'Tervezett',
   'tours.stats.basisPlanHint': 'Az utazás tervezéséből, nem mért',
   'tours.stats.basisTrack': 'Rögzített',

@@ -14,6 +14,7 @@ function entry(overrides: Partial<TourActivityStatsEntry> = {}): TourActivitySta
     name: 'Ridge',
     tour_type: 'hike',
     trip: { id: 5, title: 'Alps' },
+    derived_from_place_id: null,
     date: '2026-07-02',
     basis: 'plan',
     track: null,
@@ -182,5 +183,45 @@ describe('STA-02 summarizeTourActivities', () => {
       { today: TODAY },
     );
     expect(summary.done.map((item) => item.name)).toEqual(['Alpspitze', 'Zugspitze']);
+  });
+
+  it('STA2-SUM-009: a whole route stays out while a stage planned from it is done and counted', () => {
+    const route = entry({ place_id: 30, name: 'Whole route', distance_km: 60, date: '2025-08-01' });
+    const stage = entry({ place_id: 31, distance_km: 20, derived_from_place_id: 30, date: '2025-08-02' });
+    const summary = summarizeTourActivities([route, stage], { today: TODAY });
+    expect(summary.done.map((item) => item.place_id)).toEqual([31]);
+    expect(summary.totals.distanceKm.value).toBe(20);
+  });
+
+  it('STA2-SUM-010: a stage still ahead or left out hides nothing, so the route walked before still counts', () => {
+    const route = entry({ place_id: 30, name: 'Whole route', distance_km: 60, date: '2025-08-01' });
+    const ahead = entry({ place_id: 31, derived_from_place_id: 30, date: '2026-11-02' });
+    const upcoming = summarizeTourActivities([route, ahead], { today: TODAY });
+    expect(upcoming.done.map((item) => item.place_id)).toEqual([30]);
+    expect(upcoming.totals.distanceKm.value).toBe(60);
+    expect(upcoming.upcoming).toBe(1);
+    const leftOut = entry({ place_id: 32, derived_from_place_id: 30, date: '2025-08-02', excluded: true });
+    const fellThrough = summarizeTourActivities([route, leftOut], { today: TODAY });
+    expect(fellThrough.done.map((item) => [item.place_id, item.excluded])).toEqual([
+      [32, true],
+      [30, false],
+    ]);
+    expect(fellThrough.totals.count).toBe(1);
+  });
+
+  it('STA2-SUM-011: a stage outside the period does not hide the route either', () => {
+    const route = entry({ place_id: 30, distance_km: 60, date: '2025-12-30' });
+    const stage = entry({ place_id: 31, derived_from_place_id: 30, date: '2026-01-02' });
+    const lastYear = summarizeTourActivities([route, stage], { today: TODAY, to: '2025-12-31' });
+    expect(lastYear.done.map((item) => item.place_id)).toEqual([30]);
+  });
+
+  it('STA2-SUM-012: a tour on two days is dated on the last one, so it is not done between them', () => {
+    const twoDays = entry({ date: TODAY, day_count: 2 });
+    expect(isTourActivityDone(twoDays, TODAY)).toBe(false);
+    const summary = summarizeTourActivities([twoDays], { today: TODAY });
+    expect(summary.totals.count).toBe(0);
+    expect(summary.upcoming).toBe(1);
+    expect(summarizeTourActivities([twoDays], { today: '2026-10-21' }).totals.count).toBe(1);
   });
 });

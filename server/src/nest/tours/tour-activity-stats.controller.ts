@@ -14,7 +14,7 @@ import { tourActivityStatsResponseSchema } from '@trek/shared';
  * STA-02 /api/tours/activity-stats: the user's own tour activities across
  * their trips, for the Atlas, and leaving one out of them. Not trip-scoped,
  * so there is no TripAccessGuard; the service bounds every answer by the
- * user's own trips. Leaving a tour out changes only the user's own sums, so it
+ * trips the user owns or is a member of. Leaving a tour out changes only the user's own sums, so it
  * asks for no trip permission beyond being able to open the trip.
  */
 @Controller('api/tours/activity-stats')

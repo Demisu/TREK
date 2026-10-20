@@ -1271,7 +1271,7 @@ const tours: TranslationStrings = {
   'tours.stats.title': 'Moje odbyte wycieczki',
   'tours.stats.sub': 'Na podstawie planu podróży; połączone rzeczywiste trasy go zastępują',
   'tours.stats.basisInfo':
-    'Wycieczka liczy się, gdy jej dzień się skończy, z wartościami z twojego planu. Połączona rzeczywista trasa je zastępuje. Liczą się tylko dni, w których bierzesz udział.',
+    'Wycieczka liczy się, gdy skończy się jej ostatni dzień, z wartościami z twojego planu. Połączona rzeczywista trasa je zastępuje. Dzień ze wskazanymi uczestnikami liczy się tylko dla nich.',
   'tours.stats.basisPlan': 'Zaplanowane',
   'tours.stats.basisPlanHint': 'Z planu podróży, nie zmierzone',
   'tours.stats.basisTrack': 'Nagrane',

@@ -13,7 +13,7 @@ import { makeDayAssignment } from '../../helpers/factories/itinerary';
 import { makePlace } from '../../helpers/factories/places';
 import { countRows } from '../../helpers/factories/rows';
 import { makeTour } from '../../helpers/factories/tours';
-import { makeDay, makeTrip } from '../../helpers/factories/trips';
+import { addTripMember, makeDay, makeTrip } from '../../helpers/factories/trips';
 import { makeUser } from '../../helpers/factories/users';
 import { resetTestDb } from '../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../helpers/test-module';
@@ -68,7 +68,7 @@ async function fixture() {
   const closed = await makeTrip(orm(), stranger.id);
   const hidden = await makePlace(orm(), closed.id, { name: 'Hidden' });
   await makeTour(orm(), hidden.id);
-  return { user, tours, hidden };
+  return { user, trip, tours, hidden };
 }
 
 describe('TourActivityStatsMcp', () => {
@@ -117,5 +117,14 @@ describe('TourActivityStatsMcp', () => {
       error: 'Tour not found.',
     });
     expect(await countRows(orm(), TourActivityExclusions)).toBe(0);
+  });
+
+  it('STA2-MCP-005: a member counts the days naming nobody, which are everyone’s, as over REST', async () => {
+    const { trip, tours } = await fixture();
+    const { user: member } = await makeUser(orm());
+    await addTripMember(orm(), trip.id, member.id);
+    const result = read(await mcp.getTourActivityStats({}, ctx(member.id)));
+    expect(result.tours.map((tour: { place_id: number }) => tour.place_id)).toEqual([tours.Lake, tours.Ridge]);
+    expect(result.upcoming).toBe(1);
   });
 });

@@ -7,9 +7,6 @@ import { buildActivityStats, isOwnExecution } from '../../../src/nest/tours/tour
 
 import { describe, expect, it } from 'vitest';
 
-const ME = 1;
-const FRIEND = 2;
-
 function row(overrides: Partial<TourStatsExecutionRow> = {}): TourStatsExecutionRow {
   return {
     place_id: 10,
@@ -21,7 +18,6 @@ function row(overrides: Partial<TourStatsExecutionRow> = {}): TourStatsExecution
     derived_from_place_id: null,
     trip_id: 5,
     trip_title: 'Alps',
-    trip_owner_id: ME,
     assignment_id: 100,
     date: '2026-07-02',
     participant_count: 0,
@@ -48,21 +44,15 @@ function track(overrides: Partial<TourStatsTrackRow> = {}): TourStatsTrackRow {
   };
 }
 
-function stats(
-  executions: TourStatsExecutionRow[],
-  tracks: TourStatsTrackRow[] = [],
-  excluded: number[] = [],
-  userId = ME,
-) {
-  return buildActivityStats({ userId, executions, tracks, excluded: new Set(excluded) });
+function stats(executions: TourStatsExecutionRow[], tracks: TourStatsTrackRow[] = [], excluded: number[] = []) {
+  return buildActivityStats({ executions, tracks, excluded: new Set(excluded) });
 }
 
 describe('isOwnExecution (STA-02)', () => {
-  it('STA2-HELP-001: a day naming the user is theirs, a day naming nobody is the owner only', () => {
-    expect(isOwnExecution(row({ joined: 1, participant_count: 2, trip_owner_id: FRIEND }), ME)).toBe(true);
-    expect(isOwnExecution(row({ participant_count: 0 }), ME)).toBe(true);
-    expect(isOwnExecution(row({ participant_count: 0, trip_owner_id: FRIEND }), ME)).toBe(false);
-    expect(isOwnExecution(row({ participant_count: 1, joined: 0 }), ME)).toBe(false);
+  it('STA2-HELP-001: a day naming the user or nobody is theirs, one naming only others is not', () => {
+    expect(isOwnExecution(row({ joined: 1, participant_count: 2 }))).toBe(true);
+    expect(isOwnExecution(row({ participant_count: 0 }))).toBe(true);
+    expect(isOwnExecution(row({ participant_count: 1, joined: 0 }))).toBe(false);
   });
 });
 
@@ -75,6 +65,7 @@ describe('buildActivityStats (STA-02)', () => {
           name: 'Ridge',
           tour_type: 'hike',
           trip: { id: 5, title: 'Alps' },
+          derived_from_place_id: null,
           date: '2026-07-02',
           basis: 'plan',
           track: null,
@@ -89,14 +80,15 @@ describe('buildActivityStats (STA-02)', () => {
     });
   });
 
-  it('STA2-HELP-003: a tour on several days counts once, on its first day, saying on how many', () => {
+  it('STA2-HELP-003: a tour on several days counts once, on its last day, saying on how many', () => {
     const { entries } = stats([
       row({ assignment_id: 101, date: '2026-07-04' }),
       row({ assignment_id: 100, date: '2026-07-02' }),
       row({ assignment_id: 102, date: null }),
     ]);
     expect(entries).toHaveLength(1);
-    expect(entries[0]).toMatchObject({ date: '2026-07-02', day_count: 2 });
+    // Dated on the last day, so it is not done while it is still under way.
+    expect(entries[0]).toMatchObject({ date: '2026-07-04', day_count: 2 });
   });
 
   it('STA2-HELP-004: a linked recording replaces the plan and is no tour of its own', () => {
@@ -117,10 +109,10 @@ describe('buildActivityStats (STA-02)', () => {
     expect(entries[0]?.distance_km).toBeCloseTo(2.22, 1);
   });
 
-  it('STA2-HELP-005: a recording on no day counts on the first day; one recorded per day counts per day', () => {
+  it('STA2-HELP-005: a recording on no day counts on the last day; one recorded per day counts per day', () => {
     const executions = [row({ assignment_id: 100 }), row({ assignment_id: 101, date: '2026-07-03' })];
     const noDay = stats(executions, [track({ assignment_id: null })]);
-    expect(noDay.entries.map((entry) => entry.date)).toEqual(['2026-07-02']);
+    expect(noDay.entries.map((entry) => entry.date)).toEqual(['2026-07-03']);
     const twice = stats(executions, [track(), track({ track_place_id: 21, assignment_id: 101 })]);
     expect(twice.entries.map((entry) => [entry.date, entry.track?.place_id])).toEqual([
       ['2026-07-03', 21],
@@ -152,14 +144,15 @@ describe('buildActivityStats (STA-02)', () => {
     expect(entries).toEqual([expect.objectContaining({ basis: 'plan', date: '2026-07-02' })]);
   });
 
-  it('STA2-HELP-009: access to somebody else’s trip counts nothing; a day naming the user counts', () => {
-    const foreign = { trip_owner_id: FRIEND, trip_id: 6, trip_title: 'Theirs' };
-    expect(stats([row(foreign)]).entries).toEqual([]);
-    expect(stats([row({ ...foreign, participant_count: 2, joined: 1 })]).entries).toHaveLength(1);
-    expect(stats([row(foreign)]).uncounted).toEqual({ unassigned: 0, undated: 0 });
+  it('STA2-HELP-009: a day naming nobody counts for every member, on any trip the user can open', () => {
+    const shared = { trip_id: 6, trip_title: 'Theirs' };
+    expect(stats([row(shared)]).entries).toEqual([expect.objectContaining({ trip: { id: 6, title: 'Theirs' } })]);
+    expect(stats([row({ ...shared, participant_count: 2, joined: 1 })]).entries).toHaveLength(1);
+    const onNoDay = row({ ...shared, place_id: 11, assignment_id: null, date: null });
+    expect(stats([onNoDay]).uncounted).toEqual({ unassigned: 1, undated: 0 });
   });
 
-  it('STA2-HELP-010: a day naming only others leaves the owner out, and says nothing about it', () => {
+  it('STA2-HELP-010: a day naming only others leaves the user out, and says nothing about it', () => {
     expect(stats([row({ participant_count: 1, joined: 0 })])).toEqual({
       entries: [],
       uncounted: { unassigned: 0, undated: 0 },
@@ -175,7 +168,7 @@ describe('buildActivityStats (STA-02)', () => {
     expect(result).toEqual({ entries: [], uncounted: { unassigned: 1, undated: 2 } });
   });
 
-  it('STA2-HELP-012: a whole route does not count beside the stages planned from it', () => {
+  it('STA2-HELP-012: a whole route and the stages planned from it are all listed, each stage naming the route', () => {
     const route = row({ place_id: 30, name: 'Whole route', distance: 60, assignment_id: 300, date: '2026-07-01' });
     const stage1 = row({ place_id: 31, name: 'Stage 1', distance: 20, derived_from_place_id: 30, assignment_id: 301 });
     const stage2 = row({
@@ -186,10 +179,22 @@ describe('buildActivityStats (STA-02)', () => {
       assignment_id: 302,
       date: '2026-07-03',
     });
-    expect(stats([route, stage1, stage2]).entries.map((entry) => entry.place_id)).toEqual([32, 31]);
+    // Every entry is kept, each stage naming its route: whether a stage counts takes the reader's today.
+    const all = stats([route, stage1, stage2]).entries;
+    expect(all.map((entry) => [entry.place_id, entry.derived_from_place_id])).toEqual([
+      [32, 30],
+      [31, 30],
+      [30, null],
+    ]);
+    // A route on no day whose stages are planned is not named as uncounted: its stages stand for it.
+    const routeOnNoDay = row({ ...route, assignment_id: null, date: null });
+    expect(stats([routeOnNoDay, stage1, stage2]).uncounted).toEqual({ unassigned: 0, undated: 0 });
     // With no stage on a day, the route is what was done.
     const unplanned = row({ ...stage1, assignment_id: null, date: null });
-    expect(stats([route, unplanned]).entries.map((entry) => entry.place_id)).toEqual([30]);
+    expect(stats([route, unplanned])).toMatchObject({
+      entries: [expect.objectContaining({ place_id: 30 })],
+      uncounted: { unassigned: 1, undated: 0 },
+    });
   });
 
   it('STA2-HELP-013: a paddle tour carries no heights, planned or recorded', () => {

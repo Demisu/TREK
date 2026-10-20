@@ -17,6 +17,7 @@ const stats: TourActivityStatsResponse = {
       name: 'Ridge',
       tour_type: 'hike',
       trip: { id: 5, title: 'Alps' },
+      derived_from_place_id: null,
       date: '2026-07-02',
       basis: 'plan',
       track: null,
