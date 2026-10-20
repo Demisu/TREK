@@ -80,15 +80,24 @@ export function trackCandidates(tours: readonly TourListItem[], placeId: number)
 
 /**
  * The type a recording of this tour is imported as, preset in the GPX
- * preview: the tour's own, with its bike or run profile or its boat and water where
- * it has them. A type the import does not offer starts as a hike, as the
- * preview always did.
+ * preview: the tour's own, with its bike or run profile, its boat and water,
+ * or its ski discipline and technique where it has them. A type the import
+ * does not offer, and a ski tour without a discipline (which the import
+ * refuses for ski), starts as a hike, as the preview always did.
  */
 export function importFieldsFor(
   tour: Pick<TourListItem, 'tour_type' | 'bike_profile' | 'boat_type' | 'water_context'> &
-    Partial<Pick<TourListItem, 'run_profile'>>
+    Partial<Pick<TourListItem, 'run_profile' | 'ski_discipline' | 'ski_technique'>>
 ): TourGpxImportFields {
   switch (tour.tour_type) {
+    case 'ski':
+      if (!tour.ski_discipline) return { tour_type: 'hike' };
+      return {
+        tour_type: 'ski',
+        ski_discipline: tour.ski_discipline,
+        // Only cross-country is done in a technique; unknown when the travellers did not know it.
+        ...(tour.ski_discipline === 'cross_country' ? { ski_technique: tour.ski_technique ?? 'unknown' } : {}),
+      };
     case 'bike':
       return { tour_type: 'bike', bike_profile: tour.bike_profile ?? 'touring' };
     case 'run':

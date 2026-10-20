@@ -120,6 +120,26 @@ describe('the GPX preset', () => {
     });
     expect(importFieldsFor(tour({ tour_type: 'walk' }))).toEqual({ tour_type: 'walk' });
     expect(importFieldsFor(tour({ tour_type: 'ski' }))).toEqual({ tour_type: 'hike' });
+    expect(importFieldsFor(tour({ tour_type: 'ski', ski_discipline: 'touring', ski_technique: null }))).toEqual({
+      tour_type: 'ski',
+      ski_discipline: 'touring',
+    });
+    const skating = { tour_type: 'ski', ski_discipline: 'cross_country', ski_technique: 'skating' } as const;
+    expect(importFieldsFor(tour(skating))).toEqual(skating);
+    expect(importFieldsFor(tour({ tour_type: 'ski', ski_discipline: 'cross_country', ski_technique: null }))).toEqual({
+      tour_type: 'ski',
+      ski_discipline: 'cross_country',
+      ski_technique: 'unknown',
+    });
+    expect(importFieldsFor(tour({ tour_type: 'run', run_profile: 'trail' }))).toEqual({
+      tour_type: 'run',
+      run_profile: 'trail',
+    });
+    expect(importFieldsFor(tour({ tour_type: 'run', run_profile: null }))).toEqual({
+      tour_type: 'run',
+      run_profile: 'running',
+    });
+    expect(importFieldsFor(tour({ tour_type: 'horse' }))).toEqual({ tour_type: 'horse' });
   });
 });
 
