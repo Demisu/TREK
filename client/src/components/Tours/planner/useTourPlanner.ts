@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { hikingPreferencesOf, paddleSpeedKmhSchema, tourWebsiteSchema, type BikeProfile, type HikingPreferences, type PlannableTourType, type TourCreateResponse, type TourFixedLeg, type TourListItem, type TourMaxHikingDifficulty } from '@trek/shared'
+import { hikingPreferencesOf, isClosedLoop, paddleSpeedKmhSchema, tourWebsiteSchema, type BikeProfile, type HikingPreferences, type PlannableTourType, type TourCreateResponse, type TourFixedLeg, type TourListItem, type TourMaxHikingDifficulty } from '@trek/shared'
 import { paddleRouteRepo } from '../../../repo/paddleRouteRepo'
 import { tourRepo } from '../../../repo/tourRepo'
 import { randomId } from '../../../utils/randomId'
 import { analyzeRouteGeometry, type RouteProfileFocus } from '../../../utils/routeGeometry'
-import { closeLoop, isClosedLoop, reverseRoute, toggleFreeLeg, withPointAppended } from './tourRouteActions'
+import { closeLoop, reverseRoute, toggleFreeLeg, withPointAppended } from './tourRouteActions'
 import { walkTimes } from './stationModel'
 import { hasCompleteElevation, useTourRoute } from './useTourRoute'
-import { normalizePlannerWaypoints, plannerWaypointsOf, ridablePoints, sameWaypointSnapshot, savedWaypointsOf, unlinkedPoint, type TourPlannerWaypoint } from './tourPlannerWaypoints'
+import { normalizePlannerWaypoints, plannerWaypointsOf, ridablePoints, sameWaypointSnapshot, savedWaypointsOf, unlinkedPoint, withSavedKeys, type TourPlannerWaypoint } from './tourPlannerWaypoints'
 import { openedTourFields, tourPlannerFacts } from './tourPlannerFacts'
 import { usePlannerHistory } from './usePlannerHistory'
 import { useTourDraftStorage } from './useTourDraftStorage'
@@ -798,6 +798,12 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
         ? await tourRepo.create(tripId, payload)
         : await tourRepo.update(tripId, targetPlaceId, payload)
       if (stillCurrent()) {
+        // CW-03: the keys the server gave new points stay with them, so the next save keeps their visits.
+        const keyed = withSavedKeys(waypointsRef.current, result.waypoints)
+        if (keyed !== waypointsRef.current) {
+          waypointsRef.current = keyed
+          setWaypoints(keyed)
+        }
         forgetDraft()
         adoptRevision(result.tour.revision)
         if (options.name) setNameState(options.name.trim())
@@ -827,7 +833,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     }
   }, [adoptRevision, refuseRevision, revisionBaseRef, clearHistory, breakAdditionalMinutes, canSave,
     derivedFromPlaceId,
-    description, savedDurationSeconds, editingPlaceId, enrichedGeometry, invalidateDetailRequest, name, onSaved, plannedDurationMinutes, forgetDraft, tripId, typeFields, waypoints, website])
+    description, savedDurationSeconds, editingPlaceId, enrichedGeometry, invalidateDetailRequest, name, onSaved, plannedDurationMinutes, forgetDraft, tourType, tripId, typeFields, waypoints, website])
 
   return {
     tripId, canEdit, canAssign,

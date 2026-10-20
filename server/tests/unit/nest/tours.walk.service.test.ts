@@ -44,7 +44,10 @@ beforeAll(async () => {
   tours = t.get(ToursService);
   visits = t.get(TourVisitsService);
 });
-beforeEach(() => resetTestDb(db));
+beforeEach(() => {
+  resetTestDb(db);
+  t.realtime.broadcastMock.mockReset();
+});
 afterAll(async () => {
   await t.close();
   db.close();
@@ -141,17 +144,39 @@ describe('ToursService and city walks', () => {
 
     // The market is left out; the others come back with their keys, in another order.
     const kept = inOrder([park, cathedral]);
-    await tours.updateTour(tripId, String(placeId), walkBody({ waypoints: kept, expected_revision: 1 }));
+    await tours.updateTour(tripId, String(placeId), walkBody({ waypoints: kept, expected_revision: 1 }), 'sock-1');
     const statusOf = async (assignmentId: number) =>
       (await visits.walkOnDay(tripId, assignmentId)).visits.map((visit) => [visit.station_key, visit.status]);
     expect(await statusOf(onDay1.id)).toEqual([[cathedral.key, 'visited']]);
     expect(await statusOf(onDay2.id)).toEqual([[park.key, 'visited']]);
     expect(await storedKeys(placeId)).toEqual([park.key, cathedral.key]);
+    // Every client of the trip hears of both days, the one that saved too.
+    const visitsOf = (assignmentId: number, key: string | undefined) => ({
+      assignmentId,
+      visits: [{ assignment_id: assignmentId, station_key: key, status: 'visited' }],
+    });
+    expect(t.realtime.broadcastMock).toHaveBeenCalledWith(
+      tripId,
+      'tours:visits',
+      visitsOf(onDay1.id, cathedral.key),
+      undefined,
+    );
+    expect(t.realtime.broadcastMock).toHaveBeenCalledWith(
+      tripId,
+      'tours:visits',
+      visitsOf(onDay2.id, park.key),
+      undefined,
+    );
+
+    // A save that takes no station away has no visits to tell of.
+    t.realtime.broadcastMock.mockClear();
+    await tours.updateTour(tripId, String(placeId), walkBody({ waypoints: kept, expected_revision: 2 }));
+    expect(t.realtime.broadcastMock.mock.calls.map(([, event]) => event)).not.toContain('tours:visits');
 
     await tours.updateTour(
       tripId,
       String(placeId),
-      walkBody({ tour_type: 'hike', waypoints: kept.map(plainPoint), expected_revision: 2 }),
+      walkBody({ tour_type: 'hike', waypoints: kept.map(plainPoint), expected_revision: 3 }),
     );
     expect(await countRows(orm(), TourStationVisits, {})).toBe(0);
     expect(await storedKeys(placeId)).toEqual([park.key, cathedral.key]);
@@ -183,6 +208,50 @@ describe('ToursService and city walks', () => {
     expect(keys[2]).not.toBe('stop-cathedral');
     expect(stationKeySchema.safeParse(keys[2]).success).toBe(true);
     expect(new Set(keys).size).toBe(3);
+  });
+
+  it('TOURS-WALK-006: the way back of a loop is no station: counted once, and its visits go with the next save', async () => {
+    const { tripId, day1 } = await tripWithDays();
+    // A loop saved before the way back stopped copying the start: its own key, the start's name, stay and protection.
+    const back = { ...STATIONS[0], key: 'stop-back' };
+    const created = await tours.createTour(tripId, walkBody({ waypoints: inOrder([...STATIONS, back]) }));
+    const placeId = created.tour.place_id;
+    expect(created.tour.station_count).toBe(3);
+    expect((await tours.listTours(tripId)).map((item) => item.station_count)).toEqual([3]);
+    expect((await tours.getTour(tripId, String(placeId))).tour.station_count).toBe(3);
+
+    const onDay1 = await makeDayAssignment(orm(), day1.id, placeId);
+    const walk = await visits.walkOnDay(tripId, onDay1.id);
+    expect(walk.stations.map((station) => station.key)).toEqual([
+      'stop-cathedral',
+      created.waypoints[2].key,
+      created.waypoints[3].key,
+    ]);
+    await markStationVisit(orm(), onDay1.id, 'stop-cathedral', 'visited');
+    await markStationVisit(orm(), onDay1.id, 'stop-back', 'visited');
+
+    // A telling that fails leaves the committed save as it is.
+    t.realtime.broadcastMock.mockImplementation((_trip: string, event: string) => {
+      if (event === 'tours:visits') throw new Error('socket gone');
+    });
+    const saved = await tours.updateTour(
+      tripId,
+      String(placeId),
+      walkBody({ waypoints: created.waypoints, expected_revision: 1 }),
+    );
+    expect(saved.tour).toMatchObject({ station_count: 3, revision: 2 });
+    expect((await visits.walkOnDay(tripId, onDay1.id)).visits).toEqual([
+      { assignment_id: onDay1.id, station_key: 'stop-cathedral', status: 'visited' },
+    ]);
+    expect(t.realtime.broadcastMock).toHaveBeenCalledWith(
+      tripId,
+      'tours:visits',
+      {
+        assignmentId: onDay1.id,
+        visits: [{ assignment_id: onDay1.id, station_key: 'stop-cathedral', status: 'visited' }],
+      },
+      undefined,
+    );
   });
 
   it('TOURS-WALK-005: a GPX file taken in as a city walk has no stations yet', async () => {

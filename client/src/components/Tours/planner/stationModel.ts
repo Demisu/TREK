@@ -1,3 +1,4 @@
+import { walkStationsOf } from '@trek/shared';
 import type { TourPlannerWaypoint } from './tourPlannerWaypoints';
 
 /**
@@ -18,13 +19,9 @@ export interface WalkTimes {
   partial: boolean;
 }
 
-/** The stations of a city walk: its points that are no shaping points. */
-function stationsOf(points: readonly TourPlannerWaypoint[]): TourPlannerWaypoint[] {
-  return points.filter((point) => !point.shaping);
-}
-
 export function walkTimes(points: readonly TourPlannerWaypoint[], walkingMinutes: number | null): WalkTimes {
-  const stations = stationsOf(points);
+  // A shaping point is no station, and the way back of a loop is its start again: its stay counts once.
+  const stations = walkStationsOf(points);
   const stayMinutes = stations.reduce((sum, station) => sum + (station.stayMinutes ?? 0), 0);
   const unknownStays = stations.filter((station) => station.stayMinutes == null).length;
   return {

@@ -1,18 +1,28 @@
 import { act, renderHook } from '@testing-library/react';
+import type { TourCreateRequest, TourCreateResponse } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { routeWalkingTour, enrichTourElevations, createTour, detailTour, updateTour, paddlePlan, paddleForget } =
-  vi.hoisted(() => ({
-    routeWalkingTour: vi.fn(),
-    enrichTourElevations: vi.fn(),
-    createTour: vi.fn(),
-    detailTour: vi.fn(),
-    updateTour: vi.fn(),
-    paddlePlan: vi.fn(),
-    paddleForget: vi.fn(),
-  }));
+const {
+  routeWalkingTour,
+  routeCityWalk,
+  enrichTourElevations,
+  createTour,
+  detailTour,
+  updateTour,
+  paddlePlan,
+  paddleForget,
+} = vi.hoisted(() => ({
+  routeWalkingTour: vi.fn(),
+  routeCityWalk: vi.fn(),
+  enrichTourElevations: vi.fn(),
+  createTour: vi.fn(),
+  detailTour: vi.fn(),
+  updateTour: vi.fn(),
+  paddlePlan: vi.fn(),
+  paddleForget: vi.fn(),
+}));
 
-vi.mock('./tourRouting', () => ({ routeWalkingTour, enrichTourElevations }));
+vi.mock('./tourRouting', () => ({ routeWalkingTour, routeCityWalk, enrichTourElevations }));
 vi.mock('../../../repo/tourRepo', () => ({ tourRepo: { create: createTour, detail: detailTour, update: updateTour } }));
 vi.mock('../../../repo/paddleRouteRepo', () => ({ paddleRouteRepo: { plan: paddlePlan, forget: paddleForget } }));
 vi.mock('../useTourPermissions', () => ({
@@ -95,6 +105,7 @@ describe('useTourPlanner route tools', () => {
     vi.useFakeTimers();
     localStorage.clear();
     routeWalkingTour.mockReset().mockResolvedValue(routed);
+    routeCityWalk.mockReset().mockResolvedValue(routed);
     paddlePlan.mockReset().mockImplementation(async (_trip: number, legs: LegAsked[]) => onWater(legs));
     paddleForget.mockReset();
     enrichTourElevations.mockReset().mockResolvedValue(enriched);
@@ -524,6 +535,147 @@ describe('useTourPlanner route tools', () => {
       expect(result.current.waypoints.filter((point) => point.auto).every((point) => point.auto?.to.lat === 48.2)).toBe(
         true
       );
+    });
+  });
+
+  describe("a city walk's keys and stops (CW-02, CW-03)", () => {
+    /** The server's answer to a save: the points in their order, a key sent kept, one missing made up. */
+    const answered = (body: TourCreateRequest, revision: number): TourCreateResponse => ({
+      tour: { ...savedTour, tour_type: 'walk', revision },
+      waypoints: body.waypoints.map((point, index) => ({ ...point, key: point.key ?? `new-${revision}-${index}` })),
+    });
+    /** The keys of the points a create or an update sent, the body being its last argument. */
+    const keysSent = (call: unknown[] | undefined) =>
+      (call?.[call.length - 1] as TourCreateRequest).waypoints.map((point) => point.key);
+
+    /** A walk through these points, named and routed, ready to save. */
+    async function walkPlanned(points: Array<[number, number]>) {
+      createTour.mockImplementation(async (_trip: number, body: TourCreateRequest) => answered(body, 1));
+      updateTour.mockImplementation(async (_trip: number, _place: number, body: TourCreateRequest) =>
+        answered(body, (updateTour.mock.calls.length as number) + 1)
+      );
+      const hook = plannerWith(points);
+      act(() => hook.result.current.setTourType('walk'));
+      act(() => hook.result.current.setName('Old town'));
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(450);
+      });
+      return hook;
+    }
+
+    it('sends the keys a save answered with the next save, and plans no route again for them', async () => {
+      const { result } = await walkPlanned([
+        [48, 11],
+        [48.01, 11.02],
+        [48.02, 11],
+      ]);
+      const routings = routeCityWalk.mock.calls.length;
+      await act(async () => {
+        await result.current.save();
+      });
+      expect(keysSent(createTour.mock.calls[0])).toEqual([undefined, undefined, undefined]);
+      expect(result.current.waypoints.map((point) => point.key)).toEqual(['new-1-0', 'new-1-1', 'new-1-2']);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(450);
+      });
+      expect(routeCityWalk).toHaveBeenCalledTimes(routings);
+      expect(result.current.status).toBe('saved');
+      expect(result.current.hasUnsavedChanges).toBe(false);
+      expect(result.current.canUndo).toBe(false);
+
+      act(() => result.current.setName('Old town at dusk'));
+      await act(async () => {
+        await result.current.save();
+      });
+      expect(keysSent(updateTour.mock.calls[0])).toEqual(['new-1-0', 'new-1-1', 'new-1-2']);
+    });
+
+    it("closes a walk without the start's key, and the way back keeps the key it was given", async () => {
+      const { result } = await walkPlanned([
+        [48, 11],
+        [48.01, 11.02],
+        [48.02, 11],
+      ]);
+      await act(async () => {
+        await result.current.save();
+      });
+      act(() => result.current.returnToStart());
+      expect(result.current.waypoints.map((point) => point.key)).toEqual(['new-1-0', 'new-1-1', 'new-1-2', undefined]);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(450);
+      });
+      await act(async () => {
+        await result.current.save();
+      });
+      expect(result.current.waypoints.map((point) => point.key)).toEqual(['new-1-0', 'new-1-1', 'new-1-2', 'new-2-3']);
+
+      act(() => result.current.setName('Round the old town'));
+      await act(async () => {
+        await result.current.save();
+      });
+      expect(keysSent(updateTour.mock.calls[1])).toEqual(['new-1-0', 'new-1-1', 'new-1-2', 'new-2-3']);
+    });
+
+    it("takes a stop's stay from its dialog as a step of its own and saves it, without routing the walk again", async () => {
+      const { result } = await walkPlanned([
+        [48, 11],
+        [48.01, 11.02],
+        [48.02, 11],
+      ]);
+      const routings = routeCityWalk.mock.calls.length;
+      const stop = must(result.current.waypoints[1]);
+      act(() =>
+        result.current.editWaypoints((points) =>
+          points.map((point) => (point.id === stop.id ? { ...point, name: 'Market', stayMinutes: 45 } : point))
+        )
+      );
+      expect(result.current.waypoints[1]).toMatchObject({ name: 'Market', stayMinutes: 45 });
+      expect(result.current.stationStays?.stayMinutes).toBe(45);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(450);
+      });
+      expect(routeCityWalk).toHaveBeenCalledTimes(routings);
+      expect(result.current.status).toBe('ready');
+      expect(result.current.canSave).toBe(true);
+
+      act(() => result.current.undo());
+      expect(result.current.waypoints[1]?.stayMinutes).toBeUndefined();
+      act(() => result.current.redo());
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(450);
+      });
+      expect(routeCityWalk).toHaveBeenCalledTimes(routings);
+      await act(async () => {
+        await result.current.save();
+      });
+      expect((createTour.mock.calls[0]?.[1] as TourCreateRequest).waypoints[1]).toMatchObject({
+        name: 'Market',
+        stay_minutes: 45,
+      });
+    });
+
+    it('names a point of a paddle tour without planning the water again', async () => {
+      const { result } = plannerWith([
+        [48, 11],
+        [48.01, 11.02],
+        [48.02, 11],
+      ]);
+      act(() => result.current.setTourType('kayak'));
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(450);
+      });
+      const plans = paddlePlan.mock.calls.length;
+      act(() =>
+        result.current.editWaypoints((points) =>
+          points.map((point, index) => (index === 1 ? { ...point, name: 'Boathouse' } : point))
+        )
+      );
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(450);
+      });
+      expect(paddlePlan).toHaveBeenCalledTimes(plans);
+      expect(result.current.waypoints[1]?.name).toBe('Boathouse');
+      expect(result.current.status).toBe('ready');
     });
   });
 });

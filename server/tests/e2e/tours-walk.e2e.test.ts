@@ -357,12 +357,22 @@ describe('City walks e2e (real guards + temp SQLite)', () => {
       expect(reduced).toEqual([200, 200, 200]);
 
       const withoutMarket = inOrder([waypoints[0], waypoints[3]]);
+      realtime.broadcastMock.mockClear();
       const edit = await request(server)
         .put(`/api/trips/5/tours/${placeId}`)
         .set('Cookie', cookie())
+        .set('X-Socket-Id', 'sock-1')
         .send(walkBody({ waypoints: withoutMarket, expected_revision: 1 }));
       expect(edit.status).toBe(200);
-      expect((await visitsOf()).map((visit) => visit.station_key).sort()).toEqual([cathedral, park].sort());
+      const left = await visitsOf();
+      expect(left.map((visit) => visit.station_key).sort()).toEqual([cathedral, park].sort());
+      // The client that saved still holds the market's visit too, so its own socket hears of the change as well.
+      expect(realtime.broadcastMock).toHaveBeenCalledWith(
+        '5',
+        'tours:visits',
+        { assignmentId, visits: left },
+        undefined,
+      );
 
       const plain = withoutMarket.map(({ stay_minutes: _s, importance: _i, protected: _p, ...point }) => point);
       const hike = await request(server)

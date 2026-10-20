@@ -1,4 +1,4 @@
-// FE-TOUR-WAYPOINT-LIST-001 to FE-TOUR-WAYPOINT-LIST-007: shaping points, the water router's answers
+// FE-TOUR-WAYPOINT-LIST-001 to FE-TOUR-WAYPOINT-LIST-008: shaping points, the water router's answers
 // and a city walk's stops in the list (P2A-03, P2A-05, PAD-11, CW-01).
 import userEvent from '@testing-library/user-event';
 import type { PaddleRouteLeg } from '@trek/shared';
@@ -214,6 +214,22 @@ describe('TourWaypointList', () => {
     await userEvent.click(
       within(at(screen.getAllByTestId('tour-planner-waypoint-row'), 2)).getByRole('button', { name: 'More actions' })
     );
+    expect(screen.queryByRole('button', { name: 'Edit stop' })).not.toBeInTheDocument();
+  });
+
+  it('FE-TOUR-WAYPOINT-LIST-008: the way back of a loop walk is no stop: no pills and no stop to edit', async () => {
+    const back = { ...START, id: 'back', role: 'end' as const };
+    const controller = planner({
+      tourType: 'walk',
+      isLoop: true,
+      waypoints: [START, STOP, back],
+      selectedWaypointId: 'back',
+    });
+    render(<TourWaypointList planner={controller} canEdit isSaving={false} />);
+    const rows = screen.getAllByTestId('tour-planner-waypoint-row');
+    expect(within(at(rows, 0)).getByTestId('station-pills')).toBeInTheDocument();
+    expect(within(at(rows, 2)).queryByTestId('station-pills')).not.toBeInTheDocument();
+    await userEvent.click(within(at(rows, 2)).getByRole('button', { name: 'More actions' }));
     expect(screen.queryByRole('button', { name: 'Edit stop' })).not.toBeInTheDocument();
   });
 });

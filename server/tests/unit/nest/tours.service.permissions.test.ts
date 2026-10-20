@@ -122,7 +122,7 @@ function makeService() {
     insertForPlace: inTx(undefined),
     deleteForPlace: inTx(undefined),
   };
-  const visitsRepo = { dropStationsNotIn: inTx(undefined) };
+  const visitsRepo = { dropStationsNotIn: inTx([]) };
   const placesRepo = {
     insertTourPlace: inTx(42),
     updateTourRoute: inTx(true),

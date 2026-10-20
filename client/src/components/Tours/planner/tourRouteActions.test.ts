@@ -1,9 +1,10 @@
+import { isClosedLoop } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
+import type { TourPlannerWaypoint } from './tourPlannerWaypoints';
 import {
   alignFreeLegs,
   closeLoop,
   freeLegBetween,
-  isClosedLoop,
   portageLegBetween,
   reverseRoute,
   setPortageExtraMinutes,
@@ -27,18 +28,6 @@ const FERRATA = {
   ] as [number, number][],
 };
 
-describe('isClosedLoop', () => {
-  it('reads a loop from the points: the end on the spot of the start', () => {
-    expect(isClosedLoop([A, B, { ...A, id: 'a2' }])).toBe(true);
-    expect(isClosedLoop([A, B, C])).toBe(false);
-  });
-
-  it('is no loop with two points on one spot, or none', () => {
-    expect(isClosedLoop([A, { ...A, id: 'a2' }])).toBe(false);
-    expect(isClosedLoop([])).toBe(false);
-  });
-});
-
 describe('closeLoop (PR1-01)', () => {
   it('adds one end on the start, under a new id, and keeps every stop', () => {
     const closed = closeLoop([A, B, C], 'back');
@@ -56,6 +45,23 @@ describe('closeLoop (PR1-01)', () => {
   it('does not carry the start leg onto the return point', () => {
     const closed = closeLoop([{ ...A, fixedLeg: freeLegBetween(A, B) }, B], 'back');
     expect(closed[2].fixedLeg).toBeUndefined();
+  });
+
+  it("takes none of a city walk's start station onto the way back, only its spot and the place it stands for", () => {
+    const cathedral: TourPlannerWaypoint = {
+      ...A,
+      role: 'start',
+      key: 'stop-cathedral',
+      name: 'Cathedral',
+      stayMinutes: 30,
+      importance: 'must',
+      protected: true,
+      openingHours: 'Mo-Su 09:00-18:00',
+      linkedPlaceId: 7,
+    };
+    const closed = closeLoop<TourPlannerWaypoint>([cathedral, { ...B, role: 'via' }, { ...C, role: 'end' }], 'back');
+    expect(closed[3]).toEqual({ id: 'back', lat: A.lat, lng: A.lng, role: 'start', linkedPlaceId: 7 });
+    expect(closed[0]).toBe(cathedral);
   });
 });
 

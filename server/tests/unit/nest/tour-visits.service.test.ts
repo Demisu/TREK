@@ -271,6 +271,40 @@ describe('TourVisitsService', () => {
     expect(await countRows(orm(), TourStationVisits, {})).toBe(before);
   });
 
+  it('TOUR-VISITS-007: the way back of a loop is no station: its start is read once and its key is refused', async () => {
+    const { trip, day1 } = await fixture();
+    const loop = await makePlace(orm(), trip.id, { name: 'Round' });
+    await makeTour(orm(), loop.id, { tourTypeRef: 'walk', duration: 60 });
+    const cathedral = {
+      lat: 48.1,
+      lng: 11.5,
+      name: 'Cathedral',
+      stay_minutes: 30,
+      importance: 'must',
+      protected: 1,
+    } as const;
+    await addTourWaypoints(orm(), loop.id, [
+      { ...cathedral, station_key: 'stop-cathedral' },
+      { lat: 48.11, lng: 11.51, station_key: 'stop-market' },
+      { lat: 48.13, lng: 11.53, station_key: 'stop-park', stay_minutes: 45 },
+      // A way back saved as a copy of the start, the way loops were closed at first.
+      { ...cathedral, station_key: 'stop-back' },
+    ]);
+    const onDay1 = await makeDayAssignment(orm(), day1.id, loop.id);
+    await markStationVisit(orm(), onDay1.id, 'stop-cathedral', 'visited');
+
+    const progress = await visits.progress(trip.id, loop.id, day1.id);
+    expect(progress.stations.map((station) => [station.name, station.status])).toEqual([
+      ['Cathedral', 'visited'],
+      [null, 'planned'],
+      [null, 'planned'],
+    ]);
+    expect(progress.open).toEqual({ stations: 2, stay_minutes_known: 45, stays_unknown: 1 });
+    await expect(visits.update(String(trip.id), onDay1.id, 'stop-back', { status: 'visited' })).rejects.toEqual(
+      new NotFoundException('Station not found'),
+    );
+  });
+
   it('TOUR-VISITS-006: progress of a walk without stations or walking time, and of a walk not on that day', async () => {
     const { trip, day3, walk, other, otherDay, otherWalk, foreign } = await fixture();
     expect(await visits.progress(other.id, otherWalk.id, otherDay.id)).toEqual<WalkProgress>({

@@ -106,11 +106,15 @@ export class TourStationVisitsRepository extends TrekRepository<TourStationVisit
       .execute();
   }
 
-  /** Drops the visits of stations a walk no longer has, on every day it is on. */
-  async dropStationsNotIn(place_id: number, keep: readonly string[]): Promise<void> {
+  /**
+   * Drops the visits of stations a walk no longer has, on every day it is on;
+   * answers the day assignments that lost one, each once.
+   */
+  async dropStationsNotIn(place_id: number, keep: readonly string[]): Promise<number[]> {
     const assignments = this.db().selectFrom('day_assignments').select('id').where('place_id', '=', place_id);
     let query = this.db().deleteFrom('tour_station_visits').where('assignment_id', 'in', assignments);
     if (keep.length > 0) query = query.where('station_key', 'not in', [...keep]);
-    await query.execute();
+    const dropped = await query.returning('assignment_id').execute();
+    return [...new Set(dropped.map((row) => row.assignment_id))].sort((a, b) => a - b);
   }
 }

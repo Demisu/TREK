@@ -475,7 +475,7 @@ function WaypointRowActions({
   const menu = useContextMenu();
   const paddle = usePaddleWaypointActions(planner);
   const [stationOpen, setStationOpen] = useState(false);
-  const station = planner.tourType === 'walk' && !point.shaping;
+  const station = planner.tourType === 'walk' && !point.shaping && !(planner.isLoop && index === lastIndex);
   const items: MenuItems = [
     ...(station
       ? [
@@ -882,6 +882,7 @@ export default function TourWaypointList({
           const isDropTarget = dropTarget?.id === point.id && draggedWaypointId !== point.id;
           const loopEnd = planner.isLoop && index === lastIndex;
           const linkedPlace = tripPlaces.linkedPlaceOf(point);
+          const placeName = linkedPlace?.name ?? placeNames[point.id];
           return (
             <Fragment key={point.id}>
               <li
@@ -952,7 +953,7 @@ export default function TourWaypointList({
                   >
                     <WaypointRowLabel
                       point={point}
-                      placeName={linkedPlace?.name ?? placeNames[point.id]}
+                      placeName={placeName}
                       loopEnd={loopEnd}
                       paddleRole={paddleRoleOf(point.id)}
                       linked={!!linkedPlace}
@@ -968,7 +969,7 @@ export default function TourWaypointList({
                       selected={selected}
                       isSaving={isSaving}
                       onUnlink={point.linkedPlaceId ? () => tripPlaces.unlink(point.id) : undefined}
-                      stationName={linkedPlace?.name ?? placeNames[point.id]}
+                      stationName={placeName}
                     />
                   )}
                 </div>

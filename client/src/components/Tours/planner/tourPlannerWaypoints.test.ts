@@ -1,14 +1,16 @@
-// FE-TOUR-WAYPOINTS-001 to FE-TOUR-WAYPOINTS-007: the editor's waypoint model, shaping points, drawn legs
-// and a city walk's stations (P2A-03, PAD-11, CW-01 to CW-04).
+// FE-TOUR-WAYPOINTS-001 to FE-TOUR-WAYPOINTS-009: the editor's waypoint model, shaping points, drawn legs
+// and a city walk's stations with the keys a save answers (P2A-03, PAD-11, CW-01 to CW-04).
 import type { TourWaypoint } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
 import {
   normalizePlannerWaypoints,
   plannerWaypointsOf,
+  routeExtrasKey,
   sameWaypointSnapshot,
   savedWaypointsOf,
   tourWaypointKey,
   withDrawnLegsRouted,
+  withSavedKeys,
   withShaping,
   withShapingPoint,
   type TourPlannerWaypoint,
@@ -145,5 +147,46 @@ describe('tourPlannerWaypoints', () => {
     ];
     expect(savedWaypointsOf(points, 'hike')).toEqual(plain);
     expect(savedWaypointsOf(points)).toEqual(plain);
+  });
+
+  it("FE-TOUR-WAYPOINTS-008: a station's own fields make another step of the history, but no other route", () => {
+    const edits: Array<Partial<TourPlannerWaypoint>> = [
+      { name: 'Cathedral' },
+      { stayMinutes: 0 },
+      { importance: 'optional' },
+      { protected: true },
+      { openingHours: 'Mo-Fr 10:00-17:00' },
+    ];
+    for (const edit of edits) {
+      const edited = [A, { ...B, ...edit }, C];
+      expect(sameWaypointSnapshot([A, B, C], edited)).toBe(false);
+      expect(tourWaypointKey(edited)).toBe(tourWaypointKey([A, B, C]));
+      expect(routeExtrasKey(edited)).toBe(routeExtrasKey([A, B, C]));
+    }
+    // The key a save answered is no change of the draft at all.
+    expect(sameWaypointSnapshot([A, B, C], [A, { ...B, key: 'stop-b' }, C])).toBe(true);
+    expect(routeExtrasKey([A, { ...B, linkedPlaceId: 4 }, C])).not.toBe(routeExtrasKey([A, B, C]));
+  });
+
+  it('FE-TOUR-WAYPOINTS-009: the keys a save answered go onto the points by position, and nothing new answers the same list', () => {
+    const points = [A, { ...B, key: 'stop-b' }, C];
+    const keyed = withSavedKeys(points, [
+      { lat: A.lat, lng: A.lng, role: 'start', sequence: 0, key: 'stop-a' },
+      { lat: B.lat, lng: B.lng, role: 'via', sequence: 1, key: 'stop-b' },
+      { lat: C.lat, lng: C.lng, role: 'end', sequence: 2, key: 'stop-c' },
+    ]);
+    expect(keyed.map((point) => point.key)).toEqual(['stop-a', 'stop-b', 'stop-c']);
+    expect(keyed[1]).toBe(points[1]);
+    expect(keyed.map((point) => point.id)).toEqual(['a', 'b', 'c']);
+
+    expect(
+      withSavedKeys(
+        keyed,
+        keyed.map((point, sequence) => ({ ...point, sequence }))
+      )
+    ).toBe(keyed);
+    // An answer without keys, as an offline save gives, or of another length leaves the points as they are.
+    expect(withSavedKeys(points, savedWaypointsOf([A, B, C]))).toBe(points);
+    expect(withSavedKeys(points, [])).toBe(points);
   });
 });

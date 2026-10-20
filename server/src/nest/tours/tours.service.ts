@@ -7,7 +7,11 @@ import { TOUR_HIKING_PREFERENCES, TOUR_TRACK_MARKS } from '../../db/json-columns
 import type { PlacesRepository } from '../../db/repositories/Places.repository';
 import type { TourStationVisitsRepository } from '../../db/repositories/TourStationVisits.repository';
 import type { TourTypesRepository } from '../../db/repositories/TourTypes.repository';
-import type { TourWaypointsRepository } from '../../db/repositories/TourWaypoints.repository';
+import type {
+  TourWaypointRow,
+  TourWaypointsRepository,
+  TourWaypointWithPlaceRow,
+} from '../../db/repositories/TourWaypoints.repository';
 import type {
   TourDayRow,
   TourListRow,
@@ -23,6 +27,7 @@ import { PlaceImportService } from '../place-import/place-import.service';
 import { PlacesService } from '../places/places.service';
 import { TourPaddleCheckService } from './tour-paddle-check.service';
 import { advanceTourRevision } from './tour-revision';
+import { toVisit } from './tour-visits.service';
 import {
   computeTourMetrics,
   localHashOf,
@@ -52,6 +57,7 @@ import {
   type TourProvenanceSource,
   type TourWaypoint,
   type WandererDifficulty,
+  walkStationsOf,
   wandererDifficultyToSac,
 } from '@trek/shared';
 
@@ -110,7 +116,8 @@ export class ToursService {
     private readonly paddleChecks: TourPaddleCheckService,
   ) {}
 
-  private toItem(r: TourListRow): TourListItem {
+  /** A tour as it is listed; a city walk with the stations its points make (CW-03). */
+  private toItem(r: TourListRow, points: readonly TourWaypointRow[] = []): TourListItem {
     return {
       place_id: r.place_id,
       name: r.name,
@@ -142,7 +149,7 @@ export class ToursService {
       has_waypoints: Boolean(r.has_waypoints),
       revision: r.revision,
       hiking_preferences: decodeJson(TOUR_HIKING_PREFERENCES, r.hiking_preferences, 'tour'),
-      station_count: r.tour_type === 'walk' ? r.station_count : null,
+      station_count: r.tour_type === 'walk' ? walkStationsOf(points).length : null,
     };
   }
 
@@ -218,10 +225,26 @@ export class ToursService {
     const tid = toRowId(tripId);
     if (tid === null) return [];
     const rows = await this.toursRepo.listForTrip(tid);
+    const walkPoints = await this.walkPointsOf(tid, rows);
     return await this.paddleChecks.forTrip(
       tid,
-      rows.map((r) => this.toItem(r)),
+      rows.map((r) => this.toItem(r, walkPoints.get(r.place_id) ?? [])),
     );
+  }
+
+  /** CW-03: the points of the trip's city walks by tour, read only where the trip has a walk. */
+  private async walkPointsOf(
+    tripId: number,
+    rows: readonly TourListRow[],
+  ): Promise<Map<number, TourWaypointWithPlaceRow[]>> {
+    const byPlace = new Map<number, TourWaypointWithPlaceRow[]>();
+    if (!rows.some((row) => row.tour_type === 'walk')) return byPlace;
+    for (const point of await this.waypointsRepo.listForTrip(tripId)) {
+      const points = byPlace.get(point.place_id);
+      if (points) points.push(point);
+      else byPlace.set(point.place_id, [point]);
+    }
+    return byPlace;
   }
 
   /** The days every tour of the trip sits on, for the MCP read tools. */
@@ -257,7 +280,7 @@ export class ToursService {
       }
     }
 
-    const checked = await this.paddleChecks.forTour(this.toItem(row), stored, place?.route_geometry ?? null);
+    const checked = await this.paddleChecks.forTour(this.toItem(row, stored), stored, place?.route_geometry ?? null);
     return {
       tour: checked.item,
       waypoints,
@@ -349,7 +372,11 @@ export class ToursService {
     } catch {
       this.logger.warn(`Committed Tour ${placeId}: place notification failed`);
     }
-    const checked = await this.paddleChecks.forTour(this.toItem(row), waypoints, place.route_geometry ?? null);
+    const checked = await this.paddleChecks.forTour(
+      this.toItem(row, waypoints),
+      waypoints,
+      place.route_geometry ?? null,
+    );
     return {
       tour: checked.item,
       waypoints,
@@ -573,7 +600,7 @@ export class ToursService {
     const start = input.route_geometry[0];
     const fields = this.routeFields(input);
 
-    await this.uow.transactional(async () => {
+    const visitsDropped = await this.uow.transactional(async () => {
       // The trip predicate is the cross-trip boundary. It runs inside the write
       // so an id from another accessible trip cannot be moved into the current
       // one, and a place deleted meanwhile answers 404 instead of failing a
@@ -597,8 +624,8 @@ export class ToursService {
       const waypoints = keyedWaypoints(await this.linkedWaypoints(tid, input.waypoints));
       await this.waypointsRepo.insertForPlace(pid, waypoints);
       // CW-03: a station that is gone takes its visits with it; a tour that is no city walk keeps none.
-      const stations = input.tour_type === 'walk' ? waypoints.map((point) => point.key) : [];
-      await this.visitsRepo.dropStationsNotIn(pid, stations);
+      const stations = input.tour_type === 'walk' ? walkStationsOf(waypoints).map((point) => point.key) : [];
+      return await this.visitsRepo.dropStationsNotIn(pid, stations);
     });
 
     const result = await this.getTour(tripId, placeId);
@@ -610,7 +637,26 @@ export class ToursService {
     } catch {
       this.logger.warn(`Committed Tour ${placeId}: place notification failed`);
     }
+    await this.announceVisits(tripId, visitsDropped);
     return result;
+  }
+
+  /**
+   * CW-03: the days whose visits an edit took along, told to every client of
+   * the trip, the one that saved included, so no day plan goes on counting a
+   * station the walk no longer has.
+   */
+  private async announceVisits(tripId: string, assignmentIds: readonly number[]): Promise<void> {
+    await Promise.all(
+      assignmentIds.map(async (assignmentId) => {
+        const visits = (await this.visitsRepo.listForAssignment(assignmentId)).map(toVisit);
+        try {
+          this.places.broadcast(tripId, 'tours:visits', { assignmentId, visits }, undefined);
+        } catch {
+          this.logger.warn(`Committed Tour visits of assignment ${assignmentId}: realtime notification failed`);
+        }
+      }),
+    );
   }
 
   /** PR1-10: the names of the places the points stand for, for a reader that wants them spelled out. */
@@ -735,7 +781,6 @@ export class ToursService {
             has_waypoints: 0,
             revision: 1,
             hiking_preferences: null,
-            station_count: 0,
           }),
         );
       }

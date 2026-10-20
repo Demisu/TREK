@@ -126,21 +126,58 @@ export function tourWaypointKey(points: TourPlannerWaypoint[]): string {
 }
 
 /**
- * The line, and what was planned along it that draws no line: a portage's
- * time, a lock, a point the router set, the place a point stands for.
+ * What was planned along the line that draws no line: a portage's time, a
+ * lock, a point the router set, the place a point stands for. With
+ * {@link tourWaypointKey} it is what a route is planned from.
  */
+export function routeExtrasKey(points: TourPlannerWaypoint[]): string {
+  return JSON.stringify(
+    points.map((point) => [
+      point.fixedLeg?.kind === 'portage' ? (point.fixedLeg.extra_minutes ?? null) : null,
+      point.lock ?? null,
+      !!point.auto,
+      !!point.carryNext,
+      point.linkedPlaceId ?? null,
+    ])
+  );
+}
+
+/** CW-01 to CW-04: what a city walk's station holds besides its spot, none of which the route depends on. */
+function stationFieldsKey(points: TourPlannerWaypoint[]): string {
+  return JSON.stringify(
+    points.map((point) => [
+      point.name ?? null,
+      point.stayMinutes ?? null,
+      point.importance ?? null,
+      !!point.protected,
+      point.openingHours ?? null,
+    ])
+  );
+}
+
+/** The same step of the history: the line, what was planned along it, and every station's own fields. */
 export function sameWaypointSnapshot(a: TourPlannerWaypoint[], b: TourPlannerWaypoint[]): boolean {
-  const extras = (points: TourPlannerWaypoint[]) =>
-    JSON.stringify(
-      points.map((point) => [
-        point.fixedLeg?.kind === 'portage' ? (point.fixedLeg.extra_minutes ?? null) : null,
-        point.lock ?? null,
-        !!point.auto,
-        !!point.carryNext,
-        point.linkedPlaceId ?? null,
-      ])
-    );
-  return tourWaypointKey(a) === tourWaypointKey(b) && extras(a) === extras(b);
+  return (
+    tourWaypointKey(a) === tourWaypointKey(b) &&
+    routeExtrasKey(a) === routeExtrasKey(b) &&
+    stationFieldsKey(a) === stationFieldsKey(b)
+  );
+}
+
+/**
+ * CW-03: the keys a save was answered with, taken over by position. The server
+ * keeps the points of a save in their order and gives one sent without a key
+ * a key of its own; sent back with the next save, it keeps the visits made on
+ * that station. An answer of another length is left alone, and nothing new
+ * answers the same array.
+ */
+export function withSavedKeys(points: TourPlannerWaypoint[], saved: readonly TourWaypoint[]): TourPlannerWaypoint[] {
+  if (saved.length !== points.length) return points;
+  const keyed = points.map((point, index) => {
+    const key = saved[index]?.key;
+    return key && key !== point.key ? { ...point, key } : point;
+  });
+  return keyed.some((point, index) => point !== points[index]) ? keyed : points;
 }
 
 /** P2A-03: the points with a shaping point set into the leg after `afterId`; unchanged when there is no such leg. */

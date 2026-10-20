@@ -10,7 +10,7 @@ import type { ToursRepository } from '../../db/repositories/Tours.repository';
 import { PlacesService } from '../places/places.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { TourVisit, TourVisitListResponse, TourVisitUpdateRequest } from '@trek/shared';
+import { walkStationsOf, type TourVisit, type TourVisitListResponse, type TourVisitUpdateRequest } from '@trek/shared';
 
 /** A city walk on one of its days: the assignment, the walk and its stations in order. */
 export interface WalkOnDay {
@@ -52,7 +52,7 @@ export class TourVisitsService {
       assignmentId,
       dayId: assignment.day_id,
       placeId: assignment.place_id,
-      stations: points.filter((point) => !point.shaping),
+      stations: walkStationsOf(points),
       visits: await this.visitsRepo.listForAssignment(assignmentId),
     };
   }
@@ -138,6 +138,7 @@ export interface WalkProgress {
   walking_minutes: number | null;
 }
 
-function toVisit(row: TourStationVisitRow): TourVisit {
+/** A visit as the routes and the trip's socket send it. */
+export function toVisit(row: TourStationVisitRow): TourVisit {
   return { assignment_id: row.assignment_id, station_key: row.station_key, status: row.status };
 }

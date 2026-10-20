@@ -21,6 +21,8 @@ import {
   createTrip,
   createUser,
 } from '../../helpers/factories';
+import { makeDayAssignment } from '../../helpers/factories/itinerary';
+import { makePlace } from '../../helpers/factories/places';
 import { countRows, insertRows, updateRows } from '../../helpers/factories/rows';
 import { addTourWaypoints, makeTour, markStationVisit } from '../../helpers/factories/tours';
 import { resetTestDb } from '../../helpers/test-db';
@@ -180,15 +182,15 @@ describe('ToursMcp', () => {
   /** CW-09: a city walk on day 1 with three stops, the first visited and the second skipped that day. */
   async function walkFixture() {
     const base = fixture();
-    const walk = createPlace(db, base.trip.id, { name: 'Old town' });
     const orm = await createTestOrm(db);
+    const walk = await makePlace(orm, base.trip.id, { name: 'Old town' });
     await makeTour(orm, walk.id, { tourTypeRef: 'walk', duration: 80 });
     await addTourWaypoints(orm, walk.id, [
       { lat: 48.1, lng: 11.5, station_key: 'stop-cathedral', name: 'Cathedral', stay_minutes: 30 },
       { lat: 48.11, lng: 11.51, station_key: 'stop-market', stay_minutes: 20 },
       { lat: 48.12, lng: 11.52, station_key: 'stop-park', importance: 'must' },
     ]);
-    const onDay1 = createDayAssignment(db, base.day1.id, walk.id);
+    const onDay1 = await makeDayAssignment(orm, base.day1.id, walk.id);
     await markStationVisit(orm, onDay1.id, 'stop-cathedral', 'visited');
     await markStationVisit(orm, onDay1.id, 'stop-market', 'skipped');
     await orm.close();
@@ -221,8 +223,10 @@ describe('ToursMcp', () => {
     expect(
       read(await mcp.getCityWalkProgress({ tripId: trip.id, placeId: walk.id, dayId: day1.id }, ctx(outsider.id))),
     ).toEqual({ error: 'Trip not found or access denied.' });
-    const cafe = createPlace(db, trip.id, { name: 'Plain' });
-    createDayAssignment(db, day1.id, cafe.id);
+    const orm = await createTestOrm(db);
+    const cafe = await makePlace(orm, trip.id, { name: 'Plain' });
+    await makeDayAssignment(orm, day1.id, cafe.id);
+    await orm.close();
     const notThere = [
       { placeId: walk.id, dayId: day2.id },
       { placeId: ridge.id, dayId: day1.id },

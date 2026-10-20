@@ -6,10 +6,24 @@ import type {
   PlannableTourType,
   TourMaxHikingDifficulty,
 } from '@trek/shared';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useMemo,
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from 'react';
 import { randomId } from '../../../utils/randomId';
 import { planPaddleStep, type PaddleTourRoute } from './paddleRouting';
-import { normalizePlannerWaypoints, tourWaypointKey, type TourPlannerWaypoint } from './tourPlannerWaypoints';
+import {
+  normalizePlannerWaypoints,
+  routeExtrasKey,
+  tourWaypointKey,
+  type TourPlannerWaypoint,
+} from './tourPlannerWaypoints';
 import { isTourRoute, type TourRouteUnreachable } from './tourRouteOutcome';
 import {
   enrichTourElevations,
@@ -37,7 +51,7 @@ export interface TourRouteInputs {
   retryToken: number;
   /** The planner's error, so a point found unreachable is only named while that is the error. */
   error: string | null;
-  setStatus: (status: TourPlannerStatus) => void;
+  setStatus: Dispatch<SetStateAction<TourPlannerStatus>>;
   setError: (error: string | null) => void;
   onCleared: () => void;
   /** Points the router set itself (a paddle tour's), laid in without a step of the history. */
@@ -53,6 +67,8 @@ interface PlannedRoute {
   distanceMeters: number | null;
   durationSeconds: number | null;
   forKey: string | null;
+  /** The run it was planned in: its points with what was planned along them, its choices and the retry. */
+  forRun: string | null;
 }
 
 const NO_ROUTE: PlannedRoute = {
@@ -63,12 +79,21 @@ const NO_ROUTE: PlannedRoute = {
   distanceMeters: null,
   durationSeconds: null,
   forKey: null,
+  forRun: null,
 };
+
+/** A route planned whole: a paddle route without a failed leg, a route on land with its heights. */
+function routeComplete(planned: PlannedRoute): boolean {
+  return planned.paddleRoute
+    ? planned.paddleRoute.failures.length === 0
+    : hasCompleteElevation(planned.enrichedGeometry);
+}
 
 /** One planning run: what it plans from, whether it went stale, and where it writes. */
 interface RouteRun {
   inputs: Omit<TourRouteInputs, 'retryToken' | 'error' | 'onCleared'>;
   plannedKey: string;
+  runKey: string;
   signal: AbortSignal;
   stale: () => boolean;
   setPlanned: (next: PlannedRoute | ((current: PlannedRoute) => PlannedRoute)) => void;
@@ -76,7 +101,7 @@ interface RouteRun {
 }
 
 // PAD-11: a paddle tour is planned on the water by the server's router; its heights are no concern.
-async function routePaddle({ inputs, plannedKey, signal, stale, setPlanned }: RouteRun) {
+async function routePaddle({ inputs, plannedKey, runKey, signal, stale, setPlanned }: RouteRun) {
   const { waypoints, tripId, paddleBoat, paddleLakeStyle, setStatus, setError } = inputs;
   setStatus('routing');
   const profile = { boat: paddleBoat ?? 'kayak', lakeStyle: paddleLakeStyle } as const;
@@ -92,6 +117,7 @@ async function routePaddle({ inputs, plannedKey, signal, stale, setPlanned }: Ro
     distanceMeters: planned.distanceMeters,
     durationSeconds: null,
     forKey: plannedKey,
+    forRun: runKey,
   });
   const failed = planned.failures.length > 0;
   setStatus(failed ? 'routing-failed' : 'ready');
@@ -99,7 +125,7 @@ async function routePaddle({ inputs, plannedKey, signal, stale, setPlanned }: Ro
 }
 
 // A hike or a bike tour on land, then the heights along it.
-async function routeOnLand({ inputs, plannedKey, signal, stale, setPlanned, setUnreachable }: RouteRun) {
+async function routeOnLand({ inputs, plannedKey, runKey, signal, stale, setPlanned, setUnreachable }: RouteRun) {
   const { waypoints, tourType, bikeProfile, maxHikingDifficulty, hikingPreferences, setStatus, setError } = inputs;
   setStatus('routing');
   const routed =
@@ -124,6 +150,7 @@ async function routeOnLand({ inputs, plannedKey, signal, stale, setPlanned, setU
     distanceMeters: routed.distanceMeters,
     durationSeconds: routed.durationSeconds,
     forKey: plannedKey,
+    forRun: runKey,
   });
   setStatus('enriching-elevation');
 
@@ -183,6 +210,11 @@ export function useTourRoute(inputs: TourRouteInputs) {
   // What a route was planned for besides its points: a route of another type or profile is not this one's.
   const choices = [tourType, bikeProfile, maxHikingDifficulty, hikingPreferences, paddleBoat, paddleLakeStyle];
   const plannedKey = `${waypointKey}#${JSON.stringify(choices)}`;
+  // CW-02, CW-03: a station's own fields and the keys a save answered are no part of what a route is planned from.
+  const extrasKey = useMemo(() => routeExtrasKey(waypoints), [waypoints]);
+  const runKey = `${plannedKey}#${extrasKey}#${retryToken}`;
+  // The route shown was planned whole for exactly this run, so a change that leaves it as it is plans nothing again.
+  const routeStands = useEffectEvent(() => planned.forRun === runKey && routeComplete(planned));
 
   useEffect(() => {
     if (waypoints.length < 2) {
@@ -191,6 +223,10 @@ export function useTourRoute(inputs: TourRouteInputs) {
       clearRoute();
       onCleared();
       setError(null);
+      return;
+    }
+    if (routeStands()) {
+      setStatus((current) => (current === 'dirty' ? 'ready' : current));
       return;
     }
 
@@ -214,6 +250,7 @@ export function useTourRoute(inputs: TourRouteInputs) {
         patchWaypoints,
       },
       plannedKey,
+      runKey,
       signal: controller.signal,
       stale,
       setPlanned,
@@ -244,6 +281,7 @@ export function useTourRoute(inputs: TourRouteInputs) {
     patchWaypoints,
     plannedKey,
     retryToken,
+    runKey,
     setError,
     setStatus,
     tourType,
@@ -251,7 +289,7 @@ export function useTourRoute(inputs: TourRouteInputs) {
     waypoints,
   ]);
 
-  const { forKey, ...shown } = planned;
+  const { forKey, forRun: _run, ...shown } = planned;
   return {
     ...shown,
     /** The route shown was planned for these points and these choices. */

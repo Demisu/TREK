@@ -1,5 +1,5 @@
-import { nearnessToLine } from '@trek/shared';
-import { isClosedLoop, withPointAppended, type RoutePoint } from '../planner/tourRouteActions';
+import { isClosedLoop, nearnessToLine } from '@trek/shared';
+import { withPointAppended, type RoutePoint } from '../planner/tourRouteActions';
 
 type Point = RoutePoint & { role: string; shaping?: boolean };
 

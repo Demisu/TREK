@@ -1,7 +1,7 @@
+import { isClosedLoop } from '@trek/shared';
 import { useMemo } from 'react';
 import type { useOutsidePressGuard } from '../../components/Ferratas/useOutsidePressGuard';
 import { paddleRolesById } from '../../components/Tours/planner/paddlePlanOf';
-import { isClosedLoop } from '../../components/Tours/planner/tourRouteActions';
 import type { TourPlannerController } from '../../components/Tours/planner/useTourPlanner';
 import { useWaypointPlaceNames } from '../../components/Tours/planner/useWaypointPlaceNames';
 import { useTranslation } from '../../i18n';

@@ -1,4 +1,4 @@
-import type { TourListItem, TourVisitStatus } from '@trek/shared';
+import { walkStationsOf, type TourListItem, type TourVisitStatus } from '@trek/shared';
 import { AlertTriangle, Check, CheckCheck, Clock, Redo2, SkipForward, Undo2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from '../../../i18n';
@@ -25,7 +25,7 @@ function useWalkStations(tripId: number | string, placeId: number): TourPlannerW
       .detail(tripId, placeId, controller.signal)
       .then((detail) => {
         if (controller.signal.aborted) return;
-        const points = plannerWaypointsOf(detail.waypoints, freshId).filter((point) => !point.shaping);
+        const points = walkStationsOf(plannerWaypointsOf(detail.waypoints, freshId));
         setStations({ placeId, points });
       })
       .catch(() => {

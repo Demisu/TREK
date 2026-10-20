@@ -11,7 +11,6 @@ import type { ToursRepository } from '../../../../src/db/repositories/Tours.repo
 import { createSnapshotTestDb } from '../../../helpers/db-mock';
 import { createDay, createDayAssignment, createPlace, createTrip, createUser } from '../../../helpers/factories';
 import { insertRow, updateRows } from '../../../helpers/factories/rows';
-import { addTourWaypoints, makeTour } from '../../../helpers/factories/tours';
 import { resetTestDb } from '../../../helpers/test-db';
 import { createTestOrm, type TestOrm } from '../../../helpers/test-orm';
 import { createTour } from '../../../helpers/tours-repos';
@@ -91,7 +90,6 @@ describe('ToursRepository reads', () => {
         max_hiking_difficulty: 5,
         planned: 0,
         has_waypoints: 1,
-        station_count: 1,
         derived_from_place_id: null,
         origin: 'trek',
         boat_type: null,
@@ -123,7 +121,6 @@ describe('ToursRepository reads', () => {
         max_hiking_difficulty: 2,
         planned: 1,
         has_waypoints: 0,
-        station_count: 0,
         derived_from_place_id: null,
         origin: 'trek',
         boat_type: null,
@@ -193,30 +190,6 @@ describe('ToursRepository reads', () => {
     expect(await repo.isOnDay(day1.id, plain.id)).toBe(false);
     expect(await repo.isOnDay(day1.id, tour.id, onDay1.id)).toBe(false);
   });
-
-  it('TOURREPO-013: station_count counts the points that are no shaping points, 0 for a tour without any (CW-03)', async () => {
-    const { trip } = fixture();
-    const walk = createPlace(testDb, trip.id, { name: 'Old town' });
-    const bare = createPlace(testDb, trip.id, { name: 'Bare' });
-    await makeTour(t, walk.id, { tourTypeRef: 'walk' });
-    await makeTour(t, bare.id, { tourTypeRef: 'walk' });
-    await addTourWaypoints(t, walk.id, [
-      { lat: 48.1, lng: 11.5, station_key: 'stop-a' },
-      { lat: 48.11, lng: 11.51, shaping: 1 },
-      { lat: 48.12, lng: 11.52, station_key: 'stop-b' },
-      { lat: 48.13, lng: 11.53, station_key: 'stop-c' },
-    ]);
-
-    const counts = new Map((await repo.listForTrip(trip.id)).map((row) => [row.place_id, row.station_count]));
-    expect(counts).toEqual(
-      new Map([
-        [walk.id, 3],
-        [bare.id, 0],
-      ]),
-    );
-    expect((await repo.findInTrip(trip.id, walk.id))?.station_count).toBe(3);
-    expect((await repo.findInTrip(trip.id, bare.id))?.station_count).toBe(0);
-  });
 });
 
 describe('ToursRepository writes', () => {
@@ -235,7 +208,6 @@ describe('ToursRepository writes', () => {
       wanderer_ref: null,
       planned: 0,
       has_waypoints: 0,
-      station_count: 0,
       derived_from_place_id: null,
       origin: 'trek',
       boat_type: null,

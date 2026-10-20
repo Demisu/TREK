@@ -308,7 +308,7 @@ function tourRepositoryFixture(ownerTripId: number) {
     toursRepo as unknown as ToursRepository,
     { isEnabled: vi.fn(async () => true) } as unknown as TourTypesRepository,
     waypointsRepo as unknown as TourWaypointsRepository,
-    { dropStationsNotIn: vi.fn(async () => undefined) } as unknown as TourStationVisitsRepository,
+    { dropStationsNotIn: vi.fn(async () => []) } as unknown as TourStationVisitsRepository,
     placesRepo as unknown as PlacesRepository,
     buildPlaceImportService(),
     noPaddleChecks(),

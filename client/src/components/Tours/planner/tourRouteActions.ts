@@ -1,4 +1,4 @@
-import type { PaddleLock, TourFixedLeg } from '@trek/shared';
+import { isClosedLoop, type PaddleLock, type TourFixedLeg } from '@trek/shared';
 
 /**
  * The route tools of the tour planner as plain list operations: reversing the
@@ -22,22 +22,14 @@ export interface RoutePoint {
   carryNext?: boolean;
 }
 
-/** Closer than this, in degrees, two waypoints stand on the same spot (about a centimetre). */
-const SAME_SPOT_DEG = 1e-7;
-
-function sameSpot(a: { lat: number; lng: number }, b: { lat: number; lng: number }): boolean {
-  return Math.abs(a.lat - b.lat) < SAME_SPOT_DEG && Math.abs(a.lng - b.lng) < SAME_SPOT_DEG;
-}
-
-/**
- * Whether the tour ends where it starts. Read from the points themselves, so a
- * saved loop opens as a loop again without a flag of its own; a tour of two
- * points on one spot is no loop, there is nothing to return from.
- */
-export function isClosedLoop(points: readonly { lat: number; lng: number }[]): boolean {
-  const first = points[0];
-  const last = points[points.length - 1];
-  return points.length >= 3 && !!first && !!last && sameSpot(first, last);
+/** What makes the start a station of a city walk (CW-01 to CW-04), and its saved key (CW-03). */
+interface StationParts {
+  key?: string;
+  name?: string | null;
+  stayMinutes?: number | null;
+  importance?: string | null;
+  protected?: boolean;
+  openingHours?: string | null;
 }
 
 /**
@@ -56,11 +48,23 @@ export function withPointAppended<T extends { lat: number; lng: number; role: st
  * The tour taken back from its last point to its start: one end point on the
  * start's spot, not a second copy of the start among the stops. `newId` names
  * it; a tour that already returns, or has nothing to return from, is left as it is.
+ * The way back is no station of its own, so it takes neither the start's key
+ * nor its name, stay, importance, protection or opening hours.
  */
 export function closeLoop<T extends RoutePoint>(points: readonly T[], newId: string): T[] {
-  const first = points[0];
+  const first: (T & StationParts) | undefined = points[0];
   if (!first || points.length < 2 || isClosedLoop(points)) return [...points];
-  const { fixedLeg: _leg, lock: _lock, ...start } = first;
+  const {
+    fixedLeg: _leg,
+    lock: _lock,
+    key: _key,
+    name: _name,
+    stayMinutes: _stay,
+    importance: _importance,
+    protected: _protected,
+    openingHours: _hours,
+    ...start
+  } = first;
   return [...points, { ...start, id: newId } as T];
 }
 

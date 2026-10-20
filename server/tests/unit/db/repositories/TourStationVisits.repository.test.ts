@@ -124,7 +124,7 @@ describe('TourStationVisitsRepository', () => {
     ]);
   });
 
-  it('TSVREPO-006: dropStationsNotIn keeps the named stations on every day, drops the rest, and leaves other walks alone', async () => {
+  it('TSVREPO-006: dropStationsNotIn keeps the named stations on every day, drops the rest, leaves other walks alone and names the days', async () => {
     const { walk, onDay1, onDay2, foreign } = await fixture();
     await markStationVisit(t, onDay1.id, 'stop-a', 'visited');
     await markStationVisit(t, onDay1.id, 'stop-b', 'visited');
@@ -132,11 +132,13 @@ describe('TourStationVisitsRepository', () => {
     await markStationVisit(t, onDay2.id, 'stop-b', 'visited');
     await markStationVisit(t, foreign.id, 'stop-b', 'visited');
 
-    await repo.dropStationsNotIn(walk.id, ['stop-a']);
+    expect(await repo.dropStationsNotIn(walk.id, ['stop-a'])).toEqual([onDay1.id, onDay2.id].sort((a, b) => a - b));
     expect((await repo.listForAssignment(onDay1.id)).map((v) => v.station_key)).toEqual(['stop-a']);
     expect((await repo.listForAssignment(onDay2.id)).map((v) => v.station_key)).toEqual(['stop-a']);
+    expect(await repo.dropStationsNotIn(walk.id, ['stop-a'])).toEqual([]);
 
-    await repo.dropStationsNotIn(walk.id, []);
+    await markStationVisit(t, onDay2.id, 'stop-c', 'skipped');
+    expect(await repo.dropStationsNotIn(walk.id, [])).toEqual([onDay1.id, onDay2.id].sort((a, b) => a - b));
     expect(await repo.listForAssignment(onDay1.id)).toEqual([]);
     expect(await repo.listForAssignment(onDay2.id)).toEqual([]);
     expect(await repo.listForAssignment(foreign.id)).toEqual([
