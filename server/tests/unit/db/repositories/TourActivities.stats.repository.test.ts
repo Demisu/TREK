@@ -84,6 +84,7 @@ describe('TourActivitiesRepository stats reads (STA-02)', () => {
       derived_from_place_id: null,
       trip_id: trip.id,
       trip_title: 'Alps',
+      tour_stage_key: null,
       participant_count: 1,
       joined: 0,
     });
@@ -125,5 +126,13 @@ describe('TourActivitiesRepository stats reads (STA-02)', () => {
     ]);
     expect(await repo.listTracksForStats([theirs.id])).toEqual([]);
     expect(await repo.listTracksForStats([])).toEqual([]);
+  });
+
+  it('STA2-REPO-014: names the stage a day holds of a multi-day tour, and none for a day that holds the whole tour', async () => {
+    const { user, trip, day, hike, onDay } = await fixture();
+    const onStage = await makeDayAssignment(t, day.id, hike.id, { tour_stage_key: 'hut-1' });
+    const rows = await repo.listExecutionsForStats([trip.id], user.id);
+    expect(rows.find((row) => row.assignment_id === onStage.id)?.tour_stage_key).toBe('hut-1');
+    expect(rows.find((row) => row.assignment_id === onDay.id)?.tour_stage_key).toBeNull();
   });
 });

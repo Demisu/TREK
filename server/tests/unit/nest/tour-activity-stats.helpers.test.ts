@@ -20,6 +20,7 @@ function row(overrides: Partial<TourStatsExecutionRow> = {}): TourStatsExecution
     trip_title: 'Alps',
     assignment_id: 100,
     date: '2026-07-02',
+    tour_stage_key: null,
     participant_count: 0,
     joined: 0,
     ...overrides,
@@ -224,5 +225,58 @@ describe('buildActivityStats (STA-02)', () => {
       ['Alpspitze', '2026-07-02'],
       ['Zugspitze', '2026-07-02'],
     ]);
+  });
+
+  describe('a multi-day tour with its stages on days of their own (MDT-02)', () => {
+    const keys = new Map([[10, ['start', 'hut-1', 'hut-2']]]);
+    const staged = (executions: TourStatsExecutionRow[], tracks: TourStatsTrackRow[] = []) =>
+      buildActivityStats({ executions, tracks, excluded: new Set(), stageKeys: keys });
+    const stage = (assignment_id: number, tour_stage_key: string, date: string | null) =>
+      row({ assignment_id, tour_stage_key, date });
+
+    it('STA2-HELP-017: counts the whole route once, on the last stage day, only once every stage is on a dated day', () => {
+      const all = staged([
+        stage(100, 'start', '2026-07-02'),
+        stage(101, 'hut-1', '2026-07-03'),
+        stage(102, 'hut-2', '2026-07-04'),
+      ]);
+      expect(all.entries).toHaveLength(1);
+      expect(all.entries[0]).toMatchObject({ basis: 'plan', date: '2026-07-04', distance_km: 12.5, day_count: 3 });
+
+      // One stage on no day: the route is not counted on the days of the other two.
+      const partly = staged([stage(100, 'start', '2026-07-02'), stage(101, 'hut-1', '2026-07-03')]);
+      expect(partly.entries).toEqual([]);
+      expect(partly.uncounted).toEqual({ unassigned: 1, undated: 0 });
+
+      const undated = staged([
+        stage(100, 'start', '2026-07-02'),
+        stage(101, 'hut-1', '2026-07-03'),
+        stage(102, 'hut-2', null),
+      ]);
+      expect(undated.entries).toEqual([]);
+      expect(undated.uncounted).toEqual({ unassigned: 0, undated: 1 });
+
+      // A day that holds the whole tour covers every stage.
+      const whole = staged([stage(100, 'start', '2026-07-02'), row({ assignment_id: 103, date: '2026-07-05' })]);
+      expect(whole.entries).toMatchObject([{ basis: 'plan', date: '2026-07-05' }]);
+    });
+
+    it('STA2-HELP-018: a recording on one stage counts as what was done, never beside the whole route', () => {
+      const result = staged(
+        [stage(100, 'start', '2026-07-02'), stage(101, 'hut-1', '2026-07-03'), stage(102, 'hut-2', '2026-07-04')],
+        [track({ assignment_id: 101 })],
+      );
+      expect(result.entries).toHaveLength(1);
+      expect(result.entries[0]).toMatchObject({ basis: 'track', date: '2026-07-03', day_count: 1 });
+      expect(result.entries.some((entry) => entry.basis === 'plan')).toBe(false);
+    });
+
+    it('STA2-HELP-019: a tour without stage keys, or with none of its days on a stage, is counted whole as before', () => {
+      const plain = buildActivityStats({ executions: [row()], tracks: [], excluded: new Set(), stageKeys: keys });
+      expect(plain.entries).toMatchObject([{ basis: 'plan', date: '2026-07-02' }]);
+      const executions = [stage(100, 'start', '2026-07-02')];
+      const noKeys = buildActivityStats({ executions, tracks: [], excluded: new Set() });
+      expect(noKeys.entries).toMatchObject([{ basis: 'plan', date: '2026-07-02' }]);
+    });
   });
 });

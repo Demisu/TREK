@@ -28,6 +28,12 @@ interface ActivityStatsInput {
   tracks: readonly TourStatsTrackRow[];
   /** The tours the user left out of their own sums. */
   excluded: ReadonlySet<number>;
+  /**
+   * MDT-02: the stages of each multi-day tour whose stages are put on days,
+   * by the key of the stop each starts at (`tourStageKeysOf`). A tour not in
+   * it is counted whole, as a day tour is.
+   */
+  stageKeys?: ReadonlyMap<number, readonly string[]>;
 }
 
 /**
@@ -157,7 +163,48 @@ function entriesOfTour(
 /** What became of one tour: its entries, or why a tour of the user's cannot count. */
 type TourOutcome = TourActivityStatsEntry[] | 'unassigned' | 'undated' | null;
 
+/** The dates on which the user does one stage: its own days, and the days that hold the whole tour. */
+function stageDates(tour: TourOfStats, key: string): { any: boolean; dates: string[] } {
+  const own = tour.executions.filter(
+    (row) => isOwnExecution(row) && (row.tour_stage_key === null || row.tour_stage_key === key),
+  );
+  const dates = own.flatMap((row) => {
+    const date = calendarDay(row.date);
+    return date === null ? [] : [date];
+  });
+  return { any: own.length > 0, dates };
+}
+
+/**
+ * MDT-02: a multi-day tour whose stages are on days of their own. The route
+ * is measured whole, so it counts once only when every stage is on a dated
+ * day of the user's, on the last of those days; whether that day has passed
+ * is the summary's to say. Until then it is uncounted: on no day while a
+ * stage is on none of the user's days, undated while one is only on days
+ * without a date. A recording counts as what was done, in place of the plan:
+ * the plan of the stages it does not cover is not measured apart, so it is
+ * left out rather than counted with the whole route a second time.
+ */
+function stagedOutcome(tour: TourOfStats, keys: readonly string[], input: ActivityStatsInput): TourOutcome {
+  const { own, dated } = ownExecutions(tour);
+  if (own === 0) return null;
+  const last = dated.at(-1);
+  if (last) {
+    const tracks = input.tracks.filter((track) => track.place_id === tour.row.place_id);
+    const recorded = entriesOfTour(tour, dated, last, tracks, input.excluded);
+    if (tracks.length > 0 && recorded.every((entry) => entry.basis === 'track')) return recorded;
+  }
+  const stages = keys.map((key) => stageDates(tour, key));
+  if (stages.some((stage) => !stage.any)) return 'unassigned';
+  if (stages.some((stage) => stage.dates.length === 0) || !last) return 'undated';
+  const lastDate = stages.flatMap((stage) => stage.dates).reduce((a, b) => (b > a ? b : a));
+  return [planEntry(tour, { assignmentId: last.assignmentId, date: lastDate }, dated.length, input.excluded)];
+}
+
 function outcomeOf(tour: TourOfStats, input: ActivityStatsInput): TourOutcome {
+  const keys = input.stageKeys?.get(tour.row.place_id) ?? [];
+  const stagesOnDays = keys.length > 1 && tour.executions.some((row) => row.tour_stage_key !== null);
+  if (stagesOnDays) return stagedOutcome(tour, keys, input);
   const { own, dated } = ownExecutions(tour);
   const last = dated.at(-1);
   if (last) return entriesOfTour(tour, dated, last, input.tracks, input.excluded);

@@ -52,6 +52,8 @@ export interface TourStatsExecutionRow {
   trip_title: string;
   assignment_id: number | null;
   date: string | null;
+  /** MDT-02: the stage of a multi-day tour the day holds, by the key of its first stop; null for the whole tour. */
+  tour_stage_key: string | null;
   participant_count: number;
   joined: number;
 }
@@ -192,6 +194,7 @@ export class TourActivitiesRepository extends TrekRepository<TourActivities> {
         'tr.title as trip_title',
         'da.id as assignment_id',
         'd.date as date',
+        'da.tour_stage_key as tour_stage_key',
         eb
           .selectFrom('assignment_participants as ap')
           .select(eb.fn.countAll<number>().as('n'))

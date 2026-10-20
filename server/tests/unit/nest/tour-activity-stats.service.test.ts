@@ -13,7 +13,7 @@ import { createSnapshotTestDb } from '../../helpers/db-mock';
 import { makeDayAssignment } from '../../helpers/factories/itinerary';
 import { makePlace } from '../../helpers/factories/places';
 import { countRows, findRow, insertRow } from '../../helpers/factories/rows';
-import { makeTour, makeTourActivity } from '../../helpers/factories/tours';
+import { addTourWaypoints, makeTour, makeTourActivity } from '../../helpers/factories/tours';
 import { addTripMember, makeDay, makeTrip } from '../../helpers/factories/trips';
 import { makeUser } from '../../helpers/factories/users';
 import { resetTestDb } from '../../helpers/test-db';
@@ -154,5 +154,30 @@ describe('TourActivityStatsService', () => {
   it('STA2-SVC-006: a user without trips has nothing to count', async () => {
     const { user } = await makeUser(orm());
     expect(await service.stats(user.id)).toEqual({ entries: [], uncounted: { unassigned: 0, undated: 0 } });
+  });
+
+  it('STA2-SVC-007: a multi-day tour with a stage on no day is not counted on the days of its other stages (MDT-02)', async () => {
+    const { user } = await makeUser(orm());
+    const trip = await makeTrip(orm(), user.id, { title: 'Hut to hut' });
+    const first = await makeDay(orm(), trip.id, { date: '2026-07-02' });
+    const second = await makeDay(orm(), trip.id, { date: '2026-07-03' });
+    const route = await makePlace(orm(), trip.id, { name: 'Three huts' });
+    await makeTour(orm(), route.id, { distance: 40 });
+    await addTourWaypoints(orm(), route.id, [
+      { lat: 47, lng: 11, station_key: 'start' },
+      { lat: 47.1, lng: 11, station_key: 'hut-1', stage_end: 1 },
+      { lat: 47.2, lng: 11, station_key: 'hut-2', stage_end: 1 },
+      { lat: 47.3, lng: 11, station_key: 'end' },
+    ]);
+    await makeDayAssignment(orm(), first.id, route.id, { tour_stage_key: 'start' });
+    await makeDayAssignment(orm(), second.id, route.id, { tour_stage_key: 'hut-1' });
+    const partly = await service.stats(user.id);
+    expect(partly.entries).toEqual([]);
+    expect(partly.uncounted).toEqual({ unassigned: 1, undated: 0 });
+
+    const third = await makeDay(orm(), trip.id, { date: '2026-07-04' });
+    await makeDayAssignment(orm(), third.id, route.id, { tour_stage_key: 'hut-2' });
+    const whole = await service.stats(user.id);
+    expect(whole.entries).toMatchObject([{ place_id: route.id, basis: 'plan', date: '2026-07-04', distance_km: 40 }]);
   });
 });

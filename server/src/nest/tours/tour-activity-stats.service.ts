@@ -1,14 +1,16 @@
 import { TourActivities } from '../../db/entities/TourActivities.entity';
 import { TourActivityExclusions } from '../../db/entities/TourActivityExclusions.entity';
+import { TourWaypoints } from '../../db/entities/TourWaypoints.entity';
 import { Tours } from '../../db/entities/Tours.entity';
-import type { TourActivitiesRepository } from '../../db/repositories/TourActivities.repository';
+import type { TourActivitiesRepository, TourStatsExecutionRow } from '../../db/repositories/TourActivities.repository';
 import type { TourActivityExclusionsRepository } from '../../db/repositories/TourActivityExclusions.repository';
+import type { TourWaypointsRepository } from '../../db/repositories/TourWaypoints.repository';
 import type { ToursRepository } from '../../db/repositories/Tours.repository';
 import { TripMembershipService } from '../trip-membership/trip-membership.service';
 import { buildActivityStats } from './tour-activity-stats.helpers';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { TourActivityExclusionRequest, TourActivityStatsResponse } from '@trek/shared';
+import { tourStageKeysOf, type TourActivityExclusionRequest, type TourActivityStatsResponse } from '@trek/shared';
 
 /**
  * STA-02: the user's own tour activities for the Atlas, across every trip the
@@ -25,7 +27,20 @@ export class TourActivityStatsService {
     @InjectRepository(Tours) private readonly toursRepo: ToursRepository,
     @InjectRepository(TourActivities) private readonly activitiesRepo: TourActivitiesRepository,
     @InjectRepository(TourActivityExclusions) private readonly exclusionsRepo: TourActivityExclusionsRepository,
+    @InjectRepository(TourWaypoints) private readonly waypointsRepo: TourWaypointsRepository,
   ) {}
+
+  /**
+   * MDT-02: the stages of each tour that has a stage on a day of its own, by
+   * the key of the stop each starts at, read from the tour's saved points.
+   */
+  private async stageKeysOf(executions: readonly TourStatsExecutionRow[]): Promise<Map<number, string[]>> {
+    const placeIds = [...new Set(executions.filter((row) => row.tour_stage_key !== null).map((row) => row.place_id))];
+    const points = await this.waypointsRepo.listForPlaces(placeIds);
+    const byTour = new Map<number, typeof points>();
+    for (const point of points) byTour.set(point.place_id, [...(byTour.get(point.place_id) ?? []), point]);
+    return new Map([...byTour].map(([placeId, tourPoints]) => [placeId, tourStageKeysOf(tourPoints)]));
+  }
 
   async stats(userId: number): Promise<TourActivityStatsResponse> {
     const tripIds = await this.membership.listAccessibleTripIds(userId);
@@ -34,7 +49,8 @@ export class TourActivityStatsService {
       this.activitiesRepo.listTracksForStats(tripIds),
       this.exclusionsRepo.listPlaceIds(userId),
     ]);
-    return buildActivityStats({ executions, tracks, excluded: new Set(excluded) });
+    const stageKeys = await this.stageKeysOf(executions);
+    return buildActivityStats({ executions, tracks, excluded: new Set(excluded), stageKeys });
   }
 
   /**
