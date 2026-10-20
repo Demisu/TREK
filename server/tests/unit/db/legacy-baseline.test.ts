@@ -69,6 +69,7 @@ const UNNUMBERED = [
   'Migration20200101045500_a_hike_can_be_marked_as_a_winter_activity',
   'Migration20200101045510_a_tour_can_be_a_run',
   'Migration20200101045520_a_tour_can_be_a_ski_track',
+  'Migration20200101045600_a_tour_can_be_ridden_on_horseback',
 ];
 // The last step the positional runner ever had; planLegacyBaseline refuses a
 // schema_version past it.

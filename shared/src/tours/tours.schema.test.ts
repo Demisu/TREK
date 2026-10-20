@@ -683,3 +683,64 @@ describe('runs (RUN-01)', () => {
     expect(tourListItemSchema.parse(listed).run_profile).toBeUndefined();
   });
 });
+
+describe('horse tours (HOR-01)', () => {
+  const line = [
+    [48, 11],
+    [48.005, 11.01],
+    [48.01, 11.02],
+  ];
+  const section = {
+    kind: 'horse_route' as const,
+    ref: 'relation/42',
+    name: 'Reitweg Isartal',
+    geometry: line,
+    signposted: 'with' as const,
+    access: [{ value: 'designated' as const, length_m: 1200 }],
+  };
+  const drawn = { kind: 'free' as const, geometry: [line[0], line[2]] };
+  const ride = (leg: object | null, extra: object = {}) => ({
+    ...baseRequest,
+    tour_type: 'horse' as const,
+    waypoints: [{ ...baseRequest.waypoints[0], ...(leg ? { fixed_leg: leg } : {}) }, baseRequest.waypoints[1]],
+    ...extra,
+  });
+
+  it('saves a ride of horse route sections and stretches drawn by hand, with no hiking limit', () => {
+    expect(tourCreateRequestSchema.parse(ride(section))).toMatchObject({
+      tour_type: 'horse',
+      max_hiking_difficulty: null,
+      waypoints: [{ fixed_leg: section }, {}],
+    });
+    expect(tourCreateRequestSchema.safeParse(ride(drawn)).success).toBe(true);
+    expect(tourCreateRequestSchema.safeParse(ride({ ...section, signposted: null, access: undefined })).success).toBe(
+      true,
+    );
+  });
+
+  it('refuses a routed leg on a ride, a via ferrata, a hiking limit or a riding time worked out', () => {
+    expect(() => tourCreateRequestSchema.parse(ride(null))).toThrow(/follows a horse route or is drawn by hand/);
+    const ferrata = { kind: 'ferrata', ref: 'way/1', name: null, geometry: [line[0], line[2]] };
+    expect(() => tourCreateRequestSchema.parse(ride(ferrata))).toThrow(/horse tour has no via ferrata/);
+    expect(() => tourCreateRequestSchema.parse(ride(section, { max_hiking_difficulty: 2 }))).toThrow(
+      /hiking difficulty/,
+    );
+    expect(() => tourCreateRequestSchema.parse(ride(section, { duration_seconds: 3600 }))).toThrow(/riding time/);
+    expect(tourCreateRequestSchema.safeParse(ride(section, { planned_duration_minutes: 240 })).success).toBe(true);
+  });
+
+  it('keeps a horse route section to a horse tour, and to a relation of OpenStreetMap', () => {
+    const hike = {
+      ...baseRequest,
+      waypoints: [{ ...baseRequest.waypoints[0], fixed_leg: section }, baseRequest.waypoints[1]],
+    };
+    expect(() => tourCreateRequestSchema.parse(hike)).toThrow(/belongs to a horse tour/);
+    expect(tourCreateRequestSchema.safeParse(ride({ ...section, ref: 'way/42' })).success).toBe(false);
+    expect(tourCreateRequestSchema.safeParse(ride({ ...section, signposted: 'forward' })).success).toBe(false);
+  });
+
+  it('imports a GPX file as a ride, with nothing of another type', () => {
+    expect(tourGpxImportFieldsSchema.parse({ tour_type: 'horse' })).toEqual({ tour_type: 'horse' });
+    expect(tourGpxImportFieldsSchema.safeParse({ tour_type: 'horse', bike_profile: 'road' }).success).toBe(false);
+  });
+});

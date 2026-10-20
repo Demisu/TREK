@@ -5,6 +5,7 @@ import { useSettingsStore } from '../../../store/settingsStore';
 import type { TourFerrataCrossing } from '../../../store/tourFerrataCrossingStore';
 import { formatDistance } from '../../../utils/units';
 import { FerrataGlyph } from '../../Ferratas/FerrataGlyph';
+import { HorseLegRow } from '../horse/HorseLegRow';
 import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
 import { PaddleLegFailureRow, PaddleLegNotes } from '../paddle/PaddleLegParts';
@@ -23,9 +24,10 @@ type WaypointPoint = TourPlannerController['waypoints'][number];
 /**
  * A leg drawn by hand, as a badge on that leg in the dashed look the map draws
  * it in: no router planned it, and the badge says so. Its length is the line
- * the user drew, the only measure it has.
+ * the user drew, the only measure it has. On a ride (HOR-01) it is the manual
+ * stretch between horse routes, said to be unchecked.
  */
-function FreeLegRow({ leg }: { leg: TourFixedLeg }) {
+function FreeLegRow({ leg, ride }: { leg: TourFixedLeg; ride: boolean }) {
   const { t } = useTranslation();
   const unit = useSettingsStore((state) => state.settings.distance_unit);
   // Read as plain numbers: this workspace compiles without strict mode, where the schema's tuples are "maybe two".
@@ -33,11 +35,11 @@ function FreeLegRow({ leg }: { leg: TourFixedLeg }) {
   const distance = formatDistance(lineLengthM(line) / 1000, unit ?? 'metric');
   return (
     <li data-testid="tour-planner-free-leg" className="flex min-w-0 py-0.5 ps-[34px]">
-      <Tooltip label={t('tours.planner.freeLegInfo')}>
+      <Tooltip label={t(ride ? 'tours.horse.leg.manualInfo' : 'tours.planner.freeLegInfo')}>
         <span className="flex h-[26px] w-full min-w-0 items-center gap-1.5 rounded-full border border-dashed border-edge bg-surface-card pe-1 ps-2">
           <Spline size={13} strokeWidth={2} className="flex-none text-content-muted" aria-hidden="true" />
           <span className="min-w-0 flex-1 truncate font-semibold text-content" style={fs(11.5, 'body')}>
-            {t('tours.planner.freeLegBadge')}
+            {t(ride ? 'tours.horse.leg.manual' : 'tours.planner.freeLegBadge')}
           </span>
           <span
             className="flex-none rounded-full bg-surface-secondary px-1.5 font-geist tabular-nums leading-[18px] text-content-secondary"
@@ -175,8 +177,9 @@ function LegFailure({
 
 /**
  * The rows under a waypoint for the leg that starts there: the via ferrata it
- * crosses, a line drawn by hand, and on a paddle tour what the router found on
- * the way (PAD-11) or why it could not plan it, plus the portage and lock rows.
+ * crosses, a line drawn by hand, a ride's horse route section (HOR-01), and
+ * on a paddle tour what the router found on the way (PAD-11) or why it could
+ * not plan it, plus the portage and lock rows.
  */
 export function WaypointLegRows({
   planner,
@@ -205,7 +208,8 @@ export function WaypointLegRows({
       {crossings.map((crossing) => (
         <FerrataLegRow key={`${crossing.id}-${crossing.fromM}`} crossing={crossing} />
       ))}
-      {point.fixedLeg?.kind === 'free' && <FreeLegRow leg={point.fixedLeg} />}
+      {point.fixedLeg?.kind === 'free' && <FreeLegRow leg={point.fixedLeg} ride={planner.isHorse} />}
+      {point.fixedLeg?.kind === 'horse_route' && <HorseLegRow leg={point.fixedLeg} />}
       {routedLegs && <PaddleLegNotes leg={routedLegs.legs[index]} />}
       {failure && (
         <LegFailure

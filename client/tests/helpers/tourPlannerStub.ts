@@ -11,6 +11,7 @@ export function hikePlannerDefaults() {
     setTourType: vi.fn(),
     isPaddle: false,
     isBike: false,
+    isHorse: false,
     bikeProfile: 'touring' as const,
     setBikeProfile: vi.fn(),
     // HIK-01: a hike without a winter label, as every hike starts.

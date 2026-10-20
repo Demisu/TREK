@@ -24,9 +24,10 @@ function TypeTile({ type, active = false }: { type: ImportableTourType; active?:
 /**
  * What the tour is, as one field that opens the types with what each one
  * plans: a hike on footpaths within its limit, a bike tour on its profile, a
- * paddle tour on the water. Room for the types still to come without the row
- * of buttons it was growing too long for. The planner offers the types it
- * plans; the GPX import offers ski as well (SKI-02), a track it only keeps.
+ * paddle tour on the water, a ride along horse routes. Room for the types
+ * still to come without the row of buttons it was growing too long for. The
+ * planner offers the types it plans; the GPX import offers ski as well
+ * (SKI-02), a track it only keeps.
  */
 export function TourTypeSelect<T extends ImportableTourType = PlannableTourType>({
   value,

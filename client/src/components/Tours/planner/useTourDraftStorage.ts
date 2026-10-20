@@ -14,7 +14,7 @@ export function useTourDraftStorage(tripId: number | string) {
     try {
       const parsed = JSON.parse(localStorage.getItem(storageKey) || 'null') as unknown;
       return validDraft(parsed)
-        ? { ...parsed, waypoints: normalizePlannerWaypoints(parsed.waypoints, parsed.tourType === 'kayak') }
+        ? { ...parsed, waypoints: normalizePlannerWaypoints(parsed.waypoints, parsed.tourType) }
         : null;
     } catch {
       return null;

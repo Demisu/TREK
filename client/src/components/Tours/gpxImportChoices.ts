@@ -47,6 +47,8 @@ export function importFields(chosen: GpxImportChoices): TourGpxImportFields {
   if (type === 'bike') return { tour_type: 'bike', bike_profile: chosen.bikeProfile };
   // RUN-01: a run comes in with its profile and no pace; its time stays unknown until one is planned from it.
   if (type === 'run') return { tour_type: 'run', run_profile: chosen.runProfile };
+  // HOR-01: a recorded ride comes in as a ride, with nothing of another type.
+  if (type === 'horse') return { tour_type: 'horse' };
   // SKI-02: a ski track comes in with its discipline and, for cross-country, its technique, and no time.
   const ski = type === 'ski' ? skiFieldsOf(chosen.ski) : null;
   if (ski) return { tour_type: 'ski', ...ski };

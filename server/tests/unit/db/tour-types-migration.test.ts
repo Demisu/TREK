@@ -41,7 +41,8 @@ describe('Tour types migration', () => {
         orm,
         'SELECT key, enabled, label_key FROM tour_types ORDER BY sort_order',
       );
-      expect(types.map((t) => t.key)).toEqual([...tourTypeKeySchema.options]);
+      // The keys the contract named then; `horse` came later with a migration of its own (HOR-01).
+      expect(types.map((t) => t.key)).toEqual(tourTypeKeySchema.options.filter((key) => key !== 'horse'));
       expect(types.filter((t) => t.enabled === 1).map((t) => t.key)).toEqual(['hike']);
       for (const t of types) expect(t.label_key).toBe(`tourTypes.${t.key}`);
 

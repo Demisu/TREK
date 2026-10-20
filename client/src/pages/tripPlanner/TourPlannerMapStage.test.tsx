@@ -7,6 +7,7 @@ import type { MapViewProps } from '../../components/Map/mapViewContract';
 import { useTourMapView } from '../../components/Tours/planner/useTourMapView';
 import { clearPaddleObstacles, publishPaddleObstacles, selectPaddleObstacle } from '../../store/paddleObstacleStore';
 import { useSettingsStore } from '../../store/settingsStore';
+import { useTourMapViewportStore } from '../../store/tourMapViewportStore';
 import { initialTourPlaceToolState, useTourPlaceToolStore } from '../../store/tourPlaceToolStore';
 import { TourPlannerMapStage, type TourPlannerMapStageProps } from './TourPlannerMapStage';
 
@@ -338,6 +339,8 @@ describe('TourPlannerMapStage', () => {
     renderStage(planner('view-saved'));
     const area = { south: 46.5, west: 11.7, north: 46.6, east: 11.9 };
     act(() => stage.flatMap.props?.onViewportChange?.(area));
+    // HOR-01: the rail's horse route search looks in the same view.
+    expect(useTourMapViewportStore.getState().bounds).toEqual(area);
     act(() => stage.flatMap.props?.ferrataLayer?.onToggle());
 
     expect(vi.mocked(useTripFerratas).mock.lastCall?.slice(0, 3)).toEqual([7, area, true]);

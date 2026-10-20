@@ -416,6 +416,24 @@ describe('ToursSidebar', () => {
     vi.restoreAllMocks()
   })
 
+  it('HOR-01: a recorded ride imports as a ride, with nothing of another type', async () => {
+    vi.spyOn(tourGpxApi, 'preview').mockResolvedValue({ tracks: [previewTrack()] })
+    const importCall = vi.spyOn(tourGpxApi, 'import').mockResolvedValue({ tours: [tour], caution: false, skipped: 0 })
+    seedStore(useTripStore, { refreshPlaces: vi.fn().mockResolvedValue(undefined) })
+    render(
+      <ToursSidebar tripId={1} days={[]} tours={[]} canEdit={true} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />
+    )
+    const file = new File(['<gpx/>'], 'ride.gpx', { type: 'application/gpx+xml' })
+    pickFiles(screen.getByRole('button', { name: 'Import GPX' }), [file])
+    await screen.findByRole('dialog')
+    fireEvent.click(screen.getByTestId('tour-type-select'))
+    fireEvent.click(screen.getByTestId('tour-type-option-horse'))
+    fireEvent.click(screen.getByTestId('gpx-preview-import'))
+
+    await waitFor(() => expect(importCall).toHaveBeenCalledWith(1, file, { tour_type: 'horse' }))
+    vi.restoreAllMocks()
+  })
+
   it('RC-04: refuses files that are not GPX before uploading anything', async () => {
     const importCall = vi.spyOn(tourGpxApi, 'import')
     render(

@@ -355,7 +355,8 @@ type WaypointPoint = TourPlannerController['waypoints'][number];
 /**
  * The tools for the leg after a point: drawn by hand or routed (on a paddle
  * tour: on the water), planned again (P2A-05), and the point a stop or a
- * shaping point (P2A-03; never the first or the last).
+ * shaping point (P2A-03; never the first or the last). A ride (HOR-01) has
+ * none: no router plans any of its legs, so there is nothing to switch.
  */
 function routeMenuItems(
   planner: TourPlannerController,
@@ -364,6 +365,7 @@ function routeMenuItems(
   lastIndex: number,
   t: Translate
 ): MenuItems {
+  if (planner.isHorse) return [];
   const hasLeg = index < lastIndex;
   const free = point.fixedLeg?.kind === 'free';
   const routed = hasLeg && !point.fixedLeg;

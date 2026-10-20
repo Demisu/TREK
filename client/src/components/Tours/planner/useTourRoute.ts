@@ -28,6 +28,7 @@ import {
 import { isTourRoute, type TourRouteUnreachable } from './tourRouteOutcome';
 import {
   enrichTourElevations,
+  rideTour,
   routeBikeTour,
   routeCityWalk,
   routeRun,
@@ -111,7 +112,7 @@ async function routePaddle({ inputs, plannedKey, runKey, signal, stale, setPlann
   const profile = { boat: paddleBoat ?? 'kayak', lakeStyle: paddleLakeStyle } as const;
   const step = await planPaddleStep(waypoints, tripId, profile, signal, randomId);
   if (stale()) return;
-  if ('points' in step) return inputs.patchWaypoints(normalizePlannerWaypoints(step.points, true));
+  if ('points' in step) return inputs.patchWaypoints(normalizePlannerWaypoints(step.points, 'kayak'));
   const planned = step.route;
   setPlanned({
     route: planned.coordinates,
@@ -130,17 +131,19 @@ async function routePaddle({ inputs, plannedKey, runKey, signal, stale, setPlann
 
 /**
  * A route on land for the type of the draft: a bike tour and a run for their
- * profile, a city walk, a hike within its limit.
+ * profile, a city walk, a hike within its limit, and a ride (HOR-01) put
+ * together from its sections, never routed.
  */
-function routeLand(inputs: RouteRun['inputs'], signal: AbortSignal) {
+async function routeLand(inputs: RouteRun['inputs'], signal: AbortSignal) {
   const { waypoints, tourType, bikeProfile, runProfile, maxHikingDifficulty, hikingPreferences } = inputs;
-  if (tourType === 'bike') return routeBikeTour(waypoints, bikeProfile, signal);
-  if (tourType === 'run') return routeRun(waypoints, runProfile, signal);
-  if (tourType === 'walk') return routeCityWalk(waypoints, signal);
-  return routeWalkingTour(waypoints, signal, maxHikingDifficulty, hikingPreferences);
+  if (tourType === 'horse') return rideTour(waypoints);
+  if (tourType === 'bike') return await routeBikeTour(waypoints, bikeProfile, signal);
+  if (tourType === 'run') return await routeRun(waypoints, runProfile, signal);
+  if (tourType === 'walk') return await routeCityWalk(waypoints, signal);
+  return await routeWalkingTour(waypoints, signal, maxHikingDifficulty, hikingPreferences);
 }
 
-// A hike, a run or a bike tour on land, then the heights along it.
+// A hike, a run, a city walk, a bike tour or a ride on land, then the heights along it.
 async function routeOnLand({ inputs, plannedKey, runKey, signal, stale, setPlanned, setUnreachable }: RouteRun) {
   const { setStatus, setError } = inputs;
   setStatus('routing');
@@ -181,8 +184,10 @@ async function routeOnLand({ inputs, plannedKey, runKey, signal, stale, setPlann
  * The route of the planner's draft, planned again a moment after its points
  * or its choices change: a hike on foot within its limit, a bike tour and a
  * run for their profile (BIK-01, RUN-01), a paddle tour on the water by the
- * server's router. A tour on land then gets its heights; a later change makes an answer
- * still on its way stale, and a failure keeps the last route that was planned.
+ * server's router, a ride put together from its horse route sections and
+ * manual legs (HOR-01). Every tour on land then gets its heights; a later
+ * change makes an answer still on its way stale, and a failure keeps the last
+ * route that was planned.
  */
 export function useTourRoute(inputs: TourRouteInputs) {
   const {

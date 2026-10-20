@@ -51,6 +51,7 @@ import { useTourListFilters } from '../useTourListFilters'
 import { TourPoiSearchCard } from '../poi/TourPoiSearchCard'
 import { BikeWaysCard } from '../bike/BikeWaysCard'
 import { RunWaysCard } from '../run/RunWaysCard'
+import { HorseRoutesCard } from '../horse/HorseRoutesCard'
 import { walkTimeFields } from '../walk/walkTimeFields'
 
 const STATUS_KEY: Partial<Record<TourPlannerStatus, string>> = {
@@ -464,6 +465,8 @@ export function TourPlannerRail({ planner,
 
           <RunWaysCard planner={planner} />
 
+          <HorseRoutesCard planner={planner} />
+
           <TourPoiSearchCard planner={planner} />
 
           <PaddleEditorCards planner={planner} locked={locked} checklist={paddleChecklist} />
@@ -622,20 +625,23 @@ interface TourPlannerToursRailProps extends TourPermissionProps {
   onTakenOver?: (tour: TourListItem) => Promise<void>
 }
 
-/** The words of the time estimate: walking, riding (BIK-01), running (RUN-01) or paddling, each saying how it is reckoned. */
+/** The words of the time estimate: walking, riding (BIK-01), running (RUN-01) or paddling, each saying how it is reckoned, and a ride none. */
 const ESTIMATE_KEYS = {
   hike: { labelKey: 'tours.planner.walkingEstimated', shortKey: 'tours.planner.walkingEstimatedShort', infoLabelKey: 'tours.planner.walkingEstimatedInfoLabel', infoKey: 'tours.planner.walkingEstimatedInfo' },
   bike: { labelKey: 'tours.bike.timeEstimated', shortKey: 'tours.bike.timeEstimatedShort', infoLabelKey: 'tours.bike.timeEstimatedInfoLabel', infoKey: 'tours.bike.timeEstimatedInfo' },
   kayak: { labelKey: 'tours.paddle.timeEstimated', shortKey: 'tours.paddle.timeEstimatedShort', infoLabelKey: 'tours.paddle.timeEstimatedInfoLabel', infoKey: 'tours.paddle.timeEstimatedInfo' },
   walk: { labelKey: 'tours.walk.timeEstimated', shortKey: 'tours.walk.timeEstimatedShort', infoLabelKey: 'tours.walk.timeEstimatedInfoLabel', infoKey: 'tours.walk.timeEstimatedInfo' },
   run: { labelKey: 'tours.run.timeEstimated', shortKey: 'tours.run.timeEstimatedShort', infoLabelKey: 'tours.run.timeEstimatedInfoLabel', infoKey: 'tours.run.timeEstimatedInfo' },
+  // HOR-01: a ride has no estimate; the field says why, and the planned total is the rider's own.
+  horse: { labelKey: 'tours.horse.time', shortKey: 'tours.horse.time', infoLabelKey: 'tours.horse.timeInfoLabel', infoKey: 'tours.horse.timeInfo' },
 } as const
 
-/** Which ways a point is out of reach of: paths for hikes and city walks, ways for bikes, runnable ways. */
+/** Which ways a point is out of reach of: paths for hikes, city walks and rides, ways for bikes, runnable ways. */
 const UNREACHABLE_WAYS: Record<PlannableTourType, 'hike' | 'bike' | 'run'> = {
   hike: 'hike',
   walk: 'hike',
   kayak: 'hike',
+  horse: 'hike',
   bike: 'bike',
   run: 'run',
 }

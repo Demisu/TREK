@@ -46,10 +46,10 @@ export function withoutHeights<
 
 /**
  * What the time on the move is called: walking for a hike (in the wording the
- * place asks for) and for a city walk (CW-02), riding for a bike tour,
- * paddling for a paddle tour, and for a run (RUN-01) the running time it is
- * planned with, said as planned wherever it shows, so it never reads as a
- * time someone recorded.
+ * place asks for) and for a city walk (CW-02), riding for a bike tour and for
+ * a ride on horseback (HOR-01), paddling for a paddle tour, and for a run
+ * (RUN-01) the running time it is planned with, said as planned wherever it
+ * shows, so it never reads as a time someone recorded.
  */
 export function movingTimeLabel(
   tour: { tour_type?: string } | undefined,
@@ -59,5 +59,6 @@ export function movingTimeLabel(
   if (tour?.tour_type === 'kayak') return t('tours.paddle.timeEstimatedShort');
   if (tour?.tour_type === 'walk') return t('tours.walk.timeEstimatedShort');
   if (tour?.tour_type === 'run') return t('tours.run.timeEstimated');
+  if (tour?.tour_type === 'horse') return t('tours.horse.time');
   return tour?.tour_type === 'bike' ? t('tours.bike.timeEstimatedShort') : hikeLabel;
 }

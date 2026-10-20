@@ -5,6 +5,7 @@ import { useInAppNotificationStore } from '../../src/store/inAppNotificationStor
 import { usePaddleObstacleStore } from '../../src/store/paddleObstacleStore';
 import { usePermissionsStore } from '../../src/store/permissionsStore';
 import { useSettingsStore } from '../../src/store/settingsStore';
+import { useTourMapViewportStore } from '../../src/store/tourMapViewportStore';
 import { useTourMapVisibilityStore } from '../../src/store/tourMapVisibilityStore';
 import { useTrackMarkToolStore } from '../../src/store/trackMarkToolStore';
 import { useTripStore } from '../../src/store/tripStore';
@@ -38,6 +39,7 @@ export const RESET_STORES: Record<string, ResettableStore> = {
   useInAppNotificationStore,
   usePermissionsStore,
   useTourMapVisibilityStore,
+  useTourMapViewportStore,
   usePaddleObstacleStore,
   useTrackMarkToolStore,
 };

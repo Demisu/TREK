@@ -30,11 +30,14 @@ const SKI_ACTIVITY: Record<SkiDiscipline, string> = {
   touring: 'backcountry_skiing',
 };
 
+/** The activity a ride names in GPX (HOR-01), in the words Garmin reads. */
+const HORSE_ACTIVITY = 'horseback_riding';
+
 /**
  * The activity a tour's track names in GPX: a paddle tour its boat, a bike
- * tour and a run their profile, a ski track its discipline (SKI-02), a hike on
- * snowshoes snowshoeing (HIK-01) and any other hike hiking; whatever is
- * missing falls back to the plainest.
+ * tour and a run their profile, a ski track its discipline (SKI-02), a ride
+ * horseback riding (HOR-01), a hike on snowshoes snowshoeing (HIK-01) and any
+ * other hike hiking; whatever is missing falls back to the plainest.
  */
 export function gpxActivityOf(tour: {
   tour_type: string;
@@ -49,6 +52,7 @@ export function gpxActivityOf(tour: {
   if (type === 'bike') return BIKE_ACTIVITY[(bike ?? 'touring') as BikeProfile] ?? BIKE_ACTIVITY.touring;
   if (type === 'run') return RUN_ACTIVITY[(tour.run_profile ?? 'running') as RunProfile] ?? RUN_ACTIVITY.running;
   if (type === 'ski') return SKI_ACTIVITY[tour.ski_discipline as SkiDiscipline] ?? 'skiing';
+  if (type === 'horse') return HORSE_ACTIVITY;
   if (type !== 'hike') return type;
   // A winter hike is walked as any hike is; only snowshoes make it an activity of its own.
   return tour.winter_activity === 'snowshoe' ? 'snowshoeing' : 'hiking';

@@ -7,6 +7,7 @@ import type {
   TourWaypoint,
   TourWaypointRole,
 } from '@trek/shared';
+import { rideLegs, withoutHorseRoutes } from '../horse/horseLegs';
 import type { AutoBase } from './paddleRouting';
 import { keepJoinedFixedLegs } from './tourFixedLegs';
 import { alignFreeLegs } from './tourRouteActions';
@@ -100,7 +101,6 @@ export function unlinkedPoint<T extends TourPlannerWaypoint>(point: T): T {
   return free as T;
 }
 
-/** Roles from the order; free legs follow their points, and a paddle tour keeps its portages and locks. */
 /** BIK-01: a bike tour rides no via ferrata; a leg that followed one is planned by the router again. */
 export function ridablePoints(points: TourPlannerWaypoint[]): TourPlannerWaypoint[] {
   return points.some((point) => point.fixedLeg?.kind === 'ferrata')
@@ -108,8 +108,18 @@ export function ridablePoints(points: TourPlannerWaypoint[]): TourPlannerWaypoin
     : points;
 }
 
-export function normalizePlannerWaypoints(points: TourPlannerWaypoint[], paddle = false): TourPlannerWaypoint[] {
-  return keepJoinedFixedLegs(alignFreeLegs(points, paddle)).map((point, index) => ({
+/**
+ * Roles from the order; free legs follow their points, and a paddle tour keeps
+ * its portages and locks. A ride (HOR-01) has every leg on a horse route or
+ * drawn by hand; any other type gives a horse route section back to the router.
+ */
+export function normalizePlannerWaypoints(
+  points: TourPlannerWaypoint[],
+  tourType: PlannableTourType = 'hike'
+): TourPlannerWaypoint[] {
+  const joined = keepJoinedFixedLegs(alignFreeLegs(points, tourType === 'kayak'));
+  const typed = tourType === 'horse' ? rideLegs(joined) : withoutHorseRoutes(joined);
+  return typed.map((point, index) => ({
     ...point,
     role: index === 0 ? 'start' : index === points.length - 1 ? 'end' : 'via',
   }));
@@ -117,7 +127,10 @@ export function normalizePlannerWaypoints(points: TourPlannerWaypoint[], paddle 
 
 function fixedLegKey(leg: TourFixedLeg | null | undefined): string {
   if (!leg) return '';
-  return leg.kind === 'ferrata' ? `:${leg.ref}` : `:${leg.kind}:${leg.geometry.length}`;
+  if (leg.kind === 'ferrata') return `:${leg.ref}`;
+  // A section taken the other way round has the same ref and length: its first point tells them apart.
+  if (leg.kind === 'horse_route') return `:${leg.ref}:${leg.geometry.length}:${leg.geometry[0]?.join(',')}`;
+  return `:${leg.kind}:${leg.geometry.length}`;
 }
 
 /** What the route depends on: every point, where it is, the fixed line after it and whether it only shapes. */

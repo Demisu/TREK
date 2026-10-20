@@ -146,8 +146,8 @@ export const FERRATA_TILE_PAYLOAD: JsonColumn<FerrataTilePayload | null> = {
 };
 
 /**
- * A tour leg taken as a fixed line (a via ferrata's own line from OSM) rather
- * than routed. A row that does not decode reads as a routed leg, which the
+ * A tour leg taken as a fixed line (a via ferrata's own line from OSM, a
+ * section of a horse route, a stretch drawn by hand) rather than routed. A row that does not decode reads as a routed leg, which the
  * editor then plans again.
  */
 export const TOUR_WAYPOINT_FIXED_LEG: JsonColumn<TourFixedLeg | null> = {

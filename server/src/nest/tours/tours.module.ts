@@ -19,6 +19,8 @@ import { WandererModule } from '../wanderer/wanderer.module';
 import { CityWalkBriefingService } from './city-walk-briefing.service';
 import { CityWalkMcp } from './city-walk.mcp';
 import { TourGpxExportService } from './tour-gpx-export.service';
+import { TourHorseRoutesController } from './tour-horse-routes.controller';
+import { TourHorseRoutesService } from './tour-horse-routes.service';
 import { TourLibraryController, TourTakeOverController } from './tour-library.controller';
 import { TourLibraryMcp } from './tour-library.mcp';
 import { TourLibraryService } from './tour-library.service';
@@ -68,7 +70,8 @@ import { Module } from '@nestjs/common';
     McpSharedModule,
     // PLN-02 searches places along a tour through the map search.
     MapsModule,
-    // BIK-05 reads the trail grades along a mountain bike tour from OpenStreetMap.
+    // BIK-05 reads the trail grades along a mountain bike tour from OpenStreetMap,
+    // HOR-01 the signposted horse routes around a ride.
     OverpassModule,
     AddonsModule,
     // The wanderer import reads trails through the caller's own connection.
@@ -88,6 +91,7 @@ import { Module } from '@nestjs/common';
     ]),
   ],
   controllers: [
+    TourHorseRoutesController,
     TourTakeOverController,
     TourPoiSearchController,
     TourSkiController,
@@ -106,6 +110,7 @@ import { Module } from '@nestjs/common';
     TourPaddleCheckService,
     TourObstacleReviewsService,
     TourGpxExportService,
+    TourHorseRoutesService,
     ToursWandererService,
     TourLibraryService,
     TourPoiSearchService,

@@ -23,7 +23,8 @@ export interface TourRouteResult {
   /** The same line cut where it changes between routed and hand-drawn, for the map to tell them apart. */
   parts: TourRoutePart[]
   distanceMeters: number
-  durationSeconds: number
+  /** Null where no time is worked out at all: a ride (HOR-01). */
+  durationSeconds: number | null
 }
 
 /**
@@ -167,6 +168,28 @@ export async function routeBikeTour(
   return routeOnLand(waypoints, 'cycling', BIKE_COSTING[profile], signal)
 }
 
+/**
+ * HOR-01: a ride, put together from its legs as they are: a section of a horse
+ * route keeps its own line, a leg drawn by hand is sampled along its length so
+ * its heights follow the ground. No router is asked, nothing between the legs
+ * is filled in, and no riding time is worked out. Null while a leg has no line
+ * of its own, which a ride never keeps.
+ */
+export function rideTour(waypoints: LandWaypoint[]): TourRouteResult | null {
+  const lines: TourRoutePart[] = []
+  for (const point of waypoints.slice(0, -1)) {
+    const leg = point.fixedLeg
+    if (!leg) return null
+    const drawn = leg.geometry.map(([lat, lng]): [number, number] => [lat, lng])
+    const section = leg.kind === 'horse_route'
+    lines.push({ coordinates: section ? drawn : densifyLine(drawn), free: !section })
+  }
+  if (lines.length === 0) return null
+  const coordinates = lines.flatMap((line, index) => (index === 0 ? line.coordinates : line.coordinates.slice(1)))
+  const distanceMeters = lines.reduce((sum, line) => sum + lineLengthM(line.coordinates), 0)
+  return { coordinates, parts: mergeParts(lines), distanceMeters, durationSeconds: null }
+}
+
 async function routeOnLand(
   waypoints: LandWaypoint[],
   mode: 'walking' | 'cycling',
@@ -201,6 +224,8 @@ async function routeOnLand(
       run.push(waypoints[i + 1])
       continue
     }
+    // A section of a horse route is a ride's (HOR-01), which no router plans and no clock times.
+    if (leg.kind === 'horse_route') return null
     if (!(await routeRun(run, runStart))) return unreachable
     const drawn = leg.geometry.map(([lat, lng]): [number, number] => [lat, lng])
     // A hand-drawn leg is sampled along its length, so its heights follow the ground between its ends.

@@ -1,3 +1,4 @@
+import { horseAccessSharesSchema, horseSignpostedSchema } from './horse-route.schema';
 import { paddleCheckSchema, tourObstacleCheckSchema } from './paddle-check.schema';
 import {
   paddleLockSchema,
@@ -24,7 +25,7 @@ import { z } from 'zod';
  * single-day, Road-Trip = motorized + multi-day.
  */
 
-export const tourTypeKeySchema = z.enum(['hike', 'bike', 'run', 'ski', 'kayak', 'walk', 'food']);
+export const tourTypeKeySchema = z.enum(['hike', 'bike', 'run', 'ski', 'kayak', 'walk', 'food', 'horse']);
 export type TourTypeKey = z.infer<typeof tourTypeKeySchema>;
 
 /**
@@ -33,9 +34,11 @@ export type TourTypeKey = z.infer<typeof tourTypeKeySchema>;
  * the start; the app calls it a paddle tour, and the boat is a field of its
  * own. A bike tour (BIK-01) names its profile the same way. `walk` is the city
  * walk (CW-01): stations joined on foot, without a hiking limit. `run` is a
- * run (RUN-01), planned on foot with the runner's own pace.
+ * run (RUN-01), planned on foot with the runner's own pace. `horse` is a
+ * ride (HOR-01): sections of signposted horse routes and stretches the rider
+ * draws by hand, never routed.
  */
-export const plannableTourTypeSchema = z.enum(['hike', 'walk', 'run', 'bike', 'kayak']);
+export const plannableTourTypeSchema = z.enum(['hike', 'walk', 'run', 'bike', 'kayak', 'horse']);
 export type PlannableTourType = z.infer<typeof plannableTourTypeSchema>;
 
 /**
@@ -43,7 +46,7 @@ export type PlannableTourType = z.infer<typeof plannableTourTypeSchema>;
  * and ski (SKI-02), which TREK does not route. A ski track comes in as it was
  * recorded and stays so; the planner never opens it as a draft.
  */
-export const importableTourTypeSchema = z.enum(['hike', 'walk', 'run', 'bike', 'kayak', 'ski']);
+export const importableTourTypeSchema = z.enum(['hike', 'walk', 'run', 'bike', 'kayak', 'horse', 'ski']);
 export type ImportableTourType = z.infer<typeof importableTourTypeSchema>;
 
 /**
@@ -319,7 +322,10 @@ const fixedLegGeometrySchema = z
  * the next: off the path network, across a lake, wherever no router goes.
  * Nothing about a free leg was checked by a router. A portage (PAD-03) is a
  * free leg on land: the boat is carried along it, so it counts as land and
- * not as water, with the time getting out and back in takes.
+ * not as water, with the time getting out and back in takes. A horse route
+ * section (HOR-01) is a stretch of a signposted horse route from
+ * OpenStreetMap, taken in the direction the rider chose, with the `horse=*`
+ * tags its ways carried then; being on the route is no permission to ride it.
  */
 export const tourFixedLegSchema = z.discriminatedUnion('kind', [
   z.object({
@@ -338,6 +344,20 @@ export const tourFixedLegSchema = z.discriminatedUnion('kind', [
     geometry: fixedLegGeometrySchema,
     /** Getting out, unloading and back in, on the first leg of a portage; null takes the starting value. */
     extra_minutes: paddleStopMinutesSchema.nullable().optional(),
+  }),
+  z.object({
+    kind: z.literal('horse_route'),
+    /** The OSM relation the section came from, `relation/<id>` style. */
+    ref: z
+      .string()
+      .max(64)
+      .regex(/^relation\/\d+$/),
+    name: z.string().trim().max(255).nullable(),
+    geometry: fixedLegGeometrySchema,
+    /** Whether the leg runs the way the route is signposted; null both ways or not said. */
+    signposted: horseSignpostedSchema.nullable().optional(),
+    /** The `horse=*` tags along the section when it was taken, in metres per value. */
+    access: horseAccessSharesSchema.optional(),
   }),
 ]);
 export type TourFixedLeg = z.infer<typeof tourFixedLegSchema>;
@@ -530,6 +550,7 @@ const TYPE_NAMED: Record<PlannableTourType, string> = {
   walk: 'a city walk',
   run: 'a run',
   hike: 'a hike',
+  horse: 'a horse tour',
 };
 
 const PADDLE_FIELDS = [
@@ -544,10 +565,12 @@ const PADDLE_FIELDS = [
  * What belongs to which type: a hike carries a routing limit and no boat; a
  * bike tour and a run exactly one profile each and nothing of a hike's or a
  * paddler's, a run also its pace; a paddle tour exactly one boat and its
- * water, and no hiking limit.
+ * water, and no hiking limit; a horse tour (HOR-01) only legs taken from a
+ * horse route or drawn by hand, and no riding time worked out for it.
  */
 function tourTypeIssues(value: {
   tour_type: PlannableTourType;
+  duration_seconds?: number | null;
   max_hiking_difficulty?: number | null;
   hiking_preferences?: HikingPreferences | null;
   bike_profile?: BikeProfile | null;
@@ -595,14 +618,30 @@ function tourTypeIssues(value: {
   if (type !== 'bike' && value.bike_profile != null)
     issues.push({ path: ['bike_profile'], message: 'bike_profile belongs to a bike tour' });
   issues.push(...runIssues(value));
+  // No router plans a ride, so no time is worked out for it; a planned total the rider enters is theirs.
+  if (type === 'horse' && value.duration_seconds != null)
+    issues.push({ path: ['duration_seconds'], message: 'a horse tour has no riding time worked out' });
+  const points = value.waypoints ?? [];
   // A portage and a lock are a paddler's; a via ferrata is climbed, never ridden.
-  (value.waypoints ?? []).forEach((point, index) => {
-    if (type !== 'kayak' && point.fixed_leg?.kind === 'portage')
+  points.forEach((point, index) => {
+    const kind = point.fixed_leg?.kind;
+    if (type !== 'kayak' && kind === 'portage')
       issues.push({ path: ['waypoints', index, 'fixed_leg'], message: 'a portage belongs to a paddle tour' });
     if (type !== 'kayak' && point.lock != null)
       issues.push({ path: ['waypoints', index, 'lock'], message: 'a lock belongs to a paddle tour' });
-    if ((type === 'bike' || type === 'walk' || type === 'run') && point.fixed_leg?.kind === 'ferrata')
+    if ((type === 'bike' || type === 'walk' || type === 'run' || type === 'horse') && kind === 'ferrata')
       issues.push({ path: ['waypoints', index, 'fixed_leg'], message: `${named} has no via ferrata` });
+    if (type !== 'horse' && kind === 'horse_route')
+      issues.push({
+        path: ['waypoints', index, 'fixed_leg'],
+        message: 'a horse route section belongs to a horse tour',
+      });
+    // HOR-01: nothing of a ride is routed, so no leg may pass for one that was.
+    if (type === 'horse' && index < points.length - 1 && kind !== 'horse_route' && kind !== 'free')
+      issues.push({
+        path: ['waypoints', index, 'fixed_leg'],
+        message: 'each leg of a horse tour follows a horse route or is drawn by hand',
+      });
     // A stay, an importance and a protection are a city walk's stations'.
     if (type !== 'walk' && (point.stay_minutes != null || point.importance != null || point.protected === true))
       issues.push({ path: ['waypoints', index], message: 'stations belong to a city walk' });

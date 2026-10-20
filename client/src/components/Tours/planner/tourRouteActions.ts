@@ -1,4 +1,4 @@
-import { isClosedLoop, type PaddleLock, type TourFixedLeg } from '@trek/shared';
+import { isClosedLoop, turnedSignposted, type PaddleLock, type TourFixedLeg } from '@trek/shared';
 
 /**
  * The route tools of the tour planner as plain list operations: reversing the
@@ -67,12 +67,20 @@ export function closeLoop<T extends RoutePoint>(points: readonly T[], newId: str
   return [...points, { ...start, id: newId } as T];
 }
 
+/** A fixed leg run the other way: its line turned round, and a horse route section's signposting with it. */
+function turnedLeg(leg: TourFixedLeg): TourFixedLeg {
+  const geometry = [...leg.geometry].reverse();
+  if (leg.kind !== 'horse_route') return { ...leg, geometry };
+  return { ...leg, geometry, signposted: turnedSignposted(leg.signposted) };
+}
+
 /**
  * The same tour the other way round: the last point starts it, the stops run
- * backwards, and a fixed leg (a via ferrata, a hand-drawn stretch) stays on the
- * stretch it covered, its line turned round with it. A loop stays a loop from
- * the same spot, and its start stays the station there: the way back is no
- * station, so the start's key, name and stay stay first (CW-02, CW-03).
+ * backwards, and a fixed leg (a via ferrata, a hand-drawn stretch, a section of
+ * a horse route) stays on the stretch it covered, its line turned round with
+ * it. A loop stays a loop from the same spot, and its start stays the station
+ * there: the way back is no station, so the start's key, name and stay stay
+ * first (CW-02, CW-03).
  */
 export function reverseRoute<T extends RoutePoint>(points: readonly T[]): T[] {
   const reversed = points.map((_, index) => {
@@ -82,7 +90,7 @@ export function reverseRoute<T extends RoutePoint>(points: readonly T[]): T[] {
     const { fixedLeg: _old, ...rest } = point;
     const leg = before?.fixedLeg;
     if (!leg || index === points.length - 1) return rest as T;
-    return { ...rest, fixedLeg: { ...leg, geometry: [...leg.geometry].reverse() } } as T;
+    return { ...rest, fixedLeg: turnedLeg(leg) } as T;
   });
   if (!isClosedLoop(points)) return reversed;
   const start = stationSplit(reversed[0]);
@@ -252,14 +260,15 @@ export function setWaypointLock<T extends RoutePoint>(points: readonly T[], id: 
 
 /**
  * The leg after this waypoint drawn by hand, or routed again (on a paddle
- * tour: on the water). A via ferrata and a portage keep their line; the last
- * point has no leg to change.
+ * tour: on the water). A via ferrata, a portage and a horse route section keep
+ * their line; the last point has no leg to change.
  */
 export function toggleFreeLeg<T extends RoutePoint>(points: readonly T[], id: string): T[] {
   const index = points.findIndex((point) => point.id === id);
   const point = points[index];
   const next = points[index + 1];
-  if (!point || !next || point.fixedLeg?.kind === 'ferrata' || isPortage(point.fixedLeg)) return [...points];
+  const kind = point?.fixedLeg?.kind;
+  if (!point || !next || kind === 'ferrata' || kind === 'horse_route' || isPortage(point.fixedLeg)) return [...points];
   const copy = [...points];
   if (point.fixedLeg?.kind === 'free') {
     const { fixedLeg: _dropped, ...rest } = point;

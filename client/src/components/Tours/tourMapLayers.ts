@@ -22,6 +22,8 @@ import type { TourBaseLayer } from '../Map/MapLayerSwitcher';
  *   pistes as an overlay (SKI-01).
  * - Paddle: the standard map, whose water reads clearly, and satellite. No topo and
  *   no ferratas, those are hiking maps. Seamarks as an overlay.
+ * - Horse (HOR-01): the standard map, topo for the lie of the land and satellite for
+ *   the tracks on the ground. No ferratas, a horse climbs none.
  * - Any other type (switched off, or one this build does not plan): the standard map
  *   and satellite, no overlays.
  *
@@ -53,6 +55,7 @@ const SKI: TourMapLayerSet = {
   overlays: ['pistes'],
 };
 const PADDLE: TourMapLayerSet = { bases: ['default', 'satellite'], defaultBase: 'default', overlays: ['seamarks'] };
+const HORSE: TourMapLayerSet = { bases: ['default', 'topo', 'satellite'], defaultBase: 'default', overlays: [] };
 const OTHER: TourMapLayerSet = { bases: ['default', 'satellite'], defaultBase: 'default', overlays: [] };
 
 /** `hikingMap`, `cycleMap`: the admin allows OpenHikingMap (MAP-01) and CyclOSM (BIK-06) on this install. */
@@ -65,6 +68,7 @@ export function tourMapLayersFor(
   if (type === 'run') return RUN;
   if (type === 'ski') return SKI;
   if (type === 'kayak') return PADDLE;
+  if (type === 'horse') return HORSE;
   return OTHER;
 }
 

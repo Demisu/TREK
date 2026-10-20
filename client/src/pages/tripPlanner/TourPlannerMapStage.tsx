@@ -20,6 +20,7 @@ import { isRtlLanguage, useTranslation } from '../../i18n';
 import { selectPaddleObstacle, usePaddleObstacleStore } from '../../store/paddleObstacleStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { publishTourFerrataCrossings } from '../../store/tourFerrataCrossingStore';
+import { publishTourMapViewport } from '../../store/tourMapViewportStore';
 import { useFerrataAdopt } from './useFerrataAdopt';
 import { useTourMapPoints } from './useTourMapPoints';
 import { useTourStageLayers } from './useTourStageLayers';
@@ -116,10 +117,13 @@ export function TourPlannerMapStage({
     (bounds: FerrataBbox, zoom: number) => {
       ferrataViewportChange(bounds);
       setMapZoom(zoom);
+      // HOR-01: the rail looks for horse routes "in this view".
+      publishTourMapViewport(bounds);
       onViewportChange?.(bounds);
     },
     [ferrataViewportChange, onViewportChange]
   );
+  useEffect(() => () => publishTourMapViewport(null), []);
   // The rails beside the map warn about the stretches that climb a ferrata, and band them on the profile.
   const { t: translate, language } = useTranslation();
   const tourWaypoints = tourPlanner.mode.type === 'view-gpx' ? NO_POINTS : tourPlanner.waypoints;

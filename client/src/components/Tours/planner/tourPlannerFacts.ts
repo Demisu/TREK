@@ -93,9 +93,11 @@ function runMinutes({ runPaceSecondsPerKm: pace, routeAnalysis }: TourPlannerFac
  * pace, a bike tour by the router, which rides the profile at its speed and
  * weighs the climbs, a hike by the signposts' rule over distance, climb and
  * descent once the route has its heights, and by the router's own time before that.
+ * A ride (HOR-01) has none: its pace is the horse's and the rider's, so nothing is made up.
  */
 function movingMinutes(input: TourPlannerFactsInput, routerMinutes: number | null): number | null {
   const { paddleEstimate, routeAnalysis } = input;
+  if (input.tourType === 'horse') return null;
   if (paddleEstimate) return paddleEstimate.waterMinutes === null ? null : paddleEstimate.estimateMinutes;
   if (input.tourType === 'run') return runMinutes(input);
   // A bike tour is timed by the router for its profile, a city walk by the router on foot.
@@ -192,9 +194,13 @@ export function tourPlannerFacts(input: TourPlannerFactsInput) {
       automaticPlannedTotalMinutes > MAX_PLANNED_TOUR_DURATION_MINUTES,
     // A city walk's stops are its stays: it saves no breaks, so a cafe never counts as a stay and a break at once.
     savedBreakAdditionalMinutes: input.tourType === 'walk' ? null : breakAdditionalMinutes,
-    // The router's own time stands in for a hike without heights; a paddle tour has only its speed, a run its pace.
+    // The router's own time stands in for a hike without heights; a paddle tour has only its speed, a run its pace, a ride none.
     savedDurationSeconds:
-      walkingDurationMinutes === null ? (isPaddle || isRun ? null : durationSeconds) : walkingDurationMinutes * 60,
+      walkingDurationMinutes === null
+        ? isPaddle || isRun || input.tourType === 'horse'
+          ? null
+          : durationSeconds
+        : walkingDurationMinutes * 60,
     typeFields: typeFieldsOf(input),
   };
 }

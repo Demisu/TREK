@@ -2,9 +2,9 @@ import { gpxActivityOf } from '../../../src/nest/tours/tour-gpx-export.helpers';
 
 import { describe, expect, it } from 'vitest';
 
-// TOUR-GPX-ACTIVITY-001 to TOUR-GPX-ACTIVITY-005
+// TOUR-GPX-ACTIVITY-001 to TOUR-GPX-ACTIVITY-007
 
-describe('gpxActivityOf (PR1-06A, BIK-01, HIK-01, RUN-01, SKI-02)', () => {
+describe('gpxActivityOf (PR1-06A, BIK-01, HIK-01, RUN-01, SKI-02, HOR-01)', () => {
   it('TOUR-GPX-ACTIVITY-001: a bike tour names its profile, and the plainest riding without a known one', () => {
     expect(gpxActivityOf({ tour_type: 'bike', bike_profile: 'mtb' })).toBe('mountain_biking');
     expect(gpxActivityOf({ tour_type: 'bike', bike_profile: null })).toBe('cycling');
@@ -43,5 +43,9 @@ describe('gpxActivityOf (PR1-06A, BIK-01, HIK-01, RUN-01, SKI-02)', () => {
     expect(gpxActivityOf({ tour_type: 'ski', ski_discipline: 'touring' })).toBe('backcountry_skiing');
     expect(gpxActivityOf({ tour_type: 'ski', ski_discipline: null })).toBe('skiing');
     expect(gpxActivityOf({ tour_type: 'ski', ski_discipline: 'freeride' })).toBe('skiing');
+  });
+
+  it('TOUR-GPX-ACTIVITY-007: a horse tour is horseback riding (HOR-01)', () => {
+    expect(gpxActivityOf({ tour_type: 'horse' })).toBe('horseback_riding');
   });
 });

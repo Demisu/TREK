@@ -5,6 +5,7 @@ import { tourRepo } from '../../../repo/tourRepo'
 import { randomId } from '../../../utils/randomId'
 import { analyzeRouteGeometry, type RouteProfileFocus } from '../../../utils/routeGeometry'
 import { closeLoop, reverseRoute, toggleFreeLeg, withPointAppended } from './tourRouteActions'
+import { holdsHorseSection } from '../horse/horseLegs'
 import { walkTimes } from './stationModel'
 import { hasCompleteElevation, useTourRoute } from './useTourRoute'
 import { normalizePlannerWaypoints, plannerWaypointsOf, ridablePoints, routeInputsKey, sameWaypointSnapshot, savedWaypointsOf, unlinkedPoint, withSavedKeys, type TourPlannerWaypoint } from './tourPlannerWaypoints'
@@ -255,7 +256,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     const changed = typeof nextValue === 'function' ? nextValue(current) : nextValue
     const paddle = tourTypeRef.current === 'kayak'
     // A point the router set that the paddler moves or edits is theirs from then on.
-    const next = normalizePlannerWaypoints(paddle ? adoptChangedPoints(current, changed) : changed, paddle)
+    const next = normalizePlannerWaypoints(paddle ? adoptChangedPoints(current, changed) : changed, tourTypeRef.current)
     if (sameWaypointSnapshot(current, next)) return
     recordStep(snapshot())
     waypointsRef.current = next
@@ -281,7 +282,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     if (changed === waypointsRef.current) return
     interruptRouting()
     draftRevisionRef.current += 1
-    waypointsRef.current = normalizePlannerWaypoints(changed, tourTypeRef.current === 'kayak')
+    waypointsRef.current = normalizePlannerWaypoints(changed, tourTypeRef.current)
     setWaypoints(waypointsRef.current)
     setHasUnsavedChanges(true)
     setStatus('dirty')
@@ -355,6 +356,8 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     if (!current) return false
     if (current.lat === lat && current.lng === lng) return true
     const points = waypointsRef.current
+    // HOR-01: a ride's point at a horse route section stays where the route has it.
+    if (tourTypeRef.current === 'horse' && holdsHorseSection(points, id)) return false
     // In a loop the start and the way back are one spot: moving either moves both.
     const loopEnds = isClosedLoop(points) && (id === points[0].id || id === points[points.length - 1].id)
       ? new Set([points[0].id, points[points.length - 1].id])
@@ -492,9 +495,10 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
 
 
   /**
-   * PAD-01, BIK-01, RUN-01: the type, as one step of the history with the
-   * route, since a paddle tour draws every leg by hand and neither a bike tour
-   * nor a run takes a via ferrata. Nothing is put on a day by the choice itself.
+   * PAD-01, BIK-01, RUN-01, HOR-01: the type, as one step of the history with
+   * the route, since a paddle tour draws every leg by hand, neither a bike tour
+   * nor a run takes a via ferrata and a ride takes every leg from a horse route
+   * or by hand. Nothing is put on a day by the choice itself.
    */
   const setTourType = useCallback((value: PlannableTourType) => {
     if (!editPermissionRef.current || saveInFlightRef.current || value === tourTypeRef.current) return
@@ -505,7 +509,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     tourTypeRef.current = value
     setTourTypeState(value)
     const noFerrata = value === 'bike' || value === 'run'
-    const next = normalizePlannerWaypoints(noFerrata ? ridablePoints(waypointsRef.current) : waypointsRef.current, value === 'kayak')
+    const next = normalizePlannerWaypoints(noFerrata ? ridablePoints(waypointsRef.current) : waypointsRef.current, value)
     waypointsRef.current = next
     setWaypoints(next)
     setHasUnsavedChanges(true)
@@ -632,7 +636,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
         draft.points.map(({ lat, lng, name }) => ({
           id: randomId(), lat, lng, role: 'via' as const, ...(name ? { name } : {}),
         })),
-        type === 'kayak',
+        type,
       )
       setDraftSource(draft.source ?? null)
       tourTypeRef.current = type
@@ -725,7 +729,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
 
       interruptRouting()
       const opened = openedTourFields(result.tour)
-      const nextWaypoints = normalizePlannerWaypoints(plannerWaypointsOf(result.waypoints, randomId), opened.tourType === 'kayak')
+      const nextWaypoints = normalizePlannerWaypoints(plannerWaypointsOf(result.waypoints, randomId), opened.tourType)
       forgetDraft()
       contextGenerationRef.current += 1
       draftRevisionRef.current += 1
@@ -916,7 +920,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   return {
     tripId, canEdit, canAssign,
     name, setName, maxHikingDifficulty, setMaxHikingDifficulty, hikingPreferences, setHikingPreferences,
-    bikeProfile, setBikeProfile, isBike: tourType === 'bike', winterActivity, setWinterActivity, winterActivityChoice,
+    bikeProfile, setBikeProfile, isBike: tourType === 'bike', isHorse: tourType === 'horse', winterActivity, setWinterActivity, winterActivityChoice,
     runProfile, setRunProfile, isRun: tourType === 'run', runPace, runPaceMissing, runPaceInvalid,
     tourType, setTourType, isPaddle, paddle, paddleSpeedInvalid, paddleIncomplete,
     description, setDescription, website, setWebsite, websiteInvalid,
