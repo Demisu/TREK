@@ -4,8 +4,9 @@
  * its mock is still being built and capture the real module.
  *
  * `tests/helpers/test-db.ts` used to define `createSnapshotTestDb`/`buildDbMock`
- * itself, but it also imports `AuthPublicController` (for `resetRateLimits`),
- * which drags in the whole auth graph — including `jwt-verify.ts`, which
+ * itself, but it also reaches `AuthPublicController` (for `resetRateLimits`,
+ * imported when that helper runs, statically before), which drags in the
+ * whole auth graph — including `jwt-verify.ts`, which
  * imports `../../db/database`. A `vi.mock('../../src/db/database', async () =>
  * { const { createSnapshotTestDb, buildDbMock } = await import('../helpers/
  * test-db'); ... })` factory that re-enters `db/database` while building its

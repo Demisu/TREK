@@ -64,4 +64,4 @@ See the [[Development Environment|Development-environment]] page for the full se
 
 Documentation changes go to `wiki/`. The same pages ship inside the app: the in-app help reads them (served under `/api/help`) and links into them, and the MCP help tools search them, so a wiki edit reaches users with the next release as well as the GitHub wiki.
 
-Every translation key must exist in all 27 locales — the `i18n Key Parity` CI job fails on drift, so run `npm run i18n:parity:strict --workspace=shared` before pushing. Two directory names differ from the language they hold: Brazilian Portuguese is `br`, Greek is `gr`.
+Every translation key must exist in all 27 locales — the `Shared: i18n Parity` CI job fails on drift, so run `npm run i18n:parity:strict --workspace=shared` before pushing. Two directory names differ from the language they hold: Brazilian Portuguese is `br`, Greek is `gr`.

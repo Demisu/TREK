@@ -15,18 +15,22 @@ permissions:
 #   Repo: Changed Areas      decides what the change needs to run (below)
 #   Shared: i18n Parity      every locale has en's files and keys
 #   Shared: Coverage         shared's tests with coverage
-#   Server: Types            builds shared and the server, typechecks src,
-#                            tests and scripts, the strict ratchet, the
-#                            generated entities and Kysely types
+#   Server: Types            builds shared and the server, typechecks shared,
+#                            the server's src, tests and scripts, smokes the
+#                            production require chain, the strict ratchet,
+#                            the generated entities and Kysely types
 #   Server: Lint             ESLint (typed), errors and warning counts
-#   Server: Checks           Prettier, the plugin facts, the source ratchets
-#                            (size, boundaries, dialect, tx, test SQL/mocks,
-#                            query API, MCP zod, error envelopes, response
-#                            contracts), open request schemas, knip
+#   Server: Checks           Prettier, the plugin facts, the DB call graph,
+#                            the shared ratchet code, the source ratchets
+#                            (size, boundaries, dialect, tx, test SQL, test
+#                            mocks, hand-built services, query API, MCP zod,
+#                            error envelopes, response contracts), open
+#                            request schemas, knip
 #   Server: Tests n/7        one slice of the server suite, with coverage
 #   Server: Coverage         merges the slices, checks the per-domain
 #                            thresholds, uploads lcov
-#   Server: S3 Contract      the storage driver against MinIO
+#   Server: S3 Contract (MinIO)
+#                            the storage driver against MinIO
 #   Server: Postgres Probe   the repository SQL against Postgres
 #   Client: Types            typecheck and the strict ratchet
 #   Client: Lint             ESLint (typed), errors and warning counts
