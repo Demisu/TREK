@@ -11,6 +11,7 @@ import {
   Navigation,
   RefreshCw,
   Repeat,
+  Shuffle,
   Spline,
   SquarePen,
   Trash2,
@@ -45,6 +46,7 @@ import { paddlePlanPoints, paddleRolesById } from './paddlePlanOf';
 import { StationDialog } from './StationDialog';
 import { stationMarkNote, stationRingClass } from './stationMarks';
 import { StationPills, StationShield } from './stationParts';
+import { stopNumbersOf } from './tourPlannerWaypoints';
 import { TripPlacePicker } from './TripPlacePicker';
 import type { TourPlannerController } from './useTourPlanner';
 import { useTripPlaceWaypoints } from './useTripPlaceWaypoints';
@@ -354,9 +356,10 @@ type WaypointPoint = TourPlannerController['waypoints'][number];
 
 /**
  * The tools for the leg after a point: drawn by hand or routed (on a paddle
- * tour: on the water), planned again (P2A-05), and the point a stop or a
- * shaping point (P2A-03; never the first or the last). A ride (HOR-01) has
- * none: no router plans any of its legs, so there is nothing to switch.
+ * tour: on the water), planned again (P2A-05), other ways for it compared on
+ * a hike (RTE-02), and the point a stop or a shaping point (P2A-03; never the
+ * first or the last). A ride (HOR-01) has none: no router plans any of its
+ * legs, so there is nothing to switch.
  */
 function routeMenuItems(
   planner: TourPlannerController,
@@ -386,6 +389,14 @@ function routeMenuItems(
       label: t('tours.planner.recomputeLeg'),
       icon: RefreshCw,
       onClick: () => planner.recomputeLeg(point.id),
+    });
+  // RTE-02: a hike's routed section offered other ways; dimmed while its route is still being planned.
+  if (routed && planner.tourType === 'hike')
+    items.push({
+      label: t('tours.planner.compareLeg'),
+      icon: Shuffle,
+      disabled: !planner.legVariants.canCompare(point.id),
+      onClick: () => planner.legVariants.compare(point.id),
     });
   if (index > 0 && index < lastIndex) {
     items.push({
@@ -582,13 +593,6 @@ function ShapeOnLineHint({ planner, canEdit }: { planner: TourPlannerController;
       {t('tours.planner.shapeOnLine')}
     </p>
   );
-}
-
-/** Stops are numbered on their own, as on the map: a shaping point (P2A-03) takes no number. */
-function stopNumbersOf(points: ReadonlyArray<WaypointPoint>): Map<string, number> {
-  const numbers = new Map<string, number>();
-  for (const point of points) if (!point.shaping) numbers.set(point.id, numbers.size + 1);
-  return numbers;
 }
 
 /** The route tools in the card head: reverse, plan the drawn legs on the water (PAD-11), back to the start. */

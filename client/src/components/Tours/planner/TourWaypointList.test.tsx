@@ -1,13 +1,13 @@
-// FE-TOUR-WAYPOINT-LIST-001 to FE-TOUR-WAYPOINT-LIST-011: shaping points, the water router's answers
-// and a city walk's stops in the list, with their arrivals and opening hours on a day of the walk
-// (P2A-03, P2A-05, PAD-11, CW-01, CW-02, CW-04).
+// FE-TOUR-WAYPOINT-LIST-001 to FE-TOUR-WAYPOINT-LIST-013: shaping points, the water router's answers
+// and a city walk's stops in the list, with their arrivals and opening hours on a day of the walk, and
+// other ways for a hike's leg (P2A-03, P2A-05, PAD-11, CW-01, CW-02, CW-04, RTE-02).
 import userEvent from '@testing-library/user-event';
 import type { PaddleRouteLeg } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildAssignment, buildDay, buildPlace } from '../../../../tests/helpers/factories';
 import { render, screen, within } from '../../../../tests/helpers/render';
 import { resetAllStores, seedStore } from '../../../../tests/helpers/store';
-import { hikePlannerDefaults } from '../../../../tests/helpers/tourPlannerStub';
+import { hikePlannerDefaults, idleLegVariants } from '../../../../tests/helpers/tourPlannerStub';
 import { useSettingsStore } from '../../../store/settingsStore';
 import { useTripStore } from '../../../store/tripStore';
 import type { PaddleTourRoute } from './paddleRouting';
@@ -250,6 +250,41 @@ describe('TourWaypointList', () => {
     expect(within(at(rows, 2)).queryByTestId('station-pills')).not.toBeInTheDocument();
     await userEvent.click(within(at(rows, 2)).getByRole('button', { name: 'More actions' }));
     expect(screen.queryByRole('button', { name: 'Edit stop' })).not.toBeInTheDocument();
+  });
+
+  it('FE-TOUR-WAYPOINT-LIST-012: a hike offers other ways for a routed leg, dimmed while it cannot be compared (RTE-02)', async () => {
+    const legVariants = { ...idleLegVariants(), canCompare: vi.fn((id: string) => id === 'a') };
+    const controller = planner({ legVariants });
+    render(<TourWaypointList planner={controller} canEdit isSaving={false} />);
+    const rows = screen.getAllByTestId('tour-planner-waypoint-row');
+    await userEvent.click(within(at(rows, 0)).getByRole('button', { name: 'More actions' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Compare ways for the next leg' }));
+    expect(legVariants.compare).toHaveBeenCalledWith('a');
+
+    await userEvent.click(within(at(rows, 2)).getByRole('button', { name: 'More actions' }));
+    expect(screen.getByRole('button', { name: 'Compare ways for the next leg' })).toBeDisabled();
+    // The last point has no leg to compare.
+    await userEvent.click(within(at(rows, 3)).getByRole('button', { name: 'More actions' }));
+    expect(screen.queryByRole('button', { name: 'Compare ways for the next leg' })).not.toBeInTheDocument();
+  });
+
+  it('FE-TOUR-WAYPOINT-LIST-013: a bike tour and a leg drawn by hand offer no other ways (RTE-02)', async () => {
+    const legVariants = { ...idleLegVariants(), canCompare: vi.fn(() => true) };
+    const bike = planner({ legVariants, tourType: 'bike' });
+    const { unmount } = render(<TourWaypointList planner={bike} canEdit isSaving={false} />);
+    await userEvent.click(
+      within(at(screen.getAllByTestId('tour-planner-waypoint-row'), 0)).getByRole('button', { name: 'More actions' })
+    );
+    expect(screen.queryByRole('button', { name: 'Compare ways for the next leg' })).not.toBeInTheDocument();
+    unmount();
+
+    const drawn = { ...START, fixedLeg: { kind: 'free' as const, geometry: [] } };
+    const hike = planner({ legVariants, waypoints: [drawn, STOP, END] });
+    render(<TourWaypointList planner={hike} canEdit isSaving={false} />);
+    await userEvent.click(
+      within(at(screen.getAllByTestId('tour-planner-waypoint-row'), 0)).getByRole('button', { name: 'More actions' })
+    );
+    expect(screen.queryByRole('button', { name: 'Compare ways for the next leg' })).not.toBeInTheDocument();
   });
 
   describe('a city walk on a day of the plan (CW-02, CW-04)', () => {

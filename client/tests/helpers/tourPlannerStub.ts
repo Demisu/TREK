@@ -52,9 +52,11 @@ export function hikePlannerDefaults() {
     returnToStart: vi.fn(),
     toggleWaypointFreeLeg: vi.fn(),
     insertShapingPoint: vi.fn(() => null),
+    insertShapingPoints: vi.fn(() => null),
     setWaypointShaping: vi.fn(),
     recomputeLeg: vi.fn(),
     routeDrawnLegsOnWater: vi.fn(),
+    legVariants: idleLegVariants(),
     paddleRoute: null,
     routeCurrent: false,
     routeParts: null,
@@ -77,5 +79,20 @@ export function hikePlannerDefaults() {
       dismissConflict: vi.fn(),
       dismissRemote: vi.fn(),
     },
+  };
+}
+
+/** RTE-02: a planner comparing no section, with its actions as spies. */
+export function idleLegVariants() {
+  return {
+    comparison: null,
+    focus: null,
+    canCompare: vi.fn(() => false),
+    compare: vi.fn(),
+    select: vi.fn(),
+    hover: vi.fn(),
+    apply: vi.fn(),
+    close: vi.fn(),
+    appliedHint: { shown: false, key: null, undo: vi.fn(), hold: vi.fn() },
   };
 }

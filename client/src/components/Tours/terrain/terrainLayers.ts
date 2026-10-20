@@ -79,32 +79,39 @@ function line(color: string, coordinates: [number, number][]): TrackData['featur
   return { type: 'Feature', properties: { color }, geometry: { type: 'LineString', coordinates } };
 }
 
-/** The open tour piece by piece in its grade colours, else every planner route in the tour colour. */
+/** A line of the planner, [lat, lng] each, as the terrain's [lng, lat]; null for one too short to draw. */
+function plannerLine(color: string, route: [number, number][]): TrackData['features'][number] | null {
+  return route.length > 1 ? line(color, route.map(([lat, lng]) => [lng, lat] as [number, number])) : null;
+}
+
+/** A line laid over the track in its own colour, [lat, lng] each. */
+export interface TrackOverlay {
+  coordinates: [number, number][];
+  color: string;
+}
+
+/**
+ * The open tour piece by piece in its grade colours, else every planner route
+ * in the tour colour; then the `overlays` over it, each in its own colour, as
+ * the ways of a section being compared (RTE-02).
+ */
 export function trackData(
   samples: DistanceIndexedProfileSample[],
   routes: [number, number][][] | null,
   mode: TrackColorMode,
-  trackColor: string
+  trackColor: string,
+  overlays: readonly TrackOverlay[] = []
 ): TrackData {
   const segments = gradeSegments(samples);
-  if (segments.length) {
-    return {
-      type: 'FeatureCollection',
-      features: segments.map((segment) =>
+  const track = segments.length
+    ? segments.map((segment) =>
         line(mode === 'grade' ? gradeBand(segment.grade).paint : trackColor, [segment.from, segment.to])
-      ),
-    };
-  }
+      )
+    : (routes ?? []).map((route) => plannerLine(trackColor, route));
+  const laid = overlays.map((overlay) => plannerLine(overlay.color, overlay.coordinates));
   return {
     type: 'FeatureCollection',
-    features: (routes ?? [])
-      .filter((route) => route.length > 1)
-      .map((route) =>
-        line(
-          trackColor,
-          route.map(([lat, lng]) => [lng, lat] as [number, number])
-        )
-      ),
+    features: [...track, ...laid].filter((feature): feature is TrackData['features'][number] => feature !== null),
   };
 }
 

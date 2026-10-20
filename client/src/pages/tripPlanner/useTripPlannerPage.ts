@@ -9,6 +9,7 @@ import { tourPlannedTimes as projectTourPlannedTimes } from '../../components/To
 import { usePlanMapViewport } from '../../hooks/usePlanMapViewport'
 import { usePaddleObstacleStore } from '../../store/paddleObstacleStore'
 import { useHighlightedRoute } from '../../components/Tours/bike/useHighlightedRoute'
+import { useLegVariantLines } from '../../components/Tours/planner/legVariantPaint'
 import { useMapLocationSearch } from './useMapLocationSearch'
 import { usePlannerFocusPoints } from './usePlannerFocusPoints'
 import { useTripPlanner } from './useTripPlanner'
@@ -79,7 +80,11 @@ export function useTripPlannerPage() {
   // BIK-01 to BIK-05 and MAP-03: the stretches a tour's card points at, over the tour's own line,
   // the one being edited or an import being viewed, never over a preview beside it.
   const ownLine = editingRoute || (tourPlanner.mode.type === 'view-gpx' && !tourConversion.line)
-  const drawn = useHighlightedRoute(ownLine && !wandererBrowser.open, route, routeWalking, partStyle.colors)
+  const highlighted = useHighlightedRoute(ownLine && !wandererBrowser.open, route, routeWalking, partStyle.colors)
+  // RTE-02: the ways of a section being compared, over the route being edited.
+  const { comparison, focus: variantFocus } = tourPlanner.legVariants
+  const compared = editingRoute && !wandererBrowser.open ? comparison?.variants ?? null : null
+  const drawn = useLegVariantLines(highlighted.route, highlighted.walking, highlighted.colors, compared, variantFocus)
 
   const { closeGpxTour } = tourPlanner
   useEffect(() => {
@@ -125,6 +130,7 @@ export function useTripPlannerPage() {
     tourMap: { route: drawn.route,
       routeWalking: drawn.walking,
       routeColors: drawn.colors,
+      variantLines: drawn.overlays,
       previewPoints: tourConversion.status === 'idle' ? null : tourConversion.points,
       focusPoints: mapFocusPoints,
       // A picked wanderer trail frames itself; the rest follows the planner.

@@ -100,6 +100,23 @@ describe('trackData', () => {
     ]);
     expect(trackData([], null, 'grade', '#0a84ff').features).toEqual([]);
   });
+
+  it('lays the ways of a compared section over the track, each in its own colour, a line too short left out (RTE-02)', () => {
+    const north: [number, number][] = [
+      [46, 7],
+      [46.01, 7.002],
+    ];
+    const data = trackData(climb, null, 'grade', '#0a84ff', [
+      { coordinates: north, color: '#f97316' },
+      { coordinates: [[46, 7]], color: '#d946ef' },
+    ]);
+    expect(data.features).toHaveLength(4);
+    expect(data.features[3].properties.color).toBe('#f97316');
+    expect(data.features[3].geometry.coordinates).toEqual([
+      [7, 46],
+      [7.002, 46.01],
+    ]);
+  });
 });
 
 describe('frameBounds', () => {

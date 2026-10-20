@@ -46,6 +46,13 @@ export interface TourPlannerWaypoint {
   poiCategory?: TourPoiCategory | null;
 }
 
+/** Stops are numbered on their own, as on the map: a shaping point (P2A-03) takes no number. */
+export function stopNumbersOf(points: ReadonlyArray<Pick<TourPlannerWaypoint, 'id' | 'shaping'>>): Map<string, number> {
+  const numbers = new Map<string, number>();
+  for (const point of points) if (!point.shaping) numbers.set(point.id, numbers.size + 1);
+  return numbers;
+}
+
 /** A saved tour's waypoints as the editor holds them, each under a fresh id. */
 export function plannerWaypointsOf(saved: readonly TourWaypoint[], newId: () => string): TourPlannerWaypoint[] {
   return saved.map((point) => ({
@@ -231,6 +238,24 @@ export function withShapingPoint(
   const index = points.findIndex((point) => point.id === afterId);
   if (index < 0 || index >= points.length - 1) return points;
   return [...points.slice(0, index + 1), { ...shape, role: 'via', shaping: true }, ...points.slice(index + 1)];
+}
+
+/**
+ * RTE-02: the points with shaping points set, in their order, into the routed
+ * leg from `afterId` to `beforeId`; unchanged when the two are no longer
+ * neighbours or the leg between them is a fixed line, so a choice worked out
+ * for one leg never lands in another.
+ */
+export function withShapingPoints(
+  points: TourPlannerWaypoint[],
+  afterId: string,
+  beforeId: string,
+  shapes: ReadonlyArray<Pick<TourPlannerWaypoint, 'id' | 'lat' | 'lng'>>
+): TourPlannerWaypoint[] {
+  const index = points.findIndex((point) => point.id === afterId);
+  if (index < 0 || points[index + 1]?.id !== beforeId || points[index].fixedLeg || shapes.length === 0) return points;
+  const inserted = shapes.map((shape) => ({ ...shape, role: 'via' as const, shaping: true }));
+  return [...points.slice(0, index + 1), ...inserted, ...points.slice(index + 1)];
 }
 
 /** P2A-03: a stop made a shaping point, or a shaping point a stop. The ends of a tour are always stops. */

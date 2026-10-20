@@ -1,5 +1,5 @@
-// FE-TOUR-WAYPOINTS-001 to FE-TOUR-WAYPOINTS-010: the editor's waypoint model, shaping points, drawn legs
-// and a city walk's stations with the keys a save answers (P2A-03, PAD-11, CW-01 to CW-04).
+// FE-TOUR-WAYPOINTS-001 to FE-TOUR-WAYPOINTS-012: the editor's waypoint model, shaping points, drawn legs
+// and a city walk's stations with the keys a save answers (P2A-03, PAD-11, CW-01 to CW-04, RTE-02).
 import type { TourWaypoint } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
 import {
@@ -9,11 +9,13 @@ import {
   routeInputsKey,
   sameWaypointSnapshot,
   savedWaypointsOf,
+  stopNumbersOf,
   tourWaypointKey,
   withDrawnLegsRouted,
   withSavedKeys,
   withShaping,
   withShapingPoint,
+  withShapingPoints,
   type TourPlannerWaypoint,
 } from './tourPlannerWaypoints';
 
@@ -222,5 +224,35 @@ describe('tourPlannerWaypoints', () => {
     ];
     for (const edit of routed) expect(routeInputsKey([A, { ...B, ...edit }, C])).not.toBe(routeInputsKey([A, B, C]));
     expect(routeInputsKey([A, C])).not.toBe(routeInputsKey([A, B, C]));
+  });
+
+  it('FE-TOUR-WAYPOINTS-011: the shaping points of a chosen way go in order between the two neighbours, and only there', () => {
+    const shapes = [
+      { id: 's1', lat: 49.003, lng: 12.004 },
+      { id: 's2', lat: 49.006, lng: 12.008 },
+    ];
+    const shaped = withShapingPoints([A, B, C], 'a', 'b', shapes);
+    expect(shaped.map((point) => point.id)).toEqual(['a', 's1', 's2', 'b', 'c']);
+    expect(shaped[1]).toEqual({ ...shapes[0], role: 'via', shaping: true });
+    const points = [A, B, C];
+    // No longer neighbours, a fixed line in between, or nothing to set: the points stay as they are.
+    expect(withShapingPoints(points, 'a', 'c', shapes)).toBe(points);
+    expect(withShapingPoints(points, 'c', 'a', shapes)).toBe(points);
+    expect(withShapingPoints(points, 'a', 'b', [])).toBe(points);
+    const geometry = [
+      [49, 12],
+      [49.01, 12.01],
+    ];
+    const free = { kind: 'free', geometry } as TourPlannerWaypoint['fixedLeg'];
+    const drawn = [{ ...A, fixedLeg: free }, B, C];
+    expect(withShapingPoints(drawn, 'a', 'b', shapes)).toBe(drawn);
+  });
+
+  it('FE-TOUR-WAYPOINTS-012: stops are numbered on their own; a shaping point takes no number', () => {
+    const numbers = stopNumbersOf([A, { ...B, shaping: true }, C]);
+    expect([...numbers.entries()]).toEqual([
+      ['a', 1],
+      ['c', 2],
+    ]);
   });
 });

@@ -442,6 +442,37 @@ describe('useTourPlanner route tools', () => {
       );
     });
 
+    it('holds a way chosen for a leg by its shaping points as one step, which one undo takes back (RTE-02)', () => {
+      const { result } = plannerWith([
+        [48, 11],
+        [48.02, 11.02],
+        [48.04, 11],
+      ]);
+      const [start, middle] = result.current.waypoints;
+      const pins = [
+        { lat: 48.005, lng: 11.01 },
+        { lat: 48.012, lng: 11.015 },
+      ];
+      let ids: string[] | null = null;
+      act(() => {
+        ids = result.current.insertShapingPoints(must(start).id, must(middle).id, pins);
+      });
+      expect(result.current.waypoints.map((point) => !!point.shaping)).toEqual([false, true, true, false, false]);
+      expect(result.current.waypoints.slice(1, 3).map((point) => point.id)).toEqual(ids);
+      expect(coordinatesOf(result.current.waypoints.slice(1, 3))).toEqual(pins.map((pin) => [pin.lat, pin.lng]));
+      act(() => {
+        // No longer neighbours, or a spot that is none: nothing is written.
+        expect(result.current.insertShapingPoints(must(start).id, must(middle).id, pins)).toBeNull();
+        expect(result.current.insertShapingPoints(must(middle).id, 'gone', pins)).toBeNull();
+        expect(
+          result.current.insertShapingPoints(must(start).id, must(ids)[0], [{ lat: Number.NaN, lng: 11 }])
+        ).toBeNull();
+      });
+      expect(result.current.legVariants.comparison).toBeNull();
+      act(() => result.current.undo());
+      expect(result.current.waypoints).toHaveLength(3);
+    });
+
     it('plans a leg afresh: a paddle leg is forgotten and asked again, a fixed leg is left alone', async () => {
       const { result } = plannerWith([
         [48, 11],

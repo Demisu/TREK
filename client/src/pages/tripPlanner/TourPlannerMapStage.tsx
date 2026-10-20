@@ -12,6 +12,7 @@ import LocationSelect from '../../components/Planner/LocationSelect';
 import { ChecklistObstaclePanel } from '../../components/Tours/paddle/ObstacleDecisionPanel';
 import PaddleObstacleOverlay from '../../components/Tours/paddle/PaddleObstacleOverlay';
 import { PaddleObstaclePlaceButton } from '../../components/Tours/paddle/PaddleObstaclePlaceButton';
+import LegVariantsOverlay from '../../components/Tours/planner/LegVariantsCard';
 import { useShapingClick } from '../../components/Tours/planner/useShapingClick';
 import TourPoiOverlay from '../../components/Tours/poi/TourPoiCard';
 import { useTourPoiMarkers } from '../../components/Tours/poi/useTourPoiMarkers';
@@ -166,13 +167,16 @@ export function TourPlannerMapStage({
   // P2A-03: a click on the route being edited sets a shaping point there.
   // PLN-02: the places found along the tour, drawn on the map and picked from it.
   const poiMarkers = useTourPoiMarkers();
-  const shapeAt = useShapingClick(tourPlanner, { editable: !!waypoints.onMove, picking: pickOnLine });
+  // RTE-02: while other ways of a section are compared, a click on the line sets nothing on it.
+  const comparing = tourPlanner.legVariants.comparison !== null;
+  const shapeAt = useShapingClick(tourPlanner, { editable: !!waypoints.onMove, picking: pickOnLine || comparing });
   // What each panel covers of the map, a collapsed one its rail.
   const leftInset = leftHidden ? 56 : leftPanelPx;
   const rightInset = rightHidden ? 56 : rightPanelPx;
   // The cards over the map keep clear of the layer switcher, on the side the text ends.
   const cardInsetEnd = (isRtlLanguage(language) ? leftInset : rightInset) + MAP_LAYER_SWITCHER_INSET;
   const bottomRowTop = terrain3d ? CONTROL_GAP + terrainControlsPx + CONTROL_GAP : FERRATA_CARD_BOTTOM;
+  const mapHint = undoHintOf(placedHint, tourPlanner.legVariants.appliedHint, t);
   return (
     <>
       {/* Around either map, to follow its presses and show the crosshair while placing. */}
@@ -205,6 +209,7 @@ export function TourPlannerMapStage({
               onControlsHeightChange={setTerrainControlsPx}
               onLegendLayout={setTerrainLegend}
               placeTool={placeTool}
+              overlays={tourMap.variantLines}
             />
           </Suspense>
         ) : (
@@ -277,8 +282,14 @@ export function TourPlannerMapStage({
         insetEnd={cardInsetEnd}
         {...ferrataCardPlacement(terrain3d, bottomRowTop, terrainLegend)}
       />
-      {/* "Point set", with the way back, above the bottom row and between the panels. */}
-      {placedHint.shown && (
+      {/* RTE-02: the ways of one section compared, in the same corner as the other cards. */}
+      <LegVariantsOverlay
+        planner={tourPlanner}
+        insetEnd={cardInsetEnd}
+        {...ferrataCardPlacement(terrain3d, bottomRowTop, terrainLegend)}
+      />
+      {/* "Point set" or "Way taken", with the way back, above the bottom row and between the panels. */}
+      {mapHint && (
         <div
           className="pointer-events-none absolute inset-x-0 z-[19] flex justify-center"
           style={{ bottom: bottomRowTop }}
@@ -291,11 +302,11 @@ export function TourPlannerMapStage({
             }}
           >
             <MapUndoHint
-              key={placedHint.key}
-              message={t('tours.planner.pointPlaced')}
+              key={mapHint.key}
+              message={mapHint.message}
               undoLabel={t('undo.button')}
-              onUndo={placedHint.undoPlacement}
-              onHold={placedHint.hold}
+              onUndo={mapHint.undo}
+              onHold={mapHint.hold}
             />
           </div>
         </div>
@@ -350,4 +361,23 @@ function paddlePlaceFromCard(
     tourPlanner.addWaypoint(lat, lng);
     selectPaddleObstacle(null);
   };
+}
+
+type HintState = { key: number | null; undo: () => void; hold: (held: boolean) => void };
+
+/**
+ * The note at the foot of the map with its undo: the point just set, or the
+ * way just taken for a section (RTE-02). At most one is up, since each goes as
+ * soon as anything else changes the points.
+ */
+function undoHintOf(
+  placed: { shown: boolean; key: number | null; undoPlacement: () => void; hold: (held: boolean) => void },
+  applied: HintState & { shown: boolean },
+  t: Planner['t']
+): (HintState & { message: string }) | null {
+  if (placed.shown) {
+    return { key: placed.key, undo: placed.undoPlacement, hold: placed.hold, message: t('tours.planner.pointPlaced') };
+  }
+  if (applied.shown) return { ...applied, message: t('tours.variants.applied') };
+  return null;
 }

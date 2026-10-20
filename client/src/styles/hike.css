@@ -82,3 +82,20 @@
   --hike-way-via-ferrata: #f0abfc;
   --hike-way-other: #67e8f9;
 }
+
+/* RTE-02: the ways offered for one section of a hike, on the map and in their
+   card. The way the section takes now keeps the planner's route blue; the
+   others take three hues far from it and from each other, so each line is
+   found by its letter. A colour names a way, it never ranks one. */
+:root {
+  --hike-variant-current: #0a84ff;
+  --hike-variant-a: #f97316;
+  --hike-variant-b: #d946ef;
+  --hike-variant-c: #14b8a6;
+}
+
+.dark {
+  --hike-variant-a: #fb923c;
+  --hike-variant-b: #e879f9;
+  --hike-variant-c: #2dd4bf;
+}

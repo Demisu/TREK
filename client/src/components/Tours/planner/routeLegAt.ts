@@ -11,10 +11,10 @@ function alongLine(
   lat: number,
   lng: number,
   fromIndex: number
-): { at: number; index: number } {
+): { at: number; index: number; vertex: number } {
   const cos = Math.cos((lat * Math.PI) / 180);
   let travelled = 0;
-  let best = { at: 0, index: fromIndex, distance: Infinity };
+  let best = { at: 0, index: fromIndex, vertex: fromIndex, distance: Infinity };
   for (let i = 0; i < line.length - 1; i += 1) {
     const [aLat, aLng] = line[i];
     const [bLat, bLng] = line[i + 1];
@@ -25,11 +25,21 @@ function alongLine(
       const t =
         length === 0 ? 0 : Math.max(0, Math.min(1, ((lng - aLng) * cos * dx + (lat - aLat) * dy) / (length * length)));
       const distance = Math.hypot(aLng * cos + dx * t - lng * cos, aLat + dy * t - lat);
-      if (distance < best.distance) best = { at: travelled + length * t, index: i, distance };
+      if (distance < best.distance) best = { at: travelled + length * t, index: i, vertex: t < 0.5 ? i : i + 1, distance };
     }
     travelled += length;
   }
-  return { at: best.at, index: best.index };
+  return { at: best.at, index: best.index, vertex: best.vertex };
+}
+
+/** Every waypoint placed along the line, each searched for from where the one before it lay. */
+function placedAlong(points: ReadonlyArray<{ lat: number; lng: number }>, line: readonly [number, number][]) {
+  let from = 0;
+  return points.map((point) => {
+    const placed = alongLine(line, point.lat, point.lng, from);
+    from = placed.index;
+    return placed;
+  });
 }
 
 /** The id of the waypoint that starts the leg holding the spot, or null when the route has no such leg. */
@@ -40,16 +50,28 @@ export function legStartAt(
   lng: number
 ): string | null {
   if (!line || line.length < 2 || points.length < 2) return null;
-  const positions: number[] = [];
-  let from = 0;
-  for (const point of points) {
-    const placed = alongLine(line, point.lat, point.lng, from);
-    positions.push(placed.at);
-    from = placed.index;
-  }
+  const positions = placedAlong(points, line).map((placed) => placed.at);
   const spot = alongLine(line, lat, lng, 0).at;
   for (let i = 0; i < points.length - 1; i += 1) {
     if (spot >= positions[i] && spot <= positions[i + 1]) return points[i].id;
   }
   return null;
+}
+
+/**
+ * RTE-02: the stretch of the drawn route that runs from waypoint `index` to the
+ * next one, as the vertices it spans (`to` included), or null when the route
+ * has no such leg. A route and its heights share their vertices, so the span
+ * cuts both alike.
+ */
+export function legSpanOf(
+  points: ReadonlyArray<{ lat: number; lng: number }>,
+  line: readonly [number, number][] | null,
+  index: number
+): { from: number; to: number } | null {
+  if (!line || line.length < 2 || index < 0 || index >= points.length - 1) return null;
+  const placed = placedAlong(points, line);
+  const from = placed[index].vertex;
+  const to = placed[index + 1].vertex;
+  return to > from ? { from, to } : null;
 }

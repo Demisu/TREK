@@ -1,7 +1,8 @@
-// FE-PAGE-TOURSTAGE-001 to FE-PAGE-TOURSTAGE-024
+// FE-PAGE-TOURSTAGE-001 to FE-PAGE-TOURSTAGE-031
 import type { Ferrata, PaddleFeature } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '../../../tests/helpers/render';
+import { idleLegVariants } from '../../../tests/helpers/tourPlannerStub';
 import { useTripFerratas } from '../../components/Ferratas/useTripFerratas';
 import type { MapViewProps } from '../../components/Map/mapViewContract';
 import { useTourMapView } from '../../components/Tours/planner/useTourMapView';
@@ -135,6 +136,7 @@ function planner(
     toggleMapOverlay: vi.fn(),
     routeProfileFocus: null,
     setRouteProfileFocus: vi.fn(),
+    legVariants: idleLegVariants(),
     ...overrides,
   } as unknown as Planner;
 }
@@ -537,7 +539,7 @@ describe('TourPlannerMapStage', () => {
     expect(stage.flatMap.props?.onRouteClick).toBeUndefined();
   });
 
-  it('FE-PAGE-TOURSTAGE-019: a run opens in 3D as any tour does, with its own maps, and back in 2D nothing of it changed (RUN-01)', async () => {
+  it('FE-PAGE-TOURSTAGE-026: a run opens in 3D as any tour does, with its own maps, and back in 2D nothing of it changed (RUN-01)', async () => {
     const tourPlanner = planner('edit-saved', { tourType: 'run' });
     renderStage(tourPlanner);
     expect(stage.flatMap.props?.tourLayers?.bases).toEqual(['default', 'topo', 'satellite']);
@@ -550,7 +552,7 @@ describe('TourPlannerMapStage', () => {
     expect(tourPlanner.undo).not.toHaveBeenCalled();
   });
 
-  it('FE-PAGE-TOURSTAGE-020: an imported ski track flies in 3D with its grade colours and its own maps, and the switch changes nothing of it (SKI-02)', async () => {
+  it('FE-PAGE-TOURSTAGE-027: an imported ski track flies in 3D with its grade colours and its own maps, and the switch changes nothing of it (SKI-02)', async () => {
     const samples = [0, 1, 2].map((i) => ({
       distanceMeters: i * 100,
       elevationMeters: 1200 + i * 40,
@@ -569,6 +571,45 @@ describe('TourPlannerMapStage', () => {
     // Seeing the track in 3D is a view: no point is set and no step of the planner is taken.
     expect(tourPlanner.addWaypoint).not.toHaveBeenCalled();
     expect(tourPlanner.undo).not.toHaveBeenCalled();
+  });
+
+  it('FE-PAGE-TOURSTAGE-019: while a section is compared its card is up, and a click on the route sets no shaping point (RTE-02)', () => {
+    const route = [
+      [46, 7],
+      [46.2, 7.2],
+    ];
+    const comparison = {
+      leg: { fromId: 'w1', toId: 'w2', from: { lat: 46, lng: 7 }, to: { lat: 46.2, lng: 7.2 }, costing: {}, key: 'k' },
+      phase: 'loading',
+      variants: [],
+      selected: null,
+      proving: false,
+      notice: null,
+    };
+    const waypoints = [
+      { id: 'w1', lat: 46, lng: 7 },
+      { id: 'w2', lat: 46.2, lng: 7.2 },
+    ];
+    renderStage(planner('new-draft', { waypoints, route, canEdit: true }));
+    expect(stage.flatMap.props?.onRouteClick).toBeDefined();
+    expect(screen.queryByTestId('leg-variants-card')).not.toBeInTheDocument();
+
+    const legVariants = { ...idleLegVariants(), comparison };
+    renderStage(planner('new-draft', { waypoints, route, canEdit: true, legVariants }));
+    expect(stage.flatMap.props?.onRouteClick).toBeUndefined();
+    expect(screen.getByTestId('leg-variants-card')).toBeInTheDocument();
+  });
+
+  it('FE-PAGE-TOURSTAGE-020: "way taken" shows above the bottom row, and its undo takes the way back (RTE-02)', () => {
+    const appliedHint = { shown: true, key: 1, undo: vi.fn(), hold: vi.fn() };
+    renderStage(planner('new-draft', { legVariants: { ...idleLegVariants(), appliedHint } }));
+    const hint = screen.getByTestId('map-undo-hint');
+    expect(hint).toHaveTextContent('tours.variants.applied');
+    expect(hint.parentElement?.parentElement?.style.bottom).toBe('66px');
+    fireEvent.click(screen.getByRole('button', { name: 'undo.button' }));
+    expect(appliedHint.undo).toHaveBeenCalledTimes(1);
+    fireEvent.mouseEnter(hint);
+    expect(appliedHint.hold).toHaveBeenCalledWith(true);
   });
 
   describe('map layers per tour type (P2B-06/07, PAD-04, PAD-10)', () => {
@@ -650,7 +691,7 @@ describe('TourPlannerMapStage', () => {
       expect(overlay()).toMatchObject({ status: 'off', active: false });
     });
 
-    it('FE-PAGE-TOURSTAGE-021: the pistes switch on over the map with no tour open and stay on when a hike opens (SKI-01)', () => {
+    it('FE-PAGE-TOURSTAGE-028: the pistes switch on over the map with no tour open and stay on when a hike opens (SKI-01)', () => {
       function NeutralStage({ mode }: { mode: 'neutral' | 'new-draft' }) {
         const view = useTourMapView();
         return <TourPlannerMapStage {...stageProps(planner(mode, view))} />;
@@ -672,7 +713,7 @@ describe('TourPlannerMapStage', () => {
       expect(pistes()?.status).toBe('on');
     });
 
-    it('FE-PAGE-TOURSTAGE-022: switching the pistes changes no point and no step, and a source that stopped answering keeps the map (SKI-01)', () => {
+    it('FE-PAGE-TOURSTAGE-029: switching the pistes changes no point and no step, and a source that stopped answering keeps the map (SKI-01)', () => {
       const tourPlanner = planner('edit-saved', { mapOverlays: new Set(['pistes']) });
       renderStage(tourPlanner);
       const pistes = () => flat().tourLayers?.overlays?.find((overlay) => overlay.id === 'pistes');
@@ -691,7 +732,7 @@ describe('TourPlannerMapStage', () => {
       expect(tourPlanner.undo).not.toHaveBeenCalled();
     });
 
-    it('FE-PAGE-TOURSTAGE-023: an imported ski track offers the pistes; a bike tour, a run and a paddle tour do not (SKI-01)', () => {
+    it('FE-PAGE-TOURSTAGE-030: an imported ski track offers the pistes; a bike tour, a run and a paddle tour do not (SKI-01)', () => {
       const viewed = (tour: Record<string, unknown>) =>
         planner('view-gpx', { mode: { type: 'view-gpx', placeId: 9, tour: { place_id: 9, ...tour } } });
       const ski = renderStage(viewed({ tour_type: 'ski', ski_discipline: 'alpine' }));
@@ -704,7 +745,7 @@ describe('TourPlannerMapStage', () => {
       }
     });
 
-    it('FE-PAGE-TOURSTAGE-024: the pistes know the zoom the map reported, so switched on far out they say to zoom in (SKI-01)', () => {
+    it('FE-PAGE-TOURSTAGE-031: the pistes know the zoom the map reported, so switched on far out they say to zoom in (SKI-01)', () => {
       renderStage(planner('neutral', { mapOverlays: new Set(['pistes']) }));
       const pistes = () => flat().tourLayers?.overlays?.find((overlay) => overlay.id === 'pistes');
       const area = { south: 46, west: 7, north: 48, east: 12 };

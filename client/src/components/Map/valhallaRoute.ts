@@ -460,6 +460,8 @@ async function requestRun(
  * quickest road beside a day Valhalla had routed was offered as the faster way, and
  * taking it changed nothing. Valhalla answers `alternates` between exactly two locations,
  * which is all one leg is, and weighs every one of them the way it weighed the day.
+ * `costingOptions` carries the rest of how that day was weighed, such as a hike's limit
+ * and preferences (RTE-02), so a section of a tour is offered ways under its own rules.
  */
 export async function valhallaAlternates(
   from: Waypoint,
@@ -468,10 +470,11 @@ export async function valhallaAlternates(
   avoid: readonly AvoidClass[],
   count: number,
   signal?: AbortSignal,
+  costingOptions: Readonly<CostingOptions> = {},
 ): Promise<ValhallaLeg[] | null> {
   const base = valhallaBase()
   if (!base || notValhalla.has(base)) return null
-  const body = { ...routeBody([from, to], profile, avoid), ...(count > 0 ? { alternates: count } : {}) }
+  const body = { ...routeBody([from, to], profile, avoid, costingOptions), ...(count > 0 ? { alternates: count } : {}) }
   return askWithRetry(base, async () => {
     const data = await postRoute(base, body, signal)
     return data === null ? null : alternatesFrom(data)

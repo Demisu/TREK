@@ -14,6 +14,7 @@ import { usePlannerHistory } from './usePlannerHistory'
 import { useTourDraftStorage } from './useTourDraftStorage'
 import { useTourRevisionGuard } from './useTourRevisionGuard'
 import { useRouteShaping } from './useRouteShaping'
+import { useLegVariants } from './useLegVariants'
 import { useTourMapView } from './useTourMapView'
 import type { DraftPayload, DraftSource } from './tourPlannerDraft'
 import { paddleEstimateOf } from './paddlePlanOf'
@@ -792,12 +793,17 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   }, [interruptRouting])
 
   // P2A-03/P2A-05/PAD-11: shaping points, a leg planned afresh, drawn legs handed back to the router.
+  const mayEditRoute = useCallback(() => editPermissionRef.current && !saveInFlightRef.current, [])
   const shaping = useRouteShaping({
-    commit: commitWaypoints, waypointsRef, retry,
-    mayEdit: useCallback(() => editPermissionRef.current && !saveInFlightRef.current, []),
+    commit: commitWaypoints, waypointsRef, retry, mayEdit: mayEditRoute,
     isPaddle: useCallback(() => tourTypeRef.current === 'kayak', []),
     forgetLeg: useCallback((from: TourPlannerWaypoint, to: TourPlannerWaypoint) =>
       paddleRouteRepo.forget(tripId, from, to, { boat: paddleBoat ?? 'kayak', lakeStyle: paddleLakeStyle }), [paddleBoat, paddleLakeStyle, tripId]),
+  })
+  // RTE-02: other ways for one routed section of a hike, compared and taken on purpose.
+  const legVariants = useLegVariants({
+    waypoints, route, enrichedGeometry, routeCurrent, tourType, maxHikingDifficulty, hikingPreferences, undo, mayEdit: mayEditRoute,
+    insertShapingPoints: shaping.insertShapingPoints, recomputeLeg: shaping.recomputeLeg,
   })
 
   const readOnlyGpxAnalysis = useMemo(
@@ -930,7 +936,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     waypoints, selectedWaypointId, setSelectedWaypointId,
     addWaypoint, appendFixedLeg, setWaypointPosition, removeWaypoint, moveWaypoint, reorderWaypoint, editWaypoints: commitWaypoints,
     reverse, returnToStart, isLoop: isClosedLoop(waypoints), toggleWaypointFreeLeg, editPaddlePoints, amendWaypoints, paddleEstimate,
-    ...shaping, paddleRoute, routeCurrent,
+    ...shaping, legVariants, paddleRoute, routeCurrent,
     undo, redo, canUndo: history.canUndo, canRedo: history.canRedo,
     status, error, retry, isSaving,
     route, routeParts, enrichedGeometry, routeAnalysis, distanceMeters, durationSeconds, unreachable,

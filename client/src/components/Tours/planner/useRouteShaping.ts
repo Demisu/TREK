@@ -1,14 +1,21 @@
 import { useCallback, type RefObject } from 'react';
 import { randomId } from '../../../utils/randomId';
-import { withDrawnLegsRouted, withShaping, withShapingPoint, type TourPlannerWaypoint } from './tourPlannerWaypoints';
+import {
+  withDrawnLegsRouted,
+  withShaping,
+  withShapingPoint,
+  withShapingPoints,
+  type TourPlannerWaypoint,
+} from './tourPlannerWaypoints';
 
 type Commit = (change: (current: TourPlannerWaypoint[]) => TourPlannerWaypoint[]) => void;
 
 /**
- * P2A-03, P2A-05 and PAD-11: the editor's tools for the line between the
- * stops. A shaping point steers the route without being a stop, a routed leg
- * can be planned afresh, and a paddle tour's legs drawn by hand go back to the
- * router in one step. Each change is one step of the history, through the
+ * P2A-03, P2A-05, PAD-11 and RTE-02: the editor's tools for the line between
+ * the stops. A shaping point steers the route without being a stop, a way
+ * chosen for a leg is held by a few of them, a routed leg can be planned
+ * afresh, and a paddle tour's legs drawn by hand go back to the router in one
+ * step. Each change is one step of the history, through the
  * planner's own commit; nothing here plans a route itself.
  */
 export function useRouteShaping({
@@ -42,6 +49,24 @@ export function useRouteShaping({
     [commit, mayEdit, waypointsRef]
   );
 
+  /**
+   * RTE-02: the shaping points that hold a chosen way between two neighbouring
+   * points, set as one step of the history; their ids, or null when the two
+   * are no longer neighbours, so nothing is written into a leg the choice was
+   * not made for.
+   */
+  const insertShapingPoints = useCallback(
+    (afterId: string, beforeId: string, spots: ReadonlyArray<{ lat: number; lng: number }>) => {
+      if (!mayEdit() || spots.some((spot) => !Number.isFinite(spot.lat) || !Number.isFinite(spot.lng))) return null;
+      const shapes = spots.map(({ lat, lng }) => ({ id: randomId(), lat, lng }));
+      const points = waypointsRef.current;
+      if (withShapingPoints(points, afterId, beforeId, shapes) === points) return null;
+      commit((current) => withShapingPoints(current, afterId, beforeId, shapes));
+      return shapes.map((shape) => shape.id);
+    },
+    [commit, mayEdit, waypointsRef]
+  );
+
   const setWaypointShaping = useCallback(
     (id: string, shaping: boolean) => {
       if (mayEdit()) commit((current) => withShaping(current, id, shaping));
@@ -67,5 +92,5 @@ export function useRouteShaping({
     [forgetLeg, isPaddle, retry, waypointsRef]
   );
 
-  return { insertShapingPoint, setWaypointShaping, routeDrawnLegsOnWater, recomputeLeg };
+  return { insertShapingPoint, insertShapingPoints, setWaypointShaping, routeDrawnLegsOnWater, recomputeLeg };
 }

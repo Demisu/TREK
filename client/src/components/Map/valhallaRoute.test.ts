@@ -519,6 +519,23 @@ describe('valhallaAlternates', () => {
     expect(bodies[1]).not.toHaveProperty('alternates')
   })
 
+  it('VALHALLA-ALT-005: a section of a hike is offered ways on foot under its own limit and preferences (RTE-02)', async () => {
+    const bodies: Record<string, unknown>[] = []
+    server.use(http.post(FOSSGIS_VALHALLA, async ({ request }) => {
+      bodies.push(await request.json() as Record<string, unknown>)
+      return HttpResponse.json(withAlternates([answer({ time: 12_000 })]))
+    }))
+
+    const ways = await valhallaAlternates(HAMBURG, BERLIN, 'walking', [], 3, undefined, { max_hiking_difficulty: 4, use_hills: 0.2 })
+
+    expect(ways).toHaveLength(2)
+    expect(bodies[0]).toMatchObject({
+      alternates: 3,
+      costing: 'pedestrian',
+      costing_options: { pedestrian: { max_hiking_difficulty: 4, use_hills: 0.2 } },
+    })
+  })
+
   it('VALHALLA-ALT-004: a refusal is asked once more, then is no answer; an instance with its own OSRM asks nothing', async () => {
     let calls = 0
     server.use(http.post(FOSSGIS_VALHALLA, () => { calls++; return new HttpResponse(null, { status: 429 }) }))

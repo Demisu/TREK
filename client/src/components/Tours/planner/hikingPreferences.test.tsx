@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { HikingPreferencesField } from './HikingPreferencesField';
-import { hikingCostingOptions } from './tourRouting';
+import { hikingCosting, hikingCostingOptions } from './hikingCosting';
 
 describe('hikingCostingOptions (MF-08, RTE-01)', () => {
   it('asks the router only for what was switched on, in the options it was checked with', () => {
@@ -12,6 +12,11 @@ describe('hikingCostingOptions (MF-08, RTE-01)', () => {
       step_penalty: 600,
       use_ferry: 0,
     });
+  });
+
+  it('weighs the whole tour and one of its sections alike: the limit with the preferences (RTE-02)', () => {
+    expect(hikingCosting()).toEqual({ max_hiking_difficulty: 2 });
+    expect(hikingCosting(4, { avoid_steps: true })).toEqual({ max_hiking_difficulty: 4, step_penalty: 600 });
   });
 });
 

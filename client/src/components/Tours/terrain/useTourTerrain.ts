@@ -5,7 +5,7 @@ import type { FerrataMapLayer } from '../../Ferratas/useFerrataMapLayer';
 import type { TourBaseLayer, TourLayerOffer } from '../../Map/MapLayerSwitcher';
 import { useRasterOverlaysGL, type RasterOverlayGlMap } from '../../Map/mapRasterOverlay';
 import { usePaddleLayerGL, type PaddleGlMap } from '../paddle/usePaddleLayerGL';
-import { trackData, type PanelWidths, type TrackColorMode } from './terrainLayers';
+import { trackData, type PanelWidths, type TrackColorMode, type TrackOverlay } from './terrainLayers';
 import { useTerrainFerratas } from './useTerrainFerratas';
 import { frameCamera, useTerrainMap, type TerrainScene } from './useTerrainMap';
 import { useTerrainPins, type TerrainWaypoints } from './useTerrainPins';
@@ -32,6 +32,8 @@ interface Options {
   onViewportChange?: (bbox: FerrataBbox, zoom: number) => void;
   /** A paddle tour: the route is never coloured by grade. */
   water?: boolean;
+  /** RTE-02: the ways of a section being compared, over the track in their own colours. */
+  overlays?: readonly TrackOverlay[];
 }
 
 /** The planner map's 3D mode: map, pins, corridor preload and the flyover sharing the rail's focus. */
@@ -41,9 +43,10 @@ export function useTourTerrain(options: Options) {
   const [chosenColorMode, setColorMode] = useState<TrackColorMode>('grade');
   // Water is flat: a paddle tour keeps its tour colour, whatever was picked for a hike.
   const colorMode: TrackColorMode = options.water ? 'tour' : chosenColorMode;
+  const { overlays } = options;
   const data = useMemo(
-    () => trackData(samples, routes, colorMode, trackColor),
-    [samples, routes, colorMode, trackColor]
+    () => trackData(samples, routes, colorMode, trackColor, overlays),
+    [samples, routes, colorMode, trackColor, overlays]
   );
 
   // The map's own handlers fire long after they were bound, so they read the latest props here.

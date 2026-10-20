@@ -18,6 +18,7 @@ import { tourRasterBaseOf } from '../../Map/tourRasterBases';
 import { SoftPill } from '../../Planner/planParts';
 import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
+import type { TrackOverlay } from './terrainLayers';
 import { GRADE_BANDS, terrainStats, type GradeBandKey, type TerrainStats } from './tourTerrainModel';
 import { useControlRowFit } from './useControlRowFit';
 import type { TerrainWaypoints } from './useTerrainPins';
@@ -52,6 +53,8 @@ export interface TourTerrainMapProps {
   placeTool?: MapPlaceTool;
   /** The grade legend's width and how far its open bands reach above it, for a card that sits on it; null while there is none. */
   onLegendLayout?: (layout: TerrainLegendLayout | null) => void;
+  /** RTE-02: the ways of a section being compared, laid over the track in their own colours. */
+  overlays?: readonly TrackOverlay[];
 }
 
 export interface TerrainLegendLayout {
