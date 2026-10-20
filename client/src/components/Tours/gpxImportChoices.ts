@@ -61,7 +61,11 @@ export function importFields(chosen: GpxImportChoices): TourGpxImportFields {
   if (type === 'horse') return { tour_type: 'horse' };
   // SKI-02: a ski track comes in with its discipline and, for cross-country, its technique, and no time.
   const ski = type === 'ski' ? skiFieldsOf(chosen.ski) : null;
-  if (ski) return { tour_type: 'ski', ...ski };
+  if (ski) {
+    // The classification request may clear a technique with null; an import only ever names one or none.
+    const { ski_discipline, ski_technique } = ski;
+    return ski_technique ? { tour_type: 'ski', ski_discipline, ski_technique } : { tour_type: 'ski', ski_discipline };
+  }
   return { tour_type: 'hike' };
 }
 
