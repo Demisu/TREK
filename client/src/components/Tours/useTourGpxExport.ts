@@ -3,10 +3,20 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from '../../i18n';
 import { tourRepo } from '../../repo/tourRepo';
 import { downloadBlob } from '../../utils/fileDownload';
-import { canShareFile, shareFile } from '../../utils/fileShare';
+import { canShareFile, shareFile, type FileShareOutcome } from '../../utils/fileShare';
 import { useToast } from '../shared/Toast';
 
 const GPX_TYPE = 'application/gpx+xml';
+
+/** A tour's GPX file kept for the next share, as the bytes and the name the server gave them. */
+interface PreparedFile {
+  placeId: number;
+  blob: Blob;
+  name: string;
+}
+
+/** The file's name when the server gave none: the tour's, or plain "tour". */
+const fallbackName = (name: string) => `${name.trim() || 'tour'}.gpx`;
 
 /** What a tour's GPX export needs to know about the tour. */
 export interface TourGpxExportTarget {
@@ -22,17 +32,51 @@ export interface TourGpxExportTarget {
  * so an unsaved edit in the planner is not in it. One export at a time per
  * caller; a dialog closed mid-download cancels it. Nothing about the tour
  * changes either way.
+ *
+ * The share sheet only opens from inside the tap that asks for it, and a tap
+ * that first waits on the network has often run out by the time the file is
+ * there. So where sharing is offered, the file of `prefetch` (the tour on
+ * screen, null while it has unsaved changes) is fetched ahead, quietly, and a
+ * tap hands it to the sheet before anything is awaited. A file a tap had to
+ * fetch is kept for the next one the same way.
  */
-export function useTourGpxExport() {
+export function useTourGpxExport(prefetch: TourGpxExportTarget | null = null) {
   const { t } = useTranslation();
   const toast = useToast();
   const [exportingId, setExportingId] = useState<number | null>(null);
   const abortRef = useRef<AbortController | null>(null);
-  // A file fetched for a share the browser then refused for want of a fresh tap, kept for the next one.
-  const readyRef = useRef<{ placeId: number; file: File } | null>(null);
+  // The tour's file at hand for a share, so the tap opens the sheet without waiting on the network.
+  const preparedRef = useRef<PreparedFile | null>(null);
+  // An open share sheet: a second tap while it is open would only make the browser refuse.
+  const sharingRef = useRef(false);
   const [canShare] = useState(() => canShareFile('tour.gpx', GPX_TYPE));
 
   useEffect(() => () => abortRef.current?.abort(), []);
+
+  const prefetchTripId = prefetch?.tripId ?? null;
+  const prefetchPlaceId = prefetch?.placeId ?? null;
+  const prefetchName = prefetch?.name ?? '';
+  useEffect(() => {
+    if (!canShare || prefetchTripId === null || prefetchPlaceId === null) return;
+    const controller = new AbortController();
+    tourRepo.exportGpx(prefetchTripId, prefetchPlaceId, controller.signal).then(
+      (result) => {
+        if (controller.signal.aborted || !('blob' in result)) return;
+        preparedRef.current = {
+          placeId: prefetchPlaceId,
+          blob: result.blob,
+          name: result.filename ?? fallbackName(prefetchName),
+        };
+      },
+      // Quiet on purpose: a tap then fetches the file itself and says why it could not.
+      () => undefined
+    );
+    return () => {
+      controller.abort();
+      // Another tour, or the same one with changes the kept file does not hold.
+      preparedRef.current = null;
+    };
+  }, [canShare, prefetchTripId, prefetchPlaceId, prefetchName]);
 
   /** The tour's file from the server, or null when there is none to hand over, said in a toast. */
   const fetchFile = useCallback(
@@ -47,7 +91,7 @@ export function useTourGpxExport() {
           toast.info(t('tours.gpxExport.offline'));
           return null;
         }
-        return new File([result.blob], result.filename ?? `${name.trim() || 'tour'}.gpx`, { type: GPX_TYPE });
+        return new File([result.blob], result.filename ?? fallbackName(name), { type: GPX_TYPE });
       } catch (error: unknown) {
         if (controller.signal.aborted) return null;
         const noRoute = isAxiosError(error) && error.response?.status === 422;
@@ -71,14 +115,22 @@ export function useTourGpxExport() {
 
   const shareGpx = useCallback(
     async (target: TourGpxExportTarget) => {
-      const ready = readyRef.current?.placeId === target.placeId ? readyRef.current.file : null;
-      readyRef.current = null;
-      // A file at hand goes to the sheet before anything is awaited, inside the tap that asked.
-      const file = ready ?? (await fetchFile(target));
+      if (sharingRef.current) return;
+      const prepared = preparedRef.current?.placeId === target.placeId ? preparedRef.current : null;
+      // A fresh File for every sheet, so no share is handed one an earlier sheet still holds.
+      // It goes to the sheet before anything is awaited, inside the tap that asked.
+      const file = prepared ? new File([prepared.blob], prepared.name, { type: GPX_TYPE }) : await fetchFile(target);
       if (!file) return;
-      const outcome = await shareFile(file, target.name);
-      if (outcome === 'needs-gesture' && !ready) {
-        readyRef.current = { placeId: target.placeId, file };
+      if (!prepared) preparedRef.current = { placeId: target.placeId, blob: file, name: file.name };
+      sharingRef.current = true;
+      let outcome: FileShareOutcome;
+      try {
+        outcome = await shareFile(file, target.name);
+      } finally {
+        sharingRef.current = false;
+      }
+      // A closed sheet is the user's choice and a sheet still open is no failure: neither says anything.
+      if (outcome === 'needs-gesture' && !prepared) {
         toast.info(t('tours.gpxExport.shareReady'));
       } else if (outcome === 'failed' || outcome === 'needs-gesture') {
         toast.error(t('tours.gpxExport.shareFailed'));

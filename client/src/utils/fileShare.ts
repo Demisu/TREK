@@ -20,9 +20,11 @@ export function canShareFile(name: string, type: string): boolean {
 /**
  * How a share ended: `cancelled` when the sheet was closed without a target,
  * `needs-gesture` when the browser refused because the tap that asked lies too
- * far back (Safari, after the file had to be fetched first), `failed` otherwise.
+ * far back (Safari, after the file had to be fetched first), `busy` when an
+ * earlier sheet is still open (the browser's InvalidStateError), `failed`
+ * otherwise.
  */
-export type FileShareOutcome = 'shared' | 'cancelled' | 'needs-gesture' | 'failed';
+export type FileShareOutcome = 'shared' | 'cancelled' | 'needs-gesture' | 'busy' | 'failed';
 
 /** Opens the share sheet with the file; call it straight from the tap that asks for it. */
 export async function shareFile(file: File, title: string): Promise<FileShareOutcome> {
@@ -32,6 +34,7 @@ export async function shareFile(file: File, title: string): Promise<FileShareOut
   } catch (error: unknown) {
     if (error instanceof DOMException && error.name === 'AbortError') return 'cancelled';
     if (error instanceof DOMException && error.name === 'NotAllowedError') return 'needs-gesture';
+    if (error instanceof DOMException && error.name === 'InvalidStateError') return 'busy';
     return 'failed';
   }
 }

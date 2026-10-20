@@ -136,10 +136,92 @@ describe('useTourGpxExport, sharing (IO-01)', () => {
     await act(() => result.current.shareGpx(target));
     expect(toast.error).toHaveBeenLastCalledWith('tours.gpxExport.shareFailed');
 
-    share.shareFile.mockResolvedValueOnce('needs-gesture').mockResolvedValueOnce('needs-gesture');
+    share.shareFile.mockResolvedValueOnce('needs-gesture');
     await act(() => result.current.shareGpx(target));
-    await act(() => result.current.shareGpx(target));
+    expect(repo.exportGpx).toHaveBeenCalledTimes(1);
+    expect(toast.info).not.toHaveBeenCalled();
     expect(toast.error).toHaveBeenCalledTimes(2);
+  });
+
+  it('a second tap shares again from the kept file, as a fresh file, and says nothing', async () => {
+    share.shareFile.mockResolvedValue('shared');
+    const { result } = renderHook(() => useTourGpxExport());
+    await act(() => result.current.shareGpx(target));
+    await act(() => result.current.shareGpx(target));
+    expect(repo.exportGpx).toHaveBeenCalledTimes(1);
+    expect(share.shareFile).toHaveBeenCalledTimes(2);
+    const [first, second] = share.shareFile.mock.calls.map((call) => call[0] as File);
+    expect(second).not.toBe(first);
+    expect(second).toEqual(gpxFile('Kramer-über.gpx'));
+    expect(toast.info).not.toHaveBeenCalled();
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it('fetches the file ahead, so the tap opens the sheet before anything is awaited', async () => {
+    share.canShareFile.mockReturnValue(true);
+    share.shareFile.mockResolvedValue('shared');
+    const { result } = renderHook(() => useTourGpxExport(target));
+    await act(async () => undefined);
+    expect(repo.exportGpx).toHaveBeenCalledWith(1, 7, expect.any(AbortSignal));
+    act(() => {
+      void result.current.shareGpx(target);
+    });
+    // Called in the same turn as the tap, not after a network round trip.
+    expect(share.shareFile).toHaveBeenCalledWith(gpxFile('Kramer-über.gpx'), 'Kramer');
+    expect(repo.exportGpx).toHaveBeenCalledTimes(1);
+    await act(async () => undefined);
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it('lets a tap be while the sheet is still open, and a busy browser is no failure', async () => {
+    let close: (value: unknown) => void = () => undefined;
+    share.shareFile.mockImplementationOnce(() => new Promise((resolve) => (close = resolve)));
+    const { result } = renderHook(() => useTourGpxExport());
+    await act(async () => {
+      void result.current.shareGpx(target);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    expect(share.shareFile).toHaveBeenCalledTimes(1);
+    await act(() => result.current.shareGpx(target));
+    expect(share.shareFile).toHaveBeenCalledTimes(1);
+    await act(async () => close('cancelled'));
+
+    share.shareFile.mockResolvedValueOnce('busy');
+    await act(() => result.current.shareGpx(target));
+    expect(share.shareFile).toHaveBeenCalledTimes(2);
+    expect(toast.info).not.toHaveBeenCalled();
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it('a failed fetch ahead is quiet, and the tap fetches itself and says why', async () => {
+    share.canShareFile.mockReturnValue(true);
+    repo.exportGpx.mockRejectedValueOnce(new Error('network')).mockRejectedValueOnce(refused(422));
+    const { result } = renderHook(() => useTourGpxExport(target));
+    await act(async () => undefined);
+    expect(toast.error).not.toHaveBeenCalled();
+    await act(() => result.current.shareGpx(target));
+    expect(repo.exportGpx).toHaveBeenCalledTimes(2);
+    expect(share.shareFile).not.toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalledWith('tours.gpxExport.noRoute');
+  });
+
+  it('fetches nothing ahead without the share, and drops the kept file when the tour changes', async () => {
+    const { unmount } = renderHook(() => useTourGpxExport(target));
+    await act(async () => undefined);
+    expect(repo.exportGpx).not.toHaveBeenCalled();
+    unmount();
+
+    share.canShareFile.mockReturnValue(true);
+    share.shareFile.mockResolvedValue('shared');
+    const { result, rerender } = renderHook(({ prefetch }) => useTourGpxExport(prefetch), {
+      initialProps: { prefetch: target as typeof target | null },
+    });
+    await act(async () => undefined);
+    rerender({ prefetch: null });
+    const signal = repo.exportGpx.mock.calls[0][2] as AbortSignal;
+    expect(signal.aborted).toBe(true);
+    await act(() => result.current.shareGpx(target));
+    expect(repo.exportGpx).toHaveBeenCalledTimes(2);
   });
 
   it('a kept file belongs to its tour: another tour is fetched afresh', async () => {

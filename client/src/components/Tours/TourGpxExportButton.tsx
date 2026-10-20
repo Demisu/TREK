@@ -13,7 +13,7 @@ import { useTourGpxExport, type TourGpxExportTarget } from './useTourGpxExport';
  */
 export function TourGpxExportButton({ target }: { target: TourGpxExportTarget }) {
   const { t } = useTranslation();
-  const { exportGpx, shareGpx, canShare, exporting } = useTourGpxExport();
+  const { exportGpx, shareGpx, canShare, exporting } = useTourGpxExport(target);
   return (
     <>
       <Tooltip label={t('tours.gpxExport.hint')}>
@@ -54,7 +54,7 @@ export function TourGpxExportButton({ target }: { target: TourGpxExportTarget })
  */
 export function TourGpxExportBarButton({ target, unsaved }: { target: TourGpxExportTarget; unsaved: boolean }) {
   const { t } = useTranslation();
-  const { exportGpx, shareGpx, canShare, exporting } = useTourGpxExport();
+  const { exportGpx, shareGpx, canShare, exporting } = useTourGpxExport(unsaved ? null : target);
   return (
     <>
       <BarButton

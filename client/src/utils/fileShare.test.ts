@@ -41,13 +41,15 @@ describe('shareFile (IO-01)', () => {
     expect(share).toHaveBeenCalledWith({ files: [file], title: 'Kramer' });
   });
 
-  it('tells a closed sheet, a refused tap and any other failure apart', async () => {
+  it('tells a closed sheet, a refused tap, an open sheet and any other failure apart', async () => {
     const share = vi.fn();
     stubShare(share, () => true);
     share.mockRejectedValueOnce(new DOMException('closed', 'AbortError'));
     await expect(shareFile(gpx(), 'Kramer')).resolves.toBe('cancelled');
     share.mockRejectedValueOnce(new DOMException('no activation', 'NotAllowedError'));
     await expect(shareFile(gpx(), 'Kramer')).resolves.toBe('needs-gesture');
+    share.mockRejectedValueOnce(new DOMException('earlier share still open', 'InvalidStateError'));
+    await expect(shareFile(gpx(), 'Kramer')).resolves.toBe('busy');
     share.mockRejectedValueOnce(new DOMException('bad data', 'DataError'));
     await expect(shareFile(gpx(), 'Kramer')).resolves.toBe('failed');
     share.mockRejectedValueOnce(new Error('odd'));
