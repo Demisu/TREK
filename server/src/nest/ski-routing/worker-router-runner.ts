@@ -12,8 +12,16 @@ export const MAX_WAITING_JOBS = 8;
 /** A thread with nothing to do ends after half an hour; the next job starts one again. */
 const IDLE_MS = 30 * 60 * 1000;
 
-interface Waiting {
+/** A job in line for the thread, not yet handed to it. */
+interface Queued {
+  id: number;
+  job: SkiJob;
   settle: (outcome: { result: unknown } | { error: Error }) => void;
+}
+
+/** The job the thread is working on, the thread it went to, and its clock. */
+interface Running extends Queued {
+  worker: Worker;
   timer: NodeJS.Timeout;
 }
 
@@ -26,33 +34,31 @@ export function answerTimeoutMs(job: SkiJob): number {
 
 /**
  * The piste router's own thread, so a search never holds up the server's
- * requests. Started on the first job and ended when idle; a job not answered
- * in time fails as `timeout` and the thread is replaced, a thread that dies
- * fails what it held, and the next job finds a fresh one.
+ * requests. Started on the first job and ended when idle. The thread is
+ * handed one job at a time, so a job's clock starts when the thread takes it
+ * up, not while it waits behind a slow one. A job not answered in time fails
+ * as `timeout` and its thread is replaced; a thread that dies fails the job
+ * it held. Either way the jobs still in line go to a fresh thread.
  */
 export class WorkerSkiRouterRunner implements SkiRouterRunner {
   private thread: Worker | null = null;
   private lastId = 0;
-  private readonly waiting = new Map<number, Waiting>();
+  private readonly queue: Queued[] = [];
+  private running: Running | null = null;
   private idleTimer: NodeJS.Timeout | null = null;
 
   constructor(private readonly entry = join(__dirname, 'ski-router.worker.js')) {}
 
   run<J extends SkiJob>(job: J): Promise<SkiJobResult<J>> {
-    if (this.waiting.size >= MAX_WAITING_JOBS) return Promise.reject(new Error('busy'));
-    const worker = this.ensureThread();
+    if (this.queue.length + (this.running ? 1 : 0) >= MAX_WAITING_JOBS) return Promise.reject(new Error('busy'));
     const id = ++this.lastId;
     return new Promise<SkiJobResult<J>>((resolve, reject) => {
-      const timer = setTimeout(() => {
-        this.waiting.delete(id);
-        reject(new Error('timeout'));
-        this.replaceThread();
-      }, answerTimeoutMs(job));
-      this.waiting.set(id, {
-        timer,
+      this.queue.push({
+        id,
+        job,
         settle: (outcome) => ('error' in outcome ? reject(outcome.error) : resolve(outcome.result as SkiJobResult<J>)),
       });
-      worker.postMessage({ id, job });
+      this.next();
     });
   }
 
@@ -62,10 +68,29 @@ export class WorkerSkiRouterRunner implements SkiRouterRunner {
 
   async close(): Promise<void> {
     if (this.idleTimer) clearTimeout(this.idleTimer);
-    this.failWaiting(new Error('closed'));
+    this.idleTimer = null;
+    this.failAll(new Error('closed'));
     const worker = this.thread;
     this.thread = null;
     await worker?.terminate();
+  }
+
+  /** Hands the next job in line to the thread, once the one before it is done. */
+  private next(): void {
+    if (this.running) return;
+    const queued = this.queue.shift();
+    if (!queued) return;
+    let worker: Worker;
+    try {
+      worker = this.ensureThread();
+    } catch (err: unknown) {
+      queued.settle({ error: err instanceof Error ? err : new Error(String(err)) });
+      this.next();
+      return;
+    }
+    const timer = setTimeout(() => this.timedOut(queued.id), answerTimeoutMs(queued.job));
+    this.running = { ...queued, worker, timer };
+    worker.postMessage({ id: queued.id, job: queued.job });
   }
 
   private ensureThread(): Worker {
@@ -79,7 +104,7 @@ export class WorkerSkiRouterRunner implements SkiRouterRunner {
         arg === '--require' || arg === '-r' || all[index - 1] === '--require' || all[index - 1] === '-r',
     );
     const worker = new Worker(this.entry, { execArgv });
-    worker.on('message', (reply: Reply) => this.receive(reply));
+    worker.on('message', (reply: Reply) => this.receive(worker, reply));
     worker.on('error', (err: Error) => this.lost(worker, err));
     worker.on('exit', () => this.lost(worker, new Error('router thread ended')));
     worker.unref();
@@ -87,33 +112,49 @@ export class WorkerSkiRouterRunner implements SkiRouterRunner {
     return worker;
   }
 
-  private receive(reply: Reply): void {
-    const waiting = this.waiting.get(reply.id);
-    if (!waiting) return;
-    this.waiting.delete(reply.id);
-    clearTimeout(waiting.timer);
-    if (reply.result !== undefined) waiting.settle({ result: reply.result });
-    else waiting.settle({ error: new Error(reply.error ?? 'router failed') });
+  private receive(worker: Worker, reply: Reply): void {
+    const running = this.running;
+    if (running?.worker !== worker || running.id !== reply.id) return;
+    this.finish(
+      running,
+      reply.result !== undefined ? { result: reply.result } : { error: new Error(reply.error ?? 'router failed') },
+    );
   }
 
-  /** A thread that ended or failed takes its jobs with it; one already replaced leaves the new thread's alone. */
+  /** Only the job still running on the thread it went to times out; its thread goes with it. */
+  private timedOut(id: number): void {
+    const running = this.running;
+    if (running?.id !== id) return;
+    this.dropThread(running.worker);
+    this.finish(running, { error: new Error('timeout') });
+  }
+
+  /** A thread that ended or failed takes its job with it; a thread already replaced touches no other job. */
   private lost(worker: Worker, err: Error): void {
-    if (this.thread !== worker) return;
-    this.thread = null;
-    this.failWaiting(err);
+    if (this.thread === worker) this.thread = null;
+    const running = this.running;
+    if (running?.worker === worker) this.finish(running, { error: err });
   }
 
-  private replaceThread(): void {
-    const worker = this.thread;
-    this.thread = null;
-    void worker?.terminate();
+  private finish(running: Running, outcome: { result: unknown } | { error: Error }): void {
+    clearTimeout(running.timer);
+    this.running = null;
+    running.settle(outcome);
+    this.next();
   }
 
-  private failWaiting(err: Error): void {
-    for (const [id, waiting] of this.waiting) {
-      clearTimeout(waiting.timer);
-      this.waiting.delete(id);
-      waiting.settle({ error: err });
+  private dropThread(worker: Worker): void {
+    if (this.thread === worker) this.thread = null;
+    void worker.terminate();
+  }
+
+  private failAll(err: Error): void {
+    const running = this.running;
+    this.running = null;
+    if (running) {
+      clearTimeout(running.timer);
+      running.settle({ error: err });
     }
+    for (const queued of this.queue.splice(0)) queued.settle({ error: err });
   }
 }

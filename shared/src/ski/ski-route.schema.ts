@@ -1,7 +1,6 @@
 import {
   SKI_DIFFICULTIES,
   skiDisciplineSchema,
-  skiRouteBuildSchema,
   skiRouteOptionsSchema,
   skiTechniqueSchema,
 } from '../tours/ski.schema';

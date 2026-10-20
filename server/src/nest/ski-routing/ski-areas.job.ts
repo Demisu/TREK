@@ -10,6 +10,9 @@ import { Injectable, type OnApplicationBootstrap } from '@nestjs/common';
  * wait for it. Area files unused for 90 days go. Nothing runs while TREK
  * Places is switched off.
  */
+/** How many changed areas are downloaded at once. */
+const REFRESH_CONCURRENCY = 2;
+
 @Injectable()
 export class SkiAreasJob implements OnApplicationBootstrap {
   constructor(
@@ -34,7 +37,12 @@ export class SkiAreasJob implements OnApplicationBootstrap {
     }
   }
 
-  /** The areas kept here whose graph the new build changed, fetched again. */
+  /**
+   * The areas kept here whose graph the new build changed, fetched again two
+   * at a time so a build that changed many does not open dozens of downloads
+   * against the host at once. Once the host's breaker opens the rest wait:
+   * their kept copies still plan, and a planner that needs one fetches it.
+   */
   private async refreshKept(): Promise<void> {
     const index = await this.areas.index();
     if (!index) return;
@@ -42,9 +50,25 @@ export class SkiAreasJob implements OnApplicationBootstrap {
     const changed = index.areas.filter((area) =>
       kept.some((copy) => copy.id === area.row.id && copy.sha8 !== area.row.sha256.slice(0, 8)),
     );
-    const outcomes = await Promise.allSettled(changed.map((area) => this.areas.ensureArea(area.row)));
-    const failed = outcomes.filter((outcome) => outcome.status === 'rejected').length;
     if (changed.length === 0) return;
-    logInfo(`[Ski] ${changed.length - failed} of ${changed.length} kept ski areas fetched anew`);
+    const pending = [...changed];
+    let fetched = 0;
+    const fetchOne = async (): Promise<void> => {
+      while (!this.areas.placesHeldBack()) {
+        const area = pending.shift();
+        if (!area) return;
+        try {
+          if (!(await this.areas.ensureArea(area.row)).stale) fetched += 1;
+        } catch {
+          // The kept copy stays; the next planner to need the area asks again.
+        }
+      }
+    };
+    await Promise.all(Array.from({ length: REFRESH_CONCURRENCY }, fetchOne));
+    const left = pending.length;
+    logInfo(
+      `[Ski] ${fetched} of ${changed.length} kept ski areas fetched anew` +
+        (left > 0 ? `, ${left} left for later while TREK Places is unreachable` : ''),
+    );
   }
 }

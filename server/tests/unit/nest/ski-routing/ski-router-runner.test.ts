@@ -221,12 +221,57 @@ describe('WorkerSkiRouterRunner', () => {
         runner.run(job(['hang'])).catch((err: Error) => err.message),
       );
       await expect(runner.run(job(['hang']))).rejects.toThrow('busy');
-      await vi.advanceTimersByTimeAsync(answerTimeoutMs(job(['hang'])));
+      // One job at a time is with the thread, each on its own clock.
+      for (let i = 0; i < MAX_WAITING_JOBS; i++) await vi.advanceTimersByTimeAsync(answerTimeoutMs(job(['hang'])));
       expect(await Promise.all(waiting)).toEqual(Array.from({ length: MAX_WAITING_JOBS }, () => 'timeout'));
       await runner.close();
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('SKIRUN-025: a job times out on its own clock from when the thread takes it, and takes no other job down', async () => {
+    const entry = await script(
+      'slow',
+      `parentPort.on('message', (m) => {
+        if (m.forget || m.job.files[0] === 'hang') return;
+        parentPort.postMessage({ id: m.id, result: [] });
+      });`,
+    );
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    try {
+      const runner = new WorkerSkiRouterRunner(entry);
+      const ms = answerTimeoutMs(job(['hang']));
+      const first = runner.run(job(['hang'])).catch((err: Error) => err.message);
+      const second = runner.run(job(['hang'])).catch((err: Error) => err.message);
+      const third = runner.run(job(['fine']));
+      await vi.advanceTimersByTimeAsync(ms);
+      expect(await first).toBe('timeout');
+      // The second job waited behind the first; its clock started only when the fresh thread took it.
+      let secondDone = false;
+      void second.then(() => {
+        secondDone = true;
+      });
+      await vi.advanceTimersByTimeAsync(ms - 1);
+      expect(secondDone).toBe(false);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(await second).toBe('timeout');
+      // The third job runs on the thread after it and is answered; no earlier clock ends it or its thread.
+      await expect(third).resolves.toEqual([]);
+      await vi.advanceTimersByTimeAsync(ms);
+      await expect(runner.run(job(['fine']))).resolves.toEqual([]);
+      await runner.close();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('SKIRUN-026: a thread that cannot start fails each job in line on its own', async () => {
+    // A bare relative path is one node refuses to start a thread from.
+    const runner = new WorkerSkiRouterRunner('no-such-router.js');
+    await expect(runner.run(job(['x']))).rejects.toThrow();
+    await expect(runner.run(job(['y']))).rejects.toThrow();
+    await runner.close();
   });
 
   it('SKIRUN-024: a job of many legs waits longer for its answer, never beyond a minute', () => {

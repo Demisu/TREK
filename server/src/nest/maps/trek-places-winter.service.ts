@@ -1,5 +1,6 @@
 import { readEnv } from '../../app-config';
 import {
+  trekPlacesHeldBack,
   trekPlacesWinterArea,
   trekPlacesWinterIndex,
   trekPlacesWinterMeta,
@@ -22,6 +23,11 @@ export class TrekPlacesWinterService {
   /** Whether the operator lets anything go to TREK Places at all. */
   enabled(): boolean {
     return readEnv().maps.trekPlacesEnabled;
+  }
+
+  /** Whether the circuit breaker holds requests back after the host failed several times. */
+  heldBack(): boolean {
+    return trekPlacesHeldBack();
   }
 
   meta(): Promise<WinterMeta> {

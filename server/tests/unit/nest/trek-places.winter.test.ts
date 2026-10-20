@@ -134,6 +134,18 @@ describe('the winter index', () => {
     stub(answer(200, JSON.stringify({ build: '', format: 1, areas: [] })));
     await expect(trekPlacesWinterIndex(null)).rejects.toThrow();
   });
+
+  it('PLACESWINTER-012: reads an unpacked index past 8 MB, and refuses a build a tour could not keep', async () => {
+    const filler = Array.from({ length: 32_000 }, (_, i) => ({ ...ROW, id: `w:${i + 1}` }));
+    const json = JSON.stringify({ build: '2026-11-02', format: 1, areas: filler });
+    expect(Buffer.byteLength(json)).toBeGreaterThan(8 * 1024 * 1024);
+    stub(answer(200, json));
+    const read = await trekPlacesWinterIndex(null);
+    if (read.status !== 'ok') throw new Error('not read');
+    expect(read.index.areas).toHaveLength(32_000);
+    stub(answer(200, JSON.stringify({ build: 'nightly build', format: 1, areas: [] })));
+    await expect(trekPlacesWinterIndex(null)).rejects.toThrow();
+  });
 });
 
 describe('an area graph', () => {
@@ -180,6 +192,9 @@ describe('the opt-out and the breaker', () => {
     await expect(trekPlacesWinterMeta()).rejects.toThrow('TREK Places API 500');
     await expect(trekPlacesWinterMeta()).rejects.toThrow('not retrying yet');
     expect(calls).toHaveLength(5);
+    expect(new TrekPlacesWinterService().heldBack()).toBe(true);
+    resetTrekPlacesBreaker();
+    expect(new TrekPlacesWinterService().heldBack()).toBe(false);
   });
 
   it('PLACESWINTER-032: the provider hands each call to the client', async () => {

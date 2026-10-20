@@ -1,3 +1,5 @@
+import { skiRouteBuildSchema } from '../tours/ski.schema';
+
 import { z } from 'zod';
 
 /**
@@ -10,6 +12,13 @@ import { z } from 'zod';
 
 const sha256Schema = z.string().regex(/^[0-9a-f]{64}$/);
 
+/**
+ * A build is read to the same rule a ski tour stores it by, so a build TREK
+ * could not save with a tour is refused when the layer is read, not on the
+ * tour's next save.
+ */
+const winterBuildSchema = skiRouteBuildSchema;
+
 /** The attribution block the winter layer carries; only the two lines TREK prints are required. */
 export const winterAttributionSchema = z.object({
   data: z.string(),
@@ -18,7 +27,7 @@ export const winterAttributionSchema = z.object({
 export type WinterAttribution = z.infer<typeof winterAttributionSchema>;
 
 export const winterMetaSchema = z.object({
-  build: z.string().min(1).max(40),
+  build: winterBuildSchema,
   format: z.number().int(),
   areas: z.number().int().nonnegative(),
   indexSha: sha256Schema,
@@ -58,7 +67,7 @@ export const winterIndexRowSchema = z.object({
 export type WinterIndexRow = z.infer<typeof winterIndexRowSchema>;
 
 export const winterIndexSchema = z.object({
-  build: z.string().min(1).max(40),
+  build: winterBuildSchema,
   format: z.number().int(),
   areas: z.array(winterIndexRowSchema),
 });

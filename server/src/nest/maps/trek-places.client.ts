@@ -15,6 +15,7 @@ import { readEnv, getAppUrl } from '../../app-config';
 import { toApiLang } from './maps.helpers';
 import {
   normalizePlaceWebsite,
+  skiRouteBuildSchema,
   winterIndexRowSchema,
   winterMetaSchema,
   type WinterIndex,
@@ -887,7 +888,13 @@ export async function trekPlacesRoutes(
 export type TrekPlacesWinterBody = { status: 'not_modified' } | { status: 'ok'; bytes: Buffer; etag: string | null };
 
 const WINTER_META = { timeoutMs: 5_000, maxBytes: 64 * 1024 };
-const WINTER_INDEX = { timeoutMs: 15_000, maxBytes: 8 * 1024 * 1024 };
+/**
+ * The host caps the index it stores at 8 MB of gzip and sends it packed;
+ * fetch unpacks it before it is read, so the cap here is on the unpacked
+ * JSON, which is several times larger. 64 MB holds whatever the host's cap
+ * lets through and still bounds a body that is not the index at all.
+ */
+const WINTER_INDEX = { timeoutMs: 15_000, maxBytes: 64 * 1024 * 1024 };
 const WINTER_AREA = { timeoutMs: 30_000, maxBytes: 32 * 1024 * 1024 };
 const WINTER_AREA_ID = /^[a-z]:[0-9]+(-[0-9a-z]+)?$/;
 
@@ -901,7 +908,7 @@ function bareTag(value: string | null): string | null {
 
 /** The head of the index; its rows are read one by one. */
 const winterIndexHeadSchema = z.object({
-  build: z.string().min(1).max(40),
+  build: skiRouteBuildSchema,
   format: z.number().int(),
   areas: z.array(z.unknown()),
 });

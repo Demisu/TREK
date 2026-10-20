@@ -283,6 +283,11 @@ export class SkiAreasService implements OnApplicationBootstrap {
     await rename(temp, file);
   }
 
+  /** Whether the Places host failed often enough that requests to it are held back for now. */
+  placesHeldBack(): boolean {
+    return this.winter.heldBack();
+  }
+
   /** Whether an area's graph is here, on its way, or cannot be had right now. */
   stateOf(row: WinterIndexRow): 'ready' | 'loading' | 'unavailable' {
     if (existsSync(this.fileOf(row))) return 'ready';

@@ -266,4 +266,12 @@ describe('the winter layer of the Places host (SKI-ROUTE)', () => {
     expect(winterIndexSchema.parse(index).areas[0]).toEqual(row);
     expect(winterIndexSchema.safeParse({ ...index, areas: [{ ...row, id: 'x' }] }).success).toBe(false);
   });
+
+  it('SKI-ROUTE-SCHEMA-011: refuses a build name a ski tour could not be saved with', () => {
+    const index = { build: '2026-11-02', format: 1, areas: [] };
+    for (const build of ['nightly build', '2026+1', 'a:b']) {
+      expect(winterIndexSchema.safeParse({ ...index, build }).success).toBe(false);
+    }
+    expect(winterIndexSchema.safeParse({ ...index, build: '2026-11-02_redo.2' }).success).toBe(true);
+  });
 });

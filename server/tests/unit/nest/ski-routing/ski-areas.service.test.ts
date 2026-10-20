@@ -74,6 +74,7 @@ let dir: string;
 let host: ReturnType<typeof hosted>;
 const winter = {
   enabled: vi.fn(() => true),
+  heldBack: vi.fn(() => false),
   meta: vi.fn(),
   index: vi.fn(),
   area: vi.fn(),
@@ -209,6 +210,9 @@ describe('an area graph', () => {
     winter.enabled.mockReturnValue(false);
     expect(areas.enabled()).toBe(false);
     expect(areas.stateOf(row('w:400', [9, 46, 9.01, 46.01]))).toBe('unavailable');
+    expect(areas.placesHeldBack()).toBe(false);
+    winter.heldBack.mockReturnValueOnce(true);
+    expect(areas.placesHeldBack()).toBe(true);
   });
 
   it('SKIAREA-014: lists the areas kept, and sweeps half writes and files unused for 90 days', async () => {
