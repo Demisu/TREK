@@ -308,6 +308,13 @@ export type TourWaypointRole = z.infer<typeof tourWaypointRoleSchema>;
 export const TOUR_FIXED_LEG_MAX_POINTS = 5000;
 /** How far a fixed leg's ends may lie from the waypoints it joins, in metres. */
 export const TOUR_FIXED_LEG_END_TOLERANCE_M = 60;
+/**
+ * The largest body a tour create or edit may send, in bytes. A tour goes whole,
+ * its full line with heights and every fixed leg's line besides, at roughly
+ * fifty bytes a point: one horse route section at TOUR_FIXED_LEG_MAX_POINTS is
+ * a quarter of a megabyte on its own, far past the API's hundred kilobytes.
+ */
+export const TOUR_WRITE_MAX_BYTES = 2 * 1024 * 1024;
 
 const fixedLegGeometrySchema = z
   .array(z.tuple([z.number().finite().min(-90).max(90), z.number().finite().min(-180).max(180)]))

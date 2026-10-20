@@ -20,7 +20,7 @@ import type { INestApplication } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
-import { MAX_COLLECTION_FILE_BYTES } from '@trek/shared';
+import { MAX_COLLECTION_FILE_BYTES, TOUR_WRITE_MAX_BYTES } from '@trek/shared';
 
 import express from 'express';
 import type { Request, Response, NextFunction, RequestHandler } from 'express';
@@ -171,7 +171,7 @@ export async function buildApp(): Promise<INestApplication> {
     if (Buffer.isBuffer(buffer)) (req as Request & { rawBody?: Buffer }).rawBody = buffer;
   };
   /*
-   * ── Why one route gets a larger body than the rest ───────────────────
+   * ── Why a few routes get a larger body than the rest ─────────────────
    *
    * A hundred kilobytes is the right ceiling for an API of forms and ids, and
    * it is the wrong one for a photo book. A Studio document is sent WHOLE on
@@ -191,21 +191,32 @@ export async function buildApp(): Promise<INestApplication> {
    * GPX of anybody who uses OsmAnd (#2301). The three routes that carry one,
    * the import into a new list, the GPX reader and the import into a list that
    * already exists, are measured against that megabyte, doubled for the JSON
-   * escaping of a document full of quotes. Everything else keeps the tighter
-   * limit.
+   * escaping of a document full of quotes.
+   *
+   * A tour is the third. Creating or editing one sends it whole: the full line
+   * with its heights, and every fixed leg's own line besides, about fifty bytes
+   * a point. A ride along a signposted horse route (HOR-01) is a few thousand
+   * points from OpenStreetMap, and one section of it alone can pass a hundred
+   * kilobytes, so those two routes are measured against TOUR_WRITE_MAX_BYTES.
+   * Everything else keeps the tighter limit.
    */
   const bookBody = express.json({ limit: '8mb', verify: rawBodyKeeper });
   const listFileBody = express.json({ limit: MAX_COLLECTION_FILE_BYTES * 2, verify: rawBodyKeeper });
+  const tourBody = express.json({ limit: TOUR_WRITE_MAX_BYTES, verify: rawBodyKeeper });
   const json = express.json({ limit: '100kb', verify: rawBodyKeeper });
   const urlencoded = express.urlencoded({ limit: '100kb', extended: true, verify: rawBodyKeeper });
   const isMcp = (req: Request) => req.path === '/mcp' || req.path === '/mcp/';
   const isBookWrite = (req: Request) => req.method === 'PUT' && /^\/api\/journeys\/\d+\/book$/.test(req.path);
   const isListFile = (req: Request) =>
     req.method === 'POST' && /^\/api\/addons\/collections\/(import|gpx\/read|\d+\/import)$/.test(req.path);
+  const isTourWrite = (req: Request) =>
+    (req.method === 'POST' && /^\/api\/trips\/\d+\/tours$/.test(req.path)) ||
+    (req.method === 'PUT' && /^\/api\/trips\/\d+\/tours\/\d+$/.test(req.path));
 
   instance.use(function jsonParser(req: Request, res: Response, next: NextFunction) {
     if (isBookWrite(req)) return bookBody(req, res, next);
     if (isListFile(req)) return listFileBody(req, res, next);
+    if (isTourWrite(req)) return tourBody(req, res, next);
     return isMcp(req) ? next() : json(req, res, next);
   });
   instance.use(function urlencodedParser(req: Request, res: Response, next: NextFunction) {

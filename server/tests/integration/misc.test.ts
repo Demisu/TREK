@@ -1,6 +1,6 @@
 /**
  * Miscellaneous integration tests.
- * Covers MISC-001, 002, 004, 007, 008, 013, 015.
+ * Covers MISC-001, 002, 004, 007, 008, 009 to 014.
  */
 import { buildApp } from '../../src/bootstrap';
 import { db as testDb } from '../../src/db/database';
@@ -8,6 +8,7 @@ import { authCookie } from '../helpers/auth';
 import { createUser } from '../helpers/factories';
 import { resetTestDb, resetRateLimits } from '../helpers/test-db';
 import type { INestApplication } from '@nestjs/common';
+import { TOUR_WRITE_MAX_BYTES } from '@trek/shared';
 
 import type { Application } from 'express';
 import request from 'supertest';
@@ -157,5 +158,36 @@ describe('Request body ceiling', () => {
       .set('Content-Type', 'application/json')
       .send({ name: 'x'.repeat(200 * 1024) });
     expect(elsewhere.status).toBe(413);
+  });
+
+  // A tour is sent whole on create and edit, its line and every fixed leg's
+  // line besides: a ride along a horse route passes 100kb (HOR-01). Only those
+  // two routes take the larger ceiling, and only up to TOUR_WRITE_MAX_BYTES.
+  it('MISC-013: a tour create or edit over 100kb reaches the router', async () => {
+    const created = await request(app)
+      .post('/api/trips/5/tours')
+      .set('Content-Type', 'application/json')
+      .send({ name: 'x'.repeat(300 * 1024) });
+    expect(created.status).not.toBe(413);
+
+    const edited = await request(app)
+      .put('/api/trips/5/tours/9')
+      .set('Content-Type', 'application/json')
+      .send({ name: 'x'.repeat(300 * 1024) });
+    expect(edited.status).not.toBe(413);
+  });
+
+  it('MISC-014: a tour past its own ceiling is refused, and the other tour routes keep 100kb', async () => {
+    const huge = await request(app)
+      .post('/api/trips/5/tours')
+      .set('Content-Type', 'application/json')
+      .send({ name: 'x'.repeat(TOUR_WRITE_MAX_BYTES + 1) });
+    expect(huge.status).toBe(413);
+
+    const copy = await request(app)
+      .post('/api/trips/5/tours/9/copy')
+      .set('Content-Type', 'application/json')
+      .send({ name: 'x'.repeat(200 * 1024) });
+    expect(copy.status).toBe(413);
   });
 });

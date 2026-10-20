@@ -32,8 +32,9 @@ import { FakeRealtimeService } from '../helpers/fake-realtime';
 import { createTestMikroOrmModule, createTestOrm, type TestOrm } from '../helpers/test-orm';
 import { TestUnitOfWorkModule } from '../helpers/test-uow';
 import { sessionCookie } from './harness';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Test } from '@nestjs/testing';
-import { FERRATA_BBOX_TOO_LARGE_MESSAGE, HORSE_ROUTES_ATTRIBUTION } from '@trek/shared';
+import { FERRATA_BBOX_TOO_LARGE_MESSAGE, HORSE_ROUTES_ATTRIBUTION, TOUR_WRITE_MAX_BYTES } from '@trek/shared';
 
 import cookieParser from 'cookie-parser';
 import type { Server } from 'http';
@@ -157,7 +158,9 @@ describe('Horse tours e2e (real guards + temp SQLite)', () => {
       .overrideProvider(OverpassElementsClient)
       .useValue({ query: overpassQuery })
       .compile();
-    const nest = moduleRef.createNestApplication();
+    const nest = moduleRef.createNestApplication<NestExpressApplication>();
+    // The ceiling bootstrap.ts gives a tour create or edit, in place of the 100kb default.
+    nest.useBodyParser('json', { limit: TOUR_WRITE_MAX_BYTES });
     nest.use(cookieParser());
     nest.useGlobalPipes(new ZodValidationPipe());
     nest.useGlobalFilters(new TrekExceptionFilter());
@@ -264,6 +267,27 @@ describe('Horse tours e2e (real guards + temp SQLite)', () => {
       );
       expect(statuses).toEqual([400, 400, 400, 400]);
       expect(await countRows(orm, Tours)).toBe(0);
+    });
+
+    it('saves and opens again a ride along a long section, a body far past 100kb', async () => {
+      // A few thousand points at OSM's seven decimals, as a section of bridleway comes.
+      const line = Array.from({ length: 4000 }, (_, i) => [
+        Number((47 + i * 0.00001).toFixed(7)),
+        Number((11 + i * 0.0000013).toFixed(7)),
+      ]);
+      const end = line[line.length - 1];
+      const long = rideBody({
+        route_geometry: line.map(([lat, lng], i) => [lat, lng, 600 + (i % 40)]),
+        waypoints: [
+          { lat: 47, lng: 11, role: 'start', sequence: 0, fixed_leg: { ...SECTION, geometry: line } },
+          { lat: end[0], lng: end[1], role: 'end', sequence: 1 },
+        ],
+      });
+      expect(JSON.stringify(long).length).toBeGreaterThan(150 * 1024);
+      const placeId = await create(long);
+      const res = await request(server).get(`/api/trips/5/tours/${placeId}`).set('Cookie', sessionCookie(OWNER));
+      expect(res.status).toBe(200);
+      expect(res.body.waypoints[0].fixed_leg.geometry).toEqual(line);
     });
 
     it('a member who may only read cannot save one', async () => {

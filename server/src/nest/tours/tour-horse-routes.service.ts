@@ -18,7 +18,14 @@ import {
 export const HORSE_ROUTES_KEPT_MS = 12 * 60 * 60 * 1000;
 
 /** The most answers kept at once; the one kept longest goes first. */
-const HORSE_ROUTES_KEPT_MAX = 200;
+export const HORSE_ROUTES_KEPT_MAX = 64;
+
+/**
+ * The most section points kept across all answers. One dense view can carry
+ * hundreds of thousands, and a point held as a JS tuple costs some sixty bytes,
+ * so this keeps the whole store near thirty megabytes however the map is panned.
+ */
+export const HORSE_ROUTES_KEPT_POINTS_MAX = 500_000;
 
 export const HORSE_ROUTES_UNAVAILABLE_MESSAGE = 'Horse route data is unavailable right now';
 
@@ -28,15 +35,18 @@ type Answer = Omit<HorseRoutesResponse, 'source' | 'attribution'>;
  * HOR-01: the signposted horse routes around a map view, from OpenStreetMap
  * through the operator's Overpass mirrors. The view is grown to the 0.05
  * degree grid, so nearby views share one answer, and an answer is kept for
- * HORSE_ROUTES_KEPT_MS in memory; two requests for the same box at once share
- * one query. Read only: nothing is stored, and nothing about the trip is sent.
+ * HORSE_ROUTES_KEPT_MS in memory, within a budget of answers and of section
+ * points so a busy map cannot grow the store without end; two requests for
+ * the same box at once share one query. Read only: nothing is stored, and nothing about the trip is sent.
  *
  * When no mirror answers, the client gets a 502 `{ error, code }` it can show,
  * and whatever it had loaded before stays as it was.
  */
 @Injectable()
 export class TourHorseRoutesService {
-  private readonly kept = new Map<string, { at: number; answer: Answer }>();
+  private readonly kept = new Map<string, { at: number; answer: Answer; points: number }>();
+  /** The section points of every answer in `kept`, against HORSE_ROUTES_KEPT_POINTS_MAX. */
+  private keptPoints = 0;
   private readonly pending = new Map<string, Promise<Answer>>();
 
   constructor(private readonly overpass: OverpassElementsClient) {}
@@ -78,9 +88,31 @@ export class TourHorseRoutesService {
   }
 
   private keep(key: string, answer: Answer, at: number): void {
-    this.kept.delete(key);
-    this.kept.set(key, { at, answer });
+    this.drop(key);
+    const points = sectionPoints(answer);
+    this.kept.set(key, { at, answer, points });
+    this.keptPoints += points;
     // A map keeps its insertion order: the first key is the one kept longest.
-    if (this.kept.size > HORSE_ROUTES_KEPT_MAX) this.kept.delete(this.kept.keys().next().value as string);
+    // The answer just kept stays even when it alone is past the budget.
+    while (
+      this.kept.size > 1 &&
+      (this.kept.size > HORSE_ROUTES_KEPT_MAX || this.keptPoints > HORSE_ROUTES_KEPT_POINTS_MAX)
+    ) {
+      this.drop(this.kept.keys().next().value as string);
+    }
   }
+
+  private drop(key: string): void {
+    const known = this.kept.get(key);
+    if (!known) return;
+    this.kept.delete(key);
+    this.keptPoints -= known.points;
+  }
+}
+
+function sectionPoints(answer: Answer): number {
+  return answer.routes.reduce(
+    (sum, route) => sum + route.sections.reduce((inRoute, section) => inRoute + section.geometry.length, 0),
+    0,
+  );
 }

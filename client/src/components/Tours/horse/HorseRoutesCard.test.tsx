@@ -2,6 +2,7 @@ import { HORSE_ROUTES_ATTRIBUTION, type HorseRoute } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor, within } from '../../../../tests/helpers/render';
 import { hikePlannerDefaults } from '../../../../tests/helpers/tourPlannerStub';
+import { OnlineOnlyError } from '../../../repo/onlineOnly';
 import { publishTourMapViewport } from '../../../store/tourMapViewportStore';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 import type { TourPlannerController } from '../planner/useTourPlanner';
@@ -17,7 +18,7 @@ vi.mock('../../Map/MapViewAuto', () => ({
   ),
 }));
 
-// FE-HORSE-CARD-001 to FE-HORSE-CARD-007
+// FE-HORSE-CARD-001 to FE-HORSE-CARD-008
 
 const VIEW = { south: 47.1, west: 11.2, north: 47.3, east: 11.5 };
 const ROUTE: HorseRoute = {
@@ -180,5 +181,17 @@ describe('HorseRoutesCard (HOR-01)', () => {
     expect(within(dialog).getByText('Joins the end of your ride')).toBeInTheDocument();
     fireEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }));
     expect(stub.editWaypoints).not.toHaveBeenCalled();
+  });
+
+  it('FE-HORSE-CARD-008: a search without a connection can be asked again on the view found before', async () => {
+    repo.list.mockResolvedValueOnce(reply([ROUTE])).mockRejectedValueOnce(new OnlineOnlyError());
+    render(<HorseRoutesCard planner={planner()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Find in map view' }));
+    await screen.findByTestId('horse-route-relation/42');
+    act(() => publishTourMapViewport({ ...VIEW, north: 47.31 }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Search this view' }));
+    expect(await screen.findByText('Horse routes need a connection.')).toBeInTheDocument();
+    act(() => publishTourMapViewport(VIEW));
+    expect(screen.getByRole('button', { name: 'Search this view' })).toBeEnabled();
   });
 });

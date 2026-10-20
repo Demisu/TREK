@@ -22,9 +22,9 @@ function knownType(type: string): boolean {
   return importableTourTypeSchema.safeParse(type).success;
 }
 
-/** The icon the time on the move goes by: a ride, a run or a paddle by its type's own, any walk by footprints. */
+/** The icon the time on the move goes by: a bike tour, a ride on horseback, a run or a paddle by its type's own, any walk by footprints. */
 function movingIconType(type: string): string {
-  return type === 'kayak' || type === 'bike' || type === 'run' ? type : 'walk';
+  return type === 'kayak' || type === 'bike' || type === 'run' || type === 'horse' ? type : 'walk';
 }
 
 export function TourDayRowIcon({ type, size = 27 }: { type: string; size?: number }) {

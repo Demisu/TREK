@@ -35,6 +35,14 @@ describe('RC-01 Tour day-row facts', () => {
     expect(screen.getByTestId('plan-tour-icon').querySelector('.lucide-mountain')).toBeTruthy();
   });
 
+  it('HOR-01: a ride with a recorded time shows the horseshoe beside its riding time', () => {
+    render(<TourDayRowFacts tour={{ ...tour, tour_type: 'horse', max_hiking_difficulty: null }} />);
+    const time = screen.getByTestId('trip-plan-tour-walking-time');
+    expect(time.getAttribute('aria-label')).toMatch(/^Riding time/);
+    expect(time.querySelector('.lucide-horseshoe')).toBeTruthy();
+    expect(time.querySelector('.lucide-footprints')).toBeNull();
+  });
+
   it.each([false, true])('renders compact facts with accessible meaning (mobile=%s)', (mobile) => {
     render(<TourDayRowFacts tour={tour} mobile={mobile} />);
     expect(screen.getByTestId('plan-tour-distance')).toHaveTextContent('4');

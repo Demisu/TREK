@@ -97,7 +97,7 @@ function HorseRoutesBody({ planner }: { planner: TourPlannerController }) {
   const found = useHorseRoutes(planner.tripId);
   const [open, setOpen] = useState<HorseRoute | null>(null);
   const searched = found.searched !== null;
-  const again = searched && (found.stale || found.status === 'failed');
+  const again = searched && (found.stale || found.status === 'failed' || found.status === 'offline');
   return (
     <RailCard
       icon={<Horseshoe size={14} strokeWidth={2} />}
