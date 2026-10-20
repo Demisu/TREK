@@ -66,7 +66,6 @@ function snapshot(collectionId: number, savedBy: number | null, overrides: Parti
     match_confidence: 1,
     max_hiking_difficulty: 3,
     bike_profile: null,
-    winter_activity: null,
     run_profile: null,
     run_pace_seconds_per_km: null,
     ski_discipline: null,

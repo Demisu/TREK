@@ -116,7 +116,7 @@ describe('useTourPlanner, bike tours (BIK-01)', () => {
     await settle();
     act(() => result.current.setBikeProfile('road'));
     expect(JSON.parse(localStorage.getItem('tour-draft-52') || 'null')).toMatchObject({
-      version: 10,
+      version: 11,
       tourType: 'bike',
       bikeProfile: 'road',
     });

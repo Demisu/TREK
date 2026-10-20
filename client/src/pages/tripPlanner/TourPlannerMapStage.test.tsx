@@ -770,11 +770,11 @@ describe('TourPlannerMapStage', () => {
 
     const overlayStates = () => flat().tourLayers?.overlays?.map((overlay) => [overlay.id, overlay.status]);
 
-    it('a hike keeps the standard map, topo and satellite and the via ferrata layer, the pistes off, and no seamarks', () => {
+    it('a hike keeps the standard map, topo and satellite and the via ferrata layer, and no pistes or seamarks', () => {
       renderStage(planner('new-draft'));
       expect(flat().tourLayers?.bases).toEqual(['default', 'topo', 'satellite']);
       expect(flat().ferrataLayer).toBeDefined();
-      expect(overlayStates()).toEqual([['pistes', 'off']]);
+      expect(overlayStates()).toEqual([]);
     });
 
     it('with no tour open there is no via ferrata layer and no seamarks, but the pistes are offered (SKI-01)', () => {

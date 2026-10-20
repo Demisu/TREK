@@ -5,7 +5,7 @@ describe('tourMapLayersFor (MAP-01)', () => {
   it('offers OpenHikingMap to a hike only while the admin allows it', () => {
     expect(tourMapLayersFor('hike').bases).not.toContain('hiking');
     expect(tourMapLayersFor('hike', { hikingMap: true }).bases).toEqual(['default', 'topo', 'hiking', 'satellite']);
-    expect(tourMapLayersFor('hike', { hikingMap: true }).overlays).toEqual(['ferratas', 'pistes']);
+    expect(tourMapLayersFor('hike', { hikingMap: true }).overlays).toEqual(['ferratas']);
     expect(tourMapLayersFor('kayak', { hikingMap: true }).bases).not.toContain('hiking');
     expect(tourMapLayersFor(null, { hikingMap: true }).bases).not.toContain('hiking');
   });
@@ -24,10 +24,9 @@ describe('tourMapLayersFor (MAP-01)', () => {
     expect(baseLayerFor(tourMapLayersFor('ski'), 'hiking')).toBe('default');
   });
 
-  it('SKI-01: the pistes are offered to a hike and a ski track, never to a bike tour, a run, a paddle tour or another type', () => {
-    expect(tourMapLayersFor('hike').overlays).toContain('pistes');
+  it('SKI-02: the pistes are offered to a ski track only, never to a hike, a bike tour, a run, a paddle tour or another type', () => {
     expect(tourMapLayersFor('ski').overlays).toContain('pistes');
-    for (const type of ['bike', 'run', 'kayak', 'walk', null] as const)
+    for (const type of ['hike', 'bike', 'run', 'kayak', 'walk', null] as const)
       expect(tourMapLayersFor(type).overlays).not.toContain('pistes');
   });
 
