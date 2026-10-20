@@ -1,6 +1,5 @@
 import { WINTER_ACTIVITIES, type WinterActivity } from '@trek/shared';
 import { Snowflake } from 'lucide-react';
-import { useState } from 'react';
 import { useTranslation } from '../../../i18n';
 import { BOX } from '../../Planner/bookings/bookingParts';
 import ToggleSwitch from '../../Settings/ToggleSwitch';
@@ -15,32 +14,27 @@ import type { TourPlannerController } from './useTourPlanner';
  * details, so a hike asks for nothing more. Switched on, it is winter hiking
  * until snowshoeing is picked; switched off, the label goes and the route and
  * the days stay. The choice stays in sight but dimmed while the switch is off,
- * and comes back as it was when it is switched on again. The info dot says it
- * is a label only: it plans and times nothing differently.
+ * and comes back as it was when it is switched on again. The planner keeps
+ * that choice with the tour, so a tour saved, closed or opened after a
+ * snowshoe hike starts again from winter hiking. The info dot says it is a
+ * label only: it plans and times nothing differently.
  */
 export function WinterActivityField({
   planner,
   locked,
 }: {
-  planner: Pick<TourPlannerController, 'winterActivity' | 'setWinterActivity'>;
+  planner: Pick<TourPlannerController, 'winterActivity' | 'setWinterActivity' | 'winterActivityChoice'>;
   locked: boolean;
 }) {
   const { t } = useTranslation();
   const current = planner.winterActivity ?? null;
-  const [lastChoice, setLastChoice] = useState<WinterActivity>(current ?? 'winter_hike');
   const on = current !== null;
   const toggle = () => {
     if (locked) return;
-    if (current === null) {
-      planner.setWinterActivity(lastChoice);
-      return;
-    }
-    setLastChoice(current);
-    planner.setWinterActivity(null);
+    planner.setWinterActivity(on ? null : planner.winterActivityChoice);
   };
   const choose = (next: WinterActivity) => {
     if (locked || !on) return;
-    setLastChoice(next);
     planner.setWinterActivity(next);
   };
   return (
@@ -68,7 +62,7 @@ export function WinterActivityField({
         className={`m-0 min-w-0 border-0 border-t border-solid border-edge-faint px-3 py-2 transition-opacity ${on ? '' : 'opacity-50'}`}
       >
         <Segmented<WinterActivity>
-          value={current ?? lastChoice}
+          value={current ?? planner.winterActivityChoice}
           onChange={choose}
           label={t('tours.winter.kind')}
           fill

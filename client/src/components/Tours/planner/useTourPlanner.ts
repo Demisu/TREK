@@ -128,6 +128,8 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const [hikingPreferences, setHikingPreferencesState] = useState<HikingPreferences | null>(restored?.hikingPreferences ?? null)
   const [bikeProfile, setBikeProfileState] = useState<BikeProfile>(restored?.bikeProfile ?? 'touring')
   const [winterActivity, setWinterActivityState] = useState<WinterActivity | null>(restored?.winterActivity ?? null)
+  // HIK-01: the label the switch brings back, the tour's own while it is off, winter hiking for every other tour.
+  const [winterActivityChoice, setWinterActivityChoice] = useState<WinterActivity>(restored?.winterActivity ?? 'winter_hike')
   const [runProfile, setRunProfileState] = useState<RunProfile>(restored?.runProfile ?? 'running')
   const [tourType, setTourTypeState] = useState<PlannableTourType>(restored?.tourType ?? 'hike')
   const [selectedWaypointId, setSelectedWaypointId] = useState<string | null>(restored?.waypoints[0]?.id ?? null)
@@ -483,7 +485,9 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
 
   /** HIK-01: the hike's winter label, a field like the description: it plans nothing again and is no step of the history. */
   const setWinterActivity = useCallback((value: WinterActivity | null) => {
-    if (value !== winterActivity && markEdited()) setWinterActivityState(value)
+    if (value === winterActivity || !markEdited()) return
+    setWinterActivityState(value)
+    if (value) setWinterActivityChoice(value)
   }, [markEdited, winterActivity])
 
 
@@ -564,6 +568,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     setRunProfileState('running')
     loadRunPace(null)
     setWinterActivityState(null)
+    setWinterActivityChoice('winter_hike')
     tourTypeRef.current = 'hike'
     setSelectedWaypointId(null)
     clearHistory()
@@ -743,6 +748,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       setRunProfileState(opened.runProfile)
       loadRunPace(opened.runPaceSecondsPerKm)
       setWinterActivityState(opened.winterActivity)
+      setWinterActivityChoice(opened.winterActivity ?? 'winter_hike')
       tourTypeRef.current = opened.tourType
       setSelectedWaypointId(nextWaypoints[0]?.id ?? null)
       clearHistory()
@@ -910,7 +916,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   return {
     tripId, canEdit, canAssign,
     name, setName, maxHikingDifficulty, setMaxHikingDifficulty, hikingPreferences, setHikingPreferences,
-    bikeProfile, setBikeProfile, isBike: tourType === 'bike', winterActivity, setWinterActivity,
+    bikeProfile, setBikeProfile, isBike: tourType === 'bike', winterActivity, setWinterActivity, winterActivityChoice,
     runProfile, setRunProfile, isRun: tourType === 'run', runPace, runPaceMissing, runPaceInvalid,
     tourType, setTourType, isPaddle, paddle, paddleSpeedInvalid, paddleIncomplete,
     description, setDescription, website, setWebsite, websiteInvalid,

@@ -18,7 +18,7 @@ vi.mock('../useTourPermissions', () => ({ useTourPermissions: () => ({ canEdit: 
 
 import { useTourPlanner } from './useTourPlanner';
 
-// FE-TOUR-WINTER-001 to FE-TOUR-WINTER-005
+// FE-TOUR-WINTER-001 to FE-TOUR-WINTER-006
 
 const routed = {
   coordinates: [
@@ -183,5 +183,23 @@ describe('useTourPlanner, the winter label of a hike (HIK-01)', () => {
       65,
       expect.objectContaining({ tour_type: 'walk', winter_activity: null })
     );
+  });
+
+  it('FE-TOUR-WINTER-006: keeps the label the switch brings back with the tour, winter hiking for the next one', async () => {
+    detailTour.mockResolvedValue({ tour: savedHike, waypoints: savedPoints });
+    const { result } = renderHook(() => useTourPlanner({ tripId: 66 }));
+    expect(result.current.winterActivityChoice).toBe('winter_hike');
+    act(() => result.current.setWinterActivity('snowshoe'));
+    act(() => result.current.setWinterActivity(null));
+    expect(result.current.winterActivityChoice).toBe('snowshoe');
+    act(() => result.current.startNewTour(true));
+    expect(result.current.winterActivity).toBeNull();
+    expect(result.current.winterActivityChoice).toBe('winter_hike');
+    await act(async () => {
+      await result.current.openTour({ place_id: 88 });
+    });
+    expect(result.current.winterActivityChoice).toBe('snowshoe');
+    act(() => result.current.discard());
+    expect(result.current.winterActivityChoice).toBe('winter_hike');
   });
 });
