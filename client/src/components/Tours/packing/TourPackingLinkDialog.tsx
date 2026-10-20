@@ -14,7 +14,7 @@ import {
 } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
 import { ChoiceList, ChoiceRow } from '../collection/choiceParts';
-import { CategoryDot, CountBadge } from './packingLinkParts';
+import { CategoryDot, CountBadge, DimmedLink } from './packingLinkParts';
 import type { TourPackingLinkController } from './useTourPackingLink';
 
 /** One thing to point at: its mark, its name and how many items it holds. */
@@ -44,16 +44,57 @@ function Choice({
   );
 }
 
+/** Everything the tour can point at: the whole list first, then each category. */
+function Choices({ packing }: { packing: TourPackingLinkController }) {
+  const { t } = useTranslation();
+  return (
+    <DialogSection label={t('tours.packing.choose')}>
+      <ChoiceList label={t('tours.packing.choose')} tall>
+        <Choice
+          selected={packing.choice === null}
+          onChoose={() => packing.choose(null)}
+          testId="tour-packing-choice-whole"
+          mark={
+            <span className="grid h-6 w-6 flex-none place-items-center rounded-full bg-surface-card text-content-muted shadow-sm">
+              <ListChecks size={13} strokeWidth={2.2} />
+            </span>
+          }
+          name={t('tours.packing.whole')}
+          count={packing.wholeCount}
+        />
+        {packing.categories.map((category) => (
+          <Choice
+            key={category.name}
+            selected={packing.choice === category.name}
+            onChoose={() => packing.choose(category.name)}
+            testId={`tour-packing-choice-${category.name}`}
+            mark={
+              <span className="grid h-6 w-6 flex-none place-items-center">
+                <CategoryDot color={category.color} />
+              </span>
+            }
+            name={category.name}
+            count={category.count}
+          />
+        ))}
+      </ChoiceList>
+    </DialogSection>
+  );
+}
+
 /**
  * P2D-XD-01: the dialog that points a tour at its trip's packing list, as a
  * whole or at one of its categories, each with its colour and how many items
  * it holds. It writes only through the button in its foot; letting go of a
- * link is offered there too, and neither touches the list itself.
+ * link is offered there too, and neither touches the list itself. With Packing
+ * off there is nothing to choose and a link cannot be made again, so it shows
+ * only the dimmed link and asks before letting go of it.
  */
 export function TourPackingLinkDialog({ packing, tourName }: { packing: TourPackingLinkController; tourName: string }) {
   const { t } = useTranslation();
   const labelId = useId();
   if (!packing.open) return null;
+  const linkOnly = !packing.packingEnabled;
   return (
     <DialogShell
       onClose={packing.close}
@@ -71,7 +112,7 @@ export function TourPackingLinkDialog({ packing, tourName }: { packing: TourPack
           tint={NEUTRAL_TINT}
           labelId={labelId}
           onClose={packing.close}
-          eyebrow={t('tours.packing.link')}
+          eyebrow={linkOnly ? t('tours.packing.unlink') : t('tours.packing.link')}
           title={tourName}
           sub={t('tours.packing.dialogSub')}
           subWraps
@@ -97,55 +138,27 @@ export function TourPackingLinkDialog({ packing, tourName }: { packing: TourPack
           <DialogButton onClick={packing.close} disabled={packing.saving}>
             {t('common.cancel')}
           </DialogButton>
-          <DialogButton
-            variant="primary"
-            data-testid="tour-packing-confirm"
-            disabled={!packing.canConfirm}
-            onClick={() => void packing.confirm()}
-            icon={
-              packing.saving ? (
-                <Loader2 size={14} strokeWidth={2} className="animate-spin" />
-              ) : (
-                <Link2 size={14} strokeWidth={2} />
-              )
-            }
-          >
-            {t('tours.packing.confirm')}
-          </DialogButton>
+          {!linkOnly && (
+            <DialogButton
+              variant="primary"
+              data-testid="tour-packing-confirm"
+              disabled={!packing.canConfirm}
+              onClick={() => void packing.confirm()}
+              icon={
+                packing.saving ? (
+                  <Loader2 size={14} strokeWidth={2} className="animate-spin" />
+                ) : (
+                  <Link2 size={14} strokeWidth={2} />
+                )
+              }
+            >
+              {t('tours.packing.confirm')}
+            </DialogButton>
+          )}
         </DialogFooter>
       }
     >
-      <DialogSection label={t('tours.packing.choose')}>
-        <ChoiceList label={t('tours.packing.choose')} tall>
-          <Choice
-            selected={packing.choice === null}
-            onChoose={() => packing.choose(null)}
-            testId="tour-packing-choice-whole"
-            mark={
-              <span className="grid h-6 w-6 flex-none place-items-center rounded-full bg-surface-card text-content-muted shadow-sm">
-                <ListChecks size={13} strokeWidth={2.2} />
-              </span>
-            }
-            name={t('tours.packing.whole')}
-            count={packing.wholeCount}
-          />
-          {packing.categories.map((category) => (
-            <Choice
-              key={category.name}
-              selected={packing.choice === category.name}
-              onChoose={() => packing.choose(category.name)}
-              testId={`tour-packing-choice-${category.name}`}
-              mark={
-                <span className="grid h-6 w-6 flex-none place-items-center">
-                  <CategoryDot color={category.color} />
-                </span>
-              }
-              name={category.name}
-              count={category.count}
-            />
-          ))}
-        </ChoiceList>
-      </DialogSection>
+      {linkOnly && packing.link ? <DimmedLink link={packing.link} /> : <Choices packing={packing} />}
     </DialogShell>
   );
 }

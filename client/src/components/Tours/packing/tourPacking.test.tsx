@@ -12,7 +12,7 @@ import type { PackingItem } from '../../../types';
 import { TourPackingSection } from './TourPackingSection';
 import { useTourPackingLink } from './useTourPackingLink';
 
-// FE-TOUR-PACKING-001 to FE-TOUR-PACKING-010
+// FE-TOUR-PACKING-001 to FE-TOUR-PACKING-011
 
 const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
 vi.mock('../../shared/Toast', () => ({ useToast: () => toast }));
@@ -201,8 +201,27 @@ describe('TourPackingSection', () => {
     section();
     expect(await screen.findByText('Packing lists are switched off, so the list cannot be shown.')).toBeInTheDocument();
     fireEvent.click(screen.getByText('Remove link'));
+    // One click only asks: the dialog shows the dimmed link, nothing to choose and no way to link again.
+    expect(unlink).not.toHaveBeenCalled();
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByTestId('tour-packing-dimmed')).toBeInTheDocument();
+    expect(within(dialog).queryByTestId('tour-packing-choice-whole')).not.toBeInTheDocument();
+    expect(within(dialog).queryByTestId('tour-packing-confirm')).not.toBeInTheDocument();
+    fireEvent.click(within(dialog).getByTestId('tour-packing-unlink'));
     await waitFor(() => expect(unlink).toHaveBeenCalledWith(5, 11));
     await waitFor(() => expect(screen.queryByTestId('tour-packing-section')).not.toBeInTheDocument());
+  });
+
+  it('FE-TOUR-PACKING-011: with Packing off, cancelling the question keeps the link', async () => {
+    setPacking(false);
+    vi.mocked(tourPackingLinkRepo.read).mockResolvedValue(GEAR);
+    const unlink = vi.spyOn(tourPackingLinkRepo, 'unlink').mockResolvedValue(null);
+    section();
+    fireEvent.click(await screen.findByText('Remove link'));
+    fireEvent.click(within(await screen.findByRole('dialog')).getByText('Cancel'));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(unlink).not.toHaveBeenCalled();
+    expect(screen.getByTestId('tour-packing-dimmed')).toBeInTheDocument();
   });
 
   it('FE-TOUR-PACKING-010: a failed read is said, with a retry', async () => {

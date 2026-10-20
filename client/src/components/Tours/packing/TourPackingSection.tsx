@@ -1,14 +1,13 @@
-import type { TourListItem, TourPackingLink } from '@trek/shared';
-import { AlertTriangle, ArrowUpRight, Backpack, Check, Link2, PackageOpen, PowerOff, Unlink } from 'lucide-react';
+import type { TourListItem } from '@trek/shared';
+import { AlertTriangle, ArrowUpRight, Backpack, Check, Link2, PackageOpen, Unlink } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import type { PackingItem } from '../../../types';
 import { BOX } from '../../Planner/bookings/bookingParts';
 import { SoftPill, WhiteBadge } from '../../Planner/planParts';
 import { DialogSection, fs } from '../../shared/DialogShell';
-import { Tooltip } from '../../shared/Tooltip';
 import { CardAction, TourNotice } from '../tourParts';
-import { CategoryDot } from './packingLinkParts';
+import { CategoryDot, DimmedLink, linkName } from './packingLinkParts';
 import { TourPackingLinkDialog } from './TourPackingLinkDialog';
 import { useTourPackingLink, type TourPackingLinkController } from './useTourPackingLink';
 
@@ -69,11 +68,6 @@ function ItemRow({ item }: { item: PackingItem }) {
       {(item.quantity ?? 1) > 1 && <WhiteBadge>×{item.quantity}</WhiteBadge>}
     </li>
   );
-}
-
-/** The name of what the tour points at: a category by its own name, otherwise the whole list. */
-function linkName(link: TourPackingLink, t: (key: string) => string): string {
-  return link.category ?? t('tours.packing.whole');
 }
 
 /** The linked list as it reads now: its items with how many are packed, or why there are none to show. */
@@ -192,17 +186,7 @@ function SectionBody({
     );
   }
   if (!packing.link) return <UnlinkedCard onLink={canEdit ? packing.show : undefined} />;
-  if (!packing.packingEnabled) {
-    // Dimmed, not hidden: the tour still points at the list, it just cannot be shown.
-    return (
-      <div className="opacity-70">
-        <TourNotice icon={<PowerOff size={13} strokeWidth={2} />}>
-          <span className="font-semibold text-content-secondary">{linkName(packing.link, t)}</span>
-          <span className="block">{t('tours.packing.addonOff')}</span>
-        </TourNotice>
-      </div>
-    );
-  }
+  if (!packing.packingEnabled) return <DimmedLink link={packing.link} />;
   return <LinkedCard packing={packing} onOpenPacking={onOpenPacking} />;
 }
 
@@ -239,14 +223,11 @@ export function TourPackingSection({
       </SectionPill>
     );
   } else if (editable && packing.link) {
+    // With Packing off a link cannot be made again, so letting go asks first, in the tour's packing dialog.
     action = (
-      <Tooltip label={t('tours.packing.unlinkHint')}>
-        <span className="inline-flex">
-          <SectionPill onClick={() => void packing.unlink()} icon={<Unlink size={11} strokeWidth={2} />}>
-            {t('tours.packing.unlink')}
-          </SectionPill>
-        </span>
-      </Tooltip>
+      <SectionPill onClick={packing.show} icon={<Unlink size={11} strokeWidth={2} />}>
+        {t('tours.packing.unlink')}
+      </SectionPill>
     );
   }
   return (

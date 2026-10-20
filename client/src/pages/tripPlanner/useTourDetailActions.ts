@@ -1,4 +1,5 @@
 import type { TourListItem } from '@trek/shared';
+import { rememberListsSubTab } from '../../hooks/useListsSubTab';
 import { tourRepo } from '../../repo/tourRepo';
 import { useTripStore } from '../../store/tripStore';
 import type { Place } from '../../types';
@@ -36,9 +37,10 @@ export function useTourDetailActions(planner: ReturnType<typeof useTripPlanner>)
     onToursChanged: (placeIds: number[]) => invalidateTourPlaceIds({ placeIds }),
     /** LIB-02: a tour taken over from another trip; the tours rail opens it in the planner. */
     onTakenOver: bringIn,
-    /** P2D-XD-01: the packing list a tour points at, in the trip's Lists tab. */
+    /** P2D-XD-01: the packing list a tour points at, in the trip's Lists tab, on its packing side. */
     onOpenPacking: () => {
       planner.setSelectedPlaceId(null);
+      rememberListsSubTab(tripId, 'packing');
       planner.handleTabChange('listen');
     },
     onSaveAsNew: async (tour: TourListItem) => {
