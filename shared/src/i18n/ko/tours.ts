@@ -424,7 +424,8 @@ const tours: TranslationStrings = {
   'tours.run.profileHint.running': '시내, 공원, 강변의 달리기 좋은, 되도록 포장된 길을 우선합니다.',
   'tours.run.pace': '계획 페이스',
   'tours.run.paceInfoLabel': '달리기 시간 계산 방법',
-  'tours.run.paceInfo': '킬로미터당 나만의 페이스입니다. 달리기 시간은 거리 × 페이스이며, 오르막, 내리막, 기술적 난이도는 포함되지 않습니다.',
+  'tours.run.paceInfo':
+    '킬로미터당 나만의 페이스입니다. 달리기 시간은 거리 × 페이스이며, 오르막, 내리막, 기술적 난이도는 포함되지 않습니다.',
   'tours.run.paceUnit': '분/km',
   'tours.run.paceUnitMi': '분/mi',
   'tours.run.paceInvalid': '페이스를 km당 분:초로, {fastest}에서 {slowest} 사이로 입력하세요.',
@@ -433,7 +434,8 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimated': '달리기 시간 (계획)',
   'tours.run.timeEstimatedShort': '달리기 시간',
   'tours.run.timeEstimatedInfoLabel': '달리기 시간 계획 방법',
-  'tours.run.timeEstimatedInfo': '거리 × 나의 페이스뿐이며, 오르막, 내리막, 난이도는 포함되지 않습니다. 기록된 시간이 아니라 계획입니다.',
+  'tours.run.timeEstimatedInfo':
+    '거리 × 나의 페이스뿐이며, 오르막, 내리막, 난이도는 포함되지 않습니다. 기록된 시간이 아니라 계획입니다.',
   'tours.run.timeSum': '{distance}, {pace} 페이스로 {time}',
   'tours.run.profile.trail': '트레일 러닝',
   'tours.run.profileHint.trail': '임도와 자연 오솔길을 우선하며, 산길(T2)까지 포함합니다.',
@@ -1083,10 +1085,12 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder.horse': '이름 없는 승마 투어',
   'tours.horse.time': '승마 시간',
   'tours.horse.timeInfoLabel': '승마 시간이 없는 이유',
-  'tours.horse.timeInfo': 'TREK은 승마 시간을 계산하지 않습니다. 속도는 말과 기수에 달려 있습니다. 원하면 예정 총 시간을 직접 입력하세요.',
+  'tours.horse.timeInfo':
+    'TREK은 승마 시간을 계산하지 않습니다. 속도는 말과 기수에 달려 있습니다. 원하면 예정 총 시간을 직접 입력하세요.',
   'tours.horse.routes.title': '승마 루트',
   'tours.horse.routes.infoLabel': '승마 루트 안내',
-  'tours.horse.routes.info': 'OpenStreetMap의 표지가 있는 승마 루트를 통째로 가져오는 구간 단위로 보여 줍니다. 루트에 속한다고 해서 말을 타도 된다는 뜻은 아닙니다.',
+  'tours.horse.routes.info':
+    'OpenStreetMap의 표지가 있는 승마 루트를 통째로 가져오는 구간 단위로 보여 줍니다. 루트에 속한다고 해서 말을 타도 된다는 뜻은 아닙니다.',
   'tours.horse.routes.search': '지도 화면에서 찾기',
   'tours.horse.routes.searchAgain': '이 화면 검색',
   'tours.horse.routes.loading': '승마 루트를 찾는 중…',
@@ -1094,7 +1098,8 @@ const tours: TranslationStrings = {
   'tours.horse.routes.offline': '승마 루트에는 연결이 필요합니다.',
   'tours.horse.routes.failed': '승마 루트를 읽지 못했습니다. 투어는 그대로입니다.',
   'tours.horse.routes.none': '이 화면에는 표지가 있는 승마 루트가 없습니다.',
-  'tours.horse.routes.truncated': '이곳에는 한 번의 검색으로 보이는 것보다 많은 루트가 있습니다. 모두 보려면 확대하세요.',
+  'tours.horse.routes.truncated':
+    '이곳에는 한 번의 검색으로 보이는 것보다 많은 루트가 있습니다. 모두 보려면 확대하세요.',
   'tours.horse.routes.unnamed': '이름 없는 승마 루트',
   'tours.horse.routes.sections': '구간',
   'tours.horse.routes.continues': '화면 밖으로 이어짐',
@@ -1114,7 +1119,8 @@ const tours: TranslationStrings = {
   'tours.horse.dialog.joinGapHint': '직선으로 그었고 확인되지 않음',
   'tours.horse.dialog.adopt': '구간 가져오기',
   'tours.horse.access.title': '말 통행',
-  'tours.horse.access.note': 'OpenStreetMap이 길을 따라 horse=*로 기록한 내용입니다. 데이터가 없거나 오래되었을 수 있으니 현장 표지판을 따르세요.',
+  'tours.horse.access.note':
+    'OpenStreetMap이 길을 따라 horse=*로 기록한 내용입니다. 데이터가 없거나 오래되었을 수 있으니 현장 표지판을 따르세요.',
   'tours.horse.access.closedNotice': '이 구간의 일부는 말에게 통행 금지 또는 사유지로 기록되어 있습니다.',
   'tours.horse.access.value.designated': '승마 전용',
   'tours.horse.access.value.yes': '허용',
@@ -1235,7 +1241,8 @@ const tours: TranslationStrings = {
   'tours.stages.title': '구간',
   'tours.stages.count': '{count}개 구간',
   'tours.stages.overDay': '이동만 하루 이상',
-  'tours.stages.timeInfo': '구간별 이동 시간이며 휴식은 포함하지 않습니다. 자전거 투어와 도시 산책은 경로 계산 시간을 거리에 따라 나눕니다.',
+  'tours.stages.timeInfo':
+    '구간별 이동 시간이며 휴식은 포함하지 않습니다. 자전거 투어와 도시 산책은 경로 계산 시간을 거리에 따라 나눕니다.',
   'tours.stages.lost': '구간 끝 {count}개가 지점과 함께 사라져 해당 구간이 합쳐졌습니다.',
   'tours.stages.toDayTitle': '당일 투어로 바꿀까요?',
   'tours.stages.toDayBody': '구간 끝 {count}개를 제거합니다. 경로는 그대로이며 실행 취소로 되돌릴 수 있습니다.',

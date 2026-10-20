@@ -383,7 +383,8 @@ const tours: TranslationStrings = {
   'tours.ski.chooseDiscipline': '请选择项目，以便将轨迹导入为滑雪。',
   'tours.ski.chooseTechnique': '请选择技术，或选择未知。',
   'tours.ski.infoLabel': 'TREK 如何处理滑雪轨迹',
-  'tours.ski.info': '保持记录原样，绝不重新规划路线。距离和海拔来自文件。TREK 不计算滑雪用时，轨迹和 3D 中的坡度颜色都不代表难度、积雪、雪崩或雪道是否开放。',
+  'tours.ski.info':
+    '保持记录原样，绝不重新规划路线。距离和海拔来自文件。TREK 不计算滑雪用时，轨迹和 3D 中的坡度颜色都不代表难度、积雪、雪崩或雪道是否开放。',
   'tours.ski.time': '滑雪用时',
   'tours.ski.timeUnknown': '未计算',
   'tours.ski.classifyTitle': '为滑雪轨迹分类',
@@ -391,7 +392,8 @@ const tours: TranslationStrings = {
   'tours.ski.saveFailed': '无法保存分类。',
   'tours.planner.tourTypeHint.run': '按你自己的配速步行，走适合跑步的道路',
   'tours.planner.namePlaceholder.run': '未命名的跑步',
-  'tours.planner.unreachable.run': '没有适合跑步的道路能到达第 {point} 个点：路由器知道的最近道路在 {distance} 之外。请把该点移到道路上，或手动绘制到那里的路段。',
+  'tours.planner.unreachable.run':
+    '没有适合跑步的道路能到达第 {point} 个点：路由器知道的最近道路在 {distance} 之外。请把该点移到道路上，或手动绘制到那里的路段。',
   'tours.run.profile': '类型',
   'tours.run.profile.running': '跑步',
   'tours.run.profileHint.running': '优先选择城市、公园和河边适合跑步、尽量铺装的道路。',
@@ -1033,7 +1035,8 @@ const tours: TranslationStrings = {
   'tours.horse.timeInfo': 'TREK 不计算骑行时间：节奏取决于马和骑手。如有需要，请自行填写计划总时长。',
   'tours.horse.routes.title': '骑马路线',
   'tours.horse.routes.infoLabel': '关于骑马路线',
-  'tours.horse.routes.info': '来自 OpenStreetMap 的有标识骑马路线，按可整段采用的路段显示。属于某条路线并不等于允许在那里骑马。',
+  'tours.horse.routes.info':
+    '来自 OpenStreetMap 的有标识骑马路线，按可整段采用的路段显示。属于某条路线并不等于允许在那里骑马。',
   'tours.horse.routes.search': '在地图视图中查找',
   'tours.horse.routes.searchAgain': '搜索此视图',
   'tours.horse.routes.loading': '正在查找骑马路线…',

@@ -618,11 +618,13 @@ describe('runs (RUN-01)', () => {
   });
 
   it('saves a trail run like any run, with its own profile and the same pace (RUN-02)', () => {
-    expect(tourCreateRequestSchema.parse({ ...run, run_profile: 'trail', run_pace_seconds_per_km: 450 })).toMatchObject({
-      tour_type: 'run',
-      run_profile: 'trail',
-      run_pace_seconds_per_km: 450,
-    });
+    expect(tourCreateRequestSchema.parse({ ...run, run_profile: 'trail', run_pace_seconds_per_km: 450 })).toMatchObject(
+      {
+        tour_type: 'run',
+        run_profile: 'trail',
+        run_pace_seconds_per_km: 450,
+      },
+    );
     expect(tourGpxImportFieldsSchema.parse({ tour_type: 'run', run_profile: 'trail' }).run_profile).toBe('trail');
     expect(() => tourCreateRequestSchema.parse({ ...baseRequest, run_profile: 'trail' })).toThrow(/belongs to a run/);
   });

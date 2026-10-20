@@ -192,6 +192,8 @@ describe('MDT-01 tour stages', () => {
     expect(tourListItemSchema.parse({ ...item, stage_stops: null }).stage_stops).toBeNull();
     expect(tourListItemSchema.parse(item).stage_stops).toBeUndefined();
     expect(tourListItemSchema.safeParse({ ...item, stage_stops: [stops[0]] }).success).toBe(false);
-    expect(tourListItemSchema.safeParse({ ...item, stage_stops: [{ ...stops[0], key: '' }, stops[1]] }).success).toBe(false);
+    expect(tourListItemSchema.safeParse({ ...item, stage_stops: [{ ...stops[0], key: '' }, stops[1]] }).success).toBe(
+      false,
+    );
   });
 });

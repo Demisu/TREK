@@ -8,7 +8,13 @@ const activity = {
   assignment_id: 12,
   day_id: 3,
   assigned_at: '2026-07-02T18:00:00Z',
-  track: { place_id: 9, name: 'Watch export', origin: 'gpx', file_name: 'morning.gpx', imported_at: '2026-07-02 17:58:00' },
+  track: {
+    place_id: 9,
+    name: 'Watch export',
+    origin: 'gpx',
+    file_name: 'morning.gpx',
+    imported_at: '2026-07-02 17:58:00',
+  },
   metrics: {
     distance_km: 12.4,
     elevation_gain_m: 640,

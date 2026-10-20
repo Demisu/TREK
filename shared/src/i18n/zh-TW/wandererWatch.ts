@@ -3,7 +3,8 @@ import type { TranslationStrings } from '../types';
 const wandererWatch: TranslationStrings = {
   'wanderer.watch.label': '檢查我的路線是否有變更',
   'wanderer.watch.hint': '匯入的路線可能已變更時通知你。',
-  'wanderer.watch.info': 'TREK 每天最多讀取一次你匯入的每條路線的簡短紀錄，從不讀取其 GPX 檔案。它只會通知你：是否採用變更，由你透過行程的來源檢查自行決定。',
+  'wanderer.watch.info':
+    'TREK 每天最多讀取一次你匯入的每條路線的簡短紀錄，從不讀取其 GPX 檔案。它只會通知你：是否採用變更，由你透過行程的來源檢查自行決定。',
   'wanderer.watch.notConnected': '請先連接 wanderer',
   'wanderer.watch.on': '背景檢查已開啟',
   'wanderer.watch.off': '背景檢查已關閉',

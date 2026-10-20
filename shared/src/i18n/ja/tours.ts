@@ -426,7 +426,8 @@ const tours: TranslationStrings = {
   'tours.run.profileHint.running': '街中や公園、川沿いの走りやすい、なるべく舗装された道を優先します。',
   'tours.run.pace': '予定ペース',
   'tours.run.paceInfoLabel': '走行時間の計算方法',
-  'tours.run.paceInfo': '1 kmあたりのあなた自身のペースです。走行時間は距離 × ペースで、登り、下り、技術的な難しさは含みません。',
+  'tours.run.paceInfo':
+    '1 kmあたりのあなた自身のペースです。走行時間は距離 × ペースで、登り、下り、技術的な難しさは含みません。',
   'tours.run.paceUnit': '分/km',
   'tours.run.paceUnitMi': '分/mi',
   'tours.run.paceInvalid': 'ペースは km あたり 分:秒 で、{fastest} から {slowest} の間で入力してください。',
@@ -435,7 +436,8 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimated': '走行時間 (予定)',
   'tours.run.timeEstimatedShort': '走行時間',
   'tours.run.timeEstimatedInfoLabel': '走行時間の計画方法',
-  'tours.run.timeEstimatedInfo': '距離 × あなたのペースのみで、登り、下り、難しさは含みません。記録された時間ではなく計画です。',
+  'tours.run.timeEstimatedInfo':
+    '距離 × あなたのペースのみで、登り、下り、難しさは含みません。記録された時間ではなく計画です。',
   'tours.run.timeSum': '{distance} を {pace} で {time}',
   'tours.run.profile.trail': 'トレイルランニング',
   'tours.run.profileHint.trail': '林道や自然の小道を優先し、山道 (T2) まで含みます。',
@@ -506,7 +508,8 @@ const tours: TranslationStrings = {
   'tours.hike.ways.unasked': '今回は問い合わせできませんでした',
   'tours.hike.ways.unknown': '不明',
   'tours.hike.sac.stepTip': 'SACハイキングスケール {step}、OpenStreetMapより: sac_scale={tag}',
-  'tours.hike.sac.untaggedTip': 'OpenStreetMapはこれらの道にsac_scaleを付けていません。不明は易しいという意味ではありません。',
+  'tours.hike.sac.untaggedTip':
+    'OpenStreetMapはこれらの道にsac_scaleを付けていません。不明は易しいという意味ではありません。',
   'tours.hike.sac.unclearTip': 'OpenStreetMapはここに{tags}と記載しており、単一の段階を示していません。',
   'tours.hike.ways.unmatchedTip': 'ここではツアーの線の下に明確に道がないため、何も表示されません。',
   'tours.hike.ways.unaskedTip':
@@ -1087,10 +1090,12 @@ const tours: TranslationStrings = {
   'tours.planner.namePlaceholder.horse': '名前のない乗馬ツアー',
   'tours.horse.time': '乗馬時間',
   'tours.horse.timeInfoLabel': '乗馬時間がない理由',
-  'tours.horse.timeInfo': 'TREK は乗馬時間を計算しません。ペースは馬と乗り手しだいです。必要なら予定の合計時間をご自身で入力してください。',
+  'tours.horse.timeInfo':
+    'TREK は乗馬時間を計算しません。ペースは馬と乗り手しだいです。必要なら予定の合計時間をご自身で入力してください。',
   'tours.horse.routes.title': '乗馬ルート',
   'tours.horse.routes.infoLabel': '乗馬ルートについて',
-  'tours.horse.routes.info': 'OpenStreetMap の標識付き乗馬ルートを、まるごと取り込む区間ごとに表示します。ルートに含まれていても、乗馬が許可されているとは限りません。',
+  'tours.horse.routes.info':
+    'OpenStreetMap の標識付き乗馬ルートを、まるごと取り込む区間ごとに表示します。ルートに含まれていても、乗馬が許可されているとは限りません。',
   'tours.horse.routes.search': '地図の表示範囲で探す',
   'tours.horse.routes.searchAgain': 'この範囲を検索',
   'tours.horse.routes.loading': '乗馬ルートを検索中…',
@@ -1118,7 +1123,8 @@ const tours: TranslationStrings = {
   'tours.horse.dialog.joinGapHint': '直線で引かれ、未確認',
   'tours.horse.dialog.adopt': '区間を取り込む',
   'tours.horse.access.title': '乗馬でのアクセス',
-  'tours.horse.access.note': 'OpenStreetMap が道沿いに horse=* として記録している情報です。データが欠けていたり古かったりすることがあり、現地の標識が優先されます。',
+  'tours.horse.access.note':
+    'OpenStreetMap が道沿いに horse=* として記録している情報です。データが欠けていたり古かったりすることがあり、現地の標識が優先されます。',
   'tours.horse.access.closedNotice': 'この区間の一部は、馬について通行禁止または私有地として記録されています。',
   'tours.horse.access.value.designated': '乗馬専用',
   'tours.horse.access.value.yes': '許可',
@@ -1172,7 +1178,8 @@ const tours: TranslationStrings = {
   'tours.activity.execution': '実施日',
   'tours.activity.track': '記録',
   'tours.activity.importGpx': 'GPXをインポート',
-  'tours.activity.noCandidates': 'このトリップにはまだリンクできるトラックがありません。GPXファイルをインポートしてください。',
+  'tours.activity.noCandidates':
+    'このトリップにはまだリンクできるトラックがありません。GPXファイルをインポートしてください。',
   'tours.activity.replaces': 'この日の{name}を置き換えます',
   'tours.activity.confirm': 'リンク',
   'tours.activity.refused.activity_track_not_recorded': '上書きで計画されていないインポートのみリンクできます',
@@ -1238,7 +1245,8 @@ const tours: TranslationStrings = {
   'tours.stages.title': 'ステージ',
   'tours.stages.count': '{count} ステージ',
   'tours.stages.overDay': '移動だけで1日を超えます',
-  'tours.stages.timeInfo': 'ステージごとの移動時間で、休憩は含みません。自転車ツアーと街歩きでは、ルート計算の時間を距離で按分します。',
+  'tours.stages.timeInfo':
+    'ステージごとの移動時間で、休憩は含みません。自転車ツアーと街歩きでは、ルート計算の時間を距離で按分します。',
   'tours.stages.lost': '{count} 件のステージ終点が地点とともに消えたため、それらのステージは結合されました。',
   'tours.stages.toDayTitle': '日帰りツアーにしますか？',
   'tours.stages.toDayBody': '{count} 件のステージ終点を外します。ルートはそのままで、元に戻すで復元できます。',

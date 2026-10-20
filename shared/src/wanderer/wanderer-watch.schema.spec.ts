@@ -19,9 +19,9 @@ const hint = {
 describe('wanderer watch contract (WAN-02)', () => {
   it('tells a possible change, a proven one and a source that could not be judged apart, and nothing else', () => {
     expect(tourSourceHintSchema.parse(hint)).toEqual(hint);
-    expect(tourSourceHintSchema.safeParse({ ...hint, state: 'changed', changes: ['name', 'description'] }).success).toBe(
-      true,
-    );
+    expect(
+      tourSourceHintSchema.safeParse({ ...hint, state: 'changed', changes: ['name', 'description'] }).success,
+    ).toBe(true);
     expect(tourSourceHintSchema.safeParse({ ...hint, state: 'unverifiable', reason: 'no_change_time' }).success).toBe(
       true,
     );

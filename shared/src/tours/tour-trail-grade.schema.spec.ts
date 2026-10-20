@@ -53,9 +53,9 @@ describe('tour trail grades (BIK-05, MAP-03, MAP-04)', () => {
     const written = tourTrailGradeSchema.parse({ ...grade, surface: 'fine_gravel', highway: 'path' });
     expect(written).toMatchObject({ surface: 'fine_gravel', highway: 'path' });
     expect(tourTrailGradeSchema.safeParse({ ...grade, surface: '' }).success).toBe(false);
-    expect(
-      tourTrailGradeSchema.safeParse({ ...grade, highway: 'x'.repeat(OSM_TAG_VALUE_MAX + 1) }).success,
-    ).toBe(false);
+    expect(tourTrailGradeSchema.safeParse({ ...grade, highway: 'x'.repeat(OSM_TAG_VALUE_MAX + 1) }).success).toBe(
+      false,
+    );
     expect(tourTrailGradeSchema.safeParse({ ...grade, surface: undefined }).success).toBe(false);
   });
 });

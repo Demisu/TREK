@@ -530,9 +530,11 @@ const tours: TranslationStrings = {
   'tours.hike.surface.other': 'พื้นผิวอื่น',
   'tours.hike.surface.untagged': 'ไม่มีพื้นผิวใน OpenStreetMap',
   'tours.hike.surface.unclear': 'พื้นผิวไม่ชัดเจน',
-  'tours.hike.surface.untaggedTip': 'OpenStreetMap ไม่ได้บันทึกพื้นผิวของทางเหล่านี้ ระบบหาเส้นทางอาจสมมติขึ้นมา แต่นั่นไม่ใช่ค่าที่บันทึกไว้',
+  'tours.hike.surface.untaggedTip':
+    'OpenStreetMap ไม่ได้บันทึกพื้นผิวของทางเหล่านี้ ระบบหาเส้นทางอาจสมมติขึ้นมา แต่นั่นไม่ใช่ค่าที่บันทึกไว้',
   'tours.hike.surface.knownTip': 'ส่วนของเส้นทางที่ OpenStreetMap บันทึกพื้นผิวไว้ ที่เหลือไม่ทราบ',
-  'tours.hike.surface.source': 'พื้นผิวตามที่ OpenStreetMap บันทึก จัดเป็นกลุ่ม ไม่ใช้การตีความของระบบหาเส้นทางเอง ไม่ใช่การประเมินทาง',
+  'tours.hike.surface.source':
+    'พื้นผิวตามที่ OpenStreetMap บันทึก จัดเป็นกลุ่ม ไม่ใช้การตีความของระบบหาเส้นทางเอง ไม่ใช่การประเมินทาง',
   'tours.hike.way.path': 'ทางเดิน',
   'tours.hike.way.footway': 'ทางเท้า',
   'tours.hike.way.steps': 'บันได',
