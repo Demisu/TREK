@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
+import type { TourListItem } from '@trek/shared'
+import type { Assignment } from '../../types'
 import { usePoiExplore, type Bbox } from '../../components/Map/usePoiExplore'
 import { placeActions } from '../../components/Planner/usePlaceActions'
 import { tourRouteStyle } from '../../components/Tours/planner/tourRouteStyle'
@@ -15,6 +17,22 @@ import { usePlannerFocusPoints } from './usePlannerFocusPoints'
 import { useTripPlanner } from './useTripPlanner'
 import { useTourWorkspace } from './useTourWorkspace'
 import { mapFocusKeyOf, offeredWaysOf, paddleLineOf } from './tourMapFocus'
+
+/**
+ * The place form's day context: while a place is edited, the whole day plan to check its times
+ * against and, TIME-02, the tour that place is, whose end the time fields work out from its start.
+ */
+function placeFormContext(
+  editingPlace: { id: number } | null,
+  assignments: Record<string, Assignment[]>,
+  tours: readonly TourListItem[],
+): { dayAssignments: Assignment[]; tour: TourListItem | null } {
+  if (!editingPlace) return { dayAssignments: [], tour: null }
+  return {
+    dayAssignments: Object.values(assignments).flat(),
+    tour: tours.find(item => item.place_id === editingPlace.id) ?? null,
+  }
+}
 
 export function useTripPlannerPage() {
   const planner = useTripPlanner()
@@ -99,6 +117,16 @@ export function useTripPlannerPage() {
     reportViewport(bounds)
   }, [lastPlanMapViewportRef, reportViewport])
 
+  // The place form closes with everything it was opened with cleared.
+  const { setShowPlaceForm, setEditingPlace, setEditingAssignmentId, setPrefillCoords, setServiceStopForm } = planner
+  const closePlaceForm = () => {
+    setShowPlaceForm(false)
+    setEditingPlace(null)
+    setEditingAssignmentId(null)
+    setPrefillCoords(null)
+    setServiceStopForm(false)
+  }
+
   // Each tour's planned times keyed by its place, for the day plan's tour rows.
   const plannedTourDurations = new Map(tours.map(tour => [tour.place_id, { ...projectTourPlannedTimes(tour), tour }] as const))
 
@@ -136,5 +164,6 @@ export function useTripPlannerPage() {
     locationSearch,
     // The day plan's tours: which places are tours, their planned times and where their stages run (MDT-02).
     dayPlanTours: { tourPlaceIds: planner.tourPlaceIds, plannedTourDurations, tourStageStops: planner.tourStageStops },
+    placeForm: { close: closePlaceForm, ...placeFormContext(planner.editingPlace, planner.assignments, tours) },
   }
 }

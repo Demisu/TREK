@@ -39,10 +39,6 @@ import { NEUTRAL_TINT, fs } from '../shared/DialogShell'
 import { BarButton, MoreButton, SoftPill, TimePill, tintOf } from './planParts'
 import './dayPlanRows.css'
 
-/** The round white button a row carries on its right (a route on the map, a journey's legs). */
-const ROW_ROUND = 'grid flex-none place-items-center rounded-full bg-surface-card shadow-sm transition-colors'
-/** The white face every control of a day's route bar shares, so the row reads as one set. */
-const ROUTE_TOOL = 'bg-surface-card shadow-sm ring-1 ring-edge-faint'
 import { TypeTile } from './bookings/bookingParts'
 import { typeInfo } from './bookings/bookingsModel'
 import { dayHeadStays } from './dayHeadStays'
@@ -89,6 +85,7 @@ import type { TourPlannedTimes } from '../Tours/tourPresentation'
 import type { TourListItem } from '@trek/shared'
 import { TourDayRowAvatar } from '../Tours/TourDayRowFacts'
 import { DayPlanPlaceSubline } from './DayPlanPlaceSubline'
+import { DAY_HEAD_DROP, DAY_HEAD_HOVER, DAY_HEAD_SELECTED, LOCK_OVERLAY, LOCK_OVERLAY_HOVER, LOCKED_ROW, ROUTE_TOOL, ROW_ROUND } from './dayPlanSurfaces'
 
 export interface DayPlanSidebarProps {
   tripId: number
@@ -194,16 +191,6 @@ export interface DayPlanSidebarProps {
  * days (places, transports, notes). Returns everything the timeline view renders
  * from, keeping DayPlanSidebar a thin shell over one large day list.
  */
-// The day head's tones: hovered, open, and a drop landing on it. Mixed from the
-// accent so they follow the user's scheme in both themes.
-const DAY_HEAD_HOVER = 'color-mix(in srgb, var(--accent) 10%, transparent)'
-const DAY_HEAD_SELECTED = 'color-mix(in srgb, var(--accent) 12%, transparent)'
-const DAY_HEAD_DROP = 'color-mix(in srgb, var(--accent) 9%, transparent)'
-// A stop pinned in place: a whisper of the danger tone on the row, a stronger one over its avatar.
-const LOCKED_ROW = 'color-mix(in srgb, var(--danger) 7%, transparent)'
-const LOCK_OVERLAY = 'color-mix(in srgb, var(--danger) 62%, transparent)'
-const LOCK_OVERLAY_HOVER = 'color-mix(in srgb, var(--danger) 42%, transparent)'
-
 function useDayPlanSidebar(props: DayPlanSidebarProps) {
   const {
   tripId,

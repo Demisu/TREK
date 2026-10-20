@@ -84,13 +84,13 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
     showDayDetail, setShowDayDetail, dayDetailCollapsed, setDayDetailCollapsed,
     stayPickerDayId, setStayPickerDayId,
     showPlaceForm, setShowPlaceForm, editingPlace, setEditingPlace, setPlaceFormDayId,
-    prefillCoords, setPrefillCoords, editingAssignmentId, setEditingAssignmentId,
+    prefillCoords, editingAssignmentId, setEditingAssignmentId,
     stopDraft, setStopDraft, saveStopDraft, saveStopDraftAsNight, stopDraftToForm, stopDraftDuplicate, reorderRoadtripStop,
     setRoadtripStopKind,
     setRoadtripStopFill,
     saveRoadtripLimit, roadtripSettingsLoading, storedAssignments,
     roadtripVias, addRoadtripVia, moveRoadtripVia, removeRoadtripVia, resetDayBoundaries,
-    openManualRoadtripStop, serviceStopMode, setServiceStopForm,
+    openManualRoadtripStop, serviceStopMode,
     routeAlternatives, askRouteAlternatives, refuel, askRefuel, acceptRefuel, chooseRouteAlternative, alternativeOverlays, alternativeFocusPoints, mapFocusPoints, roadtripMapVias, focusRoadtripPoint, dayBoundaryControls,
     stayDraft, setStayDraft, editRoadtripStay, setRoadtripStay, roadtripEndDay, roadtripStay,
     highlightedAlternative, setHighlightedAlternative,
@@ -143,6 +143,7 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
     tourMap,
     locationSearch,
     dayPlanTours,
+    placeForm,
   } = pageState
   // Tablets run this very layout but cannot start an HTML5 drag with a finger,
   // so a long press stands in for one (#1616). Only where the pointer is
@@ -831,7 +832,7 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
           />
         </LazyPanel>
       )}
-      <PlaceFormModal isOpen={showPlaceForm} onClose={() => { setShowPlaceForm(false); setEditingPlace(null); setEditingAssignmentId(null); setPrefillCoords(null); setServiceStopForm(false) }} onSave={handleSavePlace} place={editingPlace} prefillCoords={prefillCoords} assignmentId={editingAssignmentId} dayAssignments={editingPlace ? Object.values(assignments).flat() : []} tripId={tripId} categories={categories} onCategoryCreated={cat => tripActions.addCategory?.(cat)} isMobile={isMobile} onOpenExpense={openBookingExpense} serviceStop={serviceStopMode} roadtripActive={roadtripActive} tour={editingPlace ? tours.find(item => item.place_id === editingPlace.id) ?? null : null} />
+      <PlaceFormModal isOpen={showPlaceForm} onClose={placeForm.close} onSave={handleSavePlace} place={editingPlace} prefillCoords={prefillCoords} assignmentId={editingAssignmentId} dayAssignments={placeForm.dayAssignments} tripId={tripId} categories={categories} onCategoryCreated={cat => tripActions.addCategory?.(cat)} isMobile={isMobile} onOpenExpense={openBookingExpense} serviceStop={serviceStopMode} roadtripActive={roadtripActive} tour={placeForm.tour} />
       <TripFormModal
         isOpen={showTripForm}
         onClose={() => setShowTripForm(false)}

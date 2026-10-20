@@ -10,15 +10,14 @@ import CollectionPicker from '../Collections/CollectionPicker'
 import PlaceDetailsColumn from './PlaceDetailsColumn'
 import { useToast } from '../shared/Toast'
 import { Tooltip } from '../shared/Tooltip'
-import { Search, Paperclip, X, AlertTriangle, Loader2, Plus, RotateCcw, MapPin, Navigation, LocateFixed, PencilLine } from 'lucide-react'
+import { Search, Paperclip, X, Loader2, Plus, RotateCcw, MapPin, Navigation, LocateFixed, PencilLine } from 'lucide-react'
 import { useTranslation } from '../../i18n'
-import CustomTimePicker from '../shared/CustomTimePicker'
 import { PlaceContactFields } from './PlaceContactFields'
 import { weekFromPeriods } from './placeHours'
 import type { PlaceOpeningHours } from '@trek/shared'
 import {
   DEFAULT_FORM, endsBeforeStart, findDuplicatePlace, formPin, mergeResult, parseCoordinatePair, placeEditForm, placeFormPayload,
-  prefillForm, timeCollisions, type PlaceFormData,
+  prefillForm, type PlaceFormData,
 } from './PlaceFormModal.helpers'
 import { useNewCategory, usePlaceForm } from './usePlaceForm'
 import { usePlaceSearch } from './usePlaceSearch'
@@ -43,7 +42,7 @@ import {
 import { EditorField, GRID_2, INPUT, LABEL, PANEL, PillSelect, TEXTAREA } from '../shared/dialogParts'
 import { SoftPill, tintOf } from './planParts'
 import { WHITE_BUTTON } from './placeDialogParts'
-import { TourEndHint } from '../Tours/TourDayTimeParts'
+import { TimeSection } from './PlaceFormTimeSection'
 
 // The submit payload mirrors the form, but lat/lng are parsed to numbers and
 // category_id is normalised, plus any files chosen before the place existed.
@@ -472,7 +471,6 @@ const STACK = 'flex flex-col gap-5'
 const FORM_COLUMN = 'flex min-w-0 flex-1 flex-col gap-4'
 /** A row of the typed-ahead list or of the search results. */
 const PICK_ROW = 'flex w-full items-center gap-2 rounded-[8px] px-2.5 py-2 text-start'
-const WARNING_BANNER = 'flex items-start gap-1.5 rounded-[10px] bg-warning-soft px-2.5 py-1.5 text-warning'
 /** The small accent square beside a field that runs its action, sized by the row it sits in. */
 const SIDE_BUTTON = 'grid w-[38px] flex-none place-items-center rounded-[10px] transition-colors disabled:cursor-default disabled:opacity-60'
 /**
@@ -1155,66 +1153,6 @@ function PendingFiles({ files, fileRef, onAdd, onRemove, t }: {
               </Tooltip>
             </div>
           ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
-interface TimeSectionProps {
-  form: PlaceFormData
-  handleChange: (field: string, value: string) => void
-  assignmentId: number | null
-  dayAssignments: Assignment[]
-  hasTimeError: boolean
-  /** On a road trip the End is when the drive leaves, which the field says. In Days it
-   *  stays the plain label it has always been: nothing is scheduled off it there. */
-  endIsLeave: boolean
-  tour?: TourListItem | null
-  t: Translate
-}
-
-function TimeSection({ form, handleChange, assignmentId, dayAssignments, hasTimeError, endIsLeave, tour, t }: TimeSectionProps) {
-  const collisions = useMemo(
-    () => timeCollisions(assignmentId, dayAssignments, form.place_time, form.end_time),
-    [assignmentId, dayAssignments, form.place_time, form.end_time],
-  )
-  const errorId = useId()
-
-  return (
-    <div className="flex flex-col gap-2">
-      <div className={GRID_2}>
-        <EditorField label={t('places.startTime')}>
-          <CustomTimePicker
-            value={form.place_time}
-            onChange={v => handleChange('place_time', v)}
-            aria-label={t('places.startTime')}
-          />
-        </EditorField>
-        <EditorField label={t('places.endTime')} hint={endIsLeave ? t('roadtrip.stop.endIsLeave') : undefined}>
-          <CustomTimePicker
-            value={form.end_time}
-            onChange={v => handleChange('end_time', v)}
-            aria-label={t('places.endTime')}
-            aria-invalid={hasTimeError}
-            aria-describedby={hasTimeError ? errorId : undefined}
-          />
-        </EditorField>
-      </div>
-      <TourEndHint start={form.place_time} end={form.end_time} assignment={dayAssignments.find(a => a.id === assignmentId)} tour={tour} />
-      {hasTimeError && (
-        <div id={errorId} className={WARNING_BANNER} style={fs(12, 'body')}>
-          <AlertTriangle size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
-          {t('places.endTimeBeforeStart')}
-        </div>
-      )}
-      {collisions.length > 0 && (
-        <div className={WARNING_BANNER} style={fs(12, 'body')}>
-          <AlertTriangle size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
-          <span>
-            {t('places.timeCollision')}{' '}
-            {collisions.map(a => a.place?.name).filter(Boolean).join(', ')}
-          </span>
         </div>
       )}
     </div>
