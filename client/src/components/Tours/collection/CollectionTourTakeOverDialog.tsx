@@ -6,6 +6,7 @@ import {
   CircleCheck,
   CopyPlus,
   Flag,
+  Info,
   Loader2,
   Play,
   Spline,
@@ -153,7 +154,11 @@ function TripChoices({ takeOver }: { takeOver: CollectionTourTakeOver }) {
   );
 }
 
-/** One answer to whether the waypoints come along: an icon, a title, a short tooltip, raised once chosen. */
+/**
+ * One answer to whether the waypoints come along: an icon, a title, a short
+ * tooltip, raised once chosen. A disabled button fires no hover or focus, so
+ * one that cannot be chosen sits in a span that carries its tooltip.
+ */
 function PointsTile({
   value,
   selected,
@@ -171,56 +176,63 @@ function PointsTile({
   hint: string;
   onChoose: (value: PointsChoice) => void;
 }) {
-  return (
-    <Tooltip label={hint}>
-      <button
-        type="button"
-        role="radio"
-        aria-checked={selected}
-        disabled={disabled}
-        onClick={() => onChoose(value)}
-        data-testid={`kept-tour-points-${value}`}
-        className={`flex w-full min-w-0 items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-start transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-default disabled:opacity-50 ${selected ? 'border-transparent bg-surface-card shadow-sm ring-2 ring-accent' : 'border-edge-faint bg-surface-secondary enabled:hover:bg-surface-card'}`}
+  const tile = (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={selected}
+      disabled={disabled}
+      onClick={() => onChoose(value)}
+      data-testid={`kept-tour-points-${value}`}
+      className={`flex w-full min-w-0 items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-start transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-default disabled:opacity-50 ${selected ? 'border-transparent bg-surface-card shadow-sm ring-2 ring-accent' : 'border-edge-faint bg-surface-secondary enabled:hover:bg-surface-card'}`}
+    >
+      <span
+        className={`grid h-8 w-8 flex-none place-items-center rounded-full ${selected ? 'bg-accent text-accent-text' : 'bg-edge text-content-secondary'}`}
       >
-        <span
-          className={`grid h-8 w-8 flex-none place-items-center rounded-full ${selected ? 'bg-accent text-accent-text' : 'bg-edge text-content-secondary'}`}
-        >
-          {icon}
-        </span>
-        <span className="min-w-0 flex-1 font-semibold text-content" style={fs(12.5, 'body')}>
-          {title}
-        </span>
-      </button>
-    </Tooltip>
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1 font-semibold text-content" style={fs(12.5, 'body')}>
+        {title}
+      </span>
+    </button>
   );
+  return <Tooltip label={hint}>{disabled ? <span className="block">{tile}</span> : tile}</Tooltip>;
 }
 
-/** The explicit choice about the waypoints; leaving them out is only there for a tour with a line. */
+/**
+ * The explicit choice about the waypoints; leaving them out is only there for
+ * a tour with a line, and a tour without one says so under the choice rather
+ * than only in a tooltip.
+ */
 function PointsChoices({ takeOver }: { takeOver: CollectionTourTakeOver }) {
   const { t } = useTranslation();
   const { tour } = takeOver;
   if (!tour) return null;
-  const lineOnlyHint = tour.has_line ? t('tours.collection.lineOnlyHint') : t('tours.collection.needsPoints');
   return (
-    <div role="radiogroup" aria-label={t('tours.library.controlPoints')} className="grid grid-cols-2 gap-2">
-      <PointsTile
-        value="with"
-        selected={takeOver.points === 'with'}
-        disabled={tour.waypoint_count === 0 && tour.has_line}
-        icon={<Waypoints size={15} strokeWidth={2} />}
-        title={t('tours.collection.withPoints', { count: tour.waypoint_count })}
-        hint={t('tours.collection.withPointsHint')}
-        onChoose={takeOver.choosePoints}
-      />
-      <PointsTile
-        value="without"
-        selected={takeOver.points === 'without'}
-        disabled={!tour.has_line}
-        icon={<Spline size={15} strokeWidth={2} />}
-        title={t('tours.collection.lineOnly')}
-        hint={lineOnlyHint}
-        onChoose={takeOver.choosePoints}
-      />
+    <div className="flex flex-col gap-2">
+      <div role="radiogroup" aria-label={t('tours.library.controlPoints')} className="grid grid-cols-2 gap-2">
+        <PointsTile
+          value="with"
+          selected={takeOver.points === 'with'}
+          disabled={tour.waypoint_count === 0 && tour.has_line}
+          icon={<Waypoints size={15} strokeWidth={2} />}
+          title={t('tours.collection.withPoints', { count: tour.waypoint_count })}
+          hint={t('tours.collection.withPointsHint')}
+          onChoose={takeOver.choosePoints}
+        />
+        <PointsTile
+          value="without"
+          selected={takeOver.points === 'without'}
+          disabled={!tour.has_line}
+          icon={<Spline size={15} strokeWidth={2} />}
+          title={t('tours.collection.lineOnly')}
+          hint={t('tours.collection.lineOnlyHint')}
+          onChoose={takeOver.choosePoints}
+        />
+      </div>
+      {!tour.has_line && (
+        <TourNotice icon={<Info size={13} strokeWidth={2} />}>{t('tours.collection.needsPoints')}</TourNotice>
+      )}
     </div>
   );
 }
@@ -238,6 +250,7 @@ function KeptTourPreview({ takeOver }: { takeOver: CollectionTourTakeOver }) {
         focusKey={String(tour.id)}
         status={takeOver.detailStatus}
         failedText={t('tours.library.previewFailed')}
+        emptyText={t('tours.collection.noLine')}
       />
       <RailFacts
         facts={tourPreviewFacts(tour, tour.waypoint_count, unit, t, {

@@ -17,7 +17,7 @@ import { TourSaveToCollectionBarButton, TourSaveToCollectionButton } from './Tou
 import { useCollectionTourTakeOver } from './useCollectionTourTakeOver';
 import { useSaveTourToCollection } from './useSaveTourToCollection';
 
-// FE-COLLECTION-TOURS-001 to FE-COLLECTION-TOURS-013
+// FE-COLLECTION-TOURS-001 to FE-COLLECTION-TOURS-014
 
 vi.mock('../../Map/MapViewAuto', () => ({
   MapViewAuto: ({ route }: { route: Array<Array<[number, number]>> }) => (
@@ -241,7 +241,8 @@ describe('useCollectionTourTakeOver', () => {
       name: 'Ridge',
     });
     expect(result.current.flow.done).toEqual({ tripId: 6, tripTitle: 'Coast', tourName: 'Ridge' });
-    expect(toast.success).toHaveBeenCalledWith('“Ridge” is now a tour of “Coast”.');
+    // The dialog's last word says it; a toast would only repeat it.
+    expect(toast.success).not.toHaveBeenCalled();
     act(() => result.current.flow.openTrip());
     expect(result.current.location.pathname).toBe('/trips/6');
     expect(result.current.flow.open).toBe(false);
@@ -279,11 +280,11 @@ describe('useCollectionTourTakeOver', () => {
 });
 
 describe('CollectionTourTakeOverDialog', () => {
-  function Harness() {
+  function Harness({ tour = kept() }: { tour?: CollectionTourItem }) {
     const flow = useCollectionTourTakeOver(3);
     return (
       <>
-        <button type="button" onClick={() => flow.show(kept())}>
+        <button type="button" onClick={() => flow.show(tour)}>
           open
         </button>
         <CollectionTourTakeOverDialog takeOver={flow} />
@@ -321,6 +322,28 @@ describe('CollectionTourTakeOverDialog', () => {
     expect(strip).not.toHaveClass('opacity-40');
     rerender(<KeptPointsStrip points={DETAIL.points} dimmed />);
     expect(screen.getByTestId('kept-points')).toHaveClass('opacity-40');
+  });
+
+  it('FE-COLLECTION-TOURS-014: a tour kept without a line says so in the map box and under the choice', async () => {
+    vi.mocked(collectionToursRepo.detail).mockResolvedValue({
+      ...DETAIL,
+      tour: kept({ has_line: false }),
+      line: [],
+    });
+    render(<Harness tour={kept({ has_line: false })} />);
+    fireEvent.click(screen.getByText('open'));
+    const preview = screen.getByTestId('kept-tour-preview');
+    expect(await within(preview).findByTestId('tour-preview-no-line')).toHaveTextContent(
+      'No line yet, only its waypoints'
+    );
+    expect(within(preview).queryByTestId('kept-map')).toBeNull();
+    expect(screen.getByText('This tour has no line yet, so its waypoints have to come along.')).toBeInTheDocument();
+    const lineOnly = screen.getByTestId('kept-tour-points-without');
+    expect(lineOnly).toBeDisabled();
+    // A disabled tile sits in a span, so its tooltip still has something to hover.
+    expect(lineOnly.parentElement?.tagName).toBe('SPAN');
+    expect(screen.getByTestId('kept-tour-points-with')).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByTestId('kept-tour-points-with').parentElement?.tagName).not.toBe('SPAN');
   });
 });
 

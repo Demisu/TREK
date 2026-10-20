@@ -1,5 +1,5 @@
 import type { TourLibraryItem } from '@trek/shared';
-import { ArrowUp, Clock, Loader2, Ruler } from 'lucide-react';
+import { ArrowUp, Clock, Loader2, Ruler, Spline } from 'lucide-react';
 import { useMemo } from 'react';
 import { OFM_POSITRON } from '../../../constants/mapDefaults';
 import { useTileUrl } from '../../../hooks/useTileUrl';
@@ -113,19 +113,23 @@ type PreviewStatus = 'loading' | 'ready' | 'error' | 'offline' | null;
 /**
  * A tour's line on a small map, the way a preview shows it before anything is
  * taken over: drawn once its points are in, a spinner while they load, a short
- * line of text when they cannot be read.
+ * line of text when they cannot be read, and, where the caller names it, what
+ * a tour without a line has instead, so an empty box never reads as a broken map.
  */
 export function TourLinePreview({
   line,
   focusKey,
   status,
   failedText,
+  emptyText,
 }: {
   line: ReadonlyArray<readonly unknown[]> | undefined;
   focusKey: string;
   status: PreviewStatus;
   /** What a preview that could not be read says; offline says that it is offline. */
   failedText: string;
+  /** What a tour read in full but without a line says in the box; without it the box stays empty. */
+  emptyText?: string;
 }) {
   const { t } = useTranslation();
   const tileUrl = useTileUrl(OFM_POSITRON);
@@ -158,6 +162,18 @@ export function TourLinePreview({
           style={fs(12, 'body')}
         >
           {status === 'offline' ? t('tours.library.offline') : failedText}
+        </span>
+      )}
+      {status === 'ready' && route.length === 0 && emptyText && (
+        <span
+          className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-6 text-center text-content-muted"
+          style={fs(12, 'body')}
+          data-testid="tour-preview-no-line"
+        >
+          <span className="grid h-9 w-9 place-items-center rounded-full bg-surface-card text-content-faint shadow-sm ring-1 ring-edge-faint">
+            <Spline size={16} strokeWidth={2} />
+          </span>
+          {emptyText}
         </span>
       )}
     </div>

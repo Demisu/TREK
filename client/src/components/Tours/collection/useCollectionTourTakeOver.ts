@@ -100,8 +100,8 @@ export function useCollectionTourTakeOver(collectionId: number) {
         include_waypoints: points === 'with',
         name: chosenName,
       });
+      // The dialog's last word says where the tour is now, so no toast repeats it.
       setDone({ tripId: trip.id, tripTitle: trip.title, tourName: result.tour.name });
-      toast.success(t('tours.collection.taken', { name: result.tour.name, trip: trip.title }));
     } catch (err: unknown) {
       toast.error(t(failure(err) === 'offline' ? 'tours.collection.offline' : 'tours.collection.takeFailed'));
     } finally {

@@ -46,6 +46,7 @@ import shared from './shared';
 import storage from './storage';
 import system_notice from './system_notice';
 import todo from './todo';
+import tourCollection from './tourCollection';
 import tours from './tours';
 import transport from './transport';
 import trip from './trip';
@@ -61,6 +62,7 @@ const locale = {
   ...dashboard,
   ...roadtrip,
   ...tours,
+  ...tourCollection,
   ...wanderer,
   ...settings,
   ...admin,
