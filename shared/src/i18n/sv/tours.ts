@@ -525,6 +525,8 @@ const tours: TranslationStrings = {
   'tours.hike.sac.untaggedTip': 'OpenStreetMap ger dessa vägar ingen sac_scale. Okänt betyder inte lätt.',
   'tours.hike.sac.unclearTip': 'OpenStreetMap anger här {tags}, vilket inte pekar ut en enda grad.',
   'tours.hike.ways.unmatchedTip': 'Här ligger ingen väg tydligt under turens linje, så inget visas för den.',
+  'tours.hike.ways.unaskedTip':
+    'OpenStreetMap kunde inte frågas om dessa vägar den här gången. Okänt betyder inte lätt.',
   'tours.hike.ways.known': 'Känt',
   'tours.hike.sac.knownTip': 'Den del av rutten där OpenStreetMap anger en SAC-grad. Resten är okänd.',
   'tours.hike.sac.highest': 'Högsta kända',

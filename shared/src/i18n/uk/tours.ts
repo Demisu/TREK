@@ -543,6 +543,7 @@ const tours: TranslationStrings = {
   'tours.hike.sac.unclearTip': 'OpenStreetMap вказує тут {tags}, що не означає одну категорію.',
   'tours.hike.ways.unmatchedTip':
     'Тут жоден шлях однозначно не лежить під лінією маршруту, тому для нього нічого не показано.',
+  'tours.hike.ways.unaskedTip': 'Цього разу не вдалося запитати OpenStreetMap про ці шляхи. Невідомо не означає легко.',
   'tours.hike.ways.known': 'Відомо',
   'tours.hike.sac.knownTip': 'Частка маршруту, для якої OpenStreetMap вказує категорію SAC. Решта невідома.',
   'tours.hike.sac.highest': 'Найвища відома',

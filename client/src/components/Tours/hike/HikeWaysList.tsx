@@ -1,4 +1,4 @@
-import { Info, SlidersHorizontal } from 'lucide-react';
+import { Info, RefreshCw, SlidersHorizontal } from 'lucide-react';
 import { useTranslation } from '../../../i18n';
 import { useSettingsStore } from '../../../store/settingsStore';
 import { formatDistance } from '../../../utils/units';
@@ -7,6 +7,7 @@ import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
 import { bikePaintCss } from '../bike/bikePaint';
 import { FigureBadge } from '../paddle/FigureBadge';
+import { CardAction } from '../tourParts';
 import { HIKE_FACETS, type HikeFacet } from './hikeFacetSpecs';
 import { facetPaint, isUnknownClass, type FacetRow } from './hikeFacets';
 import { hikePaintCss } from './hikePaint';
@@ -74,7 +75,7 @@ function useRowSource(facet: HikeFacet, row: FacetRow): string {
   if (step !== null) return t('tours.hike.sac.stepTip', { step: stepName(step), tag: row.tags[0] ?? '' });
   if (row.key === 'untagged') return t(FACET_KEY[facet]('untaggedTip'));
   if (row.key === 'unmatched') return t('tours.hike.ways.unmatchedTip');
-  if (row.key === 'unasked') return '';
+  if (row.key === 'unasked') return t('tours.hike.ways.unaskedTip');
   if (row.key === 'unclear' && facet === 'sac') return t('tours.hike.sac.unclearTip', { tags: row.tags.join(', ') });
   if (row.key === 'unclear') return t('tours.hike.ways.unclearTip', { tags: writtenTags(facet, row) });
   return t('tours.hike.ways.recordedTip', { tags: writtenTags(facet, row) });
@@ -211,6 +212,14 @@ export function HikeWaysList({ ways, limit }: { ways: HikeWays; limit: number | 
               <ClassRow key={row.key} row={row} ways={ways} limit={limit} />
             ))}
           </ul>
+          {/* Some ways could not be asked this time: they may be asked again without leaving the card. */}
+          {unknown.some((row) => row.key === 'unasked') && (
+            <span className="flex">
+              <CardAction icon={<RefreshCw size={12} strokeWidth={2} />} onClick={ways.retry}>
+                {t('common.errorRetry')}
+              </CardAction>
+            </span>
+          )}
         </div>
       )}
       <span className="inline-flex gap-1.5 text-content-faint" style={fs(11, 'body')}>

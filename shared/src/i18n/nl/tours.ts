@@ -537,6 +537,8 @@ const tours: TranslationStrings = {
   'tours.hike.sac.unclearTip': 'OpenStreetMap vermeldt hier {tags}, wat geen enkele graad aanduidt.',
   'tours.hike.ways.unmatchedTip':
     'Hier ligt geen pad duidelijk onder de lijn van de tocht, dus er wordt niets getoond.',
+  'tours.hike.ways.unaskedTip':
+    'OpenStreetMap kon deze keer niet over deze paden worden opgevraagd. Onbekend betekent niet makkelijk.',
   'tours.hike.ways.known': 'Bekend',
   'tours.hike.sac.knownTip': 'Het deel van de route waarvoor OpenStreetMap een SAC-graad geeft. De rest is onbekend.',
   'tours.hike.sac.highest': 'Hoogste bekende',

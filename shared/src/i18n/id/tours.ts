@@ -531,6 +531,8 @@ const tours: TranslationStrings = {
   'tours.hike.sac.unclearTip': 'OpenStreetMap menulis {tags} di sini, yang tidak menyebut satu tingkat.',
   'tours.hike.ways.unmatchedTip':
     'Di sini tidak ada jalur yang jelas berada di bawah garis tur, jadi tidak ada yang ditampilkan.',
+  'tours.hike.ways.unaskedTip':
+    'OpenStreetMap tidak dapat ditanyakan tentang jalur ini kali ini. Tidak diketahui bukan berarti mudah.',
   'tours.hike.ways.known': 'Diketahui',
   'tours.hike.sac.knownTip': 'Bagian rute yang tingkat SAC-nya diberikan OpenStreetMap. Sisanya tidak diketahui.',
   'tours.hike.sac.highest': 'Tertinggi diketahui',

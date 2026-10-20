@@ -515,6 +515,8 @@ const tours: TranslationStrings = {
   'tours.hike.sac.untaggedTip': 'OpenStreetMapはこれらの道にsac_scaleを付けていません。不明は易しいという意味ではありません。',
   'tours.hike.sac.unclearTip': 'OpenStreetMapはここに{tags}と記載しており、単一の段階を示していません。',
   'tours.hike.ways.unmatchedTip': 'ここではツアーの線の下に明確に道がないため、何も表示されません。',
+  'tours.hike.ways.unaskedTip':
+    '今回はこれらの道についてOpenStreetMapに問い合わせできませんでした。不明は易しいという意味ではありません。',
   'tours.hike.ways.known': '判明',
   'tours.hike.sac.knownTip': 'OpenStreetMapがSAC難易度を示しているルートの割合です。残りは不明です。',
   'tours.hike.sac.highest': '判明している最高',

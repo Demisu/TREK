@@ -513,6 +513,8 @@ const tours: TranslationStrings = {
   'tours.hike.sac.untaggedTip': 'OpenStreetMap은 이 길들에 sac_scale을 주지 않습니다. 알 수 없음은 쉬움이 아닙니다.',
   'tours.hike.sac.unclearTip': 'OpenStreetMap은 여기에 {tags}라고 적어 하나의 등급을 가리키지 않습니다.',
   'tours.hike.ways.unmatchedTip': '여기서는 투어 선 아래에 명확히 놓인 길이 없어 아무것도 표시하지 않습니다.',
+  'tours.hike.ways.unaskedTip':
+    '이번에는 이 길들에 대해 OpenStreetMap을 조회할 수 없었습니다. 알 수 없음은 쉬움이 아닙니다.',
   'tours.hike.ways.known': '알려짐',
   'tours.hike.sac.knownTip': 'OpenStreetMap이 SAC 등급을 제공하는 경로의 비율입니다. 나머지는 알 수 없습니다.',
   'tours.hike.sac.highest': '알려진 최고',

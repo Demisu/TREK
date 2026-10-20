@@ -546,6 +546,8 @@ const tours: TranslationStrings = {
   'tours.hike.sac.unclearTip': 'Το OpenStreetMap γράφει εδώ {tags}, που δεν ορίζει έναν μόνο βαθμό.',
   'tours.hike.ways.unmatchedTip':
     'Εδώ κανένα μονοπάτι δεν βρίσκεται σαφώς κάτω από τη γραμμή της διαδρομής, οπότε δεν εμφανίζεται τίποτα.',
+  'tours.hike.ways.unaskedTip':
+    'Δεν ήταν δυνατή η αναζήτηση αυτών των μονοπατιών στο OpenStreetMap αυτή τη φορά. Άγνωστο δεν σημαίνει εύκολο.',
   'tours.hike.ways.known': 'Γνωστό',
   'tours.hike.sac.knownTip':
     'Το μέρος της διαδρομής για το οποίο το OpenStreetMap δίνει βαθμό SAC. Το υπόλοιπο είναι άγνωστο.',

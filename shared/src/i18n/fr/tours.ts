@@ -543,6 +543,8 @@ const tours: TranslationStrings = {
     'OpenStreetMap ne donne aucun sac_scale à ces chemins. Inconnu ne veut pas dire facile.',
   'tours.hike.sac.unclearTip': 'OpenStreetMap indique ici {tags}, ce qui ne désigne aucun degré précis.',
   'tours.hike.ways.unmatchedTip': 'Aucun chemin ne se trouve clairement sous le tracé ici, donc rien n’y est affiché.',
+  'tours.hike.ways.unaskedTip':
+    'OpenStreetMap n’a pas pu être interrogé sur ces chemins cette fois. Inconnu ne veut pas dire facile.',
   'tours.hike.ways.known': 'Connu',
   'tours.hike.sac.knownTip': 'La part de l’itinéraire dont OpenStreetMap donne la cotation SAC. Le reste est inconnu.',
   'tours.hike.sac.highest': 'Plus haute connue',

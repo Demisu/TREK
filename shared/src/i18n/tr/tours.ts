@@ -529,6 +529,7 @@ const tours: TranslationStrings = {
   'tours.hike.sac.untaggedTip': 'OpenStreetMap bu yollara sac_scale vermiyor. Bilinmiyor kolay demek değildir.',
   'tours.hike.sac.unclearTip': 'OpenStreetMap burada {tags} yazıyor; bu tek bir derece belirtmiyor.',
   'tours.hike.ways.unmatchedTip': 'Burada turun çizgisinin altında net bir yol yok, bu yüzden bir şey gösterilmiyor.',
+  'tours.hike.ways.unaskedTip': 'Bu sefer OpenStreetMap bu yollar için sorgulanamadı. Bilinmiyor kolay demek değildir.',
   'tours.hike.ways.known': 'Bilinen',
   'tours.hike.sac.knownTip': 'Rotanın, OpenStreetMap’in SAC derecesi verdiği payı. Gerisi bilinmiyor.',
   'tours.hike.sac.highest': 'En yüksek bilinen',

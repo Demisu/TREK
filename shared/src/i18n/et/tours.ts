@@ -530,6 +530,8 @@ const tours: TranslationStrings = {
   'tours.hike.sac.unclearTip': 'OpenStreetMap märgib siin {tags}, mis ei nimeta ühte astet.',
   'tours.hike.ways.unmatchedTip':
     'Siin ei asu ükski rada selgelt matka joone all, seega selle kohta midagi ei näidata.',
+  'tours.hike.ways.unaskedTip':
+    'Seekord ei õnnestunud OpenStreetMapilt nende radade kohta pärida. Teadmata ei tähenda kerget.',
   'tours.hike.ways.known': 'Teada',
   'tours.hike.sac.knownTip': 'Marsruudi osa, mille SAC raskusastme OpenStreetMap annab. Ülejäänu on teadmata.',
   'tours.hike.sac.highest': 'Kõrgeim teadaolev',

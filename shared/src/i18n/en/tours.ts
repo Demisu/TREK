@@ -526,6 +526,8 @@ const tours: TranslationStrings = {
   'tours.hike.sac.untaggedTip': 'OpenStreetMap gives these ways no sac_scale. Unknown does not mean easy.',
   'tours.hike.sac.unclearTip': 'OpenStreetMap writes {tags} here, which names no single step.',
   'tours.hike.ways.unmatchedTip': 'No way lies clearly under the line of the tour here, so nothing is shown for it.',
+  'tours.hike.ways.unaskedTip':
+    'OpenStreetMap could not be asked about these ways this time. Unknown does not mean easy.',
   'tours.hike.ways.known': 'Known',
   'tours.hike.sac.knownTip': 'The share of the route whose SAC grade OpenStreetMap gives. The rest is unknown.',
   'tours.hike.sac.highest': 'Highest known',

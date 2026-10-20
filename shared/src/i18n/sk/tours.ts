@@ -529,6 +529,7 @@ const tours: TranslationStrings = {
   'tours.hike.sac.unclearTip': 'OpenStreetMap tu uvádza {tags}, čo neoznačuje jediný stupeň.',
   'tours.hike.ways.unmatchedTip':
     'Tu pod líniou túry jednoznačne neleží žiadna cesta, preto sa pre ňu nič nezobrazuje.',
+  'tours.hike.ways.unaskedTip': 'OpenStreetMap sa tentoraz na tieto cesty nepodarilo opýtať. Neznáme neznamená ľahké.',
   'tours.hike.ways.known': 'Známe',
   'tours.hike.sac.knownTip': 'Podiel trasy, pre ktorý OpenStreetMap uvádza stupeň SAC. Zvyšok je neznámy.',
   'tours.hike.sac.highest': 'Najvyšší známy',

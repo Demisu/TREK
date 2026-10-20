@@ -537,6 +537,7 @@ const tours: TranslationStrings = {
   'tours.hike.sac.untaggedTip': 'لا يعطي OpenStreetMap هذه الطرق قيمة sac_scale. غير معروف لا يعني سهلًا.',
   'tours.hike.sac.unclearTip': 'يكتب OpenStreetMap هنا {tags}، وهذا لا يحدد درجة واحدة.',
   'tours.hike.ways.unmatchedTip': 'لا يقع هنا أي طريق بوضوح تحت خط الجولة، لذلك لا يُعرض له شيء.',
+  'tours.hike.ways.unaskedTip': 'تعذّر الاستعلام من OpenStreetMap عن هذه الطرق هذه المرة. غير معروف لا يعني سهلًا.',
   'tours.hike.ways.known': 'معروف',
   'tours.hike.sac.knownTip': 'جزء المسار الذي يعطي OpenStreetMap درجته في SAC. الباقي غير معروف.',
   'tours.hike.sac.highest': 'الأعلى المعروف',

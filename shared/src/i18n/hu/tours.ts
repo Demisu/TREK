@@ -538,6 +538,8 @@ const tours: TranslationStrings = {
   'tours.hike.sac.unclearTip': 'Az OpenStreetMap itt ezt írja: {tags}, ami nem egyetlen fokozatot jelöl.',
   'tours.hike.ways.unmatchedTip':
     'Itt egyetlen út sem fut egyértelműen a túra vonala alatt, ezért ehhez nem jelenik meg semmi.',
+  'tours.hike.ways.unaskedTip':
+    'Az OpenStreetMapet ezúttal nem sikerült lekérdezni ezekről az utakról. Az ismeretlen nem jelent könnyűt.',
   'tours.hike.ways.known': 'Ismert',
   'tours.hike.sac.knownTip': 'Az útvonal azon része, amelyhez az OpenStreetMap SAC-fokozatot ad. A többi ismeretlen.',
   'tours.hike.sac.highest': 'Legmagasabb ismert',

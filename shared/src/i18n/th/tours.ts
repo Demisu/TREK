@@ -506,6 +506,7 @@ const tours: TranslationStrings = {
   'tours.hike.sac.untaggedTip': 'OpenStreetMap ไม่ได้ระบุ sac_scale ให้ทางเหล่านี้ ไม่ทราบไม่ได้แปลว่าง่าย',
   'tours.hike.sac.unclearTip': 'OpenStreetMap เขียนไว้ที่นี่ว่า {tags} ซึ่งไม่ได้ระบุระดับเดียว',
   'tours.hike.ways.unmatchedTip': 'ที่นี่ไม่มีทางใดอยู่ใต้เส้นของทัวร์อย่างชัดเจน จึงไม่แสดงสิ่งใด',
+  'tours.hike.ways.unaskedTip': 'ครั้งนี้สอบถาม OpenStreetMap เกี่ยวกับทางเหล่านี้ไม่ได้ ไม่ทราบไม่ได้แปลว่าง่าย',
   'tours.hike.ways.known': 'ทราบแล้ว',
   'tours.hike.sac.knownTip': 'สัดส่วนของเส้นทางที่ OpenStreetMap ระบุระดับ SAC ส่วนที่เหลือไม่ทราบ',
   'tours.hike.sac.highest': 'สูงสุดที่ทราบ',

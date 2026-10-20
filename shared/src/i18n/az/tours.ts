@@ -529,6 +529,7 @@ const tours: TranslationStrings = {
   'tours.hike.sac.unclearTip': 'OpenStreetMap burada {tags} yazır, bu isə tək bir dərəcə bildirmir.',
   'tours.hike.ways.unmatchedTip':
     'Burada turun xətti altında aydın bir yol yoxdur, ona görə onun üçün heç nə göstərilmir.',
+  'tours.hike.ways.unaskedTip': 'Bu dəfə OpenStreetMap-dən bu yollar barədə sorğu alınmadı. Naməlum asan demək deyil.',
   'tours.hike.ways.known': 'Məlum',
   'tours.hike.sac.knownTip': 'Marşrutun OpenStreetMap-in SAC dərəcəsi verdiyi hissəsi. Qalanı naməlumdur.',
   'tours.hike.sac.highest': 'Ən yüksək məlum',

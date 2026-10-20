@@ -535,6 +535,8 @@ const tours: TranslationStrings = {
   'tours.hike.sac.unclearTip': 'O OpenStreetMap indica aqui {tags}, que não nomeia um único grau.',
   'tours.hike.ways.unmatchedTip':
     'Aqui nenhuma trilha fica claramente sob a linha do passeio, então nada é mostrado para ela.',
+  'tours.hike.ways.unaskedTip':
+    'Desta vez não foi possível consultar o OpenStreetMap sobre estas trilhas. Desconhecido não quer dizer fácil.',
   'tours.hike.ways.known': 'Conhecido',
   'tours.hike.sac.knownTip': 'A parte da rota cujo grau SAC o OpenStreetMap informa. O resto é desconhecido.',
   'tours.hike.sac.highest': 'Maior conhecido',

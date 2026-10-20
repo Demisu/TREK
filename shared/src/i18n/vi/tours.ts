@@ -526,6 +526,8 @@ const tours: TranslationStrings = {
   'tours.hike.sac.untaggedTip': 'OpenStreetMap không gán sac_scale cho các đường này. Không rõ không có nghĩa là dễ.',
   'tours.hike.sac.unclearTip': 'OpenStreetMap ghi {tags} ở đây, không chỉ một cấp độ duy nhất.',
   'tours.hike.ways.unmatchedTip': 'Ở đây không có đường nào nằm rõ dưới tuyến của chuyến đi, nên không hiển thị gì.',
+  'tours.hike.ways.unaskedTip':
+    'Lần này không truy vấn được OpenStreetMap về các đường này. Không rõ không có nghĩa là dễ.',
   'tours.hike.ways.known': 'Đã biết',
   'tours.hike.sac.knownTip': 'Phần tuyến đường mà OpenStreetMap cho biết cấp độ SAC. Phần còn lại không rõ.',
   'tours.hike.sac.highest': 'Cao nhất đã biết',

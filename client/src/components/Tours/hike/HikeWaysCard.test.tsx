@@ -12,7 +12,7 @@ vi.mock('./useHikeWays', () => ({
   },
 }));
 
-// FE-HIKE-WAYSCARD-001 to FE-HIKE-WAYSCARD-011
+// FE-HIKE-WAYSCARD-001 to FE-HIKE-WAYSCARD-012
 
 const LINE: [number, number][] = [
   [47.0, 11.0],
@@ -153,8 +153,8 @@ describe('HikeWaysCard (MAP-03, MAP-04)', () => {
     await tooltipOf('sac-row-unclear', /T3, hiking;mountain_hiking/);
     await tooltipOf('sac-row-untagged', /Unknown does not mean easy/);
     await tooltipOf('sac-row-unmatched', /no way lies clearly under the line/i);
-    // A way that could not be asked about says so in its row; there is nothing more to name.
     expect(screen.getByTestId('sac-row-unasked')).toHaveTextContent('Could not be asked this time');
+    await tooltipOf('sac-row-unasked', /could not be asked about these ways this time/);
   });
 
   it('FE-HIKE-WAYSCARD-009: the surfaces list their groups, the most common one, and no grade or routing limit', () => {
@@ -189,5 +189,17 @@ describe('HikeWaysCard (MAP-03, MAP-04)', () => {
     await tooltipOf('way-row-path', 'Recorded in OpenStreetMap as highway=path');
     fireEvent.click(screen.getByTestId('way-row-track'));
     expect(state.focusOn).toHaveBeenCalledWith('track');
+  });
+
+  it('FE-HIKE-WAYSCARD-012: ways that could not be asked this time may be asked again from the list, and only then', () => {
+    const state = ways();
+    const partial = show(state);
+    const unknown = screen.getByText('Unknown').parentElement as HTMLElement;
+    fireEvent.click(within(unknown).getByRole('button', { name: /try again/i }));
+    expect(state.retry).toHaveBeenCalledTimes(1);
+    partial.unmount();
+    show(ways({ rows: SAC_ROWS.filter((row) => row.key !== 'unasked') }));
+    expect(screen.getByTestId('sac-row-unmatched')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /try again/i })).toBeNull();
   });
 });

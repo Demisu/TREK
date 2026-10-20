@@ -483,6 +483,7 @@ const tours: TranslationStrings = {
   'tours.hike.sac.untaggedTip': 'OpenStreetMap 未给这些道路标注 sac_scale。未知并不代表容易。',
   'tours.hike.sac.unclearTip': 'OpenStreetMap 在此处写的是 {tags}，并未指明单一等级。',
   'tours.hike.ways.unmatchedTip': '此处没有道路明确位于路线下方，因此不显示任何内容。',
+  'tours.hike.ways.unaskedTip': '本次无法向 OpenStreetMap 查询这些道路。未知并不代表容易。',
   'tours.hike.ways.known': '已知',
   'tours.hike.sac.knownTip': 'OpenStreetMap 给出 SAC 难度的路线比例。其余为未知。',
   'tours.hike.sac.highest': '已知最高',
