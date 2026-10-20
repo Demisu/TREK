@@ -325,7 +325,10 @@ describe('Bike tours e2e (real guards + temp SQLite)', () => {
       overpassQuery.mockReset();
       placesWayTags.mockResolvedValueOnce({
         ok: true,
-        value: [{ type: 'way', id: 21, tags: { 'mtb:scale': '1', surface: 'gravel', highway: 'track' } }],
+        value: {
+          complete: true,
+          ways: [{ type: 'way', id: 21, tags: { 'mtb:scale': '1', surface: 'gravel', highway: 'track' } }],
+        },
       });
       const res = await ask({ way_ids: [21, 22] }, VIEWER);
       expect(res.status).toBe(200);

@@ -6,7 +6,7 @@ import {
   type TrekPlacesMiss,
   type TrekPlacesRoutes,
   type TrekPlacesRouteType,
-  type TrekWayTags,
+  type TrekWaysAnswer,
 } from './trek-places.client';
 import { Injectable } from '@nestjs/common';
 
@@ -37,8 +37,16 @@ const WHY: Record<TrekPlacesMiss, string> = {
 export class TrekPlacesLayersService {
   private readonly told = new Map<Layer, TrekPlacesMiss>();
 
-  wayTags(ids: readonly number[]): Promise<TrekPlacesLayerRead<TrekWayTags[]>> {
-    return this.read('ways', () => trekPlacesWays(ids));
+  /**
+   * An answer that stopped part way is still an answer: the caller keeps what
+   * came and asks elsewhere for the rest. Why it stopped is said like a miss.
+   */
+  wayTags(ids: readonly number[]): Promise<TrekPlacesLayerRead<TrekWaysAnswer>> {
+    return this.read(
+      'ways',
+      () => trekPlacesWays(ids),
+      (answer) => (answer.complete ? null : { failure: answer.failure }),
+    );
   }
 
   routes(
@@ -49,10 +57,16 @@ export class TrekPlacesLayersService {
     return this.read('routes', () => trekPlacesRoutes(bbox, type, limits));
   }
 
-  private async read<T>(layer: Layer, ask: () => Promise<T>): Promise<TrekPlacesLayerRead<T>> {
+  private async read<T>(
+    layer: Layer,
+    ask: () => Promise<T>,
+    shortOf: (value: T) => { failure: unknown } | null = () => null,
+  ): Promise<TrekPlacesLayerRead<T>> {
     try {
       const value = await ask();
-      this.told.delete(layer);
+      const short = shortOf(value);
+      if (short) this.tell(layer, trekPlacesMiss(short.failure), short.failure);
+      else this.told.delete(layer);
       return { ok: true, value };
     } catch (err: unknown) {
       const miss = trekPlacesMiss(err);

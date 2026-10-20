@@ -74,6 +74,8 @@ Every request goes out from your TREK server, never from a browser, so the servi
 | The trip's area as a box | Preparing a trip for offline use |
 | The index id of one place | Opening a place picked from the index |
 | A venue name | Booking imports and route imports |
+| The OpenStreetMap way ids a planned tour runs on | Tours trail grades, surfaces and kinds of way |
+| The map view as a box, grown to a 0.05 degree grid | Tours horse routes |
 | An `X-TREK-Instance` header | Every request |
 
 The header carries an opaque token derived from your instance's own address, so the service can rate-limit each instance on its own instead of everyone behind one IP. Set `APP_URL` (or `ALLOWED_ORIGINS`): without either, the token is derived from the port alone, and two unconfigured installs on the same port share one rate-limit bucket.
@@ -127,7 +129,7 @@ Defaults and details for each are on [Environment Variables](Environment-Variabl
 
 ## When the service cannot be reached
 
-Nothing breaks. Every call has a short deadline, 3.5 seconds for anything somebody is waiting on and 20 seconds for an offline download, and every call site falls back to what TREK did before the index existed. After four calls in a row that got no answer or a server error, TREK stops asking for a minute and takes the fallback straight away, so an instance that cannot reach the service does not pay the deadline on every keystroke. The first call after that minute tries again, and one answer resets the count.
+Nothing breaks. Every call has a short deadline, 3.5 seconds for a search, 10 seconds per batch of tour ways, 20 seconds for an offline download or a view of routes, and every call site falls back to what TREK did before the index existed. After four calls in a row that got no answer or a server error, TREK stops asking for a minute and takes the fallback straight away, so an instance that cannot reach the service does not pay the deadline on every keystroke. The first call after that minute tries again, and one answer resets the count. Place search and the ways and routes of Tours are counted apart, so a busy answer to a heavy tour never pauses the search. When a tour's ways stop answering part way, Tours keeps the batches that came and asks the Overpass mirrors only for the rest.
 
 | What you see | What it usually means |
 |---|---|
@@ -135,6 +137,7 @@ Nothing breaks. Every call has a short deadline, 3.5 seconds for anything somebo
 | `TREK Places search failed, falling back: …` in the server log | The same, or the service could not be reached. The text after the colon says which. |
 | `TREK Places API unreachable, not retrying yet` in the server log | Four calls in a row got no answer and TREK is waiting out the minute. Check that the server can reach `places.liketrek.com` (or your `TREK_PLACES_URL`) and your proxy settings. |
 | `TREK Places area lookup failed: …` in the server log | A trip's surroundings could not be downloaded for offline use. The trip itself still syncs. |
+| `[TrekPlaces] /v1/ways: …; asking the Overpass mirrors instead` (or `/v1/routes`) in the server log | Logged once per reason: the layer is switched off, not built yet on the service, or did not answer. Tours keeps using Overpass. |
 | The category buttons take seconds | They are being answered by Overpass, because the index had nothing for that area or is switched off. |
 
 ## See also

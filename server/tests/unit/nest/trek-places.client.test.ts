@@ -878,7 +878,7 @@ describe('indexRowTerm (#2663)', () => {
   });
 });
 
-// TREK-PLACES-WAYS-01 to 05, TREK-PLACES-ROUTES-01 to 05, TREK-PLACES-MISS-01
+// TREK-PLACES-WAYS-01 to 06, TREK-PLACES-ROUTES-01 to 05, TREK-PLACES-MISS-01, TREK-PLACES-BREAKER-01 to 03
 
 /** A fetch answering each call with the next of `answers`, the last one again once they run out. */
 function stubFetchSequence(answers: { body: unknown; status?: number }[]) {
@@ -911,17 +911,20 @@ describe('trekPlacesWays', () => {
       missing: [13],
       keys: ['highway', 'mtb:scale'],
     });
-    const ways = await trekPlacesWays([11, 12, 13]);
+    const answer = await trekPlacesWays([11, 12, 13]);
     const url = new URL(calls[0].url);
     expect(url.pathname).toBe('/v1/ways');
     expect(url.searchParams.get('ids')).toBe('11,12,13');
     expect((calls[0].init?.headers as Record<string, string>)['X-TREK-Instance']).toMatch(/^trek-/);
     expect(calls[0].init?.signal).toBeInstanceOf(AbortSignal);
     // A way without tags reads as one without tags, never as a malformed row.
-    expect(ways).toEqual([
-      { type: 'way', id: 11, tags: { 'mtb:scale': '2', highway: 'path' } },
-      { type: 'way', id: 12, tags: {} },
-    ]);
+    expect(answer).toEqual({
+      complete: true,
+      ways: [
+        { type: 'way', id: 11, tags: { 'mtb:scale': '2', highway: 'path' } },
+        { type: 'way', id: 12, tags: {} },
+      ],
+    });
   });
 
   it('TREK-PLACES-WAYS-02: asks in batches of 500, one after another, each id once, and nothing for no id', async () => {
@@ -932,8 +935,8 @@ describe('trekPlacesWays', () => {
     expect(askedIds(calls[0])?.startsWith('1,2,3,')).toBe(true);
     expect(askedIds(calls[2])?.endsWith(',1200')).toBe(true);
     calls = [];
-    await expect(trekPlacesWays([])).resolves.toEqual([]);
-    await expect(trekPlacesWays([0, -1])).resolves.toEqual([]);
+    await expect(trekPlacesWays([])).resolves.toEqual({ complete: true, ways: [] });
+    await expect(trekPlacesWays([0, -1])).resolves.toEqual({ complete: true, ways: [] });
     expect(calls).toHaveLength(0);
   });
 
@@ -947,7 +950,7 @@ describe('trekPlacesWays', () => {
         'row',
       ],
     });
-    expect(await trekPlacesWays([1, 2, 3])).toEqual([{ type: 'way', id: 1, tags: { surface: 'gravel' } }]);
+    expect((await trekPlacesWays([1, 2, 3])).ways).toEqual([{ type: 'way', id: 1, tags: { surface: 'gravel' } }]);
   });
 
   it('TREK-PLACES-WAYS-04: an answer without elements fails rather than reading as ways without tags', async () => {
@@ -957,12 +960,27 @@ describe('trekPlacesWays', () => {
     await expect(trekPlacesWays([1])).rejects.toThrow('without elements');
   });
 
-  it('TREK-PLACES-WAYS-05: a batch that fails fails the call and asks no further, and the off switch asks nothing', async () => {
-    stubFetchSequence([{ body: { elements: [] } }, { body: {}, status: 503 }, { body: { elements: [] } }]);
+  it('TREK-PLACES-WAYS-05: a later batch that fails stops there and names the ids still open', async () => {
+    stubFetchSequence([
+      { body: { elements: [{ type: 'way', id: 2, tags: { surface: 'gravel' } }] } },
+      { body: { detail: 'busy' }, status: 503 },
+      { body: { elements: [] } },
+    ]);
+    const ids = Array.from({ length: 1400 }, (_, index) => index + 1);
+    const answer = await trekPlacesWays(ids);
+    expect(calls).toHaveLength(2);
+    if (answer.complete) throw new Error('expected an answer that stopped part way');
+    expect(answer.ways).toEqual([{ type: 'way', id: 2, tags: { surface: 'gravel' } }]);
+    expect(answer.unanswered).toEqual(ids.slice(500));
+    expect(trekPlacesMiss(answer.failure)).toBe('failed');
+  });
+
+  it('TREK-PLACES-WAYS-06: a first batch that fails fails the call and asks no further, and the off switch asks nothing', async () => {
+    stubFetchSequence([{ body: {}, status: 503 }, { body: { elements: [] } }]);
     const ids = Array.from({ length: 1400 }, (_, index) => index + 1);
     const failure = await trekPlacesWays(ids).catch((err: unknown) => err);
     expect(trekPlacesMiss(failure)).toBe('failed');
-    expect(calls).toHaveLength(2);
+    expect(calls).toHaveLength(1);
     stubFetch({}, 404);
     expect(trekPlacesMiss(await trekPlacesWays([1]).catch((err: unknown) => err))).toBe('not_built');
     env.maps.trekPlacesEnabled = false;
@@ -1062,5 +1080,41 @@ describe('trekPlacesMiss', () => {
     expect(trekPlacesMiss(new Error('aborted'))).toBe('failed');
     expect(trekPlacesMiss(null)).toBe('failed');
     expect(trekPlacesMiss('nope')).toBe('failed');
+  });
+});
+
+describe('the layers breaker', () => {
+  const VIEW = { south: 47.1, west: 11.2, north: 47.2, east: 11.3 };
+  const CAPS = { relations: 60, ways: 4000 };
+
+  it('TREK-PLACES-BREAKER-01: busy layer answers never stop place search', async () => {
+    stubFetch({ detail: 'busy' }, 503);
+    for (let i = 0; i < 4; i++) {
+      await expect(trekPlacesRoutes(VIEW, 'horse', CAPS)).rejects.toThrow(/503/);
+    }
+    stubFetch({ query: 'x', results: [PLACE] });
+    await expect(trekPlacesSearch('x')).resolves.toHaveLength(1);
+    expect(calls).toHaveLength(1);
+  });
+
+  it('TREK-PLACES-BREAKER-02: the layers stop dialling on their own after a few failures', async () => {
+    stubFetch({ detail: 'busy' }, 503);
+    for (let i = 0; i < 4; i++) await expect(trekPlacesWays([1])).rejects.toThrow(/503/);
+    const dialled = calls.length;
+    await expect(trekPlacesRoutes(VIEW, 'horse', CAPS)).rejects.toThrow('unreachable, not retrying yet');
+    await expect(trekPlacesWays([1])).rejects.toThrow('unreachable, not retrying yet');
+    expect(calls).toHaveLength(dialled);
+  });
+
+  it('TREK-PLACES-BREAKER-03: a layer not built yet does not clear the count of search failures', async () => {
+    stubFetch({}, 503);
+    for (let i = 0; i < 3; i++) await expect(trekPlacesSearch('x')).rejects.toThrow(/503/);
+    stubFetch({ detail: 'not built' }, 404);
+    await expect(trekPlacesWays([1])).rejects.toThrow(/404/);
+    stubFetch({}, 503);
+    await expect(trekPlacesSearch('x')).rejects.toThrow(/503/);
+    calls = [];
+    await expect(trekPlacesSearch('x')).rejects.toThrow('unreachable, not retrying yet');
+    expect(calls).toHaveLength(0);
   });
 });

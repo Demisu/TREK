@@ -104,17 +104,20 @@ export class TourTrailGradeService {
 
   /**
    * Reads the grades of the ways not kept yet into what is kept: from the ways
-   * layer in one go, else from the mirrors part by part. Gives back the ways
-   * no source answered.
+   * layer first, then from the mirrors part by part for the ways the layer
+   * did not answer (all of them when it gave nothing, only the rest when it
+   * stopped part way). Gives back the ways no source answered.
    */
   private async read(ids: number[], now: number): Promise<number[]> {
     const layer = await this.layers.wayTags(ids);
+    let rest = ids;
     if (layer.ok) {
-      this.keepAll(ids, layer.value, now);
-      return [];
+      const open = new Set(layer.value.complete ? [] : layer.value.unanswered);
+      this.keepAll(ids.filter((id) => !open.has(id)), layer.value.ways, now);
+      rest = ids.filter((id) => open.has(id));
     }
-    const parts = Array.from({ length: Math.ceil(ids.length / WAYS_PER_QUERY) }, (_, index) =>
-      ids.slice(index * WAYS_PER_QUERY, (index + 1) * WAYS_PER_QUERY),
+    const parts = Array.from({ length: Math.ceil(rest.length / WAYS_PER_QUERY) }, (_, index) =>
+      rest.slice(index * WAYS_PER_QUERY, (index + 1) * WAYS_PER_QUERY),
     );
     // One question after another, so a long tour does not flood the shared mirrors.
     return parts.reduce<Promise<number[]>>(async (done, part) => {

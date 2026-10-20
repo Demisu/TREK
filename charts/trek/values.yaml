@@ -102,8 +102,8 @@ env:
   # lower value hangs up on answers that were still coming. Raise it for a slow self-hosted Overpass instance.
   # Defaults to 25000.
   # TREK_PLACES_ENABLED: "false"
-  # Place search (suggestions, full search, category buttons, Road trip search, import geocoding, offline downloads)
-  # asks the TREK Places API at https://places.liketrek.com by default, so the pod makes outbound requests to that
+  # Place search (suggestions, full search, category buttons, Road trip search, import geocoding, offline downloads,
+  # and the OpenStreetMap ways and horse routes Tours reads) asks the TREK Places API at https://places.liketrek.com by default, so the pod makes outbound requests to that
   # host. Set "false" to search the way it did before 4.3.0 (OpenStreetMap, or your Google/Amap key) and send
   # nothing there. There is no switch in the admin panel on purpose: whether searches leave the instance is decided
   # here. Defaults to on.

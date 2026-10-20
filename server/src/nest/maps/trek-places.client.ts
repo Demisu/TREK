@@ -138,8 +138,23 @@ function instanceToken(): string {
  */
 const BREAKER_FAILURES_BEFORE_OPEN = 4;
 const BREAKER_COOLDOWN_MS = 60_000;
-let breakerFailures = 0;
-let breakerOpenUntil = 0;
+
+interface Breaker {
+  failures: number;
+  openUntil: number;
+}
+
+/**
+ * Place search (autocomplete, full search, the category pills, the offline
+ * download, the lookup by id) shares one breaker. The OpenStreetMap layers
+ * Tours reads have their own: the service answers a heavy layer query with a
+ * 503 when it interrupts it, and a view of routes may run its full 20 s, so a
+ * few busy layer answers would otherwise send every keystroke to the fallback
+ * for a minute although the service is there. The other way round, a layer's
+ * 404 for "not built yet" would clear the count of real search failures.
+ */
+const searchBreaker: Breaker = { failures: 0, openUntil: 0 };
+const layersBreaker: Breaker = { failures: 0, openUntil: 0 };
 
 /**
  * Whether a failure says anything about reachability.
@@ -158,8 +173,10 @@ function countsAgainstReachability(err: unknown): boolean {
 
 /** Test seam: the breaker is process state, so a suite has to be able to clear it. */
 export function resetTrekPlacesBreaker(): void {
-  breakerFailures = 0;
-  breakerOpenUntil = 0;
+  for (const breaker of [searchBreaker, layersBreaker]) {
+    breaker.failures = 0;
+    breaker.openUntil = 0;
+  }
 }
 
 const SWITCHED_OFF_MESSAGE = 'TREK Places API is switched off on this instance';
@@ -186,8 +203,9 @@ export function trekPlacesBaseUrl(): string {
 async function getJson<T>(
   path: string,
   params: Record<string, string | number | undefined>,
-  opts: { maxBytes?: number; timeoutMs?: number } = {},
+  opts: { maxBytes?: number; timeoutMs?: number; breaker?: Breaker } = {},
 ): Promise<T> {
+  const breaker = opts.breaker ?? searchBreaker;
   // TREK_PLACES_ENABLED=false is the operator's word that nothing leaves for
   // the index. Every caller checks it before asking, and this is the one place
   // every request passes, so a caller that did not is still stopped here. Ahead
@@ -201,7 +219,7 @@ async function getJson<T>(
     if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, String(v));
   }
 
-  if (Date.now() < breakerOpenUntil) {
+  if (Date.now() < breaker.openUntil) {
     throw new Error('TREK Places API unreachable, not retrying yet');
   }
 
@@ -225,21 +243,21 @@ async function getJson<T>(
     const text = await readCapped(res, opts.maxBytes ?? MAX_BYTES);
     const parsed = JSON.parse(text) as T;
     // An answer of any kind means the service is there.
-    breakerFailures = 0;
+    breaker.failures = 0;
     return parsed;
   } catch (err: unknown) {
     if (countsAgainstReachability(err)) {
-      breakerFailures += 1;
-      if (breakerFailures >= BREAKER_FAILURES_BEFORE_OPEN) {
-        breakerOpenUntil = Date.now() + BREAKER_COOLDOWN_MS;
+      breaker.failures += 1;
+      if (breaker.failures >= BREAKER_FAILURES_BEFORE_OPEN) {
+        breaker.openUntil = Date.now() + BREAKER_COOLDOWN_MS;
         // Back to the threshold rather than to zero: when the cooldown ends,
         // one more failure re-opens the breaker instead of buying another four
         // full timeouts.
-        breakerFailures = BREAKER_FAILURES_BEFORE_OPEN - 1;
+        breaker.failures = BREAKER_FAILURES_BEFORE_OPEN - 1;
       }
     } else {
       // The service answered. A 404 is an answer.
-      breakerFailures = 0;
+      breaker.failures = 0;
     }
     throw err;
   } finally {
@@ -744,7 +762,11 @@ const elementsAnswerSchema = z.object({ elements: z.array(z.unknown()) });
  * having no grade.
  */
 async function trekPlacesWaysPart(ids: readonly number[]): Promise<TrekWayTags[]> {
-  const body = await getJson<unknown>('/v1/ways', { ids: ids.join(',') }, { timeoutMs: WAYS_TIMEOUT_MS });
+  const body = await getJson<unknown>(
+    '/v1/ways',
+    { ids: ids.join(',') },
+    { timeoutMs: WAYS_TIMEOUT_MS, breaker: layersBreaker },
+  );
   const answer = elementsAnswerSchema.safeParse(body);
   if (!answer.success) throw new Error('TREK Places API answered /v1/ways without elements');
   const asked = new Set(ids);
@@ -752,19 +774,36 @@ async function trekPlacesWaysPart(ids: readonly number[]): Promise<TrekWayTags[]
 }
 
 /**
- * The tags of OpenStreetMap ways by id, from the ways layer. Asked in batches
- * of WAYS_MAX_IDS, one after another; the first batch that fails fails the
- * whole call, so the caller never mistakes half an answer for all of it.
+ * What the ways layer answered for a tour: every batch (`complete`), or the
+ * batches before the one that failed, with the ids that batch and the ones
+ * after it held, and why it failed. The caller asks another source for those
+ * ids only, never again for the ways already answered.
  */
-export async function trekPlacesWays(ids: readonly number[]): Promise<TrekWayTags[]> {
+export type TrekWaysAnswer =
+  | { complete: true; ways: TrekWayTags[] }
+  | { complete: false; ways: TrekWayTags[]; unanswered: number[]; failure: unknown };
+
+/**
+ * The tags of OpenStreetMap ways by id, from the ways layer. Asked in batches
+ * of WAYS_MAX_IDS, one after another. When the first batch fails the call
+ * throws, as the layer gave nothing. When a later one fails, nothing more is
+ * asked (a service that just failed would mostly cost one more deadline per
+ * batch) and the answer says which ids are still open.
+ */
+export async function trekPlacesWays(ids: readonly number[]): Promise<TrekWaysAnswer> {
   const wanted = [...new Set(ids)].filter((id) => osmIdSchema.safeParse(id).success);
-  const parts = Array.from({ length: Math.ceil(wanted.length / WAYS_MAX_IDS) }, (_, index) =>
-    wanted.slice(index * WAYS_MAX_IDS, (index + 1) * WAYS_MAX_IDS),
-  );
-  return parts.reduce<Promise<TrekWayTags[]>>(
-    async (done, part) => [...(await done), ...(await trekPlacesWaysPart(part))],
-    Promise.resolve([]),
-  );
+  const starts = Array.from({ length: Math.ceil(wanted.length / WAYS_MAX_IDS) }, (_, index) => index * WAYS_MAX_IDS);
+  return starts.reduce<Promise<TrekWaysAnswer>>(async (previous, start) => {
+    const done = await previous;
+    if (!done.complete) return done;
+    try {
+      const part = await trekPlacesWaysPart(wanted.slice(start, start + WAYS_MAX_IDS));
+      return { complete: true, ways: [...done.ways, ...part] };
+    } catch (failure: unknown) {
+      if (start === 0) throw failure;
+      return { complete: false, ways: done.ways, unanswered: wanted.slice(start), failure };
+    }
+  }, Promise.resolve<TrekWaysAnswer>({ complete: true, ways: [] }));
 }
 
 /**
@@ -786,7 +825,7 @@ export async function trekPlacesRoutes(
       limitRelations: clampedInt(limits.relations, 1, ROUTES_MAX_RELATIONS),
       limitWays: clampedInt(limits.ways, 1, ROUTES_MAX_WAYS),
     },
-    { maxBytes: ROUTES_MAX_BYTES, timeoutMs: ROUTES_TIMEOUT_MS },
+    { maxBytes: ROUTES_MAX_BYTES, timeoutMs: ROUTES_TIMEOUT_MS, breaker: layersBreaker },
   );
   const answer = elementsAnswerSchema.extend({ truncated: z.unknown() }).safeParse(body);
   if (!answer.success) throw new Error('TREK Places API answered /v1/routes without elements');

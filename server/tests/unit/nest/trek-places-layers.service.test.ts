@@ -11,7 +11,7 @@ import { Test } from '@nestjs/testing';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// TREK-LAYERS-001 to TREK-LAYERS-006
+// TREK-LAYERS-001 to TREK-LAYERS-007
 
 vi.mock('../../../src/nest/audit/audit-log.logger', () => ({
   LOG_LEVEL: 'error',
@@ -54,11 +54,11 @@ beforeEach(async () => {
 
 describe('TrekPlacesLayersService', () => {
   it('TREK-LAYERS-001: hands on what a layer answered, asked as the caller asked', async () => {
-    ways.mockResolvedValue([{ type: 'way', id: 1, tags: { highway: 'path' } }]);
+    ways.mockResolvedValue({ complete: true, ways: [{ type: 'way', id: 1, tags: { highway: 'path' } }] });
     routes.mockResolvedValue({ elements: [], truncated: true });
     expect(await service.wayTags([1, 2])).toEqual({
       ok: true,
-      value: [{ type: 'way', id: 1, tags: { highway: 'path' } }],
+      value: { complete: true, ways: [{ type: 'way', id: 1, tags: { highway: 'path' } }] },
     });
     expect(await service.routes(BOX, 'horse', CAPS)).toEqual({ ok: true, value: { elements: [], truncated: true } });
     expect(ways).toHaveBeenCalledWith([1, 2]);
@@ -103,9 +103,12 @@ describe('TrekPlacesLayersService', () => {
   });
 
   it('TREK-LAYERS-005: after a layer answered, the same failure is said again', async () => {
-    ways.mockRejectedValueOnce(down()).mockResolvedValueOnce([]).mockRejectedValueOnce(down());
+    ways
+      .mockRejectedValueOnce(down())
+      .mockResolvedValueOnce({ complete: true, ways: [] })
+      .mockRejectedValueOnce(down());
     await service.wayTags([1]);
-    expect(await service.wayTags([1])).toEqual({ ok: true, value: [] });
+    expect(await service.wayTags([1])).toEqual({ ok: true, value: { complete: true, ways: [] } });
     await service.wayTags([1]);
     expect(warn).toHaveBeenCalledTimes(2);
   });
@@ -118,5 +121,26 @@ describe('TrekPlacesLayersService', () => {
     await service.wayTags([1]);
     await service.routes(BOX, 'horse', CAPS);
     expect(info.mock.calls.map(([line]) => line.includes('/v1/ways'))).toEqual([true, false]);
+  });
+
+  it('TREK-LAYERS-007: an answer that stopped part way is handed on, and why it stopped is said once', async () => {
+    const partial = {
+      complete: false as const,
+      ways: [{ type: 'way' as const, id: 1, tags: {} }],
+      unanswered: [501, 502],
+      failure: down(),
+    };
+    ways.mockResolvedValue(partial);
+    expect(await service.wayTags([1, 501, 502])).toEqual({ ok: true, value: partial });
+    await service.wayTags([1, 501, 502]);
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0]?.[0]).toContain('/v1/ways');
+    expect(warn.mock.calls[0]?.[0]).toContain('TREK Places API 503');
+    // A whole answer in between clears it, so the next stop is said again.
+    ways.mockResolvedValueOnce({ complete: true, ways: [] });
+    await service.wayTags([1]);
+    await service.wayTags([1, 501, 502]);
+    expect(warn).toHaveBeenCalledTimes(2);
+    expect(info).not.toHaveBeenCalled();
   });
 });
