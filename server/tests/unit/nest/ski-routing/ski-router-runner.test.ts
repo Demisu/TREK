@@ -21,6 +21,7 @@ import {
   WorkerSkiRouterRunner,
 } from '../../../../src/nest/ski-routing/worker-router-runner';
 import { decodePolyline } from '../../../../src/utils/polyline';
+import { oneByOne } from '../../../helpers/one-by-one';
 import { SkiWorld } from '../../../helpers/ski-world';
 import { skiRouteRequestSchema } from '@trek/shared';
 
@@ -222,7 +223,9 @@ describe('WorkerSkiRouterRunner', () => {
       );
       await expect(runner.run(job(['hang']))).rejects.toThrow('busy');
       // One job at a time is with the thread, each on its own clock.
-      for (let i = 0; i < MAX_WAITING_JOBS; i++) await vi.advanceTimersByTimeAsync(answerTimeoutMs(job(['hang'])));
+      await oneByOne(Array.from({ length: MAX_WAITING_JOBS }), () =>
+        vi.advanceTimersByTimeAsync(answerTimeoutMs(job(['hang']))),
+      );
       expect(await Promise.all(waiting)).toEqual(Array.from({ length: MAX_WAITING_JOBS }, () => 'timeout'));
       await runner.close();
     } finally {

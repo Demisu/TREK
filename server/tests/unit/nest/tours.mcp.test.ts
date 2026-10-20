@@ -30,6 +30,7 @@ import { makeDayAssignment } from '../../helpers/factories/itinerary';
 import { makePlace } from '../../helpers/factories/places';
 import { countRows, findRow, insertRows, updateRows } from '../../helpers/factories/rows';
 import { addTourWaypoints, makeTour, markStationVisit } from '../../helpers/factories/tours';
+import { oneByOne } from '../../helpers/one-by-one';
 import { resetTestDb } from '../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../helpers/test-module';
 import { createTestOrm } from '../../helpers/test-orm';
@@ -766,12 +767,12 @@ describe('ToursMcp', () => {
       ski_discipline: 'alpine',
       ski_options: JSON.stringify({ options, build: '2026-11-02' }),
     });
-    for (const place of [timed, untimed]) {
-      await addTourWaypoints(orm, place.id, [
+    await oneByOne([timed, untimed], (place) =>
+      addTourWaypoints(orm, place.id, [
         { lat: 46, lng: 7, station_key: `${place.id}-a` },
         { lat: 46.01, lng: 7, station_key: `${place.id}-b` },
-      ]);
-    }
+      ]),
+    );
     await orm.close();
     const plan = read(await mcp.getTourPlan({ tripId: trip.id, placeId: partly.id }, ctx(member.id)));
     expect(plan.legs.map((leg: { kind: string }) => leg.kind)).toEqual(['free', 'routed']);

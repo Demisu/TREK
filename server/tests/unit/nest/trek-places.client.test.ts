@@ -23,6 +23,7 @@ import {
   serviceLang,
   type TrekPlace,
 } from '../../../src/nest/maps/trek-places.client';
+import { oneByOne } from '../../helpers/one-by-one';
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
@@ -1089,9 +1090,9 @@ describe('the layers breaker', () => {
 
   it('TREK-PLACES-BREAKER-01: busy layer answers never stop place search', async () => {
     stubFetch({ detail: 'busy' }, 503);
-    for (let i = 0; i < 4; i++) {
-      await expect(trekPlacesRoutes(VIEW, 'horse', CAPS)).rejects.toThrow(/503/);
-    }
+    await oneByOne(Array.from({ length: 4 }), () =>
+      expect(trekPlacesRoutes(VIEW, 'horse', CAPS)).rejects.toThrow(/503/),
+    );
     stubFetch({ query: 'x', results: [PLACE] });
     await expect(trekPlacesSearch('x')).resolves.toHaveLength(1);
     expect(calls).toHaveLength(1);
@@ -1099,7 +1100,7 @@ describe('the layers breaker', () => {
 
   it('TREK-PLACES-BREAKER-02: the layers stop dialling on their own after a few failures', async () => {
     stubFetch({ detail: 'busy' }, 503);
-    for (let i = 0; i < 4; i++) await expect(trekPlacesWays([1])).rejects.toThrow(/503/);
+    await oneByOne(Array.from({ length: 4 }), () => expect(trekPlacesWays([1])).rejects.toThrow(/503/));
     const dialled = calls.length;
     await expect(trekPlacesRoutes(VIEW, 'horse', CAPS)).rejects.toThrow('unreachable, not retrying yet');
     await expect(trekPlacesWays([1])).rejects.toThrow('unreachable, not retrying yet');
@@ -1108,7 +1109,7 @@ describe('the layers breaker', () => {
 
   it('TREK-PLACES-BREAKER-03: a layer not built yet does not clear the count of search failures', async () => {
     stubFetch({}, 503);
-    for (let i = 0; i < 3; i++) await expect(trekPlacesSearch('x')).rejects.toThrow(/503/);
+    await oneByOne(Array.from({ length: 3 }), () => expect(trekPlacesSearch('x')).rejects.toThrow(/503/));
     stubFetch({ detail: 'not built' }, 404);
     await expect(trekPlacesWays([1])).rejects.toThrow(/404/);
     stubFetch({}, 503);
