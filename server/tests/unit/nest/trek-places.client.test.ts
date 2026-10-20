@@ -970,7 +970,7 @@ describe('trekPlacesWays', () => {
     const ids = Array.from({ length: 1400 }, (_, index) => index + 1);
     const answer = await trekPlacesWays(ids);
     expect(calls).toHaveLength(2);
-    if (answer.complete) throw new Error('expected an answer that stopped part way');
+    if (answer.complete !== false) throw new Error('expected an answer that stopped part way');
     expect(answer.ways).toEqual([{ type: 'way', id: 2, tags: { surface: 'gravel' } }]);
     expect(answer.unanswered).toEqual(ids.slice(500));
     expect(trekPlacesMiss(answer.failure)).toBe('failed');

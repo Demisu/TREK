@@ -19,7 +19,10 @@ describe('the ski options column', () => {
       const idx = names.indexOf(TARGET);
       expect(idx).toBeGreaterThan(0);
       await migrateTo(orm, names[idx - 1] as string);
-      await rawExec(orm, "INSERT INTO users (id, username, email, password_hash) VALUES (1, 'owner', 'owner@test', 'x')");
+      await rawExec(
+        orm,
+        "INSERT INTO users (id, username, email, password_hash) VALUES (1, 'owner', 'owner@test', 'x')",
+      );
       await rawExec(orm, "INSERT INTO trips (id, user_id, title) VALUES (10, 1, 'Alps')");
       await rawExec(orm, "INSERT INTO places (id, trip_id, name) VALUES (100, 10, 'Valley run')");
       await rawExec(orm, "INSERT INTO tours (place_id, tour_type, ski_discipline) VALUES (100, 'ski', 'alpine')");

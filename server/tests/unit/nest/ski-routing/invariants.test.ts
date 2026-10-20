@@ -146,8 +146,7 @@ describe.each([
       const request = skiRouteRequestSchema.parse({ legs: [{ from: point(), to: point() }], discipline });
       const profile = profileOf(request);
       const costs = compileProfile(profile, net);
-      const modeOf = (step: Step) =>
-        (step.dir === 0 ? costs.modeFwd[step.edge] : costs.modeBack[step.edge]) as number;
+      const modeOf = (step: Step) => (step.dir === 0 ? costs.modeFwd[step.edge] : costs.modeBack[step.edge]) as number;
       let planned = 0;
       for (let pair = 0; pair < PAIRS; pair++) {
         const from = point();

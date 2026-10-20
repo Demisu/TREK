@@ -500,11 +500,7 @@ describe('AdminController feature toggles', () => {
       [() => c.updateToursWanderer(user, { enabled: true }, req), 'admin.tours_wanderer', 'updateToursWanderer'],
       [() => c.updateToursHikingMap(user, { enabled: true }, req), 'admin.tours_hiking_map', 'updateToursHikingMap'],
       [() => c.updateToursCycleMap(user, { enabled: true }, req), 'admin.tours_cycle_map', 'updateToursCycleMap'],
-      [
-        () => c.updateToursSkiRouting(user, { enabled: true }, req),
-        'admin.tours_ski_routing',
-        'updateToursSkiRouting',
-      ],
+      [() => c.updateToursSkiRouting(user, { enabled: true }, req), 'admin.tours_ski_routing', 'updateToursSkiRouting'],
       [() => c.updatePlacesPhotos(user, { enabled: true }, req), 'admin.places_photos', 'updatePlacesPhotos'],
       [
         () => c.updatePlacesAutocomplete(user, { enabled: true }, req),
