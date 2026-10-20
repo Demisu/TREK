@@ -16,6 +16,7 @@ import { TrekExceptionFilter } from '../../src/nest/common/trek-exception.filter
 import { ZodValidationPipe } from '../../src/nest/common/zod-validation.pipe';
 import { JourneyDomainService } from '../../src/nest/journey/journey-domain.service';
 import { MapsService } from '../../src/nest/maps/maps.service';
+import { TrekPlacesLayersService } from '../../src/nest/maps/trek-places-layers.service';
 import { OverpassElementsClient } from '../../src/nest/overpass/overpass-elements.service';
 import { PermissionsService } from '../../src/nest/permissions/permissions.service';
 import { RealtimeModule } from '../../src/nest/realtime/realtime.module';
@@ -56,8 +57,10 @@ const { journeyHooks } = vi.hoisted(() => ({
 
 const db = createSnapshotTestDb();
 const mapsPois = vi.fn();
-// The trail grades (BIK-05) read OpenStreetMap through Overpass: no network in a test.
+// The trail grades (BIK-05) read OpenStreetMap from the TREK Places ways layer, else through
+// Overpass: no network in a test.
 const overpassQuery = vi.fn();
+const placesWayTags = vi.fn();
 const realtime = new FakeRealtimeService();
 
 let orm: TestOrm;
@@ -111,6 +114,8 @@ describe('Bike tours e2e (real guards + temp SQLite)', () => {
       .useValue({ pois: mapsPois })
       .overrideProvider(OverpassElementsClient)
       .useValue({ query: overpassQuery })
+      .overrideProvider(TrekPlacesLayersService)
+      .useValue({ wayTags: placesWayTags })
       .compile();
     const nest = moduleRef.createNestApplication();
     nest.use(cookieParser());
@@ -155,6 +160,8 @@ describe('Bike tours e2e (real guards + temp SQLite)', () => {
     );
     await setAddonEnabled(orm, 'tours', true);
     realtime.broadcastMock.mockClear();
+    // The ways layer not built yet unless a case says otherwise, so the grades come through Overpass.
+    placesWayTags.mockReset().mockResolvedValue({ ok: false, miss: 'not_built' });
     await deleteRows(orm, DayAssignments);
     await deleteRows(orm, Places);
   });
@@ -312,6 +319,33 @@ describe('Bike tours e2e (real guards + temp SQLite)', () => {
         ],
         unanswered: [],
       });
+    });
+
+    it('reads the grades from the TREK Places ways layer when it has them, asking no mirror', async () => {
+      overpassQuery.mockReset();
+      placesWayTags.mockResolvedValueOnce({
+        ok: true,
+        value: [{ type: 'way', id: 21, tags: { 'mtb:scale': '1', surface: 'gravel', highway: 'track' } }],
+      });
+      const res = await ask({ way_ids: [21, 22] }, VIEWER);
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({
+        ways: [
+          {
+            id: 21,
+            mtb_scale: '1',
+            mtb_scale_uphill: null,
+            mtb_scale_imba: null,
+            sac_scale: null,
+            sac_scale_unclear: null,
+            surface: 'gravel',
+            highway: 'track',
+          },
+        ],
+        unanswered: [],
+      });
+      expect(placesWayTags).toHaveBeenCalledWith([21, 22]);
+      expect(overpassQuery).not.toHaveBeenCalled();
     });
 
     it('refuses an outsider, a body it does not know, and no session', async () => {

@@ -1,18 +1,26 @@
+import { TrekPlacesLayersService } from '../../../src/nest/maps/trek-places-layers.service';
 import { OverpassElementsClient } from '../../../src/nest/overpass/overpass-elements.service';
 import { TourTrailGradeService } from '../../../src/nest/tours/tour-trail-grade.service';
 import { Test } from '@nestjs/testing';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// TOUR-GRADE-001 to TOUR-GRADE-010
+// TOUR-GRADE-001 to TOUR-GRADE-016
 
 const query = vi.fn<(q: string, caller: string) => Promise<unknown[]>>();
+const wayTags = vi.fn<TrekPlacesLayersService['wayTags']>();
 let service: TourTrailGradeService;
 
 beforeEach(async () => {
   query.mockReset();
+  // The TREK Places ways layer not built yet, unless a case says otherwise: the Overpass path.
+  wayTags.mockReset().mockResolvedValue({ ok: false, miss: 'not_built' });
   const moduleRef = await Test.createTestingModule({
-    providers: [TourTrailGradeService, { provide: OverpassElementsClient, useValue: { query } }],
+    providers: [
+      TourTrailGradeService,
+      { provide: OverpassElementsClient, useValue: { query } },
+      { provide: TrekPlacesLayersService, useValue: { wayTags } },
+    ],
   }).compile();
   service = moduleRef.get(TourTrailGradeService);
 });
@@ -144,6 +152,88 @@ describe('TourTrailGradeService (BIK-05)', () => {
 
   it('TOUR-GRADE-010: never reads a surface from anything but the surface tag (MAP-04)', async () => {
     query.mockResolvedValue([way(1, { tracktype: 'grade1', smoothness: 'good', 'surface:note': 'gravel' })]);
+    expect(await service.grades({ way_ids: [1] })).toEqual({ ways: [], unanswered: [] });
+  });
+
+  it('TOUR-GRADE-011: reads the ways from the TREK Places ways layer first and asks no mirror', async () => {
+    wayTags.mockResolvedValue({
+      ok: true,
+      value: [
+        { type: 'way', id: 1, tags: { 'mtb:scale': '2', sac_scale: 'hiking', surface: 'gravel', highway: 'path' } },
+        { type: 'way', id: 2, tags: { highway: 'track' } },
+      ],
+    });
+    const answer = await service.grades({ way_ids: [1, 2, 3, 1] });
+    expect(wayTags).toHaveBeenCalledWith([1, 2, 3]);
+    expect(query).not.toHaveBeenCalled();
+    expect(answer).toEqual({
+      ways: [
+        {
+          ...NO_MTB,
+          id: 1,
+          mtb_scale: '2',
+          sac_scale: 'hiking',
+          sac_scale_unclear: null,
+          surface: 'gravel',
+          highway: 'path',
+        },
+        { ...NO_MTB, ...NO_SAC, id: 2, surface: null, highway: 'track' },
+      ],
+      unanswered: [],
+    });
+  });
+
+  it('TOUR-GRADE-012: hands a long tour to the layer whole, which asks it in batches itself', async () => {
+    wayTags.mockResolvedValue({ ok: true, value: [{ type: 'way', id: 900, tags: { 'mtb:scale': '5' } }] });
+    const ids = Array.from({ length: 900 }, (_, index) => index + 1);
+    const answer = await service.grades({ way_ids: ids });
+    expect(wayTags).toHaveBeenCalledTimes(1);
+    expect(wayTags.mock.calls[0]?.[0]).toHaveLength(900);
+    expect(answer.ways.map((grade) => grade.id)).toEqual([900]);
+    expect(answer.unanswered).toEqual([]);
+  });
+
+  it('TOUR-GRADE-013: a layer not built yet sends the ways to the mirrors as before', async () => {
+    query.mockResolvedValue([way(1, { 'mtb:scale': '1' })]);
+    const answer = await service.grades({ way_ids: [1] });
+    expect(wayTags).toHaveBeenCalledTimes(1);
+    expect(query).toHaveBeenCalledWith('[out:json][timeout:25];way(id:1);out tags;', 'Tours');
+    expect(answer.ways.map((grade) => grade.mtb_scale)).toEqual(['1']);
+  });
+
+  it('TOUR-GRADE-014: a layer that fails or is switched off sends the ways to the mirrors, and none answering is said', async () => {
+    wayTags.mockResolvedValueOnce({ ok: false, miss: 'failed' }).mockResolvedValueOnce({ ok: false, miss: 'off' });
+    query.mockRejectedValueOnce(new Error('all mirrors down')).mockResolvedValueOnce([way(2, { surface: 'sand' })]);
+    expect(await service.grades({ way_ids: [1] })).toEqual({ ways: [], unanswered: [1] });
+    expect(await service.grades({ way_ids: [2] })).toEqual({
+      ways: [{ ...NO_MTB, ...NO_SAC, id: 2, surface: 'sand', highway: null }],
+      unanswered: [],
+    });
+    expect(query).toHaveBeenCalledTimes(2);
+  });
+
+  it('TOUR-GRADE-015: keeps what the layer answered a day, a way it left out as having no grade', async () => {
+    vi.useFakeTimers();
+    try {
+      wayTags.mockResolvedValue({ ok: true, value: [{ type: 'way', id: 1, tags: { 'mtb:scale': '3' } }] });
+      expect(await service.grades({ way_ids: [1, 2] })).toMatchObject({ unanswered: [] });
+      expect(await service.grades({ way_ids: [2, 1] })).toMatchObject({ ways: [{ id: 1 }], unanswered: [] });
+      expect(wayTags).toHaveBeenCalledTimes(1);
+      vi.advanceTimersByTime(24 * 60 * 60 * 1000 + 1);
+      await service.grades({ way_ids: [1] });
+      expect(wayTags).toHaveBeenCalledTimes(2);
+      expect(query).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('TOUR-GRADE-016: skips what is no way in the layer answer as it does in a mirror answer', async () => {
+    wayTags.mockResolvedValue({
+      ok: true,
+      // Typed rows from the client, but read through the same check as the mirrors' answer.
+      value: [{ type: 'way', id: 0, tags: { 'mtb:scale': '1' } }],
+    });
     expect(await service.grades({ way_ids: [1] })).toEqual({ ways: [], unanswered: [] });
   });
 });

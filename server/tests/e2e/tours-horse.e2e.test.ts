@@ -17,6 +17,7 @@ import { TrekExceptionFilter } from '../../src/nest/common/trek-exception.filter
 import { ZodValidationPipe } from '../../src/nest/common/zod-validation.pipe';
 import { JourneyDomainService } from '../../src/nest/journey/journey-domain.service';
 import { MapsService } from '../../src/nest/maps/maps.service';
+import { TrekPlacesLayersService } from '../../src/nest/maps/trek-places-layers.service';
 import { OverpassElementsClient } from '../../src/nest/overpass/overpass-elements.service';
 import { PermissionsService } from '../../src/nest/permissions/permissions.service';
 import { RealtimeModule } from '../../src/nest/realtime/realtime.module';
@@ -59,8 +60,10 @@ const { journeyHooks } = vi.hoisted(() => ({
 }));
 
 const db = createSnapshotTestDb();
-// The horse routes come from OpenStreetMap through Overpass: no network in a test.
+// The horse routes come from OpenStreetMap, from the TREK Places routes layer or else through
+// Overpass: no network in a test.
 const overpassQuery = vi.fn();
+const placesRoutes = vi.fn();
 const realtime = new FakeRealtimeService();
 
 let orm: TestOrm;
@@ -157,6 +160,8 @@ describe('Horse tours e2e (real guards + temp SQLite)', () => {
       .useValue({ pois: vi.fn() })
       .overrideProvider(OverpassElementsClient)
       .useValue({ query: overpassQuery })
+      .overrideProvider(TrekPlacesLayersService)
+      .useValue({ routes: placesRoutes })
       .compile();
     const nest = moduleRef.createNestApplication<NestExpressApplication>();
     // The ceiling bootstrap.ts gives a tour create or edit, in place of the 100kb default.
@@ -195,6 +200,8 @@ describe('Horse tours e2e (real guards + temp SQLite)', () => {
     await setAddonEnabled(orm, 'tours', true);
     realtime.broadcastMock.mockClear();
     overpassQuery.mockReset();
+    // The routes layer not built yet unless a case says otherwise, so the routes come through Overpass.
+    placesRoutes.mockReset().mockResolvedValue({ ok: false, miss: 'not_built' });
     await deleteRows(orm, DayAssignments);
     await deleteRows(orm, Places);
   });
@@ -358,6 +365,19 @@ describe('Horse tours e2e (real guards + temp SQLite)', () => {
         signposted: null,
         access: [{ value: 'designated', length_m: 1112 }],
       });
+    });
+
+    it('reads the routes from the TREK Places routes layer when it has them, asking no mirror', async () => {
+      placesRoutes.mockResolvedValueOnce({ ok: true, value: { elements: overpassAnswer, truncated: true } });
+      const res = await ask('46.12,11.21,46.18,11.29', VIEWER);
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject({ truncated: true, source: 'openstreetmap' });
+      expect(res.body.routes).toEqual([expect.objectContaining({ id: 'relation/42', name: 'Reitweg Isartal' })]);
+      expect(placesRoutes).toHaveBeenCalledWith({ south: 46.1, west: 11.2, north: 46.2, east: 11.3 }, 'horse', {
+        relations: 60,
+        ways: 4000,
+      });
+      expect(overpassQuery).not.toHaveBeenCalled();
     });
 
     it('says when no mirror answered, and refuses a box too large, an outsider and no session', async () => {

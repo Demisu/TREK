@@ -162,6 +162,22 @@ export function resetTrekPlacesBreaker(): void {
   breakerOpenUntil = 0;
 }
 
+const SWITCHED_OFF_MESSAGE = 'TREK Places API is switched off on this instance';
+
+/**
+ * Why a call to one of the service's OpenStreetMap layers gave no answer, for
+ * a caller that has another source to ask: the operator switched the index off
+ * (`off`), the service answered 404 because it has not built the layer yet
+ * (`not_built`), or anything else went wrong on the way (`failed`).
+ */
+export type TrekPlacesMiss = 'off' | 'not_built' | 'failed';
+
+export function trekPlacesMiss(err: unknown): TrekPlacesMiss {
+  if ((err as { status?: number } | null)?.status === 404) return 'not_built';
+  if (err instanceof Error && err.message === SWITCHED_OFF_MESSAGE) return 'off';
+  return 'failed';
+}
+
 export function trekPlacesBaseUrl(): string {
   const configured = (readEnv().maps.trekPlacesUrl || '').trim();
   return (configured || DEFAULT_TREK_PLACES_URL).replace(/\/+$/, '');
@@ -177,7 +193,7 @@ async function getJson<T>(
   // every request passes, so a caller that did not is still stopped here. Ahead
   // of the breaker: a refusal says nothing about reachability.
   if (!readEnv().maps.trekPlacesEnabled) {
-    throw new Error('TREK Places API is switched off on this instance');
+    throw new Error(SWITCHED_OFF_MESSAGE);
   }
 
   const url = new URL(trekPlacesBaseUrl() + path);
@@ -629,5 +645,153 @@ export function toPlaceRecord(p: TrekPlace): Record<string, unknown> {
     // it — the reader validates the URL before it becomes a link.
     description: p.description ?? null,
     source: 'trek-places',
+  };
+}
+
+/**
+ * The service's two OpenStreetMap layers TREK reads elements from: the ways
+ * layer (`/v1/ways`), the tags of the ways under a tour, and the routes layer
+ * (`/v1/routes`), the route relations around a map view with their ways. Both
+ * used to be questions to the public Overpass mirrors and are answered from
+ * the planet the service builds every month, in Overpass' own element form, so
+ * the readers TREK already had read them as they are. Both answer 404 while
+ * their layer is not built; {@link trekPlacesMiss} tells that apart, and the
+ * caller asks Overpass then.
+ *
+ * Neither is cached on the far side (`no-store`), and neither carries more than
+ * the ids of ways or the edges of a box, the same that went to Overpass.
+ */
+
+/** The most way ids one /v1/ways request takes; the service refuses more with a 400. */
+const WAYS_MAX_IDS = 500;
+/** A batch of ways is a few lookups by key; not a keystroke, but somebody is looking at the tour. */
+const WAYS_TIMEOUT_MS = 10_000;
+
+/**
+ * A routes answer carries the line of every way in the box: the service stops
+ * at 250 000 points, some 40 bytes each with the node ids beside them, so a
+ * full answer is near ten megabytes. Read once per map view and kept, so the
+ * deadline is the area download's.
+ */
+const ROUTES_TIMEOUT_MS = 20_000;
+const ROUTES_MAX_BYTES = 16 * 1024 * 1024;
+/** The service's bounds on `limitRelations` and `limitWays`. */
+const ROUTES_MAX_RELATIONS = 200;
+const ROUTES_MAX_WAYS = 4000;
+/** No way or relation of the planet has more members or points than this; a longer list is not one. */
+const ROUTES_MAX_LIST = 20_000;
+
+const osmIdSchema = z.number().int().positive().max(Number.MAX_SAFE_INTEGER);
+const osmTagsSchema = z.record(z.string(), z.string());
+
+const trekWayTagsSchema = z.object({
+  type: z.literal('way'),
+  id: osmIdSchema,
+  tags: osmTagsSchema.default({}),
+});
+/** One way of the ways layer, as `way(id:...);out tags;` answers it: only the keys the layer keeps. */
+export type TrekWayTags = z.infer<typeof trekWayTagsSchema>;
+
+const pointSchema = z.object({ lat: z.number().min(-90).max(90), lon: z.number().min(-180).max(180) });
+const memberSchema = z.object({ type: z.enum(['node', 'way', 'relation']), ref: osmIdSchema, role: z.string() });
+
+const trekRouteWayFields = z.object({
+  type: z.literal('way'),
+  id: osmIdSchema,
+  tags: osmTagsSchema.default({}),
+  nodes: z.array(osmIdSchema).max(ROUTES_MAX_LIST),
+  geometry: z.array(pointSchema).max(ROUTES_MAX_LIST),
+});
+/** A line is read node by node beside its places; one that does not pair them is no line. */
+const trekRouteWaySchema = trekRouteWayFields.refine((way) => way.nodes.length === way.geometry.length);
+const trekRouteRelationSchema = z.object({
+  type: z.literal('relation'),
+  id: osmIdSchema,
+  tags: osmTagsSchema.default({}),
+  members: z.array(memberSchema).max(ROUTES_MAX_LIST),
+});
+const trekRouteElementSchema = z.union([trekRouteRelationSchema, trekRouteWaySchema]);
+type TrekRouteElement = z.infer<typeof trekRouteElementSchema>;
+
+export interface TrekPlacesRoutes {
+  /** The relations with all their members, then their ways in the box, as Overpass answers `out body geom`. */
+  elements: TrekRouteElement[];
+  /** The service stopped at one of its caps: more relations, ways or points than one answer carries. */
+  truncated: boolean;
+}
+
+/**
+ * The route types TREK asks for. The service knows more (hiking, bicycle, mtb,
+ * piste) and answers 404 for a type it has not built.
+ */
+export type TrekPlacesRouteType = 'horse';
+
+/** The rows of an answer of the right shape that are themselves of the right shape. */
+function validRows<T>(rows: readonly unknown[], schema: z.ZodType<T>): T[] {
+  return rows.flatMap((row) => {
+    const parsed = schema.safeParse(row);
+    return parsed.success ? [parsed.data] : [];
+  });
+}
+
+const elementsAnswerSchema = z.object({ elements: z.array(z.unknown()) });
+
+/**
+ * One request of at most WAYS_MAX_IDS ids. A way the layer does not know is
+ * left out, as Overpass leaves it out; a row of another shape, or for an id
+ * that was not asked, is left out on its own. An answer without `elements`
+ * is no answer: read as an empty one, every way of the tour would be kept as
+ * having no grade.
+ */
+async function trekPlacesWaysPart(ids: readonly number[]): Promise<TrekWayTags[]> {
+  const body = await getJson<unknown>('/v1/ways', { ids: ids.join(',') }, { timeoutMs: WAYS_TIMEOUT_MS });
+  const answer = elementsAnswerSchema.safeParse(body);
+  if (!answer.success) throw new Error('TREK Places API answered /v1/ways without elements');
+  const asked = new Set(ids);
+  return validRows(answer.data.elements, trekWayTagsSchema).filter((way) => asked.has(way.id));
+}
+
+/**
+ * The tags of OpenStreetMap ways by id, from the ways layer. Asked in batches
+ * of WAYS_MAX_IDS, one after another; the first batch that fails fails the
+ * whole call, so the caller never mistakes half an answer for all of it.
+ */
+export async function trekPlacesWays(ids: readonly number[]): Promise<TrekWayTags[]> {
+  const wanted = [...new Set(ids)].filter((id) => osmIdSchema.safeParse(id).success);
+  const parts = Array.from({ length: Math.ceil(wanted.length / WAYS_MAX_IDS) }, (_, index) =>
+    wanted.slice(index * WAYS_MAX_IDS, (index + 1) * WAYS_MAX_IDS),
+  );
+  return parts.reduce<Promise<TrekWayTags[]>>(
+    async (done, part) => [...(await done), ...(await trekPlacesWaysPart(part))],
+    Promise.resolve([]),
+  );
+}
+
+/**
+ * The route relations of one type that reach into a box, with their members
+ * and those of their ways that lie in it, from the routes layer. The box is
+ * sent as it is: the service takes at most a degree a side and refuses more
+ * with a 400, which the caller reads as a failure like any other.
+ */
+export async function trekPlacesRoutes(
+  bbox: { south: number; west: number; north: number; east: number },
+  type: TrekPlacesRouteType,
+  limits: { relations: number; ways: number },
+): Promise<TrekPlacesRoutes> {
+  const body = await getJson<unknown>(
+    '/v1/routes',
+    {
+      bbox: [bbox.south, bbox.west, bbox.north, bbox.east].join(','),
+      type,
+      limitRelations: clampedInt(limits.relations, 1, ROUTES_MAX_RELATIONS),
+      limitWays: clampedInt(limits.ways, 1, ROUTES_MAX_WAYS),
+    },
+    { maxBytes: ROUTES_MAX_BYTES, timeoutMs: ROUTES_TIMEOUT_MS },
+  );
+  const answer = elementsAnswerSchema.extend({ truncated: z.unknown() }).safeParse(body);
+  if (!answer.success) throw new Error('TREK Places API answered /v1/routes without elements');
+  return {
+    elements: validRows(answer.data.elements, trekRouteElementSchema),
+    truncated: answer.data.truncated === true,
   };
 }

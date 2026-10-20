@@ -1,7 +1,9 @@
 import { DomainError } from '../common/domain-error';
+import { TrekPlacesLayersService } from '../maps/trek-places-layers.service';
 import { OverpassElementsClient } from '../overpass/overpass-elements.service';
 import {
   buildHorseRoutesQuery,
+  HORSE_ROUTE_WAYS_CAP,
   horseRouteBboxKey,
   snapHorseRouteBbox,
   toHorseRoutes,
@@ -9,12 +11,13 @@ import {
 import { Injectable } from '@nestjs/common';
 import {
   HORSE_ROUTES_ATTRIBUTION,
+  HORSE_ROUTES_RESULT_CAP,
   HORSE_ROUTES_UNAVAILABLE_CODE,
   type FerrataBbox,
   type HorseRoutesResponse,
 } from '@trek/shared';
 
-/** How long an answer is kept: signposted routes change on the scale of seasons, the mirrors are shared. */
+/** How long an answer is kept: signposted routes change on the scale of seasons, and the sources are shared. */
 export const HORSE_ROUTES_KEPT_MS = 12 * 60 * 60 * 1000;
 
 /** The most answers kept at once; the one kept longest goes first. */
@@ -32,15 +35,19 @@ export const HORSE_ROUTES_UNAVAILABLE_MESSAGE = 'Horse route data is unavailable
 type Answer = Omit<HorseRoutesResponse, 'source' | 'attribution'>;
 
 /**
- * HOR-01: the signposted horse routes around a map view, from OpenStreetMap
- * through the operator's Overpass mirrors. The view is grown to the 0.05
- * degree grid, so nearby views share one answer, and an answer is kept for
- * HORSE_ROUTES_KEPT_MS in memory, within a budget of answers and of section
- * points so a busy map cannot grow the store without end; two requests for
- * the same box at once share one query. Read only: nothing is stored, and nothing about the trip is sent.
+ * HOR-01: the signposted horse routes around a map view, from OpenStreetMap:
+ * the TREK Places routes layer first, and the operator's Overpass mirrors only
+ * when that cannot answer (switched off, not built yet, or failing). Both
+ * answer in the same element form and are read the same way. The view is
+ * grown to the 0.05 degree grid, so nearby views share one answer, and an
+ * answer is kept for HORSE_ROUTES_KEPT_MS in memory, within a budget of
+ * answers and of section points so a busy map cannot grow the store without
+ * end; two requests for the same box at once share one query. Read only:
+ * nothing is stored, and nothing about the trip is sent.
  *
- * When no mirror answers, the client gets a 502 `{ error, code }` it can show,
- * and whatever it had loaded before stays as it was.
+ * When neither the layer nor any mirror answers, the client gets a 502
+ * `{ error, code }` it can show, and whatever it had loaded before stays as it
+ * was.
  */
 @Injectable()
 export class TourHorseRoutesService {
@@ -49,7 +56,10 @@ export class TourHorseRoutesService {
   private keptPoints = 0;
   private readonly pending = new Map<string, Promise<Answer>>();
 
-  constructor(private readonly overpass: OverpassElementsClient) {}
+  constructor(
+    private readonly layers: TrekPlacesLayersService,
+    private readonly overpass: OverpassElementsClient,
+  ) {}
 
   async list(bbox: FerrataBbox, now: number = Date.now()): Promise<HorseRoutesResponse> {
     const box = snapHorseRouteBbox(bbox);
@@ -74,6 +84,15 @@ export class TourHorseRoutesService {
   }
 
   private async query(box: FerrataBbox): Promise<Answer> {
+    const layer = await this.layers.routes(box, 'horse', {
+      relations: HORSE_ROUTES_RESULT_CAP,
+      ways: HORSE_ROUTE_WAYS_CAP,
+    });
+    if (layer.ok) {
+      const read = toHorseRoutes(layer.value.elements);
+      // The layer stops at the same caps the Overpass query asks one past, and says so itself.
+      return { routes: read.routes, truncated: read.truncated || layer.value.truncated };
+    }
     let elements: unknown[];
     try {
       elements = await this.overpass.query(buildHorseRoutesQuery(box), 'HorseRoutes');

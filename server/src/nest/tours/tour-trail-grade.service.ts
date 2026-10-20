@@ -1,3 +1,4 @@
+import { TrekPlacesLayersService } from '../maps/trek-places-layers.service';
 import { OverpassElementsClient } from '../overpass/overpass-elements.service';
 import { Injectable } from '@nestjs/common';
 import {
@@ -12,7 +13,7 @@ import { z } from 'zod';
 
 /** Ways per Overpass question: a query names them all, and a shorter one answers sooner. */
 const WAYS_PER_QUERY = 400;
-/** How long a way's grades are kept: OpenStreetMap changes slowly, the mirrors are shared. */
+/** How long a way's grades are kept: OpenStreetMap changes slowly, and the sources are shared. */
 const KEPT_MS = 24 * 60 * 60 * 1000;
 /** The most ways kept at once; the oldest go first. */
 const MAX_KEPT = 50_000;
@@ -71,15 +72,20 @@ function gradeOf(id: number, tags: Record<string, string> = {}): TourTrailGrade 
 /**
  * BIK-05, MAP-03 and MAP-04: what OpenStreetMap records for the ways a tour
  * runs on (the mountain bike scales; the SAC hiking scale, the surface and the
- * kind of way of a hike), read through the operator's Overpass mirrors. What
- * was read is kept a day, so the same tour asked about again costs the mirrors
- * nothing; ways a mirror could not answer are said, never guessed.
+ * kind of way of a hike). Read from the TREK Places ways layer, and through the
+ * operator's Overpass mirrors only when that cannot answer: switched off, not
+ * built yet, or failing. What was read is kept a day, so the same tour asked
+ * about again costs nobody anything; ways no source could answer are said,
+ * never guessed.
  */
 @Injectable()
 export class TourTrailGradeService {
   private readonly kept = new Map<number, { grade: TourTrailGrade | null; at: number }>();
 
-  constructor(private readonly overpass: OverpassElementsClient) {}
+  constructor(
+    private readonly layers: TrekPlacesLayersService,
+    private readonly overpass: OverpassElementsClient,
+  ) {}
 
   async grades(request: TourTrailGradeRequest): Promise<TourTrailGradeResponse> {
     const now = Date.now();
@@ -88,14 +94,7 @@ export class TourTrailGradeService {
       const known = this.kept.get(id);
       return !known || now - known.at > KEPT_MS;
     });
-    const parts = Array.from({ length: Math.ceil(unknown.length / WAYS_PER_QUERY) }, (_, index) =>
-      unknown.slice(index * WAYS_PER_QUERY, (index + 1) * WAYS_PER_QUERY),
-    );
-    // One question after another, so a long tour does not flood the shared mirrors.
-    const unanswered = await parts.reduce<Promise<number[]>>(async (done, part) => {
-      const failed = await done;
-      return (await this.ask(part, now)) ? failed : [...failed, ...part];
-    }, Promise.resolve([]));
+    const unanswered = unknown.length === 0 ? [] : await this.read(unknown, now);
     const ways = ids.flatMap((id) => {
       const grade = this.kept.get(id)?.grade;
       return grade ? [grade] : [];
@@ -103,14 +102,41 @@ export class TourTrailGradeService {
     return { ways, unanswered };
   }
 
-  /** Reads one part's grades into what is kept; false when no mirror answered. */
-  private async ask(ids: number[], now: number): Promise<boolean> {
+  /**
+   * Reads the grades of the ways not kept yet into what is kept: from the ways
+   * layer in one go, else from the mirrors part by part. Gives back the ways
+   * no source answered.
+   */
+  private async read(ids: number[], now: number): Promise<number[]> {
+    const layer = await this.layers.wayTags(ids);
+    if (layer.ok) {
+      this.keepAll(ids, layer.value, now);
+      return [];
+    }
+    const parts = Array.from({ length: Math.ceil(ids.length / WAYS_PER_QUERY) }, (_, index) =>
+      ids.slice(index * WAYS_PER_QUERY, (index + 1) * WAYS_PER_QUERY),
+    );
+    // One question after another, so a long tour does not flood the shared mirrors.
+    return parts.reduce<Promise<number[]>>(async (done, part) => {
+      const failed = await done;
+      return (await this.askOverpass(part, now)) ? failed : [...failed, ...part];
+    }, Promise.resolve([]));
+  }
+
+  /** Reads one part's grades from the mirrors into what is kept; false when no mirror answered. */
+  private async askOverpass(ids: number[], now: number): Promise<boolean> {
     let elements: unknown[];
     try {
       elements = await this.overpass.query(`[out:json][timeout:25];way(id:${ids.join(',')});out tags;`, 'Tours');
     } catch {
       return false;
     }
+    this.keepAll(ids, elements, now);
+    return true;
+  }
+
+  /** Keeps a grade, or that there is none, for every way asked, out of the elements one source answered. */
+  private keepAll(ids: readonly number[], elements: readonly unknown[], now: number): void {
     const tagged = new Map<number, Record<string, string> | undefined>();
     for (const element of elements) {
       const way = wayElementSchema.safeParse(element);
@@ -118,7 +144,6 @@ export class TourTrailGradeService {
     }
     // A way the answer leaves out has no tags worth naming, or no longer exists: no grade either way.
     for (const id of ids) this.keep(id, gradeOf(id, tagged.get(id)), now);
-    return true;
   }
 
   private keep(id: number, grade: TourTrailGrade | null, at: number): void {

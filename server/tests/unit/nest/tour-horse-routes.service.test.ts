@@ -1,5 +1,7 @@
 import { DomainError } from '../../../src/nest/common/domain-error';
+import { TrekPlacesLayersService } from '../../../src/nest/maps/trek-places-layers.service';
 import { OverpassElementsClient } from '../../../src/nest/overpass/overpass-elements.service';
+import { HORSE_ROUTE_WAYS_CAP } from '../../../src/nest/tours/tour-horse-routes.helpers';
 import {
   HORSE_ROUTES_KEPT_MAX,
   HORSE_ROUTES_KEPT_MS,
@@ -8,13 +10,19 @@ import {
   TourHorseRoutesService,
 } from '../../../src/nest/tours/tour-horse-routes.service';
 import { Test } from '@nestjs/testing';
-import { HORSE_ROUTES_ATTRIBUTION, HORSE_ROUTES_UNAVAILABLE_CODE, horseRoutesResponseSchema } from '@trek/shared';
+import {
+  HORSE_ROUTES_ATTRIBUTION,
+  HORSE_ROUTES_RESULT_CAP,
+  HORSE_ROUTES_UNAVAILABLE_CODE,
+  horseRoutesResponseSchema,
+} from '@trek/shared';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// HORSE-SVC-001 to HORSE-SVC-006
+// HORSE-SVC-001 to HORSE-SVC-010
 
 const query = vi.fn<(q: string, caller: string) => Promise<unknown[]>>();
+const routes = vi.fn<TrekPlacesLayersService['routes']>();
 let service: TourHorseRoutesService;
 
 const NOW = 1_800_000_000_000;
@@ -33,10 +41,36 @@ const elements = [
   },
 ];
 
+// The same routes as the layer answers them: every way of the relation's members, tags limited to its keys.
+const layerElements = [
+  {
+    type: 'relation' as const,
+    id: 7,
+    tags: { route: 'horse', name: 'Reitweg' },
+    members: [{ type: 'way' as const, ref: 1, role: '' }],
+  },
+  {
+    type: 'way' as const,
+    id: 1,
+    tags: { horse: 'designated' },
+    nodes: [1, 2],
+    geometry: [
+      { lat: 47.15, lon: 11.25 },
+      { lat: 47.16, lon: 11.25 },
+    ],
+  },
+];
+
 beforeEach(async () => {
   query.mockReset();
+  // The TREK Places routes layer not built yet, unless a case says otherwise: the Overpass path.
+  routes.mockReset().mockResolvedValue({ ok: false, miss: 'not_built' });
   const moduleRef = await Test.createTestingModule({
-    providers: [TourHorseRoutesService, { provide: OverpassElementsClient, useValue: { query } }],
+    providers: [
+      TourHorseRoutesService,
+      { provide: OverpassElementsClient, useValue: { query } },
+      { provide: TrekPlacesLayersService, useValue: { routes } },
+    ],
   }).compile();
   service = moduleRef.get(TourHorseRoutesService);
 });
@@ -132,5 +166,52 @@ describe('TourHorseRoutesService (HOR-01)', () => {
     expect(query).toHaveBeenCalledTimes(2);
     await service.list(box, NOW);
     expect(query).toHaveBeenCalledTimes(3);
+  });
+
+  it('HORSE-SVC-007: reads the routes from the TREK Places routes layer first, for the box grown to the grid', async () => {
+    routes.mockResolvedValue({ ok: true, value: { elements: layerElements, truncated: false } });
+    const answer = await service.list(box, NOW);
+    expect(horseRoutesResponseSchema.parse(answer)).toEqual(answer);
+    expect(answer).toMatchObject({ truncated: false, source: 'openstreetmap', attribution: HORSE_ROUTES_ATTRIBUTION });
+    expect(answer.routes.map((route) => route.id)).toEqual(['relation/7']);
+    expect(routes).toHaveBeenCalledWith({ south: 47.1, west: 11.2, north: 47.2, east: 11.3 }, 'horse', {
+      relations: HORSE_ROUTES_RESULT_CAP,
+      ways: HORSE_ROUTE_WAYS_CAP,
+    });
+    expect(query).not.toHaveBeenCalled();
+    // Kept like any answer: a nearby view asks nobody.
+    await service.list({ south: 47.11, west: 11.22, north: 47.19, east: 11.28 }, NOW + 1000);
+    expect(routes).toHaveBeenCalledTimes(1);
+  });
+
+  it('HORSE-SVC-008: says truncated when the layer stopped at one of its caps', async () => {
+    routes.mockResolvedValue({ ok: true, value: { elements: layerElements, truncated: true } });
+    const answer = await service.list(box, NOW);
+    expect(answer.truncated).toBe(true);
+    expect(answer.routes).toHaveLength(1);
+  });
+
+  it('HORSE-SVC-009: a layer not built, failing or switched off sends the box to the mirrors', async () => {
+    routes
+      .mockResolvedValueOnce({ ok: false, miss: 'not_built' })
+      .mockResolvedValueOnce({ ok: false, miss: 'failed' })
+      .mockResolvedValueOnce({ ok: false, miss: 'off' });
+    query.mockResolvedValue(elements);
+    const boxes = [box, { ...box, south: 48.12, north: 48.18 }, { ...box, south: 49.12, north: 49.18 }];
+    const answers = await boxes.reduce<Promise<number[]>>(
+      async (done, view) => [...(await done), (await service.list(view, NOW)).routes.length],
+      Promise.resolve([]),
+    );
+    expect(answers).toEqual([1, 1, 1]);
+    expect(routes).toHaveBeenCalledTimes(3);
+    expect(query).toHaveBeenCalledTimes(3);
+  });
+
+  it('HORSE-SVC-010: the layer failing and no mirror answering is the 502 the client can show', async () => {
+    routes.mockResolvedValue({ ok: false, miss: 'failed' });
+    query.mockRejectedValue(new Error('all mirrors down'));
+    const failure = await service.list(box, NOW).catch((err: unknown) => err);
+    expect(failure).toBeInstanceOf(DomainError);
+    expect((failure as DomainError).getStatus()).toBe(502);
   });
 });

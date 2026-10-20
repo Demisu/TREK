@@ -16,6 +16,7 @@ import { PoisAlongResolver } from './pois-along.resolver';
 import { GooglePlacesClient } from './providers/google-places.provider';
 import { OsmClient } from './providers/osm.client';
 import { WikimediaClient } from './providers/wikimedia.client';
+import { TrekPlacesLayersService } from './trek-places-layers.service';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 
@@ -28,7 +29,9 @@ import { Module } from '@nestjs/common';
  * (GooglePlacesClient, OsmClient, WikimediaClient; Amap is built per request by
  * PlacesProviderSelector) and the resolvers it delegates to. The three clients
  * are exported too, so the enrichment column asks Google, OpenStreetMap and
- * Wikimedia directly rather than through a MapsService facade. Nothing outside
+ * Wikimedia directly rather than through a MapsService facade, and
+ * TrekPlacesLayersService, so the tours domain reads the TREK Places ways and
+ * routes layers before it asks the Overpass mirrors. Nothing outside
  * the container consumes this domain, so there is no bridge.
  *
  * MikroOrmModule.forFeature: AppSettings and Users for the key chain
@@ -56,7 +59,8 @@ import { Module } from '@nestjs/common';
     MapsUrlResolver,
     PlaceDetailsResolver,
     PoisAlongResolver,
+    TrekPlacesLayersService,
   ],
-  exports: [MapsService, GooglePlacesClient, OsmClient, WikimediaClient],
+  exports: [MapsService, GooglePlacesClient, OsmClient, WikimediaClient, TrekPlacesLayersService],
 })
 export class MapsModule {}

@@ -35,6 +35,8 @@ Names are the ones the index has, which are the names used on the spot. The inde
 | Opening a place picked from it | Address, contact details, opening hours and description | The place keeps what was saved with it |
 | Category buttons on the trip map | Places of that category around the map centre | The public Overpass mirrors of OpenStreetMap |
 | The [Road trip](Road-Trip#search-along-the-route) addon's search along the drive | Fuel, charging, rest areas, campsites and the other kinds it looks for | The public Overpass mirrors |
+| Tours: the trail grades, surfaces and kinds of way along a planned tour | The OpenStreetMap tags of the ways the tour runs on, from its ways layer | The public Overpass mirrors |
+| Tours: the signposted horse routes around the map view | The horse route relations in the view with their ways, from its routes layer | The public Overpass mirrors |
 | Booking imports, and stops given only by name in an imported Google Maps route | The coordinate of a venue, found by its name | OpenStreetMap's search service, which also resolves street addresses |
 | Preparing a trip for offline use | Up to 3000 places around the trip, in one request | Nothing is cached, and offline search has nothing to answer from |
 | MCP: `search_place` and `search_pois` | The same as the full search and the category buttons | The same fallbacks |
@@ -93,11 +95,12 @@ services:
 
 `false`, `0`, `off` and `no` in any casing switch the index off, as on every other boolean switch. A value that is not boolean-like at all aborts startup, and unset or blank leaves the index on.
 
-With the index off, TREK stops asking it for suggestions, searches, category buttons, the Road trip search, import geocoding and offline downloads, and place search works the way it did before 4.3.0:
+With the index off, TREK stops asking it for suggestions, searches, category buttons, the Road trip search, import geocoding, offline downloads and the ways and horse routes of Tours, and place search works the way it did before 4.3.0:
 
 - **Full search** goes to OpenStreetMap on an install without a key. With a Google key, Google answers every search, and with Amap selected, Amap does; OpenStreetMap is then no longer asked beside them.
 - **Suggestions** come from Google or Amap when one holds the keyed slot, otherwise from OpenStreetMap's public search service. That service's usage policy does not allow autocomplete, so on a keyless install consider pointing `NOMINATIM_URL` at a Nominatim of your own.
 - **Category buttons** and the **Road trip search** are answered by the Overpass mirrors.
+- **Tours** read the grades of the ways under a tour and the horse routes around the map from the Overpass mirrors.
 - **Imports** geocode through OpenStreetMap's search service.
 - **Offline search** has nothing to answer from, because no places are downloaded.
 
@@ -118,7 +121,7 @@ The address is read from your own configuration and is not a URL a user can type
 | `TREK_PLACES_ENABLED` | Whether the index is asked at all |
 | `TREK_PLACES_URL` | Which copy of the index is asked |
 | `NOMINATIM_URL` | The OpenStreetMap half of the full search, right-click reverse geocoding, OpenStreetMap place details and import geocoding |
-| `OVERPASS_URL`, `OVERPASS_TIMEOUT_MS` | The Overpass mirrors behind the category buttons and the Road trip search when the index has no answer |
+| `OVERPASS_URL`, `OVERPASS_TIMEOUT_MS` | The Overpass mirrors behind the category buttons, the Road trip search and the ways and horse routes of Tours when the index has no answer |
 
 Defaults and details for each are on [Environment Variables](Environment-Variables).
 
