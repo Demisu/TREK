@@ -8,7 +8,7 @@ import { OnlineOnlyError } from '../repo/onlineOnly';
 import type { WebSocketEvent } from '../types';
 import { useCollectionTourStore, watchCollectionTours } from './collectionTourStore';
 
-// FE-STORE-COLLECTION-TOURS-001 to FE-STORE-COLLECTION-TOURS-005
+// FE-STORE-COLLECTION-TOURS-001 to FE-STORE-COLLECTION-TOURS-007
 
 const tour = (id: number, name: string) => ({ id, collection_id: 3, name }) as CollectionTourItem;
 
@@ -67,6 +67,35 @@ describe('collectionTourStore', () => {
     remove.mockRejectedValueOnce(new Error('403'));
     await expect(useCollectionTourStore.getState().remove(3, 2)).rejects.toThrow('403');
     expect(useCollectionTourStore.getState().tours.map((kept) => kept.id)).toEqual([2]);
+  });
+
+  it('FE-STORE-COLLECTION-TOURS-006: of two reads of the same collection, an older answer coming last counts for nothing', async () => {
+    const older = later<{ tours: CollectionTourItem[] }>();
+    const newer = later<{ tours: CollectionTourItem[] }>();
+    vi.spyOn(collectionToursRepo, 'list').mockReturnValueOnce(older.promise).mockReturnValueOnce(newer.promise);
+    const first = useCollectionTourStore.getState().load(3);
+    const second = useCollectionTourStore.getState().load(3);
+    newer.settle({ tours: [tour(1, 'Ridge'), tour(2, 'Lake')] });
+    await second;
+    older.settle({ tours: [tour(1, 'Ridge')] });
+    await first;
+    expect(useCollectionTourStore.getState().tours.map((kept) => kept.id)).toEqual([1, 2]);
+  });
+
+  it('FE-STORE-COLLECTION-TOURS-007: a refused removal puts back only its tour, keeping a list read meanwhile', async () => {
+    const both = [tour(1, 'Ridge'), tour(2, 'Lake')];
+    const list = vi.spyOn(collectionToursRepo, 'list').mockResolvedValue({ tours: both });
+    await useCollectionTourStore.getState().load(3);
+    const refusal = later<undefined>();
+    const refused = refusal.promise.then(() => Promise.reject(new Error('403')));
+    vi.spyOn(collectionToursRepo, 'remove').mockReturnValueOnce(refused);
+    const removing = useCollectionTourStore.getState().remove(3, 1);
+    // Another member kept a tour meanwhile; the list read for it no longer holds the tour being removed.
+    list.mockResolvedValueOnce({ tours: [tour(2, 'Lake'), tour(3, 'Summit')] });
+    await useCollectionTourStore.getState().load(3);
+    refusal.settle(undefined);
+    await expect(removing).rejects.toThrow('403');
+    expect(useCollectionTourStore.getState().tours.map((kept) => kept.id)).toEqual([1, 2, 3]);
   });
 
   it('FE-STORE-COLLECTION-TOURS-005: reads again when a member changes the open collection, and stops listening', async () => {
