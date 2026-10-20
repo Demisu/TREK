@@ -1,6 +1,8 @@
 import { Collection, EntityRepositoryType, type Opt, PrimaryKeyProp, type Ref, defineEntity, p } from '@mikro-orm/core';
 import { ToursRepository } from '../repositories/Tours.repository';
+import { DbTimestampType } from '../types';
 import { Places } from './Places.entity';
+import { TourActivities } from './TourActivities.entity';
 import { TourChangeSteps } from './TourChangeSteps.entity';
 import { TourObstacleReviews } from './TourObstacleReviews.entity';
 import { TourSources } from './TourSources.entity';
@@ -45,7 +47,11 @@ export class Tours {
   run_pace_seconds_per_km?: number | null;
   ski_discipline?: TToursSkiDiscipline | null;
   ski_technique?: TToursSkiTechnique | null;
+  track_started_at?: string | null;
+  track_ended_at?: string | null;
   tourTypeRef!: Ref<TourTypes>;
+  tour_activities_collection = new Collection<TourActivities>(this);
+  tour_activities_collection1 = new Collection<TourActivities>(this);
   tour_change_steps_collection = new Collection<TourChangeSteps>(this);
   tour_obstacle_reviews_collection = new Collection<TourObstacleReviews>(this);
   tour_sources: Ref<TourSources> | null = null;
@@ -176,7 +182,11 @@ export const ToursSchema = defineEntity({
     run_pace_seconds_per_km: p.integer().nullable(),
     ski_discipline: p.enum(() => ToursSkiDiscipline).nullable(),
     ski_technique: p.enum(() => ToursSkiTechnique).nullable(),
+    track_started_at: p.type(DbTimestampType).nullable(),
+    track_ended_at: p.type(DbTimestampType).nullable(),
     tourTypeRef: () => p.manyToOne(TourTypes).ref().joinColumn('tour_type').hidden().index('idx_tours_tour_type'),
+    tour_activities_collection: () => p.oneToMany(TourActivities).mappedBy('place').hidden(),
+    tour_activities_collection1: () => p.oneToMany(TourActivities).mappedBy('trackPlace').hidden(),
     tour_change_steps_collection: () => p.oneToMany(TourChangeSteps).mappedBy('place').hidden(),
     tour_obstacle_reviews_collection: () => p.oneToMany(TourObstacleReviews).mappedBy('place').hidden(),
     tour_sources: () => p.oneToOne(TourSources).ref().mappedBy('place').hidden(),

@@ -1,9 +1,11 @@
-import { AlertTriangle, FileDown } from 'lucide-react';
+import type { TourGpxImportFields } from '@trek/shared';
+import { AlertTriangle, Clock, FileDown } from 'lucide-react';
 import { useId, useMemo } from 'react';
 import { OFM_POSITRON } from '../../constants/mapDefaults';
 import { useTileUrl } from '../../hooks/useTileUrl';
 import { useTranslation } from '../../i18n';
 import { useSettingsStore } from '../../store/settingsStore';
+import { formatDate } from '../../utils/formatters';
 import { formatDistance, formatElevation } from '../../utils/units';
 import { MapViewAuto } from '../Map/MapViewAuto';
 import { SoftPill } from '../Planner/planParts';
@@ -18,13 +20,29 @@ import {
   fs,
   NEUTRAL_TINT,
 } from '../shared/DialogShell';
+import { recordedMinutes } from './activity/tourActivityModel';
 import { importFields, importMissing, useGpxImportChoices } from './gpxImportChoices';
 import { GpxImportTypeSection } from './GpxImportTypeSection';
 import { TourNotice } from './tourParts';
+import { formatPlannedTourDuration } from './tourPresentation';
 import type { GpxPreviewFile, TourGpxImport } from './useTourGpxImport';
 
 const BADGE =
   'inline-flex flex-none items-center rounded-full bg-surface-secondary px-2 font-geist tabular-nums leading-[20px] text-content-secondary';
+
+/** ACT-01: when a track was recorded and how long it took, where every point carried a time. */
+function RecordedBadge({ track }: { track: GpxPreviewFile['tracks'][number] }) {
+  const { locale } = useTranslation();
+  const minutes = recordedMinutes(track.started_at, track.ended_at);
+  if (minutes === null || !track.started_at) return null;
+  return (
+    <span className={`${BADGE} gap-1`} data-testid="gpx-preview-recorded">
+      <Clock size={10} strokeWidth={2.2} className="flex-none text-content-faint" />
+      {formatDate(track.started_at.slice(0, 10), locale)}
+      <span className="text-content-faint">{formatPlannedTourDuration(minutes)}</span>
+    </span>
+  );
+}
 
 /** One track of the file as a row: its name, and what it measures as badges; a track the trip holds says so. */
 function PreviewTrackRow({ name, track }: { name: string; track: GpxPreviewFile['tracks'][number] }) {
@@ -54,6 +72,7 @@ function PreviewTrackRow({ name, track }: { name: string; track: GpxPreviewFile[
           <span className={BADGE}>{t('tours.import.previewNoHeights')}</span>
         )}
         <span className={BADGE}>{t('tours.import.previewPoints', { count: track.point_count })}</span>
+        <RecordedBadge track={track} />
       </div>
     </li>
   );
@@ -66,19 +85,36 @@ function PreviewTrackRow({ name, track }: { name: string; track: GpxPreviewFile[
  * and water, as a planned paddle tour does, a ski import its discipline
  * (SKI-02); a ride (HOR-02) says before anything is stored that its line stays
  * as recorded, gets no riding time and is not checked for access. Closing it
- * stores nothing.
+ * stores nothing. `initial` presets the type, as a recording imported for a
+ * tour takes that tour's (ACT-01); left out, it is a hike.
  */
-export default function TourGpxPreviewDialog({ gpxImport }: { gpxImport: TourGpxImport }) {
+export default function TourGpxPreviewDialog({
+  gpxImport,
+  initial,
+}: {
+  gpxImport: TourGpxImport;
+  initial?: TourGpxImportFields;
+}) {
   const { preview } = gpxImport;
   if (!preview) return null;
-  return <PreviewDialog gpxImport={gpxImport} files={preview} />;
+  return <PreviewDialog gpxImport={gpxImport} files={preview} initial={initial ?? HIKE} />;
 }
 
-function PreviewDialog({ gpxImport, files }: { gpxImport: TourGpxImport; files: GpxPreviewFile[] }) {
+const HIKE: TourGpxImportFields = { tour_type: 'hike' };
+
+function PreviewDialog({
+  gpxImport,
+  files,
+  initial,
+}: {
+  gpxImport: TourGpxImport;
+  files: GpxPreviewFile[];
+  initial: TourGpxImportFields;
+}) {
   const { t } = useTranslation();
   const labelId = useId();
   const tileUrl = useTileUrl(OFM_POSITRON);
-  const choices = useGpxImportChoices();
+  const choices = useGpxImportChoices(initial);
 
   const tracks = files.flatMap((file) => file.tracks.map((track) => ({ file: file.file, track })));
   const fresh = tracks.filter(({ track }) => !track.duplicate).length;

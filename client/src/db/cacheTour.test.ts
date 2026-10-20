@@ -53,6 +53,31 @@ describe('cacheTourAnswer', () => {
     expect(await offlineDb.tours.get(40)).toEqual(row);
   });
 
+  it('CT-ACT-001: the actual tracks of a detail are cached, and kept by an answer without them (ACT-01)', async () => {
+    const activities = [
+      {
+        id: 5,
+        assignment_id: null,
+        day_id: null,
+        assigned_at: null,
+        track: { place_id: 41, name: 'Watch', origin: 'gpx' as const, file_name: null, imported_at: null },
+        metrics: {
+          distance_km: 2,
+          elevation_gain_m: null,
+          elevation_loss_m: null,
+          started_at: null,
+          ended_at: null,
+          elapsed_minutes: null,
+          point_count: 2,
+        },
+        geometry: [] as Array<[number, number]>,
+      },
+    ];
+    await cacheTourAnswer(3, { tour: tour({ tour_type: 'hike' }), waypoints, activities });
+    const row = await cacheTourAnswer(3, { tour: tour({ tour_type: 'hike', name: 'Again' }), waypoints });
+    expect(row.activities).toEqual(activities);
+  });
+
   it('CT-002: an answer without provenance or checklist keeps the cached ones', async () => {
     const check = obstacleCheck();
     await cacheTourAnswer(3, { tour: tour(), waypoints, provenance, obstacle_check: check });

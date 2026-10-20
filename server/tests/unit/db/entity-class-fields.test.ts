@@ -38,7 +38,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 //   day plan that checks a city walk's station off).
 // + tour_change_steps: id, place_id, proposal_id, base_revision, revision, changes, before_state (a step is
 //   only ever written whole, by the save of a confirmed change).
-const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 504;
+// + tour_activities: id, place_id, track_place_id (an assignment always names its tour and its recording).
+const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 507;
 
 describe('entity class fields never carry a NaN initialiser (task-4-review-shape.md, Important 1)', () => {
   it('CLASSFIELD-001: new X() has no own property whose value is NaN, across all 133 entities', () => {

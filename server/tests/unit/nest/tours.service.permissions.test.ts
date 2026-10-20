@@ -13,7 +13,7 @@ import type { TourProvenanceRow, ToursRepository } from '../../../src/db/reposit
 import type { UnitOfWork } from '../../../src/nest/database/unit-of-work';
 import type { PlacesService } from '../../../src/nest/places/places.service';
 import { ToursService } from '../../../src/nest/tours/tours.service';
-import { noPaddleChecks } from '../../helpers/fake-paddle-checks';
+import { noActivities, noPaddleChecks } from '../../helpers/fake-paddle-checks';
 import { buildPlaceImportService } from '../../helpers/place-import';
 import { keyed } from '../../helpers/tour-keys';
 import { NotFoundException } from '@nestjs/common';
@@ -145,6 +145,7 @@ function makeService() {
     waypointsRepo as unknown as TourWaypointsRepository,
     visitsRepo as unknown as TourStationVisitsRepository,
     placesRepo as unknown as PlacesRepository,
+    noActivities(),
     buildPlaceImportService(),
     noPaddleChecks(),
   );

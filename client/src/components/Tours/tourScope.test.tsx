@@ -77,6 +77,13 @@ describe('tourScopeSummary (STA-01)', () => {
     ]);
   });
 
+  it('ACT-01: leaves out a recording that is the actual track of a tour, so the tour is not counted twice', () => {
+    const track = { ...GPX_HIKE, place_id: 9, activity_of: HIKE_A.place_id };
+    const scope = tourScopeSummary([HIKE_A, track]);
+    expect(scope.count).toBe(1);
+    expect(scope.types[0].distanceKm).toEqual({ value: 10, known: 1, of: 1 });
+  });
+
   it('sums what is known and says how much of the whole that is, never a zero for unknown', () => {
     const [hike] = tourScopeSummary([HIKE_A, HIKE_B, GPX_HIKE]).types;
     expect(hike.distanceKm).toEqual({ value: 23.5, known: 3, of: 3 });

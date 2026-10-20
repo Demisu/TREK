@@ -41,14 +41,15 @@ describe('ALL_ENTITIES', () => {
    * + trip_journal_links and trip_journal_link_members, the journal a trip shows and who it is open to
    * + paddle_water_graphs and paddle_region_requests, a region's water network and the regions that wait for an admin
    * + tour_station_visits, how far a city walk got on one of its days
-   * + tour_change_steps, the changes to a tour saved from a confirmed proposal)
+   * + tour_change_steps, the changes to a tour saved from a confirmed proposal
+   * + tour_activities, the recorded tracks assigned to a tour)
    * is registered, and no two share a class name (a silent duplicate would
    * shadow one of them in `orm.getMetadata()`, exactly the kind of drift
    * `entity-schema-parity.test.ts` can't see — it iterates the metadata map,
    * which de-duplicates by class name).
    */
-  it('ENT-003: exactly 144 entities, every class name unique', () => {
-    expect(ALL_ENTITIES.length).toBe(144);
+  it('ENT-003: exactly 145 entities, every class name unique', () => {
+    expect(ALL_ENTITIES.length).toBe(145);
     const names = ALL_ENTITIES.map((s) => s.meta.className);
     expect(new Set(names).size).toBe(names.length);
   });

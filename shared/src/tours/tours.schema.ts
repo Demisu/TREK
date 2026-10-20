@@ -8,6 +8,7 @@ import {
 } from './paddle-plan.schema';
 import { runPaceSecondsPerKmSchema } from './run-pace';
 import { skiDisciplineSchema, skiTechniqueSchema } from './ski.schema';
+import { tourActivityRefSchema, tourActivitySchema } from './tour-activity.schema';
 import { tourPoiCategorySchema } from './tour-poi-category';
 import { tourOriginSchema, tourProvenanceSchema } from './tour-provenance.schema';
 
@@ -293,6 +294,17 @@ export const tourListItemSchema = tourSchema.extend({
    * opened, and a save keeps it. Absent in a list cached before it existed.
    */
   route_pending: z.boolean().optional(),
+  /**
+   * ACT-01: when the track an import read was recorded, from the times on its
+   * points (ISO 8601, UTC); null when the file carried none and for a planned
+   * tour. Absent in a list cached before it existed.
+   */
+  track_started_at: z.string().nullable().optional(),
+  track_ended_at: z.string().nullable().optional(),
+  /** ACT-01: the recordings assigned to this tour, one per execution. Absent in a list cached before it existed. */
+  activity_tracks: z.array(tourActivityRefSchema).optional(),
+  /** ACT-01: the tour this recording documents, when it is assigned to one; null otherwise. */
+  activity_of: z.number().int().positive().nullable().optional(),
 });
 export type TourListItem = z.infer<typeof tourListItemSchema>;
 
@@ -676,6 +688,8 @@ export const tourCreateResponseSchema = z.object({
   provenance: tourProvenanceSchema.optional(),
   /** PAD-06: a paddle tour's obstacle checklist; dropped, never refused, when this build cannot read it. */
   obstacle_check: tourObstacleCheckSchema.optional().catch(undefined),
+  /** ACT-01: the recorded tracks assigned to the tour; absent only in a detail cached before TREK sent them. */
+  activities: z.array(tourActivitySchema).optional(),
 });
 export type TourCreateResponse = z.infer<typeof tourCreateResponseSchema>;
 

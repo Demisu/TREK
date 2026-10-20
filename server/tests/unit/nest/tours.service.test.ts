@@ -22,6 +22,7 @@ import { resetTestDb } from '../../helpers/test-db';
 import { createTestPlacesRepo, createTestUnitOfWork, sharedTestOrm } from '../../helpers/test-uow';
 import { keyed } from '../../helpers/tour-keys';
 import {
+  createTestTourActivitiesRepo,
   createTestToursRepo,
   createTestTourStationVisitsRepo,
   createTestTourTypesRepo,
@@ -86,6 +87,7 @@ beforeAll(async () => {
     await createTestTourWaypointsRepo(testDb),
     await createTestTourStationVisitsRepo(testDb),
     await createTestPlacesRepo(testDb),
+    await createTestTourActivitiesRepo(testDb),
     buildPlaceImportService(),
     noPaddleChecks(),
   );

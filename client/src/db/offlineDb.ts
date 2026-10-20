@@ -1,4 +1,4 @@
-import type { Ferrata, RoadtripPreferences, TourListItem, TourObstacleCheck, TourProvenance, TourVisit, TourWaypoint } from '@trek/shared';
+import type { Ferrata, RoadtripPreferences, TourActivity, TourListItem, TourObstacleCheck, TourProvenance, TourVisit, TourWaypoint } from '@trek/shared';
 import Dexie, { type Table } from 'dexie';
 import type { Trip, Day, Place, PackingItem, TodoItem, BudgetItem, Reservation, TripFile, Accommodation, TripMember, Tag, Category } from '../types';
 
@@ -19,6 +19,8 @@ export interface CachedTour extends TourListItem {
   provenance?: TourProvenance;
   /** A paddle tour's obstacle checklist as its detail last said; its revision tells whether the list's bench still matches. */
   obstacle_check?: TourObstacleCheck;
+  /** ACT-01: the recorded tracks its detail last answered, kept while the list names the same ones. */
+  activities?: TourActivity[];
 }
 
 /**
@@ -468,6 +470,13 @@ export async function replaceTripRows<T extends { id: number }>(table: TripScope
  * reads the same: the list carries no waypoints, and a route edited elsewhere
  * must not open offline with the old ones.
  */
+/** The recorded tracks a cached detail holds, while the list still names the same ones (ACT-01). */
+function keptActivities(previous: CachedTour | undefined, tour: TourListItem): Pick<CachedTour, 'activities'> {
+  const refs = (item: Pick<TourListItem, 'activity_tracks'>) =>
+    (item.activity_tracks ?? []).map(ref => `${ref.id}:${ref.track_place_id}:${ref.assignment_id}`).join(',')
+  return previous?.activities && refs(previous) === refs(tour) ? { activities: previous.activities } : {}
+}
+
 export async function replaceTripTours(tripId: number, tours: TourListItem[]): Promise<void> {
   await offlineDb.transaction('rw', offlineDb.tours, async () => {
     const cached = new Map((await offlineDb.tours.where('trip_id').equals(tripId).toArray()).map(t => [t.place_id, t]));
@@ -490,6 +499,7 @@ export async function replaceTripTours(tripId: number, tours: TourListItem[]): P
         ...(sameRoute && previous.waypoints ? { waypoints: previous.waypoints } : {}),
         ...(previous?.provenance ? { provenance: previous.provenance } : {}),
         ...(previous?.obstacle_check ? { obstacle_check: previous.obstacle_check } : {}),
+        ...keptActivities(previous, tour),
       };
     }));
   });

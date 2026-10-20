@@ -1,7 +1,8 @@
-import { computeTourMetrics, estimatePaddleTime, paddleCheckSummaryOf, paddleLayoutOfTrack, paddleMovingSeconds, recommendedPaddleSpeedKmh, type GeometryPoint, type TourObstacleCheck, type TourObstacleReviewsRequest, type TourPaddlePlanRequest, type TourSkiClassificationRequest, type TourCreateRequest, type TourCreateResponse, type TourDetailResponse, type TourGpxImportFields, type TourGpxPreviewResponse, type TourImportGpxResponse, type TourListItem, type TourWaypoint, walkStationFacts } from '@trek/shared'
+import { computeTourMetrics, estimatePaddleTime, paddleCheckSummaryOf, paddleLayoutOfTrack, paddleMovingSeconds, recommendedPaddleSpeedKmh, type GeometryPoint, type TourActivityAssignRequest, type TourObstacleCheck, type TourObstacleReviewsRequest, type TourPaddlePlanRequest, type TourSkiClassificationRequest, type TourCreateRequest, type TourCreateResponse, type TourDetailResponse, type TourGpxImportFields, type TourGpxPreviewResponse, type TourImportGpxResponse, type TourListItem, type TourWaypoint, walkStationFacts } from '@trek/shared'
 import { toursApi } from '../api/client'
 import { tourGpxApi } from '../api/tourGpx'
 import { recordedTrackApi } from '../api/recordedTrack'
+import { tourActivitiesApi } from '../api/tourActivities'
 import { tourPaddlePlanApi } from '../api/tourPaddlePlan'
 import { tourSkiApi } from '../api/tourSki'
 import { tourCopiesApi } from '../api/tourCopies'
@@ -16,7 +17,7 @@ import { onlineThenCache } from './withOfflineFallback'
 import type { Place } from '../types'
 
 /** The list item a cached row stands for: the cache-only fields stripped. */
-function toListItem({ trip_id: _tripId, waypoints: _waypoints, provenance: _provenance, obstacle_check: _check, ...tour }: CachedTour): TourListItem {
+function toListItem({ trip_id: _tripId, waypoints: _waypoints, provenance: _provenance, obstacle_check: _check, activities: _activities, ...tour }: CachedTour): TourListItem {
   return tour
 }
 
@@ -171,6 +172,7 @@ export const tourRepo = {
           waypoints,
           ...(cached.provenance ? { provenance: cached.provenance } : {}),
           ...(cached.obstacle_check ? { obstacle_check: cached.obstacle_check } : {}),
+          ...(cached.activities ? { activities: cached.activities } : {}),
         }
       },
     )
@@ -317,6 +319,25 @@ export const tourRepo = {
   /** Online only, like the import: the recorded track is kept on the server, not in the cache. */
   async restoreRecorded(tripId: number | string, placeId: number): Promise<TourDetailResponse> {
     const result = await recordedTrackApi.restore(tripId, placeId)
+    await cacheTourAnswer(Number(tripId), result)
+    return result
+  },
+
+  /**
+   * ACT-01, online only like the GPX import a recording comes through: the
+   * assignment points at a recording the server keeps, so it needs the server
+   * to answer. Nothing of the plan changes, so nothing waits in the queue; the
+   * answer keeps the cached detail fresh.
+   */
+  async assignActivity(tripId: number | string, placeId: number, body: TourActivityAssignRequest): Promise<TourDetailResponse> {
+    const result = await tourActivitiesApi.assign(tripId, placeId, body)
+    await cacheTourAnswer(Number(tripId), result)
+    return result
+  },
+
+  /** ACT-01: a recorded track taken off the tour again; online only, like the assignment. */
+  async unassignActivity(tripId: number | string, placeId: number, activityId: number): Promise<TourDetailResponse> {
+    const result = await tourActivitiesApi.unassign(tripId, placeId, activityId)
     await cacheTourAnswer(Number(tripId), result)
     return result
   },

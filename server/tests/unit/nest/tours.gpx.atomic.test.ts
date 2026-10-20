@@ -60,6 +60,7 @@ import {
   sharedTestOrm,
 } from '../../helpers/test-uow';
 import {
+  createTestTourActivitiesRepo,
   createTestToursRepo,
   createTestTourStationVisitsRepo,
   createTestTourTypesRepo,
@@ -172,6 +173,7 @@ beforeAll(async () => {
     await createTestTourWaypointsRepo(testDb),
     await createTestTourStationVisitsRepo(testDb),
     await createTestPlacesRepo(testDb),
+    await createTestTourActivitiesRepo(testDb),
     buildPlaceImportService(),
     noPaddleChecks(),
   );

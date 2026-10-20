@@ -87,10 +87,13 @@ type OnDay = (tour: TourListItem) => boolean;
  * however many days it is on; the list is the trip's tours, one row each, so
  * a tour on three days is still one tour and one distance. `onDay` reads the
  * day lists where the caller has them; the list's own flag is the fallback.
+ * A recording assigned to a tour as its recorded track (ACT-01) is that tour
+ * done, not a tour of its own, so it is not counted twice.
  */
 export function tourScopeSummary(tours: readonly TourListItem[], onDay: OnDay = (tour) => tour.planned): TourScope {
   const byType = new Map<TourTypeKey, TourListItem[]>();
-  for (const tour of new Map(tours.map((tour) => [tour.place_id, tour])).values()) {
+  const counted = tours.filter((tour) => tour.activity_of == null);
+  for (const tour of new Map(counted.map((tour) => [tour.place_id, tour])).values()) {
     byType.set(tour.tour_type, [...(byType.get(tour.tour_type) ?? []), tour]);
   }
   const types = [...byType.entries()]

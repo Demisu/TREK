@@ -110,6 +110,8 @@ describe('ToursRepository reads', () => {
         run_pace_seconds_per_km: null,
         ski_discipline: null,
         ski_technique: null,
+        track_started_at: null,
+        track_ended_at: null,
       },
       {
         place_id: older.id,
@@ -147,6 +149,8 @@ describe('ToursRepository reads', () => {
         run_pace_seconds_per_km: null,
         ski_discipline: null,
         ski_technique: null,
+        track_started_at: null,
+        track_ended_at: null,
       },
     ]);
     expect((await repo.listForTrip(trip.id)).map((r) => r.place_id)).not.toContain(plain.id);
@@ -265,6 +269,8 @@ describe('ToursRepository writes', () => {
       run_pace_seconds_per_km: null,
       ski_discipline: null,
       ski_technique: null,
+      track_started_at: null,
+      track_ended_at: null,
     });
   });
 
@@ -414,6 +420,8 @@ describe('ToursRepository writes', () => {
         run_pace_seconds_per_km: null,
         ski_discipline: null,
         ski_technique: null,
+        track_started_at: null,
+        track_ended_at: null,
         taken_over_from_trip_title: null,
         taken_over_from_tour_name: null,
       },

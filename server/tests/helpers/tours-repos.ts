@@ -1,7 +1,9 @@
+import { TourActivities } from '../../src/db/entities/TourActivities.entity';
 import { TourStationVisits } from '../../src/db/entities/TourStationVisits.entity';
 import { TourTypes } from '../../src/db/entities/TourTypes.entity';
 import { TourWaypoints } from '../../src/db/entities/TourWaypoints.entity';
 import { Tours } from '../../src/db/entities/Tours.entity';
+import type { TourActivitiesRepository } from '../../src/db/repositories/TourActivities.repository';
 import type { TourStationVisitsRepository } from '../../src/db/repositories/TourStationVisits.repository';
 import type { TourTypesRepository } from '../../src/db/repositories/TourTypes.repository';
 import type { TourWaypointsRepository } from '../../src/db/repositories/TourWaypoints.repository';
@@ -30,6 +32,10 @@ export function createTestTourWaypointsRepo(db: Database.Database): Promise<Tour
 
 export function createTestTourStationVisitsRepo(db: Database.Database): Promise<TourStationVisitsRepository> {
   return sharedTestOrm(db).then((t) => t.repo(TourStationVisits));
+}
+
+export function createTestTourActivitiesRepo(db: Database.Database): Promise<TourActivitiesRepository> {
+  return sharedTestOrm(db).then((t) => t.repo(TourActivities));
 }
 
 /** A `tours` row for an existing place, with the defaults a GPX import writes. */

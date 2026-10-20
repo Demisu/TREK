@@ -27,6 +27,13 @@ export const tourGpxPreviewTrackSchema = z.object({
   /** Null when the file carries no heights: unknown, never zero. */
   elevation_gain_m: z.number().nullable(),
   elevation_loss_m: z.number().nullable(),
+  /**
+   * ACT-01: the first and last time on the track's points (ISO 8601, UTC);
+   * null unless every point carries one, so a route or a drawn track never
+   * reads as recorded.
+   */
+  started_at: z.string().nullable().optional(),
+  ended_at: z.string().nullable().optional(),
   /** Already in the trip under the same name and start: the import skips it, as it always has. */
   duplicate: z.boolean(),
 });

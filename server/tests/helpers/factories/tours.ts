@@ -1,8 +1,9 @@
+import { TourActivities } from '../../../src/db/entities/TourActivities.entity';
 import { TourStationVisits, type TTourStationVisitsStatus } from '../../../src/db/entities/TourStationVisits.entity';
 import { TourWaypoints, type TTourWaypointsImportance } from '../../../src/db/entities/TourWaypoints.entity';
 import { Tours } from '../../../src/db/entities/Tours.entity';
 import type { FactoryOrm } from './context';
-import { findRow, insertRow, insertRows } from './rows';
+import { createRow, findRow, insertRow, insertRows } from './rows';
 import type { EntityData, EntityDTO } from '@mikro-orm/core';
 
 export type TourRow = EntityDTO<Tours>;
@@ -70,4 +71,16 @@ export async function markStationVisit(
   status: TTourStationVisitsStatus,
 ): Promise<void> {
   await insertRow(orm, TourStationVisits, { assignment: assignmentId, station_key: stationKey, status });
+}
+
+type TourActivityRow = EntityDTO<TourActivities>;
+
+/** ACT-01: the recording `trackPlaceId` assigned to the tour, on no day unless `assignment` names one. */
+export function makeTourActivity(
+  orm: FactoryOrm,
+  placeId: number,
+  trackPlaceId: number,
+  overrides: EntityData<TourActivities> = {},
+): Promise<TourActivityRow> {
+  return createRow(orm, TourActivities, { place: placeId, trackPlace: trackPlaceId }, overrides);
 }

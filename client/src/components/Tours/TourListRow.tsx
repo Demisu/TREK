@@ -3,7 +3,7 @@ import { useId, type ReactNode } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import type { TourListItem } from '@trek/shared'
 import { fs } from '../shared/DialogShell'
-import { TourCautionBadge, TourDaysBadge, TourGradeTile } from './tourParts'
+import { TourActivityBadge, TourCautionBadge, TourDaysBadge, TourGradeTile } from './tourParts'
 import type { Day } from '../../types'
 import { endPlaceDrag, startPlaceDrag } from '../Map/markerDrag'
 import { TourDayRowPills } from './TourDayRowFacts'
@@ -76,6 +76,7 @@ function TourRowBody({ tour, nameId, tourDays, dimmed }: {
           className="-mx-0.5 mt-0.5 flex h-6 min-w-0 flex-wrap content-start gap-x-1.5 gap-y-2 overflow-hidden px-0.5 pt-0.5"
         >
           <TourCautionBadge tour={tour} />
+          <TourActivityBadge tour={tour} />
           <TourDayRowPills tour={tour} compact />
           <TourDaysBadge tourDays={tourDays} />
         </div>

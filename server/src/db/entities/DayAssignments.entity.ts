@@ -7,6 +7,7 @@ import { FileLinks } from './FileLinks.entity';
 import { Places } from './Places.entity';
 import { Reservations } from './Reservations.entity';
 import { RoadtripDayBoundaries } from './RoadtripDayBoundaries.entity';
+import { TourActivities } from './TourActivities.entity';
 import { TourStationVisits } from './TourStationVisits.entity';
 
 export class DayAssignments {
@@ -34,6 +35,7 @@ export class DayAssignments {
   reservations_collection = new Collection<Reservations>(this);
   roadtrip_day_boundaries_collection = new Collection<RoadtripDayBoundaries>(this);
   roadtrip_day_boundaries_collection1 = new Collection<RoadtripDayBoundaries>(this);
+  tour_activities_collection = new Collection<TourActivities>(this);
   tour_station_visits_collection = new Collection<TourStationVisits>(this);
 }
 
@@ -64,6 +66,7 @@ export const DayAssignmentsSchema = defineEntity({
     reservations_collection: () => p.oneToMany(Reservations).mappedBy('assignment').hidden(),
     roadtrip_day_boundaries_collection: () => p.oneToMany(RoadtripDayBoundaries).mappedBy('fromAssignment').hidden(),
     roadtrip_day_boundaries_collection1: () => p.oneToMany(RoadtripDayBoundaries).mappedBy('toAssignment').hidden(),
+    tour_activities_collection: () => p.oneToMany(TourActivities).mappedBy('assignment').hidden(),
     tour_station_visits_collection: () => p.oneToMany(TourStationVisits).mappedBy('assignment').hidden(),
   },
 });

@@ -23,14 +23,22 @@ export interface GpxImportChoices {
   ski: SkiChoice;
 }
 
-const START: GpxImportChoices = {
-  type: 'hike',
-  boat: null,
-  water: null,
-  bikeProfile: 'touring',
-  runProfile: 'running',
-  ski: NO_SKI_CHOICE,
-};
+const HIKE: TourGpxImportFields = { tour_type: 'hike' };
+
+/** The choices a preview opens with: the fields it was preset to (ACT-01), the rest as a fresh preview has them. */
+function choicesFrom(initial: TourGpxImportFields): GpxImportChoices {
+  return {
+    type: initial.tour_type,
+    boat: initial.boat_type ?? null,
+    water: initial.water_context ?? null,
+    bikeProfile: initial.bike_profile ?? 'touring',
+    runProfile: initial.run_profile ?? 'running',
+    ski:
+      initial.tour_type === 'ski'
+        ? { discipline: initial.ski_discipline ?? null, technique: initial.ski_technique ?? null }
+        : NO_SKI_CHOICE,
+  };
+}
 
 /** What the chosen type still lacks before anything can be imported; null when nothing does. */
 export function importMissing(chosen: GpxImportChoices): 'paddle' | 'ski' | null {
@@ -47,6 +55,8 @@ export function importFields(chosen: GpxImportChoices): TourGpxImportFields {
   if (type === 'bike') return { tour_type: 'bike', bike_profile: chosen.bikeProfile };
   // RUN-01: a run comes in with its profile and no pace; its time stays unknown until one is planned from it.
   if (type === 'run') return { tour_type: 'run', run_profile: chosen.runProfile };
+  // ACT-01: a city walk comes in as one, not as a hike.
+  if (type === 'walk') return { tour_type: 'walk' };
   // HOR-01: a recorded ride comes in as a ride, with nothing of another type.
   if (type === 'horse') return { tour_type: 'horse' };
   // SKI-02: a ski track comes in with its discipline and, for cross-country, its technique, and no time.
@@ -55,9 +65,9 @@ export function importFields(chosen: GpxImportChoices): TourGpxImportFields {
   return { tour_type: 'hike' };
 }
 
-/** The preview's choices, each field set on its own; a fresh preview starts as a hike. */
-export function useGpxImportChoices() {
-  const [chosen, setChosen] = useState<GpxImportChoices>(START);
+/** The preview's choices, each field set on its own; a fresh preview starts as a hike, a preset one as preset. */
+export function useGpxImportChoices(initial: TourGpxImportFields = HIKE) {
+  const [chosen, setChosen] = useState<GpxImportChoices>(() => choicesFrom(initial));
   const set =
     <K extends keyof GpxImportChoices>(key: K) =>
     (value: GpxImportChoices[K]) =>

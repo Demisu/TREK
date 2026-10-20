@@ -1,4 +1,5 @@
 import { Places } from '../../db/entities/Places.entity';
+import { TourActivities } from '../../db/entities/TourActivities.entity';
 import { TourChangeSteps } from '../../db/entities/TourChangeSteps.entity';
 import { TourObstacleReviews } from '../../db/entities/TourObstacleReviews.entity';
 import { TourSources } from '../../db/entities/TourSources.entity';
@@ -20,6 +21,9 @@ import { WandererModule } from '../wanderer/wanderer.module';
 import { CityWalkBriefingService } from './city-walk-briefing.service';
 import { CityWalkFootWayService } from './city-walk-foot-way.service';
 import { CityWalkMcp } from './city-walk.mcp';
+import { TourActivitiesController } from './tour-activities.controller';
+import { TourActivitiesMcp } from './tour-activities.mcp';
+import { TourActivitiesService } from './tour-activities.service';
 import { TourChangePreviewService } from './tour-change-preview.service';
 import { TourChangeSaveService } from './tour-change-save.service';
 import { TourChangeUndoMcp } from './tour-change-undo.mcp';
@@ -69,7 +73,9 @@ import { Module } from '@nestjs/common';
  * assistant prepares for review is laid onto its saved points and planned on
  * foot by the same router, and saves nothing (MCP-T02); once the traveller
  * confirmed it, it is saved through the tour's own write, which records the
- * step for a later undo (MCP-T03).
+ * step for a later undo (MCP-T03). The recorded tracks assigned to a tour
+ * (ACT-01) are read with its detail and written through
+ * TourActivitiesService, over the day assignments the visits repository reads.
  */
 @Module({
   imports: [
@@ -99,12 +105,14 @@ import { Module } from '@nestjs/common';
       TourObstacleReviews,
       TourStationVisits,
       TourChangeSteps,
+      TourActivities,
       Places,
     ]),
   ],
   controllers: [
     TourHorseRoutesController,
     TourTakeOverController,
+    TourActivitiesController,
     TourPoiSearchController,
     TourSkiController,
     TourTrailGradeController,
@@ -135,12 +143,14 @@ import { Module } from '@nestjs/common';
     TourChangePreviewService,
     TourChangeSaveService,
     TourChangeUndoService,
+    TourActivitiesService,
     ToursMcp,
     TourLibraryMcp,
     TourWalkImportMcp,
     CityWalkMcp,
     TourChangeMcp,
     TourChangeUndoMcp,
+    TourActivitiesMcp,
   ],
 })
 export class ToursModule {}

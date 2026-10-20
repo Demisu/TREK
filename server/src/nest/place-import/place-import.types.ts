@@ -13,6 +13,11 @@ export interface PreparedGpxPlace {
   lng: number;
   description: string | null;
   routeGeometry?: string;
+  /**
+   * ACT-01: when a track was recorded, ISO 8601 in UTC: its first and last
+   * point's time, only when every point carries one. Never on a route.
+   */
+  trackTimes?: { startedAt: string; endedAt: string };
 }
 
 export interface GpxImportOptions {

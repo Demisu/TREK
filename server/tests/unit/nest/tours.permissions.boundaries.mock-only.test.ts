@@ -25,7 +25,7 @@ import type { PlacesService } from '../../../src/nest/places/places.service';
 import type { StorageService } from '../../../src/nest/storage/storage.service';
 import { ToursService } from '../../../src/nest/tours/tours.service';
 import type { User } from '../../../src/types';
-import { noPaddleChecks } from '../../helpers/fake-paddle-checks';
+import { noActivities, noPaddleChecks } from '../../helpers/fake-paddle-checks';
 import { buildPlaceImportService } from '../../helpers/place-import';
 import { keyed } from '../../helpers/tour-keys';
 import type { EntityManager } from '@mikro-orm/core';
@@ -310,6 +310,7 @@ function tourRepositoryFixture(ownerTripId: number) {
     waypointsRepo as unknown as TourWaypointsRepository,
     { dropStationsNotIn: vi.fn(async () => []) } as unknown as TourStationVisitsRepository,
     placesRepo as unknown as PlacesRepository,
+    noActivities(),
     buildPlaceImportService(),
     noPaddleChecks(),
   );

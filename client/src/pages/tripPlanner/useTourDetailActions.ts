@@ -7,8 +7,9 @@ import type { useTripPlanner } from './useTripPlanner';
 /**
  * What the tour's detail does beyond a place's: a rename reloads the tours,
  * a reimport from its source check (MF-03) takes the new snapshot in and opens
- * it, and "save as new tour" (P2C-07) makes the copy and opens it under a name
- * that says it is one, so renaming it is the next step.
+ * it, "save as new tour" (P2C-07) makes the copy and opens it under a name
+ * that says it is one, so renaming it is the next step, and a recorded track
+ * assigned or taken off (ACT-01) is taken into the lists.
  */
 export function useTourDetailActions(planner: ReturnType<typeof useTripPlanner>) {
   const { invalidateTourPlaceIds, reloadTourPlaceIds, t, toast, tripActions, tripId, upsertTour } = planner;
@@ -31,6 +32,8 @@ export function useTourDetailActions(planner: ReturnType<typeof useTripPlanner>)
       await reloadTourPlaceIds();
     },
     onSourceReimported: takeIn,
+    /** ACT-01: a recorded track assigned, taken off or imported; the lists read these tours again. */
+    onToursChanged: (placeIds: number[]) => invalidateTourPlaceIds({ placeIds }),
     /** LIB-02: a tour taken over from another trip; the tours rail opens it in the planner. */
     onTakenOver: bringIn,
     onSaveAsNew: async (tour: TourListItem) => {

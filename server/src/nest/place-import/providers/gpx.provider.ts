@@ -208,6 +208,29 @@ export function gpxFilename(tripTitle: string, fallback = 'trip'): string {
   return `${[...base].slice(0, 60).join('') || fallback}.gpx`;
 }
 
+/** A time written with its zone (`Z` or an offset); one without is local to an unknown clock and reads as none. */
+const ZONED_TIME = /(?:Z|[+-]\d{2}:?\d{2})$/i;
+
+/**
+ * ACT-01: when a track was recorded, from the times on its points: the first
+ * and the last, only when every point carries one with its zone and they never
+ * run backwards, so a track drawn on a map or stitched from pieces never reads
+ * as recorded. Undefined otherwise.
+ */
+export function trackTimeSpan(times: readonly unknown[]): { startedAt: string; endedAt: string } | undefined {
+  let first: number | undefined;
+  let last = Number.NEGATIVE_INFINITY;
+  for (const raw of times) {
+    const text = typeof raw === 'string' ? raw.trim() : '';
+    const at = ZONED_TIME.test(text) ? Date.parse(text) : Number.NaN;
+    if (!Number.isFinite(at) || at < last) return undefined;
+    first ??= at;
+    last = at;
+  }
+  if (first === undefined || last <= first) return undefined;
+  return { startedAt: new Date(first).toISOString(), endedAt: new Date(last).toISOString() };
+}
+
 /**
  * Parses a GPX file into the places an import would create, without writing
  * anything. Waypoints become places, each route and each track becomes one
@@ -282,12 +305,14 @@ function prepareGpxRows(fileBuffer: Buffer, opts: GpxImportOptions = {}): Prepar
   if (importTracks) {
     for (const trk of gpx.trk ?? []) {
       const trackPoints: { lat: number; lng: number; ele: number | null }[] = [];
+      const times: unknown[] = [];
       for (const seg of trk.trkseg ?? []) {
         for (const pt of seg.trkpt ?? []) {
           const lat = num(pt['@_lat']);
           const lng = num(pt['@_lon']);
           if (lat === null || lng === null) continue;
           trackPoints.push({ lat, lng, ele: num(pt.ele) });
+          times.push(pt.time);
         }
       }
       if (trackPoints.length === 0) continue;
@@ -300,11 +325,17 @@ function prepareGpxRows(fileBuffer: Buffer, opts: GpxImportOptions = {}): Prepar
         name: geoName(str(trk.name), 'GPX Track'),
         description: str(trk.desc),
         routeGeometry: JSON.stringify(routeGeometry),
+        ...withTrackTimes(trackTimeSpan(times)),
       });
     }
   }
 
   return waypoints;
+}
+
+/** The times as a row carries them: left out, not undefined, when the track has none. */
+function withTrackTimes(span: ReturnType<typeof trackTimeSpan>): Pick<PreparedGpxPlace, 'trackTimes'> {
+  return span ? { trackTimes: span } : {};
 }
 
 /** The GPX source: a trip file in, a trip file out. */

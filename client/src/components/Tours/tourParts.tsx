@@ -1,6 +1,6 @@
 import { useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import type { TourListItem } from '@trek/shared'
-import { AlertTriangle, CalendarDays, ChevronDown, Info, Plus } from 'lucide-react'
+import { AlertTriangle, CalendarDays, ChevronDown, Footprints, Info, Plus } from 'lucide-react'
 import { createElement } from 'react'
 import type { Day, DistanceUnit } from '../../types'
 import type { RouteGeometryAnalysis } from '../../utils/routeGeometry'
@@ -116,6 +116,26 @@ export function TourCautionBadge({ tour }: { tour: Pick<TourListItem, 'caution'>
         <Tooltip label={t('tours.caution.tooltip')}>
           <span aria-label={t('tours.caution.badge')} className="inline-flex flex-none">
             <WhiteBadge className="text-warning" icon={<AlertTriangle size={10} strokeWidth={2.2} className="flex-none" />}>{null}
+        </WhiteBadge>
+      </span>
+    </Tooltip>
+  )
+}
+
+/**
+ * ACT-01 on a row, icon only like the caution: a tour that has a recorded
+ * track, or a recording that is the track of a tour. The tooltip says which.
+ */
+export function TourActivityBadge({ tour }: { tour: Pick<TourListItem, 'activity_tracks' | 'activity_of'> }) {
+  const { t } = useTranslation()
+  const isTrack = tour.activity_of != null
+  if (!isTrack && !tour.activity_tracks?.length) return null
+  const label = t(isTrack ? 'tours.activity.isTrackHint' : 'tours.activity.badgeHint')
+  return (
+    <Tooltip label={label}>
+      <span data-testid="tour-activity-badge" aria-label={label} className="inline-flex flex-none">
+        <WhiteBadge className="text-success" icon={<Footprints size={10} strokeWidth={2.2} className="flex-none" />}>
+          {null}
         </WhiteBadge>
       </span>
     </Tooltip>

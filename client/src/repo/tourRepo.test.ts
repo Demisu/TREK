@@ -413,6 +413,43 @@ describe('tourRepo provenance and copies (P2C-02, P2C-07)', () => {
     expect(offline.tour).not.toHaveProperty('provenance')
   })
 
+  it('FE-REPO-TOUR-022: an actual track is linked and unlinked on the server, and the detail keeps it offline (ACT-01)', async () => {
+    const activity = {
+      id: 5, assignment_id: null, day_id: null, assigned_at: null,
+      track: { place_id: 41, name: 'Watch', origin: 'gpx', file_name: 'watch.gpx', imported_at: null },
+      metrics: { distance_km: 2, elevation_gain_m: null, elevation_loss_m: null, started_at: null, ended_at: null, elapsed_minutes: null, point_count: 2 },
+      geometry: [[47, 11], [47.01, 11]],
+    }
+    let sent: unknown = null
+    server.use(
+      http.put('/api/trips/3/tours/40/activities', async ({ request }) => {
+        sent = await request.json()
+        return HttpResponse.json({ tour: tour({ activity_tracks: [{ id: 5, track_place_id: 41, assignment_id: null }] }), waypoints: body.waypoints, activities: [activity] })
+      }),
+      http.delete('/api/trips/3/tours/40/activities/5', () => HttpResponse.json({ tour: tour(), waypoints: body.waypoints, activities: [] })),
+    )
+    const linked = await tourRepo.assignActivity(3, 40, { track_place_id: 41, assignment_id: null })
+    expect(sent).toEqual({ track_place_id: 41, assignment_id: null })
+    expect(linked.activities).toHaveLength(1)
+    expect((await offlineDb.tours.get(40))?.activities).toEqual([activity])
+
+    // A list naming the same tracks keeps them; offline the detail answers them, the list item stays without them.
+    await replaceTripTours(3, [tour({ activity_tracks: [{ id: 5, track_place_id: 41, assignment_id: null }] })])
+    setOnline(false)
+    const offline = await tourRepo.detail(3, 40)
+    expect(offline.activities).toEqual([activity])
+    expect(offline.tour).not.toHaveProperty('activities')
+    setOnline(true)
+
+    // A list naming other tracks drops the stale copy.
+    await replaceTripTours(3, [tour({ activity_tracks: [] })])
+    expect((await offlineDb.tours.get(40))?.activities).toBeUndefined()
+
+    const unlinked = await tourRepo.unassignActivity(3, 40, 5)
+    expect(unlinked.activities).toEqual([])
+    expect((await offlineDb.tours.get(40))?.activities).toEqual([])
+  })
+
   it('FE-REPO-TOUR-021: a copy is asked of the server under its name and cached as a tour of the trip', async () => {
     let sent: unknown = null
     server.use(http.post('/api/trips/3/tours/40/copy', async ({ request }) => {

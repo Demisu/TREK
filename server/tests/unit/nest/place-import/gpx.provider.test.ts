@@ -7,7 +7,9 @@
 import {
   buildGpx,
   buildTourGpx,
+  GpxProvider,
   gpxFilename,
+  trackTimeSpan,
   type GpxExportPlace,
   type GpxExportDay,
 } from '../../../../src/nest/place-import/providers/gpx.provider';
@@ -346,5 +348,44 @@ describe('buildTourGpx (PR1-06A)', () => {
   it('names a tour whose name folds away to nothing "tour"', () => {
     expect(gpxFilename('///', 'tour')).toBe('tour.gpx');
     expect(gpxFilename('Grat <Ost>', 'tour')).toBe('Grat-Ost.gpx');
+  });
+});
+
+describe('track times (ACT-01)', () => {
+  it('GPX-TIME-001: the first and last time of a track whose every point carries one, in order', () => {
+    expect(trackTimeSpan(['2026-07-02T06:10:00Z', '2026-07-02T06:10:00Z', ' 2026-07-02T09:00:00+02:00 '])).toEqual({
+      startedAt: '2026-07-02T06:10:00.000Z',
+      endedAt: '2026-07-02T07:00:00.000Z',
+    });
+  });
+
+  it('GPX-TIME-002: no times at all when one is missing, has no zone, runs backwards or none passes', () => {
+    expect(trackTimeSpan(['2026-07-02T06:10:00Z', undefined])).toBeUndefined();
+    expect(trackTimeSpan(['2026-07-02T06:10:00', '2026-07-02T07:10:00'])).toBeUndefined();
+    expect(trackTimeSpan(['2026-07-02T07:10:00Z', '2026-07-02T06:10:00Z'])).toBeUndefined();
+    expect(trackTimeSpan(['2026-07-02T06:10:00Z', '2026-07-02T06:10:00Z'])).toBeUndefined();
+    expect(trackTimeSpan(['not a time Z'])).toBeUndefined();
+    expect(trackTimeSpan([])).toBeUndefined();
+  });
+
+  it('GPX-TIME-003: the reader hands a track its times and never a route', () => {
+    const xml = `<?xml version="1.0"?>
+<gpx version="1.1" creator="unit">
+<rte><name>Plan</name><rtept lat="1" lon="2"><time>2026-07-02T06:00:00Z</time></rtept><rtept lat="1.1" lon="2"><time>2026-07-02T07:00:00Z</time></rtept></rte>
+<trk><name>Walked</name><trkseg>
+  <trkpt lat="1" lon="2"><time>2026-07-02T06:00:00Z</time></trkpt>
+</trkseg><trkseg>
+  <trkpt lat="1.1" lon="2"><time>2026-07-02T08:30:00Z</time></trkpt>
+</trkseg></trk>
+<trk><name>Drawn</name><trkseg><trkpt lat="3" lon="4"/><trkpt lat="3.1" lon="4"/></trkseg></trk>
+</gpx>`;
+    const rows = new GpxProvider().read(Buffer.from(xml), { importWaypoints: false });
+    const byName = new Map(rows.map((row) => [row.name, row]));
+    expect(byName.get('Plan')?.trackTimes).toBeUndefined();
+    expect(byName.get('Walked')?.trackTimes).toEqual({
+      startedAt: '2026-07-02T06:00:00.000Z',
+      endedAt: '2026-07-02T08:30:00.000Z',
+    });
+    expect(byName.get('Drawn')).not.toHaveProperty('trackTimes');
   });
 });

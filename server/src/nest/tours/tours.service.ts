@@ -1,10 +1,12 @@
 import { Places } from '../../db/entities/Places.entity';
+import { TourActivities } from '../../db/entities/TourActivities.entity';
 import { TourStationVisits } from '../../db/entities/TourStationVisits.entity';
 import { TourTypes } from '../../db/entities/TourTypes.entity';
 import { TourWaypoints } from '../../db/entities/TourWaypoints.entity';
 import { Tours } from '../../db/entities/Tours.entity';
 import { TOUR_HIKING_PREFERENCES, TOUR_TRACK_MARKS } from '../../db/json-columns';
 import type { PlacesRepository } from '../../db/repositories/Places.repository';
+import type { TourActivitiesRepository, TourActivityRefRow } from '../../db/repositories/TourActivities.repository';
 import type { TourStationVisitsRepository } from '../../db/repositories/TourStationVisits.repository';
 import type { TourTypesRepository } from '../../db/repositories/TourTypes.repository';
 import type {
@@ -19,12 +21,14 @@ import type {
   ToursRepository,
   TourUpdate,
 } from '../../db/repositories/Tours.repository';
+import { utcSuffix } from '../../db/types';
 import { decodeJson, encodeJson } from '../../utils/json-column';
 import { badRequest, DomainError } from '../common/domain-error';
 import { toRowId } from '../common/row-id';
 import { UnitOfWork } from '../database/unit-of-work';
 import { PlaceImportService } from '../place-import/place-import.service';
 import { PlacesService } from '../places/places.service';
+import { activityFacts, toActivity, trackTimesFor } from './tour-activities.helpers';
 import { TourPaddleCheckService } from './tour-paddle-check.service';
 import { advanceTourRevision } from './tour-revision';
 import { toVisit } from './tour-visits.service';
@@ -160,12 +164,20 @@ export class ToursService {
     @InjectRepository(TourWaypoints) private readonly waypointsRepo: TourWaypointsRepository,
     @InjectRepository(TourStationVisits) private readonly visitsRepo: TourStationVisitsRepository,
     @InjectRepository(Places) private readonly placesRepo: PlacesRepository,
+    @InjectRepository(TourActivities) private readonly activitiesRepo: TourActivitiesRepository,
     private readonly placeImport: PlaceImportService,
     private readonly paddleChecks: TourPaddleCheckService,
   ) {}
 
-  /** A tour as it is listed; a city walk with the stations its points make and their stays (CW-02, CW-03). */
-  private toItem(r: TourListRow, points: readonly TourWaypointRow[] = []): TourListItem {
+  /**
+   * A tour as it is listed; a city walk with the stations its points make and their stays (CW-02, CW-03),
+   * every tour with the recordings assigned to it and the tour it documents itself (ACT-01).
+   */
+  private toItem(
+    r: TourListRow,
+    points: readonly TourWaypointRow[] = [],
+    activities: readonly TourActivityRefRow[] = [],
+  ): TourListItem {
     return {
       place_id: r.place_id,
       name: r.name,
@@ -204,6 +216,9 @@ export class ToursService {
       hiking_preferences: decodeJson(TOUR_HIKING_PREFERENCES, r.hiking_preferences, 'tour'),
       ...walkStationFacts(r.tour_type, points),
       route_pending: Boolean(r.route_missing) && Boolean(r.has_waypoints),
+      track_started_at: utcSuffix(r.track_started_at),
+      track_ended_at: utcSuffix(r.track_ended_at),
+      ...activityFacts(r.place_id, activities),
     };
   }
 
@@ -287,9 +302,10 @@ export class ToursService {
     if (tid === null) return [];
     const rows = await this.toursRepo.listForTrip(tid);
     const walkPoints = await this.walkPointsByPlace(rows);
+    const activities = await this.activitiesRepo.listForTrip(tid);
     return await this.paddleChecks.forTrip(
       tid,
-      rows.map((r) => this.toItem(r, walkPoints.get(r.place_id) ?? [])),
+      rows.map((r) => this.toItem(r, walkPoints.get(r.place_id) ?? [], activities)),
     );
   }
 
@@ -352,12 +368,21 @@ export class ToursService {
       }
     }
 
-    const checked = await this.paddleChecks.forTour(this.toItem(row, stored), stored, place?.route_geometry ?? null);
+    // ACT-01: the recordings assigned to this tour, and the assignment this tour is the recording of.
+    const activities = await this.activitiesRepo.listForPlace(tid, row.place_id);
+    const documents = await this.activitiesRepo.findByTrack(row.place_id);
+    const refs = documents ? [...activities, documents] : activities;
+    const checked = await this.paddleChecks.forTour(
+      this.toItem(row, stored, refs),
+      stored,
+      place?.route_geometry ?? null,
+    );
     return {
       tour: checked.item,
       waypoints,
       provenance: await this.provenanceOf(tid, row.place_id),
       ...(checked.obstacle_check ? { obstacle_check: checked.obstacle_check } : {}),
+      activities: activities.map(toActivity),
     };
   }
 
@@ -673,6 +698,9 @@ export class ToursService {
       // A copy of a copy names where the first one came from.
       taken_over_from_trip_title: how.takenOverFrom?.tripTitle ?? provenance.taken_over_from_trip_title,
       taken_over_from_tour_name: how.takenOverFrom?.tourName ?? provenance.taken_over_from_tour_name,
+      // A copy of a recording was recorded when it was; the assignments stay with the tours they joined.
+      track_started_at: row.track_started_at,
+      track_ended_at: row.track_ended_at,
     });
     // A stop standing for a place of the source trip stands for nothing in another trip.
     await this.waypointsRepo.insertForPlace(
@@ -890,7 +918,9 @@ export class ToursService {
     const result = await this.uow.transactional(async () => {
       // A nested transactional, so the places and their facets commit together.
       const imported = await this.places.importPreparedGpx(tripId, rows);
+      const times = trackTimesFor(rows, imported.places);
       for (const place of imported.places) {
+        const recorded = times.get(place.id);
         const metrics = computeTourMetrics(parseRouteGeometry(place.route_geometry));
         const matchConfidence = metrics.hasElevation ? 1 : 0.3;
         await this.toursRepo.insertTour({
@@ -907,6 +937,8 @@ export class ToursService {
           max_hiking_difficulty: null,
           origin: 'gpx',
           origin_file_name: gpxFileName(fileName),
+          track_started_at: recorded?.started ?? null,
+          track_ended_at: recorded?.ended ?? null,
         });
         tours.push(
           this.toItem({
@@ -938,6 +970,8 @@ export class ToursService {
             revision: 1,
             hiking_preferences: null,
             winter_activity: null,
+            track_started_at: recorded?.started ?? null,
+            track_ended_at: recorded?.ended ?? null,
           }),
         );
       }
@@ -980,6 +1014,8 @@ export class ToursService {
           distance_km: metrics.distanceKm,
           elevation_gain_m: metrics.elevationGainM,
           elevation_loss_m: metrics.elevationLossM,
+          started_at: row.trackTimes?.startedAt ?? null,
+          ended_at: row.trackTimes?.endedAt ?? null,
           duplicate: duplicates[index] ?? false,
         };
       }),

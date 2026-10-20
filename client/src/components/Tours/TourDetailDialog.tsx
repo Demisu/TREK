@@ -13,6 +13,7 @@ import {
   FileDown,
   FileImage,
   FileText,
+  Footprints,
   Loader2,
   Minus,
   Navigation,
@@ -48,6 +49,7 @@ import TrackColorPicker from '../shared/TrackColorPicker';
 import { markdownLinkComponents } from '../shared/markdownLink';
 import { TourDayRowAvatar } from './TourDayRowFacts';
 import { TourGpxExportButton } from './TourGpxExportButton';
+import TourActivitySection from './activity/TourActivitySection';
 import { PaddleCheckSection } from './paddle/PaddleCheckSection';
 import { PaddleWindSection } from './paddle/PaddleWindCard';
 import { TourProvenanceBlock } from './provenance/TourProvenanceSection';
@@ -88,6 +90,8 @@ interface TourDetailDialogProps extends TourPermissionProps {
   onSourceReimported?: (tour: TourListItem) => Promise<void> | void;
   /** P2C-07: save this tour again as a new, independent one. */
   onSaveAsNew?: (tour: TourListItem) => Promise<void> | void;
+  /** ACT-01: a recorded track was assigned, taken off or imported; the lists take in these tours. */
+  onToursChanged?: (placeIds: number[]) => Promise<void> | void;
   onAssignToDay?: (placeId: number, dayId?: number) => void;
   onRemoveAssignment?: (dayId: number, assignmentId: number) => void;
   onDelete?: () => void;
@@ -243,6 +247,10 @@ function TourHeadPills({
       ? null
       : (state.places.find((p) => p.id === tour.derived_from_place_id)?.name ?? null)
   );
+  // ACT-01: the tour this one is the recorded track of.
+  const documentsName = useTripStore((state) =>
+    tour.activity_of == null ? null : (state.places.find((p) => p.id === tour.activity_of)?.name ?? null)
+  );
   return (
     <div className="mt-2 flex flex-wrap items-center gap-1.5">
       <span className={HEAD_PILL} style={fs(10.5)}>
@@ -282,6 +290,14 @@ function TourHeadPills({
           <span className={`${HEAD_PILL} max-w-[220px]`} style={fs(10.5)}>
             <Route size={11} strokeWidth={2} className="flex-none text-content-faint" />
             <span className="min-w-0 truncate">{t('tours.derivedFrom', { name: derivedFromName })}</span>
+          </span>
+        </Tooltip>
+      )}
+      {documentsName && (
+        <Tooltip label={t('tours.activity.isTrackHint')}>
+          <span data-testid="tour-detail-track-of" className={`${HEAD_PILL} max-w-[220px]`} style={fs(10.5)}>
+            <Footprints size={11} strokeWidth={2} className="flex-none text-success" />
+            <span className="min-w-0 truncate">{t('tours.activity.ofTour', { name: documentsName })}</span>
           </span>
         </Tooltip>
       )}
@@ -483,6 +499,7 @@ export default function TourDetailDialog({
   onFileUpload,
   onSourceReimported,
   onSaveAsNew,
+  onToursChanged,
   onAssignToDay,
   onRemoveAssignment,
   onDelete,
@@ -709,6 +726,17 @@ export default function TourDetailDialog({
       )}
       {tour.tour_type === 'kayak' && <PaddleCheckSection tour={tour} />}
       {tour.tour_type === 'kayak' && <PaddleWindSection placeId={place.id} start={placeStart(place)} />}
+      {/* A tour written here offline has no server copy to assign a recording to until it syncs. */}
+      {place.id > 0 && (
+        <TourActivitySection
+          tripId={place.trip_id}
+          tour={tour}
+          days={days}
+          assignments={assignments}
+          canEdit={canEdit}
+          onToursChanged={onToursChanged}
+        />
+      )}
 
       {description && (
         <DialogSection className="flex-none" label={t('places.formDescription')}>

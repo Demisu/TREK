@@ -63,6 +63,9 @@ export interface TourListRow {
   revision: number;
   /** MF-08: a hike's routing preferences, still JSON text. */
   hiking_preferences: string | null;
+  /** ACT-01: the first and last time on an imported track's points; NULL without times. */
+  track_started_at: string | null;
+  track_ended_at: string | null;
 }
 
 /** LIB-02: a tour of another trip as the take-over list reads it, with the trip it is in. */
@@ -119,6 +122,8 @@ export interface TourRow {
   run_pace_seconds_per_km: number | null;
   ski_discipline: string | null;
   ski_technique: string | null;
+  track_started_at: string | null;
+  track_ended_at: string | null;
 }
 const _tourRowKeys: AssertRowKeys<TourRow, Tours> = true;
 
@@ -299,6 +304,8 @@ export class ToursRepository extends TrekRepository<Tours> {
         't.track_marks as track_marks',
         't.revision as revision',
         't.hiking_preferences as hiking_preferences',
+        't.track_started_at as track_started_at',
+        't.track_ended_at as track_ended_at',
         eb('t.recorded_route_geometry', 'is not', null).as('has_recorded_track'),
         eb('p.route_geometry', 'is', null).as('route_missing'),
         eb
@@ -637,6 +644,9 @@ export class ToursRepository extends TrekRepository<Tours> {
       track_marks?: string | null;
       taken_over_from_trip_title?: string | null;
       taken_over_from_tour_name?: string | null;
+      /** ACT-01: the times the import read off the track's points, canonical DATETIME text. */
+      track_started_at?: string | null;
+      track_ended_at?: string | null;
     },
   ): Promise<void> {
     await this.insert({
@@ -670,6 +680,8 @@ export class ToursRepository extends TrekRepository<Tours> {
       hiking_preferences: input.hiking_preferences ?? null,
       taken_over_from_trip_title: input.taken_over_from_trip_title ?? null,
       taken_over_from_tour_name: input.taken_over_from_tour_name ?? null,
+      track_started_at: input.track_started_at ?? null,
+      track_ended_at: input.track_ended_at ?? null,
     });
   }
 

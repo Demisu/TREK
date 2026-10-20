@@ -316,6 +316,13 @@ describe('TourDetailDialog', () => {
     expect(screen.getAllByText('T2').length).toBeGreaterThan(0)
   })
 
+  it('ACT-01: a recording that is the actual track of a tour names that tour in its head', () => {
+    seedStore(useTripStore, { places: [buildPlace({ id: 7, name: 'Lake loop' }), place] })
+    render(<TourDetailDialog {...defaultProps} tour={{ ...tour, has_waypoints: false, origin: 'gpx', activity_of: 7 }} />)
+
+    expect(screen.getByTestId('tour-detail-track-of')).toHaveTextContent('Actual track of Lake loop')
+  })
+
   it('shows the grade on the tile and no second difficulty scale', () => {
     render(<TourDetailDialog {...defaultProps} tour={{ ...tour, difficulty: 'easy', max_hiking_difficulty: 1 }} />)
 
