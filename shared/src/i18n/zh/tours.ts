@@ -1210,5 +1210,11 @@ const tours: TranslationStrings = {
   'tours.estimate.noHeights': '轨迹没有海拔数据，无法估算用时。',
   'tours.estimate.basisDin': '按徒步路标规则（DIN 33466）根据距离、爬升和下降计算，不含休息。',
   'tours.estimate.basisPace': '按距离和输入的配速计算。',
+  'tours.dayTime.workedOut': '{time} 结束，根据开始时间和行程用时 {total} 推算',
+  'tours.dayTime.workedOutNextDay': '次日 {time} 结束，根据开始时间和行程用时 {total} 推算',
+  'tours.dayTime.overrun': '{end} 结束，晚于 {name} 的开始时间 {time}',
+  'tours.dayTime.nextItem': '下一项',
+  'tours.dayTime.formHint': '留空时会推算结束时间：{time}，即开始时间加上行程用时 {total}。',
+  'tours.dayTime.formNoStart': '填写开始时间后，会根据行程用时 {total} 推算结束时间。',
 };
 export default tours;

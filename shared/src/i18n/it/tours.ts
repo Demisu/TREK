@@ -1337,5 +1337,12 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'Calcolato da distanza, salita e discesa secondo la regola dei cartelli escursionistici (DIN 33466), senza pause.',
   'tours.estimate.basisPace': 'Calcolato dalla distanza al ritmo inserito.',
+  'tours.dayTime.workedOut': 'Finisce alle {time}, calcolato dalla partenza e dalla durata di {total}',
+  'tours.dayTime.workedOutNextDay':
+    'Finisce il giorno dopo alle {time}, calcolato dalla partenza e dalla durata di {total}',
+  'tours.dayTime.overrun': 'Finisce alle {end}, dopo l’inizio di {name} alle {time}',
+  'tours.dayTime.nextItem': 'la voce successiva',
+  'tours.dayTime.formHint': 'Se lasciata vuota, la fine viene calcolata: {time}, la partenza più la durata di {total}.',
+  'tours.dayTime.formNoStart': 'Con un orario di partenza, la fine viene calcolata dalla durata di {total}.',
 };
 export default tours;

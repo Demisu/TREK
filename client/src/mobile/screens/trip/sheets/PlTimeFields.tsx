@@ -4,6 +4,7 @@ import { Eyebrow } from './PlSheetChrome'
 import CustomTimePicker from '../../../../components/shared/CustomTimePicker'
 import { timeCollisions } from '../../../../components/Planner/PlaceFormModal.helpers'
 import type { Assignment } from '../../../../types'
+import { TourEndHint } from '../../../../components/Tours/TourDayTimeParts'
 import type { TripPlanner } from '../MTripShell'
 
 interface PlTimeFieldsProps {
@@ -39,6 +40,9 @@ export default function PlTimeFields({
     () => timeCollisions(assignmentId, dayAssignments, startTime, endTime),
     [assignmentId, dayAssignments, startTime, endTime],
   )
+  // TIME-02: a tour's end follows from its start and its time while none is typed.
+  const assignment = dayAssignments.find(a => a.id === assignmentId)
+  const tour = assignment ? planner.tours.find(item => item.place_id === assignment.place_id) : undefined
 
   return (
     <div className="mt-3">
@@ -55,6 +59,7 @@ export default function PlTimeFields({
           )}
         </div>
       </div>
+      <TourEndHint start={startTime} end={endTime} assignment={assignment} tour={tour} mobile />
       {hasTimeError && (
         <div className={WARNING_CLS}>
           <AlertTriangle size={13} strokeWidth={2} className="mt-px flex-none" />

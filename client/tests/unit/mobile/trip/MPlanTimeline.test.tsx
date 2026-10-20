@@ -124,6 +124,7 @@ function buildTl(over: Record<string, unknown> = {}): MPlanTimelineController {
     transitLegFor: vi.fn(() => null),
     planTransitLeg: vi.fn(),
     journeyLate: vi.fn(() => null),
+    tourOverrun: vi.fn(() => null),
     ...over,
   } as unknown as MPlanTimelineController
 }
@@ -390,6 +391,14 @@ describe('MPlanTimeline', () => {
 
       renderTimeline({ rows: [row], merged: [item], upNext: null }, { toursEnabled: false })
       expect(screen.queryByText('tours.dayRoute.endpointUnknown')).not.toBeInTheDocument()
+    })
+
+    it('TIME-02-020: a tour row says when its end runs into the next timed item, read from the shared timeline logic', () => {
+      const validRow: PlanRow = { ...row, invalidTour: false }
+      const tourOverrun = vi.fn(() => ({ name: 'Lunch', time: '12:00', end: '13:00' }))
+      renderTimeline({ rows: [validRow], merged: [item], upNext: null, tourOverrun }, { toursEnabled: true, tours: [] })
+      expect(tourOverrun).toHaveBeenCalledWith(item)
+      expect(screen.getByTestId('tour-day-overrun')).toBeInTheDocument()
     })
   })
 

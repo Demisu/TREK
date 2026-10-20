@@ -587,6 +587,12 @@
       "mobile": ["src/mobile/screens/trip/plan/useMPlanTimeline.ts"]
     },
     {
+      "feature": "A tour's start and end in the day plan, its end worked out from its time, and an end that runs into the next timed item",
+      "hooks": ["src/components/Tours/tourDayTime.ts"],
+      "desktop": ["src/components/Planner/DayPlanSidebar.tsx"],
+      "mobile": ["src/mobile/screens/trip/plan/useMPlanTimeline.ts"]
+    },
+    {
       "feature": "Reservation form incl. hotel accommodation creation",
       "hooks": ["src/components/Planner/reservationFormModel.ts", "src/components/Planner/useReservationForm.ts"],
       "desktop": ["src/components/Planner/ReservationModal.tsx"],

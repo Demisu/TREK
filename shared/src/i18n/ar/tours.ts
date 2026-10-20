@@ -1370,5 +1370,11 @@ const tours: TranslationStrings = {
   'tours.estimate.noHeights': 'لا يحتوي المسار على ارتفاعات، لذا لا يمكن تقدير وقته.',
   'tours.estimate.basisDin': 'محسوب من المسافة والصعود والنزول وفق قاعدة لافتات المشي (DIN 33466)، دون استراحات.',
   'tours.estimate.basisPace': 'محسوب من المسافة بالوتيرة المُدخلة.',
+  'tours.dayTime.workedOut': 'ينتهي عند {time}، محسوبًا من البداية ومدة الجولة {total}',
+  'tours.dayTime.workedOutNextDay': 'ينتهي في اليوم التالي عند {time}، محسوبًا من البداية ومدة الجولة {total}',
+  'tours.dayTime.overrun': 'ينتهي عند {end}، بعد بدء {name} عند {time}',
+  'tours.dayTime.nextItem': 'العنصر التالي',
+  'tours.dayTime.formHint': 'إذا تُرك فارغًا تُحسب النهاية: {time}، أي البداية مضافًا إليها مدة الجولة {total}.',
+  'tours.dayTime.formNoStart': 'مع وقت البداية تُحسب النهاية من مدة الجولة {total}.',
 };
 export default tours;

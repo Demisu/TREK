@@ -1323,5 +1323,12 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'Calculado a partir de la distancia, el ascenso y el descenso según la regla de las señales de senderismo (DIN 33466), sin pausas.',
   'tours.estimate.basisPace': 'Calculado a partir de la distancia al ritmo introducido.',
+  'tours.dayTime.workedOut': 'Termina a las {time}, calculado a partir del inicio y la duración de {total}',
+  'tours.dayTime.workedOutNextDay':
+    'Termina al día siguiente a las {time}, calculado a partir del inicio y la duración de {total}',
+  'tours.dayTime.overrun': 'Termina a las {end}, después de que {name} empiece a las {time}',
+  'tours.dayTime.nextItem': 'el siguiente elemento',
+  'tours.dayTime.formHint': 'Si se deja vacío, el final se calcula: {time}, el inicio más la duración de {total}.',
+  'tours.dayTime.formNoStart': 'Con una hora de inicio, el final se calcula a partir de la duración de {total}.',
 };
 export default tours;

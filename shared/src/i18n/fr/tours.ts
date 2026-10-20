@@ -1350,5 +1350,12 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'Calculé à partir de la distance, du dénivelé positif et négatif selon la règle des panneaux de randonnée (DIN 33466), sans pauses.',
   'tours.estimate.basisPace': 'Calculé à partir de la distance à l’allure saisie.',
+  'tours.dayTime.workedOut': 'Se termine à {time}, calculé à partir du départ et de la durée de {total}',
+  'tours.dayTime.workedOutNextDay':
+    'Se termine le lendemain à {time}, calculé à partir du départ et de la durée de {total}',
+  'tours.dayTime.overrun': 'Se termine à {end}, après le début de {name} à {time}',
+  'tours.dayTime.nextItem': 'l’élément suivant',
+  'tours.dayTime.formHint': 'Laissée vide, la fin est calculée : {time}, le départ plus la durée de {total}.',
+  'tours.dayTime.formNoStart': 'Avec une heure de départ, la fin est calculée à partir de la durée de {total}.',
 };
 export default tours;

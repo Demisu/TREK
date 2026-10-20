@@ -394,7 +394,12 @@ function walkTour(place: { id: number; name: string }, overrides: Partial<TourLi
   } as TourListItem;
 }
 
-function walkDayProps(extra: { reservations?: Reservation[]; withCafe?: boolean; onPlanTransitLeg?: () => void }) {
+function walkDayProps(extra: {
+  reservations?: Reservation[];
+  withCafe?: boolean;
+  onPlanTransitLeg?: () => void;
+  firstWalk?: Partial<TourListItem>;
+}) {
   const day = buildDay({ id: 10, date: '2025-06-01', title: 'Day 1' });
   const assignments = {
     '10': [
@@ -415,7 +420,7 @@ function walkDayProps(extra: { reservations?: Reservation[]; withCafe?: boolean;
       ...(extra.withCafe ? [buildAssignment({ id: 203, day_id: 10, order_index: 2, place: cafe })] : []),
     ],
   };
-  const tours = [walkTour(oldTown), walkTour(harbour)];
+  const tours = [walkTour(oldTown, extra.firstWalk), walkTour(harbour)];
   return makeDefaultProps({
     days: [day],
     places: [oldTown, harbour, cafe],
@@ -558,5 +563,21 @@ describe('DayPlanSidebar, public transit between two city walks (CW-08)', () => 
 
     expect(screen.getByTestId('transit-walk-late')).toHaveTextContent('Arrives after Harbour starts at 13:00');
     expect(onPlanTransitLeg).not.toHaveBeenCalled();
+  });
+
+  it('TIME-02-017: a tour with a start shows its end worked out from its time, and nothing runs over', () => {
+    render(<DayPlanSidebar {...walkDayProps({})} />);
+
+    const ends = screen.getAllByTestId('tour-day-end-worked-out');
+    expect(ends[0]).toHaveTextContent('12:15');
+    expect(ends[0]).toHaveAccessibleName('Ends at 12:15, worked out from the start and the tour time of 2 h 15 min');
+    expect(screen.queryByTestId('tour-day-overrun')).not.toBeInTheDocument();
+  });
+
+  it('TIME-02-018: an end that runs past the start of the next timed item is said under the tour, nothing moved', () => {
+    render(<DayPlanSidebar {...walkDayProps({ firstWalk: { planned_duration_minutes: 240 } })} />);
+
+    expect(screen.getAllByTestId('tour-day-end-worked-out')[0]).toHaveTextContent('14:00');
+    expect(screen.getByTestId('tour-day-overrun')).toHaveTextContent('Ends at 14:00, after Harbour starts at 13:00');
   });
 });

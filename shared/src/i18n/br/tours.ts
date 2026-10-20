@@ -1324,5 +1324,12 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'Calculado pela distância, subida e descida segundo a regra das placas de trilha (DIN 33466), sem pausas.',
   'tours.estimate.basisPace': 'Calculado pela distância no ritmo informado.',
+  'tours.dayTime.workedOut': 'Termina às {time}, calculado pelo início e pela duração de {total}',
+  'tours.dayTime.workedOutNextDay':
+    'Termina no dia seguinte às {time}, calculado pelo início e pela duração de {total}',
+  'tours.dayTime.overrun': 'Termina às {end}, depois que {name} começa às {time}',
+  'tours.dayTime.nextItem': 'o próximo item',
+  'tours.dayTime.formHint': 'Se ficar vazio, o fim é calculado: {time}, o início mais a duração de {total}.',
+  'tours.dayTime.formNoStart': 'Com um horário de início, o fim é calculado pela duração de {total}.',
 };
 export default tours;

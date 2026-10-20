@@ -1302,5 +1302,11 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'Beräknad från sträcka, stigning och nedstigning enligt vandringsskyltarnas regel (DIN 33466), utan pauser.',
   'tours.estimate.basisPace': 'Beräknad från sträckan i angivet tempo.',
+  'tours.dayTime.workedOut': 'Slutar {time}, beräknat från starten och turens tid på {total}',
+  'tours.dayTime.workedOutNextDay': 'Slutar nästa dag {time}, beräknat från starten och turens tid på {total}',
+  'tours.dayTime.overrun': 'Slutar {end}, efter att {name} börjar {time}',
+  'tours.dayTime.nextItem': 'nästa punkt',
+  'tours.dayTime.formHint': 'Lämnas tomt beräknas slutet: {time}, starten plus turens tid på {total}.',
+  'tours.dayTime.formNoStart': 'Med en starttid beräknas slutet från turens tid på {total}.',
 };
 export default tours;

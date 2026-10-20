@@ -1268,5 +1268,11 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     '거리, 오르막, 내리막으로 등산로 표지 규칙(DIN 33466)에 따라 계산했으며 휴식은 포함하지 않습니다.',
   'tours.estimate.basisPace': '거리와 입력한 페이스로 계산했습니다.',
+  'tours.dayTime.workedOut': '{time}에 종료, 시작 시각과 투어 시간 {total}으로 계산',
+  'tours.dayTime.workedOutNextDay': '다음 날 {time}에 종료, 시작 시각과 투어 시간 {total}으로 계산',
+  'tours.dayTime.overrun': '{end}에 종료, {name}이(가) {time}에 시작한 뒤입니다',
+  'tours.dayTime.nextItem': '다음 항목',
+  'tours.dayTime.formHint': '비워 두면 종료 시각을 계산합니다: {time}, 시작 시각에 투어 시간 {total}을 더한 값입니다.',
+  'tours.dayTime.formNoStart': '시작 시각을 입력하면 투어 시간 {total}으로 종료 시각을 계산합니다.',
 };
 export default tours;

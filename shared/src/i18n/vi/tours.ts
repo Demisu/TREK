@@ -1291,5 +1291,11 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'Tính từ quãng đường, độ cao lên và xuống theo quy tắc biển chỉ dẫn leo núi (DIN 33466), không tính nghỉ.',
   'tours.estimate.basisPace': 'Tính từ quãng đường theo tốc độ đã nhập.',
+  'tours.dayTime.workedOut': 'Kết thúc lúc {time}, tính từ giờ bắt đầu và thời gian tour {total}',
+  'tours.dayTime.workedOutNextDay': 'Kết thúc lúc {time} ngày hôm sau, tính từ giờ bắt đầu và thời gian tour {total}',
+  'tours.dayTime.overrun': 'Kết thúc lúc {end}, sau khi {name} bắt đầu lúc {time}',
+  'tours.dayTime.nextItem': 'mục tiếp theo',
+  'tours.dayTime.formHint': 'Để trống thì giờ kết thúc được tính: {time}, giờ bắt đầu cộng thời gian tour {total}.',
+  'tours.dayTime.formNoStart': 'Khi có giờ bắt đầu, giờ kết thúc được tính từ thời gian tour {total}.',
 };
 export default tours;

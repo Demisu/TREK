@@ -115,4 +115,19 @@ describe('useMPlanTimeline, public transit between two city walks (CW-08)', () =
     if (!item) throw new Error('no journey on the day')
     expect(result.current.journeyLate(item)).toEqual({ walk: 'Harbour', time: '13:00' })
   })
+
+  it('FE-MOB-PLTL-HOOK-005: says a walk whose end runs past the next walk start, the desktop rule (TIME-02)', () => {
+    const late = buildPlanner({
+      ...walkPlanner(),
+      tours: [{ ...walk(oldTown), planned_duration_minutes: 240 }, walk(harbour)],
+    } as never)
+    const { result } = renderHook(() => useMPlanTimeline(late))
+
+    const [first, second] = result.current.merged
+    expect(result.current.tourOverrun(first)).toEqual({ name: 'Harbour', time: '13:00', end: '14:00' })
+    expect(result.current.tourOverrun(second)).toBeNull()
+    // In time, nothing is said.
+    const { result: inTime } = renderHook(() => useMPlanTimeline(walkPlanner()))
+    expect(inTime.current.tourOverrun(inTime.current.merged[0])).toBeNull()
+  })
 })

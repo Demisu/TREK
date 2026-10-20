@@ -1352,5 +1352,12 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'Υπολογισμένος από απόσταση, ανάβαση και κατάβαση με τον κανόνα των πινακίδων πεζοπορίας (DIN 33466), χωρίς διαλείμματα.',
   'tours.estimate.basisPace': 'Υπολογισμένος από την απόσταση με τον ρυθμό που δόθηκε.',
+  'tours.dayTime.workedOut': 'Τελειώνει στις {time}, υπολογισμένο από την έναρξη και τη διάρκεια {total}',
+  'tours.dayTime.workedOutNextDay':
+    'Τελειώνει την επόμενη μέρα στις {time}, υπολογισμένο από την έναρξη και τη διάρκεια {total}',
+  'tours.dayTime.overrun': 'Τελειώνει στις {end}, μετά την έναρξη του {name} στις {time}',
+  'tours.dayTime.nextItem': 'το επόμενο στοιχείο',
+  'tours.dayTime.formHint': 'Αν μείνει κενό, το τέλος υπολογίζεται: {time}, η έναρξη συν τη διάρκεια {total}.',
+  'tours.dayTime.formNoStart': 'Με ώρα έναρξης, το τέλος υπολογίζεται από τη διάρκεια {total}.',
 };
 export default tours;

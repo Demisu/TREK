@@ -11,6 +11,7 @@ import { getDisplayTimeForDay, getMergedItems, getTransportForDay, hasCarrierEnd
 import { dayCoMapsUrl, dayExportStops, dayGoogleMapsUrl, optimizeDayOrder, type DayCarrier } from '../../../../components/Planner/dayRoute'
 import type { PlannedTransitLeg, TransitLeg } from '../../../../components/Planner/transitLeg'
 import { useTransitLegPlanner } from '../../../../components/Planner/useTransitLegPlanner'
+import { dayItemOverrun } from '../../../../components/Tours/tourDayTime'
 import {
   buildPlanRows, breaksChronology, findUpNext, hotelChipsForDay, hotelLegsForDay, itemHasTime,
   type HotelLegs, type PlanRow, type TransportEntry,
@@ -377,6 +378,9 @@ export function useMPlanTimeline(planner: TripPlanner) {
   // A saved journey that now arrives after the walk it leads to starts (CW-08).
   const journeyLate = useCallback((item: MergedItem) =>
     (day ? lateBefore(day, item.data, merged.slice(merged.indexOf(item) + 1)) : null), [day, lateBefore, merged])
+  // A tour whose end runs past the start of the day's next timed item (TIME-02).
+  const tourOverrun = useCallback((item: MergedItem) =>
+    (day ? dayItemOverrun(merged, merged.indexOf(item), day.id, tourOf) : null), [day, merged, tourOf])
 
   return {
     day, rows, hotelLegs, merged, hotelChips, weather, weatherTemp, upNext,
@@ -387,7 +391,7 @@ export function useMPlanTimeline(planner: TripPlanner) {
     moveRowTo,
     addPlace, addBooking, addTransport,
     optimize, canExportRoute, exportGoogleMaps, exportCoMaps, renameDay, fullPlaceOf,
-    routeModeOptions, setLegMode, transitLegFor, planTransitLeg, journeyLate,
+    routeModeOptions, setLegMode, transitLegFor, planTransitLeg, journeyLate, tourOverrun,
   }
 }
 

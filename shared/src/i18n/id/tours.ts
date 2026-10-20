@@ -1303,5 +1303,11 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'Dihitung dari jarak, tanjakan, dan turunan menurut aturan papan penunjuk pendakian (DIN 33466), tanpa istirahat.',
   'tours.estimate.basisPace': 'Dihitung dari jarak dengan kecepatan yang dimasukkan.',
+  'tours.dayTime.workedOut': 'Selesai pukul {time}, dihitung dari mulai dan waktu tur {total}',
+  'tours.dayTime.workedOutNextDay': 'Selesai keesokan harinya pukul {time}, dihitung dari mulai dan waktu tur {total}',
+  'tours.dayTime.overrun': 'Selesai pukul {end}, setelah {name} dimulai pukul {time}',
+  'tours.dayTime.nextItem': 'item berikutnya',
+  'tours.dayTime.formHint': 'Jika dibiarkan kosong, akhir dihitung: {time}, waktu mulai ditambah waktu tur {total}.',
+  'tours.dayTime.formNoStart': 'Dengan waktu mulai, akhir dihitung dari waktu tur {total}.',
 };
 export default tours;

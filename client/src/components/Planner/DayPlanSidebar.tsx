@@ -11,6 +11,8 @@ import { ChevronDown, ChevronRight, ChevronUp, Compass, RotateCcw, ExternalLink,
 import type { PlannedTransitLeg } from './transitLeg'
 import { useTransitLegPlanner } from './useTransitLegPlanner'
 import { WalkLateLine } from '../Tours/walk/WalkTransitNote'
+import { TourOverrunLine } from '../Tours/TourDayTimeParts'
+import { dayItemOverrun } from '../Tours/tourDayTime'
 import { optimizeRoute, generateGoogleMapsUrl, generateCoMapsUrl } from '../Map/RouteCalculator'
 import { dayViaLookup, type ViasByDay } from '../../utils/dayRouteVias'
 import { routeLeg, type LegEnd } from '../Map/dayRouteLeg'
@@ -1414,8 +1416,9 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
 
   // The extra connector-menu entry (#1281 follow-up): public transit for this leg while a handler is wired (day has
   // dates); between two city walks from the end of the one it leaves, `originId`, as two can end at one spot (CW-08).
+  const tourOfPlace = (placeId: number) => props.plannedTourDurations?.get(placeId)?.tour
   const transitLegs = useTransitLegPlanner({ tripId, assignments, accommodations, reservations, places, toursEnabled,
-    onPlan: onPlanTransitLeg, tourOf: placeId => props.plannedTourDurations?.get(placeId)?.tour })
+    onPlan: onPlanTransitLeg, tourOf: tourOfPlace })
   const transitLegPlanner = (dayId: number, seg?: RouteSegment, originId?: number) => {
     const leg = transitLegs.legFor(dayId, seg)
     return leg ? () => transitLegs.plan(dayId, leg, originId) : undefined
@@ -2034,6 +2037,8 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                                 )}
                               </div>
                               <DayPlanPlaceSubline place={place} cat={cat} tourTimes={tourTimes} isTourPlace={!!isTourPlace} timeFormat={timeFormat} assignmentId={assignment.id} tourStageKey={assignment.tour_stage_key} />
+                              {/* TIME-02: the tour's end runs past the start of the day's next timed item. */}
+                              {dayRowTour && <TourOverrunLine overrun={dayItemOverrun(merged, idx, day.id, tourOfPlace)} />}
                               {assignment.notes && (
                                 // Day-specific note on this stop (#2163) — one muted
                                 // caption line so the timeline shows the note exists

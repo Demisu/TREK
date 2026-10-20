@@ -1366,5 +1366,11 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'Wyliczony z dystansu, podejść i zejść według reguły drogowskazów turystycznych (DIN 33466), bez przerw.',
   'tours.estimate.basisPace': 'Wyliczony z dystansu przy podanym tempie.',
+  'tours.dayTime.workedOut': 'Kończy się o {time}, wyliczone ze startu i czasu trasy {total}',
+  'tours.dayTime.workedOutNextDay': 'Kończy się następnego dnia o {time}, wyliczone ze startu i czasu trasy {total}',
+  'tours.dayTime.overrun': 'Kończy się o {end}, po rozpoczęciu {name} o {time}',
+  'tours.dayTime.nextItem': 'następny punkt',
+  'tours.dayTime.formHint': 'Puste pole: koniec zostanie wyliczony, {time}, czyli start plus czas trasy {total}.',
+  'tours.dayTime.formNoStart': 'Po podaniu startu koniec zostanie wyliczony z czasu trasy {total}.',
 };
 export default tours;

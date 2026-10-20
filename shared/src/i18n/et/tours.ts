@@ -1306,5 +1306,11 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'Arvutatud vahemaa, tõusu ja laskumise järgi matkaviitade reegli (DIN 33466) alusel, pausideta.',
   'tours.estimate.basisPace': 'Arvutatud vahemaast sisestatud tempoga.',
+  'tours.dayTime.workedOut': 'Lõpeb kell {time}, arvutatud algusest ja matka ajast {total}',
+  'tours.dayTime.workedOutNextDay': 'Lõpeb järgmisel päeval kell {time}, arvutatud algusest ja matka ajast {total}',
+  'tours.dayTime.overrun': 'Lõpeb kell {end}, pärast seda kui {name} algab kell {time}',
+  'tours.dayTime.nextItem': 'järgmine punkt',
+  'tours.dayTime.formHint': 'Tühjaks jättes arvutatakse lõpp: {time}, algus pluss matka aeg {total}.',
+  'tours.dayTime.formNoStart': 'Algusajaga arvutatakse lõpp matka ajast {total}.',
 };
 export default tours;

@@ -1333,5 +1333,12 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'Berekend uit afstand, stijging en daling volgens de regel van de wandelwegwijzers (DIN 33466), zonder pauzes.',
   'tours.estimate.basisPace': 'Berekend uit de afstand bij het ingevoerde tempo.',
+  'tours.dayTime.workedOut': 'Eindigt om {time}, berekend uit de start en de tourtijd van {total}',
+  'tours.dayTime.workedOutNextDay':
+    'Eindigt de volgende dag om {time}, berekend uit de start en de tourtijd van {total}',
+  'tours.dayTime.overrun': 'Eindigt om {end}, nadat {name} om {time} begint',
+  'tours.dayTime.nextItem': 'het volgende onderdeel',
+  'tours.dayTime.formHint': 'Leeg gelaten wordt het einde berekend: {time}, de start plus de tourtijd van {total}.',
+  'tours.dayTime.formNoStart': 'Met een starttijd wordt het einde berekend uit de tourtijd van {total}.',
 };
 export default tours;

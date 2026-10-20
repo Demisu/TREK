@@ -20,6 +20,8 @@ import type { PluginDayScheduleItem } from '../../../../api/client'
 import type { TourListItem } from '@trek/shared'
 import TourDayRowFacts, { TourDayRowIcon } from '../../../../components/Tours/TourDayRowFacts'
 import { WalkLateLine } from '../../../../components/Tours/walk/WalkTransitNote'
+import { TourDayTimeText, TourOverrunLine } from '../../../../components/Tours/TourDayTimeParts'
+import { tourDayEntryOf, type TourOverrun } from '../../../../components/Tours/tourDayTime'
 import type { WalkLate } from '../../../../components/Tours/walk/walkTransit'
 
 /**
@@ -124,10 +126,12 @@ const ROW_CODE = 'flex-none whitespace-nowrap font-geist text-[0.71875rem] text-
 
 // ── b3) Place row ────────────────────────────────────────────────────────────
 
-export function PlaceRow({ assignment, fullPlace, tour, linkedReservations, chrome, reorder, drag, onOpen, onEdit, onRemove }: {
+export function PlaceRow({ assignment, fullPlace, tour, linkedReservations, chrome, reorder, drag, onOpen, onEdit, onRemove, overrun }: {
   assignment: Assignment
   fullPlace: Place | undefined
   tour?: TourListItem
+  /** TIME-02: the day's next timed item this tour runs into, or null. */
+  overrun?: TourOverrun | null
   linkedReservations: Reservation[]
   chrome: RowChrome
   reorder: ReactNode
@@ -205,7 +209,7 @@ export function PlaceRow({ assignment, fullPlace, tour, linkedReservations, chro
         {tour && <div className="mt-[2px]"><TourDayRowFacts tour={tour} assignmentId={assignment.id} mobile /></div>}
         {(time || sub) && (
           <div className="mt-[2px] flex min-w-0 items-center gap-1.5">
-            {time && <span className={TIME_CHIP}>{time}</span>}
+            {time && <span className={TIME_CHIP}>{tour ? <TourDayTimeText entry={tourDayEntryOf(assignment)} tour={tour} mobile /> : time}</span>}
             {sub && <MarkdownText clamp className="min-w-0 font-geist text-[0.71875rem] text-m-muted">{sub}</MarkdownText>}
             {bookingLines[0]?.code && <BlurredCode interactive={false} className={ROW_CODE}>{bookingLines[0].code}</BlurredCode>}
           </div>
@@ -225,6 +229,7 @@ export function PlaceRow({ assignment, fullPlace, tour, linkedReservations, chro
             <MarkdownText clamp className="min-w-0 font-geist text-[0.65625rem] text-m-faint">{assignment.notes}</MarkdownText>
           </div>
         )}
+        <TourOverrunLine overrun={overrun} />
       </div>
       {chrome.editing && (
         <span className="flex flex-none items-center gap-1.5">

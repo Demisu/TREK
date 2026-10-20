@@ -9,6 +9,7 @@ import { fs } from '../shared/DialogShell';
 import { stageNumberOf } from '../Tours/stages/stageNames';
 import { TourStageDayPills } from '../Tours/stages/TourStageDayPills';
 import { TourDayRowPills } from '../Tours/TourDayRowFacts';
+import { TourDayTimeText } from '../Tours/TourDayTimeParts';
 import { movingTimeLabel } from '../Tours/tourFacts';
 import { formatPlannedTourDuration, plannedTotalText, type TourPlannedTimes } from '../Tours/tourPresentation';
 import { WalkProgressPill } from '../Tours/walk/WalkStations';
@@ -120,7 +121,16 @@ export function DayPlanPlaceSubline({
     // One line like the row's name: when the hover controls come out, the description
     // gives way and the pills keep their place instead of wrapping onto a second line.
     <div className="trek-fade-end mt-0.5 flex min-w-0 flex-nowrap items-center gap-1.5 overflow-hidden">
-      {place.place_time && (
+      {place.place_time && dayRowTour && (
+        // TIME-02: a tour's end, typed or worked out from its start and its time.
+        <TimePill quiet>
+          <TourDayTimeText
+            entry={{ start: place.place_time, end: place.end_time, stageKey: tourStageKey }}
+            tour={dayRowTour}
+          />
+        </TimePill>
+      )}
+      {place.place_time && !dayRowTour && (
         <TimePill quiet>
           {formatTime(place.place_time, locale, timeFormat)}
           {place.end_time ? ` – ${formatTime(place.end_time, locale, timeFormat)}` : ''}

@@ -1372,5 +1372,12 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'Рассчитано по расстоянию, набору и сбросу высоты по правилу туристических указателей (DIN 33466), без перерывов.',
   'tours.estimate.basisPace': 'Рассчитано по расстоянию при введённом темпе.',
+  'tours.dayTime.workedOut': 'Заканчивается в {time}, рассчитано по началу и времени тура {total}',
+  'tours.dayTime.workedOutNextDay':
+    'Заканчивается на следующий день в {time}, рассчитано по началу и времени тура {total}',
+  'tours.dayTime.overrun': 'Заканчивается в {end}, после начала {name} в {time}',
+  'tours.dayTime.nextItem': 'следующий пункт',
+  'tours.dayTime.formHint': 'Если оставить пустым, конец рассчитывается: {time}, начало плюс время тура {total}.',
+  'tours.dayTime.formNoStart': 'Со временем начала конец рассчитывается по времени тура {total}.',
 };
 export default tours;

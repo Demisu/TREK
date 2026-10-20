@@ -1329,5 +1329,11 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'A távból, emelkedésből és lejtésből számolva a turistaútjelzők szabálya szerint (DIN 33466), szünetek nélkül.',
   'tours.estimate.basisPace': 'A távból számolva a megadott tempóval.',
+  'tours.dayTime.workedOut': 'Vége: {time}, a kezdésből és a túra {total} idejéből számolva',
+  'tours.dayTime.workedOutNextDay': 'Vége másnap {time}-kor, a kezdésből és a túra {total} idejéből számolva',
+  'tours.dayTime.overrun': 'Vége: {end}, miután {name} {time}-kor kezdődik',
+  'tours.dayTime.nextItem': 'a következő tétel',
+  'tours.dayTime.formHint': 'Üresen hagyva a vég kiszámolódik: {time}, a kezdés plusz a túra {total} ideje.',
+  'tours.dayTime.formNoStart': 'Kezdési időponttal a vég a túra {total} idejéből számolódik.',
 };
 export default tours;

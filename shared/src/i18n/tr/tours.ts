@@ -1309,5 +1309,11 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'Mesafe, tırmanış ve inişten yürüyüş tabelası kuralına (DIN 33466) göre hesaplandı, molalar hariç.',
   'tours.estimate.basisPace': 'Mesafeden, girilen tempoyla hesaplandı.',
+  'tours.dayTime.workedOut': '{time} saatinde biter, başlangıç ve {total} tur süresinden hesaplandı',
+  'tours.dayTime.workedOutNextDay': 'Ertesi gün {time} saatinde biter, başlangıç ve {total} tur süresinden hesaplandı',
+  'tours.dayTime.overrun': '{end} saatinde biter, {name} {time} saatinde başladıktan sonra',
+  'tours.dayTime.nextItem': 'sonraki öğe',
+  'tours.dayTime.formHint': 'Boş bırakılırsa bitiş hesaplanır: {time}, başlangıç artı {total} tur süresi.',
+  'tours.dayTime.formNoStart': 'Bir başlangıç saatiyle bitiş, {total} tur süresinden hesaplanır.',
 };
 export default tours;

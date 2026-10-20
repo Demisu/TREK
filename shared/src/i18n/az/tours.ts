@@ -1311,5 +1311,12 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'Məsafə, qalxma və enmədən piyada nişanları qaydası ilə (DIN 33466) hesablanıb, fasilələr daxil deyil.',
   'tours.estimate.basisPace': 'Məsafədən daxil edilmiş templə hesablanıb.',
+  'tours.dayTime.workedOut': '{time} radələrində bitir, başlanğıc və {total} tur vaxtından hesablanıb',
+  'tours.dayTime.workedOutNextDay':
+    'Növbəti gün {time} radələrində bitir, başlanğıc və {total} tur vaxtından hesablanıb',
+  'tours.dayTime.overrun': '{end} radələrində bitir, {name} {time} radələrində başladıqdan sonra',
+  'tours.dayTime.nextItem': 'növbəti element',
+  'tours.dayTime.formHint': 'Boş qalsa, son hesablanır: {time}, başlanğıc üstəgəl {total} tur vaxtı.',
+  'tours.dayTime.formNoStart': 'Başlanğıc vaxtı ilə son {total} tur vaxtından hesablanır.',
 };
 export default tours;

@@ -1246,5 +1246,11 @@ const tours: TranslationStrings = {
   'tours.estimate.noHeights': 'เส้นทางไม่มีข้อมูลความสูง จึงประมาณเวลาไม่ได้',
   'tours.estimate.basisDin': 'คำนวณจากระยะทาง ระยะขึ้นและลงตามกฎป้ายบอกทางเดินป่า (DIN 33466) ไม่รวมเวลาพัก',
   'tours.estimate.basisPace': 'คำนวณจากระยะทางตามเพซที่กรอกไว้',
+  'tours.dayTime.workedOut': 'สิ้นสุดเวลา {time} คำนวณจากเวลาเริ่มและเวลาทัวร์ {total}',
+  'tours.dayTime.workedOutNextDay': 'สิ้นสุดวันถัดไปเวลา {time} คำนวณจากเวลาเริ่มและเวลาทัวร์ {total}',
+  'tours.dayTime.overrun': 'สิ้นสุดเวลา {end} หลังจาก {name} เริ่มเวลา {time}',
+  'tours.dayTime.nextItem': 'รายการถัดไป',
+  'tours.dayTime.formHint': 'หากเว้นว่างไว้ ระบบจะคำนวณเวลาสิ้นสุด: {time} คือเวลาเริ่มบวกเวลาทัวร์ {total}',
+  'tours.dayTime.formNoStart': 'เมื่อมีเวลาเริ่ม ระบบจะคำนวณเวลาสิ้นสุดจากเวลาทัวร์ {total}',
 };
 export default tours;

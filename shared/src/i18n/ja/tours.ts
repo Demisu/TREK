@@ -1271,5 +1271,11 @@ const tours: TranslationStrings = {
   'tours.estimate.noHeights': 'トラックに標高データがないため、時間を推定できません。',
   'tours.estimate.basisDin': '距離・登り・下りから登山道標識の基準（DIN 33466）で算出、休憩は含みません。',
   'tours.estimate.basisPace': '距離と入力したペースから算出。',
+  'tours.dayTime.workedOut': '{time}に終了（開始時刻とツアー時間{total}から算出）',
+  'tours.dayTime.workedOutNextDay': '翌日{time}に終了（開始時刻とツアー時間{total}から算出）',
+  'tours.dayTime.overrun': '{end}に終了、{name}の開始{time}より後です',
+  'tours.dayTime.nextItem': '次の項目',
+  'tours.dayTime.formHint': '空欄のままなら終了時刻を算出します：{time}（開始時刻＋ツアー時間{total}）。',
+  'tours.dayTime.formNoStart': '開始時刻を入れると、ツアー時間{total}から終了時刻を算出します。',
 };
 export default tours;

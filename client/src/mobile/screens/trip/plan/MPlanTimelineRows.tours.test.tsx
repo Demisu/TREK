@@ -73,6 +73,20 @@ describe('RC-01 mobile PLAN Tour rows', () => {
     expect(onOpen).not.toHaveBeenCalled();
   });
 
+  it('TIME-02-019: a tour with a start shows its end worked out in the time chip, and its overrun below', () => {
+    const assignment = buildAssignment({
+      id: 9,
+      day_id: 1,
+      assignment_time: '09:00',
+      place: { ...place, place_time: '09:00' },
+    });
+    const overrun = { name: 'Lunch', time: '10:00', end: '10:03' };
+    render(<PlaceRow {...props} assignment={assignment} tour={tour} overrun={overrun} />);
+    // 53 min walking and 10 min of breaks.
+    expect(screen.getByTestId('tour-day-end-worked-out')).toHaveTextContent('10:03');
+    expect(screen.getByTestId('tour-day-overrun')).toHaveTextContent('Ends at 10:03, after Lunch starts at 10:00');
+  });
+
   it('CW-03: a hike on a day with marks shows no progress', () => {
     useTourVisitStore.setState({ tripId: '1', byAssignment: { 9: { 'stop-01': 'visited' } } });
     render(<PlaceRow {...props} tour={tour} />);

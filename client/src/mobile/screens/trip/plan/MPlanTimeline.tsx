@@ -208,6 +208,7 @@ export default function MPlanTimeline({ planner, shell }: MPlanTimelineProps) {
                     onOpen={() => openPlace(row.assignment)}
                     onEdit={canEditPlaces ? () => tl.editAssignment(row.assignment) : undefined}
                     onRemove={() => tl.removeAssignment(row.assignment)}
+                    overrun={planner.toursEnabled ? tl.tourOverrun(row.item) : null}
                   />
                   {dayScheduleFor('assignment', row.assignment.id)}
                 </Fragment>

@@ -1319,5 +1319,11 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'Vypočítané zo vzdialenosti, stúpania a klesania podľa pravidla turistických smerovníkov (DIN 33466), bez prestávok.',
   'tours.estimate.basisPace': 'Vypočítané zo vzdialenosti pri zadanom tempe.',
+  'tours.dayTime.workedOut': 'Končí o {time}, vypočítané zo začiatku a času túry {total}',
+  'tours.dayTime.workedOutNextDay': 'Končí na druhý deň o {time}, vypočítané zo začiatku a času túry {total}',
+  'tours.dayTime.overrun': 'Končí o {end}, až po začiatku {name} o {time}',
+  'tours.dayTime.nextItem': 'ďalšia položka',
+  'tours.dayTime.formHint': 'Ak zostane prázdny, koniec sa vypočíta: {time}, začiatok plus čas túry {total}.',
+  'tours.dayTime.formNoStart': 'So začiatkom sa koniec vypočíta z času túry {total}.',
 };
 export default tours;

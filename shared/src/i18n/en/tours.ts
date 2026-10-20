@@ -1297,5 +1297,12 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'Worked out from distance, ascent and descent by the hiking signpost rule (DIN 33466), without breaks.',
   'tours.estimate.basisPace': 'Worked out from the distance at the pace entered.',
+  'tours.dayTime.workedOut': 'Ends at {time}, worked out from the start and the tour time of {total}',
+  'tours.dayTime.workedOutNextDay':
+    'Ends at {time} on the next day, worked out from the start and the tour time of {total}',
+  'tours.dayTime.overrun': 'Ends at {end}, after {name} starts at {time}',
+  'tours.dayTime.nextItem': 'the next item',
+  'tours.dayTime.formHint': 'Left empty, the end is worked out: {time}, the start plus the tour time of {total}.',
+  'tours.dayTime.formNoStart': 'With a start time, the end is worked out from the tour time of {total}.',
 };
 export default tours;

@@ -1358,5 +1358,12 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'Розраховано за відстанню, набором і скиданням висоти за правилом туристичних вказівників (DIN 33466), без перерв.',
   'tours.estimate.basisPace': 'Розраховано за відстанню при введеному темпі.',
+  'tours.dayTime.workedOut': 'Закінчується о {time}, розраховано за початком і часом туру {total}',
+  'tours.dayTime.workedOutNextDay':
+    'Закінчується наступного дня о {time}, розраховано за початком і часом туру {total}',
+  'tours.dayTime.overrun': 'Закінчується о {end}, після початку {name} о {time}',
+  'tours.dayTime.nextItem': 'наступний пункт',
+  'tours.dayTime.formHint': 'Якщо залишити порожнім, кінець розраховується: {time}, початок плюс час туру {total}.',
+  'tours.dayTime.formNoStart': 'З часом початку кінець розраховується за часом туру {total}.',
 };
 export default tours;

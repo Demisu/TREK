@@ -1330,5 +1330,11 @@ const tours: TranslationStrings = {
   'tours.estimate.basisDin':
     'Calculat a partir de la distància, la pujada i la baixada segons la regla dels senyals excursionistes (DIN 33466), sense pauses.',
   'tours.estimate.basisPace': 'Calculat a partir de la distància al ritme introduït.',
+  'tours.dayTime.workedOut': 'Acaba a les {time}, calculat a partir de l’inici i la durada de {total}',
+  'tours.dayTime.workedOutNextDay': 'Acaba l’endemà a les {time}, calculat a partir de l’inici i la durada de {total}',
+  'tours.dayTime.overrun': 'Acaba a les {end}, després que {name} comenci a les {time}',
+  'tours.dayTime.nextItem': 'l’element següent',
+  'tours.dayTime.formHint': 'Si es deixa buit, el final es calcula: {time}, l’inici més la durada de {total}.',
+  'tours.dayTime.formNoStart': 'Amb una hora d’inici, el final es calcula a partir de la durada de {total}.',
 };
 export default tours;

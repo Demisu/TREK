@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback, useId, type ReactNode } from 'react'
-import type { RoadtripStopType } from '@trek/shared'
+import type { RoadtripStopType, TourListItem } from '@trek/shared'
 import NoteFormatToolbar from '../shared/NoteFormatToolbar'
 import { useAuthStore } from '../../store/authStore'
 import { useAddonStore } from '../../store/addonStore'
@@ -43,6 +43,7 @@ import {
 import { EditorField, GRID_2, INPUT, LABEL, PANEL, PillSelect, TEXTAREA } from '../shared/dialogParts'
 import { SoftPill, tintOf } from './planParts'
 import { WHITE_BUTTON } from './placeDialogParts'
+import { TourEndHint } from '../Tours/TourDayTimeParts'
 
 // The submit payload mirrors the form, but lat/lng are parsed to numbers and
 // category_id is normalised, plus any files chosen before the place existed.
@@ -85,6 +86,8 @@ interface PlaceFormModalProps {
   serviceStop?: ServiceStopMode | null
   /** Road trip mode is on, where a visit's End is when the drive leaves it. */
   roadtripActive?: boolean
+  /** TIME-02: the tour this place is, whose end the time fields work out from its start; absent for a plain place. */
+  tour?: TourListItem | null
 }
 
 
@@ -843,6 +846,7 @@ export default function PlaceFormModal(props: PlaceFormModalProps) {
                 dayAssignments={S.dayAssignments}
                 hasTimeError={hasTimeError}
                 endIsLeave={!!props.roadtripActive}
+                tour={props.tour}
                 t={t}
               />
               <EditorField label={t('places.assignmentNotes')} htmlFor={`${fieldId}-day-notes`}>
@@ -1166,10 +1170,11 @@ interface TimeSectionProps {
   /** On a road trip the End is when the drive leaves, which the field says. In Days it
    *  stays the plain label it has always been: nothing is scheduled off it there. */
   endIsLeave: boolean
+  tour?: TourListItem | null
   t: Translate
 }
 
-function TimeSection({ form, handleChange, assignmentId, dayAssignments, hasTimeError, endIsLeave, t }: TimeSectionProps) {
+function TimeSection({ form, handleChange, assignmentId, dayAssignments, hasTimeError, endIsLeave, tour, t }: TimeSectionProps) {
   const collisions = useMemo(
     () => timeCollisions(assignmentId, dayAssignments, form.place_time, form.end_time),
     [assignmentId, dayAssignments, form.place_time, form.end_time],
@@ -1196,6 +1201,7 @@ function TimeSection({ form, handleChange, assignmentId, dayAssignments, hasTime
           />
         </EditorField>
       </div>
+      <TourEndHint start={form.place_time} end={form.end_time} assignment={dayAssignments.find(a => a.id === assignmentId)} tour={tour} />
       {hasTimeError && (
         <div id={errorId} className={WARNING_BANNER} style={fs(12, 'body')}>
           <AlertTriangle size={13} className="mt-0.5 shrink-0" aria-hidden="true" />

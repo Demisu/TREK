@@ -1209,5 +1209,11 @@ const tours: TranslationStrings = {
   'tours.estimate.noHeights': '軌跡沒有海拔資料，無法估算時間。',
   'tours.estimate.basisDin': '依健行路標規則（DIN 33466）由距離、爬升與下降計算，不含休息。',
   'tours.estimate.basisPace': '依距離與輸入的配速計算。',
+  'tours.dayTime.workedOut': '{time} 結束，依開始時間與行程時間 {total} 推算',
+  'tours.dayTime.workedOutNextDay': '隔天 {time} 結束，依開始時間與行程時間 {total} 推算',
+  'tours.dayTime.overrun': '{end} 結束，晚於 {name} 的開始時間 {time}',
+  'tours.dayTime.nextItem': '下一項',
+  'tours.dayTime.formHint': '留空時會推算結束時間：{time}，即開始時間加上行程時間 {total}。',
+  'tours.dayTime.formNoStart': '填入開始時間後，會依行程時間 {total} 推算結束時間。',
 };
 export default tours;
