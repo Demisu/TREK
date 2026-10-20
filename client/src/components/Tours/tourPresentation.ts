@@ -1,7 +1,8 @@
 import type { TourListItem, TourOrigin } from '@trek/shared'
-import { tourWebsiteSchema } from '@trek/shared'
+import { tourTimeEstimate, tourWebsiteSchema, type TourTimeEstimate } from '@trek/shared'
 import { formatDurationShort } from '@trek/shared/roadtrip'
 import { walkTimesOf, type WalkTimes } from './planner/stationModel'
+import type { TourMetricField } from './tourParts'
 
 export type TourSource = TourOrigin
 
@@ -26,10 +27,30 @@ export interface TourPlannedTimes {
   walk: WalkTimes | null
   /** The planned total leaves out a stay nobody entered yet: it is at least that much. */
   atLeast: boolean
+  /**
+   * TIME-01: what a tour without a time of its own (an import) is estimated to
+   * take, worked out from its measures by the planner's own rule; null where
+   * nothing estimates it. Never part of the planned total.
+   */
+  estimate: TourTimeEstimate | null
 }
 
 type PlannedTimesSource = Pick<TourListItem, 'duration' | 'planned_duration_minutes' | 'break_additional_minutes'>
   & Partial<Pick<TourListItem, 'tour_type' | 'station_count' | 'station_stay_minutes' | 'station_stays_unknown'>>
+  & Partial<Pick<TourListItem, 'distance' | 'elevation_gain' | 'elevation_loss' | 'run_pace_seconds_per_km'>>
+
+/** TIME-01: the estimate of a tour, by the rule `@trek/shared` keeps for the app and the server alike. */
+function estimateOf(tour: PlannedTimesSource): TourTimeEstimate | null {
+  if (!tour.tour_type) return null
+  return tourTimeEstimate({
+    tour_type: tour.tour_type,
+    distance: tour.distance ?? null,
+    elevation_gain: tour.elevation_gain ?? null,
+    elevation_loss: tour.elevation_loss ?? null,
+    duration: tour.duration,
+    run_pace_seconds_per_km: tour.run_pace_seconds_per_km ?? null,
+  })
+}
 
 /** CW-02: a city walk's times from what the list says of its stations; null where it says nothing of them. */
 function walkTimesOfTour(tour: PlannedTimesSource): WalkTimes | null {
@@ -59,7 +80,56 @@ export function tourPlannedTimes(tour: PlannedTimesSource): TourPlannedTimes {
     manuallyOverridden: manualOverride !== null,
     walk,
     atLeast: manualOverride === null && !!walk?.partial,
+    estimate: estimateOf(tour),
   }
+}
+
+/**
+ * TIME-01: the time a tour is reckoned to take in a day: the planned total,
+ * else the estimate. Null where neither is known. `estimated` says the time
+ * is an estimate, `atLeast` that it leaves out a stay nobody entered yet.
+ */
+export function tourDayMinutes(
+  times: Pick<TourPlannedTimes, 'plannedTotalMinutes' | 'atLeast' | 'estimate'>
+): { minutes: number; estimated: boolean; atLeast: boolean } | null {
+  if (times.plannedTotalMinutes != null) {
+    return { minutes: times.plannedTotalMinutes, estimated: false, atLeast: times.atLeast }
+  }
+  const estimated = times.estimate?.minutes
+  return estimated == null ? null : { minutes: estimated, estimated: true, atLeast: false }
+}
+
+/** TIME-01: an estimate as a badge says it, `≈ 3 h 20 min`, or null while it is unknown. */
+export function estimateBadgeText(estimate: TourTimeEstimate | null): string | null {
+  return estimate?.minutes == null ? null : `≈ ${formatPlannedTourDuration(estimate.minutes)}`
+}
+
+/** TIME-01: the words for what an estimate was worked out by, or why it is unknown. */
+function estimateBasisText(estimate: TourTimeEstimate, t: Translate): string {
+  if (estimate.minutes == null) return t('tours.estimate.noHeights')
+  return t(estimate.basis === 'run_pace' ? 'tours.estimate.basisPace' : 'tours.estimate.basisDin')
+}
+
+/**
+ * TIME-01: an estimate as a field of the tour detail: labelled estimated, its
+ * time or unknown, and what it was worked out by behind its info dot.
+ */
+export function estimateField(estimate: TourTimeEstimate, t: Translate): TourMetricField {
+  return {
+    label: t('tours.estimate.label'),
+    shortLabel: t('tours.estimate.short'),
+    value: estimateBadgeText(estimate) ?? t('tours.estimate.unknown'),
+    info: { label: t('tours.estimate.label'), description: estimateBasisText(estimate, t) },
+  }
+}
+
+/**
+ * TIME-01: an estimate in words for a tooltip or a field: its time, or that
+ * it is unknown, and what it was worked out by.
+ */
+export function estimateLabel(estimate: TourTimeEstimate, t: Translate): string {
+  const value = estimate.minutes == null ? t('tours.estimate.unknown') : formatPlannedTourDuration(estimate.minutes)
+  return `${t('tours.estimate.label')}: ${value}. ${estimateBasisText(estimate, t)}`
 }
 
 /**

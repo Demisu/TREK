@@ -1322,5 +1322,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Teljes túra',
   'tours.stages.totalPartial': 'ismert {known} szakasznál a {of} közül',
   'tours.stages.openInPlanner': 'A szakasz megnyitása a tervezőben',
+  'tours.estimate.label': 'Becsült idő',
+  'tours.estimate.short': 'Becsült',
+  'tours.estimate.unknown': 'Ismeretlen',
+  'tours.estimate.noHeights': 'A nyomvonalnak nincsenek magasságai, így az ideje nem becsülhető.',
+  'tours.estimate.basisDin':
+    'A távból, emelkedésből és lejtésből számolva a turistaútjelzők szabálya szerint (DIN 33466), szünetek nélkül.',
+  'tours.estimate.basisPace': 'A távból számolva a megadott tempóval.',
 };
 export default tours;

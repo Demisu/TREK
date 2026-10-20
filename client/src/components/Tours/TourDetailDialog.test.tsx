@@ -285,6 +285,16 @@ describe('TourDetailDialog', () => {
     expect(defaultProps.onUpdatePlace).toHaveBeenCalledWith(42, { name: 'New route name' })
   })
 
+  it('TIME-01-FE-005: an import shows its estimated time apart from a planned one, and an import without heights says it is unknown', () => {
+    const imported = { ...tour, has_waypoints: false, origin: 'gpx' as const, distance: 12, elevation_gain: 300, elevation_loss: 500 }
+    const view = render(<TourDetailDialog {...defaultProps} tour={imported} />)
+    expect(screen.getByLabelText('Estimated time: ≈ 4 h')).toHaveTextContent('≈ 4 h')
+    expect(screen.getByText('Estimated time')).toBeInTheDocument()
+    view.unmount()
+    render(<TourDetailDialog {...defaultProps} tour={{ ...imported, elevation_gain: null, elevation_loss: null }} />)
+    expect(screen.getByText('Unknown')).toBeInTheDocument()
+  })
+
   it('RC-03: names a GPX import as such, without a read-only notice in the plan', () => {
     render(<TourDetailDialog {...defaultProps} tour={{ ...tour, has_waypoints: false }} />)
 

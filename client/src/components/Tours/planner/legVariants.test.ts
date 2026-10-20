@@ -1,8 +1,8 @@
 // FE-TOUR-LEG-VARIANTS-001 to FE-TOUR-LEG-VARIANTS-008: the model of the ways a hike's section
 // can take, which section can be compared, and the figures of each way (RTE-02).
+import { hikingTimeMinutes } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
 import type { ValhallaLeg } from '../../Map/valhallaRoute';
-import { hikingTimeMinutes } from '../hikingTime';
 import {
   comparedLegOf,
   currentVariantOf,

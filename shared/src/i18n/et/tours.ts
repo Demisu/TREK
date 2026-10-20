@@ -1299,5 +1299,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Kogu matk',
   'tours.stages.totalPartial': 'teada {known} etapi kohta {of}-st',
   'tours.stages.openInPlanner': 'Ava see etapp planeerijas',
+  'tours.estimate.label': 'Hinnanguline aeg',
+  'tours.estimate.short': 'Hinnang',
+  'tours.estimate.unknown': 'Teadmata',
+  'tours.estimate.noHeights': 'Rajal pole kõrgusi, seega aega ei saa hinnata.',
+  'tours.estimate.basisDin':
+    'Arvutatud vahemaa, tõusu ja laskumise järgi matkaviitade reegli (DIN 33466) alusel, pausideta.',
+  'tours.estimate.basisPace': 'Arvutatud vahemaast sisestatud tempoga.',
 };
 export default tours;

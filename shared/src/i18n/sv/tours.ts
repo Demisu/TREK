@@ -1295,5 +1295,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Hela turen',
   'tours.stages.totalPartial': 'känt för {known} av {of} etapper',
   'tours.stages.openInPlanner': 'Öppna etappen i planeraren',
+  'tours.estimate.label': 'Uppskattad tid',
+  'tours.estimate.short': 'Uppskattad',
+  'tours.estimate.unknown': 'Okänd',
+  'tours.estimate.noHeights': 'Spåret har inga höjder, så tiden kan inte uppskattas.',
+  'tours.estimate.basisDin':
+    'Beräknad från sträcka, stigning och nedstigning enligt vandringsskyltarnas regel (DIN 33466), utan pauser.',
+  'tours.estimate.basisPace': 'Beräknad från sträckan i angivet tempo.',
 };
 export default tours;

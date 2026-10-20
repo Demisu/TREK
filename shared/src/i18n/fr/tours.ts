@@ -1343,5 +1343,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Itinéraire complet',
   'tours.stages.totalPartial': 'connu pour {known} étapes sur {of}',
   'tours.stages.openInPlanner': 'Ouvrir cette étape dans le planificateur',
+  'tours.estimate.label': 'Temps estimé',
+  'tours.estimate.short': 'Estimé',
+  'tours.estimate.unknown': 'Inconnu',
+  'tours.estimate.noHeights': 'Le tracé n’a pas d’altitudes, son temps ne peut donc pas être estimé.',
+  'tours.estimate.basisDin':
+    'Calculé à partir de la distance, du dénivelé positif et négatif selon la règle des panneaux de randonnée (DIN 33466), sans pauses.',
+  'tours.estimate.basisPace': 'Calculé à partir de la distance à l’allure saisie.',
 };
 export default tours;

@@ -504,6 +504,12 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
         max_hiking_difficulty: null,
         has_waypoints: false,
       });
+      // TIME-01: the walking time it is estimated to take, worked out from its own heights and stored nowhere.
+      expect(tour.duration).toBeNull();
+      expect(tour.time_estimate).toEqual({ minutes: expect.any(Number), basis: 'din33466' });
+      const listed = await request(server).get('/api/trips/5/tours').set('Cookie', sessionCookie(OWNER));
+      const again = listed.body.tours.find((item: { place_id: number }) => item.place_id === tour.place_id);
+      expect(again.time_estimate).toEqual(tour.time_estimate);
       expect(await placeColumns(tour.place_id, 'trip_id')).toEqual({ trip_id: 5 });
       expect(await findRow(orm, Tours, { place: tour.place_id })).toMatchObject({
         tour_type: 'hike',
@@ -517,6 +523,8 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
       expect(res.status).toBe(201);
       expect(res.body.caution).toBe(true);
       expect(res.body.tours[0]).toMatchObject({ match_confidence: 0.3, caution: true });
+      // TIME-01: without heights the estimate is unknown, never the time on the flat.
+      expect(res.body.tours[0].time_estimate).toEqual({ minutes: null, basis: 'din33466' });
     });
 
     it('a second import of the same track is skipped as a duplicate', async () => {

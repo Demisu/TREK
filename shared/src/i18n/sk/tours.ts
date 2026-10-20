@@ -1312,5 +1312,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Celá trasa',
   'tours.stages.totalPartial': 'známe pre {known} z {of} etáp',
   'tours.stages.openInPlanner': 'Otvoriť túto etapu v plánovači',
+  'tours.estimate.label': 'Odhadovaný čas',
+  'tours.estimate.short': 'Odhad',
+  'tours.estimate.unknown': 'Neznámy',
+  'tours.estimate.noHeights': 'Trasa nemá výšky, preto nemožno čas odhadnúť.',
+  'tours.estimate.basisDin':
+    'Vypočítané zo vzdialenosti, stúpania a klesania podľa pravidla turistických smerovníkov (DIN 33466), bez prestávok.',
+  'tours.estimate.basisPace': 'Vypočítané zo vzdialenosti pri zadanom tempe.',
 };
 export default tours;

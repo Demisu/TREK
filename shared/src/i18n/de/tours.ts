@@ -1335,6 +1335,13 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Ganze Tour',
   'tours.stages.totalPartial': 'bekannt für {known} von {of} Etappen',
   'tours.stages.openInPlanner': 'Diese Etappe im Planer öffnen',
+  'tours.estimate.label': 'Geschätzte Zeit',
+  'tours.estimate.short': 'Geschätzt',
+  'tours.estimate.unknown': 'Unbekannt',
+  'tours.estimate.noHeights': 'Der Track hat keine Höhen, daher lässt sich keine Zeit schätzen.',
+  'tours.estimate.basisDin':
+    'Aus Strecke, Auf- und Abstieg nach der Wegweiser-Regel (DIN 33466) berechnet, ohne Pausen.',
+  'tours.estimate.basisPace': 'Aus der Strecke beim eingegebenen Tempo berechnet.',
 };
 
 export default tours;

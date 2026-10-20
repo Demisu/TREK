@@ -1364,5 +1364,11 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'الجولة كاملة',
   'tours.stages.totalPartial': 'معروف لـ {known} من {of} مراحل',
   'tours.stages.openInPlanner': 'فتح هذه المرحلة في المخطط',
+  'tours.estimate.label': 'الوقت المقدَّر',
+  'tours.estimate.short': 'تقديري',
+  'tours.estimate.unknown': 'غير معروف',
+  'tours.estimate.noHeights': 'لا يحتوي المسار على ارتفاعات، لذا لا يمكن تقدير وقته.',
+  'tours.estimate.basisDin': 'محسوب من المسافة والصعود والنزول وفق قاعدة لافتات المشي (DIN 33466)، دون استراحات.',
+  'tours.estimate.basisPace': 'محسوب من المسافة بالوتيرة المُدخلة.',
 };
 export default tours;

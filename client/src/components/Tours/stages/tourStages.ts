@@ -1,11 +1,11 @@
 import {
+  hikingTimeMinutes,
   MAX_PLANNED_TOUR_DURATION_MINUTES,
   MAX_TOUR_STAGES,
   runMinutesAtPace,
   type PlannableTourType,
 } from '@trek/shared';
 import { analyzeRouteGeometry } from '../../../utils/routeGeometry';
-import { hikingTimeMinutes } from '../hikingTime';
 import { paddleEstimateOf } from '../planner/paddlePlanOf';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 import { runPaceInvalid } from '../run/runPace';

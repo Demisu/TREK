@@ -1351,5 +1351,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Увесь маршрут',
   'tours.stages.totalPartial': 'відомо для {known} з {of} етапів',
   'tours.stages.openInPlanner': 'Відкрити цей етап у планувальнику',
+  'tours.estimate.label': 'Орієнтовний час',
+  'tours.estimate.short': 'Оцінка',
+  'tours.estimate.unknown': 'Невідомо',
+  'tours.estimate.noHeights': 'У треку немає висот, тому час оцінити не можна.',
+  'tours.estimate.basisDin':
+    'Розраховано за відстанню, набором і скиданням висоти за правилом туристичних вказівників (DIN 33466), без перерв.',
+  'tours.estimate.basisPace': 'Розраховано за відстанню при введеному темпі.',
 };
 export default tours;

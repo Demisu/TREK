@@ -19,7 +19,7 @@ vi.mock('../../../repo/tourRepo', () => ({ tourRepo: { create: createTour, detai
 vi.mock('../useTourPermissions', () => ({ useTourPermissions: ({ canEdit = true, canAssign = true }: { canEdit?: boolean; canAssign?: boolean }) => ({ canEdit, canAssign }) }))
 
 import { useTourPlanner } from './useTourPlanner'
-import { hikingTimeMinutes } from '../hikingTime'
+import { hikingTimeMinutes } from '@trek/shared'
 import { analyzeRouteGeometry } from '../../../utils/routeGeometry'
 import { TourPlannerRail } from './TourPlannerPanels'
 

@@ -1284,5 +1284,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Cả hành trình',
   'tours.stages.totalPartial': 'đã biết cho {known} trên {of} chặng',
   'tours.stages.openInPlanner': 'Mở chặng này trong trình lập kế hoạch',
+  'tours.estimate.label': 'Thời gian ước tính',
+  'tours.estimate.short': 'Ước tính',
+  'tours.estimate.unknown': 'Không rõ',
+  'tours.estimate.noHeights': 'Lộ trình không có độ cao, nên không thể ước tính thời gian.',
+  'tours.estimate.basisDin':
+    'Tính từ quãng đường, độ cao lên và xuống theo quy tắc biển chỉ dẫn leo núi (DIN 33466), không tính nghỉ.',
+  'tours.estimate.basisPace': 'Tính từ quãng đường theo tốc độ đã nhập.',
 };
 export default tours;

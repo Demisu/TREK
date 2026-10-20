@@ -1317,5 +1317,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Roteiro completo',
   'tours.stages.totalPartial': 'conhecido para {known} de {of} etapas',
   'tours.stages.openInPlanner': 'Abrir esta etapa no planejador',
+  'tours.estimate.label': 'Tempo estimado',
+  'tours.estimate.short': 'Estimado',
+  'tours.estimate.unknown': 'Desconhecido',
+  'tours.estimate.noHeights': 'A trilha não tem altitudes, então o tempo não pode ser estimado.',
+  'tours.estimate.basisDin':
+    'Calculado pela distância, subida e descida segundo a regra das placas de trilha (DIN 33466), sem pausas.',
+  'tours.estimate.basisPace': 'Calculado pela distância no ritmo informado.',
 };
 export default tours;

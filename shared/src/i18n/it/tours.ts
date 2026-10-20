@@ -1330,5 +1330,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Tour completo',
   'tours.stages.totalPartial': 'noto per {known} tappe su {of}',
   'tours.stages.openInPlanner': 'Apri questa tappa nel pianificatore',
+  'tours.estimate.label': 'Tempo stimato',
+  'tours.estimate.short': 'Stimato',
+  'tours.estimate.unknown': 'Sconosciuto',
+  'tours.estimate.noHeights': 'La traccia non ha quote, quindi il suo tempo non si può stimare.',
+  'tours.estimate.basisDin':
+    'Calcolato da distanza, salita e discesa secondo la regola dei cartelli escursionistici (DIN 33466), senza pause.',
+  'tours.estimate.basisPace': 'Calcolato dalla distanza al ritmo inserito.',
 };
 export default tours;

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { filterTours, formatPlannedTourDuration, hikeSourceBadgeLabel, plannedTotalText, tourPlannedTimes, tourSource, tourWebsitePresentation } from './tourPresentation'
+import { estimateBadgeText, estimateLabel, filterTours, formatPlannedTourDuration, hikeSourceBadgeLabel, plannedTotalText, tourDayMinutes, tourPlannedTimes, tourSource, tourWebsitePresentation } from './tourPresentation'
 
 describe('tourPresentation', () => {
   it('formats planned Tour totals using the shared compact duration formatter', () => {
@@ -10,10 +10,10 @@ describe('tourPresentation', () => {
 
   it('calculates planned total from walking and breaks unless a manual override exists', () => {
     expect(tourPlannedTimes({ duration: 80, planned_duration_minutes: null, break_additional_minutes: 25 })).toEqual({
-      walkingMinutes: 80, breakMinutes: 25, plannedTotalMinutes: 105, manuallyOverridden: false, walk: null, atLeast: false,
+      walkingMinutes: 80, breakMinutes: 25, plannedTotalMinutes: 105, manuallyOverridden: false, walk: null, atLeast: false, estimate: null,
     })
     expect(tourPlannedTimes({ duration: 80, planned_duration_minutes: 130, break_additional_minutes: 25 })).toEqual({
-      walkingMinutes: 80, breakMinutes: 25, plannedTotalMinutes: 130, manuallyOverridden: true, walk: null, atLeast: false,
+      walkingMinutes: 80, breakMinutes: 25, plannedTotalMinutes: 130, manuallyOverridden: true, walk: null, atLeast: false, estimate: null,
     })
     expect(tourPlannedTimes({ duration: null, planned_duration_minutes: null, break_additional_minutes: 25 }).plannedTotalMinutes).toBeNull()
   })
@@ -21,7 +21,7 @@ describe('tourPresentation', () => {
   it('CW-02: adds a city walk its stays and no breaks, and says the total is at least that while a stay is not entered', () => {
     const walk = { tour_type: 'walk' as const, duration: 45, planned_duration_minutes: null, break_additional_minutes: 15 }
     expect(tourPlannedTimes({ ...walk, station_count: 3, station_stay_minutes: 120, station_stays_unknown: 0 })).toEqual({
-      walkingMinutes: 45, breakMinutes: null, plannedTotalMinutes: 165, manuallyOverridden: false, atLeast: false,
+      walkingMinutes: 45, breakMinutes: null, plannedTotalMinutes: 165, manuallyOverridden: false, atLeast: false, estimate: null,
       walk: { walkingMinutes: 45, stayMinutes: 120, unknownStays: 0, stations: 3, totalMinutes: 165, partial: false },
     })
     const partial = tourPlannedTimes({ ...walk, station_count: 3, station_stay_minutes: 90, station_stays_unknown: 1 })
@@ -32,6 +32,35 @@ describe('tourPresentation', () => {
     // A list cached before the stays were listed: the walking time alone, and still no breaks.
     expect(tourPlannedTimes(walk)).toMatchObject({ breakMinutes: null, plannedTotalMinutes: 45, walk: null, atLeast: false })
     expect(tourPlannedTimes({ ...walk, station_stay_minutes: 30 }).walk).toMatchObject({ stations: 0, unknownStays: 0, totalMinutes: 75 })
+  })
+
+  it('TIME-01: estimates an imported hike by the planner rule, apart from any planned total, and never a planned one', () => {
+    const imported = { tour_type: 'hike' as const, duration: null, planned_duration_minutes: null, break_additional_minutes: null, distance: 12, elevation_gain: 300, elevation_loss: 500 }
+    expect(tourPlannedTimes(imported)).toMatchObject({ walkingMinutes: null, plannedTotalMinutes: null, estimate: { minutes: 240, basis: 'din33466' } })
+    // A total the travellers entered stays theirs; the estimate is kept beside it.
+    expect(tourPlannedTimes({ ...imported, planned_duration_minutes: 300 })).toMatchObject({ plannedTotalMinutes: 300, estimate: { minutes: 240 } })
+    expect(tourPlannedTimes({ ...imported, elevation_gain: null }).estimate).toEqual({ minutes: null, basis: 'din33466' })
+    expect(tourPlannedTimes({ ...imported, duration: 200 }).estimate).toBeNull()
+    expect(tourPlannedTimes({ duration: null, planned_duration_minutes: null, break_additional_minutes: null }).estimate).toBeNull()
+    expect(tourPlannedTimes({ ...imported, tour_type: 'run', run_pace_seconds_per_km: 360 }).estimate).toEqual({ minutes: 72, basis: 'run_pace' })
+  })
+
+  it('TIME-01: reckons a day with the planned total first, else the estimate, else nothing', () => {
+    const estimate = { minutes: 240, basis: 'din33466' as const }
+    expect(tourDayMinutes({ plannedTotalMinutes: 300, atLeast: true, estimate })).toEqual({ minutes: 300, estimated: false, atLeast: true })
+    expect(tourDayMinutes({ plannedTotalMinutes: null, atLeast: false, estimate })).toEqual({ minutes: 240, estimated: true, atLeast: false })
+    expect(tourDayMinutes({ plannedTotalMinutes: null, atLeast: false, estimate: { ...estimate, minutes: null } })).toBeNull()
+    expect(tourDayMinutes({ plannedTotalMinutes: null, atLeast: false, estimate: null })).toBeNull()
+  })
+
+  it('TIME-01: says an estimate as one, with what it was worked out by, and an unknown one as unknown', () => {
+    const t = (key: string) => key
+    expect(estimateBadgeText({ minutes: 200, basis: 'din33466' })).toBe('≈ 3 h 20 min')
+    expect(estimateBadgeText({ minutes: null, basis: 'din33466' })).toBeNull()
+    expect(estimateBadgeText(null)).toBeNull()
+    expect(estimateLabel({ minutes: 200, basis: 'din33466' }, t)).toBe('tours.estimate.label: 3 h 20 min. tours.estimate.basisDin')
+    expect(estimateLabel({ minutes: 48, basis: 'run_pace' }, t)).toBe('tours.estimate.label: 48 min. tours.estimate.basisPace')
+    expect(estimateLabel({ minutes: null, basis: 'din33466' }, t)).toBe('tours.estimate.label: tours.estimate.unknown. tours.estimate.noHeights')
   })
 
   it('CW-02: says a planned total as it is, at least that much, or as a badge with ≥', () => {

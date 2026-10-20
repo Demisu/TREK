@@ -1204,5 +1204,11 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': '整条路线',
   'tours.stages.totalPartial': '{of} 个阶段中 {known} 个已知',
   'tours.stages.openInPlanner': '在规划器中打开此阶段',
+  'tours.estimate.label': '预计用时',
+  'tours.estimate.short': '预计',
+  'tours.estimate.unknown': '未知',
+  'tours.estimate.noHeights': '轨迹没有海拔数据，无法估算用时。',
+  'tours.estimate.basisDin': '按徒步路标规则（DIN 33466）根据距离、爬升和下降计算，不含休息。',
+  'tours.estimate.basisPace': '按距离和输入的配速计算。',
 };
 export default tours;

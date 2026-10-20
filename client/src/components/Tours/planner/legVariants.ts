@@ -1,8 +1,7 @@
-import type { PlannableTourType } from '@trek/shared';
+import { hikingTimeMinutes, type PlannableTourType } from '@trek/shared';
 import { analyzeRouteGeometry } from '../../../utils/routeGeometry';
 import { sameRoad } from '../../Map/RouteCalculator';
 import type { CostingOptions, ValhallaLeg } from '../../Map/valhallaRoute';
-import { hikingTimeMinutes } from '../hikingTime';
 import { legSpanOf } from './routeLegAt';
 import type { TourPlannerWaypoint } from './tourPlannerWaypoints';
 import type { TourElevationPoint } from './tourRouting';

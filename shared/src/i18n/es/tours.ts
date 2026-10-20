@@ -1316,5 +1316,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Ruta completa',
   'tours.stages.totalPartial': 'conocido para {known} de {of} etapas',
   'tours.stages.openInPlanner': 'Abrir esta etapa en el planificador',
+  'tours.estimate.label': 'Tiempo estimado',
+  'tours.estimate.short': 'Estimado',
+  'tours.estimate.unknown': 'Desconocido',
+  'tours.estimate.noHeights': 'El track no tiene altitudes, así que no se puede estimar su tiempo.',
+  'tours.estimate.basisDin':
+    'Calculado a partir de la distancia, el ascenso y el descenso según la regla de las señales de senderismo (DIN 33466), sin pausas.',
+  'tours.estimate.basisPace': 'Calculado a partir de la distancia al ritmo introducido.',
 };
 export default tours;

@@ -1,7 +1,6 @@
 // FE-TOUR-STAGE-MODEL-001 to FE-TOUR-STAGE-MODEL-013: the stages of a multi-day tour, cut from its one route (MDT-01, MDT-02).
-import { MAX_TOUR_STAGES, runMinutesAtPace } from '@trek/shared';
+import { hikingTimeMinutes, MAX_TOUR_STAGES, runMinutesAtPace } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
-import { hikingTimeMinutes } from '../hikingTime';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 import {
   canEndStage,

@@ -1296,5 +1296,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Seluruh tur',
   'tours.stages.totalPartial': 'diketahui untuk {known} dari {of} etape',
   'tours.stages.openInPlanner': 'Buka etape ini di perencana',
+  'tours.estimate.label': 'Perkiraan waktu',
+  'tours.estimate.short': 'Perkiraan',
+  'tours.estimate.unknown': 'Tidak diketahui',
+  'tours.estimate.noHeights': 'Jalur tidak memiliki data ketinggian, jadi waktunya tidak dapat diperkirakan.',
+  'tours.estimate.basisDin':
+    'Dihitung dari jarak, tanjakan, dan turunan menurut aturan papan penunjuk pendakian (DIN 33466), tanpa istirahat.',
+  'tours.estimate.basisPace': 'Dihitung dari jarak dengan kecepatan yang dimasukkan.',
 };
 export default tours;

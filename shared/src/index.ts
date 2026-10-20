@@ -57,6 +57,7 @@ export * from './roadtrip/roadtrip.schema';
 export * from './place/track-colors';
 export * from './tours/tours.schema';
 export * from './tours/run-pace';
+export * from './tours/tour-time-estimate';
 export * from './tours/ski.schema';
 export * from './tours/tour-stages';
 export * from './tours/tour-provenance.schema';

@@ -1203,5 +1203,11 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': '整條路線',
   'tours.stages.totalPartial': '{of} 個階段中 {known} 個已知',
   'tours.stages.openInPlanner': '在規劃器中開啟此階段',
+  'tours.estimate.label': '預估時間',
+  'tours.estimate.short': '預估',
+  'tours.estimate.unknown': '未知',
+  'tours.estimate.noHeights': '軌跡沒有海拔資料，無法估算時間。',
+  'tours.estimate.basisDin': '依健行路標規則（DIN 33466）由距離、爬升與下降計算，不含休息。',
+  'tours.estimate.basisPace': '依距離與輸入的配速計算。',
 };
 export default tours;

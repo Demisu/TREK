@@ -1345,5 +1345,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Όλη η διαδρομή',
   'tours.stages.totalPartial': 'γνωστό για {known} από {of} σκέλη',
   'tours.stages.openInPlanner': 'Άνοιγμα αυτού του σκέλους στον σχεδιαστή',
+  'tours.estimate.label': 'Εκτιμώμενος χρόνος',
+  'tours.estimate.short': 'Εκτίμηση',
+  'tours.estimate.unknown': 'Άγνωστος',
+  'tours.estimate.noHeights': 'Η διαδρομή δεν έχει υψόμετρα, οπότε ο χρόνος δεν μπορεί να εκτιμηθεί.',
+  'tours.estimate.basisDin':
+    'Υπολογισμένος από απόσταση, ανάβαση και κατάβαση με τον κανόνα των πινακίδων πεζοπορίας (DIN 33466), χωρίς διαλείμματα.',
+  'tours.estimate.basisPace': 'Υπολογισμένος από την απόσταση με τον ρυθμό που δόθηκε.',
 };
 export default tours;

@@ -676,4 +676,25 @@ describe('ToursMcp', () => {
     expect(plan.legs[0].length_km).toBeCloseTo(1.11, 1);
     expect(plan.legs[1].length_km).toBeCloseTo(0.76, 1);
   });
+
+  it('TOURS-MCP-026: list_tours and get_tour_plan give an import its estimated time, named as worked out, and keep a planned time (TIME-01)', async () => {
+    const { user, trip, ridge, gorge } = fixture();
+    const orm = await createTestOrm(db);
+    await updateRows(orm, Tours, { place: ridge.id }, { distance: 12, elevation_gain: 300, elevation_loss: 500 });
+    await updateRows(orm, Tours, { place: gorge.id }, { distance: 6, duration: 95 });
+    await orm.close();
+    const { tours } = read(await mcp.listTours({ tripId: trip.id }, ctx(user.id)));
+    const byId = new Map(tours.map((tour: { place_id: number }) => [tour.place_id, tour]));
+    expect(byId.get(ridge.id)).toMatchObject({ duration: null, time_estimate: { minutes: 240, basis: 'din33466' } });
+    expect(byId.get(gorge.id)).toMatchObject({ duration: 95, time_estimate: null });
+    const plan = read(await mcp.getTourPlan({ tripId: trip.id, placeId: ridge.id }, ctx(user.id)));
+    expect(plan.tour.time_estimate).toEqual({ minutes: 240, basis: 'din33466' });
+    expect(plan.derived).toContain('tour.time_estimate');
+    const planned = read(await mcp.getTourPlan({ tripId: trip.id, placeId: gorge.id }, ctx(user.id)));
+    expect(planned.derived).not.toContain('tour.time_estimate');
+    const entry = getEntry(ToursMcp as unknown as ClassRef, 'listTours');
+    const description = entry?.kind === 'tool' ? (entry.options.description ?? '') : '';
+    expect(description).toContain('time_estimate');
+    expect(description).toContain('never a recorded or planned time');
+  });
 });

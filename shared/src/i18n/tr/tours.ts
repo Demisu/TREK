@@ -1302,5 +1302,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Tüm tur',
   'tours.stages.totalPartial': '{of} etabın {known} tanesi için biliniyor',
   'tours.stages.openInPlanner': 'Bu etabı planlayıcıda aç',
+  'tours.estimate.label': 'Tahmini süre',
+  'tours.estimate.short': 'Tahmini',
+  'tours.estimate.unknown': 'Bilinmiyor',
+  'tours.estimate.noHeights': 'İzde yükseklik yok, bu yüzden süresi tahmin edilemiyor.',
+  'tours.estimate.basisDin':
+    'Mesafe, tırmanış ve inişten yürüyüş tabelası kuralına (DIN 33466) göre hesaplandı, molalar hariç.',
+  'tours.estimate.basisPace': 'Mesafeden, girilen tempoyla hesaplandı.',
 };
 export default tours;

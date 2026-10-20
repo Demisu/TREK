@@ -63,6 +63,8 @@ import { tourDaysOf } from './tourDays';
 import { heightsUnknown, movingTimeLabel, withoutHeights } from './tourFacts';
 import { TourDayTiles, TourFactFields, TourMetricFields, type TourMetricField } from './tourParts';
 import {
+  estimateBadgeText,
+  estimateField,
   formatPlannedTourDuration,
   hikeSourceBadgeLabel,
   plannedTotalText,
@@ -221,6 +223,8 @@ function tourTimeFields(
           value: formatPlannedTourDuration(times.plannedTotalMinutes),
         }
       : null,
+    // TIME-01: what an import is estimated to take, or that it is unknown, apart from the times above.
+    times.estimate ? estimateField(times.estimate, t) : null,
   ].filter((field): field is TourMetricField => field !== null);
 }
 
@@ -249,7 +253,8 @@ function TourHeadPills({
   const timeTooltip = timeFields.map((field) => `${field.label}: ${field.value}`).join(', ');
   const shownTime =
     plannedTotalText(times, t, true) ??
-    (times.walkingMinutes == null ? null : formatPlannedTourDuration(times.walkingMinutes));
+    (times.walkingMinutes == null ? null : formatPlannedTourDuration(times.walkingMinutes)) ??
+    estimateBadgeText(times.estimate);
   const source = tourSource(tour);
   // The import this tour was planned from, named while it is still in the trip.
   const derivedFromName = useTripStore((state) =>

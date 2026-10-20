@@ -1365,5 +1365,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Весь маршрут',
   'tours.stages.totalPartial': 'известно для {known} из {of} этапов',
   'tours.stages.openInPlanner': 'Открыть этот этап в планировщике',
+  'tours.estimate.label': 'Расчётное время',
+  'tours.estimate.short': 'Оценка',
+  'tours.estimate.unknown': 'Неизвестно',
+  'tours.estimate.noHeights': 'В треке нет высот, поэтому время оценить нельзя.',
+  'tours.estimate.basisDin':
+    'Рассчитано по расстоянию, набору и сбросу высоты по правилу туристических указателей (DIN 33466), без перерывов.',
+  'tours.estimate.basisPace': 'Рассчитано по расстоянию при введённом темпе.',
 };
 export default tours;

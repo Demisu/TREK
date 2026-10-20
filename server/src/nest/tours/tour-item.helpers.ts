@@ -12,6 +12,7 @@ import { activityFacts } from './tour-activities.helpers';
 import { LOW_CONFIDENCE_THRESHOLD } from './tours.helpers';
 import {
   tourStageStopsOf,
+  tourTimeEstimate,
   walkStationFacts,
   type BikeProfile,
   type PaddleBoatType,
@@ -79,6 +80,8 @@ export function tourItemOf(
     route_pending: Boolean(r.route_missing) && Boolean(r.has_waypoints),
     track_started_at: utcSuffix(r.track_started_at),
     track_ended_at: utcSuffix(r.track_ended_at),
+    // TIME-01: what a tour without a planned time is estimated to take, worked out here on every read.
+    time_estimate: tourTimeEstimate(r),
     ...activityFacts(r.place_id, activities),
     // MDT-01: a multi-day tour's stages, one more than the stops that end one.
     stage_count: r.stage_ends > 0 ? r.stage_ends + 1 : null,

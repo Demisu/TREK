@@ -1,4 +1,5 @@
 import {
+  hikingTimeMinutes,
   MAX_PLANNED_TOUR_DURATION_MINUTES,
   maxTourMinutesFor,
   plannableTourTypeSchema,
@@ -15,7 +16,6 @@ import {
   type TourMaxHikingDifficulty,
 } from '@trek/shared';
 import type { RouteGeometryAnalysis } from '../../../utils/routeGeometry';
-import { hikingTimeMinutes } from '../hikingTime';
 import { runPaceInvalid } from '../run/runPace';
 import { NO_SKI_CHOICE, skiChoiceMissing, skiChoiceOf, skiFieldsOf, type SkiChoice } from '../ski/skiChoice';
 import { walkTimesOf, type WalkTimes } from './stationModel';

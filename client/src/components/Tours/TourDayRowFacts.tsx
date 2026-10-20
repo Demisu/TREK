@@ -12,7 +12,14 @@ import { runPaceText } from './run/runPaceText';
 import { SkiCornerMark } from './ski/skiMarks';
 import { tourDayRowIcon } from './tourDayRowIcon';
 import { movingTimeLabel } from './tourFacts';
-import { formatPlannedTourDuration, plannedTotalText, tourPlannedTimes } from './tourPresentation';
+import {
+  estimateBadgeText,
+  estimateLabel,
+  formatPlannedTourDuration,
+  plannedTotalText,
+  tourPlannedTimes,
+  type TourPlannedTimes,
+} from './tourPresentation';
 import { useWalkProgress } from './walk/walkProgress';
 import { walkStaysText } from './walk/walkTimeFields';
 
@@ -179,6 +186,20 @@ export function TourDayRowPill({
 }
 
 /**
+ * TIME-01: what an import is estimated to take as a row says it, the badge
+ * marked with ≈ and its words saying what it was worked out by; both null
+ * while it is unknown or there is none, since a row has no room for a badge
+ * that says nothing. The detail names an unknown one.
+ */
+function estimateFact(
+  times: TourPlannedTimes,
+  t: Parameters<typeof estimateLabel>[1]
+): { value: string | null; label: string | null } {
+  const value = estimateBadgeText(times.estimate);
+  return value && times.estimate ? { value, label: estimateLabel(times.estimate, t) } : { value: null, label: null };
+}
+
+/**
  * A paddle tour's check bench as one fact (PAD-09), or null for a hike, a tour
  * listed without one, or an area without obstacle data: a row has no room for
  * a badge that says nothing, and the checklist itself still names the gap.
@@ -204,6 +225,7 @@ export function TourDayRowPills({ tour, compact = false }: { tour: TourListItem;
   const total = plannedTotalText(times, t);
   const staysText = times.walk ? walkStaysText(times.walk, t) : null;
   const pace = runPaceText(tour, t, unit);
+  const estimate = estimateFact(times, t);
   const timeParts = [
     walking ? `${movingTimeLabel(tour, t('tours.planner.inspector.duration'), t)}: ${walking}` : null,
     // RUN-01: the pace the running time is planned at.
@@ -216,9 +238,11 @@ export function TourDayRowPills({ tour, compact = false }: { tour: TourListItem;
     total
       ? `${t('tours.planner.plannedTotalDuration')}: ${total}${times.manuallyOverridden ? ` (${t('tours.planner.plannedTotalManual')})` : ''}`
       : null,
+    // TIME-01: an import's estimate, apart from any total the travellers entered.
+    estimate.label,
   ].filter((part): part is string => part !== null);
   const check = paddleCheckOf(tour, t);
-  const shown = plannedTotalText(times, t, true) ?? walking;
+  const shown = plannedTotalText(times, t, true) ?? walking ?? estimate.value;
   const time = shown != null && (
     <TourDayRowPill key="time" icon={Clock} value={shown} label={timeParts.join(', ')} testId="trip-plan-tour-time" />
   );
@@ -260,9 +284,9 @@ export default function TourDayRowFacts({
   const unit = useSettingsStore((state) => state.settings.distance_unit) || 'metric';
   const progress = useWalkProgress(tour, assignmentId);
   const times = tourPlannedTimes(tour);
-  const facts: Array<{ icon: LucideIcon; value: string; label: string; testId: string }> = [];
-  const add = (icon: LucideIcon, value: string, label: string, testId: string) =>
-    facts.push({ icon, value, label, testId });
+  const facts: Array<{ icon: LucideIcon; value: string; label: string; testId: string; said?: string }> = [];
+  const add = (icon: LucideIcon, value: string, label: string, testId: string, said?: string) =>
+    facts.push({ icon, value, label, testId, said });
   if (tour.distance != null)
     add(Ruler, formatDistance(tour.distance, unit), t('tours.detail.distance'), 'plan-tour-distance');
   if (tour.elevation_gain != null)
@@ -273,6 +297,16 @@ export default function TourDayRowFacts({
       formatPlannedTourDuration(times.walkingMinutes),
       movingTimeLabel(tour, t('tours.planner.inspector.duration'), t),
       'trip-plan-tour-walking-time'
+    );
+  // TIME-01: an import's estimate, said in full where it is opened.
+  const estimate = estimateFact(times, t);
+  if (estimate.value && estimate.label)
+    add(
+      tourDayRowIcon(movingIconType(tour.tour_type)),
+      estimate.value,
+      t('tours.estimate.label'),
+      'trip-plan-tour-estimate',
+      estimate.label
     );
   const pace = runPaceText(tour, t, unit);
   if (pace) add(Gauge, pace, t('tours.run.pace'), 'plan-tour-run-pace');
@@ -295,8 +329,8 @@ export default function TourDayRowFacts({
   if (check) add(check.icon, check.value, t('tours.paddle.check.title'), 'plan-tour-paddle-check');
   return (
     <span data-testid="plan-tour-facts" className="flex min-w-0 flex-wrap items-center gap-1">
-      {facts.map((fact) => (
-        <Fact key={fact.testId} {...fact} label={`${fact.label}: ${fact.value}`} mobile={mobile} />
+      {facts.map(({ said, ...fact }) => (
+        <Fact key={fact.testId} {...fact} label={said ?? `${fact.label}: ${fact.value}`} mobile={mobile} />
       ))}
       {progress && (
         <Fact

@@ -1240,5 +1240,11 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'ทั้งเส้นทาง',
   'tours.stages.totalPartial': 'ทราบสำหรับ {known} จาก {of} ช่วง',
   'tours.stages.openInPlanner': 'เปิดช่วงนี้ในตัววางแผน',
+  'tours.estimate.label': 'เวลาโดยประมาณ',
+  'tours.estimate.short': 'ประมาณ',
+  'tours.estimate.unknown': 'ไม่ทราบ',
+  'tours.estimate.noHeights': 'เส้นทางไม่มีข้อมูลความสูง จึงประมาณเวลาไม่ได้',
+  'tours.estimate.basisDin': 'คำนวณจากระยะทาง ระยะขึ้นและลงตามกฎป้ายบอกทางเดินป่า (DIN 33466) ไม่รวมเวลาพัก',
+  'tours.estimate.basisPace': 'คำนวณจากระยะทางตามเพซที่กรอกไว้',
 };
 export default tours;

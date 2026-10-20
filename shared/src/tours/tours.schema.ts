@@ -19,6 +19,7 @@ import { tourPackingLinkSchema } from './tour-packing-link.schema';
 import { tourPoiCategorySchema } from './tour-poi-category';
 import { tourOriginSchema, tourProvenanceSchema } from './tour-provenance.schema';
 import { maxTourMinutesFor, TOUR_DAY_MINUTES, tourStageCountOf, tourStageIssues } from './tour-stages';
+import { tourTimeEstimateSchema } from './tour-time-estimate';
 
 import { z } from 'zod';
 
@@ -310,6 +311,14 @@ export const tourListItemSchema = tourSchema.extend({
    */
   track_started_at: z.string().nullable().optional(),
   track_ended_at: z.string().nullable().optional(),
+  /**
+   * TIME-01: the time a tour without a planned time (an import) is estimated
+   * to take, worked out on reading by `tourTimeEstimate` and never stored;
+   * null where nothing estimates it. Its minutes are null when the track has
+   * no heights. Apart from the times recorded in the file and from a planned
+   * total the travellers enter. Absent in a list cached before it existed.
+   */
+  time_estimate: tourTimeEstimateSchema.nullable().optional(),
   /** ACT-01: the recordings assigned to this tour, one per execution. Absent in a list cached before it existed. */
   activity_tracks: z.array(tourActivityRefSchema).optional(),
   /** ACT-01: the tour this recording documents, when it is assigned to one; null otherwise. */

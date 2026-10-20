@@ -1359,5 +1359,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Cała trasa',
   'tours.stages.totalPartial': 'znane dla {known} z {of} etapów',
   'tours.stages.openInPlanner': 'Otwórz ten etap w planerze',
+  'tours.estimate.label': 'Szacowany czas',
+  'tours.estimate.short': 'Szacunek',
+  'tours.estimate.unknown': 'Nieznany',
+  'tours.estimate.noHeights': 'Ślad nie ma wysokości, więc nie da się oszacować czasu.',
+  'tours.estimate.basisDin':
+    'Wyliczony z dystansu, podejść i zejść według reguły drogowskazów turystycznych (DIN 33466), bez przerw.',
+  'tours.estimate.basisPace': 'Wyliczony z dystansu przy podanym tempie.',
 };
 export default tours;

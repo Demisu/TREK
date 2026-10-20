@@ -1290,5 +1290,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Whole tour',
   'tours.stages.totalPartial': 'known for {known} of {of} stages',
   'tours.stages.openInPlanner': 'Open this stage in the planner',
+  'tours.estimate.label': 'Estimated time',
+  'tours.estimate.short': 'Estimated',
+  'tours.estimate.unknown': 'Unknown',
+  'tours.estimate.noHeights': 'The track has no heights, so its time cannot be estimated.',
+  'tours.estimate.basisDin':
+    'Worked out from distance, ascent and descent by the hiking signpost rule (DIN 33466), without breaks.',
+  'tours.estimate.basisPace': 'Worked out from the distance at the pace entered.',
 };
 export default tours;

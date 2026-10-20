@@ -1323,5 +1323,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Ruta sencera',
   'tours.stages.totalPartial': 'conegut per a {known} de {of} etapes',
   'tours.stages.openInPlanner': 'Obre aquesta etapa al planificador',
+  'tours.estimate.label': 'Temps estimat',
+  'tours.estimate.short': 'Estimat',
+  'tours.estimate.unknown': 'Desconegut',
+  'tours.estimate.noHeights': 'El track no té altituds, així que no se’n pot estimar el temps.',
+  'tours.estimate.basisDin':
+    'Calculat a partir de la distància, la pujada i la baixada segons la regla dels senyals excursionistes (DIN 33466), sense pauses.',
+  'tours.estimate.basisPace': 'Calculat a partir de la distància al ritme introduït.',
 };
 export default tours;

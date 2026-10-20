@@ -4,7 +4,7 @@ import type { TourDetailResponse, TourWaypoint } from '@trek/shared';
 
 import { describe, expect, it } from 'vitest';
 
-// TOUR-PLAN-READ-001 to TOUR-PLAN-READ-007
+// TOUR-PLAN-READ-001 to TOUR-PLAN-READ-009
 
 /** The detail of a tour of this type, only as far as the plan reads it. */
 function detailOf(tourType: TourDetailResponse['tour']['tour_type']): TourDetailResponse {
@@ -141,5 +141,15 @@ describe('tour plan read (MCP-T01)', () => {
     expect(planLegs([point(0), point(1)], { recorded: true, drawn: true })).toEqual([
       expect.objectContaining({ kind: 'track', length_km: null }),
     ]);
+  });
+
+  it('TOUR-PLAN-READ-009: an estimated time is named as worked out, a tour without one names none (TIME-01)', () => {
+    const none = { controlsFromTrack: false, line: null, run: null };
+    const estimated = {
+      ...detailOf('hike'),
+      tour: { tour_type: 'hike', time_estimate: { minutes: 240, basis: 'din33466' } },
+    } as unknown as TourDetailResponse;
+    expect(derivedFields(estimated, none)).toContain('tour.time_estimate');
+    expect(derivedFields(detailOf('hike'), none)).not.toContain('tour.time_estimate');
   });
 });

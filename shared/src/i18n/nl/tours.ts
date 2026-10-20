@@ -1326,5 +1326,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Hele tocht',
   'tours.stages.totalPartial': 'bekend voor {known} van {of} etappes',
   'tours.stages.openInPlanner': 'Deze etappe openen in de planner',
+  'tours.estimate.label': 'Geschatte tijd',
+  'tours.estimate.short': 'Geschat',
+  'tours.estimate.unknown': 'Onbekend',
+  'tours.estimate.noHeights': 'De track heeft geen hoogtes, dus de tijd kan niet worden geschat.',
+  'tours.estimate.basisDin':
+    'Berekend uit afstand, stijging en daling volgens de regel van de wandelwegwijzers (DIN 33466), zonder pauzes.',
+  'tours.estimate.basisPace': 'Berekend uit de afstand bij het ingevoerde tempo.',
 };
 export default tours;

@@ -1261,5 +1261,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': '전체 투어',
   'tours.stages.totalPartial': '{of}개 구간 중 {known}개에서 알려짐',
   'tours.stages.openInPlanner': '이 구간을 플래너에서 열기',
+  'tours.estimate.label': '예상 시간',
+  'tours.estimate.short': '예상',
+  'tours.estimate.unknown': '알 수 없음',
+  'tours.estimate.noHeights': '트랙에 고도 정보가 없어 시간을 추정할 수 없습니다.',
+  'tours.estimate.basisDin':
+    '거리, 오르막, 내리막으로 등산로 표지 규칙(DIN 33466)에 따라 계산했으며 휴식은 포함하지 않습니다.',
+  'tours.estimate.basisPace': '거리와 입력한 페이스로 계산했습니다.',
 };
 export default tours;

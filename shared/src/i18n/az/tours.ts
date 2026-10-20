@@ -1304,5 +1304,12 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'Bütün tur',
   'tours.stages.totalPartial': '{of} mərhələdən {known} üçün məlumdur',
   'tours.stages.openInPlanner': 'Bu mərhələni planlayıcıda aç',
+  'tours.estimate.label': 'Təxmini vaxt',
+  'tours.estimate.short': 'Təxmini',
+  'tours.estimate.unknown': 'Naməlum',
+  'tours.estimate.noHeights': 'Trekdə hündürlük yoxdur, buna görə vaxtı təxmin etmək olmur.',
+  'tours.estimate.basisDin':
+    'Məsafə, qalxma və enmədən piyada nişanları qaydası ilə (DIN 33466) hesablanıb, fasilələr daxil deyil.',
+  'tours.estimate.basisPace': 'Məsafədən daxil edilmiş templə hesablanıb.',
 };
 export default tours;

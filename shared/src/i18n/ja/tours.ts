@@ -1265,5 +1265,11 @@ const tours: TranslationStrings = {
   'tours.stages.wholeTour': 'ツアー全体',
   'tours.stages.totalPartial': '{of} 件中 {known} 件のステージで判明',
   'tours.stages.openInPlanner': 'このステージをプランナーで開く',
+  'tours.estimate.label': '推定時間',
+  'tours.estimate.short': '推定',
+  'tours.estimate.unknown': '不明',
+  'tours.estimate.noHeights': 'トラックに標高データがないため、時間を推定できません。',
+  'tours.estimate.basisDin': '距離・登り・下りから登山道標識の基準（DIN 33466）で算出、休憩は含みません。',
+  'tours.estimate.basisPace': '距離と入力したペースから算出。',
 };
 export default tours;

@@ -225,3 +225,49 @@ describe('the compact facts of a tour list row', () => {
     ]);
   });
 });
+
+describe('TIME-01: the estimated time of an import on a row', () => {
+  // 12 km, 300 m up and 500 m down, never timed by the planner: 4 h by DIN 33466.
+  const imported: TourListItem = {
+    ...tour,
+    distance: 12,
+    elevation_gain: 300,
+    elevation_loss: 500,
+    duration: null,
+    break_additional_minutes: null,
+    max_hiking_difficulty: null,
+  };
+
+  it('TIME-01-FE-001: a day-plan and list row shows the estimate marked as one, its words saying how it was worked out', () => {
+    render(<TourDayRowPills tour={imported} compact />);
+    const time = screen.getByTestId('trip-plan-tour-time');
+    expect(time).toHaveTextContent('≈ 4 h');
+    expect(time.getAttribute('aria-label')).toBe(
+      'Estimated time: 4 h. Worked out from distance, ascent and descent by the hiking signpost rule (DIN 33466), without breaks.'
+    );
+  });
+
+  it('TIME-01-FE-002: a total the travellers entered is the time shown, the estimate kept beside it in the words', () => {
+    render(<TourDayRowPills tour={{ ...imported, planned_duration_minutes: 300 }} />);
+    const time = screen.getByTestId('trip-plan-tour-time');
+    expect(time).toHaveTextContent('5 h');
+    expect(time).not.toHaveTextContent('≈');
+    expect(time.getAttribute('aria-label')).toContain('Estimated time: 4 h');
+  });
+
+  it('TIME-01-FE-003: a phone row shows the estimate as a fact of its own, and an unknown one not at all', () => {
+    const { unmount } = render(<TourDayRowFacts tour={imported} mobile />);
+    expect(screen.getByTestId('trip-plan-tour-estimate')).toHaveTextContent('≈ 4 h');
+    expect(screen.getByTestId('trip-plan-tour-estimate')).toHaveAccessibleName(/^Estimated time: 4 h\. Worked out/);
+    expect(screen.queryByTestId('trip-plan-tour-walking-time')).not.toBeInTheDocument();
+    unmount();
+    render(<TourDayRowFacts tour={{ ...imported, elevation_gain: null, elevation_loss: null }} mobile />);
+    expect(screen.queryByTestId('trip-plan-tour-estimate')).not.toBeInTheDocument();
+  });
+
+  it('TIME-01-FE-004: a tour the planner timed shows its own time and no estimate', () => {
+    render(<TourDayRowFacts tour={tour} />);
+    expect(screen.queryByTestId('trip-plan-tour-estimate')).not.toBeInTheDocument();
+    expect(screen.getByTestId('trip-plan-tour-walking-time')).toHaveAccessibleName('Walking time: 53 min');
+  });
+});
