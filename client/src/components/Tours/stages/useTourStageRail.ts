@@ -24,7 +24,10 @@ const openPlaceId = (planner: Pick<TourPlannerController, 'mode'>) =>
  * first when the open draft has unsaved changes), and once its points are in,
  * the stage is shown as the planner's own list of stages shows it. A stage of
  * the tour already open is shown at once. Asking for another tour, or opening
- * another one, lets the stage go.
+ * another one, lets the stage go, and so does an open the planner does not
+ * carry out (`cancel`: the unsaved changes kept, the tour failing to open), so
+ * a later open of that tour from its row does not show a stage nobody asked
+ * for then. A stage the opened tour no longer has is let go as well.
  */
 export function useTourStageRail(planner: RailPlanner, openTour: (tour: TourListItem) => void) {
   const [unfolded, setUnfolded] = useState<ReadonlySet<number>>(() => new Set());
@@ -47,6 +50,7 @@ export function useTourStageRail(planner: RailPlanner, openTour: (tour: TourList
     },
     [openTour, planner]
   );
+  const cancel = useCallback(() => setPending(null), []);
 
   const open = openPlaceId(planner);
   const { waypoints } = planner;
@@ -60,10 +64,14 @@ export function useTourStageRail(planner: RailPlanner, openTour: (tour: TourList
     }
     const start = waypoints.find((point) => point.key === pending.key);
     const stage = start && stages.find((item) => item.fromId === start.id);
-    if (!stage) return;
+    if (!stage) {
+      // The tour's points are in and no stage starts at that stop: the list it came from was stale.
+      if (waypoints.length > 0) setPending(null);
+      return;
+    }
     showStage(planner, stage);
     setPending(null);
   }, [open, pending, planner, stages, waypoints]);
 
-  return { isUnfolded, toggle, openStage };
+  return { isUnfolded, toggle, openStage, cancel };
 }

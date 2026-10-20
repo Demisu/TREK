@@ -1,6 +1,6 @@
 import type { TourListItem, TourWaypoint } from '@trek/shared';
 import { useEffect, useMemo, useState } from 'react';
-import { tourRepo } from '../../../repo/tourRepo';
+import { tourPointsRepo } from '../../../repo/tourPointsRepo';
 import { useTripStore } from '../../../store/tripStore';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 import { savedStagePoints, savedTourStagesOf, type SavedTourStage } from './savedTourStages';
@@ -24,26 +24,37 @@ const NONE: SavedTourStages = { status: 'idle', stages: [], totals: null, points
  * the cache offline, and are read again once the tour's revision moves on, so
  * a saved change to the route shows here at once; the line is the trip's own
  * copy of the place, which a change updates too. Nothing is read while
- * `enabled` is off (a folded row) or the tour has no stages.
+ * `enabled` is off (a folded row) or the tour has no stages, and the rows
+ * showing the same tour at once share one read.
  */
-export function useSavedTourStages(tripId: number | string | null | undefined, tour: TourListItem, enabled: boolean): SavedTourStages {
-  const routeGeometry = useTripStore((state) => state.places.find((place) => place.id === tour.place_id)?.route_geometry);
+export function useSavedTourStages(
+  tripId: number | string | null | undefined,
+  tour: TourListItem,
+  enabled: boolean
+): SavedTourStages {
+  const routeGeometry = useTripStore(
+    (state) => state.places.find((place) => place.id === tour.place_id)?.route_geometry
+  );
   const revision = `${tour.place_id}:${tour.revision ?? 0}`;
   const wanted = enabled && tripId != null && (tour.stage_count ?? 0) > 1;
   const [loaded, setLoaded] = useState<Loaded | null>(null);
 
   useEffect(() => {
     if (!wanted || tripId == null) return undefined;
-    const controller = new AbortController();
-    tourRepo
-      .detail(tripId, tour.place_id, controller.signal)
-      .then((detail) => {
-        if (!controller.signal.aborted) setLoaded({ revision, points: detail.waypoints });
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) setLoaded({ revision, failed: true });
-      });
-    return () => controller.abort();
+    const held = tourPointsRepo.hold(tripId, tour.place_id, revision);
+    let live = true;
+    held.points.then(
+      (points) => {
+        if (live) setLoaded({ revision, points });
+      },
+      () => {
+        if (live) setLoaded({ revision, failed: true });
+      }
+    );
+    return () => {
+      live = false;
+      held.release();
+    };
   }, [revision, tour.place_id, tripId, wanted]);
 
   return useMemo(() => {

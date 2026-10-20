@@ -1,7 +1,7 @@
-// FE-TOUR-STAGE-RAIL-001 to FE-TOUR-STAGE-RAIL-005: unfolding a multi-day tour in the planner's list and
+// FE-TOUR-STAGE-RAIL-001 to FE-TOUR-STAGE-RAIL-007: unfolding a multi-day tour in the planner's list and
 // opening one of its stages there (MDT-02).
-import type { TourListItem } from '@trek/shared';
 import { act, renderHook } from '@testing-library/react';
+import type { TourListItem } from '@trek/shared';
 import { describe, expect, it, vi } from 'vitest';
 import type { TourPlannerController } from '../planner/useTourPlanner';
 import type { TourStage } from './tourStages';
@@ -91,5 +91,35 @@ describe('useTourStageRail', () => {
     expect(folded.result.current).toMatchObject({ status: 'idle', stages: [], totals: null });
     const dayTour = renderHook(() => useSavedTourStages(9, { ...TOUR, stage_count: null }, true));
     expect(dayTour.result.current.status).toBe('idle');
+  });
+
+  it('FE-TOUR-STAGE-RAIL-006: an open the planner does not carry out lets the stage go, so a later open shows none', () => {
+    const openTour = vi.fn();
+    let planner = plannerOf({ type: 'edit-saved', placeId: 5 }, false);
+    const { result, rerender } = renderHook(() => useTourStageRail(planner, openTour));
+    act(() => result.current.openStage(TOUR, 'stop-hut'));
+    expect(openTour).toHaveBeenCalledWith(TOUR);
+    // The unsaved changes are kept: the planner stays on the tour it had open.
+    act(() => result.current.cancel());
+    planner = plannerOf({ type: 'edit-saved', placeId: 81 });
+    rerender();
+    expect(planner.setSelectedWaypointId).not.toHaveBeenCalled();
+    expect(planner.setRouteProfileFocus).not.toHaveBeenCalled();
+  });
+
+  it('FE-TOUR-STAGE-RAIL-007: a stage the opened tour no longer has is let go once its points are in', () => {
+    let planner = plannerOf({ type: 'edit-saved', placeId: 81 });
+    const { result, rerender } = renderHook(() => useTourStageRail(planner, vi.fn()));
+    act(() => result.current.openStage(TOUR, 'stop-gone'));
+    expect(planner.setSelectedWaypointId).not.toHaveBeenCalled();
+    // The stop comes back later as a stage start: what was asked for before is not shown then.
+    const later = plannerOf({ type: 'edit-saved', placeId: 81 });
+    planner = {
+      ...later,
+      waypoints: [...later.waypoints, { id: 'p4', key: 'stop-gone' }],
+      stages: { stages: [...later.stages.stages, { ...SECOND, number: 3, fromId: 'p4', toId: 'p3' }] },
+    } as unknown as TourPlannerController;
+    rerender();
+    expect(planner.setSelectedWaypointId).not.toHaveBeenCalled();
   });
 });

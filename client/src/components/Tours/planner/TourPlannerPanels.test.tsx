@@ -13,11 +13,15 @@ import { publishTourFerrataCrossings } from '../../../store/tourFerrataCrossingS
 import { TourPlannerRail, TourPlannerToursRail } from './TourPlannerPanels'
 import { hikePlannerDefaults } from '../../../../tests/helpers/tourPlannerStub'
 import { tourRepo } from '../../../repo/tourRepo'
+import { useTripStore } from '../../../store/tripStore'
+import type { TourStage } from '../stages/tourStages'
 
 vi.mock('../../../../../server/src/config', () => { throw new Error('Config initialization is forbidden in client tests') })
 vi.mock('../../../../../server/src/db/database', () => { throw new Error('Legacy database imports are forbidden in client tests') })
 vi.mock('better-sqlite3', () => { throw new Error('SQLite imports are forbidden in client tests') })
 // The checklist card is its own suite's; here it only has to sit where the rails put it.
+// The stops of a tour's stages are named by a reverse lookup; here they go without names.
+vi.mock('./useWaypointPlaceNames', () => ({ useWaypointPlaceNames: () => ({}) }))
 vi.mock('../paddle/PaddleCheckCard', () => ({
   PaddleCheckCard: ({ checklist }: { checklist: PaddleChecklist }) => (
     <div data-testid="paddle-check-card" data-status={checklist.status} />
@@ -137,6 +141,62 @@ describe('TourPlannerToursRail', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Show stages' }))
     expect(screen.getByTestId('tour-stage-overview')).toHaveAttribute('id', 'tour-stages-43')
     expect(screen.getByRole('button', { name: 'Hide stages' })).toHaveAttribute('aria-expanded', 'true')
+  })
+
+  it('TOUR-PLANNER-RAIL-023: MDT-02 a stage asked for while the changes are kept is let go, and shown once they are discarded', async () => {
+    seedStore(useTripStore, { trip: { id: 9 } as never })
+    const hutToHut = { ...tour, place_id: 43, name: 'Hut to hut', stage_count: 2, revision: 1 }
+    vi.spyOn(tourRepo, 'detail').mockResolvedValue({
+      tour: hutToHut,
+      waypoints: [
+        { lat: 47, lng: 11, role: 'start', sequence: 0, key: 'stop-start' },
+        { lat: 47.01, lng: 11, role: 'via', sequence: 1, key: 'stop-hut', stage_end: true },
+        { lat: 47.03, lng: 11, role: 'end', sequence: 2, key: 'stop-end' },
+      ],
+    })
+    const stage = (number: number, fromId: string, toId: string): TourStage => ({
+      number, from: number - 1, to: number, fromId, toId,
+      distanceKm: null, gain: null, loss: null, minutes: null, fromM: null, toM: null, overDay: false,
+    })
+    // The hut tour as the planner holds it once opened: its points in, its two stages cut from them.
+    const openedHut = () => planner({
+      mode: { type: 'edit-saved', placeId: 43 },
+      editingPlaceId: 43,
+      route: null,
+      waypoints: [
+        { id: 'p1', lat: 47, lng: 11, role: 'start', key: 'stop-start' },
+        { id: 'p2', lat: 47.01, lng: 11, role: 'via', key: 'stop-hut', stageEnd: true },
+        { id: 'p3', lat: 47.03, lng: 11, role: 'end', key: 'stop-end' },
+      ],
+      stages: { ...hikePlannerDefaults().stages, multiDay: true, endCount: 1, stages: [stage(1, 'p1', 'p2'), stage(2, 'p2', 'p3')] },
+      setSelectedWaypointId: vi.fn(),
+      setRouteProfileFocus: vi.fn(),
+    } as Partial<TourPlannerController>)
+    const dirty = planner({ mode: { type: 'edit-saved', placeId: 42 }, editingPlaceId: 42, hasUnsavedChanges: true })
+    const rail = (controller: TourPlannerController) => <TourPlannerToursRail planner={controller} tours={[tour, hutToHut]} {...railProps} />
+    const view = render(rail(dirty))
+    await userEvent.click(screen.getByRole('button', { name: 'Show stages' }))
+    const openSecondStage = async () => {
+      const items = await screen.findAllByTestId('tour-stage-item')
+      await userEvent.click(within(items[1]).getByTestId('tour-stage-open'))
+    }
+
+    await openSecondStage()
+    expect(screen.getByRole('heading', { name: 'Discard unsaved tour changes?' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(dirty.openTour).not.toHaveBeenCalled()
+    // The hut tour opened later from its row shows no stage nobody asked for then.
+    const kept = openedHut()
+    view.rerender(rail(kept))
+    expect(kept.setSelectedWaypointId).not.toHaveBeenCalled()
+
+    view.rerender(rail(dirty))
+    await openSecondStage()
+    fireEvent.click(screen.getByRole('button', { name: 'Discard changes' }))
+    expect(dirty.openTour).toHaveBeenCalledWith(hutToHut)
+    const discarded = openedHut()
+    view.rerender(rail(discarded))
+    expect(discarded.setSelectedWaypointId).toHaveBeenCalledWith('p3')
   })
 
   it('RS-02: keeps calculated Walking time visible in the right Tour metrics rail', () => {

@@ -759,6 +759,8 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
   const distanceUnit = useSettingsStore(state => state.settings.distance_unit)
   const tripId = useTripStore(state => state.trip?.id)
   const [pendingTour, setPendingTour] = useState<TourListItem | null>(null)
+  // Set by the dialog's confirm, which closes it as well, so its close tells a discard from a kept draft.
+  const discarding = useRef(false)
   const dayAssignment = useTourDayAssignment({ canAssign, onAssignToDay })
   // STA-01: one filter for the list and the summary above it, the same as the plan's tour list.
   const filters = useTourListFilters(tours)
@@ -780,7 +782,10 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
 
   const openTour = async (tour: TourListItem) => {
     const opened = await planner.openTour(tour)
-    if (!opened) toast.error(t('tours.planner.openFailed'))
+    if (opened) return
+    toast.error(t('tours.planner.openFailed'))
+    // MDT-02: a stage asked for with this tour is not shown on a later open of it.
+    stageRail.cancel()
   }
 
   const selectTour = (tour: TourListItem) => {
@@ -899,9 +904,15 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
 
       <ConfirmDialog
         isOpen={pendingTour !== null}
-        onClose={() => setPendingTour(null)}
+        onClose={() => {
+          setPendingTour(null)
+          // MDT-02: the dialog closes after a confirm too; only kept changes let the stage asked for go.
+          if (!discarding.current) stageRail.cancel()
+          discarding.current = false
+        }}
         onConfirm={() => {
           const tour = pendingTour
+          discarding.current = true
           setPendingTour(null)
           if (tour) selectTour(tour)
         }}

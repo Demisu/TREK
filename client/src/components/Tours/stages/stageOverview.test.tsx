@@ -1,24 +1,24 @@
-// FE-TOUR-STAGE-OVERVIEW-001 to FE-TOUR-STAGE-OVERVIEW-015: a multi-day tour unfolded in the list, its
+// FE-TOUR-STAGE-OVERVIEW-001 to FE-TOUR-STAGE-OVERVIEW-017: a multi-day tour unfolded in the list, its
 // stages on days of the trip, and the day plan naming the stage a day holds (MDT-02).
-import type { TourListItem, TourWaypoint } from '@trek/shared';
 import { act, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { TourListItem, TourWaypoint } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildDay, buildPlace } from '../../../../tests/helpers/factories';
 import { render, screen, within } from '../../../../tests/helpers/render';
 import { resetAllStores, seedStore } from '../../../../tests/helpers/store';
-import { DayPlanPlaceSubline } from '../../Planner/DayPlanPlaceSubline';
 import { tourRepo } from '../../../repo/tourRepo';
 import { useSettingsStore } from '../../../store/settingsStore';
 import { useTripStore } from '../../../store/tripStore';
 import type { AssignmentsMap } from '../../../types';
+import { DayPlanPlaceSubline } from '../../Planner/DayPlanPlaceSubline';
 import type { TourPlannerController } from '../planner/useTourPlanner';
 import TourListRow from '../TourListRow';
-import { savedStagePoints, savedTourStagesOf } from './savedTourStages';
 import { tourPlannedTimes } from '../tourPresentation';
+import { savedStagePoints, savedTourStagesOf } from './savedTourStages';
 import { StageDayPicker } from './StageDayPicker';
-import { stageNumberOf, TourStageDayPills } from './TourStageDayPills';
 import { TourStageDayNotice } from './TourStageDayNotice';
+import { stageNumberOf, TourStageDayPills } from './TourStageDayPills';
 import { StageTotalsRow, TourStageOverview } from './TourStageOverview';
 import type { TourStageDays } from './useTourStageDays';
 
@@ -143,7 +143,12 @@ describe('the unfolded tour in the list', () => {
     render(
       <StageTotalsRow
         tour={TOUR}
-        totals={{ distanceKm: { value: 10, known: 1, of: 2 }, gain: unknown, loss: unknown, minutes: { value: 300, known: 2, of: 2 } }}
+        totals={{
+          distanceKm: { value: 10, known: 1, of: 2 },
+          gain: unknown,
+          loss: unknown,
+          minutes: { value: 300, known: 2, of: 2 },
+        }}
       />
     );
     const totals = screen.getByTestId('tour-stage-totals');
@@ -190,7 +195,11 @@ describe('the unfolded tour in the list', () => {
     const onToggle = vi.fn();
     render(
       <ul>
-        <TourListRow tour={TOUR} onSelect={onSelect} fold={{ expanded: true, onToggle, label: 'Hide stages', controls: 'stages' }}>
+        <TourListRow
+          tour={TOUR}
+          onSelect={onSelect}
+          fold={{ expanded: true, onToggle, label: 'Hide stages', controls: 'stages' }}
+        >
           <TourStageOverview id="stages" tripId={9} tour={TOUR} days={DAYS} canAssign />
         </TourListRow>
       </ul>
@@ -272,7 +281,14 @@ describe('the stage a day holds', () => {
     const place = buildPlace({ id: TOUR.place_id, name: 'Hut to hut' });
     const times = { ...tourPlannedTimes(TOUR), tour: TOUR };
     const row = (tourStageKey?: string | null) => (
-      <DayPlanPlaceSubline place={place} cat={undefined} tourTimes={times} isTourPlace timeFormat="24h" tourStageKey={tourStageKey} />
+      <DayPlanPlaceSubline
+        place={place}
+        cat={undefined}
+        tourTimes={times}
+        isTourPlace
+        timeFormat="24h"
+        tourStageKey={tourStageKey}
+      />
     );
     const view = render(row('stop-start'));
     expect(screen.getByTestId('trip-plan-tour-stage')).toHaveTextContent('Stage 1');
@@ -280,5 +296,32 @@ describe('the stage a day holds', () => {
     expect(screen.queryByTestId('trip-plan-tour-stage')).toBeNull();
     view.rerender(row('stop-gone'));
     expect(screen.queryByTestId('trip-plan-tour-stage')).toBeNull();
+  });
+
+  it('FE-TOUR-STAGE-OVERVIEW-016: the list and every day holding a stage of the tour share one read of it', async () => {
+    seed();
+    render(
+      <>
+        <TourStageOverview id="stages" tripId={9} tour={TOUR} days={DAYS} canAssign />
+        <TourStageDayPills tour={TOUR} stageKey="stop-start" />
+        <TourStageDayPills tour={TOUR} stageKey="stop-hut" />
+      </>
+    );
+    expect(await screen.findAllByTestId('tour-stage-item')).toHaveLength(2);
+    await waitFor(() => {
+      for (const pills of screen.getAllByTestId('trip-plan-tour-stage')) expect(pills).toHaveTextContent('km');
+    });
+    expect(tourRepo.detail).toHaveBeenCalledTimes(1);
+  });
+
+  it('FE-TOUR-STAGE-OVERVIEW-017: a read no row shows any more is let go, and the next row reads again', async () => {
+    seed();
+    const first = render(<TourStageDayPills tour={TOUR} stageKey="stop-hut" />);
+    const signal = vi.mocked(tourRepo.detail).mock.calls[0]?.[2];
+    first.unmount();
+    expect(signal?.aborted).toBe(true);
+    render(<TourStageDayPills tour={TOUR} stageKey="stop-hut" />);
+    await waitFor(() => expect(screen.getByTestId('trip-plan-tour-stage')).toHaveTextContent('km'));
+    expect(tourRepo.detail).toHaveBeenCalledTimes(2);
   });
 });
