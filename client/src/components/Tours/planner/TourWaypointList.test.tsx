@@ -1,12 +1,15 @@
-// FE-TOUR-WAYPOINT-LIST-001 to FE-TOUR-WAYPOINT-LIST-008: shaping points, the water router's answers
-// and a city walk's stops in the list (P2A-03, P2A-05, PAD-11, CW-01).
+// FE-TOUR-WAYPOINT-LIST-001 to FE-TOUR-WAYPOINT-LIST-011: shaping points, the water router's answers
+// and a city walk's stops in the list, with their arrivals and opening hours on a day of the walk
+// (P2A-03, P2A-05, PAD-11, CW-01, CW-02, CW-04).
 import userEvent from '@testing-library/user-event';
 import type { PaddleRouteLeg } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { buildAssignment, buildDay, buildPlace } from '../../../../tests/helpers/factories';
 import { render, screen, within } from '../../../../tests/helpers/render';
 import { resetAllStores, seedStore } from '../../../../tests/helpers/store';
 import { hikePlannerDefaults } from '../../../../tests/helpers/tourPlannerStub';
 import { useSettingsStore } from '../../../store/settingsStore';
+import { useTripStore } from '../../../store/tripStore';
 import type { PaddleTourRoute } from './paddleRouting';
 import TourWaypointList from './TourWaypointList';
 import type { TourPlannerController } from './useTourPlanner';
@@ -231,5 +234,86 @@ describe('TourWaypointList', () => {
     expect(within(at(rows, 2)).queryByTestId('station-pills')).not.toBeInTheDocument();
     await userEvent.click(within(at(rows, 2)).getByRole('button', { name: 'More actions' }));
     expect(screen.queryByRole('button', { name: 'Edit stop' })).not.toBeInTheDocument();
+  });
+
+  describe('a city walk on a day of the plan (CW-02, CW-04)', () => {
+    const lenbachhaus = {
+      ...START,
+      key: 'stop-lenbachhaus',
+      name: 'Lenbachhaus',
+      stayMinutes: 60,
+      openingHours: 'Mo-Fr 10:00-18:00',
+    };
+    const cafe = { ...STOP, name: 'Cafe', stayMinutes: 30 };
+    const ROUTE: Array<[number, number]> = [
+      [49.1, 12.1],
+      [49.08, 12.11],
+      [49.05, 12.12],
+      [49.0, 12.1],
+    ];
+
+    /** A walk being edited, its route planned for the points as they are; on Monday 19 October from 17:20. */
+    function walkPlanner(overrides: Partial<TourPlannerController> = {}) {
+      return planner({
+        tourType: 'walk',
+        editingPlaceId: 42,
+        waypoints: [lenbachhaus, SHAPE, cafe, END],
+        route: ROUTE,
+        routeCurrent: true,
+        walkingDurationMinutes: 40,
+        ...overrides,
+      });
+    }
+
+    beforeEach(() => {
+      const day = buildDay({ id: 7, date: '2026-10-19' });
+      const entry = buildAssignment({
+        day_id: 7,
+        place_id: 42,
+        assignment_time: '17:20',
+        place: buildPlace({ id: 42 }),
+      });
+      seedStore(useTripStore, { days: [day], assignments: { '7': [entry] } });
+    });
+
+    it('FE-TOUR-WAYPOINT-LIST-009: names the day above the stops and the conflict at the stop it is about', () => {
+      render(<TourWaypointList planner={walkPlanner()} canEdit isSaving={false} />);
+      expect(screen.getByTestId('walk-day')).toHaveTextContent('Day 1, start 17:20');
+      const rows = screen.getAllByTestId('tour-planner-waypoint-row');
+      const first = within(at(rows, 0)).getByTestId('walk-station-schedule');
+      expect(within(first).getByText('Arrival about 17:20, stay until 18:20')).toBeInTheDocument();
+      expect(within(first).getByTestId('walk-station-conflict')).toHaveTextContent(
+        'Lenbachhaus closes at 18:00, during the stay from 17:20 to 18:20 (open 10:00 to 18:00)'
+      );
+      // Beside the row's select button, never inside it.
+      expect(within(at(rows, 0)).getByRole('button', { current: false, name: /Lenbachhaus/ })).not.toContainElement(
+        first
+      );
+      expect(within(at(rows, 1)).queryByTestId('walk-station-schedule')).not.toBeInTheDocument();
+      expect(within(at(rows, 2)).getByTestId('walk-station-schedule')).not.toHaveTextContent('closes');
+      expect(screen.getAllByTestId('walk-station-conflict')).toHaveLength(1);
+    });
+
+    it('FE-TOUR-WAYPOINT-LIST-010: shows no arrival while the route is not planned for the points as they are', () => {
+      render(<TourWaypointList planner={walkPlanner({ routeCurrent: false })} canEdit isSaving={false} />);
+      expect(screen.getByTestId('walk-day')).toHaveTextContent('Day 1, start 17:20');
+      expect(screen.queryByTestId('walk-station-schedule')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('walk-station-conflict')).not.toBeInTheDocument();
+    });
+
+    it('FE-TOUR-WAYPOINT-LIST-011: gives the way back of a loop no arrival of its own, and a hike no day line', () => {
+      const back = { ...START, id: 'back', role: 'end' as const };
+      const loop = walkPlanner({ isLoop: true, waypoints: [lenbachhaus, STOP, back], route: ROUTE.slice(0, 3) });
+      const { unmount } = render(<TourWaypointList planner={loop} canEdit isSaving={false} />);
+      const rows = screen.getAllByTestId('tour-planner-waypoint-row');
+      expect(within(at(rows, 0)).getByTestId('walk-station-schedule')).toBeInTheDocument();
+      expect(within(at(rows, 1)).getByTestId('walk-station-schedule')).toBeInTheDocument();
+      expect(within(at(rows, 2)).queryByTestId('walk-station-schedule')).not.toBeInTheDocument();
+      unmount();
+
+      render(<TourWaypointList planner={walkPlanner({ tourType: 'hike' })} canEdit isSaving={false} />);
+      expect(screen.queryByTestId('walk-day-line')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('walk-station-schedule')).not.toBeInTheDocument();
+    });
   });
 });

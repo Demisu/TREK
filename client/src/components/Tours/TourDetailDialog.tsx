@@ -688,18 +688,11 @@ export default function TourDetailDialog({
         <WalkStationsCard
           tour={tour}
           tripId={place.trip_id}
-          assignmentId={assignment?.id ?? null}
+          assignment={assignment}
           canMark={canAssign}
-          day={
-            assignment
-              ? {
-                  date: days.find((day) => day.id === assignment.day_id)?.date ?? null,
-                  start: assignment.assignment_time ?? place.place_time ?? null,
-                  route: analysis?.routeCoordinates ?? [],
-                  walkingMinutes: tour.duration ?? null,
-                }
-              : null
-          }
+          days={days}
+          assignments={assignments}
+          route={analysis?.routeCoordinates ?? null}
         />
       )}
       {tour.tour_type === 'kayak' && <PaddleCheckSection tour={tour} />}

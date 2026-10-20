@@ -1,13 +1,19 @@
-// CW-03, CW-04: a city walk's stops in its detail, checked off for the day it
-// was opened from, and its progress as a pill of the desktop day row.
+// CW-02, CW-03, CW-04: a city walk's stops in its detail, checked off for the
+// day it was opened from, their arrivals and opening hours on the day looked
+// at, and its progress as a pill of the desktop day row.
 import type { TourDetailResponse, TourListItem, TourWaypoint } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { buildAssignment, buildDay, buildPlace } from '../../../../tests/helpers/factories';
 import { fireEvent, render, screen, within } from '../../../../tests/helpers/render';
+import { resetAllStores, seedStore } from '../../../../tests/helpers/store';
 import { tourRepo } from '../../../repo/tourRepo';
 import { tourVisitRepo } from '../../../repo/tourVisitRepo';
+import { useSettingsStore } from '../../../store/settingsStore';
 import { useTourVisitStore } from '../../../store/tourVisitStore';
+import { useTripStore } from '../../../store/tripStore';
+import type { Assignment, Day } from '../../../types';
 import { ToastContainer } from '../../shared/Toast';
-import { WalkProgressPill, WalkStationsCard, type WalkDay } from './WalkStations';
+import { WalkProgressPill, WalkStationsCard } from './WalkStations';
 
 const walk: TourListItem = {
   place_id: 42,
@@ -44,16 +50,32 @@ const waypoints: TourWaypoint[] = [
   { lat: 48.002, lng: 11, role: 'end', sequence: 3, name: 'Cafe', stay_minutes: 15, opening_hours: 'Mo 10:00-18:00' },
 ];
 
-const day: WalkDay = {
-  date: '2026-10-19',
-  start: '09:00',
-  route: [
-    [48, 11],
-    [48.001, 11],
-    [48.002, 11],
-  ],
-  walkingMinutes: 20,
-};
+const ROUTE: Array<[number, number]> = [
+  [48, 11],
+  [48.001, 11],
+  [48.002, 11],
+];
+
+// 2026-10-19 is a Monday, 2026-10-20 a Tuesday.
+const MONDAY = buildDay({ id: 7, trip_id: 4, date: '2026-10-19' });
+const TUESDAY = buildDay({ id: 8, trip_id: 4, date: '2026-10-20' });
+const ON_DAY = { id: 9, day_id: 7 };
+
+/** The walk's entry on a day: its start that day, else the place's own time. */
+function entry(dayId: number, time: string | null, placeTime: string | null = null): Assignment {
+  return buildAssignment({
+    id: dayId + 2,
+    day_id: dayId,
+    place_id: 42,
+    assignment_time: time,
+    place: buildPlace({ id: 42, place_time: placeTime }),
+  });
+}
+
+/** The walk on Monday from 09:00, opened from that day. */
+function onMonday(time: string | null = '09:00', day: Day = MONDAY) {
+  return { assignment: ON_DAY, days: [day], assignments: { [String(day.id)]: [entry(day.id, time)] }, route: ROUTE };
+}
 
 function detail(points: TourWaypoint[] = waypoints): Promise<TourDetailResponse> {
   return Promise.resolve({ tour: walk, waypoints: points });
@@ -63,7 +85,7 @@ function card(props: Partial<Parameters<typeof WalkStationsCard>[0]> = {}) {
   return render(
     <>
       <ToastContainer />
-      <WalkStationsCard tour={walk} tripId={4} assignmentId={9} canMark {...props} />
+      <WalkStationsCard tour={walk} tripId={4} assignment={ON_DAY} canMark {...props} />
     </>
   );
 }
@@ -74,6 +96,7 @@ const rowOf = async (name: string) =>
   (await screen.findAllByTestId('walk-station')).find((row) => row.textContent?.includes(name)) as HTMLElement;
 
 beforeEach(() => {
+  resetAllStores();
   useTourVisitStore.setState({ tripId: '4', byAssignment: {} });
   vi.spyOn(tourRepo, 'detail').mockImplementation(() => detail());
 });
@@ -82,7 +105,8 @@ afterEach(() => vi.restoreAllMocks());
 
 describe('WalkStationsCard', () => {
   it('shows nothing for a tour that is no city walk', () => {
-    render(<WalkStationsCard tour={{ ...walk, tour_type: 'hike' }} tripId={4} assignmentId={9} canMark />);
+    render(<WalkStationsCard tour={{ ...walk, tour_type: 'hike' }} tripId={4} assignment={ON_DAY} canMark />);
+    expect(tourRepo.detail).not.toHaveBeenCalled();
     expect(screen.queryByTestId('walk-stations')).not.toBeInTheDocument();
   });
 
@@ -100,7 +124,7 @@ describe('WalkStationsCard', () => {
   });
 
   it('opened without a day, offers nothing to check off and says where to', async () => {
-    card({ assignmentId: null });
+    card({ assignment: null });
     await screen.findAllByTestId('walk-station');
     expect(
       screen.getByText('Open the walk from a day of the plan to check its stops off for that day.')
@@ -153,7 +177,7 @@ describe('WalkStationsCard', () => {
   });
 
   it('on a day put on the plan offline, says the stops wait for the sync and offers no buttons', async () => {
-    card({ assignmentId: -1700000000000 });
+    card({ assignment: { id: -1700000000000, day_id: 7 } });
     await screen.findAllByTestId('walk-station');
     expect(
       screen.getByText('This walk was put on the day while offline. Its stops can be checked off once it has synced.')
@@ -180,37 +204,141 @@ describe('WalkStationsCard', () => {
     expect(await screen.findByText('1 of 3 visited')).toBeInTheDocument();
   });
 
-  it('on a day with a start, shows each arrival and what the opening hours say about it', async () => {
-    card({ day });
-    expect(within(await rowOf('Museum')).getByText('Arrival about 09:00')).toBeInTheDocument();
-    expect(within(await rowOf('Museum')).getByTestId('walk-station-conflict')).toHaveTextContent(
-      'Arrival 09:00, stay until 09:30, but it closes at 09:20'
+  it('on the day it was opened from, shows each arrival, the end of each stay and what the opening hours say', async () => {
+    card(onMonday());
+    expect(screen.getByTestId('walk-day')).toHaveTextContent('Day 1, start 09:00');
+    expect(screen.queryByTestId('walk-day-picker')).not.toBeInTheDocument();
+    const museum = await rowOf('Museum');
+    expect(within(museum).getByText('Arrival about 09:00, stay until 09:30')).toBeInTheDocument();
+    expect(within(museum).getByTestId('walk-station-conflict')).toHaveTextContent(
+      'Museum closes at 09:20, during the stay from 09:00 to 09:30 (open 09:00 to 09:20)'
     );
-    expect(within(await rowOf('Stop 2')).getByText('Arrival about 09:40')).toBeInTheDocument();
-    expect(within(await rowOf('Stop 2')).getByText('Opening hours not read here: sunrise-sunset')).toBeInTheDocument();
-    expect(within(await rowOf('Cafe')).getByText('Arrival 09:50 at the earliest')).toBeInTheDocument();
-    expect(within(await rowOf('Cafe')).getByTestId('walk-station-conflict')).toHaveTextContent(
-      'Closed at 09:50 by its opening hours'
-    );
-    expect(screen.getByText(/Opening hours as OpenStreetMap has them/)).toBeInTheDocument();
+    expect(within(museum).getByTestId('walk-hours-source')).toHaveTextContent('OpenStreetMap');
+    const unnamed = await rowOf('Stop 2');
+    expect(within(unnamed).getByText('Arrival about 09:40')).toBeInTheDocument();
+    expect(within(unnamed).getByText('Opening hours not read here: sunrise-sunset')).toBeInTheDocument();
+    // The stay at stop 2 is not known, so the cafe's arrival is a lower bound and its hours are not judged.
+    const cafe = await rowOf('Cafe');
+    expect(within(cafe).getByText('Arrival 09:50 at the earliest, stay until 10:05 or later')).toBeInTheDocument();
+    expect(
+      within(cafe).getByText('Opening hours not checked: a stay before this stop is not entered yet.')
+    ).toBeInTheDocument();
+    expect(within(cafe).queryByTestId('walk-station-conflict')).not.toBeInTheDocument();
+    expect(screen.getByText(/Opening hours from OpenStreetMap or your own place entries/)).toBeInTheDocument();
   });
 
-  it('on a day without a start, asks for one and leaves the hours unsaid', async () => {
-    card({ day: { ...day, start: null } });
+  it("names a stop by the trip place it stands for and checks the place's own hours: 17:20 to 18:20 against 18:00", async () => {
+    const week = JSON.stringify(
+      Array.from({ length: 7 }, (_, day) =>
+        day < 5 ? { closed: false, open: '10:00', close: '18:00' } : { closed: true }
+      )
+    );
+    seedStore(useTripStore, { places: [buildPlace({ id: 77, name: 'Lenbachhaus', opening_hours: week })] });
+    vi.mocked(tourRepo.detail).mockImplementation(() =>
+      detail([
+        { lat: 48, lng: 11, role: 'start', sequence: 0, key: 'stop-01', linked_place_id: 77, stay_minutes: 60 },
+        { lat: 48.002, lng: 11, role: 'end', sequence: 1, key: 'stop-02', name: 'Cafe', stay_minutes: 0 },
+      ])
+    );
+    card(onMonday('17:20'));
+
+    const museum = await rowOf('Lenbachhaus');
+    expect(within(museum).getByText('Arrival about 17:20, stay until 18:20')).toBeInTheDocument();
+    expect(within(museum).getByTestId('walk-station-conflict')).toHaveTextContent(
+      'Lenbachhaus closes at 18:00, during the stay from 17:20 to 18:20 (open 10:00 to 18:00)'
+    );
+    expect(within(museum).getByTestId('walk-hours-source')).toHaveTextContent('Trip place');
+    expect(within(museum).getByText('Entered for this place of the trip.')).toBeInTheDocument();
+    // Only passed, a stop without hours stays unknown: no window and nothing said to be open.
+    const cafe = await rowOf('Cafe');
+    expect(within(cafe).getByText('Arrival about 18:40')).toBeInTheDocument();
+    expect(within(cafe).queryByText(/Open/)).not.toBeInTheDocument();
+  });
+
+  it('shows the times in the 12 hour format where the user chose it', async () => {
+    seedStore(useSettingsStore, { settings: { time_format: '12h' } });
+    card(onMonday());
+    expect(within(await rowOf('Museum')).getByText('Arrival about 9:00 AM, stay until 9:30 AM')).toBeInTheDocument();
+    expect(screen.getByTestId('walk-day')).toHaveTextContent('Day 1, start 9:00 AM');
+  });
+
+  it('on a day without a start, asks for one and leaves arrivals and hours unsaid', async () => {
+    card(onMonday(null));
     expect(
       await screen.findByText('Give the walk a time on this day to see arrivals and opening hours.')
     ).toBeInTheDocument();
+    expect(screen.getByTestId('walk-day')).toHaveTextContent('Day 1, no start time');
+    await screen.findAllByTestId('walk-station');
     expect(screen.queryByText(/Arrival/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Opening hours as OpenStreetMap has them/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Opening hours from OpenStreetMap/)).not.toBeInTheDocument();
+  });
+
+  it('on a day without a date, says so and shows no arrival', async () => {
+    card(onMonday('09:00', buildDay({ id: 7, trip_id: 4, date: null })));
+    expect(
+      await screen.findByText('This day has no date, so arrivals and opening hours are left out.')
+    ).toBeInTheDocument();
+    await screen.findAllByTestId('walk-station');
+    expect(screen.queryByText(/Arrival/)).not.toBeInTheDocument();
+  });
+
+  it('without a route, shows no arrival', async () => {
+    card({ ...onMonday(), route: null });
+    await screen.findAllByTestId('walk-station');
+    expect(screen.queryByText(/Arrival/)).not.toBeInTheDocument();
   });
 
   it('names no source of hours when no stop has any', async () => {
     vi.mocked(tourRepo.detail).mockImplementation(() =>
       detail(waypoints.map(({ opening_hours: _hours, ...point }) => point))
     );
-    card({ day });
-    expect(within(await rowOf('Museum')).getByText('Arrival about 09:00')).toBeInTheDocument();
-    expect(screen.queryByText(/Opening hours as OpenStreetMap has them/)).not.toBeInTheDocument();
+    card(onMonday());
+    expect(within(await rowOf('Museum')).getByText('Arrival about 09:00, stay until 09:30')).toBeInTheDocument();
+    expect(screen.queryByText(/Opening hours from OpenStreetMap/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('walk-hours-source')).not.toBeInTheDocument();
+  });
+
+  it('opened from no day of the walk, takes the first with a start time, lets another be picked, and checks nothing off', async () => {
+    card({
+      assignment: null,
+      days: [MONDAY, TUESDAY],
+      assignments: { '7': [entry(7, null)], '8': [entry(8, null, '10:00')] },
+      route: ROUTE,
+    });
+    const picker = screen.getByTestId('walk-day-picker');
+    expect(picker).toHaveTextContent('Day 2, start 10:00');
+    // Tuesday from 10:00: the museum closed at 09:20 already.
+    expect(within(await rowOf('Museum')).getByTestId('walk-station-conflict')).toHaveTextContent(
+      'Museum is closed at 10:00, the stay would last until 10:30; open 09:00 to 09:20'
+    );
+    expect(screen.queryByText('Mark visited')).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Open the walk from a day of the plan to check its stops off for that day.')
+    ).toBeInTheDocument();
+
+    fireEvent.click(picker);
+    const monday = screen.getByRole('button', { name: /^Day 1, .*no start time$/ });
+    fireEvent.click(monday);
+    expect(screen.getByTestId('walk-day-picker')).toHaveTextContent('Day 1, no start time');
+    expect(screen.getByText('Give the walk a time on this day to see arrivals and opening hours.')).toBeInTheDocument();
+    expect(screen.queryByText(/Arrival/)).not.toBeInTheDocument();
+  });
+
+  it('opened from no day while the walk is on none, asks to put it on one', async () => {
+    card({ assignment: null });
+    expect(
+      await screen.findByText('Put the walk on a day with a start time to see arrivals and opening hours.')
+    ).toBeInTheDocument();
+  });
+
+  it('reads the stops again once the walk was saved, keeping the ones shown until then', async () => {
+    const view = render(<WalkStationsCard tour={{ ...walk, revision: 1 }} tripId={4} assignment={ON_DAY} canMark />);
+    await screen.findAllByTestId('walk-station');
+    vi.mocked(tourRepo.detail).mockImplementation(() => detail(waypoints.slice(0, 2)));
+    view.rerender(<WalkStationsCard tour={{ ...walk, revision: 2 }} tripId={4} assignment={ON_DAY} canMark />);
+    expect(screen.getAllByTestId('walk-station')).toHaveLength(3);
+    await vi.waitFor(() => expect(screen.getAllByTestId('walk-station')).toHaveLength(1));
+    expect(tourRepo.detail).toHaveBeenCalledTimes(2);
   });
 
   it('a walk whose stops cannot be read lists none, counts none and says so', async () => {
@@ -228,7 +356,7 @@ describe('WalkStationsCard', () => {
       { lat: 48.002, lng: 11, role: 'end', sequence: 1 },
     ];
     vi.mocked(tourRepo.detail).mockImplementation(() => detail(ends));
-    card({ day });
+    card(onMonday());
 
     expect(await screen.findByText(UNREAD)).toBeInTheDocument();
     expect(screen.queryAllByTestId('walk-station')).toEqual([]);
@@ -239,7 +367,7 @@ describe('WalkStationsCard', () => {
   it('a walk saved offline lists its stops before the sync gave them keys', async () => {
     const unsaved = waypoints.map(({ key: _key, ...point }) => point);
     vi.mocked(tourRepo.detail).mockImplementation(() => detail(unsaved));
-    card({ tour: { ...walk, place_id: -1700000000001 }, assignmentId: -1700000000000 });
+    card({ tour: { ...walk, place_id: -1700000000001 }, assignment: { id: -1700000000000, day_id: 7 } });
 
     expect(await screen.findAllByTestId('walk-station')).toHaveLength(3);
     expect(screen.getByText('0 of 3 visited')).toBeInTheDocument();

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { fireEvent, render, screen, waitFor } from '../../../tests/helpers/render'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { TourListItem } from '@trek/shared'
-import { buildPlace } from '../../../tests/helpers/factories'
+import { buildAssignment, buildDay, buildPlace } from '../../../tests/helpers/factories'
 import { paddleBench } from '../../../tests/helpers/paddleCheck'
 import { resetAllStores, seedStore } from '../../../tests/helpers/store'
 import { useSettingsStore } from '../../store/settingsStore'
@@ -177,6 +177,36 @@ describe('TourDetailDialog', () => {
     )).toHaveTextContent('4 h')
     expect(screen.getByText('Computed')).toBeInTheDocument()
     expect(await screen.findByTestId('walk-stations')).toBeInTheDocument()
+  })
+
+  it('CW-04: a walk opened from a day it is on keeps that day for its times; opened otherwise, a day can be picked', async () => {
+    const walk = { ...tour, tour_type: 'walk' as const, max_hiking_difficulty: null, duration: 20, station_count: 1 }
+    vi.spyOn(tourRepo, 'detail').mockResolvedValue({ tour: walk, waypoints: [
+      { lat: 48, lng: 11, role: 'start', sequence: 0, key: 'stop-01', name: 'Museum', stay_minutes: 30, opening_hours: 'Mo-Fr 10:00-18:00' },
+    ] })
+    // 2026-10-19 is a Monday: the museum opens at 10:00.
+    const days = [buildDay({ id: 7, date: '2026-10-19' }), buildDay({ id: 8, date: '2026-10-20' })]
+    const assignments = {
+      '7': [buildAssignment({ id: 9, day_id: 7, place_id: 42, assignment_time: '09:00', place })],
+      '8': [buildAssignment({ id: 10, day_id: 8, place_id: 42, assignment_time: '11:00', place })],
+    }
+    const view = render(<TourDetailDialog {...defaultProps} tour={walk} days={days} assignments={assignments} selectedDayId={7} />)
+
+    expect(screen.getByTestId('walk-day')).toHaveTextContent('Day 1, start 09:00')
+    expect(screen.queryByTestId('walk-day-picker')).not.toBeInTheDocument()
+    expect(await screen.findByText('Arrival about 09:00, stay until 09:30')).toBeInTheDocument()
+    expect(screen.getByTestId('walk-station-conflict'))
+      .toHaveTextContent('Museum is closed at 09:00, the stay would last until 09:30; open 10:00 to 18:00')
+    expect(screen.getByText('Mark visited')).toBeInTheDocument()
+
+    view.rerender(<TourDetailDialog {...defaultProps} tour={walk} days={days} assignments={assignments} />)
+    expect(screen.getByTestId('walk-day-picker')).toHaveTextContent('Day 1, start 09:00')
+    expect(screen.queryByText('Mark visited')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByTestId('walk-day-picker'))
+    fireEvent.click(screen.getByRole('button', { name: /^Day 2, .*start 11:00$/ }))
+    expect(await screen.findByText('Arrival about 11:00, stay until 11:30')).toBeInTheDocument()
+    expect(screen.queryByTestId('walk-station-conflict')).not.toBeInTheDocument()
+    expect(screen.getByText(/Open 10:00 to 18:00/)).toBeInTheDocument()
   })
 
   it('PAD-01: a paddle tour without heights shows distance, paddling and total side by side in one row', () => {

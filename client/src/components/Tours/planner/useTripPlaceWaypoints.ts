@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { useTripStore } from '../../../store/tripStore';
 import type { Category, Place } from '../../../types';
 import { randomId } from '../../../utils/randomId';
+import { useLinkedPlaceOf } from '../walk/useWalkSchedule';
 import { unlinkedPoint, type TourPlannerWaypoint } from './tourPlannerWaypoints';
 import { withPointAppended } from './tourRouteActions';
 import type { TourPlannerController } from './useTourPlanner';
@@ -49,7 +50,7 @@ export function useTripPlaceWaypoints(planner: TourPlannerController, tourPlaceI
   const categories = useTripStore((state) => state.categories) ?? NO_CATEGORIES;
   const { editWaypoints, setSelectedWaypointId, waypoints, route } = planner;
 
-  const placesById = useMemo(() => new Map(places.map((place) => [place.id, place])), [places]);
+  const linkedPlaceOf = useLinkedPlaceOf();
 
   const candidates = useMemo((): TripPlaceCandidate[] => {
     const line = tourLine({ route, waypoints });
@@ -85,13 +86,6 @@ export function useTripPlaceWaypoints(planner: TourPlannerController, tourPlaceI
     (pointId: string) =>
       editWaypoints((current) => current.map((point) => (point.id === pointId ? unlinkedPoint(point) : point))),
     [editWaypoints]
-  );
-
-  /** The place a point stands for while the trip still has it. */
-  const linkedPlaceOf = useCallback(
-    (point: Pick<TourPlannerWaypoint, 'linkedPlaceId'>) =>
-      point.linkedPlaceId ? (placesById.get(point.linkedPlaceId) ?? null) : null,
-    [placesById]
   );
 
   return { candidates, add, unlink, linkedPlaceOf };

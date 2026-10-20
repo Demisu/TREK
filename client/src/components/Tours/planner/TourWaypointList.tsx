@@ -37,6 +37,9 @@ import { usePaddleRegionLoad } from '../paddle/usePaddleRegionLoad';
 import { usePaddleWaypointActions } from '../paddle/usePaddleWaypointActions';
 import { usePortageRouting } from '../paddle/usePortageRouting';
 import { RailCard } from '../tourParts';
+import { StationScheduleRow } from '../walk/StationSchedule';
+import { usePlannerWalkSchedule } from '../walk/useWalkSchedule';
+import { WalkDayLine } from '../walk/WalkDayLine';
 import { paddlePlanPoints, paddleRolesById } from './paddlePlanOf';
 import { StationDialog } from './StationDialog';
 import { StationPills } from './stationParts';
@@ -584,6 +587,8 @@ export default function TourWaypointList({
 }) {
   const { t } = useTranslation();
   const tripPlaces = useTripPlaceWaypoints(planner, tourPlaceIds);
+  // CW-02, CW-04: the arrivals and opening hours of a city walk on one of its days; hints only, nothing saved.
+  const walk = usePlannerWalkSchedule(planner, tripPlaces.linkedPlaceOf);
   const [placesOpen, setPlacesOpen] = useState(false);
   const addRows = canEdit && (
     <>
@@ -654,6 +659,7 @@ export default function TourWaypointList({
 
   return card(
     <>
+      <WalkDayLine {...walk} className="mb-2" />
       <ol data-touch-drag className="m-0 -mx-1.5 flex list-none flex-col gap-px p-0">
         {planner.waypoints.map((point, index) => {
           const selected = planner.selectedWaypointId === point.id;
@@ -661,6 +667,7 @@ export default function TourWaypointList({
           const loopEnd = planner.isLoop && index === lastIndex;
           const linkedPlace = tripPlaces.linkedPlaceOf(point);
           const placeName = linkedPlace?.name ?? placeNames[point.id];
+          const stop = stopNumbers.get(point.id) ?? index + 1;
           return (
             <Fragment key={point.id}>
               <li
@@ -717,7 +724,7 @@ export default function TourWaypointList({
                     <GripVertical size={14} strokeWidth={1.8} />
                   </span>
                   <WaypointNumber
-                    stop={stopNumbers.get(point.id) ?? index + 1}
+                    stop={stop}
                     selected={selected}
                     ferrata={ferrataEnds[point.id] ?? null}
                     loopEnd={loopEnd}
@@ -751,6 +758,7 @@ export default function TourWaypointList({
                     />
                   )}
                 </div>
+                <StationScheduleRow schedule={walk.schedule} point={point} placeName={placeName} number={stop} />
               </li>
               <WaypointLegRows
                 planner={planner}
