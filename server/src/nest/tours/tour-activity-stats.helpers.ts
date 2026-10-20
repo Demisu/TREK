@@ -197,7 +197,8 @@ function stagedOutcome(tour: TourOfStats, keys: readonly string[], input: Activi
   const stages = keys.map((key) => stageDates(tour, key));
   if (stages.some((stage) => !stage.any)) return 'unassigned';
   if (stages.some((stage) => stage.dates.length === 0) || !last) return 'undated';
-  const lastDate = stages.flatMap((stage) => stage.dates).reduce((a, b) => (b > a ? b : a));
+  // Every stage has a date here, so the empty start never wins against an ISO date.
+  const lastDate = stages.flatMap((stage) => stage.dates).reduce((a, b) => (b > a ? b : a), '');
   return [planEntry(tour, { assignmentId: last.assignmentId, date: lastDate }, dated.length, input.excluded)];
 }
 
