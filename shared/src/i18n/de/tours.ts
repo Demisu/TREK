@@ -511,6 +511,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Berechnet',
   'tours.walk.stations': 'Stationen',
   'tours.walk.stationNumbered': 'Station {number}',
+  'tours.walk.stationsUnread':
+    'Die Stationen dieses Walks ließen sich nicht laden. Öffne ihn erneut mit Verbindung, um sie zu sehen und abzuhaken.',
   'tours.walk.progress': '{visited} von {total} besucht',
   'tours.walk.visit.visited': 'Besucht',
   'tours.walk.visit.skip': 'Überspringen',
@@ -519,7 +521,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isSkipped': 'An diesem Tag übersprungen',
   'tours.walk.visit.fromDay': 'Öffne den Walk über einen Tag im Plan, um seine Stationen für diesen Tag abzuhaken.',
   'tours.walk.visit.failed':
-    'Die Station konnte nicht markiert werden. Dafür braucht es eine Verbindung; versuch es gleich noch einmal.',
+    'Die Station konnte nicht markiert werden. Öffne den Walk erneut und versuch es noch einmal.',
+  'tours.walk.visit.notSynced':
+    'Dieser Walk wurde offline auf den Tag gelegt. Seine Stationen lassen sich abhaken, sobald er synchronisiert ist.',
   'tours.walk.themes': 'Thema des Walks',
   'tours.walk.theme.culture': 'Kultur und Geschichte',
   'tours.walk.theme.parks': 'Parks und Aussicht',

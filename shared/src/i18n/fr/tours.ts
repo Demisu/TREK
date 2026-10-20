@@ -515,6 +515,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Calculé',
   'tours.walk.stations': 'Étapes de la balade',
   'tours.walk.stationNumbered': 'Étape {number}',
+  'tours.walk.stationsUnread':
+    "Les étapes de cette balade n'ont pas pu être chargées. Rouvre-la avec une connexion pour les voir et les cocher.",
   'tours.walk.progress': '{visited} sur {total} visitées',
   'tours.walk.visit.visited': 'Visitée',
   'tours.walk.visit.skip': 'Passer',
@@ -522,7 +524,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isVisited': 'Visitée ce jour-là',
   'tours.walk.visit.isSkipped': 'Passée ce jour-là',
   'tours.walk.visit.fromDay': 'Ouvre la balade depuis un jour du plan pour cocher ses étapes ce jour-là.',
-  'tours.walk.visit.failed': "L'étape n'a pas pu être cochée. Il faut une connexion ; réessaie dans un instant.",
+  'tours.walk.visit.failed': "L'étape n'a pas pu être cochée. Rouvre la balade et réessaie.",
+  'tours.walk.visit.notSynced':
+    "Cette balade a été ajoutée au jour hors connexion. Ses étapes pourront être cochées une fois qu'elle sera synchronisée.",
   'tours.walk.themes': 'Thème de la balade',
   'tours.walk.theme.culture': 'Culture et histoire',
   'tours.walk.theme.parks': 'Parcs et points de vue',

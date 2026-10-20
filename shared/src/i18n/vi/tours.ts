@@ -498,6 +498,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Đã tính',
   'tours.walk.stations': 'Các điểm dừng',
   'tours.walk.stationNumbered': 'Điểm dừng {number}',
+  'tours.walk.stationsUnread':
+    'Không tải được các điểm dừng của lộ trình này. Hãy mở lại khi có kết nối để xem và đánh dấu chúng.',
   'tours.walk.progress': 'Đã ghé {visited}/{total}',
   'tours.walk.visit.visited': 'Đã ghé',
   'tours.walk.visit.skip': 'Bỏ qua',
@@ -505,7 +507,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isVisited': 'Đã ghé trong ngày này',
   'tours.walk.visit.isSkipped': 'Đã bỏ qua trong ngày này',
   'tours.walk.visit.fromDay': 'Mở lộ trình từ một ngày trong kế hoạch để đánh dấu các điểm dừng của ngày đó.',
-  'tours.walk.visit.failed': 'Không thể đánh dấu điểm dừng. Cần có kết nối; hãy thử lại sau giây lát.',
+  'tours.walk.visit.failed': 'Không thể đánh dấu điểm dừng. Hãy mở lại lộ trình và thử thêm lần nữa.',
+  'tours.walk.visit.notSynced':
+    'Lộ trình này được thêm vào ngày khi đang ngoại tuyến. Có thể đánh dấu các điểm dừng sau khi đã đồng bộ.',
   'tours.walk.themes': 'Chủ đề lộ trình',
   'tours.walk.theme.culture': 'Văn hóa và lịch sử',
   'tours.walk.theme.parks': 'Công viên và cảnh đẹp',

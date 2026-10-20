@@ -1,4 +1,5 @@
 import { roadtripPreferencesRepo } from '../repo/roadtripPreferencesRepo'
+import { tourRepo } from '../repo/tourRepo'
 /**
  * Trip sync manager — seeds Dexie with trip data for offline use.
  *
@@ -12,6 +13,8 @@ import { roadtripPreferencesRepo } from '../repo/roadtripPreferencesRepo'
  *   - WS reconnect (phase 7)
  */
 import { tripsApi, tagsApi, categoriesApi, toursApi } from '../api/client'
+import { tourVisitsApi } from '../api/tourVisits'
+import { replaceTripVisits } from '../db/cacheTourVisits'
 import {
   offlineDb,
   upsertTrip,
@@ -153,11 +156,28 @@ async function syncTrip(tripId: number): Promise<void> {
   // sync of many trips does not spend a refused request on each.
   if (useAddonStore.getState().isEnabled('tours')) {
     try {
-      await replaceTripTours(tripId, (await toursApi.list(tripId)).tours)
+      await cacheTripTours(tripId)
     } catch (err) {
       console.warn(`[sync] tours for trip ${tripId} not cached:`, err)
     }
   }
+}
+
+/**
+ * A trip's tours and, for its city walks, the stops checked off on their days
+ * (CW-03), so a walk still shows how far it got offline. A walk whose stops
+ * this device never read, one planned on another device, has them read here
+ * too, each walk on its own: one that cannot be read leaves the others alone,
+ * and offline its card then lists no stops to check off.
+ */
+async function cacheTripTours(tripId: number): Promise<void> {
+  const { tours } = await toursApi.list(tripId)
+  await replaceTripTours(tripId, tours)
+  const walks = tours.filter(tour => tour.tour_type === 'walk')
+  await replaceTripVisits(tripId, walks.length > 0 ? (await tourVisitsApi.list(tripId)).visits : [])
+  const cached = await offlineDb.tours.bulkGet(walks.map(walk => walk.place_id))
+  const unread = walks.filter((_walk, index) => !cached[index]?.waypoints?.length)
+  await Promise.allSettled(unread.map(walk => tourRepo.detail(tripId, walk.place_id)))
 }
 
 /** Cache non-photo file blobs for a trip. Fire-and-forget safe. */

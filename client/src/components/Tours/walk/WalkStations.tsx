@@ -11,12 +11,26 @@ import { StationPills } from '../planner/stationParts';
 import { plannerWaypointsOf, type TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 import { TourDayRowPill } from '../TourDayRowFacts';
 import { CardAction, TourNotice } from '../tourParts';
+import { useDayVisits, useWalkProgress } from './walkProgress';
 import { clockOf, minutesOf, stationArrivals, stationFit, type StationFit } from './walkSchedule';
 
 let nextId = 0;
 const freshId = () => `station-${++nextId}`;
 
-/** CW-03: a saved walk's stations in order, read once for the dialog; null while they load or could not be read. */
+/**
+ * CW-03: a synced walk's stations all carry a key. Points without any are the
+ * route's ends, which this device reads in their place while it holds none of
+ * the stations, so they are not listed as the walk's. A walk saved offline has
+ * no keys before it synced, and its stations stay.
+ */
+function ownStations(points: TourPlannerWaypoint[], placeId: number): TourPlannerWaypoint[] {
+  return placeId < 0 || points.some((point) => point.key) ? points : [];
+}
+
+/**
+ * CW-03: a saved walk's stations in order, read once for the dialog; null while
+ * they load, none where they could not be read.
+ */
 function useWalkStations(tripId: number | string, placeId: number): TourPlannerWaypoint[] | null {
   const [stations, setStations] = useState<{ placeId: number; points: TourPlannerWaypoint[] } | null>(null);
   useEffect(() => {
@@ -26,7 +40,7 @@ function useWalkStations(tripId: number | string, placeId: number): TourPlannerW
       .then((detail) => {
         if (controller.signal.aborted) return;
         const points = walkStationsOf(plannerWaypointsOf(detail.waypoints, freshId));
-        setStations({ placeId, points });
+        setStations({ placeId, points: ownStations(points, placeId) });
       })
       .catch(() => {
         if (!controller.signal.aborted) setStations({ placeId, points: [] });
@@ -36,24 +50,32 @@ function useWalkStations(tripId: number | string, placeId: number): TourPlannerW
   return stations?.placeId === placeId ? stations.points : null;
 }
 
-/** The day's status of each station, by its key. */
-function useDayVisits(assignmentId: number | null) {
-  return useTourVisitStore((state) => (assignmentId === null ? undefined : state.byAssignment[assignmentId]));
-}
-
 /**
  * CW-03: a walk's progress on one of its days, as a pill of the day row:
  * how many of its stations were visited. Nothing is shown before any is.
  */
 export function WalkProgressPill({ tour, assignmentId }: { tour: TourListItem; assignmentId: number | undefined }) {
   const { t } = useTranslation();
-  const visits = useDayVisits(assignmentId ?? null);
-  const total = tour.station_count ?? 0;
-  if (tour.tour_type !== 'walk' || total === 0 || !visits) return null;
-  const visited = Object.values(visits).filter((status) => status === 'visited').length;
-  if (visited === 0 && Object.keys(visits).length === 0) return null;
-  const label = t('tours.walk.progress', { visited, total });
-  return <TourDayRowPill icon={CheckCheck} value={`${visited}/${total}`} label={label} testId="plan-walk-progress" />;
+  const progress = useWalkProgress(tour, assignmentId);
+  if (!progress) return null;
+  return (
+    <TourDayRowPill
+      icon={CheckCheck}
+      value={`${progress.visited}/${progress.total}`}
+      label={t('tours.walk.progress', progress)}
+      testId="plan-walk-progress"
+    />
+  );
+}
+
+/**
+ * Whether the stations can be checked off from here: not without a day or the
+ * right to plan it, and not yet on a day put on the plan offline, which the
+ * server does not know until it synced.
+ */
+function markState(canMark: boolean, assignmentId: number | null): 'none' | 'ready' | 'notSynced' {
+  if (!canMark || assignmentId === null) return 'none';
+  return assignmentId < 0 ? 'notSynced' : 'ready';
 }
 
 function StatusActions({
@@ -177,19 +199,26 @@ function StationRow({
   );
 }
 
-/** The lines above the stations: loading, what is missing for arrivals, where the hours come from, where to check off. */
+/**
+ * The lines above the stations: loading, stations that could not be read, what
+ * is missing for arrivals, where the hours come from, where to check off.
+ */
 function WalkStationsNotes({
   loading,
+  unread,
   any,
   noStart,
   hoursShown,
   fromDay,
+  notSynced,
 }: {
   loading: boolean;
+  unread: boolean;
   any: boolean;
   noStart: boolean;
   hoursShown: boolean;
   fromDay: boolean;
+  notSynced: boolean;
 }) {
   const { t } = useTranslation();
   const quiet = (text: string) => (
@@ -200,9 +229,11 @@ function WalkStationsNotes({
   if (loading) return quiet(t('common.loading'));
   return (
     <>
+      {unread && quiet(t('tours.walk.stationsUnread'))}
       {any && noStart && quiet(t('tours.walk.hours.noStart'))}
       {hoursShown && <TourNotice icon={<Clock size={13} strokeWidth={2} />}>{t('tours.walk.hours.source')}</TourNotice>}
       {any && fromDay && quiet(t('tours.walk.visit.fromDay'))}
+      {any && notSynced && quiet(t('tours.walk.visit.notSynced'))}
     </>
   );
 }
@@ -249,29 +280,33 @@ export function WalkStationsCard({
   };
   const start = minutesOf(day?.start);
   const arrivals = stations && day?.date ? stationArrivals(stations, day.route, start, day.walkingMinutes) : null;
-  const anyHours = stations?.some((station) => station.openingHours) === true;
-  const visited = (stations ?? []).filter((station) => station.key && visits?.[station.key] === 'visited').length;
-  const canCheck = canMark && assignmentId !== null;
+  const listed = stations ?? [];
+  const anyHours = listed.some((station) => station.openingHours);
+  const visited = listed.filter((station) => station.key && visits?.[station.key] === 'visited').length;
+  const marking = markState(canMark, assignmentId);
   return (
     <DialogSection
       className="flex-none"
       label={t('tours.walk.stations')}
       action={
-        stations && assignmentId !== null ? (
-          <SoftPill>{t('tours.walk.progress', { visited, total: stations.length })}</SoftPill>
+        // No count where the stations could not be read: it would contradict the day row's.
+        assignmentId !== null && listed.length > 0 ? (
+          <SoftPill>{t('tours.walk.progress', { visited, total: listed.length })}</SoftPill>
         ) : undefined
       }
     >
       <div data-testid="walk-stations" className="flex flex-col gap-2">
         <WalkStationsNotes
           loading={stations === null}
-          any={(stations?.length ?? 0) > 0}
+          unread={stations?.length === 0 && tour.station_count !== 0}
+          any={listed.length > 0}
           noStart={!!day && start === null}
           hoursShown={!!arrivals && anyHours}
           fromDay={assignmentId === null}
+          notSynced={marking === 'notSynced'}
         />
         <ol className="m-0 flex list-none flex-col gap-1.5 p-0">
-          {(stations ?? []).map((station, index) => (
+          {listed.map((station, index) => (
             <StationRow
               key={station.id}
               station={station}
@@ -279,7 +314,7 @@ export function WalkStationsCard({
               status={station.key ? visits?.[station.key] : undefined}
               arrival={arrivals?.[index] ?? null}
               date={day?.date ?? null}
-              onMark={canCheck && station.key ? (next) => onMark(station.key ?? '', next) : null}
+              onMark={marking === 'ready' && station.key ? (next) => onMark(station.key ?? '', next) : null}
             />
           ))}
         </ol>

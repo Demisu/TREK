@@ -10,6 +10,7 @@ const flush = vi.fn(() => Promise.resolve());
 const syncAll = vi.fn(() => Promise.resolve());
 const hydrate = vi.fn(() => Promise.resolve());
 const loadSettings = vi.fn(() => Promise.resolve());
+const reloadVisits = vi.fn();
 
 let refetchCb: ((tripId: string) => void) | null = null;
 let preReconnect: (() => Promise<void>) | null = null;
@@ -32,6 +33,9 @@ vi.mock('../../../src/api/websocket', () => ({
 vi.mock('../../../src/store/tripStore', () => ({
   useTripStore: { getState: () => ({ hydrateActiveTrip: hydrate }) },
 }));
+vi.mock('../../../src/store/tourVisitStore', () => ({
+  reloadTourVisits: (tripId: string) => reloadVisits(tripId),
+}));
 vi.mock('../../../src/store/settingsStore', () => ({
   useSettingsStore: { getState: () => ({ isLoaded: settingsLoaded, loadSettings }) },
 }));
@@ -46,7 +50,7 @@ const flushMicrotasks = async () => {
 };
 
 beforeEach(() => {
-  flush.mockClear(); syncAll.mockClear(); hydrate.mockClear(); loadSettings.mockClear();
+  flush.mockClear(); syncAll.mockClear(); hydrate.mockClear(); loadSettings.mockClear(); reloadVisits.mockClear();
   refetchCb = null; preReconnect = null; reconnects = 0;
   settingsLoaded = false; authenticated = true;
   Object.defineProperty(navigator, 'onLine', { value: true, writable: true, configurable: true });
@@ -62,6 +66,12 @@ describe('syncTriggers', () => {
     expect(refetchCb).toBeTypeOf('function');
     refetchCb!('7');
     expect(hydrate).toHaveBeenCalledWith('7');
+  });
+
+  it('the refetch after a reconnect also reads the walk visits of the trip again (CW-03)', () => {
+    registerSyncTriggers();
+    refetchCb?.('7');
+    expect(reloadVisits).toHaveBeenCalledWith('7');
   });
 
   it('also registers the pre-reconnect flush hook', () => {
@@ -88,6 +98,9 @@ describe('syncTriggers', () => {
     // overwrite edits that have not been sent yet.
     expect(flush.mock.invocationCallOrder[0]).toBeLessThan(syncAll.mock.invocationCallOrder[0]);
     expect(flush.mock.invocationCallOrder[0]).toBeLessThan(hydrate.mock.invocationCallOrder[0]);
+    // CW-03: the walk visits are read again only once the queued marks went out.
+    expect(reloadVisits).toHaveBeenCalledWith('7');
+    expect(flush.mock.invocationCallOrder[0]).toBeLessThan(reloadVisits.mock.invocationCallOrder[0]);
   });
 
   it('online event and a tab coming back reconnect the socket right away instead of waiting out its backoff', async () => {

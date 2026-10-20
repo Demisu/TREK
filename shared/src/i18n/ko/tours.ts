@@ -487,6 +487,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': '계산값',
   'tours.walk.stations': '산책 정류지',
   'tours.walk.stationNumbered': '정류지 {number}',
+  'tours.walk.stationsUnread':
+    '이 산책의 정류지를 불러오지 못했습니다. 온라인 상태에서 다시 열면 정류지를 보고 체크할 수 있습니다.',
   'tours.walk.progress': '{total}곳 중 {visited}곳 방문',
   'tours.walk.visit.visited': '방문함',
   'tours.walk.visit.skip': '건너뛰기',
@@ -494,7 +496,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isVisited': '이날 방문함',
   'tours.walk.visit.isSkipped': '이날 건너뜀',
   'tours.walk.visit.fromDay': '계획의 날짜에서 열면 그날의 정류지를 체크할 수 있습니다.',
-  'tours.walk.visit.failed': '정류지를 표시하지 못했습니다. 연결이 필요하니 잠시 후 다시 시도하세요.',
+  'tours.walk.visit.failed': '정류지를 표시하지 못했습니다. 산책을 다시 열고 한 번 더 시도하세요.',
+  'tours.walk.visit.notSynced':
+    '이 산책은 오프라인 상태에서 이 날에 추가되었습니다. 동기화되면 정류지를 체크할 수 있습니다.',
   'tours.walk.themes': '산책 테마',
   'tours.walk.theme.culture': '문화와 역사',
   'tours.walk.theme.parks': '공원과 전망',

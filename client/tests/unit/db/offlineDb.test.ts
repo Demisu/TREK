@@ -343,6 +343,21 @@ describe('offlineDb — clearTripData', () => {
     expect(await offlineDb.areaPlaces.where('tripId').equals(2).count()).toBe(1);
   });
 
+  it("takes the trip's city walk visits with it, and leaves another trip its own", async () => {
+    await upsertTrip(makeTrip(1));
+    await upsertTrip(makeTrip(2));
+    await offlineDb.tourStationVisits.bulkPut([
+      { assignment_id: 71, station_key: 'stop-01', status: 'visited', trip_id: 1 },
+      { assignment_id: 71, station_key: 'stop-02', status: 'skipped', trip_id: 1 },
+      { assignment_id: 81, station_key: 'stop-01', status: 'visited', trip_id: 2 },
+    ]);
+
+    await clearTripData(1);
+
+    expect(await offlineDb.tourStationVisits.where('trip_id').equals(1).count()).toBe(0);
+    expect(await offlineDb.tourStationVisits.get([81, 'stop-01'])).toMatchObject({ trip_id: 2 });
+  });
+
   it('preserves unsynced, conflicting and parked failed writes (#1135)', async () => {
     await upsertTrip(makeTrip(1));
     await offlineDb.mutationQueue.bulkPut([

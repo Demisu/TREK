@@ -342,6 +342,61 @@ describe('tripSyncManager.syncAll — tours', () => {
     expect(await offlineDb.places.where('trip_id').equals(312).count()).toBe(1);
     expect(await offlineDb.syncMeta.get(312)).toBeDefined();
   });
+
+  // CW-03: a city walk shows how far it got offline, and its stops can be checked off there.
+  describe('city walks', () => {
+    const walk = (place_id: number) => ({ ...tour, place_id, name: `Walk ${place_id}`, tour_type: 'walk', max_hiking_difficulty: null, station_count: 1 });
+    const stops = [{ lat: 48, lng: 11, role: 'start', sequence: 0, key: 'stop-01', name: 'Museum' }];
+
+    /** Serves trip 313 with these tours and visits; returns the tours whose detail was read and whether the visits were asked. */
+    function serveWalks(tours: unknown[], visits: unknown[]) {
+      const read: number[] = [];
+      let visitsAsked = 0;
+      server.use(
+        http.get('/api/trips', () => HttpResponse.json({ trips: [buildTrip({ id: 313, end_date: dateOffset(5) })] })),
+        http.get('/api/trips/313/bundle', () => HttpResponse.json(makeBundle(313))),
+        http.get('/api/trips/313/tours', () => HttpResponse.json({ tours })),
+        http.get('/api/trips/313/tour-visits', () => { visitsAsked++; return HttpResponse.json({ visits }); }),
+        http.get('/api/trips/313/tours/:placeId', ({ params }) => {
+          const placeId = Number(params.placeId);
+          read.push(placeId);
+          if (placeId === 903) return HttpResponse.json({ error: 'boom' }, { status: 500 });
+          return HttpResponse.json({ tour: walk(placeId), waypoints: stops });
+        }),
+      );
+      return { read, visitsAsked: () => visitsAsked };
+    }
+
+    beforeEach(() => useAddonStore.setState({ addons: [{ id: 'tours', enabled: true }] as never }));
+
+    it("keeps the trip's visits, and reads the stops of each walk this device has none of", async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      await offlineDb.tours.put({ ...walk(902), trip_id: 313, waypoints: stops } as never);
+      await offlineDb.tourStationVisits.put({ assignment_id: 70, station_key: 'gone-01', status: 'visited', trip_id: 313 });
+      const served = serveWalks([tour, walk(901), walk(902), walk(903)], [{ assignment_id: 71, station_key: 'stop-01', status: 'visited' }]);
+
+      await tripSyncManager.syncAll();
+
+      expect((await offlineDb.tourStationVisits.toArray()).map(v => `${v.trip_id}:${v.assignment_id}:${v.station_key}`)).toEqual(['313:71:stop-01']);
+      expect(served.read.sort()).toEqual([901, 903]);
+      expect((await offlineDb.tours.get(901))?.waypoints).toEqual(stops);
+      expect((await offlineDb.tours.get(902))?.waypoints).toEqual(stops);
+      expect((await offlineDb.tours.get(903))?.waypoints).toBeUndefined();
+      // A walk whose stops could not be read is no failure of the tours.
+      expect(warn).not.toHaveBeenCalled();
+    });
+
+    it('asks for no visits on a trip without a city walk, and keeps none of it', async () => {
+      await offlineDb.tourStationVisits.put({ assignment_id: 70, station_key: 'gone-01', status: 'visited', trip_id: 313 });
+      const served = serveWalks([tour], []);
+
+      await tripSyncManager.syncAll();
+
+      expect(served.visitsAsked()).toBe(0);
+      expect(served.read).toEqual([]);
+      expect(await offlineDb.tourStationVisits.count()).toBe(0);
+    });
+  });
 });
 
 // ── file blob caching ──────────────────────────────────────────────────────────

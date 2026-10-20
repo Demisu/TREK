@@ -498,6 +498,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Beräknad',
   'tours.walk.stations': 'Promenadens stopp',
   'tours.walk.stationNumbered': 'Stopp {number}',
+  'tours.walk.stationsUnread':
+    'Promenadens stopp kunde inte läsas in. Öppna den igen med uppkoppling för att se dem och bocka av dem.',
   'tours.walk.progress': '{visited} av {total} besökta',
   'tours.walk.visit.visited': 'Besökt',
   'tours.walk.visit.skip': 'Hoppa över',
@@ -505,7 +507,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isVisited': 'Besökt den här dagen',
   'tours.walk.visit.isSkipped': 'Överhoppad den här dagen',
   'tours.walk.visit.fromDay': 'Öppna promenaden från en dag i planen för att bocka av stoppen den dagen.',
-  'tours.walk.visit.failed': 'Stoppet kunde inte markeras. Det kräver en anslutning; försök igen om en stund.',
+  'tours.walk.visit.failed': 'Stoppet kunde inte markeras. Öppna promenaden igen och försök en gång till.',
+  'tours.walk.visit.notSynced':
+    'Den här promenaden lades till dagen offline. Stoppen kan bockas av när den har synkats.',
   'tours.walk.themes': 'Promenadens tema',
   'tours.walk.theme.culture': 'Kultur och historia',
   'tours.walk.theme.parks': 'Parker och utsikter',

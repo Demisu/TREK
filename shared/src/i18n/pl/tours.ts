@@ -514,6 +514,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Obliczono',
   'tours.walk.stations': 'Przystanki trasy',
   'tours.walk.stationNumbered': 'Przystanek {number}',
+  'tours.walk.stationsUnread':
+    'Nie udało się wczytać przystanków tej trasy. Otwórz ją ponownie z połączeniem, aby je zobaczyć i odhaczyć.',
   'tours.walk.progress': 'Odwiedzono {visited} z {total}',
   'tours.walk.visit.visited': 'Odwiedzony',
   'tours.walk.visit.skip': 'Pomiń',
@@ -521,7 +523,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isVisited': 'Odwiedzony tego dnia',
   'tours.walk.visit.isSkipped': 'Pominięty tego dnia',
   'tours.walk.visit.fromDay': 'Otwórz trasę z dnia w planie, aby odhaczyć przystanki na ten dzień.',
-  'tours.walk.visit.failed': 'Nie udało się oznaczyć przystanku. Potrzebne jest połączenie; spróbuj za chwilę.',
+  'tours.walk.visit.failed': 'Nie udało się oznaczyć przystanku. Otwórz trasę ponownie i spróbuj jeszcze raz.',
+  'tours.walk.visit.notSynced':
+    'Ta trasa została dodana do dnia offline. Przystanki będzie można odhaczyć, gdy się zsynchronizuje.',
   'tours.walk.themes': 'Motyw trasy',
   'tours.walk.theme.culture': 'Kultura i historia',
   'tours.walk.theme.parks': 'Parki i widoki',

@@ -513,6 +513,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Розрахунок',
   'tours.walk.stations': 'Зупинки прогулянки',
   'tours.walk.stationNumbered': 'Зупинка {number}',
+  'tours.walk.stationsUnread':
+    'Не вдалося завантажити зупинки цієї прогулянки. Відкрий її знову з мережею, щоб побачити й відмітити їх.',
   'tours.walk.progress': 'Відвідано {visited} з {total}',
   'tours.walk.visit.visited': 'Відвідано',
   'tours.walk.visit.skip': 'Пропустити',
@@ -520,7 +522,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isVisited': 'Відвідано цього дня',
   'tours.walk.visit.isSkipped': 'Пропущено цього дня',
   'tours.walk.visit.fromDay': 'Відкрий прогулянку з дня в плані, щоб відмічати зупинки на цей день.',
-  'tours.walk.visit.failed': "Не вдалося позначити зупинку. Потрібне з'єднання; спробуй трохи згодом.",
+  'tours.walk.visit.failed': 'Не вдалося позначити зупинку. Відкрий прогулянку знову й спробуй ще раз.',
+  'tours.walk.visit.notSynced':
+    'Цю прогулянку додано до дня без мережі. Зупинки можна буде відмічати, щойно вона синхронізується.',
   'tours.walk.themes': 'Тема прогулянки',
   'tours.walk.theme.culture': 'Культура та історія',
   'tours.walk.theme.parks': 'Парки та краєвиди',

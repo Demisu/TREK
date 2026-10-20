@@ -507,6 +507,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Calculat',
   'tours.walk.stations': 'Parades de la ruta',
   'tours.walk.stationNumbered': 'Parada {number}',
+  'tours.walk.stationsUnread':
+    "No s'han pogut carregar les parades d'aquesta ruta. Torna a obrir-la amb connexió per veure-les i marcar-les.",
   'tours.walk.progress': '{visited} de {total} visitades',
   'tours.walk.visit.visited': 'Visitada',
   'tours.walk.visit.skip': 'Omet',
@@ -514,7 +516,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isVisited': 'Visitada aquest dia',
   'tours.walk.visit.isSkipped': 'Omesa aquest dia',
   'tours.walk.visit.fromDay': "Obre la ruta des d'un dia del pla per marcar-ne les parades d'aquell dia.",
-  'tours.walk.visit.failed': "No s'ha pogut marcar la parada. Cal connexió; torna-ho a provar d'aquí a una estona.",
+  'tours.walk.visit.failed': "No s'ha pogut marcar la parada. Torna a obrir la ruta i prova-ho un altre cop.",
+  'tours.walk.visit.notSynced':
+    "Aquesta ruta s'ha afegit al dia sense connexió. Podràs marcar-ne les parades quan s'hagi sincronitzat.",
   'tours.walk.themes': 'Tema de la ruta',
   'tours.walk.theme.culture': 'Cultura i història',
   'tours.walk.theme.parks': 'Parcs i vistes',

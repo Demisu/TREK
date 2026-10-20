@@ -509,6 +509,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Berekend',
   'tours.walk.stations': 'Haltes van de wandeling',
   'tours.walk.stationNumbered': 'Halte {number}',
+  'tours.walk.stationsUnread':
+    'De haltes van deze wandeling konden niet worden geladen. Open hem opnieuw met verbinding om ze te zien en af te vinken.',
   'tours.walk.progress': '{visited} van {total} bezocht',
   'tours.walk.visit.visited': 'Bezocht',
   'tours.walk.visit.skip': 'Overslaan',
@@ -516,8 +518,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isVisited': 'Op deze dag bezocht',
   'tours.walk.visit.isSkipped': 'Op deze dag overgeslagen',
   'tours.walk.visit.fromDay': 'Open de wandeling vanuit een dag in het plan om de haltes voor die dag af te vinken.',
-  'tours.walk.visit.failed':
-    'De halte kon niet worden gemarkeerd. Daar is verbinding voor nodig; probeer het zo opnieuw.',
+  'tours.walk.visit.failed': 'De halte kon niet worden gemarkeerd. Open de wandeling opnieuw en probeer het nog eens.',
+  'tours.walk.visit.notSynced':
+    'Deze wandeling is offline aan de dag toegevoegd. De haltes kun je afvinken zodra ze gesynchroniseerd is.',
   'tours.walk.themes': 'Thema van de wandeling',
   'tours.walk.theme.culture': 'Cultuur en geschiedenis',
   'tours.walk.theme.parks': 'Parken en uitzicht',

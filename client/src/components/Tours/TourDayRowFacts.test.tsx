@@ -1,8 +1,9 @@
 import type { TourListItem } from '@trek/shared';
 import { Bike, Footprints, Mountain, Route } from 'lucide-react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { paddleBench } from '../../../tests/helpers/paddleCheck';
 import { fireEvent, render, screen } from '../../../tests/helpers/render';
+import { useTourVisitStore } from '../../store/tourVisitStore';
 import TourDayRowFacts, { TourDayRowIcon, TourDayRowPills } from './TourDayRowFacts';
 import { tourDayRowIcon } from './tourDayRowIcon';
 
@@ -150,6 +151,42 @@ describe("CW-02 a city walk's time on its day row", () => {
     expect(screen.getByTestId('trip-plan-tour-planned-duration')).toHaveTextContent('≥ 2 h 15 min');
     expect(screen.getByTestId('trip-plan-tour-walking-time')).toHaveAccessibleName('Walking: 45 min');
     expect(screen.queryByTestId('trip-plan-tour-breaks')).not.toBeInTheDocument();
+  });
+});
+
+describe("CW-03 a city walk's progress among the facts of a day row", () => {
+  const walk: TourListItem = { ...tour, tour_type: 'walk', max_hiking_difficulty: null, station_count: 5 };
+
+  beforeEach(() =>
+    useTourVisitStore.setState({
+      tripId: '4',
+      byAssignment: { 9: { 'stop-01': 'visited', 'stop-02': 'skipped' } },
+    })
+  );
+
+  it.each([false, true])('shows the stops visited on that day, a tap naming them whole (mobile=%s)', (mobile) => {
+    const openRow = vi.fn();
+    render(
+      <div onClick={openRow}>
+        <TourDayRowFacts tour={walk} assignmentId={9} mobile={mobile} />
+      </div>
+    );
+    const progress = screen.getByTestId('plan-walk-progress');
+    expect(progress).toHaveTextContent('1/5');
+    expect(progress).toHaveAccessibleName('1 of 5 visited');
+    fireEvent.click(progress);
+    expect(screen.getByRole('note')).toHaveTextContent('1 of 5 visited');
+    expect(openRow).not.toHaveBeenCalled();
+  });
+
+  it('shows none without a day, or before a stop of that day is marked', () => {
+    render(
+      <>
+        <TourDayRowFacts tour={walk} mobile />
+        <TourDayRowFacts tour={walk} assignmentId={10} mobile />
+      </>
+    );
+    expect(screen.queryByTestId('plan-walk-progress')).not.toBeInTheDocument();
   });
 });
 

@@ -507,6 +507,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Számított',
   'tours.walk.stations': 'A séta megállói',
   'tours.walk.stationNumbered': '{number}. megálló',
+  'tours.walk.stationsUnread':
+    'A séta megállóit nem sikerült betölteni. Nyisd meg újra internetkapcsolattal, hogy lásd és kipipálhasd őket.',
   'tours.walk.progress': '{total} megállóból {visited} meglátogatva',
   'tours.walk.visit.visited': 'Meglátogatva',
   'tours.walk.visit.skip': 'Kihagyás',
@@ -514,7 +516,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isVisited': 'Ezen a napon meglátogatva',
   'tours.walk.visit.isSkipped': 'Ezen a napon kihagyva',
   'tours.walk.visit.fromDay': 'Nyisd meg a sétát a terv egyik napjáról, hogy arra a napra kipipáld a megállókat.',
-  'tours.walk.visit.failed': 'A megállót nem sikerült megjelölni. Ehhez kapcsolat kell; próbáld újra kicsit később.',
+  'tours.walk.visit.failed': 'A megállót nem sikerült megjelölni. Nyisd meg újra a sétát, és próbáld meg még egyszer.',
+  'tours.walk.visit.notSynced':
+    'Ezt a sétát offline tetted erre a napra. A megállói a szinkronizálás után pipálhatók ki.',
   'tours.walk.themes': 'A séta témája',
   'tours.walk.theme.culture': 'Kultúra és történelem',
   'tours.walk.theme.parks': 'Parkok és kilátás',

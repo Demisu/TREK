@@ -497,6 +497,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Vypočteno',
   'tours.walk.stations': 'Zastávky procházky',
   'tours.walk.stationNumbered': 'Zastávka {number}',
+  'tours.walk.stationsUnread':
+    'Zastávky této procházky se nepodařilo načíst. Otevři ji znovu s připojením, pak je uvidíš a půjde je odškrtat.',
   'tours.walk.progress': 'Navštíveno {visited} z {total}',
   'tours.walk.visit.visited': 'Navštíveno',
   'tours.walk.visit.skip': 'Přeskočit',
@@ -504,7 +506,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isVisited': 'Navštíveno v tento den',
   'tours.walk.visit.isSkipped': 'Přeskočeno v tento den',
   'tours.walk.visit.fromDay': 'Otevři procházku ze dne v plánu, abys mohl odškrtat zastávky pro ten den.',
-  'tours.walk.visit.failed': 'Zastávku se nepodařilo označit. Je potřeba připojení; zkus to za chvíli znovu.',
+  'tours.walk.visit.failed': 'Zastávku se nepodařilo označit. Otevři procházku znovu a zkus to ještě jednou.',
+  'tours.walk.visit.notSynced':
+    'Tato procházka byla přidána ke dni offline. Zastávky půjde odškrtat, jakmile se synchronizuje.',
   'tours.walk.themes': 'Téma procházky',
   'tours.walk.theme.culture': 'Kultura a historie',
   'tours.walk.theme.parks': 'Parky a výhledy',

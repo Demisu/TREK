@@ -491,6 +491,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': '計算値',
   'tours.walk.stations': '立ち寄り先',
   'tours.walk.stationNumbered': '立ち寄り先 {number}',
+  'tours.walk.stationsUnread':
+    'この街歩きの立ち寄り先を読み込めませんでした。オンラインの状態で開き直すと、表示してチェックできます。',
   'tours.walk.progress': '{total} 件中 {visited} 件訪問済み',
   'tours.walk.visit.visited': '訪問済み',
   'tours.walk.visit.skip': 'スキップ',
@@ -498,8 +500,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isVisited': 'この日に訪問済み',
   'tours.walk.visit.isSkipped': 'この日はスキップ',
   'tours.walk.visit.fromDay': '計画の日から開くと、その日の立ち寄り先をチェックできます。',
-  'tours.walk.visit.failed':
-    '立ち寄り先をチェックできませんでした。接続が必要です。少ししてからもう一度お試しください。',
+  'tours.walk.visit.failed': '立ち寄り先をチェックできませんでした。街歩きを開き直して、もう一度お試しください。',
+  'tours.walk.visit.notSynced':
+    'この街歩きはオフラインでこの日に追加されました。同期が済むと立ち寄り先をチェックできます。',
   'tours.walk.themes': '散策のテーマ',
   'tours.walk.theme.culture': '文化と歴史',
   'tours.walk.theme.parks': '公園と眺望',

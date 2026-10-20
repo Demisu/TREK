@@ -515,6 +515,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Υπολογισμένο',
   'tours.walk.stations': 'Στάσεις της βόλτας',
   'tours.walk.stationNumbered': 'Στάση {number}',
+  'tours.walk.stationsUnread':
+    'Δεν φορτώθηκαν οι στάσεις αυτής της βόλτας. Άνοιξέ την ξανά με σύνδεση για να τις δεις και να τις τσεκάρεις.',
   'tours.walk.progress': '{visited} από {total} επισκέψεις',
   'tours.walk.visit.visited': 'Επισκέφθηκα',
   'tours.walk.visit.skip': 'Παράλειψη',
@@ -522,7 +524,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isVisited': 'Επισκέφθηκε αυτή τη μέρα',
   'tours.walk.visit.isSkipped': 'Παραλείφθηκε αυτή τη μέρα',
   'tours.walk.visit.fromDay': 'Άνοιξε τη βόλτα από μια μέρα του πλάνου για να τσεκάρεις τις στάσεις εκείνης της μέρας.',
-  'tours.walk.visit.failed': 'Η στάση δεν σημειώθηκε. Χρειάζεται σύνδεση· δοκίμασε ξανά σε λίγο.',
+  'tours.walk.visit.failed': 'Η στάση δεν σημειώθηκε. Άνοιξε ξανά τη βόλτα και δοκίμασε άλλη μία φορά.',
+  'tours.walk.visit.notSynced':
+    'Αυτή η βόλτα μπήκε στη μέρα χωρίς σύνδεση. Οι στάσεις της τσεκάρονται μόλις συγχρονιστεί.',
   'tours.walk.themes': 'Θέμα βόλτας',
   'tours.walk.theme.culture': 'Πολιτισμός και ιστορία',
   'tours.walk.theme.parks': 'Πάρκα και θέα',

@@ -501,6 +501,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Hesaplanan',
   'tours.walk.stations': 'Yürüyüşün durakları',
   'tours.walk.stationNumbered': 'Durak {number}',
+  'tours.walk.stationsUnread':
+    'Bu yürüyüşün durakları yüklenemedi. Görmek ve işaretlemek için yürüyüşü bağlantı varken yeniden aç.',
   'tours.walk.progress': '{total} duraktan {visited} ziyaret edildi',
   'tours.walk.visit.visited': 'Ziyaret edildi',
   'tours.walk.visit.skip': 'Atla',
@@ -508,7 +510,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isVisited': 'Bu gün ziyaret edildi',
   'tours.walk.visit.isSkipped': 'Bu gün atlandı',
   'tours.walk.visit.fromDay': 'Duraklarını o gün için işaretlemek için yürüyüşü plandaki bir günden aç.',
-  'tours.walk.visit.failed': 'Durak işaretlenemedi. Bunun için bağlantı gerekir; birazdan yeniden dene.',
+  'tours.walk.visit.failed': 'Durak işaretlenemedi. Yürüyüşü yeniden aç ve bir kez daha dene.',
+  'tours.walk.visit.notSynced':
+    'Bu yürüyüş güne çevrimdışıyken eklendi. Durakları eşitlendikten sonra işaretlenebilir.',
   'tours.walk.themes': 'Yürüyüş teması',
   'tours.walk.theme.culture': 'Kültür ve tarih',
   'tours.walk.theme.parks': 'Parklar ve manzaralar',

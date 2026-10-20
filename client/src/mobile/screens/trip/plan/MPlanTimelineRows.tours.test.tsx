@@ -3,6 +3,7 @@ import en from '@trek/shared/i18n/en';
 import { describe, expect, it, vi } from 'vitest';
 import { buildAssignment, buildPlace } from '../../../../../tests/helpers/factories';
 import { fireEvent, render, screen } from '../../../../../tests/helpers/render';
+import { useTourVisitStore } from '../../../../store/tourVisitStore';
 import { PlaceRow } from './MPlanTimelineRows';
 
 const place = buildPlace({ id: 42, name: 'Ridge', route_geometry: '[[48,11],[49,12]]' });
@@ -55,5 +56,26 @@ describe('RC-01 mobile PLAN Tour rows', () => {
     expect(screen.getByText('Ridge')).toBeInTheDocument();
     expect(screen.queryByTestId('plan-tour-icon')).not.toBeInTheDocument();
     expect(screen.queryByTestId('plan-tour-facts')).not.toBeInTheDocument();
+  });
+
+  it("CW-03: a city walk's row shows the stops visited on its own day, a tap not opening the row", () => {
+    useTourVisitStore.setState({
+      tripId: '1',
+      byAssignment: { 9: { 'stop-01': 'visited', 'stop-02': 'visited' }, 10: { 'stop-03': 'visited' } },
+    });
+    const onOpen = vi.fn();
+    const walk: TourListItem = { ...tour, tour_type: 'walk', max_hiking_difficulty: null, station_count: 5 };
+    render(<PlaceRow {...props} tour={walk} onOpen={onOpen} />);
+    const progress = screen.getByTestId('plan-walk-progress');
+    expect(progress).toHaveTextContent('2/5');
+    fireEvent.click(progress);
+    expect(screen.getByRole('note')).toHaveTextContent('2 of 5 visited');
+    expect(onOpen).not.toHaveBeenCalled();
+  });
+
+  it('CW-03: a hike on a day with marks shows no progress', () => {
+    useTourVisitStore.setState({ tripId: '1', byAssignment: { 9: { 'stop-01': 'visited' } } });
+    render(<PlaceRow {...props} tour={tour} />);
+    expect(screen.queryByTestId('plan-walk-progress')).not.toBeInTheDocument();
   });
 });

@@ -14,8 +14,9 @@ import { getOfflinePrefs } from './offlinePrefs'
 import { randomId } from '../utils/randomId'
 import type { QueuedMutation } from '../db/offlineDb'
 import type { Table } from 'dexie'
-import { roadtripPreferencesResponseSchema, assignmentSchema, tourCreateResponseSchema, type TourCreateResponse } from '@trek/shared'
+import { roadtripPreferencesResponseSchema, assignmentSchema, tourCreateResponseSchema, tourVisitListResponseSchema, type TourCreateResponse } from '@trek/shared'
 import { cacheAssignment } from '../db/cacheAssignment'
+import { replaceAssignmentVisits } from '../db/cacheTourVisits'
 import type { Assignment, AssignmentParticipant, BudgetItem, BudgetItemMember, Day, DayNote, Reservation, Trip, TripFile } from '../types'
 
 // Map Dexie table names used in `resource` field → actual Dexie tables.
@@ -237,9 +238,13 @@ const TEMP_REF_FIELDS = ['place_id', 'reservation_id', 'accommodation_id'] as co
 // booking creates alongside names its place.
 const TEMP_REF_OBJECTS = ['create_accommodation'] as const
 // Resources whose writes carry no version token (see the 409 branch of the flush).
-const UNVERSIONED_RESOURCES = new Set(['assignments', 'days', 'dayNotes'])
+const UNVERSIONED_RESOURCES = new Set(['assignments', 'days', 'dayNotes', 'tourStationVisits'])
 // A new order of a day's visits can name visits created offline.
 const TEMP_REF_LISTS = ['orderedIds'] as const
+// The 404s of a walk's mark that name a part of it that is gone: the trip, the
+// day, the walk or the stop (TripAccessGuard, TourVisitsService). Any other 404,
+// the Tours addon turned off among them, fails like any other refusal.
+const GONE_WALK_PARTS = new Set(['Trip not found', 'Assignment not found', 'City walk not found', 'Station not found'])
 
 /**
  * The body with every link to an offline-created entity pointed at the real id
@@ -405,13 +410,38 @@ async function reconcileDayNote(mutation: QueuedMutation, data: unknown, idMap: 
   if (mutation.tempId !== undefined && mutation.tempId !== note.id) await remapTempId(mutation, note.id, idMap)
 }
 
-/** Visits, days, day notes and the trip itself, each from the answer its route gives. */
+/**
+ * A replayed mark of a city walk's stop (CW-03): the day's visits as the server
+ * answers them. An answer that does not read as one is left alone rather than
+ * holding the queue up; the next read of the trip fetches them again.
+ */
+async function reconcileStationVisits(mutation: QueuedMutation, data: unknown, assignmentId: number | undefined): Promise<void> {
+  const answer = tourVisitListResponseSchema.safeParse(data)
+  if (!answer.success || assignmentId === undefined) return
+  await replaceAssignmentVisits(mutation.tripId, assignmentId, answer.data.visits)
+}
+
+/**
+ * A 404 that means the write did what it set out to do: a DELETE of something
+ * the server no longer has, or a mark of a walk's stop whose stop, day, walk or
+ * trip is gone, since its visits went with it.
+ */
+function doneByNotFound(mutation: QueuedMutation, err: unknown): boolean {
+  if (mutation.method === 'DELETE') return true
+  if (mutation.resource !== 'tourStationVisits') return false
+  // Called on a 404 only, so the server answered.
+  const reason = (err as { response: { data?: { error?: unknown } } }).response.data?.error
+  return typeof reason === 'string' && GONE_WALK_PARTS.has(reason)
+}
+
+/** Visits, days, day notes, the trip itself and a walk's marks, each from the answer its route gives. */
 async function reconcilePlanWrite(mutation: QueuedMutation, data: unknown, entityId: number | undefined, idMap: Map<number, number>): Promise<void> {
   if (mutation.method === 'DELETE') return
   if (mutation.resource === 'assignments') await reconcileAssignment(mutation, data, entityId, idMap)
   else if (mutation.resource === 'days') await reconcileDay(data)
   else if (mutation.resource === 'dayNotes') await reconcileDayNote(mutation, data, idMap)
   else if (mutation.resource === 'trips') await reconcileTrip(data)
+  else if (mutation.resource === 'tourStationVisits') await reconcileStationVisits(mutation, data, entityId)
 }
 
 /**
@@ -463,10 +493,10 @@ export const mutationQueue = {
    * parked as failed or waiting as a conflict: sent straight to the server the
    * new write would land first, and Try again or the next flush would replay
    * the older one over it. Queued, it waits behind the older write and keeps
-   * the order the user made them in. The repos of visits, a day's visits, tours
-   * and the driving settings ask this, because those writes carry no version
-   * token; a place or packing item sends one, so the server refuses the older
-   * write (409) and it becomes a conflict instead.
+   * the order the user made them in. The repos of visits, a day's visits, tours,
+   * a walk's marks and the driving settings ask this, because those writes
+   * carry no version token; a place or packing item sends one, so the server
+   * refuses the older write (409) and it becomes a conflict instead.
    */
   async mustQueue(resource: string, entityId: number): Promise<boolean> {
     if (isEffectivelyOffline()) return true
@@ -493,7 +523,8 @@ export const mutationQueue = {
   /**
    * Drain the queue: replay each pending mutation against the server in FIFO order.
    * Stops on the first network error (retried on the next trigger). 4xx answers
-   * are marked failed and skipped; a DELETE answered 404 counts as done. A 5xx
+   * are marked failed and skipped; a DELETE answered 404 counts as done, and so
+   * does a mark of a walk's stop whose stop, day or walk is gone. A 5xx
    * holds back only its own trip, retried with growing gaps, and is parked as
    * failed once it has failed MAX_SERVER_ERROR_ATTEMPTS times. A write parked as
    * failed or as a conflict holds back the later writes to the same entity, so
@@ -708,7 +739,10 @@ export const mutationQueue = {
 
           // A DELETE of something the server no longer has did what it set out
           // to do. Reporting it as a failed sync would flag a change that worked.
-          if (httpStatus === 404 && mutation.method === 'DELETE') {
+          // So did a mark of a walk's stop whose stop, day or walk is gone:
+          // parked as failed, it would hold back every later mark of that day
+          // for nothing.
+          if (httpStatus === 404 && doneByNotFound(mutation, err)) {
             if (mutation.resource && reqEntityId !== undefined) {
               const table = getTable(mutation.resource)
               if (table) await table.delete(reqEntityId)
@@ -722,9 +756,9 @@ export const mutationQueue = {
           // the user's strategy instead of failing it. Deliberately scoped to
           // edits: an offline DELETE is "delete wins" by design (no CAS on the
           // delete path), so it never reaches here. See the wiki Offline doc.
-          // Visits, days and day notes carry no version, so a 409 there is a
-          // refusal (a Tour already on that day) that no retry can change, and
-          // it fails like any other 4xx.
+          // Visits, days, day notes and a walk's marks carry no version, so a
+          // 409 there is a refusal (a Tour already on that day) that no retry
+          // can change, and it fails like any other 4xx.
           if (httpStatus === 409 && mutation.method !== 'DELETE' && !UNVERSIONED_RESOURCES.has(mutation.resource ?? '')) {
             const server = extractConflictServer(err)
             const strategy = getOfflinePrefs().conflictStrategy

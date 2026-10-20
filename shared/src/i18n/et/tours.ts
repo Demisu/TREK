@@ -500,6 +500,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Arvutatud',
   'tours.walk.stations': 'Jalutuse peatused',
   'tours.walk.stationNumbered': 'Peatus {number}',
+  'tours.walk.stationsUnread':
+    'Selle jalutuse peatusi ei õnnestunud laadida. Ava jalutus uuesti võrguühendusega, et neid näha ja ära märkida.',
   'tours.walk.progress': '{visited} / {total} külastatud',
   'tours.walk.visit.visited': 'Külastatud',
   'tours.walk.visit.skip': 'Jäta vahele',
@@ -507,7 +509,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isVisited': 'Sel päeval külastatud',
   'tours.walk.visit.isSkipped': 'Sel päeval vahele jäetud',
   'tours.walk.visit.fromDay': 'Ava jalutus plaani päevast, et selle päeva peatused ära märkida.',
-  'tours.walk.visit.failed': 'Peatust ei õnnestunud märkida. Selleks on vaja ühendust; proovi kohe uuesti.',
+  'tours.walk.visit.failed': 'Peatust ei õnnestunud märkida. Ava jalutus uuesti ja proovi veel kord.',
+  'tours.walk.visit.notSynced':
+    'See jalutus lisati päevale võrguühenduseta. Selle peatusi saab ära märkida, kui see on sünkroonitud.',
   'tours.walk.themes': 'Jalutuse teema',
   'tours.walk.theme.culture': 'Kultuur ja ajalugu',
   'tours.walk.theme.parks': 'Pargid ja vaated',

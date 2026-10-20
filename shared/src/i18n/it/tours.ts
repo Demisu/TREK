@@ -506,6 +506,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Calcolato',
   'tours.walk.stations': 'Tappe del percorso',
   'tours.walk.stationNumbered': 'Tappa {number}',
+  'tours.walk.stationsUnread':
+    'Non è stato possibile caricare le tappe di questo percorso. Riaprilo con una connessione per vederle e spuntarle.',
   'tours.walk.progress': '{visited} su {total} visitate',
   'tours.walk.visit.visited': 'Visitata',
   'tours.walk.visit.skip': 'Salta',
@@ -513,7 +515,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isVisited': 'Visitata in questo giorno',
   'tours.walk.visit.isSkipped': 'Saltata in questo giorno',
   'tours.walk.visit.fromDay': 'Apri il percorso da un giorno del piano per spuntare le tappe di quel giorno.',
-  'tours.walk.visit.failed': 'Non è stato possibile segnare la tappa. Serve una connessione; riprova tra poco.',
+  'tours.walk.visit.failed': 'Non è stato possibile segnare la tappa. Riapri il percorso e riprova.',
+  'tours.walk.visit.notSynced':
+    'Questo percorso è stato aggiunto al giorno offline. Potrai spuntarne le tappe appena sarà sincronizzato.',
   'tours.walk.themes': 'Tema del percorso',
   'tours.walk.theme.culture': 'Cultura e storia',
   'tours.walk.theme.parks': 'Parchi e panorami',

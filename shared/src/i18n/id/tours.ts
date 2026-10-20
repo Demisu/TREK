@@ -499,6 +499,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Dihitung',
   'tours.walk.stations': 'Titik singgah rute',
   'tours.walk.stationNumbered': 'Titik {number}',
+  'tours.walk.stationsUnread':
+    'Titik singgah rute ini tidak dapat dimuat. Buka lagi saat online untuk melihat dan mencentangnya.',
   'tours.walk.progress': '{visited} dari {total} dikunjungi',
   'tours.walk.visit.visited': 'Sudah dikunjungi',
   'tours.walk.visit.skip': 'Lewati',
@@ -506,7 +508,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isVisited': 'Dikunjungi pada hari ini',
   'tours.walk.visit.isSkipped': 'Dilewati pada hari ini',
   'tours.walk.visit.fromDay': 'Buka rute dari salah satu hari di rencana untuk mencentang titiknya pada hari itu.',
-  'tours.walk.visit.failed': 'Titik tidak dapat ditandai. Perlu koneksi; coba lagi sebentar lagi.',
+  'tours.walk.visit.failed': 'Titik tidak dapat ditandai. Buka rute ini lagi lalu coba sekali lagi.',
+  'tours.walk.visit.notSynced':
+    'Rute ini ditambahkan ke hari itu saat offline. Titiknya bisa dicentang setelah tersinkron.',
   'tours.walk.themes': 'Tema rute',
   'tours.walk.theme.culture': 'Budaya dan sejarah',
   'tours.walk.theme.parks': 'Taman dan pemandangan',

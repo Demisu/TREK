@@ -200,7 +200,7 @@ export function PlaceRow({ assignment, fullPlace, tour, linkedReservations, chro
             </span>
           )}
         </div>
-        {tour && <div className="mt-[2px]"><TourDayRowFacts tour={tour} mobile /></div>}
+        {tour && <div className="mt-[2px]"><TourDayRowFacts tour={tour} assignmentId={assignment.id} mobile /></div>}
         {(time || sub) && (
           <div className="mt-[2px] flex min-w-0 items-center gap-1.5">
             {time && <span className={TIME_CHIP}>{time}</span>}

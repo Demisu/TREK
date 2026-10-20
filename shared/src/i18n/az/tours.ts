@@ -500,6 +500,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Hesablanmış',
   'tours.walk.stations': 'Gəzintinin dayanacaqları',
   'tours.walk.stationNumbered': 'Dayanacaq {number}',
+  'tours.walk.stationsUnread':
+    'Bu gəzintinin dayanacaqları yüklənə bilmədi. Onları görmək və qeyd etmək üçün gəzintini internet bağlantısı ilə yenidən aç.',
   'tours.walk.progress': '{total} dayanacaqdan {visited} ziyarət edildi',
   'tours.walk.visit.visited': 'Ziyarət edildi',
   'tours.walk.visit.skip': 'Keç',
@@ -507,7 +509,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isVisited': 'Bu gün ziyarət edildi',
   'tours.walk.visit.isSkipped': 'Bu gün keçildi',
   'tours.walk.visit.fromDay': 'Dayanacaqları o gün üçün qeyd etmək üçün gəzintini plandakı bir gündən aç.',
-  'tours.walk.visit.failed': 'Dayanacaq qeyd edilə bilmədi. Bunun üçün bağlantı lazımdır; bir azdan yenidən cəhd et.',
+  'tours.walk.visit.failed': 'Dayanacaq qeyd edilə bilmədi. Gəzintini yenidən aç və bir daha cəhd et.',
+  'tours.walk.visit.notSynced':
+    'Bu gəzinti günə oflayn əlavə edilib. Sinxronlaşdıqdan sonra dayanacaqlarını qeyd etmək olar.',
   'tours.walk.themes': 'Gəzinti mövzusu',
   'tours.walk.theme.culture': 'Mədəniyyət və tarix',
   'tours.walk.theme.parks': 'Parklar və mənzərələr',

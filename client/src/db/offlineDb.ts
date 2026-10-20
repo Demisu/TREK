@@ -1,4 +1,4 @@
-import type { Ferrata, RoadtripPreferences, TourListItem, TourObstacleCheck, TourProvenance, TourWaypoint } from '@trek/shared';
+import type { Ferrata, RoadtripPreferences, TourListItem, TourObstacleCheck, TourProvenance, TourVisit, TourWaypoint } from '@trek/shared';
 import Dexie, { type Table } from 'dexie';
 import type { Trip, Day, Place, PackingItem, TodoItem, BudgetItem, Reservation, TripFile, Accommodation, TripMember, Tag, Category } from '../types';
 
@@ -44,6 +44,16 @@ interface CachedFerrataTile {
   tile: string;
   fetchedAt: number;
   ferratas: Ferrata[];
+}
+
+/**
+ * CW-03: a station of a city walk visited or skipped on one of its days, as the
+ * server last said, with the trip it belongs to so it drops with the trip. A
+ * mark made offline is not written here: it waits in the queue, and every read
+ * lays it over these rows (see repo/tourVisitRepo).
+ */
+export interface CachedTourStationVisit extends TourVisit {
+  trip_id: number;
 }
 
 // ── Queue + sync types ────────────────────────────────────────────────────────
@@ -253,6 +263,7 @@ export class TrekOfflineDb extends Dexie {
   tours!: Table<CachedTour, number>;
   budgetSettlements!: Table<CachedBudgetSettlement, number>;
   ferrataTiles!: Table<CachedFerrataTile, [number, string]>;
+  tourStationVisits!: Table<CachedTourStationVisit, [number, string]>;
 
   constructor(name: string = ANON_DB_NAME) {
     super(name);
@@ -331,6 +342,11 @@ export class TrekOfflineDb extends Dexie {
     // v11: the via ferrata layer's loaded tiles, per trip, so the lines draw at
     // once and offline; `tripId` so they drop with the trip.
     this.version(11).stores({ ferrataTiles: '[tripId+tile], tripId, fetchedAt' });
+
+    // v12: the visits of the city walks, one row per station and day, so a
+    // walk's stops read as checked off offline; `trip_id` so they drop with the
+    // trip, `assignment_id` so one day's visits are replaced at once.
+    this.version(12).stores({ tourStationVisits: '[assignment_id+station_key], trip_id, assignment_id' });
   }
 }
 
@@ -620,6 +636,7 @@ export async function clearTripData(tripId: number): Promise<void> {
       offlineDb.tours,
       offlineDb.budgetSettlements,
       offlineDb.ferrataTiles,
+      offlineDb.tourStationVisits,
     ],
     async () => {
       await offlineDb.roadtripPreferences.delete(tripId);
@@ -633,6 +650,7 @@ export async function clearTripData(tripId: number): Promise<void> {
       await offlineDb.tripFiles.where('trip_id').equals(tripId).delete();
       await offlineDb.accommodations.where('trip_id').equals(tripId).delete();
       await offlineDb.tours.where('trip_id').equals(tripId).delete();
+      await offlineDb.tourStationVisits.where('trip_id').equals(tripId).delete();
       await offlineDb.tripMembers.where('tripId').equals(tripId).delete();
       await offlineDb.syncMeta.where('tripId').equals(tripId).delete();
       await offlineDb.blobCache.where('tripId').equals(tripId).delete();

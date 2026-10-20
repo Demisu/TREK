@@ -1,5 +1,5 @@
 import type { TourListItem } from '@trek/shared';
-import { ArrowUp, Clock, Pause, Ruler, type LucideIcon } from 'lucide-react';
+import { ArrowUp, CheckCheck, Clock, Pause, Ruler, type LucideIcon } from 'lucide-react';
 import { createElement, useId, useState } from 'react';
 import { useTranslation } from '../../i18n';
 import { useSettingsStore } from '../../store/settingsStore';
@@ -11,6 +11,7 @@ import { paddleCheckFact } from './paddle/paddleCheckModel';
 import { tourDayRowIcon } from './tourDayRowIcon';
 import { movingTimeLabel } from './tourFacts';
 import { formatPlannedTourDuration, plannedTotalText, tourPlannedTimes } from './tourPresentation';
+import { useWalkProgress } from './walk/walkProgress';
 import { walkStaysText } from './walk/walkTimeFields';
 
 export function TourDayRowIcon({ type, size = 27 }: { type: string; size?: number }) {
@@ -206,9 +207,19 @@ export function TourDayRowPills({ tour, compact = false }: { tour: TourListItem;
   return <>{tour.tour_type === 'kayak' ? [time, bench, distance] : [time, distance, ascent]}</>;
 }
 
-export default function TourDayRowFacts({ tour, mobile = false }: { tour: TourListItem; mobile?: boolean }) {
+export default function TourDayRowFacts({
+  tour,
+  assignmentId,
+  mobile = false,
+}: {
+  tour: TourListItem;
+  /** The row's day assignment, for a city walk's progress on that day (CW-03). */
+  assignmentId?: number;
+  mobile?: boolean;
+}) {
   const { t } = useTranslation();
   const unit = useSettingsStore((state) => state.settings.distance_unit) || 'metric';
+  const progress = useWalkProgress(tour, assignmentId);
   const times = tourPlannedTimes(tour);
   const facts: Array<{ icon: LucideIcon; value: string; label: string; testId: string }> = [];
   const add = (icon: LucideIcon, value: string, label: string, testId: string) =>
@@ -246,6 +257,15 @@ export default function TourDayRowFacts({ tour, mobile = false }: { tour: TourLi
       {facts.map((fact) => (
         <Fact key={fact.testId} {...fact} label={`${fact.label}: ${fact.value}`} mobile={mobile} />
       ))}
+      {progress && (
+        <Fact
+          icon={CheckCheck}
+          value={`${progress.visited}/${progress.total}`}
+          label={t('tours.walk.progress', progress)}
+          testId="plan-walk-progress"
+          mobile={mobile}
+        />
+      )}
     </span>
   );
 }

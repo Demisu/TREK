@@ -505,6 +505,8 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Calculado',
   'tours.walk.stations': 'Paradas del paseo',
   'tours.walk.stationNumbered': 'Parada {number}',
+  'tours.walk.stationsUnread':
+    'No se pudieron cargar las paradas de este paseo. Vuelve a abrirlo con conexión para verlas y marcarlas.',
   'tours.walk.progress': '{visited} de {total} visitadas',
   'tours.walk.visit.visited': 'Visitada',
   'tours.walk.visit.skip': 'Omitir',
@@ -512,7 +514,9 @@ const tours: TranslationStrings = {
   'tours.walk.visit.isVisited': 'Visitada este día',
   'tours.walk.visit.isSkipped': 'Omitida este día',
   'tours.walk.visit.fromDay': 'Abre el paseo desde un día del plan para marcar sus paradas de ese día.',
-  'tours.walk.visit.failed': 'No se pudo marcar la parada. Hace falta conexión; inténtalo de nuevo en un momento.',
+  'tours.walk.visit.failed': 'No se pudo marcar la parada. Vuelve a abrir el paseo e inténtalo otra vez.',
+  'tours.walk.visit.notSynced':
+    'Este paseo se añadió al día sin conexión. Podrás marcar sus paradas cuando se haya sincronizado.',
   'tours.walk.themes': 'Tema del paseo',
   'tours.walk.theme.culture': 'Cultura e historia',
   'tours.walk.theme.parks': 'Parques y vistas',

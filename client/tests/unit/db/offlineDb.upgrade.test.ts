@@ -54,6 +54,7 @@ const HISTORY: Record<number, StoreSpec> = {
   9: { tours: 'place_id, trip_id' },
   10: { budgetSettlements: 'tripId' },
   11: { ferrataTiles: '[tripId+tile], tripId, fetchedAt' },
+  12: { tourStationVisits: '[assignment_id+station_key], trip_id, assignment_id' },
 };
 
 const HISTORY_VERSIONS = Object.keys(HISTORY)
@@ -132,6 +133,7 @@ function rowsAt(version: number): Record<string, Record<string, unknown>> {
     tours: { place_id: 21, trip_id: 1, name: 'Old town loop', distance: 4200 },
     budgetSettlements: { tripId: 1, base: 'EUR', settlement: { balances: [], flows: [] } },
     ferrataTiles: { tripId: 1, tile: '930:236', fetchedAt: 11, ferratas: [] },
+    tourStationVisits: { assignment_id: 71, station_key: 'stop-01', status: 'visited', trip_id: 1 },
   };
   const tables = schemaAt(version);
   return Object.fromEntries(Object.entries(all).filter(([table]) => table in tables));
@@ -306,6 +308,22 @@ const UPGRADE_CASES: Record<number, UpgradeCase> = {
       expect(await db.ferrataTiles.where('tripId').equals(3).count()).toBe(2);
       expect(await db.ferrataTiles.get([4, '930:236'])).toMatchObject({ fetchedAt: 7 });
       expect(await db.ferrataTiles.where('fetchedAt').below(6).count()).toBe(1);
+    },
+  },
+  12: {
+    intent: 'adds the visits of the city walks per day and keeps the via ferrata tiles',
+    check: async (db) => {
+      expect(await db.ferrataTiles.get([1, '930:236'])).toMatchObject({ fetchedAt: 11 });
+      await db.table('tourStationVisits').bulkPut([
+        { assignment_id: 71, station_key: 'stop-01', status: 'visited', trip_id: 3 },
+        { assignment_id: 71, station_key: 'stop-02', status: 'skipped', trip_id: 3 },
+        // The same station on another day of the walk is its own row.
+        { assignment_id: 72, station_key: 'stop-01', status: 'visited', trip_id: 3 },
+      ]);
+      expect(await db.tourStationVisits.where('trip_id').equals(3).count()).toBe(3);
+      expect(await db.tourStationVisits.where('assignment_id').equals(71).count()).toBe(2);
+      expect(await db.tourStationVisits.get([71, 'stop-01'])).toMatchObject({ status: 'visited' });
+      expect(await db.tourStationVisits.get([72, 'stop-01'])).toMatchObject({ status: 'visited' });
     },
   },
 };
