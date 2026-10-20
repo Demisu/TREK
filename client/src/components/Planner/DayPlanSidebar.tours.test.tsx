@@ -188,6 +188,7 @@ describe('DayPlanSidebar', () => {
       manuallyOverridden: false,
       walk: null,
       atLeast: false,
+      estimate: null,
     };
     const props = makeDefaultProps({
       days: [day],
@@ -322,7 +323,10 @@ describe('DayPlanSidebar', () => {
     render(<DayPlanSidebar {...props} />);
 
     expect(screen.getByTestId('plan-tour-icon').querySelector('.lucide-mountain')).toBeTruthy();
-    expect(screen.queryByTestId('trip-plan-tour-time')).not.toBeInTheDocument();
+    // TIME-01: without a time of its own the import shows its estimate, worked out from its measures.
+    const time = screen.getByTestId('trip-plan-tour-time');
+    expect(time).toHaveTextContent('≈ 2 h 21 min');
+    expect(time).toHaveAccessibleName(expect.stringContaining('Estimated time: 2 h 21 min'));
   });
 
   it('RC-01: a tour row offers no booking, a tour is not booked', () => {

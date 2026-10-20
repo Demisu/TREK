@@ -123,8 +123,10 @@ describe('ToursSidebar', () => {
     expect(metrics).toHaveTextContent('1.9 km')
     expect(metrics).toHaveTextContent('13 m')
     const labels = [...metrics.querySelectorAll('[aria-label]')].map(element => element.getAttribute('aria-label'))
-    expect(labels[0]).toContain('1.9 km')
-    expect(labels[1]).toContain('13 m')
+    // TIME-01: a hike without a time of its own leads with its estimate, then distance and climbing.
+    expect(labels[0]).toMatch(/(Estimated time|Geschätzte Zeit): 30 min/)
+    expect(labels[1]).toContain('1.9 km')
+    expect(labels[2]).toContain('13 m')
     expect(within(row).queryByText('TREK')).not.toBeInTheDocument()
     expect(screen.getByLabelText(/Maximum trail difficulty|Maximale Wanderschwierigkeit|T2/)).toBeInTheDocument()
     const actionRow = row.querySelector('[data-testid="tour-action-row"]')!
