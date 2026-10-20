@@ -23,7 +23,7 @@ interface AddEntry {
 /**
  * LIB-02: the tours rail's one way to add a tour, as a menu: plan a new one
  * (while another is open; with none open the map is already planning one),
- * import GPX files, read a city walk from a Google Maps walking route (CW-07),
+ * import GPX, KML or KMZ files, read a city walk from a Google Maps walking route (CW-07),
  * or take one over from another trip. The walk and the take-over open their
  * dialogs from here. A tour taken over comes into the trip and opens in the
  * editor, unless the editor holds unsaved work; a walk read from Google Maps

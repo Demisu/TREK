@@ -1,7 +1,7 @@
 import type { TourGpxImportFields, TourGpxPreviewResponse, TourImportGpxResponse } from '@trek/shared';
 import { postMultipart } from './client';
 
-/** A GPX file and the fields beside it, as the Tours import routes read a multipart body. */
+/** A GPX, KML or KMZ file and the fields beside it, as the Tours import routes read a multipart body. */
 function gpxForm(file: File, fields?: TourGpxImportFields): FormData {
   const fd = new FormData();
   fd.append('file', file);
@@ -9,7 +9,10 @@ function gpxForm(file: File, fields?: TourGpxImportFields): FormData {
   return fd;
 }
 
-/** The Tours GPX import: a file read for its preview first (PAD-02), then imported as the type chosen. */
+/**
+ * The Tours file import: a GPX, KML or KMZ file (IO-02) read for its preview
+ * first (PAD-02), then imported as the type chosen.
+ */
 export const tourGpxApi = {
   /** What the file holds, read by the import's own parser; nothing is stored. */
   preview: (tripId: number | string, file: File): Promise<TourGpxPreviewResponse> =>

@@ -441,3 +441,43 @@ describe('Tours GPX atomic persistence and postcommit publication', () => {
     expect(broadcast.mock.calls.map((call) => call[1])).toEqual(['tours:changed', 'place:created']);
   });
 });
+
+describe('Tours KML import through the same persistence (IO-02)', () => {
+  const twoLines = Buffer.from(`<kml><Document>
+    <Placemark><name>Coast</name><LineString><coordinates>11,48,0 11.01,48.01,0</coordinates></LineString></Placemark>
+    <Placemark><name>Ridge</name><LineString><altitudeMode>absolute</altitudeMode>
+      <coordinates>12,49,100 12.01,49.01,150</coordinates></LineString></Placemark>
+    <Placemark><name>Hut</name><Point><coordinates>12,49</coordinates></Point></Placemark>
+  </Document></kml>`);
+
+  it('stores each line as a tour of its own, heights only where the file has them', async () => {
+    const result = (await tours.importGpxAsTour(tripId, twoLines, 'alps.kml', 'socket'))!;
+
+    expect(result.tours.map((tour) => [tour.name, tour.origin, tour.elevation_gain])).toEqual([
+      ['Coast', 'gpx', null],
+      ['Ridge', 'gpx', 50],
+    ]);
+    expect(result.caution).toBe(true);
+    expect(await count('places')).toBe(2);
+    expect(await count('tours')).toBe(2);
+  });
+
+  it('rolls every line back when a later one fails, and stores nothing', async () => {
+    testDb.exec(`CREATE TRIGGER fail_place BEFORE INSERT ON places WHEN NEW.name = 'Ridge'
+      BEGIN SELECT RAISE(ABORT, 'place failure'); END;`);
+    await expect(tours.importGpxAsTour(tripId, twoLines, 'alps.kml')).rejects.toThrow('place failure');
+    for (const table of ['places', 'tours', 'tour_waypoints'] as const) expect(await count(table)).toBe(0);
+    expect(broadcast).not.toHaveBeenCalled();
+  });
+
+  it('refuses a broken file before any transaction', async () => {
+    const transactional = vi.spyOn(uow, 'transactional');
+    const broken = Buffer.from('<kml><Placemark></kml>');
+    await expect(tours.importGpxAsTour(tripId, broken, 'broken.kml')).rejects.toMatchObject({
+      code: 'tour_file_unreadable',
+      message: 'Malformed KML: invalid XML structure',
+    });
+    expect(transactional).not.toHaveBeenCalled();
+    expect(await count('places')).toBe(0);
+  });
+});

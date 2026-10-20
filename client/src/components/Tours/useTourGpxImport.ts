@@ -1,21 +1,48 @@
-import type { TourGpxImportFields, TourGpxPreviewTrack, TourListItem } from '@trek/shared';
+import type { TourFileLeftOut, TourGpxImportFields, TourGpxPreviewTrack, TourListItem } from '@trek/shared';
 import { useCallback, useState } from 'react';
 import { useTranslation } from '../../i18n';
 import { tourRepo } from '../../repo/tourRepo';
 import { useTripStore } from '../../store/tripStore';
-import { getApiErrorMessage } from '../../utils/apiError';
+import { getApiErrorCode, getApiErrorMessage } from '../../utils/apiError';
 import { useToast } from '../shared/Toast';
 
 /** The server refuses anything larger; saying so first spares the upload. */
-const MAX_TOUR_GPX_BYTES = 10 * 1024 * 1024;
+const MAX_TOUR_FILE_BYTES = 10 * 1024 * 1024;
+/** The files a tour can be imported from: GPX, and since IO-02 KML and the KMZ archive it comes zipped in. */
+const TOUR_FILE_EXTENSIONS = ['.gpx', '.kml', '.kmz'];
 const NO_TRACK = 'No track or route found in GPX file';
 
-const isGpxFile = (file: Pick<File, 'name'>) => file.name.toLowerCase().endsWith('.gpx');
+const isTourFile = (file: Pick<File, 'name'>) =>
+  TOUR_FILE_EXTENSIONS.some((extension) => file.name.toLowerCase().endsWith(extension));
+
+type Translate = ReturnType<typeof useTranslation>['t'];
+
+/** The toast that names a file the server could not read, by the reason it gave. */
+function fileErrorMessage(error: unknown, name: string, t: Translate): string {
+  switch (getApiErrorCode(error)) {
+    case 'malformed':
+    case 'archive_invalid':
+      return t('tours.import.unreadableIn', { name });
+    case 'archive_without_kml':
+      return t('tours.import.archiveNoKmlIn', { name });
+    case 'archive_too_large':
+      return t('tours.import.archiveTooLargeIn', { name });
+    case 'no_track':
+      return t('tours.import.noTrackIn', { name });
+    default:
+      // A GPX file without a track has always been refused by its message alone.
+      return getApiErrorMessage(error, '') === NO_TRACK
+        ? t('tours.import.noTrackIn', { name })
+        : t('tours.import.errorIn', { name });
+  }
+}
 
 /** One file as its preview read it: every track or route it holds, each as the import would store it. */
 export interface GpxPreviewFile {
   file: File;
   tracks: TourGpxPreviewTrack[];
+  /** What a KML or KMZ file held besides its lines, which no tour is made of; absent for GPX. */
+  leftOut?: TourFileLeftOut;
 }
 
 interface TourGpxImportOptions {
@@ -28,8 +55,9 @@ interface TourGpxImportOptions {
 }
 
 /**
- * The one way a GPX file becomes a tour, whichever control it came through:
- * the import button's file picker or a file dropped onto the tours workspace.
+ * The one way a GPX, KML or KMZ file becomes a tour, whichever control it came
+ * through: the import button's file picker or a file dropped onto the tours
+ * workspace.
  *
  * PAD-02: nothing is stored on choosing a file. Each file is read first and
  * shown (its whole course, what it measures, which tracks the trip already
@@ -45,23 +73,18 @@ export function useTourGpxImport({ tripId, canEdit, onToursChanged, onImported }
   const [preview, setPreview] = useState<GpxPreviewFile[] | null>(null);
 
   const fileError = useCallback(
-    (error: unknown, file: File) =>
-      toast.error(
-        getApiErrorMessage(error, '') === NO_TRACK
-          ? t('tours.import.noTrackIn', { name: file.name })
-          : t('tours.import.errorIn', { name: file.name })
-      ),
+    (error: unknown, file: File) => toast.error(fileErrorMessage(error, file.name, t)),
     [t, toast]
   );
 
   const importFiles = useCallback(
     async (files: readonly File[]) => {
       if (!canEdit || files.length === 0 || importing || preview) return;
-      const gpx = files.filter(isGpxFile);
-      if (gpx.length < files.length) toast.error(t('tours.import.unsupported'));
-      const fitting = gpx.filter((file) => file.size <= MAX_TOUR_GPX_BYTES);
-      if (fitting.length < gpx.length)
-        toast.error(t('places.importFileTooLarge', { maxMb: MAX_TOUR_GPX_BYTES / 1024 / 1024 }));
+      const supported = files.filter(isTourFile);
+      if (supported.length < files.length) toast.error(t('tours.import.unsupported'));
+      const fitting = supported.filter((file) => file.size <= MAX_TOUR_FILE_BYTES);
+      if (fitting.length < supported.length)
+        toast.error(t('places.importFileTooLarge', { maxMb: MAX_TOUR_FILE_BYTES / 1024 / 1024 }));
       if (fitting.length === 0) return;
 
       setImporting(true);
@@ -69,7 +92,8 @@ export function useTourGpxImport({ tripId, canEdit, onToursChanged, onImported }
       try {
         for (const file of fitting) {
           try {
-            read.push({ file, tracks: (await tourRepo.previewGpx(tripId, file)).tracks });
+            const preview = await tourRepo.previewGpx(tripId, file);
+            read.push({ file, tracks: preview.tracks, leftOut: preview.left_out });
           } catch (error: unknown) {
             fileError(error, file);
           }
@@ -134,7 +158,7 @@ export function useTourGpxImport({ tripId, canEdit, onToursChanged, onImported }
     if (!canEdit || importing || preview) return;
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.gpx';
+    input.accept = TOUR_FILE_EXTENSIONS.join(',');
     input.multiple = true;
     input.addEventListener('change', () => void importFiles(Array.from(input.files ?? [])), { once: true });
     input.click();

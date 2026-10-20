@@ -54,7 +54,7 @@ describe('TourAddMenu (LIB-02)', () => {
     expect(button).toHaveAttribute('aria-expanded', 'true');
     expect(entries().map((entry) => entry.textContent)).toEqual([
       'Plan new tour',
-      'Import GPX',
+      'Import GPX or KML',
       'Import walk from Google Maps',
       'Take over a tour from another trip',
     ]);
@@ -69,7 +69,7 @@ describe('TourAddMenu (LIB-02)', () => {
     expect(p.startNewTour).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole('group')).toBeNull();
     open();
-    fireEvent.click(screen.getByText('Import GPX'));
+    fireEvent.click(screen.getByText('Import GPX or KML'));
     expect(gpx.pick).toHaveBeenCalledTimes(1);
     open();
     fireEvent.click(screen.getByText('Take over a tour from another trip'));
@@ -80,7 +80,7 @@ describe('TourAddMenu (LIB-02)', () => {
     render(<TourAddMenu planner={planner('neutral')} gpxImport={gpxImport()} onTakenOver={vi.fn()} disabled={false} />);
     open();
     expect(entries().map((entry) => entry.textContent)).toEqual([
-      'Import GPX',
+      'Import GPX or KML',
       'Import walk from Google Maps',
       'Take over a tour from another trip',
     ]);

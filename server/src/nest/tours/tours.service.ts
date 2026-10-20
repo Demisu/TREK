@@ -30,6 +30,7 @@ import { UnitOfWork } from '../database/unit-of-work';
 import { PlaceImportService } from '../place-import/place-import.service';
 import { PlacesService } from '../places/places.service';
 import { activityFacts, toActivity, trackTimesFor } from './tour-activities.helpers';
+import { readTourFile } from './tour-file-import.helpers';
 import { TourPaddleCheckService } from './tour-paddle-check.service';
 import { advanceTourRevision } from './tour-revision';
 import { toVisit } from './tour-visits.service';
@@ -88,7 +89,7 @@ export interface ImportGpxAsTourResult {
 /**
  * Tours domain: the `tours` facet table (place_id PK/FK) carries tour-specific
  * metadata while existing places and day assignments are reused.
- * GPX parsing goes through PlaceImportService.readGpx, persistence through
+ * A GPX, KML or KMZ file is read through PlaceImportService (readTourFile), persistence goes through
  * PlacesService.importPreparedGpx. Places and facet rows are persisted in one transaction,
  * with tour metrics derived from each place's route_geometry.
  */
@@ -949,10 +950,11 @@ export class ToursService {
   }
 
   /**
-   * The tours-mode GPX import reads rows through PlaceImportService.readGpx
-   * with waypoints excluded. PlacesService.importPreparedGpx persists the places
-   * in the same transaction as their `tours` facet rows, whose metrics are
-   * derived from route_geometry.
+   * The tours-mode file import reads rows through readTourFile: a GPX file's
+   * tracks and routes with its waypoints excluded, a KML or KMZ file's lines
+   * (IO-02). PlacesService.importPreparedGpx persists the places in the same
+   * transaction as their `tours` facet rows, whose metrics are derived from
+   * route_geometry, so a failure leaves no tour half stored.
    *
    * Missing or implausible metrics do not block import:
    * a track without elevation still imports, just flagged with a low
@@ -965,7 +967,7 @@ export class ToursService {
     socketId?: string,
     fields: TourGpxImportFields = HIKE_IMPORT,
   ): Promise<ImportGpxAsTourResult | null> {
-    const rows = this.readGpxTracks(fileBuffer, fileName);
+    const { rows } = await readTourFile(this.placeImport, fileBuffer, fileName);
     if (rows.length === 0) return null;
     await this.assertTourTypeEnabled(fields.tour_type);
     // What the type adds to each imported tour: a bike tour and a run their profile, a paddle tour its boat and water,
@@ -1004,7 +1006,7 @@ export class ToursService {
           match_confidence: matchConfidence,
           max_hiking_difficulty: null,
           origin: 'gpx',
-          origin_file_name: gpxFileName(fileName),
+          origin_file_name: importFileName(fileName),
           track_started_at: recorded?.started ?? null,
           track_ended_at: recorded?.ended ?? null,
         });
@@ -1063,12 +1065,13 @@ export class ToursService {
   }
 
   /**
-   * PAD-02: what a GPX file would import, read with the import's own parser
-   * and duplicate rule and written nowhere. Null when the file holds no track
-   * or route, the import's own refusal.
+   * PAD-02: what a file would import, read with the import's own parser and
+   * duplicate rule and written nowhere. Null when the file holds no track or
+   * route, the import's own refusal. A KML or KMZ file also says what it holds
+   * besides its lines (IO-02).
    */
   async previewGpx(tripId: string, fileBuffer: Buffer, fileName?: string): Promise<TourGpxPreviewResponse | null> {
-    const rows = this.readGpxTracks(fileBuffer, fileName);
+    const { rows, leftOut } = await readTourFile(this.placeImport, fileBuffer, fileName);
     if (rows.length === 0) return null;
     const duplicates = await this.places.gpxDuplicates(tripId, rows);
     return {
@@ -1087,17 +1090,8 @@ export class ToursService {
           duplicate: duplicates[index] ?? false,
         };
       }),
+      ...(leftOut ? { left_out: leftOut } : {}),
     };
-  }
-
-  /** The tracks and routes of a GPX file, never its loose waypoints: the reading every Tours import shares. */
-  private readGpxTracks(fileBuffer: Buffer, fileName?: string) {
-    return this.placeImport.readGpx(fileBuffer, {
-      importWaypoints: false,
-      importRoutes: true,
-      importTracks: true,
-      defaultName: fileName,
-    });
   }
 }
 
@@ -1107,8 +1101,8 @@ function firstPointOf(points: readonly { lat: number; lng: number }[]): [number,
   return point ? [point.lat, point.lng] : undefined;
 }
 
-/** The file name a GPX import keeps: the name as uploaded, without a path, cut to what the column shows. */
-function gpxFileName(name: string | undefined): string | null {
+/** The file name a file import keeps: the name as uploaded, without a path, cut to what the column shows. */
+function importFileName(name: string | undefined): string | null {
   const base = name?.split('/').pop()?.trim();
   return base ? base.slice(0, 255) : null;
 }

@@ -1,3 +1,4 @@
+import { createGeometryNamer } from '../geometry-names';
 import { coord, gpxGeometryParser, writeGpx } from '../gpx.codec';
 import type { GpxImportOptions, PreparedGpxPlace } from '../place-import.types';
 import { Injectable } from '@nestjs/common';
@@ -249,19 +250,7 @@ function prepareGpxRows(fileBuffer: Buffer, opts: GpxImportOptions = {}): Prepar
     return Number.isNaN(n) ? null : n;
   };
 
-  // Routes and tracks rarely carry their own <name>. Without one they all fall back to the
-  // same generic label, so name-based dedup drops every import after the first. Derive a
-  // base from the source filename (the requested behaviour) and suffix an index so multiple
-  // geometries from one file stay distinct.
-  const rawName = str(defaultName);
-  const baseName = rawName ? rawName.replace(/\.[^.]+$/, '').trim() || rawName : null;
-  let geoSeq = 0;
-  const geoName = (explicit: string | null, fallback: string): string => {
-    if (explicit) return explicit;
-    geoSeq++;
-    const base = baseName || fallback;
-    return geoSeq === 1 ? base : `${base} ${geoSeq}`;
-  };
+  const geoName = createGeometryNamer(defaultName);
 
   const waypoints: PreparedGpxPlace[] = [];
 

@@ -46,8 +46,10 @@ import { keyed } from '../helpers/tour-keys';
 import { sessionCookie } from './harness';
 import { Test } from '@nestjs/testing';
 
+import archiver from 'archiver';
 import cookieParser from 'cookie-parser';
 import type { Server } from 'http';
+import { PassThrough } from 'stream';
 import request from 'supertest';
 import { describe, it, expect, beforeAll, afterAll, afterEach, beforeEach, vi, type MockInstance } from 'vitest';
 
@@ -1028,6 +1030,107 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
         expect(res.status).toBe(400);
         expect(res.body.error).toEqual(expect.any(String));
       }
+      expect(await countRows(orm, Places)).toBe(0);
+    });
+  });
+
+  describe('KML and KMZ preview and import (IO-02)', () => {
+    const MAP_KML = `<?xml version="1.0"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document>
+      <Placemark><name>Coast walk</name><LineString><coordinates>12,49,0 12.01,49.01,0 12.02,49.02,0</coordinates>
+      </LineString></Placemark>
+      <Placemark><name>Summit</name><LineString><altitudeMode>absolute</altitudeMode>
+        <coordinates>13,50,100 13.01,50.01,180 13.02,50.02,150</coordinates></LineString></Placemark>
+      <Placemark><name>Hut</name><Point><coordinates>12,49</coordinates></Point></Placemark>
+      <Placemark><name>Lake</name><Polygon><outerBoundaryIs><LinearRing>
+        <coordinates>1,1 2,2 3,1 1,1</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>
+      <NetworkLink><Link><href>https://example.test/more.kml</href></Link></NetworkLink>
+    </Document></kml>`;
+
+    /** A KMZ archive holding these entries. */
+    async function kmz(entries: Record<string, string>): Promise<Buffer> {
+      const chunks: Buffer[] = [];
+      const output = new PassThrough();
+      output.on('data', (chunk: Buffer) => chunks.push(chunk));
+      const archive = archiver('zip', { zlib: { level: 1 } });
+      archive.pipe(output);
+      for (const [name, content] of Object.entries(entries)) archive.append(Buffer.from(content), { name });
+      await archive.finalize();
+      return Buffer.concat(chunks);
+    }
+
+    const upload = (
+      bytes: Buffer,
+      filename: string,
+      path = 'import/gpx/preview',
+      fields: Record<string, string> = {},
+    ) => {
+      let req = request(server).post(`/api/trips/5/tours/${path}`).set('Cookie', sessionCookie(OWNER));
+      for (const [key, value] of Object.entries(fields)) req = req.field(key, value);
+      return req.attach('file', bytes, { filename, contentType: 'application/octet-stream' });
+    };
+
+    it('shows each line apart with the heights it has, counts what it leaves out, and stores nothing', async () => {
+      const res = await upload(Buffer.from(MAP_KML), 'alps.kml');
+      expect(res.status).toBe(200);
+      expect(res.body.tracks.map((track: { name: string }) => track.name)).toEqual(['Coast walk', 'Summit']);
+      // Google My Maps writes 0 for every height: that is no height, not a flat walk.
+      expect(res.body.tracks[0]).toMatchObject({ point_count: 3, elevation_gain_m: null, elevation_loss_m: null });
+      expect(res.body.tracks[1]).toMatchObject({ point_count: 3, elevation_gain_m: 80, elevation_loss_m: 30 });
+      expect(res.body.left_out).toEqual({ points: 1, areas: 1, other: 1 });
+      expect(await countRows(orm, Places)).toBe(0);
+      expect(broadcast).not.toHaveBeenCalled();
+    });
+
+    it('imports the lines as tours of the chosen type, keeps the file name, skips them the second time', async () => {
+      const res = await upload(Buffer.from(MAP_KML), 'alps.kml', 'import/gpx', {
+        tour_type: 'kayak',
+        boat_type: 'canoe',
+        water_context: 'river',
+      });
+      expect(res.status).toBe(201);
+      expect(res.body.tours.map((tour: { name: string }) => tour.name)).toEqual(['Coast walk', 'Summit']);
+      expect(res.body.tours[0]).toMatchObject({ tour_type: 'kayak', boat_type: 'canoe', origin: 'gpx' });
+      expect(res.body.caution).toBe(true);
+      expect(await countRows(orm, Tours)).toBe(2);
+      const placeId = res.body.tours[1].place_id as number;
+      const detail = await request(server).get(`/api/trips/5/tours/${placeId}`).set('Cookie', sessionCookie(OWNER));
+      expect(detail.body.provenance.source).toEqual({ kind: 'gpx', fileName: 'alps.kml' });
+
+      const again = await upload(Buffer.from(MAP_KML), 'alps.kml', 'import/gpx');
+      expect(again.body).toMatchObject({ tours: [], skipped: 2 });
+      expect(await countRows(orm, Tours)).toBe(2);
+    });
+
+    it('reads a KMZ archive through its KML', async () => {
+      const archive = await kmz({ 'doc.kml': MAP_KML, 'files/photo.jpg': 'jpeg' });
+      const res = await upload(archive, 'alps.kmz');
+      expect(res.status).toBe(200);
+      expect(res.body.tracks).toHaveLength(2);
+    });
+
+    it('400 with a reason for a broken KML, a broken or empty archive and a file without a line', async () => {
+      const PINS_ONLY = '<kml><Placemark><Point><coordinates>1,2</coordinates></Point></Placemark></kml>';
+      const answers = [
+        await upload(Buffer.from('<kml><Placemark></kml>'), 'broken.kml'),
+        await upload(Buffer.from('not a zip'), 'broken.kmz', 'import/gpx'),
+        await upload(await kmz({ 'photo.jpg': 'jpeg' }), 'photos.kmz'),
+        await upload(Buffer.from(PINS_ONLY), 'pins.kml'),
+      ];
+      expect(answers.map((res) => [res.status, res.body])).toEqual([
+        [400, { error: 'Malformed KML: invalid XML structure', code: 'malformed' }],
+        [400, { error: 'Invalid KMZ archive.', code: 'archive_invalid' }],
+        [400, { error: 'KMZ archive does not contain a KML file.', code: 'archive_without_kml' }],
+        [400, { error: 'No line found in KML file', code: 'no_track' }],
+      ]);
+      expect(await countRows(orm, Places)).toBe(0);
+    });
+
+    it('a member without place_edit gets 403 for a KML file too', async () => {
+      const res = await request(server)
+        .post('/api/trips/5/tours/import/gpx')
+        .set('Cookie', sessionCookie(VIEWER))
+        .attach('file', Buffer.from(MAP_KML), { filename: 'alps.kml', contentType: 'application/octet-stream' });
+      expect(res.status).toBe(403);
       expect(await countRows(orm, Places)).toBe(0);
     });
   });

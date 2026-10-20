@@ -14,6 +14,10 @@ import { z } from 'zod';
  * runs the file through the same parser the import uses and answers what it
  * found; nothing is written. The import that follows takes the type the user
  * chose for it.
+ *
+ * IO-02: the same routes read a KML or KMZ file (by its extension) for its
+ * lines, each line one track, and say what else the file held that no tour is
+ * made of.
  */
 
 const previewPointSchema = z.union([z.tuple([z.number(), z.number()]), z.tuple([z.number(), z.number(), z.number()])]);
@@ -39,8 +43,23 @@ export const tourGpxPreviewTrackSchema = z.object({
 });
 export type TourGpxPreviewTrack = z.infer<typeof tourGpxPreviewTrackSchema>;
 
+const leftOutCount = z.number().int().nonnegative();
+
+/** What a KML or KMZ file held besides its lines, counted by kind; none of it is imported. */
+export const tourFileLeftOutSchema = z.object({
+  /** Single points (pins). */
+  points: leftOutCount,
+  /** Polygons. */
+  areas: leftOutCount,
+  /** Models, overlays, links to other files (never followed), placemarks without a geometry, too short lines. */
+  other: leftOutCount,
+});
+export type TourFileLeftOut = z.infer<typeof tourFileLeftOutSchema>;
+
 export const tourGpxPreviewResponseSchema = z.object({
   tracks: z.array(tourGpxPreviewTrackSchema),
+  /** Only a KML or KMZ preview counts what it leaves out; a GPX preview never counted its loose waypoints. */
+  left_out: tourFileLeftOutSchema.optional(),
 });
 export type TourGpxPreviewResponse = z.infer<typeof tourGpxPreviewResponseSchema>;
 

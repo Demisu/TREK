@@ -8,12 +8,24 @@
  * either a point or a path's first point plus the path as route geometry.
  * Which placemarks become places, and under which category, is the importing
  * domain's decision.
+ *
+ * The Tours import reads the same document for its lines instead (IO-02):
+ * every LineString and gx:Track, also inside a MultiGeometry or gx:MultiTrack,
+ * as a line of its own, and a count of what it leaves out.
  */
 import { stripHtmlTags } from '../common/stripHtmlTags';
-import type { KmlDocumentRead, KmlImportSummary, ParsedKmlPlacemark } from './place-import.types';
+import {
+  KmlReadError,
+  type KmlDocumentRead,
+  type KmlImportSummary,
+  type KmlLeftOut,
+  type KmlLineRead,
+  type KmlLinesRead,
+  type ParsedKmlPlacemark,
+} from './place-import.types';
 
 import { XMLParser, XMLValidator } from 'fast-xml-parser';
-import unzipper from 'unzipper';
+import unzipper, { type File as ZipEntry } from 'unzipper';
 import { TextDecoder } from 'util';
 
 export type { ParsedKmlPlacemark } from './place-import.types';
@@ -51,6 +63,15 @@ function asArray<T>(value: T | T[] | null | undefined): T[] {
   if (value == null) return [];
   return Array.isArray(value) ? value : [value];
 }
+
+/** One parsed element: its children and attributes by name. */
+type KmlNode = Readonly<Record<string, unknown>>;
+
+const isKmlNode = (value: unknown): value is KmlNode =>
+  value !== null && typeof value === 'object' && !Array.isArray(value);
+
+/** A child of a parsed element by name; nothing for text or an empty element. */
+const field = (value: unknown, name: string): unknown => (isKmlNode(value) ? value[name] : undefined);
 
 function asTrimmedString(value: unknown): string | null {
   if (value == null) return null;
@@ -111,7 +132,9 @@ export function sanitizeKmlDescription(value: unknown): string | null {
   return decoded || null;
 }
 
-function parseKmlLineStringCoordinates(value: unknown): Array<{ lat: number; lng: number; ele: number | null }> | null {
+type LinePoint = { lat: number; lng: number; ele: number | null };
+
+function parseKmlLineStringCoordinates(value: unknown): LinePoint[] | null {
   const coordinates = asTrimmedString(value);
   if (!coordinates) return null;
 
@@ -126,7 +149,7 @@ function parseKmlLineStringCoordinates(value: unknown): Array<{ lat: number; lng
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
       return { lat, lng, ele: Number.isFinite(eleRaw) ? eleRaw : null };
     })
-    .filter((p): p is { lat: number; lng: number; ele: number | null } => p !== null);
+    .filter((p): p is LinePoint => p !== null);
 
   return points.length >= 2 ? points : null;
 }
@@ -156,19 +179,15 @@ function createKmlImportSummary(totalPlacemarks: number): KmlImportSummary {
   };
 }
 
-export function extractKmlPlacemarkNodes(kmlRoot: any): KmlPlacemarkNode[] {
-  const nodes: KmlPlacemarkNode[] = [];
-
-  const visitNode = (node: any, currentFolderName: string | null): void => {
-    if (!node || typeof node !== 'object') return;
-
-    for (const placemark of asArray(node.Placemark)) {
-      nodes.push({ placemark, folderName: currentFolderName });
-    }
+/** Every container of a document (the root, its Documents and Folders), each before its own, with its folder name. */
+function visitKmlContainers(kmlRoot: unknown, visit: (node: KmlNode, folderName: string | null) => void): void {
+  const visitNode = (node: unknown, currentFolderName: string | null): void => {
+    if (!isKmlNode(node)) return;
+    visit(node, currentFolderName);
 
     for (const folder of asArray(node.Folder)) {
       // Nested folders inherit/override folder context used for category matching.
-      const folderName = asTrimmedString(folder?.name) || currentFolderName;
+      const folderName = asTrimmedString(field(folder, 'name')) || currentFolderName;
       visitNode(folder, folderName);
     }
 
@@ -178,6 +197,15 @@ export function extractKmlPlacemarkNodes(kmlRoot: any): KmlPlacemarkNode[] {
   };
 
   visitNode(kmlRoot, null);
+}
+
+export function extractKmlPlacemarkNodes(kmlRoot: any): KmlPlacemarkNode[] {
+  const nodes: KmlPlacemarkNode[] = [];
+  visitKmlContainers(kmlRoot, (node, folderName) => {
+    for (const placemark of asArray(node.Placemark)) {
+      nodes.push({ placemark, folderName });
+    }
+  });
   return nodes;
 }
 
@@ -206,39 +234,165 @@ export function parsePlacemarkNode(node: KmlPlacemarkNode): ParsedKmlPlacemark {
 }
 
 /**
- * A KML document as its placemarks (each level's own before its folders'), with the summary the
- * import fills in. Throws the two messages the import route has always
- * answered for a broken file.
+ * A KML file as its parsed root element. Throws the two messages the import
+ * route has always answered for a broken file.
  */
-export function readKmlDocument(fileBuffer: Buffer): KmlDocumentRead {
+function parseKmlRoot(fileBuffer: Buffer): { kmlRoot: KmlNode; warning: string | null } {
   const decoded = decodeUtf8WithWarning(fileBuffer);
 
   const validationResult = XMLValidator.validate(decoded.text);
   if (validationResult !== true) {
-    throw new Error('Malformed KML: invalid XML structure');
+    throw new KmlReadError('malformed', 'Malformed KML: invalid XML structure');
   }
 
-  const parsed = kmlParser.parse(decoded.text);
-  const kmlRoot = parsed?.kml ?? parsed;
+  const parsed: unknown = kmlParser.parse(decoded.text);
+  const kmlRoot = field(parsed, 'kml') ?? parsed;
 
-  if (!kmlRoot || typeof kmlRoot !== 'object') {
-    throw new Error('Malformed KML: could not parse XML');
+  if (!isKmlNode(kmlRoot)) {
+    throw new KmlReadError('malformed', 'Malformed KML: could not parse XML');
   }
+
+  return { kmlRoot, warning: decoded.warning };
+}
+
+/**
+ * A KML document as its placemarks (each level's own before its folders'), with the summary the
+ * import fills in.
+ */
+export function readKmlDocument(fileBuffer: Buffer): KmlDocumentRead {
+  const { kmlRoot, warning } = parseKmlRoot(fileBuffer);
 
   const placemarkNodes = extractKmlPlacemarkNodes(kmlRoot);
   const summary = createKmlImportSummary(placemarkNodes.length);
 
-  if (decoded.warning) {
-    summary.warnings.push(decoded.warning);
+  if (warning) {
+    summary.warnings.push(warning);
   }
 
   return { placemarks: placemarkNodes.map(parsePlacemarkNode), summary };
 }
 
 // ---------------------------------------------------------------------------
+// Lines for the Tours import (IO-02)
+// ---------------------------------------------------------------------------
+
+/** What a document holds besides placemarks that the Tours import never reads: overlays, and links it never follows. */
+const LEFT_OUT_FEATURES = ['NetworkLink', 'GroundOverlay', 'ScreenOverlay', 'PhotoOverlay'] as const;
+
+/** The points of a gx:Track, each `<gx:coord>` written `lng lat alt` with spaces. */
+function parseKmlTrackCoordinates(value: unknown): LinePoint[] | null {
+  const points = asArray(value).flatMap((coord): LinePoint[] => {
+    const [lng = Number.NaN, lat = Number.NaN, ele = Number.NaN] = (asTrimmedString(coord) ?? '')
+      .split(/\s+/)
+      .map((part) => Number.parseFloat(part));
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return [];
+    return [{ lat, lng, ele: Number.isFinite(ele) ? ele : null }];
+  });
+  return points.length >= 2 ? points : null;
+}
+
+/**
+ * A line as route geometry, `[lat, lng, ele]` only where its heights can be
+ * trusted as heights. KML's default altitude mode is clampToGround, under
+ * which an altitude means nothing, and Google My Maps writes a 0 for every
+ * point. So the heights are kept when the line says `absolute`, dropped when
+ * it names any other mode, and without a mode kept unless every one is 0. A
+ * line with a point lacking one keeps none, as a GPX track does.
+ */
+export function kmlLineGeometry(points: LinePoint[], altitudeMode: string | null): number[][] {
+  const complete = points.every((p) => p.ele !== null);
+  const meaningful = altitudeMode === null ? points.some((p) => p.ele !== 0) : altitudeMode === 'absolute';
+  return points.map((p) => (complete && meaningful && p.ele !== null ? [p.lat, p.lng, p.ele] : [p.lat, p.lng]));
+}
+
+/** One geometry element of a placemark taken apart into its lines; what is not a line is counted as left out. */
+function collectKmlLines(node: KmlNode, inheritedMode: string | null, lines: number[][][], leftOut: KmlLeftOut): void {
+  const mode = asTrimmedString(node.altitudeMode) ?? inheritedMode;
+  const shapes = [
+    ...asArray(node.LineString).map((line) => ({
+      line,
+      points: parseKmlLineStringCoordinates(field(line, 'coordinates')),
+    })),
+    ...asArray(node.Track).map((line) => ({ line, points: parseKmlTrackCoordinates(field(line, 'coord')) })),
+  ];
+  for (const { line, points } of shapes) {
+    if (points) lines.push(kmlLineGeometry(points, asTrimmedString(field(line, 'altitudeMode')) ?? mode));
+    else leftOut.other += 1;
+  }
+  for (const group of [...asArray(node.MultiGeometry), ...asArray(node.MultiTrack)]) {
+    if (isKmlNode(group)) collectKmlLines(group, mode, lines, leftOut);
+  }
+  leftOut.points += asArray(node.Point).length;
+  leftOut.areas += asArray(node.Polygon).length;
+  leftOut.other += asArray(node.Model).length + asArray(node.LinearRing).length;
+}
+
+const leftOutTotal = (leftOut: KmlLeftOut) => leftOut.points + leftOut.areas + leftOut.other;
+
+/**
+ * A placemark's lines, each kept apart: two lines of one placemark are never
+ * joined into one, they are numbered after its name instead.
+ */
+function placemarkLines(placemark: unknown, leftOut: KmlLeftOut): KmlLineRead[] {
+  const geometries: number[][][] = [];
+  const before = leftOutTotal(leftOut);
+  if (isKmlNode(placemark)) collectKmlLines(placemark, null, geometries, leftOut);
+  // A placemark that held nothing at all, not even something left out, is counted once.
+  if (geometries.length === 0 && leftOutTotal(leftOut) === before) leftOut.other += 1;
+
+  const name = asTrimmedString(field(placemark, 'name'));
+  const description = sanitizeKmlDescription(field(placemark, 'description'));
+  return geometries.map((geometry, index) => ({
+    name: name && geometries.length > 1 ? `${name} (${index + 1}/${geometries.length})` : name,
+    description,
+    geometry,
+  }));
+}
+
+/**
+ * A KML document as the lines a tour can be made of, in document order, and a
+ * count of what it holds besides: single points, areas, and everything else
+ * (models, overlays, links to other files, which are never followed, and
+ * lines too short to be one).
+ */
+export function readKmlLines(fileBuffer: Buffer): KmlLinesRead {
+  const { kmlRoot, warning } = parseKmlRoot(fileBuffer);
+  const leftOut: KmlLeftOut = { points: 0, areas: 0, other: 0 };
+  const lines = extractKmlPlacemarkNodes(kmlRoot).flatMap(({ placemark }) => placemarkLines(placemark, leftOut));
+  visitKmlContainers(kmlRoot, (node) => {
+    for (const feature of LEFT_OUT_FEATURES) leftOut.other += asArray(node[feature]).length;
+  });
+  return { lines, leftOut, warnings: warning ? [warning] : [] };
+}
+
+// ---------------------------------------------------------------------------
 // KMZ unpacking
 // ---------------------------------------------------------------------------
 
+const tooLarge = () =>
+  new KmlReadError('archive_too_large', 'KMZ archive exceeds the maximum allowed decompressed size.');
+
+/**
+ * An archive entry decompressed, stopped as soon as it passes the limit. The
+ * size an entry's header states is only a claim, so the bytes themselves are
+ * counted: a crafted archive cannot unpack more than the limit by lying.
+ */
+export async function readKmzEntryCapped(entry: Pick<ZipEntry, 'stream'>, limit: number): Promise<Buffer> {
+  const chunks: Buffer[] = [];
+  let size = 0;
+  for await (const chunk of entry.stream()) {
+    const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as Uint8Array);
+    size += bytes.length;
+    if (size > limit) throw tooLarge();
+    chunks.push(bytes);
+  }
+  return Buffer.concat(chunks);
+}
+
+/**
+ * The KML a KMZ archive carries. Only that one entry is read: images and
+ * other files beside it are never unpacked, run or fetched.
+ */
 export async function unpackKmzToKml(
   kmzBuffer: Buffer,
   decompressedSizeLimit = KMZ_DECOMPRESSED_SIZE_LIMIT,
@@ -247,21 +401,27 @@ export async function unpackKmzToKml(
   try {
     zip = await unzipper.Open.buffer(kmzBuffer);
   } catch {
-    throw new Error('Invalid KMZ archive.');
+    throw new KmlReadError('archive_invalid', 'Invalid KMZ archive.');
   }
 
   const kmlEntries = zip.files.filter(
     (entry) => !entry.path.endsWith('/') && entry.path.toLowerCase().endsWith('.kml'),
   );
   if (kmlEntries.length === 0) {
-    throw new Error('KMZ archive does not contain a KML file.');
+    throw new KmlReadError('archive_without_kml', 'KMZ archive does not contain a KML file.');
   }
 
   const preferredEntry = kmlEntries.find((entry) => entry.path.toLowerCase().endsWith('doc.kml')) || kmlEntries[0];
 
   if (preferredEntry.uncompressedSize > decompressedSizeLimit) {
-    throw new Error('KMZ archive exceeds the maximum allowed decompressed size.');
+    throw tooLarge();
   }
 
-  return preferredEntry.buffer();
+  try {
+    return await readKmzEntryCapped(preferredEntry, decompressedSizeLimit);
+  } catch (err) {
+    if (err instanceof KmlReadError) throw err;
+    // A damaged entry fails while it inflates, not while the directory is read.
+    throw new KmlReadError('archive_invalid', 'Invalid KMZ archive.');
+  }
 }

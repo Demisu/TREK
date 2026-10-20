@@ -241,7 +241,7 @@ describe('ToursSidebar', () => {
     />)
 
     const file = new File(['<gpx/>'], 'ridge.gpx', { type: 'application/gpx+xml' })
-    expect(pickFiles(screen.getByRole('button', { name: 'Import GPX' }), [file])).toHaveAttribute('accept', '.gpx')
+    expect(pickFiles(screen.getByRole('button', { name: 'Import GPX or KML' }), [file])).toHaveAttribute('accept', '.gpx,.kml,.kmz')
     fireEvent.click(await screen.findByRole('button', { name: 'Import 1 tour' }))
 
     // Only the places are read again, not the whole trip: that would rebuild the workspace.
@@ -269,7 +269,7 @@ describe('ToursSidebar', () => {
       onSelectTour={vi.fn()}
     />)
 
-    pickFiles(screen.getByRole('button', { name: 'Import GPX' }), [new File(['<gpx/>'], 'already-imported.gpx', { type: 'application/gpx+xml' }),
+    pickFiles(screen.getByRole('button', { name: 'Import GPX or KML' }), [new File(['<gpx/>'], 'already-imported.gpx', { type: 'application/gpx+xml' }),
     ])
     fireEvent.click(await screen.findByRole('button', { name: 'Import 1 tour' }))
 
@@ -288,7 +288,7 @@ describe('ToursSidebar', () => {
       <ToursSidebar tripId={1} days={[]} tours={[]} canEdit={true} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />
     )
 
-    pickFiles(screen.getByRole('button', { name: 'Import GPX' }), [
+    pickFiles(screen.getByRole('button', { name: 'Import GPX or KML' }), [
       new File(['<gpx/>'], 'empty.gpx', { type: 'application/gpx+xml' }),
       new File(['<gpx/>'], 'ridge.gpx', { type: 'application/gpx+xml' }),
     ])
@@ -296,7 +296,7 @@ describe('ToursSidebar', () => {
     await waitFor(() => expect(toast.error).toHaveBeenCalledWith('No track or route found in empty.gpx'))
     fireEvent.click(await screen.findByRole('button', { name: 'Import 1 tour' }))
 
-    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('1 tour imported from GPX'))
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('1 tour imported'))
     expect(importCall).toHaveBeenCalledOnce()
     expect(toast.info).toHaveBeenCalledWith('Imported with caution — elevation/metrics incomplete')
     vi.restoreAllMocks()
@@ -308,10 +308,10 @@ describe('ToursSidebar', () => {
     render(
       <ToursSidebar tripId={1} days={[]} tours={[]} canEdit={true} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />
     )
-    pickFiles(screen.getByRole('button', { name: 'Import GPX' }), [new File(['<gpx/>'], 'ridge.gpx', { type: 'application/gpx+xml' })])
+    pickFiles(screen.getByRole('button', { name: 'Import GPX or KML' }), [new File(['<gpx/>'], 'ridge.gpx', { type: 'application/gpx+xml' })])
 
     const dialog = await screen.findByRole('dialog')
-    expect(dialog).toHaveTextContent('GPX preview')
+    expect(dialog).toHaveTextContent('Import preview')
     expect(dialog).toHaveTextContent('ridge.gpx')
     expect(screen.getAllByTestId('gpx-preview-track')).toHaveLength(2)
     expect(screen.getAllByTestId('gpx-preview-track')[1]).toHaveTextContent('Already in the trip')
@@ -330,7 +330,7 @@ describe('ToursSidebar', () => {
     render(
       <ToursSidebar tripId={1} days={[]} tours={[]} canEdit={true} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />
     )
-    pickFiles(screen.getByRole('button', { name: 'Import GPX' }), [new File(['<gpx/>'], 'ridge.gpx', { type: 'application/gpx+xml' })])
+    pickFiles(screen.getByRole('button', { name: 'Import GPX or KML' }), [new File(['<gpx/>'], 'ridge.gpx', { type: 'application/gpx+xml' })])
     expect(await screen.findByText('Every track is already in the trip, so there is nothing to import.')).toBeInTheDocument()
     expect(screen.getByTestId('gpx-preview-import')).toBeDisabled()
     vi.restoreAllMocks()
@@ -344,7 +344,7 @@ describe('ToursSidebar', () => {
       <ToursSidebar tripId={1} days={[]} tours={[]} canEdit={true} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />
     )
     const file = new File(['<gpx/>'], 'lake.gpx', { type: 'application/gpx+xml' })
-    pickFiles(screen.getByRole('button', { name: 'Import GPX' }), [file])
+    pickFiles(screen.getByRole('button', { name: 'Import GPX or KML' }), [file])
     await screen.findByRole('dialog')
     // A file without heights says so instead of showing zero.
     expect(screen.getByTestId('gpx-preview-track')).toHaveTextContent('No heights in the file')
@@ -440,12 +440,85 @@ describe('ToursSidebar', () => {
       <ToursSidebar tripId={1} days={[]} tours={[]} canEdit={true} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />
     )
 
-    pickFiles(screen.getByRole('button', { name: 'Import GPX' }), [
+    pickFiles(screen.getByRole('button', { name: 'Import GPX or KML' }), [
       new File(['x'], 'notes.txt', { type: 'text/plain' }),
     ])
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('Only GPX files can be imported as tours.'))
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('Only GPX, KML and KMZ files can be imported as tours.'))
     expect(importCall).not.toHaveBeenCalled()
+    vi.restoreAllMocks()
+  })
+
+  it('IO-02: previews a KML file like a GPX file, numbers its lines and names what it leaves out, then imports it', async () => {
+    vi.spyOn(tourGpxApi, 'preview').mockResolvedValue({
+      tracks: [previewTrack({ name: 'Coast (1/2)' }), previewTrack({ name: 'Coast (2/2)', elevation_gain_m: null, elevation_loss_m: null })],
+      left_out: { points: 3, areas: 1, other: 0 },
+    })
+    const importCall = vi.spyOn(tourGpxApi, 'import').mockResolvedValue({ tours: [tour], caution: false, skipped: 0 })
+    seedStore(useTripStore, { refreshPlaces: vi.fn().mockResolvedValue(undefined) })
+    render(
+      <ToursSidebar tripId={1} days={[]} tours={[]} canEdit={true} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />
+    )
+    const file = new File(['<kml/>'], 'coast.kml', { type: 'application/vnd.google-earth.kml+xml' })
+    pickFiles(screen.getByRole('button', { name: 'Import GPX or KML' }), [file])
+
+    const dialog = await screen.findByRole('dialog')
+    expect(dialog).toHaveTextContent('Import preview')
+    const rows = screen.getAllByTestId('gpx-preview-track')
+    expect(rows.map((row) => row.textContent?.slice(0, 1))).toEqual(['1', '2'])
+    expect(rows[1]).toHaveTextContent('No heights in the file')
+    const leftOut = screen.getByTestId('gpx-preview-left-out')
+    expect(leftOut).toHaveTextContent('Not imported')
+    expect(leftOut).toHaveTextContent('3 pins')
+    expect(leftOut).toHaveTextContent('1 area')
+    expect(leftOut).not.toHaveTextContent('other item')
+    expect(within(leftOut).getByRole('button', { name: 'Not imported' })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Import 2 tours' }))
+    await waitFor(() => expect(importCall).toHaveBeenCalledWith(1, file, { tour_type: 'hike' }))
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('1 tour imported'))
+    vi.restoreAllMocks()
+  })
+
+  it('IO-02: a GPX preview counts nothing it leaves out, so it shows no such card', async () => {
+    vi.spyOn(tourGpxApi, 'preview').mockResolvedValue({ tracks: [previewTrack()] })
+    render(
+      <ToursSidebar tripId={1} days={[]} tours={[]} canEdit={true} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />
+    )
+    pickFiles(screen.getByRole('button', { name: 'Import GPX or KML' }), [new File(['<gpx/>'], 'ridge.gpx', { type: 'application/gpx+xml' })])
+    await screen.findByRole('dialog')
+    expect(screen.queryByTestId('gpx-preview-left-out')).toBeNull()
+    vi.restoreAllMocks()
+  })
+
+  it('IO-02: names each file the server could not read by the reason it gave, and opens no preview for them', async () => {
+    const refusal = (code: string) => ({ response: { data: { error: 'refused', code } } })
+    vi.spyOn(tourGpxApi, 'preview')
+      .mockRejectedValueOnce(refusal('malformed'))
+      .mockRejectedValueOnce(refusal('archive_without_kml'))
+      .mockRejectedValueOnce(refusal('archive_too_large'))
+      .mockRejectedValueOnce(refusal('no_track'))
+      .mockRejectedValueOnce(refusal('something_else'))
+    render(
+      <ToursSidebar tripId={1} days={[]} tours={[]} canEdit={true} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />
+    )
+    pickFiles(screen.getByRole('button', { name: 'Import GPX or KML' }), [
+      new File(['x'], 'broken.kml'),
+      new File(['x'], 'photos.kmz'),
+      new File(['x'], 'huge.KMZ'),
+      new File(['x'], 'pins.kml'),
+      new File(['x'], 'odd.kml'),
+    ])
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalledTimes(5))
+    expect(toast.error.mock.calls.map(([message]) => message)).toEqual([
+      'Could not read broken.kml: the file is damaged or not GPX, KML or KMZ',
+      'No KML file found in photos.kmz',
+      'huge.KMZ is too large once unpacked',
+      'No track or route found in pins.kml',
+      'Could not import odd.kml',
+    ])
+    expect(screen.queryByRole('dialog')).toBeNull()
     vi.restoreAllMocks()
   })
 

@@ -56,6 +56,53 @@ export interface KmlDocumentRead {
   summary: KmlImportSummary;
 }
 
+/** What a KML document holds that a line import leaves out, counted by kind. */
+export interface KmlLeftOut {
+  /** Single points (pins). */
+  points: number;
+  /** Polygons. */
+  areas: number;
+  /** Everything else: models, overlays, links to other files, placemarks without a geometry, too short lines. */
+  other: number;
+}
+
+/** One line of a KML document: a LineString or a gx:Track, as route geometry `[lat, lng]` or `[lat, lng, ele]`. */
+export interface KmlLineRead {
+  name: string | null;
+  description: string | null;
+  geometry: number[][];
+}
+
+/** A KML document read for its lines (IO-02). */
+export interface KmlLinesRead {
+  lines: KmlLineRead[];
+  leftOut: KmlLeftOut;
+  warnings: string[];
+}
+
+/** The lines of a KML or KMZ file as the rows a Tours import stores, and what it leaves out. */
+export interface KmlTracksRead {
+  tracks: PreparedGpxPlace[];
+  leftOut: KmlLeftOut;
+}
+
+/** Why a KML or KMZ file could not be read. */
+export type KmlReadFailure = 'malformed' | 'archive_invalid' | 'archive_without_kml' | 'archive_too_large';
+
+/**
+ * A KML or KMZ file that could not be read, with the message the place import
+ * route has always answered and the reason a caller can tell apart.
+ */
+export class KmlReadError extends Error {
+  constructor(
+    readonly reason: KmlReadFailure,
+    message: string,
+  ) {
+    super(message);
+    this.name = 'KmlReadError';
+  }
+}
+
 /** An import that could not happen, with the status and the exact message the route answers. */
 export interface ListImportError {
   error: string;

@@ -55,3 +55,34 @@ describe('Tours GPX preview', () => {
     expect(tourGpxPreviewResponseSchema.parse(preview)).toEqual(preview);
   });
 });
+
+describe('Tours KML preview (IO-02)', () => {
+  const track = {
+    name: 'Ridge (1/2)',
+    geometry: [
+      [47, 11],
+      [47.01, 11.01],
+    ],
+    point_count: 2,
+    distance_km: 1.4,
+    elevation_gain_m: null,
+    elevation_loss_m: null,
+    duplicate: false,
+  };
+
+  it('counts what a KML file held besides its lines, and a GPX preview may leave that out', () => {
+    const kml = { tracks: [track], left_out: { points: 3, areas: 1, other: 0 } };
+    expect(tourGpxPreviewResponseSchema.parse(kml)).toEqual(kml);
+    expect(tourGpxPreviewResponseSchema.parse({ tracks: [track] })).toEqual({ tracks: [track] });
+  });
+
+  it('refuses a count that is negative or not whole', () => {
+    for (const left_out of [
+      { points: -1, areas: 0, other: 0 },
+      { points: 0, areas: 0.5, other: 0 },
+      { points: 0, areas: 0 },
+    ]) {
+      expect(tourGpxPreviewResponseSchema.safeParse({ tracks: [track], left_out }).success).toBe(false);
+    }
+  });
+});

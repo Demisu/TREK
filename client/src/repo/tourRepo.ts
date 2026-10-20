@@ -450,7 +450,7 @@ export const tourRepo = {
     return result
   },
 
-  /** Reads a GPX file for its preview; online only, like the import, and nothing is cached. */
+  /** Reads a GPX, KML or KMZ file for its preview; online only, like the import, and nothing is cached. */
   async previewGpx(tripId: number | string, file: File): Promise<TourGpxPreviewResponse> {
     return tourGpxApi.preview(tripId, file)
   },

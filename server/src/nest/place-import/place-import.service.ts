@@ -4,6 +4,7 @@ import type {
   GoogleListPlace,
   GpxImportOptions,
   KmlDocumentRead,
+  KmlTracksRead,
   ListImportError,
   ListRead,
   NaverListPlace,
@@ -107,6 +108,11 @@ export class PlaceImportService {
 
   readKml(fileBuffer: Buffer): KmlDocumentRead {
     return this.kml.readKml(fileBuffer);
+  }
+
+  /** IO-02: the lines of a .kml or .kmz upload as tour rows, and what it holds besides. Throws KmlReadError. */
+  readMapFileTracks(fileBuffer: Buffer, filename: string): Promise<KmlTracksRead> {
+    return this.kml.readTracks(fileBuffer, filename);
   }
 
   // ── Shared lists ───────────────────────────────────────────────────────────

@@ -61,6 +61,19 @@ describe('TourProvenanceSection (P2C-02, MF-03)', () => {
     expect(screen.getByText('tours.provenance.plannedOver')).toBeInTheDocument();
   });
 
+  it('names a KML or KMZ import by its format, never as GPX (IO-02)', () => {
+    const { rerender } = render(
+      <TourProvenanceSection provenance={{ ...base, origin: 'gpx', source: { kind: 'gpx', fileName: 'Alps.KML' } }} />
+    );
+    expect(screen.getByText('tours.provenance.fileImport')).toBeInTheDocument();
+    expect(screen.queryByText('tours.badge.gpx')).toBeNull();
+    expect(screen.getByText('Alps.KML')).toBeInTheDocument();
+    rerender(
+      <TourProvenanceSection provenance={{ ...base, origin: 'gpx', source: { kind: 'gpx', fileName: null } }} />
+    );
+    expect(screen.getByText('tours.badge.gpx')).toBeInTheDocument();
+  });
+
   it('links a wanderer snapshot to its trail, tells local edits apart and checks the source on purpose', () => {
     const onCheck = vi.fn();
     render(

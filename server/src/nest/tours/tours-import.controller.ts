@@ -6,6 +6,7 @@ import { JwtAuthGuard } from '../auth-core/jwt-auth.guard';
 import { ResponseContract } from '../common/response-contract';
 import { PlacesService } from '../places/places.service';
 import { TourGpxImportFieldsDto } from './dto/tour-gpx-import.dto';
+import { noTrackFound } from './tour-file-import.helpers';
 import { ToursService } from './tours.service';
 import {
   Body,
@@ -25,11 +26,12 @@ import { tourGpxPreviewResponseSchema, tourImportGpxResponseSchema } from '@trek
 import { memoryStorage } from 'multer';
 
 const UPLOAD = { storage: memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } };
-const NO_TRACK = 'No track or route found in GPX file';
 
 /**
- * POST /api/trips/:tripId/tours/import/gpx: the tours-mode GPX import, and
+ * POST /api/trips/:tripId/tours/import/gpx: the tours-mode file import, and
  * POST .../import/gpx/preview: the same file read and shown, nothing stored.
+ * Both read a GPX file, or by its extension a KML or KMZ file (IO-02); the
+ * paths keep the name they were published under.
  *
  * A controller of its own because it must not sit behind ToursController's
  * AddonGuard and TripAccessGuard: a guard answers before multer has read the
@@ -78,7 +80,7 @@ export class ToursImportController {
     const buffer = await this.checkedFile(user, tripId, file);
     const preview = await this.tours.previewGpx(tripId, buffer, file?.originalname);
     if (!preview) {
-      throw new HttpException({ error: NO_TRACK }, 400);
+      throw noTrackFound(file?.originalname);
     }
     return preview;
   }
@@ -97,7 +99,7 @@ export class ToursImportController {
     const buffer = await this.checkedFile(user, tripId, file);
     const result = await this.tours.importGpxAsTour(tripId, buffer, file?.originalname, socketId, fields);
     if (!result) {
-      throw new HttpException({ error: NO_TRACK }, 400);
+      throw noTrackFound(file?.originalname);
     }
     return result;
   }

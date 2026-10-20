@@ -32,7 +32,7 @@ describe('TourGpxDropZone', () => {
     const zone = screen.getByText('workspace').parentElement as HTMLElement;
 
     fireEvent.dragEnter(zone, filesDrag);
-    expect(screen.getByTestId('tour-gpx-drop')).toHaveTextContent('Drop GPX files to import them');
+    expect(screen.getByTestId('tour-gpx-drop')).toHaveTextContent('Drop GPX, KML or KMZ files to import them');
 
     fireEvent.drop(zone, filesDrag);
     expect(importer.importFiles).toHaveBeenCalledWith([file]);
@@ -89,7 +89,7 @@ describe('TourGpxDropZone', () => {
         <p>workspace</p>
       </TourGpxDropZone>
     );
-    expect(screen.getByTestId('tour-gpx-drop')).toHaveTextContent('Importing GPX…');
+    expect(screen.getByTestId('tour-gpx-drop')).toHaveTextContent('Importing…');
   });
 });
 

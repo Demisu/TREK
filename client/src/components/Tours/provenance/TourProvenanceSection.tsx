@@ -45,12 +45,23 @@ function ProvenanceRow({ icon, label, children }: { icon: ReactNode; label: stri
   );
 }
 
+/**
+ * IO-02: a file import keeps the origin `gpx` whatever its format, so a KML or
+ * KMZ import is named by its stored file name rather than called GPX.
+ */
+function fileImportLabel(fileName: string | null, t: Translate): string {
+  const format = fileName?.toLowerCase().split('.').pop();
+  return format === 'kml' || format === 'kmz'
+    ? t('tours.provenance.fileImport', { format: format.toUpperCase() })
+    : t('tours.badge.gpx');
+}
+
 function SourceValue({ provenance, t }: { provenance: TourProvenance; t: Translate }) {
   const { source } = provenance;
   if (source.kind === 'gpx') {
     return (
       <>
-        <span className="font-semibold">{t('tours.badge.gpx')}</span>
+        <span className="font-semibold">{fileImportLabel(source.fileName, t)}</span>
         {source.fileName && (
           <span className="min-w-0 truncate font-geist text-content-muted" style={fs(11.5)}>
             {source.fileName}

@@ -92,7 +92,7 @@ function importFixture(
     canEdit: vi.fn(async () => o.canEdit ?? true),
   };
   const result = 'result' in o ? o.result : { tours: [{ place_id: 42 }], caution: false, skipped: 0 };
-  const tours = { importGpxAsTour: vi.fn(async () => result) };
+  const tours = { importGpxAsTour: vi.fn(async () => result), previewGpx: vi.fn(async () => result) };
   const controller = new ToursImportController(
     tours as unknown as ToursService,
     places as unknown as PlacesService,
@@ -277,5 +277,29 @@ describe('ToursImportController (POST /api/trips/:tripId/tours/import/gpx)', () 
       status: 400,
       body: { error: 'No track or route found in GPX file' },
     });
+  });
+
+  it('TOURS-IMP-009: a KML or KMZ file without a line names its format and carries the code (IO-02)', async () => {
+    const { controller, tours } = importFixture({ result: null });
+    const kml = { buffer: Buffer.from('<kml/>'), originalname: 'pins.kml' } as Express.Multer.File;
+    const kmz = { buffer: Buffer.from('zip'), originalname: 'pins.kmz' } as Express.Multer.File;
+
+    expect(await thrownAsync(() => controller.importGpx(user, '7', kml))).toEqual({
+      status: 400,
+      body: { error: 'No line found in KML file', code: 'no_track' },
+    });
+    expect(await thrownAsync(() => controller.previewGpx(user, '7', kmz))).toEqual({
+      status: 400,
+      body: { error: 'No line found in KMZ file', code: 'no_track' },
+    });
+    expect(tours.previewGpx).toHaveBeenCalledWith('7', kmz.buffer, 'pins.kmz');
+  });
+
+  it('TOURS-IMP-010: the preview hands the file on and returns what the service read', async () => {
+    const preview = { tracks: [], left_out: { points: 2, areas: 0, other: 1 } };
+    const { controller, tours } = importFixture({ result: preview });
+
+    expect(await controller.previewGpx(user, '7', file)).toBe(preview);
+    expect(tours.previewGpx).toHaveBeenCalledWith('7', file.buffer, 'ridge.gpx');
   });
 });
