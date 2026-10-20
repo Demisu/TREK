@@ -458,17 +458,7 @@ const tours: TranslationStrings = {
   'tours.run.timeSum': '{distance} bei {pace} min/km ergibt {time}',
   'tours.run.profile.trail': 'Trailrunning',
   'tours.run.profileHint.trail': 'Bevorzugt Forstwege und naturbelassene Pfade, bis zu Bergwegen (T2).',
-  'tours.run.ways.grade': 'Wegschwierigkeit (sac_scale)',
-  'tours.run.ways.gradeInfoLabel': 'Zur Wegschwierigkeit',
-  'tours.run.ways.gradeInfo':
-    'Wanderskala, wie OpenStreetMap-Mapper sie vergeben haben. Ein Weg ohne Angabe ist unbekannt, nicht leicht. Sie sagt nichts darüber, ob ein Weg laufbar ist oder zu dir passt.',
   'tours.run.ways.gradeTop': 'Schwierigster bewerteter Weg: {grade}',
-  'tours.run.ways.sac.t1': 'T1, Wandern',
-  'tours.run.ways.sac.t2': 'T2, Bergwandern',
-  'tours.run.ways.sac.t3': 'T3, Anspruchsvolles Bergwandern',
-  'tours.run.ways.sac.t4': 'T4, Alpinwandern',
-  'tours.run.ways.sac.t5': 'T5, Anspruchsvolles Alpinwandern',
-  'tours.run.ways.sac.t6': 'T6, Schwieriges Alpinwandern',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Touring', // same-as-en
   'tours.bike.profile.road': 'Rennrad',

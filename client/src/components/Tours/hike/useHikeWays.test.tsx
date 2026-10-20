@@ -18,7 +18,7 @@ vi.mock('../bike/useRouteWays', () => ({
   },
 }));
 
-// FE-HIKE-WAYS-HOOK-001 to FE-HIKE-WAYS-HOOK-011
+// FE-HIKE-WAYS-HOOK-001 to FE-HIKE-WAYS-HOOK-012
 
 const ROUTE: [number, number][] = [
   [47.0, 11.0],
@@ -227,5 +227,15 @@ describe('useHikeWays (MAP-03, MAP-04)', () => {
     // The same question on every render: switching facets asks nothing new.
     expect(hook.input).toEqual(asked);
     expect(result.current.status).toBe('ready');
+  });
+
+  it('FE-HIKE-WAYS-HOOK-012: a run is read the same way, matched as a run, and hands the router answer on once read (RUN-02)', () => {
+    hook.state = READY;
+    const { result } = renderHook(() => useHikeWays({ tripId: 5, route: ROUTE, matching: 'run' }));
+    expect(result.current.routeWays).toBeNull();
+    act(() => result.current.toggle());
+    expect(hook.input).toMatchObject({ active: true, matching: 'run', withGrades: true });
+    expect(result.current.rows.map((row) => row.key)).toEqual(['t2', 't4', 'untagged']);
+    expect(result.current.routeWays).toBe(WAYS);
   });
 });

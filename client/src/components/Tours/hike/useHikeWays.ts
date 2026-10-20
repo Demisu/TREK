@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTourRouteHighlightStore } from '../../../store/tourRouteHighlightStore';
-import type { RouteWayEdge } from '../bike/routeWays';
+import type { RouteWayEdge, RouteWays } from '../bike/routeWays';
 import { useRouteWays, type RouteWaysState } from '../bike/useRouteWays';
 import { HIKE_FACETS, type HikeFacet } from './hikeFacetSpecs';
 import { facetClassifier, facetOverlay, facetRows, isUnknownClass, knownShareOf, type FacetRow } from './hikeFacets';
@@ -30,6 +30,8 @@ export interface HikeWays {
   focus: string | null;
   focusOn: (key: string) => void;
   retry: () => void;
+  /** The router's description of the ways under the line, once read; null before. */
+  routeWays: RouteWays | null;
 }
 
 const NO_STRAYS: ReadonlySet<RouteWayEdge> = new Set();
@@ -57,7 +59,8 @@ function mostlyOf(rows: readonly FacetRow[]): FacetRow | null {
  * once; the facet picked (SAC grade, surface, kind of way) only decides how
  * the stretches are sorted and drawn along the line on the planner map,
  * every class at once or the one picked alone. Nothing here changes the
- * tour, its places or its days; switched off, the map is as it was.
+ * tour, its places or its days; switched off, the map is as it was. A run
+ * (RUN-02) is read the same way, its line matched as a run on foot.
  */
 export function useHikeWays(input: {
   tripId: number | string;
@@ -65,15 +68,17 @@ export function useHikeWays(input: {
   route: [number, number][] | null;
   /** False while the line is being planned anew: the card stays, and waits for the new one. */
   current?: boolean;
+  /** How the line is matched to the ways: on foot for a hike, as a run for a run. */
+  matching?: 'foot' | 'run';
 }): HikeWays {
-  const { tripId, route, current = true } = input;
+  const { tripId, route, current = true, matching = 'foot' } = input;
   const available = !!route && route.length >= 2;
   const [shown, setShown] = useState(false);
   const [facet, setFacet] = useState<HikeFacet>('sac');
   const [picked, setPicked] = useState<string | null>(null);
   const on = available && shown;
   const line = current ? route : null;
-  const state = useRouteWays({ tripId, active: on, route: line, matching: 'foot', withGrades: true });
+  const state = useRouteWays({ tripId, active: on, route: line, matching, withGrades: true });
   const { ways, grades } = state;
   const spec = HIKE_FACETS[facet];
   const strays = useMemo(() => (ways && line ? straysFrom(ways, line) : NO_STRAYS), [ways, line]);
@@ -120,5 +125,6 @@ export function useHikeWays(input: {
     focus,
     focusOn,
     retry: state.retry,
+    routeWays: status === 'ready' ? ways : null,
   };
 }

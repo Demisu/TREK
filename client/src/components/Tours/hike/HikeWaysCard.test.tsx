@@ -12,7 +12,7 @@ vi.mock('./useHikeWays', () => ({
   },
 }));
 
-// FE-HIKE-WAYSCARD-001 to FE-HIKE-WAYSCARD-012
+// FE-HIKE-WAYSCARD-001 to FE-HIKE-WAYSCARD-013
 
 const LINE: [number, number][] = [
   [47.0, 11.0],
@@ -52,6 +52,7 @@ function ways(overrides: Partial<HikeWays> = {}): HikeWays {
     focus: null,
     focusOn: vi.fn(),
     retry: vi.fn(),
+    routeWays: null,
     ...overrides,
   };
 }
@@ -73,7 +74,7 @@ describe('HikeWaysCard (MAP-03, MAP-04)', () => {
   it('FE-HIKE-WAYSCARD-001: without a line to describe there is no card', () => {
     show(ways({ available: false, shown: false, status: 'off', rows: [] }));
     expect(screen.queryByTestId('hike-ways-card')).toBeNull();
-    expect(hook.input).toEqual({ tripId: 4, route: LINE, current: true });
+    expect(hook.input).toEqual({ tripId: 4, route: LINE, current: true, matching: 'foot' });
   });
 
   it('FE-HIKE-WAYSCARD-002: switched off it only offers the switch, and the switch turns it on', () => {
@@ -201,5 +202,21 @@ describe('HikeWaysCard (MAP-03, MAP-04)', () => {
     show(ways({ rows: SAC_ROWS.filter((row) => row.key !== 'unasked') }));
     expect(screen.getByTestId('sac-row-unmatched')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /try again/i })).toBeNull();
+  });
+
+  it('FE-HIKE-WAYSCARD-013: a run asks for its ways matched as a run and puts its own badges in the head (RUN-02)', () => {
+    hook.ways = ways();
+    render(
+      <HikeWaysCard
+        tripId={4}
+        route={LINE}
+        routingLimit={null}
+        matching="run"
+        aside={(state) => <span data-testid="run-aside">{state.facet}</span>}
+      />
+    );
+    expect(hook.input).toMatchObject({ tripId: 4, route: LINE, matching: 'run' });
+    expect(screen.getByTestId('run-aside')).toHaveTextContent('sac');
+    expect(screen.queryByTestId('sac-routing-limit')).toBeNull();
   });
 });

@@ -1,5 +1,5 @@
 import { useMapPaint } from '../../Map/mapPaint';
-import type { SacClass, SurfaceClass, TrailClass } from './routeWays';
+import type { SurfaceClass, TrailClass } from './routeWays';
 
 /**
  * The colours of a bike tour's or a run's surfaces and grades (styles/bike.css),
@@ -28,25 +28,6 @@ export type BikePaintKey = keyof typeof BIKE_PAINT_TOKENS;
 /** The paint of a trail class; a way without a grade, or not asked about, in the grey of the unknown. */
 export function trailPaintKey(key: TrailClass): BikePaintKey {
   return key === 'none' || key === 'unasked' ? 'unknown' : key;
-}
-
-/**
- * RUN-02: the paint of a hiking grade, on the same scale from easy to hard as
- * the trail grades (T1 as S0, T5 and up as S4), so a map never shows two
- * colour scales for one idea; a way without a grade in the grey of the unknown.
- */
-const SAC_PAINT: Record<SacClass, BikePaintKey> = {
-  t1: 's0',
-  t2: 's1',
-  t3: 's2',
-  t4: 's3',
-  t5: 's4',
-  t6: 's4',
-  none: 'unknown',
-};
-
-export function sacPaintKey(key: SacClass): BikePaintKey {
-  return SAC_PAINT[key];
 }
 
 /** The paint of a surface class. */

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { encodePolyline } from '../../../../tests/helpers/polyline';
-import { bikePaintCss, sacPaintKey, surfacePaintKey, trailPaintKey } from './bikePaint';
+import { bikePaintCss, surfacePaintKey, trailPaintKey } from './bikePaint';
 import { withRouteHighlight } from './routeHighlight';
 import {
   routeWaysFrom,
@@ -152,12 +152,6 @@ describe('the paints and the highlight (BIK-01 to BIK-05)', () => {
     expect(trailPaintKey('none')).toBe('unknown');
     expect(trailPaintKey('unasked')).toBe('unknown');
     expect(bikePaintCss('s1')).toBe('var(--bike-trail-s1)');
-  });
-
-  it('FE-TOUR-WAYS-012: a hiking grade takes the paint of the trail grade it matches, T5 and up the hardest (RUN-02)', () => {
-    const grades = ['t1', 't2', 't3', 't4', 't5', 't6'] as const;
-    expect(grades.map(sacPaintKey)).toEqual(['s0', 's1', 's2', 's3', 's4', 's4']);
-    expect(sacPaintKey('none')).toBe('unknown');
   });
 
   const paint = { gravel: '#a0522d', way: '#111', casing: '#fff' } as Parameters<typeof withRouteHighlight>[4];

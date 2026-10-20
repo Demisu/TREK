@@ -1,4 +1,5 @@
 import { Footprints, Layers, MountainSnow, Signpost } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import ToggleSwitch from '../../Settings/ToggleSwitch';
 import { Segmented, type SegmentedOption } from '../../shared/dialogParts';
@@ -7,7 +8,7 @@ import { ReadStatusNotice } from '../ReadStatusNotice';
 import { RailCard } from '../tourParts';
 import type { HikeFacet } from './hikeFacetSpecs';
 import { HikeWaysList } from './HikeWaysList';
-import { useHikeWays } from './useHikeWays';
+import { useHikeWays, type HikeWays } from './useHikeWays';
 
 const ICON = { size: 13, strokeWidth: 2 } as const;
 
@@ -18,13 +19,16 @@ const ICON = { size: 13, strokeWidth: 2 } as const;
  * surface or the kind of way, three things kept apart, each class with its
  * share; the unknown stays unknown and says why. The routing limit, where the
  * hike was planned with one, sits apart as the setting it is. Nothing here
- * changes the tour.
+ * changes the tour. A run (RUN-02) shows its ways in this same card, matched
+ * as a run, with what a runner reads first in the card's head.
  */
 export function HikeWaysCard({
   tripId,
   route,
   routeCurrent = true,
   routingLimit,
+  matching = 'foot',
+  aside,
 }: {
   tripId: number | string;
   /** The tour's own line, or null while there is none. */
@@ -33,9 +37,13 @@ export function HikeWaysCard({
   routeCurrent?: boolean;
   /** The routing limit the hike is planned with, or null where it was not routed (an import). */
   routingLimit: number | null;
+  /** How the line is matched to the ways: on foot for a hike, as a run for a run. */
+  matching?: 'foot' | 'run';
+  /** What the card's head shows beside its title, from what has been read. */
+  aside?: (ways: HikeWays) => ReactNode;
 }) {
   const { t } = useTranslation();
-  const ways = useHikeWays({ tripId, route, current: routeCurrent });
+  const ways = useHikeWays({ tripId, route, current: routeCurrent, matching });
   if (!ways.available) return null;
   const facets: SegmentedOption<HikeFacet>[] = [
     { value: 'sac', label: t('tours.hike.ways.facet.sac'), icon: <MountainSnow {...ICON} /> },
@@ -43,7 +51,12 @@ export function HikeWaysCard({
     { value: 'way', label: t('tours.hike.ways.facet.way'), icon: <Signpost {...ICON} /> },
   ];
   return (
-    <RailCard icon={<Footprints size={14} strokeWidth={2} />} title={t('tours.hike.ways.title')} foldId="hike-ways">
+    <RailCard
+      icon={<Footprints size={14} strokeWidth={2} />}
+      title={t('tours.hike.ways.title')}
+      foldId={matching === 'run' ? 'run-ways' : 'hike-ways'}
+      aside={aside?.(ways)}
+    >
       <div data-testid="hike-ways-card" className="flex min-w-0 flex-col gap-3">
         <div className="flex items-center gap-3">
           <span aria-hidden="true" className="min-w-0 flex-1 text-content-secondary" style={fs(12, 'body')}>

@@ -1,36 +1,17 @@
-import { Layers, Mountain } from 'lucide-react';
+import { Mountain } from 'lucide-react';
 import { useMemo } from 'react';
 import { useTranslation } from '../../../i18n';
 import { SoftPill } from '../../Planner/planParts';
 import { Tooltip } from '../../shared/Tooltip';
-import { sacPaintKey } from '../bike/bikePaint';
-import {
-  percent,
-  RouteWaysProgress,
-  RouteWaysSource,
-  ShareBar,
-  ShareList,
-  SurfaceSection,
-  WaySection,
-  WaysSection,
-} from '../bike/RouteWaySections';
-import { sharesBy, unpavedShareOf, type RouteWayEdge, type RouteWays, type SacClass } from '../bike/routeWays';
-import { useRouteWays } from '../bike/useRouteWays';
+import { percent } from '../bike/RouteWaySections';
+import { unpavedShareOf, type RouteWays, type SacClass } from '../bike/routeWays';
+import { HikeWaysCard } from '../hike/HikeWaysCard';
 import type { TourPlannerController } from '../planner/useTourPlanner';
-import { RailCard } from '../tourParts';
 
 type GradedClass = Exclude<SacClass, 'none'>;
 
-const sacOf = (edge: RouteWayEdge) => edge.sac;
-
 /** The steps from easy to hard, so the hardest one along the route is the last one found. */
 const SAC_STEPS: readonly GradedClass[] = ['t1', 't2', 't3', 't4', 't5', 't6'];
-
-/** A hiking grade in the card's own words, a way without one as unknown. */
-function useSacLabel() {
-  const { t } = useTranslation();
-  return (key: SacClass) => (key === 'none' ? t('tours.bike.trail.none') : t(`tours.run.ways.sac.${key}`));
-}
 
 /** The hardest graded step along the route, or null when no way on it carries a grade. */
 export function hardestSac(ways: RouteWays): GradedClass | null {
@@ -39,34 +20,15 @@ export function hardestSac(ways: RouteWays): GradedClass | null {
 }
 
 /**
- * RUN-02: the hiking grades along a run (sac_scale) as OpenStreetMap mappers
- * gave them, by share, each pointing at its stretches on the map. A way
- * without a grade is its own row: unknown, never easy. What the grades are
- * and are not sits behind the info dot, not in a line of its own.
+ * The card's head: how much of the run is known to be unpaved, and the
+ * hardest graded path on it, named in the words the hike's trail details use.
  */
-function PathGradeSection({ ways }: { ways: RouteWays }) {
-  const { t } = useTranslation();
-  const labelOf = useSacLabel();
-  const rows = useMemo(() => sharesBy<SacClass>(ways, sacOf), [ways]);
-  return (
-    <WaysSection
-      label={t('tours.run.ways.grade')}
-      info={{ label: t('tours.run.ways.gradeInfoLabel'), description: t('tours.run.ways.gradeInfo') }}
-    >
-      <ShareBar rows={rows} paintOf={sacPaintKey} />
-      <ShareList ways={ways} rows={rows} idPrefix="grade" classOf={sacOf} labelOf={labelOf} paintOf={sacPaintKey} />
-    </WaysSection>
-  );
-}
-
-/** The card's head: how much of the run is known to be unpaved, and the hardest graded path on it. */
 function RunWaysBadges({ ways }: { ways: RouteWays | null }) {
   const { t } = useTranslation();
-  const labelOf = useSacLabel();
   const unpaved = useMemo(() => (ways ? unpavedShareOf(ways) : null), [ways]);
   const hardest = useMemo(() => (ways ? hardestSac(ways) : null), [ways]);
   if (unpaved === null && hardest === null) return null;
-  const hardestText = hardest ? t('tours.run.ways.gradeTop', { grade: labelOf(hardest) }) : '';
+  const hardestText = hardest ? t('tours.run.ways.gradeTop', { grade: t(`tours.hike.sac.${hardest}`) }) : '';
   return (
     <span className="flex flex-none items-center gap-1">
       {unpaved !== null && <SoftPill>{t('tours.bike.ways.unpavedBadge', { share: percent(unpaved) })}</SoftPill>}
@@ -87,41 +49,24 @@ function RunWaysBadges({ ways }: { ways: RouteWays | null }) {
 type RunWaysPlanner = Pick<TourPlannerController, 'tripId' | 'mode' | 'isRun' | 'route' | 'routeCurrent'>;
 
 /**
- * RUN-02: what the run being planned runs on: its surfaces, the hiking grades
- * of its paths and its kinds of way, read off the router's description of the
- * route matched on foot. Where the data says nothing the card says unknown,
- * and nothing here grades the run, changes its time or changes the tour.
+ * RUN-02: what the run being planned runs on, in the same card a hike shows
+ * its trail details in: switched on by the runner, the SAC grade, the surface
+ * or the kind of way along the line, drawn on the map in the same colours and
+ * named in the same words, the line matched as a run. The head adds what a
+ * runner reads first: the unpaved share and the hardest graded path. Nothing
+ * here grades the run, changes its time or changes the tour.
  */
 export function RunWaysCard({ planner }: { planner: RunWaysPlanner }) {
-  const { t } = useTranslation();
   const editing = planner.mode.type === 'new-draft' || planner.mode.type === 'edit-saved';
-  const state = useRouteWays({
-    tripId: planner.tripId,
-    active: planner.isRun && editing,
-    route: planner.routeCurrent ? planner.route : null,
-    matching: 'run',
-    withGrades: false,
-  });
-  const { ways } = state;
-  if (!planner.isRun || !editing || state.status === 'idle') return null;
+  if (!planner.isRun || !editing) return null;
   return (
-    <RailCard
-      icon={<Layers size={14} strokeWidth={2} />}
-      title={t('tours.bike.ways.title')}
-      foldId="run-ways"
-      aside={<RunWaysBadges ways={ways} />}
-    >
-      <div data-testid="run-ways-card" className="flex min-w-0 flex-col gap-3">
-        <RouteWaysProgress state={state} />
-        {ways && (
-          <>
-            <SurfaceSection ways={ways} />
-            <PathGradeSection ways={ways} />
-            <WaySection ways={ways} />
-            <RouteWaysSource />
-          </>
-        )}
-      </div>
-    </RailCard>
+    <HikeWaysCard
+      tripId={planner.tripId}
+      route={planner.route}
+      routeCurrent={planner.routeCurrent}
+      routingLimit={null}
+      matching="run"
+      aside={(ways) => <RunWaysBadges ways={ways.routeWays} />}
+    />
   );
 }

@@ -456,17 +456,7 @@ const tours: TranslationStrings = {
   'tours.run.profile.trail': 'Terepfutás',
   'tours.run.profileHint.trail':
     'Előnyben részesíti az erdei utakat és a természetes ösvényeket, a hegyi ösvényekig (T2).',
-  'tours.run.ways.grade': 'Útnehézség (sac_scale)',
-  'tours.run.ways.gradeInfoLabel': 'Az útnehézségről',
-  'tours.run.ways.gradeInfo':
-    'Túranehézségi fokozatok, ahogy az OpenStreetMap térképezői megadták. A fokozat nélküli út ismeretlen, nem könnyű. Semmit sem mondanak arról, hogy egy út futható-e, vagy illik-e hozzád.',
   'tours.run.ways.gradeTop': 'Legnehezebb besorolt ösvény: {grade}',
-  'tours.run.ways.sac.t1': 'T1, gyalogtúra',
-  'tours.run.ways.sac.t2': 'T2, hegyi túra',
-  'tours.run.ways.sac.t3': 'T3, megerőltető hegyi túra',
-  'tours.run.ways.sac.t4': 'T4, magashegyi túra',
-  'tours.run.ways.sac.t5': 'T5, megerőltető magashegyi túra',
-  'tours.run.ways.sac.t6': 'T6, nehéz magashegyi túra',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Túra',
   'tours.bike.profile.road': 'Országúti',

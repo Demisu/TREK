@@ -20,7 +20,7 @@ const toursModules = import.meta.glob<{ default: TranslationStrings }>('./*/tour
 const TOUR_DOMAINS: { file: string; generalKeyCount: number; modules: DomainModules }[] = [
   {
     file: 'tours',
-    generalKeyCount: 1182,
+    generalKeyCount: 1173,
     modules: toursModules,
   },
   {

@@ -1,5 +1,6 @@
+import type { TourTrailGrade } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, within } from '../../../../tests/helpers/render';
+import { fireEvent, render, screen } from '../../../../tests/helpers/render';
 import { useTourRouteHighlightStore } from '../../../store/tourRouteHighlightStore';
 import type { RouteWays } from '../bike/routeWays';
 import type { RouteWaysState } from '../bike/useRouteWays';
@@ -13,7 +14,7 @@ vi.mock('../bike/useRouteWays', () => ({
   },
 }));
 
-// FE-TOUR-RUNWAYS-001 to FE-TOUR-RUNWAYS-007
+// FE-TOUR-RUNWAYS-001 to FE-TOUR-RUNWAYS-005
 
 type Planner = Parameters<typeof RunWaysCard>[0]['planner'];
 
@@ -31,6 +32,30 @@ const WAYS: RouteWays = {
     { from: 2, to: 3, lengthM: 100, surface: 'ground', way: 'path', sac: 't2', wayId: 3 },
   ],
 };
+const grade = (id: number, values: Partial<TourTrailGrade>): TourTrailGrade => ({
+  id,
+  mtb_scale: null,
+  mtb_scale_uphill: null,
+  mtb_scale_imba: null,
+  sac_scale: null,
+  sac_scale_unclear: null,
+  surface: null,
+  highway: null,
+  ...values,
+});
+const READY: RouteWaysState = {
+  status: 'ready',
+  ways: WAYS,
+  grades: {
+    status: 'ready',
+    byWay: new Map([
+      [1, grade(1, { surface: 'asphalt', highway: 'residential' })],
+      [2, grade(2, { sac_scale: 'hiking', surface: 'gravel', highway: 'track' })],
+      [3, grade(3, { sac_scale: 'mountain_hiking', surface: 'ground', highway: 'path' })],
+    ]),
+    unasked: new Set(),
+  },
+};
 
 function planner(overrides: Partial<Planner> = {}): Planner {
   return {
@@ -43,10 +68,12 @@ function planner(overrides: Partial<Planner> = {}): Planner {
   } as Planner;
 }
 
-function show(state: Partial<RouteWaysState>, overrides: Partial<Planner> = {}) {
-  hook.state = { status: 'ready', ways: WAYS, grades: null, ...state };
+function show(state: Partial<RouteWaysState> = {}, overrides: Partial<Planner> = {}) {
+  hook.state = { ...READY, ...state };
   return render(<RunWaysCard planner={planner(overrides)} />);
 }
+
+const switchOn = () => fireEvent.click(screen.getByRole('button', { name: 'Show along the route' }));
 
 beforeEach(() => {
   localStorage.clear();
@@ -55,83 +82,50 @@ beforeEach(() => {
 afterEach(() => vi.clearAllMocks());
 
 describe('RunWaysCard (RUN-02)', () => {
-  it('FE-TOUR-RUNWAYS-001: shows the surfaces, the hiking grades and the kinds of way, the ungraded named as unknown', () => {
-    show({});
-    expect(within(screen.getByTestId('route-ways-row-surface-paved')).getByText('60 %')).toBeInTheDocument();
-    expect(screen.getByTestId('route-ways-row-surface-gravel')).toHaveTextContent('300 m');
-    expect(screen.getByTestId('route-ways-row-grade-t1')).toHaveTextContent('T1, hiking');
-    expect(screen.getByTestId('route-ways-row-grade-t2')).toHaveTextContent('10 %');
-    expect(screen.getByTestId('route-ways-row-grade-none')).toHaveTextContent('No grade in the data');
-    expect(screen.getByTestId('route-ways-row-way-track')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'About the path difficulty' })).toHaveAccessibleDescription(
-      /unknown, not easy/
-    );
+  it('FE-TOUR-RUNWAYS-001: the trail details a hike shows, switched on by the runner and matched as a run', () => {
+    show();
+    expect(screen.getByRole('region', { name: 'Trail details' })).toBeInTheDocument();
+    expect(hook.input).toMatchObject({ active: false, matching: 'run' });
+    expect(screen.queryByTestId('sac-row-t1')).toBeNull();
+    switchOn();
+    expect(hook.input).toMatchObject({ tripId: 4, active: true, route: LINE, matching: 'run', withGrades: true });
+    // The same words and the same paint as a hike's, never a raw tag in a label.
+    expect(screen.getByTestId('sac-row-t1')).toHaveTextContent('Hiking');
+    expect(screen.getByTestId('sac-row-t2')).toHaveTextContent('Mountain hiking');
+    expect(screen.queryByText(/sac_scale\)/)).toBeNull();
+    expect(useTourRouteHighlightStore.getState().highlight).toMatchObject({
+      id: 'sac',
+      paints: ['t1', 't2', 'unknown'],
+    });
   });
 
-  it('FE-TOUR-RUNWAYS-002: the head says how much is unpaved and the hardest graded path, in words for assistive tech', () => {
-    show({});
+  it('FE-TOUR-RUNWAYS-002: once read, the head says how much is unpaved and the hardest graded path, in words for assistive tech', () => {
+    show();
+    expect(screen.queryByText(/unpaved/)).toBeNull();
+    switchOn();
     expect(screen.getByText('40 % unpaved')).toBeInTheDocument();
     const hardest = screen.getByTestId('run-ways-hardest');
     expect(hardest).toHaveTextContent('T2');
-    expect(hardest).toHaveTextContent('Hardest graded path: T2, mountain hiking');
-    expect(hardest.textContent).not.toMatch(/[\u2013\u2014]/);
+    expect(hardest).toHaveTextContent('Hardest graded path: Mountain hiking');
+    expect(hardest.textContent).not.toMatch(/[–—]/);
   });
 
-  it('FE-TOUR-RUNWAYS-003: a grade row points at its stretches on the map in the grade colour, and lets go', () => {
-    show({});
-    const row = screen.getByTestId('route-ways-row-grade-t2');
-    fireEvent.click(row);
-    expect(useTourRouteHighlightStore.getState().highlight).toEqual({
-      id: 'grade-t2',
-      lines: [LINE.slice(2, 4)],
-      paint: 's1',
-    });
-    fireEvent.click(row);
-    expect(useTourRouteHighlightStore.getState().highlight).toBeNull();
-  });
-
-  it('FE-TOUR-RUNWAYS-004: a route all paved and ungraded shows no head badges, and its grades as unknown', () => {
-    const paved: RouteWays = { line: LINE, edges: [WAYS.edges[0]] };
-    show({ ways: paved });
+  it('FE-TOUR-RUNWAYS-003: a route all paved and ungraded shows no head badges', () => {
+    show({ ways: { line: LINE, edges: [WAYS.edges[0]] } });
+    switchOn();
     expect(screen.queryByText(/unpaved/)).toBeNull();
     expect(screen.queryByTestId('run-ways-hardest')).toBeNull();
-    expect(screen.getByTestId('route-ways-row-grade-none')).toHaveTextContent('100 %');
   });
 
-  it('FE-TOUR-RUNWAYS-005: says when it is still asking, offline, or failed with a way to ask again', () => {
-    const loading = show({ status: 'loading', ways: null });
-    expect(screen.getByTestId('run-ways-card')).toHaveTextContent(/./);
-    loading.unmount();
-    const offline = show({ status: 'offline', ways: null });
-    expect(screen.queryByRole('button', { name: /try again/i })).toBeNull();
-    offline.unmount();
-    show({ status: 'failed', ways: null });
-    fireEvent.click(screen.getByRole('button', { name: /try again/i }));
-    expect(hook.retry).toHaveBeenCalledTimes(1);
+  it('FE-TOUR-RUNWAYS-004: only for a run being edited', () => {
+    const other = show({}, { isRun: false });
+    expect(screen.queryByRole('region', { name: 'Trail details' })).toBeNull();
+    other.unmount();
+    show({}, { mode: { type: 'view-gpx' } as Planner['mode'] });
+    expect(screen.queryByRole('region', { name: 'Trail details' })).toBeNull();
   });
 
-  it('FE-TOUR-RUNWAYS-006: matched on foot without trail grades, and only for a run being edited with its route as planned now', () => {
-    const run = show({});
-    expect(hook.input).toMatchObject({
-      tripId: 4,
-      active: true,
-      route: LINE,
-      matching: 'run',
-      withGrades: false,
-    });
-    run.unmount();
-    const idle = show({ status: 'idle', ways: null });
-    expect(screen.queryByTestId('run-ways-card')).toBeNull();
-    idle.unmount();
-    const bike = show({}, { isRun: false });
-    expect(screen.queryByTestId('run-ways-card')).toBeNull();
-    bike.unmount();
-    show({}, { routeCurrent: false, mode: { type: 'view-gpx' } as Planner['mode'] });
-    expect(screen.queryByTestId('run-ways-card')).toBeNull();
-    expect(hook.input).toMatchObject({ active: false, route: null });
-  });
-
-  it('FE-TOUR-RUNWAYS-007: the hardest graded step along the route, a stretch of no length left out', () => {
+  it('FE-TOUR-RUNWAYS-005: the hardest graded step along the route, a stretch of no length left out', () => {
     expect(hardestSac(WAYS)).toBe('t2');
     expect(hardestSac({ line: LINE, edges: [{ ...WAYS.edges[2], sac: 't5', lengthM: 0 }, WAYS.edges[1]] })).toBe('t1');
     expect(hardestSac({ line: LINE, edges: [WAYS.edges[0]] })).toBeNull();
