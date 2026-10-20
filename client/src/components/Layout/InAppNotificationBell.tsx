@@ -52,12 +52,13 @@ export default function InAppNotificationBell(): React.ReactElement {
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
           <span
-            className="absolute -top-1 -end-1 flex items-center justify-center rounded-full text-white font-bold tabular-nums ring-2 ring-surface-card"
+            data-testid="notification-badge"
+            className="absolute -top-1.5 -end-1.5 flex items-center justify-center rounded-full text-white font-bold tabular-nums ring-2 ring-surface-card"
             style={{
               background: '#ef4444',
-              fontSize: 'calc(10px * var(--fs-scale-caption, 1))',
-              minWidth: 18,
-              height: 18,
+              fontSize: 'calc(10.5px * var(--fs-scale-caption, 1))',
+              minWidth: 20,
+              height: 20,
               padding: '0 5px',
               lineHeight: 1,
             }}

@@ -1,4 +1,4 @@
-// FE-COMP-BELL-001 to FE-COMP-BELL-020
+// FE-COMP-BELL-001 to FE-COMP-BELL-021
 import { render, screen, waitFor } from '../../../tests/helpers/render';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
@@ -237,5 +237,14 @@ describe('InAppNotificationBell', () => {
     await user.click(bell);
     // fetchNotifications should be called once per open (2 total)
     expect(fetchNotifications).toHaveBeenCalledTimes(2);
+  });
+
+  it('FE-COMP-BELL-021: unread badge is large enough that the count is not squeezed', () => {
+    seedStore(useInAppNotificationStore, { notifications: [], unreadCount: 150, isLoading: false });
+    render(<InAppNotificationBell />);
+    const badge = screen.getByTestId('notification-badge');
+    expect(badge).toHaveTextContent('99+');
+    expect(badge.style.height).toBe('20px');
+    expect(badge.style.minWidth).toBe('20px');
   });
 });
