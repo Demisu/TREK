@@ -10,8 +10,8 @@ import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
 import { tourTrailGradeResponseSchema } from '@trek/shared';
 
 /**
- * BIK-05 POST /api/trips/:tripId/tours/trail-grades: the trail grades of the
- * ways a mountain bike tour runs on. A read, so anyone who sees the trip may
+ * BIK-05 and MAP-03 POST /api/trips/:tripId/tours/trail-grades: the trail
+ * grades of the ways a tour runs on, mountain bike and SAC alike. A read, so anyone who sees the trip may
  * ask; the ways come in the body because the draft may not be saved yet.
  */
 @Controller('api/trips/:tripId/tours')

@@ -1,8 +1,9 @@
 import type { RouteHighlight } from '../../../store/tourRouteHighlightStore';
-import type { BikePaintKey } from './bikePaint';
 
 type Line = [number, number][];
 type LineColor = { line: string; casing: string } | undefined;
+/** The route paints resolved for the map, by key: the bike's and the hike's, with the accent and the rim. */
+type RoutePaint = Readonly<Record<string, string>> & { readonly way: string; readonly casing: string };
 
 /**
  * The planner map's lines with a highlight laid over them: the route's own
@@ -15,13 +16,16 @@ export function withRouteHighlight(
   route: Line[] | null,
   walking: boolean[] | null,
   colors: LineColor[] | null,
-  paint: Record<BikePaintKey, string>
+  paint: RoutePaint
 ): { route: Line[] | null; walking: boolean[] | null; colors: LineColor[] | null } {
   if (!highlight?.lines.length || !route?.length) return { route, walking, colors };
-  const color = { line: paint[highlight.paint as BikePaintKey] ?? paint.way, casing: paint.casing };
+  const colorOf = (index: number) => ({
+    line: paint[highlight.paints?.[index] ?? highlight.paint] ?? paint.way,
+    casing: paint.casing,
+  });
   return {
     route: [...route, ...highlight.lines],
     walking: walking ? [...walking, ...highlight.lines.map(() => false)] : null,
-    colors: [...(colors ?? route.map(() => undefined)), ...highlight.lines.map(() => color)],
+    colors: [...(colors ?? route.map(() => undefined)), ...highlight.lines.map((_, index) => colorOf(index))],
   };
 }

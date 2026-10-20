@@ -49,6 +49,8 @@ const grade = (id: number, mtb: string | null, uphill: string | null = null): To
   mtb_scale: mtb,
   mtb_scale_uphill: uphill,
   mtb_scale_imba: null,
+  sac_scale: null,
+  sac_scale_unclear: null,
 });
 
 function show(state: Partial<RouteWaysState>, overrides: Partial<TourPlannerController> = {}) {
@@ -147,11 +149,11 @@ describe('BikeWaysCard (BIK-01 to BIK-05)', () => {
     hike.unmount();
     show({}, { routeCurrent: false, mode: { type: 'view-gpx' } } as Partial<TourPlannerController>);
     expect(screen.queryByTestId('bike-ways-card')).toBeNull();
-    expect(hook.input).toMatchObject({ tripId: 4, active: false, route: null, matchAs: 'bicycle', withGrades: false });
+    expect(hook.input).toMatchObject({ tripId: 4, active: false, route: null, matching: 'bike', withGrades: false });
   });
 
   it('FE-TOUR-BIKECARD-009: matches the line as ridden, and asks the trail grades for a mountain bike tour only', () => {
     show({}, { bikeProfile: 'mtb' } as Partial<TourPlannerController>);
-    expect(hook.input).toMatchObject({ active: true, route: LINE, matchAs: 'bicycle', withGrades: true });
+    expect(hook.input).toMatchObject({ active: true, route: LINE, matching: 'bike', withGrades: true });
   });
 });

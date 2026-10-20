@@ -283,11 +283,29 @@ describe('Bike tours e2e (real guards + temp SQLite)', () => {
     it('answers the grades of the ways asked about to anyone who sees the trip', async () => {
       overpassQuery.mockResolvedValueOnce([
         { type: 'way', id: 11, tags: { 'mtb:scale': '2', 'mtb:scale:uphill': '1' } },
+        { type: 'way', id: 12, tags: { sac_scale: 'mountain_hiking' } },
       ]);
       const res = await ask({ way_ids: [11, 12] }, VIEWER);
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
-        ways: [{ id: 11, mtb_scale: '2', mtb_scale_uphill: '1', mtb_scale_imba: null }],
+        ways: [
+          {
+            id: 11,
+            mtb_scale: '2',
+            mtb_scale_uphill: '1',
+            mtb_scale_imba: null,
+            sac_scale: null,
+            sac_scale_unclear: null,
+          },
+          {
+            id: 12,
+            mtb_scale: null,
+            mtb_scale_uphill: null,
+            mtb_scale_imba: null,
+            sac_scale: 'mountain_hiking',
+            sac_scale_unclear: null,
+          },
+        ],
         unanswered: [],
       });
     });

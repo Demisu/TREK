@@ -557,7 +557,7 @@ describe('valhallaTraceAttributes (BIK-01)', () => {
       bodies.push(await request.json() as Record<string, unknown>)
       return HttpResponse.json({ shape: SHAPE, edges: [] })
     }))
-    await valhallaTraceAttributes(SHAPE_POINTS, undefined, 'pedestrian')
+    await valhallaTraceAttributes(SHAPE_POINTS, undefined, 'run')
     expect(bodies[0]).toMatchObject({
       costing: 'pedestrian',
       costing_options: { pedestrian: { max_hiking_difficulty: 6 } },
@@ -587,6 +587,21 @@ describe('valhallaTraceAttributes (BIK-01)', () => {
     await expect(valhallaTraceAttributes(SHAPE_POINTS.slice(0, 1))).resolves.toBeNull()
     setSettings({ routing_base_url: 'https://osrm.example' })
     await expect(valhallaTraceAttributes(SHAPE_POINTS)).resolves.toBeNull()
+  })
+
+  it('VALHALLA-TRACE-006: a hike is matched on foot with every grade of path open, never by its routing limit (MAP-03)', async () => {
+    const bodies: Record<string, unknown>[] = []
+    server.use(http.post(TRACE, async ({ request }) => {
+      bodies.push(await request.json() as Record<string, unknown>)
+      return HttpResponse.json({ shape: SHAPE, edges: [] })
+    }))
+    await valhallaTraceAttributes(SHAPE_POINTS, undefined, 'foot')
+    expect(bodies[0]).toMatchObject({
+      costing: 'pedestrian',
+      costing_options: { pedestrian: { max_hiking_difficulty: 6 } },
+      shape_match: 'map_snap',
+    })
+    expect(JSON.stringify(bodies[0])).not.toContain('sac_scale')
   })
 
   it('VALHALLA-TRACE-004: a caller gone before its turn asks nothing', async () => {

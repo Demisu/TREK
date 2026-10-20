@@ -1,11 +1,12 @@
-import { AlertTriangle, Info, Loader2, RefreshCw, WifiOff } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { useMemo, type ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import { useSettingsStore } from '../../../store/settingsStore';
 import { useTourRouteHighlightStore } from '../../../store/tourRouteHighlightStore';
 import { formatDistance } from '../../../utils/units';
 import { fs } from '../../shared/DialogShell';
-import { CardAction, InfoDot, TourNotice } from '../tourParts';
+import { ReadStatusNotice } from '../ReadStatusNotice';
+import { InfoDot } from '../tourParts';
 import { bikePaintCss, surfacePaintKey, type BikePaintKey } from './bikePaint';
 import {
   sharesBy,
@@ -202,25 +203,16 @@ export function WaySection({ ways }: { ways: RouteWays }) {
 /** How reading the ways went while there are none to show: on its way, offline, or failed with a way to ask again. */
 export function RouteWaysProgress({ state }: { state: Pick<RouteWaysState, 'status'> & { retry: () => void } }) {
   const { t } = useTranslation();
-  if (state.status === 'loading')
-    return (
-      <span className="inline-flex items-center gap-1.5 text-content-muted" style={fs(11.5, 'body')}>
-        <Loader2 size={12} strokeWidth={2} className="animate-spin" />
-        {t('tours.bike.ways.loading')}
-      </span>
-    );
-  if (state.status === 'offline')
-    return <TourNotice icon={<WifiOff size={13} strokeWidth={2} />}>{t('tours.bike.ways.offline')}</TourNotice>;
-  if (state.status !== 'failed') return null;
   return (
-    <TourNotice tone="warning" icon={<AlertTriangle size={13} strokeWidth={2} />}>
-      <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-        <span>{t('tours.bike.ways.failed')}</span>
-        <CardAction icon={<RefreshCw size={12} strokeWidth={2} />} onClick={state.retry}>
-          {t('common.errorRetry')}
-        </CardAction>
-      </span>
-    </TourNotice>
+    <ReadStatusNotice
+      status={state.status}
+      messages={{
+        loading: t('tours.bike.ways.loading'),
+        offline: t('tours.bike.ways.offline'),
+        failed: t('tours.bike.ways.failed'),
+      }}
+      onRetry={state.retry}
+    />
   );
 }
 

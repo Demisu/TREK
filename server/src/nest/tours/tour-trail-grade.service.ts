@@ -1,6 +1,12 @@
 import { OverpassElementsClient } from '../overpass/overpass-elements.service';
 import { Injectable } from '@nestjs/common';
-import type { TourTrailGrade, TourTrailGradeRequest, TourTrailGradeResponse } from '@trek/shared';
+import {
+  SAC_SCALE_UNCLEAR_MAX,
+  sacScaleSchema,
+  type TourTrailGrade,
+  type TourTrailGradeRequest,
+  type TourTrailGradeResponse,
+} from '@trek/shared';
 
 import { z } from 'zod';
 
@@ -24,19 +30,36 @@ function step(value: string | undefined, top: number, signed: boolean): string |
   return signed ? `${match[1]}${match[2] ?? ''}` : match[1];
 }
 
+/**
+ * MAP-03: a way's `sac_scale` as one of the scale's six values, read as
+ * OpenStreetMap wrote it. A value that names no single step (`T3`,
+ * `hiking;mountain_hiking`, a typo) is handed on as written and never read to
+ * a step, so the planner says unclear rather than picking one.
+ */
+function sacOf(value: string | undefined): Pick<TourTrailGrade, 'sac_scale' | 'sac_scale_unclear'> {
+  const written = value?.trim() ?? '';
+  if (!written) return { sac_scale: null, sac_scale_unclear: null };
+  const known = sacScaleSchema.safeParse(written.toLowerCase());
+  if (known.success) return { sac_scale: known.data, sac_scale_unclear: null };
+  return { sac_scale: null, sac_scale_unclear: written.slice(0, SAC_SCALE_UNCLEAR_MAX) };
+}
+
 function gradeOf(id: number, tags: Record<string, string> = {}): TourTrailGrade | null {
   const grade = {
     id,
     mtb_scale: step(tags['mtb:scale'], 6, true),
     mtb_scale_uphill: step(tags['mtb:scale:uphill'], 5, true),
     mtb_scale_imba: step(tags['mtb:scale:imba'], 4, false),
+    ...sacOf(tags['sac_scale']),
   };
-  return grade.mtb_scale || grade.mtb_scale_uphill || grade.mtb_scale_imba ? grade : null;
+  const graded = grade.mtb_scale || grade.mtb_scale_uphill || grade.mtb_scale_imba;
+  return graded || grade.sac_scale || grade.sac_scale_unclear ? grade : null;
 }
 
 /**
- * BIK-05: the trail grades of the ways a mountain bike tour runs on, read from
- * OpenStreetMap through the operator's Overpass mirrors. What was read is kept
+ * BIK-05 and MAP-03: the trail grades of the ways a tour runs on (the mountain
+ * bike scales, and the SAC hiking scale of a hike), read from OpenStreetMap
+ * through the operator's Overpass mirrors. What was read is kept
  * a day, so the same tour asked about again costs the mirrors nothing; ways a
  * mirror could not answer are said, never guessed.
  */

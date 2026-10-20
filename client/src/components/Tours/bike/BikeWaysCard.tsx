@@ -155,7 +155,7 @@ export function BikeWaysCard({ planner }: { planner: TourPlannerController }) {
     tripId: planner.tripId,
     active: planner.isBike && editing,
     route,
-    matchAs: 'bicycle',
+    matching: 'bike',
     withGrades: planner.bikeProfile === 'mtb',
   });
   const { ways } = state;

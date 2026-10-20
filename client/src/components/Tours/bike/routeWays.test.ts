@@ -13,7 +13,7 @@ import {
   type RouteWays,
 } from './routeWays';
 
-// FE-TOUR-WAYS-001 to FE-TOUR-WAYS-013
+// FE-TOUR-WAYS-001 to FE-TOUR-WAYS-014
 
 const LINE: [number, number][] = [
   [47.0, 11.0],
@@ -185,5 +185,20 @@ describe('the paints and the highlight (BIK-01 to BIK-05)', () => {
     expect(withRouteHighlight(null, route, [false], colors, paint)).toEqual({ route, walking: [false], colors });
     expect(withRouteHighlight({ id: 'x', lines: [], paint: 'gravel' }, route, null, null, paint).route).toBe(route);
     expect(withRouteHighlight({ id: 'x', lines: [LINE], paint: 'gravel' }, null, null, null, paint).route).toBeNull();
+  });
+
+  it('FE-TOUR-WAYS-014: lines of different paints each take their own, an unknown key the accent (MAP-03)', () => {
+    const drawn = withRouteHighlight(
+      { id: 'sac', lines: [LINE.slice(0, 2), LINE.slice(1, 3), LINE.slice(2)], paint: 'gravel', paints: ['way', 'nope'] },
+      [LINE],
+      null,
+      null,
+      paint
+    );
+    expect(drawn.colors?.slice(1)).toEqual([
+      { line: '#111', casing: '#fff' },
+      { line: '#111', casing: '#fff' },
+      { line: '#a0522d', casing: '#fff' },
+    ]);
   });
 });

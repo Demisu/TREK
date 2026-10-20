@@ -369,30 +369,46 @@ const TRACE_TIMEOUT_MS = 30_000
 
 /**
  * How a line is matched to the ways under it: as a mountain bike rides, the
- * bicycle costing that refuses the fewest ways, or on foot with no hiking
- * limit, so steps and mountain paths a run takes stay on the line (matched as
- * a bike, a trail run over steps was described as the street beside them).
+ * bicycle costing that refuses the fewest ways, so a road bike's route and a
+ * gravel one are described alike; or on foot with every grade of path open,
+ * since a hike's line (MAP-03) may run on a T6 ridge the matcher must not
+ * refuse, and steps and mountain paths a run takes (RUN-02) stay on the line
+ * (matched as a bike, a trail run over steps was described as the street
+ * beside them). Matching is no routing: the limit a hike was planned with
+ * plays no part. A hike and a run are matched alike; they differ in whether
+ * the router's own hiking grade is asked for.
  */
-export type TraceMatch = 'bicycle' | 'pedestrian'
+const TRACE_COSTING = {
+  bike: { costing: 'bicycle', costing_options: { bicycle: { bicycle_type: 'Mountain' } } },
+  foot: { costing: 'pedestrian', costing_options: { pedestrian: { max_hiking_difficulty: 6 } } },
+  run: { costing: 'pedestrian', costing_options: { pedestrian: { max_hiking_difficulty: 6 } } },
+} as const
 
-const TRACE_COSTING: Record<TraceMatch, Readonly<Record<string, CostingOptions>>> = {
-  bicycle: { bicycle: { bicycle_type: 'Mountain' } },
-  pedestrian: { pedestrian: { max_hiking_difficulty: 6 } },
+export type TraceMatching = keyof typeof TRACE_COSTING
+
+const TRACE_ATTRIBUTES = ['shape', 'edge.surface', 'edge.use', 'edge.road_class', 'edge.cycle_lane', 'edge.length',
+  'edge.way_id', 'edge.begin_shape_index', 'edge.end_shape_index']
+
+/** The router's hiking grade is asked along a bike tour's and a run's line, never a hike's (MAP-03 reads OpenStreetMap). */
+function traceAttributesFor(matching: TraceMatching): string[] {
+  return matching === 'foot' ? TRACE_ATTRIBUTES : [...TRACE_ATTRIBUTES, 'edge.sac_scale']
 }
 
 /**
- * BIK-01, RUN-02: how the router describes the ways under a line
+ * BIK-01, RUN-02 and MAP-03: how the router describes the ways under a line
  * (`trace_attributes`): the surface, the use and road class, the cycle lane,
- * the hiking grade (`sac_scale`, 0 where the way has none) and the
- * OpenStreetMap way of every edge, with the line as matched. A bike tour's
- * line is matched as a mountain bike would ride it, so a road bike's route and
- * a gravel one are described alike; a run's on foot. Null for every failure:
- * the description is an addition beside a route that already exists.
+ * the OpenStreetMap way of every edge and, but for a hike, the router's
+ * hiking grade (`sac_scale`, 0 where the way has none), with the line as
+ * matched. A run's grade shares (RUN-02) read the router's grade; the grade a
+ * hike shows (MAP-03) comes from OpenStreetMap itself, since the router's
+ * reading may be normalised or derived, so it is not asked for there. Null for
+ * every failure: the description is an addition beside a route that already
+ * exists.
  */
 export async function valhallaTraceAttributes(
   line: readonly [number, number][],
   signal?: AbortSignal,
-  matchAs: TraceMatch = 'bicycle',
+  matching: TraceMatching = 'bike'
 ): Promise<unknown> {
   const base = valhallaBase()
   if (!base || line.length < 2) return null
@@ -407,12 +423,10 @@ export async function valhallaTraceAttributes(
       headers: { 'Content-Type': 'application/json', 'X-Client-Id': 'trek' },
       body: JSON.stringify({
         shape,
-        costing: matchAs,
-        costing_options: TRACE_COSTING[matchAs],
+        ...TRACE_COSTING[matching],
         shape_match: 'map_snap',
         filters: {
-          attributes: ['shape', 'edge.surface', 'edge.use', 'edge.road_class', 'edge.cycle_lane', 'edge.sac_scale', 'edge.length',
-            'edge.way_id', 'edge.begin_shape_index', 'edge.end_shape_index'],
+          attributes: traceAttributesFor(matching),
           action: 'include',
         },
       }),

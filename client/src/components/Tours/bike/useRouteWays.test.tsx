@@ -12,7 +12,7 @@ vi.mock('../../Map/valhallaRoute', () => trace);
 vi.mock('../../../repo/tourTrailGradeRepo', () => ({ tourTrailGradeRepo: gradesRepo }));
 vi.mock('../../../hooks/useNetworkMode', () => ({ useNetworkMode: () => ({ offline: network.offline }) }));
 
-// FE-TOUR-WAYS-HOOK-001 to FE-TOUR-WAYS-HOOK-009
+// FE-TOUR-WAYS-HOOK-001 to FE-TOUR-WAYS-HOOK-011
 
 const ROUTE: [number, number][] = [
   [47.0, 11.0],
@@ -32,7 +32,7 @@ const input = (overrides: Partial<Input> = {}): Input => ({
   tripId: 3,
   active: true,
   route: ROUTE,
-  matchAs: 'bicycle',
+  matching: 'bike',
   withGrades: false,
   ...overrides,
 });
@@ -66,7 +66,7 @@ describe('useRouteWays (BIK-01 to BIK-05, RUN-02)', () => {
     expect(result.current.status).toBe('loading');
     expect(trace.valhallaTraceAttributes).not.toHaveBeenCalled();
     await settle();
-    expect(trace.valhallaTraceAttributes).toHaveBeenCalledWith(ROUTE, expect.any(AbortSignal), 'bicycle');
+    expect(trace.valhallaTraceAttributes).toHaveBeenCalledWith(ROUTE, expect.any(AbortSignal), 'bike');
     expect(result.current.status).toBe('ready');
     expect(result.current.ways?.edges.map((edge) => edge.surface)).toEqual(['gravel', 'ground']);
     expect(result.current.grades).toBeNull();
@@ -75,7 +75,9 @@ describe('useRouteWays (BIK-01 to BIK-05, RUN-02)', () => {
 
   it('FE-TOUR-WAYS-HOOK-003: a mountain bike tour asks the grades of its ways, and keeps what could not be asked apart', async () => {
     gradesRepo.grades.mockResolvedValue({
-      ways: [{ id: 11, mtb_scale: '2', mtb_scale_uphill: null, mtb_scale_imba: null }],
+      ways: [
+        { id: 11, mtb_scale: '2', mtb_scale_uphill: null, mtb_scale_imba: null, sac_scale: null, sac_scale_unclear: null },
+      ],
       unanswered: [12],
     });
     const { result } = renderHook(() => useRouteWays(input({ withGrades: true })));
@@ -127,17 +129,17 @@ describe('useRouteWays (BIK-01 to BIK-05, RUN-02)', () => {
     expect(trace.valhallaTraceAttributes).not.toHaveBeenCalled();
   });
 
-  it('FE-TOUR-WAYS-HOOK-009: a run is matched on foot, and matched again when asked another way (RUN-02)', async () => {
+  it('FE-TOUR-WAYS-HOOK-011: a run is matched on foot, and matched again when asked another way (RUN-02)', async () => {
     const { result, rerender } = renderHook((props: Input) => useRouteWays(props), {
-      initialProps: input({ matchAs: 'pedestrian' }),
+      initialProps: input({ matching: 'run' }),
     });
     await settle();
-    expect(trace.valhallaTraceAttributes).toHaveBeenLastCalledWith(ROUTE, expect.any(AbortSignal), 'pedestrian');
+    expect(trace.valhallaTraceAttributes).toHaveBeenLastCalledWith(ROUTE, expect.any(AbortSignal), 'run');
     expect(result.current.status).toBe('ready');
-    rerender(input({ matchAs: 'bicycle' }));
+    rerender(input({ matching: 'bike' }));
     expect(result.current.status).toBe('loading');
     await settle();
-    expect(trace.valhallaTraceAttributes).toHaveBeenLastCalledWith(ROUTE, expect.any(AbortSignal), 'bicycle');
+    expect(trace.valhallaTraceAttributes).toHaveBeenLastCalledWith(ROUTE, expect.any(AbortSignal), 'bike');
   });
 
   it('FE-TOUR-WAYS-HOOK-008: a new route drops the highlight and the old answer, and leaving takes the highlight down', async () => {
@@ -151,5 +153,17 @@ describe('useRouteWays (BIK-01 to BIK-05, RUN-02)', () => {
     useTourRouteHighlightStore.getState().show({ id: 'surface-gravel', lines: [ROUTE], paint: 'gravel' });
     unmount();
     expect(useTourRouteHighlightStore.getState().highlight).toBeNull();
+  });
+
+  it('FE-TOUR-WAYS-HOOK-009: a hike is matched on foot, and a change of matching asks again (MAP-03)', async () => {
+    gradesRepo.grades.mockResolvedValue({ ways: [], unanswered: [] });
+    const { result, rerender } = renderHook((props: Input) => useRouteWays(props), {
+      initialProps: input({ matching: 'foot', withGrades: true }),
+    });
+    await settle();
+    expect(trace.valhallaTraceAttributes).toHaveBeenCalledWith(ROUTE, expect.any(AbortSignal), 'foot');
+    expect(result.current.grades?.status).toBe('ready');
+    rerender(input({ matching: 'bike', withGrades: true }));
+    expect(result.current.status).toBe('loading');
   });
 });

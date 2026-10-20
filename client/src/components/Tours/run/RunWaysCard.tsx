@@ -99,7 +99,7 @@ export function RunWaysCard({ planner }: { planner: RunWaysPlanner }) {
     tripId: planner.tripId,
     active: planner.isRun && editing,
     route: planner.routeCurrent ? planner.route : null,
-    matchAs: 'pedestrian',
+    matching: 'run',
     withGrades: false,
   });
   const { ways } = state;

@@ -4,7 +4,7 @@ import { useNetworkMode } from '../../../hooks/useNetworkMode';
 import { OnlineOnlyError } from '../../../repo/onlineOnly';
 import { tourTrailGradeRepo } from '../../../repo/tourTrailGradeRepo';
 import { useTourRouteHighlightStore } from '../../../store/tourRouteHighlightStore';
-import { valhallaTraceAttributes, type TraceMatch } from '../../Map/valhallaRoute';
+import { valhallaTraceAttributes, type TraceMatching } from '../../Map/valhallaRoute';
 import { routeWaysFrom, wayIdsOf, type RouteWays } from './routeWays';
 
 /** How long a route has to stay before its ways are asked about, so a route being shaped asks once. */
@@ -22,7 +22,7 @@ export interface TrailGrades {
 export interface RouteWaysState {
   status: RouteWaysStatus;
   ways: RouteWays | null;
-  /** BIK-05, a mountain bike tour's only: the trail grades of its ways. */
+  /** BIK-05 and MAP-03, where asked for: the trail grades of its ways. */
   grades: TrailGrades | null;
 }
 
@@ -30,31 +30,27 @@ interface Answer extends RouteWaysState {
   attempt: number;
   /** The route and the question it answers; another one makes it stale. */
   route: [number, number][];
-  matchAs: TraceMatch;
+  matching: TraceMatching;
   withGrades: boolean;
 }
 
 const IDLE: RouteWaysState = { status: 'idle', ways: null, grades: null };
 const NO_GRADES = { byWay: new Map<number, TourTrailGrade>(), unasked: new Set<number>() };
 
-interface RouteWaysInput {
+interface Question {
   tripId: number | string;
-  active: boolean;
-  route: [number, number][] | null;
-  /** How the line is matched to its ways: a bike tour as ridden, a run on foot. */
-  matchAs: TraceMatch;
-  /** BIK-05, a mountain bike tour's only: the trail grades of its ways are asked too. */
+  route: [number, number][];
+  matching: TraceMatching;
   withGrades: boolean;
 }
 
-/** The ways of a route, and for a mountain bike tour their grades; the grades' outcome as it came. */
+/** The ways of a route, and where asked for their grades; the grades' outcome as it came. */
 async function askRouteWays(
-  question: Pick<RouteWaysInput, 'tripId' | 'matchAs' | 'withGrades'> & { route: [number, number][] },
+  { tripId, route, matching, withGrades }: Question,
   signal: AbortSignal,
   onWays: (ways: RouteWays) => void
 ): Promise<RouteWaysState> {
-  const { tripId, route, matchAs, withGrades } = question;
-  const ways = routeWaysFrom(await valhallaTraceAttributes(route, signal, matchAs));
+  const ways = routeWaysFrom(await valhallaTraceAttributes(route, signal, matching));
   if (!ways) return { status: 'failed', ways: null, grades: null };
   if (!withGrades) return { status: 'ready', ways, grades: null };
   onWays(ways);
@@ -71,13 +67,21 @@ async function askRouteWays(
 }
 
 /**
- * BIK-01 to BIK-05, RUN-02: what the bike tour or the run being planned runs
- * on, asked of the router once its route has settled, and for a mountain bike
- * tour the trail grades of its ways. A new route makes the answer on its way
- * stale and takes the map's highlight down; nothing of it changes the tour.
+ * BIK-01 to BIK-05 and MAP-03: what the tour being planned runs on, asked of
+ * the router once its route has settled, and where asked for the trail grades
+ * of its ways (a mountain bike tour's, a hike's SAC grades). A new route makes
+ * the answer on its way stale and takes the map's highlight down; nothing of
+ * it changes the tour.
  */
-export function useRouteWays(input: RouteWaysInput): RouteWaysState & { retry: () => void } {
-  const { tripId, active, route, matchAs, withGrades } = input;
+export function useRouteWays(input: {
+  tripId: number | string;
+  active: boolean;
+  route: [number, number][] | null;
+  /** How the line is matched to its ways: as a bike rides it, or on foot for a hike. */
+  matching: TraceMatching;
+  withGrades: boolean;
+}): RouteWaysState & { retry: () => void } {
+  const { tripId, active, route, matching, withGrades } = input;
   const { offline } = useNetworkMode();
   const [answer, setAnswer] = useState<Answer | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -89,10 +93,10 @@ export function useRouteWays(input: RouteWaysInput): RouteWaysState & { retry: (
     if (!asking || !route) return;
     const controller = new AbortController();
     const settle = (state: RouteWaysState) => {
-      if (!controller.signal.aborted) setAnswer({ ...state, route, matchAs, withGrades, attempt });
+      if (!controller.signal.aborted) setAnswer({ ...state, route, matching, withGrades, attempt });
     };
     const timer = window.setTimeout(() => {
-      askRouteWays({ tripId, route, matchAs, withGrades }, controller.signal, (ways) =>
+      askRouteWays({ tripId, route, matching, withGrades }, controller.signal, (ways) =>
         settle({ status: 'ready', ways, grades: { status: 'loading', ...NO_GRADES } })
       )
         .then(settle)
@@ -103,7 +107,7 @@ export function useRouteWays(input: RouteWaysInput): RouteWaysState & { retry: (
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [asking, attempt, matchAs, route, tripId, withGrades]);
+  }, [asking, attempt, matching, route, tripId, withGrades]);
 
   // The highlight belongs to the route it was drawn on.
   useEffect(() => () => useTourRouteHighlightStore.getState().clear(), []);
@@ -112,7 +116,7 @@ export function useRouteWays(input: RouteWaysInput): RouteWaysState & { retry: (
   if (offline) return { status: 'offline', ways: null, grades: null, retry };
   const current =
     answer?.route === route &&
-    answer.matchAs === matchAs &&
+    answer.matching === matching &&
     answer.withGrades === withGrades &&
     answer.attempt === attempt;
   return current ? { ...answer, retry } : { status: 'loading', ways: null, grades: null, retry };

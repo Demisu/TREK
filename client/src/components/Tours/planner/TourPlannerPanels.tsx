@@ -53,6 +53,7 @@ import { BikeWaysCard } from '../bike/BikeWaysCard'
 import { RunWaysCard } from '../run/RunWaysCard'
 import { HorseRoutesCard } from '../horse/HorseRoutesCard'
 import { RecordedRideCard } from '../horse/RecordedRideFacts'
+import { SacGradesCard } from '../hike/SacGradesCard'
 import { walkTimeFields } from '../walk/walkTimeFields'
 
 const STATUS_KEY: Partial<Record<TourPlannerStatus, string>> = {
@@ -349,6 +350,9 @@ function GpxViewRail({
               </p>
             )}
           </RailCard>
+          {tour.tour_type === 'hike' && (
+            <SacGradesCard tripId={planner.tripId} route={analysis?.routeCoordinates ?? null} routingLimit={null} />
+          )}
         </div>
         {tour.tour_type === 'kayak' && (
           <div className="flex-none border-t border-edge-faint px-3 py-3">
@@ -469,6 +473,11 @@ export function TourPlannerRail({ planner,
           <RunWaysCard planner={planner} />
 
           <HorseRoutesCard planner={planner} />
+
+          {planner.tourType === 'hike' && (
+            <SacGradesCard tripId={planner.tripId} route={planner.route} routeCurrent={planner.routeCurrent}
+              routingLimit={planner.maxHikingDifficulty} />
+          )}
 
           <TourPoiSearchCard planner={planner} />
 

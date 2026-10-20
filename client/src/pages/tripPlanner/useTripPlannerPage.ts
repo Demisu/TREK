@@ -76,8 +76,10 @@ export function useTripPlannerPage() {
     { portage: paddlePaint.portage, rapids: paddlePaint.rapids, gap: paddlePaint.gap, casing: paddlePaint.disc },
   )
   const routeWalking = partStyle.walking ?? (route && route.length === 2 && tourConversion.line ? [true, false] : null)
-  // BIK-01 to BIK-05: the stretches a bike tour's card points at, over the route being edited.
-  const drawn = useHighlightedRoute(editingRoute && !wandererBrowser.open, route, routeWalking, partStyle.colors)
+  // BIK-01 to BIK-05 and MAP-03: the stretches a tour's card points at, over the tour's own line,
+  // the one being edited or an import being viewed, never over a preview beside it.
+  const ownLine = editingRoute || (tourPlanner.mode.type === 'view-gpx' && !tourConversion.line)
+  const drawn = useHighlightedRoute(ownLine && !wandererBrowser.open, route, routeWalking, partStyle.colors)
 
   const { closeGpxTour } = tourPlanner
   useEffect(() => {

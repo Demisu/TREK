@@ -1,0 +1,30 @@
+/* ============================================================================
+   Hikes on the planner map and in its cards (MAP-03): the SAC hiking grades
+   OpenStreetMap gives the ways along a hike, T1 to T6. Global, since the 2D,
+   GL and 3D maps and the planner's cards all read the tokens.
+   ========================================================================== */
+
+/* One ramp of a single hue, from light to deep as the steps grow harder, so
+   the order reads at a glance. It is deliberately no trail marking colour
+   (yellow, white and red, white and blue) and no regional blue, red or black
+   category: the scale is shown as the SAC scale and nothing else. A way
+   without a known grade takes the grey of the unknown (--bike-surface-unknown),
+   never a step. In the dark theme the ramp turns round, so the harder steps
+   stay the ones that stand out. */
+:root {
+  --hike-sac-t1: #c4b5fd;
+  --hike-sac-t2: #a78bfa;
+  --hike-sac-t3: #8b5cf6;
+  --hike-sac-t4: #7c3aed;
+  --hike-sac-t5: #6d28d9;
+  --hike-sac-t6: #4c1d95;
+}
+
+.dark {
+  --hike-sac-t1: #5b21b6;
+  --hike-sac-t2: #6d28d9;
+  --hike-sac-t3: #7c3aed;
+  --hike-sac-t4: #8b5cf6;
+  --hike-sac-t5: #a78bfa;
+  --hike-sac-t6: #ddd6fe;
+}

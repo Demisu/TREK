@@ -116,7 +116,7 @@ describe('RunWaysCard (RUN-02)', () => {
       tripId: 4,
       active: true,
       route: LINE,
-      matchAs: 'pedestrian',
+      matching: 'run',
       withGrades: false,
     });
     run.unmount();

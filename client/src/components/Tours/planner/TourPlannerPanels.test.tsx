@@ -23,6 +23,14 @@ vi.mock('../paddle/PaddleCheckCard', () => ({
   ),
 }))
 
+// MAP-03: the SAC card is its own suite's; here it only has to sit where the rails put it, with what they hand it.
+vi.mock('../hike/SacGradesCard', () => ({
+  SacGradesCard: ({ route, routeCurrent, routingLimit }: { route: [number, number][] | null; routeCurrent?: boolean; routingLimit: number | null }) => (
+    <div data-testid="sac-grades-card" data-route={route ? route.length : 'none'} data-current={String(routeCurrent ?? true)}
+      data-limit={String(routingLimit)} />
+  ),
+}))
+
 const tour: TourListItem = {
   place_id: 42,
   name: 'Saved ridge walk',
@@ -1013,5 +1021,35 @@ describe('a run in the planner rails (RUN-01)', () => {
     expect(screen.getByText('Enter your pace to plan the running time and save this run.')).toBeInTheDocument()
     expect(screen.getByTestId('tour-planner-unreachable')).toHaveTextContent('No runnable way reaches point 2')
     expect(screen.getByTestId('tour-planner-unreachable')).toHaveTextContent('900 m')
+  })
+})
+
+describe('SAC grades in the planner rails (MAP-03)', () => {
+  it('MAP03-RAIL-001: a hike being edited carries the card with its line, whether it is planned now, and its routing limit', () => {
+    const { unmount } = render(<TourPlannerRail planner={planner({ mode: { type: 'new-draft' }, routeCurrent: true, maxHikingDifficulty: 3 })} />)
+    const card = screen.getByTestId('sac-grades-card')
+    expect(card).toHaveAttribute('data-route', '2')
+    expect(card).toHaveAttribute('data-current', 'true')
+    expect(card).toHaveAttribute('data-limit', '3')
+    unmount()
+    render(<TourPlannerRail planner={planner({ mode: { type: 'new-draft' }, routeCurrent: false })} />)
+    expect(screen.getByTestId('sac-grades-card')).toHaveAttribute('data-current', 'false')
+  })
+
+  it('MAP03-RAIL-002: a hike import carries it without a routing limit; a bike tour and a bike import do not', () => {
+    const geometry = JSON.stringify([[48, 11, 500], [48, 11.01, 550], [48, 11.02, 520]])
+    const imported = (tourType: 'hike' | 'bike') => planner({
+      readOnlyGpxTour: { tour: { ...tour, tour_type: tourType, has_waypoints: false }, routeGeometry: geometry },
+      readOnlyGpxAnalysis: analyzeRouteGeometry(geometry),
+    })
+    const hike = render(<TourPlannerRail planner={imported('hike')} />)
+    expect(screen.getByTestId('sac-grades-card')).toHaveAttribute('data-route', '3')
+    expect(screen.getByTestId('sac-grades-card')).toHaveAttribute('data-limit', 'null')
+    hike.unmount()
+    const bikeImport = render(<TourPlannerRail planner={imported('bike')} />)
+    expect(screen.queryByTestId('sac-grades-card')).toBeNull()
+    bikeImport.unmount()
+    render(<TourPlannerRail planner={planner({ mode: { type: 'new-draft' }, tourType: 'bike', isBike: true, routeCurrent: false })} />)
+    expect(screen.queryByTestId('sac-grades-card')).toBeNull()
   })
 })
