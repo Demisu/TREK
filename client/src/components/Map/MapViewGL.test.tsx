@@ -257,6 +257,7 @@ beforeEach(() => {
   glMap.querySourceFeatures.mockReturnValue([])
   glMap.getCanvas.mockImplementation(() => document.createElement('canvas'))
   glMap.getBearing.mockReturnValue(0)
+  glMap.getZoom.mockReturnValue(10)
   glMap.queryTerrainElevation.mockReturnValue(null)
   // A busy style, a refused source and a custom layer list are each set by one test
   // for the case it covers. Put back here, or every test after it would silently run
@@ -1575,7 +1576,6 @@ describe('MapViewGL', () => {
     const list = calls[calls.length - 1][0]
     act(() => { list.querySelectorAll('button')[1].click() })
     expect(onPoiClick).toHaveBeenCalledWith(other)
-    vi.mocked(glMap.getZoom).mockReturnValue(10)
   })
 
   const pinGlyph = (Icon: LucideIcon) => renderIconMarkup(React.createElement(Icon, { size: 13, color: 'white', strokeWidth: 2.5 }))
@@ -2215,14 +2215,12 @@ describe('MapViewGL', () => {
     expect((window as any).__trek_map).toBeUndefined()
   })
 
-  it('FE-COMP-MAPVIEWGL-059: pan and zoom report the visible bbox for the POI explore pill, with the zoom on the raster tile scale', async () => {
+  it('FE-COMP-MAPVIEWGL-059: pan and zoom report the visible bbox and tile zoom for the POI explore pill', async () => {
     const onViewportChange = vi.fn()
-    vi.mocked(glMap.getZoom).mockReturnValue(10)
     render(<MapViewGL places={[]} fitKey={1} onViewportChange={onViewportChange} />)
     await act(async () => {})
 
     act(() => { mapHandler('moveend')() })
-    // The GL engine counts on 512 px tiles; a raster tile's zoom is one step further in.
     expect(onViewportChange).toHaveBeenCalledWith({ south: 0, west: 0, north: 1, east: 1 }, 11)
   })
 

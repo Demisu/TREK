@@ -8,7 +8,8 @@ import { renderIconMarkup } from '../../utils/iconMarkup'
 import type mapboxgl from 'mapbox-gl'
 import { useSettingsStore } from '../../store/settingsStore'
 import { useTranslation } from '../../i18n/TranslationContext'
-import { applyBaseLayer, rasterTileZoom } from './glRasterLayers'
+import { applyBaseLayer } from './glRasterLayers'
+import { reportGlViewport } from './glViewport'
 import { isTourLayerHit, useTourMapLayersGL } from './mapRasterOverlay'
 import { MapLayerSwitcher, TourMapLayerSwitcher, MAP_LAYER_SWITCHER_INSET, type BaseLayer, type TourBaseLayer } from './MapLayerSwitcher'
 import { MapLockPill } from './MapLockPill'
@@ -1432,15 +1433,8 @@ export function MapViewGL({
       if (isTourLayerHit(map, e.point)) return // a picked via ferrata or paddle obstacle opens its card instead
       onClickRefs.current.map?.({ latlng: { lat: e.lngLat.lat, lng: e.lngLat.lng } })
     })
-    // Emit the viewport bbox (pan/zoom + once on first idle) so the POI-explore
-    // pill can fetch OSM places for the visible area, with the zoom on the raster tile scale.
-    const emitViewport = () => {
-      const b = map.getBounds()
-      onViewportChangeRef.current?.(
-        { south: b.getSouth(), west: b.getWest(), north: b.getNorth(), east: b.getEast() },
-        rasterTileZoom(map.getZoom()),
-      )
-    }
+    // Emit the viewport (pan/zoom + once on first idle) for the POI-explore pill.
+    const emitViewport = () => reportGlViewport(map, onViewportChangeRef.current)
     map.on('moveend', emitViewport)
     map.once('idle', emitViewport)
     // Clear the hover card (and the anchored POI popup) as soon as the camera
