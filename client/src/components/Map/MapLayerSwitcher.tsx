@@ -1,6 +1,7 @@
-import { Anchor, Bike, Footprints, Loader2, Map as MapIcon, MapPinPlus, Mountain, Rotate3d, Satellite } from 'lucide-react'
+import { Anchor, Bike, Footprints, Loader2, Map as MapIcon, MapPinPlus, Mountain, MountainSnow, Rotate3d, Satellite } from 'lucide-react'
 import type { PaddleMapLayer } from '../Tours/paddle/paddleMapLayer'
-import type { CSSProperties } from 'react'
+import { PisteKeyButton } from '../Tours/winter/PisteKey'
+import type { ComponentType, CSSProperties } from 'react'
 import { useTranslation } from '../../i18n'
 import { FerrataLineIcon } from '../Ferratas/FerrataGlyph'
 import type { FerrataMapLayer } from '../Ferratas/useFerrataMapLayer'
@@ -193,17 +194,23 @@ function PlaceToolToggle({ tool }: { tool: MapPlaceTool }) {
   )
 }
 
-/** How each overlay the planner can offer is named and drawn on its switch. */
-const OVERLAY_LOOK: Record<string, { Icon: typeof Anchor; labelKey: string; downKey: string }> = {
-  seamarks: { Icon: Anchor, labelKey: 'tours.map.seamarks', downKey: 'tours.map.seamarksDown' },
+/** How an overlay the planner can offer is named and drawn on its switch. */
+interface OverlayLook {
+  Icon: typeof Anchor
+  labelKey: string
+  downKey: string
+  /** On its icon alone, named by its tooltip, so the row stays short beside a type's other switches. */
+  iconOnly?: boolean
+  /** The overlay's key, beside its switch while the layer shows. */
+  Key?: ComponentType
 }
 
-/**
- * The switch for a transparent overlay (the seamarks), the way the via
- * ferrata switch looks: on in the accent, and in the warning tone with a badge
- * once its source stopped answering, which the tooltip names. The map and the
- * planning go on without it.
- */
+const OVERLAY_LOOK: Record<string, OverlayLook> = {
+  seamarks: { Icon: Anchor, labelKey: 'tours.map.seamarks', downKey: 'tours.map.seamarksDown' },
+  // SKI-01: a hike's row already holds four maps, the ferratas and 3D, so the pistes go by their icon.
+  pistes: { Icon: MountainSnow, labelKey: 'tours.map.pistes', downKey: 'tours.map.pistesDown', iconOnly: true, Key: PisteKeyButton },
+}
+
 /** The warning mark on a switch whose source stopped answering; the tooltip says what it means. */
 function DownBadge() {
   return (
@@ -213,6 +220,13 @@ function DownBadge() {
   )
 }
 
+/**
+ * The switch for a transparent overlay (the seamarks, the pistes), the way the via
+ * ferrata switch looks: on in the accent, and in the warning tone with a badge
+ * once its source stopped answering, which the tooltip names. The map and the
+ * planning go on without it. An overlay with a key shows the key's button
+ * beside the switch while its tiles arrive.
+ */
 function OverlayToggle({ overlay, compact }: { overlay: ToggleableRasterOverlay; compact: boolean }) {
   const { t } = useTranslation()
   const look = OVERLAY_LOOK[overlay.id]
@@ -234,10 +248,11 @@ function OverlayToggle({ overlay, compact }: { overlay: ToggleableRasterOverlay;
           style={segmentStyle(on)}
         >
           <look.Icon size={15} strokeWidth={2} />
-          {!compact && <span>{label}</span>}
+          {!compact && !look.iconOnly && <span>{label}</span>}
           {down && <DownBadge />}
         </button>
       </Tooltip>
+      {look.Key && overlay.status === 'on' && <look.Key />}
       <span role="status" aria-live="polite" className="sr-only">{down ? t(look.downKey) : ''}</span>
     </>
   )

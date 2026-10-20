@@ -1,9 +1,10 @@
-// FE-COMP-MAPLAYER-001 to FE-COMP-MAPLAYER-020
+// FE-COMP-MAPLAYER-001 to FE-COMP-MAPLAYER-023
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '../../../tests/helpers/render'
 import { MapLayerSwitcher, TourMapLayerSwitcher, MAP_ROUND_CONTROL_SIZE } from './MapLayerSwitcher'
 import type { FerrataMapLayer } from '../Ferratas/useFerrataMapLayer'
+import type { ToggleableRasterOverlay } from './mapRasterOverlay'
 
 describe('MapLayerSwitcher', () => {
   it('FE-COMP-MAPLAYER-001: on the default layer, offers the switch to satellite', () => {
@@ -233,5 +234,55 @@ describe('TourMapLayerSwitcher via ferrata switch', () => {
     rerender(<TourMapLayerSwitcher active="default" onChange={() => {}} placeTool={{ active: false, onToggle }} />)
     expect(screen.getByRole('button', { name: 'Set points' })).toHaveAttribute('aria-pressed', 'false')
     expect(screen.getByRole('button', { name: 'Set points' })).toHaveClass('text-content-muted')
+  })
+})
+
+const pisteOverlay = (overrides: Partial<ToggleableRasterOverlay> = {}): ToggleableRasterOverlay => ({
+  id: 'pistes',
+  url: 'https://tiles.opensnowmap.org/pistes/{z}/{x}/{y}.png',
+  attribution: 'OpenSnowMap',
+  minZoom: 9,
+  maxZoom: 18,
+  active: false,
+  status: 'off',
+  onToggle: vi.fn(),
+  onTileError: vi.fn(),
+  onTileLoad: vi.fn(),
+  ...overrides,
+})
+
+describe('TourMapLayerSwitcher piste switch (SKI-01)', () => {
+  it('FE-COMP-MAPLAYER-021: the pistes switch sits on its icon alone, named by its tooltip, and offers no key while off', async () => {
+    const overlay = pisteOverlay()
+    render(<TourMapLayerSwitcher active="default" onChange={() => {}} ferrataLayer={ferrataLayer()} layers={{ overlays: [overlay] }} />)
+    const toggle = screen.getByRole('button', { name: 'Pistes, cross-country trails and lifts' })
+    expect(toggle).toHaveAttribute('aria-pressed', 'false')
+    expect(toggle.textContent).toBe('')
+    expect(screen.queryByTestId('piste-key-button')).toBeNull()
+    fireEvent.click(toggle)
+    expect(overlay.onToggle).toHaveBeenCalledTimes(1)
+    fireEvent.mouseEnter(toggle)
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Pistes, cross-country trails and lifts')
+  })
+
+  it('FE-COMP-MAPLAYER-022: on, the switch is pressed in the accent and the key rides beside it in the same pill', () => {
+    render(<TourMapLayerSwitcher active="default" onChange={() => {}} layers={{ overlays: [pisteOverlay({ active: true, status: 'on' })] }} />)
+    const toggle = screen.getByRole('button', { name: 'Pistes, cross-country trails and lifts' })
+    expect(toggle).toHaveAttribute('aria-pressed', 'true')
+    expect(toggle).toHaveClass('bg-accent', 'text-accent-text')
+    const key = screen.getByTestId('piste-key-button')
+    expect(screen.getByRole('group')).toContainElement(key)
+    expect(key).toHaveAccessibleName('Piste key')
+  })
+
+  it('FE-COMP-MAPLAYER-023: a piste source that stopped answering shows the warning badge, says so, and hides the key', async () => {
+    render(<TourMapLayerSwitcher active="default" onChange={() => {}} layers={{ overlays: [pisteOverlay({ active: true, status: 'down' })] }} />)
+    const toggle = screen.getByRole('button', { name: 'Pistes, cross-country trails and lifts' })
+    expect(toggle).toHaveAttribute('data-status', 'down')
+    expect(toggle).toHaveTextContent('!')
+    expect(screen.queryByTestId('piste-key-button')).toBeNull()
+    expect(screen.getByRole('status')).toHaveTextContent('Pistes are not loading. The map and your route still work.')
+    fireEvent.mouseEnter(toggle)
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Pistes are not loading.')
   })
 })

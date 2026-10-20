@@ -56,6 +56,10 @@ describe('global CSP: the other shipped raster presets (#2180)', () => {
     expect(await connectSrcSources()).toContain('https://tiles.openseamap.org');
   });
 
+  it('allows the OpenSnowMap piste host the Tours planner can lay over its map (SKI-01)', async () => {
+    expect(await connectSrcSources()).toContain('https://tiles.opensnowmap.org');
+  });
+
   it('allows the OpenHikingMap host the Tours planner offers as a hiking base map (MAP-01)', async () => {
     expect(await connectSrcSources()).toContain('https://tile.openmaps.fr');
   });

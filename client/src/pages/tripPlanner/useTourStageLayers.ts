@@ -4,7 +4,7 @@ import type { useFerrataMapLayer } from '../../components/Ferratas/useFerrataMap
 import { paddleMapItems, selectedPaddleKey } from '../../components/Tours/paddle/paddleMapLayer';
 import { usePaddlePaint } from '../../components/Tours/paddle/paddlePaint';
 import type { TourPlannerController } from '../../components/Tours/planner/useTourPlanner';
-import { baseLayerFor, SEAMARK_OVERLAY, tourMapLayersFor } from '../../components/Tours/tourMapLayers';
+import { baseLayerFor, PISTE_OVERLAY, SEAMARK_OVERLAY, tourMapLayersFor } from '../../components/Tours/tourMapLayers';
 import { useBaseMapHealth, useTourRasterOverlay } from '../../components/Tours/useTourRasterOverlay';
 import { useAddonStore } from '../../store/addonStore';
 import { selectPaddleObstacle, usePaddleObstacleStore } from '../../store/paddleObstacleStore';
@@ -20,6 +20,7 @@ type FerrataLayerState = ReturnType<typeof useFerrataMapLayer>;
  * neither draws nor warns about ferratas, even if the layer was switched on before; a base layer it
  * does not offer falls back to its default without changing the choice kept,
  * which is also what an install whose admin withdrew OpenHikingMap sees.
+ * The pistes (SKI-01) are offered with no tour open too, whatever type was chosen last.
  */
 export function useTourStageLayers(
   tourPlanner: Pick<TourPlannerController, 'mode' | 'tourType' | 'mapBaseLayer' | 'mapOverlays' | 'toggleMapOverlay'>,
@@ -41,12 +42,27 @@ export function useTourStageLayers(
   // With no tour open nothing is a hike yet: the ferratas wait for one, as the seamarks wait for a paddle tour.
   const offersFerratas = mode.type !== 'neutral' && layerSet.overlays.includes('ferratas');
   const { toggleMapOverlay } = tourPlanner;
+  const offersSeamarks = layerSet.overlays.includes('seamarks');
   const toggleSeamarks = useCallback(() => toggleMapOverlay(SEAMARK_OVERLAY.id), [toggleMapOverlay]);
   const seamarks = useTourRasterOverlay(
     SEAMARK_OVERLAY,
-    layerSet.overlays.includes('seamarks'),
+    offersSeamarks,
     tourPlanner.mapOverlays.has(SEAMARK_OVERLAY.id),
     toggleSeamarks
+  );
+  // SKI-01: the pistes for the types they serve, and with no tour open, so a ski area can be
+  // looked at without any route. Switching them never touches the tour: the switch is the map view's.
+  const offersPistes = !tourOpen || layerSet.overlays.includes('pistes');
+  const togglePistes = useCallback(() => toggleMapOverlay(PISTE_OVERLAY.id), [toggleMapOverlay]);
+  const pistes = useTourRasterOverlay(
+    PISTE_OVERLAY,
+    offersPistes,
+    tourPlanner.mapOverlays.has(PISTE_OVERLAY.id),
+    togglePistes
+  );
+  const overlays = useMemo(
+    () => [...(offersSeamarks ? [seamarks] : []), ...(offersPistes ? [pistes] : [])],
+    [offersSeamarks, seamarks, offersPistes, pistes]
   );
   // PAD-05B: the obstacles the sync hook read around the paddle tour, only while one is open.
   const { features, related, selectedRef } = usePaddleObstacleStore(
@@ -69,11 +85,11 @@ export function useTourStageLayers(
   const tourLayers = useMemo(
     () => ({
       bases: layerSet.bases,
-      overlays: layerSet.overlays.includes('seamarks') ? [seamarks] : [],
+      overlays,
       paddle,
       baseHealth,
     }),
-    [layerSet, seamarks, paddle, baseHealth]
+    [layerSet, overlays, paddle, baseHealth]
   );
   return {
     baseLayer,

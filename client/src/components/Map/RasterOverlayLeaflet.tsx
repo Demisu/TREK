@@ -23,6 +23,8 @@ function RasterOverlaysLeaflet({ overlays }: { overlays?: readonly MapRasterOver
             maxNativeZoom={overlay.maxZoom}
             maxZoom={22}
             zIndex={OVERLAY_Z_INDEX}
+            // The page's origin as the referer, which the overlays' operators ask for (OpenSnowMap names it).
+            referrerPolicy="strict-origin-when-cross-origin"
             eventHandlers={{ tileerror: overlay.onTileError, tileload: overlay.onTileLoad }}
           />
         ))}

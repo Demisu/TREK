@@ -1,4 +1,4 @@
-// FE-PAGE-TOURSTAGE-001 to FE-PAGE-TOURSTAGE-018
+// FE-PAGE-TOURSTAGE-001 to FE-PAGE-TOURSTAGE-023
 import type { Ferrata, PaddleFeature } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '../../../tests/helpers/render';
@@ -571,17 +571,19 @@ describe('TourPlannerMapStage', () => {
   describe('map layers per tour type (P2B-06/07, PAD-04, PAD-10)', () => {
     const flat = () => stage.flatMap.props as MapViewProps;
 
-    it('a hike keeps the standard map, topo and satellite and the via ferrata layer, and no seamarks', () => {
+    const overlayStates = () => flat().tourLayers?.overlays?.map((overlay) => [overlay.id, overlay.status]);
+
+    it('a hike keeps the standard map, topo and satellite and the via ferrata layer, the pistes off, and no seamarks', () => {
       renderStage(planner('new-draft'));
       expect(flat().tourLayers?.bases).toEqual(['default', 'topo', 'satellite']);
       expect(flat().ferrataLayer).toBeDefined();
-      expect(flat().tourLayers?.overlays).toEqual([]);
+      expect(overlayStates()).toEqual([['pistes', 'off']]);
     });
 
-    it('with no tour open there is no via ferrata layer, as there are no seamarks', () => {
+    it('with no tour open there is no via ferrata layer and no seamarks, but the pistes are offered (SKI-01)', () => {
       renderStage(planner('neutral'));
       expect(flat().ferrataLayer).toBeUndefined();
-      expect(flat().tourLayers?.overlays).toEqual([]);
+      expect(overlayStates()).toEqual([['pistes', 'off']]);
     });
 
     it('a paddle tour offers the standard map and satellite, seamarks off, and neither topo nor ferratas', () => {
@@ -590,9 +592,7 @@ describe('TourPlannerMapStage', () => {
       // Topo chosen for a hike falls back to the paddle tour's own default, without touching the choice.
       expect(flat().viewBaseLayer).toBe('default');
       expect(flat().ferrataLayer).toBeUndefined();
-      expect(flat().tourLayers?.overlays?.map((overlay) => [overlay.id, overlay.status])).toEqual([
-        ['seamarks', 'off'],
-      ]);
+      expect(overlayStates()).toEqual([['seamarks', 'off']]);
     });
 
     it('an imported paddle tour is shown with the paddle maps, a bike tour and a run with their own, a type nobody plans with the standard set', () => {
@@ -645,6 +645,60 @@ describe('TourPlannerMapStage', () => {
       expect(overlay()?.status).toBe('on');
       act(() => overlay()?.onToggle());
       expect(overlay()).toMatchObject({ status: 'off', active: false });
+    });
+
+    it('FE-PAGE-TOURSTAGE-021: the pistes switch on over the map with no tour open and stay on when a hike opens (SKI-01)', () => {
+      function NeutralStage({ mode }: { mode: 'neutral' | 'new-draft' }) {
+        const view = useTourMapView();
+        return <TourPlannerMapStage {...stageProps(planner(mode, view))} />;
+      }
+      const { rerender } = render(<NeutralStage mode="neutral" />);
+      const pistes = () => flat().tourLayers?.overlays?.find((overlay) => overlay.id === 'pistes');
+      act(() => pistes()?.onToggle());
+      expect(pistes()).toMatchObject({
+        status: 'on',
+        active: true,
+        url: 'https://tiles.opensnowmap.org/pistes/{z}/{x}/{y}.png',
+        minZoom: 9,
+        maxZoom: 18,
+      });
+      expect(pistes()?.attribution).toContain('OpenSnowMap');
+      expect(pistes()?.attribution).toContain('OpenStreetMap');
+      // The choice is the map view's, so it outlasts the switch from no tour to a hike.
+      rerender(<NeutralStage mode="new-draft" />);
+      expect(pistes()?.status).toBe('on');
+    });
+
+    it('FE-PAGE-TOURSTAGE-022: switching the pistes changes no point and no step, and a source that stopped answering keeps the map (SKI-01)', () => {
+      const tourPlanner = planner('edit-saved', { mapOverlays: new Set(['pistes']) });
+      renderStage(tourPlanner);
+      const pistes = () => flat().tourLayers?.overlays?.find((overlay) => overlay.id === 'pistes');
+      expect(pistes()?.status).toBe('on');
+      act(() => pistes()?.onToggle());
+      expect(tourPlanner.toggleMapOverlay).toHaveBeenCalledWith('pistes');
+      act(() => {
+        for (let i = 0; i < 4; i += 1) pistes()?.onTileError();
+      });
+      expect(pistes()?.status).toBe('down');
+      // The points and the base map stay what they were, and the planner was asked for nothing but the switch.
+      expect(flat().plannerWaypoints).toHaveLength(1);
+      expect(flat().viewBaseLayer).toBe('default');
+      expect(tourPlanner.addWaypoint).not.toHaveBeenCalled();
+      expect(tourPlanner.setWaypointPosition).not.toHaveBeenCalled();
+      expect(tourPlanner.undo).not.toHaveBeenCalled();
+    });
+
+    it('FE-PAGE-TOURSTAGE-023: an imported ski track offers the pistes; a bike tour, a run and a paddle tour do not (SKI-01)', () => {
+      const viewed = (tour: Record<string, unknown>) =>
+        planner('view-gpx', { mode: { type: 'view-gpx', placeId: 9, tour: { place_id: 9, ...tour } } });
+      const ski = renderStage(viewed({ tour_type: 'ski', ski_discipline: 'alpine' }));
+      expect(overlayStates()).toEqual([['pistes', 'off']]);
+      ski.unmount();
+      for (const tourType of ['bike', 'run', 'kayak']) {
+        const other = renderStage(planner('new-draft', { tourType }));
+        expect(flat().tourLayers?.overlays?.some((overlay) => overlay.id === 'pistes')).toBe(false);
+        other.unmount();
+      }
     });
   });
 });

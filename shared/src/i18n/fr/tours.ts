@@ -715,6 +715,23 @@ const tours: TranslationStrings = {
   'tours.map.seamarks': 'Balisage maritime',
   'tours.map.seamarksDown':
     'Le balisage maritime ne se charge pas. La carte et votre itinéraire fonctionnent toujours.',
+  'tours.map.pistes': 'Pistes, pistes de fond et remontées',
+  'tours.map.pistesDown': 'Les pistes ne se chargent pas. La carte et votre itinéraire fonctionnent toujours.',
+  'tours.map.pisteKey': 'Légende des pistes',
+  'tours.map.pisteDownhill': 'Pistes de descente par difficulté',
+  'tours.map.pisteGrade.novice': 'Débutant',
+  'tours.map.pisteGrade.easy': 'Facile',
+  'tours.map.pisteGrade.intermediate': 'Intermédiaire',
+  'tours.map.pisteGrade.advanced': 'Difficile',
+  'tours.map.pisteGrade.expert': 'Expert', // same-as-en
+  'tours.map.pisteGrade.freeride': 'Hors-piste',
+  'tours.map.pisteNordic': 'Pistes de ski de fond',
+  'tours.map.pisteWinterHike': 'Sentiers piétons et raquettes',
+  'tours.map.pisteSled': 'Pistes de luge',
+  'tours.map.pisteLift': 'Remontées mécaniques',
+  'tours.map.pisteStatic':
+    'Données cartographiques, pas un bulletin : rien sur l’ouverture, le damage, la neige ou les avalanches.',
+  'tours.map.pisteFullKey': 'Légende complète sur OpenSnowMap',
   'tours.import.previewTitle': 'Aperçu GPX',
   'tours.import.previewHint': 'Rien n’est encore enregistré. Vérifiez le tracé, puis importez.',
   'tours.import.previewFiles': '{count} fichiers',

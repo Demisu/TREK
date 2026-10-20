@@ -63,3 +63,29 @@ describe('useTourStageLayers: OpenHikingMap (MAP-01)', () => {
     expect(basesOf(planner({ type: 'new-draft' }, 'bike', 'cycle')).tourLayers.bases).not.toContain('cycle');
   });
 });
+
+describe('useTourStageLayers: the pistes (SKI-01)', () => {
+  const pistesOf = (p: Planner) => basesOf(p).tourLayers.overlays.find((overlay) => overlay.id === 'pistes');
+
+  it('offers them with no tour open, for a hike and for an imported ski track, off until switched on', () => {
+    const ski = { type: 'view-gpx', placeId: 9, tour: { place_id: 9, tour_type: 'ski' } as TourListItem } as const;
+    for (const mode of [{ type: 'neutral' }, { type: 'new-draft' }, ski] as const) {
+      expect(pistesOf(planner(mode, 'hike', 'default'))).toMatchObject({ status: 'off', active: false });
+    }
+    // With no tour open they come even while the last type chosen was a paddle tour.
+    expect(pistesOf(planner({ type: 'neutral' }, 'kayak', 'default'))).toBeDefined();
+  });
+
+  it('not for a bike tour, a run or a paddle tour that is open', () => {
+    for (const tourType of ['bike', 'run', 'kayak'] as const)
+      expect(pistesOf(planner({ type: 'new-draft' }, tourType, 'default'))).toBeUndefined();
+  });
+
+  it('shows them on while the planner keeps them on, beside the seamarks of a paddle tour with none open', () => {
+    const p = { ...planner({ type: 'neutral' }, 'kayak', 'default'), mapOverlays: new Set(['pistes']) };
+    expect(basesOf(p).tourLayers.overlays.map((overlay) => [overlay.id, overlay.status])).toEqual([
+      ['seamarks', 'off'],
+      ['pistes', 'on'],
+    ]);
+  });
+});
