@@ -605,7 +605,7 @@ describe('runs (RUN-01)', () => {
   };
 
   it('saves a run with its profile and pace, and nothing of a hike, a bike tour or a paddle tour', () => {
-    expect(RUN_PROFILES).toEqual(['running']);
+    expect(RUN_PROFILES).toEqual(['running', 'trail']);
     expect(tourCreateRequestSchema.parse({ ...run, run_pace_seconds_per_km: 360 })).toMatchObject({
       tour_type: 'run',
       run_profile: 'running',
@@ -615,6 +615,16 @@ describe('runs (RUN-01)', () => {
     // Without a pace the run has no time: unknown, never a pace TREK made up.
     expect(tourCreateRequestSchema.parse(run).run_pace_seconds_per_km).toBeUndefined();
     expect(tourCreateRequestSchema.parse({ ...run, run_pace_seconds_per_km: null }).run_pace_seconds_per_km).toBeNull();
+  });
+
+  it('saves a trail run like any run, with its own profile and the same pace (RUN-02)', () => {
+    expect(tourCreateRequestSchema.parse({ ...run, run_profile: 'trail', run_pace_seconds_per_km: 450 })).toMatchObject({
+      tour_type: 'run',
+      run_profile: 'trail',
+      run_pace_seconds_per_km: 450,
+    });
+    expect(tourGpxImportFieldsSchema.parse({ tour_type: 'run', run_profile: 'trail' }).run_profile).toBe('trail');
+    expect(() => tourCreateRequestSchema.parse({ ...baseRequest, run_profile: 'trail' })).toThrow(/belongs to a run/);
   });
 
   it('refuses a pace that is no whole number of seconds, not positive or out of bounds', () => {

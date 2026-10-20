@@ -440,6 +440,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'Dystans × Twoje tempo i nic więcej: przewyższenia i trudność nie są uwzględniane. Plan, a nie zarejestrowany czas.',
   'tours.run.timeSum': '{distance} przy {pace} min/km to {time}',
+  'tours.run.profile.trail': 'Bieganie terenowe',
+  'tours.run.profileHint.trail': 'Preferuje drogi leśne i naturalne ścieżki, aż po ścieżki górskie (T2).',
+  'tours.run.ways.grade': 'Trudność ścieżki (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'O trudności ścieżki',
+  'tours.run.ways.gradeInfo':
+    'Stopnie trudności szlaków nadane przez maperów OpenStreetMap. Droga bez stopnia jest nieznana, a nie łatwa. Nie mówią, czy da się nią biec ani czy jest dla ciebie.',
+  'tours.run.ways.gradeTop': 'Najtrudniejsza oceniona ścieżka: {grade}',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Turystyka',
   'tours.bike.profile.road': 'Szosa',

@@ -440,6 +440,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'Απόσταση × ο ρυθμός σου και τίποτα άλλο: ανηφόρες, κατηφόρες και δυσκολία δεν λαμβάνονται υπόψη. Πρόγραμμα, όχι καταγεγραμμένος χρόνος.',
   'tours.run.timeSum': '{distance} με {pace} λεπ/km κάνει {time}',
+  'tours.run.profile.trail': 'Ορεινό τρέξιμο',
+  'tours.run.profileHint.trail': 'Προτιμά δασικούς δρόμους και φυσικά μονοπάτια, έως ορεινά μονοπάτια (T2).',
+  'tours.run.ways.grade': 'Δυσκολία μονοπατιού (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'Σχετικά με τη δυσκολία μονοπατιού',
+  'tours.run.ways.gradeInfo':
+    'Βαθμοί πεζοπορίας όπως τους έδωσαν οι χαρτογράφοι του OpenStreetMap. Ένας δρόμος χωρίς βαθμό είναι άγνωστος, όχι εύκολος. Δεν λένε τίποτα για το αν ένας δρόμος τρέχεται ή αν σου ταιριάζει.',
+  'tours.run.ways.gradeTop': 'Δυσκολότερο βαθμολογημένο μονοπάτι: {grade}',
   'tours.bike.profile': 'Προφίλ',
   'tours.bike.profile.touring': 'Περιήγηση',
   'tours.bike.profile.road': 'Δρόμου',

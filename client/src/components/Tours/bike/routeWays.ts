@@ -2,10 +2,11 @@ import type { TourTrailGrade } from '@trek/shared';
 import { decodePolyline } from '../../Map/transitGeometry';
 
 /**
- * BIK-01 to BIK-05: what a bike tour runs on, read from the router's own
- * description of the ways along its line (Valhalla's trace attributes): the
- * surface, the kind of way, and the OpenStreetMap way behind each stretch.
- * Pure, so the classes and their shares are tested apart from the request.
+ * BIK-01 to BIK-05, RUN-02: what a bike tour or a run runs on, read from the
+ * router's own description of the ways along its line (Valhalla's trace
+ * attributes): the surface, the kind of way, the hiking grade, and the
+ * OpenStreetMap way behind each stretch. Pure, so the classes and their
+ * shares are tested apart from the request.
  */
 
 /** Surfaces from smooth to rough; `unknown` where the data names none. */
@@ -21,6 +22,13 @@ export type WayClass = 'cyclePath' | 'cycleLane' | 'quiet' | 'road' | 'track' | 
  */
 export type TrailClass = 's0' | 's1' | 's2' | 's3' | 's4' | 'none' | 'unasked';
 
+/**
+ * RUN-02: sac_scale steps, T1 to T6, as OpenStreetMap mappers gave them to a
+ * way; `none` where the way has no grade (the router's 0), which is unknown,
+ * never easy.
+ */
+export type SacClass = 't1' | 't2' | 't3' | 't4' | 't5' | 't6' | 'none';
+
 /** Surfaces a road bike's rider calls unpaved (BIK-02): what is no paving of any kind. */
 export const UNPAVED: ReadonlySet<SurfaceClass> = new Set(['compacted', 'gravel', 'ground']);
 
@@ -31,6 +39,7 @@ export interface RouteWayEdge {
   lengthM: number;
   surface: SurfaceClass;
   way: WayClass;
+  sac: SacClass;
   /** The OpenStreetMap way, where the router names it. */
   wayId: number | null;
 }
@@ -89,6 +98,7 @@ interface TraceEdge {
   use?: unknown;
   road_class?: unknown;
   cycle_lane?: unknown;
+  sac_scale?: unknown;
   length?: unknown;
   way_id?: unknown;
   begin_shape_index?: unknown;
@@ -97,6 +107,13 @@ interface TraceEdge {
 
 const text = (value: unknown) => (typeof value === 'string' ? value : undefined);
 const count = (value: unknown) => (typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : null);
+
+/** The router's sac_scale, 1 to 6, as its step; 0, no value or anything else is no grade. */
+export function sacClassOf(value: unknown): SacClass {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 6
+    ? (`t${value}` as SacClass)
+    : 'none';
+}
 
 /**
  * The router's answer read into stretches, or null when it is no answer of
@@ -122,6 +139,7 @@ export function routeWaysFrom(answer: unknown): RouteWays | null {
       lengthM: km * 1000,
       surface,
       way: wayOf(text(raw.use), text(raw.road_class), text(raw.cycle_lane)),
+      sac: sacClassOf(raw.sac_scale),
       wayId: wayId && wayId > 0 ? wayId : null,
     });
   }
@@ -151,6 +169,14 @@ export function sharesBy<C extends string>(ways: RouteWays, classOf: (edge: Rout
     .filter(([, lengthM]) => lengthM > 0)
     .map(([key, lengthM]) => ({ key, lengthM, share: total > 0 ? lengthM / total : 0 }))
     .sort((a, b) => b.lengthM - a.lengthM);
+}
+
+/** The share of the line known to be unpaved, 0 to 1, or null when none of it is. */
+export function unpavedShareOf(ways: RouteWays): number | null {
+  const row = sharesBy(ways, (edge) => (UNPAVED.has(edge.surface) ? 'unpaved' : 'other')).find(
+    (share) => share.key === 'unpaved'
+  );
+  return row ? row.share : null;
 }
 
 /** The stretches of the line in one class, neighbours joined, each as its own line for the map. */

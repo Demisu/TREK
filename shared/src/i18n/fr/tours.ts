@@ -437,6 +437,14 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'Distance × ton allure, rien d’autre : dénivelé et difficulté ne sont pas pris en compte. Une prévision, pas un temps enregistré.',
   'tours.run.timeSum': '{distance} à {pace} min/km font {time}',
+  'tours.run.profile.trail': 'Trail',
+  'tours.run.profileHint.trail':
+    'Privilégie les chemins forestiers et les sentiers naturels, jusqu’aux sentiers de montagne (T2).',
+  'tours.run.ways.grade': 'Difficulté du chemin (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'À propos de la difficulté du chemin',
+  'tours.run.ways.gradeInfo':
+    'Cotations de randonnée telles que les contributeurs OpenStreetMap les ont saisies. Un chemin sans cotation est inconnu, pas facile. Elles ne disent pas si un chemin se court ni s’il vous convient.',
+  'tours.run.ways.gradeTop': 'Chemin coté le plus difficile : {grade}',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Voyage',
   'tours.bike.profile.road': 'Route',

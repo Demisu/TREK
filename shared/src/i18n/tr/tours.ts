@@ -425,6 +425,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'Mesafe × tempon, başka hiçbir şey değil: tırmanışlar, inişler ve zorluk hesaba katılmaz. Kayıtlı bir süre değil, bir plan.',
   'tours.run.timeSum': '{distance}, {pace} dk/km tempoyla {time}',
+  'tours.run.profile.trail': 'Patika koşusu',
+  'tours.run.profileHint.trail': 'Orman yollarını ve doğal patikaları tercih eder, dağ patikalarına (T2) kadar.',
+  'tours.run.ways.grade': 'Patika zorluğu (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'Patika zorluğu hakkında',
+  'tours.run.ways.gradeInfo':
+    'OpenStreetMap haritacılarının verdiği yürüyüş dereceleri. Derecesi olmayan bir yol kolay değil, bilinmiyor demektir. Bir yolun koşulabilir olup olmadığı ya da sana uyup uymadığı hakkında bir şey söylemezler.',
+  'tours.run.ways.gradeTop': 'En zor derecelendirilmiş patika: {grade}',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Tur',
   'tours.bike.profile.road': 'Yol',

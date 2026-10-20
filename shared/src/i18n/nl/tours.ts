@@ -433,6 +433,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'Afstand × je tempo en verder niets: hoogtemeters en moeilijkheid tellen niet mee. Een planning, geen opgenomen tijd.',
   'tours.run.timeSum': '{distance} bij {pace} min/km is {time}',
+  'tours.run.profile.trail': 'Trailrunning',
+  'tours.run.profileHint.trail': 'Geeft de voorkeur aan bospaden en onverharde paden, tot bergpaden (T2).',
+  'tours.run.ways.grade': 'Moeilijkheid van het pad (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'Over de moeilijkheid van het pad',
+  'tours.run.ways.gradeInfo':
+    'Wandelgraden zoals OpenStreetMap-mappers ze hebben ingevoerd. Een pad zonder graad is onbekend, niet makkelijk. Ze zeggen niets over of een pad te lopen is of bij je past.',
+  'tours.run.ways.gradeTop': 'Moeilijkste gegradeerde pad: {grade}',
   'tours.bike.profile': 'Profiel',
   'tours.bike.profile.touring': 'Toer',
   'tours.bike.profile.road': 'Racefiets',

@@ -439,6 +439,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'Відстань × ваш темп і нічого більше: набір висоти й складність не враховуються. Це план, а не записаний час.',
   'tours.run.timeSum': '{distance} у темпі {pace} хв/км: {time}',
+  'tours.run.profile.trail': 'Трейлранінг',
+  'tours.run.profileHint.trail': 'Надає перевагу лісовим дорогам і природним стежкам, аж до гірських стежок (T2).',
+  'tours.run.ways.grade': 'Складність стежки (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'Про складність стежки',
+  'tours.run.ways.gradeInfo':
+    'Категорії складності стежок, як їх вказали учасники OpenStreetMap. Шлях без категорії невідомий, а не легкий. Вони нічого не кажуть про те, чи можна ним бігти і чи підходить він вам.',
+  'tours.run.ways.gradeTop': 'Найскладніша оцінена стежка: {grade}',
   'tours.bike.profile': 'Профіль',
   'tours.bike.profile.touring': 'Туризм',
   'tours.bike.profile.road': 'Шосе',

@@ -426,6 +426,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'Jarak × pace-mu, tidak ada yang lain: tanjakan, turunan, dan kesulitan tidak dihitung. Sebuah rencana, bukan waktu yang direkam.',
   'tours.run.timeSum': '{distance} dengan pace {pace} mnt/km menjadi {time}',
+  'tours.run.profile.trail': 'Lari trail',
+  'tours.run.profileHint.trail': 'Mengutamakan jalan hutan dan jalur alami, hingga jalur gunung (T2).',
+  'tours.run.ways.grade': 'Kesulitan jalur (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'Tentang kesulitan jalur',
+  'tours.run.ways.gradeInfo':
+    'Tingkat pendakian seperti yang diberikan pemeta OpenStreetMap. Jalan tanpa tingkat tidak diketahui, bukan mudah. Tingkat ini tidak menyatakan apakah jalan bisa dilari atau cocok untukmu.',
+  'tours.run.ways.gradeTop': 'Jalur bertingkat tersulit: {grade}',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Touring', // same-as-en
   'tours.bike.profile.road': 'Road', // same-as-en

@@ -245,4 +245,14 @@ describe('routing on land, bike profiles and unreachable points (BIK-01)', () =>
     valhallaRun.mockResolvedValueOnce(run([3, 900]))
     expect(await routeRun(waypoints, 'running')).toEqual({ unreachable: 1, snappedMeters: 900 })
   })
+
+  it('TOUR-ROUTING-035: a trail run asks for tracks and natural paths, up to mountain paths, and still no ferry (RUN-02)', async () => {
+    valhallaRun.mockResolvedValueOnce(run([3, 4]))
+    expect(await routeRun(waypoints, 'trail')).toMatchObject({ distanceMeters: 1500 })
+    expect(valhallaRun).toHaveBeenCalledWith(waypoints, 'walking', [], undefined, {
+      use_tracks: 1,
+      use_ferry: 0,
+      max_hiking_difficulty: 2,
+    })
+  })
 })

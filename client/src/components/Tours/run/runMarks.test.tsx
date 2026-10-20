@@ -10,7 +10,7 @@ import { TourGradeTile } from '../tourParts';
 import { RunHeadPills } from './RunHeadPills';
 import { runPaceText } from './runPaceText';
 
-// FE-TOUR-RUN-MARK-001 to FE-TOUR-RUN-MARK-006
+// FE-TOUR-RUN-MARK-001 to FE-TOUR-RUN-MARK-007
 
 const run: TourListItem = {
   place_id: 7,
@@ -86,5 +86,14 @@ describe('a run wherever a tour shows (RUN-01)', () => {
     expect(screen.queryByTestId('tour-detail-run-pace')).toBeNull();
     rerender(<RunHeadPills tour={{ ...run, tour_type: 'hike', run_profile: null }} className="head-pill" />);
     expect(screen.queryByTestId('tour-detail-run-profile')).toBeNull();
+  });
+
+  it('FE-TOUR-RUN-MARK-007: a trail run goes by its own profile, and its time and pace read as any run's (RUN-02)', () => {
+    const trail = { ...run, run_profile: 'trail' as const, run_pace_seconds_per_km: 450, duration: 60 };
+    render(<RunHeadPills tour={trail} className="head-pill" />);
+    expect(screen.getByTestId('tour-detail-run-profile')).toHaveTextContent('Trail running');
+    expect(screen.getByTestId('tour-detail-run-pace')).toHaveTextContent('7:30 min/km');
+    render(<TourDayRowFacts tour={trail} />);
+    expect(screen.getByTestId('plan-tour-run-pace')).toHaveAccessibleName('Planned pace: 7:30 min/km');
   });
 });

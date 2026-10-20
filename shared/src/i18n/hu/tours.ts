@@ -431,6 +431,14 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'Távolság × a tempód, semmi más: a szintemelkedés és a nehézség nem számít bele. Terv, nem rögzített idő.',
   'tours.run.timeSum': '{distance} {pace} perc/km tempóval: {time}',
+  'tours.run.profile.trail': 'Terepfutás',
+  'tours.run.profileHint.trail':
+    'Előnyben részesíti az erdei utakat és a természetes ösvényeket, a hegyi ösvényekig (T2).',
+  'tours.run.ways.grade': 'Útnehézség (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'Az útnehézségről',
+  'tours.run.ways.gradeInfo':
+    'Túranehézségi fokozatok, ahogy az OpenStreetMap térképezői megadták. A fokozat nélküli út ismeretlen, nem könnyű. Semmit sem mondanak arról, hogy egy út futható-e, vagy illik-e hozzád.',
+  'tours.run.ways.gradeTop': 'Legnehezebb besorolt ösvény: {grade}',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Túra',
   'tours.bike.profile.road': 'Országúti',

@@ -24,10 +24,8 @@ async function ormBeforeTarget(): Promise<MikroORM> {
 }
 
 describe('run columns match the contract', () => {
-  it('TOURRUNMIG-001: stores every profile the contract knows, and besides them only trail running (RUN-02)', () => {
-    const stored = Object.values(ToursRunProfile);
-    expect(RUN_PROFILES.every((profile) => (stored as readonly string[]).includes(profile))).toBe(true);
-    expect(stored.filter((profile) => !(RUN_PROFILES as readonly string[]).includes(profile))).toEqual(['trail']);
+  it('TOURRUNMIG-001: stores exactly the profiles the contract knows, trail running (RUN-02) included', () => {
+    expect([...Object.values(ToursRunProfile)].sort()).toEqual([...RUN_PROFILES].sort());
   });
 
   it('TOURRUNMIG-002: switches the run type on, leaves every tour as it was and refuses a pace out of bounds', async () => {

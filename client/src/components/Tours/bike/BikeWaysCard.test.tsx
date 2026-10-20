@@ -15,7 +15,7 @@ vi.mock('./useRouteWays', () => ({
   },
 }));
 
-// FE-TOUR-BIKECARD-001 to FE-TOUR-BIKECARD-008
+// FE-TOUR-BIKECARD-001 to FE-TOUR-BIKECARD-009
 
 const LINE: [number, number][] = [
   [47.0, 11.0],
@@ -26,9 +26,9 @@ const LINE: [number, number][] = [
 const WAYS: RouteWays = {
   line: LINE,
   edges: [
-    { from: 0, to: 1, lengthM: 600, surface: 'paved', way: 'cyclePath', wayId: 1 },
-    { from: 1, to: 2, lengthM: 300, surface: 'gravel', way: 'track', wayId: 2 },
-    { from: 2, to: 3, lengthM: 100, surface: 'ground', way: 'path', wayId: 3 },
+    { from: 0, to: 1, lengthM: 600, surface: 'paved', way: 'cyclePath', sac: 'none', wayId: 1 },
+    { from: 1, to: 2, lengthM: 300, surface: 'gravel', way: 'track', sac: 'none', wayId: 2 },
+    { from: 2, to: 3, lengthM: 100, surface: 'ground', way: 'path', sac: 'none', wayId: 3 },
   ],
 };
 
@@ -66,16 +66,16 @@ describe('BikeWaysCard (BIK-01 to BIK-05)', () => {
   it('FE-TOUR-BIKECARD-001: the surfaces and kinds of way of the route, by share, with their lengths', () => {
     show({});
     const card = screen.getByTestId('bike-ways-card');
-    expect(within(screen.getByTestId('bike-ways-row-surface-paved')).getByText('60 %')).toBeInTheDocument();
-    expect(screen.getByTestId('bike-ways-row-surface-gravel')).toHaveTextContent('300 m');
-    expect(screen.getByTestId('bike-ways-row-way-cyclePath')).toBeInTheDocument();
+    expect(within(screen.getByTestId('route-ways-row-surface-paved')).getByText('60 %')).toBeInTheDocument();
+    expect(screen.getByTestId('route-ways-row-surface-gravel')).toHaveTextContent('300 m');
+    expect(screen.getByTestId('route-ways-row-way-cyclePath')).toBeInTheDocument();
     expect(screen.getByText('40 % unpaved')).toBeInTheDocument();
     expect(card).not.toHaveTextContent('Trail grade');
   });
 
   it('FE-TOUR-BIKECARD-002: a row points at its stretches on the map, and lets go when pressed again', () => {
     show({});
-    const row = screen.getByTestId('bike-ways-row-surface-gravel');
+    const row = screen.getByTestId('route-ways-row-surface-gravel');
     fireEvent.click(row);
     expect(row).toHaveAttribute('aria-pressed', 'true');
     expect(useTourRouteHighlightStore.getState().highlight).toEqual({
@@ -105,15 +105,15 @@ describe('BikeWaysCard (BIK-01 to BIK-05)', () => {
         unasked: new Set([3]),
       },
     });
-    expect(screen.getByTestId('bike-ways-row-trail-s0')).toBeInTheDocument();
-    expect(screen.getByTestId('bike-ways-row-trail-s2')).toBeInTheDocument();
-    expect(screen.getByTestId('bike-ways-row-trail-unasked')).toBeInTheDocument();
-    expect(screen.getByTestId('bike-ways-row-uphill-u3')).toBeInTheDocument();
+    expect(screen.getByTestId('route-ways-row-trail-s0')).toBeInTheDocument();
+    expect(screen.getByTestId('route-ways-row-trail-s2')).toBeInTheDocument();
+    expect(screen.getByTestId('route-ways-row-trail-unasked')).toBeInTheDocument();
+    expect(screen.getByTestId('route-ways-row-uphill-u3')).toBeInTheDocument();
   });
 
   it('FE-TOUR-BIKECARD-005: grades nobody could be asked for are one notice with a retry, not a row for the whole tour', () => {
     show({ grades: { status: 'ready', byWay: new Map(), unasked: new Set([1, 2, 3]) } });
-    expect(screen.queryByTestId('bike-ways-row-trail-unasked')).toBeNull();
+    expect(screen.queryByTestId('route-ways-row-trail-unasked')).toBeNull();
     fireEvent.click(screen.getAllByRole('button', { name: /try again/i })[0]);
     expect(hook.retry).toHaveBeenCalled();
   });
@@ -132,7 +132,7 @@ describe('BikeWaysCard (BIK-01 to BIK-05)', () => {
 
   it('FE-TOUR-BIKECARD-007: grades on their way or offline say so in their own section', () => {
     const { unmount } = show({ grades: { status: 'loading', byWay: new Map(), unasked: new Set() } });
-    expect(screen.queryByTestId('bike-ways-row-trail-s0')).toBeNull();
+    expect(screen.queryByTestId('route-ways-row-trail-s0')).toBeNull();
     unmount();
     show({ grades: { status: 'offline', byWay: new Map(), unasked: new Set() } });
     expect(screen.queryByRole('button', { name: /try again/i })).toBeNull();
@@ -147,6 +147,11 @@ describe('BikeWaysCard (BIK-01 to BIK-05)', () => {
     hike.unmount();
     show({}, { routeCurrent: false, mode: { type: 'view-gpx' } } as Partial<TourPlannerController>);
     expect(screen.queryByTestId('bike-ways-card')).toBeNull();
-    expect(hook.input).toMatchObject({ tripId: 4, active: false, route: null, profile: 'touring' });
+    expect(hook.input).toMatchObject({ tripId: 4, active: false, route: null, matchAs: 'bicycle', withGrades: false });
+  });
+
+  it('FE-TOUR-BIKECARD-009: matches the line as ridden, and asks the trail grades for a mountain bike tour only', () => {
+    show({}, { bikeProfile: 'mtb' } as Partial<TourPlannerController>);
+    expect(hook.input).toMatchObject({ active: true, route: LINE, matchAs: 'bicycle', withGrades: true });
   });
 });

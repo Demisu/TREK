@@ -423,6 +423,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'Quãng đường × nhịp chạy của bạn, không gì khác: độ dốc lên xuống và độ khó không được tính. Đây là kế hoạch, không phải thời gian đã ghi.',
   'tours.run.timeSum': '{distance} với nhịp {pace} phút/km là {time}',
+  'tours.run.profile.trail': 'Chạy địa hình',
+  'tours.run.profileHint.trail': 'Ưu tiên đường rừng và lối mòn tự nhiên, đến cả đường núi (T2).',
+  'tours.run.ways.grade': 'Độ khó của đường (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'Về độ khó của đường',
+  'tours.run.ways.gradeInfo':
+    'Cấp độ đi bộ đường dài do người vẽ bản đồ OpenStreetMap gán. Đường không có cấp là chưa rõ, không phải dễ. Chúng không cho biết đường có chạy được hay có hợp với bạn không.',
+  'tours.run.ways.gradeTop': 'Đường được xếp cấp khó nhất: {grade}',
   'tours.bike.profile': 'Hồ sơ',
   'tours.bike.profile.touring': 'Du lịch',
   'tours.bike.profile.road': 'Đường trường',

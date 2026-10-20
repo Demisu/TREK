@@ -48,6 +48,7 @@ import { TourScopeSummary } from '../TourScopeSummary'
 import { useTourListFilters } from '../useTourListFilters'
 import { TourPoiSearchCard } from '../poi/TourPoiSearchCard'
 import { BikeWaysCard } from '../bike/BikeWaysCard'
+import { RunWaysCard } from '../run/RunWaysCard'
 import { walkTimeFields } from '../walk/walkTimeFields'
 
 const STATUS_KEY: Partial<Record<TourPlannerStatus, string>> = {
@@ -453,6 +454,8 @@ export function TourPlannerRail({ planner,
           <TourWaypointList planner={planner} canEdit={canEdit} isSaving={isSaving} tourPlaceIds={tourPlaceIds} />
 
           <BikeWaysCard planner={planner} />
+
+          <RunWaysCard planner={planner} />
 
           <TourPoiSearchCard planner={planner} />
 

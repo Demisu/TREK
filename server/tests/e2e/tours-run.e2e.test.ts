@@ -1,5 +1,5 @@
 /**
- * Tours e2e for runs (RUN-01): a run saved with its profile and pace, listed
+ * Tours e2e for runs (RUN-01, RUN-02): a run saved with its profile and pace, listed
  * and opened so, its time the distance at the pace, its pace changed or taken
  * out without touching the route or the days, refused without a profile or
  * with a pace out of bounds, copied, exported and imported, through the real
@@ -204,7 +204,7 @@ describe('Runs e2e (real guards + temp SQLite)', () => {
     const refused = await Promise.all(
       [
         runBody({ run_profile: null }),
-        runBody({ run_profile: 'trail' }),
+        runBody({ run_profile: 'road' }),
         runBody({ run_pace_seconds_per_km: 0 }),
         runBody({ run_pace_seconds_per_km: -360 }),
         runBody({ run_pace_seconds_per_km: 1201 }),
@@ -274,6 +274,59 @@ describe('Runs e2e (real guards + temp SQLite)', () => {
       run_pace_seconds_per_km: null,
       duration: null,
       origin: 'gpx',
+    });
+  });
+
+  it('TOURS-RUN-E2E-010: a trail run keeps its profile, pace and days through a save, an opening and a new pace', async () => {
+    const placeId = await createViaApi(
+      runBody({ run_profile: 'trail', run_pace_seconds_per_km: 450, duration_seconds: 60 * 60 }),
+    );
+    await insertRows(orm, DayAssignments, [{ day: 3, place: placeId, order_index: 0 }]);
+    expect(await findRow(orm, Tours, { place: placeId })).toMatchObject({
+      run_profile: 'trail',
+      run_pace_seconds_per_km: 450,
+      duration: 60,
+    });
+    const slower = await send(
+      'put',
+      `/${placeId}`,
+      runBody({ run_profile: 'trail', run_pace_seconds_per_km: 480, duration_seconds: 64 * 60, expected_revision: 1 }),
+    );
+    expect(slower.status).toBe(200);
+    const detail = await request(server).get(`/api/trips/5/tours/${placeId}`).set('Cookie', sessionCookie(OWNER));
+    expect(detail.body.tour).toMatchObject({
+      tour_type: 'run',
+      run_profile: 'trail',
+      run_pace_seconds_per_km: 480,
+      duration: 64,
+    });
+    expect(await countRows(orm, DayAssignments, { place: placeId })).toBe(1);
+  });
+
+  it('TOURS-RUN-E2E-011: a trail run exports as trail running, and a GPX file imports as one', async () => {
+    const placeId = await createViaApi(runBody({ run_profile: 'trail' }));
+    const res = await request(server)
+      .get(`/api/trips/5/tours/${placeId}/export.gpx`)
+      .set('Cookie', sessionCookie(OWNER))
+      .buffer(true)
+      .parse((response, done) => {
+        let text = '';
+        response.setEncoding('utf8');
+        response.on('data', (chunk: string) => (text += chunk));
+        response.on('end', () => done(null, text));
+      });
+    expect(/<type>([^<]+)<\/type>/.exec(String(res.body))?.[1]).toBe('trail_running');
+    const imported = await request(server)
+      .post('/api/trips/5/tours/import/gpx')
+      .set('Cookie', sessionCookie(OWNER))
+      .field('tour_type', 'run')
+      .field('run_profile', 'trail')
+      .attach('file', Buffer.from(GPX), { filename: 'ridge.gpx', contentType: 'application/gpx+xml' });
+    expect(imported.status).toBe(201);
+    expect(imported.body.tours[0]).toMatchObject({
+      tour_type: 'run',
+      run_profile: 'trail',
+      run_pace_seconds_per_km: null,
     });
   });
 });

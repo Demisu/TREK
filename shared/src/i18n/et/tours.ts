@@ -426,6 +426,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'Vahemaa × sinu tempo ja ei midagi muud: tõusud, langused ja raskus ei lähe arvesse. Plaan, mitte salvestatud aeg.',
   'tours.run.timeSum': '{distance} tempos {pace} min/km teeb {time}',
+  'tours.run.profile.trail': 'Rajajooks',
+  'tours.run.profileHint.trail': 'Eelistab metsateid ja looduslikke radu, kuni mägiradadeni (T2).',
+  'tours.run.ways.grade': 'Raja raskus (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'Raja raskusest',
+  'tours.run.ways.gradeInfo':
+    'Matkaraskused, nagu OpenStreetMapi kaardistajad need andsid. Ilma raskuseta tee on teadmata, mitte lihtne. Need ei ütle midagi selle kohta, kas teel saab joosta või kas see sulle sobib.',
+  'tours.run.ways.gradeTop': 'Raskeim hinnatud rada: {grade}',
   'tours.bike.profile': 'Profiil',
   'tours.bike.profile.touring': 'Matk',
   'tours.bike.profile.road': 'Maantee',

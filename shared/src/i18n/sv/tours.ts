@@ -422,6 +422,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'Sträcka × ditt tempo och inget annat: stigningar och svårighet räknas inte in. En planering, ingen inspelad tid.',
   'tours.run.timeSum': '{distance} i {pace} min/km blir {time}',
+  'tours.run.profile.trail': 'Traillöpning',
+  'tours.run.profileHint.trail': 'Föredrar skogsvägar och naturstigar, upp till fjällstigar (T2).',
+  'tours.run.ways.grade': 'Ledens svårighet (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'Om ledens svårighet',
+  'tours.run.ways.gradeInfo':
+    'Vandringsgrader som OpenStreetMap-kartläggare har angett dem. En väg utan grad är okänd, inte lätt. De säger inget om huruvida en väg går att springa eller passar dig.',
+  'tours.run.ways.gradeTop': 'Svåraste graderade led: {grade}',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Tur',
   'tours.bike.profile.road': 'Landsväg',

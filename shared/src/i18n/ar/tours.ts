@@ -435,6 +435,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'المسافة × وتيرتك ولا شيء غير ذلك: لا تُحتسب الصعودات والنزولات ولا الصعوبة. إنه تخطيط، وليس وقتًا مسجّلًا.',
   'tours.run.timeSum': '{distance} بوتيرة {pace} دقيقة/كم تساوي {time}',
+  'tours.run.profile.trail': 'الجري على المسارات الطبيعية',
+  'tours.run.profileHint.trail': 'يفضّل طرق الغابات والممرات الطبيعية، حتى الممرات الجبلية (T2).',
+  'tours.run.ways.grade': 'صعوبة المسار (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'حول صعوبة المسار',
+  'tours.run.ways.gradeInfo':
+    'درجات المشي كما حددها مساهمو OpenStreetMap. الطريق بلا درجة مجهول، وليس سهلًا. لا تقول شيئًا عن إمكانية الجري عليه أو مدى ملاءمته لك.',
+  'tours.run.ways.gradeTop': 'أصعب مسار مصنّف: {grade}',
   'tours.bike.profile': 'الملف',
   'tours.bike.profile.touring': 'تجوال',
   'tours.bike.profile.road': 'طريق',

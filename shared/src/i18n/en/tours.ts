@@ -423,6 +423,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'Distance × your pace and nothing else: climbs, descents and difficulty are not included. A plan, not a recorded time.',
   'tours.run.timeSum': '{distance} at {pace} min/km is {time}',
+  'tours.run.profile.trail': 'Trail running',
+  'tours.run.profileHint.trail': 'Prefers forest tracks and natural paths, up to mountain paths (T2).',
+  'tours.run.ways.grade': 'Path difficulty (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'About the path difficulty',
+  'tours.run.ways.gradeInfo':
+    'Hiking grades as OpenStreetMap mappers gave them. A way without one is unknown, not easy. They say nothing about whether a way can be run or suits you.',
+  'tours.run.ways.gradeTop': 'Hardest graded path: {grade}',
   'tours.bike.profile': 'Profile',
   'tours.bike.profile.touring': 'Touring',
   'tours.bike.profile.road': 'Road',

@@ -12,7 +12,7 @@ vi.mock('../../Map/valhallaRoute', () => trace);
 vi.mock('../../../repo/tourTrailGradeRepo', () => ({ tourTrailGradeRepo: gradesRepo }));
 vi.mock('../../../hooks/useNetworkMode', () => ({ useNetworkMode: () => ({ offline: network.offline }) }));
 
-// FE-TOUR-WAYS-HOOK-001 to FE-TOUR-WAYS-HOOK-008
+// FE-TOUR-WAYS-HOOK-001 to FE-TOUR-WAYS-HOOK-009
 
 const ROUTE: [number, number][] = [
   [47.0, 11.0],
@@ -32,7 +32,8 @@ const input = (overrides: Partial<Input> = {}): Input => ({
   tripId: 3,
   active: true,
   route: ROUTE,
-  profile: 'touring',
+  matchAs: 'bicycle',
+  withGrades: false,
   ...overrides,
 });
 
@@ -51,7 +52,7 @@ beforeEach(() => {
 
 afterEach(() => vi.useRealTimers());
 
-describe('useRouteWays (BIK-01 to BIK-05)', () => {
+describe('useRouteWays (BIK-01 to BIK-05, RUN-02)', () => {
   it('FE-TOUR-WAYS-HOOK-001: asks nothing while inactive or without a route of two points', () => {
     for (const overrides of [{ active: false }, { route: null }, { route: ROUTE.slice(0, 1) }]) {
       const { result } = renderHook(() => useRouteWays(input(overrides)));
@@ -65,7 +66,7 @@ describe('useRouteWays (BIK-01 to BIK-05)', () => {
     expect(result.current.status).toBe('loading');
     expect(trace.valhallaTraceAttributes).not.toHaveBeenCalled();
     await settle();
-    expect(trace.valhallaTraceAttributes).toHaveBeenCalledWith(ROUTE, expect.any(AbortSignal));
+    expect(trace.valhallaTraceAttributes).toHaveBeenCalledWith(ROUTE, expect.any(AbortSignal), 'bicycle');
     expect(result.current.status).toBe('ready');
     expect(result.current.ways?.edges.map((edge) => edge.surface)).toEqual(['gravel', 'ground']);
     expect(result.current.grades).toBeNull();
@@ -77,7 +78,7 @@ describe('useRouteWays (BIK-01 to BIK-05)', () => {
       ways: [{ id: 11, mtb_scale: '2', mtb_scale_uphill: null, mtb_scale_imba: null }],
       unanswered: [12],
     });
-    const { result } = renderHook(() => useRouteWays(input({ profile: 'mtb' })));
+    const { result } = renderHook(() => useRouteWays(input({ withGrades: true })));
     await settle();
     expect(gradesRepo.grades).toHaveBeenCalledWith(3, { way_ids: [11, 12] }, expect.any(AbortSignal));
     expect(result.current.grades?.status).toBe('ready');
@@ -87,14 +88,14 @@ describe('useRouteWays (BIK-01 to BIK-05)', () => {
 
   it('FE-TOUR-WAYS-HOOK-004: grades that cannot be had say why: offline, or failed', async () => {
     gradesRepo.grades.mockRejectedValueOnce(new OnlineOnlyError());
-    const offline = renderHook(() => useRouteWays(input({ profile: 'mtb' })));
+    const offline = renderHook(() => useRouteWays(input({ withGrades: true })));
     await settle();
     expect(offline.result.current.status).toBe('ready');
     expect(offline.result.current.grades?.status).toBe('offline');
     offline.unmount();
 
     gradesRepo.grades.mockRejectedValueOnce(new Error('overpass'));
-    const failed = renderHook(() => useRouteWays(input({ profile: 'mtb' })));
+    const failed = renderHook(() => useRouteWays(input({ withGrades: true })));
     await settle();
     expect(failed.result.current.grades?.status).toBe('failed');
   });
@@ -124,6 +125,19 @@ describe('useRouteWays (BIK-01 to BIK-05)', () => {
     await settle();
     expect(result.current.status).toBe('offline');
     expect(trace.valhallaTraceAttributes).not.toHaveBeenCalled();
+  });
+
+  it('FE-TOUR-WAYS-HOOK-009: a run is matched on foot, and matched again when asked another way (RUN-02)', async () => {
+    const { result, rerender } = renderHook((props: Input) => useRouteWays(props), {
+      initialProps: input({ matchAs: 'pedestrian' }),
+    });
+    await settle();
+    expect(trace.valhallaTraceAttributes).toHaveBeenLastCalledWith(ROUTE, expect.any(AbortSignal), 'pedestrian');
+    expect(result.current.status).toBe('ready');
+    rerender(input({ matchAs: 'bicycle' }));
+    expect(result.current.status).toBe('loading');
+    await settle();
+    expect(trace.valhallaTraceAttributes).toHaveBeenLastCalledWith(ROUTE, expect.any(AbortSignal), 'bicycle');
   });
 
   it('FE-TOUR-WAYS-HOOK-008: a new route drops the highlight and the old answer, and leaving takes the highlight down', async () => {

@@ -33,5 +33,6 @@ describe('gpxActivityOf (PR1-06A, BIK-01, HIK-01, RUN-01)', () => {
     expect(gpxActivityOf({ tour_type: 'run', run_profile: 'running' })).toBe('running');
     expect(gpxActivityOf({ tour_type: 'run', run_profile: null })).toBe('running');
     expect(gpxActivityOf({ tour_type: 'run', run_profile: 'sprint' })).toBe('running');
+    expect(gpxActivityOf({ tour_type: 'run', run_profile: 'trail' })).toBe('trail_running');
   });
 });

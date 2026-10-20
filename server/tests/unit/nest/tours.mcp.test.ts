@@ -392,4 +392,23 @@ describe('ToursMcp', () => {
     expect(description).toContain('no climb, descent or difficulty is in it');
     expect(description).toContain('never a recorded time');
   });
+
+  it('TOURS-MCP-017: list_tours names a trail run as such, and its profile as a routing preference only (RUN-02)', async () => {
+    const { user, trip, ridge } = fixture();
+    const orm = await createTestOrm(db);
+    await updateRows(
+      orm,
+      Tours,
+      { place: ridge.id },
+      { tourTypeRef: 'run', max_hiking_difficulty: null, run_profile: 'trail', run_pace_seconds_per_km: 450 },
+    );
+    await orm.close();
+    const { tours } = read(await mcp.listTours({ tripId: trip.id }, ctx(user.id)));
+    const listed = tours.find((tour: { place_id: number }) => tour.place_id === ridge.id);
+    expect(listed).toMatchObject({ tour_type: 'run', run_profile: 'trail', run_pace_seconds_per_km: 450 });
+    const entry = getEntry(ToursMcp as unknown as ClassRef, 'listTours');
+    const description = entry?.kind === 'tool' ? (entry.options.description ?? '') : '';
+    expect(description).toContain('trail for forest tracks and natural paths up to mountain paths (T2)');
+    expect(description).toContain('never a statement that a way can be run');
+  });
 });

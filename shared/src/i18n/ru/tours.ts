@@ -444,6 +444,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'Расстояние × ваш темп и ничего больше: набор высоты и сложность не учитываются. Это план, а не записанное время.',
   'tours.run.timeSum': '{distance} в темпе {pace} мин/км: {time}',
+  'tours.run.profile.trail': 'Трейлраннинг',
+  'tours.run.profileHint.trail': 'Предпочитает лесные дороги и природные тропы, вплоть до горных троп (T2).',
+  'tours.run.ways.grade': 'Сложность тропы (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'О сложности тропы',
+  'tours.run.ways.gradeInfo':
+    'Категории сложности троп, как их указали участники OpenStreetMap. Путь без категории неизвестен, а не прост. Они ничего не говорят о том, можно ли по пути бежать и подходит ли он вам.',
+  'tours.run.ways.gradeTop': 'Самая сложная оцененная тропа: {grade}',
   'tours.bike.profile': 'Профиль',
   'tours.bike.profile.touring': 'Туризм',
   'tours.bike.profile.road': 'Шоссе',

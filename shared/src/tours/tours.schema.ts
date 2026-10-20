@@ -49,12 +49,13 @@ export const bikeProfileSchema = z.enum(BIKE_PROFILES);
 export type BikeProfile = z.infer<typeof bikeProfileSchema>;
 
 /**
- * RUN-01: what a run is planned as, the one profile it is routed for. Running
- * keeps to runnable, mostly paved ways in towns, parks and along rivers;
- * trail running follows with RUN-02. A profile asks the router for ways, it
- * says nothing about whether one can be run.
+ * RUN-01, RUN-02: what a run is planned as, the one profile it is routed for.
+ * Running keeps to runnable, mostly paved ways in towns, parks and along
+ * rivers; trail running to forest tracks and natural paths, up to mountain
+ * paths (T2). A profile asks the router for ways, it says nothing about
+ * whether one can be run, and it changes nothing of the running time.
  */
-export const RUN_PROFILES = ['running'] as const;
+export const RUN_PROFILES = ['running', 'trail'] as const;
 export const runProfileSchema = z.enum(RUN_PROFILES);
 export type RunProfile = z.infer<typeof runProfileSchema>;
 

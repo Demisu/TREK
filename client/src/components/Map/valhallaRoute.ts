@@ -368,14 +368,32 @@ const TRACE_MAX_POINTS = 4000
 const TRACE_TIMEOUT_MS = 30_000
 
 /**
- * BIK-01: how the router describes the ways under a line (`trace_attributes`):
- * the surface, the use and road class, the cycle lane and the OpenStreetMap way
- * of every edge, with the line as matched. The edges are matched as a mountain
- * bike would ride them, the costing that refuses the fewest ways, so a road
- * bike's route and a gravel one are described alike. Null for every failure:
+ * How a line is matched to the ways under it: as a mountain bike rides, the
+ * bicycle costing that refuses the fewest ways, or on foot with no hiking
+ * limit, so steps and mountain paths a run takes stay on the line (matched as
+ * a bike, a trail run over steps was described as the street beside them).
+ */
+export type TraceMatch = 'bicycle' | 'pedestrian'
+
+const TRACE_COSTING: Record<TraceMatch, Readonly<Record<string, CostingOptions>>> = {
+  bicycle: { bicycle: { bicycle_type: 'Mountain' } },
+  pedestrian: { pedestrian: { max_hiking_difficulty: 6 } },
+}
+
+/**
+ * BIK-01, RUN-02: how the router describes the ways under a line
+ * (`trace_attributes`): the surface, the use and road class, the cycle lane,
+ * the hiking grade (`sac_scale`, 0 where the way has none) and the
+ * OpenStreetMap way of every edge, with the line as matched. A bike tour's
+ * line is matched as a mountain bike would ride it, so a road bike's route and
+ * a gravel one are described alike; a run's on foot. Null for every failure:
  * the description is an addition beside a route that already exists.
  */
-export async function valhallaTraceAttributes(line: readonly [number, number][], signal?: AbortSignal): Promise<unknown> {
+export async function valhallaTraceAttributes(
+  line: readonly [number, number][],
+  signal?: AbortSignal,
+  matchAs: TraceMatch = 'bicycle',
+): Promise<unknown> {
   const base = valhallaBase()
   if (!base || line.length < 2) return null
   const step = Math.max(1, Math.ceil(line.length / TRACE_MAX_POINTS))
@@ -389,12 +407,12 @@ export async function valhallaTraceAttributes(line: readonly [number, number][],
       headers: { 'Content-Type': 'application/json', 'X-Client-Id': 'trek' },
       body: JSON.stringify({
         shape,
-        costing: 'bicycle',
-        costing_options: { bicycle: { bicycle_type: 'Mountain' } },
+        costing: matchAs,
+        costing_options: TRACE_COSTING[matchAs],
         shape_match: 'map_snap',
         filters: {
-          attributes: ['shape', 'edge.surface', 'edge.use', 'edge.road_class', 'edge.cycle_lane', 'edge.length', 'edge.way_id',
-            'edge.begin_shape_index', 'edge.end_shape_index'],
+          attributes: ['shape', 'edge.surface', 'edge.use', 'edge.road_class', 'edge.cycle_lane', 'edge.sac_scale', 'edge.length',
+            'edge.way_id', 'edge.begin_shape_index', 'edge.end_shape_index'],
           action: 'include',
         },
       }),

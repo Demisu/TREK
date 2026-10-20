@@ -16,9 +16,10 @@ const BIKE_ACTIVITY: Record<BikeProfile, string> = {
   mtb: 'mountain_biking',
 };
 
-/** RUN-01: a run says how it is run, in the same words. */
+/** RUN-01, RUN-02: a run says how it is run, in the same words. */
 const RUN_ACTIVITY: Record<RunProfile, string> = {
   running: 'running',
+  trail: 'trail_running',
 };
 
 /**

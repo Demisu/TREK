@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { RunFields, RunProfileField } from './RunFields';
 import { runPaceInvalid } from './runPace';
 
-// FE-TOUR-RUN-FIELDS-001 to FE-TOUR-RUN-FIELDS-006
+// FE-TOUR-RUN-FIELDS-001 to FE-TOUR-RUN-FIELDS-008
 
 type Planner = ComponentProps<typeof RunFields>['planner'];
 
@@ -14,14 +14,16 @@ const analysis = { distanceKm: 8 } as Planner['routeAnalysis'];
 function Stateful({
   initial = null,
   distance = analysis,
+  profile = 'running',
 }: {
   initial?: number | null;
   distance?: Planner['routeAnalysis'];
+  profile?: Planner['runProfile'];
 }) {
   const [pace, setPace] = useState<number | null>(initial);
   const invalid = runPaceInvalid(pace);
   const planner: Planner = {
-    runProfile: 'running',
+    runProfile: profile,
     setRunProfile: vi.fn(),
     runPace: { paceSecondsPerKm: pace, setPace, load: setPace },
     runPaceMissing: pace === null,
@@ -126,5 +128,24 @@ describe('RunFields (RUN-01)', () => {
     render(<Stateful initial={300} distance={null} />);
     expect(paceField()).toHaveValue('5:00');
     expect(screen.queryByTestId('tour-run-time-sum')).toBeNull();
+  });
+
+  it('FE-TOUR-RUN-FIELDS-007: offers trail running beside running, with the ways it asks for (RUN-02)', () => {
+    const onChange = vi.fn();
+    render(<RunProfileField value="trail" onChange={onChange} />);
+    expect(screen.getByRole('button', { name: 'tours.run.profile.trail' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByText('tours.run.profileHint.trail')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'tours.run.profile.running' }));
+    expect(onChange).toHaveBeenCalledWith('running');
+  });
+
+  it('FE-TOUR-RUN-FIELDS-008: a trail run is timed as any run, distance times pace, nothing added for the terrain (RUN-02)', () => {
+    render(<Stateful initial={450} profile="trail" />);
+    const sum = screen.getByTestId('tour-run-time-sum');
+    expect(sum).toHaveTextContent('7:30 /km');
+    expect(sum).toHaveTextContent('1 h');
+    expect(screen.getByRole('button', { name: 'tours.run.paceInfoLabel' })).toHaveAccessibleDescription(
+      'tours.run.paceInfo'
+    );
   });
 });

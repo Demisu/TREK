@@ -1,10 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import { encodePolyline } from '../../../../tests/helpers/polyline';
-import { bikePaintCss, surfacePaintKey, trailPaintKey } from './bikePaint';
+import { bikePaintCss, sacPaintKey, surfacePaintKey, trailPaintKey } from './bikePaint';
 import { withRouteHighlight } from './routeHighlight';
-import { routeWaysFrom, sharesBy, stretchesOf, trailClassOf, wayIdsOf, type RouteWays } from './routeWays';
+import {
+  routeWaysFrom,
+  sacClassOf,
+  sharesBy,
+  stretchesOf,
+  trailClassOf,
+  unpavedShareOf,
+  wayIdsOf,
+  type RouteWays,
+} from './routeWays';
 
-// FE-TOUR-WAYS-001 to FE-TOUR-WAYS-010
+// FE-TOUR-WAYS-001 to FE-TOUR-WAYS-013
 
 const LINE: [number, number][] = [
   [47.0, 11.0],
@@ -65,6 +74,20 @@ describe('routeWaysFrom (BIK-01 to BIK-04)', () => {
     ]);
   });
 
+  it('FE-TOUR-WAYS-011: reads the hiking grade of each edge, and no grade, a 0 or anything else as none (RUN-02)', () => {
+    const ways = routeWaysFrom(
+      answer([
+        edge(0, 1, { use: 'path', sac_scale: 1 }),
+        edge(1, 2, { use: 'path', sac_scale: 2 }),
+        edge(2, 3, { use: 'road', sac_scale: 0 }),
+        edge(3, 4, { use: 'road' }),
+      ])
+    );
+    expect(ways?.edges.map((e) => e.sac)).toEqual(['t1', 't2', 'none', 'none']);
+    expect([3, 4, 5, 6].map(sacClassOf)).toEqual(['t3', 't4', 't5', 't6']);
+    for (const value of [7, -1, 2.5, '2', null]) expect(sacClassOf(value)).toBe('none');
+  });
+
   it('FE-TOUR-WAYS-003: drops an edge without its place on the line, and is null for no answer of that kind', () => {
     const ways = routeWaysFrom(
       answer([edge(0, 1), { ...edge(1, 2), end_shape_index: 9 }, { ...edge(2, 1) }, { ...edge(2, 3), length: -1 }])
@@ -80,10 +103,10 @@ describe('routeWaysFrom (BIK-01 to BIK-04)', () => {
 const WAYS: RouteWays = {
   line: LINE,
   edges: [
-    { from: 0, to: 1, lengthM: 300, surface: 'paved', way: 'road', wayId: 1 },
-    { from: 1, to: 2, lengthM: 100, surface: 'gravel', way: 'track', wayId: 2 },
-    { from: 2, to: 3, lengthM: 100, surface: 'gravel', way: 'track', wayId: 2 },
-    { from: 3, to: 4, lengthM: 0, surface: 'ground', way: 'path', wayId: null },
+    { from: 0, to: 1, lengthM: 300, surface: 'paved', way: 'road', sac: 'none', wayId: 1 },
+    { from: 1, to: 2, lengthM: 100, surface: 'gravel', way: 'track', sac: 'none', wayId: 2 },
+    { from: 2, to: 3, lengthM: 100, surface: 'gravel', way: 'track', sac: 'none', wayId: 2 },
+    { from: 3, to: 4, lengthM: 0, surface: 'ground', way: 'path', sac: 'none', wayId: null },
   ],
 };
 
@@ -94,6 +117,11 @@ describe('what the line runs on (BIK-01 to BIK-05)', () => {
       { key: 'gravel', lengthM: 200, share: 0.4 },
     ]);
     expect(sharesBy({ line: LINE, edges: [] }, (e) => e.surface)).toEqual([]);
+  });
+
+  it('FE-TOUR-WAYS-013: the share known to be unpaved, and none where nothing is', () => {
+    expect(unpavedShareOf(WAYS)).toBe(0.4);
+    expect(unpavedShareOf({ line: LINE, edges: [WAYS.edges[0]] })).toBeNull();
   });
 
   it('FE-TOUR-WAYS-005: the stretches of a class, neighbours joined into one line each', () => {
@@ -124,6 +152,12 @@ describe('the paints and the highlight (BIK-01 to BIK-05)', () => {
     expect(trailPaintKey('none')).toBe('unknown');
     expect(trailPaintKey('unasked')).toBe('unknown');
     expect(bikePaintCss('s1')).toBe('var(--bike-trail-s1)');
+  });
+
+  it('FE-TOUR-WAYS-012: a hiking grade takes the paint of the trail grade it matches, T5 and up the hardest (RUN-02)', () => {
+    const grades = ['t1', 't2', 't3', 't4', 't5', 't6'] as const;
+    expect(grades.map(sacPaintKey)).toEqual(['s0', 's1', 's2', 's3', 's4', 's4']);
+    expect(sacPaintKey('none')).toBe('unknown');
   });
 
   const paint = { gravel: '#a0522d', way: '#111', casing: '#fff' } as Parameters<typeof withRouteHighlight>[4];

@@ -551,6 +551,21 @@ describe('valhallaTraceAttributes (BIK-01)', () => {
     expect(bodies[0].shape).toEqual(SHAPE_POINTS.map(([lat, lon]) => ({ lat, lon })))
   })
 
+  it('VALHALLA-TRACE-005: a run is matched on foot without a hiking limit, and every line is asked its hiking grades (RUN-02)', async () => {
+    const bodies: Record<string, unknown>[] = []
+    server.use(http.post(TRACE, async ({ request }) => {
+      bodies.push(await request.json() as Record<string, unknown>)
+      return HttpResponse.json({ shape: SHAPE, edges: [] })
+    }))
+    await valhallaTraceAttributes(SHAPE_POINTS, undefined, 'pedestrian')
+    expect(bodies[0]).toMatchObject({
+      costing: 'pedestrian',
+      costing_options: { pedestrian: { max_hiking_difficulty: 6 } },
+      shape_match: 'map_snap',
+    })
+    expect((bodies[0].filters as { attributes: string[] }).attributes).toContain('edge.sac_scale')
+  })
+
   it('VALHALLA-TRACE-002: a long line is thinned evenly to what one request carries, its ends kept', async () => {
     let shape: unknown[] = []
     server.use(http.post(TRACE, async ({ request }) => {

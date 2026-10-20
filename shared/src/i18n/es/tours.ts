@@ -431,6 +431,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'Distancia × tu ritmo y nada más: el desnivel y la dificultad no se tienen en cuenta. Una planificación, no un tiempo registrado.',
   'tours.run.timeSum': '{distance} a {pace} min/km son {time}',
+  'tours.run.profile.trail': 'Carrera de montaña',
+  'tours.run.profileHint.trail': 'Prefiere pistas forestales y senderos naturales, hasta senderos de montaña (T2).',
+  'tours.run.ways.grade': 'Dificultad del camino (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'Sobre la dificultad del camino',
+  'tours.run.ways.gradeInfo':
+    'Grados de senderismo tal como los asignaron los mapeadores de OpenStreetMap. Un camino sin grado es desconocido, no fácil. No dicen si un camino se puede correr ni si te conviene.',
+  'tours.run.ways.gradeTop': 'Camino graduado más difícil: {grade}',
   'tours.bike.profile': 'Perfil',
   'tours.bike.profile.touring': 'Cicloturismo',
   'tours.bike.profile.road': 'Carretera',

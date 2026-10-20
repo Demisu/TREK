@@ -424,6 +424,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'Vzdálenost × vaše tempo a nic dalšího: převýšení a obtížnost se nezapočítávají. Plán, ne zaznamenaný čas.',
   'tours.run.timeSum': '{distance} při {pace} min/km dává {time}',
+  'tours.run.profile.trail': 'Trailový běh',
+  'tours.run.profileHint.trail': 'Upřednostňuje lesní cesty a přírodní stezky, až po horské stezky (T2).',
+  'tours.run.ways.grade': 'Obtížnost cesty (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'O obtížnosti cesty',
+  'tours.run.ways.gradeInfo':
+    'Turistické stupně, jak je zadali mapovači OpenStreetMap. Cesta bez stupně je neznámá, ne snadná. Neříkají nic o tom, zda se po cestě dá běžet nebo zda se pro tebe hodí.',
+  'tours.run.ways.gradeTop': 'Nejtěžší hodnocená cesta: {grade}',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Treking',
   'tours.bike.profile.road': 'Silnice',

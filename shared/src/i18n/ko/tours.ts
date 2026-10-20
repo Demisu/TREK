@@ -411,6 +411,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfoLabel': '달리기 시간 계획 방법',
   'tours.run.timeEstimatedInfo': '거리 × 나의 페이스뿐이며, 오르막, 내리막, 난이도는 포함되지 않습니다. 기록된 시간이 아니라 계획입니다.',
   'tours.run.timeSum': '{distance}, {pace}분/km 페이스로 {time}',
+  'tours.run.profile.trail': '트레일 러닝',
+  'tours.run.profileHint.trail': '임도와 자연 오솔길을 우선하며, 산길(T2)까지 포함합니다.',
+  'tours.run.ways.grade': '길 난이도 (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': '길 난이도 안내',
+  'tours.run.ways.gradeInfo':
+    'OpenStreetMap 매퍼가 매긴 하이킹 등급입니다. 등급이 없는 길은 쉬운 것이 아니라 알 수 없는 것입니다. 길을 달릴 수 있는지, 나에게 맞는지는 알려 주지 않습니다.',
+  'tours.run.ways.gradeTop': '가장 어려운 등급의 길: {grade}',
   'tours.bike.profile': '프로필',
   'tours.bike.profile.touring': '투어링',
   'tours.bike.profile.road': '로드',

@@ -434,6 +434,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'Distanza × il tuo passo e nient’altro: dislivello e difficoltà non sono considerati. Una pianificazione, non un tempo registrato.',
   'tours.run.timeSum': '{distance} a {pace} min/km fanno {time}',
+  'tours.run.profile.trail': 'Corsa su sentiero',
+  'tours.run.profileHint.trail': 'Preferisce strade forestali e sentieri naturali, fino ai sentieri di montagna (T2).',
+  'tours.run.ways.grade': 'Difficoltà del sentiero (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'Sulla difficoltà del sentiero',
+  'tours.run.ways.gradeInfo':
+    'Gradi escursionistici come li hanno assegnati i mappatori di OpenStreetMap. Un sentiero senza grado è sconosciuto, non facile. Non dicono se un sentiero si può correre né se fa per te.',
+  'tours.run.ways.gradeTop': 'Sentiero classificato più difficile: {grade}',
   'tours.bike.profile': 'Profilo',
   'tours.bike.profile.touring': 'Turismo',
   'tours.bike.profile.road': 'Strada',

@@ -425,6 +425,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'Məsafə × sizin temp, başqa heç nə: yoxuşlar, enişlər və çətinlik nəzərə alınmır. Bu plandır, qeydə alınmış vaxt deyil.',
   'tours.run.timeSum': '{distance}, {pace} dəq/km tempdə: {time}',
+  'tours.run.profile.trail': 'Trail qaçışı',
+  'tours.run.profileHint.trail': 'Meşə yollarına və təbii cığırlara üstünlük verir, dağ cığırlarına (T2) qədər.',
+  'tours.run.ways.grade': 'Yolun çətinliyi (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'Yolun çətinliyi haqqında',
+  'tours.run.ways.gradeInfo':
+    'OpenStreetMap xəritəçilərinin verdiyi yürüş dərəcələri. Dərəcəsi olmayan yol asan deyil, naməlumdur. Onlar yolun qaçmağa yararlı olub-olmadığı və ya sizə uyğun olub-olmadığı barədə heç nə demir.',
+  'tours.run.ways.gradeTop': 'Ən çətin qiymətləndirilmiş cığır: {grade}',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Turinq',
   'tours.bike.profile.road': 'Yol',

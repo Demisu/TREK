@@ -4,7 +4,7 @@ import {
   RUN_PROFILES,
   type RunProfile,
 } from '@trek/shared';
-import { Activity, Clock, Gauge, Info, Ruler, type LucideIcon } from 'lucide-react';
+import { Clock, Gauge, Info, Ruler } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from '../../../i18n';
 import { formatDistance } from '../../../utils/units';
@@ -15,13 +15,12 @@ import type { TourPlannerController } from '../planner/useTourPlanner';
 import { InfoDot, TourNotice } from '../tourParts';
 import { formatPlannedTourDuration } from '../tourPresentation';
 import { formatRunPace, parseRunPace, RUN_PACE_INPUT_MAX_LENGTH, runPaceInvalid } from './runPace';
-
-const PROFILE_ICON: Record<RunProfile, LucideIcon> = { running: Activity };
+import { RUN_PROFILE_ICON } from './runProfileIcon';
 
 /**
- * RUN-01: what a run is planned as, chosen on purpose like a bike tour's
- * profile, with a line on the ways it asks the router for. The planner and
- * the GPX import share it.
+ * RUN-01, RUN-02: what a run is planned as, running or trail running, chosen
+ * on purpose like a bike tour's profile, with a line on the ways it asks the
+ * router for. The planner and the GPX import share it.
  */
 export function RunProfileField({ value, onChange }: { value: RunProfile; onChange: (profile: RunProfile) => void }) {
   const { t } = useTranslation();
@@ -34,7 +33,7 @@ export function RunProfileField({ value, onChange }: { value: RunProfile; onChan
         label={t('tours.run.profile')}
         fill
         options={RUN_PROFILES.map((profile) => {
-          const Icon = PROFILE_ICON[profile];
+          const Icon = RUN_PROFILE_ICON[profile];
           return {
             value: profile,
             label: t(`tours.run.profile.${profile}`),

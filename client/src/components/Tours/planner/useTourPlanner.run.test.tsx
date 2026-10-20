@@ -16,7 +16,7 @@ vi.mock('../useTourPermissions', () => ({ useTourPermissions: () => ({ canEdit: 
 
 import { useTourPlanner, type DerivedTourDraft } from './useTourPlanner';
 
-// FE-TOUR-RUN-001 to FE-TOUR-RUN-008
+// FE-TOUR-RUN-001 to FE-TOUR-RUN-010
 
 const routed = {
   coordinates: [
@@ -241,5 +241,39 @@ describe("useTourPlanner, a run at the runner's own pace (RUN-01)", () => {
     });
     expect(result.current.runPace.paceSecondsPerKm).toBeNull();
     expect(result.current.runPaceMissing).toBe(true);
+  });
+
+  it('FE-TOUR-RUN-009: trail running plans the route again for trails, keeps the pace and its sum, and saves as trail (RUN-02)', async () => {
+    createTour.mockResolvedValue({ tour: { ...savedRun, run_profile: 'trail' }, waypoints: savedPoints });
+    const { result } = await plannedRun(79);
+    act(() => result.current.runPace.setPace(450));
+    routeRun.mockClear();
+    act(() => result.current.setRunProfile('trail'));
+    await settle();
+    expect(routeRun).toHaveBeenCalledWith(expect.any(Array), 'trail', expect.any(AbortSignal));
+    expect(result.current.runProfile).toBe('trail');
+    const distanceKm = result.current.routeAnalysis?.distanceKm ?? 0;
+    // The profile changes the ways, never the time: still the distance at the pace, nothing for the terrain.
+    expect(result.current.walkingDurationMinutes).toBe(Math.round(distanceKm * 7.5));
+    await act(async () => {
+      await result.current.save();
+    });
+    expect(createTour).toHaveBeenCalledWith(
+      79,
+      expect.objectContaining({ tour_type: 'run', run_profile: 'trail', run_pace_seconds_per_km: 450 })
+    );
+  });
+
+  it('FE-TOUR-RUN-010: a trail route the router cannot plan keeps the last route, and the run waits rather than saving it (RUN-02)', async () => {
+    const { result } = await plannedRun(80);
+    act(() => result.current.runPace.setPace(450));
+    routeRun.mockResolvedValueOnce(null);
+    act(() => result.current.setRunProfile('trail'));
+    await settle();
+    expect(result.current.status).toBe('routing-failed');
+    expect(result.current.route).toEqual(routed.coordinates);
+    expect(result.current.tourType).toBe('run');
+    expect(result.current.runPace.paceSecondsPerKm).toBe(450);
+    expect(result.current.canSave).toBe(false);
   });
 });

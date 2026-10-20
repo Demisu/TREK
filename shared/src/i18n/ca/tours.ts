@@ -432,6 +432,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'Distància × el teu ritme i res més: el desnivell i la dificultat no hi compten. Una planificació, no un temps enregistrat.',
   'tours.run.timeSum': '{distance} a {pace} min/km són {time}',
+  'tours.run.profile.trail': 'Curses de muntanya',
+  'tours.run.profileHint.trail': 'Prefereix pistes forestals i corriols naturals, fins a camins de muntanya (T2).',
+  'tours.run.ways.grade': 'Dificultat del camí (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'Sobre la dificultat del camí',
+  'tours.run.ways.gradeInfo':
+    'Graus d’excursionisme tal com els han posat els mapejadors d’OpenStreetMap. Un camí sense grau és desconegut, no fàcil. No diuen si un camí es pot córrer ni si et convé.',
+  'tours.run.ways.gradeTop': 'Camí classificat més difícil: {grade}',
   'tours.bike.profile': 'Perfil',
   'tours.bike.profile.touring': 'Cicloturisme',
   'tours.bike.profile.road': 'Carretera',

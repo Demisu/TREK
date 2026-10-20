@@ -403,6 +403,13 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfo':
     'ระยะทาง × เพซของคุณเท่านั้น ไม่รวมทางขึ้น ทางลง และความยาก เป็นแผน ไม่ใช่เวลาที่บันทึกไว้',
   'tours.run.timeSum': '{distance} ที่เพซ {pace} นาที/km เท่ากับ {time}',
+  'tours.run.profile.trail': 'วิ่งเทรล',
+  'tours.run.profileHint.trail': 'เน้นถนนในป่าและทางเดินธรรมชาติ จนถึงทางเดินบนภูเขา (T2)',
+  'tours.run.ways.grade': 'ความยากของเส้นทาง (sac_scale)',
+  'tours.run.ways.gradeInfoLabel': 'เกี่ยวกับความยากของเส้นทาง',
+  'tours.run.ways.gradeInfo':
+    'ระดับการเดินป่าตามที่ผู้ทำแผนที่ OpenStreetMap ระบุไว้ ทางที่ไม่มีระดับคือไม่ทราบ ไม่ใช่ง่าย และไม่ได้บอกว่าทางนั้นวิ่งได้หรือเหมาะกับคุณหรือไม่',
+  'tours.run.ways.gradeTop': 'ทางที่มีระดับยากที่สุด: {grade}',
   'tours.bike.profile': 'โปรไฟล์',
   'tours.bike.profile.touring': 'ทัวริ่ง',
   'tours.bike.profile.road': 'เสือหมอบ',
