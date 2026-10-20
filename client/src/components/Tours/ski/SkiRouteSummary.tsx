@@ -1,4 +1,3 @@
-import type { SkiFlag, SkiGeometryPoint, SkiRouteOkLeg, SkiSegmentKind, SkiWhy } from '@trek/shared';
 import { Info, MountainSnow } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
@@ -8,71 +7,7 @@ import { fs } from '../../shared/DialogShell';
 import type { SkiTourRoute } from '../planner/skiRouting';
 import { formatTourDuration } from '../planner/tourDurationInput';
 import { RailCard, RailFacts } from '../tourParts';
-
-/** Flags that say a stretch rests on a guess of the map data, not on what is mapped. */
-const GUESSED: ReadonlySet<SkiFlag> = new Set([
-  'inferred_link',
-  'inferred_crossing',
-  'dir_from_dem',
-  'technique_assumed',
-  'area_derived',
-  'difficulty_unknown',
-]);
-
-/** Stretches ridden on a lift, a funicular or rack railway, or a gondola down. */
-const RIDES: ReadonlySet<SkiSegmentKind> = new Set(['lift', 'rail', 'lift_down']);
-
-type Seconds = SkiRouteOkLeg['seconds'];
-type Avoided = Extract<SkiWhy, { kind: 'avoided_difficulty' }>;
-
-/** The time of every planned leg, by what it is spent on. */
-export function skiSecondsOf(route: SkiTourRoute): Seconds {
-  const total: Seconds = { ski: 0, lift: 0, wait: 0, walk: 0 };
-  for (const leg of route.legs) {
-    if (leg?.status !== 'ok') continue;
-    total.ski += leg.seconds.ski;
-    total.lift += leg.seconds.lift;
-    total.wait += leg.seconds.wait;
-    total.walk += leg.seconds.walk;
-  }
-  return total;
-}
-
-/** The height lost along a stretch of a leg's line, counted where its points have a height. */
-function descentAlong(geometry: readonly SkiGeometryPoint[], from: number, to: number): number {
-  let down = 0;
-  let last: number | null = null;
-  for (const [, , height] of geometry.slice(from, to + 1)) {
-    if (height === null) continue;
-    if (last !== null && height < last) down += last - height;
-    last = height;
-  }
-  return down;
-}
-
-/** The metres of runs, the height skied down on them, and the lift rides of every planned leg. */
-export function skiTallyOf(route: SkiTourRoute): { runsM: number; downM: number; rides: number } {
-  const tally = { runsM: 0, downM: 0, rides: 0 };
-  for (const leg of route.legs) {
-    if (leg?.status !== 'ok') continue;
-    for (const segment of leg.segments) {
-      if (RIDES.has(segment.kind)) tally.rides += 1;
-      if (segment.kind !== 'run') continue;
-      tally.runsM += segment.length_m;
-      tally.downM += descentAlong(leg.geometry, segment.from, segment.to);
-    }
-  }
-  return tally;
-}
-
-/** The harder runs the route kept clear of, and whether any stretch rests on a guess. */
-function skiWhyOf(route: SkiTourRoute): { avoided: Avoided[]; guessed: boolean } {
-  const why = route.legs.flatMap((leg) => (leg?.status === 'ok' ? leg.why : []));
-  return {
-    avoided: why.flatMap((entry) => (entry.kind === 'avoided_difficulty' ? [entry] : [])),
-    guessed: why.some((entry) => entry.kind === 'flag' && GUESSED.has(entry.flag)),
-  };
-}
+import { skiSecondsOf, skiTallyOf, skiWhyOf, type SkiAvoided } from './skiRouteFacts';
 
 const minutes = (seconds: number) => formatTourDuration(Math.round(seconds / 60));
 
@@ -132,7 +67,7 @@ export function SkiRouteSummary({ route }: { route: SkiTourRoute | null }) {
   const seconds = skiSecondsOf(route);
   const tally = skiTallyOf(route);
   const { avoided, guessed } = skiWhyOf(route);
-  const level = (entry: Avoided) => t(`tours.ski.difficulty.${entry.level}`);
+  const level = (entry: SkiAvoided) => t(`tours.ski.difficulty.${entry.level}`);
   const facts = [
     { label: t('tours.ski.summary.ski'), value: minutes(seconds.ski) },
     { label: t('tours.ski.summary.lift'), value: minutes(seconds.lift) },
@@ -168,4 +103,9 @@ export function SkiRouteSummary({ route }: { route: SkiTourRoute | null }) {
       {route.stale && <Note>{t('tours.ski.summary.stale')}</Note>}
     </SummaryCard>
   );
+}
+
+/** SKI-02: the summary in the planner's rail, for a ski tour only. */
+export function SkiPlannerSummary({ planner }: { planner: { isSki: boolean; skiRoute: SkiTourRoute | null } }) {
+  return planner.isSki ? <SkiRouteSummary route={planner.skiRoute} /> : null;
 }

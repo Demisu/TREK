@@ -63,7 +63,7 @@ import { RunWaysCard } from '../run/RunWaysCard'
 import { HorseRoutesCard } from '../horse/HorseRoutesCard'
 import { RecordedRideCard } from '../horse/RecordedRideFacts'
 import { HikeWaysCard } from '../hike/HikeWaysCard'
-import { SkiRouteSummary } from '../ski/SkiRouteSummary'
+import { SkiPlannerSummary } from '../ski/SkiRouteSummary'
 import { walkTimeFields } from '../walk/walkTimeFields'
 
 const STATUS_KEY: Partial<Record<TourPlannerStatus, string>> = {
@@ -498,7 +498,7 @@ export function TourPlannerRail({ planner,
 
           <HorseRoutesCard planner={planner} />
 
-          {planner.isSki && <SkiRouteSummary route={planner.skiRoute} />}
+          <SkiPlannerSummary planner={planner} />
 
           {planner.tourType === 'hike' && (
             <HikeWaysCard tripId={planner.tripId} route={planner.route} routeCurrent={planner.routeCurrent}

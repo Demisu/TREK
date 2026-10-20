@@ -15,6 +15,7 @@ import {
   useRef,
   useState,
   type Dispatch,
+  type RefObject,
   type SetStateAction,
 } from 'react';
 import { randomId } from '../../../utils/randomId';
@@ -110,6 +111,65 @@ export interface SavedSkiSeed {
   route: SkiTourRoute;
   waypointKey: string;
   skiKey: string;
+}
+
+/** SKI-02: a ski tour's route as the planner shows it, planned in this run or opened as it was saved. */
+function skiPlanned(route: SkiTourRoute, plannedKey: string, runKey: string): PlannedRoute {
+  return {
+    route: route.coordinates,
+    routeParts: route.parts,
+    paddleRoute: null,
+    skiRoute: route,
+    enrichedGeometry: route.elevations,
+    distanceMeters: route.distanceMeters,
+    durationSeconds: route.durationSeconds,
+    forKey: plannedKey,
+    forRun: runKey,
+  };
+}
+
+/** SKI-02: what a saved ski tour's route must match to be shown as it was saved. */
+interface SavedSkiMatch {
+  tourType: PlannableTourType;
+  waypointKey: string;
+  skiChoice: SkiChoice;
+}
+
+/**
+ * SKI-02: a saved ski tour's route held for the run that plans its points
+ * (none for a tour that opens to be planned afresh). That run takes it whether
+ * it fits or not; it gets the route only for the points and the ski choice the
+ * tour was saved with.
+ */
+function useSavedSkiSeed() {
+  const savedSkiRef = useRef<SavedSkiSeed | null>(null);
+  const openSavedSkiRoute = useCallback((seed: SavedSkiSeed | null) => {
+    savedSkiRef.current = seed;
+  }, []);
+  const takeSavedSki = useCallback(({ tourType, waypointKey, skiChoice }: SavedSkiMatch) => {
+    const seed = savedSkiRef.current;
+    savedSkiRef.current = null;
+    if (!seed || tourType !== 'ski' || seed.waypointKey !== waypointKey) return null;
+    return seed.skiKey === skiRouteKey(skiChoice) ? seed.route : null;
+  }, []);
+  return { openSavedSkiRoute, takeSavedSki };
+}
+
+type RunRefs = [generationRef: RefObject<number>, abortRef: RefObject<AbortController | null>];
+
+/** Any answer still on its way is stale from here on; `next` is the run that takes over, if one does. */
+function interruptRuns([generationRef, abortRef]: RunRefs, next: AbortController | null = null): number {
+  generationRef.current += 1;
+  abortRef.current?.abort();
+  abortRef.current = next;
+  return generationRef.current;
+}
+
+/** A new run, stale once it is called off or another one starts. */
+function startRun(refs: RunRefs) {
+  const controller = new AbortController();
+  const generation = interruptRuns(refs, controller);
+  return { controller, stale: () => controller.signal.aborted || generation !== refs[0].current };
 }
 
 /** One planning run: what it plans from, whether it went stale, and where it writes. */
@@ -231,17 +291,7 @@ async function routeSki({ inputs, plannedKey, runKey, signal, stale, setPlanned 
     setError('routing');
     return;
   }
-  setPlanned({
-    route: planned.coordinates,
-    routeParts: planned.parts,
-    paddleRoute: null,
-    skiRoute: planned,
-    enrichedGeometry: planned.elevations,
-    distanceMeters: planned.distanceMeters,
-    durationSeconds: planned.durationSeconds,
-    forKey: plannedKey,
-    forRun: runKey,
-  });
+  setPlanned(skiPlanned(planned, plannedKey, runKey));
   if (!planned.elevations) {
     setStatus('enriching-elevation');
     const enriched = await enrichTourElevations(planned.coordinates, signal);
@@ -331,23 +381,13 @@ export function useTourRoute(inputs: TourRouteInputs) {
   const [unreachable, setUnreachable] = useState<TourRouteUnreachable | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const generationRef = useRef(0);
-  // SKI-02: a saved ski tour's route waiting for the run that plans its points.
-  const savedSkiRef = useRef<SavedSkiSeed | null>(null);
+  const { openSavedSkiRoute, takeSavedSki } = useSavedSkiSeed();
 
   /** Any answer still on its way is stale from here on. */
-  const interruptRouting = useCallback(() => {
-    generationRef.current += 1;
-    abortRef.current?.abort();
-    abortRef.current = null;
-  }, []);
+  const interruptRouting = useCallback(() => void interruptRuns([generationRef, abortRef]), []);
 
   /** No route at all, as for an empty draft. */
   const clearRoute = useCallback(() => setPlanned(NO_ROUTE), []);
-
-  /** SKI-02: the next run for these points and this ski choice takes the saved route instead of asking the router. */
-  const openSavedSkiRoute = useCallback((seed: SavedSkiSeed) => {
-    savedSkiRef.current = seed;
-  }, []);
 
   const waypointKey = useMemo(() => tourWaypointKey(waypoints), [waypoints]);
   const plannedKey = plannedKeyOf(waypointKey, inputs);
@@ -361,22 +401,12 @@ export function useTourRoute(inputs: TourRouteInputs) {
   const routeStands = useEffectEvent(() => planned.forRun === runKey && routeComplete(planned));
   // SKI-02: a saved ski tour opened as it was saved, its line, time and build shown until something of it changes.
   const takeSavedSkiRoute = useEffectEvent(() => {
-    const seed = savedSkiRef.current;
-    savedSkiRef.current = null;
-    if (!seed || tourType !== 'ski' || seed.waypointKey !== waypointKey || seed.skiKey !== skiKey) return false;
-    const { route } = seed;
+    const route = takeSavedSki({ tourType, waypointKey, skiChoice });
+    if (!route) return false;
     setUnreachable(null);
-    setPlanned({
-      route: route.coordinates,
-      routeParts: route.parts,
-      paddleRoute: null,
-      skiRoute: route,
-      enrichedGeometry: route.elevations,
-      distanceMeters: route.distanceMeters,
-      durationSeconds: route.durationSeconds,
-      forKey: plannedKey,
-      forRun: runKey,
-    });
+    setPlanned(skiPlanned(route, plannedKey, runKey));
+    setStatus('ready');
+    setError(null);
     return true;
   });
 
@@ -390,21 +420,13 @@ export function useTourRoute(inputs: TourRouteInputs) {
       setError(null);
       return;
     }
-    if (takeSavedSkiRoute()) {
-      setStatus('ready');
-      setError(null);
-      return;
-    }
+    if (takeSavedSkiRoute()) return;
     if (routeStands()) {
       setStatus((current) => (current === 'dirty' ? 'ready' : current));
       return;
     }
 
-    const generation = ++generationRef.current;
-    const controller = new AbortController();
-    abortRef.current?.abort();
-    abortRef.current = controller;
-    const stale = () => controller.signal.aborted || generation !== generationRef.current;
+    const { controller, stale } = startRun([generationRef, abortRef]);
     const run: RouteRun = {
       inputs: {
         tripId,

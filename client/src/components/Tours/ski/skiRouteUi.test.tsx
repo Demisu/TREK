@@ -1,13 +1,14 @@
-import type { SkiLiftClass, SkiRouteOkLeg, SkiRouteSegment } from '@trek/shared';
 import { fireEvent, render, screen } from '@testing-library/react';
+import type { SkiLiftClass, SkiRouteOkLeg, SkiRouteSegment } from '@trek/shared';
 import { describe, expect, it, vi } from 'vitest';
 import type { SkiLegProblem, SkiTourRoute } from '../planner/skiRouting';
-import { SkiLegFailureRow, SkiLegSteps, skiFixesOf } from './SkiLegRows';
+import { SkiLegFailureRow, SkiLegSteps } from './SkiLegRows';
+import { skiFixesOf, skiSecondsOf, skiTallyOf } from './skiRouteFacts';
 import { SkiRouteOptions } from './SkiRouteOptions';
 import { skiPaintOf } from './skiRouteStyle';
-import { SkiRouteSummary, skiSecondsOf, skiTallyOf } from './SkiRouteSummary';
+import { SkiPlannerSummary, SkiRouteSummary } from './SkiRouteSummary';
 
-// FE-TOUR-SKI-UI-001 to FE-TOUR-SKI-UI-012
+// FE-TOUR-SKI-UI-001 to FE-TOUR-SKI-UI-013
 
 function segment(kind: SkiRouteSegment['kind'], extra: Partial<SkiRouteSegment> = {}): SkiRouteSegment {
   return {
@@ -258,6 +259,13 @@ describe('SkiRouteSummary (SKI-02)', () => {
     expect(render(<SkiRouteSummary route={drawn} />).container).toBeEmptyDOMElement();
     render(<SkiRouteSummary route={route({ saved: true, legs: [], build: null })} />);
     expect(screen.getByTestId('ski-route-summary')).not.toHaveTextContent('tours.ski.summary.build');
+  });
+
+  it('FE-TOUR-SKI-UI-013: the planner rail shows the summary for a ski tour only', () => {
+    const planned = route({ legs: [okLeg()] });
+    expect(render(<SkiPlannerSummary planner={{ isSki: false, skiRoute: planned }} />).container).toBeEmptyDOMElement();
+    render(<SkiPlannerSummary planner={{ isSki: true, skiRoute: planned }} />);
+    expect(screen.getByTestId('ski-route-summary')).toHaveTextContent('tours.ski.summary.ski');
   });
 });
 

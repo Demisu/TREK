@@ -1,3 +1,4 @@
+import type { AdminFeatureToggleResponse } from '@trek/shared';
 import { Bike, Footprints, MountainSnow } from 'lucide-react';
 import { useEffect, useEffectEvent, useState } from 'react';
 
@@ -8,6 +9,18 @@ import { useTranslation } from '../../../i18n';
 import { useAddonStore } from '../../../store/addonStore';
 import { useToast } from '../../shared/Toast';
 import { type Addon, type ProviderOption, isPhotosAddon } from './addonModel';
+
+/** A switch under Tours as the server keeps it, read into `set`; `onError` tells the admin it could not be read. */
+function loadToursFlag(
+  api: { get: () => Promise<AdminFeatureToggleResponse> },
+  set: (enabled: boolean) => void,
+  onError: () => void
+) {
+  api
+    .get()
+    .then((flag) => set(flag.enabled))
+    .catch(onError);
+}
 
 /**
  * The addon switches behind both admin shells: the addon list loaded on mount, an
@@ -37,22 +50,11 @@ export function useAddonManager() {
 
   const loadOnMount = useEffectEvent(() => {
     void loadAddons().finally(() => setLoading(false));
-    wandererAdminApi
-      .get()
-      .then((flag) => setToursWanderer(flag.enabled))
-      .catch(() => toast.error(t('admin.addons.toast.error')));
-    hikingMapAdminApi
-      .get()
-      .then((flag) => setToursHikingMap(flag.enabled))
-      .catch(() => toast.error(t('admin.addons.toast.error')));
-    cycleMapAdminApi
-      .get()
-      .then((flag) => setToursCycleMap(flag.enabled))
-      .catch(() => toast.error(t('admin.addons.toast.error')));
-    skiRoutingAdminApi
-      .get()
-      .then((flag) => setToursSkiRouting(flag.enabled))
-      .catch(() => toast.error(t('admin.addons.toast.error')));
+    const unreadable = () => toast.error(t('admin.addons.toast.error'));
+    loadToursFlag(wandererAdminApi, setToursWanderer, unreadable);
+    loadToursFlag(hikingMapAdminApi, setToursHikingMap, unreadable);
+    loadToursFlag(cycleMapAdminApi, setToursCycleMap, unreadable);
+    loadToursFlag(skiRoutingAdminApi, setToursSkiRouting, unreadable);
   });
   useEffect(() => {
     loadOnMount();

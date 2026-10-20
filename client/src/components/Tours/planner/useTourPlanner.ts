@@ -88,6 +88,11 @@ function derivedFromField(placeId: number | null, derivedFrom: number | null): {
   return placeId === null && derivedFrom !== null ? { derived_from_place_id: derivedFrom } : {}
 }
 
+/** SKI-02: the line a ski tour was saved with, as this device keeps it; a tour of another type has none to read. */
+async function savedSkiLineOf(tripId: number | string, tour: TourListItem): Promise<string | null> {
+  return tour.tour_type === 'ski' ? await tourRepo.savedLine(tripId, tour.place_id) : null
+}
+
 function trimmedOrNull(value: string): string | null {
   return value.trim() || null
 }
@@ -704,19 +709,20 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       && draftRevisionRef.current === submittedRevision
       && editingPlaceIdRef.current === submittedEditingPlaceId
       && (readOnlyGpxTourRef.current?.tour.place_id ?? null) === submittedGpxPlaceId
+    const superseded = () => !requestIsCurrent() || saveInFlightRef.current
     setRouteProfileFocus(null)
     setOpeningTourId(tour.place_id)
     setError(null)
     try {
       const result = await tourRepo.detail(tripId, tour.place_id, controller.signal)
-      if (!requestIsCurrent() || saveInFlightRef.current) return false
+      if (superseded()) return false
       if (result.waypoints.length < 2) {
         setError('open')
         return false
       }
       // SKI-02: a saved ski tour opens with the line it was saved with, read from this device.
-      const skiLine = result.tour.tour_type === 'ski' ? await tourRepo.savedLine(tripId, result.tour.place_id) : null
-      if (!requestIsCurrent() || saveInFlightRef.current) return false
+      const skiLine = await savedSkiLineOf(tripId, result.tour)
+      if (superseded()) return false
 
       interruptRouting()
       const opened = openedTourFields(result.tour)
@@ -743,8 +749,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       setStageLoss(0)
       setStatus('dirty')
       clearRoute()
-      const savedSki = savedSkiSeed(result.tour, skiLine, nextWaypoints, opened.ski)
-      if (savedSki) openSavedSkiRoute(savedSki)
+      openSavedSkiRoute(savedSkiSeed(result.tour, skiLine, nextWaypoints, opened.ski))
       // CW-11: a walk without its way yet is planned on opening and can be saved with it at once.
       const pending = result.tour.route_pending === true
       setRoutePending(pending)
