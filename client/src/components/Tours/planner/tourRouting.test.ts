@@ -230,9 +230,9 @@ describe('routing on land, bike profiles and unreachable points (BIK-01)', () =>
     ).toEqual({ unreachable: 1, snappedMeters: 400 })
   })
 
-  it('TOUR-ROUTING-033: a city walk goes on foot with no hiking limit and no choice of a hike (CW-01)', async () => {
+  it('TOUR-ROUTING-033: a city walk goes on foot with no hiking limit, no choice of a hike, and avoids ferries (CW-01)', async () => {
     valhallaRun.mockResolvedValueOnce(run([3, 4]))
     expect(await routeCityWalk(waypoints)).toMatchObject({ distanceMeters: 1500, durationSeconds: 300 })
-    expect(valhallaRun).toHaveBeenCalledWith(waypoints, 'walking', [], undefined, {})
+    expect(valhallaRun).toHaveBeenCalledWith(waypoints, 'walking', [], undefined, { use_ferry: 0 })
   })
 })

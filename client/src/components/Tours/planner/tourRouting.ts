@@ -106,14 +106,18 @@ export async function routeWalkingTour(
 /**
  * CW-01: a city walk, on foot between its stations. No hiking limit is sent,
  * so the router keeps to the ways it takes for walking anyway (T1), and no
- * route choice of a hike.
+ * route choice of a hike. Ferries are avoided: a walk is walked, and with the
+ * router's default Venice was crossed on the vaporetto lines instead of the
+ * bridges. Where no way on land exists the router still takes the ferry.
  */
 export async function routeCityWalk(
   waypoints: LandWaypoint[],
   signal?: AbortSignal,
 ): Promise<TourRouteResult | TourRouteUnreachable | null> {
-  return routeOnLand(waypoints, 'walking', {}, signal)
+  return routeOnLand(waypoints, 'walking', CITY_WALK_COSTING, signal)
 }
+
+const CITY_WALK_COSTING: Readonly<CostingOptions> = { use_ferry: 0 }
 
 /** BIK-01: a bike tour, routed for its profile; a leg drawn by hand is kept as drawn. */
 export async function routeBikeTour(
