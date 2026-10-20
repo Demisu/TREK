@@ -61,7 +61,7 @@ import { SkiHeadPill } from './ski/skiMarks';
 import { tourDayRowIcon } from './tourDayRowIcon';
 import { tourDaysOf } from './tourDays';
 import { heightsUnknown, movingTimeLabel, withoutHeights } from './tourFacts';
-import { TourDayPills, TourFactFields, TourMetricFields, type TourMetricField } from './tourParts';
+import { TourDayTiles, TourFactFields, TourMetricFields, type TourMetricField } from './tourParts';
 import {
   formatPlannedTourDuration,
   hikeSourceBadgeLabel,
@@ -159,7 +159,13 @@ function TourDetailMeasures({
       ) : (
         <>
           <TourMetricFields analysis={analysis} unit={unit} columns={5} />
-          {timeFields.length > 0 && <TourFactFields fields={timeFields} columns={3} />}
+          {/* The times fill the row: two share it, three take a third each. */}
+          {timeFields.length > 0 && (
+            <TourFactFields
+              fields={timeFields}
+              columns={timeFields.length === 2 ? 2 : timeFields.length >= 3 ? 3 : undefined}
+            />
+          )}
         </>
       )}
       {analysis.distanceIndexedProfileSamples.length >= 2 && (
@@ -430,7 +436,7 @@ function TourNameHeading({
   );
   if (onUpdatePlace && editingName) {
     return (
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-2">
         <input
           autoFocus
           value={nameDraft}
@@ -444,7 +450,7 @@ function TourNameHeading({
             }
           }}
           aria-label={t('places.formName')}
-          className="-mx-1.5 block min-w-0 flex-1 rounded-[8px] border-0 bg-surface-card px-1.5 py-0.5 font-bold tracking-[-0.01em] text-content shadow-sm outline-none"
+          className="-ms-1.5 block min-w-0 flex-1 rounded-[8px] border-0 bg-surface-card px-1.5 py-0.5 font-bold tracking-[-0.01em] text-content shadow-sm outline-none"
           style={fs(17, 'subtitle')}
         />
         <Tooltip label={t('common.save')}>
@@ -453,9 +459,9 @@ function TourNameHeading({
             onClick={() => void saveName()}
             disabled={savingName}
             aria-label={t('common.save')}
-            className="grid h-7 w-7 flex-none place-items-center rounded-full bg-accent text-accent-text disabled:opacity-50"
+            className="grid h-8 w-8 flex-none place-items-center rounded-full bg-accent text-accent-text shadow-sm disabled:opacity-50"
           >
-            <Check size={14} strokeWidth={2.4} />
+            <Check size={15} strokeWidth={2.4} />
           </button>
         </Tooltip>
       </div>
@@ -710,9 +716,7 @@ export default function TourDetailDialog({
 
       <DialogSection className="flex-none" label={t('tours.days.label')}>
         {tourDays.length > 0 ? (
-          <div data-testid="tour-days" className="flex flex-wrap gap-1">
-            <TourDayPills tourDays={tourDays} shown={tourDays.length} />
-          </div>
+          <TourDayTiles tourDays={tourDays} />
         ) : (
           <p className="m-0 text-content-faint" style={fs(12, 'body')}>
             {t('tours.days.none')}
@@ -809,7 +813,7 @@ function SaveAsNewButton({ onSave }: { onSave: () => Promise<void> | void }) {
           icon={saving ? <Loader2 size={14} className="animate-spin" /> : <CopyPlus size={14} strokeWidth={2} />}
           aria-label={t('tours.copy.action')}
         >
-          <span className="max-sm:hidden">{t('tours.copy.action')}</span>
+          <span className="max-sm:hidden">{t('common.copy')}</span>
         </DialogButton>
       </span>
     </Tooltip>

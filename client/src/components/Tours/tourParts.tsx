@@ -12,6 +12,7 @@ import { BOX, Eyebrow } from '../Planner/bookings/bookingParts'
 import { SoftPill, WhiteBadge } from '../Planner/planParts'
 import { hikeSourceBadgeLabel, tourSource } from './tourPresentation'
 import { type TourDay, dayMenuLabel } from './tourDays'
+import { formatDate } from '../../utils/formatters'
 import { tourMetricFacts } from './tourFacts'
 import type { TourDayAssignment } from './useTourDayAssignment'
 import { useRailFold } from './railFold'
@@ -178,6 +179,43 @@ export function TourDayPills({
         </Tooltip>
   )}
     </>
+  )
+}
+
+/**
+ * The days a tour is on, as the detail shows them: one box per day in the look
+ * of the measures below, so the days and the numbers read as one block. The
+ * date sits under the day's number where the day has one; the tooltip names
+ * the day in full.
+ */
+export function TourDayTiles({ tourDays }: { tourDays: readonly TourDay[] }) {
+  const { t, locale } = useTranslation()
+  return (
+    <div data-testid="tour-days" className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+      {tourDays.map((tourDay) => {
+        const full = dayMenuLabel(tourDay.day, tourDay.index, t, locale)
+        const date = formatDate(tourDay.day.date, locale)
+        return (
+          <Tooltip key={tourDay.day.id} label={full}>
+            <span
+              data-testid="tour-day"
+              aria-label={full}
+              className={`${BOX} flex min-w-0 flex-col items-center justify-center px-[10px] py-[7px] text-center`}
+            >
+              <span className="inline-flex items-center gap-1.5 font-semibold tabular-nums text-content" style={fs(12.5, 'body')}>
+                <CalendarDays size={12} strokeWidth={2.2} className="flex-none text-content-faint" />
+                {t('dayplan.dayN', { n: tourDay.index + 1 })}
+              </span>
+              {date && (
+                <span className="max-w-full truncate text-content-faint" style={fs(10.5, 'body')}>
+                  {date}
+                </span>
+              )}
+            </span>
+          </Tooltip>
+        )
+      })}
+    </div>
   )
 }
 
