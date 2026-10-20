@@ -112,8 +112,12 @@ export class TourTrailGradeService {
     const layer = await this.layers.wayTags(ids);
     let rest = ids;
     if (layer.ok) {
-      const open = new Set(layer.value.complete ? [] : layer.value.unanswered);
-      this.keepAll(ids.filter((id) => !open.has(id)), layer.value.ways, now);
+      const open = new Set(layer.value.complete === false ? layer.value.unanswered : []);
+      this.keepAll(
+        ids.filter((id) => !open.has(id)),
+        layer.value.ways,
+        now,
+      );
       rest = ids.filter((id) => open.has(id));
     }
     const parts = Array.from({ length: Math.ceil(rest.length / WAYS_PER_QUERY) }, (_, index) =>

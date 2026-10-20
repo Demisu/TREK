@@ -193,7 +193,7 @@ export class SkiAreasService implements OnApplicationBootstrap {
   /** The index of ski areas: in memory, else as kept on disk, else fetched. Null when none can be had. */
   index(): Promise<SkiIndex | null> {
     if (this.current) return Promise.resolve(this.current);
-    if (!this.loading) {
+    if (this.loading === null) {
       this.loading = this.loadIndex().finally(() => {
         this.loading = null;
       });
@@ -309,7 +309,7 @@ export class SkiAreasService implements OnApplicationBootstrap {
       return { file, stale: false };
     }
     let download = this.downloads.get(row.id);
-    if (!download) {
+    if (download === undefined) {
       download = this.download(row, file).finally(() => this.downloads.delete(row.id));
       this.downloads.set(row.id, download);
     }

@@ -53,16 +53,17 @@ export class SkiAreasJob implements OnApplicationBootstrap {
     if (changed.length === 0) return;
     const pending = [...changed];
     let fetched = 0;
+    // One area at a time per lane, the next asked only once the last is in.
     const fetchOne = async (): Promise<void> => {
-      while (!this.areas.placesHeldBack()) {
-        const area = pending.shift();
-        if (!area) return;
-        try {
-          if (!(await this.areas.ensureArea(area.row)).stale) fetched += 1;
-        } catch {
-          // The kept copy stays; the next planner to need the area asks again.
-        }
+      if (this.areas.placesHeldBack()) return;
+      const area = pending.shift();
+      if (!area) return;
+      try {
+        if (!(await this.areas.ensureArea(area.row)).stale) fetched += 1;
+      } catch {
+        // The kept copy stays; the next planner to need the area asks again.
       }
+      return fetchOne();
     };
     await Promise.all(Array.from({ length: REFRESH_CONCURRENCY }, fetchOne));
     const left = pending.length;

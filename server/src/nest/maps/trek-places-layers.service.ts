@@ -45,7 +45,7 @@ export class TrekPlacesLayersService {
     return this.read(
       'ways',
       () => trekPlacesWays(ids),
-      (answer) => (answer.complete ? null : { failure: answer.failure }),
+      (answer) => (answer.complete === false ? { failure: answer.failure } : null),
     );
   }
 

@@ -835,17 +835,20 @@ export type TrekWaysAnswer =
 export async function trekPlacesWays(ids: readonly number[]): Promise<TrekWaysAnswer> {
   const wanted = [...new Set(ids)].filter((id) => osmIdSchema.safeParse(id).success);
   const starts = Array.from({ length: Math.ceil(wanted.length / WAYS_MAX_IDS) }, (_, index) => index * WAYS_MAX_IDS);
-  return starts.reduce<Promise<TrekWaysAnswer>>(async (previous, start) => {
-    const done = await previous;
-    if (!done.complete) return done;
-    try {
-      const part = await trekPlacesWaysPart(wanted.slice(start, start + WAYS_MAX_IDS));
-      return { complete: true, ways: [...done.ways, ...part] };
-    } catch (failure: unknown) {
-      if (start === 0) throw failure;
-      return { complete: false, ways: done.ways, unanswered: wanted.slice(start), failure };
-    }
-  }, Promise.resolve<TrekWaysAnswer>({ complete: true, ways: [] }));
+  return starts.reduce<Promise<TrekWaysAnswer>>(
+    async (previous, start) => {
+      const done = await previous;
+      if (!done.complete) return done;
+      try {
+        const part = await trekPlacesWaysPart(wanted.slice(start, start + WAYS_MAX_IDS));
+        return { complete: true, ways: [...done.ways, ...part] };
+      } catch (failure: unknown) {
+        if (start === 0) throw failure;
+        return { complete: false, ways: done.ways, unanswered: wanted.slice(start), failure };
+      }
+    },
+    Promise.resolve<TrekWaysAnswer>({ complete: true, ways: [] }),
+  );
 }
 
 /**
@@ -869,7 +872,7 @@ export async function trekPlacesRoutes(
     },
     { maxBytes: ROUTES_MAX_BYTES, timeoutMs: ROUTES_TIMEOUT_MS, breaker: layersBreaker },
   );
-  const answer = elementsAnswerSchema.extend({ truncated: z.unknown() }).safeParse(body);
+  const answer = elementsAnswerSchema.extend({ truncated: z.unknown().optional() }).safeParse(body);
   if (!answer.success) throw new Error('TREK Places API answered /v1/routes without elements');
   return {
     elements: validRows(answer.data.elements, trekRouteElementSchema),
@@ -952,8 +955,7 @@ export async function trekPlacesWinterMeta(): Promise<WinterMeta> {
 }
 
 export type TrekPlacesWinterIndex =
-  | { status: 'not_modified' }
-  | { status: 'ok'; index: WinterIndex; sha256: string; dropped: number };
+  { status: 'not_modified' } | { status: 'ok'; index: WinterIndex; sha256: string; dropped: number };
 
 /**
  * Every ski area with its box, size and checksum, unless the index the caller
