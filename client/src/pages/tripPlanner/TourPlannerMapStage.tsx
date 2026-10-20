@@ -75,6 +75,15 @@ export interface TourPlannerMapStageProps
   paddleChecklist?: PageState['paddleChecklist'];
 }
 
+/** What the map reads of the tour on screen: a GPX file viewed as it came in has its analysis and no points. */
+function viewedTourOf(tourPlanner: PageState['tourPlanner']) {
+  const viewingGpx = tourPlanner.mode.type === 'view-gpx';
+  return {
+    analysis: viewingGpx ? tourPlanner.readOnlyGpxAnalysis : tourPlanner.routeAnalysis,
+    tourWaypoints: viewingGpx ? NO_POINTS : tourPlanner.waypoints,
+  };
+}
+
 /**
  * The tour planner tab's map and the location search floating over it. It returns a
  * fragment so both sit straight in the tab container, ahead of the side panels, with
@@ -105,7 +114,7 @@ export function TourPlannerMapStage({
     () => [tourMap.focusPoints, ...(tourMap.route ?? [])],
     [tourMap.focusPoints, tourMap.route]
   );
-  const analysis = tourPlanner.mode.type === 'view-gpx' ? tourPlanner.readOnlyGpxAnalysis : tourPlanner.routeAnalysis;
+  const { analysis, tourWaypoints } = viewedTourOf(tourPlanner);
   const ferrata = useFerrataMapLayer(tripId, ferrataArea, analysis?.routeCoordinates ?? null);
   // The zoom either map last reported, on the raster tile scale; unknown until the first one did.
   const [mapZoom, setMapZoom] = useState<number | null>(null);
@@ -129,7 +138,6 @@ export function TourPlannerMapStage({
   useEffect(() => () => publishTourMapViewport(null), []);
   // The rails beside the map warn about the stretches that climb a ferrata, and band them on the profile.
   const { t: translate, language } = useTranslation();
-  const tourWaypoints = tourPlanner.mode.type === 'view-gpx' ? NO_POINTS : tourPlanner.waypoints;
   useEffect(() => {
     const describe = (group: FerrataGroup) => {
       const label = ferrataLabel(group, translate);

@@ -181,6 +181,22 @@ async function routeOnLand({ inputs, plannedKey, runKey, signal, stale, setPlann
 }
 
 /**
+ * Plans a run a moment from now, on the water or on land; a failure that is
+ * still the current run says the route could not be planned. Returns the way
+ * to call it off before it starts.
+ */
+function scheduleRoute(run: RouteRun): () => void {
+  const timer = window.setTimeout(() => {
+    (run.inputs.tourType === 'kayak' ? routePaddle(run) : routeOnLand(run)).catch(() => {
+      if (run.stale()) return;
+      run.inputs.setStatus('routing-failed');
+      run.inputs.setError('routing');
+    });
+  }, ROUTE_DEBOUNCE_MS);
+  return () => window.clearTimeout(timer);
+}
+
+/**
  * The route of the planner's draft, planned again a moment after its points
  * or its choices change: a hike on foot within its limit, a bike tour and a
  * run for their profile (BIK-01, RUN-01), a paddle tour on the water by the
@@ -287,16 +303,9 @@ export function useTourRoute(inputs: TourRouteInputs) {
       setUnreachable,
     };
 
-    const timer = window.setTimeout(() => {
-      (tourType === 'kayak' ? routePaddle(run) : routeOnLand(run)).catch(() => {
-        if (stale()) return;
-        setStatus('routing-failed');
-        setError('routing');
-      });
-    }, ROUTE_DEBOUNCE_MS);
-
+    const cancelTimer = scheduleRoute(run);
     return () => {
-      window.clearTimeout(timer);
+      cancelTimer();
       controller.abort();
     };
   }, [

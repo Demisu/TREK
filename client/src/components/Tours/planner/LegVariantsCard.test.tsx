@@ -1,7 +1,7 @@
 // FE-TOUR-LEG-VARIANTS-CARD-001 to FE-TOUR-LEG-VARIANTS-CARD-007: the card that compares the ways
 // of a hike's section over the planner map (RTE-02).
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { fireEvent, render, screen, within } from '../../../../tests/helpers/render';
 import { seedStore } from '../../../../tests/helpers/store';
 import { idleLegVariants } from '../../../../tests/helpers/tourPlannerStub';

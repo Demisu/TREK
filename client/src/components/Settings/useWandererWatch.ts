@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router';
 import { useTranslation } from '../../i18n';
 import { wandererRepo } from '../../repo/wandererRepo';
 import { useToast } from '../shared/Toast';
-import { hintWhen } from '../Tours/wanderer/sourceHintParts';
+import { hintWhen } from '../Tours/wanderer/hintWhen';
 
 type Translate = (key: string, params?: Record<string, unknown>) => string;
 
@@ -92,7 +92,7 @@ export function useWandererWatch(refreshKey: string) {
   const openTour = useCallback(
     (hint: WandererSourceHintItem) => {
       setHintsOpen(false);
-      navigate(`/trips/${hint.tripId}?tab=plan&place=${hint.placeId}`);
+      void navigate(`/trips/${hint.tripId}?tab=plan&place=${hint.placeId}`);
     },
     [navigate]
   );

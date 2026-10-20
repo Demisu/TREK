@@ -1,6 +1,6 @@
 import type { TourActivityTotals, TourTypeKey } from '@trek/shared';
 import { Footprints } from 'lucide-react';
-import { useId } from 'react';
+import { createElement, useId } from 'react';
 import { useTranslation } from '../../../i18n';
 import type { DistanceUnit } from '../../../types';
 import {
@@ -16,18 +16,8 @@ import {
 } from '../../shared/DialogShell';
 import { InfoDot, TourFactFields, type TourMetricField } from '../../Tours/tourParts';
 import { TourActivityEntryRow } from './TourActivityEntryRow';
-import {
-  ActivityFilters,
-  ActivityStatusLine,
-  BasisBadges,
-  distanceReading,
-  heightReading,
-  MeasurePills,
-  partialHint,
-  typeIcon,
-  UncountedBadges,
-  useDistanceUnit,
-} from './tourActivityParts';
+import { ActivityFilters, ActivityStatusLine, BasisBadges, MeasurePills, UncountedBadges } from './tourActivityParts';
+import { distanceReading, heightReading, partialHint, typeIcon, useDistanceUnit } from './tourActivityReading';
 import type { TourActivityStats } from './useTourActivityStats';
 
 type Translate = (key: string, params?: Record<string, unknown>) => string;
@@ -52,14 +42,13 @@ function totalFields(totals: TourActivityTotals, unit: DistanceUnit, t: Translat
 function TypeLine({ type, totals }: { type: TourTypeKey; totals: TourActivityTotals }) {
   const { t } = useTranslation();
   const unit = useDistanceUnit();
-  const Icon = typeIcon(type);
   const distance = distanceReading(totals, unit);
   const ascent = heightReading(totals.ascentM, unit);
   return (
     <li className="flex min-w-0 items-center gap-3 py-1" data-testid={`tour-activity-type-${type}`}>
       <span className="relative flex-none">
         <span className="grid h-[30px] w-[30px] place-items-center rounded-full bg-edge text-content-secondary">
-          <Icon size={14} strokeWidth={1.9} />
+          {createElement(typeIcon(type), { size: 14, strokeWidth: 1.9 })}
         </span>
         <span
           aria-hidden="true"

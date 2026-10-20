@@ -6,8 +6,9 @@ import '../../styles/fadeEnd.css';
 import type { Category, Place } from '../../types';
 import { formatTime } from '../../utils/formatters';
 import { fs } from '../shared/DialogShell';
+import { stageNumberOf } from '../Tours/stages/stageNames';
+import { TourStageDayPills } from '../Tours/stages/TourStageDayPills';
 import { TourDayRowPills } from '../Tours/TourDayRowFacts';
-import { stageNumberOf, TourStageDayPills } from '../Tours/stages/TourStageDayPills';
 import { movingTimeLabel } from '../Tours/tourFacts';
 import { formatPlannedTourDuration, plannedTotalText, type TourPlannedTimes } from '../Tours/tourPresentation';
 import { WalkProgressPill } from '../Tours/walk/WalkStations';
@@ -125,7 +126,11 @@ export function DayPlanPlaceSubline({
           {place.end_time ? ` – ${formatTime(place.end_time, locale, timeFormat)}` : ''}
         </TimePill>
       )}
-      {dayRowTour ? <DayRowTourPills tour={dayRowTour} stageKey={tourStageKey} /> : tourTimes && <PlannedTourPills tourTimes={tourTimes} />}
+      {dayRowTour ? (
+        <DayRowTourPills tour={dayRowTour} stageKey={tourStageKey} />
+      ) : (
+        tourTimes && <PlannedTourPills tourTimes={tourTimes} />
+      )}
       {dayRowTour && <WalkProgressPill tour={dayRowTour} assignmentId={assignmentId} />}
       {description && <SublineDescription text={description} isTourPlace={isTourPlace} />}
     </div>

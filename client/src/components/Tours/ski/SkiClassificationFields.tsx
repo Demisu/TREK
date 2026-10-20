@@ -4,7 +4,7 @@ import { useTranslation } from '../../../i18n';
 import { LABEL, Segmented } from '../../shared/dialogParts';
 import { InfoDot, TourNotice } from '../tourParts';
 import { skiChoiceMissing, type SkiChoice } from './skiChoice';
-import { SKI_DISCIPLINE_ICON } from './skiMarks';
+import { SKI_DISCIPLINE_ICON } from './skiDiscipline';
 
 /**
  * SKI-02: what a ski track is, chosen on purpose: the discipline, none until

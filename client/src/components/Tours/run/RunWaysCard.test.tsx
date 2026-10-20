@@ -3,8 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '../../../../tests/helpers/render';
 import { useTourRouteHighlightStore } from '../../../store/tourRouteHighlightStore';
 import type { RouteWays } from '../bike/routeWays';
+import { hardestSac } from '../bike/routeWays';
 import type { RouteWaysState } from '../bike/useRouteWays';
-import { hardestSac, RunWaysCard } from './RunWaysCard';
+import { RunWaysCard } from './RunWaysCard';
 
 const hook = vi.hoisted(() => ({ state: null as unknown, retry: vi.fn(), input: null as unknown }));
 vi.mock('../bike/useRouteWays', () => ({

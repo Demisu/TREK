@@ -11,6 +11,16 @@ import { CardAction, RailCard, TourNotice } from '../tourParts';
 import { trailPaintKey } from './bikePaint';
 import {
   percent,
+  sharesBy,
+  stretchesOf,
+  trailClassOf,
+  UNPAVED,
+  unpavedShareOf,
+  type RouteWayEdge,
+  type RouteWays,
+  type TrailClass,
+} from './routeWays';
+import {
   RouteWaysProgress,
   RouteWaysSource,
   ShareBar,
@@ -19,16 +29,6 @@ import {
   WaySection,
   WaysSection,
 } from './RouteWaySections';
-import {
-  sharesBy,
-  stretchesOf,
-  trailClassOf,
-  unpavedShareOf,
-  UNPAVED,
-  type RouteWayEdge,
-  type RouteWays,
-  type TrailClass,
-} from './routeWays';
 import { useRouteWays, type TrailGrades } from './useRouteWays';
 
 /** BIK-05: the trail grades along a mountain bike tour, downhill and uphill apart, the unknown said. */

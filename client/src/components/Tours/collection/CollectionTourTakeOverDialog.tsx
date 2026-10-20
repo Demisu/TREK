@@ -30,7 +30,8 @@ import {
   NEUTRAL_TINT,
 } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
-import { TourLinePreview, tourPreviewFacts } from '../library/tourPreviewParts';
+import { tourPreviewFacts } from '../library/tourPreviewFacts';
+import { TourLinePreview } from '../library/tourPreviewParts';
 import { RailFacts, TourNotice } from '../tourParts';
 import { ChoiceList, ChoiceRow } from './choiceParts';
 import type { CollectionTourTakeOver, PointsChoice } from './useCollectionTourTakeOver';

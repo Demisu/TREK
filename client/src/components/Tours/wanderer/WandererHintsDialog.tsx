@@ -12,7 +12,8 @@ import {
   fs,
   NEUTRAL_TINT,
 } from '../../shared/DialogShell';
-import { hintWhen, SourceHintPills, SourceHintTile } from './sourceHintParts';
+import { hintWhen } from './hintWhen';
+import { SourceHintPills, SourceHintTile } from './sourceHintParts';
 import WandererMark from './WandererMark';
 
 /** One hint: the tour and its trip, what the watch found, when, and the way to the tour. */

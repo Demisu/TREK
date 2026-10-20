@@ -137,7 +137,12 @@ describe('tourPlannerFacts', () => {
       runPaceSecondsPerKm: 330,
     });
     const hikeOpened = openedTourFields({ name: 'Ridge', tour_type: 'hike' } as Parameters<typeof openedTourFields>[0]);
-    expect(hikeOpened).toMatchObject({ runProfile: 'running', runPaceSecondsPerKm: null });
+    expect(hikeOpened).toMatchObject({
+      runProfile: 'running',
+      runPaceSecondsPerKm: null,
+      winterActivity: null,
+      winterActivityChoice: 'winter_hike',
+    });
   });
 
   it('holds the fields to their bounds, and a total that runs past a day without an override', () => {

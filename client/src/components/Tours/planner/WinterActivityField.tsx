@@ -6,7 +6,7 @@ import ToggleSwitch from '../../Settings/ToggleSwitch';
 import { Segmented } from '../../shared/dialogParts';
 import { fs } from '../../shared/DialogShell';
 import { InfoDot } from '../tourParts';
-import { WINTER_ACTIVITY_ICON } from '../winter/winterMarks';
+import { WINTER_ACTIVITY_ICON } from '../winter/winterActivityIcon';
 import type { TourPlannerController } from './useTourPlanner';
 
 /**

@@ -160,20 +160,22 @@ export function useLegVariants(options: LegVariantsOptions) {
     return currentVariantOf(waypoints, index, route, enrichedGeometry);
   }, [enrichedGeometry, request, route, waypoints]);
 
+  // The way taken as it was when the comparison was asked for, read here so the memo below depends on it by name.
+  const askedCurrent = request?.current ?? null;
   const comparison = useMemo((): LegComparison | null => {
-    if (!request) return null;
+    if (!request || !askedCurrent) return null;
     const found = sameRequest(answer, request) ? answer : null;
-    const current = liveCurrent ?? request.current;
+    const current = liveCurrent ?? askedCurrent;
     const checked = sameRequest(proof, request) ? proof.state : null;
     return {
       leg: request.leg,
       phase: found?.phase ?? 'loading',
-      variants: (found?.variants ?? [request.current]).map((variant) => (variant.current ? current : variant)),
+      variants: (found?.variants ?? [askedCurrent]).map((variant) => (variant.current ? current : variant)),
       selected: sameRequest(choice, request) ? choice.key : null,
       proving: checked === 'proving',
       notice: checked === 'proving' ? null : checked,
     };
-  }, [answer, choice, liveCurrent, proof, request]);
+  }, [answer, askedCurrent, choice, liveCurrent, proof, request]);
 
   const apply = useCallback(async () => {
     const selected = comparison?.selected;

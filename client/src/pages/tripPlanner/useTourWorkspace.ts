@@ -14,15 +14,45 @@ import { useTripStore } from '../../store/tripStore';
 import { useTourDetailActions } from './useTourDetailActions';
 import type { useTripPlanner } from './useTripPlanner';
 
+type TripPlanner = ReturnType<typeof useTripPlanner>;
+
+/**
+ * A tour of the trip opened in the planner: an import (no waypoints of its own) shows as it
+ * came in, a planned tour opens in the editor. Never over an edit it would replace.
+ */
+function useTourOpeners(
+  tourPlanner: ReturnType<typeof useTourPlanner>,
+  places: TripPlanner['places'],
+  tours: TripPlanner['tours']
+) {
+  const { hasUnsavedChanges, viewGpxTour, openTour } = tourPlanner;
+  /** An import shown as it came in, over whatever the planner shows; the caller asked before discarding. */
+  const viewImportedTour = useCallback(
+    (tour: TourListItem) => {
+      // The store first: right after an import the page's list may not have the new place yet.
+      const byId = (item: { id: number }) => item.id === tour.place_id;
+      const place = useTripStore.getState().places.find(byId) ?? places.find(byId);
+      viewGpxTour(tour, place?.route_geometry ?? null);
+    },
+    [places, viewGpxTour]
+  );
+  const openTourInPlanner = useCallback(
+    (placeId: number, known?: TourListItem) => {
+      const tour = known ?? tours.find((item) => item.place_id === placeId);
+      if (!tour || hasUnsavedChanges) return;
+      if (tour.has_waypoints === false) viewImportedTour(tour);
+      else void openTour(tour);
+    },
+    [hasUnsavedChanges, openTour, tours, viewImportedTour]
+  );
+  return { viewImportedTour, openTourInPlanner };
+}
+
 /**
  * The desktop tours workspace: the tour editor, its GPX import (button and file drop)
  * and the wanderer trail browser, wired so that whatever comes in opens on the map.
  */
-export function useTourWorkspace(
-  planner: ReturnType<typeof useTripPlanner>,
-  canPlaceEdit: boolean,
-  canDayEdit: boolean
-) {
+export function useTourWorkspace(planner: TripPlanner, canPlaceEdit: boolean, canDayEdit: boolean) {
   const {
     activeTab,
     enabledAddons,
@@ -55,28 +85,7 @@ export function useTourWorkspace(
   });
 
   useTourRevisionWatch(tourPlanner, tours); // P2C-03: a save made elsewhere reaches the open editor
-  // A tour of the trip opened in the planner: an import (no waypoints of its own) shows as it
-  // came in, a planned tour opens in the editor. Never over an edit it would replace.
-  const { hasUnsavedChanges, viewGpxTour, openTour } = tourPlanner;
-  /** An import shown as it came in, over whatever the planner shows; the caller asked before discarding. */
-  const viewImportedTour = useCallback(
-    (tour: TourListItem) => {
-      // The store first: right after an import the page's list may not have the new place yet.
-      const byId = (item: { id: number }) => item.id === tour.place_id;
-      const place = useTripStore.getState().places.find(byId) ?? places.find(byId);
-      viewGpxTour(tour, place?.route_geometry ?? null);
-    },
-    [places, viewGpxTour]
-  );
-  const openTourInPlanner = useCallback(
-    (placeId: number, known?: TourListItem) => {
-      const tour = known ?? tours.find((item) => item.place_id === placeId);
-      if (!tour || hasUnsavedChanges) return;
-      if (tour.has_waypoints === false) viewImportedTour(tour);
-      else void openTour(tour);
-    },
-    [hasUnsavedChanges, openTour, tours, viewImportedTour]
-  );
+  const { viewImportedTour, openTourInPlanner } = useTourOpeners(tourPlanner, places, tours);
 
   // The tours workspace's GPX import, shared by its button and its file drop. One new
   // tour opens on the map at once.

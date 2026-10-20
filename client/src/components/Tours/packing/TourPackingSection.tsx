@@ -7,7 +7,8 @@ import { BOX } from '../../Planner/bookings/bookingParts';
 import { SoftPill, WhiteBadge } from '../../Planner/planParts';
 import { DialogSection, fs } from '../../shared/DialogShell';
 import { CardAction, TourNotice } from '../tourParts';
-import { CategoryDot, DimmedLink, linkName } from './packingLinkParts';
+import { linkName } from './packingLinkName';
+import { CategoryDot, DimmedLink } from './packingLinkParts';
 import { TourPackingLinkDialog } from './TourPackingLinkDialog';
 import { useTourPackingLink, type TourPackingLinkController } from './useTourPackingLink';
 

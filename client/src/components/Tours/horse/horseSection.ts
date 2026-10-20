@@ -79,3 +79,8 @@ export function withSectionAppended(
   }
   return [...points, { id: newId(), lat: startLat, lng: startLng, role: 'via', fixedLeg: leg }, end];
 }
+
+/** A route's name as the rider reads it: its own, else its reference, else said to have none. */
+export function horseRouteTitle(route: HorseRoute, t: (key: string) => string): string {
+  return route.name ?? route.ref ?? t('tours.horse.routes.unnamed');
+}

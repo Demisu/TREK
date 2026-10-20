@@ -126,7 +126,7 @@ export function useSaveTourToCollection(target: TourSaveTarget) {
     retry: () => setOpening((value) => value + 1),
     openCollections: () => {
       setOpen(false);
-      navigate('/collections');
+      void navigate('/collections');
     },
   };
 }

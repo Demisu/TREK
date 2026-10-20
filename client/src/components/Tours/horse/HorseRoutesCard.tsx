@@ -8,7 +8,8 @@ import { SoftPill, WhiteBadge } from '../../Planner/planParts';
 import { fs } from '../../shared/DialogShell';
 import type { TourPlannerController } from '../planner/useTourPlanner';
 import { CardAction, InfoDot, RailCard, TourNotice } from '../tourParts';
-import { HorseRouteDialog, horseRouteTitle } from './HorseRouteDialog';
+import { HorseRouteDialog } from './HorseRouteDialog';
+import { horseRouteTitle } from './horseSection';
 import { Horseshoe } from './HorseshoeIcon';
 import { useHorseRoutes, type HorseRoutes } from './useHorseRoutes';
 

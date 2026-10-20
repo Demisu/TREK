@@ -9,7 +9,7 @@ import { useToast } from '../../components/shared/Toast'
 import { collectionsApi } from '../../api/collections'
 import { downloadCollectionFile, downloadCollectionGpx, type CollectionExportFormat } from '../../components/Collections/collectionFile'
 import { getApiErrorMessage } from '../../types'
-import { canAddToCollection } from '../../utils/collectionAccess'
+import { canAddToCollection, canRemoveFromCollection, collectionRoleOf } from '../../utils/collectionAccess'
 import { addListener, removeListener } from '../../api/websocket'
 import { useCollectionStore, ALL_SAVED } from '../../store/collectionStore'
 import type { ActiveCollectionId } from '../../store/collectionStore'
@@ -200,13 +200,9 @@ export function useCollections() {
   // "All saved" spans many lists (each enforced per-place on the server), so it
   // stays permissive on the client; a viewer of a shared list loses add/edit/delete.
   const currentUserId = useAuthStore(s => s.user?.id)
-  const myRole = useMemo(() => {
-    if (isOwner) return 'owner' as const
-    const me = members.find(m => m.user_id === currentUserId && !m.is_owner)
-    return me?.role ?? null
-  }, [isOwner, members, currentUserId])
+  const myRole = useMemo(() => collectionRoleOf(isOwner, members, currentUserId), [isOwner, members, currentUserId])
   const canEdit = isAllSaved || myRole === 'owner' || myRole === 'admin' || myRole === 'editor'
-  const canDelete = isAllSaved || myRole === 'owner' || myRole === 'admin'
+  const canDelete = isAllSaved || canRemoveFromCollection(myRole)
 
   // Sharing is offered on any real (non "All saved") list the user can see. The
   // badge counts everyone but the owner — accepted collaborators + pending invites.

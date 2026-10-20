@@ -51,10 +51,14 @@ describe('useAppliedWayHint', () => {
     act(() => view.result.current.note(BEFORE));
     view.rerender({ points: AFTER });
     act(() => view.result.current.view.hold(true));
-    act(() => vi.advanceTimersByTime(APPLIED_HINT_MS * 2));
+    act(() => {
+      vi.advanceTimersByTime(APPLIED_HINT_MS * 2);
+    });
     expect(view.result.current.view.shown).toBe(true);
     act(() => view.result.current.view.hold(false));
-    act(() => vi.advanceTimersByTime(APPLIED_HINT_MS));
+    act(() => {
+      vi.advanceTimersByTime(APPLIED_HINT_MS);
+    });
     expect(view.result.current.view.shown).toBe(false);
   });
 

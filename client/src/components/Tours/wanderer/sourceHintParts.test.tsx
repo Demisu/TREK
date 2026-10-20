@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { hintWhen, SourceHintPills, SourceHintTile } from './sourceHintParts';
+import { hintWhen } from './hintWhen';
+import { SourceHintPills, SourceHintTile } from './sourceHintParts';
 
 // Rendered without the translation provider: every text reads as its key.
 describe('sourceHintParts (WAN-02)', () => {

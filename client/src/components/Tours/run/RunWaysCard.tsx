@@ -3,21 +3,9 @@ import { useMemo } from 'react';
 import { useTranslation } from '../../../i18n';
 import { SoftPill } from '../../Planner/planParts';
 import { Tooltip } from '../../shared/Tooltip';
-import { percent } from '../bike/RouteWaySections';
-import { unpavedShareOf, type RouteWays, type SacClass } from '../bike/routeWays';
+import { hardestSac, percent, unpavedShareOf, type RouteWays } from '../bike/routeWays';
 import { HikeWaysCard } from '../hike/HikeWaysCard';
 import type { TourPlannerController } from '../planner/useTourPlanner';
-
-type GradedClass = Exclude<SacClass, 'none'>;
-
-/** The steps from easy to hard, so the hardest one along the route is the last one found. */
-const SAC_STEPS: readonly GradedClass[] = ['t1', 't2', 't3', 't4', 't5', 't6'];
-
-/** The hardest graded step along the route, or null when no way on it carries a grade. */
-export function hardestSac(ways: RouteWays): GradedClass | null {
-  const found = new Set(ways.edges.filter((edge) => edge.lengthM > 0).map((edge) => edge.sac));
-  return [...SAC_STEPS].reverse().find((step) => found.has(step)) ?? null;
-}
 
 /**
  * The card's head: how much of the run is known to be unpaved, and the

@@ -214,3 +214,17 @@ export function wayIdsOf(ways: RouteWays, limit: number): number[] {
   }
   return ids;
 }
+
+/** A share of the route as it reads, in whole percent. */
+export const percent = (share: number) => `${Math.round(share * 100)} %`;
+
+type GradedClass = Exclude<SacClass, 'none'>;
+
+/** The steps from easy to hard, so the hardest one along the route is the last one found. */
+const SAC_STEPS: readonly GradedClass[] = ['t1', 't2', 't3', 't4', 't5', 't6'];
+
+/** RUN-02: the hardest graded step along the route, or null when no way on it carries a grade. */
+export function hardestSac(ways: RouteWays): GradedClass | null {
+  const found = new Set(ways.edges.filter((edge) => edge.lengthM > 0).map((edge) => edge.sac));
+  return [...SAC_STEPS].reverse().find((step) => found.has(step)) ?? null;
+}

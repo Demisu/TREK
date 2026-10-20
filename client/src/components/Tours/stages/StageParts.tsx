@@ -1,19 +1,14 @@
 import type { TourListItem } from '@trek/shared';
-import type { ReactNode } from 'react';
 import { ArrowDown, ArrowRight, ArrowUp, Clock, Moon, Ruler, Sunrise, type LucideIcon } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import { useSettingsStore } from '../../../store/settingsStore';
 import { formatDistance, formatElevation } from '../../../utils/units';
 import { SoftPill, WhiteBadge } from '../../Planner/planParts';
-import type { useContextMenu } from '../../shared/ContextMenu';
 import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
 import { formatPlannedTourDuration } from '../tourPresentation';
 import type { TourStage } from './tourStages';
-import type { TourStagesController } from './useTourStages';
-
-type Translate = ReturnType<typeof useTranslation>['t'];
-type MenuItems = Parameters<ReturnType<typeof useContextMenu>['open']>[1];
 
 /**
  * MDT-01: the moon at the corner of a stop's number where a stage ends, the
@@ -51,7 +46,7 @@ export function StagePill({ number }: { number: number }) {
 }
 
 /** A stage's number as the list numbers a stop, with the moon at its corner where a night follows. */
-export function StageNumber({ number, night }: { number: number; night: boolean }) {
+function StageNumber({ number, night }: { number: number; night: boolean }) {
   return (
     <span
       className="relative grid h-7 w-7 flex-none place-items-center rounded-full bg-edge font-geist font-semibold tabular-nums text-content"
@@ -61,21 +56,6 @@ export function StageNumber({ number, night }: { number: number; night: boolean 
       {night && <StageEndCorner />}
     </span>
   );
-}
-
-/**
- * The name a stage's stop goes by: its own, else the place found there, else
- * its number as the list numbers stops (a shaping point takes none).
- */
-export function stopNameOf(
-  points: ReadonlyArray<{ id: string; name?: string | null; shaping?: boolean }>,
-  placeNames: Readonly<Record<string, string>>,
-  id: string,
-  t: Translate
-): string {
-  const index = points.findIndex((point) => point.id === id);
-  const stop = points.slice(0, index + 1).filter((point) => !point.shaping).length;
-  return points[index]?.name || placeNames[id] || t('tours.planner.waypointLabel', { n: stop });
 }
 
 /**
@@ -157,7 +137,12 @@ export function StageSummary({
           style={fs(12.5, 'body')}
         >
           <span className="min-w-0 truncate">{from}</span>
-          <ArrowRight size={12} strokeWidth={2.2} aria-hidden="true" className="flex-none text-content-faint rtl:rotate-180" />
+          <ArrowRight
+            size={12}
+            strokeWidth={2.2}
+            aria-hidden="true"
+            className="flex-none text-content-faint rtl:rotate-180"
+          />
           <span className="min-w-0 truncate">{to}</span>
         </span>
         <StageMetricBadges stage={stage} unmeasured={unmeasured} />
@@ -183,20 +168,6 @@ export function StageDivider({ stage }: { stage: TourStage }) {
       <StageMetricBadges stage={stage} compact align="end" />
     </li>
   );
-}
-
-/** The stage tool of a stop's menu: end a stage here, or let the stage go on; none where no stage can end. */
-export function stageMenuItems(stages: TourStagesController, point: { id: string; stageEnd?: boolean }, t: Translate) {
-  if (!stages.canEnd(point.id)) return [] as MenuItems;
-  const items: MenuItems = [
-    { divider: true },
-    {
-      label: t(point.stageEnd ? 'tours.stages.removeEnd' : 'tours.stages.endHere'),
-      icon: Moon,
-      onClick: () => stages.toggleStageEnd(point.id),
-    },
-  ];
-  return items;
 }
 
 /**

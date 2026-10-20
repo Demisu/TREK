@@ -778,7 +778,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       setRunProfileState(opened.runProfile)
       loadRunPace(opened.runPaceSecondsPerKm)
       setWinterActivityState(opened.winterActivity)
-      setWinterActivityChoice(opened.winterActivity ?? 'winter_hike')
+      setWinterActivityChoice(opened.winterActivityChoice)
       tourTypeRef.current = opened.tourType
       setSelectedWaypointId(nextWaypoints[0]?.id ?? null)
       clearHistory()

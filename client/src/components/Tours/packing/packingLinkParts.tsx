@@ -3,11 +3,7 @@ import { Package, PowerOff } from 'lucide-react';
 import { useTranslation } from '../../../i18n';
 import { tintOf, WhiteBadge } from '../../Planner/planParts';
 import { TourNotice } from '../tourParts';
-
-/** The name of what the tour points at: a category by its own name, otherwise the whole list. */
-export function linkName(link: TourPackingLink, t: (key: string) => string): string {
-  return link.category ?? t('tours.packing.whole');
-}
+import { linkName } from './packingLinkName';
 
 /** A link while Packing is off: dimmed, not hidden, since the tour still points at the list it cannot show. */
 export function DimmedLink({ link }: { link: TourPackingLink }) {

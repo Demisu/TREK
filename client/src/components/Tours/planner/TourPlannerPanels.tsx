@@ -790,12 +790,14 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
     toast.success(t('tours.planner.saved'))
   }, [savedTour, t, toast])
 
+  // MDT-02: the stage rail is set up after the opening it asks for, so a failed open reaches its cancel through a ref.
+  const cancelStage = useRef<() => void>(() => undefined)
   const openTour = async (tour: TourListItem) => {
     const opened = await planner.openTour(tour)
     if (opened) return
     toast.error(t('tours.planner.openFailed'))
     // MDT-02: a stage asked for with this tour is not shown on a later open of it.
-    stageRail.cancel()
+    cancelStage.current()
   }
 
   const selectTour = (tour: TourListItem) => {
@@ -814,6 +816,9 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
   }
   // MDT-02: a multi-day tour unfolds its stages here, and a stage opens in the planner.
   const stageRail = useTourStageRail(planner, requestOpenTour)
+  useEffect(() => {
+    cancelStage.current = stageRail.cancel
+  }, [stageRail.cancel])
 
   const tourTimeFields = plannerTimeFields(planner, t)
 

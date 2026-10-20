@@ -9,6 +9,7 @@ import { ReadStatusNotice } from '../ReadStatusNotice';
 import { InfoDot } from '../tourParts';
 import { bikePaintCss, surfacePaintKey, type BikePaintKey } from './bikePaint';
 import {
+  percent,
   sharesBy,
   stretchesOf,
   type ClassShare,
@@ -25,8 +26,6 @@ import type { RouteWaysState } from './useRouteWays';
  * as a bar and as rows that point at its stretches on the map, the surfaces
  * and kinds of way, and how the reading went.
  */
-
-export const percent = (share: number) => `${Math.round(share * 100)} %`;
 
 interface ShareRowProps<C extends string> {
   id: string;

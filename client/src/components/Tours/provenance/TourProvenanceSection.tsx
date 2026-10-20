@@ -9,7 +9,8 @@ import ConfirmDialog from '../../shared/ConfirmDialog';
 import { DialogSection, fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
 import { CardAction, InfoDot } from '../tourParts';
-import { hintWhen, SourceHintPills, SourceHintTile } from '../wanderer/sourceHintParts';
+import { hintWhen } from '../wanderer/hintWhen';
+import { SourceHintPills, SourceHintTile } from '../wanderer/sourceHintParts';
 import WandererMark from '../wanderer/WandererMark';
 import { type SourceCheck, useSourceCheck } from './useSourceCheck';
 import { useSourceHint } from './useSourceHint';
@@ -248,6 +249,22 @@ interface TourProvenanceSectionProps {
   hint?: TourSourceHint | null;
 }
 
+/** The days the section names: when the tour came in (or was made here), and when its wanderer trail last changed. */
+function provenanceDays({ source, createdAt }: TourProvenance, locale: string) {
+  const wanderer = source.kind === 'wanderer' ? source : null;
+  return {
+    importedAt: dayOf(wanderer?.importedAt ?? createdAt, locale),
+    externalUpdated: wanderer ? dayOf(wanderer.externalUpdated, locale) : null,
+  };
+}
+
+/** The mark of where a tour came from: a GPX file, a wanderer trail, or planned here. */
+function SourceIcon({ kind }: { kind: TourProvenance['source']['kind'] }) {
+  if (kind === 'gpx') return <FileDown size={13} strokeWidth={2} />;
+  if (kind === 'wanderer') return <WandererMark size={13} />;
+  return <PenLine size={13} strokeWidth={2} />;
+}
+
 /**
  * P2C-02 in the tour's detail: where it came from (planned here, a GPX file,
  * a wanderer trail with its link), when, and how it stands here against what
@@ -258,19 +275,10 @@ export default function TourProvenanceSection({ provenance, check, hint }: TourP
   const { t, locale } = useTranslation();
   const { source } = provenance;
   const imported = source.kind !== 'trek';
-  const importedAt = dayOf((source.kind === 'wanderer' ? source.importedAt : null) ?? provenance.createdAt, locale);
-  const externalUpdated = source.kind === 'wanderer' ? dayOf(source.externalUpdated, locale) : null;
+  const { importedAt, externalUpdated } = provenanceDays(provenance, locale);
   const local = <LocalState provenance={provenance} t={t} />;
   // The hint carries the check button until the source answered a check, which spends it.
   const openHint = check && hint && !check.answered ? hint : null;
-  const sourceIcon =
-    source.kind === 'gpx' ? (
-      <FileDown size={13} strokeWidth={2} />
-    ) : source.kind === 'wanderer' ? (
-      <WandererMark size={13} />
-    ) : (
-      <PenLine size={13} strokeWidth={2} />
-    );
 
   return (
     <DialogSection
@@ -279,7 +287,7 @@ export default function TourProvenanceSection({ provenance, check, hint }: TourP
       action={check && !openHint && <CheckButton check={check} t={t} />}
     >
       <div className={`${BOX} divide-y divide-edge-faint`}>
-        <ProvenanceRow icon={sourceIcon} label={t('tours.provenance.source')}>
+        <ProvenanceRow icon={<SourceIcon kind={source.kind} />} label={t('tours.provenance.source')}>
           <SourceValue provenance={provenance} t={t} />
         </ProvenanceRow>
         {provenance.takenOverFrom && (

@@ -1,7 +1,7 @@
 import type { TourListItem } from '@trek/shared';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { TourPlannerController } from '../planner/useTourPlanner';
-import { showStage } from './TourStagesSection';
+import { showStage } from './stageActions';
 
 type RailPlanner = Pick<
   TourPlannerController,
@@ -32,6 +32,8 @@ const openPlaceId = (planner: Pick<TourPlannerController, 'mode'>) =>
 export function useTourStageRail(planner: RailPlanner, openTour: (tour: TourListItem) => void) {
   const [unfolded, setUnfolded] = useState<ReadonlySet<number>>(() => new Set());
   const [pending, setPending] = useState<PendingStage | null>(null);
+  // The stage asked for that the effect below has settled (shown, or let go as stale); it is not shown twice.
+  const settled = useRef<PendingStage | null>(null);
 
   const isUnfolded = useCallback((placeId: number) => unfolded.has(placeId), [unfolded]);
   const toggle = useCallback((placeId: number) => {
@@ -55,22 +57,20 @@ export function useTourStageRail(planner: RailPlanner, openTour: (tour: TourList
   const open = openPlaceId(planner);
   const { waypoints } = planner;
   const { stages } = planner.stages;
+  // Another tour opened instead: the stage asked for is no longer wanted. Let go
+  // while rendering, as React adjusts state to a changed input, not in an effect.
+  if (pending && open !== pending.placeId && open !== pending.from) setPending(null);
   useEffect(() => {
-    if (!pending) return;
-    if (open !== pending.placeId) {
-      // Another tour opened instead: the stage asked for is no longer wanted.
-      if (open !== pending.from) setPending(null);
-      return;
-    }
+    if (!pending || settled.current === pending || open !== pending.placeId) return;
     const start = waypoints.find((point) => point.key === pending.key);
     const stage = start && stages.find((item) => item.fromId === start.id);
     if (!stage) {
       // The tour's points are in and no stage starts at that stop: the list it came from was stale.
-      if (waypoints.length > 0) setPending(null);
+      if (waypoints.length > 0) settled.current = pending;
       return;
     }
     showStage(planner, stage);
-    setPending(null);
+    settled.current = pending;
   }, [open, pending, planner, stages, waypoints]);
 
   return { isUnfolded, toggle, openStage, cancel };

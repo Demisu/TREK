@@ -3,14 +3,14 @@ import { Equal, Map as MapIcon, TrendingDown, TrendingUp } from 'lucide-react';
 import { useMemo, type ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import type { DistanceUnit } from '../../../types';
-import { formatDistance, formatElevation } from '../../../utils/units';
+import { formatDistance } from '../../../utils/units';
 import { BOX, Eyebrow } from '../../Planner/bookings/bookingParts';
 import { SoftPill } from '../../Planner/planParts';
 import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
 import { CardAction, TourFactFields, type TourMetricField } from '../tourParts';
-import { formatPlannedTourDuration } from '../tourPresentation';
 import { ACTUAL_TRACK_COLOR, LineSwatch } from './activityCompareParts';
+import { formatDifference, formatValue } from './compareValueText';
 import {
   compareRows,
   OFF_PLAN_M,
@@ -28,19 +28,6 @@ const ROW_LABELS: Record<CompareKey, string> = {
   descent: 'tours.detail.descent',
   time: 'tours.activity.compare.time',
 };
-
-function formatValue(key: CompareKey, value: number, unit: DistanceUnit): string {
-  if (key === 'distance') return formatDistance(value, unit);
-  if (key === 'time') return formatPlannedTourDuration(value);
-  return formatElevation(value, unit);
-}
-
-/** A difference as it reads: signed, or "±" where it rounds to nothing in the unit shown. */
-export function formatDifference(key: CompareKey, difference: number, unit: DistanceUnit): string {
-  const size = formatValue(key, Math.abs(difference), unit);
-  if (size === formatValue(key, 0, unit)) return `±${size}`;
-  return `${difference > 0 ? '+' : '-'}${size}`;
-}
 
 /** One value of one side: the number, or a word saying that side does not carry it. */
 function ValueCell({

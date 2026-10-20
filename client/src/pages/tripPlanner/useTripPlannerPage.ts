@@ -15,6 +15,42 @@ import { usePlannerFocusPoints } from './usePlannerFocusPoints'
 import { useTripPlanner } from './useTripPlanner'
 import { useTourWorkspace } from './useTourWorkspace'
 
+type Workspace = ReturnType<typeof useTourWorkspace>
+type TourPlanner = Workspace['tourPlanner']
+
+/** PAD-05B: the paddle line in view, a recorded paddle track's or the paddle tour's being planned; none for any other. */
+function paddleLineOf(tourPlanner: TourPlanner) {
+  if (tourPlanner.mode.type === 'view-gpx') {
+    return tourPlanner.mode.tour.tour_type === 'kayak' ? tourPlanner.readOnlyGpxAnalysis?.routeCoordinates ?? null : null
+  }
+  return tourPlanner.isPaddle ? tourPlanner.route : null
+}
+
+/**
+ * RTE-02, RTE-03: the ways offered over the route being edited (a section's
+ * ways being compared, else the round hikes), the one in focus, and the frame
+ * round hikes ask the map for while they are looked for and shown.
+ */
+function offeredWaysOf(tourPlanner: TourPlanner, offering: boolean) {
+  const { comparison, focus: variantFocus } = tourPlanner.legVariants
+  const { view: rounds, focus: roundFocus, frame: roundFrame } = tourPlanner.roundHikes
+  return {
+    ways: offering ? comparison?.variants ?? rounds?.candidates ?? null : null,
+    focus: comparison ? variantFocus : roundFocus,
+    frame: offering ? roundFrame : null,
+  }
+}
+
+/** What frames the map: a picked wanderer trail itself, else round hikes being framed, else the planner. */
+function mapFocusKeyOf(
+  wandererBrowser: Workspace['wandererBrowser'],
+  frame: ReturnType<typeof offeredWaysOf>['frame'],
+  plannerKey: ReturnType<typeof useMapLocationSearch>['mapFocusKey'],
+) {
+  if (wandererBrowser.open && wandererBrowser.selected) return `wanderer:${wandererBrowser.selected.id}`
+  return frame?.key ?? plannerKey
+}
+
 export function useTripPlannerPage() {
   const planner = useTripPlanner()
   const {
@@ -42,10 +78,7 @@ export function useTripPlannerPage() {
 
   const trackParts = useTrackPortageParts(tourPlanner)
   // PAD-05B: the obstacles around the paddle tour in view, for the map and the rails alike.
-  const paddleLine = tourPlanner.mode.type === 'view-gpx'
-    ? (tourPlanner.mode.tour.tour_type === 'kayak' ? tourPlanner.readOnlyGpxAnalysis?.routeCoordinates ?? null : null)
-    : tourPlanner.isPaddle ? tourPlanner.route : null
-  usePaddleObstacleSync(paddleLine, activeTab === 'tour-planner')
+  usePaddleObstacleSync(paddleLineOf(tourPlanner), activeTab === 'tour-planner')
   const route = useMemo<[number, number][][] | null>(() => {
     if (wandererBrowser.open) return wandererBrowser.line ? [wandererBrowser.line] : null
     if (tourPlanner.mode.type === 'view-gpx') {
@@ -82,13 +115,8 @@ export function useTripPlannerPage() {
   const ownLine = editingRoute || (tourPlanner.mode.type === 'view-gpx' && !tourConversion.line)
   const highlighted = useHighlightedRoute(ownLine && !wandererBrowser.open, route, routeWalking, partStyle.colors)
   // RTE-02, RTE-03: the ways of a section being compared, or the round hikes offered, over the route being edited.
-  const { comparison, focus: variantFocus } = tourPlanner.legVariants
-  const { view: rounds, focus: roundFocus, frame: roundFrame } = tourPlanner.roundHikes
-  const offering = editingRoute && !wandererBrowser.open
-  const offeredWays = offering ? comparison?.variants ?? rounds?.candidates ?? null : null
-  // RTE-03: while round hikes are looked for and shown, the map frames where they can lie.
-  const framedRounds = offering ? roundFrame : null
-  const drawn = useLegVariantLines(highlighted.route, highlighted.walking, highlighted.colors, offeredWays, comparison ? variantFocus : roundFocus)
+  const offered = offeredWaysOf(tourPlanner, editingRoute && !wandererBrowser.open)
+  const drawn = useLegVariantLines(highlighted.route, highlighted.walking, highlighted.colors, offered.ways, offered.focus)
 
   const { closeGpxTour } = tourPlanner
   useEffect(() => {
@@ -136,10 +164,9 @@ export function useTripPlannerPage() {
       routeColors: drawn.colors,
       variantLines: drawn.overlays,
       previewPoints: tourConversion.status === 'idle' ? null : tourConversion.points,
-      focusPoints: framedRounds?.points ?? mapFocusPoints,
-      // A picked wanderer trail frames itself; the rest follows the planner.
-      focusKey:
-        wandererBrowser.open && wandererBrowser.selected ? `wanderer:${wandererBrowser.selected.id}` : framedRounds?.key ?? mapFocusKey, captureViewport,
+      focusPoints: offered.frame?.points ?? mapFocusPoints,
+      focusKey: mapFocusKeyOf(wandererBrowser, offered.frame, mapFocusKey),
+      captureViewport,
     },
     locationSearch,
     plannedTourDurations,

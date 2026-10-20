@@ -1,25 +1,12 @@
 import { useTranslation } from '../../../i18n';
-import { focusRouteProfileAtDistance } from '../../../utils/routeGeometry';
 import { Tooltip } from '../../shared/Tooltip';
 import type { TourPlannerController } from '../planner/useTourPlanner';
 import { useWaypointPlaceNames } from '../planner/useWaypointPlaceNames';
 import { InfoDot, TourSection } from '../tourParts';
-import { StageSummary, stopNameOf } from './StageParts';
+import { showStage } from './stageActions';
+import { stopNameOf } from './stageNames';
+import { StageSummary } from './StageParts';
 import type { TourStage } from './tourStages';
-
-/**
- * Shows a stage of the tour open in the planner: its last stop selected, the
- * profile at the spot it ends once the route has measured it (MDT-02 opens a
- * stage from the list this way too).
- */
-export function showStage(
-  planner: Pick<TourPlannerController, 'routeAnalysis' | 'setSelectedWaypointId' | 'setRouteProfileFocus'>,
-  stage: TourStage
-) {
-  planner.setSelectedWaypointId(stage.toId);
-  const samples = planner.routeAnalysis?.distanceIndexedProfileSamples ?? [];
-  planner.setRouteProfileFocus(stage.toM === null ? null : focusRouteProfileAtDistance(samples, stage.toM));
-}
 
 type StagesPlanner = Pick<
   TourPlannerController,
@@ -44,7 +31,7 @@ export function TourStagesSection({ planner }: { planner: StagesPlanner }) {
       label={t('tours.stages.title')}
       action={<InfoDot label={t('tours.stages.title')} description={t('tours.stages.timeInfo')} />}
     >
-      <ol data-testid="tour-stages" className="-mx-1.5 m-0 flex list-none flex-col gap-px p-0">
+      <ol data-testid="tour-stages" className="m-0 -mx-1.5 flex list-none flex-col gap-px p-0">
         {stages.map((stage) => (
           <li key={stage.number}>
             <Tooltip label={t('tours.stages.show')}>

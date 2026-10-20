@@ -2,15 +2,9 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { TourDayRowAvatar } from '../TourDayRowFacts';
 import { TourGradeTile } from '../tourParts';
-import { WINTER_ACTIVITY_ICON } from '../winter/winterMarks';
-import {
-  SKI_DISCIPLINE_ICON,
-  SkiCornerMark,
-  SkiHeadPill,
-  skiClassificationText,
-  skiDisciplineOf,
-  skiTechniqueOf,
-} from './skiMarks';
+import { WINTER_ACTIVITY_ICON } from '../winter/winterActivityIcon';
+import { SKI_DISCIPLINE_ICON, skiClassificationText, skiDisciplineOf, skiTechniqueOf } from './skiDiscipline';
+import { SkiCornerMark, SkiHeadPill } from './skiMarks';
 
 // FE-TOUR-SKI-MARK-001 to FE-TOUR-SKI-MARK-006
 

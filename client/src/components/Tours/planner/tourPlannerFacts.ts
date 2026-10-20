@@ -34,6 +34,8 @@ export function openedTourFields(tour: TourListItem) {
     tourType: plannableTourTypeSchema.catch('hike').parse(tour.tour_type) as PlannableTourType,
     bikeProfile: (tour.bike_profile ?? 'touring') as BikeProfile,
     winterActivity: tour.winter_activity ?? null,
+    /** HIK-01: the label the winter switch brings back, the tour's own or winter hiking. */
+    winterActivityChoice: tour.winter_activity ?? ('winter_hike' satisfies WinterActivity),
     runProfile: (tour.run_profile ?? 'running') as RunProfile,
     runPaceSecondsPerKm: tour.run_pace_seconds_per_km ?? null,
   };

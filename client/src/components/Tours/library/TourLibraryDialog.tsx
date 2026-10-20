@@ -15,7 +15,8 @@ import {
   NEUTRAL_TINT,
 } from '../../shared/DialogShell';
 import { RailFacts, TourNotice } from '../tourParts';
-import { TourLinePreview, TourMeasurePills, tourPreviewFacts } from './tourPreviewParts';
+import { tourPreviewFacts } from './tourPreviewFacts';
+import { TourLinePreview, TourMeasurePills } from './tourPreviewParts';
 import { type TourLibrary } from './useTourLibrary';
 
 const ALL = 'all';

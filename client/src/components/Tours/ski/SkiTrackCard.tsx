@@ -4,7 +4,7 @@ import { fs } from '../../shared/DialogShell';
 import { FigureBadge } from '../paddle/FigureBadge';
 import { CardAction, InfoDot, RailCard, RailFacts } from '../tourParts';
 import { SkiClassifyDialog } from './SkiClassifyDialog';
-import { SKI_DISCIPLINE_ICON, skiDisciplineOf, skiTechniqueOf } from './skiMarks';
+import { SKI_DISCIPLINE_ICON, skiDisciplineOf, skiTechniqueOf } from './skiDiscipline';
 import type { SkiClassification } from './useSkiClassification';
 
 /**

@@ -12,7 +12,8 @@ import { movingTimeLabel } from '../tourFacts';
 import { TourNotice } from '../tourParts';
 import { formatPlannedTourDuration } from '../tourPresentation';
 import { StageDayPicker } from './StageDayPicker';
-import { StageSummary, stopNameOf } from './StageParts';
+import { stopNameOf } from './stageNames';
+import { StageSummary } from './StageParts';
 import type { StageSum, StageTotals } from './tourStages';
 import { useSavedTourStages } from './useSavedTourStages';
 import { useTourStageDays, type TourStageDays } from './useTourStageDays';
@@ -30,15 +31,31 @@ interface TourStageOverviewProps {
 }
 
 /** A sum as a badge: the total of the stages that tell it, marked as at least that where some do not. */
-function TotalBadge({ icon: Icon, label, sum, format, t }: { icon: LucideIcon; label: string; sum: StageSum; format: (value: number) => string; t: Translate }) {
+function TotalBadge({
+  icon: Icon,
+  label,
+  sum,
+  format,
+  t,
+}: {
+  icon: LucideIcon;
+  label: string;
+  sum: StageSum;
+  format: (value: number) => string;
+  t: Translate;
+}) {
   if (sum.value === null) return null;
   const partial = sum.known < sum.of;
   const value = partial ? `≥ ${format(sum.value)}` : format(sum.value);
-  const said = partial ? `${label}: ${value} (${t('tours.stages.totalPartial', { known: sum.known, of: sum.of })})` : `${label}: ${value}`;
+  const said = partial
+    ? `${label}: ${value} (${t('tours.stages.totalPartial', { known: sum.known, of: sum.of })})`
+    : `${label}: ${value}`;
   return (
     <Tooltip label={said}>
       <span className="inline-flex" aria-label={said} data-stage-total-partial={partial || undefined}>
-        <WhiteBadge icon={<Icon size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>{value}</WhiteBadge>
+        <WhiteBadge icon={<Icon size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
+          {value}
+        </WhiteBadge>
       </span>
     </Tooltip>
   );
@@ -56,12 +73,24 @@ export function StageTotalsRow({ tour, totals }: { tour: TourListItem; totals: S
   // A route not planned yet adds up to nothing: no row rather than an empty one.
   if (Object.values(totals).every((sum) => sum.value === null)) return null;
   return (
-    <div data-testid="tour-stage-totals" className="mt-1 flex min-w-0 flex-wrap items-center gap-1 border-t border-edge-faint px-1.5 pb-0.5 pt-2">
-      <span className="me-auto inline-flex items-center gap-1 font-semibold text-content-secondary" style={fs(11.5, 'body')}>
+    <div
+      data-testid="tour-stage-totals"
+      className="mt-1 flex min-w-0 flex-wrap items-center gap-1 border-t border-edge-faint px-1.5 pb-0.5 pt-2"
+    >
+      <span
+        className="me-auto inline-flex items-center gap-1 font-semibold text-content-secondary"
+        style={fs(11.5, 'body')}
+      >
         <Sigma size={12} strokeWidth={2.2} aria-hidden="true" className="flex-none text-content-faint" />
         {t('tours.stages.wholeTour')}
       </span>
-      <TotalBadge icon={Ruler} label={t('tours.detail.distance')} sum={totals.distanceKm} format={(value) => formatDistance(value, unit)} t={t} />
+      <TotalBadge
+        icon={Ruler}
+        label={t('tours.detail.distance')}
+        sum={totals.distanceKm}
+        format={(value) => formatDistance(value, unit)}
+        t={t}
+      />
       <TotalBadge icon={ArrowUp} label={t('tours.detail.ascent')} sum={totals.gain} format={height} t={t} />
       <TotalBadge icon={ArrowDown} label={t('tours.detail.descent')} sum={totals.loss} format={height} t={t} />
       <TotalBadge
@@ -147,7 +176,11 @@ export function TourStageOverview({ id, tripId, tour, days, canAssign, onOpenSta
     >
       {saved.status === 'error' && <TourNotice>{t('tours.stages.loadFailed')}</TourNotice>}
       {saved.status === 'loading' && (
-        <p className="m-0 flex items-center gap-1.5 px-2 py-2 text-content-faint" style={fs(11.5, 'body')} role="status">
+        <p
+          className="m-0 flex items-center gap-1.5 px-2 py-2 text-content-faint"
+          style={fs(11.5, 'body')}
+          role="status"
+        >
           <Loader2 size={12} strokeWidth={2.2} aria-hidden="true" className="animate-spin" />
           {t('common.loading')}
         </p>
@@ -156,7 +189,12 @@ export function TourStageOverview({ id, tripId, tour, days, canAssign, onOpenSta
         <>
           <ol aria-label={t('tours.stages.title')} className="m-0 flex list-none flex-col gap-px p-0">
             {saved.stages.map((stage) => (
-              <li key={stage.number} data-testid="tour-stage-item" data-stage={stage.number} className="flex min-w-0 items-start gap-2.5 rounded-[10px] px-1.5 py-1.5">
+              <li
+                key={stage.number}
+                data-testid="tour-stage-item"
+                data-stage={stage.number}
+                className="flex min-w-0 items-start gap-2.5 rounded-[10px] px-1.5 py-1.5"
+              >
                 <StageSummary
                   stage={stage}
                   night={stage.number < saved.stages.length}

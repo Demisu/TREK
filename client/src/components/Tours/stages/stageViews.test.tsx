@@ -6,11 +6,12 @@ import { render, screen, within } from '../../../../tests/helpers/render';
 import { resetAllStores, seedStore } from '../../../../tests/helpers/store';
 import { useSettingsStore } from '../../../store/settingsStore';
 import type { TourPlannerController } from '../planner/useTourPlanner';
-import { StageDivider, stageMenuItems, TourStagesBadge } from './StageParts';
+import { stageMenuItems } from './stageActions';
+import { StageDivider, TourStagesBadge } from './StageParts';
 import { TourStageLossNotice } from './TourStageLossNotice';
 import { TourStageModeField } from './TourStageModeField';
-import { TourStagesSection } from './TourStagesSection';
 import type { TourStage } from './tourStages';
+import { TourStagesSection } from './TourStagesSection';
 import type { TourStagesController } from './useTourStages';
 
 vi.mock('../planner/useWaypointPlaceNames', () => ({ useWaypointPlaceNames: () => ({ b: 'Upper hut' }) }));

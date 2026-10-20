@@ -17,8 +17,9 @@ import TourListRow from '../TourListRow';
 import { tourPlannedTimes } from '../tourPresentation';
 import { savedStagePoints, savedTourStagesOf } from './savedTourStages';
 import { StageDayPicker } from './StageDayPicker';
+import { stageNumberOf } from './stageNames';
 import { TourStageDayNotice } from './TourStageDayNotice';
-import { stageNumberOf, TourStageDayPills } from './TourStageDayPills';
+import { TourStageDayPills } from './TourStageDayPills';
 import { StageTotalsRow, TourStageOverview } from './TourStageOverview';
 import type { TourStageDays } from './useTourStageDays';
 

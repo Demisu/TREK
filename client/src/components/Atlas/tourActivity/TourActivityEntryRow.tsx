@@ -4,10 +4,11 @@ import { useNavigate } from 'react-router';
 import { useTranslation } from '../../../i18n';
 import { formatDate } from '../../../utils/formatters';
 import { formatDistance, formatElevation } from '../../../utils/units';
+import { SoftPill, WhiteBadge } from '../../Planner/planParts';
 import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
-import { SoftPill, WhiteBadge } from '../../Planner/planParts';
-import { EntryTile, MeasurePills, useDistanceUnit } from './tourActivityParts';
+import { EntryTile, MeasurePills } from './tourActivityParts';
+import { useDistanceUnit } from './tourActivityReading';
 
 const ROW_BADGE_ICON = 'flex-none text-content-faint';
 
@@ -54,7 +55,7 @@ function EntryFacts({ entry }: { entry: TourActivityStatsEntry }) {
       <Tooltip label={t('tours.stats.openTrip')}>
         <button
           type="button"
-          onClick={() => navigate(`/trips/${entry.trip.id}`)}
+          onClick={() => void navigate(`/trips/${entry.trip.id}`)}
           className="inline-flex min-w-0 max-w-[220px] rounded-full transition-opacity hover:opacity-75 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
         >
           <WhiteBadge

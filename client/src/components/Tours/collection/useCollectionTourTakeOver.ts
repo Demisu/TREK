@@ -131,7 +131,7 @@ export function useCollectionTourTakeOver(collectionId: number) {
     openTrip: () => {
       if (!done) return;
       setTour(null);
-      navigate(`/trips/${done.tripId}`);
+      void navigate(`/trips/${done.tripId}`);
     },
   };
 }

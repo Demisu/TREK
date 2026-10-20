@@ -1,7 +1,10 @@
 import type { CollectionTourItem } from '@trek/shared';
 import { AlertTriangle, CopyPlus, Gauge, Moon, Route, Trash2, Waypoints, WifiOff } from 'lucide-react';
 import { useTranslation } from '../../../i18n';
+import { useAuthStore } from '../../../store/authStore';
+import { useCollectionStore } from '../../../store/collectionStore';
 import { useSettingsStore } from '../../../store/settingsStore';
+import { canRemoveFromCollection, collectionRoleOf } from '../../../utils/collectionAccess';
 import { WhiteBadge } from '../../Planner/planParts';
 import ConfirmDialog from '../../shared/ConfirmDialog';
 import { fs } from '../../shared/DialogShell';
@@ -194,4 +197,19 @@ export function CollectionToursSection({ collectionId, canRemove }: { collection
       />
     </section>
   );
+}
+
+/**
+ * The tours of the list open on the collections page, with what the user may
+ * do there read from the list itself; nothing on "All saved" or before a list opens.
+ */
+export function ActiveCollectionTours() {
+  const activeId = useCollectionStore((state) => state.activeId);
+  const collections = useCollectionStore((state) => state.collections);
+  const members = useCollectionStore((state) => state.members);
+  const userId = useAuthStore((state) => state.user?.id);
+  if (typeof activeId !== 'number') return null;
+  const isOwner = collections.find((collection) => collection.id === activeId)?.is_owner ?? false;
+  const canRemove = canRemoveFromCollection(collectionRoleOf(isOwner, members, userId));
+  return <CollectionToursSection collectionId={activeId} canRemove={canRemove} />;
 }

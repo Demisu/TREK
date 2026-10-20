@@ -9,15 +9,16 @@ import { collectionToursRepo } from '../../../repo/collectionToursRepo';
 import { OnlineOnlyError } from '../../../repo/onlineOnly';
 import { useAddonStore } from '../../../store/addonStore';
 import { useAuthStore } from '../../../store/authStore';
+import { ALL_SAVED, useCollectionStore } from '../../../store/collectionStore';
 import { useCollectionTourStore } from '../../../store/collectionTourStore';
 import { CollectionTourTakeOverDialog, KeptPointsStrip } from './CollectionTourTakeOverDialog';
-import { CollectionToursSection } from './CollectionToursSection';
+import { ActiveCollectionTours, CollectionToursSection } from './CollectionToursSection';
 import { SaveTourToCollectionDialog } from './SaveTourToCollectionDialog';
 import { TourSaveToCollectionBarButton, TourSaveToCollectionButton } from './TourSaveToCollectionButton';
 import { useCollectionTourTakeOver } from './useCollectionTourTakeOver';
 import { useSaveTourToCollection } from './useSaveTourToCollection';
 
-// FE-COLLECTION-TOURS-001 to FE-COLLECTION-TOURS-015
+// FE-COLLECTION-TOURS-001 to FE-COLLECTION-TOURS-016
 
 vi.mock('../../Map/MapViewAuto', () => ({
   MapViewAuto: ({ route }: { route: Array<Array<[number, number]>> }) => (
@@ -406,5 +407,30 @@ describe('CollectionToursSection', () => {
     useAddonStore.setState({ addons: [{ id: 'collections', enabled: true }] as never });
     render(<CollectionToursSection collectionId={3} canRemove />);
     expect(screen.queryByTestId('collection-tours')).toBeNull();
+  });
+
+  it('FE-COLLECTION-TOURS-016: the open list shows its tours, removable by its owner or an admin only, and "All saved" none', async () => {
+    const before = useCollectionStore.getState();
+    const list = vi.spyOn(collectionToursRepo, 'list').mockResolvedValue({ tours: [kept()] });
+    try {
+      useCollectionStore.setState({ activeId: 3, collections: [{ id: 3, is_owner: false }] as never, members: [] });
+      useAuthStore.setState({ user: { id: 7 } as never });
+      const viewer = render(<ActiveCollectionTours />);
+      const card = await screen.findByTestId('kept-tour-4');
+      expect(list).toHaveBeenCalled();
+      expect(within(card).queryByTestId('kept-tour-remove-4')).toBeNull();
+      viewer.unmount();
+
+      useCollectionStore.setState({ members: [{ user_id: 7, is_owner: false, role: 'admin' }] as never });
+      const admin = render(<ActiveCollectionTours />);
+      expect(await screen.findByTestId('kept-tour-remove-4')).toBeInTheDocument();
+      admin.unmount();
+
+      useCollectionStore.setState({ activeId: ALL_SAVED });
+      render(<ActiveCollectionTours />);
+      expect(screen.queryByTestId('collection-tours')).toBeNull();
+    } finally {
+      useCollectionStore.setState(before, true);
+    }
   });
 });

@@ -1,4 +1,4 @@
-import type { TourActivityBasis, TourActivityStatsEntry, TourActivityTotals } from '@trek/shared';
+import type { TourActivityBasis, TourActivityStatsEntry } from '@trek/shared';
 import {
   AlertTriangle,
   ArrowUp,
@@ -6,32 +6,21 @@ import {
   CalendarDays,
   CalendarRange,
   Footprints,
-  Layers,
   Loader2,
   Ruler,
   WifiOff,
-  type LucideIcon,
 } from 'lucide-react';
 import { createElement } from 'react';
 import { useTranslation } from '../../../i18n';
-import { useSettingsStore } from '../../../store/settingsStore';
-import type { DistanceUnit } from '../../../types';
-import { formatDistance, formatElevation } from '../../../utils/units';
 import { PillSelect } from '../../shared/dialogParts';
 import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
 import { FigureBadge } from '../../Tours/paddle/FigureBadge';
 import { TourDayRowPill } from '../../Tours/TourDayRowFacts';
 import { tourDayRowIcon } from '../../Tours/tourDayRowIcon';
-import { periodYear, sumReading, type ActivityPeriod, type ActivityType } from './tourActivityStatsModel';
+import { typeIcon, typeLabel, type Translate } from './tourActivityReading';
+import { periodYear, type ActivityPeriod, type ActivityType } from './tourActivityStatsModel';
 import type { TourActivityStats } from './useTourActivityStats';
-
-type Translate = (key: string, params?: Record<string, unknown>) => string;
-
-/** The distance unit the user reads in. */
-export function useDistanceUnit(): DistanceUnit {
-  return useSettingsStore((state) => state.settings.distance_unit) ?? 'metric';
-}
 
 /** What a period is called in the filter. */
 function periodLabel(period: ActivityPeriod, t: Translate): string {
@@ -39,16 +28,6 @@ function periodLabel(period: ActivityPeriod, t: Translate): string {
   if (period === 'thisYear') return t('tours.stats.period.thisYear');
   if (period === 'last12') return t('tours.stats.period.last12');
   return String(periodYear(period));
-}
-
-/** What a type is called in the filter. */
-export function typeLabel(type: ActivityType, t: Translate): string {
-  return type === 'all' ? t('tours.stats.allTypes') : t(`tourTypes.${type}`);
-}
-
-/** The icon a type is drawn with; every type at once is a stack. */
-export function typeIcon(type: ActivityType): LucideIcon {
-  return type === 'all' ? Layers : tourDayRowIcon(type);
 }
 
 /** The period and type filters, as head band pills or quiet ones in a panel. */
@@ -83,21 +62,6 @@ export function ActivityFilters({ stats, quiet = false }: { stats: TourActivityS
       />
     </>
   );
-}
-
-/** A distance as said, at least that much when some tours do not know theirs; null when none does. */
-export function distanceReading(totals: Pick<TourActivityTotals, 'distanceKm'>, unit: DistanceUnit) {
-  return sumReading(totals.distanceKm, (km) => formatDistance(km, unit));
-}
-
-/** A height sum as said, the same way. */
-export function heightReading(sum: TourActivityTotals['ascentM'], unit: DistanceUnit) {
-  return sumReading(sum, (metres) => formatElevation(metres, unit));
-}
-
-/** How a short sum explains itself: known for some of the tours only. */
-export function partialHint(sum: TourActivityTotals['distanceKm'], t: Translate): string {
-  return t('tours.scope.partialBody', { known: sum.known, of: sum.of });
 }
 
 /** A distance and a climb as white badges, each named in full by its tooltip; one not known is left out. */
@@ -210,12 +174,11 @@ export function UncountedBadges({
  */
 export function EntryTile({ entry }: { entry: Pick<TourActivityStatsEntry, 'tour_type' | 'basis'> }) {
   const { t } = useTranslation();
-  const Icon = tourDayRowIcon(entry.tour_type);
   return (
     <Tooltip label={t(`tourTypes.${entry.tour_type}`)}>
       <span className="relative flex-none" aria-label={t(`tourTypes.${entry.tour_type}`)}>
         <span className="grid h-[34px] w-[34px] place-items-center rounded-full bg-edge text-content-secondary">
-          <Icon size={15} strokeWidth={1.9} />
+          {createElement(tourDayRowIcon(entry.tour_type), { size: 15, strokeWidth: 1.9 })}
         </span>
         {entry.basis === 'track' && (
           <span

@@ -20,15 +20,11 @@ import { FigureBadge } from '../paddle/FigureBadge';
 import type { TourPlannerController } from '../planner/useTourPlanner';
 import { AccessLabel, AccessPills, ConnectionField, DirectionField, SectionChips } from './HorseRouteDialogParts';
 import { HorseRouteMap } from './HorseRouteMap';
+import { horseRouteTitle } from './horseSection';
 import { Horseshoe } from './HorseshoeIcon';
 import { useHorseSectionPick } from './useHorseSectionPick';
 
 type DialogPlanner = Pick<TourPlannerController, 'waypoints' | 'editWaypoints' | 'isSaving' | 'canEdit' | 'route'>;
-
-/** A route's name as the rider reads it: its own, else its reference, else said to have none. */
-export function horseRouteTitle(route: HorseRoute, t: (key: string) => string): string {
-  return route.name ?? route.ref ?? t('tours.horse.routes.unnamed');
-}
 
 /** What the route is at a glance: its reference, its sections, whether it goes on, and a way to OpenStreetMap. */
 function RoutePills({ route }: { route: HorseRoute }) {

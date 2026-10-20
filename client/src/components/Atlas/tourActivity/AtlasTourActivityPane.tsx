@@ -6,19 +6,10 @@ import type { DistanceUnit } from '../../../types';
 import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
 import { CardAction, InfoDot } from '../../Tours/tourParts';
+import { ActivityFilters, ActivityStatusLine, BasisBadges, UncountedBadges } from './tourActivityParts';
+import { distanceReading, heightReading, typeIcon, typeLabel, useDistanceUnit } from './tourActivityReading';
 import { TourActivityStatsDialog } from './TourActivityStatsDialog';
 import { splitMeasure } from './tourActivityStatsModel';
-import {
-  ActivityFilters,
-  ActivityStatusLine,
-  BasisBadges,
-  distanceReading,
-  heightReading,
-  typeIcon,
-  typeLabel,
-  UncountedBadges,
-  useDistanceUnit,
-} from './tourActivityParts';
 import { useTourActivityStats, type TourActivityStats } from './useTourActivityStats';
 
 /** The wash the hero tile sits on, as the Atlas numbers do: the text colour, faintly, over the glass. */
@@ -181,9 +172,7 @@ function Strip({ stats, summary, onOpen }: StripProps) {
       {counted ? (
         <>
           <Hero summary={summary} unit={unit} />
-          {ascent && (
-            <Figure label={t('tours.detail.ascent')} text={ascent.text} testId="atlas-tour-activity-ascent" />
-          )}
+          {ascent && <Figure label={t('tours.detail.ascent')} text={ascent.text} testId="atlas-tour-activity-ascent" />}
           {descent && (
             <Figure label={t('tours.detail.descent')} text={descent.text} testId="atlas-tour-activity-descent" />
           )}
