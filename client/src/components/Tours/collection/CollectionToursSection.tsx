@@ -48,7 +48,8 @@ function KeptTourTypeBadges({ tour }: { tour: CollectionTourItem }) {
 /**
  * One kept tour as a card: its grade tile with where it came from, its name
  * and type, its measures and waypoints as badges, the trip it was saved from,
- * and the way into a trip. Removing it sits quietly in its corner.
+ * and the way into a trip. Removing it sits quietly in its corner, dimmed
+ * but always there (a phone has no hover), raised on hover or focus.
  */
 function KeptTourCard({
   tour,
@@ -85,7 +86,7 @@ function KeptTourCard({
               onClick={onRemove}
               aria-label={t('tours.collection.remove')}
               data-testid={`kept-tour-remove-${tour.id}`}
-              className="grid h-7 w-7 flex-none place-items-center rounded-full text-content-faint opacity-0 transition-opacity hover:bg-danger-soft hover:text-danger focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent group-hover:opacity-100"
+              className="grid h-7 w-7 flex-none place-items-center rounded-full text-content-faint opacity-50 transition-opacity hover:bg-danger-soft hover:text-danger focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent group-hover:opacity-100"
             >
               <Trash2 size={13} strokeWidth={2} />
             </button>

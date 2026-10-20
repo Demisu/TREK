@@ -357,6 +357,9 @@ describe('CollectionToursSection', () => {
     expect(card).toHaveTextContent('Alps');
     expect(within(card).getByTestId('kept-tour-distance')).toHaveTextContent('8.2 km');
     expect(within(card).getByLabelText('4 waypoints')).toBeInTheDocument();
+    // Dimmed, never hidden: a touch screen has no hover to bring it out.
+    expect(within(card).getByTestId('kept-tour-remove-4')).toHaveClass('opacity-50');
+    expect(within(card).getByTestId('kept-tour-remove-4')).not.toHaveClass('opacity-0');
     fireEvent.click(within(card).getByTestId('kept-tour-remove-4'));
     // The card's own button and the question's confirm share the name; the question's comes last.
     const removeButtons = await screen.findAllByRole('button', { name: 'Remove from the collection' });
