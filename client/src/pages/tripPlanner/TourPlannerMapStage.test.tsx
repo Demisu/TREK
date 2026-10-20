@@ -2,7 +2,7 @@
 import type { Ferrata, PaddleFeature } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '../../../tests/helpers/render';
-import { idleLegVariants } from '../../../tests/helpers/tourPlannerStub';
+import { idleLegVariants, idleRoundHikes } from '../../../tests/helpers/tourPlannerStub';
 import { useTripFerratas } from '../../components/Ferratas/useTripFerratas';
 import type { MapViewProps } from '../../components/Map/mapViewContract';
 import { useTourMapView } from '../../components/Tours/planner/useTourMapView';
@@ -137,6 +137,7 @@ function planner(
     routeProfileFocus: null,
     setRouteProfileFocus: vi.fn(),
     legVariants: idleLegVariants(),
+    roundHikes: idleRoundHikes(),
     ...overrides,
   } as unknown as Planner;
 }
@@ -658,6 +659,85 @@ describe('TourPlannerMapStage', () => {
       expect(screen.queryByTestId('ferrata-detail-overlay')).not.toBeInTheDocument();
       expect(screen.getByTestId('leg-variants-overlay')).toBeInTheDocument();
       expect(legVariants.close).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('round hikes (RTE-03)', () => {
+    const waypoints = [
+      { id: 'w1', lat: 46, lng: 7 },
+      { id: 'w2', lat: 46.2, lng: 7.2 },
+    ];
+    const route = [
+      [46, 7],
+      [46.2, 7.2],
+    ];
+    const roundView = {
+      startId: 'w1',
+      targetM: 10_000,
+      request: null,
+      phase: 'setup',
+      candidates: [],
+      asked: 0,
+      selected: null,
+      confirming: false,
+      notice: null,
+    };
+
+    it('FE-PAGE-TOURSTAGE-023: while round hikes are offered their card is up, and a click on the route sets no shaping point', () => {
+      renderStage(planner('new-draft', { waypoints, route, canEdit: true }));
+      expect(stage.flatMap.props?.onRouteClick).toBeDefined();
+      expect(screen.queryByTestId('round-hike-card')).not.toBeInTheDocument();
+
+      const roundHikes = { ...idleRoundHikes(), view: roundView };
+      renderStage(planner('new-draft', { waypoints, route, canEdit: true, maxHikingDifficulty: 2, roundHikes }));
+      expect(stage.flatMap.props?.onRouteClick).toBeUndefined();
+      expect(screen.getByTestId('round-hike-card')).toBeInTheDocument();
+    });
+
+    it('FE-PAGE-TOURSTAGE-024: "round taken" shows with its undo, which takes the round back', () => {
+      const appliedHint = { shown: true, key: 1, undo: vi.fn(), hold: vi.fn() };
+      renderStage(planner('new-draft', { roundHikes: { ...idleRoundHikes(), appliedHint } }));
+      expect(screen.getByTestId('map-undo-hint')).toHaveTextContent('tours.round.applied');
+      fireEvent.click(screen.getByRole('button', { name: 'undo.button' }));
+      expect(appliedHint.undo).toHaveBeenCalledTimes(1);
+    });
+
+    it('FE-PAGE-TOURSTAGE-025: round hikes opened over a comparison close it, so one card stands in the corner', () => {
+      const legVariants = {
+        ...idleLegVariants(),
+        comparison: {
+          leg: {
+            fromId: 'w1',
+            toId: 'w2',
+            from: { lat: 46, lng: 7 },
+            to: { lat: 46.2, lng: 7.2 },
+            costing: {},
+            key: 'k',
+          },
+          phase: 'loading',
+          variants: [],
+          selected: null,
+          proving: false,
+          notice: null,
+        },
+      };
+      const roundHikes = idleRoundHikes();
+      const view = renderStage(planner('new-draft', { waypoints, canEdit: true, legVariants, roundHikes }));
+      view.rerender(
+        <TourPlannerMapStage
+          {...stageProps(
+            planner('new-draft', {
+              waypoints,
+              canEdit: true,
+              maxHikingDifficulty: 2,
+              legVariants,
+              roundHikes: { ...roundHikes, view: roundView },
+            })
+          )}
+        />
+      );
+      expect(legVariants.close).toHaveBeenCalledTimes(1);
+      expect(roundHikes.close).not.toHaveBeenCalled();
     });
   });
 

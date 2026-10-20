@@ -9,6 +9,7 @@ import {
   MapPinPlus,
   MoreHorizontal,
   Navigation,
+  RefreshCcwDot,
   RefreshCw,
   Repeat,
   Shuffle,
@@ -408,6 +409,15 @@ function routeMenuItems(
   return items;
 }
 
+/** RTE-03: round hikes out of this stop, of about a wished length. */
+function roundMenuItems(planner: TourPlannerController, point: WaypointPoint, t: Translate): MenuItems {
+  if (!planner.roundHikes.canStart(point.id)) return [];
+  return [
+    { divider: true },
+    { label: t('tours.planner.roundHikeFrom'), icon: RefreshCcwDot, onClick: () => planner.roundHikes.open(point.id) },
+  ];
+}
+
 /** A paddle tour's tools at a point: carry the boat from here, and a lock here. */
 function paddleMenuItems(
   paddle: ReturnType<typeof usePaddleWaypointActions>,
@@ -483,6 +493,7 @@ function WaypointRowActions({
       onClick: () => planner.moveWaypoint(point.id, 1),
     },
     ...routeMenuItems(planner, point, index, lastIndex, t),
+    ...roundMenuItems(planner, point, t),
     ...(planner.isPaddle ? paddleMenuItems(paddle, point, index < lastIndex, t) : []),
     ...(onUnlink
       ? [{ divider: true } as const, { label: t('tours.placePicker.unlink'), icon: Unlink, onClick: onUnlink }]
@@ -595,10 +606,14 @@ function ShapeOnLineHint({ planner, canEdit }: { planner: TourPlannerController;
   );
 }
 
-/** The route tools in the card head: reverse, plan the drawn legs on the water (PAD-11), back to the start. */
+/**
+ * The route tools in the card head: reverse, plan the drawn legs on the water
+ * (PAD-11), back to the start, and on a hike round hikes out of the start (RTE-03).
+ */
 function WaypointListTools({ planner, isSaving }: { planner: TourPlannerController; isSaving: boolean }) {
   const { t } = useTranslation();
   const hasDrawnLegs = planner.isPaddle && planner.waypoints.some((point) => point.fixedLeg?.kind === 'free');
+  const start = planner.waypoints[0];
   return (
     <span className="flex flex-none items-center gap-0.5">
       <RouteToolButton
@@ -627,6 +642,16 @@ function WaypointListTools({ planner, isSaving }: { planner: TourPlannerControll
       >
         <Repeat size={13} strokeWidth={2.2} />
       </RouteToolButton>
+      {planner.tourType === 'hike' && start && (
+        <RouteToolButton
+          testId="tour-planner-round-hike"
+          label={t('tours.planner.roundHike')}
+          disabled={isSaving || !planner.roundHikes.canStart(start.id)}
+          onAct={() => planner.roundHikes.open(start.id)}
+        >
+          <RefreshCcwDot size={13} strokeWidth={2.2} />
+        </RouteToolButton>
+      )}
     </span>
   );
 }

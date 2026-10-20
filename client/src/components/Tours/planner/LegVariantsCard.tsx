@@ -1,28 +1,13 @@
-import {
-  AlertTriangle,
-  ArrowRight,
-  Check,
-  Clock,
-  Loader2,
-  MoveHorizontal,
-  Route,
-  Shuffle,
-  TrendingDown,
-  TrendingUp,
-  X,
-} from 'lucide-react';
-import { useEffect, type ReactNode } from 'react';
+import { AlertTriangle, ArrowRight, Check, Clock, Loader2, MoveHorizontal, Shuffle, TrendingUp } from 'lucide-react';
 import { useTranslation } from '../../../i18n';
 import { useSettingsStore } from '../../../store/settingsStore';
 import type { DistanceUnit } from '../../../types';
 import { formatDistance, formatElevation } from '../../../utils/units';
-import { MAP_CARD_GLASS } from '../../Map/mapControlShadow';
-import { SoftPill, WhiteBadge } from '../../Planner/planParts';
-import { fs } from '../../shared/DialogShell';
+import { SoftPill } from '../../Planner/planParts';
 import { Tooltip } from '../../shared/Tooltip';
 import { TourNotice } from '../tourParts';
-import { variantPaintCss } from './legVariantPaint';
 import { variantDelta, type LegVariant } from './legVariants';
+import { MapCard, MapCardActions, MapCornerOverlay, StopDisc, VariantFigures, WayChoice } from './mapCardParts';
 import { formatTourDuration } from './tourDurationInput';
 import { stopNumbersOf } from './tourPlannerWaypoints';
 import type { LegComparison } from './useLegVariants';
@@ -40,105 +25,6 @@ function signed(value: number, format: (absolute: number) => string): string | n
 /** An end of the section by name: the stop by its number, else the shaping point it is. */
 function endName(stop: number | undefined, t: Translate): string {
   return stop === undefined ? t('tours.planner.shapingPoint') : t('tours.planner.waypointLabel', { n: stop });
-}
-
-/**
- * One end of the section, as the waypoint list numbers it: a stop by its
- * number, a shaping point as the small dot it is on the map.
- */
-function LegEnd({ stop }: { stop: number | undefined }) {
-  if (stop === undefined) {
-    return (
-      <span className="grid h-5 w-5 flex-none place-items-center" aria-hidden="true">
-        <span className="h-2.5 w-2.5 rounded-full bg-content-faint ring-2 ring-surface-card" />
-      </span>
-    );
-  }
-  return (
-    <span
-      className="grid h-5 w-5 flex-none place-items-center rounded-full bg-edge font-geist font-semibold tabular-nums text-content"
-      style={fs(10)}
-      aria-hidden="true"
-    >
-      {stop}
-    </span>
-  );
-}
-
-/**
- * The way's mark, the colour it is drawn in on the map: the way taken now on
- * the route's own icon, the others by their letter. The chosen one carries a
- * tick at its corner.
- */
-function VariantMark({ variant, chosen }: { variant: LegVariant; chosen: boolean }) {
-  return (
-    <span
-      className="relative grid h-7 w-7 flex-none place-items-center rounded-full font-geist font-bold uppercase shadow-sm"
-      // The very colour this way is drawn in on the map: the one link between the row and the line.
-      style={{ background: variantPaintCss(variant.key), color: 'var(--bike-highlight-casing)', ...fs(12) }}
-      aria-hidden="true"
-    >
-      {variant.current ? <Route size={14} strokeWidth={2.4} /> : variant.key}
-      {chosen && (
-        <span className="absolute -bottom-1 -end-1 grid h-3.5 w-3.5 place-items-center rounded-full bg-accent text-accent-text ring-2 ring-surface-card">
-          <Check size={9} strokeWidth={3.2} />
-        </span>
-      )}
-    </span>
-  );
-}
-
-/** A height-bound figure: the value once the heights are in, a turning wheel while they are asked for, else unknown. */
-function heightFigure(variant: LegVariant, value: number | null, format: (value: number) => string, t: Translate) {
-  if (value !== null) return format(value);
-  if (variant.heights === 'pending') {
-    return <Loader2 size={10} className="animate-spin" aria-label={t('tours.variants.heightsPending')} />;
-  }
-  return t('tours.hike.ways.unknown');
-}
-
-/** What is known of one way, as the badges every tour card uses: length, climb, descent, walking time. */
-function VariantFigures({ variant, unit, t }: { variant: LegVariant; unit: DistanceUnit; t: Translate }) {
-  const elevation = (meters: number) => formatElevation(meters, unit);
-  const faint = 'flex-none text-content-faint';
-  const heightsNote = variant.heights === 'unknown' ? t('tours.variants.heightsUnknown') : '';
-  const badges: { key: string; label: string; icon: ReactNode; value: ReactNode }[] = [
-    {
-      key: 'distance',
-      label: t('tours.detail.distance'),
-      icon: <MoveHorizontal size={10} strokeWidth={2.2} className={faint} />,
-      value: formatDistance(variant.distanceM / 1000, unit),
-    },
-    {
-      key: 'ascent',
-      label: heightsNote || t('tours.detail.ascent'),
-      icon: <TrendingUp size={10} strokeWidth={2.2} className={faint} />,
-      value: heightFigure(variant, variant.gainM, elevation, t),
-    },
-    {
-      key: 'descent',
-      label: heightsNote || t('tours.detail.descent'),
-      icon: <TrendingDown size={10} strokeWidth={2.2} className={faint} />,
-      value: heightFigure(variant, variant.lossM, elevation, t),
-    },
-    {
-      key: 'time',
-      label: heightsNote || t('tours.planner.walkingEstimatedInfo'),
-      icon: <Clock size={10} strokeWidth={2.2} className={faint} />,
-      value: heightFigure(variant, variant.minutes, formatTourDuration, t),
-    },
-  ];
-  return (
-    <span className="flex min-w-0 flex-wrap gap-1">
-      {badges.map((badge) => (
-        <Tooltip key={badge.key} label={badge.label}>
-          <span className="inline-flex" data-figure={badge.key}>
-            <WhiteBadge icon={badge.icon}>{badge.value}</WhiteBadge>
-          </span>
-        </Tooltip>
-      ))}
-    </span>
-  );
 }
 
 /** How another way differs from the one taken now, in length and time; nothing it cannot say. */
@@ -200,31 +86,10 @@ function VariantRow({
     ? t('tours.variants.current')
     : t('tours.variants.option', { letter: variant.key.toUpperCase() });
   return (
-    <button
-      type="button"
-      role="radio"
-      aria-checked={chosen}
-      aria-label={name}
-      aria-disabled={disabled}
-      data-variant={variant.key}
-      onClick={() => {
-        if (!disabled) onSelect();
-      }}
-      onMouseEnter={() => onHover(true)}
-      onMouseLeave={() => onHover(false)}
-      onFocus={() => onHover(true)}
-      onBlur={() => onHover(false)}
-      className={`flex w-full items-start gap-2.5 rounded-xl border px-2.5 py-2 text-start transition-colors aria-disabled:cursor-default ${chosen ? 'border-accent bg-surface-card shadow-sm' : 'border-edge-faint bg-surface-secondary hover:border-edge hover:bg-surface-card'}`}
-    >
-      <VariantMark variant={variant} chosen={chosen} />
-      <span className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className="font-semibold text-content" style={fs(12, 'body')}>
-          {name}
-        </span>
-        <VariantFigures variant={variant} unit={unit} t={t} />
-        {!variant.current && <VariantDelta variant={variant} current={current} unit={unit} t={t} />}
-      </span>
-    </button>
+    <WayChoice way={variant} name={name} chosen={chosen} disabled={disabled} onSelect={onSelect} onHover={onHover}>
+      <VariantFigures variant={variant} unit={unit} t={t} />
+      {!variant.current && <VariantDelta variant={variant} current={current} unit={unit} t={t} />}
+    </WayChoice>
   );
 }
 
@@ -280,44 +145,29 @@ export function LegVariantsCard({
   const locked = !planner.canEdit || planner.isSaving || comparison.proving;
   const canApply = !!chosen && !chosen.current && !locked;
   return (
-    <article
-      className={`flex max-h-[70vh] flex-col gap-2.5 overflow-y-auto overscroll-contain rounded-2xl p-3 text-content ${width ? '' : 'w-[min(22rem,calc(100vw_-_2rem))]'}`}
-      style={{ ...MAP_CARD_GLASS, width }}
-      aria-label={t('tours.variants.title')}
-      data-testid="leg-variants-card"
-    >
-      <div className="flex items-start gap-2">
-        <span className="grid h-7 w-7 flex-none place-items-center rounded-full bg-surface-secondary text-content-muted">
-          <Shuffle size={14} strokeWidth={2.2} aria-hidden="true" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <h3 className="truncate font-semibold" style={fs(14, 'body')}>
-            {t('tours.variants.title')}
-          </h3>
-          <span
-            role="group"
-            className="mt-0.5 flex items-center gap-1 text-content-muted"
-            aria-label={t('tours.variants.section', { from: endName(from, t), to: endName(to, t) })}
-          >
-            <LegEnd stop={from} />
-            <ArrowRight
-              size={12}
-              strokeWidth={2.2}
-              className="flex-none text-content-faint rtl:-scale-x-100"
-              aria-hidden="true"
-            />
-            <LegEnd stop={to} />
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={close}
-          aria-label={t('common.close')}
-          className="flex-none rounded-lg p-1 text-content-muted hover:bg-surface-hover hover:text-content"
+    <MapCard
+      icon={<Shuffle size={14} strokeWidth={2.2} aria-hidden="true" />}
+      title={t('tours.variants.title')}
+      subtitle={
+        <span
+          role="group"
+          className="mt-0.5 flex items-center gap-1 text-content-muted"
+          aria-label={t('tours.variants.section', { from: endName(from, t), to: endName(to, t) })}
         >
-          <X size={14} aria-hidden="true" />
-        </button>
-      </div>
+          <StopDisc stop={from} />
+          <ArrowRight
+            size={12}
+            strokeWidth={2.2}
+            className="flex-none text-content-faint rtl:-scale-x-100"
+            aria-hidden="true"
+          />
+          <StopDisc stop={to} />
+        </span>
+      }
+      onClose={close}
+      width={width}
+      testId="leg-variants-card"
+    >
       <div role="radiogroup" aria-label={t('tours.variants.title')} className="flex flex-col gap-1.5">
         {comparison.variants.map((variant) => (
           <VariantRow
@@ -333,41 +183,22 @@ export function LegVariantsCard({
         ))}
       </div>
       <ComparisonNotice comparison={comparison} t={t} />
-      <div className="flex items-center justify-end gap-2 pt-0.5">
-        <button
-          type="button"
-          onClick={close}
-          className="inline-flex h-8 items-center rounded-[10px] px-3 font-semibold text-content-muted transition-colors hover:bg-surface-hover hover:text-content"
-          style={fs(12, 'body')}
-        >
-          {t('common.cancel')}
-        </button>
-        <button
-          type="button"
-          disabled={!canApply}
-          onClick={() => void apply()}
-          data-testid="leg-variants-apply"
-          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 font-semibold text-accent-text shadow-sm transition-opacity hover:opacity-90 disabled:cursor-default disabled:opacity-40"
-          style={fs(12, 'body')}
-        >
-          {comparison.proving ? (
-            <Loader2 size={14} className="animate-spin" aria-hidden="true" />
-          ) : (
-            <Check size={14} strokeWidth={2.4} aria-hidden="true" />
-          )}
-          {comparison.proving ? t('tours.variants.checking') : t('tours.variants.apply')}
-        </button>
-      </div>
-    </article>
+      <MapCardActions
+        secondary={{ label: t('common.cancel'), onClick: close }}
+        primary={{
+          label: comparison.proving ? t('tours.variants.checking') : t('tours.variants.apply'),
+          icon: <Check size={14} strokeWidth={2.4} aria-hidden="true" />,
+          busy: comparison.proving,
+          disabled: !canApply,
+          onClick: () => void apply(),
+          testId: 'leg-variants-apply',
+        }}
+      />
+    </MapCard>
   );
 }
 
-/**
- * The comparison's card over the planner map, where a via ferrata's or a
- * place's card sits. Unlike those it stays while the map is panned and zoomed,
- * since the map is what the ways are compared on; Escape and its own buttons
- * close it.
- */
+/** The comparison's card in the corner over the planner map, while a section is compared. */
 export default function LegVariantsOverlay({
   planner,
   insetEnd,
@@ -380,23 +211,10 @@ export default function LegVariantsOverlay({
   width?: number;
 }) {
   const { comparison, close } = planner.legVariants;
-  const open = comparison !== null;
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !event.defaultPrevented) close();
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [close, open]);
   if (!comparison) return null;
   return (
-    <div
-      className="absolute z-[20] flex justify-end transition-[bottom] duration-200 ease-out"
-      style={{ insetInlineEnd: insetEnd, bottom, maxWidth: `calc(100% - ${insetEnd + 32}px)` }}
-      data-testid="leg-variants-overlay"
-    >
+    <MapCornerOverlay onClose={close} insetEnd={insetEnd} bottom={bottom} testId="leg-variants-overlay">
       <LegVariantsCard planner={planner} comparison={comparison} width={width} />
-    </div>
+    </MapCornerOverlay>
   );
 }

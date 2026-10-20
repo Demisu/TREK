@@ -15,6 +15,7 @@ import { useTourDraftStorage } from './useTourDraftStorage'
 import { useTourRevisionGuard } from './useTourRevisionGuard'
 import { useRouteShaping } from './useRouteShaping'
 import { useLegVariants } from './useLegVariants'
+import { useRoundHikes } from './useRoundHikes'
 import { useTourMapView } from './useTourMapView'
 import type { DraftPayload, DraftSource } from './tourPlannerDraft'
 import { paddleEstimateOf } from './paddlePlanOf'
@@ -805,6 +806,10 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     waypoints, route, enrichedGeometry, routeCurrent, tourType, maxHikingDifficulty, hikingPreferences, undo, mayEdit: mayEditRoute,
     insertShapingPoints: shaping.insertShapingPoints,
   })
+  // RTE-03: round hikes of about a wished length out of a stop, put in place of the plan on purpose.
+  const roundHikes = useRoundHikes({
+    waypoints, tourType, maxHikingDifficulty, hikingPreferences, replaceWaypoints: commitWaypoints, undo, mayEdit: mayEditRoute,
+  })
 
   const readOnlyGpxAnalysis = useMemo(
     () => analyzeRouteGeometry(readOnlyGpxTour?.routeGeometry),
@@ -936,7 +941,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     waypoints, selectedWaypointId, setSelectedWaypointId,
     addWaypoint, appendFixedLeg, setWaypointPosition, removeWaypoint, moveWaypoint, reorderWaypoint, editWaypoints: commitWaypoints,
     reverse, returnToStart, isLoop: isClosedLoop(waypoints), toggleWaypointFreeLeg, editPaddlePoints, amendWaypoints, paddleEstimate,
-    ...shaping, legVariants, paddleRoute, routeCurrent,
+    ...shaping, legVariants, roundHikes, paddleRoute, routeCurrent,
     undo, redo, canUndo: history.canUndo, canRedo: history.canRedo,
     status, error, retry, isSaving,
     route, routeParts, enrichedGeometry, routeAnalysis, distanceMeters, durationSeconds, unreachable,

@@ -13,6 +13,7 @@ import { ChecklistObstaclePanel } from '../../components/Tours/paddle/ObstacleDe
 import PaddleObstacleOverlay from '../../components/Tours/paddle/PaddleObstacleOverlay';
 import { PaddleObstaclePlaceButton } from '../../components/Tours/paddle/PaddleObstaclePlaceButton';
 import LegVariantsOverlay from '../../components/Tours/planner/LegVariantsCard';
+import RoundHikeOverlay from '../../components/Tours/planner/RoundHikeCard';
 import { useShapingClick } from '../../components/Tours/planner/useShapingClick';
 import TourPoiOverlay from '../../components/Tours/poi/TourPoiCard';
 import { useTourPoiMarkers } from '../../components/Tours/poi/useTourPoiMarkers';
@@ -168,23 +169,36 @@ export function TourPlannerMapStage({
   // P2A-03: a click on the route being edited sets a shaping point there.
   // PLN-02: the places found along the tour, drawn on the map and picked from it.
   const poiMarkers = useTourPoiMarkers();
-  // RTE-02: while other ways of a section are compared, a click on the line sets nothing on it.
+  // RTE-02, RTE-03: while other ways of a section or round hikes are offered, a click on the line sets nothing on it.
   const comparing = tourPlanner.legVariants.comparison !== null;
-  // The comparison's card shares the corner with the others: the one opened last stays.
+  const offeringRounds = tourPlanner.roundHikes.view !== null;
+  // The planner's own cards share the corner with the others: the one opened last stays.
   useOneCornerCard({
-    comparing,
-    closeComparison: tourPlanner.legVariants.close,
+    planned: [
+      { open: comparing, close: tourPlanner.legVariants.close },
+      { open: offeringRounds, close: tourPlanner.roundHikes.close },
+    ],
     ferrataOpen: !!ferrataSelected,
     closeFerrata: ferrata.close,
   });
-  const shapeAt = useShapingClick(tourPlanner, { editable: !!waypoints.onMove, picking: pickOnLine || comparing });
+  const shapeAt = useShapingClick(tourPlanner, {
+    editable: !!waypoints.onMove,
+    picking: pickOnLine || comparing || offeringRounds,
+  });
   // What each panel covers of the map, a collapsed one its rail.
   const leftInset = leftHidden ? 56 : leftPanelPx;
   const rightInset = rightHidden ? 56 : rightPanelPx;
   // The cards over the map keep clear of the layer switcher, on the side the text ends.
   const cardInsetEnd = (isRtlLanguage(language) ? leftInset : rightInset) + MAP_LAYER_SWITCHER_INSET;
   const bottomRowTop = terrain3d ? CONTROL_GAP + terrainControlsPx + CONTROL_GAP : FERRATA_CARD_BOTTOM;
-  const mapHint = undoHintOf(placedHint, tourPlanner.legVariants.appliedHint, t);
+  const mapHint = undoHintOf(
+    placedHint,
+    [
+      { ...tourPlanner.legVariants.appliedHint, message: t('tours.variants.applied') },
+      { ...tourPlanner.roundHikes.appliedHint, message: t('tours.round.applied') },
+    ],
+    t
+  );
   return (
     <>
       {/* Around either map, to follow its presses and show the crosshair while placing. */}
@@ -296,7 +310,13 @@ export function TourPlannerMapStage({
         insetEnd={cardInsetEnd}
         {...ferrataCardPlacement(terrain3d, bottomRowTop, terrainLegend)}
       />
-      {/* "Point set" or "Way taken", with the way back, above the bottom row and between the panels. */}
+      {/* RTE-03: the round hikes out of a stop, in the same corner. */}
+      <RoundHikeOverlay
+        planner={tourPlanner}
+        insetEnd={cardInsetEnd}
+        {...ferrataCardPlacement(terrain3d, bottomRowTop, terrainLegend)}
+      />
+      {/* "Point set", "Way taken" or "Round taken", with the way back, above the bottom row and between the panels. */}
       {mapHint && (
         <div
           className="pointer-events-none absolute inset-x-0 z-[19] flex justify-center"
@@ -371,21 +391,20 @@ function paddlePlaceFromCard(
   };
 }
 
-type HintState = { key: number | null; undo: () => void; hold: (held: boolean) => void };
+type HintState = { key: number | null; undo: () => void; hold: (held: boolean) => void; message: string };
 
 /**
- * The note at the foot of the map with its undo: the point just set, or the
- * way just taken for a section (RTE-02). At most one is up, since each goes as
- * soon as anything else changes the points.
+ * The note at the foot of the map with its undo: the point just set, the way
+ * just taken for a section (RTE-02) or the round just taken (RTE-03). At most
+ * one is up, since each goes as soon as anything else changes the points.
  */
 function undoHintOf(
   placed: { shown: boolean; key: number | null; undoPlacement: () => void; hold: (held: boolean) => void },
-  applied: HintState & { shown: boolean },
+  applied: readonly (HintState & { shown: boolean })[],
   t: Planner['t']
-): (HintState & { message: string }) | null {
+): HintState | null {
   if (placed.shown) {
     return { key: placed.key, undo: placed.undoPlacement, hold: placed.hold, message: t('tours.planner.pointPlaced') };
   }
-  if (applied.shown) return { ...applied, message: t('tours.variants.applied') };
-  return null;
+  return applied.find((hint) => hint.shown) ?? null;
 }

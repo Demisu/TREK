@@ -1,13 +1,14 @@
-// FE-TOUR-WAYPOINT-LIST-001 to FE-TOUR-WAYPOINT-LIST-013: shaping points, the water router's answers
-// and a city walk's stops in the list, with their arrivals and opening hours on a day of the walk, and
-// other ways for a hike's leg (P2A-03, P2A-05, PAD-11, CW-01, CW-02, CW-04, RTE-02).
+// FE-TOUR-WAYPOINT-LIST-001 to FE-TOUR-WAYPOINT-LIST-015: shaping points, the water router's answers
+// and a city walk's stops in the list, with their arrivals and opening hours on a day of the walk,
+// other ways for a hike's leg and round hikes out of a stop (P2A-03, P2A-05, PAD-11, CW-01, CW-02,
+// CW-04, RTE-02, RTE-03).
 import userEvent from '@testing-library/user-event';
 import type { PaddleRouteLeg } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildAssignment, buildDay, buildPlace } from '../../../../tests/helpers/factories';
 import { render, screen, within } from '../../../../tests/helpers/render';
 import { resetAllStores, seedStore } from '../../../../tests/helpers/store';
-import { hikePlannerDefaults, idleLegVariants } from '../../../../tests/helpers/tourPlannerStub';
+import { hikePlannerDefaults, idleLegVariants, idleRoundHikes } from '../../../../tests/helpers/tourPlannerStub';
 import { useSettingsStore } from '../../../store/settingsStore';
 import { useTripStore } from '../../../store/tripStore';
 import type { PaddleTourRoute } from './paddleRouting';
@@ -285,6 +286,30 @@ describe('TourWaypointList', () => {
       within(at(screen.getAllByTestId('tour-planner-waypoint-row'), 0)).getByRole('button', { name: 'More actions' })
     );
     expect(screen.queryByRole('button', { name: 'Compare ways for the next leg' })).not.toBeInTheDocument();
+  });
+
+  it('FE-TOUR-WAYPOINT-LIST-014: a stop of a hike offers round hikes out of it; a shaping point does not (RTE-03)', async () => {
+    const roundHikes = { ...idleRoundHikes(), canStart: vi.fn((id: string) => id !== 's') };
+    render(<TourWaypointList planner={planner({ roundHikes })} canEdit isSaving={false} />);
+    const rows = screen.getAllByTestId('tour-planner-waypoint-row');
+    await userEvent.click(within(at(rows, 2)).getByRole('button', { name: 'More actions' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Round hike from here' }));
+    expect(roundHikes.open).toHaveBeenCalledWith('b');
+    await userEvent.click(within(at(rows, 1)).getByRole('button', { name: 'More actions' }));
+    expect(screen.queryByRole('button', { name: 'Round hike from here' })).not.toBeInTheDocument();
+  });
+
+  it('FE-TOUR-WAYPOINT-LIST-015: the head offers a round hike out of the start on a hike only (RTE-03)', async () => {
+    const roundHikes = { ...idleRoundHikes(), canStart: vi.fn(() => true) };
+    const { unmount } = render(<TourWaypointList planner={planner({ roundHikes })} canEdit isSaving={false} />);
+    await userEvent.click(screen.getByTestId('tour-planner-round-hike'));
+    expect(roundHikes.open).toHaveBeenCalledWith('a');
+    unmount();
+    const saving = render(<TourWaypointList planner={planner({ roundHikes })} canEdit isSaving />);
+    expect(screen.getByTestId('tour-planner-round-hike')).toBeDisabled();
+    saving.unmount();
+    render(<TourWaypointList planner={planner({ roundHikes, tourType: 'bike' })} canEdit isSaving={false} />);
+    expect(screen.queryByTestId('tour-planner-round-hike')).not.toBeInTheDocument();
   });
 
   describe('a city walk on a day of the plan (CW-02, CW-04)', () => {

@@ -11,6 +11,7 @@ const {
   updateTour,
   paddlePlan,
   paddleForget,
+  findRoundHikes,
 } = vi.hoisted(() => ({
   routeWalkingTour: vi.fn(),
   routeCityWalk: vi.fn(),
@@ -20,10 +21,12 @@ const {
   updateTour: vi.fn(),
   paddlePlan: vi.fn(),
   paddleForget: vi.fn(),
+  findRoundHikes: vi.fn(),
 }));
 
 vi.mock('./tourRouting', () => ({ routeWalkingTour, routeCityWalk, enrichTourElevations }));
 vi.mock('../../../repo/tourRepo', () => ({ tourRepo: { create: createTour, detail: detailTour, update: updateTour } }));
+vi.mock('./roundHikeRouting', () => ({ findRoundHikes, MAX_ROUND_ASKS: 12 }));
 vi.mock('../../../repo/paddleRouteRepo', () => ({ paddleRouteRepo: { plan: paddlePlan, forget: paddleForget } }));
 vi.mock('../useTourPermissions', () => ({
   useTourPermissions: ({ canEdit = true, canAssign = true }: { canEdit?: boolean; canAssign?: boolean }) => ({
@@ -566,6 +569,60 @@ describe('useTourPlanner route tools', () => {
       expect(result.current.waypoints.filter((point) => point.auto).every((point) => point.auto?.to.lat === 48.2)).toBe(
         true
       );
+    });
+  });
+
+  describe('round hikes (RTE-03)', () => {
+    it('puts a round taken in place of the plan as one step after a yes, which one undo takes back', async () => {
+      const via = [
+        { lat: 48.01, lng: 11 },
+        { lat: 48.02, lng: 11.01 },
+        { lat: 48.01, lng: 11.02 },
+      ];
+      const round = {
+        key: 'a',
+        current: false,
+        coordinates: [[48, 11], ...via.map(({ lat, lng }) => [lat, lng]), [48, 11]],
+        distanceM: 9_800,
+        gainM: 300,
+        lossM: 300,
+        minutes: 170,
+        heights: 'known',
+        via,
+      };
+      findRoundHikes.mockImplementation(
+        async (_request: unknown, _signal: AbortSignal, report: (answer: unknown) => void) => {
+          await Promise.resolve();
+          report({ phase: 'done', candidates: [round], asked: 3 });
+        }
+      );
+      const { result } = plannerWith([
+        [48, 11],
+        [48.03, 11.03],
+      ]);
+      const before = coordinatesOf(result.current.waypoints);
+      const start = must(result.current.waypoints[0]);
+      act(() => result.current.roundHikes.open(start.id));
+      act(() => result.current.roundHikes.find(10_000));
+      await act(async () => {
+        await Promise.resolve();
+      });
+      expect(result.current.roundHikes.view?.phase).toBe('done');
+      act(() => result.current.roundHikes.select('a'));
+      act(() => result.current.roundHikes.apply());
+      // The tour held more than its start: nothing changes before the yes.
+      expect(coordinatesOf(result.current.waypoints)).toEqual(before);
+      act(() => result.current.roundHikes.confirm());
+
+      expect(result.current.isLoop).toBe(true);
+      expect(must(result.current.waypoints[0]).id).toBe(start.id);
+      expect(result.current.waypoints.map((point) => !!point.shaping)).toEqual([false, true, true, true, false]);
+      expect(coordinatesOf(result.current.waypoints)).toEqual([[48, 11], ...coordinatesOf(via), [48, 11]]);
+      expect(result.current.waypoints.map((point) => point.role)).toEqual(['start', 'via', 'via', 'via', 'end']);
+      expect(result.current.roundHikes.appliedHint.shown).toBe(true);
+
+      act(() => result.current.undo());
+      expect(coordinatesOf(result.current.waypoints)).toEqual(before);
     });
   });
 

@@ -1,5 +1,6 @@
-// FE-TOUR-LEG-VARIANT-PAINT-001 to FE-TOUR-LEG-VARIANT-PAINT-003: the ways of a compared section
-// on the planner map, each in its colour, the one in focus on top (RTE-02).
+// FE-TOUR-LEG-VARIANT-PAINT-001 to FE-TOUR-LEG-VARIANT-PAINT-004: the ways of a compared section
+// and the round hikes offered on the planner map, each in its colour, the one in focus on top
+// (RTE-02, RTE-03).
 import { renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { drawOrder, useLegVariantLines, variantPaintCss } from './legVariantPaint';
@@ -71,5 +72,19 @@ describe('legVariantPaint', () => {
     expect(result.current.route).toBe(ROUTE);
     expect(result.current.colors).toBeNull();
     expect(result.current.overlays).toEqual([]);
+  });
+
+  it('FE-TOUR-LEG-VARIANT-PAINT-004: rounds offered from a tour without a route yet are drawn on their own (RTE-03)', () => {
+    const rounds = [WAYS[1], WAYS[2]];
+    const { result } = renderHook(() => useLegVariantLines(null, null, null, rounds, 'a'));
+    expect(result.current.route).toEqual([WAYS[2].coordinates, WAYS[1].coordinates]);
+    expect(result.current.walking).toBeNull();
+    expect(result.current.colors).toEqual([
+      { line: '#d946ef', casing: '#ffffff' },
+      { line: '#f97316', casing: '#ffffff' },
+    ]);
+    expect(result.current.overlays).toHaveLength(2);
+    const empty = renderHook(() => useLegVariantLines([], null, null, rounds, null));
+    expect(empty.result.current.route).toEqual([WAYS[1].coordinates, WAYS[2].coordinates]);
   });
 });

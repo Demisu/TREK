@@ -57,6 +57,7 @@ export function hikePlannerDefaults() {
     recomputeLeg: vi.fn(),
     routeDrawnLegsOnWater: vi.fn(),
     legVariants: idleLegVariants(),
+    roundHikes: idleRoundHikes(),
     paddleRoute: null,
     routeCurrent: false,
     routeParts: null,
@@ -92,6 +93,26 @@ export function idleLegVariants() {
     select: vi.fn(),
     hover: vi.fn(),
     apply: vi.fn(),
+    close: vi.fn(),
+    appliedHint: { shown: false, key: null, undo: vi.fn(), hold: vi.fn() },
+  };
+}
+
+/** RTE-03: a planner offering no round hike, with its actions as spies. */
+export function idleRoundHikes() {
+  return {
+    view: null,
+    focus: null,
+    frame: null,
+    canStart: vi.fn(() => false),
+    open: vi.fn(),
+    find: vi.fn(),
+    back: vi.fn(),
+    select: vi.fn(),
+    hover: vi.fn(),
+    apply: vi.fn(),
+    confirm: vi.fn(),
+    cancelConfirm: vi.fn(),
     close: vi.fn(),
     appliedHint: { shown: false, key: null, undo: vi.fn(), hold: vi.fn() },
   };

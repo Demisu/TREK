@@ -81,10 +81,14 @@ export function useTripPlannerPage() {
   // the one being edited or an import being viewed, never over a preview beside it.
   const ownLine = editingRoute || (tourPlanner.mode.type === 'view-gpx' && !tourConversion.line)
   const highlighted = useHighlightedRoute(ownLine && !wandererBrowser.open, route, routeWalking, partStyle.colors)
-  // RTE-02: the ways of a section being compared, over the route being edited.
+  // RTE-02, RTE-03: the ways of a section being compared, or the round hikes offered, over the route being edited.
   const { comparison, focus: variantFocus } = tourPlanner.legVariants
-  const compared = editingRoute && !wandererBrowser.open ? comparison?.variants ?? null : null
-  const drawn = useLegVariantLines(highlighted.route, highlighted.walking, highlighted.colors, compared, variantFocus)
+  const { view: rounds, focus: roundFocus, frame: roundFrame } = tourPlanner.roundHikes
+  const offering = editingRoute && !wandererBrowser.open
+  const offeredWays = offering ? comparison?.variants ?? rounds?.candidates ?? null : null
+  // RTE-03: while round hikes are looked for and shown, the map frames where they can lie.
+  const framedRounds = offering ? roundFrame : null
+  const drawn = useLegVariantLines(highlighted.route, highlighted.walking, highlighted.colors, offeredWays, comparison ? variantFocus : roundFocus)
 
   const { closeGpxTour } = tourPlanner
   useEffect(() => {
@@ -132,10 +136,10 @@ export function useTripPlannerPage() {
       routeColors: drawn.colors,
       variantLines: drawn.overlays,
       previewPoints: tourConversion.status === 'idle' ? null : tourConversion.points,
-      focusPoints: mapFocusPoints,
+      focusPoints: framedRounds?.points ?? mapFocusPoints,
       // A picked wanderer trail frames itself; the rest follows the planner.
       focusKey:
-        wandererBrowser.open && wandererBrowser.selected ? `wanderer:${wandererBrowser.selected.id}` : mapFocusKey, captureViewport,
+        wandererBrowser.open && wandererBrowser.selected ? `wanderer:${wandererBrowser.selected.id}` : framedRounds?.key ?? mapFocusKey, captureViewport,
     },
     locationSearch,
     plannedTourDurations,
