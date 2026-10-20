@@ -102,7 +102,10 @@ describe('MAdminAddonManager', () => {
   });
 
   it('FE-MOB-AADD-004: a failing load toasts the addon error', async () => {
-    server.use(http.get('/api/admin/addons', () => HttpResponse.error()));
+    // A server error, not a dropped connection: a network error starts the client's
+    // connectivity probe, and whether the app then counts itself offline (and stays
+    // quiet, as it should offline) raced the toast on a loaded runner.
+    server.use(http.get('/api/admin/addons', () => HttpResponse.json({ error: 'boom' }, { status: 500 })));
     render(<><ToastContainer /><MAdminAddonManager /></>);
 
     await screen.findByText('Failed to update addon');
