@@ -113,8 +113,8 @@ function DistanceField({
             <span className="inline-flex" data-testid="round-hike-window">
               <SoftPill icon={<Target size={10} strokeWidth={2.2} aria-hidden="true" />}>
                 {t('tours.round.window', {
-                  min: formatMeters(range.minM, unit),
-                  max: formatMeters(range.maxM, unit),
+                  from: formatMeters(range.minM, unit),
+                  to: formatMeters(range.maxM, unit),
                 })}
               </SoftPill>
             </span>
@@ -129,8 +129,8 @@ function DistanceField({
       {!valid && (
         <p id="round-hike-distance-error" className="m-0 mt-1 text-danger" style={fs(11)}>
           {t('tours.round.distanceRange', {
-            min: formatMeters(ROUND_MIN_M, unit),
-            max: formatMeters(ROUND_MAX_M, unit),
+            from: formatMeters(ROUND_MIN_M, unit),
+            to: formatMeters(ROUND_MAX_M, unit),
           })}
         </p>
       )}
@@ -221,7 +221,7 @@ function RoundNotice({ view, unit, t }: { view: RoundHikeView; unit: DistanceUni
   if (view.phase !== 'done') return null;
   if (view.candidates.length === 0) {
     const { minM, maxM } = distanceWindow(view.targetM);
-    return warning(t('tours.round.none', { min: formatMeters(minM, unit), max: formatMeters(maxM, unit) }));
+    return warning(t('tours.round.none', { from: formatMeters(minM, unit), to: formatMeters(maxM, unit) }));
   }
   return view.candidates.length < 3 ? <TourNotice role="status">{t('tours.round.fewer')}</TourNotice> : null;
 }
