@@ -23,6 +23,7 @@ import { useSettingsStore } from '../../store/settingsStore';
 import { publishTourFerrataCrossings } from '../../store/tourFerrataCrossingStore';
 import { publishTourMapViewport } from '../../store/tourMapViewportStore';
 import { useFerrataAdopt } from './useFerrataAdopt';
+import { useOneCornerCard } from './useOneCornerCard';
 import { useTourMapPoints } from './useTourMapPoints';
 import { useTourStageLayers } from './useTourStageLayers';
 import { useTrackLinePick } from './useTrackLinePick';
@@ -169,6 +170,13 @@ export function TourPlannerMapStage({
   const poiMarkers = useTourPoiMarkers();
   // RTE-02: while other ways of a section are compared, a click on the line sets nothing on it.
   const comparing = tourPlanner.legVariants.comparison !== null;
+  // The comparison's card shares the corner with the others: the one opened last stays.
+  useOneCornerCard({
+    comparing,
+    closeComparison: tourPlanner.legVariants.close,
+    ferrataOpen: !!ferrataSelected,
+    closeFerrata: ferrata.close,
+  });
   const shapeAt = useShapingClick(tourPlanner, { editable: !!waypoints.onMove, picking: pickOnLine || comparing });
   // What each panel covers of the map, a collapsed one its rail.
   const leftInset = leftHidden ? 56 : leftPanelPx;
@@ -282,7 +290,7 @@ export function TourPlannerMapStage({
         insetEnd={cardInsetEnd}
         {...ferrataCardPlacement(terrain3d, bottomRowTop, terrainLegend)}
       />
-      {/* RTE-02: the ways of one section compared, in the same corner as the other cards. */}
+      {/* RTE-02: the ways of one section compared, in the same corner as the other cards and never over one. */}
       <LegVariantsOverlay
         planner={tourPlanner}
         insetEnd={cardInsetEnd}

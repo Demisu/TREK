@@ -803,7 +803,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   // RTE-02: other ways for one routed section of a hike, compared and taken on purpose.
   const legVariants = useLegVariants({
     waypoints, route, enrichedGeometry, routeCurrent, tourType, maxHikingDifficulty, hikingPreferences, undo, mayEdit: mayEditRoute,
-    insertShapingPoints: shaping.insertShapingPoints, recomputeLeg: shaping.recomputeLeg,
+    insertShapingPoints: shaping.insertShapingPoints,
   })
 
   const readOnlyGpxAnalysis = useMemo(

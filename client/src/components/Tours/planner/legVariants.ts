@@ -28,8 +28,6 @@ export interface LegVariant {
   key: LegVariantKey;
   /** The way the section takes now, cut from the drawn route. */
   current: boolean;
-  /** The router's own way between the two points: held without a shaping point. */
-  direct: boolean;
   coordinates: [number, number][];
   /** Measured along the line, as the tour's own distance is. */
   distanceM: number;
@@ -135,7 +133,6 @@ export function currentVariantOf(
   return {
     key: 'current',
     current: true,
-    direct: false,
     coordinates: line.map(([lat, lng]): [number, number] => [lat, lng]),
     ...figuresOf(withHeights ?? line),
   };
@@ -146,22 +143,26 @@ const roadOf = (coordinates: [number, number][]) => ({ coordinates, distance: 0,
 /**
  * The way the section takes now first, then each other way the router
  * offered that is not the same way again, lettered in the order the router
- * gave them and at most three. Their heights are still to be asked for.
+ * gave them and at most three. The router's first answer is never one of
+ * them: it is its own way between the two points under the same rules, the
+ * one the tour already routes the section by, so choosing it could change
+ * nothing even where it is drawn a little apart from the route. Their heights
+ * are still to be asked for.
  */
 export function offeredVariants(current: LegVariant, offers: readonly ValhallaLeg[]): LegVariant[] {
   const variants: LegVariant[] = [current];
-  offers.forEach((offer, index) => {
+  for (const offer of offers.slice(1)) {
     const key = OTHER_WAY_KEYS[variants.length - 1];
-    if (!key || variants.some((known) => sameRoad(roadOf(known.coordinates), roadOf(offer.coordinates)))) return;
+    if (!key) break;
+    if (variants.some((known) => sameRoad(roadOf(known.coordinates), roadOf(offer.coordinates)))) continue;
     variants.push({
       key,
       current: false,
-      direct: index === 0,
       coordinates: offer.coordinates,
       ...figuresOf(offer.coordinates),
       heights: 'pending',
     });
-  });
+  }
   return variants;
 }
 

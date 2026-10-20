@@ -52,28 +52,23 @@ export interface LegVariantsOptions {
     beforeId: string,
     spots: ReadonlyArray<{ lat: number; lng: number }>
   ) => string[] | null;
-  /** Plans the leg after a point afresh, for the router's own way, which needs no shaping point. */
-  recomputeLeg: (id: string) => void;
   undo: () => void;
   /** Whether the route may change now: the permission held and no save under way. */
   mayEdit: () => boolean;
 }
 
 /**
- * A checked choice written into the tour: held by its pins as one step of the
- * history, or, for the router's own way, the leg planned again. `stale` when
- * the section is another one by now, so nothing lands where it was not asked.
+ * A checked choice written into the tour, held by its pins as one step of the
+ * history. Every way offered leaves the router's own (see `offeredVariants`),
+ * so a held one always has a pin. `stale` when the section is another one by
+ * now, so nothing lands where it was not asked.
  */
 function writeChoice(
   leg: ComparedLeg,
   pins: ReadonlyArray<{ lat: number; lng: number }>,
   { options, costing }: { options: LegVariantsOptions; costing: CostingOptions }
-): 'written' | 'replanned' | 'stale' {
+): 'written' | 'stale' {
   if (comparedLegOf(options.waypoints, leg.fromId, options.tourType, costing)?.key !== leg.key) return 'stale';
-  if (pins.length === 0) {
-    options.recomputeLeg(leg.fromId);
-    return 'replanned';
-  }
   return options.insertShapingPoints(leg.fromId, leg.toId, pins) ? 'written' : 'stale';
 }
 
@@ -195,7 +190,6 @@ export function useLegVariants(options: LegVariantsOptions) {
           distance: chosen.distanceM,
           duration: 0,
           divergence: null,
-          direct: chosen.direct,
         },
         current: { coordinates: request.current.coordinates, distance: request.current.distanceM, duration: 0 },
         route: (pins, routeSignal) => routeSection(request.leg, pins, routeSignal),
@@ -204,9 +198,12 @@ export function useLegVariants(options: LegVariantsOptions) {
       if (signal.aborted) return;
       const before = latest.current.options.waypoints;
       const outcome = pinned.held ? writeChoice(request.leg, pinned.pins, latest.current) : 'notHeld';
-      if (outcome === 'written') noteApplied(before);
-      if (outcome === 'written' || outcome === 'replanned') close();
-      else settle(outcome);
+      if (outcome !== 'written') {
+        settle(outcome);
+        return;
+      }
+      noteApplied(before);
+      close();
     } catch {
       if (!signal.aborted) settle('failed');
     }

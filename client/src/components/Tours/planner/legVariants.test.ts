@@ -99,7 +99,6 @@ describe('the figures of a way', () => {
     expect(current).toMatchObject({
       key: 'current',
       current: true,
-      direct: false,
       heights: 'known',
       gainM: 60,
       lossM: 20,
@@ -145,19 +144,23 @@ describe('the ways offered', () => {
       offer(west),
     ]);
     expect(variants.map((variant) => variant.key)).toEqual(['current', 'a', 'b', 'c']);
-    expect(variants[1]).toMatchObject({ coordinates: north, current: false, direct: false, heights: 'pending' });
+    expect(variants[1]).toMatchObject({ coordinates: north, current: false, heights: 'pending' });
     expect(variants.slice(1).every((variant) => variant.gainM === null && variant.minutes === null)).toBe(true);
   });
 
-  it("FE-TOUR-LEG-VARIANTS-007: the router's own way is marked direct, so it is held without a shaping point", () => {
-    const [, first, second] = offeredVariants(current, [offer(north), offer(south)]);
-    expect(first.direct).toBe(true);
-    expect(second.direct).toBe(false);
+  it("FE-TOUR-LEG-VARIANTS-007: the router's own way is the one the tour routes already, so it is never offered", () => {
+    // Drawn apart from the route, it is still no choice: taking it could not change the section.
+    const variants = offeredVariants(current, [offer(north), offer(south)]);
+    expect(variants.map((variant) => [variant.key, variant.coordinates])).toEqual([
+      ['current', current.coordinates],
+      ['a', south],
+    ]);
+    expect(offeredVariants(current, [offer(north)])).toEqual([current]);
     expect(offeredVariants(current, [])).toEqual([current]);
   });
 
   it('FE-TOUR-LEG-VARIANTS-008: heights fill a way in, and the difference to the way taken now is what is known of both', () => {
-    const [, pending] = offeredVariants(current, [offer(north)]);
+    const [, pending] = offeredVariants(current, [offer(current.coordinates), offer(north)]);
     const known = withVariantHeights(pending, [
       [47.0, 11.0, 1000],
       [47.03, 11.01, 1300],

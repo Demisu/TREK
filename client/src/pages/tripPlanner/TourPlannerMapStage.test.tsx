@@ -612,6 +612,55 @@ describe('TourPlannerMapStage', () => {
     expect(appliedHint.hold).toHaveBeenCalledWith(true);
   });
 
+  describe('one card in the corner (RTE-02)', () => {
+    const waypoints = [
+      { id: 'w1', lat: 46, lng: 7 },
+      { id: 'w2', lat: 46.2, lng: 7.2 },
+    ];
+    const comparison = {
+      leg: { fromId: 'w1', toId: 'w2', from: { lat: 46, lng: 7 }, to: { lat: 46.2, lng: 7.2 }, costing: {}, key: 'k' },
+      phase: 'loading',
+      variants: [],
+      selected: null,
+      proving: false,
+      notice: null,
+    };
+    const comparingPlanner = (legVariants: ReturnType<typeof idleLegVariants>) =>
+      planner('new-draft', { waypoints, route: null, canEdit: true, legVariants: { ...legVariants, comparison } });
+
+    /** Picks the via ferrata on the flat map, as a click on its line does. */
+    function pickFerrata() {
+      act(() => stage.flatMap.props?.ferrataLayer?.onToggle());
+      const group = stage.flatMap.props?.ferrataLayer?.groups[0];
+      if (!group) throw new Error('no group');
+      act(() => stage.flatMap.props?.ferrataLayer?.onSelect(group, FERRATA, { lat: 46.52, lng: 11.8 }));
+    }
+
+    it('FE-PAGE-TOURSTAGE-021: a via ferrata picked while a section is compared closes the comparison, so one card stands there', () => {
+      const legVariants = idleLegVariants();
+      const view = renderStage(comparingPlanner(legVariants));
+      expect(screen.getByTestId('leg-variants-overlay')).toBeInTheDocument();
+      pickFerrata();
+      expect(legVariants.close).toHaveBeenCalledTimes(1);
+
+      view.rerender(<TourPlannerMapStage {...stageProps(planner('new-draft', { waypoints, legVariants }))} />);
+      expect(screen.getByTestId('ferrata-detail-overlay')).toBeInTheDocument();
+      expect(screen.queryByTestId('leg-variants-overlay')).not.toBeInTheDocument();
+    });
+
+    it('FE-PAGE-TOURSTAGE-022: a comparison opened over a via ferrata card closes that card instead', () => {
+      const legVariants = idleLegVariants();
+      const view = renderStage(planner('new-draft', { waypoints, legVariants }));
+      pickFerrata();
+      expect(screen.getByTestId('ferrata-detail-overlay')).toBeInTheDocument();
+
+      view.rerender(<TourPlannerMapStage {...stageProps(comparingPlanner(legVariants))} />);
+      expect(screen.queryByTestId('ferrata-detail-overlay')).not.toBeInTheDocument();
+      expect(screen.getByTestId('leg-variants-overlay')).toBeInTheDocument();
+      expect(legVariants.close).not.toHaveBeenCalled();
+    });
+  });
+
   describe('map layers per tour type (P2B-06/07, PAD-04, PAD-10)', () => {
     const flat = () => stage.flatMap.props as MapViewProps;
 

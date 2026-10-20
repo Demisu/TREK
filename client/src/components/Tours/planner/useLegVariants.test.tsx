@@ -30,7 +30,6 @@ const ROUTE: [number, number][] = [
 const OTHER: LegVariant = {
   key: 'a',
   current: false,
-  direct: false,
   coordinates: [
     [47.0, 11.0],
     [47.03, 11.01],
@@ -56,7 +55,6 @@ function options(overrides: Partial<LegVariantsOptions> = {}): LegVariantsOption
     maxHikingDifficulty: 2,
     hikingPreferences: null,
     insertShapingPoints: vi.fn(() => ['s1']),
-    recomputeLeg: vi.fn(),
     undo: vi.fn(),
     mayEdit: () => true,
     ...overrides,
@@ -144,7 +142,9 @@ describe('useLegVariants', () => {
     await act(async () => view.result.current.apply());
 
     const [{ offer, current, route }] = pinAlternative.mock.calls[0];
-    expect(offer).toMatchObject({ coordinates: OTHER.coordinates, direct: false });
+    // Never the router's own way: the first pin goes where the offer leaves the way taken now.
+    expect(offer).toMatchObject({ coordinates: OTHER.coordinates });
+    expect(offer.direct).toBeFalsy();
     expect(current.coordinates).toEqual(ROUTE.slice(0, 3));
     await route([{ lat: 1, lng: 2 }], new AbortController().signal);
     expect(routeSection).toHaveBeenCalledWith(
@@ -182,20 +182,26 @@ describe('useLegVariants', () => {
     expect(view.result.current.comparison?.notice).toBe('failed');
   });
 
-  it("FE-TOUR-USE-LEG-VARIANTS-007: the router's own way needs no pin: the leg is only planned again", async () => {
-    answers = [
-      { phase: 'choose', variants: [{ ...OTHER, key: 'current', current: true }, { ...OTHER, direct: true }] },
-    ];
-    pinAlternative.mockResolvedValue({ held: true, pins: [], fellBack: false, last: {} });
-    const recomputeLeg = vi.fn();
+  it('FE-TOUR-USE-LEG-VARIANTS-007: a way taken always changes the route, says so and is taken back in one undo step', async () => {
+    answers = [{ phase: 'choose', variants: [{ ...OTHER, key: 'current', current: true }, OTHER] }];
+    pinAlternative.mockResolvedValue({ held: true, pins: [{ lat: 47.03, lng: 11.01 }], fellBack: false, last: {} });
+    const undo = vi.fn();
     const insertShapingPoints = vi.fn(() => ['s1']);
-    const view = setup(options({ recomputeLeg, insertShapingPoints }));
+    const view = setup(options({ insertShapingPoints, undo }));
     await compared(view);
     act(() => view.result.current.select('a'));
     await act(async () => view.result.current.apply());
-    expect(recomputeLeg).toHaveBeenCalledWith('a');
-    expect(insertShapingPoints).not.toHaveBeenCalled();
+    expect(insertShapingPoints).toHaveBeenCalledTimes(1);
     expect(view.result.current.comparison).toBeNull();
+    expect(view.result.current.appliedHint.shown).toBe(false);
+
+    // The write lands as the shaping point in the leg: "way taken" is up, and its undo is the editor's one step.
+    const S: TourPlannerWaypoint = { id: 's1', lat: 47.03, lng: 11.01, role: 'via', shaping: true };
+    view.rerender(options({ insertShapingPoints, undo, waypoints: [A, S, B, C] }));
+    expect(view.result.current.appliedHint.shown).toBe(true);
+    act(() => view.result.current.appliedHint.undo());
+    expect(undo).toHaveBeenCalledTimes(1);
+    expect(view.result.current.appliedHint.shown).toBe(false);
   });
 
   it('FE-TOUR-USE-LEG-VARIANTS-008: a choice checked while the section changed is not written; a refused write says stale too', async () => {

@@ -8,7 +8,6 @@ import type { LegVariant } from './legVariants';
 const variant = (key: LegVariant['key'], lat: number): LegVariant => ({
   key,
   current: key === 'current',
-  direct: false,
   coordinates: [
     [lat, 11],
     [lat, 11.02],

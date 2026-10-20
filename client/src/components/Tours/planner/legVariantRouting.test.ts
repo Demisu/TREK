@@ -25,7 +25,6 @@ const LEG: ComparedLeg = {
 const CURRENT: LegVariant = {
   key: 'current',
   current: true,
-  direct: false,
   coordinates: [
     [47, 11],
     [47.001, 11.01],
@@ -102,13 +101,13 @@ describe('askOtherWays', () => {
     const report = vi.fn();
     valhallaAlternates.mockImplementationOnce(async () => {
       controller.abort();
-      return [leg(NORTH)];
+      return [leg(CURRENT.coordinates), leg(NORTH)];
     });
     await askOtherWays(LEG, CURRENT, controller.signal, report);
     expect(report).not.toHaveBeenCalled();
 
     const later = new AbortController();
-    valhallaAlternates.mockResolvedValueOnce([leg(NORTH)]);
+    valhallaAlternates.mockResolvedValueOnce([leg(CURRENT.coordinates), leg(NORTH)]);
     enrichTourElevations.mockImplementationOnce(async () => {
       later.abort();
       return null;

@@ -20,7 +20,6 @@ const POINTS = [
 const way = (key: LegVariant['key'], overrides: Partial<LegVariant> = {}): LegVariant => ({
   key,
   current: key === 'current',
-  direct: false,
   coordinates: [
     [47, 11],
     [47, 11.02],
