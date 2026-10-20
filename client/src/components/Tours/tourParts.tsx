@@ -301,7 +301,9 @@ type FieldColumns = keyof typeof FIELD_COLUMNS
 
 /**
  * Labelled values in the booking-card look: a fixed number of columns where the
- * caller wants one row per group, otherwise as many as fit.
+ * caller wants one row per group, otherwise as many as fit. A value too long for
+ * its column, such as a city walk's "at least" total on a phone, wraps rather
+ * than being cut, and the boxes of a row keep one height.
  */
 export function TourFactFields({ fields, columns }: { fields: readonly TourMetricField[]; columns?: FieldColumns }) {
   return (
@@ -309,7 +311,7 @@ export function TourFactFields({ fields, columns }: { fields: readonly TourMetri
       className={`m-0 grid gap-2 ${columns ? FIELD_COLUMNS[columns] : 'grid-cols-[repeat(auto-fit,minmax(104px,1fr))]'}`}
     >
       {fields.map((field) => (
-        <div key={field.label} className="min-w-0">
+        <div key={field.label} className="flex min-w-0 flex-col">
           <dt className="mb-[3px] flex min-w-0 items-center gap-0.5">
             <Eyebrow className="relative min-w-0 truncate">
               <FitLabel full={field.label} short={field.shortLabel} />
@@ -321,7 +323,7 @@ export function TourFactFields({ fields, columns }: { fields: readonly TourMetri
             )}
           </dt>
           <dd
-            className={`${BOX} m-0 truncate px-[10px] py-[7px] text-center font-semibold tabular-nums text-content`}
+            className={`${BOX} m-0 flex flex-1 flex-col justify-center break-words px-[10px] py-[7px] text-center font-semibold tabular-nums text-content`}
             style={fs(12.5, 'body')}
           >
             {field.value}

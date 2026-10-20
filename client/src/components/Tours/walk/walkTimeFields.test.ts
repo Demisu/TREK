@@ -75,6 +75,15 @@ describe('walkTimeFields', () => {
       'Computed',
       'Not calculated',
     ]);
+    // A column too narrow for the full label names the manual total by what sets it apart.
+    const manual = walkTimeFields({
+      walking,
+      walkingMinutes: 45,
+      stays: { stayMinutes: 0, unknownStays: 0, stations: 2 },
+      manualMinutes: 240,
+      t,
+    })[2];
+    expect(manual).toMatchObject({ label: 'Planned (Manual override)', shortLabel: 'Manual override' });
   });
 
   it('keeps the walking label and its explanation as the planner hands them in', () => {

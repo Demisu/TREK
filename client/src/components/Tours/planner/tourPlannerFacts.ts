@@ -13,6 +13,7 @@ import {
 } from '@trek/shared';
 import type { RouteGeometryAnalysis } from '../../../utils/routeGeometry';
 import { hikingTimeMinutes } from '../hikingTime';
+import { walkTimesOf, type WalkTimes } from './stationModel';
 
 /** The editable fields of a saved tour as the planner opens them, each with its empty value. */
 export function openedTourFields(tour: TourListItem) {
@@ -52,8 +53,11 @@ export interface TourPlannerFactsInput {
   /** A paddle tour's estimate on the water; null for a hike. */
   paddleEstimate: { waterMinutes: number | null; estimateMinutes: number | null } | null;
   routeAnalysis: RouteGeometryAnalysis | null;
-  /** CW-02: a city walk's stays, summed as far as they are known; null for any other type, which takes its breaks. */
-  stationStayMinutes?: number | null;
+  /**
+   * CW-02: a city walk's stays as far as known, and of how many stations; null
+   * for any other type, which takes its breaks.
+   */
+  stays?: Pick<WalkTimes, 'stayMinutes' | 'unknownStays' | 'stations'> | null;
   /** The router's own time, seconds: a bike tour's riding time; stands in for a hike until the heights are in. */
   durationSeconds: number | null;
 }
@@ -76,6 +80,16 @@ function movingMinutes(input: TourPlannerFactsInput, routerMinutes: number | nul
   return routeAnalysis?.gain != null && routeAnalysis.loss != null
     ? hikingTimeMinutes(routeAnalysis.distanceKm, routeAnalysis.gain, routeAnalysis.loss)
     : routerMinutes;
+}
+
+/**
+ * CW-02: a city walk's times, the total its overview shows. Its stops are its
+ * stays and it has no breaks on top, so nothing counts twice; the stays entered
+ * count even while the walking time is not known. Null for any other type.
+ */
+function walkTimesFor(input: TourPlannerFactsInput, walkingMinutes: number | null): WalkTimes | null {
+  if (input.tourType !== 'walk') return null;
+  return walkTimesOf({ stayMinutes: 0, unknownStays: 0, stations: 0, ...input.stays, walkingMinutes });
 }
 
 /** What the type adds to a save: a hike its routing limit, a bike tour its profile, a paddle tour its boat, water and speed. */
@@ -118,9 +132,9 @@ export function tourPlannerFacts(input: TourPlannerFactsInput) {
   const { durationSeconds, breakAdditionalMinutes, plannedDurationMinutes } = input;
   const routerMinutes = durationSeconds === null ? null : Math.round(durationSeconds / 60);
   const walkingDurationMinutes = movingMinutes(input, routerMinutes);
-  // A city walk's stops are its stays; it has no breaks on top, so nothing counts twice.
-  const onTop = input.tourType === 'walk' ? (input.stationStayMinutes ?? 0) : (breakAdditionalMinutes ?? 0);
-  const automaticPlannedTotalMinutes = walkingDurationMinutes === null ? null : walkingDurationMinutes + onTop;
+  const walk = walkTimesFor(input, walkingDurationMinutes);
+  const withBreaks = walkingDurationMinutes === null ? null : walkingDurationMinutes + (breakAdditionalMinutes ?? 0);
+  const automaticPlannedTotalMinutes = walk ? walk.totalMinutes : withBreaks;
   const { boatType, waterContext } = input.paddle;
   return {
     isPaddle,
@@ -130,6 +144,8 @@ export function tourPlannerFacts(input: TourPlannerFactsInput) {
     breakAdditionalInvalid: input.tourType !== 'walk' && invalidMinutes(breakAdditionalMinutes),
     paddleIncomplete: isPaddle && (boatType === null || waterContext === null),
     walkingDurationMinutes,
+    /** CW-02: a city walk's walking time, stays and total; null for any other type. */
+    stationStays: walk,
     automaticPlannedTotalMinutes,
     plannedTotalMinutes: plannedDurationMinutes ?? automaticPlannedTotalMinutes,
     plannedTotalInvalid:

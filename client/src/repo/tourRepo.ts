@@ -1,4 +1,4 @@
-import { computeTourMetrics, estimatePaddleTime, paddleCheckSummaryOf, paddleLayoutOfTrack, paddleMovingSeconds, recommendedPaddleSpeedKmh, type GeometryPoint, type TourObstacleCheck, type TourObstacleReviewsRequest, type TourPaddlePlanRequest, type TourCreateRequest, type TourCreateResponse, type TourDetailResponse, type TourGpxImportFields, type TourGpxPreviewResponse, type TourImportGpxResponse, type TourListItem, type TourWaypoint } from '@trek/shared'
+import { computeTourMetrics, estimatePaddleTime, paddleCheckSummaryOf, paddleLayoutOfTrack, paddleMovingSeconds, recommendedPaddleSpeedKmh, type GeometryPoint, type TourObstacleCheck, type TourObstacleReviewsRequest, type TourPaddlePlanRequest, type TourCreateRequest, type TourCreateResponse, type TourDetailResponse, type TourGpxImportFields, type TourGpxPreviewResponse, type TourImportGpxResponse, type TourListItem, type TourWaypoint, walkStationFacts } from '@trek/shared'
 import { toursApi } from '../api/client'
 import { tourGpxApi } from '../api/tourGpx'
 import { recordedTrackApi } from '../api/recordedTrack'
@@ -61,7 +61,8 @@ function endpointsOf(routeGeometry: unknown): TourWaypoint[] {
 /**
  * What the server will derive from a create or edit, worked out here for the
  * copy shown until the queued write replays: the same metrics, the duration
- * in minutes, full confidence because the route editor drew it.
+ * in minutes, full confidence because the route editor drew it, and a city
+ * walk's stations with the stays as now entered (CW-02).
  */
 function routeFields(body: TourCreateRequest) {
   const metrics = computeTourMetrics(body.route_geometry as GeometryPoint[])
@@ -82,6 +83,7 @@ function routeFields(body: TourCreateRequest) {
     caution: false,
     max_hiking_difficulty: body.max_hiking_difficulty,
     has_waypoints: true,
+    ...walkStationFacts(body.tour_type, body.waypoints),
     ...(body.planned_duration_minutes !== undefined ? { planned_duration_minutes: body.planned_duration_minutes } : {}),
     ...(body.break_additional_minutes !== undefined ? { break_additional_minutes: body.break_additional_minutes } : {}),
   }

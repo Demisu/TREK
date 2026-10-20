@@ -96,7 +96,7 @@ describe('tourPlannerFacts', () => {
       routeAnalysis: analysis,
       durationSeconds: 3_000,
       breakAdditionalMinutes: 40,
-      stationStayMinutes: 75,
+      stays: { stayMinutes: 75, unknownStays: 0, stations: 2 },
       hikingPreferences: { avoid_steps: true },
     });
     const facts = tourPlannerFacts(walk);
@@ -111,10 +111,34 @@ describe('tourPlannerFacts', () => {
       bike_profile: null,
       boat_type: null,
     });
+    expect(facts.stationStays).toMatchObject({
+      walkingMinutes: 50,
+      stayMinutes: 75,
+      totalMinutes: 125,
+      partial: false,
+    });
     // Stays nobody entered count for nothing; a total typed by hand still wins.
-    expect(tourPlannerFacts({ ...walk, stationStayMinutes: null }).automaticPlannedTotalMinutes).toBe(50);
+    expect(tourPlannerFacts({ ...walk, stays: null }).automaticPlannedTotalMinutes).toBe(50);
     expect(tourPlannerFacts({ ...walk, plannedDurationMinutes: 180 }).plannedTotalMinutes).toBe(180);
-    expect(tourPlannerFacts({ ...walk, durationSeconds: null }).automaticPlannedTotalMinutes).toBeNull();
+    expect(tourPlannerFacts({ ...walk, stays: null, durationSeconds: null }).automaticPlannedTotalMinutes).toBeNull();
+  });
+
+  it('CW-02: a walk whose walking time is not known plans at least the stays entered, as its overview says', () => {
+    const walk = hike({
+      tourType: 'walk',
+      durationSeconds: null,
+      stays: { stayMinutes: 120, unknownStays: 1, stations: 3 },
+    });
+    const facts = tourPlannerFacts(walk);
+    expect(facts.walkingDurationMinutes).toBeNull();
+    expect(facts.plannedTotalMinutes).toBe(120);
+    expect(facts.stationStays).toMatchObject({ walkingMinutes: null, totalMinutes: 120, partial: true });
+    expect(facts.plannedTotalInvalid).toBe(false);
+    // Stays past the longest plan a tour may have hold the save up as the walking time would.
+    expect(
+      tourPlannerFacts({ ...walk, stays: { stayMinutes: 1_500, unknownStays: 0, stations: 2 } }).plannedTotalInvalid
+    ).toBe(true);
+    expect(tourPlannerFacts(hike({ durationSeconds: 600 })).stationStays).toBeNull();
   });
 });
 

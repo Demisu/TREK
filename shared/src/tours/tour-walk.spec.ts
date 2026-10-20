@@ -1,4 +1,4 @@
-import { isClosedLoop, walkStationsOf } from './tour-walk';
+import { isClosedLoop, walkStationFacts, walkStationsOf } from './tour-walk';
 
 import { describe, expect, it } from 'vitest';
 
@@ -31,5 +31,40 @@ describe('walkStationsOf (CW-02, CW-03)', () => {
     expect(walkStationsOf([cathedral, steer, market, park, back])).toEqual([cathedral, market, park]);
     expect(walkStationsOf([cathedral, { ...cathedral }])).toEqual([cathedral, cathedral]);
     expect(walkStationsOf([])).toEqual([]);
+  });
+});
+
+describe('walkStationFacts (CW-02, CW-03)', () => {
+  it('counts the stops of a walk, sums the stays entered and counts the ones nobody entered apart', () => {
+    const museum = { ...market, stay_minutes: 90 };
+    const cafe = { ...park, stay_minutes: 30 };
+    expect(walkStationFacts('walk', [cathedral, steer, museum, cafe])).toEqual({
+      station_count: 3,
+      station_stay_minutes: 120,
+      station_stays_unknown: 1,
+    });
+  });
+
+  it('counts the start of a loop once, with its stay, and a stay of 0 as entered', () => {
+    const start = { ...cathedral, stay_minutes: 20 };
+    const passed = { ...market, stay_minutes: 0 };
+    expect(walkStationFacts('walk', [start, passed, { ...start }])).toEqual({
+      station_count: 2,
+      station_stay_minutes: 20,
+      station_stays_unknown: 0,
+    });
+    expect(walkStationFacts('walk', [])).toEqual({
+      station_count: 0,
+      station_stay_minutes: 0,
+      station_stays_unknown: 0,
+    });
+  });
+
+  it('says nothing of the stations of any other type', () => {
+    expect(walkStationFacts('hike', [cathedral, { ...market, stay_minutes: 30 }])).toEqual({
+      station_count: null,
+      station_stay_minutes: null,
+      station_stays_unknown: null,
+    });
   });
 });

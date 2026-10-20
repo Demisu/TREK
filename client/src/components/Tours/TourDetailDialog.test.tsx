@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { fireEvent, render, screen, waitFor } from '../../../tests/helpers/render'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { TourListItem } from '@trek/shared'
 import { buildPlace } from '../../../tests/helpers/factories'
 import { paddleBench } from '../../../tests/helpers/paddleCheck'
@@ -59,6 +59,11 @@ beforeEach(() => {
   resetAllStores()
   vi.clearAllMocks()
   seedStore(useSettingsStore, { settings: { distance_unit: 'metric' } })
+})
+
+// A repository answer one test stubs never reaches the tests after it.
+afterEach(() => {
+  vi.restoreAllMocks()
 })
 
 describe('TourDetailDialog', () => {
@@ -159,6 +164,11 @@ describe('TourDetailDialog', () => {
     view.rerender(<TourDetailDialog {...defaultProps} tour={{ ...walk, station_stay_minutes: 90, station_stays_unknown: 1 }} />)
     expect(screen.getByLabelText('Walking: 45 min, Stays: at least 1 h 30 min, Planned: at least 2 h 15 min'))
       .toHaveTextContent('≥ 2 h 15 min')
+    // On a phone's three narrow columns the longer values wrap rather than being cut.
+    const stays = screen.getByText('Stays').closest('dt')?.nextElementSibling
+    expect(stays).toHaveTextContent('at least 1 h 30 min')
+    expect(stays).toHaveClass('break-words')
+    expect(stays).not.toHaveClass('truncate')
 
     view.rerender(<TourDetailDialog {...defaultProps}
       tour={{ ...walk, station_stay_minutes: 90, station_stays_unknown: 1, planned_duration_minutes: 240 }} />)

@@ -5,7 +5,7 @@ import { tourRepo } from '../../../repo/tourRepo'
 import { randomId } from '../../../utils/randomId'
 import { analyzeRouteGeometry, type RouteProfileFocus } from '../../../utils/routeGeometry'
 import { closeLoop, reverseRoute, toggleFreeLeg, withPointAppended } from './tourRouteActions'
-import { walkTimes, walkTimesOf } from './stationModel'
+import { walkTimes } from './stationModel'
 import { hasCompleteElevation, useTourRoute } from './useTourRoute'
 import { normalizePlannerWaypoints, plannerWaypointsOf, ridablePoints, routeInputsKey, sameWaypointSnapshot, savedWaypointsOf, unlinkedPoint, withSavedKeys, type TourPlannerWaypoint } from './tourPlannerWaypoints'
 import { openedTourFields, tourPlannerFacts } from './tourPlannerFacts'
@@ -499,13 +499,12 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const facts = useMemo(() => tourPlannerFacts({
     tourType, maxHikingDifficulty, hikingPreferences, bikeProfile, website, plannedDurationMinutes, breakAdditionalMinutes,
     paddle: { boatType, waterContext, speedKmh, portageSpeedKmh, lakeStyle },
-    paddleSpeedInvalid, paddleEstimate, routeAnalysis, durationSeconds, stationStayMinutes: stays?.stayMinutes ?? null,
+    paddleSpeedInvalid, paddleEstimate, routeAnalysis, durationSeconds, stays,
   }), [bikeProfile, boatType, breakAdditionalMinutes, durationSeconds, hikingPreferences, lakeStyle, maxHikingDifficulty, paddleEstimate, paddleSpeedInvalid,
     plannedDurationMinutes, portageSpeedKmh, routeAnalysis, speedKmh, stays, tourType, waterContext, website])
+  // CW-02: a city walk's times as the overview says them, from the same derivation as its planned total.
   const { websiteInvalid, plannedDurationInvalid, breakAdditionalInvalid, paddleIncomplete, walkingDurationMinutes,
-    plannedTotalMinutes, plannedTotalInvalid, savedDurationSeconds, savedBreakAdditionalMinutes, typeFields } = facts
-  // CW-02: and with the walking time, the walk's times as the overview says them.
-  const stationStays = useMemo(() => stays && walkTimesOf({ ...stays, walkingMinutes: walkingDurationMinutes }), [stays, walkingDurationMinutes])
+    plannedTotalMinutes, plannedTotalInvalid, savedDurationSeconds, savedBreakAdditionalMinutes, typeFields, stationStays } = facts
 
   const returnToNeutral = useCallback(() => {
     if (saveInFlightRef.current) return

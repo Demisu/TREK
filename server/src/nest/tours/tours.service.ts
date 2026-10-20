@@ -33,7 +33,6 @@ import {
   localHashOf,
   parseRouteGeometry,
   LOW_CONFIDENCE_THRESHOLD,
-  walkStationFacts,
   type GeometryPoint,
 } from './tours.helpers';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -58,6 +57,7 @@ import {
   type TourProvenanceSource,
   type TourWaypoint,
   type WandererDifficulty,
+  walkStationFacts,
   walkStationsOf,
   wandererDifficultyToSac,
 } from '@trek/shared';

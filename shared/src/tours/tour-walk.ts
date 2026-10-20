@@ -31,3 +31,30 @@ export function walkStationsOf<T extends Spot & { shaping?: boolean | null }>(po
   const route = isClosedLoop(points) ? points.slice(0, -1) : points;
   return route.filter((point) => !point.shaping);
 }
+
+/** What a list says of a city walk's stations: how many, their stays as far as entered, and how many have none. */
+interface WalkStationFacts {
+  station_count: number | null;
+  station_stay_minutes: number | null;
+  station_stays_unknown: number | null;
+}
+
+/**
+ * CW-02, CW-03: a city walk's stations as a list counts them, from its points:
+ * a shaping point and the way back of a loop are no station, a stay nobody
+ * entered is counted apart and never as nothing. Any other type has none. The
+ * server answers a list with it, and the client works out the same for a walk
+ * saved offline until the write replays.
+ */
+export function walkStationFacts(
+  tourType: string,
+  points: readonly (Spot & { shaping?: boolean | null; stay_minutes?: number | null })[],
+): WalkStationFacts {
+  if (tourType !== 'walk') return { station_count: null, station_stay_minutes: null, station_stays_unknown: null };
+  const stations = walkStationsOf(points);
+  return {
+    station_count: stations.length,
+    station_stay_minutes: stations.reduce((sum, station) => sum + (station.stay_minutes ?? 0), 0),
+    station_stays_unknown: stations.filter((station) => station.stay_minutes == null).length,
+  };
+}

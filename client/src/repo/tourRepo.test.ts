@@ -9,6 +9,7 @@ import { server } from '../../tests/helpers/msw/server'
 import { tourRepo } from './tourRepo'
 import { offlineDb, clearAll, replaceTripTours } from '../db/offlineDb'
 import { buildPlace } from '../../tests/helpers/factories'
+import { plannedTotalText, tourPlannedTimes } from '../components/Tours/tourPresentation'
 
 function setOnline(v: boolean): void {
   Object.defineProperty(navigator, 'onLine', { value: v, writable: true, configurable: true })
@@ -222,6 +223,51 @@ describe('tourRepo.update', () => {
     expect(result.tour.name).toBe('Renamed')
     expect(sent).toBe(0)
     expect((await offlineDb.mutationQueue.toArray()).map(m => m.status).sort()).toEqual(['failed', 'pending'])
+  })
+})
+
+describe('tourRepo offline copies of a city walk (CW-02)', () => {
+  // 45 minutes of walking, a museum stayed at for 90 minutes, a shaping point and a cafe nobody entered a stay for yet.
+  const walkBody: TourCreateRequest = {
+    name: 'Old town',
+    tour_type: 'walk',
+    route_geometry: [[48.1, 11.5, 520], [48.11, 11.51, 521], [48.12, 11.52, 522]],
+    waypoints: [
+      { lat: 48.1, lng: 11.5, role: 'start', sequence: 0, name: 'Museum', stay_minutes: 90 },
+      { lat: 48.11, lng: 11.51, role: 'via', sequence: 1, shaping: true },
+      { lat: 48.12, lng: 11.52, role: 'end', sequence: 2, name: 'Cafe', stay_minutes: null },
+    ],
+    max_hiking_difficulty: null,
+    duration_seconds: 2700,
+  }
+  const noTranslation = (key: string) => key
+
+  it('FE-REPO-TOUR-015: offline, a new walk carries its stops and stays, so the day row reads at least walking plus the stays entered', async () => {
+    setOnline(false)
+
+    const { tour: walk } = await tourRepo.create(3, walkBody)
+    const { tour: hike } = await tourRepo.create(3, body)
+
+    expect(walk).toMatchObject({ duration: 45, station_count: 2, station_stay_minutes: 90, station_stays_unknown: 1 })
+    expect(await offlineDb.tours.get(walk.place_id)).toMatchObject({ station_stay_minutes: 90, station_stays_unknown: 1 })
+    expect(plannedTotalText(tourPlannedTimes(walk), noTranslation, true)).toBe('≥ 2 h 15 min')
+    expect(hike).toMatchObject({ station_count: null, station_stay_minutes: null, station_stays_unknown: null })
+  })
+
+  it('FE-REPO-TOUR-016: offline, a stay changed while the write waits shows at once, not the stays of the last answer', async () => {
+    setOnline(false)
+    await offlineDb.tours.put({
+      ...tour({ tour_type: 'walk', duration: 45, station_count: 2, station_stay_minutes: 120, station_stays_unknown: 0 }),
+      trip_id: 3,
+    })
+    const [museum, steer, cafe] = walkBody.waypoints
+    const edited = { ...walkBody, waypoints: [{ ...museum, stay_minutes: 30 }, steer, cafe] }
+
+    const { tour: walk } = await tourRepo.update(3, 40, edited)
+
+    expect(walk).toMatchObject({ station_count: 2, station_stay_minutes: 30, station_stays_unknown: 1 })
+    expect(await offlineDb.tours.get(40)).toMatchObject({ station_stay_minutes: 30, station_stays_unknown: 1 })
+    expect(plannedTotalText(tourPlannedTimes(walk), noTranslation, true)).toBe('≥ 1 h 15 min')
   })
 })
 

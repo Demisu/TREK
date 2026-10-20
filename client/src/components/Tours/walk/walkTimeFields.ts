@@ -57,6 +57,8 @@ export function walkTimeFields({
     ...parts,
     {
       label: `${planned} (${t('tours.planner.plannedTotalManual')})`,
+      // A narrow column names it by what sets it apart from the computed total beside it.
+      shortLabel: t('tours.planner.plannedTotalManual'),
       value: formatPlannedTourDuration(manualMinutes),
     },
     { label: t('tours.walk.totalComputed'), value: computed },

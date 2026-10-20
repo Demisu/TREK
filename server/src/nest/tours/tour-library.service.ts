@@ -1,7 +1,7 @@
 import { Tours } from '../../db/entities/Tours.entity';
 import type { ToursRepository, TourLibraryRow } from '../../db/repositories/Tours.repository';
 import { TripMembershipService } from '../trip-membership/trip-membership.service';
-import { parseRouteGeometry, thinnedLine, walkStationFacts } from './tours.helpers';
+import { parseRouteGeometry, thinnedLine } from './tours.helpers';
 import { ToursService } from './tours.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -16,6 +16,7 @@ import {
   type TourOrigin,
   type TourTakeOverRequest,
   type TourTypeKey,
+  walkStationFacts,
 } from '@trek/shared';
 
 /** The most rows one list reads before the name is matched; past it the answer says it was cut. */
