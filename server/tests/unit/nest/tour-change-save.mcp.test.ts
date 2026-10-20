@@ -312,7 +312,7 @@ describe('TourChangeMcp.saveTourChange (MCP-T03)', () => {
     });
     const during = await refusal(saveAs(f.trip.id, f.walk.id, request, f.user.id));
     expect([during.getStatus(), during.code]).toEqual([422, TOUR_CHANGE_REFUSED]);
-    expect(during.publicMessage).toMatch(/^Nothing was prepared and nothing changed\.\nChange 1 \(remove stop-park\)/);
+    expect(during.publicMessage).toMatch(/^Nothing was saved and nothing changed\.\nChange 1 \(remove stop-park\)/);
     expect((await findRow(orm(), Tours, { place: f.walk.id }))?.revision).toBe(3);
     expect(await countRows(orm(), TourWaypoints, { place: f.walk.id })).toBe(4);
     expect(await countRows(orm(), TourChangeSteps, {})).toBe(0);
@@ -321,6 +321,7 @@ describe('TourChangeMcp.saveTourChange (MCP-T03)', () => {
     route.mockClear();
     const after = await refusal(saveAs(f.trip.id, f.walk.id, request, f.user.id));
     expect(after.code).toBe(TOUR_CHANGE_REFUSED);
+    expect(after.publicMessage).toMatch(/^Nothing was saved and nothing changed\./);
     expect(route).not.toHaveBeenCalled();
     expect(t.realtime.broadcastMock).not.toHaveBeenCalled();
   });
@@ -394,7 +395,15 @@ describe('TourChangeMcp.saveTourChange (MCP-T03)', () => {
       false,
       { group: 'trips', mode: 'write' },
     ]);
-    const terms = ['confirmed', 'expected_revision', 'proposal_id', 'conflict', 'get_tour_plan', 'create_city_walk'];
+    const terms = [
+      'confirmed',
+      'expected_revision',
+      'proposal_id',
+      'conflict',
+      'already_saved',
+      'get_tour_plan',
+      'create_city_walk',
+    ];
     for (const term of terms) expect(options.description).toContain(term);
     // The fields are zod schemas from @trek/shared, read here by what they answer.
     const shape = options.inputSchema as Record<string, { safeParse(value: unknown): { success: boolean } }>;
@@ -405,5 +414,59 @@ describe('TourChangeMcp.saveTourChange (MCP-T03)', () => {
     const isAddonEnabled = vi.fn(async (id: string) => id === 'tours');
     expect(await options.when?.(ctx(1), { addons: { isAddonEnabled } })).toBe(true);
     expect(isAddonEnabled).toHaveBeenCalledWith('tours');
+  });
+
+  it('TCHG-SAVE-010: a save sent again once saved writes nothing and answers the step it was saved as', async () => {
+    const f = await fixture();
+    const { request } = await prepared(f.trip.id, f.walk.id, stopAndSwap(f.bakery.id), f.user.id);
+    const first = read(await saveAs(f.trip.id, f.walk.id, request, f.user.id));
+    const before = await untouched(f.walk.id);
+    route.mockClear();
+    t.realtime.broadcastMock.mockClear();
+
+    const again = read(await saveAs(f.trip.id, f.walk.id, request, f.user.id));
+
+    expect(again).toEqual({
+      saved: true,
+      already_saved: true,
+      step: { id: first.step.id, base_revision: 3, revision: 4 },
+      undone_revision: null,
+      message: expect.stringContaining(
+        `This very proposal was already saved as step ${first.step.id}, raising the tour to revision 4`,
+      ),
+    });
+    expect(again.message).toContain('Do not prepare or save it again');
+    // Not the conflict of a tour that moved on, which would send the assistant to prepare it anew.
+    expect(again.message).not.toContain('prepare the change anew');
+    expect(route).not.toHaveBeenCalled();
+    expect(t.realtime.broadcastMock).not.toHaveBeenCalled();
+    expect(await untouched(f.walk.id)).toEqual(before);
+
+    // Taken back since, it still is the step it was saved as, and says so.
+    await updateRows(orm(), TourChangeSteps, { id: first.step.id }, { undone_revision: 5 });
+    const undone = read(await saveAs(f.trip.id, f.walk.id, request, f.user.id));
+    expect([undone.already_saved, undone.undone_revision]).toEqual([true, 5]);
+    expect(undone.message).toContain('It was taken back since, at revision 5');
+    expect(await countRows(orm(), TourChangeSteps, {})).toBe(1);
+  });
+
+  it('TCHG-SAVE-011: of two saves of one proposal at once, the one that writes second writes nothing', async () => {
+    const f = await fixture();
+    const { request } = await prepared(f.trip.id, f.walk.id, stopAndSwap(f.bakery.id), f.user.id);
+    const firstSave: { answer?: { saved: boolean; step: { id: number } } } = {};
+    // The same save sent again lands while this one plans its way, and commits first.
+    route.mockImplementationOnce(async (...args: Parameters<typeof routedOnFoot>) => {
+      firstSave.answer = read(await saveAs(f.trip.id, f.walk.id, request, f.user.id));
+      return await routedOnFoot(...args);
+    });
+
+    const second = read(await saveAs(f.trip.id, f.walk.id, request, f.user.id));
+
+    expect(firstSave.answer).toMatchObject({ saved: true, step: { base_revision: 3, revision: 4 } });
+    expect(second).toMatchObject({ already_saved: true, step: { id: firstSave.answer?.step.id, revision: 4 } });
+    expect(await countRows(orm(), TourChangeSteps, {})).toBe(1);
+    expect((await findRow(orm(), Tours, { place: f.walk.id }))?.revision).toBe(4);
+    const points = await findRows(orm(), TourWaypoints, { place: f.walk.id }, { sequence: 'asc' });
+    expect(points.map((point) => point.name)).toEqual(['Gate', 'Cathedral', 'Market', 'Bakery', 'Beer garden']);
   });
 });

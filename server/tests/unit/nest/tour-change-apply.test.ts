@@ -120,8 +120,12 @@ describe('a change laid onto a saved walk (MCP-T02)', () => {
       ],
     });
     if (outcome.kind !== 'refused') return;
-    const text = refusalText(outcome.refused);
+    const text = refusalText(outcome.refused, 'prepared');
     expect(text.split('\n')[0]).toBe('Nothing was prepared and nothing changed.');
+    // A save refused by the same rules says nothing was saved, over the same reasons.
+    const saved = refusalText(outcome.refused, 'saved').split('\n');
+    expect(saved[0]).toBe('Nothing was saved and nothing changed.');
+    expect(saved.slice(1)).toEqual(text.split('\n').slice(1));
     expect(text).toContain('Change 2 (move stop-end): the travellers already visited or skipped');
     expect(text).toContain('day ids 7 visited.');
   });

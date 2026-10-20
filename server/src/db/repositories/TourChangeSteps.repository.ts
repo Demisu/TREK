@@ -88,6 +88,25 @@ export class TourChangeStepsRepository extends TrekRepository<TourChangeSteps> {
   }
 
   /**
+   * The step a proposal of this tour was saved as, from the revision it was
+   * prepared on; undefined while it is not saved. A proposal is saved once, so
+   * a save sent again finds the step its first one recorded.
+   */
+  async findSavedProposal(
+    place_id: number,
+    proposal_id: string,
+    base_revision: number,
+  ): Promise<TourChangeStepRow | undefined> {
+    return await this.db()
+      .selectFrom('tour_change_steps')
+      .select(STEP_COLUMNS)
+      .where('place_id', '=', place_id)
+      .where('proposal_id', '=', proposal_id)
+      .where('base_revision', '=', base_revision)
+      .executeTakeFirst();
+  }
+
+  /**
    * Marks a step taken back, inside the caller's transaction. Only a step that
    * still stands is marked, so it is taken back once: false when it was already.
    */

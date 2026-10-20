@@ -1,6 +1,6 @@
 import { TourChangeSteps } from '../../db/entities/TourChangeSteps.entity';
 import { TOUR_CHANGE_STEP_BEFORE, TOUR_CHANGE_STEP_CHANGES } from '../../db/json-columns';
-import type { TourChangeStepsRepository } from '../../db/repositories/TourChangeSteps.repository';
+import type { TourChangeStepRow, TourChangeStepsRepository } from '../../db/repositories/TourChangeSteps.repository';
 import { encodeJson } from '../../utils/json-column';
 import { DomainError } from '../common/domain-error';
 import { UnitOfWork } from '../database/unit-of-work';
@@ -64,6 +64,29 @@ function savedAnswer(detail: TourDetailResponse, step: SavedStep, { way, prepare
 }
 
 /**
+ * The answer to a save of a proposal already saved, a save sent again after
+ * its answer was lost, say: it writes nothing and points at the step the
+ * first save recorded, so the assistant neither prepares the same changes
+ * again on the new revision nor saves them twice.
+ */
+function alreadySavedAnswer(step: TourChangeStepRow) {
+  const undone =
+    step.undone_revision === null
+      ? ''
+      : ` It was taken back since, at revision ${step.undone_revision}: ` +
+        'prepare it anew only if the traveller asks for it again.';
+  return {
+    saved: true as const,
+    already_saved: true as const,
+    step: { id: step.id, base_revision: step.base_revision, revision: step.revision },
+    undone_revision: step.undone_revision,
+    message:
+      `This very proposal was already saved as step ${step.id}, raising the tour to revision ${step.revision}, ` +
+      `and this save wrote nothing. Do not prepare or save it again: read the tour with get_tour_plan.${undone}`,
+  };
+}
+
+/**
  * MCP-T03: a prepared change the traveller confirmed, saved whole or not at
  * all through the write the planner's save uses. The save names the revision
  * the proposal was prepared on (P2C-03, the one revision a tour has) and the
@@ -72,6 +95,8 @@ function savedAnswer(detail: TourDetailResponse, step: SavedStep, { way, prepare
  * the same rules: first to plan the way on foot, then once more inside the
  * write, so a station visited or a place gone in between refuses the save
  * instead of being written over, and a failure leaves the tour as it was.
+ * A proposal is saved once: sent again once saved, it answers the step it
+ * was saved as instead of the conflict of a tour that moved on.
  *
  * The write records the step: the proposal, both revisions, the changes and
  * the tour as it was before them (its line, its points, its measures), so it
@@ -98,13 +123,18 @@ export class TourChangeSaveService {
         { code: TOUR_CHANGE_NOT_PREPARED },
       );
     }
-    const laid = await this.preview.lay(tripId, placeId, changes, preparedOn);
+    const earlier = await this.stepsRepo.findSavedProposal(placeId, proposalId, preparedOn);
+    if (earlier) return alreadySavedAnswer(earlier);
+    const laid = await this.preview.lay(tripId, placeId, changes, { action: 'saved', preparedOn });
     const way = await this.footWays.plan(userId, tripId, laid.outcome.points);
     const changed: ChangedTour = { tour: laid.tour, points: laid.outcome.points, way, preparedOn };
     const write = await this.tours.routeWrite(writeOf(changed));
     const saved = await this.uow.transactional(async () => {
+      // The same proposal saved by a save sent alongside this one while the way was planned.
+      const savedMeanwhile = await this.stepsRepo.findSavedProposal(placeId, proposalId, preparedOn);
+      if (savedMeanwhile) return { earlier: savedMeanwhile };
       // Laid once more on the tour as it is now: a tour moved on, a station done or a place gone refuses here.
-      const now = await this.preview.lay(tripId, placeId, changes, preparedOn);
+      const now = await this.preview.lay(tripId, placeId, changes, { action: 'saved', preparedOn });
       const before = await this.beforeState(tripId, placeId, now);
       const { revision, visitsDropped } = await this.tours.replaceRoute(tripId, placeId, write);
       const id = await this.stepsRepo.record({
@@ -118,6 +148,7 @@ export class TourChangeSaveService {
       });
       return { step: { id, revision }, visitsDropped };
     });
+    if ('earlier' in saved) return alreadySavedAnswer(saved.earlier);
     const detail = await this.tours.announceRouteUpdate(String(tripId), placeId, saved.visitsDropped);
     return savedAnswer(detail, saved.step, changed);
   }

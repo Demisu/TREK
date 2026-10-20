@@ -369,7 +369,10 @@ function refusalLine(refusal: ChangeRefusal): string {
   return `${about}: ${REFUSAL_TEXT[refusal.reason]}${days}.`;
 }
 
-/** Every refusal of a proposal, one per line, under a line saying nothing was prepared or saved. */
-export function refusalText(refused: readonly ChangeRefusal[]): string {
-  return ['Nothing was prepared and nothing changed.', ...refused.map(refusalLine)].join('\n');
+/** What a refused proposal was asked for: prepared for review, or saved once the traveller confirmed it. */
+export type RefusedAction = 'prepared' | 'saved';
+
+/** Every refusal of a proposal, one per line, under a line saying it was not prepared, or not saved. */
+export function refusalText(refused: readonly ChangeRefusal[], action: RefusedAction): string {
+  return [`Nothing was ${action} and nothing changed.`, ...refused.map(refusalLine)].join('\n');
 }

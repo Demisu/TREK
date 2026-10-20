@@ -4,7 +4,7 @@ import type { TourStationVisitsRepository } from '../../db/repositories/TourStat
 import type { TourWaypointsRepository } from '../../db/repositories/TourWaypoints.repository';
 import { DomainError } from '../common/domain-error';
 import { CityWalkFootWayService } from './city-walk-foot-way.service';
-import { applyChanges, refusalText, type StationDone } from './tour-change-apply';
+import { applyChanges, refusalText, type RefusedAction, type StationDone } from './tour-change-apply';
 import { describeChange } from './tour-change-effects';
 import { proposalIdOf, staleProposal } from './tour-change-proposal';
 import { ToursService } from './tours.service';
@@ -14,6 +14,12 @@ import type { TourChange, TourChangeRequest } from '@trek/shared';
 
 /** The refusal of a proposal the rules of its tour do not allow; its text names every change and why. */
 export const TOUR_CHANGE_REFUSED = 'tour_change_refused';
+
+/**
+ * What the changes are laid for: a preparation, or the save of a proposal
+ * prepared on a revision, whose refusal then says nothing was saved.
+ */
+export type LayFor = { action: Extract<RefusedAction, 'prepared'> } | { action: 'saved'; preparedOn: number };
 
 /** The places of the trip the new stations of a proposal name. */
 function linkedIds(changes: readonly TourChange[]): number[] {
@@ -55,15 +61,15 @@ export class TourChangePreviewService {
   /**
    * The changes laid onto the tour as it is saved now, with the visits of all
    * its days and the places the new stations name, or the refusal naming
-   * every change the rules of the tour do not allow. A save lays them again
-   * on the tour it is about to write, so it is held to the same rules, and
-   * names the revision they were prepared on: a tour that moved past it is a
-   * conflict before any rule is asked.
+   * every change the rules of the tour do not allow, saying it was not
+   * `layFor.action`. A save lays them again on the tour it is about to write, so
+   * it is held to the same rules, and names the revision they were prepared
+   * on: a tour that moved past it is a conflict before any rule is asked.
    */
-  async lay(tripId: number, placeId: number, changes: readonly TourChange[], preparedOn?: number) {
+  async lay(tripId: number, placeId: number, changes: readonly TourChange[], layFor: LayFor) {
     const { tour, waypoints } = await this.tours.getTour(String(tripId), String(placeId));
-    if (preparedOn !== undefined && tour.revision !== preparedOn) {
-      throw staleProposal(preparedOn, tour.revision ?? null);
+    if (layFor.action === 'saved' && tour.revision !== layFor.preparedOn) {
+      throw staleProposal(layFor.preparedOn, tour.revision ?? null);
     }
     const [visits, linkable] = await Promise.all([
       this.visitsRepo.listForPlace(tripId, placeId),
@@ -80,7 +86,7 @@ export class TourChangePreviewService {
       changes,
     );
     if (outcome.kind === 'refused') {
-      throw new DomainError(422, refusalText(outcome.refused), {
+      throw new DomainError(422, refusalText(outcome.refused, layFor.action), {
         code: TOUR_CHANGE_REFUSED,
         details: { refused: outcome.refused },
       });
@@ -89,7 +95,7 @@ export class TourChangePreviewService {
   }
 
   async prepare(tripId: number, placeId: number, userId: number, { changes }: TourChangeRequest) {
-    const { tour, waypoints, outcome } = await this.lay(tripId, placeId, changes);
+    const { tour, waypoints, outcome } = await this.lay(tripId, placeId, changes, { action: 'prepared' });
     const [wayBefore, wayAfter] = await Promise.all([
       this.footWays.plan(userId, tripId, waypoints),
       this.footWays.plan(userId, tripId, outcome.points),
