@@ -2,16 +2,19 @@ import { act, renderHook } from '@testing-library/react';
 import { runMinutesAtPace } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { routeWalkingTour, enrichTourElevations, createTour, detailTour, updateTour, paddlePlan } = vi.hoisted(() => ({
-  routeWalkingTour: vi.fn(),
-  enrichTourElevations: vi.fn(),
-  createTour: vi.fn(),
-  detailTour: vi.fn(),
-  updateTour: vi.fn(),
-  paddlePlan: vi.fn(),
-}));
+const { routeWalkingTour, routeRun, enrichTourElevations, createTour, detailTour, updateTour, paddlePlan } = vi.hoisted(
+  () => ({
+    routeWalkingTour: vi.fn(),
+    routeRun: vi.fn(),
+    enrichTourElevations: vi.fn(),
+    createTour: vi.fn(),
+    detailTour: vi.fn(),
+    updateTour: vi.fn(),
+    paddlePlan: vi.fn(),
+  })
+);
 
-vi.mock('./tourRouting', () => ({ routeWalkingTour, enrichTourElevations }));
+vi.mock('./tourRouting', () => ({ routeWalkingTour, routeRun, enrichTourElevations }));
 vi.mock('../../../repo/tourRepo', () => ({ tourRepo: { create: createTour, detail: detailTour, update: updateTour } }));
 vi.mock('../../../repo/paddleRouteRepo', () => ({ paddleRouteRepo: { plan: paddlePlan, forget: vi.fn() } }));
 vi.mock('../useTourPermissions', () => ({
@@ -95,6 +98,7 @@ describe('useTourPlanner, multi-day tours (MDT-01)', () => {
     vi.useFakeTimers();
     localStorage.clear();
     routeWalkingTour.mockReset().mockResolvedValue(routed);
+    routeRun.mockReset().mockResolvedValue(routed);
     enrichTourElevations.mockReset().mockResolvedValue(enriched);
     createTour.mockReset();
     detailTour.mockReset();
@@ -154,7 +158,9 @@ describe('useTourPlanner, multi-day tours (MDT-01)', () => {
     expect(result.current.waypoints[3].stageEnd).toBeUndefined();
     expect(result.current.stages.lost).toBe(1);
     // A later change that loses nothing clears the notice.
-    act(() => result.current.setWaypointPosition(result.current.waypoints[1].id, 48.011, 11.021));
+    act(() => {
+      result.current.setWaypointPosition(result.current.waypoints[1].id, 48.011, 11.021);
+    });
     expect(result.current.stages.lost).toBe(0);
   });
 

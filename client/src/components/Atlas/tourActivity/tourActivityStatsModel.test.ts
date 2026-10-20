@@ -59,7 +59,7 @@ describe('tourActivityStatsModel', () => {
       entry({ tour_type: 'hike' }),
       entry({ tour_type: 'bike', date: '2026-12-01' }),
     ];
-    expect(typeOptions(entries, TODAY)).toEqual(['all', 'hike', 'kayak', 'run']);
+    expect(typeOptions(entries, TODAY)).toEqual(['all', 'hike', 'run', 'kayak']);
   });
 
   it('FE-STA2-MODEL-004: reads the year of a year period only', () => {

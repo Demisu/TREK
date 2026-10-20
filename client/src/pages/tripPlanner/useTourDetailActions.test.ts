@@ -27,7 +27,8 @@ describe('useTourDetailActions', () => {
     sessionStorage.setItem('trip-lists-subtab-5', 'todo');
     const lists = renderHook(() => useListsSubTab(5));
     expect(lists.result.current[0]).toBe('todo');
-    act(() => actions(planner()).onOpenPacking());
+    const a = actions(planner());
+    act(() => a.onOpenPacking());
     expect(lists.result.current[0]).toBe('packing');
   });
 });

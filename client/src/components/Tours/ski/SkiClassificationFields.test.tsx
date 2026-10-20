@@ -14,7 +14,7 @@ function Stateful({ initial = NO_SKI_CHOICE }: { initial?: SkiChoice }) {
   return (
     <>
       <SkiClassificationFields choice={choice} onChange={setChoice} />
-      <output data-testid="choice">{`${choice.discipline ?? 'none'}/${choice.technique ?? 'none'}`}</output>
+      <span data-testid="choice">{`${choice.discipline ?? 'none'}/${choice.technique ?? 'none'}`}</span>
     </>
   );
 }

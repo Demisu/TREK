@@ -6,6 +6,7 @@ import { buildAssignment, buildDay, buildPlace } from '../../../tests/helpers/fa
 import { paddleBench } from '../../../tests/helpers/paddleCheck'
 import { resetAllStores, seedStore } from '../../../tests/helpers/store'
 import { useSettingsStore } from '../../store/settingsStore'
+import { useTourActivityCompareStore } from '../../store/tourActivityCompareStore'
 import TourDetailDialog from './TourDetailDialog'
 import { useTripStore } from '../../store/tripStore'
 import { tourRepo } from '../../repo/tourRepo'
@@ -64,6 +65,7 @@ beforeEach(() => {
 // A repository answer one test stubs never reaches the tests after it.
 afterEach(() => {
   vi.restoreAllMocks()
+  useTourActivityCompareStore.setState({ comparison: null, mapAvailable: false })
 })
 
 describe('TourDetailDialog', () => {
@@ -346,6 +348,8 @@ describe('TourDetailDialog', () => {
       ] as [number, number][],
     }
     vi.spyOn(tourRepo, 'detail').mockResolvedValue({ tour, waypoints: [], activities: [activity] })
+    // The planner map is on screen, so the map detail may offer the switch.
+    useTourActivityCompareStore.setState({ comparison: null, mapAvailable: true })
     const { unmount } = render(<TourDetailDialog {...defaultProps} desktopNonModal />)
 
     const distance = await screen.findByTestId('tour-activity-compare-distance')

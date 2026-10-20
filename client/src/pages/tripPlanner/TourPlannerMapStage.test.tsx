@@ -45,6 +45,7 @@ const stage = vi.hoisted(() => {
       getNorth: () => 46.6,
       getEast: () => 11.9,
     })),
+    getZoom: vi.fn(() => 12),
     remove: vi.fn(),
     fitBounds: vi.fn(),
     setTerrain: vi.fn(),

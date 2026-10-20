@@ -18,13 +18,16 @@ const state = vi.hoisted(() => ({
   detail: vi.fn(),
   route: vi.fn(),
   elevation: vi.fn(),
+  // One array for every render, as the store keeps it: a new one each time would read as a change.
+  packingItems: [] as never[],
 }))
 
-vi.mock('../../store/tripStore', () => ({ useTripStore: (selector: (store: unknown) => unknown) => selector({ trip: state.trip, loadTrip: state.loadTrip, refreshPlaces: state.refreshPlaces, places: [] }) }))
+vi.mock('../../store/tripStore', () => ({ useTripStore: (selector: (store: unknown) => unknown) => selector({ trip: state.trip, loadTrip: state.loadTrip, refreshPlaces: state.refreshPlaces, places: [], packingItems: state.packingItems }) }))
 vi.mock('../../store/authStore', () => ({ useAuthStore: (selector: (store: unknown) => unknown) => selector({ user: state.user }) }))
 vi.mock('../../store/settingsStore', () => ({ useSettingsStore: (selector: (store: unknown) => unknown) => selector({ settings: { distance_unit: 'metric' } }) }))
 vi.mock('../Map/MapViewAuto', () => ({ MapViewAuto: () => null }))
 vi.mock('../../repo/tourRepo', () => ({ tourRepo: { importGpx: state.importGpx, previewGpx: state.previewGpx, create: state.create, update: state.update, detail: state.detail } }))
+vi.mock('../../repo/tourPackingLinkRepo', () => ({ tourPackingLinkRepo: { read: () => Promise.resolve(null), link: vi.fn(), unlink: vi.fn() } }))
 vi.mock('./planner/tourRouting', () => ({ routeWalkingTour: state.route, enrichTourElevations: state.elevation }))
 vi.mock('../../i18n', () => ({ useTranslation: () => ({ t: (key: string) => key, locale: 'en' }), translateApiError: () => 'error' }))
 vi.mock('../shared/Toast', () => ({ useToast: () => ({ success: vi.fn(), error: vi.fn(), warning: vi.fn(), info: vi.fn() }) }))

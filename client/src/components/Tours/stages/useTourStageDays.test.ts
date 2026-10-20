@@ -2,6 +2,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { resetAllStores, seedStore } from '../../../../tests/helpers/store';
+import { TranslationProvider } from '../../../i18n/TranslationContext';
 import { useTripStore } from '../../../store/tripStore';
 import type { AssignmentsMap } from '../../../types';
 import { dayHoldsTour, stageDaysOf, useTourStageDays } from './useTourStageDays';
@@ -12,7 +13,10 @@ vi.mock('../../shared/Toast', () => ({ useToast: () => toast }));
 /** Tour 42: its first stage on day 3, the whole of tour 7 on day 4, day 5 free. */
 const assignments = {
   '3': [{ id: 31, place_id: 42, tour_stage_key: 'stop-start' }],
-  '4': [{ id: 41, place_id: 7, tour_stage_key: null }, { id: 42, place_id: 42, tour_stage_key: null }],
+  '4': [
+    { id: 41, place_id: 7, tour_stage_key: null },
+    { id: 42, place_id: 42, tour_stage_key: null },
+  ],
   '5': [],
 } as unknown as AssignmentsMap;
 
@@ -26,7 +30,8 @@ beforeEach(() => {
   seedStore(useTripStore, { assignments, assignPlaceToDay, moveAssignment, removeAssignment });
 });
 
-const render = (canAssign = true) => renderHook(() => useTourStageDays({ tripId: 9, placeId: 42, canAssign }));
+const render = (canAssign = true) =>
+  renderHook(() => useTourStageDays({ tripId: 9, placeId: 42, canAssign }), { wrapper: TranslationProvider });
 
 describe('stage days', () => {
   it('FE-TOUR-STAGE-DAYS-001: reads which day holds which stage, by its starting stop', () => {
@@ -84,7 +89,9 @@ describe('stage days', () => {
 
   it('FE-TOUR-STAGE-DAYS-006: sends a stage once while it is on its way', async () => {
     let finish: () => void = () => undefined;
-    assignPlaceToDay.mockImplementationOnce(() => new Promise<undefined>((resolve) => (finish = () => resolve(undefined))));
+    assignPlaceToDay.mockImplementationOnce(
+      () => new Promise<undefined>((resolve) => (finish = () => resolve(undefined)))
+    );
     const { result } = render();
     let first: Promise<boolean> = Promise.resolve(false);
     let second: Promise<boolean> = Promise.resolve(false);

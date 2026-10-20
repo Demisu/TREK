@@ -371,7 +371,7 @@ describe('ToursSidebar', () => {
       <ToursSidebar tripId={1} days={[]} tours={[]} canEdit={true} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />
     )
     const file = new File(['<gpx/>'], 'loipe.gpx', { type: 'application/gpx+xml' })
-    pickFiles(screen.getByRole('button', { name: 'Import GPX' }), [file])
+    pickFiles(screen.getByRole('button', { name: 'Import GPX or KML' }), [file])
     await screen.findByRole('dialog')
 
     fireEvent.click(screen.getByTestId('tour-type-select'))
@@ -404,7 +404,7 @@ describe('ToursSidebar', () => {
       <ToursSidebar tripId={1} days={[]} tours={[]} canEdit={true} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />
     )
     const file = new File(['<gpx/>'], 'laps.gpx', { type: 'application/gpx+xml' })
-    pickFiles(screen.getByRole('button', { name: 'Import GPX' }), [file])
+    pickFiles(screen.getByRole('button', { name: 'Import GPX or KML' }), [file])
     await screen.findByRole('dialog')
 
     fireEvent.click(screen.getByTestId('tour-type-select'))
@@ -424,7 +424,7 @@ describe('ToursSidebar', () => {
       <ToursSidebar tripId={1} days={[]} tours={[]} canEdit={true} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />
     )
     const file = new File(['<gpx/>'], 'ride.gpx', { type: 'application/gpx+xml' })
-    pickFiles(screen.getByRole('button', { name: 'Import GPX' }), [file])
+    pickFiles(screen.getByRole('button', { name: 'Import GPX or KML' }), [file])
     await screen.findByRole('dialog')
     fireEvent.click(screen.getByTestId('tour-type-select'))
     fireEvent.click(screen.getByTestId('tour-type-option-horse'))

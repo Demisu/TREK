@@ -37,7 +37,7 @@ function Stateful({
   return (
     <>
       <RunFields planner={planner} locked={false} />
-      <output data-testid="pace">{pace === null ? 'none' : String(pace)}</output>
+      <span data-testid="pace">{pace === null ? 'none' : String(pace)}</span>
     </>
   );
 }
