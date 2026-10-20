@@ -11,6 +11,8 @@ const GPX_TYPE = 'application/gpx+xml';
 /** A tour's GPX file kept for the next share, as the bytes and the name the server gave them. */
 interface PreparedFile {
   placeId: number;
+  /** The tour's revision the file was read at; a file of another one is no longer the saved tour. */
+  revision: number | null;
   blob: Blob;
   name: string;
 }
@@ -23,7 +25,20 @@ export interface TourGpxExportTarget {
   tripId: number | string;
   placeId: number;
   name: string;
+  /**
+   * P2C-03: the tour's revision, raised by every saved change to it. A kept
+   * file belongs to the revision it was read at, so a save (here or arriving
+   * live from elsewhere) drops it. Absent in a tour cached before revisions.
+   */
+  revision?: number | null;
 }
+
+/** The revision a target names, one value for "none" so an absent and a null one agree. */
+const revisionOf = (target: TourGpxExportTarget | null) => target?.revision ?? null;
+
+/** The kept file when it is this tour at this revision, else null. */
+const keptFor = (kept: PreparedFile | null, target: TourGpxExportTarget) =>
+  kept?.placeId === target.placeId && kept.revision === revisionOf(target) ? kept : null;
 
 /**
  * PR1-06A, IO-01: a saved tour handed over as a GPX file, started on purpose:
@@ -56,6 +71,7 @@ export function useTourGpxExport(prefetch: TourGpxExportTarget | null = null) {
   const prefetchTripId = prefetch?.tripId ?? null;
   const prefetchPlaceId = prefetch?.placeId ?? null;
   const prefetchName = prefetch?.name ?? '';
+  const prefetchRevision = revisionOf(prefetch);
   useEffect(() => {
     if (!canShare || prefetchTripId === null || prefetchPlaceId === null) return;
     const controller = new AbortController();
@@ -64,6 +80,7 @@ export function useTourGpxExport(prefetch: TourGpxExportTarget | null = null) {
         if (controller.signal.aborted || !('blob' in result)) return;
         preparedRef.current = {
           placeId: prefetchPlaceId,
+          revision: prefetchRevision,
           blob: result.blob,
           name: result.filename ?? fallbackName(prefetchName),
         };
@@ -76,7 +93,7 @@ export function useTourGpxExport(prefetch: TourGpxExportTarget | null = null) {
       // Another tour, or the same one with changes the kept file does not hold.
       preparedRef.current = null;
     };
-  }, [canShare, prefetchTripId, prefetchPlaceId, prefetchName]);
+  }, [canShare, prefetchTripId, prefetchPlaceId, prefetchName, prefetchRevision]);
 
   /** The tour's file from the server, or null when there is none to hand over, said in a toast. */
   const fetchFile = useCallback(
@@ -116,12 +133,14 @@ export function useTourGpxExport(prefetch: TourGpxExportTarget | null = null) {
   const shareGpx = useCallback(
     async (target: TourGpxExportTarget) => {
       if (sharingRef.current) return;
-      const prepared = preparedRef.current?.placeId === target.placeId ? preparedRef.current : null;
+      const prepared = keptFor(preparedRef.current, target);
       // A fresh File for every sheet, so no share is handed one an earlier sheet still holds.
       // It goes to the sheet before anything is awaited, inside the tap that asked.
       const file = prepared ? new File([prepared.blob], prepared.name, { type: GPX_TYPE }) : await fetchFile(target);
       if (!file) return;
-      if (!prepared) preparedRef.current = { placeId: target.placeId, blob: file, name: file.name };
+      if (!prepared) {
+        preparedRef.current = { placeId: target.placeId, revision: revisionOf(target), blob: file, name: file.name };
+      }
       sharingRef.current = true;
       let outcome: FileShareOutcome;
       try {

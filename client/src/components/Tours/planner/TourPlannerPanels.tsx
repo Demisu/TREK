@@ -330,7 +330,7 @@ function GpxViewRail({
           />
           {tour.place_id > 0 && (
             <>
-              <TourGpxExportBarButton target={{ tripId: planner.tripId, placeId: tour.place_id, name: tour.name }} unsaved={false} />
+              <TourGpxExportBarButton target={{ tripId: planner.tripId, placeId: tour.place_id, name: tour.name, revision: tour.revision }} unsaved={false} />
               <TourSaveToCollectionBarButton target={{ tripId: planner.tripId, placeId: tour.place_id, name: tour.name }} unsaved={false} />
             </>
           )}

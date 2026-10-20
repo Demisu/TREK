@@ -224,6 +224,42 @@ describe('useTourGpxExport, sharing (IO-01)', () => {
     expect(repo.exportGpx).toHaveBeenCalledTimes(2);
   });
 
+  it('a saved change to the tour drops the file fetched ahead and fetches the new one (P2C-03)', async () => {
+    share.canShareFile.mockReturnValue(true);
+    share.shareFile.mockResolvedValue('shared');
+    const saved = { ...target, revision: 3 };
+    const { result, rerender } = renderHook(({ prefetch }) => useTourGpxExport(prefetch), {
+      initialProps: { prefetch: saved },
+    });
+    await act(async () => undefined);
+    expect(repo.exportGpx).toHaveBeenCalledTimes(1);
+
+    // The same tour, saved elsewhere and arriving live: name and id unchanged, a new revision.
+    const newer = new Blob(['<gpx>newer</gpx>'], { type: 'application/gpx+xml' });
+    repo.exportGpx.mockResolvedValueOnce({ offline: false, blob: newer, filename: 'Kramer-über.gpx' });
+    rerender({ prefetch: { ...saved, revision: 4 } });
+    await act(async () => undefined);
+    expect(repo.exportGpx).toHaveBeenCalledTimes(2);
+
+    act(() => {
+      void result.current.shareGpx({ ...saved, revision: 4 });
+    });
+    expect(repo.exportGpx).toHaveBeenCalledTimes(2);
+    expect(share.shareFile).toHaveBeenCalledWith(expect.objectContaining({ size: newer.size }), 'Kramer');
+    await act(async () => undefined);
+  });
+
+  it('a file a tap kept is not shared for a newer revision of the tour (P2C-03)', async () => {
+    share.shareFile.mockResolvedValue('shared');
+    const { result } = renderHook(() => useTourGpxExport());
+    await act(() => result.current.shareGpx({ ...target, revision: 1 }));
+    await act(() => result.current.shareGpx({ ...target, revision: 1 }));
+    expect(repo.exportGpx).toHaveBeenCalledTimes(1);
+    await act(() => result.current.shareGpx({ ...target, revision: 2 }));
+    expect(repo.exportGpx).toHaveBeenCalledTimes(2);
+    expect(share.shareFile).toHaveBeenCalledTimes(3);
+  });
+
   it('a kept file belongs to its tour: another tour is fetched afresh', async () => {
     share.shareFile.mockResolvedValueOnce('needs-gesture').mockResolvedValueOnce('shared');
     const { result } = renderHook(() => useTourGpxExport());

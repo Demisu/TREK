@@ -35,22 +35,38 @@ interface ChaseLens {
 
 const flyoverLens = (): ChaseLens => ({ zoom: REPLAY_ZOOM, pitch: REPLAY_PITCH });
 
+/** A zoom gesture MapLibre lets zoom around the centre: it takes that only on its way on. */
+interface ZoomGesture {
+  disable(): void;
+  enable(options?: { around: 'center' }): void;
+}
+
+/**
+ * Switches a running zoom gesture over. MapLibre's enable() returns at once on a handler that
+ * is already on, so the new anchor only holds after a disable first.
+ */
+function reanchor(gesture: ZoomGesture, around: 'center' | 'cursor') {
+  gesture.disable();
+  gesture.enable(around === 'center' ? { around: 'center' } : undefined);
+}
+
 /**
  * While the flyover runs, wheel and pinch zoom around the rider instead of the cursor, so the
  * camera never jumps back to the line after a zoom. Dragging would only pan away from a camera
- * that pulls straight back, so it is off until the flyover stops. Returns the undo.
+ * that pulls straight back, so it is off until the flyover stops. Returns the undo, which puts
+ * wheel and pinch back on the cursor the map was built with; a gesture that was off stays off.
  */
 function followGestures(map: MapLibreMap): () => void {
   const pan = map.dragPan.isEnabled();
   const wheel = map.scrollZoom.isEnabled();
   const pinch = map.touchZoomRotate.isEnabled();
   if (pan) map.dragPan.disable();
-  if (wheel) map.scrollZoom.enable({ around: 'center' });
-  if (pinch) map.touchZoomRotate.enable({ around: 'center' });
+  if (wheel) reanchor(map.scrollZoom, 'center');
+  if (pinch) reanchor(map.touchZoomRotate, 'center');
   return () => {
     if (pan) map.dragPan.enable();
-    if (wheel) map.scrollZoom.enable();
-    if (pinch) map.touchZoomRotate.enable();
+    if (wheel) reanchor(map.scrollZoom, 'cursor');
+    if (pinch) reanchor(map.touchZoomRotate, 'cursor');
   };
 }
 

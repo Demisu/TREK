@@ -676,7 +676,9 @@ export default function TourDetailDialog({
       )}
       {/* A tour written here offline has no server copy to export until it syncs. */}
       {analysis && place.id > 0 && (
-        <TourGpxExportButton target={{ tripId: place.trip_id, placeId: place.id, name: place.name }} />
+        <TourGpxExportButton
+          target={{ tripId: place.trip_id, placeId: place.id, name: place.name, revision: tour.revision }}
+        />
       )}
       {place.id > 0 && (
         <TourSaveToCollectionButton target={{ tripId: place.trip_id, placeId: place.id, name: place.name }} />

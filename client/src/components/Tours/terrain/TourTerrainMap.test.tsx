@@ -23,13 +23,17 @@ const gl = vi.hoisted(() => {
   const sources = new Map<string, Record<string, unknown>>();
   const markers: MarkerStub[] = [];
   const container = document.createElement('div');
-  /** A gesture handler: on or off, and whether wheel or pinch zoom around the centre. */
+  /**
+   * A gesture handler: on or off, and whether wheel or pinch zoom around the centre. Like
+   * MapLibre's, enable() on a handler that is already on changes nothing, its options included.
+   */
   const handler = () => {
     const state = { enabled: true, around: undefined as string | undefined };
     return {
       state,
       isEnabled: vi.fn(() => state.enabled),
       enable: vi.fn((options?: { around?: string }) => {
+        if (state.enabled) return;
         state.enabled = true;
         state.around = options?.around;
       }),
@@ -562,5 +566,30 @@ describe('TourTerrainMap', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Start over' }));
     step(1);
     expect(lastCamera()).toEqual(expect.objectContaining({ zoom: 13.4, pitch: 52 }));
+  });
+
+  it('FE-COMP-TERRAIN-019: wheel and pinch switch to the rider through an off and on, a gesture that was off stays off, and leaving puts them back', async () => {
+    frameClock();
+    gl.map.touchZoomRotate.state.enabled = false;
+    const { unmount } = await renderTerrain({ samples: LONG_TOUR });
+    loadStyle();
+    await act(async () => openTiles());
+    fireEvent.click(await screen.findByRole('button', { name: 'Play flyover' }));
+
+    // An enable() on a handler that is on is ignored, so the anchor only takes after a disable.
+    const { scrollZoom, touchZoomRotate, dragPan } = gl.map;
+    expect(scrollZoom.enable).toHaveBeenLastCalledWith({ around: 'center' });
+    const lastOf = (order: number[]) => order[order.length - 1];
+    expect(lastOf(scrollZoom.disable.mock.invocationCallOrder)).toBeLessThan(
+      lastOf(scrollZoom.enable.mock.invocationCallOrder)
+    );
+    expect(scrollZoom.state).toEqual({ enabled: true, around: 'center' });
+    expect(touchZoomRotate.enable).not.toHaveBeenCalled();
+    expect(touchZoomRotate.state.enabled).toBe(false);
+
+    unmount();
+    expect(scrollZoom.state).toEqual({ enabled: true, around: undefined });
+    expect(touchZoomRotate.state.enabled).toBe(false);
+    expect(dragPan.state.enabled).toBe(true);
   });
 });
