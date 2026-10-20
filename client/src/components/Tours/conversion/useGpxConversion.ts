@@ -136,11 +136,7 @@ export function useGpxConversion(planner: TourPlannerController) {
        * discipline is offered too, and the planner asks for the discipline before it saves.
        * A ride (HOR-01) never: no router plans one, and walking it again on foot would be no ride.
        */
-      available:
-        tour !== null &&
-        tour.tour_type !== 'horse' &&
-        (track?.length ?? 0) >= 2 &&
-        planner.canEdit,
+      available: tour !== null && tour.tour_type !== 'horse' && (track?.length ?? 0) >= 2 && planner.canEdit,
       difficulty,
       /** The import is a paddle or a ski tour: its version is drawn with straight legs, not routed. */
       paddle: drawn,

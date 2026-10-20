@@ -1,9 +1,9 @@
-import { EntityRepositoryType, type Opt, type Ref, defineEntity, p } from '@mikro-orm/core';
 import { CollectionToursRepository } from '../repositories/CollectionTours.repository';
 import { DbTimestampType } from '../types';
 import { Collections } from './Collections.entity';
 import { TourTypes } from './TourTypes.entity';
 import { Users } from './Users.entity';
+import { EntityRepositoryType, type Opt, type Ref, defineEntity, p } from '@mikro-orm/core';
 
 export class CollectionTours {
   [EntityRepositoryType]?: CollectionToursRepository;
@@ -55,7 +55,8 @@ export const CollectionToursSchema = defineEntity({
   repository: () => CollectionToursRepository,
   properties: {
     id: p.integer().primary(),
-    collection: () => p.manyToOne(Collections).ref().deleteRule('cascade').hidden().index('idx_collection_tours_collection'),
+    collection: () =>
+      p.manyToOne(Collections).ref().deleteRule('cascade').hidden().index('idx_collection_tours_collection'),
     collection_id: p.integer().persist(false).index('idx_collection_tours_collection'),
     saved_by: p.integer().nullable().persist(false).index('idx_collection_tours_saved_by'),
     name: p.text(),
@@ -93,7 +94,9 @@ export const CollectionToursSchema = defineEntity({
     source_trip_title: p.text(),
     source_tour_name: p.text(),
     created_at: p.type(DbTimestampType).defaultRaw(`CURRENT_TIMESTAMP`),
-    tourTypeRef: () => p.manyToOne(TourTypes).ref().joinColumn('tour_type').hidden().index('idx_collection_tours_tour_type'),
-    savedByRef: () => p.manyToOne(Users).ref().joinColumn('saved_by').nullable().hidden().index('idx_collection_tours_saved_by'),
+    tourTypeRef: () =>
+      p.manyToOne(TourTypes).ref().joinColumn('tour_type').hidden().index('idx_collection_tours_tour_type'),
+    savedByRef: () =>
+      p.manyToOne(Users).ref().joinColumn('saved_by').nullable().hidden().index('idx_collection_tours_saved_by'),
   },
 });

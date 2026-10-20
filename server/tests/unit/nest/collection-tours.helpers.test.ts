@@ -91,7 +91,7 @@ describe('collection tour helpers (LIB-03)', () => {
   it('LIB3-HLP-007: a kept tour carries what the trip list shows of its type, and its stages', () => {
     expect(keptTourItem(row)).toMatchObject({
       bike_profile: 'gravel',
-          ski_discipline: null,
+      ski_discipline: null,
       run_pace_seconds_per_km: null,
       stage_count: null,
     });

@@ -385,7 +385,8 @@ const tours: TranslationStrings = {
   'tours.ski.time': '滑雪用时',
   'tours.ski.timeUnknown': '未计算',
   'tours.ski.timeInfoLabel': '为什么没有滑雪用时',
-  'tours.ski.timeInfo': 'TREK 不计算滑雪用时：各段以直线绘制，并未沿雪道、缆车或小径规划。如有需要，请自行填写计划总时长。',
+  'tours.ski.timeInfo':
+    'TREK 不计算滑雪用时：各段以直线绘制，并未沿雪道、缆车或小径规划。如有需要，请自行填写计划总时长。',
   'tours.ski.classifyTitle': '为滑雪轨迹分类',
   'tours.ski.saved': '分类已保存',
   'tours.ski.saveFailed': '无法保存分类。',
@@ -737,7 +738,8 @@ const tours: TranslationStrings = {
   'tours.import.previewConfirm': '导入 {count} 条路线',
   'tours.conversion.introPaddle':
     '导入的是一条记录的轨迹。规划一条可编辑的划桨路线：TREK 从中提取控制点，像绘制划桨路线那样用直线相连，并显示两者有多接近。在你选择之前不会有任何更改。',
-  'tours.conversion.introSki': '导入的是一条记录的轨迹。规划一条可编辑的滑雪路线：TREK 从中提取控制点，像绘制滑雪路线那样用直线相连，并显示两者有多接近。在你选择之前不会有任何更改。',
+  'tours.conversion.introSki':
+    '导入的是一条记录的轨迹。规划一条可编辑的滑雪路线：TREK 从中提取控制点，像绘制滑雪路线那样用直线相连，并显示两者有多接近。在你选择之前不会有任何更改。',
   'tours.conversion.closePaddle': '建议紧贴轨迹。其各点以直线相连，因此并不是同一条线。',
   'tours.planner.moreActions': '更多操作',
   'tours.paddle.role.put_in': '下水点',

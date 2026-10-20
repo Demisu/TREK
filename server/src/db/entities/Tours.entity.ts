@@ -1,4 +1,3 @@
-import { Collection, EntityRepositoryType, type Opt, PrimaryKeyProp, type Ref, defineEntity, p } from '@mikro-orm/core';
 import { ToursRepository } from '../repositories/Tours.repository';
 import { DbTimestampType } from '../types';
 import { Places } from './Places.entity';
@@ -10,6 +9,7 @@ import { TourPackingLinks } from './TourPackingLinks.entity';
 import { TourSources } from './TourSources.entity';
 import { TourTypes } from './TourTypes.entity';
 import { TourWaypoints } from './TourWaypoints.entity';
+import { Collection, EntityRepositoryType, type Opt, PrimaryKeyProp, type Ref, defineEntity, p } from '@mikro-orm/core';
 
 export class Tours {
   [EntityRepositoryType]?: ToursRepository;
@@ -140,7 +140,8 @@ export const ToursSchema = defineEntity({
   checks: [
     {
       name: 'tours_run_pace_seconds_per_km_check',
-      expression: 'run_pace_seconds_per_km IS NULL OR (run_pace_seconds_per_km >= 120 AND run_pace_seconds_per_km <= 1200)',
+      expression:
+        'run_pace_seconds_per_km IS NULL OR (run_pace_seconds_per_km >= 120 AND run_pace_seconds_per_km <= 1200)',
     },
     { name: 'tours_revision_check', expression: 'revision >= 1' },
   ],

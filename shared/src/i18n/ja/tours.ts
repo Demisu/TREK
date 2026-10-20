@@ -410,7 +410,8 @@ const tours: TranslationStrings = {
   'tours.ski.time': 'スキー時間',
   'tours.ski.timeUnknown': '計算なし',
   'tours.ski.timeInfoLabel': 'スキー時間がない理由',
-  'tours.ski.timeInfo': 'TREK はスキー時間を計算しません。区間は直線で描かれ、コース、リフト、トレイルに沿って計画されていません。必要なら予定の合計時間をご自身で入力してください。',
+  'tours.ski.timeInfo':
+    'TREK はスキー時間を計算しません。区間は直線で描かれ、コース、リフト、トレイルに沿って計画されていません。必要なら予定の合計時間をご自身で入力してください。',
   'tours.ski.classifyTitle': 'スキーのトラックを分類',
   'tours.ski.saved': '分類を保存しました',
   'tours.ski.saveFailed': '分類を保存できませんでした。',

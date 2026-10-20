@@ -69,13 +69,7 @@ export function useTourStageLayers(
     () => toggleMapOverlay(PISTE_OVERLAY.id, pistesShown),
     [toggleMapOverlay, pistesShown]
   );
-  const pistes = useTourRasterOverlay(
-    PISTE_OVERLAY,
-    offersPistes,
-    pistesShown,
-    togglePistes,
-    mapZoom
-  );
+  const pistes = useTourRasterOverlay(PISTE_OVERLAY, offersPistes, pistesShown, togglePistes, mapZoom);
   const overlays = useMemo(
     () => [...(offersSeamarks ? [seamarks] : []), ...(offersPistes ? [pistes] : [])],
     [offersSeamarks, seamarks, offersPistes, pistes]
