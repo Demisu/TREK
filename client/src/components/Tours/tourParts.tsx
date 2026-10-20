@@ -141,48 +141,6 @@ export function TourActivityBadge({ tour }: { tour: Pick<TourListItem, 'activity
 }
 
 /**
- * The days a tour is on as small pills, "Day 2" each, the date and title in the
- * tooltip. A tour on many days names the first ones and folds the rest into "+n",
- * whose tooltip lists them. The pills come without a box of their own, so they
- * flow on in the row of pills they are put into.
- */
-export function TourDayPills({
-  tourDays,
-  shown: limit = SHOWN_TOUR_DAYS,
-}: {
-  tourDays: readonly TourDay[]
-  /** How many days to name before folding the rest; a detail with room names them all. */
-  shown?: number
-}) {
-  const { t, locale } = useTranslation()
-  if (tourDays.length === 0) return null
-  const fullLabel = ({ day, index }: TourDay) => dayMenuLabel(day, index, t, locale)
-  const shown = tourDays.length > limit ? tourDays.slice(0, limit - 1) : tourDays
-  const folded = tourDays.slice(shown.length)
-  const foldedLabel = folded.map(fullLabel).join(', ')
-  return (
-    <>
-      {shown.map((tourDay) => (
-        <Tooltip key={tourDay.day.id} label={fullLabel(tourDay)}>
-          <span data-testid="tour-day" aria-label={fullLabel(tourDay)} className="inline-flex">
-            <SoftPill icon={<CalendarDays size={10} strokeWidth={2.2} className="flex-none text-content-faint" />}>
-              {t('dayplan.dayN', { n: tourDay.index + 1 })}</SoftPill>
-          </span>
-        </Tooltip>
-      ))}
-      {folded.length > 0 && (
-        <Tooltip label={foldedLabel}>
-          <span data-testid="tour-day" aria-label={foldedLabel} className="inline-flex">
-            <SoftPill className="tabular-nums">+{folded.length}
-    </SoftPill>
-          </span>
-        </Tooltip>
-  )}
-    </>
-  )
-}
-
-/**
  * The days a tour is on, as the detail shows them: one box per day in the look
  * of the measures below, so the days and the numbers read as one block. The
  * date sits under the day's number where the day has one; the tooltip names

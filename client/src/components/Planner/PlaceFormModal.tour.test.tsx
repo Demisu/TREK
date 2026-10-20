@@ -2,7 +2,7 @@
 import type { TourListItem } from '@trek/shared';
 
 import { buildAssignment, buildPlace } from '../../../tests/helpers/factories';
-import { placeFormProps, seedPlaceFormStores } from '../../../tests/helpers/placeForm';
+import { placeFormProps, seedPlaceFormStores } from '../../../tests/helpers/placeFormSetup';
 import { render, screen } from '../../../tests/helpers/render';
 import { resetAllStores } from '../../../tests/helpers/store';
 import PlaceFormModal from './PlaceFormModal';

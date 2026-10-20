@@ -3,8 +3,8 @@ import {
   type SkiColourScheme,
   type SkiDiscipline,
   type SkiRouteLeg,
-  type SkiRoutePoint,
   type SkiRouteOptionsInput,
+  type SkiRoutePoint,
   type SkiRouteResponse,
   type SkiTechnique,
 } from '@trek/shared';

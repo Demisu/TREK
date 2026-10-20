@@ -2,8 +2,8 @@ import type { SkiColourScheme, SkiFailCode, SkiFailHint, SkiRouteLeg, SkiRoutePo
 import { skiRouteRepo, type SkiLegAnswer, type SkiPlanAnswer } from '../../../repo/skiRouteRepo';
 import type { SkiChoice } from '../ski/skiChoice';
 import { densifyLine, lineLengthM } from './tourFixedLegs';
-import { isTourRoute } from './tourRouteOutcome';
 import { freeLegBetween } from './tourRouteActions';
+import { isTourRoute } from './tourRouteOutcome';
 import { drawnTour, routeWalkingTour, type TourRoutePart, type TourRouteResult } from './tourRouting';
 
 /**

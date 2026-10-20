@@ -11,7 +11,7 @@ import { usePermissionsStore } from '../../store/permissionsStore';
 import { usePluginStore } from '../../store/pluginStore';
 import { resetAllStores, seedStore } from '../../../tests/helpers/store';
 import { buildUser, buildTrip, buildPlace, buildCategory, buildAssignment } from '../../../tests/helpers/factories';
-import { placeFormProps, seedPlaceFormStores } from '../../../tests/helpers/placeForm';
+import { placeFormProps, seedPlaceFormStores } from '../../../tests/helpers/placeFormSetup';
 import PlaceFormModal from './PlaceFormModal';
 
 // CustomTimePicker as a plain text input, see TimePickerStub.

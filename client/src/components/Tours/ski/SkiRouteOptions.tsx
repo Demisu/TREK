@@ -6,11 +6,11 @@ import {
   SKI_ROUTE_PRIORITIES,
   skiOptionsReadBy,
   skiUsesLifts,
+  type SkiRouteOptions as Options,
   type SkiDifficulty,
   type SkiDiscipline,
   type SkiLiftClass,
   type SkiPace,
-  type SkiRouteOptions as Options,
   type SkiRouteOptionsInput,
   type SkiRoutePriority,
 } from '@trek/shared';

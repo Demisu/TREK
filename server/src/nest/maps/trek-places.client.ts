@@ -750,7 +750,7 @@ const trekWayTagsSchema = z.object({
   tags: osmTagsSchema.default({}),
 });
 /** One way of the ways layer, as `way(id:...);out tags;` answers it: only the keys the layer keeps. */
-export type TrekWayTags = z.infer<typeof trekWayTagsSchema>;
+type TrekWayTags = z.infer<typeof trekWayTagsSchema>;
 
 const pointSchema = z.object({ lat: z.number().min(-90).max(90), lon: z.number().min(-180).max(180) });
 const memberSchema = z.object({ type: z.enum(['node', 'way', 'relation']), ref: osmIdSchema, role: z.string() });

@@ -1,6 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import type { TourListItem } from '@trek/shared'
-import type { Assignment } from '../../types'
 import { usePoiExplore, type Bbox } from '../../components/Map/usePoiExplore'
 import { placeActions } from '../../components/Planner/usePlaceActions'
 import { tourRouteStyle } from '../../components/Tours/planner/tourRouteStyle'
@@ -17,22 +15,7 @@ import { usePlannerFocusPoints } from './usePlannerFocusPoints'
 import { useTripPlanner } from './useTripPlanner'
 import { useTourWorkspace } from './useTourWorkspace'
 import { mapFocusKeyOf, offeredWaysOf, paddleLineOf } from './tourMapFocus'
-
-/**
- * The place form's day context: while a place is edited, the whole day plan to check its times
- * against and, TIME-02, the tour that place is, whose end the time fields work out from its start.
- */
-function placeFormContext(
-  editingPlace: { id: number } | null,
-  assignments: Record<string, Assignment[]>,
-  tours: readonly TourListItem[],
-): { dayAssignments: Assignment[]; tour: TourListItem | null } {
-  if (!editingPlace) return { dayAssignments: [], tour: null }
-  return {
-    dayAssignments: Object.values(assignments).flat(),
-    tour: tours.find(item => item.place_id === editingPlace.id) ?? null,
-  }
-}
+import { placeFormContext } from './placeFormContext'
 
 export function useTripPlannerPage() {
   const planner = useTripPlanner()
