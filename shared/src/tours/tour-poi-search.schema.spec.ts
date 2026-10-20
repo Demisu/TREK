@@ -40,7 +40,7 @@ describe('tour POI search contracts (PLN-02)', () => {
         ],
       }).success,
     ).toBe(false);
-    expect(tourPoiSearchRequestSchema.safeParse({ ...ok, tour_type: 'run' }).success).toBe(false);
+    expect(tourPoiSearchRequestSchema.safeParse({ ...ok, tour_type: 'food' }).success).toBe(false);
     expect(tourPoiSearchRequestSchema.safeParse({ ...ok, add: true }).success).toBe(false);
   });
 

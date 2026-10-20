@@ -402,6 +402,26 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Đi bộ bằng giày tuyết',
   'tours.winter.labelOnly':
     'Do du khách đánh dấu. Tuyến đường và thời gian được lập như mọi chuyến đi bộ khác, không kiểm tra cho mùa đông.',
+  'tours.planner.tourTypeHint.run': 'Đi bộ theo nhịp của bạn, trên những con đường dễ chạy',
+  'tours.planner.namePlaceholder.run': 'Buổi chạy chưa đặt tên',
+  'tours.planner.unreachable.run':
+    'Không có đường chạy được nào tới điểm {point}: đường gần nhất mà bộ định tuyến biết cách {distance}. Hãy dời điểm lên một con đường, hoặc tự vẽ đoạn tới đó.',
+  'tours.run.profile': 'Hồ sơ',
+  'tours.run.profile.running': 'Chạy bộ',
+  'tours.run.profileHint.running':
+    'Ưu tiên đường dễ chạy, trải nhựa khi có thể, trong thành phố, trong công viên và dọc bờ sông.',
+  'tours.run.pace': 'Nhịp chạy dự kiến',
+  'tours.run.paceInfoLabel': 'Cách tính thời gian chạy',
+  'tours.run.paceInfo':
+    'Nhịp chạy của riêng bạn trên mỗi kilômét. Thời gian chạy là quãng đường × nhịp chạy; độ dốc lên xuống và độ khó kỹ thuật không được tính.',
+  'tours.run.paceInvalid': 'Nhập nhịp chạy dạng phút:giây mỗi km, từ {fastest} đến {slowest}.',
+  'tours.run.paceNeeded': 'Nhập nhịp chạy của bạn để lên kế hoạch thời gian chạy và lưu buổi chạy này.',
+  'tours.run.timeEstimated': 'Thời gian chạy (dự kiến)',
+  'tours.run.timeEstimatedShort': 'Thời gian chạy',
+  'tours.run.timeEstimatedInfoLabel': 'Cách lên kế hoạch thời gian chạy',
+  'tours.run.timeEstimatedInfo':
+    'Quãng đường × nhịp chạy của bạn, không gì khác: độ dốc lên xuống và độ khó không được tính. Đây là kế hoạch, không phải thời gian đã ghi.',
+  'tours.run.timeSum': '{distance} với nhịp {pace} phút/km là {time}',
   'tours.bike.profile': 'Hồ sơ',
   'tours.bike.profile.touring': 'Du lịch',
   'tours.bike.profile.road': 'Đường trường',

@@ -413,6 +413,26 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Ciaspolata',
   'tours.winter.labelOnly':
     'Contrassegnato dai viaggiatori. Percorso e tempi sono pianificati come per ogni escursione, non verificati per l’inverno.',
+  'tours.planner.tourTypeHint.run': 'A piedi al tuo passo, su percorsi adatti alla corsa',
+  'tours.planner.namePlaceholder.run': 'Corsa senza titolo',
+  'tours.planner.unreachable.run':
+    'Nessun percorso adatto alla corsa raggiunge il punto {point}: il più vicino che il router conosce è a {distance}. Sposta il punto su un percorso o disegna a mano il tratto fin lì.',
+  'tours.run.profile': 'Profilo',
+  'tours.run.profile.running': 'Corsa',
+  'tours.run.profileHint.running':
+    'Preferisce percorsi adatti alla corsa, asfaltati dove possibile, in città, nei parchi e lungo i fiumi.',
+  'tours.run.pace': 'Passo previsto',
+  'tours.run.paceInfoLabel': 'Come si calcola il tempo di corsa',
+  'tours.run.paceInfo':
+    'Il tuo passo al chilometro. Il tempo di corsa è distanza × passo; dislivello e difficoltà tecnica non sono considerati.',
+  'tours.run.paceInvalid': 'Inserisci il passo come min:s al km, da {fastest} a {slowest}.',
+  'tours.run.paceNeeded': 'Inserisci il tuo passo per pianificare il tempo di corsa e salvare questa corsa.',
+  'tours.run.timeEstimated': 'Tempo di corsa (previsto)',
+  'tours.run.timeEstimatedShort': 'Tempo di corsa',
+  'tours.run.timeEstimatedInfoLabel': 'Come si pianifica il tempo di corsa',
+  'tours.run.timeEstimatedInfo':
+    'Distanza × il tuo passo e nient’altro: dislivello e difficoltà non sono considerati. Una pianificazione, non un tempo registrato.',
+  'tours.run.timeSum': '{distance} a {pace} min/km fanno {time}',
   'tours.bike.profile': 'Profilo',
   'tours.bike.profile.touring': 'Turismo',
   'tours.bike.profile.road': 'Strada',

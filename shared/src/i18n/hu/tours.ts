@@ -410,6 +410,26 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Hótalpas túra',
   'tours.winter.labelOnly':
     'Az utazók jelölték meg. Az útvonal és az idő úgy van tervezve, mint bármely túránál, téli szempontból nincs ellenőrizve.',
+  'tours.planner.tourTypeHint.run': 'Gyalog a saját tempódban, jól futható utakon',
+  'tours.planner.namePlaceholder.run': 'Névtelen futás',
+  'tours.planner.unreachable.run':
+    'A(z) {point}. pontot nem éri el futásra alkalmas út: a legközelebbi, amit a tervező ismer, {distance} távolságra van. Tedd a pontot egy útra, vagy rajzold meg kézzel a szakaszt odáig.',
+  'tours.run.profile': 'Profil',
+  'tours.run.profile.running': 'Futás',
+  'tours.run.profileHint.running':
+    'Jól futható, lehetőleg burkolt utakat választ a városban, parkokban és folyók mentén.',
+  'tours.run.pace': 'Tervezett tempó',
+  'tours.run.paceInfoLabel': 'Hogyan számoljuk a futásidőt',
+  'tours.run.paceInfo':
+    'A saját tempód kilométerenként. A futásidő távolság × tempó; a szintemelkedés és a technikai nehézség nem számít bele.',
+  'tours.run.paceInvalid': 'Add meg a tempót perc:mp/km formában, {fastest} és {slowest} között.',
+  'tours.run.paceNeeded': 'Add meg a tempódat a futásidő tervezéséhez és a futás mentéséhez.',
+  'tours.run.timeEstimated': 'Futásidő (tervezett)',
+  'tours.run.timeEstimatedShort': 'Futásidő',
+  'tours.run.timeEstimatedInfoLabel': 'Hogyan tervezzük a futásidőt',
+  'tours.run.timeEstimatedInfo':
+    'Távolság × a tempód, semmi más: a szintemelkedés és a nehézség nem számít bele. Terv, nem rögzített idő.',
+  'tours.run.timeSum': '{distance} {pace} perc/km tempóval: {time}',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Túra',
   'tours.bike.profile.road': 'Országúti',

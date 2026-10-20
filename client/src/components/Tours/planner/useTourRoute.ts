@@ -4,6 +4,7 @@ import type {
   PaddleBoatType,
   PaddleLakeStyle,
   PlannableTourType,
+  RunProfile,
   TourMaxHikingDifficulty,
 } from '@trek/shared';
 import {
@@ -29,6 +30,7 @@ import {
   enrichTourElevations,
   routeBikeTour,
   routeCityWalk,
+  routeRun,
   routeWalkingTour,
   type TourElevationPoint,
   type TourRoutePart,
@@ -45,6 +47,8 @@ export interface TourRouteInputs {
   maxHikingDifficulty: TourMaxHikingDifficulty;
   hikingPreferences: HikingPreferences | null;
   bikeProfile: BikeProfile;
+  /** RUN-01: the profile a run is routed for. */
+  runProfile: RunProfile;
   paddleBoat: PaddleBoatType | null;
   paddleLakeStyle: PaddleLakeStyle;
   /** Raised to plan the same points again. */
@@ -124,16 +128,23 @@ async function routePaddle({ inputs, plannedKey, runKey, signal, stale, setPlann
   setError(failed ? 'paddle-route' : null);
 }
 
-// A hike or a bike tour on land, then the heights along it.
+/**
+ * A route on land for the type of the draft: a bike tour and a run for their
+ * profile, a city walk, a hike within its limit.
+ */
+function routeLand(inputs: RouteRun['inputs'], signal: AbortSignal) {
+  const { waypoints, tourType, bikeProfile, runProfile, maxHikingDifficulty, hikingPreferences } = inputs;
+  if (tourType === 'bike') return routeBikeTour(waypoints, bikeProfile, signal);
+  if (tourType === 'run') return routeRun(waypoints, runProfile, signal);
+  if (tourType === 'walk') return routeCityWalk(waypoints, signal);
+  return routeWalkingTour(waypoints, signal, maxHikingDifficulty, hikingPreferences);
+}
+
+// A hike, a run or a bike tour on land, then the heights along it.
 async function routeOnLand({ inputs, plannedKey, runKey, signal, stale, setPlanned, setUnreachable }: RouteRun) {
-  const { waypoints, tourType, bikeProfile, maxHikingDifficulty, hikingPreferences, setStatus, setError } = inputs;
+  const { setStatus, setError } = inputs;
   setStatus('routing');
-  const routed =
-    tourType === 'bike'
-      ? await routeBikeTour(waypoints, bikeProfile, signal)
-      : tourType === 'walk'
-        ? await routeCityWalk(waypoints, signal)
-        : await routeWalkingTour(waypoints, signal, maxHikingDifficulty, hikingPreferences);
+  const routed = await routeLand(inputs, signal);
   if (stale()) return;
   if (!isTourRoute(routed)) {
     setUnreachable(routed);
@@ -168,9 +179,9 @@ async function routeOnLand({ inputs, plannedKey, runKey, signal, stale, setPlann
 
 /**
  * The route of the planner's draft, planned again a moment after its points
- * or its choices change: a hike on foot within its limit, a bike tour for its
- * profile (BIK-01), a paddle tour on the water by the server's router. A hike
- * and a bike tour then get their heights; a later change makes an answer
+ * or its choices change: a hike on foot within its limit, a bike tour and a
+ * run for their profile (BIK-01, RUN-01), a paddle tour on the water by the
+ * server's router. A tour on land then gets its heights; a later change makes an answer
  * still on its way stale, and a failure keeps the last route that was planned.
  */
 export function useTourRoute(inputs: TourRouteInputs) {
@@ -181,6 +192,7 @@ export function useTourRoute(inputs: TourRouteInputs) {
     maxHikingDifficulty,
     hikingPreferences,
     bikeProfile,
+    runProfile,
     paddleBoat,
     paddleLakeStyle,
     retryToken,
@@ -208,7 +220,15 @@ export function useTourRoute(inputs: TourRouteInputs) {
 
   const waypointKey = useMemo(() => tourWaypointKey(waypoints), [waypoints]);
   // What a route was planned for besides its points: a route of another type or profile is not this one's.
-  const choices = [tourType, bikeProfile, maxHikingDifficulty, hikingPreferences, paddleBoat, paddleLakeStyle];
+  const choices = [
+    tourType,
+    bikeProfile,
+    runProfile,
+    maxHikingDifficulty,
+    hikingPreferences,
+    paddleBoat,
+    paddleLakeStyle,
+  ];
   const plannedKey = `${waypointKey}#${JSON.stringify(choices)}`;
   // CW-02, CW-03: a station's own fields and the keys a save answered are no part of what a route is planned from,
   // so a change to them alone plans nothing again.
@@ -247,6 +267,7 @@ export function useTourRoute(inputs: TourRouteInputs) {
         maxHikingDifficulty,
         hikingPreferences,
         bikeProfile,
+        runProfile,
         paddleBoat,
         paddleLakeStyle,
         setStatus,
@@ -287,6 +308,7 @@ export function useTourRoute(inputs: TourRouteInputs) {
     retryToken,
     routeInputs,
     runKey,
+    runProfile,
     setError,
     setStatus,
     tourType,

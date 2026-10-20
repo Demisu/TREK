@@ -5,6 +5,7 @@ import {
   portageSpeedKmhSchema,
   trackMarksSchema,
 } from './paddle-plan.schema';
+import { runPaceSecondsPerKmSchema } from './run-pace';
 import { tourPoiCategorySchema } from './tour-poi-category';
 import { tourOriginSchema, tourProvenanceSchema } from './tour-provenance.schema';
 
@@ -30,9 +31,10 @@ export type TourTypeKey = z.infer<typeof tourTypeKeySchema>;
  * are offered. `kayak` is the key the paddle tour has had in `tour_types` from
  * the start; the app calls it a paddle tour, and the boat is a field of its
  * own. A bike tour (BIK-01) names its profile the same way. `walk` is the city
- * walk (CW-01): stations joined on foot, without a hiking limit.
+ * walk (CW-01): stations joined on foot, without a hiking limit. `run` is a
+ * run (RUN-01), planned on foot with the runner's own pace.
  */
-export const plannableTourTypeSchema = z.enum(['hike', 'walk', 'bike', 'kayak']);
+export const plannableTourTypeSchema = z.enum(['hike', 'walk', 'run', 'bike', 'kayak']);
 export type PlannableTourType = z.infer<typeof plannableTourTypeSchema>;
 
 /**
@@ -45,6 +47,16 @@ export type PlannableTourType = z.infer<typeof plannableTourTypeSchema>;
 export const BIKE_PROFILES = ['touring', 'road', 'gravel', 'mtb'] as const;
 export const bikeProfileSchema = z.enum(BIKE_PROFILES);
 export type BikeProfile = z.infer<typeof bikeProfileSchema>;
+
+/**
+ * RUN-01: what a run is planned as, the one profile it is routed for. Running
+ * keeps to runnable, mostly paved ways in towns, parks and along rivers;
+ * trail running follows with RUN-02. A profile asks the router for ways, it
+ * says nothing about whether one can be run.
+ */
+export const RUN_PROFILES = ['running'] as const;
+export const runProfileSchema = z.enum(RUN_PROFILES);
+export type RunProfile = z.infer<typeof runProfileSchema>;
 
 /** PAD-01: the one boat a paddle tour is planned for. */
 export const paddleBoatTypeSchema = z.enum(['kayak', 'canoe', 'sup', 'other']);
@@ -177,6 +189,10 @@ export const tourSchema = z.object({
   bike_profile: bikeProfileSchema.nullable().optional(),
   /** HIK-01: a hike's winter label; null for none and for every other type. Absent in a list cached before it existed. */
   winter_activity: winterActivitySchema.nullable().optional(),
+  /** RUN-01: a run's profile; null for every other type. Absent in a list cached before it existed. */
+  run_profile: runProfileSchema.nullable().optional(),
+  /** RUN-01: the pace a run is planned at, seconds per km; null while none is entered and for every other type. */
+  run_pace_seconds_per_km: z.number().nullable().optional(),
   /** A paddle tour's boat and water; null for every other type. Absent in a list cached before they existed. */
   boat_type: paddleBoatTypeSchema.nullable().optional(),
   water_context: paddleWaterContextSchema.nullable().optional(),
@@ -415,6 +431,10 @@ export const tourCreateRequestSchema = z
     bike_profile: bikeProfileSchema.nullable().optional(),
     /** HIK-01, a hike's only: its winter label, null to take it off; left out, an edit keeps the one it has. */
     winter_activity: winterActivitySchema.nullable().optional(),
+    /** RUN-01, a run's only, and its one requirement. */
+    run_profile: runProfileSchema.nullable().optional(),
+    /** RUN-01, a run's only: the pace it is planned at, seconds per km; null while none is entered. */
+    run_pace_seconds_per_km: runPaceSecondsPerKmSchema.nullable().optional(),
     boat_type: paddleBoatTypeSchema.nullable().optional(),
     water_context: paddleWaterContextSchema.nullable().optional(),
     paddle_speed_kmh: paddleSpeedKmhSchema.nullable().optional(),
@@ -489,6 +509,15 @@ export type TourCreateInput = z.input<typeof tourCreateRequestSchema>;
 
 type Issue = { path: Array<string | number>; message: string };
 
+/** How a refusal names each type. */
+const TYPE_NAMED: Record<PlannableTourType, string> = {
+  kayak: 'a paddle tour',
+  bike: 'a bike tour',
+  walk: 'a city walk',
+  run: 'a run',
+  hike: 'a hike',
+};
+
 const PADDLE_FIELDS = [
   'boat_type',
   'water_context',
@@ -499,8 +528,9 @@ const PADDLE_FIELDS = [
 
 /**
  * What belongs to which type: a hike carries a routing limit and no boat; a
- * bike tour exactly one profile and nothing of a hike's or a paddler's; a
- * paddle tour exactly one boat and its water, and no hiking limit.
+ * bike tour and a run exactly one profile each and nothing of a hike's or a
+ * paddler's, a run also its pace; a paddle tour exactly one boat and its
+ * water, and no hiking limit.
  */
 function tourTypeIssues(value: {
   tour_type: PlannableTourType;
@@ -508,6 +538,8 @@ function tourTypeIssues(value: {
   hiking_preferences?: HikingPreferences | null;
   bike_profile?: BikeProfile | null;
   winter_activity?: WinterActivity | null;
+  run_profile?: RunProfile | null;
+  run_pace_seconds_per_km?: number | null;
   boat_type?: PaddleBoatType | null;
   water_context?: PaddleWaterContext | null;
   paddle_speed_kmh?: number | null;
@@ -523,7 +555,7 @@ function tourTypeIssues(value: {
 }): Issue[] {
   const issues: Issue[] = [];
   const type = value.tour_type;
-  const named = { kayak: 'a paddle tour', bike: 'a bike tour', walk: 'a city walk', hike: 'a hike' }[type];
+  const named = TYPE_NAMED[type];
   if (type === 'kayak') {
     if (value.boat_type == null) issues.push({ path: ['boat_type'], message: 'a paddle tour needs a boat type' });
     if (value.water_context == null)
@@ -548,19 +580,33 @@ function tourTypeIssues(value: {
     issues.push({ path: ['bike_profile'], message: 'a bike tour needs a bike profile' });
   if (type !== 'bike' && value.bike_profile != null)
     issues.push({ path: ['bike_profile'], message: 'bike_profile belongs to a bike tour' });
+  issues.push(...runIssues(value));
   // A portage and a lock are a paddler's; a via ferrata is climbed, never ridden.
   (value.waypoints ?? []).forEach((point, index) => {
     if (type !== 'kayak' && point.fixed_leg?.kind === 'portage')
       issues.push({ path: ['waypoints', index, 'fixed_leg'], message: 'a portage belongs to a paddle tour' });
     if (type !== 'kayak' && point.lock != null)
       issues.push({ path: ['waypoints', index, 'lock'], message: 'a lock belongs to a paddle tour' });
-    if ((type === 'bike' || type === 'walk') && point.fixed_leg?.kind === 'ferrata')
+    if ((type === 'bike' || type === 'walk' || type === 'run') && point.fixed_leg?.kind === 'ferrata')
       issues.push({ path: ['waypoints', index, 'fixed_leg'], message: `${named} has no via ferrata` });
     // A stay, an importance and a protection are a city walk's stations'.
     if (type !== 'walk' && (point.stay_minutes != null || point.importance != null || point.protected === true))
       issues.push({ path: ['waypoints', index], message: 'stations belong to a city walk' });
   });
   return issues;
+}
+
+/** RUN-01: a run names its profile; its profile and pace belong to no other type. */
+function runIssues(value: {
+  tour_type: PlannableTourType;
+  run_profile?: RunProfile | null;
+  run_pace_seconds_per_km?: number | null;
+}): Issue[] {
+  if (value.tour_type === 'run')
+    return value.run_profile == null ? [{ path: ['run_profile'], message: 'a run needs a run profile' }] : [];
+  return (['run_profile', 'run_pace_seconds_per_km'] as const)
+    .filter((field) => value[field] != null)
+    .map((field) => ({ path: [field], message: `${field} belongs to a run` }));
 }
 
 export const tourCreateResponseSchema = z.object({

@@ -55,6 +55,7 @@ export * from './place/place-website';
 export * from './roadtrip/roadtrip.schema';
 export * from './place/track-colors';
 export * from './tours/tours.schema';
+export * from './tours/run-pace';
 export * from './tours/tour-provenance.schema';
 export * from './tours/tour-library.schema';
 export * from './tours/tour-poi-search.schema';

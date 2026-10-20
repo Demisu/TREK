@@ -28,8 +28,8 @@ export function TourGradeTile({ tour }: { tour: Pick<TourListItem, 'max_hiking_d
   const { t } = useTranslation()
   const level = tour.max_hiking_difficulty
   const source = tourSource(tour)
-  // A tour without a grade (a paddle or a bike tour, an import) names its type instead; a hike keeps the mountain.
-  const type = tour.tour_type === 'kayak' || tour.tour_type === 'bike' ? tour.tour_type : 'hike'
+  // A tour without a grade (a paddle or a bike tour, a run, an import) names its type instead; a hike keeps the mountain.
+  const type = tour.tour_type === 'kayak' || tour.tour_type === 'bike' || tour.tour_type === 'run' ? tour.tour_type : 'hike'
   const label = level != null ? t(`tours.planner.difficulty.t${level}`) : type !== 'hike' ? t(`tourTypes.${type}`) : null
   return (
     <span className="relative flex-none">

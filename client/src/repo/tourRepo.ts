@@ -67,6 +67,15 @@ function winterField(body: TourCreateRequest): Pick<TourListItem, 'winter_activi
   return body.winter_activity === undefined ? {} : { winter_activity: body.winter_activity }
 }
 
+/** RUN-01: a run's profile and pace as the server keeps them; any other type has neither. */
+function runFields(body: TourCreateRequest): Pick<TourListItem, 'run_profile' | 'run_pace_seconds_per_km'> {
+  const run = body.tour_type === 'run'
+  return {
+    run_profile: run ? (body.run_profile ?? null) : null,
+    run_pace_seconds_per_km: run ? (body.run_pace_seconds_per_km ?? null) : null,
+  }
+}
+
 /**
  * What the server will derive from a create or edit, worked out here for the
  * copy shown until the queued write replays: the same metrics, the duration
@@ -92,6 +101,7 @@ function routeFields(body: TourCreateRequest) {
     caution: false,
     max_hiking_difficulty: body.max_hiking_difficulty,
     ...winterField(body),
+    ...runFields(body),
     has_waypoints: true,
     ...walkStationFacts(body.tour_type, body.waypoints),
     ...(body.planned_duration_minutes !== undefined ? { planned_duration_minutes: body.planned_duration_minutes } : {}),

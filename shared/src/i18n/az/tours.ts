@@ -404,6 +404,26 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Qar ayaqqabısı ilə yürüş',
   'tours.winter.labelOnly':
     'Səyahətçilər tərəfindən qeyd edilib. Marşrut və vaxt istənilən yürüşdəki kimi planlaşdırılır, qış şəraiti üçün yoxlanılmır.',
+  'tours.planner.tourTypeHint.run': 'Piyada öz tempinizlə, qaçış üçün rahat yollarla',
+  'tours.planner.namePlaceholder.run': 'Adsız qaçış',
+  'tours.planner.unreachable.run':
+    '{point} nöqtəsinə qaçış üçün yararlı heç bir yol çatmır: marşrutlaşdırıcının bildiyi ən yaxın yol {distance} uzaqdadır. Nöqtəni yola köçürün və ya ora gedən hissəni əl ilə çəkin.',
+  'tours.run.profile': 'Profil',
+  'tours.run.profile.running': 'Qaçış',
+  'tours.run.profileHint.running':
+    'Şəhərdə, parklarda və çay boyunca qaçış üçün rahat, mümkün qədər örtüklü yollara üstünlük verir.',
+  'tours.run.pace': 'Planlaşdırılan temp',
+  'tours.run.paceInfoLabel': 'Qaçış vaxtı necə hesablanır',
+  'tours.run.paceInfo':
+    'Kilometr başına öz tempiniz. Qaçış vaxtı məsafə × tempdir; yoxuşlar, enişlər və texniki çətinlik nəzərə alınmır.',
+  'tours.run.paceInvalid': 'Tempi km başına dəq:san kimi, {fastest} ilə {slowest} arasında daxil edin.',
+  'tours.run.paceNeeded': 'Qaçış vaxtını planlaşdırmaq və bu qaçışı saxlamaq üçün tempinizi daxil edin.',
+  'tours.run.timeEstimated': 'Qaçış vaxtı (planlaşdırılan)',
+  'tours.run.timeEstimatedShort': 'Qaçış vaxtı',
+  'tours.run.timeEstimatedInfoLabel': 'Qaçış vaxtı necə planlaşdırılır',
+  'tours.run.timeEstimatedInfo':
+    'Məsafə × sizin temp, başqa heç nə: yoxuşlar, enişlər və çətinlik nəzərə alınmır. Bu plandır, qeydə alınmış vaxt deyil.',
+  'tours.run.timeSum': '{distance}, {pace} dəq/km tempdə: {time}',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Turinq',
   'tours.bike.profile.road': 'Yol',

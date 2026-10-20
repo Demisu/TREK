@@ -412,6 +412,26 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Sneeuwschoenwandeling',
   'tours.winter.labelOnly':
     'Gemarkeerd door de reizigers. Route en tijd worden gepland als bij elke wandeling, niet gecontroleerd op de winter.',
+  'tours.planner.tourTypeHint.run': 'Te voet in je eigen tempo, over goed beloopbare wegen',
+  'tours.planner.namePlaceholder.run': 'Naamloze looptocht',
+  'tours.planner.unreachable.run':
+    'Geen hardloopbare weg bereikt punt {point}: de dichtstbijzijnde die de router kent ligt {distance} verderop. Zet het punt op een weg of teken het stuk ernaartoe met de hand.',
+  'tours.run.profile': 'Profiel',
+  'tours.run.profile.running': 'Hardlopen',
+  'tours.run.profileHint.running':
+    'Kiest goed beloopbare, zo veel mogelijk verharde wegen in de stad, in parken en langs rivieren.',
+  'tours.run.pace': 'Gepland tempo',
+  'tours.run.paceInfoLabel': 'Hoe de looptijd wordt berekend',
+  'tours.run.paceInfo':
+    'Je eigen tempo per kilometer. De looptijd is afstand × tempo; hoogtemeters en technische moeilijkheid tellen niet mee.',
+  'tours.run.paceInvalid': 'Vul het tempo in als min:sec per km, van {fastest} tot {slowest}.',
+  'tours.run.paceNeeded': 'Vul je tempo in om de looptijd te plannen en deze looptocht op te slaan.',
+  'tours.run.timeEstimated': 'Looptijd (gepland)',
+  'tours.run.timeEstimatedShort': 'Looptijd',
+  'tours.run.timeEstimatedInfoLabel': 'Hoe de looptijd wordt gepland',
+  'tours.run.timeEstimatedInfo':
+    'Afstand × je tempo en verder niets: hoogtemeters en moeilijkheid tellen niet mee. Een planning, geen opgenomen tijd.',
+  'tours.run.timeSum': '{distance} bij {pace} min/km is {time}',
   'tours.bike.profile': 'Profiel',
   'tours.bike.profile.touring': 'Toer',
   'tours.bike.profile.road': 'Racefiets',

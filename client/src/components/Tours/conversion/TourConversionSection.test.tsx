@@ -9,9 +9,9 @@ import type { TourPlannerController } from '../planner/useTourPlanner';
 import TourConversionSection from './TourConversionSection';
 import { useGpxConversion } from './useGpxConversion';
 
-const routing = vi.hoisted(() => ({ route: vi.fn() }));
+const routing = vi.hoisted(() => ({ route: vi.fn(), run: vi.fn() }));
 const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn(), warning: vi.fn(), info: vi.fn() }));
-vi.mock('../planner/tourRouting', () => ({ routeWalkingTour: routing.route }));
+vi.mock('../planner/tourRouting', () => ({ routeWalkingTour: routing.route, routeRun: routing.run }));
 vi.mock('../../shared/Toast', () => ({ useToast: () => toast }));
 
 const imported: TourListItem = {
@@ -52,6 +52,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   seedStore(useSettingsStore, { settings: { distance_unit: 'metric' } });
   routing.route.mockResolvedValue({ coordinates: track, distanceMeters: 2000, durationSeconds: 1800 });
+  routing.run.mockResolvedValue({ coordinates: track, distanceMeters: 2000, durationSeconds: 1800 });
 });
 
 describe('useGpxConversion', () => {
@@ -163,6 +164,31 @@ describe('useGpxConversion', () => {
     expect(controller.startDerivedTour).toHaveBeenCalledWith(
       expect.objectContaining({ sourcePlaceId: 14, inPlace: false })
     );
+  });
+
+  it('RUN-01: a run import is routed for its profile and planned as a run, its pace left to the runner', async () => {
+    const run = {
+      ...imported,
+      tour_type: 'run' as const,
+      run_profile: 'running' as const,
+      max_hiking_difficulty: null,
+    };
+    const controller = planner({
+      mode: { type: 'view-gpx', placeId: run.place_id, tour: run },
+      readOnlyGpxTour: { tour: run, routeGeometry: null },
+    } as Partial<TourPlannerController>);
+    const { result } = renderHook(() => useGpxConversion(controller));
+    await act(async () => {
+      await result.current.analyze();
+    });
+    expect(routing.run).toHaveBeenCalledWith(result.current.points, 'running', expect.any(AbortSignal));
+    expect(routing.route).not.toHaveBeenCalled();
+    act(() => {
+      result.current.adopt('new');
+    });
+    const draft = vi.mocked(controller.startDerivedTour).mock.calls[0]?.[0];
+    expect(draft).toMatchObject({ tourType: 'run', runProfile: 'running' });
+    expect(draft).not.toHaveProperty('paddle');
   });
 
   it('PR1-05B: nothing is adopted before the suggestion is ready', () => {

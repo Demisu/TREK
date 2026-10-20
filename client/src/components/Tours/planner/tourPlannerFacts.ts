@@ -1,6 +1,7 @@
 import {
   MAX_PLANNED_TOUR_DURATION_MINUTES,
   plannableTourTypeSchema,
+  runMinutesAtPace,
   tourWebsiteSchema,
   type BikeProfile,
   type HikingPreferences,
@@ -8,12 +9,14 @@ import {
   type PaddleLakeStyle,
   type PaddleWaterContext,
   type PlannableTourType,
+  type RunProfile,
   type TourListItem,
   type TourMaxHikingDifficulty,
   type WinterActivity,
 } from '@trek/shared';
 import type { RouteGeometryAnalysis } from '../../../utils/routeGeometry';
 import { hikingTimeMinutes } from '../hikingTime';
+import { runPaceInvalid } from '../run/runPace';
 import { walkTimesOf, type WalkTimes } from './stationModel';
 
 /** The editable fields of a saved tour as the planner opens them, each with its empty value. */
@@ -30,6 +33,8 @@ export function openedTourFields(tour: TourListItem) {
     tourType: plannableTourTypeSchema.catch('hike').parse(tour.tour_type) as PlannableTourType,
     bikeProfile: (tour.bike_profile ?? 'touring') as BikeProfile,
     winterActivity: tour.winter_activity ?? null,
+    runProfile: (tour.run_profile ?? 'running') as RunProfile,
+    runPaceSecondsPerKm: tour.run_pace_seconds_per_km ?? null,
   };
 }
 
@@ -43,6 +48,9 @@ export interface TourPlannerFactsInput {
   bikeProfile: BikeProfile;
   /** HIK-01: a hike's winter label, none by default; it changes nothing the planner works out. */
   winterActivity: WinterActivity | null;
+  /** RUN-01: the profile a run is routed for, and the pace it is planned at (null while none is entered). */
+  runProfile: RunProfile;
+  runPaceSecondsPerKm: number | null;
   website: string;
   plannedDurationMinutes: number | null;
   breakAdditionalMinutes: number | null;
@@ -71,14 +79,25 @@ function invalidMinutes(value: number | null): boolean {
 }
 
 /**
- * The time on the move: a paddle tour on the water at its speed, a bike tour
- * by the router, which rides the profile at its speed and weighs the climbs, a
- * hike by the signposts' rule over distance, climb and descent once the route
- * has its heights, and by the router's own time before that.
+ * RUN-01: a run's time is its distance at the runner's pace and nothing else:
+ * no climb, no descent and no difficulty go in. Without a pace, or before the
+ * route is in, it is unknown; the router's walking time never stands in.
+ */
+function runMinutes({ runPaceSecondsPerKm: pace, routeAnalysis }: TourPlannerFactsInput): number | null {
+  if (pace === null || runPaceInvalid(pace) || !routeAnalysis) return null;
+  return runMinutesAtPace(routeAnalysis.distanceKm, pace);
+}
+
+/**
+ * The time on the move: a paddle tour on the water at its speed, a run at its
+ * pace, a bike tour by the router, which rides the profile at its speed and
+ * weighs the climbs, a hike by the signposts' rule over distance, climb and
+ * descent once the route has its heights, and by the router's own time before that.
  */
 function movingMinutes(input: TourPlannerFactsInput, routerMinutes: number | null): number | null {
   const { paddleEstimate, routeAnalysis } = input;
   if (paddleEstimate) return paddleEstimate.waterMinutes === null ? null : paddleEstimate.estimateMinutes;
+  if (input.tourType === 'run') return runMinutes(input);
   // A bike tour is timed by the router for its profile, a city walk by the router on foot.
   if (input.tourType === 'bike' || input.tourType === 'walk') return routerMinutes;
   return routeAnalysis?.gain != null && routeAnalysis.loss != null
@@ -98,16 +117,20 @@ function walkTimesFor(input: TourPlannerFactsInput, walkingMinutes: number | nul
 
 /**
  * What the type adds to a save: a hike its routing limit and its winter label,
- * a bike tour its profile, a paddle tour its boat, water and speed.
+ * a bike tour its profile, a run its profile and pace, a paddle tour its boat,
+ * water and speed.
  */
 function typeFieldsOf(input: TourPlannerFactsInput) {
   const isBike = input.tourType === 'bike';
+  const isRun = input.tourType === 'run';
   if (input.tourType === 'kayak') {
     const { boatType, waterContext, speedKmh, portageSpeedKmh, lakeStyle } = input.paddle;
     return {
       tour_type: input.tourType,
       max_hiking_difficulty: null,
       bike_profile: null,
+      run_profile: null,
+      run_pace_seconds_per_km: null,
       boat_type: boatType,
       water_context: waterContext,
       paddle_speed_kmh: speedKmh,
@@ -122,6 +145,8 @@ function typeFieldsOf(input: TourPlannerFactsInput) {
     tour_type: input.tourType,
     max_hiking_difficulty: isHike ? input.maxHikingDifficulty : null,
     bike_profile: isBike ? input.bikeProfile : null,
+    run_profile: isRun ? input.runProfile : null,
+    run_pace_seconds_per_km: isRun ? input.runPaceSecondsPerKm : null,
     boat_type: null,
     water_context: null,
     paddle_speed_kmh: null,
@@ -138,6 +163,7 @@ function typeFieldsOf(input: TourPlannerFactsInput) {
  */
 export function tourPlannerFacts(input: TourPlannerFactsInput) {
   const isPaddle = input.tourType === 'kayak';
+  const isRun = input.tourType === 'run';
   const { durationSeconds, breakAdditionalMinutes, plannedDurationMinutes } = input;
   const routerMinutes = durationSeconds === null ? null : Math.round(durationSeconds / 60);
   const walkingDurationMinutes = movingMinutes(input, routerMinutes);
@@ -152,6 +178,9 @@ export function tourPlannerFacts(input: TourPlannerFactsInput) {
     // A city walk sends no breaks (CW-02), so one left from another type cannot hold its save up.
     breakAdditionalInvalid: input.tourType !== 'walk' && invalidMinutes(breakAdditionalMinutes),
     paddleIncomplete: isPaddle && (boatType === null || waterContext === null),
+    /** RUN-01: a run is planned with a pace; without one Save waits, and a pace that is none is marked. */
+    runPaceMissing: isRun && input.runPaceSecondsPerKm === null,
+    runPaceInvalid: isRun && runPaceInvalid(input.runPaceSecondsPerKm),
     walkingDurationMinutes,
     /** CW-02: a city walk's walking time, stays and total; null for any other type. */
     stationStays: walk,
@@ -163,9 +192,9 @@ export function tourPlannerFacts(input: TourPlannerFactsInput) {
       automaticPlannedTotalMinutes > MAX_PLANNED_TOUR_DURATION_MINUTES,
     // A city walk's stops are its stays: it saves no breaks, so a cafe never counts as a stay and a break at once.
     savedBreakAdditionalMinutes: input.tourType === 'walk' ? null : breakAdditionalMinutes,
-    // The router's own time stands in for a hike without heights; a paddle tour has only its speed.
+    // The router's own time stands in for a hike without heights; a paddle tour has only its speed, a run its pace.
     savedDurationSeconds:
-      walkingDurationMinutes === null ? (isPaddle ? null : durationSeconds) : walkingDurationMinutes * 60,
+      walkingDurationMinutes === null ? (isPaddle || isRun ? null : durationSeconds) : walkingDurationMinutes * 60,
     typeFields: typeFieldsOf(input),
   };
 }

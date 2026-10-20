@@ -254,7 +254,7 @@ describe('ToursService planner creation', () => {
   it('TOURS-SVC-010: a type the catalogue holds but has not enabled is a 400 without a write', async () => {
     // The contract only lets `hike` through today; this pins what happens the
     // day it lets more keys in before the planner offers them.
-    const bike = { ...request, tour_type: 'run' } as unknown as typeof request;
+    const bike = { ...request, tour_type: 'food' } as unknown as typeof request;
 
     // A DomainError: REST answers its text as { error } at 400, an MCP tool as its error result.
     const refusal = await catchDomainError(() => service.createTour(tripId, bike));
@@ -271,7 +271,7 @@ describe('ToursService planner creation', () => {
   it('TOURS-SVC-011: an edit to a disabled type is a 400 and leaves the saved tour alone', async () => {
     const created = await service.createTour(tripId, request);
     broadcast.mockReset();
-    const bike = { ...request, name: 'Renamed', tour_type: 'run' } as unknown as typeof request;
+    const bike = { ...request, name: 'Renamed', tour_type: 'food' } as unknown as typeof request;
 
     const refusal = await catchDomainError(() => service.updateTour(tripId, String(created.tour.place_id), bike));
     expect(refusal instanceof DomainError && [refusal.getStatus(), refusal.publicMessage]).toEqual([
@@ -634,3 +634,49 @@ describe('ToursService restoring a recorded track (PR1-05B)', () => {
     await expect(service.restoreRecordedTrack(tripId, 'abc')).rejects.toBeInstanceOf(NotFoundException);
   });
 });
+
+describe('ToursService runs (RUN-01)', () => {
+  const run = {
+    ...request,
+    tour_type: 'run' as const,
+    max_hiking_difficulty: null,
+    run_profile: 'running' as const,
+    run_pace_seconds_per_km: 360,
+  };
+
+  it('TOURS-SVC-012: a run keeps its profile and pace, and a hike made of it keeps neither', async () => {
+    const created = await service.createTour(tripId, run);
+    expect(created.tour).toMatchObject({ tour_type: 'run', run_profile: 'running', run_pace_seconds_per_km: 360 });
+    expect(await firstTour()).toMatchObject({ run_profile: 'running', run_pace_seconds_per_km: 360 });
+
+    const placeId = String(created.tour.place_id);
+    const hike = await service.updateTour(tripId, placeId, { ...request, max_hiking_difficulty: 2 });
+    expect(hike.tour).toMatchObject({ tour_type: 'hike', run_profile: null, run_pace_seconds_per_km: null });
+  });
+
+  it('TOURS-SVC-013: a run without a pace stores none, and a copy and a restored import keep what the run has', async () => {
+    const created = await service.createTour(tripId, { ...run, run_pace_seconds_per_km: null });
+    expect(created.tour.run_pace_seconds_per_km).toBeNull();
+    const placeId = String(created.tour.place_id);
+    await service.updateTour(tripId, placeId, run);
+
+    const copy = await service.copyTour(tripId, placeId, 'Again');
+    expect(copy.tour).toMatchObject({ tour_type: 'run', run_profile: 'running', run_pace_seconds_per_km: 360 });
+
+    await updateRows(
+      await sharedTestOrm(testDb),
+      Tours,
+      { place: Number(placeId) },
+      {
+        recorded_route_geometry: JSON.stringify([
+          [47.45, 11.1],
+          [47.46, 11.11],
+        ]),
+      },
+    );
+    (await sharedTestOrm(testDb)).clear();
+    const restored = await service.restoreRecordedTrack(tripId, placeId);
+    expect(restored.tour).toMatchObject({ tour_type: 'run', run_profile: 'running', run_pace_seconds_per_km: 360 });
+  });
+});
+

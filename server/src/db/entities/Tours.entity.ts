@@ -40,6 +40,8 @@ export class Tours {
   taken_over_from_tour_name?: string | null;
   bike_profile?: TToursBikeProfile | null;
   winter_activity?: TToursWinterActivity | null;
+  run_profile?: TToursRunProfile | null;
+  run_pace_seconds_per_km?: number | null;
   tourTypeRef!: Ref<TourTypes>;
   tour_obstacle_reviews_collection = new Collection<TourObstacleReviews>(this);
   tour_sources: Ref<TourSources> | null = null;
@@ -93,6 +95,13 @@ export const ToursWinterActivity = {
 
 export type TToursWinterActivity = (typeof ToursWinterActivity)[keyof typeof ToursWinterActivity];
 
+export const ToursRunProfile = {
+  RUNNING: 'running',
+  TRAIL: 'trail',
+} as const;
+
+export type TToursRunProfile = (typeof ToursRunProfile)[keyof typeof ToursRunProfile];
+
 export const ToursSchema = defineEntity({
   class: Tours,
   repository: () => ToursRepository,
@@ -103,7 +112,13 @@ export const ToursSchema = defineEntity({
       properties: ['derived_from_place_id'],
     },
   ],
-  checks: [{ name: 'tours_revision_check', expression: 'revision >= 1' }],
+  checks: [
+    { name: 'tours_revision_check', expression: 'revision >= 1' },
+    {
+      name: 'tours_run_pace_seconds_per_km_check',
+      expression: 'run_pace_seconds_per_km IS NULL OR (run_pace_seconds_per_km >= 120 AND run_pace_seconds_per_km <= 1200)',
+    },
+  ],
   properties: {
     place: () => p.oneToOne(Places).primary().ref().deleteRule('cascade').nullable().hidden(),
     place_id: p.integer().nullable().persist(false),
@@ -136,6 +151,8 @@ export const ToursSchema = defineEntity({
     taken_over_from_tour_name: p.text().nullable(),
     bike_profile: p.enum(() => ToursBikeProfile).nullable(),
     winter_activity: p.enum(() => ToursWinterActivity).nullable(),
+    run_profile: p.enum(() => ToursRunProfile).nullable(),
+    run_pace_seconds_per_km: p.integer().nullable(),
     tourTypeRef: () => p.manyToOne(TourTypes).ref().joinColumn('tour_type').hidden().index('idx_tours_tour_type'),
     tour_obstacle_reviews_collection: () => p.oneToMany(TourObstacleReviews).mappedBy('place').hidden(),
     tour_sources: () => p.oneToOne(TourSources).ref().mappedBy('place').hidden(),

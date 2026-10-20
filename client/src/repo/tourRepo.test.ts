@@ -1,4 +1,4 @@
-// FE-REPO-TOUR-001 to FE-REPO-TOUR-014, FE-REPO-TOUR-042
+// FE-REPO-TOUR-001 to FE-REPO-TOUR-014, FE-REPO-TOUR-042, FE-REPO-TOUR-043
 // Tours through the offline core: read-through to Dexie, offline create and
 // edit written there and queued, and the online paths keeping the copy fresh.
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
@@ -207,6 +207,28 @@ describe('tourRepo.update', () => {
     const bike = { ...body, tour_type: 'bike' as const, bike_profile: 'touring' as const, max_hiking_difficulty: null }
     expect((await tourRepo.update(3, 40, bike)).tour.winter_activity).toBeNull()
     expect((await offlineDb.tours.get(40))?.winter_activity).toBeNull()
+  })
+
+  it('FE-REPO-TOUR-043: offline, a run shows its profile, pace and planned time at once, and another type drops them (RUN-01)', async () => {
+    setOnline(false)
+    await offlineDb.tours.put({ ...tour(), trip_id: 3 })
+    const run = {
+      ...body,
+      tour_type: 'run' as const,
+      run_profile: 'running' as const,
+      run_pace_seconds_per_km: 360,
+      max_hiking_difficulty: null,
+      duration_seconds: 48 * 60,
+    }
+
+    expect((await tourRepo.update(3, 40, run)).tour).toMatchObject({
+      tour_type: 'run',
+      run_profile: 'running',
+      run_pace_seconds_per_km: 360,
+      duration: 48,
+    })
+    expect((await tourRepo.update(3, 40, body)).tour).toMatchObject({ run_profile: null, run_pace_seconds_per_km: null })
+    expect(await offlineDb.tours.get(40)).toMatchObject({ run_profile: null, run_pace_seconds_per_km: null })
   })
 
   it('FE-REPO-TOUR-012: online edits and GPX imports refresh the cache', async () => {

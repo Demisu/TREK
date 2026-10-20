@@ -405,6 +405,26 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Pendakian dengan sepatu salju',
   'tours.winter.labelOnly':
     'Ditandai oleh para pelancong. Rute dan waktu direncanakan seperti pendakian lain, tidak diperiksa untuk musim dingin.',
+  'tours.planner.tourTypeHint.run': 'Berjalan kaki dengan tempomu sendiri, di jalan yang enak untuk lari',
+  'tours.planner.namePlaceholder.run': 'Lari tanpa judul',
+  'tours.planner.unreachable.run':
+    'Tidak ada jalan yang bisa dilalui dengan berlari menuju titik {point}: yang terdekat yang dikenal router berjarak {distance}. Pindahkan titik ke sebuah jalan, atau gambar ruas menuju titik itu secara manual.',
+  'tours.run.profile': 'Profil',
+  'tours.run.profile.running': 'Lari',
+  'tours.run.profileHint.running':
+    'Mengutamakan jalan yang enak untuk lari, sebisa mungkin beraspal, di kota, di taman, dan di tepi sungai.',
+  'tours.run.pace': 'Pace rencana',
+  'tours.run.paceInfoLabel': 'Cara waktu lari dihitung',
+  'tours.run.paceInfo':
+    'Pace milikmu sendiri per kilometer. Waktu lari adalah jarak × pace; tanjakan, turunan, dan tingkat kesulitan teknis tidak dihitung.',
+  'tours.run.paceInvalid': 'Masukkan pace sebagai mnt:dtk per km, dari {fastest} sampai {slowest}.',
+  'tours.run.paceNeeded': 'Masukkan pace-mu untuk merencanakan waktu lari dan menyimpan lari ini.',
+  'tours.run.timeEstimated': 'Waktu lari (rencana)',
+  'tours.run.timeEstimatedShort': 'Waktu lari',
+  'tours.run.timeEstimatedInfoLabel': 'Cara waktu lari direncanakan',
+  'tours.run.timeEstimatedInfo':
+    'Jarak × pace-mu, tidak ada yang lain: tanjakan, turunan, dan kesulitan tidak dihitung. Sebuah rencana, bukan waktu yang direkam.',
+  'tours.run.timeSum': '{distance} dengan pace {pace} mnt/km menjadi {time}',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Touring', // same-as-en
   'tours.bike.profile.road': 'Road', // same-as-en

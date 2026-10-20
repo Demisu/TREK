@@ -26,6 +26,7 @@ export const TOUR_POI_CATEGORIES_BY_TYPE: Record<PlannableTourType, readonly Tou
   bike: ['drinking_water', 'bike_repair', 'food', 'viewpoint', 'toilets', 'shelter', 'picnic', 'campsite', 'sights'],
   kayak: ['slipway', 'boat_rental', 'drinking_water', 'food', 'toilets', 'picnic', 'campsite', 'shelter'],
   walk: ['sights', 'museum', 'park', 'viewpoint', 'cafe', 'restaurant', 'market', 'toilets', 'drinking_water'],
+  run: ['drinking_water', 'toilets', 'park', 'viewpoint', 'cafe', 'food', 'shelter', 'sights'],
 };
 
 /**

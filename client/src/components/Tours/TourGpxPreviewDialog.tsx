@@ -4,6 +4,7 @@ import {
   type PaddleBoatType,
   type PaddleWaterContext,
   type PlannableTourType,
+  type RunProfile,
   type TourGpxImportFields,
 } from '@trek/shared';
 import { AlertTriangle, FileDown, Info } from 'lucide-react';
@@ -28,6 +29,7 @@ import {
   NEUTRAL_TINT,
 } from '../shared/DialogShell';
 import { TourTypeSelect } from './planner/TourTypeSelect';
+import { RunProfileField } from './run/RunFields';
 import { TourNotice } from './tourParts';
 import type { GpxPreviewFile, TourGpxImport } from './useTourGpxImport';
 
@@ -69,6 +71,24 @@ function PreviewTrackRow({ name, track }: { name: string; track: GpxPreviewFile[
   );
 }
 
+/** What the dialog has chosen besides the type: a paddle import's boat and water, a bike or run import's profile. */
+interface ImportChoices {
+  boat: PaddleBoatType | null;
+  water: PaddleWaterContext | null;
+  bikeProfile: BikeProfile;
+  runProfile: RunProfile;
+}
+
+/** What the import is asked to store the tracks as: the type and the fields that type names. */
+function importFields(type: PlannableTourType, chosen: ImportChoices): TourGpxImportFields {
+  if (type === 'kayak' && chosen.boat && chosen.water)
+    return { tour_type: 'kayak', boat_type: chosen.boat, water_context: chosen.water };
+  if (type === 'bike') return { tour_type: 'bike', bike_profile: chosen.bikeProfile };
+  // RUN-01: a run comes in with its profile and no pace; its time stays unknown until one is planned from it.
+  if (type === 'run') return { tour_type: 'run', run_profile: chosen.runProfile };
+  return { tour_type: 'hike' };
+}
+
 /**
  * PAD-02: a GPX file shown before anything is stored. The whole course on a
  * map, every track with its measures, the tracks the trip already holds named
@@ -90,6 +110,7 @@ function PreviewDialog({ gpxImport, files }: { gpxImport: TourGpxImport; files: 
   const [boat, setBoat] = useState<PaddleBoatType | null>(null);
   const [water, setWater] = useState<PaddleWaterContext | null>(null);
   const [bikeProfile, setBikeProfile] = useState<BikeProfile>('touring');
+  const [runProfile, setRunProfile] = useState<RunProfile>('running');
 
   const tracks = files.flatMap((file) => file.tracks.map((track) => ({ file: file.file, track })));
   const fresh = tracks.filter(({ track }) => !track.duplicate).length;
@@ -103,12 +124,7 @@ function PreviewDialog({ gpxImport, files }: { gpxImport: TourGpxImport; files: 
   const focusPoints = useMemo(() => lines.flat(), [lines]);
   const paddleIncomplete = type === 'kayak' && (boat === null || water === null);
   const canImport = fresh > 0 && !paddleIncomplete && !gpxImport.importing;
-  const fields: TourGpxImportFields =
-    type === 'kayak' && boat && water
-      ? { tour_type: 'kayak', boat_type: boat, water_context: water }
-      : type === 'bike'
-        ? { tour_type: 'bike', bike_profile: bikeProfile }
-        : { tour_type: 'hike' };
+  const fields = importFields(type, { boat, water, bikeProfile, runProfile });
   const title = files.length === 1 ? files[0].file.name : t('tours.import.previewFiles', { count: files.length });
 
   return (
@@ -195,6 +211,7 @@ function PreviewDialog({ gpxImport, files }: { gpxImport: TourGpxImport; files: 
               />
             </div>
           )}
+          {type === 'run' && <RunProfileField value={runProfile} onChange={setRunProfile} />}
           {type === 'kayak' && (
             <div data-testid="gpx-preview-paddle" className="grid grid-cols-1 gap-3 sm:grid-cols-[3fr_2fr]">
               <div className="min-w-0">

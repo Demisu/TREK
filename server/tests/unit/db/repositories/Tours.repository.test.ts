@@ -106,6 +106,10 @@ describe('ToursRepository reads', () => {
         hiking_preferences: null,
         bike_profile: null,
         winter_activity: null,
+      run_profile: null,
+      run_pace_seconds_per_km: null,
+        run_profile: null,
+        run_pace_seconds_per_km: null,
       },
       {
         place_id: older.id,
@@ -139,6 +143,10 @@ describe('ToursRepository reads', () => {
         hiking_preferences: null,
         bike_profile: null,
         winter_activity: null,
+      run_profile: null,
+      run_pace_seconds_per_km: null,
+        run_profile: null,
+        run_pace_seconds_per_km: null,
       },
     ]);
     expect((await repo.listForTrip(trip.id)).map((r) => r.place_id)).not.toContain(plain.id);
@@ -253,6 +261,8 @@ describe('ToursRepository writes', () => {
       hiking_preferences: null,
       bike_profile: null,
       winter_activity: null,
+      run_profile: null,
+      run_pace_seconds_per_km: null,
     });
   });
 
@@ -260,6 +270,8 @@ describe('ToursRepository writes', () => {
   const HIKE_UPDATE = {
     ...METRICS,
     bike_profile: null,
+    run_profile: null,
+    run_pace_seconds_per_km: null,
     boat_type: null,
     water_context: null,
     paddle_speed_kmh: null,
@@ -304,6 +316,21 @@ describe('ToursRepository writes', () => {
 
     expect(await repo.updateInTrip(trip.id, place.id, { ...HIKE_UPDATE, winter_activity: null })).toBe(true);
     expect((await repo.findInTrip(trip.id, place.id))?.winter_activity).toBeNull();
+  });
+
+  it('TOURREPO-017: a run keeps its profile and pace, an edit replaces them, and another type takes them off (RUN-01)', async () => {
+    const { trip } = fixture();
+    const place = createPlace(testDb, trip.id, { name: 'River loop' });
+    const run = { ...METRICS, tour_type: 'run', max_hiking_difficulty: null };
+    await repo.insertTour({ place_id: place.id, ...run, run_profile: 'running', run_pace_seconds_per_km: 360 });
+    expect(await repo.findInTrip(trip.id, place.id)).toMatchObject({ run_profile: 'running', run_pace_seconds_per_km: 360 });
+
+    const faster = { ...HIKE_UPDATE, ...run, run_profile: 'running' as const, run_pace_seconds_per_km: 300 };
+    expect(await repo.updateInTrip(trip.id, place.id, faster)).toBe(true);
+    expect((await repo.listForTrip(trip.id))[0]).toMatchObject({ tour_type: 'run', run_pace_seconds_per_km: 300 });
+
+    expect(await repo.updateInTrip(trip.id, place.id, HIKE_UPDATE)).toBe(true);
+    expect(await repo.findInTrip(trip.id, place.id)).toMatchObject({ run_profile: null, run_pace_seconds_per_km: null });
   });
 
   it('TOURREPO-008: listRowsForTrip and insertCopy carry every column, created_at included, onto the copied place', async () => {
@@ -352,6 +379,10 @@ describe('ToursRepository writes', () => {
         hiking_preferences: null,
         bike_profile: null,
         winter_activity: null,
+      run_profile: null,
+      run_pace_seconds_per_km: null,
+        run_profile: null,
+        run_pace_seconds_per_km: null,
         taken_over_from_trip_title: null,
         taken_over_from_tour_name: null,
       },

@@ -404,6 +404,26 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Kar ayakkabısıyla yürüyüş',
   'tours.winter.labelOnly':
     'Gezginler tarafından işaretlendi. Rota ve süre her yürüyüşteki gibi planlanır, kış koşullarına göre denetlenmez.',
+  'tours.planner.tourTypeHint.run': 'Yürüyerek kendi temponda, koşmaya uygun yollarda',
+  'tours.planner.namePlaceholder.run': 'Adsız koşu',
+  'tours.planner.unreachable.run':
+    '{point}. noktaya koşmaya uygun hiçbir yol ulaşmıyor: yönlendiricinin bildiği en yakın yol {distance} uzakta. Noktayı bir yola taşı ya da oraya giden bölümü elle çiz.',
+  'tours.run.profile': 'Profil',
+  'tours.run.profile.running': 'Koşu',
+  'tours.run.profileHint.running':
+    'Şehirde, parklarda ve nehir kenarlarında koşmaya uygun, mümkün olduğunca asfalt yolları tercih eder.',
+  'tours.run.pace': 'Planlanan tempo',
+  'tours.run.paceInfoLabel': 'Koşu süresi nasıl hesaplanır',
+  'tours.run.paceInfo':
+    'Kilometre başına kendi tempon. Koşu süresi mesafe × tempodur; tırmanışlar, inişler ve teknik zorluk hesaba katılmaz.',
+  'tours.run.paceInvalid': 'Tempoyu km başına dk:sn olarak, {fastest} ile {slowest} arasında gir.',
+  'tours.run.paceNeeded': 'Koşu süresini planlamak ve bu koşuyu kaydetmek için temponu gir.',
+  'tours.run.timeEstimated': 'Koşu süresi (planlanan)',
+  'tours.run.timeEstimatedShort': 'Koşu süresi',
+  'tours.run.timeEstimatedInfoLabel': 'Koşu süresi nasıl planlanır',
+  'tours.run.timeEstimatedInfo':
+    'Mesafe × tempon, başka hiçbir şey değil: tırmanışlar, inişler ve zorluk hesaba katılmaz. Kayıtlı bir süre değil, bir plan.',
+  'tours.run.timeSum': '{distance}, {pace} dk/km tempoyla {time}',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Tur',
   'tours.bike.profile.road': 'Yol',

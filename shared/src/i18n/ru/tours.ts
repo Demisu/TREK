@@ -423,6 +423,26 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Поход на снегоступах',
   'tours.winter.labelOnly':
     'Отмечено путешественниками. Маршрут и время рассчитаны как для любого похода, без проверки на зимние условия.',
+  'tours.planner.tourTypeHint.run': 'Пешком в своём темпе, по удобным для бега дорогам',
+  'tours.planner.namePlaceholder.run': 'Пробежка без названия',
+  'tours.planner.unreachable.run':
+    'К точке {point} не ведёт ни одна дорога для бега: ближайшая, которую знает маршрутизатор, в {distance}. Перенесите точку на дорогу или нарисуйте участок к ней вручную.',
+  'tours.run.profile': 'Профиль',
+  'tours.run.profile.running': 'Бег',
+  'tours.run.profileHint.running':
+    'Предпочитает удобные для бега, по возможности с покрытием, дороги в городе, в парках и вдоль рек.',
+  'tours.run.pace': 'Плановый темп',
+  'tours.run.paceInfoLabel': 'Как считается время бега',
+  'tours.run.paceInfo':
+    'Ваш собственный темп на километр. Время бега равно расстоянию × темп; набор высоты и техническая сложность не учитываются.',
+  'tours.run.paceInvalid': 'Введите темп как мин:с на км, от {fastest} до {slowest}.',
+  'tours.run.paceNeeded': 'Введите свой темп, чтобы рассчитать время бега и сохранить эту пробежку.',
+  'tours.run.timeEstimated': 'Время бега (план)',
+  'tours.run.timeEstimatedShort': 'Время бега',
+  'tours.run.timeEstimatedInfoLabel': 'Как планируется время бега',
+  'tours.run.timeEstimatedInfo':
+    'Расстояние × ваш темп и ничего больше: набор высоты и сложность не учитываются. Это план, а не записанное время.',
+  'tours.run.timeSum': '{distance} в темпе {pace} мин/км: {time}',
   'tours.bike.profile': 'Профиль',
   'tours.bike.profile.touring': 'Туризм',
   'tours.bike.profile.road': 'Шоссе',

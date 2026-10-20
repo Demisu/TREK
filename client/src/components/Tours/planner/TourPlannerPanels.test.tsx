@@ -993,3 +993,25 @@ describe('the paddle checklist in the rails (PAD-06)', () => {
     expect(safetyRow()).not.toBeInTheDocument()
   })
 })
+
+describe('a run in the planner rails (RUN-01)', () => {
+  const run = { mode: { type: 'new-draft' as const }, tourType: 'run' as const, isRun: true }
+
+  it('TOUR-PLANNER-RAIL-RUN-001: the overview names the time as planned and says climbs and difficulty stay out of it', () => {
+    render(<TourPlannerToursRail planner={planner({ ...run, walkingDurationMinutes: 48, plannedTotalMinutes: 48 })} tours={[tour]} {...railProps} />)
+    const facts = screen.getAllByRole('definition').map(value => [value.previousElementSibling?.textContent, value.textContent])
+    expect(facts).toEqual(expect.arrayContaining([[expect.stringMatching(/^Running time \(planned\)/), '48 min']]))
+    expect(screen.getByRole('button', { name: 'How the running time is planned' })).toHaveAccessibleDescription(
+      'Distance × your pace and nothing else: climbs, descents and difficulty are not included. A plan, not a recorded time.'
+    )
+  })
+
+  it('TOUR-PLANNER-RAIL-RUN-002: the editor asks for the profile and pace, and a point off every runnable way says so', () => {
+    const waypoints = [{ id: 'a', lat: 48, lng: 11, role: 'start' as const }, { id: 'b', lat: 48.01, lng: 11.02, role: 'end' as const }]
+    render(<TourPlannerRail planner={planner({ ...run, runPaceMissing: true, waypoints, unreachable: { unreachable: 1, snappedMeters: 900 } })} />)
+    expect(screen.getByTestId('tour-planner-run-fields')).toBeInTheDocument()
+    expect(screen.getByText('Enter your pace to plan the running time and save this run.')).toBeInTheDocument()
+    expect(screen.getByTestId('tour-planner-unreachable')).toHaveTextContent('No runnable way reaches point 2')
+    expect(screen.getByTestId('tour-planner-unreachable')).toHaveTextContent('900 m')
+  })
+})

@@ -418,6 +418,27 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Πεζοπορία με χιονοπέδιλα',
   'tours.winter.labelOnly':
     'Σημειώθηκε από τους ταξιδιώτες. Η διαδρομή και ο χρόνος σχεδιάζονται όπως σε κάθε πεζοπορία, χωρίς έλεγχο για τον χειμώνα.',
+  'tours.planner.tourTypeHint.run': 'Με τα πόδια, με τον δικό σου ρυθμό, σε δρόμους κατάλληλους για τρέξιμο',
+  'tours.planner.namePlaceholder.run': 'Τρέξιμο χωρίς τίτλο',
+  'tours.planner.unreachable.run':
+    'Κανένας δρόμος κατάλληλος για τρέξιμο δεν φτάνει στο σημείο {point}: ο πλησιέστερος που γνωρίζει ο δρομολογητής απέχει {distance}. Μετακίνησε το σημείο σε δρόμο ή σχεδίασε το τμήμα ως εκεί με το χέρι.',
+  'tours.run.profile': 'Προφίλ',
+  'tours.run.profile.running': 'Τρέξιμο',
+  'tours.run.profileHint.running':
+    'Προτιμά δρόμους κατάλληλους για τρέξιμο, κατά το δυνατόν ασφαλτοστρωμένους, στην πόλη, σε πάρκα και δίπλα σε ποτάμια.',
+  'tours.run.pace': 'Προγραμματισμένος ρυθμός',
+  'tours.run.paceInfoLabel': 'Πώς υπολογίζεται ο χρόνος τρεξίματος',
+  'tours.run.paceInfo':
+    'Ο δικός σου ρυθμός ανά χιλιόμετρο. Ο χρόνος τρεξίματος είναι απόσταση × ρυθμός· ανηφόρες, κατηφόρες και τεχνική δυσκολία δεν λαμβάνονται υπόψη.',
+  'tours.run.paceInvalid': 'Δώσε τον ρυθμό ως λεπ:δευτ ανά km, από {fastest} έως {slowest}.',
+  'tours.run.paceNeeded':
+    'Δώσε τον ρυθμό σου για να προγραμματιστεί ο χρόνος τρεξίματος και να αποθηκευτεί αυτό το τρέξιμο.',
+  'tours.run.timeEstimated': 'Χρόνος τρεξίματος (προγραμματισμένος)',
+  'tours.run.timeEstimatedShort': 'Χρόνος τρεξίματος',
+  'tours.run.timeEstimatedInfoLabel': 'Πώς προγραμματίζεται ο χρόνος τρεξίματος',
+  'tours.run.timeEstimatedInfo':
+    'Απόσταση × ο ρυθμός σου και τίποτα άλλο: ανηφόρες, κατηφόρες και δυσκολία δεν λαμβάνονται υπόψη. Πρόγραμμα, όχι καταγεγραμμένος χρόνος.',
+  'tours.run.timeSum': '{distance} με {pace} λεπ/km κάνει {time}',
   'tours.bike.profile': 'Προφίλ',
   'tours.bike.profile.touring': 'Περιήγηση',
   'tours.bike.profile.road': 'Δρόμου',

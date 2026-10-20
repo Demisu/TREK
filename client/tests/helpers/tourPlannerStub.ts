@@ -16,6 +16,13 @@ export function hikePlannerDefaults() {
     // HIK-01: a hike without a winter label, as every hike starts.
     winterActivity: null,
     setWinterActivity: vi.fn(),
+    // RUN-01: no run, so no pace asked for.
+    isRun: false,
+    runProfile: 'running' as const,
+    setRunProfile: vi.fn(),
+    runPace: { paceSecondsPerKm: null, setPace: vi.fn(), load: vi.fn() },
+    runPaceMissing: false,
+    runPaceInvalid: false,
     unreachable: null,
     paddle: {
       boatType: null,

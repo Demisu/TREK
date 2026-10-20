@@ -47,6 +47,7 @@ import {
   type PaddleBoatType,
   type PaddleLakeStyle,
   type PaddleWaterContext,
+  type RunProfile,
   type TourCreateRequest,
   type TourCreateResponse,
   type TourDetailResponse,
@@ -114,6 +115,16 @@ function winterField(input: TourCreateCommand): WinterActivity | null | undefine
 }
 
 /**
+ * RUN-01: a save's run profile and pace as stored. Only a run keeps them;
+ * another type takes them off. A run without a pace keeps none: its time stays
+ * unknown rather than reckoned at a pace nobody chose.
+ */
+function runFields(input: TourCreateCommand): Pick<TourUpdate, 'run_profile' | 'run_pace_seconds_per_km'> {
+  if (input.tour_type !== 'run') return { run_profile: null, run_pace_seconds_per_km: null };
+  return { run_profile: input.run_profile ?? null, run_pace_seconds_per_km: input.run_pace_seconds_per_km ?? null };
+}
+
+/**
  * CW-03: every point with its key, kept from the write where it came with one,
  * so the visits of a city walk's stations outlast a reorder or a new point. A
  * key sent twice stays with its first point; a later one gets a fresh key, so
@@ -166,6 +177,8 @@ export class ToursService {
       origin: r.origin as TourOrigin,
       bike_profile: r.bike_profile as BikeProfile | null,
       winter_activity: r.winter_activity as WinterActivity | null,
+      run_profile: r.run_profile as RunProfile | null,
+      run_pace_seconds_per_km: r.run_pace_seconds_per_km,
       boat_type: r.boat_type as PaddleBoatType | null,
       water_context: r.water_context as PaddleWaterContext | null,
       paddle_speed_kmh: r.paddle_speed_kmh,
@@ -208,6 +221,7 @@ export class ToursService {
       max_hiking_difficulty: input.max_hiking_difficulty,
       bike_profile: input.tour_type === 'bike' ? (input.bike_profile ?? null) : null,
       winter_activity: winterField(input),
+      ...runFields(input),
       boat_type: input.boat_type ?? null,
       water_context: input.water_context ?? null,
       paddle_speed_kmh: input.paddle_speed_kmh ?? null,
@@ -505,6 +519,8 @@ export class ToursService {
             ? wandererDifficultyToSac(row.difficulty as WandererDifficulty | null)
             : null,
         bike_profile: row.bike_profile as BikeProfile | null,
+        run_profile: row.run_profile as RunProfile | null,
+        run_pace_seconds_per_km: row.run_pace_seconds_per_km,
         boat_type: row.boat_type as PaddleBoatType | null,
         water_context: row.water_context as PaddleWaterContext | null,
         paddle_speed_kmh: row.paddle_speed_kmh,
@@ -614,6 +630,8 @@ export class ToursService {
       max_hiking_difficulty: row.max_hiking_difficulty,
       bike_profile: row.bike_profile as BikeProfile | null,
       winter_activity: row.winter_activity as WinterActivity | null,
+      run_profile: row.run_profile as RunProfile | null,
+      run_pace_seconds_per_km: row.run_pace_seconds_per_km,
       boat_type: row.boat_type as PaddleBoatType | null,
       water_context: row.water_context as PaddleWaterContext | null,
       paddle_speed_kmh: row.paddle_speed_kmh,
@@ -797,9 +815,12 @@ export class ToursService {
     const rows = this.readGpxTracks(fileBuffer, fileName);
     if (rows.length === 0) return null;
     await this.assertTourTypeEnabled(fields.tour_type);
-    // What the type adds to each imported tour: a bike tour its profile, a paddle tour its boat and water.
+    // What the type adds to each imported tour: a bike tour and a run their profile, a paddle tour its boat and water.
+    // A run comes in without a pace: its time stays unknown until one is planned from it.
     const typeFields = {
       bike_profile: fields.bike_profile ?? null,
+      run_profile: fields.run_profile ?? null,
+      run_pace_seconds_per_km: null,
       boat_type: fields.boat_type ?? null,
       water_context: fields.water_context ?? null,
       paddle_speed_kmh: null,

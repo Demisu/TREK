@@ -81,6 +81,7 @@ export function TourNameField({ planner, locked }: TourFieldProps) {
             bike: t('tours.planner.namePlaceholder.bike'),
             kayak: t('tours.planner.namePlaceholder.kayak'),
             walk: t('tours.planner.namePlaceholder.walk'),
+            run: t('tours.planner.namePlaceholder.run'),
           }[planner.tourType]
         }
         className={INPUT}

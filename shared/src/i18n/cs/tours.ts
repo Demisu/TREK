@@ -403,6 +403,26 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Túra na sněžnicích',
   'tours.winter.labelOnly':
     'Označeno cestovateli. Trasa a čas se plánují jako u každé túry, bez kontroly zimních podmínek.',
+  'tours.planner.tourTypeHint.run': 'Pěšky vlastním tempem, po dobře běhatelných cestách',
+  'tours.planner.namePlaceholder.run': 'Běh bez názvu',
+  'tours.planner.unreachable.run':
+    'K bodu {point} nevede žádná cesta vhodná k běhu: nejbližší, kterou router zná, je {distance} daleko. Přesuňte bod na cestu, nebo úsek k němu nakreslete ručně.',
+  'tours.run.profile': 'Profil',
+  'tours.run.profile.running': 'Běh',
+  'tours.run.profileHint.running':
+    'Dává přednost dobře běhatelným, pokud možno zpevněným cestám ve městě, v parcích a podél řek.',
+  'tours.run.pace': 'Plánované tempo',
+  'tours.run.paceInfoLabel': 'Jak se počítá čas běhu',
+  'tours.run.paceInfo':
+    'Vaše vlastní tempo na kilometr. Čas běhu je vzdálenost × tempo; převýšení a technická obtížnost se nezapočítávají.',
+  'tours.run.paceInvalid': 'Zadejte tempo jako min:s na km, od {fastest} do {slowest}.',
+  'tours.run.paceNeeded': 'Zadejte své tempo, aby se naplánoval čas běhu a běh šel uložit.',
+  'tours.run.timeEstimated': 'Čas běhu (plánovaný)',
+  'tours.run.timeEstimatedShort': 'Čas běhu',
+  'tours.run.timeEstimatedInfoLabel': 'Jak se plánuje čas běhu',
+  'tours.run.timeEstimatedInfo':
+    'Vzdálenost × vaše tempo a nic dalšího: převýšení a obtížnost se nezapočítávají. Plán, ne zaznamenaný čas.',
+  'tours.run.timeSum': '{distance} při {pace} min/km dává {time}',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Treking',
   'tours.bike.profile.road': 'Silnice',

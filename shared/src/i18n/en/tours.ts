@@ -403,6 +403,25 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Snowshoe hike',
   'tours.winter.labelOnly':
     'Marked by the travellers. Route and time are planned as for any hike, not checked for winter.',
+  'tours.planner.tourTypeHint.run': 'On foot at your own pace, on runnable ways',
+  'tours.planner.namePlaceholder.run': 'Untitled run',
+  'tours.planner.unreachable.run':
+    'No runnable way reaches point {point}: the nearest the router knows is {distance} away. Move the point onto a way, or draw the leg to it by hand.',
+  'tours.run.profile': 'Profile',
+  'tours.run.profile.running': 'Running',
+  'tours.run.profileHint.running': 'Prefers runnable, mostly paved ways in town, in parks and along rivers.',
+  'tours.run.pace': 'Planned pace',
+  'tours.run.paceInfoLabel': 'How the running time is worked out',
+  'tours.run.paceInfo':
+    'Your own pace per kilometre. The running time is distance × pace; climbs, descents and how technical the way is are not included.',
+  'tours.run.paceInvalid': 'Enter the pace as min:sec per km, from {fastest} to {slowest}.',
+  'tours.run.paceNeeded': 'Enter your pace to plan the running time and save this run.',
+  'tours.run.timeEstimated': 'Running time (planned)',
+  'tours.run.timeEstimatedShort': 'Running time',
+  'tours.run.timeEstimatedInfoLabel': 'How the running time is planned',
+  'tours.run.timeEstimatedInfo':
+    'Distance × your pace and nothing else: climbs, descents and difficulty are not included. A plan, not a recorded time.',
+  'tours.run.timeSum': '{distance} at {pace} min/km is {time}',
   'tours.bike.profile': 'Profile',
   'tours.bike.profile.touring': 'Touring',
   'tours.bike.profile.road': 'Road',

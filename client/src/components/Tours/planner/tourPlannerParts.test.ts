@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { tourPlannerFacts, type TourPlannerFactsInput } from './tourPlannerFacts';
+import { openedTourFields, tourPlannerFacts, type TourPlannerFactsInput } from './tourPlannerFacts';
 import { usePlannerHistory } from './usePlannerHistory';
 import { useTourDraftStorage } from './useTourDraftStorage';
 
@@ -10,6 +10,8 @@ const hike = (overrides: Partial<TourPlannerFactsInput> = {}): TourPlannerFactsI
   hikingPreferences: null,
   bikeProfile: 'touring',
   winterActivity: null,
+  runProfile: 'running',
+  runPaceSecondsPerKm: null,
   website: '',
   plannedDurationMinutes: null,
   breakAdditionalMinutes: null,
@@ -75,6 +77,67 @@ describe('tourPlannerFacts', () => {
     for (const tourType of ['bike', 'walk', 'kayak'] as const) {
       expect(tourPlannerFacts(hike({ tourType, winterActivity: 'winter_hike' })).typeFields.winter_activity).toBeNull();
     }
+  });
+
+  it('RUN-01: times a run as its distance at the pace, nothing else, and saves its profile and pace', () => {
+    // 8 km with 600 m up and down at 6:00 min/km: 48 minutes, the climb left out.
+    const analysis = { distanceKm: 8, gain: 600, loss: 600 } as TourPlannerFactsInput['routeAnalysis'];
+    const facts = tourPlannerFacts(
+      hike({ tourType: 'run', runPaceSecondsPerKm: 360, routeAnalysis: analysis, durationSeconds: 7200 })
+    );
+    expect(facts.walkingDurationMinutes).toBe(48);
+    expect(facts.plannedTotalMinutes).toBe(48);
+    expect(facts.savedDurationSeconds).toBe(48 * 60);
+    expect(facts.runPaceMissing).toBe(false);
+    expect(facts.runPaceInvalid).toBe(false);
+    expect(facts.typeFields).toMatchObject({
+      tour_type: 'run',
+      run_profile: 'running',
+      run_pace_seconds_per_km: 360,
+      max_hiking_difficulty: null,
+      hiking_preferences: null,
+      winter_activity: null,
+      bike_profile: null,
+    });
+    const withBreak = hike({
+      tourType: 'run',
+      runPaceSecondsPerKm: 360,
+      routeAnalysis: analysis,
+      breakAdditionalMinutes: 12,
+    });
+    expect(tourPlannerFacts(withBreak).plannedTotalMinutes).toBe(60);
+  });
+
+  it('RUN-01: a run without a pace, or with one that is none, has no time and no save, never the router time', () => {
+    const analysis = { distanceKm: 8, gain: 0, loss: 0 } as TourPlannerFactsInput['routeAnalysis'];
+    const missing = tourPlannerFacts(hike({ tourType: 'run', routeAnalysis: analysis, durationSeconds: 7200 }));
+    expect(missing.walkingDurationMinutes).toBeNull();
+    expect(missing.savedDurationSeconds).toBeNull();
+    expect(missing.runPaceMissing).toBe(true);
+    for (const pace of [Number.NaN, 0, -360, 1201]) {
+      const facts = tourPlannerFacts(hike({ tourType: 'run', runPaceSecondsPerKm: pace, routeAnalysis: analysis }));
+      expect(facts.runPaceInvalid).toBe(true);
+      expect(facts.walkingDurationMinutes).toBeNull();
+    }
+    // Before the route is in, the time waits for it.
+    expect(tourPlannerFacts(hike({ tourType: 'run', runPaceSecondsPerKm: 360 })).walkingDurationMinutes).toBeNull();
+    // Another type carries neither, and is never held back by a pace.
+    const bike = tourPlannerFacts(hike({ tourType: 'bike', runPaceSecondsPerKm: 360 }));
+    expect(bike.typeFields).toMatchObject({ run_profile: null, run_pace_seconds_per_km: null });
+    expect([bike.runPaceMissing, bike.runPaceInvalid]).toEqual([false, false]);
+    const paddle = tourPlannerFacts(hike({ tourType: 'kayak', runPaceSecondsPerKm: 360 }));
+    expect(paddle.typeFields).toMatchObject({ run_profile: null, run_pace_seconds_per_km: null });
+  });
+
+  it('RUN-01: opens a saved run with its profile and pace, and any tour cached before them with none', () => {
+    const run = { name: 'River loop', tour_type: 'run', run_profile: 'running', run_pace_seconds_per_km: 330 };
+    expect(openedTourFields(run as Parameters<typeof openedTourFields>[0])).toMatchObject({
+      tourType: 'run',
+      runProfile: 'running',
+      runPaceSecondsPerKm: 330,
+    });
+    const hikeOpened = openedTourFields({ name: 'Ridge', tour_type: 'hike' } as Parameters<typeof openedTourFields>[0]);
+    expect(hikeOpened).toMatchObject({ runProfile: 'running', runPaceSecondsPerKm: null });
   });
 
   it('holds the fields to their bounds, and a total that runs past a day without an override', () => {
@@ -236,5 +299,24 @@ describe('useTourDraftStorage', () => {
     });
     localStorage.setItem('tour-draft-6', JSON.stringify({ ...draft, winterActivity: 'ski_tour' }));
     expect(renderHook(() => useTourDraftStorage(6)).result.current.restored).toBeNull();
+  });
+
+  it('RUN-01: gives back a draft with its run profile and pace, and drops one it cannot read', () => {
+    localStorage.clear();
+    const draft = { version: 10, name: 'River loop', waypoints: [{ id: 'a', lat: 48, lng: 11, role: 'start' }] };
+    const run = { ...draft, tourType: 'run', runProfile: 'running', runPaceSecondsPerKm: 345 };
+    localStorage.setItem('tour-draft-7', JSON.stringify(run));
+    expect(renderHook(() => useTourDraftStorage(7)).result.current.restored).toMatchObject({
+      tourType: 'run',
+      runProfile: 'running',
+      runPaceSecondsPerKm: 345,
+    });
+    localStorage.setItem('tour-draft-8', JSON.stringify({ ...draft, runPaceSecondsPerKm: null }));
+    const unpaced = renderHook(() => useTourDraftStorage(8)).result.current.restored;
+    expect(unpaced).toMatchObject({ runPaceSecondsPerKm: null });
+    localStorage.setItem('tour-draft-9', JSON.stringify({ ...draft, runProfile: 'sprint' }));
+    expect(renderHook(() => useTourDraftStorage(9)).result.current.restored).toBeNull();
+    localStorage.setItem('tour-draft-10', JSON.stringify({ ...draft, runPaceSecondsPerKm: -5 }));
+    expect(renderHook(() => useTourDraftStorage(10)).result.current.restored).toBeNull();
   });
 });

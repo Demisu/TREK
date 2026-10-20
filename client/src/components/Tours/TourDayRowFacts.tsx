@@ -1,5 +1,5 @@
-import type { TourListItem } from '@trek/shared';
-import { ArrowUp, CheckCheck, Clock, Pause, Ruler, type LucideIcon } from 'lucide-react';
+import { plannableTourTypeSchema, type TourListItem } from '@trek/shared';
+import { ArrowUp, CheckCheck, Clock, Gauge, Pause, Ruler, type LucideIcon } from 'lucide-react';
 import { createElement, useId, useState } from 'react';
 import { useTranslation } from '../../i18n';
 import { useSettingsStore } from '../../store/settingsStore';
@@ -8,6 +8,7 @@ import { WhiteBadge } from '../Planner/planParts';
 import { fs } from '../shared/DialogShell';
 import { Tooltip } from '../shared/Tooltip';
 import { paddleCheckFact } from './paddle/paddleCheckModel';
+import { runPaceText } from './run/runPaceText';
 import { tourDayRowIcon } from './tourDayRowIcon';
 import { movingTimeLabel } from './tourFacts';
 import { formatPlannedTourDuration, plannedTotalText, tourPlannedTimes } from './tourPresentation';
@@ -15,9 +16,19 @@ import { useWalkProgress } from './walk/walkProgress';
 import { walkStaysText } from './walk/walkTimeFields';
 import { WinterCornerMark } from './winter/winterMarks';
 
+/** Whether the app names this type: one it plans, not a key only the catalogue holds. */
+function knownType(type: string): boolean {
+  return plannableTourTypeSchema.safeParse(type).success;
+}
+
+/** The icon the time on the move goes by: a ride, a run or a paddle by its type's own, any walk by footprints. */
+function movingIconType(type: string): string {
+  return type === 'kayak' || type === 'bike' || type === 'run' ? type : 'walk';
+}
+
 export function TourDayRowIcon({ type, size = 27 }: { type: string; size?: number }) {
   const { t } = useTranslation();
-  const known = ['hike', 'bike', 'walk', 'kayak'].includes(type);
+  const known = knownType(type);
   return (
     <span
       data-testid="plan-tour-icon"
@@ -112,7 +123,7 @@ function TourGradeAvatar({
 }) {
   const { t } = useTranslation();
   const level = tour.max_hiking_difficulty;
-  const known = ['hike', 'bike', 'walk', 'kayak'].includes(tour.tour_type);
+  const known = knownType(tour.tour_type);
   const label =
     level != null
       ? t(`tours.planner.difficulty.t${level}`)
@@ -187,8 +198,11 @@ export function TourDayRowPills({ tour, compact = false }: { tour: TourListItem;
   const walking = times.walkingMinutes == null ? null : formatPlannedTourDuration(times.walkingMinutes);
   const total = plannedTotalText(times, t);
   const staysText = times.walk ? walkStaysText(times.walk, t) : null;
+  const pace = runPaceText(tour);
   const timeParts = [
     walking ? `${movingTimeLabel(tour, t('tours.planner.inspector.duration'), t)}: ${walking}` : null,
+    // RUN-01: the pace the running time is planned at.
+    pace ? `${t('tours.run.pace')}: ${pace}` : null,
     times.breakMinutes
       ? `${t('tours.planner.breaksAdditional')}: ${formatPlannedTourDuration(times.breakMinutes)}`
       : null,
@@ -250,11 +264,13 @@ export default function TourDayRowFacts({
     add(ArrowUp, formatElevation(tour.elevation_gain, unit), t('tours.detail.ascent'), 'plan-tour-ascent');
   if (times.walkingMinutes != null)
     add(
-      tourDayRowIcon(tour.tour_type === 'kayak' || tour.tour_type === 'bike' ? tour.tour_type : 'walk'),
+      tourDayRowIcon(movingIconType(tour.tour_type)),
       formatPlannedTourDuration(times.walkingMinutes),
       movingTimeLabel(tour, t('tours.planner.inspector.duration'), t),
       'trip-plan-tour-walking-time'
     );
+  const pace = runPaceText(tour);
+  if (pace) add(Gauge, pace, t('tours.run.pace'), 'plan-tour-run-pace');
   if (times.breakMinutes != null && times.breakMinutes > 0)
     add(
       Pause,

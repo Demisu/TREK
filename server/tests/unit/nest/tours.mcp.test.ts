@@ -371,4 +371,25 @@ describe('ToursMcp', () => {
     expect(description).toMatch(/winter_activity: winter_hike or snowshoe/);
     expect(description).toContain('never a statement that a way can be walked in winter');
   });
+
+  it('TOURS-MCP-016: list_tours names a run with its profile and pace, and says its time is a plan at that pace only (RUN-01)', async () => {
+    const { user, trip, ridge, gorge } = fixture();
+    const orm = await createTestOrm(db);
+    await updateRows(
+      orm,
+      Tours,
+      { place: ridge.id },
+      { tourTypeRef: 'run', max_hiking_difficulty: null, run_profile: 'running', run_pace_seconds_per_km: 360 },
+    );
+    await orm.close();
+    const { tours } = read(await mcp.listTours({ tripId: trip.id }, ctx(user.id)));
+    const byId = new Map(tours.map((tour: { place_id: number }) => [tour.place_id, tour]));
+    expect(byId.get(ridge.id)).toMatchObject({ tour_type: 'run', run_profile: 'running', run_pace_seconds_per_km: 360 });
+    expect(byId.get(gorge.id)).toMatchObject({ run_profile: null, run_pace_seconds_per_km: null });
+    const entry = getEntry(ToursMcp as unknown as ClassRef, 'listTours');
+    const description = entry?.kind === 'tool' ? (entry.options.description ?? '') : '';
+    expect(description).toMatch(/run_profile: running/);
+    expect(description).toContain('no climb, descent or difficulty is in it');
+    expect(description).toContain('never a recorded time');
+  });
 });

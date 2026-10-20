@@ -410,6 +410,26 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Ruta con raquetas de nieve',
   'tours.winter.labelOnly':
     'Marcado por los viajeros. Ruta y tiempo se planifican como en cualquier ruta, sin comprobación invernal.',
+  'tours.planner.tourTypeHint.run': 'A pie a tu ritmo, por caminos buenos para correr',
+  'tours.planner.namePlaceholder.run': 'Carrera sin título',
+  'tours.planner.unreachable.run':
+    'Ningún camino apto para correr llega al punto {point}: el más cercano que conoce el enrutador está a {distance}. Mueve el punto a un camino o dibuja el tramo hasta él a mano.',
+  'tours.run.profile': 'Perfil',
+  'tours.run.profile.running': 'Correr',
+  'tours.run.profileHint.running':
+    'Prefiere caminos buenos para correr, asfaltados en lo posible, en la ciudad, en parques y junto a ríos.',
+  'tours.run.pace': 'Ritmo previsto',
+  'tours.run.paceInfoLabel': 'Cómo se calcula el tiempo de carrera',
+  'tours.run.paceInfo':
+    'Tu propio ritmo por kilómetro. El tiempo de carrera es distancia × ritmo; el desnivel y la dificultad técnica no se tienen en cuenta.',
+  'tours.run.paceInvalid': 'Introduce el ritmo como min:s por km, de {fastest} a {slowest}.',
+  'tours.run.paceNeeded': 'Introduce tu ritmo para planificar el tiempo de carrera y guardar esta carrera.',
+  'tours.run.timeEstimated': 'Tiempo de carrera (previsto)',
+  'tours.run.timeEstimatedShort': 'Tiempo de carrera',
+  'tours.run.timeEstimatedInfoLabel': 'Cómo se planifica el tiempo de carrera',
+  'tours.run.timeEstimatedInfo':
+    'Distancia × tu ritmo y nada más: el desnivel y la dificultad no se tienen en cuenta. Una planificación, no un tiempo registrado.',
+  'tours.run.timeSum': '{distance} a {pace} min/km son {time}',
   'tours.bike.profile': 'Perfil',
   'tours.bike.profile.touring': 'Cicloturismo',
   'tours.bike.profile.road': 'Carretera',

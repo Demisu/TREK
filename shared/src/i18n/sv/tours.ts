@@ -402,6 +402,25 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Snöskovandring',
   'tours.winter.labelOnly':
     'Märkt av resenärerna. Rutt och tid planeras som för alla vandringar, inte kontrollerade för vinter.',
+  'tours.planner.tourTypeHint.run': 'Till fots i din egen takt, på bra löpvägar',
+  'tours.planner.namePlaceholder.run': 'Namnlös löptur',
+  'tours.planner.unreachable.run':
+    'Ingen väg som går att springa på når punkt {point}: den närmaste som routern känner till ligger {distance} bort. Flytta punkten till en väg eller rita sträckan dit för hand.',
+  'tours.run.profile': 'Profil',
+  'tours.run.profile.running': 'Löpning',
+  'tours.run.profileHint.running': 'Föredrar bra löpvägar, belagda där det går, i stan, i parker och längs vattendrag.',
+  'tours.run.pace': 'Planerat tempo',
+  'tours.run.paceInfoLabel': 'Så räknas löptiden ut',
+  'tours.run.paceInfo':
+    'Ditt eget tempo per kilometer. Löptiden är sträcka × tempo; stigningar och teknisk svårighet räknas inte in.',
+  'tours.run.paceInvalid': 'Ange tempot som min:sek per km, från {fastest} till {slowest}.',
+  'tours.run.paceNeeded': 'Ange ditt tempo för att planera löptiden och spara löpturen.',
+  'tours.run.timeEstimated': 'Löptid (planerad)',
+  'tours.run.timeEstimatedShort': 'Löptid',
+  'tours.run.timeEstimatedInfoLabel': 'Så planeras löptiden',
+  'tours.run.timeEstimatedInfo':
+    'Sträcka × ditt tempo och inget annat: stigningar och svårighet räknas inte in. En planering, ingen inspelad tid.',
+  'tours.run.timeSum': '{distance} i {pace} min/km blir {time}',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Tur',
   'tours.bike.profile.road': 'Landsväg',

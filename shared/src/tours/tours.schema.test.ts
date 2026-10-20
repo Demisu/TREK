@@ -8,6 +8,7 @@ import {
   MAX_STATION_STAY_MINUTES,
   recommendedPaddleSpeedKmh,
   plannedTourDurationMinutesSchema,
+  RUN_PROFILES,
   stationKeySchema,
   tourCopyRequestSchema,
   tourCreateRequestSchema,
@@ -284,7 +285,7 @@ describe('Tours paddle type', () => {
   it('refuses boat fields on a hike, and a type nobody can plan yet', () => {
     expect(() => tourCreateRequestSchema.parse({ ...baseRequest, boat_type: 'sup' })).toThrow(/paddle tour/);
     expect(() => tourCreateRequestSchema.parse({ ...baseRequest, paddle_speed_kmh: 4 })).toThrow(/paddle tour/);
-    expect(() => tourCreateRequestSchema.parse({ ...baseRequest, tour_type: 'run' })).toThrow();
+    expect(() => tourCreateRequestSchema.parse({ ...baseRequest, tour_type: 'food' })).toThrow();
   });
 
   it('suggests 4 km/h for kayak, canoe and SUP, and nothing for any other boat', () => {
@@ -588,5 +589,87 @@ describe('winter activity of a hike (HIK-01)', () => {
     expect(tourListItemSchema.parse({ ...listedHike, winter_activity: 'snowshoe' }).winter_activity).toBe('snowshoe');
     expect(tourListItemSchema.parse(listedHike).winter_activity).toBeUndefined();
     expect(tourListItemSchema.safeParse({ ...listedHike, winter_activity: 'ski_tour' }).success).toBe(false);
+  });
+});
+
+describe('runs (RUN-01)', () => {
+  const run = { ...baseRequest, tour_type: 'run' as const, run_profile: 'running' as const };
+  const ferrata = {
+    kind: 'ferrata' as const,
+    ref: 'way/1',
+    name: null,
+    geometry: [
+      [48, 11],
+      [48.01, 11.02],
+    ],
+  };
+
+  it('saves a run with its profile and pace, and nothing of a hike, a bike tour or a paddle tour', () => {
+    expect(RUN_PROFILES).toEqual(['running']);
+    expect(tourCreateRequestSchema.parse({ ...run, run_pace_seconds_per_km: 360 })).toMatchObject({
+      tour_type: 'run',
+      run_profile: 'running',
+      run_pace_seconds_per_km: 360,
+      max_hiking_difficulty: null,
+    });
+    // Without a pace the run has no time: unknown, never a pace TREK made up.
+    expect(tourCreateRequestSchema.parse(run).run_pace_seconds_per_km).toBeUndefined();
+    expect(tourCreateRequestSchema.parse({ ...run, run_pace_seconds_per_km: null }).run_pace_seconds_per_km).toBeNull();
+  });
+
+  it('refuses a pace that is no whole number of seconds, not positive or out of bounds', () => {
+    for (const pace of [0, -300, 119, 1201, 360.5, Number.NaN]) {
+      expect(tourCreateRequestSchema.safeParse({ ...run, run_pace_seconds_per_km: pace }).success).toBe(false);
+    }
+    expect(tourCreateRequestSchema.safeParse({ ...run, run_pace_seconds_per_km: 120 }).success).toBe(true);
+    expect(tourCreateRequestSchema.safeParse({ ...run, run_pace_seconds_per_km: 1200 }).success).toBe(true);
+  });
+
+  it('refuses a run without a profile, with a profile it does not know, or with fields of another type', () => {
+    expect(() => tourCreateRequestSchema.parse({ ...run, run_profile: null })).toThrow(/a run needs a run profile/);
+    expect(tourCreateRequestSchema.safeParse({ ...run, run_profile: 'sprint' }).success).toBe(false);
+    expect(() => tourCreateRequestSchema.parse({ ...run, max_hiking_difficulty: 2 })).toThrow(/a run has no hiking/);
+    expect(() => tourCreateRequestSchema.parse({ ...run, winter_activity: 'snowshoe' })).toThrow(/a run has no winter/);
+    expect(() => tourCreateRequestSchema.parse({ ...run, bike_profile: 'road' })).toThrow(/bike tour/);
+    expect(() => tourCreateRequestSchema.parse({ ...run, boat_type: 'sup' })).toThrow(/paddle tour/);
+    const overFerrata = { ...run, waypoints: [{ ...run.waypoints[0], fixed_leg: ferrata }, run.waypoints[1]] };
+    expect(() => tourCreateRequestSchema.parse(overFerrata)).toThrow(/a run has no via ferrata/);
+  });
+
+  it('keeps a profile and a pace to a run', () => {
+    expect(() => tourCreateRequestSchema.parse({ ...baseRequest, run_profile: 'running' })).toThrow(/belongs to a run/);
+    const bike = { ...baseRequest, tour_type: 'bike', bike_profile: 'road', run_pace_seconds_per_km: 300 };
+    expect(() => tourCreateRequestSchema.parse(bike)).toThrow(/run_pace_seconds_per_km belongs to a run/);
+  });
+
+  it('imports a GPX file as a run only with its profile, and a run profile only for one', () => {
+    expect(tourGpxImportFieldsSchema.parse({ tour_type: 'run', run_profile: 'running' })).toMatchObject({
+      tour_type: 'run',
+      run_profile: 'running',
+    });
+    expect(tourGpxImportFieldsSchema.safeParse({ tour_type: 'run' }).success).toBe(false);
+    const bike = { tour_type: 'bike', bike_profile: 'road', run_profile: 'running' };
+    expect(tourGpxImportFieldsSchema.safeParse(bike).success).toBe(false);
+  });
+
+  it('lists the profile and pace, and reads a list cached before they existed', () => {
+    const listed = {
+      place_id: 1,
+      tour_type: 'run',
+      distance: 8,
+      elevation_gain: 40,
+      elevation_loss: 40,
+      duration: 48,
+      difficulty: null,
+      wanderer_ref: null,
+      match_confidence: 1,
+      max_hiking_difficulty: null,
+      name: 'River loop',
+      planned: false,
+      caution: false,
+    };
+    const planned = { ...listed, run_profile: 'running', run_pace_seconds_per_km: 360 };
+    expect(tourListItemSchema.parse(planned)).toMatchObject({ run_profile: 'running', run_pace_seconds_per_km: 360 });
+    expect(tourListItemSchema.parse(listed).run_profile).toBeUndefined();
   });
 });

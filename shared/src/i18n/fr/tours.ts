@@ -416,6 +416,26 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Randonnée en raquettes',
   'tours.winter.labelOnly':
     'Marqué par les voyageurs. Itinéraire et durée sont planifiés comme pour toute randonnée, sans vérification hivernale.',
+  'tours.planner.tourTypeHint.run': 'À pied, à ton allure, sur des chemins où l’on court bien',
+  'tours.planner.namePlaceholder.run': 'Course sans titre',
+  'tours.planner.unreachable.run':
+    "Aucun chemin praticable en courant n'atteint le point {point} : le plus proche que connaît le routeur est à {distance}. Déplace le point sur un chemin ou dessine le tronçon à la main.",
+  'tours.run.profile': 'Profil',
+  'tours.run.profile.running': 'Course à pied',
+  'tours.run.profileHint.running':
+    'Privilégie des chemins où l’on court bien, revêtus autant que possible, en ville, dans les parcs et le long des rivières.',
+  'tours.run.pace': 'Allure prévue',
+  'tours.run.paceInfoLabel': 'Comment le temps de course est calculé',
+  'tours.run.paceInfo':
+    'Ton allure à toi, par kilomètre. Le temps de course est distance × allure ; dénivelé et difficulté technique ne sont pas pris en compte.',
+  'tours.run.paceInvalid': 'Saisis l’allure en min:s par km, de {fastest} à {slowest}.',
+  'tours.run.paceNeeded': 'Saisis ton allure pour planifier le temps de course et enregistrer cette course.',
+  'tours.run.timeEstimated': 'Temps de course (prévu)',
+  'tours.run.timeEstimatedShort': 'Temps de course',
+  'tours.run.timeEstimatedInfoLabel': 'Comment le temps de course est planifié',
+  'tours.run.timeEstimatedInfo':
+    'Distance × ton allure, rien d’autre : dénivelé et difficulté ne sont pas pris en compte. Une prévision, pas un temps enregistré.',
+  'tours.run.timeSum': '{distance} à {pace} min/km font {time}',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Voyage',
   'tours.bike.profile.road': 'Route',

@@ -12,7 +12,7 @@ vi.mock('../../Map/valhallaRoute', () => ({
   valhallaTurn,
 }))
 
-import { enrichTourElevations, parseValhallaElevation, routeBikeTour, routeCityWalk, routeWalkingTour, type TourRouteResult } from './tourRouting'
+import { enrichTourElevations, parseValhallaElevation, routeBikeTour, routeCityWalk, routeRun, routeWalkingTour, type TourRouteResult } from './tourRouting'
 
 /** A route as the planner reads it, for the cases that expect one. */
 const route = async (...args: Parameters<typeof routeWalkingTour>) => (await routeWalkingTour(...args)) as TourRouteResult | null
@@ -234,5 +234,15 @@ describe('routing on land, bike profiles and unreachable points (BIK-01)', () =>
     valhallaRun.mockResolvedValueOnce(run([3, 4]))
     expect(await routeCityWalk(waypoints)).toMatchObject({ distanceMeters: 1500, durationSeconds: 300 })
     expect(valhallaRun).toHaveBeenCalledWith(waypoints, 'walking', [], undefined, { use_ferry: 0 })
+  })
+
+  it('TOUR-ROUTING-034: a run goes on foot, keeps off tracks and ferries where it can, with no hiking limit (RUN-01)', async () => {
+    valhallaRun.mockResolvedValueOnce(run([3, 4]))
+    const signal = new AbortController().signal
+    expect(await routeRun(waypoints, 'running', signal)).toMatchObject({ distanceMeters: 1500 })
+    expect(valhallaRun).toHaveBeenCalledWith(waypoints, 'walking', [], signal, { use_tracks: 0, use_ferry: 0 })
+    // A point no runnable way reaches is named, as for any tour on land.
+    valhallaRun.mockResolvedValueOnce(run([3, 900]))
+    expect(await routeRun(waypoints, 'running')).toEqual({ unreachable: 1, snappedMeters: 900 })
   })
 })

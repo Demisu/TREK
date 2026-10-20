@@ -2,7 +2,7 @@ import type { TourMaxHikingDifficulty } from '@trek/shared';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { freeLegBetween } from '../planner/tourRouteActions';
 import { isTourRoute } from '../planner/tourRouteOutcome';
-import { routeBikeTour, routeWalkingTour } from '../planner/tourRouting';
+import { routeBikeTour, routeRun, routeWalkingTour } from '../planner/tourRouting';
 import { paddleFieldsOf } from '../planner/usePaddleFields';
 import type { TourPlannerController } from '../planner/useTourPlanner';
 import { compareRoutes, deriveControlPoints, type RouteComparison, type TrackPoint } from './gpxConversion';
@@ -44,6 +44,8 @@ export function useGpxConversion(planner: TourPlannerController) {
   const paddle = tour?.tour_type === 'kayak';
   // BIK-01: a bike import is planned for its profile.
   const bikeProfile = tour?.tour_type === 'bike' ? (tour.bike_profile ?? 'touring') : null;
+  // RUN-01: a run import is planned as a run for its profile; its pace is the runner's to enter.
+  const runProfile = tour?.tour_type === 'run' ? (tour.run_profile ?? 'running') : null;
 
   useEffect(() => () => abort.current?.abort(), []);
 
@@ -68,7 +70,9 @@ export function useGpxConversion(planner: TourPlannerController) {
       : points;
     const routed = bikeProfile
       ? await routeBikeTour(legs, bikeProfile, controller.signal)
-      : await routeWalkingTour(legs, controller.signal, difficulty);
+      : runProfile
+        ? await routeRun(legs, runProfile, controller.signal)
+        : await routeWalkingTour(legs, controller.signal, difficulty);
     if (controller.signal.aborted) return;
     if (!isTourRoute(routed)) {
       setState({ ...base, status: 'failed', error: 'routing' });
@@ -81,7 +85,7 @@ export function useGpxConversion(planner: TourPlannerController) {
       line: routed.coordinates,
       comparison: compareRoutes(trackPoints, suggestion),
     });
-  }, [bikeProfile, difficulty, paddle, tour, track]);
+  }, [bikeProfile, difficulty, paddle, runProfile, tour, track]);
 
   const cancel = useCallback(() => {
     abort.current?.abort();
@@ -107,11 +111,12 @@ export function useGpxConversion(planner: TourPlannerController) {
         revision: tour.revision,
         ...(paddle ? { tourType: 'kayak' as const, paddle: paddleFieldsOf(tour) } : {}),
         ...(bikeProfile ? { tourType: 'bike' as const, bikeProfile } : {}),
+        ...(runProfile ? { tourType: 'run' as const, runProfile } : {}),
       });
       if (started) setState(IDLE);
       return started;
     },
-    [bikeProfile, current.points, current.status, difficulty, paddle, startDerivedTour, tour]
+    [bikeProfile, current.points, current.status, difficulty, paddle, runProfile, startDerivedTour, tour]
   );
 
   return useMemo(

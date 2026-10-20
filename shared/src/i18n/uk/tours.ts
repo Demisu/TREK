@@ -418,6 +418,26 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Похід на снігоступах',
   'tours.winter.labelOnly':
     'Позначено мандрівниками. Маршрут і час сплановано як для будь-якого походу, без перевірки на зимові умови.',
+  'tours.planner.tourTypeHint.run': 'Пішки у власному темпі, дорогами, зручними для бігу',
+  'tours.planner.namePlaceholder.run': 'Пробіжка без назви',
+  'tours.planner.unreachable.run':
+    'До точки {point} не веде жодна дорога для бігу: найближча, яку знає маршрутизатор, за {distance}. Перенесіть точку на дорогу або намалюйте ділянку до неї вручну.',
+  'tours.run.profile': 'Профіль',
+  'tours.run.profile.running': 'Біг',
+  'tours.run.profileHint.running':
+    'Віддає перевагу зручним для бігу, по змозі з покриттям, дорогам у місті, у парках і вздовж річок.',
+  'tours.run.pace': 'Плановий темп',
+  'tours.run.paceInfoLabel': 'Як рахується час бігу',
+  'tours.run.paceInfo':
+    'Ваш власний темп на кілометр. Час бігу дорівнює відстані × темп; набір висоти й технічна складність не враховуються.',
+  'tours.run.paceInvalid': 'Введіть темп як хв:с на км, від {fastest} до {slowest}.',
+  'tours.run.paceNeeded': 'Введіть свій темп, щоб розрахувати час бігу й зберегти цю пробіжку.',
+  'tours.run.timeEstimated': 'Час бігу (план)',
+  'tours.run.timeEstimatedShort': 'Час бігу',
+  'tours.run.timeEstimatedInfoLabel': 'Як планується час бігу',
+  'tours.run.timeEstimatedInfo':
+    'Відстань × ваш темп і нічого більше: набір висоти й складність не враховуються. Це план, а не записаний час.',
+  'tours.run.timeSum': '{distance} у темпі {pace} хв/км: {time}',
   'tours.bike.profile': 'Профіль',
   'tours.bike.profile.touring': 'Туризм',
   'tours.bike.profile.road': 'Шосе',

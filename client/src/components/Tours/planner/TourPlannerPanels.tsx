@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import type { TourListItem } from '@trek/shared'
+import type { PlannableTourType, TourListItem } from '@trek/shared'
 import { AlertTriangle, ArrowLeft, Circle, History, Loader2, MapPin, Mountain, Plus, Redo2, RotateCcw, Route, Save, Trash2, Undo2 } from 'lucide-react'
 import type { Day } from '../../../types'
 import { useTranslation } from '../../../i18n'
@@ -612,13 +612,23 @@ interface TourPlannerToursRailProps extends TourPermissionProps {
   onTakenOver?: (tour: TourListItem) => Promise<void>
 }
 
-/** The words of the time estimate: walking, riding (BIK-01) or paddling, each saying how it is reckoned. */
+/** The words of the time estimate: walking, riding (BIK-01), running (RUN-01) or paddling, each saying how it is reckoned. */
 const ESTIMATE_KEYS = {
   hike: { labelKey: 'tours.planner.walkingEstimated', shortKey: 'tours.planner.walkingEstimatedShort', infoLabelKey: 'tours.planner.walkingEstimatedInfoLabel', infoKey: 'tours.planner.walkingEstimatedInfo' },
   bike: { labelKey: 'tours.bike.timeEstimated', shortKey: 'tours.bike.timeEstimatedShort', infoLabelKey: 'tours.bike.timeEstimatedInfoLabel', infoKey: 'tours.bike.timeEstimatedInfo' },
   kayak: { labelKey: 'tours.paddle.timeEstimated', shortKey: 'tours.paddle.timeEstimatedShort', infoLabelKey: 'tours.paddle.timeEstimatedInfoLabel', infoKey: 'tours.paddle.timeEstimatedInfo' },
   walk: { labelKey: 'tours.walk.timeEstimated', shortKey: 'tours.walk.timeEstimatedShort', infoLabelKey: 'tours.walk.timeEstimatedInfoLabel', infoKey: 'tours.walk.timeEstimatedInfo' },
+  run: { labelKey: 'tours.run.timeEstimated', shortKey: 'tours.run.timeEstimatedShort', infoLabelKey: 'tours.run.timeEstimatedInfoLabel', infoKey: 'tours.run.timeEstimatedInfo' },
 } as const
+
+/** Which ways a point is out of reach of: paths for hikes and city walks, ways for bikes, runnable ways. */
+const UNREACHABLE_WAYS: Record<PlannableTourType, 'hike' | 'bike' | 'run'> = {
+  hike: 'hike',
+  walk: 'hike',
+  kayak: 'hike',
+  bike: 'bike',
+  run: 'run',
+}
 
 /**
  * A point no way of the tour's type reaches: the router would have bound it
@@ -635,7 +645,7 @@ function UnreachableNotice({ planner }: { planner: TourPlannerController }) {
     <TourNotice tone="warning" icon={<AlertTriangle size={13} strokeWidth={2} />}>
       <span className="flex flex-col items-start gap-1.5">
         <span data-testid="tour-planner-unreachable">
-          {t(planner.isBike ? 'tours.planner.unreachable.bike' : 'tours.planner.unreachable.hike', {
+          {t(`tours.planner.unreachable.${UNREACHABLE_WAYS[planner.tourType]}`, {
             point: point.unreachable + 1,
             distance: formatDistance(point.snappedMeters / 1000, distanceUnit),
           })}

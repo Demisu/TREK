@@ -419,6 +419,26 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Wędrówka na rakietach śnieżnych',
   'tours.winter.labelOnly':
     'Oznaczone przez podróżnych. Trasa i czas są planowane jak przy każdej wędrówce, bez sprawdzania pod kątem zimy.',
+  'tours.planner.tourTypeHint.run': 'Pieszo we własnym tempie, po drogach dobrych do biegania',
+  'tours.planner.namePlaceholder.run': 'Bieg bez nazwy',
+  'tours.planner.unreachable.run':
+    'Do punktu {point} nie prowadzi żadna droga dobra do biegania: najbliższa, którą zna router, jest {distance} dalej. Przesuń punkt na drogę albo narysuj odcinek do niego ręcznie.',
+  'tours.run.profile': 'Profil',
+  'tours.run.profile.running': 'Bieganie',
+  'tours.run.profileHint.running':
+    'Wybiera drogi dobre do biegania, w miarę możliwości utwardzone, w mieście, w parkach i wzdłuż rzek.',
+  'tours.run.pace': 'Planowane tempo',
+  'tours.run.paceInfoLabel': 'Jak liczony jest czas biegu',
+  'tours.run.paceInfo':
+    'Twoje własne tempo na kilometr. Czas biegu to dystans × tempo; przewyższenia i trudność techniczna nie są uwzględniane.',
+  'tours.run.paceInvalid': 'Wpisz tempo jako min:s na km, od {fastest} do {slowest}.',
+  'tours.run.paceNeeded': 'Wpisz swoje tempo, aby zaplanować czas biegu i zapisać ten bieg.',
+  'tours.run.timeEstimated': 'Czas biegu (planowany)',
+  'tours.run.timeEstimatedShort': 'Czas biegu',
+  'tours.run.timeEstimatedInfoLabel': 'Jak planowany jest czas biegu',
+  'tours.run.timeEstimatedInfo':
+    'Dystans × Twoje tempo i nic więcej: przewyższenia i trudność nie są uwzględniane. Plan, a nie zarejestrowany czas.',
+  'tours.run.timeSum': '{distance} przy {pace} min/km to {time}',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Turystyka',
   'tours.bike.profile.road': 'Szosa',

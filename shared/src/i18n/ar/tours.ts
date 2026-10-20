@@ -414,6 +414,26 @@ const tours: TranslationStrings = {
   'tours.winter.activity.winter_hike': 'مشي شتوي',
   'tours.winter.activity.snowshoe': 'مشي بأحذية الثلج',
   'tours.winter.labelOnly': 'وضعها المسافرون. يُخطَّط المسار والوقت كما في أي نزهة، دون فحص لظروف الشتاء.',
+  'tours.planner.tourTypeHint.run': 'سيرًا على الأقدام بإيقاعك الخاص، على طرق مناسبة للجري',
+  'tours.planner.namePlaceholder.run': 'جري بلا عنوان',
+  'tours.planner.unreachable.run':
+    'لا يصل أي طريق صالح للجري إلى النقطة {point}: أقرب طريق يعرفه الموجّه يبعد {distance}. انقل النقطة إلى طريق، أو ارسم المقطع إليها يدويًا.',
+  'tours.run.profile': 'الملف',
+  'tours.run.profile.running': 'جري',
+  'tours.run.profileHint.running':
+    'يفضّل طرقًا مناسبة للجري، معبّدة قدر الإمكان، في المدينة وفي الحدائق وعلى ضفاف الأنهار.',
+  'tours.run.pace': 'الوتيرة المخططة',
+  'tours.run.paceInfoLabel': 'كيف يُحسب وقت الجري',
+  'tours.run.paceInfo':
+    'وتيرتك الخاصة لكل كيلومتر. وقت الجري هو المسافة × الوتيرة؛ ولا تُحتسب الصعودات والنزولات ولا الصعوبة التقنية.',
+  'tours.run.paceInvalid': 'أدخل الوتيرة بصيغة دقيقة:ثانية لكل كم، من {fastest} إلى {slowest}.',
+  'tours.run.paceNeeded': 'أدخل وتيرتك لتخطيط وقت الجري وحفظ هذا الجري.',
+  'tours.run.timeEstimated': 'وقت الجري (مخطط)',
+  'tours.run.timeEstimatedShort': 'وقت الجري',
+  'tours.run.timeEstimatedInfoLabel': 'كيف يُخطط وقت الجري',
+  'tours.run.timeEstimatedInfo':
+    'المسافة × وتيرتك ولا شيء غير ذلك: لا تُحتسب الصعودات والنزولات ولا الصعوبة. إنه تخطيط، وليس وقتًا مسجّلًا.',
+  'tours.run.timeSum': '{distance} بوتيرة {pace} دقيقة/كم تساوي {time}',
   'tours.bike.profile': 'الملف',
   'tours.bike.profile.touring': 'تجوال',
   'tours.bike.profile.road': 'طريق',

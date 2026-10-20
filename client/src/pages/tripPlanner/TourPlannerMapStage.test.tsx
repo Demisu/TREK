@@ -534,6 +534,19 @@ describe('TourPlannerMapStage', () => {
     expect(stage.flatMap.props?.onRouteClick).toBeUndefined();
   });
 
+  it('FE-PAGE-TOURSTAGE-019: a run opens in 3D as any tour does, with its own maps, and back in 2D nothing of it changed (RUN-01)', async () => {
+    const tourPlanner = planner('edit-saved', { tourType: 'run' });
+    renderStage(tourPlanner);
+    expect(stage.flatMap.props?.tourLayers?.bases).toEqual(['default', 'topo', 'satellite']);
+    await openTerrain();
+    expect(screen.queryByRole('button', { name: 'flat map' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: '3D' }));
+    expect(await screen.findByRole('button', { name: 'flat map' })).toBeInTheDocument();
+    // The switch is a view: no point and no step of the run went with it.
+    expect(tourPlanner.addWaypoint).not.toHaveBeenCalled();
+    expect(tourPlanner.undo).not.toHaveBeenCalled();
+  });
+
   describe('map layers per tour type (P2B-06/07, PAD-04, PAD-10)', () => {
     const flat = () => stage.flatMap.props as MapViewProps;
 
@@ -561,7 +574,7 @@ describe('TourPlannerMapStage', () => {
       ]);
     });
 
-    it('an imported paddle tour is shown with the paddle maps, a bike tour with its own, a type nobody plans with the standard set', () => {
+    it('an imported paddle tour is shown with the paddle maps, a bike tour and a run with their own, a type nobody plans with the standard set', () => {
       const { unmount } = renderStage(
         planner('view-gpx', { mode: { type: 'view-gpx', placeId: 9, tour: { place_id: 9, tour_type: 'kayak' } } })
       );
@@ -572,8 +585,15 @@ describe('TourPlannerMapStage', () => {
       );
       expect(flat().tourLayers?.bases).toEqual(['default', 'topo', 'satellite']);
       bike.unmount();
-      renderStage(
+      // RUN-01: a run has topo for its climbs and no ferratas.
+      const run = renderStage(
         planner('view-gpx', { mode: { type: 'view-gpx', placeId: 9, tour: { place_id: 9, tour_type: 'run' } } })
+      );
+      expect(flat().tourLayers?.bases).toEqual(['default', 'topo', 'satellite']);
+      expect(flat().ferrataLayer).toBeUndefined();
+      run.unmount();
+      renderStage(
+        planner('view-gpx', { mode: { type: 'view-gpx', placeId: 9, tour: { place_id: 9, tour_type: 'food' } } })
       );
       expect(flat().tourLayers?.bases).toEqual(['default', 'satellite']);
       expect(flat().tourLayers?.overlays).toEqual([]);

@@ -1,4 +1,4 @@
-import type { BikeProfile, HikingPreferences, TourFixedLeg } from '@trek/shared'
+import type { BikeProfile, HikingPreferences, RunProfile, TourFixedLeg } from '@trek/shared'
 import type { Waypoint } from '../../../types'
 import { valhallaBase, valhallaRun, valhallaTurn, type CostingOptions } from '../../Map/valhallaRoute'
 import { densifyLine, lineLengthM } from './tourFixedLegs'
@@ -118,6 +118,33 @@ export async function routeCityWalk(
 }
 
 const CITY_WALK_COSTING: Readonly<CostingOptions> = { use_ferry: 0 }
+
+/**
+ * RUN-01: what each run profile asks Valhalla's pedestrian costing for.
+ * Running keeps to runnable, mostly paved ways: farm and forest tracks are
+ * taken only where there is no other way (`use_tracks` 0), and a run is run,
+ * so a ferry only where no way on land exists (`use_ferry` 0). Checked with
+ * trace_attributes against the public instance on 20.10.2026 (shares of the
+ * length): Berlin S Grunewald into the forest went from 95 % tracks with 3 %
+ * paved to 67 % smooth paved paths over 3.58 km instead of 3.50 km; Munich
+ * Großhesseloher Brücke to Pullach from 79 % to 88 % smooth asphalt and no
+ * track left; Marienplatz to the Englischer Garten stayed as it was. No hiking
+ * limit is sent, so the router keeps to the ways it takes for walking anyway
+ * (T1). The router's own time is a walker's and is never used: a run's time is
+ * its distance at the runner's pace. Nothing here says a way can be run.
+ */
+const RUN_COSTING: Record<RunProfile, Readonly<CostingOptions>> = {
+  running: { use_tracks: 0, use_ferry: 0 },
+}
+
+/** RUN-01: a run, on foot for its profile; a leg drawn by hand is kept as drawn. */
+export async function routeRun(
+  waypoints: LandWaypoint[],
+  profile: RunProfile,
+  signal?: AbortSignal,
+): Promise<TourRouteResult | TourRouteUnreachable | null> {
+  return routeOnLand(waypoints, 'walking', RUN_COSTING[profile], signal)
+}
 
 /** BIK-01: a bike tour, routed for its profile; a leg drawn by hand is kept as drawn. */
 export async function routeBikeTour(

@@ -411,6 +411,26 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Excursió amb raquetes de neu',
   'tours.winter.labelOnly':
     'Marcat pels viatgers. La ruta i el temps es planifiquen com en qualsevol excursió, sense comprovar l’hivern.',
+  'tours.planner.tourTypeHint.run': 'A peu al teu ritme, per camins bons per córrer',
+  'tours.planner.namePlaceholder.run': 'Cursa sense títol',
+  'tours.planner.unreachable.run':
+    'Cap camí apte per córrer arriba al punt {point}: el més proper que coneix l’enrutador és a {distance}. Mou el punt a un camí o dibuixa el tram fins allà a mà.',
+  'tours.run.profile': 'Perfil',
+  'tours.run.profile.running': 'Córrer',
+  'tours.run.profileHint.running':
+    'Prefereix camins bons per córrer, asfaltats on es pugui, a la ciutat, als parcs i vora els rius.',
+  'tours.run.pace': 'Ritme previst',
+  'tours.run.paceInfoLabel': 'Com es calcula el temps de cursa',
+  'tours.run.paceInfo':
+    'El teu ritme per quilòmetre. El temps de cursa és distància × ritme; el desnivell i la dificultat tècnica no hi compten.',
+  'tours.run.paceInvalid': 'Introdueix el ritme com a min:s per km, de {fastest} a {slowest}.',
+  'tours.run.paceNeeded': 'Introdueix el teu ritme per planificar el temps de cursa i desar aquesta cursa.',
+  'tours.run.timeEstimated': 'Temps de cursa (previst)',
+  'tours.run.timeEstimatedShort': 'Temps de cursa',
+  'tours.run.timeEstimatedInfoLabel': 'Com es planifica el temps de cursa',
+  'tours.run.timeEstimatedInfo':
+    'Distància × el teu ritme i res més: el desnivell i la dificultat no hi compten. Una planificació, no un temps enregistrat.',
+  'tours.run.timeSum': '{distance} a {pace} min/km són {time}',
   'tours.bike.profile': 'Perfil',
   'tours.bike.profile.touring': 'Cicloturisme',
   'tours.bike.profile.road': 'Carretera',

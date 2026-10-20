@@ -41,7 +41,7 @@ export function TourTypeSelect({
 }) {
   const { t } = useTranslation();
   const valueId = useId();
-  const list = usePopoverList(PLANNER_TOUR_TYPES.indexOf(value), { estimatedHeight: 220 });
+  const list = usePopoverList(PLANNER_TOUR_TYPES.indexOf(value), { estimatedHeight: 270 });
   const { open, toggle, triggerRef, listId } = list;
   const label = t('tours.planner.tourType');
   const pick = (type: PlannableTourType) => {

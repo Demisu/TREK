@@ -363,6 +363,26 @@ describe('ToursSidebar', () => {
     vi.restoreAllMocks()
   })
 
+  it('RUN-01: a run import names its profile, on purpose, and sends no pace', async () => {
+    vi.spyOn(tourGpxApi, 'preview').mockResolvedValue({ tracks: [previewTrack()] })
+    const importCall = vi.spyOn(tourGpxApi, 'import').mockResolvedValue({ tours: [tour], caution: false, skipped: 0 })
+    seedStore(useTripStore, { refreshPlaces: vi.fn().mockResolvedValue(undefined) })
+    render(
+      <ToursSidebar tripId={1} days={[]} tours={[]} canEdit={true} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />
+    )
+    const file = new File(['<gpx/>'], 'laps.gpx', { type: 'application/gpx+xml' })
+    pickFiles(screen.getByRole('button', { name: 'Import GPX' }), [file])
+    await screen.findByRole('dialog')
+
+    fireEvent.click(screen.getByTestId('tour-type-select'))
+    fireEvent.click(screen.getByTestId('tour-type-option-run'))
+    expect(screen.getByRole('button', { name: 'Running' })).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(screen.getByTestId('gpx-preview-import'))
+
+    await waitFor(() => expect(importCall).toHaveBeenCalledWith(1, file, { tour_type: 'run', run_profile: 'running' }))
+    vi.restoreAllMocks()
+  })
+
   it('RC-04: refuses files that are not GPX before uploading anything', async () => {
     const importCall = vi.spyOn(tourGpxApi, 'import')
     render(

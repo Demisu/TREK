@@ -405,6 +405,26 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Räätsamatk',
   'tours.winter.labelOnly':
     'Reisijate märgitud. Marsruut ja aeg on kavandatud nagu igal matkal, talve jaoks kontrollimata.',
+  'tours.planner.tourTypeHint.run': 'Jalgsi omas tempos, hästi joostavatel teedel',
+  'tours.planner.namePlaceholder.run': 'Nimetu jooks',
+  'tours.planner.unreachable.run':
+    'Ükski joostav tee ei jõua punktini {point}: lähim, mida marsruutija teab, on {distance} kaugusel. Liiguta punkt teele või joonista lõik sinna käsitsi.',
+  'tours.run.profile': 'Profiil',
+  'tours.run.profile.running': 'Jooksmine',
+  'tours.run.profileHint.running':
+    'Eelistab hästi joostavaid, võimalusel kõvakattega teid linnas, parkides ja jõgede ääres.',
+  'tours.run.pace': 'Planeeritud tempo',
+  'tours.run.paceInfoLabel': 'Kuidas jooksuaeg arvutatakse',
+  'tours.run.paceInfo':
+    'Sinu enda tempo kilomeetri kohta. Jooksuaeg on vahemaa × tempo; tõusud, langused ja tehniline raskus ei lähe arvesse.',
+  'tours.run.paceInvalid': 'Sisesta tempo kujul min:s kilomeetri kohta, vahemikus {fastest} kuni {slowest}.',
+  'tours.run.paceNeeded': 'Sisesta oma tempo, et jooksuaeg planeerida ja see jooks salvestada.',
+  'tours.run.timeEstimated': 'Jooksuaeg (planeeritud)',
+  'tours.run.timeEstimatedShort': 'Jooksuaeg',
+  'tours.run.timeEstimatedInfoLabel': 'Kuidas jooksuaeg planeeritakse',
+  'tours.run.timeEstimatedInfo':
+    'Vahemaa × sinu tempo ja ei midagi muud: tõusud, langused ja raskus ei lähe arvesse. Plaan, mitte salvestatud aeg.',
+  'tours.run.timeSum': '{distance} tempos {pace} min/km teeb {time}',
   'tours.bike.profile': 'Profiil',
   'tours.bike.profile.touring': 'Matk',
   'tours.bike.profile.road': 'Maantee',

@@ -1,4 +1,4 @@
-import { Bike, Footprints, Mountain, Route, Waves, type LucideIcon } from 'lucide-react';
+import { Activity, Bike, Footprints, Mountain, Route, Waves, type LucideIcon } from 'lucide-react';
 
 export function tourDayRowIcon(type: string): LucideIcon {
   switch (type) {
@@ -8,6 +8,8 @@ export function tourDayRowIcon(type: string): LucideIcon {
       return Bike;
     case 'walk':
       return Footprints;
+    case 'run':
+      return Activity;
     case 'kayak':
       return Waves;
     default:
