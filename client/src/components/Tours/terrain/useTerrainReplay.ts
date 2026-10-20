@@ -70,14 +70,19 @@ function followGestures(map: MapLibreMap): () => void {
   };
 }
 
+/** How the chase camera frames the route: the lens the user picked and the scene it looks into. */
+interface ChaseView {
+  lens: ChaseLens;
+  scene: TerrainScene;
+}
+
 /** Moves the chase camera to `distance` along the route and returns where that is, if anywhere. */
 function chase(
   map: MapLibreMap,
   samples: DistanceIndexedProfileSample[],
   distance: number,
   bearing: RefObject<number>,
-  lens: ChaseLens,
-  scene: TerrainScene
+  { lens, scene }: ChaseView
 ): RouteProfileFocus | null {
   const here = focusRouteProfileAtDistance(samples, distance);
   if (!here) return null;
@@ -155,7 +160,10 @@ export function useTerrainReplay({ gl, ready, samples, focus, onFocusChange, sce
         totalMeters,
         distanceRef.current + replayMetresPerSecond(totalMeters) * speed * dt
       );
-      const here = chase(map, samples, distanceRef.current, bearingRef, lensRef.current, scene.current);
+      const here = chase(map, samples, distanceRef.current, bearingRef, {
+        lens: lensRef.current,
+        scene: scene.current,
+      });
       if (here) {
         riderRef.current?.setLngLat([here.lng, here.lat]).addTo(map);
         if (now - lastFocus >= FOCUS_INTERVAL_MS || distanceRef.current >= totalMeters) {

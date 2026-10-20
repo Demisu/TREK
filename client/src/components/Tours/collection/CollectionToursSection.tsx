@@ -1,6 +1,6 @@
 import type { CollectionTourItem } from '@trek/shared';
 import { AlertTriangle, CopyPlus, Gauge, Moon, Route, Trash2, Waypoints, WifiOff } from 'lucide-react';
-import type { MouseEvent } from 'react';
+import { createElement, type MouseEvent } from 'react';
 import { useTranslation } from '../../../i18n';
 import { useSettingsStore } from '../../../store/settingsStore';
 import { WhiteBadge } from '../../Planner/planParts';
@@ -68,7 +68,6 @@ function KeptTourRow({
 }) {
   const { t } = useTranslation();
   const tile = { ...tour, has_waypoints: tour.waypoint_count > 0 };
-  const TypeIcon = tourDayRowIcon(tour.tour_type);
   const points = t('tours.collection.points', { count: tour.waypoint_count });
   const stop = (act: () => void) => (event: MouseEvent) => {
     event.stopPropagation();
@@ -94,7 +93,7 @@ function KeptTourRow({
       <div className="li">
         <div className="t">{tour.name}</div>
         <div className="s">
-          <TypeIcon size={11} />
+          {createElement(tourDayRowIcon(tour.tour_type), { size: 11 })}
           <span>{t(`tourTypes.${tour.tour_type}`)}</span>
           <Tooltip label={sourceText(tour, t)}>
             <span className="col-lrow-from">

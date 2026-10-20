@@ -4,7 +4,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { render, screen } from '../../../tests/helpers/render';
 import { seedStore } from '../../../tests/helpers/store';
 import { useSettingsStore } from '../../store/settingsStore';
-import { TourDayTimeText, TourEndHint, TourOverrunLine, workedOutEndHint } from './TourDayTimeParts';
+import { TourDayTimeText, TourEndHint, TourOverrunLine } from './TourDayTimeParts';
+import { workedOutEndHint } from './tourDayTimeHint';
 
 const tour: TourListItem = {
   place_id: 7,
@@ -107,7 +108,9 @@ describe('TourOverrunLine', () => {
 
   it('TIME-02-014b: an item without a name is called the next item', () => {
     render(<TourOverrunLine overrun={{ name: '', time: '12:00', end: '13:00' }} />);
-    expect(screen.getByTestId('tour-day-overrun')).toHaveTextContent('Ends at 13:00, after the next item starts at 12:00');
+    expect(screen.getByTestId('tour-day-overrun')).toHaveTextContent(
+      'Ends at 13:00, after the next item starts at 12:00'
+    );
   });
 });
 
