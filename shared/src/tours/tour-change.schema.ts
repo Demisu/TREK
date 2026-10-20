@@ -86,7 +86,7 @@ export const tourChangeUndoRequestSchema = z
   .object({
     step_id: idSchema.describe('The id of the saved step, as list_tour_change_steps gives it'),
     expected_revision: tourRevisionSchema.describe(
-      'now.revision of the preview: the revision of the tour the step was shown to be taken back from',
+      'undo.expected_revision of prepare_tour_undo: the revision of the tour the step was shown to be taken back from',
     ),
     confirmed: z
       .literal(true)

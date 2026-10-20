@@ -74,6 +74,11 @@ describe('a prepared change the traveller confirmed, sent to be saved (MCP-T03)'
 describe('a saved step the traveller confirmed to take back (MCP-T04)', () => {
   const undo = { step_id: 7, expected_revision: 4, confirmed: true };
 
+  it('points the revision at the field prepare_tour_undo really returns', () => {
+    const field = tourChangeUndoRequestSchema.shape.expected_revision;
+    expect(field.description).toContain('undo.expected_revision of prepare_tour_undo');
+  });
+
   it('takes the step, the revision it was shown at and the yes', () => {
     expect(tourChangeUndoRequestSchema.parse(undo)).toEqual(undo);
   });
