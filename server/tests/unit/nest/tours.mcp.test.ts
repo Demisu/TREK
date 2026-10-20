@@ -696,5 +696,10 @@ describe('ToursMcp', () => {
     const description = entry?.kind === 'tool' ? (entry.options.description ?? '') : '';
     expect(description).toContain('time_estimate');
     expect(description).toContain('never a recorded or planned time');
+    const planEntry = getEntry(ToursMcp as unknown as ClassRef, 'getTourPlan');
+    const planDescription = planEntry?.kind === 'tool' ? (planEntry.options.description ?? '') : '';
+    expect(planDescription).toContain(
+      'never present them as saved facts. tour.time_estimate is one of them where present'
+    );
   });
 });

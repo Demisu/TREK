@@ -148,5 +148,12 @@ describe('dayItemOverrun', () => {
     expect(dayItemOverrun(items, 1, 3, tourOf)).toBeNull();
     expect(dayItemOverrun(items, 0, 3, () => undefined)).toBeNull();
     expect(dayItemOverrun([note('09:00', 'Wake'), ...items], 0, 3, tourOf)).toBeNull();
+    // A tour just added to the day, online or offline, carries no tour_place_id yet and still runs over.
+    const fresh = placeItem(7, 'Ridge', '10:00', { assignment_time: '10:00' });
+    expect(dayItemOverrun([fresh, placeItem(2, 'Lunch', '12:00')], 0, 3, tourOf)).toEqual({
+      name: 'Lunch',
+      time: '12:00',
+      end: '13:00',
+    });
   });
 });

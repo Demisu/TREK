@@ -1345,8 +1345,8 @@ const tours: TranslationStrings = {
   'tours.dayTime.workedOut': 'Endet um {time}, berechnet aus dem Start und der Tourzeit von {total}',
   'tours.dayTime.workedOutNextDay':
     'Endet am nächsten Tag um {time}, berechnet aus dem Start und der Tourzeit von {total}',
-  'tours.dayTime.overrun': 'Endet um {end}, nach dem Start von {name} um {time}',
-  'tours.dayTime.nextItem': 'dem nächsten Eintrag',
+  'tours.dayTime.overrun': 'Endet um {end}, nachdem {name} um {time} beginnt',
+  'tours.dayTime.nextItem': 'der nächste Eintrag',
   'tours.dayTime.formHint': 'Leer gelassen, wird das Ende berechnet: {time}, der Start plus die Tourzeit von {total}.',
   'tours.dayTime.formNoStart': 'Mit einer Startzeit wird das Ende aus der Tourzeit von {total} berechnet.',
 };

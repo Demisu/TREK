@@ -298,9 +298,10 @@ export default function TourDayRowFacts({
       movingTimeLabel(tour, t('tours.planner.inspector.duration'), t),
       'trip-plan-tour-walking-time'
     );
-  // TIME-01: an import's estimate, said in full where it is opened.
+  // TIME-01: an import's estimate, said in full where it is opened. A total
+  // the travellers entered is the time shown; the estimate then only joins its words.
   const estimate = estimateFact(times, t);
-  if (estimate.value && estimate.label)
+  if (estimate.value && estimate.label && times.plannedTotalMinutes == null)
     add(
       tourDayRowIcon(movingIconType(tour.tour_type)),
       estimate.value,
@@ -318,13 +319,11 @@ export default function TourDayRowFacts({
       'trip-plan-tour-breaks'
     );
   const total = plannedTotalText(times, t, true);
-  if (total)
-    add(
-      Clock,
-      total,
-      `${t('tours.planner.plannedTotalDuration')}${times.manuallyOverridden ? `, ${t('tours.planner.plannedTotalManual')}` : ''}`,
-      'trip-plan-tour-planned-duration'
-    );
+  if (total) {
+    const label = `${t('tours.planner.plannedTotalDuration')}${times.manuallyOverridden ? `, ${t('tours.planner.plannedTotalManual')}` : ''}`;
+    const said = estimate.label ? `${label}: ${total}. ${estimate.label}` : undefined;
+    add(Clock, total, label, 'trip-plan-tour-planned-duration', said);
+  }
   const check = paddleCheckOf(tour, t);
   if (check) add(check.icon, check.value, t('tours.paddle.check.title'), 'plan-tour-paddle-check');
   return (

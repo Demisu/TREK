@@ -135,7 +135,8 @@ export function dayItemOverrun(
   const item = items[index];
   if (item?.type !== 'place') return null;
   const assignment: Assignment = item.data;
-  const tour = assignment.tour_place_id === assignment.place_id ? tourOf(assignment.place_id) : undefined;
+  // By the trip's tours alone, as the rows are: an entry added a moment ago carries no tour_place_id yet.
+  const tour = tourOf(assignment.place_id);
   if (!tour) return null;
   return tourOverrunOf(items.slice(index + 1), dayId, tourDayTimeOf(tourDayEntryOf(assignment), tour));
 }

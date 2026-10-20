@@ -265,6 +265,15 @@ describe('TIME-01: the estimated time of an import on a row', () => {
     expect(screen.queryByTestId('trip-plan-tour-estimate')).not.toBeInTheDocument();
   });
 
+  it('TIME-01-FE-006: with a total the travellers entered a phone row shows that one time, the estimate in its words', () => {
+    render(<TourDayRowFacts tour={{ ...imported, planned_duration_minutes: 300 }} mobile />);
+    expect(screen.queryByTestId('trip-plan-tour-estimate')).not.toBeInTheDocument();
+    const total = screen.getByTestId('trip-plan-tour-planned-duration');
+    expect(total).toHaveTextContent('5 h');
+    expect(total).not.toHaveTextContent('≈');
+    expect(total.getAttribute('aria-label')).toMatch(/: 5 h\. Estimated time: 4 h\. Worked out/);
+  });
+
   it('TIME-01-FE-004: a tour the planner timed shows its own time and no estimate', () => {
     render(<TourDayRowFacts tour={tour} />);
     expect(screen.queryByTestId('trip-plan-tour-estimate')).not.toBeInTheDocument();

@@ -1,5 +1,6 @@
-// FE-COMP-PLACEFORM-001 to FE-COMP-PLACEFORM-036, FE-PLANNER-PLACEFORM-016 to FE-PLANNER-PLACEFORM-067, plus FE-PLANNER-PLACEFORM-068 to -124
+// FE-COMP-PLACEFORM-001 to FE-COMP-PLACEFORM-036, FE-PLANNER-PLACEFORM-016 to FE-PLANNER-PLACEFORM-067, plus FE-PLANNER-PLACEFORM-068 to -125
 import { render, screen, waitFor, fireEvent, within, act } from '../../../tests/helpers/render';
+import type { TourListItem } from '@trek/shared';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { server } from '../../../tests/helpers/msw/server';
@@ -876,6 +877,37 @@ describe('PlaceFormModal', () => {
     render(<PlaceFormModal {...defaultProps} place={poolPlace} assignmentId={42} dayAssignments={[assignment]} />);
     expect(screen.getByDisplayValue('20:20')).toBeInTheDocument();
     expect(screen.getByDisplayValue('20:34')).toBeInTheDocument();
+  });
+
+  it('FE-PLANNER-PLACEFORM-125: a tour with a start and no end says below its times the end it works out to (TIME-02)', () => {
+    const place = buildPlace({ id: 7, name: 'Ridge', place_time: '09:00', end_time: null });
+    const assignment = buildAssignment({ id: 42, day_id: 3, place });
+    const tour: TourListItem = {
+      place_id: 7,
+      name: 'Ridge',
+      tour_type: 'hike',
+      distance: 8,
+      elevation_gain: 300,
+      elevation_loss: 300,
+      duration: 150,
+      planned_duration_minutes: null,
+      break_additional_minutes: 30,
+      difficulty: null,
+      wanderer_ref: null,
+      match_confidence: 1,
+      max_hiking_difficulty: 2,
+      planned: true,
+      caution: false,
+    };
+    const { unmount } = render(
+      <PlaceFormModal {...defaultProps} place={place} assignmentId={42} dayAssignments={[assignment]} tour={tour} />
+    );
+    expect(screen.getByTestId('tour-day-end-hint')).toHaveTextContent(
+      'Left empty, the end is worked out: 12:00, the start plus the tour time of 3 h.'
+    );
+    unmount();
+    render(<PlaceFormModal {...defaultProps} place={place} assignmentId={42} dayAssignments={[assignment]} />);
+    expect(screen.queryByTestId('tour-day-end-hint')).not.toBeInTheDocument();
   });
 
   it('FE-PLANNER-PLACEFORM-086: on a road trip the End says the drive leaves at it', () => {

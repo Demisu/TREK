@@ -1,6 +1,6 @@
 import type { TourListItem } from '@trek/shared';
 import { Clock } from 'lucide-react';
-import { useTranslation } from '../../i18n';
+import { isRtlLanguage, useTranslation } from '../../i18n';
 import { useSettingsStore } from '../../store/settingsStore';
 import type { Assignment } from '../../types';
 import { formatTime } from '../../utils/formatters';
@@ -46,18 +46,20 @@ export function TourDayTimeText({
   tour: TourListItem;
   mobile?: boolean;
 }) {
-  const { t, locale } = useTranslation();
+  const { t, locale, language } = useTranslation();
   const timeFormat = useSettingsStore((state) => state.settings.time_format) ?? '24h';
   const time = tourDayTimeOf(entry, tour);
   if (!time) return null;
   const clock = (value: string) => formatTime(value, locale, timeFormat);
+  // The arrow is not mirrored by the bidi rules: in a right-to-left row the start sits on the right.
+  const arrow = isRtlLanguage(language) ? '←' : '→';
   if (!time.end) return <>{clock(time.start)}</>;
-  if (!time.workedOut) return <>{`${clock(time.start)} → ${clock(time.end)}`}</>;
+  if (!time.workedOut) return <>{`${clock(time.start)} ${arrow} ${clock(time.end)}`}</>;
   const label = workedOutLabel(time, t, clock);
   const mark = time.estimated ? '≈ ' : time.atLeast ? '≥ ' : '';
   return (
     <>
-      {`${clock(time.start)} → `}
+      {`${clock(time.start)} ${arrow} `}
       <Tooltip label={label}>
         <span
           data-testid="tour-day-end-worked-out"
