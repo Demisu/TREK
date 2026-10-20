@@ -56,7 +56,8 @@ export class NetCache {
   constructor(private readonly budget = NETWORK_BUDGET_BYTES) {}
 
   get(files: readonly string[]): Promise<SkiRouter> {
-    const key = [...files].sort().join('|');
+    // Code unit order, so the key never depends on a locale.
+    const key = [...files].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)).join('|');
     const known = this.routers.get(key);
     if (known) {
       this.routers.delete(key);
