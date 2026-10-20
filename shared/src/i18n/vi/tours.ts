@@ -95,7 +95,8 @@ const tours: TranslationStrings = {
   'tours.planner.title': 'Lên kế hoạch tham quan',
   'tours.planner.newTour': 'Lên kế hoạch tham quan mới',
   'tours.planner.addTour': 'Thêm chuyến đi',
-  'tours.planner.addTourHint': 'Lên kế hoạch chuyến mới, nhập tệp GPX hoặc lấy một chuyến từ hành trình khác',
+  'tours.planner.addTourHint':
+    'Lên kế hoạch chuyến mới, nhập tệp GPX hoặc lộ trình đi bộ từ Google Maps, hoặc lấy một chuyến từ hành trình khác',
   'tours.planner.neutralTitle': 'Lên kế hoạch tham quan',
   'tours.planner.neutralBody': 'Bắt đầu chuyến đi mới và nhấp vào bản đồ để đặt các điểm.',
   'tours.planner.newTitle': 'Chuyến tham quan mới',
@@ -308,6 +309,42 @@ const tours: TranslationStrings = {
   'tours.library.confirm': 'Lấy',
   'tours.library.taken': 'Đã lấy “{name}” vào chuyến đi này.',
   'tours.library.failed': 'Không lấy được chuyến.',
+  'tours.walkImport.menu': 'Nhập lộ trình đi bộ từ Google Maps',
+  'tours.walkImport.title': 'Lộ trình đi bộ từ liên kết Google Maps',
+  'tours.walkImport.intro':
+    'Chia sẻ một tuyến đi bộ trong Google Maps rồi dán liên kết vào đây. TREK đọc các điểm dừng và tự lên lộ trình đi bộ giữa chúng.',
+  'tours.walkImport.urlLabel': 'Liên kết đến tuyến đi bộ',
+  'tours.walkImport.urlHint': 'Một liên kết rút gọn maps.app.goo.gl, hoặc địa chỉ của tuyến trên google.com/maps.',
+  'tours.walkImport.read': 'Đọc liên kết',
+  'tours.walkImport.back': 'Dùng liên kết khác',
+  'tours.walkImport.load': 'Tải thành lộ trình đi bộ',
+  'tours.walkImport.stops': 'Các điểm dừng trong liên kết',
+  'tours.walkImport.source': 'Từ Google Maps',
+  'tours.walkImport.openSource': 'Mở trong Google Maps',
+  'tours.walkImport.recalculated':
+    'TREK lên lại đường đi giữa các điểm dừng; đường đã vẽ trong Google Maps không được giữ lại.',
+  'tours.walkImport.noPosition': 'Không có vị trí trong liên kết',
+  'tours.walkImport.unresolved': '{count} điểm dừng không có vị trí trong liên kết nên bị bỏ qua.',
+  'tours.walkImport.tooFewPositions': 'Một lộ trình đi bộ cần ít nhất hai điểm dừng có vị trí.',
+  'tours.walkImport.replacesDraft': 'Tải lộ trình đi bộ sẽ thay thế các thay đổi chưa lưu trong trình lập kế hoạch.',
+  'tours.walkImport.defaultName': 'Lộ trình đi bộ từ Google Maps',
+  'tours.walkImport.draftNotice': 'Từ một tuyến đi bộ của Google Maps. Đường đi giữa các điểm dừng do TREK tự lên.',
+  'tours.walkImport.offline': 'Cần có kết nối mạng để đọc liên kết.',
+  'tours.walkImport.failed': 'Hiện chưa đọc được liên kết. Hãy thử lại sau ít phút.',
+  'tours.walkImport.refusal.not_google_maps':
+    'Hãy dùng liên kết tuyến đường của Google Maps: liên kết rút gọn maps.app.goo.gl hoặc liên kết google.com/maps/dir.',
+  'tours.walkImport.refusal.not_a_route':
+    'Liên kết Google Maps này không phải là một tuyến đường. Hãy lên lộ trình đi bộ trong Google Maps và chia sẻ tuyến đường.',
+  'tours.walkImport.refusal.not_walking':
+    'Tuyến này không được lên để đi bộ. Hãy chuyển Google Maps sang đi bộ và chia sẻ lại tuyến đường.',
+  'tours.walkImport.refusal.mode_unknown':
+    'Liên kết không nói rõ tuyến này là đi bộ. Hãy chọn đi bộ trong Google Maps và chia sẻ lại.',
+  'tours.walkImport.refusal.short_link_refused':
+    'Liên kết rút gọn dẫn đến nơi khác chứ không phải Google Maps, nên không được mở theo.',
+  'tours.walkImport.refusal.short_link_failed':
+    'Hiện chưa mở theo được liên kết rút gọn. Hãy thử lại hoặc dán liên kết đầy đủ.',
+  'tours.walkImport.refusal.too_few_stops': 'Chỉ đọc được ít hơn hai điểm dừng từ liên kết này.',
+  'tours.walkImport.refusal.too_many_stops': 'Tuyến này có nhiều điểm dừng hơn mức một lộ trình đi bộ chứa được.',
   'tours.provenance.takenOverFrom': 'Lấy từ',
   'tours.poi.title': 'Dọc chuyến đi',
   'tours.poi.intro': 'Những nơi để dừng chân gần lộ trình. Không có gì thay đổi cho đến khi bạn thêm một nơi.',

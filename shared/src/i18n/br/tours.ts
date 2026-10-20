@@ -98,7 +98,8 @@ const tours: TranslationStrings = {
   'tours.planner.title': 'Planejar um passeio',
   'tours.planner.newTour': 'Planejar novo passeio',
   'tours.planner.addTour': 'Adicionar passeio',
-  'tours.planner.addTourHint': 'Planeje um novo passeio, importe arquivos GPX ou traga um passeio de outra viagem',
+  'tours.planner.addTourHint':
+    'Planeje um novo passeio, importe arquivos GPX ou um passeio do Google Maps, ou traga um passeio de outra viagem',
   'tours.planner.neutralTitle': 'Planejar um passeio',
   'tours.planner.neutralBody': 'Comece um novo passeio e clique no mapa para marcar os pontos do percurso.',
   'tours.planner.newTitle': 'Novo passeio',
@@ -313,6 +314,44 @@ const tours: TranslationStrings = {
   'tours.library.confirm': 'Trazer',
   'tours.library.taken': '“{name}” foi trazido para esta viagem.',
   'tours.library.failed': 'Não foi possível trazer o passeio.',
+  'tours.walkImport.menu': 'Importar passeio do Google Maps',
+  'tours.walkImport.title': 'Passeio a partir de um link do Google Maps',
+  'tours.walkImport.intro':
+    'Compartilhe uma rota a pé no Google Maps e cole o link aqui. O TREK lê as paradas e traça por conta própria o caminho a pé entre elas.',
+  'tours.walkImport.urlLabel': 'Link da rota a pé',
+  'tours.walkImport.urlHint': 'Um link curto do maps.app.goo.gl ou o endereço da rota em google.com/maps.',
+  'tours.walkImport.read': 'Ler o link',
+  'tours.walkImport.back': 'Usar outro link',
+  'tours.walkImport.load': 'Carregar como passeio',
+  'tours.walkImport.stops': 'Paradas do link',
+  'tours.walkImport.source': 'Do Google Maps',
+  'tours.walkImport.openSource': 'Abrir no Google Maps',
+  'tours.walkImport.recalculated':
+    'O TREK traça de novo o caminho entre as paradas; a linha desenhada no Google Maps não é aproveitada.',
+  'tours.walkImport.noPosition': 'Sem posição no link',
+  'tours.walkImport.unresolved': '{count} paradas não têm posição no link e ficam de fora.',
+  'tours.walkImport.unresolved.one': '{count} parada não tem posição no link e fica de fora.',
+  'tours.walkImport.tooFewPositions': 'Um passeio precisa de pelo menos duas paradas com posição.',
+  'tours.walkImport.replacesDraft': 'Carregar o passeio substitui as alterações não salvas do planejador.',
+  'tours.walkImport.defaultName': 'Passeio do Google Maps',
+  'tours.walkImport.draftNotice':
+    'De uma rota a pé do Google Maps. O TREK traçou por conta própria o caminho entre as paradas.',
+  'tours.walkImport.offline': 'Ler um link precisa de conexão.',
+  'tours.walkImport.failed': 'Não foi possível ler o link agora. Tente de novo daqui a pouco.',
+  'tours.walkImport.refusal.not_google_maps':
+    'Use um link de rota do Google Maps: um link curto do maps.app.goo.gl ou um link do google.com/maps/dir.',
+  'tours.walkImport.refusal.not_a_route':
+    'Esse link do Google Maps não é uma rota. Planeje o passeio no Google Maps e compartilhe a rota.',
+  'tours.walkImport.refusal.not_walking':
+    'Essa rota não foi planejada a pé. Mude o Google Maps para a pé e compartilhe a rota de novo.',
+  'tours.walkImport.refusal.mode_unknown':
+    'O link não diz com clareza que a rota é a pé. Escolha a pé no Google Maps e compartilhe de novo.',
+  'tours.walkImport.refusal.short_link_refused':
+    'O link curto leva a outro lugar que não o Google Maps, então não foi seguido.',
+  'tours.walkImport.refusal.short_link_failed':
+    'Não foi possível seguir o link curto agora. Tente de novo ou cole o link longo.',
+  'tours.walkImport.refusal.too_few_stops': 'Menos de duas paradas puderam ser lidas desse link.',
+  'tours.walkImport.refusal.too_many_stops': 'Essa rota tem mais paradas do que um passeio comporta.',
   'tours.provenance.takenOverFrom': 'Trazido de',
   'tours.poi.title': 'Ao longo do passeio',
   'tours.poi.intro': 'Lugares para uma parada, perto da rota. Nada muda até você adicionar um.',

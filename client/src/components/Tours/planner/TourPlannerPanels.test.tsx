@@ -901,6 +901,17 @@ describe('TourPlannerRail', () => {
     expect(screen.getByLabelText('Unsaved draft restored')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Edit tour' })).toBeInTheDocument()
   })
+
+  it('TOUR-PLANNER-RAIL-022: an unsaved walk read from Google Maps says so, and a saved one no longer does (CW-07)', () => {
+    const notice = 'From a Google Maps walking route. TREK planned the way between the stops itself.'
+    const { rerender } = render(<TourPlannerRail planner={planner({ draftSource: 'google_maps', hasUnsavedChanges: true, mode: { type: 'new-draft' } })} />)
+    expect(screen.getByText(notice)).toBeInTheDocument()
+
+    rerender(<TourPlannerRail planner={planner({ draftSource: 'google_maps', editingPlaceId: tour.place_id, mode: { type: 'edit-saved', placeId: tour.place_id } })} />)
+    expect(screen.queryByText(notice)).toBeNull()
+    rerender(<TourPlannerRail planner={planner({ hasUnsavedChanges: true, mode: { type: 'new-draft' } })} />)
+    expect(screen.queryByText(notice)).toBeNull()
+  })
 })
 
 describe('the paddle checklist in the rails (PAD-06)', () => {

@@ -94,7 +94,8 @@ const tours: TranslationStrings = {
   'tours.planner.title': 'Tur planla',
   'tours.planner.newTour': 'Yeni tur planla',
   'tours.planner.addTour': 'Tur ekle',
-  'tours.planner.addTourHint': 'Yeni bir tur planla, GPX dosyaları içe aktar veya başka bir seyahatten tur al',
+  'tours.planner.addTourHint':
+    "Yeni bir tur planla, GPX dosyaları ya da Google Maps'ten bir yürüyüş içe aktar veya başka bir seyahatten tur al",
   'tours.planner.neutralTitle': 'Tur planla',
   'tours.planner.neutralBody': 'Yeni bir tur başlatın ve noktalarını yerleştirmek için haritaya tıklayın.',
   'tours.planner.newTitle': 'Yeni tur',
@@ -308,6 +309,43 @@ const tours: TranslationStrings = {
   'tours.library.confirm': 'Al',
   'tours.library.taken': '“{name}” bu geziye alındı.',
   'tours.library.failed': 'Tur alınamadı.',
+  'tours.walkImport.menu': "Google Maps'ten yürüyüş içe aktar",
+  'tours.walkImport.title': 'Google Maps bağlantısından yürüyüş',
+  'tours.walkImport.intro':
+    "Google Maps'te bir yürüyüş rotası paylaş ve bağlantısını buraya yapıştır. TREK durakları okur ve aralarındaki yürüme yolunu kendisi planlar.",
+  'tours.walkImport.urlLabel': 'Yürüyüş rotasının bağlantısı',
+  'tours.walkImport.urlHint': 'Bir maps.app.goo.gl kısa bağlantısı ya da rotanın google.com/maps adresi.',
+  'tours.walkImport.read': 'Bağlantıyı oku',
+  'tours.walkImport.back': 'Başka bağlantı kullan',
+  'tours.walkImport.load': 'Yürüyüş olarak yükle',
+  'tours.walkImport.stops': 'Bağlantıdaki duraklar',
+  'tours.walkImport.source': "Google Maps'ten",
+  'tours.walkImport.openSource': "Google Maps'te aç",
+  'tours.walkImport.recalculated':
+    "TREK duraklar arasındaki yolu yeniden planlar; Google Maps'te çizilen çizgi alınmaz.",
+  'tours.walkImport.noPosition': 'Bağlantıda konum yok',
+  'tours.walkImport.unresolved': '{count} durağın bağlantıda konumu yok ve dışarıda bırakılıyor.',
+  'tours.walkImport.unresolved.one': '{count} durağın bağlantıda konumu yok ve dışarıda bırakılıyor.',
+  'tours.walkImport.tooFewPositions': 'Bir yürüyüş için konumu olan en az iki durak gerekir.',
+  'tours.walkImport.replacesDraft': 'Yürüyüşü yüklemek planlayıcıdaki kaydedilmemiş değişikliklerin yerini alır.',
+  'tours.walkImport.defaultName': "Google Maps'ten yürüyüş",
+  'tours.walkImport.draftNotice': 'Bir Google Maps yürüyüş rotasından. Duraklar arasındaki yolu TREK kendisi planladı.',
+  'tours.walkImport.offline': 'Bir bağlantıyı okumak için bağlantı gerekir.',
+  'tours.walkImport.failed': 'Bağlantı şu anda okunamadı. Birazdan yeniden dene.',
+  'tours.walkImport.refusal.not_google_maps':
+    'Bir Google Maps rota bağlantısı kullan: bir maps.app.goo.gl kısa bağlantısı ya da bir google.com/maps/dir bağlantısı.',
+  'tours.walkImport.refusal.not_a_route':
+    "Bu Google Maps bağlantısı bir rota değil. Yürüyüşü Google Maps'te planla ve rotayı paylaş.",
+  'tours.walkImport.refusal.not_walking':
+    "Bu rota yürüyerek planlanmamış. Google Maps'i yürüme moduna al ve rotayı yeniden paylaş.",
+  'tours.walkImport.refusal.mode_unknown':
+    "Bağlantı, rotanın yürüyerek olduğunu açıkça söylemiyor. Google Maps'te yürümeyi seç ve yeniden paylaş.",
+  'tours.walkImport.refusal.short_link_refused':
+    'Kısa bağlantı Google Maps dışında bir yere gidiyor, bu yüzden takip edilmedi.',
+  'tours.walkImport.refusal.short_link_failed':
+    'Kısa bağlantı şu anda takip edilemedi. Yeniden dene ya da uzun bağlantıyı yapıştır.',
+  'tours.walkImport.refusal.too_few_stops': 'Bu bağlantıdan ikiden az durak okunabildi.',
+  'tours.walkImport.refusal.too_many_stops': 'Bu rotada bir yürüyüşün alabileceğinden fazla durak var.',
   'tours.provenance.takenOverFrom': 'Alındığı yer',
   'tours.poi.title': 'Tur boyunca',
   'tours.poi.intro': 'Rotaya yakın mola yerleri. Birini ekleyene kadar hiçbir şey değişmez.',

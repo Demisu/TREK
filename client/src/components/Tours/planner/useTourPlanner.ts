@@ -14,7 +14,7 @@ import { useTourDraftStorage } from './useTourDraftStorage'
 import { useTourRevisionGuard } from './useTourRevisionGuard'
 import { useRouteShaping } from './useRouteShaping'
 import { useTourMapView } from './useTourMapView'
-import type { DraftPayload } from './tourPlannerDraft'
+import type { DraftPayload, DraftSource } from './tourPlannerDraft'
 import { paddleEstimateOf } from './paddlePlanOf'
 import { adoptChangedPoints } from './paddleRouting'
 import { NO_PADDLE_FIELDS, paddleFieldsOf, usePaddleFields, type PaddleFieldValues } from './usePaddleFields'
@@ -26,9 +26,10 @@ export interface DerivedTourDraft {
   description?: string | null
   website?: string | null
   difficulty: TourMaxHikingDifficulty
-  points: Array<{ lat: number; lng: number }>
-  /** The import the points were taken from. */
-  sourcePlaceId: number
+  /** The control points in order; a city walk's stop keeps the name it came with (CW-07). */
+  points: Array<{ lat: number; lng: number; name?: string | null }>
+  /** The import the points were taken from; absent for a link read from outside the trip (CW-07). */
+  sourcePlaceId?: number
   /**
    * Plan the import over in place, keeping its id, days and notes (the server
    * keeps the recorded track to go back to), rather than as a new tour beside it.
@@ -40,6 +41,8 @@ export interface DerivedTourDraft {
   tourType?: PlannableTourType
   paddle?: PaddleFieldValues
   bikeProfile?: BikeProfile
+  /** CW-07: where the points came from, said in the planner until the draft is saved. */
+  source?: DraftSource
 }
 
 export type TourPlannerStatus =
@@ -133,6 +136,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const [draftRestored, setDraftRestored] = useState(Boolean(restored))
   const [editingPlaceId, setEditingPlaceId] = useState<number | null>(restored?.editingPlaceId ?? null)
   const [derivedFromPlaceId, setDerivedFromPlaceId] = useState<number | null>(restored?.derivedFromPlaceId ?? null)
+  const [draftSource, setDraftSource] = useState<DraftSource | null>(restored?.draftSource ?? null)
   const [openingTourId, setOpeningTourId] = useState<number | null>(null)
   const [saveOutcome, setSaveOutcome] = useState<TourListItem | null>(null)
   const [retryToken, setRetryToken] = useState(0)
@@ -540,6 +544,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     setEditingPlaceId(null)
     editingPlaceIdRef.current = null
     setDerivedFromPlaceId(null)
+    setDraftSource(null)
     adoptRevision(null)
     setOpeningTourId(null)
     setSaveOutcome(null)
@@ -587,9 +592,12 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       returnToNeutral()
       const type = draft.tourType ?? 'hike'
       const points = normalizePlannerWaypoints(
-        draft.points.map(({ lat, lng }) => ({ id: randomId(), lat, lng, role: 'via' as const })),
+        draft.points.map(({ lat, lng, name }) => ({
+          id: randomId(), lat, lng, role: 'via' as const, ...(name ? { name } : {}),
+        })),
         type === 'kayak',
       )
+      setDraftSource(draft.source ?? null)
       tourTypeRef.current = type
       setTourTypeState(type)
       if (draft.paddle) loadPaddle(draft.paddle)
@@ -605,12 +613,12 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       setMaxHikingDifficultyState(draft.difficulty)
       difficultyRef.current = draft.difficulty
       setSelectedWaypointId(points[0].id)
-      if (draft.inPlace) {
+      if (draft.inPlace && draft.sourcePlaceId !== undefined) {
         setEditingPlaceId(draft.sourcePlaceId)
         editingPlaceIdRef.current = draft.sourcePlaceId
         adoptRevision(draft.revision)
       } else {
-        setDerivedFromPlaceId(draft.sourcePlaceId)
+        setDerivedFromPlaceId(draft.sourcePlaceId ?? null)
       }
       setStatus('dirty')
       setHasUnsavedChanges(true)
@@ -707,6 +715,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       setMapFocusKey(key => key + 1)
       setSaveOutcome(null)
       setReadOnlyGpxTour(null)
+      setDraftSource(null)
       return true
     } catch {
       if (requestIsCurrent() && !saveInFlightRef.current) setError('open')
@@ -749,12 +758,12 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   useEffect(() => {
     if (!hasUnsavedChanges) return
     const draft: DraftPayload = { version: 10, name, description, website, plannedDurationMinutes, breakAdditionalMinutes, waypoints, maxHikingDifficulty, editingPlaceId,
-      derivedFromPlaceId, tourType, baseRevision: revision.base, hikingPreferences, bikeProfile,
+      derivedFromPlaceId, draftSource, tourType, baseRevision: revision.base, hikingPreferences, bikeProfile,
       paddle: { boatType: paddle.boatType, waterContext: paddle.waterContext, speedKmh: paddle.speedKmh, portageSpeedKmh: paddle.portageSpeedKmh, lakeStyle: paddle.lakeStyle },
     }
     keepDraft(draft)
   }, [breakAdditionalMinutes,
-    derivedFromPlaceId, description, editingPlaceId, hasUnsavedChanges, maxHikingDifficulty, name, plannedDurationMinutes, keepDraft, waypoints, website,
+    derivedFromPlaceId, draftSource, description, editingPlaceId, hasUnsavedChanges, maxHikingDifficulty, name, plannedDurationMinutes, keepDraft, waypoints, website,
     tourType, paddle.boatType, paddle.waterContext, paddle.speedKmh, paddle.portageSpeedKmh, paddle.lakeStyle, revision.base, hikingPreferences,
     bikeProfile])
 
@@ -828,6 +837,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
         clearHistory()
         setEditingPlaceId(result.tour.place_id)
         editingPlaceIdRef.current = result.tour.place_id
+        setDraftSource(null)
         setSaveOutcome(result.tour)
       }
       if (mountedRef.current && String(tripIdRef.current) === submittedTripId && !deletedTourPlaceIdsRef.current.has(result.tour.place_id)) {
@@ -873,6 +883,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     startNewTour,
     startDerivedTour,
     derivedFromPlaceId,
+    draftSource,
     newTourConfirmationOpen, cancelNewTour, forgetDeletedTour,
     elevationProfileExpanded, toggleElevationProfile, newDraftGeneration, draftRestored, mapFocusKey,
     editingPlaceId, openingTourId, openTour,

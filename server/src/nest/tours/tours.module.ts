@@ -29,6 +29,9 @@ import { TourTrailGradeController } from './tour-trail-grade.controller';
 import { TourTrailGradeService } from './tour-trail-grade.service';
 import { TourVisitsController } from './tour-visits.controller';
 import { TourVisitsService } from './tour-visits.service';
+import { TourWalkImportController } from './tour-walk-import.controller';
+import { TourWalkImportMcp } from './tour-walk-import.mcp';
+import { TourWalkImportService } from './tour-walk-import.service';
 import { ToursImportController } from './tours-import.controller';
 import { ToursWandererController } from './tours-wanderer.controller';
 import { ToursWandererService } from './tours-wanderer.service';
@@ -43,7 +46,9 @@ import { Module } from '@nestjs/common';
  * persists the places through PlacesService (PlacesModule). The tour SQL lives in
  * the Tours and TourWaypoints repositories; the owning place's route columns go
  * through PlacesRepository, registered here because forFeature only reaches
- * this module's own providers.
+ * this module's own providers. A Google Maps walking route is read into the
+ * stops of a city walk through PlaceImportModule as well (CW-07), its short
+ * link followed by the narrow resolver there (CW-06).
  */
 @Module({
   imports: [
@@ -77,6 +82,7 @@ import { Module } from '@nestjs/common';
     TourPoiSearchController,
     TourTrailGradeController,
     TourVisitsController,
+    TourWalkImportController,
     ToursController,
     ToursImportController,
     ToursWandererController,
@@ -94,8 +100,10 @@ import { Module } from '@nestjs/common';
     TourPoiSearchService,
     TourTrailGradeService,
     TourVisitsService,
+    TourWalkImportService,
     ToursMcp,
     TourLibraryMcp,
+    TourWalkImportMcp,
   ],
 })
 export class ToursModule {}

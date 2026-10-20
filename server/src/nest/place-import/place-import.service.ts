@@ -8,10 +8,12 @@ import type {
   ListRead,
   NaverListPlace,
   PreparedGpxPlace,
+  ShortLinkOutcome,
 } from './place-import.types';
 import { CollectionGpxProvider, type ExportedCollectionFile } from './providers/collection-gpx.provider';
 import { GoogleDirectionsProvider } from './providers/google-directions.provider';
 import { GoogleListProvider } from './providers/google-list.provider';
+import { GoogleMapsShortLinkProvider } from './providers/google-maps-short-link.provider';
 import { GpxProvider, type GpxExportInput, type GpxExportOptions, type GpxTourExport } from './providers/gpx.provider';
 import { KmlProvider } from './providers/kml.provider';
 import { NaverListProvider } from './providers/naver-list.provider';
@@ -19,8 +21,10 @@ import { Injectable } from '@nestjs/common';
 import type { CollectionGpxExport, CollectionGpxReadResult } from '@trek/shared';
 
 // The directions-link reading is also what the road trip planner reads a
-// shared route with, and what the import routes dispatch on.
-export { isDirectionsUrl, parseDirectionsUrl, MAX_DIR_WAYPOINTS } from './directions-url.helpers';
+// shared route with, what the import routes dispatch on, and what the city
+// walk import reads a walking route and its travel mode with (CW-07).
+export { directionsTravelMode, isDirectionsUrl, parseDirectionsUrl, MAX_DIR_WAYPOINTS } from './directions-url.helpers';
+export type { DirWaypoint } from './directions-url.helpers';
 export type {
   GpxExportDay,
   GpxExportInput,
@@ -52,6 +56,7 @@ export class PlaceImportService {
     private readonly googleList: GoogleListProvider,
     private readonly googleDirections: GoogleDirectionsProvider,
     private readonly naverList: NaverListProvider,
+    private readonly shortLinks: GoogleMapsShortLinkProvider,
   ) {}
 
   // ── GPX ────────────────────────────────────────────────────────────────────
@@ -113,6 +118,11 @@ export class PlaceImportService {
 
   readNaverList(url: string): Promise<ListRead<NaverListPlace> | ListImportError> {
     return this.naverList.read(url);
+  }
+
+  /** CW-06: a Google Maps short link followed through its allow-list and the strict SSRF guard, hop by hop. */
+  resolveGoogleShortLink(url: string): Promise<ShortLinkOutcome> {
+    return this.shortLinks.resolve(url);
   }
 
   /**

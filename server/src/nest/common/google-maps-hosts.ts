@@ -17,3 +17,24 @@ export const GOOGLE_SHORT_HOSTS = ['goo.gl', 'maps.app.goo.gl'];
 export function isGoogleMapsHost(hostname: string): boolean {
   return GOOGLE_SHORT_HOSTS.includes(hostname) || /^(www\.|maps\.)?google\.[a-z]{2,3}(\.[a-z]{2})?$/.test(hostname);
 }
+
+/** No credentials, no other port, https only: the shape every hop of a walk import must have. */
+function plainHttps(url: URL): boolean {
+  return url.protocol === 'https:' && !url.username && !url.password && url.port === '';
+}
+
+/**
+ * CW-06: the short links a walk import follows at all, `maps.app.goo.gl/<code>`
+ * and `goo.gl/maps/<code>`. Anything else on goo.gl was a general shortener
+ * and could lead anywhere, so it is not followed.
+ */
+export function isGoogleMapsShortLink(url: URL): boolean {
+  if (!plainHttps(url)) return false;
+  if (url.hostname === 'maps.app.goo.gl') return /^\/[A-Za-z0-9_-]+\/?$/.test(url.pathname);
+  return url.hostname === 'goo.gl' && /^\/maps\/[A-Za-z0-9_-]+\/?$/.test(url.pathname);
+}
+
+/** CW-06: where a short link may lead: Google Maps itself, which is read and never fetched. */
+export function isGoogleMapsLongLink(url: URL): boolean {
+  return plainHttps(url) && isGoogleMapsHost(url.hostname) && !GOOGLE_SHORT_HOSTS.includes(url.hostname);
+}

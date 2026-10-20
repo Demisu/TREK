@@ -92,7 +92,8 @@ const tours: TranslationStrings = {
   'tours.planner.title': 'ツアーを計画',
   'tours.planner.newTour': '新しいツアーを計画',
   'tours.planner.addTour': 'ツアーを追加',
-  'tours.planner.addTourHint': '新しいツアーを計画、GPX ファイルを読み込み、または別の旅行からツアーを引き継ぎます',
+  'tours.planner.addTourHint':
+    '新しいツアーを計画、GPX ファイルや Google Maps の街歩きを読み込み、または別の旅行からツアーを引き継ぎます',
   'tours.planner.neutralTitle': 'ツアーを計画',
   'tours.planner.neutralBody': '新しいツアーを始めて、地図をクリックして経由地点を置きます。',
   'tours.planner.newTitle': '新しいツアー',
@@ -301,6 +302,41 @@ const tours: TranslationStrings = {
   'tours.library.confirm': '取り込む',
   'tours.library.taken': '「{name}」をこの旅に取り込みました。',
   'tours.library.failed': 'ツアーを取り込めませんでした。',
+  'tours.walkImport.menu': 'Google Maps から街歩きを読み込む',
+  'tours.walkImport.title': 'Google Maps のリンクから街歩き',
+  'tours.walkImport.intro':
+    'Google Maps で徒歩ルートを共有し、そのリンクをここに貼り付けてください。TREK が立ち寄り先を読み取り、その間の徒歩の道を自分で計画します。',
+  'tours.walkImport.urlLabel': '徒歩ルートのリンク',
+  'tours.walkImport.urlHint': 'maps.app.goo.gl の短縮リンク、または google.com/maps 上のルートのアドレス。',
+  'tours.walkImport.read': 'リンクを読み取る',
+  'tours.walkImport.back': '別のリンクを使う',
+  'tours.walkImport.load': '街歩きとして読み込む',
+  'tours.walkImport.stops': 'リンク内の立ち寄り先',
+  'tours.walkImport.source': 'Google Maps から',
+  'tours.walkImport.openSource': 'Google Maps で開く',
+  'tours.walkImport.recalculated':
+    '立ち寄り先の間の道は TREK があらためて計画します。Google Maps で描かれた線は引き継ぎません。',
+  'tours.walkImport.noPosition': 'リンクに位置がありません',
+  'tours.walkImport.unresolved': '{count} 件の立ち寄り先はリンクに位置がないため、除外されます。',
+  'tours.walkImport.tooFewPositions': '街歩きには位置のある立ち寄り先が少なくとも 2 件必要です。',
+  'tours.walkImport.replacesDraft': '街歩きを読み込むと、プランナーの未保存の変更は置き換えられます。',
+  'tours.walkImport.defaultName': 'Google Maps からの街歩き',
+  'tours.walkImport.draftNotice': 'Google Maps の徒歩ルートから。立ち寄り先の間の道は TREK が自分で計画しました。',
+  'tours.walkImport.offline': 'リンクを読み取るには接続が必要です。',
+  'tours.walkImport.failed': 'いまはリンクを読み取れませんでした。少し待ってからもう一度お試しください。',
+  'tours.walkImport.refusal.not_google_maps':
+    'Google Maps のルートのリンクを使ってください。maps.app.goo.gl の短縮リンクか google.com/maps/dir のリンクです。',
+  'tours.walkImport.refusal.not_a_route':
+    'この Google Maps のリンクはルートではありません。Google Maps で街歩きを計画し、ルートを共有してください。',
+  'tours.walkImport.refusal.not_walking':
+    'このルートは徒歩で計画されていません。Google Maps を徒歩に切り替えて、ルートをもう一度共有してください。',
+  'tours.walkImport.refusal.mode_unknown':
+    'リンクからは徒歩のルートかどうかがはっきりしません。Google Maps で徒歩を選び、もう一度共有してください。',
+  'tours.walkImport.refusal.short_link_refused': '短縮リンクの行き先が Google Maps ではないため、たどりませんでした。',
+  'tours.walkImport.refusal.short_link_failed':
+    'いまは短縮リンクをたどれませんでした。もう一度試すか、長いリンクを貼り付けてください。',
+  'tours.walkImport.refusal.too_few_stops': 'このリンクから読み取れた立ち寄り先は 2 件未満でした。',
+  'tours.walkImport.refusal.too_many_stops': 'このルートの立ち寄り先は、街歩きに入る数を超えています。',
   'tours.provenance.takenOverFrom': '取り込み元',
   'tours.poi.title': 'ツアー沿い',
   'tours.poi.intro': 'ルートの近くにある立ち寄り先です。追加するまで何も変わりません。',

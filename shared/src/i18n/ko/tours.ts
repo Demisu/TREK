@@ -89,7 +89,8 @@ const tours: TranslationStrings = {
   'tours.planner.title': '투어 계획',
   'tours.planner.newTour': '새 투어 계획',
   'tours.planner.addTour': '투어 추가',
-  'tours.planner.addTourHint': '새 투어를 계획하거나 GPX 파일을 가져오거나 다른 여행의 투어를 가져옵니다',
+  'tours.planner.addTourHint':
+    '새 투어를 계획하거나 GPX 파일이나 Google Maps 산책을 가져오거나 다른 여행의 투어를 가져옵니다',
   'tours.planner.neutralTitle': '투어 계획',
   'tours.planner.neutralBody': '새 투어를 시작하고 지도를 클릭해 경유 지점을 놓으세요.',
   'tours.planner.newTitle': '새 투어',
@@ -299,6 +300,42 @@ const tours: TranslationStrings = {
   'tours.library.confirm': '가져오기',
   'tours.library.taken': '“{name}”을(를) 이 여행으로 가져왔습니다.',
   'tours.library.failed': '투어를 가져오지 못했습니다.',
+  'tours.walkImport.menu': 'Google Maps에서 산책 가져오기',
+  'tours.walkImport.title': 'Google Maps 링크로 만드는 산책',
+  'tours.walkImport.intro':
+    'Google Maps에서 도보 경로를 공유하고 그 링크를 여기에 붙여 넣으세요. TREK이 정류지를 읽고 그 사이의 도보 길을 직접 계획합니다.',
+  'tours.walkImport.urlLabel': '도보 경로 링크',
+  'tours.walkImport.urlHint': 'maps.app.goo.gl 단축 링크 또는 google.com/maps의 경로 주소.',
+  'tours.walkImport.read': '링크 읽기',
+  'tours.walkImport.back': '다른 링크 사용',
+  'tours.walkImport.load': '산책으로 불러오기',
+  'tours.walkImport.stops': '링크 속 정류지',
+  'tours.walkImport.source': 'Google Maps에서',
+  'tours.walkImport.openSource': 'Google Maps에서 열기',
+  'tours.walkImport.recalculated':
+    '정류지 사이의 길은 TREK이 다시 계획합니다. Google Maps에 그려진 선은 가져오지 않습니다.',
+  'tours.walkImport.noPosition': '링크에 위치가 없음',
+  'tours.walkImport.unresolved': '정류지 {count}곳은 링크에 위치가 없어 제외됩니다.',
+  'tours.walkImport.tooFewPositions': '산책에는 위치가 있는 정류지가 두 곳 이상 필요합니다.',
+  'tours.walkImport.replacesDraft': '산책을 불러오면 플래너의 저장하지 않은 변경 사항이 바뀝니다.',
+  'tours.walkImport.defaultName': 'Google Maps에서 가져온 산책',
+  'tours.walkImport.draftNotice':
+    'Google Maps 도보 경로에서 가져왔습니다. 정류지 사이의 길은 TREK이 직접 계획했습니다.',
+  'tours.walkImport.offline': '링크를 읽으려면 연결이 필요합니다.',
+  'tours.walkImport.failed': '지금은 링크를 읽지 못했습니다. 잠시 후 다시 시도하세요.',
+  'tours.walkImport.refusal.not_google_maps':
+    'Google Maps 경로 링크를 사용하세요. maps.app.goo.gl 단축 링크나 google.com/maps/dir 링크입니다.',
+  'tours.walkImport.refusal.not_a_route':
+    '이 Google Maps 링크는 경로가 아닙니다. Google Maps에서 산책을 계획하고 경로를 공유하세요.',
+  'tours.walkImport.refusal.not_walking':
+    '이 경로는 도보로 계획되지 않았습니다. Google Maps를 도보로 바꾸고 경로를 다시 공유하세요.',
+  'tours.walkImport.refusal.mode_unknown':
+    '링크만으로는 도보 경로인지 분명하지 않습니다. Google Maps에서 도보를 고르고 다시 공유하세요.',
+  'tours.walkImport.refusal.short_link_refused': '단축 링크가 Google Maps가 아닌 곳으로 이어져서 따라가지 않았습니다.',
+  'tours.walkImport.refusal.short_link_failed':
+    '지금은 단축 링크를 따라가지 못했습니다. 다시 시도하거나 긴 링크를 붙여 넣으세요.',
+  'tours.walkImport.refusal.too_few_stops': '이 링크에서 읽은 정류지가 두 곳보다 적습니다.',
+  'tours.walkImport.refusal.too_many_stops': '이 경로에는 산책 하나에 담을 수 있는 것보다 많은 정류지가 있습니다.',
   'tours.provenance.takenOverFrom': '가져온 곳',
   'tours.poi.title': '투어 경로 주변',
   'tours.poi.intro': '경로 근처에 머물 만한 곳입니다. 추가하기 전에는 아무것도 바뀌지 않습니다.',

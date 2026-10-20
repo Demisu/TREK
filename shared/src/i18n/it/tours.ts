@@ -97,7 +97,8 @@ const tours: TranslationStrings = {
   'tours.planner.title': "Pianifica un'escursione",
   'tours.planner.newTour': 'Pianifica nuova escursione',
   'tours.planner.addTour': 'Aggiungi giro',
-  'tours.planner.addTourHint': 'Pianifica un nuovo giro, importa file GPX o riprendi un giro da un altro viaggio',
+  'tours.planner.addTourHint':
+    'Pianifica un nuovo giro, importa file GPX o una passeggiata da Google Maps, o riprendi un giro da un altro viaggio',
   'tours.planner.neutralTitle': "Pianifica un'escursione",
   'tours.planner.neutralBody': 'Inizia un nuovo percorso e fai clic sulla mappa per posizionarne i punti.',
   'tours.planner.newTitle': 'Nuova escursione',
@@ -315,6 +316,45 @@ const tours: TranslationStrings = {
   'tours.library.confirm': 'Riprendi',
   'tours.library.taken': '“{name}” è stato ripreso in questo viaggio.',
   'tours.library.failed': 'Non è stato possibile riprendere il percorso.',
+  'tours.walkImport.menu': 'Importa passeggiata da Google Maps',
+  'tours.walkImport.title': 'Passeggiata da un link di Google Maps',
+  'tours.walkImport.intro':
+    'Condividi un percorso a piedi in Google Maps e incolla qui il suo link. TREK legge le tappe e traccia da sé il cammino a piedi tra di esse.',
+  'tours.walkImport.urlLabel': 'Link al percorso a piedi',
+  'tours.walkImport.urlHint': "Un link breve maps.app.goo.gl oppure l'indirizzo del percorso su google.com/maps.",
+  'tours.walkImport.read': 'Leggi il link',
+  'tours.walkImport.back': 'Usa un altro link',
+  'tours.walkImport.load': 'Carica come passeggiata',
+  'tours.walkImport.stops': 'Tappe nel link',
+  'tours.walkImport.source': 'Da Google Maps',
+  'tours.walkImport.openSource': 'Apri in Google Maps',
+  'tours.walkImport.recalculated':
+    'TREK traccia di nuovo il cammino tra le tappe; la linea disegnata in Google Maps non viene ripresa.',
+  'tours.walkImport.noPosition': 'Nessuna posizione nel link',
+  'tours.walkImport.unresolved': '{count} tappe non hanno una posizione nel link e vengono tralasciate.',
+  'tours.walkImport.unresolved.one': '{count} tappa non ha una posizione nel link e viene tralasciata.',
+  'tours.walkImport.tooFewPositions': 'Una passeggiata richiede almeno due tappe con una posizione.',
+  'tours.walkImport.replacesDraft': 'Caricare la passeggiata sostituisce le modifiche non salvate nel pianificatore.',
+  'tours.walkImport.defaultName': 'Passeggiata da Google Maps',
+  'tours.walkImport.draftNotice':
+    'Da un percorso a piedi di Google Maps. TREK ha tracciato da sé il cammino tra le tappe.',
+  'tours.walkImport.offline': 'Per leggere un link serve una connessione.',
+  'tours.walkImport.failed': 'Il link non si è potuto leggere adesso. Riprova tra poco.',
+  'tours.walkImport.refusal.not_google_maps':
+    'Usa un link di percorso di Google Maps: un link breve maps.app.goo.gl o un link google.com/maps/dir.',
+  'tours.walkImport.refusal.not_a_route':
+    'Questo link di Google Maps non è un percorso. Pianifica la passeggiata in Google Maps e condividi il percorso.',
+  'tours.walkImport.refusal.not_walking':
+    'Questo percorso non è pianificato a piedi. Passa Google Maps a piedi e condividi di nuovo il percorso.',
+  'tours.walkImport.refusal.mode_unknown':
+    'Il link non dice chiaramente che il percorso è a piedi. Scegli a piedi in Google Maps e condividilo di nuovo.',
+  'tours.walkImport.refusal.short_link_refused':
+    'Il link breve porta altrove rispetto a Google Maps, quindi non è stato seguito.',
+  'tours.walkImport.refusal.short_link_failed':
+    'Il link breve non si è potuto seguire adesso. Riprova oppure incolla il link lungo.',
+  'tours.walkImport.refusal.too_few_stops': 'Da questo link si sono potute leggere meno di due tappe.',
+  'tours.walkImport.refusal.too_many_stops':
+    'Questo percorso ha più tappe di quante una passeggiata ne possa contenere.',
   'tours.provenance.takenOverFrom': 'Ripreso da',
   'tours.poi.title': 'Lungo il percorso',
   'tours.poi.intro': 'Luoghi per una sosta, vicino al percorso. Nulla cambia finché non ne aggiungi uno.',

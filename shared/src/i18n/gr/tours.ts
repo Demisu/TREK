@@ -99,7 +99,8 @@ const tours: TranslationStrings = {
   'tours.planner.title': 'Σχεδιασμός εκδρομής',
   'tours.planner.newTour': 'Σχεδιασμός νέας εκδρομής',
   'tours.planner.addTour': 'Προσθήκη διαδρομής',
-  'tours.planner.addTourHint': 'Σχεδίασε νέα διαδρομή, εισήγαγε αρχεία GPX ή πάρε μια διαδρομή από άλλο ταξίδι',
+  'tours.planner.addTourHint':
+    'Σχεδίασε νέα διαδρομή, εισήγαγε αρχεία GPX ή μια βόλτα από το Google Maps, ή πάρε μια διαδρομή από άλλο ταξίδι',
   'tours.planner.neutralTitle': 'Σχεδιασμός εκδρομής',
   'tours.planner.neutralBody': 'Ξεκινήστε μια νέα διαδρομή και κάντε κλικ στον χάρτη για να ορίσετε τα σημεία της.',
   'tours.planner.newTitle': 'Νέα εκδρομή',
@@ -320,6 +321,45 @@ const tours: TranslationStrings = {
   'tours.library.confirm': 'Μεταφορά',
   'tours.library.taken': 'Το «{name}» μεταφέρθηκε σε αυτό το ταξίδι.',
   'tours.library.failed': 'Δεν ήταν δυνατή η μεταφορά της διαδρομής.',
+  'tours.walkImport.menu': 'Εισαγωγή βόλτας από το Google Maps',
+  'tours.walkImport.title': 'Βόλτα από σύνδεσμο του Google Maps',
+  'tours.walkImport.intro':
+    'Μοιράσου μια διαδρομή με τα πόδια στο Google Maps και επικόλλησε εδώ τον σύνδεσμό της. Το TREK διαβάζει τις στάσεις και σχεδιάζει μόνο του τη διαδρομή με τα πόδια ανάμεσά τους.',
+  'tours.walkImport.urlLabel': 'Σύνδεσμος της διαδρομής με τα πόδια',
+  'tours.walkImport.urlHint':
+    'Ένας σύντομος σύνδεσμος maps.app.goo.gl ή η διεύθυνση της διαδρομής στο google.com/maps.',
+  'tours.walkImport.read': 'Ανάγνωση συνδέσμου',
+  'tours.walkImport.back': 'Άλλος σύνδεσμος',
+  'tours.walkImport.load': 'Φόρτωση ως βόλτα',
+  'tours.walkImport.stops': 'Στάσεις στον σύνδεσμο',
+  'tours.walkImport.source': 'Από το Google Maps',
+  'tours.walkImport.openSource': 'Άνοιγμα στο Google Maps',
+  'tours.walkImport.recalculated':
+    'Το TREK σχεδιάζει ξανά τη διαδρομή ανάμεσα στις στάσεις. Η γραμμή που σχεδιάστηκε στο Google Maps δεν μεταφέρεται.',
+  'tours.walkImport.noPosition': 'Χωρίς θέση στον σύνδεσμο',
+  'tours.walkImport.unresolved': '{count} στάσεις δεν έχουν θέση στον σύνδεσμο και παραλείπονται.',
+  'tours.walkImport.unresolved.one': '{count} στάση δεν έχει θέση στον σύνδεσμο και παραλείπεται.',
+  'tours.walkImport.tooFewPositions': 'Μια βόλτα χρειάζεται τουλάχιστον δύο στάσεις με θέση.',
+  'tours.walkImport.replacesDraft': 'Η φόρτωση της βόλτας αντικαθιστά τις μη αποθηκευμένες αλλαγές του σχεδιαστή.',
+  'tours.walkImport.defaultName': 'Βόλτα από το Google Maps',
+  'tours.walkImport.draftNotice':
+    'Από διαδρομή με τα πόδια του Google Maps. Το TREK σχεδίασε μόνο του τη διαδρομή ανάμεσα στις στάσεις.',
+  'tours.walkImport.offline': 'Η ανάγνωση συνδέσμου χρειάζεται σύνδεση.',
+  'tours.walkImport.failed': 'Ο σύνδεσμος δεν διαβάστηκε αυτή τη στιγμή. Δοκίμασε ξανά σε λίγο.',
+  'tours.walkImport.refusal.not_google_maps':
+    'Χρησιμοποίησε σύνδεσμο διαδρομής του Google Maps: έναν σύντομο σύνδεσμο maps.app.goo.gl ή έναν σύνδεσμο google.com/maps/dir.',
+  'tours.walkImport.refusal.not_a_route':
+    'Αυτός ο σύνδεσμος του Google Maps δεν είναι διαδρομή. Σχεδίασε τη βόλτα στο Google Maps και μοιράσου τη διαδρομή.',
+  'tours.walkImport.refusal.not_walking':
+    'Αυτή η διαδρομή δεν είναι σχεδιασμένη με τα πόδια. Γύρισε το Google Maps σε «Με τα πόδια» και μοιράσου ξανά τη διαδρομή.',
+  'tours.walkImport.refusal.mode_unknown':
+    'Ο σύνδεσμος δεν λέει καθαρά ότι η διαδρομή είναι με τα πόδια. Διάλεξε «Με τα πόδια» στο Google Maps και μοιράσου την ξανά.',
+  'tours.walkImport.refusal.short_link_refused':
+    'Ο σύντομος σύνδεσμος οδηγεί κάπου αλλού και όχι στο Google Maps, γι’ αυτό δεν ακολουθήθηκε.',
+  'tours.walkImport.refusal.short_link_failed':
+    'Ο σύντομος σύνδεσμος δεν ακολουθήθηκε αυτή τη στιγμή. Δοκίμασε ξανά ή επικόλλησε τον μεγάλο σύνδεσμο.',
+  'tours.walkImport.refusal.too_few_stops': 'Από αυτόν τον σύνδεσμο διαβάστηκαν λιγότερες από δύο στάσεις.',
+  'tours.walkImport.refusal.too_many_stops': 'Αυτή η διαδρομή έχει περισσότερες στάσεις απ’ όσες χωράει μια βόλτα.',
   'tours.provenance.takenOverFrom': 'Μεταφέρθηκε από',
   'tours.poi.title': 'Κατά μήκος της διαδρομής',
   'tours.poi.intro': 'Μέρη για στάση κοντά στη διαδρομή. Τίποτα δεν αλλάζει μέχρι να προσθέσεις κάποιο.',

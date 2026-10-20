@@ -3,10 +3,16 @@ import {
   tourVisitListResponseSchema,
   tourVisitSchema,
   tourVisitUpdateRequestSchema,
+  WALK_IMPORT_REFUSALS,
+  WALK_IMPORT_STATIONS_MAX,
   WALK_IMPORT_URL_MAX,
   walkImportPreviewRequestSchema,
   walkImportPreviewResponseSchema,
+  walkImportRefusalResponseSchema,
+  walkImportRefusalSchema,
+  walkImportStationSchema,
 } from './tour-walk.schema';
+import { TOUR_STATION_NAME_MAX } from './tours.schema';
 
 import { describe, expect, it } from 'vitest';
 
@@ -63,5 +69,46 @@ describe('city walk import preview contract (CW-06, CW-07)', () => {
       walkImportPreviewResponseSchema.safeParse({ stations: [{ name: 'X', lat: 91, lng: 0 }], resolved_url: '' })
         .success,
     ).toBe(false);
+  });
+
+  it('holds a stop name to what a station takes, and its position to the globe', () => {
+    expect(walkImportStationSchema.safeParse({ name: 'x'.repeat(TOUR_STATION_NAME_MAX), lat: 1, lng: 2 }).success).toBe(
+      true,
+    );
+    expect(
+      walkImportStationSchema.safeParse({ name: 'x'.repeat(TOUR_STATION_NAME_MAX + 1), lat: 1, lng: 2 }).success,
+    ).toBe(false);
+    expect(walkImportStationSchema.safeParse({ name: 'X', lat: 0, lng: 181 }).success).toBe(false);
+    expect(walkImportStationSchema.safeParse({ name: 'X', lat: -91, lng: 0 }).success).toBe(false);
+  });
+
+  it('answers two stops at least, the most a link may bring at most, and the link it read', () => {
+    const stop = { name: 'Stop', lat: 41.14, lng: -8.61 };
+    const answer = (count: number, resolved_url = 'https://www.google.com/maps/dir/A/B') =>
+      walkImportPreviewResponseSchema.safeParse({ stations: Array.from({ length: count }, () => stop), resolved_url });
+    expect(answer(2).success).toBe(true);
+    expect(answer(WALK_IMPORT_STATIONS_MAX).success).toBe(true);
+    expect(answer(1).success).toBe(false);
+    expect(answer(WALK_IMPORT_STATIONS_MAX + 1).success).toBe(false);
+    expect(answer(2, 'not a link').success).toBe(false);
+  });
+
+  it('names every reason a link is refused for, and a refusal carries its text and its reason', () => {
+    expect(WALK_IMPORT_REFUSALS).toEqual([
+      'not_google_maps',
+      'not_a_route',
+      'not_walking',
+      'mode_unknown',
+      'short_link_refused',
+      'short_link_failed',
+      'too_few_stops',
+      'too_many_stops',
+    ]);
+    expect(walkImportRefusalSchema.safeParse('driving').success).toBe(false);
+    expect(walkImportRefusalResponseSchema.parse({ error: 'Not on foot.', reason: 'not_walking' })).toEqual({
+      error: 'Not on foot.',
+      reason: 'not_walking',
+    });
+    expect(walkImportRefusalResponseSchema.safeParse({ error: 'Not on foot.' }).success).toBe(false);
   });
 });

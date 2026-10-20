@@ -94,7 +94,8 @@ const tours: TranslationStrings = {
   'tours.planner.title': 'Tur planlaşdır',
   'tours.planner.newTour': 'Yeni tur planlaşdır',
   'tours.planner.addTour': 'Tur əlavə et',
-  'tours.planner.addTourHint': 'Yeni tur planla, GPX fayllarını idxal et və ya başqa səfərdən tur götür',
+  'tours.planner.addTourHint':
+    'Yeni tur planla, GPX fayllarını və ya Google Maps-dən gəzinti idxal et, ya da başqa səfərdən tur götür',
   'tours.planner.neutralTitle': 'Tur planlaşdır',
   'tours.planner.neutralBody': 'Yeni tur başladın və marşrut nöqtələrini qoymaq üçün xəritəyə klikləyin.',
   'tours.planner.newTitle': 'Yeni tur',
@@ -308,6 +309,43 @@ const tours: TranslationStrings = {
   'tours.library.confirm': 'Götür',
   'tours.library.taken': '“{name}” bu səfərə götürüldü.',
   'tours.library.failed': 'Tur götürülə bilmədi.',
+  'tours.walkImport.menu': 'Google Maps-dən gəzinti idxal et',
+  'tours.walkImport.title': 'Google Maps keçidindən gəzinti',
+  'tours.walkImport.intro':
+    'Google Maps-də piyada marşrutu paylaş və keçidini bura yapışdır. TREK dayanacaqları oxuyur və onların arasındakı piyada yolu özü planlaşdırır.',
+  'tours.walkImport.urlLabel': 'Piyada marşrutunun keçidi',
+  'tours.walkImport.urlHint': 'maps.app.goo.gl qısa keçidi və ya marşrutun google.com/maps ünvanı.',
+  'tours.walkImport.read': 'Keçidi oxu',
+  'tours.walkImport.back': 'Başqa keçid götür',
+  'tours.walkImport.load': 'Gəzinti kimi yüklə',
+  'tours.walkImport.stops': 'Keçiddəki dayanacaqlar',
+  'tours.walkImport.source': 'Google Maps-dən',
+  'tours.walkImport.openSource': 'Google Maps-də aç',
+  'tours.walkImport.recalculated':
+    'TREK dayanacaqlar arasındakı yolu yenidən planlaşdırır; Google Maps-də çəkilmiş xətt götürülmür.',
+  'tours.walkImport.noPosition': 'Keçiddə mövqe yoxdur',
+  'tours.walkImport.unresolved': '{count} dayanacağın keçiddə mövqeyi yoxdur və kənarda qalır.',
+  'tours.walkImport.unresolved.one': '{count} dayanacağın keçiddə mövqeyi yoxdur və kənarda qalır.',
+  'tours.walkImport.tooFewPositions': 'Gəzinti üçün mövqeyi olan ən azı iki dayanacaq lazımdır.',
+  'tours.walkImport.replacesDraft': 'Gəzintini yükləmək planlayıcıdakı yadda saxlanmamış dəyişikliklərin yerini tutur.',
+  'tours.walkImport.defaultName': 'Google Maps-dən gəzinti',
+  'tours.walkImport.draftNotice':
+    'Google Maps piyada marşrutundan. Dayanacaqlar arasındakı yolu TREK özü planlaşdırdı.',
+  'tours.walkImport.offline': 'Keçidi oxumaq üçün bağlantı lazımdır.',
+  'tours.walkImport.failed': 'Keçidi indi oxumaq mümkün olmadı. Bir azdan yenidən cəhd et.',
+  'tours.walkImport.refusal.not_google_maps':
+    'Google Maps marşrut keçidindən istifadə et: maps.app.goo.gl qısa keçidi və ya google.com/maps/dir keçidi.',
+  'tours.walkImport.refusal.not_a_route':
+    'Bu Google Maps keçidi marşrut deyil. Gəzintini Google Maps-də planlaşdır və marşrutu paylaş.',
+  'tours.walkImport.refusal.not_walking':
+    'Bu marşrut piyada planlaşdırılmayıb. Google Maps-i piyada rejiminə keçir və marşrutu yenidən paylaş.',
+  'tours.walkImport.refusal.mode_unknown':
+    'Keçid marşrutun piyada olduğunu aydın demir. Google Maps-də piyada seç və onu yenidən paylaş.',
+  'tours.walkImport.refusal.short_link_refused': 'Qısa keçid Google Maps-dən başqa yerə aparır, ona görə də izlənmədi.',
+  'tours.walkImport.refusal.short_link_failed':
+    'Qısa keçidi indi izləmək mümkün olmadı. Yenidən cəhd et və ya uzun keçidi yapışdır.',
+  'tours.walkImport.refusal.too_few_stops': 'Bu keçiddən ikidən az dayanacaq oxuna bildi.',
+  'tours.walkImport.refusal.too_many_stops': 'Bu marşrutda bir gəzintinin götürə biləcəyindən çox dayanacaq var.',
   'tours.provenance.takenOverFrom': 'Götürüldüyü yer',
   'tours.poi.title': 'Tur boyunca',
   'tours.poi.intro': 'Marşruta yaxın dayanacaq yerləri. Birini əlavə edənə qədər heç nə dəyişmir.',

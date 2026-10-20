@@ -98,7 +98,8 @@ const tours: TranslationStrings = {
   'tours.planner.title': 'Naplánovat výlet',
   'tours.planner.newTour': 'Naplánovat nový výlet',
   'tours.planner.addTour': 'Přidat túru',
-  'tours.planner.addTourHint': 'Naplánuj novou túru, importuj soubory GPX nebo převezmi túru z jiné cesty',
+  'tours.planner.addTourHint':
+    'Naplánuj novou túru, importuj soubory GPX nebo procházku z Google Maps, nebo převezmi túru z jiné cesty',
   'tours.planner.neutralTitle': 'Naplánovat výlet',
   'tours.planner.neutralBody': 'Začněte novou túru a kliknutím do mapy umístěte její body.',
   'tours.planner.newTitle': 'Nový výlet',
@@ -308,6 +309,43 @@ const tours: TranslationStrings = {
   'tours.library.confirm': 'Převzít',
   'tours.library.taken': '„{name}“ byla převzata do této cesty.',
   'tours.library.failed': 'Túru se nepodařilo převzít.',
+  'tours.walkImport.menu': 'Importovat procházku z Google Maps',
+  'tours.walkImport.title': 'Procházka z odkazu Google Maps',
+  'tours.walkImport.intro':
+    'Sdílej pěší trasu v Google Maps a vlož sem její odkaz. TREK přečte zastávky a pěší cestu mezi nimi naplánuje sám.',
+  'tours.walkImport.urlLabel': 'Odkaz na pěší trasu',
+  'tours.walkImport.urlHint': 'Krátký odkaz maps.app.goo.gl nebo adresa trasy na google.com/maps.',
+  'tours.walkImport.read': 'Přečíst odkaz',
+  'tours.walkImport.back': 'Použít jiný odkaz',
+  'tours.walkImport.load': 'Načíst jako procházku',
+  'tours.walkImport.stops': 'Zastávky v odkazu',
+  'tours.walkImport.source': 'Z Google Maps',
+  'tours.walkImport.openSource': 'Otevřít v Google Maps',
+  'tours.walkImport.recalculated':
+    'TREK naplánuje cestu mezi zastávkami znovu; čára nakreslená v Google Maps se nepřebírá.',
+  'tours.walkImport.noPosition': 'V odkazu chybí poloha',
+  'tours.walkImport.unresolved': '{count} zastávek nemá v odkazu polohu, proto je vynecháme.',
+  'tours.walkImport.unresolved.one': '{count} zastávka nemá v odkazu polohu a vynechává se.',
+  'tours.walkImport.unresolved.few': '{count} zastávky nemají v odkazu polohu a vynechávají se.',
+  'tours.walkImport.tooFewPositions': 'Procházka potřebuje aspoň dvě zastávky s polohou.',
+  'tours.walkImport.replacesDraft': 'Načtení procházky nahradí neuložené změny v plánovači.',
+  'tours.walkImport.defaultName': 'Procházka z Google Maps',
+  'tours.walkImport.draftNotice': 'Z pěší trasy v Google Maps. Cestu mezi zastávkami naplánoval TREK sám.',
+  'tours.walkImport.offline': 'Ke čtení odkazu je potřeba připojení.',
+  'tours.walkImport.failed': 'Odkaz se teď nepodařilo přečíst. Zkus to za chvíli znovu.',
+  'tours.walkImport.refusal.not_google_maps':
+    'Použij odkaz na trasu v Google Maps: krátký odkaz maps.app.goo.gl nebo odkaz google.com/maps/dir.',
+  'tours.walkImport.refusal.not_a_route':
+    'Tento odkaz Google Maps není trasa. Naplánuj procházku v Google Maps a sdílej trasu.',
+  'tours.walkImport.refusal.not_walking':
+    'Tato trasa není naplánovaná pěšky. Přepni Google Maps na chůzi a sdílej trasu znovu.',
+  'tours.walkImport.refusal.mode_unknown':
+    'Z odkazu není jasné, že je trasa pěší. Zvol v Google Maps chůzi a sdílej ji znovu.',
+  'tours.walkImport.refusal.short_link_refused': 'Krátký odkaz vede jinam než do Google Maps, proto se nesledoval.',
+  'tours.walkImport.refusal.short_link_failed':
+    'Krátký odkaz se teď nepodařilo sledovat. Zkus to znovu, nebo vlož dlouhý odkaz.',
+  'tours.walkImport.refusal.too_few_stops': 'Z tohoto odkazu se podařilo přečíst méně než dvě zastávky.',
+  'tours.walkImport.refusal.too_many_stops': 'Tato trasa má víc zastávek, než procházka pojme.',
   'tours.provenance.takenOverFrom': 'Převzato z',
   'tours.poi.title': 'Podél túry',
   'tours.poi.intro': 'Místa na zastávku blízko trasy. Nic se nezmění, dokud nějaké nepřidáš.',

@@ -95,7 +95,8 @@ const tours: TranslationStrings = {
   'tours.planner.title': 'Planeeri retk',
   'tours.planner.newTour': 'Planeeri uus retk',
   'tours.planner.addTour': 'Lisa matk',
-  'tours.planner.addTourHint': 'Planeeri uus matk, impordi GPX-faile või võta matk üle teiselt reisilt',
+  'tours.planner.addTourHint':
+    'Planeeri uus matk, impordi GPX-faile või Google Mapsi jalutuskäik või võta matk üle teiselt reisilt',
   'tours.planner.neutralTitle': 'Planeeri retk',
   'tours.planner.neutralBody': 'Alusta uut matka ja klõpsa kaardil, et selle punktid paigutada.',
   'tours.planner.newTitle': 'Uus retk',
@@ -310,6 +311,42 @@ const tours: TranslationStrings = {
   'tours.library.confirm': 'Võta üle',
   'tours.library.taken': '„{name}“ võeti sellele reisile üle.',
   'tours.library.failed': 'Matka ei õnnestunud üle võtta.',
+  'tours.walkImport.menu': 'Impordi jalutuskäik Google Mapsist',
+  'tours.walkImport.title': 'Jalutuskäik Google Mapsi lingist',
+  'tours.walkImport.intro':
+    'Jaga Google Mapsis jalgsimarsruuti ja kleebi selle link siia. TREK loeb peatused ja planeerib jalgsitee nende vahel ise.',
+  'tours.walkImport.urlLabel': 'Link jalgsimarsruudile',
+  'tours.walkImport.urlHint': 'Lühilink maps.app.goo.gl või marsruudi aadress lehel google.com/maps.',
+  'tours.walkImport.read': 'Loe linki',
+  'tours.walkImport.back': 'Kasuta teist linki',
+  'tours.walkImport.load': 'Laadi jalutuskäiguna',
+  'tours.walkImport.stops': 'Lingi peatused',
+  'tours.walkImport.source': 'Google Mapsist',
+  'tours.walkImport.openSource': 'Ava Google Mapsis',
+  'tours.walkImport.recalculated':
+    'TREK planeerib tee peatuste vahel uuesti; Google Mapsis joonistatud joont üle ei võeta.',
+  'tours.walkImport.noPosition': 'Lingis pole asukohta',
+  'tours.walkImport.unresolved': '{count} peatusel pole lingis asukohta ja need jäetakse välja.',
+  'tours.walkImport.unresolved.one': '{count} peatusel pole lingis asukohta ja see jäetakse välja.',
+  'tours.walkImport.tooFewPositions': 'Jalutuskäiguks on vaja vähemalt kahte asukohaga peatust.',
+  'tours.walkImport.replacesDraft': 'Jalutuskäigu laadimine asendab planeerija salvestamata muudatused.',
+  'tours.walkImport.defaultName': 'Jalutuskäik Google Mapsist',
+  'tours.walkImport.draftNotice': 'Google Mapsi jalgsimarsruudist. Tee peatuste vahel planeeris TREK ise.',
+  'tours.walkImport.offline': 'Lingi lugemiseks on vaja ühendust.',
+  'tours.walkImport.failed': 'Linki ei õnnestunud praegu lugeda. Proovi hetke pärast uuesti.',
+  'tours.walkImport.refusal.not_google_maps':
+    'Kasuta Google Mapsi marsruudi linki: lühilinki maps.app.goo.gl või linki google.com/maps/dir.',
+  'tours.walkImport.refusal.not_a_route':
+    'See Google Mapsi link pole marsruut. Planeeri jalutuskäik Google Mapsis ja jaga marsruuti.',
+  'tours.walkImport.refusal.not_walking':
+    'See marsruut pole planeeritud jalgsi. Lülita Google Maps jalgsi peale ja jaga marsruuti uuesti.',
+  'tours.walkImport.refusal.mode_unknown':
+    'Link ei ütle selgelt, et marsruut on jalgsi. Vali Google Mapsis jalgsi ja jaga seda uuesti.',
+  'tours.walkImport.refusal.short_link_refused': 'Lühilink viib mujale kui Google Mapsi, seepärast seda ei järgitud.',
+  'tours.walkImport.refusal.short_link_failed':
+    'Lühilinki ei õnnestunud praegu järgida. Proovi uuesti või kleebi pikk link.',
+  'tours.walkImport.refusal.too_few_stops': 'Sellest lingist õnnestus lugeda vähem kui kaks peatust.',
+  'tours.walkImport.refusal.too_many_stops': 'Sellel marsruudil on rohkem peatusi, kui jalutuskäiku mahub.',
   'tours.provenance.takenOverFrom': 'Üle võetud',
   'tours.poi.title': 'Matka ääres',
   'tours.poi.intro': 'Peatuskohad marsruudi lähedal. Midagi ei muutu enne, kui mõne lisad.',

@@ -50,6 +50,8 @@ export function hikePlannerDefaults() {
     toggleMapOverlay: vi.fn(),
     tripId: 1,
     editWaypoints: vi.fn(),
+    // CW-07: a draft planned in TREK, not read from a Google Maps walk.
+    draftSource: null,
     // P2C-03: a tour opened at its first revision, with nothing known about others.
     revision: {
       base: null,

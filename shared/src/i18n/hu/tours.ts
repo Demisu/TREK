@@ -96,7 +96,8 @@ const tours: TranslationStrings = {
   'tours.planner.title': 'Túra tervezése',
   'tours.planner.newTour': 'Új túra tervezése',
   'tours.planner.addTour': 'Túra hozzáadása',
-  'tours.planner.addTourHint': 'Új túra tervezése, GPX-fájlok importálása vagy túra átvétele egy másik utazásból',
+  'tours.planner.addTourHint':
+    'Új túra tervezése, GPX-fájlok vagy egy Google Maps-séta importálása, vagy túra átvétele egy másik utazásból',
   'tours.planner.neutralTitle': 'Túra tervezése',
   'tours.planner.neutralBody': 'Indíts új túrát, és kattints a térképre a pontjai elhelyezéséhez.',
   'tours.planner.newTitle': 'Új túra',
@@ -315,6 +316,43 @@ const tours: TranslationStrings = {
   'tours.library.confirm': 'Átvétel',
   'tours.library.taken': '„{name}” átkerült ebbe az útba.',
   'tours.library.failed': 'A túrát nem sikerült átvenni.',
+  'tours.walkImport.menu': 'Séta importálása a Google Mapsből',
+  'tours.walkImport.title': 'Séta egy Google Maps-linkből',
+  'tours.walkImport.intro':
+    'Oszd meg a gyalogos útvonalat a Google Mapsben, és illeszd be ide a linkjét. A TREK beolvassa a megállókat, és maga tervezi meg köztük a gyalogutat.',
+  'tours.walkImport.urlLabel': 'Link a gyalogos útvonalhoz',
+  'tours.walkImport.urlHint': 'Egy maps.app.goo.gl rövid link vagy az útvonal címe a google.com/maps oldalon.',
+  'tours.walkImport.read': 'Link beolvasása',
+  'tours.walkImport.back': 'Másik link',
+  'tours.walkImport.load': 'Betöltés sétaként',
+  'tours.walkImport.stops': 'Megállók a linkben',
+  'tours.walkImport.source': 'A Google Mapsből',
+  'tours.walkImport.openSource': 'Megnyitás a Google Mapsben',
+  'tours.walkImport.recalculated':
+    'A TREK újratervezi a megállók közötti utat; a Google Mapsben rajzolt vonalat nem veszi át.',
+  'tours.walkImport.noPosition': 'Nincs hely a linkben',
+  'tours.walkImport.unresolved': '{count} megállónak nincs helye a linkben, ezért kimarad.',
+  'tours.walkImport.unresolved.one': '{count} megállónak nincs helye a linkben, ezért kimarad.',
+  'tours.walkImport.tooFewPositions': 'Egy sétához legalább két megálló kell, amelynek van helye.',
+  'tours.walkImport.replacesDraft': 'A séta betöltése felülírja a tervező mentetlen módosításait.',
+  'tours.walkImport.defaultName': 'Séta a Google Mapsből',
+  'tours.walkImport.draftNotice':
+    'Egy Google Maps gyalogos útvonalából. A megállók közötti utat a TREK maga tervezte meg.',
+  'tours.walkImport.offline': 'A link beolvasásához kapcsolat kell.',
+  'tours.walkImport.failed': 'A linket most nem sikerült beolvasni. Próbáld újra egy kicsit később.',
+  'tours.walkImport.refusal.not_google_maps':
+    'Google Maps-útvonallinket használj: egy maps.app.goo.gl rövid linket vagy egy google.com/maps/dir linket.',
+  'tours.walkImport.refusal.not_a_route':
+    'Ez a Google Maps-link nem útvonal. Tervezd meg a sétát a Google Mapsben, és oszd meg az útvonalat.',
+  'tours.walkImport.refusal.not_walking':
+    'Ez az útvonal nem gyalogosan van tervezve. Állítsd a Google Mapset gyaloglásra, és oszd meg újra az útvonalat.',
+  'tours.walkImport.refusal.mode_unknown':
+    'A linkből nem derül ki egyértelműen, hogy az útvonal gyalogos. Válaszd a gyaloglást a Google Mapsben, és oszd meg újra.',
+  'tours.walkImport.refusal.short_link_refused': 'A rövid link nem a Google Mapsre vezet, ezért nem követtük.',
+  'tours.walkImport.refusal.short_link_failed':
+    'A rövid linket most nem sikerült követni. Próbáld újra, vagy illeszd be a hosszú linket.',
+  'tours.walkImport.refusal.too_few_stops': 'Ebből a linkből kettőnél kevesebb megállót sikerült beolvasni.',
+  'tours.walkImport.refusal.too_many_stops': 'Ennek az útvonalnak több megállója van, mint amennyit egy séta elbír.',
   'tours.provenance.takenOverFrom': 'Átvéve innen',
   'tours.poi.title': 'A túra mentén',
   'tours.poi.intro': 'Megállóhelyek az útvonal közelében. Semmi sem változik, amíg hozzá nem adsz egyet.',

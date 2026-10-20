@@ -98,7 +98,8 @@ const tours: TranslationStrings = {
   'tours.planner.title': 'Planifica una excursió',
   'tours.planner.newTour': 'Planifica una nova excursió',
   'tours.planner.addTour': 'Afegeix una ruta',
-  'tours.planner.addTourHint': "Planifica una ruta nova, importa fitxers GPX o porta una ruta d'un altre viatge",
+  'tours.planner.addTourHint':
+    "Planifica una ruta nova, importa fitxers GPX o un passeig de Google Maps, o porta una ruta d'un altre viatge",
   'tours.planner.neutralTitle': 'Planifica una excursió',
   'tours.planner.neutralBody': 'Comença una ruta nova i fes clic al mapa per marcar-ne els punts.',
   'tours.planner.newTitle': 'Nova excursió',
@@ -314,6 +315,44 @@ const tours: TranslationStrings = {
   'tours.library.confirm': 'Agafar',
   'tours.library.taken': "S'ha agafat «{name}» en aquest viatge.",
   'tours.library.failed': "No s'ha pogut agafar la ruta.",
+  'tours.walkImport.menu': 'Importa un passeig de Google Maps',
+  'tours.walkImport.title': "Passeig des d'un enllaç de Google Maps",
+  'tours.walkImport.intro':
+    "Comparteix una ruta a peu a Google Maps i enganxa'n l'enllaç aquí. TREK llegeix les parades i traça pel seu compte el camí a peu entre elles.",
+  'tours.walkImport.urlLabel': 'Enllaç a la ruta a peu',
+  'tours.walkImport.urlHint': "Un enllaç curt de maps.app.goo.gl o l'adreça de la ruta a google.com/maps.",
+  'tours.walkImport.read': "Llegeix l'enllaç",
+  'tours.walkImport.back': 'Fes servir un altre enllaç',
+  'tours.walkImport.load': 'Carrega com a passeig',
+  'tours.walkImport.stops': "Parades de l'enllaç",
+  'tours.walkImport.source': 'De Google Maps',
+  'tours.walkImport.openSource': 'Obre a Google Maps',
+  'tours.walkImport.recalculated':
+    "TREK torna a traçar el camí entre les parades; la línia dibuixada a Google Maps no s'aprofita.",
+  'tours.walkImport.noPosition': "Sense posició a l'enllaç",
+  'tours.walkImport.unresolved': "{count} parades no tenen posició a l'enllaç i es deixen fora.",
+  'tours.walkImport.unresolved.one': "{count} parada no té posició a l'enllaç i es deixa fora.",
+  'tours.walkImport.tooFewPositions': 'Un passeig necessita com a mínim dues parades amb posició.',
+  'tours.walkImport.replacesDraft': 'Carregar el passeig substitueix els canvis no desats del planificador.',
+  'tours.walkImport.defaultName': 'Passeig de Google Maps',
+  'tours.walkImport.draftNotice':
+    "D'una ruta a peu de Google Maps. TREK ha traçat pel seu compte el camí entre les parades.",
+  'tours.walkImport.offline': 'Per llegir un enllaç cal connexió.',
+  'tours.walkImport.failed': "Ara no s'ha pogut llegir l'enllaç. Torna-ho a provar d'aquí a una estona.",
+  'tours.walkImport.refusal.not_google_maps':
+    'Fes servir un enllaç de ruta de Google Maps: un enllaç curt de maps.app.goo.gl o un enllaç de google.com/maps/dir.',
+  'tours.walkImport.refusal.not_a_route':
+    'Aquest enllaç de Google Maps no és una ruta. Planifica el passeig a Google Maps i comparteix la ruta.',
+  'tours.walkImport.refusal.not_walking':
+    'Aquesta ruta no està planificada a peu. Canvia Google Maps a peu i torna a compartir la ruta.',
+  'tours.walkImport.refusal.mode_unknown':
+    "L'enllaç no diu clarament que la ruta sigui a peu. Tria a peu a Google Maps i torna-la a compartir.",
+  'tours.walkImport.refusal.short_link_refused':
+    "L'enllaç curt porta a un lloc que no és Google Maps, així que no s'ha seguit.",
+  'tours.walkImport.refusal.short_link_failed':
+    "Ara no s'ha pogut seguir l'enllaç curt. Torna-ho a provar o enganxa l'enllaç llarg.",
+  'tours.walkImport.refusal.too_few_stops': "D'aquest enllaç s'han pogut llegir menys de dues parades.",
+  'tours.walkImport.refusal.too_many_stops': 'Aquesta ruta té més parades de les que admet un passeig.',
   'tours.provenance.takenOverFrom': 'Agafada de',
   'tours.poi.title': 'Al llarg de la ruta',
   'tours.poi.intro': "Llocs per fer una parada, a prop de la ruta. No canvia res fins que n'afegeixis un.",

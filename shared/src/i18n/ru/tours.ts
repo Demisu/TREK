@@ -106,7 +106,7 @@ const tours: TranslationStrings = {
   'tours.planner.newTour': 'Спланировать новый тур',
   'tours.planner.addTour': 'Добавить маршрут',
   'tours.planner.addTourHint':
-    'Спланировать новый маршрут, импортировать файлы GPX или перенести маршрут из другой поездки',
+    'Спланировать новый маршрут, импортировать файлы GPX или прогулку из Google Maps, или перенести маршрут из другой поездки',
   'tours.planner.neutralTitle': 'Спланировать тур',
   'tours.planner.neutralBody': 'Начните новый маршрут и нажимайте на карту, чтобы расставить точки.',
   'tours.planner.newTitle': 'Новый тур',
@@ -326,6 +326,45 @@ const tours: TranslationStrings = {
   'tours.library.confirm': 'Взять',
   'tours.library.taken': '«{name}» добавлен в эту поездку.',
   'tours.library.failed': 'Не удалось взять маршрут.',
+  'tours.walkImport.menu': 'Импортировать прогулку из Google Maps',
+  'tours.walkImport.title': 'Прогулка по ссылке Google Maps',
+  'tours.walkImport.intro':
+    'Поделись пешим маршрутом в Google Maps и вставь сюда его ссылку. TREK прочитает остановки и сам проложит пеший путь между ними.',
+  'tours.walkImport.urlLabel': 'Ссылка на пеший маршрут',
+  'tours.walkImport.urlHint': 'Короткая ссылка maps.app.goo.gl или адрес маршрута на google.com/maps.',
+  'tours.walkImport.read': 'Прочитать ссылку',
+  'tours.walkImport.back': 'Взять другую ссылку',
+  'tours.walkImport.load': 'Загрузить как прогулку',
+  'tours.walkImport.stops': 'Остановки в ссылке',
+  'tours.walkImport.source': 'Из Google Maps',
+  'tours.walkImport.openSource': 'Открыть в Google Maps',
+  'tours.walkImport.recalculated':
+    'TREK заново прокладывает путь между остановками; линия, нарисованная в Google Maps, не переносится.',
+  'tours.walkImport.noPosition': 'В ссылке нет координат',
+  'tours.walkImport.unresolved': 'У {count} остановки нет координат в ссылке, они не войдут в прогулку.',
+  'tours.walkImport.unresolved.one': 'У {count} остановки нет координат в ссылке, она не войдёт в прогулку.',
+  'tours.walkImport.unresolved.few': 'У {count} остановок нет координат в ссылке, они не войдут в прогулку.',
+  'tours.walkImport.unresolved.many': 'У {count} остановок нет координат в ссылке, они не войдут в прогулку.',
+  'tours.walkImport.tooFewPositions': 'Для прогулки нужны хотя бы две остановки с координатами.',
+  'tours.walkImport.replacesDraft': 'Загрузка прогулки заменит несохранённые изменения в планировщике.',
+  'tours.walkImport.defaultName': 'Прогулка из Google Maps',
+  'tours.walkImport.draftNotice': 'Из пешего маршрута Google Maps. Путь между остановками TREK проложил сам.',
+  'tours.walkImport.offline': 'Чтобы прочитать ссылку, нужно подключение.',
+  'tours.walkImport.failed': 'Не удалось прочитать ссылку сейчас. Попробуй ещё раз чуть позже.',
+  'tours.walkImport.refusal.not_google_maps':
+    'Используй ссылку на маршрут Google Maps: короткую ссылку maps.app.goo.gl или ссылку google.com/maps/dir.',
+  'tours.walkImport.refusal.not_a_route':
+    'Эта ссылка Google Maps не маршрут. Спланируй прогулку в Google Maps и поделись маршрутом.',
+  'tours.walkImport.refusal.not_walking':
+    'Этот маршрут проложен не пешком. Переключи Google Maps на пеший режим и поделись маршрутом снова.',
+  'tours.walkImport.refusal.mode_unknown':
+    'Из ссылки не ясно, что маршрут пеший. Выбери пеший режим в Google Maps и поделись им снова.',
+  'tours.walkImport.refusal.short_link_refused':
+    'Короткая ссылка ведёт не в Google Maps, поэтому по ней не переходили.',
+  'tours.walkImport.refusal.short_link_failed':
+    'Не удалось перейти по короткой ссылке сейчас. Попробуй ещё раз или вставь длинную ссылку.',
+  'tours.walkImport.refusal.too_few_stops': 'Из этой ссылки удалось прочитать меньше двух остановок.',
+  'tours.walkImport.refusal.too_many_stops': 'В этом маршруте больше остановок, чем вмещает прогулка.',
   'tours.provenance.takenOverFrom': 'Взят из',
   'tours.poi.title': 'Вдоль маршрута',
   'tours.poi.intro': 'Места для остановки рядом с маршрутом. Ничего не меняется, пока вы не добавите одно из них.',

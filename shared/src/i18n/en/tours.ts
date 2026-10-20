@@ -94,7 +94,8 @@ const tours: TranslationStrings = {
   'tours.planner.title': 'Plan a tour',
   'tours.planner.newTour': 'Plan new tour',
   'tours.planner.addTour': 'Add tour',
-  'tours.planner.addTourHint': 'Plan a new tour, import GPX files or take a tour over from another trip',
+  'tours.planner.addTourHint':
+    'Plan a new tour, import GPX files or a Google Maps walk, or take a tour over from another trip',
   'tours.planner.neutralTitle': 'Plan a tour',
   'tours.planner.neutralBody': 'Start a new tour and click the map to place its waypoints.',
   'tours.planner.newTitle': 'New tour',
@@ -307,6 +308,43 @@ const tours: TranslationStrings = {
   'tours.library.confirm': 'Take over',
   'tours.library.taken': '“{name}” was taken over into this trip.',
   'tours.library.failed': 'The tour could not be taken over.',
+  'tours.walkImport.menu': 'Import walk from Google Maps',
+  'tours.walkImport.title': 'Walk from a Google Maps link',
+  'tours.walkImport.intro':
+    'Share a walking route in Google Maps and paste its link here. TREK reads the stops and plans the way on foot between them itself.',
+  'tours.walkImport.urlLabel': 'Link to the walking route',
+  'tours.walkImport.urlHint': 'A maps.app.goo.gl short link, or the address of the route on google.com/maps.',
+  'tours.walkImport.read': 'Read the link',
+  'tours.walkImport.back': 'Use another link',
+  'tours.walkImport.load': 'Load as walk',
+  'tours.walkImport.stops': 'Stops in the link',
+  'tours.walkImport.source': 'From Google Maps',
+  'tours.walkImport.openSource': 'Open in Google Maps',
+  'tours.walkImport.recalculated':
+    'TREK plans the way between the stops again; the line drawn in Google Maps is not taken over.',
+  'tours.walkImport.noPosition': 'No position in the link',
+  'tours.walkImport.unresolved': '{count} stops have no position in the link and are left out.',
+  'tours.walkImport.unresolved.one': '{count} stop has no position in the link and is left out.',
+  'tours.walkImport.tooFewPositions': 'A walk needs at least two stops with a position.',
+  'tours.walkImport.replacesDraft': 'Loading the walk replaces the unsaved changes in the planner.',
+  'tours.walkImport.defaultName': 'Walk from Google Maps',
+  'tours.walkImport.draftNotice': 'From a Google Maps walking route. TREK planned the way between the stops itself.',
+  'tours.walkImport.offline': 'Reading a link needs a connection.',
+  'tours.walkImport.failed': 'The link could not be read just now. Try again in a moment.',
+  'tours.walkImport.refusal.not_google_maps':
+    'Use a Google Maps route link: a maps.app.goo.gl short link or a google.com/maps/dir link.',
+  'tours.walkImport.refusal.not_a_route':
+    'That Google Maps link is not a route. Plan the walk in Google Maps and share the route.',
+  'tours.walkImport.refusal.not_walking':
+    'That route is not planned on foot. Switch Google Maps to walking and share the route again.',
+  'tours.walkImport.refusal.mode_unknown':
+    'The link does not say clearly that the route is on foot. Choose walking in Google Maps and share it again.',
+  'tours.walkImport.refusal.short_link_refused':
+    'The short link leads somewhere other than Google Maps, so it was not followed.',
+  'tours.walkImport.refusal.short_link_failed':
+    'The short link could not be followed just now. Try again, or paste the long link.',
+  'tours.walkImport.refusal.too_few_stops': 'Fewer than two stops could be read from that link.',
+  'tours.walkImport.refusal.too_many_stops': 'That route has more stops than a walk can take.',
   'tours.provenance.takenOverFrom': 'Taken over from',
   'tours.poi.title': 'Along the tour',
   'tours.poi.intro': 'Places for a stop, close to the route. Nothing changes until you add one.',

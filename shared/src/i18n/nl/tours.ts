@@ -99,7 +99,7 @@ const tours: TranslationStrings = {
   'tours.planner.newTour': 'Nieuwe tocht plannen',
   'tours.planner.addTour': 'Tocht toevoegen',
   'tours.planner.addTourHint':
-    'Een nieuwe tocht plannen, GPX-bestanden importeren of een tocht uit een andere reis overnemen',
+    'Een nieuwe tocht plannen, GPX-bestanden of een wandeling uit Google Maps importeren, of een tocht uit een andere reis overnemen',
   'tours.planner.neutralTitle': 'Een tocht plannen',
   'tours.planner.neutralBody': 'Begin een nieuwe tocht en klik op de kaart om de punten te plaatsen.',
   'tours.planner.newTitle': 'Nieuwe tocht',
@@ -316,6 +316,44 @@ const tours: TranslationStrings = {
   'tours.library.confirm': 'Overnemen',
   'tours.library.taken': '‘{name}’ is overgenomen in deze reis.',
   'tours.library.failed': 'De tocht kon niet worden overgenomen.',
+  'tours.walkImport.menu': 'Wandeling uit Google Maps importeren',
+  'tours.walkImport.title': 'Wandeling uit een Google Maps-link',
+  'tours.walkImport.intro':
+    'Deel een wandelroute in Google Maps en plak de link hier. TREK leest de haltes en plant zelf de weg te voet ertussen.',
+  'tours.walkImport.urlLabel': 'Link naar de wandelroute',
+  'tours.walkImport.urlHint': 'Een korte link van maps.app.goo.gl of het adres van de route op google.com/maps.',
+  'tours.walkImport.read': 'Link lezen',
+  'tours.walkImport.back': 'Andere link gebruiken',
+  'tours.walkImport.load': 'Laden als wandeling',
+  'tours.walkImport.stops': 'Haltes in de link',
+  'tours.walkImport.source': 'Uit Google Maps',
+  'tours.walkImport.openSource': 'Openen in Google Maps',
+  'tours.walkImport.recalculated':
+    'TREK plant de weg tussen de haltes opnieuw; de lijn die in Google Maps getekend is, wordt niet overgenomen.',
+  'tours.walkImport.noPosition': 'Geen positie in de link',
+  'tours.walkImport.unresolved': '{count} haltes hebben geen positie in de link en worden weggelaten.',
+  'tours.walkImport.unresolved.one': '{count} halte heeft geen positie in de link en wordt weggelaten.',
+  'tours.walkImport.tooFewPositions': 'Een wandeling heeft minstens twee haltes met een positie nodig.',
+  'tours.walkImport.replacesDraft': 'Het laden van de wandeling vervangt de niet-opgeslagen wijzigingen in de planner.',
+  'tours.walkImport.defaultName': 'Wandeling uit Google Maps',
+  'tours.walkImport.draftNotice':
+    'Uit een wandelroute van Google Maps. TREK heeft de weg tussen de haltes zelf gepland.',
+  'tours.walkImport.offline': 'Voor het lezen van een link is een verbinding nodig.',
+  'tours.walkImport.failed': 'De link kon nu niet worden gelezen. Probeer het zo dadelijk opnieuw.',
+  'tours.walkImport.refusal.not_google_maps':
+    'Gebruik een routelink van Google Maps: een korte link van maps.app.goo.gl of een link op google.com/maps/dir.',
+  'tours.walkImport.refusal.not_a_route':
+    'Deze Google Maps-link is geen route. Plan de wandeling in Google Maps en deel de route.',
+  'tours.walkImport.refusal.not_walking':
+    'Deze route is niet te voet gepland. Zet Google Maps op lopen en deel de route opnieuw.',
+  'tours.walkImport.refusal.mode_unknown':
+    'De link zegt niet duidelijk dat de route te voet is. Kies lopen in Google Maps en deel haar opnieuw.',
+  'tours.walkImport.refusal.short_link_refused':
+    'De korte link leidt ergens anders heen dan Google Maps en is daarom niet gevolgd.',
+  'tours.walkImport.refusal.short_link_failed':
+    'De korte link kon nu niet worden gevolgd. Probeer het opnieuw of plak de lange link.',
+  'tours.walkImport.refusal.too_few_stops': 'Uit deze link konden minder dan twee haltes worden gelezen.',
+  'tours.walkImport.refusal.too_many_stops': 'Deze route heeft meer haltes dan een wandeling kan bevatten.',
   'tours.provenance.takenOverFrom': 'Overgenomen uit',
   'tours.poi.title': 'Langs de tocht',
   'tours.poi.intro': 'Plekken voor een stop, dicht bij de route. Er verandert niets tot je er een toevoegt.',

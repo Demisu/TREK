@@ -41,6 +41,7 @@ import { type AssignTourToDay, useTourDayAssignment } from '../useTourDayAssignm
 import WandererMark from '../wanderer/WandererMark'
 import { TourGpxExportBarButton } from '../TourGpxExportButton'
 import { TourRemoteChangeNotice, TourRevisionConflictDialog } from './TourRevisionNotice'
+import { WalkImportDraftNotice } from '../walk/WalkImportDialog'
 import TourListFilterMenu, { TourFilterEmpty } from '../TourListFilterMenu'
 import { TourScopeSummary } from '../TourScopeSummary'
 import { useTourListFilters } from '../useTourListFilters'
@@ -438,6 +439,7 @@ export function TourPlannerRail({ planner,
 
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-3 py-3.5">
           <TourRemoteChangeNotice planner={planner} />
+          <WalkImportDraftNotice planner={planner} />
           <TourNameField planner={planner} locked={locked} />
 
           <TourTypeFields planner={planner} locked={locked} />

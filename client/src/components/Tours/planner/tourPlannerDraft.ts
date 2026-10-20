@@ -12,6 +12,9 @@ import {
 import type { TourPlannerWaypoint } from './tourPlannerWaypoints';
 import type { PaddleFieldValues } from './usePaddleFields';
 
+/** CW-07: where a draft's points were read from outside the trip, said in the planner until it is saved. */
+export type DraftSource = 'google_maps';
+
 /**
  * The tour planner's draft as it is kept in local storage between visits, and
  * the check a stored draft has to pass before the planner takes it back: a
@@ -30,6 +33,8 @@ export interface DraftPayload {
   editingPlaceId?: number | null;
   /** The import a new tour is being planned from; carried until it is saved. */
   derivedFromPlaceId?: number | null;
+  /** CW-07: a draft loaded from a Google Maps walk keeps saying so across a reload. */
+  draftSource?: DraftSource | null;
   tourType?: PlannableTourType;
   paddle?: PaddleFieldValues;
   /** P2C-03: the revision of the tour the draft edits, as it was loaded. */
@@ -56,6 +61,10 @@ function optionalMinutes(value: number | null | undefined): boolean {
 
 function optionalPlaceId(value: number | null | undefined): boolean {
   return value == null || (Number.isInteger(value) && value > 0);
+}
+
+function optionalSource(value: unknown): boolean {
+  return value == null || value === 'google_maps';
 }
 
 function optionalDifficulty(value: number | null | undefined): boolean {
@@ -97,6 +106,7 @@ export function validDraft(value: unknown): value is DraftPayload {
     optionalMinutes(draft.breakAdditionalMinutes) &&
     optionalPlaceId(draft.editingPlaceId) &&
     optionalPlaceId(draft.derivedFromPlaceId) &&
+    optionalSource(draft.draftSource) &&
     optionalPlaceId(draft.baseRevision) &&
     validRouteChoices(draft) &&
     Array.isArray(draft.waypoints) &&

@@ -2,6 +2,7 @@ import { PlaceImportService } from '../../src/nest/place-import/place-import.ser
 import { CollectionGpxProvider } from '../../src/nest/place-import/providers/collection-gpx.provider';
 import { GoogleDirectionsProvider } from '../../src/nest/place-import/providers/google-directions.provider';
 import { GoogleListProvider } from '../../src/nest/place-import/providers/google-list.provider';
+import { GoogleMapsShortLinkProvider } from '../../src/nest/place-import/providers/google-maps-short-link.provider';
 import { GpxProvider } from '../../src/nest/place-import/providers/gpx.provider';
 import { KmlProvider } from '../../src/nest/place-import/providers/kml.provider';
 import { NaverListProvider } from '../../src/nest/place-import/providers/naver-list.provider';
@@ -18,5 +19,6 @@ export function buildPlaceImportService(): PlaceImportService {
     new GoogleListProvider(),
     new GoogleDirectionsProvider(),
     new NaverListProvider(),
+    new GoogleMapsShortLinkProvider(),
   );
 }

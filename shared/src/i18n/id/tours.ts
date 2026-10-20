@@ -93,7 +93,8 @@ const tours: TranslationStrings = {
   'tours.planner.title': 'Rencanakan tur',
   'tours.planner.newTour': 'Rencanakan tur baru',
   'tours.planner.addTour': 'Tambah tur',
-  'tours.planner.addTourHint': 'Rencanakan tur baru, impor file GPX, atau ambil tur dari perjalanan lain',
+  'tours.planner.addTourHint':
+    'Rencanakan tur baru, impor file GPX atau rute jalan kaki dari Google Maps, atau ambil tur dari perjalanan lain',
   'tours.planner.neutralTitle': 'Rencanakan tur',
   'tours.planner.neutralBody': 'Mulai tur baru dan klik peta untuk menempatkan titik-titiknya.',
   'tours.planner.newTitle': 'Tur baru',
@@ -307,6 +308,45 @@ const tours: TranslationStrings = {
   'tours.library.confirm': 'Ambil',
   'tours.library.taken': '“{name}” diambil ke perjalanan ini.',
   'tours.library.failed': 'Tur tidak dapat diambil.',
+  'tours.walkImport.menu': 'Impor rute jalan kaki dari Google Maps',
+  'tours.walkImport.title': 'Rute jalan kaki dari tautan Google Maps',
+  'tours.walkImport.intro':
+    'Bagikan rute jalan kaki di Google Maps lalu tempel tautannya di sini. TREK membaca titik singgahnya dan merencanakan sendiri jalan kaki di antaranya.',
+  'tours.walkImport.urlLabel': 'Tautan ke rute jalan kaki',
+  'tours.walkImport.urlHint': 'Tautan pendek maps.app.goo.gl, atau alamat rute di google.com/maps.',
+  'tours.walkImport.read': 'Baca tautan',
+  'tours.walkImport.back': 'Pakai tautan lain',
+  'tours.walkImport.load': 'Muat sebagai rute jalan kaki',
+  'tours.walkImport.stops': 'Titik singgah dalam tautan',
+  'tours.walkImport.source': 'Dari Google Maps',
+  'tours.walkImport.openSource': 'Buka di Google Maps',
+  'tours.walkImport.recalculated':
+    'TREK merencanakan ulang jalan di antara titik singgah; garis yang digambar di Google Maps tidak diambil.',
+  'tours.walkImport.noPosition': 'Tidak ada posisi dalam tautan',
+  'tours.walkImport.unresolved': '{count} titik singgah tidak punya posisi dalam tautan dan dilewati.',
+  'tours.walkImport.tooFewPositions': 'Rute jalan kaki memerlukan setidaknya dua titik singgah yang punya posisi.',
+  'tours.walkImport.replacesDraft':
+    'Memuat rute jalan kaki akan menggantikan perubahan yang belum disimpan di perencana.',
+  'tours.walkImport.defaultName': 'Rute jalan kaki dari Google Maps',
+  'tours.walkImport.draftNotice':
+    'Dari rute jalan kaki Google Maps. Jalan di antara titik singgah direncanakan sendiri oleh TREK.',
+  'tours.walkImport.offline': 'Membaca tautan memerlukan koneksi.',
+  'tours.walkImport.failed': 'Tautan belum bisa dibaca saat ini. Coba lagi sebentar lagi.',
+  'tours.walkImport.refusal.not_google_maps':
+    'Gunakan tautan rute Google Maps: tautan pendek maps.app.goo.gl atau tautan google.com/maps/dir.',
+  'tours.walkImport.refusal.not_a_route':
+    'Tautan Google Maps ini bukan rute. Rencanakan jalan kaki di Google Maps lalu bagikan rutenya.',
+  'tours.walkImport.refusal.not_walking':
+    'Rute ini tidak direncanakan untuk jalan kaki. Ganti Google Maps ke jalan kaki lalu bagikan rutenya lagi.',
+  'tours.walkImport.refusal.mode_unknown':
+    'Tautan tidak menyatakan dengan jelas bahwa rutenya jalan kaki. Pilih jalan kaki di Google Maps lalu bagikan lagi.',
+  'tours.walkImport.refusal.short_link_refused':
+    'Tautan pendek mengarah ke tempat selain Google Maps, jadi tidak diikuti.',
+  'tours.walkImport.refusal.short_link_failed':
+    'Tautan pendek belum bisa diikuti saat ini. Coba lagi, atau tempel tautan panjangnya.',
+  'tours.walkImport.refusal.too_few_stops': 'Kurang dari dua titik singgah yang bisa dibaca dari tautan itu.',
+  'tours.walkImport.refusal.too_many_stops':
+    'Rute ini punya lebih banyak titik singgah daripada yang muat dalam satu rute jalan kaki.',
   'tours.provenance.takenOverFrom': 'Diambil dari',
   'tours.poi.title': 'Di sepanjang tur',
   'tours.poi.intro': 'Tempat untuk berhenti, dekat rute. Tidak ada yang berubah sampai kamu menambahkannya.',

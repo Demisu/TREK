@@ -102,3 +102,12 @@ export class CollectionGpxError extends Error {
     this.name = 'CollectionGpxError';
   }
 }
+
+/**
+ * CW-06: where a Google Maps short link led. `refused` when a hop or the
+ * landing link is not one the walk import may follow or read, `unreachable`
+ * when the chain could not be followed in time or answered nonsense,
+ * `too_many_redirects` and `no_redirect` as they say.
+ */
+export type ShortLinkOutcome =
+  { ok: true; url: string } | { ok: false; why: 'refused' | 'unreachable' | 'too_many_redirects' | 'no_redirect' };

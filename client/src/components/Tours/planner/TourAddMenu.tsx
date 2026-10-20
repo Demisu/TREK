@@ -1,5 +1,5 @@
 import type { TourListItem } from '@trek/shared';
-import { FileDown, Library, Loader2, PenLine, Plus } from 'lucide-react';
+import { FileDown, Footprints, Library, Loader2, PenLine, Plus } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import { PopoverItem } from '../../Packing/PackingPopover';
@@ -9,6 +9,8 @@ import { usePopoverList } from '../../shared/usePopoverList';
 import { TourLibraryDialog } from '../library/TourLibraryDialog';
 import { useTourLibrary } from '../library/useTourLibrary';
 import type { TourGpxImport } from '../useTourGpxImport';
+import { WalkImportDialog } from '../walk/WalkImportDialog';
+import { useWalkImport } from '../walk/useWalkImport';
 import type { TourPlannerController } from './useTourPlanner';
 
 interface AddEntry {
@@ -21,9 +23,12 @@ interface AddEntry {
 /**
  * LIB-02: the tours rail's one way to add a tour, as a menu: plan a new one
  * (while another is open; with none open the map is already planning one),
- * import GPX files, or take one over from another trip, whose dialog opens
- * from here. A tour taken over comes into the trip and opens in the editor,
- * unless the editor holds unsaved work.
+ * import GPX files, read a city walk from a Google Maps walking route (CW-07),
+ * or take one over from another trip. The walk and the take-over open their
+ * dialogs from here. A tour taken over comes into the trip and opens in the
+ * editor, unless the editor holds unsaved work; a walk read from Google Maps
+ * opens in the planner as a new draft, after a warning when that replaces
+ * unsaved work.
  */
 export function TourAddMenu({
   planner,
@@ -31,14 +36,17 @@ export function TourAddMenu({
   onTakenOver,
   disabled,
 }: {
-  planner: Pick<TourPlannerController, 'tripId' | 'mode' | 'hasUnsavedChanges' | 'openTour' | 'startNewTour'>;
+  planner: Pick<
+    TourPlannerController,
+    'tripId' | 'mode' | 'hasUnsavedChanges' | 'openTour' | 'startNewTour' | 'startDerivedTour'
+  >;
   gpxImport?: TourGpxImport;
   /** Where a tour of another trip goes into this one; without it that entry is left out. */
   onTakenOver?: (tour: TourListItem) => Promise<void>;
   disabled: boolean;
 }) {
   const { t } = useTranslation();
-  const list = usePopoverList(0, { estimatedHeight: 140 });
+  const list = usePopoverList(0, { estimatedHeight: 176 });
   const { open, toggle, close, triggerRef } = list;
   const library = useTourLibrary({
     tripId: Number(planner.tripId),
@@ -47,6 +55,7 @@ export function TourAddMenu({
       if (!planner.hasUnsavedChanges) void planner.openTour(tour);
     },
   });
+  const walkImport = useWalkImport({ planner });
   const importing = gpxImport?.importing ?? false;
 
   const entries: AddEntry[] = [];
@@ -66,6 +75,12 @@ export function TourAddMenu({
       run: gpxImport.pick,
     });
   }
+  entries.push({
+    key: 'walk',
+    icon: <Footprints size={14} strokeWidth={2} />,
+    label: t('tours.walkImport.menu'),
+    run: walkImport.show,
+  });
   if (onTakenOver) {
     entries.push({
       key: 'library',
@@ -74,7 +89,6 @@ export function TourAddMenu({
       run: library.show,
     });
   }
-  if (entries.length === 0) return null;
 
   // Run inside the click that picked it: the file picker opens only from a user's own tap.
   const pick = (entry: AddEntry) => {
@@ -106,6 +120,7 @@ export function TourAddMenu({
           <PopoverItem key={entry.key} icon={entry.icon} label={entry.label} onClick={() => pick(entry)} />
         ))}
       </PopoverListPanel>
+      <WalkImportDialog walkImport={walkImport} hasUnsavedChanges={planner.hasUnsavedChanges} />
       {onTakenOver && <TourLibraryDialog library={library} />}
     </>
   );

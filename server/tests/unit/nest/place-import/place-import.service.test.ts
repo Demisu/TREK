@@ -10,6 +10,7 @@ import {
   createGpxParser,
   writeGpx,
 } from '../../../../src/nest/place-import/gpx.codec';
+import { GoogleMapsShortLinkProvider } from '../../../../src/nest/place-import/providers/google-maps-short-link.provider';
 import { buildPlaceImportService } from '../../../helpers/place-import';
 import { COLLECTION_FILE_FORMAT, COLLECTION_FILE_VERSION } from '@trek/shared';
 
@@ -66,6 +67,20 @@ describe('PlaceImportService: directions', () => {
       status: 400,
     });
     expect(geocode).not.toHaveBeenCalled();
+  });
+});
+
+describe('PlaceImportService: Google Maps short links (CW-06)', () => {
+  it('hands a short link to its own narrow resolver and its answer back as it stands', async () => {
+    const resolve = vi
+      .spyOn(GoogleMapsShortLinkProvider.prototype, 'resolve')
+      .mockResolvedValue({ ok: false, why: 'too_many_redirects' });
+    expect(await buildPlaceImportService().resolveGoogleShortLink('https://maps.app.goo.gl/abc')).toEqual({
+      ok: false,
+      why: 'too_many_redirects',
+    });
+    expect(resolve).toHaveBeenCalledWith('https://maps.app.goo.gl/abc');
+    resolve.mockRestore();
   });
 });
 

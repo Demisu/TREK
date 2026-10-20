@@ -95,7 +95,8 @@ const tours: TranslationStrings = {
   'tours.planner.title': 'Planera en tur',
   'tours.planner.newTour': 'Planera ny tur',
   'tours.planner.addTour': 'Lägg till tur',
-  'tours.planner.addTourHint': 'Planera en ny tur, importera GPX-filer eller ta över en tur från en annan resa',
+  'tours.planner.addTourHint':
+    'Planera en ny tur, importera GPX-filer eller en promenad från Google Maps, eller ta över en tur från en annan resa',
   'tours.planner.neutralTitle': 'Planera en tur',
   'tours.planner.neutralBody': 'Starta en ny tur och klicka på kartan för att placera dess punkter.',
   'tours.planner.newTitle': 'Ny tur',
@@ -306,6 +307,43 @@ const tours: TranslationStrings = {
   'tours.library.confirm': 'Hämta',
   'tours.library.taken': '”{name}” hämtades till den här resan.',
   'tours.library.failed': 'Turen kunde inte hämtas.',
+  'tours.walkImport.menu': 'Importera promenad från Google Maps',
+  'tours.walkImport.title': 'Promenad från en Google Maps-länk',
+  'tours.walkImport.intro':
+    'Dela en gångrutt i Google Maps och klistra in länken här. TREK läser stoppen och planerar själv vägen till fots mellan dem.',
+  'tours.walkImport.urlLabel': 'Länk till gångrutten',
+  'tours.walkImport.urlHint': 'En kortlänk från maps.app.goo.gl eller ruttens adress på google.com/maps.',
+  'tours.walkImport.read': 'Läs länken',
+  'tours.walkImport.back': 'Använd en annan länk',
+  'tours.walkImport.load': 'Läs in som promenad',
+  'tours.walkImport.stops': 'Stopp i länken',
+  'tours.walkImport.source': 'Från Google Maps',
+  'tours.walkImport.openSource': 'Öppna i Google Maps',
+  'tours.walkImport.recalculated':
+    'TREK planerar vägen mellan stoppen på nytt; linjen som ritats i Google Maps tas inte över.',
+  'tours.walkImport.noPosition': 'Ingen position i länken',
+  'tours.walkImport.unresolved': '{count} stopp saknar position i länken och lämnas utanför.',
+  'tours.walkImport.unresolved.one': '{count} stopp saknar position i länken och lämnas utanför.',
+  'tours.walkImport.tooFewPositions': 'En promenad behöver minst två stopp med position.',
+  'tours.walkImport.replacesDraft': 'När promenaden läses in ersätts de osparade ändringarna i planeraren.',
+  'tours.walkImport.defaultName': 'Promenad från Google Maps',
+  'tours.walkImport.draftNotice': 'Från en gångrutt i Google Maps. TREK har själv planerat vägen mellan stoppen.',
+  'tours.walkImport.offline': 'Att läsa en länk kräver en anslutning.',
+  'tours.walkImport.failed': 'Länken kunde inte läsas just nu. Försök igen om en stund.',
+  'tours.walkImport.refusal.not_google_maps':
+    'Använd en ruttlänk från Google Maps: en kortlänk från maps.app.goo.gl eller en länk på google.com/maps/dir.',
+  'tours.walkImport.refusal.not_a_route':
+    'Den Google Maps-länken är ingen rutt. Planera promenaden i Google Maps och dela rutten.',
+  'tours.walkImport.refusal.not_walking':
+    'Den rutten är inte planerad till fots. Ställ om Google Maps till gång och dela rutten igen.',
+  'tours.walkImport.refusal.mode_unknown':
+    'Länken säger inte tydligt att rutten går till fots. Välj gång i Google Maps och dela den igen.',
+  'tours.walkImport.refusal.short_link_refused':
+    'Kortlänken leder någon annanstans än till Google Maps och följdes därför inte.',
+  'tours.walkImport.refusal.short_link_failed':
+    'Kortlänken kunde inte följas just nu. Försök igen eller klistra in den långa länken.',
+  'tours.walkImport.refusal.too_few_stops': 'Färre än två stopp kunde läsas från den länken.',
+  'tours.walkImport.refusal.too_many_stops': 'Den rutten har fler stopp än en promenad rymmer.',
   'tours.provenance.takenOverFrom': 'Hämtad från',
   'tours.poi.title': 'Längs turen',
   'tours.poi.intro': 'Platser för ett stopp nära rutten. Inget ändras förrän du lägger till en.',
