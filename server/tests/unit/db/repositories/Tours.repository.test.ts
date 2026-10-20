@@ -676,7 +676,7 @@ describe('ToursRepository writes', () => {
     expect((await repo.findProvenance(other.id, copiedPlanned.id))?.source_instance).toBeNull();
   });
 
-  it('TOURREPO-012: a trip copy takes a tour’s packing link onto its copy, and nothing for a tour that had none', async () => {
+  it('TOURREPO-025: a trip copy takes a tour’s packing link onto its copy, and nothing for a tour that had none', async () => {
     const { trip, other } = fixture();
     const linked = createPlace(testDb, trip.id);
     await repo.insertTour({ ...METRICS, place_id: linked.id });
