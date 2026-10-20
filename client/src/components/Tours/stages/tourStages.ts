@@ -94,9 +94,12 @@ export function lostStageEnds(
 ): number {
   const kept = new Set(next.filter((point) => point.stageEnd).map((point) => point.id));
   const asChanged = new Map(changed.map((point) => [point.id, point]));
-  return current.filter(
-    (point) => point.stageEnd && !kept.has(point.id) && (asChanged.get(point.id)?.stageEnd ?? true)
-  ).length;
+  return current.filter((point) => {
+    if (!point.stageEnd || kept.has(point.id)) return false;
+    const asChange = asChanged.get(point.id);
+    // A point the change removed lost its mark; one the change kept lost it only if the change still had it.
+    return !asChange || !!asChange.stageEnd;
+  }).length;
 }
 
 /** What a stage measures; null where the route does not tell (no heights on the water, a route not planned yet). */

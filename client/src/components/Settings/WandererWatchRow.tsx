@@ -12,24 +12,25 @@ import { useWandererWatch, type WandererWatchController } from './useWandererWat
 /** The switch, dimmed with a word on why while there is no connection to watch with. */
 function WatchSwitch({ W }: { W: WandererWatchController }) {
   const { t } = useTranslation();
-  const toggle = (
-    <ToggleSwitch
-      on={W.enabled}
-      onToggle={() => void W.toggle()}
-      label={t('wanderer.watch.label')}
-      disabled={!W.available}
-    />
-  );
-  if (W.available) return toggle;
+  const off = !W.available;
   // A disabled button takes no focus and, in some browsers, no hover either, so
-  // the reason sits on a focusable wrapper the tooltip listens to.
+  // the reason sits on a focusable wrapper the tooltip listens to. The wrapper
+  // stays once the switch can be used, so the button is never mounted anew and
+  // keeps its focus when the connection is known.
   return (
-    <Tooltip label={t('wanderer.watch.notConnected')}>
+    <Tooltip label={t('wanderer.watch.notConnected')} disabled={!off}>
       <span
-        tabIndex={0}
-        className="inline-flex cursor-not-allowed rounded-full opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--text-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg-card)]"
+        tabIndex={off ? 0 : undefined}
+        className={`inline-flex rounded-full outline-none ${off ? 'cursor-not-allowed opacity-50 focus-visible:ring-2 focus-visible:ring-[color:var(--text-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg-card)]' : ''}`}
       >
-        <span className="pointer-events-none inline-flex">{toggle}</span>
+        <span className={`inline-flex ${off ? 'pointer-events-none' : ''}`}>
+          <ToggleSwitch
+            on={W.enabled}
+            onToggle={() => void W.toggle()}
+            label={t('wanderer.watch.label')}
+            disabled={off}
+          />
+        </span>
       </span>
     </Tooltip>
   );

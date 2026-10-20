@@ -39,7 +39,8 @@ import { PaddleRolePill } from '../paddle/PaddleWaypointParts';
 import { usePaddleRegionLoad } from '../paddle/usePaddleRegionLoad';
 import { usePaddleWaypointActions } from '../paddle/usePaddleWaypointActions';
 import { usePortageRouting } from '../paddle/usePortageRouting';
-import { StageDivider, StageEndCorner, stageMenuItems } from '../stages/StageParts';
+import { stageMenuItems } from '../stages/stageActions';
+import { StageDivider, StageEndCorner } from '../stages/StageParts';
 import { RailCard } from '../tourParts';
 import { StationScheduleRow } from '../walk/StationSchedule';
 import { usePlannerWalkSchedule } from '../walk/useWalkSchedule';
@@ -465,6 +466,8 @@ function WaypointRowActions({
   isSaving,
   onUnlink,
   stationName,
+  menuOwner,
+  onMenuOpen,
 }: {
   planner: TourPlannerController;
   point: WaypointPoint;
@@ -476,9 +479,13 @@ function WaypointRowActions({
   onUnlink?: () => void;
   /** CW-01: the name the row shows, for a station without one of its own. */
   stationName?: string;
+  /** The row whose menu is open; opening one row's menu closes the menu of any other. */
+  menuOwner: string | null;
+  onMenuOpen: (id: string) => void;
 }) {
   const { t } = useTranslation();
   const menu = useContextMenu();
+  const menuOpen = !!menu.menu && menuOwner === point.id;
   const paddle = usePaddleWaypointActions(planner);
   const [stationOpen, setStationOpen] = useState(false);
   const station = planner.tourType === 'walk' && !point.shaping && !(planner.isLoop && index === lastIndex);
@@ -511,14 +518,21 @@ function WaypointRowActions({
   ];
   return (
     <span
-      className={`flex-none items-center gap-0.5 group-focus-within:flex group-hover:flex ${selected || menu.menu ? 'flex' : 'hidden'}`}
+      className={`flex-none items-center gap-0.5 group-focus-within:flex group-hover:flex ${selected || menuOpen ? 'flex' : 'hidden'}`}
     >
       <WaypointAction
         label={t('tours.planner.moreActions')}
         disabled={isSaving}
-        active={!!menu.menu}
+        active={menuOpen}
         onAct={() => undefined}
-        onPress={(event) => (menu.menu ? menu.close() : menu.open(event, items, true))}
+        onPress={(event) => {
+          if (menuOpen) {
+            menu.close();
+            return;
+          }
+          onMenuOpen(point.id);
+          menu.open(event, items, true);
+        }}
       >
         <MoreHorizontal size={14} strokeWidth={2.2} />
       </WaypointAction>
@@ -530,7 +544,7 @@ function WaypointRowActions({
       >
         <Trash2 size={13} strokeWidth={2} />
       </WaypointAction>
-      <ContextMenu menu={menu.menu} onClose={menu.close} />
+      <ContextMenu menu={menuOpen ? menu.menu : null} onClose={menu.close} />
       {stationOpen && (
         <StationDialog
           point={point}
@@ -683,6 +697,7 @@ export default function TourWaypointList({
   // CW-02, CW-04: the arrivals and opening hours of a city walk on one of its days; hints only, nothing saved.
   const walk = usePlannerWalkSchedule(planner, tripPlaces.linkedPlaceOf);
   const [placesOpen, setPlacesOpen] = useState(false);
+  const [menuOwner, setMenuOwner] = useState<string | null>(null);
   const addRows = canEdit && (
     <>
       <AddPointRow disabled={isSaving} placesOpen={placesOpen} onTogglePlaces={() => setPlacesOpen((open) => !open)} />
@@ -719,6 +734,10 @@ export default function TourWaypointList({
     const stage = stageStarts.get(index);
     return stage ? <StageDivider stage={stage} /> : null;
   };
+  // A row's name: the trip place it stands for, else the name looked up for its spot.
+  const placeNameOf = (point: WaypointPoint, linked: ReturnType<typeof tripPlaces.linkedPlaceOf>) =>
+    linked?.name ?? placeNames[point.id];
+  const ferrataOf = (point: WaypointPoint) => ferrataEnds[point.id] ?? null;
   const stageMarkOf = (stage: number | undefined) =>
     stage ? { stageNote: t('tours.stages.endOf', { number: stage }), corner: <StageEndCorner /> } : {};
   const endDrag = () => {
@@ -768,7 +787,7 @@ export default function TourWaypointList({
           const isDropTarget = dropTarget?.id === point.id && draggedWaypointId !== point.id;
           const loopEnd = planner.isLoop && index === lastIndex;
           const linkedPlace = tripPlaces.linkedPlaceOf(point);
-          const placeName = linkedPlace?.name ?? placeNames[point.id];
+          const placeName = placeNameOf(point, linkedPlace);
           const stop = stopNumbers.get(point.id) ?? index + 1;
           return (
             <Fragment key={point.id}>
@@ -829,7 +848,7 @@ export default function TourWaypointList({
                   <WaypointNumber
                     stop={stop}
                     selected={selected}
-                    ferrata={ferrataEnds[point.id] ?? null}
+                    ferrata={ferrataOf(point)}
                     poiCategory={point.poiCategory ?? null}
                     station={point}
                     loopEnd={loopEnd}
@@ -861,6 +880,8 @@ export default function TourWaypointList({
                       isSaving={isSaving}
                       onUnlink={point.linkedPlaceId ? () => tripPlaces.unlink(point.id) : undefined}
                       stationName={placeName}
+                      menuOwner={menuOwner}
+                      onMenuOpen={setMenuOwner}
                     />
                   )}
                 </div>

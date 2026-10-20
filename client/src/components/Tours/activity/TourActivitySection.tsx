@@ -1,5 +1,5 @@
 import type { TourActivity, TourListItem } from '@trek/shared';
-import { CalendarDays, CheckCheck, Clock, CloudOff, FileDown, Plus, RefreshCw, Unlink } from 'lucide-react';
+import { CalendarDays, CheckCheck, Clock, CloudOff, FileDown, Footprints, Plus, RefreshCw, Unlink } from 'lucide-react';
 import { useMemo } from 'react';
 import { useTranslation } from '../../../i18n';
 import { useSettingsStore } from '../../../store/settingsStore';
