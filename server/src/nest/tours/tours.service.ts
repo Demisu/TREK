@@ -48,6 +48,8 @@ import {
   type PaddleLakeStyle,
   type PaddleWaterContext,
   type RunProfile,
+  type SkiDiscipline,
+  type SkiTechnique,
   type TourCreateRequest,
   type TourCreateResponse,
   type TourDetailResponse,
@@ -179,6 +181,8 @@ export class ToursService {
       winter_activity: r.winter_activity as WinterActivity | null,
       run_profile: r.run_profile as RunProfile | null,
       run_pace_seconds_per_km: r.run_pace_seconds_per_km,
+      ski_discipline: r.ski_discipline as SkiDiscipline | null,
+      ski_technique: r.ski_technique as SkiTechnique | null,
       boat_type: r.boat_type as PaddleBoatType | null,
       water_context: r.water_context as PaddleWaterContext | null,
       paddle_speed_kmh: r.paddle_speed_kmh,
@@ -222,6 +226,9 @@ export class ToursService {
       bike_profile: input.tour_type === 'bike' ? (input.bike_profile ?? null) : null,
       winter_activity: winterField(input),
       ...runFields(input),
+      // SKI-02: TREK plans no ski track, so a planned save is never one and takes its classification off.
+      ski_discipline: null,
+      ski_technique: null,
       boat_type: input.boat_type ?? null,
       water_context: input.water_context ?? null,
       paddle_speed_kmh: input.paddle_speed_kmh ?? null,
@@ -521,6 +528,8 @@ export class ToursService {
         bike_profile: row.bike_profile as BikeProfile | null,
         run_profile: row.run_profile as RunProfile | null,
         run_pace_seconds_per_km: row.run_pace_seconds_per_km,
+        ski_discipline: row.ski_discipline as SkiDiscipline | null,
+        ski_technique: row.ski_technique as SkiTechnique | null,
         boat_type: row.boat_type as PaddleBoatType | null,
         water_context: row.water_context as PaddleWaterContext | null,
         paddle_speed_kmh: row.paddle_speed_kmh,
@@ -632,6 +641,8 @@ export class ToursService {
       winter_activity: row.winter_activity as WinterActivity | null,
       run_profile: row.run_profile as RunProfile | null,
       run_pace_seconds_per_km: row.run_pace_seconds_per_km,
+      ski_discipline: row.ski_discipline as SkiDiscipline | null,
+      ski_technique: row.ski_technique as SkiTechnique | null,
       boat_type: row.boat_type as PaddleBoatType | null,
       water_context: row.water_context as PaddleWaterContext | null,
       paddle_speed_kmh: row.paddle_speed_kmh,
@@ -815,12 +826,15 @@ export class ToursService {
     const rows = this.readGpxTracks(fileBuffer, fileName);
     if (rows.length === 0) return null;
     await this.assertTourTypeEnabled(fields.tour_type);
-    // What the type adds to each imported tour: a bike tour and a run their profile, a paddle tour its boat and water.
-    // A run comes in without a pace: its time stays unknown until one is planned from it.
+    // What the type adds to each imported tour: a bike tour and a run their profile, a paddle tour its boat and water,
+    // a ski track its discipline and technique (SKI-02). A run comes in without a pace and a ski track without a
+    // time: neither is worked out for them, so they stay unknown.
     const typeFields = {
       bike_profile: fields.bike_profile ?? null,
       run_profile: fields.run_profile ?? null,
       run_pace_seconds_per_km: null,
+      ski_discipline: fields.ski_discipline ?? null,
+      ski_technique: fields.ski_technique ?? null,
       boat_type: fields.boat_type ?? null,
       water_context: fields.water_context ?? null,
       paddle_speed_kmh: null,

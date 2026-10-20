@@ -205,7 +205,7 @@ const tours: TranslationStrings = {
   'tourTypes.hike': 'Senderismo',
   'tourTypes.bike': 'Ruta en bicicleta',
   'tourTypes.run': 'Carrera a pie',
-  'tourTypes.ski': 'Esquí de travesía',
+  'tourTypes.ski': 'Esquí',
   'tourTypes.kayak': 'Ruta en piragua',
   'tourTypes.walk': 'Paseo urbano / turístico',
   'tourTypes.food': 'Ruta gastronómica / enológica',
@@ -410,6 +410,27 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Ruta con raquetas de nieve',
   'tours.winter.labelOnly':
     'Marcado por los viajeros. Ruta y tiempo se planifican como en cualquier ruta, sin comprobación invernal.',
+  'tours.planner.tourTypeHint.ski': 'Desde un archivo GPX, tal como se grabó',
+  'tours.ski.title': 'Ruta de esquí',
+  'tours.ski.discipline': 'Disciplina',
+  'tours.ski.discipline.alpine': 'Alpino',
+  'tours.ski.discipline.snowboard': 'Snowboard', // same-as-en
+  'tours.ski.discipline.cross_country': 'Esquí de fondo',
+  'tours.ski.discipline.touring': 'Esquí de travesía',
+  'tours.ski.technique': 'Técnica',
+  'tours.ski.technique.classic': 'Clásica',
+  'tours.ski.technique.skating': 'Skating', // same-as-en
+  'tours.ski.technique.unknown': 'Desconocida',
+  'tours.ski.chooseDiscipline': 'Elige una disciplina para importar la ruta como esquí.',
+  'tours.ski.chooseTechnique': 'Elige la técnica, o Desconocida.',
+  'tours.ski.infoLabel': 'Qué hace TREK con una ruta de esquí',
+  'tours.ski.info':
+    'Se conserva tal como se grabó y nunca se enruta. La distancia y las alturas vienen del archivo. TREK no calcula ningún tiempo de esquí, y ni la ruta ni los colores de pendiente en 3D dicen nada sobre dificultad, nieve, aludes o si las pistas están abiertas.',
+  'tours.ski.time': 'Tiempo de esquí',
+  'tours.ski.timeUnknown': 'Sin calcular',
+  'tours.ski.classifyTitle': 'Clasificar ruta de esquí',
+  'tours.ski.saved': 'Clasificación guardada',
+  'tours.ski.saveFailed': 'No se pudo guardar la clasificación.',
   'tours.planner.tourTypeHint.run': 'A pie a tu ritmo, por caminos buenos para correr',
   'tours.planner.namePlaceholder.run': 'Carrera sin título',
   'tours.planner.unreachable.run':

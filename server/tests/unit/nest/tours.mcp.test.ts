@@ -411,4 +411,30 @@ describe('ToursMcp', () => {
     expect(description).toContain('trail for forest tracks and natural paths up to mountain paths (T2)');
     expect(description).toContain('never a statement that a way can be run');
   });
+
+  it('TOURS-MCP-018: list_tours names a ski track with its discipline and technique, and says it is kept as recorded (SKI-02)', async () => {
+    const { user, trip, ridge, gorge } = fixture();
+    const orm = await createTestOrm(db);
+    await updateRows(
+      orm,
+      Tours,
+      { place: ridge.id },
+      { tourTypeRef: 'ski', max_hiking_difficulty: null, ski_discipline: 'cross_country', ski_technique: 'skating' },
+    );
+    await orm.close();
+    const { tours } = read(await mcp.listTours({ tripId: trip.id }, ctx(user.id)));
+    const byId = new Map(tours.map((tour: { place_id: number }) => [tour.place_id, tour]));
+    expect(byId.get(ridge.id)).toMatchObject({
+      tour_type: 'ski',
+      ski_discipline: 'cross_country',
+      ski_technique: 'skating',
+    });
+    expect(byId.get(gorge.id)).toMatchObject({ ski_discipline: null, ski_technique: null });
+    const entry = getEntry(ToursMcp as unknown as ClassRef, 'listTours');
+    const description = entry?.kind === 'tool' ? (entry.options.description ?? '') : '';
+    expect(description).toMatch(/ski_discipline: alpine, snowboard, cross_country or touring/);
+    expect(description).toContain('never routed');
+    expect(description).toContain('it has no ski time worked out');
+    expect(description).toContain('nothing in it says anything about snow, avalanches');
+  });
 });

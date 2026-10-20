@@ -6,6 +6,7 @@ import {
   trackMarksSchema,
 } from './paddle-plan.schema';
 import { runPaceSecondsPerKmSchema } from './run-pace';
+import { skiDisciplineSchema, skiTechniqueSchema } from './ski.schema';
 import { tourPoiCategorySchema } from './tour-poi-category';
 import { tourOriginSchema, tourProvenanceSchema } from './tour-provenance.schema';
 
@@ -36,6 +37,14 @@ export type TourTypeKey = z.infer<typeof tourTypeKeySchema>;
  */
 export const plannableTourTypeSchema = z.enum(['hike', 'walk', 'run', 'bike', 'kayak']);
 export type PlannableTourType = z.infer<typeof plannableTourTypeSchema>;
+
+/**
+ * The types a tour can be imported and kept as: every type the planner plans,
+ * and ski (SKI-02), which TREK does not route. A ski track comes in as it was
+ * recorded and stays so; the planner never opens it as a draft.
+ */
+export const importableTourTypeSchema = z.enum(['hike', 'walk', 'run', 'bike', 'kayak', 'ski']);
+export type ImportableTourType = z.infer<typeof importableTourTypeSchema>;
 
 /**
  * BIK-01 to BIK-04: what a bike tour is ridden on, the one profile it is routed
@@ -194,6 +203,10 @@ export const tourSchema = z.object({
   run_profile: runProfileSchema.nullable().optional(),
   /** RUN-01: the pace a run is planned at, seconds per km; null while none is entered and for every other type. */
   run_pace_seconds_per_km: z.number().nullable().optional(),
+  /** SKI-02: a ski track's discipline; null for every other type. Absent in a list cached before it existed. */
+  ski_discipline: skiDisciplineSchema.nullable().optional(),
+  /** SKI-02: how a cross-country track is skied; null for every other discipline and type. */
+  ski_technique: skiTechniqueSchema.nullable().optional(),
   /** A paddle tour's boat and water; null for every other type. Absent in a list cached before they existed. */
   boat_type: paddleBoatTypeSchema.nullable().optional(),
   water_context: paddleWaterContextSchema.nullable().optional(),

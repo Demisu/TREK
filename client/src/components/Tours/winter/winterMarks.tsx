@@ -3,6 +3,7 @@ import { Footprints, Snowflake, type LucideIcon } from 'lucide-react';
 import { useTranslation } from '../../../i18n';
 import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
+import { TourCornerMark } from '../TourCornerMark';
 
 /** HIK-01: the icon each winter label goes by, a snowflake for winter hiking and footprints in the snow for snowshoes. */
 export const WINTER_ACTIVITY_ICON: Record<WinterActivity, LucideIcon> = {
@@ -25,21 +26,13 @@ export function WinterCornerMark({
 }) {
   const { t } = useTranslation();
   if (!activity) return null;
-  const label = t(`tours.winter.activity.${activity}`);
   return (
-    <span className="absolute -end-1 -top-1 flex">
-      <Tooltip label={label}>
-        <span
-          data-testid="tour-winter-mark"
-          role="img"
-          aria-label={label}
-          className="grid place-items-center rounded-full bg-surface-card text-info shadow-sm ring-1 ring-inset ring-edge-faint"
-          style={{ width: size, height: size }}
-        >
-          <Snowflake size={Math.round(size * 0.64)} strokeWidth={2.4} aria-hidden="true" />
-        </span>
-      </Tooltip>
-    </span>
+    <TourCornerMark
+      icon={Snowflake}
+      label={t(`tours.winter.activity.${activity}`)}
+      size={size}
+      testId="tour-winter-mark"
+    />
   );
 }
 

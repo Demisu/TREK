@@ -17,19 +17,21 @@ import type { TourDayAssignment } from './useTourDayAssignment'
 import { useRailFold } from './railFold'
 import { tourDayRowIcon } from './tourDayRowIcon'
 import { WinterCornerMark } from './winter/winterMarks'
+import { SkiCornerMark } from './ski/skiMarks'
 
 /**
  * A tour's tile in a list: its T-scale grade in place of the mountain, named in
  * full by its tooltip (a GPX import carries no grade and keeps the mountain),
  * where it came from, when that was not TREK, as a small badge over its foot,
- * and a hike's winter label (HIK-01) as a snowflake at its top corner.
+ * and a hike's winter label (HIK-01) or a ski track's discipline (SKI-02) at
+ * its top corner.
  */
-export function TourGradeTile({ tour }: { tour: Pick<TourListItem, 'max_hiking_difficulty' | 'wanderer_ref' | 'has_waypoints'> & Partial<Pick<TourListItem, 'tour_type' | 'winter_activity'>> }) {
+export function TourGradeTile({ tour }: { tour: Pick<TourListItem, 'max_hiking_difficulty' | 'wanderer_ref' | 'has_waypoints'> & Partial<Pick<TourListItem, 'tour_type' | 'winter_activity' | 'ski_discipline' | 'ski_technique'>> }) {
   const { t } = useTranslation()
   const level = tour.max_hiking_difficulty
   const source = tourSource(tour)
-  // A tour without a grade (a paddle or a bike tour, a run, an import) names its type instead; a hike keeps the mountain.
-  const type = tour.tour_type === 'kayak' || tour.tour_type === 'bike' || tour.tour_type === 'run' ? tour.tour_type : 'hike'
+  // A tour without a grade (a paddle or a bike tour, a run, a ski track, an import) names its type instead; a hike keeps the mountain.
+  const type = tour.tour_type && ['kayak', 'bike', 'run', 'ski'].includes(tour.tour_type) ? tour.tour_type : 'hike'
   const label = level != null ? t(`tours.planner.difficulty.t${level}`) : type !== 'hike' ? t(`tourTypes.${type}`) : null
   return (
     <span className="relative flex-none">
@@ -39,6 +41,7 @@ export function TourGradeTile({ tour }: { tour: Pick<TourListItem, 'max_hiking_d
         </span>
       </Tooltip>
       <WinterCornerMark activity={tour.winter_activity} />
+      <SkiCornerMark tour={tour} />
       {source !== 'trek' && (
         <span className="absolute inset-x-0 -bottom-1 flex justify-center">
           <Tooltip label={hikeSourceBadgeLabel(tour, t)}>

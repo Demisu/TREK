@@ -1021,7 +1021,7 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
         [
           { tour_type: 'kayak', water_context: 'lake' },
           { tour_type: 'hike', boat_type: 'sup' },
-          { tour_type: 'ski' },
+          { tour_type: 'food' },
         ].map((fields) => importGpx(OWNER, TRACK_GPX, 5, fields)),
       );
       for (const res of refused) {

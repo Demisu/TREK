@@ -204,7 +204,7 @@ const tours: TranslationStrings = {
   'tourTypes.hike': 'Wandeling',
   'tourTypes.bike': 'Fietstocht',
   'tourTypes.run': 'Hardlooptocht',
-  'tourTypes.ski': 'Skitocht',
+  'tourTypes.ski': 'Ski', // same-as-en
   'tourTypes.kayak': 'Peddeltocht',
   'tourTypes.walk': 'Stadswandeling / bezienswaardigheden',
   'tourTypes.food': 'Culinaire tocht / wijntocht',
@@ -412,6 +412,27 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Sneeuwschoenwandeling',
   'tours.winter.labelOnly':
     'Gemarkeerd door de reizigers. Route en tijd worden gepland als bij elke wandeling, niet gecontroleerd op de winter.',
+  'tours.planner.tourTypeHint.ski': 'Uit een GPX-bestand, zoals opgenomen',
+  'tours.ski.title': 'Skispoor',
+  'tours.ski.discipline': 'Discipline', // same-as-en
+  'tours.ski.discipline.alpine': 'Alpine', // same-as-en
+  'tours.ski.discipline.snowboard': 'Snowboard', // same-as-en
+  'tours.ski.discipline.cross_country': 'Langlaufen',
+  'tours.ski.discipline.touring': 'Toerskiën',
+  'tours.ski.technique': 'Techniek',
+  'tours.ski.technique.classic': 'Klassiek',
+  'tours.ski.technique.skating': 'Skating', // same-as-en
+  'tours.ski.technique.unknown': 'Onbekend',
+  'tours.ski.chooseDiscipline': 'Kies een discipline om het spoor als ski te importeren.',
+  'tours.ski.chooseTechnique': 'Kies de techniek, of Onbekend.',
+  'tours.ski.infoLabel': 'Wat TREK met een skispoor doet',
+  'tours.ski.info':
+    'Blijft zoals opgenomen en wordt nooit gerouteerd. Afstand en hoogtes komen uit het bestand. TREK berekent geen skitijd, en noch het spoor noch de hellingkleuren in 3D zeggen iets over moeilijkheid, sneeuw, lawines of of pistes en loipes open zijn.',
+  'tours.ski.time': 'Skitijd',
+  'tours.ski.timeUnknown': 'Niet berekend',
+  'tours.ski.classifyTitle': 'Skispoor indelen',
+  'tours.ski.saved': 'Indeling opgeslagen',
+  'tours.ski.saveFailed': 'De indeling kon niet worden opgeslagen.',
   'tours.planner.tourTypeHint.run': 'Te voet in je eigen tempo, over goed beloopbare wegen',
   'tours.planner.namePlaceholder.run': 'Naamloze looptocht',
   'tours.planner.unreachable.run':

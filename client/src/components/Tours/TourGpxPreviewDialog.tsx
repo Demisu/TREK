@@ -1,14 +1,5 @@
-import {
-  BIKE_PROFILES,
-  type BikeProfile,
-  type PaddleBoatType,
-  type PaddleWaterContext,
-  type PlannableTourType,
-  type RunProfile,
-  type TourGpxImportFields,
-} from '@trek/shared';
-import { AlertTriangle, FileDown, Info } from 'lucide-react';
-import { useId, useMemo, useState } from 'react';
+import { AlertTriangle, FileDown } from 'lucide-react';
+import { useId, useMemo } from 'react';
 import { OFM_POSITRON } from '../../constants/mapDefaults';
 import { useTileUrl } from '../../hooks/useTileUrl';
 import { useTranslation } from '../../i18n';
@@ -16,7 +7,6 @@ import { useSettingsStore } from '../../store/settingsStore';
 import { formatDistance, formatElevation } from '../../utils/units';
 import { MapViewAuto } from '../Map/MapViewAuto';
 import { SoftPill } from '../Planner/planParts';
-import { LABEL, Segmented } from '../shared/dialogParts';
 import {
   DialogButton,
   DialogFooter,
@@ -28,13 +18,11 @@ import {
   fs,
   NEUTRAL_TINT,
 } from '../shared/DialogShell';
-import { TourTypeSelect } from './planner/TourTypeSelect';
-import { RunProfileField } from './run/RunFields';
+import { importFields, importMissing, useGpxImportChoices } from './gpxImportChoices';
+import { GpxImportTypeSection } from './GpxImportTypeSection';
 import { TourNotice } from './tourParts';
 import type { GpxPreviewFile, TourGpxImport } from './useTourGpxImport';
 
-const BOATS: readonly PaddleBoatType[] = ['kayak', 'canoe', 'sup', 'other'];
-const WATERS: readonly PaddleWaterContext[] = ['river', 'lake'];
 const BADGE =
   'inline-flex flex-none items-center rounded-full bg-surface-secondary px-2 font-geist tabular-nums leading-[20px] text-content-secondary';
 
@@ -71,29 +59,12 @@ function PreviewTrackRow({ name, track }: { name: string; track: GpxPreviewFile[
   );
 }
 
-/** What the dialog has chosen besides the type: a paddle import's boat and water, a bike or run import's profile. */
-interface ImportChoices {
-  boat: PaddleBoatType | null;
-  water: PaddleWaterContext | null;
-  bikeProfile: BikeProfile;
-  runProfile: RunProfile;
-}
-
-/** What the import is asked to store the tracks as: the type and the fields that type names. */
-function importFields(type: PlannableTourType, chosen: ImportChoices): TourGpxImportFields {
-  if (type === 'kayak' && chosen.boat && chosen.water)
-    return { tour_type: 'kayak', boat_type: chosen.boat, water_context: chosen.water };
-  if (type === 'bike') return { tour_type: 'bike', bike_profile: chosen.bikeProfile };
-  // RUN-01: a run comes in with its profile and no pace; its time stays unknown until one is planned from it.
-  if (type === 'run') return { tour_type: 'run', run_profile: chosen.runProfile };
-  return { tour_type: 'hike' };
-}
-
 /**
  * PAD-02: a GPX file shown before anything is stored. The whole course on a
  * map, every track with its measures, the tracks the trip already holds named
  * as skipped, and the type to import them as; a paddle import names its boat
- * and water, as a planned paddle tour does. Closing it stores nothing.
+ * and water, as a planned paddle tour does, a ski import its discipline
+ * (SKI-02). Closing it stores nothing.
  */
 export default function TourGpxPreviewDialog({ gpxImport }: { gpxImport: TourGpxImport }) {
   const { preview } = gpxImport;
@@ -104,13 +75,8 @@ export default function TourGpxPreviewDialog({ gpxImport }: { gpxImport: TourGpx
 function PreviewDialog({ gpxImport, files }: { gpxImport: TourGpxImport; files: GpxPreviewFile[] }) {
   const { t } = useTranslation();
   const labelId = useId();
-  const typeLabelId = useId();
   const tileUrl = useTileUrl(OFM_POSITRON);
-  const [type, setType] = useState<PlannableTourType>('hike');
-  const [boat, setBoat] = useState<PaddleBoatType | null>(null);
-  const [water, setWater] = useState<PaddleWaterContext | null>(null);
-  const [bikeProfile, setBikeProfile] = useState<BikeProfile>('touring');
-  const [runProfile, setRunProfile] = useState<RunProfile>('running');
+  const choices = useGpxImportChoices();
 
   const tracks = files.flatMap((file) => file.tracks.map((track) => ({ file: file.file, track })));
   const fresh = tracks.filter(({ track }) => !track.duplicate).length;
@@ -122,9 +88,8 @@ function PreviewDialog({ gpxImport, files }: { gpxImport: TourGpxImport; files: 
     [files]
   );
   const focusPoints = useMemo(() => lines.flat(), [lines]);
-  const paddleIncomplete = type === 'kayak' && (boat === null || water === null);
-  const canImport = fresh > 0 && !paddleIncomplete && !gpxImport.importing;
-  const fields = importFields(type, { boat, water, bikeProfile, runProfile });
+  const canImport = fresh > 0 && importMissing(choices.chosen) === null && !gpxImport.importing;
+  const fields = importFields(choices.chosen);
   const title = files.length === 1 ? files[0].file.name : t('tours.import.previewFiles', { count: files.length });
 
   return (
@@ -196,53 +161,7 @@ function PreviewDialog({ gpxImport, files }: { gpxImport: TourGpxImport; files: 
         )}
       </DialogSection>
 
-      <DialogSection label={<span id={typeLabelId}>{t('tours.import.previewAs')}</span>}>
-        <div className="flex flex-col gap-3">
-          <TourTypeSelect value={type} onChange={setType} labelId={typeLabelId} />
-          {type === 'bike' && (
-            <div data-testid="gpx-preview-bike" className="min-w-0">
-              <span className={LABEL}>{t('tours.bike.profile')}</span>
-              <Segmented<BikeProfile>
-                value={bikeProfile}
-                onChange={setBikeProfile}
-                label={t('tours.bike.profile')}
-                fill
-                options={BIKE_PROFILES.map((value) => ({ value, label: t(`tours.bike.profile.${value}`) }))}
-              />
-            </div>
-          )}
-          {type === 'run' && <RunProfileField value={runProfile} onChange={setRunProfile} />}
-          {type === 'kayak' && (
-            <div data-testid="gpx-preview-paddle" className="grid grid-cols-1 gap-3 sm:grid-cols-[3fr_2fr]">
-              <div className="min-w-0">
-                <span className={LABEL}>{t('tours.paddle.boat')}</span>
-                <Segmented<PaddleBoatType>
-                  value={(boat ?? '') as PaddleBoatType}
-                  onChange={setBoat}
-                  label={t('tours.paddle.boat')}
-                  fill
-                  options={BOATS.map((value) => ({ value, label: t(`tours.paddle.boat.${value}`) }))}
-                />
-              </div>
-              <div className="min-w-0">
-                <span className={LABEL}>{t('tours.paddle.water')}</span>
-                <Segmented<PaddleWaterContext>
-                  value={(water ?? '') as PaddleWaterContext}
-                  onChange={setWater}
-                  label={t('tours.paddle.water')}
-                  fill
-                  options={WATERS.map((value) => ({ value, label: t(`tours.paddle.water.${value}`) }))}
-                />
-              </div>
-            </div>
-          )}
-          {paddleIncomplete && (
-            <TourNotice role="status" icon={<Info size={13} strokeWidth={2} />}>
-              {t('tours.paddle.chooseBoatImport')}
-            </TourNotice>
-          )}
-        </div>
-      </DialogSection>
+      <GpxImportTypeSection choices={choices} />
     </DialogShell>
   );
 }

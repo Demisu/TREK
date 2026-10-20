@@ -28,6 +28,8 @@ import { TourPaddleCheckService } from './tour-paddle-check.service';
 import { TourPaddlePlanService } from './tour-paddle-plan.service';
 import { TourPoiSearchController } from './tour-poi-search.controller';
 import { TourPoiSearchService } from './tour-poi-search.service';
+import { TourSkiController } from './tour-ski.controller';
+import { TourSkiService } from './tour-ski.service';
 import { TourTrailGradeController } from './tour-trail-grade.controller';
 import { TourTrailGradeService } from './tour-trail-grade.service';
 import { TourVisitsController } from './tour-visits.controller';
@@ -88,6 +90,7 @@ import { Module } from '@nestjs/common';
   controllers: [
     TourTakeOverController,
     TourPoiSearchController,
+    TourSkiController,
     TourTrailGradeController,
     TourVisitsController,
     TourWalkImportController,
@@ -106,6 +109,7 @@ import { Module } from '@nestjs/common';
     ToursWandererService,
     TourLibraryService,
     TourPoiSearchService,
+    TourSkiService,
     TourTrailGradeService,
     TourVisitsService,
     TourWalkImportService,

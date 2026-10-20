@@ -18,7 +18,7 @@ describe('Tours GPX import fields', () => {
   it('refuses a paddle import without a boat, and a hike that names one', () => {
     expect(() => tourGpxImportFieldsSchema.parse({ tour_type: 'kayak', water_context: 'lake' })).toThrow(/boat_type/);
     expect(() => tourGpxImportFieldsSchema.parse({ tour_type: 'hike', boat_type: 'sup' })).toThrow(/paddle import/);
-    expect(() => tourGpxImportFieldsSchema.parse({ tour_type: 'ski' })).toThrow();
+    expect(() => tourGpxImportFieldsSchema.parse({ tour_type: 'food' })).toThrow();
   });
 });
 

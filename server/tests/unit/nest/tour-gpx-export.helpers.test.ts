@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 // TOUR-GPX-ACTIVITY-001 to TOUR-GPX-ACTIVITY-005
 
-describe('gpxActivityOf (PR1-06A, BIK-01, HIK-01, RUN-01)', () => {
+describe('gpxActivityOf (PR1-06A, BIK-01, HIK-01, RUN-01, SKI-02)', () => {
   it('TOUR-GPX-ACTIVITY-001: a bike tour names its profile, and the plainest riding without a known one', () => {
     expect(gpxActivityOf({ tour_type: 'bike', bike_profile: 'mtb' })).toBe('mountain_biking');
     expect(gpxActivityOf({ tour_type: 'bike', bike_profile: null })).toBe('cycling');
@@ -34,5 +34,14 @@ describe('gpxActivityOf (PR1-06A, BIK-01, HIK-01, RUN-01)', () => {
     expect(gpxActivityOf({ tour_type: 'run', run_profile: null })).toBe('running');
     expect(gpxActivityOf({ tour_type: 'run', run_profile: 'sprint' })).toBe('running');
     expect(gpxActivityOf({ tour_type: 'run', run_profile: 'trail' })).toBe('trail_running');
+  });
+
+  it('TOUR-GPX-ACTIVITY-006: a ski track names its discipline, and skiing without a known one (SKI-02)', () => {
+    expect(gpxActivityOf({ tour_type: 'ski', ski_discipline: 'alpine' })).toBe('alpine_skiing');
+    expect(gpxActivityOf({ tour_type: 'ski', ski_discipline: 'snowboard' })).toBe('snowboarding');
+    expect(gpxActivityOf({ tour_type: 'ski', ski_discipline: 'cross_country' })).toBe('cross_country_skiing');
+    expect(gpxActivityOf({ tour_type: 'ski', ski_discipline: 'touring' })).toBe('backcountry_skiing');
+    expect(gpxActivityOf({ tour_type: 'ski', ski_discipline: null })).toBe('skiing');
+    expect(gpxActivityOf({ tour_type: 'ski', ski_discipline: 'freeride' })).toBe('skiing');
   });
 });

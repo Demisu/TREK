@@ -68,6 +68,7 @@ const UNNUMBERED = [
   'Migration20200101045400_a_tour_waypoint_remembers_the_kind_of_place_it_was_found_as',
   'Migration20200101045500_a_hike_can_be_marked_as_a_winter_activity',
   'Migration20200101045510_a_tour_can_be_a_run',
+  'Migration20200101045520_a_tour_can_be_a_ski_track',
 ];
 // The last step the positional runner ever had; planLegacyBaseline refuses a
 // schema_version past it.

@@ -106,10 +106,10 @@ describe('ToursRepository reads', () => {
         hiking_preferences: null,
         bike_profile: null,
         winter_activity: null,
-      run_profile: null,
-      run_pace_seconds_per_km: null,
         run_profile: null,
         run_pace_seconds_per_km: null,
+        ski_discipline: null,
+        ski_technique: null,
       },
       {
         place_id: older.id,
@@ -143,10 +143,10 @@ describe('ToursRepository reads', () => {
         hiking_preferences: null,
         bike_profile: null,
         winter_activity: null,
-      run_profile: null,
-      run_pace_seconds_per_km: null,
         run_profile: null,
         run_pace_seconds_per_km: null,
+        ski_discipline: null,
+        ski_technique: null,
       },
     ]);
     expect((await repo.listForTrip(trip.id)).map((r) => r.place_id)).not.toContain(plain.id);
@@ -263,6 +263,8 @@ describe('ToursRepository writes', () => {
       winter_activity: null,
       run_profile: null,
       run_pace_seconds_per_km: null,
+      ski_discipline: null,
+      ski_technique: null,
     });
   });
 
@@ -272,6 +274,8 @@ describe('ToursRepository writes', () => {
     bike_profile: null,
     run_profile: null,
     run_pace_seconds_per_km: null,
+    ski_discipline: null,
+    ski_technique: null,
     boat_type: null,
     water_context: null,
     paddle_speed_kmh: null,
@@ -333,6 +337,33 @@ describe('ToursRepository writes', () => {
     expect(await repo.findInTrip(trip.id, place.id)).toMatchObject({ run_profile: null, run_pace_seconds_per_km: null });
   });
 
+  it('TOURREPO-018: a ski track keeps its classification, is classified again only in its own trip, and a route edit takes it off (SKI-02)', async () => {
+    const { trip, other } = fixture();
+    const place = createPlace(testDb, trip.id, { name: 'Valley loop' });
+    const ski = { ...METRICS, tour_type: 'ski', max_hiking_difficulty: null, duration: null };
+    await repo.insertTour({ place_id: place.id, ...ski, ski_discipline: 'cross_country', ski_technique: 'classic' });
+    expect(await repo.findInTrip(trip.id, place.id)).toMatchObject({
+      tour_type: 'ski',
+      ski_discipline: 'cross_country',
+      ski_technique: 'classic',
+      duration: null,
+    });
+
+    const touring = { ski_discipline: 'touring' as const, ski_technique: null };
+    expect(await repo.updateSkiInTrip(other.id, place.id, touring)).toBe(false);
+    expect((await repo.findInTrip(trip.id, place.id))?.ski_discipline).toBe('cross_country');
+    expect(await repo.updateSkiInTrip(trip.id, place.id, touring)).toBe(true);
+    expect((await repo.listForTrip(trip.id))[0]).toMatchObject({
+      ski_discipline: 'touring',
+      ski_technique: null,
+      distance: METRICS.distance,
+      elevation_gain: METRICS.elevation_gain,
+    });
+
+    expect(await repo.updateInTrip(trip.id, place.id, HIKE_UPDATE)).toBe(true);
+    expect(await repo.findInTrip(trip.id, place.id)).toMatchObject({ ski_discipline: null, ski_technique: null });
+  });
+
   it('TOURREPO-008: listRowsForTrip and insertCopy carry every column, created_at included, onto the copied place', async () => {
     const { trip, other } = fixture();
     const source = createPlace(testDb, trip.id);
@@ -379,10 +410,10 @@ describe('ToursRepository writes', () => {
         hiking_preferences: null,
         bike_profile: null,
         winter_activity: null,
-      run_profile: null,
-      run_pace_seconds_per_km: null,
         run_profile: null,
         run_pace_seconds_per_km: null,
+        ski_discipline: null,
+        ski_technique: null,
         taken_over_from_trip_title: null,
         taken_over_from_tour_name: null,
       },

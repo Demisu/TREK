@@ -52,6 +52,7 @@ import { PaddleCheckSection } from './paddle/PaddleCheckSection';
 import { PaddleWindSection } from './paddle/PaddleWindCard';
 import { TourProvenanceBlock } from './provenance/TourProvenanceSection';
 import { RunHeadPills } from './run/RunHeadPills';
+import { SkiHeadPill } from './ski/skiMarks';
 import { tourDayRowIcon } from './tourDayRowIcon';
 import { tourDaysOf } from './tourDays';
 import { heightsUnknown, movingTimeLabel, withoutHeights } from './tourFacts';
@@ -210,7 +211,8 @@ function tourTimeFields(
 }
 
 /**
- * The head's facts as pills: the type, a hike's winter label or a run's profile and pace, where it came from, the time (its parts
+ * The head's facts as pills: the type, a hike's winter label, a run's profile and pace or a ski track's
+ * discipline, where it came from, the time (its parts
  * in the tooltip), distance, ascent, descent, and a caution.
  */
 function TourHeadPills({
@@ -256,6 +258,8 @@ function TourHeadPills({
       {tour.winter_activity && <WinterActivityPill activity={tour.winter_activity} className={HEAD_PILL} />}
       {/* RUN-01: a run's profile and the pace its time is planned at. */}
       <RunHeadPills tour={tour} className={HEAD_PILL} />
+      {/* SKI-02: a ski track's discipline, a cross-country technique inside it. */}
+      <SkiHeadPill tour={tour} className={HEAD_PILL} />
       {/* A paddle tour names its boat and its water, each a badge of its own. */}
       {tour.boat_type && (
         <span className={HEAD_PILL} style={fs(10.5)} data-testid="tour-detail-boat">

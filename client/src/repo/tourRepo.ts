@@ -1,8 +1,9 @@
-import { computeTourMetrics, estimatePaddleTime, paddleCheckSummaryOf, paddleLayoutOfTrack, paddleMovingSeconds, recommendedPaddleSpeedKmh, type GeometryPoint, type TourObstacleCheck, type TourObstacleReviewsRequest, type TourPaddlePlanRequest, type TourCreateRequest, type TourCreateResponse, type TourDetailResponse, type TourGpxImportFields, type TourGpxPreviewResponse, type TourImportGpxResponse, type TourListItem, type TourWaypoint, walkStationFacts } from '@trek/shared'
+import { computeTourMetrics, estimatePaddleTime, paddleCheckSummaryOf, paddleLayoutOfTrack, paddleMovingSeconds, recommendedPaddleSpeedKmh, type GeometryPoint, type TourObstacleCheck, type TourObstacleReviewsRequest, type TourPaddlePlanRequest, type TourSkiClassificationRequest, type TourCreateRequest, type TourCreateResponse, type TourDetailResponse, type TourGpxImportFields, type TourGpxPreviewResponse, type TourImportGpxResponse, type TourListItem, type TourWaypoint, walkStationFacts } from '@trek/shared'
 import { toursApi } from '../api/client'
 import { tourGpxApi } from '../api/tourGpx'
 import { recordedTrackApi } from '../api/recordedTrack'
 import { tourPaddlePlanApi } from '../api/tourPaddlePlan'
+import { tourSkiApi } from '../api/tourSki'
 import { tourCopiesApi } from '../api/tourCopies'
 import { tourGpxExportApi } from '../api/tourGpxExport'
 import { tourObstacleReviewsApi } from '../api/tourObstacleReviews'
@@ -277,6 +278,38 @@ export const tourRepo = {
       return { tour: toListItem(tour), waypoints: existing.waypoints ?? [] }
     }
     const result = await tourPaddlePlanApi.update(tripId, placeId, body)
+    await cacheTourAnswer(Number(tripId), result)
+    return result
+  },
+
+  /**
+   * SKI-02: a ski track classified again. Made offline, the cached tour takes
+   * the classification at once and the write waits in the queue; nothing of
+   * the track changes either way.
+   */
+  async classifySki(tripId: number | string, placeId: number, body: TourSkiClassificationRequest): Promise<TourDetailResponse> {
+    if (await mutationQueue.mustQueue('tours', placeId)) {
+      const existing = await offlineDb.tours.get(placeId)
+      if (!existing) throw new Error('Tour not available offline')
+      const tour: CachedTour = { ...existing, ski_discipline: body.ski_discipline, ski_technique: body.ski_technique ?? null }
+      await offlineDb.tours.put(tour)
+      await mutationQueue.enqueue({
+        id: generateUUID(),
+        tripId: Number(tripId),
+        method: 'PUT',
+        url: `/trips/${tripId}/tours/${placeId}/ski`,
+        body: withoutRevisionBase(body),
+        resource: 'tours',
+        entityId: placeId,
+      })
+      mutationQueue.sendSoon()
+      return {
+        tour: toListItem(tour),
+        waypoints: existing.waypoints ?? [],
+        ...(existing.provenance ? { provenance: existing.provenance } : {}),
+      }
+    }
+    const result = await tourSkiApi.classify(tripId, placeId, body)
     await cacheTourAnswer(Number(tripId), result)
     return result
   },

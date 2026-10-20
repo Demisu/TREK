@@ -204,7 +204,7 @@ const tours: TranslationStrings = {
   'tourTypes.hike': 'Escursione a piedi',
   'tourTypes.bike': 'Escursione in bici',
   'tourTypes.run': 'Corsa',
-  'tourTypes.ski': 'Escursione con gli sci',
+  'tourTypes.ski': 'Sci',
   'tourTypes.kayak': 'Uscita in pagaia',
   'tourTypes.walk': 'Passeggiata urbana / turistica',
   'tourTypes.food': 'Tour enogastronomico',
@@ -413,6 +413,27 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Ciaspolata',
   'tours.winter.labelOnly':
     'Contrassegnato dai viaggiatori. Percorso e tempi sono pianificati come per ogni escursione, non verificati per l’inverno.',
+  'tours.planner.tourTypeHint.ski': 'Da un file GPX, così come registrato',
+  'tours.ski.title': 'Traccia di sci',
+  'tours.ski.discipline': 'Disciplina',
+  'tours.ski.discipline.alpine': 'Alpino',
+  'tours.ski.discipline.snowboard': 'Snowboard', // same-as-en
+  'tours.ski.discipline.cross_country': 'Sci di fondo',
+  'tours.ski.discipline.touring': 'Scialpinismo',
+  'tours.ski.technique': 'Tecnica',
+  'tours.ski.technique.classic': 'Classica',
+  'tours.ski.technique.skating': 'Skating', // same-as-en
+  'tours.ski.technique.unknown': 'Sconosciuta',
+  'tours.ski.chooseDiscipline': 'Scegli una disciplina per importare la traccia come sci.',
+  'tours.ski.chooseTechnique': 'Scegli la tecnica, oppure Sconosciuta.',
+  'tours.ski.infoLabel': 'Cosa fa TREK con una traccia di sci',
+  'tours.ski.info':
+    'Resta come registrata e non viene mai ricalcolata. Distanza e quote vengono dal file. TREK non calcola alcun tempo di sci, e né la traccia né i colori della pendenza in 3D dicono nulla su difficoltà, neve, valanghe o apertura di piste e anelli.',
+  'tours.ski.time': 'Tempo di sci',
+  'tours.ski.timeUnknown': 'Non calcolato',
+  'tours.ski.classifyTitle': 'Classifica traccia di sci',
+  'tours.ski.saved': 'Classificazione salvata',
+  'tours.ski.saveFailed': 'Impossibile salvare la classificazione.',
   'tours.planner.tourTypeHint.run': 'A piedi al tuo passo, su percorsi adatti alla corsa',
   'tours.planner.namePlaceholder.run': 'Corsa senza titolo',
   'tours.planner.unreachable.run':

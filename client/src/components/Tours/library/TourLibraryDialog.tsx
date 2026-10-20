@@ -1,4 +1,4 @@
-import { plannableTourTypeSchema, type TourLibraryItem, type TourTypeKey } from '@trek/shared';
+import { importableTourTypeSchema, type TourLibraryItem, type TourTypeKey } from '@trek/shared';
 import { AlertTriangle, ArrowUp, Clock, CopyPlus, Library, Loader2, Ruler, Search, WifiOff } from 'lucide-react';
 import { useId, useMemo } from 'react';
 import { OFM_POSITRON } from '../../../constants/mapDefaults';
@@ -142,7 +142,7 @@ function ListFilters({ library }: { library: TourLibrary }) {
   ];
   const typeOptions = [
     { value: ALL, label: t('tours.library.allTypes') },
-    ...plannableTourTypeSchema.options.map((type) => ({ value: type, label: t(`tourTypes.${type}`) })),
+    ...importableTourTypeSchema.options.map((type) => ({ value: type, label: t(`tourTypes.${type}`) })),
   ];
   return (
     <div className="flex flex-col gap-2">

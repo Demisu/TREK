@@ -1,4 +1,4 @@
-// FE-REPO-TOUR-001 to FE-REPO-TOUR-014, FE-REPO-TOUR-042, FE-REPO-TOUR-043
+// FE-REPO-TOUR-001 to FE-REPO-TOUR-014, FE-REPO-TOUR-042 to FE-REPO-TOUR-045
 // Tours through the offline core: read-through to Dexie, offline create and
 // edit written there and queued, and the online paths keeping the copy fresh.
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
@@ -324,6 +324,48 @@ describe('tourRepo writes and the revision (P2C-03)', () => {
     const queued = await offlineDb.mutationQueue.toArray()
     expect(queued).toHaveLength(2)
     for (const mutation of queued) expect(mutation.body).not.toHaveProperty('expected_revision')
+  })
+})
+
+describe('tourRepo.classifySki (SKI-02)', () => {
+  const skiTour = (overrides: Partial<TourListItem> = {}) =>
+    tour({ tour_type: 'ski', has_waypoints: false, duration: null, max_hiking_difficulty: null, ski_discipline: 'cross_country', ski_technique: 'unknown', ...overrides })
+
+  it('FE-REPO-TOUR-044: online, the classification goes to the server with its revision and the answer is cached', async () => {
+    let sentBody: Record<string, unknown> | null = null
+    server.use(http.put('/api/trips/3/tours/40/ski', async ({ request }) => {
+      sentBody = await request.json() as Record<string, unknown>
+      return HttpResponse.json({ tour: skiTour({ ski_technique: 'skating', revision: 2 }), waypoints: [] })
+    }))
+
+    const result = await tourRepo.classifySki(3, 40, { ski_discipline: 'cross_country', ski_technique: 'skating', expected_revision: 1 })
+
+    expect(sentBody).toEqual({ ski_discipline: 'cross_country', ski_technique: 'skating', expected_revision: 1 })
+    expect(result.tour).toMatchObject({ ski_technique: 'skating', revision: 2 })
+    expect(await offlineDb.tours.get(40)).toMatchObject({ trip_id: 3, ski_technique: 'skating' })
+  })
+
+  it('FE-REPO-TOUR-045: offline, the cached track takes the classification at once and the write waits without its revision', async () => {
+    setOnline(false)
+    const provenance = {
+      origin: 'gpx' as const,
+      createdAt: '2027-02-01 09:00:00',
+      source: { kind: 'gpx' as const, fileName: 'hut.gpx' },
+      derivedFrom: null,
+      plannedOver: false,
+      editedLocally: null,
+    }
+    await offlineDb.tours.put({ ...skiTour(), trip_id: 3, provenance })
+
+    const result = await tourRepo.classifySki(3, 40, { ski_discipline: 'alpine', expected_revision: 1 })
+
+    expect(result.tour).toMatchObject({ ski_discipline: 'alpine', ski_technique: null, distance: 8 })
+    expect(result.provenance).toEqual(provenance)
+    expect(await offlineDb.tours.get(40)).toMatchObject({ ski_discipline: 'alpine', ski_technique: null })
+    const [mutation] = await offlineDb.mutationQueue.toArray()
+    expect(mutation).toMatchObject({ method: 'PUT', url: '/trips/3/tours/40/ski', resource: 'tours', entityId: 40 })
+    expect(mutation.body).toEqual({ ski_discipline: 'alpine' })
+    await expect(tourRepo.classifySki(3, 99, { ski_discipline: 'alpine' })).rejects.toThrow('Tour not available offline')
   })
 })
 

@@ -363,6 +363,39 @@ describe('ToursSidebar', () => {
     vi.restoreAllMocks()
   })
 
+  it('SKI-02: a ski import waits for its discipline, and for a cross-country technique, then sends them along', async () => {
+    vi.spyOn(tourGpxApi, 'preview').mockResolvedValue({ tracks: [previewTrack()] })
+    const importCall = vi.spyOn(tourGpxApi, 'import').mockResolvedValue({ tours: [tour], caution: false, skipped: 0 })
+    seedStore(useTripStore, { refreshPlaces: vi.fn().mockResolvedValue(undefined) })
+    render(
+      <ToursSidebar tripId={1} days={[]} tours={[]} canEdit={true} onAssignToDay={vi.fn()} onSelectTour={vi.fn()} />
+    )
+    const file = new File(['<gpx/>'], 'loipe.gpx', { type: 'application/gpx+xml' })
+    pickFiles(screen.getByRole('button', { name: 'Import GPX' }), [file])
+    await screen.findByRole('dialog')
+
+    fireEvent.click(screen.getByTestId('tour-type-select'))
+    fireEvent.click(screen.getByTestId('tour-type-option-ski'))
+    const confirm = screen.getByTestId('gpx-preview-import')
+    expect(confirm).toBeDisabled()
+    expect(screen.getByText('Choose a discipline to import the track as ski.')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Cross-country' }))
+    expect(confirm).toBeDisabled()
+    expect(screen.getByText('Choose the technique, or Unknown.')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Unknown' }))
+    expect(confirm).toBeEnabled()
+    fireEvent.click(confirm)
+
+    await waitFor(() =>
+      expect(importCall).toHaveBeenCalledWith(1, file, {
+        tour_type: 'ski',
+        ski_discipline: 'cross_country',
+        ski_technique: 'unknown',
+      })
+    )
+    vi.restoreAllMocks()
+  })
+
   it('RUN-01: a run import names its profile, on purpose, and sends no pace', async () => {
     vi.spyOn(tourGpxApi, 'preview').mockResolvedValue({ tracks: [previewTrack()] })
     const importCall = vi.spyOn(tourGpxApi, 'import').mockResolvedValue({ tours: [tour], caution: false, skipped: 0 })

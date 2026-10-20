@@ -195,6 +195,8 @@ describe('ToursService planner contracts (mock-only; SQLite rollback semantics a
       bike_profile: null,
       run_profile: null,
       run_pace_seconds_per_km: null,
+      ski_discipline: null,
+      ski_technique: null,
     });
     expect((setup.toursRepo.insertTour.mock.calls[0][0] as { distance: number }).distance).toBeGreaterThan(0);
     expect(setup.waypointsRepo.insertForPlace).toHaveBeenCalledExactlyOnceWith(42, keyed(request.waypoints));
@@ -315,6 +317,8 @@ describe('ToursService planner contracts (mock-only; SQLite rollback semantics a
       bike_profile: null,
       run_profile: null,
       run_pace_seconds_per_km: null,
+      ski_discipline: null,
+      ski_technique: null,
     });
     expect(setup.waypointsRepo.deleteForPlace).toHaveBeenCalledExactlyOnceWith(42);
     expect(setup.waypointsRepo.insertForPlace).toHaveBeenCalledExactlyOnceWith(42, keyed(update.waypoints));

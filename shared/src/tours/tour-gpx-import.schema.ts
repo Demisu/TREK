@@ -1,8 +1,9 @@
+import { skiDisciplineSchema, skiIssues, skiTechniqueSchema } from './ski.schema';
 import {
   bikeProfileSchema,
+  importableTourTypeSchema,
   paddleBoatTypeSchema,
   paddleWaterContextSchema,
-  plannableTourTypeSchema,
   runProfileSchema,
 } from './tours.schema';
 
@@ -41,17 +42,24 @@ export type TourGpxPreviewResponse = z.infer<typeof tourGpxPreviewResponseSchema
  * form sends them. Left out, the import is a hike, as it always was; a paddle
  * import names its boat and water, and a bike import and a run import (RUN-01)
  * their profile, like a planned tour of that type does. A run import has no
- * pace: its time stays unknown until a run is planned from it.
+ * pace: its time stays unknown until a run is planned from it. A ski import
+ * (SKI-02) names its discipline, a cross-country one its technique too; the
+ * track is kept as recorded, with no time worked out for it.
  */
 export const tourGpxImportFieldsSchema = z
   .object({
-    tour_type: plannableTourTypeSchema.default('hike'),
+    tour_type: importableTourTypeSchema.default('hike'),
     bike_profile: bikeProfileSchema.optional(),
     run_profile: runProfileSchema.optional(),
     boat_type: paddleBoatTypeSchema.optional(),
     water_context: paddleWaterContextSchema.optional(),
+    ski_discipline: skiDisciplineSchema.optional(),
+    ski_technique: skiTechniqueSchema.optional(),
   })
   .superRefine((value, ctx) => {
+    skiIssues(value.tour_type === 'ski', value).forEach((issue) =>
+      ctx.addIssue({ code: z.ZodIssueCode.custom, ...issue }),
+    );
     const owners = { bike_profile: 'bike', run_profile: 'run', boat_type: 'kayak', water_context: 'kayak' } as const;
     const names = { bike: 'a bike import', run: 'a run import', kayak: 'a paddle import' } as const;
     for (const [field, owner] of Object.entries(owners) as Array<[keyof typeof owners, keyof typeof names]>) {

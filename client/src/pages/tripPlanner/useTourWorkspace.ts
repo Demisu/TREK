@@ -5,6 +5,7 @@ import { usePaddleChecklist } from '../../components/Tours/paddle/usePaddleCheck
 import { useTrackPaddlePlan } from '../../components/Tours/paddle/useTrackPaddlePlan';
 import { useTourPlanner } from '../../components/Tours/planner/useTourPlanner';
 import { useTourRevisionWatch } from '../../components/Tours/planner/useTourRevisionWatch';
+import { useSkiClassification } from '../../components/Tours/ski/useSkiClassification';
 import { useRecordedTrack } from '../../components/Tours/useRecordedTrack';
 import { useTourGpxImport } from '../../components/Tours/useTourGpxImport';
 import { useWandererBrowser } from '../../components/Tours/wanderer/useWandererBrowser';
@@ -145,6 +146,15 @@ export function useTourWorkspace(
     onSaved: takeInSavedTour,
   });
 
+  // SKI-02: the discipline and technique of the ski track in view, classified again without touching the track.
+  const skiClassification = useSkiClassification({
+    tripId,
+    planner: tourPlanner,
+    tours,
+    canEdit: canPlaceEdit,
+    onSaved: takeInSavedTour,
+  });
+
   return {
     tourPlanner,
     viewImportedTour,
@@ -154,6 +164,7 @@ export function useTourWorkspace(
     recordedTrack,
     trackPaddlePlan,
     paddleChecklist,
+    skiClassification,
     tourDetailActions: useTourDetailActions(planner),
   };
 }

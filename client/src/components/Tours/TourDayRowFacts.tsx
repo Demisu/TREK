@@ -1,4 +1,4 @@
-import { plannableTourTypeSchema, type TourListItem } from '@trek/shared';
+import { importableTourTypeSchema, type TourListItem } from '@trek/shared';
 import { ArrowUp, CheckCheck, Clock, Gauge, Pause, Ruler, type LucideIcon } from 'lucide-react';
 import { createElement, useId, useState } from 'react';
 import { useTranslation } from '../../i18n';
@@ -9,6 +9,7 @@ import { fs } from '../shared/DialogShell';
 import { Tooltip } from '../shared/Tooltip';
 import { paddleCheckFact } from './paddle/paddleCheckModel';
 import { runPaceText } from './run/runPaceText';
+import { SkiCornerMark } from './ski/skiMarks';
 import { tourDayRowIcon } from './tourDayRowIcon';
 import { movingTimeLabel } from './tourFacts';
 import { formatPlannedTourDuration, plannedTotalText, tourPlannedTimes } from './tourPresentation';
@@ -16,9 +17,9 @@ import { useWalkProgress } from './walk/walkProgress';
 import { walkStaysText } from './walk/walkTimeFields';
 import { WinterCornerMark } from './winter/winterMarks';
 
-/** Whether the app names this type: one it plans, not a key only the catalogue holds. */
+/** Whether the app names this type: one it plans or keeps (a ski track, SKI-02), not a key only the catalogue holds. */
 function knownType(type: string): boolean {
-  return plannableTourTypeSchema.safeParse(type).success;
+  return importableTourTypeSchema.safeParse(type).success;
 }
 
 /** The icon the time on the move goes by: a ride, a run or a paddle by its type's own, any walk by footprints. */
@@ -95,21 +96,26 @@ function Fact({
  * A tour's tile in the day plan and in its detail: the T-scale grade in a round
  * tile, the same tile the tour lists use, so a tour reads alike wherever it
  * shows. A GPX import has no grade and shows its type's icon instead. A hike's
- * winter label (HIK-01) sits on the tile's corner, as in the tour lists.
+ * winter label (HIK-01) or a ski track's discipline (SKI-02) sits on the
+ * tile's corner, as in the tour lists.
  */
 export function TourDayRowAvatar({
   tour,
   size = 32,
 }: {
-  tour: Pick<TourListItem, 'tour_type' | 'max_hiking_difficulty'> & Partial<Pick<TourListItem, 'winter_activity'>>;
+  tour: Pick<TourListItem, 'tour_type' | 'max_hiking_difficulty'> &
+    Partial<Pick<TourListItem, 'winter_activity' | 'ski_discipline' | 'ski_technique'>>;
   size?: number;
 }) {
   const avatar = <TourGradeAvatar tour={tour} size={size} />;
-  if (!tour.winter_activity) return avatar;
+  const ski = tour.tour_type === 'ski' && !!tour.ski_discipline;
+  if (!tour.winter_activity && !ski) return avatar;
+  const markSize = Math.round(size * 0.44);
   return (
     <span className="relative flex flex-none">
       {avatar}
-      <WinterCornerMark activity={tour.winter_activity} size={Math.round(size * 0.44)} />
+      <WinterCornerMark activity={tour.winter_activity} size={markSize} />
+      <SkiCornerMark tour={tour} size={markSize} />
     </span>
   );
 }

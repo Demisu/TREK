@@ -1,0 +1,74 @@
+import type {
+  BikeProfile,
+  ImportableTourType,
+  PaddleBoatType,
+  PaddleWaterContext,
+  RunProfile,
+  TourGpxImportFields,
+} from '@trek/shared';
+import { useState } from 'react';
+import { NO_SKI_CHOICE, skiChoiceMissing, skiFieldsOf, type SkiChoice } from './ski/skiChoice';
+
+/**
+ * What the GPX preview has chosen: the type to import as, and what that type
+ * names besides: a paddle import its boat and water, a bike or run import its
+ * profile, a ski import (SKI-02) its discipline and technique.
+ */
+export interface GpxImportChoices {
+  type: ImportableTourType;
+  boat: PaddleBoatType | null;
+  water: PaddleWaterContext | null;
+  bikeProfile: BikeProfile;
+  runProfile: RunProfile;
+  ski: SkiChoice;
+}
+
+const START: GpxImportChoices = {
+  type: 'hike',
+  boat: null,
+  water: null,
+  bikeProfile: 'touring',
+  runProfile: 'running',
+  ski: NO_SKI_CHOICE,
+};
+
+/** What the chosen type still lacks before anything can be imported; null when nothing does. */
+export function importMissing(chosen: GpxImportChoices): 'paddle' | 'ski' | null {
+  if (chosen.type === 'kayak' && (chosen.boat === null || chosen.water === null)) return 'paddle';
+  if (chosen.type === 'ski' && skiChoiceMissing(chosen.ski)) return 'ski';
+  return null;
+}
+
+/** What the import is asked to store the tracks as: the type and the fields that type names. */
+export function importFields(chosen: GpxImportChoices): TourGpxImportFields {
+  const { type } = chosen;
+  if (type === 'kayak' && chosen.boat && chosen.water)
+    return { tour_type: 'kayak', boat_type: chosen.boat, water_context: chosen.water };
+  if (type === 'bike') return { tour_type: 'bike', bike_profile: chosen.bikeProfile };
+  // RUN-01: a run comes in with its profile and no pace; its time stays unknown until one is planned from it.
+  if (type === 'run') return { tour_type: 'run', run_profile: chosen.runProfile };
+  // SKI-02: a ski track comes in with its discipline and, for cross-country, its technique, and no time.
+  const ski = type === 'ski' ? skiFieldsOf(chosen.ski) : null;
+  if (ski) return { tour_type: 'ski', ...ski };
+  return { tour_type: 'hike' };
+}
+
+/** The preview's choices, each field set on its own; a fresh preview starts as a hike. */
+export function useGpxImportChoices() {
+  const [chosen, setChosen] = useState<GpxImportChoices>(START);
+  const set =
+    <K extends keyof GpxImportChoices>(key: K) =>
+    (value: GpxImportChoices[K]) =>
+      setChosen((current) => ({ ...current, [key]: value }));
+  return {
+    chosen,
+    setType: set('type'),
+    setBoat: set('boat'),
+    setWater: set('water'),
+    setBikeProfile: set('bikeProfile'),
+    setRunProfile: set('runProfile'),
+    setSki: set('ski'),
+  };
+}
+
+export type GpxImportChoicesState = ReturnType<typeof useGpxImportChoices>;

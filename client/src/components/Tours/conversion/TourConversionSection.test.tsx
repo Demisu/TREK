@@ -215,6 +215,25 @@ describe('useGpxConversion', () => {
     );
   });
 
+  it('SKI-02: a ski track is never planned over: nothing is offered and no router is asked', () => {
+    const ski = {
+      ...imported,
+      tour_type: 'ski' as const,
+      ski_discipline: 'touring' as const,
+      max_hiking_difficulty: null,
+    };
+    const controller = planner({
+      mode: { type: 'view-gpx', placeId: ski.place_id, tour: ski },
+      readOnlyGpxTour: { tour: ski, routeGeometry: null },
+    } as Partial<TourPlannerController>);
+    const { result } = renderHook(() => useGpxConversion(controller));
+    expect(result.current.available).toBe(false);
+    const { container } = render(<TourConversionSection conversion={result.current} />);
+    expect(container).toBeEmptyDOMElement();
+    expect(routing.route).not.toHaveBeenCalled();
+    expect(routing.run).not.toHaveBeenCalled();
+  });
+
   it('PR1-05B: nothing is adopted before the suggestion is ready', () => {
     const controller = planner();
     const { result } = renderHook(() => useGpxConversion(controller));

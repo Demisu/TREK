@@ -125,8 +125,11 @@ export function useGpxConversion(planner: TourPlannerController) {
   return useMemo(
     () => ({
       ...current,
-      /** The import shown can be planned from: it has a track and the user may add tours. */
-      available: tour !== null && (track?.length ?? 0) >= 2 && planner.canEdit,
+      /**
+       * The import shown can be planned from: it has a track and the user may add tours. A ski
+       * track (SKI-02) never: TREK routes no ski track, and a hike's or a walk's route is no stand-in.
+       */
+      available: tour !== null && tour.tour_type !== 'ski' && (track?.length ?? 0) >= 2 && planner.canEdit,
       difficulty,
       /** The import is a paddle tour: its version is drawn with straight legs, not routed. */
       paddle,

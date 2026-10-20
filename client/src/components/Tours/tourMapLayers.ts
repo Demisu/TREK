@@ -18,6 +18,7 @@ import type { TourBaseLayer } from '../Map/MapLayerSwitcher';
  *   allows it) and satellite. No ferratas, a bike tour climbs none.
  * - Run (RUN-01): the standard map, topo for the climbs and satellite. No ferratas, a run
  *   takes none.
+ * - Ski (SKI-02): the standard map, topo for the slopes and satellite. No ferratas.
  * - Paddle: the standard map, whose water reads clearly, and satellite. No topo and
  *   no ferratas, those are hiking maps. Seamarks as an overlay.
  * - Any other type (switched off, or one this build does not plan): the standard map
@@ -42,6 +43,7 @@ const HIKE_WITH_HIKING_MAP: TourMapLayerSet = { ...HIKE, bases: ['default', 'top
 const BIKE: TourMapLayerSet = { bases: ['default', 'topo', 'satellite'], defaultBase: 'default', overlays: [] };
 const BIKE_WITH_CYCLE_MAP: TourMapLayerSet = { ...BIKE, bases: ['default', 'topo', 'cycle', 'satellite'] };
 const RUN: TourMapLayerSet = { bases: ['default', 'topo', 'satellite'], defaultBase: 'default', overlays: [] };
+const SKI: TourMapLayerSet = { bases: ['default', 'topo', 'satellite'], defaultBase: 'default', overlays: [] };
 const PADDLE: TourMapLayerSet = { bases: ['default', 'satellite'], defaultBase: 'default', overlays: ['seamarks'] };
 const OTHER: TourMapLayerSet = { bases: ['default', 'satellite'], defaultBase: 'default', overlays: [] };
 
@@ -53,6 +55,7 @@ export function tourMapLayersFor(
   if (type === 'hike') return hikingMap ? HIKE_WITH_HIKING_MAP : HIKE;
   if (type === 'bike') return cycleMap ? BIKE_WITH_CYCLE_MAP : BIKE;
   if (type === 'run') return RUN;
+  if (type === 'ski') return SKI;
   if (type === 'kayak') return PADDLE;
   return OTHER;
 }

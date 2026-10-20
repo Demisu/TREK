@@ -29,7 +29,7 @@ export function useTripPlannerPage() {
 
   const canPlaceEdit = can('place_edit', trip)
   const canDayEdit = can('day_edit', trip)
-  const { tourPlanner, viewImportedTour, tourGpxImport, wandererBrowser, tourConversion, recordedTrack, trackPaddlePlan, paddleChecklist, tourDetailActions } =
+  const { tourPlanner, viewImportedTour, tourGpxImport, wandererBrowser, tourConversion, recordedTrack, trackPaddlePlan, paddleChecklist, skiClassification, tourDetailActions } =
     useTourWorkspace(planner, canPlaceEdit, canDayEdit)
 
   const tourDetailOpenerRef = useRef<{ placeId: number; element: HTMLElement } | null>(null)
@@ -118,6 +118,7 @@ export function useTripPlannerPage() {
     recordedTrack,
     trackPaddlePlan,
     paddleChecklist,
+    skiClassification,
     tourDetailActions,
     tourMap: { route: drawn.route,
       routeWalking: drawn.walking,

@@ -5,6 +5,7 @@ import type { GpxConversion } from './conversion/useGpxConversion';
 import type { PaddleChecklist } from './paddle/usePaddleChecklist';
 import type { TrackPaddlePlan } from './paddle/useTrackPaddlePlan';
 import type { TourPlannerController } from './planner/useTourPlanner';
+import type { SkiClassification } from './ski/useSkiClassification';
 import type { RecordedTrack } from './useRecordedTrack';
 import type { WandererBrowser } from './wanderer/useWandererBrowser';
 
@@ -62,5 +63,13 @@ describe('TourWorkspaceRail', () => {
     render(<TourWorkspaceRail workspace={parts} canEdit canAssign />);
     expect(seen.rail[seen.rail.length - 1]?.trackPaddlePlan).toBe(trackPaddlePlan);
     expect(seen.rail[seen.rail.length - 1]?.paddleChecklist).toBe(paddleChecklist);
+  });
+
+  it('SKI-02: hands the classification of the ski track in view on to the editor rail', () => {
+    const skiClassification = { tour: null } as unknown as SkiClassification;
+    const parts = { ...workspace(wanderer({})), skiClassification };
+    seen.rail.length = 0;
+    render(<TourWorkspaceRail workspace={parts} canEdit canAssign />);
+    expect(seen.rail[seen.rail.length - 1]?.skiClassification).toBe(skiClassification);
   });
 });

@@ -42,6 +42,8 @@ export class Tours {
   winter_activity?: TToursWinterActivity | null;
   run_profile?: TToursRunProfile | null;
   run_pace_seconds_per_km?: number | null;
+  ski_discipline?: TToursSkiDiscipline | null;
+  ski_technique?: TToursSkiTechnique | null;
   tourTypeRef!: Ref<TourTypes>;
   tour_obstacle_reviews_collection = new Collection<TourObstacleReviews>(this);
   tour_sources: Ref<TourSources> | null = null;
@@ -102,6 +104,23 @@ export const ToursRunProfile = {
 
 export type TToursRunProfile = (typeof ToursRunProfile)[keyof typeof ToursRunProfile];
 
+export const ToursSkiDiscipline = {
+  ALPINE: 'alpine',
+  SNOWBOARD: 'snowboard',
+  CROSS_COUNTRY: 'cross_country',
+  TOURING: 'touring',
+} as const;
+
+export type TToursSkiDiscipline = (typeof ToursSkiDiscipline)[keyof typeof ToursSkiDiscipline];
+
+export const ToursSkiTechnique = {
+  CLASSIC: 'classic',
+  SKATING: 'skating',
+  UNKNOWN: 'unknown',
+} as const;
+
+export type TToursSkiTechnique = (typeof ToursSkiTechnique)[keyof typeof ToursSkiTechnique];
+
 export const ToursSchema = defineEntity({
   class: Tours,
   repository: () => ToursRepository,
@@ -153,6 +172,8 @@ export const ToursSchema = defineEntity({
     winter_activity: p.enum(() => ToursWinterActivity).nullable(),
     run_profile: p.enum(() => ToursRunProfile).nullable(),
     run_pace_seconds_per_km: p.integer().nullable(),
+    ski_discipline: p.enum(() => ToursSkiDiscipline).nullable(),
+    ski_technique: p.enum(() => ToursSkiTechnique).nullable(),
     tourTypeRef: () => p.manyToOne(TourTypes).ref().joinColumn('tour_type').hidden().index('idx_tours_tour_type'),
     tour_obstacle_reviews_collection: () => p.oneToMany(TourObstacleReviews).mappedBy('place').hidden(),
     tour_sources: () => p.oneToOne(TourSources).ref().mappedBy('place').hidden(),

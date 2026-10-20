@@ -8,6 +8,8 @@ import type {
   PaddleLakeStyle,
   PaddleWaterContext,
   RunProfile,
+  SkiDiscipline,
+  SkiTechnique,
   WinterActivity,
 } from '@trek/shared';
 
@@ -42,6 +44,9 @@ export interface TourListRow {
   /** RUN-01: a run's profile and the pace it is planned at, seconds per km; NULL on every other type. */
   run_profile: string | null;
   run_pace_seconds_per_km: number | null;
+  /** SKI-02: a ski track's discipline and, for cross-country, its technique; NULL on every other type. */
+  ski_discipline: string | null;
+  ski_technique: string | null;
   boat_type: string | null;
   water_context: string | null;
   paddle_speed_kmh: number | null;
@@ -112,6 +117,8 @@ export interface TourRow {
   winter_activity: string | null;
   run_profile: string | null;
   run_pace_seconds_per_km: number | null;
+  ski_discipline: string | null;
+  ski_technique: string | null;
 }
 const _tourRowKeys: AssertRowKeys<TourRow, Tours> = true;
 
@@ -134,6 +141,9 @@ export interface TourInsert {
   /** RUN-01: a run's profile and its pace, seconds per km; left out, NULL. */
   run_profile?: RunProfile | null;
   run_pace_seconds_per_km?: number | null;
+  /** SKI-02: a ski track's discipline and technique; left out, NULL. */
+  ski_discipline?: SkiDiscipline | null;
+  ski_technique?: SkiTechnique | null;
   /** A paddle tour's boat, water and chosen speed; left out, a hike's NULLs. */
   boat_type?: PaddleBoatType | null;
   water_context?: PaddleWaterContext | null;
@@ -153,6 +163,8 @@ export type TourUpdate = Omit<
   | 'bike_profile'
   | 'run_profile'
   | 'run_pace_seconds_per_km'
+  | 'ski_discipline'
+  | 'ski_technique'
   | 'boat_type'
   | 'water_context'
   | 'paddle_speed_kmh'
@@ -164,12 +176,20 @@ export type TourUpdate = Omit<
   bike_profile: BikeProfile | null;
   run_profile: RunProfile | null;
   run_pace_seconds_per_km: number | null;
+  ski_discipline: SkiDiscipline | null;
+  ski_technique: SkiTechnique | null;
   boat_type: PaddleBoatType | null;
   water_context: PaddleWaterContext | null;
   paddle_speed_kmh: number | null;
   portage_speed_kmh: number | null;
   paddle_lake_style: PaddleLakeStyle | null;
 };
+
+/** SKI-02: a ski track classified again: its discipline and, for cross-country, its technique. */
+export interface TourSkiUpdate {
+  ski_discipline: SkiDiscipline;
+  ski_technique: SkiTechnique | null;
+}
 
 /** A recorded track's paddle plan (PAD-03, PAD-07): its speeds, its marks and the time they make. */
 export interface TourPaddlePlanUpdate {
@@ -269,6 +289,8 @@ export class ToursRepository extends TrekRepository<Tours> {
         't.winter_activity as winter_activity',
         't.run_profile as run_profile',
         't.run_pace_seconds_per_km as run_pace_seconds_per_km',
+        't.ski_discipline as ski_discipline',
+        't.ski_technique as ski_technique',
         't.boat_type as boat_type',
         't.water_context as water_context',
         't.paddle_speed_kmh as paddle_speed_kmh',
@@ -637,6 +659,8 @@ export class ToursRepository extends TrekRepository<Tours> {
       winter_activity: input.winter_activity ?? null,
       run_profile: input.run_profile ?? null,
       run_pace_seconds_per_km: input.run_pace_seconds_per_km ?? null,
+      ski_discipline: input.ski_discipline ?? null,
+      ski_technique: input.ski_technique ?? null,
       boat_type: input.boat_type ?? null,
       water_context: input.water_context ?? null,
       paddle_speed_kmh: input.paddle_speed_kmh ?? null,
@@ -724,6 +748,8 @@ export class ToursRepository extends TrekRepository<Tours> {
         bike_profile: input.bike_profile,
         run_profile: input.run_profile,
         run_pace_seconds_per_km: input.run_pace_seconds_per_km,
+        ski_discipline: input.ski_discipline,
+        ski_technique: input.ski_technique,
         boat_type: input.boat_type,
         water_context: input.water_context,
         paddle_speed_kmh: input.paddle_speed_kmh,
@@ -752,6 +778,21 @@ export class ToursRepository extends TrekRepository<Tours> {
         track_marks: input.track_marks,
         duration: input.duration,
       })
+      .where('place_id', '=', place_id)
+      .where('place_id', 'in', (eb) => eb.selectFrom('places').select('id').where('trip_id', '=', trip_id))
+      .executeTakeFirst();
+    return Number(result.numUpdatedRows ?? 0) > 0;
+  }
+
+  /**
+   * SKI-02: a ski track of the trip classified again, its discipline and
+   * technique only; the track and everything else stay as they are. Returns
+   * whether a row of that trip was updated.
+   */
+  async updateSkiInTrip(trip_id: number, place_id: number, input: TourSkiUpdate): Promise<boolean> {
+    const result = await this.db()
+      .updateTable('tours')
+      .set({ ski_discipline: input.ski_discipline, ski_technique: input.ski_technique })
       .where('place_id', '=', place_id)
       .where('place_id', 'in', (eb) => eb.selectFrom('places').select('id').where('trip_id', '=', trip_id))
       .executeTakeFirst();

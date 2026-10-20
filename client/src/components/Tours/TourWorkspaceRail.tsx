@@ -3,6 +3,7 @@ import type { PaddleChecklist } from './paddle/usePaddleChecklist';
 import type { TrackPaddlePlan } from './paddle/useTrackPaddlePlan';
 import { TourPlannerRail } from './planner/TourPlannerPanels';
 import type { TourPlannerController } from './planner/useTourPlanner';
+import type { SkiClassification } from './ski/useSkiClassification';
 import type { RecordedTrack } from './useRecordedTrack';
 import WandererBrowserRail from './wanderer/WandererBrowserRail';
 import type { WandererBrowser } from './wanderer/useWandererBrowser';
@@ -17,6 +18,8 @@ export interface TourWorkspaceRailParts {
   trackPaddlePlan?: TrackPaddlePlan;
   /** The obstacle checklist of the paddle tour open in the planner (PAD-06). */
   paddleChecklist?: PaddleChecklist;
+  /** The classification of the ski track in view (SKI-02). */
+  skiClassification?: SkiClassification;
   /** The trip's tours, never offered as a stop of another tour (PR1-10). */
   tourPlaceIds?: ReadonlySet<number>;
 }
@@ -38,6 +41,7 @@ export default function TourWorkspaceRail({
     recordedTrack,
     trackPaddlePlan,
     paddleChecklist,
+    skiClassification,
     tourPlaceIds,
   } = workspace;
   return wanderer.open ? (
@@ -51,6 +55,7 @@ export default function TourWorkspaceRail({
       recordedTrack={recordedTrack}
       trackPaddlePlan={trackPaddlePlan}
       paddleChecklist={paddleChecklist}
+      skiClassification={skiClassification}
       tourPlaceIds={tourPlaceIds}
       onOpenWanderer={wanderer.enabled ? wanderer.openBrowser : undefined}
     />

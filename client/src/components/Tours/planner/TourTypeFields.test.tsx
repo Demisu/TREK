@@ -39,6 +39,8 @@ describe('TourTypeFields (PAD-01)', () => {
     expect(screen.getByTestId('tour-type-option-bike')).toHaveTextContent(
       'By bike, routed for touring, road, gravel or MTB'
     );
+    // SKI-02: ski is offered by the GPX import only; the planner routes no ski track.
+    expect(screen.queryByTestId('tour-type-option-ski')).toBeNull();
     fireEvent.click(screen.getByTestId('tour-type-option-bike'));
     expect(hike.setTourType).toHaveBeenCalledWith('bike');
     expect(field).toHaveAttribute('aria-expanded', 'false');

@@ -205,7 +205,7 @@ const tours: TranslationStrings = {
   'tourTypes.hike': 'Trilha',
   'tourTypes.bike': 'Passeio de bicicleta',
   'tourTypes.run': 'Corrida',
-  'tourTypes.ski': 'Passeio de esqui',
+  'tourTypes.ski': 'Esqui',
   'tourTypes.kayak': 'Passeio de remo',
   'tourTypes.walk': 'Caminhada urbana / turística',
   'tourTypes.food': 'Passeio gastronômico / enológico',
@@ -410,6 +410,27 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Caminhada com raquetes de neve',
   'tours.winter.labelOnly':
     'Marcado pelos viajantes. Rota e tempo são planejados como em qualquer caminhada, sem verificação para o inverno.',
+  'tours.planner.tourTypeHint.ski': 'De um arquivo GPX, como foi gravado',
+  'tours.ski.title': 'Trilha de esqui',
+  'tours.ski.discipline': 'Modalidade',
+  'tours.ski.discipline.alpine': 'Alpino',
+  'tours.ski.discipline.snowboard': 'Snowboard', // same-as-en
+  'tours.ski.discipline.cross_country': 'Esqui cross-country',
+  'tours.ski.discipline.touring': 'Esqui de travessia',
+  'tours.ski.technique': 'Técnica',
+  'tours.ski.technique.classic': 'Clássica',
+  'tours.ski.technique.skating': 'Skating', // same-as-en
+  'tours.ski.technique.unknown': 'Desconhecida',
+  'tours.ski.chooseDiscipline': 'Escolha uma modalidade para importar a trilha como esqui.',
+  'tours.ski.chooseTechnique': 'Escolha a técnica, ou Desconhecida.',
+  'tours.ski.infoLabel': 'O que o TREK faz com uma trilha de esqui',
+  'tours.ski.info':
+    'Fica como foi gravada e nunca é roteada. Distância e altitudes vêm do arquivo. O TREK não calcula tempo de esqui, e nem a trilha nem as cores de inclinação em 3D dizem algo sobre dificuldade, neve, avalanches ou se pistas e trilhas estão abertas.',
+  'tours.ski.time': 'Tempo de esqui',
+  'tours.ski.timeUnknown': 'Não calculado',
+  'tours.ski.classifyTitle': 'Classificar trilha de esqui',
+  'tours.ski.saved': 'Classificação salva',
+  'tours.ski.saveFailed': 'Não foi possível salvar a classificação.',
   'tours.planner.tourTypeHint.run': 'A pé no seu ritmo, por caminhos bons para correr',
   'tours.planner.namePlaceholder.run': 'Corrida sem título',
   'tours.planner.unreachable.run':

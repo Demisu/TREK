@@ -547,6 +547,27 @@ describe('TourPlannerMapStage', () => {
     expect(tourPlanner.undo).not.toHaveBeenCalled();
   });
 
+  it('FE-PAGE-TOURSTAGE-020: an imported ski track flies in 3D with its grade colours and its own maps, and the switch changes nothing of it (SKI-02)', async () => {
+    const samples = [0, 1, 2].map((i) => ({
+      distanceMeters: i * 100,
+      elevationMeters: 1200 + i * 40,
+      lat: 47 + i / 1000,
+      lng: 11,
+    }));
+    const tourPlanner = planner('view-gpx', {
+      mode: { type: 'view-gpx', placeId: 9, tour: { place_id: 9, tour_type: 'ski', ski_discipline: 'touring' } },
+      readOnlyGpxAnalysis: { distanceIndexedProfileSamples: samples },
+    });
+    renderStage(tourPlanner);
+    expect(stage.flatMap.props?.tourLayers?.bases).toEqual(['default', 'topo', 'satellite']);
+    expect(stage.flatMap.props?.ferrataLayer).toBeUndefined();
+    await openTerrain();
+    expect(screen.getByRole('button', { name: 'Grade mix' })).toBeInTheDocument();
+    // Seeing the track in 3D is a view: no point is set and no step of the planner is taken.
+    expect(tourPlanner.addWaypoint).not.toHaveBeenCalled();
+    expect(tourPlanner.undo).not.toHaveBeenCalled();
+  });
+
   describe('map layers per tour type (P2B-06/07, PAD-04, PAD-10)', () => {
     const flat = () => stage.flatMap.props as MapViewProps;
 

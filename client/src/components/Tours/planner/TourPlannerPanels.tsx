@@ -27,6 +27,8 @@ import { PaddleWindSection } from '../paddle/PaddleWindCard'
 import { TrackPaddlePlanCards } from '../paddle/TrackPaddlePlanCard'
 import type { PaddleChecklist } from '../paddle/usePaddleChecklist'
 import type { TrackPaddlePlan } from '../paddle/useTrackPaddlePlan'
+import { SkiTrackCard } from '../ski/SkiTrackCard'
+import type { SkiClassification } from '../ski/useSkiClassification'
 import { TourTypeFields } from './TourTypeFields'
 import TourWaypointList from './TourWaypointList'
 import type { DistanceIndexedProfileSample, RouteProfileFocus } from '../../../utils/routeGeometry'
@@ -273,12 +275,14 @@ function GpxViewRail({
   conversion,
   trackPaddlePlan,
   paddleChecklist,
+  skiClassification,
 }: {
   planner: TourPlannerController
   canEdit: boolean
   conversion?: GpxConversion
   trackPaddlePlan?: TrackPaddlePlan
   paddleChecklist?: PaddleChecklist
+  skiClassification?: SkiClassification
 }) {
   const { t } = useTranslation()
   const distanceUnit = useSettingsStore((state) => state.settings.distance_unit)
@@ -318,6 +322,7 @@ function GpxViewRail({
         </div>
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-3">
           {conversion && <TourConversionSection conversion={conversion} />}
+          {skiClassification && <SkiTrackCard ski={skiClassification} />}
           {trackPaddlePlan && <TrackPaddlePlanCards plan={trackPaddlePlan} tour={tour} />}
           {paddleChecklist && tour.tour_type === 'kayak' && <PaddleCheckCard checklist={paddleChecklist} />}
           {tour.tour_type === 'kayak' && (
@@ -376,7 +381,7 @@ export function TourPlannerRail({ planner,
   onOpenWanderer,
   conversion,
   paddleChecklist,
-  recordedTrack, trackPaddlePlan, tourPlaceIds, canEdit: editPermission, canAssign: assignPermission }: { planner: TourPlannerController
+  recordedTrack, trackPaddlePlan, skiClassification, tourPlaceIds, canEdit: editPermission, canAssign: assignPermission }: { planner: TourPlannerController
   /** Planning an editable tour from the import in view. */
   conversion?: GpxConversion
   /** The way back to the recorded track of an import planned over in place. */
@@ -385,6 +390,8 @@ export function TourPlannerRail({ planner,
   trackPaddlePlan?: TrackPaddlePlan
   /** The obstacle checklist of the paddle tour open in the rail (PAD-06). */
   paddleChecklist?: PaddleChecklist
+  /** The classification of the ski track in view (SKI-02). */
+  skiClassification?: SkiClassification
   /** Browse the user's wanderer trails instead; offered while nothing is being edited. */
   onOpenWanderer?: () => void
   /** The trip's tours, never offered as a stop of another tour (PR1-10). */
@@ -413,7 +420,7 @@ export function TourPlannerRail({ planner,
           />
   if (planner.mode.type === 'view-gpx')
     return <GpxViewRail planner={planner} canEdit={canEdit} conversion={conversion} trackPaddlePlan={trackPaddlePlan}
-      paddleChecklist={paddleChecklist} />
+      paddleChecklist={paddleChecklist} skiClassification={skiClassification} />
 
   const isSavedEdit = planner.mode.type === 'edit-saved'
 

@@ -14,4 +14,13 @@ describe('tourMapLayersFor (MAP-01)', () => {
     expect(baseLayerFor(tourMapLayersFor('hike', { hikingMap: true }), 'hiking')).toBe('hiking');
     expect(baseLayerFor(tourMapLayersFor('hike'), 'hiking')).toBe('default');
   });
+
+  it('SKI-02: a ski track gets the standard map, topo and satellite, and no via ferratas', () => {
+    expect(tourMapLayersFor('ski')).toEqual({
+      bases: ['default', 'topo', 'satellite'],
+      defaultBase: 'default',
+      overlays: [],
+    });
+    expect(baseLayerFor(tourMapLayersFor('ski'), 'hiking')).toBe('default');
+  });
 });

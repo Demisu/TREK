@@ -208,7 +208,7 @@ const tours: TranslationStrings = {
   'tourTypes.hike': 'Randonnée',
   'tourTypes.bike': 'Sortie à vélo',
   'tourTypes.run': 'Course à pied',
-  'tourTypes.ski': 'Ski de randonnée',
+  'tourTypes.ski': 'Ski', // same-as-en
   'tourTypes.kayak': 'Sortie en pagaie',
   'tourTypes.walk': 'Balade urbaine / touristique',
   'tourTypes.food': 'Circuit gastronomique / œnologique',
@@ -416,6 +416,27 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Randonnée en raquettes',
   'tours.winter.labelOnly':
     'Marqué par les voyageurs. Itinéraire et durée sont planifiés comme pour toute randonnée, sans vérification hivernale.',
+  'tours.planner.tourTypeHint.ski': 'Depuis un fichier GPX, tel qu’enregistré',
+  'tours.ski.title': 'Trace de ski',
+  'tours.ski.discipline': 'Discipline', // same-as-en
+  'tours.ski.discipline.alpine': 'Alpin',
+  'tours.ski.discipline.snowboard': 'Snowboard', // same-as-en
+  'tours.ski.discipline.cross_country': 'Ski de fond',
+  'tours.ski.discipline.touring': 'Ski de randonnée',
+  'tours.ski.technique': 'Technique', // same-as-en
+  'tours.ski.technique.classic': 'Classique',
+  'tours.ski.technique.skating': 'Skating', // same-as-en
+  'tours.ski.technique.unknown': 'Inconnue',
+  'tours.ski.chooseDiscipline': 'Choisissez une discipline pour importer la trace en ski.',
+  'tours.ski.chooseTechnique': 'Choisissez la technique, ou Inconnue.',
+  'tours.ski.infoLabel': 'Ce que TREK fait d’une trace de ski',
+  'tours.ski.info':
+    'Conservée telle qu’enregistrée et jamais calculée par un routeur. Distance et altitudes viennent du fichier. TREK ne calcule aucun temps de ski, et ni la trace ni les couleurs de pente en 3D ne disent quoi que ce soit sur la difficulté, la neige, les avalanches ou l’ouverture des pistes.',
+  'tours.ski.time': 'Temps de ski',
+  'tours.ski.timeUnknown': 'Non calculé',
+  'tours.ski.classifyTitle': 'Classer la trace de ski',
+  'tours.ski.saved': 'Classement enregistré',
+  'tours.ski.saveFailed': 'Le classement n’a pas pu être enregistré.',
   'tours.planner.tourTypeHint.run': 'À pied, à ton allure, sur des chemins où l’on court bien',
   'tours.planner.namePlaceholder.run': 'Course sans titre',
   'tours.planner.unreachable.run':

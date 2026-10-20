@@ -1,4 +1,4 @@
-import type { BikeProfile, PaddleBoatType, RunProfile } from '@trek/shared';
+import type { BikeProfile, PaddleBoatType, RunProfile, SkiDiscipline } from '@trek/shared';
 
 /** What GPX calls the activity in a track's <type>; a paddle tour says what it is paddled in. */
 const PADDLE_ACTIVITY: Record<PaddleBoatType, string> = {
@@ -22,22 +22,33 @@ const RUN_ACTIVITY: Record<RunProfile, string> = {
   trail: 'trail_running',
 };
 
+/** SKI-02: a ski track says how it was skied, in the same words; without a known discipline it is skiing. */
+const SKI_ACTIVITY: Record<SkiDiscipline, string> = {
+  alpine: 'alpine_skiing',
+  snowboard: 'snowboarding',
+  cross_country: 'cross_country_skiing',
+  touring: 'backcountry_skiing',
+};
+
 /**
  * The activity a tour's track names in GPX: a paddle tour its boat, a bike
- * tour and a run their profile, a hike on snowshoes snowshoeing (HIK-01) and any other
- * hike hiking; whatever is missing falls back to the plainest.
+ * tour and a run their profile, a ski track its discipline (SKI-02), a hike on
+ * snowshoes snowshoeing (HIK-01) and any other hike hiking; whatever is
+ * missing falls back to the plainest.
  */
 export function gpxActivityOf(tour: {
   tour_type: string;
   boat_type?: string | null;
   bike_profile?: string | null;
   run_profile?: string | null;
+  ski_discipline?: string | null;
   winter_activity?: string | null;
 }): string {
   const { tour_type: type, boat_type: boat, bike_profile: bike } = tour;
   if (type === 'kayak') return PADDLE_ACTIVITY[(boat ?? 'other') as PaddleBoatType] ?? PADDLE_ACTIVITY.other;
   if (type === 'bike') return BIKE_ACTIVITY[(bike ?? 'touring') as BikeProfile] ?? BIKE_ACTIVITY.touring;
   if (type === 'run') return RUN_ACTIVITY[(tour.run_profile ?? 'running') as RunProfile] ?? RUN_ACTIVITY.running;
+  if (type === 'ski') return SKI_ACTIVITY[tour.ski_discipline as SkiDiscipline] ?? 'skiing';
   if (type !== 'hike') return type;
   // A winter hike is walked as any hike is; only snowshoes make it an activity of its own.
   return tour.winter_activity === 'snowshoe' ? 'snowshoeing' : 'hiking';

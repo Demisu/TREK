@@ -1,4 +1,4 @@
-import { plannableTourTypeSchema, type PlannableTourType } from '@trek/shared';
+import { plannableTourTypeSchema, type ImportableTourType, type PlannableTourType } from '@trek/shared';
 import { Check, ChevronDown } from 'lucide-react';
 import { createElement, useId } from 'react';
 import { useTranslation } from '../../../i18n';
@@ -10,7 +10,7 @@ import { tourDayRowIcon } from '../tourDayRowIcon';
 /** The types the planner offers, in the order the contract lists them. */
 const PLANNER_TOUR_TYPES = plannableTourTypeSchema.options;
 
-function TypeTile({ type, active = false }: { type: PlannableTourType; active?: boolean }) {
+function TypeTile({ type, active = false }: { type: ImportableTourType; active?: boolean }) {
   return (
     <span
       aria-hidden="true"
@@ -25,26 +25,31 @@ function TypeTile({ type, active = false }: { type: PlannableTourType; active?: 
  * What the tour is, as one field that opens the types with what each one
  * plans: a hike on footpaths within its limit, a bike tour on its profile, a
  * paddle tour on the water. Room for the types still to come without the row
- * of buttons it was growing too long for.
+ * of buttons it was growing too long for. The planner offers the types it
+ * plans; the GPX import offers ski as well (SKI-02), a track it only keeps.
  */
-export function TourTypeSelect({
+export function TourTypeSelect<T extends ImportableTourType = PlannableTourType>({
   value,
   onChange,
   disabled = false,
   labelId,
+  types,
 }: {
-  value: PlannableTourType;
-  onChange: (type: PlannableTourType) => void;
+  value: T;
+  onChange: (type: T) => void;
   disabled?: boolean;
   /** The label over the field, read before the type chosen. */
   labelId: string;
+  /** The types offered, in order; the planner's own when left out. */
+  types?: readonly T[];
 }) {
   const { t } = useTranslation();
   const valueId = useId();
-  const list = usePopoverList(PLANNER_TOUR_TYPES.indexOf(value), { estimatedHeight: 270 });
+  const offered: readonly ImportableTourType[] = types ?? PLANNER_TOUR_TYPES;
+  const list = usePopoverList(offered.indexOf(value), { estimatedHeight: 50 * offered.length + 20 });
   const { open, toggle, triggerRef, listId } = list;
   const label = t('tours.planner.tourType');
-  const pick = (type: PlannableTourType) => {
+  const pick = (type: T) => {
     list.close();
     onChange(type);
   };
@@ -78,7 +83,7 @@ export function TourTypeSelect({
         />
       </button>
       <PopoverListPanel list={list} label={label} className="flex min-w-[260px] flex-col gap-0.5">
-        {PLANNER_TOUR_TYPES.map((type) => {
+        {(offered as readonly T[]).map((type) => {
           const active = type === value;
           return (
             <button

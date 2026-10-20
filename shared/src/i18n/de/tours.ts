@@ -206,7 +206,7 @@ const tours: TranslationStrings = {
   'tourTypes.hike': 'Wanderung',
   'tourTypes.bike': 'Radtour',
   'tourTypes.run': 'Lauf',
-  'tourTypes.ski': 'Skitour',
+  'tourTypes.ski': 'Ski', // same-as-en
   'tourTypes.kayak': 'Paddeltour',
   'tourTypes.walk': 'Stadt- und Spaziergang',
   'tourTypes.food': 'Genusstour',
@@ -413,6 +413,27 @@ const tours: TranslationStrings = {
   'tours.winter.activity.snowshoe': 'Schneeschuhwandern',
   'tours.winter.labelOnly':
     'Von den Reisenden gekennzeichnet. Route und Zeit sind wie bei jeder Wanderung geplant, nicht für den Winter geprüft.',
+  'tours.planner.tourTypeHint.ski': 'Aus einer GPX-Datei, wie aufgezeichnet',
+  'tours.ski.title': 'Skistrecke',
+  'tours.ski.discipline': 'Disziplin',
+  'tours.ski.discipline.alpine': 'Alpin',
+  'tours.ski.discipline.snowboard': 'Snowboard', // same-as-en
+  'tours.ski.discipline.cross_country': 'Langlauf',
+  'tours.ski.discipline.touring': 'Skitour',
+  'tours.ski.technique': 'Technik',
+  'tours.ski.technique.classic': 'Klassisch',
+  'tours.ski.technique.skating': 'Skating', // same-as-en
+  'tours.ski.technique.unknown': 'Unbekannt',
+  'tours.ski.chooseDiscipline': 'Wähle eine Disziplin, um die Strecke als Ski zu importieren.',
+  'tours.ski.chooseTechnique': 'Wähle die Technik oder Unbekannt.',
+  'tours.ski.infoLabel': 'Was TREK mit einer Skistrecke macht',
+  'tours.ski.info':
+    'Bleibt wie aufgezeichnet und wird nie geroutet. Distanz und Höhen stammen aus der Datei. TREK berechnet keine Skizeit, und weder die Strecke noch die Steigungsfarben in 3D sagen etwas über Schwierigkeit, Schnee, Lawinen oder geöffnete Pisten und Loipen.',
+  'tours.ski.time': 'Skizeit',
+  'tours.ski.timeUnknown': 'Nicht berechnet',
+  'tours.ski.classifyTitle': 'Skistrecke einordnen',
+  'tours.ski.saved': 'Einordnung gespeichert',
+  'tours.ski.saveFailed': 'Die Einordnung konnte nicht gespeichert werden.',
   'tours.planner.tourTypeHint.run': 'Zu Fuß in deiner Pace, auf gut laufbaren Wegen',
   'tours.planner.namePlaceholder.run': 'Unbenannter Lauf',
   'tours.planner.unreachable.run':
