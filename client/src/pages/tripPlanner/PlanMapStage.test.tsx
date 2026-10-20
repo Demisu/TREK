@@ -1,4 +1,4 @@
-// FE-PAGE-PLANNER-MAPSTAGE-001 to FE-PAGE-PLANNER-MAPSTAGE-010
+// FE-PAGE-PLANNER-MAPSTAGE-001 to FE-PAGE-PLANNER-MAPSTAGE-011
 //
 // The plan tab's map and its floating controls, rendered on their own. The map
 // and the pills are stubs that record their props, so each mode the stage
@@ -6,6 +6,7 @@
 import React from 'react'
 import { render, screen } from '../../../tests/helpers/render'
 import { buildTrip, buildPlace, buildReservation } from '../../../tests/helpers/factories'
+import { useTourActivityCompareStore } from '../../store/tourActivityCompareStore'
 import { PlanMapStage, type PlanMapStageProps } from './PlanMapStage'
 
 type Recorded = Record<string, unknown> & Record<`on${string}`, (...args: unknown[]) => unknown>
@@ -68,6 +69,7 @@ function renderStage(overrides: Partial<Record<keyof PlanMapStageProps, unknown>
 
 beforeEach(() => {
   for (const key of Object.keys(captured)) delete captured[key]
+  useTourActivityCompareStore.getState().clear()
 })
 
 describe('PlanMapStage', () => {
@@ -209,5 +211,21 @@ describe('PlanMapStage', () => {
       categories: poi.categories, active: poi.active, onToggle: poi.toggle,
       loadingKeys: poi.loadingKeys, errorKeys: poi.errorKeys, moved: false, onSearchArea: poi.searchArea,
     })
+  })
+
+  it('FE-PAGE-PLANNER-MAPSTAGE-011: a tour compared with its actual track draws the track dotted and explains both lines (ACT-02)', () => {
+    const plan = buildPlace({ id: 7, name: 'Ridge' })
+    const track = buildPlace({ id: 20, name: 'Watch export', route_geometry: JSON.stringify([[47, 11], [47.01, 11]]) })
+    useTourActivityCompareStore.getState().show({ tourPlaceId: 7, trackPlaceId: 20 })
+    const compared = { places: [plan, track], mapPlaces: [plan, track], selectedPlaceId: 7, route: null, routeWalking: [] }
+    const { rerender } = renderStage(compared)
+
+    expect(recorded('map')).toMatchObject({ places: [plan], route: [[[47, 11], [47.01, 11]]], routeWalking: [true] })
+    expect(screen.getByTestId('activity-compare-legend')).toHaveTextContent('Watch export')
+
+    // The road trip and the trip overview draw other lines; nothing is compared there.
+    rerender(<PlanMapStage {...stageProps({ ...compared, overviewActive: true })} />)
+    expect(recorded('map')).toMatchObject({ route: ['overview'] })
+    expect(screen.queryByTestId('activity-compare-legend')).toBeNull()
   })
 })

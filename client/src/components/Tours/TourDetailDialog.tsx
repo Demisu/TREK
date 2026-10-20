@@ -50,6 +50,7 @@ import { markdownLinkComponents } from '../shared/markdownLink';
 import { TourDayRowAvatar } from './TourDayRowFacts';
 import { TourGpxExportButton } from './TourGpxExportButton';
 import TourActivitySection from './activity/TourActivitySection';
+import type { PlanValues } from './activity/tourActivityCompare';
 import { PaddleCheckSection } from './paddle/PaddleCheckSection';
 import { PaddleWindSection } from './paddle/PaddleWindCard';
 import { TourProvenanceBlock } from './provenance/TourProvenanceSection';
@@ -543,6 +544,21 @@ export default function TourDetailDialog({
   const times = tourPlannedTimes(tour);
 
   const timeFields = tourTimeFields(times, t, tour);
+  // The plan as the line measures it now: the head says it, and an actual track is compared with it (ACT-02).
+  const planDistanceKm = analysis?.distanceKm ?? tour.distance;
+  const planGain = analysis ? analysis.gain : tour.elevation_gain;
+  const planLoss = analysis ? analysis.loss : tour.elevation_loss;
+  const plan = useMemo<PlanValues>(
+    () => ({
+      distanceKm: planDistanceKm,
+      gain: planGain,
+      loss: planLoss,
+      minutes: times.plannedTotalMinutes,
+      minutesAtLeast: times.atLeast,
+      line: analysis?.routeCoordinates ?? null,
+    }),
+    [analysis, planDistanceKm, planGain, planLoss, times.atLeast, times.plannedTotalMinutes]
+  );
 
   const header = (
     <>
@@ -573,11 +589,7 @@ export default function TourDetailDialog({
           trackColor={trackColor}
           timeFields={timeFields}
           times={times}
-          metrics={{
-            distanceKm: analysis?.distanceKm ?? tour.distance,
-            gain: analysis ? analysis.gain : tour.elevation_gain,
-            loss: analysis ? analysis.loss : tour.elevation_loss,
-          }}
+          metrics={{ distanceKm: plan.distanceKm, gain: plan.gain, loss: plan.loss }}
         />
       </div>
     </>
@@ -734,6 +746,9 @@ export default function TourDetailDialog({
           days={days}
           assignments={assignments}
           canEdit={canEdit}
+          plan={plan}
+          planColor={trackColor}
+          mapCompare={desktopNonModal}
           onToursChanged={onToursChanged}
         />
       )}

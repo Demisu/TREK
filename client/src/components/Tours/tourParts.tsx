@@ -434,19 +434,26 @@ export function CardAction({
   icon,
   onClick,
   disabled = false,
+  pressed,
   children,
 }: {
   icon: ReactNode
   onClick: () => void
   disabled?: boolean
+  /** Makes it a switch: on, it takes the accent and says so to a screen reader. */
+  pressed?: boolean
   children: ReactNode
 }) {
+  const look = pressed
+    ? 'bg-accent text-accent-text ring-transparent'
+    : 'bg-surface-card text-content-secondary ring-edge-faint enabled:hover:text-content'
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="inline-flex h-7 max-w-full items-center gap-1.5 rounded-full bg-surface-card px-2.5 font-semibold text-content-secondary shadow-sm ring-1 ring-inset ring-edge-faint transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent enabled:hover:text-content disabled:cursor-default disabled:opacity-40"
+      aria-pressed={pressed}
+      className={`inline-flex h-7 max-w-full items-center gap-1.5 rounded-full px-2.5 font-semibold shadow-sm ring-1 ring-inset transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent disabled:cursor-default disabled:opacity-40 ${look}`}
       style={fs(11.5, 'body')}
     >
       <span className="flex-none">{icon}</span>

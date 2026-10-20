@@ -1,13 +1,16 @@
-// FE-ACT-SECTION-001 to FE-ACT-SECTION-006
+// FE-ACT-SECTION-001 to FE-ACT-SECTION-007
 // ACT-01 in the tour's detail, rendered without the translation provider so
 // every text reads as its key: the actual tracks with their own values marked
-// as such, a time only where the track measured one, and the actions only for
-// someone who may change the tour.
-import { fireEvent, render, screen } from '@testing-library/react';
+// as such beside the plan's (ACT-02), a time only where the track measured
+// one, the actions only for someone who may change the tour, and the map
+// comparison only where a plan map is beside the detail.
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { TourActivity, TourListItem } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { useTourActivityCompareStore } from '../../../store/tourActivityCompareStore';
 import type { Day } from '../../../types';
 import TourActivitySection from './TourActivitySection';
+import type { PlanValues } from './tourActivityCompare';
 import type { TourActivities } from './useTourActivities';
 
 const hook = vi.hoisted(() => ({ state: null as unknown }));
@@ -60,30 +63,43 @@ function state(overrides: Partial<TourActivities> = {}): TourActivities {
   } as TourActivities;
 }
 
-const show = (canEdit = true, item: TourListItem = tour) =>
-  render(<TourActivitySection tripId={1} tour={item} days={days} assignments={assignments} canEdit={canEdit} />);
+const plan: PlanValues = { distanceKm: 0.1, gain: 80, loss: 0, minutes: 180, minutesAtLeast: false, line: null };
+
+const show = (canEdit = true, item: TourListItem = tour, mapCompare = false) =>
+  render(
+    <TourActivitySection
+      tripId={1}
+      tour={item}
+      days={days}
+      assignments={assignments}
+      canEdit={canEdit}
+      plan={plan}
+      planColor="plan-paint"
+      mapCompare={mapCompare}
+    />
+  );
 
 beforeEach(() => {
   hook.state = state();
+  useTourActivityCompareStore.getState().clear();
 });
 
 describe('TourActivitySection (ACT-01)', () => {
-  it('FE-ACT-SECTION-001: shows an actual track with its day, its file, its own values and its profile', () => {
+  it("FE-ACT-SECTION-001: shows an actual track with its day, its file, its own values beside the plan's, and its profile", () => {
     show();
     expect(screen.getByText('tours.activity.label')).toBeInTheDocument();
     expect(screen.getByText('Watch export')).toBeInTheDocument();
     expect(screen.getByTestId('tour-activity-day')).toHaveTextContent('dayplan.dayN');
     expect(screen.getByText('morning.gpx')).toBeInTheDocument();
-    expect(screen.getByText('tours.activity.badge')).toBeInTheDocument();
-    expect(screen.getByText('tours.activity.time')).toBeInTheDocument();
-    expect(screen.getByText('3 h 15 min')).toBeInTheDocument();
-    expect(screen.getByText('tours.detail.ascent')).toBeInTheDocument();
+    expect(screen.getAllByText('tours.activity.badge').length).toBeGreaterThan(0);
+    expect(screen.getByTestId('tour-activity-compare-time')).toHaveTextContent('3 h 15 min');
+    expect(screen.getByTestId('tour-activity-compare-ascent')).toHaveTextContent('+20 m');
   });
 
   it('FE-ACT-SECTION-002: a track without times measures no time, and a track without a day says so', () => {
     hook.state = state({ activities: [activity({ elapsed_minutes: null, started_at: null, ended_at: null }, null)] });
     show();
-    expect(screen.getByText('tours.activity.noTime')).toBeInTheDocument();
+    expect(screen.getByTestId('tour-activity-compare-time')).toHaveTextContent('tours.activity.noTime');
     expect(screen.getByTestId('tour-activity-day')).toHaveTextContent('tours.activity.noDay');
     expect(screen.queryByText('tours.activity.recordedOn')).toBeNull();
   });
@@ -145,5 +161,21 @@ describe('TourActivitySection (ACT-01)', () => {
     hook.state = state({ activities: [], unavailable: true, canEdit: false });
     show(false);
     expect(screen.getByText('tours.activity.unavailable')).toBeInTheDocument();
+  });
+
+  it('FE-ACT-SECTION-007: beside a plan map a track is compared there and back, and on the phone it is not offered', () => {
+    const { unmount } = show(false, tour, true);
+    fireEvent.click(screen.getByRole('button', { name: /tours.activity.compare.show/ }));
+    expect(useTourActivityCompareStore.getState().comparison).toEqual({ tourPlaceId: 7, trackPlaceId: 20 });
+    expect(screen.getByRole('button', { name: /tours.activity.compare.hide/ })).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(screen.getByRole('button', { name: /tours.activity.compare.hide/ }));
+    expect(useTourActivityCompareStore.getState().comparison).toBeNull();
+
+    act(() => useTourActivityCompareStore.getState().show({ tourPlaceId: 7, trackPlaceId: 20 }));
+    unmount();
+    expect(useTourActivityCompareStore.getState().comparison).toBeNull();
+
+    show(false);
+    expect(screen.queryByRole('button', { name: /tours.activity.compare.show/ })).toBeNull();
   });
 });

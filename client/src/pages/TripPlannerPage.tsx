@@ -275,7 +275,7 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
         {activeTab === 'plan' && (
           <div style={{ position: 'absolute', inset: 0 }}>
             <PlanMapStage
-              tripId={tripId} trip={trip} can={can} days={days} reservations={reservations} isMobile={isMobile}
+              tripId={tripId} trip={trip} can={can} days={days} places={places} reservations={reservations} isMobile={isMobile}
               selectedDayId={selectedDayId} selectedPlaceId={selectedPlaceId} selectedPlace={selectedPlace} showDayDetail={showDayDetail} handleSelectDay={handleSelectDay}
               mapPlaces={mapPlaces} dayPlaces={dayPlaces} dayOrderMap={dayOrderMap} mapTileUrl={mapTileUrl} fitKey={fitKey} mapLocked={mapLocked} toggleMapLocked={toggleMapLocked} mapFocusPoints={mapFocusPoints}
               route={route} routeWalking={routeWalking} routeSegments={routeSegments} routeVias={routeVias} transitRoutesShown={transitRoutesShown}

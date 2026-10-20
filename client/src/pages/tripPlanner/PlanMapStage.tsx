@@ -5,6 +5,8 @@ import { MapCompassPill, type CompassMap } from '../../components/Map/MapCompass
 import { TripRouteOverviewPill, TripRouteOverviewPanel } from '../../components/Map/TripRouteOverview'
 import { DawarichTrailPill } from '../../components/Map/DawarichTrailPill'
 import PoiCategoryPill from '../../components/Map/PoiCategoryPill'
+import ActivityCompareLegend from '../../components/Tours/activity/ActivityCompareLegend'
+import { useActivityCompareMap } from '../../components/Tours/activity/useActivityCompareMap'
 import type { Poi } from '../../components/Map/poiCategories'
 import type { Settings } from '../../types'
 import { RoadtripAlternativesBar } from './plannerLazy'
@@ -16,7 +18,7 @@ type Planner = ReturnType<typeof useTripPlanner>
 type PageState = ReturnType<typeof useTripPlannerPage>
 
 // Picked per concern so the key lists stay short and typed by the hook that owns them.
-type StageTrip = Pick<Planner, 'tripId' | 'trip' | 'can' | 'days' | 'reservations' | 'isMobile' | 'selectedDayId' | 'selectedPlaceId' | 'selectedPlace' | 'showDayDetail' | 'handleSelectDay'>
+type StageTrip = Pick<Planner, 'tripId' | 'trip' | 'can' | 'days' | 'places' | 'reservations' | 'isMobile' | 'selectedDayId' | 'selectedPlaceId' | 'selectedPlace' | 'showDayDetail' | 'handleSelectDay'>
 type StageMap = Pick<Planner,
   | 'mapPlaces' | 'dayPlaces' | 'dayOrderMap' | 'mapTileUrl' | 'fitKey' | 'mapLocked' | 'toggleMapLocked' | 'mapFocusPoints'
   | 'route' | 'routeWalking' | 'routeSegments' | 'routeVias' | 'transitRoutesShown'
@@ -57,7 +59,7 @@ export interface PlanMapStageProps
  * exactly what they were when this lived in the page.
  */
 export function PlanMapStage({
-  tripId, trip, can, days, reservations, isMobile,
+  tripId, trip, can, days, places, reservations, isMobile,
   selectedDayId, selectedPlaceId, selectedPlace, showDayDetail, handleSelectDay,
   mapPlaces, dayPlaces, dayOrderMap, mapTileUrl, fitKey, mapLocked, toggleMapLocked, mapFocusPoints,
   route, routeWalking, routeSegments, routeVias, transitRoutesShown,
@@ -73,17 +75,22 @@ export function PlanMapStage({
   poi, tourMap, leftPanelPx, rightPanelPx, mapInsetLeft, mapInsetRight,
   glMap, setGlMap, poiPillEnabled, mapPois, distanceUnit,
 }: Readonly<PlanMapStageProps>): ReactElement {
+  // ACT-02: a tour compared with its actual track lays the track into the day's lines, dotted.
+  const compared = useActivityCompareMap({
+    enabled: !roadtripActive && !overviewActive && !isMobile,
+    places, mapPlaces, route, routeWalking, selectedPlaceId,
+  })
   return (
     <>
       <MapView
         tripId={tripId}
         dawarichTrack={dawarichTrail.track}
         dawarichHiddenDates={dawarichHiddenDates}
-        places={roadtripActive ? roadtripMapPlaces : mapPlaces}
+        places={roadtripActive ? roadtripMapPlaces : compared.places}
         dayPlaces={dayPlaces}
-        route={roadtripActive ? roadtripMapLines : overviewActive ? tripOverview.lines : route}
-        routeColors={roadtripActive ? roadtripLineColors : overviewActive ? tripOverview.lineColors : undefined}
-        routeWalking={roadtripActive || overviewActive ? undefined : routeWalking}
+        route={roadtripActive ? roadtripMapLines : overviewActive ? tripOverview.lines : compared.route}
+        routeColors={roadtripActive ? roadtripLineColors : overviewActive ? tripOverview.lineColors : compared.routeColors}
+        routeWalking={roadtripActive || overviewActive ? undefined : compared.routeWalking}
         followSelection={!mapLocked || isMobile}
         onToggleFollow={isMobile ? undefined : toggleMapLocked}
         routeVias={roadtripActive ? roadtripMapVias : routeVias}
@@ -172,6 +179,7 @@ export function PlanMapStage({
           position: 'absolute', bottom: 18, right: mapInsetRight + 14, zIndex: 26, // rtl-lint-disable: measured from the right panel's inset
           pointerEvents: 'none', flexDirection: 'column', alignItems: 'flex-end', gap: 8,
         }}>
+          {compared.legend && <ActivityCompareLegend legend={compared.legend} />}
           {!roadtripActive && overviewActive && (
             <TripRouteOverviewPanel
               overview={tripOverview}

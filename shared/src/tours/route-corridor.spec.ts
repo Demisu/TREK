@@ -1,4 +1,4 @@
-import { nearnessToLine } from './route-corridor';
+import { distancesToLine, nearnessToLine } from './route-corridor';
 
 import { describe, expect, it } from 'vitest';
 
@@ -39,5 +39,35 @@ describe('nearnessToLine', () => {
         [47, 11],
       ])?.distanceM,
     ).toBe(0);
+  });
+});
+
+describe('distancesToLine', () => {
+  const line = [
+    [47, 11],
+    [47.01, 11],
+    [47.02, 11],
+  ];
+
+  it('measures every point against the line, in their order, as nearnessToLine does one', () => {
+    const points = [
+      [47.015, 11.001],
+      [47.005, 11],
+      [46.99, 11, 900],
+    ];
+    const distances = distancesToLine(points, line);
+    expect(distances).toHaveLength(3);
+    points.forEach((point, index) => {
+      expect(distances?.[index]).toBeCloseTo(
+        nearnessToLine({ lat: Number(point[0]), lng: Number(point[1]) }, line)?.distanceM ?? -1,
+        6,
+      );
+    });
+    expect(distances?.[1]).toBe(0);
+  });
+
+  it('answers nothing for a line too short, and nothing to measure for no points', () => {
+    expect(distancesToLine([[47, 11]], [[47, 11]])).toBeNull();
+    expect(distancesToLine([], line)).toEqual([]);
   });
 });

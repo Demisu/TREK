@@ -11,24 +11,21 @@ import { DialogSection, fs } from '../../shared/DialogShell';
 import ElevationProfile from '../../shared/ElevationProfile';
 import { Tooltip } from '../../shared/Tooltip';
 import { dayMenuLabel } from '../tourDays';
-import { CardAction, TourMetricFields, TourNotice, type TourMetricField } from '../tourParts';
-import { formatPlannedTourDuration } from '../tourPresentation';
+import { CardAction, TourNotice } from '../tourParts';
+import TourActivityCompare from './TourActivityCompare';
 import TourActivityDialog from './TourActivityDialog';
+import { ACTUAL_TRACK_COLOR } from './activityCompareParts';
+import type { PlanValues } from './tourActivityCompare';
 import { analysisOfLine, executionOf, executionsOf, recordedDay, type TourExecution } from './tourActivityModel';
+import { useActivityComparison, type ActivityComparisonState } from './useActivityComparison';
 import { useTourActivities, type TourActivities } from './useTourActivities';
 
-type Translate = (key: string, params?: Record<string, unknown>) => string;
-
-/** The line and the profile of what was recorded take the colour of done, apart from the plan's track colour. */
-const RECORDED_COLOR = 'var(--success)';
-
-/** The recorded time as a field: measured from the track's times, or said to be missing, never estimated. */
-function timeField(activity: TourActivity, t: Translate): TourMetricField {
-  const minutes = activity.metrics.elapsed_minutes;
-  const label = t('tours.activity.time');
-  return minutes === null
-    ? { label, value: t('tours.activity.noTime'), info: { label, description: t('tours.activity.noTimeHint') } }
-    : { label, value: formatPlannedTourDuration(minutes), info: { label, description: t('tours.activity.timeHint') } };
+/** What a card compares its track with: the plan's values and colour, and the map switch where there is a plan map. */
+interface PlanSide {
+  plan: PlanValues;
+  planColor: string;
+  /** Null on the phone, whose detail has no plan map beside it. */
+  comparison: ActivityComparisonState | null;
 }
 
 /** The tile of a recording: footprints, with a small dot at its foot that says it was recorded. */
@@ -76,19 +73,26 @@ function ActivityBadges({ activity, execution }: { activity: TourActivity; execu
   );
 }
 
-/** One recording: who it is, its values marked as recorded, its profile, and what the user can do with it. */
+/**
+ * One recording: who it is, its values beside the plan's (ACT-02), its
+ * profile, and what the user can do with it.
+ */
 function ActivityCard({
   activity,
   execution,
   state,
+  side,
 }: {
   activity: TourActivity;
   execution: TourExecution;
   state: TourActivities;
+  side: PlanSide;
 }) {
   const { t } = useTranslation();
   const unit = useSettingsStore((store) => store.settings.distance_unit) ?? 'metric';
   const analysis = useMemo(() => analysisOfLine(activity.geometry), [activity.geometry]);
+  const trackPlaceId = activity.track.place_id;
+  const { comparison } = side;
   return (
     <article data-testid="tour-activity" className={`${BOX} overflow-hidden`}>
       <header className="flex items-start gap-2.5 px-3 py-2.5">
@@ -108,11 +112,21 @@ function ActivityCard({
         </Tooltip>
       </header>
       <div className="flex flex-col gap-2 border-t border-edge-faint p-2.5">
-        <TourMetricFields analysis={analysis} unit={unit} extra={[timeField(activity, t)]} />
+        <TourActivityCompare
+          activity={activity}
+          plan={side.plan}
+          planColor={side.planColor}
+          unit={unit}
+          map={
+            comparison
+              ? { shown: comparison.comparedTrack === trackPlaceId, onToggle: () => comparison.toggle(trackPlaceId) }
+              : undefined
+          }
+        />
         {analysis && analysis.distanceIndexedProfileSamples.length >= 2 && (
           <ElevationProfile
             samples={analysis.distanceIndexedProfileSamples}
-            color={RECORDED_COLOR}
+            color={ACTUAL_TRACK_COLOR}
             gradientId={`tour-activity-${activity.id}`}
           />
         )}
@@ -157,7 +171,15 @@ function NoActivity() {
 }
 
 /** What the section holds: the tracks, the empty place for one, or word that the tour's tracks could not be read. */
-function ActivityList({ state, executions }: { state: TourActivities; executions: readonly TourExecution[] }) {
+function ActivityList({
+  state,
+  executions,
+  side,
+}: {
+  state: TourActivities;
+  executions: readonly TourExecution[];
+  side: PlanSide;
+}) {
   const { t } = useTranslation();
   const activities = state.activities ?? [];
   if (state.unavailable) {
@@ -176,6 +198,7 @@ function ActivityList({ state, executions }: { state: TourActivities; executions
           activity={activity}
           execution={executionOf(executions, activity.assignment_id)}
           state={state}
+          side={side}
         />
       ))}
     </div>
@@ -188,6 +211,12 @@ interface TourActivitySectionProps {
   days: Day[];
   assignments: AssignmentsMap;
   canEdit: boolean;
+  /** ACT-02: what the plan says, for each track's values to stand beside. */
+  plan: PlanValues;
+  /** The plan's track colour, as the map and the table draw it. */
+  planColor: string;
+  /** Offers to compare a track on the plan map; only where one is beside the detail. */
+  mapCompare?: boolean;
   onToursChanged?: (placeIds: number[]) => Promise<void> | void;
 }
 
@@ -195,8 +224,10 @@ interface TourActivitySectionProps {
  * ACT-01 in the tour's detail: the tracks the tour was actually done with,
  * each with the values its own recording measures and its profile, apart from
  * the planned values above; and for someone who may change the tour, the way
- * to assign one, change it or take it off. A tour that is itself the recording
- * of another shows none: it says so in its head instead.
+ * to assign one, change it or take it off. Each track's values stand beside
+ * the plan's, and one track at a time can be compared with the plan on the map
+ * (ACT-02). A tour that is itself the recording of another shows none: it says
+ * so in its head instead.
  */
 export default function TourActivitySection({
   tripId,
@@ -204,12 +235,17 @@ export default function TourActivitySection({
   days,
   assignments,
   canEdit,
+  plan,
+  planColor,
+  mapCompare = false,
   onToursChanged,
 }: TourActivitySectionProps) {
   const { t } = useTranslation();
   const executions = useMemo(() => executionsOf(tour.place_id, days, assignments), [assignments, days, tour.place_id]);
   const state = useTourActivities({ tripId, tour, executions, canEdit, onToursChanged });
   const { activities, unavailable } = state;
+  const comparison = useActivityComparison(tour.place_id, activities);
+  const side: PlanSide = { plan, planColor, comparison: mapCompare ? comparison : null };
   if (activities === null || tour.activity_of != null || (activities.length === 0 && !canEdit && !unavailable)) {
     return null;
   }
@@ -233,7 +269,7 @@ export default function TourActivitySection({
         )
       }
     >
-      <ActivityList state={state} executions={executions} />
+      <ActivityList state={state} executions={executions} side={side} />
       {state.assigning && (
         <TourActivityDialog
           tripId={tripId}

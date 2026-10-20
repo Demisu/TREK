@@ -323,6 +323,42 @@ describe('TourDetailDialog', () => {
     expect(screen.getByTestId('tour-detail-track-of')).toHaveTextContent('Actual track of Lake loop')
   })
 
+  it('ACT-02: an actual track stands beside the plan the head shows, and only the map detail offers to compare it there', async () => {
+    const activity = {
+      id: 4,
+      assignment_id: null,
+      day_id: null,
+      assigned_at: null,
+      track: { place_id: 20, name: 'Watch export', origin: 'gpx' as const, file_name: 'morning.gpx', imported_at: null },
+      metrics: {
+        distance_km: 3,
+        elevation_gain_m: null,
+        elevation_loss_m: null,
+        started_at: null,
+        ended_at: null,
+        elapsed_minutes: null,
+        point_count: 2,
+      },
+      geometry: [
+        [48, 11],
+        [48, 11.03],
+      ] as [number, number][],
+    }
+    vi.spyOn(tourRepo, 'detail').mockResolvedValue({ tour, waypoints: [], activities: [activity] })
+    const { unmount } = render(<TourDetailDialog {...defaultProps} desktopNonModal />)
+
+    const distance = await screen.findByTestId('tour-activity-compare-distance')
+    // The plan as the head measures it from the line, not the list's stale 999 km.
+    expect(distance).toHaveTextContent('2.2 km')
+    expect(distance).toHaveTextContent('3 km')
+    expect(screen.getByRole('button', { name: /Compare on map/ })).toBeInTheDocument()
+    unmount()
+
+    render(<TourDetailDialog {...defaultProps} />)
+    await screen.findByTestId('tour-activity-compare-distance')
+    expect(screen.queryByRole('button', { name: /Compare on map/ })).not.toBeInTheDocument()
+  })
+
   it('shows the grade on the tile and no second difficulty scale', () => {
     render(<TourDetailDialog {...defaultProps} tour={{ ...tour, difficulty: 'easy', max_hiking_difficulty: 1 }} />)
 

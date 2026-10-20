@@ -1239,6 +1239,21 @@ const tours: TranslationStrings = {
   'tours.activity.refused.activity_track_is_tour': 'Dieser Track kann nicht mit dieser Tour verknüpft werden',
   'tours.activity.refused.activity_tour_is_track': 'Diese Tour ist selbst der Ist-Track einer anderen Tour',
   'tours.activity.refused.activity_assignment_not_of_tour': 'Die Tour ist nicht mehr an diesem Tag',
+  'tours.activity.compare.title': 'Planung und Ist',
+  'tours.activity.compare.plan': 'Planung',
+  'tours.activity.compare.difference': 'Unterschied',
+  'tours.activity.compare.time': 'Zeit mit Pausen',
+  'tours.activity.compare.notInPlan': 'Nicht in der Planung',
+  'tours.activity.compare.notInTrack': 'Nicht im Track',
+  'tours.activity.compare.farthest': 'Größter Abstand zur Planung',
+  'tours.activity.compare.offPlan': 'Abseits der Planung',
+  'tours.activity.compare.offPlanValue': '{distance} ({percent} %)',
+  'tours.activity.compare.offPlanHint':
+    'Aufgezeichnete Abschnitte, die mehr als {distance} von der geplanten Linie entfernt liegen',
+  'tours.activity.compare.noLine': 'Keine Linie zum Vergleichen',
+  'tours.activity.compare.show': 'Auf der Karte vergleichen',
+  'tours.activity.compare.showHint': 'Zeichnet den Ist-Track gepunktet neben die Planung. Es ändert sich nichts.',
+  'tours.activity.compare.hide': 'Vergleich beenden',
 };
 
 export default tours;

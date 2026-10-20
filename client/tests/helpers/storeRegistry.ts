@@ -59,6 +59,8 @@ export const UNRESET_STORES: Record<string, string> = {
   useServerVersionStore: NOT_YET,
   useStudioStore: NOT_YET,
   useSystemNoticeStore: NOT_YET,
+  useTourActivityCompareStore:
+    'the actual track compared on the map; the tests that read it clear it in their own beforeEach',
   useTourFerrataCrossingStore: 'set by the tour map stage; the tests that read it reset it in their own beforeEach',
   useTourPlaceToolStore: 'reset in the tour tests themselves to initialTourPlaceToolState()',
   useTourPoiStore: 'the places found along a tour; the tests that read it clear it in their own beforeEach',

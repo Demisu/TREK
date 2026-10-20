@@ -1230,5 +1230,20 @@ const tours: TranslationStrings = {
   'tours.activity.refused.activity_track_is_tour': 'Ez a nyomvonal nem kapcsolható ehhez a túrához',
   'tours.activity.refused.activity_tour_is_track': 'Ez a túra maga is egy másik túra tényleges nyomvonala',
   'tours.activity.refused.activity_assignment_not_of_tour': 'A túra már nem szerepel azon a napon',
+  'tours.activity.compare.title': 'Terv és tényleges',
+  'tours.activity.compare.plan': 'Terv',
+  'tours.activity.compare.difference': 'Eltérés',
+  'tours.activity.compare.time': 'Idő szünetekkel',
+  'tours.activity.compare.notInPlan': 'Nincs a tervben',
+  'tours.activity.compare.notInTrack': 'Nincs a nyomvonalban',
+  'tours.activity.compare.farthest': 'Legnagyobb távolság a tervtől',
+  'tours.activity.compare.offPlan': 'Terven kívül',
+  'tours.activity.compare.offPlanValue': '{distance} ({percent} %)',
+  'tours.activity.compare.offPlanHint':
+    'Rögzített szakaszok, amelyek {distance} távolságnál messzebb vannak a tervezett vonaltól',
+  'tours.activity.compare.noLine': 'Nincs összehasonlítható vonal',
+  'tours.activity.compare.show': 'Összehasonlítás a térképen',
+  'tours.activity.compare.showHint': 'A tényleges nyomvonalat pontozva rajzolja a terv mellé. Semmi sem változik.',
+  'tours.activity.compare.hide': 'Összehasonlítás befejezése',
 };
 export default tours;

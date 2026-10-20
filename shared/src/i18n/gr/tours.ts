@@ -1251,5 +1251,21 @@ const tours: TranslationStrings = {
   'tours.activity.refused.activity_track_is_tour': 'Αυτή η διαδρομή δεν μπορεί να συνδεθεί με αυτή την περιήγηση',
   'tours.activity.refused.activity_tour_is_track': 'Αυτή η εκδρομή είναι η ίδια πραγματική διαδρομή άλλης εκδρομής',
   'tours.activity.refused.activity_assignment_not_of_tour': 'Η εκδρομή δεν είναι πια σε εκείνη την ημέρα',
+  'tours.activity.compare.title': 'Σχέδιο και πραγματικό',
+  'tours.activity.compare.plan': 'Σχέδιο',
+  'tours.activity.compare.difference': 'Διαφορά',
+  'tours.activity.compare.time': 'Χρόνος με διαλείμματα',
+  'tours.activity.compare.notInPlan': 'Δεν υπάρχει στο σχέδιο',
+  'tours.activity.compare.notInTrack': 'Δεν υπάρχει στη διαδρομή',
+  'tours.activity.compare.farthest': 'Μέγιστη απόσταση από το σχέδιο',
+  'tours.activity.compare.offPlan': 'Εκτός σχεδίου',
+  'tours.activity.compare.offPlanValue': '{distance} ({percent} %)',
+  'tours.activity.compare.offPlanHint':
+    'Καταγεγραμμένα τμήματα σε απόσταση άνω των {distance} από τη σχεδιασμένη γραμμή',
+  'tours.activity.compare.noLine': 'Δεν υπάρχει γραμμή για σύγκριση',
+  'tours.activity.compare.show': 'Σύγκριση στον χάρτη',
+  'tours.activity.compare.showHint':
+    'Σχεδιάζει την πραγματική διαδρομή με τελείες δίπλα στο σχέδιο. Τίποτα δεν αλλάζει.',
+  'tours.activity.compare.hide': 'Τέλος σύγκρισης',
 };
 export default tours;
