@@ -404,7 +404,7 @@ const tours: TranslationStrings = {
   'tours.ski.chooseDisciplineToSave': '保存するには種目を選んでください。',
   'tours.ski.drawnFreely': '各区間はポイントの間を直線で描きます。コース、リフト、トレイルとの照合は行いません。',
   'tours.ski.chooseTechnique': '走法を選ぶか、不明を選んでください。',
-  'tours.ski.infoLabel': 'TREK がスキーのトラックで行うこと',
+  'tours.ski.infoLabel': 'TREK がスキーツアーとトラックで行うこと',
   'tours.ski.info':
     '計画したツアーは各区間をポイントの間の直線で描き、取り込んだトラックは記録されたまま保持します。どちらもコース、リフト、トレイルに沿ったルート検索は行いません。標高は地形またはファイルの値です。TREK はスキーの所要時間を計算せず、3D の勾配の色を含めここにあるものは、難易度、積雪、雪崩、コースの営業状況について何も示しません。',
   'tours.ski.time': 'スキー時間',

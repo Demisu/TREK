@@ -423,7 +423,7 @@ const tours: TranslationStrings = {
   'tours.ski.drawnFreely':
     'Ogni tratto è disegnato in linea retta tra i tuoi punti. Nulla lo confronta con piste, impianti o sentieri.',
   'tours.ski.chooseTechnique': 'Scegli la tecnica, oppure Sconosciuta.',
-  'tours.ski.infoLabel': 'Cosa fa TREK con una traccia di sci',
+  'tours.ski.infoLabel': 'Cosa fa TREK con tour e tracce di sci',
   'tours.ski.info':
     'Un tour pianificato ha ogni tratto disegnato in linea retta tra i suoi punti, una traccia importata resta come registrata. Nessuno dei due viene instradato lungo piste, impianti o sentieri. Le quote vengono dal terreno o dal file. TREK non calcola alcun tempo di sci, e nulla qui, nemmeno i colori della pendenza in 3D, dice qualcosa su difficoltà, neve, valanghe o apertura di piste e anelli.',
   'tours.ski.time': 'Tempo di sci',

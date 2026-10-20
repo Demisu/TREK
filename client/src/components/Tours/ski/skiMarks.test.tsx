@@ -78,12 +78,18 @@ describe('ski marks (SKI-02)', () => {
     expect(icons).toHaveLength(6);
     expect(new Set(icons).size).toBe(icons.length);
     expect(icons).not.toContain(tourDayRowIcon('ski'));
+    // No discipline borrows the mark of another tour type either.
+    for (const type of ['hike', 'bike', 'walk', 'run', 'kayak', 'horse']) {
+      expect(icons).not.toContain(tourDayRowIcon(type));
+    }
   });
 
   it('FE-TOUR-SKI-MARK-007: snowshoeing and winter hiking are ski tours with their own marks, a hike carries none', () => {
     const { rerender } = render(<SkiCornerMark tour={{ tour_type: 'ski', ski_discipline: 'snowshoe' }} />);
     const snowshoe = screen.getByRole('img', { name: 'tours.ski.discipline.snowshoe' });
-    expect(snowshoe.querySelector('svg.lucide-footprints')).not.toBeNull();
+    expect(snowshoe.querySelector('svg.lucide-snowshoe')).not.toBeNull();
+    // Footprints are the city walk's mark, so a snowshoe tile never carries them.
+    expect(snowshoe.querySelector('svg.lucide-footprints')).toBeNull();
     rerender(<SkiCornerMark tour={{ tour_type: 'ski', ski_discipline: 'winter_hike' }} />);
     const winterHike = screen.getByRole('img', { name: 'tours.ski.discipline.winter_hike' });
     expect(winterHike.querySelector('svg.lucide-snowflake')).not.toBeNull();

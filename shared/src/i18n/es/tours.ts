@@ -420,7 +420,7 @@ const tours: TranslationStrings = {
   'tours.ski.drawnFreely':
     'Cada tramo se dibuja en línea recta entre tus puntos. Nada lo comprueba con pistas, remontes ni senderos.',
   'tours.ski.chooseTechnique': 'Elige la técnica, o Desconocida.',
-  'tours.ski.infoLabel': 'Qué hace TREK con una ruta de esquí',
+  'tours.ski.infoLabel': 'Qué hace TREK con rutas y trazas de esquí',
   'tours.ski.info':
     'Una ruta planificada tiene cada tramo dibujado en línea recta entre sus puntos, y un recorrido importado se conserva tal como se grabó. Ninguno se enruta por pistas, remontes ni senderos. Las alturas vienen del terreno o del archivo. TREK no calcula ningún tiempo de esquí, y nada de aquí, ni los colores de pendiente en 3D, dice nada sobre dificultad, nieve, aludes o si las pistas están abiertas.',
   'tours.ski.time': 'Tiempo de esquí',

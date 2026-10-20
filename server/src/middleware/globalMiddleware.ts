@@ -326,7 +326,7 @@ export function applyGlobalMiddleware(
             // through fetch and needs it here.
             'https://tiles.openseamap.org',
             // OpenSnowMap's transparent piste layer (SKI-01), offered in the Tours planner with
-            // no tour open, for a hike and for a ski track; the GL map reads it through fetch.
+            // no tour open and for a ski tour; the GL map reads it through fetch.
             'https://tiles.opensnowmap.org',
             // OpenHikingMap, the hiking base map of the Tours planner (MAP-01), loaded only
             // while a user shows it and the admin allows it; GL reads it through fetch.

@@ -32,8 +32,8 @@ interface PlanSide {
 /**
  * The tile of a recording: the done mark every actual track goes by (on the
  * list row, in the tour's head and here), with a small dot at its foot that
- * says it was recorded. Never footprints, which name a snowshoe hike and a
- * walk's moving time.
+ * says it was recorded. Never footprints, which name a city walk and a walk's
+ * moving time.
  */
 function RecordedTile() {
   return (

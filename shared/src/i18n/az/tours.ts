@@ -414,7 +414,7 @@ const tours: TranslationStrings = {
   'tours.ski.drawnFreely':
     'Hər hissə nöqtələrin arasında düz xətlə çəkilir. Heç nə onu trassalar, liftlər və ya cığırlarla yoxlamır.',
   'tours.ski.chooseTechnique': 'Texnikanı və ya Naməlum seç.',
-  'tours.ski.infoLabel': 'TREK xizək izi ilə nə edir',
+  'tours.ski.infoLabel': 'TREK xizək turları və izləri ilə nə edir',
   'tours.ski.info':
     'Planlaşdırılmış turda hər hissə nöqtələri arasında düz xətlə çəkilir, idxal olunmuş iz isə qeydə alındığı kimi qalır. Heç biri trassalar, liftlər və ya cığırlar boyunca marşrutlanmır. Hündürlüklər relyefdən və ya fayldan gəlir. TREK xizək vaxtı hesablamır və burada heç nə, 3D-dəki meyil rəngləri də daxil olmaqla, çətinlik, qar, uçqun və ya trassaların açıq olub-olmaması barədə heç nə demir.',
   'tours.ski.time': 'Xizək vaxtı',

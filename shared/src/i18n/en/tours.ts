@@ -413,7 +413,7 @@ const tours: TranslationStrings = {
   'tours.ski.drawnFreely':
     'Each leg is drawn straight between your points. Nothing checks it against pistes, lifts or trails.',
   'tours.ski.chooseTechnique': 'Choose the technique, or Unknown.',
-  'tours.ski.infoLabel': 'What TREK does with a ski track',
+  'tours.ski.infoLabel': 'What TREK does with ski tours and tracks',
   'tours.ski.info':
     'A planned tour has each leg drawn straight between its points, an imported track is kept as recorded. Neither is routed along pistes, lifts or trails. Heights come from the terrain or the file. TREK works out no ski time, and nothing here, the gradient colours in 3D included, says anything about difficulty, snow, avalanches or whether runs and trails are open.',
   'tours.ski.time': 'Ski time',
@@ -800,7 +800,7 @@ const tours: TranslationStrings = {
   'tours.conversion.introPaddle':
     'An import is a recorded track. Plan an editable paddle tour: TREK takes control points from it, joins them with straight lines as a paddle tour is drawn, and shows how close that comes. Nothing changes until you choose.',
   'tours.conversion.introSki':
-    'An import is a recorded track. Plan an editable ski tour: TREK takes control points from it, joins them with straight lines as a ski tour is drawn, and shows how close that comes. Nothing changes until you choose.',
+    'An import is a recorded track. Plan an editable ski and winter tour: TREK takes control points from it, joins them with straight lines as a ski and winter tour is drawn, and shows how close that comes. Nothing changes until you choose.',
   'tours.conversion.closePaddle':
     'The suggestion follows the track closely. Its points are joined by straight lines, so it is not the same line.',
   'tours.planner.moreActions': 'More actions',
@@ -1109,7 +1109,7 @@ const tours: TranslationStrings = {
   'tourTypes.horse': 'Horse ride',
   'tours.planner.tourTypeHint.horse': 'On horseback, along signposted horse routes',
   'tours.planner.namePlaceholder.horse': 'Untitled ride',
-  'tours.planner.namePlaceholder.ski': 'Untitled ski tour',
+  'tours.planner.namePlaceholder.ski': 'Untitled ski and winter tour',
   'tours.horse.time': 'Riding time',
   'tours.horse.timeInfoLabel': 'Why there is no riding time',
   'tours.horse.timeInfo':

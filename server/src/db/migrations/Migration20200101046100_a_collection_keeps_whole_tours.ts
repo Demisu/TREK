@@ -36,6 +36,7 @@ export class Migration20200101046100_a_collection_keeps_whole_tours extends Migr
         match_confidence REAL,
         max_hiking_difficulty INTEGER,
         bike_profile TEXT,
+        winter_activity TEXT,
         run_profile TEXT,
         run_pace_seconds_per_km INTEGER,
         ski_discipline TEXT,

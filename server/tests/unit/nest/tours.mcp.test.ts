@@ -403,6 +403,8 @@ describe('ToursMcp', () => {
     expect(description(ToursMcp, 'getCityWalkProgress')).toMatch(/key .*opening hours/);
     expect(description(ToursMcp, 'searchTourPois')).toContain('route_pending');
     expect(description(ToursMcp, 'searchTourPois')).toMatch(/best known places.*highlight: true/);
+    expect(description(ToursMcp, 'searchTourPois')).toContain('a ride, a bike tour');
+    expect(description(ToursMcp, 'searchTourPois')).toContain('a ski and winter tour or a city walk');
     expect(description(TourLibraryMcp, 'takeOverTour')).toContain('protection');
     for (const method of ['deletePlace', 'bulkDeletePlaces']) {
       expect(description(PlacesMcp, method)).toContain(

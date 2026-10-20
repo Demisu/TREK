@@ -414,7 +414,7 @@ const tours: TranslationStrings = {
   'tours.ski.drawnFreely':
     'Her bölüm noktaların arasında düz çizilir. Hiçbir şey onu pistler, teleferikler veya parkurlarla karşılaştırmaz.',
   'tours.ski.chooseTechnique': 'Tekniği ya da Bilinmiyor seçeneğini seç.',
-  'tours.ski.infoLabel': 'TREK bir kayak iziyle ne yapar',
+  'tours.ski.infoLabel': 'TREK kayak turları ve izleriyle ne yapar',
   'tours.ski.info':
     'Planlanan bir turda her bölüm noktaları arasında düz çizilir, içe aktarılan bir iz ise kaydedildiği gibi kalır. Hiçbiri pistler, teleferikler veya parkurlar boyunca rotalanmaz. Yükseklikler araziden ya da dosyadan gelir. TREK kayak süresi hesaplamaz; buradaki hiçbir şey, 3D eğim renkleri de dahil, zorluk, kar, çığ ya da pist ve parkurların açık olup olmadığı hakkında bir şey söylemez.',
   'tours.ski.time': 'Kayak süresi',

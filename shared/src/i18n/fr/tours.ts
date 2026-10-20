@@ -426,7 +426,7 @@ const tours: TranslationStrings = {
   'tours.ski.drawnFreely':
     'Chaque tronçon est tracé en ligne droite entre vos points. Rien ne le vérifie par rapport aux pistes, remontées ou sentiers.',
   'tours.ski.chooseTechnique': 'Choisissez la technique, ou Inconnue.',
-  'tours.ski.infoLabel': 'Ce que TREK fait d’une trace de ski',
+  'tours.ski.infoLabel': 'Ce que TREK fait des sorties et traces de ski',
   'tours.ski.info':
     'Une sortie planifiée a chaque tronçon tracé en ligne droite entre ses points, une trace importée est conservée telle qu’enregistrée. Aucune n’est calculée le long des pistes, remontées ou sentiers. Les altitudes viennent du terrain ou du fichier. TREK ne calcule aucun temps de ski, et rien ici, pas même les couleurs de pente en 3D, ne dit quoi que ce soit sur la difficulté, la neige, les avalanches ou l’ouverture des pistes.',
   'tours.ski.time': 'Temps de ski',

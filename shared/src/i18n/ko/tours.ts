@@ -402,7 +402,7 @@ const tours: TranslationStrings = {
   'tours.ski.chooseDisciplineToSave': '투어를 저장하려면 종목을 선택하세요.',
   'tours.ski.drawnFreely': '각 구간은 지점 사이를 직선으로 그립니다. 슬로프, 리프트, 트레일과 대조하지 않습니다.',
   'tours.ski.chooseTechnique': '주법을 선택하거나 알 수 없음을 선택하세요.',
-  'tours.ski.infoLabel': 'TREK이 스키 트랙으로 하는 일',
+  'tours.ski.infoLabel': 'TREK이 스키 투어와 트랙으로 하는 일',
   'tours.ski.info':
     '계획한 투어는 각 구간을 지점 사이의 직선으로 그리고, 가져온 트랙은 기록된 그대로 유지합니다. 어느 쪽도 슬로프, 리프트, 트레일을 따라 경로를 계산하지 않습니다. 고도는 지형 또는 파일에서 가져옵니다. TREK은 스키 시간을 계산하지 않으며, 3D 경사 색상을 포함해 여기의 어떤 것도 난이도, 눈, 눈사태, 슬로프 운영 여부에 대해 알려 주지 않습니다.',
   'tours.ski.time': '스키 시간',

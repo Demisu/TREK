@@ -244,18 +244,25 @@ describe('useGpxConversion', () => {
     );
   });
 
-  it('SKI-02: a ski track that names no discipline is not planned over: nothing is offered and no router is asked', () => {
+  it('SKI-02: a ski track that names no discipline is planned over too, the planner asks for it', async () => {
     const ski = { ...imported, tour_type: 'ski' as const, ski_discipline: null, max_hiking_difficulty: null };
     const controller = planner({
       mode: { type: 'view-gpx', placeId: ski.place_id, tour: ski },
       readOnlyGpxTour: { tour: ski, routeGeometry: null },
     } as Partial<TourPlannerController>);
     const { result } = renderHook(() => useGpxConversion(controller));
-    expect(result.current.available).toBe(false);
-    const { container } = render(<TourConversionSection conversion={result.current} />);
-    expect(container).toBeEmptyDOMElement();
-    expect(routing.route).not.toHaveBeenCalled();
-    expect(routing.run).not.toHaveBeenCalled();
+    expect(result.current.available).toBe(true);
+    expect(result.current.ski).toBe(true);
+    await act(async () => {
+      await result.current.analyze();
+    });
+    act(() => {
+      result.current.adopt('new');
+    });
+    // Nothing is chosen for the skier: the draft opens without a discipline, and saving waits for one.
+    expect(controller.startDerivedTour).toHaveBeenCalledWith(
+      expect.objectContaining({ tourType: 'ski', ski: { discipline: null, technique: null } })
+    );
   });
 
   it('PR1-05B: nothing is adopted before the suggestion is ready', () => {

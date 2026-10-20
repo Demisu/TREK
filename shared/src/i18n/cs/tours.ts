@@ -413,7 +413,7 @@ const tours: TranslationStrings = {
   'tours.ski.drawnFreely':
     'Každý úsek se kreslí rovně mezi vašimi body. Nic ho neporovnává se sjezdovkami, vleky ani stopami.',
   'tours.ski.chooseTechnique': 'Vyberte techniku, nebo Neznámá.',
-  'tours.ski.infoLabel': 'Co TREK dělá s lyžařskou trasou',
+  'tours.ski.infoLabel': 'Co TREK dělá s lyžařskými túrami a trasami',
   'tours.ski.info':
     'Naplánovaná túra má každý úsek nakreslený rovně mezi svými body, importovaná trasa zůstává tak, jak byla zaznamenána. Ani jedna se nevede po sjezdovkách, vlecích ani stopách. Výšky pocházejí z terénu nebo ze souboru. TREK nepočítá žádný čas na lyžích a nic tady, ani barvy sklonu ve 3D, neříká nic o obtížnosti, sněhu, lavinách ani o tom, zda jsou sjezdovky a stopy otevřené.',
   'tours.ski.time': 'Čas na lyžích',

@@ -415,7 +415,7 @@ const tours: TranslationStrings = {
   'tours.ski.drawnFreely':
     'Iga lõik joonistatakse sinu punktide vahele sirgelt. Miski ei võrdle seda nõlvade, tõstukite ega radadega.',
   'tours.ski.chooseTechnique': 'Vali tehnika või Teadmata.',
-  'tours.ski.infoLabel': 'Mida TREK suusarajaga teeb',
+  'tours.ski.infoLabel': 'Mida TREK suusamatkade ja -radadega teeb',
   'tours.ski.info':
     'Planeeritud matkal joonistatakse iga lõik punktide vahele sirgelt, imporditud rada jääb nii, nagu salvestati. Kumbagi ei marsruudita mööda nõlvu, tõstukeid ega radu. Kõrgused tulevad maastikust või failist. TREK ei arvuta suusaaega ning miski siin, ka 3D kallakuvärvid, ei ütle midagi raskuse, lume, laviinide ega nõlvade ja radade avatuse kohta.',
   'tours.ski.time': 'Suusaaeg',

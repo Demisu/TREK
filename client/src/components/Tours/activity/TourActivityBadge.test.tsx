@@ -11,7 +11,7 @@ describe('TourActivityBadge (ACT-01)', () => {
       <TourActivityBadge tour={{ activity_tracks: [{ id: 1, track_place_id: 9, assignment_id: null }] }} />
     );
     expect(screen.getByTestId('tour-activity-badge')).toHaveAttribute('aria-label', 'tours.activity.badgeHint');
-    // The done mark, never footprints, which name a snowshoe hike and a walk's moving time.
+    // The done mark, never footprints, which name a walk's moving time.
     expect(screen.getByTestId('tour-activity-badge').querySelector('svg.lucide-check-check')).not.toBeNull();
     expect(screen.getByTestId('tour-activity-badge').querySelector('svg.lucide-footprints')).toBeNull();
 

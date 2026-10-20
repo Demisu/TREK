@@ -412,7 +412,7 @@ const tours: TranslationStrings = {
   'tours.ski.drawnFreely':
     'Mỗi chặng được vẽ thẳng giữa các điểm của bạn. Không có gì đối chiếu nó với đường trượt, cáp treo hay lối mòn.',
   'tours.ski.chooseTechnique': 'Chọn kỹ thuật, hoặc Không rõ.',
-  'tours.ski.infoLabel': 'TREK làm gì với một đường trượt tuyết',
+  'tours.ski.infoLabel': 'TREK làm gì với chuyến và đường trượt tuyết',
   'tours.ski.info':
     'Chuyến đi đã lập có mỗi chặng được vẽ thẳng giữa các điểm của nó, còn vết được nhập giữ nguyên như đã ghi. Không cái nào được định tuyến theo đường trượt, cáp treo hay lối mòn. Độ cao lấy từ địa hình hoặc từ tệp. TREK không tính thời gian trượt, và không gì ở đây, kể cả màu độ dốc trong 3D, nói gì về độ khó, tuyết, tuyết lở hay việc đường trượt có mở hay không.',
   'tours.ski.time': 'Thời gian trượt',

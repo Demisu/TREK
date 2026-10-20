@@ -44,7 +44,9 @@ export function useBaseMapHealth(baseLayer: string): BaseMapHealth | undefined {
 /**
  * An overlay the planner offers, off until switched on; whether it is on is
  * the planner's (`active`, `onToggle`), so it outlasts the map. Its tile
- * health shows on the switch, and switching it off and on again tries afresh.
+ * health shows on the switch, and each time it comes on it tries afresh,
+ * whether switched on or shown by default (the pistes of a ski tour), so a
+ * source that failed earlier never opens a later tour already marked down.
  * While it is on and the map (`zoom`, on the raster tile scale) is further out
  * than its first tiles, it is marked so: nothing is drawn there, and the switch
  * says to zoom in. An unknown zoom marks nothing.
@@ -59,6 +61,10 @@ export function useTourRasterOverlay(
   const { down, onTileError, onTileLoad, reset } = useTileHealth();
   const on = active && offered;
   const belowMinZoom = on && zoom !== null && zoom < definition.minZoom;
+
+  useEffect(() => {
+    if (on) reset();
+  }, [on, reset]);
 
   const onToggle = useCallback(() => {
     reset();

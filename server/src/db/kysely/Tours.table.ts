@@ -33,8 +33,8 @@ export interface ToursTable {
   bike_profile: InsertOptional<string | null>;
   run_profile: InsertOptional<string | null>;
   run_pace_seconds_per_km: InsertOptional<number | null>;
-  ski_discipline: InsertOptional<string | null>;
   ski_technique: InsertOptional<string | null>;
   track_started_at: InsertOptional<string | null>;
   track_ended_at: InsertOptional<string | null>;
+  ski_discipline: InsertOptional<string | null>;
 }

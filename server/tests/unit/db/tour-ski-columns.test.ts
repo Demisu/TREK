@@ -1,11 +1,11 @@
 /**
  * SKI-02: `Migration20200101045520_a_tour_can_be_a_ski_track` switches the ski
- * type on, without a routing profile, and gives a tour its ski discipline (six
- * of them, snowshoeing and winter hiking among them) and cross-country
- * technique. Both columns hold a CHECK list the entity carries
+ * type on, without a routing profile, and gives a tour its ski discipline and
+ * cross-country technique. Both columns hold a CHECK list the entity carries
  * as its enum and the contract holds too: a value one side takes and the
  * other refuses would be a ski track the import accepts and the database
- * cannot store.
+ * cannot store. The discipline list is the one 046130 leaves behind, with
+ * snowshoeing and winter hiking (`tour-ski-winter-disciplines.test.ts`).
  */
 import { ToursSkiDiscipline, ToursSkiTechnique } from '../../../src/db/entities/Tours.entity';
 import { createMigrationOrm, migrateTo, pendingNames, rawExec, rawQuery } from '../../helpers/migration-step';
@@ -57,9 +57,6 @@ describe('ski columns match the contract', () => {
         orm,
         "INSERT INTO tours (place_id, tour_type, ski_discipline, ski_technique) VALUES (101, 'ski', 'cross_country', 'unknown')",
       );
-      // Snowshoeing and winter hiking are disciplines of a ski tour, never labels of a hike.
-      await rawExec(orm, "UPDATE tours SET ski_discipline = 'snowshoe', ski_technique = NULL WHERE place_id = 101");
-      await rawExec(orm, "UPDATE tours SET ski_discipline = 'winter_hike' WHERE place_id = 101");
       await expect(rawExec(orm, "UPDATE tours SET ski_discipline = 'freeride' WHERE place_id = 101")).rejects.toThrow(
         /CHECK/,
       );

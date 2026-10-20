@@ -421,7 +421,7 @@ const tours: TranslationStrings = {
   'tours.ski.drawnFreely':
     'Cada tram es dibuixa en línia recta entre els teus punts. Res no el comprova amb pistes, remuntadors o senders.',
   'tours.ski.chooseTechnique': 'Tria la tècnica, o Desconeguda.',
-  'tours.ski.infoLabel': 'Què fa TREK amb una traça d’esquí',
+  'tours.ski.infoLabel': 'Què fa TREK amb les rutes i traces d’esquí',
   'tours.ski.info':
     'Una ruta planificada té cada tram dibuixat en línia recta entre els seus punts, i una traça importada es manté tal com es va gravar. Cap de les dues no s’enruta per pistes, remuntadors o senders. Les altituds vénen del terreny o del fitxer. TREK no calcula cap temps d’esquí, i res d’aquí, ni els colors de pendent en 3D, diu res de dificultat, neu, allaus o si les pistes estan obertes.',
   'tours.ski.time': 'Temps d’esquí',

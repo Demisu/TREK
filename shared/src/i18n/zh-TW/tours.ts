@@ -378,7 +378,7 @@ const tours: TranslationStrings = {
   'tours.ski.chooseDisciplineToSave': '請選擇項目以儲存路線。',
   'tours.ski.drawnFreely': '每段都在你的點之間以直線繪製，不會與雪道、纜車或步道進行核對。',
   'tours.ski.chooseTechnique': '請選擇技術，或選擇未知。',
-  'tours.ski.infoLabel': 'TREK 如何處理滑雪軌跡',
+  'tours.ski.infoLabel': 'TREK 如何處理滑雪路線與軌跡',
   'tours.ski.info':
     '規劃的路線中每段都在其點之間以直線繪製，匯入的軌跡保持記錄原樣。兩者都不會沿雪道、纜車或步道規劃路線。海拔來自地形或檔案。TREK 不計算滑雪時間，這裡的任何內容，包括 3D 中的坡度顏色，都不代表難度、積雪、雪崩或雪道是否開放。',
   'tours.ski.time': '滑雪時間',

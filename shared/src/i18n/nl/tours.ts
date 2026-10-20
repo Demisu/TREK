@@ -422,7 +422,7 @@ const tours: TranslationStrings = {
   'tours.ski.drawnFreely':
     'Elk deel wordt recht tussen je punten getekend. Niets toetst het aan pistes, liften of paden.',
   'tours.ski.chooseTechnique': 'Kies de techniek, of Onbekend.',
-  'tours.ski.infoLabel': 'Wat TREK met een skispoor doet',
+  'tours.ski.infoLabel': 'Wat TREK met skitochten en skisporen doet',
   'tours.ski.info':
     'Bij een geplande tocht is elk deel recht tussen de punten getekend, een geïmporteerd spoor blijft zoals opgenomen. Geen van beide wordt over pistes, liften of paden gerouteerd. Hoogtes komen uit het terrein of het bestand. TREK berekent geen skitijd, en niets hier, ook de hellingkleuren in 3D niet, zegt iets over moeilijkheid, sneeuw, lawines of of pistes en loipes open zijn.',
   'tours.ski.time': 'Skitijd',

@@ -5,7 +5,7 @@ import { isTourRoute } from '../planner/tourRouteOutcome';
 import { routeBikeTour, routeRun, routeWalkingTour } from '../planner/tourRouting';
 import { paddleFieldsOf } from '../planner/usePaddleFields';
 import type { TourPlannerController } from '../planner/useTourPlanner';
-import { skiChoiceMissing, skiChoiceOf } from '../ski/skiChoice';
+import { skiChoiceOf } from '../ski/skiChoice';
 import { compareRoutes, deriveControlPoints, type RouteComparison, type TrackPoint } from './gpxConversion';
 
 /** The grade a planned version routes with when the import carries none: the paths a T3 walk may take. */
@@ -132,12 +132,12 @@ export function useGpxConversion(planner: TourPlannerController) {
       ...current,
       /**
        * The import shown can be planned from: it has a track and the user may add tours. A ski
-       * track (SKI-02) once it names its discipline, planned as a ski tour with its legs drawn.
+       * track (SKI-02) is planned as a ski tour with its legs drawn; one saved before it named a
+       * discipline is offered too, and the planner asks for the discipline before it saves.
        * A ride (HOR-01) never: no router plans one, and walking it again on foot would be no ride.
        */
       available:
         tour !== null &&
-        (ski === null || skiChoiceMissing(ski) === null) &&
         tour.tour_type !== 'horse' &&
         (track?.length ?? 0) >= 2 &&
         planner.canEdit,

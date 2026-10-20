@@ -420,7 +420,7 @@ const tours: TranslationStrings = {
   'tours.ski.drawnFreely':
     'Minden szakaszt egyenesen rajzolunk a pontjaid közé. Semmi sem veti össze pályákkal, felvonókkal vagy nyomvonalakkal.',
   'tours.ski.chooseTechnique': 'Válaszd ki a technikát, vagy az Ismeretlent.',
-  'tours.ski.infoLabel': 'Mit kezd a TREK egy sínyomvonallal',
+  'tours.ski.infoLabel': 'Mit kezd a TREK a sí- és téli túrákkal és a sínyomvonalakkal',
   'tours.ski.info':
     'Egy tervezett túra minden szakasza egyenesen fut a pontjai között, egy importált nyomvonal pedig úgy marad, ahogy rögzítették. Egyiket sem vezetjük pályákon, felvonókon vagy nyomvonalakon. A magasságok a terepből vagy a fájlból származnak. A TREK nem számol síidőt, és semmi itt, a 3D lejtőszínei sem, nem mond semmit a nehézségről, a hóról, a lavinákról vagy arról, hogy nyitva vannak-e a pályák.',
   'tours.ski.time': 'Síidő',
@@ -817,7 +817,7 @@ const tours: TranslationStrings = {
   'tours.conversion.introPaddle':
     'Az import egy rögzített nyomvonal. Tervezz belőle szerkeszthető evezős túrát: a TREK kontrollpontokat vesz ki belőle, egyenes vonalakkal köti össze őket, ahogy az evezős túrát rajzolod, és megmutatja, mennyire közelíti meg. Semmi sem változik, amíg nem döntesz.',
   'tours.conversion.introSki':
-    'Az import egy rögzített nyomvonal. Tervezz belőle szerkeszthető sítúrát: a TREK kontrollpontokat vesz ki belőle, egyenes vonalakkal köti össze őket, ahogy a sítúrát rajzolod, és megmutatja, mennyire közelíti meg. Semmi sem változik, amíg nem döntesz.',
+    'Az import egy rögzített nyomvonal. Tervezz belőle szerkeszthető sí- és téli túrát: a TREK kontrollpontokat vesz ki belőle, egyenes vonalakkal köti össze őket, ahogy a sí- és téli túrát rajzolod, és megmutatja, mennyire közelíti meg. Semmi sem változik, amíg nem döntesz.',
   'tours.conversion.closePaddle':
     'A javaslat szorosan követi a nyomvonalat. Pontjait egyenes vonalak kötik össze, így nem ugyanaz a vonal.',
   'tours.planner.moreActions': 'További műveletek',
@@ -1137,7 +1137,7 @@ const tours: TranslationStrings = {
   'tourTypes.horse': 'Lovastúra',
   'tours.planner.tourTypeHint.horse': 'Lóháton, jelzett lovas útvonalakon',
   'tours.planner.namePlaceholder.horse': 'Névtelen lovastúra',
-  'tours.planner.namePlaceholder.ski': 'Névtelen sítúra',
+  'tours.planner.namePlaceholder.ski': 'Névtelen sí- és téli túra',
   'tours.horse.time': 'Lovaglási idő',
   'tours.horse.timeInfoLabel': 'Miért nincs lovaglási idő',
   'tours.horse.timeInfo':

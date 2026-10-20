@@ -67,6 +67,23 @@ describe('useTourRasterOverlay', () => {
     expect(result.current.status).toBe('on');
   });
 
+  it('tries afresh each time it comes on without its switch, as the pistes of a ski tour do', () => {
+    const toggle = vi.fn();
+    const { result, rerender } = renderHook(({ active }) => useTourRasterOverlay(SEAMARKS, true, active, toggle), {
+      initialProps: { active: true },
+    });
+    act(() => {
+      for (let i = 0; i < 4; i++) result.current.onTileError();
+    });
+    expect(result.current.status).toBe('down');
+    // The tour closes, a later one shows the overlay by default: it opens on, not down.
+    rerender({ active: false });
+    expect(result.current.status).toBe('off');
+    rerender({ active: true });
+    expect(result.current.status).toBe('on');
+    expect(toggle).not.toHaveBeenCalled();
+  });
+
   it('marks an overlay that is on while the map is further out than its first tiles, and nothing at an unknown zoom', () => {
     const { result, rerender } = renderHook(
       ({ active, zoom }: { active: boolean; zoom: number | null }) =>

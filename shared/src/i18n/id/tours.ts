@@ -415,7 +415,7 @@ const tours: TranslationStrings = {
   'tours.ski.drawnFreely':
     'Setiap ruas digambar lurus di antara titik-titikmu. Tidak ada yang memeriksanya terhadap lintasan, lift, atau jalur.',
   'tours.ski.chooseTechnique': 'Pilih teknik, atau Tidak diketahui.',
-  'tours.ski.infoLabel': 'Apa yang TREK lakukan dengan jalur ski',
+  'tours.ski.infoLabel': 'Apa yang TREK lakukan dengan tur dan jalur ski',
   'tours.ski.info':
     'Tur yang direncanakan menggambar setiap ruas lurus di antara titik-titiknya, jalur yang diimpor tetap seperti yang direkam. Keduanya tidak dirutekan lewat lintasan, lift, atau jalur. Ketinggian berasal dari medan atau berkas. TREK tidak menghitung waktu ski, dan tidak ada apa pun di sini, termasuk warna kemiringan dalam 3D, yang mengatakan sesuatu tentang kesulitan, salju, longsoran, atau apakah lintasan sedang dibuka.',
   'tours.ski.time': 'Waktu ski',
@@ -801,7 +801,7 @@ const tours: TranslationStrings = {
   'tours.conversion.introPaddle':
     'Impor adalah jejak yang direkam. Rencanakan tur dayung yang bisa diedit: TREK mengambil titik kontrol darinya, menghubungkannya dengan garis lurus seperti tur dayung digambar, dan menunjukkan seberapa dekat hasilnya. Tidak ada yang berubah sampai kamu memilih.',
   'tours.conversion.introSki':
-    'Impor adalah jejak yang direkam. Rencanakan tur ski yang bisa diedit: TREK mengambil titik kontrol darinya, menghubungkannya dengan garis lurus seperti tur ski digambar, dan menunjukkan seberapa dekat hasilnya. Tidak ada yang berubah sampai kamu memilih.',
+    'Impor adalah jejak yang direkam. Rencanakan tur ski dan musim dingin yang bisa diedit: TREK mengambil titik kontrol darinya, menghubungkannya dengan garis lurus seperti tur ski dan musim dingin digambar, dan menunjukkan seberapa dekat hasilnya. Tidak ada yang berubah sampai kamu memilih.',
   'tours.conversion.closePaddle':
     'Usulan mengikuti jejak dengan dekat. Titik-titiknya dihubungkan garis lurus, jadi bukan garis yang sama.',
   'tours.planner.moreActions': 'Tindakan lainnya',
@@ -1114,7 +1114,7 @@ const tours: TranslationStrings = {
   'tourTypes.horse': 'Tur berkuda',
   'tours.planner.tourTypeHint.horse': 'Menunggang kuda, menyusuri rute berkuda bertanda',
   'tours.planner.namePlaceholder.horse': 'Tur berkuda tanpa judul',
-  'tours.planner.namePlaceholder.ski': 'Tur ski tanpa judul',
+  'tours.planner.namePlaceholder.ski': 'Tur ski dan musim dingin tanpa judul',
   'tours.horse.time': 'Waktu berkuda',
   'tours.horse.timeInfoLabel': 'Mengapa tidak ada waktu berkuda',
   'tours.horse.timeInfo':

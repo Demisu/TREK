@@ -420,7 +420,7 @@ const tours: TranslationStrings = {
   'tours.ski.drawnFreely':
     'Cada trecho é desenhado em linha reta entre seus pontos. Nada o confere com pistas, teleféricos ou trilhas.',
   'tours.ski.chooseTechnique': 'Escolha a técnica, ou Desconhecida.',
-  'tours.ski.infoLabel': 'O que o TREK faz com uma trilha de esqui',
+  'tours.ski.infoLabel': 'O que o TREK faz com passeios e trilhas de esqui',
   'tours.ski.info':
     'Um passeio planejado tem cada trecho desenhado em linha reta entre seus pontos, e uma trilha importada fica como foi gravada. Nenhum dos dois é roteado por pistas, teleféricos ou trilhas. As altitudes vêm do terreno ou do arquivo. O TREK não calcula tempo de esqui, e nada aqui, nem as cores de inclinação em 3D, diz algo sobre dificuldade, neve, avalanches ou se pistas e trilhas estão abertas.',
   'tours.ski.time': 'Tempo de esqui',

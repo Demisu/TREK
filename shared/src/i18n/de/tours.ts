@@ -423,7 +423,7 @@ const tours: TranslationStrings = {
   'tours.ski.drawnFreely':
     'Jeder Abschnitt wird gerade zwischen deinen Punkten gezeichnet. Nichts gleicht ihn mit Pisten, Liften oder Loipen ab.',
   'tours.ski.chooseTechnique': 'Wähle die Technik oder Unbekannt.',
-  'tours.ski.infoLabel': 'Was TREK mit einer Skistrecke macht',
+  'tours.ski.infoLabel': 'Was TREK mit Wintertouren und Skistrecken macht',
   'tours.ski.info':
     'Bei einer geplanten Tour ist jeder Abschnitt gerade zwischen ihren Punkten gezeichnet, eine importierte Strecke bleibt wie aufgezeichnet. Keine von beiden wird über Pisten, Lifte oder Loipen geroutet. Die Höhen stammen aus dem Gelände oder aus der Datei. TREK berechnet keine Skizeit, und nichts hier, auch nicht die Steigungsfarben in 3D, sagt etwas über Schwierigkeit, Schnee, Lawinen oder geöffnete Pisten und Loipen.',
   'tours.ski.time': 'Skizeit',
@@ -822,7 +822,7 @@ const tours: TranslationStrings = {
   'tours.conversion.introPaddle':
     'Ein Import ist eine aufgezeichnete Strecke. Plane eine bearbeitbare Paddeltour: TREK nimmt Kontrollpunkte daraus, verbindet sie mit geraden Linien, wie eine Paddeltour gezeichnet wird, und zeigt, wie nah das herankommt. Nichts ändert sich, bis du dich entscheidest.',
   'tours.conversion.introSki':
-    'Ein Import ist eine aufgezeichnete Strecke. Plane eine bearbeitbare Skitour: TREK nimmt Kontrollpunkte daraus, verbindet sie mit geraden Linien, wie eine Skitour gezeichnet wird, und zeigt, wie nah das herankommt. Nichts ändert sich, bis du dich entscheidest.',
+    'Ein Import ist eine aufgezeichnete Strecke. Plane eine bearbeitbare Ski- und Wintertour: TREK nimmt Kontrollpunkte daraus, verbindet sie mit geraden Linien, wie eine Ski- und Wintertour gezeichnet wird, und zeigt, wie nah das herankommt. Nichts ändert sich, bis du dich entscheidest.',
   'tours.conversion.closePaddle':
     'Der Vorschlag folgt der Strecke eng. Seine Punkte sind mit geraden Linien verbunden, daher ist es nicht dieselbe Linie.',
   'tours.planner.moreActions': 'Weitere Aktionen',
@@ -1146,7 +1146,7 @@ const tours: TranslationStrings = {
   'tourTypes.horse': 'Ausritt',
   'tours.planner.tourTypeHint.horse': 'Zu Pferd, auf ausgeschilderten Reitrouten',
   'tours.planner.namePlaceholder.horse': 'Unbenannter Ausritt',
-  'tours.planner.namePlaceholder.ski': 'Unbenannte Skitour',
+  'tours.planner.namePlaceholder.ski': 'Unbenannte Wintertour',
   'tours.horse.time': 'Reitzeit',
   'tours.horse.timeInfoLabel': 'Warum es keine Reitzeit gibt',
   'tours.horse.timeInfo':

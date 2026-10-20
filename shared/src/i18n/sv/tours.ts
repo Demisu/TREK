@@ -412,7 +412,7 @@ const tours: TranslationStrings = {
   'tours.ski.drawnFreely':
     'Varje etapp ritas rakt mellan dina punkter. Inget stämmer av den mot backar, liftar eller leder.',
   'tours.ski.chooseTechnique': 'Välj teknik, eller Okänd.',
-  'tours.ski.infoLabel': 'Vad TREK gör med ett skidspår',
+  'tours.ski.infoLabel': 'Vad TREK gör med skidturer och skidspår',
   'tours.ski.info':
     'En planerad tur har varje etapp ritad rakt mellan sina punkter, ett importerat spår behålls som det spelades in. Inget av dem ruttplaneras längs backar, liftar eller leder. Höjderna kommer från terrängen eller filen. TREK räknar inte ut någon skidtid, och inget här, inte heller lutningsfärgerna i 3D, säger något om svårighet, snö, laviner eller om backar och spår är öppna.',
   'tours.ski.time': 'Skidtid',

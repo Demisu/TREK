@@ -429,7 +429,7 @@ const tours: TranslationStrings = {
   'tours.ski.drawnFreely':
     'Każdy odcinek jest rysowany prosto między twoimi punktami. Nic nie sprawdza go względem tras, wyciągów ani szlaków.',
   'tours.ski.chooseTechnique': 'Wybierz technikę lub Nieznana.',
-  'tours.ski.infoLabel': 'Co TREK robi ze śladem narciarskim',
+  'tours.ski.infoLabel': 'Co TREK robi z wycieczkami i śladami narciarskimi',
   'tours.ski.info':
     'Zaplanowana trasa ma każdy odcinek narysowany prosto między swoimi punktami, a zaimportowany ślad pozostaje taki, jak został nagrany. Żaden nie jest wyznaczany po trasach, wyciągach ani szlakach. Wysokości pochodzą z terenu lub z pliku. TREK nie wylicza czasu na nartach i nic tutaj, także kolory nachylenia w 3D, nie mówi nic o trudności, śniegu, lawinach ani o tym, czy trasy są otwarte.',
   'tours.ski.time': 'Czas na nartach',
