@@ -20,6 +20,8 @@ describe('tour POI search contracts (PLN-02)', () => {
     expect(TOUR_POI_CATEGORIES_BY_TYPE.hike).toContain('viewpoint');
     expect(TOUR_POI_CATEGORIES_BY_TYPE.kayak).toContain('slipway');
     expect(TOUR_POI_CATEGORIES_BY_TYPE.hike).not.toContain('slipway');
+    expect(TOUR_POI_CATEGORIES_BY_TYPE.ski).toContain('shelter');
+    expect(TOUR_POI_CATEGORIES_BY_TYPE.ski).not.toContain('slipway');
     for (const type of Object.values(TOUR_POI_CATEGORIES_BY_TYPE))
       for (const category of type) expect(TOUR_POI_CATEGORIES).toContain(category);
   });

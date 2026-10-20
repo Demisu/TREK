@@ -11,9 +11,9 @@ import {
 } from './skiDiscipline';
 
 /**
- * SKI-02: a ski track's discipline on the corner of its round tile, a frosted
- * badge carrying the discipline's icon, the way a hike carries its winter
- * label there. Its tooltip names the discipline and a cross-country technique.
+ * SKI-02: a ski tour's discipline on the corner of its round tile, a frosted
+ * badge carrying the discipline's own icon. Its tooltip names the discipline
+ * and a cross-country technique.
  */
 export function SkiCornerMark({ tour, size = 15 }: { tour: SkiTour; size?: number }) {
   const { t } = useTranslation();
@@ -24,7 +24,7 @@ export function SkiCornerMark({ tour, size = 15 }: { tour: SkiTour; size?: numbe
 }
 
 /**
- * SKI-02: a ski track's discipline as a pill of a tour's head, beside its
+ * SKI-02: a ski tour's discipline as a pill of a tour's head, beside its
  * type, a cross-country technique as a badge inside it. The tooltip says what
  * TREK does with the track and what it does not say.
  */

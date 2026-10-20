@@ -13,13 +13,14 @@ import type { TourBaseLayer } from '../Map/MapLayerSwitcher';
  * layer (RC-10), OpenSeaMap's seamarks (PAD-10) and OpenSnowMap's pistes (SKI-01).
  *
  * - Hike: the standard map first, as before; topo, OpenHikingMap (MAP-01, while the admin
- *   allows it) and satellite beside it; via ferratas, and the pistes for winter hiking (SKI-01).
+ *   allows it) and satellite beside it; via ferratas. A hike is summer only: winter hiking and
+ *   snowshoeing are ski tours, so the pistes are not offered here.
  * - Bike (BIK-01): the standard map, topo for the climbs, CyclOSM (BIK-06, while the admin
  *   allows it) and satellite. No ferratas, a bike tour climbs none.
  * - Run (RUN-01): the standard map, topo for the climbs and satellite. No ferratas, a run
  *   takes none.
  * - Ski (SKI-02): the standard map, topo for the slopes and satellite. No ferratas. The
- *   pistes as an overlay (SKI-01).
+ *   pistes as an overlay (SKI-01), the only type that offers them, shown until switched off.
  * - Paddle: the standard map, whose water reads clearly, and satellite. No topo and
  *   no ferratas, those are hiking maps. Seamarks as an overlay.
  * - Horse (HOR-01): the standard map, topo for the lie of the land and satellite for
@@ -43,7 +44,7 @@ export interface TourMapLayerSet {
 const HIKE: TourMapLayerSet = {
   bases: ['default', 'topo', 'satellite'],
   defaultBase: 'default',
-  overlays: ['ferratas', 'pistes'],
+  overlays: ['ferratas'],
 };
 const HIKE_WITH_HIKING_MAP: TourMapLayerSet = { ...HIKE, bases: ['default', 'topo', 'hiking', 'satellite'] };
 const BIKE: TourMapLayerSet = { bases: ['default', 'topo', 'satellite'], defaultBase: 'default', overlays: [] };

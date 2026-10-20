@@ -205,7 +205,7 @@ const tours: TranslationStrings = {
   'tourTypes.hike': 'Trilha',
   'tourTypes.bike': 'Passeio de bicicleta',
   'tourTypes.run': 'Corrida',
-  'tourTypes.ski': 'Esqui',
+  'tourTypes.ski': 'Esqui e inverno',
   'tourTypes.kayak': 'Passeio de remo',
   'tourTypes.walk': 'Caminhada urbana / turística',
   'tourTypes.food': 'Passeio gastronômico / enológico',
@@ -402,33 +402,32 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'A pé, dentro de uma dificuldade que você define',
   'tours.planner.tourTypeHint.bike': 'De bicicleta, com rota para cicloturismo, estrada, gravel ou MTB',
   'tours.planner.tourTypeHint.kayak': 'Na água, de caiaque, canoa ou SUP',
-  'tours.winter.title': 'Atividade de inverno',
-  'tours.winter.infoLabel': 'O que a marcação de inverno faz',
-  'tours.winter.info':
-    'Apenas uma marcação da caminhada. A rota, as cores de inclinação e o tempo de caminhada continuam como em qualquer caminhada e não dizem nada sobre neve, avalanches ou se um caminho pode ser percorrido no inverno.',
-  'tours.winter.kind': 'Tipo de atividade de inverno',
-  'tours.winter.activity.winter_hike': 'Caminhada de inverno',
-  'tours.winter.activity.snowshoe': 'Caminhada com raquetes de neve',
-  'tours.winter.labelOnly':
-    'Marcado pelos viajantes. Rota e tempo são planejados como em qualquer caminhada, sem verificação para o inverno.',
-  'tours.planner.tourTypeHint.ski': 'De um arquivo GPX, como foi gravado',
+  'tours.planner.tourTypeHint.ski': 'Esqui, snowboard, raquetes de neve, caminhadas de inverno',
   'tours.ski.title': 'Trilha de esqui',
   'tours.ski.discipline': 'Modalidade',
   'tours.ski.discipline.alpine': 'Alpino',
   'tours.ski.discipline.snowboard': 'Snowboard', // same-as-en
   'tours.ski.discipline.cross_country': 'Esqui cross-country',
   'tours.ski.discipline.touring': 'Esqui de travessia',
+  'tours.ski.discipline.snowshoe': 'Raquetes de neve',
+  'tours.ski.discipline.winter_hike': 'Caminhada de inverno',
   'tours.ski.technique': 'Técnica',
   'tours.ski.technique.classic': 'Clássica',
   'tours.ski.technique.skating': 'Skating', // same-as-en
   'tours.ski.technique.unknown': 'Desconhecida',
   'tours.ski.chooseDiscipline': 'Escolha uma modalidade para importar a trilha como esqui.',
+  'tours.ski.chooseDisciplineToSave': 'Escolha uma modalidade para salvar o passeio.',
+  'tours.ski.drawnFreely':
+    'Cada trecho é desenhado em linha reta entre seus pontos. Nada o confere com pistas, teleféricos ou trilhas.',
   'tours.ski.chooseTechnique': 'Escolha a técnica, ou Desconhecida.',
   'tours.ski.infoLabel': 'O que o TREK faz com uma trilha de esqui',
   'tours.ski.info':
-    'Fica como foi gravada e nunca é roteada. Distância e altitudes vêm do arquivo. O TREK não calcula tempo de esqui, e nem a trilha nem as cores de inclinação em 3D dizem algo sobre dificuldade, neve, avalanches ou se pistas e trilhas estão abertas.',
+    'Um passeio planejado tem cada trecho desenhado em linha reta entre seus pontos, e uma trilha importada fica como foi gravada. Nenhum dos dois é roteado por pistas, teleféricos ou trilhas. As altitudes vêm do terreno ou do arquivo. O TREK não calcula tempo de esqui, e nada aqui, nem as cores de inclinação em 3D, diz algo sobre dificuldade, neve, avalanches ou se pistas e trilhas estão abertas.',
   'tours.ski.time': 'Tempo de esqui',
   'tours.ski.timeUnknown': 'Não calculado',
+  'tours.ski.timeInfoLabel': 'Por que não há tempo de esqui',
+  'tours.ski.timeInfo':
+    'O TREK não calcula tempo de esqui: os trechos são desenhados em linha reta, não planejados por pistas, teleféricos ou trilhas. Se quiser, informe você mesmo um total planejado.',
   'tours.ski.classifyTitle': 'Classificar trilha de esqui',
   'tours.ski.saved': 'Classificação salva',
   'tours.ski.saveFailed': 'Não foi possível salvar a classificação.',
@@ -813,6 +812,8 @@ const tours: TranslationStrings = {
   'tours.import.previewConfirm.one': 'Importar {count} passeio',
   'tours.conversion.introPaddle':
     'Uma importação é uma trilha gravada. Planeje um passeio de remo editável: o TREK tira pontos de controle dela, liga-os com linhas retas como se desenha um passeio de remo e mostra o quanto chega perto. Nada muda até você escolher.',
+  'tours.conversion.introSki':
+    'Uma importação é uma trilha gravada. Planeje um passeio de esqui editável: o TREK tira pontos de controle dela, liga-os com linhas retas como se desenha um passeio de esqui e mostra o quanto chega perto. Nada muda até você escolher.',
   'tours.conversion.closePaddle':
     'A sugestão segue a trilha de perto. Os pontos são ligados por linhas retas, então não é a mesma linha.',
   'tours.planner.moreActions': 'Mais ações',
@@ -1133,6 +1134,7 @@ const tours: TranslationStrings = {
   'tourTypes.horse': 'Passeio a cavalo',
   'tours.planner.tourTypeHint.horse': 'A cavalo, por rotas equestres sinalizadas',
   'tours.planner.namePlaceholder.horse': 'Passeio a cavalo sem título',
+  'tours.planner.namePlaceholder.ski': 'Passeio de esqui sem título',
   'tours.horse.time': 'Tempo a cavalo',
   'tours.horse.timeInfoLabel': 'Por que não há tempo a cavalo',
   'tours.horse.timeInfo':

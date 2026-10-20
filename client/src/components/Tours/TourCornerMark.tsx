@@ -3,7 +3,7 @@ import { Tooltip } from '../shared/Tooltip';
 
 /**
  * A frosted badge on the top corner of a tour's round tile, carrying one
- * icon: a hike's winter label (HIK-01), a ski track's discipline (SKI-02).
+ * icon: a ski tour's discipline (SKI-02).
  * Its tooltip and accessible name say what the icon stands for.
  */
 export function TourCornerMark({

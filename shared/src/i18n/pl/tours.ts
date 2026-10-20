@@ -212,7 +212,7 @@ const tours: TranslationStrings = {
   'tourTypes.hike': 'Wędrówka piesza',
   'tourTypes.bike': 'Wycieczka rowerowa',
   'tourTypes.run': 'Bieg',
-  'tourTypes.ski': 'Narty',
+  'tourTypes.ski': 'Narty i zima',
   'tourTypes.kayak': 'Spływ',
   'tourTypes.walk': 'Spacer po mieście / zwiedzanie',
   'tourTypes.food': 'Wycieczka kulinarna / winiarska',
@@ -411,33 +411,32 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Pieszo, w granicach wybranej trudności',
   'tours.planner.tourTypeHint.bike': 'Na rowerze, trasa dla turystyki, szosy, gravela lub MTB',
   'tours.planner.tourTypeHint.kayak': 'Na wodzie, kajakiem, kanadyjką lub SUP-em',
-  'tours.winter.title': 'Aktywność zimowa',
-  'tours.winter.infoLabel': 'Co daje oznaczenie zimowe',
-  'tours.winter.info':
-    'Tylko oznaczenie wędrówki. Trasa, kolory nachylenia i czas marszu pozostają jak przy każdej wędrówce i nic nie mówią o śniegu, lawinach ani o tym, czy ścieżka jest zimą do przejścia.',
-  'tours.winter.kind': 'Rodzaj aktywności zimowej',
-  'tours.winter.activity.winter_hike': 'Wędrówka zimowa',
-  'tours.winter.activity.snowshoe': 'Wędrówka na rakietach śnieżnych',
-  'tours.winter.labelOnly':
-    'Oznaczone przez podróżnych. Trasa i czas są planowane jak przy każdej wędrówce, bez sprawdzania pod kątem zimy.',
-  'tours.planner.tourTypeHint.ski': 'Z pliku GPX, tak jak został nagrany',
+  'tours.planner.tourTypeHint.ski': 'Narty, snowboard, rakiety śnieżne, zimowe wędrówki',
   'tours.ski.title': 'Ślad narciarski',
   'tours.ski.discipline': 'Dyscyplina',
   'tours.ski.discipline.alpine': 'Zjazdowe',
   'tours.ski.discipline.snowboard': 'Snowboard', // same-as-en
   'tours.ski.discipline.cross_country': 'Biegowe',
   'tours.ski.discipline.touring': 'Skitury',
+  'tours.ski.discipline.snowshoe': 'Rakiety śnieżne',
+  'tours.ski.discipline.winter_hike': 'Wędrówka zimowa',
   'tours.ski.technique': 'Technika',
   'tours.ski.technique.classic': 'Klasyczna',
   'tours.ski.technique.skating': 'Łyżwowa',
   'tours.ski.technique.unknown': 'Nieznana',
   'tours.ski.chooseDiscipline': 'Wybierz dyscyplinę, aby zaimportować ślad jako narty.',
+  'tours.ski.chooseDisciplineToSave': 'Wybierz dyscyplinę, aby zapisać trasę.',
+  'tours.ski.drawnFreely':
+    'Każdy odcinek jest rysowany prosto między twoimi punktami. Nic nie sprawdza go względem tras, wyciągów ani szlaków.',
   'tours.ski.chooseTechnique': 'Wybierz technikę lub Nieznana.',
   'tours.ski.infoLabel': 'Co TREK robi ze śladem narciarskim',
   'tours.ski.info':
-    'Pozostaje taki, jak został nagrany, i nigdy nie jest wyznaczany na nowo. Dystans i wysokości pochodzą z pliku. TREK nie wylicza czasu na nartach, a ani ślad, ani kolory nachylenia w 3D nie mówią nic o trudności, śniegu, lawinach ani o tym, czy trasy są otwarte.',
+    'Zaplanowana trasa ma każdy odcinek narysowany prosto między swoimi punktami, a zaimportowany ślad pozostaje taki, jak został nagrany. Żaden nie jest wyznaczany po trasach, wyciągach ani szlakach. Wysokości pochodzą z terenu lub z pliku. TREK nie wylicza czasu na nartach i nic tutaj, także kolory nachylenia w 3D, nie mówi nic o trudności, śniegu, lawinach ani o tym, czy trasy są otwarte.',
   'tours.ski.time': 'Czas na nartach',
   'tours.ski.timeUnknown': 'Nie wyliczono',
+  'tours.ski.timeInfoLabel': 'Dlaczego nie ma czasu na nartach',
+  'tours.ski.timeInfo':
+    'TREK nie wylicza czasu na nartach: odcinki są narysowane prosto, a nie zaplanowane po trasach, wyciągach czy szlakach. Jeśli chcesz, wpisz sam planowany czas łączny.',
   'tours.ski.classifyTitle': 'Sklasyfikuj ślad narciarski',
   'tours.ski.saved': 'Klasyfikację zapisano',
   'tours.ski.saveFailed': 'Nie udało się zapisać klasyfikacji.',
@@ -838,6 +837,8 @@ const tours: TranslationStrings = {
   'tours.import.previewConfirm.many': 'Importuj {count} wycieczek',
   'tours.conversion.introPaddle':
     'Import to nagrany ślad. Zaplanuj edytowalny spływ: TREK pobiera z niego punkty kontrolne, łączy je prostymi liniami, tak jak rysuje się spływ, i pokazuje, jak blisko to wypada. Nic się nie zmienia, dopóki nie wybierzesz.',
+  'tours.conversion.introSki':
+    'Import to nagrany ślad. Zaplanuj edytowalną wycieczkę narciarską: TREK pobiera z niego punkty kontrolne, łączy je prostymi liniami, tak jak rysuje się wycieczkę narciarską, i pokazuje, jak blisko to wypada. Nic się nie zmienia, dopóki nie wybierzesz.',
   'tours.conversion.closePaddle':
     'Propozycja ściśle trzyma się śladu. Jej punkty łączą proste linie, więc to nie jest ta sama linia.',
   'tours.planner.moreActions': 'Więcej działań',
@@ -1168,6 +1169,7 @@ const tours: TranslationStrings = {
   'tourTypes.horse': 'Przejażdżka konna',
   'tours.planner.tourTypeHint.horse': 'Konno, oznakowanymi szlakami konnymi',
   'tours.planner.namePlaceholder.horse': 'Przejażdżka bez nazwy',
+  'tours.planner.namePlaceholder.ski': 'Wycieczka narciarska bez nazwy',
   'tours.horse.time': 'Czas jazdy',
   'tours.horse.timeInfoLabel': 'Dlaczego nie ma czasu jazdy',
   'tours.horse.timeInfo':

@@ -9,15 +9,15 @@ import {
 
 import { describe, expect, it } from 'vitest';
 
-describe('ski tracks (SKI-02)', () => {
-  it('SKI-SCHEMA-001: knows four disciplines and three cross-country techniques, unknown among them on purpose', () => {
-    expect(SKI_DISCIPLINES).toEqual(['alpine', 'snowboard', 'cross_country', 'touring']);
+describe('ski and winter tours (SKI-02)', () => {
+  it('SKI-SCHEMA-001: knows six disciplines and three cross-country techniques, unknown among them on purpose', () => {
+    expect(SKI_DISCIPLINES).toEqual(['alpine', 'snowboard', 'cross_country', 'touring', 'snowshoe', 'winter_hike']);
     expect(SKI_TECHNIQUES).toEqual(['classic', 'skating', 'unknown']);
   });
 
-  it('SKI-SCHEMA-002: ski is a type a track can be imported as, never one the planner plans', () => {
-    expect(importableTourTypeSchema.options).toEqual([...plannableTourTypeSchema.options, 'ski']);
-    expect(plannableTourTypeSchema.safeParse('ski').success).toBe(false);
+  it('SKI-SCHEMA-002: ski is a type the planner plans and a track can be imported as, never without its discipline', () => {
+    expect(plannableTourTypeSchema.options).toContain('ski');
+    expect([...importableTourTypeSchema.options].sort()).toEqual([...plannableTourTypeSchema.options].sort());
     const planned = {
       name: 'Valley run',
       tour_type: 'ski',
@@ -30,16 +30,21 @@ describe('ski tracks (SKI-02)', () => {
         { lat: 47.01, lng: 11.01, role: 'end', sequence: 1 },
       ],
     };
-    expect(tourCreateRequestSchema.safeParse(planned).success).toBe(false);
+    expect(() => tourCreateRequestSchema.parse(planned)).toThrow(/a ski tour needs a discipline/);
+    expect(tourCreateRequestSchema.parse({ ...planned, ski_discipline: 'snowshoe' })).toMatchObject({
+      tour_type: 'ski',
+      ski_discipline: 'snowshoe',
+      max_hiking_difficulty: null,
+    });
   });
 
   it('SKI-SCHEMA-003: a ski track names its discipline, a cross-country one its technique, and nothing else may', () => {
     expect(skiIssues(true, { ski_discipline: 'alpine' })).toEqual([]);
     expect(skiIssues(true, { ski_discipline: 'cross_country', ski_technique: 'unknown' })).toEqual([]);
-    expect(skiIssues(true, {})).toEqual([{ path: ['ski_discipline'], message: 'a ski track needs a discipline' }]);
+    expect(skiIssues(true, {})).toEqual([{ path: ['ski_discipline'], message: 'a ski tour needs a discipline' }]);
     expect(skiIssues(true, { ski_discipline: 'cross_country' })[0]?.path).toEqual(['ski_technique']);
     expect(skiIssues(true, { ski_discipline: 'touring', ski_technique: 'skating' })[0]?.message).toMatch(
-      /only a cross-country track/,
+      /only a cross-country tour/,
     );
     expect(skiIssues(false, { ski_discipline: 'alpine', ski_technique: 'classic' }).map((i) => i.path)).toEqual([
       ['ski_discipline'],
@@ -110,5 +115,72 @@ describe('ski tracks (SKI-02)', () => {
     });
     expect(tourListItemSchema.parse(listed).ski_discipline).toBeUndefined();
     expect(tourListItemSchema.safeParse({ ...listed, ski_discipline: 'freeride' }).success).toBe(false);
+  });
+
+  describe('a planned ski tour (SKI-02)', () => {
+    const point = (lat: number, lng: number, role: 'start' | 'via' | 'end', sequence: number) => ({
+      lat,
+      lng,
+      role,
+      sequence,
+    });
+    const planned = {
+      name: 'Hut to hut on snowshoes',
+      tour_type: 'ski' as const,
+      ski_discipline: 'touring' as const,
+      route_geometry: [
+        [47, 11, 1200],
+        [47.01, 11.01, 1500],
+      ],
+      waypoints: [point(47, 11, 'start', 0), point(47.01, 11.01, 'end', 1)],
+    };
+
+    it('SKI-SCHEMA-007: saves every discipline, a cross-country tour only with its technique', () => {
+      for (const discipline of SKI_DISCIPLINES.filter((value) => value !== 'cross_country')) {
+        expect(tourCreateRequestSchema.safeParse({ ...planned, ski_discipline: discipline }).success).toBe(true);
+      }
+      expect(() => tourCreateRequestSchema.parse({ ...planned, ski_discipline: 'cross_country' })).toThrow(
+        /a cross-country tour needs a technique/,
+      );
+      expect(
+        tourCreateRequestSchema.parse({ ...planned, ski_discipline: 'cross_country', ski_technique: 'skating' }),
+      ).toMatchObject({ ski_technique: 'skating' });
+      expect(() => tourCreateRequestSchema.parse({ ...planned, ski_technique: 'classic' })).toThrow(
+        /only a cross-country tour has a technique/,
+      );
+    });
+
+    it('SKI-SCHEMA-008: works out no ski time and takes nothing of another type, a free leg allowed', () => {
+      expect(() => tourCreateRequestSchema.parse({ ...planned, duration_seconds: 3600 })).toThrow(
+        /a ski tour has no ski time worked out/,
+      );
+      expect(tourCreateRequestSchema.safeParse({ ...planned, duration_seconds: null }).success).toBe(true);
+      expect(() => tourCreateRequestSchema.parse({ ...planned, max_hiking_difficulty: 3 })).toThrow(
+        /a ski tour has no hiking difficulty/,
+      );
+      expect(() => tourCreateRequestSchema.parse({ ...planned, hiking_preferences: { avoid_steps: true } })).toThrow(
+        /a ski tour has no hiking preferences/,
+      );
+      expect(() => tourCreateRequestSchema.parse({ ...planned, bike_profile: 'mtb' })).toThrow(/bike tour/);
+      expect(() => tourCreateRequestSchema.parse({ ...planned, boat_type: 'sup' })).toThrow(/paddle tour/);
+      const [start, end] = planned.waypoints;
+      const line: Array<[number, number]> = [
+        [47, 11],
+        [47.01, 11.01],
+      ];
+      const withLeg = (fixed_leg: object) => ({ ...planned, waypoints: [{ ...start, fixed_leg }, end] });
+      expect(tourCreateRequestSchema.safeParse(withLeg({ kind: 'free', geometry: line })).success).toBe(true);
+      const ferrata = withLeg({ kind: 'ferrata', ref: 'way/1', name: null, geometry: line });
+      expect(() => tourCreateRequestSchema.parse(ferrata)).toThrow(/a ski tour has no via ferrata/);
+    });
+
+    it('SKI-SCHEMA-009: keeps the ski fields off every other type', () => {
+      const hike = { ...planned, tour_type: 'hike' as const, ski_discipline: 'winter_hike' as const };
+      expect(() => tourCreateRequestSchema.parse(hike)).toThrow(/ski_discipline belongs to a ski tour/);
+      const { ski_discipline: _discipline, ...walk } = planned;
+      expect(() => tourCreateRequestSchema.parse({ ...walk, tour_type: 'walk', ski_technique: 'classic' })).toThrow(
+        /ski_technique belongs to a ski tour/,
+      );
+    });
   });
 });

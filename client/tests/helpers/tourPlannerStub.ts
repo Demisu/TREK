@@ -14,10 +14,10 @@ export function hikePlannerDefaults() {
     isHorse: false,
     bikeProfile: 'touring' as const,
     setBikeProfile: vi.fn(),
-    // HIK-01: a hike without a winter label, as every hike starts.
-    winterActivity: null,
-    setWinterActivity: vi.fn(),
-    winterActivityChoice: 'winter_hike' as const,
+    // SKI-02: no ski tour, so no discipline chosen nor asked for.
+    isSki: false,
+    ski: { choice: { discipline: null, technique: null }, change: vi.fn(), load: vi.fn() },
+    skiMissing: null,
     // RUN-01: no run, so no pace asked for.
     isRun: false,
     runProfile: 'running' as const,
@@ -62,6 +62,7 @@ export function hikePlannerDefaults() {
     routeCurrent: false,
     routeParts: null,
     mapOverlays: new Set<string>(),
+    mapOverlaysOff: new Set<string>(),
     toggleMapOverlay: vi.fn(),
     tripId: 1,
     editWaypoints: vi.fn(),

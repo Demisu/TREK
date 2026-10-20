@@ -841,7 +841,6 @@ export class ToursService {
             route_missing: 0,
             revision: 1,
             hiking_preferences: null,
-            winter_activity: null,
             track_started_at: recorded?.started ?? null,
             track_ended_at: recorded?.ended ?? null,
           }),

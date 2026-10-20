@@ -32,7 +32,6 @@ export interface CollectionTourRow {
   match_confidence: number | null;
   max_hiking_difficulty: number | null;
   bike_profile: string | null;
-  winter_activity: string | null;
   run_profile: string | null;
   run_pace_seconds_per_km: number | null;
   ski_discipline: string | null;

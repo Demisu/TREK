@@ -306,16 +306,16 @@ describe('TourDetailDialog', () => {
     expect(screen.queryByText(/Based on/)).not.toBeInTheDocument()
   })
 
-  it('HIK-01: names the winter label of a hike in its head and on its tile, and nothing for a hike without one', () => {
+  it('SKI-02: names a snowshoe tour by its discipline in its head and on its tile, and a hike by none', () => {
     const { unmount } = render(<TourDetailDialog {...defaultProps} />)
-    expect(screen.queryByTestId('tour-detail-winter')).not.toBeInTheDocument()
-    expect(screen.queryByTestId('tour-winter-mark')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('tour-detail-ski')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('tour-ski-mark')).not.toBeInTheDocument()
     unmount()
 
-    render(<TourDetailDialog {...defaultProps} tour={{ ...tour, winter_activity: 'snowshoe' }} />)
-    expect(screen.getByTestId('tour-detail-winter')).toHaveTextContent('Snowshoe hike')
-    expect(screen.getByRole('img', { name: 'Snowshoe hike' })).toBeInTheDocument()
-    expect(screen.getAllByText('T2').length).toBeGreaterThan(0)
+    const snowshoe = { ...tour, tour_type: 'ski' as const, max_hiking_difficulty: null, ski_discipline: 'snowshoe' as const }
+    render(<TourDetailDialog {...defaultProps} tour={snowshoe} />)
+    expect(screen.getByTestId('tour-detail-ski')).toHaveTextContent('Snowshoeing')
+    expect(screen.getByRole('img', { name: 'Snowshoeing' })).toBeInTheDocument()
   })
 
   it('ACT-01: a recording that is the actual track of a tour names that tour in its head', () => {

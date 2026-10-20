@@ -89,4 +89,9 @@ describe('tourActivityStatsModel', () => {
     ]);
     expect(typeOptions([entry({ tour_type: 'walk', date: TODAY })], TODAY)).toEqual(['all']);
   });
+
+  it('FE-STA2-MODEL-008: a planned ski tour is a type of its own, after the types planned before it', () => {
+    const entries = [entry({ tour_type: 'ski' }), entry({ tour_type: 'horse' }), entry({ tour_type: 'hike' })];
+    expect(typeOptions(entries, TODAY)).toEqual(['all', 'hike', 'horse', 'ski']);
+  });
 });

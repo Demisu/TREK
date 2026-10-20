@@ -209,7 +209,7 @@ interface OverlayLook {
 
 const OVERLAY_LOOK: Record<string, OverlayLook> = {
   seamarks: { Icon: Anchor, labelKey: 'tours.map.seamarks', downKey: 'tours.map.seamarksDown' },
-  // SKI-01: a hike's row already holds four maps, the ferratas and 3D, so the pistes go by their icon.
+  // SKI-01: the row already holds the maps and 3D, so the pistes go by their icon.
   pistes: {
     Icon: MountainSnow,
     labelKey: 'tours.map.pistes',

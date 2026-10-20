@@ -204,7 +204,7 @@ const tours: TranslationStrings = {
   'tourTypes.hike': 'Pešia túra',
   'tourTypes.bike': 'Cyklotúra',
   'tourTypes.run': 'Beh',
-  'tourTypes.ski': 'Lyže',
+  'tourTypes.ski': 'Lyže a zima',
   'tourTypes.kayak': 'Vodácka túra',
   'tourTypes.walk': 'Prechádzka mestom / po pamiatkach',
   'tourTypes.food': 'Gastronomická / vínna túra',
@@ -396,33 +396,32 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Pešo, do obtiažnosti, ktorú nastavíš',
   'tours.planner.tourTypeHint.bike': 'Na bicykli, trasa pre trekking, cestu, gravel alebo MTB',
   'tours.planner.tourTypeHint.kayak': 'Na vode, na kajaku, kanoe alebo SUP',
-  'tours.winter.title': 'Zimná aktivita',
-  'tours.winter.infoLabel': 'Čo robí zimné označenie',
-  'tours.winter.info':
-    'Len označenie túry. Trasa, farby sklonu a čas chôdze zostávajú ako pri každej túre a nehovoria nič o snehu, lavínach ani o tom, či je cesta v zime schodná.',
-  'tours.winter.kind': 'Druh zimnej aktivity',
-  'tours.winter.activity.winter_hike': 'Zimná turistika',
-  'tours.winter.activity.snowshoe': 'Túra na snežniciach',
-  'tours.winter.labelOnly':
-    'Označené cestovateľmi. Trasa a čas sa plánujú ako pri každej túre, bez kontroly zimných podmienok.',
-  'tours.planner.tourTypeHint.ski': 'Zo súboru GPX, tak ako bola zaznamenaná',
+  'tours.planner.tourTypeHint.ski': 'Lyže, snowboard, snežnice, zimné túry',
   'tours.ski.title': 'Lyžiarska trasa',
   'tours.ski.discipline': 'Disciplína',
   'tours.ski.discipline.alpine': 'Zjazd',
   'tours.ski.discipline.snowboard': 'Snowboard', // same-as-en
   'tours.ski.discipline.cross_country': 'Beh na lyžiach',
   'tours.ski.discipline.touring': 'Skialpinizmus',
+  'tours.ski.discipline.snowshoe': 'Snežnice',
+  'tours.ski.discipline.winter_hike': 'Zimná turistika',
   'tours.ski.technique': 'Technika',
   'tours.ski.technique.classic': 'Klasika',
   'tours.ski.technique.skating': 'Korčuľovanie',
   'tours.ski.technique.unknown': 'Neznáma',
   'tours.ski.chooseDiscipline': 'Vyberte disciplínu na import trasy ako lyže.',
+  'tours.ski.chooseDisciplineToSave': 'Vyberte disciplínu, aby ste mohli túru uložiť.',
+  'tours.ski.drawnFreely':
+    'Každý úsek sa kreslí rovno medzi vašimi bodmi. Nič ho neporovnáva so zjazdovkami, vlekmi ani stopami.',
   'tours.ski.chooseTechnique': 'Vyberte techniku, alebo Neznáma.',
   'tours.ski.infoLabel': 'Čo TREK robí s lyžiarskou trasou',
   'tours.ski.info':
-    'Zostáva tak, ako bola zaznamenaná, a nikdy sa neprepočítava. Vzdialenosť a výšky pochádzajú zo súboru. TREK nepočíta žiadny čas na lyžiach a ani trasa, ani farby sklonu v 3D nehovoria nič o náročnosti, snehu, lavínach ani o tom, či sú zjazdovky a stopy otvorené.',
+    'Naplánovaná túra má každý úsek nakreslený rovno medzi svojimi bodmi, importovaná trasa zostáva tak, ako bola zaznamenaná. Ani jedna nevedie po zjazdovkách, vlekoch ani stopách. Výšky pochádzajú z terénu alebo zo súboru. TREK nepočíta žiadny čas na lyžiach a nič tu, ani farby sklonu v 3D, nehovorí nič o náročnosti, snehu, lavínach ani o tom, či sú zjazdovky a stopy otvorené.',
   'tours.ski.time': 'Čas na lyžiach',
   'tours.ski.timeUnknown': 'Nepočíta sa',
+  'tours.ski.timeInfoLabel': 'Prečo tu nie je čas na lyžiach',
+  'tours.ski.timeInfo':
+    'TREK čas na lyžiach nepočíta: úseky sú nakreslené rovno, nie naplánované po zjazdovkách, vlekoch alebo stopách. Ak chcete, zadajte plánovaný celkový čas sami.',
   'tours.ski.classifyTitle': 'Zaradiť lyžiarsku trasu',
   'tours.ski.saved': 'Zaradenie uložené',
   'tours.ski.saveFailed': 'Zaradenie sa nepodarilo uložiť.',
@@ -809,6 +808,8 @@ const tours: TranslationStrings = {
   'tours.import.previewConfirm.few': 'Importovať {count} túry',
   'tours.conversion.introPaddle':
     'Import je zaznamenaná trasa. Naplánujte upraviteľnú vodácku túru: TREK z nej vezme kontrolné body, spojí ich priamymi čiarami, ako sa vodácka túra kreslí, a ukáže, ako blízko to je. Nič sa nezmení, kým sa nerozhodnete.',
+  'tours.conversion.introSki':
+    'Import je zaznamenaná trasa. Naplánujte upraviteľnú lyžiarsku túru: TREK z nej vezme kontrolné body, spojí ich priamymi čiarami, ako sa lyžiarska túra kreslí, a ukáže, ako blízko to je. Nič sa nezmení, kým sa nerozhodnete.',
   'tours.conversion.closePaddle':
     'Návrh trasu tesne sleduje. Jeho body spájajú priame čiary, takže to nie je tá istá čiara.',
   'tours.planner.moreActions': 'Ďalšie akcie',
@@ -1127,6 +1128,7 @@ const tours: TranslationStrings = {
   'tourTypes.horse': 'Vychádzka na koni',
   'tours.planner.tourTypeHint.horse': 'Na koni, po značených jazdeckých trasách',
   'tours.planner.namePlaceholder.horse': 'Vychádzka bez názvu',
+  'tours.planner.namePlaceholder.ski': 'Lyžiarska túra bez názvu',
   'tours.horse.time': 'Čas jazdy',
   'tours.horse.timeInfoLabel': 'Prečo tu nie je čas jazdy',
   'tours.horse.timeInfo':

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '../../../../tests/helpers/render';
 import { hikePlannerDefaults } from '../../../../tests/helpers/tourPlannerStub';
 import { TourTypeFields } from './TourTypeFields';
@@ -39,8 +39,8 @@ describe('TourTypeFields (PAD-01)', () => {
     expect(screen.getByTestId('tour-type-option-bike')).toHaveTextContent(
       'By bike, routed for touring, road, gravel or MTB'
     );
-    // SKI-02: ski is offered by the GPX import only; the planner routes no ski track.
-    expect(screen.queryByTestId('tour-type-option-ski')).toBeNull();
+    // SKI-02: ski and winter tours are planned too, under the type's new name.
+    expect(screen.getByTestId('tour-type-option-ski')).toHaveTextContent('Ski & winter');
     fireEvent.click(screen.getByTestId('tour-type-option-bike'));
     expect(hike.setTourType).toHaveBeenCalledWith('bike');
     expect(field).toHaveAttribute('aria-expanded', 'false');
@@ -121,6 +121,52 @@ describe('TourTypeFields (PAD-01)', () => {
       />
     );
     expect(screen.getByText(/enter a speed|speed of your own/i)).toBeInTheDocument();
+  });
+});
+
+describe('TourTypeFields ski and winter (SKI-02)', () => {
+  const skiPlanner = (overrides: Record<string, unknown> = {}) =>
+    planner({ tourType: 'ski', isPaddle: false, isSki: true, skiMissing: 'discipline', ...overrides });
+
+  it('offers six disciplines with nothing chosen, says what is missing and how the legs are drawn', () => {
+    const ski = skiPlanner();
+    render(<TourTypeFields planner={ski} locked={false} />);
+    const fields = screen.getByTestId('tour-planner-ski-fields');
+    for (const name of ['Alpine', 'Snowboard', 'Cross-country', 'Ski touring', 'Snowshoeing', 'Winter hiking']) {
+      expect(screen.getByRole('button', { name })).toHaveAttribute('aria-pressed', 'false');
+    }
+    expect(fields).toHaveTextContent('Choose a discipline to save the tour.');
+    expect(fields).toHaveTextContent('Each leg is drawn straight between your points.');
+    expect(screen.queryByTestId('tour-planner-paddle-fields')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Snowshoeing' }));
+    expect(ski.ski.change).toHaveBeenCalledWith({ discipline: 'snowshoe', technique: null });
+  });
+
+  it('asks a cross-country tour for its technique and keeps it dimmed for any other discipline', () => {
+    const crossCountry = skiPlanner({
+      ski: { choice: { discipline: 'cross_country', technique: null }, change: vi.fn(), load: vi.fn() },
+      skiMissing: 'technique',
+    });
+    const { unmount } = render(<TourTypeFields planner={crossCountry} locked={false} />);
+    expect(screen.getByTestId('tour-ski-technique')).not.toBeDisabled();
+    expect(screen.getByTestId('tour-planner-ski-fields')).toHaveTextContent('Choose the technique, or Unknown.');
+    fireEvent.click(screen.getByRole('button', { name: 'Skating' }));
+    expect(crossCountry.ski.change).toHaveBeenCalledWith({ discipline: 'cross_country', technique: 'skating' });
+    unmount();
+
+    const alpine = skiPlanner({
+      ski: { choice: { discipline: 'alpine', technique: null }, change: vi.fn(), load: vi.fn() },
+      skiMissing: null,
+    });
+    render(<TourTypeFields planner={alpine} locked={false} />);
+    expect(screen.getByTestId('tour-ski-technique')).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Alpine' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('shows no ski fields on any other tour', () => {
+    render(<TourTypeFields planner={planner({ tourType: 'hike', isPaddle: false })} locked={false} />);
+    expect(screen.queryByTestId('tour-planner-ski-fields')).not.toBeInTheDocument();
   });
 });
 

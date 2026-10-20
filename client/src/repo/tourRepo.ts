@@ -84,12 +84,13 @@ function endpointsOf(routeGeometry: unknown): TourWaypoint[] {
 }
 
 /**
- * HIK-01: a hike's winter label as the server keeps it. Another type has none,
- * and a hike's save that leaves the field out keeps the label it has.
+ * SKI-02: a ski tour's discipline and cross-country technique as the server
+ * keeps them; any other type has neither.
  */
-function winterField(body: TourCreateRequest): Pick<TourListItem, 'winter_activity'> {
-  if (body.tour_type !== 'hike') return { winter_activity: null }
-  return body.winter_activity === undefined ? {} : { winter_activity: body.winter_activity }
+function skiFields(body: TourCreateRequest): Pick<TourListItem, 'ski_discipline' | 'ski_technique'> {
+  if (body.tour_type !== 'ski') return { ski_discipline: null, ski_technique: null }
+  const discipline = body.ski_discipline ?? null
+  return { ski_discipline: discipline, ski_technique: discipline === 'cross_country' ? (body.ski_technique ?? null) : null }
 }
 
 /** RUN-01: a run's profile and pace as the server keeps them; any other type has neither. */
@@ -125,7 +126,7 @@ function routeFields(body: TourCreateRequest) {
     match_confidence: 1,
     caution: false,
     max_hiking_difficulty: body.max_hiking_difficulty,
-    ...winterField(body),
+    ...skiFields(body),
     ...runFields(body),
     has_waypoints: true,
     ...walkStationFacts(body.tour_type, body.waypoints),

@@ -143,6 +143,13 @@ describe('tourStages', () => {
     expect(ride.every((stage) => stage.distanceKm !== null && !stage.overDay)).toBe(true);
   });
 
+  it('FE-TOUR-STAGE-MODEL-014: a multi-day ski tour has its stages measured but untimed, never the router time (SKI-02)', () => {
+    const ski = tourStagesOf(input(withEnds('b'), { tourType: 'ski' }));
+    expect(ski).toHaveLength(2);
+    expect(ski.map((stage) => stage.minutes)).toEqual([null, null]);
+    expect(ski.every((stage) => stage.distanceKm !== null && stage.gain !== null && !stage.overDay)).toBe(true);
+  });
+
   it('FE-TOUR-STAGE-MODEL-008: a paddle stage has no heights and is timed at the paddler speed, its lock passed once', () => {
     const lock = { wait_minutes: 10, transit_minutes: 5 };
     const points = withEnds('c').map((p) => (p.id === 'c' ? { ...p, lock } : p));

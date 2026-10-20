@@ -57,8 +57,11 @@ export interface SegmentedOption<T extends string> {
   icon?: ReactNode
 }
 
+/** The track laid out as a grid of this many columns, for more choices than one row holds. */
+const SEGMENTED_COLUMNS = { 2: 'grid w-full grid-cols-2', 3: 'grid w-full grid-cols-3' } as const
+
 /** A row of choices on a grey track, the chosen one raised like the status filter (or filled like the view switcher). */
-export function Segmented<T extends string>({ value, options, onChange, label, accent = false, fill = false }: {
+export function Segmented<T extends string>({ value, options, onChange, label, accent = false, fill = false, columns }: {
   value: T
   options: readonly SegmentedOption<T>[]
   onChange: (value: T) => void
@@ -68,15 +71,18 @@ export function Segmented<T extends string>({ value, options, onChange, label, a
   accent?: boolean
   /** Stretch across the row, each option taking an equal share. */
   fill?: boolean
+  /** Wrap the options into a grid of this many equal columns on the same track. */
+  columns?: keyof typeof SEGMENTED_COLUMNS
 }) {
+  const track = columns ? SEGMENTED_COLUMNS[columns] : fill ? 'flex w-full' : 'inline-flex'
   return (
-    <div role="group" aria-label={label} className={`${fill ? 'flex w-full' : 'inline-flex'} flex-none gap-0.5 rounded-[10px] bg-surface-tertiary p-[3px]`}>
+    <div role="group" aria-label={label} className={`${track} flex-none gap-0.5 rounded-[10px] bg-surface-tertiary p-[3px]`}>
       {options.map(o => {
         const on = o.value === value
         const look = on ? (accent ? 'bg-accent text-accent-text' : 'bg-surface-card text-content shadow-sm') : 'text-content-muted hover:text-content'
         return (
           <button key={o.value} type="button" onClick={() => onChange(o.value)} aria-pressed={on}
-            className={`${fill ? 'flex-1' : ''} inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-[8px] px-3 py-1.5 font-medium ${look}`}
+            className={`${fill ? 'flex-1' : ''} ${columns ? 'min-w-0' : ''} inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-[8px] px-3 py-1.5 font-medium ${look}`}
             style={fs(12.5, 'body')}>
             {o.icon}{o.label}
           </button>

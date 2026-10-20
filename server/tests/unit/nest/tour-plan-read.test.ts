@@ -122,4 +122,24 @@ describe('tour plan read (MCP-T01)', () => {
     } as unknown as TourDetailResponse;
     expect(derivedFields(staged, none)).toEqual(expect.arrayContaining(['tour.stage_count', 'tour.stage_stops']));
   });
+
+  it('TOUR-PLAN-READ-008: every leg of a planned ski tour is drawn freely with its straight length, a fixed one kept (SKI-02)', () => {
+    const free = point(1, {
+      fixed_leg: {
+        kind: 'free',
+        geometry: [
+          [48.01, 11],
+          [48.02, 11],
+        ],
+      },
+    });
+    expect(planLegs([point(0), free, point(2)], { recorded: false, drawn: true })).toEqual([
+      expect.objectContaining({ kind: 'free', name: null, length_km: 1.11 }),
+      expect.objectContaining({ kind: 'free', name: null, length_km: 1.11 }),
+    ]);
+    // A ski track kept as recorded stays a track.
+    expect(planLegs([point(0), point(1)], { recorded: true, drawn: true })).toEqual([
+      expect.objectContaining({ kind: 'track', length_km: null }),
+    ]);
+  });
 });

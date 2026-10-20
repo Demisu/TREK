@@ -23,7 +23,6 @@ import {
   type TourListItem,
   type TourOrigin,
   type TourProvenanceSource,
-  type WinterActivity,
 } from '@trek/shared';
 
 /** MDT-02: the stops a multi-day tour's stages run between; null where its points do not tell them. */
@@ -60,7 +59,6 @@ export function tourItemOf(
     derived_from_place_id: r.derived_from_place_id,
     origin: r.origin as TourOrigin,
     bike_profile: r.bike_profile as BikeProfile | null,
-    winter_activity: r.winter_activity as WinterActivity | null,
     run_profile: r.run_profile as RunProfile | null,
     run_pace_seconds_per_km: r.run_pace_seconds_per_km,
     ski_discipline: r.ski_discipline as SkiDiscipline | null,

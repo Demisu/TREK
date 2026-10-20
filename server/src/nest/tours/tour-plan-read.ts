@@ -70,12 +70,17 @@ interface PlanLeg {
   /**
    * routed: planned by the router; track: part of a recorded line (an import
    * without control points of its own), which no router planned; ferrata, free
-   * and portage: a fixed line taken as it stands.
+   * and portage: a fixed line taken as it stands. A leg of a planned ski tour
+   * (SKI-02) is free: the planner draws it straight between its points.
    */
   kind: 'routed' | 'track' | TourFixedLegKind;
   /** The via ferrata's name where OpenStreetMap gives one. */
   name: string | null;
-  /** Derived: the length of a fixed leg's own line; null for a routed or track leg, whose length is not stored apart. */
+  /**
+   * Derived: the length of a fixed leg's own line, or of the straight line a
+   * ski tour's leg is drawn as; null for a routed or track leg, whose length is
+   * not stored apart.
+   */
   length_km: number | null;
 }
 
@@ -88,6 +93,8 @@ function roundKm(km: number): number {
 interface PlanLegSource {
   /** The line is a recorded track (the tour stores no control points of its own), so no router planned it. */
   recorded: boolean;
+  /** SKI-02: the planner drew every leg straight between its points (a planned ski tour), so no router planned one. */
+  drawn?: boolean;
 }
 
 /** A fixed leg's line as points of a line: latitude and longitude, no height. */
@@ -95,15 +102,25 @@ function legLine(geometry: TourFixedLeg['geometry']): GeometryPoint[] {
   return geometry.map(([lat, lng]): GeometryPoint => [lat, lng]);
 }
 
+/** A leg drawn straight from one control point to the next, as the planner draws a ski tour's. */
+function straightLine(from: TourWaypoint, to: TourWaypoint): GeometryPoint[] {
+  return [
+    [from.lat, from.lng],
+    [to.lat, to.lng],
+  ];
+}
+
 /**
  * The legs between consecutive control points, each saying whether the router
- * planned it, it follows a recorded track, or it is a fixed line.
+ * planned it, it follows a recorded track, or it is a fixed line. A planned
+ * ski tour's leg is a straight line between its points, as the planner drew it.
  */
-export function planLegs(points: readonly TourWaypoint[], { recorded }: PlanLegSource): PlanLeg[] {
-  const unfixed = recorded ? 'track' : 'routed';
+export function planLegs(points: readonly TourWaypoint[], { recorded, drawn = false }: PlanLegSource): PlanLeg[] {
+  const unfixed = recorded ? 'track' : drawn ? 'free' : 'routed';
   return points.slice(1).map((to, index) => {
     const from = points[index] as TourWaypoint;
     const leg = from.fixed_leg ?? null;
+    const line = leg ? legLine(leg.geometry) : unfixed === 'free' ? straightLine(from, to) : null;
     return {
       from_sequence: from.sequence,
       to_sequence: to.sequence,
@@ -111,7 +128,7 @@ export function planLegs(points: readonly TourWaypoint[], { recorded }: PlanLegS
       to_key: to.key ?? null,
       kind: leg?.kind ?? unfixed,
       name: leg?.kind === 'ferrata' ? leg.name : null,
-      length_km: leg ? roundKm(computeTourMetrics(legLine(leg.geometry)).distanceKm) : null,
+      length_km: line ? roundKm(computeTourMetrics(line).distanceKm) : null,
     };
   });
 }

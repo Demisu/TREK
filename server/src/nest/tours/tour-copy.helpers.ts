@@ -10,7 +10,6 @@ import type {
   SkiDiscipline,
   SkiTechnique,
   TourOrigin,
-  WinterActivity,
 } from '@trek/shared';
 
 /** The facet columns a copy carries over as its source has them, measures and settings alike. */
@@ -27,7 +26,6 @@ interface TourCopiedColumns {
   match_confidence: number | null;
   max_hiking_difficulty: number | null;
   bike_profile: string | null;
-  winter_activity: string | null;
   run_profile: string | null;
   run_pace_seconds_per_km: number | null;
   ski_discipline: string | null;
@@ -67,7 +65,6 @@ export function copiedColumns(row: TourCopiedColumns): TourCopiedColumns {
     match_confidence: row.match_confidence,
     max_hiking_difficulty: row.max_hiking_difficulty,
     bike_profile: row.bike_profile,
-    winter_activity: row.winter_activity,
     run_profile: row.run_profile,
     run_pace_seconds_per_km: row.run_pace_seconds_per_km,
     ski_discipline: row.ski_discipline,
@@ -168,7 +165,6 @@ export function copiedFacet(
     ...facet,
     place_id: placeId,
     bike_profile: facet.bike_profile as BikeProfile | null,
-    winter_activity: facet.winter_activity as WinterActivity | null,
     run_profile: facet.run_profile as RunProfile | null,
     ski_discipline: facet.ski_discipline as SkiDiscipline | null,
     ski_technique: facet.ski_technique as SkiTechnique | null,

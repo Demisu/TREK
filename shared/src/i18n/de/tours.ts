@@ -206,7 +206,7 @@ const tours: TranslationStrings = {
   'tourTypes.hike': 'Wanderung',
   'tourTypes.bike': 'Radtour',
   'tourTypes.run': 'Lauf',
-  'tourTypes.ski': 'Ski', // same-as-en
+  'tourTypes.ski': 'Ski & Winter',
   'tourTypes.kayak': 'Paddeltour',
   'tourTypes.walk': 'Stadt- und Spaziergang',
   'tourTypes.food': 'Genusstour',
@@ -405,33 +405,32 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Zu Fuß, bis zu einer Schwierigkeit, die du festlegst',
   'tours.planner.tourTypeHint.bike': 'Mit dem Rad, geroutet für Touring, Rennrad, Gravel oder MTB',
   'tours.planner.tourTypeHint.kayak': 'Auf dem Wasser, mit Kajak, Kanadier oder SUP',
-  'tours.winter.title': 'Winteraktivität',
-  'tours.winter.infoLabel': 'Was die Winterkennzeichnung bewirkt',
-  'tours.winter.info':
-    'Nur eine Kennzeichnung der Wanderung. Route, Steigungsfarben und Gehzeit bleiben wie bei jeder Wanderung und sagen nichts über Schnee, Lawinen oder die Begehbarkeit im Winter.',
-  'tours.winter.kind': 'Art der Winteraktivität',
-  'tours.winter.activity.winter_hike': 'Winterwandern',
-  'tours.winter.activity.snowshoe': 'Schneeschuhwandern',
-  'tours.winter.labelOnly':
-    'Von den Reisenden gekennzeichnet. Route und Zeit sind wie bei jeder Wanderung geplant, nicht für den Winter geprüft.',
-  'tours.planner.tourTypeHint.ski': 'Aus einer GPX-Datei, wie aufgezeichnet',
+  'tours.planner.tourTypeHint.ski': 'Ski, Snowboard, Schneeschuh, Winterwandern',
   'tours.ski.title': 'Skistrecke',
   'tours.ski.discipline': 'Disziplin',
   'tours.ski.discipline.alpine': 'Alpin',
   'tours.ski.discipline.snowboard': 'Snowboard', // same-as-en
   'tours.ski.discipline.cross_country': 'Langlauf',
   'tours.ski.discipline.touring': 'Skitour',
+  'tours.ski.discipline.snowshoe': 'Schneeschuh',
+  'tours.ski.discipline.winter_hike': 'Winterwandern',
   'tours.ski.technique': 'Technik',
   'tours.ski.technique.classic': 'Klassisch',
   'tours.ski.technique.skating': 'Skating', // same-as-en
   'tours.ski.technique.unknown': 'Unbekannt',
   'tours.ski.chooseDiscipline': 'Wähle eine Disziplin, um die Strecke als Ski zu importieren.',
+  'tours.ski.chooseDisciplineToSave': 'Wähle eine Disziplin, um die Tour zu speichern.',
+  'tours.ski.drawnFreely':
+    'Jeder Abschnitt wird gerade zwischen deinen Punkten gezeichnet. Nichts gleicht ihn mit Pisten, Liften oder Loipen ab.',
   'tours.ski.chooseTechnique': 'Wähle die Technik oder Unbekannt.',
   'tours.ski.infoLabel': 'Was TREK mit einer Skistrecke macht',
   'tours.ski.info':
-    'Bleibt wie aufgezeichnet und wird nie geroutet. Distanz und Höhen stammen aus der Datei. TREK berechnet keine Skizeit, und weder die Strecke noch die Steigungsfarben in 3D sagen etwas über Schwierigkeit, Schnee, Lawinen oder geöffnete Pisten und Loipen.',
+    'Bei einer geplanten Tour ist jeder Abschnitt gerade zwischen ihren Punkten gezeichnet, eine importierte Strecke bleibt wie aufgezeichnet. Keine von beiden wird über Pisten, Lifte oder Loipen geroutet. Die Höhen stammen aus dem Gelände oder aus der Datei. TREK berechnet keine Skizeit, und nichts hier, auch nicht die Steigungsfarben in 3D, sagt etwas über Schwierigkeit, Schnee, Lawinen oder geöffnete Pisten und Loipen.',
   'tours.ski.time': 'Skizeit',
   'tours.ski.timeUnknown': 'Nicht berechnet',
+  'tours.ski.timeInfoLabel': 'Warum es keine Skizeit gibt',
+  'tours.ski.timeInfo':
+    'TREK berechnet keine Skizeit: Die Abschnitte sind gerade gezeichnet, nicht über Pisten, Lifte oder Loipen geplant. Trag bei Bedarf selbst eine geplante Gesamtzeit ein.',
   'tours.ski.classifyTitle': 'Skistrecke einordnen',
   'tours.ski.saved': 'Einordnung gespeichert',
   'tours.ski.saveFailed': 'Die Einordnung konnte nicht gespeichert werden.',
@@ -822,6 +821,8 @@ const tours: TranslationStrings = {
   'tours.import.previewConfirm.one': '{count} Tour importieren',
   'tours.conversion.introPaddle':
     'Ein Import ist eine aufgezeichnete Strecke. Plane eine bearbeitbare Paddeltour: TREK nimmt Kontrollpunkte daraus, verbindet sie mit geraden Linien, wie eine Paddeltour gezeichnet wird, und zeigt, wie nah das herankommt. Nichts ändert sich, bis du dich entscheidest.',
+  'tours.conversion.introSki':
+    'Ein Import ist eine aufgezeichnete Strecke. Plane eine bearbeitbare Skitour: TREK nimmt Kontrollpunkte daraus, verbindet sie mit geraden Linien, wie eine Skitour gezeichnet wird, und zeigt, wie nah das herankommt. Nichts ändert sich, bis du dich entscheidest.',
   'tours.conversion.closePaddle':
     'Der Vorschlag folgt der Strecke eng. Seine Punkte sind mit geraden Linien verbunden, daher ist es nicht dieselbe Linie.',
   'tours.planner.moreActions': 'Weitere Aktionen',
@@ -1145,6 +1146,7 @@ const tours: TranslationStrings = {
   'tourTypes.horse': 'Ausritt',
   'tours.planner.tourTypeHint.horse': 'Zu Pferd, auf ausgeschilderten Reitrouten',
   'tours.planner.namePlaceholder.horse': 'Unbenannter Ausritt',
+  'tours.planner.namePlaceholder.ski': 'Unbenannte Skitour',
   'tours.horse.time': 'Reitzeit',
   'tours.horse.timeInfoLabel': 'Warum es keine Reitzeit gibt',
   'tours.horse.timeInfo':

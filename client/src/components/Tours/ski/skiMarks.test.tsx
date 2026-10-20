@@ -1,12 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { TourDayRowAvatar } from '../TourDayRowFacts';
+import { tourDayRowIcon } from '../tourDayRowIcon';
 import { TourGradeTile } from '../tourParts';
-import { WINTER_ACTIVITY_ICON } from '../winter/winterActivityIcon';
 import { SKI_DISCIPLINE_ICON, skiClassificationText, skiDisciplineOf, skiTechniqueOf } from './skiDiscipline';
 import { SkiCornerMark, SkiHeadPill } from './skiMarks';
 
-// FE-TOUR-SKI-MARK-001 to FE-TOUR-SKI-MARK-006
+// FE-TOUR-SKI-MARK-001 to FE-TOUR-SKI-MARK-007
 
 const t = (key: string) => key;
 const skiTrack = {
@@ -73,8 +73,22 @@ describe('ski marks (SKI-02)', () => {
     expect(screen.getByTestId('tour-ski-mark')).toHaveStyle({ width: '22px' });
   });
 
-  it('FE-TOUR-SKI-MARK-006: no discipline shares its corner glyph with another, nor with a winter label', () => {
-    const icons = [...Object.values(SKI_DISCIPLINE_ICON), ...Object.values(WINTER_ACTIVITY_ICON)];
+  it('FE-TOUR-SKI-MARK-006: each of the six disciplines has a corner glyph of its own, none the ski tile itself', () => {
+    const icons = Object.values(SKI_DISCIPLINE_ICON);
+    expect(icons).toHaveLength(6);
     expect(new Set(icons).size).toBe(icons.length);
+    expect(icons).not.toContain(tourDayRowIcon('ski'));
+  });
+
+  it('FE-TOUR-SKI-MARK-007: snowshoeing and winter hiking are ski tours with their own marks, a hike carries none', () => {
+    const { rerender } = render(<SkiCornerMark tour={{ tour_type: 'ski', ski_discipline: 'snowshoe' }} />);
+    const snowshoe = screen.getByRole('img', { name: 'tours.ski.discipline.snowshoe' });
+    expect(snowshoe.querySelector('svg.lucide-footprints')).not.toBeNull();
+    rerender(<SkiCornerMark tour={{ tour_type: 'ski', ski_discipline: 'winter_hike' }} />);
+    const winterHike = screen.getByRole('img', { name: 'tours.ski.discipline.winter_hike' });
+    expect(winterHike.querySelector('svg.lucide-snowflake')).not.toBeNull();
+    const hike = { tour_type: 'hike' as const, max_hiking_difficulty: 2, wanderer_ref: null, has_waypoints: true };
+    render(<TourGradeTile tour={hike} />);
+    expect(screen.queryAllByTestId('tour-ski-mark')).toHaveLength(1);
   });
 });

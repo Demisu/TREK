@@ -200,7 +200,7 @@ const tours: TranslationStrings = {
   'tourTypes.hike': 'Doğa yürüyüşü',
   'tourTypes.bike': 'Bisiklet turu',
   'tourTypes.run': 'Koşu',
-  'tourTypes.ski': 'Kayak',
+  'tourTypes.ski': 'Kayak ve kış',
   'tourTypes.kayak': 'Kürek turu',
   'tourTypes.walk': 'Şehir / gezi yürüyüşü',
   'tourTypes.food': 'Yemek / şarap turu',
@@ -396,33 +396,32 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Yürüyerek, belirlediğin zorluk içinde',
   'tours.planner.tourTypeHint.bike': 'Bisikletle, tur, yol, gravel veya MTB için rota',
   'tours.planner.tourTypeHint.kayak': 'Suda, kano, kanoe veya SUP ile',
-  'tours.winter.title': 'Kış etkinliği',
-  'tours.winter.infoLabel': 'Kış etiketi ne işe yarar',
-  'tours.winter.info':
-    'Yalnızca yürüyüş için bir etiket. Rota, eğim renkleri ve yürüme süresi her yürüyüşteki gibi kalır; kar, çığ ya da bir yolun kışın yürünebilir olup olmadığı hakkında hiçbir şey söylemez.',
-  'tours.winter.kind': 'Kış etkinliği türü',
-  'tours.winter.activity.winter_hike': 'Kış yürüyüşü',
-  'tours.winter.activity.snowshoe': 'Kar ayakkabısıyla yürüyüş',
-  'tours.winter.labelOnly':
-    'Gezginler tarafından işaretlendi. Rota ve süre her yürüyüşteki gibi planlanır, kış koşullarına göre denetlenmez.',
-  'tours.planner.tourTypeHint.ski': 'Bir GPX dosyasından, kaydedildiği gibi',
+  'tours.planner.tourTypeHint.ski': 'Kayak, snowboard, kar ayakkabısı, kış yürüyüşleri',
   'tours.ski.title': 'Kayak izi',
   'tours.ski.discipline': 'Branş',
   'tours.ski.discipline.alpine': 'Alp disiplini',
   'tours.ski.discipline.snowboard': 'Snowboard', // same-as-en
   'tours.ski.discipline.cross_country': 'Kayaklı koşu',
   'tours.ski.discipline.touring': 'Dağ kayağı',
+  'tours.ski.discipline.snowshoe': 'Kar ayakkabısı',
+  'tours.ski.discipline.winter_hike': 'Kış yürüyüşü',
   'tours.ski.technique': 'Teknik',
   'tours.ski.technique.classic': 'Klasik',
   'tours.ski.technique.skating': 'Serbest stil',
   'tours.ski.technique.unknown': 'Bilinmiyor',
   'tours.ski.chooseDiscipline': 'İzi kayak olarak içe aktarmak için bir branş seç.',
+  'tours.ski.chooseDisciplineToSave': 'Turu kaydetmek için bir branş seç.',
+  'tours.ski.drawnFreely':
+    'Her bölüm noktaların arasında düz çizilir. Hiçbir şey onu pistler, teleferikler veya parkurlarla karşılaştırmaz.',
   'tours.ski.chooseTechnique': 'Tekniği ya da Bilinmiyor seçeneğini seç.',
   'tours.ski.infoLabel': 'TREK bir kayak iziyle ne yapar',
   'tours.ski.info':
-    'Kaydedildiği gibi kalır ve hiçbir zaman yeniden rotalanmaz. Mesafe ve yükseklikler dosyadan gelir. TREK kayak süresi hesaplamaz; ne iz ne de 3D eğim renkleri zorluk, kar, çığ ya da pist ve parkurların açık olup olmadığı hakkında bir şey söyler.',
+    'Planlanan bir turda her bölüm noktaları arasında düz çizilir, içe aktarılan bir iz ise kaydedildiği gibi kalır. Hiçbiri pistler, teleferikler veya parkurlar boyunca rotalanmaz. Yükseklikler araziden ya da dosyadan gelir. TREK kayak süresi hesaplamaz; buradaki hiçbir şey, 3D eğim renkleri de dahil, zorluk, kar, çığ ya da pist ve parkurların açık olup olmadığı hakkında bir şey söylemez.',
   'tours.ski.time': 'Kayak süresi',
   'tours.ski.timeUnknown': 'Hesaplanmadı',
+  'tours.ski.timeInfoLabel': 'Neden kayak süresi yok',
+  'tours.ski.timeInfo':
+    'TREK kayak süresi hesaplamaz: bölümler düz çizilir, pistler, teleferikler veya parkurlar boyunca planlanmaz. İstersen planlanan toplam süreyi kendin gir.',
   'tours.ski.classifyTitle': 'Kayak izini sınıflandır',
   'tours.ski.saved': 'Sınıflandırma kaydedildi',
   'tours.ski.saveFailed': 'Sınıflandırma kaydedilemedi.',
@@ -807,6 +806,8 @@ const tours: TranslationStrings = {
   'tours.import.previewConfirm.one': '{count} turu içe aktar',
   'tours.conversion.introPaddle':
     'İçe aktarma kaydedilmiş bir izdir. Düzenlenebilir bir kürek turu planla: TREK ondan kontrol noktaları alır, kürek turu nasıl çiziliyorsa onları düz çizgilerle birleştirir ve ne kadar yaklaştığını gösterir. Sen seçene kadar hiçbir şey değişmez.',
+  'tours.conversion.introSki':
+    'İçe aktarma kaydedilmiş bir izdir. Düzenlenebilir bir kayak turu planla: TREK ondan kontrol noktaları alır, kayak turu nasıl çiziliyorsa onları düz çizgilerle birleştirir ve ne kadar yaklaştığını gösterir. Sen seçene kadar hiçbir şey değişmez.',
   'tours.conversion.closePaddle':
     'Öneri izi yakından takip ediyor. Noktaları düz çizgilerle birleştirildiği için aynı çizgi değil.',
   'tours.planner.moreActions': 'Diğer işlemler',
@@ -1118,6 +1119,7 @@ const tours: TranslationStrings = {
   'tourTypes.horse': 'At gezisi',
   'tours.planner.tourTypeHint.horse': 'At sırtında, işaretli binicilik rotalarında',
   'tours.planner.namePlaceholder.horse': 'Adsız at gezisi',
+  'tours.planner.namePlaceholder.ski': 'Adsız kayak turu',
   'tours.horse.time': 'Sürüş süresi',
   'tours.horse.timeInfoLabel': 'Neden sürüş süresi yok',
   'tours.horse.timeInfo':

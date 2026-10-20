@@ -41,7 +41,6 @@ const row: CollectionTourRow = {
   match_confidence: 1,
   max_hiking_difficulty: null,
   bike_profile: 'gravel',
-  winter_activity: null,
   run_profile: null,
   run_pace_seconds_per_km: null,
   ski_discipline: null,
@@ -92,8 +91,7 @@ describe('collection tour helpers (LIB-03)', () => {
   it('LIB3-HLP-007: a kept tour carries what the trip list shows of its type, and its stages', () => {
     expect(keptTourItem(row)).toMatchObject({
       bike_profile: 'gravel',
-      winter_activity: null,
-      ski_discipline: null,
+          ski_discipline: null,
       run_pace_seconds_per_km: null,
       stage_count: null,
     });
@@ -107,8 +105,9 @@ describe('collection tour helpers (LIB-03)', () => {
     expect(keptTourItem(ski)).toMatchObject({ ski_discipline: 'cross_country', ski_technique: 'skating' });
     const run = { ...row, tour_type: 'run', bike_profile: null, run_profile: 'trail', run_pace_seconds_per_km: 360 };
     expect(keptTourItem(run)).toMatchObject({ run_profile: 'trail', run_pace_seconds_per_km: 360 });
-    const snowshoe = { ...row, tour_type: 'hike', bike_profile: null, winter_activity: 'snowshoe' };
-    expect(keptTourItem(snowshoe).winter_activity).toBe('snowshoe');
+    const snowshoe = { ...row, tour_type: 'ski', bike_profile: null, ski_discipline: 'snowshoe' };
+    expect(keptTourItem(snowshoe)).toMatchObject({ tour_type: 'ski', ski_discipline: 'snowshoe', ski_technique: null });
+    expect(keptTourItem(snowshoe)).not.toHaveProperty('winter_activity');
     const hutToHut = {
       ...row,
       waypoints: [

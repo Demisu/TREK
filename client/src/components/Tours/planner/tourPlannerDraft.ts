@@ -5,14 +5,15 @@ import {
   paddleLockSchema,
   plannableTourTypeSchema,
   runProfileSchema,
-  winterActivitySchema,
+  skiDisciplineSchema,
+  skiTechniqueSchema,
   type BikeProfile,
   type HikingPreferences,
   type PlannableTourType,
   type RunProfile,
   type TourMaxHikingDifficulty,
-  type WinterActivity,
 } from '@trek/shared';
+import type { SkiChoice } from '../ski/skiChoice';
 import type { TourPlannerWaypoint } from './tourPlannerWaypoints';
 import type { PaddleFieldValues } from './usePaddleFields';
 
@@ -26,7 +27,7 @@ export type DraftSource = 'google_maps';
  * half read.
  */
 export interface DraftPayload {
-  version: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+  version: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
   name: string;
   description?: string;
   website?: string;
@@ -47,14 +48,14 @@ export interface DraftPayload {
   hikingPreferences?: HikingPreferences | null;
   /** BIK-01: the profile a bike tour is routed for. */
   bikeProfile?: BikeProfile;
-  /** HIK-01: the hike's winter label; absent in a draft older than it. */
-  winterActivity?: WinterActivity | null;
+  /** SKI-02: a ski tour's discipline and cross-country technique; absent in a draft older than it. */
+  ski?: SkiChoice;
   /** RUN-01: the profile a run is routed for, and its pace in seconds per km; absent in a draft older than them. */
   runProfile?: RunProfile;
   runPaceSecondsPerKm?: number | null;
 }
 
-const DRAFT_VERSIONS: ReadonlyArray<DraftPayload['version']> = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const DRAFT_VERSIONS: ReadonlyArray<DraftPayload['version']> = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
 function optionalString(value: unknown): boolean {
   return value === undefined || typeof value === 'string';
@@ -101,7 +102,17 @@ function optionalPace(value: number | null | undefined): boolean {
   return value == null || (Number.isInteger(value) && value > 0);
 }
 
-/** The type of a draft, what its route is planned by and its winter label, each one absent in a draft older than it. */
+/** SKI-02: a ski choice as a draft keeps it, each half nothing chosen or a value the contract knows. */
+function optionalSki(value: SkiChoice | undefined): boolean {
+  if (value === undefined) return true;
+  if (!value || typeof value !== 'object') return false;
+  return (
+    (value.discipline === null || skiDisciplineSchema.safeParse(value.discipline).success) &&
+    (value.technique === null || skiTechniqueSchema.safeParse(value.technique).success)
+  );
+}
+
+/** The type of a draft and what its route is planned by, each one absent in a draft older than it. */
 function validRouteChoices(draft: Partial<DraftPayload>): boolean {
   return (
     (draft.tourType === undefined || plannableTourTypeSchema.safeParse(draft.tourType).success) &&
@@ -109,7 +120,7 @@ function validRouteChoices(draft: Partial<DraftPayload>): boolean {
     (draft.runProfile === undefined || runProfileSchema.safeParse(draft.runProfile).success) &&
     optionalPace(draft.runPaceSecondsPerKm) &&
     (draft.hikingPreferences == null || hikingPreferencesSchema.safeParse(draft.hikingPreferences).success) &&
-    (draft.winterActivity == null || winterActivitySchema.safeParse(draft.winterActivity).success) &&
+    optionalSki(draft.ski) &&
     optionalDifficulty(draft.maxHikingDifficulty)
   );
 }

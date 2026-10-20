@@ -18,7 +18,6 @@ import {
   tourStageIssues,
   tourWebsiteSchema,
   type TourWaypoint,
-  type WinterActivity,
 } from '@trek/shared';
 
 import { randomUUID } from 'node:crypto';
@@ -30,12 +29,16 @@ function hikingFields(input: TourCreateCommand): string | null {
 }
 
 /**
- * HIK-01: a save's winter label as stored. Only a hike keeps one; another type
- * takes it off. A hike's save that leaves the field out (a client from before
- * the label) keeps the one the tour has, rather than taking it off unasked.
+ * SKI-02: a save's ski discipline and technique as stored. Only a ski tour
+ * keeps them, the technique only for cross-country; another type takes them off.
  */
-function winterField(input: TourCreateCommand): WinterActivity | null | undefined {
-  return input.tour_type === 'hike' ? input.winter_activity : null;
+function skiFields(input: TourCreateCommand): Pick<TourUpdate, 'ski_discipline' | 'ski_technique'> {
+  if (input.tour_type !== 'ski') return { ski_discipline: null, ski_technique: null };
+  const discipline = input.ski_discipline ?? null;
+  return {
+    ski_discipline: discipline,
+    ski_technique: discipline === 'cross_country' ? (input.ski_technique ?? null) : null,
+  };
 }
 
 /**
@@ -87,11 +90,8 @@ export function tourRouteFields(input: TourCreateCommand): TourUpdate {
     match_confidence: 1,
     max_hiking_difficulty: input.max_hiking_difficulty,
     bike_profile: input.tour_type === 'bike' ? (input.bike_profile ?? null) : null,
-    winter_activity: winterField(input),
     ...runFields(input),
-    // SKI-02: TREK plans no ski track, so a planned save is never one and takes its classification off.
-    ski_discipline: null,
-    ski_technique: null,
+    ...skiFields(input),
     boat_type: input.boat_type ?? null,
     water_context: input.water_context ?? null,
     paddle_speed_kmh: input.paddle_speed_kmh ?? null,

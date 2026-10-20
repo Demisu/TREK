@@ -28,7 +28,6 @@ export class CollectionTours {
   match_confidence?: number | null;
   max_hiking_difficulty?: number | null;
   bike_profile?: string | null;
-  winter_activity?: string | null;
   run_profile?: string | null;
   run_pace_seconds_per_km?: number | null;
   ski_discipline?: string | null;
@@ -76,7 +75,6 @@ export const CollectionToursSchema = defineEntity({
     match_confidence: p.double().nullable(),
     max_hiking_difficulty: p.integer().nullable(),
     bike_profile: p.text().nullable(),
-    winter_activity: p.text().nullable(),
     run_profile: p.text().nullable(),
     run_pace_seconds_per_km: p.integer().nullable(),
     ski_discipline: p.text().nullable(),

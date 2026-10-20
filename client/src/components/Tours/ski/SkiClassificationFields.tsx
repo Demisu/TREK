@@ -7,18 +7,22 @@ import { skiChoiceMissing, type SkiChoice } from './skiChoice';
 import { SKI_DISCIPLINE_ICON } from './skiDiscipline';
 
 /**
- * SKI-02: what a ski track is, chosen on purpose: the discipline, none until
- * one is picked, and for cross-country the technique, Unknown among its
- * answers. The technique stays in sight but dimmed while another discipline
- * is chosen. The info dot says what TREK does with the track. The GPX import
- * and the classification dialog share it.
+ * SKI-02: what a ski tour is, chosen on purpose: the discipline, none until
+ * one is picked, six of them in two columns, and for cross-country the
+ * technique, Unknown among its answers. The technique stays in sight but
+ * dimmed while another discipline is chosen. The info dot says what TREK does
+ * with the tour. The GPX import, the classification dialog and the planner
+ * share it; `planned` says the choice is asked for a tour to save rather than
+ * a track to import.
  */
 export function SkiClassificationFields({
   choice,
   onChange,
+  planned = false,
 }: {
   choice: SkiChoice;
   onChange: (choice: SkiChoice) => void;
+  planned?: boolean;
 }) {
   const { t } = useTranslation();
   const crossCountry = choice.discipline === 'cross_country';
@@ -34,13 +38,14 @@ export function SkiClassificationFields({
           value={(choice.discipline ?? '') as SkiDiscipline}
           onChange={(discipline) => onChange({ ...choice, discipline })}
           label={t('tours.ski.discipline')}
-          fill
+          columns={2}
           options={SKI_DISCIPLINES.map((discipline) => {
             const Icon = SKI_DISCIPLINE_ICON[discipline];
             return {
               value: discipline,
-              label: t(`tours.ski.discipline.${discipline}`),
-              icon: <Icon size={13} strokeWidth={2} aria-hidden="true" />,
+              // Two columns in a narrow rail: a long name ends in an ellipsis rather than spilling out.
+              label: <span className="min-w-0 truncate">{t(`tours.ski.discipline.${discipline}`)}</span>,
+              icon: <Icon size={13} strokeWidth={2} aria-hidden="true" className="flex-none" />,
             };
           })}
         />
@@ -64,7 +69,13 @@ export function SkiClassificationFields({
       </fieldset>
       {missing && (
         <TourNotice role="status" icon={<Info size={13} strokeWidth={2} />}>
-          {t(missing === 'discipline' ? 'tours.ski.chooseDiscipline' : 'tours.ski.chooseTechnique')}
+          {t(
+            missing === 'technique'
+              ? 'tours.ski.chooseTechnique'
+              : planned
+                ? 'tours.ski.chooseDisciplineToSave'
+                : 'tours.ski.chooseDiscipline'
+          )}
         </TourNotice>
       )}
     </div>

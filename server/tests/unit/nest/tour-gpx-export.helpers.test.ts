@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 // TOUR-GPX-ACTIVITY-001 to TOUR-GPX-ACTIVITY-007
 
-describe('gpxActivityOf (PR1-06A, BIK-01, HIK-01, RUN-01, SKI-02, HOR-01)', () => {
+describe('gpxActivityOf (PR1-06A, BIK-01, RUN-01, SKI-02, HOR-01)', () => {
   it('TOUR-GPX-ACTIVITY-001: a bike tour names its profile, and the plainest riding without a known one', () => {
     expect(gpxActivityOf({ tour_type: 'bike', bike_profile: 'mtb' })).toBe('mountain_biking');
     expect(gpxActivityOf({ tour_type: 'bike', bike_profile: null })).toBe('cycling');
@@ -22,11 +22,11 @@ describe('gpxActivityOf (PR1-06A, BIK-01, HIK-01, RUN-01, SKI-02, HOR-01)', () =
     expect(gpxActivityOf({ tour_type: 'walk' })).toBe('walk');
   });
 
-  it('TOUR-GPX-ACTIVITY-004: a hike on snowshoes is snowshoeing, a winter hike stays hiking (HIK-01)', () => {
-    expect(gpxActivityOf({ tour_type: 'hike', winter_activity: 'snowshoe' })).toBe('snowshoeing');
-    expect(gpxActivityOf({ tour_type: 'hike', winter_activity: 'winter_hike' })).toBe('hiking');
-    expect(gpxActivityOf({ tour_type: 'hike', winter_activity: null })).toBe('hiking');
-    expect(gpxActivityOf({ tour_type: 'walk', winter_activity: 'snowshoe' })).toBe('walk');
+  it('TOUR-GPX-ACTIVITY-004: snowshoes make a ski tour snowshoeing, a winter hike stays hiking, a hike is hiking (SKI-02)', () => {
+    expect(gpxActivityOf({ tour_type: 'ski', ski_discipline: 'snowshoe' })).toBe('snowshoeing');
+    expect(gpxActivityOf({ tour_type: 'ski', ski_discipline: 'winter_hike' })).toBe('hiking');
+    expect(gpxActivityOf({ tour_type: 'hike', ski_discipline: null })).toBe('hiking');
+    expect(gpxActivityOf({ tour_type: 'walk' })).toBe('walk');
   });
 
   it('TOUR-GPX-ACTIVITY-005: a run is running, and stays running without a profile this build knows (RUN-01)', () => {

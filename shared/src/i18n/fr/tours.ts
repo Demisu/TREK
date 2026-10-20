@@ -208,7 +208,7 @@ const tours: TranslationStrings = {
   'tourTypes.hike': 'Randonnée',
   'tourTypes.bike': 'Sortie à vélo',
   'tourTypes.run': 'Course à pied',
-  'tourTypes.ski': 'Ski', // same-as-en
+  'tourTypes.ski': 'Ski et hiver',
   'tourTypes.kayak': 'Sortie en pagaie',
   'tourTypes.walk': 'Balade urbaine / touristique',
   'tourTypes.food': 'Circuit gastronomique / œnologique',
@@ -408,33 +408,32 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'À pied, dans la difficulté que tu choisis',
   'tours.planner.tourTypeHint.bike': 'À vélo, itinéraire pour le voyage, la route, le gravel ou le VTT',
   'tours.planner.tourTypeHint.kayak': "Sur l'eau, en kayak, canoë ou SUP",
-  'tours.winter.title': 'Activité hivernale',
-  'tours.winter.infoLabel': 'À quoi sert le marquage hivernal',
-  'tours.winter.info':
-    'Simple marquage de la randonnée. L’itinéraire, les couleurs de pente et le temps de marche restent ceux de toute randonnée et ne disent rien de la neige, des avalanches ni de la praticabilité d’un chemin en hiver.',
-  'tours.winter.kind': 'Type d’activité hivernale',
-  'tours.winter.activity.winter_hike': 'Randonnée hivernale',
-  'tours.winter.activity.snowshoe': 'Randonnée en raquettes',
-  'tours.winter.labelOnly':
-    'Marqué par les voyageurs. Itinéraire et durée sont planifiés comme pour toute randonnée, sans vérification hivernale.',
-  'tours.planner.tourTypeHint.ski': 'Depuis un fichier GPX, tel qu’enregistré',
+  'tours.planner.tourTypeHint.ski': 'Ski, snowboard, raquettes, randonnées hivernales',
   'tours.ski.title': 'Trace de ski',
   'tours.ski.discipline': 'Discipline', // same-as-en
   'tours.ski.discipline.alpine': 'Alpin',
   'tours.ski.discipline.snowboard': 'Snowboard', // same-as-en
   'tours.ski.discipline.cross_country': 'Ski de fond',
   'tours.ski.discipline.touring': 'Ski de randonnée',
+  'tours.ski.discipline.snowshoe': 'Raquettes',
+  'tours.ski.discipline.winter_hike': 'Rando hivernale',
   'tours.ski.technique': 'Technique', // same-as-en
   'tours.ski.technique.classic': 'Classique',
   'tours.ski.technique.skating': 'Skating', // same-as-en
   'tours.ski.technique.unknown': 'Inconnue',
   'tours.ski.chooseDiscipline': 'Choisissez une discipline pour importer la trace en ski.',
+  'tours.ski.chooseDisciplineToSave': 'Choisissez une discipline pour enregistrer la sortie.',
+  'tours.ski.drawnFreely':
+    'Chaque tronçon est tracé en ligne droite entre vos points. Rien ne le vérifie par rapport aux pistes, remontées ou sentiers.',
   'tours.ski.chooseTechnique': 'Choisissez la technique, ou Inconnue.',
   'tours.ski.infoLabel': 'Ce que TREK fait d’une trace de ski',
   'tours.ski.info':
-    'Conservée telle qu’enregistrée et jamais calculée par un routeur. Distance et altitudes viennent du fichier. TREK ne calcule aucun temps de ski, et ni la trace ni les couleurs de pente en 3D ne disent quoi que ce soit sur la difficulté, la neige, les avalanches ou l’ouverture des pistes.',
+    'Une sortie planifiée a chaque tronçon tracé en ligne droite entre ses points, une trace importée est conservée telle qu’enregistrée. Aucune n’est calculée le long des pistes, remontées ou sentiers. Les altitudes viennent du terrain ou du fichier. TREK ne calcule aucun temps de ski, et rien ici, pas même les couleurs de pente en 3D, ne dit quoi que ce soit sur la difficulté, la neige, les avalanches ou l’ouverture des pistes.',
   'tours.ski.time': 'Temps de ski',
   'tours.ski.timeUnknown': 'Non calculé',
+  'tours.ski.timeInfoLabel': 'Pourquoi il n’y a pas de temps de ski',
+  'tours.ski.timeInfo':
+    'TREK ne calcule aucun temps de ski : les tronçons sont tracés en ligne droite, pas planifiés le long des pistes, remontées ou sentiers. Saisissez vous-même une durée totale prévue si besoin.',
   'tours.ski.classifyTitle': 'Classer la trace de ski',
   'tours.ski.saved': 'Classement enregistré',
   'tours.ski.saveFailed': 'Le classement n’a pas pu être enregistré.',
@@ -826,6 +825,8 @@ const tours: TranslationStrings = {
   'tours.import.previewConfirm.one': 'Importer {count} sortie',
   'tours.conversion.introPaddle':
     'Un import est une trace enregistrée. Planifiez une sortie en pagaie modifiable : TREK en tire des points de contrôle, les relie en lignes droites comme se trace une sortie en pagaie et montre à quel point c’est proche. Rien ne change tant que vous ne choisissez pas.',
+  'tours.conversion.introSki':
+    'Un import est une trace enregistrée. Planifiez une sortie à ski modifiable : TREK en tire des points de contrôle, les relie en lignes droites comme se trace une sortie à ski et montre à quel point c’est proche. Rien ne change tant que vous ne choisissez pas.',
   'tours.conversion.closePaddle':
     'La proposition suit la trace de près. Ses points sont reliés par des lignes droites, ce n’est donc pas la même ligne.',
   'tours.planner.moreActions': 'Plus d’actions',
@@ -1153,6 +1154,7 @@ const tours: TranslationStrings = {
   'tourTypes.horse': 'Randonnée équestre',
   'tours.planner.tourTypeHint.horse': 'À cheval, sur des itinéraires équestres balisés',
   'tours.planner.namePlaceholder.horse': 'Randonnée équestre sans titre',
+  'tours.planner.namePlaceholder.ski': 'Sortie à ski sans titre',
   'tours.horse.time': 'Temps à cheval',
   'tours.horse.timeInfoLabel': "Pourquoi il n'y a pas de temps à cheval",
   'tours.horse.timeInfo':

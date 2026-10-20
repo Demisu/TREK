@@ -44,7 +44,6 @@ export class Tours {
   taken_over_from_trip_title?: string | null;
   taken_over_from_tour_name?: string | null;
   bike_profile?: TToursBikeProfile | null;
-  winter_activity?: TToursWinterActivity | null;
   run_profile?: TToursRunProfile | null;
   run_pace_seconds_per_km?: number | null;
   ski_discipline?: TToursSkiDiscipline | null;
@@ -102,13 +101,6 @@ export const ToursBikeProfile = {
 
 export type TToursBikeProfile = (typeof ToursBikeProfile)[keyof typeof ToursBikeProfile];
 
-export const ToursWinterActivity = {
-  WINTER_HIKE: 'winter_hike',
-  SNOWSHOE: 'snowshoe',
-} as const;
-
-export type TToursWinterActivity = (typeof ToursWinterActivity)[keyof typeof ToursWinterActivity];
-
 export const ToursRunProfile = {
   RUNNING: 'running',
   TRAIL: 'trail',
@@ -121,6 +113,8 @@ export const ToursSkiDiscipline = {
   SNOWBOARD: 'snowboard',
   CROSS_COUNTRY: 'cross_country',
   TOURING: 'touring',
+  SNOWSHOE: 'snowshoe',
+  WINTER_HIKE: 'winter_hike',
 } as const;
 
 export type TToursSkiDiscipline = (typeof ToursSkiDiscipline)[keyof typeof ToursSkiDiscipline];
@@ -181,7 +175,6 @@ export const ToursSchema = defineEntity({
     taken_over_from_trip_title: p.text().nullable(),
     taken_over_from_tour_name: p.text().nullable(),
     bike_profile: p.enum(() => ToursBikeProfile).nullable(),
-    winter_activity: p.enum(() => ToursWinterActivity).nullable(),
     run_profile: p.enum(() => ToursRunProfile).nullable(),
     run_pace_seconds_per_km: p.integer().nullable(),
     ski_discipline: p.enum(() => ToursSkiDiscipline).nullable(),

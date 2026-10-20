@@ -198,7 +198,7 @@ const tours: TranslationStrings = {
   'tourTypes.hike': 'Pendakian',
   'tourTypes.bike': 'Tur sepeda',
   'tourTypes.run': 'Lari',
-  'tourTypes.ski': 'Ski', // same-as-en
+  'tourTypes.ski': 'Ski & musim dingin',
   'tourTypes.kayak': 'Tur dayung',
   'tourTypes.walk': 'Jalan-jalan kota / wisata',
   'tourTypes.food': 'Tur kuliner / anggur',
@@ -397,33 +397,32 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Jalan kaki, dalam tingkat kesulitan yang kamu tentukan',
   'tours.planner.tourTypeHint.bike': 'Dengan sepeda, rute untuk touring, road, gravel, atau MTB',
   'tours.planner.tourTypeHint.kayak': 'Di air, dengan kayak, kano, atau SUP',
-  'tours.winter.title': 'Aktivitas musim dingin',
-  'tours.winter.infoLabel': 'Apa fungsi label musim dingin',
-  'tours.winter.info':
-    'Hanya label untuk pendakian. Rute, warna kemiringan, dan waktu jalan tetap seperti pendakian lain dan tidak mengatakan apa pun tentang salju, longsoran salju, atau apakah jalur bisa dilalui di musim dingin.',
-  'tours.winter.kind': 'Jenis aktivitas musim dingin',
-  'tours.winter.activity.winter_hike': 'Pendakian musim dingin',
-  'tours.winter.activity.snowshoe': 'Pendakian dengan sepatu salju',
-  'tours.winter.labelOnly':
-    'Ditandai oleh para pelancong. Rute dan waktu direncanakan seperti pendakian lain, tidak diperiksa untuk musim dingin.',
-  'tours.planner.tourTypeHint.ski': 'Dari berkas GPX, seperti yang direkam',
+  'tours.planner.tourTypeHint.ski': 'Ski, snowboard, sepatu salju, pendakian musim dingin',
   'tours.ski.title': 'Jalur ski',
   'tours.ski.discipline': 'Disiplin',
   'tours.ski.discipline.alpine': 'Alpen',
   'tours.ski.discipline.snowboard': 'Papan seluncur salju',
   'tours.ski.discipline.cross_country': 'Ski lintas alam',
   'tours.ski.discipline.touring': 'Tur ski',
+  'tours.ski.discipline.snowshoe': 'Sepatu salju',
+  'tours.ski.discipline.winter_hike': 'Pendakian salju',
   'tours.ski.technique': 'Teknik',
   'tours.ski.technique.classic': 'Klasik',
   'tours.ski.technique.skating': 'Gaya bebas',
   'tours.ski.technique.unknown': 'Tidak diketahui',
   'tours.ski.chooseDiscipline': 'Pilih disiplin untuk mengimpor jalur sebagai ski.',
+  'tours.ski.chooseDisciplineToSave': 'Pilih disiplin untuk menyimpan tur.',
+  'tours.ski.drawnFreely':
+    'Setiap ruas digambar lurus di antara titik-titikmu. Tidak ada yang memeriksanya terhadap lintasan, lift, atau jalur.',
   'tours.ski.chooseTechnique': 'Pilih teknik, atau Tidak diketahui.',
   'tours.ski.infoLabel': 'Apa yang TREK lakukan dengan jalur ski',
   'tours.ski.info':
-    'Disimpan seperti yang direkam dan tidak pernah dirutekan. Jarak dan ketinggian berasal dari berkas. TREK tidak menghitung waktu ski, dan baik jalur maupun warna kemiringan dalam 3D tidak mengatakan apa pun tentang kesulitan, salju, longsoran, atau apakah lintasan sedang dibuka.',
+    'Tur yang direncanakan menggambar setiap ruas lurus di antara titik-titiknya, jalur yang diimpor tetap seperti yang direkam. Keduanya tidak dirutekan lewat lintasan, lift, atau jalur. Ketinggian berasal dari medan atau berkas. TREK tidak menghitung waktu ski, dan tidak ada apa pun di sini, termasuk warna kemiringan dalam 3D, yang mengatakan sesuatu tentang kesulitan, salju, longsoran, atau apakah lintasan sedang dibuka.',
   'tours.ski.time': 'Waktu ski',
   'tours.ski.timeUnknown': 'Tidak dihitung',
+  'tours.ski.timeInfoLabel': 'Mengapa tidak ada waktu ski',
+  'tours.ski.timeInfo':
+    'TREK tidak menghitung waktu ski: ruas digambar lurus, tidak direncanakan lewat lintasan, lift, atau jalur. Jika mau, isi sendiri total waktu yang direncanakan.',
   'tours.ski.classifyTitle': 'Klasifikasikan jalur ski',
   'tours.ski.saved': 'Klasifikasi disimpan',
   'tours.ski.saveFailed': 'Klasifikasi tidak dapat disimpan.',
@@ -801,6 +800,8 @@ const tours: TranslationStrings = {
   'tours.import.previewConfirm': 'Impor {count} tur',
   'tours.conversion.introPaddle':
     'Impor adalah jejak yang direkam. Rencanakan tur dayung yang bisa diedit: TREK mengambil titik kontrol darinya, menghubungkannya dengan garis lurus seperti tur dayung digambar, dan menunjukkan seberapa dekat hasilnya. Tidak ada yang berubah sampai kamu memilih.',
+  'tours.conversion.introSki':
+    'Impor adalah jejak yang direkam. Rencanakan tur ski yang bisa diedit: TREK mengambil titik kontrol darinya, menghubungkannya dengan garis lurus seperti tur ski digambar, dan menunjukkan seberapa dekat hasilnya. Tidak ada yang berubah sampai kamu memilih.',
   'tours.conversion.closePaddle':
     'Usulan mengikuti jejak dengan dekat. Titik-titiknya dihubungkan garis lurus, jadi bukan garis yang sama.',
   'tours.planner.moreActions': 'Tindakan lainnya',
@@ -1113,6 +1114,7 @@ const tours: TranslationStrings = {
   'tourTypes.horse': 'Tur berkuda',
   'tours.planner.tourTypeHint.horse': 'Menunggang kuda, menyusuri rute berkuda bertanda',
   'tours.planner.namePlaceholder.horse': 'Tur berkuda tanpa judul',
+  'tours.planner.namePlaceholder.ski': 'Tur ski tanpa judul',
   'tours.horse.time': 'Waktu berkuda',
   'tours.horse.timeInfoLabel': 'Mengapa tidak ada waktu berkuda',
   'tours.horse.timeInfo':

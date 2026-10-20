@@ -18,7 +18,9 @@ import {
   type SetStateAction,
 } from 'react';
 import { randomId } from '../../../utils/randomId';
+import type { SkiChoice } from '../ski/skiChoice';
 import { planPaddleStep, type PaddleTourRoute } from './paddleRouting';
+import { routeSkiTour, skiRouteKey } from './skiRouting';
 import {
   normalizePlannerWaypoints,
   routeInputsKey,
@@ -52,6 +54,8 @@ export interface TourRouteInputs {
   runProfile: RunProfile;
   paddleBoat: PaddleBoatType | null;
   paddleLakeStyle: PaddleLakeStyle;
+  /** SKI-02: a ski tour's discipline and technique, what its legs are laid for. */
+  skiChoice: SkiChoice;
   /** Raised to plan the same points again. */
   retryToken: number;
   /** The planner's error, so a point found unreachable is only named while that is the error. */
@@ -131,19 +135,21 @@ async function routePaddle({ inputs, plannedKey, runKey, signal, stale, setPlann
 
 /**
  * A route on land for the type of the draft: a bike tour and a run for their
- * profile, a city walk, a hike within its limit, and a ride (HOR-01) put
- * together from its sections, never routed.
+ * profile, a city walk, a hike within its limit, a ride (HOR-01) put together
+ * from its sections, never routed, and a ski tour (SKI-02) laid by its own
+ * routing, which draws every leg straight until the piste router comes.
  */
 async function routeLand(inputs: RouteRun['inputs'], signal: AbortSignal) {
   const { waypoints, tourType, bikeProfile, runProfile, maxHikingDifficulty, hikingPreferences } = inputs;
   if (tourType === 'horse') return rideTour(waypoints);
+  if (tourType === 'ski') return await routeSkiTour(waypoints, inputs.skiChoice, signal);
   if (tourType === 'bike') return await routeBikeTour(waypoints, bikeProfile, signal);
   if (tourType === 'run') return await routeRun(waypoints, runProfile, signal);
   if (tourType === 'walk') return await routeCityWalk(waypoints, signal);
   return await routeWalkingTour(waypoints, signal, maxHikingDifficulty, hikingPreferences);
 }
 
-// A hike, a run, a city walk, a bike tour or a ride on land, then the heights along it.
+// A hike, a run, a city walk, a bike tour, a ride or a ski tour on land, then the heights along it.
 async function routeOnLand({ inputs, plannedKey, runKey, signal, stale, setPlanned, setUnreachable }: RouteRun) {
   const { setStatus, setError } = inputs;
   setStatus('routing');
@@ -201,7 +207,8 @@ function scheduleRoute(run: RouteRun): () => void {
  * or its choices change: a hike on foot within its limit, a bike tour and a
  * run for their profile (BIK-01, RUN-01), a paddle tour on the water by the
  * server's router, a ride put together from its horse route sections and
- * manual legs (HOR-01). Every tour on land then gets its heights; a later
+ * manual legs (HOR-01), a ski tour with its legs drawn (SKI-02). Every tour on
+ * land then gets its heights; a later
  * change makes an answer still on its way stale, and a failure keeps the last
  * route that was planned.
  */
@@ -216,6 +223,7 @@ export function useTourRoute(inputs: TourRouteInputs) {
     runProfile,
     paddleBoat,
     paddleLakeStyle,
+    skiChoice,
     retryToken,
     error,
     setStatus,
@@ -241,6 +249,8 @@ export function useTourRoute(inputs: TourRouteInputs) {
 
   const waypointKey = useMemo(() => tourWaypointKey(waypoints), [waypoints]);
   // What a route was planned for besides its points: a route of another type or profile is not this one's.
+  // A ski tour's choice counts as far as its routing lays the legs by it (nothing while they are drawn straight).
+  const skiKey = skiRouteKey(skiChoice);
   const choices = [
     tourType,
     bikeProfile,
@@ -249,6 +259,7 @@ export function useTourRoute(inputs: TourRouteInputs) {
     hikingPreferences,
     paddleBoat,
     paddleLakeStyle,
+    skiKey,
   ];
   const plannedKey = `${waypointKey}#${JSON.stringify(choices)}`;
   // CW-02, CW-03: a station's own fields and the keys a save answered are no part of what a route is planned from,
@@ -291,6 +302,7 @@ export function useTourRoute(inputs: TourRouteInputs) {
         runProfile,
         paddleBoat,
         paddleLakeStyle,
+        skiChoice,
         setStatus,
         setError,
         patchWaypoints,
@@ -325,6 +337,7 @@ export function useTourRoute(inputs: TourRouteInputs) {
     runProfile,
     setError,
     setStatus,
+    skiChoice,
     tourType,
     tripId,
   ]);

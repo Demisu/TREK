@@ -204,7 +204,7 @@ const tours: TranslationStrings = {
   'tourTypes.hike': 'Wandeling',
   'tourTypes.bike': 'Fietstocht',
   'tourTypes.run': 'Hardlooptocht',
-  'tourTypes.ski': 'Ski', // same-as-en
+  'tourTypes.ski': 'Ski en winter',
   'tourTypes.kayak': 'Peddeltocht',
   'tourTypes.walk': 'Stadswandeling / bezienswaardigheden',
   'tourTypes.food': 'Culinaire tocht / wijntocht',
@@ -404,33 +404,32 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Te voet, binnen een moeilijkheid die je kiest',
   'tours.planner.tourTypeHint.bike': 'Met de fiets, gerouteerd voor toer, race, gravel of MTB',
   'tours.planner.tourTypeHint.kayak': 'Op het water, met kajak, kano of SUP',
-  'tours.winter.title': 'Winteractiviteit',
-  'tours.winter.infoLabel': 'Wat het winterlabel doet',
-  'tours.winter.info':
-    'Alleen een label voor de wandeling. Route, hellingskleuren en looptijd blijven zoals bij elke wandeling en zeggen niets over sneeuw, lawines of de begaanbaarheid van een pad in de winter.',
-  'tours.winter.kind': 'Soort winteractiviteit',
-  'tours.winter.activity.winter_hike': 'Winterwandeling',
-  'tours.winter.activity.snowshoe': 'Sneeuwschoenwandeling',
-  'tours.winter.labelOnly':
-    'Gemarkeerd door de reizigers. Route en tijd worden gepland als bij elke wandeling, niet gecontroleerd op de winter.',
-  'tours.planner.tourTypeHint.ski': 'Uit een GPX-bestand, zoals opgenomen',
+  'tours.planner.tourTypeHint.ski': 'Skiën, snowboarden, sneeuwschoenen, winterwandelingen',
   'tours.ski.title': 'Skispoor',
   'tours.ski.discipline': 'Discipline', // same-as-en
   'tours.ski.discipline.alpine': 'Alpine', // same-as-en
   'tours.ski.discipline.snowboard': 'Snowboard', // same-as-en
   'tours.ski.discipline.cross_country': 'Langlaufen',
   'tours.ski.discipline.touring': 'Toerskiën',
+  'tours.ski.discipline.snowshoe': 'Sneeuwschoenen',
+  'tours.ski.discipline.winter_hike': 'Winterwandelen',
   'tours.ski.technique': 'Techniek',
   'tours.ski.technique.classic': 'Klassiek',
   'tours.ski.technique.skating': 'Skating', // same-as-en
   'tours.ski.technique.unknown': 'Onbekend',
   'tours.ski.chooseDiscipline': 'Kies een discipline om het spoor als ski te importeren.',
+  'tours.ski.chooseDisciplineToSave': 'Kies een discipline om de tocht op te slaan.',
+  'tours.ski.drawnFreely':
+    'Elk deel wordt recht tussen je punten getekend. Niets toetst het aan pistes, liften of paden.',
   'tours.ski.chooseTechnique': 'Kies de techniek, of Onbekend.',
   'tours.ski.infoLabel': 'Wat TREK met een skispoor doet',
   'tours.ski.info':
-    'Blijft zoals opgenomen en wordt nooit gerouteerd. Afstand en hoogtes komen uit het bestand. TREK berekent geen skitijd, en noch het spoor noch de hellingkleuren in 3D zeggen iets over moeilijkheid, sneeuw, lawines of of pistes en loipes open zijn.',
+    'Bij een geplande tocht is elk deel recht tussen de punten getekend, een geïmporteerd spoor blijft zoals opgenomen. Geen van beide wordt over pistes, liften of paden gerouteerd. Hoogtes komen uit het terrein of het bestand. TREK berekent geen skitijd, en niets hier, ook de hellingkleuren in 3D niet, zegt iets over moeilijkheid, sneeuw, lawines of of pistes en loipes open zijn.',
   'tours.ski.time': 'Skitijd',
   'tours.ski.timeUnknown': 'Niet berekend',
+  'tours.ski.timeInfoLabel': 'Waarom er geen skitijd is',
+  'tours.ski.timeInfo':
+    'TREK berekent geen skitijd: de delen zijn recht getekend, niet over pistes, liften of paden gepland. Vul zelf een geplande totale tijd in als je die wilt.',
   'tours.ski.classifyTitle': 'Skispoor indelen',
   'tours.ski.saved': 'Indeling opgeslagen',
   'tours.ski.saveFailed': 'De indeling kon niet worden opgeslagen.',
@@ -817,6 +816,8 @@ const tours: TranslationStrings = {
   'tours.import.previewConfirm.one': '{count} tocht importeren',
   'tours.conversion.introPaddle':
     'Een import is een opgenomen track. Plan een bewerkbare peddeltocht: TREK haalt er controlepunten uit, verbindt ze met rechte lijnen zoals een peddeltocht wordt getekend en laat zien hoe dicht dat in de buurt komt. Er verandert niets tot je kiest.',
+  'tours.conversion.introSki':
+    'Een import is een opgenomen track. Plan een bewerkbare skitocht: TREK haalt er controlepunten uit, verbindt ze met rechte lijnen zoals een skitocht wordt getekend en laat zien hoe dicht dat in de buurt komt. Er verandert niets tot je kiest.',
   'tours.conversion.closePaddle':
     'Het voorstel volgt de track nauw. De punten zijn met rechte lijnen verbonden, dus het is niet dezelfde lijn.',
   'tours.planner.moreActions': 'Meer acties',
@@ -1137,6 +1138,7 @@ const tours: TranslationStrings = {
   'tourTypes.horse': 'Rit te paard',
   'tours.planner.tourTypeHint.horse': 'Te paard, langs bewegwijzerde ruiterroutes',
   'tours.planner.namePlaceholder.horse': 'Naamloze rit',
+  'tours.planner.namePlaceholder.ski': 'Naamloze skitocht',
   'tours.horse.time': 'Rijtijd',
   'tours.horse.timeInfoLabel': 'Waarom er geen rijtijd is',
   'tours.horse.timeInfo':

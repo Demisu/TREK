@@ -44,7 +44,7 @@ export type CollectionTourTakeOverRequest = z.infer<typeof collectionTourTakeOve
 /**
  * A tour kept in a collection as the collection lists it: its measures as
  * they were saved, null staying null, and what the trip's list shows of its
- * type (winter label, ski discipline and technique, run profile and pace,
+ * type (ski discipline and technique, run profile and pace,
  * bike profile, stage count).
  */
 export const collectionTourItemSchema = tourListItemSchema
@@ -64,7 +64,6 @@ export const collectionTourItemSchema = tourListItemSchema
     station_stay_minutes: true,
     station_stays_unknown: true,
     bike_profile: true,
-    winter_activity: true,
     run_profile: true,
     run_pace_seconds_per_km: true,
     ski_discipline: true,

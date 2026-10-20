@@ -14,7 +14,6 @@ import {
   type SkiTechnique,
   type TourOrigin,
   type TourTypeKey,
-  type WinterActivity,
 } from '@trek/shared';
 
 /** MDT-01: a kept multi-day tour's stages, one more than the stops that end one, as the trip's list counts them. */
@@ -26,8 +25,7 @@ function keptStageCount(row: Pick<CollectionTourRow, 'waypoints'>): number | nul
 /**
  * LIB-03: a kept tour as the collection lists it, its measures as they were
  * saved, null staying null, with what the trip's list shows of its type (the
- * winter label, the ski discipline, the run's pace, the bike profile, the
- * stages), so a kept tour looks as it did in the trip it came from.
+ * ski discipline, the run's pace, the bike profile, the stages), so a kept tour looks as it did in the trip it came from.
  */
 export function keptTourItem(row: CollectionTourRow): CollectionTourItem {
   return {
@@ -45,7 +43,6 @@ export function keptTourItem(row: CollectionTourRow): CollectionTourItem {
     max_hiking_difficulty: row.max_hiking_difficulty,
     wanderer_ref: row.wanderer_ref,
     bike_profile: row.bike_profile as BikeProfile | null,
-    winter_activity: row.winter_activity as WinterActivity | null,
     run_profile: row.run_profile as RunProfile | null,
     run_pace_seconds_per_km: row.run_pace_seconds_per_km,
     ski_discipline: row.ski_discipline as SkiDiscipline | null,

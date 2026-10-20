@@ -145,7 +145,7 @@ describe("useTourPlanner, a run at the runner's own pace (RUN-01)", () => {
         run_pace_seconds_per_km: 330,
         max_hiking_difficulty: null,
         bike_profile: null,
-        winter_activity: null,
+        ski_discipline: null,
         duration_seconds: minutes * 60,
       })
     );

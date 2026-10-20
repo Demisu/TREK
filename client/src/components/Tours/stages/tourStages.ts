@@ -219,12 +219,12 @@ function paddleStageMinutes(
  * pace over its distance, a hike by the signposts' rule over its distance,
  * climb and descent, and otherwise the router's time for the whole tour
  * shared out by distance, which is how the router times a ride or a walk on
- * the flat. A ride on horseback (HOR-01) has no time, as the whole ride has
- * none, and a run without a pace has none either.
+ * the flat. A ride on horseback (HOR-01) and a ski tour (SKI-02) have no
+ * time, as the whole tour has none, and a run without a pace has none either.
  */
 function stageMinutes(input: TourStageInputs, span: StageSpan, stretch: Stretch, totalKm: number): number | null {
   if (input.paddle) return paddleStageMinutes(input.points, span, input.paddle);
-  if (input.tourType === 'horse') return null;
+  if (input.tourType === 'horse' || input.tourType === 'ski') return null;
   if (input.tourType === 'run') {
     const pace = input.runPaceSecondsPerKm;
     return pace === null || runPaceInvalid(pace) ? null : runMinutesAtPace(stretch.distanceKm, pace);

@@ -22,12 +22,18 @@ const RUN_ACTIVITY: Record<RunProfile, string> = {
   trail: 'trail_running',
 };
 
-/** SKI-02: a ski track says how it was skied, in the same words; without a known discipline it is skiing. */
+/**
+ * SKI-02: a ski tour says how it is done, in the same words: snowshoes make it
+ * snowshoeing, and a winter hike is walked as any hike is. Without a known
+ * discipline it is skiing.
+ */
 const SKI_ACTIVITY: Record<SkiDiscipline, string> = {
   alpine: 'alpine_skiing',
   snowboard: 'snowboarding',
   cross_country: 'cross_country_skiing',
   touring: 'backcountry_skiing',
+  snowshoe: 'snowshoeing',
+  winter_hike: 'hiking',
 };
 
 /** The activity a ride names in GPX (HOR-01), in the words Garmin reads. */
@@ -35,9 +41,9 @@ const HORSE_ACTIVITY = 'horseback_riding';
 
 /**
  * The activity a tour's track names in GPX: a paddle tour its boat, a bike
- * tour and a run their profile, a ski track its discipline (SKI-02), a ride
- * horseback riding (HOR-01), a hike on snowshoes snowshoeing (HIK-01) and any
- * other hike hiking; whatever is missing falls back to the plainest.
+ * tour and a run their profile, a ski tour its discipline (SKI-02), a ride
+ * horseback riding (HOR-01) and a hike hiking; whatever is missing falls back
+ * to the plainest.
  */
 export function gpxActivityOf(tour: {
   tour_type: string;
@@ -45,7 +51,6 @@ export function gpxActivityOf(tour: {
   bike_profile?: string | null;
   run_profile?: string | null;
   ski_discipline?: string | null;
-  winter_activity?: string | null;
 }): string {
   const { tour_type: type, boat_type: boat, bike_profile: bike } = tour;
   if (type === 'kayak') return PADDLE_ACTIVITY[(boat ?? 'other') as PaddleBoatType] ?? PADDLE_ACTIVITY.other;
@@ -53,7 +58,5 @@ export function gpxActivityOf(tour: {
   if (type === 'run') return RUN_ACTIVITY[(tour.run_profile ?? 'running') as RunProfile] ?? RUN_ACTIVITY.running;
   if (type === 'ski') return SKI_ACTIVITY[tour.ski_discipline as SkiDiscipline] ?? 'skiing';
   if (type === 'horse') return HORSE_ACTIVITY;
-  if (type !== 'hike') return type;
-  // A winter hike is walked as any hike is; only snowshoes make it an activity of its own.
-  return tour.winter_activity === 'snowshoe' ? 'snowshoeing' : 'hiking';
+  return type === 'hike' ? 'hiking' : type;
 }

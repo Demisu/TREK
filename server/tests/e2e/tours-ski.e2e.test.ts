@@ -1,8 +1,9 @@
 /**
- * Tours e2e for ski tracks (SKI-02): a GPX file imported as a ski track with
+ * Tours e2e for ski tours (SKI-02): a GPX file imported as a ski track with
  * its discipline (and a cross-country technique), kept as recorded with no
  * time worked out, listed, opened, exported, copied and classified again
- * without touching the track, its days or its provenance, through the real
+ * without touching the track, its days or its provenance; a ski tour planned
+ * with its discipline, drawn and untimed; through the real
  * JwtAuthGuard, AddonGuard and TripAccessGuard against a migrated and seeded
  * temp SQLite db. The permission check is a container spy and the broadcast
  * goes to a FakeRealtimeService, as in tours-run.e2e.test.ts.
@@ -75,7 +76,7 @@ const GPX = `<?xml version="1.0"?>
 <trkpt lat="47.22" lon="11.32"><ele>1980</ele></trkpt>
 </trkseg></trk></gpx>`;
 
-// A planned hike, the type a ski track is not.
+// A planned hike; a planned ski tour is the same body as type ski with its discipline and no time.
 const hikeBody = {
   name: 'Ridge walk',
   tour_type: 'hike',
@@ -223,13 +224,66 @@ describe('Ski tracks e2e (real guards + temp SQLite)', () => {
     expect(await countRows(orm, Places)).toBe(0);
   });
 
-  it('TOURS-SKI-E2E-004: a ski track is never planned: a planned save of one is refused', async () => {
+  it('TOURS-SKI-E2E-004: a planned ski tour saves with its discipline, drawn and untimed, and never without one', async () => {
+    const planned = { ...hikeBody, name: 'Snowshoes to the hut', tour_type: 'ski', max_hiking_difficulty: null };
+    const refused = await oneByOne(
+      [
+        { ...planned, duration_seconds: null },
+        { ...planned, duration_seconds: null, ski_discipline: 'cross_country' },
+        { ...planned, duration_seconds: null, ski_discipline: 'alpine', ski_technique: 'classic' },
+        { ...planned, ski_discipline: 'snowshoe' },
+        { ...planned, duration_seconds: null, ski_discipline: 'snowshoe', max_hiking_difficulty: 3 },
+      ],
+      (body) => request(server).post('/api/trips/5/tours').set('Cookie', sessionCookie(OWNER)).send(body),
+    );
+    expect(refused.map((res) => res.status)).toEqual([400, 400, 400, 400, 400]);
+    expect(await countRows(orm, Tours)).toBe(0);
+
     const res = await request(server)
       .post('/api/trips/5/tours')
       .set('Cookie', sessionCookie(OWNER))
-      .send({ ...hikeBody, tour_type: 'ski', max_hiking_difficulty: null });
-    expect(res.status).toBe(400);
-    expect(await countRows(orm, Tours)).toBe(0);
+      .send({ ...planned, duration_seconds: null, ski_discipline: 'snowshoe' });
+    expect(res.status).toBe(201);
+    expect(res.body.tour).toMatchObject({
+      tour_type: 'ski',
+      ski_discipline: 'snowshoe',
+      ski_technique: null,
+      max_hiking_difficulty: null,
+      duration: null,
+      origin: 'trek',
+    });
+    expect(res.body.tour.elevation_gain).toBeGreaterThan(0);
+  });
+
+  it('TOURS-SKI-E2E-010: a planned cross-country tour keeps its technique, exports as its discipline, and a hike takes both off', async () => {
+    const planned = { ...hikeBody, tour_type: 'ski', max_hiking_difficulty: null, duration_seconds: null };
+    const created = await request(server)
+      .post('/api/trips/5/tours')
+      .set('Cookie', sessionCookie(OWNER))
+      .send({ ...planned, ski_discipline: 'cross_country', ski_technique: 'skating' });
+    expect(created.status).toBe(201);
+    const placeId = created.body.tour.place_id as number;
+    expect(created.body.tour).toMatchObject({ ski_discipline: 'cross_country', ski_technique: 'skating' });
+
+    const exported = await request(server)
+      .get(`/api/trips/5/tours/${placeId}/export.gpx`)
+      .set('Cookie', sessionCookie(OWNER))
+      .buffer(true)
+      .parse((response, done) => {
+        let text = '';
+        response.setEncoding('utf8');
+        response.on('data', (chunk: string) => (text += chunk));
+        response.on('end', () => done(null, text));
+      });
+    expect(/<type>([^<]+)<\/type>/.exec(String(exported.body))?.[1]).toBe('cross_country_skiing');
+
+    const asHike = await request(server)
+      .put(`/api/trips/5/tours/${placeId}`)
+      .set('Cookie', sessionCookie(OWNER))
+      .send({ ...hikeBody, expected_revision: created.body.tour.revision });
+    expect(asHike.status).toBe(200);
+    expect(asHike.body.tour).toMatchObject({ tour_type: 'hike', ski_discipline: null, ski_technique: null });
+    expect(await findRow(orm, Tours, { place: placeId })).toMatchObject({ ski_discipline: null, ski_technique: null });
   });
 
   it('TOURS-SKI-E2E-005: classified again, only the classification changes: track, measures, days and provenance stay', async () => {

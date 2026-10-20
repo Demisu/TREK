@@ -1,11 +1,11 @@
 import type { SkiDiscipline, SkiTechnique, TourListItem } from '@trek/shared';
-import { CableCar, createLucideIcon, Spline, TrendingUp, type LucideIcon } from 'lucide-react';
+import { CableCar, createLucideIcon, Footprints, Snowflake, Spline, TrendingUp, type LucideIcon } from 'lucide-react';
 
 /**
  * SKI-02: a snowboard seen from above, laid across the square with its two
- * bindings. Lucide has no board, and the snowflake is the winter hike's mark
- * (HIK-01): both sit in the same corner badge, so the board needs a glyph of
- * its own to be told apart there.
+ * bindings. Lucide has no board, and the snowflake is the winter hike's mark:
+ * both sit in the same corner badge, so the board needs a glyph of its own to
+ * be told apart there.
  */
 const BOARD = 'rotate(-45 12 12)';
 const Snowboard = createLucideIcon('snowboard', [
@@ -15,26 +15,29 @@ const Snowboard = createLucideIcon('snowboard', [
 ]);
 
 /**
- * SKI-02: the icon each discipline goes by: a lift for alpine skiing, a board
- * for snowboarding, a winding trail for cross-country and the climb on skins
- * for ski touring. None of them is the winter hike's snowflake, which takes
- * the same corner of a tile.
+ * SKI-02: the icon each discipline goes by, each its own: a lift for alpine
+ * skiing, a board for snowboarding, a winding trail for cross-country, the
+ * climb on skins for ski touring, footprints in the snow for snowshoeing and a
+ * snowflake for winter hiking. They all take the same corner of a tile, so no
+ * two share a glyph, and none is the tile's own mountain.
  */
 export const SKI_DISCIPLINE_ICON: Record<SkiDiscipline, LucideIcon> = {
   alpine: CableCar,
   snowboard: Snowboard,
   cross_country: Spline,
   touring: TrendingUp,
+  snowshoe: Footprints,
+  winter_hike: Snowflake,
 };
 
 export type SkiTour = Partial<Pick<TourListItem, 'tour_type' | 'ski_discipline' | 'ski_technique'>>;
 
-/** The discipline of a ski track, or null for any other tour and a ski track listed before it had one. */
+/** The discipline of a ski tour, or null for any other tour and a ski track listed before it had one. */
 export function skiDisciplineOf(tour: SkiTour): SkiDiscipline | null {
   return tour.tour_type === 'ski' ? (tour.ski_discipline ?? null) : null;
 }
 
-/** A cross-country track's technique; null for every other discipline and type. */
+/** A cross-country tour's technique; null for every other discipline and type. */
 export function skiTechniqueOf(tour: SkiTour): SkiTechnique | null {
   return skiDisciplineOf(tour) === 'cross_country' ? (tour.ski_technique ?? null) : null;
 }

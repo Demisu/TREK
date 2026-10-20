@@ -670,6 +670,8 @@ const ESTIMATE_KEYS = {
   run: { labelKey: 'tours.run.timeEstimated', shortKey: 'tours.run.timeEstimatedShort', infoLabelKey: 'tours.run.timeEstimatedInfoLabel', infoKey: 'tours.run.timeEstimatedInfo' },
   // HOR-01: a ride has no estimate; the field says why, and the planned total is the rider's own.
   horse: { labelKey: 'tours.horse.time', shortKey: 'tours.horse.time', infoLabelKey: 'tours.horse.timeInfoLabel', infoKey: 'tours.horse.timeInfo' },
+  // SKI-02: nor has a ski tour, whose legs are drawn; the field says so.
+  ski: { labelKey: 'tours.ski.time', shortKey: 'tours.ski.time', infoLabelKey: 'tours.ski.timeInfoLabel', infoKey: 'tours.ski.timeInfo' },
 } as const
 
 /** Which ways a point is out of reach of: paths for hikes, city walks and rides, ways for bikes, runnable ways. */
@@ -678,6 +680,7 @@ const UNREACHABLE_WAYS: Record<PlannableTourType, 'hike' | 'bike' | 'run'> = {
   walk: 'hike',
   kayak: 'hike',
   horse: 'hike',
+  ski: 'hike',
   bike: 'bike',
   run: 'run',
 }
@@ -730,7 +733,7 @@ function plannerTimeFields(planner: TourPlannerController, t: Translate): TourMe
     {
       ...estimate,
       value: planner.walkingDurationMinutes == null
-        ? t('tours.planner.walkingTimeUnknown')
+        ? t(planner.isSki ? 'tours.ski.timeUnknown' : 'tours.planner.walkingTimeUnknown')
         : formatPlannedTourDuration(planner.walkingDurationMinutes),
     },
     {

@@ -14,6 +14,7 @@ import { fs } from '../../shared/DialogShell';
 import { crossesLake } from '../paddle/lakeStyleAdvice';
 import { PaddleLakeStyleField } from '../paddle/PaddleLakeStyleField';
 import { RunFields } from '../run/RunFields';
+import { SkiClassificationFields } from '../ski/SkiClassificationFields';
 import { TourNotice } from '../tourParts';
 import { TourTypeSelect } from './TourTypeSelect';
 import type { TourPlannerController } from './useTourPlanner';
@@ -105,11 +106,28 @@ function BikeProfileField({ planner }: { planner: TourPlannerController }) {
 }
 
 /**
- * PAD-01, BIK-01, RUN-01: what the tour is. A hike keeps its fields where they
- * were; a bike tour names its profile; a run its profile and the runner's pace;
- * a paddle tour asks for exactly one boat and the water it is on, and offers
- * the boat's planning speed beside the paddler's own. Nothing here puts the
- * tour on a day.
+ * SKI-02: what a ski tour is, chosen on purpose and nothing preselected: the
+ * discipline and, for cross-country, the technique. A short line says how its
+ * legs are laid: straight between the points, nothing checked against pistes.
+ */
+function SkiFields({ planner }: { planner: TourPlannerController }) {
+  const { t } = useTranslation();
+  return (
+    <div data-testid="tour-planner-ski-fields" className="flex min-w-0 flex-col gap-1.5">
+      <SkiClassificationFields choice={planner.ski.choice} onChange={planner.ski.change} planned />
+      <span className="block text-content-faint" style={fs(11, 'body')}>
+        {t('tours.ski.drawnFreely')}
+      </span>
+    </div>
+  );
+}
+
+/**
+ * PAD-01, BIK-01, RUN-01, SKI-02: what the tour is. A hike keeps its fields
+ * where they were; a bike tour names its profile; a run its profile and the
+ * runner's pace; a ski tour its discipline; a paddle tour asks for exactly one
+ * boat and the water it is on, and offers the boat's planning speed beside the
+ * paddler's own. Nothing here puts the tour on a day.
  */
 export function TourTypeFields({ planner, locked }: TourTypeFieldsProps) {
   const { t } = useTranslation();
@@ -133,6 +151,8 @@ export function TourTypeFields({ planner, locked }: TourTypeFieldsProps) {
       {planner.isBike && <BikeProfileField planner={planner} />}
 
       {planner.isRun && <RunFields planner={planner} locked={locked} />}
+
+      {planner.isSki && <SkiFields planner={planner} />}
 
       {planner.isPaddle && (
         <div data-testid="tour-planner-paddle-fields" className="flex min-w-0 flex-col gap-3">

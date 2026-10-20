@@ -215,13 +215,37 @@ describe('useGpxConversion', () => {
     );
   });
 
-  it('SKI-02: a ski track is never planned over: nothing is offered and no router is asked', () => {
+  it('SKI-02: a ski track is planned over as a ski tour of its discipline, its legs drawn straight', async () => {
     const ski = {
       ...imported,
       tour_type: 'ski' as const,
-      ski_discipline: 'touring' as const,
+      ski_discipline: 'cross_country' as const,
+      ski_technique: 'classic' as const,
       max_hiking_difficulty: null,
     };
+    const controller = planner({
+      mode: { type: 'view-gpx', placeId: ski.place_id, tour: ski },
+      readOnlyGpxTour: { tour: ski, routeGeometry: null },
+    } as Partial<TourPlannerController>);
+    const { result } = renderHook(() => useGpxConversion(controller));
+    expect(result.current.available).toBe(true);
+    expect(result.current.paddle).toBe(true);
+    await act(async () => {
+      await result.current.analyze();
+    });
+    const legs = routing.route.mock.calls[0]?.[0] as Array<{ fixedLeg: { kind: string } | null }>;
+    expect(legs.slice(0, -1).every((point) => point.fixedLeg?.kind === 'free')).toBe(true);
+    expect(routing.run).not.toHaveBeenCalled();
+    act(() => {
+      result.current.adopt('new');
+    });
+    expect(controller.startDerivedTour).toHaveBeenCalledWith(
+      expect.objectContaining({ tourType: 'ski', ski: { discipline: 'cross_country', technique: 'classic' } })
+    );
+  });
+
+  it('SKI-02: a ski track that names no discipline is not planned over: nothing is offered and no router is asked', () => {
+    const ski = { ...imported, tour_type: 'ski' as const, ski_discipline: null, max_hiking_difficulty: null };
     const controller = planner({
       mode: { type: 'view-gpx', placeId: ski.place_id, tour: ski },
       readOnlyGpxTour: { tour: ski, routeGeometry: null },

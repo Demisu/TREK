@@ -370,10 +370,10 @@ describe('CollectionToursSection', () => {
     await waitFor(() => expect(screen.queryByTestId('collection-tours')).toBeNull());
   });
 
-  it('FE-COLLECTION-TOURS-015: a kept tour looks as it did in its trip list: winter mark, run pace and stages', async () => {
+  it('FE-COLLECTION-TOURS-015: a kept tour looks as it did in its trip list: ski mark, run pace and stages', async () => {
     vi.spyOn(collectionToursRepo, 'list').mockResolvedValue({
       tours: [
-        kept({ id: 5, winter_activity: 'snowshoe', stage_count: 3 }),
+        kept({ id: 5, tour_type: 'ski', max_hiking_difficulty: null, ski_discipline: 'snowshoe', stage_count: 3 }),
         kept({
           id: 6,
           tour_type: 'run',
@@ -384,10 +384,10 @@ describe('CollectionToursSection', () => {
       ],
     });
     render(<CollectionToursSection collectionId={3} canRemove={false} />);
-    const hike = await screen.findByTestId('kept-tour-5');
-    expect(within(hike).getByTestId('tour-winter-mark')).toBeInTheDocument();
-    expect(within(hike).getByTestId('kept-tour-stages')).toHaveTextContent('3 stages');
-    expect(within(hike).queryByTestId('kept-tour-pace')).toBeNull();
+    const ski = await screen.findByTestId('kept-tour-5');
+    expect(within(ski).getByTestId('tour-ski-mark')).toBeInTheDocument();
+    expect(within(ski).getByTestId('kept-tour-stages')).toHaveTextContent('3 stages');
+    expect(within(ski).queryByTestId('kept-tour-pace')).toBeNull();
     const run = screen.getByTestId('kept-tour-6');
     expect(within(run).getByTestId('kept-tour-pace')).toHaveTextContent('6:00');
     expect(within(run).queryByTestId('kept-tour-stages')).toBeNull();

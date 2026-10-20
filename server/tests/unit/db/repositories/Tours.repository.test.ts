@@ -110,7 +110,6 @@ describe('ToursRepository reads', () => {
         revision: 1,
         hiking_preferences: null,
         bike_profile: null,
-        winter_activity: null,
         run_profile: null,
         run_pace_seconds_per_km: null,
         ski_discipline: null,
@@ -150,7 +149,6 @@ describe('ToursRepository reads', () => {
         revision: 1,
         hiking_preferences: null,
         bike_profile: null,
-        winter_activity: null,
         run_profile: null,
         run_pace_seconds_per_km: null,
         ski_discipline: null,
@@ -379,7 +377,6 @@ describe('ToursRepository writes', () => {
       revision: 1,
       hiking_preferences: null,
       bike_profile: null,
-      winter_activity: null,
       run_profile: null,
       run_pace_seconds_per_km: null,
       ski_discipline: null,
@@ -428,20 +425,19 @@ describe('ToursRepository writes', () => {
     });
   });
 
-  it('TOURREPO-022: a hike keeps its winter label through an edit that leaves it out, and loses it only when told (HIK-01)', async () => {
+  it('TOURREPO-022: a planned ski tour keeps snowshoeing or winter hiking as its discipline, and a hike takes it off (SKI-02)', async () => {
     const { trip } = fixture();
     const place = createPlace(testDb, trip.id, { name: 'Snowy ridge' });
-    await repo.insertTour({ place_id: place.id, ...METRICS, winter_activity: 'snowshoe' });
-    expect((await repo.findInTrip(trip.id, place.id))?.winter_activity).toBe('snowshoe');
+    const ski = { ...METRICS, tour_type: 'ski', max_hiking_difficulty: null, duration: null };
+    await repo.insertTour({ place_id: place.id, ...ski, ski_discipline: 'snowshoe' });
+    expect(await repo.findInTrip(trip.id, place.id)).toMatchObject({ tour_type: 'ski', ski_discipline: 'snowshoe' });
+
+    const winterHike = { ...HIKE_UPDATE, ...ski, ski_discipline: 'winter_hike' as const };
+    expect(await repo.updateInTrip(trip.id, place.id, winterHike)).toBe(true);
+    expect((await repo.listForTrip(trip.id))[0]).toMatchObject({ tour_type: 'ski', ski_discipline: 'winter_hike' });
 
     expect(await repo.updateInTrip(trip.id, place.id, HIKE_UPDATE)).toBe(true);
-    expect((await repo.findInTrip(trip.id, place.id))?.winter_activity).toBe('snowshoe');
-
-    expect(await repo.updateInTrip(trip.id, place.id, { ...HIKE_UPDATE, winter_activity: 'winter_hike' })).toBe(true);
-    expect((await repo.listForTrip(trip.id))[0]?.winter_activity).toBe('winter_hike');
-
-    expect(await repo.updateInTrip(trip.id, place.id, { ...HIKE_UPDATE, winter_activity: null })).toBe(true);
-    expect((await repo.findInTrip(trip.id, place.id))?.winter_activity).toBeNull();
+    expect(await repo.findInTrip(trip.id, place.id)).toMatchObject({ ski_discipline: null, ski_technique: null });
   });
 
   it('TOURREPO-023: a run keeps its profile and pace, an edit replaces them, and another type takes them off (RUN-01)', async () => {
@@ -537,7 +533,6 @@ describe('ToursRepository writes', () => {
         revision: 1,
         hiking_preferences: null,
         bike_profile: null,
-        winter_activity: null,
         run_profile: null,
         run_pace_seconds_per_km: null,
         ski_discipline: null,

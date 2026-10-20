@@ -20,12 +20,16 @@ type FerrataLayerState = ReturnType<typeof useFerrataMapLayer>;
  * neither draws nor warns about ferratas, even if the layer was switched on before; a base layer it
  * does not offer falls back to its default without changing the choice kept,
  * which is also what an install whose admin withdrew OpenHikingMap sees.
- * The pistes (SKI-01) are offered with no tour open too, whatever type was chosen last.
+ * The pistes (SKI-01) are offered for a ski tour, where they show until switched off, and with
+ * no tour open, whatever type was chosen last; a hike no longer has them.
  * `mapZoom` is the map's zoom on the raster tile scale, null until it reported one, so an
  * overlay switched on further out than its tiles reach can say so instead of looking broken.
  */
 export function useTourStageLayers(
-  tourPlanner: Pick<TourPlannerController, 'mode' | 'tourType' | 'mapBaseLayer' | 'mapOverlays' | 'toggleMapOverlay'>,
+  tourPlanner: Pick<
+    TourPlannerController,
+    'mode' | 'tourType' | 'mapBaseLayer' | 'mapOverlays' | 'mapOverlaysOff' | 'toggleMapOverlay'
+  >,
   ferrata: FerrataLayerState,
   mapZoom: number | null = null
 ) {
@@ -36,7 +40,8 @@ export function useTourStageLayers(
   const hikingMapAllowed = useAddonStore((state) => state.toursHikingMap);
   const cycleMapAllowed = useAddonStore((state) => state.toursCycleMap);
   const tourOpen = mode.type !== 'neutral';
-  const layerSet = tourMapLayersFor(mode.type === 'view-gpx' ? mode.tour.tour_type : tourPlanner.tourType, {
+  const openType = mode.type === 'view-gpx' ? mode.tour.tour_type : tourPlanner.tourType;
+  const layerSet = tourMapLayersFor(openType, {
     hikingMap: hikingMapAllowed && tourOpen,
     cycleMap: cycleMapAllowed && tourOpen,
   });
@@ -54,14 +59,20 @@ export function useTourStageLayers(
     toggleSeamarks,
     mapZoom
   );
-  // SKI-01: the pistes for the types they serve, and with no tour open, so a ski area can be
-  // looked at without any route. Switching them never touches the tour: the switch is the map view's.
+  // SKI-01: the pistes for a ski tour, and with no tour open, so a ski area can be looked at
+  // without any route. A ski tour shows them until they are switched off; switching them never
+  // touches the tour: the switch is the map view's.
   const offersPistes = !tourOpen || layerSet.overlays.includes('pistes');
-  const togglePistes = useCallback(() => toggleMapOverlay(PISTE_OVERLAY.id), [toggleMapOverlay]);
+  const pistesByDefault = tourOpen && openType === 'ski' && !tourPlanner.mapOverlaysOff.has(PISTE_OVERLAY.id);
+  const pistesShown = tourPlanner.mapOverlays.has(PISTE_OVERLAY.id) || pistesByDefault;
+  const togglePistes = useCallback(
+    () => toggleMapOverlay(PISTE_OVERLAY.id, pistesShown),
+    [toggleMapOverlay, pistesShown]
+  );
   const pistes = useTourRasterOverlay(
     PISTE_OVERLAY,
     offersPistes,
-    tourPlanner.mapOverlays.has(PISTE_OVERLAY.id),
+    pistesShown,
     togglePistes,
     mapZoom
   );

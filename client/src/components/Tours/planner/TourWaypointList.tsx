@@ -370,7 +370,8 @@ type WaypointPoint = TourPlannerController['waypoints'][number];
  * tour: on the water), planned again (P2A-05), other ways for it compared on
  * a hike (RTE-02), and the point a stop or a shaping point (P2A-03; never the
  * first or the last). A ride (HOR-01) has none: no router plans any of its
- * legs, so there is nothing to switch.
+ * legs, so there is nothing to switch. Nor has a ski tour's leg (SKI-02),
+ * drawn straight until the piste router plans it; its points can still shape.
  */
 function routeMenuItems(
   planner: TourPlannerController,
@@ -382,9 +383,9 @@ function routeMenuItems(
   if (planner.isHorse) return [];
   const hasLeg = index < lastIndex;
   const free = point.fixedLeg?.kind === 'free';
-  const routed = hasLeg && !point.fixedLeg;
+  const routed = hasLeg && !point.fixedLeg && !planner.isSki;
   const items: MenuItems = [];
-  if (free || routed) {
+  if ((free || routed) && !planner.isSki) {
     const routeAgain = planner.isPaddle ? t('tours.paddle.routeOnWater') : t('tours.planner.routeLeg');
     items.push(
       { divider: true },

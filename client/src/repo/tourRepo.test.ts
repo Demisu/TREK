@@ -197,17 +197,18 @@ describe('tourRepo.update', () => {
     expect(await offlineDb.places.get(40)).toMatchObject({ description: 'Keep description', website: 'https://example.org/old' })
   })
 
-  it('FE-REPO-TOUR-042: offline, a hike takes its winter label at once, keeps it when a save leaves it out, and another type drops it (HIK-01)', async () => {
+  it('FE-REPO-TOUR-042: offline, a planned ski tour shows its discipline at once, a technique for cross-country only, and another type drops both (SKI-02)', async () => {
     setOnline(false)
-    await offlineDb.tours.put({ ...tour({ winter_activity: 'snowshoe' }), trip_id: 3 })
+    await offlineDb.tours.put({ ...tour(), trip_id: 3 })
+    const ski = { ...body, tour_type: 'ski' as const, max_hiking_difficulty: null, duration_seconds: null }
 
-    expect((await tourRepo.update(3, 40, body)).tour.winter_activity).toBe('snowshoe')
-    expect((await tourRepo.update(3, 40, { ...body, winter_activity: 'winter_hike' })).tour.winter_activity).toBe('winter_hike')
-    expect((await tourRepo.update(3, 40, { ...body, winter_activity: null })).tour.winter_activity).toBeNull()
-    await tourRepo.update(3, 40, { ...body, winter_activity: 'snowshoe' })
-    const bike = { ...body, tour_type: 'bike' as const, bike_profile: 'touring' as const, max_hiking_difficulty: null }
-    expect((await tourRepo.update(3, 40, bike)).tour.winter_activity).toBeNull()
-    expect((await offlineDb.tours.get(40))?.winter_activity).toBeNull()
+    expect((await tourRepo.update(3, 40, { ...ski, ski_discipline: 'snowshoe' })).tour).toMatchObject({ tour_type: 'ski', ski_discipline: 'snowshoe', ski_technique: null })
+    const skating = { ...ski, ski_discipline: 'cross_country' as const, ski_technique: 'skating' as const }
+    expect((await tourRepo.update(3, 40, skating)).tour).toMatchObject({ ski_discipline: 'cross_country', ski_technique: 'skating' })
+    expect((await tourRepo.update(3, 40, { ...skating, ski_discipline: 'touring' })).tour.ski_technique).toBeNull()
+    expect((await tourRepo.update(3, 40, body)).tour).toMatchObject({ tour_type: 'hike', ski_discipline: null, ski_technique: null })
+    expect(await offlineDb.tours.get(40)).toMatchObject({ ski_discipline: null, ski_technique: null })
+    expect(await offlineDb.tours.get(40)).not.toHaveProperty('winter_activity')
   })
 
   it('FE-REPO-TOUR-043: offline, a run shows its profile, pace and planned time at once, and another type drops them (RUN-01)', async () => {

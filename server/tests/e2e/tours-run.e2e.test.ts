@@ -5,7 +5,7 @@
  * with a pace out of bounds, copied, exported and imported, through the real
  * JwtAuthGuard, AddonGuard and TripAccessGuard against a migrated and seeded
  * temp SQLite db. The permission check is a container spy and the broadcast
- * goes to a FakeRealtimeService, as in tours-winter.e2e.test.ts.
+ * goes to a FakeRealtimeService, as in tours-ski.e2e.test.ts.
  *
  * Fixtures: user 1 owns trip 5, user 2 is a member of trip 5 whom the
  * permission spy denies 'place_edit'.

@@ -7,7 +7,13 @@ import {
   trackMarksSchema,
 } from './paddle-plan.schema';
 import { runPaceSecondsPerKmSchema } from './run-pace';
-import { skiDisciplineSchema, skiTechniqueSchema } from './ski.schema';
+import {
+  skiDisciplineSchema,
+  skiIssues,
+  skiTechniqueSchema,
+  type SkiDiscipline,
+  type SkiTechnique,
+} from './ski.schema';
 import { tourActivityRefSchema, tourActivitySchema } from './tour-activity.schema';
 import { tourPackingLinkSchema } from './tour-packing-link.schema';
 import { tourPoiCategorySchema } from './tour-poi-category';
@@ -40,15 +46,17 @@ export type TourTypeKey = z.infer<typeof tourTypeKeySchema>;
  * walk (CW-01): stations joined on foot, without a hiking limit. `run` is a
  * run (RUN-01), planned on foot with the runner's own pace. `horse` is a
  * ride (HOR-01): sections of signposted horse routes and stretches the rider
- * draws by hand, never routed.
+ * draws by hand, never routed. `ski` is a ski and winter tour (SKI-02): a
+ * discipline from alpine skiing to winter hiking, every leg drawn between
+ * its points until the piste router plans them, no ski time worked out.
  */
-export const plannableTourTypeSchema = z.enum(['hike', 'walk', 'run', 'bike', 'kayak', 'horse']);
+export const plannableTourTypeSchema = z.enum(['hike', 'walk', 'run', 'bike', 'kayak', 'horse', 'ski']);
 export type PlannableTourType = z.infer<typeof plannableTourTypeSchema>;
 
 /**
- * The types a tour can be imported and kept as: every type the planner plans,
- * and ski (SKI-02), which TREK does not route. A ski track comes in as it was
- * recorded and stays so; the planner never opens it as a draft.
+ * The types a tour can be imported and kept as: every type the planner plans.
+ * An imported track (a ski track among them, SKI-02) comes in as it was
+ * recorded and stays so until a tour is planned from it.
  */
 export const importableTourTypeSchema = z.enum(['hike', 'walk', 'run', 'bike', 'kayak', 'horse', 'ski']);
 export type ImportableTourType = z.infer<typeof importableTourTypeSchema>;
@@ -86,16 +94,6 @@ export type PaddleWaterContext = z.infer<typeof paddleWaterContextSchema>;
 /** PAD-11: how the router crosses lakes: straight over (the default), or along the shore, which a paddler picks for wind. */
 export const paddleLakeStyleSchema = z.enum(['direct', 'shore']);
 export type PaddleLakeStyle = z.infer<typeof paddleLakeStyleSchema>;
-
-/**
- * HIK-01: a hike marked as one done in winter, walked or on snowshoes. It is
- * optional and only a label: the route, its grade and its time are planned as
- * for any hike, and the label says nothing about whether a way can be walked
- * in winter, about snow or about avalanches. A hike without one keeps null.
- */
-export const WINTER_ACTIVITIES = ['winter_hike', 'snowshoe'] as const;
-export const winterActivitySchema = z.enum(WINTER_ACTIVITIES);
-export type WinterActivity = z.infer<typeof winterActivitySchema>;
 
 /** The highest planning speed a paddler can enter, in km/h. */
 export const MAX_PADDLE_SPEED_KMH = 20;
@@ -214,15 +212,13 @@ export const tourSchema = z.object({
   derived_from_place_id: z.number().int().positive().nullable().optional(),
   /** BIK-01: a bike tour's profile; null for every other type. Absent in a list cached before it existed. */
   bike_profile: bikeProfileSchema.nullable().optional(),
-  /** HIK-01: a hike's winter label; null for none and for every other type. Absent in a list cached before it existed. */
-  winter_activity: winterActivitySchema.nullable().optional(),
   /** RUN-01: a run's profile; null for every other type. Absent in a list cached before it existed. */
   run_profile: runProfileSchema.nullable().optional(),
   /** RUN-01: the pace a run is planned at, seconds per km; null while none is entered and for every other type. */
   run_pace_seconds_per_km: z.number().nullable().optional(),
-  /** SKI-02: a ski track's discipline; null for every other type. Absent in a list cached before it existed. */
+  /** SKI-02: a ski tour's discipline; null for every other type. Absent in a list cached before it existed. */
   ski_discipline: skiDisciplineSchema.nullable().optional(),
-  /** SKI-02: how a cross-country track is skied; null for every other discipline and type. */
+  /** SKI-02: how a cross-country tour is skied; null for every other discipline and type. */
   ski_technique: skiTechniqueSchema.nullable().optional(),
   /** A paddle tour's boat and water; null for every other type. Absent in a list cached before they existed. */
   boat_type: paddleBoatTypeSchema.nullable().optional(),
@@ -509,12 +505,13 @@ export const tourCreateRequestSchema = z
     hiking_preferences: hikingPreferencesSchema.nullable().optional(),
     /** BIK-01, a bike tour's only, and its one requirement. */
     bike_profile: bikeProfileSchema.nullable().optional(),
-    /** HIK-01, a hike's only: its winter label, null to take it off; left out, an edit keeps the one it has. */
-    winter_activity: winterActivitySchema.nullable().optional(),
     /** RUN-01, a run's only, and its one requirement. */
     run_profile: runProfileSchema.nullable().optional(),
     /** RUN-01, a run's only: the pace it is planned at, seconds per km; null while none is entered. */
     run_pace_seconds_per_km: runPaceSecondsPerKmSchema.nullable().optional(),
+    /** SKI-02, a ski tour's only, and its one requirement: the discipline, for cross-country the technique too. */
+    ski_discipline: skiDisciplineSchema.nullable().optional(),
+    ski_technique: skiTechniqueSchema.nullable().optional(),
     boat_type: paddleBoatTypeSchema.nullable().optional(),
     water_context: paddleWaterContextSchema.nullable().optional(),
     paddle_speed_kmh: paddleSpeedKmhSchema.nullable().optional(),
@@ -599,6 +596,7 @@ const TYPE_NAMED: Record<PlannableTourType, string> = {
   run: 'a run',
   hike: 'a hike',
   horse: 'a horse tour',
+  ski: 'a ski tour',
 };
 
 /**
@@ -624,7 +622,9 @@ const PADDLE_FIELDS = [
  * bike tour and a run exactly one profile each and nothing of a hike's or a
  * paddler's, a run also its pace; a paddle tour exactly one boat and its
  * water, and no hiking limit; a horse tour (HOR-01) only legs taken from a
- * horse route or drawn by hand, and no riding time worked out for it.
+ * horse route or drawn by hand, and no riding time worked out for it; a ski
+ * tour (SKI-02) its discipline (and a cross-country technique), no via
+ * ferrata, and no ski time worked out for it.
  */
 function tourTypeIssues(value: {
   tour_type: PlannableTourType;
@@ -632,9 +632,10 @@ function tourTypeIssues(value: {
   max_hiking_difficulty?: number | null;
   hiking_preferences?: HikingPreferences | null;
   bike_profile?: BikeProfile | null;
-  winter_activity?: WinterActivity | null;
   run_profile?: RunProfile | null;
   run_pace_seconds_per_km?: number | null;
+  ski_discipline?: SkiDiscipline | null;
+  ski_technique?: SkiTechnique | null;
   boat_type?: PaddleBoatType | null;
   water_context?: PaddleWaterContext | null;
   paddle_speed_kmh?: number | null;
@@ -668,17 +669,19 @@ function tourTypeIssues(value: {
       issues.push({ path: ['max_hiking_difficulty'], message: `${named} has no hiking difficulty` });
     if (hikingPreferencesOf(value.hiking_preferences) !== null)
       issues.push({ path: ['hiking_preferences'], message: `${named} has no hiking preferences` });
-    if (value.winter_activity != null)
-      issues.push({ path: ['winter_activity'], message: `${named} has no winter activity` });
   }
   if (type === 'bike' && value.bike_profile == null)
     issues.push({ path: ['bike_profile'], message: 'a bike tour needs a bike profile' });
   if (type !== 'bike' && value.bike_profile != null)
     issues.push({ path: ['bike_profile'], message: 'bike_profile belongs to a bike tour' });
   issues.push(...runIssues(value));
+  issues.push(...skiIssues(type === 'ski', value));
   // No router plans a ride, so no time is worked out for it; a planned total the rider enters is theirs.
   if (type === 'horse' && value.duration_seconds != null)
     issues.push({ path: ['duration_seconds'], message: 'a horse tour has no riding time worked out' });
+  // SKI-02: no ski time is worked out until the piste router plans the legs; a planned total stays the traveller's.
+  if (type === 'ski' && value.duration_seconds != null)
+    issues.push({ path: ['duration_seconds'], message: 'a ski tour has no ski time worked out' });
   const points = value.waypoints ?? [];
   // A portage and a lock are a paddler's; a via ferrata is climbed, never ridden.
   points.forEach((point, index) => {
@@ -687,7 +690,10 @@ function tourTypeIssues(value: {
       issues.push({ path: ['waypoints', index, 'fixed_leg'], message: 'a portage belongs to a paddle tour' });
     if (type !== 'kayak' && point.lock != null)
       issues.push({ path: ['waypoints', index, 'lock'], message: 'a lock belongs to a paddle tour' });
-    if ((type === 'bike' || type === 'walk' || type === 'run' || type === 'horse') && kind === 'ferrata')
+    if (
+      (type === 'bike' || type === 'walk' || type === 'run' || type === 'horse' || type === 'ski') &&
+      kind === 'ferrata'
+    )
       issues.push({ path: ['waypoints', index, 'fixed_leg'], message: `${named} has no via ferrata` });
     if (type !== 'horse' && kind === 'horse_route')
       issues.push({

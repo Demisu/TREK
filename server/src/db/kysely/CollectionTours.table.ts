@@ -23,7 +23,6 @@ export interface CollectionToursTable {
   match_confidence: InsertOptional<number | null>;
   max_hiking_difficulty: InsertOptional<number | null>;
   bike_profile: InsertOptional<string | null>;
-  winter_activity: InsertOptional<string | null>;
   run_profile: InsertOptional<string | null>;
   run_pace_seconds_per_km: InsertOptional<number | null>;
   ski_discipline: InsertOptional<string | null>;

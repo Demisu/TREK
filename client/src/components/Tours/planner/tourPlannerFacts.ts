@@ -13,11 +13,11 @@ import {
   type RunProfile,
   type TourListItem,
   type TourMaxHikingDifficulty,
-  type WinterActivity,
 } from '@trek/shared';
 import type { RouteGeometryAnalysis } from '../../../utils/routeGeometry';
 import { hikingTimeMinutes } from '../hikingTime';
 import { runPaceInvalid } from '../run/runPace';
+import { NO_SKI_CHOICE, skiChoiceMissing, skiChoiceOf, skiFieldsOf, type SkiChoice } from '../ski/skiChoice';
 import { walkTimesOf, type WalkTimes } from './stationModel';
 
 /** The editable fields of a saved tour as the planner opens them, each with its empty value. */
@@ -33,9 +33,8 @@ export function openedTourFields(tour: TourListItem) {
     // A type nobody can plan (an import of another kind) opens as a hike, as it always has.
     tourType: plannableTourTypeSchema.catch('hike').parse(tour.tour_type) as PlannableTourType,
     bikeProfile: (tour.bike_profile ?? 'touring') as BikeProfile,
-    winterActivity: tour.winter_activity ?? null,
-    /** HIK-01: the label the winter switch brings back, the tour's own or winter hiking. */
-    winterActivityChoice: tour.winter_activity ?? ('winter_hike' satisfies WinterActivity),
+    /** SKI-02: a ski tour's discipline and technique as saved; nothing chosen on any other tour. */
+    ski: skiChoiceOf(tour.tour_type === 'ski' ? tour : {}),
     runProfile: (tour.run_profile ?? 'running') as RunProfile,
     runPaceSecondsPerKm: tour.run_pace_seconds_per_km ?? null,
   };
@@ -49,8 +48,8 @@ export interface TourPlannerFactsInput {
   hikingPreferences: HikingPreferences | null;
   /** BIK-01: the profile a bike tour is routed for. */
   bikeProfile: BikeProfile;
-  /** HIK-01: a hike's winter label, none by default; it changes nothing the planner works out. */
-  winterActivity: WinterActivity | null;
+  /** SKI-02: a ski tour's discipline and cross-country technique, nothing chosen until the traveller picks. */
+  ski?: SkiChoice;
   /** RUN-01: the profile a run is routed for, and the pace it is planned at (null while none is entered). */
   runProfile: RunProfile;
   runPaceSecondsPerKm: number | null;
@@ -99,10 +98,11 @@ function runMinutes({ runPaceSecondsPerKm: pace, routeAnalysis }: TourPlannerFac
  * weighs the climbs, a hike by the signposts' rule over distance, climb and
  * descent once the route has its heights, and by the router's own time before that.
  * A ride (HOR-01) has none: its pace is the horse's and the rider's, so nothing is made up.
+ * Nor has a ski tour (SKI-02): its legs are drawn, not planned along pistes and lifts.
  */
 function movingMinutes(input: TourPlannerFactsInput, routerMinutes: number | null): number | null {
   const { paddleEstimate, routeAnalysis } = input;
-  if (input.tourType === 'horse') return null;
+  if (input.tourType === 'horse' || input.tourType === 'ski') return null;
   if (paddleEstimate) return paddleEstimate.waterMinutes === null ? null : paddleEstimate.estimateMinutes;
   if (input.tourType === 'run') return runMinutes(input);
   // A bike tour is timed by the router for its profile, a city walk by the router on foot.
@@ -123,9 +123,9 @@ function walkTimesFor(input: TourPlannerFactsInput, walkingMinutes: number | nul
 }
 
 /**
- * What the type adds to a save: a hike its routing limit and its winter label,
- * a bike tour its profile, a run its profile and pace, a paddle tour its boat,
- * water and speed.
+ * What the type adds to a save: a hike its routing limit, a bike tour its
+ * profile, a run its profile and pace, a ski tour its discipline (and a
+ * cross-country technique), a paddle tour its boat, water and speed.
  */
 function typeFieldsOf(input: TourPlannerFactsInput) {
   const isBike = input.tourType === 'bike';
@@ -144,10 +144,12 @@ function typeFieldsOf(input: TourPlannerFactsInput) {
       portage_speed_kmh: portageSpeedKmh,
       paddle_lake_style: lakeStyle,
       hiking_preferences: null,
-      winter_activity: null,
+      ski_discipline: null,
+      ski_technique: null,
     };
   }
   const isHike = input.tourType === 'hike';
+  const ski = input.tourType === 'ski' && input.ski ? skiFieldsOf(input.ski) : null;
   return {
     tour_type: input.tourType,
     max_hiking_difficulty: isHike ? input.maxHikingDifficulty : null,
@@ -160,7 +162,8 @@ function typeFieldsOf(input: TourPlannerFactsInput) {
     portage_speed_kmh: null,
     paddle_lake_style: null,
     hiking_preferences: isHike ? input.hikingPreferences : null,
-    winter_activity: isHike ? input.winterActivity : null,
+    ski_discipline: ski?.ski_discipline ?? null,
+    ski_technique: ski?.ski_technique ?? null,
   };
 }
 
@@ -185,6 +188,8 @@ export function tourPlannerFacts(input: TourPlannerFactsInput) {
     // A city walk sends no breaks (CW-02), so one left from another type cannot hold its save up.
     breakAdditionalInvalid: input.tourType !== 'walk' && invalidMinutes(breakAdditionalMinutes),
     paddleIncomplete: isPaddle && (boatType === null || waterContext === null),
+    /** SKI-02: a ski tour is saved with its discipline, a cross-country one with its technique too. */
+    skiMissing: input.tourType === 'ski' ? skiChoiceMissing(input.ski ?? NO_SKI_CHOICE) : null,
     /** RUN-01: a run is planned with a pace; without one Save waits, and a pace that is none is marked. */
     runPaceMissing: isRun && input.runPaceSecondsPerKm === null,
     runPaceInvalid: isRun && runPaceInvalid(input.runPaceSecondsPerKm),
@@ -199,10 +204,11 @@ export function tourPlannerFacts(input: TourPlannerFactsInput) {
       automaticPlannedTotalMinutes > maxTourMinutesFor(input.stageCount ?? 1),
     // A city walk's stops are its stays: it saves no breaks, so a cafe never counts as a stay and a break at once.
     savedBreakAdditionalMinutes: input.tourType === 'walk' ? null : breakAdditionalMinutes,
-    // The router's own time stands in for a hike without heights; a paddle tour has only its speed, a run its pace, a ride none.
+    // The router's own time stands in for a hike without heights; a paddle tour has only its speed, a run its pace,
+    // a ride and a ski tour none.
     savedDurationSeconds:
       walkingDurationMinutes === null
-        ? isPaddle || isRun || input.tourType === 'horse'
+        ? isPaddle || isRun || input.tourType === 'horse' || input.tourType === 'ski'
           ? null
           : durationSeconds
         : walkingDurationMinutes * 60,

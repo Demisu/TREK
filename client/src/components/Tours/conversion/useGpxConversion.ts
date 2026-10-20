@@ -5,6 +5,7 @@ import { isTourRoute } from '../planner/tourRouteOutcome';
 import { routeBikeTour, routeRun, routeWalkingTour } from '../planner/tourRouting';
 import { paddleFieldsOf } from '../planner/usePaddleFields';
 import type { TourPlannerController } from '../planner/useTourPlanner';
+import { skiChoiceMissing, skiChoiceOf } from '../ski/skiChoice';
 import { compareRoutes, deriveControlPoints, type RouteComparison, type TrackPoint } from './gpxConversion';
 
 /** The grade a planned version routes with when the import carries none: the paths a T3 walk may take. */
@@ -47,6 +48,9 @@ export function useGpxConversion(planner: TourPlannerController) {
   // RUN-01: a run import is planned as a run for its profile, at the pace it holds; a fresh
   // import holds none, so its pace is the runner's to enter.
   const runProfile = tour?.tour_type === 'run' ? (tour.run_profile ?? 'running') : null;
+  // SKI-02: a ski import is planned as a ski tour of its discipline, its legs drawn as the planner draws them.
+  const ski = useMemo(() => (tour?.tour_type === 'ski' ? skiChoiceOf(tour) : null), [tour]);
+  const drawn = paddle || ski !== null;
 
   useEffect(() => () => abort.current?.abort(), []);
 
@@ -63,7 +67,7 @@ export function useGpxConversion(planner: TourPlannerController) {
       return;
     }
     setState({ ...base, status: 'analyzing' });
-    const legs = paddle
+    const legs = drawn
       ? points.map((point, index) => ({
           ...point,
           fixedLeg: index < points.length - 1 ? freeLegBetween(point, points[index + 1]) : null,
@@ -86,7 +90,7 @@ export function useGpxConversion(planner: TourPlannerController) {
       line: routed.coordinates,
       comparison: compareRoutes(trackPoints, suggestion),
     });
-  }, [bikeProfile, difficulty, paddle, runProfile, tour, track]);
+  }, [bikeProfile, difficulty, drawn, runProfile, tour, track]);
 
   const cancel = useCallback(() => {
     abort.current?.abort();
@@ -115,11 +119,12 @@ export function useGpxConversion(planner: TourPlannerController) {
         ...(runProfile
           ? { tourType: 'run' as const, runProfile, runPaceSecondsPerKm: tour.run_pace_seconds_per_km ?? null }
           : {}),
+        ...(ski ? { tourType: 'ski' as const, ski } : {}),
       });
       if (started) setState(IDLE);
       return started;
     },
-    [bikeProfile, current.points, current.status, difficulty, paddle, runProfile, startDerivedTour, tour]
+    [bikeProfile, current.points, current.status, difficulty, paddle, runProfile, ski, startDerivedTour, tour]
   );
 
   return useMemo(
@@ -127,23 +132,25 @@ export function useGpxConversion(planner: TourPlannerController) {
       ...current,
       /**
        * The import shown can be planned from: it has a track and the user may add tours. A ski
-       * track (SKI-02) never: TREK routes no ski track, and a hike's or a walk's route is no stand-in.
-       * A ride (HOR-01) neither: no router plans one, and walking it again on foot would be no ride.
+       * track (SKI-02) once it names its discipline, planned as a ski tour with its legs drawn.
+       * A ride (HOR-01) never: no router plans one, and walking it again on foot would be no ride.
        */
       available:
         tour !== null &&
-        tour.tour_type !== 'ski' &&
+        (ski === null || skiChoiceMissing(ski) === null) &&
         tour.tour_type !== 'horse' &&
         (track?.length ?? 0) >= 2 &&
         planner.canEdit,
       difficulty,
-      /** The import is a paddle tour: its version is drawn with straight legs, not routed. */
-      paddle,
+      /** The import is a paddle or a ski tour: its version is drawn with straight legs, not routed. */
+      paddle: drawn,
+      /** SKI-02: the import is a ski track, planned as a ski tour of its discipline. */
+      ski: ski !== null,
       analyze,
       cancel,
       adopt,
     }),
-    [adopt, analyze, cancel, current, difficulty, paddle, planner.canEdit, tour, track]
+    [adopt, analyze, cancel, current, difficulty, drawn, planner.canEdit, ski, tour, track]
   );
 }
 

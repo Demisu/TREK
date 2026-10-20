@@ -15,16 +15,18 @@ import { movingTimeLabel } from './tourFacts';
 import { formatPlannedTourDuration, plannedTotalText, tourPlannedTimes } from './tourPresentation';
 import { useWalkProgress } from './walk/walkProgress';
 import { walkStaysText } from './walk/walkTimeFields';
-import { WinterCornerMark } from './winter/winterMarks';
 
-/** Whether the app names this type: one it plans or keeps (a ski track, SKI-02), not a key only the catalogue holds. */
+/** Whether the app names this type: one it plans or keeps, not a key only the catalogue holds. */
 function knownType(type: string): boolean {
   return importableTourTypeSchema.safeParse(type).success;
 }
 
-/** The icon the time on the move goes by: a bike tour, a ride on horseback, a run or a paddle by its type's own, any walk by footprints. */
+/**
+ * The icon the time on the move goes by: a bike tour, a ride on horseback, a
+ * run, a paddle or a ski tour by its type's own, any walk by footprints.
+ */
 function movingIconType(type: string): string {
-  return type === 'kayak' || type === 'bike' || type === 'run' || type === 'horse' ? type : 'walk';
+  return type === 'kayak' || type === 'bike' || type === 'run' || type === 'horse' || type === 'ski' ? type : 'walk';
 }
 
 export function TourDayRowIcon({ type, size = 27 }: { type: string; size?: number }) {
@@ -95,26 +97,23 @@ function Fact({
 /**
  * A tour's tile in the day plan and in its detail: the T-scale grade in a round
  * tile, the same tile the tour lists use, so a tour reads alike wherever it
- * shows. A GPX import has no grade and shows its type's icon instead. A hike's
- * winter label (HIK-01) or a ski track's discipline (SKI-02) sits on the
- * tile's corner, as in the tour lists.
+ * shows. A GPX import has no grade and shows its type's icon instead. A ski
+ * tour's discipline (SKI-02) sits on the tile's corner, as in the tour lists.
  */
 export function TourDayRowAvatar({
   tour,
   size = 32,
 }: {
   tour: Pick<TourListItem, 'tour_type' | 'max_hiking_difficulty'> &
-    Partial<Pick<TourListItem, 'winter_activity' | 'ski_discipline' | 'ski_technique'>>;
+    Partial<Pick<TourListItem, 'ski_discipline' | 'ski_technique'>>;
   size?: number;
 }) {
   const avatar = <TourGradeAvatar tour={tour} size={size} />;
-  const ski = tour.tour_type === 'ski' && !!tour.ski_discipline;
-  if (!tour.winter_activity && !ski) return avatar;
+  if (tour.tour_type !== 'ski' || !tour.ski_discipline) return avatar;
   const markSize = Math.round(size * 0.44);
   return (
     <span className="relative flex flex-none">
       {avatar}
-      <WinterCornerMark activity={tour.winter_activity} size={markSize} />
       <SkiCornerMark tour={tour} size={markSize} />
     </span>
   );

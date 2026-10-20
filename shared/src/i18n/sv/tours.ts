@@ -199,7 +199,7 @@ const tours: TranslationStrings = {
   'tourTypes.hike': 'Vandring',
   'tourTypes.bike': 'Cykeltur',
   'tourTypes.run': 'Löptur',
-  'tourTypes.ski': 'Skidor',
+  'tourTypes.ski': 'Skidor och vinter',
   'tourTypes.kayak': 'Paddeltur',
   'tourTypes.walk': 'Stadspromenad / sightseeing',
   'tourTypes.food': 'Mat- och vintur',
@@ -394,33 +394,32 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Till fots, inom en svårighet du väljer',
   'tours.planner.tourTypeHint.bike': 'Med cykel, rutt för tur, landsväg, grus eller MTB',
   'tours.planner.tourTypeHint.kayak': 'På vattnet, med kajak, kanot eller SUP',
-  'tours.winter.title': 'Vinteraktivitet',
-  'tours.winter.infoLabel': 'Vad vintermärkningen gör',
-  'tours.winter.info':
-    'Bara en märkning av vandringen. Rutt, lutningsfärger och gångtid är desamma som för alla vandringar och säger inget om snö, laviner eller om en stig går att gå på vintern.',
-  'tours.winter.kind': 'Typ av vinteraktivitet',
-  'tours.winter.activity.winter_hike': 'Vintervandring',
-  'tours.winter.activity.snowshoe': 'Snöskovandring',
-  'tours.winter.labelOnly':
-    'Märkt av resenärerna. Rutt och tid planeras som för alla vandringar, inte kontrollerade för vinter.',
-  'tours.planner.tourTypeHint.ski': 'Från en GPX-fil, som den spelades in',
+  'tours.planner.tourTypeHint.ski': 'Skidor, snowboard, snöskor, vintervandringar',
   'tours.ski.title': 'Skidspår',
   'tours.ski.discipline': 'Gren',
   'tours.ski.discipline.alpine': 'Utförsåkning',
   'tours.ski.discipline.snowboard': 'Snowboard', // same-as-en
   'tours.ski.discipline.cross_country': 'Längdskidor',
   'tours.ski.discipline.touring': 'Topptur',
+  'tours.ski.discipline.snowshoe': 'Snöskor',
+  'tours.ski.discipline.winter_hike': 'Vintervandring',
   'tours.ski.technique': 'Teknik',
   'tours.ski.technique.classic': 'Klassisk',
   'tours.ski.technique.skating': 'Skate',
   'tours.ski.technique.unknown': 'Okänd',
   'tours.ski.chooseDiscipline': 'Välj en gren för att importera spåret som skidor.',
+  'tours.ski.chooseDisciplineToSave': 'Välj en gren för att spara turen.',
+  'tours.ski.drawnFreely':
+    'Varje etapp ritas rakt mellan dina punkter. Inget stämmer av den mot backar, liftar eller leder.',
   'tours.ski.chooseTechnique': 'Välj teknik, eller Okänd.',
   'tours.ski.infoLabel': 'Vad TREK gör med ett skidspår',
   'tours.ski.info':
-    'Behålls som det spelades in och ruttplaneras aldrig. Sträcka och höjder kommer från filen. TREK räknar inte ut någon skidtid, och varken spåret eller lutningsfärgerna i 3D säger något om svårighet, snö, laviner eller om backar och spår är öppna.',
+    'En planerad tur har varje etapp ritad rakt mellan sina punkter, ett importerat spår behålls som det spelades in. Inget av dem ruttplaneras längs backar, liftar eller leder. Höjderna kommer från terrängen eller filen. TREK räknar inte ut någon skidtid, och inget här, inte heller lutningsfärgerna i 3D, säger något om svårighet, snö, laviner eller om backar och spår är öppna.',
   'tours.ski.time': 'Skidtid',
   'tours.ski.timeUnknown': 'Inte uträknad',
+  'tours.ski.timeInfoLabel': 'Varför det inte finns någon skidtid',
+  'tours.ski.timeInfo':
+    'TREK räknar inte ut någon skidtid: etapperna ritas raka, inte planerade längs backar, liftar eller leder. Ange själv en planerad total tid om du vill.',
   'tours.ski.classifyTitle': 'Klassa skidspår',
   'tours.ski.saved': 'Klassning sparad',
   'tours.ski.saveFailed': 'Klassningen kunde inte sparas.',
@@ -800,6 +799,8 @@ const tours: TranslationStrings = {
   'tours.import.previewConfirm.one': 'Importera {count} tur',
   'tours.conversion.introPaddle':
     'En import är ett inspelat spår. Planera en redigerbar paddeltur: TREK tar kontrollpunkter ur det, förbinder dem med raka linjer som en paddeltur ritas och visar hur nära det kommer. Inget ändras förrän du väljer.',
+  'tours.conversion.introSki':
+    'En import är ett inspelat spår. Planera en redigerbar skidtur: TREK tar kontrollpunkter ur det, förbinder dem med raka linjer som en skidtur ritas och visar hur nära det kommer. Inget ändras förrän du väljer.',
   'tours.conversion.closePaddle':
     'Förslaget följer spåret noga. Punkterna är förbundna med raka linjer, så det är inte samma linje.',
   'tours.planner.moreActions': 'Fler åtgärder',
@@ -1112,6 +1113,7 @@ const tours: TranslationStrings = {
   'tourTypes.horse': 'Ridtur',
   'tours.planner.tourTypeHint.horse': 'Till häst, längs skyltade ridleder',
   'tours.planner.namePlaceholder.horse': 'Namnlös ridtur',
+  'tours.planner.namePlaceholder.ski': 'Namnlös skidtur',
   'tours.horse.time': 'Ridtid',
   'tours.horse.timeInfoLabel': 'Varför det inte finns någon ridtid',
   'tours.horse.timeInfo':

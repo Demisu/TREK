@@ -561,19 +561,25 @@ describe('ToursMcp', () => {
     }
   });
 
-  it('TOURS-MCP-020: list_tours names the winter label of a hike, and says it is only a label (HIK-01)', async () => {
+  it('TOURS-MCP-020: list_tours lists snowshoeing as a ski tour, and a hike with no winter label at all (SKI-02)', async () => {
     const { user, trip, ridge, gorge } = fixture();
     const orm = await createTestOrm(db);
-    await updateRows(orm, Tours, { place: ridge.id }, { winter_activity: 'snowshoe' });
+    await updateRows(
+      orm,
+      Tours,
+      { place: ridge.id },
+      { tourTypeRef: 'ski', max_hiking_difficulty: null, ski_discipline: 'snowshoe' },
+    );
     await orm.close();
     const { tours } = read(await mcp.listTours({ tripId: trip.id }, ctx(user.id)));
     const byId = new Map(tours.map((tour: { place_id: number }) => [tour.place_id, tour]));
-    expect(byId.get(ridge.id)).toMatchObject({ tour_type: 'hike', winter_activity: 'snowshoe' });
-    expect(byId.get(gorge.id)).toMatchObject({ winter_activity: null });
+    expect(byId.get(ridge.id)).toMatchObject({ tour_type: 'ski', ski_discipline: 'snowshoe', ski_technique: null });
+    expect(byId.get(gorge.id)).toMatchObject({ tour_type: 'hike' });
+    expect(byId.get(gorge.id)).not.toHaveProperty('winter_activity');
     const entry = getEntry(ToursMcp as unknown as ClassRef, 'listTours');
     const description = entry?.kind === 'tool' ? (entry.options.description ?? '') : '';
-    expect(description).toMatch(/winter_activity: winter_hike or snowshoe/);
-    expect(description).toContain('never a statement that a way can be walked in winter');
+    expect(description).not.toContain('winter_activity');
+    expect(description).toContain('a hike is summer only');
   });
 
   it('TOURS-MCP-021: list_tours names a run with its profile and pace, and says its time is a plan at that pace only (RUN-01)', async () => {
@@ -620,7 +626,7 @@ describe('ToursMcp', () => {
     expect(description).toContain('never a statement that a way can be run');
   });
 
-  it('TOURS-MCP-023: list_tours names a ski track with its discipline and technique, and says it is kept as recorded (SKI-02)', async () => {
+  it('TOURS-MCP-023: list_tours names a ski tour with its discipline and technique, and says how its line came to be (SKI-02)', async () => {
     const { user, trip, ridge, gorge } = fixture();
     const orm = await createTestOrm(db);
     await updateRows(
@@ -640,9 +646,32 @@ describe('ToursMcp', () => {
     expect(byId.get(gorge.id)).toMatchObject({ ski_discipline: null, ski_technique: null });
     const entry = getEntry(ToursMcp as unknown as ClassRef, 'listTours');
     const description = entry?.kind === 'tool' ? (entry.options.description ?? '') : '';
-    expect(description).toMatch(/ski_discipline: alpine, snowboard, cross_country or touring/);
-    expect(description).toContain('never routed');
+    expect(description).toContain('ski_discipline: alpine, snowboard, cross_country, touring for ski touring');
+    expect(description).toContain('snowshoe or winter_hike');
+    expect(description).toContain('drawn straight between its points, never routed');
+    expect(description).toContain('an imported one is kept as recorded');
     expect(description).toContain('it has no ski time worked out');
     expect(description).toContain('nothing in it says anything about snow, avalanches');
+  });
+
+  it('TOURS-MCP-024: get_tour_plan names every leg of a planned ski tour as drawn freely, with its straight length (SKI-02)', async () => {
+    const { member, trip } = fixture();
+    const orm = await createTestOrm(db);
+    const ski = await makePlace(orm, trip.id, { name: 'Over the pass' });
+    await makeTour(orm, ski.id, { tourTypeRef: 'ski', max_hiking_difficulty: null, ski_discipline: 'touring' });
+    await addTourWaypoints(orm, ski.id, [
+      { lat: 47, lng: 11, station_key: 'sk-start' },
+      { lat: 47.01, lng: 11, station_key: 'sk-col' },
+      { lat: 47.01, lng: 11.01, station_key: 'sk-end' },
+    ]);
+    await orm.close();
+    const plan = read(await mcp.getTourPlan({ tripId: trip.id, placeId: ski.id }, ctx(member.id)));
+    expect(plan.tour).toMatchObject({ tour_type: 'ski', ski_discipline: 'touring' });
+    expect(plan.legs).toEqual([
+      expect.objectContaining({ from_key: 'sk-start', to_key: 'sk-col', kind: 'free', name: null }),
+      expect.objectContaining({ from_key: 'sk-col', to_key: 'sk-end', kind: 'free', name: null }),
+    ]);
+    expect(plan.legs[0].length_km).toBeCloseTo(1.11, 1);
+    expect(plan.legs[1].length_km).toBeCloseTo(0.76, 1);
   });
 });

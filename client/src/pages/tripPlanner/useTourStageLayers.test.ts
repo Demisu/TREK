@@ -15,7 +15,14 @@ function planner(
   tourType: Planner['tourType'] = 'hike',
   mapBaseLayer: Planner['mapBaseLayer'] = 'hiking'
 ): Planner {
-  return { mode, tourType, mapBaseLayer, mapOverlays: new Set(), toggleMapOverlay: () => {} };
+  return {
+    mode,
+    tourType,
+    mapBaseLayer,
+    mapOverlays: new Set(),
+    mapOverlaysOff: new Set(),
+    toggleMapOverlay: () => {},
+  };
 }
 
 const basesOf = (p: Planner, zoom: number | null = null) =>
@@ -68,17 +75,33 @@ describe('useTourStageLayers: OpenHikingMap (MAP-01)', () => {
 describe('useTourStageLayers: the pistes (SKI-01)', () => {
   const pistesOf = (p: Planner) => basesOf(p).tourLayers.overlays.find((overlay) => overlay.id === 'pistes');
 
-  it('offers them with no tour open, for a hike and for an imported ski track, off until switched on', () => {
-    const ski = { type: 'view-gpx', placeId: 9, tour: { place_id: 9, tour_type: 'ski' } as TourListItem } as const;
-    for (const mode of [{ type: 'neutral' }, { type: 'new-draft' }, ski] as const) {
-      expect(pistesOf(planner(mode, 'hike', 'default'))).toMatchObject({ status: 'off', active: false });
-    }
+  it('offers them with no tour open, off until switched on, and shows them for a ski tour until switched off', () => {
+    expect(pistesOf(planner({ type: 'neutral' }, 'hike', 'default'))).toMatchObject({ status: 'off', active: false });
     // With no tour open they come even while the last type chosen was a paddle tour.
     expect(pistesOf(planner({ type: 'neutral' }, 'kayak', 'default'))).toBeDefined();
+    const imported = { type: 'view-gpx', placeId: 9, tour: { place_id: 9, tour_type: 'ski' } as TourListItem } as const;
+    for (const p of [planner(imported, 'hike', 'default'), planner({ type: 'new-draft' }, 'ski', 'default')]) {
+      expect(pistesOf(p)).toMatchObject({ status: 'on', active: true });
+      expect(pistesOf({ ...p, mapOverlaysOff: new Set(['pistes']) })).toMatchObject({ status: 'off', active: false });
+    }
   });
 
-  it('not for a bike tour, a run or a paddle tour that is open', () => {
-    for (const tourType of ['bike', 'run', 'kayak'] as const)
+  it('switches the pistes of a ski tour off by saying they show, and on again by saying they do not', () => {
+    const toggles: Array<[string, boolean | undefined]> = [];
+    const toggleMapOverlay = (id: string, shown?: boolean) => {
+      toggles.push([id, shown]);
+    };
+    const shown = { ...planner({ type: 'new-draft' }, 'ski', 'default'), toggleMapOverlay };
+    pistesOf(shown)?.onToggle();
+    pistesOf({ ...shown, mapOverlaysOff: new Set(['pistes']) })?.onToggle();
+    expect(toggles).toEqual([
+      ['pistes', true],
+      ['pistes', false],
+    ]);
+  });
+
+  it('not for a hike, a bike tour, a run or a paddle tour that is open: a hike is summer only', () => {
+    for (const tourType of ['hike', 'bike', 'run', 'kayak'] as const)
       expect(pistesOf(planner({ type: 'new-draft' }, tourType, 'default'))).toBeUndefined();
   });
 

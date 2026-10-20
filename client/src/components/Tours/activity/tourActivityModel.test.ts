@@ -141,6 +141,15 @@ describe('the GPX preset', () => {
     });
     expect(importFieldsFor(tour({ tour_type: 'horse' }))).toEqual({ tour_type: 'horse' });
   });
+
+  it('FE-ACT-MODEL-010: the track of a planned snowshoe or winter hike tour comes in as ski with that discipline (SKI-02)', () => {
+    for (const discipline of ['snowshoe', 'winter_hike'] as const) {
+      expect(importFieldsFor(tour({ tour_type: 'ski', ski_discipline: discipline, ski_technique: null }))).toEqual({
+        tour_type: 'ski',
+        ski_discipline: discipline,
+      });
+    }
+  });
 });
 
 describe('measures', () => {

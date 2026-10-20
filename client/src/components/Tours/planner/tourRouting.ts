@@ -143,6 +143,16 @@ export async function routeBikeTour(
  * of its own, which a ride never keeps.
  */
 export function rideTour(waypoints: LandWaypoint[]): TourRouteResult | null {
+  return drawnTour(waypoints)
+}
+
+/**
+ * A tour put together from the lines its legs carry, with no router asked and
+ * no time worked out: a ride (HOR-01) and a ski tour (SKI-02) are. A section of
+ * a horse route keeps its own line; any other leg is sampled along its length
+ * so its heights follow the ground. Null while a leg has no line of its own.
+ */
+export function drawnTour(waypoints: LandWaypoint[]): TourRouteResult | null {
   const lines: TourRoutePart[] = []
   for (const point of waypoints.slice(0, -1)) {
     const leg = point.fixedLeg

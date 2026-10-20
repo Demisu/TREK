@@ -204,7 +204,7 @@ const tours: TranslationStrings = {
   'tourTypes.hike': 'Gyalogtúra',
   'tourTypes.bike': 'Kerékpártúra',
   'tourTypes.run': 'Futás',
-  'tourTypes.ski': 'Sí',
+  'tourTypes.ski': 'Sí és tél',
   'tourTypes.kayak': 'Evezős túra',
   'tourTypes.walk': 'Városi / városnéző séta',
   'tourTypes.food': 'Gasztro- / bortúra',
@@ -402,33 +402,32 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Gyalog, az általad megadott nehézségig',
   'tours.planner.tourTypeHint.bike': 'Kerékpárral, túra, országúti, gravel vagy MTB útvonallal',
   'tours.planner.tourTypeHint.kayak': 'Vízen, kajakkal, kenuval vagy SUP-pal',
-  'tours.winter.title': 'Téli tevékenység',
-  'tours.winter.infoLabel': 'Mit jelent a téli jelölés',
-  'tours.winter.info':
-    'Csak a túra jelölése. Az útvonal, a meredekségi színek és a menetidő ugyanazok, mint bármely túránál, és semmit nem mondanak a hóról, a lavinákról vagy arról, hogy az út télen járható-e.',
-  'tours.winter.kind': 'A téli tevékenység fajtája',
-  'tours.winter.activity.winter_hike': 'Téli túra',
-  'tours.winter.activity.snowshoe': 'Hótalpas túra',
-  'tours.winter.labelOnly':
-    'Az utazók jelölték meg. Az útvonal és az idő úgy van tervezve, mint bármely túránál, téli szempontból nincs ellenőrizve.',
-  'tours.planner.tourTypeHint.ski': 'GPX-fájlból, ahogy rögzítették',
+  'tours.planner.tourTypeHint.ski': 'Sí, snowboard, hótalp, téli túrák',
   'tours.ski.title': 'Sínyomvonal',
   'tours.ski.discipline': 'Szakág',
   'tours.ski.discipline.alpine': 'Alpesi',
   'tours.ski.discipline.snowboard': 'Snowboard', // same-as-en
   'tours.ski.discipline.cross_country': 'Sífutás',
   'tours.ski.discipline.touring': 'Sítúra',
+  'tours.ski.discipline.snowshoe': 'Hótalpas túra',
+  'tours.ski.discipline.winter_hike': 'Téli túra',
   'tours.ski.technique': 'Technika',
   'tours.ski.technique.classic': 'Klasszikus',
   'tours.ski.technique.skating': 'Korcsolyázó',
   'tours.ski.technique.unknown': 'Ismeretlen',
   'tours.ski.chooseDiscipline': 'Válassz szakágat, hogy sínyomvonalként importáld.',
+  'tours.ski.chooseDisciplineToSave': 'Válassz szakágat a túra mentéséhez.',
+  'tours.ski.drawnFreely':
+    'Minden szakaszt egyenesen rajzolunk a pontjaid közé. Semmi sem veti össze pályákkal, felvonókkal vagy nyomvonalakkal.',
   'tours.ski.chooseTechnique': 'Válaszd ki a technikát, vagy az Ismeretlent.',
   'tours.ski.infoLabel': 'Mit kezd a TREK egy sínyomvonallal',
   'tours.ski.info':
-    'Úgy marad, ahogy rögzítették, útvonaltervező soha nem számolja újra. A táv és a magasságok a fájlból származnak. A TREK nem számol síidőt, és sem a nyomvonal, sem a 3D lejtőszínei nem mondanak semmit a nehézségről, a hóról, a lavinákról vagy arról, hogy nyitva vannak-e a pályák.',
+    'Egy tervezett túra minden szakasza egyenesen fut a pontjai között, egy importált nyomvonal pedig úgy marad, ahogy rögzítették. Egyiket sem vezetjük pályákon, felvonókon vagy nyomvonalakon. A magasságok a terepből vagy a fájlból származnak. A TREK nem számol síidőt, és semmi itt, a 3D lejtőszínei sem, nem mond semmit a nehézségről, a hóról, a lavinákról vagy arról, hogy nyitva vannak-e a pályák.',
   'tours.ski.time': 'Síidő',
   'tours.ski.timeUnknown': 'Nincs kiszámolva',
+  'tours.ski.timeInfoLabel': 'Miért nincs síidő',
+  'tours.ski.timeInfo':
+    'A TREK nem számol síidőt: a szakaszok egyenesek, nem pályák, felvonók vagy nyomvonalak mentén tervezettek. Ha szeretnéd, add meg magad a tervezett teljes időt.',
   'tours.ski.classifyTitle': 'Sínyomvonal besorolása',
   'tours.ski.saved': 'Besorolás mentve',
   'tours.ski.saveFailed': 'A besorolást nem sikerült menteni.',
@@ -817,6 +816,8 @@ const tours: TranslationStrings = {
   'tours.import.previewConfirm.one': '{count} túra importálása',
   'tours.conversion.introPaddle':
     'Az import egy rögzített nyomvonal. Tervezz belőle szerkeszthető evezős túrát: a TREK kontrollpontokat vesz ki belőle, egyenes vonalakkal köti össze őket, ahogy az evezős túrát rajzolod, és megmutatja, mennyire közelíti meg. Semmi sem változik, amíg nem döntesz.',
+  'tours.conversion.introSki':
+    'Az import egy rögzített nyomvonal. Tervezz belőle szerkeszthető sítúrát: a TREK kontrollpontokat vesz ki belőle, egyenes vonalakkal köti össze őket, ahogy a sítúrát rajzolod, és megmutatja, mennyire közelíti meg. Semmi sem változik, amíg nem döntesz.',
   'tours.conversion.closePaddle':
     'A javaslat szorosan követi a nyomvonalat. Pontjait egyenes vonalak kötik össze, így nem ugyanaz a vonal.',
   'tours.planner.moreActions': 'További műveletek',
@@ -1136,6 +1137,7 @@ const tours: TranslationStrings = {
   'tourTypes.horse': 'Lovastúra',
   'tours.planner.tourTypeHint.horse': 'Lóháton, jelzett lovas útvonalakon',
   'tours.planner.namePlaceholder.horse': 'Névtelen lovastúra',
+  'tours.planner.namePlaceholder.ski': 'Névtelen sítúra',
   'tours.horse.time': 'Lovaglási idő',
   'tours.horse.timeInfoLabel': 'Miért nincs lovaglási idő',
   'tours.horse.timeInfo':

@@ -17,7 +17,6 @@ import {
   tourMaxHikingDifficultySchema,
   tourNameSchema,
   tourWebsiteSchema,
-  WINTER_ACTIVITIES,
 } from './tours.schema';
 
 import { describe, expect, it } from 'vitest';
@@ -537,58 +536,27 @@ describe('city walks (CW-01 to CW-03, CW-10)', () => {
   });
 });
 
-describe('winter activity of a hike (HIK-01)', () => {
-  const listedHike = {
-    place_id: 1,
-    tour_type: 'hike' as const,
-    distance: 8,
-    elevation_gain: 400,
-    elevation_loss: 400,
-    duration: 180,
-    difficulty: null,
-    wanderer_ref: null,
-    match_confidence: 1,
-    max_hiking_difficulty: 2,
-    name: 'Snowy ridge',
-    planned: false,
-    caution: false,
-  };
-
-  it('offers exactly winter hiking and snowshoeing, and a hike needs neither', () => {
-    expect(WINTER_ACTIVITIES).toEqual(['winter_hike', 'snowshoe']);
-    expect(tourCreateRequestSchema.parse(baseRequest).winter_activity).toBeUndefined();
-    expect(tourCreateRequestSchema.parse({ ...baseRequest, winter_activity: null }).winter_activity).toBeNull();
-  });
-
-  it('keeps the winter label a hike is saved with', () => {
-    for (const activity of WINTER_ACTIVITIES) {
-      expect(tourCreateRequestSchema.parse({ ...baseRequest, winter_activity: activity })).toMatchObject({
-        tour_type: 'hike',
-        winter_activity: activity,
-      });
-    }
-  });
-
-  it('refuses a label it does not know, and any label on another type', () => {
-    expect(tourCreateRequestSchema.safeParse({ ...baseRequest, winter_activity: 'ski_tour' }).success).toBe(false);
-    const bike = { ...baseRequest, tour_type: 'bike', bike_profile: 'mtb', winter_activity: 'snowshoe' };
-    expect(() => tourCreateRequestSchema.parse(bike)).toThrow(/a bike tour has no winter activity/);
-    const walk = { ...baseRequest, tour_type: 'walk', winter_activity: 'winter_hike' };
-    expect(() => tourCreateRequestSchema.parse(walk)).toThrow(/a city walk has no winter activity/);
-    const paddle = {
-      ...baseRequest,
-      tour_type: 'kayak',
-      boat_type: 'sup',
-      water_context: 'lake',
-      winter_activity: 'snowshoe',
-    };
-    expect(() => tourCreateRequestSchema.parse(paddle)).toThrow(/a paddle tour has no winter activity/);
-  });
-
-  it('lists the label, and reads a list cached before it existed', () => {
-    expect(tourListItemSchema.parse({ ...listedHike, winter_activity: 'snowshoe' }).winter_activity).toBe('snowshoe');
-    expect(tourListItemSchema.parse(listedHike).winter_activity).toBeUndefined();
-    expect(tourListItemSchema.safeParse({ ...listedHike, winter_activity: 'ski_tour' }).success).toBe(false);
+describe('a hike is summer only (HIK-01 withdrawn)', () => {
+  it('keeps no winter label on a hike: the field is not part of the contract and is dropped', () => {
+    const parsed = tourCreateRequestSchema.parse({ ...baseRequest, winter_activity: 'snowshoe' });
+    expect(parsed).not.toHaveProperty('winter_activity');
+    const listed = tourListItemSchema.parse({
+      place_id: 1,
+      tour_type: 'hike',
+      distance: 8,
+      elevation_gain: 400,
+      elevation_loss: 400,
+      duration: 180,
+      difficulty: null,
+      wanderer_ref: null,
+      match_confidence: 1,
+      max_hiking_difficulty: 2,
+      name: 'Snowy ridge',
+      planned: false,
+      caution: false,
+      winter_activity: 'winter_hike',
+    });
+    expect(listed).not.toHaveProperty('winter_activity');
   });
 });
 
@@ -641,7 +609,7 @@ describe('runs (RUN-01)', () => {
     expect(() => tourCreateRequestSchema.parse({ ...run, run_profile: null })).toThrow(/a run needs a run profile/);
     expect(tourCreateRequestSchema.safeParse({ ...run, run_profile: 'sprint' }).success).toBe(false);
     expect(() => tourCreateRequestSchema.parse({ ...run, max_hiking_difficulty: 2 })).toThrow(/a run has no hiking/);
-    expect(() => tourCreateRequestSchema.parse({ ...run, winter_activity: 'snowshoe' })).toThrow(/a run has no winter/);
+    expect(() => tourCreateRequestSchema.parse({ ...run, ski_discipline: 'alpine' })).toThrow(/belongs to a ski tour/);
     expect(() => tourCreateRequestSchema.parse({ ...run, bike_profile: 'road' })).toThrow(/bike tour/);
     expect(() => tourCreateRequestSchema.parse({ ...run, boat_type: 'sup' })).toThrow(/paddle tour/);
     const overFerrata = { ...run, waypoints: [{ ...run.waypoints[0], fixed_leg: ferrata }, run.waypoints[1]] };

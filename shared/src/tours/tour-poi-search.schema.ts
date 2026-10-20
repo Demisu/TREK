@@ -29,6 +29,8 @@ export const TOUR_POI_CATEGORIES_BY_TYPE: Record<PlannableTourType, readonly Tou
   run: ['drinking_water', 'toilets', 'park', 'viewpoint', 'cafe', 'food', 'shelter', 'sights'],
   // HOR-01: water for horse and rider first; a ride stops where a walk would.
   horse: ['drinking_water', 'shelter', 'viewpoint', 'food', 'picnic', 'toilets', 'campsite', 'sights'],
+  // SKI-02: huts and somewhere warm to eat first; a winter day out stops where the snow lets it.
+  ski: ['shelter', 'food', 'cafe', 'restaurant', 'toilets', 'viewpoint', 'peak', 'drinking_water'],
 };
 
 /**

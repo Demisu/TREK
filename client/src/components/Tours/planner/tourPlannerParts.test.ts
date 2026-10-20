@@ -9,7 +9,6 @@ const hike = (overrides: Partial<TourPlannerFactsInput> = {}): TourPlannerFactsI
   maxHikingDifficulty: 3,
   hikingPreferences: null,
   bikeProfile: 'touring',
-  winterActivity: null,
   runProfile: 'running',
   runPaceSecondsPerKm: null,
   website: '',
@@ -59,24 +58,44 @@ describe('tourPlannerFacts', () => {
     expect(facts.typeFields).toMatchObject({ tour_type: 'hike', max_hiking_difficulty: 3, boat_type: null });
   });
 
-  it('HIK-01: saves a hike with its winter label and the same times as without, and no other type with one', () => {
+  it('SKI-02: saves a ski tour with its discipline, untimed, and asks for a discipline and a cross-country technique', () => {
     const analysis = { distanceKm: 8, gain: 600, loss: 600 } as TourPlannerFactsInput['routeAnalysis'];
-    const summer = tourPlannerFacts(hike({ routeAnalysis: analysis, breakAdditionalMinutes: 30 }));
-    const winter = tourPlannerFacts(
-      hike({ routeAnalysis: analysis, breakAdditionalMinutes: 30, winterActivity: 'snowshoe' })
+    const snowshoe = tourPlannerFacts(
+      hike({
+        tourType: 'ski',
+        ski: { discipline: 'snowshoe', technique: 'classic' },
+        routeAnalysis: analysis,
+        breakAdditionalMinutes: 30,
+      })
     );
-    expect(winter.typeFields).toMatchObject({
-      tour_type: 'hike',
-      winter_activity: 'snowshoe',
-      max_hiking_difficulty: 3,
+    expect(snowshoe.typeFields).toMatchObject({
+      tour_type: 'ski',
+      ski_discipline: 'snowshoe',
+      ski_technique: null,
+      max_hiking_difficulty: null,
+      hiking_preferences: null,
     });
-    expect(summer.typeFields).toMatchObject({ winter_activity: null });
-    // A label only: the time is the signposts' rule, as for any hike.
-    expect(winter.walkingDurationMinutes).toBe(summer.walkingDurationMinutes);
-    expect(winter.plannedTotalMinutes).toBe(summer.plannedTotalMinutes);
-    for (const tourType of ['bike', 'walk', 'kayak'] as const) {
-      expect(tourPlannerFacts(hike({ tourType, winterActivity: 'winter_hike' })).typeFields.winter_activity).toBeNull();
+    expect(snowshoe.skiMissing).toBeNull();
+    // No ski time is worked out: no signposts' rule, no router time, nothing saved.
+    expect(snowshoe.walkingDurationMinutes).toBeNull();
+    expect(snowshoe.plannedTotalMinutes).toBeNull();
+    expect(snowshoe.savedDurationSeconds).toBeNull();
+    expect(tourPlannerFacts(hike({ tourType: 'ski', durationSeconds: 3_600 })).savedDurationSeconds).toBeNull();
+
+    expect(tourPlannerFacts(hike({ tourType: 'ski' })).skiMissing).toBe('discipline');
+    const crossCountry = hike({ tourType: 'ski', ski: { discipline: 'cross_country', technique: null } });
+    expect(tourPlannerFacts(crossCountry).skiMissing).toBe('technique');
+    const skating = tourPlannerFacts({ ...crossCountry, ski: { discipline: 'cross_country', technique: 'skating' } });
+    expect(skating.typeFields).toMatchObject({ ski_discipline: 'cross_country', ski_technique: 'skating' });
+    for (const tourType of ['hike', 'bike', 'walk', 'kayak'] as const) {
+      const other = tourPlannerFacts(hike({ tourType, ski: { discipline: 'alpine', technique: null } }));
+      expect(other.typeFields).toMatchObject({ ski_discipline: null, ski_technique: null });
+      expect(other.skiMissing).toBeNull();
     }
+  });
+
+  it('HIK-01 withdrawn: a hike saves no winter label at all', () => {
+    expect(tourPlannerFacts(hike()).typeFields).not.toHaveProperty('winter_activity');
   });
 
   it('RUN-01: times a run as its distance at the pace, nothing else, and saves its profile and pace', () => {
@@ -96,7 +115,7 @@ describe('tourPlannerFacts', () => {
       run_pace_seconds_per_km: 360,
       max_hiking_difficulty: null,
       hiking_preferences: null,
-      winter_activity: null,
+      ski_discipline: null,
       bike_profile: null,
     });
     const withBreak = hike({
@@ -140,8 +159,20 @@ describe('tourPlannerFacts', () => {
     expect(hikeOpened).toMatchObject({
       runProfile: 'running',
       runPaceSecondsPerKm: null,
-      winterActivity: null,
-      winterActivityChoice: 'winter_hike',
+      ski: { discipline: null, technique: null },
+    });
+  });
+
+  it('SKI-02: opens a saved ski tour with its discipline and technique, and any other tour with none chosen', () => {
+    const ski = { name: 'Loipe', tour_type: 'ski', ski_discipline: 'cross_country', ski_technique: 'classic' };
+    expect(openedTourFields(ski as Parameters<typeof openedTourFields>[0])).toMatchObject({
+      tourType: 'ski',
+      ski: { discipline: 'cross_country', technique: 'classic' },
+    });
+    const stray = { name: 'Ridge', tour_type: 'hike', ski_discipline: 'alpine' };
+    expect(openedTourFields(stray as Parameters<typeof openedTourFields>[0]).ski).toEqual({
+      discipline: null,
+      technique: null,
     });
   });
 
@@ -304,15 +335,20 @@ describe('useTourDraftStorage', () => {
     expect(localStorage.getItem('tour-draft-1')).toBeNull();
   });
 
-  it('HIK-01: gives back a draft with its winter label, and drops one whose label it does not know', () => {
+  it('SKI-02: gives back a draft with its ski choice, and drops one whose discipline it does not know', () => {
     localStorage.clear();
-    const draft = { version: 10, name: 'Snowy ridge', waypoints: [{ id: 'a', lat: 47, lng: 11, role: 'start' }] };
-    localStorage.setItem('tour-draft-5', JSON.stringify({ ...draft, winterActivity: 'snowshoe' }));
+    const draft = { version: 11, name: 'Snowy ridge', waypoints: [{ id: 'a', lat: 47, lng: 11, role: 'start' }] };
+    const ski = { ...draft, tourType: 'ski', ski: { discipline: 'winter_hike', technique: null } };
+    localStorage.setItem('tour-draft-5', JSON.stringify(ski));
     expect(renderHook(() => useTourDraftStorage(5)).result.current.restored).toMatchObject({
-      winterActivity: 'snowshoe',
+      tourType: 'ski',
+      ski: { discipline: 'winter_hike', technique: null },
     });
-    localStorage.setItem('tour-draft-6', JSON.stringify({ ...draft, winterActivity: 'ski_tour' }));
+    localStorage.setItem('tour-draft-6', JSON.stringify({ ...ski, ski: { discipline: 'freeride', technique: null } }));
     expect(renderHook(() => useTourDraftStorage(6)).result.current.restored).toBeNull();
+    // A draft from before the label went keeps the rest of itself; the winter label is not read.
+    localStorage.setItem('tour-draft-11', JSON.stringify({ ...draft, version: 10, winterActivity: 'snowshoe' }));
+    expect(renderHook(() => useTourDraftStorage(11)).result.current.restored).toMatchObject({ name: 'Snowy ridge' });
   });
 
   it('RUN-01: gives back a draft with its run profile and pace, and drops one it cannot read', () => {

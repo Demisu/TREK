@@ -11,7 +11,6 @@ import type {
   RunProfile,
   SkiDiscipline,
   SkiTechnique,
-  WinterActivity,
 } from '@trek/shared';
 
 /**
@@ -40,12 +39,10 @@ export interface TourListRow {
   origin: string;
   /** BIK-01: a bike tour's profile; NULL on every other type. */
   bike_profile: string | null;
-  /** HIK-01: a hike's winter label; NULL for none and on every other type. */
-  winter_activity: string | null;
   /** RUN-01: a run's profile and the pace it is planned at, seconds per km; NULL on every other type. */
   run_profile: string | null;
   run_pace_seconds_per_km: number | null;
-  /** SKI-02: a ski track's discipline and, for cross-country, its technique; NULL on every other type. */
+  /** SKI-02: a ski tour's discipline and, for cross-country, its technique; NULL on every other type. */
   ski_discipline: string | null;
   ski_technique: string | null;
   boat_type: string | null;
@@ -120,7 +117,6 @@ export interface TourRow {
   taken_over_from_trip_title: string | null;
   taken_over_from_tour_name: string | null;
   bike_profile: string | null;
-  winter_activity: string | null;
   run_profile: string | null;
   run_pace_seconds_per_km: number | null;
   ski_discipline: string | null;
@@ -144,12 +140,10 @@ export interface TourInsert {
   max_hiking_difficulty: number | null;
   /** BIK-01: a bike tour's profile; left out, NULL. */
   bike_profile?: BikeProfile | null;
-  /** HIK-01: a hike's winter label; left out, NULL on a new tour and kept as it is by an edit. */
-  winter_activity?: WinterActivity | null;
   /** RUN-01: a run's profile and its pace, seconds per km; left out, NULL. */
   run_profile?: RunProfile | null;
   run_pace_seconds_per_km?: number | null;
-  /** SKI-02: a ski track's discipline and technique; left out, NULL. */
+  /** SKI-02: a ski tour's discipline and technique; left out, NULL. */
   ski_discipline?: SkiDiscipline | null;
   ski_technique?: SkiTechnique | null;
   /** A paddle tour's boat, water and chosen speed; left out, a hike's NULLs. */
@@ -307,7 +301,6 @@ export class ToursRepository extends TrekRepository<Tours> {
         't.derived_from_place_id as derived_from_place_id',
         't.origin as origin',
         't.bike_profile as bike_profile',
-        't.winter_activity as winter_activity',
         't.run_profile as run_profile',
         't.run_pace_seconds_per_km as run_pace_seconds_per_km',
         't.ski_discipline as ski_discipline',
@@ -774,7 +767,6 @@ export class ToursRepository extends TrekRepository<Tours> {
       match_confidence: input.match_confidence,
       max_hiking_difficulty: input.max_hiking_difficulty,
       bike_profile: input.bike_profile ?? null,
-      winter_activity: input.winter_activity ?? null,
       run_profile: input.run_profile ?? null,
       run_pace_seconds_per_km: input.run_pace_seconds_per_km ?? null,
       ski_discipline: input.ski_discipline ?? null,
@@ -876,7 +868,6 @@ export class ToursRepository extends TrekRepository<Tours> {
         portage_speed_kmh: input.portage_speed_kmh,
         paddle_lake_style: input.paddle_lake_style,
         ...(input.hiking_preferences !== undefined ? { hiking_preferences: input.hiking_preferences } : {}),
-        ...(input.winter_activity !== undefined ? { winter_activity: input.winter_activity } : {}),
       })
       .where('place_id', '=', place_id)
       .where('place_id', 'in', (eb) => eb.selectFrom('places').select('id').where('trip_id', '=', trip_id))
