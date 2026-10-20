@@ -104,6 +104,15 @@ interface EventNotifConfig {
   navigateTarget: (params: Record<string, string>) => string | null;
 }
 
+// WAN-02: the three texts of a wanderer hint, one per state. Each sits in a
+// textKey of its own so the client's key check (scripts/i18n-keys.mjs, which
+// reads *Key properties in the server) sees every one of them as in use.
+const WANDERER_HINT_TEXT: Record<string, { textKey: string }> = {
+  changed: { textKey: 'notif.wanderer_source_hint.changed' },
+  unverifiable: { textKey: 'notif.wanderer_source_hint.unverifiable' },
+  possible_change: { textKey: 'notif.wanderer_source_hint.possible_change' },
+};
+
 const EVENT_NOTIFICATION_CONFIG: Record<string, EventNotifConfig> = {
   // ── Dev-only test events ──────────────────────────────────────────────────
   test_simple: {
@@ -233,12 +242,7 @@ const EVENT_NOTIFICATION_CONFIG: Record<string, EventNotifConfig> = {
   wanderer_source_hint: {
     inAppType: 'navigate',
     titleKey: 'notif.wanderer_source_hint.title',
-    textKey: (p) =>
-      p.state === 'changed'
-        ? 'notif.wanderer_source_hint.changed'
-        : p.state === 'unverifiable'
-          ? 'notif.wanderer_source_hint.unverifiable'
-          : 'notif.wanderer_source_hint.possible_change',
+    textKey: (p) => (WANDERER_HINT_TEXT[p.state] ?? WANDERER_HINT_TEXT.possible_change).textKey,
     navigateTextKey: 'notif.action.view_tour',
     navigateTarget: (p) => (p.tripId && p.placeId ? `/trips/${p.tripId}?tab=plan&place=${p.placeId}` : null),
   },
