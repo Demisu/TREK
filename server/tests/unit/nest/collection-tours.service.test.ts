@@ -159,6 +159,8 @@ describe('CollectionToursService', () => {
 
   it('LIB3-SVC-002: keeps it under another name, an editor may keep one too', async () => {
     const f = await fixture();
+    // An editor of the list keeps only a tour of a trip they can open themselves.
+    await addTripMember(orm, f.alps.id, f.editor.id);
     const { tour } = await service.save(f.editor.id, f.list.id, {
       source_trip_id: f.alps.id,
       source_place_id: f.ridge.id,

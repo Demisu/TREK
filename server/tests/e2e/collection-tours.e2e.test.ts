@@ -211,6 +211,8 @@ describe('Collection tours e2e (real guards + temp SQLite)', () => {
       .put(`/api/trips/5/tours/${source}`)
       .set(as(OWNER))
       .send(tourBody({ name: 'Changed later' }));
+    // Making the source and changing it told trip 5; from here on only the trip it is taken into hears of it.
+    realtime.broadcastMock.mockClear();
 
     const full = await request(server)
       .post('/api/trips/6/tours/from-collection')

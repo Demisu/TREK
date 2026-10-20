@@ -30,6 +30,7 @@ import { setAddonEnabled } from '../helpers/factories/settings';
 import { addTripMember } from '../helpers/factories/trips';
 import { makeUser } from '../helpers/factories/users';
 import { FakeRealtimeService } from '../helpers/fake-realtime';
+import { oneByOne } from '../helpers/one-by-one';
 import { createTestMikroOrmModule, createTestOrm, type TestOrm } from '../helpers/test-orm';
 import { TestUnitOfWorkModule } from '../helpers/test-uow';
 import { sessionCookie } from './harness';
@@ -208,14 +209,15 @@ describe('Ski tracks e2e (real guards + temp SQLite)', () => {
   );
 
   it('TOURS-SKI-E2E-003: refuses a ski import without its discipline or with a technique it has not, and ski fields on a hike', async () => {
-    const refused = await Promise.all(
+    const refused = await oneByOne(
       [
         { tour_type: 'ski' },
         { tour_type: 'ski', ski_discipline: 'cross_country' },
         { tour_type: 'ski', ski_discipline: 'alpine', ski_technique: 'classic' },
         { tour_type: 'ski', ski_discipline: 'freeride' },
         { tour_type: 'hike', ski_discipline: 'alpine' },
-      ].map((fields) => importGpx(fields)),
+      ],
+      (fields) => importGpx(fields),
     );
     expect(refused.map((res) => res.status)).toEqual([400, 400, 400, 400, 400]);
     expect(await countRows(orm, Places)).toBe(0);
@@ -272,13 +274,14 @@ describe('Ski tracks e2e (real guards + temp SQLite)', () => {
 
   it('TOURS-SKI-E2E-007: refuses a classification that is no ski classification, or of a tour that is no ski track', async () => {
     const placeId = await importSki({ ski_discipline: 'alpine' });
-    const invalid = await Promise.all(
+    const invalid = await oneByOne(
       [
         {},
         { ski_discipline: 'cross_country' },
         { ski_discipline: 'touring', ski_technique: 'classic' },
         { ski_discipline: 'monoski' },
-      ].map((body) => classify(placeId, body)),
+      ],
+      (body) => classify(placeId, body),
     );
     expect(invalid.map((res) => res.status)).toEqual([400, 400, 400, 400]);
 

@@ -231,11 +231,11 @@ describe('TourChangeMcp (MCP-T02)', () => {
     });
     expect(read(await prepare(f.trip.id, f.bakery.id, changes, f.user.id))).toEqual({ error: 'Tour not found.' });
     const failure = new Error('database gone');
-    const prepare = vi.spyOn(t.get(TourChangePreviewService), 'prepare').mockRejectedValueOnce(failure);
+    const servicePrepare = vi.spyOn(t.get(TourChangePreviewService), 'prepare').mockRejectedValueOnce(failure);
     try {
       await expect(prepare(f.trip.id, f.walk.id, changes, f.user.id)).rejects.toBe(failure);
     } finally {
-      prepare.mockRestore();
+      servicePrepare.mockRestore();
     }
   });
 

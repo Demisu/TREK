@@ -193,7 +193,7 @@ describe('Tours deletion and assignment authorization (mock-only)', () => {
         if (handler === 'create') {
           expect(assignments.dayExists).toHaveBeenCalledWith('11', '7');
           expect(assignments.placeExists).toHaveBeenCalledWith(42, '7');
-          expect(assignments.createAssignment).toHaveBeenCalledWith('11', 42, 'Tour');
+          expect(assignments.createAssignment).toHaveBeenCalledWith('11', 42, 'Tour', {});
           expect(assignments.deleteAssignment).not.toHaveBeenCalled();
           expect(assignments.broadcast).toHaveBeenCalledWith('7', 'assignment:created', { assignment }, 'socket');
         } else {

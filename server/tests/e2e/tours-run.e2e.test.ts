@@ -30,6 +30,7 @@ import { setAddonEnabled } from '../helpers/factories/settings';
 import { addTripMember } from '../helpers/factories/trips';
 import { makeUser } from '../helpers/factories/users';
 import { FakeRealtimeService } from '../helpers/fake-realtime';
+import { oneByOne } from '../helpers/one-by-one';
 import { createTestMikroOrmModule, createTestOrm, type TestOrm } from '../helpers/test-orm';
 import { TestUnitOfWorkModule } from '../helpers/test-uow';
 import { sessionCookie } from './harness';
@@ -205,7 +206,7 @@ describe('Runs e2e (real guards + temp SQLite)', () => {
   });
 
   it('TOURS-RUN-E2E-004: refuses a run without a profile, a pace out of bounds or not positive, and run fields on a hike', async () => {
-    const refused = await Promise.all(
+    const refused = await oneByOne(
       [
         runBody({ run_profile: null }),
         runBody({ run_profile: 'road' }),
@@ -215,7 +216,8 @@ describe('Runs e2e (real guards + temp SQLite)', () => {
         runBody({ run_pace_seconds_per_km: 330.5 }),
         runBody({ max_hiking_difficulty: 2 }),
         runBody({ tour_type: 'hike', run_profile: undefined }),
-      ].map((body) => send('post', '', body)),
+      ],
+      (body) => send('post', '', body),
     );
     expect(refused.map((res) => res.status)).toEqual([400, 400, 400, 400, 400, 400, 400, 400]);
     expect(await countRows(orm, Tours)).toBe(0);

@@ -386,6 +386,7 @@ describe('ToursRepository writes', () => {
       ski_technique: null,
       track_started_at: null,
       track_ended_at: null,
+      stage_ends: 0,
     });
   });
 
