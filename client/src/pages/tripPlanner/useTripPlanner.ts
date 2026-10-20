@@ -580,7 +580,7 @@ export function useTripPlanner() {
   // MDT-02: every way onto a day passes here; a multi-day tour asks whole or a stage a day first.
   const { tourDayQuestion, answerTourDay, handleAssignToDay } = useTourDayChoice({
     tripId, days, tours, selectedDayId, t, toast, pushUndo, assignWhole: assignWholeToDay, updateRouteForDay,
-    onToursChanged: reloadTourPlaceIds,
+    onToursChanged: reloadTourPlaceIds, roadtripVias, viaLiesBefore,
   })
 
   const { handleAddDay, dayAdd } = useDayAdd({

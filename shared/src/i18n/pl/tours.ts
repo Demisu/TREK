@@ -1447,6 +1447,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': 'Podróż kończy się po etapie {last}. Kolejne etapy zostają bez dnia.',
   'tours.stages.placed': 'Etapy od dnia {from}.',
   'tours.stages.placedReplaced': 'Cała trasa nie jest już w dniu {list}.',
+  'tours.stages.placedReplacedMany': 'Cała trasa nie jest już w dniach {list}.',
   'tours.stages.placeFailed': 'Nie każdy etap udało się przypisać do jego dnia. Cofnij wycofa to, co już zrobiono.',
   'tours.stages.placeUndo': 'Etapy rozłożone na dni',
   'tours.estimate.label': 'Szacowany czas',

@@ -1372,6 +1372,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': 'Chuyến đi kết thúc sau chặng {last}. Các chặng sau đó chưa có ngày.',
   'tours.stages.placed': 'Các chặng từ ngày {from}.',
   'tours.stages.placedReplaced': 'Cả hành trình không còn ở ngày {list}.',
+  'tours.stages.placedReplacedMany': 'Cả hành trình không còn ở các ngày {list}.',
   'tours.stages.placeFailed': 'Không phải chặng nào cũng xếp được vào ngày của nó. Hoàn tác sẽ gỡ những gì đã làm.',
   'tours.stages.placeUndo': 'Các chặng đã chia theo ngày',
   'tours.estimate.label': 'Thời gian ước tính',

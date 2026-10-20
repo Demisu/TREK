@@ -1387,6 +1387,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': 'Perjalanan berakhir setelah etape {last}. Etape sesudahnya tetap tanpa hari.',
   'tours.stages.placed': 'Etape mulai Hari {from}.',
   'tours.stages.placedReplaced': 'Seluruh tur tidak lagi ada di Hari {list}.',
+  'tours.stages.placedReplacedMany': 'Seluruh tur tidak lagi ada di hari {list}.',
   'tours.stages.placeFailed':
     'Tidak semua etape bisa dimasukkan ke harinya. Urungkan membatalkan yang sudah dilakukan.',
   'tours.stages.placeUndo': 'Etape dibagi ke beberapa hari',

@@ -1438,6 +1438,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': 'Подорож закінчується після етапу {last}. Наступні етапи залишаться без дня.',
   'tours.stages.placed': 'Етапи починаючи з дня {from}.',
   'tours.stages.placedReplaced': 'Увесь маршрут прибрано з дня {list}.',
+  'tours.stages.placedReplacedMany': 'Увесь маршрут прибрано з днів {list}.',
   'tours.stages.placeFailed': 'Не всі етапи вдалося призначити на їхні дні. Скасування поверне те, що вже зроблено.',
   'tours.stages.placeUndo': 'Етапи розподілено по днях',
   'tours.estimate.label': 'Орієнтовний час',

@@ -1411,6 +1411,7 @@ const tours: TranslationStrings = {
     'Az utazás véget ér ezzel: {last}. szakasz. A további szakaszok nap nélkül maradnak.',
   'tours.stages.placed': 'Szakaszok {from}. naptól kezdve.',
   'tours.stages.placedReplaced': 'A teljes túra lekerült innen: {list}. nap.',
+  'tours.stages.placedReplacedMany': 'A teljes túra lekerült ezekről a napokról: {list}.',
   'tours.stages.placeFailed':
     'Nem minden szakasz került a saját napjára. A visszavonás visszaállítja, ami már megtörtént.',
   'tours.stages.placeUndo': 'Szakaszok napokra osztva',

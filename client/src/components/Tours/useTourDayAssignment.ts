@@ -53,14 +53,22 @@ export function useTourDayAssignment({ canAssign, onAssignToDay }: TourDayAssign
     [canAssign, isOnDay, isPending]
   );
 
+  /**
+   * `ask` is for a multi-day tour put on a day where no menu asked: the plan
+   * asks whole or stages, so a day that holds the tour still goes, for its
+   * stages, the way the menus let it.
+   */
   const assign = useCallback(
-    async (placeId: number, dayId: number, how?: TourDayHow): Promise<boolean> => {
+    async (placeId: number, dayId: number, how?: TourDayHow | 'ask'): Promise<boolean> => {
       const key = `${placeId}:${dayId}`;
-      if (!isAvailable(placeId, dayId, how) || inFlight.current.has(key)) return false;
+      if (!isAvailable(placeId, dayId, how === 'ask' ? 'stages' : how) || inFlight.current.has(key)) return false;
       inFlight.current.add(key);
       setPending((current) => new Set(current).add(key));
       try {
-        const done = how ? await onAssignToDay(placeId, dayId, undefined, how) : await onAssignToDay(placeId, dayId);
+        const asked = how === 'ask' ? undefined : how;
+        const done = asked
+          ? await onAssignToDay(placeId, dayId, undefined, asked)
+          : await onAssignToDay(placeId, dayId);
         return done !== false;
       } finally {
         inFlight.current.delete(key);

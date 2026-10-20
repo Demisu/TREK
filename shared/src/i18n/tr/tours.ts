@@ -1390,6 +1390,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': 'Seyahat {last}. etaptan sonra bitiyor. Sonraki etaplar günsüz kalır.',
   'tours.stages.placed': 'Etaplar {from}. günden itibaren.',
   'tours.stages.placedReplaced': 'Tüm tur artık {list}. günde değil.',
+  'tours.stages.placedReplacedMany': 'Tüm tur artık şu günlerde değil: {list}.',
   'tours.stages.placeFailed': 'Her etap kendi gününe konamadı. Geri al, yapılanı geri alır.',
   'tours.stages.placeUndo': 'Etaplar günlere dağıtıldı',
   'tours.estimate.label': 'Tahmini süre',

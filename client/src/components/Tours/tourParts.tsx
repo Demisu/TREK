@@ -203,7 +203,7 @@ export function TourDayMenu({ days, placeId, assignment, label, variant = 'round
   const staged = stageCount > 1
   // The next step opens once the click that chose the day has closed the first.
   const askHow = (day: Day) => window.setTimeout(() => {
-    const ways = tourDayHowItems({ placeId, dayId: day.id, days, stageCount, assignment }, t)
+    const ways = tourDayHowItems({ placeId, dayId: day.id, days, stageCount, assignment }, t, locale)
     if (trigger.current?.isConnected) menu.openAt(trigger.current, ways)
   }, 0)
   const items = days.map((day, index) => ({

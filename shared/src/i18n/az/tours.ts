@@ -1392,6 +1392,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': 'Səfər {last}-ci mərhələdən sonra bitir. Sonrakı mərhələlər günsüz qalır.',
   'tours.stages.placed': 'Mərhələlər {from}-ci gündən etibarən.',
   'tours.stages.placedReplaced': 'Bütün tur artıq {list}-ci gündə deyil.',
+  'tours.stages.placedReplacedMany': 'Bütün tur artıq bu günlərdə deyil: {list}.',
   'tours.stages.placeFailed': 'Hər mərhələni öz gününə qoymaq alınmadı. Geri al edilənləri geri qaytarır.',
   'tours.stages.placeUndo': 'Mərhələlər günlərə bölündü',
   'tours.estimate.label': 'Təxmini vaxt',

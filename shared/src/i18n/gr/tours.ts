@@ -1435,6 +1435,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': 'Το ταξίδι τελειώνει μετά το σκέλος {last}. Τα επόμενα σκέλη μένουν χωρίς ημέρα.',
   'tours.stages.placed': 'Σκέλη από την ημέρα {from}.',
   'tours.stages.placedReplaced': 'Όλη η διαδρομή δεν είναι πια στην ημέρα {list}.',
+  'tours.stages.placedReplacedMany': 'Όλη η διαδρομή δεν είναι πια στις ημέρες {list}.',
   'tours.stages.placeFailed': 'Δεν μπήκε κάθε σκέλος στην ημέρα του. Η αναίρεση επαναφέρει ό,τι έγινε ήδη.',
   'tours.stages.placeUndo': 'Τα σκέλη μοιράστηκαν σε ημέρες',
   'tours.estimate.label': 'Εκτιμώμενος χρόνος',

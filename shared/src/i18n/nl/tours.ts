@@ -1413,6 +1413,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': 'De reis eindigt na etappe {last}. De etappes daarna blijven zonder dag.',
   'tours.stages.placed': 'Etappes vanaf dag {from}.',
   'tours.stages.placedReplaced': 'De hele tocht staat niet meer op dag {list}.',
+  'tours.stages.placedReplacedMany': 'De hele tocht staat niet meer op de dagen {list}.',
   'tours.stages.placeFailed':
     'Niet elke etappe kon op haar dag worden gezet. Ongedaan maken draait terug wat al gebeurd is.',
   'tours.stages.placeUndo': 'Etappes over dagen verdeeld',

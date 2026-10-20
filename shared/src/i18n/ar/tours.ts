@@ -1450,6 +1450,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': 'تنتهي الرحلة بعد المرحلة {last}. تبقى المراحل التالية بلا يوم.',
   'tours.stages.placed': 'المراحل بدءًا من اليوم {from}.',
   'tours.stages.placedReplaced': 'لم تعد الجولة كاملة في اليوم {list}.',
+  'tours.stages.placedReplacedMany': 'لم تعد الجولة كاملة في الأيام {list}.',
   'tours.stages.placeFailed': 'تعذّر وضع كل مرحلة في يومها. التراجع يعيد ما تم بالفعل.',
   'tours.stages.placeUndo': 'توزيع المراحل على الأيام',
   'tours.estimate.label': 'الوقت المقدَّر',

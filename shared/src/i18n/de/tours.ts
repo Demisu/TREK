@@ -1424,6 +1424,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': 'Die Reise endet nach Etappe {last}. Die Etappen danach bleiben ohne Tag.',
   'tours.stages.placed': 'Etappen ab Tag {from}.',
   'tours.stages.placedReplaced': 'Die ganze Tour liegt nicht mehr an Tag {list}.',
+  'tours.stages.placedReplacedMany': 'Die ganze Tour liegt nicht mehr an den Tagen {list}.',
   'tours.stages.placeFailed': 'Nicht jede Etappe kam auf ihren Tag. Rückgängig nimmt zurück, was schon geschah.',
   'tours.stages.placeUndo': 'Etappen auf Tage verteilt',
   'tours.estimate.label': 'Geschätzte Zeit',

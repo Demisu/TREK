@@ -1413,6 +1413,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': 'El viatge acaba després de l’etapa {last}. Les etapes següents queden sense dia.',
   'tours.stages.placed': 'Etapes a partir del dia {from}.',
   'tours.stages.placedReplaced': 'La ruta sencera ja no és al dia {list}.',
+  'tours.stages.placedReplacedMany': 'La ruta sencera ja no és als dies {list}.',
   'tours.stages.placeFailed': 'No totes les etapes s’han pogut posar al seu dia. Desfer reverteix el que ja s’ha fet.',
   'tours.stages.placeUndo': 'Etapes repartides per dies',
   'tours.estimate.label': 'Temps estimat',

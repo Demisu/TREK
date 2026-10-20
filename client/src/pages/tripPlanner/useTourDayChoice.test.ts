@@ -1,12 +1,14 @@
-// FE-TOUR-STAGE-SPREAD-010 to FE-TOUR-STAGE-SPREAD-016: putting a multi-day tour on a day through
-// the plan's one path, whole or a stage a day from it on, asked first where no menu asked (MDT-02).
+// FE-TOUR-STAGE-SPREAD-010 to FE-TOUR-STAGE-SPREAD-016, FE-TOUR-STAGE-SPREAD-024 and
+// FE-TOUR-STAGE-SPREAD-025: putting a multi-day tour on a day through the plan's one path, whole or
+// a stage a day from it on, asked first where no menu asked (MDT-02), the road trip's vias kept on
+// their legs.
 import { act, renderHook } from '@testing-library/react';
 import type { TourListItem } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildAssignment, buildDay, buildPlace } from '../../../tests/helpers/factories';
 import { resetAllStores, seedStore } from '../../../tests/helpers/store';
 import { useTripStore } from '../../store/tripStore';
-import type { AssignmentsMap } from '../../types';
+import type { Assignment, AssignmentsMap } from '../../types';
 import { useTourDayChoice } from './useTourDayChoice';
 
 type Options = Parameters<typeof useTourDayChoice>[0];
@@ -53,8 +55,30 @@ beforeEach(() => {
     assignWhole: vi.fn(async () => true),
     updateRouteForDay: vi.fn(),
     onToursChanged: vi.fn(async () => undefined),
+    roadtripVias: { byDay: {}, reanchor: vi.fn(async () => undefined) },
+    viaLiesBefore: vi.fn(() => () => true),
   };
 });
+
+/** Lets the store writes change the day lists, the way the real ones do, so the stops can be counted. */
+function writesThatLand() {
+  const dayOf = (dayId: number) => useTripStore.getState().assignments[String(dayId)] ?? [];
+  const setDay = (dayId: number, items: Assignment[]) =>
+    useTripStore.setState((state) => ({ assignments: { ...state.assignments, [String(dayId)]: items } }));
+  writes.removeAssignment.mockImplementation(async (_trip: number, dayId: number, id: number) => {
+    setDay(dayId, dayOf(dayId).filter((item) => item.id !== id));
+  });
+  writes.assignPlaceToDay.mockImplementation(
+    async (_trip: number, dayId: number, placeId: number, position: number | null, key?: string) => {
+      const rows = dayOf(dayId).slice().sort((a, b) => a.order_index - b.order_index);
+      const added = buildAssignment({ id: 900 + dayId, day_id: dayId, place: buildPlace({ id: placeId }) });
+      added.tour_stage_key = key ?? null;
+      rows.splice(position ?? rows.length, 0, added);
+      setDay(dayId, rows.map((item, index) => ({ ...item, order_index: index })));
+      return added;
+    }
+  );
+}
 
 const render = () => renderHook(() => useTourDayChoice(options));
 const lastUndo = () => vi.mocked(options.pushUndo).mock.calls.at(-1)?.[1] as Undo;
@@ -181,6 +205,65 @@ describe('useTourDayChoice', () => {
       await lastUndo()();
     });
     expect(writes.moveAssignment).toHaveBeenCalledWith(42, 31, 1, 3);
+  });
+
+  it('FE-TOUR-STAGE-SPREAD-024: a whole tour taken off a road-trip day moves the vias behind it, and undo moves them back', async () => {
+    const stop = (id: number, order: number, placeId: number) =>
+      buildAssignment({ id, day_id: 2, order_index: order, place: buildPlace({ id: placeId }) });
+    const whole = buildAssignment({ id: 22, day_id: 2, order_index: 1, place: buildPlace({ id: 9 }) });
+    whole.tour_stage_key = null;
+    seed({ '1': [], '2': [stop(50, 0, 100), whole, stop(51, 2, 101), stop(52, 3, 102)], '3': [] });
+    writesThatLand();
+    // One via on the leg into the tour, one on the leg after it (stop 51 to stop 52).
+    options.roadtripVias.byDay = {
+      2: [
+        { id: 701, day_id: 2, after_order_index: 0, lat: 1, lng: 1 },
+        { id: 700, day_id: 2, after_order_index: 2, lat: 2, lng: 2 },
+      ] as never,
+    };
+    const { result } = render();
+    await act(async () => {
+      expect(await result.current.handleAssignToDay(9, 1, undefined, 'stages')).toBe(true);
+    });
+    // The tour was the second of four stops: the via behind it now leaves the stop before it.
+    expect(options.roadtripVias.reanchor).toHaveBeenCalledTimes(1);
+    expect(options.roadtripVias.reanchor).toHaveBeenCalledWith(2, {
+      vias: [{ id: 700, after_order_index: 1 }],
+      remove: [],
+    });
+
+    vi.mocked(options.roadtripVias.reanchor).mockClear();
+    await act(async () => {
+      await lastUndo()();
+    });
+    // Stage 2 comes off the end of day 2 with no via behind it, then the whole tour goes back
+    // second, and the via is counted from where the spread left it, not where it started.
+    expect(writes.assignPlaceToDay).toHaveBeenLastCalledWith(42, 2, 9, 1, undefined);
+    expect(options.roadtripVias.reanchor).toHaveBeenCalledTimes(1);
+    expect(options.roadtripVias.reanchor).toHaveBeenCalledWith(2, {
+      vias: [{ id: 700, after_order_index: 2 }],
+      remove: [],
+    });
+    expect(useTripStore.getState().assignments['2'].map((item) => item.id)).toEqual([50, 902, 51, 52]);
+  });
+
+  it('FE-TOUR-STAGE-SPREAD-025: a tour whole on several days says it left all of them, and a via that cannot follow says why', async () => {
+    const onDay = (id: number, dayId: number) =>
+      buildAssignment({ id, day_id: dayId, place: buildPlace({ id: 9 }), tour_stage_key: null });
+    seed({ '1': [], '2': [buildAssignment({ id: 60, day_id: 2 }), onDay(22, 2)], '3': [onDay(33, 3)] });
+    options.roadtripVias.byDay = { 2: [{ id: 700, day_id: 2, after_order_index: 0, lat: 2, lng: 2 }] as never };
+    vi.mocked(options.roadtripVias.reanchor).mockRejectedValueOnce(new Error('No network'));
+    const { result } = render();
+    await act(async () => {
+      expect(await result.current.handleAssignToDay(9, 1, undefined, 'stages')).toBe(true);
+    });
+    expect(options.toast.success).toHaveBeenCalledWith(
+      'tours.stages.placed {"from":1} tours.stages.placedReplacedMany {"list":"2, 3"}'
+    );
+    // The stages went on all the same; only the road kept its old anchors, and the plan says so once.
+    expect(writes.assignPlaceToDay).toHaveBeenCalledTimes(3);
+    expect(options.toast.error).toHaveBeenCalledTimes(1);
+    expect(options.toast.error).toHaveBeenCalledWith('No network');
   });
 
   it('FE-TOUR-STAGE-SPREAD-016: a refused write stops the spread, says so, and the undo has what went before', async () => {

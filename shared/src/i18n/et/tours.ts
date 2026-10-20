@@ -1386,6 +1386,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': 'Reis lõpeb pärast etappi {last}. Järgmised etapid jäävad päevata.',
   'tours.stages.placed': 'Etapid alates päevast {from}.',
   'tours.stages.placedReplaced': 'Kogu matk pole enam päeval {list}.',
+  'tours.stages.placedReplacedMany': 'Kogu matk pole enam päevadel {list}.',
   'tours.stages.placeFailed': 'Kõiki etappe ei õnnestunud oma päevale panna. Võta tagasi ennistab juba tehtu.',
   'tours.stages.placeUndo': 'Etapid päevadele jaotatud',
   'tours.estimate.label': 'Hinnanguline aeg',

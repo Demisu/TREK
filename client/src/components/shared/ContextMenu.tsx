@@ -10,6 +10,10 @@ interface MenuItem {
   disabled?: boolean
   danger?: boolean
   divider?: boolean
+  /** A second, quieter line under the label: what an item does, or why it is greyed out. */
+  hint?: string
+  /** A row that only names what the items below it act on, such as the day picked a step before. */
+  heading?: boolean
 }
 
 interface MenuState {
@@ -115,6 +119,14 @@ export function ContextMenu({ menu, onClose }: ContextMenuProps) {
     }}>
       {menu.items.filter(Boolean).map((item, i) => {
         if (item.divider) return <div key={i} style={{ height: 1, background: 'var(--border-faint)', margin: '3px 6px' }} />
+        if (item.heading) return (
+          <div key={i} style={{
+            padding: '6px 10px 4px', fontSize: 'calc(11px * var(--fs-scale-caption, 1))', fontWeight: 600,
+            color: 'var(--text-faint)',
+          }}>
+            {item.label}
+          </div>
+        )
         const Icon = item.icon
         return (
           <button type="button" key={i} disabled={item.disabled} onClick={() => { if (item.disabled) return; item.onClick?.(); onClose() }} style={{
@@ -129,7 +141,17 @@ export function ContextMenu({ menu, onClose }: ContextMenuProps) {
             onMouseLeave={e => e.currentTarget.style.background = 'none'}
           >
             {Icon && <Icon size={13} style={{ flexShrink: 0, color: item.danger ? '#ef4444' : 'var(--text-faint)' }} />}
-            <span>{item.label}</span>
+            {item.hint ? (
+              <span style={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
+                <span>{item.label}</span>
+                <span style={{
+                  maxWidth: 240, whiteSpace: 'normal', fontWeight: 400, color: 'var(--text-muted)',
+                  fontSize: 'calc(11px * var(--fs-scale-caption, 1))',
+                }}>
+                  {item.hint}
+                </span>
+              </span>
+            ) : <span>{item.label}</span>}
           </button>
         )
       })}

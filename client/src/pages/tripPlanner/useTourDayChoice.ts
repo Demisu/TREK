@@ -9,13 +9,21 @@ import {
   type TourDayHow,
   type TourDayQuestion,
 } from '../../components/Tours/stages/stageSpread';
+import {
+  isEmptyReanchoring,
+  reanchorAfterInsert,
+  reanchorAfterRemove,
+  type Reanchoring,
+} from '../../components/Roadtrip/roadtripModel';
+import type { RoadtripVias } from '../../components/Roadtrip/useRoadtripVias';
 import { isTourOnDay } from '../../components/Tours/useTourDayAssignment';
 import { useTripStore } from '../../store/tripStore';
-import type { Day } from '../../types';
+import type { Day, Place } from '../../types';
+import { roadtripStopList } from '../../utils/dayRouteVias';
 import { restoreVisit, visitOf } from './placeUndo';
+import type { RoadtripFeed } from './useRoadtripFeed';
 
 type Translate = (key: string, params?: Record<string, string | number>) => string;
-type Undo = () => Promise<void>;
 
 interface TourDayChoiceOptions {
   tripId: number;
@@ -33,30 +41,125 @@ interface TourDayChoiceOptions {
   assignWhole: (placeId: number, dayId?: number, position?: number) => Promise<boolean>;
   updateRouteForDay: (dayId: number) => void;
   onToursChanged: () => Promise<unknown> | void;
+  /** The road trip's vias, which every write that shifts the stops of a day carries along. */
+  roadtripVias: Pick<RoadtripVias, 'byDay' | 'reanchor'>;
+  viaLiesBefore: RoadtripFeed['viaLiesBefore'];
 }
 
-/** Sends one write of a spread through the store, the plan's offline way, and returns what takes it back. */
-async function runStep(tripId: number, placeId: number, step: SpreadStep): Promise<Undo> {
+type ViaFeed = Pick<TourDayChoiceOptions, 'roadtripVias' | 'viaLiesBefore'>;
+type Located = Pick<Place, 'lat' | 'lng'> | null | undefined;
+
+/**
+ * Keeps a day's road on the legs it was drawn on while a spread, or its undo,
+ * takes stops off days and puts them back, the way the plan's own writes do
+ * (useDayPlanEdits). A via is anchored by `after_order_index`, a POSITION among
+ * the day's stops, and a tour with a start counts as one: a stop taken off the
+ * middle of a road-trip day shifts every via behind it onto the wrong leg. One
+ * run of writes can touch a day twice (the undo takes a stage off a day and
+ * puts the whole tour back on it) faster than the plan renders, so the stops
+ * are read from the store as each write goes out, and the vias are kept as the
+ * last correction left them.
+ */
+function viaKeeper(feed: ViaFeed, onError: (err: unknown) => void) {
+  const known = new Map<number, ViaFeed['roadtripVias']['byDay'][number]>();
+  const viasOf = (dayId: number) => known.get(dayId) ?? feed.roadtripVias.byDay[dayId] ?? [];
+  const rowsOf = (dayId: number) =>
+    (useTripStore.getState().assignments[String(dayId)] ?? [])
+      .slice()
+      .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
+
+  const correct = async (dayId: number, plan: Reanchoring | null) => {
+    if (!plan || isEmptyReanchoring(plan)) return;
+    try {
+      await feed.roadtripVias.reanchor(dayId, plan);
+      const moved = new Map(plan.vias.map((via) => [via.id, via.after_order_index] as const));
+      known.set(
+        dayId,
+        viasOf(dayId)
+          .filter((via) => !plan.remove.includes(via.id))
+          .map((via) => ({ ...via, after_order_index: moved.get(via.id) ?? via.after_order_index }))
+      );
+    } catch (err: unknown) {
+      // The stop is where it was put all the same; only the road kept its old anchors.
+      onError(err);
+    }
+  };
+
+  return {
+    /** Takes a stop off a day through `write`, the vias behind it moving up a leg. */
+    async takeOff(dayId: number, assignmentId: number, write: () => Promise<void>) {
+      const stops = roadtripStopList(rowsOf(dayId));
+      const at = stops.findIndex((stop) => stop.id === assignmentId);
+      const plan = at < 0 ? null : reanchorAfterRemove(viasOf(dayId), at, stops.length);
+      await write();
+      await correct(dayId, plan);
+    },
+    /** Puts a stop on a day at row `position` through `write`, the vias behind it moving down a leg. */
+    async putOn<T>(dayId: number, position: number, place: Located, write: () => Promise<T>): Promise<T> {
+      const rows = rowsOf(dayId);
+      const stopCount = roadtripStopList(rows).length;
+      const insertAt = roadtripStopList(rows.slice(0, Math.max(0, position))).length;
+      const lat = place?.lat;
+      const lng = place?.lng;
+      const plan =
+        insertAt >= stopCount || typeof lat !== 'number' || typeof lng !== 'number'
+          ? null
+          : reanchorAfterInsert(viasOf(dayId), insertAt, feed.viaLiesBefore(dayId, { lat, lng }));
+      const result = await write();
+      await correct(dayId, plan);
+      return result;
+    },
+  };
+}
+
+type ViaKeeper = ReturnType<typeof viaKeeper>;
+/** Takes one write back, the vias kept by the one keeper of the whole undo. */
+type Undo = (road: ViaKeeper) => Promise<void>;
+
+/**
+ * Sends one write of a spread through the store, the plan's offline way, and
+ * returns what takes it back. A stage moved or put on a day goes on at its end,
+ * where no via lies behind it; a stop taken off a day or put back in the
+ * middle of one carries the day's vias along (`viaKeeper`). The undo runs
+ * later, and is handed the keeper of its own run.
+ */
+async function runStep(
+  tripId: number,
+  placeId: number,
+  step: SpreadStep,
+  road: ViaKeeper
+): Promise<Undo> {
   const store = useTripStore.getState();
   if (step.kind === 'move') {
-    await store.moveAssignment(tripId, step.assignmentId, step.fromDayId, step.toDayId);
-    return () => useTripStore.getState().moveAssignment(tripId, step.assignmentId, step.toDayId, step.fromDayId);
+    await road.takeOff(step.fromDayId, step.assignmentId, () =>
+      store.moveAssignment(tripId, step.assignmentId, step.fromDayId, step.toDayId)
+    );
+    return (back) =>
+      back.takeOff(step.toDayId, step.assignmentId, () =>
+        useTripStore.getState().moveAssignment(tripId, step.assignmentId, step.toDayId, step.fromDayId)
+      );
   }
   if (step.kind === 'create') {
     const created = await store.assignPlaceToDay(tripId, step.dayId, placeId, null, step.key);
-    return async () => {
-      if (created?.id) await useTripStore.getState().removeAssignment(tripId, step.dayId, created.id);
+    return async (back) => {
+      const id = created?.id;
+      if (!id) return;
+      await back.takeOff(step.dayId, id, () => useTripStore.getState().removeAssignment(tripId, step.dayId, id));
     };
   }
   const item = (store.assignments[String(step.dayId)] ?? []).find((entry) => entry.id === step.assignmentId);
-  await store.removeAssignment(tripId, step.dayId, step.assignmentId);
-  return async () => {
+  await road.takeOff(step.dayId, step.assignmentId, () =>
+    store.removeAssignment(tripId, step.dayId, step.assignmentId)
+  );
+  return async (back) => {
     if (!item?.place) return;
     // Back where it was, whole or as its stage, with the times, note and travellers it had.
     const visit = visitOf(step.dayId, item);
     const actions = useTripStore.getState();
     const key = item.tour_stage_key ?? undefined;
-    const restored = await actions.assignPlaceToDay(tripId, step.dayId, placeId, visit.orderIndex, key);
+    const restored = await back.putOn(step.dayId, visit.orderIndex, item.place, () =>
+      actions.assignPlaceToDay(tripId, step.dayId, placeId, visit.orderIndex, key)
+    );
     if (restored?.id) await restoreVisit(tripId, actions, visit, restored.id);
   };
 }
@@ -71,7 +174,9 @@ function spreadMessage(plan: StageSpread, days: readonly Day[], t: Translate): s
   if (plan.unplaced > 0) parts.push(t('tours.stages.placeStagesShort', { last: plan.placed.length }));
   if (plan.wholeOff.length > 0) {
     const off = plan.wholeOff.map(numberOf).sort((a, b) => a - b);
-    parts.push(t('tours.stages.placedReplaced', { list: off.join(', ') }));
+    // A tour can sit whole on several days, once on each; the sentence then names them all.
+    const key = off.length > 1 ? 'tours.stages.placedReplacedMany' : 'tours.stages.placedReplaced';
+    parts.push(t(key, { list: off.join(', ') }));
   }
   return parts.join(' ');
 }
@@ -91,6 +196,9 @@ export function useTourDayChoice(options: TourDayChoiceOptions) {
   const { pushUndo, assignWhole, updateRouteForDay, onToursChanged } = options;
   const [tourDayQuestion, setTourDayQuestion] = useState<TourDayQuestion | null>(null);
   const answer = useRef<((how: TourDayHow | null) => void) | null>(null);
+  // The vias as the plan has them now: an undo runs long after the spread that pushed it.
+  const viaFeed = useRef<ViaFeed>(options);
+  viaFeed.current = { roadtripVias: options.roadtripVias, viaLiesBefore: options.viaLiesBefore };
 
   const answerTourDay = useCallback((how: TourDayHow | null) => {
     const resolve = answer.current;
@@ -115,11 +223,21 @@ export function useTourDayChoice(options: TourDayChoiceOptions) {
       const keys = stageKeysOfTour(tours.find((tour) => tour.place_id === placeId));
       const plan = planStageSpread({ placeId, keys, days, assignments: useTripStore.getState().assignments, dayId });
       if (plan.placed.length === 0) return false;
+      // Said once per run of writes, the way the plan says a road it could not keep.
+      const keeper = () => {
+        let said = false;
+        return viaKeeper(viaFeed.current, (err) => {
+          if (said) return;
+          said = true;
+          toast.error(err instanceof Error ? err.message : t('common.unknownError'));
+        });
+      };
+      const road = keeper();
       const undos: Undo[] = [];
       let failed = false;
       for (const step of plan.steps) {
         try {
-          undos.unshift(await runStep(tripId, placeId, step));
+          undos.unshift(await runStep(tripId, placeId, step, road));
         } catch {
           // The store has put back the write that failed; what went before stays, and the undo takes it back.
           failed = true;
@@ -137,7 +255,8 @@ export function useTourDayChoice(options: TourDayChoiceOptions) {
         pushUndo(
           t('tours.stages.placeUndo'),
           async () => {
-            for (const undo of undos) await undo();
+            const back = keeper();
+            for (const undo of undos) await undo(back);
             await onToursChanged();
             redraw();
           },

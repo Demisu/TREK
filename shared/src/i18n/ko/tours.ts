@@ -1348,6 +1348,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': '여행이 {last}구간 뒤에 끝납니다. 그 뒤 구간은 날짜 없이 남습니다.',
   'tours.stages.placed': '{from}일차부터 구간을 배치했습니다.',
   'tours.stages.placedReplaced': '전체 투어가 더 이상 {list}일차에 없습니다.',
+  'tours.stages.placedReplacedMany': '전체 투어가 더 이상 {list}일차에 없습니다.',
   'tours.stages.placeFailed': '일부 구간을 해당 날에 넣지 못했습니다. 실행 취소로 이미 한 변경을 되돌릴 수 있습니다.',
   'tours.stages.placeUndo': '구간을 날짜별로 배치',
   'tours.estimate.label': '예상 시간',

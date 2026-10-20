@@ -7,6 +7,7 @@ import { useAddonStore } from '../../../../store/addonStore'
 import { useSaveToCollectionStore } from '../../../../store/saveToCollectionStore'
 import { placeToSaveTarget } from '../../../../components/Collections/saveTarget'
 import { useTourDayAssignment } from '../../../../components/Tours/useTourDayAssignment'
+import { stageKeysOfTour } from '../../../../components/Tours/stages/stageSpread'
 import type { Place } from '../../../../types'
 
 interface BrowseActionsPayload {
@@ -60,11 +61,14 @@ export default function MBrowseActionsSheet({ planner, shell }: MTripSheetsProps
     openSavePicker(placeToSaveTarget(place))
   }
 
-  const tourUnavailableOnDay = (dayId: number) => isTourPlace(place.id) && !dayAssignment.isAvailable(place.id, dayId)
+  // A multi-day tour can still go from a day that holds it, as stages (MDT-02); the plan asks which way.
+  const staged = stageKeysOfTour(planner.tours.find(tour => tour.place_id === place.id)).length > 1
+  const tourUnavailableOnDay = (dayId: number) =>
+    isTourPlace(place.id) && !dayAssignment.isAvailable(place.id, dayId, staged ? 'stages' : 'whole')
 
   const assignToDay = async (dayId: number) => {
     const assigned = isTourPlace(place.id)
-      ? await dayAssignment.assign(place.id, dayId)
+      ? await dayAssignment.assign(place.id, dayId, staged ? 'ask' : undefined)
       : await planner.handleAssignToDay(place.id, dayId)
     if (assigned !== false) shell.closeSheet()
   }

@@ -1406,6 +1406,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': 'El viaje termina tras la etapa {last}. Las etapas siguientes quedan sin día.',
   'tours.stages.placed': 'Etapas desde el día {from}.',
   'tours.stages.placedReplaced': 'La ruta completa ya no está en el día {list}.',
+  'tours.stages.placedReplacedMany': 'La ruta completa ya no está en los días {list}.',
   'tours.stages.placeFailed': 'No todas las etapas pudieron ponerse en su día. Deshacer revierte lo ya hecho.',
   'tours.stages.placeUndo': 'Etapas repartidas por días',
   'tours.estimate.label': 'Tiempo estimado',

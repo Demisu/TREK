@@ -1418,6 +1418,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': 'Il viaggio finisce dopo la tappa {last}. Le tappe successive restano senza giorno.',
   'tours.stages.placed': 'Tappe dal giorno {from} in poi.',
   'tours.stages.placedReplaced': 'Il tour completo non è più nel giorno {list}.',
+  'tours.stages.placedReplacedMany': 'Il tour completo non è più nei giorni {list}.',
   'tours.stages.placeFailed': 'Non tutte le tappe sono finite nel loro giorno. Annulla ripristina quanto già fatto.',
   'tours.stages.placeUndo': 'Tappe distribuite sui giorni',
   'tours.estimate.label': 'Tempo stimato',

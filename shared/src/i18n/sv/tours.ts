@@ -1382,6 +1382,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': 'Resan slutar efter etapp {last}. Etapperna efter den blir utan dag.',
   'tours.stages.placed': 'Etapper från dag {from}.',
   'tours.stages.placedReplaced': 'Hela turen ligger inte längre på dag {list}.',
+  'tours.stages.placedReplacedMany': 'Hela turen ligger inte längre på dagarna {list}.',
   'tours.stages.placeFailed': 'Alla etapper kunde inte läggas på sin dag. Ångra tar tillbaka det som redan gjorts.',
   'tours.stages.placeUndo': 'Etapper fördelade på dagar',
   'tours.estimate.label': 'Uppskattad tid',

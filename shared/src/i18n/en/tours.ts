@@ -1378,6 +1378,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': 'The trip ends after stage {last}. The stages after it stay without a day.',
   'tours.stages.placed': 'Stages from day {from} on.',
   'tours.stages.placedReplaced': 'The whole tour is no longer on day {list}.',
+  'tours.stages.placedReplacedMany': 'The whole tour is no longer on days {list}.',
   'tours.stages.placeFailed': 'Not every stage could be put on its day. Undo takes back what was done.',
   'tours.stages.placeUndo': 'Stages put on days',
   'tours.estimate.label': 'Estimated time',

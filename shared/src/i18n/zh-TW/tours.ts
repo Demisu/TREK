@@ -1290,6 +1290,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': '行程在第 {last} 階段之後結束。之後的階段暫無日期。',
   'tours.stages.placed': '已從第 {from} 天起安排各階段。',
   'tours.stages.placedReplaced': '整條路線已不在第 {list} 天。',
+  'tours.stages.placedReplacedMany': '整條路線已不在第 {list} 天。',
   'tours.stages.placeFailed': '並非所有階段都排進了對應的日期。復原可還原已完成的部分。',
   'tours.stages.placeUndo': '已按天安排各階段',
   'tours.estimate.label': '預估時間',

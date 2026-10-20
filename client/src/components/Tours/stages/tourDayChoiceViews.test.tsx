@@ -1,4 +1,5 @@
-// FE-TOUR-STAGE-SPREAD-017 to FE-TOUR-STAGE-SPREAD-021: where a multi-day tour is put on a day on the
+// FE-TOUR-STAGE-SPREAD-017 to FE-TOUR-STAGE-SPREAD-021 and FE-TOUR-STAGE-SPREAD-026: where a
+// multi-day tour is put on a day on the
 // desktop, the choice between the whole tour and a stage a day: the list's day menu, the detail's
 // button and the dialog for a tour dragged onto a day (MDT-02).
 import userEvent from '@testing-library/user-event';
@@ -45,6 +46,22 @@ describe('the day menu of a tour list', () => {
     expect(assignment.assign).toHaveBeenCalledWith(81, 3, 'stages');
     expect(assignment.isAvailable).toHaveBeenCalledWith(81, 3, 'stages');
   });
+
+  it('FE-TOUR-STAGE-SPREAD-026: the second step names the day picked, and a greyed-out whole says why', async () => {
+    vi.mocked(assignment.isOnDay).mockReturnValue(true);
+    render(<TourDayMenu days={DAYS} placeId={81} label="Add to day" assignment={assignment} stageCount={3} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Add to day' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Day 2' }));
+    const whole = await screen.findByRole('button', { name: /^Whole tour on this day/ });
+    expect(whole).toBeDisabled();
+    expect(whole).toHaveTextContent('This day already holds the tour.');
+    // The day stays in sight as a heading, not as something to click again.
+    expect(screen.getByText('Day 2')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Day 2' })).toBeNull();
+    const stages = screen.getByRole('button', { name: 'Stages from this day on, up to stage 1' });
+    expect(stages).toBeEnabled();
+    expect(stages).not.toHaveTextContent('The trip ends');
+  });
 });
 
 describe('the detail button and the dialog', () => {
@@ -58,7 +75,9 @@ describe('the detail button and the dialog', () => {
     vi.mocked(assignment.isOnDay).mockReturnValue(true);
     render(<TourDayAddButton {...props} stageCount={3} />);
     await userEvent.click(screen.getByRole('button', { name: 'Add to day' }));
-    expect(screen.getByRole('button', { name: 'Whole tour on this day' })).toBeDisabled();
+    const whole = screen.getByRole('button', { name: /^Whole tour on this day/ });
+    expect(whole).toBeDisabled();
+    expect(whole).toHaveTextContent('This day already holds the tour.');
     await userEvent.click(screen.getByRole('button', { name: 'Stages from this day on, up to stage 1' }));
     expect(assignment.assign).toHaveBeenLastCalledWith(81, 4, 'stages');
   });

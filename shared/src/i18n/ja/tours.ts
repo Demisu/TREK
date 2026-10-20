@@ -1352,6 +1352,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': '旅行はステージ {last} の後で終わります。それ以降のステージは日なしのままです。',
   'tours.stages.placed': '{from}日目からステージを配置しました。',
   'tours.stages.placedReplaced': 'ツアー全体は {list}日目から外れました。',
+  'tours.stages.placedReplacedMany': 'ツアー全体は {list} 日目から外れました。',
   'tours.stages.placeFailed': '一部のステージを日に入れられませんでした。元に戻すと、行った変更を取り消せます。',
   'tours.stages.placeUndo': 'ステージを日ごとに配置',
   'tours.estimate.label': '推定時間',

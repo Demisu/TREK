@@ -95,6 +95,24 @@ describe('MBrowseActionsSheet Tour assignment picker', () => {
     expect(screen.getByRole('button', { name: /Day three/ })).toBeEnabled();
   });
 
+  it('FE-TOUR-STAGE-SPREAD-027: a multi-day tour still goes from a day that holds it, and the plan asks which way', async () => {
+    resetAllStores();
+    seedStore(useTripStore, { assignments: { '7': [{ id: 70, day_id: 7, place_id: 42 }] } as never });
+    const handleAssignToDay = vi.fn().mockResolvedValue(true);
+    const stageStops = ['stop-a', 'stop-b', 'stop-c'].map((key) => ({ key, lat: 48, lng: 11 }));
+    const planner = mobilePlanner({
+      handleAssignToDay,
+      tours: [{ place_id: 42, name: 'Ridge walk', stage_stops: stageStops }] as never,
+    });
+    const { shell } = renderDayPicker(planner);
+    const dayOne = screen.getByRole('button', { name: /Day one/ });
+    expect(dayOne).toBeEnabled();
+    fireEvent.click(dayOne);
+    // No way is passed, so the plan opens the choice; on this day only the stages are left.
+    expect(handleAssignToDay).toHaveBeenCalledWith(42, 7);
+    await waitFor(() => expect(shell.closeSheet).toHaveBeenCalledOnce());
+  });
+
   it('leaves ordinary Place day choices enabled and preserves their assignment write behavior', () => {
     resetAllStores();
     const place = { ...tourPlace(), tour_place_id: undefined };

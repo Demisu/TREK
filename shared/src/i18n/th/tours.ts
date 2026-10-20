@@ -1327,6 +1327,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': 'ทริปจบหลังช่วงที่ {last} ช่วงหลังจากนั้นจะยังไม่มีวัน',
   'tours.stages.placed': 'ช่วงต่าง ๆ ตั้งแต่วันที่ {from}',
   'tours.stages.placedReplaced': 'ทั้งเส้นทางไม่ได้อยู่ในวันที่ {list} แล้ว',
+  'tours.stages.placedReplacedMany': 'ทั้งเส้นทางไม่ได้อยู่ในวันที่ {list} แล้ว',
   'tours.stages.placeFailed': 'ใส่บางช่วงลงในวันของมันไม่ได้ การเลิกทำจะย้อนสิ่งที่ทำไปแล้ว',
   'tours.stages.placeUndo': 'แบ่งช่วงลงในวันต่าง ๆ แล้ว',
   'tours.estimate.label': 'เวลาโดยประมาณ',

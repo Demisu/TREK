@@ -1400,6 +1400,7 @@ const tours: TranslationStrings = {
   'tours.stages.placeStagesShort': 'Cesta končí po etape {last}. Ďalšie etapy zostanú bez dňa.',
   'tours.stages.placed': 'Etapy odo dňa {from}.',
   'tours.stages.placedReplaced': 'Celá trasa už nie je v dni {list}.',
+  'tours.stages.placedReplacedMany': 'Celá trasa už nie je v dňoch {list}.',
   'tours.stages.placeFailed': 'Nie každú etapu sa podarilo zaradiť do jej dňa. Späť vráti, čo už prebehlo.',
   'tours.stages.placeUndo': 'Etapy rozložené do dní',
   'tours.estimate.label': 'Odhadovaný čas',
