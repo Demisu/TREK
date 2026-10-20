@@ -101,6 +101,19 @@ export class AddonsService {
     return this.writeFlag('tours_cycle_map_enabled', enabled);
   }
 
+  /**
+   * The admin's switch for the piste router under Tours, as stored; fail-open, so it works
+   * wherever TREK Places is enabled until an admin switches it off.
+   */
+  async getToursSkiRouting() {
+    const value = await readAppSetting(this.appSettings, 'ski_routing_enabled');
+    return { enabled: value !== 'false' };
+  }
+
+  async updateToursSkiRouting(enabled: boolean) {
+    return this.writeFlag('ski_routing_enabled', enabled);
+  }
+
   /** wanderer may be used: Tours is on and the admin allowed it under Tours. */
   async isWandererAvailable(): Promise<boolean> {
     return (await this.isAddonEnabled(ADDON_IDS.TOURS)) && (await this.getToursWanderer()).enabled;

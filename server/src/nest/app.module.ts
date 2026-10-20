@@ -86,6 +86,7 @@ import { SchoolHolidaysModule } from './school-holidays/school-holidays.module';
 import { SessionsModule } from './sessions/sessions.module';
 import { SettingsModule } from './settings/settings.module';
 import { ShareModule } from './share/share.module';
+import { SkiRoutingModule } from './ski-routing/ski-routing.module';
 import { StorageModule } from './storage/storage.module';
 import { SystemNoticesModule } from './system-notices/system-notices.module';
 import { TagsModule } from './tags/tags.module';
@@ -160,6 +161,7 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
     FerratasModule,
     PaddleObstaclesModule,
     PaddleRoutingModule,
+    SkiRoutingModule,
     TripsModule,
     CollabModule,
     FilesModule,

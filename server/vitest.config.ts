@@ -188,6 +188,9 @@ export default defineConfig({
         'src/nest/sessions/**/*.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
         'src/nest/settings/**/*.ts': { statements: 87, branches: 71, functions: 99, lines: 88 },
         'src/nest/share/**/*.ts': { statements: 97, branches: 87, functions: 99, lines: 99 },
+        // The piste router, new in this change and not measured yet: on the floor until the first full CI
+        // run, then raised with scripts/coverage-thresholds.mjs (the spec aims at 90), never lowered.
+        'src/nest/ski-routing/**/*.ts': { statements: 80, branches: 80, functions: 80, lines: 80 },
         'src/nest/storage/**/*.ts': { statements: 94, branches: 84, functions: 97, lines: 94 },
         'src/nest/system-notices/**/*.ts': { statements: 99, branches: 99, functions: 99, lines: 99 },
         'src/nest/tags/**/*.ts': { statements: 97, branches: 89, functions: 99, lines: 99 },

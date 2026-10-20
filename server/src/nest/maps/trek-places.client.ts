@@ -13,8 +13,16 @@
  */
 import { readEnv, getAppUrl } from '../../app-config';
 import { toApiLang } from './maps.helpers';
-import { normalizePlaceWebsite } from '@trek/shared';
+import {
+  normalizePlaceWebsite,
+  winterIndexRowSchema,
+  winterMetaSchema,
+  type WinterIndex,
+  type WinterIndexRow,
+  type WinterMeta,
+} from '@trek/shared';
 
+import { createHash } from 'node:crypto';
 import { z } from 'zod';
 
 /** The public instance. An operator may point at their own copy instead. */
@@ -200,28 +208,68 @@ export function trekPlacesBaseUrl(): string {
   return (configured || DEFAULT_TREK_PLACES_URL).replace(/\/+$/, '');
 }
 
+/**
+ * TREK_PLACES_ENABLED=false is the operator's word that nothing leaves for
+ * the index. Every caller checks it before asking, and this is the one place
+ * every request passes, so a caller that did not is still stopped here. Ahead
+ * of the breaker: a refusal says nothing about reachability.
+ */
+function assertEnabled(): void {
+  if (!readEnv().maps.trekPlacesEnabled) {
+    throw new Error(SWITCHED_OFF_MESSAGE);
+  }
+}
+
+/**
+ * Whether a breaker holds requests back right now, for a caller with a batch
+ * to stop early. The winter downloads are layer reads, so they ask the layers'.
+ */
+export function trekPlacesHeldBack(breaker: Breaker = layersBreaker): boolean {
+  return Date.now() < breaker.openUntil;
+}
+
+/** Refuses a request while its breaker holds them back. */
+function assertBreakerClosed(breaker: Breaker): void {
+  if (Date.now() < breaker.openUntil) {
+    throw new Error('TREK Places API unreachable, not retrying yet');
+  }
+}
+
+/** A failed request, counted against its breaker when it says something about reachability. */
+function noteFailure(err: unknown, breaker: Breaker): void {
+  if (countsAgainstReachability(err)) {
+    breaker.failures += 1;
+    if (breaker.failures >= BREAKER_FAILURES_BEFORE_OPEN) {
+      breaker.openUntil = Date.now() + BREAKER_COOLDOWN_MS;
+      // Back to the threshold rather than to zero: when the cooldown ends,
+      // one more failure re-opens the breaker instead of buying another four
+      // full timeouts.
+      breaker.failures = BREAKER_FAILURES_BEFORE_OPEN - 1;
+    }
+  } else {
+    // The service answered. A 404 is an answer.
+    breaker.failures = 0;
+  }
+}
+
+function statusError(status: number): Error & { status: number } {
+  const err = new Error(`TREK Places API ${status}`) as Error & { status: number };
+  err.status = status;
+  return err;
+}
+
 async function getJson<T>(
   path: string,
   params: Record<string, string | number | undefined>,
   opts: { maxBytes?: number; timeoutMs?: number; breaker?: Breaker } = {},
 ): Promise<T> {
   const breaker = opts.breaker ?? searchBreaker;
-  // TREK_PLACES_ENABLED=false is the operator's word that nothing leaves for
-  // the index. Every caller checks it before asking, and this is the one place
-  // every request passes, so a caller that did not is still stopped here. Ahead
-  // of the breaker: a refusal says nothing about reachability.
-  if (!readEnv().maps.trekPlacesEnabled) {
-    throw new Error(SWITCHED_OFF_MESSAGE);
-  }
-
+  assertEnabled();
   const url = new URL(trekPlacesBaseUrl() + path);
   for (const [k, v] of Object.entries(params)) {
     if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, String(v));
   }
-
-  if (Date.now() < breaker.openUntil) {
-    throw new Error('TREK Places API unreachable, not retrying yet');
-  }
+  assertBreakerClosed(breaker);
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), opts.timeoutMs ?? TIMEOUT_MS);
@@ -233,11 +281,7 @@ async function getJson<T>(
         'X-TREK-Instance': instanceToken(),
       },
     });
-    if (!res.ok) {
-      const err = new Error(`TREK Places API ${res.status}`) as Error & { status: number };
-      err.status = res.status;
-      throw err;
-    }
+    if (!res.ok) throw statusError(res.status);
     // Read with a cap rather than res.json(): a hostile or broken upstream
     // should not be able to hand us an unbounded body to buffer.
     const text = await readCapped(res, opts.maxBytes ?? MAX_BYTES);
@@ -246,19 +290,7 @@ async function getJson<T>(
     breaker.failures = 0;
     return parsed;
   } catch (err: unknown) {
-    if (countsAgainstReachability(err)) {
-      breaker.failures += 1;
-      if (breaker.failures >= BREAKER_FAILURES_BEFORE_OPEN) {
-        breaker.openUntil = Date.now() + BREAKER_COOLDOWN_MS;
-        // Back to the threshold rather than to zero: when the cooldown ends,
-        // one more failure re-opens the breaker instead of buying another four
-        // full timeouts.
-        breaker.failures = BREAKER_FAILURES_BEFORE_OPEN - 1;
-      }
-    } else {
-      // The service answered. A 404 is an answer.
-      breaker.failures = 0;
-    }
+    noteFailure(err, breaker);
     throw err;
   } finally {
     clearTimeout(timer);
@@ -286,8 +318,17 @@ export function serviceLang(lang: string | undefined): string | undefined {
 }
 
 async function readCapped(res: Response, max: number): Promise<string> {
+  if (!res.body) return res.text();
+  return (await readCappedBytes(res, max)).toString('utf8');
+}
+
+async function readCappedBytes(res: Response, max: number): Promise<Buffer> {
   const reader = res.body?.getReader();
-  if (!reader) return res.text();
+  if (!reader) {
+    const whole = Buffer.from(await res.arrayBuffer());
+    if (whole.length > max) throw new Error('TREK Places API response too large');
+    return whole;
+  }
   const chunks: Uint8Array[] = [];
   let size = 0;
   for (;;) {
@@ -300,7 +341,7 @@ async function readCapped(res: Response, max: number): Promise<string> {
     }
     chunks.push(value);
   }
-  return Buffer.concat(chunks).toString('utf8');
+  return Buffer.concat(chunks);
 }
 
 /**
@@ -833,4 +874,110 @@ export async function trekPlacesRoutes(
     elements: validRows(answer.data.elements, trekRouteElementSchema),
     truncated: answer.data.truncated === true,
   };
+}
+
+// ── Winter layer ─────────────────────────────────────────────────────────────
+
+/**
+ * What the winter layer answers a conditional request: nothing new since the
+ * tag the caller holds, or the body as sent with its tag. None of its three
+ * endpoints takes a coordinate, so the service learns only which area a
+ * planner loaded, never where anyone clicked.
+ */
+export type TrekPlacesWinterBody = { status: 'not_modified' } | { status: 'ok'; bytes: Buffer; etag: string | null };
+
+const WINTER_META = { timeoutMs: 5_000, maxBytes: 64 * 1024 };
+const WINTER_INDEX = { timeoutMs: 15_000, maxBytes: 8 * 1024 * 1024 };
+const WINTER_AREA = { timeoutMs: 30_000, maxBytes: 32 * 1024 * 1024 };
+const WINTER_AREA_ID = /^[a-z]:[0-9]+(-[0-9a-z]+)?$/;
+
+/** An ETag without its quotes and weak mark. */
+function bareTag(value: string | null): string | null {
+  let tag = value?.trim() ?? '';
+  if (tag.startsWith('W/')) tag = tag.slice(2);
+  if (tag.length >= 2 && tag.startsWith('"') && tag.endsWith('"')) tag = tag.slice(1, -1);
+  return tag || null;
+}
+
+/** The head of the index; its rows are read one by one. */
+const winterIndexHeadSchema = z.object({
+  build: z.string().min(1).max(40),
+  format: z.number().int(),
+  areas: z.array(z.unknown()),
+});
+
+async function getWinter(
+  path: string,
+  accept: string,
+  etag: string | null,
+  limits: { timeoutMs: number; maxBytes: number },
+): Promise<TrekPlacesWinterBody> {
+  assertEnabled();
+  const url = new URL(trekPlacesBaseUrl() + path);
+  assertBreakerClosed(layersBreaker);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), limits.timeoutMs);
+  try {
+    const headers: Record<string, string> = { Accept: accept, 'X-TREK-Instance': instanceToken() };
+    if (etag) headers['If-None-Match'] = `"${etag}"`;
+    const res = await fetch(url, { signal: controller.signal, headers });
+    if (res.status === 304 && etag) {
+      layersBreaker.failures = 0;
+      return { status: 'not_modified' };
+    }
+    if (!res.ok) throw statusError(res.status);
+    const bytes = await readCappedBytes(res, limits.maxBytes);
+    layersBreaker.failures = 0;
+    return { status: 'ok', bytes, etag: bareTag(res.headers.get('etag')) };
+  } catch (err: unknown) {
+    noteFailure(err, layersBreaker);
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** Which build the winter layer serves, and the SHA-256 that tells a new index from the one kept. */
+export async function trekPlacesWinterMeta(): Promise<WinterMeta> {
+  const answer = await getWinter('/v1/winter/meta', 'application/json', null, WINTER_META);
+  if (answer.status !== 'ok') throw new Error('TREK Places winter meta came back empty');
+  return winterMetaSchema.parse(JSON.parse(answer.bytes.toString('utf8')));
+}
+
+export type TrekPlacesWinterIndex =
+  | { status: 'not_modified' }
+  | { status: 'ok'; index: WinterIndex; sha256: string; dropped: number };
+
+/**
+ * Every ski area with its box, size and checksum, unless the index the caller
+ * holds (`etag`, its SHA-256) is still the current one. The checksum returned
+ * is that of the JSON as read, for the caller to hold against the meta's
+ * `indexSha`. A row that does not read as an area is dropped on its own and
+ * counted; the head of the index must read, or nothing does.
+ */
+export async function trekPlacesWinterIndex(etag: string | null): Promise<TrekPlacesWinterIndex> {
+  const answer = await getWinter('/v1/winter/index', 'application/json', etag, WINTER_INDEX);
+  if (answer.status !== 'ok') return answer;
+  const head = winterIndexHeadSchema.parse(JSON.parse(answer.bytes.toString('utf8')));
+  const areas: WinterIndexRow[] = [];
+  for (const row of head.areas) {
+    const parsed = winterIndexRowSchema.safeParse(row);
+    if (parsed.success) areas.push(parsed.data);
+  }
+  return {
+    status: 'ok',
+    index: { build: head.build, format: head.format, areas },
+    sha256: createHash('sha256').update(answer.bytes).digest('hex'),
+    dropped: head.areas.length - areas.length,
+  };
+}
+
+/**
+ * One area's graph, gzip-packed SGR1 exactly as the service stores it, unless
+ * the copy the caller holds (`etag`, its SHA-256) is still current. The caller
+ * checks the bytes against the index's checksum before keeping them.
+ */
+export async function trekPlacesWinterArea(id: string, etag: string | null): Promise<TrekPlacesWinterBody> {
+  if (!WINTER_AREA_ID.test(id) || id.length > 64) throw new Error(`Not a ski area id: ${id}`);
+  return getWinter(`/v1/winter/area/${encodeURIComponent(id)}`, 'application/vnd.trek.sgraph', etag, WINTER_AREA);
 }

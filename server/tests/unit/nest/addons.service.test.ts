@@ -455,6 +455,15 @@ describe('AddonsService addon/feature flags', () => {
     expect((await svc.list()).toursHikingMap).toBe(true);
   });
 
+  it('the piste router under Tours is on until an admin switches it off', async () => {
+    expect(await svc.getToursSkiRouting()).toEqual({ enabled: true }); // absent row → ON
+    expect(await svc.updateToursSkiRouting(false)).toEqual({ enabled: false });
+    expect(await storedAppSetting('ski_routing_enabled')).toEqual({ key: 'ski_routing_enabled', value: 'false' });
+    expect(await svc.getToursSkiRouting()).toEqual({ enabled: false });
+    expect(await svc.updateToursSkiRouting(true)).toEqual({ enabled: true });
+    expect(await svc.getToursSkiRouting()).toEqual({ enabled: true });
+  });
+
   it('getCollabFeatures is opt-out: absent rows default ON, only false disables', async () => {
     await setAppSetting('collab_chat_enabled', 'false');
     await setAppSetting('collab_polls_enabled', 'true');

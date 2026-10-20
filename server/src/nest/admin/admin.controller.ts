@@ -342,6 +342,25 @@ export class AdminController {
     return result;
   }
 
+  @Get('tours-ski-routing')
+  @ResponseContract(adminFeatureToggleResponseSchema)
+  getToursSkiRouting() {
+    return this.addons.getToursSkiRouting();
+  }
+
+  @Put('tours-ski-routing')
+  @ResponseContract(adminFeatureToggleResponseSchema)
+  async updateToursSkiRouting(@CurrentUser() user: User, @Body() body: AdminFeatureToggleDto, @Req() req: Request) {
+    const result = await this.addons.updateToursSkiRouting(body.enabled);
+    await this.audit.writeAudit({
+      userId: user.id,
+      action: 'admin.tours_ski_routing',
+      ip: getClientIp(req),
+      details: { enabled: result.enabled },
+    });
+    return result;
+  }
+
   @Get('places-photos')
   getPlacesPhotos() {
     return this.addons.getPlacesPhotos();

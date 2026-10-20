@@ -116,6 +116,9 @@ export const APP_SETTINGS = {
   // tiles are OpenStreetMap France's, free for moderate use with a Referer; a heavy or commercial
   // install switches it off (or reaches an agreement) under the operator's usage policy.
   tours_cycle_map_enabled: { schema: flag, default: 'true' },
+  // The piste router for ski tours, on wherever TREK Places is: it only downloads the ski areas a
+  // planner plans in, and no clicked point leaves the server. The switch is the operator's way out.
+  ski_routing_enabled: { schema: flag, default: 'true' },
   route_usage_enabled: { schema: flag, default: 'false' },
   // PAD-11C: how TREK gets the water data of a place a paddler plans in (auto, ask, off) and the largest extract it loads by itself.
   paddle_auto_load: { schema: z.enum(['auto', 'ask', 'off']), default: 'auto' },
