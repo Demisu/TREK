@@ -30,12 +30,13 @@ interface StationParts {
   importance?: string | null;
   protected?: boolean;
   openingHours?: string | null;
+  poiCategory?: string | null;
 }
 
 /** A point split into what makes it a station and the rest of it; a part it does not have is left out. */
 function stationSplit<T extends RoutePoint>(point: T & StationParts): { station: StationParts; rest: T } {
-  const { key, name, stayMinutes, importance, protected: kept, openingHours, ...rest } = point;
-  const parts: StationParts = { key, name, stayMinutes, importance, protected: kept, openingHours };
+  const { key, name, stayMinutes, importance, protected: kept, openingHours, poiCategory, ...rest } = point;
+  const parts: StationParts = { key, name, stayMinutes, importance, protected: kept, openingHours, poiCategory };
   const station = Object.fromEntries(Object.entries(parts).filter(([, value]) => value !== undefined));
   return { station, rest: rest as T };
 }

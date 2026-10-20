@@ -112,7 +112,7 @@ export function useTourPoiSearch(planner: TourPoiPlanner) {
         controller.signal
       );
       setAnswer({ key, status: 'ready', data });
-      publish(data.pois);
+      publish(data.pois, theme);
     } catch (err: unknown) {
       if (controller.signal.aborted) return;
       setAnswer({ key, status: err instanceof OnlineOnlyError ? 'offline' : 'error' });
@@ -123,7 +123,7 @@ export function useTourPoiSearch(planner: TourPoiPlanner) {
         setLoadingKey(null);
       }
     }
-  }, [categories, clear, corridorM, currentKey, locale, planner.tripId, publish, route, type]);
+  }, [categories, clear, corridorM, currentKey, locale, planner.tripId, publish, route, theme, type]);
 
   // Leaving the planner, or a tour closed, takes the places off the map.
   useEffect(

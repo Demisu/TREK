@@ -167,13 +167,14 @@ export function TourDayRowPills({ tour, compact = false }: { tour: TourListItem;
   const times = tourPlannedTimes(tour);
   const walking = times.walkingMinutes == null ? null : formatPlannedTourDuration(times.walkingMinutes);
   const total = plannedTotalText(times, t);
+  const staysText = times.walk ? walkStaysText(times.walk, t) : null;
   const timeParts = [
     walking ? `${movingTimeLabel(tour, t('tours.planner.inspector.duration'), t)}: ${walking}` : null,
     times.breakMinutes
       ? `${t('tours.planner.breaksAdditional')}: ${formatPlannedTourDuration(times.breakMinutes)}`
       : null,
     // CW-02: a city walk's stays, which its total adds to the walking time.
-    times.walk ? `${t('tours.walk.stays')}: ${walkStaysText(times.walk, t)}` : null,
+    staysText ? `${t('tours.walk.stays')}: ${staysText}` : null,
     total
       ? `${t('tours.planner.plannedTotalDuration')}: ${total}${times.manuallyOverridden ? ` (${t('tours.planner.plannedTotalManual')})` : ''}`
       : null,

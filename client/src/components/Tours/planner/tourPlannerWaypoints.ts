@@ -3,6 +3,7 @@ import type {
   PlannableTourType,
   StationImportance,
   TourFixedLeg,
+  TourPoiCategory,
   TourWaypoint,
   TourWaypointRole,
 } from '@trek/shared';
@@ -40,6 +41,8 @@ export interface TourPlannerWaypoint {
   protected?: boolean;
   /** CW-04: the station's opening hours as OpenStreetMap writes them. */
   openingHours?: string | null;
+  /** PLN-03: the kind of place the point was taken in from along the tour, whose icon its row carries. */
+  poiCategory?: TourPoiCategory | null;
 }
 
 /** A saved tour's waypoints as the editor holds them, each under a fresh id. */
@@ -59,6 +62,7 @@ export function plannerWaypointsOf(saved: readonly TourWaypoint[], newId: () => 
     ...(point.importance ? { importance: point.importance } : {}),
     ...(point.protected ? { protected: true } : {}),
     ...(point.opening_hours ? { openingHours: point.opening_hours } : {}),
+    ...(point.poi_category ? { poiCategory: point.poi_category } : {}),
   }));
 }
 
@@ -85,6 +89,7 @@ export function savedWaypointsOf(points: readonly TourPlannerWaypoint[], tourTyp
     ...(walk && point.importance ? { importance: point.importance } : {}),
     ...(walk && point.protected ? { protected: true } : {}),
     ...(point.openingHours ? { opening_hours: point.openingHours } : {}),
+    ...(point.poiCategory ? { poi_category: point.poiCategory } : {}),
   }));
 }
 
@@ -144,8 +149,8 @@ export function routeExtrasKey(points: TourPlannerWaypoint[]): string {
 
 /**
  * CW-02: everything a route is planned from: every point with all it holds but
- * a station's own fields (its name, stay, importance, protection and opening
- * hours) and the key a save gave it. A change to those alone leaves the route
+ * a station's own fields (its name, stay, importance, protection, opening
+ * hours and the kind of place it was found as) and the key a save gave it. A change to those alone leaves the route
  * as it is; any other change plans it again.
  */
 export function routeInputsKey(points: readonly TourPlannerWaypoint[]): string {
@@ -157,6 +162,7 @@ export function routeInputsKey(points: readonly TourPlannerWaypoint[]): string {
         importance: _importance,
         protected: _protected,
         openingHours: _hours,
+        poiCategory: _kind,
         key: _key,
         ...routed
       }) => routed
@@ -173,6 +179,7 @@ function stationFieldsKey(points: TourPlannerWaypoint[]): string {
       point.importance ?? null,
       !!point.protected,
       point.openingHours ?? null,
+      point.poiCategory ?? null,
     ])
   );
 }

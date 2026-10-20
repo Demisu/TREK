@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '../../../../tests/helpers/render';
 import { StationDialog } from './StationDialog';
-import { StationPills } from './stationParts';
+import { stationMarkNote, stationRingClass } from './stationMarks';
+import { StationPills, StationShield } from './stationParts';
 import type { TourPlannerWaypoint } from './tourPlannerWaypoints';
 
 const cathedral: TourPlannerWaypoint = {
@@ -126,32 +127,53 @@ describe('StationDialog (CW-02, CW-03, CW-10)', () => {
   });
 });
 
-describe('StationPills (CW-02, CW-03, CW-10)', () => {
-  const pills = (point: Partial<TourPlannerWaypoint>) => {
+describe('StationPills (CW-02)', () => {
+  const pills = (point: Partial<TourPlannerWaypoint>) =>
     render(<StationPills point={{ id: 'p', lat: 0, lng: 0, role: 'via', ...point }} />);
-    return screen.getByTestId('station-pills');
-  };
 
-  it('says a stay nobody entered is unknown, and nothing of a normal, unprotected station', () => {
-    const row = pills({});
-    expect(row).toHaveTextContent('Stay unknown');
-    expect(row).not.toHaveTextContent('Must see');
-    expect(row).not.toHaveTextContent('Optional');
-    expect(screen.queryByLabelText('Protected')).not.toBeInTheDocument();
+  it('says nothing of a stay nobody entered', () => {
+    pills({ importance: 'must', protected: true });
+    expect(screen.queryByTestId('station-pills')).not.toBeInTheDocument();
   });
 
-  it('names a point passed through', () => {
-    expect(pills({ stayMinutes: 0 })).toHaveTextContent('Passing through');
+  it('names a point passed through, and a stay entered as its time alone', () => {
+    pills({ stayMinutes: 0 });
+    expect(screen.getByTestId('station-pills')).toHaveTextContent('Passing through');
   });
 
-  it('shows the stay, a must-see and a protection', () => {
-    const row = pills({ stayMinutes: 45, importance: 'must', protected: true });
+  it('shows the stay and nothing of the importance or the protection, which are on the number', () => {
+    pills({ stayMinutes: 45, importance: 'must', protected: true });
+    const row = screen.getByTestId('station-pills');
     expect(row).toHaveTextContent('45');
-    expect(row).toHaveTextContent('Must see');
-    expect(screen.getByLabelText('Protected')).toBeInTheDocument();
+    expect(row).not.toHaveTextContent('Must see');
+    expect(row).not.toHaveTextContent('Protected');
+  });
+});
+
+describe("a station's marks on its number (CW-03, CW-10)", () => {
+  const t = (key: string) =>
+    ({
+      'tours.walk.importance.must': 'Must see',
+      'tours.walk.importance.optional': 'Optional',
+      'tours.walk.station.protected': 'Protected',
+    })[key] ?? key;
+
+  it('rings a must-see in full, an optional stop dashed, and a normal one not at all', () => {
+    expect(stationRingClass('must')).toContain('outline-warning');
+    expect(stationRingClass('optional')).toContain('outline-dashed');
+    expect(stationRingClass(null)).toBe('');
+    expect(stationRingClass(undefined)).toBe('');
   });
 
-  it('shows an optional station as optional', () => {
-    expect(pills({ stayMinutes: 90, importance: 'optional' })).toHaveTextContent('Optional');
+  it('names the importance and the protection for the label, and nothing for a plain station', () => {
+    expect(stationMarkNote({ importance: 'must', protected: true }, t)).toBe('Must see, Protected');
+    expect(stationMarkNote({ importance: 'optional' }, t)).toBe('Optional');
+    expect(stationMarkNote({ protected: true }, t)).toBe('Protected');
+    expect(stationMarkNote({}, t)).toBeNull();
+  });
+
+  it('draws a protection as a shield at the corner of the number', () => {
+    const { container } = render(<StationShield />);
+    expect(container.querySelector('[data-station-protected="true"]')).toBeInTheDocument();
   });
 });

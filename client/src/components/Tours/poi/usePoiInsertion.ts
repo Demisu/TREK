@@ -1,7 +1,7 @@
 import type { TourPoi } from '@trek/shared';
 import { useCallback, useState } from 'react';
 import { useTranslation } from '../../../i18n';
-import { useTourPoiStore } from '../../../store/tourPoiStore';
+import { useTourPoiStore, type InsertedTourPoi } from '../../../store/tourPoiStore';
 import { randomId } from '../../../utils/randomId';
 import { TOUR_POI_LOOKS } from '../../Map/poiCategories';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
@@ -14,15 +14,6 @@ const SETTLED: readonly TourPlannerStatus[] = ['ready', 'saved', 'elevation-fail
 interface Measures {
   distanceM: number;
   minutes: number | null;
-}
-
-/** A place taken in: which point it became, and the route's measures just before. */
-interface Inserted {
-  pointId: string;
-  name: string;
-  before: Measures | null;
-  /** How many points the tour had once the place was in; another edit after it ends the comparison. */
-  pointCount: number;
 }
 
 export type InsertionOutcome =
@@ -62,7 +53,9 @@ export function usePoiInsertion(planner: PoiInsertionPlanner) {
   const { t } = useTranslation();
   const select = useTourPoiStore((state) => state.select);
   const [afterChoice, setAfterChoice] = useState<{ poiId: string; afterId: string } | null>(null);
-  const [inserted, setInserted] = useState<Inserted | null>(null);
+  // Kept in the store: the place is taken in from its card over the map, and the list says what it did.
+  const inserted = useTourPoiStore((state) => state.inserted);
+  const setInserted = useTourPoiStore((state) => state.setInserted);
 
   const afterIdFor = useCallback(
     (poi: TourPoi) =>
@@ -85,6 +78,8 @@ export function usePoiInsertion(planner: PoiInsertionPlanner) {
         role: 'via',
         ...(poi.name ? { name: poi.name } : {}),
         ...(poi.opening_hours ? { openingHours: poi.opening_hours } : {}),
+        // PLN-03: its row carries the kind's icon, as the map drew the place.
+        poiCategory: poi.category,
       };
       const next = withPointAfter(planner.waypoints, afterId, point);
       if (!next) return false;
@@ -97,10 +92,10 @@ export function usePoiInsertion(planner: PoiInsertionPlanner) {
       select(null);
       return true;
     },
-    [afterIdFor, planner, select, t]
+    [afterIdFor, planner, select, setInserted, t]
   );
 
-  const dismiss = useCallback(() => setInserted(null), []);
+  const dismiss = useCallback(() => setInserted(null), [setInserted]);
 
   return {
     afterIdFor,
@@ -117,7 +112,7 @@ export function usePoiInsertion(planner: PoiInsertionPlanner) {
  * now: nothing once the point is gone again (undone or removed) or the tour
  * was edited further, so the figure never describes another route.
  */
-function outcomeOf(inserted: Inserted | null, planner: PoiInsertionPlanner): InsertionOutcome | null {
+function outcomeOf(inserted: InsertedTourPoi | null, planner: PoiInsertionPlanner): InsertionOutcome | null {
   if (!inserted) return null;
   const stillThere = planner.waypoints.some((point) => point.id === inserted.pointId);
   if (!stillThere || planner.waypoints.length !== inserted.pointCount) return null;

@@ -6,7 +6,8 @@ import type { Assignment, AssignmentsMap, Day } from '../../../types';
 import { SoftPill } from '../../Planner/planParts';
 import { DialogSection, fs } from '../../shared/DialogShell';
 import { useToast } from '../../shared/Toast';
-import { StationPills } from '../planner/stationParts';
+import { stationMarkNote, stationRingClass } from '../planner/stationMarks';
+import { StationPills, StationShield } from '../planner/stationParts';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 import { TourDayRowPill } from '../TourDayRowFacts';
 import { CardAction } from '../tourParts';
@@ -102,9 +103,11 @@ function StationRow({
       data-testid="walk-station"
       className={`flex items-start gap-2.5 rounded-[10px] px-1.5 py-1.5 ${status ? 'opacity-70' : ''}`}
     >
+      {/* How much the station matters rings its number; a protection is a shield at its corner (CW-03, CW-10). */}
       <span
-        className="grid h-6 w-6 flex-none place-items-center rounded-full bg-surface-tertiary font-geist tabular-nums text-content-secondary"
+        className={`relative grid h-6 w-6 flex-none place-items-center rounded-full bg-surface-tertiary font-geist tabular-nums text-content-secondary ${stationRingClass(station.importance)}`}
         style={fs(11)}
+        title={stationMarkNote(station, t) ?? undefined}
       >
         {status === 'visited' ? (
           <Check size={12} strokeWidth={2.4} />
@@ -113,6 +116,7 @@ function StationRow({
         ) : (
           index + 1
         )}
+        {station.protected && <StationShield />}
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-1">
         <span

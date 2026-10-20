@@ -196,6 +196,30 @@ describe('TourWaypointsRepository', () => {
     expect(points[1]).not.toHaveProperty('name');
     expect(await repo.listForTrip(trip.id)).toEqual(points.map((point) => ({ place_id: place.id, ...point })));
   });
+  it('TWREPO-011: a point taken in along the tour keeps the kind of place it was found as; a kind no longer known reads as none (PLN-03)', async () => {
+    const { place } = tourInTrip();
+    const restaurant: TourWaypointRow = {
+      lat: 48.1,
+      lng: 11.5,
+      role: 'via',
+      sequence: 1,
+      name: 'Café Luitpold',
+      poi_category: 'restaurant',
+    };
+    await repo.insertForPlace(place.id, [
+      { lat: 48, lng: 11.4, role: 'start', sequence: 0 },
+      restaurant,
+      { lat: 48.2, lng: 11.6, role: 'end', sequence: 2 },
+    ]);
+    const points = await repo.listForPlace(place.id);
+    expect(points[1]).toEqual(restaurant);
+    expect(points[0]).not.toHaveProperty('poi_category');
+
+    await t.em.nativeUpdate(TourWaypoints, { place: place.id, sequence: 1 }, { poi_category: 'spaceport' });
+    t.clear();
+    expect((await repo.listForPlace(place.id))[1]).not.toHaveProperty('poi_category');
+  });
+
   it('TWREPO-010: listForPlaces reads the waypoints of the tours asked for, by place and sequence, and none for none (CW-02)', async () => {
     const { trip, place } = tourInTrip();
     const second = createPlace(testDb, trip.id);

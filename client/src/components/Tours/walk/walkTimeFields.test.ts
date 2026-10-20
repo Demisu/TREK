@@ -35,11 +35,10 @@ describe('walkTimeFields', () => {
       ['Stays', 'at least 1 h 30 min'],
       ['Planned', 'at least 2 h 15 min'],
     ]);
-    // No stay entered at all is not known, never nothing.
+    // No stay entered at all plans the walking time alone, with no stays field to call them unknown.
     expect(fieldsOf(45, { stayMinutes: 0, unknownStays: 3, stations: 3 })).toEqual([
       ['Walking', '45 min'],
-      ['Stays', 'Not known yet'],
-      ['Planned', 'at least 45 min'],
+      ['Planned', '45 min'],
     ]);
   });
 
@@ -59,7 +58,6 @@ describe('walkTimeFields', () => {
     ]);
     expect(fieldsOf(null, { stayMinutes: 0, unknownStays: 2, stations: 2 })).toEqual([
       ['Walking', 'Not calculated'],
-      ['Stays', 'Not known yet'],
       ['Planned', 'Not calculated'],
     ]);
   });
@@ -71,7 +69,7 @@ describe('walkTimeFields', () => {
       ['Planned (Manual override)', '4 h'],
       ['Computed', 'at least 2 h 15 min'],
     ]);
-    expect(fieldsOf(null, { stayMinutes: 0, unknownStays: 1, stations: 1 }, 60)[3]).toEqual([
+    expect(fieldsOf(null, { stayMinutes: 0, unknownStays: 1, stations: 1 }, 60)[2]).toEqual([
       'Computed',
       'Not calculated',
     ]);
@@ -104,7 +102,9 @@ describe('walkTimeFields', () => {
 });
 
 describe('walkStaysText', () => {
-  it('says a walk without stations has no stays to wait for', () => {
-    expect(walkStaysText({ stayMinutes: 0, unknownStays: 0, stations: 0 }, t)).toBe('0 min');
+  it('says nothing of the stays of a walk without stations, or with none entered', () => {
+    expect(walkStaysText({ stayMinutes: 0, unknownStays: 0, stations: 0 }, t)).toBeNull();
+    expect(walkStaysText({ stayMinutes: 0, unknownStays: 2, stations: 2 }, t)).toBeNull();
+    expect(walkStaysText({ stayMinutes: 30, unknownStays: 1, stations: 2 }, t)).toBe('at least 30 min');
   });
 });

@@ -13,6 +13,7 @@ import { ChecklistObstaclePanel } from '../../components/Tours/paddle/ObstacleDe
 import PaddleObstacleOverlay from '../../components/Tours/paddle/PaddleObstacleOverlay';
 import { PaddleObstaclePlaceButton } from '../../components/Tours/paddle/PaddleObstaclePlaceButton';
 import { useShapingClick } from '../../components/Tours/planner/useShapingClick';
+import TourPoiOverlay from '../../components/Tours/poi/TourPoiCard';
 import { useTourPoiMarkers } from '../../components/Tours/poi/useTourPoiMarkers';
 import type { TerrainLegendLayout } from '../../components/Tours/terrain/TourTerrainMap';
 import { isRtlLanguage, useTranslation } from '../../i18n';
@@ -260,6 +261,13 @@ export function TourPlannerMapStage({
             )}
           </>
         )}
+      />
+      {/* PLN-02: the place picked on the map or in the list along the tour, taken in as a stop from here. */}
+      <TourPoiOverlay
+        planner={tourPlanner}
+        onOutsidePress={closingPress.arm}
+        insetEnd={cardInsetEnd}
+        {...ferrataCardPlacement(terrain3d, bottomRowTop, terrainLegend)}
       />
       {/* "Point set", with the way back, above the bottom row and between the panels. */}
       {placedHint.shown && (

@@ -1,4 +1,4 @@
-import { paddleLayoutOfPoints, type PaddleRole } from '@trek/shared';
+import { paddleLayoutOfPoints, type PaddleRole, type TourPoiCategory } from '@trek/shared';
 import {
   ArrowDown,
   ArrowDownUp,
@@ -26,6 +26,7 @@ import {
 } from '../../../store/tourFerrataCrossingStore';
 import { toggleTourPlacing, useTourPlaceToolStore } from '../../../store/tourPlaceToolStore';
 import { FerrataGlyph } from '../../Ferratas/FerrataGlyph';
+import { TOUR_POI_LOOKS } from '../../Map/poiCategories';
 import { SoftPill } from '../../Planner/planParts';
 import { ContextMenu, useContextMenu } from '../../shared/ContextMenu';
 import { fs } from '../../shared/DialogShell';
@@ -42,7 +43,8 @@ import { usePlannerWalkSchedule } from '../walk/useWalkSchedule';
 import { WalkDayLine } from '../walk/WalkDayLine';
 import { paddlePlanPoints, paddleRolesById } from './paddlePlanOf';
 import { StationDialog } from './StationDialog';
-import { StationPills } from './stationParts';
+import { stationMarkNote, stationRingClass } from './stationMarks';
+import { StationPills, StationShield } from './stationParts';
 import { TripPlacePicker } from './TripPlacePicker';
 import type { TourPlannerController } from './useTourPlanner';
 import { useTripPlaceWaypoints } from './useTripPlaceWaypoints';
@@ -147,15 +149,57 @@ function WaypointEmptyState() {
   );
 }
 
+/** PLN-03: the kind of place a point was found as, its icon at the number's corner in its colour on the map. */
+function PoiCornerIcon({ category }: { category: TourPoiCategory }) {
+  const look = TOUR_POI_LOOKS[category];
+  return (
+    <span
+      aria-hidden="true"
+      data-waypoint-poi={category}
+      className="absolute -bottom-1 -start-1 grid h-4 w-4 place-items-center rounded-full ring-2 ring-[color:var(--bg-card)]"
+      style={{ background: `color-mix(in srgb, ${look.color} 22%, var(--bg-card))`, color: look.color }}
+    >
+      <look.Icon size={9} strokeWidth={2.6} />
+    </span>
+  );
+}
+
+/** A city walk station's own marks on its number (CW-03, CW-10); none on any other point. */
+type StationMarks = Pick<WaypointPoint, 'importance' | 'protected'> | null;
+
+/**
+ * What a waypoint's number says besides the number: the via ferrata it stands
+ * at an end of, or else the kind of place it was found as along the tour (a
+ * ferrata's end says more about the point, so it wins), and a station's
+ * importance and protection.
+ */
+function numberNote(
+  ferrata: TourWaypointFerrata | null,
+  poiCategory: TourPoiCategory | null,
+  station: StationMarks,
+  t: Translate
+): { note: string | null; poi: TourPoiCategory | null } {
+  const marks = station ? stationMarkNote(station, t) : null;
+  const join = (first: string | null) => [first, marks].filter(Boolean).join(', ') || null;
+  if (ferrata) return { note: join(t('tours.ferrata.waypointAtEnd', { name: ferrata.name })), poi: null };
+  if (poiCategory) return { note: join(t(TOUR_POI_LOOKS[poiCategory].labelKey)), poi: poiCategory };
+  return { note: join(null), poi: null };
+}
+
 /**
  * A waypoint's number, as the map pins show it. At the foot or the top of a via
  * ferrata it takes a violet ring and the ferrata's ladder at its corner, named
- * by the tooltip.
+ * by the tooltip. A point taken in from the places along the tour (PLN-03)
+ * carries that kind's icon at the same corner, in its colour on the map. A
+ * city walk's station shows how much it matters as a ring around the number
+ * and its protection as a shield at the top corner.
  */
 function WaypointNumber({
   stop,
   selected,
   ferrata,
+  poiCategory = null,
+  station = null,
   loopEnd = false,
   shaping = false,
 }: {
@@ -163,6 +207,10 @@ function WaypointNumber({
   stop: number;
   selected: boolean;
   ferrata: TourWaypointFerrata | null;
+  /** PLN-03: the kind of place the point was found as along the tour. */
+  poiCategory?: TourPoiCategory | null;
+  /** CW-03, CW-10: a station's importance and protection, drawn on the number; only a city walk's points carry them. */
+  station?: StationMarks;
   /** The way back to the start of a loop: shown as the return, not as one more stop. */
   loopEnd?: boolean;
   /** P2A-03: a shaping point, a small dot as on the map. */
@@ -194,19 +242,22 @@ function WaypointNumber({
     );
   }
   const label = t('tours.planner.waypointLabel', { n: stop });
+  const { note, poi } = numberNote(ferrata, poiCategory, station, t);
   const number = (
     <span
-      aria-label={ferrata ? `${label}, ${t('tours.ferrata.waypointAtEnd', { name: ferrata.name })}` : label}
+      aria-label={[label, note].filter(Boolean).join(', ')}
       data-waypoint-number={stop}
       data-ferrata-end={ferrata ? 'true' : undefined}
-      className={`relative grid h-7 w-7 flex-none place-items-center rounded-full font-geist font-semibold tabular-nums ${selected ? 'bg-accent text-accent-text' : 'bg-edge text-content'} ${ferrata ? 'ring-2 ring-inset ring-[color:var(--map-ferrata)]' : ''}`}
+      className={`relative grid h-7 w-7 flex-none place-items-center rounded-full font-geist font-semibold tabular-nums ${selected ? 'bg-accent text-accent-text' : 'bg-edge text-content'} ${ferrata ? 'ring-2 ring-inset ring-[color:var(--map-ferrata)]' : ''} ${stationRingClass(station?.importance)}`}
       style={fs(11.5)}
     >
       {stop}
       {ferrata && <FerrataGlyph size={22} className="absolute -bottom-2.5 -start-2.5" />}
+      {poi && <PoiCornerIcon category={poi} />}
+      {station?.protected && <StationShield />}
     </span>
   );
-  if (!ferrata) return number;
+  if (!ferrata) return note ? <Tooltip label={note}>{number}</Tooltip> : number;
   const grade = ferrata.grade ? ` (${ferrata.grade})` : '';
   return <Tooltip label={`${t('tours.ferrata.waypointAtEnd', { name: ferrata.name })}${grade}`}>{number}</Tooltip>;
 }
@@ -231,7 +282,7 @@ function WaypointRowLabel({
   paddleRole?: PaddleRole | null;
   /** PR1-10: the point stands for this place of the trip, named after it. */
   linked?: boolean;
-  /** CW-01: a city walk's station, which shows its stay, importance and protection. */
+  /** CW-01: a city walk's station, which shows its stay (its importance and protection are on its number). */
   station?: boolean;
 }) {
   const { t } = useTranslation();
@@ -260,7 +311,6 @@ function WaypointRowLabel({
         )}
         {point.auto && <AutoPointPill />}
       </span>
-      {station && !loopEnd && <StationPills point={point} />}
       {linked && !loopEnd ? (
         // A stop standing for a place of the trip says so where the coordinates would be (PR1-10).
         <Tooltip label={t('tours.placePicker.linkedHint')}>
@@ -285,6 +335,8 @@ function WaypointRowLabel({
           </span>
         )
       )}
+      {/* Under the coordinates: a station's stay, the one mark of it that is not on its number. */}
+      {station && !loopEnd && <StationPills point={point} />}
     </>
   );
 }
@@ -727,6 +779,8 @@ export default function TourWaypointList({
                     stop={stop}
                     selected={selected}
                     ferrata={ferrataEnds[point.id] ?? null}
+                    poiCategory={point.poiCategory ?? null}
+                    station={point}
                     loopEnd={loopEnd}
                     shaping={!!point.shaping}
                   />

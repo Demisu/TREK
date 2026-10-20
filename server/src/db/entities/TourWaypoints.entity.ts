@@ -23,6 +23,7 @@ export class TourWaypoints {
   importance?: TTourWaypointsImportance | null;
   protected: number & Opt = 0;
   opening_hours?: string | null;
+  poi_category?: string | null;
 }
 
 export const TourWaypointsImportance = {
@@ -70,5 +71,6 @@ export const TourWaypointsSchema = defineEntity({
     importance: p.enum(() => TourWaypointsImportance).nullable(),
     protected: p.integer().default(0),
     opening_hours: p.text().nullable(),
+    poi_category: p.text().nullable(),
   },
 });

@@ -192,8 +192,13 @@ describe('TourWaypointList', () => {
     render(<TourWaypointList planner={controller} canEdit isSaving={false} />);
     const rows = screen.getAllByTestId('tour-planner-waypoint-row');
     expect(within(at(rows, 2)).getByTestId('tour-planner-waypoint-name')).toHaveTextContent('Cathedral');
-    expect(within(at(rows, 2)).getByTestId('station-pills')).toHaveTextContent('Must see');
-    expect(within(at(rows, 0)).getByTestId('station-pills')).toHaveTextContent('Stay unknown');
+    // The stay goes under the name; a must-see rings the number instead of a pill beside it.
+    expect(within(at(rows, 2)).getByTestId('station-pills')).toHaveTextContent('30 min');
+    expect(within(at(rows, 2)).getByTestId('station-pills')).not.toHaveTextContent('Must see');
+    const mustSee = within(at(rows, 2)).getByLabelText('Waypoint 2, Must see');
+    expect(mustSee.className).toContain('outline-warning');
+    // A stop without a stay entered says nothing of it, and a shaping point is no stop.
+    expect(within(at(rows, 0)).queryByTestId('station-pills')).not.toBeInTheDocument();
     expect(within(at(rows, 1)).queryByTestId('station-pills')).not.toBeInTheDocument();
 
     await userEvent.click(within(at(rows, 2)).getByRole('button', { name: 'More actions' }));
@@ -220,12 +225,23 @@ describe('TourWaypointList', () => {
     expect(screen.queryByRole('button', { name: 'Edit stop' })).not.toBeInTheDocument();
   });
 
+  it('FE-TOUR-WAYPOINT-LIST-009: a stop taken in along the tour carries its kind of place at the corner of its number (PLN-03)', () => {
+    const controller = planner({ waypoints: [START, { ...STOP, poiCategory: 'restaurant' as const }, END] });
+    render(<TourWaypointList planner={controller} canEdit isSaving={false} />);
+    const rows = screen.getAllByTestId('tour-planner-waypoint-row');
+    const number = within(at(rows, 1)).getByLabelText('Waypoint 2, Places to eat');
+    expect(number.querySelector('[data-waypoint-poi="restaurant"]')).toBeInTheDocument();
+    // A point set by hand has no kind to show.
+    expect(within(at(rows, 0)).queryByLabelText(/Places to eat/)).not.toBeInTheDocument();
+    expect(document.querySelectorAll('[data-waypoint-poi]')).toHaveLength(1);
+  });
+
   it('FE-TOUR-WAYPOINT-LIST-008: the way back of a loop walk is no stop: no pills and no stop to edit', async () => {
     const back = { ...START, id: 'back', role: 'end' as const };
     const controller = planner({
       tourType: 'walk',
       isLoop: true,
-      waypoints: [START, STOP, back],
+      waypoints: [{ ...START, stayMinutes: 10 }, STOP, back],
       selectedWaypointId: 'back',
     });
     render(<TourWaypointList planner={controller} canEdit isSaving={false} />);

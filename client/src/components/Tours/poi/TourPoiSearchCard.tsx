@@ -1,21 +1,18 @@
 import type { TourPoi, WalkTheme } from '@trek/shared';
-import { TOUR_POI_CORRIDORS_M, WALK_THEMES } from '@trek/shared';
+import { TOUR_POI_CORRIDORS_M } from '@trek/shared';
 import {
   AlertTriangle,
   ChevronDown,
-  Clock,
   Coffee,
-  ExternalLink,
   Landmark,
   Loader2,
-  MoveHorizontal,
-  Plus,
   RefreshCw,
   Route,
   Search,
   Shuffle,
   Trees,
   WifiOff,
+  X,
   type LucideIcon,
 } from 'lucide-react';
 import { useEffect, useRef } from 'react';
@@ -26,11 +23,10 @@ import { formatDistance } from '../../../utils/units';
 import { TOUR_POI_LOOKS } from '../../Map/poiCategories';
 import { PopoverItem } from '../../Packing/PackingPopover';
 import { WhiteBadge } from '../../Planner/planParts';
-import { PillSelect, PopoverListPanel, Segmented } from '../../shared/dialogParts';
+import { PopoverListPanel, Segmented } from '../../shared/dialogParts';
 import { fs } from '../../shared/DialogShell';
 import { usePopoverList } from '../../shared/usePopoverList';
 import type { TourPlannerController } from '../planner/useTourPlanner';
-import { useWaypointPlaceNames } from '../planner/useWaypointPlaceNames';
 import { RailCard, TourNotice } from '../tourParts';
 import { formatPlannedTourDuration } from '../tourPresentation';
 import { usePoiInsertion, type InsertionOutcome } from './usePoiInsertion';
@@ -139,6 +135,7 @@ function ThemeGrid({
             type="button"
             onClick={() => onChoose(theme)}
             aria-pressed={on}
+            title={t(`tours.walk.themeHint.${theme}`)}
             data-testid={`tour-poi-theme-${theme}`}
             className={`flex min-w-0 items-center gap-2 rounded-[10px] px-2.5 py-2 text-start font-medium leading-tight transition-colors ${on ? 'bg-surface-card text-content shadow-sm ring-1 ring-inset ring-edge-faint' : 'bg-surface-tertiary text-content-muted hover:text-content'}`}
             style={fs(11.5, 'body')}
@@ -153,13 +150,14 @@ function ThemeGrid({
 }
 
 /**
- * What the search answered beyond its places: out of date, offline, failed,
- * kinds that could not be searched, partly searched, cut, or empty. Nothing
+ * What the search answered beyond its places: offline, failed, kinds that
+ * could not be searched, partly searched, cut, or empty. That the answer is
+ * out of date the search button says, as it is what to press then. Nothing
  * found is said only when every kind was searched.
  */
 function SearchNotices({ search, unit }: { search: TourPoiSearch; unit: Unit }) {
   const { t } = useTranslation();
-  const { status, answer, outdated } = search;
+  const { status, answer } = search;
   if (status === 'offline')
     return <TourNotice icon={<WifiOff size={13} strokeWidth={2} />}>{t('tours.poi.offline')}</TourNotice>;
   if (status === 'error')
@@ -169,7 +167,6 @@ function SearchNotices({ search, unit }: { search: TourPoiSearch; unit: Unit }) 
       </TourNotice>
     );
   if (!answer) return null;
-  // Out of date is no fault, the route was just changed (often by adding a place from here): said plainly.
   const unavailable = answer.unavailable.map((category) => t(TOUR_POI_LOOKS[category].labelKey)).join(', ');
   const notes = [
     unavailable && t('tours.poi.unavailable', { kinds: unavailable }),
@@ -179,7 +176,6 @@ function SearchNotices({ search, unit }: { search: TourPoiSearch; unit: Unit }) 
   ].filter((note): note is string => !!note);
   return (
     <>
-      {outdated && <TourNotice icon={<RefreshCw size={13} strokeWidth={2} />}>{t('tours.poi.outdated')}</TourNotice>}
       {notes.map((note) => (
         <TourNotice key={note} tone="warning" icon={<AlertTriangle size={13} strokeWidth={2} />}>
           {note}
@@ -194,79 +190,12 @@ function SearchNotices({ search, unit }: { search: TourPoiSearch; unit: Unit }) 
   );
 }
 
-/** The point a place would follow, picked from the tour's points, with why one cannot take it. */
-function AfterPicker({
-  planner,
-  poi,
-  insertion,
-}: {
-  planner: TourPlannerController;
-  poi: TourPoi;
-  insertion: ReturnType<typeof usePoiInsertion>;
-}) {
-  const { t } = useTranslation();
-  const names = useWaypointPlaceNames(planner.waypoints);
-  const afterId = insertion.afterIdFor(poi);
-  const options = planner.waypoints.map((point, index) => ({
-    value: point.id,
-    label: `${index + 1}. ${point.shaping ? t('tours.planner.shapingPoint') : (names[point.id] ?? `${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}`)}`,
-  }));
-  const block = afterId ? insertion.blockOf(afterId) : 'none';
-  const locked = !planner.canEdit || planner.isSaving;
-  return (
-    <div className="flex flex-col gap-2 rounded-[10px] bg-surface-secondary p-2.5" data-testid="tour-poi-insert">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-content-muted" style={fs(11.5, 'body')}>
-          {t('tours.poi.addAfter')}
-        </span>
-        <PillSelect
-          quiet
-          label={t('tours.poi.addAfter')}
-          value={afterId ?? ''}
-          options={options}
-          onChange={(value) => insertion.chooseAfter(poi, value)}
-        />
-      </div>
-      {block && (
-        <p className="m-0 text-warning" style={fs(11, 'body')}>
-          {t(`tours.poi.blocked.${block}`)}
-        </p>
-      )}
-      <button
-        type="button"
-        disabled={!!block || locked}
-        onClick={() => insertion.insert(poi)}
-        data-testid="tour-poi-add"
-        className="inline-flex h-8 items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 font-semibold text-accent-text shadow-sm transition-opacity hover:opacity-90 disabled:cursor-default disabled:opacity-40"
-        style={fs(12, 'body')}
-      >
-        <Plus size={14} strokeWidth={2.2} />
-        {t('tours.poi.add')}
-      </button>
-      <p className="m-0 text-content-faint" style={fs(10.5, 'body')}>
-        {t('tours.poi.notAPlace')}
-      </p>
-    </div>
-  );
-}
-
-/** One place found: its kind, name and where it lies; opened, what the source says and the way to take it in. */
-function PoiRow({
-  poi,
-  selected,
-  planner,
-  insertion,
-  unit,
-  theme = null,
-}: {
-  poi: TourPoi;
-  selected: boolean;
-  planner: TourPlannerController;
-  insertion: ReturnType<typeof usePoiInsertion>;
-  unit: Unit;
-  /** CW-05: the theme the place was suggested for, said as its reason. */
-  theme?: WalkTheme | null;
-}) {
+/**
+ * One place found, in one line: its kind's icon in its map colour, its name,
+ * and how far it lies from the route. A click opens its card over the map,
+ * where the rest is said and the place is taken in as a stop.
+ */
+function PoiRow({ poi, selected, unit }: { poi: TourPoi; selected: boolean; unit: Unit }) {
   const { t } = useTranslation();
   const select = useTourPoiStore((state) => state.select);
   const look = TOUR_POI_LOOKS[poi.category];
@@ -274,77 +203,33 @@ function PoiRow({
   useEffect(() => {
     if (selected) rowRef.current?.scrollIntoView?.({ block: 'nearest' });
   }, [selected]);
+  const distance = formatDistance(km(poi.distance_m), unit);
   return (
-    <li
-      ref={rowRef}
-      className={`rounded-[10px] ${selected ? 'bg-surface-selected' : ''}`}
-      data-testid={`tour-poi-${poi.id}`}
-    >
+    <li ref={rowRef} data-testid={`tour-poi-${poi.id}`}>
       <button
         type="button"
-        onClick={() => select(selected ? null : poi.id)}
-        aria-expanded={selected}
-        className="flex w-full min-w-0 items-start gap-2.5 rounded-[10px] px-2 py-2 text-start transition-colors hover:bg-surface-hover"
+        onClick={() => select(poi.id)}
+        aria-pressed={selected}
+        className={`flex w-full min-w-0 items-center gap-2 rounded-[8px] px-1.5 py-1 text-start transition-colors hover:bg-surface-hover ${selected ? 'bg-surface-selected' : ''}`}
       >
         {/* The category's own map colour, as its pin on the map has it: a light wash, the icon in full. */}
         <span
-          className="grid h-7 w-7 flex-none place-items-center rounded-full"
+          className="grid h-6 w-6 flex-none place-items-center rounded-full"
           style={{ background: `color-mix(in srgb, ${look.color} 16%, transparent)`, color: look.color }}
         >
-          <look.Icon size={14} strokeWidth={2.2} />
+          <look.Icon size={12} strokeWidth={2.2} />
         </span>
-        <span className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className="min-w-0 truncate font-semibold text-content" style={fs(12.5, 'body')}>
-            {poi.name || t(look.labelKey)}
-          </span>
-          <span className="flex flex-wrap gap-1.5">
-            <WhiteBadge icon={<MoveHorizontal size={10} strokeWidth={2.2} className="text-content-faint" />}>
-              {t('tours.poi.fromRoute', { distance: formatDistance(km(poi.distance_m), unit) })}
-            </WhiteBadge>
-            <WhiteBadge icon={<Route size={10} strokeWidth={2.2} className="text-content-faint" />}>
-              {t('tours.poi.along', { distance: formatDistance(km(poi.along_m), unit) })}
-            </WhiteBadge>
-          </span>
+        <span className="min-w-0 flex-1 truncate font-medium text-content" style={fs(12, 'body')}>
+          {poi.name || t(look.labelKey)}
+        </span>
+        <span
+          className="flex-none tabular-nums text-content-faint"
+          style={fs(11, 'body')}
+          title={t('tours.poi.fromRoute', { distance })}
+        >
+          {distance}
         </span>
       </button>
-      {selected && (
-        <div className="flex flex-col gap-2 px-2 pb-2.5">
-          <p className="m-0 flex flex-wrap gap-x-3 text-content-faint" style={fs(10.5, 'body')}>
-            <span>{t(look.labelKey)}</span>
-            {theme && <span>{t('tours.walk.themeReason', { theme: t(`tours.walk.theme.${theme}`) })}</span>}
-            <span>{t(poi.source === 'trek-places' ? 'tours.poi.source.trek' : 'tours.poi.source.osm')}</span>
-          </p>
-          {poi.address && (
-            <p className="m-0 text-content-secondary" style={fs(11.5, 'body')}>
-              {poi.address}
-            </p>
-          )}
-          {poi.opening_hours && (
-            <p className="m-0 flex items-start gap-1.5 text-content-secondary" style={fs(11.5, 'body')}>
-              <Clock size={12} strokeWidth={2.2} className="mt-0.5 flex-none text-content-faint" />
-              <span>
-                {poi.opening_hours}
-                <span className="block text-content-faint" style={fs(10.5, 'body')}>
-                  {t('tours.poi.hoursHint')}
-                </span>
-              </span>
-            </p>
-          )}
-          {poi.website && (
-            <a
-              href={poi.website}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 self-start text-content-secondary underline-offset-2 hover:underline"
-              style={fs(11.5, 'body')}
-            >
-              <ExternalLink size={12} strokeWidth={2.2} />
-              {t('tours.poi.website')}
-            </a>
-          )}
-          <AfterPicker planner={planner} poi={poi} insertion={insertion} />
-        </div>
-      )}
     </li>
   );
 }
@@ -364,24 +249,30 @@ function OutcomeNotice({ outcome, onDismiss, unit }: { outcome: InsertionOutcome
           )
         }
       >
-        <span className="flex flex-col gap-1.5">
-          <span>{t(`tours.poi.outcome.${outcome.kind}`, { name: outcome.name })}</span>
-          {outcome.kind === 'measured' && (
-            <span className="flex flex-wrap gap-1.5">
-              <WhiteBadge>{signed(formatDistance(km(Math.abs(outcome.extraM)), unit), outcome.extraM < 0)}</WhiteBadge>
-              {outcome.extraMinutes != null && (
+        <span className="flex items-start gap-2">
+          <span className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+            <span>{t(`tours.poi.outcome.${outcome.kind}`, { name: outcome.name })}</span>
+            {outcome.kind === 'measured' && (
+              <>
                 <WhiteBadge>
-                  {signed(formatPlannedTourDuration(Math.abs(outcome.extraMinutes)), outcome.extraMinutes < 0)}
+                  {signed(formatDistance(km(Math.abs(outcome.extraM)), unit), outcome.extraM < 0)}
                 </WhiteBadge>
-              )}
-            </span>
-          )}
-          <span className="flex flex-wrap items-center gap-2 text-content-faint" style={fs(10.5, 'body')}>
-            {t('tours.poi.undoHint')}
-            <button type="button" onClick={onDismiss} className="font-semibold underline underline-offset-2">
-              {t('common.close')}
-            </button>
+                {outcome.extraMinutes != null && (
+                  <WhiteBadge>
+                    {signed(formatPlannedTourDuration(Math.abs(outcome.extraMinutes)), outcome.extraMinutes < 0)}
+                  </WhiteBadge>
+                )}
+              </>
+            )}
           </span>
+          <button
+            type="button"
+            onClick={onDismiss}
+            aria-label={t('common.close')}
+            className="flex-none rounded p-0.5 text-content-faint hover:text-content"
+          >
+            <X size={12} strokeWidth={2.4} aria-hidden="true" />
+          </button>
         </span>
       </TourNotice>
     </div>
@@ -415,15 +306,9 @@ export function TourPoiSearchCard({ planner }: { planner: TourPlannerController 
       }
     >
       <div className="flex flex-col gap-3" data-testid="tour-poi-card">
-        <p className="m-0 text-content-faint" style={fs(11, 'body')}>
-          {t('tours.poi.intro')}
-        </p>
         {search.themes.length > 0 && (
-          <div className="flex flex-col gap-1.5" data-testid="tour-poi-themes">
+          <div data-testid="tour-poi-themes">
             <ThemeGrid themes={search.themes} active={search.theme} onChoose={search.chooseTheme} />
-            <span className="text-content-faint" style={fs(11, 'body')}>
-              {search.theme ? t(`tours.walk.themeHint.${search.theme}`) : t('tours.walk.themeHint.own')}
-            </span>
           </div>
         )}
         <CategoryPicker search={search} />
@@ -446,8 +331,10 @@ export function TourPoiSearchCard({ planner }: { planner: TourPlannerController 
           type="button"
           onClick={() => void search.search()}
           disabled={!search.canSearch}
+          title={search.outdated ? t('tours.poi.outdated') : undefined}
           data-testid="tour-poi-search"
-          className="inline-flex h-9 items-center justify-center gap-1.5 rounded-[10px] bg-surface-tertiary font-semibold text-content transition-colors hover:bg-surface-hover disabled:cursor-default disabled:opacity-50"
+          data-outdated={search.outdated || undefined}
+          className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-[10px] font-semibold transition-colors disabled:cursor-default disabled:opacity-50 ${search.outdated ? 'bg-accent text-accent-text hover:opacity-90' : 'bg-surface-tertiary text-content hover:bg-surface-hover'}`}
           style={fs(12.5, 'body')}
         >
           {search.status === 'loading' ? (
@@ -464,21 +351,12 @@ export function TourPoiSearchCard({ planner }: { planner: TourPlannerController 
         {insertion.outcome && <OutcomeNotice outcome={insertion.outcome} onDismiss={insertion.dismiss} unit={unit} />}
         <SearchNotices search={search} unit={unit} />
         {pois.length > 0 && (
-          <ul className={`m-0 flex list-none flex-col gap-0.5 p-0 ${search.status === 'loading' ? 'opacity-60' : ''}`}>
+          <ul
+            className={`m-0 flex max-h-[320px] list-none flex-col gap-px overflow-y-auto overscroll-contain p-0 ${search.status === 'loading' ? 'opacity-60' : ''}`}
+            data-testid="tour-poi-list"
+          >
             {pois.map((poi) => (
-              <PoiRow
-                key={poi.id}
-                poi={poi}
-                selected={selected?.id === poi.id}
-                planner={planner}
-                insertion={insertion}
-                unit={unit}
-                theme={
-                  search.theme && (WALK_THEMES[search.theme] as readonly string[]).includes(poi.category)
-                    ? search.theme
-                    : null
-                }
-              />
+              <PoiRow key={poi.id} poi={poi} selected={selected?.id === poi.id} unit={unit} />
             ))}
           </ul>
         )}

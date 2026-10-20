@@ -2,10 +2,11 @@ import { walkStationsOf } from '@trek/shared';
 import type { TourPlannerWaypoint } from './tourPlannerWaypoints';
 
 /**
- * CW-02: a city walk's time, walking and staying kept apart. A stay nobody
- * entered is unknown, never nothing: the total then counts only what is
- * known and says it is at least that much. A point passed through is a stay
- * of 0, entered on purpose.
+ * CW-02: a city walk's time, walking and staying kept apart. While no stay is
+ * entered at all, the walk is planned as its walking time alone and nothing
+ * calls the stays unknown. Once some are entered, one left empty is unknown,
+ * never nothing: the total then counts only what is known and says it is at
+ * least that much. A point passed through is a stay of 0, entered on purpose.
  */
 export interface WalkTimes {
   walkingMinutes: number | null;
@@ -23,14 +24,19 @@ export interface WalkTimes {
 
 /** The times of a walk from its parts: the walking time, the stays entered, how many are unknown and of how many. */
 export function walkTimesOf(parts: Omit<WalkTimes, 'totalMinutes' | 'partial'>): WalkTimes {
-  const { walkingMinutes, stayMinutes, unknownStays } = parts;
+  const { walkingMinutes, stayMinutes, unknownStays, stations } = parts;
   // Without a walking time the stays entered are still part of the whole: at least that much, never nothing.
   const totalMinutes = walkingMinutes !== null ? walkingMinutes + stayMinutes : stayMinutes > 0 ? stayMinutes : null;
   return {
     ...parts,
     totalMinutes,
-    partial: totalMinutes !== null && (unknownStays > 0 || walkingMinutes === null),
+    partial: totalMinutes !== null && (someStaysUnknown({ unknownStays, stations }) || walkingMinutes === null),
   };
+}
+
+/** Some stays entered and some not: none entered at all means none planned, not unknown. */
+export function someStaysUnknown({ unknownStays, stations }: Pick<WalkTimes, 'unknownStays' | 'stations'>): boolean {
+  return unknownStays > 0 && unknownStays < stations;
 }
 
 export function walkTimes(points: readonly TourPlannerWaypoint[], walkingMinutes: number | null): WalkTimes {

@@ -3,7 +3,7 @@ import type { TourWaypoints, TTourWaypointsImportance } from '../entities/TourWa
 import { TOUR_WAYPOINT_FIXED_LEG, TOUR_WAYPOINT_LOCK } from '../json-columns';
 import type { DB } from '../kysely/db';
 import { TrekRepository } from './_shared/trek-repository';
-import type { PaddleLock, TourFixedLeg } from '@trek/shared';
+import { TOUR_POI_CATEGORIES, type PaddleLock, type TourFixedLeg, type TourPoiCategory } from '@trek/shared';
 
 /** One saved routing control point of a tour, in route order. */
 export interface TourWaypointRow {
@@ -31,6 +31,8 @@ export interface TourWaypointRow {
   protected?: boolean;
   /** CW-04: the station's opening hours as OpenStreetMap writes them; absent where there are none. */
   opening_hours?: string | null;
+  /** PLN-03: the kind of place the point was taken in from along the tour; absent on a point set by hand. */
+  poi_category?: TourPoiCategory | null;
 }
 
 /** The row as stored, the fixed leg still JSON text. */
@@ -49,6 +51,7 @@ interface StoredWaypoint {
   importance: TTourWaypointsImportance | null;
   protected: number;
   opening_hours: string | null;
+  poi_category: string | null;
 }
 
 /** The columns a waypoint is read with, as the stored row names them. */
@@ -67,13 +70,20 @@ const WAYPOINT_COLUMNS = [
   'importance',
   'protected',
   'opening_hours',
+  'poi_category',
 ] as const;
+
+/** A stored kind the contract knows; one it does not (dropped since) reads as none. */
+function poiCategoryOf(stored: string | null): TourPoiCategory | null {
+  return TOUR_POI_CATEGORIES.find((category) => category === stored) ?? null;
+}
 
 /** A stored row as callers read it: every optional part left out entirely where there is none. */
 function readWaypoint(row: StoredWaypoint): TourWaypointRow {
   const { fixed_leg, lock, shaping, linked_place_id, station_key, name, stay_minutes, importance, opening_hours } = row;
   const leg = decodeJson(TOUR_WAYPOINT_FIXED_LEG, fixed_leg, 'tour waypoint');
   const stop = decodeJson(TOUR_WAYPOINT_LOCK, lock, 'tour waypoint');
+  const poi_category = poiCategoryOf(row.poi_category);
   return {
     lat: row.lat,
     lng: row.lng,
@@ -89,6 +99,7 @@ function readWaypoint(row: StoredWaypoint): TourWaypointRow {
     ...(importance ? { importance } : {}),
     ...(row.protected ? { protected: true } : {}),
     ...(opening_hours ? { opening_hours } : {}),
+    ...(poi_category ? { poi_category } : {}),
   };
 }
 
@@ -184,6 +195,7 @@ export class TourWaypointsRepository extends TrekRepository<TourWaypoints> {
         importance: w.importance ?? null,
         protected: w.protected ? 1 : 0,
         opening_hours: w.opening_hours ?? null,
+        poi_category: w.poi_category ?? null,
       })),
     );
   }

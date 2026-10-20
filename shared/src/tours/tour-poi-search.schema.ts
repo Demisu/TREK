@@ -1,3 +1,4 @@
+import { tourPoiCategorySchema, type TourPoiCategory } from './tour-poi-category';
 import { plannableTourTypeSchema, type PlannableTourType } from './tours.schema';
 
 import { z } from 'zod';
@@ -8,28 +9,9 @@ import { z } from 'zod';
  * the line as drawn, never a detour someone walked or paddled.
  */
 
-/** What can be looked for along a tour on foot, by bike or on the water. */
-export const TOUR_POI_CATEGORIES = [
-  'viewpoint',
-  'peak',
-  'shelter',
-  'drinking_water',
-  'food',
-  'toilets',
-  'picnic',
-  'campsite',
-  'sights',
-  'slipway',
-  'boat_rental',
-  'bike_repair',
-  'museum',
-  'park',
-  'cafe',
-  'restaurant',
-  'market',
-] as const;
-export const tourPoiCategorySchema = z.enum(TOUR_POI_CATEGORIES);
-export type TourPoiCategory = z.infer<typeof tourPoiCategorySchema>;
+// The categories live in a module of their own, so the tour contract can name
+// one on a waypoint without importing this one, which imports it.
+export { TOUR_POI_CATEGORIES, tourPoiCategorySchema, type TourPoiCategory } from './tour-poi-category';
 
 /** The categories each planned tour type offers, the most asked first. */
 export const TOUR_POI_CATEGORIES_BY_TYPE: Record<PlannableTourType, readonly TourPoiCategory[]> = {

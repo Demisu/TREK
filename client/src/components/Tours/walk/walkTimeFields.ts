@@ -1,4 +1,4 @@
-import { walkTimesOf, type WalkTimes } from '../planner/stationModel';
+import { someStaysUnknown, walkTimesOf, type WalkTimes } from '../planner/stationModel';
 import type { TourMetricField } from '../tourParts';
 import { formatPlannedTourDuration, plannedTotalText } from '../tourPresentation';
 
@@ -8,14 +8,16 @@ type Translate = (key: string, params?: Record<string, unknown>) => string;
 type WalkStays = Pick<WalkTimes, 'stayMinutes' | 'unknownStays' | 'stations'>;
 
 /**
- * A city walk's stays as said: their sum, at least the sum while a stay is not
- * entered yet, and not known while none is. A stop passed through counts as
- * the 0 entered for it, so stays all entered as 0 read "0 min".
+ * A city walk's stays as said: their sum, and at least the sum while some
+ * stay is not entered yet. Nothing while no stay is entered at all: the walk
+ * is then planned as its walking time, and saying "unknown" at every turn
+ * would only be noise. A stop passed through counts as the 0 entered for it,
+ * so stays all entered as 0 read "0 min".
  */
-export function walkStaysText(stays: WalkStays, t: Translate): string {
-  if (stays.stations > 0 && stays.unknownStays === stays.stations) return t('tours.walk.station.stayUnknown');
+export function walkStaysText(stays: WalkStays, t: Translate): string | null {
+  if (stays.unknownStays >= stays.stations) return null;
   const time = formatPlannedTourDuration(stays.stayMinutes);
-  return stays.unknownStays > 0 ? t('tours.walk.totalAtLeast', { time }) : time;
+  return someStaysUnknown(stays) ? t('tours.walk.totalAtLeast', { time }) : time;
 }
 
 export interface WalkTimeFieldsInput {
@@ -47,9 +49,10 @@ export function walkTimeFields({
   const times = walkTimesOf({ walkingMinutes, stayMinutes, unknownStays, stations });
   const computed =
     plannedTotalText({ plannedTotalMinutes: times.totalMinutes, atLeast: times.partial }, t) ?? notCalculated;
+  const staysText = walkStaysText(stays, t);
   const parts: TourMetricField[] = [
     { ...walking, value: walkingMinutes == null ? notCalculated : formatPlannedTourDuration(walkingMinutes) },
-    { label: t('tours.walk.stays'), value: walkStaysText(stays, t) },
+    ...(staysText ? [{ label: t('tours.walk.stays'), value: staysText }] : []),
   ];
   const planned = t('tours.planner.plannedShort');
   if (manualMinutes == null) return [...parts, { label: planned, value: computed }];

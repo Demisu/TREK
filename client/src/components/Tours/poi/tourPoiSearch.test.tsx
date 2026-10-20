@@ -8,12 +8,13 @@ import { tourPoiSearchRepo } from '../../../repo/tourPoiSearchRepo';
 import { useTourPoiStore } from '../../../store/tourPoiStore';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 import type { TourPlannerController } from '../planner/useTourPlanner';
+import TourPoiOverlay from './TourPoiCard';
 import { TourPoiSearchCard } from './TourPoiSearchCard';
 import { usePoiInsertion, type PoiInsertionPlanner } from './usePoiInsertion';
 import { useTourPoiMarkers } from './useTourPoiMarkers';
 import { useTourPoiSearch } from './useTourPoiSearch';
 
-// FE-TOUR-POI-001 to FE-TOUR-POI-015
+// FE-TOUR-POI-001 to FE-TOUR-POI-016
 
 vi.mock('../planner/useWaypointPlaceNames', () => ({ useWaypointPlaceNames: () => ({}) }));
 
@@ -194,22 +195,63 @@ describe('usePoiInsertion (PLN-03)', () => {
   });
 });
 
+/** The list in the side panel and the chosen place's card over the map, as the planner shows them. */
+function renderAlong(planner: TourPlannerController) {
+  return render(
+    <>
+      <TourPoiSearchCard planner={planner} />
+      <TourPoiOverlay planner={planner} insetEnd={0} bottom={0} />
+    </>
+  );
+}
+
 describe('TourPoiSearchCard', () => {
-  it('FE-TOUR-POI-008: lists what was found with where it lies; opening a place offers to add it after a point', async () => {
+  it('FE-TOUR-POI-008: lists what was found in one line each; a place opens its card over the map, which adds it after a point', async () => {
     const planner = {
       ...searchPlanner(),
       ...insertionPlanner(),
     } as unknown as TourPlannerController;
-    render(<TourPoiSearchCard planner={planner} />);
+    renderAlong(planner);
     fireEvent.click(screen.getByTestId('tour-poi-search'));
     const row = await screen.findByTestId('tour-poi-node:1');
     expect(row).toHaveTextContent('Spring');
-    expect(row).toHaveTextContent('80 m from the route');
+    expect(row).toHaveTextContent('80 m');
+    expect(within(row).queryByTestId('tour-poi-add')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('tour-poi-overlay')).not.toBeInTheDocument();
+
     fireEvent.click(within(row).getByRole('button', { name: /Spring/ }));
-    expect(within(row).getByText('Mo-Su 08:00-18:00')).toBeInTheDocument();
-    expect(within(row).getByText('As the source has them; check before you go.')).toBeInTheDocument();
-    fireEvent.click(within(row).getByTestId('tour-poi-add'));
+    const card = screen.getByTestId('tour-poi-overlay');
+    expect(within(row).getByRole('button', { name: /Spring/ })).toHaveAttribute('aria-pressed', 'true');
+    expect(card).toHaveTextContent('80 m from the route');
+    expect(within(card).getByText('Mo-Su 08:00-18:00')).toBeInTheDocument();
+    expect(within(card).getByText('Mo-Su 08:00-18:00')).toHaveAttribute(
+      'title',
+      'As the source has them; check before you go.'
+    );
+    fireEvent.click(within(card).getByTestId('tour-poi-add'));
     await waitFor(() => expect(planner.editWaypoints).toHaveBeenCalledTimes(1));
+    // The card closes once the place is in, and the list says what it did.
+    expect(screen.queryByTestId('tour-poi-overlay')).not.toBeInTheDocument();
+    expect(screen.getByTestId('tour-poi-outcome')).toHaveTextContent('Spring');
+  });
+
+  it('FE-TOUR-POI-016: the card over the map closes on its button and on Escape, and a pin on the map opens it too', async () => {
+    const planner = { ...searchPlanner(), ...insertionPlanner() } as unknown as TourPlannerController;
+    renderAlong(planner);
+    fireEvent.click(screen.getByTestId('tour-poi-search'));
+    await screen.findByTestId('tour-poi-node:1');
+
+    const markers = renderHook(() => useTourPoiMarkers(), { wrapper: TranslationProvider });
+    // The one place found, picked as a click on its pin does.
+    for (const poi of markers.result.current.pois) act(() => markers.result.current.onPoiClick(poi));
+    expect(screen.getByTestId('tour-poi-overlay')).toHaveTextContent('Spring');
+    fireEvent.click(within(screen.getByTestId('tour-poi-overlay')).getByRole('button', { name: 'Close' }));
+    expect(screen.queryByTestId('tour-poi-overlay')).not.toBeInTheDocument();
+
+    fireEvent.click(within(screen.getByTestId('tour-poi-node:1')).getByRole('button', { name: /Spring/ }));
+    expect(screen.getByTestId('tour-poi-overlay')).toBeInTheDocument();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByTestId('tour-poi-overlay')).not.toBeInTheDocument();
   });
 
   it('FE-TOUR-POI-009: names the kinds that could not be searched, and does not claim nothing was found', async () => {
@@ -272,11 +314,11 @@ describe('a city walk along its places (CW-05)', () => {
     // The walk starts with its first three categories, which no theme is.
     for (const theme of ['culture', 'parks', 'food', 'mixed'])
       expect(themeButton(theme)).toHaveAttribute('aria-pressed', 'false');
-    expect(themes).toHaveTextContent('Your own pick of categories below; a theme sets them for you.');
+    // What a theme looks for is said on the button, not in a line of its own.
+    expect(themeButton('food')).toHaveAttribute('title', 'Coffee shops, places to eat and markets along the route.');
 
     fireEvent.click(themeButton('food'));
     expect(themeButton('food')).toHaveAttribute('aria-pressed', 'true');
-    expect(themes).toHaveTextContent('Coffee shops, places to eat and markets along the route.');
     expect(screen.getByTestId('tour-poi-categories')).toHaveTextContent('Coffee shops, Places to eat +1');
     fireEvent.click(screen.getByTestId('tour-poi-search'));
     await waitFor(() =>
@@ -290,7 +332,6 @@ describe('a city walk along its places (CW-05)', () => {
     fireEvent.click(screen.getByTestId('tour-poi-categories'));
     fireEvent.click(screen.getByRole('button', { name: 'Markets' }));
     expect(themeButton('food')).toHaveAttribute('aria-pressed', 'false');
-    expect(themes).toHaveTextContent('Your own pick of categories below; a theme sets them for you.');
   });
 
   it('FE-TOUR-POI-012: the category field names two categories, counts the rest, and says when none is chosen', () => {
@@ -312,12 +353,14 @@ describe('a city walk along its places (CW-05)', () => {
 
   it('FE-TOUR-POI-013: a place found for a theme says which theme suggested it', async () => {
     search.mockResolvedValue({ ...ANSWER, pois: [CAFE, SPRING] });
-    render(<TourPoiSearchCard planner={walkPlanner()} />);
+    renderAlong(walkPlanner());
     fireEvent.click(themeButton('food'));
     fireEvent.click(screen.getByTestId('tour-poi-search'));
     const cafe = await screen.findByTestId('tour-poi-node:3');
     fireEvent.click(within(cafe).getByRole('button', { name: /Cafe Luitpold/ }));
-    expect(within(cafe).getByText('Suggested for Food and local life')).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId('tour-poi-overlay')).getByText('Suggested for Food and local life')
+    ).toBeInTheDocument();
     fireEvent.click(within(screen.getByTestId('tour-poi-node:1')).getByRole('button', { name: /Spring/ }));
     expect(screen.queryByText('Suggested for Food and local life')).not.toBeInTheDocument();
   });
@@ -345,7 +388,13 @@ describe('a city walk along its places (CW-05)', () => {
             (point) => !POINTS.includes(point)
           ) as TourPlannerWaypoint
       );
-    expect(added[0]).toMatchObject({ name: 'Spring', openingHours: 'Mo-Su 08:00-18:00' });
+    expect(added[0]).toMatchObject({
+      name: 'Spring',
+      openingHours: 'Mo-Su 08:00-18:00',
+      poiCategory: 'drinking_water',
+    });
+    // PLN-03: the kind the place was found as goes with it, so its row carries the kind's icon.
+    expect(added[1]).toMatchObject({ poiCategory: 'cafe' });
     expect(added[1]).not.toHaveProperty('name');
     expect(added[1]).not.toHaveProperty('openingHours');
   });

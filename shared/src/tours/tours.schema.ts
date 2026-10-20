@@ -5,6 +5,7 @@ import {
   portageSpeedKmhSchema,
   trackMarksSchema,
 } from './paddle-plan.schema';
+import { tourPoiCategorySchema } from './tour-poi-category';
 import { tourOriginSchema, tourProvenanceSchema } from './tour-provenance.schema';
 
 import { z } from 'zod';
@@ -360,6 +361,12 @@ export const tourWaypointSchema = z.object({
   protected: z.boolean().optional(),
   /** CW-04: the station's opening hours as OpenStreetMap writes them, where it was found there. */
   opening_hours: z.string().trim().max(TOUR_STATION_HOURS_MAX).nullable().optional(),
+  /**
+   * PLN-03: the kind of place the point was taken in from, found along the
+   * tour (a restaurant, a museum), so its row carries that kind's icon as the
+   * map drew the place. Null on a point set by hand.
+   */
+  poi_category: tourPoiCategorySchema.nullable().optional(),
 });
 export type TourWaypoint = z.infer<typeof tourWaypointSchema>;
 
