@@ -46,13 +46,13 @@ export const TourWaypointsSchema = defineEntity({
   ],
   uniques: [{ properties: ['place', 'sequence'] }],
   checks: [
+    { name: 'tour_waypoints_stage_end_check', expression: 'stage_end IN (0, 1)' },
     { name: 'tour_waypoints_protected_check', expression: 'protected IN (0, 1)' },
     {
       name: 'tour_waypoints_stay_minutes_check',
       expression: 'stay_minutes IS NULL OR (stay_minutes >= 0 AND stay_minutes <= 1440)',
     },
     { name: 'tour_waypoints_shaping_check', expression: 'shaping IN (0, 1)' },
-    { name: 'tour_waypoints_stage_end_check', expression: 'stage_end IN (0, 1)' },
   ],
   properties: {
     id: p.integer().primary(),

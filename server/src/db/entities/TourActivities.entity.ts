@@ -23,18 +23,18 @@ export const TourActivitiesSchema = defineEntity({
   class: TourActivities,
   repository: () => TourActivitiesRepository,
   uniques: [
-    { properties: ['trackPlace'] },
     {
       name: 'idx_tour_activities_assignment',
       where: 'assignment_id IS NOT NULL',
-      properties: ['assignment'],
+      properties: ['assignment_id'],
     },
+    { properties: ['trackPlace'] },
   ],
   properties: {
     id: p.integer().primary(),
     place: () => p.manyToOne(Tours).ref().name('place_id').deleteRule('cascade').hidden().index('idx_tour_activities_place'),
     place_id: p.integer().persist(false).index('idx_tour_activities_place'),
-    trackPlace: () => p.manyToOne(Tours).ref().name('track_place_id').deleteRule('cascade').hidden(),
+    trackPlace: () => p.manyToOne(Tours).ref().joinColumn('track_place_id').deleteRule('cascade').hidden(),
     track_place_id: p.integer().persist(false),
     assignment: () => p.manyToOne(DayAssignments).ref().nullable().hidden(),
     assignment_id: p.integer().nullable().persist(false),

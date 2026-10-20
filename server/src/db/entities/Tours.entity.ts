@@ -144,11 +144,11 @@ export const ToursSchema = defineEntity({
     },
   ],
   checks: [
-    { name: 'tours_revision_check', expression: 'revision >= 1' },
     {
       name: 'tours_run_pace_seconds_per_km_check',
       expression: 'run_pace_seconds_per_km IS NULL OR (run_pace_seconds_per_km >= 120 AND run_pace_seconds_per_km <= 1200)',
     },
+    { name: 'tours_revision_check', expression: 'revision >= 1' },
   ],
   properties: {
     place: () => p.oneToOne(Places).primary().ref().deleteRule('cascade').nullable().hidden(),

@@ -1,7 +1,7 @@
 import { EntityRepositoryType, PrimaryKeyProp, type Ref, defineEntity, p } from '@mikro-orm/core';
 import { TourSourcesRepository } from '../repositories/TourSources.repository';
-import { TourSourceHints } from './TourSourceHints.entity';
 import { DbTimestampType } from '../types';
+import { TourSourceHints } from './TourSourceHints.entity';
 import { Tours } from './Tours.entity';
 import { Users } from './Users.entity';
 

@@ -47,8 +47,8 @@ export class CollectionTours {
   source_trip_title!: string;
   source_tour_name!: string;
   created_at!: string & Opt;
-  savedByRef?: Ref<Users> | null;
   tourTypeRef!: Ref<TourTypes>;
+  savedByRef?: Ref<Users> | null;
 }
 
 export const CollectionToursSchema = defineEntity({
@@ -95,7 +95,7 @@ export const CollectionToursSchema = defineEntity({
     source_trip_title: p.text(),
     source_tour_name: p.text(),
     created_at: p.type(DbTimestampType).defaultRaw(`CURRENT_TIMESTAMP`),
-    savedByRef: () => p.manyToOne(Users).ref().joinColumn('saved_by').nullable().hidden().index('idx_collection_tours_saved_by'),
     tourTypeRef: () => p.manyToOne(TourTypes).ref().joinColumn('tour_type').hidden().index('idx_collection_tours_tour_type'),
+    savedByRef: () => p.manyToOne(Users).ref().joinColumn('saved_by').nullable().hidden().index('idx_collection_tours_saved_by'),
   },
 });

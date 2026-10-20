@@ -25,11 +25,17 @@ export const TourChangeStepsSchema = defineEntity({
   repository: () => TourChangeStepsRepository,
   uniques: [{ properties: ['place', 'revision'] }],
   checks: [
-    { name: 'tour_change_steps_base_revision_check', expression: 'base_revision >= 1' },
-    { name: 'tour_change_steps_revision_check', expression: 'revision = base_revision + 1' },
     {
       name: 'tour_change_steps_undone_revision_check',
       expression: 'undone_revision IS NULL OR undone_revision > revision',
+    },
+    {
+      name: 'tour_change_steps_revision_check',
+      expression: 'revision = base_revision + 1',
+    },
+    {
+      name: 'tour_change_steps_base_revision_check',
+      expression: 'base_revision >= 1',
     },
   ],
   properties: {
