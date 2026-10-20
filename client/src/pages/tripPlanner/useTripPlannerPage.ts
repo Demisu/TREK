@@ -134,6 +134,7 @@ export function useTripPlannerPage() {
       captureViewport,
     },
     locationSearch,
-    plannedTourDurations,
+    // The day plan's tours: which places are tours, their planned times and where their stages run (MDT-02).
+    dayPlanTours: { tourPlaceIds: planner.tourPlaceIds, plannedTourDurations, tourStageStops: planner.tourStageStops },
   }
 }
