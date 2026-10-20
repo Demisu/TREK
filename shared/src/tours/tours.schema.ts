@@ -58,6 +58,16 @@ export type PaddleWaterContext = z.infer<typeof paddleWaterContextSchema>;
 export const paddleLakeStyleSchema = z.enum(['direct', 'shore']);
 export type PaddleLakeStyle = z.infer<typeof paddleLakeStyleSchema>;
 
+/**
+ * HIK-01: a hike marked as one done in winter, walked or on snowshoes. It is
+ * optional and only a label: the route, its grade and its time are planned as
+ * for any hike, and the label says nothing about whether a way can be walked
+ * in winter, about snow or about avalanches. A hike without one keeps null.
+ */
+export const WINTER_ACTIVITIES = ['winter_hike', 'snowshoe'] as const;
+export const winterActivitySchema = z.enum(WINTER_ACTIVITIES);
+export type WinterActivity = z.infer<typeof winterActivitySchema>;
+
 /** The highest planning speed a paddler can enter, in km/h. */
 export const MAX_PADDLE_SPEED_KMH = 20;
 export const paddleSpeedKmhSchema = z.number().finite().min(0.5).max(MAX_PADDLE_SPEED_KMH);
@@ -165,6 +175,8 @@ export const tourSchema = z.object({
   derived_from_place_id: z.number().int().positive().nullable().optional(),
   /** BIK-01: a bike tour's profile; null for every other type. Absent in a list cached before it existed. */
   bike_profile: bikeProfileSchema.nullable().optional(),
+  /** HIK-01: a hike's winter label; null for none and for every other type. Absent in a list cached before it existed. */
+  winter_activity: winterActivitySchema.nullable().optional(),
   /** A paddle tour's boat and water; null for every other type. Absent in a list cached before they existed. */
   boat_type: paddleBoatTypeSchema.nullable().optional(),
   water_context: paddleWaterContextSchema.nullable().optional(),
@@ -401,6 +413,8 @@ export const tourCreateRequestSchema = z
     hiking_preferences: hikingPreferencesSchema.nullable().optional(),
     /** BIK-01, a bike tour's only, and its one requirement. */
     bike_profile: bikeProfileSchema.nullable().optional(),
+    /** HIK-01, a hike's only: its winter label, null to take it off; left out, an edit keeps the one it has. */
+    winter_activity: winterActivitySchema.nullable().optional(),
     boat_type: paddleBoatTypeSchema.nullable().optional(),
     water_context: paddleWaterContextSchema.nullable().optional(),
     paddle_speed_kmh: paddleSpeedKmhSchema.nullable().optional(),
@@ -493,6 +507,7 @@ function tourTypeIssues(value: {
   max_hiking_difficulty?: number | null;
   hiking_preferences?: HikingPreferences | null;
   bike_profile?: BikeProfile | null;
+  winter_activity?: WinterActivity | null;
   boat_type?: PaddleBoatType | null;
   water_context?: PaddleWaterContext | null;
   paddle_speed_kmh?: number | null;
@@ -526,6 +541,8 @@ function tourTypeIssues(value: {
       issues.push({ path: ['max_hiking_difficulty'], message: `${named} has no hiking difficulty` });
     if (hikingPreferencesOf(value.hiking_preferences) !== null)
       issues.push({ path: ['hiking_preferences'], message: `${named} has no hiking preferences` });
+    if (value.winter_activity != null)
+      issues.push({ path: ['winter_activity'], message: `${named} has no winter activity` });
   }
   if (type === 'bike' && value.bike_profile == null)
     issues.push({ path: ['bike_profile'], message: 'a bike tour needs a bike profile' });

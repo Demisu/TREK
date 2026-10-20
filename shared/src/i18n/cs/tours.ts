@@ -394,6 +394,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Pěšky, do obtížnosti, kterou nastavíš',
   'tours.planner.tourTypeHint.bike': 'Na kole, trasa pro treking, silnici, gravel nebo MTB',
   'tours.planner.tourTypeHint.kayak': 'Na vodě, na kajaku, kánoi nebo SUP',
+  'tours.winter.title': 'Zimní aktivita',
+  'tours.winter.infoLabel': 'Co dělá zimní označení',
+  'tours.winter.info':
+    'Jen označení túry. Trasa, barvy sklonu a doba chůze zůstávají jako u každé túry a neříkají nic o sněhu, lavinách ani o tom, zda je cesta v zimě schůdná.',
+  'tours.winter.kind': 'Druh zimní aktivity',
+  'tours.winter.activity.winter_hike': 'Zimní turistika',
+  'tours.winter.activity.snowshoe': 'Túra na sněžnicích',
+  'tours.winter.labelOnly':
+    'Označeno cestovateli. Trasa a čas se plánují jako u každé túry, bez kontroly zimních podmínek.',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Treking',
   'tours.bike.profile.road': 'Silnice',

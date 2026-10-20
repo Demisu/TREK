@@ -410,6 +410,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Pieszo, w granicach wybranej trudności',
   'tours.planner.tourTypeHint.bike': 'Na rowerze, trasa dla turystyki, szosy, gravela lub MTB',
   'tours.planner.tourTypeHint.kayak': 'Na wodzie, kajakiem, kanadyjką lub SUP-em',
+  'tours.winter.title': 'Aktywność zimowa',
+  'tours.winter.infoLabel': 'Co daje oznaczenie zimowe',
+  'tours.winter.info':
+    'Tylko oznaczenie wędrówki. Trasa, kolory nachylenia i czas marszu pozostają jak przy każdej wędrówce i nic nie mówią o śniegu, lawinach ani o tym, czy ścieżka jest zimą do przejścia.',
+  'tours.winter.kind': 'Rodzaj aktywności zimowej',
+  'tours.winter.activity.winter_hike': 'Wędrówka zimowa',
+  'tours.winter.activity.snowshoe': 'Wędrówka na rakietach śnieżnych',
+  'tours.winter.labelOnly':
+    'Oznaczone przez podróżnych. Trasa i czas są planowane jak przy każdej wędrówce, bez sprawdzania pod kątem zimy.',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Turystyka',
   'tours.bike.profile.road': 'Szosa',

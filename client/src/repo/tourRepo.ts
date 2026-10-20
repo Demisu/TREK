@@ -59,6 +59,15 @@ function endpointsOf(routeGeometry: unknown): TourWaypoint[] {
 }
 
 /**
+ * HIK-01: a hike's winter label as the server keeps it. Another type has none,
+ * and a hike's save that leaves the field out keeps the label it has.
+ */
+function winterField(body: TourCreateRequest): Pick<TourListItem, 'winter_activity'> {
+  if (body.tour_type !== 'hike') return { winter_activity: null }
+  return body.winter_activity === undefined ? {} : { winter_activity: body.winter_activity }
+}
+
+/**
  * What the server will derive from a create or edit, worked out here for the
  * copy shown until the queued write replays: the same metrics, the duration
  * in minutes, full confidence because the route editor drew it, and a city
@@ -82,6 +91,7 @@ function routeFields(body: TourCreateRequest) {
     match_confidence: 1,
     caution: false,
     max_hiking_difficulty: body.max_hiking_difficulty,
+    ...winterField(body),
     has_waypoints: true,
     ...walkStationFacts(body.tour_type, body.waypoints),
     ...(body.planned_duration_minutes !== undefined ? { planned_duration_minutes: body.planned_duration_minutes } : {}),

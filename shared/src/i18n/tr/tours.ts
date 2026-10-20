@@ -395,6 +395,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Yürüyerek, belirlediğin zorluk içinde',
   'tours.planner.tourTypeHint.bike': 'Bisikletle, tur, yol, gravel veya MTB için rota',
   'tours.planner.tourTypeHint.kayak': 'Suda, kano, kanoe veya SUP ile',
+  'tours.winter.title': 'Kış etkinliği',
+  'tours.winter.infoLabel': 'Kış etiketi ne işe yarar',
+  'tours.winter.info':
+    'Yalnızca yürüyüş için bir etiket. Rota, eğim renkleri ve yürüme süresi her yürüyüşteki gibi kalır; kar, çığ ya da bir yolun kışın yürünebilir olup olmadığı hakkında hiçbir şey söylemez.',
+  'tours.winter.kind': 'Kış etkinliği türü',
+  'tours.winter.activity.winter_hike': 'Kış yürüyüşü',
+  'tours.winter.activity.snowshoe': 'Kar ayakkabısıyla yürüyüş',
+  'tours.winter.labelOnly':
+    'Gezginler tarafından işaretlendi. Rota ve süre her yürüyüşteki gibi planlanır, kış koşullarına göre denetlenmez.',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Tur',
   'tours.bike.profile.road': 'Yol',

@@ -393,6 +393,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Đi bộ, trong mức độ khó bạn chọn',
   'tours.planner.tourTypeHint.bike': 'Bằng xe đạp, lộ trình cho touring, đường trường, gravel hoặc MTB',
   'tours.planner.tourTypeHint.kayak': 'Trên nước, bằng kayak, xuồng canoe hoặc SUP',
+  'tours.winter.title': 'Hoạt động mùa đông',
+  'tours.winter.infoLabel': 'Nhãn mùa đông có tác dụng gì',
+  'tours.winter.info':
+    'Chỉ là nhãn cho chuyến đi bộ. Tuyến đường, màu độ dốc và thời gian đi bộ vẫn như mọi chuyến đi bộ khác và không cho biết gì về tuyết, tuyết lở hay việc lối đi có đi được vào mùa đông không.',
+  'tours.winter.kind': 'Loại hoạt động mùa đông',
+  'tours.winter.activity.winter_hike': 'Đi bộ mùa đông',
+  'tours.winter.activity.snowshoe': 'Đi bộ bằng giày tuyết',
+  'tours.winter.labelOnly':
+    'Do du khách đánh dấu. Tuyến đường và thời gian được lập như mọi chuyến đi bộ khác, không kiểm tra cho mùa đông.',
   'tours.bike.profile': 'Hồ sơ',
   'tours.bike.profile.touring': 'Du lịch',
   'tours.bike.profile.road': 'Đường trường',

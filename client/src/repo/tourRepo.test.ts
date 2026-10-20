@@ -1,4 +1,4 @@
-// FE-REPO-TOUR-001 to FE-REPO-TOUR-014
+// FE-REPO-TOUR-001 to FE-REPO-TOUR-014, FE-REPO-TOUR-042
 // Tours through the offline core: read-through to Dexie, offline create and
 // edit written there and queued, and the online paths keeping the copy fresh.
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
@@ -194,6 +194,19 @@ describe('tourRepo.update', () => {
 
     expect(result.tour).toMatchObject({ description: 'Keep description', website: 'https://example.org/old', planned_duration_minutes: 95, break_additional_minutes: 35 })
     expect(await offlineDb.places.get(40)).toMatchObject({ description: 'Keep description', website: 'https://example.org/old' })
+  })
+
+  it('FE-REPO-TOUR-042: offline, a hike takes its winter label at once, keeps it when a save leaves it out, and another type drops it (HIK-01)', async () => {
+    setOnline(false)
+    await offlineDb.tours.put({ ...tour({ winter_activity: 'snowshoe' }), trip_id: 3 })
+
+    expect((await tourRepo.update(3, 40, body)).tour.winter_activity).toBe('snowshoe')
+    expect((await tourRepo.update(3, 40, { ...body, winter_activity: 'winter_hike' })).tour.winter_activity).toBe('winter_hike')
+    expect((await tourRepo.update(3, 40, { ...body, winter_activity: null })).tour.winter_activity).toBeNull()
+    await tourRepo.update(3, 40, { ...body, winter_activity: 'snowshoe' })
+    const bike = { ...body, tour_type: 'bike' as const, bike_profile: 'touring' as const, max_hiking_difficulty: null }
+    expect((await tourRepo.update(3, 40, bike)).tour.winter_activity).toBeNull()
+    expect((await offlineDb.tours.get(40))?.winter_activity).toBeNull()
   })
 
   it('FE-REPO-TOUR-012: online edits and GPX imports refresh the cache', async () => {

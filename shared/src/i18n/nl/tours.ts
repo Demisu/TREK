@@ -403,6 +403,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Te voet, binnen een moeilijkheid die je kiest',
   'tours.planner.tourTypeHint.bike': 'Met de fiets, gerouteerd voor toer, race, gravel of MTB',
   'tours.planner.tourTypeHint.kayak': 'Op het water, met kajak, kano of SUP',
+  'tours.winter.title': 'Winteractiviteit',
+  'tours.winter.infoLabel': 'Wat het winterlabel doet',
+  'tours.winter.info':
+    'Alleen een label voor de wandeling. Route, hellingskleuren en looptijd blijven zoals bij elke wandeling en zeggen niets over sneeuw, lawines of de begaanbaarheid van een pad in de winter.',
+  'tours.winter.kind': 'Soort winteractiviteit',
+  'tours.winter.activity.winter_hike': 'Winterwandeling',
+  'tours.winter.activity.snowshoe': 'Sneeuwschoenwandeling',
+  'tours.winter.labelOnly':
+    'Gemarkeerd door de reizigers. Route en tijd worden gepland als bij elke wandeling, niet gecontroleerd op de winter.',
   'tours.bike.profile': 'Profiel',
   'tours.bike.profile.touring': 'Toer',
   'tours.bike.profile.road': 'Racefiets',

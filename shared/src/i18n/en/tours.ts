@@ -394,6 +394,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'On foot, within a difficulty you set',
   'tours.planner.tourTypeHint.bike': 'By bike, routed for touring, road, gravel or MTB',
   'tours.planner.tourTypeHint.kayak': 'On the water, by kayak, canoe or SUP',
+  'tours.winter.title': 'Winter activity',
+  'tours.winter.infoLabel': 'What the winter label does',
+  'tours.winter.info':
+    'A label for the hike only. Route, grade colours and walking time stay as for any hike and say nothing about snow, avalanches or whether a path can be walked in winter.',
+  'tours.winter.kind': 'Kind of winter activity',
+  'tours.winter.activity.winter_hike': 'Winter hike',
+  'tours.winter.activity.snowshoe': 'Snowshoe hike',
+  'tours.winter.labelOnly':
+    'Marked by the travellers. Route and time are planned as for any hike, not checked for winter.',
   'tours.bike.profile': 'Profile',
   'tours.bike.profile.touring': 'Touring',
   'tours.bike.profile.road': 'Road',

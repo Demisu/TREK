@@ -16,13 +16,15 @@ import { tourMetricFacts } from './tourFacts'
 import type { TourDayAssignment } from './useTourDayAssignment'
 import { useRailFold } from './railFold'
 import { tourDayRowIcon } from './tourDayRowIcon'
+import { WinterCornerMark } from './winter/winterMarks'
 
 /**
  * A tour's tile in a list: its T-scale grade in place of the mountain, named in
  * full by its tooltip (a GPX import carries no grade and keeps the mountain),
- * and where it came from, when that was not TREK, as a small badge over its foot.
+ * where it came from, when that was not TREK, as a small badge over its foot,
+ * and a hike's winter label (HIK-01) as a snowflake at its top corner.
  */
-export function TourGradeTile({ tour }: { tour: Pick<TourListItem, 'max_hiking_difficulty' | 'wanderer_ref' | 'has_waypoints'> & Partial<Pick<TourListItem, 'tour_type'>> }) {
+export function TourGradeTile({ tour }: { tour: Pick<TourListItem, 'max_hiking_difficulty' | 'wanderer_ref' | 'has_waypoints'> & Partial<Pick<TourListItem, 'tour_type' | 'winter_activity'>> }) {
   const { t } = useTranslation()
   const level = tour.max_hiking_difficulty
   const source = tourSource(tour)
@@ -36,6 +38,7 @@ export function TourGradeTile({ tour }: { tour: Pick<TourListItem, 'max_hiking_d
           {level != null ? `T${level}` : createElement(tourDayRowIcon(type), { size: 15, strokeWidth: 1.9, className: 'text-content-secondary' })}
         </span>
       </Tooltip>
+      <WinterCornerMark activity={tour.winter_activity} />
       {source !== 'trek' && (
         <span className="absolute inset-x-0 -bottom-1 flex justify-center">
           <Tooltip label={hikeSourceBadgeLabel(tour, t)}>

@@ -409,6 +409,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Με τα πόδια, μέσα στη δυσκολία που ορίζεις',
   'tours.planner.tourTypeHint.bike': 'Με ποδήλατο, διαδρομή για περιήγηση, δρόμο, gravel ή MTB',
   'tours.planner.tourTypeHint.kayak': 'Στο νερό, με καγιάκ, κανό ή SUP',
+  'tours.winter.title': 'Χειμερινή δραστηριότητα',
+  'tours.winter.infoLabel': 'Τι κάνει η χειμερινή σήμανση',
+  'tours.winter.info':
+    'Μόνο μια σήμανση της πεζοπορίας. Η διαδρομή, τα χρώματα κλίσης και ο χρόνος πορείας μένουν όπως σε κάθε πεζοπορία και δεν λένε τίποτα για χιόνι, χιονοστιβάδες ή για το αν ένα μονοπάτι είναι βατό τον χειμώνα.',
+  'tours.winter.kind': 'Είδος χειμερινής δραστηριότητας',
+  'tours.winter.activity.winter_hike': 'Χειμερινή πεζοπορία',
+  'tours.winter.activity.snowshoe': 'Πεζοπορία με χιονοπέδιλα',
+  'tours.winter.labelOnly':
+    'Σημειώθηκε από τους ταξιδιώτες. Η διαδρομή και ο χρόνος σχεδιάζονται όπως σε κάθε πεζοπορία, χωρίς έλεγχο για τον χειμώνα.',
   'tours.bike.profile': 'Προφίλ',
   'tours.bike.profile.touring': 'Περιήγηση',
   'tours.bike.profile.road': 'Δρόμου',

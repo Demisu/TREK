@@ -7,6 +7,7 @@ import { INPUT, LABEL } from '../../shared/dialogParts';
 import { fs } from '../../shared/DialogShell';
 import { FoldButton, InfoDot, TourNotice, TourSection } from '../tourParts';
 import { HikingPreferencesField } from './HikingPreferencesField';
+import { WinterActivityField } from './WinterActivityField';
 import { TOUR_DURATION_INPUT_MAX_LENGTH, formatTourDuration, parseTourDuration } from './tourDurationInput';
 import type { TourPlannerController } from './useTourPlanner';
 
@@ -324,8 +325,8 @@ function TourDifficultyField({
 }
 
 /**
- * Description, website, the difficulty cap and the time, folded away with the
- * chevron. The section opens by itself while one of its fields holds a value
+ * Description, website, a hike's difficulty cap, route choice and winter label
+ * (HIK-01), and the time, folded away with the chevron. The section opens by itself while one of its fields holds a value
  * the planner refuses, so the reason Save is held back is never out of sight.
  */
 export function TourDetailsSection({
@@ -364,6 +365,7 @@ export function TourDetailsSection({
               <>
                 <TourDifficultyField planner={planner} locked={locked} onDifficultyChange={onDifficultyChange} />
                 <HikingPreferencesField planner={planner} locked={locked} />
+                <WinterActivityField planner={planner} locked={locked} />
               </>
             )}
             <TourTimeFields planner={planner} locked={locked} />

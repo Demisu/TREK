@@ -384,6 +384,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': '도보로, 설정한 난이도 안에서',
   'tours.planner.tourTypeHint.bike': '자전거로, 투어링, 로드, 그래블, MTB에 맞춘 경로',
   'tours.planner.tourTypeHint.kayak': '물 위에서, 카약, 카누 또는 SUP로',
+  'tours.winter.title': '겨울 활동',
+  'tours.winter.infoLabel': '겨울 표시의 의미',
+  'tours.winter.info':
+    '하이킹을 위한 표시일 뿐입니다. 경로, 경사 색상, 걷는 시간은 다른 하이킹과 같으며 눈, 눈사태 또는 겨울에 길을 걸을 수 있는지에 대해서는 아무것도 알려 주지 않습니다.',
+  'tours.winter.kind': '겨울 활동 종류',
+  'tours.winter.activity.winter_hike': '겨울 하이킹',
+  'tours.winter.activity.snowshoe': '스노슈 하이킹',
+  'tours.winter.labelOnly':
+    '여행자가 표시했습니다. 경로와 시간은 다른 하이킹과 같이 계획되며 겨울 조건은 확인하지 않았습니다.',
   'tours.bike.profile': '프로필',
   'tours.bike.profile.touring': '투어링',
   'tours.bike.profile.road': '로드',

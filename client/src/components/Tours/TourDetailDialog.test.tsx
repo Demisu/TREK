@@ -304,6 +304,18 @@ describe('TourDetailDialog', () => {
     expect(screen.queryByText(/Based on/)).not.toBeInTheDocument()
   })
 
+  it('HIK-01: names the winter label of a hike in its head and on its tile, and nothing for a hike without one', () => {
+    const { unmount } = render(<TourDetailDialog {...defaultProps} />)
+    expect(screen.queryByTestId('tour-detail-winter')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('tour-winter-mark')).not.toBeInTheDocument()
+    unmount()
+
+    render(<TourDetailDialog {...defaultProps} tour={{ ...tour, winter_activity: 'snowshoe' }} />)
+    expect(screen.getByTestId('tour-detail-winter')).toHaveTextContent('Snowshoe hike')
+    expect(screen.getByRole('img', { name: 'Snowshoe hike' })).toBeInTheDocument()
+    expect(screen.getAllByText('T2').length).toBeGreaterThan(0)
+  })
+
   it('shows the grade on the tile and no second difficulty scale', () => {
     render(<TourDetailDialog {...defaultProps} tour={{ ...tour, difficulty: 'easy', max_hiking_difficulty: 1 }} />)
 

@@ -395,6 +395,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Piyada, təyin etdiyin çətinlik daxilində',
   'tours.planner.tourTypeHint.bike': 'Velosipedlə, turinq, yol, qravel və ya MTB üçün marşrut',
   'tours.planner.tourTypeHint.kayak': 'Suda, kayak, kanoe və ya SUP ilə',
+  'tours.winter.title': 'Qış fəaliyyəti',
+  'tours.winter.infoLabel': 'Qış nişanı nə edir',
+  'tours.winter.info':
+    'Yalnız yürüş üçün nişan. Marşrut, meyllilik rəngləri və yeriş vaxtı istənilən yürüşdəki kimi qalır və qar, uçqun və ya cığırın qışda keçilə bilməsi barədə heç nə demir.',
+  'tours.winter.kind': 'Qış fəaliyyətinin növü',
+  'tours.winter.activity.winter_hike': 'Qış yürüşü',
+  'tours.winter.activity.snowshoe': 'Qar ayaqqabısı ilə yürüş',
+  'tours.winter.labelOnly':
+    'Səyahətçilər tərəfindən qeyd edilib. Marşrut və vaxt istənilən yürüşdəki kimi planlaşdırılır, qış şəraiti üçün yoxlanılmır.',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Turinq',
   'tours.bike.profile.road': 'Yol',

@@ -58,6 +58,7 @@ import {
   type TourProvenanceSource,
   type TourWaypoint,
   type WandererDifficulty,
+  type WinterActivity,
   walkStationFacts,
   walkStationsOf,
   wandererDifficultyToSac,
@@ -101,6 +102,15 @@ interface CityWalkFootRoute {
 function hikingFields(input: TourCreateCommand): string | null {
   const preferences = input.tour_type === 'hike' ? hikingPreferencesOf(input.hiking_preferences) : null;
   return preferences ? encodeJson(TOUR_HIKING_PREFERENCES, preferences) : null;
+}
+
+/**
+ * HIK-01: a save's winter label as stored. Only a hike keeps one; another type
+ * takes it off. A hike's save that leaves the field out (a client from before
+ * the label) keeps the one the tour has, rather than taking it off unasked.
+ */
+function winterField(input: TourCreateCommand): WinterActivity | null | undefined {
+  return input.tour_type === 'hike' ? input.winter_activity : null;
 }
 
 /**
@@ -155,6 +165,7 @@ export class ToursService {
       derived_from_place_id: r.derived_from_place_id,
       origin: r.origin as TourOrigin,
       bike_profile: r.bike_profile as BikeProfile | null,
+      winter_activity: r.winter_activity as WinterActivity | null,
       boat_type: r.boat_type as PaddleBoatType | null,
       water_context: r.water_context as PaddleWaterContext | null,
       paddle_speed_kmh: r.paddle_speed_kmh,
@@ -196,6 +207,7 @@ export class ToursService {
       match_confidence: 1,
       max_hiking_difficulty: input.max_hiking_difficulty,
       bike_profile: input.tour_type === 'bike' ? (input.bike_profile ?? null) : null,
+      winter_activity: winterField(input),
       boat_type: input.boat_type ?? null,
       water_context: input.water_context ?? null,
       paddle_speed_kmh: input.paddle_speed_kmh ?? null,
@@ -601,6 +613,7 @@ export class ToursService {
       match_confidence: row.match_confidence,
       max_hiking_difficulty: row.max_hiking_difficulty,
       bike_profile: row.bike_profile as BikeProfile | null,
+      winter_activity: row.winter_activity as WinterActivity | null,
       boat_type: row.boat_type as PaddleBoatType | null,
       water_context: row.water_context as PaddleWaterContext | null,
       paddle_speed_kmh: row.paddle_speed_kmh,
@@ -843,6 +856,7 @@ export class ToursService {
             route_missing: 0,
             revision: 1,
             hiking_preferences: null,
+            winter_activity: null,
           }),
         );
       }

@@ -105,6 +105,7 @@ describe('ToursRepository reads', () => {
         revision: 1,
         hiking_preferences: null,
         bike_profile: null,
+        winter_activity: null,
       },
       {
         place_id: older.id,
@@ -137,6 +138,7 @@ describe('ToursRepository reads', () => {
         revision: 1,
         hiking_preferences: null,
         bike_profile: null,
+        winter_activity: null,
       },
     ]);
     expect((await repo.listForTrip(trip.id)).map((r) => r.place_id)).not.toContain(plain.id);
@@ -250,6 +252,7 @@ describe('ToursRepository writes', () => {
       revision: 1,
       hiking_preferences: null,
       bike_profile: null,
+      winter_activity: null,
     });
   });
 
@@ -285,6 +288,22 @@ describe('ToursRepository writes', () => {
       planned_duration_minutes: 125,
       break_additional_minutes: 35,
     });
+  });
+
+  it('TOURREPO-016: a hike keeps its winter label through an edit that leaves it out, and loses it only when told (HIK-01)', async () => {
+    const { trip } = fixture();
+    const place = createPlace(testDb, trip.id, { name: 'Snowy ridge' });
+    await repo.insertTour({ place_id: place.id, ...METRICS, winter_activity: 'snowshoe' });
+    expect((await repo.findInTrip(trip.id, place.id))?.winter_activity).toBe('snowshoe');
+
+    expect(await repo.updateInTrip(trip.id, place.id, HIKE_UPDATE)).toBe(true);
+    expect((await repo.findInTrip(trip.id, place.id))?.winter_activity).toBe('snowshoe');
+
+    expect(await repo.updateInTrip(trip.id, place.id, { ...HIKE_UPDATE, winter_activity: 'winter_hike' })).toBe(true);
+    expect((await repo.listForTrip(trip.id))[0]?.winter_activity).toBe('winter_hike');
+
+    expect(await repo.updateInTrip(trip.id, place.id, { ...HIKE_UPDATE, winter_activity: null })).toBe(true);
+    expect((await repo.findInTrip(trip.id, place.id))?.winter_activity).toBeNull();
   });
 
   it('TOURREPO-008: listRowsForTrip and insertCopy carry every column, created_at included, onto the copied place', async () => {
@@ -332,6 +351,7 @@ describe('ToursRepository writes', () => {
         revision: 1,
         hiking_preferences: null,
         bike_profile: null,
+        winter_activity: null,
         taken_over_from_trip_title: null,
         taken_over_from_tour_name: null,
       },

@@ -401,6 +401,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'A pie, dentro de una dificultad que tú eliges',
   'tours.planner.tourTypeHint.bike': 'En bici, con ruta para cicloturismo, carretera, gravel o MTB',
   'tours.planner.tourTypeHint.kayak': 'En el agua, en kayak, canoa o SUP',
+  'tours.winter.title': 'Actividad invernal',
+  'tours.winter.infoLabel': 'Qué hace la marca invernal',
+  'tours.winter.info':
+    'Solo una marca de la ruta. El trazado, los colores de pendiente y el tiempo de marcha son los de cualquier ruta y no dicen nada sobre nieve, aludes ni si un camino es transitable en invierno.',
+  'tours.winter.kind': 'Tipo de actividad invernal',
+  'tours.winter.activity.winter_hike': 'Senderismo invernal',
+  'tours.winter.activity.snowshoe': 'Ruta con raquetas de nieve',
+  'tours.winter.labelOnly':
+    'Marcado por los viajeros. Ruta y tiempo se planifican como en cualquier ruta, sin comprobación invernal.',
   'tours.bike.profile': 'Perfil',
   'tours.bike.profile.touring': 'Cicloturismo',
   'tours.bike.profile.road': 'Carretera',

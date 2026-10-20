@@ -39,6 +39,7 @@ export class Tours {
   taken_over_from_trip_title?: string | null;
   taken_over_from_tour_name?: string | null;
   bike_profile?: TToursBikeProfile | null;
+  winter_activity?: TToursWinterActivity | null;
   tourTypeRef!: Ref<TourTypes>;
   tour_obstacle_reviews_collection = new Collection<TourObstacleReviews>(this);
   tour_sources: Ref<TourSources> | null = null;
@@ -85,6 +86,13 @@ export const ToursBikeProfile = {
 
 export type TToursBikeProfile = (typeof ToursBikeProfile)[keyof typeof ToursBikeProfile];
 
+export const ToursWinterActivity = {
+  WINTER_HIKE: 'winter_hike',
+  SNOWSHOE: 'snowshoe',
+} as const;
+
+export type TToursWinterActivity = (typeof ToursWinterActivity)[keyof typeof ToursWinterActivity];
+
 export const ToursSchema = defineEntity({
   class: Tours,
   repository: () => ToursRepository,
@@ -127,6 +135,7 @@ export const ToursSchema = defineEntity({
     taken_over_from_trip_title: p.text().nullable(),
     taken_over_from_tour_name: p.text().nullable(),
     bike_profile: p.enum(() => ToursBikeProfile).nullable(),
+    winter_activity: p.enum(() => ToursWinterActivity).nullable(),
     tourTypeRef: () => p.manyToOne(TourTypes).ref().joinColumn('tour_type').hidden().index('idx_tours_tour_type'),
     tour_obstacle_reviews_collection: () => p.oneToMany(TourObstacleReviews).mappedBy('place').hidden(),
     tour_sources: () => p.oneToOne(TourSources).ref().mappedBy('place').hidden(),

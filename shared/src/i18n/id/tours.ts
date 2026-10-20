@@ -396,6 +396,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Jalan kaki, dalam tingkat kesulitan yang kamu tentukan',
   'tours.planner.tourTypeHint.bike': 'Dengan sepeda, rute untuk touring, road, gravel, atau MTB',
   'tours.planner.tourTypeHint.kayak': 'Di air, dengan kayak, kano, atau SUP',
+  'tours.winter.title': 'Aktivitas musim dingin',
+  'tours.winter.infoLabel': 'Apa fungsi label musim dingin',
+  'tours.winter.info':
+    'Hanya label untuk pendakian. Rute, warna kemiringan, dan waktu jalan tetap seperti pendakian lain dan tidak mengatakan apa pun tentang salju, longsoran salju, atau apakah jalur bisa dilalui di musim dingin.',
+  'tours.winter.kind': 'Jenis aktivitas musim dingin',
+  'tours.winter.activity.winter_hike': 'Pendakian musim dingin',
+  'tours.winter.activity.snowshoe': 'Pendakian dengan sepatu salju',
+  'tours.winter.labelOnly':
+    'Ditandai oleh para pelancong. Rute dan waktu direncanakan seperti pendakian lain, tidak diperiksa untuk musim dingin.',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Touring', // same-as-en
   'tours.bike.profile.road': 'Road', // same-as-en

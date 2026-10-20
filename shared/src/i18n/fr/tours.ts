@@ -407,6 +407,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'À pied, dans la difficulté que tu choisis',
   'tours.planner.tourTypeHint.bike': 'À vélo, itinéraire pour le voyage, la route, le gravel ou le VTT',
   'tours.planner.tourTypeHint.kayak': "Sur l'eau, en kayak, canoë ou SUP",
+  'tours.winter.title': 'Activité hivernale',
+  'tours.winter.infoLabel': 'À quoi sert le marquage hivernal',
+  'tours.winter.info':
+    'Simple marquage de la randonnée. L’itinéraire, les couleurs de pente et le temps de marche restent ceux de toute randonnée et ne disent rien de la neige, des avalanches ni de la praticabilité d’un chemin en hiver.',
+  'tours.winter.kind': 'Type d’activité hivernale',
+  'tours.winter.activity.winter_hike': 'Randonnée hivernale',
+  'tours.winter.activity.snowshoe': 'Randonnée en raquettes',
+  'tours.winter.labelOnly':
+    'Marqué par les voyageurs. Itinéraire et durée sont planifiés comme pour toute randonnée, sans vérification hivernale.',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Voyage',
   'tours.bike.profile.road': 'Route',

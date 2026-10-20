@@ -9,6 +9,7 @@ const hike = (overrides: Partial<TourPlannerFactsInput> = {}): TourPlannerFactsI
   maxHikingDifficulty: 3,
   hikingPreferences: null,
   bikeProfile: 'touring',
+  winterActivity: null,
   website: '',
   plannedDurationMinutes: null,
   breakAdditionalMinutes: null,
@@ -54,6 +55,26 @@ describe('tourPlannerFacts', () => {
     expect(facts.plannedTotalMinutes).toBe(walking + 30);
     expect(facts.savedDurationSeconds).toBe(walking * 60);
     expect(facts.typeFields).toMatchObject({ tour_type: 'hike', max_hiking_difficulty: 3, boat_type: null });
+  });
+
+  it('HIK-01: saves a hike with its winter label and the same times as without, and no other type with one', () => {
+    const analysis = { distanceKm: 8, gain: 600, loss: 600 } as TourPlannerFactsInput['routeAnalysis'];
+    const summer = tourPlannerFacts(hike({ routeAnalysis: analysis, breakAdditionalMinutes: 30 }));
+    const winter = tourPlannerFacts(
+      hike({ routeAnalysis: analysis, breakAdditionalMinutes: 30, winterActivity: 'snowshoe' })
+    );
+    expect(winter.typeFields).toMatchObject({
+      tour_type: 'hike',
+      winter_activity: 'snowshoe',
+      max_hiking_difficulty: 3,
+    });
+    expect(summer.typeFields).toMatchObject({ winter_activity: null });
+    // A label only: the time is the signposts' rule, as for any hike.
+    expect(winter.walkingDurationMinutes).toBe(summer.walkingDurationMinutes);
+    expect(winter.plannedTotalMinutes).toBe(summer.plannedTotalMinutes);
+    for (const tourType of ['bike', 'walk', 'kayak'] as const) {
+      expect(tourPlannerFacts(hike({ tourType, winterActivity: 'winter_hike' })).typeFields.winter_activity).toBeNull();
+    }
   });
 
   it('holds the fields to their bounds, and a total that runs past a day without an override', () => {
@@ -204,5 +225,16 @@ describe('useTourDraftStorage', () => {
     expect(renderHook(() => useTourDraftStorage(4)).result.current.restored).toBeNull();
     act(() => first.result.current.forget());
     expect(localStorage.getItem('tour-draft-1')).toBeNull();
+  });
+
+  it('HIK-01: gives back a draft with its winter label, and drops one whose label it does not know', () => {
+    localStorage.clear();
+    const draft = { version: 10, name: 'Snowy ridge', waypoints: [{ id: 'a', lat: 47, lng: 11, role: 'start' }] };
+    localStorage.setItem('tour-draft-5', JSON.stringify({ ...draft, winterActivity: 'snowshoe' }));
+    expect(renderHook(() => useTourDraftStorage(5)).result.current.restored).toMatchObject({
+      winterActivity: 'snowshoe',
+    });
+    localStorage.setItem('tour-draft-6', JSON.stringify({ ...draft, winterActivity: 'ski_tour' }));
+    expect(renderHook(() => useTourDraftStorage(6)).result.current.restored).toBeNull();
   });
 });

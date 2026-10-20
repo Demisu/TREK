@@ -69,6 +69,7 @@ import { useTourPermissions, type TourPermissionProps } from './useTourPermissio
 import { WalkRoutePendingHint } from './walk/WalkRoutePending';
 import { WalkStationsCard } from './walk/WalkStations';
 import { walkTimeFields } from './walk/walkTimeFields';
+import { WinterActivityPill } from './winter/winterMarks';
 
 interface TourDetailDialogProps extends TourPermissionProps {
   tour: TourListItem;
@@ -208,7 +209,7 @@ function tourTimeFields(
 }
 
 /**
- * The head's facts as pills: the type, where it came from, the time (its parts
+ * The head's facts as pills: the type and a hike's winter label, where it came from, the time (its parts
  * in the tooltip), distance, ascent, descent, and a caution.
  */
 function TourHeadPills({
@@ -250,6 +251,8 @@ function TourHeadPills({
         })}
         {t(`tourTypes.${tour.tour_type}`)}
       </span>
+      {/* HIK-01: a hike's winter label, the travellers' own, beside its type. */}
+      {tour.winter_activity && <WinterActivityPill activity={tour.winter_activity} className={HEAD_PILL} />}
       {/* A paddle tour names its boat and its water, each a badge of its own. */}
       {tour.boat_type && (
         <span className={HEAD_PILL} style={fs(10.5)} data-testid="tour-detail-boat">

@@ -401,6 +401,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Gyalog, az általad megadott nehézségig',
   'tours.planner.tourTypeHint.bike': 'Kerékpárral, túra, országúti, gravel vagy MTB útvonallal',
   'tours.planner.tourTypeHint.kayak': 'Vízen, kajakkal, kenuval vagy SUP-pal',
+  'tours.winter.title': 'Téli tevékenység',
+  'tours.winter.infoLabel': 'Mit jelent a téli jelölés',
+  'tours.winter.info':
+    'Csak a túra jelölése. Az útvonal, a meredekségi színek és a menetidő ugyanazok, mint bármely túránál, és semmit nem mondanak a hóról, a lavinákról vagy arról, hogy az út télen járható-e.',
+  'tours.winter.kind': 'A téli tevékenység fajtája',
+  'tours.winter.activity.winter_hike': 'Téli túra',
+  'tours.winter.activity.snowshoe': 'Hótalpas túra',
+  'tours.winter.labelOnly':
+    'Az utazók jelölték meg. Az útvonal és az idő úgy van tervezve, mint bármely túránál, téli szempontból nincs ellenőrizve.',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Túra',
   'tours.bike.profile.road': 'Országúti',

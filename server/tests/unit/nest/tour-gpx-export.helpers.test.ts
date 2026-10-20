@@ -2,9 +2,9 @@ import { gpxActivityOf } from '../../../src/nest/tours/tour-gpx-export.helpers';
 
 import { describe, expect, it } from 'vitest';
 
-// TOUR-GPX-ACTIVITY-001 to TOUR-GPX-ACTIVITY-003
+// TOUR-GPX-ACTIVITY-001 to TOUR-GPX-ACTIVITY-004
 
-describe('gpxActivityOf (PR1-06A, BIK-01)', () => {
+describe('gpxActivityOf (PR1-06A, BIK-01, HIK-01)', () => {
   it('TOUR-GPX-ACTIVITY-001: a bike tour names its profile, and the plainest riding without a known one', () => {
     expect(gpxActivityOf({ tour_type: 'bike', bike_profile: 'mtb' })).toBe('mountain_biking');
     expect(gpxActivityOf({ tour_type: 'bike', bike_profile: null })).toBe('cycling');
@@ -20,5 +20,12 @@ describe('gpxActivityOf (PR1-06A, BIK-01)', () => {
   it('TOUR-GPX-ACTIVITY-003: a hike is hiking, any other type its own key', () => {
     expect(gpxActivityOf({ tour_type: 'hike' })).toBe('hiking');
     expect(gpxActivityOf({ tour_type: 'walk' })).toBe('walk');
+  });
+
+  it('TOUR-GPX-ACTIVITY-004: a hike on snowshoes is snowshoeing, a winter hike stays hiking (HIK-01)', () => {
+    expect(gpxActivityOf({ tour_type: 'hike', winter_activity: 'snowshoe' })).toBe('snowshoeing');
+    expect(gpxActivityOf({ tour_type: 'hike', winter_activity: 'winter_hike' })).toBe('hiking');
+    expect(gpxActivityOf({ tour_type: 'hike', winter_activity: null })).toBe('hiking');
+    expect(gpxActivityOf({ tour_type: 'walk', winter_activity: 'snowshoe' })).toBe('walk');
   });
 });

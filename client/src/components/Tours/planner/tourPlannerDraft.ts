@@ -4,10 +4,12 @@ import {
   MAX_PLANNED_TOUR_DURATION_MINUTES,
   paddleLockSchema,
   plannableTourTypeSchema,
+  winterActivitySchema,
   type BikeProfile,
   type HikingPreferences,
   type PlannableTourType,
   type TourMaxHikingDifficulty,
+  type WinterActivity,
 } from '@trek/shared';
 import type { TourPlannerWaypoint } from './tourPlannerWaypoints';
 import type { PaddleFieldValues } from './usePaddleFields';
@@ -43,6 +45,8 @@ export interface DraftPayload {
   hikingPreferences?: HikingPreferences | null;
   /** BIK-01: the profile a bike tour is routed for. */
   bikeProfile?: BikeProfile;
+  /** HIK-01: the hike's winter label; absent in a draft older than it. */
+  winterActivity?: WinterActivity | null;
 }
 
 const DRAFT_VERSIONS: ReadonlyArray<DraftPayload['version']> = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -83,12 +87,13 @@ function validDraftWaypoint(point: TourPlannerWaypoint): boolean {
   );
 }
 
-/** The type of a draft and what its route is planned by, each one absent in a draft older than it. */
+/** The type of a draft, what its route is planned by and its winter label, each one absent in a draft older than it. */
 function validRouteChoices(draft: Partial<DraftPayload>): boolean {
   return (
     (draft.tourType === undefined || plannableTourTypeSchema.safeParse(draft.tourType).success) &&
     (draft.bikeProfile === undefined || bikeProfileSchema.safeParse(draft.bikeProfile).success) &&
     (draft.hikingPreferences == null || hikingPreferencesSchema.safeParse(draft.hikingPreferences).success) &&
+    (draft.winterActivity == null || winterActivitySchema.safeParse(draft.winterActivity).success) &&
     optionalDifficulty(draft.maxHikingDifficulty)
   );
 }

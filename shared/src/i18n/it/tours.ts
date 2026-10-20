@@ -404,6 +404,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'A piedi, entro una difficoltà che scegli tu',
   'tours.planner.tourTypeHint.bike': 'In bici, percorso per cicloturismo, strada, gravel o MTB',
   'tours.planner.tourTypeHint.kayak': 'In acqua, in kayak, canoa o SUP',
+  'tours.winter.title': 'Attività invernale',
+  'tours.winter.infoLabel': 'Cosa fa il contrassegno invernale',
+  'tours.winter.info':
+    'Solo un contrassegno dell’escursione. Percorso, colori di pendenza e tempo di cammino restano quelli di ogni escursione e non dicono nulla su neve, valanghe o percorribilità di un sentiero in inverno.',
+  'tours.winter.kind': 'Tipo di attività invernale',
+  'tours.winter.activity.winter_hike': 'Escursione invernale',
+  'tours.winter.activity.snowshoe': 'Ciaspolata',
+  'tours.winter.labelOnly':
+    'Contrassegnato dai viaggiatori. Percorso e tempi sono pianificati come per ogni escursione, non verificati per l’inverno.',
   'tours.bike.profile': 'Profilo',
   'tours.bike.profile.touring': 'Turismo',
   'tours.bike.profile.road': 'Strada',

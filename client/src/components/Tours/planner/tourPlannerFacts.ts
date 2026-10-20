@@ -10,6 +10,7 @@ import {
   type PlannableTourType,
   type TourListItem,
   type TourMaxHikingDifficulty,
+  type WinterActivity,
 } from '@trek/shared';
 import type { RouteGeometryAnalysis } from '../../../utils/routeGeometry';
 import { hikingTimeMinutes } from '../hikingTime';
@@ -28,6 +29,7 @@ export function openedTourFields(tour: TourListItem) {
     // A type nobody can plan (an import of another kind) opens as a hike, as it always has.
     tourType: plannableTourTypeSchema.catch('hike').parse(tour.tour_type) as PlannableTourType,
     bikeProfile: (tour.bike_profile ?? 'touring') as BikeProfile,
+    winterActivity: tour.winter_activity ?? null,
   };
 }
 
@@ -39,6 +41,8 @@ export interface TourPlannerFactsInput {
   hikingPreferences: HikingPreferences | null;
   /** BIK-01: the profile a bike tour is routed for. */
   bikeProfile: BikeProfile;
+  /** HIK-01: a hike's winter label, none by default; it changes nothing the planner works out. */
+  winterActivity: WinterActivity | null;
   website: string;
   plannedDurationMinutes: number | null;
   breakAdditionalMinutes: number | null;
@@ -92,7 +96,10 @@ function walkTimesFor(input: TourPlannerFactsInput, walkingMinutes: number | nul
   return walkTimesOf({ stayMinutes: 0, unknownStays: 0, stations: 0, ...input.stays, walkingMinutes });
 }
 
-/** What the type adds to a save: a hike its routing limit, a bike tour its profile, a paddle tour its boat, water and speed. */
+/**
+ * What the type adds to a save: a hike its routing limit and its winter label,
+ * a bike tour its profile, a paddle tour its boat, water and speed.
+ */
 function typeFieldsOf(input: TourPlannerFactsInput) {
   const isBike = input.tourType === 'bike';
   if (input.tourType === 'kayak') {
@@ -107,6 +114,7 @@ function typeFieldsOf(input: TourPlannerFactsInput) {
       portage_speed_kmh: portageSpeedKmh,
       paddle_lake_style: lakeStyle,
       hiking_preferences: null,
+      winter_activity: null,
     };
   }
   const isHike = input.tourType === 'hike';
@@ -120,6 +128,7 @@ function typeFieldsOf(input: TourPlannerFactsInput) {
     portage_speed_kmh: null,
     paddle_lake_style: null,
     hiking_preferences: isHike ? input.hikingPreferences : null,
+    winter_activity: isHike ? input.winterActivity : null,
   };
 }
 

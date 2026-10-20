@@ -409,6 +409,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Пішки, у межах обраної складності',
   'tours.planner.tourTypeHint.bike': 'На велосипеді, маршрут для туризму, шосе, гревелу або МТБ',
   'tours.planner.tourTypeHint.kayak': 'По воді, на каяку, каное або SUP',
+  'tours.winter.title': 'Зимова активність',
+  'tours.winter.infoLabel': 'Що означає зимова позначка',
+  'tours.winter.info':
+    'Лише позначка походу. Маршрут, кольори крутизни й час у дорозі залишаються як для будь-якого походу й нічого не кажуть про сніг, лавини чи прохідність стежки взимку.',
+  'tours.winter.kind': 'Вид зимової активності',
+  'tours.winter.activity.winter_hike': 'Зимовий похід',
+  'tours.winter.activity.snowshoe': 'Похід на снігоступах',
+  'tours.winter.labelOnly':
+    'Позначено мандрівниками. Маршрут і час сплановано як для будь-якого походу, без перевірки на зимові умови.',
   'tours.bike.profile': 'Профіль',
   'tours.bike.profile.touring': 'Туризм',
   'tours.bike.profile.road': 'Шосе',

@@ -393,6 +393,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Till fots, inom en svårighet du väljer',
   'tours.planner.tourTypeHint.bike': 'Med cykel, rutt för tur, landsväg, grus eller MTB',
   'tours.planner.tourTypeHint.kayak': 'På vattnet, med kajak, kanot eller SUP',
+  'tours.winter.title': 'Vinteraktivitet',
+  'tours.winter.infoLabel': 'Vad vintermärkningen gör',
+  'tours.winter.info':
+    'Bara en märkning av vandringen. Rutt, lutningsfärger och gångtid är desamma som för alla vandringar och säger inget om snö, laviner eller om en stig går att gå på vintern.',
+  'tours.winter.kind': 'Typ av vinteraktivitet',
+  'tours.winter.activity.winter_hike': 'Vintervandring',
+  'tours.winter.activity.snowshoe': 'Snöskovandring',
+  'tours.winter.labelOnly':
+    'Märkt av resenärerna. Rutt och tid planeras som för alla vandringar, inte kontrollerade för vinter.',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Tur',
   'tours.bike.profile.road': 'Landsväg',

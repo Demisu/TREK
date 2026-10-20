@@ -7,6 +7,7 @@
 import { Places } from '../../../src/db/entities/Places.entity';
 import { TourStationVisits } from '../../../src/db/entities/TourStationVisits.entity';
 import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
+import { Tours } from '../../../src/db/entities/Tours.entity';
 import type { McpContext } from '../../../src/nest-mcp';
 import { getEntry, type ClassRef } from '../../../src/nest-mcp/metadata';
 import { PlacesMcp } from '../../../src/nest/places/places.mcp';
@@ -354,5 +355,20 @@ describe('ToursMcp', () => {
         'protected ones included: name those to the traveller and ask first',
       );
     }
+  });
+
+  it('TOURS-MCP-015: list_tours names the winter label of a hike, and says it is only a label (HIK-01)', async () => {
+    const { user, trip, ridge, gorge } = fixture();
+    const orm = await createTestOrm(db);
+    await updateRows(orm, Tours, { place: ridge.id }, { winter_activity: 'snowshoe' });
+    await orm.close();
+    const { tours } = read(await mcp.listTours({ tripId: trip.id }, ctx(user.id)));
+    const byId = new Map(tours.map((tour: { place_id: number }) => [tour.place_id, tour]));
+    expect(byId.get(ridge.id)).toMatchObject({ tour_type: 'hike', winter_activity: 'snowshoe' });
+    expect(byId.get(gorge.id)).toMatchObject({ winter_activity: null });
+    const entry = getEntry(ToursMcp as unknown as ClassRef, 'listTours');
+    const description = entry?.kind === 'tool' ? (entry.options.description ?? '') : '';
+    expect(description).toMatch(/winter_activity: winter_hike or snowshoe/);
+    expect(description).toContain('never a statement that a way can be walked in winter');
   });
 });

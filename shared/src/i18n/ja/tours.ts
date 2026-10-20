@@ -386,6 +386,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': '徒歩、設定した難易度まで',
   'tours.planner.tourTypeHint.bike': '自転車で、ツーリング、ロード、グラベル、MTB向けのルート',
   'tours.planner.tourTypeHint.kayak': '水上で、カヤック、カヌー、SUPで',
+  'tours.winter.title': '冬のアクティビティ',
+  'tours.winter.infoLabel': '冬のラベルについて',
+  'tours.winter.info':
+    'ハイキングのラベルにすぎません。ルート、勾配の色、歩行時間は通常のハイキングと同じで、雪や雪崩、冬に道を歩けるかどうかについては何も示しません。',
+  'tours.winter.kind': '冬のアクティビティの種類',
+  'tours.winter.activity.winter_hike': '冬のハイキング',
+  'tours.winter.activity.snowshoe': 'スノーシューハイキング',
+  'tours.winter.labelOnly':
+    '旅行者が付けたラベルです。ルートと時間は通常のハイキングと同じく計画され、冬向けには確認されていません。',
   'tours.bike.profile': 'プロファイル',
   'tours.bike.profile.touring': 'ツーリング',
   'tours.bike.profile.road': 'ロード',

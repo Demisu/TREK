@@ -31,4 +31,5 @@ export interface ToursTable {
   taken_over_from_trip_title: InsertOptional<string | null>;
   taken_over_from_tour_name: InsertOptional<string | null>;
   bike_profile: InsertOptional<string | null>;
+  winter_activity: InsertOptional<string | null>;
 }

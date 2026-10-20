@@ -2,7 +2,7 @@ import { type Tours, type TToursOrigin, ToursOrigin } from '../entities/Tours.en
 import type { DB } from '../kysely/db';
 import type { AssertRowKeys } from './_shared/rows';
 import { TrekRepository } from './_shared/trek-repository';
-import type { BikeProfile, PaddleBoatType, PaddleLakeStyle, PaddleWaterContext } from '@trek/shared';
+import type { BikeProfile, PaddleBoatType, PaddleLakeStyle, PaddleWaterContext, WinterActivity } from '@trek/shared';
 
 /**
  * A tour as the Tours list and detail read it: the `tours` facet joined with
@@ -30,6 +30,8 @@ export interface TourListRow {
   origin: string;
   /** BIK-01: a bike tour's profile; NULL on every other type. */
   bike_profile: string | null;
+  /** HIK-01: a hike's winter label; NULL for none and on every other type. */
+  winter_activity: string | null;
   boat_type: string | null;
   water_context: string | null;
   paddle_speed_kmh: number | null;
@@ -97,6 +99,7 @@ export interface TourRow {
   taken_over_from_trip_title: string | null;
   taken_over_from_tour_name: string | null;
   bike_profile: string | null;
+  winter_activity: string | null;
 }
 const _tourRowKeys: AssertRowKeys<TourRow, Tours> = true;
 
@@ -114,6 +117,8 @@ export interface TourInsert {
   max_hiking_difficulty: number | null;
   /** BIK-01: a bike tour's profile; left out, NULL. */
   bike_profile?: BikeProfile | null;
+  /** HIK-01: a hike's winter label; left out, NULL on a new tour and kept as it is by an edit. */
+  winter_activity?: WinterActivity | null;
   /** A paddle tour's boat, water and chosen speed; left out, a hike's NULLs. */
   boat_type?: PaddleBoatType | null;
   water_context?: PaddleWaterContext | null;
@@ -242,6 +247,7 @@ export class ToursRepository extends TrekRepository<Tours> {
         't.derived_from_place_id as derived_from_place_id',
         't.origin as origin',
         't.bike_profile as bike_profile',
+        't.winter_activity as winter_activity',
         't.boat_type as boat_type',
         't.water_context as water_context',
         't.paddle_speed_kmh as paddle_speed_kmh',
@@ -607,6 +613,7 @@ export class ToursRepository extends TrekRepository<Tours> {
       match_confidence: input.match_confidence,
       max_hiking_difficulty: input.max_hiking_difficulty,
       bike_profile: input.bike_profile ?? null,
+      winter_activity: input.winter_activity ?? null,
       boat_type: input.boat_type ?? null,
       water_context: input.water_context ?? null,
       paddle_speed_kmh: input.paddle_speed_kmh ?? null,
@@ -698,6 +705,7 @@ export class ToursRepository extends TrekRepository<Tours> {
         portage_speed_kmh: input.portage_speed_kmh,
         paddle_lake_style: input.paddle_lake_style,
         ...(input.hiking_preferences !== undefined ? { hiking_preferences: input.hiking_preferences } : {}),
+        ...(input.winter_activity !== undefined ? { winter_activity: input.winter_activity } : {}),
       })
       .where('place_id', '=', place_id)
       .where('place_id', 'in', (eb) => eb.selectFrom('places').select('id').where('trip_id', '=', trip_id))

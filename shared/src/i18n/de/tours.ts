@@ -404,6 +404,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Zu Fuß, bis zu einer Schwierigkeit, die du festlegst',
   'tours.planner.tourTypeHint.bike': 'Mit dem Rad, geroutet für Touring, Rennrad, Gravel oder MTB',
   'tours.planner.tourTypeHint.kayak': 'Auf dem Wasser, mit Kajak, Kanadier oder SUP',
+  'tours.winter.title': 'Winteraktivität',
+  'tours.winter.infoLabel': 'Was die Winterkennzeichnung bewirkt',
+  'tours.winter.info':
+    'Nur eine Kennzeichnung der Wanderung. Route, Steigungsfarben und Gehzeit bleiben wie bei jeder Wanderung und sagen nichts über Schnee, Lawinen oder die Begehbarkeit im Winter.',
+  'tours.winter.kind': 'Art der Winteraktivität',
+  'tours.winter.activity.winter_hike': 'Winterwandern',
+  'tours.winter.activity.snowshoe': 'Schneeschuhwandern',
+  'tours.winter.labelOnly':
+    'Von den Reisenden gekennzeichnet. Route und Zeit sind wie bei jeder Wanderung geplant, nicht für den Winter geprüft.',
   'tours.bike.profile': 'Profil',
   'tours.bike.profile.touring': 'Touring', // same-as-en
   'tours.bike.profile.road': 'Rennrad',

@@ -396,6 +396,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'Jalgsi, sinu määratud raskuse piires',
   'tours.planner.tourTypeHint.bike': 'Rattaga, marsruut matka-, maantee-, gravel- või maastikurattale',
   'tours.planner.tourTypeHint.kayak': 'Vee peal, süsta, kanuu või SUP-iga',
+  'tours.winter.title': 'Talvine tegevus',
+  'tours.winter.infoLabel': 'Mida talvemärge teeb',
+  'tours.winter.info':
+    'Ainult matka märge. Marsruut, tõusuvärvid ja kõnniaeg jäävad samaks nagu igal matkal ega ütle midagi lume, laviinide ega selle kohta, kas rada on talvel läbitav.',
+  'tours.winter.kind': 'Talvise tegevuse liik',
+  'tours.winter.activity.winter_hike': 'Talvematk',
+  'tours.winter.activity.snowshoe': 'Räätsamatk',
+  'tours.winter.labelOnly':
+    'Reisijate märgitud. Marsruut ja aeg on kavandatud nagu igal matkal, talve jaoks kontrollimata.',
   'tours.bike.profile': 'Profiil',
   'tours.bike.profile.touring': 'Matk',
   'tours.bike.profile.road': 'Maantee',

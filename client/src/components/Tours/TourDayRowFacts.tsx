@@ -13,6 +13,7 @@ import { movingTimeLabel } from './tourFacts';
 import { formatPlannedTourDuration, plannedTotalText, tourPlannedTimes } from './tourPresentation';
 import { useWalkProgress } from './walk/walkProgress';
 import { walkStaysText } from './walk/walkTimeFields';
+import { WinterCornerMark } from './winter/winterMarks';
 
 export function TourDayRowIcon({ type, size = 27 }: { type: string; size?: number }) {
   const { t } = useTranslation();
@@ -82,14 +83,32 @@ function Fact({
 /**
  * A tour's tile in the day plan and in its detail: the T-scale grade in a round
  * tile, the same tile the tour lists use, so a tour reads alike wherever it
- * shows. A GPX import has no grade and shows its type's icon instead.
+ * shows. A GPX import has no grade and shows its type's icon instead. A hike's
+ * winter label (HIK-01) sits on the tile's corner, as in the tour lists.
  */
 export function TourDayRowAvatar({
   tour,
   size = 32,
 }: {
-  tour: Pick<TourListItem, 'tour_type' | 'max_hiking_difficulty'>;
+  tour: Pick<TourListItem, 'tour_type' | 'max_hiking_difficulty'> & Partial<Pick<TourListItem, 'winter_activity'>>;
   size?: number;
+}) {
+  const avatar = <TourGradeAvatar tour={tour} size={size} />;
+  if (!tour.winter_activity) return avatar;
+  return (
+    <span className="relative flex flex-none">
+      {avatar}
+      <WinterCornerMark activity={tour.winter_activity} size={Math.round(size * 0.44)} />
+    </span>
+  );
+}
+
+function TourGradeAvatar({
+  tour,
+  size,
+}: {
+  tour: Pick<TourListItem, 'tour_type' | 'max_hiking_difficulty'>;
+  size: number;
 }) {
   const { t } = useTranslation();
   const level = tour.max_hiking_difficulty;

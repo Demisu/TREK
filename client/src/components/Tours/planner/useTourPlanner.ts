@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { hikingPreferencesOf, isClosedLoop, paddleSpeedKmhSchema, tourWebsiteSchema, type BikeProfile, type HikingPreferences, type PlannableTourType, type TourCreateResponse, type TourFixedLeg, type TourListItem, type TourMaxHikingDifficulty } from '@trek/shared'
+import { hikingPreferencesOf, isClosedLoop, paddleSpeedKmhSchema, tourWebsiteSchema, type BikeProfile, type HikingPreferences, type PlannableTourType, type TourCreateResponse, type TourFixedLeg, type TourListItem, type TourMaxHikingDifficulty, type WinterActivity } from '@trek/shared'
 import { paddleRouteRepo } from '../../../repo/paddleRouteRepo'
 import { tourRepo } from '../../../repo/tourRepo'
 import { randomId } from '../../../utils/randomId'
@@ -123,6 +123,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const [maxHikingDifficulty, setMaxHikingDifficultyState] = useState<TourMaxHikingDifficulty>(restored?.maxHikingDifficulty ?? 2)
   const [hikingPreferences, setHikingPreferencesState] = useState<HikingPreferences | null>(restored?.hikingPreferences ?? null)
   const [bikeProfile, setBikeProfileState] = useState<BikeProfile>(restored?.bikeProfile ?? 'touring')
+  const [winterActivity, setWinterActivityState] = useState<WinterActivity | null>(restored?.winterActivity ?? null)
   const [tourType, setTourTypeState] = useState<PlannableTourType>(restored?.tourType ?? 'hike')
   const [selectedWaypointId, setSelectedWaypointId] = useState<string | null>(restored?.waypoints[0]?.id ?? null)
   const history = usePlannerHistory<HistoryEntry>()
@@ -466,6 +467,11 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     if (value !== breakAdditionalMinutes && markEdited()) setBreakAdditionalMinutesState(value)
   }, [breakAdditionalMinutes, markEdited])
 
+  /** HIK-01: the hike's winter label, a field like the description: it plans nothing again and is no step of the history. */
+  const setWinterActivity = useCallback((value: WinterActivity | null) => {
+    if (value !== winterActivity && markEdited()) setWinterActivityState(value)
+  }, [markEdited, winterActivity])
+
 
   /**
    * PAD-01, BIK-01: hike, bike or paddle tour, as one step of the history with
@@ -503,11 +509,11 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   // CW-02: a city walk's stays, what of them is known.
   const stays = useMemo(() => (tourType === 'walk' ? walkTimes(waypoints, null) : null), [tourType, waypoints])
   const facts = useMemo(() => tourPlannerFacts({
-    tourType, maxHikingDifficulty, hikingPreferences, bikeProfile, website, plannedDurationMinutes, breakAdditionalMinutes,
+    tourType, maxHikingDifficulty, hikingPreferences, bikeProfile, winterActivity, website, plannedDurationMinutes, breakAdditionalMinutes,
     paddle: { boatType, waterContext, speedKmh, portageSpeedKmh, lakeStyle },
     paddleSpeedInvalid, paddleEstimate, routeAnalysis, durationSeconds, stays,
   }), [bikeProfile, boatType, breakAdditionalMinutes, durationSeconds, hikingPreferences, lakeStyle, maxHikingDifficulty, paddleEstimate, paddleSpeedInvalid,
-    plannedDurationMinutes, portageSpeedKmh, routeAnalysis, speedKmh, stays, tourType, waterContext, website])
+    plannedDurationMinutes, portageSpeedKmh, routeAnalysis, speedKmh, stays, tourType, waterContext, website, winterActivity])
   // CW-02: a city walk's times as the overview says them, from the same derivation as its planned total.
   const { websiteInvalid, plannedDurationInvalid, breakAdditionalInvalid, paddleIncomplete, walkingDurationMinutes,
     plannedTotalMinutes, plannedTotalInvalid, savedDurationSeconds, savedBreakAdditionalMinutes, typeFields, stationStays } = facts
@@ -535,6 +541,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     setHikingPreferencesState(null)
     bikeProfileRef.current = 'touring'
     setBikeProfileState('touring')
+    setWinterActivityState(null)
     tourTypeRef.current = 'hike'
     setSelectedWaypointId(null)
     clearHistory()
@@ -705,6 +712,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       setHikingPreferencesState(opened.preferences)
       bikeProfileRef.current = opened.bikeProfile
       setBikeProfileState(opened.bikeProfile)
+      setWinterActivityState(opened.winterActivity)
       tourTypeRef.current = opened.tourType
       setSelectedWaypointId(nextWaypoints[0]?.id ?? null)
       clearHistory()
@@ -764,14 +772,14 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   useEffect(() => {
     if (!hasUnsavedChanges) return
     const draft: DraftPayload = { version: 10, name, description, website, plannedDurationMinutes, breakAdditionalMinutes, waypoints, maxHikingDifficulty, editingPlaceId,
-      derivedFromPlaceId, draftSource, tourType, baseRevision: revision.base, hikingPreferences, bikeProfile,
+      derivedFromPlaceId, draftSource, tourType, baseRevision: revision.base, hikingPreferences, bikeProfile, winterActivity,
       paddle: { boatType: paddle.boatType, waterContext: paddle.waterContext, speedKmh: paddle.speedKmh, portageSpeedKmh: paddle.portageSpeedKmh, lakeStyle: paddle.lakeStyle },
     }
     keepDraft(draft)
   }, [breakAdditionalMinutes,
     derivedFromPlaceId, draftSource, description, editingPlaceId, hasUnsavedChanges, maxHikingDifficulty, name, plannedDurationMinutes, keepDraft, waypoints, website,
     tourType, paddle.boatType, paddle.waterContext, paddle.speedKmh, paddle.portageSpeedKmh, paddle.lakeStyle, revision.base, hikingPreferences,
-    bikeProfile])
+    bikeProfile, winterActivity])
 
   useEffect(() => {
     if (!hasUnsavedChanges) return
@@ -871,7 +879,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   return {
     tripId, canEdit, canAssign,
     name, setName, maxHikingDifficulty, setMaxHikingDifficulty, hikingPreferences, setHikingPreferences,
-    bikeProfile, setBikeProfile, isBike: tourType === 'bike',
+    bikeProfile, setBikeProfile, isBike: tourType === 'bike', winterActivity, setWinterActivity,
     tourType, setTourType, isPaddle, paddle, paddleSpeedInvalid, paddleIncomplete,
     description, setDescription, website, setWebsite, websiteInvalid,
     plannedDurationMinutes, setPlannedDurationMinutes, plannedDurationInvalid,

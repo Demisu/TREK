@@ -402,6 +402,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': "A peu, dins d'una dificultat que tu tries",
   'tours.planner.tourTypeHint.bike': 'En bicicleta, amb ruta per a cicloturisme, carretera, gravel o BTT',
   'tours.planner.tourTypeHint.kayak': "A l'aigua, amb caiac, canoa o SUP",
+  'tours.winter.title': 'Activitat hivernal',
+  'tours.winter.infoLabel': 'Què fa la marca hivernal',
+  'tours.winter.info':
+    'Només una marca de l’excursió. La ruta, els colors de pendent i el temps de marxa són els de qualsevol excursió i no diuen res de la neu, les allaus ni de si un camí és transitable a l’hivern.',
+  'tours.winter.kind': 'Tipus d’activitat hivernal',
+  'tours.winter.activity.winter_hike': 'Excursió hivernal',
+  'tours.winter.activity.snowshoe': 'Excursió amb raquetes de neu',
+  'tours.winter.labelOnly':
+    'Marcat pels viatgers. La ruta i el temps es planifiquen com en qualsevol excursió, sense comprovar l’hivern.',
   'tours.bike.profile': 'Perfil',
   'tours.bike.profile.touring': 'Cicloturisme',
   'tours.bike.profile.road': 'Carretera',

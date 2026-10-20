@@ -375,6 +375,15 @@ const tours: TranslationStrings = {
   'tours.planner.tourTypeHint.hike': 'เดินเท้า ภายในระดับความยากที่คุณกำหนด',
   'tours.planner.tourTypeHint.bike': 'ด้วยจักรยาน เส้นทางสำหรับทัวริ่ง เสือหมอบ กราเวล หรือเสือภูเขา',
   'tours.planner.tourTypeHint.kayak': 'บนน้ำ ด้วยคายัค แคนู หรือ SUP',
+  'tours.winter.title': 'กิจกรรมฤดูหนาว',
+  'tours.winter.infoLabel': 'ป้ายฤดูหนาวมีไว้ทำอะไร',
+  'tours.winter.info':
+    'เป็นเพียงป้ายกำกับของการเดินป่า เส้นทาง สีความชัน และเวลาเดินยังคงเหมือนการเดินป่าทั่วไป และไม่ได้บอกอะไรเกี่ยวกับหิมะ หิมะถล่ม หรือว่าเส้นทางเดินได้ในฤดูหนาวหรือไม่',
+  'tours.winter.kind': 'ประเภทกิจกรรมฤดูหนาว',
+  'tours.winter.activity.winter_hike': 'เดินป่าฤดูหนาว',
+  'tours.winter.activity.snowshoe': 'เดินป่าด้วยรองเท้าลุยหิมะ',
+  'tours.winter.labelOnly':
+    'ผู้เดินทางเป็นผู้ทำเครื่องหมาย เส้นทางและเวลาวางแผนเหมือนการเดินป่าทั่วไป ไม่ได้ตรวจสอบสำหรับฤดูหนาว',
   'tours.bike.profile': 'โปรไฟล์',
   'tours.bike.profile.touring': 'ทัวริ่ง',
   'tours.bike.profile.road': 'เสือหมอบ',
