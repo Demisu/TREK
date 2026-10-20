@@ -698,6 +698,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'Navigatsioonimärgid ei laadi. Kaart ja sinu marsruut töötavad edasi.',
   'tours.map.pistes': 'Nõlvad, suusarajad ja tõstukid',
   'tours.map.pistesDown': 'Nõlvad ei laadi. Kaart ja sinu marsruut töötavad edasi.',
+  'tours.map.pistesZoomIn': 'Suumi lähemale, et nõlvu näha',
   'tours.map.pisteKey': 'Nõlvade legend',
   'tours.map.pisteDownhill': 'Laskumisnõlvad raskuse järgi',
   'tours.map.pisteGrade.novice': 'Algaja',

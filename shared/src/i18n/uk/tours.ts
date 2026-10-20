@@ -713,6 +713,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'Навігаційні знаки не завантажуються. Мапа й ваш маршрут працюють далі.',
   'tours.map.pistes': 'Траси, лижні та підйомники',
   'tours.map.pistesDown': 'Траси не завантажуються. Мапа й ваш маршрут працюють далі.',
+  'tours.map.pistesZoomIn': 'Наблизьте мапу, щоб побачити траси',
   'tours.map.pisteKey': 'Легенда трас',
   'tours.map.pisteDownhill': 'Гірськолижні траси за складністю',
   'tours.map.pisteGrade.novice': 'Для новачків',

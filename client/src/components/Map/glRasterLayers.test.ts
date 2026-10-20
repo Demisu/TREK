@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { applyBaseLayer, tourRasterSourceId } from './glRasterLayers';
+import { applyBaseLayer, rasterTileZoom, tourRasterSourceId } from './glRasterLayers';
 
 /** Enough of a GL map for the base layers: sources, layers with their visibility, and the style's order. */
 function fakeMap(styleLayers: Array<{ id: string }> = [{ id: 'water' }, { id: 'trip-route' }]) {
@@ -51,5 +51,12 @@ describe('applyBaseLayer (MAP-01)', () => {
       throw new Error('style not loaded');
     });
     expect(() => applyBaseLayer(map, 'hiking')).not.toThrow();
+  });
+});
+
+describe('rasterTileZoom', () => {
+  it('puts a GL zoom on the 256 px tile scale one step further in, where a raster minimum is read', () => {
+    expect(rasterTileZoom(8)).toBe(9);
+    expect(rasterTileZoom(7.5)).toBe(8.5);
   });
 });

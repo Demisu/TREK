@@ -31,6 +31,8 @@ type RasterOverlayStatus = 'off' | 'on' | 'down';
 /** An overlay with its switch: whether it is on, and whether its source stopped answering. */
 export interface ToggleableRasterOverlay extends MapRasterOverlay {
   status: RasterOverlayStatus;
+  /** On, but the map is further out than its first tiles, so nothing of it is drawn yet. */
+  belowMinZoom: boolean;
   onToggle: () => void;
 }
 

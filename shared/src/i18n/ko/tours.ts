@@ -681,6 +681,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': '항로 표지를 불러오지 못했습니다. 지도와 경로는 계속 사용할 수 있습니다.',
   'tours.map.pistes': '슬로프, 크로스컨트리 코스, 리프트',
   'tours.map.pistesDown': '슬로프를 불러오지 못했습니다. 지도와 경로는 계속 사용할 수 있습니다.',
+  'tours.map.pistesZoomIn': '슬로프를 보려면 확대하세요',
   'tours.map.pisteKey': '슬로프 범례',
   'tours.map.pisteDownhill': '난이도별 활강 슬로프',
   'tours.map.pisteGrade.novice': '입문',

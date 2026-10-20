@@ -201,14 +201,23 @@ interface OverlayLook {
   downKey: string
   /** On its icon alone, named by its tooltip, so the row stays short beside a type's other switches. */
   iconOnly?: boolean
-  /** The overlay's key, beside its switch while the layer shows. */
-  Key?: ComponentType
+  /** What the switch says while the map is further out than the overlay's first tiles. */
+  zoomInKey?: string
+  /** The overlay's key, beside its switch while the layer is on; told when nothing of it is drawn yet. */
+  Key?: ComponentType<{ belowMinZoom: boolean }>
 }
 
 const OVERLAY_LOOK: Record<string, OverlayLook> = {
   seamarks: { Icon: Anchor, labelKey: 'tours.map.seamarks', downKey: 'tours.map.seamarksDown' },
   // SKI-01: a hike's row already holds four maps, the ferratas and 3D, so the pistes go by their icon.
-  pistes: { Icon: MountainSnow, labelKey: 'tours.map.pistes', downKey: 'tours.map.pistesDown', iconOnly: true, Key: PisteKeyButton },
+  pistes: {
+    Icon: MountainSnow,
+    labelKey: 'tours.map.pistes',
+    downKey: 'tours.map.pistesDown',
+    zoomInKey: 'tours.map.pistesZoomIn',
+    iconOnly: true,
+    Key: PisteKeyButton,
+  },
 }
 
 /** The warning mark on a switch whose source stopped answering; the tooltip says what it means. */
@@ -224,8 +233,10 @@ function DownBadge() {
  * The switch for a transparent overlay (the seamarks, the pistes), the way the via
  * ferrata switch looks: on in the accent, and in the warning tone with a badge
  * once its source stopped answering, which the tooltip names. The map and the
- * planning go on without it. An overlay with a key shows the key's button
- * beside the switch while its tiles arrive.
+ * planning go on without it. Switched on further out than its first tiles, it
+ * stays pressed in the soft accent and its tooltip says to zoom in, so an empty
+ * map does not read as broken. An overlay with a key shows the key's button
+ * beside the switch while it is on and answering.
  */
 function OverlayToggle({ overlay, compact }: { overlay: ToggleableRasterOverlay; compact: boolean }) {
   const { t } = useTranslation()
@@ -234,9 +245,12 @@ function OverlayToggle({ overlay, compact }: { overlay: ToggleableRasterOverlay;
   const label = t(look.labelKey)
   const down = overlay.status === 'down'
   const on = overlay.status !== 'off'
+  const zoomIn = !down && overlay.belowMinZoom && look.zoomInKey ? t(look.zoomInKey) : null
+  const notice = down ? t(look.downKey) : zoomIn
+  const tone = zoomIn ? 'bg-accent-soft text-accent' : 'bg-accent text-accent-text'
   return (
     <>
-      <Tooltip label={down ? t(look.downKey) : label} placement="top">
+      <Tooltip label={notice ?? label} placement="top">
         <button
           type="button"
           onClick={overlay.onToggle}
@@ -244,7 +258,8 @@ function OverlayToggle({ overlay, compact }: { overlay: ToggleableRasterOverlay;
           aria-pressed={on}
           data-testid={`map-overlay-${overlay.id}`}
           data-status={overlay.status}
-          className={on ? 'bg-accent text-accent-text' : 'text-content-muted'}
+          data-below-min-zoom={zoomIn ? true : undefined}
+          className={on ? tone : 'text-content-muted'}
           style={segmentStyle(on)}
         >
           <look.Icon size={15} strokeWidth={2} />
@@ -252,8 +267,8 @@ function OverlayToggle({ overlay, compact }: { overlay: ToggleableRasterOverlay;
           {down && <DownBadge />}
         </button>
       </Tooltip>
-      {look.Key && overlay.status === 'on' && <look.Key />}
-      <span role="status" aria-live="polite" className="sr-only">{down ? t(look.downKey) : ''}</span>
+      {look.Key && overlay.status === 'on' && <look.Key belowMinZoom={!!zoomIn} />}
+      <span role="status" aria-live="polite" className="sr-only">{notice ?? ''}</span>
     </>
   )
 }

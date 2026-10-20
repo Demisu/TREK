@@ -2215,13 +2215,15 @@ describe('MapViewGL', () => {
     expect((window as any).__trek_map).toBeUndefined()
   })
 
-  it('FE-COMP-MAPVIEWGL-059: pan and zoom report the visible bbox for the POI explore pill', async () => {
+  it('FE-COMP-MAPVIEWGL-059: pan and zoom report the visible bbox for the POI explore pill, with the zoom on the raster tile scale', async () => {
     const onViewportChange = vi.fn()
+    vi.mocked(glMap.getZoom).mockReturnValue(10)
     render(<MapViewGL places={[]} fitKey={1} onViewportChange={onViewportChange} />)
     await act(async () => {})
 
     act(() => { mapHandler('moveend')() })
-    expect(onViewportChange).toHaveBeenCalledWith({ south: 0, west: 0, north: 1, east: 1 })
+    // The GL engine counts on 512 px tiles; a raster tile's zoom is one step further in.
+    expect(onViewportChange).toHaveBeenCalledWith({ south: 0, west: 0, north: 1, east: 1 }, 11)
   })
 
   it('FE-COMP-MAPVIEWGL-060: a new POI or via set replaces the previous overlay markers', async () => {

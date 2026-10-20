@@ -709,6 +709,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'A hajózási jelek nem töltődnek be. A térkép és az útvonalad továbbra is működik.',
   'tours.map.pistes': 'Pályák, sífutópályák és felvonók',
   'tours.map.pistesDown': 'A pályák nem töltődnek be. A térkép és az útvonalad továbbra is működik.',
+  'tours.map.pistesZoomIn': 'Nagyíts rá a pályák megjelenítéséhez',
   'tours.map.pisteKey': 'Pályajelmagyarázat',
   'tours.map.pisteDownhill': 'Lesiklópályák nehézség szerint',
   'tours.map.pisteGrade.novice': 'Kezdő',

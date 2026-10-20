@@ -695,6 +695,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'Báo hiệu hàng hải không tải được. Bản đồ và tuyến của bạn vẫn hoạt động.',
   'tours.map.pistes': 'Đường trượt, đường trượt băng đồng và cáp treo',
   'tours.map.pistesDown': 'Đường trượt không tải được. Bản đồ và tuyến của bạn vẫn hoạt động.',
+  'tours.map.pistesZoomIn': 'Phóng to để xem đường trượt',
   'tours.map.pisteKey': 'Chú giải đường trượt',
   'tours.map.pisteDownhill': 'Đường trượt dốc theo độ khó',
   'tours.map.pisteGrade.novice': 'Mới bắt đầu',

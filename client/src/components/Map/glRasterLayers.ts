@@ -28,6 +28,16 @@ const SATELLITE_LAYER_ID = 'trip-satellite-raster';
 export const OWN_LAYER_PREFIXES = ['trip-', 'trek-', 'route-alt-'];
 
 /**
+ * A GL map's zoom on the 256 px tile scale that raster tile URLs, their
+ * min and max zoom, and Leaflet count in. The GL engines count on 512 px
+ * tiles, so the same view is one step further in on that scale, and a 256 px
+ * raster source is drawn from its tiles one level up.
+ */
+export function rasterTileZoom(glZoom: number): number {
+  return glZoom + 1;
+}
+
+/**
  * Puts the imagery on the map, or takes it off again.
  *
  * Built on demand rather than once at load: a style change drops every source the map

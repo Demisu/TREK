@@ -340,14 +340,14 @@ function PoiDropTarget({ onPoiDropOnRoute }: { onPoiDropOnRoute?: (osmId: string
 }
 
 // Emits the current viewport bbox on pan/zoom so the POI-explore pill can fetch
-// OSM places for the visible area.
-function ViewportController({ onViewportChange }: { onViewportChange?: (b: { south: number; west: number; north: number; east: number }) => void }) {
+// OSM places for the visible area, with the zoom an overlay's minimum is read against.
+function ViewportController({ onViewportChange }: { onViewportChange?: MapViewProps['onViewportChange'] }) {
   const map = useMap()
   useEffect(() => {
     if (!onViewportChange) return
     const emit = () => {
       const b = map.getBounds()
-      onViewportChange({ south: b.getSouth(), west: b.getWest(), north: b.getNorth(), east: b.getEast() })
+      onViewportChange({ south: b.getSouth(), west: b.getWest(), north: b.getNorth(), east: b.getEast() }, map.getZoom())
     }
     map.whenReady(emit) // ensure the first bbox is captured once the map is laid out
     map.on('moveend', emit)

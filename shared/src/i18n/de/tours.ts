@@ -712,6 +712,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'Seezeichen laden gerade nicht. Karte und Route funktionieren weiter.',
   'tours.map.pistes': 'Pisten, Loipen und Lifte',
   'tours.map.pistesDown': 'Pisten laden gerade nicht. Karte und Route funktionieren weiter.',
+  'tours.map.pistesZoomIn': 'Hineinzoomen, um die Pisten zu sehen',
   'tours.map.pisteKey': 'Pistenlegende',
   'tours.map.pisteDownhill': 'Abfahrten nach Schwierigkeit',
   'tours.map.pisteGrade.novice': 'Anfänger',

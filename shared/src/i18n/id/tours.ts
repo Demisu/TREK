@@ -700,6 +700,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'Rambu laut tidak termuat. Peta dan rutemu tetap berfungsi.',
   'tours.map.pistes': 'Lintasan ski, jalur ski lintas alam, dan lift',
   'tours.map.pistesDown': 'Lintasan ski tidak termuat. Peta dan rutemu tetap berfungsi.',
+  'tours.map.pistesZoomIn': 'Perbesar peta untuk melihat lintasan ski',
   'tours.map.pisteKey': 'Keterangan lintasan',
   'tours.map.pisteDownhill': 'Lintasan turun menurut tingkat kesulitan',
   'tours.map.pisteGrade.novice': 'Pemula',

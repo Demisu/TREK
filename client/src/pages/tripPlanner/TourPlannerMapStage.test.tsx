@@ -1,4 +1,4 @@
-// FE-PAGE-TOURSTAGE-001 to FE-PAGE-TOURSTAGE-023
+// FE-PAGE-TOURSTAGE-001 to FE-PAGE-TOURSTAGE-024
 import type { Ferrata, PaddleFeature } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '../../../tests/helpers/render';
@@ -699,6 +699,18 @@ describe('TourPlannerMapStage', () => {
         expect(flat().tourLayers?.overlays?.some((overlay) => overlay.id === 'pistes')).toBe(false);
         other.unmount();
       }
+    });
+
+    it('FE-PAGE-TOURSTAGE-024: the pistes know the zoom the map reported, so switched on far out they say to zoom in (SKI-01)', () => {
+      renderStage(planner('neutral', { mapOverlays: new Set(['pistes']) }));
+      const pistes = () => flat().tourLayers?.overlays?.find((overlay) => overlay.id === 'pistes');
+      const area = { south: 46, west: 7, north: 48, east: 12 };
+      // No zoom reported yet: nothing is claimed.
+      expect(pistes()).toMatchObject({ status: 'on', belowMinZoom: false });
+      act(() => flat().onViewportChange?.(area, 6));
+      expect(pistes()?.belowMinZoom).toBe(true);
+      act(() => flat().onViewportChange?.(area, 12));
+      expect(pistes()?.belowMinZoom).toBe(false);
     });
   });
 });

@@ -683,6 +683,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': '航路標識を読み込めません。地図とルートはそのまま使えます。',
   'tours.map.pistes': 'ゲレンデ、クロスカントリーコース、リフト',
   'tours.map.pistesDown': 'ゲレンデを読み込めません。地図とルートはそのまま使えます。',
+  'tours.map.pistesZoomIn': 'ゲレンデを表示するには拡大してください',
   'tours.map.pisteKey': 'ゲレンデの凡例',
   'tours.map.pisteDownhill': '難易度別のゲレンデ',
   'tours.map.pisteGrade.novice': '初心者',

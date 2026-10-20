@@ -28,8 +28,8 @@ interface Options {
   /** The via ferrata layer of the planner map, drawn here too while it is on. */
   ferrataLayer?: FerrataMapLayer;
   tourLayers?: TourLayerOffer;
-  /** The visible area, for the via ferrata layer to ask for. */
-  onViewportChange?: (bbox: FerrataBbox) => void;
+  /** The visible area, for the via ferrata layer to ask for, and the zoom an overlay's minimum is read against. */
+  onViewportChange?: (bbox: FerrataBbox, zoom: number) => void;
   /** A paddle tour: the route is never coloured by grade. */
   water?: boolean;
 }

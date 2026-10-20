@@ -720,6 +720,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'Навигационные знаки не загружаются. Карта и ваш маршрут работают дальше.',
   'tours.map.pistes': 'Трассы, лыжни и подъёмники',
   'tours.map.pistesDown': 'Трассы не загружаются. Карта и ваш маршрут работают дальше.',
+  'tours.map.pistesZoomIn': 'Приблизьте карту, чтобы увидеть трассы',
   'tours.map.pisteKey': 'Легенда трасс',
   'tours.map.pisteDownhill': 'Горнолыжные трассы по сложности',
   'tours.map.pisteGrade.novice': 'Для новичков',

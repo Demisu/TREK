@@ -695,6 +695,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'Seamarks are not loading. The map and your route still work.',
   'tours.map.pistes': 'Pistes, cross-country trails and lifts',
   'tours.map.pistesDown': 'Pistes are not loading. The map and your route still work.',
+  'tours.map.pistesZoomIn': 'Zoom in to see the pistes',
   'tours.map.pisteKey': 'Piste key',
   'tours.map.pisteDownhill': 'Downhill runs by difficulty',
   'tours.map.pisteGrade.novice': 'Novice',

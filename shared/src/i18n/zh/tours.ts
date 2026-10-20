@@ -642,6 +642,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': '航标无法加载。地图和路线仍可正常使用。',
   'tours.map.pistes': '雪道、越野滑雪道和缆车',
   'tours.map.pistesDown': '雪道无法加载。地图和路线仍可正常使用。',
+  'tours.map.pistesZoomIn': '放大地图以查看雪道',
   'tours.map.pisteKey': '雪道图例',
   'tours.map.pisteDownhill': '按难度划分的滑降雪道',
   'tours.map.pisteGrade.novice': '入门',

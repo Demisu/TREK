@@ -21,10 +21,13 @@ type FerrataLayerState = ReturnType<typeof useFerrataMapLayer>;
  * does not offer falls back to its default without changing the choice kept,
  * which is also what an install whose admin withdrew OpenHikingMap sees.
  * The pistes (SKI-01) are offered with no tour open too, whatever type was chosen last.
+ * `mapZoom` is the map's zoom on the raster tile scale, null until it reported one, so an
+ * overlay switched on further out than its tiles reach can say so instead of looking broken.
  */
 export function useTourStageLayers(
   tourPlanner: Pick<TourPlannerController, 'mode' | 'tourType' | 'mapBaseLayer' | 'mapOverlays' | 'toggleMapOverlay'>,
-  ferrata: FerrataLayerState
+  ferrata: FerrataLayerState,
+  mapZoom: number | null = null
 ) {
   const { mode } = tourPlanner;
   // MAP-01, BIK-06: a type's own map (OpenHikingMap for a hike, CyclOSM for a bike tour) while a
@@ -48,7 +51,8 @@ export function useTourStageLayers(
     SEAMARK_OVERLAY,
     offersSeamarks,
     tourPlanner.mapOverlays.has(SEAMARK_OVERLAY.id),
-    toggleSeamarks
+    toggleSeamarks,
+    mapZoom
   );
   // SKI-01: the pistes for the types they serve, and with no tour open, so a ski area can be
   // looked at without any route. Switching them never touches the tour: the switch is the map view's.
@@ -58,7 +62,8 @@ export function useTourStageLayers(
     PISTE_OVERLAY,
     offersPistes,
     tourPlanner.mapOverlays.has(PISTE_OVERLAY.id),
-    togglePistes
+    togglePistes,
+    mapZoom
   );
   const overlays = useMemo(
     () => [...(offersSeamarks ? [seamarks] : []), ...(offersPistes ? [pistes] : [])],

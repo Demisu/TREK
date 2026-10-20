@@ -708,6 +708,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'Els senyals nàutics no es carreguen. El mapa i la ruta continuen funcionant.',
   'tours.map.pistes': 'Pistes, circuits de fons i remuntadors',
   'tours.map.pistesDown': 'Les pistes no es carreguen. El mapa i la ruta continuen funcionant.',
+  'tours.map.pistesZoomIn': 'Apropa el mapa per veure les pistes',
   'tours.map.pisteKey': 'Llegenda de pistes',
   'tours.map.pisteDownhill': 'Pistes de descens per dificultat',
   'tours.map.pisteGrade.novice': 'Principiant',

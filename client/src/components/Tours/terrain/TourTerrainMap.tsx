@@ -44,8 +44,8 @@ export interface TourTerrainMapProps {
   ferrataLayer?: FerrataMapLayer;
   /** What the tour's type offers: its base layers, and the overlays drawn on the terrain too. */
   tourLayers?: TourLayerOffer;
-  /** The visible area, for the via ferrata layer to ask for. */
-  onViewportChange?: (bbox: FerrataBbox) => void;
+  /** The visible area, for the via ferrata layer to ask for, and the zoom an overlay's minimum is read against. */
+  onViewportChange?: (bbox: FerrataBbox, zoom: number) => void;
   /** How high the controls along the bottom edge reach, every row of them, for what floats above them. */
   onControlsHeightChange?: (px: number) => void;
   /** The "set points" switch in the layer pill, while a tour is being edited. */

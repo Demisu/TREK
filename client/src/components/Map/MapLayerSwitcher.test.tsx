@@ -1,4 +1,4 @@
-// FE-COMP-MAPLAYER-001 to FE-COMP-MAPLAYER-023
+// FE-COMP-MAPLAYER-001 to FE-COMP-MAPLAYER-024
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '../../../tests/helpers/render'
@@ -245,6 +245,7 @@ const pisteOverlay = (overrides: Partial<ToggleableRasterOverlay> = {}): Togglea
   maxZoom: 18,
   active: false,
   status: 'off',
+  belowMinZoom: false,
   onToggle: vi.fn(),
   onTileError: vi.fn(),
   onTileLoad: vi.fn(),
@@ -284,5 +285,30 @@ describe('TourMapLayerSwitcher piste switch (SKI-01)', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Pistes are not loading. The map and your route still work.')
     fireEvent.mouseEnter(toggle)
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Pistes are not loading.')
+  })
+
+  it('FE-COMP-MAPLAYER-024: on further out than the pistes reach, the switch stays pressed in the soft accent and says to zoom in', async () => {
+    const { rerender } = render(
+      <TourMapLayerSwitcher active="default" onChange={() => {}} layers={{ overlays: [pisteOverlay({ active: true, status: 'on', belowMinZoom: true })] }} />
+    )
+    const toggle = screen.getByRole('button', { name: 'Pistes, cross-country trails and lifts' })
+    expect(toggle).toHaveAttribute('aria-pressed', 'true')
+    expect(toggle).toHaveAttribute('data-below-min-zoom', 'true')
+    expect(toggle).toHaveClass('bg-accent-soft', 'text-accent')
+    expect(screen.getByRole('status')).toHaveTextContent('Zoom in to see the pistes')
+    fireEvent.mouseEnter(toggle)
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Zoom in to see the pistes')
+    // The key stays at hand and opens with the same line on top.
+    fireEvent.click(screen.getByTestId('piste-key-button'))
+    expect(await screen.findByTestId('piste-key-zoom-in')).toHaveTextContent('Zoom in to see the pistes')
+
+    // A source that stopped answering says so instead, and close enough the switch is plainly on.
+    rerender(<TourMapLayerSwitcher active="default" onChange={() => {}} layers={{ overlays: [pisteOverlay({ active: true, status: 'down', belowMinZoom: true })] }} />)
+    expect(screen.getByRole('status')).toHaveTextContent('Pistes are not loading.')
+    rerender(<TourMapLayerSwitcher active="default" onChange={() => {}} layers={{ overlays: [pisteOverlay({ active: true, status: 'on' })] }} />)
+    const plain = screen.getByRole('button', { name: 'Pistes, cross-country trails and lifts' })
+    expect(plain).not.toHaveAttribute('data-below-min-zoom')
+    expect(plain).toHaveClass('bg-accent', 'text-accent-text')
+    expect(screen.getByRole('status')).toHaveTextContent('')
   })
 })

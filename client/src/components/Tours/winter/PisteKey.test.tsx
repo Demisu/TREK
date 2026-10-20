@@ -1,4 +1,4 @@
-// FE-TOUR-PISTE-KEY-001 to FE-TOUR-PISTE-KEY-005
+// FE-TOUR-PISTE-KEY-001 to FE-TOUR-PISTE-KEY-006
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { fireEvent, render, screen, within } from '../../../../tests/helpers/render';
@@ -76,5 +76,16 @@ describe('PisteKeyButton (SKI-01)', () => {
     expect(key()).toBeInTheDocument();
     fireEvent.mouseDown(document.body);
     expect(key()).toBeNull();
+  });
+
+  it('FE-TOUR-PISTE-KEY-006: opened further out than the pistes reach, the key says first to zoom in, and not once close', async () => {
+    const { rerender } = render(<PisteKeyButton belowMinZoom />);
+    await userEvent.click(trigger());
+    expect(within(key() as HTMLElement).getByTestId('piste-key-zoom-in')).toHaveTextContent(
+      'Zoom in to see the pistes'
+    );
+    rerender(<PisteKeyButton />);
+    expect(screen.queryByTestId('piste-key-zoom-in')).toBeNull();
+    expect(screen.getByTestId('piste-key-grades')).toBeInTheDocument();
   });
 });

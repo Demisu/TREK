@@ -1,4 +1,4 @@
-import { CableCar, ExternalLink, Info } from 'lucide-react';
+import { CableCar, ExternalLink, Info, ZoomIn } from 'lucide-react';
 import { useEffect } from 'react';
 import { useTranslation } from '../../../i18n';
 import { SoftPill } from '../../Planner/planParts';
@@ -75,8 +75,12 @@ function WayLine({ colour, dotted = false }: { colour: string; dotted?: boolean 
 
 const ROW = 'flex min-w-0 items-center gap-2 text-content-secondary';
 
-/** The key's content: the downhill grades, the other ways, what the colours do not say, and where the full key is. */
-function PisteKeyBody() {
+/**
+ * The key's content: the downhill grades, the other ways, what the colours do
+ * not say, and where the full key is. Opened further out than the layer's first
+ * tiles, it says first that the map has to come closer before anything shows.
+ */
+function PisteKeyBody({ belowMinZoom }: { belowMinZoom: boolean }) {
   const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-3 p-1.5">
@@ -86,6 +90,16 @@ function PisteKeyBody() {
         </span>
         <SoftPill>OpenSnowMap</SoftPill>
       </div>
+      {belowMinZoom && (
+        <p
+          className="flex items-center gap-1.5 rounded-lg bg-accent-soft px-2 py-1.5 font-medium text-accent"
+          style={fs(11)}
+          data-testid="piste-key-zoom-in"
+        >
+          <ZoomIn size={12} strokeWidth={2.2} aria-hidden className="flex-none" />
+          {t('tours.map.pistesZoomIn')}
+        </p>
+      )}
       <div>
         <span className={LABEL}>{t('tours.map.pisteDownhill')}</span>
         <ul className="grid grid-cols-2 gap-x-3 gap-y-1.5" data-testid="piste-key-grades">
@@ -132,7 +146,7 @@ function PisteKeyBody() {
  * it reads as the key at a glance; the key itself opens above the map in the
  * popover look and closes on Escape or a click beside it, the map untouched.
  */
-export function PisteKeyButton() {
+export function PisteKeyButton({ belowMinZoom = false }: { belowMinZoom?: boolean }) {
   const { t } = useTranslation();
   const list = usePopoverList(-1, { estimatedHeight: 380 });
   const { open, box, toggle, triggerRef, menuRef, listId } = list;
@@ -166,7 +180,7 @@ export function PisteKeyButton() {
         </button>
       </Tooltip>
       <PopoverListPanel list={list} label={label} className="w-[272px]">
-        <PisteKeyBody />
+        <PisteKeyBody belowMinZoom={belowMinZoom} />
       </PopoverListPanel>
     </>
   );

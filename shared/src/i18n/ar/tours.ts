@@ -699,6 +699,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'لا يتم تحميل العلامات البحرية. الخريطة ومسارك يعملان كالمعتاد.',
   'tours.map.pistes': 'المنحدرات ومسارات التزلج الريفي والمصاعد',
   'tours.map.pistesDown': 'لا يتم تحميل المنحدرات. الخريطة ومسارك يعملان كالمعتاد.',
+  'tours.map.pistesZoomIn': 'كبّر الخريطة لرؤية المنحدرات',
   'tours.map.pisteKey': 'مفتاح المنحدرات',
   'tours.map.pisteDownhill': 'منحدرات الهبوط حسب الصعوبة',
   'tours.map.pisteGrade.novice': 'مبتدئ',

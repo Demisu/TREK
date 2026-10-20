@@ -180,7 +180,11 @@ export interface MapViewProps {
   roadtripVias?: Record<number, RoadtripVia[]>;
   onMoveVia?: (dayId: number, id: number, lat: number, lng: number) => void;
   onRemoveVia?: (dayId: number, id: number) => void;
-  onViewportChange?: (bbox: { south: number; west: number; north: number; east: number }) => void;
+  /**
+   * The visible area after every move, and the zoom on the 256 px tile scale
+   * raster tile URLs count in (a GL map's own zoom is one step lower there).
+   */
+  onViewportChange?: (bbox: { south: number; west: number; north: number; east: number }, zoom: number) => void;
   /**
    * The raster tile URL template. Only the Leaflet renderer draws raster tiles;
    * the GL renderer draws the style of the chosen provider and ignores it.

@@ -709,6 +709,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'Zeemarkeringen laden niet. De kaart en je route werken nog.',
   'tours.map.pistes': 'Pistes, langlaufloipes en liften',
   'tours.map.pistesDown': 'Pistes laden niet. De kaart en je route werken nog.',
+  'tours.map.pistesZoomIn': 'Zoom in om de pistes te zien',
   'tours.map.pisteKey': 'Pistelegenda',
   'tours.map.pisteDownhill': 'Afdalingen naar moeilijkheid',
   'tours.map.pisteGrade.novice': 'Beginner',

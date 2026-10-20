@@ -719,6 +719,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'Τα ναυτικά σήματα δεν φορτώνουν. Ο χάρτης και η διαδρομή σας λειτουργούν κανονικά.',
   'tours.map.pistes': 'Πίστες, διαδρομές αντοχής και αναβατήρες',
   'tours.map.pistesDown': 'Οι πίστες δεν φορτώνουν. Ο χάρτης και η διαδρομή σας λειτουργούν κανονικά.',
+  'tours.map.pistesZoomIn': 'Μεγεθύνετε για να δείτε τις πίστες',
   'tours.map.pisteKey': 'Υπόμνημα πιστών',
   'tours.map.pisteDownhill': 'Πίστες κατάβασης ανά δυσκολία',
   'tours.map.pisteGrade.novice': 'Αρχάριοι',

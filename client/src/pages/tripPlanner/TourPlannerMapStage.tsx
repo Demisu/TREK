@@ -103,15 +103,19 @@ export function TourPlannerMapStage({
   );
   const analysis = tourPlanner.mode.type === 'view-gpx' ? tourPlanner.readOnlyGpxAnalysis : tourPlanner.routeAnalysis;
   const ferrata = useFerrataMapLayer(tripId, ferrataArea, analysis?.routeCoordinates ?? null);
+  // The zoom either map last reported, on the raster tile scale; unknown until the first one did.
+  const [mapZoom, setMapZoom] = useState<number | null>(null);
   // The maps this tour's type offers: its base layers, its overlays, and the ferratas only where they belong.
   const { baseLayer, tourLayers, ferrataLayer, ferrataCrossings, ferrataSelected } = useTourStageLayers(
     tourPlanner,
-    ferrata
+    ferrata,
+    mapZoom
   );
   const ferrataViewportChange = ferrata.onViewportChange;
   const viewportChanged = useCallback(
-    (bounds: FerrataBbox) => {
+    (bounds: FerrataBbox, zoom: number) => {
       ferrataViewportChange(bounds);
+      setMapZoom(zoom);
       onViewportChange?.(bounds);
     },
     [ferrataViewportChange, onViewportChange]

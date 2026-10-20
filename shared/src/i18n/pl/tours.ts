@@ -717,6 +717,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'Znaki nawigacyjne się nie wczytują. Mapa i Twoja trasa nadal działają.',
   'tours.map.pistes': 'Trasy zjazdowe, biegowe i wyciągi',
   'tours.map.pistesDown': 'Trasy narciarskie się nie wczytują. Mapa i Twoja trasa nadal działają.',
+  'tours.map.pistesZoomIn': 'Przybliż mapę, aby zobaczyć trasy narciarskie',
   'tours.map.pisteKey': 'Legenda tras',
   'tours.map.pisteDownhill': 'Trasy zjazdowe według trudności',
   'tours.map.pisteGrade.novice': 'Początkujący',

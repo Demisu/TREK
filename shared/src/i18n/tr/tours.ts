@@ -703,6 +703,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'Deniz işaretleri yüklenmiyor. Harita ve rotan çalışmaya devam ediyor.',
   'tours.map.pistes': 'Pistler, kayaklı koşu parkurları ve teleferikler',
   'tours.map.pistesDown': 'Pistler yüklenmiyor. Harita ve rotan çalışmaya devam ediyor.',
+  'tours.map.pistesZoomIn': 'Pistleri görmek için yakınlaştır',
   'tours.map.pisteKey': 'Pist açıklaması',
   'tours.map.pisteDownhill': 'Zorluğa göre iniş pistleri',
   'tours.map.pisteGrade.novice': 'Acemi',

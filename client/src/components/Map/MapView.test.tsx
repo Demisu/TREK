@@ -1141,10 +1141,11 @@ describe('MapView plugin route vias', () => {
 })
 
 describe('MapView map event wiring', () => {
-  it('FE-COMP-MAPVIEW-043: reports the viewport bbox once the map is ready and again on every move', () => {
+  it('FE-COMP-MAPVIEW-043: reports the viewport bbox and its zoom once the map is ready and again on every move', () => {
     const onViewportChange = vi.fn()
+    mapMock.getZoom.mockReturnValue(10)
     render(<MapView onViewportChange={onViewportChange} />)
-    expect(onViewportChange).toHaveBeenCalledWith({ south: 47, west: 1, north: 49, east: 3 })
+    expect(onViewportChange).toHaveBeenCalledWith({ south: 47, west: 1, north: 49, east: 3 }, 10)
 
     const moveend = handlerFor('moveend')
     const zoomend = handlerFor('zoomend')

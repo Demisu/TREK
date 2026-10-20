@@ -709,6 +709,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'I segnali nautici non si caricano. La mappa e il percorso funzionano ancora.',
   'tours.map.pistes': 'Piste, anelli di fondo e impianti',
   'tours.map.pistesDown': 'Le piste non si caricano. La mappa e il percorso funzionano ancora.',
+  'tours.map.pistesZoomIn': 'Ingrandisci la mappa per vedere le piste',
   'tours.map.pisteKey': 'Legenda delle piste',
   'tours.map.pisteDownhill': 'Piste di discesa per difficoltà',
   'tours.map.pisteGrade.novice': 'Principiante',

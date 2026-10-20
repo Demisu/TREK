@@ -707,6 +707,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'Os sinais náuticos não estão carregando. O mapa e sua rota continuam funcionando.',
   'tours.map.pistes': 'Pistas, trilhas de esqui de fundo e teleféricos',
   'tours.map.pistesDown': 'As pistas não estão carregando. O mapa e sua rota continuam funcionando.',
+  'tours.map.pistesZoomIn': 'Aproxime o mapa para ver as pistas',
   'tours.map.pisteKey': 'Legenda das pistas',
   'tours.map.pisteDownhill': 'Pistas de descida por dificuldade',
   'tours.map.pisteGrade.novice': 'Iniciante',

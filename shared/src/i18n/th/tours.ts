@@ -668,6 +668,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'โหลดเครื่องหมายทางน้ำไม่ได้ แผนที่และเส้นทางของคุณยังใช้งานได้',
   'tours.map.pistes': 'ลานสกี เส้นทางสกีทางไกล และลิฟต์',
   'tours.map.pistesDown': 'โหลดลานสกีไม่ได้ แผนที่และเส้นทางของคุณยังใช้งานได้',
+  'tours.map.pistesZoomIn': 'ซูมเข้าเพื่อดูลานสกี',
   'tours.map.pisteKey': 'คำอธิบายลานสกี',
   'tours.map.pisteDownhill': 'ลานสกีลงเขาตามระดับความยาก',
   'tours.map.pisteGrade.novice': 'มือใหม่',

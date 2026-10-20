@@ -702,6 +702,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'Dəniz nişanları yüklənmir. Xəritə və marşrutun işləməyə davam edir.',
   'tours.map.pistes': 'Trasslar, xizək qaçışı yolları və liftlər',
   'tours.map.pistesDown': 'Trasslar yüklənmir. Xəritə və marşrutun işləməyə davam edir.',
+  'tours.map.pistesZoomIn': 'Trassları görmək üçün yaxınlaşdırın',
   'tours.map.pisteKey': 'Trass legendası',
   'tours.map.pisteDownhill': 'Enmə trassları çətinliyə görə',
   'tours.map.pisteGrade.novice': 'Başlanğıc',

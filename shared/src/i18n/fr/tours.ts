@@ -717,6 +717,7 @@ const tours: TranslationStrings = {
     'Le balisage maritime ne se charge pas. La carte et votre itinéraire fonctionnent toujours.',
   'tours.map.pistes': 'Pistes, pistes de fond et remontées',
   'tours.map.pistesDown': 'Les pistes ne se chargent pas. La carte et votre itinéraire fonctionnent toujours.',
+  'tours.map.pistesZoomIn': 'Zoomez pour voir les pistes',
   'tours.map.pisteKey': 'Légende des pistes',
   'tours.map.pisteDownhill': 'Pistes de descente par difficulté',
   'tours.map.pisteGrade.novice': 'Débutant',

@@ -695,6 +695,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'Sjömärkena laddas inte. Kartan och din rutt fungerar ändå.',
   'tours.map.pistes': 'Pister, längdspår och liftar',
   'tours.map.pistesDown': 'Pisterna laddas inte. Kartan och din rutt fungerar ändå.',
+  'tours.map.pistesZoomIn': 'Zooma in för att se pisterna',
   'tours.map.pisteKey': 'Pistförklaring',
   'tours.map.pisteDownhill': 'Nedfarter efter svårighet',
   'tours.map.pisteGrade.novice': 'Nybörjare',

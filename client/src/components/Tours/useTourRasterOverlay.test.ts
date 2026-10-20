@@ -66,4 +66,20 @@ describe('useTourRasterOverlay', () => {
     expect(toggle).toHaveBeenCalledTimes(1);
     expect(result.current.status).toBe('on');
   });
+
+  it('marks an overlay that is on while the map is further out than its first tiles, and nothing at an unknown zoom', () => {
+    const { result, rerender } = renderHook(
+      ({ active, zoom }: { active: boolean; zoom: number | null }) =>
+        useTourRasterOverlay(SEAMARKS, true, active, vi.fn(), zoom),
+      { initialProps: { active: true, zoom: null as number | null } }
+    );
+    expect(result.current.belowMinZoom).toBe(false);
+    rerender({ active: true, zoom: SEAMARKS.minZoom - 0.5 });
+    expect(result.current).toMatchObject({ status: 'on', belowMinZoom: true });
+    rerender({ active: true, zoom: SEAMARKS.minZoom });
+    expect(result.current.belowMinZoom).toBe(false);
+    // Off, there is nothing to zoom in for.
+    rerender({ active: false, zoom: 2 });
+    expect(result.current).toMatchObject({ status: 'off', belowMinZoom: false });
+  });
 });

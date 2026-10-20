@@ -18,7 +18,8 @@ function planner(
   return { mode, tourType, mapBaseLayer, mapOverlays: new Set(), toggleMapOverlay: () => {} };
 }
 
-const basesOf = (p: Planner) => renderHook(() => useTourStageLayers(p, ferrata)).result.current;
+const basesOf = (p: Planner, zoom: number | null = null) =>
+  renderHook(() => useTourStageLayers(p, ferrata, zoom)).result.current;
 
 describe('useTourStageLayers: OpenHikingMap (MAP-01)', () => {
   beforeEach(() => useAddonStore.setState({ toursHikingMap: true, toursCycleMap: true }));
@@ -87,5 +88,15 @@ describe('useTourStageLayers: the pistes (SKI-01)', () => {
       ['seamarks', 'off'],
       ['pistes', 'on'],
     ]);
+  });
+
+  it('marks them on but out of reach while the map is further out than their first tiles, and not once it is close', () => {
+    const p = { ...planner({ type: 'neutral' }, 'hike', 'default'), mapOverlays: new Set(['pistes']) };
+    const pistesAt = (zoom: number | null) =>
+      basesOf(p, zoom).tourLayers.overlays.find((overlay) => overlay.id === 'pistes');
+    expect(pistesAt(6)).toMatchObject({ status: 'on', belowMinZoom: true });
+    expect(pistesAt(9)).toMatchObject({ status: 'on', belowMinZoom: false });
+    // Until the map reported a zoom, nothing is claimed.
+    expect(pistesAt(null)?.belowMinZoom).toBe(false);
   });
 });

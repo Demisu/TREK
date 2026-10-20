@@ -697,6 +697,7 @@ const tours: TranslationStrings = {
   'tours.map.seamarksDown': 'Plavebné znaky sa nenačítavajú. Mapa aj vaša trasa ďalej fungujú.',
   'tours.map.pistes': 'Zjazdovky, bežecké trate a vleky',
   'tours.map.pistesDown': 'Zjazdovky sa nenačítavajú. Mapa aj vaša trasa ďalej fungujú.',
+  'tours.map.pistesZoomIn': 'Priblížte mapu, aby ste videli zjazdovky',
   'tours.map.pisteKey': 'Legenda zjazdoviek',
   'tours.map.pisteDownhill': 'Zjazdovky podľa náročnosti',
   'tours.map.pisteGrade.novice': 'Začiatočník',
