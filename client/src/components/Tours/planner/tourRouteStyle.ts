@@ -1,3 +1,4 @@
+import { skiPaintOf } from '../ski/skiRouteStyle';
 import type { TourRoutePart } from './tourRouting';
 
 /**
@@ -41,7 +42,10 @@ export function tourRouteStyle(
 ): TourRouteStyle {
   if (!parts?.length) return { walking: null, colors: null };
   const walking = parts.map((part) => part.free || !!part.land || part.mark === 'gap' || part.mark === 'unrouted');
-  const colors = parts.map((part) => (isPaddle ? paddleColor(part, paint) : undefined));
+  // SKI-02: a ski tour's stretches in the colours of their grades and kinds, over the same rim.
+  const colors = parts.map((part) =>
+    part.ski ? { line: skiPaintOf(part.ski), casing: paint.casing } : isPaddle ? paddleColor(part, paint) : undefined
+  );
   return {
     walking: walking.some(Boolean) ? walking : null,
     colors: colors.some(Boolean) ? colors : null,

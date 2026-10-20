@@ -6,6 +6,7 @@ import {
   plannableTourTypeSchema,
   runProfileSchema,
   skiDisciplineSchema,
+  skiRouteOptionsSchema,
   skiTechniqueSchema,
   type BikeProfile,
   type HikingPreferences,
@@ -108,7 +109,8 @@ function optionalSki(value: SkiChoice | undefined): boolean {
   if (!value || typeof value !== 'object') return false;
   return (
     (value.discipline === null || skiDisciplineSchema.safeParse(value.discipline).success) &&
-    (value.technique === null || skiTechniqueSchema.safeParse(value.technique).success)
+    (value.technique === null || skiTechniqueSchema.safeParse(value.technique).success) &&
+    (value.options == null || skiRouteOptionsSchema.safeParse(value.options).success)
   );
 }
 

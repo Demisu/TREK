@@ -94,6 +94,15 @@ export const adminHandlers = [
     return HttpResponse.json({ enabled: body.enabled });
   }),
 
+  http.get('/api/admin/tours-ski-routing', () => {
+    return HttpResponse.json({ enabled: true });
+  }),
+
+  http.put('/api/admin/tours-ski-routing', async ({ request }) => {
+    const body = await request.json() as Record<string, unknown>;
+    return HttpResponse.json({ enabled: body.enabled });
+  }),
+
   http.get('/api/admin/addons', () => {
     return HttpResponse.json({ addons: [] });
   }),

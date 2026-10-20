@@ -738,6 +738,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'Cykelkarta (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     'Erbjuder CyclOSM som baskarta för cykelturer i turplaneraren. OpenStreetMap France tillhandahåller den för måttlig användning; en tungt använd eller kommersiell installation stänger av den eller kommer först överens med operatören',
+  'admin.toursSkiRouting.title': 'Pistrouter',
+  'admin.toursSkiRouting.subtitle':
+    'Planerar skidturer längs backar, liftar och spår på pistdatan från Places-servern. Avstängd ritas en skidturs etapper raka',
   'admin.addons.noAddons': 'Inga tillägg tillgängliga',
   'admin.weather.title': 'Väderdata',
   'admin.weather.badge': 'Sedan den 24 mars 2026',

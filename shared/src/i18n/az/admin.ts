@@ -756,6 +756,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'Velosiped xəritəsi (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     'Tur planlayıcısında velosiped turları üçün CyclOSM-i əsas xəritə kimi təklif edir. OpenStreetMap France onu orta istifadə üçün təqdim edir; ağır və ya kommersiya quraşdırması onu söndürür və ya əvvəlcə operatorla razılaşır',
+  'admin.toursSkiRouting.title': 'Pist marşrutlaşdırıcısı',
+  'admin.toursSkiRouting.subtitle':
+    'Places serverinin pist məlumatları ilə xizək turlarını pistlər, liftlər və cığırlar boyunca planlaşdırır. Söndürüldükdə xizək turunun mərhələləri düz çəkilir',
   'admin.addons.noAddons': 'Heç bir əlavə mövcud deyil',
   'admin.weather.title': 'Hava məlumatları',
   'admin.weather.badge': '24 mart 2026-cı ildən',

@@ -743,6 +743,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'Cyklomapa (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     'Ponúka CyclOSM ako podkladovú mapu pre cyklotúry v plánovači. OpenStreetMap France ju poskytuje na primerané používanie; silne využívaná alebo komerčná inštalácia ju vypne, alebo sa najprv dohodne s prevádzkovateľom',
+  'admin.toursSkiRouting.title': 'Router zjazdoviek',
+  'admin.toursSkiRouting.subtitle':
+    'Plánuje lyžiarske túry po zjazdovkách, lanovkách a stopách na dátach zjazdoviek servera Places. Vypnutý kreslí úseky lyžiarskej túry rovno',
   'admin.addons.noAddons': 'Žiadne doplnky nie sú dostupné',
   'admin.weather.title': 'Dáta o počasí',
   'admin.weather.badge': 'Od 24. marca 2026',

@@ -16,7 +16,8 @@ export function hikePlannerDefaults() {
     setBikeProfile: vi.fn(),
     // SKI-02: no ski tour, so no discipline chosen nor asked for.
     isSki: false,
-    ski: { choice: { discipline: null, technique: null }, change: vi.fn(), load: vi.fn() },
+    ski: { choice: { discipline: null, technique: null }, change: vi.fn(), setOption: vi.fn(), load: vi.fn() },
+    skiRoute: null,
     skiMissing: null,
     // RUN-01: no run, so no pace asked for.
     isRun: false,

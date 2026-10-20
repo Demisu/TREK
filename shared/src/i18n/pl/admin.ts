@@ -691,6 +691,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'Mapa rowerowa (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     'Udostępnia CyclOSM jako mapę bazową dla wycieczek rowerowych w planerze. OpenStreetMap France udostępnia ją do umiarkowanego użytku; instalacja intensywnie używana lub komercyjna wyłącza ją albo najpierw zawiera porozumienie z operatorem',
+  'admin.toursSkiRouting.title': 'Router tras narciarskich',
+  'admin.toursSkiRouting.subtitle':
+    'Planuje wycieczki narciarskie trasami, wyciągami i szlakami na danych tras serwera Places. Po wyłączeniu odcinki wycieczki narciarskiej są rysowane prosto',
   'admin.addons.noAddons': 'Brak dostępnych dodatków',
   'admin.weather.title': 'Dane pogodowe',
   'admin.weather.badge': 'Od 24 marca 2026',

@@ -677,6 +677,8 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': '자전거 지도 (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     '투어 플래너에서 자전거 투어의 기본 지도로 CyclOSM을 제공합니다. OpenStreetMap France가 적당한 사용을 위해 제공하며, 사용량이 많거나 상업적인 설치는 이를 끄거나 먼저 운영자와 합의합니다',
+  'admin.toursSkiRouting.title': '슬로프 라우터',
+  'admin.toursSkiRouting.subtitle': 'Places 서버의 슬로프 데이터로 슬로프, 리프트, 트레일을 따라 스키 투어를 계획합니다. 끄면 스키 투어 구간이 직선으로 그려집니다',
   'admin.addons.noAddons': '사용 가능한 애드온이 없습니다',
   'admin.weather.title': '날씨 데이터',
   'admin.weather.badge': '2026년 3월 24일부터',

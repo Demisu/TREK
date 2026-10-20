@@ -20,7 +20,7 @@ import {
 import { randomId } from '../../../utils/randomId';
 import type { SkiChoice } from '../ski/skiChoice';
 import { planPaddleStep, type PaddleTourRoute } from './paddleRouting';
-import { routeSkiTour, skiRouteKey } from './skiRouting';
+import { routeSkiTour, skiRouteKey, type SkiTourRoute } from './skiRouting';
 import {
   normalizePlannerWaypoints,
   routeInputsKey,
@@ -54,7 +54,7 @@ export interface TourRouteInputs {
   runProfile: RunProfile;
   paddleBoat: PaddleBoatType | null;
   paddleLakeStyle: PaddleLakeStyle;
-  /** SKI-02: a ski tour's discipline and technique, what its legs are laid for. */
+  /** SKI-02: a ski tour's discipline, technique and piste router options, what its legs are laid for. */
   skiChoice: SkiChoice;
   /** Raised to plan the same points again. */
   retryToken: number;
@@ -72,6 +72,8 @@ interface PlannedRoute {
   route: [number, number][] | null;
   routeParts: TourRoutePart[] | null;
   paddleRoute: PaddleTourRoute | null;
+  /** SKI-02: a ski tour's legs as the piste router answered them. */
+  skiRoute: SkiTourRoute | null;
   enrichedGeometry: TourElevationPoint[] | null;
   distanceMeters: number | null;
   durationSeconds: number | null;
@@ -84,6 +86,7 @@ const NO_ROUTE: PlannedRoute = {
   route: null,
   routeParts: null,
   paddleRoute: null,
+  skiRoute: null,
   enrichedGeometry: null,
   distanceMeters: null,
   durationSeconds: null,
@@ -91,11 +94,11 @@ const NO_ROUTE: PlannedRoute = {
   forRun: null,
 };
 
-/** A route planned whole: a paddle route without a failed leg, a route on land with its heights. */
+/** A route planned whole: a paddle route without a failed leg, a ski tour too, a route on land with its heights. */
 function routeComplete(planned: PlannedRoute): boolean {
-  return planned.paddleRoute
-    ? planned.paddleRoute.failures.length === 0
-    : hasCompleteElevation(planned.enrichedGeometry);
+  if (planned.paddleRoute) return planned.paddleRoute.failures.length === 0;
+  if (planned.skiRoute && planned.skiRoute.problems.length > 0) return false;
+  return hasCompleteElevation(planned.enrichedGeometry);
 }
 
 /** One planning run: what it plans from, whether it went stale, and where it writes. */
@@ -122,6 +125,7 @@ async function routePaddle({ inputs, plannedKey, runKey, signal, stale, setPlann
     route: planned.coordinates,
     routeParts: planned.parts,
     paddleRoute: planned,
+    skiRoute: null,
     enrichedGeometry: planned.coordinates.map(([lat, lng]): [number, number, number] => [lat, lng, 0]),
     distanceMeters: planned.distanceMeters,
     durationSeconds: null,
@@ -135,21 +139,19 @@ async function routePaddle({ inputs, plannedKey, runKey, signal, stale, setPlann
 
 /**
  * A route on land for the type of the draft: a bike tour and a run for their
- * profile, a city walk, a hike within its limit, a ride (HOR-01) put together
- * from its sections, never routed, and a ski tour (SKI-02) laid by its own
- * routing, which draws every leg straight until the piste router comes.
+ * profile, a city walk, a hike within its limit, and a ride (HOR-01) put
+ * together from its sections, never routed.
  */
 async function routeLand(inputs: RouteRun['inputs'], signal: AbortSignal) {
   const { waypoints, tourType, bikeProfile, runProfile, maxHikingDifficulty, hikingPreferences } = inputs;
   if (tourType === 'horse') return rideTour(waypoints);
-  if (tourType === 'ski') return await routeSkiTour(waypoints, inputs.skiChoice, signal);
   if (tourType === 'bike') return await routeBikeTour(waypoints, bikeProfile, signal);
   if (tourType === 'run') return await routeRun(waypoints, runProfile, signal);
   if (tourType === 'walk') return await routeCityWalk(waypoints, signal);
   return await routeWalkingTour(waypoints, signal, maxHikingDifficulty, hikingPreferences);
 }
 
-// A hike, a run, a city walk, a bike tour, a ride or a ski tour on land, then the heights along it.
+// A hike, a run, a city walk, a bike tour or a ride on land, then the heights along it.
 async function routeOnLand({ inputs, plannedKey, runKey, signal, stale, setPlanned, setUnreachable }: RouteRun) {
   const { setStatus, setError } = inputs;
   setStatus('routing');
@@ -166,6 +168,7 @@ async function routeOnLand({ inputs, plannedKey, runKey, signal, stale, setPlann
     route: routed.coordinates,
     routeParts: routed.parts,
     paddleRoute: null,
+    skiRoute: null,
     enrichedGeometry: null,
     distanceMeters: routed.distanceMeters,
     durationSeconds: routed.durationSeconds,
@@ -186,14 +189,68 @@ async function routeOnLand({ inputs, plannedKey, runKey, signal, stale, setPlann
   setError(null);
 }
 
+/** Heights straight between the known ones along the line, where the elevation source has none: an estimate. */
+export function interpolatedHeights(points: readonly TourElevationPoint[]): [number, number, number][] | null {
+  const known = points.flatMap((point, index) => (point.length === 3 && Number.isFinite(point[2]) ? [index] : []));
+  if (known.length === 0) return null;
+  const height = (k: number) => (points[k] as [number, number, number])[2];
+  return points.map((point, index): [number, number, number] => {
+    const after = known.find((k) => k >= index) ?? (known[known.length - 1] as number);
+    const before = [...known].reverse().find((k) => k <= index) ?? after;
+    const share = after === before ? 0 : (index - before) / (after - before);
+    return [point[0], point[1], height(before) + (height(after) - height(before)) * share];
+  });
+}
+
+// SKI-02: a ski tour on the piste router's legs; heights from the piste data where it has them all, else the terrain.
+async function routeSki({ inputs, plannedKey, runKey, signal, stale, setPlanned }: RouteRun) {
+  const { waypoints, tripId, skiChoice, setStatus, setError } = inputs;
+  setStatus('routing');
+  const planned = await routeSkiTour(waypoints, skiChoice, tripId, signal);
+  if (stale()) return;
+  if (!planned) {
+    setStatus('routing-failed');
+    setError('routing');
+    return;
+  }
+  setPlanned({
+    route: planned.coordinates,
+    routeParts: planned.parts,
+    paddleRoute: null,
+    skiRoute: planned,
+    enrichedGeometry: planned.elevations,
+    distanceMeters: planned.distanceMeters,
+    durationSeconds: planned.durationSeconds,
+    forKey: plannedKey,
+    forRun: runKey,
+  });
+  if (!planned.elevations) {
+    setStatus('enriching-elevation');
+    const enriched = await enrichTourElevations(planned.coordinates, signal);
+    if (stale()) return;
+    // The terrain answered for some points or none: the rest are estimated between the ones known.
+    const heights = hasCompleteElevation(enriched) ? enriched : interpolatedHeights(enriched ?? planned.coordinates);
+    if (!heights) {
+      setStatus('elevation-failed');
+      setError('elevation');
+      return;
+    }
+    setPlanned((current) => ({ ...current, enrichedGeometry: heights }));
+  }
+  setStatus('ready');
+  setError(null);
+}
+
 /**
- * Plans a run a moment from now, on the water or on land; a failure that is
- * still the current run says the route could not be planned. Returns the way
- * to call it off before it starts.
+ * Plans a run a moment from now, on the water, on the pistes or on land; a
+ * failure that is still the current run says the route could not be planned.
+ * Returns the way to call it off before it starts.
  */
 function scheduleRoute(run: RouteRun): () => void {
   const timer = window.setTimeout(() => {
-    (run.inputs.tourType === 'kayak' ? routePaddle(run) : routeOnLand(run)).catch(() => {
+    const { tourType } = run.inputs;
+    const plan = tourType === 'kayak' ? routePaddle(run) : tourType === 'ski' ? routeSki(run) : routeOnLand(run);
+    plan.catch(() => {
       if (run.stale()) return;
       run.inputs.setStatus('routing-failed');
       run.inputs.setError('routing');
@@ -227,7 +284,7 @@ function plannedKeyOf(waypointKey: string, inputs: TourRouteInputs): string {
  * or its choices change: a hike on foot within its limit, a bike tour and a
  * run for their profile (BIK-01, RUN-01), a paddle tour on the water by the
  * server's router, a ride put together from its horse route sections and
- * manual legs (HOR-01), a ski tour with its legs drawn (SKI-02). Every tour on
+ * manual legs (HOR-01), a ski tour on the piste router (SKI-02). Every tour on
  * land then gets its heights; a later
  * change makes an answer still on its way stale, and a failure keeps the last
  * route that was planned.

@@ -136,7 +136,9 @@ describe('TourTypeFields ski and winter (SKI-02)', () => {
       expect(screen.getByRole('button', { name })).toHaveAttribute('aria-pressed', 'false');
     }
     expect(fields).toHaveTextContent('Choose a discipline to save the tour.');
-    expect(fields).toHaveTextContent('Each leg is drawn straight between your points.');
+    expect(fields).toHaveTextContent('Legs follow runs, lifts and trails from OpenStreetMap');
+    // No router options before a discipline is chosen.
+    expect(screen.queryByTestId('tour-planner-ski-options')).not.toBeInTheDocument();
     expect(screen.queryByTestId('tour-planner-paddle-fields')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Snowshoeing' }));
     expect(ski.ski.change).toHaveBeenCalledWith({ discipline: 'snowshoe', technique: null });
@@ -144,7 +146,12 @@ describe('TourTypeFields ski and winter (SKI-02)', () => {
 
   it('asks a cross-country tour for its technique and keeps it dimmed for any other discipline', () => {
     const crossCountry = skiPlanner({
-      ski: { choice: { discipline: 'cross_country', technique: null }, change: vi.fn(), load: vi.fn() },
+      ski: {
+        choice: { discipline: 'cross_country', technique: null },
+        change: vi.fn(),
+        setOption: vi.fn(),
+        load: vi.fn(),
+      },
       skiMissing: 'technique',
     });
     const { unmount } = render(<TourTypeFields planner={crossCountry} locked={false} />);
@@ -155,13 +162,17 @@ describe('TourTypeFields ski and winter (SKI-02)', () => {
     unmount();
 
     const alpine = skiPlanner({
-      ski: { choice: { discipline: 'alpine', technique: null }, change: vi.fn(), load: vi.fn() },
+      ski: { choice: { discipline: 'alpine', technique: null }, change: vi.fn(), setOption: vi.fn(), load: vi.fn() },
       skiMissing: null,
     });
     render(<TourTypeFields planner={alpine} locked={false} />);
     expect(screen.getByTestId('tour-ski-technique')).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Alpine' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    // The piste router's options for the discipline chosen, each change handed to the planner.
+    expect(screen.getByTestId('tour-planner-ski-options')).toHaveTextContent('Hardest runs');
+    fireEvent.click(screen.getByRole('button', { name: 'Sporty' }));
+    expect(alpine.ski.setOption).toHaveBeenCalledWith({ pace: 'sporty' });
   });
 
   it('shows no ski fields on any other tour', () => {

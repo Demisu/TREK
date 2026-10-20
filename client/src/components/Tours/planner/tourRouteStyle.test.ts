@@ -1,4 +1,4 @@
-// FE-TOUR-ROUTE-STYLE-001 to FE-TOUR-ROUTE-STYLE-003: how the planner map draws the parts of a tour (PAD-03, PAD-11).
+// FE-TOUR-ROUTE-STYLE-001 to FE-TOUR-ROUTE-STYLE-004: how the planner map draws the parts of a tour (PAD-03, PAD-11, SKI-02).
 import { describe, expect, it } from 'vitest';
 import { tourRouteStyle } from './tourRouteStyle';
 import type { TourRoutePart } from './tourRouting';
@@ -43,5 +43,21 @@ describe('tourRouteStyle', () => {
   it('FE-TOUR-ROUTE-STYLE-003: a hike dots its hand-drawn stretches and keeps its own colour', () => {
     const style = tourRouteStyle([part(), part({ free: true })], false, PAINT);
     expect(style).toEqual({ walking: [false, true], colors: null });
+  });
+
+  it('FE-TOUR-ROUTE-STYLE-004: a ski tour colours each stretch by its grade or kind, and dots the links between them', () => {
+    const style = tourRouteStyle(
+      [
+        part({ ski: { kind: 'run', difficulty: 'intermediate', scheme: 'europe' } }),
+        part({ mark: 'gap', ski: { kind: 'link', difficulty: null } }),
+        part({ ski: { kind: 'lift', difficulty: null } }),
+        part({ mark: 'unrouted' }),
+      ],
+      false,
+      PAINT
+    );
+    expect(style.walking).toEqual([false, true, false, true]);
+    expect(style.colors?.map((color) => color?.line)).toEqual(['#d51e1e', '#6b7280', '#1f2937', undefined]);
+    expect(style.colors?.[0]?.casing).toBe('white');
   });
 });

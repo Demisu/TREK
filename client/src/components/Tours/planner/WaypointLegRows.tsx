@@ -15,6 +15,7 @@ import { LockRow, PendingPortageRow, PortageLegRow } from '../paddle/PaddleWaypo
 import type { usePaddleRegionLoad } from '../paddle/usePaddleRegionLoad';
 import { usePaddleWaypointActions } from '../paddle/usePaddleWaypointActions';
 import { usePortageWay, type usePortageRouting } from '../paddle/usePortageRouting';
+import { SkiLegFailureRow, SkiLegSteps } from '../ski/SkiLegRows';
 import type { PaddleLegFailure } from './paddleRouting';
 import { lineLengthM } from './tourFixedLegs';
 import type { TourPlannerController } from './useTourPlanner';
@@ -176,10 +177,43 @@ function LegFailure({
 }
 
 /**
+ * SKI-02: what a ski tour shows under a waypoint for its leg: the steps the
+ * piste router planned, or why it could not plan it and what would.
+ */
+function SkiLegExtras({
+  planner,
+  point,
+  index,
+  editable,
+}: {
+  planner: TourPlannerController;
+  point: WaypointPoint;
+  index: number;
+  editable: boolean;
+}) {
+  const route = planner.skiRoute;
+  if (!route) return null;
+  const problem = route.problems.find((candidate) => candidate.index === index);
+  if (problem) {
+    return (
+      <SkiLegFailureRow
+        problem={problem}
+        choice={planner.ski.choice}
+        disabled={!editable}
+        onChoice={planner.ski.change}
+        onDrawStraight={() => planner.toggleWaypointFreeLeg(point.id)}
+      />
+    );
+  }
+  const leg = route.legs[index];
+  return leg?.status === 'ok' ? <SkiLegSteps leg={leg} scheme={route.colourScheme} /> : null;
+}
+
+/**
  * The rows under a waypoint for the leg that starts there: the via ferrata it
  * crosses, a line drawn by hand, a ride's horse route section (HOR-01), and
  * on a paddle tour what the router found on the way (PAD-11) or why it could
- * not plan it, plus the portage and lock rows.
+ * not plan it, plus the portage and lock rows, and a ski tour's planned steps.
  */
 export function WaypointLegRows({
   planner,
@@ -211,6 +245,7 @@ export function WaypointLegRows({
       {point.fixedLeg?.kind === 'free' && <FreeLegRow leg={point.fixedLeg} ride={planner.isHorse} />}
       {point.fixedLeg?.kind === 'horse_route' && <HorseLegRow leg={point.fixedLeg} />}
       {routedLegs && <PaddleLegNotes leg={routedLegs.legs[index]} />}
+      {planner.isSki && <SkiLegExtras planner={planner} point={point} index={index} editable={editable} />}
       {failure && (
         <LegFailure
           code={failure.code}

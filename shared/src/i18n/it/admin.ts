@@ -672,6 +672,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'Mappa ciclabile (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     "Offre CyclOSM come mappa di base per i giri in bici nel pianificatore. OpenStreetMap France la fornisce per un uso moderato; un'installazione molto usata o commerciale la disattiva o prende prima un accordo con il gestore",
+  'admin.toursSkiRouting.title': 'Router delle piste',
+  'admin.toursSkiRouting.subtitle':
+    'Pianifica i giri con gli sci lungo piste, impianti e tracciati con i dati delle piste del server Places. Disattivato, i tratti di un giro con gli sci sono disegnati in linea retta',
   'admin.addons.noAddons': 'Nessun modulo disponibile',
   'admin.weather.title': 'Dati meteo',
   'admin.weather.badge': 'Dal 24 marzo 2026',

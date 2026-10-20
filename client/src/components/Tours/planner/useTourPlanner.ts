@@ -253,7 +253,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     tripId, waypoints, tourType, maxHikingDifficulty, hikingPreferences, bikeProfile, runProfile, paddleBoat, paddleLakeStyle, skiChoice: ski.choice, retryToken,
     error, setStatus, setError, onCleared: forgetFocus, patchWaypoints,
   })
-  const { route, routeParts, paddleRoute, enrichedGeometry, routeCurrent, distanceMeters, durationSeconds,
+  const { route, routeParts, paddleRoute, skiRoute, enrichedGeometry, routeCurrent, distanceMeters, durationSeconds,
     unreachable, interruptRouting, clearRoute } = routing
 
   const commitWaypoints = useCallback((nextValue: TourPlannerWaypoint[] | ((current: TourPlannerWaypoint[]) => TourPlannerWaypoint[])) => {
@@ -535,12 +535,12 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const stageCount = Math.max(1, stages.stages.length)
   const facts = useMemo(() => tourPlannerFacts({
     tourType, maxHikingDifficulty, hikingPreferences, bikeProfile, ski: ski.choice, runProfile, runPaceSecondsPerKm, website,
-    plannedDurationMinutes, breakAdditionalMinutes,
+    skiRouteBuild: skiRoute?.build ?? null, plannedDurationMinutes, breakAdditionalMinutes,
     paddle: { boatType, waterContext, speedKmh, portageSpeedKmh, lakeStyle },
     paddleSpeedInvalid, paddleEstimate, routeAnalysis, durationSeconds, stays, stageCount,
   }), [bikeProfile, boatType, breakAdditionalMinutes, durationSeconds, hikingPreferences, lakeStyle, maxHikingDifficulty, paddleEstimate, paddleSpeedInvalid,
     plannedDurationMinutes, portageSpeedKmh, routeAnalysis, runPaceSecondsPerKm, runProfile, speedKmh, stageCount, stays, tourType, waterContext,
-    website, ski.choice])
+    website, ski.choice, skiRoute])
   // CW-02: a city walk's times as the overview says them, from the same derivation as its planned total.
   const { websiteInvalid, plannedDurationInvalid, breakAdditionalInvalid, paddleIncomplete, walkingDurationMinutes,
     plannedTotalMinutes, plannedTotalInvalid, savedDurationSeconds, savedBreakAdditionalMinutes, typeFields, stationStays,
@@ -920,7 +920,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     waypoints, selectedWaypointId, setSelectedWaypointId,
     addWaypoint, appendFixedLeg, setWaypointPosition, removeWaypoint, moveWaypoint, reorderWaypoint, editWaypoints: commitWaypoints,
     reverse, returnToStart, isLoop: isClosedLoop(waypoints), toggleWaypointFreeLeg, editPaddlePoints, amendWaypoints, paddleEstimate,
-    ...shaping, legVariants, roundHikes, paddleRoute, routeCurrent, stages,
+    ...shaping, legVariants, roundHikes, paddleRoute, skiRoute, routeCurrent, stages,
     undo, redo, canUndo: history.canUndo, canRedo: history.canRedo,
     status, error, retry, isSaving,
     route, routeParts, enrichedGeometry, routeAnalysis, distanceMeters, durationSeconds, unreachable,

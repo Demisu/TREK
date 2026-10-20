@@ -4,6 +4,7 @@ import {
   maxTourMinutesFor,
   plannableTourTypeSchema,
   runMinutesAtPace,
+  skiOptionsForDiscipline,
   tourWebsiteSchema,
   type BikeProfile,
   type HikingPreferences,
@@ -50,6 +51,8 @@ export interface TourPlannerFactsInput {
   bikeProfile: BikeProfile;
   /** SKI-02: a ski tour's discipline and cross-country technique, nothing chosen until the traveller picks. */
   ski?: SkiChoice;
+  /** The piste data build a ski tour's legs were planned on; null where the piste router planned none. */
+  skiRouteBuild?: string | null;
   /** RUN-01: the profile a run is routed for, and the pace it is planned at (null while none is entered). */
   runProfile: RunProfile;
   runPaceSecondsPerKm: number | null;
@@ -98,11 +101,12 @@ function runMinutes({ runPaceSecondsPerKm: pace, routeAnalysis }: TourPlannerFac
  * weighs the climbs, a hike by the signposts' rule over distance, climb and
  * descent once the route has its heights, and by the router's own time before that.
  * A ride (HOR-01) has none: its pace is the horse's and the rider's, so nothing is made up.
- * Nor has a ski tour (SKI-02): its legs are drawn, not planned along pistes and lifts.
+ * A ski tour (SKI-02) has the piste router's, which it gives only when it planned every leg.
  */
 function movingMinutes(input: TourPlannerFactsInput, routerMinutes: number | null): number | null {
   const { paddleEstimate, routeAnalysis } = input;
-  if (input.tourType === 'horse' || input.tourType === 'ski') return null;
+  if (input.tourType === 'horse') return null;
+  if (input.tourType === 'ski') return routerMinutes;
   if (paddleEstimate) return paddleEstimate.waterMinutes === null ? null : paddleEstimate.estimateMinutes;
   if (input.tourType === 'run') return runMinutes(input);
   // A bike tour is timed by the router for its profile, a city walk by the router on foot.
@@ -164,6 +168,9 @@ function typeFieldsOf(input: TourPlannerFactsInput) {
     hiking_preferences: isHike ? input.hikingPreferences : null,
     ski_discipline: ski?.ski_discipline ?? null,
     ski_technique: ski?.ski_technique ?? null,
+    // What the piste router was asked for and the data it planned on, so the tour reopens as it was planned.
+    ski_options: ski ? skiOptionsForDiscipline(ski.ski_discipline, input.ski?.options ?? {}) : null,
+    ski_route_build: ski ? (input.skiRouteBuild ?? null) : null,
   };
 }
 

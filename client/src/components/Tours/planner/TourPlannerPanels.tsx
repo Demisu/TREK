@@ -63,6 +63,7 @@ import { RunWaysCard } from '../run/RunWaysCard'
 import { HorseRoutesCard } from '../horse/HorseRoutesCard'
 import { RecordedRideCard } from '../horse/RecordedRideFacts'
 import { HikeWaysCard } from '../hike/HikeWaysCard'
+import { SkiRouteSummary } from '../ski/SkiRouteSummary'
 import { walkTimeFields } from '../walk/walkTimeFields'
 
 const STATUS_KEY: Partial<Record<TourPlannerStatus, string>> = {
@@ -497,6 +498,8 @@ export function TourPlannerRail({ planner,
 
           <HorseRoutesCard planner={planner} />
 
+          {planner.isSki && <SkiRouteSummary route={planner.skiRoute} />}
+
           {planner.tourType === 'hike' && (
             <HikeWaysCard tripId={planner.tripId} route={planner.route} routeCurrent={planner.routeCurrent}
               routingLimit={planner.maxHikingDifficulty} />
@@ -670,7 +673,7 @@ const ESTIMATE_KEYS = {
   run: { labelKey: 'tours.run.timeEstimated', shortKey: 'tours.run.timeEstimatedShort', infoLabelKey: 'tours.run.timeEstimatedInfoLabel', infoKey: 'tours.run.timeEstimatedInfo' },
   // HOR-01: a ride has no estimate; the field says why, and the planned total is the rider's own.
   horse: { labelKey: 'tours.horse.time', shortKey: 'tours.horse.time', infoLabelKey: 'tours.horse.timeInfoLabel', infoKey: 'tours.horse.timeInfo' },
-  // SKI-02: nor has a ski tour, whose legs are drawn; the field says so.
+  // SKI-02: a ski tour's time is the piste router's, given once every leg is planned; the field says so.
   ski: { labelKey: 'tours.ski.time', shortKey: 'tours.ski.time', infoLabelKey: 'tours.ski.timeInfoLabel', infoKey: 'tours.ski.timeInfo' },
 } as const
 

@@ -716,6 +716,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'Peta sepeda (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     'Menawarkan CyclOSM sebagai peta dasar untuk tur sepeda di perencana tur. OpenStreetMap France menyediakannya untuk penggunaan wajar; instalasi dengan penggunaan berat atau komersial mematikannya atau terlebih dahulu membuat kesepakatan dengan operator',
+  'admin.toursSkiRouting.title': 'Router lintasan',
+  'admin.toursSkiRouting.subtitle':
+    'Merencanakan tur ski di sepanjang lintasan, lift, dan jalur dengan data lintasan dari server Places. Saat dimatikan, ruas tur ski digambar lurus',
   'admin.addons.noAddons': 'Tidak ada addon yang tersedia',
   'admin.weather.title': 'Data Cuaca',
   'admin.weather.badge': 'Sejak 24 Maret 2026',

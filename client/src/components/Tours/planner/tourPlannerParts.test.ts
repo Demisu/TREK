@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
+import { DEFAULT_SKI_ROUTE_OPTIONS } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
 import { openedTourFields, tourPlannerFacts, type TourPlannerFactsInput } from './tourPlannerFacts';
 import { usePlannerHistory } from './usePlannerHistory';
@@ -58,7 +59,7 @@ describe('tourPlannerFacts', () => {
     expect(facts.typeFields).toMatchObject({ tour_type: 'hike', max_hiking_difficulty: 3, boat_type: null });
   });
 
-  it('SKI-02: saves a ski tour with its discipline, untimed, and asks for a discipline and a cross-country technique', () => {
+  it('SKI-02: saves a ski tour with its discipline and router time, and asks for a discipline and a technique', () => {
     const analysis = { distanceKm: 8, gain: 600, loss: 600 } as TourPlannerFactsInput['routeAnalysis'];
     const snowshoe = tourPlannerFacts(
       hike({
@@ -76,11 +77,22 @@ describe('tourPlannerFacts', () => {
       hiking_preferences: null,
     });
     expect(snowshoe.skiMissing).toBeNull();
-    // No ski time is worked out: no signposts' rule, no router time, nothing saved.
+    // A ski time is the piste router's, never the signposts' rule: without one, nothing is saved.
     expect(snowshoe.walkingDurationMinutes).toBeNull();
     expect(snowshoe.plannedTotalMinutes).toBeNull();
     expect(snowshoe.savedDurationSeconds).toBeNull();
-    expect(tourPlannerFacts(hike({ tourType: 'ski', durationSeconds: 3_600 })).savedDurationSeconds).toBeNull();
+    expect(snowshoe.typeFields).toMatchObject({ ski_options: DEFAULT_SKI_ROUTE_OPTIONS, ski_route_build: null });
+    const routed = tourPlannerFacts(
+      hike({
+        tourType: 'ski',
+        ski: { discipline: 'alpine', technique: null },
+        durationSeconds: 3_600,
+        skiRouteBuild: '2026-11-02',
+      })
+    );
+    expect(routed.walkingDurationMinutes).toBe(60);
+    expect(routed.savedDurationSeconds).toBe(3_600);
+    expect(routed.typeFields).toMatchObject({ ski_route_build: '2026-11-02' });
 
     expect(tourPlannerFacts(hike({ tourType: 'ski' })).skiMissing).toBe('discipline');
     const crossCountry = hike({ tourType: 'ski', ski: { discipline: 'cross_country', technique: null } });
@@ -90,6 +102,7 @@ describe('tourPlannerFacts', () => {
     for (const tourType of ['hike', 'bike', 'walk', 'kayak'] as const) {
       const other = tourPlannerFacts(hike({ tourType, ski: { discipline: 'alpine', technique: null } }));
       expect(other.typeFields).toMatchObject({ ski_discipline: null, ski_technique: null });
+      if (tourType !== 'kayak') expect(other.typeFields).toMatchObject({ ski_options: null, ski_route_build: null });
       expect(other.skiMissing).toBeNull();
     }
   });

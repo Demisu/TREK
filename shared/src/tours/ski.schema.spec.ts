@@ -1,4 +1,10 @@
-import { SKI_DISCIPLINES, SKI_TECHNIQUES, skiIssues, tourSkiClassificationRequestSchema } from './ski.schema';
+import {
+  SKI_DISCIPLINES,
+  SKI_TECHNIQUES,
+  skiIssues,
+  skiOptionsReadBy,
+  tourSkiClassificationRequestSchema,
+} from './ski.schema';
 import { tourGpxImportFieldsSchema } from './tour-gpx-import.schema';
 import {
   importableTourTypeSchema,
@@ -182,5 +188,13 @@ describe('ski and winter tours (SKI-02)', () => {
         /ski_technique belongs to a ski tour/,
       );
     });
+  });
+
+  it('SKI-SCHEMA-010: names the options each discipline reads, the downhill ones for skis and boards alike', () => {
+    expect(skiOptionsReadBy('alpine')).toEqual(skiOptionsReadBy('snowboard'));
+    expect(skiOptionsReadBy('alpine')).toContain('pace');
+    expect(skiOptionsReadBy('cross_country')).toEqual(['groomed_only', 'lit_only', 'use_lifts', 'avoid_inferred_links']);
+    expect(skiOptionsReadBy('touring')).toContain('touring_uphill_on_pistes');
+    expect(skiOptionsReadBy('snowshoe')).not.toContain('max_difficulty');
   });
 });

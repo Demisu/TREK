@@ -679,6 +679,8 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'サイクリング地図（CyclOSM）',
   'admin.toursCycleMap.subtitle':
     'ツアープランナーで自転車ツアーのベース地図として CyclOSM を提供します。OpenStreetMap France が適度な利用向けに配信しています。利用の多い、または商用のインストールでは無効にするか、事前に運営者と合意してください',
+  'admin.toursSkiRouting.title': 'ゲレンデルーター',
+  'admin.toursSkiRouting.subtitle': 'Places サーバーのゲレンデデータで、コース、リフト、トレイルに沿ってスキーツアーを計画します。オフにすると、スキーツアーの区間は直線で描かれます',
   'admin.addons.noAddons': '利用可能なアドオンはありません',
   'admin.weather.title': '天気データ',
   'admin.weather.badge': '2026年3月24日以降',

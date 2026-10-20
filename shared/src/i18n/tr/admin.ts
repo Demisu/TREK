@@ -727,6 +727,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'Bisiklet haritası (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     "Tur planlayıcısında bisiklet turları için CyclOSM'i temel harita olarak sunar. OpenStreetMap France onu ölçülü kullanım için sağlar; yoğun veya ticari bir kurulum onu kapatır ya da önce işletmeciyle anlaşır",
+  'admin.toursSkiRouting.title': 'Pist rotalayıcı',
+  'admin.toursSkiRouting.subtitle':
+    'Kayak turlarını Places sunucusunun pist verileriyle pistler, liftler ve parkurlar boyunca planlar. Kapalıyken kayak turunun etapları düz çizilir',
   'admin.addons.noAddons': 'Kullanılabilir eklenti yok',
   'admin.weather.title': 'Hava Durumu Verileri',
   'admin.weather.badge': "24 Mart 2026'dan beri",

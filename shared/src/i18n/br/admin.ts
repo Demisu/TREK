@@ -664,6 +664,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'Mapa de ciclismo (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     'Oferece o CyclOSM como mapa base para passeios de bicicleta no planejador. O OpenStreetMap France o fornece para uso moderado; uma instalação de uso intenso ou comercial o desativa ou faz antes um acordo com o operador',
+  'admin.toursSkiRouting.title': 'Roteador de pistas',
+  'admin.toursSkiRouting.subtitle':
+    'Planeja passeios de esqui por pistas, teleféricos e trilhas com os dados de pistas do servidor Places. Desativado, os trechos de um passeio de esqui são desenhados em linha reta',
   'admin.addons.noAddons': 'Nenhum complemento disponível',
   'admin.addons.integrationHint': 'Serviços de backend e integrações de API sem página dedicada',
   'admin.weather.title': 'Dados meteorológicos',

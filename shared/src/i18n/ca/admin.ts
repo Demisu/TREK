@@ -273,6 +273,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'Mapa ciclista (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     "Ofereix CyclOSM com a mapa base per a rutes en bici al planificador. OpenStreetMap France el serveix per a un ús moderat; una instal·lació d'ús intens o comercial el desactiva o primer arriba a un acord amb l'operador",
+  'admin.toursSkiRouting.title': 'Encaminador de pistes',
+  'admin.toursSkiRouting.subtitle':
+    'Planifica rutes d’esquí per pistes, remuntadors i circuits amb les dades de pistes del servidor Places. Desactivat, els trams d’una ruta d’esquí es dibuixen en línia recta',
   'admin.addons.noAddons': 'No hi ha complements disponibles',
   'admin.weather.title': 'Dades meteorològiques',
   'admin.weather.badge': 'Des del 24 de març de 2026',

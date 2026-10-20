@@ -639,6 +639,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'แผนที่จักรยาน (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     'ให้ CyclOSM เป็นแผนที่พื้นฐานสำหรับทริปจักรยานในตัววางแผนทัวร์ OpenStreetMap France ให้บริการสำหรับการใช้งานปานกลาง การติดตั้งที่ใช้งานหนักหรือเชิงพาณิชย์ควรปิดไว้หรือทำข้อตกลงกับผู้ให้บริการก่อน',
+  'admin.toursSkiRouting.title': 'ตัววางเส้นทางลานสกี',
+  'admin.toursSkiRouting.subtitle':
+    'วางแผนทัวร์สกีตามลานสกี ลิฟต์ และเส้นทางด้วยข้อมูลลานสกีจากเซิร์ฟเวอร์ Places เมื่อปิด ช่วงทางของทัวร์สกีจะวาดเป็นเส้นตรง',
   'admin.addons.noAddons': 'ไม่มีส่วนเสริมให้ใช้งาน',
   'admin.weather.title': 'ข้อมูลสภาพอากาศ',
   'admin.weather.badge': 'ตั้งแต่วันที่ 24 มีนาคม 2569',

@@ -740,6 +740,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'Ποδηλατικός χάρτης (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     'Προσφέρει το CyclOSM ως βασικό χάρτη για ποδηλατικές διαδρομές στον σχεδιαστή. Το OpenStreetMap France το παρέχει για μέτρια χρήση· μια εγκατάσταση με μεγάλη ή εμπορική χρήση το απενεργοποιεί ή συμφωνεί πρώτα με τον πάροχο',
+  'admin.toursSkiRouting.title': 'Δρομολογητής πιστών',
+  'admin.toursSkiRouting.subtitle':
+    'Σχεδιάζει διαδρομές σκι κατά μήκος πιστών, αναβατήρων και διαδρομών με τα δεδομένα πιστών του διακομιστή Places. Όταν είναι ανενεργός, τα τμήματα μιας διαδρομής σκι σχεδιάζονται ευθεία',
   'admin.addons.noAddons': 'Δεν υπάρχουν διαθέσιμα πρόσθετα',
   'admin.weather.title': 'Δεδομένα Καιρού',
   'admin.weather.badge': 'Από 24 Μαρτίου 2026',

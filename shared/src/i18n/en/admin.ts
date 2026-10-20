@@ -716,6 +716,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'Cycling map (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     'Offers CyclOSM as a base map for bike tours in the tour planner. OpenStreetMap France serves it for moderate use; a heavy or commercial install switches it off or reaches an agreement with the operator first',
+  'admin.toursSkiRouting.title': 'Piste router',
+  'admin.toursSkiRouting.subtitle':
+    'Plans ski tours along runs, lifts and trails on the piste data of the Places server. Switched off, the legs of a ski tour are drawn straight',
   'admin.addons.noAddons': 'No addons available',
   'admin.weather.title': 'Weather Data',
   'admin.weather.badge': 'Since March 24, 2026',

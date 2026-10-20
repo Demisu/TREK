@@ -1,4 +1,12 @@
-import type { BikeProfile, HikingPreferences, RunProfile, TourFixedLeg } from '@trek/shared'
+import type {
+  BikeProfile,
+  HikingPreferences,
+  RunProfile,
+  SkiColourScheme,
+  SkiRunDifficulty,
+  SkiSegmentKind,
+  TourFixedLeg,
+} from '@trek/shared'
 import type { Waypoint } from '../../../types'
 import { valhallaBase, valhallaRun, valhallaTurn, type CostingOptions } from '../../Map/valhallaRoute'
 import { hikingCosting, TOURS_MAX_HIKING_DIFFICULTY } from './hikingCosting'
@@ -17,6 +25,8 @@ export interface TourRoutePart {
    * it could not plan (drawn straight, and nothing checked it).
    */
   mark?: 'rapids' | 'gap' | 'unrouted'
+  /** SKI-02: a stretch of a ski tour the piste router planned, coloured by what it is; `summer` a summer path. */
+  ski?: { kind: SkiSegmentKind | 'summer'; difficulty: SkiRunDifficulty | null; scheme?: SkiColourScheme }
 }
 
 export interface TourRouteResult {

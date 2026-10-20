@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import apiClient from '../api/client';
-import { cycleMapAdminApi, hikingMapAdminApi } from '../api/tourBaseMaps';
+import { cycleMapAdminApi, hikingMapAdminApi, skiRoutingAdminApi } from '../api/tourBaseMaps';
 import { tourTrailGradeApi } from '../api/tourTrailGrade';
 import { OnlineOnlyError } from './onlineOnly';
 import { tourTrailGradeRepo } from './tourTrailGradeRepo';
@@ -42,5 +42,7 @@ describe('tourBaseMaps admin api (MAP-01, BIK-06)', () => {
     expect(put).toHaveBeenCalledWith('/admin/tours-cycle-map', { enabled: false });
     await hikingMapAdminApi.update(true);
     expect(put).toHaveBeenLastCalledWith('/admin/tours-hiking-map', { enabled: true });
+    await skiRoutingAdminApi.update(false);
+    expect(put).toHaveBeenLastCalledWith('/admin/tours-ski-routing', { enabled: false });
   });
 });

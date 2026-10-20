@@ -667,6 +667,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'Cyklomapa (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     'Nabízí CyclOSM jako podkladovou mapu pro cyklotúry v plánovači. OpenStreetMap France ji poskytuje pro přiměřené používání; silně využívaná nebo komerční instalace ji vypne, nebo se nejprve dohodne s provozovatelem',
+  'admin.toursSkiRouting.title': 'Router sjezdovek',
+  'admin.toursSkiRouting.subtitle':
+    'Plánuje lyžařské túry po sjezdovkách, lanovkách a stopách na datech sjezdovek serveru Places. Vypnutý kreslí úseky lyžařské túry rovně',
   'admin.addons.noAddons': 'Žádné doplňky nejsou k dispozici',
   'admin.addons.catalog.mcp.name': 'MCP',
   'admin.addons.catalog.mcp.description': 'Model Context Protocol pro integraci AI asistentů',

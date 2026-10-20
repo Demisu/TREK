@@ -729,6 +729,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'Bản đồ xe đạp (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     'Cung cấp CyclOSM làm bản đồ nền cho chuyến đạp xe trong trình lập kế hoạch. OpenStreetMap France phục vụ nó cho mức dùng vừa phải; bản cài đặt dùng nhiều hoặc thương mại cần tắt nó hoặc thỏa thuận trước với nhà vận hành',
+  'admin.toursSkiRouting.title': 'Bộ định tuyến đường trượt',
+  'admin.toursSkiRouting.subtitle':
+    'Lên kế hoạch chuyến trượt tuyết theo đường trượt, cáp treo và đường mòn với dữ liệu đường trượt của máy chủ Places. Khi tắt, các chặng của chuyến trượt tuyết được vẽ thẳng',
   'admin.addons.noAddons': 'Không có tiện ích bổ sung nào',
   'admin.weather.title': 'Dữ liệu thời tiết',
   'admin.weather.badge': 'Kể từ ngày 24 tháng 3 năm 2026',

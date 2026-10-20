@@ -678,6 +678,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'Kerékpáros térkép (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     'A CyclOSM-et kínálja alaptérképként a kerékpártúrákhoz a túratervezőben. Az OpenStreetMap France mérsékelt használatra biztosítja; egy erősen használt vagy kereskedelmi telepítés kikapcsolja, vagy előbb megállapodik az üzemeltetővel',
+  'admin.toursSkiRouting.title': 'Pályaútvonal-tervező',
+  'admin.toursSkiRouting.subtitle':
+    'Sítúrákat tervez pályák, felvonók és nyomvonalak mentén a Places-szerver pályaadatain. Kikapcsolva a sítúra szakaszai egyenesen rajzolódnak',
   'admin.addons.noAddons': 'Nincsenek elérhető bővítmények',
   'admin.weather.title': 'Időjárás adatok',
   'admin.weather.badge': '2026. március 24. óta',

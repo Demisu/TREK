@@ -723,6 +723,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'خريطة الدراجات (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     'يعرض CyclOSM كخريطة أساس لجولات الدراجات في مخطط الجولات. تقدمها OpenStreetMap France للاستخدام المعتدل؛ والتثبيت ذو الاستخدام الكثيف أو التجاري يوقفها أو يتفق مع المشغّل أولًا',
+  'admin.toursSkiRouting.title': 'موجّه المنحدرات',
+  'admin.toursSkiRouting.subtitle':
+    'يخطط جولات التزلج على المنحدرات والمصاعد والمسارات ببيانات المنحدرات من خادم Places. عند إيقافه تُرسم مراحل جولة التزلج مستقيمة',
   'admin.addons.noAddons': 'لا توجد إضافات متاحة',
   'admin.weather.title': 'بيانات الطقس',
   'admin.weather.badge': 'منذ 24 مارس 2026',

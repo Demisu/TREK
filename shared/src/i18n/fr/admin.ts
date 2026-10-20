@@ -677,6 +677,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'Carte vélo (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     "Propose CyclOSM comme fond de carte pour les sorties vélo dans le planificateur. OpenStreetMap France le sert pour un usage modéré ; une installation à fort trafic ou commerciale le désactive ou conclut d'abord un accord avec l'opérateur",
+  'admin.toursSkiRouting.title': 'Routeur de pistes',
+  'admin.toursSkiRouting.subtitle':
+    'Planifie les sorties à ski le long des pistes, remontées et itinéraires avec les données de pistes du serveur Places. Désactivé, les tronçons d’une sortie à ski sont tracés en ligne droite',
   'admin.addons.noAddons': 'Aucune extension disponible',
   'admin.weather.title': 'Données météo',
   'admin.weather.badge': 'Depuis le 24 mars 2026',

@@ -693,6 +693,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'Велокарта (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     'Пропонує CyclOSM як базову карту для велопоїздок у планувальнику. OpenStreetMap France надає її для помірного використання; навантажена або комерційна інсталяція вимикає її або спершу домовляється з оператором',
+  'admin.toursSkiRouting.title': 'Маршрутизатор трас',
+  'admin.toursSkiRouting.subtitle':
+    'Планує лижні маршрути трасами, підйомниками й лижнями на даних трас сервера Places. Якщо вимкнено, ділянки лижного маршруту малюються прямими',
   'admin.addons.noAddons': 'Немає доступних доповнень',
   'admin.weather.title': 'Дані про погоду',
   'admin.weather.badge': 'З 24 березня 2026',

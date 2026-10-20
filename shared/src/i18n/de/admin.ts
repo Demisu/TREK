@@ -672,6 +672,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'Fahrradkarte (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     'Bietet CyclOSM als Grundkarte für Radtouren im Tourplaner an. OpenStreetMap France stellt sie für moderate Nutzung bereit; eine stark genutzte oder kommerzielle Installation schaltet sie ab oder trifft vorher eine Vereinbarung mit dem Betreiber',
+  'admin.toursSkiRouting.title': 'Pistenrouter',
+  'admin.toursSkiRouting.subtitle':
+    'Plant Skitouren entlang von Pisten, Liften und Loipen auf den Pistendaten des Places-Servers. Ausgeschaltet werden die Abschnitte einer Skitour gerade gezeichnet',
   'admin.addons.noAddons': 'Keine Addons verfügbar',
   'admin.weather.title': 'Wetterdaten',
   'admin.weather.badge': 'Seit 24. März 2026',

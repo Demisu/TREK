@@ -1,8 +1,8 @@
-import { Bike, Footprints } from 'lucide-react';
+import { Bike, Footprints, MountainSnow } from 'lucide-react';
 import { useEffect, useEffectEvent, useState } from 'react';
 
 import { adminApi } from '../../../api/client';
-import { cycleMapAdminApi, hikingMapAdminApi } from '../../../api/tourBaseMaps';
+import { cycleMapAdminApi, hikingMapAdminApi, skiRoutingAdminApi } from '../../../api/tourBaseMaps';
 import { wandererAdminApi } from '../../../api/wanderer';
 import { useTranslation } from '../../../i18n';
 import { useAddonStore } from '../../../store/addonStore';
@@ -24,6 +24,7 @@ export function useAddonManager() {
   const [toursWanderer, setToursWanderer] = useState(false);
   const [toursHikingMap, setToursHikingMap] = useState(false);
   const [toursCycleMap, setToursCycleMap] = useState(false);
+  const [toursSkiRouting, setToursSkiRouting] = useState(false);
 
   const loadAddons = async () => {
     try {
@@ -47,6 +48,10 @@ export function useAddonManager() {
     cycleMapAdminApi
       .get()
       .then((flag) => setToursCycleMap(flag.enabled))
+      .catch(() => toast.error(t('admin.addons.toast.error')));
+    skiRoutingAdminApi
+      .get()
+      .then((flag) => setToursSkiRouting(flag.enabled))
       .catch(() => toast.error(t('admin.addons.toast.error')));
   });
   useEffect(() => {
@@ -94,7 +99,7 @@ export function useAddonManager() {
     toast.success(t('admin.addons.toast.updated'));
   };
   const toggleToursWanderer = () => flipToursSwitch(toursWanderer, setToursWanderer, wandererAdminApi.update);
-  /** The maps the Tours planner offers on their operators' terms, one switch each (MAP-01, BIK-06). */
+  /** The maps and the piste router Tours offers on their operators' terms, one switch each (MAP-01, BIK-06, SKI-02). */
   const mapSwitches = [
     {
       key: 'hiking',
@@ -111,6 +116,14 @@ export function useAddonManager() {
       subtitleKey: 'admin.toursCycleMap.subtitle',
       enabled: toursCycleMap,
       toggle: () => flipToursSwitch(toursCycleMap, setToursCycleMap, cycleMapAdminApi.update),
+    },
+    {
+      key: 'ski',
+      Icon: MountainSnow,
+      titleKey: 'admin.toursSkiRouting.title',
+      subtitleKey: 'admin.toursSkiRouting.subtitle',
+      enabled: toursSkiRouting,
+      toggle: () => flipToursSwitch(toursSkiRouting, setToursSkiRouting, skiRoutingAdminApi.update),
     },
   ] as const;
 

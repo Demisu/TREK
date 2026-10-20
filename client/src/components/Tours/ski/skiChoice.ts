@@ -1,4 +1,10 @@
-import type { SkiDiscipline, SkiTechnique, TourListItem, TourSkiClassificationRequest } from '@trek/shared';
+import type {
+  SkiDiscipline,
+  SkiRouteOptionsInput,
+  SkiTechnique,
+  TourListItem,
+  TourSkiClassificationRequest,
+} from '@trek/shared';
 
 /**
  * SKI-02: a ski classification as a form holds it: nothing chosen until the
@@ -8,6 +14,8 @@ import type { SkiDiscipline, SkiTechnique, TourListItem, TourSkiClassificationRe
 export interface SkiChoice {
   discipline: SkiDiscipline | null;
   technique: SkiTechnique | null;
+  /** What the piste router is asked for besides the discipline; absent means its defaults. */
+  options?: SkiRouteOptionsInput | null;
 }
 
 export const NO_SKI_CHOICE: SkiChoice = { discipline: null, technique: null };
@@ -28,9 +36,12 @@ export function skiFieldsOf(
     : { ski_discipline: choice.discipline };
 }
 
-/** The choice a saved ski track opens with. */
-export function skiChoiceOf(tour: Partial<Pick<TourListItem, 'ski_discipline' | 'ski_technique'>>): SkiChoice {
-  return { discipline: tour.ski_discipline ?? null, technique: tour.ski_technique ?? null };
+/** The choice a saved ski track opens with, with the router options it was planned with where it keeps them. */
+export function skiChoiceOf(
+  tour: Partial<Pick<TourListItem, 'ski_discipline' | 'ski_technique' | 'ski_options'>>
+): SkiChoice {
+  const choice: SkiChoice = { discipline: tour.ski_discipline ?? null, technique: tour.ski_technique ?? null };
+  return tour.ski_options ? { ...choice, options: tour.ski_options } : choice;
 }
 
 /** Whether a choice says something else than the saved track does; the technique counts for cross-country only. */

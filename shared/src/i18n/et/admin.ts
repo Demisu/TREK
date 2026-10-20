@@ -736,6 +736,9 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.title': 'Rattakaart (CyclOSM)',
   'admin.toursCycleMap.subtitle':
     'Pakub CyclOSM-i rattamatkade aluskaardina matkaplaneerijas. OpenStreetMap France pakub seda mõõdukaks kasutuseks; tugeva kasutusega või äriline paigaldus lülitab selle välja või lepib enne operaatoriga kokku',
+  'admin.toursSkiRouting.title': 'Nõlvamarsruutija',
+  'admin.toursSkiRouting.subtitle':
+    'Planeerib suusamatku nõlvade, tõstukite ja radade järgi Places-serveri nõlvaandmetel. Väljalülitatuna joonistatakse suusamatka lõigud otse',
   'admin.addons.noAddons': 'Lisamooduleid pole saadaval',
   'admin.weather.title': 'Ilmaandmed',
   'admin.weather.badge': 'Alates 24. märtsist 2026',

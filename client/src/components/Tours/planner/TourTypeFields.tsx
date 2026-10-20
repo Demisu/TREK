@@ -15,6 +15,7 @@ import { crossesLake } from '../paddle/lakeStyleAdvice';
 import { PaddleLakeStyleField } from '../paddle/PaddleLakeStyleField';
 import { RunFields } from '../run/RunFields';
 import { SkiClassificationFields } from '../ski/SkiClassificationFields';
+import { SkiRouteOptions } from '../ski/SkiRouteOptions';
 import { TourNotice } from '../tourParts';
 import { TourTypeSelect } from './TourTypeSelect';
 import type { TourPlannerController } from './useTourPlanner';
@@ -107,17 +108,21 @@ function BikeProfileField({ planner }: { planner: TourPlannerController }) {
 
 /**
  * SKI-02: what a ski tour is, chosen on purpose and nothing preselected: the
- * discipline and, for cross-country, the technique. A short line says how its
- * legs are laid: straight between the points, nothing checked against pistes.
+ * discipline and, for cross-country, the technique, then what the piste router
+ * is asked for. A short line says how its legs are laid.
  */
 function SkiFields({ planner }: { planner: TourPlannerController }) {
   const { t } = useTranslation();
+  const { choice } = planner.ski;
   return (
     <div data-testid="tour-planner-ski-fields" className="flex min-w-0 flex-col gap-1.5">
-      <SkiClassificationFields choice={planner.ski.choice} onChange={planner.ski.change} planned />
+      <SkiClassificationFields choice={choice} onChange={planner.ski.change} planned />
       <span className="block text-content-faint" style={fs(11, 'body')}>
-        {t('tours.ski.drawnFreely')}
+        {t('tours.ski.plannedHint')}
       </span>
+      {choice.discipline !== null && (
+        <SkiRouteOptions discipline={choice.discipline} options={choice.options} onChange={planner.ski.setOption} />
+      )}
     </div>
   );
 }

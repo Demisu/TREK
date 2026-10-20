@@ -2,7 +2,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { adminApi } from '../../../api/client';
-import { cycleMapAdminApi, hikingMapAdminApi } from '../../../api/tourBaseMaps';
+import { cycleMapAdminApi, hikingMapAdminApi, skiRoutingAdminApi } from '../../../api/tourBaseMaps';
 import { wandererAdminApi } from '../../../api/wanderer';
 import { useAddonStore } from '../../../store/addonStore';
 import type { Addon } from './addonModel';
@@ -40,6 +40,7 @@ beforeEach(() => {
   vi.spyOn(wandererAdminApi, 'get').mockResolvedValue({ enabled: false });
   vi.spyOn(hikingMapAdminApi, 'get').mockResolvedValue({ enabled: true });
   vi.spyOn(cycleMapAdminApi, 'get').mockResolvedValue({ enabled: true });
+  vi.spyOn(skiRoutingAdminApi, 'get').mockResolvedValue({ enabled: true });
 });
 afterEach(() => vi.restoreAllMocks());
 
@@ -52,7 +53,7 @@ async function loaded() {
 const enabledOf = (addons: Addon[], id: string) => addons.find((a) => a.id === id)?.enabled;
 
 /** One of the map switches under Tours, by its key. */
-function mapSwitch(manager: ReturnType<typeof useAddonManager>, key: 'hiking' | 'cycle') {
+function mapSwitch(manager: ReturnType<typeof useAddonManager>, key: 'hiking' | 'cycle' | 'ski') {
   const found = manager.mapSwitches.find((entry) => entry.key === key);
   if (!found) throw new Error(`no ${key} map switch`);
   return found;
@@ -147,6 +148,16 @@ describe('useAddonManager', () => {
     expect(update).toHaveBeenCalledWith(false);
     expect(mapSwitch(result.current, 'cycle').enabled).toBe(false);
     expect(mapSwitch(result.current, 'hiking').enabled).toBe(true);
+  });
+
+  it('FE-HOOK-ADDONMGR-010: the piste router switch under Tours loads on, flips and saves on its own (SKI-02)', async () => {
+    const update = vi.spyOn(skiRoutingAdminApi, 'update').mockResolvedValue({ enabled: false });
+    const { result } = await loaded();
+    await waitFor(() => expect(mapSwitch(result.current, 'ski').enabled).toBe(true));
+    await act(() => mapSwitch(result.current, 'ski').toggle());
+    expect(update).toHaveBeenCalledWith(false);
+    expect(mapSwitch(result.current, 'ski').enabled).toBe(false);
+    expect(mapSwitch(result.current, 'cycle').enabled).toBe(true);
   });
 
   it('FE-HOOK-ADDONMGR-008: a failed save puts the switch under Tours back and says so', async () => {

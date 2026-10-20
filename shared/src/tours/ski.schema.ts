@@ -150,6 +150,11 @@ const OPTIONS_BY_DISCIPLINE: Record<SkiDiscipline, ReadonlyArray<keyof SkiRouteO
   winter_hike: ['allow_lift_down', 'use_lifts', 'avoid_inferred_links'],
 };
 
+/** The options a discipline reads, the ones the planner offers for it. */
+export function skiOptionsReadBy(discipline: SkiDiscipline): ReadonlyArray<keyof SkiRouteOptions> {
+  return OPTIONS_BY_DISCIPLINE[discipline];
+}
+
 /**
  * The options as a discipline reads them: whatever belongs to another
  * discipline goes back to its default rather than being refused, so switching

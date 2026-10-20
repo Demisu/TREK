@@ -1,7 +1,8 @@
+import { DEFAULT_SKI_ROUTE_OPTIONS } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
 import { NO_SKI_CHOICE, skiChoiceChanged, skiChoiceMissing, skiChoiceOf, skiFieldsOf } from './skiChoice';
 
-// FE-TOUR-SKI-CHOICE-001 to FE-TOUR-SKI-CHOICE-003
+// FE-TOUR-SKI-CHOICE-001 to FE-TOUR-SKI-CHOICE-004
 
 describe('ski choice (SKI-02)', () => {
   it('FE-TOUR-SKI-CHOICE-001: asks for a discipline first, then for a cross-country technique, Unknown counting as one', () => {
@@ -31,5 +32,12 @@ describe('ski choice (SKI-02)', () => {
     expect(skiChoiceChanged({ discipline: 'touring', technique: 'skating' }, saved)).toBe(true);
     const alpine = { discipline: 'alpine' as const, technique: null };
     expect(skiChoiceChanged({ discipline: 'alpine', technique: 'classic' }, alpine)).toBe(false);
+  });
+
+  it('FE-TOUR-SKI-CHOICE-004: opens with the router options a planned tour kept, and without any where none were kept', () => {
+    const options = { ...DEFAULT_SKI_ROUTE_OPTIONS, pace: 'sporty' as const };
+    const planned = skiChoiceOf({ ski_discipline: 'alpine', ski_technique: null, ski_options: options });
+    expect(planned).toEqual({ discipline: 'alpine', technique: null, options });
+    expect(skiChoiceOf({ ski_discipline: 'alpine', ski_options: null })).not.toHaveProperty('options');
   });
 });
