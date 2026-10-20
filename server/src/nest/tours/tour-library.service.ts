@@ -1,7 +1,7 @@
 import { Tours } from '../../db/entities/Tours.entity';
 import type { ToursRepository, TourLibraryRow } from '../../db/repositories/Tours.repository';
 import { TripMembershipService } from '../trip-membership/trip-membership.service';
-import { parseRouteGeometry, thinnedLine } from './tours.helpers';
+import { parseRouteGeometry, thinnedLine, walkStationFacts } from './tours.helpers';
 import { ToursService } from './tours.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -21,7 +21,8 @@ import {
 /** The most rows one list reads before the name is matched; past it the answer says it was cut. */
 const LIBRARY_READ_LIMIT = 2000;
 
-function toItem(row: TourLibraryRow): TourLibraryItem {
+/** A tour of another trip as the list shows it; a city walk with its stations and their stays (CW-02). */
+function toItem(row: TourLibraryRow, points: Parameters<typeof walkStationFacts>[1] = []): TourLibraryItem {
   return {
     place_id: row.place_id,
     name: row.name,
@@ -36,6 +37,7 @@ function toItem(row: TourLibraryRow): TourLibraryItem {
     max_hiking_difficulty: row.max_hiking_difficulty,
     has_waypoints: row.has_waypoints === 1,
     origin: row.origin as TourOrigin,
+    ...walkStationFacts(row.tour_type, points),
     trip: { id: row.trip_id, title: row.trip_title },
   };
 }
@@ -74,8 +76,10 @@ export class TourLibraryService {
     ]);
     const needle = query.q?.toLocaleLowerCase();
     const matching = needle ? rows.filter((row) => row.name.toLocaleLowerCase().includes(needle)) : rows;
+    const shown = matching.slice(0, TOUR_LIBRARY_LIMIT);
+    const walkPoints = await this.tours.walkPointsByPlace(shown);
     return {
-      tours: matching.slice(0, TOUR_LIBRARY_LIMIT).map(toItem),
+      tours: shown.map((row) => toItem(row, walkPoints.get(row.place_id))),
       trips,
       truncated: matching.length > TOUR_LIBRARY_LIMIT || rows.length === LIBRARY_READ_LIMIT,
     };
@@ -85,8 +89,9 @@ export class TourLibraryService {
     const row = await this.toursRepo.findForLibrary(await this.reachableTrips(userId), placeId);
     if (!row) throw new NotFoundException('Tour not found');
     const line = parseRouteGeometry(row.route_geometry).map((point): [number, number] => [point[0], point[1]]);
+    const walkPoints = await this.tours.walkPointsByPlace([row]);
     return {
-      tour: toItem(row),
+      tour: toItem(row, walkPoints.get(row.place_id)),
       line: thinnedLine(line, TOUR_LIBRARY_PREVIEW_POINTS),
       waypoint_count: row.waypoint_count,
     };

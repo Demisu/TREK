@@ -1,6 +1,7 @@
 import type { TourListItem, TourOrigin } from '@trek/shared'
 import { tourWebsiteSchema } from '@trek/shared'
 import { formatDurationShort } from '@trek/shared/roadtrip'
+import { walkTimesOf, type WalkTimes } from './planner/stationModel'
 
 export type TourSource = TourOrigin
 
@@ -21,18 +22,56 @@ export interface TourPlannedTimes {
   breakMinutes: number | null
   plannedTotalMinutes: number | null
   manuallyOverridden: boolean
+  /** CW-02: a city walk's walking time and stays as the list knows them; null for any other type, or a list without them. */
+  walk: WalkTimes | null
+  /** The planned total leaves out a stay nobody entered yet: it is at least that much. */
+  atLeast: boolean
 }
 
-export function tourPlannedTimes(tour: Pick<TourListItem, 'duration' | 'planned_duration_minutes' | 'break_additional_minutes'>): TourPlannedTimes {
+type PlannedTimesSource = Pick<TourListItem, 'duration' | 'planned_duration_minutes' | 'break_additional_minutes'>
+  & Partial<Pick<TourListItem, 'tour_type' | 'station_count' | 'station_stay_minutes' | 'station_stays_unknown'>>
+
+/** CW-02: a city walk's times from what the list says of its stations; null where it says nothing of them. */
+function walkTimesOfTour(tour: PlannedTimesSource): WalkTimes | null {
+  if (tour.tour_type !== 'walk' || tour.station_stay_minutes == null) return null
+  return walkTimesOf({
+    walkingMinutes: tour.duration,
+    stayMinutes: tour.station_stay_minutes,
+    unknownStays: tour.station_stays_unknown ?? 0,
+    stations: tour.station_count ?? 0,
+  })
+}
+
+/**
+ * The times a tour is planned with. A city walk takes no breaks: its stops are
+ * its stays, so a break kept from another type never counts on top (CW-02), and
+ * its total is the walking time and the stays entered.
+ */
+export function tourPlannedTimes(tour: PlannedTimesSource): TourPlannedTimes {
   const manualOverride = tour.planned_duration_minutes ?? null
-  const breaks = tour.break_additional_minutes ?? 0
-  const plannedTotal = manualOverride ?? (tour.duration == null ? null : tour.duration + breaks)
+  const walk = walkTimesOfTour(tour)
+  const breaks = tour.tour_type === 'walk' ? null : (tour.break_additional_minutes ?? null)
+  const automatic = walk ? walk.totalMinutes : (tour.duration == null ? null : tour.duration + (breaks ?? 0))
   return {
     walkingMinutes: tour.duration,
-    breakMinutes: tour.break_additional_minutes ?? null,
-    plannedTotalMinutes: plannedTotal,
+    breakMinutes: breaks,
+    plannedTotalMinutes: manualOverride ?? automatic,
     manuallyOverridden: manualOverride !== null,
+    walk,
+    atLeast: manualOverride === null && !!walk?.partial,
   }
+}
+
+/**
+ * The planned total as said, or null without one: "at least" where a city
+ * walk's stay is not entered yet (CW-02). A badge says it as "≥", the way a
+ * sum short of the whole reads in the tour summary.
+ */
+export function plannedTotalText(times: Pick<TourPlannedTimes, 'plannedTotalMinutes' | 'atLeast'>, t: Translate, badge = false): string | null {
+  if (times.plannedTotalMinutes == null) return null
+  const time = formatPlannedTourDuration(times.plannedTotalMinutes)
+  if (!times.atLeast) return time
+  return badge ? `≥ ${time}` : t('tours.walk.totalAtLeast', { time })
 }
 
 const TOUR_WEBSITE_PROVIDERS = [

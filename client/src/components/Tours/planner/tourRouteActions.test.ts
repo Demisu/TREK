@@ -85,6 +85,28 @@ describe('reverseRoute (PR1-02)', () => {
     expect(isClosedLoop(reversed)).toBe(true);
   });
 
+  it("keeps a city walk's start station first when its loop runs the other way, and the way back no station", () => {
+    const start = { ...A, key: 'stop-a', name: 'Cathedral', stayMinutes: 30, importance: 'must', protected: true };
+    const loop = closeLoop<RoutePoint & Partial<TourPlannerWaypoint>>(
+      [start as RoutePoint & Partial<TourPlannerWaypoint>, B, C],
+      'back'
+    );
+    const reversed = reverseRoute(loop);
+    expect(reversed.map((point) => point.id)).toEqual(['back', 'c', 'b', 'a']);
+    expect(reversed[0]).toEqual({
+      id: 'back',
+      lat: A.lat,
+      lng: A.lng,
+      key: 'stop-a',
+      name: 'Cathedral',
+      stayMinutes: 30,
+      importance: 'must',
+      protected: true,
+    });
+    expect(reversed[3]).toEqual({ id: 'a', lat: A.lat, lng: A.lng });
+    expect(reverseRoute(reversed)).toEqual(loop);
+  });
+
   it('twice is the tour as it was', () => {
     const route = [{ ...A, fixedLeg: freeLegBetween(A, B) }, { ...B, fixedLeg: FERRATA }, C];
     expect(reverseRoute(reverseRoute(route))).toEqual(route);

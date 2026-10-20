@@ -42,6 +42,9 @@ export const tourLibraryItemSchema = tourListItemSchema
     max_hiking_difficulty: true,
     has_waypoints: true,
     origin: true,
+    station_count: true,
+    station_stay_minutes: true,
+    station_stays_unknown: true,
   })
   .extend({ trip: tourLibraryTripSchema });
 export type TourLibraryItem = z.infer<typeof tourLibraryItemSchema>;

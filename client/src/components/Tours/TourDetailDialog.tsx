@@ -58,13 +58,16 @@ import { TourDayPills, TourFactFields, TourMetricFields, type TourMetricField } 
 import {
   formatPlannedTourDuration,
   hikeSourceBadgeLabel,
+  plannedTotalText,
   tourPlannedTimes,
   tourSource,
   tourWebsitePresentation,
+  type TourPlannedTimes,
 } from './tourPresentation';
 import { useTourDayAssignment } from './useTourDayAssignment';
 import { useTourPermissions, type TourPermissionProps } from './useTourPermissions';
 import { WalkStationsCard } from './walk/WalkStations';
+import { walkTimeFields } from './walk/walkTimeFields';
 
 interface TourDetailDialogProps extends TourPermissionProps {
   tour: TourListItem;
@@ -167,19 +170,28 @@ function placeStart(place: Place): { lat: number; lng: number } | null {
 
 type Translate = (key: string, params?: Record<string, unknown>) => string;
 
-/** The parts of the time a tour takes, as fields: walking, breaks, the planned total. */
+/**
+ * The parts of the time a tour takes, as fields: walking, breaks, the planned
+ * total; a city walk its walking time, its stays and their total, in the
+ * planner's wording (CW-02).
+ */
 function tourTimeFields(
-  times: ReturnType<typeof tourPlannedTimes>,
+  times: TourPlannedTimes,
   t: Translate,
   tour: Pick<TourListItem, 'tour_type'>
 ): TourMetricField[] {
+  const walking = { label: movingTimeLabel(tour, t('tours.planner.walkingShort'), t) };
+  if (times.walk) {
+    return walkTimeFields({
+      walking,
+      walkingMinutes: times.walkingMinutes,
+      stays: times.walk,
+      manualMinutes: times.manuallyOverridden ? times.plannedTotalMinutes : null,
+      t,
+    });
+  }
   return [
-    times.walkingMinutes != null
-      ? {
-          label: movingTimeLabel(tour, t('tours.planner.walkingShort'), t),
-          value: formatPlannedTourDuration(times.walkingMinutes),
-        }
-      : null,
+    times.walkingMinutes != null ? { ...walking, value: formatPlannedTourDuration(times.walkingMinutes) } : null,
     times.breakMinutes
       ? { label: t('tours.planner.breaksShort'), value: formatPlannedTourDuration(times.breakMinutes) }
       : null,
@@ -202,19 +214,23 @@ function TourHeadPills({
   tour,
   trackColor,
   timeFields,
-  shownMinutes,
+  times,
   metrics,
 }: {
   tour: TourListItem;
   trackColor: string;
   timeFields: TourMetricField[];
-  shownMinutes: number | null;
+  /** The planned total where there is one, as the day row shows it, otherwise the walking time. */
+  times: TourPlannedTimes;
   /** Measured from the line as it is now, so the head says what the fields below say. */
   metrics: { distanceKm: number | null; gain: number | null; loss: number | null };
 }) {
   const { t } = useTranslation();
   const distanceUnit = useSettingsStore((state) => state.settings.distance_unit) ?? 'metric';
   const timeTooltip = timeFields.map((field) => `${field.label}: ${field.value}`).join(', ');
+  const shownTime =
+    plannedTotalText(times, t, true) ??
+    (times.walkingMinutes == null ? null : formatPlannedTourDuration(times.walkingMinutes));
   const source = tourSource(tour);
   // The import this tour was planned from, named while it is still in the trip.
   const derivedFromName = useTripStore((state) =>
@@ -258,11 +274,11 @@ function TourHeadPills({
           </span>
         </Tooltip>
       )}
-      {shownMinutes != null && (
+      {shownTime != null && (
         <Tooltip label={timeTooltip}>
           <span aria-label={timeTooltip} className={HEAD_PILL} style={fs(10.5)}>
             <Clock size={11} strokeWidth={2} className="flex-none text-content-faint" />
-            {formatPlannedTourDuration(shownMinutes)}
+            {shownTime}
           </span>
         </Tooltip>
       )}
@@ -370,6 +386,79 @@ function useTourNameEditor(place: Place, onUpdatePlace?: TourDetailDialogProps['
   return { editingName, setEditingName, nameDraft, setNameDraft, savingName, saveName };
 }
 
+/** The tour's name in the head; `onUpdatePlace` is given only to someone who may rename it, in place. */
+function TourNameHeading({
+  place,
+  onUpdatePlace,
+}: {
+  place: Place;
+  onUpdatePlace?: TourDetailDialogProps['onUpdatePlace'];
+}) {
+  const { t } = useTranslation();
+  const { editingName, setEditingName, nameDraft, setNameDraft, savingName, saveName } = useTourNameEditor(
+    place,
+    onUpdatePlace
+  );
+  if (onUpdatePlace && editingName) {
+    return (
+      <div className="flex items-center gap-1.5">
+        <input
+          autoFocus
+          value={nameDraft}
+          onChange={(event) => setNameDraft(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') void saveName();
+            if (event.key === 'Escape') {
+              event.preventDefault();
+              setNameDraft(place.name);
+              setEditingName(false);
+            }
+          }}
+          aria-label={t('places.formName')}
+          className="-mx-1.5 block min-w-0 flex-1 rounded-[8px] border-0 bg-surface-card px-1.5 py-0.5 font-bold tracking-[-0.01em] text-content shadow-sm outline-none"
+          style={fs(17, 'subtitle')}
+        />
+        <Tooltip label={t('common.save')}>
+          <button
+            type="button"
+            onClick={() => void saveName()}
+            disabled={savingName}
+            aria-label={t('common.save')}
+            className="grid h-7 w-7 flex-none place-items-center rounded-full bg-accent text-accent-text disabled:opacity-50"
+          >
+            <Check size={14} strokeWidth={2.4} />
+          </button>
+        </Tooltip>
+      </div>
+    );
+  }
+  return (
+    <div className="flex min-w-0 items-center gap-1.5">
+      <h2
+        className="m-0 min-w-0 break-words font-bold leading-snug tracking-[-0.01em] text-content"
+        style={fs(17, 'subtitle')}
+      >
+        {place.name}
+      </h2>
+      {onUpdatePlace && (
+        <Tooltip label={t('common.edit')}>
+          <button
+            type="button"
+            onClick={() => {
+              setNameDraft(place.name);
+              setEditingName(true);
+            }}
+            aria-label={t('common.edit')}
+            className="grid h-6 w-6 flex-none place-items-center rounded-full text-content-faint transition-colors hover:bg-surface-card hover:text-content"
+          >
+            <Pencil size={12} strokeWidth={2.2} />
+          </button>
+        </Tooltip>
+      )}
+    </div>
+  );
+}
+
 export default function TourDetailDialog({
   tour,
   place,
@@ -406,10 +495,6 @@ export default function TourDetailDialog({
   const [colorOpen, setColorOpen] = useState(false);
   const [navigationOpen, setNavigationOpen] = useState(false);
   const navigationAnchorRef = useRef<HTMLSpanElement>(null);
-  const { editingName, setEditingName, nameDraft, setNameDraft, savingName, saveName } = useTourNameEditor(
-    place,
-    canEdit ? onUpdatePlace : undefined
-  );
   useDesktopEscape(desktopNonModal, onClose, desktopFocusReturnTarget);
 
   const heightsHidden = heightsUnknown(tour);
@@ -454,66 +539,12 @@ export default function TourDetailDialog({
         </Tooltip>
       </div>
       <div className="min-w-0 flex-1 pt-0.5">
-        {canEdit && editingName ? (
-          <div className="flex items-center gap-1.5">
-            <input
-              autoFocus
-              value={nameDraft}
-              onChange={(event) => setNameDraft(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') void saveName();
-                if (event.key === 'Escape') {
-                  event.preventDefault();
-                  setNameDraft(place.name);
-                  setEditingName(false);
-                }
-              }}
-              aria-label={t('places.formName')}
-              className="-mx-1.5 block min-w-0 flex-1 rounded-[8px] border-0 bg-surface-card px-1.5 py-0.5 font-bold tracking-[-0.01em] text-content shadow-sm outline-none"
-              style={fs(17, 'subtitle')}
-            />
-            <Tooltip label={t('common.save')}>
-              <button
-                type="button"
-                onClick={() => void saveName()}
-                disabled={savingName}
-                aria-label={t('common.save')}
-                className="grid h-7 w-7 flex-none place-items-center rounded-full bg-accent text-accent-text disabled:opacity-50"
-              >
-                <Check size={14} strokeWidth={2.4} />
-              </button>
-            </Tooltip>
-          </div>
-        ) : (
-          <div className="flex min-w-0 items-center gap-1.5">
-            <h2
-              className="m-0 min-w-0 break-words font-bold leading-snug tracking-[-0.01em] text-content"
-              style={fs(17, 'subtitle')}
-            >
-              {place.name}
-            </h2>
-            {canEdit && onUpdatePlace && (
-              <Tooltip label={t('common.edit')}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setNameDraft(place.name);
-                    setEditingName(true);
-                  }}
-                  aria-label={t('common.edit')}
-                  className="grid h-6 w-6 flex-none place-items-center rounded-full text-content-faint transition-colors hover:bg-surface-card hover:text-content"
-                >
-                  <Pencil size={12} strokeWidth={2.2} />
-                </button>
-              </Tooltip>
-            )}
-          </div>
-        )}
+        <TourNameHeading place={place} onUpdatePlace={canEdit ? onUpdatePlace : undefined} />
         <TourHeadPills
           tour={tour}
           trackColor={trackColor}
           timeFields={timeFields}
-          shownMinutes={times.plannedTotalMinutes ?? times.walkingMinutes}
+          times={times}
           metrics={{
             distanceKm: analysis?.distanceKm ?? tour.distance,
             gain: analysis ? analysis.gain : tour.elevation_gain,

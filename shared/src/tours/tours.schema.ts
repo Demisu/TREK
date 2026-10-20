@@ -237,6 +237,10 @@ export const tourListItemSchema = tourSchema.extend({
   revision: tourRevisionSchema.optional(),
   /** CW-03: a city walk's stations, its points that are no shaping points; null for any other type. */
   station_count: z.number().int().nonnegative().nullable().optional(),
+  /** CW-02: the stays entered at a city walk's stations, summed; null for any other type. */
+  station_stay_minutes: z.number().int().nonnegative().nullable().optional(),
+  /** CW-02: how many of a city walk's stations have no stay entered yet; null for any other type. */
+  station_stays_unknown: z.number().int().nonnegative().nullable().optional(),
 });
 export type TourListItem = z.infer<typeof tourListItemSchema>;
 

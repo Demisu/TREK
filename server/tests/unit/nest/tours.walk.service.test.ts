@@ -8,6 +8,7 @@
 import { TourStationVisits } from '../../../src/db/entities/TourStationVisits.entity';
 import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
 import { JourneyDomainService } from '../../../src/nest/journey/journey-domain.service';
+import { TourLibraryService } from '../../../src/nest/tours/tour-library.service';
 import { TourVisitsService } from '../../../src/nest/tours/tour-visits.service';
 import { ToursModule } from '../../../src/nest/tours/tours.module';
 import { ToursService } from '../../../src/nest/tours/tours.service';
@@ -95,7 +96,7 @@ async function tripWithDays() {
   const trip = await makeTrip(orm(), user.id);
   const day1 = await makeDay(orm(), trip.id, { day_number: 1 });
   const day2 = await makeDay(orm(), trip.id, { day_number: 2 });
-  return { tripId: String(trip.id), day1, day2 };
+  return { tripId: String(trip.id), day1, day2, userId: user.id };
 }
 
 /** The keys of a tour's points as stored, in route order. */
@@ -254,6 +255,46 @@ describe('ToursService and city walks', () => {
     );
   });
 
+  it('TOURS-WALK-007: a walk lists its stays as far as entered and how many are not, the way back of a loop once (CW-02)', async () => {
+    const { tripId, userId } = await tripWithDays();
+    const library = t.get(TourLibraryService);
+    // The cathedral's 30 min and the market passed through are entered, the park's stay is not; the shaping point is no stop.
+    const created = await tours.createTour(tripId, walkBody());
+    const entered = { station_count: 3, station_stay_minutes: 30, station_stays_unknown: 1 };
+    expect(created.tour).toMatchObject(entered);
+    const unknown = await tours.createTour(
+      tripId,
+      walkBody({ name: 'Unknown', waypoints: inOrder([STATIONS[2], STATIONS[3]].map(plainPoint)) }),
+    );
+    expect(unknown.tour).toMatchObject({ station_count: 2, station_stay_minutes: 0, station_stays_unknown: 2 });
+    // A loop saved before the way back stopped copying the start: the start's stay counts once.
+    const loop = await tours.createTour(
+      tripId,
+      walkBody({ name: 'Loop', waypoints: inOrder([...STATIONS, { ...STATIONS[0], key: 'stop-back' }]) }),
+    );
+    expect(loop.tour).toMatchObject(entered);
+    const hike = await tours.createTour(
+      tripId,
+      walkBody({ name: 'Ridge', tour_type: 'hike', waypoints: inOrder([STATIONS[2], STATIONS[3]].map(plainPoint)) }),
+    );
+    const none = { station_count: null, station_stay_minutes: null, station_stays_unknown: null };
+    expect(hike.tour).toMatchObject(none);
+
+    const listed = new Map((await tours.listTours(tripId)).map((item) => [item.place_id, item]));
+    expect(listed.get(created.tour.place_id)).toMatchObject(entered);
+    expect(listed.get(loop.tour.place_id)).toMatchObject(entered);
+    expect(listed.get(hike.tour.place_id)).toMatchObject(none);
+    expect((await tours.getTour(tripId, String(created.tour.place_id))).tour).toMatchObject(entered);
+
+    // Another trip's library lists the walk with its stays too, and the hike with none.
+    const shelf = new Map((await library.list(userId, {})).tours.map((item) => [item.place_id, item]));
+    expect(shelf.get(created.tour.place_id)).toMatchObject(entered);
+    expect(shelf.get(unknown.tour.place_id)).toMatchObject({ station_stay_minutes: 0, station_stays_unknown: 2 });
+    expect(shelf.get(hike.tour.place_id)).toMatchObject(none);
+    expect((await library.detail(userId, loop.tour.place_id)).tour).toMatchObject(entered);
+    expect((await library.detail(userId, hike.tour.place_id)).tour).toMatchObject(none);
+  });
+
   it('TOURS-WALK-005: a GPX file taken in as a city walk has no stations yet', async () => {
     const { tripId } = await tripWithDays();
     const gpx = `<?xml version="1.0"?>
@@ -264,7 +305,14 @@ describe('ToursService and city walks', () => {
     const imported = await tours.importGpxAsTour(tripId, Buffer.from(gpx), 'harbour.gpx', undefined, {
       tour_type: 'walk',
     });
-    expect(imported?.tours).toEqual([expect.objectContaining({ tour_type: 'walk', station_count: 0 })]);
+    expect(imported?.tours).toEqual([
+      expect.objectContaining({
+        tour_type: 'walk',
+        station_count: 0,
+        station_stay_minutes: 0,
+        station_stays_unknown: 0,
+      }),
+    ]);
     expect((await tours.listTours(tripId))[0]).toMatchObject({ tour_type: 'walk', station_count: 0 });
   });
 });

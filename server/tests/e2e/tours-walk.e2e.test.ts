@@ -228,6 +228,9 @@ describe('City walks e2e (real guards + temp SQLite)', () => {
           place_id: placeId,
           tour_type: 'walk',
           station_count: 3,
+          // CW-02: the cathedral's 30 min and the market passed through; the park's stay is not entered yet.
+          station_stay_minutes: 30,
+          station_stays_unknown: 1,
           max_hiking_difficulty: null,
         }),
       ]);

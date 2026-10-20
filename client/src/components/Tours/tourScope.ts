@@ -11,6 +11,8 @@ export interface ScopeSum {
   value: number | null;
   known: number;
   of: number;
+  /** CW-02: a value counted is itself only what is known of it (a city walk's stay not entered yet): the sum is at least this. */
+  atLeast?: boolean;
 }
 
 /** One tour type's share of the trip: how many tours, how many on a day, and their measures. */
@@ -64,7 +66,16 @@ function scopeOfType(type: TourTypeKey, tours: readonly TourListItem[], onDay: O
     descentM: heights ? sumOf(withHeights.map((tour) => tour?.elevation_loss)) : NO_SUM,
     routedMinutes: sumOf(planned.map((tour) => tour.duration)),
     importedMinutes: sumOf(imported.map((tour) => tour.duration)),
-    plannedMinutes: sumOf(tours.map((tour) => tourPlannedTimes(tour).plannedTotalMinutes)),
+    plannedMinutes: plannedSum(tours),
+  };
+}
+
+/** The planned totals summed; at least the sum where a city walk's total leaves out a stay nobody entered (CW-02). */
+function plannedSum(tours: readonly TourListItem[]): ScopeSum {
+  const times = tours.map((tour) => tourPlannedTimes(tour));
+  return {
+    ...sumOf(times.map((time) => time.plannedTotalMinutes)),
+    atLeast: times.some((time) => time.atLeast),
   };
 }
 

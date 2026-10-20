@@ -46,7 +46,8 @@ export function withoutHeights<
 
 /**
  * What the time on the move is called: walking for a hike (in the wording the
- * place asks for), riding for a bike tour, paddling for a paddle tour.
+ * place asks for) and for a city walk (CW-02), riding for a bike tour,
+ * paddling for a paddle tour.
  */
 export function movingTimeLabel(
   tour: { tour_type?: string } | undefined,
@@ -54,5 +55,6 @@ export function movingTimeLabel(
   t: (key: string) => string
 ): string {
   if (tour?.tour_type === 'kayak') return t('tours.paddle.timeEstimatedShort');
+  if (tour?.tour_type === 'walk') return t('tours.walk.timeEstimatedShort');
   return tour?.tour_type === 'bike' ? t('tours.bike.timeEstimatedShort') : hikeLabel;
 }

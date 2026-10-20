@@ -13,24 +13,35 @@ export interface WalkTimes {
   stayMinutes: number;
   /** Stations whose stay nobody entered. */
   unknownStays: number;
-  /** Walking and the known stays; null while the walking time is unknown. */
+  /** The walk's stations, so that some stays unknown and all of them unknown read apart. */
+  stations: number;
+  /** Walking and the known stays; the known stays alone while the walking time is not known, null while nothing is. */
   totalMinutes: number | null;
   /** The total leaves out a stay or the walking time that is not known. */
   partial: boolean;
 }
 
+/** The times of a walk from its parts: the walking time, the stays entered, how many are unknown and of how many. */
+export function walkTimesOf(parts: Omit<WalkTimes, 'totalMinutes' | 'partial'>): WalkTimes {
+  const { walkingMinutes, stayMinutes, unknownStays } = parts;
+  // Without a walking time the stays entered are still part of the whole: at least that much, never nothing.
+  const totalMinutes = walkingMinutes !== null ? walkingMinutes + stayMinutes : stayMinutes > 0 ? stayMinutes : null;
+  return {
+    ...parts,
+    totalMinutes,
+    partial: totalMinutes !== null && (unknownStays > 0 || walkingMinutes === null),
+  };
+}
+
 export function walkTimes(points: readonly TourPlannerWaypoint[], walkingMinutes: number | null): WalkTimes {
   // A shaping point is no station, and the way back of a loop is its start again: its stay counts once.
   const stations = walkStationsOf(points);
-  const stayMinutes = stations.reduce((sum, station) => sum + (station.stayMinutes ?? 0), 0);
-  const unknownStays = stations.filter((station) => station.stayMinutes == null).length;
-  return {
+  return walkTimesOf({
     walkingMinutes,
-    stayMinutes,
-    unknownStays,
-    totalMinutes: walkingMinutes === null ? null : walkingMinutes + stayMinutes,
-    partial: unknownStays > 0,
-  };
+    stayMinutes: stations.reduce((sum, station) => sum + (station.stayMinutes ?? 0), 0),
+    unknownStays: stations.filter((station) => station.stayMinutes == null).length,
+    stations: stations.length,
+  });
 }
 
 /** What the station dialog edits; the rest of the point stays as it is. */

@@ -1,5 +1,5 @@
 /**
- * `TourWaypointsRepository`: TW1 (`listForPlace`), TW2 (`listForTrip`), TW3
+ * `TourWaypointsRepository`: TW1 (`listForPlace`), TW2 (`listForTrip`), TW2b (`listForPlaces`), TW3
  * (`insertForPlace`) and TW4 (`deleteForPlace`), with a leg that follows a
  * via ferrata's own line.
  */
@@ -195,5 +195,32 @@ describe('TourWaypointsRepository', () => {
     expect(points[1]).not.toHaveProperty('protected');
     expect(points[1]).not.toHaveProperty('name');
     expect(await repo.listForTrip(trip.id)).toEqual(points.map((point) => ({ place_id: place.id, ...point })));
+  });
+  it('TWREPO-010: listForPlaces reads the waypoints of the tours asked for, by place and sequence, and none for none (CW-02)', async () => {
+    const { trip, place } = tourInTrip();
+    const second = createPlace(testDb, trip.id);
+    createTour(testDb, second.id);
+    const unasked = createPlace(testDb, trip.id);
+    createTour(testDb, unasked.id);
+    await repo.insertForPlace(second.id, [{ lat: 47.2, lng: 11.2, role: 'start', sequence: 0, stay_minutes: 30 }]);
+    await repo.insertForPlace(place.id, ROUTE);
+    await repo.insertForPlace(unasked.id, ROUTE);
+
+    const rows = await repo.listForPlaces([second.id, place.id, second.id]);
+    expect(rows.map((row) => [row.place_id, row.sequence])).toEqual([
+      [place.id, 0],
+      [place.id, 1],
+      [place.id, 2],
+      [second.id, 0],
+    ]);
+    expect(rows[3]).toEqual({
+      place_id: second.id,
+      lat: 47.2,
+      lng: 11.2,
+      role: 'start',
+      sequence: 0,
+      stay_minutes: 30,
+    });
+    expect(await repo.listForPlaces([])).toEqual([]);
   });
 });

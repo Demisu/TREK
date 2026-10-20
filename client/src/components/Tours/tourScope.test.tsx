@@ -90,7 +90,23 @@ describe('tourScopeSummary (STA-01)', () => {
     expect(hike.routedMinutes).toEqual({ value: 300, known: 2, of: 2 });
     expect(hike.importedMinutes).toEqual({ value: 150, known: 1, of: 1 });
     // Planned: each tour's own time plus its breaks (HIKE_B's 30 min).
-    expect(hike.plannedMinutes).toEqual({ value: 480, known: 3, of: 3 });
+    expect(hike.plannedMinutes).toEqual({ value: 480, known: 3, of: 3, atLeast: false });
+  });
+
+  it('CW-02: plans a city walk with its stays and no breaks, at least that much while a stay is not entered', () => {
+    const walk = tour({
+      place_id: 6,
+      tour_type: 'walk',
+      duration: 45,
+      break_additional_minutes: 15,
+      station_count: 3,
+      station_stay_minutes: 120,
+      station_stays_unknown: 0,
+    });
+    const [entered] = tourScopeSummary([walk]).types;
+    expect(entered.plannedMinutes).toEqual({ value: 165, known: 1, of: 1, atLeast: false });
+    const [open] = tourScopeSummary([walk, { ...walk, place_id: 7, station_stays_unknown: 1 }]).types;
+    expect(open.plannedMinutes).toEqual({ value: 330, known: 2, of: 2, atLeast: true });
   });
 
   it('sums no heights for paddling, not even those a recorded paddle track brought', () => {
@@ -126,6 +142,22 @@ describe('TourScopeSummary', () => {
     // Paddling sums no heights: no ascent badge, rather than 0 m.
     expect(screen.queryByTestId('tour-scope-kayak-ascent')).toBeNull();
     expect(screen.getByTestId('tour-scope-kayak-distance')).toHaveTextContent('12 km');
+  });
+
+  it('CW-02: marks a planned time whose city walk has a stay not entered as at least, and says so', () => {
+    const walk = tour({
+      place_id: 6,
+      tour_type: 'walk',
+      duration: 45,
+      station_count: 3,
+      station_stay_minutes: 90,
+      station_stays_unknown: 1,
+    });
+    render(<TourScopeSummary tours={[walk]} />);
+    fireEvent.click(screen.getByTestId('tour-scope-toggle'));
+    const planned = screen.getByTestId('tour-scope-walk-planned');
+    expect(planned).toHaveTextContent('≥ 2 h 15 min');
+    expect(planned).toHaveAccessibleName('Planned with stays: at least 2 h 15 min');
   });
 
   it('starts folded to its counts, and remembers an opening in this browser', () => {

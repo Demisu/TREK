@@ -32,6 +32,14 @@ interface StationParts {
   openingHours?: string | null;
 }
 
+/** A point split into what makes it a station and the rest of it; a part it does not have is left out. */
+function stationSplit<T extends RoutePoint>(point: T & StationParts): { station: StationParts; rest: T } {
+  const { key, name, stayMinutes, importance, protected: kept, openingHours, ...rest } = point;
+  const parts: StationParts = { key, name, stayMinutes, importance, protected: kept, openingHours };
+  const station = Object.fromEntries(Object.entries(parts).filter(([, value]) => value !== undefined));
+  return { station, rest: rest as T };
+}
+
 /**
  * A new point at the end of the tour; a loop keeps returning to its start,
  * so there the point goes in before the way back.
@@ -52,19 +60,9 @@ export function withPointAppended<T extends { lat: number; lng: number; role: st
  * nor its name, stay, importance, protection or opening hours.
  */
 export function closeLoop<T extends RoutePoint>(points: readonly T[], newId: string): T[] {
-  const first: (T & StationParts) | undefined = points[0];
+  const first = points[0];
   if (!first || points.length < 2 || isClosedLoop(points)) return [...points];
-  const {
-    fixedLeg: _leg,
-    lock: _lock,
-    key: _key,
-    name: _name,
-    stayMinutes: _stay,
-    importance: _importance,
-    protected: _protected,
-    openingHours: _hours,
-    ...start
-  } = first;
+  const { fixedLeg: _leg, lock: _lock, ...start } = stationSplit(first).rest;
   return [...points, { ...start, id: newId } as T];
 }
 
@@ -72,10 +70,11 @@ export function closeLoop<T extends RoutePoint>(points: readonly T[], newId: str
  * The same tour the other way round: the last point starts it, the stops run
  * backwards, and a fixed leg (a via ferrata, a hand-drawn stretch) stays on the
  * stretch it covered, its line turned round with it. A loop stays a loop from
- * the same spot.
+ * the same spot, and its start stays the station there: the way back is no
+ * station, so the start's key, name and stay stay first (CW-02, CW-03).
  */
 export function reverseRoute<T extends RoutePoint>(points: readonly T[]): T[] {
-  return points.map((_, index) => {
+  const reversed = points.map((_, index) => {
     const point = points[points.length - 1 - index];
     // In the new order the leg after this point is the one that led into it before.
     const before = points[points.length - 2 - index];
@@ -84,6 +83,10 @@ export function reverseRoute<T extends RoutePoint>(points: readonly T[]): T[] {
     if (!leg || index === points.length - 1) return rest as T;
     return { ...rest, fixedLeg: { ...leg, geometry: [...leg.geometry].reverse() } } as T;
   });
+  if (!isClosedLoop(points)) return reversed;
+  const start = stationSplit(reversed[0]);
+  const back = stationSplit(reversed[reversed.length - 1]);
+  return [{ ...start.rest, ...back.station } as T, ...reversed.slice(1, -1), { ...back.rest, ...start.station } as T];
 }
 
 /** A hand-drawn leg from this point straight to the next. */

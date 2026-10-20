@@ -129,6 +129,28 @@ describe('TourPlannerToursRail', () => {
     expect(screen.getByText('1 h 20 min')).toBeInTheDocument()
   })
 
+  it('CW-02: shows a walk its walking time, its stays and their total, a total entered by hand beside the computed one', () => {
+    const walk = {
+      mode: { type: 'new-draft' as const }, tourType: 'walk' as const,
+      walkingDurationMinutes: 45, plannedTotalMinutes: 135,
+      stationStays: { walkingMinutes: 45, stayMinutes: 90, unknownStays: 1, stations: 3, totalMinutes: 135, partial: true },
+    }
+    const facts = () => screen.getAllByRole('definition').map(value => [value.previousElementSibling?.textContent, value.textContent])
+    const view = render(<TourPlannerToursRail planner={planner(walk)} tours={[tour]} {...railProps} />)
+    expect(facts()).toEqual(expect.arrayContaining([
+      [expect.stringMatching(/^Est\. walking time/), '45 min'],
+      ['Stays', 'at least 1 h 30 min'],
+      ['Planned', 'at least 2 h 15 min'],
+    ]))
+    expect(screen.queryByText('Breaks')).not.toBeInTheDocument()
+
+    view.rerender(<TourPlannerToursRail planner={planner({ ...walk, plannedDurationMinutes: 240, plannedTotalMinutes: 240 })} tours={[tour]} {...railProps} />)
+    expect(facts()).toEqual(expect.arrayContaining([
+      ['Planned (Manual override)', '4 h'],
+      ['Computed', 'at least 2 h 15 min'],
+    ]))
+  })
+
   it('disables saved-tour switching while a Save is pending', () => {
     const controller = planner({
       isSaving: true,

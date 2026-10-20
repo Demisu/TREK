@@ -1,4 +1,4 @@
-// FE-TOUR-WAYPOINTS-001 to FE-TOUR-WAYPOINTS-009: the editor's waypoint model, shaping points, drawn legs
+// FE-TOUR-WAYPOINTS-001 to FE-TOUR-WAYPOINTS-010: the editor's waypoint model, shaping points, drawn legs
 // and a city walk's stations with the keys a save answers (P2A-03, PAD-11, CW-01 to CW-04).
 import type { TourWaypoint } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
@@ -6,6 +6,7 @@ import {
   normalizePlannerWaypoints,
   plannerWaypointsOf,
   routeExtrasKey,
+  routeInputsKey,
   sameWaypointSnapshot,
   savedWaypointsOf,
   tourWaypointKey,
@@ -188,5 +189,38 @@ describe('tourPlannerWaypoints', () => {
     // An answer without keys, as an offline save gives, or of another length leaves the points as they are.
     expect(withSavedKeys(points, savedWaypointsOf([A, B, C]))).toBe(points);
     expect(withSavedKeys(points, [])).toBe(points);
+  });
+
+  it("FE-TOUR-WAYPOINTS-010: what a route is planned from leaves a station's own fields and its key out, and nothing else", () => {
+    const stations: Array<Partial<TourPlannerWaypoint>> = [
+      { name: 'Cathedral' },
+      { stayMinutes: 45 },
+      { stayMinutes: 0 },
+      { importance: 'must' },
+      { protected: true },
+      { openingHours: 'Mo-Su 09:00-18:00' },
+      { key: 'stop-b' },
+    ];
+    for (const edit of stations) expect(routeInputsKey([A, { ...B, ...edit }, C])).toBe(routeInputsKey([A, B, C]));
+
+    const routed: Array<Partial<TourPlannerWaypoint>> = [
+      { lat: 49.011 },
+      { lng: 12.011 },
+      { shaping: true },
+      { lock: { wait_minutes: 10, transit_minutes: null } },
+      {
+        fixedLeg: {
+          kind: 'free',
+          geometry: [
+            [49.01, 12.01],
+            [49.02, 12.02],
+          ],
+        },
+      },
+      { linkedPlaceId: 4 },
+      { id: 'other' },
+    ];
+    for (const edit of routed) expect(routeInputsKey([A, { ...B, ...edit }, C])).not.toBe(routeInputsKey([A, B, C]));
+    expect(routeInputsKey([A, C])).not.toBe(routeInputsKey([A, B, C]));
   });
 });

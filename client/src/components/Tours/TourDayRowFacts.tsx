@@ -10,7 +10,8 @@ import { Tooltip } from '../shared/Tooltip';
 import { paddleCheckFact } from './paddle/paddleCheckModel';
 import { tourDayRowIcon } from './tourDayRowIcon';
 import { movingTimeLabel } from './tourFacts';
-import { formatPlannedTourDuration, tourPlannedTimes } from './tourPresentation';
+import { formatPlannedTourDuration, plannedTotalText, tourPlannedTimes } from './tourPresentation';
+import { walkStaysText } from './walk/walkTimeFields';
 
 export function TourDayRowIcon({ type, size = 27 }: { type: string; size?: number }) {
   const { t } = useTranslation();
@@ -163,27 +164,23 @@ export function TourDayRowPills({ tour, compact = false }: { tour: TourListItem;
   const { t } = useTranslation();
   const unit = useSettingsStore((state) => state.settings.distance_unit) || 'metric';
   const times = tourPlannedTimes(tour);
-  const shownMinutes = times.plannedTotalMinutes ?? times.walkingMinutes;
+  const walking = times.walkingMinutes == null ? null : formatPlannedTourDuration(times.walkingMinutes);
+  const total = plannedTotalText(times, t);
   const timeParts = [
-    times.walkingMinutes != null
-      ? `${movingTimeLabel(tour, t('tours.planner.inspector.duration'), t)}: ${formatPlannedTourDuration(times.walkingMinutes)}`
-      : null,
+    walking ? `${movingTimeLabel(tour, t('tours.planner.inspector.duration'), t)}: ${walking}` : null,
     times.breakMinutes
       ? `${t('tours.planner.breaksAdditional')}: ${formatPlannedTourDuration(times.breakMinutes)}`
       : null,
-    times.plannedTotalMinutes != null
-      ? `${t('tours.planner.plannedTotalDuration')}: ${formatPlannedTourDuration(times.plannedTotalMinutes)}${times.manuallyOverridden ? ` (${t('tours.planner.plannedTotalManual')})` : ''}`
+    // CW-02: a city walk's stays, which its total adds to the walking time.
+    times.walk ? `${t('tours.walk.stays')}: ${walkStaysText(times.walk, t)}` : null,
+    total
+      ? `${t('tours.planner.plannedTotalDuration')}: ${total}${times.manuallyOverridden ? ` (${t('tours.planner.plannedTotalManual')})` : ''}`
       : null,
   ].filter((part): part is string => part !== null);
   const check = paddleCheckOf(tour, t);
-  const time = shownMinutes != null && (
-    <TourDayRowPill
-      key="time"
-      icon={Clock}
-      value={formatPlannedTourDuration(shownMinutes)}
-      label={timeParts.join(', ')}
-      testId="trip-plan-tour-time"
-    />
+  const shown = plannedTotalText(times, t, true) ?? walking;
+  const time = shown != null && (
+    <TourDayRowPill key="time" icon={Clock} value={shown} label={timeParts.join(', ')} testId="trip-plan-tour-time" />
   );
   const distance = tour.distance != null && (
     <TourDayRowPill
@@ -234,10 +231,11 @@ export default function TourDayRowFacts({ tour, mobile = false }: { tour: TourLi
       t('tours.planner.breaksAdditional'),
       'trip-plan-tour-breaks'
     );
-  if (times.plannedTotalMinutes != null)
+  const total = plannedTotalText(times, t, true);
+  if (total)
     add(
       Clock,
-      formatPlannedTourDuration(times.plannedTotalMinutes),
+      total,
       `${t('tours.planner.plannedTotalDuration')}${times.manuallyOverridden ? `, ${t('tours.planner.plannedTotalManual')}` : ''}`,
       'trip-plan-tour-planned-duration'
     );

@@ -3,7 +3,7 @@
  * PlacesService prepares and persists imported places; these helpers derive
  * metrics from the resulting [[lat,lng,ele?]] geometry.
  */
-import type { GeometryPoint } from '@trek/shared';
+import { walkStationsOf, type GeometryPoint, type TourListItem, type TourWaypoint } from '@trek/shared';
 
 import { createHash } from 'node:crypto';
 
@@ -28,6 +28,27 @@ export function parseRouteGeometry(routeGeometry: string | null | undefined): Ge
   } catch {
     return [];
   }
+}
+
+/** What a list says of a city walk's stations: how many, their stays as far as entered, and how many have none. */
+export type WalkStationFacts = Pick<TourListItem, 'station_count' | 'station_stay_minutes' | 'station_stays_unknown'>;
+
+/**
+ * CW-02, CW-03: a city walk's stations as a list counts them, from its saved
+ * points: a shaping point and the way back of a loop are no station, a stay
+ * nobody entered is counted apart and never as nothing. Any other type has none.
+ */
+export function walkStationFacts(
+  tourType: string,
+  points: readonly Pick<TourWaypoint, 'lat' | 'lng' | 'shaping' | 'stay_minutes'>[],
+): WalkStationFacts {
+  if (tourType !== 'walk') return { station_count: null, station_stay_minutes: null, station_stays_unknown: null };
+  const stations = walkStationsOf(points);
+  return {
+    station_count: stations.length,
+    station_stay_minutes: stations.reduce((sum, station) => sum + (station.stay_minutes ?? 0), 0),
+    station_stays_unknown: stations.filter((station) => station.stay_minutes == null).length,
+  };
 }
 
 /** Confidence threshold: below this, the tour imports with a caution flag. */

@@ -20,7 +20,7 @@ import {
 } from '../../shared/DialogShell';
 import { TourDayRowPill } from '../TourDayRowFacts';
 import { RailFacts, TourNotice, type TourMetricField } from '../tourParts';
-import { formatPlannedTourDuration, tourPlannedTimes } from '../tourPresentation';
+import { plannedTotalText, tourPlannedTimes } from '../tourPresentation';
 import { type TourLibrary } from './useTourLibrary';
 
 type Translate = (key: string, params?: Record<string, unknown>) => string;
@@ -30,14 +30,17 @@ const ALL = 'all';
 
 /** A tour's own measures as badges; one it does not have is left out, never shown as zero. */
 function measureBadges(tour: TourLibraryItem, unit: Unit, t: Translate) {
-  const minutes = tourPlannedTimes(tour).plannedTotalMinutes;
+  const times = tourPlannedTimes(tour);
+  const total = plannedTotalText(times, t);
+  const badge = plannedTotalText(times, t, true);
   return [
-    minutes != null && {
-      key: 'time',
-      icon: Clock,
-      value: formatPlannedTourDuration(minutes),
-      label: `${t('tours.planner.plannedTotalDuration')}: ${formatPlannedTourDuration(minutes)}`,
-    },
+    total != null &&
+      badge != null && {
+        key: 'time',
+        icon: Clock,
+        value: badge,
+        label: `${t('tours.planner.plannedTotalDuration')}: ${total}`,
+      },
     tour.distance != null && {
       key: 'distance',
       icon: Ruler,
@@ -180,13 +183,13 @@ function ListFilters({ library }: { library: TourLibrary }) {
 
 /** The facts of the chosen tour as the preview shows them, each only where the tour has it. */
 function previewFacts(tour: TourLibraryItem, waypoints: number, unit: Unit, t: Translate): TourMetricField[] {
-  const minutes = tourPlannedTimes(tour).plannedTotalMinutes;
+  const total = plannedTotalText(tourPlannedTimes(tour), t);
   const fact = (show: boolean, label: string, value: () => string) => (show ? { label, value: value() } : null);
   return [
     fact(true, t('tours.library.fromTrip'), () => tour.trip.title),
     fact(true, t('tours.filter.type'), () => t(`tourTypes.${tour.tour_type}`)),
     fact(tour.distance != null, t('tours.detail.distance'), () => formatDistance(tour.distance ?? 0, unit)),
-    fact(minutes != null, t('tours.planner.plannedTotalDuration'), () => formatPlannedTourDuration(minutes ?? 0)),
+    fact(total != null, t('tours.planner.plannedTotalDuration'), () => total ?? ''),
     fact(tour.elevation_gain != null && tour.tour_type !== 'kayak', t('tours.detail.ascent'), () =>
       formatElevation(tour.elevation_gain ?? 0, unit)
     ),

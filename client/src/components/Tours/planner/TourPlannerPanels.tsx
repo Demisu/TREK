@@ -16,7 +16,7 @@ import { BarButton, SoftPill } from '../../Planner/planParts'
 import TourListRow from '../TourListRow'
 import ElevationProfile from '../../shared/ElevationProfile'
 import { formatPlannedTourDuration, hikeSourceBadgeLabel, tourSource } from '../tourPresentation'
-import { CardAction, FoldButton, RailCard, RailFacts, TourDayMenu, TourListCard, TourNotice, TourSection } from '../tourParts'
+import { CardAction, FoldButton, RailCard, RailFacts, TourDayMenu, TourListCard, TourNotice, TourSection, type TourMetricField } from '../tourParts'
 import { movingTimeLabel, tourMetricFacts, withoutHeights } from '../tourFacts'
 import { TourDetailsSection, TourNameField } from './TourEditorFields'
 import { crossesLake } from '../paddle/lakeStyleAdvice'
@@ -46,6 +46,7 @@ import { TourScopeSummary } from '../TourScopeSummary'
 import { useTourListFilters } from '../useTourListFilters'
 import { TourPoiSearchCard } from '../poi/TourPoiSearchCard'
 import { BikeWaysCard } from '../bike/BikeWaysCard'
+import { walkTimeFields } from '../walk/walkTimeFields'
 
 const STATUS_KEY: Partial<Record<TourPlannerStatus, string>> = {
   dirty: 'tours.planner.status.dirty',
@@ -643,38 +644,38 @@ function UnreachableNotice({ planner }: { planner: TourPlannerController }) {
   )
 }
 
-/** The time facts of the overview: the estimate (walking, riding or paddling), the breaks and the planned total. */
-function plannerTimeFields(planner: TourPlannerController, t: Translate) {
+/**
+ * The time facts of the overview: the estimate (walking, riding or paddling),
+ * the breaks and the planned total; a city walk its walking time, its stays and
+ * their total in the wording the tour detail uses too (CW-02).
+ */
+function plannerTimeFields(planner: TourPlannerController, t: Translate): TourMetricField[] {
   const keys = ESTIMATE_KEYS[planner.tourType]
-  const stays = planner.stationStays
+  const estimate = {
+    label: t(keys.labelKey),
+    shortLabel: t(keys.shortKey),
+    info: { label: t(keys.infoLabelKey), description: t(keys.infoKey) },
+  }
+  if (planner.stationStays) {
+    return walkTimeFields({ walking: estimate, walkingMinutes: planner.walkingDurationMinutes, stays: planner.stationStays,
+      manualMinutes: planner.plannedDurationMinutes, t })
+  }
   return [
     {
-      label: t(keys.labelKey),
-      shortLabel: t(keys.shortKey),
-      info: { label: t(keys.infoLabelKey), description: t(keys.infoKey) },
+      ...estimate,
       value: planner.walkingDurationMinutes == null
         ? t('tours.planner.walkingTimeUnknown')
         : formatPlannedTourDuration(planner.walkingDurationMinutes),
     },
-    stays
-      ? {
-          // CW-02: a city walk's stays in place of breaks, the unknown ones named, never counted as nothing.
-          label: t('tours.walk.stays'),
-          value: stays.unknownStays > 0
-            ? t('tours.walk.totalAtLeast', { time: formatPlannedTourDuration(stays.stayMinutes) })
-            : formatPlannedTourDuration(stays.stayMinutes),
-        }
-      : {
-          label: t('tours.planner.breaksShort'),
-          value: planner.breakAdditionalMinutes == null ? '—' : formatPlannedTourDuration(planner.breakAdditionalMinutes),
-        },
+    {
+      label: t('tours.planner.breaksShort'),
+      value: planner.breakAdditionalMinutes == null ? '—' : formatPlannedTourDuration(planner.breakAdditionalMinutes),
+    },
     {
       label: `${t('tours.planner.plannedShort')}${planner.plannedDurationMinutes != null ? ` (${t('tours.planner.plannedTotalManual')})` : ''}`,
       value: planner.plannedTotalMinutes == null
         ? t('tours.planner.walkingTimeUnknown')
-        : stays?.partial && planner.plannedDurationMinutes == null
-          ? t('tours.walk.totalAtLeast', { time: formatPlannedTourDuration(planner.plannedTotalMinutes) })
-          : formatPlannedTourDuration(planner.plannedTotalMinutes),
+        : formatPlannedTourDuration(planner.plannedTotalMinutes),
     },
   ]
 }

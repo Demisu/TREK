@@ -7,7 +7,7 @@ import { tourLibraryRepo } from '../../../repo/tourLibraryRepo';
 import { TourLibraryDialog } from './TourLibraryDialog';
 import { useTourLibrary } from './useTourLibrary';
 
-// FE-TOUR-LIBRARY-001 to FE-TOUR-LIBRARY-008
+// FE-TOUR-LIBRARY-001 to FE-TOUR-LIBRARY-009
 
 vi.mock('../../Map/MapViewAuto', () => ({
   MapViewAuto: ({ route }: { route: Array<Array<[number, number]>> }) => (
@@ -187,6 +187,31 @@ describe('TourLibraryDialog', () => {
     fireEvent.click(screen.getByTestId('tour-library-confirm'));
     await waitFor(() => expect(onTakenOver).toHaveBeenCalled());
     expect(screen.queryByTestId('tour-library-preview')).toBeNull();
+  });
+
+  it('FE-TOUR-LIBRARY-009: plans a city walk with its stays, at least that much while a stay is not entered (CW-02)', async () => {
+    const walk = item({
+      place_id: 13,
+      name: 'Old town',
+      tour_type: 'walk',
+      duration: 45,
+      break_additional_minutes: 15,
+      station_count: 3,
+      station_stay_minutes: 90,
+      station_stays_unknown: 1,
+    });
+    list.mockResolvedValue({ ...LIST, tours: [walk] });
+    detail.mockResolvedValue({ tour: walk, line: [], waypoint_count: 3 });
+    render(<Harness />);
+    fireEvent.click(screen.getByTestId('tour-rail-library'));
+    const row = await screen.findByTestId('tour-library-row-13');
+    const time = within(row).getByTestId('tour-library-time');
+    expect(time).toHaveTextContent('≥ 2 h 15 min');
+    expect(time).toHaveAccessibleName('Planned total duration: at least 2 h 15 min');
+    fireEvent.click(row);
+    expect(
+      await within(screen.getByTestId('tour-library-preview')).findByText('at least 2 h 15 min')
+    ).toBeInTheDocument();
   });
 
   it('FE-TOUR-LIBRARY-008: says when the other trips have no tours', async () => {

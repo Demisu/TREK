@@ -8,6 +8,7 @@ import { resetAllStores, seedStore } from '../../../tests/helpers/store'
 import { useSettingsStore } from '../../store/settingsStore'
 import TourDetailDialog from './TourDetailDialog'
 import { useTripStore } from '../../store/tripStore'
+import { tourRepo } from '../../repo/tourRepo'
 
 vi.mock('../../../../server/src/config', () => { throw new Error('Config initialization is forbidden in client tests') })
 vi.mock('../../../../server/src/db/database', () => { throw new Error('Legacy database imports are forbidden in client tests') })
@@ -140,6 +141,32 @@ describe('TourDetailDialog', () => {
     expect(screen.getByText('Walk')).toBeInTheDocument()
     expect(screen.getByText('Breaks')).toBeInTheDocument()
     expect(screen.getByText('Planned (Manual override)')).toBeInTheDocument()
+  })
+
+  it('CW-02: shows a city walk its walking time, its stays and their total, and no breaks left from another type', async () => {
+    const walk = {
+      ...tour, tour_type: 'walk' as const, max_hiking_difficulty: null, duration: 45, break_additional_minutes: 15,
+      station_count: 3, station_stay_minutes: 120, station_stays_unknown: 0,
+    }
+    vi.spyOn(tourRepo, 'detail').mockResolvedValue({ tour: walk, waypoints: [] })
+    const view = render(<TourDetailDialog {...defaultProps} tour={walk} />)
+
+    // 45 min of walking, a museum of 90 min and a cafe of 30 min, as the day row says it too.
+    expect(screen.getByLabelText('Walking: 45 min, Stays: 2 h, Planned: 2 h 45 min')).toHaveTextContent('2 h 45 min')
+    expect(screen.getByText('Stays')).toBeInTheDocument()
+    expect(screen.queryByText('Breaks')).not.toBeInTheDocument()
+
+    view.rerender(<TourDetailDialog {...defaultProps} tour={{ ...walk, station_stay_minutes: 90, station_stays_unknown: 1 }} />)
+    expect(screen.getByLabelText('Walking: 45 min, Stays: at least 1 h 30 min, Planned: at least 2 h 15 min'))
+      .toHaveTextContent('≥ 2 h 15 min')
+
+    view.rerender(<TourDetailDialog {...defaultProps}
+      tour={{ ...walk, station_stay_minutes: 90, station_stays_unknown: 1, planned_duration_minutes: 240 }} />)
+    expect(screen.getByLabelText(
+      'Walking: 45 min, Stays: at least 1 h 30 min, Planned (Manual override): 4 h, Computed: at least 2 h 15 min'
+    )).toHaveTextContent('4 h')
+    expect(screen.getByText('Computed')).toBeInTheDocument()
+    expect(await screen.findByTestId('walk-stations')).toBeInTheDocument()
   })
 
   it('PAD-01: a paddle tour without heights shows distance, paddling and total side by side in one row', () => {

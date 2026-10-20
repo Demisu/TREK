@@ -142,6 +142,28 @@ export function routeExtrasKey(points: TourPlannerWaypoint[]): string {
   );
 }
 
+/**
+ * CW-02: everything a route is planned from: every point with all it holds but
+ * a station's own fields (its name, stay, importance, protection and opening
+ * hours) and the key a save gave it. A change to those alone leaves the route
+ * as it is; any other change plans it again.
+ */
+export function routeInputsKey(points: readonly TourPlannerWaypoint[]): string {
+  return JSON.stringify(
+    points.map(
+      ({
+        name: _name,
+        stayMinutes: _stay,
+        importance: _importance,
+        protected: _protected,
+        openingHours: _hours,
+        key: _key,
+        ...routed
+      }) => routed
+    )
+  );
+}
+
 /** CW-01 to CW-04: what a city walk's station holds besides its spot, none of which the route depends on. */
 function stationFieldsKey(points: TourPlannerWaypoint[]): string {
   return JSON.stringify(

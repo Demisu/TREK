@@ -160,7 +160,14 @@ describe('DayPlanSidebar', () => {
     const place = buildPlace({ id: 45, name: 'Ridge walk', description, tour_place_id: 45 });
     const day = buildDay({ id: 10, date: '2025-06-01', title: 'Day 1' });
     const assignment = buildAssignment({ id: 101, day_id: 10, order_index: 0, place });
-    const times = { walkingMinutes: 60, breakMinutes: 35, plannedTotalMinutes: 95, manuallyOverridden: false };
+    const times = {
+      walkingMinutes: 60,
+      breakMinutes: 35,
+      plannedTotalMinutes: 95,
+      manuallyOverridden: false,
+      walk: null,
+      atLeast: false,
+    };
     const props = makeDefaultProps({
       days: [day],
       places: [place],
@@ -188,6 +195,22 @@ describe('DayPlanSidebar', () => {
       />
     );
     expect(screen.getByTestId('trip-plan-tour-planned-duration')).toHaveTextContent('Manual override');
+
+    // CW-02: a city walk whose stay is not entered yet plans at least its known total.
+    view.rerender(
+      <DayPlanSidebar
+        {...{
+          ...props,
+          plannedTourDurations: new Map([
+            [place.id, { ...times, breakMinutes: null, plannedTotalMinutes: 135, atLeast: true }],
+          ]),
+        }}
+      />
+    );
+    const walkTotal = screen.getByTestId('trip-plan-tour-planned-duration');
+    expect(walkTotal).toHaveTextContent('Planned: ≥ 2 h 15 min');
+    expect(walkTotal).toHaveAccessibleName('Planned total duration: at least 2 h 15 min');
+    expect(screen.queryByTestId('trip-plan-tour-breaks')).not.toBeInTheDocument();
 
     useAddonStore.setState({ addons: [{ id: 'tours', name: 'Tours', type: 'trip', icon: '', enabled: false }] });
     view.rerender(<DayPlanSidebar {...props} />);

@@ -33,6 +33,7 @@ import {
   localHashOf,
   parseRouteGeometry,
   LOW_CONFIDENCE_THRESHOLD,
+  walkStationFacts,
   type GeometryPoint,
 } from './tours.helpers';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -116,7 +117,7 @@ export class ToursService {
     private readonly paddleChecks: TourPaddleCheckService,
   ) {}
 
-  /** A tour as it is listed; a city walk with the stations its points make (CW-03). */
+  /** A tour as it is listed; a city walk with the stations its points make and their stays (CW-02, CW-03). */
   private toItem(r: TourListRow, points: readonly TourWaypointRow[] = []): TourListItem {
     return {
       place_id: r.place_id,
@@ -149,7 +150,7 @@ export class ToursService {
       has_waypoints: Boolean(r.has_waypoints),
       revision: r.revision,
       hiking_preferences: decodeJson(TOUR_HIKING_PREFERENCES, r.hiking_preferences, 'tour'),
-      station_count: r.tour_type === 'walk' ? walkStationsOf(points).length : null,
+      ...walkStationFacts(r.tour_type, points),
     };
   }
 
@@ -225,21 +226,24 @@ export class ToursService {
     const tid = toRowId(tripId);
     if (tid === null) return [];
     const rows = await this.toursRepo.listForTrip(tid);
-    const walkPoints = await this.walkPointsOf(tid, rows);
+    const walkPoints = await this.walkPointsByPlace(rows);
     return await this.paddleChecks.forTrip(
       tid,
       rows.map((r) => this.toItem(r, walkPoints.get(r.place_id) ?? [])),
     );
   }
 
-  /** CW-03: the points of the trip's city walks by tour, read only where the trip has a walk. */
-  private async walkPointsOf(
-    tripId: number,
-    rows: readonly TourListRow[],
+  /**
+   * CW-02, CW-03: the points of the city walks among these tours, by tour, for
+   * a list that counts their stations and stays; the points of another type
+   * are not read.
+   */
+  async walkPointsByPlace(
+    rows: readonly { place_id: number; tour_type: string }[],
   ): Promise<Map<number, TourWaypointWithPlaceRow[]>> {
     const byPlace = new Map<number, TourWaypointWithPlaceRow[]>();
-    if (!rows.some((row) => row.tour_type === 'walk')) return byPlace;
-    for (const point of await this.waypointsRepo.listForTrip(tripId)) {
+    const walks = rows.filter((row) => row.tour_type === 'walk').map((row) => row.place_id);
+    for (const point of await this.waypointsRepo.listForPlaces(walks)) {
       const points = byPlace.get(point.place_id);
       if (points) points.push(point);
       else byPlace.set(point.place_id, [point]);

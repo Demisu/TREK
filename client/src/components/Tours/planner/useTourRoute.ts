@@ -20,7 +20,7 @@ import { randomId } from '../../../utils/randomId';
 import { planPaddleStep, type PaddleTourRoute } from './paddleRouting';
 import {
   normalizePlannerWaypoints,
-  routeExtrasKey,
+  routeInputsKey,
   tourWaypointKey,
   type TourPlannerWaypoint,
 } from './tourPlannerWaypoints';
@@ -210,16 +210,20 @@ export function useTourRoute(inputs: TourRouteInputs) {
   // What a route was planned for besides its points: a route of another type or profile is not this one's.
   const choices = [tourType, bikeProfile, maxHikingDifficulty, hikingPreferences, paddleBoat, paddleLakeStyle];
   const plannedKey = `${waypointKey}#${JSON.stringify(choices)}`;
-  // CW-02, CW-03: a station's own fields and the keys a save answered are no part of what a route is planned from.
-  const extrasKey = useMemo(() => routeExtrasKey(waypoints), [waypoints]);
-  const runKey = `${plannedKey}#${extrasKey}#${retryToken}`;
+  // CW-02, CW-03: a station's own fields and the keys a save answered are no part of what a route is planned from,
+  // so a change to them alone plans nothing again.
+  const routeInputs = useMemo(() => routeInputsKey(waypoints), [waypoints]);
+  const runKey = `${plannedKey}#${routeInputs}#${retryToken}`;
+  // The points as they are when a run starts, their station fields included, read without making them a reason to run.
+  const currentPoints = useEffectEvent(() => waypoints);
   // The route shown was planned whole for exactly this run, so a change that leaves it as it is plans nothing again.
   const routeStands = useEffectEvent(() => planned.forRun === runKey && routeComplete(planned));
 
   useEffect(() => {
-    if (waypoints.length < 2) {
+    const points = currentPoints();
+    if (points.length < 2) {
       interruptRouting();
-      setStatus(waypoints.length === 0 ? 'empty' : 'dirty');
+      setStatus(points.length === 0 ? 'empty' : 'dirty');
       clearRoute();
       onCleared();
       setError(null);
@@ -238,7 +242,7 @@ export function useTourRoute(inputs: TourRouteInputs) {
     const run: RouteRun = {
       inputs: {
         tripId,
-        waypoints,
+        waypoints: points,
         tourType,
         maxHikingDifficulty,
         hikingPreferences,
@@ -281,12 +285,12 @@ export function useTourRoute(inputs: TourRouteInputs) {
     patchWaypoints,
     plannedKey,
     retryToken,
+    routeInputs,
     runKey,
     setError,
     setStatus,
     tourType,
     tripId,
-    waypoints,
   ]);
 
   const { forKey, forRun: _run, ...shown } = planned;

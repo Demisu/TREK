@@ -8,7 +8,7 @@ import { formatTime } from '../../utils/formatters';
 import { fs } from '../shared/DialogShell';
 import { TourDayRowPills } from '../Tours/TourDayRowFacts';
 import { movingTimeLabel } from '../Tours/tourFacts';
-import { formatPlannedTourDuration, type TourPlannedTimes } from '../Tours/tourPresentation';
+import { formatPlannedTourDuration, plannedTotalText, type TourPlannedTimes } from '../Tours/tourPresentation';
 import { WalkProgressPill } from '../Tours/walk/WalkStations';
 import { TimePill } from './planParts';
 
@@ -60,9 +60,9 @@ function PlannedTourPills({ tourTimes }: { tourTimes: DayRowTourTimes }) {
         <TimePill>
           <span
             data-testid="trip-plan-tour-planned-duration"
-            aria-label={`${t('tours.planner.plannedTotalDuration')}: ${formatPlannedTourDuration(tourTimes.plannedTotalMinutes)}${manual ? `, ${t('tours.planner.plannedTotalManual')}` : ''}`}
+            aria-label={`${t('tours.planner.plannedTotalDuration')}: ${plannedTotalText(tourTimes, t)}${manual ? `, ${t('tours.planner.plannedTotalManual')}` : ''}`}
           >
-            {t('tours.planner.plannedShort')}: {formatPlannedTourDuration(tourTimes.plannedTotalMinutes)}
+            {t('tours.planner.plannedShort')}: {plannedTotalText(tourTimes, t, true)}
             {manual ? ` · ${t('tours.planner.plannedTotalManual')}` : ''}
           </span>
         </TimePill>

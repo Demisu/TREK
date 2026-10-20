@@ -139,6 +139,19 @@ export class TourWaypointsRepository extends TrekRepository<TourWaypoints> {
     return rows.map(({ place_id, ...point }) => ({ place_id, ...readWaypoint(point) }));
   }
 
+  /** TW2b: every waypoint of these tours with its place, ordered by place and sequence; none for no tour. */
+  async listForPlaces(place_ids: readonly number[]): Promise<TourWaypointWithPlaceRow[]> {
+    if (place_ids.length === 0) return [];
+    const rows = await this.db()
+      .selectFrom('tour_waypoints')
+      .select(['place_id', ...WAYPOINT_COLUMNS])
+      .where('place_id', 'in', [...new Set(place_ids)])
+      .orderBy('place_id', 'asc')
+      .orderBy('sequence', 'asc')
+      .execute();
+    return rows.map(({ place_id, ...point }) => ({ place_id, ...readWaypoint(point) }));
+  }
+
   /**
    * TW3 — `INSERT INTO tour_waypoints (place_id, lat, lng, role, sequence, fixed_leg, lock, shaping)
    * VALUES (...)` for each point. The caller owns the transaction: a create

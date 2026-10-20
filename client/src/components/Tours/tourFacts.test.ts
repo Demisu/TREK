@@ -30,5 +30,6 @@ describe('movingTimeLabel', () => {
     expect(movingTimeLabel({ tour_type: 'kayak' }, 'walking', t)).toBe('tours.paddle.timeEstimatedShort');
     expect(movingTimeLabel({ tour_type: 'hike' }, 'walking', t)).toBe('walking');
     expect(movingTimeLabel(undefined, 'walking', t)).toBe('walking');
+    expect(movingTimeLabel({ tour_type: 'walk' }, 'walking', t)).toBe('tours.walk.timeEstimatedShort');
   });
 });

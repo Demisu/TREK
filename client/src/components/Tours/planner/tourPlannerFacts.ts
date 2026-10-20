@@ -126,7 +126,8 @@ export function tourPlannerFacts(input: TourPlannerFactsInput) {
     isPaddle,
     websiteInvalid: input.website.trim().length > 0 && !tourWebsiteSchema.safeParse(input.website).success,
     plannedDurationInvalid: invalidMinutes(plannedDurationMinutes),
-    breakAdditionalInvalid: invalidMinutes(breakAdditionalMinutes),
+    // A city walk sends no breaks (CW-02), so one left from another type cannot hold its save up.
+    breakAdditionalInvalid: input.tourType !== 'walk' && invalidMinutes(breakAdditionalMinutes),
     paddleIncomplete: isPaddle && (boatType === null || waterContext === null),
     walkingDurationMinutes,
     automaticPlannedTotalMinutes,
@@ -135,6 +136,8 @@ export function tourPlannerFacts(input: TourPlannerFactsInput) {
       plannedDurationMinutes === null &&
       automaticPlannedTotalMinutes !== null &&
       automaticPlannedTotalMinutes > MAX_PLANNED_TOUR_DURATION_MINUTES,
+    // A city walk's stops are its stays: it saves no breaks, so a cafe never counts as a stay and a break at once.
+    savedBreakAdditionalMinutes: input.tourType === 'walk' ? null : breakAdditionalMinutes,
     // The router's own time stands in for a hike without heights; a paddle tour has only its speed.
     savedDurationSeconds:
       walkingDurationMinutes === null ? (isPaddle ? null : durationSeconds) : walkingDurationMinutes * 60,

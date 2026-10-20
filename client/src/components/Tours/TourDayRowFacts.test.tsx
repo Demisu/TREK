@@ -117,6 +117,42 @@ describe('PAD-09 the check bench on a tour row', () => {
   });
 });
 
+describe("CW-02 a city walk's time on its day row", () => {
+  const walk: TourListItem = {
+    ...tour,
+    tour_type: 'walk',
+    duration: 45,
+    break_additional_minutes: 15,
+    max_hiking_difficulty: null,
+    station_count: 3,
+    station_stay_minutes: 120,
+    station_stays_unknown: 0,
+  };
+
+  it('shows the walking time and the stays as the planned total, its breaks left out', () => {
+    render(<TourDayRowPills tour={walk} />);
+    const time = screen.getByTestId('trip-plan-tour-time');
+    expect(time).toHaveTextContent('2 h 45 min');
+    expect(time).toHaveAccessibleName('Walking: 45 min, Stays: 2 h, Planned total duration: 2 h 45 min');
+  });
+
+  it('says the total is at least what is known while a stay is not entered', () => {
+    render(<TourDayRowPills tour={{ ...walk, station_stay_minutes: 90, station_stays_unknown: 1 }} />);
+    const time = screen.getByTestId('trip-plan-tour-time');
+    expect(time).toHaveTextContent('≥ 2 h 15 min');
+    expect(time).toHaveAccessibleName(
+      'Walking: 45 min, Stays: at least 1 h 30 min, Planned total duration: at least 2 h 15 min'
+    );
+  });
+
+  it('shows the same total among the facts of a phone row, and no breaks', () => {
+    render(<TourDayRowFacts tour={{ ...walk, station_stay_minutes: 90, station_stays_unknown: 1 }} mobile />);
+    expect(screen.getByTestId('trip-plan-tour-planned-duration')).toHaveTextContent('≥ 2 h 15 min');
+    expect(screen.getByTestId('trip-plan-tour-walking-time')).toHaveAccessibleName('Walking: 45 min');
+    expect(screen.queryByTestId('trip-plan-tour-breaks')).not.toBeInTheDocument();
+  });
+});
+
 describe('the compact facts of a tour list row', () => {
   const testIds = () =>
     [...document.querySelectorAll('[data-testid^="plan-tour"], [data-testid="trip-plan-tour-time"]')].map((el) =>

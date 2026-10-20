@@ -65,11 +65,17 @@ function sumBadge(
 ): ScopeBadge | null {
   if (sum.value === null) return null;
   const partial = sum.known < sum.of;
-  const value = partial ? `≥ ${format(sum.value)}` : format(sum.value);
-  const label = partial
-    ? `${name}: ${value} (${t('tours.scope.partialBody', { known: sum.known, of: sum.of })})`
-    : `${name}: ${value}`;
-  return { key, icon, value, label };
+  const value = partial || sum.atLeast ? `≥ ${format(sum.value)}` : format(sum.value);
+  if (partial)
+    return {
+      key,
+      icon,
+      value,
+      label: `${name}: ${value} (${t('tours.scope.partialBody', { known: sum.known, of: sum.of })})`,
+    };
+  // CW-02: known for every tour, but a city walk's stay is not entered yet.
+  const said = sum.atLeast ? t('tours.walk.totalAtLeast', { time: format(sum.value) }) : value;
+  return { key, icon, value, label: `${name}: ${said}` };
 }
 
 function typeBadges(scope: TourTypeScope, unit: Parameters<typeof formatDistance>[1], t: Translate): ScopeBadge[] {
@@ -92,7 +98,12 @@ function typeBadges(scope: TourTypeScope, unit: Parameters<typeof formatDistance
       t
     ),
     sumBadge(
-      { key: 'planned', icon: CalendarClock, name: t('tours.scope.planned') },
+      // A city walk plans its stays, not breaks (CW-02).
+      {
+        key: 'planned',
+        icon: CalendarClock,
+        name: t(scope.type === 'walk' ? 'tours.scope.plannedWithStays' : 'tours.scope.planned'),
+      },
       scope.plannedMinutes,
       formatPlannedTourDuration,
       t

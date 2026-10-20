@@ -5,9 +5,9 @@ import { tourRepo } from '../../../repo/tourRepo'
 import { randomId } from '../../../utils/randomId'
 import { analyzeRouteGeometry, type RouteProfileFocus } from '../../../utils/routeGeometry'
 import { closeLoop, reverseRoute, toggleFreeLeg, withPointAppended } from './tourRouteActions'
-import { walkTimes } from './stationModel'
+import { walkTimes, walkTimesOf } from './stationModel'
 import { hasCompleteElevation, useTourRoute } from './useTourRoute'
-import { normalizePlannerWaypoints, plannerWaypointsOf, ridablePoints, sameWaypointSnapshot, savedWaypointsOf, unlinkedPoint, withSavedKeys, type TourPlannerWaypoint } from './tourPlannerWaypoints'
+import { normalizePlannerWaypoints, plannerWaypointsOf, ridablePoints, routeInputsKey, sameWaypointSnapshot, savedWaypointsOf, unlinkedPoint, withSavedKeys, type TourPlannerWaypoint } from './tourPlannerWaypoints'
 import { openedTourFields, tourPlannerFacts } from './tourPlannerFacts'
 import { usePlannerHistory } from './usePlannerHistory'
 import { useTourDraftStorage } from './useTourDraftStorage'
@@ -57,6 +57,13 @@ export type TourPlannerStatus =
 interface HistoryEntry {
   waypoints: TourPlannerWaypoint[]; difficulty: TourMaxHikingDifficulty; preferences: HikingPreferences | null; bikeProfile: BikeProfile
   tourType: PlannableTourType
+}
+
+/** CW-02: two steps plan the same route: their points alike but for a station's own fields, and the same choices. */
+function sameRoute(a: HistoryEntry, b: HistoryEntry): boolean {
+  const { waypoints: pointsA, ...choicesA } = a
+  const { waypoints: pointsB, ...choicesB } = b
+  return routeInputsKey(pointsA) === routeInputsKey(pointsB) && JSON.stringify(choicesA) === JSON.stringify(choicesB)
 }
 
 /** Where a new tour was planned from; an edit leaves it as it was saved. */
@@ -233,17 +240,22 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     // A point the router set that the paddler moves or edits is theirs from then on.
     const next = normalizePlannerWaypoints(paddle ? adoptChangedPoints(current, changed) : changed, paddle)
     if (sameWaypointSnapshot(current, next)) return
-    invalidateDetailRequest()
-    interruptRouting()
-    draftRevisionRef.current += 1
     recordStep(snapshot())
     waypointsRef.current = next
     setWaypoints(next)
+    // CW-02: a station's own fields (its stay, its name) plan no route: the routing goes on, and Save stays as it was.
+    if (routeInputsKey(current) === routeInputsKey(next)) {
+      markEdited()
+      return
+    }
+    invalidateDetailRequest()
+    interruptRouting()
+    draftRevisionRef.current += 1
     setHasUnsavedChanges(true)
     setSaveOutcome(null)
     setStatus('dirty')
     setError(null)
-  }, [recordStep, invalidateDetailRequest, interruptRouting, snapshot])
+  }, [recordStep, invalidateDetailRequest, interruptRouting, markEdited, snapshot])
 
   // Detail laid in after the step that asked for it (a portage's way on land), with no step of its own.
   const amendWaypoints = useCallback((change: (current: TourPlannerWaypoint[]) => TourPlannerWaypoint[]) => {
@@ -392,8 +404,10 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
 
   /** A snapshot of the history put back: the route and what it depends on. */
   const restoreStep = useCallback((entry: HistoryEntry) => {
+    // CW-02: a step that changed a station's own fields only comes back without planning the route again.
+    const routeKept = sameRoute(entry, snapshot())
     invalidateDetailRequest()
-    interruptRouting()
+    if (!routeKept) interruptRouting()
     draftRevisionRef.current += 1
     waypointsRef.current = entry.waypoints
     difficultyRef.current = entry.difficulty
@@ -407,9 +421,10 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     setTourTypeState(entry.tourType)
     setSelectedWaypointId(id => entry.waypoints.some(point => point.id === id) ? id : entry.waypoints[0]?.id ?? null)
     setHasUnsavedChanges(true)
+    if (routeKept) return
     setStatus('dirty')
     setError(null)
-  }, [invalidateDetailRequest, interruptRouting])
+  }, [invalidateDetailRequest, interruptRouting, snapshot])
 
   const { undo: undoStep, redo: redoStep } = history
   const undo = useCallback(() => {
@@ -480,15 +495,17 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const paddleEstimate = useMemo(() => isPaddle ? paddleEstimateOf(waypoints, { effectiveSpeedKmh, portageSpeedKmh }, paddleSpeedInvalid, routedLegLengths) : null,
     [effectiveSpeedKmh, isPaddle, paddleSpeedInvalid, portageSpeedKmh, routedLegLengths, waypoints])
   // CW-02: a city walk's stays, what of them is known.
-  const stationStays = useMemo(() => (tourType === 'walk' ? walkTimes(waypoints, null) : null), [tourType, waypoints])
+  const stays = useMemo(() => (tourType === 'walk' ? walkTimes(waypoints, null) : null), [tourType, waypoints])
   const facts = useMemo(() => tourPlannerFacts({
     tourType, maxHikingDifficulty, hikingPreferences, bikeProfile, website, plannedDurationMinutes, breakAdditionalMinutes,
     paddle: { boatType, waterContext, speedKmh, portageSpeedKmh, lakeStyle },
-    paddleSpeedInvalid, paddleEstimate, routeAnalysis, durationSeconds, stationStayMinutes: stationStays?.stayMinutes ?? null,
+    paddleSpeedInvalid, paddleEstimate, routeAnalysis, durationSeconds, stationStayMinutes: stays?.stayMinutes ?? null,
   }), [bikeProfile, boatType, breakAdditionalMinutes, durationSeconds, hikingPreferences, lakeStyle, maxHikingDifficulty, paddleEstimate, paddleSpeedInvalid,
-    plannedDurationMinutes, portageSpeedKmh, routeAnalysis, speedKmh, stationStays, tourType, waterContext, website])
+    plannedDurationMinutes, portageSpeedKmh, routeAnalysis, speedKmh, stays, tourType, waterContext, website])
   const { websiteInvalid, plannedDurationInvalid, breakAdditionalInvalid, paddleIncomplete, walkingDurationMinutes,
-    plannedTotalMinutes, plannedTotalInvalid, savedDurationSeconds, typeFields } = facts
+    plannedTotalMinutes, plannedTotalInvalid, savedDurationSeconds, savedBreakAdditionalMinutes, typeFields } = facts
+  // CW-02: and with the walking time, the walk's times as the overview says them.
+  const stationStays = useMemo(() => stays && walkTimesOf({ ...stays, walkingMinutes: walkingDurationMinutes }), [stays, walkingDurationMinutes])
 
   const returnToNeutral = useCallback(() => {
     if (saveInFlightRef.current) return
@@ -780,7 +797,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       waypoints: savedWaypointsOf(waypoints, tourType),
       duration_seconds: savedDurationSeconds,
       planned_duration_minutes: plannedDurationMinutes,
-      break_additional_minutes: breakAdditionalMinutes,
+      break_additional_minutes: savedBreakAdditionalMinutes,
       ...derivedFromField(targetPlaceId, derivedFromPlaceId),
       ...(expectedRevision !== null ? { expected_revision: expectedRevision } : {}),
     } as const
@@ -831,7 +848,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
         setIsSaving(false)
       }
     }
-  }, [adoptRevision, refuseRevision, revisionBaseRef, clearHistory, breakAdditionalMinutes, canSave,
+  }, [adoptRevision, refuseRevision, revisionBaseRef, clearHistory, savedBreakAdditionalMinutes, canSave,
     derivedFromPlaceId,
     description, savedDurationSeconds, editingPlaceId, enrichedGeometry, invalidateDetailRequest, name, onSaved, plannedDurationMinutes, forgetDraft, tourType, tripId, typeFields, waypoints, website])
 
