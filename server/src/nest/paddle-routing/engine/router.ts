@@ -1,8 +1,8 @@
+import { metresBetween, projectOnSegment } from '../../../lib/geo/geo';
+import { MinHeap } from '../../../lib/geo/min-heap';
 import { LakeIndex } from '../build/lakes';
 import { Access, EdgeKind, PortageSource, type WaterGraphData } from '../water-graph';
-import { metresBetween, projectOnSegment } from './geo';
 import { LakeField, type LakeProfile } from './lake-field';
-import { MinHeap } from './min-heap';
 import type {
   PaddleBoatType,
   PaddleLakeStyle,

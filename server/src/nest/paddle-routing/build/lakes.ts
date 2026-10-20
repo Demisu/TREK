@@ -1,4 +1,4 @@
-import { LocalFrame } from '../engine/geo';
+import { LocalFrame } from '../../../lib/geo/geo';
 import type { LakeGrid } from '../water-graph';
 import { type BuildEdge, type BuildState, PointGrid } from './build-state';
 import type { CollectedArea, CollectedWater } from './collect';

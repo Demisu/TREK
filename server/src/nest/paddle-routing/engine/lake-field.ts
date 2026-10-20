@@ -1,7 +1,7 @@
+import { LocalFrame } from '../../../lib/geo/geo';
+import { MinHeap } from '../../../lib/geo/min-heap';
 import { maskHas } from '../build/lakes';
 import type { LakeGrid } from '../water-graph';
-import { LocalFrame } from './geo';
-import { MinHeap } from './min-heap';
 import type { PaddleLakeStyle } from '@trek/shared';
 
 /**

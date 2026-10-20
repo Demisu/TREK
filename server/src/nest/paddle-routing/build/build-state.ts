@@ -1,4 +1,4 @@
-import { lineLength, metresBetween, projectOnSegment } from '../engine/geo';
+import { lineLength, metresBetween, projectOnSegment } from '../../../lib/geo/geo';
 import { Access, EdgeKind, type EdgeKindCode, PortageSource } from '../water-graph';
 
 /** A node while the network is built: where it is, and the lake it opens into (-1 for none). */

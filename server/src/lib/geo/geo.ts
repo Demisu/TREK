@@ -1,4 +1,4 @@
-/** Metres per degree of latitude, the figure the paddle code reckons with throughout. */
+/** Metres per degree of latitude, the figure the routing code reckons with throughout. */
 const M_PER_DEG = 111_195;
 
 export function metresBetween(aLat: number, aLng: number, bLat: number, bLng: number): number {

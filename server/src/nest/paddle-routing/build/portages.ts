@@ -1,4 +1,4 @@
-import { projectOnSegment } from '../engine/geo';
+import { projectOnSegment } from '../../../lib/geo/geo';
 import { Access, EdgeKind, PortageSource } from '../water-graph';
 import { type BarrierSite, type BuildEdge, type BuildState, PointGrid } from './build-state';
 import type { CollectedWater } from './collect';
