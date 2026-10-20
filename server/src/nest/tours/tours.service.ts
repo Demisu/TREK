@@ -323,6 +323,8 @@ export class ToursService {
       waypoints,
       provenance: await this.provenanceOf(tid, placeId),
       ...(checked.obstacle_check ? { obstacle_check: checked.obstacle_check } : {}),
+      // ACT-01: answered as the read answers it; a tour just made has no recording assigned yet.
+      activities: [],
     };
   }
 

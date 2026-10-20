@@ -11,7 +11,7 @@ import { asWaypoint } from './tour-change-effects';
 import { TourChangePreviewService } from './tour-change-preview.service';
 import { proposalIdOf } from './tour-change-proposal';
 import { tourWriteOf, writtenStations, writtenTour } from './tour-change-write';
-import { ToursService, type TourCreateCommand } from './tours.service';
+import { ToursService, type TourCreateCommand, type TourRouteDrops } from './tours.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
 import type { TourChangeSaveRequest, TourDetailResponse, TourListItem, TourWaypoint } from '@trek/shared';
@@ -32,6 +32,9 @@ interface SavedStep {
   id: number;
   revision: number;
 }
+
+/** What the save's transaction answers: the step a save sent alongside recorded first, or its own. */
+type SaveOutcome = { earlier: TourChangeStepRow } | ({ step: SavedStep } & TourRouteDrops);
 
 /**
  * The write of a confirmed change: the points after it and the way on foot
@@ -129,7 +132,7 @@ export class TourChangeSaveService {
     const way = await this.footWays.plan(userId, tripId, laid.outcome.points);
     const changed: ChangedTour = { tour: laid.tour, points: laid.outcome.points, way, preparedOn };
     const write = await this.tours.routeWrite(writeOf(changed));
-    const saved = await this.uow.transactional(async () => {
+    const saved = await this.uow.transactional(async (): Promise<SaveOutcome> => {
       // The same proposal saved by a save sent alongside this one while the way was planned.
       const savedMeanwhile = await this.stepsRepo.findSavedProposal(placeId, proposalId, preparedOn);
       if (savedMeanwhile) return { earlier: savedMeanwhile };
@@ -149,7 +152,10 @@ export class TourChangeSaveService {
       return { step: { id, revision }, visitsDropped, stagesDropped };
     });
     if ('earlier' in saved) return alreadySavedAnswer(saved.earlier);
-    const detail = await this.tours.announceRouteUpdate(String(tripId), placeId, saved);
+    const detail = await this.tours.announceRouteUpdate(String(tripId), placeId, {
+      visitsDropped: saved.visitsDropped,
+      stagesDropped: saved.stagesDropped,
+    });
     return savedAnswer(detail, saved.step, changed);
   }
 
