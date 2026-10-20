@@ -1,4 +1,4 @@
-// FE-COMP-TERRAIN-001 to FE-COMP-TERRAIN-015
+// FE-COMP-TERRAIN-001 to FE-COMP-TERRAIN-018
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '../../../../tests/helpers/render';
 import type { DistanceIndexedProfileSample, RouteProfileFocus } from '../../../utils/routeGeometry';
@@ -23,6 +23,21 @@ const gl = vi.hoisted(() => {
   const sources = new Map<string, Record<string, unknown>>();
   const markers: MarkerStub[] = [];
   const container = document.createElement('div');
+  /** A gesture handler: on or off, and whether wheel or pinch zoom around the centre. */
+  const handler = () => {
+    const state = { enabled: true, around: undefined as string | undefined };
+    return {
+      state,
+      isEnabled: vi.fn(() => state.enabled),
+      enable: vi.fn((options?: { around?: string }) => {
+        state.enabled = true;
+        state.around = options?.around;
+      }),
+      disable: vi.fn(() => {
+        state.enabled = false;
+      }),
+    };
+  };
   const listen = (type: string, fn: Handler) => listeners.set(type, [...(listeners.get(type) ?? []), fn]);
   const map = {
     on: vi.fn((type: string, fn: Handler) => {
@@ -51,6 +66,12 @@ const gl = vi.hoisted(() => {
     remove: vi.fn(),
     fitBounds: vi.fn(),
     jumpTo: vi.fn(),
+    isMoving: vi.fn(() => false),
+    getZoom: vi.fn(() => 13.4),
+    getPitch: vi.fn(() => 52),
+    dragPan: handler(),
+    scrollZoom: handler(),
+    touchZoomRotate: handler(),
     setStyle: vi.fn(),
     setTerrain: vi.fn(),
     setSky: vi.fn(),
@@ -90,6 +111,13 @@ const gl = vi.hoisted(() => {
     }),
   };
   const reset = () => {
+    for (const gesture of [map.dragPan, map.scrollZoom, map.touchZoomRotate]) {
+      gesture.state.enabled = true;
+      gesture.state.around = undefined;
+    }
+    map.isMoving.mockImplementation(() => false);
+    map.getZoom.mockImplementation(() => 13.4);
+    map.getPitch.mockImplementation(() => 52);
     listeners.clear();
     sources.clear();
     markers.length = 0;
@@ -143,6 +171,49 @@ function loadStyle() {
 }
 
 let openTiles: () => void = () => {};
+
+/** Holds the animation frames back so a test runs them one by one, 100 ms apart. */
+function frameClock() {
+  const frames = new Map<number, FrameRequestCallback>();
+  let nextId = 0;
+  vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+    nextId += 1;
+    frames.set(nextId, callback);
+    return nextId;
+  });
+  vi.spyOn(window, 'cancelAnimationFrame').mockImplementation((id) => {
+    frames.delete(id);
+  });
+  // Starts at the first step, so no frame runs before the flyover's own start time.
+  let now: number | null = null;
+  return (count: number) => {
+    for (let i = 0; i < count && frames.size; i++) {
+      const [id, frame] = frames.entries().next().value as [number, FrameRequestCallback];
+      frames.delete(id);
+      const at = (now ?? performance.now()) + 100;
+      now = at;
+      act(() => frame(at));
+    }
+  };
+}
+
+type CameraCall = { zoom: number; pitch: number; center: [number, number] };
+const lastCamera = () => gl.map.jumpTo.mock.calls[gl.map.jumpTo.mock.calls.length - 1]?.[0] as CameraCall | undefined;
+
+/** 30 km by its profile, so the flyover is still under way after a few frames; drawn as short as TOUR. */
+const LONG_TOUR: DistanceIndexedProfileSample[] = [0, 1, 2, 3].map((i) => ({
+  distanceMeters: i * 10000,
+  elevationMeters: 1000 + i * 20,
+  lat: 46 + i * 0.0009,
+  lng: 7,
+}));
+
+async function startFlyover(overrides: Partial<TourTerrainMapProps> = {}) {
+  await renderTerrain({ samples: LONG_TOUR, ...overrides });
+  loadStyle();
+  await act(async () => openTiles());
+  fireEvent.click(await screen.findByRole('button', { name: 'Play flyover' }));
+}
 
 beforeEach(() => {
   gl.reset();
@@ -425,5 +496,71 @@ describe('TourTerrainMap', () => {
     );
     expect(screen.getByRole('button', { name: 'Set points' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByText(/Click the terrain to set points/)).toBeInTheDocument();
+  });
+  it('FE-COMP-TERRAIN-016: a zoom or tilt by the user stays while the flyover keeps following the route', async () => {
+    const step = frameClock();
+    const onFocusChange = vi.fn();
+    await startFlyover({ onFocusChange });
+    step(2);
+    expect(lastCamera()).toEqual(expect.objectContaining({ zoom: 13.4, pitch: 52 }));
+
+    gl.map.getZoom.mockReturnValue(15.2);
+    gl.map.getPitch.mockReturnValue(38);
+    act(() => gl.fire('zoom', { originalEvent: new Event('wheel') }));
+    act(() => gl.fire('pitch', { originalEvent: new Event('mousemove') }));
+    const before = lastCamera()?.center[1] ?? 0;
+    step(3);
+    expect(lastCamera()).toEqual(expect.objectContaining({ zoom: 15.2, pitch: 38 }));
+    expect(lastCamera()?.center[1]).toBeGreaterThan(before);
+    expect(screen.getByRole('button', { name: 'Pause' })).toBeInTheDocument();
+
+    // The chase camera's own moves carry no DOM event and never count as the user's zoom.
+    gl.map.getZoom.mockReturnValue(9);
+    act(() => gl.fire('zoom', {}));
+    step(2);
+    expect(lastCamera()).toEqual(expect.objectContaining({ zoom: 15.2, pitch: 38 }));
+  });
+
+  it('FE-COMP-TERRAIN-017: holds the camera while a zoom is under way, and turns drag panning off while flying', async () => {
+    const step = frameClock();
+    const onFocusChange = vi.fn();
+    await startFlyover({ onFocusChange });
+    expect(gl.map.dragPan.state.enabled).toBe(false);
+    expect(gl.map.scrollZoom.state.around).toBe('center');
+    expect(gl.map.touchZoomRotate.state.around).toBe('center');
+    step(2);
+
+    gl.map.isMoving.mockReturnValue(true);
+    gl.map.jumpTo.mockClear();
+    const focusCalls = onFocusChange.mock.calls.length;
+    step(3);
+    expect(gl.map.jumpTo).not.toHaveBeenCalled();
+    expect(onFocusChange.mock.calls.length).toBe(focusCalls);
+    expect(screen.getByRole('button', { name: 'Pause' })).toBeInTheDocument();
+
+    gl.map.isMoving.mockReturnValue(false);
+    step(1);
+    expect(gl.map.jumpTo).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Pause' }));
+    expect(gl.map.dragPan.state.enabled).toBe(true);
+    expect(gl.map.scrollZoom.state.around).toBeUndefined();
+    expect(gl.map.touchZoomRotate.state.around).toBeUndefined();
+  });
+
+  it('FE-COMP-TERRAIN-018: a zoom kept through a pause, and starting over flies at the flyover zoom again', async () => {
+    const step = frameClock();
+    await startFlyover();
+    step(1);
+    gl.map.getZoom.mockReturnValue(11);
+    act(() => gl.fire('zoom', { originalEvent: new Event('wheel') }));
+    fireEvent.click(screen.getByRole('button', { name: 'Pause' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Play flyover' }));
+    step(1);
+    expect(lastCamera()).toEqual(expect.objectContaining({ zoom: 11 }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Start over' }));
+    step(1);
+    expect(lastCamera()).toEqual(expect.objectContaining({ zoom: 13.4, pitch: 52 }));
   });
 });

@@ -27,12 +27,40 @@ interface Options {
   preloaded: number;
 }
 
+/** How close the chase camera sits: the flyover's own until the user zooms or tilts it. */
+interface ChaseLens {
+  zoom: number;
+  pitch: number;
+}
+
+const flyoverLens = (): ChaseLens => ({ zoom: REPLAY_ZOOM, pitch: REPLAY_PITCH });
+
+/**
+ * While the flyover runs, wheel and pinch zoom around the rider instead of the cursor, so the
+ * camera never jumps back to the line after a zoom. Dragging would only pan away from a camera
+ * that pulls straight back, so it is off until the flyover stops. Returns the undo.
+ */
+function followGestures(map: MapLibreMap): () => void {
+  const pan = map.dragPan.isEnabled();
+  const wheel = map.scrollZoom.isEnabled();
+  const pinch = map.touchZoomRotate.isEnabled();
+  if (pan) map.dragPan.disable();
+  if (wheel) map.scrollZoom.enable({ around: 'center' });
+  if (pinch) map.touchZoomRotate.enable({ around: 'center' });
+  return () => {
+    if (pan) map.dragPan.enable();
+    if (wheel) map.scrollZoom.enable();
+    if (pinch) map.touchZoomRotate.enable();
+  };
+}
+
 /** Moves the chase camera to `distance` along the route and returns where that is, if anywhere. */
 function chase(
   map: MapLibreMap,
   samples: DistanceIndexedProfileSample[],
   distance: number,
   bearing: RefObject<number>,
+  lens: ChaseLens,
   scene: TerrainScene
 ): RouteProfileFocus | null {
   const here = focusRouteProfileAtDistance(samples, distance);
@@ -44,8 +72,8 @@ function chase(
     center: [here.lng, here.lat],
     elevation: (here.elevationMeters ?? 0) * scene.exaggeration,
     bearing: bearing.current,
-    pitch: REPLAY_PITCH,
-    zoom: REPLAY_ZOOM,
+    pitch: lens.pitch,
+    zoom: lens.zoom,
     padding: { top: 0, bottom: 0, ...sidePadding(scene.panels, 0) },
   });
   return here;
@@ -57,6 +85,7 @@ export function useTerrainReplay({ gl, ready, samples, focus, onFocusChange, sce
   const frameRef = useRef<number | null>(null);
   const distanceRef = useRef(0);
   const bearingRef = useRef(0);
+  const lensRef = useRef<ChaseLens>(flyoverLens());
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState<1 | 2 | 4>(1);
   const totalMeters = samples.length ? samples[samples.length - 1].distanceMeters : 0;
@@ -86,18 +115,33 @@ export function useTerrainReplay({ gl, ready, samples, focus, onFocusChange, sce
 
   useEffect(() => {
     if (!gl || !playing || !ready || totalMeters <= 0) return;
+    const { map } = gl;
+    // A zoom or tilt from the user (wheel, pinch, the +/- keys) carries its DOM event;
+    // the chase camera's own jumps do not. The flyover keeps what the user picked.
+    const keepLens = (event: { originalEvent?: unknown }) => {
+      if (event.originalEvent) lensRef.current = { zoom: map.getZoom(), pitch: map.getPitch() };
+    };
+    map.on('zoom', keepLens);
+    map.on('pitch', keepLens);
+    const restoreGestures = followGestures(map);
     let last = performance.now();
     let lastFocus = 0;
     const tick = (now: number) => {
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
+      // Every camera move ends a running gesture, so the flyover holds still while the
+      // user's zoom is under way and carries on from it once it has settled.
+      if (map.isMoving()) {
+        frameRef.current = requestAnimationFrame(tick);
+        return;
+      }
       distanceRef.current = Math.min(
         totalMeters,
         distanceRef.current + replayMetresPerSecond(totalMeters) * speed * dt
       );
-      const here = chase(gl.map, samples, distanceRef.current, bearingRef, scene.current);
+      const here = chase(map, samples, distanceRef.current, bearingRef, lensRef.current, scene.current);
       if (here) {
-        riderRef.current?.setLngLat([here.lng, here.lat]).addTo(gl.map);
+        riderRef.current?.setLngLat([here.lng, here.lat]).addTo(map);
         if (now - lastFocus >= FOCUS_INTERVAL_MS || distanceRef.current >= totalMeters) {
           lastFocus = now;
           onFocusChange(here);
@@ -112,18 +156,25 @@ export function useTerrainReplay({ gl, ready, samples, focus, onFocusChange, sce
     frameRef.current = requestAnimationFrame(tick);
     return () => {
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+      map.off('zoom', keepLens);
+      map.off('pitch', keepLens);
+      restoreGestures();
     };
   }, [gl, playing, ready, samples, speed, totalMeters, onFocusChange, scene]);
 
   const togglePlay = useCallback(() => {
     if (!playing && preloaded < 1) return;
-    if (!playing && distanceRef.current >= totalMeters) distanceRef.current = 0;
+    if (!playing && distanceRef.current >= totalMeters) {
+      distanceRef.current = 0;
+      lensRef.current = flyoverLens();
+    }
     setPlaying((value) => !value);
   }, [playing, preloaded, totalMeters]);
 
   const restart = useCallback(() => {
     if (preloaded < 1) return;
     distanceRef.current = 0;
+    lensRef.current = flyoverLens();
     setPlaying(true);
   }, [preloaded]);
 
