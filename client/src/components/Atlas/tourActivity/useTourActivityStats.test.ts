@@ -1,4 +1,4 @@
-// FE-STA2-HOOK-001 to FE-STA2-HOOK-007
+// FE-STA2-HOOK-001 to FE-STA2-HOOK-009
 // STA-02: the user's own tour activities are read when the tab is first shown,
 // narrowed by period and type, and a tour left out shows at once and comes back
 // with a message when the server refuses.
@@ -152,5 +152,75 @@ describe('useTourActivityStats', () => {
     });
     expect(result.current.data).toBeNull();
     expect(toast.error).toHaveBeenCalledTimes(1);
+  });
+
+  it('FE-STA2-HOOK-008: an older exclusion answered last never puts a newer one back', async () => {
+    const answers: Array<(value: TourActivityStatsResponse) => void> = [];
+    repo.setExcluded.mockImplementation(() => new Promise((resolve) => answers.push(resolve)));
+    const { result } = renderHook(() => useTourActivityStats(true));
+    await waitFor(() => expect(result.current.status).toBe('ready'));
+    const excludedOf = (placeId: number) =>
+      result.current.data?.entries.find((item) => item.place_id === placeId)?.excluded;
+    const withExcluded = (...ids: number[]) => ({
+      ...stats,
+      entries: stats.entries.map((item) => ({ ...item, excluded: ids.includes(item.place_id) })),
+    });
+
+    let first: Promise<void> = Promise.resolve();
+    let second: Promise<void> = Promise.resolve();
+    act(() => {
+      first = result.current.setExcluded(entry(), true);
+    });
+    act(() => {
+      second = result.current.setExcluded(stats.entries[1] as TourActivityStatsEntry, true);
+    });
+    // The second answer comes first and carries both; the first, from before the second, only its own.
+    await act(async () => {
+      answers[1]?.(withExcluded(1, 2));
+      await second;
+    });
+    await act(async () => {
+      answers[0]?.(withExcluded(1));
+      await first;
+    });
+    expect(excludedOf(1)).toBe(true);
+    expect(excludedOf(2)).toBe(true);
+
+    // The other way round: the first comes first, without the second still on its way, which stays left out.
+    act(() => {
+      first = result.current.setExcluded(entry(), false);
+    });
+    act(() => {
+      second = result.current.setExcluded(stats.entries[1] as TourActivityStatsEntry, false);
+    });
+    await act(async () => {
+      answers[2]?.(withExcluded(2));
+      await first;
+    });
+    expect(excludedOf(1)).toBe(false);
+    expect(excludedOf(2)).toBe(false);
+    await act(async () => {
+      answers[3]?.(withExcluded());
+      await second;
+    });
+    expect(excludedOf(2)).toBe(false);
+  });
+
+  it('FE-STA2-HOOK-009: a read asked before an exclusion and answered after it does not undo it', async () => {
+    const { result } = renderHook(() => useTourActivityStats(true));
+    await waitFor(() => expect(result.current.status).toBe('ready'));
+    let read: (value: TourActivityStatsResponse) => void = () => undefined;
+    repo.get.mockReturnValue(new Promise((resolve) => (read = resolve)));
+    act(() => result.current.retry());
+    repo.setExcluded.mockResolvedValue({
+      ...stats,
+      entries: stats.entries.map((item) => (item.place_id === 1 ? { ...item, excluded: true } : item)),
+    });
+    await act(async () => {
+      await result.current.setExcluded(entry(), true);
+    });
+    await act(async () => read(stats));
+    expect(result.current.status).toBe('ready');
+    expect(result.current.data?.entries.find((item) => item.place_id === 1)?.excluded).toBe(true);
   });
 });
