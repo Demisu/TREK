@@ -33,7 +33,7 @@ import {
 } from '../../helpers/tours-repos';
 import type { EntityClass } from '@mikro-orm/core';
 import { Logger, NotFoundException } from '@nestjs/common';
-import { tourCreateRequestSchema, type TourCreateRequest } from '@trek/shared';
+import { tourCreateRequestSchema, type TourCreateInput, type TourCreateRequest, type TourWaypoint } from '@trek/shared';
 
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -786,8 +786,7 @@ describe('ToursService stages on days (MDT-02)', () => {
   }
 
   /** An edit of the hut-to-hut tour as the API takes it: the points a read gave back go through the request contract. */
-  const editOf = (changes: Record<string, unknown>): TourCreateRequest =>
-    tourCreateRequestSchema.parse({ ...hutToHut, ...changes });
+  const editOf = (overrides: Partial<TourCreateInput>) => tourCreateRequestSchema.parse({ ...hutToHut, ...overrides });
 
   const heldStages = async (placeId: number) =>
     (await findRows(await sharedTestOrm(testDb), DayAssignments, { place: placeId }, { id: 'asc' })).map(
@@ -811,7 +810,7 @@ describe('ToursService stages on days (MDT-02)', () => {
   it('MDT-SVC-005: a saved change takes only the stages it took away off their days, and tells every client', async () => {
     const { created, placeId, keys, days, held } = await onThreeDays();
     // The third point no longer ends a stage: the stage that started there is gone, the others keep their keys.
-    const joined = created.waypoints.map(({ stage_end: _end, ...point }, index) =>
+    const joined: TourWaypoint[] = created.waypoints.map(({ stage_end: _end, ...point }, index) =>
       index === 1 ? { ...point, stage_end: true } : point,
     );
     await service.updateTour(tripId, String(placeId), editOf({ waypoints: joined }), 'socket');
@@ -829,7 +828,8 @@ describe('ToursService stages on days (MDT-02)', () => {
 
   it('MDT-SVC-006: a change that keeps every stage leaves every day as it was and says nothing', async () => {
     const { created, placeId, keys } = await onThreeDays();
-    await service.updateTour(tripId, String(placeId), editOf({ name: 'Renamed', waypoints: created.waypoints }));
+    const kept: TourWaypoint[] = created.waypoints;
+    await service.updateTour(tripId, String(placeId), editOf({ name: 'Renamed', waypoints: kept }));
     expect(await heldStages(placeId)).toEqual(keys.slice(0, 3));
     expect(broadcast.mock.calls.filter(([, event]) => event === 'assignment:deleted')).toEqual([]);
   });
@@ -854,7 +854,7 @@ describe('ToursService stages on days (MDT-02)', () => {
       if (event === 'assignment:deleted') throw new Error('socket closed');
     });
     const warn = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
-    const dayTour = created.waypoints.map(({ stage_end: _end, ...point }) => point);
+    const dayTour: TourWaypoint[] = created.waypoints.map(({ stage_end: _end, ...point }) => point);
     await expect(
       service.updateTour(tripId, String(placeId), editOf({ duration_seconds: 3600, waypoints: dayTour })),
     ).resolves.toMatchObject({ tour: { stage_count: null } });

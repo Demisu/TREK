@@ -413,12 +413,10 @@ describe('TourChangeMcp.saveTourChange (MCP-T03)', () => {
     ];
     for (const term of terms) expect(options.description).toContain(term);
     // The fields are zod schemas from @trek/shared, read here by what they answer.
-    const shape = options.inputSchema as ZodRawShape;
     const fields = ['tripId', 'placeId', 'changes', 'expected_revision', 'proposal_id', 'confirmed'];
-    expect(Object.keys(shape)).toEqual(fields);
-    const confirmed = shape.confirmed;
-    if (!confirmed) throw new Error('the tool takes no confirmed field');
-    const yes = [true, false, undefined].map((value) => z.safeParse(confirmed, value).success);
+    expect(Object.keys(options.inputSchema as ZodRawShape)).toEqual(fields);
+    const confirmed = z.object(options.inputSchema as ZodRawShape).pick({ confirmed: true });
+    const yes = [true, false, undefined].map((value) => confirmed.safeParse({ confirmed: value }).success);
     expect(yes).toEqual([true, false, false]);
     const isAddonEnabled = vi.fn(async (id: string) => id === 'tours');
     expect(await options.when?.(ctx(1), { addons: { isAddonEnabled } })).toBe(true);
