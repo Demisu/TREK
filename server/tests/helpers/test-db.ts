@@ -22,18 +22,15 @@
  * legacy `createTestDb()` that built one by hand via `db/schema.ts` +
  * `db/migrations.ts` is gone along with those two files (Plan 4 Task 6).
  */
-import { AuthPublicController } from '../../src/nest/auth/auth-public.controller';
 import type { RateLimitService } from '../../src/nest/common/rate-limit.service';
 import type { INestApplication } from '@nestjs/common';
 
 import type Database from 'better-sqlite3';
 
 // createSnapshotTestDb / buildDbMock / CAN_ACCESS_TRIP_SQL live in db-mock.ts, a
-// leaf module with no src/nest imports — see its header comment for why. This
-// file imports AuthPublicController (for resetRateLimits below), so a vi.mock
-// factory MUST import from db-mock.ts directly, never from here, or it
-// re-enters src/db/database while its own mock for that module is still being
-// built and captures the real one.
+// leaf module with no src/nest imports — see its header comment for why. A
+// vi.mock factory still imports from db-mock.ts directly, never from here: this
+// file is not a leaf, and resetRateLimits below reaches into the auth module.
 export { CAN_ACCESS_TRIP_SQL, buildDbMock } from './db-mock';
 
 /**
@@ -252,7 +249,11 @@ export function resetTestDb(db: Database.Database): void {
  * app.get(RateLimitService) is ambiguous and may hand back the wrong instance — we
  * resolve the auth controller and clear the limiter it actually uses.
  */
-export function resetRateLimits(app: INestApplication): Promise<void> {
+export async function resetRateLimits(app: INestApplication): Promise<void> {
+  // Imported here rather than at the top: a static import pulled the whole auth
+  // graph (bcrypt, otplib, nodemailer, the MCP SDK) into every test file that
+  // uses this helper, and most of them never reset a rate limit.
+  const { AuthPublicController } = await import('../../src/nest/auth/auth-public.controller');
   const ctrl = app.get(AuthPublicController, { strict: false }) as unknown as { rl: RateLimitService };
   return ctrl.rl.reset();
 }
