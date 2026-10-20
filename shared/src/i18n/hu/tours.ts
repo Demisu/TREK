@@ -492,6 +492,12 @@ const tours: TranslationStrings = {
     'Egyes részek a térképadatok becslésén alapulnak, például nem térképezett összeköttetésen vagy irányon.',
   'tours.ski.summary.stale': 'A pályaadatok egy régebbi másolatán tervezve, mert a jelenlegi nem érhető el.',
   'tours.ski.summary.source': 'Pályaadatok © OpenStreetMap közreműködők',
+  'tours.ski.summary.runs': 'Pályák',
+  'tours.ski.summary.descent': 'Lesiklás pályán',
+  'tours.ski.summary.lifts': 'Felvonós utak',
+  'tours.ski.summary.build': 'Térképadatok: {build}',
+  'tours.ski.summary.saved':
+    'A mentett állapot látszik. Mozgass el egy pontot vagy módosíts egy beállítást az újratervezéshez.',
   'tours.ski.chooseTechnique': 'Válaszd ki a technikát, vagy az Ismeretlent.',
   'tours.ski.infoLabel': 'Mit kezd a TREK a sí- és téli túrákkal és a sínyomvonalakkal',
   'tours.ski.info':

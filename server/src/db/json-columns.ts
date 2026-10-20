@@ -8,6 +8,7 @@ import {
   paddleLockSchema,
   paddleRegionBoundarySchema,
   paddleRegionGraphStatsSchema,
+  skiPlannedLegsSchema,
   skiRouteOptionsSchema,
   tourChangeSchema,
   tourFixedLegSchema,
@@ -197,12 +198,20 @@ export const TOUR_HIKING_PREFERENCES: JsonColumn<HikingPreferences | null> = {
 export interface TourSkiRoute {
   options: SkiRouteOptions;
   build: string | null;
+  /** The legs the piste router planned, by the index of the point each starts at; absent where the save did not say. */
+  planned_legs?: number[];
 }
+
+const tourSkiRouteSchema = z.object({
+  options: skiRouteOptionsSchema,
+  build: z.string().nullable(),
+  planned_legs: skiPlannedLegsSchema.optional(),
+});
 
 /** A ski tour's piste router options. A broken row reads as none, and the planner offers the defaults. */
 export const TOUR_SKI_ROUTE: JsonColumn<TourSkiRoute | null> = {
   column: 'tours.ski_options',
-  schema: z.object({ options: skiRouteOptionsSchema, build: z.string().nullable() }).nullable(),
+  schema: tourSkiRouteSchema.nullable(),
   fallback: () => null,
 };
 

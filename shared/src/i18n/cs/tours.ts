@@ -486,6 +486,11 @@ const tours: TranslationStrings = {
     'Některé části stojí na odhadu z mapových dat, například na nezmapované spojce nebo směru.',
   'tours.ski.summary.stale': 'Naplánováno na starší kopii dat sjezdovek, protože aktuální není dostupná.',
   'tours.ski.summary.source': 'Data sjezdovek © přispěvatelé OpenStreetMap',
+  'tours.ski.summary.runs': 'Sjezdovky',
+  'tours.ski.summary.descent': 'Sjezd po sjezdovkách',
+  'tours.ski.summary.lifts': 'Jízdy vlekem',
+  'tours.ski.summary.build': 'Mapová data z {build}',
+  'tours.ski.summary.saved': 'Zobrazeno, jak bylo uloženo. Posuňte bod nebo změňte volbu a naplánujte znovu.',
   'tours.ski.chooseTechnique': 'Vyberte techniku, nebo Neznámá.',
   'tours.ski.infoLabel': 'Co TREK dělá s lyžařskými túrami a trasami',
   'tours.ski.info':

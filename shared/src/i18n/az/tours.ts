@@ -487,6 +487,11 @@ const tours: TranslationStrings = {
   'tours.ski.summary.stale':
     'Cari nüsxəyə çatmaq mümkün olmadığı üçün pist məlumatlarının köhnə nüsxəsi ilə planlaşdırılıb.',
   'tours.ski.summary.source': 'Pist məlumatları © OpenStreetMap iştirakçıları',
+  'tours.ski.summary.runs': 'Pistlər',
+  'tours.ski.summary.descent': 'Pistlərdə eniş',
+  'tours.ski.summary.lifts': 'Lift gedişləri',
+  'tours.ski.summary.build': 'Xəritə məlumatları: {build}',
+  'tours.ski.summary.saved': 'Saxlandığı kimi göstərilir. Yenidən planlamaq üçün nöqtəni tərpət və ya seçimi dəyiş.',
   'tours.ski.chooseTechnique': 'Texnikanı və ya Naməlum seç.',
   'tours.ski.infoLabel': 'TREK xizək turları və izləri ilə nə edir',
   'tours.ski.info':

@@ -46,6 +46,12 @@ export interface SkiTourRoute extends TourRouteResult {
   stale: boolean;
   areaNames: string[];
   colourScheme: SkiColourScheme;
+  /** The credit of the piste and terrain data, as the server words it; null where nothing was asked. */
+  attribution: string | null;
+  /** The legs the piste router planned, by the index of the point each starts at. */
+  plannedLegs: number[];
+  /** The line as the tour was saved, opened without asking the router again; false for one planned now. */
+  saved: boolean;
 }
 
 /** How long a leg waits for its ski area to download, asked again every two seconds. */
@@ -216,6 +222,7 @@ async function plannedAnswers(
     stale: false,
     areaNames: [],
     colourScheme: 'europe',
+    attribution: null,
   });
   if (legs.length === 0) return { asked, plan: none([]) };
   try {
@@ -273,6 +280,9 @@ export async function routeSkiTour(
     stale: plan.stale,
     areaNames: plan.areaNames,
     colourScheme: plan.colourScheme,
+    attribution: plan.attribution,
+    plannedLegs: legs.flatMap((leg, index) => (leg?.status === 'ok' ? [index] : [])),
+    saved: false,
   };
 }
 
@@ -295,5 +305,8 @@ function drawnSkiTour(points: readonly SkiLegPoint[]): SkiTourRoute | null {
     stale: false,
     areaNames: [],
     colourScheme: 'europe',
+    attribution: null,
+    plannedLegs: [],
+    saved: false,
   };
 }

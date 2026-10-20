@@ -465,6 +465,11 @@ const tours: TranslationStrings = {
   'tours.ski.summary.guessed': 'บางส่วนอาศัยการคาดเดาจากข้อมูลแผนที่ เช่น ทางเชื่อมหรือทิศทางที่ไม่มีในแผนที่',
   'tours.ski.summary.stale': 'วางแผนบนสำเนาข้อมูลลานสกีที่เก่ากว่า เพราะเข้าถึงฉบับปัจจุบันไม่ได้',
   'tours.ski.summary.source': 'ข้อมูลลานสกี © ผู้ร่วมพัฒนา OpenStreetMap',
+  'tours.ski.summary.runs': 'ลานสกี',
+  'tours.ski.summary.descent': 'ระยะลงบนลานสกี',
+  'tours.ski.summary.lifts': 'จำนวนรอบลิฟต์',
+  'tours.ski.summary.build': 'ข้อมูลแผนที่ ณ {build}',
+  'tours.ski.summary.saved': 'แสดงตามที่บันทึกไว้ ย้ายจุดหรือเปลี่ยนตัวเลือกเพื่อวางแผนใหม่',
   'tours.ski.chooseTechnique': 'เลือกเทคนิค หรือไม่ทราบ',
   'tours.ski.infoLabel': 'TREK ทำอะไรกับทริปและเส้นทางสกี',
   'tours.ski.info':

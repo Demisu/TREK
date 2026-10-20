@@ -33,10 +33,11 @@ function stageStopsOrNull(points: Parameters<typeof tourStageStopsOf>[0]): TourL
 }
 
 /** A ski tour's piste router options and the build its legs ran on, where it keeps them; nothing for any other tour. */
-function skiRouteFacts(r: TourListRow): Pick<TourListItem, 'ski_options' | 'ski_route_build'> {
+function skiRouteFacts(r: TourListRow): Pick<TourListItem, 'ski_options' | 'ski_route_build' | 'ski_planned_legs'> {
   if (r.tour_type !== 'ski' || !r.ski_options) return {};
   const route = decodeJson(TOUR_SKI_ROUTE, r.ski_options, 'tour');
-  return route ? { ski_options: route.options, ski_route_build: route.build } : {};
+  if (!route) return {};
+  return { ski_options: route.options, ski_route_build: route.build, ski_planned_legs: route.planned_legs ?? null };
 }
 
 /**

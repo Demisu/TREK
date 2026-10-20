@@ -27,6 +27,8 @@ export interface SkiPlanAnswer {
   stale: boolean;
   areaNames: string[];
   colourScheme: SkiColourScheme;
+  /** The credit of the piste and terrain data the legs were planned on; null where nothing was asked. */
+  attribution: string | null;
 }
 
 const OFFLINE: SkiLegAnswer = { status: 'failed', code: 'offline', at: null, hint: null, detail: null };
@@ -35,8 +37,19 @@ const OFFLINE: SkiLegAnswer = { status: 'failed', code: 'offline', at: null, hin
 const REMEMBERED = 200;
 const remembered = new Map<string, SkiPlanAnswer>();
 
-/** Answers that may change by asking again a moment later are not remembered. */
-const PASSING: ReadonlySet<string> = new Set(['loading', 'busy', 'timeout', 'places_unavailable', 'offline']);
+/**
+ * Answers that may change by asking again a moment later are not remembered:
+ * an area still downloading, a busy or slow router, the piste data out of
+ * reach, no connection, or piste routing switched off by the admin.
+ */
+const PASSING: ReadonlySet<string> = new Set([
+  'loading',
+  'busy',
+  'timeout',
+  'places_unavailable',
+  'offline',
+  'disabled',
+]);
 
 function keyOf(
   tripId: number | string,
@@ -48,6 +61,8 @@ function keyOf(
 }
 
 function remember(key: string, answer: SkiPlanAnswer): void {
+  // A plan on an older kept copy of the piste data is asked again once the current one is in reach.
+  if (answer.stale) return;
   if (answer.legs.some((leg) => leg.status === 'failed' && PASSING.has(leg.code))) return;
   remembered.delete(key);
   remembered.set(key, answer);
@@ -61,6 +76,7 @@ function merged(answers: SkiRouteResponse[]): SkiPlanAnswer {
     stale: answers.some((answer) => answer.stale),
     areaNames: [...new Set(answers.flatMap((answer) => answer.area_names))],
     colourScheme: answers[0]?.colour_scheme ?? 'europe',
+    attribution: answers.find((answer) => answer.attribution)?.attribution ?? null,
   };
 }
 
@@ -83,7 +99,14 @@ export const skiRouteRepo = {
     const known = remembered.get(key);
     if (known) return known;
     if (isEffectivelyOffline()) {
-      return { legs: legs.map(() => OFFLINE), build: null, stale: false, areaNames: [], colourScheme: 'europe' };
+      return {
+        legs: legs.map(() => OFFLINE),
+        build: null,
+        stale: false,
+        areaNames: [],
+        colourScheme: 'europe',
+        attribution: null,
+      };
     }
     const batches: Array<Array<{ from: SkiRoutePoint; to: SkiRoutePoint }>> = [];
     for (let start = 0; start < legs.length; start += MAX_SKI_ROUTE_LEGS) {

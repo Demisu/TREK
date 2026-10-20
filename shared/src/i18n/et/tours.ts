@@ -487,6 +487,11 @@ const tours: TranslationStrings = {
     'Mõned lõigud põhinevad kaardiandmete oletusel, näiteks kaardistamata ühendusel või suunal.',
   'tours.ski.summary.stale': 'Planeeritud nõlvaandmete vanemal koopial, sest praegune pole kättesaadav.',
   'tours.ski.summary.source': 'Nõlvaandmed © OpenStreetMapi kaastöötajad',
+  'tours.ski.summary.runs': 'Nõlvad',
+  'tours.ski.summary.descent': 'Laskumine nõlvadel',
+  'tours.ski.summary.lifts': 'Tõstukisõidud',
+  'tours.ski.summary.build': 'Kaardiandmed seisuga {build}',
+  'tours.ski.summary.saved': 'Näidatud nagu salvestatud. Uuesti planeerimiseks liiguta punkti või muuda valikut.',
   'tours.ski.chooseTechnique': 'Vali tehnika või Teadmata.',
   'tours.ski.infoLabel': 'Mida TREK suusamatkade ja -radadega teeb',
   'tours.ski.info':

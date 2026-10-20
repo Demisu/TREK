@@ -3,6 +3,7 @@
  * tour one more column, `ski_options`: the JSON text of the piste router's
  * options and the build its legs ran on. Every tour that was there keeps its
  * columns and reads NULL in the new one; the column takes the server's JSON.
+ * A tour kept in a collection gets the same column.
  */
 import { createMigrationOrm, migrateTo, pendingNames, rawExec, rawQuery } from '../../helpers/migration-step';
 
@@ -31,6 +32,9 @@ describe('the ski options column', () => {
       const stored = JSON.stringify({ options: { max_difficulty: 'advanced' }, build: '2026-11-02' });
       await rawExec(orm, 'UPDATE tours SET ski_options = ? WHERE place_id = 100', [stored]);
       expect(await rawQuery(orm, 'SELECT ski_options FROM tours')).toEqual([{ ski_options: stored }]);
+      // A tour kept in a collection keeps the same column, so its copies keep the options.
+      const kept = "SELECT name FROM pragma_table_info('collection_tours') WHERE name = 'ski_options'";
+      expect(await rawQuery(orm, kept)).toEqual([{ name: 'ski_options' }]);
     } finally {
       await orm.close(true);
     }

@@ -495,6 +495,12 @@ const tours: TranslationStrings = {
   'tours.ski.summary.stale':
     'Planificat amb una còpia anterior de les dades de pistes, perquè l’actual no és accessible.',
   'tours.ski.summary.source': 'Dades de pistes © col·laboradors d’OpenStreetMap',
+  'tours.ski.summary.runs': 'Pistes',
+  'tours.ski.summary.descent': 'Baixada per pistes',
+  'tours.ski.summary.lifts': 'Viatges en remuntador',
+  'tours.ski.summary.build': 'Dades del mapa de {build}',
+  'tours.ski.summary.saved':
+    'Es mostra tal com es va desar. Mou un punt o canvia una opció per tornar-ho a planificar.',
   'tours.ski.chooseTechnique': 'Tria la tècnica, o Desconeguda.',
   'tours.ski.infoLabel': 'Què fa TREK amb les rutes i traces d’esquí',
   'tours.ski.info':

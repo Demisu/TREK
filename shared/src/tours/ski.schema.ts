@@ -171,5 +171,11 @@ export function skiOptionsForDiscipline(discipline: SkiDiscipline, options: SkiR
   return result as SkiRouteOptions;
 }
 
+/**
+ * The legs of a ski tour the piste router planned, each named by the index of
+ * the control point it starts at; the others were drawn straight or by hand.
+ */
+export const skiPlannedLegsSchema = z.array(z.number().int().nonnegative()).max(5000);
+
 /** The name of a piste data build a ski tour's legs were planned on, as the Places host names it. */
 export const skiRouteBuildSchema = z.string().trim().min(1).max(40).regex(/^[0-9A-Za-z._-]+$/);

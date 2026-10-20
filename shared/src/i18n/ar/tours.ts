@@ -496,6 +496,11 @@ const tours: TranslationStrings = {
   'tours.ski.summary.guessed': 'تعتمد بعض الأجزاء على تخمين من بيانات الخريطة، مثل وصلة أو اتجاه غير مرسوم.',
   'tours.ski.summary.stale': 'خُطط على نسخة أقدم من بيانات المنحدرات، لأن النسخة الحالية غير متاحة.',
   'tours.ski.summary.source': 'بيانات المنحدرات © مساهمو OpenStreetMap',
+  'tours.ski.summary.runs': 'المنحدرات',
+  'tours.ski.summary.descent': 'النزول على المنحدرات',
+  'tours.ski.summary.lifts': 'رحلات المصاعد',
+  'tours.ski.summary.build': 'بيانات الخريطة بتاريخ {build}',
+  'tours.ski.summary.saved': 'معروض كما حُفظ. حرّك نقطة أو غيّر خيارًا لإعادة التخطيط.',
   'tours.ski.chooseTechnique': 'اختر الأسلوب، أو غير معروف.',
   'tours.ski.infoLabel': 'ما يفعله TREK بجولات ومسارات التزلج',
   'tours.ski.info':

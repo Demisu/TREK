@@ -1,4 +1,4 @@
-// FE-REPO-TOUR-001 to FE-REPO-TOUR-014, FE-REPO-TOUR-042 to FE-REPO-TOUR-045
+// FE-REPO-TOUR-001 to FE-REPO-TOUR-014, FE-REPO-TOUR-042 to FE-REPO-TOUR-047
 // Tours through the offline core: read-through to Dexie, offline create and
 // edit written there and queued, and the online paths keeping the copy fresh.
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
@@ -126,6 +126,20 @@ describe('tourRepo.detail', () => {
     controller.abort()
 
     await expect(tourRepo.detail(3, 40, controller.signal)).rejects.toThrow()
+  })
+})
+
+describe('tourRepo.savedLine', () => {
+  it('FE-REPO-TOUR-047: reads the line a tour was saved with from its cached place, never one of another trip (SKI-02)', async () => {
+    setOnline(false)
+    const line = JSON.stringify([[47, 11, 2000], [47.01, 11, 1500]])
+    await offlineDb.places.put(buildPlace({ id: 40, trip_id: 3, route_geometry: line }))
+    await offlineDb.places.put(buildPlace({ id: 41, trip_id: 3, route_geometry: null }))
+
+    expect(await tourRepo.savedLine(3, 40)).toBe(line)
+    expect(await tourRepo.savedLine(4, 40)).toBeNull()
+    expect(await tourRepo.savedLine(3, 41)).toBeNull()
+    expect(await tourRepo.savedLine(3, 99)).toBeNull()
   })
 })
 

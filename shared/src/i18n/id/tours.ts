@@ -490,6 +490,12 @@ const tours: TranslationStrings = {
   'tours.ski.summary.stale':
     'Direncanakan pada salinan data lintasan yang lebih lama, karena yang terbaru tidak dapat dijangkau.',
   'tours.ski.summary.source': 'Data lintasan © kontributor OpenStreetMap',
+  'tours.ski.summary.runs': 'Lintasan',
+  'tours.ski.summary.descent': 'Turun di lintasan',
+  'tours.ski.summary.lifts': 'Naik lift',
+  'tours.ski.summary.build': 'Data peta per {build}',
+  'tours.ski.summary.saved':
+    'Ditampilkan seperti saat disimpan. Pindahkan titik atau ubah opsi untuk merencanakan ulang.',
   'tours.ski.chooseTechnique': 'Pilih teknik, atau Tidak diketahui.',
   'tours.ski.infoLabel': 'Apa yang TREK lakukan dengan tur dan jalur ski',
   'tours.ski.info':

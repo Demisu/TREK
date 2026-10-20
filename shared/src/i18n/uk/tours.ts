@@ -500,6 +500,11 @@ const tours: TranslationStrings = {
     'Деякі відрізки спираються на здогад за картографічними даними, наприклад на невідмічену зв’язку чи напрямок.',
   'tours.ski.summary.stale': 'Сплановано за старішою копією даних трас, бо поточна недоступна.',
   'tours.ski.summary.source': 'Дані трас © учасники OpenStreetMap',
+  'tours.ski.summary.runs': 'Траси',
+  'tours.ski.summary.descent': 'Спуск трасами',
+  'tours.ski.summary.lifts': 'Підйоми',
+  'tours.ski.summary.build': 'Дані мапи від {build}',
+  'tours.ski.summary.saved': 'Показано, як збережено. Перемістіть точку або змініть параметр, щоб спланувати знову.',
   'tours.ski.chooseTechnique': 'Виберіть техніку або «Невідомо».',
   'tours.ski.infoLabel': 'Що TREK робить з лижними маршрутами і треками',
   'tours.ski.info':

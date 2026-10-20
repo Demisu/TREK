@@ -485,6 +485,11 @@ const tours: TranslationStrings = {
   'tours.ski.summary.stale':
     'Được lên kế hoạch trên bản sao cũ hơn của dữ liệu đường trượt, vì không truy cập được bản hiện tại.',
   'tours.ski.summary.source': 'Dữ liệu đường trượt © cộng tác viên OpenStreetMap',
+  'tours.ski.summary.runs': 'Đường trượt',
+  'tours.ski.summary.descent': 'Độ xuống trên đường trượt',
+  'tours.ski.summary.lifts': 'Lượt cáp treo',
+  'tours.ski.summary.build': 'Dữ liệu bản đồ ngày {build}',
+  'tours.ski.summary.saved': 'Hiển thị như đã lưu. Di chuyển một điểm hoặc đổi một tùy chọn để lập lại kế hoạch.',
   'tours.ski.chooseTechnique': 'Chọn kỹ thuật, hoặc Không rõ.',
   'tours.ski.infoLabel': 'TREK làm gì với chuyến và đường trượt tuyết',
   'tours.ski.info':

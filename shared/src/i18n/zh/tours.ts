@@ -450,6 +450,11 @@ const tours: TranslationStrings = {
   'tours.ski.summary.guessed': '有些路段基于地图数据的推测，例如未标注的连接或方向。',
   'tours.ski.summary.stale': '由于无法访问当前版本，使用较早的雪道数据副本规划。',
   'tours.ski.summary.source': '雪道数据 © OpenStreetMap 贡献者',
+  'tours.ski.summary.runs': '雪道',
+  'tours.ski.summary.descent': '雪道下降',
+  'tours.ski.summary.lifts': '缆车次数',
+  'tours.ski.summary.build': '地图数据：{build}',
+  'tours.ski.summary.saved': '按保存时显示。移动一个点或更改选项即可重新规划。',
   'tours.ski.chooseTechnique': '请选择技术，或选择未知。',
   'tours.ski.infoLabel': 'TREK 如何处理滑雪路线与轨迹',
   'tours.ski.info':

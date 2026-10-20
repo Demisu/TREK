@@ -202,6 +202,16 @@ export const tourRepo = {
     )
   },
 
+  /**
+   * SKI-02: the line a tour was saved with, as this device keeps its place
+   * (the trip's places are read into it whenever the trip loads); null when
+   * it keeps none for that trip. Read only, so it answers offline the same.
+   */
+  async savedLine(tripId: number | string, placeId: number): Promise<string | null> {
+    const place = await offlineDb.places.get(placeId)
+    return place && place.trip_id === Number(tripId) ? (place.route_geometry ?? null) : null
+  },
+
   async create(tripId: number | string, body: TourCreateRequest): Promise<TourCreateResponse> {
     if (isEffectivelyOffline()) {
       const tid = Number(tripId)

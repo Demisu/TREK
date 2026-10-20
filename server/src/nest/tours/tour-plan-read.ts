@@ -93,8 +93,11 @@ function roundKm(km: number): number {
 interface PlanLegSource {
   /** The line is a recorded track (the tour stores no control points of its own), so no router planned it. */
   recorded: boolean;
-  /** SKI-02: the planner drew every leg straight between its points (a planned ski tour), so no router planned one. */
-  drawn?: boolean;
+  /**
+   * SKI-02: whether the planner drew the leg starting at this point straight
+   * (a ski tour's leg the piste router did not plan); left out, no leg was drawn.
+   */
+  drawn?: (leg: number) => boolean;
 }
 
 /** A fixed leg's line as points of a line: latitude and longitude, no height. */
@@ -112,14 +115,15 @@ function straightLine(from: TourWaypoint, to: TourWaypoint): GeometryPoint[] {
 
 /**
  * The legs between consecutive control points, each saying whether the router
- * planned it, it follows a recorded track, or it is a fixed line. A planned
- * ski tour's leg is a straight line between its points, as the planner drew it.
+ * planned it, it follows a recorded track, or it is a fixed line. A ski tour's
+ * leg the piste router did not plan is a straight line between its points, as
+ * the planner drew it.
  */
-export function planLegs(points: readonly TourWaypoint[], { recorded, drawn = false }: PlanLegSource): PlanLeg[] {
-  const unfixed = recorded ? 'track' : drawn ? 'free' : 'routed';
+export function planLegs(points: readonly TourWaypoint[], { recorded, drawn }: PlanLegSource): PlanLeg[] {
   return points.slice(1).map((to, index) => {
     const from = points[index] as TourWaypoint;
     const leg = from.fixed_leg ?? null;
+    const unfixed = recorded ? 'track' : drawn?.(index) ? 'free' : 'routed';
     const line = leg ? legLine(leg.geometry) : unfixed === 'free' ? straightLine(from, to) : null;
     return {
       from_sequence: from.sequence,

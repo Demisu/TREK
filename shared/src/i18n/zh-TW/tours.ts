@@ -449,6 +449,11 @@ const tours: TranslationStrings = {
   'tours.ski.summary.guessed': '有些路段基於地圖資料的推測，例如未標註的連接或方向。',
   'tours.ski.summary.stale': '由於無法存取目前版本，使用較早的雪道資料副本規劃。',
   'tours.ski.summary.source': '雪道資料 © OpenStreetMap 貢獻者',
+  'tours.ski.summary.runs': '雪道',
+  'tours.ski.summary.descent': '雪道下降',
+  'tours.ski.summary.lifts': '纜車次數',
+  'tours.ski.summary.build': '地圖資料：{build}',
+  'tours.ski.summary.saved': '依儲存時顯示。移動一個點或變更選項即可重新規劃。',
   'tours.ski.chooseTechnique': '請選擇技術，或選擇未知。',
   'tours.ski.infoLabel': 'TREK 如何處理滑雪路線與軌跡',
   'tours.ski.info':

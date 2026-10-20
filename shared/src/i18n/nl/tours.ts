@@ -494,6 +494,11 @@ const tours: TranslationStrings = {
     'Sommige stukken berusten op een gok uit de kaartdata, zoals een verbinding of richting die niet in kaart is gebracht.',
   'tours.ski.summary.stale': 'Gepland op een oudere kopie van de pistedata, omdat de huidige niet bereikbaar is.',
   'tours.ski.summary.source': 'Pistedata © OpenStreetMap-bijdragers',
+  'tours.ski.summary.runs': 'Pistes',
+  'tours.ski.summary.descent': 'Afdaling op pistes',
+  'tours.ski.summary.lifts': 'Liftritten',
+  'tours.ski.summary.build': 'Kaartgegevens van {build}',
+  'tours.ski.summary.saved': 'Getoond zoals opgeslagen. Verplaats een punt of wijzig een optie om opnieuw te plannen.',
   'tours.ski.chooseTechnique': 'Kies de techniek, of Onbekend.',
   'tours.ski.infoLabel': 'Wat TREK met skitochten en skisporen doet',
   'tours.ski.info':

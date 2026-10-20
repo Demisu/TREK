@@ -501,6 +501,11 @@ const tours: TranslationStrings = {
   'tours.ski.summary.stale':
     'Planifié sur une copie plus ancienne des données de pistes, la version actuelle étant injoignable.',
   'tours.ski.summary.source': 'Données de pistes © contributeurs OpenStreetMap',
+  'tours.ski.summary.runs': 'Pistes',
+  'tours.ski.summary.descent': 'Descente sur pistes',
+  'tours.ski.summary.lifts': 'Montées en remontée',
+  'tours.ski.summary.build': 'Données de carte du {build}',
+  'tours.ski.summary.saved': 'Affiché tel qu’enregistré. Déplacez un point ou changez une option pour replanifier.',
   'tours.ski.chooseTechnique': 'Choisissez la technique, ou Inconnue.',
   'tours.ski.infoLabel': 'Ce que TREK fait des sorties et traces de ski',
   'tours.ski.info':

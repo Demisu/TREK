@@ -10,6 +10,7 @@ import { runPaceSecondsPerKmSchema } from './run-pace';
 import {
   skiDisciplineSchema,
   skiIssues,
+  skiPlannedLegsSchema,
   skiRouteBuildSchema,
   skiRouteOptionsSchema,
   skiTechniqueSchema,
@@ -227,6 +228,8 @@ export const tourSchema = z.object({
   ski_options: skiRouteOptionsSchema.nullable().optional(),
   /** The piste data build a ski tour's legs were planned on; null where the router planned none. */
   ski_route_build: z.string().nullable().optional(),
+  /** The ski tour's legs the piste router planned, by the index of the point each starts at; null if unknown. */
+  ski_planned_legs: skiPlannedLegsSchema.nullable().optional(),
   /** A paddle tour's boat and water; null for every other type. Absent in a list cached before they existed. */
   boat_type: paddleBoatTypeSchema.nullable().optional(),
   water_context: paddleWaterContextSchema.nullable().optional(),
@@ -531,6 +534,8 @@ export const tourCreateRequestSchema = z
     ski_options: skiRouteOptionsSchema.nullable().optional(),
     /** A ski tour's only: the piste data build its legs were planned on, so newer data can be offered later. */
     ski_route_build: skiRouteBuildSchema.nullable().optional(),
+    /** A ski tour's only: the legs the piste router planned, by the index of the point each starts at. */
+    ski_planned_legs: skiPlannedLegsSchema.nullable().optional(),
     boat_type: paddleBoatTypeSchema.nullable().optional(),
     water_context: paddleWaterContextSchema.nullable().optional(),
     paddle_speed_kmh: paddleSpeedKmhSchema.nullable().optional(),
@@ -657,6 +662,7 @@ function tourTypeIssues(value: {
   ski_technique?: SkiTechnique | null;
   ski_options?: object | null;
   ski_route_build?: string | null;
+  ski_planned_legs?: readonly number[] | null;
   boat_type?: PaddleBoatType | null;
   water_context?: PaddleWaterContext | null;
   paddle_speed_kmh?: number | null;
@@ -698,10 +704,16 @@ function tourTypeIssues(value: {
   issues.push(...runIssues(value));
   issues.push(...skiIssues(type === 'ski', value));
   if (type !== 'ski') {
-    for (const field of ['ski_options', 'ski_route_build'] as const) {
+    for (const field of ['ski_options', 'ski_route_build', 'ski_planned_legs'] as const) {
       if (value[field] != null) issues.push({ path: [field], message: `${field} belongs to a ski tour` });
     }
   }
+  // Each planned leg is one of this tour's legs, named once.
+  const legCount = Math.max(0, (value.waypoints?.length ?? 0) - 1);
+  (value.ski_planned_legs ?? []).forEach((leg, index, all) => {
+    if (leg >= legCount || all.indexOf(leg) !== index)
+      issues.push({ path: ['ski_planned_legs', index], message: 'not a leg of this tour, or named twice' });
+  });
   // No router plans a ride, so no time is worked out for it; a planned total the rider enters is theirs.
   // A ski tour's time is the piste router's, sent only when it planned every leg.
   if (type === 'horse' && value.duration_seconds != null)

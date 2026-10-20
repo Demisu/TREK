@@ -485,6 +485,11 @@ const tours: TranslationStrings = {
     'Some stretches rest on a guess of the map data, such as a link or a direction that is not mapped.',
   'tours.ski.summary.stale': 'Planned on an older copy of the piste data, as the current one cannot be reached.',
   'tours.ski.summary.source': 'Piste data © OpenStreetMap contributors',
+  'tours.ski.summary.runs': 'Runs',
+  'tours.ski.summary.descent': 'Down on runs',
+  'tours.ski.summary.lifts': 'Lift rides',
+  'tours.ski.summary.build': 'Map data as of {build}',
+  'tours.ski.summary.saved': 'Shown as saved. Move a point or change an option to plan it again.',
   'tours.ski.chooseTechnique': 'Choose the technique, or Unknown.',
   'tours.ski.infoLabel': 'What TREK does with ski tours and tracks',
   'tours.ski.info':

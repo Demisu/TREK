@@ -505,6 +505,12 @@ const tours: TranslationStrings = {
     'Некоторые отрезки опираются на догадку по картографическим данным, например на неотмеченную связку или направление.',
   'tours.ski.summary.stale': 'Спланировано по более старой копии данных трасс, так как текущая недоступна.',
   'tours.ski.summary.source': 'Данные трасс © участники OpenStreetMap',
+  'tours.ski.summary.runs': 'Трассы',
+  'tours.ski.summary.descent': 'Спуск по трассам',
+  'tours.ski.summary.lifts': 'Подъёмы',
+  'tours.ski.summary.build': 'Данные карты от {build}',
+  'tours.ski.summary.saved':
+    'Показано, как сохранено. Сдвиньте точку или измените параметр, чтобы спланировать заново.',
   'tours.ski.chooseTechnique': 'Выберите технику или «Неизвестно».',
   'tours.ski.infoLabel': 'Что TREK делает с лыжными маршрутами и треками',
   'tours.ski.info':

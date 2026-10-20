@@ -41,4 +41,5 @@ export interface CollectionToursTable {
   source_trip_title: string;
   source_tour_name: string;
   created_at: InsertOptional<string>;
+  ski_options: InsertOptional<string | null>;
 }

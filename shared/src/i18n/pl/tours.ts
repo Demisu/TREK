@@ -502,6 +502,11 @@ const tours: TranslationStrings = {
     'Niektóre fragmenty opierają się na domysłach z danych mapy, np. niezmapowanym połączeniu lub kierunku.',
   'tours.ski.summary.stale': 'Zaplanowano na starszej kopii danych tras, bo aktualna jest nieosiągalna.',
   'tours.ski.summary.source': 'Dane tras © współtwórcy OpenStreetMap',
+  'tours.ski.summary.runs': 'Trasy',
+  'tours.ski.summary.descent': 'Zjazd po trasach',
+  'tours.ski.summary.lifts': 'Przejazdy wyciągiem',
+  'tours.ski.summary.build': 'Dane mapy z {build}',
+  'tours.ski.summary.saved': 'Pokazano tak, jak zapisano. Przesuń punkt lub zmień opcję, aby zaplanować ponownie.',
   'tours.ski.chooseTechnique': 'Wybierz technikę lub Nieznana.',
   'tours.ski.infoLabel': 'Co TREK robi z wycieczkami i śladami narciarskimi',
   'tours.ski.info':

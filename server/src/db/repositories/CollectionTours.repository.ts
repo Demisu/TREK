@@ -36,6 +36,8 @@ export interface CollectionTourRow {
   run_pace_seconds_per_km: number | null;
   ski_discipline: string | null;
   ski_technique: string | null;
+  /** A ski tour's piste router options and build as JSON text, as the tour it was saved from kept them. */
+  ski_options: string | null;
   boat_type: string | null;
   water_context: string | null;
   paddle_speed_kmh: number | null;

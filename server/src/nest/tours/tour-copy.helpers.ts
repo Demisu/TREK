@@ -30,6 +30,8 @@ interface TourCopiedColumns {
   run_pace_seconds_per_km: number | null;
   ski_discipline: string | null;
   ski_technique: string | null;
+  /** A ski tour's piste router options and build as JSON text; absent where a read does not take it. */
+  ski_options?: string | null;
   boat_type: string | null;
   water_context: string | null;
   paddle_speed_kmh: number | null;
@@ -50,8 +52,11 @@ interface TourCopyFacet extends TourCopiedColumns {
   taken_over_from_tour_name: string | null;
 }
 
+/** The columns as a copy writes them: a ski tour's options are always said, null where there are none. */
+type CopiedColumns = Omit<TourCopiedColumns, 'ski_options'> & { ski_options: string | null };
+
 /** The columns a copy carries over, read off any row that has them, and nothing else of it. */
-export function copiedColumns(row: TourCopiedColumns): TourCopiedColumns {
+export function copiedColumns(row: TourCopiedColumns): CopiedColumns {
   return {
     tour_type: row.tour_type,
     distance: row.distance,
@@ -69,6 +74,7 @@ export function copiedColumns(row: TourCopiedColumns): TourCopiedColumns {
     run_pace_seconds_per_km: row.run_pace_seconds_per_km,
     ski_discipline: row.ski_discipline,
     ski_technique: row.ski_technique,
+    ski_options: row.ski_options ?? null,
     boat_type: row.boat_type,
     water_context: row.water_context,
     paddle_speed_kmh: row.paddle_speed_kmh,

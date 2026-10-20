@@ -474,6 +474,11 @@ const tours: TranslationStrings = {
   'tours.ski.summary.guessed': '일부 구간은 지도에 없는 연결이나 방향처럼 지도 데이터의 추정에 기반합니다.',
   'tours.ski.summary.stale': '현재 슬로프 데이터에 연결할 수 없어 이전 사본으로 계획했습니다.',
   'tours.ski.summary.source': '슬로프 데이터 © OpenStreetMap 기여자',
+  'tours.ski.summary.runs': '슬로프',
+  'tours.ski.summary.descent': '슬로프 하강',
+  'tours.ski.summary.lifts': '리프트 탑승',
+  'tours.ski.summary.build': '지도 데이터 기준: {build}',
+  'tours.ski.summary.saved': '저장된 그대로 표시합니다. 지점을 옮기거나 옵션을 바꾸면 다시 계획합니다.',
   'tours.ski.chooseTechnique': '주법을 선택하거나 알 수 없음을 선택하세요.',
   'tours.ski.infoLabel': 'TREK이 스키 투어와 트랙으로 하는 일',
   'tours.ski.info':

@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import { DEFAULT_SKI_ROUTE_OPTIONS } from '@trek/shared';
+import { computeTourMetrics, DEFAULT_SKI_ROUTE_OPTIONS } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { routeWalkingTour, enrichTourElevations, createTour, detailTour, updateTour, planSki } = vi.hoisted(() => ({
@@ -17,13 +17,20 @@ vi.mock('./tourRouting', async (importOriginal) => ({
   routeWalkingTour,
   enrichTourElevations,
 }));
-vi.mock('../../../repo/tourRepo', () => ({ tourRepo: { create: createTour, detail: detailTour, update: updateTour } }));
+const { savedLine, offline } = vi.hoisted(() => ({ savedLine: vi.fn(), offline: vi.fn(() => false) }));
+vi.mock('../../../sync/networkMode', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../sync/networkMode')>()),
+  isEffectivelyOffline: offline,
+}));
+vi.mock('../../../repo/tourRepo', () => ({
+  tourRepo: { create: createTour, detail: detailTour, update: updateTour, savedLine },
+}));
 vi.mock('../../../repo/skiRouteRepo', () => ({ skiRouteRepo: { plan: planSki } }));
 vi.mock('../useTourPermissions', () => ({ useTourPermissions: () => ({ canEdit: true, canAssign: true }) }));
 
 import { useTourPlanner } from './useTourPlanner';
 
-// FE-TOUR-SKI-PLAN-001 to FE-TOUR-SKI-PLAN-007
+// FE-TOUR-SKI-PLAN-001 to FE-TOUR-SKI-PLAN-009
 
 const savedSki = {
   place_id: 95,
@@ -125,6 +132,8 @@ describe('useTourPlanner, a ski and winter tour (SKI-02)', () => {
     createTour.mockReset();
     detailTour.mockReset();
     updateTour.mockReset();
+    savedLine.mockReset().mockResolvedValue(null);
+    offline.mockReset().mockReturnValue(false);
   });
 
   afterEach(() => vi.useRealTimers());
@@ -216,6 +225,7 @@ describe('useTourPlanner, a ski and winter tour (SKI-02)', () => {
         duration_seconds: 600,
         ski_options: DEFAULT_SKI_ROUTE_OPTIONS,
         ski_route_build: '2026-11-02',
+        ski_planned_legs: [0],
       })
     );
     expect(result.current.status).toBe('saved');
@@ -263,5 +273,78 @@ describe('useTourPlanner, a ski and winter tour (SKI-02)', () => {
     expect(again.result.current.ski.choice).toEqual({ discipline: 'touring', technique: null });
     act(() => again.result.current.returnToNeutral());
     expect(again.result.current.ski.choice).toEqual({ discipline: null, technique: null });
+  });
+
+  it('FE-TOUR-SKI-PLAN-008: a saved ski tour opens as saved, offline too: nothing asked, its line, time and build kept on a save', async () => {
+    const line: [number, number, number][] = [
+      [47, 11, 1600],
+      [47.005, 11.01, 1500],
+      [47.01, 11.02, 1400],
+    ];
+    const planned = {
+      ...savedSki,
+      ski_discipline: 'alpine' as const,
+      ski_technique: null,
+      distance: computeTourMetrics(line).distanceKm,
+      duration: 25,
+      ski_options: DEFAULT_SKI_ROUTE_OPTIONS,
+      ski_route_build: '2026-11-02',
+      ski_planned_legs: [0],
+    };
+    detailTour.mockResolvedValue({ tour: planned, waypoints: savedPoints });
+    savedLine.mockResolvedValue(JSON.stringify(line));
+    offline.mockReturnValue(true);
+    updateTour.mockResolvedValue({ tour: { ...planned, name: 'Down the col', revision: 3 }, waypoints: savedPoints });
+    const { result } = renderHook(() => useTourPlanner({ tripId: 88 }));
+    await act(async () => {
+      await result.current.openTour({ place_id: 95 });
+    });
+    await settle();
+    expect(savedLine).toHaveBeenCalledWith(88, 95);
+    expect(planSki).not.toHaveBeenCalled();
+    expect(enrichTourElevations).not.toHaveBeenCalled();
+    expect(result.current.status).toBe('ready');
+    expect(result.current.route).toEqual(line.map(([lat, lng]) => [lat, lng]));
+    expect(result.current.durationSeconds).toBe(1500);
+    expect(result.current.skiRoute).toMatchObject({ saved: true, build: '2026-11-02', plannedLegs: [0] });
+
+    // A new name changes nothing of the route: it is saved as it was planned.
+    act(() => result.current.setName('Down the col'));
+    expect(result.current.canSave).toBe(true);
+    await act(async () => {
+      await result.current.save();
+    });
+    expect(planSki).not.toHaveBeenCalled();
+    expect(updateTour).toHaveBeenCalledWith(
+      88,
+      95,
+      expect.objectContaining({
+        route_geometry: line,
+        duration_seconds: 1500,
+        ski_route_build: '2026-11-02',
+        ski_planned_legs: [0],
+      })
+    );
+  });
+
+  it('FE-TOUR-SKI-PLAN-009: a saved ski tour whose kept line is not the one saved is planned afresh', async () => {
+    detailTour.mockResolvedValue({
+      tour: { ...savedSki, ski_discipline: 'alpine', ski_technique: null, distance: 9.5, duration: 25 },
+      waypoints: savedPoints,
+    });
+    savedLine.mockResolvedValue(
+      JSON.stringify([
+        [47, 11, 1600],
+        [47.01, 11.02, 1400],
+      ])
+    );
+    const { result } = renderHook(() => useTourPlanner({ tripId: 89 }));
+    await act(async () => {
+      await result.current.openTour({ place_id: 95 });
+    });
+    await settle();
+    expect(planSki).toHaveBeenCalledTimes(1);
+    expect(result.current.skiRoute?.saved).toBe(false);
+    expect(result.current.durationSeconds).toBe(600);
   });
 });

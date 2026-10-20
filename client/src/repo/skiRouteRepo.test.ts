@@ -1,4 +1,4 @@
-// FE-REPO-SKIROUTE-001 to FE-REPO-SKIROUTE-005: ski legs planned on the piste data, online only, remembered per request.
+// FE-REPO-SKIROUTE-001 to FE-REPO-SKIROUTE-007: ski legs planned on the piste data, online only, remembered per request.
 // FE-API-SKIROUTE-001 to FE-API-SKIROUTE-002: the call behind them, held to the @trek/shared contract.
 import {
   MAX_SKI_ROUTE_LEGS,
@@ -108,6 +108,7 @@ describe('skiRouteRepo (SKI-02)', () => {
     expect(answer.legs.map((leg) => leg.status)).toEqual(['ok', 'ok']);
     expect(answer).toMatchObject({ build: '2026-11-02', stale: false, areaNames: ['Gletscherwelt'] });
     expect(answer.colourScheme).toBe('europe');
+    expect(answer.attribution).toBe('© OpenStreetMap contributors');
   });
 
   it('FE-REPO-SKIROUTE-002: the same request again comes from memory, another option asks again', async () => {
@@ -134,6 +135,7 @@ describe('skiRouteRepo (SKI-02)', () => {
     const answer = await skiRouteRepo.plan(204, [{ from: A, to: B }], ALPINE);
     expect(answer.legs).toEqual([{ status: 'failed', code: 'offline', at: null, hint: null, detail: null }]);
     expect(answer.build).toBeNull();
+    expect(answer.attribution).toBeNull();
     expect(skiRouteApi.plan).not.toHaveBeenCalled();
   });
 
@@ -151,6 +153,25 @@ describe('skiRouteRepo (SKI-02)', () => {
     expect(answer.legs).toHaveLength(MAX_SKI_ROUTE_LEGS + 2);
     expect(answer.stale).toBe(true);
     expect(answer.areaNames).toEqual([`Area ${MAX_SKI_ROUTE_LEGS}`, 'Area 2']);
+  });
+
+  it('FE-REPO-SKIROUTE-006: legs refused while piste routing is switched off are asked again once it is back on', async () => {
+    vi.mocked(skiRouteApi.plan).mockResolvedValueOnce(
+      response([{ status: 'failed', code: 'disabled', at: null, hint: null, detail: null }], { build: null })
+    );
+    const off = await skiRouteRepo.plan(206, [{ from: A, to: B }], ALPINE);
+    expect(off.legs[0]).toMatchObject({ status: 'failed', code: 'disabled' });
+    const on = await skiRouteRepo.plan(206, [{ from: A, to: B }], ALPINE);
+    expect(on.legs[0]?.status).toBe('ok');
+    expect(skiRouteApi.plan).toHaveBeenCalledTimes(2);
+  });
+
+  it('FE-REPO-SKIROUTE-007: a plan on an older copy of the piste data is asked again, a current one comes from memory', async () => {
+    vi.mocked(skiRouteApi.plan).mockResolvedValueOnce(response([okLeg(A, B)], { stale: true }));
+    expect((await skiRouteRepo.plan(207, [{ from: A, to: B }], ALPINE)).stale).toBe(true);
+    expect((await skiRouteRepo.plan(207, [{ from: A, to: B }], ALPINE)).stale).toBe(false);
+    await skiRouteRepo.plan(207, [{ from: A, to: B }], ALPINE);
+    expect(skiRouteApi.plan).toHaveBeenCalledTimes(2);
   });
 });
 

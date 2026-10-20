@@ -133,12 +133,17 @@ describe('tour plan read (MCP-T01)', () => {
         ],
       },
     });
-    expect(planLegs([point(0), free, point(2)], { recorded: false, drawn: true })).toEqual([
+    expect(planLegs([point(0), free, point(2)], { recorded: false, drawn: () => true })).toEqual([
       expect.objectContaining({ kind: 'free', name: null, length_km: 1.11 }),
       expect.objectContaining({ kind: 'free', name: null, length_km: 1.11 }),
     ]);
+    // A leg the piste router planned is routed, with no length of its own; the leg drawn straight keeps its line.
+    expect(planLegs([point(0), point(1), point(2)], { recorded: false, drawn: (leg) => leg === 1 })).toEqual([
+      expect.objectContaining({ kind: 'routed', length_km: null }),
+      expect.objectContaining({ kind: 'free', length_km: 1.11 }),
+    ]);
     // A ski track kept as recorded stays a track.
-    expect(planLegs([point(0), point(1)], { recorded: true, drawn: true })).toEqual([
+    expect(planLegs([point(0), point(1)], { recorded: true, drawn: () => true })).toEqual([
       expect.objectContaining({ kind: 'track', length_km: null }),
     ]);
   });

@@ -502,6 +502,12 @@ const tours: TranslationStrings = {
   'tours.ski.summary.stale':
     'Σχεδιάστηκε σε παλαιότερο αντίγραφο των δεδομένων πιστών, επειδή το τρέχον δεν είναι διαθέσιμο.',
   'tours.ski.summary.source': 'Δεδομένα πιστών © συντελεστές του OpenStreetMap',
+  'tours.ski.summary.runs': 'Πίστες',
+  'tours.ski.summary.descent': 'Κατάβαση σε πίστες',
+  'tours.ski.summary.lifts': 'Διαδρομές με αναβατήρα',
+  'tours.ski.summary.build': 'Δεδομένα χάρτη της {build}',
+  'tours.ski.summary.saved':
+    'Εμφανίζεται όπως αποθηκεύτηκε. Μετακινήστε ένα σημείο ή αλλάξτε μια επιλογή για νέο σχεδιασμό.',
   'tours.ski.chooseTechnique': 'Επιλέξτε τεχνική ή Άγνωστη.',
   'tours.ski.infoLabel': 'Τι κάνει το TREK με διαδρομές και ίχνη σκι',
   'tours.ski.info':

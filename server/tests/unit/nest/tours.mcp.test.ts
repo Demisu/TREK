@@ -709,7 +709,11 @@ describe('ToursMcp', () => {
     const { member, trip } = fixture();
     const orm = await createTestOrm(db);
     const ski = await makePlace(orm, trip.id, { name: 'Down to the valley' });
-    const stored = { options: { ...DEFAULT_SKI_ROUTE_OPTIONS, max_difficulty: 'advanced' }, build: '2026-11-02' };
+    const stored = {
+      options: { ...DEFAULT_SKI_ROUTE_OPTIONS, max_difficulty: 'advanced' },
+      build: '2026-11-02',
+      planned_legs: [0],
+    };
     await makeTour(orm, ski.id, {
       tourTypeRef: 'ski',
       max_hiking_difficulty: null,
@@ -722,7 +726,70 @@ describe('ToursMcp', () => {
     ]);
     await orm.close();
     const plan = read(await mcp.getTourPlan({ tripId: trip.id, placeId: ski.id }, ctx(member.id)));
-    expect(plan.tour).toMatchObject({ ski_options: stored.options, ski_route_build: '2026-11-02' });
+    expect(plan.tour).toMatchObject({
+      ski_options: stored.options,
+      ski_route_build: '2026-11-02',
+      ski_planned_legs: [0],
+    });
     expect(plan.legs).toEqual([expect.objectContaining({ from_key: 'pk-top', to_key: 'pk-valley', kind: 'routed' })]);
+  });
+
+  it('TOURS-MCP-027: a ski tour planned in part names only the legs the router planned as routed, the rest drawn straight', async () => {
+    const { member, trip } = fixture();
+    const orm = await createTestOrm(db);
+    const partly = await makePlace(orm, trip.id, { name: 'Across the valley' });
+    const options = DEFAULT_SKI_ROUTE_OPTIONS;
+    await makeTour(orm, partly.id, {
+      tourTypeRef: 'ski',
+      max_hiking_difficulty: null,
+      ski_discipline: 'alpine',
+      ski_options: JSON.stringify({ options, build: '2026-11-02', planned_legs: [1] }),
+    });
+    await addTourWaypoints(orm, partly.id, [
+      { lat: 46, lng: 7, station_key: 'pp-a' },
+      { lat: 46.01, lng: 7, station_key: 'pp-b' },
+      { lat: 46.02, lng: 7, station_key: 'pp-c' },
+    ]);
+    // Saved without naming its legs: planned throughout only with the router's time kept.
+    const timed = await makePlace(orm, trip.id, { name: 'Timed' });
+    await makeTour(orm, timed.id, {
+      tourTypeRef: 'ski',
+      max_hiking_difficulty: null,
+      ski_discipline: 'alpine',
+      duration: 25,
+      ski_options: JSON.stringify({ options, build: '2026-11-02' }),
+    });
+    const untimed = await makePlace(orm, trip.id, { name: 'Untimed' });
+    await makeTour(orm, untimed.id, {
+      tourTypeRef: 'ski',
+      max_hiking_difficulty: null,
+      ski_discipline: 'alpine',
+      ski_options: JSON.stringify({ options, build: '2026-11-02' }),
+    });
+    for (const place of [timed, untimed]) {
+      await addTourWaypoints(orm, place.id, [
+        { lat: 46, lng: 7, station_key: `${place.id}-a` },
+        { lat: 46.01, lng: 7, station_key: `${place.id}-b` },
+      ]);
+    }
+    await orm.close();
+    const plan = read(await mcp.getTourPlan({ tripId: trip.id, placeId: partly.id }, ctx(member.id)));
+    expect(plan.legs.map((leg: { kind: string }) => leg.kind)).toEqual(['free', 'routed']);
+    expect(plan.legs[0].length_km).toBeCloseTo(1.11, 1);
+    expect(plan.legs[1].length_km).toBeNull();
+    const kinds = async (placeId: number): Promise<string[]> => {
+      const other = read(await mcp.getTourPlan({ tripId: trip.id, placeId }, ctx(member.id)));
+      return other.legs.map((leg: { kind: string }) => leg.kind);
+    };
+    expect(await kinds(timed.id)).toEqual(['routed']);
+    expect(await kinds(untimed.id)).toEqual(['free']);
+    const listEntry = getEntry(ToursMcp as unknown as ClassRef, 'listTours');
+    expect(listEntry?.kind === 'tool' ? listEntry.options.description : '').toContain(
+      'ski_planned_legs: the legs it planned',
+    );
+    const planEntry = getEntry(ToursMcp as unknown as ClassRef, 'getTourPlan');
+    expect(planEntry?.kind === 'tool' ? planEntry.options.description : '').toContain(
+      'routed where the piste router planned it and free',
+    );
   });
 });

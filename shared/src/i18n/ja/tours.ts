@@ -475,6 +475,11 @@ const tours: TranslationStrings = {
   'tours.ski.summary.guessed': '一部の区間は、地図にない接続や方向など、地図データからの推定に基づいています。',
   'tours.ski.summary.stale': '最新のゲレンデデータにアクセスできないため、古いコピーで計画しました。',
   'tours.ski.summary.source': 'ゲレンデデータ © OpenStreetMap 貢献者',
+  'tours.ski.summary.runs': 'ゲレンデ',
+  'tours.ski.summary.descent': 'ゲレンデでの下降',
+  'tours.ski.summary.lifts': 'リフト乗車',
+  'tours.ski.summary.build': '地図データ: {build}',
+  'tours.ski.summary.saved': '保存した状態で表示しています。地点を動かすかオプションを変えると再計画します。',
   'tours.ski.chooseTechnique': '走法を選ぶか、不明を選んでください。',
   'tours.ski.infoLabel': 'TREK がスキーツアーとトラックで行うこと',
   'tours.ski.info':

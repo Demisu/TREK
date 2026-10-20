@@ -22,6 +22,23 @@ const A = { lat: 45.98, lng: 7.75 };
 const B = { lat: 45.93, lng: 7.71 };
 const SHA = 'a'.repeat(64);
 
+/** A ski tour as the list carries it. */
+const LISTED = {
+  place_id: 4,
+  tour_type: 'ski',
+  distance: 8,
+  elevation_gain: 100,
+  elevation_loss: 900,
+  duration: 3600,
+  difficulty: null,
+  wanderer_ref: null,
+  match_confidence: 1,
+  max_hiking_difficulty: null,
+  name: 'Valley run',
+  planned: true,
+  caution: false,
+};
+
 describe('piste router options (SKI-ROUTE)', () => {
   it('SKI-ROUTE-SCHEMA-001: an empty object is a complete answer, use_lifts left to the discipline', () => {
     expect(DEFAULT_SKI_ROUTE_OPTIONS).toEqual({
@@ -111,27 +128,37 @@ describe('piste router options (SKI-ROUTE)', () => {
     );
   });
 
-  it('SKI-ROUTE-SCHEMA-005: a listed tour may carry its options and build, or neither', () => {
-    const listed = {
-      place_id: 4,
-      tour_type: 'ski',
-      distance: 8,
-      elevation_gain: 100,
-      elevation_loss: 900,
-      duration: 3600,
-      difficulty: null,
-      wanderer_ref: null,
-      match_confidence: 1,
-      max_hiking_difficulty: null,
+  it('SKI-ROUTE-SCHEMA-012: a saved ski tour names the legs the router planned, each a leg of its own, once', () => {
+    const planned = {
       name: 'Valley run',
-      planned: true,
-      caution: false,
+      tour_type: 'ski' as const,
+      ski_discipline: 'alpine' as const,
+      route_geometry: [
+        [A.lat, A.lng, 2500],
+        [B.lat, B.lng, 1600],
+      ],
+      waypoints: [
+        { lat: A.lat, lng: A.lng, role: 'start', sequence: 0 },
+        { lat: B.lat, lng: B.lng, role: 'via', sequence: 1 },
+        { lat: A.lat, lng: A.lng, role: 'end', sequence: 2 },
+      ],
     };
-    expect(tourListItemSchema.parse({ ...listed, ski_options: {}, ski_route_build: '2026-11-02' })).toMatchObject({
+    expect(tourCreateRequestSchema.parse({ ...planned, ski_planned_legs: [1, 0] }).ski_planned_legs).toEqual([1, 0]);
+    expect(tourCreateRequestSchema.parse({ ...planned, ski_planned_legs: [] }).ski_planned_legs).toEqual([]);
+    for (const legs of [[2], [0, 0], [-1], [0.5]]) {
+      expect(tourCreateRequestSchema.safeParse({ ...planned, ski_planned_legs: legs }).success).toBe(false);
+    }
+    const hike = { ...planned, tour_type: 'hike' as const, ski_discipline: null };
+    expect(() => tourCreateRequestSchema.parse({ ...hike, ski_planned_legs: [0] })).toThrow(/ski_planned_legs belongs/);
+    expect(tourListItemSchema.parse({ ...LISTED, ski_planned_legs: [0] }).ski_planned_legs).toEqual([0]);
+  });
+
+  it('SKI-ROUTE-SCHEMA-005: a listed tour may carry its options and build, or neither', () => {
+    expect(tourListItemSchema.parse({ ...LISTED, ski_options: {}, ski_route_build: '2026-11-02' })).toMatchObject({
       ski_options: DEFAULT_SKI_ROUTE_OPTIONS,
       ski_route_build: '2026-11-02',
     });
-    expect(tourListItemSchema.parse(listed).ski_options).toBeUndefined();
+    expect(tourListItemSchema.parse(LISTED).ski_options).toBeUndefined();
   });
 });
 

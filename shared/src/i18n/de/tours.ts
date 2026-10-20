@@ -496,6 +496,12 @@ const tours: TranslationStrings = {
     'Einige Stücke beruhen auf einer Vermutung aus den Kartendaten, etwa einer Verbindung oder Richtung, die nicht kartiert ist.',
   'tours.ski.summary.stale': 'Auf einer älteren Kopie der Pistendaten geplant, weil die aktuelle nicht erreichbar ist.',
   'tours.ski.summary.source': 'Pistendaten © OpenStreetMap-Mitwirkende',
+  'tours.ski.summary.runs': 'Pisten',
+  'tours.ski.summary.descent': 'Abfahrt auf Pisten',
+  'tours.ski.summary.lifts': 'Liftfahrten',
+  'tours.ski.summary.build': 'Kartendaten vom {build}',
+  'tours.ski.summary.saved':
+    'So angezeigt, wie gespeichert. Verschiebe einen Punkt oder ändere eine Option, um neu zu planen.',
   'tours.ski.chooseTechnique': 'Wähle die Technik oder Unbekannt.',
   'tours.ski.infoLabel': 'Was TREK mit Wintertouren und Skistrecken macht',
   'tours.ski.info':

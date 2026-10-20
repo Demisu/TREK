@@ -94,11 +94,22 @@ const NO_ROUTE: PlannedRoute = {
   forRun: null,
 };
 
-/** A route planned whole: a paddle route without a failed leg, a ski tour too, a route on land with its heights. */
+/**
+ * A route planned whole: a paddle route without a failed leg, a ski tour too,
+ * a ski tour opened as it was saved, a route on land with its heights.
+ */
 function routeComplete(planned: PlannedRoute): boolean {
   if (planned.paddleRoute) return planned.paddleRoute.failures.length === 0;
+  if (planned.skiRoute?.saved) return true;
   if (planned.skiRoute && planned.skiRoute.problems.length > 0) return false;
   return hasCompleteElevation(planned.enrichedGeometry);
+}
+
+/** SKI-02: a saved ski tour's route, for the points and the ski choice it was saved with. */
+export interface SavedSkiSeed {
+  route: SkiTourRoute;
+  waypointKey: string;
+  skiKey: string;
 }
 
 /** One planning run: what it plans from, whether it went stale, and where it writes. */
@@ -189,14 +200,21 @@ async function routeOnLand({ inputs, plannedKey, runKey, signal, stale, setPlann
   setError(null);
 }
 
-/** Heights straight between the known ones along the line, where the elevation source has none: an estimate. */
+/**
+ * Heights straight between the known ones along the line, where the elevation
+ * source has none: an estimate. Before the first known height and after the
+ * last, the nearest one holds. One walk along the line, however long it is.
+ */
 export function interpolatedHeights(points: readonly TourElevationPoint[]): [number, number, number][] | null {
   const known = points.flatMap((point, index) => (point.length === 3 && Number.isFinite(point[2]) ? [index] : []));
   if (known.length === 0) return null;
   const height = (k: number) => (points[k] as [number, number, number])[2];
+  let next = 0;
   return points.map((point, index): [number, number, number] => {
-    const after = known.find((k) => k >= index) ?? (known[known.length - 1] as number);
-    const before = [...known].reverse().find((k) => k <= index) ?? after;
+    // The first known height at or after this point; past the last one, the last.
+    while (next < known.length - 1 && (known[next] as number) < index) next += 1;
+    const after = known[next] as number;
+    const before = after <= index || next === 0 ? after : (known[next - 1] as number);
     const share = after === before ? 0 : (index - before) / (after - before);
     return [point[0], point[1], height(before) + (height(after) - height(before)) * share];
   });
@@ -313,6 +331,8 @@ export function useTourRoute(inputs: TourRouteInputs) {
   const [unreachable, setUnreachable] = useState<TourRouteUnreachable | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const generationRef = useRef(0);
+  // SKI-02: a saved ski tour's route waiting for the run that plans its points.
+  const savedSkiRef = useRef<SavedSkiSeed | null>(null);
 
   /** Any answer still on its way is stale from here on. */
   const interruptRouting = useCallback(() => {
@@ -324,6 +344,11 @@ export function useTourRoute(inputs: TourRouteInputs) {
   /** No route at all, as for an empty draft. */
   const clearRoute = useCallback(() => setPlanned(NO_ROUTE), []);
 
+  /** SKI-02: the next run for these points and this ski choice takes the saved route instead of asking the router. */
+  const openSavedSkiRoute = useCallback((seed: SavedSkiSeed) => {
+    savedSkiRef.current = seed;
+  }, []);
+
   const waypointKey = useMemo(() => tourWaypointKey(waypoints), [waypoints]);
   const plannedKey = plannedKeyOf(waypointKey, inputs);
   // CW-02, CW-03: a station's own fields and the keys a save answered are no part of what a route is planned from,
@@ -334,6 +359,26 @@ export function useTourRoute(inputs: TourRouteInputs) {
   const currentPoints = useEffectEvent(() => waypoints);
   // The route shown was planned whole for exactly this run, so a change that leaves it as it is plans nothing again.
   const routeStands = useEffectEvent(() => planned.forRun === runKey && routeComplete(planned));
+  // SKI-02: a saved ski tour opened as it was saved, its line, time and build shown until something of it changes.
+  const takeSavedSkiRoute = useEffectEvent(() => {
+    const seed = savedSkiRef.current;
+    savedSkiRef.current = null;
+    if (!seed || tourType !== 'ski' || seed.waypointKey !== waypointKey || seed.skiKey !== skiKey) return false;
+    const { route } = seed;
+    setUnreachable(null);
+    setPlanned({
+      route: route.coordinates,
+      routeParts: route.parts,
+      paddleRoute: null,
+      skiRoute: route,
+      enrichedGeometry: route.elevations,
+      distanceMeters: route.distanceMeters,
+      durationSeconds: route.durationSeconds,
+      forKey: plannedKey,
+      forRun: runKey,
+    });
+    return true;
+  });
 
   useEffect(() => {
     const points = currentPoints();
@@ -342,6 +387,11 @@ export function useTourRoute(inputs: TourRouteInputs) {
       setStatus(points.length === 0 ? 'empty' : 'dirty');
       clearRoute();
       onCleared();
+      setError(null);
+      return;
+    }
+    if (takeSavedSkiRoute()) {
+      setStatus('ready');
       setError(null);
       return;
     }
@@ -414,6 +464,7 @@ export function useTourRoute(inputs: TourRouteInputs) {
     unreachable: error === 'unreachable' ? unreachable : null,
     interruptRouting,
     clearRoute,
+    openSavedSkiRoute,
   };
 }
 

@@ -486,6 +486,12 @@ const tours: TranslationStrings = {
     'Bazı kısımlar harita verilerinden bir tahmine dayanıyor, örneğin haritada olmayan bir bağlantı veya yön.',
   'tours.ski.summary.stale': 'Güncel kopyaya ulaşılamadığı için pist verilerinin eski bir kopyasıyla planlandı.',
   'tours.ski.summary.source': 'Pist verileri © OpenStreetMap katkıcıları',
+  'tours.ski.summary.runs': 'Pistler',
+  'tours.ski.summary.descent': 'Pistlerde iniş',
+  'tours.ski.summary.lifts': 'Teleferik binişleri',
+  'tours.ski.summary.build': 'Harita verisi: {build}',
+  'tours.ski.summary.saved':
+    'Kaydedildiği gibi gösteriliyor. Yeniden planlamak için bir noktayı taşı ya da bir seçeneği değiştir.',
   'tours.ski.chooseTechnique': 'Tekniği ya da Bilinmiyor seçeneğini seç.',
   'tours.ski.infoLabel': 'TREK kayak turları ve izleriyle ne yapar',
   'tours.ski.info':

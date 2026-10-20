@@ -45,6 +45,7 @@ const row: CollectionTourRow = {
   run_pace_seconds_per_km: null,
   ski_discipline: null,
   ski_technique: null,
+  ski_options: null,
   boat_type: null,
   water_context: null,
   paddle_speed_kmh: null,
@@ -184,6 +185,20 @@ describe('collection tour helpers (LIB-03)', () => {
     });
     const kept = JSON.parse(snapshot.waypoints) as Array<{ linked_place_id?: number | null }>;
     expect(kept.map((point) => point.linked_place_id)).toEqual([null, null]);
+  });
+
+  it('LIB3-HLP-007: a kept ski tour keeps its piste router options and build, and a copy of it takes them along', () => {
+    const skiOptions = JSON.stringify({ options: { max_difficulty: 'advanced' }, build: '2026-11-02' });
+    const ski = { ...row, tour_type: 'ski', bike_profile: null, ski_discipline: 'alpine', ski_options: skiOptions };
+    const snapshot = keptTourSnapshot(keptTourCopySource(ski, true), {
+      collectionId: 9,
+      userId: 1,
+      name: 'Kept',
+      tripTitle: 'Alps',
+    });
+    expect(snapshot).toMatchObject({ tour_type: 'ski', ski_discipline: 'alpine', ski_options: skiOptions });
+    expect(keptTourCopySource(ski, false).facet.ski_options).toBe(skiOptions);
+    expect(keptTourCopySource(row, false).facet.ski_options).toBeNull();
   });
 
   it('LIB3-HLP-006: a point that is no control point refuses the whole snapshot', () => {

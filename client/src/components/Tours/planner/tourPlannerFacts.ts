@@ -53,6 +53,8 @@ export interface TourPlannerFactsInput {
   ski?: SkiChoice;
   /** The piste data build a ski tour's legs were planned on; null where the piste router planned none. */
   skiRouteBuild?: string | null;
+  /** The ski tour's legs the piste router planned, by the index of the point each starts at; null if unknown. */
+  skiPlannedLegs?: number[] | null;
   /** RUN-01: the profile a run is routed for, and the pace it is planned at (null while none is entered). */
   runProfile: RunProfile;
   runPaceSecondsPerKm: number | null;
@@ -171,6 +173,7 @@ function typeFieldsOf(input: TourPlannerFactsInput) {
     // What the piste router was asked for and the data it planned on, so the tour reopens as it was planned.
     ski_options: ski ? skiOptionsForDiscipline(ski.ski_discipline, input.ski?.options ?? {}) : null,
     ski_route_build: ski ? (input.skiRouteBuild ?? null) : null,
+    ski_planned_legs: ski ? (input.skiPlannedLegs ?? null) : null,
   };
 }
 

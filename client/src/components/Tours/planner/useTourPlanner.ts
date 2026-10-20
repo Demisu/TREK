@@ -25,6 +25,7 @@ import { NO_PADDLE_FIELDS, paddleFieldsOf, usePaddleFields, type PaddleFieldValu
 import { useTourPermissions, type TourPermissionProps } from '../useTourPermissions'
 import { useRunPace } from '../run/useRunPace'
 import { NO_SKI_CHOICE, type SkiChoice } from '../ski/skiChoice'
+import { savedSkiSeed } from '../ski/savedSkiRoute'
 import { useSkiFields } from '../ski/useSkiFields'
 import { lostStageEnds } from '../stages/tourStages'
 import { useTourStages } from '../stages/useTourStages'
@@ -254,7 +255,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     error, setStatus, setError, onCleared: forgetFocus, patchWaypoints,
   })
   const { route, routeParts, paddleRoute, skiRoute, enrichedGeometry, routeCurrent, distanceMeters, durationSeconds,
-    unreachable, interruptRouting, clearRoute } = routing
+    unreachable, interruptRouting, clearRoute, openSavedSkiRoute } = routing
 
   const commitWaypoints = useCallback((nextValue: TourPlannerWaypoint[] | ((current: TourPlannerWaypoint[]) => TourPlannerWaypoint[])) => {
     if (!editPermissionRef.current) return
@@ -535,7 +536,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const stageCount = Math.max(1, stages.stages.length)
   const facts = useMemo(() => tourPlannerFacts({
     tourType, maxHikingDifficulty, hikingPreferences, bikeProfile, ski: ski.choice, runProfile, runPaceSecondsPerKm, website,
-    skiRouteBuild: skiRoute?.build ?? null, plannedDurationMinutes, breakAdditionalMinutes,
+    skiRouteBuild: skiRoute?.build ?? null, skiPlannedLegs: skiRoute?.plannedLegs ?? null, plannedDurationMinutes, breakAdditionalMinutes,
     paddle: { boatType, waterContext, speedKmh, portageSpeedKmh, lakeStyle },
     paddleSpeedInvalid, paddleEstimate, routeAnalysis, durationSeconds, stays, stageCount,
   }), [bikeProfile, boatType, breakAdditionalMinutes, durationSeconds, hikingPreferences, lakeStyle, maxHikingDifficulty, paddleEstimate, paddleSpeedInvalid,
@@ -713,6 +714,9 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
         setError('open')
         return false
       }
+      // SKI-02: a saved ski tour opens with the line it was saved with, read from this device.
+      const skiLine = result.tour.tour_type === 'ski' ? await tourRepo.savedLine(tripId, result.tour.place_id) : null
+      if (!requestIsCurrent() || saveInFlightRef.current) return false
 
       interruptRouting()
       const opened = openedTourFields(result.tour)
@@ -739,6 +743,8 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
       setStageLoss(0)
       setStatus('dirty')
       clearRoute()
+      const savedSki = savedSkiSeed(result.tour, skiLine, nextWaypoints, opened.ski)
+      if (savedSki) openSavedSkiRoute(savedSki)
       // CW-11: a walk without its way yet is planned on opening and can be saved with it at once.
       const pending = result.tour.route_pending === true
       setRoutePending(pending)
@@ -762,7 +768,8 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
         setOpeningTourId(null)
       }
     }
-  }, [adoptRevision, clearHistory, clearRoute, interruptRouting, loadChoices, loadPaddle, loadRunPace, loadSki, forgetDraft, tripId])
+  }, [adoptRevision, clearHistory, clearRoute, interruptRouting, loadChoices, loadPaddle, loadRunPace, loadSki, forgetDraft, openSavedSkiRoute,
+    tripId])
 
   const retry = useCallback(() => {
     if (waypointsRef.current.length < 2) return

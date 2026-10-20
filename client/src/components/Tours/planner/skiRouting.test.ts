@@ -72,6 +72,7 @@ const answer = (legs: SkiLegAnswer[], extra: Partial<SkiPlanAnswer> = {}): SkiPl
   stale: false,
   areaNames: ['Gletscherwelt'],
   colourScheme: 'europe',
+  attribution: '© OpenStreetMap contributors. Terrain: Mapzen Terrarium',
   ...extra,
 });
 
@@ -115,6 +116,7 @@ describe('skiRouting (SKI-02)', () => {
     expect(route?.durationSeconds).toBeNull();
     expect(route?.parts.every((part) => part.free)).toBe(true);
     expect(route?.legs).toEqual([null, null]);
+    expect(route).toMatchObject({ plannedLegs: [], saved: false, attribution: null });
     // Every 25 m a point, so the heights follow the ground between the two ends of each leg.
     expect(route?.coordinates.length ?? 0).toBeGreaterThan(40);
     const straight = lineLengthM([
@@ -167,6 +169,8 @@ describe('skiRouting (SKI-02)', () => {
     expect(route?.elevations?.[0]).toEqual([47, 11, 1500]);
     expect(route?.build).toBe('2026-11-02');
     expect(route?.areaNames).toEqual(['Gletscherwelt']);
+    expect(route).toMatchObject({ plannedLegs: [0, 1], saved: false });
+    expect(route?.attribution).toBe('© OpenStreetMap contributors. Terrain: Mapzen Terrarium');
   });
 
   it('FE-TOUR-SKI-ROUTE-006: a leg it cannot plan stays straight and unrouted, with its reason, hint and name', async () => {
@@ -174,6 +178,7 @@ describe('skiRouting (SKI-02)', () => {
     const route = await routeSkiTour([start, col, hut], alpine, 7);
     expect(route?.durationSeconds).toBeNull();
     expect(route?.elevations).toBeNull();
+    expect(route?.plannedLegs).toEqual([0]);
     expect(route?.problems).toEqual([
       {
         index: 1,
@@ -235,6 +240,8 @@ describe('skiRouting (SKI-02)', () => {
       { index: 0, code: 'places_unavailable', hint: { free_draw: true }, name: null, summer: false },
     ]);
     expect(route?.parts.some((part) => part.free)).toBe(true);
+    // The drawn leg is no leg the router planned, and nothing was answered to credit.
+    expect(route).toMatchObject({ plannedLegs: [], attribution: null });
   });
 
   it('FE-TOUR-SKI-ROUTE-010: a leg takes its time on the move and waiting together', () => {

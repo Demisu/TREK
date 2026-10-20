@@ -50,7 +50,8 @@ function skiFields(input: TourCreateCommand): Pick<TourUpdate, 'ski_discipline' 
 function skiRouteField(input: TourCreateCommand): string | null {
   if (input.tour_type !== 'ski' || !input.ski_discipline || !input.ski_options) return null;
   const options = skiOptionsForDiscipline(input.ski_discipline, input.ski_options);
-  return encodeJson(TOUR_SKI_ROUTE, { options, build: input.ski_route_build ?? null });
+  const planned = input.ski_planned_legs ? { planned_legs: [...input.ski_planned_legs] } : {};
+  return encodeJson(TOUR_SKI_ROUTE, { options, build: input.ski_route_build ?? null, ...planned });
 }
 
 /**

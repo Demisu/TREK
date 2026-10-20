@@ -484,6 +484,11 @@ const tours: TranslationStrings = {
     'Vissa delar bygger på en gissning från kartdatan, som en länk eller riktning som inte är kartlagd.',
   'tours.ski.summary.stale': 'Planerad på en äldre kopia av pistdatan, eftersom den aktuella inte går att nå.',
   'tours.ski.summary.source': 'Pistdata © OpenStreetMap-bidragsgivare',
+  'tours.ski.summary.runs': 'Pister',
+  'tours.ski.summary.descent': 'Nedfärd i pister',
+  'tours.ski.summary.lifts': 'Liftturer',
+  'tours.ski.summary.build': 'Kartdata från {build}',
+  'tours.ski.summary.saved': 'Visas som det sparades. Flytta en punkt eller ändra ett val för att planera om.',
   'tours.ski.chooseTechnique': 'Välj teknik, eller Okänd.',
   'tours.ski.infoLabel': 'Vad TREK gör med skidturer och skidspår',
   'tours.ski.info':

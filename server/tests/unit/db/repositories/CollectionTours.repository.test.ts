@@ -70,6 +70,7 @@ function snapshot(collectionId: number, savedBy: number | null, overrides: Parti
     run_pace_seconds_per_km: null,
     ski_discipline: null,
     ski_technique: null,
+    ski_options: null,
     boat_type: null,
     water_context: null,
     paddle_speed_kmh: null,

@@ -5,9 +5,9 @@ import type { SkiLegProblem, SkiTourRoute } from '../planner/skiRouting';
 import { SkiLegFailureRow, SkiLegSteps, skiFixesOf } from './SkiLegRows';
 import { SkiRouteOptions } from './SkiRouteOptions';
 import { skiPaintOf } from './skiRouteStyle';
-import { SkiRouteSummary, skiSecondsOf } from './SkiRouteSummary';
+import { SkiRouteSummary, skiSecondsOf, skiTallyOf } from './SkiRouteSummary';
 
-// FE-TOUR-SKI-UI-001 to FE-TOUR-SKI-UI-009
+// FE-TOUR-SKI-UI-001 to FE-TOUR-SKI-UI-012
 
 function segment(kind: SkiRouteSegment['kind'], extra: Partial<SkiRouteSegment> = {}): SkiRouteSegment {
   return {
@@ -68,6 +68,9 @@ function route(extra: Partial<SkiTourRoute> = {}): SkiTourRoute {
     stale: false,
     areaNames: ['Gletscherwelt'],
     colourScheme: 'europe',
+    attribution: null,
+    plannedLegs: [0],
+    saved: false,
     ...extra,
   };
 }
@@ -210,6 +213,51 @@ describe('SkiRouteSummary (SKI-02)', () => {
     const { container } = render(<SkiRouteSummary route={route({ legs: [null] })} />);
     expect(container).toBeEmptyDOMElement();
     expect(render(<SkiRouteSummary route={null} />).container).toBeEmptyDOMElement();
+  });
+
+  it('FE-TOUR-SKI-UI-010: counts the runs, the height skied down on them and the lift rides, and names the build', () => {
+    const leg = okLeg({
+      geometry: [
+        [47, 11, 1500],
+        [47.01, 11, 2000],
+        [47.015, 11, null],
+        [47.02, 11, 1400],
+        [47.021, 11, 1450],
+        [47.03, 11, 1200],
+      ],
+      segments: [
+        { ...segment('lift'), from: 0, to: 1 },
+        { ...segment('run', { length_m: 1800 }), from: 1, to: 5 },
+        { ...segment('rail'), from: 5, to: 5 },
+      ],
+    });
+    // 2000 down to 1400 past a point without a height, up 50 and down 250: 850 m skied down.
+    expect(skiTallyOf(route({ legs: [leg, null] }))).toEqual({ runsM: 1800, downM: 850, rides: 2 });
+    const credited = route({ legs: [leg], attribution: '© OpenStreetMap contributors. Terrain: Terrarium' });
+    render(<SkiRouteSummary route={credited} />);
+    const card = screen.getByTestId('ski-route-summary');
+    expect(card).toHaveTextContent('tours.ski.summary.runs1.8 km');
+    expect(card).toHaveTextContent('tours.ski.summary.descent850 m');
+    expect(card).toHaveTextContent('tours.ski.summary.lifts2');
+    expect(card).toHaveTextContent('tours.ski.summary.build');
+    expect(card).toHaveTextContent('Gletscherwelt. © OpenStreetMap contributors. Terrain: Terrarium');
+    expect(card).not.toHaveTextContent('tours.ski.summary.source');
+  });
+
+  it('FE-TOUR-SKI-UI-011: a tour opened as saved says so with its build, and the fixed credit where none was sent', () => {
+    render(<SkiRouteSummary route={route({ legs: [], saved: true, areaNames: [] })} />);
+    const card = screen.getByTestId('ski-route-summary');
+    expect(card).toHaveTextContent('tours.ski.summary.saved');
+    expect(card).toHaveTextContent('tours.ski.summary.build');
+    expect(card).toHaveTextContent('tours.ski.summary.source');
+    expect(card).not.toHaveTextContent('tours.ski.summary.ski');
+  });
+
+  it('FE-TOUR-SKI-UI-012: nothing for a tour saved without a leg the router planned, and no build line without a build', () => {
+    const drawn = route({ legs: [], saved: true, plannedLegs: [], build: null });
+    expect(render(<SkiRouteSummary route={drawn} />).container).toBeEmptyDOMElement();
+    render(<SkiRouteSummary route={route({ saved: true, legs: [], build: null })} />);
+    expect(screen.getByTestId('ski-route-summary')).not.toHaveTextContent('tours.ski.summary.build');
   });
 });
 
