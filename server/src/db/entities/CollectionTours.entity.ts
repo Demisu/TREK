@@ -95,9 +95,7 @@ export const CollectionToursSchema = defineEntity({
     source_tour_name: p.text(),
     created_at: p.type(DbTimestampType).defaultRaw(`CURRENT_TIMESTAMP`),
     ski_options: p.text().nullable(),
-    tourTypeRef: () =>
-      p.manyToOne(TourTypes).ref().joinColumn('tour_type').hidden().index('idx_collection_tours_tour_type'),
-    savedByRef: () =>
-      p.manyToOne(Users).ref().joinColumn('saved_by').nullable().hidden().index('idx_collection_tours_saved_by'),
+    tourTypeRef: () => p.manyToOne(TourTypes).ref().joinColumn('tour_type').hidden().index('idx_collection_tours_tour_type'),
+    savedByRef: () => p.manyToOne(Users).ref().joinColumn('saved_by').nullable().hidden().index('idx_collection_tours_saved_by'),
   },
 });
