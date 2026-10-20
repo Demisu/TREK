@@ -4,7 +4,7 @@ import { Test } from '@nestjs/testing';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// TOUR-GRADE-001 to TOUR-GRADE-008
+// TOUR-GRADE-001 to TOUR-GRADE-010
 
 const query = vi.fn<(q: string, caller: string) => Promise<unknown[]>>();
 let service: TourTrailGradeService;
@@ -20,20 +20,21 @@ beforeEach(async () => {
 const way = (id: number, tags: Record<string, string>) => ({ type: 'way', id, tags });
 const NO_SAC = { sac_scale: null, sac_scale_unclear: null };
 const NO_MTB = { mtb_scale: null, mtb_scale_uphill: null, mtb_scale_imba: null };
+const NO_WAY = { surface: null, highway: null };
 
 describe('TourTrailGradeService (BIK-05)', () => {
-  it('TOUR-GRADE-001: reads each scale to its steps and leaves a way without one out', async () => {
+  it('TOUR-GRADE-001: reads each scale to its steps and leaves a way without any value out', async () => {
     query.mockResolvedValue([
       way(1, { 'mtb:scale': '2+', 'mtb:scale:uphill': '3' }),
       way(2, { 'mtb:scale': 'S1', 'mtb:scale:imba': '2' }),
-      way(3, { highway: 'track' }),
+      way(3, { name: 'Forstweg' }),
       way(4, { 'mtb:scale': '9', 'mtb:scale:imba': 'hard' }),
     ]);
     const answer = await service.grades({ way_ids: [1, 2, 3, 4, 5] });
     expect(answer).toEqual({
       ways: [
-        { ...NO_SAC, id: 1, mtb_scale: '2+', mtb_scale_uphill: '3', mtb_scale_imba: null },
-        { ...NO_SAC, id: 2, mtb_scale: '1', mtb_scale_uphill: null, mtb_scale_imba: '2' },
+        { ...NO_SAC, ...NO_WAY, id: 1, mtb_scale: '2+', mtb_scale_uphill: '3', mtb_scale_imba: null },
+        { ...NO_SAC, ...NO_WAY, id: 2, mtb_scale: '1', mtb_scale_uphill: null, mtb_scale_imba: '2' },
       ],
       unanswered: [],
     });
@@ -105,11 +106,11 @@ describe('TourTrailGradeService (BIK-05)', () => {
     ]);
     const answer = await service.grades({ way_ids: [1, 2, 3, 4, 5, 6] });
     expect(answer.ways).toEqual([
-      { ...NO_MTB, id: 1, sac_scale: 'demanding_mountain_hiking', sac_scale_unclear: null },
-      { ...NO_MTB, id: 2, mtb_scale: '3', sac_scale: 'alpine_hiking', sac_scale_unclear: null },
-      { ...NO_MTB, id: 3, sac_scale: null, sac_scale_unclear: 'T3' },
-      { ...NO_MTB, id: 4, sac_scale: null, sac_scale_unclear: 'hiking;mountain_hiking' },
-      { ...NO_MTB, id: 6, sac_scale: null, sac_scale_unclear: `x${'y'.repeat(63)}` },
+      { ...NO_MTB, ...NO_WAY, id: 1, sac_scale: 'demanding_mountain_hiking', sac_scale_unclear: null },
+      { ...NO_MTB, ...NO_WAY, id: 2, mtb_scale: '3', sac_scale: 'alpine_hiking', sac_scale_unclear: null },
+      { ...NO_MTB, ...NO_WAY, id: 3, sac_scale: null, sac_scale_unclear: 'T3' },
+      { ...NO_MTB, ...NO_WAY, id: 4, sac_scale: null, sac_scale_unclear: 'hiking;mountain_hiking' },
+      { ...NO_MTB, ...NO_WAY, id: 6, sac_scale: null, sac_scale_unclear: `x${'y'.repeat(63)}` },
     ]);
   });
 
@@ -117,6 +118,30 @@ describe('TourTrailGradeService (BIK-05)', () => {
     query.mockResolvedValue([
       way(1, { trail_visibility: 'bad', 'osmc:symbol': 'blue:white:blue_bar', highway: 'path', incline: '30%' }),
     ]);
+    expect(await service.grades({ way_ids: [1] })).toEqual({
+      ways: [{ ...NO_MTB, ...NO_SAC, id: 1, surface: null, highway: 'path' }],
+      unanswered: [],
+    });
+  });
+
+  it('TOUR-GRADE-009: hands the surface and the kind of way on as written, only trimmed and bounded (MAP-04)', async () => {
+    query.mockResolvedValue([
+      way(1, { surface: 'fine_gravel', highway: 'track' }),
+      way(2, { surface: ' Asphalt ', highway: 'footway' }),
+      way(3, { surface: 'gravel;ground' }),
+      way(4, { surface: '  ', highway: `x${'y'.repeat(80)}` }),
+    ]);
+    const answer = await service.grades({ way_ids: [1, 2, 3, 4] });
+    expect(answer.ways).toEqual([
+      { ...NO_MTB, ...NO_SAC, id: 1, surface: 'fine_gravel', highway: 'track' },
+      { ...NO_MTB, ...NO_SAC, id: 2, surface: 'Asphalt', highway: 'footway' },
+      { ...NO_MTB, ...NO_SAC, id: 3, surface: 'gravel;ground', highway: null },
+      { ...NO_MTB, ...NO_SAC, id: 4, surface: null, highway: `x${'y'.repeat(63)}` },
+    ]);
+  });
+
+  it('TOUR-GRADE-010: never reads a surface from anything but the surface tag (MAP-04)', async () => {
+    query.mockResolvedValue([way(1, { tracktype: 'grade1', smoothness: 'good', 'surface:note': 'gravel' })]);
     expect(await service.grades({ way_ids: [1] })).toEqual({ ways: [], unanswered: [] });
   });
 });

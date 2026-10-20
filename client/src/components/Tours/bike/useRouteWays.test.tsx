@@ -76,7 +76,16 @@ describe('useRouteWays (BIK-01 to BIK-05, RUN-02)', () => {
   it('FE-TOUR-WAYS-HOOK-003: a mountain bike tour asks the grades of its ways, and keeps what could not be asked apart', async () => {
     gradesRepo.grades.mockResolvedValue({
       ways: [
-        { id: 11, mtb_scale: '2', mtb_scale_uphill: null, mtb_scale_imba: null, sac_scale: null, sac_scale_unclear: null },
+        {
+          id: 11,
+          mtb_scale: '2',
+          mtb_scale_uphill: null,
+          mtb_scale_imba: null,
+          sac_scale: null,
+          sac_scale_unclear: null,
+          surface: null,
+          highway: null,
+        },
       ],
       unanswered: [12],
     });

@@ -1,7 +1,7 @@
 import { OverpassElementsClient } from '../overpass/overpass-elements.service';
 import { Injectable } from '@nestjs/common';
 import {
-  SAC_SCALE_UNCLEAR_MAX,
+  OSM_TAG_VALUE_MAX,
   sacScaleSchema,
   type TourTrailGrade,
   type TourTrailGradeRequest,
@@ -31,37 +31,48 @@ function step(value: string | undefined, top: number, signed: boolean): string |
 }
 
 /**
+ * MAP-04: a tag's value as OpenStreetMap wrote it, only trimmed and bounded,
+ * never normalised: the planner groups it and says what was written.
+ */
+function written(value: string | undefined): string | null {
+  const trimmed = value?.trim() ?? '';
+  return trimmed ? trimmed.slice(0, OSM_TAG_VALUE_MAX) : null;
+}
+
+/**
  * MAP-03: a way's `sac_scale` as one of the scale's six values, read as
  * OpenStreetMap wrote it. A value that names no single step (`T3`,
  * `hiking;mountain_hiking`, a typo) is handed on as written and never read to
  * a step, so the planner says unclear rather than picking one.
  */
 function sacOf(value: string | undefined): Pick<TourTrailGrade, 'sac_scale' | 'sac_scale_unclear'> {
-  const written = value?.trim() ?? '';
-  if (!written) return { sac_scale: null, sac_scale_unclear: null };
-  const known = sacScaleSchema.safeParse(written.toLowerCase());
+  const text = written(value);
+  if (!text) return { sac_scale: null, sac_scale_unclear: null };
+  const known = sacScaleSchema.safeParse(text.toLowerCase());
   if (known.success) return { sac_scale: known.data, sac_scale_unclear: null };
-  return { sac_scale: null, sac_scale_unclear: written.slice(0, SAC_SCALE_UNCLEAR_MAX) };
+  return { sac_scale: null, sac_scale_unclear: text };
 }
 
 function gradeOf(id: number, tags: Record<string, string> = {}): TourTrailGrade | null {
-  const grade = {
+  const grade: TourTrailGrade = {
     id,
     mtb_scale: step(tags['mtb:scale'], 6, true),
     mtb_scale_uphill: step(tags['mtb:scale:uphill'], 5, true),
     mtb_scale_imba: step(tags['mtb:scale:imba'], 4, false),
     ...sacOf(tags['sac_scale']),
+    surface: written(tags['surface']),
+    highway: written(tags['highway']),
   };
-  const graded = grade.mtb_scale || grade.mtb_scale_uphill || grade.mtb_scale_imba;
-  return graded || grade.sac_scale || grade.sac_scale_unclear ? grade : null;
+  // A way none of whose values is recorded is left out: the planner reads its absence as unknown.
+  return Object.entries(grade).some(([key, value]) => key !== 'id' && value !== null) ? grade : null;
 }
 
 /**
- * BIK-05 and MAP-03: the trail grades of the ways a tour runs on (the mountain
- * bike scales, and the SAC hiking scale of a hike), read from OpenStreetMap
- * through the operator's Overpass mirrors. What was read is kept
- * a day, so the same tour asked about again costs the mirrors nothing; ways a
- * mirror could not answer are said, never guessed.
+ * BIK-05, MAP-03 and MAP-04: what OpenStreetMap records for the ways a tour
+ * runs on (the mountain bike scales; the SAC hiking scale, the surface and the
+ * kind of way of a hike), read through the operator's Overpass mirrors. What
+ * was read is kept a day, so the same tour asked about again costs the mirrors
+ * nothing; ways a mirror could not answer are said, never guessed.
  */
 @Injectable()
 export class TourTrailGradeService {

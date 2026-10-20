@@ -22,7 +22,7 @@ export interface TrailGrades {
 export interface RouteWaysState {
   status: RouteWaysStatus;
   ways: RouteWays | null;
-  /** BIK-05 and MAP-03, where asked for: the trail grades of its ways. */
+  /** BIK-05, MAP-03 and MAP-04, where asked for: what OpenStreetMap records for its ways. */
   grades: TrailGrades | null;
 }
 
@@ -67,9 +67,10 @@ async function askRouteWays(
 }
 
 /**
- * BIK-01 to BIK-05 and MAP-03: what the tour being planned runs on, asked of
- * the router once its route has settled, and where asked for the trail grades
- * of its ways (a mountain bike tour's, a hike's SAC grades). A new route makes
+ * BIK-01 to BIK-05, MAP-03 and MAP-04: what the tour being planned runs on,
+ * asked of the router once its route has settled, and where asked for what
+ * OpenStreetMap records for its ways (a mountain bike tour's grades; a hike's
+ * SAC grades, surfaces and kinds of way). A new route makes
  * the answer on its way stale and takes the map's highlight down; nothing of
  * it changes the tour.
  */

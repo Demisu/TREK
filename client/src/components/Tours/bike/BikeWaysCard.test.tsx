@@ -51,6 +51,8 @@ const grade = (id: number, mtb: string | null, uphill: string | null = null): To
   mtb_scale_imba: null,
   sac_scale: null,
   sac_scale_unclear: null,
+  surface: null,
+  highway: null,
 });
 
 function show(state: Partial<RouteWaysState>, overrides: Partial<TourPlannerController> = {}) {

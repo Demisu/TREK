@@ -1,11 +1,12 @@
 import { z } from 'zod';
 
 /**
- * BIK-05 and MAP-03: the trail grades OpenStreetMap carries for the ways a
- * tour runs on, asked for by the ways' ids: the mountain bike scales for a
- * bike tour, the SAC hiking scale for a hike. A read: nothing about the tour
- * changes. A way without a grade is unknown, never easy; a way that could not
- * be asked about is named, so the planner can say so.
+ * BIK-05, MAP-03 and MAP-04: what OpenStreetMap records for the ways a tour
+ * runs on, asked for by the ways' ids: the mountain bike scales for a bike
+ * tour, the SAC hiking scale, the surface and the kind of way for a hike. A
+ * read: nothing about the tour changes. A way without a grade is unknown,
+ * never easy; a way that could not be asked about is named, so the planner
+ * can say so.
  */
 
 /** The most ways one question names; a longer tour asks for its first ones. */
@@ -39,8 +40,10 @@ export function sacStepOf(value: SacScale): SacStep {
   return (SAC_SCALE_VALUES.indexOf(value) + 1) as SacStep;
 }
 
-/** The most of an unclear `sac_scale` tag that is handed on, so a stray long value cannot bloat the answer. */
-export const SAC_SCALE_UNCLEAR_MAX = 64;
+/** The most of a tag's value that is handed on as written, so a stray long value cannot bloat the answer. */
+export const OSM_TAG_VALUE_MAX = 64;
+
+const writtenValue = z.string().min(1).max(OSM_TAG_VALUE_MAX).nullable();
 
 /**
  * One way's grades as OpenStreetMap tags them, read to the scale's own steps:
@@ -50,6 +53,11 @@ export const SAC_SCALE_UNCLEAR_MAX = 64;
  * `sac_scale` that is there but names no single step (`T3`, two values joined
  * by `;`) is handed on as written in `sac_scale_unclear`, so the planner can
  * say the grade is unclear rather than missing; it is never read to a step.
+ *
+ * MAP-04: `surface` and `highway` are handed on as OpenStreetMap wrote them
+ * (trimmed, never normalised), so the planner can tell a recorded surface
+ * from the router's own reading, which may be a default. Null where the way
+ * carries no such tag.
  */
 export const tourTrailGradeSchema = z.object({
   id: z.number().int().positive(),
@@ -66,12 +74,14 @@ export const tourTrailGradeSchema = z.object({
     .regex(/^[0-4]$/)
     .nullable(),
   sac_scale: sacScaleSchema.nullable(),
-  sac_scale_unclear: z.string().min(1).max(SAC_SCALE_UNCLEAR_MAX).nullable(),
+  sac_scale_unclear: writtenValue,
+  surface: writtenValue,
+  highway: writtenValue,
 });
 export type TourTrailGrade = z.infer<typeof tourTrailGradeSchema>;
 
 export const tourTrailGradeResponseSchema = z.object({
-  /** The ways asked about that carry at least one grade. */
+  /** The ways asked about that carry at least one of the values read. */
   ways: z.array(tourTrailGradeSchema),
   /** The ways the data could not be asked about this time: their grade is unknown, not absent. */
   unanswered: z.array(z.number().int().positive()),

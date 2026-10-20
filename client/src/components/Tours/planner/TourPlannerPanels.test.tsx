@@ -23,10 +23,10 @@ vi.mock('../paddle/PaddleCheckCard', () => ({
   ),
 }))
 
-// MAP-03: the SAC card is its own suite's; here it only has to sit where the rails put it, with what they hand it.
-vi.mock('../hike/SacGradesCard', () => ({
-  SacGradesCard: ({ route, routeCurrent, routingLimit }: { route: [number, number][] | null; routeCurrent?: boolean; routingLimit: number | null }) => (
-    <div data-testid="sac-grades-card" data-route={route ? route.length : 'none'} data-current={String(routeCurrent ?? true)}
+// MAP-03 and MAP-04: the hike's ways card is its own suite's; here it only has to sit where the rails put it, with what they hand it.
+vi.mock('../hike/HikeWaysCard', () => ({
+  HikeWaysCard: ({ route, routeCurrent, routingLimit }: { route: [number, number][] | null; routeCurrent?: boolean; routingLimit: number | null }) => (
+    <div data-testid="hike-ways-card" data-route={route ? route.length : 'none'} data-current={String(routeCurrent ?? true)}
       data-limit={String(routingLimit)} />
   ),
 }))
@@ -1024,16 +1024,16 @@ describe('a run in the planner rails (RUN-01)', () => {
   })
 })
 
-describe('SAC grades in the planner rails (MAP-03)', () => {
+describe('the hike ways card in the planner rails (MAP-03, MAP-04)', () => {
   it('MAP03-RAIL-001: a hike being edited carries the card with its line, whether it is planned now, and its routing limit', () => {
     const { unmount } = render(<TourPlannerRail planner={planner({ mode: { type: 'new-draft' }, routeCurrent: true, maxHikingDifficulty: 3 })} />)
-    const card = screen.getByTestId('sac-grades-card')
+    const card = screen.getByTestId('hike-ways-card')
     expect(card).toHaveAttribute('data-route', '2')
     expect(card).toHaveAttribute('data-current', 'true')
     expect(card).toHaveAttribute('data-limit', '3')
     unmount()
     render(<TourPlannerRail planner={planner({ mode: { type: 'new-draft' }, routeCurrent: false })} />)
-    expect(screen.getByTestId('sac-grades-card')).toHaveAttribute('data-current', 'false')
+    expect(screen.getByTestId('hike-ways-card')).toHaveAttribute('data-current', 'false')
   })
 
   it('MAP03-RAIL-002: a hike import carries it without a routing limit; a bike tour and a bike import do not', () => {
@@ -1043,13 +1043,13 @@ describe('SAC grades in the planner rails (MAP-03)', () => {
       readOnlyGpxAnalysis: analyzeRouteGeometry(geometry),
     })
     const hike = render(<TourPlannerRail planner={imported('hike')} />)
-    expect(screen.getByTestId('sac-grades-card')).toHaveAttribute('data-route', '3')
-    expect(screen.getByTestId('sac-grades-card')).toHaveAttribute('data-limit', 'null')
+    expect(screen.getByTestId('hike-ways-card')).toHaveAttribute('data-route', '3')
+    expect(screen.getByTestId('hike-ways-card')).toHaveAttribute('data-limit', 'null')
     hike.unmount()
     const bikeImport = render(<TourPlannerRail planner={imported('bike')} />)
-    expect(screen.queryByTestId('sac-grades-card')).toBeNull()
+    expect(screen.queryByTestId('hike-ways-card')).toBeNull()
     bikeImport.unmount()
     render(<TourPlannerRail planner={planner({ mode: { type: 'new-draft' }, tourType: 'bike', isBike: true, routeCurrent: false })} />)
-    expect(screen.queryByTestId('sac-grades-card')).toBeNull()
+    expect(screen.queryByTestId('hike-ways-card')).toBeNull()
   })
 })
