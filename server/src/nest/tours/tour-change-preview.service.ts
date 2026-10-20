@@ -85,6 +85,7 @@ export class TourChangePreviewService {
         after: outcome.points,
         removed: outcome.removed,
         replaced: outcome.replaced,
+        shapingDropped: outcome.shapingDropped,
         wayBefore,
         wayAfter,
         stored: { distance_km: tour.distance, walking_minutes: tour.duration },

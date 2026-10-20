@@ -8,7 +8,7 @@ import { CITY_WALK_MAX_STATIONS, type TourChange, type TourWaypoint } from '@tre
 
 import { describe, expect, it } from 'vitest';
 
-// TCHG-APPLY-001 to TCHG-APPLY-007
+// TCHG-APPLY-001 to TCHG-APPLY-009
 
 const point = (key: string, sequence: number, extra: Partial<TourWaypoint> = {}): TourWaypoint => ({
   lat: 48 + sequence * 0.01,
@@ -53,21 +53,22 @@ describe('a change laid onto a saved walk (MCP-T02)', () => {
       { op: 'add', station: cafe, after_key: 'stop-museum' },
       { op: 'add', station: { ...cafe, name: 'Bakery', linked_place_id: 7 }, after_key: 'stop-museum' },
     ];
-    const { points, removed, replaced } = ready(applyChanges(basis(), changes));
-    expect(refs(points)).toEqual(['stop-gate', 'stop-museum', 'new:1', 'new:2', 'shape-0001', 'stop-park', 'stop-end']);
+    const { points, removed, replaced, shapingDropped } = ready(applyChanges(basis(), changes));
+    // The shaping point steered the museum to park leg the first stop split, so it goes with that leg.
+    expect(refs(points)).toEqual(['stop-gate', 'stop-museum', 'new:1', 'new:2', 'stop-park', 'stop-end']);
     expect(points.map((p) => [p.sequence, p.role])).toEqual([
       [0, 'start'],
       [1, 'via'],
       [2, 'via'],
       [3, 'via'],
       [4, 'via'],
-      [5, 'via'],
-      [6, 'end'],
+      [5, 'end'],
     ]);
     expect(points[2]).toMatchObject({ name: 'Cafe', origin: 'added', change: 1, after: 'stop-museum', replaces: null });
     expect(points[2]?.key).toBeUndefined();
     expect(points[3]).toMatchObject({ name: 'Bakery', linked_place_id: 7, change: 2 });
     expect([removed, replaced]).toEqual([[], []]);
+    expect(shapingDropped.map((p) => [p.ref, p.change])).toEqual([['shape-0001', 1]]);
   });
 
   it('TCHG-APPLY-002: remove, replace and move each say what they did, and a move goes before or after where it was', () => {
@@ -77,13 +78,14 @@ describe('a change laid onto a saved walk (MCP-T02)', () => {
       { op: 'move', key: 'stop-end', after_key: 'stop-gate' },
       { op: 'move', key: 'stop-gate', after_key: 'stop-end' },
     ];
-    const { points, removed, replaced } = ready(applyChanges(basis(), changes));
-    expect(refs(points)).toEqual(['stop-end', 'stop-gate', 'new:2', 'shape-0001']);
+    const { points, removed, replaced, shapingDropped } = ready(applyChanges(basis(), changes));
+    expect(refs(points)).toEqual(['stop-end', 'stop-gate', 'new:2']);
     expect(points[0]).toMatchObject({ origin: 'moved', change: 3, role: 'start' });
-    expect(points[2]).toMatchObject({ origin: 'replacing', replaces: 'stop-museum', name: 'Cafe' });
-    expect(points[3]?.role).toBe('end');
+    expect(points[2]).toMatchObject({ origin: 'replacing', replaces: 'stop-museum', name: 'Cafe', role: 'end' });
     expect(removed.map((p) => [p.ref, p.change])).toEqual([['stop-park', 1]]);
     expect(replaced.map((p) => [p.ref, p.change, p.importance])).toEqual([['stop-museum', 2, 'must']]);
+    // Removing the park took the leg the shaping point steered into it, so the walk never ends on it.
+    expect(shapingDropped.map((p) => [p.ref, p.change])).toEqual([['shape-0001', 1]]);
   });
 
   it('TCHG-APPLY-003: what the travellers did, a protected station and a hand-drawn leg stay as they are', () => {
@@ -185,7 +187,97 @@ describe('a change laid onto a saved walk (MCP-T02)', () => {
     const points = walk();
     points[3] = { ...points[3], key: undefined } as TourWaypoint;
     const add: TourChange[] = [{ op: 'add', station: cafe, after_key: 'stop-gate' }];
-    const { points: after } = ready(applyChanges(basis({ points }), add));
+    const { points: after, shapingDropped } = ready(applyChanges(basis({ points }), add));
     expect(refs(after)).toEqual(['stop-gate', 'new:1', 'stop-museum', 'shape-0001', 'saved:3', 'stop-end']);
+    expect(shapingDropped).toEqual([]);
+  });
+
+  it('TCHG-APPLY-008: the shaping points of the legs a change takes apart go with them, those of other legs stay', () => {
+    // The gate, shaping a, the museum, shaping b and c, the park, shaping d, the end.
+    const shaped = [
+      point('stop-gate', 0, { role: 'start' }),
+      point('shape-a', 1, { shaping: true, name: null }),
+      point('stop-museum', 2),
+      point('shape-b', 3, { shaping: true, name: null }),
+      point('shape-c', 4, { shaping: true, name: null }),
+      point('stop-park', 5),
+      point('shape-d', 6, { shaping: true, name: null }),
+      point('stop-end', 7, { role: 'end' }),
+    ];
+    const dropped = (outcome: ReturnType<typeof applyChanges>) =>
+      ready(outcome).shapingDropped.map((p) => [p.ref, p.change]);
+
+    const removeMuseum = applyChanges(basis({ points: shaped }), [{ op: 'remove', key: 'stop-museum' }]);
+    expect(refs(ready(removeMuseum).points)).toEqual(['stop-gate', 'stop-park', 'shape-d', 'stop-end']);
+    expect(dropped(removeMuseum)).toEqual([
+      ['shape-a', 1],
+      ['shape-b', 1],
+      ['shape-c', 1],
+    ]);
+
+    // Moving the end takes its leg in with it, and the leg it is put into loses its shaping too.
+    const moveEnd = applyChanges(basis({ points: shaped }), [
+      { op: 'move', key: 'stop-end', after_key: 'stop-museum' },
+    ]);
+    const moved = ready(moveEnd).points;
+    expect(refs(moved)).toEqual(['stop-gate', 'shape-a', 'stop-museum', 'stop-end', 'stop-park']);
+    expect(moved.map((p) => p.role)).toEqual(['start', 'via', 'via', 'via', 'end']);
+    expect(dropped(moveEnd)).toEqual([
+      ['shape-d', 1],
+      ['shape-b', 1],
+      ['shape-c', 1],
+    ]);
+
+    const replaceGate = applyChanges(basis({ points: shaped }), [{ op: 'replace', key: 'stop-gate', station: cafe }]);
+    expect(refs(ready(replaceGate).points)).toEqual([
+      'new:1',
+      'stop-museum',
+      'shape-b',
+      'shape-c',
+      'stop-park',
+      'shape-d',
+      'stop-end',
+    ]);
+    expect(dropped(replaceGate)).toEqual([['shape-a', 1]]);
+  });
+
+  it('TCHG-APPLY-009: the closing leg of a loop belongs to its first station, as drawn by hand and as shaped', () => {
+    const free = {
+      kind: 'free',
+      geometry: [
+        [48.02, 11],
+        [48, 11],
+      ],
+    } as TourWaypoint['fixed_leg'];
+    const loop = (closing: Partial<TourWaypoint>) => [
+      point('stop-gate', 0, { role: 'start' }),
+      point('stop-museum', 1),
+      point('stop-park', 2),
+      point('shape-home', 3, { shaping: true, name: null, ...closing }),
+      point('stop-back', 4, { role: 'end', lat: 48 }),
+    ];
+    const handDrawn = basis({ points: loop({ fixed_leg: free }) });
+    const outcome = applyChanges(handDrawn, [
+      { op: 'remove', key: 'stop-gate' },
+      { op: 'replace', key: 'stop-gate', station: cafe },
+      { op: 'move', key: 'stop-gate', after_key: 'stop-museum' },
+      { op: 'add', station: cafe, after_key: 'stop-park' },
+    ]);
+    expect(outcome.kind === 'refused' && outcome.refused.map((r) => [r.change, r.key, r.reason])).toEqual([
+      [1, 'stop-gate', 'fixed_leg'],
+      [2, 'stop-gate', 'fixed_leg'],
+      [3, 'stop-gate', 'fixed_leg'],
+      [4, 'stop-park', 'fixed_leg'],
+    ]);
+    // The middle of the loop can still change while its closing leg stays as drawn.
+    const middle = ready(applyChanges(handDrawn, [{ op: 'remove', key: 'stop-museum' }]));
+    expect(refs(middle.points)).toEqual(['stop-gate', 'stop-park', 'shape-home', 'stop-back']);
+    expect(middle.shapingDropped).toEqual([]);
+
+    // Without a hand-drawn leg, a new first station takes the way back along and the closing leg loses its shaping.
+    const shaped = ready(applyChanges(basis({ points: loop({}) }), [{ op: 'remove', key: 'stop-gate' }]));
+    expect(refs(shaped.points)).toEqual(['stop-museum', 'stop-park', 'stop-back']);
+    expect(shaped.points[2]).toMatchObject({ lat: shaped.points[0]?.lat, role: 'end' });
+    expect(shaped.shapingDropped.map((p) => [p.ref, p.change])).toEqual([['shape-home', 1]]);
   });
 });

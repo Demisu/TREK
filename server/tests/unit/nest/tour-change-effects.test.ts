@@ -5,7 +5,7 @@ import type { TourChange, TourWaypoint } from '@trek/shared';
 
 import { describe, expect, it } from 'vitest';
 
-// TCHG-EFFECTS-001 to TCHG-EFFECTS-003
+// TCHG-EFFECTS-001 to TCHG-EFFECTS-004
 
 const point = (key: string, sequence: number, extra: Partial<TourWaypoint> = {}): TourWaypoint => ({
   lat: 48 + sequence * 0.01,
@@ -57,6 +57,7 @@ describe('what a prepared change does to a walk (MCP-T02)', () => {
       after: outcome.points,
       removed: outcome.removed,
       replaced: outcome.replaced,
+      shapingDropped: outcome.shapingDropped,
       wayBefore: routed([800, 900, 700], 1860),
       wayAfter: routed([300, 450, 1500], 1700),
       stored: { distance_km: 2.3, walking_minutes: 32 },
@@ -108,6 +109,7 @@ describe('what a prepared change does to a walk (MCP-T02)', () => {
       after: outcome.points,
       removed: outcome.removed,
       replaced: outcome.replaced,
+      shapingDropped: outcome.shapingDropped,
       wayBefore: routed([1], 60),
       wayAfter: routed([1], 60),
       stored: { distance_km: null, walking_minutes: null },
@@ -139,6 +141,7 @@ describe('what a prepared change does to a walk (MCP-T02)', () => {
       after: outcome.points,
       removed: outcome.removed,
       replaced: outcome.replaced,
+      shapingDropped: outcome.shapingDropped,
       wayBefore: { kind: 'unrouted', why: 'router_unavailable', position: null },
       wayAfter: { kind: 'unrouted', why: 'station_off_the_way', position: 2 },
       stored: { distance_km: 2.3, walking_minutes: null },
@@ -154,5 +157,38 @@ describe('what a prepared change does to a walk (MCP-T02)', () => {
       { about: 'walking', side: 'after', why: 'station_off_the_way', position: 2 },
       { about: 'walking', why: 'hand_drawn_leg_routed' },
     ]);
+  });
+
+  it('TCHG-EFFECTS-004: names the shaping points a change dropped, and keeps a station already a place out of for_later', () => {
+    const shaped = [...saved.slice(0, 2), point('shape-0001', 2, { shaping: true, name: null }), ...saved.slice(2)];
+    const outcome = applyChanges(
+      { tourType: 'walk', recorded: false, points: shaped, done: new Map(), linkable: new Set([7]) },
+      [
+        { op: 'add', station: { ...cafe, linked_place_id: 7 }, after_key: 'stop-museum' },
+        { op: 'add', station: { lat: 48.03, lng: 11, name: 'Kiosk' }, after_key: 'stop-park' },
+      ],
+    );
+    if (outcome.kind !== 'ready') throw new Error('refused');
+    const described = describeChange({
+      saved: shaped,
+      after: outcome.points,
+      removed: outcome.removed,
+      replaced: outcome.replaced,
+      shapingDropped: outcome.shapingDropped,
+      wayBefore: routed([1], 60),
+      wayAfter: routed([1], 60),
+      stored: { distance_km: null, walking_minutes: null },
+    });
+    expect(described.data_gaps).toContainEqual({
+      about: 'walking',
+      why: 'shaping_dropped',
+      shaping_points: [{ key: 'shape-0001', by_change: 1 }],
+    });
+    expect(described.waypoints_after.some((p) => p.shaping)).toBe(false);
+    expect(described.for_later).toEqual([{ change: 2, name: 'Kiosk', lat: 48.03, lng: 11 }]);
+    expect(described.stations_after.find((s) => s.name === 'Cafe')).toMatchObject({
+      change: 'added',
+      linked_place_id: 7,
+    });
   });
 });

@@ -9,7 +9,15 @@
  * already done stays as it is: a station visited or skipped on any of its days
  * is neither removed, replaced nor moved, nothing new goes before it, and a
  * protected station (CW-10) keeps its place. A leg drawn by hand is kept as
- * drawn, so neither of its ends changes and nothing is put into it.
+ * drawn, so neither of its ends changes and nothing is put into it; the
+ * closing leg of a loop counts as the leg into its first station.
+ *
+ * A leg runs from one station to the next through the shaping points that
+ * steer it. Once a change takes a station out of a leg or puts one into it,
+ * that leg is not the one its shaping points were set for, so they go with
+ * it and the answer names them: the way after the change is routed through
+ * the stations as they are, never past points steering a leg that is gone.
+ * The ends of the walk therefore stay stations.
  */
 import {
   CITY_WALK_MAX_STATIONS,
@@ -96,6 +104,8 @@ type ChangeOutcome =
       /** The saved stations a remove took out, and those a replace stands in for. */
       removed: DraftPoint[];
       replaced: DraftPoint[];
+      /** The shaping points dropped with a leg a change took apart, each with that change. */
+      shapingDropped: DraftPoint[];
     }
   | { kind: 'refused'; refused: ChangeRefusal[] };
 
@@ -123,6 +133,7 @@ class ChangeRun {
   readonly body: DraftPoint[];
   readonly removed: DraftPoint[] = [];
   readonly replaced: DraftPoint[] = [];
+  readonly shapingDropped: DraftPoint[] = [];
   readonly refused: ChangeRefusal[] = [];
   /** The saved stations a change removed or replaced, which no later change can name. */
   private readonly gone = new Set<string>();
@@ -142,31 +153,24 @@ class ChangeRun {
     const before = this.refused.length;
     if ('station' in change) this.checkLink(change.station, (reason) => refuse(reason, null));
     if (change.op === 'add') {
-      const at = this.slotAfter(change.after_key, null, refuse);
-      if (at !== null && this.refused.length === before) {
-        this.body.splice(at, 0, { ...newStation(change.station, number), after: change.after_key });
-      }
+      if (!this.slotAfter(change.after_key, null, refuse) || this.refused.length > before) return;
+      const at = this.openSlot(change.after_key, number);
+      this.body.splice(at, 0, { ...newStation(change.station, number), after: change.after_key });
       return;
     }
     const station = this.station(change.key, refuse);
     if (station === null) return;
+    if (change.op === 'move' && !this.slotAfter(change.after_key, change.key, refuse)) return;
+    if (this.refused.length > before) return;
+    const { point, at } = this.takeOut(station, number);
     if (change.op === 'move') {
-      const at = this.slotAfter(change.after_key, change.key, refuse);
-      if (at === null || this.refused.length > before) return;
-      const moved = this.body.splice(station, 1)[0] as DraftPoint;
-      this.body.splice(at > station ? at - 1 : at, 0, {
-        ...moved,
-        origin: 'moved',
-        change: number,
-        after: change.after_key,
-      });
+      const slot = this.openSlot(change.after_key, number);
+      this.body.splice(slot, 0, { ...point, origin: 'moved', change: number, after: change.after_key });
       return;
     }
-    if (this.refused.length > before) return;
     this.gone.add(change.key);
-    const replacing = change.op === 'replace' ? [this.replacing(change.station, number, change.key)] : [];
-    const gone = this.body.splice(station, 1, ...replacing)[0] as DraftPoint;
-    (change.op === 'remove' ? this.removed : this.replaced).push({ ...gone, change: number });
+    if (change.op === 'replace') this.body.splice(at, 0, this.replacing(change.station, number, change.key));
+    (change.op === 'remove' ? this.removed : this.replaced).push({ ...point, change: number });
   }
 
   private replacing(station: CityWalkStation, change: number, key: string): DraftPoint {
@@ -181,8 +185,66 @@ class ChangeRun {
     const done = this.basis.done.get(key);
     if (point.protected === true) refuse('protected', key);
     if (done && done.length > 0) refuse('done', key, [...done]);
-    if (point.fixed_leg || this.body[index - 1]?.fixed_leg) refuse('fixed_leg', key);
+    if (this.anyFixed([...this.legInto(index), ...this.legOutOf(index)])) refuse('fixed_leg', key);
     return index;
+  }
+
+  /**
+   * The points whose legs run into the station at `index`: the station before
+   * it and the shaping points between. The first station of a loop is reached
+   * by the closing leg, from the last station through the way back.
+   */
+  private legInto(index: number): number[] {
+    let from = index - 1;
+    while (from >= 0 && this.body[from]?.shaping) from -= 1;
+    if (from >= 0) return range(from, index);
+    if (!this.loop || index !== 0) return [];
+    let last = this.body.length - 1;
+    while (last > 0 && this.body[last]?.shaping) last -= 1;
+    return last > 0 ? range(last, this.body.length) : [];
+  }
+
+  /** The points whose legs run out of the point at `index` to the next station: it and the shaping points after it. */
+  private legOutOf(index: number): number[] {
+    let to = index + 1;
+    while (this.body[to]?.shaping) to += 1;
+    return range(index, to);
+  }
+
+  private anyFixed(indexes: readonly number[]): boolean {
+    return indexes.some((index) => this.body[index]?.fixed_leg);
+  }
+
+  /** The shaping points among these indexes taken out with the leg they steered, each recorded with the change. */
+  private dropShaping(indexes: readonly number[], change: number): void {
+    const shaping = [...new Set(indexes)].filter((index) => this.body[index]?.shaping).sort((a, b) => a - b);
+    const dropped = shaping.map((index) => ({ ...(this.body[index] as DraftPoint), change }));
+    for (const index of [...shaping].reverse()) this.body.splice(index, 1);
+    this.shapingDropped.push(...dropped);
+  }
+
+  /** The station at `index` taken out with the shaping points of its legs, and where it stood once they are gone. */
+  private takeOut(index: number, change: number): { point: DraftPoint; at: number } {
+    const point = this.body[index] as DraftPoint;
+    this.dropShaping([...this.legInto(index), ...this.legOutOf(index)], change);
+    const at = this.body.indexOf(point);
+    this.body.splice(at, 1);
+    return { point, at };
+  }
+
+  /** Where a stop put after `anchor` goes, once the shaping points of the leg it splits are gone. */
+  private openSlot(anchor: string, change: number): number {
+    const at = this.slotIndex(this.body.findIndex((point) => point.ref === anchor && !point.shaping));
+    this.dropShaping(this.legOutOf(at - 1), change);
+    return at;
+  }
+
+  /** Right after the station at `index` and the stops already put after it, stopping at the one being moved. */
+  private slotIndex(index: number, moving: string | null = null): number {
+    const anchor = this.body[index]?.ref;
+    let at = index + 1;
+    while (this.body[at]?.after === anchor && this.body[at]?.ref !== moving) at += 1;
+    return at;
   }
 
   /** Where a saved station stands now, or why it cannot be named. */
@@ -194,26 +256,26 @@ class ChangeRun {
   }
 
   /**
-   * Where something put after a saved station goes: right after it and after
-   * the stops already put there, never into a hand-drawn leg and never before
-   * a station the travellers already did.
+   * Whether something may be put after a saved station: it goes right after
+   * it and after the stops already put there, never into a hand-drawn leg and
+   * never before a station the travellers already did. False when the anchor
+   * cannot be named at all.
    */
   private slotAfter(
     anchor: string,
     moving: string | null,
     refuse: (reason: RefusalReason, key: string) => void,
-  ): number | null {
+  ): boolean {
     if (anchor === moving) {
       refuse('anchor_is_station', anchor);
-      return null;
+      return false;
     }
     const index = this.indexOfStation(anchor, refuse);
-    if (index === null) return null;
-    let at = index + 1;
-    while (this.body[at]?.after === anchor && this.body[at]?.ref !== moving) at += 1;
-    if (this.body[index]?.fixed_leg) refuse('fixed_leg', anchor);
+    if (index === null) return false;
+    const at = this.slotIndex(index, moving);
+    if (this.anyFixed(this.legOutOf(at - 1))) refuse('fixed_leg', anchor);
     if (at <= this.lastDoneIndex()) refuse('before_done', anchor);
-    return at;
+    return true;
   }
 
   private lastDoneIndex(): number {
@@ -244,6 +306,11 @@ class ChangeRun {
   }
 }
 
+/** The whole numbers from `from` up to, not including, `to`. */
+function range(from: number, to: number): number[] {
+  return Array.from({ length: Math.max(0, to - from) }, (_, offset) => from + offset);
+}
+
 function stationCount(points: readonly DraftPoint[], loop: boolean): number {
   return (loop ? points.slice(0, -1) : points).filter((point) => !point.shaping).length;
 }
@@ -266,7 +333,13 @@ export function applyChanges(basis: ChangeBasis, changes: readonly TourChange[])
   if (count > CITY_WALK_MAX_STATIONS && count > stationCount(basis.points.map(savedPoint), loop)) {
     return whole('too_many_stations');
   }
-  return { kind: 'ready', points, removed: run.removed, replaced: run.replaced };
+  return {
+    kind: 'ready',
+    points,
+    removed: run.removed,
+    replaced: run.replaced,
+    shapingDropped: run.shapingDropped,
+  };
 }
 
 const REFUSAL_TEXT: Record<RefusalReason, string> = {
@@ -281,7 +354,8 @@ const REFUSAL_TEXT: Record<RefusalReason, string> = {
   done: 'the travellers already visited or skipped this station on a day of the walk; what was done stays as it is',
   before_done:
     'this would put a station before one the travellers already visited or skipped; add it after the last of those',
-  fixed_leg: 'a leg drawn by hand in the planner starts or ends here and stays as drawn; change it in the planner',
+  fixed_leg:
+    'a leg drawn by hand in the planner starts or ends here (for the first station of a loop, its closing leg too) and stays as drawn; change it in the planner',
   place_not_linkable: 'the new station names a place that is not a place of this trip, or is a tour',
   too_few_stations: 'a city walk keeps at least two stations',
   too_many_stations: `a city walk holds at most ${CITY_WALK_MAX_STATIONS} stations`,

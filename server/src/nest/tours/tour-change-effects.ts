@@ -16,6 +16,8 @@ interface ChangeEffectsInput {
   after: readonly DraftPoint[];
   removed: readonly DraftPoint[];
   replaced: readonly DraftPoint[];
+  /** The shaping points dropped with a leg a change took apart. */
+  shapingDropped: readonly DraftPoint[];
   wayBefore: FootWay;
   wayAfter: FootWay;
   /** As stored with the walk when it was last saved: kilometres and minutes, null when not known. */
@@ -128,6 +130,15 @@ function gapsOf(input: ChangeEffectsInput, stationsAfter: readonly DraftPoint[])
     ...(input.saved.some((point) => point.fixed_leg)
       ? [{ about: 'walking' as const, why: 'hand_drawn_leg_routed' as const }]
       : []),
+    ...(input.shapingDropped.length > 0
+      ? [
+          {
+            about: 'walking' as const,
+            why: 'shaping_dropped' as const,
+            shaping_points: input.shapingDropped.map((point) => ({ key: keyOf(point), by_change: point.change })),
+          },
+        ]
+      : []),
     ...(unknownStays.length > 0
       ? [
           {
@@ -154,9 +165,15 @@ function asWaypoint(draft: DraftPoint): TourWaypoint {
   return point;
 }
 
-/** A new station as create_place takes it, to keep it as a place of the trip instead of putting it in the walk. */
-function forLater(point: DraftPoint) {
-  return { change: point.change, name: point.name ?? null, lat: point.lat, lng: point.lng };
+/**
+ * A new station as create_place takes it, to keep it as a place of the trip
+ * instead of putting it in the walk. A station linked to a place of the trip
+ * already is one, so it is left out rather than offered as a second copy.
+ */
+function forLater(after: readonly DraftPoint[]) {
+  return after
+    .filter((point) => (point.origin === 'added' || point.origin === 'replacing') && point.linked_place_id == null)
+    .map((point) => ({ change: point.change, name: point.name ?? null, lat: point.lat, lng: point.lng }));
 }
 
 /** The changed walk set against the saved one: its stations, what went, the effects and the gaps. */
@@ -181,7 +198,7 @@ export function describeChange(input: ChangeEffectsInput) {
     },
     data_gaps: gapsOf(input, stationsAfter),
     warnings: warningsOf([...input.removed, ...input.replaced]),
-    for_later: input.after.filter((point) => point.origin === 'added' || point.origin === 'replacing').map(forLater),
+    for_later: forLater(input.after),
     waypoints_after: input.after.map(asWaypoint),
   };
 }

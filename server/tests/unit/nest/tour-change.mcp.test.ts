@@ -179,7 +179,9 @@ describe('TourChangeMcp (MCP-T02)', () => {
     });
     expect(proposal.effects.stays).toMatchObject({ change_minutes_known: 15, complete: false });
     expect(proposal.warnings).toEqual([{ change: 2, key: 'stop-park', name: 'Park', why: 'must_station' }]);
-    expect(proposal.for_later.map((stop: { name: string }) => stop.name)).toEqual(['Bakery', 'Beer garden']);
+    // The Bakery is linked to a place of the trip already, so only the beer garden is offered to keep for later.
+    expect(proposal.for_later.map((stop: { name: string }) => stop.name)).toEqual(['Beer garden']);
+    expect(proposal.stations_after[3]).toMatchObject({ name: 'Bakery', linked_place_id: f.bakery.id });
     expect(proposal.waypoints_after.map((p: { key?: string }) => p.key ?? null)).toEqual([
       'stop-gate',
       'stop-cathedral',
