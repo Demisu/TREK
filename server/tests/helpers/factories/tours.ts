@@ -33,6 +33,8 @@ interface StationColumns {
   shaping?: number;
   /** The id of the place of the trip the point stands for. */
   linkedPlace?: number | null;
+  /** The leg to the next point as a fixed line, as its JSON column stores it. */
+  fixed_leg?: string | null;
 }
 
 /**

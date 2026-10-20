@@ -309,6 +309,14 @@ export class ToursService {
     return await this.toursRepo.listTourDays(tripId);
   }
 
+  /**
+   * MCP-T01: the saved line of a tour of this trip, as stored; empty for a
+   * place out of the trip and for a tour saved with its points only.
+   */
+  async savedLine(tripId: number, placeId: number): Promise<GeometryPoint[]> {
+    return parseRouteGeometry((await this.placesRepo.findInTrip(placeId, tripId))?.route_geometry);
+  }
+
   /** One saved tour plus the persisted routing controls needed by the editor. */
   async getTour(tripId: string, placeId: string): Promise<TourDetailResponse> {
     const tid = toRowId(tripId);

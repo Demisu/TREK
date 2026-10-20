@@ -12,6 +12,7 @@ import type { McpContext } from '../../../src/nest-mcp';
 import { getEntry, type ClassRef } from '../../../src/nest-mcp/metadata';
 import { PlacesMcp } from '../../../src/nest/places/places.mcp';
 import { TourLibraryMcp } from '../../../src/nest/tours/tour-library.mcp';
+import { TOUR_PLAN_LINE_POINTS } from '../../../src/nest/tours/tour-plan-read';
 import { TourVisitsService } from '../../../src/nest/tours/tour-visits.service';
 import { ToursMcp } from '../../../src/nest/tours/tours.mcp';
 import { ToursModule } from '../../../src/nest/tours/tours.module';
@@ -27,7 +28,7 @@ import {
 } from '../../helpers/factories';
 import { makeDayAssignment } from '../../helpers/factories/itinerary';
 import { makePlace } from '../../helpers/factories/places';
-import { countRows, insertRows, updateRows } from '../../helpers/factories/rows';
+import { countRows, findRow, insertRows, updateRows } from '../../helpers/factories/rows';
 import { addTourWaypoints, makeTour, markStationVisit } from '../../helpers/factories/tours';
 import { resetTestDb } from '../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../helpers/test-module';
@@ -343,7 +344,8 @@ describe('ToursMcp', () => {
       return entry.options.description ?? '';
     };
     expect(description(ToursMcp, 'listTours')).toMatch(/station_count.*route_pending/);
-    for (const field of ['key', 'stay_minutes', 'importance', 'protected', 'opening_hours']) {
+    const planFields = ['key', 'stay_minutes', 'importance', 'protected', 'opening_hours', 'visit_status', 'derived'];
+    for (const field of planFields) {
       expect(description(ToursMcp, 'getTourPlan')).toContain(field);
     }
     expect(description(ToursMcp, 'getCityWalkProgress')).toMatch(/key .*opening hours/);
@@ -357,7 +359,157 @@ describe('ToursMcp', () => {
     }
   });
 
-  it('TOURS-MCP-015: list_tours names the winter label of a hike, and says it is only a label (HIK-01)', async () => {
+  /** MCP-T01: a hike at revision 4 over a saved line of 450 points, a routed leg, a via ferrata and a free leg. */
+  async function legsFixture() {
+    const base = fixture();
+    const orm = await createTestOrm(db);
+    const hike = await makePlace(orm, base.trip.id, { name: 'Crest' });
+    await makeTour(orm, hike.id, { revision: 4, distance: 12.5 });
+    const line = Array.from({ length: 450 }, (_, index) => [47 + index * 0.0001, 11, 900 + index]);
+    await updateRows(orm, Places, { id: hike.id }, { route_geometry: JSON.stringify(line) });
+    const ferrata = {
+      kind: 'ferrata',
+      ref: 'way/77',
+      name: 'Iron path',
+      geometry: [
+        [47.01, 11],
+        [47.02, 11],
+      ],
+    };
+    const free = {
+      kind: 'free',
+      geometry: [
+        [47.02, 11],
+        [47.02, 11.01],
+      ],
+    };
+    await addTourWaypoints(orm, hike.id, [
+      { lat: 47, lng: 11, station_key: 'pt-start' },
+      { lat: 47.01, lng: 11, station_key: 'pt-wall', fixed_leg: JSON.stringify(ferrata) },
+      { lat: 47.02, lng: 11, station_key: 'pt-lake', fixed_leg: JSON.stringify(free) },
+      { lat: 47.02, lng: 11.01, station_key: 'pt-end' },
+    ]);
+    await orm.close();
+    return { ...base, hike };
+  }
+
+  it('TOURS-MCP-015: get_tour_plan answers each leg with how its line came to be, a fixed one with its own length', async () => {
+    const { member, trip, hike } = await legsFixture();
+    const plan = read(await mcp.getTourPlan({ tripId: trip.id, placeId: hike.id }, ctx(member.id)));
+    expect(plan.tour).toMatchObject({ place_id: hike.id, tour_type: 'hike', revision: 4, distance: 12.5 });
+    expect(plan.waypoints.map((point: { key: string }) => point.key)).toEqual([
+      'pt-start',
+      'pt-wall',
+      'pt-lake',
+      'pt-end',
+    ]);
+    expect(plan.legs).toEqual([
+      expect.objectContaining({ from_key: 'pt-start', to_key: 'pt-wall', kind: 'routed', name: null, length_km: null }),
+      expect.objectContaining({ from_sequence: 1, to_sequence: 2, kind: 'ferrata', name: 'Iron path' }),
+      expect.objectContaining({ from_key: 'pt-lake', to_key: 'pt-end', kind: 'free', name: null }),
+    ]);
+    expect(plan.legs[1].length_km).toBeCloseTo(1.11, 1);
+    expect(plan.legs[2].length_km).toBeCloseTo(0.76, 1);
+    // A hike carries no city walk fields at all.
+    expect('run' in plan).toBe(false);
+    expect(plan.waypoints.some((point: object) => 'visit_status' in point)).toBe(false);
+  });
+
+  it('TOURS-MCP-016: get_tour_plan gives the saved line in brief and names what it worked out, and reading moves no revision', async () => {
+    const { user, trip, hike } = await legsFixture();
+    const plan = read(await mcp.getTourPlan({ tripId: trip.id, placeId: hike.id }, ctx(user.id)));
+    expect(plan.line).toMatchObject({ point_count: 450, has_heights: true });
+    expect(plan.line.preview).toHaveLength(TOUR_PLAN_LINE_POINTS);
+    expect(plan.line.preview[0]).toEqual([47, 11, 900]);
+    expect(plan.line.preview.at(-1)).toEqual([47 + 449 * 0.0001, 11, 1349]);
+    expect(plan.derived).toEqual(expect.arrayContaining(['legs[].length_km', 'line.preview', 'tour.caution']));
+    // Stored facts are never listed as worked out: the points are its own, the distance was saved.
+    expect(plan.derived).not.toContain('waypoints');
+    expect(plan.derived).not.toContain('tour.distance');
+    expect(plan.derived.some((field: string) => field.startsWith('tour.station') || field === 'run.open')).toBe(false);
+    const orm = await createTestOrm(db);
+    expect((await findRow(orm, Tours, { place: hike.id }))?.revision).toBe(4);
+    await orm.close();
+  });
+
+  it('TOURS-MCP-017: an import without control points answers the ends of its track as worked out, a tour without a line none', async () => {
+    const { user, trip, ridge, gorge } = fixture();
+    const orm = await createTestOrm(db);
+    const track = [
+      [47, 11],
+      [47.005, 11.005],
+      [47.01, 11.01],
+    ];
+    await updateRows(orm, Places, { id: ridge.id }, { route_geometry: JSON.stringify(track) });
+    await orm.close();
+    const plan = read(await mcp.getTourPlan({ tripId: trip.id, placeId: ridge.id }, ctx(user.id)));
+    expect(plan.waypoints.map((point: { lat: number; key?: string }) => [point.lat, point.key])).toEqual([
+      [47, undefined],
+      [47.01, undefined],
+    ]);
+    expect(plan.legs).toEqual([
+      { from_sequence: 0, to_sequence: 1, from_key: null, to_key: null, kind: 'routed', name: null, length_km: null },
+    ]);
+    expect(plan.line).toEqual({ point_count: 3, has_heights: false, preview: track });
+    expect(plan.derived).toContain('waypoints');
+    const bare = read(await mcp.getTourPlan({ tripId: trip.id, placeId: gorge.id }, ctx(user.id)));
+    expect(bare).toMatchObject({ waypoints: [], legs: [], line: null });
+    expect(bare.derived).not.toContain('line.preview');
+  });
+
+  it('TOURS-MCP-018: a city walk read for one of its days carries the visits of that day, and of no other', async () => {
+    const { member, trip, day1, day2, walk, onDay1 } = await walkFixture();
+    const orm = await createTestOrm(db);
+    await makeDayAssignment(orm, day2.id, walk.id);
+    const before = await countRows(orm, TourStationVisits, {});
+    const plan = async (dayId?: number) =>
+      read(await mcp.getTourPlan({ tripId: trip.id, placeId: walk.id, dayId }, ctx(member.id)));
+    const statuses = (answer: { waypoints: Array<{ key: string; visit_status: string | null }> }) =>
+      answer.waypoints.map((point) => [point.key, point.visit_status]);
+
+    const first = await plan(day1.id);
+    expect(statuses(first)).toEqual([
+      ['stop-cathedral', 'visited'],
+      ['stop-market', 'skipped'],
+      ['stop-park', 'planned'],
+    ]);
+    expect(first.run).toEqual({
+      day_id: day1.id,
+      assignment_id: onDay1.id,
+      open: { stations: 1, stay_minutes_known: 0, stays_unknown: 1 },
+    });
+    expect(first.derived).toEqual(expect.arrayContaining(['tour.station_count', 'run.open']));
+    // The same walk on another day keeps its own visits: none were made there.
+    expect(statuses(await plan(day2.id)).map(([, status]) => status)).toEqual(['planned', 'planned', 'planned']);
+    // Without a day no visit is told, rather than the visits of one day passed off as the walk's.
+    const undated = await plan();
+    expect(undated.run).toBeNull();
+    expect(statuses(undated).map(([, status]) => status)).toEqual([null, null, null]);
+    expect(undated.derived).not.toContain('run.open');
+    expect(await countRows(orm, TourStationVisits, {})).toBe(before);
+    await orm.close();
+  });
+
+  it('TOURS-MCP-019: a day is read for a city walk only, and only for a day it is on', async () => {
+    const { user, trip, day1, day2, ridge, walk } = await walkFixture();
+    expect(read(await mcp.getTourPlan({ tripId: trip.id, placeId: ridge.id, dayId: day1.id }, ctx(user.id)))).toEqual({
+      error: 'Only a city walk keeps visits for a day: read this tour without dayId.',
+    });
+    expect(read(await mcp.getTourPlan({ tripId: trip.id, placeId: walk.id, dayId: day2.id }, ctx(user.id)))).toEqual({
+      error: 'This city walk is not on that day.',
+    });
+    const failure = new Error('database gone');
+    const progress = vi.spyOn(t.get(TourVisitsService), 'progress').mockRejectedValueOnce(failure);
+    try {
+      await expect(mcp.getTourPlan({ tripId: trip.id, placeId: walk.id, dayId: day1.id }, ctx(user.id))).rejects.toBe(
+        failure,
+      );
+    } finally {
+      progress.mockRestore();
+    }
+  });
+
+  it('TOURS-MCP-020: list_tours names the winter label of a hike, and says it is only a label (HIK-01)', async () => {
     const { user, trip, ridge, gorge } = fixture();
     const orm = await createTestOrm(db);
     await updateRows(orm, Tours, { place: ridge.id }, { winter_activity: 'snowshoe' });
@@ -372,7 +524,7 @@ describe('ToursMcp', () => {
     expect(description).toContain('never a statement that a way can be walked in winter');
   });
 
-  it('TOURS-MCP-016: list_tours names a run with its profile and pace, and says its time is a plan at that pace only (RUN-01)', async () => {
+  it('TOURS-MCP-021: list_tours names a run with its profile and pace, and says its time is a plan at that pace only (RUN-01)', async () => {
     const { user, trip, ridge, gorge } = fixture();
     const orm = await createTestOrm(db);
     await updateRows(
@@ -393,7 +545,7 @@ describe('ToursMcp', () => {
     expect(description).toContain('never a recorded time');
   });
 
-  it('TOURS-MCP-017: list_tours names a trail run as such, and its profile as a routing preference only (RUN-02)', async () => {
+  it('TOURS-MCP-022: list_tours names a trail run as such, and its profile as a routing preference only (RUN-02)', async () => {
     const { user, trip, ridge } = fixture();
     const orm = await createTestOrm(db);
     await updateRows(
@@ -412,7 +564,7 @@ describe('ToursMcp', () => {
     expect(description).toContain('never a statement that a way can be run');
   });
 
-  it('TOURS-MCP-018: list_tours names a ski track with its discipline and technique, and says it is kept as recorded (SKI-02)', async () => {
+  it('TOURS-MCP-023: list_tours names a ski track with its discipline and technique, and says it is kept as recorded (SKI-02)', async () => {
     const { user, trip, ridge, gorge } = fixture();
     const orm = await createTestOrm(db);
     await updateRows(

@@ -6,50 +6,61 @@ import { addonGate } from '../addons/addon-gate';
 import { AddonsService } from '../addons/addons.service';
 import { TripAccessService } from '../trip-membership/trip-access.service';
 import { TourGpxExportService } from './tour-gpx-export.service';
+import { derivedFields, planLegs, planLine, planPoints, planRun } from './tour-plan-read';
 import { TourPoiSearchService } from './tour-poi-search.service';
-import { TourVisitsService } from './tour-visits.service';
+import { TourVisitsService, type WalkProgress } from './tour-visits.service';
+import type { GeometryPoint } from './tours.helpers';
 import { ToursService } from './tours.service';
 import { NotFoundException } from '@nestjs/common';
 import {
   idSchema,
   tourPoiSearchRequestSchema,
-  walkStationsOf,
+  type TourDetailResponse,
   type TourListItem,
   type TourPoiSearchRequest,
-  type TourWaypoint,
 } from '@trek/shared';
 
 type TourDay = Pick<TourDayRow, 'day_id' | 'day_number' | 'date' | 'title'>;
 
 const poiFields = tourPoiSearchRequestSchema.shape;
 
-/**
- * CW-10: a station of a city walk with every field it has spelled out, so an
- * assistant reads a stay nobody entered as null and never as missing: null
- * for an unknown stay, a normal importance and no known hours, false for an
- * unprotected station. REST answers the stored fields as they are.
- */
-function spelledOut<T extends TourWaypoint>(station: T) {
-  return {
-    ...station,
-    key: station.key ?? null,
-    name: station.name ?? null,
-    stay_minutes: station.stay_minutes ?? null,
-    importance: station.importance ?? null,
-    protected: station.protected === true,
-    opening_hours: station.opening_hours ?? null,
-  };
-}
-
-/** The points of a tour as get_tour_plan answers them: a city walk's stations spelled out, every other point as stored. */
-function planPoints<T extends TourWaypoint>(tourType: string, points: T[]) {
-  const stations = new Set<T>(tourType === 'walk' ? walkStationsOf(points) : []);
-  return points.map((point) => (stations.has(point) ? spelledOut(point) : point));
-}
-
 /** A tour as a client reads it: its list facts and the days of the trip it is on. */
 function withDays(tour: TourListItem, days: ReadonlyMap<number, TourDay[]>) {
   return { ...tour, days: days.get(tour.place_id) ?? [] };
+}
+
+/** What get_tour_plan reads of one saved tour, before a day's visits are added. */
+interface PlanRead {
+  detail: TourDetailResponse;
+  days: ReadonlyMap<number, TourDay[]>;
+  line: GeometryPoint[];
+  /** The names of the places of the trip its control points stand for (PR1-10). */
+  names: ReadonlyMap<number, string>;
+}
+
+/**
+ * MCP-T01: the plan of one saved tour as an assistant reads it: the detail the
+ * app reads, its days, the legs between its control points, its saved line in
+ * brief, for a city walk the visits of the day asked for, and the fields that
+ * were worked out on reading rather than stored.
+ */
+function planOf({ detail, days, line, names }: PlanRead, run: WalkProgress | null) {
+  const named = detail.waypoints.map((point) =>
+    point.linked_place_id ? { ...point, linked_place_name: names.get(point.linked_place_id) ?? null } : point,
+  );
+  const saved = planLine(line);
+  // A tour that stores no control points answers the two ends of its line instead.
+  const controlsFromTrack = detail.tour.has_waypoints !== true && detail.waypoints.length > 0;
+  const isWalk = detail.tour.tour_type === 'walk';
+  return {
+    ...detail,
+    tour: withDays(detail.tour, days),
+    waypoints: planPoints(detail.tour.tour_type, named, run),
+    legs: planLegs(detail.waypoints),
+    line: saved,
+    ...(isWalk ? { run: run ? planRun(run) : null } : {}),
+    derived: derivedFields(detail, { controlsFromTrack, line: saved, run }),
+  };
 }
 
 /**
@@ -100,30 +111,50 @@ export class ToursMcp {
   @Tool({
     name: 'get_tour_plan',
     description:
-      'Read one saved tour of a trip: its facts, its ordered control points (start, via and end; an import without its own shows the two ends of its track), where it came from (provenance) and the days it is on. A control point with linked_place_id stands for that place of the trip (linked_place_name names it); it keeps its own coordinates. A control point whose fixed_leg is set leads to the next one along a line the router did not plan: kind ferrata follows a via ferrata, kind free is drawn by hand and was checked by nothing, kind horse_route (a ride only) follows a section of a signposted horse route from OpenStreetMap in the direction the rider chose (signposted: with or against the direction the route is signposted in, null where it is not signposted one way; access: the metres of each horse=* value its ways carried when it was taken, unknown where untagged). Being on a horse route is no permission to ride it. A paddle tour also carries its obstacle checklist (obstacle_check): the obstacles of the OpenStreetMap data along its line, the decisions the travellers made about them and their own portages and locks; a planning aid, never a safety or legal clearance. A city walk (tour_type walk) has stations for control points, shaping points and the way back of a loop aside, each with every field spelled out: key (its own id, the same across saves; the visits of a day are kept by it), name, stay_minutes (the stay in minutes; 0 for a point only passed through, null when not known), importance (optional or must; null for a normal station), protected (true for a station any change you propose has to keep where it is: neither removed, replaced nor moved; the travellers can still edit it themselves in the app) and opening_hours (as OpenStreetMap writes them; a hint to check, never a promise; null when none is known). How far a walk got on a day is get_city_walk_progress. The full track geometry is not included.',
-    inputSchema: { tripId: idSchema, placeId: idSchema.describe('The place id of the tour, as list_tours gives it') },
+      'Read one saved tour of a trip as the travellers saved it: its facts (tour: place_id, name, tour_type, distance, heights and walking time as stored, null when not known; the routing options as list_tours describes them; revision, raised by every saved change; the days it is on), its ordered control points (start, via and end, each with its sequence and its key, the same across saves; an import without its own shows the two ends of its track), where it came from (provenance) and its legs. Drafts in a browser are never visible: only saved tours exist here, and reading changes nothing, not the tour, its revision nor any visit. A control point with linked_place_id stands for that place of the trip (linked_place_name names it); it keeps its own coordinates. legs lists every step from one control point to the next (from_sequence, to_sequence, from_key, to_key) with its kind: routed (planned by the router), ferrata (follows a via ferrata, name gives it), free (drawn by hand and checked by nothing), portage (a paddle tour carried over land) or horse_route (a ride only: a section of a signposted horse route from OpenStreetMap in the direction the rider chose; the fixed_leg of its control point says signposted, with or against the direction the route is signposted in, null where it is not signposted one way, and access, the metres of each horse=* value its ways carried when it was taken, unknown where untagged; being on a horse route is no permission to ride it); length_km is the length of the line a fixed leg keeps and null for a routed leg, whose length is not stored apart. line gives the saved line in brief: point_count, has_heights and a preview thinned to 200 points; null while the tour waits for its way to be planned. A paddle tour also carries its obstacle checklist (obstacle_check): the obstacles of the OpenStreetMap data along its line, the decisions the travellers made about them and their own portages and locks; a planning aid, never a safety or legal clearance. A city walk (tour_type walk) has stations for control points, shaping points and the way back of a loop aside, each with every field spelled out: key (the visits of a day are kept by it), name, stay_minutes (the stay in minutes; 0 for a point only passed through, null when not known), importance (optional or must; null for a normal station), protected (true for a station any change you propose has to keep where it is: neither removed, replaced nor moved; the travellers can still edit it themselves in the app), opening_hours (as OpenStreetMap writes them; a hint to check, never a promise; null when none is known) and visit_status. Visits belong to one day of the walk: name that day with dayId (one of its days) to read the status of each station that day (planned, visited or skipped) and run (the day, its assignment and what is still open); without dayId visit_status and run are null. A station visited or skipped that day is done: do not ask about it again or move it to another day. dayId is for a city walk only. derived names the fields worked out on reading rather than stored with the tour: never present them as saved facts.',
+    inputSchema: {
+      tripId: idSchema,
+      placeId: idSchema.describe('The place id of the tour, as list_tours gives it'),
+      dayId: idSchema
+        .optional()
+        .describe('For a city walk only: the day whose visits to read, one of the days the tour is on'),
+    },
     annotations: TOOL_ANNOTATIONS_READONLY,
     when: addonGate(ADDON_IDS.TOURS),
     access: { group: 'trips', mode: 'read' },
   })
-  async getTourPlan({ tripId, placeId }: { tripId: number; placeId: number }, ctx: McpContext) {
+  async getTourPlan(
+    { tripId, placeId, dayId }: { tripId: number; placeId: number; dayId?: number },
+    ctx: McpContext,
+  ) {
     if (!(await this.access.findAccessible(tripId, ctx.userId))) return noAccess();
+    let read: PlanRead;
     try {
-      const [detail, days] = await Promise.all([
-        this.tours.getTour(String(tripId), String(placeId)),
-        this.daysByTour(tripId),
-      ]);
-      // A point standing for a place of the trip (PR1-10) says which, by name.
-      const names = await this.tours.linkedPlaceNames(tripId, detail.waypoints);
-      const named = detail.waypoints.map((point) =>
-        point.linked_place_id ? { ...point, linked_place_name: names.get(point.linked_place_id) ?? null } : point,
-      );
-      const waypoints = planPoints(detail.tour.tour_type, named);
-      return ok({ ...detail, waypoints, tour: withDays(detail.tour, days) });
+      read = await this.readPlan(tripId, placeId);
     } catch (err: unknown) {
       if (err instanceof NotFoundException) return errorResult('Tour not found.');
       throw err;
     }
+    if (dayId === undefined) return ok(planOf(read, null));
+    if (read.detail.tour.tour_type !== 'walk') {
+      return errorResult('Only a city walk keeps visits for a day: read this tour without dayId.');
+    }
+    try {
+      return ok(planOf(read, await this.visits.progress(tripId, placeId, dayId)));
+    } catch (err: unknown) {
+      if (err instanceof NotFoundException) return errorResult('This city walk is not on that day.');
+      throw err;
+    }
+  }
+
+  /** One saved tour as the app reads it, its days, its saved line and the places its points stand for. */
+  private async readPlan(tripId: number, placeId: number): Promise<PlanRead> {
+    const [detail, days, line] = await Promise.all([
+      this.tours.getTour(String(tripId), String(placeId)),
+      this.daysByTour(tripId),
+      this.tours.savedLine(tripId, placeId),
+    ]);
+    return { detail, days, line, names: await this.tours.linkedPlaceNames(tripId, detail.waypoints) };
   }
 
   @Tool({
