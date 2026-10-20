@@ -106,7 +106,8 @@ describe('MAdminAddonManager', () => {
     render(<><ToastContainer /><MAdminAddonManager /></>);
 
     await screen.findByText('Failed to update addon');
-    expect(screen.getByText('No addons available')).toBeInTheDocument();
+    // The empty state follows the toast once loading has ended, not in the same render.
+    expect(await screen.findByText('No addons available')).toBeInTheDocument();
   });
 
   it('FE-MOB-AADD-005: trip addons render with the section band, catalog label and type badge', async () => {
