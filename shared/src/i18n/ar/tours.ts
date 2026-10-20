@@ -1215,6 +1215,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'إضافة المسار الفعلي',
   'tours.activity.assignHint': 'اربط المسار الذي سلكته فعلًا، من هذه الرحلة أو من ملف GPX',
   'tours.activity.empty': 'لا يوجد مسار فعلي بعد',
+  'tours.activity.unavailable': 'تعذر تحميل المسارات الفعلية',
   'tours.activity.badge': 'فعلي',
   'tours.activity.badgeHint': 'قيم المسار الذي سلكته فعلًا، لا قيم الخطة',
   'tours.activity.isTrackHint': 'المسار الفعلي لجولة في هذه الرحلة',
@@ -1242,7 +1243,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': 'ربط',
   'tours.activity.refused.activity_track_not_recorded': 'لا يمكن ربط إلا ملف مستورد لم يُعَد تخطيطه',
   'tours.activity.refused.activity_track_in_use': 'هذا المسار مرتبط بالفعل بجولة أخرى',
-  'tours.activity.refused.activity_track_is_tour': 'لهذا المسار مسارات فعلية خاصة به',
+  'tours.activity.refused.activity_track_is_tour': 'لا يمكن ربط هذا المسار بهذه الجولة',
   'tours.activity.refused.activity_tour_is_track': 'هذه الجولة هي نفسها المسار الفعلي لجولة أخرى',
   'tours.activity.refused.activity_assignment_not_of_tour': 'لم تعد الجولة في ذلك اليوم',
 };

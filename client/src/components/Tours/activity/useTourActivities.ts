@@ -15,9 +15,14 @@ interface TourActivitiesOptions {
   onToursChanged?: (placeIds: number[]) => Promise<void> | void;
 }
 
-/** Which execution the assignment dialog is open for: `undefined` lets it pick the first free one. */
+/**
+ * Which execution the assignment dialog is open for: `undefined` lets it pick
+ * the first free one. `activityId` is the track a change starts from, as "no
+ * day" can hold several once the days they were on are gone.
+ */
 export interface AssignTarget {
   assignmentId?: number | null;
+  activityId?: number;
 }
 
 /** The refs a list item names, so the detail is read again when another client changed them. */
@@ -31,14 +36,16 @@ function refsKey(tour: TourListItem): string {
  * the two changes the user can make: open the assignment for an execution,
  * and take a recording off after confirming it. Both writes are online only,
  * as the GPX import a recording comes through is; a refused one says why and
- * changes nothing.
+ * changes nothing. A detail that cannot be read is not taken for an empty one:
+ * while the list names tracks of the tour, they are said to be unavailable.
  */
 export function useTourActivities({ tripId, tour, executions, canEdit, onToursChanged }: TourActivitiesOptions) {
   const { t } = useTranslation();
   const toast = useToast();
   const placeId = tour.place_id;
   const refs = refsKey(tour);
-  const [loaded, setLoaded] = useState<{ placeId: number; activities: TourActivity[] } | null>(null);
+  // `activities: null` is a detail that could not be read, apart from one without tracks.
+  const [loaded, setLoaded] = useState<{ placeId: number; activities: TourActivity[] | null } | null>(null);
   const [assigning, setAssigning] = useState<AssignTarget | null>(null);
   const [removing, setRemoving] = useState<TourActivity | null>(null);
   const [busy, setBusy] = useState(false);
@@ -50,17 +57,20 @@ export function useTourActivities({ tripId, tour, executions, canEdit, onToursCh
         if (!controller.signal.aborted) setLoaded({ placeId, activities: detail.activities ?? [] });
       },
       () => {
-        if (!controller.signal.aborted) setLoaded({ placeId, activities: [] });
+        if (!controller.signal.aborted) setLoaded({ placeId, activities: null });
       }
     );
     return () => controller.abort();
     // `refs` is the list's word that the recordings changed elsewhere.
   }, [tripId, placeId, refs]);
 
+  const current = loaded?.placeId === placeId ? loaded : null;
   const activities = useMemo(
-    () => (loaded?.placeId === placeId ? inDayOrder(loaded.activities, executions) : null),
-    [executions, loaded, placeId]
+    () => (current ? inDayOrder(current.activities ?? [], executions) : null),
+    [current, executions]
   );
+  // The list knows the tour has tracks, the detail that would show them did not come.
+  const unavailable = current !== null && current.activities === null && (tour.activity_tracks?.length ?? 0) > 0;
 
   /** One write, its answer taken in, the lists told and the user too; false when it was refused. */
   const apply = useCallback(
@@ -109,13 +119,15 @@ export function useTourActivities({ tripId, tour, executions, canEdit, onToursCh
   }, [apply, busy, canEdit, placeId, removing, tripId]);
 
   return {
-    /** Null while the detail loads. */
+    /** Null while the detail loads; empty, with `unavailable`, when it could not be read. */
     activities,
+    /** The tour has tracks the detail could not be read for, so none can be shown or replaced. */
+    unavailable,
     canEdit,
     busy,
     assigning,
     openAssign: (target: AssignTarget = {}) => {
-      if (canEdit) setAssigning(target);
+      if (canEdit && !unavailable) setAssigning(target);
     },
     closeAssign: () => {
       if (!busy) setAssigning(null);

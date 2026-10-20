@@ -464,12 +464,6 @@ export async function replaceTripRows<T extends { id: number }>(table: TripScope
   });
 }
 
-/**
- * {@link replaceTripRows} for the Tours facet, which is keyed on `place_id`.
- * A tour's cached control points survive the refresh only while its route
- * reads the same: the list carries no waypoints, and a route edited elsewhere
- * must not open offline with the old ones.
- */
 /** The recorded tracks a cached detail holds, while the list still names the same ones (ACT-01). */
 function keptActivities(previous: CachedTour | undefined, tour: TourListItem): Pick<CachedTour, 'activities'> {
   const refs = (item: Pick<TourListItem, 'activity_tracks'>) =>
@@ -477,6 +471,12 @@ function keptActivities(previous: CachedTour | undefined, tour: TourListItem): P
   return previous?.activities && refs(previous) === refs(tour) ? { activities: previous.activities } : {}
 }
 
+/**
+ * {@link replaceTripRows} for the Tours facet, which is keyed on `place_id`.
+ * A tour's cached control points survive the refresh only while its route
+ * reads the same: the list carries no waypoints, and a route edited elsewhere
+ * must not open offline with the old ones.
+ */
 export async function replaceTripTours(tripId: number, tours: TourListItem[]): Promise<void> {
   await offlineDb.transaction('rw', offlineDb.tours, async () => {
     const cached = new Map((await offlineDb.tours.where('trip_id').equals(tripId).toArray()).map(t => [t.place_id, t]));

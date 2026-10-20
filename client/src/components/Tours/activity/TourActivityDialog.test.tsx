@@ -37,7 +37,7 @@ function assignment(overrides: Partial<TrackAssignment> = {}): TrackAssignment {
     selected: 20,
     choose: vi.fn(),
     choice: watch,
-    replaces: null,
+    replaces: [],
     gpxImport: {
       importing: false,
       preview: null,
@@ -93,7 +93,7 @@ describe('TourActivityDialog (ACT-01)', () => {
   });
 
   it('FE-ACT-DIALOG-003: nothing to link until a free recording is chosen; what it replaces is said', () => {
-    hook.assignment = assignment({ ready: false, choice: null, selected: null, replaces: 'Old export' });
+    hook.assignment = assignment({ ready: false, choice: null, selected: null, replaces: ['Old export'] });
     const current = state();
     show(current);
     expect(screen.getByTestId('tour-activity-confirm')).toBeDisabled();

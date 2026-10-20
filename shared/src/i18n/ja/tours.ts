@@ -1145,6 +1145,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': '実際のトラックを追加',
   'tours.activity.assignHint': 'このトリップまたはGPXファイルから、実際に歩いたトラックをリンクします',
   'tours.activity.empty': '実際のトラックはまだありません',
+  'tours.activity.unavailable': '実際のトラックを読み込めませんでした',
   'tours.activity.badge': '実績',
   'tours.activity.badgeHint': '計画ではなく、実際に歩いたトラックの値です',
   'tours.activity.isTrackHint': 'このトリップのツアーの実際のトラック',
@@ -1172,7 +1173,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': 'リンク',
   'tours.activity.refused.activity_track_not_recorded': '上書きで計画されていないインポートのみリンクできます',
   'tours.activity.refused.activity_track_in_use': 'このトラックはすでに別のツアーのものです',
-  'tours.activity.refused.activity_track_is_tour': 'このトラックには独自の実際のトラックがあります',
+  'tours.activity.refused.activity_track_is_tour': 'このトラックはこのツアーにリンクできません',
   'tours.activity.refused.activity_tour_is_track': 'このツアー自体が別のツアーの実際のトラックです',
   'tours.activity.refused.activity_assignment_not_of_tour': 'このツアーはもうその日にありません',
 };

@@ -1220,6 +1220,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Προσθήκη πραγματικής διαδρομής',
   'tours.activity.assignHint': 'Σύνδεσε τη διαδρομή που έκανες πραγματικά, από αυτό το ταξίδι ή από αρχείο GPX',
   'tours.activity.empty': 'Δεν υπάρχει ακόμη πραγματική διαδρομή',
+  'tours.activity.unavailable': 'Δεν ήταν δυνατή η φόρτωση των πραγματικών διαδρομών',
   'tours.activity.badge': 'Πραγματικό',
   'tours.activity.badgeHint': 'Τιμές της διαδρομής που έκανες πραγματικά, όχι του σχεδίου',
   'tours.activity.isTrackHint': 'Πραγματική διαδρομή μιας εκδρομής αυτού του ταξιδιού',
@@ -1247,7 +1248,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': 'Σύνδεση',
   'tours.activity.refused.activity_track_not_recorded': 'Μόνο μια εισαγωγή που δεν επανασχεδιάστηκε μπορεί να συνδεθεί',
   'tours.activity.refused.activity_track_in_use': 'Αυτή η διαδρομή ανήκει ήδη σε άλλη εκδρομή',
-  'tours.activity.refused.activity_track_is_tour': 'Αυτή η διαδρομή έχει δικές της πραγματικές διαδρομές',
+  'tours.activity.refused.activity_track_is_tour': 'Αυτή η διαδρομή δεν μπορεί να συνδεθεί με αυτή την περιήγηση',
   'tours.activity.refused.activity_tour_is_track': 'Αυτή η εκδρομή είναι η ίδια πραγματική διαδρομή άλλης εκδρομής',
   'tours.activity.refused.activity_assignment_not_of_tour': 'Η εκδρομή δεν είναι πια σε εκείνη την ημέρα',
 };

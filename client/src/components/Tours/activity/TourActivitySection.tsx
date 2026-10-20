@@ -1,10 +1,9 @@
 import type { TourActivity, TourListItem } from '@trek/shared';
-import { CalendarDays, Clock, FileDown, Footprints, Plus, RefreshCw, Unlink } from 'lucide-react';
+import { CalendarDays, Clock, CloudOff, FileDown, Footprints, Plus, RefreshCw, Unlink } from 'lucide-react';
 import { useMemo } from 'react';
 import { useTranslation } from '../../../i18n';
 import { useSettingsStore } from '../../../store/settingsStore';
 import type { AssignmentsMap, Day } from '../../../types';
-import { formatDate } from '../../../utils/formatters';
 import { BOX } from '../../Planner/bookings/bookingParts';
 import { SoftPill } from '../../Planner/planParts';
 import ConfirmDialog from '../../shared/ConfirmDialog';
@@ -12,10 +11,10 @@ import { DialogSection, fs } from '../../shared/DialogShell';
 import ElevationProfile from '../../shared/ElevationProfile';
 import { Tooltip } from '../../shared/Tooltip';
 import { dayMenuLabel } from '../tourDays';
-import { CardAction, TourMetricFields, type TourMetricField } from '../tourParts';
+import { CardAction, TourMetricFields, TourNotice, type TourMetricField } from '../tourParts';
 import { formatPlannedTourDuration } from '../tourPresentation';
 import TourActivityDialog from './TourActivityDialog';
-import { analysisOfLine, executionOf, executionsOf, type TourExecution } from './tourActivityModel';
+import { analysisOfLine, executionOf, executionsOf, recordedDay, type TourExecution } from './tourActivityModel';
 import { useTourActivities, type TourActivities } from './useTourActivities';
 
 type Translate = (key: string, params?: Record<string, unknown>) => string;
@@ -50,7 +49,7 @@ function ActivityBadges({ activity, execution }: { activity: TourActivity; execu
   const { t, locale } = useTranslation();
   const dayLabel = execution.day ? t('dayplan.dayN', { n: execution.index + 1 }) : t('tours.activity.noDay');
   const dayTitle = execution.day ? dayMenuLabel(execution.day, execution.index, t, locale) : dayLabel;
-  const recordedOn = activity.metrics.started_at ? formatDate(activity.metrics.started_at.slice(0, 10), locale) : null;
+  const recordedOn = recordedDay(activity.metrics.started_at, locale);
   const source =
     activity.track.file_name ?? t(activity.track.origin === 'wanderer' ? 'tours.badge.wanderer' : 'tours.badge.gpx');
   return (
@@ -122,7 +121,7 @@ function ActivityCard({
         <footer className="flex flex-wrap gap-1.5 border-t border-edge-faint px-2.5 py-2">
           <CardAction
             icon={<RefreshCw size={12} strokeWidth={2.2} />}
-            onClick={() => state.openAssign({ assignmentId: activity.assignment_id })}
+            onClick={() => state.openAssign({ assignmentId: activity.assignment_id, activityId: activity.id })}
             disabled={state.busy}
           >
             {t('tours.activity.change')}
@@ -157,6 +156,32 @@ function NoActivity() {
   );
 }
 
+/** What the section holds: the tracks, the empty place for one, or word that the tour's tracks could not be read. */
+function ActivityList({ state, executions }: { state: TourActivities; executions: readonly TourExecution[] }) {
+  const { t } = useTranslation();
+  const activities = state.activities ?? [];
+  if (state.unavailable) {
+    return (
+      <TourNotice role="status" icon={<CloudOff size={13} strokeWidth={2} />}>
+        {t('tours.activity.unavailable')}
+      </TourNotice>
+    );
+  }
+  if (activities.length === 0) return <NoActivity />;
+  return (
+    <div className="flex flex-col gap-2">
+      {activities.map((activity) => (
+        <ActivityCard
+          key={activity.id}
+          activity={activity}
+          execution={executionOf(executions, activity.assignment_id)}
+          state={state}
+        />
+      ))}
+    </div>
+  );
+}
+
 interface TourActivitySectionProps {
   tripId: number;
   tour: TourListItem;
@@ -184,8 +209,10 @@ export default function TourActivitySection({
   const { t } = useTranslation();
   const executions = useMemo(() => executionsOf(tour.place_id, days, assignments), [assignments, days, tour.place_id]);
   const state = useTourActivities({ tripId, tour, executions, canEdit, onToursChanged });
-  const { activities } = state;
-  if (activities === null || tour.activity_of != null || (activities.length === 0 && !canEdit)) return null;
+  const { activities, unavailable } = state;
+  if (activities === null || tour.activity_of != null || (activities.length === 0 && !canEdit && !unavailable)) {
+    return null;
+  }
   return (
     <DialogSection
       className="flex-none"
@@ -197,7 +224,7 @@ export default function TourActivitySection({
               <CardAction
                 icon={<Plus size={12} strokeWidth={2.2} />}
                 onClick={() => state.openAssign()}
-                disabled={state.busy}
+                disabled={state.busy || unavailable}
               >
                 {t('tours.activity.assign')}
               </CardAction>
@@ -206,20 +233,7 @@ export default function TourActivitySection({
         )
       }
     >
-      {activities.length === 0 ? (
-        <NoActivity />
-      ) : (
-        <div className="flex flex-col gap-2">
-          {activities.map((activity) => (
-            <ActivityCard
-              key={activity.id}
-              activity={activity}
-              execution={executionOf(executions, activity.assignment_id)}
-              state={state}
-            />
-          ))}
-        </div>
-      )}
+      <ActivityList state={state} executions={executions} />
       {state.assigning && (
         <TourActivityDialog
           tripId={tripId}

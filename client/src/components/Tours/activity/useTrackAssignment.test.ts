@@ -1,4 +1,4 @@
-// FE-ACT-ASSIGN-001 to FE-ACT-ASSIGN-004
+// FE-ACT-ASSIGN-001 to FE-ACT-ASSIGN-005
 // ACT-01, the link dialog's state: the day it starts on, the recordings of the
 // trip to choose from, what a choice replaces, and a recording imported here
 // chosen for the user but never linked by itself.
@@ -6,6 +6,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import type { TourActivity, TourListItem } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { TourExecution } from './tourActivityModel';
+import type { AssignTarget } from './useTourActivities';
 import { useTrackAssignment } from './useTrackAssignment';
 
 const repo = vi.hoisted(() => ({ list: vi.fn() }));
@@ -41,7 +42,7 @@ beforeEach(() => {
   repo.list.mockResolvedValue({ tours: [tour, recording(20, 'Watch'), recording(21, 'Phone', { activity_of: 99 })] });
 });
 
-function render(activities: TourActivity[], target: { assignmentId?: number | null } = {}, onToursChanged = vi.fn()) {
+function render(activities: TourActivity[], target: AssignTarget = {}, onToursChanged = vi.fn()) {
   return renderHook(() =>
     useTrackAssignment({ tripId: 1, tour, executions, activities, target, canEdit: true, onToursChanged })
   );
@@ -56,7 +57,7 @@ describe('useTrackAssignment', () => {
     expect(asked.result.current.assignmentId).toBe(31);
     // A change starts on the track the day has, which therefore replaces nothing.
     expect(asked.result.current.selected).toBe(21);
-    expect(asked.result.current.replaces).toBeNull();
+    expect(asked.result.current.replaces).toEqual([]);
     await waitFor(() => expect(asked.result.current.candidates).not.toBeNull());
   });
 
@@ -79,10 +80,20 @@ describe('useTrackAssignment', () => {
     const { result } = render([linked(11, 21, 'Phone')], { assignmentId: 11 });
     await waitFor(() => expect(result.current.candidates).not.toBeNull());
     act(() => result.current.choose(20));
-    expect(result.current.replaces).toBe('Phone');
+    expect(result.current.replaces).toEqual(['Phone']);
     act(() => result.current.chooseExecution(null));
     expect(result.current.execution.day).toBeNull();
-    expect(result.current.replaces).toBeNull();
+    expect(result.current.replaces).toEqual([]);
+  });
+
+  it('FE-ACT-ASSIGN-005: "no day" left with several tracks once their days went: a change starts on the one asked for and names every one it replaces', async () => {
+    const noDay = [linked(null, 20, 'Watch'), linked(null, 21, 'Phone'), linked(11, 22, 'Bike computer')];
+    const { result } = render(noDay, { assignmentId: null, activityId: 21 });
+    await waitFor(() => expect(result.current.candidates).not.toBeNull());
+    expect(result.current.selected).toBe(21);
+    expect(result.current.replaces).toEqual(['Watch']);
+    act(() => result.current.choose(40));
+    expect(result.current.replaces).toEqual(['Watch', 'Phone']);
   });
 
   it('FE-ACT-ASSIGN-004: a recording imported here is chosen and the list read again; the lists are told', async () => {

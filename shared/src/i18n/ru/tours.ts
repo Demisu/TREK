@@ -1229,6 +1229,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Добавить фактический трек',
   'tours.activity.assignHint': 'Привяжите трек, по которому вы на самом деле прошли, из этой поездки или из файла GPX',
   'tours.activity.empty': 'Фактического трека пока нет',
+  'tours.activity.unavailable': 'Не удалось загрузить фактические треки',
   'tours.activity.badge': 'Факт',
   'tours.activity.badgeHint': 'Значения фактически пройденного трека, а не плана',
   'tours.activity.isTrackHint': 'Фактический трек маршрута этой поездки',
@@ -1257,7 +1258,7 @@ const tours: TranslationStrings = {
   'tours.activity.refused.activity_track_not_recorded':
     'Привязать можно только импорт, поверх которого не строили план',
   'tours.activity.refused.activity_track_in_use': 'Этот трек уже относится к другому маршруту',
-  'tours.activity.refused.activity_track_is_tour': 'У этого трека есть собственные фактические треки',
+  'tours.activity.refused.activity_track_is_tour': 'Этот трек нельзя связать с этим маршрутом',
   'tours.activity.refused.activity_tour_is_track': 'Этот маршрут сам является фактическим треком другого маршрута',
   'tours.activity.refused.activity_assignment_not_of_tour': 'Маршрута больше нет в этот день',
 };

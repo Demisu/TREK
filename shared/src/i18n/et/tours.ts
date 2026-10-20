@@ -1179,6 +1179,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Lisa tegelik rada',
   'tours.activity.assignHint': 'Seo päriselt läbitud rada, sellest reisist või GPX-failist',
   'tours.activity.empty': 'Tegelikku rada veel pole',
+  'tours.activity.unavailable': 'Tegelikke radu ei õnnestunud laadida',
   'tours.activity.badge': 'Tegelik',
   'tours.activity.badgeHint': 'Päriselt läbitud raja väärtused, mitte plaani omad',
   'tours.activity.isTrackHint': 'Selle reisi ühe matka tegelik rada',
@@ -1206,7 +1207,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': 'Seo',
   'tours.activity.refused.activity_track_not_recorded': 'Siduda saab ainult importi, mida pole üle planeeritud',
   'tours.activity.refused.activity_track_in_use': 'See rada kuulub juba teisele matkale',
-  'tours.activity.refused.activity_track_is_tour': 'Sellel rajal on oma tegelikud rajad',
+  'tours.activity.refused.activity_track_is_tour': 'Seda rada ei saa selle matkaga siduda',
   'tours.activity.refused.activity_tour_is_track': 'See matk on ise teise matka tegelik rada',
   'tours.activity.refused.activity_assignment_not_of_tour': 'Matk pole enam sellel päeval',
 };

@@ -1223,6 +1223,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Dodaj rzeczywistą trasę',
   'tours.activity.assignHint': 'Połącz trasę, którą naprawdę przeszedłeś, z tej podróży lub z pliku GPX',
   'tours.activity.empty': 'Brak rzeczywistej trasy',
+  'tours.activity.unavailable': 'Nie udało się wczytać rzeczywistych tras',
   'tours.activity.badge': 'Rzeczywiste',
   'tours.activity.badgeHint': 'Wartości trasy naprawdę przebytej, nie planu',
   'tours.activity.isTrackHint': 'Rzeczywista trasa wycieczki z tej podróży',
@@ -1250,7 +1251,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': 'Połącz',
   'tours.activity.refused.activity_track_not_recorded': 'Połączyć można tylko import, który nie został przeplanowany',
   'tours.activity.refused.activity_track_in_use': 'Ta trasa należy już do innej wycieczki',
-  'tours.activity.refused.activity_track_is_tour': 'Ta trasa ma własne rzeczywiste trasy',
+  'tours.activity.refused.activity_track_is_tour': 'Tej trasy nie można powiązać z tą wycieczką',
   'tours.activity.refused.activity_tour_is_track': 'Ta wycieczka jest sama rzeczywistą trasą innej wycieczki',
   'tours.activity.refused.activity_assignment_not_of_tour': 'Wycieczki nie ma już w tym dniu',
 };

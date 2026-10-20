@@ -1216,6 +1216,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Додати фактичний трек',
   'tours.activity.assignHint': 'Прив’яжіть трек, яким ви справді пройшли, з цієї подорожі або з файлу GPX',
   'tours.activity.empty': 'Фактичного треку ще немає',
+  'tours.activity.unavailable': 'Не вдалося завантажити фактичні треки',
   'tours.activity.badge': 'Факт',
   'tours.activity.badgeHint': 'Значення фактично пройденого треку, а не плану',
   'tours.activity.isTrackHint': 'Фактичний трек маршруту цієї подорожі',
@@ -1243,7 +1244,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': 'Прив’язати',
   'tours.activity.refused.activity_track_not_recorded': 'Прив’язати можна лише імпорт, поверх якого не будували план',
   'tours.activity.refused.activity_track_in_use': 'Цей трек уже належить іншому маршруту',
-  'tours.activity.refused.activity_track_is_tour': 'Цей трек має власні фактичні треки',
+  'tours.activity.refused.activity_track_is_tour': 'Цей трек не можна пов’язати з цим маршрутом',
   'tours.activity.refused.activity_tour_is_track': 'Цей маршрут сам є фактичним треком іншого маршруту',
   'tours.activity.refused.activity_assignment_not_of_tour': 'Маршруту вже немає цього дня',
 };

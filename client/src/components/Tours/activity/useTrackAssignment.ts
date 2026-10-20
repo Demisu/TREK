@@ -9,7 +9,7 @@ interface TrackAssignmentOptions {
   tripId: number;
   tour: TourListItem;
   executions: readonly TourExecution[];
-  /** The recordings the tour has now, to preset a change and to say what a choice replaces. */
+  /** The recordings the tour has now, to preset a change and to name what a choice replaces. */
   activities: readonly TourActivity[];
   target: AssignTarget;
   canEdit: boolean;
@@ -46,8 +46,11 @@ export function useTrackAssignment({
   const [assignmentId, setAssignmentId] = useState<number | null>(() =>
     startingExecution(executions, activities, target)
   );
-  const current = activities.find((activity) => activity.assignment_id === assignmentId) ?? null;
-  const [selected, setSelected] = useState<number | null>(() => current?.track.place_id ?? null);
+  const onExecution = activities.filter((activity) => activity.assignment_id === assignmentId);
+  const [selected, setSelected] = useState<number | null>(() => {
+    const changed = onExecution.find((activity) => activity.id === target.activityId) ?? onExecution[0];
+    return changed?.track.place_id ?? null;
+  });
   const [tours, setTours] = useState<TourListItem[] | null>(null);
   const [reads, setReads] = useState(0);
 
@@ -80,8 +83,11 @@ export function useTrackAssignment({
 
   const candidates = useMemo(() => (tours ? trackCandidates(tours, tour.place_id) : null), [tour.place_id, tours]);
   const choice = candidates?.find((candidate) => candidate.tour.place_id === selected) ?? null;
-  // A recording the execution has now, other than the one chosen, gives way to it.
-  const replaces = current && current.track.place_id !== selected ? current.track.name : null;
+  // Every recording the execution has now, other than the one chosen, gives way to it: a day has
+  // one, "no day" can have several once the days they were on are gone, and the server clears them all.
+  const replaces = onExecution
+    .filter((activity) => activity.track.place_id !== selected)
+    .map((activity) => activity.track.name);
 
   return {
     executions,
@@ -93,6 +99,7 @@ export function useTrackAssignment({
     selected,
     choose: setSelected,
     choice,
+    /** The names of the tracks linking replaces; empty when it replaces none. */
     replaces,
     gpxImport,
     importFields: importFieldsFor(tour),

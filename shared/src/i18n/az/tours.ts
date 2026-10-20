@@ -1183,6 +1183,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Faktiki iz əlavə et',
   'tours.activity.assignHint': 'Həqiqətən keçdiyin izi bu səyahətdən və ya GPX faylından bağla',
   'tours.activity.empty': 'Hələ faktiki iz yoxdur',
+  'tours.activity.unavailable': 'Faktiki izlər yüklənə bilmədi',
   'tours.activity.badge': 'Faktiki',
   'tours.activity.badgeHint': 'Planın deyil, həqiqətən keçdiyin izin göstəriciləri',
   'tours.activity.isTrackHint': 'Bu səyahətdəki turun faktiki izi',
@@ -1210,7 +1211,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': 'Bağla',
   'tours.activity.refused.activity_track_not_recorded': 'Yalnız yenidən planlaşdırılmamış idxal bağlana bilər',
   'tours.activity.refused.activity_track_in_use': 'Bu iz artıq başqa tura aiddir',
-  'tours.activity.refused.activity_track_is_tour': 'Bu izin öz faktiki izləri var',
+  'tours.activity.refused.activity_track_is_tour': 'Bu iz bu tura bağlana bilməz',
   'tours.activity.refused.activity_tour_is_track': 'Bu tur özü başqa turun faktiki izidir',
   'tours.activity.refused.activity_assignment_not_of_tour': 'Tur artıq o gündə deyil',
 };

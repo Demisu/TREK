@@ -1169,6 +1169,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Thêm lộ trình thực tế',
   'tours.activity.assignHint': 'Liên kết lộ trình bạn thực sự đã đi, từ chuyến đi này hoặc tệp GPX',
   'tours.activity.empty': 'Chưa có lộ trình thực tế',
+  'tours.activity.unavailable': 'Không thể tải lộ trình thực tế',
   'tours.activity.badge': 'Thực tế',
   'tours.activity.badgeHint': 'Số liệu của lộ trình bạn thực sự đã đi, không phải của kế hoạch',
   'tours.activity.isTrackHint': 'Lộ trình thực tế của một tour trong chuyến đi này',
@@ -1197,7 +1198,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': 'Liên kết',
   'tours.activity.refused.activity_track_not_recorded': 'Chỉ có thể liên kết tệp nhập chưa được lập kế hoạch lại',
   'tours.activity.refused.activity_track_in_use': 'Lộ trình này đã thuộc về tour khác',
-  'tours.activity.refused.activity_track_is_tour': 'Lộ trình này có lộ trình thực tế riêng',
+  'tours.activity.refused.activity_track_is_tour': 'Không thể liên kết lộ trình này với chuyến đi này',
   'tours.activity.refused.activity_tour_is_track': 'Tour này chính là lộ trình thực tế của tour khác',
   'tours.activity.refused.activity_assignment_not_of_tour': 'Tour không còn ở ngày đó',
 };

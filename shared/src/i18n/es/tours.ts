@@ -1194,6 +1194,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Añadir track real',
   'tours.activity.assignHint': 'Vincula el track que realmente hiciste, de este viaje o de un archivo GPX',
   'tours.activity.empty': 'Aún no hay track real',
+  'tours.activity.unavailable': 'No se pudieron cargar los tracks reales',
   'tours.activity.badge': 'Real',
   'tours.activity.badgeHint': 'Valores del track que realmente hiciste, no del plan',
   'tours.activity.isTrackHint': 'Track real de una ruta de este viaje',
@@ -1222,7 +1223,7 @@ const tours: TranslationStrings = {
   'tours.activity.refused.activity_track_not_recorded':
     'Solo se puede vincular una importación que no se haya replanificado',
   'tours.activity.refused.activity_track_in_use': 'Este track ya pertenece a otra ruta',
-  'tours.activity.refused.activity_track_is_tour': 'Este track tiene sus propios tracks reales',
+  'tours.activity.refused.activity_track_is_tour': 'Este track no se puede vincular a esta ruta',
   'tours.activity.refused.activity_tour_is_track': 'Esta ruta es a su vez el track real de otra ruta',
   'tours.activity.refused.activity_assignment_not_of_tour': 'La ruta ya no está en ese día',
 };

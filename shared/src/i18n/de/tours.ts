@@ -1207,6 +1207,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Ist-Track hinzufügen',
   'tours.activity.assignHint': 'Den tatsächlich gegangenen Track verknüpfen, aus dieser Reise oder einer GPX-Datei',
   'tours.activity.empty': 'Noch kein Ist-Track',
+  'tours.activity.unavailable': 'Ist-Tracks konnten nicht geladen werden',
   'tours.activity.badge': 'Ist',
   'tours.activity.badgeHint': 'Werte des tatsächlich gegangenen Tracks, nicht der Planung',
   'tours.activity.isTrackHint': 'Ist-Track einer Tour dieser Reise',
@@ -1235,7 +1236,7 @@ const tours: TranslationStrings = {
   'tours.activity.refused.activity_track_not_recorded':
     'Nur ein Import, der nicht überplant wurde, kann verknüpft werden',
   'tours.activity.refused.activity_track_in_use': 'Dieser Track gehört bereits zu einer anderen Tour',
-  'tours.activity.refused.activity_track_is_tour': 'Dieser Track hat selbst Ist-Tracks',
+  'tours.activity.refused.activity_track_is_tour': 'Dieser Track kann nicht mit dieser Tour verknüpft werden',
   'tours.activity.refused.activity_tour_is_track': 'Diese Tour ist selbst der Ist-Track einer anderen Tour',
   'tours.activity.refused.activity_assignment_not_of_tour': 'Die Tour ist nicht mehr an diesem Tag',
 };

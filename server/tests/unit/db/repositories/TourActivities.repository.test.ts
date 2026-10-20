@@ -168,4 +168,16 @@ describe('TourActivitiesRepository', () => {
     await deleteRows(t, Places, { id: watch.id });
     expect(await countRows(t, TourActivities, { place: hike.id })).toBe(1);
   });
+
+  it('ACT-REPO-008: a day removed beside a track without a day leaves two without one, and linking one to no day replaces both', async () => {
+    const { trip, hike, onDay1, watch, phone } = await fixture();
+    await makeTourActivity(t, hike.id, watch.id, { assignment: onDay1.id });
+    await makeTourActivity(t, hike.id, phone.id);
+    await deleteRows(t, DayAssignments, { id: onDay1.id });
+    expect(await repo.listForPlace(trip.id, hike.id)).toHaveLength(2);
+
+    // The link dialog names both as replaced, and the server clears both.
+    await repo.clearFor(hike.id, 999_999, null);
+    expect(await repo.listForPlace(trip.id, hike.id)).toEqual([]);
+  });
 });

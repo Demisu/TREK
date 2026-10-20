@@ -1199,6 +1199,7 @@ const tours: TranslationStrings = {
   'tours.activity.assignHint':
     'Kapcsold össze a ténylegesen bejárt nyomvonalat, ebből az utazásból vagy egy GPX-fájlból',
   'tours.activity.empty': 'Még nincs tényleges nyomvonal',
+  'tours.activity.unavailable': 'A tényleges nyomvonalakat nem sikerült betölteni',
   'tours.activity.badge': 'Tényleges',
   'tours.activity.badgeHint': 'A ténylegesen bejárt nyomvonal értékei, nem a terv értékei',
   'tours.activity.isTrackHint': 'Egy túra tényleges nyomvonala ebben az utazásban',
@@ -1226,7 +1227,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': 'Összekapcsolás',
   'tours.activity.refused.activity_track_not_recorded': 'Csak olyan import kapcsolható össze, amelyet nem terveztek át',
   'tours.activity.refused.activity_track_in_use': 'Ez a nyomvonal már egy másik túráé',
-  'tours.activity.refused.activity_track_is_tour': 'Ennek a nyomvonalnak saját tényleges nyomvonalai vannak',
+  'tours.activity.refused.activity_track_is_tour': 'Ez a nyomvonal nem kapcsolható ehhez a túrához',
   'tours.activity.refused.activity_tour_is_track': 'Ez a túra maga is egy másik túra tényleges nyomvonala',
   'tours.activity.refused.activity_assignment_not_of_tour': 'A túra már nem szerepel azon a napon',
 };

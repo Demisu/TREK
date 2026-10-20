@@ -1,4 +1,4 @@
-// FE-ACT-HOOK-001 to FE-ACT-HOOK-005
+// FE-ACT-HOOK-001 to FE-ACT-HOOK-006
 // ACT-01: the actual tracks read with the tour's detail, linked from the
 // dialog and unlinked after confirming, each write telling the lists and the
 // user, and a refusal named in the user's words without changing anything.
@@ -59,10 +59,24 @@ describe('useTourActivities', () => {
     await waitFor(() => expect(repo.detail).toHaveBeenCalledTimes(2));
   });
 
-  it('FE-ACT-HOOK-002: a detail that cannot be had shows none', async () => {
+  it('FE-ACT-HOOK-002: a detail that cannot be had shows none while the list names none either', async () => {
     repo.detail.mockRejectedValueOnce(new Error('offline'));
     const { result } = render();
     await waitFor(() => expect(result.current.activities).toEqual([]));
+    expect(result.current.unavailable).toBe(false);
+  });
+
+  it('FE-ACT-HOOK-006: a detail that cannot be had while the list names tracks says they are unavailable, not that there are none', async () => {
+    repo.detail.mockRejectedValueOnce(new Error('offline'));
+    const linked = { ...tour, activity_tracks: [{ id: 3, track_place_id: 22, assignment_id: null }] } as TourListItem;
+    const { result } = renderHook(() =>
+      useTourActivities({ tripId: 1, tour: linked, executions, canEdit: true, onToursChanged: vi.fn() })
+    );
+    await waitFor(() => expect(result.current.activities).toEqual([]));
+    expect(result.current.unavailable).toBe(true);
+    // Nothing can be replaced that could not be read.
+    act(() => result.current.openAssign());
+    expect(result.current.assigning).toBeNull();
   });
 
   it('FE-ACT-HOOK-003: links the confirmed track, takes the answer in, tells the lists and closes the dialog', async () => {

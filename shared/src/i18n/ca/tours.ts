@@ -1201,6 +1201,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Afegeix el traç real',
   'tours.activity.assignHint': 'Vincula el traç que vas fer realment, d’aquest viatge o d’un fitxer GPX',
   'tours.activity.empty': 'Encara no hi ha traç real',
+  'tours.activity.unavailable': 'No s’han pogut carregar els traços reals',
   'tours.activity.badge': 'Real',
   'tours.activity.badgeHint': 'Valors del traç que vas fer realment, no del pla',
   'tours.activity.isTrackHint': 'Traç real d’una ruta d’aquest viatge',
@@ -1229,7 +1230,7 @@ const tours: TranslationStrings = {
   'tours.activity.refused.activity_track_not_recorded':
     'Només es pot vincular una importació que no s’hagi replanificat',
   'tours.activity.refused.activity_track_in_use': 'Aquest traç ja pertany a una altra ruta',
-  'tours.activity.refused.activity_track_is_tour': 'Aquest traç té traços reals propis',
+  'tours.activity.refused.activity_track_is_tour': 'Aquest traç no es pot vincular a aquesta ruta',
   'tours.activity.refused.activity_tour_is_track': 'Aquesta ruta és alhora el traç real d’una altra ruta',
   'tours.activity.refused.activity_assignment_not_of_tour': 'La ruta ja no és en aquell dia',
 };

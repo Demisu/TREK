@@ -1,9 +1,10 @@
-// FE-ACT-MODEL-001 to FE-ACT-MODEL-008
+// FE-ACT-MODEL-001 to FE-ACT-MODEL-009
 // ACT-01, the pure half of a tour's actual tracks: its executions, the
 // recordings that can be linked, the GPX preset, the time and the refusals.
 import type { TourActivity, TourListItem } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
 import type { Assignment, AssignmentsMap, Day } from '../../../types';
+import { formatDate } from '../../../utils/formatters';
 import {
   analysisOfLine,
   executionOf,
@@ -11,6 +12,7 @@ import {
   importFieldsFor,
   inDayOrder,
   isRecording,
+  recordedDay,
   recordedMinutes,
   refusalOf,
   trackCandidates,
@@ -143,5 +145,15 @@ describe('measures', () => {
     expect(refusalOf({ response: { data: { code: 'tour_revision_conflict' } } })).toBeNull();
     expect(refusalOf(new Error('offline'))).toBeNull();
     expect(refusalOf(null)).toBeNull();
+  });
+
+  it('FE-ACT-MODEL-009: the day recorded is the viewer’s calendar day of the first time, not the UTC one', () => {
+    // 22:30 UTC on the 1st is the morning of the 2nd in Tokyo and still the afternoon of the 1st in Los Angeles.
+    expect(recordedDay('2026-07-01T22:30:00Z', 'en', 'Asia/Tokyo')).toBe(formatDate('2026-07-02', 'en'));
+    expect(recordedDay('2026-07-01T22:30:00Z', 'en', 'America/Los_Angeles')).toBe(formatDate('2026-07-01', 'en'));
+    // 01:30 UTC on the 2nd is still the evening of the 1st in New York.
+    expect(recordedDay('2026-07-02T01:30:00Z', 'en', 'America/New_York')).toBe(formatDate('2026-07-01', 'en'));
+    expect(recordedDay(null, 'en')).toBeNull();
+    expect(recordedDay('nonsense', 'en')).toBeNull();
   });
 });

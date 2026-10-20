@@ -6,6 +6,7 @@ import {
   type TourListItem,
 } from '@trek/shared';
 import type { AssignmentsMap, Day } from '../../../types';
+import { formatDate } from '../../../utils/formatters';
 import { analyzeRouteGeometry, type RouteGeometryAnalysis } from '../../../utils/routeGeometry';
 
 /**
@@ -117,6 +118,21 @@ export function recordedMinutes(startedAt?: string | null, endedAt?: string | nu
   const start = startedAt ? Date.parse(startedAt) : Number.NaN;
   const end = endedAt ? Date.parse(endedAt) : Number.NaN;
   return Number.isFinite(start) && Number.isFinite(end) && end > start ? Math.round((end - start) / 60_000) : null;
+}
+
+/**
+ * The day a track was recorded on, as the viewer's calendar reads its first
+ * time stamp: a hike started at 07:00 in Tokyo is that morning, not the UTC
+ * evening before. `timeZone` is only there for tests; null without a time.
+ */
+export function recordedDay(startedAt: string | null | undefined, locale: string, timeZone?: string): string | null {
+  const instant = startedAt ? new Date(startedAt) : null;
+  if (!instant || Number.isNaN(instant.getTime())) return null;
+  // en-CA writes the calendar day as YYYY-MM-DD, the form formatDate reads.
+  const day = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(
+    instant
+  );
+  return formatDate(day, locale);
 }
 
 /** Why the server refused an assignment, when it named a reason this build knows; null for anything else. */

@@ -39,8 +39,9 @@ export class TourActivitiesService {
 
   /**
    * The recording becomes the track this execution of the tour was done with,
-   * in place of the one it had; a recording already on another execution of
-   * the same tour moves here. Answers the tour as the detail reads it.
+   * in place of the ones it had (one for a day; "no day" can hold several once
+   * the days they were on are gone); a recording already on another execution
+   * of the same tour moves here. Answers the tour as the detail reads it.
    */
   async assign(
     tripId: string,

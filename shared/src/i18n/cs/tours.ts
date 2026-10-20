@@ -1181,6 +1181,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Přidat skutečnou trasu',
   'tours.activity.assignHint': 'Propoj trasu, kterou jsi opravdu ušel, z této cesty nebo ze souboru GPX',
   'tours.activity.empty': 'Zatím žádná skutečná trasa',
+  'tours.activity.unavailable': 'Skutečné trasy se nepodařilo načíst',
   'tours.activity.badge': 'Skutečnost',
   'tours.activity.badgeHint': 'Hodnoty skutečně ušlé trasy, ne plánu',
   'tours.activity.isTrackHint': 'Skutečná trasa túry této cesty',
@@ -1208,7 +1209,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': 'Propojit',
   'tours.activity.refused.activity_track_not_recorded': 'Propojit lze jen import, který nebyl přeplánován',
   'tours.activity.refused.activity_track_in_use': 'Tato trasa už patří k jiné túře',
-  'tours.activity.refused.activity_track_is_tour': 'Tato trasa má vlastní skutečné trasy',
+  'tours.activity.refused.activity_track_is_tour': 'Tuto trasu nelze propojit s touto túrou',
   'tours.activity.refused.activity_tour_is_track': 'Tato túra je sama skutečnou trasou jiné túry',
   'tours.activity.refused.activity_assignment_not_of_tour': 'Túra už v tento den není',
 };

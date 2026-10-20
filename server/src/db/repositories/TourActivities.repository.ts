@@ -112,7 +112,8 @@ export class TourActivitiesRepository extends TrekRepository<TourActivities> {
 
   /**
    * Clears the way for a new assignment of `track_place_id` to this execution
-   * of the tour: the recording the execution had, and the execution this
+   * of the tour: the recordings the execution had (a day has one; "no day" can
+   * have several once the days they were on are gone), and the execution this
    * recording had on the same tour. Inside the caller's transaction, before
    * {@link insertActivity}.
    */

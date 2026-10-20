@@ -7,11 +7,12 @@ import { Migration } from '@mikro-orm/migrations';
  * name and provenance, and the planned tour keeps its line, measures and times
  * untouched. `assignment_id` is the execution, the day assignment of the tour
  * the recording belongs to; NULL for a tour done without a day. One recording
- * documents one tour (`track_place_id UNIQUE`) and an execution has one
- * recording (the partial unique index); an execution without a day is held to
- * one by the service, which also refuses a tour as its own recording. Taking
- * the tour off a day keeps the recording and only forgets the day; deleting
- * either tour takes the assignment with it.
+ * documents one tour (`track_place_id UNIQUE`) and a day's execution has one
+ * recording (the partial unique index). Without a day there can be several:
+ * taking the tour off a day keeps its recording and only forgets the day, so
+ * it joins any that had none. Linking a recording to "no day" replaces all of
+ * them, and the app names each before it does. Deleting either tour takes the
+ * assignment with it.
  * `assigned_by` names who assigned it, kept as unknown when that account goes.
  *
  * Not to be confused with `tours.recorded_route_geometry`: that is the line an

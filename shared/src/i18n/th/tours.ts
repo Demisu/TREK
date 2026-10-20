@@ -1126,6 +1126,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'เพิ่มเส้นทางจริง',
   'tours.activity.assignHint': 'เชื่อมเส้นทางที่คุณเดินจริง จากทริปนี้หรือจากไฟล์ GPX',
   'tours.activity.empty': 'ยังไม่มีเส้นทางจริง',
+  'tours.activity.unavailable': 'ไม่สามารถโหลดเส้นทางจริงได้',
   'tours.activity.badge': 'จริง',
   'tours.activity.badgeHint': 'ค่าของเส้นทางที่คุณเดินจริง ไม่ใช่ของแผน',
   'tours.activity.isTrackHint': 'เส้นทางจริงของทัวร์ในทริปนี้',
@@ -1153,7 +1154,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': 'เชื่อม',
   'tours.activity.refused.activity_track_not_recorded': 'เชื่อมได้เฉพาะไฟล์นำเข้าที่ยังไม่ถูกวางแผนทับ',
   'tours.activity.refused.activity_track_in_use': 'เส้นทางนี้เป็นของทัวร์อื่นแล้ว',
-  'tours.activity.refused.activity_track_is_tour': 'เส้นทางนี้มีเส้นทางจริงของตัวเอง',
+  'tours.activity.refused.activity_track_is_tour': 'ไม่สามารถเชื่อมเส้นทางนี้กับทัวร์นี้ได้',
   'tours.activity.refused.activity_tour_is_track': 'ทัวร์นี้เป็นเส้นทางจริงของทัวร์อื่น',
   'tours.activity.refused.activity_assignment_not_of_tour': 'ทัวร์ไม่ได้อยู่ในวันนั้นแล้ว',
 };

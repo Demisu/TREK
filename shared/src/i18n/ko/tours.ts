@@ -1143,6 +1143,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': '실제 트랙 추가',
   'tours.activity.assignHint': '이 여행이나 GPX 파일에서 실제로 걸은 트랙을 연결하세요',
   'tours.activity.empty': '아직 실제 트랙이 없습니다',
+  'tours.activity.unavailable': '실제 트랙을 불러올 수 없습니다',
   'tours.activity.badge': '실제',
   'tours.activity.badgeHint': '계획이 아니라 실제로 걸은 트랙의 값입니다',
   'tours.activity.isTrackHint': '이 여행에 있는 투어의 실제 트랙',
@@ -1170,7 +1171,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': '연결',
   'tours.activity.refused.activity_track_not_recorded': '덮어서 다시 계획하지 않은 가져오기만 연결할 수 있습니다',
   'tours.activity.refused.activity_track_in_use': '이 트랙은 이미 다른 투어에 속해 있습니다',
-  'tours.activity.refused.activity_track_is_tour': '이 트랙에는 자체 실제 트랙이 있습니다',
+  'tours.activity.refused.activity_track_is_tour': '이 트랙은 이 투어에 연결할 수 없습니다',
   'tours.activity.refused.activity_tour_is_track': '이 투어는 다른 투어의 실제 트랙입니다',
   'tours.activity.refused.activity_assignment_not_of_tour': '이 투어는 더 이상 그날에 없습니다',
 };

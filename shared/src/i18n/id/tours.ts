@@ -1180,6 +1180,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Tambah jejak aktual',
   'tours.activity.assignHint': 'Tautkan jejak yang benar-benar kamu tempuh, dari perjalanan ini atau file GPX',
   'tours.activity.empty': 'Belum ada jejak aktual',
+  'tours.activity.unavailable': 'Jejak aktual tidak dapat dimuat',
   'tours.activity.badge': 'Aktual',
   'tours.activity.badgeHint': 'Nilai jejak yang benar-benar kamu tempuh, bukan dari rencana',
   'tours.activity.isTrackHint': 'Jejak aktual sebuah tur di perjalanan ini',
@@ -1208,7 +1209,7 @@ const tours: TranslationStrings = {
   'tours.activity.refused.activity_track_not_recorded':
     'Hanya impor yang belum direncanakan ulang yang dapat ditautkan',
   'tours.activity.refused.activity_track_in_use': 'Jejak ini sudah milik tur lain',
-  'tours.activity.refused.activity_track_is_tour': 'Jejak ini memiliki jejak aktualnya sendiri',
+  'tours.activity.refused.activity_track_is_tour': 'Jejak ini tidak dapat ditautkan ke tur ini',
   'tours.activity.refused.activity_tour_is_track': 'Tur ini sendiri adalah jejak aktual tur lain',
   'tours.activity.refused.activity_assignment_not_of_tour': 'Tur ini sudah tidak ada di hari itu',
 };

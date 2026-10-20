@@ -1170,6 +1170,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Add actual track',
   'tours.activity.assignHint': 'Link the track you actually took, from this trip or a GPX file',
   'tours.activity.empty': 'No actual track yet',
+  'tours.activity.unavailable': 'Actual tracks could not be loaded',
   'tours.activity.badge': 'Actual',
   'tours.activity.badgeHint': 'Values of the track you actually took, not of the plan',
   'tours.activity.isTrackHint': 'Actual track of a tour in this trip',
@@ -1197,7 +1198,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': 'Link',
   'tours.activity.refused.activity_track_not_recorded': 'Only an import that was not planned over can be linked',
   'tours.activity.refused.activity_track_in_use': 'This track already belongs to another tour',
-  'tours.activity.refused.activity_track_is_tour': 'This track has actual tracks of its own',
+  'tours.activity.refused.activity_track_is_tour': 'This track cannot be linked to this tour',
   'tours.activity.refused.activity_tour_is_track': 'This tour is itself the actual track of another tour',
   'tours.activity.refused.activity_assignment_not_of_tour': 'The tour is no longer on that day',
 };

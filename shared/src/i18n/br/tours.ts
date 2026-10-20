@@ -1195,6 +1195,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Adicionar trilha real',
   'tours.activity.assignHint': 'Vincule a trilha que você realmente fez, desta viagem ou de um arquivo GPX',
   'tours.activity.empty': 'Ainda sem trilha real',
+  'tours.activity.unavailable': 'Não foi possível carregar as trilhas reais',
   'tours.activity.badge': 'Real',
   'tours.activity.badgeHint': 'Valores da trilha que você realmente fez, não do plano',
   'tours.activity.isTrackHint': 'Trilha real de um passeio desta viagem',
@@ -1222,7 +1223,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': 'Vincular',
   'tours.activity.refused.activity_track_not_recorded': 'Só uma importação que não foi replanejada pode ser vinculada',
   'tours.activity.refused.activity_track_in_use': 'Esta trilha já pertence a outro passeio',
-  'tours.activity.refused.activity_track_is_tour': 'Esta trilha tem trilhas reais próprias',
+  'tours.activity.refused.activity_track_is_tour': 'Esta trilha não pode ser vinculada a este passeio',
   'tours.activity.refused.activity_tour_is_track': 'Este passeio é a trilha real de outro passeio',
   'tours.activity.refused.activity_assignment_not_of_tour': 'O passeio não está mais nesse dia',
 };

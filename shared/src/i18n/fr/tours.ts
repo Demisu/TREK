@@ -1219,6 +1219,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Ajouter la trace réelle',
   'tours.activity.assignHint': 'Lier la trace réellement parcourue, de ce voyage ou d’un fichier GPX',
   'tours.activity.empty': 'Pas encore de trace réelle',
+  'tours.activity.unavailable': 'Les traces réelles n’ont pas pu être chargées',
   'tours.activity.badge': 'Réel',
   'tours.activity.badgeHint': 'Valeurs de la trace réellement parcourue, pas du plan',
   'tours.activity.isTrackHint': 'Trace réelle d’une sortie de ce voyage',
@@ -1246,7 +1247,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': 'Lier',
   'tours.activity.refused.activity_track_not_recorded': 'Seul un import qui n’a pas été replanifié peut être lié',
   'tours.activity.refused.activity_track_in_use': 'Cette trace appartient déjà à une autre sortie',
-  'tours.activity.refused.activity_track_is_tour': 'Cette trace a elle-même des traces réelles',
+  'tours.activity.refused.activity_track_is_tour': 'Cette trace ne peut pas être liée à cette sortie',
   'tours.activity.refused.activity_tour_is_track': 'Cette sortie est elle-même la trace réelle d’une autre sortie',
   'tours.activity.refused.activity_assignment_not_of_tour': 'La sortie n’est plus prévue ce jour-là',
 };

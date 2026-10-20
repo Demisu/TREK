@@ -75,7 +75,8 @@ export type TourActivityRef = z.infer<typeof tourActivityRefSchema>;
 
 /**
  * Assigning a recording to a tour, confirmed by the user. An execution that
- * already has one gets this one instead; the recording named must not document
+ * already has recordings gets this one instead (a day has one, no day can have
+ * several once their days are gone); the recording named must not document
  * another tour.
  */
 export const tourActivityAssignRequestSchema = z

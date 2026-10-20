@@ -1201,6 +1201,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Werkelijke track toevoegen',
   'tours.activity.assignHint': 'Koppel de track die je echt hebt afgelegd, uit deze reis of een GPX-bestand',
   'tours.activity.empty': 'Nog geen werkelijke track',
+  'tours.activity.unavailable': 'Werkelijke tracks konden niet worden geladen',
   'tours.activity.badge': 'Werkelijk',
   'tours.activity.badgeHint': 'Waarden van de track die je echt hebt afgelegd, niet van de planning',
   'tours.activity.isTrackHint': 'Werkelijke track van een tocht in deze reis',
@@ -1229,7 +1230,7 @@ const tours: TranslationStrings = {
   'tours.activity.refused.activity_track_not_recorded':
     'Alleen een import die niet is overgepland, kan worden gekoppeld',
   'tours.activity.refused.activity_track_in_use': 'Deze track hoort al bij een andere tocht',
-  'tours.activity.refused.activity_track_is_tour': 'Deze track heeft zelf werkelijke tracks',
+  'tours.activity.refused.activity_track_is_tour': 'Deze track kan niet aan deze tocht worden gekoppeld',
   'tours.activity.refused.activity_tour_is_track': 'Deze tocht is zelf de werkelijke track van een andere tocht',
   'tours.activity.refused.activity_assignment_not_of_tour': 'De tocht staat niet meer op die dag',
 };

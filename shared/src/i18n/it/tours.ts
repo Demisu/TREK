@@ -1209,6 +1209,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Aggiungi traccia effettiva',
   'tours.activity.assignHint': 'Collega la traccia percorsa davvero, da questo viaggio o da un file GPX',
   'tours.activity.empty': 'Ancora nessuna traccia effettiva',
+  'tours.activity.unavailable': 'Impossibile caricare le tracce effettive',
   'tours.activity.badge': 'Effettivo',
   'tours.activity.badgeHint': 'Valori della traccia percorsa davvero, non del piano',
   'tours.activity.isTrackHint': 'Traccia effettiva di un tour di questo viaggio',
@@ -1236,7 +1237,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': 'Collega',
   'tours.activity.refused.activity_track_not_recorded': 'Si può collegare solo un’importazione non ripianificata',
   'tours.activity.refused.activity_track_in_use': 'Questa traccia appartiene già a un altro tour',
-  'tours.activity.refused.activity_track_is_tour': 'Questa traccia ha a sua volta tracce effettive',
+  'tours.activity.refused.activity_track_is_tour': 'Questa traccia non può essere collegata a questo tour',
   'tours.activity.refused.activity_tour_is_track': 'Questo tour è a sua volta la traccia effettiva di un altro tour',
   'tours.activity.refused.activity_assignment_not_of_tour': 'Il tour non è più in quel giorno',
 };

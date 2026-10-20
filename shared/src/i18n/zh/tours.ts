@@ -1087,6 +1087,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': '添加实际轨迹',
   'tours.activity.assignHint': '关联你实际走过的轨迹，可来自本次旅行或 GPX 文件',
   'tours.activity.empty': '还没有实际轨迹',
+  'tours.activity.unavailable': '无法加载实际轨迹',
   'tours.activity.badge': '实际',
   'tours.activity.badgeHint': '实际走过的轨迹的数值，而非计划数值',
   'tours.activity.isTrackHint': '本次旅行中某条路线的实际轨迹',
@@ -1114,7 +1115,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': '关联',
   'tours.activity.refused.activity_track_not_recorded': '只能关联未被重新规划覆盖的导入',
   'tours.activity.refused.activity_track_in_use': '该轨迹已属于另一条路线',
-  'tours.activity.refused.activity_track_is_tour': '该轨迹有自己的实际轨迹',
+  'tours.activity.refused.activity_track_is_tour': '该轨迹无法关联到此路线',
   'tours.activity.refused.activity_tour_is_track': '该路线本身是另一条路线的实际轨迹',
   'tours.activity.refused.activity_assignment_not_of_tour': '该路线已不在那一天',
 };

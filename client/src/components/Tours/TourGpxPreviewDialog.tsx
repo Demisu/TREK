@@ -5,7 +5,6 @@ import { OFM_POSITRON } from '../../constants/mapDefaults';
 import { useTileUrl } from '../../hooks/useTileUrl';
 import { useTranslation } from '../../i18n';
 import { useSettingsStore } from '../../store/settingsStore';
-import { formatDate } from '../../utils/formatters';
 import { formatDistance, formatElevation } from '../../utils/units';
 import { MapViewAuto } from '../Map/MapViewAuto';
 import { SoftPill } from '../Planner/planParts';
@@ -20,7 +19,7 @@ import {
   fs,
   NEUTRAL_TINT,
 } from '../shared/DialogShell';
-import { recordedMinutes } from './activity/tourActivityModel';
+import { recordedDay, recordedMinutes } from './activity/tourActivityModel';
 import { importFields, importMissing, useGpxImportChoices } from './gpxImportChoices';
 import { GpxImportTypeSection } from './GpxImportTypeSection';
 import { TourNotice } from './tourParts';
@@ -34,11 +33,12 @@ const BADGE =
 function RecordedBadge({ track }: { track: GpxPreviewFile['tracks'][number] }) {
   const { locale } = useTranslation();
   const minutes = recordedMinutes(track.started_at, track.ended_at);
-  if (minutes === null || !track.started_at) return null;
+  const day = recordedDay(track.started_at, locale);
+  if (minutes === null || !day) return null;
   return (
     <span className={`${BADGE} gap-1`} data-testid="gpx-preview-recorded">
       <Clock size={10} strokeWidth={2.2} className="flex-none text-content-faint" />
-      {formatDate(track.started_at.slice(0, 10), locale)}
+      {day}
       <span className="text-content-faint">{formatPlannedTourDuration(minutes)}</span>
     </span>
   );

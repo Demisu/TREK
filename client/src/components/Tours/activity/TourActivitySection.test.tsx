@@ -1,4 +1,4 @@
-// FE-ACT-SECTION-001 to FE-ACT-SECTION-005
+// FE-ACT-SECTION-001 to FE-ACT-SECTION-006
 // ACT-01 in the tour's detail, rendered without the translation provider so
 // every text reads as its key: the actual tracks with their own values marked
 // as such, a time only where the track measured one, and the actions only for
@@ -45,6 +45,7 @@ function activity(overrides: Partial<TourActivity['metrics']> = {}, assignmentId
 function state(overrides: Partial<TourActivities> = {}): TourActivities {
   return {
     activities: [activity()],
+    unavailable: false,
     canEdit: true,
     busy: false,
     assigning: null,
@@ -94,7 +95,7 @@ describe('TourActivitySection (ACT-01)', () => {
     fireEvent.click(screen.getByRole('button', { name: /tours.activity.assign$/ }));
     expect(current.openAssign).toHaveBeenCalledWith();
     fireEvent.click(screen.getByRole('button', { name: /tours.activity.change/ }));
-    expect(current.openAssign).toHaveBeenCalledWith({ assignmentId: 11 });
+    expect(current.openAssign).toHaveBeenCalledWith({ assignmentId: 11, activityId: 4 });
     fireEvent.click(screen.getByRole('button', { name: /tours.activity.remove/ }));
     expect(current.askRemove).toHaveBeenCalledWith(current.activities?.[0]);
 
@@ -131,5 +132,18 @@ describe('TourActivitySection (ACT-01)', () => {
     hook.state = state();
     const track = show(true, { ...tour, activity_of: 3 });
     expect(track.container).toBeEmptyDOMElement();
+  });
+
+  it('FE-ACT-SECTION-006: tracks that could not be read are said to be unavailable, never shown as none, and nothing is linked over them', () => {
+    hook.state = state({ activities: [], unavailable: true });
+    const { unmount } = show();
+    expect(screen.getByRole('status')).toHaveTextContent('tours.activity.unavailable');
+    expect(screen.queryByTestId('tour-activity-empty')).toBeNull();
+    expect(screen.getByRole('button', { name: /tours.activity.assign$/ })).toBeDisabled();
+    unmount();
+
+    hook.state = state({ activities: [], unavailable: true, canEdit: false });
+    show(false);
+    expect(screen.getByText('tours.activity.unavailable')).toBeInTheDocument();
   });
 });

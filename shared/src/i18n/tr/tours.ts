@@ -1180,6 +1180,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Gerçek iz ekle',
   'tours.activity.assignHint': 'Gerçekten yürüdüğün izi bu geziden ya da bir GPX dosyasından bağla',
   'tours.activity.empty': 'Henüz gerçek iz yok',
+  'tours.activity.unavailable': 'Gerçek izler yüklenemedi',
   'tours.activity.badge': 'Gerçek',
   'tours.activity.badgeHint': 'Planın değil, gerçekten yürüdüğün izin değerleri',
   'tours.activity.isTrackHint': 'Bu gezideki bir turun gerçek izi',
@@ -1208,7 +1209,7 @@ const tours: TranslationStrings = {
   'tours.activity.refused.activity_track_not_recorded':
     'Yalnızca üzerinden yeniden planlanmamış bir içe aktarma bağlanabilir',
   'tours.activity.refused.activity_track_in_use': 'Bu iz zaten başka bir tura ait',
-  'tours.activity.refused.activity_track_is_tour': 'Bu izin kendi gerçek izleri var',
+  'tours.activity.refused.activity_track_is_tour': 'Bu iz bu tura bağlanamaz',
   'tours.activity.refused.activity_tour_is_track': 'Bu tur zaten başka bir turun gerçek izi',
   'tours.activity.refused.activity_assignment_not_of_tour': 'Tur artık o günde değil',
 };

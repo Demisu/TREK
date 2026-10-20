@@ -1174,6 +1174,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': 'Lägg till faktiskt spår',
   'tours.activity.assignHint': 'Koppla spåret du faktiskt gick, från den här resan eller en GPX-fil',
   'tours.activity.empty': 'Inget faktiskt spår ännu',
+  'tours.activity.unavailable': 'Faktiska spår kunde inte läsas in',
   'tours.activity.badge': 'Faktiskt',
   'tours.activity.badgeHint': 'Värden från spåret du faktiskt gick, inte från planen',
   'tours.activity.isTrackHint': 'Faktiskt spår för en tur i den här resan',
@@ -1201,7 +1202,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': 'Koppla',
   'tours.activity.refused.activity_track_not_recorded': 'Bara en import som inte har planerats om kan kopplas',
   'tours.activity.refused.activity_track_in_use': 'Det här spåret hör redan till en annan tur',
-  'tours.activity.refused.activity_track_is_tour': 'Det här spåret har egna faktiska spår',
+  'tours.activity.refused.activity_track_is_tour': 'Det här spåret kan inte länkas till den här turen',
   'tours.activity.refused.activity_tour_is_track': 'Den här turen är själv det faktiska spåret för en annan tur',
   'tours.activity.refused.activity_assignment_not_of_tour': 'Turen ligger inte längre på den dagen',
 };

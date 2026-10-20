@@ -23,7 +23,7 @@ import { PillSelect } from '../../shared/dialogParts';
 import TourGpxPreviewDialog from '../TourGpxPreviewDialog';
 import { CardAction, TourMetricFields, TourNotice } from '../tourParts';
 import { formatPlannedTourDuration, hikeSourceBadgeLabel } from '../tourPresentation';
-import { recordedMinutes, type TourExecution, type TrackCandidate } from './tourActivityModel';
+import { recordedDay, recordedMinutes, type TourExecution, type TrackCandidate } from './tourActivityModel';
 import type { TourActivities } from './useTourActivities';
 import { useTrackAssignment, type TrackAssignment } from './useTrackAssignment';
 
@@ -44,7 +44,7 @@ function CandidateRow({
   const unit = useSettingsStore((store) => store.settings.distance_unit) ?? 'metric';
   const { tour, takenBy } = candidate;
   const minutes = recordedMinutes(tour.track_started_at, tour.track_ended_at);
-  const recordedOn = tour.track_started_at ? formatDate(tour.track_started_at.slice(0, 10), locale) : null;
+  const recordedOn = recordedDay(tour.track_started_at, locale);
   return (
     <button
       type="button"
@@ -269,9 +269,9 @@ export default function TourActivityDialog({
         >
           <div className="flex flex-col gap-2">
             <CandidateList assignment={assignment} />
-            {assignment.replaces && (
+            {assignment.replaces.length > 0 && (
               <TourNotice tone="warning" icon={<AlertTriangle size={13} strokeWidth={2} />}>
-                {t('tours.activity.replaces', { name: assignment.replaces })}
+                {t('tours.activity.replaces', { name: assignment.replaces.join(', ') })}
               </TourNotice>
             )}
           </div>

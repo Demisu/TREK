@@ -1086,6 +1086,7 @@ const tours: TranslationStrings = {
   'tours.activity.assign': '新增實際軌跡',
   'tours.activity.assignHint': '連結你實際走過的軌跡，可來自本趟旅程或 GPX 檔案',
   'tours.activity.empty': '還沒有實際軌跡',
+  'tours.activity.unavailable': '無法載入實際軌跡',
   'tours.activity.badge': '實際',
   'tours.activity.badgeHint': '實際走過的軌跡的數值，而非計畫數值',
   'tours.activity.isTrackHint': '本趟旅程中某條路線的實際軌跡',
@@ -1113,7 +1114,7 @@ const tours: TranslationStrings = {
   'tours.activity.confirm': '連結',
   'tours.activity.refused.activity_track_not_recorded': '只能連結未被重新規劃覆蓋的匯入',
   'tours.activity.refused.activity_track_in_use': '此軌跡已屬於另一條路線',
-  'tours.activity.refused.activity_track_is_tour': '此軌跡有自己的實際軌跡',
+  'tours.activity.refused.activity_track_is_tour': '此軌跡無法連結到此路線',
   'tours.activity.refused.activity_tour_is_track': '此路線本身是另一條路線的實際軌跡',
   'tours.activity.refused.activity_assignment_not_of_tour': '此路線已不在那一天',
 };
