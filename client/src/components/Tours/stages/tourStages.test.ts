@@ -1,5 +1,5 @@
-// FE-TOUR-STAGE-MODEL-001 to FE-TOUR-STAGE-MODEL-012: the stages of a multi-day tour, cut from its one route (MDT-01, MDT-02).
-import { MAX_TOUR_STAGES } from '@trek/shared';
+// FE-TOUR-STAGE-MODEL-001 to FE-TOUR-STAGE-MODEL-013: the stages of a multi-day tour, cut from its one route (MDT-01, MDT-02).
+import { MAX_TOUR_STAGES, runMinutesAtPace } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
 import { hikingTimeMinutes } from '../hikingTime';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
@@ -32,7 +32,15 @@ const withEnds = (...ids: string[]) => FIVE.map((p) => (ids.includes(p.id) ? { .
 const LINE = FIVE.map((p, index): [number, number, number] => [p.lat, p.lng, [500, 600, 550, 650, 600][index]]);
 
 function input(points: TourPlannerWaypoint[], extra: Partial<TourStageInputs> = {}): TourStageInputs {
-  return { points, line: LINE, tourType: 'hike', routerSeconds: 4 * 3600, paddle: null, ...extra };
+  return {
+    points,
+    line: LINE,
+    tourType: 'hike',
+    routerSeconds: 4 * 3600,
+    paddle: null,
+    runPaceSecondsPerKm: null,
+    ...extra,
+  };
 }
 
 describe('tourStages', () => {
@@ -120,6 +128,21 @@ describe('tourStages', () => {
     expect(stages.every((stage) => !stage.overDay)).toBe(true);
     const unknown = tourStagesOf(input(withEnds('b'), { tourType: 'walk', routerSeconds: null }));
     expect(unknown.map((stage) => stage.minutes)).toEqual([null, null]);
+  });
+
+  it('FE-TOUR-STAGE-MODEL-013: a run stage is its distance at the pace, a ride on horseback has no time (RUN-01, HOR-01)', () => {
+    const run = tourStagesOf(input(withEnds('b'), { tourType: 'run', runPaceSecondsPerKm: 360 }));
+    expect(run.map((stage) => stage.minutes)).toEqual(
+      run.map((stage) => runMinutesAtPace(stage.distanceKm ?? 0, 360))
+    );
+    // The router's walking time never stands in, neither without a pace nor with one out of bounds.
+    const noPace = tourStagesOf(input(withEnds('b'), { tourType: 'run' }));
+    expect(noPace.map((stage) => stage.minutes)).toEqual([null, null]);
+    const outOfBounds = tourStagesOf(input(withEnds('b'), { tourType: 'run', runPaceSecondsPerKm: 5 }));
+    expect(outOfBounds.map((stage) => stage.minutes)).toEqual([null, null]);
+    const ride = tourStagesOf(input(withEnds('b'), { tourType: 'horse' }));
+    expect(ride.map((stage) => stage.minutes)).toEqual([null, null]);
+    expect(ride.every((stage) => stage.distanceKm !== null && !stage.overDay)).toBe(true);
   });
 
   it('FE-TOUR-STAGE-MODEL-008: a paddle stage has no heights and is timed at the paddler speed, its lock passed once', () => {

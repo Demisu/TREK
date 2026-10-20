@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
+import { runMinutesAtPace } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { routeWalkingTour, enrichTourElevations, createTour, detailTour, updateTour, paddlePlan } = vi.hoisted(() => ({
@@ -23,7 +24,7 @@ vi.mock('../useTourPermissions', () => ({
 import { validDraft } from './tourPlannerDraft';
 import { useTourPlanner } from './useTourPlanner';
 
-// FE-TOUR-STAGES-001 to FE-TOUR-STAGES-009 (MDT-01)
+// FE-TOUR-STAGES-001 to FE-TOUR-STAGES-010 (MDT-01)
 
 const POINTS: Array<[number, number]> = [
   [48, 11],
@@ -270,5 +271,20 @@ describe('useTourPlanner, multi-day tours (MDT-01)', () => {
     act(() => result.current.undo());
     expect(result.current.stages.lost).toBe(0);
     expect(result.current.waypoints.find((point) => point.id === stop)?.stageEnd).toBe(true);
+  });
+
+  it('FE-TOUR-STAGES-010: a run times every stage at the runner pace, as the whole run is timed, never by the router (RUN-01)', async () => {
+    const { result } = await plannedHike(71);
+    act(() => result.current.setTourType('run'));
+    await settle();
+    act(() => result.current.stages.toggleStageEnd(result.current.waypoints[1].id));
+    // Without a pace the run has no time, and neither have its stages.
+    expect(result.current.stages.stages.map((stage) => stage.minutes)).toEqual([null, null]);
+    act(() => result.current.runPace.setPace(360));
+    const stages = result.current.stages.stages;
+    expect(stages.every((stage) => (stage.distanceKm ?? 0) > 0)).toBe(true);
+    expect(stages.map((stage) => stage.minutes)).toEqual(
+      stages.map((stage) => runMinutesAtPace(stage.distanceKm ?? 0, 360))
+    );
   });
 });

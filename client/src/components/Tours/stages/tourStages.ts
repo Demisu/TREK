@@ -1,8 +1,14 @@
-import { MAX_PLANNED_TOUR_DURATION_MINUTES, MAX_TOUR_STAGES, type PlannableTourType } from '@trek/shared';
+import {
+  MAX_PLANNED_TOUR_DURATION_MINUTES,
+  MAX_TOUR_STAGES,
+  runMinutesAtPace,
+  type PlannableTourType,
+} from '@trek/shared';
 import { analyzeRouteGeometry } from '../../../utils/routeGeometry';
 import { hikingTimeMinutes } from '../hikingTime';
 import { paddleEstimateOf } from '../planner/paddlePlanOf';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
+import { runPaceInvalid } from '../run/runPace';
 
 /**
  * MDT-01: the stages of a multi-day tour, read off its points in route order.
@@ -130,6 +136,8 @@ export interface TourStageInputs {
   routerSeconds: number | null;
   /** A paddle tour's speeds; null for any other type. */
   paddle: PaddleStageInputs | null;
+  /** A run's pace in seconds per kilometre (RUN-01); null without one, and ignored for any other type. */
+  runPaceSecondsPerKm: number | null;
 }
 
 const METRES_PER_DEGREE = 111_320;
@@ -203,13 +211,21 @@ function paddleStageMinutes(
 }
 
 /**
- * A stage's moving time by the tour's own rule: a paddle stage at the
- * paddler's speed, a hike by the signposts' rule over its distance, climb and
- * descent, and otherwise the router's time for the whole tour shared out by
- * distance, which is how the router times a ride or a walk on the flat.
+ * A stage's moving time by the tour's own rule, the same rule the whole tour
+ * is timed by: a paddle stage at the paddler's speed, a run at the runner's
+ * pace over its distance, a hike by the signposts' rule over its distance,
+ * climb and descent, and otherwise the router's time for the whole tour
+ * shared out by distance, which is how the router times a ride or a walk on
+ * the flat. A ride on horseback (HOR-01) has no time, as the whole ride has
+ * none, and a run without a pace has none either.
  */
 function stageMinutes(input: TourStageInputs, span: StageSpan, stretch: Stretch, totalKm: number): number | null {
   if (input.paddle) return paddleStageMinutes(input.points, span, input.paddle);
+  if (input.tourType === 'horse') return null;
+  if (input.tourType === 'run') {
+    const pace = input.runPaceSecondsPerKm;
+    return pace === null || runPaceInvalid(pace) ? null : runMinutesAtPace(stretch.distanceKm, pace);
+  }
   if (input.tourType === 'hike' && stretch.gain !== null && stretch.loss !== null) {
     return hikingTimeMinutes(stretch.distanceKm, stretch.gain, stretch.loss);
   }

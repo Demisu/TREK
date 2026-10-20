@@ -50,6 +50,7 @@ export function savedTourStagesOf(
     tourType: openedTourFields(tour).tourType,
     routerSeconds: tour.duration == null ? null : tour.duration * 60,
     paddle: line ? paddleInputsOf(tour, points, line) : null,
+    runPaceSecondsPerKm: tour.run_pace_seconds_per_km ?? null,
   });
   return stages.map((stage) => ({ ...stage, key: points[stage.from]?.key ?? null }));
 }

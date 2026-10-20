@@ -17,6 +17,8 @@ interface TourStagesOptions {
   tourType: PlannableTourType;
   routerSeconds: number | null;
   paddle: PaddleStageInputs | null;
+  /** A run's pace, seconds per kilometre; its stages are timed at it as the whole run is. */
+  runPaceSecondsPerKm: number | null;
   /** The planner's own change of the points: one step of the history, the draft unsaved again. */
   commit: (change: (current: TourPlannerWaypoint[]) => TourPlannerWaypoint[]) => void;
   /** Whether the points may change now: the viewer may edit and no save is on its way. */
@@ -41,6 +43,7 @@ export function useTourStages({
   tourType,
   routerSeconds,
   paddle,
+  runPaceSecondsPerKm,
   commit,
   mayEdit,
   draftKey,
@@ -50,8 +53,9 @@ export function useTourStages({
   const endCount = stageEndCount(waypoints);
   const multiDay = endCount > 0 || chosenFor === draftKey;
   const stages = useMemo(
-    () => (multiDay ? tourStagesOf({ points: waypoints, line, tourType, routerSeconds, paddle }) : []),
-    [line, multiDay, paddle, routerSeconds, tourType, waypoints]
+    () =>
+      multiDay ? tourStagesOf({ points: waypoints, line, tourType, routerSeconds, paddle, runPaceSecondsPerKm }) : [],
+    [line, multiDay, paddle, routerSeconds, runPaceSecondsPerKm, tourType, waypoints]
   );
 
   const setMultiDay = useCallback(

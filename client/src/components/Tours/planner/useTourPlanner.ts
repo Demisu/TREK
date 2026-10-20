@@ -552,7 +552,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     : null, [effectiveSpeedKmh, isPaddle, paddleSpeedInvalid, portageSpeedKmh, routedLegLengths])
   const stages = useTourStages({
     waypoints, line: routeCurrent ? (enrichedGeometry ?? route) : null, tourType, routerSeconds: durationSeconds,
-    paddle: stagePaddle, commit: commitWaypoints, mayEdit: mayEditPoints,
+    paddle: stagePaddle, runPaceSecondsPerKm, commit: commitWaypoints, mayEdit: mayEditPoints,
     draftKey: `${editingPlaceId ?? 'new'}:${newDraftGeneration}`,
     lost: stageLoss,
   })
