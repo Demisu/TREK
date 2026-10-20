@@ -1,18 +1,32 @@
 import type { SkiDiscipline, SkiTechnique, TourListItem } from '@trek/shared';
-import { CableCar, Snowflake, Spline, TrendingUp, type LucideIcon } from 'lucide-react';
+import { CableCar, createLucideIcon, Spline, TrendingUp, type LucideIcon } from 'lucide-react';
 import { useTranslation } from '../../../i18n';
 import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
 import { TourCornerMark } from '../TourCornerMark';
 
 /**
- * SKI-02: the icon each discipline goes by: a lift for alpine skiing, a
- * snowflake for the board, a winding trail for cross-country and the climb on
- * skins for ski touring.
+ * SKI-02: a snowboard seen from above, laid across the square with its two
+ * bindings. Lucide has no board, and the snowflake is the winter hike's mark
+ * (HIK-01): both sit in the same corner badge, so the board needs a glyph of
+ * its own to be told apart there.
+ */
+const BOARD = 'rotate(-45 12 12)';
+const Snowboard = createLucideIcon('snowboard', [
+  ['rect', { x: '1.5', y: '8.5', width: '21', height: '7', rx: '3.5', transform: BOARD, key: 'board' }],
+  ['path', { d: 'M8.5 10v4', transform: BOARD, key: 'binding-front' }],
+  ['path', { d: 'M15.5 10v4', transform: BOARD, key: 'binding-back' }],
+]);
+
+/**
+ * SKI-02: the icon each discipline goes by: a lift for alpine skiing, a board
+ * for snowboarding, a winding trail for cross-country and the climb on skins
+ * for ski touring. None of them is the winter hike's snowflake, which takes
+ * the same corner of a tile.
  */
 export const SKI_DISCIPLINE_ICON: Record<SkiDiscipline, LucideIcon> = {
   alpine: CableCar,
-  snowboard: Snowflake,
+  snowboard: Snowboard,
   cross_country: Spline,
   touring: TrendingUp,
 };

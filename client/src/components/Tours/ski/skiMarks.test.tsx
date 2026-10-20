@@ -2,9 +2,17 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { TourDayRowAvatar } from '../TourDayRowFacts';
 import { TourGradeTile } from '../tourParts';
-import { SkiCornerMark, SkiHeadPill, skiClassificationText, skiDisciplineOf, skiTechniqueOf } from './skiMarks';
+import { WINTER_ACTIVITY_ICON } from '../winter/winterMarks';
+import {
+  SKI_DISCIPLINE_ICON,
+  SkiCornerMark,
+  SkiHeadPill,
+  skiClassificationText,
+  skiDisciplineOf,
+  skiTechniqueOf,
+} from './skiMarks';
 
-// FE-TOUR-SKI-MARK-001 to FE-TOUR-SKI-MARK-005
+// FE-TOUR-SKI-MARK-001 to FE-TOUR-SKI-MARK-006
 
 const t = (key: string) => key;
 const skiTrack = {
@@ -39,6 +47,8 @@ describe('ski marks (SKI-02)', () => {
     const mark = screen.getByRole('img', { name: 'tours.ski.discipline.snowboard' });
     expect(mark).toHaveAttribute('data-testid', 'tour-ski-mark');
     expect(mark).toHaveStyle({ width: '20px', height: '20px' });
+    expect(mark.querySelector('svg.lucide-snowboard')).not.toBeNull();
+    expect(mark.querySelector('svg.lucide-snowflake')).toBeNull();
   });
 
   it('FE-TOUR-SKI-MARK-003: the head pill names the discipline with a cross-country technique inside it', () => {
@@ -67,5 +77,10 @@ describe('ski marks (SKI-02)', () => {
     expect(screen.getByRole('img', { name: 'tourTypes.ski' })).toBeInTheDocument();
     rerender(<TourDayRowAvatar tour={skiTrack} size={50} />);
     expect(screen.getByTestId('tour-ski-mark')).toHaveStyle({ width: '22px' });
+  });
+
+  it('FE-TOUR-SKI-MARK-006: no discipline shares its corner glyph with another, nor with a winter label', () => {
+    const icons = [...Object.values(SKI_DISCIPLINE_ICON), ...Object.values(WINTER_ACTIVITY_ICON)];
+    expect(new Set(icons).size).toBe(icons.length);
   });
 });
