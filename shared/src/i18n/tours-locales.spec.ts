@@ -20,7 +20,7 @@ const tokens = (value: string) => [...value.matchAll(/\{[^{}]+\}/g)].map((match)
 // placeholder spec; here only the general keys are.
 const groups = pluralGroups(Object.keys(english));
 const generalKeys = (keys: string[]) => keys.filter((key) => !pluralFormOf(key, groups));
-const GENERAL_KEY_COUNT = 1144;
+const GENERAL_KEY_COUNT = 1161;
 
 function literalKeys(source: string): string[] {
   const tree = ts.createSourceFile('locale.ts', source, ts.ScriptTarget.Latest, true);

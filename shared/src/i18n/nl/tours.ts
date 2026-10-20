@@ -1280,5 +1280,29 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': 'De tocht kon niet worden gewijzigd',
   'tours.stats.unavailable': 'Gemaakte tochten konden niet worden geladen',
   'tours.stats.openTrip': 'Reis openen',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': 'Dagen',
+  'tours.stages.mode.single': 'Dagtocht',
+  'tours.stages.mode.multi': 'Meerdaagse tocht',
+  'tours.stages.emptyHint': 'Kies in het menu van een stop „Etappe hier beëindigen” om de route te verdelen.',
+  'tours.stages.endHere': 'Etappe hier beëindigen',
+  'tours.stages.removeEnd': 'Etappe-einde verwijderen',
+  'tours.stages.stage': 'Etappe {number}',
+  'tours.stages.endOf': 'Einde van etappe {number}',
+  'tours.stages.title': 'Etappes',
+  'tours.stages.count': '{count} etappes',
+  'tours.stages.count.one': '{count} etappe',
+  'tours.stages.overDay': 'Meer dan een dag onderweg',
+  'tours.stages.timeInfo':
+    'Bewegingstijd per etappe, zonder pauzes. Bij fietstochten en stadswandelingen wordt de tijd van de routeplanner naar afstand verdeeld.',
+  'tours.stages.lost': '{count} etappe-eindes zijn met hun stops verdwenen; die etappes zijn nu samengevoegd.',
+  'tours.stages.lost.one': '{count} etappe-einde is met zijn stop verdwenen; zijn twee etappes zijn nu samengevoegd.',
+  'tours.stages.toDayTitle': 'Er een dagtocht van maken?',
+  'tours.stages.toDayBody':
+    'De {count} etappe-eindes worden verwijderd. De route blijft zoals hij is en Ongedaan maken zet ze terug.',
+  'tours.stages.toDayBody.one':
+    '{count} etappe-einde wordt verwijderd. De route blijft zoals hij is en Ongedaan maken zet het terug.',
+  'tours.stages.toDayConfirm': 'Etappe-eindes verwijderen',
+  'tours.stages.show': 'Toon waar deze etappe eindigt',
 };
 export default tours;

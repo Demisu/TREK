@@ -1299,5 +1299,28 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': 'Δεν ήταν δυνατή η αλλαγή της εκδρομής',
   'tours.stats.unavailable': 'Δεν ήταν δυνατή η φόρτωση των εκδρομών',
   'tours.stats.openTrip': 'Άνοιγμα ταξιδιού',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': 'Ημέρες',
+  'tours.stages.mode.single': 'Μονοήμερη',
+  'tours.stages.mode.multi': 'Πολυήμερη',
+  'tours.stages.emptyHint': 'Στο μενού μιας στάσης επιλέξτε «Τέλος σκέλους εδώ» για να χωρίσετε τη διαδρομή.',
+  'tours.stages.endHere': 'Τέλος σκέλους εδώ',
+  'tours.stages.removeEnd': 'Αφαίρεση τέλους σκέλους',
+  'tours.stages.stage': 'Σκέλος {number}',
+  'tours.stages.endOf': 'Τέλος σκέλους {number}',
+  'tours.stages.title': 'Σκέλη',
+  'tours.stages.count': '{count} σκέλη',
+  'tours.stages.count.one': '{count} σκέλος',
+  'tours.stages.overDay': 'Πάνω από μία ημέρα σε κίνηση',
+  'tours.stages.timeInfo':
+    'Χρόνος κίνησης ανά σκέλος, χωρίς διαλείμματα. Σε ποδηλατικές διαδρομές και βόλτες στην πόλη ο χρόνος του σχεδιαστή διαδρομών μοιράζεται ανάλογα με την απόσταση.',
+  'tours.stages.lost': '{count} τέλη σκελών χάθηκαν μαζί με τις στάσεις τους· αυτά τα σκέλη ενώθηκαν.',
+  'tours.stages.lost.one': '{count} τέλος σκέλους χάθηκε μαζί με τη στάση του· τα δύο σκέλη του ενώθηκαν.',
+  'tours.stages.toDayTitle': 'Να γίνει μονοήμερη;',
+  'tours.stages.toDayBody': 'Αφαιρούνται {count} τέλη σκελών. Η διαδρομή μένει ως έχει και η Αναίρεση τα επαναφέρει.',
+  'tours.stages.toDayBody.one':
+    'Αφαιρείται {count} τέλος σκέλους. Η διαδρομή μένει ως έχει και η Αναίρεση το επαναφέρει.',
+  'tours.stages.toDayConfirm': 'Αφαίρεση τελών σκελών',
+  'tours.stages.show': 'Εμφάνιση του σημείου όπου τελειώνει το σκέλος',
 };
 export default tours;

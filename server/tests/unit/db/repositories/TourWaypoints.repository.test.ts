@@ -221,6 +221,21 @@ describe('TourWaypointsRepository', () => {
     expect((await repo.listForPlace(place.id))[1]).not.toHaveProperty('poi_category');
   });
 
+  it('TWREPO-012: a stop that ends a stage is stored as such and read back; the others carry no flag (MDT-01)', async () => {
+    const { trip, place } = tourInTrip();
+    await repo.insertForPlace(place.id, [
+      { lat: 47, lng: 11, role: 'start', sequence: 0 },
+      { lat: 47.05, lng: 11.05, role: 'via', sequence: 1, stage_end: true },
+      { lat: 47.1, lng: 11.1, role: 'end', sequence: 2 },
+    ]);
+    const points = await repo.listForPlace(place.id);
+    expect(points[1]).toEqual({ lat: 47.05, lng: 11.05, role: 'via', sequence: 1, stage_end: true });
+    expect(points[0]).not.toHaveProperty('stage_end');
+    expect(points[2]).not.toHaveProperty('stage_end');
+    // A trip copy reads the mark with the rest of the point.
+    expect((await repo.listForTrip(trip.id))[1]).toMatchObject({ place_id: place.id, stage_end: true });
+  });
+
   it('TWREPO-010: listForPlaces reads the waypoints of the tours asked for, by place and sequence, and none for none (CW-02)', async () => {
     const { trip, place } = tourInTrip();
     const second = await makePlace(t, trip.id);

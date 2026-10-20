@@ -118,6 +118,8 @@ export interface MapViewProps {
     detail?: string;
     label?: string;
     shaping?: boolean;
+    /** MDT-01: a stage of a multi-day tour ends here; the pin carries a moon at its corner. */
+    stageEnd?: boolean;
   }>;
   selectedPlannerWaypointId?: string | null;
   onPlannerWaypointClick?: (id: string) => void;

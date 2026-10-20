@@ -1,7 +1,7 @@
-// FE-TOUR-WAYPOINT-LIST-001 to FE-TOUR-WAYPOINT-LIST-015: shaping points, the water router's answers
+// FE-TOUR-WAYPOINT-LIST-001 to FE-TOUR-WAYPOINT-LIST-016: shaping points, the water router's answers
 // and a city walk's stops in the list, with their arrivals and opening hours on a day of the walk,
-// other ways for a hike's leg and round hikes out of a stop (P2A-03, P2A-05, PAD-11, CW-01, CW-02,
-// CW-04, RTE-02, RTE-03).
+// other ways for a hike's leg and round hikes out of a stop, and the stages of a multi-day tour
+// (P2A-03, P2A-05, PAD-11, CW-01, CW-02, CW-04, RTE-02, RTE-03, MDT-01).
 import userEvent from '@testing-library/user-event';
 import type { PaddleRouteLeg } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -391,5 +391,48 @@ describe('TourWaypointList', () => {
       expect(screen.queryByTestId('walk-day-line')).not.toBeInTheDocument();
       expect(screen.queryByTestId('walk-station-schedule')).not.toBeInTheDocument();
     });
+  });
+
+  it('FE-TOUR-WAYPOINT-LIST-016: heads each stage where it begins, marks the stop that ends one, and ends a stage from the menu', async () => {
+    const stage = (number: number, from: number, to: number, fromId: string, toId: string) => ({
+      number,
+      from,
+      to,
+      fromId,
+      toId,
+      distanceKm: 4.2,
+      gain: null,
+      loss: null,
+      minutes: 75,
+      fromM: null,
+      toM: null,
+      overDay: false,
+    });
+    const stages = {
+      multiDay: true,
+      stages: [stage(1, 0, 2, 'a', 'b'), stage(2, 2, 3, 'b', 'c')],
+      endCount: 1,
+      lost: 0,
+      setMultiDay: vi.fn(),
+      toggleStageEnd: vi.fn(),
+      canEnd: vi.fn((id: string) => id === 'b'),
+    };
+    const controller = planner({
+      waypoints: [START, SHAPE, { ...STOP, stageEnd: true }, END],
+      selectedWaypointId: 'b',
+      stages,
+    } as Partial<TourPlannerController>);
+    render(<TourWaypointList planner={controller} canEdit isSaving={false} />);
+    const heads = screen.getAllByTestId('tour-stage-divider');
+    expect(heads.map((head) => head.getAttribute('data-stage'))).toEqual(['1', '2']);
+    const rows = screen.getAllByTestId('tour-planner-waypoint-row');
+    expect(at(rows, 2).querySelector('[data-waypoint-stage-end]')).not.toBeNull();
+    expect(within(at(rows, 2)).getByLabelText('Waypoint 2, End of stage 1')).toBeInTheDocument();
+    expect(at(rows, 0).querySelector('[data-waypoint-stage-end]')).toBeNull();
+    // The head of the second stage follows the stop that ends the first.
+    expect(at(rows, 2).compareDocumentPosition(at(heads, 1)) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    await userEvent.click(within(at(rows, 2)).getByRole('button', { name: 'More actions' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Remove stage end' }));
+    expect(stages.toggleStageEnd).toHaveBeenCalledWith('b');
   });
 });

@@ -1286,5 +1286,27 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': 'Non è stato possibile modificare l’escursione',
   'tours.stats.unavailable': 'Non è stato possibile caricare le escursioni svolte',
   'tours.stats.openTrip': 'Apri viaggio',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': 'Giorni',
+  'tours.stages.mode.single': 'Un giorno',
+  'tours.stages.mode.multi': 'Più giorni',
+  'tours.stages.emptyHint': 'Nel menu di una sosta, scegli «Termina la tappa qui» per dividere il percorso.',
+  'tours.stages.endHere': 'Termina la tappa qui',
+  'tours.stages.removeEnd': 'Togli fine tappa',
+  'tours.stages.stage': 'Tappa {number}',
+  'tours.stages.endOf': 'Fine della tappa {number}',
+  'tours.stages.title': 'Tappe',
+  'tours.stages.count': '{count} tappe',
+  'tours.stages.count.one': '{count} tappa',
+  'tours.stages.overDay': 'Più di un giorno in movimento',
+  'tours.stages.timeInfo':
+    'Tempo in movimento per tappa, pause escluse. Per bici e passeggiate in città il tempo del calcolo percorso è ripartito per distanza.',
+  'tours.stages.lost': '{count} fini tappa sono sparite con le loro soste; quelle tappe ora sono unite.',
+  'tours.stages.lost.one': '{count} fine tappa è sparita con la sua sosta; le sue due tappe ora sono unite.',
+  'tours.stages.toDayTitle': 'Farne un giro di un giorno?',
+  'tours.stages.toDayBody': 'Le {count} fini tappa vengono tolte. Il percorso resta com’è e Annulla le ripristina.',
+  'tours.stages.toDayBody.one': '{count} fine tappa viene tolta. Il percorso resta com’è e Annulla la ripristina.',
+  'tours.stages.toDayConfirm': 'Togli le fini tappa',
+  'tours.stages.show': 'Mostra dove finisce questa tappa',
 };
 export default tours;

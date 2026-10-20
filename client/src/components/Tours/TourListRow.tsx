@@ -7,6 +7,7 @@ import { TourActivityBadge, TourCautionBadge, TourDaysBadge, TourGradeTile } fro
 import type { Day } from '../../types'
 import { endPlaceDrag, startPlaceDrag } from '../Map/markerDrag'
 import { TourDayRowPills } from './TourDayRowFacts'
+import { TourStagesBadge } from './stages/StageParts'
 import { useTourDays } from './tourDays'
 import { Tooltip } from '../shared/Tooltip'
 
@@ -77,6 +78,7 @@ function TourRowBody({ tour, nameId, tourDays, dimmed }: {
         >
           <TourCautionBadge tour={tour} />
           <TourActivityBadge tour={tour} />
+          <TourStagesBadge tour={tour} />
           <TourDayRowPills tour={tour} compact />
           <TourDaysBadge tourDays={tourDays} />
         </div>

@@ -1,5 +1,6 @@
 import {
   MAX_PLANNED_TOUR_DURATION_MINUTES,
+  maxTourMinutesFor,
   plannableTourTypeSchema,
   runMinutesAtPace,
   tourWebsiteSchema,
@@ -72,6 +73,8 @@ export interface TourPlannerFactsInput {
   stays?: Pick<WalkTimes, 'stayMinutes' | 'unknownStays' | 'stations'> | null;
   /** The router's own time, seconds: a bike tour's riding time; stands in for a hike until the heights are in. */
   durationSeconds: number | null;
+  /** MDT-01: the stages the tour is split into, one for a day tour; a day each is what the times may take. */
+  stageCount?: number;
 }
 
 function invalidMinutes(value: number | null): boolean {
@@ -191,7 +194,7 @@ export function tourPlannerFacts(input: TourPlannerFactsInput) {
     plannedTotalInvalid:
       plannedDurationMinutes === null &&
       automaticPlannedTotalMinutes !== null &&
-      automaticPlannedTotalMinutes > MAX_PLANNED_TOUR_DURATION_MINUTES,
+      automaticPlannedTotalMinutes > maxTourMinutesFor(input.stageCount ?? 1),
     // A city walk's stops are its stays: it saves no breaks, so a cafe never counts as a stay and a break at once.
     savedBreakAdditionalMinutes: input.tourType === 'walk' ? null : breakAdditionalMinutes,
     // The router's own time stands in for a hike without heights; a paddle tour has only its speed, a run its pace, a ride none.

@@ -1205,6 +1205,50 @@ describe('Tours e2e (real guards + temp SQLite)', () => {
     });
   });
 
+  describe('multi-day tours (MDT-01)', () => {
+    /** Two days over the ridge: the middle stop ends the first stage. */
+    const twoDays = (stageAt: number) =>
+      tourBody({
+        waypoints: [
+          { lat: 47, lng: 11, role: 'start', sequence: 0 },
+          { lat: 47.01, lng: 11.01, role: 'via', sequence: 1 },
+          { lat: 47.02, lng: 11.02, role: 'end', sequence: 2 },
+        ].map((point) => (point.sequence === stageAt ? { ...point, stage_end: true } : point)),
+      });
+
+    it('saves one route with its stage ends, lists its stages, and an edit joins them again', async () => {
+      const placeId = await createViaApi(5, twoDays(1));
+      const detail = await request(server).get(`/api/trips/5/tours/${placeId}`).set('Cookie', sessionCookie(OWNER));
+      expect(detail.status).toBe(200);
+      expect(detail.body.tour).toMatchObject({ stage_count: 2, tour_type: 'hike' });
+      expect(detail.body.waypoints.map((point: { stage_end?: boolean }) => point.stage_end ?? false)).toEqual([
+        false,
+        true,
+        false,
+      ]);
+      const list = await request(server).get('/api/trips/5/tours').set('Cookie', sessionCookie(OWNER));
+      expect(list.body.tours[0]).toMatchObject({ place_id: placeId, stage_count: 2 });
+
+      const joined = await request(server)
+        .put(`/api/trips/5/tours/${placeId}`)
+        .set('Cookie', sessionCookie(OWNER))
+        .send(twoDays(-1));
+      expect(joined.status).toBe(200);
+      expect(joined.body.tour.stage_count).toBeNull();
+    });
+
+    it('400 for a stage end at the start or the end of the tour, and nothing is written', async () => {
+      const before = await countRows(orm, Tours, {});
+      const refused = await Promise.all(
+        [0, 2].map((at) =>
+          request(server).post('/api/trips/5/tours').set('Cookie', sessionCookie(OWNER)).send(twoDays(at)),
+        ),
+      );
+      expect(refused.map((res) => res.status)).toEqual([400, 400]);
+      expect(await countRows(orm, Tours, {})).toBe(before);
+    });
+  });
+
   describe('planning over an import (PR1-05)', () => {
     /** An imported GPX tour on trip 5: no waypoints, the recorded line as it came. */
     const importedTour = async (tripId = 5) => {

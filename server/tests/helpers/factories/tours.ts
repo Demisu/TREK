@@ -21,7 +21,7 @@ export async function makeTour(orm: FactoryOrm, placeId: number, overrides: Enti
 
 type WaypointRole = 'start' | 'via' | 'end';
 
-/** A city walk station's columns (CW-01 to CW-04), a shaping point's flag and the place a point stands for. */
+/** A city walk station's columns (CW-01 to CW-04), a shaping point's and a stage end's flags and the place a point stands for. */
 interface StationColumns {
   station_key?: string | null;
   name?: string | null;
@@ -32,6 +32,8 @@ interface StationColumns {
   opening_hours?: string | null;
   /** 1 for a shaping point. */
   shaping?: number;
+  /** MDT-01: 1 for a stop that ends a stage of a multi-day tour. */
+  stage_end?: number;
   /** The id of the place of the trip the point stands for. */
   linkedPlace?: number | null;
   /** The leg to the next point as a fixed line, as its JSON column stores it. */

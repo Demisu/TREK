@@ -2,7 +2,7 @@ import L from 'leaflet';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Marker, Tooltip, useMap } from 'react-leaflet';
 import { MAP_LABEL_BADGE_CLASS } from './mapHoverLabel';
-import { plannerPinShape, type PlannerPinPoint } from './plannerPinShape';
+import { plannerPinBadge, plannerPinShape, type PlannerPinPoint } from './plannerPinShape';
 import { wirePlannerWaypointDrag } from './plannerWaypointDrag';
 
 /** The pin's inline style for a size and selection; the renderer owns the colour. */
@@ -20,7 +20,7 @@ function plannerWaypointIcon(
     className: 'tour-planner-waypoint-marker',
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
-    html: `<span style="${pinCss(size, selected)};cursor:${draggable ? 'grab' : 'pointer'};touch-action:${draggable ? 'none' : 'auto'};user-select:none">${text}</span>`,
+    html: `<span style="${pinCss(size, selected)};cursor:${draggable ? 'grab' : 'pointer'};touch-action:${draggable ? 'none' : 'auto'};user-select:none">${text}</span>${plannerPinBadge(point)}`,
   });
 }
 
@@ -46,10 +46,10 @@ export default function PlannerWaypointMarker({
     handlersRef.current = { onClick, onMove };
   }, [onClick, onMove]);
   const position = useMemo(() => [point.lat, point.lng] as [number, number], [point.lat, point.lng]);
-  const { label, shaping } = point;
+  const { label, shaping, stageEnd } = point;
   const icon = useMemo(
-    () => plannerWaypointIcon(pinCss, { label, shaping }, index, selected, !!onMove),
-    [index, label, onMove, pinCss, selected, shaping]
+    () => plannerWaypointIcon(pinCss, { label, shaping, stageEnd }, index, selected, !!onMove),
+    [index, label, onMove, pinCss, selected, shaping, stageEnd]
   );
   const eventHandlers = useMemo(
     () => ({

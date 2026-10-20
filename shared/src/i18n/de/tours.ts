@@ -1286,6 +1286,32 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': 'Die Tour konnte nicht geändert werden',
   'tours.stats.unavailable': 'Touraktivitäten konnten nicht geladen werden',
   'tours.stats.openTrip': 'Reise öffnen',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': 'Tage',
+  'tours.stages.mode.single': 'Tagestour',
+  'tours.stages.mode.multi': 'Mehrtagestour',
+  'tours.stages.emptyHint': 'Im Menü eines Stopps „Etappe hier beenden“ wählen, um die Route zu teilen.',
+  'tours.stages.endHere': 'Etappe hier beenden',
+  'tours.stages.removeEnd': 'Etappenende entfernen',
+  'tours.stages.stage': 'Etappe {number}',
+  'tours.stages.endOf': 'Ende von Etappe {number}',
+  'tours.stages.title': 'Etappen',
+  'tours.stages.count': '{count} Etappen',
+  'tours.stages.count.one': '{count} Etappe',
+  'tours.stages.overDay': 'Mehr als ein Tag unterwegs',
+  'tours.stages.timeInfo':
+    'Zeit in Bewegung je Etappe, ohne Pausen. Radtouren und Stadtspaziergänge teilen die Zeit des Routers nach Strecke auf.',
+  'tours.stages.lost':
+    '{count} Etappenenden sind mit ihren Stopps weggefallen; diese Etappen sind jetzt zusammengelegt.',
+  'tours.stages.lost.one':
+    '{count} Etappenende ist mit seinem Stopp weggefallen; seine zwei Etappen sind jetzt zusammengelegt.',
+  'tours.stages.toDayTitle': 'Zur Tagestour machen?',
+  'tours.stages.toDayBody':
+    'Die {count} Etappenenden werden entfernt. Die Route bleibt, wie sie ist, und Rückgängig holt sie zurück.',
+  'tours.stages.toDayBody.one':
+    '{count} Etappenende wird entfernt. Die Route bleibt, wie sie ist, und Rückgängig holt es zurück.',
+  'tours.stages.toDayConfirm': 'Etappenenden entfernen',
+  'tours.stages.show': 'Zeigen, wo diese Etappe endet',
 };
 
 export default tours;

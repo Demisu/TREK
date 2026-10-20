@@ -1260,5 +1260,27 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': 'Turu dəyişmək mümkün olmadı',
   'tours.stats.unavailable': 'Tamamlanmış turları yükləmək mümkün olmadı',
   'tours.stats.openTrip': 'Səyahəti aç',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': 'Günlər',
+  'tours.stages.mode.single': 'Bir günlük',
+  'tours.stages.mode.multi': 'Çoxgünlük',
+  'tours.stages.emptyHint': 'Marşrutu bölmək üçün dayanacağın menyusunda «Mərhələni burada bitir» seçin.',
+  'tours.stages.endHere': 'Mərhələni burada bitir',
+  'tours.stages.removeEnd': 'Mərhələ sonunu sil',
+  'tours.stages.stage': 'Mərhələ {number}',
+  'tours.stages.endOf': 'Mərhələ {number} sonu',
+  'tours.stages.title': 'Mərhələlər',
+  'tours.stages.count': '{count} mərhələ',
+  'tours.stages.count.one': '{count} mərhələ',
+  'tours.stages.overDay': 'Bir gündən çox hərəkətdə',
+  'tours.stages.timeInfo':
+    'Hər mərhələ üçün hərəkət vaxtı, fasilələr daxil deyil. Velosiped turlarında və şəhər gəzintilərində marşrut planlayıcısının vaxtı məsafəyə görə bölünür.',
+  'tours.stages.lost': '{count} mərhələ sonu dayanacaqları ilə birlikdə itdi; həmin mərhələlər indi birləşib.',
+  'tours.stages.lost.one': '{count} mərhələ sonu dayanacağı ilə birlikdə itdi; onun iki mərhələsi indi birləşib.',
+  'tours.stages.toDayTitle': 'Bir günlük tura çevrilsin?',
+  'tours.stages.toDayBody': '{count} mərhələ sonu silinir. Marşrut olduğu kimi qalır, Geri al onları qaytarır.',
+  'tours.stages.toDayBody.one': '{count} mərhələ sonu silinir. Marşrut olduğu kimi qalır, Geri al onu qaytarır.',
+  'tours.stages.toDayConfirm': 'Mərhələ sonlarını sil',
+  'tours.stages.show': 'Bu mərhələnin harada bitdiyini göstər',
 };
 export default tours;

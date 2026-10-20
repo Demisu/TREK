@@ -682,3 +682,69 @@ describe('ToursService runs (RUN-01)', () => {
   });
 });
 
+
+describe('ToursService multi-day tours (MDT-01)', () => {
+  /** Hut to hut over three days: two stops between start and end each end a stage. */
+  const hutToHut: TourCreateRequest = {
+    ...request,
+    planned_duration_minutes: null,
+    break_additional_minutes: 60,
+    duration_seconds: 30 * 3600,
+    route_geometry: [
+      [48, 11, 600],
+      [48.01, 11.02, 650],
+      [48.02, 11.04, 630],
+      [48.03, 11.06, 700],
+    ],
+    waypoints: [
+      { lat: 48, lng: 11, role: 'start', sequence: 0 },
+      { lat: 48.01, lng: 11.02, role: 'via', sequence: 1, stage_end: true },
+      { lat: 48.02, lng: 11.04, role: 'via', sequence: 2, stage_end: true },
+      { lat: 48.03, lng: 11.06, role: 'end', sequence: 3 },
+    ],
+  };
+
+  it('MDT-SVC-001: keeps the stage ends with their stops and lists the stages, a day tour none', async () => {
+    const created = await service.createTour(tripId, hutToHut);
+    expect(created.tour.stage_count).toBe(3);
+    expect(created.waypoints.map((point) => point.stage_end ?? false)).toEqual([false, true, true, false]);
+    const dayTour = await service.createTour(tripId, request);
+    expect(dayTour.tour.stage_count).toBeNull();
+    const listed = new Map((await service.listTours(tripId)).map((tour) => [tour.place_id, tour.stage_count]));
+    expect(listed.get(created.tour.place_id)).toBe(3);
+    expect(listed.get(dayTour.tour.place_id)).toBeNull();
+  });
+
+  it('MDT-SVC-002: an edit moves, joins and drops stages with the points it saves', async () => {
+    const created = await service.createTour(tripId, hutToHut);
+    const placeId = String(created.tour.place_id);
+    const joined = hutToHut.waypoints.map(({ stage_end: _end, ...point }, index) =>
+      index === 2 ? { ...point, stage_end: true } : point,
+    );
+    const edited = await service.updateTour(tripId, placeId, { ...hutToHut, waypoints: joined });
+    expect(edited.tour.stage_count).toBe(2);
+    expect(edited.waypoints.map((point) => point.stage_end ?? false)).toEqual([false, false, true, false]);
+    const oneDay = await service.updateTour(tripId, placeId, { ...request, waypoints: request.waypoints });
+    expect(oneDay.tour.stage_count).toBeNull();
+    expect(await countRows(await sharedTestOrm(testDb), TourWaypoints, { stage_end: 1 })).toBe(0);
+  });
+
+  it('MDT-SVC-003: holds a multi-day tour to a day a stage, and refuses a stage end out of place', async () => {
+    const tooLong = { ...hutToHut, duration_seconds: 72 * 3600 };
+    const refusal = await catchDomainError(() => service.createTour(tripId, tooLong));
+    expect(refusal instanceof DomainError && refusal.publicMessage).toBe(
+      'walking time plus breaks must be 4320 minutes or less, a day a stage, unless a total is overridden',
+    );
+    // A write that did not come through the contract is held to the same rule.
+    const atStart = {
+      ...hutToHut,
+      waypoints: hutToHut.waypoints.map((point, index) => (index === 0 ? { ...point, stage_end: true } : point)),
+    };
+    const misplaced = await catchDomainError(() => service.createTour(tripId, atStart));
+    expect(misplaced instanceof DomainError && [misplaced.getStatus(), misplaced.publicMessage]).toEqual([
+      400,
+      'a stage ends at a stop between start and end',
+    ]);
+    expect(await count(Tours)).toBe(0);
+  });
+});

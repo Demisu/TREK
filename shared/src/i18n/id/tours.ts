@@ -1258,5 +1258,24 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': 'Tur tidak dapat diubah',
   'tours.stats.unavailable': 'Tur yang sudah dilakukan tidak dapat dimuat',
   'tours.stats.openTrip': 'Buka perjalanan',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': 'Hari',
+  'tours.stages.mode.single': 'Satu hari',
+  'tours.stages.mode.multi': 'Beberapa hari',
+  'tours.stages.emptyHint': 'Di menu sebuah perhentian, pilih "Akhiri etape di sini" untuk membagi rute.',
+  'tours.stages.endHere': 'Akhiri etape di sini',
+  'tours.stages.removeEnd': 'Hapus akhir etape',
+  'tours.stages.stage': 'Etape {number}',
+  'tours.stages.endOf': 'Akhir etape {number}',
+  'tours.stages.title': 'Etape',
+  'tours.stages.count': '{count} etape',
+  'tours.stages.overDay': 'Lebih dari sehari bergerak',
+  'tours.stages.timeInfo':
+    'Waktu bergerak per etape, tanpa istirahat. Untuk tur sepeda dan jalan kaki di kota, waktu perencana rute dibagi menurut jarak.',
+  'tours.stages.lost': '{count} akhir etape hilang bersama perhentiannya; etape-etape itu kini digabung.',
+  'tours.stages.toDayTitle': 'Jadikan tur sehari?',
+  'tours.stages.toDayBody': '{count} akhir etape dihapus. Rute tetap seperti semula, dan Urungkan mengembalikannya.',
+  'tours.stages.toDayConfirm': 'Hapus semua akhir etape',
+  'tours.stages.show': 'Tunjukkan tempat etape ini berakhir',
 };
 export default tours;

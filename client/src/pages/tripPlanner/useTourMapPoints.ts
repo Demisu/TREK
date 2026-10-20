@@ -78,6 +78,8 @@ export function useTourMapPoints({ tourPlanner, canPlaceEdit, mode, cardOpen, gu
       const roles = isPaddle ? paddleRolesById(waypoints) : null;
       // Stops are numbered on their own: a shaping point (P2A-03) only steers and takes no number.
       let stop = 0;
+      // MDT-01: the stages of a multi-day tour, counted as their ends come along the route.
+      let stage = 0;
       return shown.map((point) => {
         if (point.shaping) {
           return {
@@ -90,11 +92,13 @@ export function useTourMapPoints({ tourPlanner, canPlaceEdit, mode, cardOpen, gu
         const role = roles?.get(point.id);
         const detail = role ? t(`tours.paddle.role.${role}`) : roles ? '' : t(ROLE_KEY[point.role]);
         const lock = point.lock ? t('tours.paddle.lock') : '';
+        if (point.stageEnd) stage += 1;
+        const stageEnd = point.stageEnd ? t('tours.stages.endOf', { number: stage }) : '';
         return {
           ...point,
           label: String(stop),
           name: placeNames[point.id] ?? t('tours.planner.waypointLabel', { n: stop }),
-          detail: [detail, lock].filter(Boolean).join(', ') || t(ROLE_KEY[point.role]),
+          detail: [detail, lock, stageEnd].filter(Boolean).join(', ') || t(ROLE_KEY[point.role]),
         };
       });
     }

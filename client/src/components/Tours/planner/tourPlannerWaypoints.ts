@@ -44,6 +44,8 @@ export interface TourPlannerWaypoint {
   openingHours?: string | null;
   /** PLN-03: the kind of place the point was taken in from along the tour, whose icon its row carries. */
   poiCategory?: TourPoiCategory | null;
+  /** MDT-01: a stop where a stage of a multi-day tour ends and the next begins. */
+  stageEnd?: boolean;
 }
 
 /** Stops are numbered on their own, as on the map: a shaping point (P2A-03) takes no number. */
@@ -71,6 +73,7 @@ export function plannerWaypointsOf(saved: readonly TourWaypoint[], newId: () => 
     ...(point.protected ? { protected: true } : {}),
     ...(point.opening_hours ? { openingHours: point.opening_hours } : {}),
     ...(point.poi_category ? { poiCategory: point.poi_category } : {}),
+    ...(point.stage_end ? { stageEnd: true } : {}),
   }));
 }
 
@@ -98,6 +101,7 @@ export function savedWaypointsOf(points: readonly TourPlannerWaypoint[], tourTyp
     ...(walk && point.protected ? { protected: true } : {}),
     ...(point.openingHours ? { opening_hours: point.openingHours } : {}),
     ...(point.poiCategory ? { poi_category: point.poiCategory } : {}),
+    ...(point.stageEnd ? { stage_end: true } : {}),
   }));
 }
 
@@ -119,6 +123,10 @@ export function ridablePoints(points: TourPlannerWaypoint[]): TourPlannerWaypoin
  * Roles from the order; free legs follow their points, and a paddle tour keeps
  * its portages and locks. A ride (HOR-01) has every leg on a horse route or
  * drawn by hand; any other type gives a horse route section back to the router.
+ * A stage end (MDT-01) stays only where one can be: at a stop between start and
+ * end. A mark that ends up elsewhere after a change (its point moved to an end,
+ * made a shaping point) is dropped here, and the planner says so rather than
+ * move it to another point.
  */
 export function normalizePlannerWaypoints(
   points: TourPlannerWaypoint[],
@@ -126,10 +134,12 @@ export function normalizePlannerWaypoints(
 ): TourPlannerWaypoint[] {
   const joined = keepJoinedFixedLegs(alignFreeLegs(points, tourType === 'kayak'));
   const typed = tourType === 'horse' ? rideLegs(joined) : withoutHorseRoutes(joined);
-  return typed.map((point, index) => ({
-    ...point,
-    role: index === 0 ? 'start' : index === points.length - 1 ? 'end' : 'via',
-  }));
+  return typed.map((point, index) => {
+    const role = index === 0 ? 'start' : index === points.length - 1 ? 'end' : 'via';
+    if (!point.stageEnd || (role === 'via' && !point.shaping)) return { ...point, role };
+    const { stageEnd: _dropped, ...rest } = point;
+    return { ...rest, role };
+  });
 }
 
 function fixedLegKey(leg: TourFixedLeg | null | undefined): string {
@@ -170,8 +180,9 @@ export function routeExtrasKey(points: TourPlannerWaypoint[]): string {
 /**
  * CW-02: everything a route is planned from: every point with all it holds but
  * a station's own fields (its name, stay, importance, protection, opening
- * hours and the kind of place it was found as) and the key a save gave it. A change to those alone leaves the route
- * as it is; any other change plans it again.
+ * hours and the kind of place it was found as), the key a save gave it and
+ * (MDT-01) whether a stage ends there. A change to those alone leaves the
+ * route as it is; any other change plans it again.
  */
 export function routeInputsKey(points: readonly TourPlannerWaypoint[]): string {
   return JSON.stringify(
@@ -184,6 +195,7 @@ export function routeInputsKey(points: readonly TourPlannerWaypoint[]): string {
         openingHours: _hours,
         poiCategory: _kind,
         key: _key,
+        stageEnd: _stage,
         ...routed
       }) => routed
     )
@@ -204,12 +216,18 @@ function stationFieldsKey(points: TourPlannerWaypoint[]): string {
   );
 }
 
-/** The same step of the history: the line, what was planned along it, and every station's own fields. */
+/** MDT-01: where the stages end, which the route does not depend on either. */
+function stageEndsKey(points: TourPlannerWaypoint[]): string {
+  return points.map((point) => (point.stageEnd ? '1' : '0')).join('');
+}
+
+/** The same step of the history: the line, what was planned along it, every station's own fields and the stage ends. */
 export function sameWaypointSnapshot(a: TourPlannerWaypoint[], b: TourPlannerWaypoint[]): boolean {
   return (
     tourWaypointKey(a) === tourWaypointKey(b) &&
     routeExtrasKey(a) === routeExtrasKey(b) &&
-    stationFieldsKey(a) === stationFieldsKey(b)
+    stationFieldsKey(a) === stationFieldsKey(b) &&
+    stageEndsKey(a) === stageEndsKey(b)
   );
 }
 

@@ -11,7 +11,7 @@ import type { ToursRepository } from '../../../../src/db/repositories/Tours.repo
 import { createSnapshotTestDb } from '../../../helpers/db-mock';
 import { createDay, createDayAssignment, createPlace, createTrip, createUser } from '../../../helpers/factories';
 import { makePlace } from '../../../helpers/factories/places';
-import { insertRow, updateRows } from '../../../helpers/factories/rows';
+import { insertRow, insertRows, updateRows } from '../../../helpers/factories/rows';
 import { makeDay } from '../../../helpers/factories/trips';
 import { resetTestDb } from '../../../helpers/test-db';
 import { createTestOrm, type TestOrm } from '../../../helpers/test-orm';
@@ -112,6 +112,7 @@ describe('ToursRepository reads', () => {
         ski_technique: null,
         track_started_at: null,
         track_ended_at: null,
+        stage_ends: 0,
       },
       {
         place_id: older.id,
@@ -151,6 +152,7 @@ describe('ToursRepository reads', () => {
         ski_technique: null,
         track_started_at: null,
         track_ended_at: null,
+        stage_ends: 0,
       },
     ]);
     expect((await repo.listForTrip(trip.id)).map((r) => r.place_id)).not.toContain(plain.id);
@@ -193,6 +195,32 @@ describe('ToursRepository reads', () => {
     expect([listed.get(pending.id), listed.get(drawn.id)]).toEqual([1, 0]);
     expect((await repo.findInTrip(trip.id, pending.id))?.route_missing).toBe(1);
     expect((await repo.findInTrip(trip.id, drawn.id))?.route_missing).toBe(0);
+  });
+
+  it('TOURREPO-016: the list and the detail count the stops that end a stage, 0 for a day tour (MDT-01)', async () => {
+    const { trip } = fixture();
+    const hutToHut = await makePlace(t, trip.id, { name: 'Hut to hut' });
+    const dayHike = await makePlace(t, trip.id, { name: 'Day hike' });
+    createTour(testDb, hutToHut.id);
+    createTour(testDb, dayHike.id);
+    await insertRows(
+      t,
+      TourWaypoints,
+      [0, 1, 1, 0].map((stage_end, sequence) => ({
+        place: hutToHut.id,
+        lat: 47,
+        lng: 11,
+        role: 'via',
+        sequence,
+        stage_end,
+      })),
+    );
+    await addWaypoint(dayHike.id, 0);
+
+    const listed = new Map((await repo.listForTrip(trip.id)).map((row) => [row.place_id, row.stage_ends]));
+    expect(listed.get(hutToHut.id)).toBe(2);
+    expect(listed.get(dayHike.id)).toBe(0);
+    expect((await repo.findInTrip(trip.id, hutToHut.id))?.stage_ends).toBe(2);
   });
 
   it('TOURREPO-015: dayOfTrip reads a day of the trip with its date, and nothing for a day of another trip', async () => {

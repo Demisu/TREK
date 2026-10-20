@@ -20,4 +20,5 @@ export interface TourWaypointsTable {
   protected: InsertOptional<number>;
   opening_hours: InsertOptional<string | null>;
   poi_category: InsertOptional<string | null>;
+  stage_end: InsertOptional<number>;
 }

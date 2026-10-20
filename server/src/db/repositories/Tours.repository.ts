@@ -66,6 +66,8 @@ export interface TourListRow {
   /** ACT-01: the first and last time on an imported track's points; NULL without times. */
   track_started_at: string | null;
   track_ended_at: string | null;
+  /** MDT-01: how many of its stops end a stage; 0 for a day tour. */
+  stage_ends: number;
 }
 
 /** LIB-02: a tour of another trip as the take-over list reads it, with the trip it is in. */
@@ -314,6 +316,12 @@ export class ToursRepository extends TrekRepository<Tours> {
         eb
           .exists(eb.selectFrom('tour_waypoints as tw').select('tw.id').whereRef('tw.place_id', '=', 'p.id'))
           .as('has_waypoints'),
+        eb
+          .selectFrom('tour_waypoints as ts')
+          .select((count) => count.fn.countAll<number>().as('n'))
+          .whereRef('ts.place_id', '=', 'p.id')
+          .where('ts.stage_end', '=', 1)
+          .as('stage_ends'),
       ]);
   }
 
@@ -879,11 +887,12 @@ function toLibraryRow<R extends Omit<TourLibraryRow, 'has_waypoints'> & { has_wa
 }
 
 function toListRow<
-  R extends Omit<TourListRow, 'planned' | 'has_waypoints' | 'has_recorded_track' | 'route_missing'> & {
+  R extends Omit<TourListRow, 'planned' | 'has_waypoints' | 'has_recorded_track' | 'route_missing' | 'stage_ends'> & {
     planned: unknown;
     has_waypoints: unknown;
     has_recorded_track: unknown;
     route_missing: unknown;
+    stage_ends: unknown;
   },
 >(r: R): TourListRow {
   return {
@@ -892,5 +901,7 @@ function toListRow<
     has_waypoints: Number(r.has_waypoints),
     has_recorded_track: Number(r.has_recorded_track),
     route_missing: Number(r.route_missing),
+    // Postgres counts in a bigint, which its driver hands back as text.
+    stage_ends: Number(r.stage_ends),
   };
 }

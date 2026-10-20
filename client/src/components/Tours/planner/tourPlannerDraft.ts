@@ -88,7 +88,8 @@ function validDraftWaypoint(point: TourPlannerWaypoint): boolean {
     Math.abs(point.lat) <= 90 &&
     Number.isFinite(point.lng) &&
     Math.abs(point.lng) <= 180 &&
-    (point.lock == null || paddleLockSchema.safeParse(point.lock).success)
+    (point.lock == null || paddleLockSchema.safeParse(point.lock).success) &&
+    (point.stageEnd === undefined || typeof point.stageEnd === 'boolean')
   );
 }
 

@@ -1,5 +1,6 @@
-// FE-TOUR-WAYPOINTS-001 to FE-TOUR-WAYPOINTS-012: the editor's waypoint model, shaping points, drawn legs
-// and a city walk's stations with the keys a save answers (P2A-03, PAD-11, CW-01 to CW-04, RTE-02).
+// FE-TOUR-WAYPOINTS-001 to FE-TOUR-WAYPOINTS-013: the editor's waypoint model, shaping points, drawn legs,
+// a city walk's stations with the keys a save answers and the stage ends of a multi-day tour
+// (P2A-03, PAD-11, CW-01 to CW-04, RTE-02, MDT-01).
 import type { TourWaypoint } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
 import {
@@ -254,5 +255,24 @@ describe('tourPlannerWaypoints', () => {
       ['a', 1],
       ['c', 2],
     ]);
+  });
+
+  it('FE-TOUR-WAYPOINTS-013: a stage end is saved and read with its stop, plans no route, and holds only between start and end', () => {
+    const saved = savedWaypointsOf([A, { ...B, stageEnd: true }, C]);
+    expect(saved[1]).toEqual({ lat: 49.01, lng: 12.01, role: 'via', sequence: 1, stage_end: true });
+    expect(saved[0]).not.toHaveProperty('stage_end');
+    let next = 0;
+    const read = plannerWaypointsOf(saved, () => `p${(next += 1)}`);
+    expect(read[1]).toMatchObject({ id: 'p2', stageEnd: true });
+    expect(read[0]).not.toHaveProperty('stageEnd');
+    // The route does not depend on it; the history does.
+    expect(routeInputsKey([A, { ...B, stageEnd: true }, C])).toBe(routeInputsKey([A, B, C]));
+    expect(sameWaypointSnapshot([A, { ...B, stageEnd: true }, C], [A, B, C])).toBe(false);
+    // Moved to an end, or made a shaping point, a stop ends no stage.
+    const moved = normalizePlannerWaypoints([{ ...B, stageEnd: true }, A, C]);
+    expect(moved[0]).not.toHaveProperty('stageEnd');
+    const shaped = normalizePlannerWaypoints([A, { ...B, stageEnd: true, shaping: true }, C]);
+    expect(shaped[1]).not.toHaveProperty('stageEnd');
+    expect(normalizePlannerWaypoints([A, { ...B, stageEnd: true }, C])[1].stageEnd).toBe(true);
   });
 });

@@ -57,6 +57,7 @@ export * from './place/track-colors';
 export * from './tours/tours.schema';
 export * from './tours/run-pace';
 export * from './tours/ski.schema';
+export * from './tours/tour-stages';
 export * from './tours/tour-provenance.schema';
 export * from './tours/tour-activity.schema';
 export * from './tours/tour-activity-stats.schema';

@@ -23,6 +23,8 @@ import { adoptChangedPoints } from './paddleRouting'
 import { NO_PADDLE_FIELDS, paddleFieldsOf, usePaddleFields, type PaddleFieldValues } from './usePaddleFields'
 import { useTourPermissions, type TourPermissionProps } from '../useTourPermissions'
 import { useRunPace } from '../run/useRunPace'
+import { lostStageEnds } from '../stages/tourStages'
+import { useTourStages } from '../stages/useTourStages'
 
 /** What a tour planned from an import starts with. */
 export interface DerivedTourDraft {
@@ -160,6 +162,8 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const [routeProfileFocus, setRouteProfileFocus] = useState<RouteProfileFocus | null>(null)
   const [newDraftGeneration, setNewDraftGeneration] = useState(0)
   const [mapFocusKey, setMapFocusKey] = useState(0)
+  // MDT-01: stage ends a change of the points could not keep, said while those points are the planner's.
+  const [stageLoss, setStageLoss] = useState<{ count: number; after: TourPlannerWaypoint[] } | null>(null)
   const draftRevisionRef = useRef(0)
   const saveRequestIdRef = useRef(0)
   const saveInFlightRef = useRef(false)
@@ -263,6 +267,8 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     recordStep(snapshot())
     waypointsRef.current = next
     setWaypoints(next)
+    const lost = lostStageEnds(current, changed, next)
+    setStageLoss(lost > 0 ? { count: lost, after: next } : null)
     // CW-02: a station's own fields (its stay, its name) plan no route: the routing goes on, and Save stays as it was.
     if (routeInputsKey(current) === routeInputsKey(next)) {
       markEdited()
@@ -276,6 +282,9 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     setStatus('dirty')
     setError(null)
   }, [recordStep, invalidateDetailRequest, interruptRouting, markEdited, snapshot])
+
+  /** Whether the points may change now: the viewer may edit and no save is on its way. */
+  const mayEditPoints = useCallback(() => editPermissionRef.current && !saveInFlightRef.current, [])
 
   // Detail laid in after the step that asked for it (a portage's way on land), with no step of its own.
   const amendWaypoints = useCallback((change: (current: TourPlannerWaypoint[]) => TourPlannerWaypoint[]) => {
@@ -534,14 +543,25 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   // CW-02: a city walk's stays, what of them is known.
   const stays = useMemo(() => (tourType === 'walk' ? walkTimes(waypoints, null) : null), [tourType, waypoints])
   const runPaceSecondsPerKm = runPace.paceSecondsPerKm
+  // MDT-01: the stages, cut from the route while it is the one planned for these points.
+  const stagePaddle = useMemo(() => isPaddle
+    ? { effectiveSpeedKmh, portageSpeedKmh, speedInvalid: paddleSpeedInvalid, legLengths: routedLegLengths }
+    : null, [effectiveSpeedKmh, isPaddle, paddleSpeedInvalid, portageSpeedKmh, routedLegLengths])
+  const stages = useTourStages({
+    waypoints, line: routeCurrent ? (enrichedGeometry ?? route) : null, tourType, routerSeconds: durationSeconds,
+    paddle: stagePaddle, commit: commitWaypoints, mayEdit: mayEditPoints,
+    draftKey: `${editingPlaceId ?? 'new'}:${newDraftGeneration}`,
+    lost: stageLoss?.after === waypoints ? stageLoss.count : 0,
+  })
+  const stageCount = Math.max(1, stages.stages.length)
   const facts = useMemo(() => tourPlannerFacts({
     tourType, maxHikingDifficulty, hikingPreferences, bikeProfile, winterActivity, runProfile, runPaceSecondsPerKm, website,
     plannedDurationMinutes, breakAdditionalMinutes,
     paddle: { boatType, waterContext, speedKmh, portageSpeedKmh, lakeStyle },
-    paddleSpeedInvalid, paddleEstimate, routeAnalysis, durationSeconds, stays,
+    paddleSpeedInvalid, paddleEstimate, routeAnalysis, durationSeconds, stays, stageCount,
   }), [bikeProfile, boatType, breakAdditionalMinutes, durationSeconds, hikingPreferences, lakeStyle, maxHikingDifficulty, paddleEstimate, paddleSpeedInvalid,
-    plannedDurationMinutes, portageSpeedKmh, routeAnalysis, runPaceSecondsPerKm, runProfile, speedKmh, stays, tourType, waterContext, website,
-    winterActivity])
+    plannedDurationMinutes, portageSpeedKmh, routeAnalysis, runPaceSecondsPerKm, runProfile, speedKmh, stageCount, stays, tourType, waterContext,
+    website, winterActivity])
   // CW-02: a city walk's times as the overview says them, from the same derivation as its planned total.
   const { websiteInvalid, plannedDurationInvalid, breakAdditionalInvalid, paddleIncomplete, walkingDurationMinutes,
     plannedTotalMinutes, plannedTotalInvalid, savedDurationSeconds, savedBreakAdditionalMinutes, typeFields, stationStays,
@@ -794,21 +814,20 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   }, [interruptRouting])
 
   // P2A-03/P2A-05/PAD-11: shaping points, a leg planned afresh, drawn legs handed back to the router.
-  const mayEditRoute = useCallback(() => editPermissionRef.current && !saveInFlightRef.current, [])
   const shaping = useRouteShaping({
-    commit: commitWaypoints, waypointsRef, retry, mayEdit: mayEditRoute,
+    commit: commitWaypoints, waypointsRef, retry, mayEdit: mayEditPoints,
     isPaddle: useCallback(() => tourTypeRef.current === 'kayak', []),
     forgetLeg: useCallback((from: TourPlannerWaypoint, to: TourPlannerWaypoint) =>
       paddleRouteRepo.forget(tripId, from, to, { boat: paddleBoat ?? 'kayak', lakeStyle: paddleLakeStyle }), [paddleBoat, paddleLakeStyle, tripId]),
   })
   // RTE-02: other ways for one routed section of a hike, compared and taken on purpose.
   const legVariants = useLegVariants({
-    waypoints, route, enrichedGeometry, routeCurrent, tourType, maxHikingDifficulty, hikingPreferences, undo, mayEdit: mayEditRoute,
+    waypoints, route, enrichedGeometry, routeCurrent, tourType, maxHikingDifficulty, hikingPreferences, undo, mayEdit: mayEditPoints,
     insertShapingPoints: shaping.insertShapingPoints,
   })
   // RTE-03: round hikes of about a wished length out of a stop, put in place of the plan on purpose.
   const roundHikes = useRoundHikes({
-    waypoints, tourType, maxHikingDifficulty, hikingPreferences, replaceWaypoints: commitWaypoints, undo, mayEdit: mayEditRoute,
+    waypoints, tourType, maxHikingDifficulty, hikingPreferences, replaceWaypoints: commitWaypoints, undo, mayEdit: mayEditPoints,
   })
 
   const readOnlyGpxAnalysis = useMemo(
@@ -941,7 +960,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     waypoints, selectedWaypointId, setSelectedWaypointId,
     addWaypoint, appendFixedLeg, setWaypointPosition, removeWaypoint, moveWaypoint, reorderWaypoint, editWaypoints: commitWaypoints,
     reverse, returnToStart, isLoop: isClosedLoop(waypoints), toggleWaypointFreeLeg, editPaddlePoints, amendWaypoints, paddleEstimate,
-    ...shaping, legVariants, roundHikes, paddleRoute, routeCurrent,
+    ...shaping, legVariants, roundHikes, paddleRoute, routeCurrent, stages,
     undo, redo, canUndo: history.canUndo, canRedo: history.canRedo,
     status, error, retry, isSaving,
     route, routeParts, enrichedGeometry, routeAnalysis, distanceMeters, durationSeconds, unreachable,

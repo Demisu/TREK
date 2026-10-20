@@ -1251,5 +1251,27 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': 'Turen kunde inte ändras',
   'tours.stats.unavailable': 'Genomförda turer kunde inte laddas',
   'tours.stats.openTrip': 'Öppna resan',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': 'Dagar',
+  'tours.stages.mode.single': 'Dagstur',
+  'tours.stages.mode.multi': 'Flerdagarstur',
+  'tours.stages.emptyHint': 'Välj ”Avsluta etappen här” i menyn för ett stopp för att dela upp rutten.',
+  'tours.stages.endHere': 'Avsluta etappen här',
+  'tours.stages.removeEnd': 'Ta bort etappslut',
+  'tours.stages.stage': 'Etapp {number}',
+  'tours.stages.endOf': 'Slutet på etapp {number}',
+  'tours.stages.title': 'Etapper',
+  'tours.stages.count': '{count} etapper',
+  'tours.stages.count.one': '{count} etapp',
+  'tours.stages.overDay': 'Mer än en dag i rörelse',
+  'tours.stages.timeInfo':
+    'Rörelsetid per etapp, utan pauser. För cykelturer och stadspromenader fördelas ruttplanerarens tid efter sträcka.',
+  'tours.stages.lost': '{count} etappslut försvann med sina stopp; de etapperna är nu sammanslagna.',
+  'tours.stages.lost.one': '{count} etappslut försvann med sitt stopp; dess två etapper är nu sammanslagna.',
+  'tours.stages.toDayTitle': 'Göra det till en dagstur?',
+  'tours.stages.toDayBody': 'De {count} etappsluten tas bort. Rutten förblir som den är, och Ångra tar tillbaka dem.',
+  'tours.stages.toDayBody.one': '{count} etappslut tas bort. Rutten förblir som den är, och Ångra tar tillbaka det.',
+  'tours.stages.toDayConfirm': 'Ta bort etappsluten',
+  'tours.stages.show': 'Visa var etappen slutar',
 };
 export default tours;

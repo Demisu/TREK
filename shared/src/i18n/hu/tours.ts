@@ -1277,5 +1277,28 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': 'A túrát nem sikerült módosítani',
   'tours.stats.unavailable': 'A teljesített túrákat nem sikerült betölteni',
   'tours.stats.openTrip': 'Utazás megnyitása',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': 'Napok',
+  'tours.stages.mode.single': 'Egynapos',
+  'tours.stages.mode.multi': 'Többnapos',
+  'tours.stages.emptyHint': 'Az útvonal felosztásához egy megálló menüjében válaszd a „Szakasz vége itt” lehetőséget.',
+  'tours.stages.endHere': 'Szakasz vége itt',
+  'tours.stages.removeEnd': 'Szakaszvég eltávolítása',
+  'tours.stages.stage': '{number}. szakasz',
+  'tours.stages.endOf': 'A(z) {number}. szakasz vége',
+  'tours.stages.title': 'Szakaszok',
+  'tours.stages.count': '{count} szakasz',
+  'tours.stages.count.one': '{count} szakasz',
+  'tours.stages.overDay': 'Több mint egy nap mozgásban',
+  'tours.stages.timeInfo':
+    'Mozgási idő szakaszonként, szünetek nélkül. Kerékpártúráknál és városi sétáknál az útvonaltervező idejét táv szerint osztjuk el.',
+  'tours.stages.lost': '{count} szakaszvég eltűnt a megállóival; ezek a szakaszok most össze vannak vonva.',
+  'tours.stages.lost.one': '{count} szakaszvég eltűnt a megállójával; a két szakasza most össze van vonva.',
+  'tours.stages.toDayTitle': 'Legyen egynapos túra?',
+  'tours.stages.toDayBody':
+    '{count} szakaszvég törlődik. Az útvonal változatlan marad, a Visszavonás visszahozza őket.',
+  'tours.stages.toDayBody.one': '{count} szakaszvég törlődik. Az útvonal változatlan marad, a Visszavonás visszahozza.',
+  'tours.stages.toDayConfirm': 'Szakaszvégek eltávolítása',
+  'tours.stages.show': 'Mutasd, hol ér véget a szakasz',
 };
 export default tours;

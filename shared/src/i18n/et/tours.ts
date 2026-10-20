@@ -1256,5 +1256,27 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': 'Retke ei saanud muuta',
   'tours.stats.unavailable': 'Tehtud retki ei saanud laadida',
   'tours.stats.openTrip': 'Ava reis',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': 'Päevad',
+  'tours.stages.mode.single': 'Ühepäevane',
+  'tours.stages.mode.multi': 'Mitmepäevane',
+  'tours.stages.emptyHint': 'Marsruudi jagamiseks vali peatuse menüüst „Lõpeta etapp siin“.',
+  'tours.stages.endHere': 'Lõpeta etapp siin',
+  'tours.stages.removeEnd': 'Eemalda etapi lõpp',
+  'tours.stages.stage': 'Etapp {number}',
+  'tours.stages.endOf': 'Etapi {number} lõpp',
+  'tours.stages.title': 'Etapid',
+  'tours.stages.count': '{count} etappi',
+  'tours.stages.count.one': '{count} etapp',
+  'tours.stages.overDay': 'Üle päeva liikumises',
+  'tours.stages.timeInfo':
+    'Liikumisaeg etapi kohta, pausideta. Rattamatkadel ja linnajalutuskäikudel jagatakse teekonnaplaneerija aeg vahemaa järgi.',
+  'tours.stages.lost': '{count} etapi lõppu kadus koos peatustega; need etapid on nüüd ühendatud.',
+  'tours.stages.lost.one': '{count} etapi lõpp kadus koos peatusega; selle kaks etappi on nüüd ühendatud.',
+  'tours.stages.toDayTitle': 'Teha sellest ühepäevane matk?',
+  'tours.stages.toDayBody': '{count} etapi lõppu eemaldatakse. Marsruut jääb samaks ja Võta tagasi taastab need.',
+  'tours.stages.toDayBody.one': '{count} etapi lõpp eemaldatakse. Marsruut jääb samaks ja Võta tagasi taastab selle.',
+  'tours.stages.toDayConfirm': 'Eemalda etapi lõpud',
+  'tours.stages.show': 'Näita, kus see etapp lõpeb',
 };
 export default tours;

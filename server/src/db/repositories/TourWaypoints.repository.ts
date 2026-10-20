@@ -33,6 +33,8 @@ export interface TourWaypointRow {
   opening_hours?: string | null;
   /** PLN-03: the kind of place the point was taken in from along the tour; absent on a point set by hand. */
   poi_category?: TourPoiCategory | null;
+  /** MDT-01: a stop where a stage of a multi-day tour ends; absent where the route goes on. */
+  stage_end?: boolean;
 }
 
 /** The row as stored, the fixed leg still JSON text. */
@@ -52,6 +54,7 @@ interface StoredWaypoint {
   protected: number;
   opening_hours: string | null;
   poi_category: string | null;
+  stage_end: number;
 }
 
 /** The columns a waypoint is read with, as the stored row names them. */
@@ -71,6 +74,7 @@ const WAYPOINT_COLUMNS = [
   'protected',
   'opening_hours',
   'poi_category',
+  'stage_end',
 ] as const;
 
 /** A stored kind the contract knows; one it does not (dropped since) reads as none. */
@@ -100,6 +104,7 @@ function readWaypoint(row: StoredWaypoint): TourWaypointRow {
     ...(row.protected ? { protected: true } : {}),
     ...(opening_hours ? { opening_hours } : {}),
     ...(poi_category ? { poi_category } : {}),
+    ...(row.stage_end ? { stage_end: true } : {}),
   };
 }
 
@@ -196,6 +201,7 @@ export class TourWaypointsRepository extends TrekRepository<TourWaypoints> {
         protected: w.protected ? 1 : 0,
         opening_hours: w.opening_hours ?? null,
         poi_category: w.poi_category ?? null,
+        stage_end: w.stage_end ? 1 : 0,
       })),
     );
   }

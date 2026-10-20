@@ -337,6 +337,32 @@ describe('ToursMcp', () => {
     ]);
   });
 
+  it('TOURS-MCP-015: list_tours counts the stages of a multi-day tour and get_tour_plan marks where each ends (MDT-01)', async () => {
+    const { user, trip, ridge, gorge } = fixture();
+    const orm = await createTestOrm(db);
+    await addTourWaypoints(orm, ridge.id, [
+      { lat: 47, lng: 11 },
+      { lat: 47.05, lng: 11.05, stage_end: 1 },
+      { lat: 47.1, lng: 11.1, stage_end: 1 },
+      { lat: 47.15, lng: 11.15 },
+    ]);
+    await orm.close();
+
+    const { tours } = read(await mcp.listTours({ tripId: trip.id }, ctx(user.id)));
+    const stages = new Map(
+      tours.map((tour: { place_id: number; stage_count: number | null }) => [tour.place_id, tour.stage_count]),
+    );
+    expect(stages.get(ridge.id)).toBe(3);
+    expect(stages.get(gorge.id)).toBeNull();
+    const plan = read(await mcp.getTourPlan({ tripId: trip.id, placeId: ridge.id }, ctx(user.id)));
+    expect(plan.waypoints.map((point: { stage_end?: boolean }) => point.stage_end === true)).toEqual([
+      false,
+      true,
+      true,
+      false,
+    ]);
+  });
+
   it('TOURS-MCP-014: the tools name the station fields, and the deletes ask before a walk takes its protected stations along', () => {
     const description = (ctor: unknown, method: string) => {
       const entry = getEntry(ctor as ClassRef, method);
@@ -344,6 +370,8 @@ describe('ToursMcp', () => {
       return entry.options.description ?? '';
     };
     expect(description(ToursMcp, 'listTours')).toMatch(/station_count.*route_pending/);
+    expect(description(ToursMcp, 'listTours')).toContain('stage_count');
+    expect(description(ToursMcp, 'getTourPlan')).toContain('stage_end');
     const planFields = ['key', 'stay_minutes', 'importance', 'protected', 'opening_hours', 'visit_status', 'derived'];
     for (const field of planFields) {
       expect(description(ToursMcp, 'getTourPlan')).toContain(field);

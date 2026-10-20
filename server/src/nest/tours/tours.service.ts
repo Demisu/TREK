@@ -43,7 +43,8 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   hikingPreferencesOf,
-  MAX_PLANNED_TOUR_DURATION_MINUTES,
+  maxTourMinutesFor,
+  plannedTimeLimitMessage,
   plannedTourDurationMinutesSchema,
   tourWebsiteSchema,
   type BikeProfile,
@@ -64,6 +65,8 @@ import {
   type TourProvenance,
   type TourProvenanceSource,
   type TourWaypoint,
+  tourStageCountOf,
+  tourStageIssues,
   type WandererDifficulty,
   type WinterActivity,
   walkStationFacts,
@@ -219,6 +222,8 @@ export class ToursService {
       track_started_at: utcSuffix(r.track_started_at),
       track_ended_at: utcSuffix(r.track_ended_at),
       ...activityFacts(r.place_id, activities),
+      // MDT-01: a multi-day tour's stages, one more than the stops that end one.
+      stage_count: r.stage_ends > 0 ? r.stage_ends + 1 : null,
     };
   }
 
@@ -286,14 +291,25 @@ export class ToursService {
         throw badRequest('planned Tour times must be whole minutes from 0 to 1440');
       }
     }
+    // MDT-01: a multi-day tour is held to a day a stage, a day tour to one day.
+    const stages = tourStageCountOf(input.waypoints);
     if (
       input.planned_duration_minutes == null &&
       input.duration_seconds != null &&
-      Math.round(input.duration_seconds / 60) + (input.break_additional_minutes ?? 0) >
-        MAX_PLANNED_TOUR_DURATION_MINUTES
+      Math.round(input.duration_seconds / 60) + (input.break_additional_minutes ?? 0) > maxTourMinutesFor(stages)
     ) {
-      throw badRequest('walking time plus breaks must be 1440 minutes or less unless a total is overridden');
+      throw badRequest(plannedTimeLimitMessage(stages));
     }
+  }
+
+  /**
+   * MDT-01: the stage ends sit at stops between start and end, as the contract
+   * holds a request to; checked here too for a write that did not come through
+   * it (an assistant's city walk), so no surface can store one out of place.
+   */
+  private validateStageEnds(input: TourCreateCommand): void {
+    const [issue] = tourStageIssues(input.waypoints);
+    if (issue) throw badRequest(issue.message);
   }
 
   /** All tours (the facet + owning place) for a trip, newest first; a paddle tour with its check bench (PAD-09). */
@@ -425,6 +441,7 @@ export class ToursService {
     const tid = toRowId(tripId)!;
     await this.assertTourTypeEnabled(input.tour_type);
     this.validateInformationalMetadata(input);
+    this.validateStageEnds(input);
     this.validatePlannedTimes(input);
     const start = input.route_geometry ? input.route_geometry[0] : firstPointOf(input.waypoints);
     if (!start || (input.route_geometry === null && input.waypoints.length < 2)) {
@@ -755,6 +772,7 @@ export class ToursService {
   async routeWrite(input: TourCreateCommand): Promise<TourRouteWrite> {
     await this.assertTourTypeEnabled(input.tour_type);
     this.validateInformationalMetadata(input);
+    this.validateStageEnds(input);
     this.validatePlannedTimes(input);
     const start = input.route_geometry ? input.route_geometry[0] : firstPointOf(input.waypoints);
     if (!start) throw badRequest('A tour needs at least two points');

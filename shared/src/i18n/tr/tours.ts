@@ -1258,5 +1258,27 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': 'Tur değiştirilemedi',
   'tours.stats.unavailable': 'Tamamlanan turlar yüklenemedi',
   'tours.stats.openTrip': 'Seyahati aç',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': 'Günler',
+  'tours.stages.mode.single': 'Günübirlik',
+  'tours.stages.mode.multi': 'Çok günlü',
+  'tours.stages.emptyHint': 'Rotayı bölmek için bir durağın menüsünde "Etabı burada bitir" seçeneğini seçin.',
+  'tours.stages.endHere': 'Etabı burada bitir',
+  'tours.stages.removeEnd': 'Etap sonunu kaldır',
+  'tours.stages.stage': 'Etap {number}',
+  'tours.stages.endOf': 'Etap {number} sonu',
+  'tours.stages.title': 'Etaplar',
+  'tours.stages.count': '{count} etap',
+  'tours.stages.count.one': '{count} etap',
+  'tours.stages.overDay': 'Bir günden fazla hareket',
+  'tours.stages.timeInfo':
+    'Etap başına hareket süresi, molalar hariç. Bisiklet turlarında ve şehir yürüyüşlerinde rota planlayıcısının süresi mesafeye göre bölünür.',
+  'tours.stages.lost': '{count} etap sonu durakları ile birlikte kayboldu; bu etaplar artık birleşik.',
+  'tours.stages.lost.one': '{count} etap sonu durağı ile birlikte kayboldu; iki etabı artık birleşik.',
+  'tours.stages.toDayTitle': 'Günübirlik tura çevrilsin mi?',
+  'tours.stages.toDayBody': '{count} etap sonu kaldırılır. Rota olduğu gibi kalır, Geri al bunları geri getirir.',
+  'tours.stages.toDayBody.one': '{count} etap sonu kaldırılır. Rota olduğu gibi kalır, Geri al onu geri getirir.',
+  'tours.stages.toDayConfirm': 'Etap sonlarını kaldır',
+  'tours.stages.show': 'Bu etabın bittiği yeri göster',
 };
 export default tours;

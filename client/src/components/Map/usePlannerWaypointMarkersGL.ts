@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef } from 'react';
 
 import { bindPinHoverLabel, mapHoverLabel } from './mapHoverLabel';
 import type { MapViewProps } from './mapViewContract';
-import { plannerPinShape } from './plannerPinShape';
+import { plannerPinBadge, plannerPinShape } from './plannerPinShape';
 import { wirePlannerWaypointDrag } from './plannerWaypointDrag';
 
 /** The slice of the GL map the waypoint pins need: its box and screen-to-ground lookup. */
@@ -79,6 +79,9 @@ export function usePlannerWaypointMarkersGL<Pin extends PlannerWaypointPin>({
       const name = point.name ?? `Waypoint ${index + 1}`;
       el.setAttribute('aria-label', name);
       el.style.cssText = `${pinCss(size, selected)};cursor:pointer;padding:0`;
+      // MDT-01: the moon where a stage ends; the pin is positioned, so the badge sits at its corner.
+      const badge = plannerPinBadge(point);
+      if (badge) el.insertAdjacentHTML('beforeend', badge);
       const swallow = (event: Event) => event.stopPropagation();
       const select = (event: Event) => {
         event.stopPropagation();

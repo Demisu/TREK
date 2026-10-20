@@ -1247,5 +1247,24 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': 'Không thể thay đổi chuyến',
   'tours.stats.unavailable': 'Không thể tải các chuyến đã đi',
   'tours.stats.openTrip': 'Mở chuyến đi',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': 'Số ngày',
+  'tours.stages.mode.single': 'Một ngày',
+  'tours.stages.mode.multi': 'Nhiều ngày',
+  'tours.stages.emptyHint': 'Để chia tuyến, mở menu của một điểm dừng và chọn "Kết thúc chặng tại đây".',
+  'tours.stages.endHere': 'Kết thúc chặng tại đây',
+  'tours.stages.removeEnd': 'Bỏ điểm cuối chặng',
+  'tours.stages.stage': 'Chặng {number}',
+  'tours.stages.endOf': 'Cuối chặng {number}',
+  'tours.stages.title': 'Các chặng',
+  'tours.stages.count': '{count} chặng',
+  'tours.stages.overDay': 'Di chuyển hơn một ngày',
+  'tours.stages.timeInfo':
+    'Thời gian di chuyển của từng chặng, không tính nghỉ. Với tour xe đạp và dạo phố, thời gian của bộ định tuyến được chia theo quãng đường.',
+  'tours.stages.lost': '{count} điểm cuối chặng đã mất cùng điểm dừng; các chặng đó giờ được gộp lại.',
+  'tours.stages.toDayTitle': 'Chuyển thành tour một ngày?',
+  'tours.stages.toDayBody': 'Bỏ {count} điểm cuối chặng. Tuyến đường giữ nguyên, và Hoàn tác sẽ khôi phục chúng.',
+  'tours.stages.toDayConfirm': 'Bỏ các điểm cuối chặng',
+  'tours.stages.show': 'Hiện nơi chặng này kết thúc',
 };
 export default tours;

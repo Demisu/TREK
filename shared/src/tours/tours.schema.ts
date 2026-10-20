@@ -11,19 +11,21 @@ import { skiDisciplineSchema, skiTechniqueSchema } from './ski.schema';
 import { tourActivityRefSchema, tourActivitySchema } from './tour-activity.schema';
 import { tourPoiCategorySchema } from './tour-poi-category';
 import { tourOriginSchema, tourProvenanceSchema } from './tour-provenance.schema';
+import { maxTourMinutesFor, TOUR_DAY_MINUTES, tourStageCountOf, tourStageIssues } from './tour-stages';
 
 import { z } from 'zod';
 
 /**
  * Tours contracts — the generalisation of "hike" into a domain of self-contained,
- * single-day, non-motorized activities that follow a track (hike, bike, run, ski,
- * kayak, city walk, food tour, ...). Tour types use a controlled key list.
+ * non-motorized activities that follow a track (hike, bike, run, ski, kayak,
+ * city walk, food tour, ...), a day each or (MDT-01) one route split into
+ * stages over several days. Tour types use a controlled key list.
  *
  * Isolated bounded context:
  * no columns on `places`/`days`/`users`. A tour is a Place (route_geometry reused
  * as-is) plus a day_assignments row (reused as-is, `assignPlaceToDay`) plus this
- * facet table keyed by place_id. Boundary vs. Road-Trip: Tours = non-motorized +
- * single-day, Road-Trip = motorized + multi-day.
+ * facet table keyed by place_id. Boundary vs. Road-Trip: Tours = non-motorized,
+ * Road-Trip = motorized.
  */
 
 export const tourTypeKeySchema = z.enum(['hike', 'bike', 'run', 'ski', 'kayak', 'walk', 'food', 'horse']);
@@ -136,8 +138,8 @@ export function hikingPreferencesOf(value: HikingPreferences | null | undefined)
   return kept.length === 0 ? null : Object.fromEntries(kept.map((key) => [key, true]));
 }
 
-/** Tours are single-day activities, so a planned total is bounded to 24 hours. */
-export const MAX_PLANNED_TOUR_DURATION_MINUTES = 24 * 60;
+/** A planned total is bounded to a day; a multi-day tour's moving time to a day a stage (MDT-01). */
+export const MAX_PLANNED_TOUR_DURATION_MINUTES = TOUR_DAY_MINUTES;
 export const plannedTourDurationMinutesSchema = z
   .number()
   .int()
@@ -305,6 +307,11 @@ export const tourListItemSchema = tourSchema.extend({
   activity_tracks: z.array(tourActivityRefSchema).optional(),
   /** ACT-01: the tour this recording documents, when it is assigned to one; null otherwise. */
   activity_of: z.number().int().positive().nullable().optional(),
+  /**
+   * MDT-01: the stages a multi-day tour's stops split it into; null for a day
+   * tour. Absent in a list cached before it existed.
+   */
+  stage_count: z.number().int().min(2).nullable().optional(),
 });
 export type TourListItem = z.infer<typeof tourListItemSchema>;
 
@@ -448,6 +455,11 @@ export const tourWaypointSchema = z.object({
    * map drew the place. Null on a point set by hand.
    */
   poi_category: tourPoiCategorySchema.nullable().optional(),
+  /**
+   * MDT-01: a stop where a stage of a multi-day tour ends and the next one
+   * begins. Absent means the route goes on, as on every point saved before.
+   */
+  stage_end: z.boolean().optional(),
 });
 export type TourWaypoint = z.infer<typeof tourWaypointSchema>;
 
@@ -511,15 +523,17 @@ export const tourCreateRequestSchema = z
       value.planned_duration_minutes == null &&
       value.duration_seconds != null &&
       value.break_additional_minutes != null &&
-      Math.round(value.duration_seconds / 60) + value.break_additional_minutes > MAX_PLANNED_TOUR_DURATION_MINUTES
+      Math.round(value.duration_seconds / 60) + value.break_additional_minutes >
+        maxTourMinutesFor(tourStageCountOf(value.waypoints))
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['break_additional_minutes'],
-        message: 'walking time plus breaks must be 1440 minutes or less unless a total is overridden',
+        message: plannedTimeLimitMessage(tourStageCountOf(value.waypoints)),
       });
     }
     tourTypeIssues(value).forEach((issue) => ctx.addIssue({ code: z.ZodIssueCode.custom, ...issue }));
+    tourStageIssues(value.waypoints).forEach((issue) => ctx.addIssue({ code: z.ZodIssueCode.custom, ...issue }));
     value.waypoints.forEach((point, index) => {
       const leg = point.fixed_leg;
       const next = value.waypoints[index + 1];
@@ -571,6 +585,16 @@ const TYPE_NAMED: Record<PlannableTourType, string> = {
   hike: 'a hike',
   horse: 'a horse tour',
 };
+
+/**
+ * What a save over its time limit is told: a day for a day tour, as it always
+ * was, and a day a stage for a multi-day tour (MDT-01).
+ */
+export function plannedTimeLimitMessage(stageCount: number): string {
+  return stageCount > 1
+    ? `walking time plus breaks must be ${maxTourMinutesFor(stageCount)} minutes or less, a day a stage, unless a total is overridden`
+    : 'walking time plus breaks must be 1440 minutes or less unless a total is overridden';
+}
 
 const PADDLE_FIELDS = [
   'boat_type',

@@ -67,6 +67,16 @@ export function hikePlannerDefaults() {
     editWaypoints: vi.fn(),
     // CW-07: a draft planned in TREK, not read from a Google Maps walk.
     draftSource: null,
+    // MDT-01: a day tour, no stage set and none that may be.
+    stages: {
+      multiDay: false,
+      stages: [],
+      endCount: 0,
+      lost: 0,
+      setMultiDay: vi.fn(),
+      toggleStageEnd: vi.fn(),
+      canEnd: vi.fn(() => false),
+    },
     // P2C-03: a tour opened at its first revision, with nothing known about others.
     revision: {
       base: null,

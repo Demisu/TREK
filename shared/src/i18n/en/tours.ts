@@ -1247,5 +1247,27 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': 'The tour could not be changed',
   'tours.stats.unavailable': 'Tour activities could not be loaded',
   'tours.stats.openTrip': 'Open trip',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': 'Days',
+  'tours.stages.mode.single': 'Day tour',
+  'tours.stages.mode.multi': 'Multi-day tour',
+  'tours.stages.emptyHint': 'In the menu of a stop, choose End stage here to split the route.',
+  'tours.stages.endHere': 'End stage here',
+  'tours.stages.removeEnd': 'Remove stage end',
+  'tours.stages.stage': 'Stage {number}',
+  'tours.stages.endOf': 'End of stage {number}',
+  'tours.stages.title': 'Stages',
+  'tours.stages.count': '{count} stages',
+  'tours.stages.count.one': '{count} stage',
+  'tours.stages.overDay': 'More than a day on the move',
+  'tours.stages.timeInfo':
+    'Moving time of each stage, breaks not included. Bike tours and city walks share the router time by distance.',
+  'tours.stages.lost': '{count} stage ends were dropped with their stops; those stages are joined now.',
+  'tours.stages.lost.one': '{count} stage end was dropped with its stop; its two stages are joined now.',
+  'tours.stages.toDayTitle': 'Make it a day tour?',
+  'tours.stages.toDayBody': 'The {count} stage ends are removed. The route stays as it is, and undo brings them back.',
+  'tours.stages.toDayBody.one': '{count} stage end is removed. The route stays as it is, and undo brings it back.',
+  'tours.stages.toDayConfirm': 'Remove stage ends',
+  'tours.stages.show': 'Show where this stage ends',
 };
 export default tours;

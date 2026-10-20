@@ -1203,5 +1203,24 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': 'เปลี่ยนทัวร์ไม่ได้',
   'tours.stats.unavailable': 'โหลดทัวร์ที่ทำแล้วไม่ได้',
   'tours.stats.openTrip': 'เปิดทริป',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': 'จำนวนวัน',
+  'tours.stages.mode.single': 'วันเดียว',
+  'tours.stages.mode.multi': 'หลายวัน',
+  'tours.stages.emptyHint': 'หากต้องการแบ่งเส้นทาง ให้เปิดเมนูของจุดแวะแล้วเลือก "จบช่วงที่นี่"',
+  'tours.stages.endHere': 'จบช่วงที่นี่',
+  'tours.stages.removeEnd': 'นำจุดจบช่วงออก',
+  'tours.stages.stage': 'ช่วงที่ {number}',
+  'tours.stages.endOf': 'จุดจบของช่วงที่ {number}',
+  'tours.stages.title': 'ช่วงการเดินทาง',
+  'tours.stages.count': '{count} ช่วง',
+  'tours.stages.overDay': 'เคลื่อนที่นานกว่าหนึ่งวัน',
+  'tours.stages.timeInfo':
+    'เวลาเคลื่อนที่ของแต่ละช่วง ไม่รวมเวลาพัก สำหรับทริปจักรยานและการเดินในเมือง เวลาของตัววางเส้นทางจะแบ่งตามระยะทาง',
+  'tours.stages.lost': 'จุดจบช่วง {count} จุดหายไปพร้อมจุดแวะ ช่วงเหล่านั้นจึงถูกรวมกันแล้ว',
+  'tours.stages.toDayTitle': 'เปลี่ยนเป็นทริปวันเดียวไหม',
+  'tours.stages.toDayBody': 'จะนำจุดจบช่วง {count} จุดออก เส้นทางยังคงเหมือนเดิม และเลิกทำจะนำกลับมาได้',
+  'tours.stages.toDayConfirm': 'นำจุดจบช่วงทั้งหมดออก',
+  'tours.stages.show': 'แสดงตำแหน่งที่ช่วงนี้จบ',
 };
 export default tours;

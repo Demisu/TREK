@@ -1222,5 +1222,23 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': 'ツアーを変更できませんでした',
   'tours.stats.unavailable': 'ツアー実績を読み込めませんでした',
   'tours.stats.openTrip': '旅行を開く',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': '日数',
+  'tours.stages.mode.single': '日帰り',
+  'tours.stages.mode.multi': '複数日',
+  'tours.stages.emptyHint': 'ルートを分けるには、立ち寄り地点のメニューで「ここでステージを終える」を選びます。',
+  'tours.stages.endHere': 'ここでステージを終える',
+  'tours.stages.removeEnd': 'ステージの終点を外す',
+  'tours.stages.stage': 'ステージ {number}',
+  'tours.stages.endOf': 'ステージ {number} の終点',
+  'tours.stages.title': 'ステージ',
+  'tours.stages.count': '{count} ステージ',
+  'tours.stages.overDay': '移動だけで1日を超えます',
+  'tours.stages.timeInfo': 'ステージごとの移動時間で、休憩は含みません。自転車ツアーと街歩きでは、ルート計算の時間を距離で按分します。',
+  'tours.stages.lost': '{count} 件のステージ終点が地点とともに消えたため、それらのステージは結合されました。',
+  'tours.stages.toDayTitle': '日帰りツアーにしますか？',
+  'tours.stages.toDayBody': '{count} 件のステージ終点を外します。ルートはそのままで、元に戻すで復元できます。',
+  'tours.stages.toDayConfirm': 'ステージの終点をすべて外す',
+  'tours.stages.show': 'このステージの終点を表示',
 };
 export default tours;

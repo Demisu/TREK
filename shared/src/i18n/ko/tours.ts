@@ -1220,5 +1220,23 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': '투어를 변경할 수 없습니다',
   'tours.stats.unavailable': '투어 기록을 불러올 수 없습니다',
   'tours.stats.openTrip': '여행 열기',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': '일수',
+  'tours.stages.mode.single': '당일',
+  'tours.stages.mode.multi': '여러 날',
+  'tours.stages.emptyHint': '경로를 나누려면 정류 지점 메뉴에서 "여기서 구간 종료"를 선택하세요.',
+  'tours.stages.endHere': '여기서 구간 종료',
+  'tours.stages.removeEnd': '구간 끝 제거',
+  'tours.stages.stage': '{number}구간',
+  'tours.stages.endOf': '{number}구간 끝',
+  'tours.stages.title': '구간',
+  'tours.stages.count': '{count}개 구간',
+  'tours.stages.overDay': '이동만 하루 이상',
+  'tours.stages.timeInfo': '구간별 이동 시간이며 휴식은 포함하지 않습니다. 자전거 투어와 도시 산책은 경로 계산 시간을 거리에 따라 나눕니다.',
+  'tours.stages.lost': '구간 끝 {count}개가 지점과 함께 사라져 해당 구간이 합쳐졌습니다.',
+  'tours.stages.toDayTitle': '당일 투어로 바꿀까요?',
+  'tours.stages.toDayBody': '구간 끝 {count}개를 제거합니다. 경로는 그대로이며 실행 취소로 되돌릴 수 있습니다.',
+  'tours.stages.toDayConfirm': '구간 끝 모두 제거',
+  'tours.stages.show': '이 구간이 끝나는 곳 보기',
 };
 export default tours;

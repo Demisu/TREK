@@ -1279,5 +1279,28 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': 'No s’ha pogut canviar l’excursió',
   'tours.stats.unavailable': 'No s’han pogut carregar les excursions fetes',
   'tours.stats.openTrip': 'Obre el viatge',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': 'Dies',
+  'tours.stages.mode.single': 'Un dia',
+  'tours.stages.mode.multi': 'Diversos dies',
+  'tours.stages.emptyHint': 'Al menú d’una parada, tria «Acaba l’etapa aquí» per dividir la ruta.',
+  'tours.stages.endHere': 'Acaba l’etapa aquí',
+  'tours.stages.removeEnd': 'Treu el final d’etapa',
+  'tours.stages.stage': 'Etapa {number}',
+  'tours.stages.endOf': 'Final de l’etapa {number}',
+  'tours.stages.title': 'Etapes',
+  'tours.stages.count': '{count} etapes',
+  'tours.stages.count.one': '{count} etapa',
+  'tours.stages.overDay': 'Més d’un dia en moviment',
+  'tours.stages.timeInfo':
+    'Temps en moviment per etapa, sense pauses. En bici i en passejades per la ciutat, el temps del planificador de rutes es reparteix per distància.',
+  'tours.stages.lost': '{count} finals d’etapa s’han perdut amb les seves parades; aquestes etapes ara estan unides.',
+  'tours.stages.lost.one':
+    '{count} final d’etapa s’ha perdut amb la seva parada; les seves dues etapes ara estan unides.',
+  'tours.stages.toDayTitle': 'Convertir-la en una ruta d’un dia?',
+  'tours.stages.toDayBody': 'Es treuen els {count} finals d’etapa. La ruta queda com està i Desfés els recupera.',
+  'tours.stages.toDayBody.one': 'Es treu {count} final d’etapa. La ruta queda com està i Desfés el recupera.',
+  'tours.stages.toDayConfirm': 'Treu els finals d’etapa',
+  'tours.stages.show': 'Mostra on acaba aquesta etapa',
 };
 export default tours;

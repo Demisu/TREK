@@ -1163,5 +1163,23 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': '無法變更遊程',
   'tours.stats.unavailable': '無法載入遊程紀錄',
   'tours.stats.openTrip': '開啟行程',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': '天數',
+  'tours.stages.mode.single': '一日遊',
+  'tours.stages.mode.multi': '多日',
+  'tours.stages.emptyHint': '要拆分路線，請在停留點的選單中選擇「在此結束階段」。',
+  'tours.stages.endHere': '在此結束階段',
+  'tours.stages.removeEnd': '移除階段終點',
+  'tours.stages.stage': '第 {number} 階段',
+  'tours.stages.endOf': '第 {number} 階段終點',
+  'tours.stages.title': '階段',
+  'tours.stages.count': '{count} 個階段',
+  'tours.stages.overDay': '移動時間超過一天',
+  'tours.stages.timeInfo': '每個階段的移動時間，不含休息。單車與城市散步依距離分攤路線規劃的時間。',
+  'tours.stages.lost': '{count} 個階段終點隨停留點一起消失，相關階段已合併。',
+  'tours.stages.toDayTitle': '改為一日遊？',
+  'tours.stages.toDayBody': '將移除 {count} 個階段終點。路線保持不變，復原可以還原。',
+  'tours.stages.toDayConfirm': '移除全部階段終點',
+  'tours.stages.show': '顯示此階段的終點',
 };
 export default tours;

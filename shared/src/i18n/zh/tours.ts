@@ -1164,5 +1164,23 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': '无法更改游览',
   'tours.stats.unavailable': '无法加载游览记录',
   'tours.stats.openTrip': '打开行程',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': '天数',
+  'tours.stages.mode.single': '一日游',
+  'tours.stages.mode.multi': '多日',
+  'tours.stages.emptyHint': '要拆分路线，请在停留点的菜单中选择“在此结束阶段”。',
+  'tours.stages.endHere': '在此结束阶段',
+  'tours.stages.removeEnd': '移除阶段终点',
+  'tours.stages.stage': '第 {number} 阶段',
+  'tours.stages.endOf': '第 {number} 阶段终点',
+  'tours.stages.title': '阶段',
+  'tours.stages.count': '{count} 个阶段',
+  'tours.stages.overDay': '移动时间超过一天',
+  'tours.stages.timeInfo': '每个阶段的移动时间，不含休息。骑行和城市漫步按距离分摊路线规划的时间。',
+  'tours.stages.lost': '{count} 个阶段终点随停留点一起消失，相关阶段已合并。',
+  'tours.stages.toDayTitle': '改为一日游？',
+  'tours.stages.toDayBody': '将移除 {count} 个阶段终点。路线保持不变，撤销可以恢复。',
+  'tours.stages.toDayConfirm': '移除全部阶段终点',
+  'tours.stages.show': '显示此阶段的终点',
 };
 export default tours;

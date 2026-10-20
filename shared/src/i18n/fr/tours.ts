@@ -1296,5 +1296,28 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': 'La sortie n’a pas pu être modifiée',
   'tours.stats.unavailable': 'Les sorties réalisées n’ont pas pu être chargées',
   'tours.stats.openTrip': 'Ouvrir le voyage',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': 'Jours',
+  'tours.stages.mode.single': 'Une journée',
+  'tours.stages.mode.multi': 'Plusieurs jours',
+  'tours.stages.emptyHint': 'Dans le menu d’un arrêt, choisissez « Terminer l’étape ici » pour découper l’itinéraire.',
+  'tours.stages.endHere': 'Terminer l’étape ici',
+  'tours.stages.removeEnd': 'Retirer la fin d’étape',
+  'tours.stages.stage': 'Étape {number}',
+  'tours.stages.endOf': 'Fin de l’étape {number}',
+  'tours.stages.title': 'Étapes',
+  'tours.stages.count': '{count} étapes',
+  'tours.stages.count.one': '{count} étape',
+  'tours.stages.overDay': 'Plus d’une journée en mouvement',
+  'tours.stages.timeInfo':
+    'Temps en mouvement par étape, pauses non comprises. Pour le vélo et les balades en ville, le temps du calculateur d’itinéraire est réparti selon la distance.',
+  'tours.stages.lost': '{count} fins d’étape ont disparu avec leurs arrêts ; ces étapes sont désormais réunies.',
+  'tours.stages.lost.one': '{count} fin d’étape a disparu avec son arrêt ; ses deux étapes sont désormais réunies.',
+  'tours.stages.toDayTitle': 'En faire une sortie d’une journée ?',
+  'tours.stages.toDayBody':
+    'Les {count} fins d’étape sont retirées. L’itinéraire reste tel quel, et Annuler les rétablit.',
+  'tours.stages.toDayBody.one': '{count} fin d’étape est retirée. L’itinéraire reste tel quel, et Annuler la rétablit.',
+  'tours.stages.toDayConfirm': 'Retirer les fins d’étape',
+  'tours.stages.show': 'Montrer où finit cette étape',
 };
 export default tours;

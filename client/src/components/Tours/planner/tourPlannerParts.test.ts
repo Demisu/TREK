@@ -224,6 +224,15 @@ describe('tourPlannerFacts', () => {
     ).toBe(true);
     expect(tourPlannerFacts(hike({ durationSeconds: 600 })).stationStays).toBeNull();
   });
+
+  it('MDT-01: a multi-day tour may take a day a stage on the move, a day tour one day', () => {
+    // 30 hours on the move: too long for a day, room enough for two stages.
+    const long = hike({ tourType: 'bike', durationSeconds: 30 * 3600 });
+    expect(tourPlannerFacts(long).plannedTotalInvalid).toBe(true);
+    expect(tourPlannerFacts({ ...long, stageCount: 2 }).plannedTotalInvalid).toBe(false);
+    const withBreaks = { ...long, stageCount: 2, breakAdditionalMinutes: 19 * 60 };
+    expect(tourPlannerFacts(withBreaks).plannedTotalInvalid).toBe(true);
+  });
 });
 
 describe('usePlannerHistory', () => {

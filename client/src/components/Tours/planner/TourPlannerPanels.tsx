@@ -31,6 +31,10 @@ import { SkiTrackCard } from '../ski/SkiTrackCard'
 import type { SkiClassification } from '../ski/useSkiClassification'
 import { TourTypeFields } from './TourTypeFields'
 import TourWaypointList from './TourWaypointList'
+import { TourStageLossNotice } from '../stages/TourStageLossNotice'
+import { TourStageModeField } from '../stages/TourStageModeField'
+import { TourStagesSection } from '../stages/TourStagesSection'
+import { stageBoundariesM } from '../stages/tourStages'
 import type { DistanceIndexedProfileSample, RouteProfileFocus } from '../../../utils/routeGeometry'
 import type { TourPlannerController, TourPlannerStatus } from './useTourPlanner'
 import { useTourPermissions, type TourPermissionProps } from '../useTourPermissions'
@@ -462,9 +466,13 @@ export function TourPlannerRail({ planner,
 
           <TourTypeFields planner={planner} locked={locked} />
 
+          <TourStageModeField planner={planner} locked={locked} />
+
           {recordedTrack?.available && <RecordedTrackCard recordedTrack={recordedTrack} disabled={isSaving} />}
 
           <UnreachableNotice planner={planner} />
+
+          <TourStageLossNotice planner={planner} />
 
           <TourWaypointList planner={planner} canEdit={canEdit} isSaving={isSaving} tourPlaceIds={tourPlaceIds} />
 
@@ -603,6 +611,7 @@ function ElevationSection({ id, samples, gradientId, planner }: {
           onFocusChange={planner.setRouteProfileFocus}
           formatFocus={focus => profileFocusLabel(focus, t, distanceUnit)}
           bands={crossings}
+          marks={stageBoundariesM(planner.stages.stages)}
         />}
       </div>
     </TourSection>
@@ -784,6 +793,7 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
               <div className="flex flex-col gap-3">
                 <FerrataCrossingBadges />
               <RailFacts facts={tourMetricFacts(routeAnalysis, distanceUnit, t, tourTimeFields)} />
+              <TourStagesSection planner={planner} />
             {routeAnalysis && !planner.isPaddle && (
               <ElevationSection
                 id="tour-planner-editable-elevation-profile"

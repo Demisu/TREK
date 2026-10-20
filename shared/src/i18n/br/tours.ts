@@ -1272,5 +1272,28 @@ const tours: TranslationStrings = {
   'tours.stats.excludeFailed': 'Não foi possível alterar o passeio',
   'tours.stats.unavailable': 'Não foi possível carregar os passeios realizados',
   'tours.stats.openTrip': 'Abrir viagem',
+  // MDT-01: a multi-day tour, one route split into stages.
+  'tours.stages.mode': 'Dias',
+  'tours.stages.mode.single': 'Um dia',
+  'tours.stages.mode.multi': 'Vários dias',
+  'tours.stages.emptyHint': 'No menu de uma parada, escolha “Encerrar etapa aqui” para dividir a rota.',
+  'tours.stages.endHere': 'Encerrar etapa aqui',
+  'tours.stages.removeEnd': 'Remover fim de etapa',
+  'tours.stages.stage': 'Etapa {number}',
+  'tours.stages.endOf': 'Fim da etapa {number}',
+  'tours.stages.title': 'Etapas',
+  'tours.stages.count': '{count} etapas',
+  'tours.stages.count.one': '{count} etapa',
+  'tours.stages.overDay': 'Mais de um dia em movimento',
+  'tours.stages.timeInfo':
+    'Tempo em movimento por etapa, sem pausas. Em passeios de bicicleta e caminhadas urbanas, o tempo do planejador de rotas é dividido pela distância.',
+  'tours.stages.lost': '{count} fins de etapa sumiram com suas paradas; essas etapas agora estão unidas.',
+  'tours.stages.lost.one': '{count} fim de etapa sumiu com sua parada; suas duas etapas agora estão unidas.',
+  'tours.stages.toDayTitle': 'Transformar em passeio de um dia?',
+  'tours.stages.toDayBody':
+    'Os {count} fins de etapa são removidos. A rota fica como está, e Desfazer os traz de volta.',
+  'tours.stages.toDayBody.one': '{count} fim de etapa é removido. A rota fica como está, e Desfazer o traz de volta.',
+  'tours.stages.toDayConfirm': 'Remover fins de etapa',
+  'tours.stages.show': 'Mostrar onde esta etapa termina',
 };
 export default tours;

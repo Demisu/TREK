@@ -24,6 +24,7 @@ export class TourWaypoints {
   protected: number & Opt = 0;
   opening_hours?: string | null;
   poi_category?: string | null;
+  stage_end: number & Opt = 0;
 }
 
 export const TourWaypointsImportance = {
@@ -51,6 +52,7 @@ export const TourWaypointsSchema = defineEntity({
       expression: 'stay_minutes IS NULL OR (stay_minutes >= 0 AND stay_minutes <= 1440)',
     },
     { name: 'tour_waypoints_shaping_check', expression: 'shaping IN (0, 1)' },
+    { name: 'tour_waypoints_stage_end_check', expression: 'stage_end IN (0, 1)' },
   ],
   properties: {
     id: p.integer().primary(),
@@ -72,5 +74,6 @@ export const TourWaypointsSchema = defineEntity({
     protected: p.integer().default(0),
     opening_hours: p.text().nullable(),
     poi_category: p.text().nullable(),
+    stage_end: p.integer().default(0),
   },
 });

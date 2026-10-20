@@ -39,6 +39,7 @@ import { PaddleRolePill } from '../paddle/PaddleWaypointParts';
 import { usePaddleRegionLoad } from '../paddle/usePaddleRegionLoad';
 import { usePaddleWaypointActions } from '../paddle/usePaddleWaypointActions';
 import { usePortageRouting } from '../paddle/usePortageRouting';
+import { StageDivider, StageEndCorner, stageMenuItems } from '../stages/StageParts';
 import { RailCard } from '../tourParts';
 import { StationScheduleRow } from '../walk/StationSchedule';
 import { usePlannerWalkSchedule } from '../walk/useWalkSchedule';
@@ -180,10 +181,11 @@ function numberNote(
   ferrata: TourWaypointFerrata | null,
   poiCategory: TourPoiCategory | null,
   station: StationMarks,
-  t: Translate
+  t: Translate,
+  stageNote?: string
 ): { note: string | null; poi: TourPoiCategory | null } {
   const marks = station ? stationMarkNote(station, t) : null;
-  const join = (first: string | null) => [first, marks].filter(Boolean).join(', ') || null;
+  const join = (first: string | null) => [first, marks, stageNote].filter(Boolean).join(', ') || null;
   if (ferrata) return { note: join(t('tours.ferrata.waypointAtEnd', { name: ferrata.name })), poi: null };
   if (poiCategory) return { note: join(t(TOUR_POI_LOOKS[poiCategory].labelKey)), poi: poiCategory };
   return { note: join(null), poi: null };
@@ -205,6 +207,8 @@ function WaypointNumber({
   station = null,
   loopEnd = false,
   shaping = false,
+  stageNote,
+  corner,
 }: {
   /** The stop's number; shaping points do not count, as on the map. */
   stop: number;
@@ -218,6 +222,10 @@ function WaypointNumber({
   loopEnd?: boolean;
   /** P2A-03: a shaping point, a small dot as on the map. */
   shaping?: boolean;
+  /** MDT-01: the stage of a multi-day tour that ends at this stop, said with the number. */
+  stageNote?: string;
+  /** MDT-01: a mark at the number's corner, the moon where a stage ends. */
+  corner?: ReactNode;
 }) {
   const { t } = useTranslation();
   if (shaping) {
@@ -245,7 +253,7 @@ function WaypointNumber({
     );
   }
   const label = t('tours.planner.waypointLabel', { n: stop });
-  const { note, poi } = numberNote(ferrata, poiCategory, station, t);
+  const { note, poi } = numberNote(ferrata, poiCategory, station, t, stageNote);
   const number = (
     <span
       aria-label={[label, note].filter(Boolean).join(', ')}
@@ -258,6 +266,7 @@ function WaypointNumber({
       {ferrata && <FerrataGlyph size={22} className="absolute -bottom-2.5 -start-2.5" />}
       {poi && <PoiCornerIcon category={poi} />}
       {station?.protected && <StationShield />}
+      {corner}
     </span>
   );
   if (!ferrata) return note ? <Tooltip label={note}>{number}</Tooltip> : number;
@@ -494,6 +503,7 @@ function WaypointRowActions({
     },
     ...routeMenuItems(planner, point, index, lastIndex, t),
     ...roundMenuItems(planner, point, t),
+    ...stageMenuItems(planner.stages, point, t),
     ...(planner.isPaddle ? paddleMenuItems(paddle, point, index < lastIndex, t) : []),
     ...(onUnlink
       ? [{ divider: true } as const, { label: t('tours.placePicker.unlink'), icon: Unlink, onClick: onUnlink }]
@@ -702,6 +712,15 @@ export default function TourWaypointList({
   // PAD-11C: where a leg lacks the water data of its region, TREK fetches it and plans the leg again.
   const regionLoad = usePaddleRegionLoad(routedLegs?.failures, planner.retry);
   const stopNumbers = stopNumbersOf(planner.waypoints);
+  // MDT-01: a multi-day tour's stages, each headed where it begins; the stop that ends one carries its number.
+  const stageStarts = new Map(planner.stages.stages.map((stage) => [stage.from, stage]));
+  const stageEnds = new Map(planner.stages.stages.slice(0, -1).map((stage) => [stage.toId, stage.number]));
+  const stageHead = (index: number) => {
+    const stage = stageStarts.get(index);
+    return stage ? <StageDivider stage={stage} /> : null;
+  };
+  const stageMarkOf = (stage: number | undefined) =>
+    stage ? { stageNote: t('tours.stages.endOf', { number: stage }), corner: <StageEndCorner /> } : {};
   const endDrag = () => {
     setDraggedWaypointId(null);
     setDropTarget(null);
@@ -753,6 +772,7 @@ export default function TourWaypointList({
           const stop = stopNumbers.get(point.id) ?? index + 1;
           return (
             <Fragment key={point.id}>
+              {index === 0 && stageHead(0)}
               <li
                 data-testid="tour-planner-waypoint-row"
                 onDragStart={(event) => {
@@ -814,6 +834,7 @@ export default function TourWaypointList({
                     station={point}
                     loopEnd={loopEnd}
                     shaping={!!point.shaping}
+                    {...stageMarkOf(stageEnds.get(point.id))}
                   />
                   <button
                     type="button"
@@ -845,6 +866,7 @@ export default function TourWaypointList({
                 </div>
                 <StationScheduleRow schedule={walk.schedule} point={point} placeName={placeName} number={stop} />
               </li>
+              {index > 0 && stageHead(index)}
               <WaypointLegRows
                 planner={planner}
                 point={point}
