@@ -151,9 +151,6 @@ export function indexRequestsPerKind(plan: IndexPoiPlan): IndexRequest[] {
   );
 }
 
-/** Every term the index is asked by, whichever kind asks for it. */
-const EVERY_TERM = Object.values(POI_CATEGORY_TO_TREK).flat();
-
 /**
  * Whether a row's most specific known term is one an asked kind asks for. A
  * water park lies under the parks' path, but `activity` names its own path for
@@ -165,7 +162,9 @@ export function ownedByAsked(
   row: { category: string | null; categoryPath: string | null },
   asked: readonly string[],
 ): boolean {
-  const term = indexRowTerm(EVERY_TERM, row.category, row.categoryPath);
+  // Every term the index is asked by, whichever kind asks for it; read here, not
+  // when the module loads, so a suite that stubs the index client stays loadable.
+  const term = indexRowTerm(Object.values(POI_CATEGORY_TO_TREK).flat(), row.category, row.categoryPath);
   return term === undefined || asked.some((kind) => POI_CATEGORY_TO_TREK[kind]?.includes(term));
 }
 
