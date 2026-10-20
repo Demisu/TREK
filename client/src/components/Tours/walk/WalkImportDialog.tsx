@@ -220,7 +220,6 @@ export function WalkImportDialog({
       onClose={walkImport.close}
       labelledBy={titleId}
       width="narrow"
-      align="top"
       onSubmit={submit}
       header={head}
       footer={<WalkImportFooter walkImport={walkImport} />}

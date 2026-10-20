@@ -356,7 +356,6 @@ export function CollectionTourTakeOverDialog({ takeOver }: { takeOver: Collectio
       onClose={takeOver.close}
       labelledBy={labelId}
       width={takeOver.done ? 'narrow' : 'wide'}
-      align="top"
       blocked={takeOver.taking}
       header={
         <DialogHeader

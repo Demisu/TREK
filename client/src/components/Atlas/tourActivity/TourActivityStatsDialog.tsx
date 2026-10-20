@@ -151,7 +151,6 @@ export function TourActivityStatsDialog({
       onClose={onClose}
       labelledBy={labelId}
       width="editor"
-      align="top"
       header={
         <DialogHeader
           tile={

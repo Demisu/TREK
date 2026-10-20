@@ -100,7 +100,6 @@ export function TourPackingLinkDialog({ packing, tourName }: { packing: TourPack
       onClose={packing.close}
       labelledBy={labelId}
       width="narrow"
-      align="top"
       blocked={packing.saving}
       header={
         <DialogHeader

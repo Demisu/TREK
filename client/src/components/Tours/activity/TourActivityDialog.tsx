@@ -208,7 +208,6 @@ export default function TourActivityDialog({
         onClose={state.closeAssign}
         labelledBy={labelId}
         width="detail"
-        align="top"
         blocked={state.busy || importing}
         header={
           <DialogHeader

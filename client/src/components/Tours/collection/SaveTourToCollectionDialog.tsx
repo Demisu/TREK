@@ -121,7 +121,6 @@ export function SaveTourToCollectionDialog({ keep, tourName }: { keep: SaveTourT
       onClose={keep.close}
       labelledBy={labelId}
       width="narrow"
-      align="top"
       blocked={keep.saving}
       header={
         <DialogHeader

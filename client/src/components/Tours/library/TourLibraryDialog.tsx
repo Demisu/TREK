@@ -192,7 +192,6 @@ export function TourLibraryDialog({ library }: { library: TourLibrary }) {
       onClose={library.close}
       labelledBy={labelId}
       width="wide"
-      align="top"
       blocked={library.taking}
       header={
         <DialogHeader

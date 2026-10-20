@@ -71,7 +71,6 @@ export function HorseRouteDialog({
       onClose={onClose}
       labelledBy={labelId}
       width="editor"
-      align="top"
       header={
         <DialogHeader
           tile={
