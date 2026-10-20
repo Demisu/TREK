@@ -1,9 +1,4 @@
-import {
-  SKI_DIFFICULTIES,
-  skiDisciplineSchema,
-  skiRouteOptionsSchema,
-  skiTechniqueSchema,
-} from '../tours/ski.schema';
+import { SKI_DIFFICULTIES, skiDisciplineSchema, skiRouteOptionsSchema, skiTechniqueSchema } from '../tours/ski.schema';
 
 import { z } from 'zod';
 
@@ -256,7 +251,10 @@ export const skiAreaNearResponseSchema = z.object({
 export type SkiAreaNearResponse = z.infer<typeof skiAreaNearResponseSchema>;
 
 /** An area id as the Places host spells it: `w:<way>` or `r:<relation>`, a piece of a split network with a suffix. */
-export const skiAreaIdSchema = z.string().max(64).regex(/^[a-z]:[0-9]+(-[0-9a-z]+)?$/);
+export const skiAreaIdSchema = z
+  .string()
+  .max(64)
+  .regex(/^[a-z]:[0-9]+(-[0-9a-z]+)?$/);
 
 /** One drawn line of an area's network: a run, a lift or a trail, as a Google-encoded polyline (precision 5). */
 export const skiNetworkFeatureSchema = z.object({

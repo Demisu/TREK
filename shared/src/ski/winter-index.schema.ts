@@ -47,7 +47,10 @@ export const winterAreaCountsSchema = z.object({
 export type WinterAreaCounts = z.infer<typeof winterAreaCountsSchema>;
 
 export const winterIndexRowSchema = z.object({
-  id: z.string().max(64).regex(/^[a-z]:[0-9]+(-[0-9a-z]+)?$/),
+  id: z
+    .string()
+    .max(64)
+    .regex(/^[a-z]:[0-9]+(-[0-9a-z]+)?$/),
   name: z.string().nullable(),
   kind: z.string(),
   country: z.string().nullable(),

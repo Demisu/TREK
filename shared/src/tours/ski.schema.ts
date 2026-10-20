@@ -178,4 +178,9 @@ export function skiOptionsForDiscipline(discipline: SkiDiscipline, options: SkiR
 export const skiPlannedLegsSchema = z.array(z.number().int().nonnegative()).max(5000);
 
 /** The name of a piste data build a ski tour's legs were planned on, as the Places host names it. */
-export const skiRouteBuildSchema = z.string().trim().min(1).max(40).regex(/^[0-9A-Za-z._-]+$/);
+export const skiRouteBuildSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(40)
+  .regex(/^[0-9A-Za-z._-]+$/);

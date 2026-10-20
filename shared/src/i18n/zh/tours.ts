@@ -377,7 +377,8 @@ const tours: TranslationStrings = {
   'tours.ski.technique.unknown': '未知',
   'tours.ski.chooseDiscipline': '请选择项目，以便将轨迹导入为滑雪。',
   'tours.ski.chooseDisciplineToSave': '请选择项目以保存路线。',
-  'tours.ski.plannedHint': '在雪道数据覆盖的地方，路段沿 OpenStreetMap 的雪道、缆车和越野雪道行进，其余地方走直线。这里不表示它们是否开放。',
+  'tours.ski.plannedHint':
+    '在雪道数据覆盖的地方，路段沿 OpenStreetMap 的雪道、缆车和越野雪道行进，其余地方走直线。这里不表示它们是否开放。',
   'tours.ski.options.maxDifficulty': '最难的雪道',
   'tours.ski.options.priority': '优先',
   'tours.ski.options.pace': '节奏',
@@ -462,7 +463,8 @@ const tours: TranslationStrings = {
   'tours.ski.time': '滑雪用时',
   'tours.ski.timeUnknown': '未计算',
   'tours.ski.timeInfoLabel': '滑雪时间如何计算',
-  'tours.ski.timeInfo': '雪道路线规划器按你的项目和节奏，累加在雪道上、缆车上、底站等候和步行的时间。只有每个路段都规划好后才给出时间。如需总时长，请自行填写。',
+  'tours.ski.timeInfo':
+    '雪道路线规划器按你的项目和节奏，累加在雪道上、缆车上、底站等候和步行的时间。只有每个路段都规划好后才给出时间。如需总时长，请自行填写。',
   'tours.ski.classifyTitle': '为滑雪轨迹分类',
   'tours.ski.saved': '分类已保存',
   'tours.ski.saveFailed': '无法保存分类。',

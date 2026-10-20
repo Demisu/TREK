@@ -402,7 +402,8 @@ const tours: TranslationStrings = {
   'tours.ski.technique.unknown': '不明',
   'tours.ski.chooseDiscipline': 'スキーとして取り込むには種目を選んでください。',
   'tours.ski.chooseDisciplineToSave': '保存するには種目を選んでください。',
-  'tours.ski.plannedHint': 'ゲレンデデータが届く範囲では OpenStreetMap のコース、リフト、トレイルに沿い、それ以外は直線で結びます。営業中かどうかはここでは示しません。',
+  'tours.ski.plannedHint':
+    'ゲレンデデータが届く範囲では OpenStreetMap のコース、リフト、トレイルに沿い、それ以外は直線で結びます。営業中かどうかはここでは示しません。',
   'tours.ski.options.maxDifficulty': '最も難しいコース',
   'tours.ski.options.priority': '優先',
   'tours.ski.options.pace': 'ペース',

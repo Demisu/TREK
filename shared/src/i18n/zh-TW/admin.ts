@@ -652,7 +652,8 @@ const admin: TranslationStrings = {
   'admin.toursCycleMap.subtitle':
     '在行程規劃器中為騎乘提供 CyclOSM 作為底圖。OpenStreetMap France 為適度使用提供該地圖；使用量大或商業的安裝應關閉它，或先與營運方達成協議',
   'admin.toursSkiRouting.title': '雪道路線規劃器',
-  'admin.toursSkiRouting.subtitle': '使用 Places 伺服器的雪道資料，沿雪道、纜車和越野雪道規劃滑雪路線。關閉後，滑雪路線的路段以直線繪製',
+  'admin.toursSkiRouting.subtitle':
+    '使用 Places 伺服器的雪道資料，沿雪道、纜車和越野雪道規劃滑雪路線。關閉後，滑雪路線的路段以直線繪製',
   'admin.addons.noAddons': '暫無可用擴充套件',
   'admin.weather.title': '天氣資料',
   'admin.weather.badge': '自 2026 年 3 月 24 日起',
