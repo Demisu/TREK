@@ -22,16 +22,16 @@ import { fs } from '../../shared/DialogShell';
 
 /** The switches of the piste router, each with the key of its label, in the order they are read. */
 const SWITCHES = [
-  ['use_lifts', 'tours.ski.options.useLifts'],
-  ['allow_freeride', 'tours.ski.options.freeride'],
-  ['allow_lift_down', 'tours.ski.options.liftDown'],
-  ['groomed_only', 'tours.ski.options.groomedOnly'],
-  ['lit_only', 'tours.ski.options.litOnly'],
-  ['touring_uphill_on_pistes', 'tours.ski.options.uphillOnPistes'],
-  ['avoid_inferred_links', 'tours.ski.options.avoidLinks'],
+  { key: 'use_lifts', labelKey: 'tours.ski.options.useLifts' },
+  { key: 'allow_freeride', labelKey: 'tours.ski.options.freeride' },
+  { key: 'allow_lift_down', labelKey: 'tours.ski.options.liftDown' },
+  { key: 'groomed_only', labelKey: 'tours.ski.options.groomedOnly' },
+  { key: 'lit_only', labelKey: 'tours.ski.options.litOnly' },
+  { key: 'touring_uphill_on_pistes', labelKey: 'tours.ski.options.uphillOnPistes' },
+  { key: 'avoid_inferred_links', labelKey: 'tours.ski.options.avoidLinks' },
 ] as const;
 
-type SwitchKey = (typeof SWITCHES)[number][0];
+type SwitchKey = (typeof SWITCHES)[number]['key'];
 
 /** One switch set, the rest of the options kept. */
 function switchPatch(key: SwitchKey, on: boolean): Partial<SkiRouteOptionsInput> {
@@ -108,7 +108,7 @@ export function SkiRouteOptions({ discipline, options, onChange }: SkiRouteOptio
   const current: Options = { ...DEFAULT_SKI_ROUTE_OPTIONS, ...options };
   const usesLifts = skiUsesLifts(discipline, current);
   const switchOn = (key: SwitchKey) => (key === 'use_lifts' ? usesLifts : current[key]);
-  const switches = SWITCHES.filter(([key]) => read.has(key) && (usesLifts || !LIFT_SWITCHES.has(key)));
+  const switches = SWITCHES.filter(({ key }) => read.has(key) && (usesLifts || !LIFT_SWITCHES.has(key)));
   return (
     <div data-testid="tour-planner-ski-options" className="flex min-w-0 flex-col gap-2.5">
       {read.has('max_difficulty') && (
@@ -150,7 +150,7 @@ export function SkiRouteOptions({ discipline, options, onChange }: SkiRouteOptio
           />
         </div>
       )}
-      {switches.map(([key, labelKey]) => (
+      {switches.map(({ key, labelKey }) => (
         <OptionSwitch
           key={key}
           label={t(labelKey)}

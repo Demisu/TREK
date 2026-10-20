@@ -170,8 +170,10 @@ function spreadMessage(plan: StageSpread, days: readonly Day[], t: Translate): s
   if (plan.wholeOff.length > 0) {
     const off = plan.wholeOff.map(numberOf).sort((a, b) => a - b);
     // A tour can sit whole on several days, once on each; the sentence then names them all.
-    const key = off.length > 1 ? 'tours.stages.placedReplacedMany' : 'tours.stages.placedReplaced';
-    parts.push(t(key, { list: off.join(', ') }));
+    const list = off.join(', ');
+    parts.push(
+      off.length > 1 ? t('tours.stages.placedReplacedMany', { list }) : t('tours.stages.placedReplaced', { list })
+    );
   }
   return parts.join(' ');
 }
