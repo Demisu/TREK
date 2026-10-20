@@ -12,4 +12,7 @@ export interface TourChangeStepsTable {
   before_state: string;
   saved_by: InsertOptional<number | null>;
   saved_at: InsertOptional<string>;
+  undone_revision: InsertOptional<number | null>;
+  undone_by: InsertOptional<number | null>;
+  undone_at: InsertOptional<string | null>;
 }

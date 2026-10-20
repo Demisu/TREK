@@ -4,6 +4,7 @@ import {
   tourChangeRequestSchema,
   tourChangeSaveRequestSchema,
   tourChangeSchema,
+  tourChangeUndoRequestSchema,
 } from './tour-change.schema';
 
 import { describe, expect, it } from 'vitest';
@@ -66,6 +67,29 @@ describe('a prepared change the traveller confirmed, sent to be saved (MCP-T03)'
     ];
     for (const body of refused) {
       expect(tourChangeSaveRequestSchema.safeParse(body).success, JSON.stringify(body)).toBe(false);
+    }
+  });
+});
+
+describe('a saved step the traveller confirmed to take back (MCP-T04)', () => {
+  const undo = { step_id: 7, expected_revision: 4, confirmed: true };
+
+  it('takes the step, the revision it was shown at and the yes', () => {
+    expect(tourChangeUndoRequestSchema.parse(undo)).toEqual(undo);
+  });
+
+  it('refuses an undo without the yes, without the revision, of no step, or with anything more', () => {
+    const refused = [
+      { ...undo, confirmed: false },
+      { ...undo, confirmed: undefined },
+      { ...undo, expected_revision: undefined },
+      { ...undo, expected_revision: 0 },
+      { ...undo, step_id: 0 },
+      { ...undo, step_id: 1.5 },
+      { ...undo, before_state: { waypoints: [] } },
+    ];
+    for (const body of refused) {
+      expect(tourChangeUndoRequestSchema.safeParse(body).success, JSON.stringify(body)).toBe(false);
     }
   });
 });

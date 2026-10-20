@@ -24,7 +24,7 @@ function linkedIds(changes: readonly TourChange[]): number[] {
 }
 
 /** The stations visited or skipped on any day of the walk, by key, each with the days. */
-function doneByKey(visits: ReadonlyArray<StationDone & { station_key: string }>): Map<string, StationDone[]> {
+export function doneByKey(visits: ReadonlyArray<StationDone & { station_key: string }>): Map<string, StationDone[]> {
   const done = new Map<string, StationDone[]>();
   for (const { station_key, day_id, status } of visits) {
     done.set(station_key, [...(done.get(station_key) ?? []), { day_id, status }]);

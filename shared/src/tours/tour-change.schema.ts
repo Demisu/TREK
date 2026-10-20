@@ -1,3 +1,4 @@
+import { idSchema } from '../common/primitives.schema';
 import { cityWalkStationSchema } from './tour-walk-briefing.schema';
 import { stationKeySchema, tourRevisionSchema } from './tours.schema';
 
@@ -74,3 +75,22 @@ export const tourChangeSaveRequestSchema = tourChangeRequestSchema
   })
   .strict();
 export type TourChangeSaveRequest = z.infer<typeof tourChangeSaveRequestSchema>;
+
+/**
+ * MCP-T04: a saved step the traveller confirmed to take back. It names the
+ * step, the revision of the tour the preview of it was read at and says yes
+ * in so many words. Taking back restores the tour exactly as the step kept it
+ * before, so there is nothing more to send: no changes, no state.
+ */
+export const tourChangeUndoRequestSchema = z
+  .object({
+    step_id: idSchema.describe('The id of the saved step, as list_tour_change_steps gives it'),
+    expected_revision: tourRevisionSchema.describe(
+      'now.revision of the preview: the revision of the tour the step was shown to be taken back from',
+    ),
+    confirmed: z
+      .literal(true)
+      .describe('true only once the traveller said yes to taking back exactly this step as the preview showed it'),
+  })
+  .strict();
+export type TourChangeUndoRequest = z.infer<typeof tourChangeUndoRequestSchema>;

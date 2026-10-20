@@ -22,6 +22,8 @@ import { CityWalkFootWayService } from './city-walk-foot-way.service';
 import { CityWalkMcp } from './city-walk.mcp';
 import { TourChangePreviewService } from './tour-change-preview.service';
 import { TourChangeSaveService } from './tour-change-save.service';
+import { TourChangeUndoMcp } from './tour-change-undo.mcp';
+import { TourChangeUndoService } from './tour-change-undo.service';
 import { TourChangeMcp } from './tour-change.mcp';
 import { TourGpxExportService } from './tour-gpx-export.service';
 import { TourHorseRoutesController } from './tour-horse-routes.controller';
@@ -132,11 +134,13 @@ import { Module } from '@nestjs/common';
     CityWalkBriefingService,
     TourChangePreviewService,
     TourChangeSaveService,
+    TourChangeUndoService,
     ToursMcp,
     TourLibraryMcp,
     TourWalkImportMcp,
     CityWalkMcp,
     TourChangeMcp,
+    TourChangeUndoMcp,
   ],
 })
 export class ToursModule {}

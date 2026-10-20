@@ -10,17 +10,11 @@ import type { DraftPoint } from './tour-change-apply';
 import { asWaypoint } from './tour-change-effects';
 import { TourChangePreviewService } from './tour-change-preview.service';
 import { proposalIdOf } from './tour-change-proposal';
+import { tourWriteOf, writtenStations, writtenTour } from './tour-change-write';
 import { ToursService, type TourCreateCommand } from './tours.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
-import {
-  plannableTourTypeSchema,
-  walkStationsOf,
-  type TourChangeSaveRequest,
-  type TourDetailResponse,
-  type TourListItem,
-  type TourWaypoint,
-} from '@trek/shared';
+import type { TourChangeSaveRequest, TourDetailResponse, TourListItem, TourWaypoint } from '@trek/shared';
 
 /** The refusal of a save naming a proposal other than the one these changes were prepared as. */
 export const TOUR_CHANGE_NOT_PREPARED = 'tour_change_not_prepared';
@@ -40,31 +34,19 @@ interface SavedStep {
 }
 
 /**
- * The write of a confirmed change: the points after it, the way on foot the
- * router planned through them, and the tour's own name, type and options as
- * they are, so a change of stations changes nothing else. Without a way the
- * walk keeps its stations only, as a created one does (CW-11): no line, no
- * distance and no walking time until the planner plans the way.
+ * The write of a confirmed change: the points after it and the way on foot
+ * the router planned through them. Without a way the walk keeps its stations
+ * only, as a created one does (CW-11): no line, no distance and no walking
+ * time until the planner plans the way.
  */
 function writeOf({ tour, points, way, preparedOn }: ChangedTour): TourCreateCommand {
   const routed = way.kind === 'routed' ? way : null;
-  return {
-    name: tour.name,
-    // Only a type that takes changes gets here, and each of them is one the planner draws.
-    tour_type: plannableTourTypeSchema.parse(tour.tour_type),
+  return tourWriteOf(tour, {
     route_geometry: routed?.line ?? null,
     duration_seconds: routed?.seconds ?? null,
     waypoints: points.map(asWaypoint),
-    max_hiking_difficulty: tour.max_hiking_difficulty,
-    hiking_preferences: tour.hiking_preferences,
-    bike_profile: tour.bike_profile,
-    boat_type: tour.boat_type,
-    water_context: tour.water_context,
-    paddle_speed_kmh: tour.paddle_speed_kmh,
-    portage_speed_kmh: tour.portage_speed_kmh,
-    paddle_lake_style: tour.paddle_lake_style,
     expected_revision: preparedOn,
-  };
+  });
 }
 
 /** The saved tour as the answer gives it, read back through the read the app uses. */
@@ -72,24 +54,12 @@ function savedAnswer(detail: TourDetailResponse, step: SavedStep, { way, prepare
   return {
     saved: true as const,
     step: { id: step.id, base_revision: preparedOn, revision: step.revision },
-    tour: {
-      place_id: detail.tour.place_id,
-      name: detail.tour.name,
-      tour_type: detail.tour.tour_type,
-      revision: step.revision,
-      distance_km: detail.tour.distance,
-      walking_minutes: detail.tour.duration,
-      route_pending: detail.tour.route_pending === true,
-    },
+    tour: writtenTour(detail, step.revision),
     foot_way:
       way.kind === 'routed'
         ? { planned: true as const }
         : { planned: false as const, why: way.why, position: way.position },
-    stations: walkStationsOf(detail.waypoints).map((station, index) => ({
-      position: index + 1,
-      key: station.key ?? null,
-      name: station.name ?? null,
-    })),
+    stations: writtenStations(detail),
   };
 }
 
@@ -105,7 +75,7 @@ function savedAnswer(detail: TourDetailResponse, step: SavedStep, { way, prepare
  *
  * The write records the step: the proposal, both revisions, the changes and
  * the tour as it was before them (its line, its points, its measures), so it
- * can be followed and taken back (MCP-T04). Nothing of the conversation is
+ * can be followed and taken back (TourChangeUndoService, MCP-T04). Nothing of the conversation is
  * kept. A new city walk has no revision to name: it is created through
  * create_city_walk (CW-11), never saved as a change.
  */
