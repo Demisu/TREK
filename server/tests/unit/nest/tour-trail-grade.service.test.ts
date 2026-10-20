@@ -95,7 +95,7 @@ describe('TourTrailGradeService (BIK-05)', () => {
     expect(query).not.toHaveBeenCalled();
   });
 
-  it('TOUR-GRADE-007: reads sac_scale as OpenStreetMap wrote it and hands an unclear one on as written (MAP-03)', async () => {
+  it('TOUR-GRADE-007: reads sac_scale exactly as OpenStreetMap wrote it and hands any other value on as written (MAP-03)', async () => {
     query.mockResolvedValue([
       way(1, { sac_scale: 'demanding_mountain_hiking' }),
       way(2, { sac_scale: ' Alpine_Hiking ', 'mtb:scale': '3' }),
@@ -103,14 +103,16 @@ describe('TourTrailGradeService (BIK-05)', () => {
       way(4, { sac_scale: 'hiking;mountain_hiking' }),
       way(5, { sac_scale: '   ' }),
       way(6, { sac_scale: `x${'y'.repeat(80)}` }),
+      way(7, { sac_scale: ' mountain_hiking ' }),
     ]);
-    const answer = await service.grades({ way_ids: [1, 2, 3, 4, 5, 6] });
+    const answer = await service.grades({ way_ids: [1, 2, 3, 4, 5, 6, 7] });
     expect(answer.ways).toEqual([
       { ...NO_MTB, ...NO_WAY, id: 1, sac_scale: 'demanding_mountain_hiking', sac_scale_unclear: null },
-      { ...NO_MTB, ...NO_WAY, id: 2, mtb_scale: '3', sac_scale: 'alpine_hiking', sac_scale_unclear: null },
+      { ...NO_MTB, ...NO_WAY, id: 2, mtb_scale: '3', sac_scale: null, sac_scale_unclear: 'Alpine_Hiking' },
       { ...NO_MTB, ...NO_WAY, id: 3, sac_scale: null, sac_scale_unclear: 'T3' },
       { ...NO_MTB, ...NO_WAY, id: 4, sac_scale: null, sac_scale_unclear: 'hiking;mountain_hiking' },
       { ...NO_MTB, ...NO_WAY, id: 6, sac_scale: null, sac_scale_unclear: `x${'y'.repeat(63)}` },
+      { ...NO_MTB, ...NO_WAY, id: 7, sac_scale: 'mountain_hiking', sac_scale_unclear: null },
     ]);
   });
 

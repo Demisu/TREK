@@ -40,15 +40,16 @@ function written(value: string | undefined): string | null {
 }
 
 /**
- * MAP-03: a way's `sac_scale` as one of the scale's six values, read as
- * OpenStreetMap wrote it. A value that names no single step (`T3`,
- * `hiking;mountain_hiking`, a typo) is handed on as written and never read to
- * a step, so the planner says unclear rather than picking one.
+ * MAP-03: a way's `sac_scale` as one of the scale's six values, read exactly
+ * as OpenStreetMap wrote it (only trimmed). A value that is not one of them
+ * word for word (`T3`, `Alpine_Hiking`, `hiking;mountain_hiking`, a typo) is
+ * handed on as written and never read to a step, so the planner says unclear
+ * and shows what was written rather than a value TREK made up.
  */
 function sacOf(value: string | undefined): Pick<TourTrailGrade, 'sac_scale' | 'sac_scale_unclear'> {
   const text = written(value);
   if (!text) return { sac_scale: null, sac_scale_unclear: null };
-  const known = sacScaleSchema.safeParse(text.toLowerCase());
+  const known = sacScaleSchema.safeParse(text);
   if (known.success) return { sac_scale: known.data, sac_scale_unclear: null };
   return { sac_scale: null, sac_scale_unclear: text };
 }
