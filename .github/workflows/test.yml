@@ -9,32 +9,62 @@ permissions:
 # analysis; pull requests get PR analysis with decoration on the PR itself
 # (the scanner picks the context up from the Actions environment).
 #
+# Job names read "<package>: <what>", so the checks list on a PR sorts by
+# package. What each job holds:
+#
+#   Repo: Changed Areas      decides what the change needs to run (below)
+#   Shared: i18n Parity      every locale has en's files and keys
+#   Shared: Coverage         shared's tests with coverage
+#   Server: Types            builds shared and the server, typechecks src,
+#                            tests and scripts, the strict ratchet, the
+#                            generated entities and Kysely types
+#   Server: Lint             ESLint (typed), errors and warning counts
+#   Server: Checks           Prettier, the plugin facts, the source ratchets
+#                            (size, boundaries, dialect, tx, test SQL/mocks,
+#                            query API, MCP zod, error envelopes, response
+#                            contracts), open request schemas, knip
+#   Server: Tests n/7        one slice of the server suite, with coverage
+#   Server: Coverage         merges the slices, checks the per-domain
+#                            thresholds, uploads lcov
+#   Server: S3 Contract      the storage driver against MinIO
+#   Server: Postgres Probe   the repository SQL against Postgres
+#   Client: Types            typecheck and the strict ratchet
+#   Client: Lint             ESLint (typed), errors and warning counts
+#   Client: Checks           the page pattern and the source ratchets (RTL,
+#                            size, Prettier, layers, offline path,
+#                            duplication, desktop/phone pairs, skips, i18n
+#                            keys, theme tokens)
+#   Client: Tests n/7        one slice of the client suite, with coverage
+#   Client: Coverage         merges the slices, checks the thresholds,
+#                            uploads lcov
+#   Client: Bundle           the production build, one chunk per map engine
+#   Client: End-to-End       the app in Chromium and WebKit
+#   Plugin SDK: Types & Coverage
+#   Repo: Docker Image       builds the image and boots it until ready
+#   Repo: Helm Chart & Compose
+#   Repo: Sonar Scan         SonarCloud analysis, not required
+#   ci-ok                    the one required check (below)
+#
 # Job layout:
-#   - Gates: plugin-facts, i18n-parity and the quality jobs (server-quality,
-#     client-quality, plugin-sdk-quality) hold the generated-code, typecheck,
-#     lint and smoke gates.
-#   - Tests run beside the gates, not after them, so a run takes as long as
-#     its slowest job and not the gates plus the tests. They used to wait for
-#     the gates, which put ~9 minutes in front of every test result. The
-#     client and server suites are split into shards (client-tests,
+#   - Everything starts right after changes: the gates (types, lint, checks)
+#     and the tests run side by side, so a run takes as long as its slowest
+#     job and not the gates plus the tests. The tests used to wait for the
+#     gates, which put ~9 minutes in front of every test result, and the
+#     gates were one job per package (~8-9 minutes each) before they were
+#     split into types, lint and checks.
+#   - The client and server suites run in shards (client-tests,
 #     server-tests), each running a slice with coverage and uploading a blob
 #     report; client-coverage and server-coverage merge the blobs, check the
 #     thresholds against the whole and upload lcov. A red shard is usually a
-#     failing test, a red merge job usually a threshold. shared-coverage and
-#     plugin-sdk-coverage are small enough to run in one job each, and
-#     s3-contract runs the MinIO contract suite. client-e2e drives the real
-#     app in Chromium and WebKit, client-bundle builds the client and checks
-#     each map engine keeps a chunk of its own, and postgres-probe runs the
-#     dialect helpers and the repository statements it reaches against a
-#     Postgres service. None of these feeds the scan.
+#     failing test, a red merge job usually a threshold. None of the other
+#     test jobs feeds the scan.
 #   - Shard counts: GitHub runs at most 20 jobs of the organisation at once.
-#     A code change starts about a dozen jobs besides the shards; eight of
-#     them (the parity, facts and SDK checks, the bundle, the S3 and Postgres
-#     jobs, the small coverage jobs) are done within a minute or two, so the
-#     few shards that queue at the start wait about that long. The counts are
-#     sized so the coverage merges finish about when the quality jobs do
-#     (~9 minutes); more shards would wait in the queue rather than finish
-#     sooner.
+#     A code change starts about fifteen jobs besides the shards; about half
+#     of them (parity, the SDK, the bundle, S3, Postgres, shared coverage,
+#     the chart) are done within a minute or two, so the shards that queue at
+#     the start wait about that long. The counts are sized so the coverage
+#     merges finish about when the slowest gate does; more shards would wait
+#     in the queue rather than finish sooner.
 #   - Scan `needs:` the gates and the four coverage jobs. A coverage job
 #     failing must stop the scan — a missing lcov file would make every line
 #     of that package report as uncovered, and the dashboard would show a
@@ -82,7 +112,7 @@ concurrency:
 
 jobs:
   changes:
-    name: Changed Areas
+    name: 'Repo: Changed Areas'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     outputs:
@@ -157,36 +187,8 @@ jobs:
             node scripts/ci/changed-areas.mjs --all
           fi
 
-  plugin-facts:
-    name: Plugin Permission Facts
-    needs: changes
-    if: needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-          cache-dependency-path: package-lock.json
-
-      - name: Install dependencies
-        run: npm ci --workspace server
-
-      # The plugin permission facts live once, in
-      # server/src/nest/plugins/protocol/envelope.ts. Every other copy — the
-      # SDK's generated/host-facts.ts and shared's plugin-permissions.ts — is
-      # generated from it and checked in, because publish-plugin-sdk builds
-      # from a standalone checkout with no server present. This fails the run
-      # if a copy drifts, if a new permission has no admin.plugins.perm.*
-      # translation, or if the CLI has no hint for it.
-      - name: Check the generated plugin facts are in sync
-        run: cd server && npm run check:plugin-facts
-
   i18n-parity:
-    name: i18n Key Parity
+    name: 'Shared: i18n Parity'
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
@@ -202,8 +204,8 @@ jobs:
       - name: Check i18n key parity
         run: node shared/scripts/i18n-parity.mjs --strict
 
-  server-quality:
-    name: Server Types & Lint
+  server-types:
+    name: 'Server: Types'
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
@@ -270,6 +272,27 @@ jobs:
         # migration that changes a column regenerates it in the same change.
         run: cd server && npm run check:db-types
 
+  server-lint:
+    name: 'Server: Lint'
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build shared
+        run: npm run build --workspace=shared
+
       - name: Fetch the base the warnings are compared with
         # lint:warnings names the file behind a grown count by linting it as
         # it is on the base: the pushed-over commit on a push, the target
@@ -288,6 +311,37 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=8192
           TREK_LINT_BASE: refs/remotes/lint-base
         run: cd server && npm run lint:warnings
+
+  server-checks:
+    name: 'Server: Checks'
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build shared
+        run: npm run build --workspace=shared
+
+      # The plugin permission facts live once, in
+      # server/src/nest/plugins/protocol/envelope.ts. Every other copy — the
+      # SDK's generated/host-facts.ts and shared's plugin-permissions.ts — is
+      # generated from it and checked in, because publish-plugin-sdk builds
+      # from a standalone checkout with no server present. This fails the run
+      # if a copy drifts, if a new permission has no admin.plugins.perm.*
+      # translation, or if the CLI has no hint for it.
+      - name: Check the generated plugin facts are in sync
+        run: cd server && npm run check:plugin-facts
 
       - name: Formatting check
         # Prettier over src/ and tests/: a file outside
@@ -382,12 +436,12 @@ jobs:
         # knip (knip.jsonc) over client, server and shared: unused files,
         # exports, types and dependencies per file may not rise above
         # scripts/ci/knip-baseline.json (scripts/ci/knip-ratchet.mjs). Here
-        # rather than in client-quality because it needs every workspace's
-        # dependencies, which only this job installs.
+        # rather than in client-checks because it needs every workspace's
+        # dependencies, which the client jobs do not install.
         run: npm run lint:knip
 
-  client-quality:
-    name: Client Types & Lint
+  client-types:
+    name: 'Client: Types'
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
@@ -403,7 +457,7 @@ jobs:
           cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        run: npm ci --workspace shared && npm ci --workspace client
+        run: npm ci --workspace shared --workspace client
 
       - name: Build shared
         run: npm run build --workspace=shared
@@ -417,6 +471,28 @@ jobs:
         # scripts/strict-baseline.json, and a file without an entry, every new
         # one included, has to be clean (scripts/strict-lint.mjs).
         run: cd client && npm run lint:strict
+
+  client-lint:
+    name: 'Client: Lint'
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --workspace shared --workspace client
+
+      - name: Build shared
+        run: npm run build --workspace=shared
 
       - name: Fetch the base the warnings are compared with
         # lint:warnings names the file behind a grown count by linting it as
@@ -436,6 +512,28 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=8192
           TREK_LINT_BASE: refs/remotes/lint-base
         run: cd client && npm run lint:warnings
+
+  client-checks:
+    name: 'Client: Checks'
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --workspace shared --workspace client
+
+      - name: Build shared
+        run: npm run build --workspace=shared
 
       - name: Page pattern check
         run: cd client && npm run lint:pages
@@ -500,33 +598,8 @@ jobs:
         # follow the user's scheme, accent and text size (scripts/theme-lint.mjs).
         run: cd client && npm run theme:lint
 
-  plugin-sdk-quality:
-    name: Plugin SDK Types
-    needs: changes
-    if: needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 45
-    defaults:
-      run:
-        working-directory: plugin-sdk
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version-file: .nvmrc
-
-      # plugin-sdk is standalone (own lockfile, not a root workspace), so it
-      # installs from its own directory.
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Typecheck
-        run: npm run typecheck
-
   client-bundle:
-    name: Client Bundle
+    name: 'Client: Bundle'
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
@@ -541,7 +614,7 @@ jobs:
           cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        run: npm ci --workspace shared && npm ci --workspace client
+        run: npm ci --workspace shared --workspace client
 
       - name: Build shared
         run: npm run build --workspace=shared
@@ -557,7 +630,7 @@ jobs:
         run: cd client && npm run check:gl-split
 
   client-e2e:
-    name: Client End-to-End
+    name: 'Client: End-to-End'
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
@@ -615,7 +688,7 @@ jobs:
           retention-days: 7
 
   s3-contract:
-    name: S3 Driver Contract (MinIO)
+    name: 'Server: S3 Contract (MinIO)'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     needs: changes
@@ -641,14 +714,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Ensure @swc/core's Linux binary for unplugin-swc
-        # The lockfile was generated on Windows and omits @swc/core's Linux
-        # optional native binary, so npm ci/install skips it on the runner.
-        # Install the matching version explicitly so the server's SWC transform
-        # (server/vitest.config.ts) can load.
-        run: |
-          SWC_VERSION=$(node -p "require('@swc/core/package.json').version")
-          npm install --no-save --legacy-peer-deps "@swc/core-linux-x64-gnu@$SWC_VERSION"
+      - name: Check @swc/core's native binding loads
+        # The server's SWC transform (server/vitest.config.ts) needs it. The
+        # lockfile carries the Linux binary, so npm ci installs it; this only
+        # names the cause if a lockfile regenerated without it ever lands. (It
+        # used to be installed here with --legacy-peer-deps, which pruned
+        # eight peer packages and left the tests on a tree the lockfile does
+        # not describe.)
+        run: node -e "require('@swc/core').transformSync('let a = 1')"
 
       - name: Build shared
         run: npm run build --workspace=shared
@@ -706,7 +779,7 @@ jobs:
   # artifact seeds the file and a change that fixes a statement can lower it
   # without a local Postgres.
   postgres-probe:
-    name: Postgres Probe
+    name: 'Server: Postgres Probe'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     needs: changes
@@ -762,12 +835,12 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-  # The server suite in six slices. vitest.shard.config.ts is vitest.config.ts
+  # The server suite in seven slices. vitest.shard.config.ts is vitest.config.ts
   # without the thresholds and the coverage reports: a slice's blob carries
   # its coverage to server-coverage, which checks the whole. fail-fast is off,
   # so one red run shows every failing slice and not just the first.
   server-tests:
-    name: Server Tests (${{ matrix.shard }}/6)
+    name: 'Server: Tests ${{ matrix.shard }}/7'
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
@@ -775,7 +848,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6]
+        shard: [1, 2, 3, 4, 5, 6, 7]
     steps:
       - uses: actions/checkout@v6
 
@@ -788,14 +861,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Ensure @swc/core's Linux binary for unplugin-swc
-        # The lockfile was generated on Windows and omits @swc/core's Linux
-        # optional native binary, so npm ci/install skips it on the runner.
-        # Install the matching version explicitly so the server's SWC transform
-        # (server/vitest.config.ts) can load.
-        run: |
-          SWC_VERSION=$(node -p "require('@swc/core/package.json').version")
-          npm install --no-save --legacy-peer-deps "@swc/core-linux-x64-gnu@$SWC_VERSION"
+      - name: Check @swc/core's native binding loads
+        # The server's SWC transform (server/vitest.config.ts) needs it. The
+        # lockfile carries the Linux binary, so npm ci installs it; this only
+        # names the cause if a lockfile regenerated without it ever lands. (It
+        # used to be installed here with --legacy-peer-deps, which pruned
+        # eight peer packages and left the tests on a tree the lockfile does
+        # not describe.)
+        run: node -e "require('@swc/core').transformSync('let a = 1')"
 
       - name: Build shared
         run: npm run build --workspace=shared
@@ -803,7 +876,7 @@ jobs:
       - name: Run a slice of the tests with coverage
         run: >-
           cd server && npx vitest run --config vitest.shard.config.ts --coverage
-          --shard=${{ matrix.shard }}/6
+          --shard=${{ matrix.shard }}/7
           --reporter=default --reporter=github-actions --reporter=blob
 
       - name: Upload the blob report
@@ -816,7 +889,7 @@ jobs:
           retention-days: 1
 
   server-coverage:
-    name: Server Coverage
+    name: 'Server: Coverage'
     needs: server-tests
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -831,12 +904,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Ensure @swc/core's Linux binary for unplugin-swc
-        # vitest.config.ts loads unplugin-swc even when it only merges.
-        run: |
-          SWC_VERSION=$(node -p "require('@swc/core/package.json').version")
-          npm install --no-save --legacy-peer-deps "@swc/core-linux-x64-gnu@$SWC_VERSION"
 
       - name: Download the blob reports
         uses: actions/download-artifact@v7
@@ -859,10 +926,10 @@ jobs:
           path: server/coverage/
           retention-days: 1
 
-  # The client suite in eight slices, the same way as server-tests. It is the
-  # slowest suite (~35 minutes on one runner), so it gets the most.
+  # The client suite in seven slices, the same way as server-tests. The two
+  # suites cost about the same per slice at seven each (~4-6 minutes).
   client-tests:
-    name: Client Tests (${{ matrix.shard }}/8)
+    name: 'Client: Tests ${{ matrix.shard }}/7'
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
@@ -870,7 +937,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+        shard: [1, 2, 3, 4, 5, 6, 7]
     steps:
       - uses: actions/checkout@v6
 
@@ -885,7 +952,7 @@ jobs:
       # @testing-library/react) in the tree without the re-resolution dance
       # the folded coverage job used to need.
       - name: Install dependencies
-        run: npm ci --workspace shared && npm ci --workspace client
+        run: npm ci --workspace shared --workspace client
 
       - name: Build shared
         run: npm run build --workspace=shared
@@ -893,7 +960,7 @@ jobs:
       - name: Run a slice of the tests with coverage
         run: >-
           cd client && npx vitest run --config vitest.shard.config.ts --coverage
-          --shard=${{ matrix.shard }}/8
+          --shard=${{ matrix.shard }}/7
           --reporter=default --reporter=github-actions --reporter=blob
 
       - name: Upload the blob report
@@ -906,7 +973,7 @@ jobs:
           retention-days: 1
 
   client-coverage:
-    name: Client Coverage
+    name: 'Client: Coverage'
     needs: client-tests
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -920,7 +987,7 @@ jobs:
           cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        run: npm ci --workspace shared && npm ci --workspace client
+        run: npm ci --workspace shared --workspace client
 
       - name: Download the blob reports
         uses: actions/download-artifact@v7
@@ -944,7 +1011,7 @@ jobs:
           retention-days: 1
 
   shared-coverage:
-    name: Shared Coverage
+    name: 'Shared: Coverage'
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
@@ -971,8 +1038,10 @@ jobs:
           path: shared/coverage/
           retention-days: 1
 
-  plugin-sdk-coverage:
-    name: Plugin SDK Coverage
+  # Typecheck and tests in one job: each takes seconds, and a runner of its
+  # own would cost more in setup than it saves.
+  plugin-sdk:
+    name: 'Plugin SDK: Types & Coverage'
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-24.04
@@ -995,6 +1064,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Typecheck
+        run: npm run typecheck
+
       - name: Run tests with coverage
         run: npm run test:coverage
 
@@ -1006,7 +1078,7 @@ jobs:
           retention-days: 1
 
   scan:
-    name: Scan
+    name: 'Repo: Sonar Scan'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     # Fork PRs and Dependabot runs don't receive SONAR_TOKEN, so skip the scan
@@ -1019,15 +1091,17 @@ jobs:
     # show a collapse that did not happen. The gates run beside the tests now,
     # so they are listed here too, and a failed gate still stops the scan.
     needs:
-      - plugin-facts
       - i18n-parity
-      - server-quality
-      - client-quality
-      - plugin-sdk-quality
+      - server-types
+      - server-lint
+      - server-checks
+      - client-types
+      - client-lint
+      - client-checks
       - server-coverage
       - client-coverage
       - shared-coverage
-      - plugin-sdk-coverage
+      - plugin-sdk
 
     steps:
       - uses: actions/checkout@v6
@@ -1088,7 +1162,7 @@ jobs:
   # reached dev unseen. It is separate from the vulnerability scan on purpose,
   # so a newly published CVE cannot hide a broken build or the other way round.
   docker-image:
-    name: Docker Image
+    name: 'Repo: Docker Image'
     needs: changes
     if: needs.changes.outputs.image == 'true'
     runs-on: ubuntu-24.04
@@ -1165,7 +1239,7 @@ jobs:
   # the output checked against the Kubernetes API schemas. Both tools come
   # from their release pages, pinned by version and checksum.
   deploy-manifests:
-    name: Helm Chart & Compose
+    name: 'Repo: Helm Chart & Compose'
     needs: changes
     if: needs.changes.outputs.deploy == 'true'
     runs-on: ubuntu-24.04
@@ -1236,11 +1310,13 @@ jobs:
   ci-ok:
     needs:
       - changes
-      - plugin-facts
       - i18n-parity
-      - server-quality
-      - client-quality
-      - plugin-sdk-quality
+      - server-types
+      - server-lint
+      - server-checks
+      - client-types
+      - client-lint
+      - client-checks
       - client-bundle
       - client-e2e
       - s3-contract
@@ -1250,7 +1326,7 @@ jobs:
       - client-tests
       - client-coverage
       - shared-coverage
-      - plugin-sdk-coverage
+      - plugin-sdk
       - docker-image
       - deploy-manifests
     # always(): without it a failed dependency would skip this job, and the
