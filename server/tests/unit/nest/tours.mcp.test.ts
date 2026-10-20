@@ -337,7 +337,7 @@ describe('ToursMcp', () => {
     ]);
   });
 
-  it('TOURS-MCP-015: list_tours counts the stages of a multi-day tour and get_tour_plan marks where each ends (MDT-01)', async () => {
+  it('TOURS-MCP-024: list_tours counts the stages of a multi-day tour and get_tour_plan marks where each ends (MDT-01)', async () => {
     const { user, trip, ridge, gorge } = fixture();
     const orm = await createTestOrm(db);
     await addTourWaypoints(orm, ridge.id, [
@@ -363,7 +363,7 @@ describe('ToursMcp', () => {
     ]);
   });
 
-  it('TOURS-MCP-016: list_tours names the stops between the stages and the stage each day holds (MDT-02)', async () => {
+  it('TOURS-MCP-025: list_tours names the stops between the stages and the stage each day holds (MDT-02)', async () => {
     const { user, trip, ridge, day1, day2 } = fixture();
     const orm = await createTestOrm(db);
     await addTourWaypoints(orm, ridge.id, [

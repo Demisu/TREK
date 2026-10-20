@@ -427,7 +427,7 @@ describe('ToursRepository writes', () => {
     });
   });
 
-  it('TOURREPO-016: a hike keeps its winter label through an edit that leaves it out, and loses it only when told (HIK-01)', async () => {
+  it('TOURREPO-022: a hike keeps its winter label through an edit that leaves it out, and loses it only when told (HIK-01)', async () => {
     const { trip } = fixture();
     const place = createPlace(testDb, trip.id, { name: 'Snowy ridge' });
     await repo.insertTour({ place_id: place.id, ...METRICS, winter_activity: 'snowshoe' });
@@ -443,7 +443,7 @@ describe('ToursRepository writes', () => {
     expect((await repo.findInTrip(trip.id, place.id))?.winter_activity).toBeNull();
   });
 
-  it('TOURREPO-017: a run keeps its profile and pace, an edit replaces them, and another type takes them off (RUN-01)', async () => {
+  it('TOURREPO-023: a run keeps its profile and pace, an edit replaces them, and another type takes them off (RUN-01)', async () => {
     const { trip } = fixture();
     const place = createPlace(testDb, trip.id, { name: 'River loop' });
     const run = { ...METRICS, tour_type: 'run', max_hiking_difficulty: null };
@@ -458,7 +458,7 @@ describe('ToursRepository writes', () => {
     expect(await repo.findInTrip(trip.id, place.id)).toMatchObject({ run_profile: null, run_pace_seconds_per_km: null });
   });
 
-  it('TOURREPO-018: a ski track keeps its classification, is classified again only in its own trip, and a route edit takes it off (SKI-02)', async () => {
+  it('TOURREPO-024: a ski track keeps its classification, is classified again only in its own trip, and a route edit takes it off (SKI-02)', async () => {
     const { trip, other } = fixture();
     const place = createPlace(testDb, trip.id, { name: 'Valley loop' });
     const ski = { ...METRICS, tour_type: 'ski', max_hiking_difficulty: null, duration: null };
