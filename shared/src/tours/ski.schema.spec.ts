@@ -150,10 +150,10 @@ describe('ski and winter tours (SKI-02)', () => {
       );
     });
 
-    it('SKI-SCHEMA-008: works out no ski time and takes nothing of another type, a free leg allowed', () => {
-      expect(() => tourCreateRequestSchema.parse({ ...planned, duration_seconds: 3600 })).toThrow(
-        /a ski tour has no ski time worked out/,
-      );
+    it('SKI-SCHEMA-008: takes the time the piste router worked out and nothing of another type, a free leg allowed', () => {
+      expect(tourCreateRequestSchema.parse({ ...planned, duration_seconds: 3600 })).toMatchObject({
+        duration_seconds: 3600,
+      });
       expect(tourCreateRequestSchema.safeParse({ ...planned, duration_seconds: null }).success).toBe(true);
       expect(() => tourCreateRequestSchema.parse({ ...planned, max_hiking_difficulty: 3 })).toThrow(
         /a ski tour has no hiking difficulty/,

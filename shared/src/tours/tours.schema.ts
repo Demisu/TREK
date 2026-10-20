@@ -10,6 +10,8 @@ import { runPaceSecondsPerKmSchema } from './run-pace';
 import {
   skiDisciplineSchema,
   skiIssues,
+  skiRouteBuildSchema,
+  skiRouteOptionsSchema,
   skiTechniqueSchema,
   type SkiDiscipline,
   type SkiTechnique,
@@ -48,8 +50,8 @@ export type TourTypeKey = z.infer<typeof tourTypeKeySchema>;
  * run (RUN-01), planned on foot with the runner's own pace. `horse` is a
  * ride (HOR-01): sections of signposted horse routes and stretches the rider
  * draws by hand, never routed. `ski` is a ski and winter tour (SKI-02): a
- * discipline from alpine skiing to winter hiking, every leg drawn between
- * its points until the piste router plans them, no ski time worked out.
+ * discipline from alpine skiing to winter hiking, its legs planned by the
+ * piste router where the piste data reaches and drawn straight elsewhere.
  */
 export const plannableTourTypeSchema = z.enum(['hike', 'walk', 'run', 'bike', 'kayak', 'horse', 'ski']);
 export type PlannableTourType = z.infer<typeof plannableTourTypeSchema>;
@@ -221,6 +223,10 @@ export const tourSchema = z.object({
   ski_discipline: skiDisciplineSchema.nullable().optional(),
   /** SKI-02: how a cross-country tour is skied; null for every other discipline and type. */
   ski_technique: skiTechniqueSchema.nullable().optional(),
+  /** The piste router's options a ski tour was planned with; null for every other type and an imported track. */
+  ski_options: skiRouteOptionsSchema.nullable().optional(),
+  /** The piste data build a ski tour's legs were planned on; null where the router planned none. */
+  ski_route_build: z.string().nullable().optional(),
   /** A paddle tour's boat and water; null for every other type. Absent in a list cached before they existed. */
   boat_type: paddleBoatTypeSchema.nullable().optional(),
   water_context: paddleWaterContextSchema.nullable().optional(),
@@ -521,6 +527,10 @@ export const tourCreateRequestSchema = z
     /** SKI-02, a ski tour's only, and its one requirement: the discipline, for cross-country the technique too. */
     ski_discipline: skiDisciplineSchema.nullable().optional(),
     ski_technique: skiTechniqueSchema.nullable().optional(),
+    /** A ski tour's only: what the piste router was asked for (the server keeps what its discipline reads). */
+    ski_options: skiRouteOptionsSchema.nullable().optional(),
+    /** A ski tour's only: the piste data build its legs were planned on, so newer data can be offered later. */
+    ski_route_build: skiRouteBuildSchema.nullable().optional(),
     boat_type: paddleBoatTypeSchema.nullable().optional(),
     water_context: paddleWaterContextSchema.nullable().optional(),
     paddle_speed_kmh: paddleSpeedKmhSchema.nullable().optional(),
@@ -632,8 +642,8 @@ const PADDLE_FIELDS = [
  * paddler's, a run also its pace; a paddle tour exactly one boat and its
  * water, and no hiking limit; a horse tour (HOR-01) only legs taken from a
  * horse route or drawn by hand, and no riding time worked out for it; a ski
- * tour (SKI-02) its discipline (and a cross-country technique), no via
- * ferrata, and no ski time worked out for it.
+ * tour (SKI-02) its discipline (and a cross-country technique), its piste
+ * router options, and no via ferrata.
  */
 function tourTypeIssues(value: {
   tour_type: PlannableTourType;
@@ -645,6 +655,8 @@ function tourTypeIssues(value: {
   run_pace_seconds_per_km?: number | null;
   ski_discipline?: SkiDiscipline | null;
   ski_technique?: SkiTechnique | null;
+  ski_options?: object | null;
+  ski_route_build?: string | null;
   boat_type?: PaddleBoatType | null;
   water_context?: PaddleWaterContext | null;
   paddle_speed_kmh?: number | null;
@@ -685,12 +697,15 @@ function tourTypeIssues(value: {
     issues.push({ path: ['bike_profile'], message: 'bike_profile belongs to a bike tour' });
   issues.push(...runIssues(value));
   issues.push(...skiIssues(type === 'ski', value));
+  if (type !== 'ski') {
+    for (const field of ['ski_options', 'ski_route_build'] as const) {
+      if (value[field] != null) issues.push({ path: [field], message: `${field} belongs to a ski tour` });
+    }
+  }
   // No router plans a ride, so no time is worked out for it; a planned total the rider enters is theirs.
+  // A ski tour's time is the piste router's, sent only when it planned every leg.
   if (type === 'horse' && value.duration_seconds != null)
     issues.push({ path: ['duration_seconds'], message: 'a horse tour has no riding time worked out' });
-  // SKI-02: no ski time is worked out until the piste router plans the legs; a planned total stays the traveller's.
-  if (type === 'ski' && value.duration_seconds != null)
-    issues.push({ path: ['duration_seconds'], message: 'a ski tour has no ski time worked out' });
   const points = value.waypoints ?? [];
   // A portage and a lock are a paddler's; a via ferrata is climbed, never ridden.
   points.forEach((point, index) => {

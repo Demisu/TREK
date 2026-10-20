@@ -45,6 +45,8 @@ export interface TourListRow {
   /** SKI-02: a ski tour's discipline and, for cross-country, its technique; NULL on every other type. */
   ski_discipline: string | null;
   ski_technique: string | null;
+  /** A ski tour's piste router options and build, still JSON text; absent where a read does not take it. */
+  ski_options?: string | null;
   boat_type: string | null;
   water_context: string | null;
   paddle_speed_kmh: number | null;
@@ -123,6 +125,7 @@ export interface TourRow {
   ski_technique: string | null;
   track_started_at: string | null;
   track_ended_at: string | null;
+  ski_options: string | null;
 }
 const _tourRowKeys: AssertRowKeys<TourRow, Tours> = true;
 
@@ -146,6 +149,8 @@ export interface TourInsert {
   /** SKI-02: a ski tour's discipline and technique; left out, NULL. */
   ski_discipline?: SkiDiscipline | null;
   ski_technique?: SkiTechnique | null;
+  /** A ski tour's piste router options and build as JSON text; left out, NULL. */
+  ski_options?: string | null;
   /** A paddle tour's boat, water and chosen speed; left out, a hike's NULLs. */
   boat_type?: PaddleBoatType | null;
   water_context?: PaddleWaterContext | null;
@@ -305,6 +310,7 @@ export class ToursRepository extends TrekRepository<Tours> {
         't.run_pace_seconds_per_km as run_pace_seconds_per_km',
         't.ski_discipline as ski_discipline',
         't.ski_technique as ski_technique',
+        't.ski_options as ski_options',
         't.boat_type as boat_type',
         't.water_context as water_context',
         't.paddle_speed_kmh as paddle_speed_kmh',
@@ -771,6 +777,7 @@ export class ToursRepository extends TrekRepository<Tours> {
       run_pace_seconds_per_km: input.run_pace_seconds_per_km ?? null,
       ski_discipline: input.ski_discipline ?? null,
       ski_technique: input.ski_technique ?? null,
+      ski_options: input.ski_options ?? null,
       boat_type: input.boat_type ?? null,
       water_context: input.water_context ?? null,
       paddle_speed_kmh: input.paddle_speed_kmh ?? null,
@@ -862,6 +869,7 @@ export class ToursRepository extends TrekRepository<Tours> {
         run_pace_seconds_per_km: input.run_pace_seconds_per_km,
         ski_discipline: input.ski_discipline,
         ski_technique: input.ski_technique,
+        ...(input.ski_options !== undefined ? { ski_options: input.ski_options } : {}),
         boat_type: input.boat_type,
         water_context: input.water_context,
         paddle_speed_kmh: input.paddle_speed_kmh,

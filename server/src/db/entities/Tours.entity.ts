@@ -50,6 +50,7 @@ export class Tours {
   track_started_at?: string | null;
   track_ended_at?: string | null;
   ski_discipline?: TToursSkiDiscipline | null;
+  ski_options?: string | null;
   tourTypeRef!: Ref<TourTypes>;
   tour_activities_collection = new Collection<TourActivities>(this);
   tour_activities_collection1 = new Collection<TourActivities>(this);
@@ -181,6 +182,7 @@ export const ToursSchema = defineEntity({
     track_started_at: p.type(DbTimestampType).nullable(),
     track_ended_at: p.type(DbTimestampType).nullable(),
     ski_discipline: p.enum(() => ToursSkiDiscipline).nullable(),
+    ski_options: p.text().nullable(),
     tourTypeRef: () => p.manyToOne(TourTypes).ref().joinColumn('tour_type').hidden().index('idx_tours_tour_type'),
     tour_activities_collection: () => p.oneToMany(TourActivities).mappedBy('place').hidden(),
     tour_activities_collection1: () => p.oneToMany(TourActivities).mappedBy('trackPlace').hidden(),

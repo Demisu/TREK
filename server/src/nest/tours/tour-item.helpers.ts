@@ -2,7 +2,7 @@
  * The read half of ToursService that needs no database: a tour as it is
  * listed, and where it came from as its provenance names it.
  */
-import { TOUR_HIKING_PREFERENCES, TOUR_TRACK_MARKS } from '../../db/json-columns';
+import { TOUR_HIKING_PREFERENCES, TOUR_SKI_ROUTE, TOUR_TRACK_MARKS } from '../../db/json-columns';
 import type { TourActivityRefRow } from '../../db/repositories/TourActivities.repository';
 import type { TourWaypointRow } from '../../db/repositories/TourWaypoints.repository';
 import type { TourListRow, TourProvenanceRow } from '../../db/repositories/Tours.repository';
@@ -30,6 +30,13 @@ import {
 function stageStopsOrNull(points: Parameters<typeof tourStageStopsOf>[0]): TourListItem['stage_stops'] {
   const stops = tourStageStopsOf(points);
   return stops.length > 0 ? stops : null;
+}
+
+/** A ski tour's piste router options and the build its legs ran on, where it keeps them; nothing for any other tour. */
+function skiRouteFacts(r: TourListRow): Pick<TourListItem, 'ski_options' | 'ski_route_build'> {
+  if (r.tour_type !== 'ski' || !r.ski_options) return {};
+  const route = decodeJson(TOUR_SKI_ROUTE, r.ski_options, 'tour');
+  return route ? { ski_options: route.options, ski_route_build: route.build } : {};
 }
 
 /**
@@ -64,6 +71,7 @@ export function tourItemOf(
     run_pace_seconds_per_km: r.run_pace_seconds_per_km,
     ski_discipline: r.ski_discipline as SkiDiscipline | null,
     ski_technique: r.ski_technique as SkiTechnique | null,
+    ...skiRouteFacts(r),
     boat_type: r.boat_type as PaddleBoatType | null,
     water_context: r.water_context as PaddleWaterContext | null,
     paddle_speed_kmh: r.paddle_speed_kmh,

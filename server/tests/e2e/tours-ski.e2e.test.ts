@@ -231,12 +231,11 @@ describe('Ski tracks e2e (real guards + temp SQLite)', () => {
         { ...planned, duration_seconds: null },
         { ...planned, duration_seconds: null, ski_discipline: 'cross_country' },
         { ...planned, duration_seconds: null, ski_discipline: 'alpine', ski_technique: 'classic' },
-        { ...planned, ski_discipline: 'snowshoe' },
         { ...planned, duration_seconds: null, ski_discipline: 'snowshoe', max_hiking_difficulty: 3 },
       ],
       (body) => request(server).post('/api/trips/5/tours').set('Cookie', sessionCookie(OWNER)).send(body),
     );
-    expect(refused.map((res) => res.status)).toEqual([400, 400, 400, 400, 400]);
+    expect(refused.map((res) => res.status)).toEqual([400, 400, 400, 400]);
     expect(await countRows(orm, Tours)).toBe(0);
 
     const res = await request(server)
@@ -284,6 +283,42 @@ describe('Ski tracks e2e (real guards + temp SQLite)', () => {
     expect(asHike.status).toBe(200);
     expect(asHike.body.tour).toMatchObject({ tour_type: 'hike', ski_discipline: null, ski_technique: null });
     expect(await findRow(orm, Tours, { place: placeId })).toMatchObject({ ski_discipline: null, ski_technique: null });
+  });
+
+  it('TOURS-SKI-E2E-011: a ski tour the piste router planned keeps its time, its options and the build', async () => {
+    const planned = { ...hikeBody, tour_type: 'ski', max_hiking_difficulty: null, ski_discipline: 'alpine' };
+    const created = await request(server)
+      .post('/api/trips/5/tours')
+      .set('Cookie', sessionCookie(OWNER))
+      .send({
+        ...planned,
+        duration_seconds: 3600,
+        ski_options: { max_difficulty: 'advanced', lit_only: true },
+        ski_route_build: '2026-11-02',
+      });
+    expect(created.status).toBe(201);
+    expect(created.body.tour).toMatchObject({
+      duration: 60,
+      ski_route_build: '2026-11-02',
+      ski_options: { max_difficulty: 'advanced', lit_only: false, priority: 'fastest' },
+    });
+    const placeId = created.body.tour.place_id as number;
+    const stored = await findRow(orm, Tours, { place: placeId });
+    expect(JSON.parse(String(stored?.ski_options))).toMatchObject({ build: '2026-11-02' });
+
+    const refused = await request(server)
+      .post('/api/trips/5/tours')
+      .set('Cookie', sessionCookie(OWNER))
+      .send({ ...hikeBody, ski_options: {} });
+    expect(refused.status).toBe(400);
+
+    const asHike = await request(server)
+      .put(`/api/trips/5/tours/${placeId}`)
+      .set('Cookie', sessionCookie(OWNER))
+      .send({ ...hikeBody, expected_revision: created.body.tour.revision });
+    expect(asHike.status).toBe(200);
+    expect(asHike.body.tour).not.toHaveProperty('ski_options');
+    expect(await findRow(orm, Tours, { place: placeId })).toMatchObject({ ski_options: null });
   });
 
   it('TOURS-SKI-E2E-005: classified again, only the classification changes: track, measures, days and provenance stay', async () => {

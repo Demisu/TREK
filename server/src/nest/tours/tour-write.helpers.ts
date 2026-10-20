@@ -3,7 +3,7 @@
  * or an update stores, the checks a write passes before its transaction, and
  * the keys its points keep.
  */
-import { TOUR_HIKING_PREFERENCES } from '../../db/json-columns';
+import { TOUR_HIKING_PREFERENCES, TOUR_SKI_ROUTE } from '../../db/json-columns';
 import type { TourUpdate } from '../../db/repositories/Tours.repository';
 import { encodeJson } from '../../utils/json-column';
 import { badRequest } from '../common/domain-error';
@@ -14,6 +14,7 @@ import {
   maxTourMinutesFor,
   plannedTimeLimitMessage,
   plannedTourDurationMinutesSchema,
+  skiOptionsForDiscipline,
   tourStageCountOf,
   tourStageIssues,
   tourWebsiteSchema,
@@ -39,6 +40,17 @@ function skiFields(input: TourCreateCommand): Pick<TourUpdate, 'ski_discipline' 
     ski_discipline: discipline,
     ski_technique: discipline === 'cross_country' ? (input.ski_technique ?? null) : null,
   };
+}
+
+/**
+ * A save's piste router options as stored, with the build its legs ran on:
+ * only a ski tour keeps them, and only the options its discipline reads.
+ * Without options (an older client, a type without them) none are kept.
+ */
+function skiRouteField(input: TourCreateCommand): string | null {
+  if (input.tour_type !== 'ski' || !input.ski_discipline || !input.ski_options) return null;
+  const options = skiOptionsForDiscipline(input.ski_discipline, input.ski_options);
+  return encodeJson(TOUR_SKI_ROUTE, { options, build: input.ski_route_build ?? null });
 }
 
 /**
@@ -92,6 +104,7 @@ export function tourRouteFields(input: TourCreateCommand): TourUpdate {
     bike_profile: input.tour_type === 'bike' ? (input.bike_profile ?? null) : null,
     ...runFields(input),
     ...skiFields(input),
+    ski_options: skiRouteField(input),
     boat_type: input.boat_type ?? null,
     water_context: input.water_context ?? null,
     paddle_speed_kmh: input.paddle_speed_kmh ?? null,

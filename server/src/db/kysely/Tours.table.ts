@@ -37,4 +37,5 @@ export interface ToursTable {
   track_started_at: InsertOptional<string | null>;
   track_ended_at: InsertOptional<string | null>;
   ski_discipline: InsertOptional<string | null>;
+  ski_options: InsertOptional<string | null>;
 }

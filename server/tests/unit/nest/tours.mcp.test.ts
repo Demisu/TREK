@@ -34,6 +34,7 @@ import { resetTestDb } from '../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../helpers/test-module';
 import { createTestOrm } from '../../helpers/test-orm';
 import { createTour } from '../../helpers/tours-repos';
+import { DEFAULT_SKI_ROUTE_OPTIONS } from '@trek/shared';
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -650,9 +651,10 @@ describe('ToursMcp', () => {
     const description = entry?.kind === 'tool' ? (entry.options.description ?? '') : '';
     expect(description).toContain('ski_discipline: alpine, snowboard, cross_country, touring for ski touring');
     expect(description).toContain('snowshoe or winter_hike');
-    expect(description).toContain('drawn straight between its points, never routed');
+    expect(description).toContain('planned by the piste router along the runs, lifts and trails');
+    expect(description).toContain('and drawn straight elsewhere');
     expect(description).toContain('an imported one is kept as recorded');
-    expect(description).toContain('it has no ski time worked out');
+    expect(description).toContain("the router's estimate only when every leg was planned by it");
     expect(description).toContain('nothing in it says anything about snow, avalanches');
   });
 
@@ -701,5 +703,26 @@ describe('ToursMcp', () => {
     expect(planDescription).toContain(
       'never present them as saved facts. tour.time_estimate is one of them where present',
     );
+  });
+
+  it('TOURS-MCP-027: a ski tour the piste router planned names its options and build, and its legs as routed', async () => {
+    const { member, trip } = fixture();
+    const orm = await createTestOrm(db);
+    const ski = await makePlace(orm, trip.id, { name: 'Down to the valley' });
+    const stored = { options: { ...DEFAULT_SKI_ROUTE_OPTIONS, max_difficulty: 'advanced' }, build: '2026-11-02' };
+    await makeTour(orm, ski.id, {
+      tourTypeRef: 'ski',
+      max_hiking_difficulty: null,
+      ski_discipline: 'alpine',
+      ski_options: JSON.stringify(stored),
+    });
+    await addTourWaypoints(orm, ski.id, [
+      { lat: 46, lng: 7, station_key: 'pk-top' },
+      { lat: 46.01, lng: 7, station_key: 'pk-valley' },
+    ]);
+    await orm.close();
+    const plan = read(await mcp.getTourPlan({ tripId: trip.id, placeId: ski.id }, ctx(member.id)));
+    expect(plan.tour).toMatchObject({ ski_options: stored.options, ski_route_build: '2026-11-02' });
+    expect(plan.legs).toEqual([expect.objectContaining({ from_key: 'pk-top', to_key: 'pk-valley', kind: 'routed' })]);
   });
 });
