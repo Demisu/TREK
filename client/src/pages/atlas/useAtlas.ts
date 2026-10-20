@@ -208,7 +208,7 @@ export function useAtlas() {
   const [bucketSearching, setBucketSearching] = useState(false)
   const [bucketPoiMonth, setBucketPoiMonth] = useState(0)
   const [bucketPoiYear, setBucketPoiYear] = useState(0)
-  const [bucketTab, setBucketTab] = useState<'stats' | 'bucket'>('stats')
+  const [bucketTab, setBucketTab] = useState<'stats' | 'bucket' | 'tours'>('stats')
   const bucketMarkersRef = useRef<any>(null)
 
   const [atlas_country_search, set_atlas_country_search] = useState('')

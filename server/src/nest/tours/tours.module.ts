@@ -1,5 +1,6 @@
 import { Places } from '../../db/entities/Places.entity';
 import { TourActivities } from '../../db/entities/TourActivities.entity';
+import { TourActivityExclusions } from '../../db/entities/TourActivityExclusions.entity';
 import { TourChangeSteps } from '../../db/entities/TourChangeSteps.entity';
 import { TourObstacleReviews } from '../../db/entities/TourObstacleReviews.entity';
 import { TourSources } from '../../db/entities/TourSources.entity';
@@ -24,6 +25,9 @@ import { CityWalkMcp } from './city-walk.mcp';
 import { TourActivitiesController } from './tour-activities.controller';
 import { TourActivitiesMcp } from './tour-activities.mcp';
 import { TourActivitiesService } from './tour-activities.service';
+import { TourActivityStatsController } from './tour-activity-stats.controller';
+import { TourActivityStatsMcp } from './tour-activity-stats.mcp';
+import { TourActivityStatsService } from './tour-activity-stats.service';
 import { TourChangePreviewService } from './tour-change-preview.service';
 import { TourChangeSaveService } from './tour-change-save.service';
 import { TourChangeUndoMcp } from './tour-change-undo.mcp';
@@ -76,6 +80,9 @@ import { Module } from '@nestjs/common';
  * step for a later undo (MCP-T03). The recorded tracks assigned to a tour
  * (ACT-01) are read with its detail and written through
  * TourActivitiesService, over the day assignments the visits repository reads.
+ * The user's own activity sums across their trips (STA-02) are read by
+ * TourActivityStatsService, over the trips TripMembershipModule says they can
+ * open, with the tours the user left out of them.
  */
 @Module({
   imports: [
@@ -106,6 +113,7 @@ import { Module } from '@nestjs/common';
       TourStationVisits,
       TourChangeSteps,
       TourActivities,
+      TourActivityExclusions,
       Places,
     ]),
   ],
@@ -113,6 +121,7 @@ import { Module } from '@nestjs/common';
     TourHorseRoutesController,
     TourTakeOverController,
     TourActivitiesController,
+    TourActivityStatsController,
     TourPoiSearchController,
     TourSkiController,
     TourTrailGradeController,
@@ -144,6 +153,7 @@ import { Module } from '@nestjs/common';
     TourChangeSaveService,
     TourChangeUndoService,
     TourActivitiesService,
+    TourActivityStatsService,
     ToursMcp,
     TourLibraryMcp,
     TourWalkImportMcp,
@@ -151,6 +161,7 @@ import { Module } from '@nestjs/common';
     TourChangeMcp,
     TourChangeUndoMcp,
     TourActivitiesMcp,
+    TourActivityStatsMcp,
   ],
 })
 export class ToursModule {}

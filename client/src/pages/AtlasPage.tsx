@@ -4,7 +4,7 @@ import { useTranslation } from '../i18n'
 import Navbar from '../components/Layout/Navbar'
 import CustomSelect from '../components/shared/CustomSelect'
 import EmptyState from '../components/shared/EmptyState'
-import { Globe, MapPin, Briefcase, Calendar, Flag, PanelLeftOpen, PanelLeftClose, X, Star, Plus, Trash2, Search, Check, ArrowLeft, ChevronRight, type LucideIcon } from 'lucide-react'
+import { Globe, MapPin, Briefcase, Calendar, Flag, PanelLeftOpen, PanelLeftClose, X, Star, Plus, Trash2, Search, Check, ArrowLeft, ChevronRight, Footprints, type LucideIcon } from 'lucide-react'
 import type { TranslationFn } from '../types'
 import { Tooltip } from '../components/shared/Tooltip'
 import { DialogButton, DialogFooter, DialogHeader, DialogShell, DialogTile, FooterSpacer, NEUTRAL_TINT, fs } from '../components/shared/DialogShell'
@@ -18,6 +18,8 @@ import AtlasCountrySearch from './atlas/AtlasCountrySearch'
 import AtlasLayerToggle from './atlas/AtlasLayerToggle'
 import HelpAnchor from '../components/Help/HelpAnchor'
 import AtlasCountryPlaces from '../components/Atlas/AtlasCountryPlaces'
+import { AtlasTourActivityPane } from '../components/Atlas/tourActivity/AtlasTourActivityPane'
+import { useAddonStore } from '../store/addonStore'
 import { getIntlLanguage } from '@trek/shared'
 
 // Fixed ids rather than useId: the page body stays free of hooks, and there is only one atlas.
@@ -419,8 +421,9 @@ interface SidebarContentProps {
   onTripClick: (id: number) => void
   onUnmarkCountry?: (code: string) => void
   bucketList: any[]
-  bucketTab: 'stats' | 'bucket'
-  setBucketTab: (tab: 'stats' | 'bucket') => void
+  /** The panel's tab: the travel numbers, the bucket list, or the user's own tours (STA-02, with the Tours addon). */
+  bucketTab: 'stats' | 'bucket' | 'tours'
+  setBucketTab: (tab: 'stats' | 'bucket' | 'tours') => void
   showBucketAdd: boolean
   setShowBucketAdd: (v: boolean) => void
   bucketForm: { name: string; notes: string; lat: string; lng: string; target_date: string }
@@ -445,6 +448,7 @@ interface SidebarContentProps {
 
 function SidebarContent({ data, stats, regionsVisited, countryRegions, onOpenPlaces, countries, selectedCountry, countryDetail, resolveName, onTripClick, onUnmarkCountry, bucketList, bucketTab, setBucketTab, showBucketAdd, setShowBucketAdd, bucketForm, setBucketForm, onAddBucket, onDeleteBucket, onClearBucketVisit, onSearchBucket, onSelectBucketPoi, bucketSearchResults, setBucketSearchResults, bucketPoiMonth, setBucketPoiMonth, bucketPoiYear, setBucketPoiYear, bucketSearching, bucketSearch, setBucketSearch, t, dark }: SidebarContentProps): React.ReactElement {
   const { language } = useTranslation()
+  const toursEnabled = useAddonStore(s => s.isEnabled('tours'))
   const statsContentRef = useRef<HTMLDivElement>(null)
   const bucketSearchRowRef = useRef<HTMLDivElement>(null)
   const [statsWidth, setStatsWidth] = useState<number | undefined>(undefined)
@@ -470,7 +474,11 @@ function SidebarContent({ data, stats, regionsVisited, countryRegions, onOpenPla
   // Tab switcher
   const tabBar = (
     <div style={{ display: 'flex', gap: 4, padding: '12px 16px 0', marginBottom: 4 }}>
-      {[{ id: 'stats', label: t('atlas.statsTab'), icon: Globe }, { id: 'bucket', label: t('atlas.bucketTab'), icon: Star }].map(tab => (
+      {[
+        { id: 'stats', label: t('atlas.statsTab'), icon: Globe },
+        { id: 'bucket', label: t('atlas.bucketTab'), icon: Star },
+        ...(toursEnabled ? [{ id: 'tours', label: t('tours.mode.tours'), icon: Footprints }] : []),
+      ].map(tab => (
         <button type="button" key={tab.id} onClick={() => setBucketTab(tab.id as any)}
           style={{
             flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
@@ -486,7 +494,7 @@ function SidebarContent({ data, stats, regionsVisited, countryRegions, onOpenPla
     </div>
   )
 
-  if (countries.length === 0 && !lastTrip && bucketTab !== 'bucket') {
+  if (countries.length === 0 && !lastTrip && bucketTab === 'stats') {
     return (
       <>
         {tabBar}
@@ -670,9 +678,9 @@ function SidebarContent({ data, stats, regionsVisited, countryRegions, onOpenPla
   return (
     <>
     {tabBar}
-    {/* Both tabs always rendered so the wider one sets the panel width */}
+    {/* Every tab always rendered so the widest one sets the panel width */}
     <div style={{ display: 'grid' }}>
-    <div style={bucketTab === 'bucket' ? { visibility: 'hidden' as const, gridArea: '1/1' } : { gridArea: '1/1' }}>
+    <div style={bucketTab !== 'stats' ? { visibility: 'hidden' as const, gridArea: '1/1' } : { gridArea: '1/1' }}>
     <div ref={statsContentRef} className="flex items-stretch justify-center">
 
       {/* ═══ SECTION 1: Numbers ═══ */}
@@ -799,9 +807,15 @@ function SidebarContent({ data, stats, regionsVisited, countryRegions, onOpenPla
       )}
     </div>
     </div>
-    <div style={bucketTab === 'stats' ? { visibility: 'hidden' as const, gridArea: '1/1' } : { gridArea: '1/1' }}>
+    <div style={bucketTab !== 'bucket' ? { visibility: 'hidden' as const, gridArea: '1/1' } : { gridArea: '1/1' }}>
       {bucketContent}
     </div>
+    {/* STA-02: the user's own tours, read only once the tab is first shown. */}
+    {toursEnabled && (
+      <div className="flex justify-center" style={bucketTab !== 'tours' ? { visibility: 'hidden' as const, gridArea: '1/1' } : { gridArea: '1/1' }}>
+        <AtlasTourActivityPane active={bucketTab === 'tours'} maxWidth={statsWidth} />
+      </div>
+    )}
     </div>
     </>
   )

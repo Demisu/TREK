@@ -59,6 +59,8 @@ export * from './tours/run-pace';
 export * from './tours/ski.schema';
 export * from './tours/tour-provenance.schema';
 export * from './tours/tour-activity.schema';
+export * from './tours/tour-activity-stats.schema';
+export * from './tours/tour-activity-stats';
 export * from './tours/tour-library.schema';
 export * from './tours/tour-poi-search.schema';
 export * from './tours/tour-trail-grade.schema';

@@ -2,7 +2,10 @@ import type { TourActivities } from '../entities/TourActivities.entity';
 import type { DB } from '../kysely/db';
 import { TrekRepository } from './_shared/trek-repository';
 
-type ActivitiesDB = Pick<DB, 'tour_activities' | 'tours' | 'places' | 'day_assignments'>;
+type ActivitiesDB = Pick<
+  DB,
+  'tour_activities' | 'tours' | 'places' | 'day_assignments' | 'days' | 'trips' | 'assignment_participants'
+>;
 
 /** One assignment of a recording to a tour, as the trip's tour list names it. */
 export interface TourActivityRefRow {
@@ -28,6 +31,40 @@ export interface TourActivityRow extends TourActivityRefRow {
   track_recorded_route_geometry: string | null;
   track_started_at: string | null;
   track_ended_at: string | null;
+}
+
+/**
+ * STA-02: one tour of a trip the user can open, once per day assignment it has
+ * (once with `assignment_id` NULL when it is on no day), with what the activity
+ * sums need: its plan's measures, the day's date, the trip's owner, and who the
+ * execution names as taking part (`participant_count`, and `joined` 1 when the
+ * user is one of them).
+ */
+export interface TourStatsExecutionRow {
+  place_id: number;
+  name: string;
+  tour_type: string;
+  distance: number | null;
+  elevation_gain: number | null;
+  elevation_loss: number | null;
+  derived_from_place_id: number | null;
+  trip_id: number;
+  trip_title: string;
+  trip_owner_id: number;
+  assignment_id: number | null;
+  date: string | null;
+  participant_count: number;
+  joined: number;
+}
+
+/** STA-02: a recording assigned to a tour, with the line its values are read from. */
+export interface TourStatsTrackRow {
+  place_id: number;
+  track_place_id: number;
+  assignment_id: number | null;
+  track_name: string;
+  track_route_geometry: string | null;
+  track_recorded_route_geometry: string | null;
 }
 
 /** What an assignment writes: the tour, its recording, the execution and who confirmed it. */
@@ -127,6 +164,81 @@ export class TourActivitiesRepository extends TrekRepository<TourActivities> {
           eb('track_place_id', '=', track_place_id),
         ]),
       )
+      .execute();
+  }
+
+  /**
+   * STA-02: every tour of the given trips with each of its day assignments, for
+   * the user's activity sums. The day is read only when it is a day of the
+   * tour's own trip. Never a trip outside `trip_ids`, which the caller resolved
+   * from the user's own access.
+   */
+  async listExecutionsForStats(trip_ids: readonly number[], user_id: number): Promise<TourStatsExecutionRow[]> {
+    if (trip_ids.length === 0) return [];
+    const rows = await this.db()
+      .selectFrom('tours as t')
+      .innerJoin('places as p', 'p.id', 't.place_id')
+      .innerJoin('trips as tr', 'tr.id', 'p.trip_id')
+      .leftJoin('day_assignments as da', 'da.place_id', 'p.id')
+      .leftJoin('days as d', (join) => join.onRef('d.id', '=', 'da.day_id').onRef('d.trip_id', '=', 'p.trip_id'))
+      .select((eb) => [
+        'p.id as place_id',
+        'p.name as name',
+        't.tour_type as tour_type',
+        't.distance as distance',
+        't.elevation_gain as elevation_gain',
+        't.elevation_loss as elevation_loss',
+        't.derived_from_place_id as derived_from_place_id',
+        'tr.id as trip_id',
+        'tr.title as trip_title',
+        'tr.user_id as trip_owner_id',
+        'da.id as assignment_id',
+        'd.date as date',
+        eb
+          .selectFrom('assignment_participants as ap')
+          .select(eb.fn.countAll<number>().as('n'))
+          .whereRef('ap.assignment_id', '=', 'da.id')
+          .as('participant_count'),
+        eb
+          .exists(
+            eb
+              .selectFrom('assignment_participants as me')
+              .select('me.id')
+              .whereRef('me.assignment_id', '=', 'da.id')
+              .where('me.user_id', '=', user_id),
+          )
+          .as('joined'),
+      ])
+      .where('p.trip_id', 'in', [...trip_ids])
+      .orderBy('p.id', 'asc')
+      .orderBy('da.id', 'asc')
+      .execute();
+    return rows.map((row) => ({
+      ...row,
+      participant_count: Number(row.participant_count ?? 0),
+      joined: Number(row.joined),
+    }));
+  }
+
+  /** STA-02: the recordings assigned to tours of the given trips, each with its line, both tours in the same trip. */
+  async listTracksForStats(trip_ids: readonly number[]): Promise<TourStatsTrackRow[]> {
+    if (trip_ids.length === 0) return [];
+    return await this.db()
+      .selectFrom('tour_activities as a')
+      .innerJoin('places as p', 'p.id', 'a.place_id')
+      .innerJoin('places as tp', 'tp.id', 'a.track_place_id')
+      .innerJoin('tours as tt', 'tt.place_id', 'a.track_place_id')
+      .select([
+        'a.place_id as place_id',
+        'a.track_place_id as track_place_id',
+        'a.assignment_id as assignment_id',
+        'tp.name as track_name',
+        'tp.route_geometry as track_route_geometry',
+        'tt.recorded_route_geometry as track_recorded_route_geometry',
+      ])
+      .where('p.trip_id', 'in', [...trip_ids])
+      .whereRef('tp.trip_id', '=', 'p.trip_id')
+      .orderBy('a.id', 'asc')
       .execute();
   }
 

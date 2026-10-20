@@ -109,6 +109,7 @@
   "TodoCategoryAssignees": "todo",
   "TodoItems": "todo",
   "TourActivities": "tours",
+  "TourActivityExclusions": "tours",
   "TourChangeSteps": "tours",
   "TourObstacleReviews": "tours",
   "TourStationVisits": "tours",

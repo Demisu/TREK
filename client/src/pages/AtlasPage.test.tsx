@@ -8,6 +8,7 @@ import { resetAllStores, seedStore } from '../../tests/helpers/store';
 import { buildUser, buildSettings } from '../../tests/helpers/factories';
 import { useAuthStore } from '../store/authStore';
 import { useSettingsStore } from '../store/settingsStore';
+import { useAddonStore } from '../store/addonStore';
 import AtlasPage from './AtlasPage';
 import { maplibreGL } from '@maplibre/maplibre-gl-leaflet';
 
@@ -1811,6 +1812,33 @@ describe('AtlasPage', () => {
       // target_date renders as formatted date
       // The item is in the bucket list — also verifies the bucket list useEffect ran (lat/lng → marker)
       expect(screen.getByText('Machu Picchu')).toBeInTheDocument();
+    });
+  });
+
+  describe('FE-PAGE-ATLAS-052: the Tours tab shows the own tour activities (STA-02)', () => {
+    it('offers the tab only with the Tours addon and reads the activities once it is opened', async () => {
+      let reads = 0;
+      server.use(
+        http.get('/api/tours/activity-stats', () => {
+          reads += 1;
+          return HttpResponse.json({ entries: [], uncounted: { unassigned: 0, undated: 0 } });
+        }),
+      );
+      const first = render(<AtlasPage />);
+      await waitFor(() => expect(screen.getByText('Bucket List')).toBeInTheDocument());
+      expect(screen.queryByRole('button', { name: 'Tours' })).not.toBeInTheDocument();
+      first.unmount();
+
+      seedStore(useAddonStore, {
+        addons: [{ id: 'tours', name: 'Tours', type: 'trip', icon: 'route', enabled: true }],
+      });
+      const user = userEvent.setup();
+      render(<AtlasPage />);
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Tours' })).toBeInTheDocument());
+      expect(reads).toBe(0);
+      await user.click(screen.getByRole('button', { name: 'Tours' }));
+      await waitFor(() => expect(screen.getByText('No completed tours yet')).toBeInTheDocument());
+      expect(reads).toBe(1);
     });
   });
 });
