@@ -17,7 +17,7 @@ import { TourSaveToCollectionBarButton, TourSaveToCollectionButton } from './Tou
 import { useCollectionTourTakeOver } from './useCollectionTourTakeOver';
 import { useSaveTourToCollection } from './useSaveTourToCollection';
 
-// FE-COLLECTION-TOURS-001 to FE-COLLECTION-TOURS-014
+// FE-COLLECTION-TOURS-001 to FE-COLLECTION-TOURS-015
 
 vi.mock('../../Map/MapViewAuto', () => ({
   MapViewAuto: ({ route }: { route: Array<Array<[number, number]>> }) => (
@@ -364,6 +364,29 @@ describe('CollectionToursSection', () => {
     await waitFor(() => expect(remove).toHaveBeenCalledWith(3, 4));
     expect(toast.success).toHaveBeenCalledWith('The tour was removed from the collection.');
     await waitFor(() => expect(screen.queryByTestId('collection-tours')).toBeNull());
+  });
+
+  it('FE-COLLECTION-TOURS-015: a kept tour looks as it did in its trip list: winter mark, run pace and stages', async () => {
+    vi.spyOn(collectionToursRepo, 'list').mockResolvedValue({
+      tours: [
+        kept({ id: 5, winter_activity: 'snowshoe', stage_count: 3 }),
+        kept({
+          id: 6,
+          tour_type: 'run',
+          max_hiking_difficulty: null,
+          run_profile: 'trail',
+          run_pace_seconds_per_km: 360,
+        }),
+      ],
+    });
+    render(<CollectionToursSection collectionId={3} canRemove={false} />);
+    const hike = await screen.findByTestId('kept-tour-5');
+    expect(within(hike).getByTestId('tour-winter-mark')).toBeInTheDocument();
+    expect(within(hike).getByTestId('kept-tour-stages')).toHaveTextContent('3 stages');
+    expect(within(hike).queryByTestId('kept-tour-pace')).toBeNull();
+    const run = screen.getByTestId('kept-tour-6');
+    expect(within(run).getByTestId('kept-tour-pace')).toHaveTextContent('6:00');
+    expect(within(run).queryByTestId('kept-tour-stages')).toBeNull();
   });
 
   it('FE-COLLECTION-TOURS-013: a viewer sees no remove, a failed read says so, and the Tours addon off shows nothing', async () => {

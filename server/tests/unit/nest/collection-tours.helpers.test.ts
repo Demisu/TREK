@@ -41,6 +41,11 @@ const row: CollectionTourRow = {
   match_confidence: 1,
   max_hiking_difficulty: null,
   bike_profile: 'gravel',
+  winter_activity: null,
+  run_profile: null,
+  run_pace_seconds_per_km: null,
+  ski_discipline: null,
+  ski_technique: null,
   boat_type: null,
   water_context: null,
   paddle_speed_kmh: null,
@@ -50,6 +55,8 @@ const row: CollectionTourRow = {
   hiking_preferences: null,
   origin: 'gpx',
   origin_file_name: 'ridge.gpx',
+  track_started_at: null,
+  track_ended_at: null,
   source_trip_title: 'Alps',
   source_tour_name: 'Ridge',
   created_at: '2026-10-20 10:00:00',
@@ -80,6 +87,38 @@ describe('collection tour helpers (LIB-03)', () => {
       saved_at: '2026-10-20 10:00:00',
     });
     expect(keptTourItem({ ...row, route_geometry: null }).has_line).toBe(false);
+  });
+
+  it('LIB3-HLP-007: a kept tour carries what the trip list shows of its type, and its stages', () => {
+    expect(keptTourItem(row)).toMatchObject({
+      bike_profile: 'gravel',
+      winter_activity: null,
+      ski_discipline: null,
+      run_pace_seconds_per_km: null,
+      stage_count: null,
+    });
+    const ski = {
+      ...row,
+      tour_type: 'ski',
+      bike_profile: null,
+      ski_discipline: 'cross_country',
+      ski_technique: 'skating',
+    };
+    expect(keptTourItem(ski)).toMatchObject({ ski_discipline: 'cross_country', ski_technique: 'skating' });
+    const run = { ...row, tour_type: 'run', bike_profile: null, run_profile: 'trail', run_pace_seconds_per_km: 360 };
+    expect(keptTourItem(run)).toMatchObject({ run_profile: 'trail', run_pace_seconds_per_km: 360 });
+    const snowshoe = { ...row, tour_type: 'hike', bike_profile: null, winter_activity: 'snowshoe' };
+    expect(keptTourItem(snowshoe).winter_activity).toBe('snowshoe');
+    const hutToHut = {
+      ...row,
+      waypoints: [
+        { lat: 47, lng: 11, role: 'start' as const, sequence: 0 },
+        { lat: 47.01, lng: 11.01, role: 'via' as const, sequence: 1, stage_end: true },
+        { lat: 47.015, lng: 11.015, role: 'via' as const, sequence: 2, stage_end: true },
+        { lat: 47.02, lng: 11.02, role: 'end' as const, sequence: 3 },
+      ],
+    };
+    expect(keptTourItem(hutToHut).stage_count).toBe(3);
   });
 
   it('LIB3-HLP-003: shows the points in route order and the line thinned for drawing', () => {

@@ -1,11 +1,12 @@
 import type { CollectionTourItem } from '@trek/shared';
-import { AlertTriangle, CopyPlus, Route, Trash2, Waypoints, WifiOff } from 'lucide-react';
+import { AlertTriangle, CopyPlus, Gauge, Moon, Route, Trash2, Waypoints, WifiOff } from 'lucide-react';
 import { useTranslation } from '../../../i18n';
 import { WhiteBadge } from '../../Planner/planParts';
 import ConfirmDialog from '../../shared/ConfirmDialog';
 import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
 import { TourMeasurePills } from '../library/tourPreviewParts';
+import { runPaceText } from '../run/runPaceText';
 import { CardAction, TourGradeTile, TourNotice } from '../tourParts';
 import { CollectionTourTakeOverDialog } from './CollectionTourTakeOverDialog';
 import { useCollectionTourTakeOver } from './useCollectionTourTakeOver';
@@ -15,6 +16,33 @@ import { useCollectionTours, type CollectionTours } from './useCollectionTours';
 function sourceText(tour: CollectionTourItem, t: (key: string, params?: Record<string, unknown>) => string) {
   const source = t('tours.collection.source', { tour: tour.source.tourName, trip: tour.source.tripTitle });
   return tour.saved_by ? `${source}. ${t('tours.collection.keptBy', { name: tour.saved_by })}` : source;
+}
+
+/**
+ * What the trip's list shows of a kept tour beyond its measures: a run's pace
+ * and a multi-day tour's stages, each a badge whose tooltip names it.
+ */
+function KeptTourTypeBadges({ tour }: { tour: CollectionTourItem }) {
+  const { t } = useTranslation();
+  const pace = runPaceText(tour, t);
+  const stages = tour.stage_count ? t('tours.stages.count', { count: tour.stage_count }) : null;
+  const icon = 'flex-none text-content-faint';
+  return (
+    <>
+      {pace && (
+        <Tooltip label={t('tours.run.pace')}>
+          <span className="inline-flex" data-testid="kept-tour-pace" aria-label={`${t('tours.run.pace')}: ${pace}`}>
+            <WhiteBadge icon={<Gauge size={10} strokeWidth={2.2} className={icon} />}>{pace}</WhiteBadge>
+          </span>
+        </Tooltip>
+      )}
+      {stages && (
+        <span className="inline-flex" data-testid="kept-tour-stages">
+          <WhiteBadge icon={<Moon size={10} strokeWidth={2.2} className={icon} />}>{stages}</WhiteBadge>
+        </span>
+      )}
+    </>
+  );
 }
 
 /**
@@ -66,6 +94,7 @@ function KeptTourCard({
       </div>
       <div className="flex flex-wrap gap-1.5">
         <TourMeasurePills tour={tour} testPrefix="kept-tour" />
+        <KeptTourTypeBadges tour={tour} />
         {tour.waypoint_count > 0 && (
           <Tooltip label={t('tours.collection.points', { count: tour.waypoint_count })}>
             <span className="inline-flex" aria-label={t('tours.collection.points', { count: tour.waypoint_count })}>
