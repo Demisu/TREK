@@ -1,3 +1,4 @@
+import { TOUR_TRAIL_GRADE_MAX_WAYS } from '@trek/shared';
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { encodePolyline } from '../../../../tests/helpers/polyline';
@@ -174,5 +175,28 @@ describe('useRouteWays (BIK-01 to BIK-05, RUN-02)', () => {
     expect(result.current.grades?.status).toBe('ready');
     rerender(input({ matching: 'bike', withGrades: true }));
     expect(result.current.status).toBe('loading');
+  });
+
+  it('FE-TOUR-WAYS-HOOK-010: ways past the cap were never asked, so they read as unasked, not as untagged (MAP-04)', async () => {
+    const count = TOUR_TRAIL_GRADE_MAX_WAYS + 2;
+    const edges = Array.from({ length: count }, (_, index) => ({
+      begin_shape_index: 0,
+      end_shape_index: 1,
+      length: 0.01,
+      use: 'path',
+      way_id: index + 1,
+    }));
+    trace.valhallaTraceAttributes.mockResolvedValue({ ...ANSWER, edges });
+    gradesRepo.grades.mockResolvedValue({ ways: [], unanswered: [5] });
+    const { result } = renderHook(() => useRouteWays(input({ matching: 'foot', withGrades: true })));
+    await settle();
+    const asked = gradesRepo.grades.mock.calls[0][1].way_ids as number[];
+    expect(asked).toHaveLength(TOUR_TRAIL_GRADE_MAX_WAYS);
+    const unasked = result.current.grades?.unasked;
+    expect(unasked?.has(5)).toBe(true);
+    expect(unasked?.has(count - 1)).toBe(true);
+    expect(unasked?.has(count)).toBe(true);
+    expect(unasked?.has(1)).toBe(false);
+    expect(unasked?.size).toBe(3);
   });
 });

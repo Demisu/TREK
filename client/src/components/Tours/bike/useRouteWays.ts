@@ -44,6 +44,20 @@ interface Question {
   withGrades: boolean;
 }
 
+/**
+ * The ways whose grades stay unknown after an answer: those it left unanswered,
+ * and those past the cap that were never asked, so neither reads as a way
+ * OpenStreetMap records nothing for.
+ */
+function unaskedWays(ways: RouteWays, asked: readonly number[], unanswered: readonly number[]): Set<number> {
+  const askedIds = new Set(asked);
+  const unasked = new Set(unanswered);
+  for (const edge of ways.edges) {
+    if (edge.wayId !== null && !askedIds.has(edge.wayId)) unasked.add(edge.wayId);
+  }
+  return unasked;
+}
+
 /** The ways of a route, and where asked for their grades; the grades' outcome as it came. */
 async function askRouteWays(
   { tripId, route, matching, withGrades }: Question,
@@ -59,7 +73,8 @@ async function askRouteWays(
   try {
     const answer = await tourTrailGradeRepo.grades(tripId, { way_ids: ids }, signal);
     const byWay = new Map(answer.ways.map((grade) => [grade.id, grade]));
-    return { status: 'ready', ways, grades: { status: 'ready', byWay, unasked: new Set(answer.unanswered) } };
+    const unasked = unaskedWays(ways, ids, answer.unanswered);
+    return { status: 'ready', ways, grades: { status: 'ready', byWay, unasked } };
   } catch (failure) {
     const status = failure instanceof OnlineOnlyError ? 'offline' : 'failed';
     return { status: 'ready', ways, grades: { status, ...NO_GRADES } };
