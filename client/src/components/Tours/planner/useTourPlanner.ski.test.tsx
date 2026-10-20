@@ -162,6 +162,7 @@ describe('useTourPlanner, a ski and winter tour (SKI-02)', () => {
     expect(result.current.skiMissing).toBe('technique');
     expect(result.current.canSave).toBe(false);
     act(() => result.current.ski.change({ discipline: 'cross_country', technique: 'skating' }));
+    await settle();
     expect(result.current.skiMissing).toBeNull();
     expect(result.current.canSave).toBe(true);
   });
@@ -211,6 +212,7 @@ describe('useTourPlanner, a ski and winter tour (SKI-02)', () => {
     createTour.mockResolvedValue({ tour: saved, waypoints: savedPoints });
     const { result } = await plannedSki(84);
     act(() => result.current.ski.change({ discipline: 'winter_hike', technique: 'classic' }));
+    await settle();
     await act(async () => {
       await result.current.save();
     });
