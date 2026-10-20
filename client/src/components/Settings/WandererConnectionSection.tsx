@@ -140,7 +140,7 @@ export default function WandererConnectionSection(): React.ReactElement {
         </div>
       )}
 
-      <WandererWatchRow connected={S.connected} />
+      <WandererWatchRow refreshKey={S.checkKey} />
     </Section>
   );
 }

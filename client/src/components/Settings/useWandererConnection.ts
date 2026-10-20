@@ -129,6 +129,13 @@ export function useWandererConnection() {
     saved?.lastCheckedAt && saved.lastCheckOk === false && saved.lastCheckError
       ? errorText(saved.lastCheckError)
       : null;
+  /**
+   * Changes whenever the server's view of the connection does: connecting,
+   * disconnecting, a saved token (which clears the last check) or a test that
+   * stored a new result. The watch row re-reads itself on it, since each of
+   * those can lift or set its "token refused" state.
+   */
+  const checkKey = `${connected}|${saved?.lastCheckedAt ?? ''}|${saved?.lastCheckOk ?? ''}`;
 
   return {
     url,
@@ -145,6 +152,7 @@ export function useWandererConnection() {
     tokenInvalid,
     canSave,
     lastCheck,
+    checkKey,
     save,
     test,
     disconnect,

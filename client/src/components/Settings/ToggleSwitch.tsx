@@ -5,16 +5,18 @@ const EASE = 'cubic-bezier(0.32, 0.72, 0, 1)'
 
 /**
  * `describedBy` names the element that explains the switch, for a switch whose label alone
- * does not say what flipping it changes.
+ * does not say what flipping it changes. `disabled` takes it out of the tab order and tells
+ * assistive tech it cannot act; the caller dims it and says why.
  */
-export default function ToggleSwitch({ on, onToggle, label, describedBy }: { on: boolean; onToggle: () => void; label?: string; describedBy?: string }) {
+export default function ToggleSwitch({ on, onToggle, label, describedBy, disabled = false }: { on: boolean; onToggle: () => void; label?: string; describedBy?: string; disabled?: boolean }) {
   return (
     <button type="button" onClick={onToggle} aria-pressed={on} aria-label={label} aria-describedby={describedBy}
+      disabled={disabled} aria-disabled={disabled || undefined}
       // A keyboard focus ring in the text colour, like the fields; the pointer gets none.
       className="group outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--text-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg-card)]"
       style={{
         position: 'relative', width: 44, height: 24, minWidth: 44, flexShrink: 0,
-        borderRadius: 12, border: 'none', padding: 0, cursor: 'pointer',
+        borderRadius: 12, border: 'none', padding: 0, cursor: disabled ? 'not-allowed' : 'pointer',
         background: on ? 'var(--accent, #111827)' : 'var(--border-primary, #d1d5db)',
         boxShadow: 'inset 0 1px 2px color-mix(in srgb, var(--text-primary) 12%, transparent)',
         transition: `background 0.2s ${EASE}`,

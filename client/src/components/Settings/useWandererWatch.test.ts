@@ -75,18 +75,32 @@ describe('watchStatusOf (WAN-02)', () => {
 
 describe('useWandererWatch (WAN-02)', () => {
   it('loads with the card and again when the connection comes or goes', async () => {
-    const { result, rerender } = renderHook(({ connected }) => useWandererWatch(connected), {
-      initialProps: { connected: true },
+    const { result, rerender } = renderHook(({ refreshKey }) => useWandererWatch(refreshKey), {
+      initialProps: { refreshKey: 'true||' },
     });
     await waitFor(() => expect(result.current.available).toBe(true));
     expect(result.current.enabled).toBe(false);
     expect(result.current.status).toBeNull();
-    rerender({ connected: false });
+    rerender({ refreshKey: 'true||' });
+    expect(repo.getWatch).toHaveBeenCalledTimes(1);
+    rerender({ refreshKey: 'false||' });
     await waitFor(() => expect(repo.getWatch).toHaveBeenCalledTimes(2));
   });
 
+  it('drops a refused token once a connection test passes, without a reload', async () => {
+    repo.getWatch.mockResolvedValueOnce({ ...off, enabled: true, blocked: true, pausedUntil: '2999-01-01T00:00:00Z' });
+    repo.getWatch.mockResolvedValueOnce({ ...off, enabled: true, lastRunAt: '2026-10-20T10:00:00Z' });
+    const { result, rerender } = renderHook(({ refreshKey }) => useWandererWatch(refreshKey), {
+      initialProps: { refreshKey: 'true|2026-10-20T09:00:00Z|false' },
+    });
+    await waitFor(() => expect(result.current.status?.text).toBe('wanderer.watch.blocked'));
+    rerender({ refreshKey: 'true|2026-10-20T11:00:00Z|true' });
+    await waitFor(() => expect(result.current.status?.tone).toBe('neutral'));
+    expect(result.current.status?.text).toMatch(/^wanderer\.watch\.lastRun/);
+  });
+
   it('switches at once, and says so either way', async () => {
-    const { result } = renderHook(() => useWandererWatch(true));
+    const { result } = renderHook(() => useWandererWatch('true||'));
     await waitFor(() => expect(result.current.available).toBe(true));
     await act(async () => {
       await result.current.toggle();
@@ -105,7 +119,7 @@ describe('useWandererWatch (WAN-02)', () => {
 
   it('leaves the switch alone without a connection, or when the watch could not be read', async () => {
     repo.getWatch.mockResolvedValueOnce({ ...off, connected: false });
-    const { result } = renderHook(() => useWandererWatch(false));
+    const { result } = renderHook(() => useWandererWatch('false||'));
     await waitFor(() => expect(repo.getWatch).toHaveBeenCalled());
     await act(async () => {
       await result.current.toggle();
@@ -113,14 +127,14 @@ describe('useWandererWatch (WAN-02)', () => {
     expect(repo.setWatch).not.toHaveBeenCalled();
 
     repo.getWatch.mockRejectedValueOnce(new Error('offline'));
-    const failed = renderHook(() => useWandererWatch(true));
+    const failed = renderHook(() => useWandererWatch('true||'));
     await waitFor(() => expect(repo.getWatch).toHaveBeenCalledTimes(2));
     expect(failed.result.current.available).toBe(false);
   });
 
   it('lists the hints and opens the tour one is about', async () => {
     repo.getWatch.mockResolvedValue({ ...off, enabled: true, hints: [hint] });
-    const { result } = renderHook(() => useWandererWatch(true));
+    const { result } = renderHook(() => useWandererWatch('true||'));
     await waitFor(() => expect(result.current.hints).toEqual([hint]));
     act(() => result.current.openHints());
     expect(result.current.hintsOpen).toBe(true);

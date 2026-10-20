@@ -43,12 +43,14 @@ export function watchStatusOf(
 
 /**
  * WAN-02: the background watch in the wanderer card. It loads with the card
- * and again whenever the connection comes or goes, switches on and off at
+ * and again whenever `refreshKey` changes, which the connection card bumps on
+ * connecting, disconnecting, saving a token and a stored test result, so a
+ * refused token clears once it is fixed. It switches on and off at
  * once (there is nothing to save with the form), and opens the tour a hint is
  * about. Online-only like the rest of the connection: the watch runs on the
  * server and its hints are read from there.
  */
-export function useWandererWatch(connected: boolean) {
+export function useWandererWatch(refreshKey: string) {
   const { t, locale } = useTranslation();
   const toast = useToast();
   const navigate = useNavigate();
@@ -71,7 +73,7 @@ export function useWandererWatch(connected: boolean) {
     return () => {
       cancelled = true;
     };
-  }, [connected]);
+  }, [refreshKey]);
 
   const toggle = useCallback(async () => {
     if (!watch?.connected || saving) return;

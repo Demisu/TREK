@@ -54,20 +54,23 @@ beforeEach(() => {
 describe('WandererWatchRow (WAN-02)', () => {
   it('is off by default and dimmed, not hidden, without a connection', async () => {
     repo.getWatch.mockResolvedValue({ ...off, connected: false });
-    render(<WandererWatchRow connected={false} />);
+    render(<WandererWatchRow refreshKey="false||" />);
     await waitFor(() => expect(repo.getWatch).toHaveBeenCalled());
     const toggle = await screen.findByRole('button', { name: 'Check my trails for changes', pressed: false });
     expect(toggle).toHaveAttribute('aria-pressed', 'false');
-    expect(toggle.closest('[aria-disabled="true"]')).not.toBeNull();
+    expect(toggle).toBeDisabled();
+    expect(toggle).toHaveAttribute('aria-disabled', 'true');
+    await userEvent.tab();
+    expect(toggle).not.toHaveFocus();
     expect(screen.queryByTestId('wanderer-watch-status')).toBeNull();
   });
 
   it('switches on at once and then says when it last looked', async () => {
     repo.getWatch.mockResolvedValue(off);
     repo.setWatch.mockResolvedValue({ ...off, enabled: true });
-    render(<WandererWatchRow connected />);
+    render(<WandererWatchRow refreshKey="true||" />);
     const toggle = await screen.findByRole('button', { name: 'Check my trails for changes', pressed: false });
-    await waitFor(() => expect(toggle.closest('[aria-disabled="true"]')).toBeNull());
+    await waitFor(() => expect(toggle).toBeEnabled());
     await userEvent.click(toggle);
     expect(repo.setWatch).toHaveBeenCalledWith(true);
     expect(await screen.findByText('Not looked yet')).toBeInTheDocument();
@@ -76,7 +79,7 @@ describe('WandererWatchRow (WAN-02)', () => {
 
   it('counts the open hints on the button and opens each tour from the dialog', async () => {
     repo.getWatch.mockResolvedValue({ ...off, enabled: true, lastRunAt: '2026-10-20T10:00:00Z', hints });
-    render(<WandererWatchRow connected />);
+    render(<WandererWatchRow refreshKey="true||" />);
     expect(await screen.findByTestId('wanderer-hint-count')).toHaveTextContent('2');
     await userEvent.click(screen.getByRole('button', { name: /Hints/ }));
 
@@ -95,7 +98,7 @@ describe('WandererWatchRow (WAN-02)', () => {
 
   it('names a refused token instead of a last look', async () => {
     repo.getWatch.mockResolvedValue({ ...off, enabled: true, blocked: true });
-    render(<WandererWatchRow connected />);
+    render(<WandererWatchRow refreshKey="true||" />);
     expect(await screen.findByText('Token refused')).toBeInTheDocument();
   });
 });

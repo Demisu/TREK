@@ -13,12 +13,22 @@ import { useWandererWatch, type WandererWatchController } from './useWandererWat
 function WatchSwitch({ W }: { W: WandererWatchController }) {
   const { t } = useTranslation();
   const toggle = (
-    <ToggleSwitch on={W.enabled} onToggle={() => void W.toggle()} label={t('wanderer.watch.label')} />
+    <ToggleSwitch
+      on={W.enabled}
+      onToggle={() => void W.toggle()}
+      label={t('wanderer.watch.label')}
+      disabled={!W.available}
+    />
   );
   if (W.available) return toggle;
+  // A disabled button takes no focus and, in some browsers, no hover either, so
+  // the reason sits on a focusable wrapper the tooltip listens to.
   return (
     <Tooltip label={t('wanderer.watch.notConnected')}>
-      <span className="inline-flex opacity-50" aria-disabled="true">
+      <span
+        tabIndex={0}
+        className="inline-flex cursor-not-allowed rounded-full opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--text-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg-card)]"
+      >
         <span className="pointer-events-none inline-flex">{toggle}</span>
       </span>
     </Tooltip>
@@ -62,9 +72,9 @@ function HintsButton({ W }: { W: WandererWatchController }) {
  * own imported trails. Off until switched on; while on, what it last did and
  * its open hints, which open in a dialog that leads to each tour.
  */
-export default function WandererWatchRow({ connected }: { connected: boolean }): React.ReactElement {
+export default function WandererWatchRow({ refreshKey }: { refreshKey: string }): React.ReactElement {
   const { t } = useTranslation();
-  const W = useWandererWatch(connected);
+  const W = useWandererWatch(refreshKey);
   return (
     <SettingRows>
       <SettingRow
