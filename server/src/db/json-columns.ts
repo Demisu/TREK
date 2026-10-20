@@ -267,3 +267,14 @@ export const TOUR_CHANGE_STEP_BEFORE: JsonColumn<TourChangeStepBefore | null> = 
     .nullable(),
   fallback: () => null,
 };
+
+/**
+ * LIB-03: the control points of a tour kept in a collection, in route order,
+ * as they were when it was saved. A broken row reads as none and is logged;
+ * the line is kept in a column of its own and stays as it was.
+ */
+export const COLLECTION_TOUR_WAYPOINTS: JsonColumn<TourWaypoint[]> = {
+  column: 'collection_tours.waypoints',
+  schema: z.array(tourWaypointSchema),
+  fallback: () => [],
+};

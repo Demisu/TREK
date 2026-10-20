@@ -63,6 +63,7 @@ export * from './tours/tour-activity.schema';
 export * from './tours/tour-activity-stats.schema';
 export * from './tours/tour-activity-stats';
 export * from './tours/tour-library.schema';
+export * from './tours/collection-tour.schema';
 export * from './tours/tour-poi-search.schema';
 export * from './tours/tour-trail-grade.schema';
 export * from './tours/tour-walk.schema';

@@ -30,6 +30,14 @@ import { UnitOfWork } from '../database/unit-of-work';
 import { PlaceImportService } from '../place-import/place-import.service';
 import { PlacesService } from '../places/places.service';
 import { activityFacts, toActivity, trackTimesFor } from './tour-activities.helpers';
+import {
+  copiedFacet,
+  copyStart,
+  tourCopySourceOf,
+  type TakenOverFrom,
+  type TourCopyLinks,
+  type TourCopySource,
+} from './tour-copy.helpers';
 import { readTourFile } from './tour-file-import.helpers';
 import { TourPaddleCheckService } from './tour-paddle-check.service';
 import { advanceTourRevision } from './tour-revision';
@@ -647,8 +655,8 @@ export class ToursService {
     if (tid === null || pid === null) throw new NotFoundException('Tour not found');
     // Within the trip: the copy points at the tour it was planned from, keeps its
     // stops' links to the trip's places and the decisions about its obstacles.
-    const copyId = await this.uow.transactional(() =>
-      this.insertCopyOf({ tid, pid }, { tid, name }, { derivedFrom: pid, sameTrip: true }),
+    const copyId = await this.uow.transactional(async () =>
+      this.insertCopy(await this.requireCopySource(tid, pid), { tid, name }, { derivedFrom: pid, sameTrip: true }),
     );
     return await this.announceCopy(tripId, copyId, socketId);
   }
@@ -669,9 +677,9 @@ export class ToursService {
   ): Promise<TourCreateResponse> {
     const tid = toRowId(tripId);
     if (tid === null) throw new NotFoundException('Tour not found');
-    const copyId = await this.uow.transactional(() =>
-      this.insertCopyOf(
-        { tid: source.tripId, pid: source.placeId },
+    const copyId = await this.uow.transactional(async () =>
+      this.insertCopy(
+        await this.requireCopySource(source.tripId, source.placeId),
         { tid, name },
         { derivedFrom: null, sameTrip: false, takenOverFrom: source },
       ),
@@ -680,81 +688,83 @@ export class ToursService {
   }
 
   /**
+   * LIB-03: a tour of this trip made from a tour kept in a collection, the way
+   * a take-over makes one: its own id, the kept line, type, measures and
+   * settings, the points `read` hands over (none when they were left out) and
+   * no days. `read` runs inside the write, so a kept tour removed meanwhile
+   * leaves nothing behind. The new tour names the trip and tour the kept one
+   * was saved from.
+   */
+  async createFromKeptTour(
+    tripId: string,
+    read: () => Promise<TourCopySource>,
+    name: string,
+    takenOverFrom: TakenOverFrom,
+    socketId?: string,
+  ): Promise<TourCreateResponse> {
+    const tid = toRowId(tripId);
+    if (tid === null) throw new NotFoundException('Tour not found');
+    const copyId = await this.uow.transactional(async () =>
+      this.insertCopy(await read(), { tid, name }, { derivedFrom: null, sameTrip: false, takenOverFrom }),
+    );
+    return await this.announceCopy(tripId, copyId, socketId);
+  }
+
+  /**
+   * A saved tour of a trip as a copy is made from it, read whole: its line and
+   * texts, every measure and setting, where it came from and its control
+   * points. Undefined when the place is no tour of that trip.
+   */
+  async readCopySource(tripId: number, placeId: number): Promise<TourCopySource | undefined> {
+    const [row, provenance, waypoints] = await Promise.all([
+      this.toursRepo.findInTrip(tripId, placeId),
+      this.toursRepo.findProvenance(tripId, placeId),
+      this.waypointsRepo.listForPlace(placeId),
+    ]);
+    return row && provenance ? tourCopySourceOf(row, provenance, waypoints) : undefined;
+  }
+
+  private async requireCopySource(tripId: number, placeId: number): Promise<TourCopySource> {
+    const source = await this.readCopySource(tripId, placeId);
+    if (!source) throw new NotFoundException('Tour not found');
+    return source;
+  }
+
+  /**
    * One copy of a tour: its place with the same line, its facet with every
    * measure and setting, its control points. Inside the caller's transaction.
    */
-  private async insertCopyOf(
-    source: { tid: number; pid: number },
+  private async insertCopy(
+    source: TourCopySource,
     target: { tid: number; name: string },
-    how: { derivedFrom: number | null; sameTrip: boolean; takenOverFrom?: { tripTitle: string; tourName: string } },
+    links: TourCopyLinks,
   ): Promise<number> {
-    const [row, provenance, place, waypoints] = await Promise.all([
-      this.toursRepo.findInTrip(source.tid, source.pid),
-      this.toursRepo.findProvenance(source.tid, source.pid),
-      this.placesRepo.findInTrip(source.pid, source.tid),
-      this.waypointsRepo.listForPlace(source.pid),
-    ]);
-    // A city walk saved with its stations only (CW-11) is copied from its first one, its way still to plan;
-    // a line that holds no point has nothing to copy.
-    const start = place?.route_geometry == null ? firstPointOf(waypoints) : parseRouteGeometry(place.route_geometry)[0];
-    if (!row || !provenance || !place || !start) throw new NotFoundException('Tour not found');
-    if (!how.sameTrip) await this.assertTourTypeEnabled(row.tour_type);
+    // A line that holds no point, and a walk without line or stations, have nothing to copy.
+    const start = copyStart(source);
+    if (!start) throw new NotFoundException('Tour not found');
+    if (!links.sameTrip) await this.assertTourTypeEnabled(source.facet.tour_type);
     const id = await this.placesRepo.insertTourPlace({
       trip_id: target.tid,
       name: target.name,
       lat: start[0],
       lng: start[1],
-      route_geometry: place.route_geometry ?? null,
-      description: place.description ?? null,
-      website: place.website ?? null,
+      route_geometry: source.route_geometry,
+      description: source.description,
+      website: source.website,
     });
-    await this.toursRepo.insertTour({
-      place_id: id,
-      tour_type: row.tour_type,
-      distance: row.distance,
-      elevation_gain: row.elevation_gain,
-      elevation_loss: row.elevation_loss,
-      duration: row.duration,
-      planned_duration_minutes: row.planned_duration_minutes,
-      break_additional_minutes: row.break_additional_minutes,
-      match_confidence: row.match_confidence,
-      max_hiking_difficulty: row.max_hiking_difficulty,
-      bike_profile: row.bike_profile as BikeProfile | null,
-      winter_activity: row.winter_activity as WinterActivity | null,
-      run_profile: row.run_profile as RunProfile | null,
-      run_pace_seconds_per_km: row.run_pace_seconds_per_km,
-      ski_discipline: row.ski_discipline as SkiDiscipline | null,
-      ski_technique: row.ski_technique as SkiTechnique | null,
-      boat_type: row.boat_type as PaddleBoatType | null,
-      water_context: row.water_context as PaddleWaterContext | null,
-      paddle_speed_kmh: row.paddle_speed_kmh,
-      portage_speed_kmh: row.portage_speed_kmh,
-      paddle_lake_style: row.paddle_lake_style as PaddleLakeStyle | null,
-      track_marks: row.track_marks,
-      hiking_preferences: row.hiking_preferences,
-      wanderer_ref: row.wanderer_ref,
-      difficulty: row.difficulty,
-      derived_from_place_id: how.derivedFrom,
-      origin: row.origin as TourOrigin,
-      origin_file_name: provenance.origin_file_name,
-      // A copy of a copy names where the first one came from.
-      taken_over_from_trip_title: how.takenOverFrom?.tripTitle ?? provenance.taken_over_from_trip_title,
-      taken_over_from_tour_name: how.takenOverFrom?.tourName ?? provenance.taken_over_from_tour_name,
-      // A copy of a recording was recorded when it was; the assignments stay with the tours they joined.
-      track_started_at: row.track_started_at,
-      track_ended_at: row.track_ended_at,
-    });
+    await this.toursRepo.insertTour(copiedFacet(source, id, links));
     // A stop standing for a place of the source trip stands for nothing in another trip.
     await this.waypointsRepo.insertForPlace(
       id,
-      how.sameTrip ? waypoints : waypoints.map((point) => ({ ...point, linked_place_id: null })),
+      links.sameTrip ? source.waypoints : source.waypoints.map((point) => ({ ...point, linked_place_id: null })),
     );
-    if (how.sameTrip) {
+    if (source.place_id === null) return id;
+    if (links.sameTrip) {
       // The copy keeps the decisions about its obstacles, bound to what they were decided on.
-      await this.toursRepo.copyObstacleReviews(source.pid, id);
+      await this.toursRepo.copyObstacleReviews(source.place_id, id);
     } else {
       // The import record says where the line itself came from, whichever trip holds it.
-      await this.toursRepo.copySource(source.pid, id);
+      await this.toursRepo.copySource(source.place_id, id);
     }
     return id;
   }

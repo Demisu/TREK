@@ -9,6 +9,7 @@ import { useToast } from '../../components/shared/Toast'
 import { collectionsApi } from '../../api/collections'
 import { downloadCollectionFile, downloadCollectionGpx, type CollectionExportFormat } from '../../components/Collections/collectionFile'
 import { getApiErrorMessage } from '../../types'
+import { canAddToCollection } from '../../utils/collectionAccess'
 import { addListener, removeListener } from '../../api/websocket'
 import { useCollectionStore, ALL_SAVED } from '../../store/collectionStore'
 import type { ActiveCollectionId } from '../../store/collectionStore'
@@ -222,9 +223,7 @@ export function useCollections() {
    * so the import dialog never offers a list the import would refuse.
    */
   const writableLists = useMemo(
-    () => collections.filter(c => c.is_owner !== false || (c.members ?? []).some(
-      m => m.user_id === currentUserId && m.status === 'accepted' && (m.role === 'editor' || m.role === 'admin'),
-    )),
+    () => collections.filter(c => canAddToCollection(c, currentUserId)),
     [collections, currentUserId],
   )
   const sharedLists = useMemo(() => collections.filter(c => c.is_owner === false), [collections])

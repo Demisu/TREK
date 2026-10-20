@@ -50,6 +50,7 @@ import { TourAddMenu } from './TourAddMenu'
 import { type AssignTourToDay, useTourDayAssignment } from '../useTourDayAssignment'
 import WandererMark from '../wanderer/WandererMark'
 import { TourGpxExportBarButton } from '../TourGpxExportButton'
+import { TourSaveToCollectionBarButton } from '../collection/TourSaveToCollectionButton'
 import { TourRemoteChangeNotice, TourRevisionConflictDialog } from './TourRevisionNotice'
 import { WalkImportDraftNotice } from '../walk/WalkImportDialog'
 import { WalkRoutePendingNotice } from '../walk/WalkRoutePending'
@@ -328,7 +329,10 @@ function GpxViewRail({
             aside={<SoftPill>{hikeSourceBadgeLabel(tour, t)}</SoftPill>}
           />
           {tour.place_id > 0 && (
-            <TourGpxExportBarButton target={{ tripId: planner.tripId, placeId: tour.place_id, name: tour.name }} unsaved={false} />
+            <>
+              <TourGpxExportBarButton target={{ tripId: planner.tripId, placeId: tour.place_id, name: tour.name }} unsaved={false} />
+              <TourSaveToCollectionBarButton target={{ tripId: planner.tripId, placeId: tour.place_id, name: tour.name }} unsaved={false} />
+            </>
           )}
         </div>
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-3">
@@ -449,10 +453,16 @@ export function TourPlannerRail({ planner,
           </BarButton>
           <RailTitle title={t(isSavedEdit ? 'tours.planner.editTitle' : 'tours.planner.newTitle')} aside={<RailStatusBadges planner={planner} />} />
           {planner.mode.type === 'edit-saved' && planner.mode.placeId > 0 && (
-            <TourGpxExportBarButton
-              target={{ tripId: planner.tripId, placeId: planner.mode.placeId, name: planner.name }}
-              unsaved={planner.hasUnsavedChanges}
-            />
+            <>
+              <TourGpxExportBarButton
+                target={{ tripId: planner.tripId, placeId: planner.mode.placeId, name: planner.name }}
+                unsaved={planner.hasUnsavedChanges}
+              />
+              <TourSaveToCollectionBarButton
+                target={{ tripId: planner.tripId, placeId: planner.mode.placeId, name: planner.name }}
+                unsaved={planner.hasUnsavedChanges}
+              />
+            </>
           )}
           <BarButton label={t('tours.planner.undo')} onClick={() => { if (canEdit && !isSaving) planner.undo() }} disabled={locked || !planner.canUndo}>
             <Undo2 size={15} strokeWidth={2} />

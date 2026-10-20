@@ -23,6 +23,7 @@ import type { CollectionPlaceLabelsTable } from './CollectionPlaceLabels.table';
 import type { CollectionPlaceRatingsTable } from './CollectionPlaceRatings.table';
 import type { CollectionPlaceTagsTable } from './CollectionPlaceTags.table';
 import type { CollectionPlacesTable } from './CollectionPlaces.table';
+import type { CollectionToursTable } from './CollectionTours.table';
 import type { CollectionsTable } from './Collections.table';
 import type { DawarichConnectionsTable } from './DawarichConnections.table';
 import type { DawarichVisitSuggestionsTable } from './DawarichVisitSuggestions.table';
@@ -177,6 +178,7 @@ export interface DB {
   collection_place_ratings: CollectionPlaceRatingsTable;
   collection_place_tags: CollectionPlaceTagsTable;
   collection_places: CollectionPlacesTable;
+  collection_tours: CollectionToursTable;
   collections: CollectionsTable;
   dawarich_connections: DawarichConnectionsTable;
   dawarich_visit_suggestions: DawarichVisitSuggestionsTable;

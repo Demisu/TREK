@@ -18,6 +18,7 @@ import ImportCollectionModal from '../components/Collections/ImportCollectionMod
 import CollectionPlaceDetail from '../components/Collections/CollectionPlaceDetail'
 import LabelManager from '../components/Collections/LabelManager'
 import BulkAssignLabelModal from '../components/Collections/BulkAssignLabelModal'
+import { CollectionToursSection } from '../components/Tours/collection/CollectionToursSection'
 import { useCollections } from './collections/useCollections'
 import EmptyState from '../components/shared/EmptyState'
 import '../styles/dashboard.css'
@@ -315,6 +316,10 @@ function CollectionsPageDesktop(): React.ReactElement {
                   </div>
                 )}
 
+                {/* The whole tours the list keeps (LIB-03), above its places. */}
+                {isRealList && typeof c.activeId === 'number' && (
+                  <CollectionToursSection collectionId={c.activeId} canRemove={c.canDelete} />
+                )}
                 {body}
               </>
             )}

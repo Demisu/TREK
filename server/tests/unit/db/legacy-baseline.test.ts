@@ -76,6 +76,7 @@ const UNNUMBERED = [
   'Migration20200101045910_a_tour_can_be_left_out_of_ones_activities',
   'Migration20200101046000_a_tour_waypoint_can_end_a_stage',
   'Migration20200101046010_a_day_can_hold_one_stage_of_a_tour',
+  'Migration20200101046100_a_collection_keeps_whole_tours',
 ];
 // The last step the positional runner ever had; planLegacyBaseline refuses a
 // schema_version past it.

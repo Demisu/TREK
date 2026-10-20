@@ -4,6 +4,7 @@ import { DbTimestampType } from '../types';
 import { CollectionLabels } from './CollectionLabels.entity';
 import { CollectionMembers } from './CollectionMembers.entity';
 import { CollectionPlaces } from './CollectionPlaces.entity';
+import { CollectionTours } from './CollectionTours.entity';
 import { Users } from './Users.entity';
 
 export class Collections {
@@ -23,6 +24,7 @@ export class Collections {
   collection_labels_collection = new Collection<CollectionLabels>(this);
   collection_members_collection = new Collection<CollectionMembers>(this);
   collection_places_collection = new Collection<CollectionPlaces>(this);
+  collection_tours_collection = new Collection<CollectionTours>(this);
 }
 
 export const CollectionsSchema = defineEntity({
@@ -44,5 +46,6 @@ export const CollectionsSchema = defineEntity({
     collection_labels_collection: () => p.oneToMany(CollectionLabels).mappedBy('collection').hidden(),
     collection_members_collection: () => p.oneToMany(CollectionMembers).mappedBy('collection').hidden(),
     collection_places_collection: () => p.oneToMany(CollectionPlaces).mappedBy('collection').hidden(),
+    collection_tours_collection: () => p.oneToMany(CollectionTours).mappedBy('collection').hidden(),
   },
 });

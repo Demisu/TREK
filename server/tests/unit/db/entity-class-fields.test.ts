@@ -40,7 +40,9 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 //   only ever written whole, by the save of a confirmed change).
 // + tour_activities: id, place_id, track_place_id (an assignment always names its tour and its recording).
 // + tour_activity_exclusions: id, user_id, place_id (an exclusion always names its user and its tour).
-const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 510;
+// + collection_tours: id, collection_id, name, waypoints, tour_type, origin, source_trip_title, source_tour_name
+//   (a kept tour is only ever written whole, from the tour it was saved from).
+const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 518;
 
 describe('entity class fields never carry a NaN initialiser (task-4-review-shape.md, Important 1)', () => {
   it('CLASSFIELD-001: new X() has no own property whose value is NaN, across all 133 entities', () => {

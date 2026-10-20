@@ -51,6 +51,7 @@ import { TourDayRowAvatar } from './TourDayRowFacts';
 import { TourGpxExportButton } from './TourGpxExportButton';
 import TourActivitySection from './activity/TourActivitySection';
 import type { PlanValues } from './activity/tourActivityCompare';
+import { TourSaveToCollectionButton } from './collection/TourSaveToCollectionButton';
 import { PaddleCheckSection } from './paddle/PaddleCheckSection';
 import { PaddleWindSection } from './paddle/PaddleWindCard';
 import { TourProvenanceBlock } from './provenance/TourProvenanceSection';
@@ -664,6 +665,9 @@ export default function TourDetailDialog({
       {/* A tour written here offline has no server copy to export until it syncs. */}
       {analysis && place.id > 0 && (
         <TourGpxExportButton target={{ tripId: place.trip_id, placeId: place.id, name: place.name }} />
+      )}
+      {place.id > 0 && (
+        <TourSaveToCollectionButton target={{ tripId: place.trip_id, placeId: place.id, name: place.name }} />
       )}
       {canEdit && onSaveAsNew && <SaveAsNewButton onSave={() => onSaveAsNew(tour)} />}
       <FooterSpacer />

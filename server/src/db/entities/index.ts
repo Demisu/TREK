@@ -20,6 +20,7 @@ import { CollectionLabelsSchema } from './CollectionLabels.entity';
 import { CollectionMembersSchema } from './CollectionMembers.entity';
 import { CollectionPlaceRatingsSchema } from './CollectionPlaceRatings.entity';
 import { CollectionPlacesSchema } from './CollectionPlaces.entity';
+import { CollectionToursSchema } from './CollectionTours.entity';
 import { CollectionsSchema } from './Collections.entity';
 import { DawarichConnectionsSchema } from './DawarichConnections.entity';
 import { DawarichVisitSuggestionsSchema } from './DawarichVisitSuggestions.entity';
@@ -168,6 +169,7 @@ export const ALL_ENTITIES: readonly EntitySchema[] = [
   CollectionMembersSchema,
   CollectionPlaceRatingsSchema,
   CollectionPlacesSchema,
+  CollectionToursSchema,
   CollectionsSchema,
   DawarichConnectionsSchema,
   DawarichVisitSuggestionsSchema,

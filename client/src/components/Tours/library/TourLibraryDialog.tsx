@@ -1,12 +1,8 @@
 import { importableTourTypeSchema, type TourLibraryItem, type TourTypeKey } from '@trek/shared';
-import { AlertTriangle, ArrowUp, Clock, CopyPlus, Library, Loader2, Ruler, Search, WifiOff } from 'lucide-react';
-import { useId, useMemo } from 'react';
-import { OFM_POSITRON } from '../../../constants/mapDefaults';
-import { useTileUrl } from '../../../hooks/useTileUrl';
+import { AlertTriangle, CopyPlus, Library, Loader2, Search, WifiOff } from 'lucide-react';
+import { useId } from 'react';
 import { useTranslation } from '../../../i18n';
 import { useSettingsStore } from '../../../store/settingsStore';
-import { formatDistance, formatElevation } from '../../../utils/units';
-import { MapViewAuto } from '../../Map/MapViewAuto';
 import { EditorField, INPUT, PillSelect } from '../../shared/dialogParts';
 import {
   DialogButton,
@@ -18,49 +14,15 @@ import {
   fs,
   NEUTRAL_TINT,
 } from '../../shared/DialogShell';
-import { TourDayRowPill } from '../TourDayRowFacts';
-import { RailFacts, TourNotice, type TourMetricField } from '../tourParts';
-import { plannedTotalText, tourPlannedTimes } from '../tourPresentation';
+import { RailFacts, TourNotice } from '../tourParts';
+import { TourLinePreview, TourMeasurePills, tourPreviewFacts } from './tourPreviewParts';
 import { type TourLibrary } from './useTourLibrary';
 
-type Translate = (key: string, params?: Record<string, unknown>) => string;
-type Unit = Parameters<typeof formatDistance>[1];
-
 const ALL = 'all';
-
-/** A tour's own measures as badges; one it does not have is left out, never shown as zero. */
-function measureBadges(tour: TourLibraryItem, unit: Unit, t: Translate) {
-  const times = tourPlannedTimes(tour);
-  const total = plannedTotalText(times, t);
-  const badge = plannedTotalText(times, t, true);
-  return [
-    total != null &&
-      badge != null && {
-        key: 'time',
-        icon: Clock,
-        value: badge,
-        label: `${t('tours.planner.plannedTotalDuration')}: ${total}`,
-      },
-    tour.distance != null && {
-      key: 'distance',
-      icon: Ruler,
-      value: formatDistance(tour.distance, unit),
-      label: `${t('tours.detail.distance')}: ${formatDistance(tour.distance, unit)}`,
-    },
-    tour.elevation_gain != null &&
-      tour.tour_type !== 'kayak' && {
-        key: 'ascent',
-        icon: ArrowUp,
-        value: formatElevation(tour.elevation_gain, unit),
-        label: `${t('tours.detail.ascent')}: ${formatElevation(tour.elevation_gain, unit)}`,
-      },
-  ].filter((badge) => !!badge);
-}
 
 /** One tour of the list: its name, the trip it is in, its measures. */
 function LibraryRow({ tour, selected, onChoose }: { tour: TourLibraryItem; selected: boolean; onChoose: () => void }) {
   const { t } = useTranslation();
-  const unit = useSettingsStore((state) => state.settings.distance_unit) ?? 'metric';
   return (
     <li>
       <button
@@ -82,15 +44,7 @@ function LibraryRow({ tour, selected, onChoose }: { tour: TourLibraryItem; selec
           {tour.trip.title}
         </span>
         <span className="flex flex-wrap gap-1.5">
-          {measureBadges(tour, unit, t).map((badge) => (
-            <TourDayRowPill
-              key={badge.key}
-              icon={badge.icon}
-              value={badge.value}
-              label={badge.label}
-              testId={`tour-library-${badge.key}`}
-            />
-          ))}
+          <TourMeasurePills tour={tour} testPrefix="tour-library" />
         </span>
       </button>
     </li>
@@ -181,38 +135,11 @@ function ListFilters({ library }: { library: TourLibrary }) {
   );
 }
 
-/** The facts of the chosen tour as the preview shows them, each only where the tour has it. */
-function previewFacts(tour: TourLibraryItem, waypoints: number, unit: Unit, t: Translate): TourMetricField[] {
-  const total = plannedTotalText(tourPlannedTimes(tour), t);
-  const fact = (show: boolean, label: string, value: () => string) => (show ? { label, value: value() } : null);
-  return [
-    fact(true, t('tours.library.fromTrip'), () => tour.trip.title),
-    fact(true, t('tours.filter.type'), () => t(`tourTypes.${tour.tour_type}`)),
-    fact(tour.distance != null, t('tours.detail.distance'), () => formatDistance(tour.distance ?? 0, unit)),
-    fact(total != null, t('tours.planner.plannedTotalDuration'), () => total ?? ''),
-    fact(tour.elevation_gain != null && tour.tour_type !== 'kayak', t('tours.detail.ascent'), () =>
-      formatElevation(tour.elevation_gain ?? 0, unit)
-    ),
-    fact(tour.elevation_loss != null && tour.tour_type !== 'kayak', t('tours.detail.descent'), () =>
-      formatElevation(tour.elevation_loss ?? 0, unit)
-    ),
-    fact(waypoints > 0, t('tours.library.controlPoints'), () => String(waypoints)),
-  ].filter((field): field is TourMetricField => field !== null);
-}
-
 /** The chosen tour: on a map, its facts, and the name the copy gets. */
 function Preview({ library }: { library: TourLibrary }) {
   const { t } = useTranslation();
   const unit = useSettingsStore((state) => state.settings.distance_unit) ?? 'metric';
-  const tileUrl = useTileUrl(OFM_POSITRON);
   const nameId = useId();
-  const line = library.preview?.line;
-  const route = useMemo(
-    // The client reads the contract's tuples loosely; the points are spelled out as pairs here.
-    () =>
-      line && line.length > 1 ? [line.map((point): [number, number] => [Number(point[0]), Number(point[1])])] : [],
-    [line]
-  );
   const { selected } = library;
   if (!selected)
     return (
@@ -224,32 +151,18 @@ function Preview({ library }: { library: TourLibrary }) {
     );
   return (
     <div className="flex min-w-0 flex-col gap-3" data-testid="tour-library-preview">
-      <div className="relative h-[240px] flex-none overflow-hidden rounded-[14px] border border-edge-faint bg-surface-secondary">
-        {route.length > 0 && (
-          <MapViewAuto
-            places={[]}
-            route={route}
-            tileUrl={tileUrl}
-            focusPoints={route[0]}
-            focusKey={String(selected.place_id)}
-            followSelection={false}
-          />
-        )}
-        {library.previewStatus === 'loading' && (
-          <span className="absolute inset-0 grid place-items-center text-content-faint">
-            <Loader2 size={18} strokeWidth={2.2} className="animate-spin" />
-          </span>
-        )}
-        {(library.previewStatus === 'error' || library.previewStatus === 'offline') && (
-          <span
-            className="absolute inset-0 grid place-items-center px-6 text-center text-content-muted"
-            style={fs(12, 'body')}
-          >
-            {t(library.previewStatus === 'offline' ? 'tours.library.offline' : 'tours.library.previewFailed')}
-          </span>
-        )}
-      </div>
-      <RailFacts facts={previewFacts(selected, library.preview?.waypoint_count ?? 0, unit, t)} />
+      <TourLinePreview
+        line={library.preview?.line}
+        focusKey={String(selected.place_id)}
+        status={library.previewStatus}
+        failedText={t('tours.library.previewFailed')}
+      />
+      <RailFacts
+        facts={tourPreviewFacts(selected, library.preview?.waypoint_count ?? 0, unit, t, {
+          label: t('tours.library.fromTrip'),
+          value: selected.trip.title,
+        })}
+      />
       <EditorField label={t('tours.library.nameHere')} htmlFor={nameId} hint={t('tours.library.independent')}>
         <input
           id={nameId}

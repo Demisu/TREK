@@ -18,6 +18,7 @@ import { CollabPolls } from './CollabPolls.entity';
 import { CollectionMembers } from './CollectionMembers.entity';
 import { CollectionPlaceRatings } from './CollectionPlaceRatings.entity';
 import { CollectionPlaces } from './CollectionPlaces.entity';
+import { CollectionTours } from './CollectionTours.entity';
 import { Collections } from './Collections.entity';
 import { DawarichConnections } from './DawarichConnections.entity';
 import { DawarichVisitSuggestions } from './DawarichVisitSuggestions.entity';
@@ -142,6 +143,7 @@ export class Users {
   collection_place_ratings_collection = new Collection<CollectionPlaceRatings>(this);
   collection_places_collection = new Collection<CollectionPlaces>(this);
   collection_places_collection1 = new Collection<CollectionPlaces>(this);
+  collection_tours_collection = new Collection<CollectionTours>(this);
   collections_collection = new Collection<Collections>(this);
   dawarich_connections: Ref<DawarichConnections> | null = null;
   dawarich_visit_suggestions_collection = new Collection<DawarichVisitSuggestions>(this);
@@ -289,6 +291,7 @@ export const UsersSchema = defineEntity({
     collection_place_ratings_collection: () => p.oneToMany(CollectionPlaceRatings).mappedBy('user').hidden(),
     collection_places_collection: () => p.oneToMany(CollectionPlaces).mappedBy('owner').hidden(),
     collection_places_collection1: () => p.oneToMany(CollectionPlaces).mappedBy('savedByRef').hidden(),
+    collection_tours_collection: () => p.oneToMany(CollectionTours).mappedBy('savedByRef').hidden(),
     collections_collection: () => p.oneToMany(Collections).mappedBy('owner').hidden(),
     dawarich_connections: () => p.oneToOne(DawarichConnections).ref().mappedBy('user').hidden(),
     dawarich_visit_suggestions_collection: () => p.oneToMany(DawarichVisitSuggestions).mappedBy('user').hidden(),

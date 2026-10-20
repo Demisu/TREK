@@ -51,6 +51,7 @@ export const UNRESET_STORES: Record<string, string> = {
   useJourneyStore: 'reset in the journey tests themselves; importing it here pulls in a circular import',
   useBackgroundTasksStore: NOT_YET,
   useCollectionStore: NOT_YET,
+  useCollectionTourStore: 'its own tests put it back with clear(); it holds one open collection and nothing else reads it',
   useDocSyncOfferStore: NOT_YET,
   useHelpStore: NOT_YET,
   usePluginStore: NOT_YET,

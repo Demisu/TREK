@@ -124,6 +124,14 @@ A few things deliberately stay behind, because they belong to the instance the f
 
 A file that is neither a TREK list nor a GPX is refused with a reason. A single place inside a file that cannot be read is skipped and reported, so one bad line does not cost you the rest of the list.
 
+## Whole tours
+
+With the Tours addon on as well, a list can keep whole tours beside its places.
+
+- **Keeping a tour**: open a saved tour in a trip (its detail, or the planner) and use the bookmark button, **Keep in a collection**. Pick a list you may add to (a list you can only read is shown dimmed) and the name it is kept under. The list keeps an independent copy: the line, the tour type, every measure and setting, and its waypoints in order with their start, stop and end roles. Its days, its links to places of the trip and the obstacle decisions taken there stay in the trip. Later changes to the tour do not reach the kept copy, and the trip is not changed.
+- **On the list**: kept tours show as cards above the places, with their measures, how many waypoints they keep and the trip they were saved from. The owner or an admin of the list can remove one; tours already made from it stay as they are.
+- **Taking it into a trip**: **Add to a trip** on a card shows the kept tour on a map and lists your trips; a trip you may not add tours to is dimmed. Say whether the waypoints come along: **With its waypoints** brings them in their order with their roles, **Line only** keeps just the line as it was saved and adds no waypoints. A tour kept without a line (a city walk whose way was not planned yet) has to bring its waypoints. The new tour is a tour of its own in that trip, with no days, and names the trip and tour it was first saved from. Neither the list nor the original tour changes.
+
 ## See also
 
 - [Addons-Overview](Addons-Overview)

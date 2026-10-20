@@ -1,3 +1,4 @@
+import { CollectionTours } from '../../db/entities/CollectionTours.entity';
 import { Places } from '../../db/entities/Places.entity';
 import { TourActivities } from '../../db/entities/TourActivities.entity';
 import { TourActivityExclusions } from '../../db/entities/TourActivityExclusions.entity';
@@ -10,6 +11,7 @@ import { TourWaypoints } from '../../db/entities/TourWaypoints.entity';
 import { Tours } from '../../db/entities/Tours.entity';
 import { AddonsModule } from '../addons/addons.module';
 import { AssignmentsDomainModule } from '../assignments/assignments-domain.module';
+import { CollectionsModule } from '../collections/collections.module';
 import { MapsModule } from '../maps/maps.module';
 import { McpSharedModule } from '../mcp-shared/mcp-shared.module';
 import { OverpassModule } from '../overpass/overpass.module';
@@ -23,6 +25,9 @@ import { WandererModule } from '../wanderer/wanderer.module';
 import { CityWalkBriefingService } from './city-walk-briefing.service';
 import { CityWalkFootWayService } from './city-walk-foot-way.service';
 import { CityWalkMcp } from './city-walk.mcp';
+import { CollectionTourTakeOverController, CollectionToursController } from './collection-tours.controller';
+import { CollectionToursMcp } from './collection-tours.mcp';
+import { CollectionToursService } from './collection-tours.service';
 import { TourActivitiesController } from './tour-activities.controller';
 import { TourActivitiesMcp } from './tour-activities.mcp';
 import { TourActivitiesService } from './tour-activities.service';
@@ -83,7 +88,9 @@ import { Module } from '@nestjs/common';
  * TourActivitiesService, over the day assignments the visits repository reads.
  * The user's own activity sums across their trips (STA-02) are read by
  * TourActivityStatsService, over the trips TripMembershipModule says they can
- * open, with the tours the user left out of them.
+ * open, with the tours the user left out of them. Whole tours kept in a
+ * collection (LIB-03) are this domain's own rows; the collection's roles and
+ * its live notice to its members come from CollectionsService.
  */
 @Module({
   imports: [
@@ -107,7 +114,10 @@ import { Module } from '@nestjs/common';
     RoadtripModule,
     // A saved change takes the stages a tour no longer has off their days (MDT-02).
     AssignmentsDomainModule,
+    // A collection keeps whole tours (LIB-03): its roles decide who sees, keeps and removes one.
+    CollectionsModule,
     MikroOrmModule.forFeature([
+      CollectionTours,
       Tours,
       TourTypes,
       TourWaypoints,
@@ -121,6 +131,8 @@ import { Module } from '@nestjs/common';
     ]),
   ],
   controllers: [
+    // The static `from-collection` and `take-over` routes before ToursController's `:placeId`.
+    CollectionTourTakeOverController,
     TourHorseRoutesController,
     TourTakeOverController,
     TourActivitiesController,
@@ -134,6 +146,7 @@ import { Module } from '@nestjs/common';
     ToursImportController,
     ToursWandererController,
     TourLibraryController,
+    CollectionToursController,
   ],
   providers: [
     ToursService,
@@ -157,6 +170,7 @@ import { Module } from '@nestjs/common';
     TourChangeUndoService,
     TourActivitiesService,
     TourActivityStatsService,
+    CollectionToursService,
     ToursMcp,
     TourLibraryMcp,
     TourWalkImportMcp,
@@ -165,6 +179,7 @@ import { Module } from '@nestjs/common';
     TourChangeUndoMcp,
     TourActivitiesMcp,
     TourActivityStatsMcp,
+    CollectionToursMcp,
   ],
 })
 export class ToursModule {}
