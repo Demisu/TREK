@@ -78,7 +78,7 @@ export class TourLibraryService {
     const needle = query.q?.toLocaleLowerCase();
     const matching = needle ? rows.filter((row) => row.name.toLocaleLowerCase().includes(needle)) : rows;
     const shown = matching.slice(0, TOUR_LIBRARY_LIMIT);
-    const walkPoints = await this.tours.walkPointsByPlace(shown);
+    const walkPoints = await this.tours.listedPointsByPlace(shown);
     return {
       tours: shown.map((row) => toItem(row, walkPoints.get(row.place_id))),
       trips,
@@ -90,7 +90,7 @@ export class TourLibraryService {
     const row = await this.toursRepo.findForLibrary(await this.reachableTrips(userId), placeId);
     if (!row) throw new NotFoundException('Tour not found');
     const line = parseRouteGeometry(row.route_geometry).map((point): [number, number] => [point[0], point[1]]);
-    const walkPoints = await this.tours.walkPointsByPlace([row]);
+    const walkPoints = await this.tours.listedPointsByPlace([row]);
     return {
       tour: toItem(row, walkPoints.get(row.place_id)),
       line: thinnedLine(line, TOUR_LIBRARY_PREVIEW_POINTS),

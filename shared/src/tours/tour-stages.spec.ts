@@ -1,4 +1,12 @@
-import { MAX_TOUR_STAGES, maxTourMinutesFor, TOUR_DAY_MINUTES, tourStageCountOf, tourStageIssues } from './tour-stages';
+import {
+  MAX_TOUR_STAGES,
+  maxTourMinutesFor,
+  TOUR_DAY_MINUTES,
+  tourStageCountOf,
+  tourStageIssues,
+  tourStageKeysOf,
+  tourStageStopsOf,
+} from './tour-stages';
 import {
   MAX_PLANNED_TOUR_DURATION_MINUTES,
   plannedTimeLimitMessage,
@@ -131,5 +139,52 @@ describe('MDT-01 tour stages', () => {
     expect(tourListItemSchema.parse({ ...item, stage_count: null }).stage_count).toBeNull();
     expect(tourListItemSchema.parse(item).stage_count).toBeUndefined();
     expect(tourListItemSchema.safeParse({ ...item, stage_count: 1 }).success).toBe(false);
+  });
+
+  it('MDT-SH-009: reads the stops between the stages, keyed, the start through the end', () => {
+    const keyed = points(5, (i) => ({ key: `stop-${i}xx`, ...(i === 2 ? { stage_end: true } : {}) }));
+    expect(tourStageStopsOf(keyed)).toEqual([
+      { key: 'stop-0xx', lat: 47, lng: 11 },
+      { key: 'stop-2xx', lat: 47.02, lng: 11 },
+      { key: 'stop-4xx', lat: 47.04, lng: 11 },
+    ]);
+    // A stage is known by the stop it starts at: the end starts none.
+    expect(tourStageKeysOf(keyed)).toEqual(['stop-0xx', 'stop-2xx']);
+  });
+
+  it('MDT-SH-010: has no stage stops for a day tour, a lone point or a stop no save has keyed', () => {
+    expect(tourStageStopsOf(points(3, (i) => ({ key: `stop-${i}xx` })))).toEqual([]);
+    expect(tourStageStopsOf([{ lat: 47, lng: 11, role: 'start', key: 'stop-0xx' }])).toEqual([]);
+    const unkeyed = points(3, (i) => (i === 1 ? { stage_end: true, key: 'stop-1xx' } : {}));
+    expect(tourStageStopsOf(unkeyed)).toEqual([]);
+    expect(tourStageKeysOf(unkeyed)).toEqual([]);
+  });
+
+  it('MDT-SH-011: lists where the stages of a multi-day tour start and end, and reads a list cached before it', () => {
+    const item = {
+      place_id: 1,
+      tour_type: 'hike',
+      distance: 12,
+      elevation_gain: null,
+      elevation_loss: null,
+      duration: null,
+      difficulty: null,
+      wanderer_ref: null,
+      match_confidence: 1,
+      max_hiking_difficulty: 2,
+      name: 'Hut to hut',
+      planned: false,
+      caution: false,
+    };
+    const stops = [
+      { key: 'stop-0xx', lat: 47, lng: 11 },
+      { key: 'stop-1xx', lat: 47.1, lng: 11 },
+      { key: 'stop-2xx', lat: 47.2, lng: 11 },
+    ];
+    expect(tourListItemSchema.parse({ ...item, stage_stops: stops }).stage_stops).toEqual(stops);
+    expect(tourListItemSchema.parse({ ...item, stage_stops: null }).stage_stops).toBeNull();
+    expect(tourListItemSchema.parse(item).stage_stops).toBeUndefined();
+    expect(tourListItemSchema.safeParse({ ...item, stage_stops: [stops[0]] }).success).toBe(false);
+    expect(tourListItemSchema.safeParse({ ...item, stage_stops: [{ ...stops[0], key: '' }, stops[1]] }).success).toBe(false);
   });
 });

@@ -1302,5 +1302,18 @@ const tours: TranslationStrings = {
   'tours.stages.toDayBody.one': 'Es treu {count} final d’etapa. La ruta queda com està i Desfés el recupera.',
   'tours.stages.toDayConfirm': 'Treu els finals d’etapa',
   'tours.stages.show': 'Mostra on acaba aquesta etapa',
+  'tours.stages.fold': 'Amaga les etapes',
+  'tours.stages.unfold': 'Mostra les etapes',
+  'tours.stages.noDay': 'Sense dia',
+  'tours.stages.noDayHint': 'Encara no és en cap dia del viatge',
+  'tours.stages.dayFailed': 'No s’ha pogut posar l’etapa en aquell dia.',
+  'tours.stages.dayLost': '{count} etapes amb dia ja no existeixen; en desar perden el seu dia.',
+  'tours.stages.dayLost.one': 'Una etapa amb dia ja no existeix; en desar perd el seu dia.',
+  'tours.stages.unmeasured': 'Encara sense mesurar',
+  'tours.stages.unmeasuredHint': 'La ruta d’aquesta etapa encara no està planificada.',
+  'tours.stages.loadFailed': 'Ara no es poden llegir les etapes.',
+  'tours.stages.wholeTour': 'Ruta sencera',
+  'tours.stages.totalPartial': 'conegut per a {known} de {of} etapes',
+  'tours.stages.openInPlanner': 'Obre aquesta etapa al planificador',
 };
 export default tours;

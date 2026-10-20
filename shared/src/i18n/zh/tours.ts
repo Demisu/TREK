@@ -1182,5 +1182,17 @@ const tours: TranslationStrings = {
   'tours.stages.toDayBody': '将移除 {count} 个阶段终点。路线保持不变，撤销可以恢复。',
   'tours.stages.toDayConfirm': '移除全部阶段终点',
   'tours.stages.show': '显示此阶段的终点',
+  'tours.stages.fold': '隐藏阶段',
+  'tours.stages.unfold': '显示阶段',
+  'tours.stages.noDay': '未定日期',
+  'tours.stages.noDayHint': '尚未安排到行程中的某一天',
+  'tours.stages.dayFailed': '无法将该阶段安排到那一天。',
+  'tours.stages.dayLost': '{count} 个已安排日期的阶段已不存在；保存后将从其日期中移除。',
+  'tours.stages.unmeasured': '尚未测量',
+  'tours.stages.unmeasuredHint': '该阶段的路线尚未规划。',
+  'tours.stages.loadFailed': '暂时无法读取阶段。',
+  'tours.stages.wholeTour': '整条路线',
+  'tours.stages.totalPartial': '{of} 个阶段中 {known} 个已知',
+  'tours.stages.openInPlanner': '在规划器中打开此阶段',
 };
 export default tours;

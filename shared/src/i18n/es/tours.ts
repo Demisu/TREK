@@ -1294,5 +1294,18 @@ const tours: TranslationStrings = {
   'tours.stages.toDayBody.one': 'Se quita {count} final de etapa. La ruta queda como está y Deshacer lo recupera.',
   'tours.stages.toDayConfirm': 'Quitar finales de etapa',
   'tours.stages.show': 'Mostrar dónde termina esta etapa',
+  'tours.stages.fold': 'Ocultar etapas',
+  'tours.stages.unfold': 'Mostrar etapas',
+  'tours.stages.noDay': 'Sin día',
+  'tours.stages.noDayHint': 'Aún no está en ningún día del viaje',
+  'tours.stages.dayFailed': 'No se pudo poner la etapa en ese día.',
+  'tours.stages.dayLost': '{count} etapas con día ya no existen; al guardar pierden su día.',
+  'tours.stages.dayLost.one': 'Una etapa con día ya no existe; al guardar pierde su día.',
+  'tours.stages.unmeasured': 'Aún sin medir',
+  'tours.stages.unmeasuredHint': 'La ruta de esta etapa aún no está planificada.',
+  'tours.stages.loadFailed': 'Ahora no se pueden leer las etapas.',
+  'tours.stages.wholeTour': 'Ruta completa',
+  'tours.stages.totalPartial': 'conocido para {known} de {of} etapas',
+  'tours.stages.openInPlanner': 'Abrir esta etapa en el planificador',
 };
 export default tours;

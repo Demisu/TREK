@@ -50,6 +50,8 @@ export function formatAssignmentWithPlace(
     created_at: a.created_at,
     tour_place_id: a.tour_place_id ?? null,
     tour_route_geometry: a.tour_route_geometry ?? null,
+    // MDT-02: the stage of a multi-day tour the day holds; null for the whole tour or a place.
+    tour_stage_key: a.tour_stage_key ?? null,
     place: {
       id: a.place_id,
       name: a.place_name,

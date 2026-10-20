@@ -39,7 +39,7 @@ import {
   insertRows,
   updateRows,
 } from '../helpers/factories/rows';
-import { makeTour } from '../helpers/factories/tours';
+import { addTourWaypoints, makeTour } from '../helpers/factories/tours';
 import { makeUser } from '../helpers/factories/users';
 import { FakeRealtimeService } from '../helpers/fake-realtime';
 import { createTestMikroOrmModule, createTestOrm, type TestOrm } from '../helpers/test-orm';
@@ -278,6 +278,35 @@ describe('Assignments e2e (real auth guard + temp SQLite)', () => {
         .send({ place_id: 2 });
       expect(firstOrdinary.status).toBe(201);
       expect(secondOrdinary.status).toBe(201);
+    } finally {
+      await dropTourPlace(tourPlaceId);
+    }
+  });
+
+  it('MDT-E2E-001: 201 puts a stage of a multi-day tour on a day, 409 a second day, 400 a stage it has not, 400 a malformed key', async () => {
+    const tourPlaceId = 21;
+    await insertRow(orm, Places, { id: tourPlaceId, trip: 5, name: 'Hut to hut' });
+    await makeTour(orm, tourPlaceId, { tourTypeRef: 'hike' });
+    await addTourWaypoints(orm, tourPlaceId, [
+      { lat: 47, lng: 11, station_key: 'stop-start' },
+      { lat: 47.1, lng: 11, station_key: 'stop-hut', stage_end: 1 },
+      { lat: 47.2, lng: 11, station_key: 'stop-end' },
+    ]);
+    const post = (dayId: number, body: Record<string, unknown>) =>
+      request(server).post(`/api/trips/5/days/${dayId}/assignments`).set('Cookie', sessionCookie(1)).send(body);
+    try {
+      const ok = await post(3, { place_id: tourPlaceId, tour_stage_key: 'stop-hut' });
+      expect(ok.status).toBe(201);
+      expect(ok.body.assignment).toMatchObject({ day_id: 3, tour_place_id: tourPlaceId, tour_stage_key: 'stop-hut' });
+      expect(broadcast).toHaveBeenCalledWith('5', 'assignment:created', { assignment: ok.body.assignment }, undefined);
+
+      const twice = await post(4, { place_id: tourPlaceId, tour_stage_key: 'stop-hut' });
+      expect([twice.status, twice.body]).toEqual([409, { error: 'Stage is already on a day' }]);
+      const none = await post(4, { place_id: tourPlaceId, tour_stage_key: 'stop-end' });
+      expect([none.status, none.body]).toEqual([400, { error: 'Tour has no such stage' }]);
+      const malformed = await post(4, { place_id: tourPlaceId, tour_stage_key: 'no' });
+      expect(malformed.status).toBe(400);
+      expect(await countRows(orm, DayAssignments, { place: tourPlaceId })).toBe(1);
     } finally {
       await dropTourPlace(tourPlaceId);
     }

@@ -269,6 +269,7 @@ export const PLUGIN_ENTITY_CONTRACT = {
       'incoming_leg_transport_mode',
       'route_excluded',
       'accommodation_id',
+      'tour_stage_key',
       'created_at',
     ],
     withheld: [],

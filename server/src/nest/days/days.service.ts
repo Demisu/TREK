@@ -206,6 +206,7 @@ export class DaysService {
         created_at: a.created_at,
         tour_place_id: a.tour_place_id ?? null,
         tour_route_geometry: a.tour_route_geometry ?? null,
+        tour_stage_key: a.tour_stage_key ?? null,
         place: {
           id: a.place_id,
           name: a.place_name,

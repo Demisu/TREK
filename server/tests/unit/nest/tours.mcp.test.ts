@@ -86,8 +86,8 @@ describe('ToursMcp', () => {
     const listedRidge = tours.find((tour: { place_id: number }) => tour.place_id === ridge.id);
     expect(listedRidge).toMatchObject({ name: 'Ridge', origin: expect.any(String), max_hiking_difficulty: 3 });
     expect(listedRidge.days).toEqual([
-      { day_id: day1.id, day_number: 1, date: '2026-07-10', title: 'Arrive' },
-      { day_id: day2.id, day_number: 2, date: '2026-07-11', title: null },
+      { day_id: day1.id, day_number: 1, date: '2026-07-10', title: 'Arrive', tour_stage_key: null },
+      { day_id: day2.id, day_number: 2, date: '2026-07-11', title: null, tour_stage_key: null },
     ]);
     expect(tours.find((tour: { place_id: number }) => tour.place_id === gorge.id).days).toEqual([]);
   });
@@ -360,6 +360,28 @@ describe('ToursMcp', () => {
       true,
       true,
       false,
+    ]);
+  });
+
+  it('TOURS-MCP-016: list_tours names the stops between the stages and the stage each day holds (MDT-02)', async () => {
+    const { user, trip, ridge, day1, day2 } = fixture();
+    const orm = await createTestOrm(db);
+    await addTourWaypoints(orm, ridge.id, [
+      { lat: 47, lng: 11, station_key: 'stop-start' },
+      { lat: 47.05, lng: 11.05, station_key: 'stop-hut', stage_end: 1 },
+      { lat: 47.1, lng: 11.1, station_key: 'stop-end' },
+    ]);
+    await orm.close();
+    const day3 = createDay(db, trip.id, { day_number: 3 });
+    createDayAssignment(db, day3.id, ridge.id, { tour_stage_key: 'stop-hut' });
+
+    const { tours } = read(await mcp.listTours({ tripId: trip.id }, ctx(user.id)));
+    const listed = tours.find((tour: { place_id: number }) => tour.place_id === ridge.id);
+    expect(listed.stage_stops.map((stop: { key: string }) => stop.key)).toEqual(['stop-start', 'stop-hut', 'stop-end']);
+    expect(listed.days.map((day: { day_id: number; tour_stage_key: string | null }) => [day.day_id, day.tour_stage_key])).toEqual([
+      [day1.id, null],
+      [day2.id, null],
+      [day3.id, 'stop-hut'],
     ]);
   });
 

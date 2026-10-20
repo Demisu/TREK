@@ -30,6 +30,7 @@ export class DayAssignments {
   end_day: number & Opt = 0;
   accommodation_id?: number | null;
   route_excluded: number & Opt = 0;
+  tour_stage_key?: string | null;
   assignment_participants_collection = new Collection<AssignmentParticipants>(this);
   file_links_collection = new Collection<FileLinks>(this);
   reservations_collection = new Collection<Reservations>(this);
@@ -42,6 +43,13 @@ export class DayAssignments {
 export const DayAssignmentsSchema = defineEntity({
   class: DayAssignments,
   repository: () => DayAssignmentsRepository,
+  indexes: [
+    {
+      name: 'idx_day_assignments_tour_stage',
+      where: 'tour_stage_key IS NOT NULL',
+      properties: ['place_id', 'tour_stage_key'],
+    },
+  ],
   properties: {
     id: p.integer().primary(),
     day: () => p.manyToOne(Days).ref().deleteRule('cascade').hidden().index('idx_day_assignments_day_id'),
@@ -61,6 +69,7 @@ export const DayAssignmentsSchema = defineEntity({
     end_day: p.integer().default(0),
     accommodation_id: p.integer().nullable().index('idx_day_assignments_accommodation_id'),
     route_excluded: p.integer().default(0),
+    tour_stage_key: p.text().nullable(),
     assignment_participants_collection: () => p.oneToMany(AssignmentParticipants).mappedBy('assignment').hidden(),
     file_links_collection: () => p.oneToMany(FileLinks).mappedBy('assignment').hidden(),
     reservations_collection: () => p.oneToMany(Reservations).mappedBy('assignment').hidden(),

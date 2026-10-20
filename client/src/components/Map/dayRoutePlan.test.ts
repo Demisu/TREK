@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { buildDayRouteRuns, hotelBookendOf } from './dayRoutePlan'
-import { projectDayItinerary } from './dayTourProjection'
+import { projectDayItinerary, tourStageStopsByPlace } from './dayTourProjection'
 import { resolveLegMode } from '../Planner/legMode'
 import { planTripRoute, assembleTripRoute, emptyAnswers, summariseTripRoute } from './tripRouteGeometry'
 import { buildAssignment, buildDay, buildPlace, buildReservation } from '../../../tests/helpers/factories'
@@ -434,6 +434,54 @@ describe('Tour day itinerary segments', () => {
     const list = [ordinary('A', 0), { ...tour('S', 'E', 1), leg_transport_mode: 'plugin:custom/walk' }, ordinary('C', 2)]
     expect(inspect(list).chunks).toEqual(['walking', 'plugin:custom/walk'])
     expect(projectDayItinerary(list, true)[1]).toMatchObject({ geometry: [points.S, points.E] })
+  })
+})
+
+// MDT-02: a day holding one stage of a multi-day tour routes to that stage and draws its stretch.
+describe('A stage of a multi-day tour on a day', () => {
+  const line: [number, number][] = [[48, 11], [48.01, 11], [48.02, 11], [48.03, 11], [48.04, 11]]
+  const stops = [
+    { key: 'stop-start', lat: 48, lng: 11 },
+    { key: 'stop-hut', lat: 48.02, lng: 11 },
+    { key: 'stop-end', lat: 48.04, lng: 11 },
+  ]
+  const hutToHut = (order: number, tour_stage_key: string | null) => {
+    const assignment = at(48, 11, order)
+    return { ...assignment, tour_place_id: assignment.place.id, tour_route_geometry: JSON.stringify(line), tour_stage_key }
+  }
+
+  it('FE-MAP-DRP-017: draws and routes to the stretch of the stage, the stops telling where it runs', () => {
+    const second = hutToHut(1, 'stop-hut')
+    const stageStops = new Map([[second.place.id, stops]])
+    expect(projectDayItinerary([second], true, [], stageStops)[0]).toMatchObject({
+      kind: 'tour', valid: true, start: { lat: 48.02, lng: 11 }, end: { lat: 48.04, lng: 11 }, geometry: line.slice(2),
+    })
+    const first = hutToHut(1, 'stop-start')
+    expect(projectDayItinerary([first], true, [], new Map([[first.place.id, stops]]))[0]).toMatchObject({
+      start: { lat: 48, lng: 11 }, end: { lat: 48.02, lng: 11 },
+    })
+    const runs = buildDayRouteRuns(1, {
+      ...inputs({ assignments: { '1': [at(47.99, 11, 0), second, at(48.05, 11, 2)] } }),
+      toursEnabled: true, tourStageStops: stageStops,
+    })
+    expect(runs.map(run => run.map(point => [point.lat, point.lng]))).toEqual([[[47.99, 11], [48.02, 11]], [[48.04, 11], [48.05, 11]]])
+  })
+
+  it('FE-MAP-DRP-018: keeps the whole tour where the stops do not tell the stage', () => {
+    const whole = hutToHut(1, null)
+    const unknown = hutToHut(1, 'stop-gone')
+    const last = hutToHut(1, 'stop-end')
+    for (const assignment of [whole, unknown, last]) {
+      expect(projectDayItinerary([assignment], true, [], new Map([[assignment.place.id, stops]]))[0]).toMatchObject({ geometry: line })
+    }
+    const noStops = hutToHut(1, 'stop-hut')
+    expect(projectDayItinerary([noStops], true)[0]).toMatchObject({ geometry: line })
+  })
+
+  it('FE-MAP-DRP-019: reads the stage stops of the multi-day tours off the tour list, none for a day tour', () => {
+    const stages = tourStageStopsByPlace([{ place_id: 4, stage_stops: stops }, { place_id: 5, stage_stops: null }, { place_id: 6 }])
+    expect([...stages.keys()]).toEqual([4])
+    expect(stages.get(4)).toBe(stops)
   })
 })
 

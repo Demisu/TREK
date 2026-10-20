@@ -3,7 +3,7 @@ import { useId, type ReactNode } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import type { TourListItem } from '@trek/shared'
 import { fs } from '../shared/DialogShell'
-import { TourActivityBadge, TourCautionBadge, TourDaysBadge, TourGradeTile } from './tourParts'
+import { FoldButton, TourActivityBadge, TourCautionBadge, TourDaysBadge, TourGradeTile } from './tourParts'
 import type { Day } from '../../types'
 import { endPlaceDrag, startPlaceDrag } from '../Map/markerDrag'
 import { TourDayRowPills } from './TourDayRowFacts'
@@ -28,6 +28,8 @@ interface TourListRowProps {
   trackColor?: string
   /** PR1-07: the person's switch for this tour's line on the trip map. */
   mapToggle?: { hidden: boolean; onToggle: () => void; showLabel: string; hideLabel: string }
+  /** MDT-02: a multi-day tour unfolds its stages below the row; `controls` is the id of what unfolds. */
+  fold?: { expanded: boolean; onToggle: () => void; label: string; controls: string }
 }
 
 /** The eye beside a row: shown on hover like the other actions, and always while the tour is hidden. */
@@ -118,7 +120,7 @@ function TourRowActions({ action, mapToggle, selected }: Pick<TourListRowProps, 
 export default function TourListRow({ tour,
   days = NO_DAYS,
   selected = false, disabled = false,
-  draggableToDay = false, onSelect, action, children, trackColor, mapToggle }: TourListRowProps) {
+  draggableToDay = false, onSelect, action, children, trackColor, mapToggle, fold }: TourListRowProps) {
   const nameId = useId()
   const tourDays = useTourDays(tour.place_id, days)
   const draggable = draggableToDay && !disabled
@@ -152,6 +154,12 @@ export default function TourListRow({ tour,
         )}
         <TourRowBody tour={tour} nameId={nameId} tourDays={tourDays} dimmed={!!mapToggle?.hidden} />
         <TourRowActions action={action} mapToggle={mapToggle} selected={selected} />
+        {fold && (
+          // Always in sight, unlike the hover actions: the stages are part of what the row is.
+          <span role="presentation" className="flex-none" onClick={event => event.stopPropagation()}>
+            <FoldButton expanded={fold.expanded} onToggle={fold.onToggle} controls={fold.controls} label={fold.label} />
+          </span>
+        )}
       </div>
       {children}
     </li>

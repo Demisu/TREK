@@ -1341,3 +1341,79 @@ describe('DayAssignmentsRepository.listPublicForShare (SH9, share.service.ts)', 
     expect(await assignments.listPublicForShare([])).toEqual([]);
   });
 });
+
+describe('DayAssignmentsRepository tour stages (MDT-02)', () => {
+  /** A tour on a trip with three days, the first holding nothing yet. */
+  function tourOnTrip() {
+    const { user } = createUser(testDb);
+    const trip = createTrip(testDb, user.id);
+    const days = [createDay(testDb, trip.id), createDay(testDb, trip.id), createDay(testDb, trip.id)];
+    const place = createPlace(testDb, trip.id);
+    createTour(testDb, place.id);
+    return { trip, days, place };
+  }
+
+  const stageOf = async (id: number) => (await findRow(t, DayAssignments, { id }))?.tour_stage_key;
+
+  it('ASSIGNREPO-043: writes the stage a day holds, and none for the whole tour', async () => {
+    const { days, place } = tourOnTrip();
+    const base = { place_id: place.id, order_index: 0, notes: null, accommodation_id: null };
+    const stage = await assignments.insertAssignment({ ...base, day_id: days[0].id, tour_stage_key: 'stage-one' });
+    const whole = await assignments.insertAssignment({ ...base, day_id: days[1].id });
+    expect(await stageOf(stage)).toBe('stage-one');
+    expect(await stageOf(whole)).toBeNull();
+  });
+
+  it('ASSIGNREPO-044: finds the day a stage is on, and nothing for a stage on none or of another tour', async () => {
+    const { trip, days, place } = tourOnTrip();
+    const held = createDayAssignment(testDb, days[1].id, place.id, { tour_stage_key: 'stage-two' });
+    expect(await assignments.findTourStage(place.id, 'stage-two')).toEqual({ id: held.id, day_id: days[1].id });
+    expect(await assignments.findTourStage(place.id, 'stage-one')).toBeUndefined();
+    const other = createPlace(testDb, trip.id);
+    expect(await assignments.findTourStage(other.id, 'stage-two')).toBeUndefined();
+  });
+
+  it('ASSIGNREPO-045: takes off only the stages not kept, leaving the whole tour and other tours alone', async () => {
+    const { trip, days, place } = tourOnTrip();
+    const first = createDayAssignment(testDb, days[0].id, place.id, { tour_stage_key: 'stage-one' });
+    const second = createDayAssignment(testDb, days[1].id, place.id, { tour_stage_key: 'stage-two' });
+    const whole = createDayAssignment(testDb, days[2].id, place.id);
+    const other = createPlace(testDb, trip.id);
+    const otherStage = createDayAssignment(testDb, days[2].id, other.id, { tour_stage_key: 'stage-two' });
+
+    const gone = await uow.transactional(() => assignments.deleteTourStagesNotIn(place.id, ['stage-one']));
+    expect(gone).toEqual([{ id: second.id, day_id: days[1].id }]);
+    const left = (await findRows(t, DayAssignments, {}, { id: 'asc' })).map((row) => row.id);
+    expect(left).toEqual([first.id, whole.id, otherStage.id]);
+  });
+
+  it('ASSIGNREPO-046: takes every stage off with no key kept, and writes nothing when no stage is held', async () => {
+    const { days, place } = tourOnTrip();
+    const first = createDayAssignment(testDb, days[0].id, place.id, { tour_stage_key: 'stage-one' });
+    const second = createDayAssignment(testDb, days[1].id, place.id, { tour_stage_key: 'stage-two' });
+    expect(await assignments.deleteTourStagesNotIn(place.id, [])).toEqual([
+      { id: first.id, day_id: days[0].id },
+      { id: second.id, day_id: days[1].id },
+    ]);
+    expect(await assignments.deleteTourStagesNotIn(place.id, [])).toEqual([]);
+  });
+
+  it('ASSIGNREPO-047: a copied assignment keeps the stage it held', async () => {
+    const { days, place } = tourOnTrip();
+    const copy = {
+      place_id: place.id,
+      order_index: 0,
+      notes: null,
+      reservation_status: null,
+      reservation_notes: null,
+      reservation_datetime: null,
+      assignment_time: null,
+      assignment_end_time: null,
+      end_day: 0,
+    };
+    const stage = await assignments.insertAssignmentCopy({ ...copy, day_id: days[0].id, tour_stage_key: 'stage-one' });
+    const whole = await assignments.insertAssignmentCopy({ ...copy, day_id: days[1].id });
+    expect(await stageOf(stage)).toBe('stage-one');
+    expect(await stageOf(whole)).toBeNull();
+  });
+});

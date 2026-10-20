@@ -1282,5 +1282,18 @@ const tours: TranslationStrings = {
   'tours.stages.toDayBody.one': '{count} mərhələ sonu silinir. Marşrut olduğu kimi qalır, Geri al onu qaytarır.',
   'tours.stages.toDayConfirm': 'Mərhələ sonlarını sil',
   'tours.stages.show': 'Bu mərhələnin harada bitdiyini göstər',
+  'tours.stages.fold': 'Mərhələləri gizlət',
+  'tours.stages.unfold': 'Mərhələləri göstər',
+  'tours.stages.noDay': 'Gün yoxdur',
+  'tours.stages.noDayHint': 'Hələ səyahətin heç bir gününə salınmayıb',
+  'tours.stages.dayFailed': 'Mərhələni həmin günə salmaq alınmadı.',
+  'tours.stages.dayLost': 'Günə salınmış {count} mərhələ artıq yoxdur; saxlama onları günlərindən çıxarır.',
+  'tours.stages.dayLost.one': 'Günə salınmış bir mərhələ artıq yoxdur; saxlama onu günündən çıxarır.',
+  'tours.stages.unmeasured': 'Hələ ölçülməyib',
+  'tours.stages.unmeasuredHint': 'Bu mərhələnin marşrutu hələ planlaşdırılmayıb.',
+  'tours.stages.loadFailed': 'Mərhələləri indi oxumaq olmur.',
+  'tours.stages.wholeTour': 'Bütün tur',
+  'tours.stages.totalPartial': '{of} mərhələdən {known} üçün məlumdur',
+  'tours.stages.openInPlanner': 'Bu mərhələni planlayıcıda aç',
 };
 export default tours;

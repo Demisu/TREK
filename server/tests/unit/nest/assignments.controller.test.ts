@@ -69,9 +69,21 @@ describe('DayAssignmentsController (parity with the legacy day-assignments route
       expect(await new DayAssignmentsController(s).create(user, '5', '3', { place_id: 2, notes: 'n' }, 'sock')).toEqual(
         { assignment: { id: 9 } },
       );
-      expect(createAssignment).toHaveBeenCalledWith('3', 2, 'n');
+      expect(createAssignment).toHaveBeenCalledWith('3', 2, 'n', {});
       expect(broadcast).toHaveBeenCalledWith('5', 'assignment:created', { assignment: { id: 9 } }, 'sock');
       expect(reconcile).toHaveBeenCalledWith('5', 'sock');
+    });
+
+    it('MDT-CTRL-001: hands a stage of a multi-day tour to the service, the same as the MCP tool', async () => {
+      const createAssignment = vi.fn().mockReturnValue({ id: 9, tour_stage_key: 'stop-hut' });
+      const broadcast = vi.fn();
+      const reconcile = vi.fn().mockResolvedValue(undefined);
+      const s = svc({ createAssignment, broadcast, reconcile } as Partial<AssignmentsService>);
+      const body = { place_id: 2, tour_stage_key: 'stop-hut' };
+      expect(await new DayAssignmentsController(s).create(user, '5', '3', body, 'sock')).toEqual({
+        assignment: { id: 9, tour_stage_key: 'stop-hut' },
+      });
+      expect(createAssignment).toHaveBeenCalledWith('3', 2, undefined, { tourStageKey: 'stop-hut' });
     });
 
     it('409 duplicate Tour assignment propagates without announcing a new assignment', async () => {
@@ -85,7 +97,7 @@ describe('DayAssignmentsController (parity with the legacy day-assignments route
       expect(await thrownAsync(() => controller.create(user, '5', '3', { place_id: 42 }))).toMatchObject({
         status: 409,
       });
-      expect(createAssignment).toHaveBeenCalledWith('3', 42, undefined);
+      expect(createAssignment).toHaveBeenCalledWith('3', 42, undefined, {});
       expect(broadcast).not.toHaveBeenCalled();
       expect(reconcile).not.toHaveBeenCalled();
     });

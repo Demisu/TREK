@@ -8,6 +8,7 @@ import { useSettingsStore } from '../../store/settingsStore'
 import { useAddonStore } from '../../store/addonStore'
 import type { RoadtripVia } from '@trek/shared'
 import type { Accommodation, AssignmentsMap, Day, Place, Reservation } from '../../types'
+import type { TourStageStops } from './dayTourProjection'
 
 export type { TripOverviewDay, TripRouteSummary } from './tripRouteGeometry'
 
@@ -46,6 +47,8 @@ export function useTripRouteOverview(
   enabled: boolean,
   places: Place[] = EMPTY_PLACES,
   vias?: TripRouteVias,
+  /** MDT-02: where the stages of the trip's multi-day tours run, so a day holding one draws that stage. */
+  tourStageStops?: TourStageStops,
 ): TripRouteOverview {
   const optimizeFromAccommodation = useSettingsStore(s => s.settings.optimize_from_accommodation)
   const toursEnabled = useAddonStore(s => s.isEnabled('tours'))
@@ -66,9 +69,9 @@ export function useTripRouteOverview(
   const viasByDay = vias?.viasByDay
   const plan = useMemo(
     () => (enabled
-      ? planTripRoute({ days, assignments, reservations, accommodations, optimizeFromAccommodation, toursEnabled, places, storedAssignments, viasByDay }, profile)
+      ? planTripRoute({ days, assignments, reservations, accommodations, optimizeFromAccommodation, toursEnabled, places, storedAssignments, viasByDay, tourStageStops }, profile)
       : []),
-    [enabled, days, assignments, reservations, accommodations, optimizeFromAccommodation, profile, toursEnabled, places, storedAssignments, viasByDay],
+    [enabled, days, assignments, reservations, accommodations, optimizeFromAccommodation, profile, toursEnabled, places, storedAssignments, viasByDay, tourStageStops],
   )
 
   // Only geometry and mode decide whether legs have to be fetched again: renaming a

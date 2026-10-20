@@ -28,6 +28,9 @@ describe('assignment Tours read-model merge', () => {
       incoming_leg_transport_mode: 'cycling',
     };
     expect(assignmentSchema.parse({ ...ordinary, ...fields })).toMatchObject(fields);
+    // MDT-02: the stage of a multi-day tour the day holds, null for the whole tour.
+    expect(assignmentSchema.parse({ ...ordinary, tour_stage_key: 'stop-1xx' }).tour_stage_key).toBe('stop-1xx');
+    expect(assignmentSchema.parse({ ...ordinary, tour_stage_key: null }).tour_stage_key).toBeNull();
     expect(assignmentSchema.parse({ ...ordinary, tour_place_id: null, tour_route_geometry: null })).toMatchObject({
       tour_place_id: null,
       tour_route_geometry: null,
@@ -54,6 +57,16 @@ describe('assignmentCreateRequestSchema', () => {
     expect(assignmentCreateRequestSchema.safeParse({ place_id: 2 }).success).toBe(true);
     expect(assignmentCreateRequestSchema.safeParse({ place_id: '2', notes: null }).success).toBe(true);
     expect(assignmentCreateRequestSchema.safeParse({}).success).toBe(false);
+  });
+
+  it('MDT-SH-012: takes the stage of a multi-day tour by the key of the stop it starts at', () => {
+    expect(assignmentCreateRequestSchema.parse({ place_id: 2, tour_stage_key: 'stop-1xx' })).toEqual({
+      place_id: 2,
+      tour_stage_key: 'stop-1xx',
+    });
+    for (const tour_stage_key of ['', 'short', 'not a key!', null, 3]) {
+      expect(assignmentCreateRequestSchema.safeParse({ place_id: 2, tour_stage_key }).success).toBe(false);
+    }
   });
 });
 

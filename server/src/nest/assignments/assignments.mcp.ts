@@ -13,7 +13,12 @@ import {
 import { DaysService } from '../days/days.service';
 import { McpToolGuardsService } from '../mcp-shared/mcp-tool-guards.service';
 import { AssignmentsService } from './assignments.service';
-import { idSchema, assignmentEndDayRequestSchema, type AssignmentEndDayRequest } from '@trek/shared';
+import {
+  idSchema,
+  assignmentCreateRequestSchema,
+  assignmentEndDayRequestSchema,
+  type AssignmentEndDayRequest,
+} from '@trek/shared';
 
 import { z } from 'zod';
 
@@ -36,25 +41,37 @@ export class AssignmentsMcp {
 
   @Tool({
     name: 'assign_place_to_day',
-    description: 'Assign a place to a specific day in a trip.',
+    description:
+      'Assign a place to a specific day in a trip. For a multi-day tour, pass tourStageKey to put one of its stages on the day instead of the whole tour: the key of the stop the stage starts at, from the stage_stops list_tours gives (every stop but the last starts a stage). A stage is on one day at most, and a day holds a tour, or one of its stages, once.',
     inputSchema: {
       tripId: idSchema,
       dayId: idSchema,
       placeId: idSchema,
       notes: z.string().max(500).optional(),
+      tourStageKey: assignmentCreateRequestSchema.shape.tour_stage_key.describe(
+        'The key of the stop a stage of a multi-day tour starts at, to put that stage on the day instead of the whole tour',
+      ),
     },
     annotations: TOOL_ANNOTATIONS_NON_IDEMPOTENT,
     access: { group: 'places', mode: 'write' },
   })
   async assignPlaceToDay(
-    { tripId, dayId, placeId, notes }: { tripId: number; dayId: number; placeId: number; notes?: string },
+    {
+      tripId,
+      dayId,
+      placeId,
+      notes,
+      tourStageKey,
+    }: { tripId: number; dayId: number; placeId: number; notes?: string; tourStageKey?: string },
     ctx: McpContext,
   ) {
     if (!(await this.assignments.verifyTripAccess(tripId, ctx.userId))) return noAccess();
     if (!(await this.guards.hasTripPermission('day_edit', tripId, ctx.userId))) return permissionDenied();
     if (!(await this.assignments.dayExists(dayId, tripId))) return errorResult('Day not found.');
     if (!(await this.assignments.placeExists(placeId, tripId))) return errorResult('Place not found.');
-    const assignment = await this.assignments.createAssignment(dayId, placeId, notes || null);
+    const assignment = await this.assignments.createAssignment(dayId, placeId, notes || null, {
+      ...(tourStageKey !== undefined ? { tourStageKey } : {}),
+    });
     this.guards.safeBroadcast(tripId, 'assignment:created', { assignment });
     await this.assignments.reconcile(tripId);
     return ok({ assignment });

@@ -105,6 +105,8 @@ export interface DayAssignmentRow {
   end_day: number;
   accommodation_id: number | null;
   route_excluded: number;
+  /** MDT-02: the stage of a multi-day tour the day holds, by its starting stop's key; null for anything else. */
+  tour_stage_key: string | null;
 }
 
 const _dayAssignmentRowKeys: AssertRowKeys<DayAssignmentRow, DayAssignments> = true;
@@ -433,6 +435,8 @@ export class DayAssignmentsRepository extends TrekRepository<DayAssignments> {
     order_index: number;
     notes: string | null;
     accommodation_id: number | null;
+    /** MDT-02: one stage of a multi-day tour, by its starting stop's key; absent for the whole tour or a place. */
+    tour_stage_key?: string | null;
   }): Promise<number> {
     return await this.insert({
       day: input.day_id,
@@ -440,7 +444,41 @@ export class DayAssignmentsRepository extends TrekRepository<DayAssignments> {
       order_index: input.order_index,
       notes: input.notes,
       accommodation_id: input.accommodation_id,
+      tour_stage_key: input.tour_stage_key ?? null,
     });
+  }
+
+  /** MDT-02: the assignment holding this stage of a tour, with its day; `undefined` while the stage is on no day. */
+  async findTourStage(place_id: number, tour_stage_key: string): Promise<{ id: number; day_id: number } | undefined> {
+    return await this.kysely<Pick<DB, 'day_assignments'>>()
+      .selectFrom('day_assignments')
+      .select(['id', 'day_id'])
+      .where('place_id', '=', place_id)
+      .where('tour_stage_key', '=', tour_stage_key)
+      .executeTakeFirst();
+  }
+
+  /**
+   * MDT-02: takes off their days the stages of a tour whose starting stop is
+   * not among `keys` (every stage, for none), and answers what it took, so a
+   * stage a changed tour no longer has leaves no day holding it. The caller
+   * owns the transaction: the tour's points are written in the same one.
+   */
+  async deleteTourStagesNotIn(place_id: number, keys: readonly string[]): Promise<Array<{ id: number; day_id: number }>> {
+    let query = this.kysely<Pick<DB, 'day_assignments'>>()
+      .selectFrom('day_assignments')
+      .select(['id', 'day_id'])
+      .where('place_id', '=', place_id)
+      .where('tour_stage_key', 'is not', null);
+    if (keys.length > 0) query = query.where('tour_stage_key', 'not in', [...keys]);
+    const gone = await query.orderBy('id', 'asc').execute();
+    if (gone.length > 0) {
+      await this.kysely<Pick<DB, 'day_assignments'>>()
+        .deleteFrom('day_assignments')
+        .where('id', 'in', gone.map((row) => row.id))
+        .execute();
+    }
+    return gone;
   }
 
   /** AS10 — `DELETE FROM day_assignments WHERE id = ?`. */
@@ -706,6 +744,8 @@ export class DayAssignmentsRepository extends TrekRepository<DayAssignments> {
     assignment_time: string | null;
     assignment_end_time: string | null;
     end_day: number;
+    /** MDT-02: the copied tour keeps its stops' keys, so a day holding one of its stages keeps holding it. */
+    tour_stage_key?: string | null;
   }): Promise<number> {
     return await this.insert({
       day: input.day_id,
@@ -718,6 +758,7 @@ export class DayAssignmentsRepository extends TrekRepository<DayAssignments> {
       assignment_time: input.assignment_time,
       assignment_end_time: input.assignment_end_time,
       end_day: input.end_day,
+      tour_stage_key: input.tour_stage_key ?? null,
     });
   }
 

@@ -32,9 +32,13 @@ import type { SkiClassification } from '../ski/useSkiClassification'
 import { TourTypeFields } from './TourTypeFields'
 import TourWaypointList from './TourWaypointList'
 import { TourStageLossNotice } from '../stages/TourStageLossNotice'
+import { TourStageDayNotice } from '../stages/TourStageDayNotice'
 import { TourStageModeField } from '../stages/TourStageModeField'
 import { TourStagesSection } from '../stages/TourStagesSection'
 import { stageBoundariesM } from '../stages/tourStages'
+import { TourStageOverview } from '../stages/TourStageOverview'
+import { useTourStageRail } from '../stages/useTourStageRail'
+import { useTripStore } from '../../../store/tripStore'
 import type { DistanceIndexedProfileSample, RouteProfileFocus } from '../../../utils/routeGeometry'
 import type { TourPlannerController, TourPlannerStatus } from './useTourPlanner'
 import { useTourPermissions, type TourPermissionProps } from '../useTourPermissions'
@@ -473,6 +477,7 @@ export function TourPlannerRail({ planner,
           <UnreachableNotice planner={planner} />
 
           <TourStageLossNotice planner={planner} />
+          <TourStageDayNotice planner={planner} />
 
           <TourWaypointList planner={planner} canEdit={canEdit} isSaving={isSaving} tourPlaceIds={tourPlaceIds} />
 
@@ -731,12 +736,28 @@ function plannerTimeFields(planner: TourPlannerController, t: Translate): TourMe
   ]
 }
 
+/** MDT-02: the id of a tour's unfolded stages, which its fold button controls. */
+const stageListId = (tour: TourListItem) => `tour-stages-${tour.place_id}`
+
+/** The fold of a multi-day tour's row in the list; none for a day tour. */
+function stagesFold(tour: TourListItem, rail: ReturnType<typeof useTourStageRail>, t: (key: string) => string) {
+  if ((tour.stage_count ?? 0) < 2) return undefined
+  const expanded = rail.isUnfolded(tour.place_id)
+  return {
+    expanded,
+    onToggle: () => rail.toggle(tour.place_id),
+    label: t(expanded ? 'tours.stages.fold' : 'tours.stages.unfold'),
+    controls: stageListId(tour),
+  }
+}
+
 export function TourPlannerToursRail({ planner, tours, days, loading, onAssignToDay, onViewGpxTour, onDeleteTour,
   gpxImport, onTakenOver, canEdit: editPermission, canAssign: assignPermission }: TourPlannerToursRailProps) {
   const { canEdit, canAssign } = useTourPermissions({ canEdit: editPermission ?? planner.canEdit, canAssign: assignPermission ?? planner.canAssign })
   const { t } = useTranslation()
   const toast = useToast()
   const distanceUnit = useSettingsStore(state => state.settings.distance_unit)
+  const tripId = useTripStore(state => state.trip?.id)
   const [pendingTour, setPendingTour] = useState<TourListItem | null>(null)
   const dayAssignment = useTourDayAssignment({ canAssign, onAssignToDay })
   // STA-01: one filter for the list and the summary above it, the same as the plan's tour list.
@@ -776,6 +797,8 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
     }
     selectTour(tour)
   }
+  // MDT-02: a multi-day tour unfolds its stages here, and a stage opens in the planner.
+  const stageRail = useTourStageRail(planner, requestOpenTour)
 
   const tourTimeFields = plannerTimeFields(planner, t)
 
@@ -835,6 +858,7 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
                     disabled={isSaving}
                     selected={(planner.mode.type === 'edit-saved' || planner.mode.type === 'view-gpx') && planner.mode.placeId === tour.place_id}
                     onSelect={requestOpenTour}
+                    fold={stagesFold(tour, stageRail, t)}
                     action={((canAssign && days.length > 0) || (canEdit && onDeleteTour)) ? (
                       <>
                         {canAssign && days.length > 0 && (
@@ -860,7 +884,12 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
                         )}
                       </>
                     ) : undefined}
-                  />
+                  >
+                    {stageRail.isUnfolded(tour.place_id) && (tour.stage_count ?? 0) > 1 && (
+                      <TourStageOverview id={stageListId(tour)} tripId={tripId} tour={tour} days={days} canAssign={canAssign}
+                        onOpenStage={isSaving ? undefined : stageRail.openStage} />
+                    )}
+                  </TourListRow>
                 ))}
               </TourListCard>
             )}

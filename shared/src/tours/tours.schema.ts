@@ -182,6 +182,16 @@ export const tourTypeSchema = z.object({
 });
 export type TourType = z.infer<typeof tourTypeSchema>;
 
+/** CW-03: a station's key, the same across saves. */
+export const stationKeySchema = z.string().regex(/^[A-Za-z0-9_-]{6,64}$/);
+
+/** MDT-02: a stop a stage of a multi-day tour starts or ends at, by its key and where it is. */
+export const tourStageStopSchema = z.object({
+  key: stationKeySchema,
+  lat: z.number(),
+  lng: z.number(),
+});
+
 export const tourSchema = z.object({
   place_id: z.number().int().positive(),
   tour_type: tourTypeKeySchema,
@@ -312,6 +322,12 @@ export const tourListItemSchema = tourSchema.extend({
    * tour. Absent in a list cached before it existed.
    */
   stage_count: z.number().int().min(2).nullable().optional(),
+  /**
+   * MDT-02: the stops the stages run between, in route order: the start, every
+   * stop that ends a stage, and the end. A stage is put on a day by the key of
+   * the stop it starts at. Null for a day tour; absent in a list cached before it existed.
+   */
+  stage_stops: z.array(tourStageStopSchema).min(3).nullable().optional(),
 });
 export type TourListItem = z.infer<typeof tourListItemSchema>;
 
@@ -401,8 +417,6 @@ export const TOUR_STATION_HOURS_MAX = 500;
  * the server's for a city walk it plans on foot (CW-11).
  */
 export const TOUR_MAX_SNAP_M = 300;
-/** CW-03: a station's key, the same across saves. */
-export const stationKeySchema = z.string().regex(/^[A-Za-z0-9_-]{6,64}$/);
 /** CW-03: how much a station matters, besides normal (null). */
 export const STATION_IMPORTANCES = ['optional', 'must'] as const;
 export const stationImportanceSchema = z.enum(STATION_IMPORTANCES);

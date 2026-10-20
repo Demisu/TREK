@@ -1277,5 +1277,18 @@ const tours: TranslationStrings = {
   'tours.stages.toDayBody': '{count} akhir etape dihapus. Rute tetap seperti semula, dan Urungkan mengembalikannya.',
   'tours.stages.toDayConfirm': 'Hapus semua akhir etape',
   'tours.stages.show': 'Tunjukkan tempat etape ini berakhir',
+  'tours.stages.fold': 'Sembunyikan etape',
+  'tours.stages.unfold': 'Tampilkan etape',
+  'tours.stages.noDay': 'Tanpa hari',
+  'tours.stages.noDayHint': 'Belum masuk hari perjalanan mana pun',
+  'tours.stages.dayFailed': 'Etape tidak dapat dimasukkan ke hari itu.',
+  'tours.stages.dayLost':
+    '{count} etape yang punya hari sudah tidak ada; saat disimpan, etape itu dilepas dari harinya.',
+  'tours.stages.unmeasured': 'Belum diukur',
+  'tours.stages.unmeasuredHint': 'Rute etape ini belum direncanakan.',
+  'tours.stages.loadFailed': 'Etape tidak dapat dibaca saat ini.',
+  'tours.stages.wholeTour': 'Seluruh tur',
+  'tours.stages.totalPartial': 'diketahui untuk {known} dari {of} etape',
+  'tours.stages.openInPlanner': 'Buka etape ini di perencana',
 };
 export default tours;

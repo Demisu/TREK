@@ -1269,5 +1269,18 @@ const tours: TranslationStrings = {
   'tours.stages.toDayBody.one': '{count} stage end is removed. The route stays as it is, and undo brings it back.',
   'tours.stages.toDayConfirm': 'Remove stage ends',
   'tours.stages.show': 'Show where this stage ends',
+  'tours.stages.fold': 'Hide stages',
+  'tours.stages.unfold': 'Show stages',
+  'tours.stages.noDay': 'No day',
+  'tours.stages.noDayHint': 'Not on a day of the trip yet',
+  'tours.stages.dayFailed': 'The stage could not be put on that day.',
+  'tours.stages.dayLost': '{count} stages on a day no longer exist; saving takes them off their days.',
+  'tours.stages.dayLost.one': 'A stage on a day no longer exists; saving takes it off its day.',
+  'tours.stages.unmeasured': 'Not measured yet',
+  'tours.stages.unmeasuredHint': 'The route of this stage is not planned yet.',
+  'tours.stages.loadFailed': 'The stages cannot be read right now.',
+  'tours.stages.wholeTour': 'Whole tour',
+  'tours.stages.totalPartial': 'known for {known} of {of} stages',
+  'tours.stages.openInPlanner': 'Open this stage in the planner',
 };
 export default tours;

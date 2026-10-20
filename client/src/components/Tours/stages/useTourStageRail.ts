@@ -1,0 +1,69 @@
+import type { TourListItem } from '@trek/shared';
+import { useCallback, useEffect, useState } from 'react';
+import type { TourPlannerController } from '../planner/useTourPlanner';
+import { showStage } from './TourStagesSection';
+
+type RailPlanner = Pick<
+  TourPlannerController,
+  'mode' | 'waypoints' | 'stages' | 'routeAnalysis' | 'setSelectedWaypointId' | 'setRouteProfileFocus'
+>;
+
+/** A stage asked for while its tour was still being opened: which tour, which stage, and what was open before. */
+interface PendingStage {
+  placeId: number;
+  key: string;
+  from: number | null;
+}
+
+const openPlaceId = (planner: Pick<TourPlannerController, 'mode'>) =>
+  planner.mode.type === 'edit-saved' ? planner.mode.placeId : null;
+
+/**
+ * MDT-02: the multi-day tours unfolded in the planner's list, and a stage
+ * opened from there: the tour opens in the planner as any tour does (asking
+ * first when the open draft has unsaved changes), and once its points are in,
+ * the stage is shown as the planner's own list of stages shows it. A stage of
+ * the tour already open is shown at once. Asking for another tour, or opening
+ * another one, lets the stage go.
+ */
+export function useTourStageRail(planner: RailPlanner, openTour: (tour: TourListItem) => void) {
+  const [unfolded, setUnfolded] = useState<ReadonlySet<number>>(() => new Set());
+  const [pending, setPending] = useState<PendingStage | null>(null);
+
+  const isUnfolded = useCallback((placeId: number) => unfolded.has(placeId), [unfolded]);
+  const toggle = useCallback((placeId: number) => {
+    setUnfolded((current) => {
+      const next = new Set(current);
+      if (!next.delete(placeId)) next.add(placeId);
+      return next;
+    });
+  }, []);
+
+  const openStage = useCallback(
+    (tour: TourListItem, key: string) => {
+      const open = openPlaceId(planner);
+      setPending({ placeId: tour.place_id, key, from: open });
+      if (open !== tour.place_id) openTour(tour);
+    },
+    [openTour, planner]
+  );
+
+  const open = openPlaceId(planner);
+  const { waypoints } = planner;
+  const { stages } = planner.stages;
+  useEffect(() => {
+    if (!pending) return;
+    if (open !== pending.placeId) {
+      // Another tour opened instead: the stage asked for is no longer wanted.
+      if (open !== pending.from) setPending(null);
+      return;
+    }
+    const start = waypoints.find((point) => point.key === pending.key);
+    const stage = start && stages.find((item) => item.fromId === start.id);
+    if (!stage) return;
+    showStage(planner, stage);
+    setPending(null);
+  }, [open, pending, planner, stages, waypoints]);
+
+  return { isUnfolded, toggle, openStage };
+}

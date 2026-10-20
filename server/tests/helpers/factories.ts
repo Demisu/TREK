@@ -374,21 +374,22 @@ export interface TestDayAssignment {
   place_id: number;
   order_index: number;
   notes: string | null;
+  tour_stage_key: string | null;
 }
 
 export function createDayAssignment(
   db: Database.Database,
   dayId: number,
   placeId: number,
-  overrides: Partial<{ order_index: number; notes: string }> = {},
+  overrides: Partial<{ order_index: number; notes: string; tour_stage_key: string }> = {},
 ): TestDayAssignment {
   const maxOrder = db.prepare('SELECT MAX(order_index) as max FROM day_assignments WHERE day_id = ?').get(dayId) as {
     max: number | null;
   };
   const orderIndex = overrides.order_index ?? (maxOrder.max !== null ? maxOrder.max + 1 : 0);
   const result = db
-    .prepare('INSERT INTO day_assignments (day_id, place_id, order_index, notes) VALUES (?, ?, ?, ?)')
-    .run(dayId, placeId, orderIndex, overrides.notes ?? null);
+    .prepare('INSERT INTO day_assignments (day_id, place_id, order_index, notes, tour_stage_key) VALUES (?, ?, ?, ?, ?)')
+    .run(dayId, placeId, orderIndex, overrides.notes ?? null, overrides.tour_stage_key ?? null);
   return db.prepare('SELECT * FROM day_assignments WHERE id = ?').get(result.lastInsertRowid) as TestDayAssignment;
 }
 

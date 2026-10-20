@@ -56,6 +56,7 @@ function makeRow(overrides: Partial<AssignmentWithPlaceRow> = {}): AssignmentWit
     fill_percent: null,
     tour_place_id: null,
     tour_route_geometry: null,
+    tour_stage_key: null,
     ...overrides,
   };
 }
@@ -116,6 +117,12 @@ describe('formatAssignmentWithPlace', () => {
     const geometry = '[[48.1,11.5],[48.2,11.6]]';
     const tour = formatAssignmentWithPlace(makeRow({ tour_place_id: 100, tour_route_geometry: geometry }), [], []);
     expect(tour).toMatchObject({ tour_place_id: 100, tour_route_geometry: geometry });
+  });
+
+  it('MDT-SHAPE-001: carries the stage of a multi-day tour a day holds, null for the whole tour', () => {
+    expect(formatAssignmentWithPlace(makeRow(), [], []).tour_stage_key).toBeNull();
+    const stage = formatAssignmentWithPlace(makeRow({ tour_place_id: 100, tour_stage_key: 'stop-hut' }), [], []);
+    expect(stage.tour_stage_key).toBe('stop-hut');
   });
 
   it('passes tags and participants through untouched', () => {

@@ -16,7 +16,8 @@ export interface AssignmentsSlice {
   setAssignmentNotes: (tripId: number | string, dayId: number, assignmentId: number, notes: string | null) => Promise<void>
   setAssignmentParticipants: (tripId: number | string, dayId: number, assignmentId: number, userIds: number[]) => Promise<void>
   setAssignmentLegMode: (tripId: number | string, dayId: number, assignmentId: number, mode: string | null, direction?: 'outgoing' | 'incoming') => Promise<void>
-  assignPlaceToDay: (tripId: number | string, dayId: number | string, placeId: number | string, position?: number | null) => Promise<Assignment | undefined>
+  /** `tourStageKey` puts one stage of a multi-day tour on the day instead of the whole tour (MDT-02). */
+  assignPlaceToDay: (tripId: number | string, dayId: number | string, placeId: number | string, position?: number | null, tourStageKey?: string) => Promise<Assignment | undefined>
   removeAssignment: (tripId: number | string, dayId: number | string, assignmentId: number) => Promise<void>
   clearDayAssignments: (tripId: number | string, dayId: number) => Promise<void>
   reorderAssignments: (tripId: number | string, dayId: number | string, orderedIds: number[]) => Promise<void>
@@ -114,7 +115,7 @@ export const createAssignmentsSlice = (set: SetState, get: GetState): Assignment
       assignments: { ...state.assignments, [String(dayId)]: (state.assignments[String(dayId)] || []).map(a => a.id === assignmentId ? { ...a, [field]: mode } : a) },
     }))
   },
-  assignPlaceToDay: async (tripId, dayId, placeId, position) => {
+  assignPlaceToDay: async (tripId, dayId, placeId, position, tourStageKey) => {
     const state = get()
     const place = state.places.find(p => p.id === Number.parseInt(String(placeId)))
     if (!place) return
@@ -133,6 +134,7 @@ export const createAssignmentsSlice = (set: SetState, get: GetState): Assignment
       place_id: place.id,
       order_index: insertIdx,
       notes: null,
+      tour_stage_key: tourStageKey ?? null,
       place,
     }
 
@@ -145,7 +147,7 @@ export const createAssignmentsSlice = (set: SetState, get: GetState): Assignment
     }))
 
     try {
-      const created = await assignmentRepo.create(tripId, Number(dayId), place)
+      const created = await assignmentRepo.create(tripId, Number(dayId), place, tourStageKey)
       const newAssignment: Assignment = {
         ...created,
         place: created.place || place,

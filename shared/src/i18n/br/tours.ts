@@ -1295,5 +1295,18 @@ const tours: TranslationStrings = {
   'tours.stages.toDayBody.one': '{count} fim de etapa é removido. A rota fica como está, e Desfazer o traz de volta.',
   'tours.stages.toDayConfirm': 'Remover fins de etapa',
   'tours.stages.show': 'Mostrar onde esta etapa termina',
+  'tours.stages.fold': 'Ocultar etapas',
+  'tours.stages.unfold': 'Mostrar etapas',
+  'tours.stages.noDay': 'Sem dia',
+  'tours.stages.noDayHint': 'Ainda não está em nenhum dia da viagem',
+  'tours.stages.dayFailed': 'Não foi possível colocar a etapa nesse dia.',
+  'tours.stages.dayLost': '{count} etapas com dia não existem mais; ao salvar, elas perdem o dia.',
+  'tours.stages.dayLost.one': '{count} etapa com dia não existe mais; ao salvar, ela perde o dia.',
+  'tours.stages.unmeasured': 'Ainda não medida',
+  'tours.stages.unmeasuredHint': 'A rota desta etapa ainda não foi planejada.',
+  'tours.stages.loadFailed': 'Não é possível ler as etapas agora.',
+  'tours.stages.wholeTour': 'Roteiro completo',
+  'tours.stages.totalPartial': 'conhecido para {known} de {of} etapas',
+  'tours.stages.openInPlanner': 'Abrir esta etapa no planejador',
 };
 export default tours;

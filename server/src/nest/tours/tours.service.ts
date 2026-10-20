@@ -23,6 +23,7 @@ import type {
 } from '../../db/repositories/Tours.repository';
 import { utcSuffix } from '../../db/types';
 import { decodeJson, encodeJson } from '../../utils/json-column';
+import { AssignmentsService } from '../assignments/assignments.service';
 import { badRequest, DomainError } from '../common/domain-error';
 import { toRowId } from '../common/row-id';
 import { UnitOfWork } from '../database/unit-of-work';
@@ -67,6 +68,8 @@ import {
   type TourWaypoint,
   tourStageCountOf,
   tourStageIssues,
+  tourStageKeysOf,
+  tourStageStopsOf,
   type WandererDifficulty,
   type WinterActivity,
   walkStationFacts,
@@ -107,6 +110,12 @@ export interface TourRouteWrite {
   input: TourCreateCommand;
   start: GeometryPoint;
   fields: TourUpdate;
+}
+
+/** What a route write took along: the visits of stations that are gone, and the days that held a stage that is gone (MDT-02). */
+export interface TourRouteDrops {
+  visitsDropped: readonly number[];
+  stagesDropped: ReadonlyArray<{ id: number; day_id: number }>;
 }
 
 /** The way on foot the server's router planned for a city walk (CW-11): its line, and how long it walks in seconds. */
@@ -155,6 +164,12 @@ function keyedWaypoints(waypoints: TourWaypoint[]): Array<TourWaypoint & { key: 
   });
 }
 
+/** MDT-02: the stops a multi-day tour's stages run between; null where its points do not tell them. */
+function stageStopsOrNull(points: Parameters<typeof tourStageStopsOf>[0]): TourListItem['stage_stops'] {
+  const stops = tourStageStopsOf(points);
+  return stops.length > 0 ? stops : null;
+}
+
 @Injectable()
 export class ToursService {
   private readonly logger = new Logger(ToursService.name);
@@ -170,6 +185,7 @@ export class ToursService {
     @InjectRepository(TourActivities) private readonly activitiesRepo: TourActivitiesRepository,
     private readonly placeImport: PlaceImportService,
     private readonly paddleChecks: TourPaddleCheckService,
+    private readonly assignments: AssignmentsService,
   ) {}
 
   /**
@@ -224,6 +240,8 @@ export class ToursService {
       ...activityFacts(r.place_id, activities),
       // MDT-01: a multi-day tour's stages, one more than the stops that end one.
       stage_count: r.stage_ends > 0 ? r.stage_ends + 1 : null,
+      // MDT-02: the stops they run between, by which a day holds one of them.
+      stage_stops: r.stage_ends > 0 ? stageStopsOrNull(points) : null,
     };
   }
 
@@ -317,25 +335,28 @@ export class ToursService {
     const tid = toRowId(tripId);
     if (tid === null) return [];
     const rows = await this.toursRepo.listForTrip(tid);
-    const walkPoints = await this.walkPointsByPlace(rows);
+    const listedPoints = await this.listedPointsByPlace(rows);
     const activities = await this.activitiesRepo.listForTrip(tid);
     return await this.paddleChecks.forTrip(
       tid,
-      rows.map((r) => this.toItem(r, walkPoints.get(r.place_id) ?? [], activities)),
+      rows.map((r) => this.toItem(r, listedPoints.get(r.place_id) ?? [], activities)),
     );
   }
 
   /**
-   * CW-02, CW-03: the points of the city walks among these tours, by tour, for
-   * a list that counts their stations and stays; the points of another type
-   * are not read.
+   * The points a list reads, by tour: a city walk's, which it counts the
+   * stations and stays of (CW-02, CW-03), and a multi-day tour's, which it
+   * reads the stops between the stages off (MDT-02). The points of any other
+   * tour are not read.
    */
-  async walkPointsByPlace(
-    rows: readonly { place_id: number; tour_type: string }[],
+  async listedPointsByPlace(
+    rows: readonly { place_id: number; tour_type: string; stage_ends?: number }[],
   ): Promise<Map<number, TourWaypointWithPlaceRow[]>> {
     const byPlace = new Map<number, TourWaypointWithPlaceRow[]>();
-    const walks = rows.filter((row) => row.tour_type === 'walk').map((row) => row.place_id);
-    for (const point of await this.waypointsRepo.listForPlaces(walks)) {
+    const read = rows
+      .filter((row) => row.tour_type === 'walk' || (row.stage_ends ?? 0) > 0)
+      .map((row) => row.place_id);
+    for (const point of await this.waypointsRepo.listForPlaces(read)) {
       const points = byPlace.get(point.place_id);
       if (points) points.push(point);
       else byPlace.set(point.place_id, [point]);
@@ -545,7 +566,7 @@ export class ToursService {
     const pid = toRowId(placeId);
     if (tid === null || pid === null) throw new NotFoundException('Tour not found');
 
-    await this.uow.transactional(async () => {
+    const stagesDropped = await this.uow.transactional(async () => {
       const row = await this.toursRepo.findInTrip(tid, pid);
       if (!row) throw new NotFoundException('Tour not found');
       const recorded = await this.toursRepo.findRecordedTrack(tid, pid);
@@ -595,6 +616,8 @@ export class ToursService {
       });
       await this.waypointsRepo.deleteForPlace(pid);
       await this.toursRepo.clearRecordedTrack(pid);
+      // MDT-02: back to the recorded track the tour has no stages, so no day holds one.
+      return await this.assignments.dropStaleTourStages(pid, []);
     });
 
     const result = await this.getTour(tripId, placeId);
@@ -606,6 +629,7 @@ export class ToursService {
     } catch {
       this.logger.warn(`Committed Tour ${placeId}: place notification failed`);
     }
+    await this.announceStagesDropped(tripId, stagesDropped);
     return result;
   }
 
@@ -758,8 +782,8 @@ export class ToursService {
     const pid = toRowId(placeId);
     if (tid === null || pid === null) throw new NotFoundException('Tour not found');
     const write = await this.routeWrite(input);
-    const { visitsDropped } = await this.uow.transactional(() => this.replaceRoute(tid, pid, write));
-    return await this.announceRouteUpdate(tripId, pid, visitsDropped, socketId);
+    const dropped = await this.uow.transactional(() => this.replaceRoute(tid, pid, write));
+    return await this.announceRouteUpdate(tripId, pid, dropped, socketId);
   }
 
   /**
@@ -788,7 +812,7 @@ export class ToursService {
     tripId: number,
     placeId: number,
     { input, start, fields }: TourRouteWrite,
-  ): Promise<{ revision: number; visitsDropped: number[] }> {
+  ): Promise<{ revision: number } & TourRouteDrops> {
     // The trip predicate is the cross-trip boundary. It runs inside the write
     // so an id from another accessible trip cannot be moved into the current
     // one, and a place deleted meanwhile answers 404 instead of failing a
@@ -813,14 +837,19 @@ export class ToursService {
     await this.waypointsRepo.insertForPlace(placeId, waypoints);
     // CW-03: a station that is gone takes its visits with it; a tour that is no city walk keeps none.
     const stations = input.tour_type === 'walk' ? walkStationsOf(waypoints).map((point) => point.key) : [];
-    return { revision, visitsDropped: await this.visitsRepo.dropStationsNotIn(placeId, stations) };
+    return {
+      revision,
+      visitsDropped: await this.visitsRepo.dropStationsNotIn(placeId, stations),
+      // MDT-02: a stage the change took away (its stage end gone, the tour a day tour again) leaves its day.
+      stagesDropped: await this.assignments.dropStaleTourStages(placeId, tourStageKeysOf(waypoints)),
+    };
   }
 
-  /** After a route write committed: the tour read back, and the trip told of it and of the visits it took along. */
+  /** After a route write committed: the tour read back, and the trip told of it and of the visits and stages it took along. */
   async announceRouteUpdate(
     tripId: string,
     placeId: number,
-    visitsDropped: readonly number[],
+    { visitsDropped, stagesDropped }: TourRouteDrops,
     socketId?: string,
   ): Promise<TourDetailResponse> {
     const result = await this.getTour(tripId, String(placeId));
@@ -833,7 +862,28 @@ export class ToursService {
       this.logger.warn(`Committed Tour ${placeId}: place notification failed`);
     }
     await this.announceVisits(tripId, visitsDropped);
+    await this.announceStagesDropped(tripId, stagesDropped);
     return result;
+  }
+
+  /**
+   * MDT-02: the days that held a stage a change took away, told to every
+   * client of the trip, the one that saved included, since its day plan still
+   * shows them; the journey follows the days as after any unassign.
+   */
+  private async announceStagesDropped(
+    tripId: string,
+    dropped: ReadonlyArray<{ id: number; day_id: number }>,
+  ): Promise<void> {
+    if (dropped.length === 0) return;
+    for (const { id, day_id } of dropped) {
+      try {
+        this.places.broadcast(tripId, 'assignment:deleted', { assignmentId: id, dayId: day_id }, undefined);
+      } catch {
+        this.logger.warn(`Committed Tour stage change: realtime notification of assignment ${id} failed`);
+      }
+    }
+    await this.assignments.reconcile(tripId);
   }
 
   /**

@@ -1308,5 +1308,18 @@ const tours: TranslationStrings = {
   'tours.stages.toDayBody.one': '{count} fine tappa viene tolta. Il percorso resta com’è e Annulla la ripristina.',
   'tours.stages.toDayConfirm': 'Togli le fini tappa',
   'tours.stages.show': 'Mostra dove finisce questa tappa',
+  'tours.stages.fold': 'Nascondi tappe',
+  'tours.stages.unfold': 'Mostra tappe',
+  'tours.stages.noDay': 'Senza giorno',
+  'tours.stages.noDayHint': 'Non ancora in un giorno del viaggio',
+  'tours.stages.dayFailed': 'Non è stato possibile mettere la tappa in quel giorno.',
+  'tours.stages.dayLost': '{count} tappe assegnate a un giorno non esistono più; salvando perdono il loro giorno.',
+  'tours.stages.dayLost.one': 'Una tappa assegnata a un giorno non esiste più; salvando perde il suo giorno.',
+  'tours.stages.unmeasured': 'Non ancora misurata',
+  'tours.stages.unmeasuredHint': 'Il percorso di questa tappa non è ancora pianificato.',
+  'tours.stages.loadFailed': 'Al momento non è possibile leggere le tappe.',
+  'tours.stages.wholeTour': 'Tour completo',
+  'tours.stages.totalPartial': 'noto per {known} tappe su {of}',
+  'tours.stages.openInPlanner': 'Apri questa tappa nel pianificatore',
 };
 export default tours;

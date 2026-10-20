@@ -55,3 +55,42 @@ export function tourStageIssues(points: readonly StagePoint[]): StageIssue[] {
     issues.push({ path: ['waypoints'], message: `a tour has at most ${MAX_TOUR_STAGES} stages` });
   return issues;
 }
+
+/** MDT-02: a stop a stage starts or ends at, as a list or a day plan places the stages. */
+export interface TourStageStop {
+  /** The point's own key, kept across saves; a stage is known by the key of the stop it starts at. */
+  key: string;
+  lat: number;
+  lng: number;
+}
+
+/** A saved point as the stops between the stages are read from it. */
+interface StoredStagePoint extends StagePoint {
+  key?: string;
+  lat: number;
+  lng: number;
+}
+
+/**
+ * MDT-02: the stops the stages of a multi-day tour run between, in route
+ * order: the start, every stop that ends a stage, and the end, so stage `n`
+ * runs from stop `n - 1` to stop `n`. A stage is put on a day by the key of
+ * the stop it starts at, which a save keeps, so a stage end set or taken away
+ * elsewhere leaves the other stages on their days. None for a day tour, and
+ * none where a stop has no key yet (a point no save has kept), since such a
+ * stage could not be found again.
+ */
+export function tourStageStopsOf(points: readonly StoredStagePoint[]): TourStageStop[] {
+  if (points.length < 2 || tourStageCountOf(points) < 2) return [];
+  const last = points.length - 1;
+  const stops = points.filter((point, index) => index === 0 || index === last || point.stage_end === true);
+  const keyed = stops.flatMap((point) => (point.key ? [{ key: point.key, lat: point.lat, lng: point.lng }] : []));
+  return keyed.length === stops.length ? keyed : [];
+}
+
+/** The keys a stage can be put on a day by: those of the stops the stages start at, the last stop starting none. */
+export function tourStageKeysOf(points: readonly StoredStagePoint[]): string[] {
+  return tourStageStopsOf(points)
+    .slice(0, -1)
+    .map((stop) => stop.key);
+}

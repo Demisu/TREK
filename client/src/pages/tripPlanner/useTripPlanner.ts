@@ -20,6 +20,7 @@ import { useResizablePanels } from '../../hooks/useResizablePanels'
 import { useTripWebSocket } from '../../hooks/useTripWebSocket'
 import { useRouteCalculation } from '../../hooks/useRouteCalculation'
 import { useTripRouteOverview } from '../../components/Map/useTripRouteOverview'
+import { tourStageStopsByPlace } from '../../components/Map/dayTourProjection'
 import { useDayClear } from './useDayClear'
 import { isServiceStopType } from '../../components/Roadtrip/roadtripModel'
 import { inspectorStay } from '../../components/Roadtrip/stayReading'
@@ -437,12 +438,14 @@ export function useTripPlanner() {
   // overview draw them too, so a road picked in the road trip is the road the
   // day drives (#2580).
   const roadtripVias = useRoadtripVias(tripId, !!enabledAddons.roadtrip)
-  const { route, routeWalking, routeSegments, routeVias, routeInfo, setRoute, setRouteInfo, updateRouteForDay } = useRouteCalculation({ assignments, roadtripVias: roadtripVias.byDay }, selectedDayId, routeShown, routeProfile, tripAccommodations)
+  // MDT-02: where the stages of the multi-day tours run, so a day holding one routes to and draws that stage.
+  const tourStageStops = useMemo(() => tourStageStopsByPlace(tours), [tours])
+  const { route, routeWalking, routeSegments, routeVias, routeInfo, setRoute, setRouteInfo, updateRouteForDay } = useRouteCalculation({ assignments, roadtripVias: roadtripVias.byDay, tourStageStops }, selectedDayId, routeShown, routeProfile, tripAccommodations)
   // Road trip mode already draws the whole trip its own way, so the overview stands
   // down there rather than drawing a second set of lines over it.
   const overviewActive = overviewShown && !roadtripMode
   const overviewVias = useMemo(() => ({ storedAssignments, viasByDay: roadtripVias.byDay }), [storedAssignments, roadtripVias.byDay])
-  const tripOverview = useTripRouteOverview(tripId, days, assignments, reservations, tripAccommodations, routeProfile, overviewActive, places, overviewVias)
+  const tripOverview = useTripRouteOverview(tripId, days, assignments, reservations, tripAccommodations, routeProfile, overviewActive, places, overviewVias, tourStageStops)
 
   // Called here so the road trip's effects keep their place, right after the overview's.
   const {
@@ -675,7 +678,7 @@ export function useTripPlanner() {
     startResizeLeft, startResizeRight, nudgeLeft, nudgeRight, resizeMin, resizeMax,
     selectedPlaceId, selectedAssignmentId, setSelectedPlaceId, selectAssignment,
     toursEnabled, toursMode, setToursMode, tours, toursLoading, tourDataReady, tourPlaceIds,
-    reloadTourPlaceIds, invalidateTourPlaceIds, upsertTour, selectedTour,
+    reloadTourPlaceIds, invalidateTourPlaceIds, upsertTour, selectedTour, tourStageStops,
     showDayDetail, setShowDayDetail, dayDetailCollapsed, setDayDetailCollapsed,
     stayPickerDayId, setStayPickerDayId,
     showPlaceForm, setShowPlaceForm, editingPlace, setEditingPlace,

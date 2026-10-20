@@ -1222,5 +1222,17 @@ const tours: TranslationStrings = {
   'tours.stages.toDayBody': 'จะนำจุดจบช่วง {count} จุดออก เส้นทางยังคงเหมือนเดิม และเลิกทำจะนำกลับมาได้',
   'tours.stages.toDayConfirm': 'นำจุดจบช่วงทั้งหมดออก',
   'tours.stages.show': 'แสดงตำแหน่งที่ช่วงนี้จบ',
+  'tours.stages.fold': 'ซ่อนช่วง',
+  'tours.stages.unfold': 'แสดงช่วง',
+  'tours.stages.noDay': 'ยังไม่มีวัน',
+  'tours.stages.noDayHint': 'ยังไม่ได้อยู่ในวันใดของทริป',
+  'tours.stages.dayFailed': 'ไม่สามารถใส่ช่วงนี้ลงในวันนั้นได้',
+  'tours.stages.dayLost': 'ช่วงที่มีวันแล้ว {count} ช่วงไม่มีอยู่อีกต่อไป เมื่อบันทึกจะถูกนำออกจากวันของมัน',
+  'tours.stages.unmeasured': 'ยังไม่ได้วัด',
+  'tours.stages.unmeasuredHint': 'ยังไม่ได้วางแผนเส้นทางของช่วงนี้',
+  'tours.stages.loadFailed': 'ไม่สามารถอ่านช่วงได้ในขณะนี้',
+  'tours.stages.wholeTour': 'ทั้งเส้นทาง',
+  'tours.stages.totalPartial': 'ทราบสำหรับ {known} จาก {of} ช่วง',
+  'tours.stages.openInPlanner': 'เปิดช่วงนี้ในตัววางแผน',
 };
 export default tours;

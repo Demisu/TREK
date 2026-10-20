@@ -69,7 +69,7 @@ import { RouteConnector, HotelRouteConnector } from './DayPlanSidebarRouteConnec
 import { resolveLegMode } from './legMode'
 import { useLegModeActions } from './useLegModeActions'
 import { dayExportStops, fillAroundLocked } from './dayRoute'
-import { projectDayItinerary } from '../Map/dayTourProjection'
+import { projectDayItinerary, type TourStageStops } from '../Map/dayTourProjection'
 import { usePluginDaySchedule, usePluginDayTints, dayTintBackground, dayTinted, PluginDayScheduleRow, formatScheduleMinutes } from '../Plugins/PluginDaySchedule'
 import { MobileAddPlaceButton } from './DayPlanSidebarMobileAddPlaceButton'
 import { DayPlanSidebarToolbar } from './DayPlanSidebarToolbar'
@@ -94,6 +94,8 @@ export interface DayPlanSidebarProps {
   places: Place[]
   tourPlaceIds?: ReadonlySet<number>
   plannedTourDurations?: ReadonlyMap<number, TourPlannedTimes & { tour?: TourListItem }>
+  /** MDT-02: where the stages of the trip's multi-day tours run, so a day holding one routes to that stage. */
+  tourStageStops?: TourStageStops
   categories: Category[]
   assignments: AssignmentsMap
   selectedDayId: number | null
@@ -621,7 +623,7 @@ function useDayPlanSidebar(props: DayPlanSidebarProps) {
     // legs to draw. Side-effect free, so the async loop below only does OSRM I/O.
     const planDay = (dayId: number) => {
       const merged = mergedItemsMap[dayId] || []
-      const projected = new Map(projectDayItinerary(assignments[String(dayId)] || [], toursEnabled, places).map(item => [item.assignment.id, item]))
+      const projected = new Map(projectDayItinerary(assignments[String(dayId)] || [], toursEnabled, places, props.tourStageStops).map(item => [item.assignment.id, item]))
       // Each run point carries the ORIGIN assignment's per-segment travel mode
       // (#1281): the leg from this point to the next is routed with `mode` (null =
       // inherit the day default). Transport endpoints carry no mode → day default.
@@ -840,7 +842,7 @@ function useDayPlanSidebar(props: DayPlanSidebarProps) {
     // routeDayIds is memoized from the same inputs as routeDayKey below, so keying the
     // effect on the string is equivalent while staying stable across unrelated renders.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeDayKey, routeProfile, mergedItemsMap, accommodations, days, optimizeFromAccommodation, distanceUnit, toursEnabled, places, roadtripViasByDay])
+  }, [routeDayKey, routeProfile, mergedItemsMap, accommodations, days, optimizeFromAccommodation, distanceUnit, toursEnabled, places, roadtripViasByDay, props.tourStageStops])
 
   const openAddNote = (dayId, e) => {
     e?.stopPropagation()
@@ -2030,7 +2032,7 @@ const DayPlanSidebar = React.memo(function DayPlanSidebar(props: DayPlanSidebarP
                                   </Tooltip>
                                 )}
                               </div>
-                              <DayPlanPlaceSubline place={place} cat={cat} tourTimes={tourTimes} isTourPlace={!!isTourPlace} timeFormat={timeFormat} assignmentId={assignment.id} />
+                              <DayPlanPlaceSubline place={place} cat={cat} tourTimes={tourTimes} isTourPlace={!!isTourPlace} timeFormat={timeFormat} assignmentId={assignment.id} tourStageKey={assignment.tour_stage_key} />
                               {assignment.notes && (
                                 // Day-specific note on this stop (#2163) — one muted
                                 // caption line so the timeline shows the note exists

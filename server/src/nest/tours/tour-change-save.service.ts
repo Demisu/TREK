@@ -136,7 +136,7 @@ export class TourChangeSaveService {
       // Laid once more on the tour as it is now: a tour moved on, a station done or a place gone refuses here.
       const now = await this.preview.lay(tripId, placeId, changes, { action: 'saved', preparedOn });
       const before = await this.beforeState(tripId, placeId, now);
-      const { revision, visitsDropped } = await this.tours.replaceRoute(tripId, placeId, write);
+      const { revision, visitsDropped, stagesDropped } = await this.tours.replaceRoute(tripId, placeId, write);
       const id = await this.stepsRepo.record({
         place_id: placeId,
         proposal_id: proposalId,
@@ -146,10 +146,10 @@ export class TourChangeSaveService {
         before_state: before,
         saved_by: userId,
       });
-      return { step: { id, revision }, visitsDropped };
+      return { step: { id, revision }, visitsDropped, stagesDropped };
     });
     if ('earlier' in saved) return alreadySavedAnswer(saved.earlier);
-    const detail = await this.tours.announceRouteUpdate(String(tripId), placeId, saved.visitsDropped);
+    const detail = await this.tours.announceRouteUpdate(String(tripId), placeId, saved);
     return savedAnswer(detail, saved.step, changed);
   }
 

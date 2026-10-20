@@ -7,6 +7,7 @@ import type { Category, Place } from '../../types';
 import { formatTime } from '../../utils/formatters';
 import { fs } from '../shared/DialogShell';
 import { TourDayRowPills } from '../Tours/TourDayRowFacts';
+import { stageNumberOf, TourStageDayPills } from '../Tours/stages/TourStageDayPills';
 import { movingTimeLabel } from '../Tours/tourFacts';
 import { formatPlannedTourDuration, plannedTotalText, type TourPlannedTimes } from '../Tours/tourPresentation';
 import { WalkProgressPill } from '../Tours/walk/WalkStations';
@@ -22,6 +23,8 @@ interface DayPlanPlaceSublineProps {
   timeFormat: string;
   /** CW-03: the row's day assignment, which a city walk's progress belongs to. */
   assignmentId?: number;
+  /** MDT-02: the stage of a multi-day tour the day holds, by its starting stop's key; absent for the whole tour. */
+  tourStageKey?: string | null;
 }
 
 function hasPlannedTimes(tourTimes: DayRowTourTimes | undefined): boolean {
@@ -71,6 +74,12 @@ function PlannedTourPills({ tourTimes }: { tourTimes: DayRowTourTimes }) {
   );
 }
 
+// The tour's own pills, or a stage's where the day holds one stage of a multi-day tour (MDT-02).
+function DayRowTourPills({ tour, stageKey }: { tour: TourListItem; stageKey?: string | null }) {
+  if (stageKey && stageNumberOf(tour, stageKey) !== null) return <TourStageDayPills tour={tour} stageKey={stageKey} />;
+  return <TourDayRowPills tour={tour} />;
+}
+
 // Description line, one line like every stop's.
 function SublineDescription({ text, isTourPlace }: { text: string; isTourPlace: boolean }) {
   return (
@@ -100,6 +109,7 @@ export function DayPlanPlaceSubline({
   isTourPlace,
   timeFormat,
   assignmentId,
+  tourStageKey,
 }: DayPlanPlaceSublineProps) {
   const { locale } = useTranslation();
   const dayRowTour = tourTimes?.tour;
@@ -115,7 +125,7 @@ export function DayPlanPlaceSubline({
           {place.end_time ? ` – ${formatTime(place.end_time, locale, timeFormat)}` : ''}
         </TimePill>
       )}
-      {dayRowTour ? <TourDayRowPills tour={dayRowTour} /> : tourTimes && <PlannedTourPills tourTimes={tourTimes} />}
+      {dayRowTour ? <DayRowTourPills tour={dayRowTour} stageKey={tourStageKey} /> : tourTimes && <PlannedTourPills tourTimes={tourTimes} />}
       {dayRowTour && <WalkProgressPill tour={dayRowTour} assignmentId={assignmentId} />}
       {description && <SublineDescription text={description} isTourPlace={isTourPlace} />}
     </div>

@@ -1278,5 +1278,18 @@ const tours: TranslationStrings = {
   'tours.stages.toDayBody.one': '{count} etapi lõpp eemaldatakse. Marsruut jääb samaks ja Võta tagasi taastab selle.',
   'tours.stages.toDayConfirm': 'Eemalda etapi lõpud',
   'tours.stages.show': 'Näita, kus see etapp lõpeb',
+  'tours.stages.fold': 'Peida etapid',
+  'tours.stages.unfold': 'Näita etappe',
+  'tours.stages.noDay': 'Päevata',
+  'tours.stages.noDayHint': 'Pole veel ühelgi reisipäeval',
+  'tours.stages.dayFailed': 'Etappi ei õnnestunud sellele päevale panna.',
+  'tours.stages.dayLost': '{count} päevaga etappi pole enam olemas; salvestamisel kaotavad need oma päeva.',
+  'tours.stages.dayLost.one': 'Üks päevaga etapp pole enam olemas; salvestamisel kaotab see oma päeva.',
+  'tours.stages.unmeasured': 'Veel mõõtmata',
+  'tours.stages.unmeasuredHint': 'Selle etapi marsruut pole veel planeeritud.',
+  'tours.stages.loadFailed': 'Etappe ei saa praegu lugeda.',
+  'tours.stages.wholeTour': 'Kogu matk',
+  'tours.stages.totalPartial': 'teada {known} etapi kohta {of}-st',
+  'tours.stages.openInPlanner': 'Ava see etapp planeerijas',
 };
 export default tours;

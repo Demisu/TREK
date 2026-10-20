@@ -1312,6 +1312,19 @@ const tours: TranslationStrings = {
     '{count} Etappenende wird entfernt. Die Route bleibt, wie sie ist, und Rückgängig holt es zurück.',
   'tours.stages.toDayConfirm': 'Etappenenden entfernen',
   'tours.stages.show': 'Zeigen, wo diese Etappe endet',
+  'tours.stages.fold': 'Etappen ausblenden',
+  'tours.stages.unfold': 'Etappen zeigen',
+  'tours.stages.noDay': 'Ohne Tag',
+  'tours.stages.noDayHint': 'Noch keinem Reisetag zugeordnet',
+  'tours.stages.dayFailed': 'Die Etappe konnte diesem Tag nicht zugeordnet werden.',
+  'tours.stages.dayLost': '{count} Etappen mit Reisetag gibt es nicht mehr; beim Speichern verlieren sie ihren Tag.',
+  'tours.stages.dayLost.one': 'Eine Etappe mit Reisetag gibt es nicht mehr; beim Speichern verliert sie ihren Tag.',
+  'tours.stages.unmeasured': 'Noch nicht vermessen',
+  'tours.stages.unmeasuredHint': 'Die Route dieser Etappe ist noch nicht geplant.',
+  'tours.stages.loadFailed': 'Die Etappen lassen sich gerade nicht lesen.',
+  'tours.stages.wholeTour': 'Ganze Tour',
+  'tours.stages.totalPartial': 'bekannt für {known} von {of} Etappen',
+  'tours.stages.openInPlanner': 'Diese Etappe im Planer öffnen',
 };
 
 export default tours;

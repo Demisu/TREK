@@ -1322,5 +1322,18 @@ const tours: TranslationStrings = {
     'Αφαιρείται {count} τέλος σκέλους. Η διαδρομή μένει ως έχει και η Αναίρεση το επαναφέρει.',
   'tours.stages.toDayConfirm': 'Αφαίρεση τελών σκελών',
   'tours.stages.show': 'Εμφάνιση του σημείου όπου τελειώνει το σκέλος',
+  'tours.stages.fold': 'Απόκρυψη σκελών',
+  'tours.stages.unfold': 'Εμφάνιση σκελών',
+  'tours.stages.noDay': 'Χωρίς ημέρα',
+  'tours.stages.noDayHint': 'Δεν έχει ακόμη ημέρα του ταξιδιού',
+  'tours.stages.dayFailed': 'Το σκέλος δεν μπόρεσε να μπει σε αυτή την ημέρα.',
+  'tours.stages.dayLost': '{count} σκέλη με ημέρα δεν υπάρχουν πια· με την αποθήκευση χάνουν την ημέρα τους.',
+  'tours.stages.dayLost.one': 'Ένα σκέλος με ημέρα δεν υπάρχει πια· με την αποθήκευση χάνει την ημέρα του.',
+  'tours.stages.unmeasured': 'Δεν έχει μετρηθεί ακόμη',
+  'tours.stages.unmeasuredHint': 'Η διαδρομή αυτού του σκέλους δεν έχει σχεδιαστεί ακόμη.',
+  'tours.stages.loadFailed': 'Τα σκέλη δεν μπορούν να διαβαστούν αυτή τη στιγμή.',
+  'tours.stages.wholeTour': 'Όλη η διαδρομή',
+  'tours.stages.totalPartial': 'γνωστό για {known} από {of} σκέλη',
+  'tours.stages.openInPlanner': 'Άνοιγμα αυτού του σκέλους στον σχεδιαστή',
 };
 export default tours;

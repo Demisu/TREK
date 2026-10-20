@@ -71,6 +71,28 @@ describe('assignmentsSlice', () => {
       expect(dayAssignments.every(a => a.id > 0)).toBe(true);
     });
 
+    it('FE-ASSIGN-033: a stage of a multi-day tour goes on the day with its key, at once and in the request (MDT-02)', async () => {
+      const place = buildPlace({ id: 10, trip_id: 1 });
+      seedStore(useTripStore, { places: [place], assignments: { '1': [] } });
+      let sent: unknown = null;
+      let optimistic: unknown = null;
+      server.use(
+        http.post('/api/trips/1/days/1/assignments', async ({ request }) => {
+          sent = await request.json();
+          optimistic = useTripStore.getState().assignments['1'][0]?.tour_stage_key;
+          return HttpResponse.json({
+            assignment: buildAssignment({ id: 998, day_id: 1, place_id: 10, place, tour_stage_key: 'stop-hut' }),
+          });
+        })
+      );
+
+      await useTripStore.getState().assignPlaceToDay(1, 1, 10, null, 'stop-hut');
+
+      expect(sent).toEqual({ place_id: 10, tour_stage_key: 'stop-hut' });
+      expect(optimistic).toBe('stop-hut');
+      expect(useTripStore.getState().assignments['1'][0]).toMatchObject({ id: 998, tour_stage_key: 'stop-hut' });
+    });
+
     it('FE-ASSIGN-003: on API failure, temp assignment is removed (rollback)', async () => {
       const place = buildPlace({ id: 10, trip_id: 1 });
       seedStore(useTripStore, {

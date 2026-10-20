@@ -6,6 +6,7 @@ import { db as testDb } from '../../../src/db/database';
 import { DayAssignments } from '../../../src/db/entities/DayAssignments.entity';
 import { JourneyEntries } from '../../../src/db/entities/JourneyEntries.entity';
 import { RoadtripVias } from '../../../src/db/entities/RoadtripVias.entity';
+import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
 import {
   createUser,
   createTrip,
@@ -15,11 +16,12 @@ import {
   createJourney,
 } from '../../helpers/factories';
 import { linkTripToJourney } from '../../helpers/factories/journeys';
-import { countRows, findRow, findRows, insertRow, updateRows } from '../../helpers/factories/rows';
+import { countRows, findRow, findRows, insertRow, insertRows, updateRows } from '../../helpers/factories/rows';
 import { FakeRealtimeService } from '../../helpers/fake-realtime';
 import { createMcpHarness, parseToolResult, type McpHarness } from '../../helpers/mcp-harness';
 import { resetTestDb } from '../../helpers/test-db';
 import { createTestOrm, type TestOrm } from '../../helpers/test-orm';
+import { createTour } from '../../helpers/tours-repos';
 
 import { describe, it, expect, vi, beforeAll, beforeEach, afterAll } from 'vitest';
 
@@ -106,6 +108,49 @@ describe('Tool: assign_place_to_day', () => {
       });
       expect(refused.isError).toBe(true);
     });
+  });
+
+  it('MDT-MCP-001: puts one stage of a multi-day tour on a day, refusing as REST does', async () => {
+    const { user } = createUser(testDb);
+    const trip = createTrip(testDb, user.id);
+    const day = createDay(testDb, trip.id);
+    const secondDay = createDay(testDb, trip.id);
+    const tour = createPlace(testDb, trip.id);
+    createTour(testDb, tour.id);
+    await insertRows(
+      orm,
+      TourWaypoints,
+      ['stop-start', 'stop-hut', 'stop-end'].map((station_key, sequence) => ({
+        place: tour.id,
+        lat: 47 + sequence / 10,
+        lng: 11,
+        role: sequence === 0 ? 'start' : sequence === 2 ? 'end' : 'via',
+        sequence,
+        station_key,
+        stage_end: sequence === 1 ? 1 : 0,
+      })),
+    );
+
+    await withHarness(user.id, async (h) => {
+      const result = await h.client.callTool({
+        name: 'assign_place_to_day',
+        arguments: { tripId: trip.id, dayId: day.id, placeId: tour.id, tourStageKey: 'stop-hut' },
+      });
+      expect(parseToolResult(result)).toMatchObject({ assignment: { day_id: day.id, tour_stage_key: 'stop-hut' } });
+      const again = await h.client.callTool({
+        name: 'assign_place_to_day',
+        arguments: { tripId: trip.id, dayId: secondDay.id, placeId: tour.id, tourStageKey: 'stop-hut' },
+      });
+      expect(again.isError).toBe(true);
+      expect(JSON.stringify(again.content)).toContain('Stage is already on a day');
+      const unknown = await h.client.callTool({
+        name: 'assign_place_to_day',
+        arguments: { tripId: trip.id, dayId: secondDay.id, placeId: tour.id, tourStageKey: 'stop-end' },
+      });
+      expect(unknown.isError).toBe(true);
+      expect(JSON.stringify(unknown.content)).toContain('Tour has no such stage');
+    });
+    expect(await countRows(orm, DayAssignments, { place: tour.id })).toBe(1);
   });
 
   it('assigns a place to a day', async () => {

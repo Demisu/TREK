@@ -263,6 +263,44 @@ describe('ToursRepository reads', () => {
   });
 });
 
+describe('ToursRepository stages on days (MDT-02)', () => {
+  it('TOURREPO-017: listStagePoints reads the points in route order with key, role and stage end, none for a plain place', async () => {
+    const { trip } = fixture();
+    const hutToHut = await makePlace(t, trip.id, { name: 'Hut to hut' });
+    const plain = await makePlace(t, trip.id, { name: 'Plain' });
+    createTour(testDb, hutToHut.id);
+    await insertRows(t, TourWaypoints, [
+      { place: hutToHut.id, lat: 47.2, lng: 11, role: 'end', sequence: 3, station_key: 'stop-end' },
+      { place: hutToHut.id, lat: 47, lng: 11, role: 'start', sequence: 0, station_key: 'stop-start' },
+      { place: hutToHut.id, lat: 47.1, lng: 11, role: 'via', sequence: 2, station_key: 'stop-hut', stage_end: 1 },
+      { place: hutToHut.id, lat: 47.05, lng: 11, role: 'via', sequence: 1, shaping: 1 },
+    ]);
+
+    expect(await repo.listStagePoints(hutToHut.id)).toEqual([
+      { role: 'start', lat: 47, lng: 11, key: 'stop-start' },
+      { role: 'via', lat: 47.05, lng: 11, shaping: true },
+      { role: 'via', lat: 47.1, lng: 11, key: 'stop-hut', stage_end: true },
+      { role: 'end', lat: 47.2, lng: 11, key: 'stop-end' },
+    ]);
+    expect(await repo.listStagePoints(plain.id)).toEqual([]);
+  });
+
+  it('TOURREPO-018: listTourDays names the stage each day holds, null where a day holds the whole tour', async () => {
+    const { trip } = fixture();
+    const tour = createPlace(testDb, trip.id);
+    createTour(testDb, tour.id);
+    const first = createDay(testDb, trip.id);
+    const second = createDay(testDb, trip.id);
+    createDayAssignment(testDb, first.id, tour.id);
+    createDayAssignment(testDb, second.id, tour.id, { tour_stage_key: 'stop-hut' });
+
+    expect((await repo.listTourDays(trip.id)).map((row) => [row.day_id, row.tour_stage_key])).toEqual([
+      [first.id, null],
+      [second.id, 'stop-hut'],
+    ]);
+  });
+});
+
 describe('ToursRepository writes', () => {
   it('TOURREPO-006: insertTour writes the metrics and leaves the unset metadata NULL', async () => {
     const { trip } = fixture();

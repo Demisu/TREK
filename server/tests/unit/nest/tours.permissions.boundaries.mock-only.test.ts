@@ -26,6 +26,7 @@ import type { StorageService } from '../../../src/nest/storage/storage.service';
 import { ToursService } from '../../../src/nest/tours/tours.service';
 import type { User } from '../../../src/types';
 import { noActivities, noPaddleChecks } from '../../helpers/fake-paddle-checks';
+import { tourStageDays } from '../../helpers/fake-tour-stage-days';
 import { buildPlaceImportService } from '../../helpers/place-import';
 import { keyed } from '../../helpers/tour-keys';
 import type { EntityManager } from '@mikro-orm/core';
@@ -313,6 +314,7 @@ function tourRepositoryFixture(ownerTripId: number) {
     noActivities(),
     buildPlaceImportService(),
     noPaddleChecks(),
+    tourStageDays(),
   );
   return { uow, toursRepo, waypointsRepo, placesRepo, places, service };
 }

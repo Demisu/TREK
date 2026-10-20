@@ -219,12 +219,24 @@ type ToursKyselyDB = Pick<
 >;
 
 /** One day a tour of the trip sits on, in the order of the trip. */
+/** MDT-02: a point of a tour as the stages a day can hold are read from it. */
+export interface TourStagePointRow {
+  role: 'start' | 'via' | 'end';
+  lat: number;
+  lng: number;
+  key?: string;
+  stage_end?: boolean;
+  shaping?: boolean;
+}
+
 export interface TourDayRow {
   place_id: number;
   day_id: number;
   day_number: number;
   date: string | null;
   title: string | null;
+  /** MDT-02: the stage of a multi-day tour the day holds, by its starting stop's key; null for the whole tour. */
+  tour_stage_key: string | null;
 }
 
 /**
@@ -557,7 +569,7 @@ export class ToursRepository extends TrekRepository<Tours> {
       .execute();
   }
 
-  /** The days every tour of a trip sits on, each tour and day once, in day order. */
+  /** The days every tour of a trip sits on, each tour and day once, in day order, with the stage a day holds (MDT-02). */
   async listTourDays(trip_id: number): Promise<TourDayRow[]> {
     return await this.db()
       .selectFrom('day_assignments as da')
@@ -569,6 +581,7 @@ export class ToursRepository extends TrekRepository<Tours> {
         'd.day_number as day_number',
         'd.date as date',
         'd.title as title',
+        'da.tour_stage_key as tour_stage_key',
       ])
       .where('d.trip_id', '=', trip_id)
       .distinct()
@@ -622,6 +635,30 @@ export class ToursRepository extends TrekRepository<Tours> {
       .where('da.place_id', '=', place_id);
     if (except_assignment_id !== undefined) query = query.where('da.id', '!=', except_assignment_id);
     return !!(await query.executeTakeFirst());
+  }
+
+  /**
+   * MDT-02: the points of a tour as its stages are read from them, in route
+   * order: role, key, stage end and where each sits. None for a place that is
+   * no tour, or a tour without points of its own.
+   */
+  async listStagePoints(place_id: number): Promise<TourStagePointRow[]> {
+    const rows = await this.db()
+      .selectFrom('tour_waypoints')
+      .select(['role', 'station_key', 'stage_end', 'shaping', 'lat', 'lng'])
+      .where('place_id', '=', place_id)
+      .orderBy('sequence', 'asc')
+      // The column's CHECK holds it to the three roles.
+      .$narrowType<{ role: TourStagePointRow['role'] }>()
+      .execute();
+    return rows.map((row) => ({
+      role: row.role,
+      lat: row.lat,
+      lng: row.lng,
+      ...(row.station_key ? { key: row.station_key } : {}),
+      ...(row.stage_end ? { stage_end: true } : {}),
+      ...(row.shaping ? { shaping: true } : {}),
+    }));
   }
 
   /** TO6 — every `tours` row of a trip's places, for the trip copy to remap. */

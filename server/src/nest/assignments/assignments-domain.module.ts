@@ -33,7 +33,8 @@ import { Module } from '@nestjs/common';
  * `DaysModule`/`PlacesModule`/`RoadtripModule` modules themselves, so the
  * loop this module's docstring already avoids stays avoided (`DaysModule`'s
  * own precedent for pulling in `Trips` the same way). `Tours` backs the
- * one-Tour-per-day check create and move share.
+ * one-Tour-per-day check create and move share, and the stages of a
+ * multi-day tour a day can hold (MDT-02).
  */
 @Module({
   imports: [

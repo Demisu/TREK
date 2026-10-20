@@ -9,6 +9,7 @@ import { TourTypes } from '../../db/entities/TourTypes.entity';
 import { TourWaypoints } from '../../db/entities/TourWaypoints.entity';
 import { Tours } from '../../db/entities/Tours.entity';
 import { AddonsModule } from '../addons/addons.module';
+import { AssignmentsDomainModule } from '../assignments/assignments-domain.module';
 import { MapsModule } from '../maps/maps.module';
 import { McpSharedModule } from '../mcp-shared/mcp-shared.module';
 import { OverpassModule } from '../overpass/overpass.module';
@@ -104,6 +105,8 @@ import { Module } from '@nestjs/common';
     PaddleObstaclesModule,
     // A city walk prepared over MCP is planned on foot by the router the road trip uses (CW-11).
     RoadtripModule,
+    // A saved change takes the stages a tour no longer has off their days (MDT-02).
+    AssignmentsDomainModule,
     MikroOrmModule.forFeature([
       Tours,
       TourTypes,

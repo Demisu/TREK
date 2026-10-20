@@ -272,3 +272,61 @@ export function tourStagesOf(input: TourStageInputs): TourStage[] {
 export function stageBoundariesM(stages: readonly TourStage[]): number[] {
   return stages.slice(0, -1).flatMap((stage) => (stage.toM === null ? [] : [stage.toM]));
 }
+
+/**
+ * MDT-02: how long each leg between two neighbouring points runs along the
+ * line, in metres, as the paddle estimate reads a routed leg; a leg of a
+ * single vertex has no length the line tells, and is left to the estimate.
+ */
+export function legLengthsAlong(
+  points: ReadonlyArray<{ lat: number; lng: number }>,
+  line: ReadonlyArray<readonly number[]>
+): Array<number | null> {
+  const at = vertexIndicesOf(points, line);
+  return at.slice(0, -1).map((from, index) => {
+    const to = at[index + 1];
+    return to > from ? stretchOf(line, from, to, false).distanceKm * 1000 : null;
+  });
+}
+
+/** A sum over the stages that have the value, with how many have it: null when none does, never a zero for unknown. */
+export interface StageSum {
+  value: number | null;
+  known: number;
+  of: number;
+}
+
+function stageSum(values: ReadonlyArray<number | null>): StageSum {
+  const known = values.filter((value): value is number => value !== null);
+  return {
+    value: known.length > 0 ? known.reduce((total, value) => total + value, 0) : null,
+    known: known.length,
+    of: values.length,
+  };
+}
+
+/** MDT-02: what the stages add up to, each measure only as far as the stages tell it. */
+export function stageTotalsOf(stages: readonly TourStage[]) {
+  return {
+    distanceKm: stageSum(stages.map((stage) => stage.distanceKm)),
+    gain: stageSum(stages.map((stage) => stage.gain)),
+    loss: stageSum(stages.map((stage) => stage.loss)),
+    minutes: stageSum(stages.map((stage) => stage.minutes)),
+  };
+}
+
+export type StageTotals = ReturnType<typeof stageTotalsOf>;
+
+/**
+ * MDT-02: the keys of the stops the stages start at, as a day holds a stage
+ * by them; none for a day tour, and none for a stage that starts at a point
+ * no save has kept yet.
+ */
+export function stageStartKeysOf(points: readonly Pick<TourPlannerWaypoint, 'stageEnd' | 'key'>[]): string[] {
+  const spans = stageSpansOf(points);
+  if (spans.length < 2) return [];
+  return spans.flatMap((span) => {
+    const key = points[span.from]?.key;
+    return key ? [key] : [];
+  });
+}

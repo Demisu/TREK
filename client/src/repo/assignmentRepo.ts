@@ -60,11 +60,13 @@ export const assignmentRepo = {
   /**
    * Puts a place on a day. Offline the visit lands on the cached day under a
    * temporary id at the end, and the create waits in the queue; a place created
-   * offline is named by its real id once that one has synced.
+   * offline is named by its real id once that one has synced. `tourStageKey`
+   * puts one stage of a multi-day tour on the day instead of the whole tour (MDT-02).
    */
-  async create(tripId: number | string, dayId: number, place: Place): Promise<Assignment> {
+  async create(tripId: number | string, dayId: number, place: Place, tourStageKey?: string): Promise<Assignment> {
+    const body = { place_id: place.id, ...(tourStageKey ? { tour_stage_key: tourStageKey } : {}) }
     if (!isEffectivelyOffline() && place.id > 0) {
-      const { assignment } = await assignmentsApi.create(tripId, dayId, { place_id: place.id })
+      const { assignment } = await assignmentsApi.create(tripId, dayId, body)
       const saved = { ...assignment, place: assignment.place || place } as Assignment
       await offlineDb.days.where('id').equals(dayId).modify(day => {
         day.assignments = [...(day.assignments ?? []).filter(a => a.id !== saved.id), saved]
@@ -72,7 +74,7 @@ export const assignmentRepo = {
       return saved
     }
     const tempId = nextTempId()
-    let visit = { id: tempId, day_id: dayId, place_id: place.id, order_index: 0, notes: null, place } as Assignment
+    let visit = { id: tempId, day_id: dayId, place_id: place.id, order_index: 0, notes: null, tour_stage_key: tourStageKey ?? null, place } as Assignment
     await offlineDb.transaction('rw', offlineDb.days, offlineDb.mutationQueue, async () => {
       await offlineDb.days.where('id').equals(dayId).modify(day => {
         const items = day.assignments ?? []
@@ -82,7 +84,7 @@ export const assignmentRepo = {
       await mutationQueue.enqueue({
         id: generateUUID(), tripId: Number(tripId), method: 'POST',
         url: `/trips/${tripId}/days/${dayId}/assignments`,
-        body: { place_id: place.id }, resource: 'assignments', tempId,
+        body, resource: 'assignments', tempId,
       })
     })
     mutationQueue.sendSoon()

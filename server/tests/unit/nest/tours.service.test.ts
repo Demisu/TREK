@@ -8,18 +8,25 @@
  * real PlacesService, is covered by tours.gpx.atomic.test.ts.
  */
 import { db as testDb } from '../../../src/db/database';
+import { DayAssignments } from '../../../src/db/entities/DayAssignments.entity';
 import { Places } from '../../../src/db/entities/Places.entity';
 import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
 import { Tours } from '../../../src/db/entities/Tours.entity';
 import { catchDomainError, DomainError } from '../../../src/nest/common/domain-error';
 import type { PlacesService } from '../../../src/nest/places/places.service';
 import { ToursService } from '../../../src/nest/tours/tours.service';
-import { createPlace, createTrip, createUser } from '../../helpers/factories';
+import { createDay, createDayAssignment, createPlace, createTrip, createUser } from '../../helpers/factories';
 import { countRows, deleteRows, findRow, findRows, updateRows } from '../../helpers/factories/rows';
 import { noPaddleChecks } from '../../helpers/fake-paddle-checks';
+import { tourStageDays } from '../../helpers/fake-tour-stage-days';
 import { buildPlaceImportService } from '../../helpers/place-import';
 import { resetTestDb } from '../../helpers/test-db';
-import { createTestPlacesRepo, createTestUnitOfWork, sharedTestOrm } from '../../helpers/test-uow';
+import {
+  createTestDayAssignmentsRepo,
+  createTestPlacesRepo,
+  createTestUnitOfWork,
+  sharedTestOrm,
+} from '../../helpers/test-uow';
 import { keyed } from '../../helpers/tour-keys';
 import {
   createTestTourActivitiesRepo,
@@ -90,6 +97,7 @@ beforeAll(async () => {
     await createTestTourActivitiesRepo(testDb),
     buildPlaceImportService(),
     noPaddleChecks(),
+    tourStageDays(await createTestDayAssignmentsRepo(testDb)),
   );
 });
 
@@ -746,5 +754,113 @@ describe('ToursService multi-day tours (MDT-01)', () => {
       'a stage ends at a stop between start and end',
     ]);
     expect(await count(Tours)).toBe(0);
+  });
+});
+
+describe('ToursService stages on days (MDT-02)', () => {
+  /** Three days hut to hut: the stops at the second and third point end a stage. */
+  const hutToHut: TourCreateRequest = {
+    ...request,
+    planned_duration_minutes: null,
+    break_additional_minutes: 60,
+    duration_seconds: 30 * 3600,
+    route_geometry: [
+      [48, 11, 600],
+      [48.01, 11.02, 650],
+      [48.02, 11.04, 630],
+      [48.03, 11.06, 700],
+    ],
+    waypoints: [
+      { lat: 48, lng: 11, role: 'start', sequence: 0 },
+      { lat: 48.01, lng: 11.02, role: 'via', sequence: 1, stage_end: true },
+      { lat: 48.02, lng: 11.04, role: 'via', sequence: 2, stage_end: true },
+      { lat: 48.03, lng: 11.06, role: 'end', sequence: 3 },
+    ],
+  };
+
+  /** The tour saved, and each of its three stages on a day of its own. */
+  async function onThreeDays() {
+    const created = await service.createTour(tripId, hutToHut);
+    const placeId = created.tour.place_id;
+    const keys = created.waypoints.map((point) => String(point.key));
+    const days = [1, 2, 3].map(() => createDay(testDb, Number(tripId)));
+    const held = [0, 1, 2].map(
+      (stage) => createDayAssignment(testDb, days[stage].id, placeId, { tour_stage_key: keys[stage] }).id,
+    );
+    broadcast.mockReset();
+    return { created, placeId, keys, days, held };
+  }
+
+  const heldStages = async (placeId: number) =>
+    (await findRows(await sharedTestOrm(testDb), DayAssignments, { place: placeId }, { id: 'asc' })).map(
+      (row) => row.tour_stage_key,
+    );
+
+  it('MDT-SVC-004: lists the stops the stages run between, keyed, and none for a day tour', async () => {
+    const created = await service.createTour(tripId, hutToHut);
+    const keys = created.waypoints.map((point) => point.key);
+    expect(created.tour.stage_stops).toEqual(
+      hutToHut.waypoints.map((point, index) => ({ key: keys[index], lat: point.lat, lng: point.lng })),
+    );
+    const dayTour = await service.createTour(tripId, request);
+    expect(dayTour.tour.stage_stops).toBeNull();
+    const listed = new Map((await service.listTours(tripId)).map((tour) => [tour.place_id, tour.stage_stops]));
+    expect(listed.get(created.tour.place_id)?.map((stop) => stop.key)).toEqual(keys);
+    expect(listed.get(dayTour.tour.place_id)).toBeNull();
+    expect((await service.getTour(tripId, String(created.tour.place_id))).tour.stage_stops).toHaveLength(4);
+  });
+
+  it('MDT-SVC-005: a saved change takes only the stages it took away off their days, and tells every client', async () => {
+    const { created, placeId, keys, days, held } = await onThreeDays();
+    // The third point no longer ends a stage: the stage that started there is gone, the others keep their keys.
+    const joined = created.waypoints.map(({ stage_end: _end, ...point }, index) =>
+      index === 1 ? { ...point, stage_end: true } : point,
+    );
+    await service.updateTour(tripId, String(placeId), { ...hutToHut, waypoints: joined }, 'socket');
+    expect(await heldStages(placeId)).toEqual([keys[0], keys[1]]);
+    expect(broadcast).toHaveBeenCalledWith(
+      tripId,
+      'assignment:deleted',
+      { assignmentId: held[2], dayId: days[2].id },
+      undefined,
+    );
+    // Back to a day tour, no day holds a stage of it any more.
+    await service.updateTour(tripId, String(placeId), request);
+    expect(await heldStages(placeId)).toEqual([]);
+  });
+
+  it('MDT-SVC-006: a change that keeps every stage leaves every day as it was and says nothing', async () => {
+    const { created, placeId, keys } = await onThreeDays();
+    await service.updateTour(tripId, String(placeId), { ...hutToHut, name: 'Renamed', waypoints: created.waypoints });
+    expect(await heldStages(placeId)).toEqual(keys.slice(0, 3));
+    expect(broadcast.mock.calls.filter(([, event]) => event === 'assignment:deleted')).toEqual([]);
+  });
+
+  it('MDT-SVC-007: going back to the recorded track takes every stage off its day', async () => {
+    const { placeId } = await onThreeDays();
+    await updateRows(
+      await sharedTestOrm(testDb),
+      Tours,
+      { place: placeId },
+      { recorded_route_geometry: JSON.stringify(hutToHut.route_geometry) },
+    );
+    (await sharedTestOrm(testDb)).clear();
+    await service.restoreRecordedTrack(tripId, String(placeId));
+    expect(await heldStages(placeId)).toEqual([]);
+    expect(broadcast.mock.calls.filter(([, event]) => event === 'assignment:deleted')).toHaveLength(3);
+  });
+
+  it('MDT-SVC-008: a stage notice that cannot be sent never fails the saved change', async () => {
+    const { created, placeId } = await onThreeDays();
+    broadcast.mockImplementation((_tripId: string, event: string) => {
+      if (event === 'assignment:deleted') throw new Error('socket closed');
+    });
+    const warn = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    const dayTour = created.waypoints.map(({ stage_end: _end, ...point }) => point);
+    await expect(
+      service.updateTour(tripId, String(placeId), { ...hutToHut, duration_seconds: 3600, waypoints: dayTour }),
+    ).resolves.toMatchObject({ tour: { stage_count: null } });
+    expect(await heldStages(placeId)).toEqual([]);
+    expect(warn).toHaveBeenCalled();
   });
 });

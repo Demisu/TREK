@@ -1181,5 +1181,17 @@ const tours: TranslationStrings = {
   'tours.stages.toDayBody': '將移除 {count} 個階段終點。路線保持不變，復原可以還原。',
   'tours.stages.toDayConfirm': '移除全部階段終點',
   'tours.stages.show': '顯示此階段的終點',
+  'tours.stages.fold': '隱藏階段',
+  'tours.stages.unfold': '顯示階段',
+  'tours.stages.noDay': '未定日期',
+  'tours.stages.noDayHint': '尚未安排到行程中的某一天',
+  'tours.stages.dayFailed': '無法將此階段安排到那一天。',
+  'tours.stages.dayLost': '{count} 個已安排日期的階段已不存在；儲存後將從其日期中移除。',
+  'tours.stages.unmeasured': '尚未測量',
+  'tours.stages.unmeasuredHint': '此階段的路線尚未規劃。',
+  'tours.stages.loadFailed': '暫時無法讀取階段。',
+  'tours.stages.wholeTour': '整條路線',
+  'tours.stages.totalPartial': '{of} 個階段中 {known} 個已知',
+  'tours.stages.openInPlanner': '在規劃器中開啟此階段',
 };
 export default tours;

@@ -1273,5 +1273,18 @@ const tours: TranslationStrings = {
   'tours.stages.toDayBody.one': '{count} etappslut tas bort. Rutten förblir som den är, och Ångra tar tillbaka det.',
   'tours.stages.toDayConfirm': 'Ta bort etappsluten',
   'tours.stages.show': 'Visa var etappen slutar',
+  'tours.stages.fold': 'Dölj etapper',
+  'tours.stages.unfold': 'Visa etapper',
+  'tours.stages.noDay': 'Ingen dag',
+  'tours.stages.noDayHint': 'Ännu inte på en dag i resan',
+  'tours.stages.dayFailed': 'Etappen kunde inte läggas på den dagen.',
+  'tours.stages.dayLost': '{count} etapper med en dag finns inte längre; när du sparar tas de bort från sina dagar.',
+  'tours.stages.dayLost.one': 'En etapp med en dag finns inte längre; när du sparar tas den bort från sin dag.',
+  'tours.stages.unmeasured': 'Inte uppmätt än',
+  'tours.stages.unmeasuredHint': 'Rutten för den här etappen är inte planerad än.',
+  'tours.stages.loadFailed': 'Etapperna kan inte läsas just nu.',
+  'tours.stages.wholeTour': 'Hela turen',
+  'tours.stages.totalPartial': 'känt för {known} av {of} etapper',
+  'tours.stages.openInPlanner': 'Öppna etappen i planeraren',
 };
 export default tours;

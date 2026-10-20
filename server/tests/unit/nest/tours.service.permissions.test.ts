@@ -14,6 +14,7 @@ import type { UnitOfWork } from '../../../src/nest/database/unit-of-work';
 import type { PlacesService } from '../../../src/nest/places/places.service';
 import { ToursService } from '../../../src/nest/tours/tours.service';
 import { noActivities, noPaddleChecks } from '../../helpers/fake-paddle-checks';
+import { tourStageDays } from '../../helpers/fake-tour-stage-days';
 import { buildPlaceImportService } from '../../helpers/place-import';
 import { keyed } from '../../helpers/tour-keys';
 import { NotFoundException } from '@nestjs/common';
@@ -148,6 +149,7 @@ function makeService() {
     noActivities(),
     buildPlaceImportService(),
     noPaddleChecks(),
+    tourStageDays(),
   );
   return { uow, toursRepo, waypointsRepo, visitsRepo, placesRepo, places, place, service };
 }

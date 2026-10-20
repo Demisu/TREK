@@ -6,6 +6,7 @@ import { useSettingsStore } from '../store/settingsStore'
 import { useAddonStore } from '../store/addonStore'
 import { calculateRouteWithRetries, type RouteProfileKey } from '../components/Map/routeRetry'
 import { buildDayRouteRuns, hotelBookendOf, TRANSPORT_TYPES } from '../components/Map/dayRoutePlan'
+import type { TourStageStops } from '../components/Map/dayTourProjection'
 import { dayViaLookup, foldViaLegs, threadVias, viaKeyOf, viasOnDayLeg } from '../utils/dayRouteVias'
 import { resolveLegMode } from '../components/Planner/legMode'
 import type { RoadtripVia } from '@trek/shared'
@@ -23,8 +24,10 @@ const NO_VIAS: Record<number, RoadtripVia[]> = {}
  * `roadtripVias` are the road trip's vias by day: a road picked there is the road this
  * day drives too (#2580). Absent, or empty while the road trip addon is off.
  */
-export function useRouteCalculation(tripStore: Pick<TripStoreState, 'assignments'> & { roadtripVias?: Record<number, RoadtripVia[]> }, selectedDayId: number | null, enabled: boolean = true, profile: RouteProfileKey = 'driving', accommodations: Accommodation[] = NO_ACCOMMODATIONS) {
+export function useRouteCalculation(tripStore: Pick<TripStoreState, 'assignments'> & { roadtripVias?: Record<number, RoadtripVia[]>; tourStageStops?: TourStageStops }, selectedDayId: number | null, enabled: boolean = true, profile: RouteProfileKey = 'driving', accommodations: Accommodation[] = NO_ACCOMMODATIONS) {
   const viasByDay = tripStore.roadtripVias ?? NO_VIAS
+  // MDT-02: a day holding one stage of a multi-day tour routes to that stage.
+  const tourStageStops = tripStore.tourStageStops
   const [route, setRoute] = useState<[number, number][][] | null>(null)
   const [routeInfo, setRouteInfo] = useState<RouteResult | null>(null)
   const [routeSegments, setRouteSegments] = useState<RouteSegment[]>([])
@@ -67,6 +70,7 @@ export function useRouteCalculation(tripStore: Pick<TripStoreState, 'assignments
       optimizeFromAccommodation,
       toursEnabled,
       places,
+      tourStageStops,
     })
     const day = allDays.find(d => d.id === dayId)
     // Anchors count the stored list, the hidden lodging and service rows included.
@@ -155,7 +159,7 @@ export function useRouteCalculation(tripStore: Pick<TripStoreState, 'assignments
       // Aborted (day changed) — newer call owns the state. Anything else: keep straight lines.
       if (!(err instanceof Error) || err.name !== 'AbortError') { setRouteSegments([]); setRouteVias([]) }
     }
-  }, [enabled, profile, accommodations, optimizeFromAccommodation, distanceUnit, selectedDayDefaultMode, mirrorServiceStops, toursEnabled, places, viasByDay])
+  }, [enabled, profile, accommodations, optimizeFromAccommodation, distanceUnit, selectedDayDefaultMode, mirrorServiceStops, toursEnabled, places, viasByDay, tourStageStops])
 
   // Stable signature for transport reservations on the selected day — changes when a transport
   // is added, removed, or repositioned, ensuring route recalc fires even on transport-only reorders.
@@ -179,7 +183,7 @@ export function useRouteCalculation(tripStore: Pick<TripStoreState, 'assignments
     if (!selectedDayId) { setRoute(null); setRouteWalking([]); setRouteSegments([]); setRouteVias([]); return }
     updateRouteForDay(selectedDayId)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDayId, selectedDayAssignments, transportSignature, enabled, profile, accommodations, optimizeFromAccommodation, distanceUnit, selectedDayDefaultMode, mirrorServiceStops, toursEnabled, places, viaKey])
+  }, [selectedDayId, selectedDayAssignments, transportSignature, enabled, profile, accommodations, optimizeFromAccommodation, distanceUnit, selectedDayDefaultMode, mirrorServiceStops, toursEnabled, places, viaKey, tourStageStops])
 
   return { route, routeWalking, routeSegments, routeVias, routeInfo, setRoute, setRouteInfo, updateRouteForDay }
 }

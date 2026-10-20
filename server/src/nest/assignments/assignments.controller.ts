@@ -56,7 +56,9 @@ export class DayAssignmentsController {
     if (!(await this.assignments.placeExists(body.place_id, tripId))) {
       throw new HttpException({ error: 'Place not found' }, 404);
     }
-    const assignment = await this.assignments.createAssignment(dayId, body.place_id, body.notes);
+    const assignment = await this.assignments.createAssignment(dayId, body.place_id, body.notes, {
+      ...(body.tour_stage_key !== undefined ? { tourStageKey: body.tour_stage_key } : {}),
+    });
     this.assignments.broadcast(tripId, 'assignment:created', { assignment }, socketId);
     await this.assignments.reconcile(tripId, socketId);
     return { assignment };

@@ -14,6 +14,7 @@ import type { ToursRepository } from '../../db/repositories/Tours.repository';
 import type { TripMembersRepository } from '../../db/repositories/TripMembers.repository';
 import type { TripAccess } from '../../db/repositories/Trips.repository';
 import type { User } from '../../types';
+import { DomainError } from '../common/domain-error';
 import { toRowId } from '../common/row-id';
 import { formatAssignmentWithPlace } from '../common/rowShape';
 import { UnitOfWork } from '../database/unit-of-work';
@@ -24,7 +25,13 @@ import { RealtimeService } from '../realtime/realtime.service';
 import { TripAccessService } from '../trip-membership/trip-access.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { ConflictException, Injectable } from '@nestjs/common';
-import { chronoOrder, type RoadtripVia, type TrekWsPayload, type TrekWsTripEventName } from '@trek/shared';
+import {
+  chronoOrder,
+  tourStageKeysOf,
+  type RoadtripVia,
+  type TrekWsPayload,
+  type TrekWsTripEventName,
+} from '@trek/shared';
 import { isEmptyReanchoring, reanchorByStopOrder } from '@trek/shared/roadtrip';
 
 type Trip = TripAccess;
@@ -261,12 +268,14 @@ export class AssignmentsService {
    * afterwards: the row this returns is what the answer hands the client, and a
    * stop that reaches it without its booking id is one the day list cannot tell
    * from a place the traveller added, so it draws the hotel a second time.
+   * @param opts.tourStageKey MDT-02: one stage of a multi-day tour instead of
+   * the whole tour, by the key of the stop it starts at.
    */
   async createAssignment(
     dayId: string | number,
     placeId: unknown,
     notes?: string | null,
-    opts: { accommodationId?: number; orderIndex?: number } = {},
+    opts: { accommodationId?: number; orderIndex?: number; tourStageKey?: string } = {},
   ) {
     // Downstream of the caller's own dayExists/placeExists gate in the same
     // request (every real call site), so the non-null assertion is
@@ -276,6 +285,7 @@ export class AssignmentsService {
 
     const insertedId = await this.uow.transactional(async () => {
       await this.assertTourFreeOnDay(dayIdNum, placeIdNum);
+      if (opts.tourStageKey !== undefined) await this.assertTourStageFree(placeIdNum, opts.tourStageKey);
       // AS6 — the explicit null check (not `||`) is load-bearing: a stored 0
       // order_index must survive, which `maxOrder || -1` would not.
       const maxOrder = await this.dayAssignmentsRepo.maxOrderIndex(dayIdNum);
@@ -295,6 +305,7 @@ export class AssignmentsService {
         order_index: orderIndex,
         notes: notes || null,
         accommodation_id: opts.accommodationId ?? null,
+        tour_stage_key: opts.tourStageKey ?? null,
       });
     });
 
@@ -393,6 +404,30 @@ export class AssignmentsService {
     if (await this.toursRepo.isOnDay(dayId, placeId, exceptAssignmentId)) {
       throw new ConflictException('Tour is already assigned to this day');
     }
+  }
+
+  /**
+   * MDT-02: a stage goes on a day only as a stage the tour has (read off its
+   * saved points, so a place that is no tour has none) and on one day at most;
+   * moving it to another day is a move, not a second stage. Asked inside the
+   * transaction that writes it, as the one-tour-a-day check is.
+   */
+  private async assertTourStageFree(placeId: number, key: string): Promise<void> {
+    if (!tourStageKeysOf(await this.toursRepo.listStagePoints(placeId)).includes(key)) {
+      throw new DomainError(400, 'Tour has no such stage', { code: 'tour_stage_unknown' });
+    }
+    if (await this.dayAssignmentsRepo.findTourStage(placeId, key)) {
+      throw new DomainError(409, 'Stage is already on a day', { code: 'tour_stage_taken' });
+    }
+  }
+
+  /**
+   * MDT-02: takes the stages a saved change of a tour no longer has off their
+   * days, inside the caller's transaction, and answers which, so the caller
+   * can tell the trip once the change is committed.
+   */
+  async dropStaleTourStages(placeId: number, keys: readonly string[]): Promise<Array<{ id: number; day_id: number }>> {
+    return await this.dayAssignmentsRepo.deleteTourStagesNotIn(placeId, keys);
   }
 
   /** AS15 — `AssignmentParticipantsRepository.listWithDisplayName`, the same AS2/AS31 statement. */

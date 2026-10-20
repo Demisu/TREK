@@ -1266,5 +1266,17 @@ const tours: TranslationStrings = {
   'tours.stages.toDayBody': 'Bỏ {count} điểm cuối chặng. Tuyến đường giữ nguyên, và Hoàn tác sẽ khôi phục chúng.',
   'tours.stages.toDayConfirm': 'Bỏ các điểm cuối chặng',
   'tours.stages.show': 'Hiện nơi chặng này kết thúc',
+  'tours.stages.fold': 'Ẩn các chặng',
+  'tours.stages.unfold': 'Hiện các chặng',
+  'tours.stages.noDay': 'Chưa có ngày',
+  'tours.stages.noDayHint': 'Chưa được xếp vào ngày nào của chuyến đi',
+  'tours.stages.dayFailed': 'Không thể xếp chặng vào ngày đó.',
+  'tours.stages.dayLost': '{count} chặng đã có ngày nay không còn; khi lưu, các chặng đó sẽ bị gỡ khỏi ngày.',
+  'tours.stages.unmeasured': 'Chưa đo',
+  'tours.stages.unmeasuredHint': 'Lộ trình của chặng này chưa được lên kế hoạch.',
+  'tours.stages.loadFailed': 'Hiện không thể đọc các chặng.',
+  'tours.stages.wholeTour': 'Cả hành trình',
+  'tours.stages.totalPartial': 'đã biết cho {known} trên {of} chặng',
+  'tours.stages.openInPlanner': 'Mở chặng này trong trình lập kế hoạch',
 };
 export default tours;

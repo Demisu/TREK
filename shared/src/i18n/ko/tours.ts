@@ -1238,5 +1238,17 @@ const tours: TranslationStrings = {
   'tours.stages.toDayBody': '구간 끝 {count}개를 제거합니다. 경로는 그대로이며 실행 취소로 되돌릴 수 있습니다.',
   'tours.stages.toDayConfirm': '구간 끝 모두 제거',
   'tours.stages.show': '이 구간이 끝나는 곳 보기',
+  'tours.stages.fold': '구간 숨기기',
+  'tours.stages.unfold': '구간 보기',
+  'tours.stages.noDay': '날짜 없음',
+  'tours.stages.noDayHint': '아직 여행의 어느 날에도 넣지 않음',
+  'tours.stages.dayFailed': '이 구간을 그날에 넣지 못했습니다.',
+  'tours.stages.dayLost': '날짜가 있는 구간 {count}개가 더 이상 없습니다. 저장하면 해당 날짜에서 빠집니다.',
+  'tours.stages.unmeasured': '아직 측정되지 않음',
+  'tours.stages.unmeasuredHint': '이 구간의 경로는 아직 계획되지 않았습니다.',
+  'tours.stages.loadFailed': '지금은 구간을 읽을 수 없습니다.',
+  'tours.stages.wholeTour': '전체 투어',
+  'tours.stages.totalPartial': '{of}개 구간 중 {known}개에서 알려짐',
+  'tours.stages.openInPlanner': '이 구간을 플래너에서 열기',
 };
 export default tours;

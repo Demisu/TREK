@@ -107,6 +107,7 @@ export function planTripRoute(input: TripRouteInputs, profile: RouteProfileKey):
         (input.assignments[String(day.id)] ?? []).filter(assignment => assignment.accommodation_id == null),
         input.toursEnabled ?? false,
         input.places,
+        input.tourStageStops,
       ).flatMap(item => item.kind === 'tour' && item.geometry.length >= 2 ? [item.geometry] : []),
     }))
     .filter(entry => entry.runs.length > 0 || entry.tourLines.length > 0)

@@ -177,7 +177,7 @@ export class TourChangeUndoService {
       }
       return { step, ...written };
     });
-    const detail = await this.tours.announceRouteUpdate(String(tripId), placeId, restored.visitsDropped);
+    const detail = await this.tours.announceRouteUpdate(String(tripId), placeId, restored);
     return {
       undone: true as const,
       step: { id: restored.step.id, revision: restored.step.revision, undone_revision: restored.revision },

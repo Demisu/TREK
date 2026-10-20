@@ -1,14 +1,16 @@
-// FE-TOUR-STAGE-MODEL-001 to FE-TOUR-STAGE-MODEL-010: the stages of a multi-day tour, cut from its one route (MDT-01).
+// FE-TOUR-STAGE-MODEL-001 to FE-TOUR-STAGE-MODEL-012: the stages of a multi-day tour, cut from its one route (MDT-01, MDT-02).
 import { MAX_TOUR_STAGES } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
 import { hikingTimeMinutes } from '../hikingTime';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 import {
   canEndStage,
+  legLengthsAlong,
   lostStageEnds,
   stageBoundariesM,
   stageEndCount,
   stageSpansOf,
+  stageTotalsOf,
   tourStagesOf,
   vertexIndicesOf,
   withoutStageEnds,
@@ -153,5 +155,25 @@ describe('tourStages', () => {
     const together = tourStagesOf(input([FIVE[0], { ...FIVE[0], id: 'twin', stageEnd: true }, FIVE[4]]));
     expect(together[0].distanceKm).toBe(0);
     expect(together[0].gain).toBe(0);
+  });
+
+  it('FE-TOUR-STAGE-MODEL-011: measures each leg along the line, and leaves a leg of one vertex to the estimate (MDT-02)', () => {
+    const legs = legLengthsAlong([FIVE[0], FIVE[2], FIVE[4]], LINE);
+    expect(legs).toHaveLength(2);
+    expect(legs[0]).toBeCloseTo(2224, -1);
+    expect(legs[1]).toBeCloseTo(2224, -1);
+    expect(legLengthsAlong([FIVE[0], FIVE[0]], LINE)).toEqual([null]);
+  });
+
+  it('FE-TOUR-STAGE-MODEL-012: adds the stages up only as far as they tell, with how many do (MDT-02)', () => {
+    const stages = tourStagesOf(input(withEnds('b', 'd')));
+    const totals = stageTotalsOf(stages);
+    expect(totals.distanceKm.known).toBe(3);
+    expect(totals.distanceKm.value).toBeCloseTo(4.45, 1);
+    expect(totals.gain).toEqual({ value: stages.reduce((sum, stage) => sum + (stage.gain ?? 0), 0), known: 3, of: 3 });
+    const partial = stageTotalsOf([stages[0], { ...stages[1], minutes: null, distanceKm: null }]);
+    expect(partial.minutes).toMatchObject({ known: 1, of: 2, value: stages[0].minutes });
+    expect(partial.distanceKm.known).toBe(1);
+    expect(stageTotalsOf([{ ...stages[0], gain: null }]).gain).toEqual({ value: null, known: 0, of: 1 });
   });
 });

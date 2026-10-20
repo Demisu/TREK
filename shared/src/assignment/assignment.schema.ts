@@ -1,4 +1,5 @@
 import { assignmentPlaceSchema } from '../place/place.schema';
+import { stationKeySchema } from '../tours/tours.schema';
 
 import { z } from 'zod';
 
@@ -57,6 +58,11 @@ export const assignmentSchema = z.object({
   accommodation_id: z.number().nullable().optional(),
   tour_place_id: z.number().nullable().optional(),
   tour_route_geometry: z.string().nullable().optional(),
+  /**
+   * MDT-02: the stage of a multi-day tour this day holds, by the key of the
+   * stop the stage starts at; null where the day holds the whole tour or a place.
+   */
+  tour_stage_key: z.string().nullable().optional(),
   participants: z.array(assignmentParticipantSchema).optional(),
   created_at: z.string().optional(),
   place: assignmentPlaceSchema,
@@ -66,6 +72,12 @@ export type Assignment = z.infer<typeof assignmentSchema>;
 export const assignmentCreateRequestSchema = z.object({
   place_id: z.union([z.number(), z.string()]),
   notes: z.string().nullable().optional(),
+  /**
+   * MDT-02: puts one stage of a multi-day tour on the day instead of the whole
+   * tour, by the key of the stop the stage starts at (the tour list's
+   * `stage_stops`). A stage is on one day at most.
+   */
+  tour_stage_key: stationKeySchema.optional(),
 });
 export type AssignmentCreateRequest = z.infer<typeof assignmentCreateRequestSchema>;
 

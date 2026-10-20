@@ -30,6 +30,7 @@ import { accommodationsOver } from '../../helpers/accommodations-service';
 import { createTrip, createUser } from '../../helpers/factories';
 import { countRows, findRows } from '../../helpers/factories/rows';
 import { noPaddleChecks } from '../../helpers/fake-paddle-checks';
+import { tourStageDays } from '../../helpers/fake-tour-stage-days';
 import { createTestBudgetItemsRepo } from '../../helpers/files-repos';
 import { noGoogleQuota } from '../../helpers/google-quota';
 import {
@@ -176,6 +177,7 @@ beforeAll(async () => {
     await createTestTourActivitiesRepo(testDb),
     buildPlaceImportService(),
     noPaddleChecks(),
+    tourStageDays(),
   );
 });
 

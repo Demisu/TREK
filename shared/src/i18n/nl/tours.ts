@@ -1304,5 +1304,18 @@ const tours: TranslationStrings = {
     '{count} etappe-einde wordt verwijderd. De route blijft zoals hij is en Ongedaan maken zet het terug.',
   'tours.stages.toDayConfirm': 'Etappe-eindes verwijderen',
   'tours.stages.show': 'Toon waar deze etappe eindigt',
+  'tours.stages.fold': 'Etappes verbergen',
+  'tours.stages.unfold': 'Etappes tonen',
+  'tours.stages.noDay': 'Geen dag',
+  'tours.stages.noDayHint': 'Nog niet op een reisdag',
+  'tours.stages.dayFailed': 'De etappe kon niet op die dag worden gezet.',
+  'tours.stages.dayLost': '{count} etappes met een dag bestaan niet meer; bij opslaan verliezen ze hun dag.',
+  'tours.stages.dayLost.one': 'Een etappe met een dag bestaat niet meer; bij opslaan verliest ze haar dag.',
+  'tours.stages.unmeasured': 'Nog niet gemeten',
+  'tours.stages.unmeasuredHint': 'De route van deze etappe is nog niet gepland.',
+  'tours.stages.loadFailed': 'De etappes kunnen nu niet worden gelezen.',
+  'tours.stages.wholeTour': 'Hele tocht',
+  'tours.stages.totalPartial': 'bekend voor {known} van {of} etappes',
+  'tours.stages.openInPlanner': 'Deze etappe openen in de planner',
 };
 export default tours;

@@ -1,4 +1,4 @@
-// FE-REPO-ASSIGN-OFF-001 to FE-REPO-ASSIGN-OFF-007
+// FE-REPO-ASSIGN-OFF-001 to FE-REPO-ASSIGN-OFF-010
 // Offline writes of a day's visits (#2601): put on a day, taken off, reordered,
 // moved, who joins and how a leg is travelled.
 import 'fake-indexeddb/auto';
@@ -148,5 +148,31 @@ describe('assignmentRepo, offline', () => {
     expect(visit.id).toBe(520);
     expect(await offlineDb.mutationQueue.count()).toBe(0);
     expect((await offlineDb.days.get(70))?.assignments?.map((a) => a.id)).toEqual([500, 520]);
+  });
+
+  it('FE-REPO-ASSIGN-OFF-009: a stage of a multi-day tour goes on its day offline with its key, in the queued write too (MDT-02)', async () => {
+    const visit = await assignmentRepo.create(4, 71, place, 'stop-hut');
+
+    expect(visit).toMatchObject({ day_id: 71, place_id: 300, tour_stage_key: 'stop-hut' });
+    expect((await offlineDb.days.get(71))?.assignments?.[0].tour_stage_key).toBe('stop-hut');
+    expect((await queue())[0]).toMatchObject({ body: { place_id: 300, tour_stage_key: 'stop-hut' } });
+  });
+
+  it('FE-REPO-ASSIGN-OFF-010: online, the stage key goes with the request (MDT-02)', async () => {
+    setOnline(true);
+    let sent: unknown = null;
+    server.use(
+      http.post('/api/trips/4/days/71/assignments', async ({ request }) => {
+        sent = await request.json();
+        return HttpResponse.json({
+          assignment: buildAssignment({ id: 530, day_id: 71, order_index: 0, place, tour_stage_key: 'stop-hut' }),
+        });
+      })
+    );
+
+    const visit = await assignmentRepo.create(4, 71, place, 'stop-hut');
+
+    expect(sent).toEqual({ place_id: 300, tour_stage_key: 'stop-hut' });
+    expect(visit).toMatchObject({ id: 530, tour_stage_key: 'stop-hut' });
   });
 });

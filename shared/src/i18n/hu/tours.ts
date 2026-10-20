@@ -1300,5 +1300,18 @@ const tours: TranslationStrings = {
   'tours.stages.toDayBody.one': '{count} szakaszvég törlődik. Az útvonal változatlan marad, a Visszavonás visszahozza.',
   'tours.stages.toDayConfirm': 'Szakaszvégek eltávolítása',
   'tours.stages.show': 'Mutasd, hol ér véget a szakasz',
+  'tours.stages.fold': 'Szakaszok elrejtése',
+  'tours.stages.unfold': 'Szakaszok mutatása',
+  'tours.stages.noDay': 'Nincs nap',
+  'tours.stages.noDayHint': 'Még nincs az utazás egyik napján sem',
+  'tours.stages.dayFailed': 'A szakaszt nem sikerült erre a napra tenni.',
+  'tours.stages.dayLost': '{count} nappal rendelkező szakasz már nem létezik; mentéskor elvesztik a napjukat.',
+  'tours.stages.dayLost.one': 'Egy nappal rendelkező szakasz már nem létezik; mentéskor elveszti a napját.',
+  'tours.stages.unmeasured': 'Még nincs lemérve',
+  'tours.stages.unmeasuredHint': 'A szakasz útvonala még nincs megtervezve.',
+  'tours.stages.loadFailed': 'A szakaszok most nem olvashatók.',
+  'tours.stages.wholeTour': 'Teljes túra',
+  'tours.stages.totalPartial': 'ismert {known} szakasznál a {of} közül',
+  'tours.stages.openInPlanner': 'A szakasz megnyitása a tervezőben',
 };
 export default tours;

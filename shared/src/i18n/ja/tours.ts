@@ -1240,5 +1240,17 @@ const tours: TranslationStrings = {
   'tours.stages.toDayBody': '{count} 件のステージ終点を外します。ルートはそのままで、元に戻すで復元できます。',
   'tours.stages.toDayConfirm': 'ステージの終点をすべて外す',
   'tours.stages.show': 'このステージの終点を表示',
+  'tours.stages.fold': 'ステージを隠す',
+  'tours.stages.unfold': 'ステージを表示',
+  'tours.stages.noDay': '日なし',
+  'tours.stages.noDayHint': 'まだ旅行のどの日にも入っていません',
+  'tours.stages.dayFailed': 'このステージをその日に入れられませんでした。',
+  'tours.stages.dayLost': '日に入っている {count} 件のステージはもう存在しません。保存するとその日から外れます。',
+  'tours.stages.unmeasured': 'まだ計測されていません',
+  'tours.stages.unmeasuredHint': 'このステージのルートはまだ計画されていません。',
+  'tours.stages.loadFailed': '現在ステージを読み込めません。',
+  'tours.stages.wholeTour': 'ツアー全体',
+  'tours.stages.totalPartial': '{of} 件中 {known} 件のステージで判明',
+  'tours.stages.openInPlanner': 'このステージをプランナーで開く',
 };
 export default tours;

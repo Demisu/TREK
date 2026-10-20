@@ -1319,5 +1319,20 @@ const tours: TranslationStrings = {
   'tours.stages.toDayBody.one': '{count} fin d’étape est retirée. L’itinéraire reste tel quel, et Annuler la rétablit.',
   'tours.stages.toDayConfirm': 'Retirer les fins d’étape',
   'tours.stages.show': 'Montrer où finit cette étape',
+  'tours.stages.fold': 'Masquer les étapes',
+  'tours.stages.unfold': 'Afficher les étapes',
+  'tours.stages.noDay': 'Sans jour',
+  'tours.stages.noDayHint': 'Pas encore sur un jour du voyage',
+  'tours.stages.dayFailed': 'L’étape n’a pas pu être placée sur ce jour.',
+  'tours.stages.dayLost':
+    '{count} étapes placées sur un jour n’existent plus ; l’enregistrement les retire de leur jour.',
+  'tours.stages.dayLost.one':
+    '{count} étape placée sur un jour n’existe plus ; l’enregistrement la retire de son jour.',
+  'tours.stages.unmeasured': 'Pas encore mesurée',
+  'tours.stages.unmeasuredHint': 'L’itinéraire de cette étape n’est pas encore planifié.',
+  'tours.stages.loadFailed': 'Les étapes ne peuvent pas être lues pour le moment.',
+  'tours.stages.wholeTour': 'Itinéraire complet',
+  'tours.stages.totalPartial': 'connu pour {known} étapes sur {of}',
+  'tours.stages.openInPlanner': 'Ouvrir cette étape dans le planificateur',
 };
 export default tours;

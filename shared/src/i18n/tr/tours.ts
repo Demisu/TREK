@@ -1280,5 +1280,18 @@ const tours: TranslationStrings = {
   'tours.stages.toDayBody.one': '{count} etap sonu kaldırılır. Rota olduğu gibi kalır, Geri al onu geri getirir.',
   'tours.stages.toDayConfirm': 'Etap sonlarını kaldır',
   'tours.stages.show': 'Bu etabın bittiği yeri göster',
+  'tours.stages.fold': 'Etapları gizle',
+  'tours.stages.unfold': 'Etapları göster',
+  'tours.stages.noDay': 'Gün yok',
+  'tours.stages.noDayHint': 'Henüz yolculuğun bir gününde değil',
+  'tours.stages.dayFailed': 'Etap o güne konamadı.',
+  'tours.stages.dayLost': 'Bir güne atanmış {count} etap artık yok; kaydetmek onları günlerinden çıkarır.',
+  'tours.stages.dayLost.one': 'Bir güne atanmış bir etap artık yok; kaydetmek onu gününden çıkarır.',
+  'tours.stages.unmeasured': 'Henüz ölçülmedi',
+  'tours.stages.unmeasuredHint': 'Bu etabın rotası henüz planlanmadı.',
+  'tours.stages.loadFailed': 'Etaplar şu anda okunamıyor.',
+  'tours.stages.wholeTour': 'Tüm tur',
+  'tours.stages.totalPartial': '{of} etabın {known} tanesi için biliniyor',
+  'tours.stages.openInPlanner': 'Bu etabı planlayıcıda aç',
 };
 export default tours;

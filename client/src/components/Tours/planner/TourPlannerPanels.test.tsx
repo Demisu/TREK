@@ -12,6 +12,7 @@ import type { Day } from '../../../types'
 import { publishTourFerrataCrossings } from '../../../store/tourFerrataCrossingStore'
 import { TourPlannerRail, TourPlannerToursRail } from './TourPlannerPanels'
 import { hikePlannerDefaults } from '../../../../tests/helpers/tourPlannerStub'
+import { tourRepo } from '../../../repo/tourRepo'
 
 vi.mock('../../../../../server/src/config', () => { throw new Error('Config initialization is forbidden in client tests') })
 vi.mock('../../../../../server/src/db/database', () => { throw new Error('Legacy database imports are forbidden in client tests') })
@@ -127,6 +128,17 @@ beforeEach(() => {
 })
 
 describe('TourPlannerToursRail', () => {
+  it('MDT-02: a multi-day tour unfolds its stages in the list, a day tour has nothing to unfold', async () => {
+    vi.spyOn(tourRepo, 'detail').mockResolvedValue({ tour, waypoints: [] })
+    const hutToHut = { ...tour, place_id: 43, name: 'Hut to hut', stage_count: 2 }
+    render(<TourPlannerToursRail planner={planner({ mode: { type: 'new-draft' } })} tours={[tour, hutToHut]} {...railProps} />)
+    expect(screen.getAllByRole('button', { name: 'Show stages' })).toHaveLength(1)
+    expect(screen.queryByTestId('tour-stage-overview')).toBeNull()
+    await userEvent.click(screen.getByRole('button', { name: 'Show stages' }))
+    expect(screen.getByTestId('tour-stage-overview')).toHaveAttribute('id', 'tour-stages-43')
+    expect(screen.getByRole('button', { name: 'Hide stages' })).toHaveAttribute('aria-expanded', 'true')
+  })
+
   it('RS-02: keeps calculated Walking time visible in the right Tour metrics rail', () => {
     render(<TourPlannerToursRail planner={planner({
       mode: { type: 'new-draft' }, durationSeconds: 4800,
