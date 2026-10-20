@@ -4,7 +4,7 @@ import type { TourDetailResponse, TourWaypoint } from '@trek/shared';
 
 import { describe, expect, it } from 'vitest';
 
-// TOUR-PLAN-READ-001 to TOUR-PLAN-READ-006
+// TOUR-PLAN-READ-001 to TOUR-PLAN-READ-007
 
 /** The detail of a tour of this type, only as far as the plan reads it. */
 function detailOf(tourType: TourDetailResponse['tour']['tour_type']): TourDetailResponse {
@@ -106,5 +106,20 @@ describe('tour plan read (MCP-T01)', () => {
       },
     });
     expect(planLegs([free, point(1)], { recorded: true })).toEqual([expect.objectContaining({ kind: 'free' })]);
+  });
+
+  it('TOUR-PLAN-READ-007: an actual track names its metrics as worked out, a multi-day tour its stage count and stops', () => {
+    const none = { controlsFromTrack: false, line: null, run: null };
+    const plain = derivedFields(detailOf('hike'), none);
+    expect(plain).not.toContain('activities[].metrics');
+    expect(plain).not.toContain('tour.stage_count');
+    const tracked = { ...detailOf('hike'), activities: [{ id: 1 }] } as unknown as TourDetailResponse;
+    expect(derivedFields(tracked, none)).toContain('activities[].metrics');
+    expect(derivedFields({ ...detailOf('hike'), activities: [] }, none)).not.toContain('activities[].metrics');
+    const staged = {
+      ...detailOf('hike'),
+      tour: { tour_type: 'hike', stage_count: 2 },
+    } as unknown as TourDetailResponse;
+    expect(derivedFields(staged, none)).toEqual(expect.arrayContaining(['tour.stage_count', 'tour.stage_stops']));
   });
 });

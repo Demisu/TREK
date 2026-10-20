@@ -151,7 +151,9 @@ interface PlanExtras {
  * The fields of this answer worked out when it was read rather than stored
  * with the tour. The distance, heights and walking time of a tour are stored
  * when it is saved, and the days are the trip's own assignments, so neither
- * is listed here.
+ * is listed here. What a recorded track measures (ACT-01) is read off its
+ * line on every read, and a multi-day tour's stages (MDT-01) are counted from
+ * its stage ends, so both are.
  */
 export function derivedFields(detail: TourDetailResponse, { controlsFromTrack, line, run }: PlanExtras): string[] {
   const type = detail.tour.tour_type;
@@ -166,5 +168,7 @@ export function derivedFields(detail: TourDetailResponse, { controlsFromTrack, l
     ...(type === 'walk' ? ['tour.station_count', 'tour.station_stay_minutes', 'tour.station_stays_unknown'] : []),
     ...(run ? ['run.open'] : []),
     ...(type === 'kayak' ? ['tour.paddle_check', 'obstacle_check'] : []),
+    ...((detail.activities?.length ?? 0) > 0 ? ['activities[].metrics'] : []),
+    ...(detail.tour.stage_count != null ? ['tour.stage_count', 'tour.stage_stops'] : []),
   ];
 }
