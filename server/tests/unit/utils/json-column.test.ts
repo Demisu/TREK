@@ -8,7 +8,10 @@ import {
   OAUTH_CONSENT_SCOPES,
   OAUTH_TOKEN_SCOPES,
   RESERVATION_METADATA,
+  TOUR_CHANGE_STEP_BEFORE,
+  TOUR_CHANGE_STEP_CHANGES,
   USER_MFA_BACKUP_CODES,
+  type TourChangeStepBefore,
 } from '../../../src/db/json-columns';
 import {
   decodeJson,
@@ -132,5 +135,25 @@ describe('the declared columns', () => {
     expect(decodeJson(JOURNEY_ENTRY_PROS_CONS, '{"pros":["sun"],"cons":[]}')).toEqual({ pros: ['sun'], cons: [] });
     expect(decodeJson(JOURNEY_ENTRY_PROS_CONS, 'null')).toBeNull();
     expect(decodeJson(JOURNEY_ENTRY_PROS_CONS, '{bad')).toBeNull();
+  });
+
+  it('JSONCOL-034: a saved tour change keeps its changes and the tour before, a broken row claims neither', () => {
+    const changes = [{ op: 'remove', key: 'stop-park' }];
+    expect(decodeJson(TOUR_CHANGE_STEP_CHANGES, JSON.stringify(changes))).toEqual(changes);
+    expect(decodeJson(TOUR_CHANGE_STEP_CHANGES, '[{"op":"rename"}]')).toEqual([]);
+    const before: TourChangeStepBefore = {
+      route_geometry: [
+        [48.1, 11.5, 520],
+        [48.2, 11.6],
+      ],
+      waypoints: [{ lat: 48.1, lng: 11.5, role: 'start', sequence: 0, key: 'stop-gate', name: 'Gate' }],
+      distance: 1.6,
+      duration: 22,
+      elevation_gain: null,
+      elevation_loss: null,
+    };
+    expect(decodeJson(TOUR_CHANGE_STEP_BEFORE, encodeJson(TOUR_CHANGE_STEP_BEFORE, before))).toEqual(before);
+    expect(decodeJson(TOUR_CHANGE_STEP_BEFORE, '{"waypoints":"none"}')).toBeNull();
+    expect(decodeJson(TOUR_CHANGE_STEP_BEFORE, '{bad')).toBeNull();
   });
 });

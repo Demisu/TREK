@@ -1,4 +1,5 @@
 import { Places } from '../../db/entities/Places.entity';
+import { TourChangeSteps } from '../../db/entities/TourChangeSteps.entity';
 import { TourObstacleReviews } from '../../db/entities/TourObstacleReviews.entity';
 import { TourSources } from '../../db/entities/TourSources.entity';
 import { TourStationVisits } from '../../db/entities/TourStationVisits.entity';
@@ -20,6 +21,7 @@ import { CityWalkBriefingService } from './city-walk-briefing.service';
 import { CityWalkFootWayService } from './city-walk-foot-way.service';
 import { CityWalkMcp } from './city-walk.mcp';
 import { TourChangePreviewService } from './tour-change-preview.service';
+import { TourChangeSaveService } from './tour-change-save.service';
 import { TourChangeMcp } from './tour-change.mcp';
 import { TourGpxExportService } from './tour-gpx-export.service';
 import { TourHorseRoutesController } from './tour-horse-routes.controller';
@@ -63,7 +65,9 @@ import { Module } from '@nestjs/common';
  * tours' own repositories, is planned on foot by RoadtripModule's router and
  * is created through ToursService (CW-11). A change to a saved city walk an
  * assistant prepares for review is laid onto its saved points and planned on
- * foot by the same router, and saves nothing (MCP-T02).
+ * foot by the same router, and saves nothing (MCP-T02); once the traveller
+ * confirmed it, it is saved through the tour's own write, which records the
+ * step for a later undo (MCP-T03).
  */
 @Module({
   imports: [
@@ -92,6 +96,7 @@ import { Module } from '@nestjs/common';
       TourSources,
       TourObstacleReviews,
       TourStationVisits,
+      TourChangeSteps,
       Places,
     ]),
   ],
@@ -126,6 +131,7 @@ import { Module } from '@nestjs/common';
     CityWalkFootWayService,
     CityWalkBriefingService,
     TourChangePreviewService,
+    TourChangeSaveService,
     ToursMcp,
     TourLibraryMcp,
     TourWalkImportMcp,

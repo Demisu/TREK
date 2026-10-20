@@ -107,6 +107,7 @@ import { ShareTokensSchema } from './ShareTokens.entity';
 import { TagsSchema } from './Tags.entity';
 import { TodoCategoryAssigneesSchema } from './TodoCategoryAssignees.entity';
 import { TodoItemsSchema } from './TodoItems.entity';
+import { TourChangeStepsSchema } from './TourChangeSteps.entity';
 import { TourObstacleReviewsSchema } from './TourObstacleReviews.entity';
 import { TourSourcesSchema } from './TourSources.entity';
 import { TourStationVisitsSchema } from './TourStationVisits.entity';
@@ -252,6 +253,7 @@ export const ALL_ENTITIES: readonly EntitySchema[] = [
   TagsSchema,
   TodoCategoryAssigneesSchema,
   TodoItemsSchema,
+  TourChangeStepsSchema,
   TourObstacleReviewsSchema,
   TourSourcesSchema,
   TourStationVisitsSchema,

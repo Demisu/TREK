@@ -1,4 +1,10 @@
-import { TOUR_CHANGE_MAX, TOUR_CHANGE_OPS, tourChangeRequestSchema, tourChangeSchema } from './tour-change.schema';
+import {
+  TOUR_CHANGE_MAX,
+  TOUR_CHANGE_OPS,
+  tourChangeRequestSchema,
+  tourChangeSaveRequestSchema,
+  tourChangeSchema,
+} from './tour-change.schema';
 
 import { describe, expect, it } from 'vitest';
 
@@ -31,6 +37,35 @@ describe('a change to a saved tour prepared for review (MCP-T02)', () => {
     ];
     for (const body of refused) {
       expect(tourChangeRequestSchema.safeParse(body).success, JSON.stringify(body)).toBe(false);
+    }
+  });
+});
+
+describe('a prepared change the traveller confirmed, sent to be saved (MCP-T03)', () => {
+  const save = {
+    changes: [{ op: 'remove', key: 'stop-park' }],
+    expected_revision: 3,
+    proposal_id: '0123456789abcdef0123456789abcdef',
+    confirmed: true,
+  };
+
+  it('takes the changes with the revision and the proposal they were prepared as, and the yes', () => {
+    expect(tourChangeSaveRequestSchema.parse(save)).toEqual(save);
+  });
+
+  it('refuses a save without the yes, without the revision, of no proposal, or with anything more', () => {
+    const refused = [
+      { ...save, confirmed: false },
+      { ...save, confirmed: undefined },
+      { ...save, expected_revision: undefined },
+      { ...save, expected_revision: 0 },
+      { ...save, proposal_id: 'not-a-proposal' },
+      { ...save, proposal_id: '0123456789ABCDEF0123456789ABCDEF' },
+      { ...save, note: 'the traveller said so in the chat' },
+      { ...save, changes: [] },
+    ];
+    for (const body of refused) {
+      expect(tourChangeSaveRequestSchema.safeParse(body).success, JSON.stringify(body)).toBe(false);
     }
   });
 });

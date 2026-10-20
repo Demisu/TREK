@@ -1,5 +1,5 @@
 import { cityWalkStationSchema } from './tour-walk-briefing.schema';
-import { stationKeySchema } from './tours.schema';
+import { stationKeySchema, tourRevisionSchema } from './tours.schema';
 
 import { z } from 'zod';
 
@@ -46,3 +46,31 @@ export const tourChangeRequestSchema = z
   })
   .strict();
 export type TourChangeRequest = z.infer<typeof tourChangeRequestSchema>;
+
+/**
+ * MCP-T03: the proposal_id a preparation answers, binding a save to the very
+ * proposal the traveller was shown: the same tour, revision and changes.
+ */
+export const tourChangeProposalIdSchema = z
+  .string()
+  .regex(/^[0-9a-f]{32}$/)
+  .describe('The proposal_id prepare_tour_change answered with the proposal the traveller confirmed');
+
+/**
+ * MCP-T03: a prepared change the traveller confirmed, sent to be saved. It
+ * repeats the changes and the revision of the proposal they were shown, names
+ * that proposal and says yes in so many words: a save without the yes, or of
+ * anything other than what was prepared, is refused.
+ */
+export const tourChangeSaveRequestSchema = tourChangeRequestSchema
+  .extend({
+    expected_revision: tourRevisionSchema.describe(
+      'base.revision of the proposal: the revision of the tour it was prepared on',
+    ),
+    proposal_id: tourChangeProposalIdSchema,
+    confirmed: z
+      .literal(true)
+      .describe('true only once the traveller said yes to exactly this proposal as it was shown to them'),
+  })
+  .strict();
+export type TourChangeSaveRequest = z.infer<typeof tourChangeSaveRequestSchema>;

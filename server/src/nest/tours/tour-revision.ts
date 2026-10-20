@@ -22,7 +22,19 @@ export async function advanceTourRevision(
   if (next !== null) return next;
   const current = await toursRepo.revisionOf(placeId);
   if (current === undefined) throw new NotFoundException('Tour not found');
-  throw new DomainError(409, 'This tour was changed in the meantime', {
+  throw tourRevisionConflict(current);
+}
+
+/**
+ * The 409 of a write based on a revision the tour has moved past, naming the
+ * revision it is at now. A caller with its own words for it (a confirmed
+ * change saved over MCP, MCP-T03) passes them; the code and details stay.
+ */
+export function tourRevisionConflict(
+  current: number | null,
+  message = 'This tour was changed in the meantime',
+): DomainError {
+  return new DomainError(409, message, {
     code: TOUR_REVISION_CONFLICT,
     details: { code: TOUR_REVISION_CONFLICT, revision: current },
   });

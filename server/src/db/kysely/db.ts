@@ -113,6 +113,7 @@ import type { ShareTokensTable } from './ShareTokens.table';
 import type { TagsTable } from './Tags.table';
 import type { TodoCategoryAssigneesTable } from './TodoCategoryAssignees.table';
 import type { TodoItemsTable } from './TodoItems.table';
+import type { TourChangeStepsTable } from './TourChangeSteps.table';
 import type { TourObstacleReviewsTable } from './TourObstacleReviews.table';
 import type { TourSourcesTable } from './TourSources.table';
 import type { TourStationVisitsTable } from './TourStationVisits.table';
@@ -264,6 +265,7 @@ export interface DB {
   tags: TagsTable;
   todo_category_assignees: TodoCategoryAssigneesTable;
   todo_items: TodoItemsTable;
+  tour_change_steps: TourChangeStepsTable;
   tour_obstacle_reviews: TourObstacleReviewsTable;
   tour_sources: TourSourcesTable;
   tour_station_visits: TourStationVisitsTable;

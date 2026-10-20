@@ -6,6 +6,7 @@ import { DomainError } from '../common/domain-error';
 import { CityWalkFootWayService } from './city-walk-foot-way.service';
 import { applyChanges, refusalText, type StationDone } from './tour-change-apply';
 import { describeChange } from './tour-change-effects';
+import { proposalIdOf, staleProposal } from './tour-change-proposal';
 import { ToursService } from './tours.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
@@ -39,7 +40,8 @@ function doneByKey(visits: ReadonlyArray<StationDone & { station_key: string }>)
  * plans before and after. It writes nothing: no tour, station, visit or day
  * plan changes, and turning the proposal down leaves the plan as it is. The
  * proposal names the revision it was prepared on, so a save of it can be
- * refused once the tour has moved on.
+ * refused once the tour has moved on, and carries the id a save of it has to
+ * name (MCP-T03).
  */
 @Injectable()
 export class TourChangePreviewService {
@@ -50,8 +52,19 @@ export class TourChangePreviewService {
     @InjectRepository(TourWaypoints) private readonly waypointsRepo: TourWaypointsRepository,
   ) {}
 
-  async prepare(tripId: number, placeId: number, userId: number, { changes }: TourChangeRequest) {
+  /**
+   * The changes laid onto the tour as it is saved now, with the visits of all
+   * its days and the places the new stations name, or the refusal naming
+   * every change the rules of the tour do not allow. A save lays them again
+   * on the tour it is about to write, so it is held to the same rules, and
+   * names the revision they were prepared on: a tour that moved past it is a
+   * conflict before any rule is asked.
+   */
+  async lay(tripId: number, placeId: number, changes: readonly TourChange[], preparedOn?: number) {
     const { tour, waypoints } = await this.tours.getTour(String(tripId), String(placeId));
+    if (preparedOn !== undefined && tour.revision !== preparedOn) {
+      throw staleProposal(preparedOn, tour.revision ?? null);
+    }
     const [visits, linkable] = await Promise.all([
       this.visitsRepo.listForPlace(tripId, placeId),
       this.waypointsRepo.linkablePlaceIds(tripId, linkedIds(changes)),
@@ -72,13 +85,20 @@ export class TourChangePreviewService {
         details: { refused: outcome.refused },
       });
     }
+    return { tour, waypoints, outcome };
+  }
+
+  async prepare(tripId: number, placeId: number, userId: number, { changes }: TourChangeRequest) {
+    const { tour, waypoints, outcome } = await this.lay(tripId, placeId, changes);
     const [wayBefore, wayAfter] = await Promise.all([
       this.footWays.plan(userId, tripId, waypoints),
       this.footWays.plan(userId, tripId, outcome.points),
     ]);
+    const revision = tour.revision ?? null;
     return {
       prepared_only: true,
-      base: { place_id: tour.place_id, name: tour.name, tour_type: tour.tour_type, revision: tour.revision ?? null },
+      proposal_id: proposalIdOf({ tripId, placeId, revision, changes }),
+      base: { place_id: tour.place_id, name: tour.name, tour_type: tour.tour_type, revision },
       changes,
       ...describeChange({
         saved: waypoints,

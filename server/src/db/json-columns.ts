@@ -8,16 +8,21 @@ import {
   paddleLockSchema,
   paddleRegionBoundarySchema,
   paddleRegionGraphStatsSchema,
+  tourChangeSchema,
   tourFixedLegSchema,
+  tourWaypointSchema,
   trackMarksSchema,
   type Ferrata,
+  type GeometryPoint,
   type HikingPreferences,
   type ObstacleSnapshot,
   type PaddleGeometry,
   type PaddleLock,
   type PaddleRegionBoundary,
   type PaddleRegionGraphStats,
+  type TourChange,
   type TourFixedLeg,
+  type TourWaypoint,
   type TrackMarks,
 } from '@trek/shared';
 
@@ -216,5 +221,49 @@ export const PADDLE_REGION_GRAPH_STATS: JsonColumn<PaddleRegionGraphStats | null
 export const TOUR_OBSTACLE_SNAPSHOT: JsonColumn<ObstacleSnapshot | null> = {
   column: 'tour_obstacle_reviews.obstacle_snapshot',
   schema: obstacleSnapshotSchema.nullable(),
+  fallback: () => null,
+};
+
+/**
+ * MCP-T03: the changes a saved step confirmed, as they were prepared. A broken
+ * row reads as none, so a step never claims changes it cannot show.
+ */
+export const TOUR_CHANGE_STEP_CHANGES: JsonColumn<TourChange[]> = {
+  column: 'tour_change_steps.changes',
+  schema: z.array(tourChangeSchema),
+  fallback: () => [],
+};
+
+/** A point of a saved line: latitude, longitude and the height where it has one. */
+const savedLinePoint = z.union([z.tuple([z.number(), z.number()]), z.tuple([z.number(), z.number(), z.number()])]);
+
+/** A tour as it was before a saved step (MCP-T03), as its JSON column holds it. */
+export interface TourChangeStepBefore {
+  route_geometry: GeometryPoint[] | null;
+  waypoints: TourWaypoint[];
+  distance: number | null;
+  duration: number | null;
+  elevation_gain: number | null;
+  elevation_loss: number | null;
+}
+
+/**
+ * MCP-T03: a tour as it was before a saved step changed it: its line (null
+ * while it had none), its points with their keys, and the measures the save
+ * replaced, null where they were not known. A broken row reads as no earlier
+ * state, so nothing is ever restored from a guess.
+ */
+export const TOUR_CHANGE_STEP_BEFORE: JsonColumn<TourChangeStepBefore | null> = {
+  column: 'tour_change_steps.before_state',
+  schema: z
+    .object({
+      route_geometry: z.array(savedLinePoint).nullable(),
+      waypoints: z.array(tourWaypointSchema),
+      distance: z.number().nullable(),
+      duration: z.number().nullable(),
+      elevation_gain: z.number().nullable(),
+      elevation_loss: z.number().nullable(),
+    })
+    .nullable(),
   fallback: () => null,
 };

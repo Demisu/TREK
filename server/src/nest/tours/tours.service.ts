@@ -95,6 +95,13 @@ export type TourCreateCommand = Omit<TourCreateRequest, 'route_geometry'> & {
   route_geometry: GeometryPoint[] | null;
 };
 
+/** A route write checked and ready for its transaction: the write, where the tour starts and its fields. */
+export interface TourRouteWrite {
+  input: TourCreateCommand;
+  start: GeometryPoint;
+  fields: TourUpdate;
+}
+
 /** The way on foot the server's router planned for a city walk (CW-11): its line, and how long it walks in seconds. */
 interface CityWalkFootRoute {
   line: Array<[number, number]>;
@@ -705,44 +712,75 @@ export class ToursService {
     const tid = toRowId(tripId);
     const pid = toRowId(placeId);
     if (tid === null || pid === null) throw new NotFoundException('Tour not found');
+    const write = await this.routeWrite(input);
+    const { visitsDropped } = await this.uow.transactional(() => this.replaceRoute(tid, pid, write));
+    return await this.announceRouteUpdate(tripId, pid, visitsDropped, socketId);
+  }
+
+  /**
+   * A route write checked before its transaction opens: its type switched on,
+   * its texts and times valid, where it starts and the tour fields it writes.
+   * A city walk saved from a confirmed change (MCP-T03) may come without a
+   * line, as a created one may (CW-11): it is then at its first point, and the
+   * planner plans the way when it is opened.
+   */
+  async routeWrite(input: TourCreateCommand): Promise<TourRouteWrite> {
     await this.assertTourTypeEnabled(input.tour_type);
     this.validateInformationalMetadata(input);
     this.validatePlannedTimes(input);
-    const start = input.route_geometry[0];
-    const fields = this.routeFields(input);
+    const start = input.route_geometry ? input.route_geometry[0] : firstPointOf(input.waypoints);
+    if (!start) throw badRequest('A tour needs at least two points');
+    return { input, start, fields: this.routeFields(input) };
+  }
 
-    const visitsDropped = await this.uow.transactional(async () => {
-      // The trip predicate is the cross-trip boundary. It runs inside the write
-      // so an id from another accessible trip cannot be moved into the current
-      // one, and a place deleted meanwhile answers 404 instead of failing a
-      // waypoint insert on its foreign key.
-      if (!(await this.toursRepo.findInTrip(tid, pid))) throw new NotFoundException('Tour not found');
-      // P2C-03: refused here, before anything is written, while the draft's tour has moved on.
-      await advanceTourRevision(this.toursRepo, pid, input.expected_revision);
-      // An import planned over for the first time keeps the track it was recorded with.
-      await this.toursRepo.keepRecordedTrack(pid);
-      const placeUpdated = await this.placesRepo.updateTourRoute(pid, tid, {
-        name: input.name,
-        lat: start[0],
-        lng: start[1],
-        route_geometry: JSON.stringify(input.route_geometry),
-        ...(input.description !== undefined ? { description: input.description } : {}),
-        ...(input.website !== undefined ? { website: input.website } : {}),
-      });
-      if (!placeUpdated) throw new NotFoundException('Tour not found');
-      if (!(await this.toursRepo.updateInTrip(tid, pid, fields))) throw new NotFoundException('Tour not found');
-      await this.waypointsRepo.deleteForPlace(pid);
-      const waypoints = keyedWaypoints(await this.linkedWaypoints(tid, input.waypoints));
-      await this.waypointsRepo.insertForPlace(pid, waypoints);
-      // CW-03: a station that is gone takes its visits with it; a tour that is no city walk keeps none.
-      const stations = input.tour_type === 'walk' ? walkStationsOf(waypoints).map((point) => point.key) : [];
-      return await this.visitsRepo.dropStationsNotIn(pid, stations);
+  /**
+   * A saved tour's route, points and visits written inside the caller's transaction, so what else a
+   * caller records of the change (MCP-T03) commits or rolls back with it. Answers the revision it
+   * raised the tour to and the day assignments whose visits went with a station that is gone.
+   */
+  async replaceRoute(
+    tripId: number,
+    placeId: number,
+    { input, start, fields }: TourRouteWrite,
+  ): Promise<{ revision: number; visitsDropped: number[] }> {
+    // The trip predicate is the cross-trip boundary. It runs inside the write
+    // so an id from another accessible trip cannot be moved into the current
+    // one, and a place deleted meanwhile answers 404 instead of failing a
+    // waypoint insert on its foreign key.
+    if (!(await this.toursRepo.findInTrip(tripId, placeId))) throw new NotFoundException('Tour not found');
+    // P2C-03: refused here, before anything is written, while the draft's tour has moved on.
+    const revision = await advanceTourRevision(this.toursRepo, placeId, input.expected_revision);
+    // An import planned over for the first time keeps the track it was recorded with.
+    await this.toursRepo.keepRecordedTrack(placeId);
+    const placeUpdated = await this.placesRepo.updateTourRoute(placeId, tripId, {
+      name: input.name,
+      lat: start[0],
+      lng: start[1],
+      route_geometry: input.route_geometry ? JSON.stringify(input.route_geometry) : null,
+      ...(input.description !== undefined ? { description: input.description } : {}),
+      ...(input.website !== undefined ? { website: input.website } : {}),
     });
+    if (!placeUpdated) throw new NotFoundException('Tour not found');
+    if (!(await this.toursRepo.updateInTrip(tripId, placeId, fields))) throw new NotFoundException('Tour not found');
+    await this.waypointsRepo.deleteForPlace(placeId);
+    const waypoints = keyedWaypoints(await this.linkedWaypoints(tripId, input.waypoints));
+    await this.waypointsRepo.insertForPlace(placeId, waypoints);
+    // CW-03: a station that is gone takes its visits with it; a tour that is no city walk keeps none.
+    const stations = input.tour_type === 'walk' ? walkStationsOf(waypoints).map((point) => point.key) : [];
+    return { revision, visitsDropped: await this.visitsRepo.dropStationsNotIn(placeId, stations) };
+  }
 
-    const result = await this.getTour(tripId, placeId);
-    const place = await this.placesRepo.findWithTagsAndRatings(pid);
+  /** After a route write committed: the tour read back, and the trip told of it and of the visits it took along. */
+  async announceRouteUpdate(
+    tripId: string,
+    placeId: number,
+    visitsDropped: readonly number[],
+    socketId?: string,
+  ): Promise<TourDetailResponse> {
+    const result = await this.getTour(tripId, String(placeId));
+    const place = await this.placesRepo.findWithTagsAndRatings(placeId);
     if (!place) throw new Error('Updated tour could not be loaded');
-    this.broadcastToursChanged(tripId, [pid], socketId);
+    this.broadcastToursChanged(tripId, [placeId], socketId);
     try {
       this.places.broadcast(tripId, 'place:updated', { place }, socketId);
     } catch {

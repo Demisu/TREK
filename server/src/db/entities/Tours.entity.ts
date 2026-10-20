@@ -1,6 +1,7 @@
 import { Collection, EntityRepositoryType, type Opt, PrimaryKeyProp, type Ref, defineEntity, p } from '@mikro-orm/core';
 import { ToursRepository } from '../repositories/Tours.repository';
 import { Places } from './Places.entity';
+import { TourChangeSteps } from './TourChangeSteps.entity';
 import { TourObstacleReviews } from './TourObstacleReviews.entity';
 import { TourSources } from './TourSources.entity';
 import { TourTypes } from './TourTypes.entity';
@@ -45,6 +46,7 @@ export class Tours {
   ski_discipline?: TToursSkiDiscipline | null;
   ski_technique?: TToursSkiTechnique | null;
   tourTypeRef!: Ref<TourTypes>;
+  tour_change_steps_collection = new Collection<TourChangeSteps>(this);
   tour_obstacle_reviews_collection = new Collection<TourObstacleReviews>(this);
   tour_sources: Ref<TourSources> | null = null;
   tour_waypoints_collection = new Collection<TourWaypoints>(this);
@@ -175,6 +177,7 @@ export const ToursSchema = defineEntity({
     ski_discipline: p.enum(() => ToursSkiDiscipline).nullable(),
     ski_technique: p.enum(() => ToursSkiTechnique).nullable(),
     tourTypeRef: () => p.manyToOne(TourTypes).ref().joinColumn('tour_type').hidden().index('idx_tours_tour_type'),
+    tour_change_steps_collection: () => p.oneToMany(TourChangeSteps).mappedBy('place').hidden(),
     tour_obstacle_reviews_collection: () => p.oneToMany(TourObstacleReviews).mappedBy('place').hidden(),
     tour_sources: () => p.oneToOne(TourSources).ref().mappedBy('place').hidden(),
     tour_waypoints_collection: () => p.oneToMany(TourWaypoints).mappedBy('place').hidden(),

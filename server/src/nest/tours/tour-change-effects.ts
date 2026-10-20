@@ -160,7 +160,7 @@ function warningsOf(gone: readonly DraftPoint[]) {
 }
 
 /** The points as a save takes them: a kept point with its key, a new one without, the server gives it one. */
-function asWaypoint(draft: DraftPoint): TourWaypoint {
+export function asWaypoint(draft: DraftPoint): TourWaypoint {
   const { ref: _ref, origin: _origin, change: _change, after: _after, replaces: _replaces, ...point } = draft;
   return point;
 }
