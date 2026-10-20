@@ -36,6 +36,7 @@ import { TourStageDayNotice } from '../stages/TourStageDayNotice'
 import { TourStageModeField } from '../stages/TourStageModeField'
 import { TourStagesSection } from '../stages/TourStagesSection'
 import { stageBoundariesM } from '../stages/tourStages'
+import { stageKeysOfTour } from '../stages/stageSpread'
 import { TourStageOverview } from '../stages/TourStageOverview'
 import { useTourStageRail } from '../stages/useTourStageRail'
 import { useTripStore } from '../../../store/tripStore'
@@ -893,6 +894,7 @@ export function TourPlannerToursRail({ planner, tours, days, loading, onAssignTo
                             placeId={tour.place_id}
                             label={`${t('tours.addToDay')}: ${tour.name}`}
                             assignment={dayAssignment}
+                            stageCount={stageKeysOfTour(tour).length}
                           />
                         )}
                         {canEdit && onDeleteTour && (

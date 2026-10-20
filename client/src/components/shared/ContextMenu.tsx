@@ -29,9 +29,15 @@ export function useContextMenu() {
     setMenu({ x: alignEnd ? anchor.right : e.clientX, y: alignEnd ? anchor.bottom + 6 : e.clientY, items, alignEnd })
   }
 
+  /** Opens the menu under an element, its end on the element's end: the next step of a menu opened there. */
+  const openAt = (anchor: Element, items: MenuItem[]) => {
+    const rect = anchor.getBoundingClientRect()
+    setMenu({ x: rect.right, y: rect.bottom + 6, items, alignEnd: true })
+  }
+
   const close = () => setMenu(null)
 
-  return { menu, open, close }
+  return { menu, open, openAt, close }
 }
 
 interface ContextMenuProps {

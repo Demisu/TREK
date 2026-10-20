@@ -294,6 +294,8 @@ export function buildPlanner(overrides: Partial<TripPlanner> = {}): TripPlanner 
     confirmDeletePlaces: vi.fn(),
     confirmChangeCategory: vi.fn(),
     handleAssignToDay: vi.fn(),
+    tourDayQuestion: null,
+    answerTourDay: vi.fn(),
     handleRemoveAssignment: vi.fn(),
     handleReorder: vi.fn(),
     handleReorderDays: vi.fn(),

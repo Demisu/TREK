@@ -302,6 +302,8 @@ function mapState(): HookState {
     confirmDeletePlaces: vi.fn(async () => undefined),
     confirmChangeCategory: vi.fn(async () => undefined),
     handleAssignToDay: vi.fn(async () => undefined),
+    tourDayQuestion: null,
+    answerTourDay: vi.fn(),
     handleRemoveAssignment: vi.fn(async () => undefined),
     handleReorder: vi.fn(),
     handleReorderDays: vi.fn(),

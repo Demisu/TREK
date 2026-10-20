@@ -21,6 +21,7 @@ import MTransportFormSheet from './MTransportFormSheet'
 import MCostSheet from './MCostSheet'
 import MTransportSheet from './MTransportSheet'
 import MBrowseActionsSheet from './MBrowseActionsSheet'
+import MTourDayChoiceSheet from './MTourDayChoiceSheet'
 import MNoteSheet, { type MNoteSheetPayload } from './MNoteSheet'
 import MImportSheet from './MImportSheet'
 import MExportSheet from './MExportSheet'
@@ -271,6 +272,9 @@ export default function MTripSheets({ planner, shell }: MTripSheetsProps) {
       >
         <MDayImpactList lines={planner.deleteDayLines} label={planner.deleteDayTitle} />
       </MConfirmSheet>
+
+      {/* A multi-day tour put on a day: whole, or a stage a day from it on (MDT-02). Over the sheet it came from. */}
+      <MTourDayChoiceSheet question={planner.tourDayQuestion} onAnswer={planner.answerTourDay} />
     </>
   )
 }

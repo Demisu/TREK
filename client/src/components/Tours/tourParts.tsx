@@ -18,6 +18,7 @@ import type { TourDayAssignment } from './useTourDayAssignment'
 import { useRailFold } from './railFold'
 import { tourDayRowIcon } from './tourDayRowIcon'
 import { SkiCornerMark } from './ski/skiMarks'
+import { tourDayHowItems } from './stages/TourDayAddButton'
 
 /**
  * A tour's tile in a list: its T-scale grade in place of the mountain, named in
@@ -181,28 +182,40 @@ export function TourDayTiles({ tourDays }: { tourDays: readonly TourDay[] }) {
  * Putting a tour on a day: a round "+" on a row, or a footer button with a
  * chevron, both opening the trip's days as a menu. Which days it offers and
  * the write itself come from the shared assignment rules (PR1-18): a day that
- * has the tour, or is getting it right now, is greyed out.
+ * has the tour, or is getting it right now, is greyed out. A multi-day tour
+ * (MDT-02) asks next, in the same place, whether it goes on the day whole or
+ * a stage a day from it on; a day that holds it can still take its stages.
  */
-export function TourDayMenu({ days, placeId, assignment, label, variant = 'round', primary = false }: {
+export function TourDayMenu({ days, placeId, assignment, label, variant = 'round', primary = false, stageCount = 0 }: {
   days: Day[]
   placeId: number
   assignment: TourDayAssignment
   label: string
   variant?: 'round' | 'button'
   primary?: boolean
+  /** The stages of a multi-day tour; under two it is a day tour. */
+  stageCount?: number
 }) {
   const { t, locale } = useTranslation()
   const menu = useContextMenu()
+  const trigger = useRef<Element | null>(null)
   const disabled = !assignment.canAssign
+  const staged = stageCount > 1
+  // The next step opens once the click that chose the day has closed the first.
+  const askHow = (day: Day) => window.setTimeout(() => {
+    const ways = tourDayHowItems({ placeId, dayId: day.id, days, stageCount, assignment }, t)
+    if (trigger.current?.isConnected) menu.openAt(trigger.current, ways)
+  }, 0)
   const items = days.map((day, index) => ({
     label: dayMenuLabel(day, index, t, locale),
-    disabled: !assignment.isAvailable(placeId, day.id),
-    onClick: () => void assignment.assign(placeId, day.id),
+    disabled: !assignment.isAvailable(placeId, day.id, staged ? 'stages' : 'whole'),
+    onClick: () => { if (staged) askHow(day); else void assignment.assign(placeId, day.id) },
   }))
   const hasAvailableDay = items.some(item => !item.disabled)
   const open = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (disabled || !hasAvailableDay) return
     if (menu.menu) { event.stopPropagation(); menu.close(); return }
+    trigger.current = event.currentTarget
     menu.open(event, items, true)
   }
   return (

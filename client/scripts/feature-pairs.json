@@ -593,6 +593,12 @@
       "mobile": ["src/mobile/screens/trip/plan/useMPlanTimeline.ts"]
     },
     {
+      "feature": "A multi-day tour put on a day: the whole tour there, or a stage a day from that day on",
+      "hooks": ["src/components/Tours/stages/stageSpread.ts"],
+      "desktop": ["src/components/Tours/stages/TourDayChoiceDialog.tsx", "src/components/Tours/stages/TourDayAddButton.tsx"],
+      "mobile": ["src/mobile/screens/trip/sheets/MTourDayChoiceSheet.tsx"]
+    },
+    {
       "feature": "Reservation form incl. hotel accommodation creation",
       "hooks": ["src/components/Planner/reservationFormModel.ts", "src/components/Planner/useReservationForm.ts"],
       "desktop": ["src/components/Planner/ReservationModal.tsx"],

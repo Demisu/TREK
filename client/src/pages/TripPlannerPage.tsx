@@ -7,6 +7,7 @@ import RoadtripModeSwitch from '../components/Roadtrip/RoadtripModeSwitch'
 import PlacesToursModeSwitch from '../components/Tours/PlacesToursModeSwitch'
 import ToursSidebar from '../components/Tours/ToursSidebar'
 import TourDetailDialog from '../components/Tours/TourDetailDialog'
+import { TourDayChoiceDialog } from '../components/Tours/stages/TourDayChoiceDialog'
 import TripLoadingSplash from '../components/shared/TripLoadingSplash'
 import PlacesSidebar from '../components/Planner/PlacesSidebar'
 import PlaceInspector from '../components/Planner/PlaceInspector'
@@ -120,10 +121,9 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
     route, routeWalking, routeSegments, routeInfo, setRoute, setRouteInfo, updateRouteForDay,
     handleSelectDay, handlePlaceClick, handleMarkerClick, handleMapClick, handleMapContextMenu, handlePoiClick,
     handleSavePlace, openPlaceEditor, handleDeletePlace, confirmDeletePlace, confirmDeletePlaces, confirmChangeCategory,
-    handleDeleteTour,
-    handleAssignToDay, handleMoveToDay, handleRemoveAssignment, handleReorder, handleReorderDays, handleAddDay, dayAdd, handleUpdateDayTitle,
-    deleteDayQuestion, handleDeleteDay,
-    clearDayId, clearDayTitle, handleClearDay, cancelClearDay, confirmClearDay,
+    handleAssignToDay, handleMoveToDay, handleRemoveAssignment, handleReorder, handleReorderDays, handleAddDay, dayAdd,
+    handleDeleteTour, handleUpdateDayTitle, deleteDayQuestion, handleDeleteDay,
+    clearDayId, clearDayTitle, handleClearDay, cancelClearDay, confirmClearDay, tourDayQuestion, answerTourDay,
     handleSaveReservation, handleSaveTransport, handleDeleteReservation,
     selectedPlace, dayOrderMap, dayPlaces,
     toursEnabled, toursMode, setToursMode, tours, toursLoading, tourDataReady, tourPlaceIds,
@@ -682,7 +682,7 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
                       canAssign={canDayEdit}
                       tours={tours}
                       days={days} loading={toursLoading}
-                      onAssignToDay={(placeId, dayId) => handleAssignToDay(placeId, dayId)}
+                      onAssignToDay={handleAssignToDay}
                       onDeleteTour={handleDeleteTour}
                       gpxImport={tourGpxImport}
                       onViewGpxTour={viewImportedTour}
@@ -934,6 +934,7 @@ function TripPlannerPageDesktop(): React.ReactElement | null {
         confirmLabel={t('dayplan.clearDay')}
         danger
       />
+      <TourDayChoiceDialog question={tourDayQuestion} onAnswer={answerTourDay} />
       <ConfirmDialog
         isOpen={!!stayRelease}
         onClose={() => setStayRelease(null)}

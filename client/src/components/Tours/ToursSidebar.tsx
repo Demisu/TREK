@@ -15,6 +15,7 @@ import TourGpxPreviewDialog from './TourGpxPreviewDialog'
 import { useTourGpxImport } from './useTourGpxImport'
 import { type AssignTourToDay, useTourDayAssignment } from './useTourDayAssignment'
 import { useTourMapVisibility } from './useTourMapVisibility'
+import { stageKeysOfTour } from './stages/stageSpread'
 import { useTripStore } from '../../store/tripStore'
 import { resolveTrackColor } from '../Map/trackColors'
 
@@ -118,7 +119,7 @@ export default function ToursSidebar({ tripId, days, tours, loading = false, sel
                   hideLabel: t('tours.visibility.hide'),
                 }}
                 onSelect={(selectedTour, opener) => onSelectTour?.(selectedTour, opener)}
-                action={<TourDayMenu days={days} placeId={tour.place_id} label={t('tours.addToDay')} assignment={dayAssignment} />}
+                action={<TourDayMenu days={days} placeId={tour.place_id} label={t('tours.addToDay')} assignment={dayAssignment} stageCount={stageKeysOfTour(tour).length} />}
               />
             ))}
           </ul>

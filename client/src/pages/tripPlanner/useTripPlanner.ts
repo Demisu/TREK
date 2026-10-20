@@ -58,6 +58,7 @@ import { useRoadtripDriveShaping } from './useRoadtripDriveShaping'
 import { usePlaceEdits } from './usePlaceEdits'
 import { usePlaceFormOpeners } from './usePlaceFormOpeners'
 import { useDayPlanEdits } from './useDayPlanEdits'
+import { useTourDayChoice } from './useTourDayChoice'
 import { useBookingEdits } from './useBookingEdits'
 import { usePlannerTripView } from './usePlannerTripView'
 import { useIsPhone } from '../../mobile/useIsPhone'
@@ -569,10 +570,17 @@ export function useTripPlanner() {
   })
 
   const {
-    handleReorder, handleReorderDays, handleUpdateDayTitle, handleAssignToDay, handleMoveToDay, handleRemoveAssignment,
+    handleReorder, handleReorderDays, handleUpdateDayTitle, handleMoveToDay, handleRemoveAssignment,
+    handleAssignToDay: assignWholeToDay,
   } = useDayPlanEdits({
     tripId, tripActions, toast, t, places, storedAssignments, tripAccommodations, selectedDayId,
     pushUndo, reloadTourPlaceIds, updateRouteForDay, isTourPlace, roadtripVias, viasAfterInsert, roadtripStopsOf,
+  })
+
+  // MDT-02: every way onto a day passes here; a multi-day tour asks whole or a stage a day first.
+  const { tourDayQuestion, answerTourDay, handleAssignToDay } = useTourDayChoice({
+    tripId, days, tours, selectedDayId, t, toast, pushUndo, assignWhole: assignWholeToDay, updateRouteForDay,
+    onToursChanged: reloadTourPlaceIds,
   })
 
   const { handleAddDay, dayAdd } = useDayAdd({
@@ -735,6 +743,7 @@ export function useTripPlanner() {
     handleSavePlace, openPlaceEditor, handleDeletePlace, confirmDeletePlace, confirmDeletePlaces, confirmChangeCategory,
     handleDeleteTour,
     handleAssignToDay, handleMoveToDay, handleRemoveAssignment, handleReorder, handleReorderDays, handleAddDay, dayAdd, handleUpdateDayTitle,
+    tourDayQuestion, answerTourDay,
     ...dayDelete,
     ...dayClear,
     handleSaveReservation, handleSaveTransport, handleDeleteReservation,

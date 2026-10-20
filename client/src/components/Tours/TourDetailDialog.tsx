@@ -18,7 +18,6 @@ import {
   Minus,
   Navigation,
   Pencil,
-  Plus,
   Route,
   Ruler,
   Upload,
@@ -58,6 +57,8 @@ import { PaddleWindSection } from './paddle/PaddleWindCard';
 import { TourProvenanceBlock } from './provenance/TourProvenanceSection';
 import { RunHeadPills } from './run/RunHeadPills';
 import { SkiHeadPill } from './ski/skiMarks';
+import { stageKeysOfTour, type TourDayHow } from './stages/stageSpread';
+import { TourDayAddButton } from './stages/TourDayAddButton';
 import { tourDayRowIcon } from './tourDayRowIcon';
 import { tourDaysOf } from './tourDays';
 import { heightsUnknown, movingTimeLabel, withoutHeights } from './tourFacts';
@@ -98,7 +99,8 @@ interface TourDetailDialogProps extends TourPermissionProps {
   onToursChanged?: (placeIds: number[]) => Promise<void> | void;
   /** P2D-XD-01: opens the trip's packing list the tour points at. */
   onOpenPacking?: () => void;
-  onAssignToDay?: (placeId: number, dayId?: number) => void;
+  /** `how` is the answer the day menu got for a multi-day tour (MDT-02); without it the plan asks. */
+  onAssignToDay?: (placeId: number, dayId?: number, position?: number, how?: TourDayHow) => void;
   onRemoveAssignment?: (dayId: number, assignmentId: number) => void;
   onDelete?: () => void;
   leftWidth?: number;
@@ -531,7 +533,11 @@ export default function TourDetailDialog({
     canAssign: assignPermission,
   });
   const canEdit = hasEditPermission && !readOnly;
-  const dayAssignment = useTourDayAssignment({ canAssign, onAssignToDay: (id, dayId) => onAssignToDay?.(id, dayId) });
+  const dayAssignment = useTourDayAssignment({
+    canAssign,
+    onAssignToDay: (id, dayId, position, how) =>
+      how ? onAssignToDay?.(id, dayId, position, how) : onAssignToDay?.(id, dayId),
+  });
   const { t } = useTranslation();
   const distanceUnit = useSettingsStore((state) => state.settings.distance_unit) ?? 'metric';
   const [colorOpen, setColorOpen] = useState(false);
@@ -625,14 +631,13 @@ export default function TourDetailDialog({
               </DialogButton>
             )
           : onAssignToDay && (
-              <DialogButton
-                variant="primary"
-                onClick={() => void dayAssignment.assign(place.id, selectedDayId)}
-                disabled={!dayAssignment.isAvailable(place.id, selectedDayId)}
-                icon={<Plus size={14} strokeWidth={2} />}
-              >
-                {t('inspector.addToDay')}
-              </DialogButton>
+              <TourDayAddButton
+                placeId={place.id}
+                dayId={selectedDayId}
+                days={days}
+                stageCount={stageKeysOfTour(tour).length}
+                assignment={dayAssignment}
+              />
             ))}
       {navigationTargets.length > 0 && (
         <>

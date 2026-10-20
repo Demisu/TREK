@@ -65,4 +65,17 @@ describe('useTourDayAssignment (PR1-18)', () => {
     expect(onAssignToDay).toHaveBeenCalledTimes(1);
     expect(onAssignToDay).toHaveBeenCalledWith(42, 4);
   });
+
+  it('lets the stages of a multi-day tour go from a day that holds it, and passes on how (MDT-02)', async () => {
+    const onAssignToDay = vi.fn(async () => true);
+    const { result } = renderHook(() => useTourDayAssignment({ canAssign: true, onAssignToDay }));
+    expect(result.current.isAvailable(42, 3, 'whole')).toBe(false);
+    expect(result.current.isAvailable(42, 3, 'stages')).toBe(true);
+    await act(async () => {
+      expect(await result.current.assign(42, 3, 'stages')).toBe(true);
+      expect(await result.current.assign(42, 3, 'whole')).toBe(false);
+    });
+    expect(onAssignToDay).toHaveBeenCalledTimes(1);
+    expect(onAssignToDay).toHaveBeenCalledWith(42, 3, undefined, 'stages');
+  });
 });
