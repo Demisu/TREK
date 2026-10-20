@@ -440,14 +440,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'Sinu enda tempo kilomeetri kohta. Jooksuaeg on vahemaa × tempo; tõusud, langused ja tehniline raskus ei lähe arvesse.',
   'tours.run.paceUnit': 'min/km',
+  'tours.run.paceUnitMi': 'min/mi',
   'tours.run.paceInvalid': 'Sisesta tempo kujul min:s kilomeetri kohta, vahemikus {fastest} kuni {slowest}.',
+  'tours.run.paceInvalidMi': 'Sisesta tempo kujul min:s miili kohta, vahemikus {fastest} kuni {slowest}.',
   'tours.run.paceNeeded': 'Sisesta oma tempo, et jooksuaeg planeerida ja see jooks salvestada.',
   'tours.run.timeEstimated': 'Jooksuaeg (planeeritud)',
   'tours.run.timeEstimatedShort': 'Jooksuaeg',
   'tours.run.timeEstimatedInfoLabel': 'Kuidas jooksuaeg planeeritakse',
   'tours.run.timeEstimatedInfo':
     'Vahemaa × sinu tempo ja ei midagi muud: tõusud, langused ja raskus ei lähe arvesse. Plaan, mitte salvestatud aeg.',
-  'tours.run.timeSum': '{distance} tempos {pace} min/km teeb {time}',
+  'tours.run.timeSum': '{distance} tempos {pace} teeb {time}',
   'tours.run.profile.trail': 'Rajajooks',
   'tours.run.profileHint.trail': 'Eelistab metsateid ja looduslikke radu, kuni mägiradadeni (T2).',
   'tours.run.ways.gradeTop': 'Raskeim hinnatud rada: {grade}',

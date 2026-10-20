@@ -447,14 +447,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'Je eigen tempo per kilometer. De looptijd is afstand × tempo; hoogtemeters en technische moeilijkheid tellen niet mee.',
   'tours.run.paceUnit': 'min/km',
+  'tours.run.paceUnitMi': 'min/mi',
   'tours.run.paceInvalid': 'Vul het tempo in als min:sec per km, van {fastest} tot {slowest}.',
+  'tours.run.paceInvalidMi': 'Vul het tempo in als min:sec per mijl, van {fastest} tot {slowest}.',
   'tours.run.paceNeeded': 'Vul je tempo in om de looptijd te plannen en deze looptocht op te slaan.',
   'tours.run.timeEstimated': 'Looptijd (gepland)',
   'tours.run.timeEstimatedShort': 'Looptijd',
   'tours.run.timeEstimatedInfoLabel': 'Hoe de looptijd wordt gepland',
   'tours.run.timeEstimatedInfo':
     'Afstand × je tempo en verder niets: hoogtemeters en moeilijkheid tellen niet mee. Een planning, geen opgenomen tijd.',
-  'tours.run.timeSum': '{distance} bij {pace} min/km is {time}',
+  'tours.run.timeSum': '{distance} bij {pace} is {time}',
   'tours.run.profile.trail': 'Trailrunning',
   'tours.run.profileHint.trail': 'Geeft de voorkeur aan bospaden en onverharde paden, tot bergpaden (T2).',
   'tours.run.ways.gradeTop': 'Moeilijkste gegradeerde pad: {grade}',

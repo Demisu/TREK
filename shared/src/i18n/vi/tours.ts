@@ -437,14 +437,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'Nhịp chạy của riêng bạn trên mỗi kilômét. Thời gian chạy là quãng đường × nhịp chạy; độ dốc lên xuống và độ khó kỹ thuật không được tính.',
   'tours.run.paceUnit': 'phút/km',
+  'tours.run.paceUnitMi': 'phút/mi',
   'tours.run.paceInvalid': 'Nhập nhịp chạy dạng phút:giây mỗi km, từ {fastest} đến {slowest}.',
+  'tours.run.paceInvalidMi': 'Nhập nhịp chạy dạng phút:giây mỗi dặm, từ {fastest} đến {slowest}.',
   'tours.run.paceNeeded': 'Nhập nhịp chạy của bạn để lên kế hoạch thời gian chạy và lưu buổi chạy này.',
   'tours.run.timeEstimated': 'Thời gian chạy (dự kiến)',
   'tours.run.timeEstimatedShort': 'Thời gian chạy',
   'tours.run.timeEstimatedInfoLabel': 'Cách lên kế hoạch thời gian chạy',
   'tours.run.timeEstimatedInfo':
     'Quãng đường × nhịp chạy của bạn, không gì khác: độ dốc lên xuống và độ khó không được tính. Đây là kế hoạch, không phải thời gian đã ghi.',
-  'tours.run.timeSum': '{distance} với nhịp {pace} phút/km là {time}',
+  'tours.run.timeSum': '{distance} với nhịp {pace} là {time}',
   'tours.run.profile.trail': 'Chạy địa hình',
   'tours.run.profileHint.trail': 'Ưu tiên đường rừng và lối mòn tự nhiên, đến cả đường núi (T2).',
   'tours.run.ways.gradeTop': 'Đường được xếp cấp khó nhất: {grade}',

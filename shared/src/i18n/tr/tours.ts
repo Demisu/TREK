@@ -439,14 +439,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'Kilometre başına kendi tempon. Koşu süresi mesafe × tempodur; tırmanışlar, inişler ve teknik zorluk hesaba katılmaz.',
   'tours.run.paceUnit': 'dk/km',
+  'tours.run.paceUnitMi': 'dk/mi',
   'tours.run.paceInvalid': 'Tempoyu km başına dk:sn olarak, {fastest} ile {slowest} arasında gir.',
+  'tours.run.paceInvalidMi': 'Tempoyu mil başına dk:sn olarak, {fastest} ile {slowest} arasında gir.',
   'tours.run.paceNeeded': 'Koşu süresini planlamak ve bu koşuyu kaydetmek için temponu gir.',
   'tours.run.timeEstimated': 'Koşu süresi (planlanan)',
   'tours.run.timeEstimatedShort': 'Koşu süresi',
   'tours.run.timeEstimatedInfoLabel': 'Koşu süresi nasıl planlanır',
   'tours.run.timeEstimatedInfo':
     'Mesafe × tempon, başka hiçbir şey değil: tırmanışlar, inişler ve zorluk hesaba katılmaz. Kayıtlı bir süre değil, bir plan.',
-  'tours.run.timeSum': '{distance}, {pace} dk/km tempoyla {time}',
+  'tours.run.timeSum': '{distance}, {pace} tempoyla {time}',
   'tours.run.profile.trail': 'Patika koşusu',
   'tours.run.profileHint.trail': 'Orman yollarını ve doğal patikaları tercih eder, dağ patikalarına (T2) kadar.',
   'tours.run.ways.gradeTop': 'En zor derecelendirilmiş patika: {grade}',

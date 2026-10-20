@@ -204,7 +204,7 @@ export function TourDayRowPills({ tour, compact = false }: { tour: TourListItem;
   const walking = times.walkingMinutes == null ? null : formatPlannedTourDuration(times.walkingMinutes);
   const total = plannedTotalText(times, t);
   const staysText = times.walk ? walkStaysText(times.walk, t) : null;
-  const pace = runPaceText(tour, t);
+  const pace = runPaceText(tour, t, unit);
   const timeParts = [
     walking ? `${movingTimeLabel(tour, t('tours.planner.inspector.duration'), t)}: ${walking}` : null,
     // RUN-01: the pace the running time is planned at.
@@ -275,7 +275,7 @@ export default function TourDayRowFacts({
       movingTimeLabel(tour, t('tours.planner.inspector.duration'), t),
       'trip-plan-tour-walking-time'
     );
-  const pace = runPaceText(tour, t);
+  const pace = runPaceText(tour, t, unit);
   if (pace) add(Gauge, pace, t('tours.run.pace'), 'plan-tour-run-pace');
   if (times.breakMinutes != null && times.breakMinutes > 0)
     add(

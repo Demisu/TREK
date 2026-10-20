@@ -446,14 +446,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'El teu ritme per quilòmetre. El temps de cursa és distància × ritme; el desnivell i la dificultat tècnica no hi compten.',
   'tours.run.paceUnit': 'min/km',
+  'tours.run.paceUnitMi': 'min/mi',
   'tours.run.paceInvalid': 'Introdueix el ritme com a min:s per km, de {fastest} a {slowest}.',
+  'tours.run.paceInvalidMi': 'Introdueix el ritme com a min:s per milla, de {fastest} a {slowest}.',
   'tours.run.paceNeeded': 'Introdueix el teu ritme per planificar el temps de cursa i desar aquesta cursa.',
   'tours.run.timeEstimated': 'Temps de cursa (previst)',
   'tours.run.timeEstimatedShort': 'Temps de cursa',
   'tours.run.timeEstimatedInfoLabel': 'Com es planifica el temps de cursa',
   'tours.run.timeEstimatedInfo':
     'Distància × el teu ritme i res més: el desnivell i la dificultat no hi compten. Una planificació, no un temps enregistrat.',
-  'tours.run.timeSum': '{distance} a {pace} min/km són {time}',
+  'tours.run.timeSum': '{distance} a {pace} són {time}',
   'tours.run.profile.trail': 'Curses de muntanya',
   'tours.run.profileHint.trail': 'Prefereix pistes forestals i corriols naturals, fins a camins de muntanya (T2).',
   'tours.run.ways.gradeTop': 'Camí classificat més difícil: {grade}',

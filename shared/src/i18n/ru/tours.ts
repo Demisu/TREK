@@ -458,14 +458,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'Ваш собственный темп на километр. Время бега равно расстоянию × темп; набор высоты и техническая сложность не учитываются.',
   'tours.run.paceUnit': 'мин/км',
+  'tours.run.paceUnitMi': 'мин/миля',
   'tours.run.paceInvalid': 'Введите темп как мин:с на км, от {fastest} до {slowest}.',
+  'tours.run.paceInvalidMi': 'Введите темп как мин:с на милю, от {fastest} до {slowest}.',
   'tours.run.paceNeeded': 'Введите свой темп, чтобы рассчитать время бега и сохранить эту пробежку.',
   'tours.run.timeEstimated': 'Время бега (план)',
   'tours.run.timeEstimatedShort': 'Время бега',
   'tours.run.timeEstimatedInfoLabel': 'Как планируется время бега',
   'tours.run.timeEstimatedInfo':
     'Расстояние × ваш темп и ничего больше: набор высоты и сложность не учитываются. Это план, а не записанное время.',
-  'tours.run.timeSum': '{distance} в темпе {pace} мин/км: {time}',
+  'tours.run.timeSum': '{distance} в темпе {pace}: {time}',
   'tours.run.profile.trail': 'Трейлраннинг',
   'tours.run.profileHint.trail': 'Предпочитает лесные дороги и природные тропы, вплоть до горных троп (T2).',
   'tours.run.ways.gradeTop': 'Самая сложная оцененная тропа: {grade}',

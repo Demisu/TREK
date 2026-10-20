@@ -445,14 +445,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'A saját tempód kilométerenként. A futásidő távolság × tempó; a szintemelkedés és a technikai nehézség nem számít bele.',
   'tours.run.paceUnit': 'perc/km',
+  'tours.run.paceUnitMi': 'perc/mi',
   'tours.run.paceInvalid': 'Add meg a tempót perc:mp/km formában, {fastest} és {slowest} között.',
+  'tours.run.paceInvalidMi': 'Add meg a tempót perc:mp/mérföld formában, {fastest} és {slowest} között.',
   'tours.run.paceNeeded': 'Add meg a tempódat a futásidő tervezéséhez és a futás mentéséhez.',
   'tours.run.timeEstimated': 'Futásidő (tervezett)',
   'tours.run.timeEstimatedShort': 'Futásidő',
   'tours.run.timeEstimatedInfoLabel': 'Hogyan tervezzük a futásidőt',
   'tours.run.timeEstimatedInfo':
     'Távolság × a tempód, semmi más: a szintemelkedés és a nehézség nem számít bele. Terv, nem rögzített idő.',
-  'tours.run.timeSum': '{distance} {pace} perc/km tempóval: {time}',
+  'tours.run.timeSum': '{distance} {pace} tempóval: {time}',
   'tours.run.profile.trail': 'Terepfutás',
   'tours.run.profileHint.trail':
     'Előnyben részesíti az erdei utakat és a természetes ösvényeket, a hegyi ösvényekig (T2).',

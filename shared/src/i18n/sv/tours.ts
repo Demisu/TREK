@@ -436,14 +436,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'Ditt eget tempo per kilometer. Löptiden är sträcka × tempo; stigningar och teknisk svårighet räknas inte in.',
   'tours.run.paceUnit': 'min/km',
+  'tours.run.paceUnitMi': 'min/mi',
   'tours.run.paceInvalid': 'Ange tempot som min:sek per km, från {fastest} till {slowest}.',
+  'tours.run.paceInvalidMi': 'Ange tempot som min:sek per engelsk mil, från {fastest} till {slowest}.',
   'tours.run.paceNeeded': 'Ange ditt tempo för att planera löptiden och spara löpturen.',
   'tours.run.timeEstimated': 'Löptid (planerad)',
   'tours.run.timeEstimatedShort': 'Löptid',
   'tours.run.timeEstimatedInfoLabel': 'Så planeras löptiden',
   'tours.run.timeEstimatedInfo':
     'Sträcka × ditt tempo och inget annat: stigningar och svårighet räknas inte in. En planering, ingen inspelad tid.',
-  'tours.run.timeSum': '{distance} i {pace} min/km blir {time}',
+  'tours.run.timeSum': '{distance} i {pace} blir {time}',
   'tours.run.profile.trail': 'Traillöpning',
   'tours.run.profileHint.trail': 'Föredrar skogsvägar och naturstigar, upp till fjällstigar (T2).',
   'tours.run.ways.gradeTop': 'Svåraste graderade led: {grade}',

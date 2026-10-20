@@ -437,14 +437,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'Your own pace per kilometre. The running time is distance × pace; climbs, descents and how technical the way is are not included.',
   'tours.run.paceUnit': 'min/km',
+  'tours.run.paceUnitMi': 'min/mi',
   'tours.run.paceInvalid': 'Enter the pace as min:sec per km, from {fastest} to {slowest}.',
+  'tours.run.paceInvalidMi': 'Enter the pace as min:sec per mile, from {fastest} to {slowest}.',
   'tours.run.paceNeeded': 'Enter your pace to plan the running time and save this run.',
   'tours.run.timeEstimated': 'Running time (planned)',
   'tours.run.timeEstimatedShort': 'Running time',
   'tours.run.timeEstimatedInfoLabel': 'How the running time is planned',
   'tours.run.timeEstimatedInfo':
     'Distance × your pace and nothing else: climbs, descents and difficulty are not included. A plan, not a recorded time.',
-  'tours.run.timeSum': '{distance} at {pace} min/km is {time}',
+  'tours.run.timeSum': '{distance} at {pace} is {time}',
   'tours.run.profile.trail': 'Trail running',
   'tours.run.profileHint.trail': 'Prefers forest tracks and natural paths, up to mountain paths (T2).',
   'tours.run.ways.gradeTop': 'Hardest graded path: {grade}',

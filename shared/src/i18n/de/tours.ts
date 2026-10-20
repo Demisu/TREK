@@ -448,14 +448,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'Deine eigene Pace pro Kilometer. Die Laufzeit ist Distanz × Pace; Höhenmeter und technische Schwierigkeit gehen nicht ein.',
   'tours.run.paceUnit': 'min/km',
+  'tours.run.paceUnitMi': 'min/mi',
   'tours.run.paceInvalid': 'Gib die Pace als Min:Sek pro km ein, von {fastest} bis {slowest}.',
+  'tours.run.paceInvalidMi': 'Gib die Pace als Min:Sek pro Meile ein, von {fastest} bis {slowest}.',
   'tours.run.paceNeeded': 'Gib deine Pace ein, um die Laufzeit zu planen und diesen Lauf zu speichern.',
   'tours.run.timeEstimated': 'Laufzeit (geplant)',
   'tours.run.timeEstimatedShort': 'Laufzeit',
   'tours.run.timeEstimatedInfoLabel': 'Wie die Laufzeit geplant wird',
   'tours.run.timeEstimatedInfo':
     'Distanz × deine Pace und sonst nichts: Höhenmeter und Schwierigkeit gehen nicht ein. Eine Planung, keine aufgezeichnete Zeit.',
-  'tours.run.timeSum': '{distance} bei {pace} min/km ergibt {time}',
+  'tours.run.timeSum': '{distance} bei {pace} ergibt {time}',
   'tours.run.profile.trail': 'Trailrunning',
   'tours.run.profileHint.trail': 'Bevorzugt Forstwege und naturbelassene Pfade, bis zu Bergwegen (T2).',
   'tours.run.ways.gradeTop': 'Schwierigster bewerteter Weg: {grade}',

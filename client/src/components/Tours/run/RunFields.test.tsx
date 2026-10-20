@@ -1,10 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useState, type ComponentProps } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { resetAllStores, seedStore } from '../../../../tests/helpers/store';
+import { useSettingsStore } from '../../../store/settingsStore';
 import { RunFields, RunProfileField } from './RunFields';
 import { runPaceInvalid } from './runPace';
 
-// FE-TOUR-RUN-FIELDS-001 to FE-TOUR-RUN-FIELDS-008
+// FE-TOUR-RUN-FIELDS-001 to FE-TOUR-RUN-FIELDS-009
 
 type Planner = ComponentProps<typeof RunFields>['planner'];
 
@@ -41,6 +43,8 @@ function Stateful({
 }
 
 const paceField = () => screen.getByRole('textbox');
+
+afterEach(() => resetAllStores());
 
 describe('RunFields (RUN-01)', () => {
   it('FE-TOUR-RUN-FIELDS-001: offers the profile on purpose, with what it asks the router for', () => {
@@ -142,10 +146,31 @@ describe('RunFields (RUN-01)', () => {
   it('FE-TOUR-RUN-FIELDS-008: a trail run is timed as any run, distance times pace, nothing added for the terrain (RUN-02)', () => {
     render(<Stateful initial={450} profile="trail" />);
     const sum = screen.getByTestId('tour-run-time-sum');
-    expect(sum).toHaveTextContent('7:30 /km');
+    expect(sum).toHaveTextContent('7:30 tours.run.paceUnit');
     expect(sum).toHaveTextContent('1 h');
     expect(screen.getByRole('button', { name: 'tours.run.paceInfoLabel' })).toHaveAccessibleDescription(
       'tours.run.paceInfo'
     );
+  });
+
+  it('FE-TOUR-RUN-FIELDS-009: with distances in miles the pace is typed and read per mile, kept per km, and the sum in miles', () => {
+    seedStore(useSettingsStore, { settings: { distance_unit: 'imperial' } });
+    render(<Stateful />);
+    expect(screen.getByText('tours.run.paceUnitMi')).toBeInTheDocument();
+    fireEvent.focus(paceField());
+    // 9:39 a mile is 6:00 a kilometre, the way it is kept.
+    fireEvent.change(paceField(), { target: { value: '9:39' } });
+    expect(screen.getByTestId('pace')).toHaveTextContent('360');
+    fireEvent.blur(paceField());
+    expect(paceField()).toHaveValue('9:39');
+    const sum = screen.getByTestId('tour-run-time-sum');
+    expect(sum).toHaveTextContent('5 mi');
+    expect(sum).not.toHaveTextContent('km');
+    expect(sum).toHaveTextContent('9:39 tours.run.paceUnitMi');
+    expect(sum).toHaveTextContent('48 min');
+    fireEvent.focus(paceField());
+    fireEvent.change(paceField(), { target: { value: '1:30' } });
+    fireEvent.blur(paceField());
+    expect(screen.getByRole('alert')).toHaveTextContent('tours.run.paceInvalidMi');
   });
 });

@@ -1,6 +1,7 @@
 import type { CollectionTourItem } from '@trek/shared';
 import { AlertTriangle, CopyPlus, Gauge, Moon, Route, Trash2, Waypoints, WifiOff } from 'lucide-react';
 import { useTranslation } from '../../../i18n';
+import { useSettingsStore } from '../../../store/settingsStore';
 import { WhiteBadge } from '../../Planner/planParts';
 import ConfirmDialog from '../../shared/ConfirmDialog';
 import { fs } from '../../shared/DialogShell';
@@ -24,7 +25,8 @@ function sourceText(tour: CollectionTourItem, t: (key: string, params?: Record<s
  */
 function KeptTourTypeBadges({ tour }: { tour: CollectionTourItem }) {
   const { t } = useTranslation();
-  const pace = runPaceText(tour, t);
+  const unit = useSettingsStore((state) => state.settings.distance_unit) ?? 'metric';
+  const pace = runPaceText(tour, t, unit);
   const stages = tour.stage_count ? t('tours.stages.count', { count: tour.stage_count }) : null;
   const icon = 'flex-none text-content-faint';
   return (

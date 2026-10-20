@@ -439,14 +439,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'Kilometr başına öz tempiniz. Qaçış vaxtı məsafə × tempdir; yoxuşlar, enişlər və texniki çətinlik nəzərə alınmır.',
   'tours.run.paceUnit': 'dəq/km',
+  'tours.run.paceUnitMi': 'dəq/mi',
   'tours.run.paceInvalid': 'Tempi km başına dəq:san kimi, {fastest} ilə {slowest} arasında daxil edin.',
+  'tours.run.paceInvalidMi': 'Tempi mil başına dəq:san kimi, {fastest} ilə {slowest} arasında daxil edin.',
   'tours.run.paceNeeded': 'Qaçış vaxtını planlaşdırmaq və bu qaçışı saxlamaq üçün tempinizi daxil edin.',
   'tours.run.timeEstimated': 'Qaçış vaxtı (planlaşdırılan)',
   'tours.run.timeEstimatedShort': 'Qaçış vaxtı',
   'tours.run.timeEstimatedInfoLabel': 'Qaçış vaxtı necə planlaşdırılır',
   'tours.run.timeEstimatedInfo':
     'Məsafə × sizin temp, başqa heç nə: yoxuşlar, enişlər və çətinlik nəzərə alınmır. Bu plandır, qeydə alınmış vaxt deyil.',
-  'tours.run.timeSum': '{distance}, {pace} dəq/km tempdə: {time}',
+  'tours.run.timeSum': '{distance}, {pace} tempdə: {time}',
   'tours.run.profile.trail': 'Trail qaçışı',
   'tours.run.profileHint.trail': 'Meşə yollarına və təbii cığırlara üstünlük verir, dağ cığırlarına (T2) qədər.',
   'tours.run.ways.gradeTop': 'Ən çətin qiymətləndirilmiş cığır: {grade}',

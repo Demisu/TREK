@@ -454,14 +454,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'Twoje własne tempo na kilometr. Czas biegu to dystans × tempo; przewyższenia i trudność techniczna nie są uwzględniane.',
   'tours.run.paceUnit': 'min/km',
+  'tours.run.paceUnitMi': 'min/mi',
   'tours.run.paceInvalid': 'Wpisz tempo jako min:s na km, od {fastest} do {slowest}.',
+  'tours.run.paceInvalidMi': 'Wpisz tempo jako min:s na milę, od {fastest} do {slowest}.',
   'tours.run.paceNeeded': 'Wpisz swoje tempo, aby zaplanować czas biegu i zapisać ten bieg.',
   'tours.run.timeEstimated': 'Czas biegu (planowany)',
   'tours.run.timeEstimatedShort': 'Czas biegu',
   'tours.run.timeEstimatedInfoLabel': 'Jak planowany jest czas biegu',
   'tours.run.timeEstimatedInfo':
     'Dystans × Twoje tempo i nic więcej: przewyższenia i trudność nie są uwzględniane. Plan, a nie zarejestrowany czas.',
-  'tours.run.timeSum': '{distance} przy {pace} min/km to {time}',
+  'tours.run.timeSum': '{distance} przy {pace} to {time}',
   'tours.run.profile.trail': 'Bieganie terenowe',
   'tours.run.profileHint.trail': 'Preferuje drogi leśne i naturalne ścieżki, aż po ścieżki górskie (T2).',
   'tours.run.ways.gradeTop': 'Najtrudniejsza oceniona ścieżka: {grade}',

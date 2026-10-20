@@ -438,14 +438,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'Vaše vlastní tempo na kilometr. Čas běhu je vzdálenost × tempo; převýšení a technická obtížnost se nezapočítávají.',
   'tours.run.paceUnit': 'min/km',
+  'tours.run.paceUnitMi': 'min/mi',
   'tours.run.paceInvalid': 'Zadejte tempo jako min:s na km, od {fastest} do {slowest}.',
+  'tours.run.paceInvalidMi': 'Zadejte tempo jako min:s na míli, od {fastest} do {slowest}.',
   'tours.run.paceNeeded': 'Zadejte své tempo, aby se naplánoval čas běhu a běh šel uložit.',
   'tours.run.timeEstimated': 'Čas běhu (plánovaný)',
   'tours.run.timeEstimatedShort': 'Čas běhu',
   'tours.run.timeEstimatedInfoLabel': 'Jak se plánuje čas běhu',
   'tours.run.timeEstimatedInfo':
     'Vzdálenost × vaše tempo a nic dalšího: převýšení a obtížnost se nezapočítávají. Plán, ne zaznamenaný čas.',
-  'tours.run.timeSum': '{distance} při {pace} min/km dává {time}',
+  'tours.run.timeSum': '{distance} při {pace} dává {time}',
   'tours.run.profile.trail': 'Trailový běh',
   'tours.run.profileHint.trail': 'Upřednostňuje lesní cesty a přírodní stezky, až po horské stezky (T2).',
   'tours.run.ways.gradeTop': 'Nejtěžší hodnocená cesta: {grade}',

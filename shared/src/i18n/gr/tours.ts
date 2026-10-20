@@ -453,7 +453,9 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'Ο δικός σου ρυθμός ανά χιλιόμετρο. Ο χρόνος τρεξίματος είναι απόσταση × ρυθμός· ανηφόρες, κατηφόρες και τεχνική δυσκολία δεν λαμβάνονται υπόψη.',
   'tours.run.paceUnit': 'λεπ/km',
+  'tours.run.paceUnitMi': 'λεπ/mi',
   'tours.run.paceInvalid': 'Δώσε τον ρυθμό ως λεπ:δευτ ανά km, από {fastest} έως {slowest}.',
+  'tours.run.paceInvalidMi': 'Δώσε τον ρυθμό ως λεπ:δευτ ανά μίλι, από {fastest} έως {slowest}.',
   'tours.run.paceNeeded':
     'Δώσε τον ρυθμό σου για να προγραμματιστεί ο χρόνος τρεξίματος και να αποθηκευτεί αυτό το τρέξιμο.',
   'tours.run.timeEstimated': 'Χρόνος τρεξίματος (προγραμματισμένος)',
@@ -461,7 +463,7 @@ const tours: TranslationStrings = {
   'tours.run.timeEstimatedInfoLabel': 'Πώς προγραμματίζεται ο χρόνος τρεξίματος',
   'tours.run.timeEstimatedInfo':
     'Απόσταση × ο ρυθμός σου και τίποτα άλλο: ανηφόρες, κατηφόρες και δυσκολία δεν λαμβάνονται υπόψη. Πρόγραμμα, όχι καταγεγραμμένος χρόνος.',
-  'tours.run.timeSum': '{distance} με {pace} λεπ/km κάνει {time}',
+  'tours.run.timeSum': '{distance} με {pace} κάνει {time}',
   'tours.run.profile.trail': 'Ορεινό τρέξιμο',
   'tours.run.profileHint.trail': 'Προτιμά δασικούς δρόμους και φυσικά μονοπάτια, έως ορεινά μονοπάτια (T2).',
   'tours.run.ways.gradeTop': 'Δυσκολότερο βαθμολογημένο μονοπάτι: {grade}',

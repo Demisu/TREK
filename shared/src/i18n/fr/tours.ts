@@ -451,14 +451,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'Ton allure à toi, par kilomètre. Le temps de course est distance × allure ; dénivelé et difficulté technique ne sont pas pris en compte.',
   'tours.run.paceUnit': 'min/km',
+  'tours.run.paceUnitMi': 'min/mi',
   'tours.run.paceInvalid': 'Saisis l’allure en min:s par km, de {fastest} à {slowest}.',
+  'tours.run.paceInvalidMi': 'Saisis l’allure en min:s par mile, de {fastest} à {slowest}.',
   'tours.run.paceNeeded': 'Saisis ton allure pour planifier le temps de course et enregistrer cette course.',
   'tours.run.timeEstimated': 'Temps de course (prévu)',
   'tours.run.timeEstimatedShort': 'Temps de course',
   'tours.run.timeEstimatedInfoLabel': 'Comment le temps de course est planifié',
   'tours.run.timeEstimatedInfo':
     'Distance × ton allure, rien d’autre : dénivelé et difficulté ne sont pas pris en compte. Une prévision, pas un temps enregistré.',
-  'tours.run.timeSum': '{distance} à {pace} min/km font {time}',
+  'tours.run.timeSum': '{distance} à {pace} font {time}',
   'tours.run.profile.trail': 'Trail',
   'tours.run.profileHint.trail':
     'Privilégie les chemins forestiers et les sentiers naturels, jusqu’aux sentiers de montagne (T2).',

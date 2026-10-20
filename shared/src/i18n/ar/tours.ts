@@ -449,14 +449,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'وتيرتك الخاصة لكل كيلومتر. وقت الجري هو المسافة × الوتيرة؛ ولا تُحتسب الصعودات والنزولات ولا الصعوبة التقنية.',
   'tours.run.paceUnit': 'دقيقة/كم',
+  'tours.run.paceUnitMi': 'دقيقة/ميل',
   'tours.run.paceInvalid': 'أدخل الوتيرة بصيغة دقيقة:ثانية لكل كم، من {fastest} إلى {slowest}.',
+  'tours.run.paceInvalidMi': 'أدخل الوتيرة بصيغة دقيقة:ثانية لكل ميل، من {fastest} إلى {slowest}.',
   'tours.run.paceNeeded': 'أدخل وتيرتك لتخطيط وقت الجري وحفظ هذا الجري.',
   'tours.run.timeEstimated': 'وقت الجري (مخطط)',
   'tours.run.timeEstimatedShort': 'وقت الجري',
   'tours.run.timeEstimatedInfoLabel': 'كيف يُخطط وقت الجري',
   'tours.run.timeEstimatedInfo':
     'المسافة × وتيرتك ولا شيء غير ذلك: لا تُحتسب الصعودات والنزولات ولا الصعوبة. إنه تخطيط، وليس وقتًا مسجّلًا.',
-  'tours.run.timeSum': '{distance} بوتيرة {pace} دقيقة/كم تساوي {time}',
+  'tours.run.timeSum': '{distance} بوتيرة {pace} تساوي {time}',
   'tours.run.profile.trail': 'الجري على المسارات الطبيعية',
   'tours.run.profileHint.trail': 'يفضّل طرق الغابات والممرات الطبيعية، حتى الممرات الجبلية (T2).',
   'tours.run.ways.gradeTop': 'أصعب مسار مصنّف: {grade}',

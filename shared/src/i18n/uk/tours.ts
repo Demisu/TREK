@@ -453,14 +453,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'Ваш власний темп на кілометр. Час бігу дорівнює відстані × темп; набір висоти й технічна складність не враховуються.',
   'tours.run.paceUnit': 'хв/км',
+  'tours.run.paceUnitMi': 'хв/миля',
   'tours.run.paceInvalid': 'Введіть темп як хв:с на км, від {fastest} до {slowest}.',
+  'tours.run.paceInvalidMi': 'Введіть темп як хв:с на милю, від {fastest} до {slowest}.',
   'tours.run.paceNeeded': 'Введіть свій темп, щоб розрахувати час бігу й зберегти цю пробіжку.',
   'tours.run.timeEstimated': 'Час бігу (план)',
   'tours.run.timeEstimatedShort': 'Час бігу',
   'tours.run.timeEstimatedInfoLabel': 'Як планується час бігу',
   'tours.run.timeEstimatedInfo':
     'Відстань × ваш темп і нічого більше: набір висоти й складність не враховуються. Це план, а не записаний час.',
-  'tours.run.timeSum': '{distance} у темпі {pace} хв/км: {time}',
+  'tours.run.timeSum': '{distance} у темпі {pace}: {time}',
   'tours.run.profile.trail': 'Трейлранінг',
   'tours.run.profileHint.trail': 'Надає перевагу лісовим дорогам і природним стежкам, аж до гірських стежок (T2).',
   'tours.run.ways.gradeTop': 'Найскладніша оцінена стежка: {grade}',

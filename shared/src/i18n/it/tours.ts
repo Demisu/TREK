@@ -448,14 +448,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'Il tuo passo al chilometro. Il tempo di corsa è distanza × passo; dislivello e difficoltà tecnica non sono considerati.',
   'tours.run.paceUnit': 'min/km',
+  'tours.run.paceUnitMi': 'min/mi',
   'tours.run.paceInvalid': 'Inserisci il passo come min:s al km, da {fastest} a {slowest}.',
+  'tours.run.paceInvalidMi': 'Inserisci il passo come min:s al miglio, da {fastest} a {slowest}.',
   'tours.run.paceNeeded': 'Inserisci il tuo passo per pianificare il tempo di corsa e salvare questa corsa.',
   'tours.run.timeEstimated': 'Tempo di corsa (previsto)',
   'tours.run.timeEstimatedShort': 'Tempo di corsa',
   'tours.run.timeEstimatedInfoLabel': 'Come si pianifica il tempo di corsa',
   'tours.run.timeEstimatedInfo':
     'Distanza × il tuo passo e nient’altro: dislivello e difficoltà non sono considerati. Una pianificazione, non un tempo registrato.',
-  'tours.run.timeSum': '{distance} a {pace} min/km fanno {time}',
+  'tours.run.timeSum': '{distance} a {pace} fanno {time}',
   'tours.run.profile.trail': 'Corsa su sentiero',
   'tours.run.profileHint.trail': 'Preferisce strade forestali e sentieri naturali, fino ai sentieri di montagna (T2).',
   'tours.run.ways.gradeTop': 'Sentiero classificato più difficile: {grade}',

@@ -1,6 +1,7 @@
 import type { TourListItem } from '@trek/shared';
 import { Gauge } from 'lucide-react';
 import { useTranslation } from '../../../i18n';
+import { useSettingsStore } from '../../../store/settingsStore';
 import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
 import { runPaceText } from './runPaceText';
@@ -19,8 +20,9 @@ export function RunHeadPills({
   className: string;
 }) {
   const { t } = useTranslation();
+  const unit = useSettingsStore((state) => state.settings.distance_unit) ?? 'metric';
   if (tour.tour_type !== 'run') return null;
-  const pace = runPaceText(tour, t);
+  const pace = runPaceText(tour, t, unit);
   const ProfileIcon = RUN_PROFILE_ICON[tour.run_profile ?? 'running'];
   return (
     <>

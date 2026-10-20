@@ -445,14 +445,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'Tu propio ritmo por kilómetro. El tiempo de carrera es distancia × ritmo; el desnivel y la dificultad técnica no se tienen en cuenta.',
   'tours.run.paceUnit': 'min/km',
+  'tours.run.paceUnitMi': 'min/mi',
   'tours.run.paceInvalid': 'Introduce el ritmo como min:s por km, de {fastest} a {slowest}.',
+  'tours.run.paceInvalidMi': 'Introduce el ritmo como min:s por milla, de {fastest} a {slowest}.',
   'tours.run.paceNeeded': 'Introduce tu ritmo para planificar el tiempo de carrera y guardar esta carrera.',
   'tours.run.timeEstimated': 'Tiempo de carrera (previsto)',
   'tours.run.timeEstimatedShort': 'Tiempo de carrera',
   'tours.run.timeEstimatedInfoLabel': 'Cómo se planifica el tiempo de carrera',
   'tours.run.timeEstimatedInfo':
     'Distancia × tu ritmo y nada más: el desnivel y la dificultad no se tienen en cuenta. Una planificación, no un tiempo registrado.',
-  'tours.run.timeSum': '{distance} a {pace} min/km son {time}',
+  'tours.run.timeSum': '{distance} a {pace} son {time}',
   'tours.run.profile.trail': 'Carrera de montaña',
   'tours.run.profileHint.trail': 'Prefiere pistas forestales y senderos naturales, hasta senderos de montaña (T2).',
   'tours.run.ways.gradeTop': 'Camino graduado más difícil: {grade}',

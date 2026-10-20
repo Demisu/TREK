@@ -445,14 +445,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'Seu próprio ritmo por quilômetro. O tempo de corrida é distância × ritmo; subidas, descidas e dificuldade técnica não entram.',
   'tours.run.paceUnit': 'min/km',
+  'tours.run.paceUnitMi': 'min/mi',
   'tours.run.paceInvalid': 'Informe o ritmo como min:s por km, de {fastest} a {slowest}.',
+  'tours.run.paceInvalidMi': 'Informe o ritmo como min:s por milha, de {fastest} a {slowest}.',
   'tours.run.paceNeeded': 'Informe seu ritmo para planejar o tempo de corrida e salvar esta corrida.',
   'tours.run.timeEstimated': 'Tempo de corrida (planejado)',
   'tours.run.timeEstimatedShort': 'Tempo de corrida',
   'tours.run.timeEstimatedInfoLabel': 'Como o tempo de corrida é planejado',
   'tours.run.timeEstimatedInfo':
     'Distância × seu ritmo e nada mais: subidas, descidas e dificuldade não entram. Um plano, não um tempo registrado.',
-  'tours.run.timeSum': '{distance} a {pace} min/km dão {time}',
+  'tours.run.timeSum': '{distance} a {pace} dão {time}',
   'tours.run.profile.trail': 'Corrida em trilha',
   'tours.run.profileHint.trail': 'Prefere estradas florestais e trilhas naturais, até trilhas de montanha (T2).',
   'tours.run.ways.gradeTop': 'Trilha classificada mais difícil: {grade}',

@@ -440,14 +440,16 @@ const tours: TranslationStrings = {
   'tours.run.paceInfo':
     'Pace milikmu sendiri per kilometer. Waktu lari adalah jarak × pace; tanjakan, turunan, dan tingkat kesulitan teknis tidak dihitung.',
   'tours.run.paceUnit': 'mnt/km',
+  'tours.run.paceUnitMi': 'mnt/mi',
   'tours.run.paceInvalid': 'Masukkan pace sebagai mnt:dtk per km, dari {fastest} sampai {slowest}.',
+  'tours.run.paceInvalidMi': 'Masukkan pace sebagai mnt:dtk per mil, dari {fastest} sampai {slowest}.',
   'tours.run.paceNeeded': 'Masukkan pace-mu untuk merencanakan waktu lari dan menyimpan lari ini.',
   'tours.run.timeEstimated': 'Waktu lari (rencana)',
   'tours.run.timeEstimatedShort': 'Waktu lari',
   'tours.run.timeEstimatedInfoLabel': 'Cara waktu lari direncanakan',
   'tours.run.timeEstimatedInfo':
     'Jarak × pace-mu, tidak ada yang lain: tanjakan, turunan, dan kesulitan tidak dihitung. Sebuah rencana, bukan waktu yang direkam.',
-  'tours.run.timeSum': '{distance} dengan pace {pace} mnt/km menjadi {time}',
+  'tours.run.timeSum': '{distance} dengan pace {pace} menjadi {time}',
   'tours.run.profile.trail': 'Lari trail',
   'tours.run.profileHint.trail': 'Mengutamakan jalan hutan dan jalur alami, hingga jalur gunung (T2).',
   'tours.run.ways.gradeTop': 'Jalur bertingkat tersulit: {grade}',
