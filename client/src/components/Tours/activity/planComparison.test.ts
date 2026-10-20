@@ -4,7 +4,7 @@
 // how far the recorded line strayed from the planned one.
 import type { TourActivityMetrics } from '@trek/shared';
 import { describe, expect, it } from 'vitest';
-import { compareRows, MEASURED_POINTS, OFF_PLAN_M, planDeviation, type PlanValues } from './tourActivityCompare';
+import { compareRows, MEASURED_POINTS, OFF_PLAN_M, planDeviation, type PlanValues } from './planComparison';
 
 const plan: PlanValues = {
   distanceKm: 8,

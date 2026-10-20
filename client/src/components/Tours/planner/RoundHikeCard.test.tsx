@@ -1,7 +1,7 @@
 // FE-TOUR-ROUND-HIKE-CARD-001 to FE-TOUR-ROUND-HIKE-CARD-009: the card over the planner map that
 // looks for round hikes out of a stop and takes one on purpose (RTE-03).
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '../../../../tests/helpers/render';
 import { seedStore } from '../../../../tests/helpers/store';
 import { idleRoundHikes } from '../../../../tests/helpers/tourPlannerStub';
@@ -116,7 +116,7 @@ describe('RoundHikeCard', () => {
     expect(screen.getByLabelText('Distance')).toHaveValue('6.2');
     expect(screen.getByText('mi')).toBeInTheDocument();
     await userEvent.click(screen.getByTestId('round-hike-find'));
-    expect(actions.find.mock.calls[0][0]).toBeCloseTo(9_978, 0);
+    expect(vi.mocked(actions.find).mock.calls[0][0]).toBeCloseTo(9_978, 0);
   });
 
   it('FE-TOUR-ROUND-HIKE-CARD-004: while it looks, the bar fills, the rounds found show and nothing can be taken yet', async () => {

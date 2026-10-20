@@ -115,9 +115,9 @@ describe('TourPackingMcp', () => {
     await expect(
       mcp.linkTourPacking({ tripId: f.trip.id, placeId: f.hike.id, category: 'Climbing' }, ctx(f.user.id)),
     ).rejects.toThrow('Packing category not found');
-    await expect(
-      mcp.getTourPacking({ tripId: f.trip.id, placeId: 999_999 }, ctx(f.user.id)),
-    ).rejects.toThrow('Tour not found');
+    await expect(mcp.getTourPacking({ tripId: f.trip.id, placeId: 999_999 }, ctx(f.user.id))).rejects.toThrow(
+      'Tour not found',
+    );
   });
 
   it('TPL-MCP-004: the tools are there only while Tours and Packing are on, and only for the scopes they need', async () => {
@@ -127,15 +127,14 @@ describe('TourPackingMcp', () => {
       return entry.options;
     };
     const enabled = vi.spyOn(t.get(AddonsService), 'isAddonEnabled').mockResolvedValue(true);
-    for (const name of ['getTourPacking', 'linkTourPacking', 'unlinkTourPacking']) {
-      const gate = options(name).when;
-      enabled.mockResolvedValue(true);
-      expect(await gate?.(ctx(1), mcp)).toBe(true);
-      enabled.mockImplementation(async (id: string) => id !== 'packing');
-      expect(await gate?.(ctx(1), mcp)).toBe(false);
-      enabled.mockImplementation(async (id: string) => id !== 'tours');
-      expect(await gate?.(ctx(1), mcp)).toBe(false);
-    }
+    const gates = ['getTourPacking', 'linkTourPacking', 'unlinkTourPacking'].map((name) => options(name).when);
+    const open = () => Promise.all(gates.map((gate) => gate?.(ctx(1), mcp)));
+    enabled.mockResolvedValue(true);
+    expect(await open()).toEqual([true, true, true]);
+    enabled.mockImplementation(async (id: string) => id !== 'packing');
+    expect(await open()).toEqual([false, false, false]);
+    enabled.mockImplementation(async (id: string) => id !== 'tours');
+    expect(await open()).toEqual([false, false, false]);
 
     const allowed = (name: string, scopes: string[]) => {
       const access = options(name).access;

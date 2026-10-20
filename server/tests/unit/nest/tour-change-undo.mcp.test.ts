@@ -303,8 +303,9 @@ describe('TourChangeUndoMcp (MCP-T04)', () => {
       [first.step.id, 'later_change'],
     ]);
     const before = await untouched(f.walk.id);
-    for (const attempt of [() => prepared(f, first.step.id), () => undone(f, confirmed(first.step.id, 5))]) {
-      const err = await refusal(attempt());
+    const asPrepared = await refusal(prepared(f, first.step.id));
+    const asUndone = await refusal(undone(f, confirmed(first.step.id, 5)));
+    for (const err of [asPrepared, asUndone]) {
       expect([err.getStatus(), err.code, err.details?.revision]).toEqual([409, TOUR_REVISION_CONFLICT, 5]);
       expect(err.publicMessage).toContain('(revision 4 then, 5 now). Nothing changed: only the latest change');
     }
@@ -349,8 +350,9 @@ describe('TourChangeUndoMcp (MCP-T04)', () => {
     await markStationVisit(orm(), f.onDay1.id, bakeryKey, 'visited');
     const before = await untouched(f.walk.id);
 
-    for (const attempt of [() => prepared(f, save.step.id), () => undone(f, confirmed(save.step.id, 4))]) {
-      const err = await refusal(attempt());
+    const asPrepared = await refusal(prepared(f, save.step.id));
+    const asUndone = await refusal(undone(f, confirmed(save.step.id, 4)));
+    for (const err of [asPrepared, asUndone]) {
       expect([err.getStatus(), err.code]).toEqual([409, TOUR_CHANGE_UNDO_REFUSED]);
       expect(err.details?.refused).toEqual([
         {
@@ -486,7 +488,7 @@ describe('TourChangeUndoMcp (MCP-T04)', () => {
         ['tripId', 'placeId', 'step_id', 'expected_revision', 'confirmed'],
       ],
     ] as const;
-    for (const [method, name, readOnly, mode, fields] of tools) {
+    const gates = tools.map(([method, name, readOnly, mode, fields]) => {
       const entry = getEntry(TourChangeUndoMcp as unknown as ClassRef, method);
       if (!entry || entry.kind !== 'tool') throw new Error(`${method} is no MCP tool`);
       const { options } = entry;
@@ -498,9 +500,10 @@ describe('TourChangeUndoMcp (MCP-T04)', () => {
       expect(Object.keys(options.inputSchema as object)).toEqual([...fields]);
       expect(options.description).toContain('planner');
       const isAddonEnabled = vi.fn(async (id: string) => id === 'tours');
-      expect(await options.when?.(ctx(1), { addons: { isAddonEnabled } })).toBe(true);
-      expect(isAddonEnabled).toHaveBeenCalledWith('tours');
-    }
+      return { isAddonEnabled, open: options.when?.(ctx(1), { addons: { isAddonEnabled } }) };
+    });
+    expect(await Promise.all(gates.map((gate) => gate.open))).toEqual([true, true, true]);
+    for (const { isAddonEnabled } of gates) expect(isAddonEnabled).toHaveBeenCalledWith('tours');
     const entry = getEntry(TourChangeUndoMcp as unknown as ClassRef, 'undoTourChange');
     if (!entry || entry.kind !== 'tool') throw new Error('undoTourChange is no MCP tool');
     // The fields are zod schemas from @trek/shared, read here by what they answer.

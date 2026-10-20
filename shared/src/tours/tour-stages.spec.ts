@@ -19,8 +19,15 @@ import { describe, expect, it } from 'vitest';
 
 type Role = 'start' | 'via' | 'end';
 
+/** What a test sets on a point beyond its place and role. */
+interface PointExtra {
+  stage_end?: boolean;
+  shaping?: boolean;
+  key?: string;
+}
+
 /** A straight run of points along a meridian, each a stop unless told otherwise. */
-function points(count: number, extra: (index: number) => Record<string, unknown> = () => ({})) {
+function points(count: number, extra: (index: number) => PointExtra = () => ({})) {
   return Array.from({ length: count }, (_, sequence) => ({
     lat: 47 + sequence * 0.01,
     lng: 11,

@@ -7,7 +7,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import type { TourActivity } from '@trek/shared';
 import { describe, expect, it, vi } from 'vitest';
 import TourActivityCompare, { formatDifference } from './TourActivityCompare';
-import type { PlanValues } from './tourActivityCompare';
+import type { PlanValues } from './planComparison';
 
 const plan: PlanValues = {
   distanceKm: 2,

@@ -13,8 +13,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import type { TourActivityAssignRequest, TourActivityRefusal, TourDetailResponse } from '@trek/shared';
 
 /** A refusal with its code in the body, so the app can say what went wrong in its own words. */
-function refused(status: 400 | 409, code: TourActivityRefusal, message: string): DomainError {
-  return new DomainError(status, message, { code, details: { code } });
+function refused(httpStatus: 400 | 409, code: TourActivityRefusal, message: string): DomainError {
+  return new DomainError(httpStatus, message, { code, details: { code } });
 }
 
 /**

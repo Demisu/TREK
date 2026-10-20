@@ -33,6 +33,7 @@ const edge = (from: number, wayId: number): RouteWayEdge => ({
   // The router's own reading, which no facet may take for a recorded value.
   surface: 'paved',
   way: 'path',
+  sac: 'none',
   wayId,
 });
 const WAYS: RouteWays = { line: ROUTE, edges: [edge(0, 1), edge(1, 2), edge(2, 3)] };

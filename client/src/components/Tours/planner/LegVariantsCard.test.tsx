@@ -73,6 +73,11 @@ beforeEach(() => {
   seedStore(useSettingsStore, { settings: { distance_unit: 'metric' } });
 });
 
+/** The last of the elements found: the card rendered most recently. */
+function lastOf<T>(items: T[]): T | undefined {
+  return items[items.length - 1];
+}
+
 describe('LegVariantsCard', () => {
   it('FE-TOUR-LEG-VARIANTS-CARD-001: names the section by its ends and lists each way with its figures', () => {
     renderCard(comparison());
@@ -129,9 +134,9 @@ describe('LegVariantsCard', () => {
     expect(actions.apply).toHaveBeenCalledTimes(1);
 
     renderCard(comparison({ selected: 'current' }));
-    expect(screen.getAllByTestId('leg-variants-apply').at(-1)).toBeDisabled();
+    expect(lastOf(screen.getAllByTestId('leg-variants-apply'))).toBeDisabled();
     renderCard(comparison({ selected: 'a' }), { isSaving: true });
-    expect(screen.getAllByTestId('leg-variants-apply').at(-1)).toBeDisabled();
+    expect(lastOf(screen.getAllByTestId('leg-variants-apply'))).toBeDisabled();
   });
 
   it('FE-TOUR-LEG-VARIANTS-CARD-005: while a choice is checked the list stands still and the button says what happens', async () => {
@@ -146,15 +151,15 @@ describe('LegVariantsCard', () => {
     renderCard(comparison({ phase: 'loading', variants: [way('current')] }));
     expect(screen.getByRole('status')).toHaveTextContent('Looking for other ways');
     renderCard(comparison({ phase: 'none', variants: [way('current')] }));
-    expect(screen.getAllByRole('status').at(-1)).toHaveTextContent('The router knows no other way');
+    expect(lastOf(screen.getAllByRole('status'))).toHaveTextContent('The router knows no other way');
     renderCard(comparison({ phase: 'failed', variants: [way('current')] }));
-    expect(screen.getAllByRole('status').at(-1)).toHaveTextContent('The router did not answer');
+    expect(lastOf(screen.getAllByRole('status'))).toHaveTextContent('The router did not answer');
     renderCard(comparison({ notice: 'notHeld' }));
-    expect(screen.getAllByRole('status').at(-1)).toHaveTextContent('The router does not keep to this way');
+    expect(lastOf(screen.getAllByRole('status'))).toHaveTextContent('The router does not keep to this way');
     renderCard(comparison({ notice: 'stale' }));
-    expect(screen.getAllByRole('status').at(-1)).toHaveTextContent('The tour changed in the meantime');
+    expect(lastOf(screen.getAllByRole('status'))).toHaveTextContent('The tour changed in the meantime');
     renderCard(comparison({ notice: 'failed' }));
-    expect(screen.getAllByRole('status').at(-1)).toHaveTextContent('This way could not be checked');
+    expect(lastOf(screen.getAllByRole('status'))).toHaveTextContent('This way could not be checked');
   });
 
   it('FE-TOUR-LEG-VARIANTS-CARD-007: the overlay shows only while a section is compared; cancel, the cross and Escape close it', async () => {

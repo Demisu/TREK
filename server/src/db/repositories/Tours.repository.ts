@@ -2,6 +2,7 @@ import { type Tours, type TToursOrigin, ToursOrigin } from '../entities/Tours.en
 import type { DB } from '../kysely/db';
 import type { AssertRowKeys } from './_shared/rows';
 import { TrekRepository } from './_shared/trek-repository';
+import { toLibraryRow, toListRow } from './tour-rows';
 import type {
   BikeProfile,
   PaddleBoatType,
@@ -588,17 +589,6 @@ export class ToursRepository extends TrekRepository<Tours> {
       .execute();
   }
 
-  /**
-   * What a copied trip's tour keeps besides its facet and its points: its
-   * import record, its obstacle decisions and its packing link, onto its copy.
-   * Called inside the trip copy's transaction.
-   */
-  async copyTourRelations(source_place_id: number, place_id: number): Promise<void> {
-    await this.copySource(source_place_id, place_id);
-    await this.copyObstacleReviews(source_place_id, place_id);
-    await this.copyPackingLink(source_place_id, place_id);
-  }
-
   /** The days every tour of a trip sits on, each tour and day once, in day order, with the stage a day holds (MDT-02). */
   async listTourDays(trip_id: number): Promise<TourDayRow[]> {
     return await this.db()
@@ -972,46 +962,4 @@ export class ToursRepository extends TrekRepository<Tours> {
   async clearRecordedTrack(place_id: number): Promise<void> {
     await this.nativeUpdate({ place: place_id }, { recorded_route_geometry: null });
   }
-}
-
-function toLibraryRow<R extends Omit<TourLibraryRow, 'has_waypoints'> & { has_waypoints: unknown }>(
-  r: R,
-): TourLibraryRow {
-  return {
-    place_id: r.place_id,
-    name: r.name,
-    description: r.description,
-    tour_type: r.tour_type,
-    distance: r.distance,
-    elevation_gain: r.elevation_gain,
-    elevation_loss: r.elevation_loss,
-    duration: r.duration,
-    planned_duration_minutes: r.planned_duration_minutes,
-    break_additional_minutes: r.break_additional_minutes,
-    max_hiking_difficulty: r.max_hiking_difficulty,
-    origin: r.origin,
-    trip_id: r.trip_id,
-    trip_title: r.trip_title,
-    has_waypoints: Number(r.has_waypoints),
-  };
-}
-
-function toListRow<
-  R extends Omit<TourListRow, 'planned' | 'has_waypoints' | 'has_recorded_track' | 'route_missing' | 'stage_ends'> & {
-    planned: unknown;
-    has_waypoints: unknown;
-    has_recorded_track: unknown;
-    route_missing: unknown;
-    stage_ends: unknown;
-  },
->(r: R): TourListRow {
-  return {
-    ...r,
-    planned: Number(r.planned),
-    has_waypoints: Number(r.has_waypoints),
-    has_recorded_track: Number(r.has_recorded_track),
-    route_missing: Number(r.route_missing),
-    // Postgres counts in a bigint, which its driver hands back as text.
-    stage_ends: Number(r.stage_ends),
-  };
 }

@@ -49,16 +49,14 @@ export interface WandererTrailDownload {
  * refused or is no longer the user's own.
  */
 export type WandererTrailLook =
-  | { kind: 'record'; name: string; description: string | null; updated: string | null }
-  | { kind: 'gone' };
+  { kind: 'record'; name: string; description: string | null; updated: string | null } | { kind: 'gone' };
 
 /**
  * WAN-02: what one look of the watch read: a look per trail, or why the
  * instance itself could not be asked, for the watch to back off from.
  */
 export type WandererWatchLooks =
-  | { ok: true; looks: Map<string, WandererTrailLook> }
-  | { ok: false; code: WandererErrorCode };
+  { ok: true; looks: Map<string, WandererTrailLook> } | { ok: false; code: WandererErrorCode };
 
 /** WAN-02: the background watch of one user's connection. */
 interface WandererWatchState {

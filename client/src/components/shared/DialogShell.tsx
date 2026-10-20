@@ -8,7 +8,7 @@ import { focusDialog, trapTab } from './dialogFocus'
 import { useDiscardGuard } from './useDiscardGuard'
 
 /** A font size that follows the user's text size setting for its tier. */
-export const fs = (px: number, tier: 'caption' | 'body' | 'subtitle' = 'caption'): CSSProperties => ({ fontSize: `calc(${px}px * var(--fs-scale-${tier}, 1))` })
+export const fs = (px: number, tier: 'caption' | 'body' | 'subtitle' | 'title' = 'caption'): CSSProperties => ({ fontSize: `calc(${px}px * var(--fs-scale-${tier}, 1))` })
 
 const EYEBROW = 'font-geist font-bold uppercase tracking-[.08em] text-content-faint'
 const BACKDROP = 'trek-modal-backdrop trek-backdrop-enter fixed inset-0 z-[10000] flex justify-center bg-[rgba(15,23,42,0.5)] px-4' // theme-lint-disable: the dim every shared/Modal draws

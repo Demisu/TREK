@@ -16,9 +16,7 @@ import { walkStationsOf, type TourWaypoint } from '@trek/shared';
 export type StepStanding = 'latest' | 'undone' | 'later_change' | 'no_earlier_state';
 
 /** The standing of a step, the latest one carrying the tour as it kept it before. */
-export type Standing =
-  | { kind: 'latest'; before: TourChangeStepBefore }
-  | { kind: Exclude<StepStanding, 'latest'> };
+export type Standing = { kind: 'latest'; before: TourChangeStepBefore } | { kind: Exclude<StepStanding, 'latest'> };
 
 /** What a recorded step says of itself for its standing. */
 interface StepFacts {

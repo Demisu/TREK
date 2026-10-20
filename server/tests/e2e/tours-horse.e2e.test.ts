@@ -325,7 +325,12 @@ describe('Horse tours e2e (real guards + temp SQLite)', () => {
         .field('tour_type', 'horse')
         .attach('file', Buffer.from(GPX), { filename: 'ride.gpx', contentType: 'application/gpx+xml' });
       expect(res.status).toBe(201);
-      expect(res.body.tours[0]).toMatchObject({ tour_type: 'horse', origin: 'gpx', duration: null, bike_profile: null });
+      expect(res.body.tours[0]).toMatchObject({
+        tour_type: 'horse',
+        origin: 'gpx',
+        duration: null,
+        bike_profile: null,
+      });
     });
   });
 

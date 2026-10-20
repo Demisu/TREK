@@ -200,7 +200,9 @@ afterAll(() => {
 
 describe('Tours GPX atomic persistence and postcommit publication', () => {
   async function expectEmpty() {
-    for (const table of ['places', 'tours', 'tour_waypoints'] as const) expect(await count(table)).toBe(0);
+    expect(await Promise.all((['places', 'tours', 'tour_waypoints'] as const).map((table) => count(table)))).toEqual([
+      0, 0, 0,
+    ]);
     expect(broadcast).not.toHaveBeenCalled();
   }
 
@@ -451,7 +453,7 @@ describe('Tours KML import through the same persistence (IO-02)', () => {
   </Document></kml>`);
 
   it('stores each line as a tour of its own, heights only where the file has them', async () => {
-    const result = (await tours.importGpxAsTour(tripId, twoLines, 'alps.kml', 'socket'))!;
+    const result = await tours.importGpxAsTour(tripId, twoLines, 'alps.kml', 'socket');
 
     expect(result.tours.map((tour) => [tour.name, tour.origin, tour.elevation_gain])).toEqual([
       ['Coast', 'gpx', null],
@@ -466,7 +468,9 @@ describe('Tours KML import through the same persistence (IO-02)', () => {
     testDb.exec(`CREATE TRIGGER fail_place BEFORE INSERT ON places WHEN NEW.name = 'Ridge'
       BEGIN SELECT RAISE(ABORT, 'place failure'); END;`);
     await expect(tours.importGpxAsTour(tripId, twoLines, 'alps.kml')).rejects.toThrow('place failure');
-    for (const table of ['places', 'tours', 'tour_waypoints'] as const) expect(await count(table)).toBe(0);
+    expect(await Promise.all((['places', 'tours', 'tour_waypoints'] as const).map((table) => count(table)))).toEqual([
+      0, 0, 0,
+    ]);
     expect(broadcast).not.toHaveBeenCalled();
   });
 

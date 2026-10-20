@@ -13,8 +13,8 @@ import { db as testDb } from '../../../src/db/database';
 import { DayAssignments } from '../../../src/db/entities/DayAssignments.entity';
 import { Days } from '../../../src/db/entities/Days.entity';
 import { Places } from '../../../src/db/entities/Places.entity';
-import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
 import { RoadtripVias } from '../../../src/db/entities/RoadtripVias.entity';
+import { TourWaypoints } from '../../../src/db/entities/TourWaypoints.entity';
 import { TrekPhotos } from '../../../src/db/entities/TrekPhotos.entity';
 import { TripPhotos } from '../../../src/db/entities/TripPhotos.entity';
 import { Users } from '../../../src/db/entities/Users.entity';
@@ -416,7 +416,12 @@ describe('createAssignment with a stage of a multi-day tour (MDT-02)', () => {
     expect(await svc.createAssignment(day.id, ordinary.id)).toMatchObject({ tour_stage_key: null });
   });
 
-  it('ASG-SVC-053: refuses a stage the tour does not have: its last stop, a stop ending none, a plain place, a day tour', async () => {
+  it.each([
+    ['its last stop', 'tour', 'stop-end'],
+    ['a stop ending none', 'tour', 'stop-unknown'],
+    ['a plain place', 'plain', 'stop-start'],
+    ['a day tour', 'dayTour', 'day-start'],
+  ] as const)('ASG-SVC-053: refuses a stage the tour does not have: %s', async (_label, which, key) => {
     const { trip, day, place } = fixture();
     await hutToHut(place.id);
     const plain = createPlace(testDb, trip.id, { name: 'Ordinary place' });
@@ -426,18 +431,12 @@ describe('createAssignment with a stage of a multi-day tour (MDT-02)', () => {
       { place: dayTour.id, lat: 47, lng: 11, role: 'start', sequence: 0, station_key: 'day-start' },
       { place: dayTour.id, lat: 47.1, lng: 11, role: 'end', sequence: 1, station_key: 'day-end' },
     ]);
-    for (const [placeId, key] of [
-      [place.id, 'stop-end'],
-      [place.id, 'stop-unknown'],
-      [plain.id, 'stop-start'],
-      [dayTour.id, 'day-start'],
-    ] as const) {
-      const refusal = await catchDomainError(() => svc.createAssignment(day.id, placeId, null, { tourStageKey: key }));
-      expect(refusal instanceof DomainError && [refusal.getStatus(), refusal.publicMessage]).toEqual([
-        400,
-        'Tour has no such stage',
-      ]);
-    }
+    const placeId = { tour: place.id, plain: plain.id, dayTour: dayTour.id }[which];
+    const refusal = await catchDomainError(() => svc.createAssignment(day.id, placeId, null, { tourStageKey: key }));
+    expect(refusal instanceof DomainError && [refusal.getStatus(), refusal.publicMessage]).toEqual([
+      400,
+      'Tour has no such stage',
+    ]);
     expect(await countRows(await orm(), DayAssignments, {})).toBe(0);
   });
 
@@ -467,7 +466,7 @@ describe('createAssignment with a stage of a multi-day tour (MDT-02)', () => {
     await hutToHut(place.id);
     const secondDay = createDay(testDb, trip.id);
     const stage = await svc.createAssignment(day.id, place.id, null, { tourStageKey: 'stop-hut-two' });
-    const { assignment } = await svc.moveAssignment(stage!.id, secondDay.id, 0);
+    const { assignment } = await svc.moveAssignment(stage.id, secondDay.id, 0);
     expect(assignment).toMatchObject({ day_id: secondDay.id, tour_stage_key: 'stop-hut-two' });
   });
 
@@ -477,9 +476,7 @@ describe('createAssignment with a stage of a multi-day tour (MDT-02)', () => {
     const secondDay = createDay(testDb, trip.id);
     await svc.createAssignment(day.id, place.id, null, { tourStageKey: 'stop-start' });
     const second = await svc.createAssignment(secondDay.id, place.id, null, { tourStageKey: 'stop-hut-one' });
-    expect(await svc.dropStaleTourStages(place.id, ['stop-start'])).toEqual([
-      { id: second!.id, day_id: secondDay.id },
-    ]);
+    expect(await svc.dropStaleTourStages(place.id, ['stop-start'])).toEqual([{ id: second.id, day_id: secondDay.id }]);
     expect(await countRows(await orm(), DayAssignments, { place: place.id })).toBe(1);
   });
 });

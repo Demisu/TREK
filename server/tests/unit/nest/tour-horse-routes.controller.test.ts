@@ -4,10 +4,7 @@ import { REQUIRE_ADDON } from '../../../src/nest/addons/require-addon.decorator'
 import { JwtAuthGuard } from '../../../src/nest/auth-core/jwt-auth.guard';
 import { RESPONSE_CONTRACT_KEY } from '../../../src/nest/common/response-contract';
 import { TripAccessGuard } from '../../../src/nest/permissions/trip-access.guard';
-import {
-  parseHorseRoutesQuery,
-  TourHorseRoutesController,
-} from '../../../src/nest/tours/tour-horse-routes.controller';
+import { parseHorseRoutesQuery, TourHorseRoutesController } from '../../../src/nest/tours/tour-horse-routes.controller';
 import type { TourHorseRoutesService } from '../../../src/nest/tours/tour-horse-routes.service';
 import { HttpException } from '@nestjs/common';
 import { GUARDS_METADATA } from '@nestjs/common/constants';

@@ -18,7 +18,7 @@ import {
   type CompareKey,
   type CompareRow,
   type PlanValues,
-} from './tourActivityCompare';
+} from './planComparison';
 
 type Translate = (key: string, params?: Record<string, unknown>) => string;
 
@@ -167,7 +167,9 @@ function deviationFields(
   unit: DistanceUnit,
   t: Translate
 ): TourMetricField[] {
-  const deviation = planDeviation(activity.geometry, plan.line);
+  // Latitude and longitude only: how far the track strayed is measured on the map, not in height.
+  const recorded = activity.geometry.map(([lat, lng]) => [lat, lng]);
+  const deviation = planDeviation(recorded, plan.line);
   const offLabel = t('tours.activity.compare.offPlan');
   if (!deviation) return [{ label: offLabel, value: t('tours.activity.compare.noLine') }];
   const offInfo = {

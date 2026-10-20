@@ -9,7 +9,13 @@
  */
 import type { WalkProgress } from './tour-visits.service';
 import { computeTourMetrics, thinnedLine, type GeometryPoint } from './tours.helpers';
-import { walkStationsOf, type TourDetailResponse, type TourFixedLegKind, type TourWaypoint } from '@trek/shared';
+import {
+  walkStationsOf,
+  type TourDetailResponse,
+  type TourFixedLeg,
+  type TourFixedLegKind,
+  type TourWaypoint,
+} from '@trek/shared';
 
 /** The most points of the saved line an answer carries: its shape without the thousands of points. */
 export const TOUR_PLAN_LINE_POINTS = 200;
@@ -84,6 +90,11 @@ interface PlanLegSource {
   recorded: boolean;
 }
 
+/** A fixed leg's line as points of a line: latitude and longitude, no height. */
+function legLine(geometry: TourFixedLeg['geometry']): GeometryPoint[] {
+  return geometry.map(([lat, lng]): GeometryPoint => [lat, lng]);
+}
+
 /**
  * The legs between consecutive control points, each saying whether the router
  * planned it, it follows a recorded track, or it is a fixed line.
@@ -100,7 +111,7 @@ export function planLegs(points: readonly TourWaypoint[], { recorded }: PlanLegS
       to_key: to.key ?? null,
       kind: leg?.kind ?? unfixed,
       name: leg?.kind === 'ferrata' ? leg.name : null,
-      length_km: leg ? roundKm(computeTourMetrics(leg.geometry).distanceKm) : null,
+      length_km: leg ? roundKm(computeTourMetrics(legLine(leg.geometry)).distanceKm) : null,
     };
   });
 }

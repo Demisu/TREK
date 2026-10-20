@@ -13,7 +13,7 @@ export interface SavedTourStage extends TourStage {
 export function savedStagePoints(tour: TourListItem, saved: readonly TourWaypoint[]): TourPlannerWaypoint[] {
   let next = 0;
   const points = plannerWaypointsOf(saved, () => `saved-${next++}`);
-  return normalizePlannerWaypoints(points, openedTourFields(tour).tourType === 'kayak');
+  return normalizePlannerWaypoints(points, openedTourFields(tour).tourType);
 }
 
 /**

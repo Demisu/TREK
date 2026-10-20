@@ -195,16 +195,17 @@ describe('Ski tracks e2e (real guards + temp SQLite)', () => {
     expect(opened.provenance).toMatchObject({ origin: 'gpx', source: { kind: 'gpx', fileName: 'hut.gpx' } });
   });
 
-  it('TOURS-SKI-E2E-002: a cross-country track keeps its technique, unknown included', async () => {
-    for (const technique of ['classic', 'skating', 'unknown']) {
+  it.each(['classic', 'skating', 'unknown'])(
+    'TOURS-SKI-E2E-002: a cross-country track keeps its technique, unknown included: %s',
+    async (technique) => {
       const placeId = await importSki({ ski_discipline: 'cross_country', ski_technique: technique });
       expect(await findRow(orm, Tours, { place: placeId })).toMatchObject({
         ski_discipline: 'cross_country',
         ski_technique: technique,
       });
       await deleteRows(orm, Places);
-    }
-  });
+    },
+  );
 
   it('TOURS-SKI-E2E-003: refuses a ski import without its discipline or with a technique it has not, and ski fields on a hike', async () => {
     const refused = await Promise.all(

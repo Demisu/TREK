@@ -92,7 +92,8 @@ describe('TourHorseRoutesService (HOR-01)', () => {
   it('HORSE-SVC-005: keeps a bounded number of answers, letting the one kept longest go', async () => {
     query.mockResolvedValue([]);
     const nth = (n: number) => ({ south: 40 + n * 0.1, west: 5, north: 40.05 + n * 0.1, east: 5.05 });
-    for (let n = 0; n <= HORSE_ROUTES_KEPT_MAX; n += 1) await service.list(nth(n), NOW);
+    // Asked all at once, the answers are kept in the order they were asked for.
+    await Promise.all(Array.from({ length: HORSE_ROUTES_KEPT_MAX + 1 }, (_, n) => service.list(nth(n), NOW)));
     expect(query).toHaveBeenCalledTimes(HORSE_ROUTES_KEPT_MAX + 1);
     await service.list(nth(HORSE_ROUTES_KEPT_MAX), NOW);
     await service.list(nth(1), NOW);
@@ -107,7 +108,12 @@ describe('TourHorseRoutesService (HOR-01)', () => {
     const wayCount = Math.ceil((HORSE_ROUTES_KEPT_POINTS_MAX / 2 + 1) / perWay);
     const ids = Array.from({ length: wayCount }, (_, w) => w + 1);
     const dense = [
-      { type: 'relation', id: 7, tags: { route: 'horse' }, members: ids.map((ref) => ({ type: 'way', ref, role: '' })) },
+      {
+        type: 'relation',
+        id: 7,
+        tags: { route: 'horse' },
+        members: ids.map((ref) => ({ type: 'way', ref, role: '' })),
+      },
       ...ids.map((id) => ({
         type: 'way',
         id,

@@ -288,8 +288,8 @@ describe('TourChangeMcp.saveTourChange (MCP-T03)', () => {
       { ...request, expected_revision: 2 },
       { ...request, proposal_id: 'f'.repeat(32) },
     ];
-    for (const body of altered) {
-      const err = await refusal(saveAs(f.trip.id, f.walk.id, body, f.user.id));
+    const refusals = await Promise.all(altered.map((body) => refusal(saveAs(f.trip.id, f.walk.id, body, f.user.id))));
+    for (const err of refusals) {
       expect([err.getStatus(), err.code]).toEqual([422, TOUR_CHANGE_NOT_PREPARED]);
       expect(err.publicMessage).toMatch(/^These changes are not the proposal that was prepared\. Nothing was saved/);
     }

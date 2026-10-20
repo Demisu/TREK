@@ -685,7 +685,6 @@ describe('ToursService runs (RUN-01)', () => {
   });
 });
 
-
 describe('ToursService multi-day tours (MDT-01)', () => {
   /** Hut to hut over three days: two stops between start and end each end a stage. */
   const hutToHut: TourCreateRequest = {

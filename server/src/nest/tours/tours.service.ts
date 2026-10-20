@@ -4,32 +4,19 @@ import { TourStationVisits } from '../../db/entities/TourStationVisits.entity';
 import { TourTypes } from '../../db/entities/TourTypes.entity';
 import { TourWaypoints } from '../../db/entities/TourWaypoints.entity';
 import { Tours } from '../../db/entities/Tours.entity';
-import { TOUR_HIKING_PREFERENCES, TOUR_TRACK_MARKS } from '../../db/json-columns';
 import type { PlacesRepository } from '../../db/repositories/Places.repository';
-import type { TourActivitiesRepository, TourActivityRefRow } from '../../db/repositories/TourActivities.repository';
+import type { TourActivitiesRepository } from '../../db/repositories/TourActivities.repository';
 import type { TourStationVisitsRepository } from '../../db/repositories/TourStationVisits.repository';
 import type { TourTypesRepository } from '../../db/repositories/TourTypes.repository';
-import type {
-  TourWaypointRow,
-  TourWaypointsRepository,
-  TourWaypointWithPlaceRow,
-} from '../../db/repositories/TourWaypoints.repository';
-import type {
-  TourDayRow,
-  TourListRow,
-  TourProvenanceRow,
-  ToursRepository,
-  TourUpdate,
-} from '../../db/repositories/Tours.repository';
-import { utcSuffix } from '../../db/types';
-import { decodeJson, encodeJson } from '../../utils/json-column';
+import type { TourWaypointsRepository, TourWaypointWithPlaceRow } from '../../db/repositories/TourWaypoints.repository';
+import type { TourDayRow, ToursRepository, TourUpdate } from '../../db/repositories/Tours.repository';
 import { AssignmentsService } from '../assignments/assignments.service';
 import { badRequest, DomainError } from '../common/domain-error';
 import { toRowId } from '../common/row-id';
 import { UnitOfWork } from '../database/unit-of-work';
 import { PlaceImportService } from '../place-import/place-import.service';
 import { PlacesService } from '../places/places.service';
-import { activityFacts, toActivity, trackTimesFor } from './tour-activities.helpers';
+import { toActivity, trackTimesFor } from './tour-activities.helpers';
 import {
   copiedFacet,
   copyStart,
@@ -39,24 +26,15 @@ import {
   type TourCopySource,
 } from './tour-copy.helpers';
 import { readTourFile } from './tour-file-import.helpers';
+import { provenanceSource, tourItemOf } from './tour-item.helpers';
 import { TourPaddleCheckService } from './tour-paddle-check.service';
 import { advanceTourRevision } from './tour-revision';
 import { toVisit } from './tour-visits.service';
-import {
-  computeTourMetrics,
-  localHashOf,
-  parseRouteGeometry,
-  LOW_CONFIDENCE_THRESHOLD,
-  type GeometryPoint,
-} from './tours.helpers';
+import { checkTourCommand, firstPointOf, importFileName, keyedWaypoints, tourRouteFields } from './tour-write.helpers';
+import { computeTourMetrics, localHashOf, parseRouteGeometry, type GeometryPoint } from './tours.helpers';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
-  hikingPreferencesOf,
-  maxTourMinutesFor,
-  plannedTimeLimitMessage,
-  plannedTourDurationMinutesSchema,
-  tourWebsiteSchema,
   type BikeProfile,
   type CityWalkCreateRequest,
   type PaddleBoatType,
@@ -73,20 +51,12 @@ import {
   type TourListItem,
   type TourOrigin,
   type TourProvenance,
-  type TourProvenanceSource,
   type TourWaypoint,
-  tourStageCountOf,
-  tourStageIssues,
   tourStageKeysOf,
-  tourStageStopsOf,
   type WandererDifficulty,
-  type WinterActivity,
-  walkStationFacts,
   walkStationsOf,
   wandererDifficultyToSac,
 } from '@trek/shared';
-
-import { randomUUID } from 'node:crypto';
 
 export interface ImportGpxAsTourResult {
   tours: TourListItem[];
@@ -108,10 +78,13 @@ const HIKE_IMPORT: TourGpxImportFields = { tour_type: 'hike' };
  * What a create writes: the request as the contract reads it, or for a city
  * walk an assistant created from its stations (CW-11) the way the server's
  * router planned on foot, which has no heights, or no line when it planned
- * none, which the planner then plans when the walk is opened.
+ * none, which the planner then plans when the walk is opened. Its points are
+ * the tour's points as the rest of the domain reads them, so a change saved
+ * or taken back from MCP (MCP-T03/T04) hands in its points unconverted.
  */
-export type TourCreateCommand = Omit<TourCreateRequest, 'route_geometry'> & {
+export type TourCreateCommand = Omit<TourCreateRequest, 'route_geometry' | 'waypoints'> & {
   route_geometry: GeometryPoint[] | null;
+  waypoints: TourWaypoint[];
 };
 
 /** A route write checked and ready for its transaction: the write, where the tour starts and its fields. */
@@ -133,52 +106,6 @@ interface CityWalkFootRoute {
   seconds: number;
 }
 
-/** MF-08: a save's hiking preferences as stored: a hike's switched-on ones as JSON, else NULL. */
-function hikingFields(input: TourCreateCommand): string | null {
-  const preferences = input.tour_type === 'hike' ? hikingPreferencesOf(input.hiking_preferences) : null;
-  return preferences ? encodeJson(TOUR_HIKING_PREFERENCES, preferences) : null;
-}
-
-/**
- * HIK-01: a save's winter label as stored. Only a hike keeps one; another type
- * takes it off. A hike's save that leaves the field out (a client from before
- * the label) keeps the one the tour has, rather than taking it off unasked.
- */
-function winterField(input: TourCreateCommand): WinterActivity | null | undefined {
-  return input.tour_type === 'hike' ? input.winter_activity : null;
-}
-
-/**
- * RUN-01: a save's run profile and pace as stored. Only a run keeps them;
- * another type takes them off. A run without a pace keeps none: its time stays
- * unknown rather than reckoned at a pace nobody chose.
- */
-function runFields(input: TourCreateCommand): Pick<TourUpdate, 'run_profile' | 'run_pace_seconds_per_km'> {
-  if (input.tour_type !== 'run') return { run_profile: null, run_pace_seconds_per_km: null };
-  return { run_profile: input.run_profile ?? null, run_pace_seconds_per_km: input.run_pace_seconds_per_km ?? null };
-}
-
-/**
- * CW-03: every point with its key, kept from the write where it came with one,
- * so the visits of a city walk's stations outlast a reorder or a new point. A
- * key sent twice stays with its first point; a later one gets a fresh key, so
- * checking one station off never marks another.
- */
-function keyedWaypoints(waypoints: TourWaypoint[]): Array<TourWaypoint & { key: string }> {
-  const taken = new Set<string>();
-  return waypoints.map((point) => {
-    const key = point.key && !taken.has(point.key) ? point.key : randomUUID();
-    taken.add(key);
-    return { ...point, key };
-  });
-}
-
-/** MDT-02: the stops a multi-day tour's stages run between; null where its points do not tell them. */
-function stageStopsOrNull(points: Parameters<typeof tourStageStopsOf>[0]): TourListItem['stage_stops'] {
-  const stops = tourStageStopsOf(points);
-  return stops.length > 0 ? stops : null;
-}
-
 @Injectable()
 export class ToursService {
   private readonly logger = new Logger(ToursService.name);
@@ -198,102 +125,6 @@ export class ToursService {
   ) {}
 
   /**
-   * A tour as it is listed; a city walk with the stations its points make and their stays (CW-02, CW-03),
-   * every tour with the recordings assigned to it and the tour it documents itself (ACT-01).
-   */
-  private toItem(
-    r: TourListRow,
-    points: readonly TourWaypointRow[] = [],
-    activities: readonly TourActivityRefRow[] = [],
-  ): TourListItem {
-    return {
-      place_id: r.place_id,
-      name: r.name,
-      description: r.description,
-      website: r.website,
-      tour_type: r.tour_type as TourListItem['tour_type'],
-      distance: r.distance,
-      elevation_gain: r.elevation_gain,
-      elevation_loss: r.elevation_loss,
-      duration: r.duration,
-      planned_duration_minutes: r.planned_duration_minutes,
-      break_additional_minutes: r.break_additional_minutes,
-      difficulty: r.difficulty,
-      wanderer_ref: r.wanderer_ref,
-      match_confidence: r.match_confidence,
-      max_hiking_difficulty: r.max_hiking_difficulty,
-      derived_from_place_id: r.derived_from_place_id,
-      origin: r.origin as TourOrigin,
-      bike_profile: r.bike_profile as BikeProfile | null,
-      winter_activity: r.winter_activity as WinterActivity | null,
-      run_profile: r.run_profile as RunProfile | null,
-      run_pace_seconds_per_km: r.run_pace_seconds_per_km,
-      ski_discipline: r.ski_discipline as SkiDiscipline | null,
-      ski_technique: r.ski_technique as SkiTechnique | null,
-      boat_type: r.boat_type as PaddleBoatType | null,
-      water_context: r.water_context as PaddleWaterContext | null,
-      paddle_speed_kmh: r.paddle_speed_kmh,
-      portage_speed_kmh: r.portage_speed_kmh,
-      paddle_lake_style: r.paddle_lake_style as PaddleLakeStyle | null,
-      track_marks: decodeJson(TOUR_TRACK_MARKS, r.track_marks, 'tour'),
-      has_recorded_track: Boolean(r.has_recorded_track),
-      planned: Boolean(r.planned),
-      caution: r.match_confidence !== null && r.match_confidence < LOW_CONFIDENCE_THRESHOLD,
-      has_waypoints: Boolean(r.has_waypoints),
-      revision: r.revision,
-      hiking_preferences: decodeJson(TOUR_HIKING_PREFERENCES, r.hiking_preferences, 'tour'),
-      ...walkStationFacts(r.tour_type, points),
-      route_pending: Boolean(r.route_missing) && Boolean(r.has_waypoints),
-      track_started_at: utcSuffix(r.track_started_at),
-      track_ended_at: utcSuffix(r.track_ended_at),
-      ...activityFacts(r.place_id, activities),
-      // MDT-01: a multi-day tour's stages, one more than the stops that end one.
-      stage_count: r.stage_ends > 0 ? r.stage_ends + 1 : null,
-      // MDT-02: the stops they run between, by which a day holds one of them.
-      stage_stops: r.stage_ends > 0 ? stageStopsOrNull(points) : null,
-    };
-  }
-
-  /**
-   * The route a create or an update writes: metrics derived from the geometry, duration stored in minutes.
-   * Without a line (CW-11) distance, heights and walking time stay unknown until the planner plans the way.
-   */
-  private routeFields(input: TourCreateCommand): TourUpdate {
-    const metrics = input.route_geometry ? computeTourMetrics(input.route_geometry) : null;
-    // A paddle tour drawn here has its heights read off the banks at the points set, not
-    // off the water: its ascent and descent stay unknown rather than wrong.
-    const heightsKnown = input.tour_type !== 'kayak';
-    return {
-      tour_type: input.tour_type,
-      distance: metrics?.distanceKm ?? null,
-      elevation_gain: heightsKnown ? (metrics?.elevationGainM ?? null) : null,
-      elevation_loss: heightsKnown ? (metrics?.elevationLossM ?? null) : null,
-      duration: input.duration_seconds == null ? null : Math.round(input.duration_seconds / 60),
-      ...(input.planned_duration_minutes !== undefined
-        ? { planned_duration_minutes: input.planned_duration_minutes }
-        : {}),
-      ...(input.break_additional_minutes !== undefined
-        ? { break_additional_minutes: input.break_additional_minutes }
-        : {}),
-      match_confidence: 1,
-      max_hiking_difficulty: input.max_hiking_difficulty,
-      bike_profile: input.tour_type === 'bike' ? (input.bike_profile ?? null) : null,
-      winter_activity: winterField(input),
-      ...runFields(input),
-      // SKI-02: TREK plans no ski track, so a planned save is never one and takes its classification off.
-      ski_discipline: null,
-      ski_technique: null,
-      boat_type: input.boat_type ?? null,
-      water_context: input.water_context ?? null,
-      paddle_speed_kmh: input.paddle_speed_kmh ?? null,
-      portage_speed_kmh: input.portage_speed_kmh ?? null,
-      paddle_lake_style: input.paddle_lake_style ?? null,
-      // MF-08: only a hike keeps preferences, and only those switched on; none is NULL.
-      hiking_preferences: hikingFields(input),
-    };
-  }
-
-  /**
    * `tour_types` knows every key the contract accepts, most of them disabled.
    * Checked before the write, so a disabled type is a 400 and not a tour the
    * planner cannot show. The refusals here are DomainErrors, so REST answers
@@ -301,42 +132,6 @@ export class ToursService {
    */
   private async assertTourTypeEnabled(key: string): Promise<void> {
     if (!(await this.tourTypesRepo.isEnabled(key))) throw badRequest('Tour type is not available');
-  }
-
-  private validateInformationalMetadata(input: TourCreateCommand): void {
-    if (input.description != null && input.description.length > 2000) {
-      throw badRequest('description must be 2000 characters or less');
-    }
-    if (input.website != null && !tourWebsiteSchema.safeParse(input.website).success) {
-      throw badRequest('website must be a valid HTTPS URL without credentials');
-    }
-  }
-
-  private validatePlannedTimes(input: TourCreateCommand): void {
-    for (const value of [input.planned_duration_minutes, input.break_additional_minutes]) {
-      if (value !== undefined && !plannedTourDurationMinutesSchema.safeParse(value).success) {
-        throw badRequest('planned Tour times must be whole minutes from 0 to 1440');
-      }
-    }
-    // MDT-01: a multi-day tour is held to a day a stage, a day tour to one day.
-    const stages = tourStageCountOf(input.waypoints);
-    if (
-      input.planned_duration_minutes == null &&
-      input.duration_seconds != null &&
-      Math.round(input.duration_seconds / 60) + (input.break_additional_minutes ?? 0) > maxTourMinutesFor(stages)
-    ) {
-      throw badRequest(plannedTimeLimitMessage(stages));
-    }
-  }
-
-  /**
-   * MDT-01: the stage ends sit at stops between start and end, as the contract
-   * holds a request to; checked here too for a write that did not come through
-   * it (an assistant's city walk), so no surface can store one out of place.
-   */
-  private validateStageEnds(input: TourCreateCommand): void {
-    const [issue] = tourStageIssues(input.waypoints);
-    if (issue) throw badRequest(issue.message);
   }
 
   /** All tours (the facet + owning place) for a trip, newest first; a paddle tour with its check bench (PAD-09). */
@@ -348,7 +143,7 @@ export class ToursService {
     const activities = await this.activitiesRepo.listForTrip(tid);
     return await this.paddleChecks.forTrip(
       tid,
-      rows.map((r) => this.toItem(r, listedPoints.get(r.place_id) ?? [], activities)),
+      rows.map((r) => tourItemOf(r, listedPoints.get(r.place_id) ?? [], activities)),
     );
   }
 
@@ -362,9 +157,7 @@ export class ToursService {
     rows: readonly { place_id: number; tour_type: string; stage_ends?: number }[],
   ): Promise<Map<number, TourWaypointWithPlaceRow[]>> {
     const byPlace = new Map<number, TourWaypointWithPlaceRow[]>();
-    const read = rows
-      .filter((row) => row.tour_type === 'walk' || (row.stage_ends ?? 0) > 0)
-      .map((row) => row.place_id);
+    const read = rows.filter((row) => row.tour_type === 'walk' || (row.stage_ends ?? 0) > 0).map((row) => row.place_id);
     for (const point of await this.waypointsRepo.listForPlaces(read)) {
       const points = byPlace.get(point.place_id);
       if (points) points.push(point);
@@ -419,7 +212,7 @@ export class ToursService {
     const documents = await this.activitiesRepo.findByTrack(row.place_id);
     const refs = documents ? [...activities, documents] : activities;
     const checked = await this.paddleChecks.forTour(
-      this.toItem(row, stored, refs),
+      tourItemOf(row, stored, refs),
       stored,
       place?.route_geometry ?? null,
     );
@@ -470,14 +263,12 @@ export class ToursService {
     // The controller's TripAccessGuard already resolved this trip id.
     const tid = toRowId(tripId)!;
     await this.assertTourTypeEnabled(input.tour_type);
-    this.validateInformationalMetadata(input);
-    this.validateStageEnds(input);
-    this.validatePlannedTimes(input);
+    checkTourCommand(input);
     const start = input.route_geometry ? input.route_geometry[0] : firstPointOf(input.waypoints);
     if (!start || (input.route_geometry === null && input.waypoints.length < 2)) {
       throw badRequest('A tour needs at least two points');
     }
-    const fields = this.routeFields(input);
+    const fields = tourRouteFields(input);
     const derivedFrom = input.derived_from_place_id ?? null;
 
     const placeId = await this.uow.transactional(async () => {
@@ -523,7 +314,7 @@ export class ToursService {
       this.logger.warn(`Committed Tour ${placeId}: place notification failed`);
     }
     const checked = await this.paddleChecks.forTour(
-      this.toItem(row, waypoints),
+      tourItemOf(row, waypoints),
       waypoints,
       place.route_geometry ?? null,
     );
@@ -806,12 +597,10 @@ export class ToursService {
    */
   async routeWrite(input: TourCreateCommand): Promise<TourRouteWrite> {
     await this.assertTourTypeEnabled(input.tour_type);
-    this.validateInformationalMetadata(input);
-    this.validateStageEnds(input);
-    this.validatePlannedTimes(input);
+    checkTourCommand(input);
     const start = input.route_geometry ? input.route_geometry[0] : firstPointOf(input.waypoints);
     if (!start) throw badRequest('A tour needs at least two points');
-    return { input, start, fields: this.routeFields(input) };
+    return { input, start, fields: tourRouteFields(input) };
   }
 
   /**
@@ -1021,7 +810,7 @@ export class ToursService {
           track_ended_at: recorded?.ended ?? null,
         });
         tours.push(
-          this.toItem({
+          tourItemOf({
             place_id: place.id,
             name: place.name,
             description: place.description ?? null,
@@ -1046,6 +835,7 @@ export class ToursService {
             has_recorded_track: 0,
             planned: 0,
             has_waypoints: 0,
+            stage_ends: 0,
             route_missing: 0,
             revision: 1,
             hiking_preferences: null,
@@ -1103,39 +893,4 @@ export class ToursService {
       ...(leftOut ? { left_out: leftOut } : {}),
     };
   }
-}
-
-/** Where a tour without a line starts (CW-11): at its first point. */
-function firstPointOf(points: readonly { lat: number; lng: number }[]): [number, number] | undefined {
-  const point = points[0];
-  return point ? [point.lat, point.lng] : undefined;
-}
-
-/** The file name a file import keeps: the name as uploaded, without a path, cut to what the column shows. */
-function importFileName(name: string | undefined): string | null {
-  const base = name?.split('/').pop()?.trim();
-  return base ? base.slice(0, 255) : null;
-}
-
-/** What the source of a tour carried, read from the tour's own record and its import's snapshot row. */
-function provenanceSource(origin: TourOrigin, row: TourProvenanceRow): TourProvenanceSource {
-  if (origin === 'gpx') return { kind: 'gpx', fileName: row.origin_file_name };
-  if (origin === 'wanderer') {
-    // The reference `instance#trail` is on the tour itself, so a snapshot whose row is missing still names its source.
-    const [refInstance, refTrail] = splitWandererRef(row.wanderer_ref);
-    return {
-      kind: 'wanderer',
-      instance: row.source_instance ?? refInstance,
-      externalId: row.source_external_id ?? refTrail,
-      externalUrl: row.source_external_url,
-      externalUpdated: row.source_external_updated,
-      importedAt: row.source_imported_at,
-    };
-  }
-  return { kind: 'trek' };
-}
-
-function splitWandererRef(ref: string | null): [string, string] {
-  const at = ref?.lastIndexOf('#') ?? -1;
-  return ref && at > 0 ? [ref.slice(0, at), ref.slice(at + 1)] : ['', ''];
 }

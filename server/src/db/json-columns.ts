@@ -236,18 +236,29 @@ export const TOUR_CHANGE_STEP_CHANGES: JsonColumn<TourChange[]> = {
   fallback: () => [],
 };
 
-/** A point of a saved line: latitude, longitude and the height where it has one. */
-const savedLinePoint = z.union([z.tuple([z.number(), z.number()]), z.tuple([z.number(), z.number(), z.number()])]);
+/**
+ * A point of a saved line: latitude, longitude and the height where it has one.
+ * Checked by hand rather than as a union of tuples: the server compiles without
+ * strictNullChecks, where a tuple schema reads as one of optional elements and
+ * would not hand back the GeometryPoint the restore writes.
+ */
+const savedLinePoint = z.custom<GeometryPoint>(
+  (value) =>
+    Array.isArray(value) &&
+    (value.length === 2 || value.length === 3) &&
+    value.every((n: unknown) => typeof n === 'number'),
+);
 
 /** A tour as it was before a saved step (MCP-T03), as its JSON column holds it. */
-export interface TourChangeStepBefore {
-  route_geometry: GeometryPoint[] | null;
-  waypoints: TourWaypoint[];
-  distance: number | null;
-  duration: number | null;
-  elevation_gain: number | null;
-  elevation_loss: number | null;
-}
+const tourChangeStepBeforeSchema = z.object({
+  route_geometry: z.array(savedLinePoint).nullable(),
+  waypoints: z.array(tourWaypointSchema),
+  distance: z.number().nullable(),
+  duration: z.number().nullable(),
+  elevation_gain: z.number().nullable(),
+  elevation_loss: z.number().nullable(),
+});
+export type TourChangeStepBefore = z.infer<typeof tourChangeStepBeforeSchema>;
 
 /**
  * MCP-T03: a tour as it was before a saved step changed it: its line (null
@@ -257,16 +268,7 @@ export interface TourChangeStepBefore {
  */
 export const TOUR_CHANGE_STEP_BEFORE: JsonColumn<TourChangeStepBefore | null> = {
   column: 'tour_change_steps.before_state',
-  schema: z
-    .object({
-      route_geometry: z.array(savedLinePoint).nullable(),
-      waypoints: z.array(tourWaypointSchema),
-      distance: z.number().nullable(),
-      duration: z.number().nullable(),
-      elevation_gain: z.number().nullable(),
-      elevation_loss: z.number().nullable(),
-    })
-    .nullable(),
+  schema: tourChangeStepBeforeSchema.nullable(),
   fallback: () => null,
 };
 

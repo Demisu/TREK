@@ -50,7 +50,7 @@ import { markdownLinkComponents } from '../shared/markdownLink';
 import { TourDayRowAvatar } from './TourDayRowFacts';
 import { TourGpxExportButton } from './TourGpxExportButton';
 import TourActivitySection from './activity/TourActivitySection';
-import type { PlanValues } from './activity/tourActivityCompare';
+import type { PlanValues } from './activity/planComparison';
 import { TourSaveToCollectionButton } from './collection/TourSaveToCollectionButton';
 import { PaddleCheckSection } from './paddle/PaddleCheckSection';
 import { TourPackingSection } from './packing/TourPackingSection';

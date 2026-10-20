@@ -16,7 +16,7 @@ import { CardAction, TourNotice } from '../tourParts';
 import TourActivityCompare from './TourActivityCompare';
 import TourActivityDialog from './TourActivityDialog';
 import { ACTUAL_TRACK_COLOR } from './activityCompareParts';
-import type { PlanValues } from './tourActivityCompare';
+import type { PlanValues } from './planComparison';
 import { analysisOfLine, executionOf, executionsOf, recordedDay, type TourExecution } from './tourActivityModel';
 import { useActivityComparison, type ActivityComparisonState } from './useActivityComparison';
 import { useTourActivities, type TourActivities } from './useTourActivities';

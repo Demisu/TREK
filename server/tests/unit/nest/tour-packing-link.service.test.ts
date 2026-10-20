@@ -117,11 +117,14 @@ describe('TourPackingLinkService', () => {
 
   it('TPL-SVC-003: a category the user cannot see an item of is refused, a private one of another member included', async () => {
     const f = await fixture();
-    for (const category of ['Climbing', 'hiking gear', 'Secret']) {
-      await expect(
-        links.link(String(f.trip.id), String(f.hike.id), { category }, f.owner.id),
-      ).rejects.toMatchObject({ status: 400, publicMessage: 'Packing category not found' });
-    }
+    const refused = (category: string) =>
+      expect(links.link(String(f.trip.id), String(f.hike.id), { category }, f.owner.id)).rejects.toMatchObject({
+        status: 400,
+        publicMessage: 'Packing category not found',
+      });
+    await refused('Climbing');
+    await refused('hiking gear');
+    await refused('Secret');
     // The member who keeps it may link it.
     const own = await links.link(String(f.trip.id), String(f.hike.id), { category: 'Secret' }, f.member.id);
     expect(own.packing_link?.category).toBe('Secret');
@@ -163,18 +166,15 @@ describe('TourPackingLinkService', () => {
 
   it('TPL-SVC-006: a tour of another trip, a plain place or a malformed id is not found', async () => {
     const f = await fixture();
-    const attempts = [
-      () => links.read(f.trip.id, f.otherTour.id),
-      () => links.read(f.trip.id, f.cafe.id),
-      () => links.read('abc', f.hike.id),
-      () => links.read(f.trip.id, '1.5'),
-      () => links.link(String(f.trip.id), String(f.otherTour.id), { category: null }, f.owner.id),
-      () => links.unlink(String(f.trip.id), String(f.cafe.id)),
-      () => links.view(f.other.id, f.hike.id, f.owner.id),
-    ];
-    for (const attempt of attempts) {
-      await expect(attempt()).rejects.toMatchObject({ status: 404, publicMessage: 'Tour not found' });
-    }
+    const notFound = (attempt: Promise<unknown>) =>
+      expect(attempt).rejects.toMatchObject({ status: 404, publicMessage: 'Tour not found' });
+    await notFound(links.read(f.trip.id, f.otherTour.id));
+    await notFound(links.read(f.trip.id, f.cafe.id));
+    await notFound(links.read('abc', f.hike.id));
+    await notFound(links.read(f.trip.id, '1.5'));
+    await notFound(links.link(String(f.trip.id), String(f.otherTour.id), { category: null }, f.owner.id));
+    await notFound(links.unlink(String(f.trip.id), String(f.cafe.id)));
+    await notFound(links.view(f.other.id, f.hike.id, f.owner.id));
     expect(await countRows(orm(), TourPackingLinks)).toBe(0);
   });
 

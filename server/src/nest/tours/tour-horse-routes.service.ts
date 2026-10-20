@@ -62,7 +62,7 @@ export class TourHorseRoutesService {
   /** One query for the box, shared with every request for it until it settles. */
   private fetch(key: string, box: FerrataBbox, now: number): Promise<Answer> {
     const running = this.pending.get(key);
-    if (running) return running;
+    if (running !== undefined) return running;
     const run = this.query(box).then((answer) => {
       this.keep(key, answer, now);
       return answer;

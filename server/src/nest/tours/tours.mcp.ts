@@ -128,10 +128,7 @@ export class ToursMcp {
     when: addonGate(ADDON_IDS.TOURS),
     access: { group: 'trips', mode: 'read' },
   })
-  async getTourPlan(
-    { tripId, placeId, dayId }: { tripId: number; placeId: number; dayId?: number },
-    ctx: McpContext,
-  ) {
+  async getTourPlan({ tripId, placeId, dayId }: { tripId: number; placeId: number; dayId?: number }, ctx: McpContext) {
     if (!(await this.access.findAccessible(tripId, ctx.userId))) return noAccess();
     let read: PlanRead;
     try {

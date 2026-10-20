@@ -733,9 +733,7 @@ export class TripsService {
         if (newPlaceId) await this.tagsRepo.insertIgnore(newPlaceId, [t.tag_id]); // TP47
       }
 
-      // A Tour is its place plus the `tours` facet, its import record, its obstacle decisions, its packing link and
-      // the waypoints its route was planned through. The facet row goes first, since the others reference it;
-      // without them it is no Tour.
+      // The `tours` facet goes first: the import record, obstacle decisions, packing link and waypoints need it.
       const oldTours = await this.toursRepo.listRowsForTrip(Number(sourceTripId));
       const copiedTours = new Map<number, number>();
       for (const { place_id, ...tour } of oldTours) {
@@ -744,7 +742,9 @@ export class TripsService {
         await this.toursRepo.insertCopy(newPlaceId, tour, placeMap);
         copiedTours.set(place_id, newPlaceId);
       }
-      for (const [from, to] of copiedTours) await this.toursRepo.copyTourRelations(from, to);
+      await Promise.all([...copiedTours].map(([from, to]) => this.toursRepo.copySource(from, to)));
+      await Promise.all([...copiedTours].map(([from, to]) => this.toursRepo.copyObstacleReviews(from, to)));
+      await Promise.all([...copiedTours].map(([from, to]) => this.toursRepo.copyPackingLink(from, to)));
 
       const waypointsByPlace = new Map<number, TourWaypointRow[]>();
       for (const { place_id, ...waypoint } of await this.tourWaypointsRepo.listForTrip(Number(sourceTripId))) {
@@ -767,8 +767,7 @@ export class TripsService {
             day_id: newDayId, place_id: newPlaceId, order_index: a.order_index, notes: a.notes,
             reservation_status: a.reservation_status, reservation_notes: a.reservation_notes,
             reservation_datetime: a.reservation_datetime, assignment_time: a.assignment_time,
-            assignment_end_time: a.assignment_end_time, end_day: a.end_day ?? 0,
-            tour_stage_key: a.tour_stage_key,
+            assignment_end_time: a.assignment_end_time, end_day: a.end_day ?? 0, tour_stage_key: a.tour_stage_key,
           });
           assignmentMap.set(a.id, newAssignmentId);
         }

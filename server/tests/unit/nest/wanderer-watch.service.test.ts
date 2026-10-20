@@ -11,9 +11,9 @@ import { maybe_encrypt_api_key } from '../../../src/nest/common/crypto/apiKeyCry
 import { DomainError } from '../../../src/nest/common/domain-error';
 import { NotificationsService } from '../../../src/nest/notifications/notifications.service';
 import { contentHashOf } from '../../../src/nest/tours/tours.helpers';
+import { ToursModule } from '../../../src/nest/tours/tours.module';
 import { WATCH_BACKOFF_BASE_MS } from '../../../src/nest/tours/wanderer-watch.helpers';
 import { WandererWatchService } from '../../../src/nest/tours/wanderer-watch.service';
-import { ToursModule } from '../../../src/nest/tours/tours.module';
 import { WandererClient, WandererError } from '../../../src/nest/wanderer/wanderer.client';
 import { createSnapshotTestDb } from '../../helpers/db-mock';
 import { makePlace } from '../../helpers/factories/places';

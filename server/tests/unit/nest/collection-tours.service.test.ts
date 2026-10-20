@@ -329,9 +329,7 @@ describe('CollectionToursService', () => {
     // Gone between the check and the write: the write leaves no half-made tour behind.
     const repo = t.moduleRef.get<CollectionToursRepository>(getRepositoryToken(CollectionTours), { strict: false });
     const find = repo.findInCollection.bind(repo);
-    vi.spyOn(repo, 'findInCollection')
-      .mockImplementationOnce(find)
-      .mockResolvedValueOnce(undefined);
+    vi.spyOn(repo, 'findInCollection').mockImplementationOnce(find).mockResolvedValueOnce(undefined);
     const before = await countRows(orm, Places);
     expect(await refusal(service.takeOver(String(f.next.id), f.owner.id, body))).toEqual({
       status: 404,

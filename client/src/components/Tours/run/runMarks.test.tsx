@@ -88,7 +88,7 @@ describe('a run wherever a tour shows (RUN-01)', () => {
     expect(screen.queryByTestId('tour-detail-run-profile')).toBeNull();
   });
 
-  it('FE-TOUR-RUN-MARK-007: a trail run goes by its own profile, and its time and pace read as any run's (RUN-02)', () => {
+  it("FE-TOUR-RUN-MARK-007: a trail run goes by its own profile, and its time and pace read as any run's (RUN-02)", () => {
     const trail = { ...run, run_profile: 'trail' as const, run_pace_seconds_per_km: 450, duration: 60 };
     render(<RunHeadPills tour={trail} className="head-pill" />);
     expect(screen.getByTestId('tour-detail-run-profile')).toHaveTextContent('Trail running');

@@ -84,7 +84,13 @@ export class WandererWatchService {
     @InjectRepository(TourSourceHints) private readonly hints: TourSourceHintsRepository,
   ) {}
 
-  /** The cron's entry: every connection that may be asked now, one after another. */
+  /**
+   * The cron's entry: every connection that may be asked now, one after another.
+   *
+   * @txIndependent one transaction per user: each user's hints land whole with
+   * the note of the run, after a look at their own instance over the network, and
+   * one user that fails keeps no other from theirs.
+   */
   async run(now: Date = new Date()): Promise<void> {
     if (this.running || !(await this.addons.isWandererAvailable())) return;
     this.running = true;
@@ -137,7 +143,10 @@ export class WandererWatchService {
       );
       await this.wanderer.noteWatchRun(userId, { lastRunAt: dbNow(now), failures: 0, pausedUntil: null });
     });
-    await this.announce(userId, findings.filter(({ source, verdict }) => isNewHint(source, verdict)));
+    await this.announce(
+      userId,
+      findings.filter(({ source, verdict }) => isNewHint(source, verdict)),
+    );
   }
 
   /**

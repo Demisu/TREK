@@ -448,14 +448,20 @@ describe('ToursRepository writes', () => {
     const place = createPlace(testDb, trip.id, { name: 'River loop' });
     const run = { ...METRICS, tour_type: 'run', max_hiking_difficulty: null };
     await repo.insertTour({ place_id: place.id, ...run, run_profile: 'running', run_pace_seconds_per_km: 360 });
-    expect(await repo.findInTrip(trip.id, place.id)).toMatchObject({ run_profile: 'running', run_pace_seconds_per_km: 360 });
+    expect(await repo.findInTrip(trip.id, place.id)).toMatchObject({
+      run_profile: 'running',
+      run_pace_seconds_per_km: 360,
+    });
 
     const faster = { ...HIKE_UPDATE, ...run, run_profile: 'running' as const, run_pace_seconds_per_km: 300 };
     expect(await repo.updateInTrip(trip.id, place.id, faster)).toBe(true);
     expect((await repo.listForTrip(trip.id))[0]).toMatchObject({ tour_type: 'run', run_pace_seconds_per_km: 300 });
 
     expect(await repo.updateInTrip(trip.id, place.id, HIKE_UPDATE)).toBe(true);
-    expect(await repo.findInTrip(trip.id, place.id)).toMatchObject({ run_profile: null, run_pace_seconds_per_km: null });
+    expect(await repo.findInTrip(trip.id, place.id)).toMatchObject({
+      run_profile: null,
+      run_pace_seconds_per_km: null,
+    });
   });
 
   it('TOURREPO-024: a ski track keeps its classification, is classified again only in its own trip, and a route edit takes it off (SKI-02)', async () => {
@@ -682,8 +688,8 @@ describe('ToursRepository writes', () => {
     const plainCopy = createPlace(testDb, other.id);
     await repo.insertTour({ ...METRICS, place_id: plainCopy.id });
 
-    await repo.copyTourRelations(linked.id, linkedCopy.id);
-    await repo.copyTourRelations(plain.id, plainCopy.id);
+    await repo.copyPackingLink(linked.id, linkedCopy.id);
+    await repo.copyPackingLink(plain.id, plainCopy.id);
 
     const source = await findRow(t, TourPackingLinks, { place: linked.id });
     expect(await findRow(t, TourPackingLinks, { place: linkedCopy.id })).toMatchObject({

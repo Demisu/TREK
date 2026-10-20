@@ -17,6 +17,7 @@ const edge = (from: number, to: number, wayId = 1): RouteWayEdge => ({
   lengthM: 100,
   surface: 'unknown',
   way: 'path',
+  sac: 'none',
   wayId,
 });
 

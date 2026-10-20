@@ -51,14 +51,16 @@ beforeAll(async () => {
 beforeEach(() => {
   resetTestDb(db);
   // Every leg the router plans is 500 m and 400 s on foot.
-  route.mockReset().mockImplementation(
-    async (_userId: number, _tripId: number, _dayId: number, points: Array<{ lat: number; lng: number }>) => ({
-      leg: { line: points.map((point): [number, number] => [point.lat, point.lng]) },
-      parts: points.slice(1).map(() => ({ distance: 500, duration: 400 })),
-      snapped: points.map(() => ({ meters: 4 })),
-      avoidMissed: [],
-    }),
-  );
+  route
+    .mockReset()
+    .mockImplementation(
+      async (_userId: number, _tripId: number, _dayId: number, points: Array<{ lat: number; lng: number }>) => ({
+        leg: { line: points.map((point): [number, number] => [point.lat, point.lng]) },
+        parts: points.slice(1).map(() => ({ distance: 500, duration: 400 })),
+        snapped: points.map(() => ({ meters: 4 })),
+        avoidMissed: [],
+      }),
+    );
 });
 afterAll(async () => {
   await t.close();

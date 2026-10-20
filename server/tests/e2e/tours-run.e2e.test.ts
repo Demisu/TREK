@@ -172,7 +172,11 @@ describe('Runs e2e (real guards + temp SQLite)', () => {
     });
     const list = await request(server).get('/api/trips/5/tours').set('Cookie', sessionCookie(VIEWER));
     expect(list.status).toBe(200);
-    expect(list.body.tours[0]).toMatchObject({ place_id: placeId, run_profile: 'running', run_pace_seconds_per_km: 360 });
+    expect(list.body.tours[0]).toMatchObject({
+      place_id: placeId,
+      run_profile: 'running',
+      run_pace_seconds_per_km: 360,
+    });
     const detail = await request(server).get(`/api/trips/5/tours/${placeId}`).set('Cookie', sessionCookie(OWNER));
     expect(detail.body.tour).toMatchObject({ tour_type: 'run', run_profile: 'running', duration: 48 });
     expect(detail.body.waypoints).toHaveLength(2);

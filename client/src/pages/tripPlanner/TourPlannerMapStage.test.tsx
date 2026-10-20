@@ -341,7 +341,7 @@ describe('TourPlannerMapStage', () => {
   it('FE-PAGE-TOURSTAGE-007: switched on, the layer asks for the area the flat map reported and draws what it found, grouped', () => {
     renderStage(planner('view-saved'));
     const area = { south: 46.5, west: 11.7, north: 46.6, east: 11.9 };
-    act(() => stage.flatMap.props?.onViewportChange?.(area));
+    act(() => stage.flatMap.props?.onViewportChange?.(area, 12));
     // HOR-01: the rail's horse route search looks in the same view.
     expect(useTourMapViewportStore.getState().bounds).toEqual(area);
     act(() => stage.flatMap.props?.ferrataLayer?.onToggle());

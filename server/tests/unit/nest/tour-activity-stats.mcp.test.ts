@@ -48,23 +48,24 @@ function read(result: { content: Array<{ type: string; text: string }>; isError?
   return result.isError ? { error: text } : JSON.parse(text);
 }
 
+/** A tour of the trip on a day of its own, with 500 m up and down; answers its place. */
+async function tourOnDay(tripId: number, name: string, type: 'hike' | 'kayak', distance: number, date: string) {
+  const day = await makeDay(orm(), tripId, { date });
+  const place = await makePlace(orm(), tripId, { name });
+  await makeTour(orm(), place.id, { tourTypeRef: type, distance, elevation_gain: 500, elevation_loss: 500 });
+  await makeDayAssignment(orm(), day.id, place.id);
+  return place.id;
+}
+
 /** A hike and a paddle tour done in July, a hike still ahead, and a trip somebody else owns. */
 async function fixture() {
   const { user } = await makeUser(orm());
   const { user: stranger } = await makeUser(orm());
   const trip = await makeTrip(orm(), user.id, { title: 'Alps' });
   const tours: Record<string, number> = {};
-  for (const [name, type, distance, date] of [
-    ['Ridge', 'hike', 12, '2026-07-02'],
-    ['Lake', 'kayak', 9, '2026-07-04'],
-    ['Summit', 'hike', 15, '2026-07-20'],
-  ] as const) {
-    const day = await makeDay(orm(), trip.id, { date });
-    const place = await makePlace(orm(), trip.id, { name });
-    await makeTour(orm(), place.id, { tourTypeRef: type, distance, elevation_gain: 500, elevation_loss: 500 });
-    await makeDayAssignment(orm(), day.id, place.id);
-    tours[name] = place.id;
-  }
+  tours.Ridge = await tourOnDay(trip.id, 'Ridge', 'hike', 12, '2026-07-02');
+  tours.Lake = await tourOnDay(trip.id, 'Lake', 'kayak', 9, '2026-07-04');
+  tours.Summit = await tourOnDay(trip.id, 'Summit', 'hike', 15, '2026-07-20');
   const closed = await makeTrip(orm(), stranger.id);
   const hidden = await makePlace(orm(), closed.id, { name: 'Hidden' });
   await makeTour(orm(), hidden.id);

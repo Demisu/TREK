@@ -378,7 +378,9 @@ describe('ToursMcp', () => {
     const { tours } = read(await mcp.listTours({ tripId: trip.id }, ctx(user.id)));
     const listed = tours.find((tour: { place_id: number }) => tour.place_id === ridge.id);
     expect(listed.stage_stops.map((stop: { key: string }) => stop.key)).toEqual(['stop-start', 'stop-hut', 'stop-end']);
-    expect(listed.days.map((day: { day_id: number; tour_stage_key: string | null }) => [day.day_id, day.tour_stage_key])).toEqual([
+    expect(
+      listed.days.map((day: { day_id: number; tour_stage_key: string | null }) => [day.day_id, day.tour_stage_key]),
+    ).toEqual([
       [day1.id, null],
       [day2.id, null],
       [day3.id, 'stop-hut'],
@@ -586,7 +588,11 @@ describe('ToursMcp', () => {
     await orm.close();
     const { tours } = read(await mcp.listTours({ tripId: trip.id }, ctx(user.id)));
     const byId = new Map(tours.map((tour: { place_id: number }) => [tour.place_id, tour]));
-    expect(byId.get(ridge.id)).toMatchObject({ tour_type: 'run', run_profile: 'running', run_pace_seconds_per_km: 360 });
+    expect(byId.get(ridge.id)).toMatchObject({
+      tour_type: 'run',
+      run_profile: 'running',
+      run_pace_seconds_per_km: 360,
+    });
     expect(byId.get(gorge.id)).toMatchObject({ run_profile: null, run_pace_seconds_per_km: null });
     const entry = getEntry(ToursMcp as unknown as ClassRef, 'listTours');
     const description = entry?.kind === 'tool' ? (entry.options.description ?? '') : '';

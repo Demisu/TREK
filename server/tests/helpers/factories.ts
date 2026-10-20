@@ -388,7 +388,9 @@ export function createDayAssignment(
   };
   const orderIndex = overrides.order_index ?? (maxOrder.max !== null ? maxOrder.max + 1 : 0);
   const result = db
-    .prepare('INSERT INTO day_assignments (day_id, place_id, order_index, notes, tour_stage_key) VALUES (?, ?, ?, ?, ?)')
+    .prepare(
+      'INSERT INTO day_assignments (day_id, place_id, order_index, notes, tour_stage_key) VALUES (?, ?, ?, ?, ?)',
+    )
     .run(dayId, placeId, orderIndex, overrides.notes ?? null, overrides.tour_stage_key ?? null);
   return db.prepare('SELECT * FROM day_assignments WHERE id = ?').get(result.lastInsertRowid) as TestDayAssignment;
 }

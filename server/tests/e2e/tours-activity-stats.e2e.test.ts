@@ -8,7 +8,6 @@
  * Fixtures: user 1 owns trip 5 (two dated days, one without a date), user 2 is
  * a member, user 3 has no access.
  */
-import { db } from '../../src/db/database';
 import { AssignmentParticipants } from '../../src/db/entities/AssignmentParticipants.entity';
 import { Days } from '../../src/db/entities/Days.entity';
 import { Places } from '../../src/db/entities/Places.entity';
@@ -20,6 +19,7 @@ import { JourneyDomainService } from '../../src/nest/journey/journey-domain.serv
 import { RealtimeModule } from '../../src/nest/realtime/realtime.module';
 import { RealtimeService } from '../../src/nest/realtime/realtime.service';
 import { ToursModule } from '../../src/nest/tours/tours.module';
+import { createSnapshotTestDb } from '../helpers/db-mock';
 import { makeDayAssignment } from '../helpers/factories/itinerary';
 import { countRows, deleteRows, insertRow, insertRows } from '../helpers/factories/rows';
 import { setAddonEnabled } from '../helpers/factories/settings';
@@ -36,10 +36,6 @@ import type { Server } from 'http';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../src/db/database', async () => {
-  const { createSnapshotTestDb, buildDbMock } = await import('../helpers/db-mock');
-  return buildDbMock(createSnapshotTestDb());
-});
 vi.mock('../../src/nest/audit/audit-log.logger', () => ({
   LOG_LEVEL: 'error',
   logInfo: vi.fn(),
@@ -48,6 +44,7 @@ vi.mock('../../src/nest/audit/audit-log.logger', () => ({
   logWarn: vi.fn(),
 }));
 
+const db = createSnapshotTestDb();
 const journeyHooks = {
   reconcileTripSkeletons: vi.fn().mockResolvedValue(undefined),
   onPlaceCreated: vi.fn().mockResolvedValue(undefined),

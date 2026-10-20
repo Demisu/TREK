@@ -15,6 +15,7 @@ const edge = (from: number, wayId: number | null, lengthM = 100): RouteWayEdge =
   lengthM,
   surface: 'paved',
   way: 'path',
+  sac: 'none',
   wayId,
 });
 
