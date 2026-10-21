@@ -410,7 +410,7 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.genericRemove': 'Supprimer',
   'assistant.change.label.field': 'Valeur',
   'assistant.domain.tours': 'Randonnées',
-  'assistant.domain.roadtrip': 'Road trip',
+  'assistant.domain.roadtrip': 'Voyage en voiture',
   'assistant.domain.journey': 'Carnet de voyage',
   'assistant.domain.vacay': 'Planificateur de congés',
   'assistant.domain.atlas': 'Atlas',
