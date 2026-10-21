@@ -114,7 +114,7 @@ describe('aroundPath and overpassAlongQuery', () => {
     const path = aroundPath([at(0, 0), at(0, 1000)], 500);
     const query = overpassAlongQuery(['tourism=viewpoint', 'amenity=drinking_water'], path, 60);
     // The deadline the client's own wait is derived from, so the two never drift apart.
-    expect(OVERPASS_ALONG_QUERY_TIMEOUT_S).toBe(10);
+    expect(OVERPASS_ALONG_QUERY_TIMEOUT_S).toBe(15);
     expect(query.startsWith(`[out:json][timeout:${OVERPASS_ALONG_QUERY_TIMEOUT_S}];`)).toBe(true);
     expect(query).toContain('nwr["tourism"="viewpoint"](');
     expect(query).toContain('nwr["amenity"="drinking_water"](');

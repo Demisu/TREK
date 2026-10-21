@@ -38,6 +38,7 @@ import {
   OSM_PLACE_ID,
   type OverpassPoi,
 } from '../maps.helpers';
+import { OverpassBusy, hedged, lastAnsweredFirst, retryAfterMs, soonestRetryMs } from '../overpass-hedge.helpers';
 import { readWikiIdentity } from './wiki-identity';
 import { Injectable } from '@nestjs/common';
 import { normalizePlaceWebsite } from '@trek/shared';
@@ -131,11 +132,20 @@ const POI_CACHE_MAX = 500;
  */
 export const POI_RESULT_CAP = 240;
 
-// POST the query to all mirrors at once and return the first one that answers with
-// valid JSON. Throws {status:502} only if every mirror fails. Racing (rather than
-// trying one-by-one) keeps latency at the fastest reachable mirror instead of the
-// sum of every dead mirror's timeout.
-async function overpassFetch(query: string, timeoutMs = OVERPASS_TIMEOUT_MS): Promise<OverpassPoiElement[]> {
+/** The mirror that answered last, asked first by a hedged query. */
+let lastAnsweredMirror: string | null = null;
+
+// POST the query to the mirrors and return the first one that answers with
+// valid JSON. Throws {status:502} only if every mirror fails, with the shortest
+// wait a busy mirror asked for as `retryAfterMs` when one named it. Without
+// `hedgeMs` every mirror is asked at once, so latency is the fastest reachable
+// mirror's; with it they are asked one after another (overpass-hedge.helpers),
+// so a quick answer costs one mirror's slot instead of every mirror's.
+async function overpassFetch(
+  query: string,
+  timeoutMs = OVERPASS_TIMEOUT_MS,
+  hedgeMs = 0,
+): Promise<OverpassPoiElement[]> {
   const body = `data=${encodeURIComponent(query)}`;
   const controllers: AbortController[] = [];
 
@@ -150,6 +160,8 @@ async function overpassFetch(query: string, timeoutMs = OVERPASS_TIMEOUT_MS): Pr
         body,
         signal: ctrl.signal,
       });
+      // A mirror out of slots for this IP: busy, not down, and it may say for how long.
+      if (res.status === 429) throw new OverpassBusy(url, retryAfterMs(res.headers.get('retry-after')));
       if (!res.ok) throw new Error(`Overpass ${res.status} @ ${url}`);
       const data = (await res.json()) as { elements?: OverpassPoiElement[]; remark?: string };
       // Overpass signals an internal timeout / runtime error via `remark` while
@@ -159,6 +171,7 @@ async function overpassFetch(query: string, timeoutMs = OVERPASS_TIMEOUT_MS): Pr
       // still surfaces a real error to the client instead of a silent "no places".
       if (data.remark) throw new Error(`Overpass remark @ ${url}: ${data.remark}`);
       if (!Array.isArray(data.elements)) throw new Error(`Overpass non-OSM body @ ${url}`);
+      lastAnsweredMirror = url;
       return data.elements;
     } finally {
       clearTimeout(timer);
@@ -166,21 +179,23 @@ async function overpassFetch(query: string, timeoutMs = OVERPASS_TIMEOUT_MS): Pr
   };
 
   try {
-    // Promise.any resolves with the first mirror to return valid JSON, and only
-    // rejects (AggregateError) once every mirror has failed.
-    return await Promise.any(OVERPASS_MIRRORS.map(attempt));
+    // Either way the first mirror to return valid JSON wins, and only once every
+    // mirror has failed does it reject (AggregateError).
+    return await (hedgeMs > 0
+      ? hedged(lastAnsweredFirst(OVERPASS_MIRRORS, lastAnsweredMirror), attempt, hedgeMs)
+      : Promise.any(OVERPASS_MIRRORS.map(attempt)));
   } catch (err) {
     // Log WHY every endpoint failed (connection refused, aborted/timed out, non-OSM
     // body, …) so an operator can tell blocked egress / a firewall from a transiently
     // overloaded mirror — otherwise this is a bare 502 with no breadcrumb (see #1309).
-    const reasons =
-      err instanceof AggregateError
-        ? err.errors.map((e) => (e instanceof Error ? e.message : String(e))).join(' | ')
-        : err instanceof Error
-          ? err.message
-          : String(err);
+    const errors: unknown[] = err instanceof AggregateError ? err.errors : [err];
+    const reasons = errors.map((e) => (e instanceof Error ? e.message : String(e))).join(' | ');
     console.error(`[Overpass] all ${OVERPASS_MIRRORS.length} endpoint(s) failed — ${reasons}`);
-    throw Object.assign(new Error('Could not reach any Overpass endpoint'), { status: 502 });
+    const wait = soonestRetryMs(errors);
+    throw Object.assign(new Error('Could not reach any Overpass endpoint'), {
+      status: 502,
+      ...(wait !== null ? { retryAfterMs: wait } : {}),
+    });
   } finally {
     // Cancel the slower/losing requests — we already have (or have given up on) a result.
     controllers.forEach((c) => {
@@ -321,12 +336,27 @@ function readPois(
 const OVERPASS_ALONG_TIMEOUT_MS = (OVERPASS_ALONG_QUERY_TIMEOUT_S + 2) * 1000;
 
 /**
- * How long the search along a line leaves Overpass alone once every endpoint
- * failed it. While the public mirrors do not answer, each search would wait
- * out the whole deadline only to name the same kinds unavailable; after the
- * pause the next search asks again for real.
+ * How long the search along a line holds back once every endpoint failed it.
+ * While the public mirrors do not answer, each search would wait out the
+ * whole deadline only to name the same kinds unavailable; after the pause the
+ * next search asks again for real. Inside it one probe goes through every
+ * OVERPASS_ALONG_PROBE_MS, so a mirror back early is found by the next retry.
  */
 export const OVERPASS_ALONG_COOLDOWN_MS = 3 * 60 * 1000;
+
+/**
+ * How often a search along a line may probe Overpass during the cooldown; a
+ * busy mirror's Retry-After stretches it, never beyond the cooldown. The
+ * searches beside the probe are refused at once, as in the whole cooldown.
+ */
+export const OVERPASS_ALONG_PROBE_MS = 20 * 1000;
+
+/**
+ * How long a search along a line waits for one mirror before it asks the next
+ * one as well: most answers take well under this, so a healthy mirror costs
+ * one slot instead of all four.
+ */
+export const OVERPASS_ALONG_HEDGE_MS = 1500;
 
 /**
  * A stretch of a search along a line refused during the cooldown: nothing was
@@ -341,8 +371,10 @@ export class OverpassCoolingDown extends Error {
 
 @Injectable()
 export class OsmClient {
-  /** Until when the search along a line leaves Overpass alone after every endpoint failed it; 0 while it asks. */
+  /** Until when the search along a line holds back after every endpoint failed it; 0 while it asks. */
   private overpassAlongCooldownUntil = 0;
+  /** When the next probe of the cooldown may go out. */
+  private overpassAlongProbeAt = 0;
   /** When an along query was last answered, so a failure that settles after an answer starts no cooldown. */
   private overpassAlongAnsweredAt = 0;
   /** Whether this cooldown's first skip was logged, so the log holds one line per cooldown. */
@@ -770,8 +802,10 @@ export class OsmClient {
     const cacheKey = `along|${kinds}|${osmLang}|${path.radiusM}|${points}|${cap}`;
     const cached = cachedPoiAnswer(cacheKey);
     if (cached) return cached;
-    // Neither a new search nor a later stretch of one under way waits for mirrors that just failed.
+    // Neither a new search nor a later stretch of one under way waits for mirrors that just failed,
+    // but one in a while probes them, so a retry finds them back.
     if (this.skipsOverpassAlong()) throw new OverpassCoolingDown();
+    if (Date.now() < this.overpassAlongCooldownUntil) this.overpassAlongProbeAt = Date.now() + OVERPASS_ALONG_PROBE_MS;
 
     const elements = await this.fetchOverpassAlong(overpassAlongQuery(match.filters, path, cap));
     const pois = readPois(elements, match, osmLang, KEPT_UNNAMED_ALONG);
@@ -787,37 +821,53 @@ export class OsmClient {
 
   /**
    * Whether the search along a line leaves Overpass alone right now, because
-   * every endpoint failed it within the last OVERPASS_ALONG_COOLDOWN_MS. Its
-   * kinds are then unavailable at once instead of after the whole deadline.
-   * The first skip of each cooldown is logged.
+   * every endpoint failed it within the last OVERPASS_ALONG_COOLDOWN_MS and
+   * no probe is due yet. Its kinds are then unavailable at once instead of
+   * after the whole deadline. The first skip of each cooldown is logged.
    */
   skipsOverpassAlong(): boolean {
-    if (Date.now() >= this.overpassAlongCooldownUntil) return false;
+    if (this.overpassAlongRetryAfterMs() === 0) return false;
     if (!this.overpassAlongSkipLogged) {
       this.overpassAlongSkipLogged = true;
       const until = new Date(this.overpassAlongCooldownUntil).toISOString();
-      logWarn(`[Maps] OpenStreetMap along a line: every Overpass endpoint failed, so it is not asked until ${until}`);
+      logWarn(
+        `[Maps] OpenStreetMap along a line: every Overpass endpoint failed, so only a probe now and then asks it until ${until}`,
+      );
     }
     return true;
   }
 
+  /** How long until a search along a line asks Overpass again, a probe included; 0 when it would now. */
+  overpassAlongRetryAfterMs(): number {
+    const now = Date.now();
+    if (now >= this.overpassAlongCooldownUntil) return 0;
+    return Math.max(0, Math.min(this.overpassAlongProbeAt, this.overpassAlongCooldownUntil) - now);
+  }
+
   /**
-   * The along query on the mirrors. An answer ends the cooldown; every
-   * endpoint failing starts it, unless another along query was answered while
-   * this one was in flight: Overpass is up then, and only this query failed.
+   * The along query on the mirrors, one after another. An answer ends the
+   * cooldown; every endpoint failing starts or stretches it, unless another
+   * along query was answered while this one was in flight: Overpass is up
+   * then, and only this query failed. A failed probe keeps the cooldown's
+   * log line, so one outage is one line.
    */
   private async fetchOverpassAlong(query: string): Promise<OverpassPoiElement[]> {
     const askedAt = Date.now();
     try {
-      const elements = await overpassFetch(query, OVERPASS_ALONG_TIMEOUT_MS);
+      const elements = await overpassFetch(query, OVERPASS_ALONG_TIMEOUT_MS, OVERPASS_ALONG_HEDGE_MS);
       this.overpassAlongAnsweredAt = Date.now();
       this.overpassAlongCooldownUntil = 0;
+      this.overpassAlongProbeAt = 0;
       return elements;
     } catch (err) {
       // overpassFetch throws only once every mirror has failed.
       if (this.overpassAlongAnsweredAt < askedAt) {
-        this.overpassAlongCooldownUntil = Date.now() + OVERPASS_ALONG_COOLDOWN_MS;
-        this.overpassAlongSkipLogged = false;
+        const now = Date.now();
+        const busyFor = (err as { retryAfterMs?: number }).retryAfterMs ?? 0;
+        if (now >= this.overpassAlongCooldownUntil) this.overpassAlongSkipLogged = false;
+        this.overpassAlongCooldownUntil = now + OVERPASS_ALONG_COOLDOWN_MS;
+        this.overpassAlongProbeAt =
+          now + Math.min(Math.max(busyFor, OVERPASS_ALONG_PROBE_MS), OVERPASS_ALONG_COOLDOWN_MS);
       }
       throw err;
     }

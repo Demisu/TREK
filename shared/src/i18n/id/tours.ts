@@ -365,6 +365,11 @@ const tours: TranslationStrings = {
   'tours.poi.capped': 'Turnya panjang: hanya bagian pertamanya yang dicari.',
   'tours.poi.truncated': 'Ada lebih banyak tempat daripada yang ditampilkan. Persempit jarak atau jenisnya.',
   'tours.poi.empty': 'Tidak ada yang ditemukan dalam {distance} dari rute.',
+  'tours.poi.retry': 'Coba lagi',
+  'tours.poi.retryIn': 'Lagi dalam {time}',
+  'tours.poi.retryHint':
+    'Server OpenStreetMap tidak menjawab. Bertanya sebelum itu hanya akan mendapat jawaban yang sama.',
+  'tours.poi.widen': 'Perluas ke {distance}',
   'tours.poi.fromRoute': '{distance} dari rute',
   'tours.poi.along': 'di {distance}',
   'tours.poi.source.osm': 'Dari OpenStreetMap',

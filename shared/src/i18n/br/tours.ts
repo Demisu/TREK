@@ -370,6 +370,11 @@ const tours: TranslationStrings = {
   'tours.poi.capped': 'O passeio é longo: só a primeira parte foi buscada.',
   'tours.poi.truncated': 'Há mais lugares do que os mostrados. Reduza a distância ou os tipos.',
   'tours.poi.empty': 'Nada encontrado a até {distance} da rota.',
+  'tours.poi.retry': 'Tentar novamente',
+  'tours.poi.retryIn': 'De novo em {time}',
+  'tours.poi.retryHint':
+    'Os servidores do OpenStreetMap não responderam. Perguntar antes disso só traria a mesma resposta.',
+  'tours.poi.widen': 'Ampliar para {distance}',
   'tours.poi.fromRoute': 'a {distance} da rota',
   'tours.poi.along': 'no {distance}',
   'tours.poi.source.osm': 'Do OpenStreetMap',

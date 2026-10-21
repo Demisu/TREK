@@ -378,6 +378,11 @@ const tours: TranslationStrings = {
   'tours.poi.capped': 'Η διαδρομή είναι μεγάλη: αναζητήθηκε μόνο το πρώτο της μέρος.',
   'tours.poi.truncated': 'Υπάρχουν περισσότερα μέρη από όσα εμφανίζονται. Μείωσε την απόσταση ή τα είδη.',
   'tours.poi.empty': 'Δεν βρέθηκε τίποτα σε απόσταση {distance} από τη διαδρομή.',
+  'tours.poi.retry': 'Δοκιμή ξανά',
+  'tours.poi.retryIn': 'Ξανά σε {time}',
+  'tours.poi.retryHint':
+    'Οι διακομιστές του OpenStreetMap δεν απάντησαν. Μια ερώτηση νωρίτερα θα έφερνε μόνο την ίδια απάντηση.',
+  'tours.poi.widen': 'Διεύρυνση σε {distance}',
   'tours.poi.fromRoute': '{distance} από τη διαδρομή',
   'tours.poi.along': 'στο {distance}',
   'tours.poi.source.osm': 'Από το OpenStreetMap',

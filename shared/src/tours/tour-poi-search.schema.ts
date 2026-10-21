@@ -107,5 +107,7 @@ export const tourPoiSearchResponseSchema = z.object({
   capped: z.boolean(),
   /** Kinds no source could be asked for right now; their places are missing, not absent. */
   unavailable: z.array(tourPoiCategorySchema),
+  /** PLN-05: seconds until asking again makes sense, beside unavailable kinds only; absent when now. */
+  retry_after_s: z.number().int().positive().optional(),
 });
 export type TourPoiSearchResponse = z.infer<typeof tourPoiSearchResponseSchema>;

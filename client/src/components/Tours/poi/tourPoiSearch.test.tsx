@@ -14,7 +14,7 @@ import { usePoiInsertion, type PoiInsertionPlanner } from './usePoiInsertion';
 import { useTourPoiMarkers } from './useTourPoiMarkers';
 import { useTourPoiSearch } from './useTourPoiSearch';
 
-// FE-TOUR-POI-001 to FE-TOUR-POI-022
+// FE-TOUR-POI-001 to FE-TOUR-POI-026
 
 vi.mock('../planner/useWaypointPlaceNames', () => ({ useWaypointPlaceNames: () => ({}) }));
 
@@ -519,15 +519,13 @@ describe('choosing where a found place goes (PLN-04)', () => {
   it('FE-TOUR-POI-021: the notice of what was added takes it back with undo, only while that is the last step', async () => {
     const added: TourPlannerWaypoint = { id: 'new', lat: SPRING.lat, lng: SPRING.lng, role: 'end' };
     const withPoint = [PA, PB, { ...PC, role: 'via' as const }, added];
-    useTourPoiStore
-      .getState()
-      .setInserted({
-        pointId: 'new',
-        name: 'Spring',
-        before: { distanceM: 2200, minutes: 40 },
-        pointCount: 4,
-        mark: 0,
-      });
+    useTourPoiStore.getState().setInserted({
+      pointId: 'new',
+      name: 'Spring',
+      before: { distanceM: 2200, minutes: 40 },
+      pointCount: 4,
+      mark: 0,
+    });
     const planner = alongPlanner({ waypoints: withPoint, distanceMeters: 2900, walkingDurationMinutes: 52 });
     const { unmount } = render(<TourPoiSearchCard planner={planner} />);
     const notice = screen.getByTestId('tour-poi-outcome');
@@ -538,15 +536,13 @@ describe('choosing where a found place goes (PLN-04)', () => {
     unmount();
 
     // With nothing to undo, or no right to edit, the notice offers no way back.
-    useTourPoiStore
-      .getState()
-      .setInserted({
-        pointId: 'new',
-        name: 'Spring',
-        before: { distanceM: 2200, minutes: 40 },
-        pointCount: 4,
-        mark: 0,
-      });
+    useTourPoiStore.getState().setInserted({
+      pointId: 'new',
+      name: 'Spring',
+      before: { distanceM: 2200, minutes: 40 },
+      pointCount: 4,
+      mark: 0,
+    });
     render(<TourPoiSearchCard planner={alongPlanner({ waypoints: withPoint, canUndo: false })} />);
     expect(screen.getByTestId('tour-poi-outcome')).toBeInTheDocument();
     expect(screen.queryByTestId('tour-poi-undo')).not.toBeInTheDocument();
@@ -568,5 +564,96 @@ describe('choosing where a found place goes (PLN-04)', () => {
     rerender();
     expect(result.current.outcome).not.toBeNull();
     expect(result.current.undo).toBeNull();
+  });
+});
+
+describe('a search that could not ask, and its retry (PLN-05)', () => {
+  const NO_VIEWPOINTS: TourPoiSearchResponse = { ...ANSWER, pois: [], unavailable: ['viewpoint'] };
+
+  it('FE-TOUR-POI-023: counts down the wait the server named with the viewpoints it could not search, then asks afresh', async () => {
+    vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] });
+    try {
+      search.mockResolvedValueOnce({ ...NO_VIEWPOINTS, retry_after_s: 3 });
+      const { result } = renderHook(() => useTourPoiSearch(searchPlanner()));
+      await act(() => result.current.search());
+      expect(result.current.answer?.unavailable).toEqual(['viewpoint']);
+      expect(result.current.retryInS).toBe(3);
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+      expect(result.current.retryInS).toBe(2);
+      act(() => {
+        vi.advanceTimersByTime(2000);
+      });
+      expect(result.current.retryInS).toBe(0);
+
+      await act(() => result.current.search());
+      expect(search).toHaveBeenCalledTimes(2);
+      expect(search.mock.calls[1]?.[1]).toEqual(search.mock.calls[0]?.[1]);
+      expect(result.current.answer).toEqual(ANSWER);
+      expect(result.current.retryInS).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('FE-TOUR-POI-024: Try again beside the viewpoints asks afresh, and its places replace the note, the tour untouched', async () => {
+    search.mockResolvedValueOnce(NO_VIEWPOINTS).mockResolvedValueOnce(ANSWER);
+    const planner = { ...searchPlanner(), ...insertionPlanner() } as unknown as TourPlannerController;
+    render(<TourPoiSearchCard planner={planner} />);
+    fireEvent.click(screen.getByTestId('tour-poi-search'));
+
+    const retry = await screen.findByTestId('tour-poi-retry');
+    expect(retry).toHaveTextContent('Try again');
+    expect(screen.getByText(/Could not be searched right now: Viewpoints/)).toBeInTheDocument();
+    expect(screen.queryByText(/Nothing found/)).not.toBeInTheDocument();
+    fireEvent.click(retry);
+
+    expect(await screen.findByTestId('tour-poi-node:1')).toBeInTheDocument();
+    expect(search).toHaveBeenCalledTimes(2);
+    expect(search.mock.calls[1]?.[1]).toMatchObject({
+      corridor_m: 500,
+      categories: expect.arrayContaining(['viewpoint']),
+    });
+    expect(screen.queryByText(/Could not be searched/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('tour-poi-retry')).not.toBeInTheDocument();
+    expect(planner.editWaypoints).not.toHaveBeenCalled();
+  });
+
+  it('FE-TOUR-POI-025: a failed request keeps a retry that works, one held by a named wait does not ask early', async () => {
+    search
+      .mockRejectedValueOnce(new Error('502'))
+      .mockResolvedValueOnce({ ...NO_VIEWPOINTS, retry_after_s: 20 })
+      .mockResolvedValueOnce(ANSWER);
+    render(<TourPoiSearchCard planner={searchPlanner()} />);
+    fireEvent.click(screen.getByTestId('tour-poi-search'));
+    expect(await screen.findByText('The search did not work. Try again in a moment.')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('tour-poi-retry'));
+    await waitFor(() => expect(screen.getByTestId('tour-poi-retry')).toHaveTextContent('Again in 0:20'));
+    const held = screen.getByTestId('tour-poi-retry');
+    expect(held).toHaveAttribute('aria-disabled', 'true');
+    fireEvent.click(held);
+    expect(search).toHaveBeenCalledTimes(2);
+    // The search button itself is never held: changed choices are asked at once.
+    expect(screen.getByTestId('tour-poi-search')).toBeEnabled();
+  });
+
+  it('FE-TOUR-POI-026: nothing found offers the next wider corridor in one press, and none past the widest', async () => {
+    search.mockResolvedValue({ ...ANSWER, pois: [] });
+    render(<TourPoiSearchCard planner={searchPlanner()} />);
+    fireEvent.click(screen.getByTestId('tour-poi-search'));
+    expect(await screen.findByText(/Nothing found within/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('tour-poi-widen'));
+    await waitFor(() => expect(search).toHaveBeenCalledTimes(2));
+    expect(search.mock.calls[1]?.[1]).toMatchObject({ corridor_m: 1000 });
+    await waitFor(() => expect(screen.getByTestId('tour-poi-search')).not.toHaveAttribute('data-outdated'));
+
+    fireEvent.click(await screen.findByTestId('tour-poi-widen'));
+    await waitFor(() => expect(search).toHaveBeenCalledTimes(3));
+    expect(search.mock.calls[2]?.[1]).toMatchObject({ corridor_m: 2000 });
+    await waitFor(() => expect(screen.getByTestId('tour-poi-search')).toBeEnabled());
+    expect(screen.queryByTestId('tour-poi-widen')).not.toBeInTheDocument();
   });
 });

@@ -745,6 +745,30 @@ describe('Tours planned e2e (real guards + temp SQLite)', () => {
       });
     });
 
+    it('says how many seconds until asking again makes sense while the map search holds back', async () => {
+      mapsPoisAlong.mockResolvedValue({
+        pois: [],
+        failed: ['viewpoint'],
+        partial: false,
+        truncated: false,
+        capped: false,
+        retryAfterS: 20,
+      });
+      const res = await request(server)
+        .post('/api/trips/5/tours/poi-search')
+        .set('Cookie', sessionCookie(VIEWER))
+        .send({ ...body, categories: ['viewpoint'] });
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({
+        pois: [],
+        truncated: false,
+        partial: false,
+        capped: false,
+        unavailable: ['viewpoint'],
+        retry_after_s: 20,
+      });
+    });
+
     it('404 for someone outside the trip, 400 for a body it does not know, 401 without a session', async () => {
       const outsider = await request(server)
         .post('/api/trips/5/tours/poi-search')

@@ -371,6 +371,11 @@ const tours: TranslationStrings = {
   'tours.poi.capped': "La ruta és llarga: només se n'ha cercat la primera part.",
   'tours.poi.truncated': 'Hi ha més llocs dels que es mostren. Redueix la distància o els tipus.',
   'tours.poi.empty': "No s'ha trobat res a menys de {distance} de la ruta.",
+  'tours.poi.retry': 'Torna-ho a provar',
+  'tours.poi.retryIn': "De nou d'aquí a {time}",
+  'tours.poi.retryHint':
+    "Els servidors d'OpenStreetMap no han respost. Preguntar abans només tornaria la mateixa resposta.",
+  'tours.poi.widen': 'Amplia a {distance}',
   'tours.poi.fromRoute': 'a {distance} de la ruta',
   'tours.poi.along': 'al {distance}',
   'tours.poi.source.osm': "D'OpenStreetMap",

@@ -355,6 +355,11 @@ const tours: TranslationStrings = {
   'tours.poi.capped': 'ツアーが長いため、最初の部分だけを検索しました。',
   'tours.poi.truncated': '表示されている以上の場所があります。距離か種類を絞り込んでください。',
   'tours.poi.empty': 'ルートから {distance} 以内には見つかりませんでした。',
+  'tours.poi.retry': 'もう一度試す',
+  'tours.poi.retryIn': '{time} 後に再試行',
+  'tours.poi.retryHint':
+    'OpenStreetMap のサーバーが応答しませんでした。それより前に問い合わせても同じ結果になるだけです。',
+  'tours.poi.widen': '{distance} に広げる',
   'tours.poi.fromRoute': 'ルートから {distance}',
   'tours.poi.along': '{distance} 地点',
   'tours.poi.source.osm': 'OpenStreetMap より',

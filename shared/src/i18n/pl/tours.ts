@@ -380,6 +380,11 @@ const tours: TranslationStrings = {
   'tours.poi.capped': 'Trasa jest długa: przeszukano tylko jej pierwszą część.',
   'tours.poi.truncated': 'Miejsc jest więcej, niż pokazano. Zmniejsz odległość lub liczbę rodzajów.',
   'tours.poi.empty': 'Nic nie znaleziono w odległości {distance} od trasy.',
+  'tours.poi.retry': 'Spróbuj ponownie',
+  'tours.poi.retryIn': 'Ponownie za {time}',
+  'tours.poi.retryHint':
+    'Serwery OpenStreetMap nie odpowiedziały. Wcześniejsze pytanie dałoby tylko tę samą odpowiedź.',
+  'tours.poi.widen': 'Poszerz do {distance}',
   'tours.poi.fromRoute': '{distance} od trasy',
   'tours.poi.along': 'na {distance}',
   'tours.poi.source.osm': 'Z OpenStreetMap',

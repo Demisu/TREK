@@ -1,5 +1,6 @@
 import {
   TOUR_POI_CATEGORIES_BY_TYPE,
+  TOUR_POI_CORRIDORS_M,
   TOUR_POI_MAX_CATEGORIES,
   TOUR_POI_MAX_LINE_POINTS,
   WALK_THEME_KEYS,
@@ -16,6 +17,7 @@ import { OnlineOnlyError } from '../../../repo/onlineOnly';
 import { tourPoiSearchRepo } from '../../../repo/tourPoiSearchRepo';
 import { useTourPoiStore } from '../../../store/tourPoiStore';
 import type { TourPlannerController } from '../planner/useTourPlanner';
+import { useRetryCountdown } from './useRetryCountdown';
 
 /** What is ticked when a type is searched for the first time: the three most asked. */
 const STARTING_CATEGORIES = (type: PlannableTourType) => TOUR_POI_CATEGORIES_BY_TYPE[type].slice(0, 3);
@@ -50,6 +52,8 @@ export type TourPoiPlanner = Pick<TourPlannerController, 'tripId' | 'tourType' |
  * line a place may lie. The answer is shown until the next search: once the
  * route or the choices change, it says it was found for the route as it was.
  * Nothing about the tour changes here; taking a place in is usePoiInsertion's.
+ * PLN-05: a search that failed or could not ask for some kinds can be sent
+ * again at once, or once the wait the server named has run down.
  */
 export function useTourPoiSearch(planner: TourPoiPlanner) {
   const { locale } = useTranslation();
@@ -66,6 +70,8 @@ export function useTourPoiSearch(planner: TourPoiPlanner) {
   const abortRef = useRef<AbortController | null>(null);
   const publish = useTourPoiStore((state) => state.publish);
   const clear = useTourPoiStore((state) => state.clear);
+  const retry = useRetryCountdown();
+  const startRetry = retry.start;
 
   const route = planner.route;
   const currentKey = keyOf(route, type, categories, corridorM);
@@ -92,38 +98,51 @@ export function useTourPoiSearch(planner: TourPoiPlanner) {
     [type]
   );
 
-  const search = useCallback(async () => {
-    if (!route || route.length < 2 || !categories.length) return;
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
-    const key = currentKey;
-    setLoadingKey(key);
-    try {
-      const data = await tourPoiSearchRepo.search(
-        planner.tripId,
-        {
-          tour_type: type,
-          categories: [...categories],
-          corridor_m: corridorM,
-          line: thinned(route, TOUR_POI_MAX_LINE_POINTS),
-          lang: locale,
-        },
-        controller.signal
-      );
-      setAnswer({ key, status: 'ready', data });
-      publish(data.pois, theme);
-    } catch (err: unknown) {
-      if (controller.signal.aborted) return;
-      setAnswer({ key, status: err instanceof OnlineOnlyError ? 'offline' : 'error' });
-      clear();
-    } finally {
-      if (abortRef.current === controller) {
-        abortRef.current = null;
-        setLoadingKey(null);
+  const search = useCallback(
+    async (corridor: number = corridorM) => {
+      if (!route || route.length < 2 || !categories.length) return;
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+      const key = keyOf(route, type, categories, corridor);
+      setLoadingKey(key);
+      try {
+        const data = await tourPoiSearchRepo.search(
+          planner.tripId,
+          {
+            tour_type: type,
+            categories: [...categories],
+            corridor_m: corridor,
+            line: thinned(route, TOUR_POI_MAX_LINE_POINTS),
+            lang: locale,
+          },
+          controller.signal
+        );
+        setAnswer({ key, status: 'ready', data });
+        startRetry(data.retry_after_s);
+        publish(data.pois, theme);
+      } catch (err: unknown) {
+        if (controller.signal.aborted) return;
+        setAnswer({ key, status: err instanceof OnlineOnlyError ? 'offline' : 'error' });
+        startRetry();
+        clear();
+      } finally {
+        if (abortRef.current === controller) {
+          abortRef.current = null;
+          setLoadingKey(null);
+        }
       }
-    }
-  }, [categories, clear, corridorM, currentKey, locale, planner.tripId, publish, route, theme, type]);
+    },
+    [categories, clear, corridorM, locale, planner.tripId, publish, route, startRetry, theme, type]
+  );
+
+  // Nothing found: the next wider corridor, chosen and searched in one step.
+  const widerCorridorM = TOUR_POI_CORRIDORS_M.find((metres) => metres > corridorM) ?? null;
+  const widen = useCallback(() => {
+    if (widerCorridorM === null) return;
+    setCorridorM(widerCorridorM);
+    void search(widerCorridorM);
+  }, [search, widerCorridorM]);
 
   // Leaving the planner, or a tour closed, takes the places off the map.
   useEffect(
@@ -147,6 +166,11 @@ export function useTourPoiSearch(planner: TourPoiPlanner) {
     setCorridorM,
     canSearch,
     search,
+    /** The next wider corridor offered, or null at the widest. */
+    widerCorridorM,
+    widen,
+    /** Seconds until asking again makes sense for the kinds that could not be searched; 0 when now. */
+    retryInS: retry.secondsLeft,
     status,
     answer: answer?.data ?? null,
     /** The answer was found for the route or the choices as they were before. */

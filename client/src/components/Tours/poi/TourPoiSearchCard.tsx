@@ -1,7 +1,6 @@
 import type { TourPoi, WalkTheme } from '@trek/shared';
 import { TOUR_POI_CORRIDORS_M } from '@trek/shared';
 import {
-  AlertTriangle,
   ChevronDown,
   Coffee,
   Landmark,
@@ -13,7 +12,6 @@ import {
   Star,
   Trees,
   Undo2,
-  WifiOff,
   X,
   type LucideIcon,
 } from 'lucide-react';
@@ -31,6 +29,7 @@ import { usePopoverList } from '../../shared/usePopoverList';
 import type { TourPlannerController } from '../planner/useTourPlanner';
 import { RailCard, TourNotice } from '../tourParts';
 import { formatPlannedTourDuration } from '../tourPresentation';
+import { SearchNotices } from './TourPoiSearchNotices';
 import { usePoiInsertion, type InsertionOutcome } from './usePoiInsertion';
 import { useSelectedPoi, useTourPoiSearch, type TourPoiSearch } from './useTourPoiSearch';
 
@@ -148,47 +147,6 @@ function ThemeGrid({
         );
       })}
     </div>
-  );
-}
-
-/**
- * What the search answered beyond its places: offline, failed, kinds that
- * could not be searched, partly searched, cut, or empty. That the answer is
- * out of date the search button says, as it is what to press then. Nothing
- * found is said only when every kind was searched.
- */
-function SearchNotices({ search, unit }: { search: TourPoiSearch; unit: Unit }) {
-  const { t } = useTranslation();
-  const { status, answer } = search;
-  if (status === 'offline')
-    return <TourNotice icon={<WifiOff size={13} strokeWidth={2} />}>{t('tours.poi.offline')}</TourNotice>;
-  if (status === 'error')
-    return (
-      <TourNotice tone="warning" icon={<AlertTriangle size={13} strokeWidth={2} />}>
-        {t('tours.poi.failed')}
-      </TourNotice>
-    );
-  if (!answer) return null;
-  const unavailable = answer.unavailable.map((category) => t(TOUR_POI_LOOKS[category].labelKey)).join(', ');
-  const notes = [
-    unavailable && t('tours.poi.unavailable', { kinds: unavailable }),
-    answer.partial && t('tours.poi.partial'),
-    answer.capped && t('tours.poi.capped'),
-    answer.truncated && t('tours.poi.truncated'),
-  ].filter((note): note is string => !!note);
-  return (
-    <>
-      {notes.map((note) => (
-        <TourNotice key={note} tone="warning" icon={<AlertTriangle size={13} strokeWidth={2} />}>
-          {note}
-        </TourNotice>
-      ))}
-      {answer.pois.length === 0 && answer.unavailable.length === 0 && (
-        <p className="m-0 text-content-muted" style={fs(12, 'body')}>
-          {t('tours.poi.empty', { distance: formatDistance(km(search.corridorM), unit) })}
-        </p>
-      )}
-    </>
   );
 }
 

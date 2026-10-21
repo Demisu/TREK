@@ -373,6 +373,11 @@ const tours: TranslationStrings = {
   'tours.poi.capped': 'Die Tour ist lang: Nur ihr erster Teil wurde durchsucht.',
   'tours.poi.truncated': 'Es gibt mehr Orte als angezeigt. Verkleinere den Abstand oder wähle weniger Arten.',
   'tours.poi.empty': 'Nichts gefunden im Abstand von {distance} zur Route.',
+  'tours.poi.retry': 'Erneut versuchen',
+  'tours.poi.retryIn': 'Erneut in {time}',
+  'tours.poi.retryHint':
+    'Die OpenStreetMap-Server haben nicht geantwortet. Vorher nachzufragen brächte nur dieselbe Antwort.',
+  'tours.poi.widen': 'Auf {distance} erweitern',
   'tours.poi.fromRoute': '{distance} von der Route',
   'tours.poi.along': 'bei {distance}',
   'tours.poi.source.osm': 'Aus OpenStreetMap',

@@ -235,7 +235,8 @@ function placesWithin(found: MapsPoi[], body: TourPoiSearchRequest, line: Array<
  * corridor of the line itself, the nearest to it when there are more than one
  * answer carries, listed from the start. Nothing is written. A kind no source
  * could be asked for is named as unavailable, so a failed source never reads
- * as nothing found; the distance is measured straight across to the line,
+ * as nothing found, with the seconds until asking again makes sense when the
+ * map search holds back; the distance is measured straight across to the line,
  * never a way someone walked or paddled. A search for sights also asks for the
  * best known places near the line and lists its highlights first.
  */
@@ -258,14 +259,17 @@ export class TourPoiSearchService {
       body.categories.includes('sights') ? this.highlightsAlong(points, body) : [],
     ]);
     const found = withHighlights(placesWithin(along.pois, body, line), highlights, body.corridor_m, line);
+    const unavailable = body.categories.filter((category) =>
+      MAPS_CATEGORIES[category].every((mapsCategory) => along.failed.includes(mapsCategory)),
+    );
     return {
       pois: answerRows(found.places, found.ranks),
       truncated: along.truncated || found.places.length > TOUR_POI_LIMIT,
       partial: along.partial,
       capped: along.capped,
-      unavailable: body.categories.filter((category) =>
-        MAPS_CATEGORIES[category].every((mapsCategory) => along.failed.includes(mapsCategory)),
-      ),
+      unavailable,
+      // When asking again makes sense, only beside a kind that could not be searched.
+      ...(unavailable.length && along.retryAfterS ? { retry_after_s: along.retryAfterS } : {}),
     };
   }
 

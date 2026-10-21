@@ -31,8 +31,10 @@ const MAX_OVERPASS_STRETCHES = 8;
  * its `[timeout:N]`. Shorter than the explore pill's, because a person waits
  * for the search beside the index. The client waits a little longer than this
  * (osm.client), never less, or it would hang up on an answer still coming.
+ * Fifteen rather than ten: a public mirror under load queues a query for a
+ * few seconds before it runs, and ten had a plain viewpoint search given up.
  */
-export const OVERPASS_ALONG_QUERY_TIMEOUT_S = 10;
+export const OVERPASS_ALONG_QUERY_TIMEOUT_S = 15;
 
 /** One circle the index is asked in. */
 interface AlongBead {

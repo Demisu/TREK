@@ -200,6 +200,21 @@ describe('TourPoiSearchService', () => {
     ).toEqual(['food']);
   });
 
+  it('TOUR-POI-017: says when to ask again beside the kinds it could not search, and nothing of it otherwise', async () => {
+    poisAlong.mockResolvedValue(answer([], { failed: ['viewpoint'], retryAfterS: 20 }));
+    const failed = await service.search({ tour_type: 'hike', categories: ['viewpoint'], corridor_m: 500, line: LINE });
+    expect(failed).toMatchObject({ unavailable: ['viewpoint'], retry_after_s: 20 });
+
+    // A wait the map search names for a kind not asked here, or none at all, leaves the field out.
+    const other = await service.search({ tour_type: 'hike', categories: ['shelter'], corridor_m: 500, line: LINE });
+    expect(other.unavailable).toEqual([]);
+    expect(other).not.toHaveProperty('retry_after_s');
+    poisAlong.mockResolvedValue(answer([], { failed: ['viewpoint'] }));
+    const plain = await service.search({ tour_type: 'hike', categories: ['viewpoint'], corridor_m: 500, line: LINE });
+    expect(plain.unavailable).toEqual(['viewpoint']);
+    expect(plain).not.toHaveProperty('retry_after_s');
+  });
+
   it('TOUR-POI-008: an unnamed place is kept and never merged with another unnamed one nearby', async () => {
     poisAlong.mockResolvedValue(
       answer([

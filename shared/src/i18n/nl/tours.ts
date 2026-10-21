@@ -372,6 +372,11 @@ const tours: TranslationStrings = {
   'tours.poi.capped': 'De tocht is lang: alleen het eerste deel is doorzocht.',
   'tours.poi.truncated': 'Er zijn meer plekken dan getoond. Verklein de afstand of de soorten.',
   'tours.poi.empty': 'Niets gevonden binnen {distance} van de route.',
+  'tours.poi.retry': 'Opnieuw proberen',
+  'tours.poi.retryIn': 'Opnieuw over {time}',
+  'tours.poi.retryHint':
+    'De OpenStreetMap-servers gaven geen antwoord. Eerder vragen levert alleen hetzelfde antwoord op.',
+  'tours.poi.widen': 'Verruim tot {distance}',
   'tours.poi.fromRoute': '{distance} van de route',
   'tours.poi.along': 'bij {distance}',
   'tours.poi.source.osm': 'Uit OpenStreetMap',

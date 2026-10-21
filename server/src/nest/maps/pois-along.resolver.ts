@@ -12,7 +12,8 @@
  * `failed`, so the caller can say what could not be searched instead of
  * reporting nothing found. Once every Overpass endpoint failed, the next
  * searches for a few minutes name its kinds at once instead of waiting out the
- * deadline each time, while a stretch still cached keeps its places.
+ * deadline each time, while a stretch still cached keeps its places and one
+ * probe in a while asks again; the answer says when asking again makes sense.
  *
  * MapsService.poisAlong delegates here and hands in whether the index is
  * switched on, which is a deployment property it owns.
@@ -60,6 +61,8 @@ export interface PoisAlongResult {
   truncated: boolean;
   /** The line was longer than one search covers; only its first part was searched. */
   capped: boolean;
+  /** Seconds until Overpass is asked again, when kinds failed while it holds back; absent otherwise. */
+  retryAfterS?: number;
 }
 
 /** What one request of a source brings back. */
@@ -141,13 +144,16 @@ export class PoisAlongResolver {
       if (answer.error) logWarn(`[Maps] OpenStreetMap along a line: ${answer.error}`);
     }
     const sources = [index, overpass, fallback];
+    const failed = [...(unanswered(overpass) ? rest : []), ...(unanswered(fallback) ? indexed : [])];
+    const retryAfterMs = failed.length ? this.osm.overpassAlongRetryAfterMs() : 0;
     return {
       pois: oncePerPlace([...index.pois, ...overpass.pois, ...fallback.pois]),
-      failed: [...(unanswered(overpass) ? rest : []), ...(unanswered(fallback) ? indexed : [])],
+      failed,
       partial: sources.some((answer) => answer.answered > 0 && answer.missed > 0),
       truncated: sources.some((answer) => answer.truncated),
       // A source that answered nothing searched nothing: its kinds are failed or asked of Overpass instead.
       capped: sources.some((answer) => answer.answered > 0 && answer.capped),
+      ...(retryAfterMs > 0 ? { retryAfterS: Math.ceil(retryAfterMs / 1000) } : {}),
     };
   }
 
