@@ -7,6 +7,8 @@ export const AI_AUTH_FLOW_TTL_MS = 10 * 60_000;
 export interface ChatgptAuthFlow {
   provider: 'chatgpt';
   userId: number;
+  /** A user's own plan, or the plan an admin shares with everyone on the instance. */
+  scope: AiConnectionScope;
   verifier: string;
   state: string;
   nonce: string;

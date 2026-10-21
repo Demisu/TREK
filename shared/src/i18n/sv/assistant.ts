@@ -430,5 +430,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': 'Sätt en semesterdag',
   'assistant.tool.mark_country_visited': 'Markera landet som besökt',
   'assistant.tool.send_collab_message': 'Skicka till reschatten',
+  'assistant.admin.chatgptShared':
+    'Du delar ditt eget ChatGPT-abonnemang med alla på den här servern: deras chattar räknas mot ditt abonnemang. Kontrollera att ditt abonnemang och OpenAIs villkor tillåter det.',
 };
 export default assistant;

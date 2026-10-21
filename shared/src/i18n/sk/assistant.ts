@@ -450,5 +450,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': 'Nastaviť deň dovolenky',
   'assistant.tool.mark_country_visited': 'Označiť krajinu ako navštívenú',
   'assistant.tool.send_collab_message': 'Poslať do chatu cesty',
+  'assistant.admin.chatgptShared':
+    'Zdieľaš svoje vlastné predplatné ChatGPT so všetkými na tomto serveri: ich chaty sa počítajú do tvojho plánu. Over, že to tvoj plán a podmienky OpenAI dovoľujú.',
 };
 export default assistant;

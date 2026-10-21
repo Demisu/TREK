@@ -155,7 +155,10 @@ export const aiApi = {
   ackPrivacy: (body: AiPrivacyAckRequest): Promise<SuccessResponse> =>
     apiClient.post('/ai/privacy-ack', body).then((r) => r.data),
 
-  chatgptStart: (): Promise<AiAuthStartResponse> => apiClient.post('/ai/connect/chatgpt/start', {}).then((r) => r.data),
+  chatgptStart: (scope: AiConnectionScope = 'user'): Promise<AiAuthStartResponse> =>
+    apiClient
+      .post(scope === 'instance' ? '/admin/ai/connect/chatgpt/start' : '/ai/connect/chatgpt/start', {})
+      .then((r) => r.data),
   chatgptFinish: (body: AiChatgptFinishRequest): Promise<AiConnectionView> =>
     apiClient.post('/ai/connect/chatgpt/finish', body, viaProvider).then((r) => r.data),
   chatgptSignOut: (): Promise<SuccessResponse> =>

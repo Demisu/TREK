@@ -436,5 +436,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': 'Poser un jour de congé',
   'assistant.tool.mark_country_visited': 'Marquer le pays comme visité',
   'assistant.tool.send_collab_message': 'Envoyer dans la discussion du voyage',
+  'assistant.admin.chatgptShared':
+    'Vous partagez votre propre abonnement ChatGPT avec tout le monde sur ce serveur : leurs discussions comptent sur votre forfait. Vérifiez que votre forfait et les conditions d’OpenAI le permettent.',
 };
 export default assistant;

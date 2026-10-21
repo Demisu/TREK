@@ -436,5 +436,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': 'Szabadnap beállítása',
   'assistant.tool.mark_country_visited': 'Ország megjelölése meglátogatottként',
   'assistant.tool.send_collab_message': 'Küldés az utazási csevegésbe',
+  'assistant.admin.chatgptShared':
+    'A saját ChatGPT-előfizetésedet osztod meg mindenkivel ezen a szerveren: a csevegéseik a te keretedből fogynak. Ellenőrizd, hogy az előfizetésed és az OpenAI feltételei ezt megengedik-e.',
 };
 export default assistant;

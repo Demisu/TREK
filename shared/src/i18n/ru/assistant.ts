@@ -474,5 +474,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': 'Отметить день отпуска',
   'assistant.tool.mark_country_visited': 'Отметить страну как посещённую',
   'assistant.tool.send_collab_message': 'Отправить в чат поездки',
+  'assistant.admin.chatgptShared':
+    'Вы делитесь своей подпиской ChatGPT со всеми на этом сервере: их чаты расходуют ваш лимит. Проверьте, что ваш тариф и условия OpenAI это допускают.',
 };
 export default assistant;

@@ -58,9 +58,9 @@ export const aiConnectionsRepo = {
     await aiApi.ackPrivacy(body);
   },
 
-  async chatgptStart() {
+  async chatgptStart(scope: AiConnectionScope = 'user') {
     requireOnline();
-    return aiAuthStartResponseSchema.parse(await aiApi.chatgptStart());
+    return aiAuthStartResponseSchema.parse(await aiApi.chatgptStart(scope));
   },
 
   async chatgptFinish(body: AiChatgptFinishRequest) {

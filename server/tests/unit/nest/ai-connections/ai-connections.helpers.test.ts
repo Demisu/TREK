@@ -50,6 +50,7 @@ describe('InMemoryAiAuthFlowStore', () => {
   const flow = (userId: number, expiresAt: number): ChatgptAuthFlow => ({
     provider: 'chatgpt',
     userId,
+    scope: 'user',
     verifier: 'v',
     state: 's',
     nonce: 'n',

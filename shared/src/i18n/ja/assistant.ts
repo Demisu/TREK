@@ -406,5 +406,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': '休暇日を設定',
   'assistant.tool.mark_country_visited': '国を訪問済みにする',
   'assistant.tool.send_collab_message': '旅行チャットに送信',
+  'assistant.admin.chatgptShared':
+    '自分の ChatGPT プランをこのサーバーの全員と共有します。全員のチャットがあなたのプランの利用枠を使います。プランと OpenAI の規約で許可されているか確認してください。',
 };
 export default assistant;

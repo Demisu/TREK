@@ -511,5 +511,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': 'تحديد يوم إجازة',
   'assistant.tool.mark_country_visited': 'تحديد البلد كمُزار',
   'assistant.tool.send_collab_message': 'إرسال إلى محادثة الرحلة',
+  'assistant.admin.chatgptShared':
+    'أنت تشارك اشتراكك الشخصي في ChatGPT مع الجميع على هذا الخادم: تُحتسب محادثاتهم من خطتك. تحقّق من أن خطتك وشروط OpenAI تسمح بذلك.',
 };
 export default assistant;

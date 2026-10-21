@@ -430,5 +430,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': 'İzin günü belirle',
   'assistant.tool.mark_country_visited': 'Ülkeyi ziyaret edildi olarak işaretle',
   'assistant.tool.send_collab_message': 'Gezi sohbetine gönder',
+  'assistant.admin.chatgptShared':
+    'Kendi ChatGPT aboneliğini bu sunucudaki herkesle paylaşıyorsun: sohbetleri senin planından düşer. Planının ve OpenAI koşullarının buna izin verip vermediğini kontrol et.',
 };
 export default assistant;

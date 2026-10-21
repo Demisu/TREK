@@ -9,6 +9,7 @@ import { ManagedForbidden } from '../common/managed';
 import { ResponseContract } from '../common/response-contract';
 import { AiAdminSettingsDto, AiInstanceConnectionDto } from './ai-connections.dto';
 import { AiConnectionsService } from './ai-connections.service';
+import { ChatgptAuthService } from './chatgpt-auth.service';
 import { OpenrouterAuthService } from './openrouter-auth.service';
 import { Body, Controller, Delete, Get, HttpCode, Post, Put, UseGuards } from '@nestjs/common';
 import {
@@ -34,6 +35,7 @@ export class AiAdminController {
   constructor(
     private readonly connections: AiConnectionsService,
     private readonly openrouter: OpenrouterAuthService,
+    private readonly chatgpt: ChatgptAuthService,
   ) {}
 
   @Get('settings')
@@ -80,5 +82,21 @@ export class AiAdminController {
   @ResponseContract(aiAuthStartResponseSchema)
   startOpenrouter(@CurrentUser() user: User) {
     return this.openrouter.start(user.id, 'instance');
+  }
+
+  /** The admin shares their own ChatGPT plan with everyone here; the sign-in finishes on the user route. */
+  @Post('connect/chatgpt/start')
+  @HttpCode(200)
+  @ResponseContract(aiAuthStartResponseSchema)
+  startChatgpt(@CurrentUser() user: User) {
+    return this.chatgpt.start(user.id, 'instance');
+  }
+
+  @Post('connect/chatgpt/sign-out')
+  @HttpCode(200)
+  @ResponseContract(aiAdminConnectionResponseSchema)
+  async signOutChatgpt(@CurrentUser() user: User) {
+    await this.chatgpt.signOut(user.id, 'instance');
+    return this.connections.instanceConnection();
   }
 }

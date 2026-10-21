@@ -24,7 +24,7 @@ import { OidcService } from '../../../../src/nest/oidc/oidc.service';
 import { createSnapshotTestDb } from '../../../helpers/db-mock';
 import { findRow } from '../../../helpers/factories/rows';
 import { readAppSetting } from '../../../helpers/factories/settings';
-import { makeUser } from '../../../helpers/factories/users';
+import { makeAdmin, makeUser } from '../../../helpers/factories/users';
 import { resetTestDb } from '../../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../../helpers/test-module';
 import { MikroORM } from '@mikro-orm/core';
@@ -100,8 +100,8 @@ async function refusal(promise: Promise<unknown>) {
 }
 
 /** Starts a sign-in and answers its flow id with the state and nonce the authorize URL carried. */
-async function started(userId: number) {
-  const start = await service().start(userId);
+async function started(userId: number, scope: 'user' | 'instance' = 'user') {
+  const start = await service().start(userId, scope);
   const query = new URL(start.authorizeUrl).searchParams;
   return { flowId: start.flowId, state: query.get('state') ?? '', nonce: query.get('nonce') ?? '', query };
 }
@@ -206,12 +206,35 @@ describe('finishing a sign-in', () => {
     expect(openSecrets(row?.secrets)).toMatchObject({ accessToken: access, refreshToken: 'refresh-1' });
   });
 
+  it('CGPT-030: an admin shares their plan with everyone; only an admin finishes that sign-in', async () => {
+    const { user: admin } = await makeAdmin(orm());
+    const { user: member } = await makeUser(orm());
+    const shared = await started(admin.id, 'instance');
+    const url = callbackUrl({ code: 'c', state: shared.state, client_id: 'oaiapp_shared' });
+    // A flow belongs to whoever started it, so a member cannot even take it.
+    expect((await refusal(service().finish(member, shared.flowId, url))).body.code).toBe('expired');
+
+    safeFetch.mockResolvedValueOnce(
+      tokenAnswer(200, { access_token: 'at', refresh_token: 'rt', id_token: 'id', scope: PLAN_SCOPES }),
+    );
+    verifyIdToken.mockResolvedValueOnce(claims({ nonce: shared.nonce }));
+    expect(await service().finish(admin, shared.flowId, url)).toBe('instance');
+    expect(await findRow(orm(), AiConnections, { scope: 'instance' })).toMatchObject({ kind: 'chatgpt', user: null });
+    expect(await findRow(orm(), AiConnections, { user: admin.id })).toBeNull();
+
+    // An admin who is no longer one cannot finish a sign-in for everyone they started before.
+    const later = await started(admin.id, 'instance');
+    const demoted = { ...admin, role: 'user' };
+    const again = callbackUrl({ code: 'c', state: later.state, client_id: 'oaiapp_shared' });
+    expect((await refusal(service().finish(demoted, later.flowId, again))).body.code).toBe('forbidden');
+  });
+
   it('CGPT-011: a wrong address is refused before the flow is used, so the right one still works', async () => {
     const { user } = await makeUser(orm());
     const flow = await started(user.id);
     const wrong = await Promise.all(
       ['not a url', 'http://localhost:1455/auth/callback?code=x', 'https://chatgpt.com/'].map((pasted) =>
-        refusal(service().finish(user.id, flow.flowId, pasted)),
+        refusal(service().finish(user, flow.flowId, pasted)),
       ),
     );
     expect(wrong.map((r) => [r.status, r.body.code])).toEqual([
@@ -223,7 +246,7 @@ describe('finishing a sign-in', () => {
       tokenAnswer(200, { access_token: 'at', refresh_token: 'rt', id_token: 'id', scope: PLAN_SCOPES }),
     );
     verifyIdToken.mockResolvedValueOnce(claims({ nonce: flow.nonce }));
-    await service().finish(user.id, flow.flowId, callbackUrl({ code: 'c', state: flow.state, client_id: 'oaiapp_x' }));
+    await service().finish(user, flow.flowId, callbackUrl({ code: 'c', state: flow.state, client_id: 'oaiapp_x' }));
     expect(await findRow(orm(), AiConnections, { user: user.id })).not.toBeNull();
   });
 
@@ -232,17 +255,17 @@ describe('finishing a sign-in', () => {
     const { user: other } = await makeUser(orm());
     const flow = await started(user.id);
     const url = callbackUrl({ code: 'c', state: flow.state, client_id: 'oaiapp_x' });
-    expect((await refusal(service().finish(other.id, flow.flowId, url))).status).toBe(410);
-    expect((await refusal(service().finish(user.id, crypto.randomUUID(), url))).status).toBe(410);
+    expect((await refusal(service().finish(other, flow.flowId, url))).status).toBe(410);
+    expect((await refusal(service().finish(user, crypto.randomUUID(), url))).status).toBe(410);
     expect(
       (
         await refusal(
-          service().finish(user.id, flow.flowId, callbackUrl({ code: 'c', state: 'other', client_id: 'oaiapp_x' })),
+          service().finish(user, flow.flowId, callbackUrl({ code: 'c', state: 'other', client_id: 'oaiapp_x' })),
         )
       ).body,
     ).toMatchObject({ code: 'expired' });
     // The mismatch used the flow up.
-    expect((await refusal(service().finish(user.id, flow.flowId, url))).status).toBe(410);
+    expect((await refusal(service().finish(user, flow.flowId, url))).status).toBe(410);
     expect(safeFetch).not.toHaveBeenCalled();
   });
 
@@ -252,7 +275,7 @@ describe('finishing a sign-in', () => {
       ['&client_id=evil', '&client_id=oaiapp_a&client_id=oaiapp_b'].map(async (extra) => {
         const flow = await started(user.id);
         return refusal(
-          service().finish(user.id, flow.flowId, `${CHATGPT_REDIRECT_URI}?code=c&state=${flow.state}${extra}`),
+          service().finish(user, flow.flowId, `${CHATGPT_REDIRECT_URI}?code=c&state=${flow.state}${extra}`),
         );
       }),
     );
@@ -283,7 +306,7 @@ describe('finishing a sign-in', () => {
     expect(
       (
         await refusal(
-          service().finish(user.id, flow.flowId, callbackUrl({ code: 'c', state: flow.state, client_id: 'oaiapp_x' })),
+          service().finish(user, flow.flowId, callbackUrl({ code: 'c', state: flow.state, client_id: 'oaiapp_x' })),
         )
       ).status,
     ).toBe(400);
@@ -293,7 +316,7 @@ describe('finishing a sign-in', () => {
     safeFetch.mockResolvedValueOnce(answer());
     verifyIdToken.mockResolvedValueOnce(claims({ nonce: flow.nonce, sub: 'someone-else' }));
     expect(
-      (await refusal(service().finish(user.id, flow.flowId, callbackUrl({ code: 'c', state: flow.state })))).body,
+      (await refusal(service().finish(user, flow.flowId, callbackUrl({ code: 'c', state: flow.state })))).body,
     ).toMatchObject({ code: 'account_mismatch' });
 
     flow = await started(user.id);
@@ -302,7 +325,7 @@ describe('finishing a sign-in', () => {
     );
     verifyIdToken.mockResolvedValueOnce(claims({ nonce: flow.nonce }));
     expect(
-      await refusal(service().finish(user.id, flow.flowId, callbackUrl({ code: 'c', state: flow.state }))),
+      await refusal(service().finish(user, flow.flowId, callbackUrl({ code: 'c', state: flow.state }))),
     ).toMatchObject({ status: 403, body: { code: 'not_eligible' } });
     // The stored registration is untouched by any of them.
     expect(openSecrets((await findRow(orm(), AiConnections, { user: user.id }))?.secrets)).toMatchObject({
@@ -317,7 +340,7 @@ describe('finishing a sign-in', () => {
     expect(
       (
         await refusal(
-          service().finish(user.id, flow.flowId, callbackUrl({ code: 'c', state: flow.state, client_id: 'oaiapp_x' })),
+          service().finish(user, flow.flowId, callbackUrl({ code: 'c', state: flow.state, client_id: 'oaiapp_x' })),
         )
       ).status,
     ).toBe(410);
@@ -326,7 +349,7 @@ describe('finishing a sign-in', () => {
     expect(
       (
         await refusal(
-          service().finish(user.id, flow.flowId, callbackUrl({ code: 'c', state: flow.state, client_id: 'oaiapp_x' })),
+          service().finish(user, flow.flowId, callbackUrl({ code: 'c', state: flow.state, client_id: 'oaiapp_x' })),
         )
       ).status,
     ).toBe(502);

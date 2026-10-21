@@ -431,5 +431,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': 'Lakaat un devezh vakañsoù',
   'assistant.tool.mark_country_visited': 'Merkañ ar vro evel gweladennet',
   'assistant.tool.send_collab_message': 'Kas d’ar gaozeadenn veaj',
+  'assistant.admin.chatgptShared':
+    'Rannañ a rez da goumanant ChatGPT gant an holl war ar servijer-mañ: o c’haozeadennoù a vez kontet war da goumanant. Gwir pe ha da goumanant ha divizoù OpenAI a aotre an dra-se.',
 };
 export default assistant;

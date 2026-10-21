@@ -406,5 +406,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': 'Đặt ngày nghỉ phép',
   'assistant.tool.mark_country_visited': 'Đánh dấu quốc gia đã đến',
   'assistant.tool.send_collab_message': 'Gửi vào trò chuyện chuyến đi',
+  'assistant.admin.chatgptShared':
+    'Bạn đang chia sẻ gói ChatGPT của riêng mình với mọi người trên máy chủ này: các cuộc trò chuyện của họ được tính vào gói của bạn. Hãy kiểm tra gói của bạn và điều khoản của OpenAI có cho phép không.',
 };
 export default assistant;

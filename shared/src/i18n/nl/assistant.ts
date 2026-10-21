@@ -432,5 +432,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': 'Vakantiedag instellen',
   'assistant.tool.mark_country_visited': 'Land als bezocht markeren',
   'assistant.tool.send_collab_message': 'Naar de reischat sturen',
+  'assistant.admin.chatgptShared':
+    'Je deelt je eigen ChatGPT-abonnement met iedereen op deze server: hun chats tellen mee voor jouw abonnement. Controleer of je abonnement en de voorwaarden van OpenAI dit toestaan.',
 };
 export default assistant;

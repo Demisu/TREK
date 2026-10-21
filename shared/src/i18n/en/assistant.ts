@@ -426,5 +426,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': 'Set a vacation day',
   'assistant.tool.mark_country_visited': 'Mark the country as visited',
   'assistant.tool.send_collab_message': 'Send to the trip chat',
+  'assistant.admin.chatgptShared':
+    'You share your own ChatGPT plan with everyone on this server: their chats count against your plan. Check that your plan and OpenAI’s terms allow this.',
 };
 export default assistant;

@@ -349,10 +349,14 @@ function PrivacyNote({ provider }: { provider: string }) {
   );
 }
 
-/** The two ways each scope offers: ChatGPT is never an instance's, an own server never a user's (#1772). */
+/**
+ * The ways each scope offers. An own server is never a user's (#1772). An
+ * admin may share their own ChatGPT plan with everyone: whether their plan and
+ * OpenAI's terms allow that is theirs to judge, and the form says so.
+ */
 const SCOPE_MODES: Record<AiConnectionScope, readonly AiConnectMode[]> = {
   user: ['chatgpt', 'key'],
-  instance: ['key', 'custom'],
+  instance: ['key', 'chatgpt', 'custom'],
 };
 
 const MODE_TILES: Record<
@@ -392,7 +396,7 @@ export default function AiConnectPanel({ scope, onConnected, initialMode, prefil
     const first = initialMode ?? prefillModeOf(prefill);
     return first && SCOPE_MODES[scope].includes(first) ? first : null;
   });
-  const chatgpt = useChatgptConnect({ active: scope === 'user' && mode === 'chatgpt', onConnected });
+  const chatgpt = useChatgptConnect({ active: mode === 'chatgpt', onConnected, scope });
   const keyConnect = useKeyConnect({ scope, prefill, onConnected });
   const custom = useCustomConnect({ prefill, onConnected });
   const mcpEnabled = useAddonStore((s) => s.isEnabled('mcp'));
@@ -431,6 +435,16 @@ export default function AiConnectPanel({ scope, onConnected, initialMode, prefil
       </div>
       {scope === 'instance' && prefill && <SettingsHint>{t('assistant.admin.prefilled')}</SettingsHint>}
 
+      {mode === 'chatgpt' && scope === 'instance' && (
+        // Sharing one person's plan with everyone is the admin's call to make; TREK only says what it means.
+        <p
+          role="note"
+          className="m-0 rounded-lg bg-warning-soft px-3 py-2 leading-snug text-content"
+          style={fs(12, 'body')}
+        >
+          {t('assistant.admin.chatgptShared')}
+        </p>
+      )}
       {mode === 'chatgpt' && <ChatGptPasteStep chatgpt={chatgpt} onOtherProvider={() => setMode('key')} />}
       {mode === 'key' && <KeyForm scope={scope} keyConnect={keyConnect} />}
       {mode === 'custom' && <CustomForm custom={custom} />}

@@ -403,5 +403,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': 'กำหนดวันลา',
   'assistant.tool.mark_country_visited': 'ทำเครื่องหมายว่าเคยไปประเทศนี้',
   'assistant.tool.send_collab_message': 'ส่งไปยังแชตทริป',
+  'assistant.admin.chatgptShared':
+    'คุณกำลังแชร์แพ็กเกจ ChatGPT ของตัวเองกับทุกคนบนเซิร์ฟเวอร์นี้: แชตของทุกคนจะนับรวมในแพ็กเกจของคุณ ตรวจสอบว่าแพ็กเกจและข้อกำหนดของ OpenAI อนุญาต',
 };
 export default assistant;

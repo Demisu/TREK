@@ -15,7 +15,7 @@ import { ModelCatalogService, pickDefaultModel } from './model-catalog.service';
 import { AiProviderError, errorCodeOf } from './providers/provider-errors';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
-import type { AiAuthStartResponse, AiModelInfo } from '@trek/shared';
+import type { AiAuthStartResponse, AiConnectionScope, AiModelInfo } from '@trek/shared';
 
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { z } from 'zod';
@@ -150,9 +150,15 @@ export class ChatgptAuthService {
     private readonly lock: AiRefreshLock,
   ) {}
 
-  async start(userId: number): Promise<AiAuthStartResponse> {
-    await this.settings.assertCanConnectOwn(userId);
-    const existing = await this.connections.findForUser(userId);
+  /**
+   * Starts a sign-in for the user's own connection, or for the instance's:
+   * an admin may share their plan with everyone here. Whether that suits
+   * their plan and OpenAI's terms is the admin's call; the setting says so.
+   */
+  async start(userId: number, scope: AiConnectionScope = 'user'): Promise<AiAuthStartResponse> {
+    if (scope === 'user') await this.settings.assertCanConnectOwn(userId);
+    const existing =
+      scope === 'instance' ? await this.connections.findInstance() : await this.connections.findForUser(userId);
     const savedClientId = existing?.kind === 'chatgpt' ? (this.accountOf(existing).clientId ?? null) : null;
     const verifier = randomToken();
     const state = randomToken();
@@ -173,7 +179,16 @@ export class ChatgptAuthService {
     });
     const flowId = randomUUID();
     const expiresAt = Date.now() + AI_AUTH_FLOW_TTL_MS;
-    await this.flows.put(flowId, { provider: 'chatgpt', userId, verifier, state, nonce, savedClientId, expiresAt });
+    await this.flows.put(flowId, {
+      provider: 'chatgpt',
+      userId,
+      scope,
+      verifier,
+      state,
+      nonce,
+      savedClientId,
+      expiresAt,
+    });
     return {
       flowId,
       authorizeUrl: `${AUTHORIZE_URL}?${params.toString()}`,
@@ -183,16 +198,18 @@ export class ChatgptAuthService {
 
   /**
    * Finishes a sign-in from the pasted callback address and saves the
-   * connection. The address is checked before the flow is taken, so a wrong
-   * paste can be corrected without starting over.
+   * connection, the user's or (started by an admin) the instance's; answers
+   * which. The address is checked before the flow is taken, so a wrong paste
+   * can be corrected without starting over.
    */
-  async finish(userId: number, flowId: string, pastedUrl: string): Promise<void> {
-    await this.settings.assertCanConnectOwn(userId);
+  async finish(user: { id: number; role: string }, flowId: string, pastedUrl: string): Promise<AiConnectionScope> {
     const callback = readPastedCallback(pastedUrl);
-    const flow = await this.flows.take(flowId, userId, Date.now());
+    const flow = await this.flows.take(flowId, user.id, Date.now());
     if (flow?.provider !== 'chatgpt' || callback.state !== flow.state) {
       throw aiRefusal('expired', 'The sign-in took too long; start it again');
     }
+    if (flow.scope === 'instance' && user.role !== 'admin') throw aiRefusal('forbidden', 'Admin access required');
+    if (flow.scope === 'user') await this.settings.assertCanConnectOwn(user.id);
     if (callback.error) throw aiRefusal('generic', 'ChatGPT did not complete the sign-in');
     // A first sign-in names the client id issued to this user's registration;
     // a later one may leave it out, but must not name another.
@@ -214,7 +231,8 @@ export class ChatgptAuthService {
       throw aiRefusal('generic', 'The sign-in could not be verified');
     }
 
-    const existing = await this.connections.findForUser(userId);
+    const existing =
+      flow.scope === 'instance' ? await this.connections.findInstance() : await this.connections.findForUser(user.id);
     const previous: AiConnectionAccount = existing?.kind === 'chatgpt' ? this.accountOf(existing) : {};
     if (previous.sub && previous.sub !== claims.sub) {
       throw aiRefusal('account_mismatch', 'This is another ChatGPT account; remove the connection first');
@@ -225,7 +243,7 @@ export class ChatgptAuthService {
     }
 
     const model = await this.modelFor(existing, tokens.access_token);
-    await this.connections.save(userId, {
+    await this.connections.save(flow.scope === 'instance' ? null : user.id, {
       kind: 'chatgpt',
       model,
       baseUrl: null,
@@ -237,14 +255,16 @@ export class ChatgptAuthService {
       hint: typeof claims.email === 'string' ? claims.email : null,
       account: encodeJson(AI_CONNECTION_ACCOUNT, { clientId, sub: claims.sub, scopes }),
     });
+    return flow.scope;
   }
 
   /**
    * Signs the user out: the tokens go, the registration stays (the client id
    * and the account), so signing in again is the same registration.
    */
-  async signOut(userId: number): Promise<void> {
-    const row = await this.connections.findForUser(userId);
+  async signOut(userId: number, scope: AiConnectionScope = 'user'): Promise<void> {
+    const row =
+      scope === 'instance' ? await this.connections.findInstance() : await this.connections.findForUser(userId);
     if (row?.kind !== 'chatgpt') throw aiRefusal('not_found', 'No ChatGPT sign-in to sign out of');
     await this.connections.clearSecrets(row.id, 'signed_out');
   }

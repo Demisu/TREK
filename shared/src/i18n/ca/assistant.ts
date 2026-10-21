@@ -434,5 +434,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': 'Marca un dia de vacances',
   'assistant.tool.mark_country_visited': 'Marca el país com a visitat',
   'assistant.tool.send_collab_message': 'Envia al xat del viatge',
+  'assistant.admin.chatgptShared':
+    'Comparteixes el teu propi pla de ChatGPT amb tothom en aquest servidor: els seus xats compten contra el teu pla. Comprova que el teu pla i les condicions d’OpenAI ho permeten.',
 };
 export default assistant;

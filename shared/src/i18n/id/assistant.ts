@@ -411,5 +411,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': 'Tetapkan hari cuti',
   'assistant.tool.mark_country_visited': 'Tandai negara sebagai dikunjungi',
   'assistant.tool.send_collab_message': 'Kirim ke obrolan perjalanan',
+  'assistant.admin.chatgptShared':
+    'Kamu membagikan paket ChatGPT milikmu kepada semua orang di server ini: obrolan mereka dihitung dari paketmu. Pastikan paketmu dan ketentuan OpenAI mengizinkannya.',
 };
 export default assistant;

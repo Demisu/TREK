@@ -429,5 +429,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': 'Marcar un día de vacaciones',
   'assistant.tool.mark_country_visited': 'Marcar el país como visitado',
   'assistant.tool.send_collab_message': 'Enviar al chat del viaje',
+  'assistant.admin.chatgptShared':
+    'Compartes tu propio plan de ChatGPT con todos en este servidor: sus chats cuentan contra tu plan. Comprueba que tu plan y las condiciones de OpenAI lo permiten.',
 };
 export default assistant;

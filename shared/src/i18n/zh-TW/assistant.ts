@@ -400,5 +400,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': '設為休假日',
   'assistant.tool.mark_country_visited': '標記國家為已去過',
   'assistant.tool.send_collab_message': '傳送到行程聊天',
+  'assistant.admin.chatgptShared':
+    '你正在與此伺服器上的所有人共用你自己的 ChatGPT 訂閱：他們的聊天會計入你的方案。請確認你的方案和 OpenAI 的條款允許這樣做。',
 };
 export default assistant;

@@ -403,5 +403,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': '휴가일 지정',
   'assistant.tool.mark_country_visited': '국가를 방문함으로 표시',
   'assistant.tool.send_collab_message': '여행 채팅으로 보내기',
+  'assistant.admin.chatgptShared':
+    '내 ChatGPT 요금제를 이 서버의 모든 사람과 공유합니다. 모든 사람의 채팅이 내 요금제 한도에서 차감됩니다. 요금제와 OpenAI 약관에서 허용되는지 확인하세요.',
 };
 export default assistant;

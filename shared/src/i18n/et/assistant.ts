@@ -430,5 +430,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': 'Määra puhkusepäev',
   'assistant.tool.mark_country_visited': 'Märgi riik külastatuks',
   'assistant.tool.send_collab_message': 'Saada reisivestlusesse',
+  'assistant.admin.chatgptShared':
+    'Jagad oma ChatGPT tellimust kõigiga selles serveris: nende vestlused arvestatakse sinu paketist. Kontrolli, kas sinu pakett ja OpenAI tingimused seda lubavad.',
 };
 export default assistant;

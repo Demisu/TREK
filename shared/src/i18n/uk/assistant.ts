@@ -472,5 +472,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': 'Позначити день відпустки',
   'assistant.tool.mark_country_visited': 'Позначити країну як відвідану',
   'assistant.tool.send_collab_message': 'Надіслати в чат подорожі',
+  'assistant.admin.chatgptShared':
+    'Ви ділитеся своєю підпискою ChatGPT з усіма на цьому сервері: їхні чати витрачають ваш ліміт. Перевірте, що ваш тариф і умови OpenAI це дозволяють.',
 };
 export default assistant;

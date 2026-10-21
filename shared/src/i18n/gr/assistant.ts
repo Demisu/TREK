@@ -435,5 +435,7 @@ const assistant: TranslationStrings = {
   'assistant.tool.toggle_vacay_entry': 'Ορισμός ημέρας άδειας',
   'assistant.tool.mark_country_visited': 'Σήμανση χώρας ως επισκεφθείσας',
   'assistant.tool.send_collab_message': 'Αποστολή στη συνομιλία ταξιδιού',
+  'assistant.admin.chatgptShared':
+    'Μοιράζεσαι τη δική σου συνδρομή ChatGPT με όλους σε αυτόν τον διακομιστή: οι συνομιλίες τους χρεώνονται στο δικό σου πρόγραμμα. Έλεγξε ότι το πρόγραμμά σου και οι όροι της OpenAI το επιτρέπουν.',
 };
 export default assistant;

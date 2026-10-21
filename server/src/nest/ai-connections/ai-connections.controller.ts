@@ -96,8 +96,9 @@ export class AiConnectionsController {
   @HttpCode(200)
   @ResponseContract(aiConnectionViewSchema)
   async finishChatgpt(@CurrentUser() user: User, @Body() body: AiChatgptFinishDto) {
-    await this.chatgpt.finish(user.id, body.flowId, body.pastedUrl);
-    return this.connections.ownView(user.id);
+    // A sign-in an admin started for everyone answers with the instance's connection.
+    const scope = await this.chatgpt.finish(user, body.flowId, body.pastedUrl);
+    return scope === 'instance' ? this.connections.instanceView() : this.connections.ownView(user.id);
   }
 
   @Post('connect/chatgpt/sign-out')

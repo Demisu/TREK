@@ -243,6 +243,13 @@ export class AiConnectionsService implements SharedAiConnectionPort {
     return saved;
   }
 
+  /** The instance's connection as a user's own is shown, once a sign-in saved it. */
+  async instanceView(): Promise<AiConnectionView> {
+    const row = await this.connections.findInstance();
+    if (!row) throw aiRefusal('not_found', 'No connection for everyone yet');
+    return viewOf(row);
+  }
+
   async instanceConnection(): Promise<AiAdminConnectionResponse> {
     const row = await this.connections.findInstance();
     return {
