@@ -1,4 +1,4 @@
-// FE-JRN-SETTINGS-001 to FE-JRN-SETTINGS-027
+// FE-JRN-SETTINGS-001 to FE-JRN-SETTINGS-029
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { http, HttpResponse } from 'msw'
@@ -7,6 +7,7 @@ import { render, screen, waitFor, within, fireEvent, act } from '../../../tests/
 import { server } from '../../../tests/helpers/msw/server'
 import { useJourneyStore, type JourneyDetail } from '../../store/journeyStore'
 import { JourneySettingsDialog } from './JourneyDetailPageSettingsDialog'
+import type { JourneyRecordingPrepState } from './useJourneyRecordingPrep'
 
 type ToastKind = 'success' | 'error' | 'warning' | 'info'
 
@@ -43,7 +44,7 @@ function buildJourney(overrides: Partial<JourneyDetail> = {}): JourneyDetail {
   }
 }
 
-function mountDialog(journey: JourneyDetail = buildJourney()) {
+function mountDialog(journey: JourneyDetail = buildJourney(), recordingPrep?: JourneyRecordingPrepState) {
   const onClose = vi.fn()
   const onSaved = vi.fn()
   const onOpenInvite = vi.fn()
@@ -55,6 +56,7 @@ function mountDialog(journey: JourneyDetail = buildJourney()) {
       onSaved={onSaved}
       onOpenInvite={onOpenInvite}
       onRefresh={onRefresh}
+      recordingPrep={recordingPrep}
     />,
   )
   return { ...utils, onClose, onSaved, onOpenInvite, onRefresh }
@@ -474,5 +476,41 @@ describe('JourneySettingsDialog', () => {
     expect(screen.getByText('Dismissed suggestions (3)')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: /Bring back dismissed suggestions/ }))
     expect(onRestoreSuggestions).toHaveBeenCalledTimes(1)
+  })
+
+  function prepState(over: Partial<JourneyRecordingPrepState> = {}): JourneyRecordingPrepState {
+    return {
+      prep: { enabled: true, connection: 'ready', lastAttemptAt: null, lastSuccessAt: null, lastError: 'unreachable' },
+      saving: false,
+      fetching: false,
+      statusLine: { text: 'The first fetch failed: TREK could not reach that address.', tone: 'warning' },
+      canFetch: true,
+      setEnabled: vi.fn(async () => {}),
+      fetchNow: vi.fn(async () => {}),
+      dayPrep: () => null,
+      ...over,
+    }
+  }
+
+  it('FE-JRN-SETTINGS-028: the owner switches the preparation of recorded days and fetches by hand after a failure (JRN-03)', async () => {
+    const prep = prepState()
+    mountDialog(buildJourney({ auto_prepare_recordings: 1 }), prep)
+
+    expect(screen.getByTestId('journey-prep-status')).toHaveTextContent('The first fetch failed: TREK could not reach that address.')
+    await userEvent.click(screen.getByRole('button', { name: /Fetch now/ }))
+    expect(prep.fetchNow).toHaveBeenCalledTimes(1)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Prepare recorded days automatically' }))
+    expect(prep.setEnabled).toHaveBeenCalledWith(false)
+  })
+
+  it('FE-JRN-SETTINGS-029: without the Dawarich addon there is no switch, and no fetch where nothing can be reached', () => {
+    const { unmount } = mountDialog()
+    expect(screen.queryByText('Prepare recorded days automatically')).not.toBeInTheDocument()
+    unmount()
+
+    mountDialog(buildJourney(), prepState({ canFetch: false, statusLine: { text: 'Link a trip with dates: only its days are prepared.', tone: 'warning' } }))
+    expect(screen.getByText('Prepare recorded days automatically')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Fetch now/ })).not.toBeInTheDocument()
   })
 })

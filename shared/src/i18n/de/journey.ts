@@ -212,6 +212,9 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'GPX-Tracks',
   'journey.settings.showTripTracks': 'Alle GPX-Tracks der Reisen anzeigen',
   'journey.settings.showTripTracksHint': 'Zeichnet die aufgezeichneten Routen der verknüpften Reisen auf die Karte.',
+  'journey.settings.autoPrepare': 'Aufgezeichnete Tage automatisch vorbereiten',
+  'journey.settings.autoPrepareHint':
+    'Solange eine verknüpfte Reise läuft, warten die Aufenthalte aus deinem Dawarich an ihrem Tag auf deine Prüfung. Mitschreibende mit eigener Verbindung bekommen ihre eigenen. Ins Journal wird nichts von selbst geschrieben.',
   'journey.settings.status': 'Status',
   'journey.settings.statusAuto': 'Automatisch',
   'journey.settings.statusAutoHint':
@@ -844,5 +847,22 @@ const journey: TranslationStrings = {
     'Dawarich hat nicht geantwortet: {reason} Gezeigt werden die Aufenthalte, die TREK schon kennt.',
   'journey.dayImport.truncated': 'Dawarich hat nur einen Teil dieses Tages geliefert. Es können Aufenthalte fehlen.',
   'journey.dayImport.empty': 'Dawarich hat an diesem Tag keine Aufenthalte erkannt.',
+  'journey.prep.lastSuccess': 'Zuletzt abgerufen {time}.',
+  'journey.prep.never': 'Noch nicht abgerufen. Der nächste Hintergrundabgleich startet es.',
+  'journey.prep.failed': 'Die letzte Aktualisierung ist fehlgeschlagen: {reason} Angezeigt wird der Stand von {time}.',
+  'journey.prep.failedNever': 'Der erste Abruf ist fehlgeschlagen: {reason}',
+  'journey.prep.notConnected': 'Verbinde Dawarich in deinen Einstellungen, damit deine Tage vorbereitet werden.',
+  'journey.prep.noPeriods': 'Verknüpfe eine Reise mit Datum: Nur ihre Tage werden vorbereitet.',
+  'journey.prep.syncOff':
+    'Der Hintergrundabgleich ist in deinen Dawarich-Einstellungen aus, Tage werden nur auf deinen Wunsch abgerufen.',
+  'journey.prep.fetchNow': 'Jetzt abrufen',
+  'journey.prep.fetching': 'Wird abgerufen…',
+  'journey.prep.fetchFailed': 'Dawarich konnte gerade nicht gefragt werden.',
+  'journey.prep.dayRunning': 'Der Tag läuft noch, es können weitere Aufenthalte folgen.',
+  'journey.prep.dayPending': 'Noch nicht abgerufen.',
+  'journey.prep.dayProvisional': 'Abgerufen {time}, vor Tagesende, es können Aufenthalte fehlen.',
+  'journey.prep.dayFailed': 'Die letzte Aktualisierung ist fehlgeschlagen, das ist der ältere Stand.',
+  'journey.dayImport.running':
+    'Dieser Tag läuft noch. Später aufgezeichnete Aufenthalte erscheinen, sobald Dawarich sie hat.',
 };
 export default journey;

@@ -18,4 +18,5 @@ export interface JourneysTable {
   show_weather: InsertOptional<number>;
   status_override: InsertOptional<string | null>;
   photo_location: InsertOptional<number>;
+  auto_prepare_recordings: InsertOptional<number>;
 }

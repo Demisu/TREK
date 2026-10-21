@@ -17,6 +17,8 @@ import { openStayDatesWithin, openStaysByDate } from '../../components/Dawarich/
 import type { DawarichSuggestion, DawarichSuggestionTarget } from '@trek/shared'
 
 import { useDawarichJournalTrail } from '../../hooks/useDawarichJournalTrail'
+import { useJourneyRecordingPrep } from '../../components/Journey/useJourneyRecordingPrep'
+import { useAddonStore } from '../../store/addonStore'
 import { useJourneyDetailDayImport } from './useJourneyDetailDayImport'
 import { useJourneyDetailRecordings } from './useJourneyDetailRecordings'
 import { useProviderPhotoAdds } from './useProviderPhotoAdds'
@@ -533,6 +535,19 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
   // asked for should not reach across the network for it.
   const dawarichTrail = useDawarichJournalTrail(tripDates, showTripTracks)
 
+  // The recorded days of the linked trips prepared in the background (JRN-03): the editor's
+  // own status, the owner's switch, and where each day of the trips stands.
+  const isAddonEnabled = useAddonStore(s => s.isEnabled)
+  const reloadJourney = useCallback(() => { if (current) void loadJourney(current.id) }, [current, loadJourney])
+  const recordingPrep = useJourneyRecordingPrep({
+    journeyId: journeyLoaded && current ? current.id : null,
+    enabled: !!current?.auto_prepare_recordings,
+    active: canEditEntries && isAddonEnabled('dawarich'),
+    periodDates: tripDates,
+    onSwitched: reloadJourney,
+    onFetched: dawarich.reload,
+  })
+
   const { recordings, colorOfDay, canTakeOverRecording, recordingNeedsConnection, mapTracks } = useJourneyDetailRecordings({
     loaded: journeyLoaded,
     journey: current,
@@ -614,7 +629,7 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
     galleryUploadProgress, setGalleryUploadProgress,
     activeLocationId, handleMarkerClick, handleLocationClick,
     mapEntries, sidebarMapItems, tripDates, isMobile, tracks: mapTracks, dawarichTrail,
-    recordings, canTakeOverRecording, recordingNeedsConnection, dayImport, dayImportDates,
+    recordings, canTakeOverRecording, recordingNeedsConnection, dayImport, dayImportDates, recordingPrep,
     mapPhotos, openMapPhotos,
     feedEdge, scrollFeedTo,
     loadJourney, updateEntry, deleteEntry, reorderEntries, uploadPhotos, deletePhoto,

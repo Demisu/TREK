@@ -23,6 +23,7 @@ import {
 import {
   journeyRecordedDaysResponseSchema,
   journeyRecordingDateSchema,
+  journeyRecordingPrepSchema,
   journeyRecordingPreviewSchema,
   journeyRecordingSaveResultSchema,
   successResponseSchema,
@@ -44,6 +45,13 @@ export class JourneyRecordingsController {
   @ResponseContract(journeyRecordedDaysResponseSchema)
   async list(@CurrentUser() user: User, @Param('id') id: string) {
     return { days: await this.recordings.list(user.id, Number(id)) };
+  }
+
+  /** JRN-03: whether the journey prepares its recorded days, and how the caller's last runs went. */
+  @Get('prep')
+  @ResponseContract(journeyRecordingPrepSchema)
+  async prep(@CurrentUser() user: User, @Param('id') id: string) {
+    return await this.recordings.prepStatus(user.id, Number(id));
   }
 
   @Post('preview')

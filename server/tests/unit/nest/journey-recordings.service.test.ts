@@ -8,18 +8,22 @@
  * which journey and day and who would see it; a save keeps exactly the day
  * that was previewed, once, replaces a different version only when asked and
  * never touches an entry; a failed read keeps the version the journey had;
- * reading and removing kept days need no Dawarich at all.
+ * reading and removing kept days need no Dawarich at all. The status of
+ * preparing the days (JRN-03) is the caller's own and only for editors.
  */
+import { DawarichConnections } from '../../../src/db/entities/DawarichConnections.entity';
 import { JourneyEntries } from '../../../src/db/entities/JourneyEntries.entity';
 import { JourneyRecordedDays } from '../../../src/db/entities/JourneyRecordedDays.entity';
 import { DomainError } from '../../../src/nest/common/domain-error';
 import { DawarichTracksService, type RecordedDayFetch } from '../../../src/nest/integrations/dawarich-tracks.service';
 import { JourneyRecordingsModule } from '../../../src/nest/journey-recordings/journey-recordings.module';
 import { JourneyRecordingsService } from '../../../src/nest/journey-recordings/journey-recordings.service';
+import { JourneyDomainService } from '../../../src/nest/journey/journey-domain.service';
 import { JourneyRecordedDaysService } from '../../../src/nest/journey/journey-recorded-days.service';
+import { JourneyRecordingPrepService } from '../../../src/nest/journey/journey-recording-prep.service';
 import { createSnapshotTestDb } from '../../helpers/db-mock';
 import { addJourneyContributor, makeJourney, makeJourneyEntry } from '../../helpers/factories/journeys';
-import { countRows, findRow } from '../../helpers/factories/rows';
+import { countRows, findRow, upsertRow } from '../../helpers/factories/rows';
 import { setAddonEnabled } from '../../helpers/factories/settings';
 import { makeUser } from '../../helpers/factories/users';
 import { resetTestDb } from '../../helpers/test-db';
@@ -370,6 +374,61 @@ describe('JourneyRecordingsService.list and remove', () => {
     expect(await refusal(svc.remove(f.editor.id, f.journey.id, '2026-05-14'))).toEqual({
       status: 404,
       body: { error: 'No recording kept for that day' },
+    });
+  });
+});
+
+describe('JourneyRecordingsService.prepStatus', () => {
+  it('JRNREC-SVC-014: says whether the journey prepares its days and what the connection of the caller allows', async () => {
+    const f = await fixture();
+    expect(await svc.prepStatus(f.editor.id, f.journey.id)).toEqual({
+      enabled: false,
+      connection: 'not_connected',
+      lastAttemptAt: null,
+      lastSuccessAt: null,
+      lastError: null,
+    });
+
+    await t
+      .get(JourneyRecordingPrepService)
+      .record(f.journey.id, f.editor.id, 'unreachable', new Date('2026-05-14T08:00:00Z'));
+    await upsertRow(orm, DawarichConnections, {
+      user: f.editor.id,
+      url: 'https://dawarich.test',
+      api_key: 'k',
+      sync_enabled: 0,
+    });
+    expect(await svc.prepStatus(f.editor.id, f.journey.id)).toEqual({
+      enabled: false,
+      connection: 'sync_off',
+      lastAttemptAt: '2026-05-14T08:00:00.000Z',
+      lastSuccessAt: null,
+      lastError: 'unreachable',
+    });
+  });
+
+  it('JRNREC-SVC-015: the switch of the owner and a connection with its background sync on read as ready', async () => {
+    const f = await fixture();
+    await t.get(JourneyDomainService).updateJourney(f.journey.id, f.owner.id, { auto_prepare_recordings: true });
+    await upsertRow(orm, DawarichConnections, {
+      user: f.owner.id,
+      url: 'https://dawarich.test',
+      api_key: 'k',
+      sync_enabled: 1,
+    });
+
+    expect(await svc.prepStatus(f.owner.id, f.journey.id)).toMatchObject({ enabled: true, connection: 'ready' });
+  });
+
+  it('JRNREC-SVC-016: a reader, a stranger and a switched off Dawarich are refused as the other routes refuse them', async () => {
+    const f = await fixture();
+
+    expect((await refusal(svc.prepStatus(f.viewer.id, f.journey.id))).status).toBe(403);
+    expect((await refusal(svc.prepStatus(f.outsider.id, f.journey.id))).status).toBe(404);
+    await setAddonEnabled(orm, 'dawarich', false);
+    expect(await refusal(svc.prepStatus(f.owner.id, f.journey.id))).toMatchObject({
+      status: 404,
+      body: { code: 'addon_disabled' },
     });
   });
 });

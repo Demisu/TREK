@@ -241,6 +241,9 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'GPX izləri',
   'journey.settings.showTripTracks': 'Bütün səyahət GPX izlərini göstər',
   'journey.settings.showTripTracksHint': 'Əlaqələndirilmiş səyahətlərdə qeydə alınmış marşrutları xəritədə göstərir.',
+  'journey.settings.autoPrepare': 'Qeydə alınmış günləri avtomatik hazırla',
+  'journey.settings.autoPrepareHint':
+    'Bağlı səyahət davam etdikcə Dawarich-dəki dayanacaqların öz günlərində yoxlamanı gözləyir. Öz bağlantısı olan redaktorlar özlərininkini alır. Jurnala heç nə öz-özünə yazılmır.',
   'journey.settings.status': 'Status',
   'journey.settings.statusAuto': 'Avtomatik',
   'journey.settings.statusAutoHint': 'Bağlı səfərlərin tarixlərinə uyğunlaşır. Səfər olmadan jurnal qaralama qalır.',
@@ -909,5 +912,21 @@ const journey: TranslationStrings = {
   'journey.dayImport.staleNever': 'Dawarich cavab vermədi: {reason} TREK-in artıq bildiyi dayanacaqlar göstərilir.',
   'journey.dayImport.truncated': 'Dawarich bu günün yalnız bir hissəsini göndərdi. Bəzi dayanacaqlar çatışmaya bilər.',
   'journey.dayImport.empty': 'Dawarich bu gün heç bir dayanacaq tapmadı.',
+  'journey.prep.lastSuccess': 'Son yükləmə: {time}.',
+  'journey.prep.never': 'Hələ yüklənməyib. Növbəti fon sinxronizasiyası bunu başladacaq.',
+  'journey.prep.failed': 'Son yeniləmə alınmadı: {reason} {time} yüklənən vəziyyət göstərilir.',
+  'journey.prep.failedNever': 'İlk yükləmə alınmadı: {reason}',
+  'journey.prep.notConnected': 'Günlərinin hazırlanması üçün ayarlarda Dawarich-i qoş.',
+  'journey.prep.noPeriods': 'Tarixli səyahət bağla: yalnız onun günləri hazırlanır.',
+  'journey.prep.syncOff': 'Dawarich ayarlarında fon sinxronizasiyası söndürülüb, günlər yalnız sən istədikdə yüklənir.',
+  'journey.prep.fetchNow': 'İndi yüklə',
+  'journey.prep.fetching': 'Yüklənir…',
+  'journey.prep.fetchFailed': 'Hazırda Dawarich-ə müraciət etmək mümkün olmadı.',
+  'journey.prep.dayRunning': 'Gün hələ davam edir, başqa dayanacaqlar da gələ bilər.',
+  'journey.prep.dayPending': 'Hələ yüklənməyib.',
+  'journey.prep.dayProvisional': '{time} yükləndi, gün bitməmiş, dayanacaqlar çatışmaya bilər.',
+  'journey.prep.dayFailed': 'Son yeniləmə alınmadı, bu köhnə vəziyyətdir.',
+  'journey.dayImport.running':
+    'Bu gün hələ davam edir. Sonra qeydə alınan dayanacaqlar Dawarich-də olan kimi görünəcək.',
 };
 export default journey;

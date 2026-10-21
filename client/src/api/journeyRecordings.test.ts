@@ -69,4 +69,17 @@ describe('journeyRecordingsApi', () => {
       { method: 'POST', path: `${BASE}/2026-05-14/stays/import`, body },
     ]);
   });
+
+  it('FE-API-JOURNEY-RECORDINGS-003: reads how the journey prepares its days (JRN-03)', async () => {
+    const answer = {
+      enabled: false,
+      connection: 'not_connected',
+      lastAttemptAt: null,
+      lastSuccessAt: null,
+      lastError: null,
+    };
+    server.use(http.get(`${BASE}/prep`, record(answer)));
+    expect(await journeyRecordingsApi.prep(7)).toEqual(answer);
+    expect(calls).toEqual([{ method: 'GET', path: `${BASE}/prep`, body: null }]);
+  });
 });

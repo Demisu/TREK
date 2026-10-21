@@ -204,6 +204,9 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'Trilhas GPX',
   'journey.settings.showTripTracks': 'Mostrar todas as trilhas GPX das viagens',
   'journey.settings.showTripTracksHint': 'Desenha no mapa as rotas gravadas das viagens vinculadas.',
+  'journey.settings.autoPrepare': 'Preparar dias gravados automaticamente',
+  'journey.settings.autoPrepareHint':
+    'Enquanto uma viagem vinculada está em andamento, as paradas do seu Dawarich esperam no dia delas pela sua revisão. Editores com conexão própria recebem as deles. Nada é escrito no diário sozinho.',
   'journey.settings.status': 'Status',
   'journey.settings.statusAuto': 'Automático',
   'journey.settings.statusAutoHint':
@@ -836,5 +839,22 @@ const journey: TranslationStrings = {
   'journey.dayImport.staleNever': 'O Dawarich não respondeu: {reason} Mostrando as paradas que o TREK já conhece.',
   'journey.dayImport.truncated': 'O Dawarich enviou só parte deste dia. Podem faltar paradas.',
   'journey.dayImport.empty': 'O Dawarich não encontrou paradas neste dia.',
+  'journey.prep.lastSuccess': 'Última busca {time}.',
+  'journey.prep.never': 'Ainda não buscado. A próxima sincronização em segundo plano começa.',
+  'journey.prep.failed': 'A última atualização falhou: {reason} Mostrando o que foi buscado {time}.',
+  'journey.prep.failedNever': 'A primeira busca falhou: {reason}',
+  'journey.prep.notConnected': 'Conecte o Dawarich nas suas configurações para que seus dias sejam preparados.',
+  'journey.prep.noPeriods': 'Vincule uma viagem com datas: só os dias dela são preparados.',
+  'journey.prep.syncOff':
+    'A sincronização em segundo plano está desligada nas suas configurações do Dawarich, os dias só são buscados quando você pede.',
+  'journey.prep.fetchNow': 'Buscar agora',
+  'journey.prep.fetching': 'Buscando…',
+  'journey.prep.fetchFailed': 'Não foi possível consultar o Dawarich agora.',
+  'journey.prep.dayRunning': 'O dia ainda está em andamento, mais paradas podem vir.',
+  'journey.prep.dayPending': 'Ainda não buscado.',
+  'journey.prep.dayProvisional': 'Buscado {time}, antes do fim do dia, podem faltar paradas.',
+  'journey.prep.dayFailed': 'A última atualização falhou, este é o estado anterior.',
+  'journey.dayImport.running':
+    'Este dia ainda está em andamento. Paradas gravadas depois aparecem assim que o Dawarich as tiver.',
 };
 export default journey;

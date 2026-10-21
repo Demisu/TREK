@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { X, Image, Plus, Trash2, UserPlus, Link as LinkIcon, List, Grid3x3, MapPin, Route, Archive, ArchiveRestore, Undo2, Link2 } from 'lucide-react'
+import { X, Image, Plus, Trash2, UserPlus, Link as LinkIcon, List, Grid3x3, MapPin, Route, Archive, ArchiveRestore, Undo2, Link2, ListChecks, RefreshCw } from 'lucide-react'
 import MSheet from '../../components/MSheet'
 import MIconBtn from '../../components/MIconBtn'
 import MToggle from '../../components/MToggle'
@@ -8,6 +8,7 @@ import { useTranslation } from '../../../i18n'
 import type { JourneyDetail, JourneyTripAccess } from '../../../store/journeyStore'
 import { useJourneySettings, useJourneyTripLinking } from '../../../components/Journey/useJourneySettings'
 import { useJourneyShareLink } from '../../../components/Journey/useJourneyShareLink'
+import type { JourneyRecordingPrepState } from '../../../components/Journey/useJourneyRecordingPrep'
 import { pickGradient } from '../../../pages/journeyDetail/JourneyDetailPage.helpers'
 import { journeyCoverSrc } from './mobileJourneyMeta'
 
@@ -19,6 +20,8 @@ interface MJourneySettingsSheetProps {
   onRefresh: () => void
   /** Bring back every suggestion waved away card by card. Absent for a viewer. */
   onRestoreSuggestions?: () => Promise<void> | void
+  /** Preparing the recorded days (JRN-03); absent without the Dawarich addon. */
+  recordingPrep?: JourneyRecordingPrepState
 }
 
 /**
@@ -26,7 +29,7 @@ interface MJourneySettingsSheetProps {
  * with per-section toggles (timeline / gallery / map), archive and delete.
  */
 export default function MJourneySettingsSheet({
-  journey, onClose, onSaved, onOpenInvite, onRefresh, onRestoreSuggestions,
+  journey, onClose, onSaved, onOpenInvite, onRefresh, onRestoreSuggestions, recordingPrep,
 }: MJourneySettingsSheetProps) {
   const { t } = useTranslation()
   const {
@@ -115,6 +118,41 @@ export default function MJourneySettingsSheet({
             ariaLabel={t('journey.settings.showTripTracks')}
           />
         </div>
+        {recordingPrep && (
+          <div className="mt-[6px] rounded-[14px] bg-[color:var(--m-ic)] px-3 py-[10px]">
+            <div className="flex items-center gap-[11px]">
+              <ListChecks size={16} strokeWidth={2} className="flex-none text-m-muted" />
+              <div className="min-w-0 flex-1">
+                <div className="text-body font-bold">{t('journey.settings.autoPrepare')}</div>
+                <div className="font-geist text-caption text-m-muted">{t('journey.settings.autoPrepareHint')}</div>
+              </div>
+              <MToggle
+                checked={!!journey.auto_prepare_recordings}
+                onChange={next => { void recordingPrep.setEnabled(next) }}
+                disabled={recordingPrep.saving}
+                ariaLabel={t('journey.settings.autoPrepare')}
+              />
+            </div>
+            {recordingPrep.statusLine && (
+              <div className="mt-2 flex items-center gap-2 border-t border-[color:var(--m-rowbr)] pt-2">
+                <div className={`min-w-0 flex-1 font-geist text-caption leading-[1.45] ${recordingPrep.statusLine.tone === 'warning' ? 'text-warning' : 'text-m-muted'}`}>
+                  {recordingPrep.statusLine.text}
+                </div>
+                {recordingPrep.canFetch && (
+                  <button
+                    type="button"
+                    onClick={() => { void recordingPrep.fetchNow() }}
+                    disabled={recordingPrep.fetching}
+                    aria-label={t('journey.prep.fetchNow')}
+                    className="grid h-8 w-8 flex-none place-items-center rounded-full bg-m-card text-m-muted disabled:opacity-50"
+                  >
+                    <RefreshCw size={14} strokeWidth={2.2} className={recordingPrep.fetching ? 'animate-spin' : undefined} />
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* The three fields a journey may put away (discussion #2299) */}
         <div className={`${eyebrow} mb-[6px] mt-[14px]`}>{t('journey.settings.entryFields')}</div>

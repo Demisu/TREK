@@ -29,6 +29,7 @@ import { DawarichSyncService } from '../../../src/nest/integrations/dawarich-syn
 import { DawarichError } from '../../../src/nest/integrations/dawarich.client';
 import type { DawarichClient, DawarichCreds, DawarichVisitRaw } from '../../../src/nest/integrations/dawarich.client';
 import type { DawarichService } from '../../../src/nest/integrations/dawarich.service';
+import type { JourneyRecordingPrepService } from '../../../src/nest/journey/journey-recording-prep.service';
 import {
   createTestDawarichConnectionsRepo,
   createTestDawarichVisitSuggestionsRepo,
@@ -119,6 +120,9 @@ const dawarich = {
   storeCapabilities,
   probeCapabilities,
 } as unknown as DawarichService;
+
+/** No journey prepares its days here; dawarich-sync-journeys.service.test.ts covers that half. */
+const noJourneysToPrepare = { listFor: async () => [], record: vi.fn() } as unknown as JourneyRecordingPrepService;
 
 // Direct construction over the shared test connection — no TestingModule
 // (repo convention for DI-native service unit tests).
@@ -264,6 +268,7 @@ beforeAll(async () => {
     bucketList,
     connections,
     await createTestUnitOfWork(testDb),
+    noJourneysToPrepare,
   );
 });
 

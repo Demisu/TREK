@@ -225,6 +225,9 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'Stopy GPX',
   'journey.settings.showTripTracks': 'Zobraziť všetky GPX stopy z ciest',
   'journey.settings.showTripTracksHint': 'Vykreslí na mape zaznamenané trasy z prepojených ciest.',
+  'journey.settings.autoPrepare': 'Automaticky pripravovať zaznamenané dni',
+  'journey.settings.autoPrepareHint':
+    'Kým prepojená cesta prebieha, čakajú pobyty z tvojho Dawarich pri svojom dni na kontrolu. Editori s vlastným pripojením dostanú svoje. Do denníka sa nič nezapíše samo.',
   'journey.settings.status': 'Stav',
   'journey.settings.statusAuto': 'Automaticky',
   'journey.settings.statusAutoHint': 'Riadi sa dátumami prepojených výletov. Bez výletu zostane denník konceptom.',
@@ -855,5 +858,22 @@ const journey: TranslationStrings = {
   'journey.dayImport.staleNever': 'Dawarich neodpovedal: {reason} Zobrazujú sa pobyty, ktoré TREK už pozná.',
   'journey.dayImport.truncated': 'Dawarich poslal len časť tohto dňa. Niektoré pobyty môžu chýbať.',
   'journey.dayImport.empty': 'Dawarich v tento deň nenašiel žiadne pobyty.',
+  'journey.prep.lastSuccess': 'Naposledy načítané {time}.',
+  'journey.prep.never': 'Zatiaľ nenačítané. Spustí to ďalšia synchronizácia na pozadí.',
+  'journey.prep.failed': 'Posledná aktualizácia zlyhala: {reason} Zobrazuje sa stav načítaný {time}.',
+  'journey.prep.failedNever': 'Prvé načítanie zlyhalo: {reason}',
+  'journey.prep.notConnected': 'Pripoj Dawarich v nastaveniach, aby sa tvoje dni mohli pripraviť.',
+  'journey.prep.noPeriods': 'Prepoj cestu s dátumami: pripravujú sa len jej dni.',
+  'journey.prep.syncOff':
+    'Synchronizácia na pozadí je v nastaveniach Dawarich vypnutá, dni sa načítajú len na tvoju žiadosť.',
+  'journey.prep.fetchNow': 'Načítať teraz',
+  'journey.prep.fetching': 'Načítava sa…',
+  'journey.prep.fetchFailed': 'Dawarich sa teraz nepodarilo kontaktovať.',
+  'journey.prep.dayRunning': 'Deň ešte prebieha, môžu pribudnúť ďalšie pobyty.',
+  'journey.prep.dayPending': 'Zatiaľ nenačítané.',
+  'journey.prep.dayProvisional': 'Načítané {time}, pred koncom dňa, niektoré pobyty môžu chýbať.',
+  'journey.prep.dayFailed': 'Posledná aktualizácia zlyhala, toto je starší stav.',
+  'journey.dayImport.running':
+    'Tento deň ešte prebieha. Neskôr zaznamenané pobyty sa objavia, hneď ako ich Dawarich bude mať.',
 };
 export default journey;

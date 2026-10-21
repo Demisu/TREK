@@ -3,6 +3,7 @@ import type {
   JourneyDayImportResult,
   JourneyDayStays,
   JourneyRecordedDaysResponse,
+  JourneyRecordingPrep,
   JourneyRecordingPreview,
   JourneyRecordingPreviewRequest,
   JourneyRecordingSaveRequest,
@@ -19,10 +20,13 @@ const upstream = { timeout: DAWARICH_UPSTREAM_TIMEOUT_MS };
 /**
  * JRN-01: the recorded days a journey keeps, previewing one, keeping it and dropping it.
  * JRN-02: the stays of a day reviewed and taken over as drafts.
+ * JRN-03: how the journey prepares its days for the caller.
  */
 export const journeyRecordingsApi = {
   list: (journeyId: number, signal?: AbortSignal): Promise<JourneyRecordedDaysResponse> =>
     apiClient.get(base(journeyId), { signal }).then((r) => r.data),
+  prep: (journeyId: number, signal?: AbortSignal): Promise<JourneyRecordingPrep> =>
+    apiClient.get(`${base(journeyId)}/prep`, { signal }).then((r) => r.data),
   preview: (
     journeyId: number,
     body: JourneyRecordingPreviewRequest,

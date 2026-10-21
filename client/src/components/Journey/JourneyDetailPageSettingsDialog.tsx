@@ -7,6 +7,8 @@ import { DeleteButton, DialogButton, DialogFooter, DialogHeader, DialogSection, 
 import { AddRowButton, EditorField, INPUT, Segmented } from '../shared/dialogParts'
 import JourneyShareSection from './JourneyShareSection'
 import { useJourneySettings } from './useJourneySettings'
+import type { JourneyRecordingPrepState } from './useJourneyRecordingPrep'
+import { JourneyRecordingPrepRow, JourneyRecordingPrepStatus } from './JourneyRecordingPrepSetting'
 import type { JourneyContributor, JourneyDetail, JourneyTripAccess } from '../../store/journeyStore'
 import { pickGradient } from '../../pages/journeyDetail/JourneyDetailPage.helpers'
 import { AddTripDialog } from './JourneyDetailPageAddTripDialog'
@@ -31,7 +33,7 @@ function RowAction({ label, onClick, children }: { label: string; onClick: () =>
   )
 }
 
-export function JourneySettingsDialog({ journey, onClose, onSaved, onOpenInvite, onRefresh, onRestoreSuggestions }: {
+export function JourneySettingsDialog({ journey, onClose, onSaved, onOpenInvite, onRefresh, onRestoreSuggestions, recordingPrep }: {
   journey: JourneyDetail
   onClose: () => void
   onSaved: () => void
@@ -39,6 +41,8 @@ export function JourneySettingsDialog({ journey, onClose, onSaved, onOpenInvite,
   onRefresh: () => void
   /** Bring back every suggestion waved away card by card. Absent for a viewer. */
   onRestoreSuggestions?: () => Promise<void> | void
+  /** Preparing the recorded days (JRN-03); absent without the Dawarich addon. */
+  recordingPrep?: JourneyRecordingPrepState
 }) {
   const { t } = useTranslation()
   const labelId = useId()
@@ -170,7 +174,9 @@ export function JourneySettingsDialog({ journey, onClose, onSaved, onOpenInvite,
                     label={t('journey.settings.showTripTracks')}
                   />
                 </div>
+                {recordingPrep && <JourneyRecordingPrepRow on={!!journey.auto_prepare_recordings} prep={recordingPrep} rowClass={ROW} />}
               </div>
+              {recordingPrep && <JourneyRecordingPrepStatus prep={recordingPrep} />}
             </DialogSection>
 
             {/* Places from photos (#1003): the GPS a picture carries puts its entry on the map */}

@@ -55,6 +55,7 @@ A check covers the dates of your trips, not your whole history:
 
 - every trip you own or are a member of that has a start date, is not archived, has begun (or begins tomorrow) and ended no more than 400 days ago
 - for each of them, from three days before the start to one day after the end, but never past the present moment
+- the trips linked to a journal that prepares its recorded days (see [Journey-Journal](Journey-Journal)), when you own that journal or write in it, also when you are not on the trip yourself; their stays are fetched within the same limits and wait at their day in that journal
 
 Stays outside those windows are never fetched. Dawarich's confirmed and unconfirmed visits both come in, because since Dawarich 1.12 an unconfirmed visit is the normal state of one.
 
@@ -180,6 +181,7 @@ With the [MCP](MCP-Overview) addon on as well, an assistant can review your stay
 | `save_journey_recorded_day` | Keeps that day in a journal after you confirmed the preview, or replaces a different version when asked. Needs the Journey addon too. | `journey:write` |
 | `review_journey_day_stays` | Reads the stays of one day from your Dawarich and says which a journal holds already. Needs the Journey addon too. | `journey:read` |
 | `take_over_journey_day_stays` | Takes the stays you chose into a journal as drafts: one by one, joined per place or as one day report. Needs the Journey addon too. | `journey:write` |
+| `get_journey_recording_prep` | Says whether a journal prepares its recorded days and how your own last checks over it went. Needs the Journey addon too. | `journey:read` |
 
 The same rules apply as in the browser: nothing is added until a tool is called, and the permissions for adding a place are checked the same way. See [MCP-Addon-Tools](MCP-Addon-Tools) and [MCP-Scopes](MCP-Scopes).
 

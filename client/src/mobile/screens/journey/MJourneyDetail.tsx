@@ -25,6 +25,7 @@ import JourneyDayScrubber from '../../../components/Journey/JourneyDayScrubber'
 import { dayColorOf } from '../../../components/Journey/journeyCard'
 import { useJourneyCarouselSync } from '../../../components/Journey/useJourneyCarouselSync'
 import { useGalleryUpload } from '../../../components/Journey/useGalleryUpload'
+import { dayPrepText, dayPrepUnsettled } from '../../../components/Journey/journeyRecordingPrepModel'
 import MJourneyEntrySheet from './MJourneyEntrySheet'
 import MJourneySettingsSheet from './MJourneySettingsSheet'
 import MJourneyDayImportSheet from './MJourneyDayImportSheet'
@@ -50,7 +51,7 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
     showInvite, setShowInvite,
     showSettings, setShowSettings,
     hideSkeletons, setHideSkeletons,
-    sidebarMapItems, tracks, recordings, canTakeOverRecording, dayImport, dayImportDates, dawarichByDate,
+    sidebarMapItems, tracks, recordings, canTakeOverRecording, dayImport, dayImportDates, dawarichByDate, recordingPrep,
     dismissSuggestion, restoreSuggestions, openAtEntryId,
     loadJourney, updateEntry, deleteEntry, reorderEntries, uploadPhotos,
     addPickedProviderPhotos, addEntryProviderPhotos,
@@ -67,6 +68,8 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
 
   const dayImportRow = (date: string, closeMenu: () => void) => {
     const waiting = dawarichByDate.get(date)?.length ?? 0
+    const prep = recordingPrep.dayPrep(date)
+    const unsettled = dayPrepUnsettled(prep)
     return (
       <MListRow
         key={date}
@@ -74,9 +77,16 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
         label={t('journey.dayImport.openOn', {
           date: new Date(date + 'T00:00:00').toLocaleDateString(locale, { day: 'numeric', month: 'long' }),
         })}
-        trailing={waiting > 0 ? (
-          <span className="rounded-full bg-m-ic px-2 py-0.5 font-geist text-caption font-bold tabular-nums text-m-muted">
-            {waiting}
+        trailing={waiting > 0 || unsettled ? (
+          <span className="inline-flex items-center gap-1.5">
+            {unsettled && prep && (
+              <span className="h-1.5 w-1.5 rounded-full bg-warning" role="img" aria-label={dayPrepText(prep, t, locale)} />
+            )}
+            {waiting > 0 && (
+              <span className="rounded-full bg-m-ic px-2 py-0.5 font-geist text-caption font-bold tabular-nums text-m-muted">
+                {waiting}
+              </span>
+            )}
           </span>
         ) : undefined}
         onClick={() => { closeMenu(); dayImport.open(date) }}
@@ -625,6 +635,7 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
           onOpenInvite={() => setShowInvite(true)}
           onRefresh={() => loadJourney(Number(id))}
           onRestoreSuggestions={canEditEntries ? restoreSuggestions : undefined}
+          recordingPrep={recordingPrep.prep ? recordingPrep : undefined}
         />
       )}
 

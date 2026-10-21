@@ -214,6 +214,9 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'Ślady GPX',
   'journey.settings.showTripTracks': 'Pokaż wszystkie ślady GPX z podróży',
   'journey.settings.showTripTracksHint': 'Rysuje na mapie zapisane trasy z powiązanych podróży.',
+  'journey.settings.autoPrepare': 'Automatycznie przygotowuj zarejestrowane dni',
+  'journey.settings.autoPrepareHint':
+    'Dopóki powiązana podróż trwa, postoje z twojego Dawarich czekają przy swoim dniu na przejrzenie. Edytorzy z własnym połączeniem dostają swoje. Nic nie trafia do dziennika samo.',
   'journey.settings.status': 'Status',
   'journey.settings.statusAuto': 'Automatycznie',
   'journey.settings.statusAutoHint': 'Zależy od dat powiązanych podróży. Bez podróży dziennik pozostaje szkicem.',
@@ -878,5 +881,22 @@ const journey: TranslationStrings = {
   'journey.dayImport.staleNever': 'Dawarich nie odpowiedział: {reason} Widać postoje, które TREK już zna.',
   'journey.dayImport.truncated': 'Dawarich przesłał tylko część tego dnia. Może brakować postojów.',
   'journey.dayImport.empty': 'Dawarich nie znalazł tego dnia żadnych postojów.',
+  'journey.prep.lastSuccess': 'Ostatnio pobrano {time}.',
+  'journey.prep.never': 'Jeszcze nie pobrano. Uruchomi to następna synchronizacja w tle.',
+  'journey.prep.failed': 'Ostatnie odświeżenie nie powiodło się: {reason} Widać stan pobrany {time}.',
+  'journey.prep.failedNever': 'Pierwsze pobranie nie powiodło się: {reason}',
+  'journey.prep.notConnected': 'Połącz Dawarich w ustawieniach, aby twoje dni mogły zostać przygotowane.',
+  'journey.prep.noPeriods': 'Powiąż podróż z datami: przygotowywane są tylko jej dni.',
+  'journey.prep.syncOff':
+    'Synchronizacja w tle jest wyłączona w ustawieniach Dawarich, dni są pobierane tylko na twoją prośbę.',
+  'journey.prep.fetchNow': 'Pobierz teraz',
+  'journey.prep.fetching': 'Pobieranie…',
+  'journey.prep.fetchFailed': 'Nie udało się teraz zapytać Dawarich.',
+  'journey.prep.dayRunning': 'Dzień jeszcze trwa, mogą dojść kolejne postoje.',
+  'journey.prep.dayPending': 'Jeszcze nie pobrano.',
+  'journey.prep.dayProvisional': 'Pobrano {time}, przed końcem dnia, może brakować postojów.',
+  'journey.prep.dayFailed': 'Ostatnie odświeżenie nie powiodło się, to starszy stan.',
+  'journey.dayImport.running':
+    'Ten dzień jeszcze trwa. Postoje zarejestrowane później pojawią się, gdy tylko Dawarich je będzie mieć.',
 };
 export default journey;

@@ -441,7 +441,8 @@ export const PLUGIN_ENTITY_CONTRACT = {
       'status_override',
       'photo_location',
     ],
-    withheld: [],
+    // A person's own sync setting for the journey, nothing a plugin acts on.
+    withheld: ['auto_prepare_recordings'],
     wholeRow: true,
     derived: ['entry_count', 'photo_count', 'place_count', 'trip_date_min', 'trip_date_max'],
   },

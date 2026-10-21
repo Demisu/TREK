@@ -143,6 +143,16 @@ What you should know:
 - **Drafts never appear on shared links.** Everyone on the journey sees them; the dialog says how many people that is.
 - **When Dawarich does not answer**, the dialog says why and shows the stays of the last sync instead, so you can still take them over.
 
+### Preparing recorded days automatically
+
+While you travel, the stays of each day can be ready for review without you starting anything. In **Journey Settings**, under **GPX Tracks**, the owner switches on **Prepare recorded days automatically**. It is off by default.
+
+- The background check of [Dawarich](Dawarich) then also reads the days of the trips linked to the journal, for the owner and for every editor with a Dawarich connection of their own. Everyone gets only their own stays; nobody else's recording is read.
+- In the timeline, a day with stays waiting shows their number on its list button, and a click opens the review of that day. A small dot marks a day that is not final yet: it is still running, its stays were fetched before it ended, nothing was fetched yet, or the last refresh failed and the day shows an older state. The tooltip says which.
+- Under the switch you see when your stays were last fetched, or why it did not work (no connection, no linked trip with dates, background check switched off, or the reason of the last failure, with the state still shown). **Fetch now** asks Dawarich at once; switching the preparation on does that by itself.
+- Stays recorded later and stays Dawarich changed come in with the next check. Stays you took over or left out are not offered again, and nothing in the journal is ever written or changed on its own: taking a day over stays your decision.
+- Switching it off stops the preparation. Everything you took over stays as it is.
+
 **Geotagged photos are drawn too.** A photo of the journey that knows where it was taken appears on the map as a thumbnail, and photos taken close together collapse into one thumbnail with a count. Click one to open those photos in the viewer.
 
 **Place entries from their photos**, a switch under **Photos** in **Journey Settings**, goes one step further: an entry without a place takes the spot where its first photo with GPS was taken. Places you set yourself are never moved. It is off by default.

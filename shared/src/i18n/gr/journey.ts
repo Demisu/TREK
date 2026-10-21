@@ -216,6 +216,9 @@ const journey: TranslationStrings = {
   'journey.settings.showTripTracks': 'Εμφάνιση όλων των διαδρομών GPX των ταξιδιών',
   'journey.settings.showTripTracksHint':
     'Σχεδιάζει στον χάρτη τις καταγεγραμμένες διαδρομές από τα συνδεδεμένα ταξίδια.',
+  'journey.settings.autoPrepare': 'Αυτόματη προετοιμασία καταγεγραμμένων ημερών',
+  'journey.settings.autoPrepareHint':
+    'Όσο ένα συνδεδεμένο ταξίδι βρίσκεται σε εξέλιξη, οι στάσεις από το Dawarich σου περιμένουν στη μέρα τους για έλεγχο. Οι συντάκτες με δική τους σύνδεση παίρνουν τις δικές τους. Τίποτα δεν γράφεται μόνο του στο ημερολόγιο.',
   'journey.settings.status': 'Κατάσταση',
   'journey.settings.statusAuto': 'Αυτόματα',
   'journey.settings.statusAutoHint':
@@ -848,5 +851,22 @@ const journey: TranslationStrings = {
     'Το Dawarich δεν απάντησε: {reason} Εμφανίζονται οι στάσεις που ήδη γνωρίζει το TREK.',
   'journey.dayImport.truncated': 'Το Dawarich έστειλε μόνο μέρος αυτής της ημέρας. Μπορεί να λείπουν στάσεις.',
   'journey.dayImport.empty': 'Το Dawarich δεν βρήκε στάσεις αυτή την ημέρα.',
+  'journey.prep.lastSuccess': 'Τελευταία λήψη {time}.',
+  'journey.prep.never': 'Δεν έχει γίνει λήψη ακόμη. Ο επόμενος συγχρονισμός στο παρασκήνιο την ξεκινά.',
+  'journey.prep.failed': 'Η τελευταία ανανέωση απέτυχε: {reason} Εμφανίζεται ό,τι λήφθηκε {time}.',
+  'journey.prep.failedNever': 'Η πρώτη λήψη απέτυχε: {reason}',
+  'journey.prep.notConnected': 'Σύνδεσε το Dawarich στις ρυθμίσεις σου ώστε να προετοιμάζονται οι μέρες σου.',
+  'journey.prep.noPeriods': 'Σύνδεσε ένα ταξίδι με ημερομηνίες: προετοιμάζονται μόνο οι μέρες του.',
+  'journey.prep.syncOff':
+    'Ο συγχρονισμός στο παρασκήνιο είναι απενεργοποιημένος στις ρυθμίσεις Dawarich, οι μέρες λαμβάνονται μόνο όταν το ζητάς.',
+  'journey.prep.fetchNow': 'Λήψη τώρα',
+  'journey.prep.fetching': 'Λήψη…',
+  'journey.prep.fetchFailed': 'Δεν ήταν δυνατή η επικοινωνία με το Dawarich αυτή τη στιγμή.',
+  'journey.prep.dayRunning': 'Η μέρα δεν έχει τελειώσει, μπορεί να ακολουθήσουν κι άλλες στάσεις.',
+  'journey.prep.dayPending': 'Δεν έχει γίνει λήψη ακόμη.',
+  'journey.prep.dayProvisional': 'Λήφθηκε {time}, πριν τελειώσει η μέρα, μπορεί να λείπουν στάσεις.',
+  'journey.prep.dayFailed': 'Η τελευταία ανανέωση απέτυχε, αυτή είναι η παλαιότερη κατάσταση.',
+  'journey.dayImport.running':
+    'Αυτή η μέρα δεν έχει τελειώσει. Στάσεις που καταγράφονται αργότερα εμφανίζονται μόλις τις έχει το Dawarich.',
 };
 export default journey;

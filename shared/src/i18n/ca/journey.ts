@@ -204,6 +204,9 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'Traces GPX',
   'journey.settings.showTripTracks': 'Mostra totes les traces GPX dels viatges',
   'journey.settings.showTripTracksHint': 'Dibuixa al mapa les rutes enregistrades dels viatges enllaçats.',
+  'journey.settings.autoPrepare': 'Prepara automàticament els dies enregistrats',
+  'journey.settings.autoPrepareHint':
+    "Mentre un viatge enllaçat està en curs, les estades del teu Dawarich esperen al seu dia que les revisis. Els editors amb connexió pròpia reben les seves. No s'escriu res al diari sol.",
   'journey.settings.status': 'Estat',
   'journey.settings.statusAuto': 'Automàtic',
   'journey.settings.statusAutoHint':
@@ -840,5 +843,22 @@ const journey: TranslationStrings = {
   'journey.dayImport.staleNever': 'Dawarich no ha respost: {reason} Es mostren les estades que TREK ja coneix.',
   'journey.dayImport.truncated': 'Dawarich només ha enviat una part d’aquest dia. Pot ser que faltin estades.',
   'journey.dayImport.empty': 'Dawarich no ha trobat estades en aquest dia.',
+  'journey.prep.lastSuccess': 'Última consulta {time}.',
+  'journey.prep.never': 'Encara no consultat. La propera sincronització en segon pla ho inicia.',
+  'journey.prep.failed': "L'última actualització ha fallat: {reason} Es mostra el que es va consultar {time}.",
+  'journey.prep.failedNever': 'La primera consulta ha fallat: {reason}',
+  'journey.prep.notConnected': 'Connecta Dawarich a la configuració perquè es preparin els teus dies.',
+  'journey.prep.noPeriods': 'Enllaça un viatge amb dates: només es preparen els seus dies.',
+  'journey.prep.syncOff':
+    'La sincronització en segon pla està desactivada a la configuració de Dawarich, els dies només es consulten quan ho demanes.',
+  'journey.prep.fetchNow': 'Consulta ara',
+  'journey.prep.fetching': 'Consultant…',
+  'journey.prep.fetchFailed': "Ara mateix no s'ha pogut consultar Dawarich.",
+  'journey.prep.dayRunning': 'El dia encara no ha acabat, poden arribar més estades.',
+  'journey.prep.dayPending': 'Encara no consultat.',
+  'journey.prep.dayProvisional': 'Consultat {time}, abans que acabés el dia, poden faltar estades.',
+  'journey.prep.dayFailed': "L'última actualització ha fallat, aquest és l'estat anterior.",
+  'journey.dayImport.running':
+    'Aquest dia encara no ha acabat. Les estades enregistrades més tard apareixen tan bon punt Dawarich les tingui.',
 };
 export default journey;

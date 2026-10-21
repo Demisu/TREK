@@ -1,4 +1,4 @@
-// FE-MOB-JDET-001 to FE-MOB-JDET-044
+// FE-MOB-JDET-001 to FE-MOB-JDET-045
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '../../../helpers/render';
 import MJourneyDetail from '../../../../src/mobile/screens/journey/MJourneyDetail';
@@ -183,6 +183,8 @@ function buildHook(over: Record<string, unknown> = {}): Record<string, unknown> 
     dayImport: { open: vi.fn(), dialog: null },
     dayImportDates: [],
     dawarichByDate: new Map(),
+    // Preparing the recorded days (JRN-03): not read, so no day is marked and the settings get no switch.
+    recordingPrep: { prep: null, dayPrep: () => null },
     loadJourney: vi.fn(),
     updateEntry: vi.fn(async () => {}),
     deleteEntry: vi.fn(async () => {}),
@@ -741,5 +743,22 @@ describe('MJourneyDetail', () => {
 
     expect((hook.dayImport as { open: ReturnType<typeof vi.fn> }).open).toHaveBeenCalledWith('2026-05-03');
     expect(screen.queryByTestId('dawarich-panel')).not.toBeInTheDocument();
+  });
+
+  it('FE-MOB-JDET-045: a waiting day the journey prepares carries a dot that says why it is not final (JRN-03)', () => {
+    useAddonStore.setState({ addons: [{ id: 'dawarich', enabled: true }] as never, loaded: true });
+    setup({
+      current: buildDetail({ entries: [], stats: { entries: 0, photos: 0, places: 0 } }),
+      canTakeOverRecording: true,
+      dawarichByDate: new Map([['2026-05-03', [{ id: 1 }]]]),
+      dayImportDates: ['2026-05-03'],
+      recordingPrep: {
+        prep: { enabled: true },
+        dayPrep: () => ({ state: 'running', failed: false, lastSuccessAt: null }),
+      },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'dawarich.suggestions.title' }));
+    expect(screen.getByRole('img', { name: 'journey.prep.dayRunning' })).toBeInTheDocument();
   });
 });

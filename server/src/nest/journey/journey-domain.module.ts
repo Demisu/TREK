@@ -4,6 +4,7 @@ import { JourneyEntryPhotos } from '../../db/entities/JourneyEntryPhotos.entity'
 import { JourneyEntryStays } from '../../db/entities/JourneyEntryStays.entity';
 import { JourneyPhotos } from '../../db/entities/JourneyPhotos.entity';
 import { JourneyRecordedDays } from '../../db/entities/JourneyRecordedDays.entity';
+import { JourneyRecordingPrep } from '../../db/entities/JourneyRecordingPrep.entity';
 import { JourneyShareTokens } from '../../db/entities/JourneyShareTokens.entity';
 import { JourneyTrips } from '../../db/entities/JourneyTrips.entity';
 import { Journeys } from '../../db/entities/Journeys.entity';
@@ -16,6 +17,7 @@ import { SettingsModule } from '../settings/settings.module';
 import { JourneyDomainService } from './journey-domain.service';
 import { JourneyEntryStaysService } from './journey-entry-stays.service';
 import { JourneyRecordedDaysService } from './journey-recorded-days.service';
+import { JourneyRecordingPrepService } from './journey-recording-prep.service';
 import { JourneyShareService } from './journey-share.service';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
@@ -70,6 +72,9 @@ import { Module } from '@nestjs/common';
  * needs nothing of the integration they were taken over from.
  * `JourneyEntryStays` (JRN-02) is the recorded stays an entry was taken over
  * from, held by `JourneyEntryStaysService` for the same reason.
+ * `JourneyRecordingPrep` (JRN-03) is how far preparing a journey's recorded
+ * days got for each person; `JourneyRecordingPrepService` keeps it and tells
+ * the Dawarich sync which journeys to read.
  */
 @Module({
   imports: [
@@ -89,9 +94,22 @@ import { Module } from '@nestjs/common';
       JourneyShareTokens,
       JourneyRecordedDays,
       JourneyEntryStays,
+      JourneyRecordingPrep,
     ]),
   ],
-  providers: [JourneyDomainService, JourneyShareService, JourneyRecordedDaysService, JourneyEntryStaysService],
-  exports: [JourneyDomainService, JourneyShareService, JourneyRecordedDaysService, JourneyEntryStaysService],
+  providers: [
+    JourneyDomainService,
+    JourneyShareService,
+    JourneyRecordedDaysService,
+    JourneyEntryStaysService,
+    JourneyRecordingPrepService,
+  ],
+  exports: [
+    JourneyDomainService,
+    JourneyShareService,
+    JourneyRecordedDaysService,
+    JourneyEntryStaysService,
+    JourneyRecordingPrepService,
+  ],
 })
 export class JourneyDomainModule {}

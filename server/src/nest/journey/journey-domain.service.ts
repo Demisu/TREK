@@ -329,6 +329,7 @@ export class JourneyDomainService {
       show_verdict: boolean | number;
       show_mood: boolean | number;
       show_weather: boolean | number;
+      auto_prepare_recordings: boolean | number;
     }>,
   ): Promise<Journey | null> {
     // Journey-level settings (title, cover, status) are owner-only — editors
@@ -338,11 +339,8 @@ export class JourneyDomainService {
     const ALLOWED_STATUSES = ['draft', 'active', 'completed', 'archived'];
     // null hands the state back to the trip dates (#762).
     const ALLOWED_OVERRIDES: (string | null)[] = [null, 'draft', 'live', 'completed'];
-    // JG24 — R6's `presenceSet` conversion. The SERVICE resolves each field
-    // to its final bound value (the `status` allow-list check, the
-    // `show_*` boolean-to-0/1 coercion) before handing it to the repository;
-    // a field absent here never reaches the SET clause, matching the legacy
-    // dynamic-SET-list's own "not present, not touched" behavior.
+    // JG24: each field is resolved to its bound value here (the status allow-list, every flag to 0/1);
+    // a field absent from `data` never reaches the SET clause, as the legacy dynamic SET list behaved.
     const patch = presenceSet<{
       title: string;
       subtitle: string | null;
@@ -355,6 +353,7 @@ export class JourneyDomainService {
       show_verdict: number;
       show_mood: number;
       show_weather: number;
+      auto_prepare_recordings: number;
     }>({
       title: [data.title !== undefined, data.title as string],
       subtitle: [data.subtitle !== undefined, data.subtitle as string],
@@ -370,6 +369,7 @@ export class JourneyDomainService {
       show_verdict: [data.show_verdict !== undefined, data.show_verdict ? 1 : 0],
       show_mood: [data.show_mood !== undefined, data.show_mood ? 1 : 0],
       show_weather: [data.show_weather !== undefined, data.show_weather ? 1 : 0],
+      auto_prepare_recordings: [data.auto_prepare_recordings !== undefined, data.auto_prepare_recordings ? 1 : 0],
     });
 
     if (Object.keys(patch).length === 0) return ((await this.journeysRepo.findById(journeyId)) as Journey) ?? null;

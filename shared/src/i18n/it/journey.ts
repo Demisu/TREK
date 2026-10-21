@@ -204,6 +204,9 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'Tracce GPX',
   'journey.settings.showTripTracks': 'Mostra tutte le tracce GPX dei viaggi',
   'journey.settings.showTripTracksHint': 'Disegna sulla mappa i percorsi registrati dei viaggi collegati.',
+  'journey.settings.autoPrepare': 'Prepara automaticamente i giorni registrati',
+  'journey.settings.autoPrepareHint':
+    'Finché un viaggio collegato è in corso, le soste del tuo Dawarich aspettano al loro giorno di essere controllate. Gli editor con una connessione propria ricevono le loro. Nel diario non viene scritto nulla da solo.',
   'journey.settings.status': 'Stato',
   'journey.settings.statusAuto': 'Automatico',
   'journey.settings.statusAutoHint': 'Segue le date dei viaggi collegati. Senza viaggio il diario resta una bozza.',
@@ -839,5 +842,22 @@ const journey: TranslationStrings = {
   'journey.dayImport.truncated':
     'Dawarich ha inviato solo una parte di questa giornata. Alcune soste potrebbero mancare.',
   'journey.dayImport.empty': 'Dawarich non ha trovato soste in questa giornata.',
+  'journey.prep.lastSuccess': 'Ultimo recupero {time}.',
+  'journey.prep.never': 'Non ancora recuperato. Lo avvia la prossima sincronizzazione in background.',
+  'journey.prep.failed': "L'ultimo aggiornamento non è riuscito: {reason} Viene mostrato quanto recuperato {time}.",
+  'journey.prep.failedNever': 'Il primo recupero non è riuscito: {reason}',
+  'journey.prep.notConnected': 'Collega Dawarich nelle impostazioni perché i tuoi giorni vengano preparati.',
+  'journey.prep.noPeriods': 'Collega un viaggio con date: vengono preparati solo i suoi giorni.',
+  'journey.prep.syncOff':
+    'La sincronizzazione in background è disattivata nelle impostazioni di Dawarich, i giorni vengono recuperati solo su tua richiesta.',
+  'journey.prep.fetchNow': 'Recupera ora',
+  'journey.prep.fetching': 'Recupero in corso…',
+  'journey.prep.fetchFailed': 'Al momento non è stato possibile interrogare Dawarich.',
+  'journey.prep.dayRunning': 'La giornata è ancora in corso, possono seguire altre soste.',
+  'journey.prep.dayPending': 'Non ancora recuperato.',
+  'journey.prep.dayProvisional': 'Recuperato {time}, prima della fine della giornata, possono mancare soste.',
+  'journey.prep.dayFailed': "L'ultimo aggiornamento non è riuscito, questo è lo stato precedente.",
+  'journey.dayImport.running':
+    'Questa giornata è ancora in corso. Le soste registrate dopo compaiono appena Dawarich le ha.',
 };
 export default journey;

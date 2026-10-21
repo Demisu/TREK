@@ -25,6 +25,7 @@ function controllerWith() {
     preview: vi.fn(async () => ({ date: '2026-05-14' })),
     save: vi.fn(async () => ({ outcome: 'created' })),
     remove: vi.fn(async () => undefined),
+    prepStatus: vi.fn(async () => ({ enabled: true })),
   };
   return {
     service,
@@ -42,6 +43,7 @@ describe('JourneyRecordingsController', () => {
     });
     const routes = [
       ['list', RequestMethod.GET, '/', undefined],
+      ['prep', RequestMethod.GET, 'prep', undefined],
       ['preview', RequestMethod.POST, 'preview', 200],
       ['save', RequestMethod.PUT, ':date', undefined],
       ['remove', RequestMethod.DELETE, ':date', 200],
@@ -89,5 +91,12 @@ describe('JourneyRecordingsController', () => {
     ).rejects.toBeInstanceOf(HttpException);
     expect(service.remove).not.toHaveBeenCalled();
     expect(service.save).not.toHaveBeenCalled();
+  });
+
+  it('JRNREC-CTL-004: asks the service how the journey is prepared for the caller (JRN-03)', async () => {
+    const { service, controller } = controllerWith();
+
+    expect(await controller.prep(user, '9')).toEqual({ enabled: true });
+    expect(service.prepStatus).toHaveBeenCalledExactlyOnceWith(4, 9);
   });
 });

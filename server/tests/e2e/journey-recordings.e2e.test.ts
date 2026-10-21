@@ -10,21 +10,25 @@
  *
  * The walk: preview, keep, read the day back once the connection is gone,
  * take the same day over again without a second copy, replace it on purpose,
- * keep the version when Dawarich fails, and drop it.
+ * keep the version when Dawarich fails, and drop it. Then the preparation of
+ * the journey's days (JRN-03) as each caller sees it.
  */
 import { DawarichConnections } from '../../src/db/entities/DawarichConnections.entity';
 import { JourneyRecordedDays } from '../../src/db/entities/JourneyRecordedDays.entity';
+import { Journeys } from '../../src/db/entities/Journeys.entity';
 import { encrypt_api_key } from '../../src/nest/common/crypto/apiKeyCrypto';
 import { TrekExceptionFilter } from '../../src/nest/common/trek-exception.filter';
 import { ZodValidationPipe } from '../../src/nest/common/zod-validation.pipe';
+import { DawarichSyncService } from '../../src/nest/integrations/dawarich-sync.service';
 import { DawarichClient, DawarichError } from '../../src/nest/integrations/dawarich.client';
 import { JourneyRecordingsModule } from '../../src/nest/journey-recordings/journey-recordings.module';
 import { RealtimeModule } from '../../src/nest/realtime/realtime.module';
 import { RealtimeService } from '../../src/nest/realtime/realtime.service';
 import { createSnapshotTestDb } from '../helpers/db-mock';
-import { addJourneyContributor, makeJourney } from '../helpers/factories/journeys';
-import { countRows, deleteRows, insertRow } from '../helpers/factories/rows';
+import { addJourneyContributor, linkTripToJourney, makeJourney } from '../helpers/factories/journeys';
+import { countRows, deleteRows, insertRow, updateRows } from '../helpers/factories/rows';
 import { setAddonEnabled } from '../helpers/factories/settings';
+import { makeTrip } from '../helpers/factories/trips';
 import { makeUser } from '../helpers/factories/users';
 import { FakeRealtimeService } from '../helpers/fake-realtime';
 import { createTestMikroOrmModule, createTestOrm, type TestOrm } from '../helpers/test-orm';
@@ -291,5 +295,35 @@ describe('Journey recordings e2e (real guards + temp SQLite)', () => {
     expect(dropped.body).toEqual({ success: true });
     expect(await countRows(orm, JourneyRecordedDays)).toBe(0);
     expect((await request(server).delete(`${base()}/${DAY}`).set(as(EDITOR))).status).toBe(404);
+  });
+
+  it('reports how the journey prepares its days for each caller, off at first and after a sync run once on', async () => {
+    const off = await request(server).get(`${base()}/prep`).set(as(OWNER));
+    expect(off.status).toBe(200);
+    expect(off.body).toEqual({
+      enabled: false,
+      connection: 'ready',
+      lastAttemptAt: null,
+      lastSuccessAt: null,
+      lastError: null,
+    });
+
+    const today = new Date().toISOString().slice(0, 10);
+    const trip = await makeTrip(orm, OWNER, { start_date: today, end_date: today });
+    await linkTripToJourney(orm, journeyId, trip.id);
+    await updateRows(orm, Journeys, { id: journeyId }, { auto_prepare_recordings: 1 });
+    client.listVisits.mockResolvedValue({ visits: [], truncated: false, version: null });
+    await app.get(DawarichSyncService).syncUser(OWNER);
+
+    const on = await request(server).get(`${base()}/prep`).set(as(OWNER));
+    expect(on.body).toMatchObject({ enabled: true, connection: 'ready', lastError: null });
+    expect(on.body.lastSuccessAt).toEqual(expect.any(String));
+    expect((await request(server).get(`${base()}/prep`).set(as(EDITOR))).body).toMatchObject({
+      enabled: true,
+      connection: 'not_connected',
+      lastSuccessAt: null,
+    });
+    expect((await request(server).get(`${base()}/prep`).set(as(VIEWER))).status).toBe(403);
+    expect((await request(server).get(`${base()}/prep`).set(as(OUTSIDER))).status).toBe(404);
   });
 });

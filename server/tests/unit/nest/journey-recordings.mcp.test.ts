@@ -161,19 +161,33 @@ describe('JourneyRecordingsMcp', () => {
       return entry.options;
     };
     const enabled = vi.spyOn(t.get(AddonsService), 'isAddonEnabled').mockResolvedValue(true);
-    const ALL = ['listRecordedDays', 'deleteRecordedDay', 'previewRecordedDay', 'saveRecordedDay'];
+    const ALL = ['listRecordedDays', 'deleteRecordedDay', 'previewRecordedDay', 'saveRecordedDay', 'getRecordingPrep'];
     const gates = () => Promise.all(ALL.map((name) => options(name).when?.(ctx(1), mcp)));
-    expect(await gates()).toEqual([true, true, true, true]);
+    expect(await gates()).toEqual([true, true, true, true, true]);
 
     enabled.mockImplementation(async (id: string) => id !== 'dawarich');
-    expect(await gates()).toEqual([true, true, false, false]);
+    expect(await gates()).toEqual([true, true, false, false, false]);
 
     enabled.mockImplementation(async (id: string) => id !== 'journey');
-    expect(await gates()).toEqual([false, false, false, false]);
+    expect(await gates()).toEqual([false, false, false, false, false]);
 
     expect(options('listRecordedDays').access).toEqual({ group: 'journey', mode: 'read' });
     expect(options('previewRecordedDay').access).toEqual({ group: 'journey', mode: 'read' });
     expect(options('saveRecordedDay').access).toEqual({ group: 'journey', mode: 'write' });
     expect(options('deleteRecordedDay').access).toEqual({ group: 'journey', mode: 'write' });
+    expect(options('getRecordingPrep').access).toEqual({ group: 'journey', mode: 'read' });
+  });
+
+  it('JRNREC-MCP-004: reads how the journey prepares its days for the caller, and refuses a reader as REST does', async () => {
+    const f = await fixture();
+
+    expect(read(await mcp.getRecordingPrep({ journeyId: f.journey.id }, ctx(f.owner.id)))).toEqual({
+      enabled: false,
+      connection: 'not_connected',
+      lastAttemptAt: null,
+      lastSuccessAt: null,
+      lastError: null,
+    });
+    await expect(mcp.getRecordingPrep({ journeyId: f.journey.id }, ctx(f.viewer.id))).rejects.toThrow('Not allowed');
   });
 });

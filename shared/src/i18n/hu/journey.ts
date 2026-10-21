@@ -204,6 +204,9 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'GPX-nyomvonalak',
   'journey.settings.showTripTracks': 'Az utazások összes GPX-nyomvonalának megjelenítése',
   'journey.settings.showTripTracksHint': 'A kapcsolt utazások rögzített útvonalait rajzolja a térképre.',
+  'journey.settings.autoPrepare': 'Rögzített napok automatikus előkészítése',
+  'journey.settings.autoPrepareHint':
+    'Amíg egy kapcsolt utazás tart, a Dawarich tartózkodásaid a napjuknál várnak ellenőrzésre. A saját kapcsolattal rendelkező szerkesztők a sajátjukat kapják. A naplóba semmi nem kerül magától.',
   'journey.settings.status': 'Állapot',
   'journey.settings.statusAuto': 'Automatikus',
   'journey.settings.statusAutoHint': 'A kapcsolt utak dátumait követi. Út nélkül a napló piszkozat marad.',
@@ -835,5 +838,22 @@ const journey: TranslationStrings = {
   'journey.dayImport.staleNever': 'A Dawarich nem válaszolt: {reason} A TREK által már ismert tartózkodások látszanak.',
   'journey.dayImport.truncated': 'A Dawarich csak a nap egy részét küldte el. Hiányozhatnak tartózkodások.',
   'journey.dayImport.empty': 'A Dawarich nem talált tartózkodást ezen a napon.',
+  'journey.prep.lastSuccess': 'Utoljára lekérve: {time}.',
+  'journey.prep.never': 'Még nincs lekérve. A következő háttérszinkronizálás elindítja.',
+  'journey.prep.failed': 'A legutóbbi frissítés nem sikerült: {reason} A {time} lekért állapot látható.',
+  'journey.prep.failedNever': 'Az első lekérés nem sikerült: {reason}',
+  'journey.prep.notConnected': 'Kapcsold össze a Dawarichot a beállításokban, hogy a napjaid előkészíthetők legyenek.',
+  'journey.prep.noPeriods': 'Kapcsolj hozzá egy dátumos utazást: csak annak napjai készülnek elő.',
+  'journey.prep.syncOff':
+    'A háttérszinkronizálás ki van kapcsolva a Dawarich-beállításaidban, a napok csak kérésre töltődnek le.',
+  'journey.prep.fetchNow': 'Lekérés most',
+  'journey.prep.fetching': 'Lekérés folyamatban…',
+  'journey.prep.fetchFailed': 'A Dawarich most nem volt elérhető.',
+  'journey.prep.dayRunning': 'A nap még tart, további tartózkodások jöhetnek.',
+  'journey.prep.dayPending': 'Még nincs lekérve.',
+  'journey.prep.dayProvisional': 'Lekérve {time}, a nap vége előtt, hiányozhatnak tartózkodások.',
+  'journey.prep.dayFailed': 'A legutóbbi frissítés nem sikerült, ez a régebbi állapot.',
+  'journey.dayImport.running':
+    'Ez a nap még tart. A később rögzített tartózkodások megjelennek, amint a Dawarich megkapja őket.',
 };
 export default journey;

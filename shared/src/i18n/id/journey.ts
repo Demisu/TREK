@@ -198,6 +198,9 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'Jalur GPX',
   'journey.settings.showTripTracks': 'Tampilkan semua jalur GPX perjalanan',
   'journey.settings.showTripTracksHint': 'Menggambar rute terekam dari perjalanan yang tertaut pada peta.',
+  'journey.settings.autoPrepare': 'Siapkan hari yang terekam secara otomatis',
+  'journey.settings.autoPrepareHint':
+    'Selama perjalanan yang ditautkan berlangsung, persinggahan dari Dawarich-mu menunggu di harinya untuk ditinjau. Editor dengan koneksi sendiri mendapatkan miliknya. Tidak ada yang ditulis ke jurnal dengan sendirinya.',
   'journey.settings.status': 'Status',
   'journey.settings.statusAuto': 'Otomatis',
   'journey.settings.statusAutoHint':
@@ -815,5 +818,21 @@ const journey: TranslationStrings = {
     'Dawarich tidak menjawab: {reason} Menampilkan persinggahan yang sudah diketahui TREK.',
   'journey.dayImport.truncated': 'Dawarich hanya mengirim sebagian hari ini. Beberapa persinggahan mungkin hilang.',
   'journey.dayImport.empty': 'Dawarich tidak menemukan persinggahan pada hari ini.',
+  'journey.prep.lastSuccess': 'Terakhir diambil {time}.',
+  'journey.prep.never': 'Belum diambil. Sinkronisasi latar berikutnya akan memulainya.',
+  'journey.prep.failed': 'Penyegaran terakhir gagal: {reason} Menampilkan yang diambil {time}.',
+  'journey.prep.failedNever': 'Pengambilan pertama gagal: {reason}',
+  'journey.prep.notConnected': 'Hubungkan Dawarich di pengaturan agar harimu bisa disiapkan.',
+  'journey.prep.noPeriods': 'Tautkan perjalanan bertanggal: hanya harinya yang disiapkan.',
+  'journey.prep.syncOff': 'Sinkronisasi latar mati di pengaturan Dawarich-mu, hari hanya diambil saat kamu memintanya.',
+  'journey.prep.fetchNow': 'Ambil sekarang',
+  'journey.prep.fetching': 'Mengambil…',
+  'journey.prep.fetchFailed': 'Dawarich tidak bisa ditanya saat ini.',
+  'journey.prep.dayRunning': 'Hari ini masih berlangsung, persinggahan lain mungkin menyusul.',
+  'journey.prep.dayPending': 'Belum diambil.',
+  'journey.prep.dayProvisional': 'Diambil {time}, sebelum hari berakhir, beberapa persinggahan mungkin belum ada.',
+  'journey.prep.dayFailed': 'Penyegaran terakhir gagal, ini keadaan yang lebih lama.',
+  'journey.dayImport.running':
+    'Hari ini masih berlangsung. Persinggahan yang terekam kemudian muncul begitu Dawarich memilikinya.',
 };
 export default journey;

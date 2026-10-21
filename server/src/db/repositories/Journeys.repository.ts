@@ -30,6 +30,8 @@ export interface JourneyRow {
   status_override: string | null;
   /** Entries without a place take their first geotagged photo's position (#1003). */
   photo_location: number;
+  /** The Dawarich sync prepares the recorded days of the linked trips (JRN-03). */
+  auto_prepare_recordings: number;
 }
 
 /** JG8's dashboard row — `JourneyRow` plus the five correlated-subquery stat pills. */
@@ -238,6 +240,7 @@ export class JourneysRepository extends TrekRepository<Journeys> {
       show_verdict: number;
       show_mood: number;
       show_weather: number;
+      auto_prepare_recordings: number;
       updated_at: number;
     }>,
   ): Promise<void> {

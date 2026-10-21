@@ -205,6 +205,9 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'Traces GPX',
   'journey.settings.showTripTracks': 'Afficher toutes les traces GPX des voyages',
   'journey.settings.showTripTracksHint': 'Trace sur la carte les itinéraires enregistrés des voyages liés.',
+  'journey.settings.autoPrepare': 'Préparer automatiquement les jours enregistrés',
+  'journey.settings.autoPrepareHint':
+    "Tant qu'un voyage lié est en cours, les séjours de votre Dawarich attendent votre vérification à leur jour. Les éditeurs ayant leur propre connexion reçoivent les leurs. Rien n'est écrit dans le journal tout seul.",
   'journey.settings.status': 'Statut',
   'journey.settings.statusAuto': 'Automatique',
   'journey.settings.statusAutoHint': 'Suit les dates des voyages liés. Sans voyage, le carnet reste un brouillon.',
@@ -837,5 +840,22 @@ const journey: TranslationStrings = {
   'journey.dayImport.staleNever': "Dawarich n'a pas répondu : {reason} Affichage des séjours que TREK connaît déjà.",
   'journey.dayImport.truncated': "Dawarich n'a envoyé qu'une partie de cette journée. Des séjours peuvent manquer.",
   'journey.dayImport.empty': "Dawarich n'a trouvé aucun séjour ce jour-là.",
+  'journey.prep.lastSuccess': 'Dernière récupération {time}.',
+  'journey.prep.never': "Pas encore récupéré. La prochaine synchronisation en arrière-plan s'en charge.",
+  'journey.prep.failed': "La dernière actualisation a échoué : {reason} Affichage de l'état récupéré {time}.",
+  'journey.prep.failedNever': 'La première récupération a échoué : {reason}',
+  'journey.prep.notConnected': 'Connectez Dawarich dans vos paramètres pour que vos jours soient préparés.',
+  'journey.prep.noPeriods': 'Liez un voyage avec des dates : seuls ses jours sont préparés.',
+  'journey.prep.syncOff':
+    "La synchronisation en arrière-plan est désactivée dans vos paramètres Dawarich, les jours ne sont récupérés qu'à votre demande.",
+  'journey.prep.fetchNow': 'Récupérer maintenant',
+  'journey.prep.fetching': 'Récupération…',
+  'journey.prep.fetchFailed': "Impossible d'interroger Dawarich pour le moment.",
+  'journey.prep.dayRunning': "La journée n'est pas terminée, d'autres séjours peuvent suivre.",
+  'journey.prep.dayPending': 'Pas encore récupéré.',
+  'journey.prep.dayProvisional': 'Récupéré {time}, avant la fin de la journée, des séjours peuvent manquer.',
+  'journey.prep.dayFailed': "La dernière actualisation a échoué, ceci est l'état précédent.",
+  'journey.dayImport.running':
+    "Cette journée n'est pas terminée. Les séjours enregistrés plus tard apparaissent dès que Dawarich les a.",
 };
 export default journey;

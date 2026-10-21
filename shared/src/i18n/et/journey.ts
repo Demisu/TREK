@@ -222,6 +222,9 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'GPX-rajad',
   'journey.settings.showTripTracks': 'Näita kõiki reiside GPX-radu',
   'journey.settings.showTripTracksHint': 'Kuvab kaardil seotud reiside salvestatud teekonnad.',
+  'journey.settings.autoPrepare': 'Valmista salvestatud päevad automaatselt ette',
+  'journey.settings.autoPrepareHint':
+    'Kuni lingitud reis kestab, ootavad sinu Dawarichi peatused oma päeva juures ülevaatamist. Oma ühendusega toimetajad saavad enda omad. Päevikusse ei kirjutata midagi iseenesest.',
   'journey.settings.status': 'Olek',
   'journey.settings.statusAuto': 'Automaatne',
   'journey.settings.statusAutoHint': 'Järgib seotud reiside kuupäevi. Ilma reisita jääb teekond mustandiks.',
@@ -832,5 +835,21 @@ const journey: TranslationStrings = {
   'journey.dayImport.staleNever': 'Dawarich ei vastanud: {reason} Näidatakse peatusi, mida TREK juba teab.',
   'journey.dayImport.truncated': 'Dawarich saatis sellest päevast ainult osa. Mõni peatus võib puududa.',
   'journey.dayImport.empty': 'Dawarich ei leidnud sel päeval ühtegi peatust.',
+  'journey.prep.lastSuccess': 'Viimati laaditud {time}.',
+  'journey.prep.never': 'Veel laadimata. Järgmine taustsünkroonimine alustab seda.',
+  'journey.prep.failed': 'Viimane värskendus ebaõnnestus: {reason} Näidatakse seisu, mis laaditi {time}.',
+  'journey.prep.failedNever': 'Esimene laadimine ebaõnnestus: {reason}',
+  'journey.prep.notConnected': 'Ühenda Dawarich seadetes, et sinu päevi saaks ette valmistada.',
+  'journey.prep.noPeriods': 'Lingi kuupäevadega reis: ette valmistatakse ainult selle päevad.',
+  'journey.prep.syncOff': 'Taustsünkroonimine on sinu Dawarichi seadetes väljas, päevi laaditakse ainult sinu soovil.',
+  'journey.prep.fetchNow': 'Laadi kohe',
+  'journey.prep.fetching': 'Laaditakse…',
+  'journey.prep.fetchFailed': 'Dawarichilt ei õnnestunud praegu küsida.',
+  'journey.prep.dayRunning': 'Päev alles kestab, võib lisanduda peatusi.',
+  'journey.prep.dayPending': 'Veel laadimata.',
+  'journey.prep.dayProvisional': 'Laaditud {time}, enne päeva lõppu, peatusi võib puududa.',
+  'journey.prep.dayFailed': 'Viimane värskendus ebaõnnestus, see on vanem seis.',
+  'journey.dayImport.running':
+    'See päev alles kestab. Hiljem salvestatud peatused ilmuvad kohe, kui Dawarichil need on.',
 };
 export default journey;

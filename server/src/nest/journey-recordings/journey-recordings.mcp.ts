@@ -54,6 +54,19 @@ export class JourneyRecordingsMcp {
   }
 
   @Tool({
+    name: 'get_journey_recording_prep',
+    description:
+      "Whether a journey prepares its recorded days from Dawarich in the background (its owner's switch, update_journey auto_prepare_recordings) and how the caller's own last runs over its linked trip periods went: when the last one was tried, when one last came through (the stays waiting at the journey's days are as new as that) and why the last one failed, plus whether the caller's connection can prepare anything at all (ready, sync_off, not_connected). Prepared stays are reviewed and taken over with review_journey_day_stays and take_over_journey_day_stays; nothing is ever written into the journey on its own. Needs edit access to the journey.",
+    inputSchema: { journeyId: idSchema },
+    annotations: TOOL_ANNOTATIONS_READONLY,
+    when: bothAddonsOn,
+    access: { group: 'journey', mode: 'read' },
+  })
+  async getRecordingPrep({ journeyId }: { journeyId: number }, ctx: McpContext) {
+    return ok(await this.recordings.prepStatus(ctx.userId, journeyId));
+  }
+
+  @Tool({
     name: 'preview_journey_recorded_day',
     description:
       "Read one local day of the route recorded in the caller's own Dawarich and show what a journey would keep, without keeping anything: the window the day runs in, what it covers, whether the journey already keeps that day and if it is the same, how many other people would see it, and the contentHash save_journey_recorded_day needs. utcOffsetMinutes is the zone to cut the day in; useSourceOffset cuts it in Dawarich's own zone where its answer shows one. Needs edit access to the journey.",

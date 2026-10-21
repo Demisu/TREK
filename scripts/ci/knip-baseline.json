@@ -159,7 +159,6 @@
     "client/src/help/defineScreen.ts": 1,
     "client/src/help/types.ts": 1,
     "client/src/hooks/useDawarichConnection.ts": 1,
-    "client/src/hooks/useDawarichSuggestions.ts": 1,
     "client/src/i18n/supportedLanguages.ts": 1,
     "client/src/mobile/components/MSegmented.tsx": 1,
     "client/src/mobile/components/MSheet.tsx": 2,

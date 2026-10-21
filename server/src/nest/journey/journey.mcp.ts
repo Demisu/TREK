@@ -17,7 +17,7 @@ import { AddonsService } from '../addons/addons.service';
 import { JourneyDomainService } from './journey-domain.service';
 import { JourneyPhotoCaptureService } from './journey-photo-capture.service';
 import { JourneyShareService } from './journey-share.service';
-import { idSchema } from '@trek/shared';
+import { idSchema, journeyUpdateRequestSchema } from '@trek/shared';
 
 import { z } from 'zod';
 
@@ -258,7 +258,7 @@ export class JourneyMcp {
   @Tool({
     name: 'update_journey',
     description:
-      "Update an existing journey's title, subtitle, cover, or status. Owner only. status_override sets the state shown for the journey (draft, live, completed) instead of deriving it from the linked trips' dates; null goes back to the dates.",
+      "Update an existing journey's title, subtitle, cover, or status. Owner only. status_override sets the state shown for the journey (draft, live, completed) instead of deriving it from the linked trips' dates; null goes back to the dates. auto_prepare_recordings switches the background preparation of its recorded days from Dawarich on or off (see get_journey_recording_prep).",
     inputSchema: {
       journeyId: idSchema,
       title: z.string().min(1).max(200).optional(),
@@ -276,6 +276,7 @@ export class JourneyMcp {
         .boolean()
         .optional()
         .describe('Whether an entry without a place takes the position of the first geotagged photo added to it'),
+      auto_prepare_recordings: journeyUpdateRequestSchema.shape.auto_prepare_recordings,
     },
     annotations: TOOL_ANNOTATIONS_WRITE,
     when: journeyAddonOn,
@@ -295,6 +296,7 @@ export class JourneyMcp {
       show_mood?: boolean;
       show_weather?: boolean;
       photo_location?: boolean;
+      auto_prepare_recordings?: boolean;
     },
     ctx: McpContext,
   ) {

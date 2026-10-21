@@ -1,4 +1,4 @@
-// FE-JRN-DAYIMPORT-001 to FE-JRN-DAYIMPORT-007
+// FE-JRN-DAYIMPORT-001 to FE-JRN-DAYIMPORT-008
 //
 // JRN-02: taking a recorded day with its stays into the journal, for the
 // desktop dialog and the phone sheet alike. Nothing is written before the
@@ -9,6 +9,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildDayStays, buildRecordedDay, buildRecordingPreview } from '../../../tests/helpers/journeyRecording';
 import { act, renderHook, waitFor } from '../../../tests/helpers/render';
 import { TranslationProvider } from '../../i18n/TranslationContext';
+import { localIsoDate } from '../../utils/localDate';
 import { useJourneyDayImport } from './useJourneyDayImport';
 
 const repo = vi.hoisted(() => ({
@@ -26,7 +27,7 @@ vi.mock('../shared/Toast', () => ({ useToast: () => toast }));
 const HASH = 'a'.repeat(64);
 const httpError = (code: string) => Object.assign(new Error(code), { response: { data: { error: code, code } } });
 
-function setup(over: { storedRoute?: ReturnType<typeof buildRecordedDay> } = {}) {
+function setup(over: { storedRoute?: ReturnType<typeof buildRecordedDay>; date?: string } = {}) {
   const onTakenOver = vi.fn();
   const onKept = vi.fn();
   const onClose = vi.fn();
@@ -34,7 +35,7 @@ function setup(over: { storedRoute?: ReturnType<typeof buildRecordedDay> } = {})
     () =>
       useJourneyDayImport({
         journeyId: 7,
-        date: '2026-05-14',
+        date: over.date ?? '2026-05-14',
         dayColor: '#ff0055',
         storedRoute: over.storedRoute,
         onTakenOver,
@@ -168,5 +169,16 @@ describe('useJourneyDayImport', () => {
     repo.reviewDay.mockRejectedValue(httpError('unreachable'));
     act(() => result.current.retry());
     await waitFor(() => expect(result.current.error).not.toBeNull());
+  });
+
+  it('FE-JRN-DAYIMPORT-008: today is marked as still running, a past day is not (JRN-03)', async () => {
+    const past = setup();
+    await waitFor(() => expect(past.result.current.loading).toBe(false));
+    expect(past.result.current.running).toBe(false);
+    past.unmount();
+
+    const today = setup({ date: localIsoDate() });
+    await waitFor(() => expect(today.result.current.loading).toBe(false));
+    expect(today.result.current.running).toBe(true);
   });
 });

@@ -11,6 +11,7 @@ import { AddonsService } from '../addons/addons.service';
 import { getCountryFromCoords } from '../atlas/atlas-geo';
 import { logError, logInfo } from '../audit/audit-log.logger';
 import { UnitOfWork } from '../database/unit-of-work';
+import { JourneyRecordingPrepService, type PreparedJourney } from '../journey/journey-recording-prep.service';
 import { DawarichClient, DawarichError, type DawarichCreds, type DawarichVisitRaw } from './dawarich.client';
 import { distanceMeters, localDateOf, normalizeVisit, syncWindow, visitHash } from './dawarich.helpers';
 import { DawarichService } from './dawarich.service';
@@ -85,6 +86,7 @@ export class DawarichSyncService {
     @InjectRepository(BucketList) private readonly bucketList: BucketListRepository,
     @InjectRepository(DawarichConnections) private readonly connections: DawarichConnectionsRepository,
     private readonly uow: UnitOfWork,
+    private readonly journeyPrep: JourneyRecordingPrepService,
   ) {}
 
   /** The addon gate, evaluated per tick so an admin toggle lands without a restart. */
@@ -156,42 +158,27 @@ export class DawarichSyncService {
     }
 
     const trips = await this.listTripsToSync(userId);
-    if (trips.length === 0) {
+    const journeys = await this.journeysToPrepare(userId);
+    if (trips.length === 0 && journeys.length === 0) {
       // Nothing to ask about is a successful sync, not a failure — otherwise a
       // user with no dated trips sees a permanent red badge for doing nothing wrong.
       await this.dawarich.recordSyncResult(userId, 'ok', null);
       return { state: 'ok', created: 0, updated: 0, missing: 0 };
     }
 
-    let created = 0;
-    let updated = 0;
-    let missing = 0;
-    let failures = 0;
-    let lastError: string | null = null;
     const now = new Date();
+    const journeyTrips = tripsOnlyJourneysHold(journeys, trips);
+    const { created, updated, missing, failures, lastError, outcomes } = await this.syncTrips(
+      userId,
+      creds,
+      trips,
+      journeyTrips,
+      now,
+    );
+    await this.recordJourneyPrep(userId, journeys, outcomes, now);
 
-    for (const trip of trips) {
-      const window = syncWindow(
-        trip.start_date,
-        trip.end_date,
-        now,
-        DAWARICH_SYNC_LOOKBACK_DAYS,
-        DAWARICH_SYNC_LOOKAHEAD_DAYS,
-      );
-      if (!window) continue;
-
-      try {
-        const result = await this.syncTripWindow(userId, trip.id, creds, window.from, window.to, trips);
-        created += result.created;
-        updated += result.updated;
-        missing += result.missing;
-      } catch (err) {
-        failures++;
-        lastError = err instanceof DawarichError ? err.code : 'unreachable';
-      }
-    }
-
-    const state: DawarichSyncState = failures === 0 ? 'ok' : failures === trips.length ? 'failed' : 'partial';
+    const asked = trips.length + journeyTrips.length;
+    const state: DawarichSyncState = failures === 0 ? 'ok' : failures === asked ? 'failed' : 'partial';
     await this.dawarich.recordSyncResult(userId, state, state === 'ok' ? null : lastError);
 
     // The probe is cheap next to the windows just fetched, and re-running it is
@@ -209,6 +196,52 @@ export class DawarichSyncService {
       logInfo(`Dawarich sync for user ${userId}: ${created} new, ${updated} changed, ${missing} gone`);
     }
     return { state, created, updated, missing };
+  }
+
+  /**
+   * Every trip's window in turn, one failing without stopping the next: the
+   * person's own trips reconciled in full, then the trips only a journey they
+   * prepare holds (JRN-03), read for new and changed stays only, since such a
+   * window is no full re-read of anything their own sync keeps and its stays
+   * belong to no trip of theirs. `outcomes` holds what each window came back
+   * with, null when it went through and the reason otherwise.
+   *
+   * @txIndependent each window reconciles on its own after its network read.
+   */
+  private async syncTrips(userId: number, creds: DawarichCreds, trips: TripRow[], journeyTrips: TripRow[], now: Date) {
+    let created = 0;
+    let updated = 0;
+    let missing = 0;
+    let failures = 0;
+    let lastError: string | null = null;
+    const outcomes = new Map<number, string | null>();
+    const own = new Set(trips.map((trip) => trip.id));
+
+    for (const trip of [...trips, ...journeyTrips]) {
+      const window = syncWindow(
+        trip.start_date,
+        trip.end_date,
+        now,
+        DAWARICH_SYNC_LOOKBACK_DAYS,
+        DAWARICH_SYNC_LOOKAHEAD_DAYS,
+      );
+      if (!window) continue;
+
+      try {
+        const result = await (own.has(trip.id)
+          ? this.syncTripWindow(userId, trip.id, creds, window.from, window.to, trips)
+          : this.upsertWindow(userId, creds, window.from, window.to, trips));
+        created += result.created;
+        updated += result.updated;
+        if ('missing' in result) missing += result.missing;
+        outcomes.set(trip.id, null);
+      } catch (err) {
+        failures++;
+        lastError = err instanceof DawarichError ? err.code : 'unreachable';
+        outcomes.set(trip.id, lastError);
+      }
+    }
+    return { created, updated, missing, failures, lastError, outcomes };
   }
 
   /**
@@ -366,14 +399,68 @@ export class DawarichSyncService {
    */
   async refreshDay(userId: number, creds: DawarichCreds, date: string): Promise<{ truncated: boolean }> {
     const day = Date.parse(`${date}T00:00:00Z`);
-    const { visits, truncated } = await this.client.listVisits(
+    const trips = await this.listTripsToSync(userId);
+    const { truncated } = await this.upsertWindow(
+      userId,
       creds,
       new Date(day - DAY_MS),
       new Date(day + 2 * DAY_MS),
+      trips,
     );
-    const trips = await this.listTripsToSync(userId);
-    for (const raw of visits) await this.upsertVisit(userId, null, raw, trips);
     return { truncated };
+  }
+
+  /**
+   * A window's stays inserted or brought up to date, never flagged missing:
+   * for a window that is no full re-read of a trip the person's own sync holds.
+   *
+   * @txIndependent one stay at a time after the network read, as the trip sync writes them.
+   */
+  private async upsertWindow(
+    userId: number,
+    creds: DawarichCreds,
+    from: Date,
+    to: Date,
+    trips: TripRow[],
+  ): Promise<{ created: number; updated: number; truncated: boolean }> {
+    const { visits, truncated } = await this.client.listVisits(creds, from, to);
+    let created = 0;
+    let updated = 0;
+    for (const raw of visits) {
+      const outcome = await this.upsertVisit(userId, null, raw, trips);
+      if (outcome?.change === 'created') created++;
+      else if (outcome?.change === 'updated') updated++;
+    }
+    return { created, updated, truncated };
+  }
+
+  /**
+   * The journeys whose recorded days this person prepares (JRN-03), while the
+   * Journey addon is on; none otherwise, so the switch costs nothing then.
+   */
+  private async journeysToPrepare(userId: number): Promise<PreparedJourney[]> {
+    if (!(await this.addons.isAddonEnabled(ADDON_IDS.JOURNEY))) return [];
+    return await this.journeyPrep.listFor(userId);
+  }
+
+  /**
+   * Each prepared journey's outcome of this run, for this person: failed when
+   * one of its trip windows failed, through when all of them came back. Nothing
+   * is written into a journey; the stays wait at their day until the person
+   * reviews them. A journey none of whose periods has begun records nothing.
+   */
+  private async recordJourneyPrep(
+    userId: number,
+    journeys: PreparedJourney[],
+    outcomes: Map<number, string | null>,
+    now: Date,
+  ): Promise<void> {
+    const runs = journeys.flatMap((journey) => {
+      const reasons = journey.trips.filter((trip) => outcomes.has(trip.id)).map((trip) => outcomes.get(trip.id));
+      if (reasons.length === 0) return [];
+      return [{ journeyId: journey.journeyId, failure: reasons.find((reason) => typeof reason === 'string') ?? null }];
+    });
+    await Promise.all(runs.map((run) => this.journeyPrep.record(run.journeyId, userId, run.failure, now)));
   }
 
   /**
@@ -509,6 +596,21 @@ interface TripRow {
   id: number;
   start_date: string | null;
   end_date: string | null;
+}
+
+/**
+ * The linked trips of the prepared journeys that the person's own trip sync
+ * does not walk (a journey they write in but do not travel on), each once.
+ */
+function tripsOnlyJourneysHold(journeys: PreparedJourney[], trips: TripRow[]): TripRow[] {
+  const seen = new Set(trips.map((trip) => trip.id));
+  const extra: TripRow[] = [];
+  for (const trip of journeys.flatMap((journey) => journey.trips)) {
+    if (seen.has(trip.id)) continue;
+    seen.add(trip.id);
+    extra.push(trip);
+  }
+  return extra;
 }
 
 /**

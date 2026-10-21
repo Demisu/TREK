@@ -6,6 +6,7 @@ import { JourneyEntries } from './JourneyEntries.entity';
 import { JourneyEntryStays } from './JourneyEntryStays.entity';
 import { JourneyPhotos } from './JourneyPhotos.entity';
 import { JourneyRecordedDays } from './JourneyRecordedDays.entity';
+import { JourneyRecordingPrep } from './JourneyRecordingPrep.entity';
 import { JourneyShareTokens } from './JourneyShareTokens.entity';
 import { JourneyTrips } from './JourneyTrips.entity';
 import { TripJournalLinks } from './TripJournalLinks.entity';
@@ -29,12 +30,14 @@ export class Journeys {
   show_weather: number & Opt = 1;
   status_override?: string | null;
   photo_location: number & Opt = 0;
+  auto_prepare_recordings: number & Opt = 0;
   journey_books_collection = new Collection<JourneyBooks>(this);
   journey_contributors_collection = new Collection<JourneyContributors>(this);
   journey_entries_collection = new Collection<JourneyEntries>(this);
   journey_entry_stays_collection = new Collection<JourneyEntryStays>(this);
   journey_photos_collection = new Collection<JourneyPhotos>(this);
   journey_recorded_days_collection = new Collection<JourneyRecordedDays>(this);
+  journey_recording_prep_collection = new Collection<JourneyRecordingPrep>(this);
   journey_share_tokens: Ref<JourneyShareTokens> | null = null;
   journey_trips_collection = new Collection<JourneyTrips>(this);
   trip_journal_links_collection = new Collection<TripJournalLinks>(this);
@@ -60,12 +63,14 @@ export const JourneysSchema = defineEntity({
     show_weather: p.integer().default(1),
     status_override: p.text().nullable(),
     photo_location: p.integer().default(0),
+    auto_prepare_recordings: p.integer().default(0),
     journey_books_collection: () => p.oneToMany(JourneyBooks).mappedBy('journey').hidden(),
     journey_contributors_collection: () => p.oneToMany(JourneyContributors).mappedBy('journey').hidden(),
     journey_entries_collection: () => p.oneToMany(JourneyEntries).mappedBy('journey').hidden(),
     journey_entry_stays_collection: () => p.oneToMany(JourneyEntryStays).mappedBy('journey').hidden(),
     journey_photos_collection: () => p.oneToMany(JourneyPhotos).mappedBy('journey').hidden(),
     journey_recorded_days_collection: () => p.oneToMany(JourneyRecordedDays).mappedBy('journey').hidden(),
+    journey_recording_prep_collection: () => p.oneToMany(JourneyRecordingPrep).mappedBy('journey').hidden(),
     journey_share_tokens: () => p.oneToOne(JourneyShareTokens).ref().mappedBy('journey').hidden(),
     journey_trips_collection: () => p.oneToMany(JourneyTrips).mappedBy('journey').hidden(),
     trip_journal_links_collection: () => p.oneToMany(TripJournalLinks).mappedBy('journey').hidden(),

@@ -2,12 +2,15 @@ import { ADDON_IDS } from '../../addons';
 import { AddonsService } from '../addons/addons.service';
 import { DomainError, conflict, forbidden, notFound } from '../common/domain-error';
 import { DawarichTracksService } from '../integrations/dawarich-tracks.service';
+import { DawarichService } from '../integrations/dawarich.service';
 import { JourneyDomainService } from '../journey/journey-domain.service';
 import { JourneyRecordedDaysService } from '../journey/journey-recorded-days.service';
+import { JourneyRecordingPrepService } from '../journey/journey-recording-prep.service';
 import { Injectable } from '@nestjs/common';
 import {
   recordingStats,
   type JourneyRecordedDay,
+  type JourneyRecordingPrep,
   type JourneyRecordingPreview,
   type JourneyRecordingPreviewRequest,
   type JourneyRecordingSaveRequest,
@@ -36,6 +39,8 @@ export class JourneyRecordingsService {
     private readonly recordedDays: JourneyRecordedDaysService,
     private readonly tracks: DawarichTracksService,
     private readonly addons: AddonsService,
+    private readonly prep: JourneyRecordingPrepService,
+    private readonly dawarich: DawarichService,
   ) {}
 
   /** The days a journey keeps, for anyone who can open it. Needs no Dawarich. */
@@ -128,6 +133,22 @@ export class JourneyRecordingsService {
     await this.requireEditable(journeyId, userId);
     if (!(await this.recordedDays.remove(journeyId, date))) throw notFound('No recording kept for that day');
     await this.journeys.broadcastJourneyEvent(journeyId, 'journey:recording:updated', { date }, socketId);
+  }
+
+  /**
+   * Whether the journey prepares its recorded days (JRN-03) and how the
+   * caller's own last runs over it went, with what their connection allows.
+   * Only for those who may edit it: a reader has nothing of theirs prepared.
+   */
+  async prepStatus(userId: number, journeyId: number): Promise<JourneyRecordingPrep> {
+    const journey = await this.requireEditable(journeyId, userId);
+    await this.requireDawarich();
+    const connection = await this.dawarich.getConnection(userId);
+    return {
+      enabled: !!journey.auto_prepare_recordings,
+      connection: !connection.connected ? 'not_connected' : connection.syncEnabled ? 'ready' : 'sync_off',
+      ...(await this.prep.status(journeyId, userId)),
+    };
   }
 
   /** The journey, when the caller may edit it: 404 when they cannot open it, 403 when they only read it. */

@@ -214,6 +214,9 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'GPX-треки',
   'journey.settings.showTripTracks': 'Показывать все GPX-треки поездок',
   'journey.settings.showTripTracksHint': 'Рисует на карте записанные маршруты из связанных поездок.',
+  'journey.settings.autoPrepare': 'Автоматически готовить записанные дни',
+  'journey.settings.autoPrepareHint':
+    'Пока связанная поездка идёт, остановки из твоего Dawarich ждут проверки у своего дня. Редакторы со своим подключением получают свои. В журнал ничего не пишется само.',
   'journey.settings.status': 'Статус',
   'journey.settings.statusAuto': 'Автоматически',
   'journey.settings.statusAutoHint': 'Следует датам связанных поездок. Без поездки журнал остаётся черновиком.',
@@ -877,5 +880,22 @@ const journey: TranslationStrings = {
   'journey.dayImport.staleNever': 'Dawarich не ответил: {reason} Показаны остановки, которые TREK уже знает.',
   'journey.dayImport.truncated': 'Dawarich прислал только часть этого дня. Некоторых остановок может не хватать.',
   'journey.dayImport.empty': 'Dawarich не нашёл остановок в этот день.',
+  'journey.prep.lastSuccess': 'Последняя загрузка {time}.',
+  'journey.prep.never': 'Ещё не загружено. Следующая фоновая синхронизация запустит загрузку.',
+  'journey.prep.failed': 'Последнее обновление не удалось: {reason} Показано то, что загружено {time}.',
+  'journey.prep.failedNever': 'Первая загрузка не удалась: {reason}',
+  'journey.prep.notConnected': 'Подключи Dawarich в настройках, чтобы твои дни готовились.',
+  'journey.prep.noPeriods': 'Свяжи поездку с датами: готовятся только её дни.',
+  'journey.prep.syncOff':
+    'Фоновая синхронизация выключена в настройках Dawarich, дни загружаются только по твоему запросу.',
+  'journey.prep.fetchNow': 'Загрузить сейчас',
+  'journey.prep.fetching': 'Загрузка…',
+  'journey.prep.fetchFailed': 'Сейчас не удалось обратиться к Dawarich.',
+  'journey.prep.dayRunning': 'День ещё идёт, могут появиться новые остановки.',
+  'journey.prep.dayPending': 'Ещё не загружено.',
+  'journey.prep.dayProvisional': 'Загружено {time}, до конца дня, часть остановок может отсутствовать.',
+  'journey.prep.dayFailed': 'Последнее обновление не удалось, это более старое состояние.',
+  'journey.dayImport.running':
+    'Этот день ещё идёт. Остановки, записанные позже, появятся, как только они будут у Dawarich.',
 };
 export default journey;

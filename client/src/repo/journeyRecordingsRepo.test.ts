@@ -4,7 +4,7 @@ import { journeyRecordingsApi } from '../api/journeyRecordings';
 import { journeyRecordingsRepo } from './journeyRecordingsRepo';
 import { OnlineOnlyError } from './onlineOnly';
 
-// FE-REPO-JOURNEY-RECORDINGS-001 to FE-REPO-JOURNEY-RECORDINGS-004
+// FE-REPO-JOURNEY-RECORDINGS-001 to FE-REPO-JOURNEY-RECORDINGS-005
 
 const network = vi.hoisted(() => ({ offline: false }));
 vi.mock('../sync/networkMode', () => ({ isEffectivelyOffline: () => network.offline }));
@@ -70,5 +70,24 @@ describe('journeyRecordingsRepo', () => {
     network.offline = true;
     await expect(journeyRecordingsRepo.reviewDay(7, '2026-05-14')).rejects.toBeInstanceOf(OnlineOnlyError);
     await expect(journeyRecordingsRepo.takeOverDay(7, '2026-05-14', body)).rejects.toBeInstanceOf(OnlineOnlyError);
+  });
+
+  it('FE-REPO-JOURNEY-RECORDINGS-005: reads how the journey prepares its days online only, parsing the answer (JRN-03)', async () => {
+    const answer = {
+      enabled: true,
+      connection: 'ready',
+      lastAttemptAt: null,
+      lastSuccessAt: null,
+      lastError: null,
+    } as const;
+    const prep = vi.spyOn(journeyRecordingsApi, 'prep').mockResolvedValue(answer);
+    expect(await journeyRecordingsRepo.prep(7)).toEqual(answer);
+    expect(prep).toHaveBeenCalledWith(7, undefined);
+
+    prep.mockResolvedValue({ ...answer, connection: 'paused' } as never);
+    await expect(journeyRecordingsRepo.prep(7)).rejects.toThrow();
+
+    network.offline = true;
+    await expect(journeyRecordingsRepo.prep(7)).rejects.toBeInstanceOf(OnlineOnlyError);
   });
 });

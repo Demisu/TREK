@@ -47,7 +47,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 //   window_to, segments, point_count, content_hash, fetched_at (a kept day is only ever written whole).
 // + journey_entry_stays: id, journey_id, entry_id, source_visit_id, name, started_at, ended_at (a stay is
 //   only ever written whole, by the take-over of its day).
-const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 537;
+// + journey_recording_prep: id, journey_id, user_id (a status row always names its journey and its person).
+const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 540;
 
 describe('entity class fields never carry a NaN initialiser (task-4-review-shape.md, Important 1)', () => {
   it('CLASSFIELD-001: new X() has no own property whose value is NaN, across all 133 entities', () => {

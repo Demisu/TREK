@@ -36,8 +36,15 @@ export const journeyCreateRequestSchema = z.looseObject({
 });
 export type JourneyCreateRequest = z.infer<typeof journeyCreateRequestSchema>;
 
-/** Free-form: forwarded to the service as-is. */
-export const journeyUpdateRequestSchema = z.looseObject({});
+/** Free-form: forwarded to the service as-is, apart from the fields typed here. */
+export const journeyUpdateRequestSchema = z.looseObject({
+  auto_prepare_recordings: z
+    .boolean()
+    .optional()
+    .describe(
+      "Whether the Dawarich sync prepares the recorded days of the linked trips' periods for the owner and every editor with a connection of their own (JRN-03). Off by default; switching it off stops it, and nothing taken over is touched",
+    ),
+});
 export type JourneyUpdateRequest = z.infer<typeof journeyUpdateRequestSchema>;
 
 export const journeyAddTripRequestSchema = z.looseObject({
@@ -218,6 +225,8 @@ export const journeySchema = z.object({
   show_weather: z.number(),
   status_override: z.string().nullable(),
   photo_location: z.number(),
+  /** JRN-03, 0/1. Optional so a row built without it still answers inside the contract. */
+  auto_prepare_recordings: z.number().optional(),
 });
 export type JourneyRecord = z.infer<typeof journeySchema>;
 

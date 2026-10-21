@@ -349,6 +349,25 @@ describe('journey write tools', () => {
     });
   });
 
+  it('update_journey switches the preparation of recorded days on and refuses a value that is no boolean', async () => {
+    const { user } = createUser(testDb);
+    await withHarness(user.id, async (h) => {
+      const journey = await seedJourney(h);
+      const updated = parseToolResult(
+        await h.client.callTool({
+          name: 'update_journey',
+          arguments: { journeyId: journey.id, auto_prepare_recordings: true },
+        }),
+      ) as { journey: { auto_prepare_recordings: number } };
+      expect(updated.journey.auto_prepare_recordings).toBe(1);
+      const refused = await h.client.callTool({
+        name: 'update_journey',
+        arguments: { journeyId: journey.id, auto_prepare_recordings: 'yes' },
+      });
+      expect(refused.isError).toBe(true);
+    });
+  });
+
   it('delete_journey removes it and refuses a foreign journey', async () => {
     const { user } = createUser(testDb);
     const { journeyId } = await foreignJourney();

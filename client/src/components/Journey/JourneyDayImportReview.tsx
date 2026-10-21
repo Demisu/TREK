@@ -40,6 +40,7 @@ function DayNotices({ state }: { state: JourneyDayImportState }) {
         </Notice>
       )}
       {review?.truncated && <Notice tone="warning">{t('journey.dayImport.truncated')}</Notice>}
+      {state.running && <Notice tone="info">{t('journey.dayImport.running')}</Notice>}
     </>
   );
 }

@@ -69,7 +69,7 @@ export function JourneyDetailPageDesktop({ journeyId, embedded = false }: Journe
     galleryUploadProgress, setGalleryUploadProgress,
     activeLocationId, handleMarkerClick, handleLocationClick,
     mapEntries, sidebarMapItems, tripDates, isMobile, tracks, mapPhotos, openMapPhotos,
-    recordings, canTakeOverRecording, recordingNeedsConnection, dayImport,
+    recordings, canTakeOverRecording, recordingNeedsConnection, dayImport, recordingPrep,
     feedEdge, scrollFeedTo,
     loadJourney, updateEntry, deleteEntry, reorderEntries, uploadPhotos, deletePhoto,
     addPickedProviderPhotos, addEntryProviderPhotos,
@@ -513,6 +513,7 @@ export function JourneyDetailPageDesktop({ journeyId, embedded = false }: Journe
                               pending={stays.length}
                               canTakeOver={canTakeOverRecording}
                               needsConnection={recordingNeedsConnection}
+                              prep={recordingPrep.dayPrep(date)}
                               onOpen={() => dayImport.open(date)}
                             />
                             {/* The only Add button used to be at the very top and always
@@ -782,6 +783,7 @@ export function JourneyDetailPageDesktop({ journeyId, embedded = false }: Journe
           onOpenInvite={() => { setShowInvite(true) }}
           onRefresh={() => loadJourney(Number(id))}
           onRestoreSuggestions={canEditEntries ? restoreSuggestions : undefined}
+          recordingPrep={recordingPrep.prep ? recordingPrep : undefined}
         />
       )}
 

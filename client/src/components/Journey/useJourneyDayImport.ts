@@ -9,6 +9,7 @@ import type {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from '../../i18n';
 import { journeyRecordingsRepo } from '../../repo/journeyRecordingsRepo';
+import { localIsoDate } from '../../utils/localDate';
 import { useToast } from '../shared/Toast';
 import {
   anchorOf,
@@ -292,6 +293,8 @@ export function useJourneyDayImport({
   return {
     review: day.review,
     loading: day.loading,
+    /** The day is today: stays recorded later still arrive. */
+    running: date === localIsoDate(),
     /** Translated; null while nothing failed. */
     error: day.failure === null ? null : recordingErrorText(day.failure, t),
     retry: day.reload,

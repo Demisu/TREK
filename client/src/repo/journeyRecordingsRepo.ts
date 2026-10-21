@@ -2,12 +2,14 @@ import {
   journeyDayImportResultSchema,
   journeyDayStaysSchema,
   journeyRecordedDaysResponseSchema,
+  journeyRecordingPrepSchema,
   journeyRecordingPreviewSchema,
   journeyRecordingSaveResultSchema,
   type JourneyDayImportRequest,
   type JourneyDayImportResult,
   type JourneyDayStays,
   type JourneyRecordedDay,
+  type JourneyRecordingPrep,
   type JourneyRecordingPreview,
   type JourneyRecordingPreviewRequest,
   type JourneyRecordingSaveRequest,
@@ -26,6 +28,12 @@ export const journeyRecordingsRepo = {
   async list(journeyId: number, signal?: AbortSignal): Promise<JourneyRecordedDay[]> {
     requireOnline();
     return journeyRecordedDaysResponseSchema.parse(await journeyRecordingsApi.list(journeyId, signal)).days;
+  },
+
+  /** JRN-03: whether the journey prepares its days and how the caller's last runs over it went. */
+  async prep(journeyId: number, signal?: AbortSignal): Promise<JourneyRecordingPrep> {
+    requireOnline();
+    return journeyRecordingPrepSchema.parse(await journeyRecordingsApi.prep(journeyId, signal));
   },
 
   async preview(

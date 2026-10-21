@@ -1,10 +1,11 @@
-// FE-MOB-JSET-001 to FE-MOB-JSET-034
+// FE-MOB-JSET-001 to FE-MOB-JSET-036
 import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor, within } from '../../../helpers/render';
 import MJourneySettingsSheet from '../../../../src/mobile/screens/journey/MJourneySettingsSheet';
 import { journeyApi } from '../../../../src/api/client';
 import { useJourneyStore } from '../../../../src/store/journeyStore';
 import type { JourneyDetail } from '../../../../src/store/journeyStore';
+import type { JourneyRecordingPrepState } from '../../../../src/components/Journey/useJourneyRecordingPrep';
 
 const mockNavigate = vi.fn();
 vi.mock('react-router', async () => {
@@ -42,13 +43,14 @@ function buildJourney(over: Partial<JourneyDetail> = {}): JourneyDetail {
   };
 }
 
-function setup(over: Partial<JourneyDetail> = {}) {
+function setup(over: Partial<JourneyDetail> = {}, recordingPrep?: JourneyRecordingPrepState) {
   const props = {
     journey: buildJourney(over),
     onClose: vi.fn(),
     onSaved: vi.fn(),
     onOpenInvite: vi.fn(),
     onRefresh: vi.fn(),
+    recordingPrep,
   };
   const view = render(<MJourneySettingsSheet {...props} />);
   return { ...view, props };
@@ -448,5 +450,34 @@ describe('MJourneySettingsSheet', () => {
     await waitFor(() => expect(addToast).toHaveBeenCalledWith('Failed to save', 'error', undefined));
     expect(props.onRefresh).not.toHaveBeenCalled();
     expect(props.onClose).not.toHaveBeenCalled();
+  });
+
+  it('FE-MOB-JSET-035: the owner switches the preparation of recorded days and fetches by hand under its status (JRN-03)', async () => {
+    const recordingPrep: JourneyRecordingPrepState = {
+      prep: { enabled: true, connection: 'ready', lastAttemptAt: null, lastSuccessAt: null, lastError: null },
+      saving: false,
+      fetching: false,
+      statusLine: { text: 'Not fetched yet. The next background sync starts it.', tone: 'muted' },
+      canFetch: true,
+      setEnabled: vi.fn(async () => {}),
+      fetchNow: vi.fn(async () => {}),
+      dayPrep: () => null,
+    };
+    setup({ auto_prepare_recordings: 1 }, recordingPrep);
+
+    const prepSwitch = await screen.findByRole('switch', { name: 'Prepare recorded days automatically' });
+    expect(prepSwitch).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByText('Not fetched yet. The next background sync starts it.')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fetch now' }));
+    expect(recordingPrep.fetchNow).toHaveBeenCalledTimes(1);
+    fireEvent.click(prepSwitch);
+    expect(recordingPrep.setEnabled).toHaveBeenCalledWith(false);
+  });
+
+  it('FE-MOB-JSET-036: without the Dawarich addon the sheet offers no such switch', async () => {
+    setup();
+    await screen.findByRole('switch', { name: /GPX/i });
+    expect(screen.queryByRole('switch', { name: 'Prepare recorded days automatically' })).not.toBeInTheDocument();
   });
 });

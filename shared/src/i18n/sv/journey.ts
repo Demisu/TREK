@@ -213,6 +213,9 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'GPX-spår',
   'journey.settings.showTripTracks': 'Visa alla GPX-spår från resor',
   'journey.settings.showTripTracksHint': 'Ritar de inspelade rutterna från de länkade resorna på kartan.',
+  'journey.settings.autoPrepare': 'Förbered inspelade dagar automatiskt',
+  'journey.settings.autoPrepareHint':
+    'Medan en länkad resa pågår väntar vistelserna från din Dawarich vid sin dag på att granskas. Redigerare med egen anslutning får sina. Inget skrivs i dagboken av sig självt.',
   'journey.settings.status': 'Status',
   'journey.settings.statusAuto': 'Automatiskt',
   'journey.settings.statusAutoHint':
@@ -831,5 +834,22 @@ const journey: TranslationStrings = {
   'journey.dayImport.staleNever': 'Dawarich svarade inte: {reason} Vistelserna som TREK redan känner till visas.',
   'journey.dayImport.truncated': 'Dawarich skickade bara en del av den här dagen. Vistelser kan saknas.',
   'journey.dayImport.empty': 'Dawarich hittade inga vistelser den här dagen.',
+  'journey.prep.lastSuccess': 'Senast hämtat {time}.',
+  'journey.prep.never': 'Inte hämtat än. Nästa bakgrundssynk startar det.',
+  'journey.prep.failed': 'Senaste uppdateringen misslyckades: {reason} Visar det som hämtades {time}.',
+  'journey.prep.failedNever': 'Första hämtningen misslyckades: {reason}',
+  'journey.prep.notConnected': 'Anslut Dawarich i dina inställningar så att dina dagar kan förberedas.',
+  'journey.prep.noPeriods': 'Länka en resa med datum: bara dess dagar förbereds.',
+  'journey.prep.syncOff':
+    'Bakgrundssynken är avstängd i dina Dawarich-inställningar, dagar hämtas bara när du ber om det.',
+  'journey.prep.fetchNow': 'Hämta nu',
+  'journey.prep.fetching': 'Hämtar…',
+  'journey.prep.fetchFailed': 'Dawarich kunde inte tillfrågas just nu.',
+  'journey.prep.dayRunning': 'Dagen pågår fortfarande, fler vistelser kan komma.',
+  'journey.prep.dayPending': 'Inte hämtat än.',
+  'journey.prep.dayProvisional': 'Hämtat {time}, innan dagen var slut, vistelser kan saknas.',
+  'journey.prep.dayFailed': 'Senaste uppdateringen misslyckades, detta är det äldre läget.',
+  'journey.dayImport.running':
+    'Den här dagen pågår fortfarande. Vistelser som spelas in senare visas så snart Dawarich har dem.',
 };
 export default journey;

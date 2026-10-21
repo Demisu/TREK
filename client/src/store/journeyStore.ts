@@ -26,6 +26,8 @@ export interface Journey {
   show_trip_tracks?: number
   /** Entries without a place take the position of their first geotagged photo (#1003); 0/1, off by default. */
   photo_location?: number
+  /** The Dawarich sync prepares the recorded days of the linked trips (JRN-03); 0/1, off by default. */
+  auto_prepare_recordings?: number
   /**
    * Which of the optional entry fields this journey uses (discussion #2299).
    *

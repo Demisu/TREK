@@ -32,6 +32,7 @@ import { JourneyContributors } from './JourneyContributors.entity';
 import { JourneyEntries } from './JourneyEntries.entity';
 import { JourneyEntryStays } from './JourneyEntryStays.entity';
 import { JourneyRecordedDays } from './JourneyRecordedDays.entity';
+import { JourneyRecordingPrep } from './JourneyRecordingPrep.entity';
 import { JourneyShareTokens } from './JourneyShareTokens.entity';
 import { Journeys } from './Journeys.entity';
 import { McpTokens } from './McpTokens.entity';
@@ -162,6 +163,7 @@ export class Users {
   journey_entries_collection = new Collection<JourneyEntries>(this);
   journey_entry_stays_collection = new Collection<JourneyEntryStays>(this);
   journey_recorded_days_collection = new Collection<JourneyRecordedDays>(this);
+  journey_recording_prep_collection = new Collection<JourneyRecordingPrep>(this);
   journey_share_tokens_collection = new Collection<JourneyShareTokens>(this);
   journeys_collection = new Collection<Journeys>(this);
   mcp_tokens_collection = new Collection<McpTokens>(this);
@@ -314,6 +316,7 @@ export const UsersSchema = defineEntity({
     journey_entries_collection: () => p.oneToMany(JourneyEntries).mappedBy('author').hidden(),
     journey_entry_stays_collection: () => p.oneToMany(JourneyEntryStays).mappedBy('user').hidden(),
     journey_recorded_days_collection: () => p.oneToMany(JourneyRecordedDays).mappedBy('importedByRef').hidden(),
+    journey_recording_prep_collection: () => p.oneToMany(JourneyRecordingPrep).mappedBy('user').hidden(),
     journey_share_tokens_collection: () => p.oneToMany(JourneyShareTokens).mappedBy('createdByRef').hidden(),
     journeys_collection: () => p.oneToMany(Journeys).mappedBy('user').hidden(),
     mcp_tokens_collection: () => p.oneToMany(McpTokens).mappedBy('user').hidden(),

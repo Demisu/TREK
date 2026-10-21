@@ -229,6 +229,8 @@ export interface Journey {
   status_override?: 'draft' | 'live' | 'completed' | null;
   /** Entries without a place take the spot of their first geotagged photo (#1003). 0 by default. */
   photo_location?: number;
+  /** The Dawarich sync prepares the recorded days of the linked trips (JRN-03). 0 by default. */
+  auto_prepare_recordings?: number;
   created_at: number;
   updated_at: number;
 }

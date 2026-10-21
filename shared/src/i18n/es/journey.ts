@@ -204,6 +204,9 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'Rutas GPX',
   'journey.settings.showTripTracks': 'Mostrar todas las rutas GPX de los viajes',
   'journey.settings.showTripTracksHint': 'Dibuja en el mapa las rutas grabadas de los viajes vinculados.',
+  'journey.settings.autoPrepare': 'Preparar automáticamente los días grabados',
+  'journey.settings.autoPrepareHint':
+    'Mientras un viaje vinculado está en curso, las estancias de tu Dawarich esperan en su día para que las revises. Los editores con su propia conexión reciben las suyas. Nada se escribe en el diario por sí solo.',
   'journey.settings.status': 'Estado',
   'journey.settings.statusAuto': 'Automático',
   'journey.settings.statusAutoHint':
@@ -838,5 +841,22 @@ const journey: TranslationStrings = {
   'journey.dayImport.staleNever': 'Dawarich no respondió: {reason} Se muestran las estancias que TREK ya conoce.',
   'journey.dayImport.truncated': 'Dawarich solo envió una parte de este día. Puede que falten estancias.',
   'journey.dayImport.empty': 'Dawarich no encontró estancias en este día.',
+  'journey.prep.lastSuccess': 'Última consulta {time}.',
+  'journey.prep.never': 'Aún sin consultar. La próxima sincronización en segundo plano lo inicia.',
+  'journey.prep.failed': 'La última actualización falló: {reason} Se muestra lo consultado {time}.',
+  'journey.prep.failedNever': 'La primera consulta falló: {reason}',
+  'journey.prep.notConnected': 'Conecta Dawarich en tus ajustes para que tus días se preparen.',
+  'journey.prep.noPeriods': 'Vincula un viaje con fechas: solo se preparan sus días.',
+  'journey.prep.syncOff':
+    'La sincronización en segundo plano está desactivada en tus ajustes de Dawarich, los días solo se consultan cuando lo pides.',
+  'journey.prep.fetchNow': 'Consultar ahora',
+  'journey.prep.fetching': 'Consultando…',
+  'journey.prep.fetchFailed': 'No se pudo consultar Dawarich en este momento.',
+  'journey.prep.dayRunning': 'El día aún no ha terminado, pueden llegar más estancias.',
+  'journey.prep.dayPending': 'Aún sin consultar.',
+  'journey.prep.dayProvisional': 'Consultado {time}, antes de que terminara el día, pueden faltar estancias.',
+  'journey.prep.dayFailed': 'La última actualización falló, este es el estado anterior.',
+  'journey.dayImport.running':
+    'Este día aún no ha terminado. Las estancias grabadas más tarde aparecen en cuanto Dawarich las tenga.',
 };
 export default journey;

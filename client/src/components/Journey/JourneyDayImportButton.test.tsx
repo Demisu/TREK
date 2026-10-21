@@ -1,6 +1,7 @@
-// FE-JRN-DAY-IMPORT-BTN-001 to FE-JRN-DAY-IMPORT-BTN-003
+// FE-JRN-DAY-IMPORT-BTN-001 to FE-JRN-DAY-IMPORT-BTN-005
 //
 // JRN-02: the day header's way into taking a day over with its stays.
+// JRN-03: the mark of a prepared day that is not final yet.
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '../../../tests/helpers/render';
@@ -41,5 +42,27 @@ describe('JourneyDayImportButton', () => {
 
     renderButton({ canTakeOver: false, needsConnection: false });
     expect(screen.queryByTestId('journey-day-import')).not.toBeInTheDocument();
+  });
+
+  it('FE-JRN-DAY-IMPORT-BTN-004: a prepared day still running carries a dot and says so after the count', () => {
+    renderButton({ pending: 6, prep: { state: 'running', failed: false, lastSuccessAt: null } });
+    expect(screen.getByTestId('journey-day-prep-unsettled')).toBeInTheDocument();
+    expect(screen.getByTestId('journey-day-import')).toHaveAccessibleName(
+      /^6 stays to review\s+The day is still running, more stays may follow\.$/
+    );
+  });
+
+  it('FE-JRN-DAY-IMPORT-BTN-005: a day fetched whole carries no dot, one whose refresh failed does', () => {
+    const { unmount } = renderButton({
+      prep: { state: 'complete', failed: false, lastSuccessAt: '2026-05-15T08:00:00Z' },
+    });
+    expect(screen.queryByTestId('journey-day-prep-unsettled')).not.toBeInTheDocument();
+    unmount();
+
+    renderButton({ prep: { state: 'complete', failed: true, lastSuccessAt: '2026-05-15T08:00:00Z' } });
+    expect(screen.getByTestId('journey-day-prep-unsettled')).toBeInTheDocument();
+    expect(screen.getByTestId('journey-day-import')).toHaveAccessibleName(
+      /The last refresh failed, this is the older state\./
+    );
   });
 });

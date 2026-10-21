@@ -205,6 +205,9 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'GPX-tracks',
   'journey.settings.showTripTracks': 'Alle GPX-tracks van reizen tonen',
   'journey.settings.showTripTracksHint': 'Tekent de opgenomen routes van de gekoppelde reizen op de kaart.',
+  'journey.settings.autoPrepare': 'Opgenomen dagen automatisch voorbereiden',
+  'journey.settings.autoPrepareHint':
+    'Zolang een gekoppelde reis loopt, wachten de verblijven uit je Dawarich bij hun dag op je controle. Bewerkers met een eigen verbinding krijgen die van hen. Er wordt niets vanzelf in het dagboek geschreven.',
   'journey.settings.status': 'Status',
   'journey.settings.statusAuto': 'Automatisch',
   'journey.settings.statusAutoHint':
@@ -840,5 +843,21 @@ const journey: TranslationStrings = {
   'journey.dayImport.staleNever': 'Dawarich antwoordde niet: {reason} Je ziet de verblijven die TREK al kent.',
   'journey.dayImport.truncated': 'Dawarich stuurde maar een deel van deze dag. Er kunnen verblijven ontbreken.',
   'journey.dayImport.empty': 'Dawarich vond op deze dag geen verblijven.',
+  'journey.prep.lastSuccess': 'Laatst opgehaald {time}.',
+  'journey.prep.never': 'Nog niet opgehaald. De volgende synchronisatie op de achtergrond start het.',
+  'journey.prep.failed': 'De laatste verversing is mislukt: {reason} Getoond wordt wat {time} is opgehaald.',
+  'journey.prep.failedNever': 'Het eerste ophalen is mislukt: {reason}',
+  'journey.prep.notConnected': 'Koppel Dawarich in je instellingen zodat je dagen worden voorbereid.',
+  'journey.prep.noPeriods': 'Koppel een reis met datums: alleen de dagen daarvan worden voorbereid.',
+  'journey.prep.syncOff':
+    'Synchronisatie op de achtergrond staat uit in je Dawarich-instellingen, dagen worden alleen opgehaald als je erom vraagt.',
+  'journey.prep.fetchNow': 'Nu ophalen',
+  'journey.prep.fetching': 'Bezig met ophalen…',
+  'journey.prep.fetchFailed': 'Dawarich kon nu niet worden bevraagd.',
+  'journey.prep.dayRunning': 'De dag loopt nog, er kunnen meer verblijven volgen.',
+  'journey.prep.dayPending': 'Nog niet opgehaald.',
+  'journey.prep.dayProvisional': 'Opgehaald {time}, voor het einde van de dag, er kunnen verblijven ontbreken.',
+  'journey.prep.dayFailed': 'De laatste verversing is mislukt, dit is de oudere stand.',
+  'journey.dayImport.running': 'Deze dag loopt nog. Later opgenomen verblijven verschijnen zodra Dawarich ze heeft.',
 };
 export default journey;

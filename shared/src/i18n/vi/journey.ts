@@ -208,6 +208,9 @@ const journey: TranslationStrings = {
   'journey.settings.tracks': 'Tuyến GPX',
   'journey.settings.showTripTracks': 'Hiện tất cả tuyến GPX của chuyến đi',
   'journey.settings.showTripTracksHint': 'Vẽ lên bản đồ các tuyến đường đã ghi từ những chuyến đi được liên kết.',
+  'journey.settings.autoPrepare': 'Tự động chuẩn bị các ngày đã ghi',
+  'journey.settings.autoPrepareHint':
+    'Khi một chuyến đi được liên kết đang diễn ra, các điểm dừng từ Dawarich của bạn chờ ở ngày của chúng để bạn xem. Người chỉnh sửa có kết nối riêng nhận phần của họ. Không có gì tự ghi vào nhật ký.',
   'journey.settings.status': 'Trạng thái',
   'journey.settings.statusAuto': 'Tự động',
   'journey.settings.statusAutoHint':
@@ -811,5 +814,20 @@ const journey: TranslationStrings = {
   'journey.dayImport.staleNever': 'Dawarich không phản hồi: {reason} Đang hiển thị các điểm dừng TREK đã biết.',
   'journey.dayImport.truncated': 'Dawarich chỉ gửi một phần của ngày này. Có thể thiếu điểm dừng.',
   'journey.dayImport.empty': 'Dawarich không tìm thấy điểm dừng nào trong ngày này.',
+  'journey.prep.lastSuccess': 'Lần lấy gần nhất {time}.',
+  'journey.prep.never': 'Chưa lấy. Lần đồng bộ nền tiếp theo sẽ bắt đầu.',
+  'journey.prep.failed': 'Lần làm mới gần nhất thất bại: {reason} Đang hiện dữ liệu lấy {time}.',
+  'journey.prep.failedNever': 'Lần lấy đầu tiên thất bại: {reason}',
+  'journey.prep.notConnected': 'Kết nối Dawarich trong cài đặt để các ngày của bạn được chuẩn bị.',
+  'journey.prep.noPeriods': 'Liên kết một chuyến đi có ngày: chỉ các ngày của nó được chuẩn bị.',
+  'journey.prep.syncOff': 'Đồng bộ nền đang tắt trong cài đặt Dawarich, các ngày chỉ được lấy khi bạn yêu cầu.',
+  'journey.prep.fetchNow': 'Lấy ngay',
+  'journey.prep.fetching': 'Đang lấy…',
+  'journey.prep.fetchFailed': 'Hiện không thể hỏi Dawarich.',
+  'journey.prep.dayRunning': 'Ngày này vẫn đang diễn ra, có thể có thêm điểm dừng.',
+  'journey.prep.dayPending': 'Chưa lấy.',
+  'journey.prep.dayProvisional': 'Đã lấy {time}, trước khi ngày kết thúc, có thể thiếu điểm dừng.',
+  'journey.prep.dayFailed': 'Lần làm mới gần nhất thất bại, đây là trạng thái cũ hơn.',
+  'journey.dayImport.running': 'Ngày này vẫn đang diễn ra. Các điểm dừng ghi sau sẽ hiện khi Dawarich có chúng.',
 };
 export default journey;

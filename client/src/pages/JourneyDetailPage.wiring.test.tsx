@@ -1,4 +1,4 @@
-// FE-JRN-DETWIRE-001 to FE-JRN-DETWIRE-044
+// FE-JRN-DETWIRE-001 to FE-JRN-DETWIRE-045
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor, within } from '../../tests/helpers/render';
 import { journeyApi } from '../api/client';
@@ -110,6 +110,9 @@ function buildHook(over: Record<string, unknown> = {}): Record<string, unknown> 
     recordings: { byDate: new Map(), dialog: null, open: vi.fn() },
     canTakeOverRecording: false, recordingNeedsConnection: false,
     dayImport: { open: vi.fn(), dialog: null },
+    // Preparing the recorded days (JRN-03): not read here, so nothing is marked and the settings
+    // get no switch; the model and the hook have suites of their own.
+    recordingPrep: { prep: null, dayPrep: () => null },
     mapRef: { current: null }, fullMapRef: { current: null }, galleryUploadRef: { current: null },
     galleryProviders: [], setGalleryProviders: vi.fn(), galleryBrowseRef: { current: null },
     galleryUploadProgress: null, setGalleryUploadProgress: vi.fn(),
@@ -630,5 +633,17 @@ describe('JourneyDetailPage wiring', () => {
     setup({ canTakeOverRecording: true, dayImport: { open, dialog } });
     expect(screen.getByTestId('day-import-dialog')).toBeInTheDocument();
     expect(mocks.captured.dayImport).toMatchObject(dialog);
+  });
+
+  it('FE-JRN-DETWIRE-045: a prepared day is marked in its header, and the settings get the switch once it is read (JRN-03)', () => {
+    const dayPrep = vi.fn((date: string) =>
+      date === '2026-05-01' ? { state: 'provisional' as const, failed: false, lastSuccessAt: '2026-05-01T12:00:00Z' } : null,
+    );
+    const recordingPrep = { prep: { enabled: true }, dayPrep };
+    setup({ canTakeOverRecording: true, showSettings: true, recordingPrep });
+
+    expect(dayPrep).toHaveBeenCalledWith('2026-05-01');
+    expect(screen.getAllByTestId('journey-day-prep-unsettled')).toHaveLength(1);
+    expect(mocks.captured.settings.recordingPrep).toBe(recordingPrep);
   });
 });
