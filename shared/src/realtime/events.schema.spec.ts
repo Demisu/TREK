@@ -127,6 +127,7 @@ const FIXTURES: Record<TrekWsEventName, Record<string, unknown>> = {
   'journey:book:cursor': { journeyId: 7, socketId: 3, userId: 2, spreadIndex: 0, x: 105.5, y: 60 },
   'journey:contributor:changed': { journeyId: 3, targetUserId: 2, role: 'editor' },
   'journey:photos:updated': { journeyId: 3 },
+  'journey:recording:updated': { journeyId: 3, date: '2026-05-14' },
   'import:progress': { jobId: 'j1', tripId: 1, status: 'running', done: 1, total: 3, fileName: 'a.pdf' },
   'import:done': { jobId: 'j1', tripId: 1, result: { items: [] } },
   'import:error': { jobId: 'j1', tripId: 1, message: 'boom' },
@@ -149,7 +150,7 @@ const DRIFT_VARIANTS: Partial<Record<TrekWsEventName, Record<string, unknown>[]>
 };
 
 describe('@trek/shared realtime event registry', () => {
-  it('WSEVT-REG-001: pins the authoritative inventory counts (77 trip + 33 user = 110)', () => {
+  it('WSEVT-REG-001: pins the authoritative inventory counts (77 trip + 34 user = 111)', () => {
     // 67th to 69th trip event: the three collab:link:* a shared link emits.
     // 70th and 71st: the road trip's vias and tracks, which used to be written silently.
     // 74th: docsync:changed, so a sync run that moved documents refreshes the
@@ -160,9 +161,11 @@ describe('@trek/shared realtime event registry', () => {
     // days show the same for every member of the trip.
     // 33rd user event: journey:photos:updated, so the gallery re-sorts once the
     // capture times of an import have landed (#1587).
+    // 34th: journey:recording:updated, so every map of a journey shows a day's
+    // recorded route once somebody took it over (JRN-01).
     expect(TREK_WS_TRIP_EVENT_NAMES).toHaveLength(77);
-    expect(TREK_WS_USER_EVENT_NAMES).toHaveLength(33);
-    expect(TREK_WS_EVENT_NAMES).toHaveLength(110);
+    expect(TREK_WS_USER_EVENT_NAMES).toHaveLength(34);
+    expect(TREK_WS_EVENT_NAMES).toHaveLength(111);
   });
 
   it('WSEVT-REG-002: every name is domain:action shaped and outside the reserved plugin: namespace', () => {

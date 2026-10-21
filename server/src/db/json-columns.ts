@@ -1,6 +1,7 @@
 import type { JsonColumn } from '../utils/json-column';
 import {
   FERRATAS_RESULT_CAP,
+  dawarichTrackSegmentSchema,
   ferrataSchema,
   hikingPreferencesSchema,
   obstacleSnapshotSchema,
@@ -15,6 +16,7 @@ import {
   tourSourceHintChangeSchema,
   tourWaypointSchema,
   trackMarksSchema,
+  type DawarichTrackSegment,
   type Ferrata,
   type GeometryPoint,
   type HikingPreferences,
@@ -313,5 +315,16 @@ export const COLLECTION_TOUR_WAYPOINTS: JsonColumn<TourWaypoint[]> = {
 export const TOUR_SOURCE_HINT_CHANGES: JsonColumn<TourSourceHintChange[]> = {
   column: 'tour_source_hints.changes',
   schema: z.array(tourSourceHintChangeSchema),
+  fallback: () => [],
+};
+
+/**
+ * JRN-01: the pieces of a day's recorded route a journey keeps, each with its
+ * mode and times. A broken row reads as none, so a day never draws a line it
+ * cannot vouch for.
+ */
+export const JOURNEY_RECORDED_DAY_SEGMENTS: JsonColumn<DawarichTrackSegment[]> = {
+  column: 'journey_recorded_days.segments',
+  schema: z.array(dawarichTrackSegmentSchema),
   fallback: () => [],
 };

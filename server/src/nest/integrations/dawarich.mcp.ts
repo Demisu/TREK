@@ -202,7 +202,7 @@ export class DawarichMcp {
   @Tool({
     name: 'get_dawarich_trip_track',
     description:
-      "Fetch the route actually recorded during a trip, grouped by local day, straight from the caller's Dawarich instance. Each day carries its segments with start and end times and, where Dawarich classified it, how it was travelled. Use it to answer what route someone really took, or how a day's movement compares with what was planned. Nothing is stored in TREK — this is a live read of the recording.",
+      "Fetch the route actually recorded during a trip, grouped by local day, straight from the caller's Dawarich instance. Each day carries its segments with start and end times and, where Dawarich classified it, how it was travelled. Use it to answer what route someone really took, or how a day's movement compares with what was planned. This is a live read of the recording and stores nothing; a day is kept in a journey only when the traveller confirms it through save_journey_recorded_day.",
     inputSchema: {
       tripId: idSchema,
       from: z

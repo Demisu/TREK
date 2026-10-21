@@ -2,6 +2,7 @@ import { JourneyContributors } from '../../db/entities/JourneyContributors.entit
 import { JourneyEntries } from '../../db/entities/JourneyEntries.entity';
 import { JourneyEntryPhotos } from '../../db/entities/JourneyEntryPhotos.entity';
 import { JourneyPhotos } from '../../db/entities/JourneyPhotos.entity';
+import { JourneyRecordedDays } from '../../db/entities/JourneyRecordedDays.entity';
 import { JourneyShareTokens } from '../../db/entities/JourneyShareTokens.entity';
 import { JourneyTrips } from '../../db/entities/JourneyTrips.entity';
 import { Journeys } from '../../db/entities/Journeys.entity';
@@ -12,6 +13,7 @@ import { TrekPhotosModule } from '../photos/trek-photos.module';
 import { RealtimeModule } from '../realtime/realtime.module';
 import { SettingsModule } from '../settings/settings.module';
 import { JourneyDomainService } from './journey-domain.service';
+import { JourneyRecordedDaysService } from './journey-recorded-days.service';
 import { JourneyShareService } from './journey-share.service';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
@@ -61,6 +63,9 @@ import { Module } from '@nestjs/common';
  * for JS1-JS15, plus reuses the already-registered `JourneysRepository` for
  * JS8/JS12 — no other module needed touching since both were already in
  * this array or this module's own provider graph.
+ * `JourneyRecordedDays` (JRN-01) is the days of recorded route a journey
+ * keeps; `JourneyRecordedDaysService` reads and writes them here, so the map
+ * needs nothing of the integration they were taken over from.
  */
 @Module({
   imports: [
@@ -78,9 +83,10 @@ import { Module } from '@nestjs/common';
       JourneyEntryPhotos,
       Places,
       JourneyShareTokens,
+      JourneyRecordedDays,
     ]),
   ],
-  providers: [JourneyDomainService, JourneyShareService],
-  exports: [JourneyDomainService, JourneyShareService],
+  providers: [JourneyDomainService, JourneyShareService, JourneyRecordedDaysService],
+  exports: [JourneyDomainService, JourneyShareService, JourneyRecordedDaysService],
 })
 export class JourneyDomainModule {}

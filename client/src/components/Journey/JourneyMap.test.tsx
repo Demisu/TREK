@@ -1,4 +1,4 @@
-// FE-COMP-JOURNEYMAP-001 to FE-COMP-JOURNEYMAP-050
+// FE-COMP-JOURNEYMAP-001 to FE-COMP-JOURNEYMAP-051
 
 vi.mock('../../api/websocket', () => ({
   connect: vi.fn(),
@@ -623,8 +623,31 @@ describe('JourneyMap', () => {
     expect(line).toBeDefined();
     // Leaflet wants [lat, lng], which is the order the geometry is stored in.
     expect(line![0]).toEqual([[47.1, 11.2], [47.2, 11.3]]);
-    // Solid, unlike the dashed line that merely connects entries in time order.
-    expect((line![1] as any).dashArray).toBeUndefined();
+    // A trip's GPX track is the plan: dashed, and wider apart than the faint
+    // line that merely connects entries in time order.
+    expect((line![1] as any).dashArray).toBe('8 7');
+  });
+
+  it('FE-COMP-JOURNEYMAP-051: a recorded route is drawn solid, apart from the planned one (JRN-01)', () => {
+    vi.mocked(L.polyline).mockClear();
+    render(
+      <JourneyMap
+        checkins={[]}
+        entries={entriesWithCoords}
+        tracks={[
+          { ...track({ color: '#00aa00' }), kind: 'day_recording' as const },
+          { ...track({ color: '#0000aa' }), kind: 'dawarich_live' as const },
+          { ...track({ color: '#aa0000' }), kind: 'trip_gpx' as const },
+        ]}
+      />
+    );
+
+    const style = (color: string) =>
+      vi.mocked(L.polyline).mock.calls.map(c => c[1] as L.PolylineOptions | undefined).find(o => o?.color === color);
+    expect(style('#00aa00')).toBeDefined();
+    expect(style('#00aa00')?.dashArray).toBeUndefined();
+    expect(style('#0000aa')?.dashArray).toBeUndefined();
+    expect(style('#aa0000')?.dashArray).toBe('8 7');
   });
 
   it('FE-COMP-JOURNEYMAP-043: labels a track with the map tooltip the markers use', () => {

@@ -15,6 +15,7 @@ import type {
   DawarichVisitRaw,
 } from '../../../src/nest/integrations/dawarich.client';
 import {
+  RECORDING_GAP,
   bucketPointsByDay,
   bucketTracksByDay,
   capPoints,
@@ -27,6 +28,7 @@ import {
   normalizeVisit,
   offsetMinutesOf,
   simplify,
+  splitAtGaps,
   splitWindow,
   syncWindow,
   toNumber,
@@ -800,6 +802,41 @@ describe('bucketPointsByDay', () => {
     expect(line.at(-1)).toEqual([0, 2]);
   });
 
+  it('DAWARICH-BUCKET-011: with gaps kept, a day becomes one piece per run and is never joined to the day before', () => {
+    const days = bucketPointsByDay(
+      [
+        point('2024-06-14T23:00:00Z', 9, 9),
+        point('2024-06-15T08:00:00Z', 10, 10),
+        point('2024-06-15T08:10:00Z', 10.001, 10.001),
+        point('2024-06-15T12:00:00Z', 11, 11),
+        point('2024-06-15T12:10:00Z', 11.001, 11.001),
+      ],
+      0,
+      { gaps: RECORDING_GAP },
+    );
+    // The lone point of the 14th is no line, so that day is not emitted.
+    expect(days.map((d) => d.date)).toEqual(['2024-06-15']);
+    expect(days[0]?.segments.map((s) => s.points[0])).toEqual([
+      [10, 10],
+      [11, 11],
+    ]);
+    expect(days[0]?.segments[1]?.startedAt).toBe('2024-06-15T12:00:00.000Z');
+  });
+
+  it('DAWARICH-BUCKET-012: with gaps kept, a run that is one fix is left out rather than drawn as a dot', () => {
+    const days = bucketPointsByDay(
+      [
+        point('2024-06-15T08:00:00Z', 10, 10),
+        point('2024-06-15T12:00:00Z', 11, 11),
+        point('2024-06-15T12:10:00Z', 11.001, 11),
+      ],
+      0,
+      { gaps: RECORDING_GAP },
+    );
+    expect(days[0]?.segments).toHaveLength(1);
+    expect(days[0]?.segments[0]?.points[0]).toEqual([11, 11]);
+  });
+
   it('DAWARICH-BUCKET-010: a recorded day carries no mode and no measured distance', () => {
     const days = bucketPointsByDay([point('2024-06-15T10:00:00Z', 10, 10), point('2024-06-15T12:00:00Z', 10, 11)], 0);
     expect(days[0]!.segments[0]!.mode).toBeNull();
@@ -1113,6 +1150,40 @@ describe('bucketTracksByDay', () => {
 
   it('DAWARICH-TRACK-013: an empty feature list is an empty result', () => {
     expect(bucketTracksByDay([])).toEqual([]);
+  });
+
+  it('DAWARICH-TRACK-016: a zone given cuts at its own midnight, not at the one the times carry', () => {
+    const late = track('2024-06-15T23:30:00+02:00', '2024-06-15T23:50:00+02:00', [
+      [10, 10],
+      [11, 11],
+    ]);
+    expect(bucketTracksByDay([late]).map((d) => d.date)).toEqual(['2024-06-15']);
+    // 21:30 UTC is the next day in Tokyo.
+    expect(bucketTracksByDay([late], { offsetMinutes: 540 }).map((d) => d.date)).toEqual(['2024-06-16']);
+  });
+});
+
+// ── splitAtGaps ──────────────────────────────────────────────────────────────
+
+describe('splitAtGaps', () => {
+  const at = (minute: number, lat: number, lng: number) => ({ lat, lng, ts: minute * 60 });
+
+  it('DAWARICH-GAP-001: a silence that ends elsewhere starts a new run', () => {
+    const runs = splitAtGaps(
+      [at(0, 52, 13), at(5, 52.001, 13), at(200, 52.05, 13.05), at(205, 52.051, 13.05)],
+      RECORDING_GAP,
+    );
+    expect(runs.map((run) => run.length)).toEqual([2, 2]);
+  });
+
+  it('DAWARICH-GAP-002: a long silence in the same spot and a quick long hop are both one movement', () => {
+    expect(splitAtGaps([at(0, 52, 13), at(120, 52.0001, 13.0001)], RECORDING_GAP)).toHaveLength(1);
+    // A train: kilometres between two fixes, minutes apart.
+    expect(splitAtGaps([at(0, 52, 13), at(5, 52.1, 13.1)], RECORDING_GAP)).toHaveLength(1);
+  });
+
+  it('DAWARICH-GAP-003: no points, no runs', () => {
+    expect(splitAtGaps([], RECORDING_GAP)).toEqual([]);
   });
 });
 

@@ -207,6 +207,8 @@ Requires `journey:read` or `journey:write` scope.
 | `get_journey_share_link` | Get the current public share link for a journey. Requires `journey:share`. |
 | `create_journey_share_link` | Create or update the public share link for a journey. Requires `journey:share`. |
 | `delete_journey_share_link` | Revoke the public share link for a journey. Requires `journey:share`. |
+| `list_journey_recorded_days` | The days of recorded route a journey keeps: zone, distance, pieces, gaps, modes, whether the day was still running, and whose recording it is, without the geometry. Readable without a Dawarich connection. |
+| `delete_journey_recorded_day` | Drop the recorded route a journey keeps for one day. Entries and texts stay, and Dawarich keeps its own recording. Needs edit access. |
 
 ### Dawarich _(Dawarich addon required)_
 
@@ -220,6 +222,8 @@ Each tool asks for the scope of what it writes, so the scopes differ per tool. T
 | `mark_bucket_list_item_visited_from_dawarich` | Tick off the bucket list wish a stay was matched to, or another wish of the caller's | `atlas:write` |
 | `dismiss_dawarich_suggestion` | Dismiss a stay, or put a dismissed one back | `journey:write` |
 | `get_dawarich_trip_track` | Summary of a trip's recorded route per local day: segments, times, travel mode, distance and point counts, without the geometry. Read live from Dawarich, nothing stored | `journey:read` |
+| `preview_journey_recorded_day` | Read one local day of the caller's recording and show what a journey would keep, without keeping it: the window the day runs in, distance, pieces, gaps, modes, whether the journey keeps the day already and how many other people would see it, and the `contentHash` the save needs. Needs the Journey addon too and edit access to the journey | `journey:read` |
+| `save_journey_recorded_day` | Keep that day in the journey after the traveller confirmed the preview. Send its `utcOffsetMinutes` and `contentHash` as `expectedHash`; a recording that changed since is not kept. A different version is replaced only with `replace: true`; entries and texts are never touched. Needs the Journey addon too | `journey:write` |
 
 ### Document sync _(Documents addon required)_
 

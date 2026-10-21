@@ -357,9 +357,11 @@ function JourneyMapGL(
         }
       }
 
-      // GPX tracks — one source for all of them, coloured per feature so a journey
-      // with several recorded routes keeps them apart. Casing underneath, same as the
-      // planner map, so a track stays readable on satellite tiles.
+      // Tracks — one source for all of them, coloured per feature so a journey
+      // with several routes keeps them apart. Casing underneath, same as the
+      // planner map, so a track stays readable on satellite tiles. A trip's GPX
+      // track is the plan and goes on a dashed layer, what was recorded on a solid
+      // one (JRN-01): a dash pattern cannot follow a feature property.
       if (stableTracks.length > 0) {
         const featureCollection: GeoJSON.FeatureCollection = {
           type: 'FeatureCollection',
@@ -367,7 +369,11 @@ function JourneyMapGL(
             .filter(track => track.points.length > 1)
             .map(track => ({
               type: 'Feature' as const,
-              properties: { color: track.color || TRACK_FALLBACK_COLOR, name: track.name },
+              properties: {
+                color: track.color || TRACK_FALLBACK_COLOR,
+                name: track.name,
+                planned: !track.kind || track.kind === 'trip_gpx',
+              },
               geometry: { type: 'LineString' as const, coordinates: track.points.map(([lat, lng]) => [lng, lat]) },
             })),
         }
@@ -387,8 +393,17 @@ function JourneyMapGL(
               id: 'journey-tracks-line',
               type: 'line',
               source: 'journey-tracks',
+              filter: ['!=', ['get', 'planned'], true],
               paint: { 'line-color': ['get', 'color'], 'line-width': 3.5, 'line-opacity': 0.95 },
               layout: { 'line-cap': 'round', 'line-join': 'round' },
+            })
+            map.addLayer({
+              id: 'journey-tracks-planned',
+              type: 'line',
+              source: 'journey-tracks',
+              filter: ['==', ['get', 'planned'], true],
+              paint: { 'line-color': ['get', 'color'], 'line-width': 3.5, 'line-opacity': 0.95, 'line-dasharray': [2.2, 2] },
+              layout: { 'line-cap': 'butt', 'line-join': 'round' },
             })
           }
         }

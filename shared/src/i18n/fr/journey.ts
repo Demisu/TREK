@@ -705,5 +705,68 @@ const journey: TranslationStrings = {
   'journey.settings.showWeather': 'Météo',
   'journey.entry.suggestion': 'Suggestion',
   'journey.editor.addDetails': '+ Détails',
+  'journey.recording.mapLine': 'Enregistré le {date}',
+  'journey.recording.keptBy': 'Itinéraire enregistré conservé : {distance}, repris par {name} le {date}.',
+  'journey.recording.keptOn': 'Itinéraire enregistré conservé : {distance}, repris le {date}.',
+  'journey.recording.keptRunning': 'La journée n’était pas encore finie.',
+  'journey.recording.takeOver': 'Reprendre l’enregistrement',
+  'journey.recording.takeOverDay': 'Enregistrement du {date}',
+  'journey.recording.sub': 'Seulement ce jour, depuis votre Dawarich. Rien n’est conservé avant votre confirmation.',
+  'journey.recording.zone': 'Fuseau horaire du jour',
+  'journey.recording.zoneHint': 'Le jour va de minuit à minuit dans ce fuseau. Choisissez celui où vous voyagiez.',
+  'journey.recording.zoneSource': 'Selon Dawarich',
+  'journey.recording.zoneDevice': 'Cet appareil',
+  'journey.recording.scope': 'Enregistrement',
+  'journey.recording.loading': 'Lecture du jour dans Dawarich…',
+  'journey.recording.keptStays': 'L’itinéraire conservé par ce voyage reste tel quel.',
+  'journey.recording.retry': 'Réessayer',
+  'journey.recording.empty': 'Dawarich n’a rien enregistré ce jour-là dans ce fuseau horaire.',
+  'journey.recording.span': 'de {from} à {to}',
+  'journey.recording.pieces': '{count} tronçons',
+  'journey.recording.pieces.one': '{count} tronçon',
+  'journey.recording.gaps': '{count} interruptions',
+  'journey.recording.gaps.one': '{count} interruption',
+  'journey.recording.gapsHint':
+    'Là où l’enregistrement s’arrête, la ligne s’arrête aussi. Aucun chemin non enregistré n’est tracé.',
+  'journey.recording.sourceHint':
+    'Les traces sont des trajets que Dawarich a déjà découpés par mode. Les points sont ses positions brutes, réduites à 600 par jour.',
+  'journey.recording.sourceTracks': 'Traces',
+  'journey.recording.sourcePoints': 'Points', // same-as-en
+  'journey.recording.changedSincePreview':
+    'L’enregistrement a changé dans Dawarich pendant que vous le regardiez. Vérifiez-le encore une fois, puis conservez-le.',
+  'journey.recording.truncated': 'Dawarich n’a envoyé qu’une partie de ce jour, l’itinéraire est incomplet.',
+  'journey.recording.provisional':
+    'Ce jour n’est pas encore terminé dans ce fuseau. Vous pourrez remplacer l’itinéraire plus tard par la journée entière.',
+  'journey.recording.same': 'Ce voyage conserve déjà exactement cet enregistrement.',
+  'journey.recording.differs':
+    'Ce voyage conserve une autre version du {date} ({distance}). La remplacer ne modifie aucune entrée ni aucun texte.',
+  'journey.recording.audience':
+    '{count} autres personnes de ce voyage verront l’itinéraire sur sa carte. Les liens partagés ne le montrent pas.',
+  'journey.recording.audience.one':
+    '{count} autre personne de ce voyage verra l’itinéraire sur sa carte. Les liens partagés ne le montrent pas.',
+  'journey.recording.replace': 'Remplacer',
+  'journey.recording.alreadyKept': 'Déjà conservé',
+  'journey.recording.keep': 'Conserver l’itinéraire',
+  'journey.recording.remove': 'Retirer l’itinéraire',
+  'journey.recording.removeTitle': 'Retirer l’itinéraire conservé ?',
+  'journey.recording.removeMessage':
+    'L’itinéraire de ce jour disparaît de la carte du voyage. Les entrées et les textes restent, et Dawarich garde son propre enregistrement.',
+  'journey.recording.keptToast': 'Itinéraire conservé dans le voyage',
+  'journey.recording.replacedToast': 'Itinéraire remplacé',
+  'journey.recording.removedToast': 'Itinéraire retiré du voyage',
+  'journey.recording.error.recording_exists': 'Ce voyage conserve déjà un autre enregistrement de ce jour.',
+  'journey.recording.error.recording_changed': 'L’enregistrement a changé depuis l’aperçu.',
+  'journey.recording.error.recording_empty': 'Dawarich n’a rien enregistré ce jour-là.',
+  'journey.recording.mode.walking': 'À pied',
+  'journey.recording.mode.running': 'Course',
+  'journey.recording.mode.cycling': 'Vélo',
+  'journey.recording.mode.driving': 'Voiture',
+  'journey.recording.mode.motorcycle': 'Moto',
+  'journey.recording.mode.bus': 'Bus', // same-as-en
+  'journey.recording.mode.train': 'Train', // same-as-en
+  'journey.recording.mode.flying': 'Vol',
+  'journey.recording.mode.boat': 'Bateau',
+  'journey.recording.mode.stationary': 'À l’arrêt',
+  'journey.recording.mode.unknown': 'Mode inconnu',
 };
 export default journey;

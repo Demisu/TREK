@@ -1,6 +1,6 @@
 /**
  * DawarichTracksService unit tests, DAWARICH-TRACKS-001 through
- * DAWARICH-TRACKS-053. The service is built with `new` and every collaborator
+ * DAWARICH-TRACKS-061. The service is built with `new` and every collaborator
  * is a plain mock: no Nest container, no database, no socket. The helpers it
  * delegates the actual geometry to (`bucketPointsByDay`, `bucketTracksByDay`)
  * are the real ones, because what this service decides is *which* of them runs
@@ -43,6 +43,7 @@
  * can name rather than merely "some string".
  */
 import type { TripsRepository } from '../../../src/db/repositories/Trips.repository';
+import { DomainError } from '../../../src/nest/common/domain-error';
 import { DawarichTracksService } from '../../../src/nest/integrations/dawarich-tracks.service';
 import { DawarichError } from '../../../src/nest/integrations/dawarich.client';
 import type {
@@ -711,5 +712,156 @@ describe('DawarichTracksService source selection', () => {
     // Four points upstream, five drawn. The figure beside the overlay describes
     // the line on the map, not the size of the archive behind it.
     expect(track.pointCount).toBe(5);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// fetchDay: one local day for a journey to keep (JRN-01)
+// ---------------------------------------------------------------------------
+
+describe('DawarichTracksService.fetchDay', () => {
+  const CHOSEN_UTC = { offsetMinutes: 0, useSourceOffset: false };
+
+  it('DAWARICH-TRACKS-054: without a connection it refuses with not_connected and asks nobody', async () => {
+    const h = harness({ creds: null });
+
+    const refusal = await h.service.fetchDay(USER, '2026-05-01', CHOSEN_UTC).catch((err: unknown) => err);
+
+    expect(refusal).toBeInstanceOf(DomainError);
+    expect((refusal as DomainError).getStatus()).toBe(409);
+    expect((refusal as DomainError).toBody()).toEqual({ error: 'Dawarich is not connected', code: 'not_connected' });
+    expect(h.listTracks).not.toHaveBeenCalled();
+    expect(h.listPoints).not.toHaveBeenCalled();
+  });
+
+  it('DAWARICH-TRACKS-055: asks one window wide enough for every zone and cuts the day in the zone chosen', async () => {
+    const h = harness({ capabilities: CAPABILITIES });
+    h.listTracks.mockResolvedValue({
+      features: [feature({ start_at: '2026-05-01T10:00:00+02:00', end_at: '2026-05-01T12:00:00+02:00' })],
+      truncated: false,
+    });
+
+    const day = await h.service.fetchDay(USER, '2026-05-01', { offsetMinutes: 120, useSourceOffset: false });
+
+    const [, from, to] = h.listTracks.mock.calls[0] as [DawarichCreds, Date, Date];
+    expect(from.toISOString()).toBe('2026-04-30T10:00:00.000Z');
+    expect(to.toISOString()).toBe('2026-05-02T12:00:00.000Z');
+    expect(day).toMatchObject({
+      sourceKind: 'tracks',
+      utcOffsetMinutes: 120,
+      offsetSource: 'chosen',
+      sourceOffsetMinutes: 120,
+      window: { from: '2026-04-30T22:00:00.000Z', to: '2026-05-01T22:00:00.000Z' },
+      fetchedAt: NOW_ISO,
+      truncated: false,
+    });
+    expect(day.segments).toHaveLength(1);
+    expect(day.segments[0]).toMatchObject({ mode: 'car', distanceMeters: 41_000 });
+  });
+
+  it('DAWARICH-TRACKS-056: asked to, it cuts the day in the zone Dawarich records in, which can move a track onto it', async () => {
+    const h = harness({ capabilities: CAPABILITIES });
+    // 01:00 in Berlin is 23:00 the evening before in UTC.
+    h.listTracks.mockResolvedValue({
+      features: [feature({ start_at: '2026-05-01T01:00:00+02:00', end_at: '2026-05-01T01:40:00+02:00' })],
+      truncated: false,
+    });
+
+    const own = await h.service.fetchDay(USER, '2026-05-01', { offsetMinutes: 0, useSourceOffset: true });
+    expect(own).toMatchObject({ sourceKind: 'tracks', utcOffsetMinutes: 120, offsetSource: 'source' });
+    expect(own.segments).toHaveLength(1);
+
+    // Cut in UTC instead, the track belongs to the day before, and the points
+    // fallback finds nothing on this one either.
+    const utc = await h.service.fetchDay(USER, '2026-05-01', CHOSEN_UTC);
+    expect(utc).toMatchObject({ sourceKind: 'points', utcOffsetMinutes: 0, offsetSource: 'chosen', segments: [] });
+  });
+
+  it('DAWARICH-TRACKS-057: points keep the gaps of the recording: a silence that ends elsewhere is two pieces, not a line', async () => {
+    const h = harness({ capabilities: { ...CAPABILITIES, tracks: false } });
+    h.listPoints.mockResolvedValue({
+      points: [
+        point(52.0, 13.0, '2026-05-01T10:00:00Z'),
+        point(52.002, 13.002, '2026-05-01T10:05:00Z'),
+        // Three hours of nothing, then six kilometres away.
+        point(52.05, 13.05, '2026-05-01T13:05:00Z'),
+        point(52.052, 13.052, '2026-05-01T13:10:00Z'),
+      ],
+      truncated: false,
+    });
+
+    const day = await h.service.fetchDay(USER, '2026-05-01', CHOSEN_UTC);
+
+    expect(day.sourceKind).toBe('points');
+    expect(day.sourceOffsetMinutes).toBeNull();
+    expect(day.segments.map((segment) => segment.points)).toEqual([
+      [
+        [52.0, 13.0],
+        [52.002, 13.002],
+      ],
+      [
+        [52.05, 13.05],
+        [52.052, 13.052],
+      ],
+    ]);
+  });
+
+  it('DAWARICH-TRACKS-058: a silence that ends where it began is no gap, and nothing of the day before is joined on', async () => {
+    const h = harness({ capabilities: { ...CAPABILITIES, tracks: false } });
+    h.listPoints.mockResolvedValue({
+      points: [
+        point(51.0, 12.0, '2026-04-30T22:00:00Z'),
+        point(52.0, 13.0, '2026-05-01T10:00:00Z'),
+        // An hour at a table in a cafe, then on from the same spot.
+        point(52.0001, 13.0001, '2026-05-01T11:00:00Z'),
+        point(52.01, 13.01, '2026-05-01T11:10:00Z'),
+      ],
+      truncated: false,
+    });
+
+    const day = await h.service.fetchDay(USER, '2026-05-01', CHOSEN_UTC);
+
+    expect(day.segments).toHaveLength(1);
+    expect(day.segments[0]?.points[0]).toEqual([52.0, 13.0]);
+  });
+
+  it('DAWARICH-TRACKS-059: a failing instance refuses with its reason, a refused key as 400 and anything else as 502', async () => {
+    const h = harness({ capabilities: { ...CAPABILITIES, tracks: false } });
+    h.listPoints.mockRejectedValueOnce(new DawarichError('server_error', 'Dawarich answered HTTP 500', 500));
+    const failed = (await h.service
+      .fetchDay(USER, '2026-05-01', CHOSEN_UTC)
+      .catch((err: unknown) => err)) as DomainError;
+    expect(failed.getStatus()).toBe(502);
+    expect(failed.toBody()).toEqual({ error: 'Dawarich answered HTTP 500', code: 'server_error' });
+
+    h.listPoints.mockRejectedValueOnce(new DawarichError('unauthorized', 'Dawarich rejected the API key', 401));
+    const refused = (await h.service
+      .fetchDay(USER, '2026-05-01', CHOSEN_UTC)
+      .catch((err: unknown) => err)) as DomainError;
+    expect(refused.getStatus()).toBe(400);
+    expect(refused.toBody()).toMatchObject({ code: 'unauthorized' });
+  });
+
+  it('DAWARICH-TRACKS-060: a tracks failure falls back to points instead of failing the day', async () => {
+    const h = harness({ capabilities: CAPABILITIES });
+    h.listTracks.mockRejectedValue(new DawarichError('not_found', 'no tracks endpoint', 404));
+    h.listPoints.mockResolvedValue({
+      points: [point(52.0, 13.0, '2026-05-01T10:00:00Z'), point(52.2, 13.2, '2026-05-01T10:10:00Z')],
+      truncated: true,
+    });
+
+    const day = await h.service.fetchDay(USER, '2026-05-01', CHOSEN_UTC);
+
+    expect(day).toMatchObject({ sourceKind: 'points', truncated: true });
+    expect(day.segments).toHaveLength(1);
+  });
+
+  it('DAWARICH-TRACKS-061: reads past the cache, so what a journey keeps is what the instance says now', async () => {
+    const h = harness({ capabilities: { ...CAPABILITIES, tracks: false } });
+
+    await h.service.fetchDay(USER, '2026-05-01', CHOSEN_UTC);
+    await h.service.fetchDay(USER, '2026-05-01', CHOSEN_UTC);
+
+    expect(h.listPoints).toHaveBeenCalledTimes(2);
   });
 });

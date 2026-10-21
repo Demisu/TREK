@@ -339,6 +339,11 @@ export const TREK_WS_EVENTS = {
    * request would reload every open client once per uploaded photo.
    */
   'journey:photos:updated': { scope: 'user', payload: z.object({ journeyId: id }) },
+  /*
+   * A day's recorded route was taken over, replaced or removed (JRN-01). Sent
+   * after the write to everyone on the journey; the map reads the days again.
+   */
+  'journey:recording:updated': { scope: 'user', payload: z.object({ journeyId: id, date: z.string() }) },
 
   /*
    * The Studio book was saved (#1973).

@@ -81,6 +81,9 @@ export const HANDLED_OUTSIDE_TRIP_STORE = [
   // Capture times landed after a photo import (#1587); the same listener reloads
   // the journey so the gallery re-sorts.
   'journey:photos:updated',
+  // A day's recorded route was taken over or removed (JRN-01):
+  // components/Journey/useJourneyRecordings reads the kept days again.
+  'journey:recording:updated',
   // Studio book — components/Studio/useBookStore (its own listener: a client
   // with nothing outstanding takes the new version, one with unsaved edits
   // deliberately does not and conflicts on its next save instead)

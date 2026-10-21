@@ -100,9 +100,28 @@ The **+** in the bottom bar starts a quick capture for a moment on the move: a t
 
 The journey detail page includes a map on the right (desktop) or an integrated map-timeline (mobile) showing all entry locations alongside the places from linked trips.
 
-**GPX tracks are drawn too.** Any route you imported into one of the journey's linked trips, from a `.gpx`, `.kml` or `.kmz` file, appears on the journey map as well, in the same colour it has in the trip planner and with a white casing so it stays readable on satellite tiles. Nothing to switch on: the tracks belong to the trips your entries came from, so importing the file while planning is all it takes. Hovering a track shows its name.
+**GPX tracks are drawn too.** Any route you imported into one of the journey's linked trips, from a `.gpx`, `.kml` or `.kmz` file, appears on the journey map as well, in the same colour it has in the trip planner and with a white casing so it stays readable on satellite tiles. Nothing to switch on: the tracks belong to the trips your entries came from, so importing the file while planning is all it takes. Hovering a track shows its name. A trip's track is the plan, so it is drawn dashed; what was recorded, a day the journey keeps or the live [Dawarich](Dawarich) route, is drawn solid.
 
-The thin dashed line connecting entries in date order is something else and stays as it is: that one is drawn by TREK, while a track is the route you actually recorded.
+The thin dashed line connecting entries in date order is something else and stays as it is: that one is drawn by TREK, while a track is a route.
+
+### Keeping a recorded day
+
+With a [Dawarich](Dawarich) connection, a journey can keep the route you actually travelled on one of its days, so it stays on the map after the connection is gone or the instance is down.
+
+1. In the timeline, the header of each day carries the Dawarich mark. Click it (on a phone: **More options**, then **Recording of** the day of the card you are on).
+2. The dialog names the journey and the day and reads that day from your Dawarich. Nothing is kept yet.
+3. **Time zone of the day** decides where the day starts and ends. TREK starts with the zone Dawarich records in when its answer shows one, else the zone of your device; pick the one you were travelling in.
+4. Check what the day covers: a sketch of the route, the distance, the first and last time, the pieces and the gaps in the recording, the modes Dawarich gave them, and whether it came as tracks or as thinned points.
+5. **Keep route** keeps it. The day header then shows the distance, and the route appears on the journey map in the colour of that day's pins.
+
+What you should know:
+
+- **Gaps stay gaps.** Where the recording stops, the line stops too; TREK never draws a way between two pieces that was not recorded.
+- **Taking the same day over again keeps no second copy.** When Dawarich now holds a different version (a day that was still running, a recording that was fixed), the dialog says so and **Replace** swaps it. Replacing never touches entries or texts.
+- **What you keep is what you saw.** If the recording changes in Dawarich while the dialog is open, nothing is kept and the dialog shows the new version first.
+- **A failed read changes nothing.** The version the journey keeps stays as it is, and the dialog offers **Try again**.
+- **Everyone on the journey sees the route**, also when an editor kept their own recording; the dialog says how many people that is. Shared links do not show recorded days.
+- **Remove route** in the dialog takes the day off the journey again, also without a Dawarich connection. Dawarich keeps its own recording either way.
 
 **Geotagged photos are drawn too.** A photo of the journey that knows where it was taken appears on the map as a thumbnail, and photos taken close together collapse into one thumbnail with a count. Click one to open those photos in the viewer.
 

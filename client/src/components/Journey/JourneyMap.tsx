@@ -143,6 +143,8 @@ const EMPTY_TRAIL: { lat: number; lng: number }[] = []
 const EMPTY_TRACKS: JourneyTrack[] = []
 /** Fallback when a track carries no colour of its own, matching the planner's default. */
 const TRACK_FALLBACK_COLOR = '#4f46e5'
+/** The dash of a planned track; wide enough not to pass for the faint line between entries. */
+const PLANNED_DASH = '8 7'
 
 function JourneyMap(
   { entries, photos, onPhotoClick, trail, tracks, height = 220, dark, activeMarkerId, onMarkerClick, fullScreen, paddingBottom, cartoApiKey, hideMarkerTooltip, ref }: Props,
@@ -312,15 +314,20 @@ function JourneyMap(
       coords.forEach(c => allCoords.push(c))
     }
 
-    // GPX tracks — drawn solid and in their own colour, so they read as a recorded
-    // route rather than as the dashed line that merely connects entries in time order.
-    // A white casing keeps them legible on satellite tiles, same as the planner map.
+    // Tracks, in their own colour over a white casing that keeps them legible on
+    // satellite tiles, same as the planner map. What was recorded (a day the journey
+    // keeps, the live Dawarich trail) is drawn solid; a trip's GPX track is the plan
+    // and drawn dashed, so the two never read as the same thing (JRN-01).
     for (const track of stableTracks) {
       if (track.points.length < 2) continue
       const coords = track.points.map(([lat, lng]) => [lat, lng] as L.LatLngTuple)
       const color = track.color || TRACK_FALLBACK_COLOR
+      const planned = !track.kind || track.kind === 'trip_gpx'
       L.polyline(coords, { color: '#ffffff', weight: 6, opacity: 0.75, lineCap: 'round', lineJoin: 'round' }).addTo(map)
-      const line = L.polyline(coords, { color, weight: 3.5, opacity: 0.95, lineCap: 'round', lineJoin: 'round' })
+      const line = L.polyline(coords, {
+        color, weight: 3.5, opacity: 0.95, lineCap: 'round', lineJoin: 'round',
+        ...(planned ? { dashArray: PLANNED_DASH } : {}),
+      })
       // Same tooltip the markers on this map use, rather than Leaflet's default box:
       // it follows the appearance tokens, so it lands right in dark mode and with
       // transparency switched off. Escaped because a string handed to bindTooltip

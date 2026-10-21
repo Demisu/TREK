@@ -400,6 +400,12 @@
       ]
     },
     {
+      "feature": "Journey day recording: useJourneyRecordingDay",
+      "hooks": ["src/components/Journey/useJourneyRecordingDay.ts"],
+      "desktop": ["src/components/Journey/JourneyRecordingDialog.tsx"],
+      "mobile": ["src/mobile/screens/journey/MJourneyRecordingSheet.tsx"]
+    },
+    {
       "feature": "Journey detail page: useJourneyDetail",
       "hooks": ["src/pages/journeyDetail/useJourneyDetail.ts"],
       "desktop": ["src/pages/JourneyDetailPage.tsx"],

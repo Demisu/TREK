@@ -10,7 +10,9 @@ import { z } from 'zod';
  * TREK plans and interprets.** TREK never starts a location tracker of its own,
  * never writes into Dawarich, and never keeps a copy of the raw GPS archive —
  * the track overlay is fetched for the window being looked at and thrown away
- * again.
+ * again. The one exception is asked for: a traveller may take one day's route
+ * over into a journey, thinned like the overlay and only after a preview they
+ * confirmed (JRN-01, `journey/journey-recordings.schema.ts`).
  *
  * The connection is per user (Settings → Integrations); the global on/off is
  * the `dawarich` addon. Each user stores their own instance URL and API key,

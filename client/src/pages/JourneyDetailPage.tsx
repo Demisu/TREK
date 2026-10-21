@@ -15,6 +15,8 @@ import {
 } from 'lucide-react'
 import MobileMapTimeline from '../components/Journey/MobileMapTimeline'
 import JourneyDayDawarich from '../components/Journey/JourneyDayDawarich'
+import JourneyDayRecordingButton from '../components/Journey/JourneyDayRecordingButton'
+import JourneyRecordingDialog from '../components/Journey/JourneyRecordingDialog'
 import MobileEntryView from '../components/Journey/MobileEntryView'
 import { useJourneyStore } from '../store/journeyStore'
 import { computeJourneyLifecycle } from '../utils/journeyLifecycle'
@@ -64,6 +66,7 @@ export function JourneyDetailPageDesktop({ journeyId, embedded = false }: Journe
     galleryUploadProgress, setGalleryUploadProgress,
     activeLocationId, handleMarkerClick, handleLocationClick,
     mapEntries, sidebarMapItems, tripDates, isMobile, tracks, mapPhotos, openMapPhotos,
+    recordings, canTakeOverRecording, recordingNeedsConnection,
     feedEdge, scrollFeedTo,
     loadJourney, updateEntry, deleteEntry, reorderEntries, uploadPhotos, deletePhoto,
     addPickedProviderPhotos, addEntryProviderPhotos,
@@ -114,7 +117,9 @@ export function JourneyDetailPageDesktop({ journeyId, embedded = false }: Journe
   const suggestionDates = canEditEntries && !query && spanDates.length
     ? [...dawarichByDate.keys()].filter(d => d >= spanDates[0] && d <= spanDates[spanDates.length - 1])
     : []
-  const sortedDates = [...new Set([...dayGroups.keys(), ...suggestionDates])]
+  // A day that keeps its recorded route stays a day of the journey, entries or not.
+  const recordedDates = query ? [] : [...recordings.byDate.keys()]
+  const sortedDates = [...new Set([...dayGroups.keys(), ...suggestionDates, ...recordedDates])]
     .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
   const lifecycle = computeJourneyLifecycle(current.status, tripDateMin || null, tripDateMax || null, current.status_override)
 
@@ -497,6 +502,13 @@ export function JourneyDetailPageDesktop({ journeyId, embedded = false }: Journe
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.07em]" style={{ background: 'var(--vg-surf2)', color: 'var(--vg-ink3)' }}><MapPin size={12} /> {entries.length} {t('journey.synced.places', { count: entries.length })}</span>
+                            <JourneyDayRecordingButton
+                              day={recordings.byDate.get(date)}
+                              canEdit={canEditEntries}
+                              canTakeOver={canTakeOverRecording}
+                              needsConnection={recordingNeedsConnection}
+                              onOpen={() => recordings.open(date)}
+                            />
                             {/* The only Add button used to be at the very top and always
                                 started on today, so putting something into an earlier day
                                 meant correcting the date by hand (discussion #2299). */}
@@ -765,6 +777,8 @@ export function JourneyDetailPageDesktop({ journeyId, embedded = false }: Journe
           onRestoreSuggestions={canEditEntries ? restoreSuggestions : undefined}
         />
       )}
+
+      {recordings.dialog && <JourneyRecordingDialog {...recordings.dialog} />}
 
       {/* Add Trip Dialog */}
       {showAddTrip && current && (

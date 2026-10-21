@@ -50,6 +50,7 @@ import { HealthModule } from './health/health.module';
 import { HelpModule } from './help/help.module';
 import { AirtrailModule } from './integrations/airtrail.module';
 import { DawarichModule } from './integrations/dawarich.module';
+import { JourneyRecordingsModule } from './journey-recordings/journey-recordings.module';
 import { JourneyAccessModule } from './journey/journey-access.module';
 import { JourneyModule } from './journey/journey.module';
 import { TripJournalLinkModule } from './journey/trip-journal-link.module';
@@ -171,6 +172,7 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
     AirtrailModule,
     DawarichModule,
     JourneyModule,
+    JourneyRecordingsModule,
     TripJournalLinkModule,
     CollectionsModule,
     ShareModule,

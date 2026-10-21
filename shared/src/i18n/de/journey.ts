@@ -709,5 +709,70 @@ const journey: TranslationStrings = {
   'journey.settings.showWeather': 'Wetter',
   'journey.entry.suggestion': 'Vorschlag',
   'journey.editor.addDetails': '+ Details',
+  'journey.recording.mapLine': 'Aufgezeichnet am {date}',
+  'journey.recording.keptBy': 'Aufgezeichnete Strecke gespeichert: {distance}, übernommen von {name} am {date}.',
+  'journey.recording.keptOn': 'Aufgezeichnete Strecke gespeichert: {distance}, übernommen am {date}.',
+  'journey.recording.keptRunning': 'Der Tag lief da noch.',
+  'journey.recording.takeOver': 'Aufzeichnung übernehmen',
+  'journey.recording.takeOverDay': 'Aufzeichnung vom {date}',
+  'journey.recording.sub': 'Nur dieser Tag, aus deinem Dawarich. Gespeichert wird erst, wenn du bestätigst.',
+  'journey.recording.zone': 'Zeitzone des Tages',
+  'journey.recording.zoneHint':
+    'Der Tag geht in dieser Zone von Mitternacht bis Mitternacht. Wähle die, in der du unterwegs warst.',
+  'journey.recording.zoneSource': 'Aus Dawarich',
+  'journey.recording.zoneDevice': 'Dieses Gerät',
+  'journey.recording.scope': 'Aufzeichnung',
+  'journey.recording.loading': 'Tag wird aus Dawarich gelesen…',
+  'journey.recording.keptStays': 'Die Strecke, die diese Journey gespeichert hat, bleibt unverändert.',
+  'journey.recording.retry': 'Erneut versuchen',
+  'journey.recording.empty': 'Dawarich hat an diesem Tag in dieser Zeitzone nichts aufgezeichnet.',
+  'journey.recording.span': '{from} bis {to}',
+  'journey.recording.pieces': '{count} Abschnitte',
+  'journey.recording.pieces.one': '{count} Abschnitt',
+  'journey.recording.gaps': '{count} Lücken',
+  'journey.recording.gaps.one': '{count} Lücke',
+  'journey.recording.gapsHint':
+    'Wo die Aufzeichnung aussetzt, endet auch die Linie. Es wird kein Weg gezeichnet, der nicht aufgezeichnet wurde.',
+  'journey.recording.sourceHint':
+    'Strecken sind Abschnitte, die Dawarich schon nach Fortbewegung geteilt hat. Punkte sind seine Rohpositionen, ausgedünnt auf 600 pro Tag.',
+  'journey.recording.sourceTracks': 'Strecken',
+  'journey.recording.sourcePoints': 'Punkte',
+  'journey.recording.changedSincePreview':
+    'Die Aufzeichnung hat sich in Dawarich geändert, während du sie angesehen hast. Prüfe sie noch einmal und speichere sie dann.',
+  'journey.recording.truncated': 'Dawarich hat nur einen Teil dieses Tages geschickt, die Strecke ist unvollständig.',
+  'journey.recording.provisional':
+    'Dieser Tag ist in dieser Zeitzone noch nicht vorbei. Du kannst die Strecke später durch den ganzen Tag ersetzen.',
+  'journey.recording.same': 'Diese Journey hat genau diese Aufzeichnung schon gespeichert.',
+  'journey.recording.differs':
+    'Diese Journey hat eine andere Fassung vom {date} gespeichert ({distance}). Ersetzen ändert keine Einträge und Texte.',
+  'journey.recording.audience':
+    '{count} weitere Personen in dieser Journey sehen die Strecke auf der Karte. Geteilte Links zeigen sie nicht.',
+  'journey.recording.audience.one':
+    '{count} weitere Person in dieser Journey sieht die Strecke auf der Karte. Geteilte Links zeigen sie nicht.',
+  'journey.recording.replace': 'Ersetzen',
+  'journey.recording.alreadyKept': 'Schon gespeichert',
+  'journey.recording.keep': 'Strecke speichern',
+  'journey.recording.remove': 'Strecke entfernen',
+  'journey.recording.removeTitle': 'Gespeicherte Strecke entfernen?',
+  'journey.recording.removeMessage':
+    'Die Strecke dieses Tages verschwindet von der Journey-Karte. Einträge und Texte bleiben, und Dawarich behält seine eigene Aufzeichnung.',
+  'journey.recording.keptToast': 'Strecke in der Journey gespeichert',
+  'journey.recording.replacedToast': 'Strecke ersetzt',
+  'journey.recording.removedToast': 'Strecke aus der Journey entfernt',
+  'journey.recording.error.recording_exists':
+    'Diese Journey hat für diesen Tag schon eine andere Aufzeichnung gespeichert.',
+  'journey.recording.error.recording_changed': 'Die Aufzeichnung hat sich seit der Vorschau geändert.',
+  'journey.recording.error.recording_empty': 'Dawarich hat an diesem Tag nichts aufgezeichnet.',
+  'journey.recording.mode.walking': 'Zu Fuß',
+  'journey.recording.mode.running': 'Laufen',
+  'journey.recording.mode.cycling': 'Fahrrad',
+  'journey.recording.mode.driving': 'Auto',
+  'journey.recording.mode.motorcycle': 'Motorrad',
+  'journey.recording.mode.bus': 'Bus', // same-as-en
+  'journey.recording.mode.train': 'Zug',
+  'journey.recording.mode.flying': 'Flug',
+  'journey.recording.mode.boat': 'Boot',
+  'journey.recording.mode.stationary': 'Stillstand',
+  'journey.recording.mode.unknown': 'Unbekannte Fortbewegung',
 };
 export default journey;

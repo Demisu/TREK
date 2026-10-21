@@ -129,9 +129,11 @@ The route is drawn, never applied: TREK does not correct your plan from it.
 
 A journal draws the same route on its own map, from the first to the last date of the trips linked to it, when **Show all trip GPX tracks** is on in the journal's **Journey Settings**.
 
-### Nothing is stored
+### Nothing is stored, unless you keep a day
 
 The route is read from Dawarich when a map asks for it and then discarded. TREK's server holds it in memory for one minute, so panning and toggling do not ask your instance again, and forgets it on a restart or when you change the connection. No position is written to TREK's database, so the route is not in backups and is not available offline.
+
+The one exception is asked for: in a journal you can keep the route of one day on purpose, after a preview you confirm. That day is thinned the same way, keeps the gaps and modes of the recording, and belongs to the journal from then on, so it stays drawn when the connection is gone. See [Keeping a recorded day](Journey-Journal#keeping-a-recorded-day).
 
 TREK prefers the tracks Dawarich has already generated, which arrive split into segments with a travel mode. On an instance that has not generated tracks yet, it falls back to the raw points and thins them to 600 per day, so a month-long trip stays drawable.
 
@@ -174,6 +176,8 @@ With the [MCP](MCP-Overview) addon on as well, an assistant can review your stay
 | `mark_bucket_list_item_visited_from_dawarich` | Ticks off the wish a stay was linked to, or another wish of yours. | `atlas:write` |
 | `dismiss_dawarich_suggestion` | Dismisses a stay, or puts a dismissed one back. | `journey:write` |
 | `get_dawarich_trip_track` | Summarises a trip's recorded route per day: segments, times, travel mode and distance. The line itself stays on the map. | `journey:read` |
+| `preview_journey_recorded_day` | Reads one day of your recording and says what a journal would keep, without keeping it. Needs the Journey addon too. | `journey:read` |
+| `save_journey_recorded_day` | Keeps that day in a journal after you confirmed the preview, or replaces a different version when asked. Needs the Journey addon too. | `journey:write` |
 
 The same rules apply as in the browser: nothing is added until a tool is called, and the permissions for adding a place are checked the same way. See [MCP-Addon-Tools](MCP-Addon-Tools) and [MCP-Scopes](MCP-Scopes).
 

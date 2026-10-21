@@ -1,4 +1,4 @@
-// FE-COMP-JMAPGL-001 to FE-COMP-JMAPGL-026, FE-COMP-JMAPGL-2453
+// FE-COMP-JMAPGL-001 to FE-COMP-JMAPGL-038, FE-COMP-JMAPGL-2453
 
 type Spy = ReturnType<typeof vi.fn>
 
@@ -268,6 +268,34 @@ describe('JourneyMapGL', () => {
 
     expect(gl.map.addSource).not.toHaveBeenCalled()
     expect(setData).toHaveBeenCalledWith(expect.objectContaining({ type: 'Feature' }))
+  })
+
+  it('FE-COMP-JMAPGL-038: a planned GPX track goes on the dashed layer, a recorded route on the solid one (JRN-01)', () => {
+    withToken()
+    render(
+      <JourneyMapGL
+        checkins={[]}
+        entries={singleEntry}
+        tracks={[
+          { place_id: 1, trip_id: 1, name: 'Ridge', color: '#aa0000', points: [[47, 11], [47.1, 11.1]] },
+          { place_id: -100001, trip_id: 0, name: 'Recorded on 14 May', color: '#00aa00', points: [[47, 11], [47.2, 11.2]], kind: 'day_recording' },
+        ]}
+      />,
+    )
+
+    const source = vi.mocked(gl.map.addSource).mock.calls.find(c => c[0] === 'journey-tracks')?.[1] as
+      | { data: { features: Array<{ properties: { planned: boolean } }> } }
+      | undefined
+    expect(source?.data.features.map(f => f.properties.planned)).toEqual([true, false])
+    expect(gl.map.addLayer).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'journey-tracks-planned',
+      filter: ['==', ['get', 'planned'], true],
+      paint: expect.objectContaining({ 'line-dasharray': [2.2, 2] }),
+    }))
+    expect(gl.map.addLayer).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'journey-tracks-line',
+      filter: ['!=', ['get', 'planned'], true],
+    }))
   })
 
   it('FE-COMP-JMAPGL-009: a single entry draws no route line', () => {

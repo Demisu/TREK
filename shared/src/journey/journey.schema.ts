@@ -182,6 +182,12 @@ export const journeyTrackSchema = z.object({
   name: z.string(),
   color: z.string().nullable(),
   points: z.array(z.tuple([z.number(), z.number()])),
+  /**
+   * What the line is (JRN-01): a GPX track of a trip, planned; a day recording
+   * the journey keeps; or the live Dawarich trail. Absent means a trip's GPX,
+   * which is all GET `:id/tracks` has ever answered.
+   */
+  kind: z.enum(['trip_gpx', 'day_recording', 'dawarich_live']).optional(),
 });
 export type JourneyTrack = z.infer<typeof journeyTrackSchema>;
 

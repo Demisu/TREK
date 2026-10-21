@@ -17,6 +17,7 @@ import { openStaysByDate } from '../../components/Dawarich/dawarichSuggestionMod
 import type { DawarichSuggestion, DawarichSuggestionTarget } from '@trek/shared'
 
 import { useDawarichJournalTrail } from '../../hooks/useDawarichJournalTrail'
+import { useJourneyDetailRecordings } from './useJourneyDetailRecordings'
 import { useProviderPhotoAdds } from './useProviderPhotoAdds'
 
 /** Stable identity for "this journey draws no trip tracks" (#2194). */
@@ -530,10 +531,16 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
   // the same reason that switch exists — it gates the REQUEST, and a map nobody
   // asked for should not reach across the network for it.
   const dawarichTrail = useDawarichJournalTrail(tripDates, showTripTracks)
-  const mapTracks = useMemo(
-    () => (dawarichTrail.tracks.length > 0 ? [...tracks, ...dawarichTrail.tracks] : tracks),
-    [tracks, dawarichTrail.tracks],
-  )
+
+  const { recordings, canTakeOverRecording, recordingNeedsConnection, mapTracks } = useJourneyDetailRecordings({
+    loaded: journeyLoaded,
+    journey: current,
+    canEdit: canEditEntries,
+    dawarichStatus: dawarich.status,
+    sidebarMapItems,
+    tripTracks: tracks,
+    liveTracks: dawarichTrail.tracks,
+  })
 
   /** Studio's margin to the window on all four sides — see `.st-root` in studio.css. */
   const STUDIO_INSET = 16
@@ -581,6 +588,7 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
     galleryUploadProgress, setGalleryUploadProgress,
     activeLocationId, handleMarkerClick, handleLocationClick,
     mapEntries, sidebarMapItems, tripDates, isMobile, tracks: mapTracks, dawarichTrail,
+    recordings, canTakeOverRecording, recordingNeedsConnection,
     mapPhotos, openMapPhotos,
     feedEdge, scrollFeedTo,
     loadJourney, updateEntry, deleteEntry, reorderEntries, uploadPhotos, deletePhoto,

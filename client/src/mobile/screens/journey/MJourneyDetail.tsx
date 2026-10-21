@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { ChevronLeft, MapPin, Grid3x3, MoreHorizontal, Play, Image, Camera, EyeOff, Settings2, X } from 'lucide-react'
+import { ChevronLeft, MapPin, Grid3x3, MoreHorizontal, Play, Image, Camera, EyeOff, Settings2, X, Route } from 'lucide-react'
 import JourneyMap from '../../../components/Journey/JourneyMapAuto'
 import PhotoLightbox from '../../../components/Journey/PhotoLightbox'
 import ContributorInviteDialog from '../../../components/Journey/ContributorInviteDialog'
@@ -27,6 +27,7 @@ import { useJourneyCarouselSync } from '../../../components/Journey/useJourneyCa
 import { useGalleryUpload } from '../../../components/Journey/useGalleryUpload'
 import MJourneyEntrySheet from './MJourneyEntrySheet'
 import MJourneySettingsSheet from './MJourneySettingsSheet'
+import MJourneyRecordingSheet from './MJourneyRecordingSheet'
 
 /**
  * Journey detail — integrated map with the horizontal 280px card timeline
@@ -48,7 +49,7 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
     showInvite, setShowInvite,
     showSettings, setShowSettings,
     hideSkeletons, setHideSkeletons,
-    sidebarMapItems, tracks,
+    sidebarMapItems, tracks, recordings, canTakeOverRecording,
     dismissSuggestion, restoreSuggestions, openAtEntryId,
     loadJourney, updateEntry, deleteEntry, reorderEntries, uploadPhotos,
     addPickedProviderPhotos, addEntryProviderPhotos,
@@ -507,6 +508,18 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
             <span className="min-w-0 flex-1 truncate text-[0.84375rem] font-semibold">{t('journey.skeletons.hide')}</span>
             <MToggle checked={hideSkeletons} onChange={toggleSkeletons} ariaLabel={t('journey.skeletons.hide')} />
           </div>
+          {/* The recorded route of the day the card rail is on (JRN-01): taking it
+              over, or checking, replacing or dropping the one kept. */}
+          {canEditEntries && view === 'timeline' && entries[activeIndex] &&
+            (canTakeOverRecording || recordings.byDate.has(entries[activeIndex].entry_date)) && (
+            <MListRow
+              icon={Route}
+              label={t('journey.recording.takeOverDay', {
+                date: new Date(entries[activeIndex].entry_date + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'long' }),
+              })}
+              onClick={() => { setShowActionMenu(false); recordings.open(entries[activeIndex].entry_date) }}
+            />
+          )}
           {canEditJourney && (
             <MListRow
               icon={Settings2}
@@ -569,6 +582,8 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
           }}
         />
       )}
+
+      {recordings.dialog && <MJourneyRecordingSheet {...recordings.dialog} />}
 
       {/* Journey settings */}
       {showSettings && (
