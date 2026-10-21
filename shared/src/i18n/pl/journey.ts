@@ -929,7 +929,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'Trasy',
   'journey.map.legend.plannedRoute': 'Zaplanowana trasa (GPX podróży)',
   'journey.map.legend.recordedRoute': 'Nagrana trasa',
-  'journey.map.legend.planIsNoVisit': 'Zaplanowane miejsce nie dowodzi wizyty. Tylko wpisy, zdjęcia i nagrania pokazują, gdzie byłeś.',
+  'journey.map.legend.planIsNoVisit':
+    'Zaplanowane miejsce nie dowodzi wizyty. Tylko wpisy, zdjęcia i nagrania pokazują, gdzie byłeś.',
   'journey.map.pick.openEntry': 'Otwórz wpis',
   'journey.map.pick.planned': 'Zaplanowane',
   'journey.map.pick.notWritten': 'Nic jeszcze o nim nie napisano.',
@@ -941,7 +942,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Plan podróży',
   'journey.share.planHint': 'Zaplanowane miejsca i trasy GPX powiązanych podróży na mapie',
   'journey.share.recordings': 'Nagrane trasy',
-  'journey.share.recordingsHint': 'Nagrane dni i przejęte z nich postoje, w dniach z opublikowanym wpisem. Pokazują, gdzie i kiedy byłeś, także nocleg.',
+  'journey.share.recordingsHint':
+    'Nagrane dni i przejęte z nich postoje, w dniach z opublikowanym wpisem. Pokazują, gdzie i kiedy byłeś, także nocleg.',
   'journey.share.needsMap': 'Udostępnij mapę, aby to włączyć',
 };
 export default journey;

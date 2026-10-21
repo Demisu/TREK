@@ -886,7 +886,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'Percorsi',
   'journey.map.legend.plannedRoute': 'Percorso pianificato (GPX di un viaggio)',
   'journey.map.legend.recordedRoute': 'Percorso registrato',
-  'journey.map.legend.planIsNoVisit': 'Un luogo pianificato non prova una visita. Solo voci, foto e registrazioni mostrano dove sei stato.',
+  'journey.map.legend.planIsNoVisit':
+    'Un luogo pianificato non prova una visita. Solo voci, foto e registrazioni mostrano dove sei stato.',
   'journey.map.pick.openEntry': 'Apri la voce',
   'journey.map.pick.planned': 'Pianificato',
   'journey.map.pick.notWritten': 'Ancora niente di scritto su questo.',
@@ -898,7 +899,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Programma del viaggio',
   'journey.share.planHint': 'Luoghi pianificati e percorsi GPX dei viaggi collegati sulla mappa',
   'journey.share.recordings': 'Percorsi registrati',
-  'journey.share.recordingsHint': 'Giorni registrati e le soste ricavate da essi, nei giorni con una voce pubblicata. Mostrano dove e quando sei stato, anche il tuo alloggio.',
+  'journey.share.recordingsHint':
+    'Giorni registrati e le soste ricavate da essi, nei giorni con una voce pubblicata. Mostrano dove e quando sei stato, anche il tuo alloggio.',
   'journey.share.needsMap': 'Condividi la mappa per attivarlo',
 };
 export default journey;

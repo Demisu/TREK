@@ -859,7 +859,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'Rute',
   'journey.map.legend.plannedRoute': 'Rute yang direncanakan (GPX perjalanan)',
   'journey.map.legend.recordedRoute': 'Rute terekam',
-  'journey.map.legend.planIsNoVisit': 'Tempat yang direncanakan bukan bukti kunjungan. Hanya catatan, foto, dan rekaman yang menunjukkan di mana kamu berada.',
+  'journey.map.legend.planIsNoVisit':
+    'Tempat yang direncanakan bukan bukti kunjungan. Hanya catatan, foto, dan rekaman yang menunjukkan di mana kamu berada.',
   'journey.map.pick.openEntry': 'Buka catatan',
   'journey.map.pick.planned': 'Direncanakan',
   'journey.map.pick.notWritten': 'Belum ada yang ditulis tentangnya.',
@@ -871,7 +872,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Rencana perjalanan',
   'journey.share.planHint': 'Tempat yang direncanakan dan rute GPX dari perjalanan tertaut di peta',
   'journey.share.recordings': 'Rute terekam',
-  'journey.share.recordingsHint': 'Hari terekam dan persinggahan yang diambil darinya, pada hari yang punya catatan terbit. Menunjukkan di mana dan kapan kamu berada, termasuk penginapanmu.',
+  'journey.share.recordingsHint':
+    'Hari terekam dan persinggahan yang diambil darinya, pada hari yang punya catatan terbit. Menunjukkan di mana dan kapan kamu berada, termasuk penginapanmu.',
   'journey.share.needsMap': 'Bagikan peta untuk mengaktifkan ini',
 };
 export default journey;

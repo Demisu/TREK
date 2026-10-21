@@ -876,7 +876,8 @@ const journey: TranslationStrings = {
   'journey.map.layer.recordedEmpty': 'encara no hi ha cap ruta enregistrada',
   'journey.map.layer.recordedUnavailable': 'no s’han pogut carregar els dies enregistrats',
   'journey.map.layer.entriesEmpty': 'cap entrada no té lloc encara',
-  'journey.map.layer.entriesUnavailable': 'no s’han pogut carregar les parades dels resums del dia, les entrades continuen visibles',
+  'journey.map.layer.entriesUnavailable':
+    'no s’han pogut carregar les parades dels resums del dia, les entrades continuen visibles',
   'journey.map.layer.photosEmpty': 'encara no hi ha cap foto amb ubicació',
   'journey.map.legend': 'Llegenda',
   'journey.map.legend.planned': 'Lloc planificat',
@@ -887,7 +888,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'Rutes',
   'journey.map.legend.plannedRoute': 'Ruta planificada (GPX d’un viatge)',
   'journey.map.legend.recordedRoute': 'Ruta enregistrada',
-  'journey.map.legend.planIsNoVisit': 'Un lloc planificat no demostra una visita. Només les entrades, les fotos i els enregistraments mostren on eres.',
+  'journey.map.legend.planIsNoVisit':
+    'Un lloc planificat no demostra una visita. Només les entrades, les fotos i els enregistraments mostren on eres.',
   'journey.map.pick.openEntry': 'Obre l’entrada',
   'journey.map.pick.planned': 'Planificat',
   'journey.map.pick.notWritten': 'Encara no hi ha res escrit sobre aquest lloc.',
@@ -899,7 +901,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Pla del viatge',
   'journey.share.planHint': 'Llocs planificats i rutes GPX dels viatges vinculats al mapa',
   'journey.share.recordings': 'Rutes enregistrades',
-  'journey.share.recordingsHint': 'Dies enregistrats i les parades que se\'n treuen, en els dies amb una entrada publicada. Mostren on i quan eres, també el teu allotjament.',
+  'journey.share.recordingsHint':
+    "Dies enregistrats i les parades que se'n treuen, en els dies amb una entrada publicada. Mostren on i quan eres, també el teu allotjament.",
   'journey.share.needsMap': 'Comparteix el mapa per activar-ho',
 };
 export default journey;

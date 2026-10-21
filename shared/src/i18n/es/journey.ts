@@ -875,7 +875,8 @@ const journey: TranslationStrings = {
   'journey.map.layer.recordedEmpty': 'aún no hay ninguna ruta grabada',
   'journey.map.layer.recordedUnavailable': 'no se pudieron cargar los días grabados',
   'journey.map.layer.entriesEmpty': 'ninguna entrada tiene lugar todavía',
-  'journey.map.layer.entriesUnavailable': 'no se pudieron cargar las paradas de los resúmenes del día, las entradas siguen visibles',
+  'journey.map.layer.entriesUnavailable':
+    'no se pudieron cargar las paradas de los resúmenes del día, las entradas siguen visibles',
   'journey.map.layer.photosEmpty': 'aún no hay fotos con ubicación',
   'journey.map.legend': 'Leyenda',
   'journey.map.legend.planned': 'Lugar planificado',
@@ -886,7 +887,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'Rutas',
   'journey.map.legend.plannedRoute': 'Ruta planificada (GPX de un viaje)',
   'journey.map.legend.recordedRoute': 'Ruta grabada',
-  'journey.map.legend.planIsNoVisit': 'Un lugar planificado no demuestra una visita. Solo las entradas, las fotos y las grabaciones muestran dónde estuviste.',
+  'journey.map.legend.planIsNoVisit':
+    'Un lugar planificado no demuestra una visita. Solo las entradas, las fotos y las grabaciones muestran dónde estuviste.',
   'journey.map.pick.openEntry': 'Abrir entrada',
   'journey.map.pick.planned': 'Planificado',
   'journey.map.pick.notWritten': 'Todavía no hay nada escrito sobre él.',
@@ -898,7 +900,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Plan del viaje',
   'journey.share.planHint': 'Lugares planificados y rutas GPX de los viajes vinculados en el mapa',
   'journey.share.recordings': 'Rutas grabadas',
-  'journey.share.recordingsHint': 'Días grabados y las paradas tomadas de ellos, en los días con una entrada publicada. Muestran dónde y cuándo estuviste, también tu alojamiento.',
+  'journey.share.recordingsHint':
+    'Días grabados y las paradas tomadas de ellos, en los días con una entrada publicada. Muestran dónde y cuándo estuviste, también tu alojamiento.',
   'journey.share.needsMap': 'Comparte el mapa para activarlo',
 };
 export default journey;

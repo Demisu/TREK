@@ -955,7 +955,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'Marşrutlar',
   'journey.map.legend.plannedRoute': 'Planlaşdırılmış marşrut (səyahətin GPX-i)',
   'journey.map.legend.recordedRoute': 'Qeydə alınmış marşrut',
-  'journey.map.legend.planIsNoVisit': 'Planlaşdırılmış yer səfərin sübutu deyil. Harada olduğunu yalnız qeydlər, fotolar və yazılar göstərir.',
+  'journey.map.legend.planIsNoVisit':
+    'Planlaşdırılmış yer səfərin sübutu deyil. Harada olduğunu yalnız qeydlər, fotolar və yazılar göstərir.',
   'journey.map.pick.openEntry': 'Qeydi aç',
   'journey.map.pick.planned': 'Planlaşdırılıb',
   'journey.map.pick.notWritten': 'Bu barədə hələ heç nə yazılmayıb.',
@@ -967,7 +968,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Səyahət planı',
   'journey.share.planHint': 'Bağlı səyahətlərin planlaşdırılmış yerləri və GPX marşrutları xəritədə',
   'journey.share.recordings': 'Qeydə alınmış marşrutlar',
-  'journey.share.recordingsHint': 'Dərc olunmuş qeydi olan qeydə alınmış günlər və onlardan götürülmüş dayanacaqlar. Harada və nə vaxt olduğunu, qaldığın yeri də göstərir.',
+  'journey.share.recordingsHint':
+    'Dərc olunmuş qeydi olan qeydə alınmış günlər və onlardan götürülmüş dayanacaqlar. Harada və nə vaxt olduğunu, qaldığın yeri də göstərir.',
   'journey.share.needsMap': 'Bunu açmaq üçün xəritəni paylaş',
 };
 export default journey;

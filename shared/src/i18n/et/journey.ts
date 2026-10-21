@@ -878,7 +878,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'Marsruudid',
   'journey.map.legend.plannedRoute': 'Planeeritud marsruut (reisi GPX)',
   'journey.map.legend.recordedRoute': 'Salvestatud marsruut',
-  'journey.map.legend.planIsNoVisit': 'Planeeritud koht ei tõenda külastust. Kus sa olid, näitavad ainult sissekanded, fotod ja salvestused.',
+  'journey.map.legend.planIsNoVisit':
+    'Planeeritud koht ei tõenda külastust. Kus sa olid, näitavad ainult sissekanded, fotod ja salvestused.',
   'journey.map.pick.openEntry': 'Ava sissekanne',
   'journey.map.pick.planned': 'Planeeritud',
   'journey.map.pick.notWritten': 'Selle kohta pole veel midagi kirjutatud.',
@@ -890,7 +891,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Reisiplaan',
   'journey.share.planHint': 'Seotud reiside planeeritud kohad ja GPX-marsruudid kaardil',
   'journey.share.recordings': 'Salvestatud marsruudid',
-  'journey.share.recordingsHint': 'Salvestatud päevad ja neist võetud peatused päevadel, millel on avaldatud sissekanne. Need näitavad, kus ja millal sa olid, ka su majutust.',
+  'journey.share.recordingsHint':
+    'Salvestatud päevad ja neist võetud peatused päevadel, millel on avaldatud sissekanne. Need näitavad, kus ja millal sa olid, ka su majutust.',
   'journey.share.needsMap': 'Selle sisselülitamiseks jaga kaarti',
 };
 export default journey;

@@ -7,7 +7,9 @@ import ConfirmDialog from '../../../components/shared/ConfirmDialog'
 import { useTranslation } from '../../../i18n'
 import type { JourneyDetail, JourneyTripAccess } from '../../../store/journeyStore'
 import { useJourneySettings, useJourneyTripLinking } from '../../../components/Journey/useJourneySettings'
-import { SHARE_MAP_EXTRAS, useJourneyShareLink } from '../../../components/Journey/useJourneyShareLink'
+import {
+  SHARE_MAP_EXTRAS, useJourneyShareLink, type JourneyShareLink, type JourneyShareMapExtra,
+} from '../../../components/Journey/useJourneyShareLink'
 import type { JourneyRecordingPrepState } from '../../../components/Journey/useJourneyRecordingPrep'
 import { pickGradient } from '../../../pages/journeyDetail/JourneyDetailPage.helpers'
 import { journeyCoverSrc } from './mobileJourneyMeta'
@@ -118,41 +120,7 @@ export default function MJourneySettingsSheet({
             ariaLabel={t('journey.settings.showTripTracks')}
           />
         </div>
-        {recordingPrep && (
-          <div className="mt-[6px] rounded-[14px] bg-[color:var(--m-ic)] px-3 py-[10px]">
-            <div className="flex items-center gap-[11px]">
-              <ListChecks size={16} strokeWidth={2} className="flex-none text-m-muted" />
-              <div className="min-w-0 flex-1">
-                <div className="text-body font-bold">{t('journey.settings.autoPrepare')}</div>
-                <div className="font-geist text-caption text-m-muted">{t('journey.settings.autoPrepareHint')}</div>
-              </div>
-              <MToggle
-                checked={!!journey.auto_prepare_recordings}
-                onChange={next => { void recordingPrep.setEnabled(next) }}
-                disabled={recordingPrep.saving}
-                ariaLabel={t('journey.settings.autoPrepare')}
-              />
-            </div>
-            {recordingPrep.statusLine && (
-              <div className="mt-2 flex items-center gap-2 border-t border-[color:var(--m-rowbr)] pt-2">
-                <div className={`min-w-0 flex-1 font-geist text-caption leading-[1.45] ${recordingPrep.statusLine.tone === 'warning' ? 'text-warning' : 'text-m-muted'}`}>
-                  {recordingPrep.statusLine.text}
-                </div>
-                {recordingPrep.canFetch && (
-                  <button
-                    type="button"
-                    onClick={() => { void recordingPrep.fetchNow() }}
-                    disabled={recordingPrep.fetching}
-                    aria-label={t('journey.prep.fetchNow')}
-                    className="grid h-8 w-8 flex-none place-items-center rounded-full bg-m-card text-m-muted disabled:opacity-50"
-                  >
-                    <RefreshCw size={14} strokeWidth={2.2} className={recordingPrep.fetching ? 'animate-spin' : undefined} />
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-        )}
+        {recordingPrep && <MRecordingPrepRow prep={recordingPrep} enabled={!!journey.auto_prepare_recordings} />}
 
         {/* The three fields a journey may put away (discussion #2299) */}
         <div className={`${eyebrow} mb-[6px] mt-[14px]`}>{t('journey.settings.entryFields')}</div>
@@ -305,23 +273,7 @@ export default function MJourneySettingsSheet({
                 <MToggle checked={shareLink[key]} onChange={() => toggleSharePerm(key)} ariaLabel={label} />
               </div>
             ))}
-            {/* What the shared map shows besides the entries (JRN-04), only while the map is shared. */}
-            {SHARE_MAP_EXTRAS.map(({ key, labelKey, hintKey }) => (
-              <div key={key} className={`flex items-center gap-[11px] py-[8px] ps-[29px] pe-[2px] ${shareLink.share_map ? '' : 'opacity-50'}`}>
-                <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="text-body font-bold">{t(labelKey)}</span>
-                  <span className="font-geist text-caption text-m-muted">
-                    {shareLink.share_map ? t(hintKey) : t('journey.share.needsMap')}
-                  </span>
-                </span>
-                <MToggle
-                  checked={!!shareLink.share_map && !!shareLink[key]}
-                  onChange={() => { void toggleSharePerm(key) }}
-                  ariaLabel={t(labelKey)}
-                  disabled={!shareLink.share_map}
-                />
-              </div>
-            ))}
+            <MShareMapExtras link={shareLink} onToggle={toggleSharePerm} />
             <button
               type="button"
               onClick={deleteShareLink}
@@ -406,6 +358,71 @@ function MTripAccessList({ access, eyebrow }: { access: JourneyTripAccess[] | un
           <span className="rounded-full bg-[color:var(--m-ic)] px-[10px] py-[3px] font-geist text-caption font-extrabold text-m-muted">
             {a.role}
           </span>
+        </div>
+      ))}
+    </>
+  )
+}
+
+/** Preparing the recorded days (JRN-03): the owner's switch, the caller's own status and a fetch by hand. */
+function MRecordingPrepRow({ prep, enabled }: { prep: JourneyRecordingPrepState; enabled: boolean }) {
+  const { t } = useTranslation()
+  return (
+    <div className="mt-[6px] rounded-[14px] bg-[color:var(--m-ic)] px-3 py-[10px]">
+      <div className="flex items-center gap-[11px]">
+        <ListChecks size={16} strokeWidth={2} className="flex-none text-m-muted" />
+        <div className="min-w-0 flex-1">
+          <div className="text-body font-bold">{t('journey.settings.autoPrepare')}</div>
+          <div className="font-geist text-caption text-m-muted">{t('journey.settings.autoPrepareHint')}</div>
+        </div>
+        <MToggle
+          checked={enabled}
+          onChange={next => { void prep.setEnabled(next) }}
+          disabled={prep.saving}
+          ariaLabel={t('journey.settings.autoPrepare')}
+        />
+      </div>
+      {prep.statusLine && (
+        <div className="mt-2 flex items-center gap-2 border-t border-[color:var(--m-rowbr)] pt-2">
+          <div className={`min-w-0 flex-1 font-geist text-caption leading-[1.45] ${prep.statusLine.tone === 'warning' ? 'text-warning' : 'text-m-muted'}`}>
+            {prep.statusLine.text}
+          </div>
+          {prep.canFetch && (
+            <button
+              type="button"
+              onClick={() => { void prep.fetchNow() }}
+              disabled={prep.fetching}
+              aria-label={t('journey.prep.fetchNow')}
+              className="grid h-8 w-8 flex-none place-items-center rounded-full bg-m-card text-m-muted disabled:opacity-50"
+            >
+              <RefreshCw size={14} strokeWidth={2.2} className={prep.fetching ? 'animate-spin' : undefined} />
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** What the shared map shows besides the entries (JRN-04), only while the map is shared. */
+function MShareMapExtras({ link, onToggle }: { link: JourneyShareLink; onToggle: (key: JourneyShareMapExtra) => unknown }) {
+  const { t } = useTranslation()
+  return (
+    <>
+      {SHARE_MAP_EXTRAS.map(({ key, labelKey, hintKey }) => (
+        <div key={key} className={`flex items-center gap-[11px] py-[8px] ps-[29px] pe-[2px] ${link.share_map ? '' : 'opacity-50'}`}>
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="text-body font-bold">{t(labelKey)}</span>
+            <span className="font-geist text-caption text-m-muted">
+              {link.share_map ? t(hintKey) : t('journey.share.needsMap')}
+            </span>
+          </span>
+          <MToggle
+            checked={!!link.share_map && !!link[key]}
+            onChange={() => { void onToggle(key) }}
+            ariaLabel={t(labelKey)}
+            disabled={!link.share_map}
+          />
         </div>
       ))}
     </>

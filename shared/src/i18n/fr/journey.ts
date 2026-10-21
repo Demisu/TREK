@@ -874,7 +874,8 @@ const journey: TranslationStrings = {
   'journey.map.layer.recordedEmpty': 'aucun trajet enregistré pour l’instant',
   'journey.map.layer.recordedUnavailable': 'les jours enregistrés n’ont pas pu être chargés',
   'journey.map.layer.entriesEmpty': 'aucun récit n’a encore de lieu',
-  'journey.map.layer.entriesUnavailable': 'les étapes des comptes rendus n’ont pas pu être chargées, les récits restent visibles',
+  'journey.map.layer.entriesUnavailable':
+    'les étapes des comptes rendus n’ont pas pu être chargées, les récits restent visibles',
   'journey.map.layer.photosEmpty': 'aucune photo localisée pour l’instant',
   'journey.map.legend': 'Légende',
   'journey.map.legend.planned': 'Lieu prévu',
@@ -885,7 +886,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'Trajets',
   'journey.map.legend.plannedRoute': 'Trajet prévu (GPX d’un voyage)',
   'journey.map.legend.recordedRoute': 'Trajet enregistré',
-  'journey.map.legend.planIsNoVisit': 'Un lieu prévu ne prouve pas une visite. Seuls les récits, les photos et les enregistrements montrent où vous étiez.',
+  'journey.map.legend.planIsNoVisit':
+    'Un lieu prévu ne prouve pas une visite. Seuls les récits, les photos et les enregistrements montrent où vous étiez.',
   'journey.map.pick.openEntry': 'Ouvrir le récit',
   'journey.map.pick.planned': 'Prévu',
   'journey.map.pick.notWritten': 'Rien d’écrit à ce sujet pour l’instant.',
@@ -897,7 +899,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Programme du voyage',
   'journey.share.planHint': 'Lieux prévus et trajets GPX des voyages liés sur la carte',
   'journey.share.recordings': 'Trajets enregistrés',
-  'journey.share.recordingsHint': 'Jours enregistrés et les arrêts qui en sont tirés, les jours ayant un récit publié. Ils montrent où et quand vous étiez, y compris votre hébergement.',
+  'journey.share.recordingsHint':
+    'Jours enregistrés et les arrêts qui en sont tirés, les jours ayant un récit publié. Ils montrent où et quand vous étiez, y compris votre hébergement.',
   'journey.share.needsMap': 'Partagez la carte pour activer ceci',
 };
 export default journey;

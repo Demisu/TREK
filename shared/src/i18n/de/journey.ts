@@ -881,7 +881,8 @@ const journey: TranslationStrings = {
   'journey.map.layer.recordedEmpty': 'noch keine aufgezeichnete Strecke',
   'journey.map.layer.recordedUnavailable': 'die aufgezeichneten Tage konnten nicht geladen werden',
   'journey.map.layer.entriesEmpty': 'noch kein Eintrag hat einen Ort',
-  'journey.map.layer.entriesUnavailable': 'die Aufenthalte der Tagesberichte konnten nicht geladen werden, die Einträge bleiben sichtbar',
+  'journey.map.layer.entriesUnavailable':
+    'die Aufenthalte der Tagesberichte konnten nicht geladen werden, die Einträge bleiben sichtbar',
   'journey.map.layer.photosEmpty': 'noch kein Foto mit Standort',
   'journey.map.legend': 'Legende',
   'journey.map.legend.planned': 'Geplanter Ort',
@@ -892,7 +893,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'Strecken',
   'journey.map.legend.plannedRoute': 'Geplante Strecke (GPX einer Reise)',
   'journey.map.legend.recordedRoute': 'Aufgezeichnete Strecke',
-  'journey.map.legend.planIsNoVisit': 'Ein geplanter Ort ist kein Besuchsnachweis. Nur Einträge, Fotos und Aufzeichnungen zeigen, wo du warst.',
+  'journey.map.legend.planIsNoVisit':
+    'Ein geplanter Ort ist kein Besuchsnachweis. Nur Einträge, Fotos und Aufzeichnungen zeigen, wo du warst.',
   'journey.map.pick.openEntry': 'Eintrag öffnen',
   'journey.map.pick.planned': 'Geplant',
   'journey.map.pick.notWritten': 'Noch nichts darüber geschrieben.',
@@ -904,7 +906,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Reiseplanung',
   'journey.share.planHint': 'Geplante Orte und GPX-Strecken der verknüpften Reisen auf der Karte',
   'journey.share.recordings': 'Aufgezeichnete Strecken',
-  'journey.share.recordingsHint': 'Aufgezeichnete Tage und die daraus übernommenen Aufenthalte, an Tagen mit veröffentlichtem Eintrag. Sie zeigen, wo und wann du warst, auch deine Unterkunft.',
+  'journey.share.recordingsHint':
+    'Aufgezeichnete Tage und die daraus übernommenen Aufenthalte, an Tagen mit veröffentlichtem Eintrag. Sie zeigen, wo und wann du warst, auch deine Unterkunft.',
   'journey.share.needsMap': 'Teile die Karte, um das einzuschalten',
 };
 export default journey;

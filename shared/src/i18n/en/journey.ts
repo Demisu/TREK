@@ -874,7 +874,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'Routes',
   'journey.map.legend.plannedRoute': 'Planned route (GPX of a trip)',
   'journey.map.legend.recordedRoute': 'Recorded route',
-  'journey.map.legend.planIsNoVisit': 'A planned place is no proof of a visit. Only entries, photos and recordings show where you were.',
+  'journey.map.legend.planIsNoVisit':
+    'A planned place is no proof of a visit. Only entries, photos and recordings show where you were.',
   'journey.map.pick.openEntry': 'Open entry',
   'journey.map.pick.planned': 'Planned',
   'journey.map.pick.notWritten': 'Nothing written about it yet.',
@@ -886,7 +887,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Trip plan',
   'journey.share.planHint': 'Planned places and GPX routes of the linked trips on the map',
   'journey.share.recordings': 'Recorded routes',
-  'journey.share.recordingsHint': 'Recorded days and the stays taken from them, on days with a published entry. They show where and when you were, your accommodation too.',
+  'journey.share.recordingsHint':
+    'Recorded days and the stays taken from them, on days with a published entry. They show where and when you were, your accommodation too.',
   'journey.share.needsMap': 'Share the map to switch this on',
 };
 export default journey;

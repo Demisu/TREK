@@ -935,7 +935,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'Маршрути',
   'journey.map.legend.plannedRoute': 'Запланований маршрут (GPX подорожі)',
   'journey.map.legend.recordedRoute': 'Записаний маршрут',
-  'journey.map.legend.planIsNoVisit': 'Заплановане місце не доводить відвідування. Де ви були, показують лише записи, фото й треки.',
+  'journey.map.legend.planIsNoVisit':
+    'Заплановане місце не доводить відвідування. Де ви були, показують лише записи, фото й треки.',
   'journey.map.pick.openEntry': 'Відкрити запис',
   'journey.map.pick.planned': 'Заплановано',
   'journey.map.pick.notWritten': 'Про це ще нічого не написано.',
@@ -947,7 +948,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'План подорожі',
   'journey.share.planHint': 'Заплановані місця й GPX-маршрути пов’язаних подорожей на карті',
   'journey.share.recordings': 'Записані маршрути',
-  'journey.share.recordingsHint': 'Записані дні та взяті з них зупинки, у дні з опублікованим записом. Вони показують, де і коли ви були, зокрема ваше житло.',
+  'journey.share.recordingsHint':
+    'Записані дні та взяті з них зупинки, у дні з опублікованим записом. Вони показують, де і коли ви були, зокрема ваше житло.',
   'journey.share.needsMap': 'Відкрийте доступ до карти, щоб увімкнути це',
 };
 export default journey;

@@ -112,7 +112,7 @@ export class JourneyShareTokensRepository extends TrekRepository<JourneyShareTok
   /**
    * JS2 — the update branch: `UPDATE journey_share_tokens SET
    * share_timeline=?, share_gallery=?, share_map=?, newest_first=? WHERE
-   * journey_id=?` (and the two map flags of JRN-04). A plain write, NOT a `presenceSet` call — the
+   * journey_id=?` (and the two map flags of JRN-04). A plain write, NOT a `presenceSet` call: the
    * service resolves every flag's final value (the `permissions.X ?? !!
    * existing.X` fallback merge) before calling this, so every call writes
    * every column, present or not.

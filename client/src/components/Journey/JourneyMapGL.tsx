@@ -154,7 +154,7 @@ function markBounds(gl: Props['gl'], marks: JourneyMapMark[]) {
   return bounds
 }
 
-function fitOptions(paddingBottom: number | undefined, tilted: boolean) {
+function fitOptions(paddingBottom: number | undefined, tilted: boolean | undefined) {
   return {
     padding: { top: 50, bottom: paddingBottom || 50, left: 50, right: 50 },
     maxZoom: 16,
@@ -200,7 +200,6 @@ function JourneyMapGL(
   const markMarkersRef = useRef<{ remove: () => void }[]>([])
   const onMarksPickRef = useRef(onMarksPick)
   const marksRef = useRef(marks)
-  marksRef.current = marks
   // As on the Leaflet map: nothing located of its own, so the plan or the
   // stays get the first view once they arrive, unless the reader moved it.
   const awaitingMarksRef = useRef(false)
@@ -212,6 +211,7 @@ function JourneyMapGL(
   // Before the map effects below, so a rebuild draws with what the reader shows now.
   useEffect(() => {
     onMarksPickRef.current = onMarksPick
+    marksRef.current = marks
     visibilityRef.current = layerVisibility
     plannedRef.current = plannedEntryIds
   })
@@ -417,7 +417,7 @@ function JourneyMapGL(
         }
       }
 
-      // Tracks — one source for all of them, coloured per feature so a journey
+      // Tracks, one source for all of them, coloured per feature so a journey
       // with several routes keeps them apart. Casing underneath, same as the
       // planner map, so a track stays readable on satellite tiles. A trip's GPX
       // track is the plan and goes on a dashed layer, what was recorded on a solid

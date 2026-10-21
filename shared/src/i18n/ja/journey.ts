@@ -834,7 +834,8 @@ const journey: TranslationStrings = {
   'journey.map.layer.recordedEmpty': '記録したルートはまだありません',
   'journey.map.layer.recordedUnavailable': '記録した日を読み込めませんでした',
   'journey.map.layer.entriesEmpty': '場所のあるエントリーはまだありません',
-  'journey.map.layer.entriesUnavailable': '日のまとめの立ち寄り先を読み込めませんでした。エントリーは表示されたままです',
+  'journey.map.layer.entriesUnavailable':
+    '日のまとめの立ち寄り先を読み込めませんでした。エントリーは表示されたままです',
   'journey.map.layer.photosEmpty': '位置情報のある写真はまだありません',
   'journey.map.legend': '凡例',
   'journey.map.legend.planned': '予定の場所',
@@ -845,7 +846,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'ルート',
   'journey.map.legend.plannedRoute': '予定のルート（旅行のGPX）',
   'journey.map.legend.recordedRoute': '記録したルート',
-  'journey.map.legend.planIsNoVisit': '予定の場所は訪問の証明ではありません。どこにいたかを示すのはエントリー、写真、記録だけです。',
+  'journey.map.legend.planIsNoVisit':
+    '予定の場所は訪問の証明ではありません。どこにいたかを示すのはエントリー、写真、記録だけです。',
   'journey.map.pick.openEntry': 'エントリーを開く',
   'journey.map.pick.planned': '予定',
   'journey.map.pick.notWritten': 'まだ何も書かれていません。',
@@ -857,7 +859,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': '旅行の予定',
   'journey.share.planHint': 'リンクした旅行の予定の場所とGPXルートを地図に表示',
   'journey.share.recordings': '記録したルート',
-  'journey.share.recordingsHint': '公開済みのエントリーがある日の記録と、そこから取り込んだ滞在。宿泊先も含め、いつどこにいたかがわかります。',
+  'journey.share.recordingsHint':
+    '公開済みのエントリーがある日の記録と、そこから取り込んだ滞在。宿泊先も含め、いつどこにいたかがわかります。',
   'journey.share.needsMap': '有効にするには地図を共有してください',
 };
 export default journey;

@@ -954,7 +954,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'المسارات',
   'journey.map.legend.plannedRoute': 'مسار مخطَّط (GPX لرحلة)',
   'journey.map.legend.recordedRoute': 'مسار مسجَّل',
-  'journey.map.legend.planIsNoVisit': 'المكان المخطَّط ليس دليلًا على الزيارة. وحدها التدوينات والصور والتسجيلات تُظهر أين كنت.',
+  'journey.map.legend.planIsNoVisit':
+    'المكان المخطَّط ليس دليلًا على الزيارة. وحدها التدوينات والصور والتسجيلات تُظهر أين كنت.',
   'journey.map.pick.openEntry': 'فتح التدوينة',
   'journey.map.pick.planned': 'مخطَّط',
   'journey.map.pick.notWritten': 'لم يُكتب عنه شيء بعد.',
@@ -966,7 +967,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'خطة الرحلة',
   'journey.share.planHint': 'الأماكن المخطَّطة ومسارات GPX للرحلات المرتبطة على الخريطة',
   'journey.share.recordings': 'المسارات المسجَّلة',
-  'journey.share.recordingsHint': 'الأيام المسجَّلة ومحطات التوقف المأخوذة منها، للأيام التي لها تدوينة منشورة. تُظهر أين كنت ومتى، بما في ذلك مكان إقامتك.',
+  'journey.share.recordingsHint':
+    'الأيام المسجَّلة ومحطات التوقف المأخوذة منها، للأيام التي لها تدوينة منشورة. تُظهر أين كنت ومتى، بما في ذلك مكان إقامتك.',
   'journey.share.needsMap': 'شارك الخريطة لتفعيل هذا',
 };
 export default journey;

@@ -155,6 +155,14 @@ function entryIcon(item: MapMarkerItem, highlighted: boolean, planned: boolean):
   })
 }
 
+function paintEntryMarker(
+  marker: L.Marker | undefined, item: MapMarkerItem | undefined, highlighted: boolean, planned: ReadonlySet<string>,
+): void {
+  if (!marker || !item) return
+  marker.setIcon(entryIcon(item, highlighted, planned.has(item.id)))
+  marker.setZIndexOffset(highlighted ? 1000 : 0)
+}
+
 /**
  * Pan, don't zoom: the initial fitBounds decides how far out the reader starts,
  * and a focus keeps that (discussion #2299).
@@ -231,7 +239,6 @@ function JourneyMap(
   const markLayerRef = useRef<L.LayerGroup | null>(null)
   const onMarksPickRef = useRef(onMarksPick)
   const marksRef = useRef(marks)
-  marksRef.current = marks
   // A journey with nothing located of its own opens on the world until its
   // plan or stays arrive; those get the first view unless the reader moved it.
   const awaitingMarksRef = useRef(false)
@@ -245,35 +252,19 @@ function JourneyMap(
   // Before the map effects below, so a rebuild draws with what the reader shows now.
   useEffect(() => {
     onMarksPickRef.current = onMarksPick
+    marksRef.current = marks
     visibilityRef.current = layerVisibility
     plannedRef.current = plannedEntryIds
   })
 
-  const darkRef = useRef(dark)
-  darkRef.current = dark
-
   const highlightMarker = useCallback((id: string | null) => {
     const prev = highlightedRef.current
     highlightedRef.current = id
-    const isDark = !!darkRef.current
-
-    if (prev && prev !== id) {
-      const marker = markersRef.current.get(prev)
-      const item = itemsRef.current.find(i => i.id === prev)
-      if (marker && item) {
-        marker.setIcon(entryIcon(item, false, plannedRef.current.has(item.id)))
-        marker.setZIndexOffset(0)
-      }
-    }
-
-    if (id) {
-      const marker = markersRef.current.get(id)
-      const item = itemsRef.current.find(i => i.id === id)
-      if (marker && item) {
-        marker.setIcon(entryIcon(item, true, plannedRef.current.has(item.id)))
-        marker.setZIndexOffset(1000)
-      }
-    }
+    const paint = (target: string, highlighted: boolean) => paintEntryMarker(
+      markersRef.current.get(target), itemsRef.current.find(i => i.id === target), highlighted, plannedRef.current,
+    )
+    if (prev && prev !== id) paint(prev, false)
+    if (id) paint(id, true)
   }, [])
 
   /**
@@ -611,13 +602,10 @@ function JourneyMap(
     return () => clearTimeout(timer)
   }, [activeMarkerId])
 
-  const zoomIn = () => {
+  const zoom = (closer: boolean) => {
     readerMovedRef.current = true
-    mapRef.current?.zoomIn()
-  }
-  const zoomOut = () => {
-    readerMovedRef.current = true
-    mapRef.current?.zoomOut()
+    if (closer) mapRef.current?.zoomIn()
+    else mapRef.current?.zoomOut()
   }
 
   return (
@@ -627,8 +615,8 @@ function JourneyMap(
         style={{ width: '100%', height: '100%' }}
       />
       <div style={{ position: 'absolute', bottom: 12, right: 12, zIndex: 400, display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <button type="button" onClick={zoomIn} style={zoomButtonStyle(dark)}>+</button>
-        <button type="button" onClick={zoomOut} style={zoomButtonStyle(dark)}>−</button>
+        <button type="button" onClick={() => zoom(true)} style={zoomButtonStyle(dark)}>+</button>
+        <button type="button" onClick={() => zoom(false)} style={zoomButtonStyle(dark)}>−</button>
       </div>
     </div>
   )

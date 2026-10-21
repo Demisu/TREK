@@ -1212,7 +1212,7 @@ describe('DawarichSyncService — runSync', () => {
 
 // ── One day read again (JRN-02) ──────────────────────────────────────────────
 
-describe('DawarichSyncService — refreshing one day', () => {
+describe('DawarichSyncService, refreshing one day', () => {
   const CREDS: DawarichCreds = { baseUrl: 'https://dawarich.test', apiKey: 'secret-key', allowInsecureTls: false };
 
   it('DAWARICH-SYNC-080: asks a window a day past both sides and files a new stay under the trip that holds it', async () => {

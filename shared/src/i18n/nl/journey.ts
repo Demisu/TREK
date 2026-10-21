@@ -876,7 +876,8 @@ const journey: TranslationStrings = {
   'journey.map.layer.recordedEmpty': 'nog geen opgenomen route',
   'journey.map.layer.recordedUnavailable': 'de opgenomen dagen konden niet worden geladen',
   'journey.map.layer.entriesEmpty': 'nog geen verhaal heeft een plek',
-  'journey.map.layer.entriesUnavailable': 'de verblijven van dagverslagen konden niet worden geladen, de verhalen blijven zichtbaar',
+  'journey.map.layer.entriesUnavailable':
+    'de verblijven van dagverslagen konden niet worden geladen, de verhalen blijven zichtbaar',
   'journey.map.layer.photosEmpty': 'nog geen foto met locatie',
   'journey.map.legend': 'Legenda',
   'journey.map.legend.planned': 'Geplande plek',
@@ -887,7 +888,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'Routes', // same-as-en
   'journey.map.legend.plannedRoute': 'Geplande route (GPX van een reis)',
   'journey.map.legend.recordedRoute': 'Opgenomen route',
-  'journey.map.legend.planIsNoVisit': 'Een geplande plek bewijst geen bezoek. Alleen verhalen, foto’s en opnames tonen waar je was.',
+  'journey.map.legend.planIsNoVisit':
+    'Een geplande plek bewijst geen bezoek. Alleen verhalen, foto’s en opnames tonen waar je was.',
   'journey.map.pick.openEntry': 'Verhaal openen',
   'journey.map.pick.planned': 'Gepland',
   'journey.map.pick.notWritten': 'Er is nog niets over geschreven.',
@@ -899,7 +901,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Reisplanning',
   'journey.share.planHint': 'Geplande plekken en GPX-routes van de gekoppelde reizen op de kaart',
   'journey.share.recordings': 'Opgenomen routes',
-  'journey.share.recordingsHint': 'Opgenomen dagen en de stops die eruit zijn overgenomen, op dagen met een gepubliceerd verhaal. Ze tonen waar en wanneer je was, ook je verblijf.',
+  'journey.share.recordingsHint':
+    'Opgenomen dagen en de stops die eruit zijn overgenomen, op dagen met een gepubliceerd verhaal. Ze tonen waar en wanneer je was, ook je verblijf.',
   'journey.share.needsMap': 'Deel de kaart om dit aan te zetten',
 };
 export default journey;

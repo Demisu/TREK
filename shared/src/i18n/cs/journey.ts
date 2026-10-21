@@ -898,7 +898,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'Trasy',
   'journey.map.legend.plannedRoute': 'Plánovaná trasa (GPX cesty)',
   'journey.map.legend.recordedRoute': 'Zaznamenaná trasa',
-  'journey.map.legend.planIsNoVisit': 'Plánované místo není důkazem návštěvy. Kde jste byli, ukazují jen záznamy, fotky a nahrávky.',
+  'journey.map.legend.planIsNoVisit':
+    'Plánované místo není důkazem návštěvy. Kde jste byli, ukazují jen záznamy, fotky a nahrávky.',
   'journey.map.pick.openEntry': 'Otevřít záznam',
   'journey.map.pick.planned': 'Plánováno',
   'journey.map.pick.notWritten': 'Zatím o něm nic nenapsáno.',
@@ -910,7 +911,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Plán cesty',
   'journey.share.planHint': 'Plánovaná místa a trasy GPX propojených cest na mapě',
   'journey.share.recordings': 'Zaznamenané trasy',
-  'journey.share.recordingsHint': 'Zaznamenané dny a zastávky z nich převzaté, u dnů se zveřejněným záznamem. Ukazují, kde a kdy jste byli, i vaše ubytování.',
+  'journey.share.recordingsHint':
+    'Zaznamenané dny a zastávky z nich převzaté, u dnů se zveřejněným záznamem. Ukazují, kde a kdy jste byli, i vaše ubytování.',
   'journey.share.needsMap': 'Pro zapnutí sdílejte mapu',
 };
 export default journey;

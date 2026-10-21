@@ -878,7 +878,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'Rutter',
   'journey.map.legend.plannedRoute': 'Planerad rutt (en resas GPX)',
   'journey.map.legend.recordedRoute': 'Inspelad rutt',
-  'journey.map.legend.planIsNoVisit': 'En planerad plats bevisar inget besök. Bara inlägg, foton och inspelningar visar var du var.',
+  'journey.map.legend.planIsNoVisit':
+    'En planerad plats bevisar inget besök. Bara inlägg, foton och inspelningar visar var du var.',
   'journey.map.pick.openEntry': 'Öppna inlägg',
   'journey.map.pick.planned': 'Planerad',
   'journey.map.pick.notWritten': 'Inget skrivet om den ännu.',
@@ -890,7 +891,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Resplan',
   'journey.share.planHint': 'Planerade platser och GPX-rutter för de länkade resorna på kartan',
   'journey.share.recordings': 'Inspelade rutter',
-  'journey.share.recordingsHint': 'Inspelade dagar och de stopp som hämtats från dem, på dagar med ett publicerat inlägg. De visar var och när du var, även ditt boende.',
+  'journey.share.recordingsHint':
+    'Inspelade dagar och de stopp som hämtats från dem, på dagar med ett publicerat inlägg. De visar var och när du var, även ditt boende.',
   'journey.share.needsMap': 'Dela kartan för att slå på detta',
 };
 export default journey;

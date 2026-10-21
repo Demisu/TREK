@@ -873,7 +873,8 @@ const journey: TranslationStrings = {
   'journey.map.layer.recordedEmpty': 'ainda não há rota gravada',
   'journey.map.layer.recordedUnavailable': 'não foi possível carregar os dias gravados',
   'journey.map.layer.entriesEmpty': 'nenhum registro tem lugar ainda',
-  'journey.map.layer.entriesUnavailable': 'não foi possível carregar as paradas dos relatos do dia, os registros continuam visíveis',
+  'journey.map.layer.entriesUnavailable':
+    'não foi possível carregar as paradas dos relatos do dia, os registros continuam visíveis',
   'journey.map.layer.photosEmpty': 'ainda não há foto com localização',
   'journey.map.legend': 'Legenda',
   'journey.map.legend.planned': 'Lugar planejado',
@@ -884,7 +885,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'Rotas',
   'journey.map.legend.plannedRoute': 'Rota planejada (GPX de uma viagem)',
   'journey.map.legend.recordedRoute': 'Rota gravada',
-  'journey.map.legend.planIsNoVisit': 'Um lugar planejado não comprova uma visita. Só registros, fotos e gravações mostram onde você esteve.',
+  'journey.map.legend.planIsNoVisit':
+    'Um lugar planejado não comprova uma visita. Só registros, fotos e gravações mostram onde você esteve.',
   'journey.map.pick.openEntry': 'Abrir registro',
   'journey.map.pick.planned': 'Planejado',
   'journey.map.pick.notWritten': 'Nada escrito sobre ele ainda.',
@@ -896,7 +898,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Plano da viagem',
   'journey.share.planHint': 'Lugares planejados e rotas GPX das viagens vinculadas no mapa',
   'journey.share.recordings': 'Rotas gravadas',
-  'journey.share.recordingsHint': 'Dias gravados e as paradas tiradas deles, nos dias com um registro publicado. Mostram onde e quando você esteve, inclusive sua hospedagem.',
+  'journey.share.recordingsHint':
+    'Dias gravados e as paradas tiradas deles, nos dias com um registro publicado. Mostram onde e quando você esteve, inclusive sua hospedagem.',
   'journey.share.needsMap': 'Compartilhe o mapa para ativar isto',
 };
 export default journey;

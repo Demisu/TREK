@@ -41,7 +41,7 @@ export function offsetMinutesOf(iso: string): number {
   return sign * (Number(match[2]) * 60 + Number(match[3]));
 }
 
-/** Local wall-clock milliseconds — the instant shifted into the string's own offset, or into `offset` when given. */
+/** Local wall-clock milliseconds: the instant shifted into the string's own offset, or into `offset` when given. */
 function localMs(iso: string, offset?: number): number {
   return Date.parse(iso) + (offset ?? offsetMinutesOf(iso)) * 60_000;
 }

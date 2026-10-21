@@ -842,7 +842,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': '경로',
   'journey.map.legend.plannedRoute': '계획한 경로(여행의 GPX)',
   'journey.map.legend.recordedRoute': '기록된 경로',
-  'journey.map.legend.planIsNoVisit': '계획한 장소는 방문의 증거가 아닙니다. 어디에 있었는지는 항목, 사진, 기록만 보여줍니다.',
+  'journey.map.legend.planIsNoVisit':
+    '계획한 장소는 방문의 증거가 아닙니다. 어디에 있었는지는 항목, 사진, 기록만 보여줍니다.',
   'journey.map.pick.openEntry': '항목 열기',
   'journey.map.pick.planned': '계획',
   'journey.map.pick.notWritten': '아직 아무것도 쓰지 않았습니다.',
@@ -854,7 +855,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': '여행 계획',
   'journey.share.planHint': '연결된 여행의 계획한 장소와 GPX 경로를 지도에 표시',
   'journey.share.recordings': '기록된 경로',
-  'journey.share.recordingsHint': '게시된 항목이 있는 날의 기록과 거기서 가져온 머문 곳. 숙소를 포함해 언제 어디에 있었는지 보여줍니다.',
+  'journey.share.recordingsHint':
+    '게시된 항목이 있는 날의 기록과 거기서 가져온 머문 곳. 숙소를 포함해 언제 어디에 있었는지 보여줍니다.',
   'journey.share.needsMap': '이 기능을 켜려면 지도를 공유하세요',
 };
 export default journey;

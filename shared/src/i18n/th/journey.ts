@@ -835,7 +835,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'เส้นทาง',
   'journey.map.legend.plannedRoute': 'เส้นทางตามแผน (GPX ของทริป)',
   'journey.map.legend.recordedRoute': 'เส้นทางที่บันทึก',
-  'journey.map.legend.planIsNoVisit': 'สถานที่ตามแผนไม่ใช่หลักฐานว่าไปมาแล้ว มีเพียงบันทึก รูปภาพ และการบันทึกเส้นทางที่แสดงว่าคุณอยู่ที่ไหน',
+  'journey.map.legend.planIsNoVisit':
+    'สถานที่ตามแผนไม่ใช่หลักฐานว่าไปมาแล้ว มีเพียงบันทึก รูปภาพ และการบันทึกเส้นทางที่แสดงว่าคุณอยู่ที่ไหน',
   'journey.map.pick.openEntry': 'เปิดบันทึก',
   'journey.map.pick.planned': 'ตามแผน',
   'journey.map.pick.notWritten': 'ยังไม่มีการเขียนถึงที่นี่',
@@ -847,7 +848,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'แผนการเดินทาง',
   'journey.share.planHint': 'สถานที่ตามแผนและเส้นทาง GPX ของทริปที่เชื่อมโยงบนแผนที่',
   'journey.share.recordings': 'เส้นทางที่บันทึก',
-  'journey.share.recordingsHint': 'วันที่บันทึกและจุดแวะที่นำมาจากวันนั้น ในวันที่มีบันทึกที่เผยแพร่แล้ว แสดงว่าคุณอยู่ที่ไหนและเมื่อไร รวมถึงที่พักด้วย',
+  'journey.share.recordingsHint':
+    'วันที่บันทึกและจุดแวะที่นำมาจากวันนั้น ในวันที่มีบันทึกที่เผยแพร่แล้ว แสดงว่าคุณอยู่ที่ไหนและเมื่อไร รวมถึงที่พักด้วย',
   'journey.share.needsMap': 'แชร์แผนที่เพื่อเปิดใช้งานนี้',
 };
 export default journey;

@@ -4,7 +4,6 @@ import { useJourneyStore } from '../../store/journeyStore'
 import { useTranslation } from '../../i18n'
 import { addListener, removeListener } from '../../api/websocket'
 import { journeyApi } from '../../api/client'
-import type { JourneyTrack } from '@trek/shared'
 import { DAY_COLORS } from '../../components/Journey/dayColors'
 import type { JourneyMapAutoHandle as JourneyMapHandle } from '../../components/Journey/JourneyMapAuto'
 import { useToast } from '../../components/shared/Toast'
@@ -13,19 +12,13 @@ import { lockBodyScroll } from '../../utils/bodyScrollLock'
 import type { JourneyEntry } from '../../store/journeyStore'
 import { createDraftJourneyEntry, photoUrl } from './JourneyDetailPage.helpers'
 import { useDawarichSuggestions } from '../../hooks/useDawarichSuggestions'
-import { openStayDatesWithin, openStaysByDate } from '../../components/Dawarich/dawarichSuggestionModel'
+import { openStaysByDate } from '../../components/Dawarich/dawarichSuggestionModel'
 import type { DawarichSuggestion, DawarichSuggestionTarget } from '@trek/shared'
 
 import { useDawarichJournalTrail } from '../../hooks/useDawarichJournalTrail'
-import { useJourneyRecordingPrep } from '../../components/Journey/useJourneyRecordingPrep'
-import { useAddonStore } from '../../store/addonStore'
-import { useJourneyDetailDayImport } from './useJourneyDetailDayImport'
-import { useJourneyDetailRecordings } from './useJourneyDetailRecordings'
-import { useJourneyMapLayers } from '../../components/Journey/useJourneyMapLayers'
+import { useJourneyDetailLayers } from './useJourneyDetailLayers'
 import { useProviderPhotoAdds } from './useProviderPhotoAdds'
 
-/** Stable identity for "this journey draws no trip tracks" (#2194). */
-const NO_TRACKS: JourneyTrack[] = []
 
 /**
  * Journey detail page logic — owns the journey load + WebSocket live sync, the
@@ -513,84 +506,13 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
   // asked for should not reach across the network for it.
   const dawarichTrail = useDawarichJournalTrail(tripDates, showTripTracks)
 
-  // The recorded days of the linked trips prepared in the background (JRN-03): the editor's
-  // own status, the owner's switch, and where each day of the trips stands.
-  const isAddonEnabled = useAddonStore(s => s.isEnabled)
-  const reloadJourney = useCallback(() => { if (current) void loadJourney(current.id) }, [current, loadJourney])
-  const recordingPrep = useJourneyRecordingPrep({
-    journeyId: journeyLoaded && current ? current.id : null,
-    enabled: !!current?.auto_prepare_recordings,
-    active: canEditEntries && isAddonEnabled('dawarich'),
-    periodDates: tripDates,
-    onSwitched: reloadJourney,
-    onFetched: dawarich.reload,
+  const {
+    recordingPrep, recordings, canTakeOverRecording, recordingNeedsConnection, mapTracks, mapLayers, entryTitleOf,
+    dayImport, dayImportDates,
+  } = useJourneyDetailLayers({
+    journey: current, loaded: journeyLoaded, canEditEntries, loadJourney, dawarich, dawarichByDate, dawarichTrail,
+    tripDates, sidebarMapItems, photoCount: mapPhotos.length, showTripTracks,
   })
-
-  const { recordings, colorOfDay, canTakeOverRecording, recordingNeedsConnection, mapTracks } = useJourneyDetailRecordings({
-    loaded: journeyLoaded,
-    journey: current,
-    canEdit: canEditEntries,
-    dawarichStatus: dawarich.status,
-    sidebarMapItems,
-    tripTracks: NO_TRACKS,
-    liveTracks: dawarichTrail.tracks,
-  })
-
-  // The map's layers (JRN-04): the plan of the linked trips, what was recorded,
-  // the entries with the stays of their day reports, the photos. Read again
-  // when an entry comes, goes or changes the place it came from, and when a
-  // trip is linked or the track switch flips.
-  const entryIdsOnMap = useMemo(() => new Set(sidebarMapItems.map(m => m.id)), [sidebarMapItems])
-  const entryById = useMemo(() => new Map((current?.entries ?? []).map(e => [e.id, e])), [current?.entries])
-  const dateOfEntry = useCallback((entryId: number) => entryById.get(entryId)?.entry_date ?? null, [entryById])
-  const entryTitleOf = useCallback((entryId: number) => {
-    const entry = entryById.get(entryId)
-    return entry ? entry.title || entry.location_name || null : null
-  }, [entryById])
-  const mapRefreshKey = useMemo(() => [
-    (current?.entries ?? []).filter(e => e.type !== 'skeleton').map(e => `${e.id}:${e.source_place_id ?? ''}`).join(','),
-    (current?.trips ?? []).map(trip => trip.trip_id).join(','),
-    showTripTracks ? 'tracks' : '',
-  ].join('|'), [current?.entries, current?.trips, showTripTracks])
-  // The kept days and the live trail are read by this screen, not by the layers' read.
-  const recordedRead = recordings.status === 'failed' || dawarichTrail.status === 'unavailable'
-    ? 'unavailable'
-    : recordings.status === 'loading' || dawarichTrail.status === 'loading' ? 'loading' : 'ready'
-  const mapLayers = useJourneyMapLayers({
-    source: journeyLoaded && current ? { journeyId: current.id } : null,
-    refreshKey: mapRefreshKey,
-    entryIdsOnMap,
-    photoCount: mapPhotos.length,
-    recordedTracks: mapTracks,
-    recordedRead,
-    colorOfDay,
-    dateOfEntry,
-  })
-
-  // The drafts a day's take-over wrote reach the timeline, and its stays leave the pending list.
-  const afterDayTakeOver = useCallback(() => {
-    if (current) void loadJourney(current.id)
-    dawarich.reload()
-  }, [current, loadJourney, dawarich])
-  const recordedDayOf = useCallback((date: string) => recordings.byDate.get(date), [recordings.byDate])
-  const dayImport = useJourneyDetailDayImport({
-    loaded: journeyLoaded,
-    journey: current,
-    colorOfDay,
-    recordedDayOf,
-    onKept: recordings.kept,
-    onTakenOver: afterDayTakeOver,
-  })
-  // The days a phone can take over from the stay sheet, a day with no entry or card on it included.
-  const dayImportDates = useMemo(
-    () => current && canEditEntries && canTakeOverRecording
-      ? openStayDatesWithin(dawarichByDate, [
-        ...current.entries.map(e => e.entry_date),
-        ...current.trips.flatMap(trip => [trip.start_date, trip.end_date]),
-      ])
-      : [],
-    [current, canEditEntries, canTakeOverRecording, dawarichByDate],
-  )
 
   /** Studio's margin to the window on all four sides — see `.st-root` in studio.css. */
   const STUDIO_INSET = 16

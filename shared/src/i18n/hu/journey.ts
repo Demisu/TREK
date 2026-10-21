@@ -871,7 +871,8 @@ const journey: TranslationStrings = {
   'journey.map.layer.recordedEmpty': 'még nincs rögzített útvonal',
   'journey.map.layer.recordedUnavailable': 'a rögzített napokat nem sikerült betölteni',
   'journey.map.layer.entriesEmpty': 'még egyetlen bejegyzésnek sincs helye',
-  'journey.map.layer.entriesUnavailable': 'a napi beszámolók megállóit nem sikerült betölteni, a bejegyzések láthatók maradnak',
+  'journey.map.layer.entriesUnavailable':
+    'a napi beszámolók megállóit nem sikerült betölteni, a bejegyzések láthatók maradnak',
   'journey.map.layer.photosEmpty': 'még nincs helyadattal rendelkező fotó',
   'journey.map.legend': 'Jelmagyarázat',
   'journey.map.legend.planned': 'Tervezett hely',
@@ -882,7 +883,8 @@ const journey: TranslationStrings = {
   'journey.map.legend.lines': 'Útvonalak',
   'journey.map.legend.plannedRoute': 'Tervezett útvonal (egy út GPX-e)',
   'journey.map.legend.recordedRoute': 'Rögzített útvonal',
-  'journey.map.legend.planIsNoVisit': 'Egy tervezett hely nem bizonyítja a látogatást. Csak a bejegyzések, fotók és felvételek mutatják, hol jártál.',
+  'journey.map.legend.planIsNoVisit':
+    'Egy tervezett hely nem bizonyítja a látogatást. Csak a bejegyzések, fotók és felvételek mutatják, hol jártál.',
   'journey.map.pick.openEntry': 'Bejegyzés megnyitása',
   'journey.map.pick.planned': 'Tervezett',
   'journey.map.pick.notWritten': 'Még semmit sem írtál róla.',
@@ -894,7 +896,8 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Úti terv',
   'journey.share.planHint': 'A kapcsolt utak tervezett helyei és GPX-útvonalai a térképen',
   'journey.share.recordings': 'Rögzített útvonalak',
-  'journey.share.recordingsHint': 'Rögzített napok és a belőlük átvett megállók azokon a napokon, amelyekhez közzétett bejegyzés tartozik. Megmutatják, hol és mikor jártál, a szállásodat is.',
+  'journey.share.recordingsHint':
+    'Rögzített napok és a belőlük átvett megállók azokon a napokon, amelyekhez közzétett bejegyzés tartozik. Megmutatják, hol és mikor jártál, a szállásodat is.',
   'journey.share.needsMap': 'Oszd meg a térképet a bekapcsoláshoz',
 };
 export default journey;
