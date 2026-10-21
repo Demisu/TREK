@@ -31,7 +31,7 @@ function camera(key: string, over: Partial<AssistantCamera> = {}): AssistantCame
 function setup(first: AssistantCamera | null, inside = false) {
   const container = document.createElement('div');
   const map = {
-    getContainer: () => container,
+    getCanvasContainer: () => container,
     getBounds: () => ({ contains: () => inside }),
     fitBounds: vi.fn(),
     easeTo: vi.fn(),

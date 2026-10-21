@@ -5,7 +5,8 @@ import type { AssistantCamera } from './mapViewContract';
 
 /** The slice of the GL map the camera drives. */
 export interface CameraMap {
-  getContainer: () => HTMLElement;
+  /** Where the user drags, wheels and pinches the map; marker clicks are not moves. */
+  getCanvasContainer: () => HTMLElement;
   getBounds: () => { contains: (lngLat: [number, number]) => boolean } | null;
   fitBounds: (bounds: unknown, options: { padding: ViewportPadding; maxZoom: number; duration: number }) => unknown;
   easeTo: (options: { center: [number, number]; duration: number }) => unknown;
@@ -32,7 +33,7 @@ interface AssistantCameraOptions {
  * Leaflet map (one GL zoom step is a raster step lower).
  */
 export function useAssistantCameraGL({ mapRef, mapReady, gl, camera, padding }: AssistantCameraOptions): void {
-  const getContainer = useCallback(() => mapRef.current?.getContainer() ?? null, [mapRef]);
+  const getContainer = useCallback(() => mapRef.current?.getCanvasContainer() ?? null, [mapRef]);
   const userMovedAt = useUserMoveClock(getContainer, mapReady);
   const request = useCameraRequest(camera, userMovedAt);
 
