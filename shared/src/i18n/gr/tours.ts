@@ -852,6 +852,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': 'Ανοιχτό σε όλους',
   'tours.poi.charging.access.customers': 'Μόνο για πελάτες',
   'tours.poi.charging.access.private': 'Ιδιωτικό',
+  'tours.poi.charging.access.none': 'Χωρίς δημόσια πρόσβαση',
   'tours.poi.charging.capacity': 'Θέσεις φόρτισης',
   'tours.poi.charging.socketsUnknown': 'Δεν αναφέρεται πρίζα',
   'tours.poi.charging.socketsUnknownHint': 'Το OpenStreetMap δεν λέει ποια πρίζα έχει, οπότε δεν είναι γνωστό αν ταιριάζει ο φορτιστής σου.',

@@ -765,6 +765,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': '對所有人開放',
   'tours.poi.charging.access.customers': '僅限顧客',
   'tours.poi.charging.access.private': '私人',
+  'tours.poi.charging.access.none': '不開放公眾使用',
   'tours.poi.charging.capacity': '充電位',
   'tours.poi.charging.socketsUnknown': '未註明插座',
   'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap 沒有註明插座類型，因此不確定你的充電器是否適用。',

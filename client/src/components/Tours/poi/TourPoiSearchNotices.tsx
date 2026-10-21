@@ -109,8 +109,11 @@ export function SearchNotices({ search, unit }: { search: TourPoiSearch; unit: U
   const searchedAll = answer.unavailable.length === 0 && !answer.partial && !search.outdated;
   const empty = answer.pois.length === 0 && searchedAll;
   // BIK-07: few chargers are tagged for bikes, so none found is said, not left to look like a fault.
+  // A cut answer may have lost them to the cut, which its own note already says.
   const noChargers =
     searchedAll &&
+    !answer.truncated &&
+    !answer.capped &&
     search.categories.includes('ebike_charging') &&
     !answer.pois.some((poi) => poi.category === 'ebike_charging');
   return (

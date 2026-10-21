@@ -1074,6 +1074,18 @@ describe('searchOverpassPois localized names (#1655)', () => {
     const { pois } = await osm.searchOverpassPois('sights', bbox(4), 'fr-FR');
     expect(pois[0].name).toBe('Obelisco della Minerva');
   });
+
+  it('keeps an unnamed e-bike charging point, as the search along a tour does (BIK-07)', async () => {
+    stubOverpass({ amenity: 'charging_station', bicycle: 'yes', 'socket:schuko': '2' });
+    const { pois } = await osm.searchOverpassPois('ebike_charging', bbox(6), 'en-US');
+    expect(pois.map((p: any) => [p.name, p.category])).toEqual([['', 'ebike_charging']]);
+  });
+
+  it('still drops an unnamed place of any other kind', async () => {
+    stubOverpass({ tourism: 'attraction' });
+    const { pois } = await osm.searchOverpassPois('sights', bbox(7), 'en-US');
+    expect(pois).toEqual([]);
+  });
 });
 
 // ── fetchWikimediaPhoto (fetch stubbed) ───────────────────────────────────────

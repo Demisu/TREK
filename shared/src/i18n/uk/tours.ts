@@ -836,6 +836,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': 'Відкрито для всіх',
   'tours.poi.charging.access.customers': 'Лише для клієнтів',
   'tours.poi.charging.access.private': 'Приватне',
+  'tours.poi.charging.access.none': 'Немає загального доступу',
   'tours.poi.charging.capacity': 'Місця для заряджання',
   'tours.poi.charging.socketsUnknown': 'Роз’єм не вказано',
   'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap не вказує роз’єм, тож невідомо, чи підійде ваш зарядний пристрій.',

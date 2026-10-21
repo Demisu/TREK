@@ -830,6 +830,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': 'Terbuka untuk umum',
   'tours.poi.charging.access.customers': 'Hanya pelanggan',
   'tours.poi.charging.access.private': 'Pribadi',
+  'tours.poi.charging.access.none': 'Tanpa akses umum',
   'tours.poi.charging.capacity': 'Tempat pengisian',
   'tours.poi.charging.socketsUnknown': 'Colokan tidak disebutkan',
   'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap tidak menyebutkan colokannya, jadi belum diketahui apakah charger kamu cocok.',

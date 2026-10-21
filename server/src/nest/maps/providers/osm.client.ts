@@ -266,6 +266,13 @@ const KEPT_UNNAMED_ALONG: ReadonlySet<string> = new Set([
 ]);
 
 /**
+ * The kinds the map search keeps unnamed. It wants names everywhere else, but most
+ * e-bike charging points carry neither a name nor an operator, and dropping them
+ * would answer `search_pois` with a fraction of what the tour search finds.
+ */
+const KEPT_UNNAMED_EXPLORE: ReadonlySet<string> = new Set(['ebike_charging']);
+
+/**
  * What a charging station states, read only where it means something. Every POI
  * carries `capacity` and `fee` for its own reasons (a restaurant's capacity is
  * seats), so reading them as charging data anywhere else would be wrong on most
@@ -779,7 +786,7 @@ export class OsmClient {
     // the result count in one round-trip.
     const query = `[out:json][timeout:${OVERPASS_QUERY_TIMEOUT_S}];\n(\n${selectors}\n);\nout center tags ${cap + 25};`;
 
-    const pois = readPois(await overpassFetch(query), match, osmLang, new Set());
+    const pois = readPois(await overpassFetch(query), match, osmLang, KEPT_UNNAMED_EXPLORE);
     const truncated = pois.length > cap;
     const value: PoiSearchResult = { pois: pois.slice(0, cap), source: 'openstreetmap', truncated, clamped };
     cachePoiAnswer(cacheKey, value);

@@ -842,6 +842,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': 'Otwarte dla wszystkich',
   'tours.poi.charging.access.customers': 'Tylko dla klientów',
   'tours.poi.charging.access.private': 'Prywatne',
+  'tours.poi.charging.access.none': 'Brak dostępu publicznego',
   'tours.poi.charging.capacity': 'Miejsca ładowania',
   'tours.poi.charging.socketsUnknown': 'Gniazdo nie podane',
   'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap nie podaje, jakie ma gniazdo, więc nie wiadomo, czy pasuje twoja ładowarka.',

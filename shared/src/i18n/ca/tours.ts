@@ -837,6 +837,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': 'Obert a tothom',
   'tours.poi.charging.access.customers': 'Només clients',
   'tours.poi.charging.access.private': 'Privat',
+  'tours.poi.charging.access.none': 'Sense accés públic',
   'tours.poi.charging.capacity': 'Places de càrrega',
   'tours.poi.charging.socketsUnknown': 'Endoll no indicat',
   'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap no diu quin endoll té, així que no se sap si el teu carregador hi encaixa.',

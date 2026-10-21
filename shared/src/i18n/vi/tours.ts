@@ -819,6 +819,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': 'Mở cho mọi người',
   'tours.poi.charging.access.customers': 'Chỉ dành cho khách hàng',
   'tours.poi.charging.access.private': 'Riêng tư',
+  'tours.poi.charging.access.none': 'Không cho công chúng sử dụng',
   'tours.poi.charging.capacity': 'Chỗ sạc',
   'tours.poi.charging.socketsUnknown': 'Không ghi loại ổ cắm',
   'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap không ghi loại ổ cắm, nên chưa biết bộ sạc của bạn có vừa không.',

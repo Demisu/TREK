@@ -835,6 +835,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': 'Abierto a todos',
   'tours.poi.charging.access.customers': 'Solo clientes',
   'tours.poi.charging.access.private': 'Privado',
+  'tours.poi.charging.access.none': 'Sin acceso público',
   'tours.poi.charging.capacity': 'Plazas de carga',
   'tours.poi.charging.socketsUnknown': 'Enchufe no indicado',
   'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap no dice qué enchufe tiene, así que no se sabe si tu cargador sirve.',

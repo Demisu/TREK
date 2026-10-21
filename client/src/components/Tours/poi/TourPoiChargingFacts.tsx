@@ -28,11 +28,12 @@ const HOUSEHOLD_SOCKETS: ReadonlySet<string> = new Set([
 
 type Translate = ReturnType<typeof useTranslation>['t'];
 
-/** OpenStreetMap's access values, read as one of three answers; any other is left unsaid. */
+/** OpenStreetMap's access values, read as one of four answers; any other is left unsaid. */
 function accessLabel(access: string | null, t: Translate) {
   if (access === 'yes' || access === 'permissive' || access === 'public') return t('tours.poi.charging.access.public');
   if (access === 'customers') return t('tours.poi.charging.access.customers');
-  if (access === 'private' || access === 'no') return t('tours.poi.charging.access.private');
+  if (access === 'private') return t('tours.poi.charging.access.private');
+  if (access === 'no') return t('tours.poi.charging.access.none');
   return null;
 }
 

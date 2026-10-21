@@ -818,6 +818,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': 'Otevřeno všem',
   'tours.poi.charging.access.customers': 'Jen pro zákazníky',
   'tours.poi.charging.access.private': 'Soukromé',
+  'tours.poi.charging.access.none': 'Bez veřejného přístupu',
   'tours.poi.charging.capacity': 'Nabíjecí místa',
   'tours.poi.charging.socketsUnknown': 'Zásuvka neuvedena',
   'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap neuvádí, jakou má zásuvku, takže není jisté, zda se hodí tvoje nabíječka.',

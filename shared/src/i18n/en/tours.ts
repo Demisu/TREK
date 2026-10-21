@@ -817,6 +817,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': 'Open to all',
   'tours.poi.charging.access.customers': 'Customers only',
   'tours.poi.charging.access.private': 'Private',
+  'tours.poi.charging.access.none': 'No public access',
   'tours.poi.charging.capacity': 'Charging spots',
   'tours.poi.charging.socketsUnknown': 'Plug not stated',
   'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap does not say which plug it has, so whether your charger fits is not known.',

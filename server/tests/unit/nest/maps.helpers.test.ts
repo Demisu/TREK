@@ -105,6 +105,13 @@ describe('readBikeChargingInfo (BIK-07)', () => {
     expect(readBikeChargingInfo({ amenity: 'charging_station', bicycle: 'no' })).toBeNull();
     expect(readBikeChargingInfo({ bicycle: 'yes', 'socket:ccs': '2', 'socket:chademo': '1' })?.sockets).toEqual([]);
   });
+
+  it('MAPS-CHARGE-012: a plug mapped as none is left out, so the point reads as plug not stated', () => {
+    expect(readBikeChargingInfo({ bicycle: 'yes', 'socket:schuko': 'no' })?.sockets).toEqual([]);
+    expect(readBikeChargingInfo({ bicycle: 'yes', 'socket:type2': '0', 'socket:typee': '1' })?.sockets).toEqual([
+      { type: 'typee', count: 1, kw: null },
+    ]);
+  });
 });
 
 describe('OSM selectors (BIK-07)', () => {

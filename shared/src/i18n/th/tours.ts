@@ -789,6 +789,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': 'เปิดให้ทุกคน',
   'tours.poi.charging.access.customers': 'เฉพาะลูกค้า',
   'tours.poi.charging.access.private': 'ส่วนตัว',
+  'tours.poi.charging.access.none': 'ไม่เปิดให้สาธารณะใช้',
   'tours.poi.charging.capacity': 'ช่องชาร์จ',
   'tours.poi.charging.socketsUnknown': 'ไม่ระบุหัวปลั๊ก',
   'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap ไม่ได้ระบุว่ามีหัวปลั๊กแบบใด จึงไม่ทราบว่าที่ชาร์จของคุณใช้ได้หรือไม่',

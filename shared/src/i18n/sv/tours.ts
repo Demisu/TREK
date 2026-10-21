@@ -817,6 +817,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': 'Öppen för alla',
   'tours.poi.charging.access.customers': 'Endast kunder',
   'tours.poi.charging.access.private': 'Privat',
+  'tours.poi.charging.access.none': 'Ingen allmän åtkomst',
   'tours.poi.charging.capacity': 'Laddplatser',
   'tours.poi.charging.socketsUnknown': 'Kontakt inte angiven',
   'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap säger inte vilken kontakt den har, så om din laddare passar är okänt.',

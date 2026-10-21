@@ -825,6 +825,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': 'Herkese açık',
   'tours.poi.charging.access.customers': 'Yalnızca müşteriler',
   'tours.poi.charging.access.private': 'Özel',
+  'tours.poi.charging.access.none': 'Genel erişime kapalı',
   'tours.poi.charging.capacity': 'Şarj yerleri',
   'tours.poi.charging.socketsUnknown': 'Priz belirtilmemiş',
   'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap hangi prizi olduğunu söylemiyor, bu yüzden şarj cihazının uyup uymadığı bilinmiyor.',

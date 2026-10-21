@@ -835,6 +835,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': 'Mindenkinek nyitva',
   'tours.poi.charging.access.customers': 'Csak vendégeknek',
   'tours.poi.charging.access.private': 'Magán',
+  'tours.poi.charging.access.none': 'Nem nyilvános',
   'tours.poi.charging.capacity': 'Töltőhelyek',
   'tours.poi.charging.socketsUnknown': 'Csatlakozó nincs megadva',
   'tours.poi.charging.socketsUnknownHint': 'Az OpenStreetMap nem írja, milyen csatlakozója van, így nem tudni, jó-e a töltőd.',

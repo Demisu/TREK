@@ -836,6 +836,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': 'Open voor iedereen',
   'tours.poi.charging.access.customers': 'Alleen klanten',
   'tours.poi.charging.access.private': 'Privé',
+  'tours.poi.charging.access.none': 'Niet openbaar toegankelijk',
   'tours.poi.charging.capacity': 'Laadplekken',
   'tours.poi.charging.socketsUnknown': 'Stekker niet vermeld',
   'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap zegt niet welke stekker er is, dus of je lader past is onbekend.',

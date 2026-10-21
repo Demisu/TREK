@@ -821,6 +821,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': 'مفتوح للجميع',
   'tours.poi.charging.access.customers': 'للزبائن فقط',
   'tours.poi.charging.access.private': 'خاص',
+  'tours.poi.charging.access.none': 'لا وصول عام',
   'tours.poi.charging.capacity': 'أماكن الشحن',
   'tours.poi.charging.socketsUnknown': 'المقبس غير مذكور',
   'tours.poi.charging.socketsUnknownHint': 'لا يذكر OpenStreetMap نوع المقبس، لذا لا يُعرف إن كان شاحنك مناسبًا.',

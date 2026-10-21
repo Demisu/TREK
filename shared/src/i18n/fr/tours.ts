@@ -847,6 +847,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': 'Ouvert à tous',
   'tours.poi.charging.access.customers': 'Réservé aux clients',
   'tours.poi.charging.access.private': 'Privé',
+  'tours.poi.charging.access.none': 'Pas d’accès public',
   'tours.poi.charging.capacity': 'Places de recharge',
   'tours.poi.charging.socketsUnknown': 'Prise non indiquée',
   'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap n’indique pas la prise, on ne sait donc pas si ton chargeur convient.',

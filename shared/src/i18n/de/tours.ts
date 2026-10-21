@@ -841,6 +841,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': 'Für alle offen',
   'tours.poi.charging.access.customers': 'Nur für Kunden',
   'tours.poi.charging.access.private': 'Privat',
+  'tours.poi.charging.access.none': 'Kein öffentlicher Zugang',
   'tours.poi.charging.capacity': 'Ladeplätze',
   'tours.poi.charging.socketsUnknown': 'Stecker nicht angegeben',
   'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap nennt keinen Stecker, ob dein Ladegerät passt, ist also offen.',

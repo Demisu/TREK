@@ -809,6 +809,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': '誰でも利用可',
   'tours.poi.charging.access.customers': '利用客のみ',
   'tours.poi.charging.access.private': '私設',
+  'tours.poi.charging.access.none': '一般利用不可',
   'tours.poi.charging.capacity': '充電台数',
   'tours.poi.charging.socketsUnknown': 'コンセント不明',
   'tours.poi.charging.socketsUnknownHint': 'OpenStreetMapにコンセントの種類が記載されていないため、お手持ちの充電器が使えるかは分かりません。',

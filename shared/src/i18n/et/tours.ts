@@ -821,6 +821,7 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.public': 'Avatud kõigile',
   'tours.poi.charging.access.customers': 'Ainult klientidele',
   'tours.poi.charging.access.private': 'Privaatne',
+  'tours.poi.charging.access.none': 'Avalik juurdepääs puudub',
   'tours.poi.charging.capacity': 'Laadimiskohad',
   'tours.poi.charging.socketsUnknown': 'Pistik märkimata',
   'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap ei ütle, mis pistik seal on, seega pole teada, kas sinu laadija sobib.',

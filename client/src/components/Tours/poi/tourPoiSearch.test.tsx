@@ -768,5 +768,11 @@ describe('e-bike charging along a bike tour (BIK-07)', () => {
     fireEvent.click(screen.getByTestId('tour-poi-widen'));
     expect(await screen.findByText(/Could not be searched right now: E-bike charging/)).toBeInTheDocument();
     expect(screen.queryByTestId('tour-poi-charging-few')).not.toBeInTheDocument();
+
+    // A cut answer may have lost the chargers to the cut: its own note says so, not few mapped.
+    search.mockResolvedValue({ ...ANSWER, truncated: true });
+    fireEvent.click(screen.getByTestId('tour-poi-retry'));
+    expect(await screen.findByText(/There are more places than shown/)).toBeInTheDocument();
+    expect(screen.queryByTestId('tour-poi-charging-few')).not.toBeInTheDocument();
   });
 });

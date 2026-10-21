@@ -364,16 +364,23 @@ interface BikeChargingInfo extends ChargingInfo {
  */
 const BIKE_SOCKET_FAMILIES = ['schuko', 'typee', 'bs1363', 'sev1011_t13', 'sev1011_t23', 'cee_blue', 'type2'] as const;
 
+function statesNone(raw: string | undefined): boolean {
+  return raw?.trim() === 'no' || Number.parseInt(raw ?? '', 10) === 0;
+}
+
 /**
  * What an e-bike charging point states, or null when it is not tagged for bicycles:
  * the search asks for `bicycle=yes|designated`, and a point read here without either
- * is never passed off as one. Sockets, capacity and fee are read as on a car charger.
+ * is never passed off as one. Sockets, capacity and fee are read as on a car charger,
+ * except that a plug mapped as `no` or `0` is left out: a bike charger shows its plugs
+ * as compatibility, and an explicit "none" must not read as one.
  */
 export function readBikeChargingInfo(tags: Record<string, string>): BikeChargingInfo | null {
   const bicycle = tags.bicycle;
   if (bicycle !== 'yes' && bicycle !== 'designated') return null;
+  const families = BIKE_SOCKET_FAMILIES.filter((family) => !statesNone(tags[`socket:${family}`]));
   return {
-    sockets: readSockets(tags, BIKE_SOCKET_FAMILIES),
+    sockets: readSockets(tags, families),
     capacity: readCapacity(tags),
     fee: readFee(tags),
     bicycle,
