@@ -100,20 +100,25 @@ export class JourneyRecordingsService {
 
     const stored = await this.recordedDays.find(journeyId, date);
     if (stored?.contentHash === contentHash) return { day: stored, outcome: 'unchanged' };
-    if (stored && !request.replace) {
-      throw conflict('The journey already keeps another recording of that day', { code: 'recording_exists' });
-    }
+    if (stored && !request.replace) throw recordingExists();
 
-    const kept = await this.recordedDays.keep(journeyId, userId, {
-      date,
-      sourceKind: day.sourceKind,
-      utcOffsetMinutes: day.utcOffsetMinutes,
-      window: day.window,
-      segments: day.segments,
-      truncated: day.truncated,
-      fetchedAt: day.fetchedAt,
-      contentHash,
-    });
+    const kept = await this.recordedDays.keep(
+      journeyId,
+      userId,
+      {
+        date,
+        sourceKind: day.sourceKind,
+        utcOffsetMinutes: day.utcOffsetMinutes,
+        window: day.window,
+        segments: day.segments,
+        truncated: day.truncated,
+        fetchedAt: day.fetchedAt,
+        contentHash,
+      },
+      request.replace === true,
+    );
+    // Another editor kept the day between the read above and this write.
+    if (!kept) throw recordingExists();
     await this.journeys.broadcastJourneyEvent(journeyId, 'journey:recording:updated', { date }, socketId);
     return { day: kept, outcome: stored ? 'replaced' : 'created' };
   }
@@ -137,4 +142,8 @@ export class JourneyRecordingsService {
       throw notFound('Dawarich is not enabled', { code: 'addon_disabled' });
     }
   }
+}
+
+function recordingExists(): DomainError {
+  return conflict('The journey already keeps another recording of that day', { code: 'recording_exists' });
 }

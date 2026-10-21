@@ -60,10 +60,19 @@ export class JourneyRecordedDaysService {
     return row ? toRecordedDay(row) : null;
   }
 
-  /** Keeps a day's recording, replacing what the journey kept for that day, and answers it as kept. */
-  async keep(journeyId: number, userId: number, recording: RecordingToKeep): Promise<JourneyRecordedDay> {
+  /**
+   * Keeps a day's recording and answers it as kept. With `replace` it takes the
+   * place of what the journey kept for that day; without, it is kept only while
+   * the journey keeps none, and null says another version got there first.
+   */
+  async keep(
+    journeyId: number,
+    userId: number,
+    recording: RecordingToKeep,
+    replace: boolean,
+  ): Promise<JourneyRecordedDay | null> {
     const stats = recordingStats(recording.segments);
-    await this.days.upsertDay({
+    const row = {
       journey_id: journeyId,
       local_date: recording.date,
       source: SOURCE,
@@ -78,7 +87,9 @@ export class JourneyRecordedDaysService {
       truncated: recording.truncated ? 1 : 0,
       fetched_at: recording.fetchedAt,
       imported_by: userId,
-    });
+    };
+    if (replace) await this.days.upsertDay(row);
+    else if ((await this.days.insertDayIfAbsent(row)) === undefined) return null;
     const kept = await this.find(journeyId, recording.date);
     if (!kept) throw new Error(`Recorded day ${recording.date} of journey ${journeyId} vanished after its write`);
     return kept;

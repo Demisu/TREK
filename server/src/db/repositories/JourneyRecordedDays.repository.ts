@@ -112,6 +112,22 @@ export class JourneyRecordedDaysRepository extends TrekRepository<JourneyRecorde
     return written.id;
   }
 
+  /**
+   * Keeps a day only while the journey keeps none for that day and source, and
+   * answers its id; undefined when another version was there first. Two takeovers
+   * of the same day at once cannot both win this way.
+   */
+  async insertDayIfAbsent(day: JourneyRecordedDayWrite): Promise<number | undefined> {
+    const now = dbNow();
+    const written = await this.db()
+      .insertInto('journey_recorded_days')
+      .values({ ...day, created_at: now, updated_at: now })
+      .onConflict((oc) => oc.columns(['journey_id', 'local_date', 'source']).doNothing())
+      .returning('id')
+      .executeTakeFirst();
+    return written?.id;
+  }
+
   /** Drops the day a journey keeps for one source; false when it kept none. */
   async deleteDay(journeyId: number, localDate: string, source: string): Promise<boolean> {
     const result = await this.db()

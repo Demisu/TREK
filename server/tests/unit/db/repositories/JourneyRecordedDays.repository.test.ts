@@ -104,6 +104,19 @@ describe('JourneyRecordedDaysRepository', () => {
     });
   });
 
+  it('JRDAYS-007: a write that keeps only while none is kept leaves the version there first and says so', async () => {
+    const { user, journey: j } = await journey();
+    const first = await days.insertDayIfAbsent(day(j.id, user.id));
+    expect(first).toEqual(expect.any(Number));
+
+    expect(await days.insertDayIfAbsent(day(j.id, user.id, { content_hash: 'b'.repeat(64) }))).toBeUndefined();
+    expect(await countRows(t, JourneyRecordedDays, {})).toBe(1);
+    expect(await days.findDay(j.id, '2026-05-14', 'dawarich')).toMatchObject({
+      id: first,
+      content_hash: 'a'.repeat(64),
+    });
+  });
+
   it('JRDAYS-003: lists the days of one journey earliest first, and only its own', async () => {
     const { user, journey: j } = await journey();
     const other = await makeJourney(t, user.id);

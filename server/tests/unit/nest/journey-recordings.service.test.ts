@@ -259,6 +259,29 @@ describe('JourneyRecordingsService.save', () => {
     });
   });
 
+  it('JRNREC-SVC-013: of two editors saving the day at once without Replace, the second is refused, not silently kept', async () => {
+    const f = await fixture();
+    fetchDay.mockResolvedValue(recorded());
+    await svc.save(f.editor.id, f.journey.id, '2026-05-14', await previewed(f.editor.id, f.journey.id));
+    t.realtime.reset();
+
+    fetchDay.mockResolvedValue(recorded({ segments: [WALK, { ...WALK, startedAt: '2026-05-14T15:00:00+02:00' }] }));
+    const body = await previewed(f.owner.id, f.journey.id);
+    // The owner read the day before the editor's write landed.
+    const staleRead = vi.spyOn(kept, 'find').mockResolvedValueOnce(null);
+
+    expect(await refusal(svc.save(f.owner.id, f.journey.id, '2026-05-14', body))).toEqual({
+      status: 409,
+      body: { error: 'The journey already keeps another recording of that day', code: 'recording_exists' },
+    });
+    staleRead.mockRestore();
+    expect(await kept.find(f.journey.id, '2026-05-14')).toMatchObject({
+      importedBy: { id: f.editor.id, username: 'jonas' },
+      stats: { segmentCount: 1 },
+    });
+    expect(t.realtime.broadcastToUserMock).not.toHaveBeenCalled();
+  });
+
   it('JRNREC-SVC-008: a recording that changed since the preview is not kept, and the kept version stays', async () => {
     const f = await fixture();
     fetchDay.mockResolvedValue(recorded());
