@@ -184,13 +184,32 @@ export function useChatgptConnect({ active, onConnected }: { active: boolean; on
     };
   }, [active, attempt]);
 
+  // Back from the sign-in window: the address the user just copied is taken
+  // off the clipboard where the browser allows it, else the field has the cursor.
+  const takeCopied = useEffectEvent(() => {
+    if (pasted.trim() || busy) return;
+    if (!navigator.clipboard?.readText || !window.isSecureContext) {
+      inputRef.current?.focus();
+      return;
+    }
+    navigator.clipboard.readText().then(
+      (text) => {
+        if (!paste(text)) inputRef.current?.focus();
+      },
+      () => inputRef.current?.focus()
+    );
+  });
   useEffect(() => {
     if (!opened) return;
-    const onVisible = () => {
-      if (document.visibilityState === 'visible') inputRef.current?.focus();
+    const onBack = () => {
+      if (document.visibilityState === 'visible') takeCopied();
     };
-    document.addEventListener('visibilitychange', onVisible);
-    return () => document.removeEventListener('visibilitychange', onVisible);
+    document.addEventListener('visibilitychange', onBack);
+    window.addEventListener('focus', onBack);
+    return () => {
+      document.removeEventListener('visibilitychange', onBack);
+      window.removeEventListener('focus', onBack);
+    };
   }, [opened]);
 
   /** A fresh sign-in: the old one ran out or was used up. */

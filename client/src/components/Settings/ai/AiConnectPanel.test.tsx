@@ -2,7 +2,7 @@
 import userEvent from '@testing-library/user-event';
 import type { AiStatusResponse } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '../../../../tests/helpers/render';
+import { fireEvent, render, screen, waitFor } from '../../../../tests/helpers/render';
 import { resetAllStores, seedStore } from '../../../../tests/helpers/store';
 import { useAddonStore } from '../../../store/addonStore';
 import { useAssistantStore } from '../../../store/assistantStore';
@@ -122,6 +122,26 @@ describe('AiConnectPanel', () => {
     await user.paste(CALLBACK);
     await waitFor(() => expect(onConnected).toHaveBeenCalledTimes(1));
     expect(repo.chatgptFinish).toHaveBeenCalledWith({ flowId: FLOW.flowId, pastedUrl: CALLBACK });
+  });
+
+  it('FE-COMP-AI-CONNECT-PANEL-005b: the sign-in opens in a small window, and coming back takes the copied address', async () => {
+    const user = userEvent.setup();
+    const onConnected = vi.fn();
+    const opened = vi.spyOn(window, 'open').mockReturnValue(null);
+    const readText = vi.fn(async () => CALLBACK);
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { readText } });
+    Object.defineProperty(window, 'isSecureContext', { configurable: true, value: true });
+    render(<AiConnectPanel scope="user" onConnected={onConnected} />);
+    await user.click(screen.getByRole('button', { name: /Sign in with ChatGPT/ }));
+    const open = await screen.findByRole('link', { name: /Open ChatGPT sign-in/ });
+    await waitFor(() => expect(open).toHaveAttribute('href', FLOW.authorizeUrl));
+    await user.click(open);
+    expect(opened).toHaveBeenCalledWith(FLOW.authorizeUrl, 'trek-chatgpt', expect.stringContaining('popup'));
+
+    fireEvent.focus(window);
+    await waitFor(() => expect(onConnected).toHaveBeenCalledTimes(1));
+    expect(repo.chatgptFinish).toHaveBeenCalledWith({ flowId: FLOW.flowId, pastedUrl: CALLBACK });
+    opened.mockRestore();
   });
 
   it('FE-COMP-AI-CONNECT-PANEL-006: an account ChatGPT will not share offers another provider, which opens the key field', async () => {

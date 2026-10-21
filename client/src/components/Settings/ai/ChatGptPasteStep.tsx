@@ -1,4 +1,4 @@
-import { ClipboardPaste, ExternalLink, Loader2 } from 'lucide-react';
+import { ClipboardPaste, ExternalLink, Globe, Loader2 } from 'lucide-react';
 import React, { useId } from 'react';
 import { useTranslation } from '../../../i18n';
 import { CHATGPT_USAGE_URL, providerLabel } from '../../Assistant/providerCatalog';
@@ -8,6 +8,9 @@ import { SETTINGS_BUTTON, SETTINGS_BUTTON_PRIMARY, SettingsHint } from '../setti
 import type { ConnectError, useChatgptConnect } from './useAiConnect';
 
 type ChatgptConnect = ReturnType<typeof useChatgptConnect>;
+
+/** The sign-in window: small, beside TREK, without access back to this page. */
+const POPUP_FEATURES = 'popup,width=520,height=760,noopener,noreferrer';
 
 /** A numbered step: the number, what to do, and the control that does it. */
 function Step({ n, text, children }: { n: number; text: string; children: React.ReactNode }) {
@@ -99,7 +102,15 @@ export default function ChatGptPasteStep({
               href={flow?.authorizeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={markOpened}
+              onClick={(e) => {
+                // A small window over TREK: its last page is the one to copy from, and TREK stays in view.
+                // With noopener the browser hands back no window, so a blocked one cannot be told apart.
+                if (flow) {
+                  e.preventDefault();
+                  window.open(flow.authorizeUrl, 'trek-chatgpt', POPUP_FEATURES);
+                }
+                markOpened();
+              }}
               aria-disabled={!flow}
               className={`${SETTINGS_BUTTON_PRIMARY} ${flow ? '' : 'pointer-events-none opacity-50'}`}
               style={fs(13, 'body')}
@@ -110,6 +121,18 @@ export default function ChatGptPasteStep({
           </div>
         </Step>
         <Step n={2} text={t('assistant.connect.chatgptStep2')}>
+          {/* What the window ends on, so the error page is expected rather than alarming. */}
+          <div
+            aria-hidden="true"
+            dir="ltr"
+            className="flex min-w-0 items-center gap-2 rounded-full bg-surface-secondary px-3 py-1.5 font-mono text-content-muted"
+            style={fs(11.5)}
+          >
+            <Globe size={12} className="flex-none text-content-faint" />
+            <span className="truncate">
+              <span className="rounded bg-accent-subtle px-1 text-content">127.0.0.1:1455/auth/callback?code=…</span>
+            </span>
+          </div>
           <div className="flex gap-2">
             <input
               id={inputId}
