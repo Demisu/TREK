@@ -796,6 +796,8 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': 'Trasa nie ma jeszcze przebiegu, więc pozostały czas nie jest znany.',
   'tours.walk.remaining.noWalkingTime': 'Trasa nie ma jeszcze czasu marszu, więc pozostały czas nie jest znany.',
   'tours.walk.remaining.done': 'Wszystkie przystanki są zrobione.',
+  'tours.walk.remaining.wayBack':
+    'Wszystkie przystanki są zrobione. Została tylko droga od ostatniego przystanku do końca spaceru.',
   'tours.walk.visit.visited': 'Odwiedzony',
   'tours.walk.visit.skip': 'Pomiń',
   'tours.walk.visit.undo': 'Cofnij',

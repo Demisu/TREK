@@ -771,6 +771,8 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': 'Promenaden har ingen rutt än, så den återstående tiden är inte känd.',
   'tours.walk.remaining.noWalkingTime': 'Promenaden har ingen gångtid än, så den återstående tiden är inte känd.',
   'tours.walk.remaining.done': 'Alla stopp är klara.',
+  'tours.walk.remaining.wayBack':
+    'Alla stopp är klara. Bara vägen från det sista stoppet till promenadens slut är kvar.',
   'tours.walk.visit.visited': 'Besökt',
   'tours.walk.visit.skip': 'Hoppa över',
   'tours.walk.visit.undo': 'Ångra',

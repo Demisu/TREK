@@ -792,6 +792,8 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': 'Прогулянка ще не має маршруту, тож час, що лишився, невідомий.',
   'tours.walk.remaining.noWalkingTime': 'Прогулянка ще не має часу ходьби, тож час, що лишився, невідомий.',
   'tours.walk.remaining.done': 'Усі зупинки пройдено.',
+  'tours.walk.remaining.wayBack':
+    'Усі зупинки пройдено. Залишився лише шлях від останньої зупинки до кінця прогулянки.',
   'tours.walk.visit.visited': 'Відвідано',
   'tours.walk.visit.skip': 'Пропустити',
   'tours.walk.visit.undo': 'Скасувати',

@@ -776,6 +776,8 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': 'Prechádzka zatiaľ nemá trasu, takže zostávajúci čas nie je známy.',
   'tours.walk.remaining.noWalkingTime': 'Prechádzka zatiaľ nemá čas chôdze, takže zostávajúci čas nie je známy.',
   'tours.walk.remaining.done': 'Všetky zastávky sú hotové.',
+  'tours.walk.remaining.wayBack':
+    'Všetky zastávky sú hotové. Zostáva už len cesta od poslednej zastávky na koniec prechádzky.',
   'tours.walk.visit.visited': 'Navštívené',
   'tours.walk.visit.skip': 'Preskočiť',
   'tours.walk.visit.undo': 'Vrátiť',

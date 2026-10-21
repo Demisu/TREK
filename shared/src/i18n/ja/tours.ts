@@ -763,6 +763,8 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': 'ルートがまだないため、残り時間は分かりません。',
   'tours.walk.remaining.noWalkingTime': '歩行時間がまだないため、残り時間は分かりません。',
   'tours.walk.remaining.done': 'すべての立ち寄り先が完了しました。',
+  'tours.walk.remaining.wayBack':
+    'すべての立ち寄り先が完了しました。残りは最後の立ち寄り先から散策の終点までの道のりだけです。',
   'tours.walk.visit.visited': '訪問済み',
   'tours.walk.visit.skip': 'スキップ',
   'tours.walk.visit.undo': '取り消す',

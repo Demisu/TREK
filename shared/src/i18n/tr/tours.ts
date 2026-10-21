@@ -776,6 +776,8 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': 'Yürüyüşün henüz rotası yok, bu yüzden kalan süre bilinmiyor.',
   'tours.walk.remaining.noWalkingTime': 'Yürüyüşün henüz yürüme süresi yok, bu yüzden kalan süre bilinmiyor.',
   'tours.walk.remaining.done': 'Tüm duraklar tamamlandı.',
+  'tours.walk.remaining.wayBack':
+    'Tüm duraklar tamamlandı. Yalnızca son duraktan yürüyüşün sonuna kadar olan yol kaldı.',
   'tours.walk.visit.visited': 'Ziyaret edildi',
   'tours.walk.visit.skip': 'Atla',
   'tours.walk.visit.undo': 'Geri al',

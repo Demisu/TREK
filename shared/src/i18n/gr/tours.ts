@@ -806,6 +806,8 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.noWalkingTime':
     'Η βόλτα δεν έχει ακόμα χρόνο περπατήματος, οπότε ο χρόνος που απομένει δεν είναι γνωστός.',
   'tours.walk.remaining.done': 'Όλες οι στάσεις ολοκληρώθηκαν.',
+  'tours.walk.remaining.wayBack':
+    'Όλες οι στάσεις ολοκληρώθηκαν. Απομένει μόνο η διαδρομή από την τελευταία στάση ως το τέλος της βόλτας.',
   'tours.walk.visit.visited': 'Επισκέφθηκα',
   'tours.walk.visit.skip': 'Παράλειψη',
   'tours.walk.visit.undo': 'Αναίρεση',

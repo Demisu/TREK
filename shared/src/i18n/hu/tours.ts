@@ -787,6 +787,7 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': 'A sétának még nincs útvonala, így a hátralévő idő nem ismert.',
   'tours.walk.remaining.noWalkingTime': 'A sétának még nincs gyaloglási ideje, így a hátralévő idő nem ismert.',
   'tours.walk.remaining.done': 'Minden megálló kész.',
+  'tours.walk.remaining.wayBack': 'Minden megálló kész. Már csak az út van hátra az utolsó megállótól a séta végéig.',
   'tours.walk.visit.visited': 'Meglátogatva',
   'tours.walk.visit.skip': 'Kihagyás',
   'tours.walk.visit.undo': 'Visszavonás',

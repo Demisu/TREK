@@ -73,8 +73,8 @@ export class TourVisitsService {
   }
 
   /** CW-09: a walk on one day, read for an assistant; nothing changes. */
-  async progress(tripId: number, placeId: number, dayId: number): Promise<WalkProgress> {
-    return (await this.dayRun(tripId, placeId, dayId)).progress;
+  async progress(tripId: number, placeId: number, dayId: number, assignmentId?: number): Promise<WalkProgress> {
+    return (await this.dayRun(tripId, placeId, dayId, assignmentId)).progress;
   }
 
   /**
@@ -83,9 +83,9 @@ export class TourVisitsService {
    * the stays still open, apart. Read afresh each time, so a station checked
    * off since counts; nothing changes.
    */
-  async remaining(tripId: number, placeId: number, dayId: number): Promise<WalkRemaining> {
+  async remaining(tripId: number, placeId: number, dayId: number, assignmentId?: number): Promise<WalkRemaining> {
     const [{ walk, progress }, place] = await Promise.all([
-      this.dayRun(tripId, placeId, dayId),
+      this.dayRun(tripId, placeId, dayId, assignmentId),
       this.placesRepo.findInTrip(placeId, tripId),
     ]);
     const remainder = walkRemainderOf({
@@ -107,8 +107,9 @@ export class TourVisitsService {
     tripId: number,
     placeId: number,
     dayId: number,
+    runId?: number,
   ): Promise<{ walk: WalkOnDay; progress: WalkProgress }> {
-    const assignmentId = await this.visitsRepo.assignmentOnDay(tripId, placeId, dayId);
+    const assignmentId = await this.runOnDay(tripId, placeId, dayId, runId);
     if (assignmentId === undefined) throw new NotFoundException('City walk not on this day');
     const walk = await this.walkOnDay(tripId, assignmentId);
     const tour = await this.toursRepo.findInTrip(tripId, placeId);
@@ -140,6 +141,18 @@ export class TourVisitsService {
       walking_minutes: tour?.duration ?? null,
     };
     return { walk, progress };
+  }
+
+  /** The named run of the walk on that day, or its first one when none is named. */
+  private async runOnDay(
+    tripId: number,
+    placeId: number,
+    dayId: number,
+    runId: number | undefined,
+  ): Promise<number | undefined> {
+    if (runId === undefined) return await this.visitsRepo.assignmentOnDay(tripId, placeId, dayId);
+    const run = await this.visitsRepo.assignmentInTrip(runId, tripId);
+    return run?.place_id === placeId && run.day_id === dayId ? runId : undefined;
   }
 
   /** Marks a station of a walk on one of its days, or takes it back to planned. */
@@ -194,13 +207,20 @@ export interface WalkProgress {
   walking_minutes: number | null;
 }
 
-/** The fields of a remaining time worked out on reading, never stored with the walk. */
+/**
+ * The fields of a remaining time worked out on reading, never stored with the
+ * walk; walking.total_minutes is the walking time as saved.
+ */
 const REMAINDER_DERIVED = [
   'reference',
   'finished',
   'walking.remaining_minutes',
+  'walking.upper_bound',
+  'walking.skipped_ahead',
+  'walking.unknown_because',
   'walking.after_last_station_minutes',
-  'open_stations.walk_minutes_from_reference',
+  'stays',
+  'open_stations',
 ] as const;
 
 /** CW-13: what is left of a walk on one day, for an assistant. */

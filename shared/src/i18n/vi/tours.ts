@@ -773,6 +773,7 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': 'Lộ trình chưa có đường đi, nên chưa biết thời gian còn lại.',
   'tours.walk.remaining.noWalkingTime': 'Lộ trình chưa có thời gian đi bộ, nên chưa biết thời gian còn lại.',
   'tours.walk.remaining.done': 'Đã xong mọi điểm dừng.',
+  'tours.walk.remaining.wayBack': 'Đã xong mọi điểm dừng. Chỉ còn đoạn đường từ điểm dừng cuối đến cuối chuyến đi bộ.',
   'tours.walk.visit.visited': 'Đã ghé',
   'tours.walk.visit.skip': 'Bỏ qua',
   'tours.walk.visit.undo': 'Hoàn tác',

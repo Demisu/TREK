@@ -717,6 +717,7 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': '漫步還沒有路線，所以剩餘時間未知。',
   'tours.walk.remaining.noWalkingTime': '漫步還沒有步行時間，所以剩餘時間未知。',
   'tours.walk.remaining.done': '所有站點都已完成。',
+  'tours.walk.remaining.wayBack': '所有站點都已完成。只剩從最後一站走到散步終點的路。',
   'tours.walk.visit.visited': '已到訪',
   'tours.walk.visit.skip': '略過',
   'tours.walk.visit.undo': '復原',

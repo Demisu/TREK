@@ -105,7 +105,10 @@ describe('walkRemainingText', () => {
   it('names the stations that leave the order unclear, dimmed', () => {
     expect(text({ visits: { 'stop-square': 'visited' } })).toEqual({
       value: 'tours.walk.remaining.unclear',
-      label: 'tours.walk.remaining.unclearHint {"names":"Museum","last":"Old square"}',
+      label: [
+        'tours.walk.remaining.unclearHint {"names":"Museum","last":"Old square"}',
+        'tours.walk.remaining.stays {"time":"45 min"}',
+      ].join(' '),
       known: false,
     });
   });
@@ -128,5 +131,24 @@ describe('walkRemainingText', () => {
       label: 'tours.walk.remaining.done',
       known: true,
     });
+  });
+
+  it('says only the way back is left once every stop of a loop is done', () => {
+    const loop: Array<[number, number]> = [...ROUTE, [48.001, 11.001], [48, 11]];
+    const remainder = walkRemainingOf(
+      input({
+        route: loop,
+        walkingMinutes: 60,
+        visits: { 'stop-museum': 'visited', 'stop-square': 'visited', 'stop-cafe': 'visited' },
+      })
+    );
+    if (!remainder) throw new Error('no remainder');
+    expect(remainder.finished).toBe(true);
+    expect(remainder.walking.remaining_minutes).toBeGreaterThan(0);
+    expect(remainder.walking.remaining_minutes).toBe(remainder.walking.after_last_station_minutes);
+    const { value, label, known } = walkRemainingText(remainder, t);
+    expect(value).toMatch(/^tours\.walk\.remaining\.pill \{"time":"\d+ min"\}$/);
+    expect(label).toBe('tours.walk.remaining.wayBack');
+    expect(known).toBe(true);
   });
 });

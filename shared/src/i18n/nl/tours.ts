@@ -789,6 +789,8 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': 'De wandeling heeft nog geen route, dus de resterende tijd is niet bekend.',
   'tours.walk.remaining.noWalkingTime': 'De wandeling heeft nog geen looptijd, dus de resterende tijd is niet bekend.',
   'tours.walk.remaining.done': 'Alle haltes zijn gedaan.',
+  'tours.walk.remaining.wayBack':
+    'Alle haltes zijn gedaan. Alleen de weg van de laatste halte naar het einde van de wandeling is nog over.',
   'tours.walk.visit.visited': 'Bezocht',
   'tours.walk.visit.skip': 'Overslaan',
   'tours.walk.visit.undo': 'Terugnemen',

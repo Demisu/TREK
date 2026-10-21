@@ -779,6 +779,7 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': 'لا مسار للجولة بعد، لذا الوقت المتبقي غير معروف.',
   'tours.walk.remaining.noWalkingTime': 'لا وقت مشي للجولة بعد، لذا الوقت المتبقي غير معروف.',
   'tours.walk.remaining.done': 'تمت كل المحطات.',
+  'tours.walk.remaining.wayBack': 'تمت كل المحطات. لم يتبقَّ سوى الطريق من آخر محطة إلى نهاية الجولة.',
   'tours.walk.visit.visited': 'تمت الزيارة',
   'tours.walk.visit.skip': 'تخطي',
   'tours.walk.visit.undo': 'تراجع',

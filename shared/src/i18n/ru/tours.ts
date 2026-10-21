@@ -798,6 +798,8 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': 'У прогулки пока нет маршрута, поэтому оставшееся время неизвестно.',
   'tours.walk.remaining.noWalkingTime': 'У прогулки пока нет времени в пути, поэтому оставшееся время неизвестно.',
   'tours.walk.remaining.done': 'Все остановки пройдены.',
+  'tours.walk.remaining.wayBack':
+    'Все остановки пройдены. Остался только путь от последней остановки до конца прогулки.',
   'tours.walk.visit.visited': 'Посещено',
   'tours.walk.visit.skip': 'Пропустить',
   'tours.walk.visit.undo': 'Отменить',

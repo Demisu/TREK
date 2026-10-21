@@ -777,6 +777,8 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': 'Gəzintinin hələ marşrutu yoxdur, ona görə qalan vaxt bilinmir.',
   'tours.walk.remaining.noWalkingTime': 'Gəzintinin hələ yürüş vaxtı yoxdur, ona görə qalan vaxt bilinmir.',
   'tours.walk.remaining.done': 'Bütün dayanacaqlar tamamlandı.',
+  'tours.walk.remaining.wayBack':
+    'Bütün dayanacaqlar tamamlandı. Yalnız sonuncu dayanacaqdan gəzintinin sonuna qədər olan yol qalıb.',
   'tours.walk.visit.visited': 'Ziyarət edildi',
   'tours.walk.visit.skip': 'Keç',
   'tours.walk.visit.undo': 'Geri al',

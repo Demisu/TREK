@@ -756,6 +756,7 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': '산책에 아직 경로가 없어 남은 시간을 알 수 없습니다.',
   'tours.walk.remaining.noWalkingTime': '산책에 아직 도보 시간이 없어 남은 시간을 알 수 없습니다.',
   'tours.walk.remaining.done': '모든 정류지를 마쳤습니다.',
+  'tours.walk.remaining.wayBack': '모든 정류지를 마쳤습니다. 마지막 정류지에서 산책 끝까지 가는 길만 남았습니다.',
   'tours.walk.visit.visited': '방문함',
   'tours.walk.visit.skip': '건너뛰기',
   'tours.walk.visit.undo': '되돌리기',

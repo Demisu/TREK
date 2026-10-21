@@ -335,7 +335,7 @@ describe('TourVisitsService', () => {
 
   it('TOUR-VISITS-008: remaining counts from the last visit along the saved line, a point without a key passed behind it', async () => {
     const { trip, day1, walk, onDay1 } = await fixture();
-    // Straight north through the four stations, one stretch of 0.01 degrees between each.
+    // Straight north-east through the four stations, the same stretch between each.
     const line = [
       [48.1, 11.5],
       [48.11, 11.51],
@@ -391,6 +391,32 @@ describe('TourVisitsService', () => {
     expect(remaining.walking.after_last_station_minutes).toBeGreaterThan(0);
     expect(remaining.walking.remaining_minutes).toBe(remaining.walking.after_last_station_minutes);
     await expect(visits.remaining(trip.id, walk.id, day3.id)).rejects.toEqual(
+      new NotFoundException('City walk not on this day'),
+    );
+  });
+
+  it('TOUR-VISITS-010: a walk put on one day twice reads the run it is asked for, the first without one', async () => {
+    const { trip, day1, day2, walk, hike, onDay1, onDay2, hikeOnDay1 } = await fixture();
+    const again = await makeDayAssignment(orm(), day1.id, walk.id);
+    await markStationVisit(orm(), again.id, 'stop-cathedral', 'visited');
+
+    const first = await visits.remaining(trip.id, walk.id, day1.id);
+    expect(first).toMatchObject({ assignment_id: onDay1.id, reference: { kind: 'start' } });
+    const second = await visits.remaining(trip.id, walk.id, day1.id, again.id);
+    expect(second).toMatchObject({
+      assignment_id: again.id,
+      reference: { kind: 'last_visited', station: { key: 'stop-cathedral' } },
+    });
+    expect((await visits.progress(trip.id, walk.id, day1.id, again.id)).stations[0].status).toBe('visited');
+
+    await Promise.all(
+      [onDay2.id, hikeOnDay1.id, 999999].map((elsewhere) =>
+        expect(visits.remaining(trip.id, walk.id, day1.id, elsewhere)).rejects.toEqual(
+          new NotFoundException('City walk not on this day'),
+        ),
+      ),
+    );
+    await expect(visits.progress(trip.id, hike.id, day2.id, onDay2.id)).rejects.toEqual(
       new NotFoundException('City walk not on this day'),
     );
   });

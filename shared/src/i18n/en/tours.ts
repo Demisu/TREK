@@ -772,6 +772,7 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': 'The walk has no route yet, so the time left is not known.',
   'tours.walk.remaining.noWalkingTime': 'The walk has no walking time yet, so the time left is not known.',
   'tours.walk.remaining.done': 'Every stop is done.',
+  'tours.walk.remaining.wayBack': 'Every stop is done. Only the way from the last stop to the end of the walk is left.',
   'tours.walk.visit.visited': 'Mark visited',
   'tours.walk.visit.skip': 'Skip',
   'tours.walk.visit.undo': 'Take back',

@@ -790,6 +790,8 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': 'La ruta encara no té recorregut, així que el temps restant no se sap.',
   'tours.walk.remaining.noWalkingTime': 'La ruta encara no té temps a peu, així que el temps restant no se sap.',
   'tours.walk.remaining.done': 'Totes les parades estan fetes.',
+  'tours.walk.remaining.wayBack':
+    "Totes les parades estan fetes. Només queda el camí de l'última parada fins al final de la passejada.",
   'tours.walk.visit.visited': 'Visitada',
   'tours.walk.visit.skip': 'Omet',
   'tours.walk.visit.undo': 'Desfés',

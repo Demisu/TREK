@@ -775,6 +775,7 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': 'Jalutusel pole veel marsruuti, seega järelejäänud aeg pole teada.',
   'tours.walk.remaining.noWalkingTime': 'Jalutusel pole veel kõndimisaega, seega järelejäänud aeg pole teada.',
   'tours.walk.remaining.done': 'Kõik peatused on tehtud.',
+  'tours.walk.remaining.wayBack': 'Kõik peatused on tehtud. Jäänud on vaid tee viimasest peatusest jalutuskäigu lõppu.',
   'tours.walk.visit.visited': 'Külastatud',
   'tours.walk.visit.skip': 'Jäta vahele',
   'tours.walk.visit.undo': 'Võta tagasi',

@@ -87,7 +87,10 @@ function unknownText(remainder: WalkRemainder, t: Translate): WalkRemainingText 
     const names = reference.open_before.map((station) => stationName(station, t)).join(', ');
     return {
       value: t('tours.walk.remaining.unclear'),
-      label: t('tours.walk.remaining.unclearHint', { names, last: stationName(reference.last_visited, t) }),
+      label: [
+        t('tours.walk.remaining.unclearHint', { names, last: stationName(reference.last_visited, t) }),
+        ...staysText(remainder, t),
+      ].join(' '),
       known: false,
     };
   }
@@ -106,8 +109,9 @@ function unknownText(remainder: WalkRemainder, t: Translate): WalkRemainingText 
  * CW-13: the remaining time as the pill says it: the walking time still
  * ahead, an upper bound while a stop ahead is skipped, and in its tooltip what
  * it counts from, the part after the last stop and the stays still open, which
- * are never added to it. A time not known says why, and an unclear order
- * names the stops that make it so.
+ * are never added to it. Once every stop is done, what is left is the way to
+ * the end of the walk. A time not known says why, and an unclear order names
+ * the stops that make it so.
  */
 export function walkRemainingText(remainder: WalkRemainder, t: Translate): WalkRemainingText {
   const { reference, walking } = remainder;
@@ -118,9 +122,11 @@ export function walkRemainingText(remainder: WalkRemainder, t: Translate): WalkR
   }
   const after = walking.after_last_station_minutes ?? 0;
   const parts = [
-    reference.kind === 'start'
-      ? t('tours.walk.remaining.fromStart')
-      : t('tours.walk.remaining.fromStation', { name: stationName(reference.station, t) }),
+    remainder.finished
+      ? t('tours.walk.remaining.wayBack')
+      : reference.kind === 'start'
+        ? t('tours.walk.remaining.fromStart')
+        : t('tours.walk.remaining.fromStation', { name: stationName(reference.station, t) }),
     walking.upper_bound ? t('tours.walk.remaining.upperBound') : null,
     after > 0 && after < walking.remaining_minutes
       ? t('tours.walk.remaining.afterLast', { time: formatPlannedTourDuration(after) })

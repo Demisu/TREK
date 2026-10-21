@@ -801,6 +801,8 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.noWalkingTime':
     "La balade n'a pas encore de temps de marche, le temps restant n'est donc pas connu.",
   'tours.walk.remaining.done': 'Toutes les étapes sont faites.',
+  'tours.walk.remaining.wayBack':
+    'Toutes les étapes sont faites. Il ne reste que le chemin de la dernière étape à la fin de la balade.',
   'tours.walk.visit.visited': 'Visitée',
   'tours.walk.visit.skip': 'Passer',
   'tours.walk.visit.undo': 'Annuler',

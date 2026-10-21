@@ -793,6 +793,8 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': 'Der Walk hat noch keine Route, daher ist die Restzeit nicht bekannt.',
   'tours.walk.remaining.noWalkingTime': 'Der Walk hat noch keine Gehzeit, daher ist die Restzeit nicht bekannt.',
   'tours.walk.remaining.done': 'Alle Stationen sind erledigt.',
+  'tours.walk.remaining.wayBack':
+    'Alle Stationen sind erledigt. Es bleibt nur noch der Weg von der letzten Station zum Ende des Spaziergangs.',
   'tours.walk.visit.visited': 'Besucht',
   'tours.walk.visit.skip': 'Überspringen',
   'tours.walk.visit.undo': 'Zurücknehmen',

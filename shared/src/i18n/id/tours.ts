@@ -783,6 +783,7 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': 'Rute belum punya jalur, jadi sisa waktu tidak diketahui.',
   'tours.walk.remaining.noWalkingTime': 'Rute belum punya waktu jalan, jadi sisa waktu tidak diketahui.',
   'tours.walk.remaining.done': 'Semua titik sudah selesai.',
+  'tours.walk.remaining.wayBack': 'Semua titik sudah selesai. Tinggal jalan dari titik terakhir ke akhir jalan kaki.',
   'tours.walk.visit.visited': 'Sudah dikunjungi',
   'tours.walk.visit.skip': 'Lewati',
   'tours.walk.visit.undo': 'Batalkan',

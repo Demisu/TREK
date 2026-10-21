@@ -849,7 +849,16 @@ describe('ToursMcp', () => {
         walk_minutes_from_reference: 80,
       },
     ]);
-    expect(first.derived).toEqual(expect.arrayContaining(['walking.remaining_minutes', 'reference']));
+    expect(first.derived).toEqual(
+      expect.arrayContaining([
+        'walking.remaining_minutes',
+        'walking.upper_bound',
+        'reference',
+        'stays',
+        'open_stations',
+      ]),
+    );
+    expect(first.derived).not.toContain('walking.total_minutes');
 
     // Checked off since: read again, the stretch to the market is behind.
     await t.get(TourVisitsService).update(String(trip.id), onDay1.id, 'stop-market', { status: 'visited' });
@@ -876,6 +885,29 @@ describe('ToursMcp', () => {
       'stop-park',
     ]);
     expect(result.stays).toMatchObject({ remaining_known_minutes: 50 });
+  });
+
+  it('TOURS-MCP-033: a walk put on one day twice is read per run, an assignment of another walk or day refused', async () => {
+    const { member, trip, day1, day2, walk, ridge, onDay1, remaining } = await remainingFixture();
+    const orm = await createTestOrm(db);
+    const again = await makeDayAssignment(orm, day1.id, walk.id);
+    const onDay2 = await makeDayAssignment(orm, day2.id, walk.id);
+    const ridgeOnDay1 = await makeDayAssignment(orm, day1.id, ridge.id);
+    await orm.close();
+    expect((await remaining(member.id)).assignment_id).toBe(onDay1.id);
+    const run = (assignmentId: number) => ({ tripId: trip.id, placeId: walk.id, dayId: day1.id, assignmentId });
+    const second = read(await mcp.getCityWalkRemainingTime(run(again.id), ctx(member.id)));
+    expect(second).toMatchObject({ assignment_id: again.id, reference: { kind: 'start' } });
+    const progress = read(await mcp.getCityWalkProgress(run(again.id), ctx(member.id)));
+    expect(progress.assignment_id).toBe(again.id);
+    expect(progress.stations.every((station: { status: string }) => station.status === 'planned')).toBe(true);
+    const refused = await Promise.all(
+      [onDay2.id, ridgeOnDay1.id].flatMap((other) => [
+        mcp.getCityWalkRemainingTime(run(other), ctx(member.id)),
+        mcp.getCityWalkProgress(run(other), ctx(member.id)),
+      ]),
+    );
+    expect(refused.map(read)).toEqual(Array(4).fill({ error: 'No city walk of this trip is on that day.' }));
   });
 
   it('TOURS-MCP-030: without a line or with a station open before the last visit, the time stays unknown with its reason', async () => {
@@ -944,6 +976,8 @@ describe('ToursMcp', () => {
       'stays.unknown',
       'never by how many stations are open',
       'Reading changes nothing',
+      'never present them as stored facts',
+      'assignmentId',
     ]) {
       expect(description).toContain(field);
     }

@@ -792,6 +792,8 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.noWalkingTime':
     'Il percorso non ha ancora un tempo a piedi, quindi il tempo rimanente non è noto.',
   'tours.walk.remaining.done': 'Tutte le tappe sono fatte.',
+  'tours.walk.remaining.wayBack':
+    "Tutte le tappe sono fatte. Resta solo il tratto dall'ultima tappa alla fine della passeggiata.",
   'tours.walk.visit.visited': 'Visitata',
   'tours.walk.visit.skip': 'Salta',
   'tours.walk.visit.undo': 'Annulla',

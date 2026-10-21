@@ -742,6 +742,7 @@ const tours: TranslationStrings = {
   'tours.walk.remaining.routePending': 'ทริปยังไม่มีเส้นทาง จึงยังไม่ทราบเวลาที่เหลือ',
   'tours.walk.remaining.noWalkingTime': 'ทริปยังไม่มีเวลาเดิน จึงยังไม่ทราบเวลาที่เหลือ',
   'tours.walk.remaining.done': 'ทุกจุดแวะเสร็จแล้ว',
+  'tours.walk.remaining.wayBack': 'ทุกจุดแวะเสร็จแล้ว เหลือเพียงทางจากจุดแวะสุดท้ายไปยังจุดสิ้นสุดของการเดิน',
   'tours.walk.visit.visited': 'แวะแล้ว',
   'tours.walk.visit.skip': 'ข้าม',
   'tours.walk.visit.undo': 'ยกเลิก',
