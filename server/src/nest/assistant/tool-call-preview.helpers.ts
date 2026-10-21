@@ -8,6 +8,8 @@ import {
   REMEMBER_TOOL,
   writeToolOf,
 } from './assistant-tools.constants';
+import type { ToolHint } from './assistant-tools.service';
+import { describeGeneric } from './tool-call-generic.helpers';
 import type {
   AssistantApplied,
   AssistantChangeEffect,
@@ -29,6 +31,8 @@ export interface PreviewContext {
   card: TripCard;
   categories: ReadonlyMap<number, string>;
   locale: string;
+  /** What a tool without a card of its own says about itself, for the card built from its arguments. */
+  hintOf?: (toolName: string) => ToolHint | null;
 }
 
 /** Longest value a row shows; URLs keep their start, so the host stays visible. */
@@ -494,7 +498,7 @@ export function describeToolCall(
   const runs = writeToolOf(toolName, args);
   const tool = writeTool(runs);
   const describe = DESCRIBERS[runs];
-  if (!tool || !describe) throw new Error(`No change card for tool "${toolName}"`);
+  if (!tool || !describe) return describeGeneric(runs, toolCallId, args, ctx.card, ctx.hintOf?.(runs) ?? null);
   const described = describe(ctx, args);
   return {
     toolCallId,
@@ -542,8 +546,8 @@ export function appliedChange(
   dayId: number | null,
   undoUntil: string | null,
 ): AssistantApplied | null {
-  const tool = writeTool(writeToolOf(toolName, args));
-  if (!tool) return null;
+  // A tool without a card of its own touched something the client has no view for.
+  const tool = writeTool(writeToolOf(toolName, args)) ?? { entity: 'other' as const };
   const touched = createdId(result) ?? ARG_KEYS.map((key) => id(args, key)).find((value) => value !== null) ?? null;
   return {
     toolCallId,

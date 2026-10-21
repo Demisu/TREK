@@ -401,5 +401,19 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.rememberNote': 'Onthouden voor deze reis',
   'assistant.change.details': 'Meer gegevens',
   'assistant.change.detailsHide': 'Gegevens verbergen',
+  'assistant.change.verb.genericCreate': 'Toevoegen',
+  'assistant.change.verb.genericUpdate': 'Wijzigen',
+  'assistant.change.verb.genericRemove': 'Verwijderen',
+  'assistant.change.label.field': 'Waarde',
+  'assistant.domain.tours': 'Routes',
+  'assistant.domain.roadtrip': 'Roadtrip',
+  'assistant.domain.journey': 'Reisdagboek',
+  'assistant.domain.vacay': 'Vakantieplanner',
+  'assistant.domain.atlas': 'Atlas',
+  'assistant.domain.collections': 'Collecties',
+  'assistant.domain.collab': 'Reischat',
+  'assistant.domain.files': 'Bestanden',
+  'assistant.domain.account': 'Account', // same-as-en
+  'assistant.domain.plugins': 'Uitbreidingen',
 };
 export default assistant;

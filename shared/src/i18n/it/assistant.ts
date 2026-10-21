@@ -406,5 +406,19 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.rememberNote': 'Ricorda per questo viaggio',
   'assistant.change.details': 'Dettagli',
   'assistant.change.detailsHide': 'Nascondi dettagli',
+  'assistant.change.verb.genericCreate': 'Aggiungi',
+  'assistant.change.verb.genericUpdate': 'Modifica',
+  'assistant.change.verb.genericRemove': 'Rimuovi',
+  'assistant.change.label.field': 'Valore',
+  'assistant.domain.tours': 'Percorsi',
+  'assistant.domain.roadtrip': 'Viaggio su strada',
+  'assistant.domain.journey': 'Diario di viaggio',
+  'assistant.domain.vacay': 'Pianificatore ferie',
+  'assistant.domain.atlas': 'Atlas',
+  'assistant.domain.collections': 'Raccolte',
+  'assistant.domain.collab': 'Chat del viaggio',
+  'assistant.domain.files': 'File',
+  'assistant.domain.account': 'Account', // same-as-en
+  'assistant.domain.plugins': 'Estensioni',
 };
 export default assistant;

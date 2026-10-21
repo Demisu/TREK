@@ -374,7 +374,7 @@ describe('Trip assistant e2e', () => {
     expect(shown.body.messages[1].parts).toEqual([{ type: 'text', text: 'Kyoto in June is lovely.' }]);
   });
 
-  it('ASTE2E-004: a read runs at once on the trip, and the model never sees the trip id or the denied tools', async () => {
+  it('ASTE2E-004: a read runs at once on the trip, and the model never sees the trip id or a denied tool', async () => {
     const t = await travelerWithTrip();
     provider.script = [callTools({ id: 'call_r', name: 'list_places', args: {} }), say('You have Kinkaku-ji.')];
     const turn = await post(`${t.base}/chat`, t.userId, { ...CTX, threadId: null, text: 'What is planned?' });
@@ -383,7 +383,7 @@ describe('Trip assistant e2e', () => {
     const tools = provider.requests[0].tools ?? [];
     const names = tools.map((tool) => tool.function.name);
     expect(names).toContain('list_places');
-    for (const denied of ['delete_place', 'delete_trip', 'import_places_from_url', 'create_share_link']) {
+    for (const denied of ['delete_trip', 'import_places_from_url', 'create_share_link']) {
       expect(names).not.toContain(denied);
     }
     for (const tool of tools) expect(Object.keys(tool.function.parameters.properties ?? {})).not.toContain('tripId');

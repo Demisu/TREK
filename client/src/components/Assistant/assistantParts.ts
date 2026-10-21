@@ -249,6 +249,8 @@ export function undoLeftMs(applied: AssistantApplied | null, now: number): numbe
 
 /** The label of each field a change row can show. A table, so every key is named where it is read. */
 export const CHANGE_LABELS: Record<AssistantChangeLabelKey, { labelKey: string }> = {
+  // A tool's own argument: the row names it in `field`, this is only its fallback.
+  field: { labelKey: 'assistant.change.label.field' },
   name: { labelKey: 'assistant.change.label.name' },
   description: { labelKey: 'assistant.change.label.description' },
   address: { labelKey: 'assistant.change.label.address' },

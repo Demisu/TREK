@@ -1,23 +1,25 @@
 /**
- * The assistant's tool sessions over the container's real MCP registry: the
- * allowlist exists, stays apart from what is denied and matches the tools'
- * own annotations; a session offers nothing else (no plugin tools), hides
- * the trip and the arguments the server sets; and its calls run on the
- * conversation's trip with the user's rights, broadcasting and auditing as
- * an MCP client's would.
+ * The assistant's tool sessions over the container's real MCP registry: every
+ * registered tool is offered but the denied ones, a sharing tool cannot slip
+ * past the denylist, what runs at once is what the tools call read-only, a
+ * turn starts with the core and loads an addon's tools on request; a session
+ * hides the trip and the arguments the server sets, and its calls run on the
+ * conversation's trip with the user's rights, broadcasting and auditing as an
+ * MCP client's would.
  */
 import { AuditLog } from '../../../../src/db/entities/AuditLog.entity';
 import { McpRegistryService } from '../../../../src/nest-mcp';
 import {
+  ASSISTANT_DENIED_TOOLS,
+  ASSISTANT_TOOL_GROUPS,
+  checkDenylist,
+  isOfferedTool,
+} from '../../../../src/nest/assistant/assistant-tool-offer';
+import {
   ASSISTANT_ARG_POLICY,
-  ASSISTANT_READ_TOOLS,
-  ASSISTANT_REMOVAL_TOOLS,
   ASSISTANT_SCOPES,
   ASSISTANT_SERVER_TOOLS,
-  ASSISTANT_TOOL_ALLOWLIST,
-  ASSISTANT_UNDO_MAP,
   ASSISTANT_WRITE_TOOLS,
-  isDeniedTool,
 } from '../../../../src/nest/assistant/assistant-tools.constants';
 import { AssistantToolsService, checkToolCatalog } from '../../../../src/nest/assistant/assistant-tools.service';
 import { withRequestContext } from '../../../../src/nest/database/request-context';
@@ -47,9 +49,9 @@ interface ListedTool {
 }
 let listed: Map<string, ListedTool>;
 
-/** Every allowlisted tool and undo target as the registry attaches them, with full scopes and every addon on. */
+/** Every registered tool as the registry attaches it, with full scopes and every addon on. */
 async function listRaw(userId: number): Promise<Map<string, ListedTool>> {
-  const names = new Set([...ASSISTANT_TOOL_ALLOWLIST, ...Object.values(ASSISTANT_UNDO_MAP).map((undo) => undo.tool)]);
+  const names = new Set(registry.list().map((entry) => entry.name));
   const server = new McpServer({ name: 'assistant-test', version: '1.0.0' });
   await withRequestContext(orm, () =>
     registry.attach(
@@ -79,46 +81,44 @@ beforeAll(async () => {
 });
 
 describe('the assistant tool catalog', () => {
-  it('ASTTOOL-001: every allowlisted tool and undo target is registered', () => {
+  it('ASTTOOL-001: the tools with a card of their own and the undo targets are registered', () => {
     expect(checkToolCatalog(registry.list())).toEqual([]);
-    expect([...ASSISTANT_TOOL_ALLOWLIST].filter((name) => !listed.has(name))).toEqual([]);
+    expect(Object.keys(ASSISTANT_WRITE_TOOLS).filter((name) => !listed.has(name))).toEqual([]);
   });
 
-  it('ASTTOOL-002: names what is missing or denied', () => {
-    expect(checkToolCatalog([])).toContain('allowlisted tool "get_trip_summary" is not registered');
+  it('ASTTOOL-002: names what is missing, what clashes and a sharing tool the denylist missed', () => {
+    expect(checkToolCatalog([])).toContain('tool "create_place" with a card of its own is not registered');
     expect(checkToolCatalog([])).toContain('undo tool "delete_place" is not registered');
-    const clash = [{ kind: 'tool' as const, name: 'import_booking', className: 'X', methodName: 'y' }];
-    expect(checkToolCatalog(clash)).toContain('"import_booking" is the server\'s own step');
+    const entry = (name: string) => ({ kind: 'tool' as const, name, className: 'X', methodName: 'y' });
+    expect(checkToolCatalog([entry('import_booking')])).toContain('"import_booking" is the server\'s own step');
+    expect(checkToolCatalog([entry('use_addon_tools')])).toContain('"use_addon_tools" is the server\'s own step');
+    expect(checkDenylist(['create_party_invite'])).toEqual([
+      '"create_party_invite" shares, invites or publishes; deny it or list it as safe',
+    ]);
   });
 
-  it("ASTTOOL-006: the server's own steps are never offered to the model", () => {
-    for (const name of ASSISTANT_SERVER_TOOLS) {
-      expect(ASSISTANT_TOOL_ALLOWLIST.has(name), name).toBe(false);
-      expect(listed.has(name), name).toBe(false);
+  it("ASTTOOL-006: the server's own steps are no MCP tools", () => {
+    for (const name of ASSISTANT_SERVER_TOOLS) expect(listed.has(name), name).toBe(false);
+  });
+
+  it('ASTTOOL-003: every registered tool that shares, invites or publishes is denied or only takes back', () => {
+    expect(checkDenylist(listed.keys())).toEqual([]);
+    for (const name of ['delete_trip', 'create_share_link', 'enable_trip_calendar_feed', 'import_places_from_url']) {
+      expect(isOfferedTool(name), name).toBe(false);
     }
-  });
-
-  it('ASTTOOL-003: the allowlist and the denylist never meet; undo targets are never offered but the removal', () => {
-    for (const name of ASSISTANT_TOOL_ALLOWLIST) expect(isDeniedTool(name), name).toBe(false);
-    for (const undo of Object.values(ASSISTANT_UNDO_MAP)) {
-      if (ASSISTANT_REMOVAL_TOOLS.has(undo.tool)) continue;
-      expect(ASSISTANT_TOOL_ALLOWLIST.has(undo.tool), undo.tool).toBe(false);
-      expect(isDeniedTool(undo.tool), undo.tool).toBe(true);
+    for (const name of ['delete_place', 'list_upcoming_reservations', 'send_collab_message', 'toggle_vacay_entry']) {
+      expect(isOfferedTool(name), name).toBe(true);
     }
-    for (const name of ASSISTANT_REMOVAL_TOOLS) expect(ASSISTANT_WRITE_TOOLS[name], name).toBeDefined();
-    expect(ASSISTANT_READ_TOOLS.filter((name) => name in ASSISTANT_WRITE_TOOLS)).toEqual([]);
-    expect(isDeniedTool('create_share_link')).toBe(true);
-    expect(isDeniedTool('enable_trip_calendar_feed')).toBe(true);
-    expect(isDeniedTool('list_upcoming_reservations')).toBe(true);
+    for (const reason of Object.values(ASSISTANT_DENIED_TOOLS)) expect(reason.length).toBeGreaterThan(10);
   });
 
-  it('ASTTOOL-004: what runs at once is what the tools call read-only; nothing allowlisted deletes but the removal', () => {
-    for (const name of ASSISTANT_READ_TOOLS) expect(listed.get(name)?.annotations?.readOnlyHint, name).toBe(true);
+  it('ASTTOOL-004: the tools with a card of their own write; every group names controllers that exist', () => {
     for (const name of Object.keys(ASSISTANT_WRITE_TOOLS)) {
       expect(listed.get(name)?.annotations?.readOnlyHint === true, name).toBe(false);
     }
-    for (const name of ASSISTANT_TOOL_ALLOWLIST) {
-      expect(listed.get(name)?.annotations?.destructiveHint === true, name).toBe(ASSISTANT_REMOVAL_TOOLS.has(name));
+    const controllers = new Set(registry.list().map((entry) => entry.className));
+    for (const [group, { controllers: names }] of Object.entries(ASSISTANT_TOOL_GROUPS)) {
+      for (const name of names) expect(controllers.has(name), `${group}: ${name}`).toBe(true);
     }
   });
 
@@ -142,15 +142,18 @@ describe('an assistant tool session', () => {
     return { userId: user.id, tripId: trip.id, otherId: other.id };
   }
 
-  it('ASTTOOL-010: offers only allowlisted tools, without the trip or the arguments the server sets', async () => {
+  it('ASTTOOL-010: offers the core and its own steps, never a denied tool, without the trip or what the server sets', async () => {
     const { userId, tripId } = await ownerWithTrips();
     const session = await tools.open(userId, tripId);
     try {
       const specs = session.specs();
-      expect(specs.length).toBeGreaterThan(0);
+      const names = specs.map((spec) => spec.name);
+      expect(names).toEqual(expect.arrayContaining(['get_trip_summary', 'create_place', 'remember_for_trip']));
+      expect(names).toContain('use_addon_tools');
+      // An addon's tools wait until the model loads their group.
+      expect(names).not.toContain('list_tours');
       for (const spec of specs) {
-        // The trip notes are the server's own tool, offered beside the allowlist.
-        expect(ASSISTANT_TOOL_ALLOWLIST.has(spec.name) || spec.name === 'remember_for_trip', spec.name).toBe(true);
+        expect(isOfferedTool(spec.name), spec.name).toBe(true);
         const properties = Object.keys((spec.parameters.properties as Record<string, unknown> | undefined) ?? {});
         expect(properties, spec.name).not.toContain('tripId');
         const policy = ASSISTANT_ARG_POLICY[spec.name];
@@ -185,7 +188,11 @@ describe('an assistant tool session', () => {
       });
       expect(session.kindOf('list_places')).toBe('read');
       expect(session.kindOf('create_place')).toBe('write');
-      expect(session.kindOf('delete_place')).toBeNull();
+      // A deletion waits as a card; a read that fetches a planted address does too.
+      expect(session.kindOf('delete_place')).toBe('write');
+      expect(session.kindOf('resolve_maps_url')).toBe('write');
+      expect(session.kindOf('delete_trip')).toBeNull();
+      expect(session.hintOf('delete_place')).toMatchObject({ destructive: true, group: null });
     } finally {
       await session.close();
     }
@@ -218,6 +225,22 @@ describe('an assistant tool session', () => {
     try {
       const run = await session.call('list_places', {});
       expect(run).toEqual({ ok: false, value: 'Trip not found or access denied.' });
+    } finally {
+      await session.close();
+    }
+  });
+
+  it('ASTTOOL-015: the model loads an addon group for the rest of the turn; an unknown group is refused', async () => {
+    const { userId, tripId } = await ownerWithTrips();
+    const session = await tools.open(userId, tripId);
+    try {
+      expect(session.kindOf('use_addon_tools')).toBe('read');
+      expect((await session.call('use_addon_tools', { groups: ['nope'] })).ok).toBe(false);
+      const run = await session.call('use_addon_tools', { groups: ['tours'] });
+      expect(run).toMatchObject({ ok: true, value: { loaded: ['tours'] } });
+      expect((run.value as { tools: string[] }).tools).toContain('list_tours');
+      expect(session.specs().map((spec) => spec.name)).toContain('list_tours');
+      expect(session.hintOf('list_tours')).toMatchObject({ group: 'tours' });
     } finally {
       await session.close();
     }

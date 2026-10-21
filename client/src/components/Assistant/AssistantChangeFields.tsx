@@ -41,6 +41,12 @@ const KEY_ORDER = Object.keys(KEY_FIELDS) as AssistantChangeLabelKey[];
 /** Fields that mean nothing written out. */
 const HIDDEN: ReadonlySet<AssistantChangeLabelKey> = new Set(['coordinates', 'position', 'icon', 'color', 'currency']);
 
+/** What a row is called: its label, or for a tool's own argument the argument's name in words. */
+function labelOf(row: AssistantChangeRow, t: (key: string) => string): string {
+  if (row.labelKey === 'field' && row.field) return row.field.replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2');
+  return t(CHANGE_LABELS[row.labelKey]?.labelKey ?? 'assistant.change.label.field');
+}
+
 /** "#3" is how a day comes from the server; it reads as "Day 3". */
 function shown(row: AssistantChangeRow, value: string | null | undefined, dayWord: string): string {
   if (row.labelKey === 'day' && value && /^#\d+$/.test(value)) return `${dayWord} ${value.slice(1)}`;
@@ -50,7 +56,7 @@ function shown(row: AssistantChangeRow, value: string | null | undefined, dayWor
 function Chip({ row }: { row: AssistantChangeRow }) {
   const { t } = useTranslation();
   const Icon = KEY_FIELDS[row.labelKey] ?? Tag;
-  const label = t(CHANGE_LABELS[row.labelKey].labelKey);
+  const label = labelOf(row, t);
   const dayWord = t('assistant.week.day');
   const changed = row.op !== 'add' && !!row.before;
   return (
@@ -76,7 +82,7 @@ function DetailLine({ row }: { row: AssistantChangeRow }) {
   const changed = row.op !== 'add' && !!row.before;
   return (
     <div className="flex min-w-0 gap-2 text-caption">
-      <span className="w-20 flex-shrink-0 truncate text-content-faint">{t(CHANGE_LABELS[row.labelKey].labelKey)}</span>
+      <span className="w-24 flex-shrink-0 truncate text-content-faint">{labelOf(row, t)}</span>
       <span className="flex min-w-0 flex-1 items-center gap-1 text-content-secondary">
         {changed && (
           <>

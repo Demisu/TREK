@@ -405,5 +405,19 @@ const assistant: TranslationStrings = {
   'assistant.change.verb.rememberNote': 'Retenir pour ce voyage',
   'assistant.change.details': 'Détails',
   'assistant.change.detailsHide': 'Masquer les détails',
+  'assistant.change.verb.genericCreate': 'Ajouter',
+  'assistant.change.verb.genericUpdate': 'Modifier',
+  'assistant.change.verb.genericRemove': 'Supprimer',
+  'assistant.change.label.field': 'Valeur',
+  'assistant.domain.tours': 'Randonnées',
+  'assistant.domain.roadtrip': 'Road trip',
+  'assistant.domain.journey': 'Carnet de voyage',
+  'assistant.domain.vacay': 'Planificateur de congés',
+  'assistant.domain.atlas': 'Atlas',
+  'assistant.domain.collections': 'Collections', // same-as-en
+  'assistant.domain.collab': 'Discussion du voyage',
+  'assistant.domain.files': 'Fichiers',
+  'assistant.domain.account': 'Compte',
+  'assistant.domain.plugins': 'Extensions',
 };
 export default assistant;

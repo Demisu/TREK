@@ -12,8 +12,10 @@ import {
   MapPinPlus,
   NotebookPen,
   PencilLine,
+  Plus,
   StickyNote,
   Ticket,
+  Trash2,
   TriangleAlert,
   Undo2,
   Wallet,
@@ -83,6 +85,9 @@ const VERB_LOOK: Record<AssistantChangeVerbKey, { Icon: typeof Check; tone: Tone
   addReservation: { Icon: Ticket, tone: 'success' },
   importBooking: { Icon: Ticket, tone: 'success' },
   rememberNote: { Icon: NotebookPen, tone: 'info' },
+  genericCreate: { Icon: Plus, tone: 'success' },
+  genericUpdate: { Icon: PencilLine, tone: 'info' },
+  genericRemove: { Icon: Trash2, tone: 'danger' },
 };
 
 /** How a decided change reads: one quiet mark, its words in the tooltip. */
@@ -125,7 +130,15 @@ function ChangeHead({ preview, struck = false }: { preview: AssistantChangePrevi
   if (!preview) return <span className="trek-skeleton inline-block h-4 w-40" aria-hidden="true" />;
   return (
     <span className="flex min-w-0 flex-col">
-      <span className="text-caption text-content-muted">{t(`assistant.change.verb.${preview.verbKey}`)}</span>
+      <span className="flex min-w-0 items-center gap-1.5 text-caption text-content-muted">
+        <span className="truncate">{t(`assistant.change.verb.${preview.verbKey}`)}</span>
+        {preview.domain && (
+          // Where in TREK a change outside the trip plan lands: the vacation planner, the journal.
+          <span className="flex-shrink-0 rounded-full bg-surface-secondary px-1.5 font-medium text-content-secondary">
+            {t(`assistant.domain.${preview.domain}`)}
+          </span>
+        )}
+      </span>
       <bdi className={`truncate text-body font-semibold text-content ${struck ? 'line-through' : ''}`}>
         {preview.subject}
       </bdi>

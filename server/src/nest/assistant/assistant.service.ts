@@ -840,7 +840,8 @@ export class AssistantService {
           store: this.stepStore(spec),
           describe: async (toolName, toolCallId, args) => {
             categories ??= await this.categoriesOf(session);
-            return describeToolCall(toolName, toolCallId, args, { card, categories, locale: spec.locale });
+            const hintOf = (name: string) => session.hintOf(name);
+            return describeToolCall(toolName, toolCallId, args, { card, categories, locale: spec.locale, hintOf });
           },
           newId: randomUUID,
           quota: spec.quota,

@@ -190,13 +190,39 @@ describe('describeToolCall', () => {
     expect(preview.dayId).toBe(31);
   });
 
-  it('ASTPRV-015: every writing tool has a card, and anything else has none', () => {
+  it('ASTPRV-015: every writing tool has a card, a tool without one of its own a card from its arguments', () => {
     for (const name of Object.keys(ASSISTANT_WRITE_TOOLS)) {
       const preview = describe_(name, {});
       expect(assistantChangePreviewSchema.safeParse(preview).success, name).toBe(true);
       expect(preview.verbKey).toBe(ASSISTANT_WRITE_TOOLS[name].verbKey);
     }
-    expect(() => describe_('list_places', {})).toThrow(/No change card/);
+    const hinted = (destructive: boolean, creates: boolean, group: string | null) => ({
+      ...ctx,
+      hintOf: () => ({ destructive, creates, group }),
+    });
+    const vacay = describeToolCall(
+      'toggle_vacay_entry',
+      'tc-9',
+      { date: '2026-07-01', half: true },
+      hinted(false, false, 'vacay'),
+    );
+    expect(assistantChangePreviewSchema.safeParse(vacay).success).toBe(true);
+    expect(vacay).toMatchObject({ verbKey: 'genericUpdate', subject: '2026-07-01', domain: 'vacay', undoable: false });
+    expect(vacay.rows).toEqual([{ op: 'add', labelKey: 'field', field: 'half', before: null, after: '✓' }]);
+    const gone = describeToolCall('delete_day_note', 'tc-8', { dayId: 31, noteId: 41 }, hinted(true, false, null));
+    expect(gone).toMatchObject({
+      verbKey: 'genericRemove',
+      subject: 'delete day note',
+      dayId: 31,
+      tool: 'delete_day_note',
+    });
+    expect(gone.rows[0]).toMatchObject({ field: 'dayId', after: 'Arrival' });
+    // Without hints the name still tells a removal from an addition.
+    expect(describe_('create_collab_poll', { question: 'Where?' }).verbKey).toBe('genericCreate');
+    expect(describe_('unmark_country_visited', {}).verbKey).toBe('genericRemove');
+    expect(appliedChange('toggle_vacay_entry', 'tc-9', {}, { ok: true }, null, null)).toMatchObject({
+      entity: 'other',
+    });
   });
 
   it('ASTPRV-018: a change to the day plan says what it does to which day; anything else has no effect', () => {

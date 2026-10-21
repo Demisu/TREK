@@ -67,6 +67,10 @@ export const ASSISTANT_CHANGE_VERB_KEYS = [
   'addReservation',
   'importBooking',
   'rememberNote',
+  // Any other tool: by what its annotations say it does.
+  'genericCreate',
+  'genericUpdate',
+  'genericRemove',
 ] as const;
 export const assistantChangeVerbKeySchema = z.enum(ASSISTANT_CHANGE_VERB_KEYS);
 export type AssistantChangeVerbKey = z.infer<typeof assistantChangeVerbKeySchema>;
@@ -109,6 +113,8 @@ export const ASSISTANT_CHANGE_LABEL_KEYS = [
   'stay',
   'members',
   'route',
+  // An argument of a tool without a card of its own; the row names it in `field`.
+  'field',
 ] as const;
 export const assistantChangeLabelKeySchema = z.enum(ASSISTANT_CHANGE_LABEL_KEYS);
 export type AssistantChangeLabelKey = z.infer<typeof assistantChangeLabelKeySchema>;
@@ -250,6 +256,8 @@ export const assistantChangeRowSchema = z.object({
   labelKey: assistantChangeLabelKeySchema,
   before: z.string().nullable(),
   after: z.string(),
+  // The argument a `field` row shows, as the tool names it.
+  field: z.string().max(60).optional(),
 });
 export type AssistantChangeRow = z.infer<typeof assistantChangeRowSchema>;
 
@@ -267,13 +275,27 @@ export const assistantChangePreviewSchema = z.object({
   undoable: z.boolean(),
   // Left out by servers and stored previews from before the map showed changes.
   effect: assistantChangeEffectSchema.nullable().optional(),
+  // The tool behind a card without one of its own, and the part of TREK it works in.
+  tool: z.string().max(80).optional(),
+  domain: z.string().max(40).optional(),
 });
 export type AssistantChangePreview = z.infer<typeof assistantChangePreviewSchema>;
 
 /** An applied change: what it touched, and until when it can be undone. */
 export const assistantAppliedSchema = z.object({
   toolCallId: z.string(),
-  entity: z.enum(['place', 'assignment', 'day_note', 'packing', 'todo', 'budget', 'reservation', 'memory']),
+  entity: z.enum([
+    'place',
+    'assignment',
+    'day_note',
+    'packing',
+    'todo',
+    'budget',
+    'reservation',
+    'memory',
+    'tour',
+    'other',
+  ]),
   ids: z.array(idSchema),
   dayId: idSchema.nullable(),
   undoUntil: z.string().nullable(),

@@ -26,15 +26,21 @@ export const APPROVAL_TTL_MS = 24 * 60 * 60_000;
 export const TURNS_PER_MINUTE = 30;
 
 /**
- * What an assistant session may do, as the scopes an MCP client would hold.
- * Day notes sit in the `trips` group and day assignments in `places`; the
- * allowlist below, not these scopes, is what decides which tools exist.
+ * What an assistant session may do, as the scopes an MCP client would hold:
+ * everything a user can reach through MCP but deleting trips, share and
+ * invite links (trips:share, journey:share), file contents and plugin tools,
+ * whose tools the registry then never attaches. assistant-tool-offer.ts
+ * denies the few tools inside these scopes that no approval makes safe.
  */
 export const ASSISTANT_SCOPES: readonly string[] = [
   'trips:read',
   'trips:write',
   'places:read',
   'places:write',
+  'collections:read',
+  'collections:write',
+  'atlas:read',
+  'atlas:write',
   'packing:read',
   'packing:write',
   'todos:read',
@@ -43,23 +49,20 @@ export const ASSISTANT_SCOPES: readonly string[] = [
   'budget:write',
   'reservations:read',
   'reservations:write',
+  'collab:read',
+  'collab:write',
+  'notifications:read',
+  'notifications:write',
+  'vacay:read',
+  'vacay:write',
   'geo:read',
   'weather:read',
-];
-
-/** Tools that only read: they run as soon as the model calls them. */
-export const ASSISTANT_READ_TOOLS: readonly string[] = [
-  'get_trip_summary',
-  'list_places',
-  'search_place',
-  'get_place_details',
-  'search_nearby_places',
-  'search_pois',
-  'list_categories',
-  'get_weather',
-  'list_todos',
-  'get_settlement_summary',
-  'search_help',
+  'journey:read',
+  'journey:write',
+  'files:read',
+  'files:write',
+  'settings:read',
+  'settings:write',
 ];
 
 /**
@@ -73,7 +76,11 @@ interface AssistantWriteTool {
   quiet?: boolean;
 }
 
-/** Tools that change the trip: each call is held as a change card until the user applies it. */
+/**
+ * The writing tools with a change card of their own: its verb and what it
+ * touches once applied. Every other writing tool is held as a card too, one
+ * built from its arguments (tool-call-generic.helpers.ts).
+ */
 export const ASSISTANT_WRITE_TOOLS: Readonly<Record<string, AssistantWriteTool>> = {
   create_place: { verbKey: 'addPlace', entity: 'place' },
   create_and_assign_place: { verbKey: 'addPlaceToDay', entity: 'place' },
@@ -120,8 +127,8 @@ const FOUND_PLACE_VIA: ReadonlySet<string> = new Set(['create_and_assign_place',
 /**
  * Changes the server applies itself: a booking from an attached file, a search
  * result the user picked, a note the user wants kept. They are held, decided
- * and recorded like the writes above, and they are not on the allowlist; only
- * the note is offered to the model, by the session itself (REMEMBER_SPEC). A booking is applied by the server
+ * and recorded like the writes above, and no MCP tool has their names; only the
+ * note is offered to the model, by the session itself (REMEMBER_SPEC). A booking is applied by the server
  * itself; a found place deliberately goes through the MCP tool named in its
  * `via` argument, so it is applied with the user's rights, broadcast and
  * undone exactly like the same change proposed by the model.
@@ -162,57 +169,6 @@ export const MAX_BOOKINGS_PER_FILE = MAX_WRITES_PER_STEP;
 /** The largest file the assistant reads. */
 export const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
 
-/**
- * The one removal the model may propose: taking a place off a day. The tool
- * is annotated destructive because the assignment row goes, but the place
- * stays in the trip, so it is offered like any other change card. Without it
- * the model "replaced" a day's plan by renaming the place that was on it.
- */
-export const ASSISTANT_REMOVAL_TOOLS: ReadonlySet<string> = new Set(['unassign_place']);
-
-/** Every tool the model is offered. Nothing outside this list is attached to an assistant session. */
-export const ASSISTANT_TOOL_ALLOWLIST: ReadonlySet<string> = new Set([
-  ...ASSISTANT_READ_TOOLS,
-  ...Object.keys(ASSISTANT_WRITE_TOOLS),
-]);
-
-/**
- * Tools the assistant must never be offered, kept as a list so a test can
- * hold the allowlist apart from it: whatever reaches beyond the trip
- * (members, sharing, invitations, feeds, files, other trips), fetches an
- * address of the model's choosing, or deletes (taking a place off a day is
- * the one removal offered, see ASSISTANT_REMOVAL_TOOLS). `isDeniedTool` adds every name
- * that shares, invites or publishes a feed.
- */
-const ASSISTANT_TOOL_DENYLIST: ReadonlySet<string> = new Set([
-  'import_places_from_url',
-  'resolve_maps_url',
-  'add_trip_member',
-  'remove_trip_member',
-  'leave_trip',
-  'delete_trip',
-  'copy_trip',
-  'read_trip_file',
-  'upload_trip_file',
-  'invite_to_collection',
-  'send_vacay_invite',
-  'share_vacay_calendar',
-  'update_display_settings',
-  'send_collab_message',
-  'list_upcoming_reservations',
-  'delete_place',
-  'delete_day_note',
-  'delete_packing_item',
-  'delete_todo',
-  'delete_budget_item',
-]);
-
-const DENIED_NAME = /share|invite|feed/;
-
-export function isDeniedTool(name: string): boolean {
-  return ASSISTANT_TOOL_DENYLIST.has(name) || DENIED_NAME.test(name);
-}
-
 /** The argument every trip tool takes; the server sets it to the trip the conversation is about. */
 export const PINNED_ARG = 'tripId';
 
@@ -230,6 +186,8 @@ export const ASSISTANT_ARG_POLICY: Readonly<
   create_place: { stripped: ['image_url'] },
   create_and_assign_place: { stripped: ['image_url'] },
   update_place: { stripped: ['image_url'] },
+  bulk_update_places: { stripped: ['image_url'] },
+  update_trip: { stripped: ['cover_image'] },
 };
 
 type ToolArgs = Record<string, unknown>;

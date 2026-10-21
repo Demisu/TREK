@@ -5,14 +5,20 @@ import { traceEntry } from '../audit/entry-trace.logger';
 import { withRequestContext } from '../database/request-context';
 import { REMEMBER_SPEC } from './assistant-memory';
 import {
+  ASSISTANT_TOOL_GROUPS,
+  checkDenylist,
+  groupOf,
+  HELD_READS,
+  isOfferedTool,
+  USE_TOOLS_SPEC,
+  USE_TOOLS_TOOL,
+} from './assistant-tool-offer';
+import {
   ASSISTANT_ARG_POLICY,
-  ASSISTANT_READ_TOOLS,
   ASSISTANT_SCOPES,
   ASSISTANT_SERVER_TOOLS,
-  ASSISTANT_TOOL_ALLOWLIST,
   ASSISTANT_UNDO_MAP,
   ASSISTANT_WRITE_TOOLS,
-  isDeniedTool,
   PINNED_ARG,
   REMEMBER_TOOL,
 } from './assistant-tools.constants';
@@ -32,46 +38,55 @@ export interface ToolRun {
 /** Whether a tool runs at once or waits for the user. */
 export type AssistantToolKind = 'read' | 'write';
 
+/** What a card for a tool without one of its own goes by: what the tool says it does, and where it works. */
+export interface ToolHint {
+  destructive: boolean;
+  creates: boolean;
+  group: string | null;
+}
+
 interface ListedTool {
   name: string;
   description: string;
   inputSchema: Record<string, unknown>;
   kind: AssistantToolKind;
   pinned: boolean;
+  hint: ToolHint;
 }
+
+/** A turn's session offers every tool (the core first, the rest by group); an undo's holds its one target. */
+type SessionMode = 'turn' | 'undo';
 
 /**
  * What is wrong with the tool catalog the assistant relies on, given what the
- * registry holds: an allowlisted tool or an undo target that no longer exists,
- * an allowlisted tool that is also denied, or a tool named like one of the
- * server's own steps. Empty when all is well.
+ * registry holds: a tool with a card of its own or an undo target that no
+ * longer exists, a sharing tool the denylist missed, or a tool named like one
+ * of the server's own steps. Empty when all is well.
  */
 export function checkToolCatalog(listing: readonly McpRegistryListing[]): string[] {
   const tools = new Set(listing.filter((entry) => entry.kind === 'tool').map((entry) => entry.name));
   const problems: string[] = [];
-  for (const name of ASSISTANT_TOOL_ALLOWLIST) {
-    if (!tools.has(name)) problems.push(`allowlisted tool "${name}" is not registered`);
-    if (isDeniedTool(name)) problems.push(`tool "${name}" is both allowlisted and denied`);
+  for (const name of Object.keys(ASSISTANT_WRITE_TOOLS)) {
+    if (!tools.has(name)) problems.push(`tool "${name}" with a card of its own is not registered`);
   }
   for (const undo of Object.values(ASSISTANT_UNDO_MAP)) {
     if (!tools.has(undo.tool)) problems.push(`undo tool "${undo.tool}" is not registered`);
   }
   // The server's own steps are told apart from tool calls by name alone.
-  for (const name of ASSISTANT_SERVER_TOOLS) {
-    if (tools.has(name) || ASSISTANT_TOOL_ALLOWLIST.has(name)) problems.push(`"${name}" is the server's own step`);
+  for (const name of [...ASSISTANT_SERVER_TOOLS, USE_TOOLS_TOOL]) {
+    if (tools.has(name)) problems.push(`"${name}" is the server's own step`);
   }
-  return problems;
+  return [...problems, ...checkDenylist(tools)];
 }
 
 /**
- * How a listed tool is treated: a read runs at once, a write waits for the
- * user. A tool counts as a read only when both the list and its own
- * annotation say so, and as a write only when the list names it; anything
- * else is not offered, so a tool whose annotation changed fails closed.
+ * How a listed tool is treated: a read runs at once, everything else waits
+ * for the user. A tool counts as a read only when its own annotation says so
+ * and it fetches nothing a message could have planted, so a tool whose
+ * annotation is missing or wrong costs an extra card, never a silent write.
  */
-function kindOf(name: string, readOnly: boolean): AssistantToolKind | null {
-  if (readOnly && ASSISTANT_READ_TOOLS.includes(name)) return 'read';
-  return ASSISTANT_WRITE_TOOLS[name] ? 'write' : null;
+function kindOf(name: string, readOnly: boolean): AssistantToolKind {
+  return readOnly && !HELD_READS.has(name) ? 'read' : 'write';
 }
 
 function hiddenArgs(name: string): Set<string> {
@@ -127,23 +142,38 @@ export class AssistantToolSession {
     private readonly tools: ReadonlyMap<string, ListedTool>,
     private readonly tripId: number,
     private readonly audit: (toolName: string) => void,
-    /** Whether the model may keep trip notes here: a turn's session, never an undo's. */
-    private readonly offersNotes: boolean,
+    private readonly mode: SessionMode,
   ) {}
 
-  /** The tools as the model is offered them, with the trip notes the server keeps itself. */
+  /** The groups this turn loaded; the core is always there. */
+  private readonly loaded = new Set<string>();
+
+  /**
+   * The tools as the model is offered them: the core and the groups it
+   * loaded, the trip notes, and the step that loads the other groups.
+   */
   specs(): AiToolSpec[] {
-    const listed = [...this.tools.values()].map((tool) => ({
-      name: tool.name,
-      description: tool.description,
-      parameters: modelSchema(tool.name, tool.inputSchema),
-    }));
-    return this.offersNotes ? [...listed, REMEMBER_SPEC] : listed;
+    const listed = [...this.tools.values()]
+      .filter((tool) => this.mode === 'undo' || tool.hint.group === null || this.loaded.has(tool.hint.group))
+      .map((tool) => ({
+        name: tool.name,
+        description: tool.description,
+        parameters: modelSchema(tool.name, tool.inputSchema),
+      }));
+    if (this.mode === 'undo') return listed;
+    const more = Object.keys(ASSISTANT_TOOL_GROUPS).some((group) => !this.loaded.has(group));
+    return [...listed, REMEMBER_SPEC, ...(more ? [USE_TOOLS_SPEC] : [])];
   }
 
   kindOf(name: string): AssistantToolKind | null {
-    if (name === REMEMBER_TOOL) return this.offersNotes ? 'write' : null;
+    if (name === REMEMBER_TOOL) return this.mode === 'turn' ? 'write' : null;
+    if (name === USE_TOOLS_TOOL) return this.mode === 'turn' ? 'read' : null;
     return this.tools.get(name)?.kind ?? null;
+  }
+
+  /** What a card for this tool goes by; null for a tool this session does not hold. */
+  hintOf(name: string): ToolHint | null {
+    return this.tools.get(name)?.hint ?? null;
   }
 
   /**
@@ -162,6 +192,7 @@ export class AssistantToolSession {
 
   /** Runs a tool on the user's behalf (a read the model asked for, an applied change, an undo), audited. */
   async call(name: string, args: ToolArgs): Promise<ToolRun> {
+    if (name === USE_TOOLS_TOOL) return this.load(args);
     const run = await this.invoke(name, args);
     this.audit(name);
     return run;
@@ -170,6 +201,17 @@ export class AssistantToolSession {
   /** Reads for the server's own use (the trip card, the undo check), not audited as the user's calls. */
   read(name: string, args: ToolArgs = {}): Promise<ToolRun> {
     return this.invoke(name, args);
+  }
+
+  /** Loads tool groups for the rest of the turn, and says which tools came with them. */
+  private load(args: ToolArgs): ToolRun {
+    const asked = Array.isArray(args.groups) ? args.groups.filter((g): g is string => typeof g === 'string') : [];
+    const groups = asked.filter((group) => group in ASSISTANT_TOOL_GROUPS);
+    if (groups.length === 0)
+      return { ok: false, value: `Name one of: ${Object.keys(ASSISTANT_TOOL_GROUPS).join(', ')}` };
+    for (const group of groups) this.loaded.add(group);
+    const tools = [...this.tools.values()].filter((tool) => tool.hint.group && groups.includes(tool.hint.group));
+    return { ok: true, value: { loaded: groups, tools: tools.map((tool) => tool.name) } };
   }
 
   async close(): Promise<void> {
@@ -208,11 +250,13 @@ export class AssistantToolsService implements OnApplicationBootstrap {
   }
 
   /**
-   * A session for one user and trip holding the named tools (the allowlist by
-   * default, a single undo target for an undo). No plugin tools are ever
+   * A session for one user and trip: for a turn every tool the assistant is
+   * offered, for an undo only the named targets. No plugin tools are ever
    * attached: the assistant passes no dynamic tool source.
    */
-  async open(userId: number, tripId: number, include: ReadonlySet<string> = ASSISTANT_TOOL_ALLOWLIST) {
+  async open(userId: number, tripId: number, undoTargets?: ReadonlySet<string>) {
+    const include = (name: string) => (undoTargets ? undoTargets.has(name) : isOfferedTool(name));
+    const classOf = new Map(this.registry.list().map((entry) => [entry.name, entry] as const));
     const server = createLocalMcpServer('TREK assistant');
     const around = (info: { kind: string; name: string }, call: () => unknown): unknown =>
       traceEntry('mcp', `${info.kind} ${info.name} user=${userId} client=assistant`, () =>
@@ -222,7 +266,7 @@ export class AssistantToolsService implements OnApplicationBootstrap {
       this.registry.attach(
         server,
         { userId, scopes: [...ASSISTANT_SCOPES], isStaticToken: false },
-        { include: (kind, name) => kind === 'tool' && include.has(name), around },
+        { include: (kind, name) => kind === 'tool' && include(name), around },
       ),
     );
     const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
@@ -232,21 +276,26 @@ export class AssistantToolsService implements OnApplicationBootstrap {
 
     const tools = new Map<string, ListedTool>();
     for (const tool of (await client.listTools()).tools) {
-      const isUndoTarget = !ASSISTANT_TOOL_ALLOWLIST.has(tool.name);
-      const kind = isUndoTarget ? 'write' : kindOf(tool.name, tool.annotations?.readOnlyHint === true);
-      if (!kind) continue;
+      const annotations = tool.annotations ?? {};
+      const kind = undoTargets ? 'write' : kindOf(tool.name, annotations.readOnlyHint === true);
       const inputSchema = tool.inputSchema as Record<string, unknown>;
       const properties = (inputSchema.properties as Record<string, unknown> | undefined) ?? {};
+      const entry = classOf.get(tool.name);
       tools.set(tool.name, {
         name: tool.name,
         description: tool.description ?? '',
         inputSchema,
         kind,
         pinned: PINNED_ARG in properties,
+        hint: {
+          destructive: annotations.destructiveHint === true,
+          creates: annotations.idempotentHint === false,
+          group: entry ? groupOf(entry) : null,
+        },
       });
     }
-    const offersNotes = include === ASSISTANT_TOOL_ALLOWLIST;
-    return new AssistantToolSession(client, server, tools, tripId, (name) => this.audit(userId, name), offersNotes);
+    const mode: SessionMode = undoTargets ? 'undo' : 'turn';
+    return new AssistantToolSession(client, server, tools, tripId, (name) => this.audit(userId, name), mode);
   }
 
   /** The audit row an MCP client's call writes, marked as the assistant's. A failed write never fails the call. */
