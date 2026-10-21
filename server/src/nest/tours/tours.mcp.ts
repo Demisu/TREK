@@ -178,7 +178,7 @@ export class ToursMcp {
   @Tool({
     name: 'get_city_walk_progress',
     description:
-      'Read how far a city walk (tour_type walk) got on one day it is on: every station in order with its key (its own id, as get_tour_plan gives it), its status that day (planned, visited or skipped, as the travellers checked them off in the day plan), its importance (normal, optional, must; get_tour_plan says null for normal), whether it is protected (a station a proposed change must leave where it is, neither removed, replaced nor moved), its stay in minutes (null when not known, 0 for a point passed through), its opening hours as OpenStreetMap writes them (null when none is known) and its linked place. "open" sums what is still planned: the stations, their known stays and how many stays are unknown; walking_minutes is the walking time of the whole walk. Visits belong to that day only: the same walk on another day, or a copy, has none. Anything the traveller tells you besides (for instance "continue from 2 pm") is theirs to say, not stored here. Reading changes nothing.',
+      'Read how far a city walk (tour_type walk) got on one day it is on: every station in order with its key (its own id, as get_tour_plan gives it), its status that day (planned, visited or skipped, as the travellers checked them off in the day plan), its importance (normal, optional, must; get_tour_plan says null for normal), whether it is protected (a station a proposed change must leave where it is, neither removed, replaced nor moved), its stay in minutes (null when not known, 0 for a point passed through), its opening hours as OpenStreetMap writes them (null when none is known) and its linked place. "open" sums what is still planned: the stations, their known stays and how many stays are unknown; walking_minutes is the walking time of the whole walk. Visits belong to that day only: the same walk on another day, or a copy, has none. Anything the traveller tells you besides (for instance "continue from 2 pm") is theirs to say, not stored here. For the walking time still ahead, read get_city_walk_remaining_time: walking_minutes here is the whole walk. Reading changes nothing.',
     inputSchema: {
       tripId: idSchema,
       placeId: idSchema.describe('The place id of the city walk, as list_tours gives it'),
@@ -195,6 +195,32 @@ export class ToursMcp {
     if (!(await this.access.findAccessible(tripId, ctx.userId))) return noAccess();
     try {
       return ok(await this.visits.progress(tripId, placeId, dayId));
+    } catch (err: unknown) {
+      if (err instanceof NotFoundException) return errorResult('No city walk of this trip is on that day.');
+      throw err;
+    }
+  }
+
+  @Tool({
+    name: 'get_city_walk_remaining_time',
+    description:
+      'Read what is left of a city walk (tour_type walk) on one day it is on, from the stations the travellers checked off that day: the walking time still ahead, the stays still open and the stations still open, each apart. reference says what the estimate counts from: start (nothing visited yet), last_visited (the last station checked off as visited; its stay counts as done) or ambiguous (a station is still planned before the last one visited, so where the walk stands cannot be told: ask the travellers where they are rather than guessing). A status says what was done, never where anyone is now: live_position is always false, TREK knows no live position and no clock. walking.total_minutes is the walking time of the whole walk as saved; walking.remaining_minutes is the part of it still ahead of the reference, the saved walking time shared out by how far along the saved line each station is passed (never by how many stations are open), so stretches already walked are not in it; it holds no stay. walking.upper_bound is true when a station ahead was skipped (listed in skipped_ahead): the saved line still leads through it and the shorter way was never planned, so the time is at most that. walking.after_last_station_minutes is the part from the last station to the end of the line, for a loop (loop true) the way back to its start, still ahead even once every station is done. walking.remaining_minutes is null, with unknown_because, when it cannot be told: no_stations, route_pending (saved with its points only, no line yet), no_walking_time or progress_ambiguous; it is never given as 0 or as the whole walk instead. stays.remaining_known_minutes sums the stays of the open stations as far as entered, stays.unknown lists the open stations whose stay is not known (never counted as 0), stays.optional_known_minutes is the part of the known minutes at optional stations. open_stations lists the stations still planned in order, with importance, stay_minutes and walk_minutes_from_reference (walking time from the reference to it, null where the remaining time is not known); a skipped station is done and not in it. finished is true when no station is open. Visits belong to that day only: the same walk on another day, or a copy, starts from the beginning. A time the traveller tells you (for instance "continue from 2 pm") is theirs to add, not stored here. derived names the fields worked out on reading. Reading changes nothing: no status, tour or day plan.',
+    inputSchema: {
+      tripId: idSchema,
+      placeId: idSchema.describe('The place id of the city walk, as list_tours gives it'),
+      dayId: idSchema.describe('The day the walk is on, as find_tours_for_day gives it'),
+    },
+    annotations: TOOL_ANNOTATIONS_READONLY,
+    when: addonGate(ADDON_IDS.TOURS),
+    access: { group: 'trips', mode: 'read' },
+  })
+  async getCityWalkRemainingTime(
+    { tripId, placeId, dayId }: { tripId: number; placeId: number; dayId: number },
+    ctx: McpContext,
+  ) {
+    if (!(await this.access.findAccessible(tripId, ctx.userId))) return noAccess();
+    try {
+      return ok(await this.visits.remaining(tripId, placeId, dayId));
     } catch (err: unknown) {
       if (err instanceof NotFoundException) return errorResult('No city walk of this trip is on that day.');
       throw err;

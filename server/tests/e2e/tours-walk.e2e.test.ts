@@ -1,8 +1,8 @@
 /**
- * Tours e2e for city walks (CW-01 to CW-03, CW-10, CW-11): a walk saved and read
+ * Tours e2e for city walks (CW-01 to CW-03, CW-10, CW-11, CW-13): a walk saved and read
  * with its stations, one saved with its stations only waiting for its way, the
  * keys of its stations kept through an edit, and the stations checked off on
- * the days the walk is on, through the real
+ * the days the walk is on, and what is left of it read over MCP, through the real
  * JwtAuthGuard, AddonGuard and TripAccessGuard against a migrated and seeded
  * temp SQLite db. The permission check is a container spy and the broadcast
  * goes to a FakeRealtimeService, as in tours.e2e.test.ts.
@@ -17,13 +17,17 @@ import { Places } from '../../src/db/entities/Places.entity';
 import { TourStationVisits } from '../../src/db/entities/TourStationVisits.entity';
 import { Tours } from '../../src/db/entities/Tours.entity';
 import { Trips } from '../../src/db/entities/Trips.entity';
+import { trekMcpAccessPolicy, trekMcpValidateAccess } from '../../src/mcp/nest-mcp-policy';
+import { createTestRegistry, type McpContext } from '../../src/nest-mcp';
 import { AssignmentsModule } from '../../src/nest/assignments/assignments.module';
 import { TrekExceptionFilter } from '../../src/nest/common/trek-exception.filter';
 import { ZodValidationPipe } from '../../src/nest/common/zod-validation.pipe';
+import { withRequestContext } from '../../src/nest/database/request-context';
 import { JourneyDomainService } from '../../src/nest/journey/journey-domain.service';
 import { PermissionsService } from '../../src/nest/permissions/permissions.service';
 import { RealtimeModule } from '../../src/nest/realtime/realtime.module';
 import { RealtimeService } from '../../src/nest/realtime/realtime.service';
+import { ToursMcp } from '../../src/nest/tours/tours.mcp';
 import { ToursModule } from '../../src/nest/tours/tours.module';
 import { createSnapshotTestDb } from '../helpers/db-mock';
 import { makePlace } from '../helpers/factories/places';
@@ -36,6 +40,7 @@ import { FakeRealtimeService } from '../helpers/fake-realtime';
 import { createTestMikroOrmModule, createTestOrm, type TestOrm } from '../helpers/test-orm';
 import { TestUnitOfWorkModule } from '../helpers/test-uow';
 import { sessionCookie } from './harness';
+import { MikroORM } from '@mikro-orm/core';
 import { Test } from '@nestjs/testing';
 import { stationKeySchema } from '@trek/shared';
 
@@ -469,6 +474,50 @@ describe('City walks e2e (real guards + temp SQLite)', () => {
       expect(removed.status).toBe(200);
       expect(await visitsOf()).toEqual([]);
       expect(await countRows(orm, TourStationVisits)).toBe(0);
+    });
+  });
+
+  describe('remaining time over MCP (CW-13)', () => {
+    const remainingOf = (placeId: number, dayId: number) =>
+      withRequestContext(app.get(MikroORM), async () => {
+        const mcp = app.get(ToursMcp);
+        const result = await mcp.getCityWalkRemainingTime({ tripId: 5, placeId, dayId }, {
+          userId: VIEWER,
+        } as McpContext);
+        return JSON.parse(result.content[0]?.text ?? '{}');
+      });
+
+    it('is registered as a read of the trip', () => {
+      expect(() =>
+        createTestRegistry([app.get(ToursMcp)], {
+          accessPolicy: trekMcpAccessPolicy,
+          validateAccess: trekMcpValidateAccess,
+        }),
+      ).not.toThrow();
+    });
+
+    it('counts from the stations checked off over REST, and the same walk on another day from its start', async () => {
+      const { placeId, assignmentId, cathedral, market } = await walkOnDay3();
+      await assign(placeId, 4);
+      expect((await mark(assignmentId, cathedral, { status: 'visited' })).status).toBe(200);
+      expect((await remainingOf(placeId, 3)).walking).toMatchObject({ total_minutes: 60, remaining_minutes: 60 });
+
+      expect((await mark(assignmentId, market, { status: 'visited' })).status).toBe(200);
+      const day3 = await remainingOf(placeId, 3);
+      expect(day3.reference).toMatchObject({ kind: 'last_visited', station: { key: market, name: 'Market' } });
+      expect(day3.walking).toMatchObject({ remaining_minutes: 40, upper_bound: false });
+      expect(day3.open_stations).toEqual([
+        expect.objectContaining({ name: 'Park', importance: 'optional', walk_minutes_from_reference: 40 }),
+      ]);
+      expect(day3.stays).toMatchObject({
+        remaining_known_minutes: 0,
+        unknown: [expect.objectContaining({ name: 'Park' })],
+      });
+
+      const day4 = await remainingOf(placeId, 4);
+      expect(day4.reference).toEqual({ kind: 'start' });
+      expect(day4.walking.remaining_minutes).toBe(60);
+      expect(await countRows(orm, TourStationVisits)).toBe(2);
     });
   });
 

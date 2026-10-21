@@ -796,4 +796,158 @@ describe('ToursMcp', () => {
       'routed where the piste router planned it and free',
     );
   });
+
+  /** CW-13: the walk of walkFixture with a saved line through its three stops, the market halfway along. */
+  async function remainingFixture() {
+    const base = await walkFixture();
+    const orm = await createTestOrm(db);
+    const line = [
+      [48.1, 11.5],
+      [48.11, 11.51],
+      [48.12, 11.52],
+    ];
+    await updateRows(orm, Places, { id: base.walk.id }, { route_geometry: JSON.stringify(line) });
+    await orm.close();
+    const remaining = async (userId: number, dayId = base.day1.id) =>
+      read(await mcp.getCityWalkRemainingTime({ tripId: base.trip.id, placeId: base.walk.id, dayId }, ctx(userId)));
+    return { ...base, remaining };
+  }
+
+  it('TOURS-MCP-028: get_city_walk_remaining_time counts from the last visit, with walking time, stays and the whole walk apart', async () => {
+    const { member, trip, day1, walk, onDay1, remaining } = await remainingFixture();
+    const first = await remaining(member.id);
+    expect(first).toMatchObject({
+      place_id: walk.id,
+      day_id: day1.id,
+      assignment_id: onDay1.id,
+      loop: false,
+      live_position: false,
+      finished: false,
+      reference: { kind: 'last_visited', station: { position: 1, key: 'stop-cathedral', name: 'Cathedral' } },
+    });
+    // The market ahead was skipped, but the saved line still leads through it.
+    expect(first.walking).toEqual({
+      total_minutes: 80,
+      remaining_minutes: 80,
+      unknown_because: null,
+      upper_bound: true,
+      skipped_ahead: [{ position: 2, key: 'stop-market', name: null }],
+      after_last_station_minutes: 0,
+    });
+    expect(first.stays).toEqual({
+      remaining_known_minutes: 0,
+      unknown: [{ position: 3, key: 'stop-park', name: null }],
+      optional_known_minutes: 0,
+    });
+    expect(first.open_stations).toEqual([
+      {
+        position: 3,
+        key: 'stop-park',
+        name: null,
+        importance: 'must',
+        stay_minutes: null,
+        walk_minutes_from_reference: 80,
+      },
+    ]);
+    expect(first.derived).toEqual(expect.arrayContaining(['walking.remaining_minutes', 'reference']));
+
+    // Checked off since: read again, the stretch to the market is behind.
+    await t.get(TourVisitsService).update(String(trip.id), onDay1.id, 'stop-market', { status: 'visited' });
+    const again = await remaining(member.id);
+    expect(again.reference).toEqual({
+      kind: 'last_visited',
+      station: { position: 2, key: 'stop-market', name: null },
+    });
+    expect(again.walking).toMatchObject({ remaining_minutes: 40, upper_bound: false, skipped_ahead: [] });
+    expect(again.open_stations[0].walk_minutes_from_reference).toBe(40);
+  });
+
+  it("TOURS-MCP-029: the same walk on another day counts from its start, none of the first day's visits in it", async () => {
+    const { member, day2, walk, remaining } = await remainingFixture();
+    const orm = await createTestOrm(db);
+    const onDay2 = await makeDayAssignment(orm, day2.id, walk.id);
+    await orm.close();
+    const result = await remaining(member.id, day2.id);
+    expect(result).toMatchObject({ assignment_id: onDay2.id, reference: { kind: 'start' }, finished: false });
+    expect(result.walking).toMatchObject({ remaining_minutes: 80, upper_bound: false });
+    expect(result.open_stations.map((station: { key: string }) => station.key)).toEqual([
+      'stop-cathedral',
+      'stop-market',
+      'stop-park',
+    ]);
+    expect(result.stays).toMatchObject({ remaining_known_minutes: 50 });
+  });
+
+  it('TOURS-MCP-030: without a line or with a station open before the last visit, the time stays unknown with its reason', async () => {
+    const { user, trip, walk, onDay1, remaining } = await remainingFixture();
+    const visits = t.get(TourVisitsService);
+    await visits.update(String(trip.id), onDay1.id, 'stop-cathedral', { status: 'planned' });
+    await visits.update(String(trip.id), onDay1.id, 'stop-market', { status: 'visited' });
+    const unclear = await remaining(user.id);
+    expect(unclear.reference).toEqual({
+      kind: 'ambiguous',
+      last_visited: { position: 2, key: 'stop-market', name: null },
+      open_before: [{ position: 1, key: 'stop-cathedral', name: 'Cathedral' }],
+    });
+    expect(unclear.walking).toMatchObject({
+      total_minutes: 80,
+      remaining_minutes: null,
+      unknown_because: 'progress_ambiguous',
+    });
+
+    const orm = await createTestOrm(db);
+    await updateRows(orm, Places, { id: walk.id }, { route_geometry: null });
+    await orm.close();
+    await visits.update(String(trip.id), onDay1.id, 'stop-cathedral', { status: 'visited' });
+    const pending = await remaining(user.id);
+    expect(pending.walking).toMatchObject({
+      total_minutes: 80,
+      remaining_minutes: null,
+      unknown_because: 'route_pending',
+      after_last_station_minutes: null,
+    });
+    expect(pending.open_stations[0].walk_minutes_from_reference).toBeNull();
+  });
+
+  it('TOURS-MCP-031: reading changes nothing, tells an outsider nothing and names no walk for a day without it', async () => {
+    const { user, outsider, trip, day2, walk, remaining } = await remainingFixture();
+    const orm = await createTestOrm(db);
+    const before = await countRows(orm, TourStationVisits, {});
+    const revision = (await findRow(orm, Tours, { place: walk.id }))?.revision;
+    await remaining(user.id);
+    expect(await countRows(orm, TourStationVisits, {})).toBe(before);
+    expect((await findRow(orm, Tours, { place: walk.id }))?.revision).toBe(revision);
+    await orm.close();
+    expect(await remaining(outsider.id)).toEqual({ error: 'Trip not found or access denied.' });
+    expect(await remaining(user.id, day2.id)).toEqual({ error: 'No city walk of this trip is on that day.' });
+
+    const failure = new Error('database gone');
+    const spy = vi.spyOn(t.get(TourVisitsService), 'remaining').mockRejectedValueOnce(failure);
+    try {
+      await expect(
+        mcp.getCityWalkRemainingTime({ tripId: trip.id, placeId: walk.id, dayId: day2.id }, ctx(user.id)),
+      ).rejects.toBe(failure);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it('TOURS-MCP-032: the remaining time names its reference, its bounds and that no live position is known', () => {
+    const entry = getEntry(ToursMcp as unknown as ClassRef, 'getCityWalkRemainingTime');
+    const description = entry?.kind === 'tool' ? (entry.options.description ?? '') : '';
+    for (const field of [
+      'reference',
+      'live_position',
+      'upper_bound',
+      'after_last_station_minutes',
+      'unknown_because',
+      'stays.unknown',
+      'never by how many stations are open',
+      'Reading changes nothing',
+    ]) {
+      expect(description).toContain(field);
+    }
+    const progress = getEntry(ToursMcp as unknown as ClassRef, 'getCityWalkProgress');
+    expect(progress?.kind === 'tool' ? progress.options.description : '').toContain('get_city_walk_remaining_time');
+  });
 });

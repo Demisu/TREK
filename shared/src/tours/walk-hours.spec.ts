@@ -6,6 +6,7 @@ import {
   stationArrivals,
   stationFit,
   stationHoursOn,
+  stationShares,
   type StationHours,
 } from './walk-hours';
 
@@ -315,6 +316,15 @@ describe('stationArrivals', () => {
     expect(back?.map((arrival) => arrival.arrival)).toEqual([600, 620, 630]);
     const out = stationArrivals([stop(48, 11, 0), stop(48.001, 11, 0), stop(48.002, 11, 0)], outAndBack, 600, 40);
     expect(out?.map((arrival) => arrival.arrival)).toEqual([600, 610, 620]);
+  });
+
+  it('gives each stop its share of the route, from 0 at the start to 1 at the end', () => {
+    const shares = stationShares([stop(48, 11), stop(48.001, 11), stop(48.002, 11)], line) ?? [];
+    expect(shares).toHaveLength(3);
+    expect(shares[0]).toBe(0);
+    expect(shares[1]).toBeCloseTo(0.5, 6);
+    expect(shares[2]).toBe(1);
+    expect(stationShares([stop(48, 11)], [[48, 11]])).toBeNull();
   });
 
   it('is null without a start, a walking time or a route', () => {

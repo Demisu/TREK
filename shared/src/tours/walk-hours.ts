@@ -323,6 +323,23 @@ function passedAt(stops: readonly WalkStop[], flat: ReadonlyArray<[number, numbe
 }
 
 /**
+ * How far along the route each stop is passed, from 0 at its start to 1 at its
+ * end, by distance, the stops matched in their order as `passedAt` does. Null
+ * for a route of fewer than two points.
+ */
+export function stationShares(stops: readonly WalkStop[], route: readonly RoutePoint[]): number[] | null {
+  if (route.length < 2) return null;
+  const flat = flatRoute(route);
+  const along = [0];
+  for (let i = 1; i < flat.length; i += 1) {
+    along.push((along[i - 1] ?? 0) + Math.sqrt(flatGap(flat[i] ?? [0, 0], flat[i - 1] ?? [0, 0])));
+  }
+  const total = along[along.length - 1] || 1;
+  const indices = passedAt(stops, flat, Math.cos((route[0]?.[0] ?? 0) * RAD));
+  return indices.map((index) => (along[index] ?? 0) / total);
+}
+
+/**
  * The estimated arrival at each stop, in minutes after midnight and whole: the
  * start, the walking time shared out by how far along the route the stop is
  * passed, and the stays before it. A stay not known counts as nothing and
@@ -335,19 +352,13 @@ export function stationArrivals(
   start: number | null,
   walkingMinutes: number | null,
 ): WalkArrival[] | null {
-  if (start === null || walkingMinutes === null || route.length < 2) return null;
-  const flat = flatRoute(route);
-  const along = [0];
-  for (let i = 1; i < flat.length; i += 1) {
-    along.push((along[i - 1] ?? 0) + Math.sqrt(flatGap(flat[i] ?? [0, 0], flat[i - 1] ?? [0, 0])));
-  }
-  const total = along[along.length - 1] || 1;
-  const indices = passedAt(stops, flat, Math.cos((route[0]?.[0] ?? 0) * RAD));
+  if (start === null || walkingMinutes === null) return null;
+  const shares = stationShares(stops, route);
+  if (!shares) return null;
   let stays = 0;
   let unknown = false;
   return stops.map((stop, index) => {
-    const share = (along[indices[index] ?? 0] ?? 0) / total;
-    const arrival = { arrival: Math.round(start + walkingMinutes * share + stays), atLeast: unknown };
+    const arrival = { arrival: Math.round(start + walkingMinutes * (shares[index] ?? 0) + stays), atLeast: unknown };
     if (stop.stayMinutes == null) unknown = true;
     else stays += stop.stayMinutes;
     return arrival;

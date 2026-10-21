@@ -77,6 +77,7 @@ export * from './tours/tour-walk';
 export * from './tours/tour-walk-briefing.schema';
 export * from './tours/tour-change.schema';
 export * from './tours/walk-hours';
+export * from './tours/walk-remaining';
 export * from './tours/tours.metrics';
 export * from './tours/tour-gpx-import.schema';
 export * from './tours/paddle-plan.schema';

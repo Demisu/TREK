@@ -1,6 +1,8 @@
+import { Places } from '../../db/entities/Places.entity';
 import { TourStationVisits } from '../../db/entities/TourStationVisits.entity';
 import { TourWaypoints } from '../../db/entities/TourWaypoints.entity';
 import { Tours } from '../../db/entities/Tours.entity';
+import type { PlacesRepository } from '../../db/repositories/Places.repository';
 import type {
   TourStationVisitRow,
   TourStationVisitsRepository,
@@ -8,15 +10,26 @@ import type {
 import type { TourWaypointRow, TourWaypointsRepository } from '../../db/repositories/TourWaypoints.repository';
 import type { ToursRepository } from '../../db/repositories/Tours.repository';
 import { PlacesService } from '../places/places.service';
+import { parseRouteGeometry } from './tours.helpers';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { walkStationsOf, type TourVisit, type TourVisitListResponse, type TourVisitUpdateRequest } from '@trek/shared';
+import {
+  isClosedLoop,
+  walkRemainderOf,
+  walkStationsOf,
+  type TourVisit,
+  type TourVisitListResponse,
+  type TourVisitUpdateRequest,
+  type WalkRemainder,
+} from '@trek/shared';
 
 /** A city walk on one of its days: the assignment, the walk and its stations in order. */
 export interface WalkOnDay {
   assignmentId: number;
   dayId: number;
   placeId: number;
+  /** The walk ends where it starts, so its line leads back to the start after the last station. */
+  loop: boolean;
   stations: TourWaypointRow[];
   visits: TourStationVisitRow[];
 }
@@ -33,6 +46,7 @@ export class TourVisitsService {
     @InjectRepository(TourStationVisits) private readonly visitsRepo: TourStationVisitsRepository,
     @InjectRepository(Tours) private readonly toursRepo: ToursRepository,
     @InjectRepository(TourWaypoints) private readonly waypointsRepo: TourWaypointsRepository,
+    @InjectRepository(Places) private readonly placesRepo: PlacesRepository,
     private readonly places: PlacesService,
   ) {}
 
@@ -52,6 +66,7 @@ export class TourVisitsService {
       assignmentId,
       dayId: assignment.day_id,
       placeId: assignment.place_id,
+      loop: isClosedLoop(points),
       stations: walkStationsOf(points),
       visits: await this.visitsRepo.listForAssignment(assignmentId),
     };
@@ -59,6 +74,40 @@ export class TourVisitsService {
 
   /** CW-09: a walk on one day, read for an assistant; nothing changes. */
   async progress(tripId: number, placeId: number, dayId: number): Promise<WalkProgress> {
+    return (await this.dayRun(tripId, placeId, dayId)).progress;
+  }
+
+  /**
+   * CW-13: what is left of a walk on one day, read for an assistant: the
+   * reference it counts from, the walking time left along the saved line and
+   * the stays still open, apart. Read afresh each time, so a station checked
+   * off since counts; nothing changes.
+   */
+  async remaining(tripId: number, placeId: number, dayId: number): Promise<WalkRemaining> {
+    const [{ walk, progress }, place] = await Promise.all([
+      this.dayRun(tripId, placeId, dayId),
+      this.placesRepo.findInTrip(placeId, tripId),
+    ]);
+    const remainder = walkRemainderOf({
+      stations: progress.stations.map((station) => ({ ...station, stayMinutes: station.stay_minutes })),
+      line: parseRouteGeometry(place?.route_geometry),
+      walkingMinutes: progress.walking_minutes,
+    });
+    return {
+      place_id: placeId,
+      day_id: progress.day_id,
+      assignment_id: progress.assignment_id,
+      loop: walk.loop,
+      ...remainder,
+      derived: REMAINDER_DERIVED,
+    };
+  }
+
+  private async dayRun(
+    tripId: number,
+    placeId: number,
+    dayId: number,
+  ): Promise<{ walk: WalkOnDay; progress: WalkProgress }> {
     const assignmentId = await this.visitsRepo.assignmentOnDay(tripId, placeId, dayId);
     if (assignmentId === undefined) throw new NotFoundException('City walk not on this day');
     const walk = await this.walkOnDay(tripId, assignmentId);
@@ -78,7 +127,7 @@ export class TourVisitsService {
       linked_place_id: station.linked_place_id ?? null,
     }));
     const open = stations.filter((station) => station.status === 'planned');
-    return {
+    const progress: WalkProgress = {
       place_id: placeId,
       day_id: walk.dayId,
       assignment_id: assignmentId,
@@ -90,6 +139,7 @@ export class TourVisitsService {
       },
       walking_minutes: tour?.duration ?? null,
     };
+    return { walk, progress };
   }
 
   /** Marks a station of a walk on one of its days, or takes it back to planned. */
@@ -143,6 +193,24 @@ export interface WalkProgress {
   open: { stations: number; stay_minutes_known: number; stays_unknown: number };
   walking_minutes: number | null;
 }
+
+/** The fields of a remaining time worked out on reading, never stored with the walk. */
+const REMAINDER_DERIVED = [
+  'reference',
+  'finished',
+  'walking.remaining_minutes',
+  'walking.after_last_station_minutes',
+  'open_stations.walk_minutes_from_reference',
+] as const;
+
+/** CW-13: what is left of a walk on one day, for an assistant. */
+export type WalkRemaining = {
+  place_id: number;
+  day_id: number;
+  assignment_id: number;
+  loop: boolean;
+  derived: readonly string[];
+} & WalkRemainder;
 
 /** A visit as the routes and the trip's socket send it. */
 export function toVisit(row: TourStationVisitRow): TourVisit {

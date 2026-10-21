@@ -4,13 +4,14 @@
  * The service comes out of ToursModule over a snapshot test db; rows are
  * seeded through the ORM factories and broadcasts go to a FakeRealtimeService.
  */
+import { Places } from '../../../src/db/entities/Places.entity';
 import { TourStationVisits } from '../../../src/db/entities/TourStationVisits.entity';
 import { TourVisitsService, type WalkOnDay, type WalkProgress } from '../../../src/nest/tours/tour-visits.service';
 import { ToursModule } from '../../../src/nest/tours/tours.module';
 import { createSnapshotTestDb } from '../../helpers/db-mock';
 import { makeDayAssignment } from '../../helpers/factories/itinerary';
 import { makePlace } from '../../helpers/factories/places';
-import { countRows } from '../../helpers/factories/rows';
+import { countRows, updateRows } from '../../helpers/factories/rows';
 import { addTourWaypoints, makeTour, markStationVisit } from '../../helpers/factories/tours';
 import { makeDay, makeTrip } from '../../helpers/factories/trips';
 import { makeUser } from '../../helpers/factories/users';
@@ -174,6 +175,7 @@ describe('TourVisitsService', () => {
       assignmentId: onDay1.id,
       dayId: day1.id,
       placeId: walk.id,
+      loop: false,
       stations: expect.any(Array),
       visits: [{ assignment_id: onDay1.id, station_key: 'stop-market', status: 'skipped' }],
     });
@@ -327,6 +329,68 @@ describe('TourVisitsService', () => {
       new NotFoundException('City walk not on this day'),
     );
     await expect(visits.progress(trip.id, otherWalk.id, otherDay.id)).rejects.toEqual(
+      new NotFoundException('City walk not on this day'),
+    );
+  });
+
+  it('TOUR-VISITS-008: remaining counts from the last visit along the saved line, a point without a key passed behind it', async () => {
+    const { trip, day1, walk, onDay1 } = await fixture();
+    // Straight north through the four stations, one stretch of 0.01 degrees between each.
+    const line = [
+      [48.1, 11.5],
+      [48.11, 11.51],
+      [48.12, 11.52],
+      [48.13, 11.53],
+    ];
+    await updateRows(orm(), Places, { id: walk.id }, { route_geometry: JSON.stringify(line) });
+    await markStationVisit(orm(), onDay1.id, 'stop-cathedral', 'visited');
+    await markStationVisit(orm(), onDay1.id, 'stop-market', 'visited');
+    const before = await countRows(orm(), TourStationVisits, {});
+
+    const remaining = await visits.remaining(trip.id, walk.id, day1.id);
+    expect(remaining).toMatchObject({
+      place_id: walk.id,
+      day_id: day1.id,
+      assignment_id: onDay1.id,
+      loop: false,
+      reference: { kind: 'last_visited', station: { position: 2, key: 'stop-market', name: null } },
+      walking: { total_minutes: 95, remaining_minutes: 63, upper_bound: false, after_last_station_minutes: 0 },
+      stays: { remaining_known_minutes: 45, unknown: [{ position: 3, key: null, name: null }] },
+    });
+    expect(remaining.open_stations.map((station) => [station.position, station.walk_minutes_from_reference])).toEqual([
+      [3, 31],
+      [4, 63],
+    ]);
+    expect(await countRows(orm(), TourStationVisits, {})).toBe(before);
+    expect(t.realtime.broadcastMock).not.toHaveBeenCalled();
+  });
+
+  it('TOUR-VISITS-009: a loop keeps its way back once every station is done, and a walk not on that day is a 404', async () => {
+    const { trip, day1, day3, walk } = await fixture();
+    const loop = await makePlace(orm(), trip.id, {
+      name: 'Round',
+      route_geometry: JSON.stringify([
+        [48.1, 11.5],
+        [48.11, 11.5],
+        [48.11, 11.51],
+        [48.1, 11.5],
+      ]),
+    });
+    await makeTour(orm(), loop.id, { tourTypeRef: 'walk', duration: 60 });
+    await addTourWaypoints(orm(), loop.id, [
+      { lat: 48.1, lng: 11.5, station_key: 'stop-start', stay_minutes: 0 },
+      { lat: 48.11, lng: 11.51, station_key: 'stop-tower', stay_minutes: 15 },
+      { lat: 48.1, lng: 11.5, station_key: 'stop-back' },
+    ]);
+    const onDay1 = await makeDayAssignment(orm(), day1.id, loop.id);
+    await markStationVisit(orm(), onDay1.id, 'stop-start', 'visited');
+    await markStationVisit(orm(), onDay1.id, 'stop-tower', 'visited');
+
+    const remaining = await visits.remaining(trip.id, loop.id, day1.id);
+    expect(remaining).toMatchObject({ loop: true, finished: true, open_stations: [] });
+    expect(remaining.walking.after_last_station_minutes).toBeGreaterThan(0);
+    expect(remaining.walking.remaining_minutes).toBe(remaining.walking.after_last_station_minutes);
+    await expect(visits.remaining(trip.id, walk.id, day3.id)).rejects.toEqual(
       new NotFoundException('City walk not on this day'),
     );
   });
