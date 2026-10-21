@@ -206,6 +206,7 @@ const journey: TranslationStrings = {
   'journey.settings.subtitle': 'Phụ đề',
   'journey.settings.subtitlePlaceholder': 'ví dụ. Thái Lan, Việt Nam và Campuchia',
   'journey.settings.tracks': 'Tuyến GPX',
+  'journey.settings.recordings': 'Những ngày đã ghi',
   'journey.settings.showTripTracks': 'Hiện tất cả tuyến GPX của chuyến đi',
   'journey.settings.showTripTracksHint': 'Vẽ lên bản đồ các tuyến đường đã ghi từ những chuyến đi được liên kết.',
   'journey.settings.autoPrepare': 'Tự động chuẩn bị các ngày đã ghi',

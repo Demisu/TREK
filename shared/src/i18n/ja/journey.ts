@@ -202,6 +202,7 @@ const journey: TranslationStrings = {
   'journey.settings.subtitle': 'サブタイトル',
   'journey.settings.subtitlePlaceholder': '例：タイ・ベトナム・カンボジア',
   'journey.settings.tracks': 'GPXトラック',
+  'journey.settings.recordings': '記録された日',
   'journey.settings.showTripTracks': '旅行のGPXトラックをすべて表示',
   'journey.settings.showTripTracksHint': 'リンクされた旅行の記録済みルートを地図に描画します。',
   'journey.settings.autoPrepare': '記録された日を自動で準備する',

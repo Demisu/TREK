@@ -202,6 +202,7 @@ const journey: TranslationStrings = {
   'journey.settings.subtitle': 'Alcím',
   'journey.settings.subtitlePlaceholder': 'pl. Thaiföld, Vietnam és Kambodzsa',
   'journey.settings.tracks': 'GPX-nyomvonalak',
+  'journey.settings.recordings': 'Rögzített napok',
   'journey.settings.showTripTracks': 'Az utazások összes GPX-nyomvonalának megjelenítése',
   'journey.settings.showTripTracksHint': 'A kapcsolt utazások rögzített útvonalait rajzolja a térképre.',
   'journey.settings.autoPrepare': 'Rögzített napok automatikus előkészítése',

@@ -120,7 +120,12 @@ export default function MJourneySettingsSheet({
             ariaLabel={t('journey.settings.showTripTracks')}
           />
         </div>
-        {recordingPrep && <MRecordingPrepRow prep={recordingPrep} enabled={!!journey.auto_prepare_recordings} />}
+        {recordingPrep && (
+          <>
+            <div className={`${eyebrow} mb-[6px] mt-[14px]`}>{t('journey.settings.recordings')}</div>
+            <MRecordingPrepRow prep={recordingPrep} enabled={!!journey.auto_prepare_recordings} />
+          </>
+        )}
 
         {/* The three fields a journey may put away (discussion #2299) */}
         <div className={`${eyebrow} mb-[6px] mt-[14px]`}>{t('journey.settings.entryFields')}</div>
@@ -368,7 +373,7 @@ function MTripAccessList({ access, eyebrow }: { access: JourneyTripAccess[] | un
 function MRecordingPrepRow({ prep, enabled }: { prep: JourneyRecordingPrepState; enabled: boolean }) {
   const { t } = useTranslation()
   return (
-    <div className="mt-[6px] rounded-[14px] bg-[color:var(--m-ic)] px-3 py-[10px]">
+    <div className="rounded-[14px] bg-[color:var(--m-ic)] px-3 py-[10px]">
       <div className="flex items-center gap-[11px]">
         <ListChecks size={16} strokeWidth={2} className="flex-none text-m-muted" />
         <div className="min-w-0 flex-1">

@@ -212,6 +212,7 @@ const journey: TranslationStrings = {
   'journey.settings.subtitle': 'คำบรรยาย',
   'journey.settings.subtitlePlaceholder': 'เช่น ไทย เวียดนาม และกัมพูชา',
   'journey.settings.tracks': 'เส้นทาง GPX',
+  'journey.settings.recordings': 'วันที่บันทึกไว้',
   'journey.settings.showTripTracks': 'แสดงเส้นทาง GPX ของการเดินทางทั้งหมด',
   'journey.settings.showTripTracksHint': 'วาดเส้นทางที่บันทึกไว้จากการเดินทางที่เชื่อมโยงบนแผนที่',
   'journey.settings.autoPrepare': 'เตรียมวันที่บันทึกไว้โดยอัตโนมัติ',

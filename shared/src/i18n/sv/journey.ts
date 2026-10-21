@@ -211,6 +211,7 @@ const journey: TranslationStrings = {
   'journey.settings.subtitle': 'Undertext',
   'journey.settings.subtitlePlaceholder': 't.ex. Thailand, Vietnam och Kambodja',
   'journey.settings.tracks': 'GPX-spår',
+  'journey.settings.recordings': 'Inspelade dagar',
   'journey.settings.showTripTracks': 'Visa alla GPX-spår från resor',
   'journey.settings.showTripTracksHint': 'Ritar de inspelade rutterna från de länkade resorna på kartan.',
   'journey.settings.autoPrepare': 'Förbered inspelade dagar automatiskt',

@@ -196,6 +196,7 @@ const journey: TranslationStrings = {
   'journey.settings.subtitle': 'Subjudul',
   'journey.settings.subtitlePlaceholder': 'mis. Thailand, Vietnam & Kamboja',
   'journey.settings.tracks': 'Jalur GPX',
+  'journey.settings.recordings': 'Hari yang terekam',
   'journey.settings.showTripTracks': 'Tampilkan semua jalur GPX perjalanan',
   'journey.settings.showTripTracksHint': 'Menggambar rute terekam dari perjalanan yang tertaut pada peta.',
   'journey.settings.autoPrepare': 'Siapkan hari yang terekam secara otomatis',

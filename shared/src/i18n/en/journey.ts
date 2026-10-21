@@ -218,6 +218,7 @@ const journey: TranslationStrings = {
   'journey.settings.subtitle': 'Subtitle',
   'journey.settings.subtitlePlaceholder': 'e.g. Thailand, Vietnam & Cambodia',
   'journey.settings.tracks': 'GPX Tracks',
+  'journey.settings.recordings': 'Recorded days',
   'journey.settings.showTripTracks': 'Show all trip GPX tracks',
   'journey.settings.showTripTracksHint': 'Draws the recorded routes from the linked trips on the map.',
   'journey.settings.autoPrepare': 'Prepare recorded days automatically',

@@ -218,6 +218,7 @@ const journey: TranslationStrings = {
   'journey.settings.subtitle': 'Підзаголовок',
   'journey.settings.subtitlePlaceholder': 'наприклад Таїланд, В’єтнам і Камбоджа',
   'journey.settings.tracks': 'GPX-треки',
+  'journey.settings.recordings': 'Записані дні',
   'journey.settings.showTripTracks': 'Показувати всі GPX-треки подорожей',
   'journey.settings.showTripTracksHint': 'Малює на карті записані маршрути зі зв’язаних подорожей.',
   'journey.settings.autoPrepare': 'Автоматично готувати записані дні',

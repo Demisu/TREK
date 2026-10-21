@@ -213,6 +213,7 @@ const journey: TranslationStrings = {
   'journey.settings.subtitle': 'Υπότιτλος',
   'journey.settings.subtitlePlaceholder': 'π.χ. Ταϊλάνδη, Βιετνάμ & Καμπότζη',
   'journey.settings.tracks': 'Διαδρομές GPX',
+  'journey.settings.recordings': 'Καταγεγραμμένες ημέρες',
   'journey.settings.showTripTracks': 'Εμφάνιση όλων των διαδρομών GPX των ταξιδιών',
   'journey.settings.showTripTracksHint':
     'Σχεδιάζει στον χάρτη τις καταγεγραμμένες διαδρομές από τα συνδεδεμένα ταξίδια.',

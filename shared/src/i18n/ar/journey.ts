@@ -263,6 +263,7 @@ const journey: TranslationStrings = {
   'journey.settings.subtitle': 'Subtitle', // en-fallback
   'journey.settings.subtitlePlaceholder': 'e.g. Thailand, Vietnam & Cambodia', // en-fallback
   'journey.settings.tracks': 'مسارات GPX',
+  'journey.settings.recordings': 'الأيام المسجلة',
   'journey.settings.showTripTracks': 'إظهار جميع مسارات GPX للرحلات',
   'journey.settings.showTripTracksHint': 'يرسم على الخريطة المسارات المسجَّلة من الرحلات المرتبطة.',
   'journey.settings.autoPrepare': 'تحضير الأيام المسجلة تلقائيًا',

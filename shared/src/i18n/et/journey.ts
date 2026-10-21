@@ -220,6 +220,7 @@ const journey: TranslationStrings = {
   'journey.settings.subtitle': 'Alapealkiri',
   'journey.settings.subtitlePlaceholder': 'Nt Tai, Vietnam ja Kambodža',
   'journey.settings.tracks': 'GPX-rajad',
+  'journey.settings.recordings': 'Salvestatud päevad',
   'journey.settings.showTripTracks': 'Näita kõiki reiside GPX-radu',
   'journey.settings.showTripTracksHint': 'Kuvab kaardil seotud reiside salvestatud teekonnad.',
   'journey.settings.autoPrepare': 'Valmista salvestatud päevad automaatselt ette',

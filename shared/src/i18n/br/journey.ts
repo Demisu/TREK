@@ -202,6 +202,7 @@ const journey: TranslationStrings = {
   'journey.settings.subtitle': 'Subtítulo',
   'journey.settings.subtitlePlaceholder': 'ex. Tailândia, Vietnã e Camboja',
   'journey.settings.tracks': 'Trilhas GPX',
+  'journey.settings.recordings': 'Dias gravados',
   'journey.settings.showTripTracks': 'Mostrar todas as trilhas GPX das viagens',
   'journey.settings.showTripTracksHint': 'Desenha no mapa as rotas gravadas das viagens vinculadas.',
   'journey.settings.autoPrepare': 'Preparar dias gravados automaticamente',

@@ -208,6 +208,7 @@ const journey: TranslationStrings = {
   'journey.settings.subtitle': 'Alt başlık',
   'journey.settings.subtitlePlaceholder': 'örn. Tayland, Vietnam ve Kamboçya',
   'journey.settings.tracks': 'GPX İzleri',
+  'journey.settings.recordings': 'Kaydedilen günler',
   'journey.settings.showTripTracks': 'Tüm gezi GPX izlerini göster',
   'journey.settings.showTripTracksHint': 'Bağlı gezilerdeki kayıtlı rotaları haritaya çizer.',
   'journey.settings.autoPrepare': 'Kaydedilen günleri otomatik hazırla',

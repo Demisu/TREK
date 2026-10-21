@@ -195,6 +195,7 @@ const journey: TranslationStrings = {
   'journey.settings.subtitle': '副標題',
   'journey.settings.subtitlePlaceholder': '例如 泰國、越南和柬埔寨',
   'journey.settings.tracks': 'GPX 軌跡',
+  'journey.settings.recordings': '已記錄的日子',
   'journey.settings.showTripTracks': '顯示所有行程的 GPX 軌跡',
   'journey.settings.showTripTracksHint': '在地圖上繪製關聯行程中的已記錄路線。',
   'journey.settings.autoPrepare': '自動準備記錄的日子',

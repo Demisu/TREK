@@ -223,6 +223,7 @@ const journey: TranslationStrings = {
   'journey.settings.subtitle': 'Podtitul',
   'journey.settings.subtitlePlaceholder': 'napr. Thajsko, Vietnam a Kambodža',
   'journey.settings.tracks': 'Stopy GPX',
+  'journey.settings.recordings': 'Zaznamenané dni',
   'journey.settings.showTripTracks': 'Zobraziť všetky GPX stopy z ciest',
   'journey.settings.showTripTracksHint': 'Vykreslí na mape zaznamenané trasy z prepojených ciest.',
   'journey.settings.autoPrepare': 'Automaticky pripravovať zaznamenané dni',

@@ -174,10 +174,18 @@ export function JourneySettingsDialog({ journey, onClose, onSaved, onOpenInvite,
                     label={t('journey.settings.showTripTracks')}
                   />
                 </div>
-                {recordingPrep && <JourneyRecordingPrepRow on={!!journey.auto_prepare_recordings} prep={recordingPrep} rowClass={ROW} />}
               </div>
-              {recordingPrep && <JourneyRecordingPrepStatus prep={recordingPrep} />}
             </DialogSection>
+
+            {/* Days recorded in Dawarich, prepared for review while a trip runs (JRN-03) */}
+            {recordingPrep && (
+              <DialogSection label={t('journey.settings.recordings')}>
+                <div className={ROWS}>
+                  <JourneyRecordingPrepRow on={!!journey.auto_prepare_recordings} prep={recordingPrep} rowClass={ROW} />
+                </div>
+                <JourneyRecordingPrepStatus prep={recordingPrep} />
+              </DialogSection>
+            )}
 
             {/* Places from photos (#1003): the GPS a picture carries puts its entry on the map */}
             <DialogSection label={t('journey.settings.photosSection')}>

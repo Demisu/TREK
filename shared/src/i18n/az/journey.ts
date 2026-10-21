@@ -239,6 +239,7 @@ const journey: TranslationStrings = {
   'journey.settings.subtitle': 'Altbaşlıq',
   'journey.settings.subtitlePlaceholder': 'məs. Tailand, Vyetnam və Kamboca',
   'journey.settings.tracks': 'GPX izləri',
+  'journey.settings.recordings': 'Qeydə alınmış günlər',
   'journey.settings.showTripTracks': 'Bütün səyahət GPX izlərini göstər',
   'journey.settings.showTripTracksHint': 'Əlaqələndirilmiş səyahətlərdə qeydə alınmış marşrutları xəritədə göstərir.',
   'journey.settings.autoPrepare': 'Qeydə alınmış günləri avtomatik hazırla',

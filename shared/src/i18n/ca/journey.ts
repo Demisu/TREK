@@ -202,6 +202,7 @@ const journey: TranslationStrings = {
   'journey.settings.subtitle': 'Subtítol',
   'journey.settings.subtitlePlaceholder': 'p. ex. Tailàndia, Vietnam i Cambodja',
   'journey.settings.tracks': 'Traces GPX',
+  'journey.settings.recordings': 'Dies enregistrats',
   'journey.settings.showTripTracks': 'Mostra totes les traces GPX dels viatges',
   'journey.settings.showTripTracksHint': 'Dibuixa al mapa les rutes enregistrades dels viatges enllaçats.',
   'journey.settings.autoPrepare': 'Prepara automàticament els dies enregistrats',

@@ -201,6 +201,7 @@ const journey: TranslationStrings = {
   'journey.settings.subtitle': '부제목',
   'journey.settings.subtitlePlaceholder': '예: 태국, 베트남 & 캄보디아',
   'journey.settings.tracks': 'GPX 트랙',
+  'journey.settings.recordings': '기록된 날',
   'journey.settings.showTripTracks': '여행의 모든 GPX 트랙 표시',
   'journey.settings.showTripTracksHint': '연결된 여행의 기록된 경로를 지도에 그립니다.',
   'journey.settings.autoPrepare': '기록된 날을 자동으로 준비',
