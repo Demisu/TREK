@@ -148,8 +148,9 @@ const EMPTY_TRACKS: JourneyTrack[] = []
 /** Fallback when a track carries no colour of its own, matching the planner's default. */
 const TRACK_FALLBACK_COLOR = '#4f46e5'
 
-function markBounds(gl: Props['gl'], marks: JourneyMapMark[]) {
+function markBounds(gl: Props['gl'], marks: JourneyMapMark[], points: [number, number][] = []) {
   const bounds = new gl.LngLatBounds()
+  points.forEach(point => bounds.extend(point))
   marks.forEach(mark => bounds.extend([mark.lng, mark.lat]))
   return bounds
 }
@@ -200,9 +201,10 @@ function JourneyMapGL(
   const markMarkersRef = useRef<{ remove: () => void }[]>([])
   const onMarksPickRef = useRef(onMarksPick)
   const marksRef = useRef(marks)
-  // As on the Leaflet map: nothing located of its own, so the plan or the
-  // stays get the first view once they arrive, unless the reader moved it.
-  const awaitingMarksRef = useRef(false)
+  // As on the Leaflet map: the plan and the stays arrive after the entries, so
+  // the first view is framed again around both, unless the reader moved it.
+  const entryPointsRef = useRef<[number, number][]>([])
+  const marksFramedRef = useRef(false)
   const readerMovedRef = useRef(false)
   const visibilityRef = useRef(layerVisibility)
   const shownRef = useRef<JourneyMapLayerVisibility>(layerVisibility)
@@ -364,7 +366,8 @@ function JourneyMapGL(
 
     const map = new gl.Map(mapOptions as any)
     mapRef.current = map
-    awaitingMarksRef.current = false
+    marksFramedRef.current = false
+    entryPointsRef.current = [...items.map(i => [i.lng, i.lat] as [number, number]), ...stableTrail.map(p => [p.lng, p.lat] as [number, number])]
     readerMovedRef.current = false
     map.on('movestart', (ev: { originalEvent?: unknown }) => {
       if (ev.originalEvent) readerMovedRef.current = true
@@ -496,16 +499,12 @@ function JourneyMapGL(
       })
 
       // fit bounds to all points
-      if (hasPoints) {
+      const known = marksRef.current ?? []
+      marksFramedRef.current = known.length > 0
+      if (hasPoints || known.length > 0) {
         try {
-          map.fitBounds(bounds, fitOptions(paddingBottom, enableMapbox3d && fullScreen))
+          map.fitBounds(markBounds(gl, known, entryPointsRef.current), fitOptions(paddingBottom, enableMapbox3d && fullScreen))
         } catch { /* empty bounds */ }
-      } else if (marksRef.current?.length) {
-        try {
-          map.fitBounds(markBounds(gl, marksRef.current), fitOptions(paddingBottom, enableMapbox3d && fullScreen))
-        } catch { /* empty bounds */ }
-      } else {
-        awaitingMarksRef.current = true
       }
     })
 
@@ -597,11 +596,11 @@ function JourneyMapGL(
     const draw = () => {
       clear()
       if (!marks?.length) return
-      if (awaitingMarksRef.current) {
-        awaitingMarksRef.current = false
+      if (!marksFramedRef.current) {
+        marksFramedRef.current = true
         if (!readerMovedRef.current) {
           try {
-            map.fitBounds(markBounds(gl, marks), fitOptions(paddingBottom, enableMapbox3d && fullScreen))
+            map.fitBounds(markBounds(gl, marks, entryPointsRef.current), fitOptions(paddingBottom, enableMapbox3d && fullScreen))
           } catch { /* empty bounds */ }
         }
       }

@@ -224,8 +224,6 @@ function JourneyMap(
   const tileLayerRef = useRef<L.TileLayer | null>(null)
   // GL layer or the raster stand-in a browser without WebGL gets instead (#2288).
   const glLayerRef = useRef<BasemapLayer | null>(null)
-  // The vector basemap loads async; a map torn down before it lands must not get one.
-  const cancelledRef = useRef(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
   const markersRef = useRef<Map<string, L.Marker>>(new Map())
@@ -239,9 +237,10 @@ function JourneyMap(
   const markLayerRef = useRef<L.LayerGroup | null>(null)
   const onMarksPickRef = useRef(onMarksPick)
   const marksRef = useRef(marks)
-  // A journey with nothing located of its own opens on the world until its
-  // plan or stays arrive; those get the first view unless the reader moved it.
-  const awaitingMarksRef = useRef(false)
+  // The plan and the stays load after the entries, so the first view is framed
+  // again once they arrive, around both, unless the reader has moved it by then.
+  const entryCoordsRef = useRef<L.LatLngTuple[]>([])
+  const marksFramedRef = useRef(false)
   const readerMovedRef = useRef(false)
   // What each switchable layer drew, and which of them are on the map right now.
   const drawnRef = useRef<DrawnLayers>(NOTHING_DRAWN())
@@ -307,8 +306,11 @@ function JourneyMap(
     })
     L.control.attribution({ position: 'bottomright', prefix: false }).addTo(map)
     mapRef.current = map
-    cancelledRef.current = false
-    awaitingMarksRef.current = false
+    // The vector basemap loads async; a map torn down before it lands must not get
+    // one. Per build, not a shared ref: the next build would reset a shared flag and
+    // hand the old map, already removed, the layer it was still waiting for.
+    let cancelled = false
+    marksFramedRef.current = false
     readerMovedRef.current = false
     const readerMoved = () => { readerMovedRef.current = true }
     map.on('dragstart', readerMoved)
@@ -317,7 +319,7 @@ function JourneyMap(
     // The basemap is a vector style unless the user brought their own raster
     // template, so which layer draws it is decided per template rather than once.
     if (isVectorStyle(tileUrlRef.current)) {
-      void attachVectorBasemap(map, tileUrlRef.current, glLayerRef, () => cancelledRef.current)
+      void attachVectorBasemap(map, tileUrlRef.current, glLayerRef, () => cancelled)
     } else {
       const tiles = L.tileLayer(tileUrlRef.current, {
         maxZoom: 18,
@@ -455,13 +457,12 @@ function JourneyMap(
         map.invalidateSize()
         // Tracks only get a say when the journey has nothing located of its own —
         // a world view would be worse than framing the one thing on the map.
-        const fitCoords = allCoords.length > 0 ? allCoords : trackCoords.length > 0 ? trackCoords : markCoords(marksRef.current)
-        if (fitCoords.length > 0) {
-          map.fitBounds(L.latLngBounds(fitCoords), fitOptions(paddingBottom))
-        } else {
-          map.setView([30, 0], 2)
-          awaitingMarksRef.current = true
-        }
+        entryCoordsRef.current = allCoords
+        const pointCoords = [...allCoords, ...markCoords(marksRef.current)]
+        const fitCoords = pointCoords.length > 0 ? pointCoords : trackCoords
+        marksFramedRef.current = (marksRef.current?.length ?? 0) > 0
+        if (fitCoords.length > 0) map.fitBounds(L.latLngBounds(fitCoords), fitOptions(paddingBottom))
+        else map.setView([30, 0], 2)
       } catch {}
     })
 
@@ -471,7 +472,7 @@ function JourneyMap(
 
     const container = containerRef.current
     return () => {
-      cancelledRef.current = true
+      cancelled = true
       container.removeEventListener('wheel', readerMoved)
       map.remove()
       mapRef.current = null
@@ -573,9 +574,9 @@ function JourneyMap(
     }
 
     const coords = markCoords(marks)
-    if (awaitingMarksRef.current && coords.length > 0) {
-      awaitingMarksRef.current = false
-      if (!readerMovedRef.current) map.fitBounds(L.latLngBounds(coords), fitOptions(paddingBottom))
+    if (!marksFramedRef.current && coords.length > 0) {
+      marksFramedRef.current = true
+      if (!readerMovedRef.current) map.fitBounds(L.latLngBounds([...entryCoordsRef.current, ...coords]), fitOptions(paddingBottom))
     }
 
     draw()
