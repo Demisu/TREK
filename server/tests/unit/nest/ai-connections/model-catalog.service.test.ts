@@ -207,7 +207,10 @@ describe('ModelCatalogService', () => {
   it('MCAT-009: of a capable line the newest stable model wins, whatever order the provider lists them in', () => {
     const list = (...ids: string[]) => ids.map((id) => ({ id, label: id, supportsTools: true }));
     expect(
-      pickDefaultModel('gemini', list('gemini-2.5-flash', 'gemini-3-flash-preview', 'gemini-3-flash', 'gemini-2.0-flash')),
+      pickDefaultModel(
+        'gemini',
+        list('gemini-2.5-flash', 'gemini-3-flash-preview', 'gemini-3-flash', 'gemini-2.0-flash'),
+      ),
     ).toBe('gemini-3-flash');
     expect(pickDefaultModel('anthropic', list('claude-sonnet-4-5', 'claude-sonnet-5-5', 'claude-sonnet-5'))).toBe(
       'claude-sonnet-5-5',

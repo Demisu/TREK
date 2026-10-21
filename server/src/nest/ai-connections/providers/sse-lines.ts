@@ -117,10 +117,7 @@ function withIdleLimit(body: ReadableStream<Uint8Array>, idleMs: number): Readab
 }
 
 /** The next chunk, or `provider_unavailable` when none came within `idleMs`. */
-async function readWithin(
-  reader: ReadableStreamDefaultReader<Uint8Array>,
-  idleMs: number,
-): Promise<ReadResult> {
+async function readWithin(reader: ReadableStreamDefaultReader<Uint8Array>, idleMs: number): Promise<ReadResult> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   const idle = new Promise<never>((_, reject) => {
     timer = setTimeout(
