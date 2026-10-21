@@ -261,9 +261,9 @@ export function JourneyDayImportActions({ state, onCancel }: { state: JourneyDay
     <>
       {state.skipCount > 0 && (
         <Tooltip label={t('journey.dayImport.skipHint')} placement="top">
-          <span tabIndex={0} className="inline-flex">
+          <button type="button" className="inline-flex cursor-default">
             <SoftPill>{t('journey.dayImport.skipped', { count: state.skipCount })}</SoftPill>
-          </span>
+          </button>
         </Tooltip>
       )}
       <FooterSpacer />

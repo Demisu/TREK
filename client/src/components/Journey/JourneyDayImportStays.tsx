@@ -17,9 +17,9 @@ type Props = { state: JourneyDayImportState; dayColor: string };
 function Hinted({ label, children }: { label: string; children: ReactNode }) {
   return (
     <Tooltip label={label} placement="top">
-      <span tabIndex={0} className="inline-flex">
+      <button type="button" className="inline-flex cursor-default">
         {children}
-      </span>
+      </button>
     </Tooltip>
   );
 }

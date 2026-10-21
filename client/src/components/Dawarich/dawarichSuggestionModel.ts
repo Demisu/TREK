@@ -80,11 +80,11 @@ export function openStayDatesWithin(
   byDate: Map<string, DawarichSuggestion[]>,
   span: Array<string | null | undefined>
 ): string[] {
-  const bounds = span.filter((date): date is string => !!date).sort();
+  const bounds = span.filter((date): date is string => !!date).sort((a, b) => a.localeCompare(b));
   const first = bounds[0];
   const last = bounds[bounds.length - 1];
   if (!first || !last) return [];
-  return [...byDate.keys()].filter((date) => date >= first && date <= last).sort();
+  return [...byDate.keys()].filter((date) => date >= first && date <= last).sort((a, b) => a.localeCompare(b));
 }
 
 /** `HH:MM` out of an ISO timestamp, in the offset the timestamp carries. */

@@ -333,6 +333,8 @@ export interface WalkBoats {
   landings: Array<{ at: number; minutes: number | null }>;
 }
 
+const NO_BOATS: Readonly<WalkBoats> = { spans: [], landings: [] };
+
 /** Each stop's share of the walk with the index of the route's point it is passed at. */
 function walkedAlong(
   stops: readonly WalkStop[],
@@ -381,7 +383,7 @@ export function stationArrivals(
   route: readonly RoutePoint[],
   start: number | null,
   walkingMinutes: number | null,
-  boats: Readonly<WalkBoats> = { spans: [], landings: [] },
+  boats: Readonly<WalkBoats> = NO_BOATS,
 ): WalkArrival[] | null {
   if (start === null || walkingMinutes === null) return null;
   const walked = walkedAlong(stops, route, boats.spans);

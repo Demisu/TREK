@@ -97,20 +97,20 @@ function RecordingFacts({ preview }: { preview: JourneyRecordingPreview }) {
         <SoftPill>{t('journey.recording.pieces', { count: stats.segmentCount })}</SoftPill>
         {stats.gapCount > 0 && (
           <Tooltip label={t('journey.recording.gapsHint')} placement="top">
-            <span tabIndex={0} className="inline-flex">
+            <button type="button" className="inline-flex cursor-default">
               <SoftPill tone="info">{t('journey.recording.gaps', { count: stats.gapCount })}</SoftPill>
-            </span>
+            </button>
           </Tooltip>
         )}
         {stats.modes.map((mode) => (
           <SoftPill key={mode}>{modeLabel(mode, t)}</SoftPill>
         ))}
         <Tooltip label={t('journey.recording.sourceHint')} placement="top">
-          <span tabIndex={0} className="inline-flex">
+          <button type="button" className="inline-flex cursor-default">
             <SoftPill>
               {t(preview.sourceKind === 'tracks' ? 'journey.recording.sourceTracks' : 'journey.recording.sourcePoints')}
             </SoftPill>
-          </span>
+          </button>
         </Tooltip>
       </div>
     </div>
