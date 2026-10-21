@@ -51,7 +51,9 @@ export async function makePlace(
   tripId: number,
   overrides: EntityData<Places> = {},
 ): Promise<PlaceRow> {
-  const category = 'category' in overrides ? overrides.category : await firstCategoryId(orm);
+  // A plain id (or null): the relation's own type, checked against the whole row, runs tsc past its depth.
+  const given = 'category' in overrides ? overrides.category : await firstCategoryId(orm);
+  const category = (given ?? null) as number | null;
   return createRow(
     orm,
     Places,

@@ -152,7 +152,10 @@ function useInstanceConnection(onChanged: () => void) {
     live,
     provider,
     models: live
-      ? modelOptions(models, live.model, { free: t('assistant.model.free'), recommended: t('assistant.model.recommended') })
+      ? modelOptions(models, live.model, {
+          free: t('assistant.model.free'),
+          recommended: t('assistant.model.recommended'),
+        })
       : [],
     busy,
     setModel,

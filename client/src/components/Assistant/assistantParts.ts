@@ -251,6 +251,7 @@ export function undoLeftMs(applied: AssistantApplied | null, now: number): numbe
 export const CHANGE_LABELS: Record<AssistantChangeLabelKey, { labelKey: string }> = {
   // A tool's own argument: the row names it in `field`, this is only its fallback.
   field: { labelKey: 'assistant.change.label.field' },
+  order: { labelKey: 'assistant.change.label.order' },
   name: { labelKey: 'assistant.change.label.name' },
   description: { labelKey: 'assistant.change.label.description' },
   address: { labelKey: 'assistant.change.label.address' },

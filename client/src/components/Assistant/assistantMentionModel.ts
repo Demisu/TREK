@@ -144,9 +144,7 @@ export function splitMentions(text: string, labels: readonly string[]): MentionS
   let i = 0;
   while (i < text.length) {
     const token =
-      text[i] === '@'
-        ? tokens.find((tk) => text.startsWith(tk, i) && endsWord(text, i + tk.length))
-        : undefined;
+      text[i] === '@' ? tokens.find((tk) => text.startsWith(tk, i) && endsWord(text, i + tk.length)) : undefined;
     if (token) {
       if (i > start) out.push({ text: text.slice(start, i), at: start, mention: false });
       out.push({ text: token, at: i, mention: true });

@@ -125,13 +125,20 @@ function KindTile({
 }
 
 /** The verb as a quiet line over the name of what it touches. */
+/** What the change does: the tool's own action where TREK names it, else add, change or remove. */
+function verbLabel(preview: AssistantChangePreview, t: (key: string) => string): string {
+  const own = preview.tool ? `assistant.tool.${preview.tool}` : null;
+  const named = own ? t(own) : null;
+  return named && named !== own ? named : t(`assistant.change.verb.${preview.verbKey}`);
+}
+
 function ChangeHead({ preview, struck = false }: { preview: AssistantChangePreview | null; struck?: boolean }) {
   const { t } = useTranslation();
   if (!preview) return <span className="trek-skeleton inline-block h-4 w-40" aria-hidden="true" />;
   return (
     <span className="flex min-w-0 flex-col">
       <span className="flex min-w-0 items-center gap-1.5 text-caption text-content-muted">
-        <span className="truncate">{t(`assistant.change.verb.${preview.verbKey}`)}</span>
+        <span className="truncate">{verbLabel(preview, t)}</span>
         {preview.domain && (
           // Where in TREK a change outside the trip plan lands: the vacation planner, the journal.
           <span className="flex-shrink-0 rounded-full bg-surface-secondary px-1.5 font-medium text-content-secondary">

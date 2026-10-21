@@ -9,7 +9,14 @@ import { splitMentions } from './assistantMentionModel';
  * the question's own mentions part, so a stray `@` in the text stays text.
  */
 export default function AssistantMentionText({ text, items }: { text: string; items: AssistantMentions['items'] }) {
-  const segments = useMemo(() => splitMentions(text, items.map((i) => i.label)), [text, items]);
+  const segments = useMemo(
+    () =>
+      splitMentions(
+        text,
+        items.map((i) => i.label)
+      ),
+    [text, items]
+  );
   return (
     <>
       {segments.map((s) =>

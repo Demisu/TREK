@@ -107,7 +107,9 @@ function ProviderChips({
   const { t } = useTranslation();
   const tile = (kind: AiApiKeyKind) =>
     `flex min-w-0 items-center gap-2 rounded-lg border px-2 py-1.5 text-start transition-colors hover:bg-surface-hover ${
-      picked === kind ? 'border-accent bg-surface-card ring-1 ring-accent' : 'border-edge-faint bg-surface-card hover:border-edge'
+      picked === kind
+        ? 'border-accent bg-surface-card ring-1 ring-accent'
+        : 'border-edge-faint bg-surface-card hover:border-edge'
     }`;
   return (
     <div className="flex flex-col gap-1.5">

@@ -113,6 +113,8 @@ export const ASSISTANT_CHANGE_LABEL_KEYS = [
   'stay',
   'members',
   'route',
+  // A new order of a day's places or of the days, as the names in that order.
+  'order',
   // An argument of a tool without a card of its own; the row names it in `field`.
   'field',
 ] as const;

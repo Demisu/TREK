@@ -567,14 +567,15 @@ describe('Trip assistant e2e', () => {
 
   it('ASTE2E-011: turns are rate limited per user', async () => {
     const t = await travelerWithTrip();
-    const responses = await Promise.all(
-      Array.from({ length: TURNS_PER_MINUTE + 1 }, () =>
-        request(nestApp.getHttpServer())
-          .post(`${t.base}/tool-calls/missing/undo`)
-          .set('Cookie', sessionCookie(t.userId))
-          .send({}),
-      ),
-    );
+    // One after another, as a user would; a burst of requests at once only tests the test server.
+    const undoOnce = () =>
+      request(nestApp.getHttpServer())
+        .post(`${t.base}/tool-calls/missing/undo`)
+        .set('Cookie', sessionCookie(t.userId))
+        .send({});
+    const responses = await Array.from({ length: TURNS_PER_MINUTE + 1 }).reduce<
+      Promise<Array<{ status: number; body: unknown }>>
+    >(async (done, _unused) => [...(await done), await undoOnce()], Promise.resolve([]));
     const statuses = responses.map((res) => res.status);
     expect(statuses.filter((status) => status === 404)).toHaveLength(TURNS_PER_MINUTE);
     const limited = responses.filter((res) => res.status === 429);

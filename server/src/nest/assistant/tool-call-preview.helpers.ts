@@ -498,6 +498,8 @@ export function describeToolCall(
   const runs = writeToolOf(toolName, args);
   const tool = writeTool(runs);
   const describe = DESCRIBERS[runs];
+  // The server's own steps all have a card; one without is a call that names no real tool.
+  if (tool && !describe) throw new Error(`No change card for tool "${toolName}"`);
   if (!tool || !describe) return describeGeneric(runs, toolCallId, args, ctx.card, ctx.hintOf?.(runs) ?? null);
   const described = describe(ctx, args);
   return {

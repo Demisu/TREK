@@ -10,9 +10,7 @@ import { useAssistantStore } from '../../store/assistantStore';
  */
 export function useChangeHover(tripId: number, toolCallId: string | null) {
   const hovered = useAssistantStore((s) =>
-    toolCallId !== null && s.mapLink?.tripId === tripId && s.mapLink.hoveredId === toolCallId
-      ? s.mapLink.source
-      : null
+    toolCallId !== null && s.mapLink?.tripId === tripId && s.mapLink.hoveredId === toolCallId ? s.mapLink.source : null
   );
   const setMapHover = useAssistantStore((s) => s.setMapHover);
 

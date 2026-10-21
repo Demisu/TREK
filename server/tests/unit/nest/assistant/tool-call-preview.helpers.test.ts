@@ -200,23 +200,37 @@ describe('describeToolCall', () => {
       ...ctx,
       hintOf: () => ({ destructive, creates, group }),
     });
+    // The time of a place on a day: the place is the subject, the time a row under its usual label.
+    const time = describeToolCall(
+      'update_assignment_time',
+      'tc-7',
+      { assignmentId: 301, place_time: '10:00', end_time: '11:30' },
+      hinted(false, false, null),
+    );
+    expect(assistantChangePreviewSchema.safeParse(time).success).toBe(true);
+    expect(time).toMatchObject({ verbKey: 'genericUpdate', subject: 'Nishiki Market', dayId: 31, placeIds: [12] });
+    expect(time.rows).toEqual([
+      { op: 'add', labelKey: 'time', before: null, after: '10:00' },
+      { op: 'add', labelKey: 'endTime', before: null, after: '11:30' },
+    ]);
+    // A new order reads as the names in that order.
+    const order = describeToolCall('reorder_day_assignments', 'tc-6', { dayId: 31, assignmentIds: [301] }, ctx);
+    expect(order).toMatchObject({ subject: 'Arrival', tool: 'reorder_day_assignments' });
+    expect(order.rows).toEqual([{ op: 'add', labelKey: 'order', before: null, after: 'Nishiki Market' }]);
+    const gone = describeToolCall('delete_day_note', 'tc-8', { dayId: 31, noteId: 41 }, hinted(true, false, null));
+    expect(gone).toMatchObject({ verbKey: 'genericRemove', subject: 'Rail pass', dayId: 31 });
+    expect(gone.rows).toEqual([{ op: 'add', labelKey: 'day', before: null, after: 'Arrival' }]);
     const vacay = describeToolCall(
       'toggle_vacay_entry',
       'tc-9',
       { date: '2026-07-01', half: true },
       hinted(false, false, 'vacay'),
     );
-    expect(assistantChangePreviewSchema.safeParse(vacay).success).toBe(true);
-    expect(vacay).toMatchObject({ verbKey: 'genericUpdate', subject: '2026-07-01', domain: 'vacay', undoable: false });
-    expect(vacay.rows).toEqual([{ op: 'add', labelKey: 'field', field: 'half', before: null, after: '✓' }]);
-    const gone = describeToolCall('delete_day_note', 'tc-8', { dayId: 31, noteId: 41 }, hinted(true, false, null));
-    expect(gone).toMatchObject({
-      verbKey: 'genericRemove',
-      subject: 'delete day note',
-      dayId: 31,
-      tool: 'delete_day_note',
-    });
-    expect(gone.rows[0]).toMatchObject({ field: 'dayId', after: 'Arrival' });
+    expect(vacay).toMatchObject({ subject: 'toggle vacay entry', domain: 'vacay', undoable: false });
+    expect(vacay.rows).toEqual([
+      { op: 'add', labelKey: 'day', before: null, after: '2026-07-01' },
+      { op: 'add', labelKey: 'field', field: 'half', before: null, after: '✓' },
+    ]);
     // Without hints the name still tells a removal from an addition.
     expect(describe_('create_collab_poll', { question: 'Where?' }).verbKey).toBe('genericCreate');
     expect(describe_('unmark_country_visited', {}).verbKey).toBe('genericRemove');
@@ -362,7 +376,8 @@ describe('appliedChange', () => {
       dayId: 31,
     });
     expect(appliedChange('create_todo', 'tc', {}, 'odd', null, null)).toMatchObject({ entity: 'todo', ids: [] });
-    expect(appliedChange('list_places', 'tc', {}, {}, null, null)).toBeNull();
+    // A tool without a card of its own leaves a receipt with nothing to show on the map.
+    expect(appliedChange('list_places', 'tc', {}, {}, null, null)).toMatchObject({ entity: 'other', ids: [] });
   });
 
   it('ASTPRV-021: a booking from a file is a reservation, on the day its card named or it landed on', () => {

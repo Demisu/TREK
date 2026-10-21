@@ -97,7 +97,7 @@ describe('useKeyConnect', () => {
     });
     expect(taken).toBe(true);
     await waitFor(() =>
-      expect(repo.connectKey).toHaveBeenCalledWith({ kind: 'openrouter', apiKey: 'unknown-format-key' }),
+      expect(repo.connectKey).toHaveBeenCalledWith({ kind: 'openrouter', apiKey: 'unknown-format-key' })
     );
   });
 

@@ -42,7 +42,9 @@ const REMOVE: AssistantChangeEffect = { ...MOVE, kind: 'remove', fromDayId: null
 type Approval = { approved?: boolean; resolution?: 'cancelled' | 'expired' };
 
 function call(toolCallId: string, approval: Approval, result?: unknown): AssistantMessagePart[] {
-  return [{ type: 'tool-call', toolCallId, toolName: 'x', args: {}, approval: { id: toolCallId, ...approval }, result }];
+  return [
+    { type: 'tool-call', toolCallId, toolName: 'x', args: {}, approval: { id: toolCallId, ...approval }, result },
+  ];
 }
 
 function change(toolCallId: string, effect: AssistantChangeEffect): AssistantMessagePart {

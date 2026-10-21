@@ -98,7 +98,14 @@ describe('AssistantError', () => {
   it('FE-AI-ERR-006: an own key that stopped working says so before anything is sent', () => {
     withError(null, {
       ...STATUS,
-      own: { scope: 'user', kind: 'anthropic', model: 'claude', hint: '…a1b2', status: 'error', host: 'api.anthropic.com' },
+      own: {
+        scope: 'user',
+        kind: 'anthropic',
+        model: 'claude',
+        hint: '…a1b2',
+        status: 'error',
+        host: 'api.anthropic.com',
+      },
     });
     renderLine();
     fireEvent.click(screen.getByRole('button', { name: 'Replace key' }));

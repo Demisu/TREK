@@ -80,6 +80,8 @@ describe('AssistantComposer mentions', () => {
     fireEvent.keyDown(field, { key: 'Enter' });
     await waitFor(() => expect(field.value).toBe('Is @Louvre '));
     expect(send).not.toHaveBeenCalled();
+    // A browser reports where the caret went after the pick; jsdom does not on its own.
+    fireEvent.select(field);
     await waitFor(() => expect(screen.queryByRole('listbox')).toBeNull());
     expect(mentions()).toEqual([{ kind: 'place', id: 21, label: 'Louvre' }]);
     expect(chatOf(useAssistantStore.getState(), TRIP).draft).toBe('Is @Louvre ');

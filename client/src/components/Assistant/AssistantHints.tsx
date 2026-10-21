@@ -103,7 +103,7 @@ function HintRow({
           className={`absolute grid place-items-center rounded-lg text-content-faint transition-opacity hover:bg-surface-hover hover:text-content ${
             phone
               ? 'end-0.5 top-0.5 h-10 w-10'
-              : 'end-1 top-1 h-7 w-7 [@media(hover:hover)]:opacity-0 focus-visible:opacity-100 group-focus-within:opacity-100 group-hover:opacity-100'
+              : 'end-1 top-1 h-7 w-7 focus-visible:opacity-100 group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:hover)]:opacity-0'
           }`}
         >
           <X size={13} aria-hidden="true" />

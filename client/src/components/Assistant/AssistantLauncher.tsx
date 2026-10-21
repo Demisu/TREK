@@ -35,7 +35,9 @@ export default function AssistantLauncher({
   const open = useAssistantStore((s) => s.window.open && !s.window.minimized);
   const toggle = useAssistantStore((s) => s.toggle);
   // An answer still being written in a closed window: the floating button breathes until it is opened.
-  const busy = useAssistantStore((s) => !s.window.open || s.window.minimized ? Object.values(s.byTrip).some((c) => c?.isRunning) : false);
+  const busy = useAssistantStore((s) =>
+    !s.window.open || s.window.minimized ? Object.values(s.byTrip).some((c) => c?.isRunning) : false
+  );
   const keys = useAssistantShortcutKeys();
   const hints = useAssistantHints(variant === 'floating' ? tripId : null, { withStays: false });
   const floating = useRef<HTMLButtonElement>(null);
@@ -86,7 +88,10 @@ export default function AssistantLauncher({
         }}
       >
         {busy && (
-          <span aria-hidden="true" className="trek-assistant-busy absolute inset-0 rounded-full border-2 border-current opacity-40" />
+          <span
+            aria-hidden="true"
+            className="trek-assistant-busy absolute inset-0 rounded-full border-2 border-current opacity-40"
+          />
         )}
         <Sparkles size={20} aria-hidden="true" />
         {hints.unseenWarn > 0 && (

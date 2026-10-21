@@ -68,7 +68,10 @@ export function markdownToText(markdown: string): string {
     const text = plainLine(line);
     if (text !== null) lines.push(text.trimEnd());
   }
-  return lines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  return lines
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
 
 /** The text cut to `max` characters at the last line or word end before it, marked with an ellipsis. */
