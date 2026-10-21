@@ -17,7 +17,7 @@ import type {
   ToolOptions,
 } from './types';
 import { ResourceTemplate as SdkResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp';
-import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp';
 
 import { z } from 'zod';
 
@@ -477,4 +477,9 @@ export class McpRegistry {
           };
     registrar.registerPrompt(options.name, config, cb);
   }
+}
+
+/** A server of its own for a client in the same process (the assistant's tool session), to attach a registry to. */
+export function createLocalMcpServer(name: string): McpServer {
+  return new McpServer({ name, version: '1.0.0' });
 }

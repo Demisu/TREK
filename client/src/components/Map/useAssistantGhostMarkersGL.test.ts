@@ -16,22 +16,26 @@ function setup(hoveredId: string | null = null) {
   const attached: { el: HTMLElement; lng: number; lat: number; remove: ReturnType<typeof vi.fn> }[] = [];
   const pinsRef = { current: [] as { remove: () => void }[] };
   const onHover = vi.fn();
+  const onClick = vi.fn();
+  // Stable across renders, as the map view hands them over: only `hovered` changes.
+  const mapRef = { current: map };
+  const attachPin = (el: HTMLElement, lng: number, lat: number) => {
+    container.appendChild(el);
+    const pin = { el, lng, lat, remove: vi.fn(() => el.remove()) };
+    attached.push(pin);
+    return pin;
+  };
   const hook = renderHook(
     ({ hovered }) =>
       useAssistantGhostMarkersGL({
-        mapRef: { current: map },
+        mapRef,
         mapReady: true,
         pinsRef,
-        attachPin: (el, lng, lat) => {
-          container.appendChild(el);
-          const pin = { el, lng, lat, remove: vi.fn(() => el.remove()) };
-          attached.push(pin);
-          return pin;
-        },
+        attachPin,
         ghosts: GHOSTS,
         hoveredId: hovered,
         onHover,
-        onClick: vi.fn(),
+        onClick,
       }),
     { initialProps: { hovered: hoveredId } }
   );

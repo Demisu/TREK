@@ -21,7 +21,9 @@ export class AssistantMessages {
 export const AssistantMessagesSchema = defineEntity({
   class: AssistantMessages,
   repository: () => AssistantMessagesRepository,
-  indexes: [{ name: 'idx_assistant_messages_thread', properties: ['thread_id', 'id'] }],
+  indexes: [
+    { name: 'idx_assistant_messages_thread', properties: ['thread_id', 'id'] },
+  ],
   properties: {
     id: p.integer().primary(),
     thread: () => p.manyToOne(AssistantThreads).ref().deleteRule('cascade').hidden(),

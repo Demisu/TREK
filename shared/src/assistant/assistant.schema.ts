@@ -63,8 +63,10 @@ export const ASSISTANT_CHANGE_VERB_KEYS = [
   'updatePackingItem',
   'addTodo',
   'addBudgetItem',
+  'updateBudgetItem',
   'addReservation',
   'importBooking',
+  'rememberNote',
 ] as const;
 export const assistantChangeVerbKeySchema = z.enum(ASSISTANT_CHANGE_VERB_KEYS);
 export type AssistantChangeVerbKey = z.infer<typeof assistantChangeVerbKeySchema>;
@@ -271,7 +273,7 @@ export type AssistantChangePreview = z.infer<typeof assistantChangePreviewSchema
 /** An applied change: what it touched, and until when it can be undone. */
 export const assistantAppliedSchema = z.object({
   toolCallId: z.string(),
-  entity: z.enum(['place', 'assignment', 'day_note', 'packing', 'todo', 'budget', 'reservation']),
+  entity: z.enum(['place', 'assignment', 'day_note', 'packing', 'todo', 'budget', 'reservation', 'memory']),
   ids: z.array(idSchema),
   dayId: idSchema.nullable(),
   undoUntil: z.string().nullable(),

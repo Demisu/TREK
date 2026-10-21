@@ -5,15 +5,7 @@
  */
 
 export type PlaceKind =
-  | 'lodging'
-  | 'food'
-  | 'drinks'
-  | 'sight'
-  | 'shopping'
-  | 'transport'
-  | 'beach'
-  | 'nature'
-  | 'activity';
+  'lodging' | 'food' | 'drinks' | 'sight' | 'shopping' | 'transport' | 'beach' | 'nature' | 'activity';
 
 /** A trip category as far as the guess reads it. */
 export interface PlaceKindCategory {

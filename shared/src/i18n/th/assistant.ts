@@ -365,5 +365,9 @@ const assistant: TranslationStrings = {
   'assistant.check.issues': 'มี {count} จุดที่ควรตรวจ',
   'assistant.week.changes': 'การเปลี่ยนแปลง {count} รายการ',
   'assistant.week.showAll': 'แสดงการเปลี่ยนแปลงทั้ง {count} รายการ',
+  'assistant.change.verb.updateBudgetItem': 'แก้ไขค่าใช้จ่าย',
+  'assistant.change.verb.rememberNote': 'จำไว้สำหรับทริปนี้',
+  'assistant.change.details': 'รายละเอียด',
+  'assistant.change.detailsHide': 'ซ่อนรายละเอียด',
 };
 export default assistant;

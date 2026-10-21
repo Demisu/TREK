@@ -46,12 +46,18 @@ async function* streamOf(chunks: UiStreamChunk[]): AsyncGenerator<UiStreamChunk>
   for (const chunk of chunks) yield chunk;
 }
 
-/** A stream that sends `first` and then waits until its request is aborted. */
+/**
+ * A stream that sends `first` and then waits until its request is aborted. An
+ * abort that came before it got that far ends it at once: the event fired
+ * already, and a listener added after it would wait for ever.
+ */
 async function* hangingStream(first: UiStreamChunk[], signal: AbortSignal): AsyncGenerator<UiStreamChunk> {
   yield* first;
-  await new Promise((_, reject) =>
-    signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')))
-  );
+  await new Promise((_, reject) => {
+    const stop = () => reject(new DOMException('Aborted', 'AbortError'));
+    if (signal.aborted) stop();
+    else signal.addEventListener('abort', stop);
+  });
 }
 
 const chat = () => chatOf(useAssistantStore.getState(), TRIP);
@@ -126,6 +132,8 @@ describe('assistantStore: a turn', () => {
     const running = store().send(TRIP, 'Plan it');
     await vi.waitFor(() => expect(chat().isRunning).toBe(true));
     await vi.waitFor(() => expect(chat().abort).not.toBeNull());
+    // Stopped once the answer has begun, as a user would.
+    await vi.waitFor(() => expect(chat().messages[1]?.parts).toEqual([{ type: 'text', text: 'Let me' }]));
 
     store().cancel(TRIP);
     await running;

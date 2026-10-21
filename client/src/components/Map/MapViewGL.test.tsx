@@ -47,6 +47,8 @@ const glMap = vi.hoisted(() => ({
   getStyle: vi.fn().mockReturnValue({ layers: [] }),
   isStyleLoaded: vi.fn().mockReturnValue(true),
   getCanvasContainer: vi.fn(() => glCanvasContainer),
+  // The assistant's camera listens on the map's container for the user's own moves.
+  getContainer: vi.fn(() => glCanvasContainer),
   getLayer: vi.fn().mockReturnValue(null),
   queryRenderedFeatures: vi.fn().mockReturnValue([]),
   querySourceFeatures: vi.fn().mockReturnValue([]),

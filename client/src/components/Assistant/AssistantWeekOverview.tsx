@@ -1,11 +1,10 @@
-import { Check, Minus } from 'lucide-react';
-
 import { useTranslation } from '../../i18n';
 import type { WeekDay } from './useWeekDays';
 
 /**
- * A plan over several days as one grid: a tile per day with how many changes
- * it gets, taken in or left out as a whole with one tap. The single changes
+ * A plan over several days as one row of small tiles: a day per tile, its
+ * number of changes in the corner, taken in or left out as a whole with one
+ * tap. The single changes
  * stay below it, folded away until asked for.
  */
 export default function AssistantWeekOverview({
@@ -24,38 +23,43 @@ export default function AssistantWeekOverview({
     <div
       role="group"
       aria-label={t('assistant.week.title')}
-      className="mb-2 grid gap-1.5"
+      className="mb-2 grid gap-2 pt-1"
       style={{ gridTemplateColumns: `repeat(${Math.min(days.length, 7)}, minmax(0, 1fr))` }}
     >
       {days.map((day, i) => {
         const on = day.ids.filter((id) => !excluded.has(id)).length;
         const taken = on > 0;
+        const count = taken ? on : day.ids.length;
+        const name = `${day.weekday ?? t('assistant.week.day')} ${day.n}`;
         return (
           <button
             key={day.id}
             type="button"
             disabled={disabled}
             aria-pressed={taken}
+            aria-label={`${name}, ${t('assistant.week.changes', { count })}`}
+            title={t('assistant.week.changes', { count })}
             onClick={() => onToggleDay(day.ids, !taken)}
-            className={`trek-assistant-enter group/day relative flex min-w-0 flex-col items-center gap-0.5 rounded-xl border px-1 py-2 transition-all disabled:cursor-default ${
+            className={`trek-assistant-enter relative flex min-w-0 flex-col items-center rounded-lg py-1.5 outline-none transition-all focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-default ${
               taken
-                ? 'border-accent bg-accent-subtle text-content shadow-sm hover:-translate-y-px hover:shadow-md'
-                : 'border-dashed border-edge text-content-faint hover:border-edge-secondary'
+                ? 'bg-accent text-accent-text shadow-sm hover:-translate-y-px hover:shadow-md'
+                : 'bg-surface-secondary text-content-faint hover:text-content-muted'
             }`}
             style={{ animationDelay: `${i * 40}ms` }}
           >
+            <span className={`text-caption leading-tight ${taken ? 'opacity-75' : ''}`}>
+              {day.weekday ?? t('assistant.week.day')}
+            </span>
+            <span className={`text-body font-semibold tabular-nums leading-tight ${taken ? '' : 'line-through'}`}>
+              {day.n}
+            </span>
             <span
               aria-hidden="true"
-              className={`absolute end-1 top-1 grid h-3.5 w-3.5 place-items-center rounded-full ${
-                taken ? 'bg-accent text-accent-text' : 'bg-surface-tertiary text-content-faint'
+              className={`absolute -end-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full px-1 text-caption font-semibold tabular-nums leading-none ring-2 ring-surface-card ${
+                taken ? 'bg-surface-card text-content' : 'bg-surface-tertiary text-content-faint'
               }`}
             >
-              {taken ? <Check size={9} strokeWidth={3} /> : <Minus size={9} strokeWidth={3} />}
-            </span>
-            <span className="text-caption text-content-muted">{day.weekday ?? t('assistant.week.day')}</span>
-            <span className="text-subtitle font-bold tabular-nums leading-none">{day.n}</span>
-            <span className={`text-caption tabular-nums ${taken ? 'text-content-secondary' : ''}`}>
-              {t('assistant.week.changes', { count: taken ? on : day.ids.length })}
+              {count}
             </span>
           </button>
         );

@@ -66,7 +66,7 @@ describe('ModelCatalogService', () => {
     safeFetch.mockResolvedValueOnce(json(200, { data: [{ id: 'claude-sonnet-5', display_name: 'Claude Sonnet 5' }] }));
     const key = secret();
     expect(await catalog().list({ kind: 'anthropic', baseUrl: null, secret: key })).toEqual([
-      { id: 'claude-sonnet-5', label: 'Claude Sonnet 5', supportsTools: true },
+      { id: 'claude-sonnet-5', label: 'Claude Sonnet 5', supportsTools: true, recommended: true },
     ]);
     const [url, init] = safeFetch.mock.calls[0] as [string, RequestInit, { maxBytes: number }];
     expect(url).toBe('https://api.anthropic.com/v1/models?limit=1000');
@@ -117,7 +117,7 @@ describe('ModelCatalogService', () => {
       }),
     );
     expect(await catalog().list({ kind: 'openrouter', baseUrl: null, secret: secret() })).toEqual([
-      { id: 'anthropic/claude-sonnet-5', label: 'Sonnet', supportsTools: true, free: false },
+      { id: 'anthropic/claude-sonnet-5', label: 'Sonnet', supportsTools: true, free: false, recommended: true },
       { id: 'meta/llama:free', label: 'meta/llama:free', supportsTools: true, free: true },
     ]);
     expect(safeFetch.mock.calls.map((call) => call[0])).toEqual([
@@ -167,7 +167,7 @@ describe('ModelCatalogService', () => {
       }),
     );
     expect(await catalog().list({ kind: 'chatgpt', baseUrl: null, secret: secret() })).toEqual([
-      { id: 'gpt-6.1-sol', label: 'GPT-6.1 Sol', supportsTools: true },
+      { id: 'gpt-6.1-sol', label: 'GPT-6.1 Sol', supportsTools: true, recommended: true },
     ]);
     safeFetch.mockResolvedValueOnce(json(500, {}));
     expect((await catalog().list({ kind: 'chatgpt', baseUrl: null, secret: secret() }))[0]?.id).toBe('gpt-6.1-sol');
@@ -183,7 +183,7 @@ describe('ModelCatalogService', () => {
   it('MCAT-007: a custom server is listed through LlmLocalService, its failure is provider_unavailable', async () => {
     llmLocal.listModels.mockResolvedValueOnce({ models: [{ name: 'qwen3:14b', size: 9 }] });
     expect(await catalog().list({ kind: 'custom', baseUrl: 'http://ollama:11434/v1', secret: null })).toEqual([
-      { id: 'qwen3:14b', label: 'qwen3:14b', supportsTools: true },
+      { id: 'qwen3:14b', label: 'qwen3:14b', supportsTools: true, recommended: true },
     ]);
     expect(llmLocal.listModels).toHaveBeenCalledWith('http://ollama:11434/v1', undefined);
     llmLocal.listModels.mockRejectedValueOnce(new DomainError(502, 'Could not reach local LLM server'));
@@ -224,8 +224,9 @@ describe('ModelCatalogService', () => {
     ).toEqual([
       ['gemini-3-flash', true],
       ['gemini-3-pro', false],
-      ['gemini-2.5-pro', false],
+      // The same version reads in name order.
       ['gemini-2.5-flash', false],
+      ['gemini-2.5-pro', false],
     ]);
   });
 });

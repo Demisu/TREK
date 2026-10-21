@@ -368,5 +368,9 @@ const assistant: TranslationStrings = {
   'assistant.check.issues': '確認事項 {count} 件',
   'assistant.week.changes': '{count} 件の変更',
   'assistant.week.showAll': '{count} 件の変更をすべて表示',
+  'assistant.change.verb.updateBudgetItem': '支出を変更',
+  'assistant.change.verb.rememberNote': 'この旅行のために覚えておく',
+  'assistant.change.details': '詳細',
+  'assistant.change.detailsHide': '詳細を隠す',
 };
 export default assistant;

@@ -36,6 +36,7 @@ import { AssistantBookingImportService } from './assistant-booking-import.servic
 import { mentionItems } from './assistant-cards.helpers';
 import { buildTripCard, categoriesFrom, languageName, todayIn, turnContext, type TripCard } from './assistant-context';
 import { messageIdOf, outputText, partsOf, toChatHistory, toThreadMessages } from './assistant-history';
+import { rememberForTrip } from './assistant-memory';
 import { toolOutputForProvider } from './assistant-redact';
 import { AssistantStreamRegistry } from './assistant-stream.registry';
 import { titleFrom } from './assistant-title';
@@ -47,6 +48,7 @@ import {
   foundPlaceArgs,
   IMPORT_BOOKING_TOOL,
   READ_BOOKING_FILE_TOOL,
+  REMEMBER_TOOL,
   TURNS_PER_MINUTE,
   UNDO_WINDOW_MS,
   writeToolOf,
@@ -397,6 +399,7 @@ export class AssistantService {
   ): Promise<ToolRun> {
     if (name === IMPORT_BOOKING_TOOL) return this.inContext(() => this.bookings.apply(userId, tripId, args));
     if (name === ADD_FOUND_PLACE_TOOL) return session.call(writeToolOf(name, args), foundPlaceArgs(args));
+    if (name === REMEMBER_TOOL) return this.inContext(() => rememberForTrip(this.settings, userId, tripId, args));
     return session.call(name, args);
   }
 

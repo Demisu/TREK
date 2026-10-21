@@ -1,4 +1,4 @@
-import { ChevronDown, CircleCheck, TriangleAlert } from 'lucide-react';
+import { ChevronDown, CircleCheck, Minus, Plus, TriangleAlert } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -20,8 +20,9 @@ import { useChangeHover } from './useChangeHover';
 
 /**
  * The days a waiting card touches, as they would read once it ran: per day its
- * date and its stops in order as small named chips, so a glance shows where the
- * suggestion lands among the rest. The details (times, the way between stops,
+ * date and its stops in order. What stays reads as quiet text; only what the
+ * card adds is a filled pill and what it takes away is struck, so a glance
+ * finds the suggestion among the rest. The details (times, the way between stops,
  * free time, a clash) stay folded away until asked for. Two days at most; the
  * rest are counted. Shown only while the planner holds this trip, since the day
  * plans come from it.
@@ -33,24 +34,31 @@ const MAX_DAYS = 2;
 const MAX_CHIPS = 6;
 
 const CHIP: Record<TimelineStop['status'], string> = {
-  kept: 'border-transparent bg-surface-secondary text-content-muted',
-  new: 'border-dashed border-success bg-success-soft text-content',
-  removed: 'border-transparent text-content-faint line-through',
+  kept: 'px-0.5 text-content-muted',
+  new: 'rounded-full bg-accent px-2 py-0.5 font-medium text-accent-text shadow-sm',
+  removed: 'rounded-full px-1.5 py-0.5 text-content-faint line-through',
 };
 
 /** One stop of the day, named; the change it belongs to lights up with it. */
 function StopChip({ stop }: { stop: TimelineStop }) {
   const { tripId } = useAssistantView();
   const { lit, handlers } = useChangeHover(tripId, stop.toolCallId);
-  const clash = stop.lead?.overlapsWith ? 'border-danger' : stopIssue(stop) ? 'border-warning' : '';
+  const issue = stop.lead?.overlapsWith ? 'ring-2 ring-danger' : stopIssue(stop) ? 'ring-2 ring-warning' : '';
+  const Mark = stop.status === 'new' ? Plus : stop.status === 'removed' ? Minus : null;
   return (
     <span
       {...(stop.toolCallId ? handlers : {})}
-      className={`inline-flex max-w-[11rem] items-center rounded-full border px-2 py-0.5 text-caption transition-colors ${CHIP[stop.status]} ${clash} ${lit ? 'bg-surface-hover' : ''}`}
+      className={`inline-flex max-w-[12rem] items-center gap-1 text-caption transition-all ${CHIP[stop.status]} ${issue} ${lit ? 'scale-[1.04]' : ''}`}
     >
+      {Mark && <Mark size={11} strokeWidth={2.6} aria-hidden="true" className="flex-shrink-0" />}
       <bdi className="truncate">{stop.name}</bdi>
     </span>
   );
+}
+
+/** The thin rule between two stops, read as "then". */
+function Then() {
+  return <span aria-hidden="true" className="h-px w-2 flex-shrink-0 bg-edge" />;
 }
 
 function Lead({ stop, timed }: { stop: TimelineStop; timed: boolean }) {
@@ -111,11 +119,16 @@ function DayRow({ day, label, open }: { day: DayAfter; label: string; open: bool
   const chips = day.stops.slice(0, MAX_CHIPS);
   return (
     <div>
-      <bdi className="block truncate text-caption font-medium text-content-muted">{label}</bdi>
+      <bdi className="block truncate text-caption font-semibold uppercase tracking-wide text-content-faint">
+        {label}
+      </bdi>
       {!open && (
-        <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1">
-          {chips.map((stop) => (
-            <StopChip key={stop.key} stop={stop} />
+        <div className="mt-1 flex min-w-0 flex-wrap items-center gap-x-1 gap-y-1.5">
+          {chips.map((stop, i) => (
+            <span key={stop.key} className="contents">
+              {i > 0 && <Then />}
+              <StopChip stop={stop} />
+            </span>
           ))}
           {day.stops.length > MAX_CHIPS && (
             <span className="text-caption tabular-nums text-content-faint">+{day.stops.length - MAX_CHIPS}</span>

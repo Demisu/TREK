@@ -400,5 +400,9 @@ const assistant: TranslationStrings = {
   'assistant.week.changes.one': '{count} αλλαγή',
   'assistant.week.showAll': 'Εμφάνιση όλων των {count} αλλαγών',
   'assistant.week.showAll.one': 'Εμφάνιση {count} αλλαγής',
+  'assistant.change.verb.updateBudgetItem': 'Αλλαγή εξόδου',
+  'assistant.change.verb.rememberNote': 'Απομνημόνευση για αυτό το ταξίδι',
+  'assistant.change.details': 'Λεπτομέρειες',
+  'assistant.change.detailsHide': 'Απόκρυψη λεπτομερειών',
 };
 export default assistant;

@@ -166,7 +166,7 @@ describe('AssistantChangeCard: the receipt', () => {
     const onShowOnMap = vi.fn();
     renderCard([receipt('c1', '2026-10-21T08:15:00.000Z')], { onShowOnMap });
 
-    expect(screen.getByText('Applied')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Applied' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Show on map' }));
     expect(onShowOnMap).toHaveBeenCalledWith(expect.objectContaining({ toolCallId: 'c1', dayId: 3 }));
     expect(screen.getByRole('button', { name: 'Undo' })).toBeInTheDocument();
@@ -188,7 +188,7 @@ describe('AssistantChangeCard: the receipt', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
     });
     expect(undo).toHaveBeenCalledWith(TRIP, 'c1');
-    expect(screen.getByText('Undone')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Undone' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Undo' })).toBeNull();
     first.unmount();
 
@@ -204,7 +204,7 @@ describe('AssistantChangeCard: the receipt', () => {
     renderCard([receipt('c1', null), { ...pending('c2', 'Ryoan-ji'), state: 'discarded' }]);
     expect(screen.queryByRole('button', { name: 'Show on map' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Undo' })).toBeNull();
-    expect(screen.getByText('Discarded')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Discarded' })).toBeInTheDocument();
   });
 });
 

@@ -1013,8 +1013,9 @@ describe('IntegrationsTab – failure toasts', () => {
         }),
       ),
     );
-    render(<IntegrationsTab />);
+    const off = render(<IntegrationsTab />);
     expect(screen.queryByText('AI assistant')).not.toBeInTheDocument();
+    off.unmount();
 
     enableAddons(['ai_assistant']);
     const { unmount } = render(<IntegrationsTab />);

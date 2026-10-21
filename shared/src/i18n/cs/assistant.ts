@@ -418,5 +418,9 @@ const assistant: TranslationStrings = {
   'assistant.week.showAll': 'Zobrazit všech {count} změn',
   'assistant.week.showAll.one': 'Zobrazit {count} změnu',
   'assistant.week.showAll.few': 'Zobrazit všechny {count} změny',
+  'assistant.change.verb.updateBudgetItem': 'Změnit výdaj',
+  'assistant.change.verb.rememberNote': 'Zapamatovat pro tuto cestu',
+  'assistant.change.details': 'Podrobnosti',
+  'assistant.change.detailsHide': 'Skrýt podrobnosti',
 };
 export default assistant;

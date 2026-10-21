@@ -35,9 +35,9 @@ export class AssistantUsageRepository extends TrekRepository<AssistantUsage> {
       })
       .onConflict((oc) =>
         oc.columns(['user_id', 'day', 'paid_by']).doUpdateSet({
-          turns: (eb) => eb('turns', '+', eb.ref('excluded.turns')),
-          input_tokens: (eb) => eb('input_tokens', '+', eb.ref('excluded.input_tokens')),
-          output_tokens: (eb) => eb('output_tokens', '+', eb.ref('excluded.output_tokens')),
+          turns: (eb) => eb('assistant_usage.turns', '+', eb.ref('excluded.turns')),
+          input_tokens: (eb) => eb('assistant_usage.input_tokens', '+', eb.ref('excluded.input_tokens')),
+          output_tokens: (eb) => eb('assistant_usage.output_tokens', '+', eb.ref('excluded.output_tokens')),
         }),
       )
       .execute();

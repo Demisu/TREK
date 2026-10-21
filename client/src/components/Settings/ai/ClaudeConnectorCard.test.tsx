@@ -31,7 +31,8 @@ describe('ClaudeConnectorCard', () => {
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
     const qr = screen.getByAltText('QR code to add TREK in Claude');
     expect(qr.getAttribute('src')).toMatch(/^data:image\/svg\+xml;charset=utf-8,/);
-    expect(container.querySelector('rect')).toBeNull();
+    // The QR code's own markup never lands in the page; icons may draw rects of their own.
+    expect(container.querySelector('rect[width="1"][height="1"]')).toBeNull();
     expect(document.getElementById('claude-connector')).not.toBeNull();
   });
 

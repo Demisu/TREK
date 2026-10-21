@@ -1,8 +1,9 @@
-import { McpRegistryService, type McpRegistryListing } from '../../nest-mcp';
+import { createLocalMcpServer, McpRegistryService, type McpRegistryListing } from '../../nest-mcp';
 import type { AiToolSpec } from '../ai-connections/ai-chat-client.interface';
 import { AuditService } from '../audit/audit.service';
 import { traceEntry } from '../audit/entry-trace.logger';
 import { withRequestContext } from '../database/request-context';
+import { REMEMBER_SPEC } from './assistant-memory';
 import {
   ASSISTANT_ARG_POLICY,
   ASSISTANT_READ_TOOLS,
@@ -13,11 +14,11 @@ import {
   ASSISTANT_WRITE_TOOLS,
   isDeniedTool,
   PINNED_ARG,
+  REMEMBER_TOOL,
 } from './assistant-tools.constants';
 import { MikroORM } from '@mikro-orm/core';
 import { Client } from '@modelcontextprotocol/sdk/client/index';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp';
 import { Injectable, type OnApplicationBootstrap } from '@nestjs/common';
 
 type ToolArgs = Record<string, unknown>;
@@ -121,23 +122,25 @@ function readResult(result: unknown): ToolRun {
  */
 export class AssistantToolSession {
   constructor(
-    private readonly client: Client,
-    private readonly server: McpServer,
+    private readonly client: InstanceType<typeof Client>,
+    private readonly server: ReturnType<typeof createLocalMcpServer>,
     private readonly tools: ReadonlyMap<string, ListedTool>,
     private readonly tripId: number,
     private readonly audit: (toolName: string) => void,
   ) {}
 
-  /** The tools as the model is offered them. */
+  /** The tools as the model is offered them, with the trip notes the server keeps itself. */
   specs(): AiToolSpec[] {
-    return [...this.tools.values()].map((tool) => ({
+    const listed = [...this.tools.values()].map((tool) => ({
       name: tool.name,
       description: tool.description,
       parameters: modelSchema(tool.name, tool.inputSchema),
     }));
+    return [...listed, REMEMBER_SPEC];
   }
 
   kindOf(name: string): AssistantToolKind | null {
+    if (name === REMEMBER_TOOL) return 'write';
     return this.tools.get(name)?.kind ?? null;
   }
 
@@ -208,7 +211,7 @@ export class AssistantToolsService implements OnApplicationBootstrap {
    * attached: the assistant passes no dynamic tool source.
    */
   async open(userId: number, tripId: number, include: ReadonlySet<string> = ASSISTANT_TOOL_ALLOWLIST) {
-    const server = new McpServer({ name: 'TREK assistant', version: '1.0.0' });
+    const server = createLocalMcpServer('TREK assistant');
     const around = (info: { kind: string; name: string }, call: () => unknown): unknown =>
       traceEntry('mcp', `${info.kind} ${info.name} user=${userId} client=assistant`, () =>
         withRequestContext(this.orm, call),

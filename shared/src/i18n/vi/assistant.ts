@@ -368,5 +368,9 @@ const assistant: TranslationStrings = {
   'assistant.check.issues': '{count} điểm cần xem',
   'assistant.week.changes': '{count} thay đổi',
   'assistant.week.showAll': 'Hiện tất cả {count} thay đổi',
+  'assistant.change.verb.updateBudgetItem': 'Sửa khoản chi',
+  'assistant.change.verb.rememberNote': 'Ghi nhớ cho chuyến đi này',
+  'assistant.change.details': 'Chi tiết',
+  'assistant.change.detailsHide': 'Ẩn chi tiết',
 };
 export default assistant;

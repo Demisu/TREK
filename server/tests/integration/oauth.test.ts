@@ -236,6 +236,8 @@ describe('platform/discovery parity pins', () => {
       code_challenge_methods_supported: ['S256'],
       token_endpoint_auth_methods_supported: ['client_secret_post', 'none'],
       scopes_supported: ALL_SCOPES,
+      // A client may name itself by its metadata document's URL (Claude's connector does).
+      client_id_metadata_document_supported: true,
       userinfo_endpoint: 'https://trek.example.com/oauth/userinfo',
     });
   });

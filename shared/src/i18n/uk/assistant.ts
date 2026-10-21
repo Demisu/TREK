@@ -443,5 +443,9 @@ const assistant: TranslationStrings = {
   'assistant.week.showAll.one': 'Показати {count} зміну',
   'assistant.week.showAll.few': 'Показати всі {count} зміни',
   'assistant.week.showAll.many': 'Показати всі {count} змін',
+  'assistant.change.verb.updateBudgetItem': 'Змінити витрату',
+  'assistant.change.verb.rememberNote': 'Запам’ятати для цієї подорожі',
+  'assistant.change.details': 'Подробиці',
+  'assistant.change.detailsHide': 'Сховати подробиці',
 };
 export default assistant;

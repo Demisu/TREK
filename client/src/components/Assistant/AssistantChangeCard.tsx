@@ -1,6 +1,5 @@
-import type { AssistantChangePreview, AssistantChangeRow, AssistantChangeVerbKey } from '@trek/shared';
+import type { AssistantApplied, AssistantChangePreview, AssistantChangeVerbKey } from '@trek/shared';
 import {
-  ArrowRight,
   CalendarArrowUp,
   CalendarMinus,
   CalendarPlus,
@@ -11,6 +10,7 @@ import {
   Luggage,
   MapPin,
   MapPinPlus,
+  NotebookPen,
   PencilLine,
   StickyNote,
   Ticket,
@@ -27,10 +27,11 @@ import { useTripStore } from '../../store/tripStore';
 import ToggleSwitch from '../Settings/ToggleSwitch';
 import { useToast } from '../shared/Toast';
 import { Tooltip } from '../shared/Tooltip';
+import AssistantChangeFields from './AssistantChangeFields';
 import AssistantCompareSwitch from './AssistantCompareSwitch';
 import AssistantDayBand from './AssistantDayBand';
 import AssistantWeekOverview from './AssistantWeekOverview';
-import { CHANGE_LABELS, type ChangeItem, type ChangeState, undoLeftMs } from './assistantParts';
+import { type ChangeItem, type ChangeState, undoLeftMs } from './assistantParts';
 import { useAssistantView } from './assistantViewContext';
 import { changePoints, type DayChange } from './dayAfterModel';
 import { useChangeHover } from './useChangeHover';
@@ -78,8 +79,10 @@ const VERB_LOOK: Record<AssistantChangeVerbKey, { Icon: typeof Check; tone: Tone
   updatePackingItem: { Icon: Luggage, tone: 'info' },
   addTodo: { Icon: ListTodo, tone: 'success' },
   addBudgetItem: { Icon: Wallet, tone: 'success' },
+  updateBudgetItem: { Icon: Wallet, tone: 'info' },
   addReservation: { Icon: Ticket, tone: 'success' },
   importBooking: { Icon: Ticket, tone: 'success' },
+  rememberNote: { Icon: NotebookPen, tone: 'info' },
 };
 
 /** How a decided change reads: one quiet mark, its words in the tooltip. */
@@ -130,37 +133,6 @@ function ChangeHead({ preview, struck = false }: { preview: AssistantChangePrevi
   );
 }
 
-/** One field as a badge that holds its label as a smaller badge; a change shows the old value struck through. */
-function FieldBadge({ row }: { row: AssistantChangeRow }) {
-  const { t } = useTranslation();
-  const empty = <span className="italic text-content-faint">{t('assistant.change.empty')}</span>;
-  return (
-    <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-surface-secondary py-[3px] pe-2.5 ps-[3px] text-caption text-content">
-      <span className="flex-shrink-0 rounded-full bg-surface-card px-2 py-px text-content-muted">
-        {t(CHANGE_LABELS[row.labelKey].labelKey)}
-      </span>
-      {row.op !== 'add' && (
-        <>
-          <bdi className="min-w-0 truncate text-content-faint line-through">{row.before || empty}</bdi>
-          <ArrowRight size={11} aria-hidden="true" className="flex-shrink-0 text-content-faint rtl:-scale-x-100" />
-        </>
-      )}
-      <bdi className="min-w-0 truncate">{row.after || empty}</bdi>
-    </span>
-  );
-}
-
-function ChangeFields({ rows }: { rows: AssistantChangeRow[] }) {
-  if (rows.length === 0) return null;
-  return (
-    <div className="mt-2 flex flex-wrap gap-1.5">
-      {rows.map((row, i) => (
-        <FieldBadge key={`${row.labelKey}-${i}`} row={row} />
-      ))}
-    </div>
-  );
-}
-
 /** The time now, ticking once more when the next undo window closes. */
 function useUndoClock(items: ChangeItem[]): number {
   const [now, setNow] = useState(() => Date.now());
@@ -192,6 +164,9 @@ function dayChangesOf(items: readonly ChangeItem[], excluded: ReadonlySet<string
   );
 }
 
+/** What an applied change can be shown as on the map; a kept note, a todo or an expense has no place there. */
+const ON_MAP: ReadonlySet<AssistantApplied['entity']> = new Set(['place', 'assignment', 'day_note', 'reservation']);
+
 function Receipt({
   item,
   undone,
@@ -209,6 +184,7 @@ function Receipt({
   const receipt = undone ? RECEIPT.discarded : RECEIPT[item.state];
   const { Icon } = receipt;
   const applied = item.state === 'applied' && !undone ? item.applied : null;
+  const mappable = applied !== null && ON_MAP.has(applied.entity);
   const settled = item.state === 'discarded' || item.state === 'expired' || undone;
   const statusLabel = t(undone ? 'assistant.change.undone' : receipt.labelKey);
   return (
@@ -217,7 +193,7 @@ function Receipt({
       <div className={`min-w-0 flex-1 ${settled ? 'opacity-60' : ''}`}>
         <ChangeHead preview={item.preview} struck={settled} />
       </div>
-      {applied && onShowOnMap && (
+      {applied && mappable && onShowOnMap && (
         <Tooltip label={t('assistant.change.showOnMap')} placement="top">
           <button
             type="button"
@@ -276,7 +252,7 @@ function PendingRow({
       <KindTile verbKey={item.preview?.verbKey ?? null} />
       <div className="min-w-0 flex-1">
         <ChangeHead preview={item.preview} />
-        {item.preview && <ChangeFields rows={item.preview.rows} />}
+        {item.preview && <AssistantChangeFields rows={item.preview.rows} />}
       </div>
       {withSwitch && (
         <ToggleSwitch on={!excluded} onToggle={onToggle} label={t('assistant.change.include')} disabled={disabled} />

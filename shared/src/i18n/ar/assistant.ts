@@ -488,5 +488,9 @@ const assistant: TranslationStrings = {
   'assistant.week.showAll.two': 'عرض التغييرين',
   'assistant.week.showAll.few': 'عرض التغييرات الـ {count}',
   'assistant.week.showAll.many': 'عرض التغييرات الـ {count}',
+  'assistant.change.verb.updateBudgetItem': 'تعديل المصروف',
+  'assistant.change.verb.rememberNote': 'تذكّر لهذه الرحلة',
+  'assistant.change.details': 'التفاصيل',
+  'assistant.change.detailsHide': 'إخفاء التفاصيل',
 };
 export default assistant;

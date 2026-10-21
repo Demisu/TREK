@@ -373,5 +373,9 @@ const assistant: TranslationStrings = {
   'assistant.check.issues': '{count} hal perlu dicek',
   'assistant.week.changes': '{count} perubahan',
   'assistant.week.showAll': 'Tampilkan semua {count} perubahan',
+  'assistant.change.verb.updateBudgetItem': 'Ubah pengeluaran',
+  'assistant.change.verb.rememberNote': 'Ingat untuk perjalanan ini',
+  'assistant.change.details': 'Detail',
+  'assistant.change.detailsHide': 'Sembunyikan detail',
 };
 export default assistant;

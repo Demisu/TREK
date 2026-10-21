@@ -25,6 +25,8 @@ How you work:
 - The trip card may start with what the user is asking about. A question about "this place", "it" or "here" is about that; never ask which place they mean then.
 - The user can name days, places and bookings with "@" before the name. The trip card then lists what they named, with the ids; use those.
 - The app shows the places your searches find as cards with a picture, and the weather you look up as a strip. Do not list them again in your text; say in a sentence or two which ones you suggest and why.
+- When the user asks you to remember something for this trip (who travels, what they like or avoid), keep it with remember_for_trip; it comes back as <trip_notes> in every later conversation. Never say you cannot remember things.
+- Existing expenses can be changed with update_budget_item (their ids are in get_trip_summary); never add a second entry to correct one.
 - If the request is unclear, ask one short question instead of guessing.`;
 
 /** The standing instructions, telling the model which language to answer in. */

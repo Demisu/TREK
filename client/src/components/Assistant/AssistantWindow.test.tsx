@@ -10,7 +10,7 @@
 import type { AiStatusResponse } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { fireEvent, render, screen, waitFor } from '../../../tests/helpers/render';
+import { act, fireEvent, render, screen, waitFor } from '../../../tests/helpers/render';
 import { tripRepo } from '../../repo/tripRepo';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import type { Trip } from '../../types';
@@ -62,6 +62,8 @@ const resume = vi.fn(async () => {});
 const cancel = vi.fn();
 
 function seed(window: { open: boolean; minimized: boolean }, isRunning = false) {
+  // A chat the test before unmounted stops itself on the way out; that call is not this test's.
+  cancel.mockClear();
   useAssistantStore.setState({
     status: STATUS,
     window,
@@ -135,9 +137,11 @@ describe('AssistantWindow', () => {
     expect(cancel).toHaveBeenCalledWith(TRIP.id);
     expect(useAssistantStore.getState().window.open).toBe(true);
 
-    useAssistantStore.setState({
-      byTrip: { [TRIP.id]: { ...chatOf(useAssistantStore.getState(), TRIP.id), isRunning: false } },
-    });
+    act(() =>
+      useAssistantStore.setState({
+        byTrip: { [TRIP.id]: { ...chatOf(useAssistantStore.getState(), TRIP.id), isRunning: false } },
+      })
+    );
     fireEvent.keyDown(dialog, { key: 'Escape' });
     expect(useAssistantStore.getState().window.open).toBe(false);
   });

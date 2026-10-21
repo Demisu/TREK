@@ -399,5 +399,9 @@ const assistant: TranslationStrings = {
   'assistant.week.changes.one': '{count} canvi',
   'assistant.week.showAll': 'Mostra els {count} canvis',
   'assistant.week.showAll.one': 'Mostra {count} canvi',
+  'assistant.change.verb.updateBudgetItem': 'Canvia la despesa',
+  'assistant.change.verb.rememberNote': 'Recorda per a aquest viatge',
+  'assistant.change.details': 'Detalls',
+  'assistant.change.detailsHide': 'Amaga els detalls',
 };
 export default assistant;

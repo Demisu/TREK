@@ -365,5 +365,9 @@ const assistant: TranslationStrings = {
   'assistant.check.issues': '확인할 점 {count}개',
   'assistant.week.changes': '변경 {count}개',
   'assistant.week.showAll': '변경 {count}개 모두 보기',
+  'assistant.change.verb.updateBudgetItem': '지출 변경',
+  'assistant.change.verb.rememberNote': '이 여행에 기억하기',
+  'assistant.change.details': '세부 정보',
+  'assistant.change.detailsHide': '세부 정보 숨기기',
 };
 export default assistant;

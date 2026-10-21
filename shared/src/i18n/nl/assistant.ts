@@ -397,5 +397,9 @@ const assistant: TranslationStrings = {
   'assistant.week.changes.one': '{count} wijziging',
   'assistant.week.showAll': 'Alle {count} wijzigingen tonen',
   'assistant.week.showAll.one': '{count} wijziging tonen',
+  'assistant.change.verb.updateBudgetItem': 'Uitgave wijzigen',
+  'assistant.change.verb.rememberNote': 'Onthouden voor deze reis',
+  'assistant.change.details': 'Details',
+  'assistant.change.detailsHide': 'Details verbergen',
 };
 export default assistant;

@@ -18,6 +18,10 @@ const STATUS: Partial<Record<AssistantMessage['status'], ThreadMessageLike['stat
 
 function toPart(part: AssistantMessagePart): LikePart | null {
   if (part.type === 'text') return part.text ? { type: 'text', text: part.text } : null;
+  // An attached file is drawn from the stored message; the runtime takes it as one more data part.
+  if (part.type === 'attachment') {
+    return { type: 'data-trek-attachment', data: { name: part.name, mime: part.mime, size: part.size } };
+  }
   if (part.type !== 'tool-call') return part;
   return {
     type: 'tool-call',

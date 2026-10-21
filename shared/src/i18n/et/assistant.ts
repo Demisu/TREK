@@ -395,5 +395,9 @@ const assistant: TranslationStrings = {
   'assistant.week.changes.one': '{count} muudatus',
   'assistant.week.showAll': 'Näita kõiki {count} muudatust',
   'assistant.week.showAll.one': 'Näita {count} muudatust',
+  'assistant.change.verb.updateBudgetItem': 'Muuda kulu',
+  'assistant.change.verb.rememberNote': 'Jäta selle reisi jaoks meelde',
+  'assistant.change.details': 'Üksikasjad',
+  'assistant.change.detailsHide': 'Peida üksikasjad',
 };
 export default assistant;

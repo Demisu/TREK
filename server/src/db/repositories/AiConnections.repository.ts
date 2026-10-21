@@ -117,7 +117,7 @@ export class AiConnectionsRepository extends TrekRepository<AiConnections> {
             : oc.column('user_id').where('user_id', 'is not', null);
         return target.doUpdateSet({
           ...columns,
-          secrets_version: (eb) => eb('secrets_version', '+', 1),
+          secrets_version: (eb) => eb('ai_connections.secrets_version', '+', 1),
           status: 'ok',
           updated_at: () => this.now(),
         });

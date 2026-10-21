@@ -30,8 +30,7 @@ export const AssistantToolCallsSchema = defineEntity({
     id: p.text().primary(),
     thread: () => p.manyToOne(AssistantThreads).ref().deleteRule('cascade').hidden(),
     thread_id: p.integer().persist(false),
-    message: () =>
-      p.manyToOne(AssistantMessages).ref().deleteRule('cascade').hidden().index('idx_assistant_tool_calls_message'),
+    message: () => p.manyToOne(AssistantMessages).ref().deleteRule('cascade').hidden().index('idx_assistant_tool_calls_message'),
     message_id: p.integer().persist(false).index('idx_assistant_tool_calls_message'),
     provider_call_id: p.text(),
     tool_name: p.text(),

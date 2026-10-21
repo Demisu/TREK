@@ -270,6 +270,8 @@ function onChunk(ctx: Ctx, tripId: number, chunk: UiStreamChunk) {
   } else if (chunk.type === 'data-trek-applied') {
     ctx.set({ lastApplied: { tripId, applied: chunk.data } });
     noteAddedPlace(ctx, tripId, chunk.data);
+    // A kept note lives in the user's settings; read them again so the notes dialog shows it.
+    if (chunk.data.entity === 'memory') void useSettingsStore.getState().loadSettings();
   } else if (chunk.type === 'data-trek-activity') {
     patch(ctx, tripId, { live: { activity: chunk.data } });
   } else if (chunk.type === 'tool-output-available' || chunk.type === 'tool-output-error') {

@@ -87,7 +87,7 @@ describe('AssistantSurface', () => {
   it('FE-AI-SURF-003: Enter sends what was typed, with the trip in the placeholder', async () => {
     seed([]);
     renderChat();
-    const input = await screen.findByPlaceholderText('Ask anything about Kyoto');
+    const input = await screen.findByRole('textbox', { name: 'Ask anything about Kyoto' });
     fireEvent.change(input, { target: { value: 'Where should we eat?' } });
     expect(chatOf(useAssistantStore.getState(), TRIP).draft).toBe('Where should we eat?');
     fireEvent.keyDown(input, { key: 'Enter' });
@@ -105,7 +105,7 @@ describe('AssistantSurface', () => {
       },
     ]);
     renderChat();
-    const input = await screen.findByPlaceholderText('Ask anything about Kyoto');
+    const input = await screen.findByRole('textbox', { name: 'Ask anything about Kyoto' });
     fireEvent.change(input, { target: { value: 'Something else' } });
     expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Apply' })).toBeInTheDocument();

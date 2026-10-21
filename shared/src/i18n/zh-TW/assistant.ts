@@ -362,5 +362,9 @@ const assistant: TranslationStrings = {
   'assistant.check.issues': '{count} 處需要注意',
   'assistant.week.changes': '{count} 項變更',
   'assistant.week.showAll': '顯示全部 {count} 項變更',
+  'assistant.change.verb.updateBudgetItem': '修改支出',
+  'assistant.change.verb.rememberNote': '為此行程記住',
+  'assistant.change.details': '詳細資料',
+  'assistant.change.detailsHide': '隱藏詳細資料',
 };
 export default assistant;

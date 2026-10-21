@@ -396,5 +396,9 @@ const assistant: TranslationStrings = {
   'assistant.week.changes.one': '{count} dəyişiklik',
   'assistant.week.showAll': 'Bütün {count} dəyişikliyi göstər',
   'assistant.week.showAll.one': '{count} dəyişikliyi göstər',
+  'assistant.change.verb.updateBudgetItem': 'Xərci dəyiş',
+  'assistant.change.verb.rememberNote': 'Bu səyahət üçün yadda saxla',
+  'assistant.change.details': 'Təfərrüatlar',
+  'assistant.change.detailsHide': 'Təfərrüatları gizlət',
 };
 export default assistant;

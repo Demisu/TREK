@@ -1,9 +1,11 @@
 import type { CardPlace, TripCard } from './assistant-context';
+import { noteOf } from './assistant-memory';
 import {
   ASSISTANT_SERVER_WRITE_TOOLS,
   ASSISTANT_UNDO_MAP,
   ASSISTANT_WRITE_TOOLS,
   IMPORT_BOOKING_TOOL,
+  REMEMBER_TOOL,
   writeToolOf,
 } from './assistant-tools.constants';
 import type {
@@ -222,8 +224,7 @@ function route(endpoints: unknown): string {
   if (!Array.isArray(endpoints)) return '';
   const end = (role: string) => {
     const found = endpoints.find((ep: unknown) => (ep as { role?: unknown } | null)?.role === role) as
-      | { name?: unknown; code?: unknown }
-      | undefined;
+      { name?: unknown; code?: unknown } | undefined;
     const name = text(found?.name);
     const code = text(found?.code);
     if (!name) return code;
@@ -269,6 +270,13 @@ interface Described {
 }
 
 type Describer = (ctx: PreviewContext, args: Args) => Described;
+
+/** Who shares an expense: the uneven split's members, else the equal one's. */
+function splitOf(args: Args): unknown {
+  return Array.isArray(args.members)
+    ? args.members.map((member: unknown) => (member as { user_id?: unknown } | null)?.user_id)
+    : args.member_ids;
+}
 
 const DESCRIBERS: Readonly<Record<string, Describer>> = {
   create_place: (ctx, args) => {
@@ -359,9 +367,6 @@ const DESCRIBERS: Readonly<Record<string, Describer>> = {
   },
   create_budget_item: (ctx, args) => {
     const placeId = id(args, 'place_id');
-    const split = Array.isArray(args.members)
-      ? args.members.map((member: unknown) => (member as { user_id?: unknown } | null)?.user_id)
-      : args.member_ids;
     const rows = new Rows()
       .add(
         'price',
@@ -370,11 +375,25 @@ const DESCRIBERS: Readonly<Record<string, Describer>> = {
           : '',
       )
       .add('category', text(args.category))
-      .add('members', memberNames(ctx, split))
+      .add('members', memberNames(ctx, splitOf(args)))
       .add('location', placeName(ctx, placeId))
       .add('notes', text(args.note));
     return { subject: text(args.name), rows, dayId: null, placeIds: placeId ? [placeId] : [] };
   },
+  update_budget_item: (ctx, args) => {
+    const price =
+      typeof args.total_price === 'number'
+        ? money(ctx, args.total_price, text(args.currency) || ctx.card.currency)
+        : '';
+    const rows = new Rows()
+      .add('name', text(args.name))
+      .add('price', price)
+      .add('category', text(args.category))
+      .add('members', memberNames(ctx, splitOf(args)))
+      .add('notes', text(args.note));
+    return { subject: text(args.name) || `#${id(args, 'itemId') ?? ''}`, rows, dayId: null, placeIds: [] };
+  },
+  [REMEMBER_TOOL]: (_ctx, args) => ({ subject: noteOf(args) ?? '', rows: new Rows(), dayId: null, placeIds: [] }),
   create_reservation: (ctx, args) => {
     const placeId = id(args, 'place_id');
     const startDay = id(args, 'start_day_id');

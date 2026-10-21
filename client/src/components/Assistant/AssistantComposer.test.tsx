@@ -51,7 +51,7 @@ function seed(tripInPlanner = TRIP) {
 
 async function input(): Promise<HTMLTextAreaElement> {
   render(<AssistantSurface tripId={TRIP} tripTitle="Paris" variant="window" />);
-  return (await screen.findByPlaceholderText('Ask anything about Paris')) as HTMLTextAreaElement;
+  return (await screen.findByRole('textbox', { name: 'Ask anything about Paris' })) as HTMLTextAreaElement;
 }
 
 const mentions = () => chatOf(useAssistantStore.getState(), TRIP).mentions;

@@ -396,5 +396,9 @@ const assistant: TranslationStrings = {
   'assistant.week.changes.one': "{count} c'hemm",
   'assistant.week.showAll': 'Diskouez an {count} kemm',
   'assistant.week.showAll.one': "Diskouez {count} c'hemm",
+  'assistant.change.verb.updateBudgetItem': 'Kemmañ an dispign',
+  'assistant.change.verb.rememberNote': 'Derc’hel soñj evit ar veaj-mañ',
+  'assistant.change.details': 'Munudoù',
+  'assistant.change.detailsHide': 'Kuzhat ar munudoù',
 };
 export default assistant;

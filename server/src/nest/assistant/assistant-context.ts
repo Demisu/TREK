@@ -370,7 +370,7 @@ export function renderTripCard(card: TripCard): string {
 type UserPrefs = Readonly<Record<string, unknown>>;
 
 /** What a traveller writes for the assistant to keep in mind on one trip; longer notes are cut. */
-const MAX_MEMORY_CHARS = 2_000;
+export const MAX_MEMORY_CHARS = 2_000;
 
 /** The notes the user keeps for this trip (`assistant_memory`, by trip id), trimmed; null when there are none. */
 export function tripMemoryOf(prefs: UserPrefs, tripId: number): string | null {

@@ -161,7 +161,8 @@ describe('useLlmParsingConfig', () => {
     await act(async () => result.current.setVision('off'));
     act(() => result.current.setProvider('anthropic'));
     await act(() => result.current.save());
-    expect(vi.mocked(adminApi.updateAddon).mock.calls.at(-1)?.[1]).toEqual({
+    const calls = vi.mocked(adminApi.updateAddon).mock.calls;
+    expect(calls[calls.length - 1]?.[1]).toEqual({
       config: { provider: 'anthropic', model: '', baseUrl: '', apiKey: '', vision: 'off' },
     });
   });

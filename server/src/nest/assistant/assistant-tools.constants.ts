@@ -87,6 +87,7 @@ export const ASSISTANT_WRITE_TOOLS: Readonly<Record<string, AssistantWriteTool>>
   update_packing_item: { verbKey: 'updatePackingItem', entity: 'packing' },
   create_todo: { verbKey: 'addTodo', entity: 'todo' },
   create_budget_item: { verbKey: 'addBudgetItem', entity: 'budget' },
+  update_budget_item: { verbKey: 'updateBudgetItem', entity: 'budget' },
   create_reservation: { verbKey: 'addReservation', entity: 'reservation' },
 };
 
@@ -105,14 +106,22 @@ export const IMPORT_BOOKING_TOOL = 'import_booking';
  */
 export const ADD_FOUND_PLACE_TOOL = 'add_found_place';
 
+/**
+ * A fact or wish the user wants kept for this trip ("we are two"). It is no
+ * MCP tool: the server offers it to the model itself, holds it as a change
+ * card like any write and, once applied, adds it to the user's trip notes,
+ * which come along with every later turn about the trip.
+ */
+export const REMEMBER_TOOL = 'remember_for_trip';
+
 /** The model's tools a found place is added through: a new place for the day, or one the trip has already. */
 const FOUND_PLACE_VIA: ReadonlySet<string> = new Set(['create_and_assign_place', 'assign_place_to_day']);
 
 /**
- * Changes the server proposes itself, from an attached file or a search result
- * the user picked rather than from the model. They are held, decided and
- * recorded like the writes above, and they are not on the allowlist, so no
- * session ever offers them to the model. A booking is applied by the server
+ * Changes the server applies itself: a booking from an attached file, a search
+ * result the user picked, a note the user wants kept. They are held, decided
+ * and recorded like the writes above, and they are not on the allowlist; only
+ * the note is offered to the model, by the session itself (REMEMBER_SPEC). A booking is applied by the server
  * itself; a found place deliberately goes through the MCP tool named in its
  * `via` argument, so it is applied with the user's rights, broadcast and
  * undone exactly like the same change proposed by the model.
@@ -121,6 +130,7 @@ export const ASSISTANT_SERVER_WRITE_TOOLS: Readonly<Record<string, AssistantWrit
   [IMPORT_BOOKING_TOOL]: { verbKey: 'importBooking', entity: 'reservation' },
   // The card names the verb of the `via` tool; these are its fallbacks.
   [ADD_FOUND_PLACE_TOOL]: { verbKey: 'addPlaceToDay', entity: 'place', quiet: true },
+  [REMEMBER_TOOL]: { verbKey: 'rememberNote', entity: 'memory' },
 };
 
 /**

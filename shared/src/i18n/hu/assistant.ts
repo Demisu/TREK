@@ -401,5 +401,9 @@ const assistant: TranslationStrings = {
   'assistant.week.changes.one': '{count} módosítás',
   'assistant.week.showAll': 'Mind a {count} módosítás mutatása',
   'assistant.week.showAll.one': '{count} módosítás mutatása',
+  'assistant.change.verb.updateBudgetItem': 'Kiadás módosítása',
+  'assistant.change.verb.rememberNote': 'Megjegyezni ehhez az utazáshoz',
+  'assistant.change.details': 'Részletek',
+  'assistant.change.detailsHide': 'Részletek elrejtése',
 };
 export default assistant;
