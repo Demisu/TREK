@@ -36,11 +36,16 @@ export function isTakeable(stay: JourneyDayStay): boolean {
 }
 
 /**
- * Every open stay chosen, and the same place twice in a row already joined:
- * the square somebody left for a coffee and came back to is one memory.
+ * Every open stay chosen but those Dawarich itself doubts (the car park passed
+ * on the way, more often than not), and the same place twice in a row already
+ * joined: the square somebody left for a coffee and came back to is one memory.
  */
 export function initialChoice(stays: JourneyDayStay[]): DayImportChoice {
-  const selected = new Set(stays.filter((stay) => stay.status === 'open').map((stay) => stay.suggestionId));
+  const selected = new Set(
+    stays
+      .filter((stay) => stay.status === 'open' && !(stay.confidenceBand === 'low' && stay.sourceStatus !== 'confirmed'))
+      .map((stay) => stay.suggestionId)
+  );
   const joined = new Set<number>();
   stays.forEach((stay, index) => {
     const before = stays[index - 1];
@@ -99,11 +104,17 @@ export function groupsOf(choice: DayImportChoice, stays: JourneyDayStay[]): DayI
   return groups;
 }
 
-/** The longest stay that has a place: where a group sits on the map unless somebody picks another. */
+/**
+ * The longest stay that has a place: where a group sits on the map unless
+ * somebody picks another. A night somewhere outlasts any sight of the day, so
+ * a stay that ends on the same day goes first and the hotel only when there is
+ * nothing else.
+ */
 export function defaultAnchor(stays: JourneyDayStay[]): number | null {
+  const placed = stays.filter((stay) => stay.lat !== null && stay.lng !== null);
+  const sameDay = placed.filter((stay) => stay.startedAt.slice(0, 10) === stay.endedAt.slice(0, 10));
   let best: JourneyDayStay | null = null;
-  for (const stay of stays) {
-    if (stay.lat === null || stay.lng === null) continue;
+  for (const stay of sameDay.length > 0 ? sameDay : placed) {
     if (!best || stay.durationMinutes > best.durationMinutes) best = stay;
   }
   return best?.suggestionId ?? null;

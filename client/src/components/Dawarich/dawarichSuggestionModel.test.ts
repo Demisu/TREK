@@ -111,6 +111,11 @@ describe('clockOf / timeRange', () => {
     expect(timeRange('2026-09-10T10:15:00+02:00', 'nonsense', false)).toBe('10:15')
   })
 
+  it('FE-DAWARICH-SUGMODEL-020: a stay into the next day carries the days it ran over', () => {
+    expect(timeRange('2026-10-24T18:30:00+02:00', '2026-10-25T08:30:00+02:00', false)).toBe('18:30 – 08:30 +1')
+    expect(timeRange('2026-10-24T18:30:00+02:00', '2026-10-26T08:30:00+02:00', false)).toBe('18:30 – 08:30 +2')
+  })
+
   it('FE-DAWARICH-SUGMODEL-007: no arrival, no range', () => {
     expect(timeRange('nonsense', '2026-09-10T12:40:00+02:00', false)).toBe('')
   })

@@ -1,4 +1,4 @@
-// FE-JRN-DAYIMPORT-MODEL-001 to FE-JRN-DAYIMPORT-MODEL-011
+// FE-JRN-DAYIMPORT-MODEL-001 to FE-JRN-DAYIMPORT-MODEL-013
 //
 // JRN-02: what the traveller decided in the day take-over, before anything is
 // written. Two stays at San Marco, a parking stop and Rialto, as the review
@@ -143,5 +143,26 @@ describe('journeyDayImportModel', () => {
     const choice = { ...initialChoice(stays), selected: new Set([1, 2, 3]), joined: new Set([3]) };
     expect(canJoin(choice, stays, 2)).toBe(false);
     expect(groupsOf(choice, stays).map((g) => g.stays.map((s) => s.suggestionId))).toEqual([[1], [3]]);
+  });
+
+  it('FE-JRN-DAYIMPORT-MODEL-012: a stay Dawarich itself doubts starts unchosen, unless it was confirmed there', () => {
+    const stays = [
+      buildDayStay({ suggestionId: 1, name: 'Car park', confidenceBand: 'low', sourceStatus: 'suggested' }),
+      buildDayStay({ suggestionId: 2, name: 'Bridge', confidenceBand: 'low', sourceStatus: 'confirmed' }),
+      buildDayStay({ suggestionId: 3, name: 'Cathedral', confidenceBand: 'medium', sourceStatus: 'suggested' }),
+    ];
+    expect([...initialChoice(stays).selected]).toEqual([2, 3]);
+  });
+
+  it('FE-JRN-DAYIMPORT-MODEL-013: a night at the hotel is the position only when no stay of the day has one', () => {
+    const night = buildDayStay({
+      suggestionId: 1,
+      startedAt: '2026-05-14T19:00:00+02:00',
+      endedAt: '2026-05-15T08:00:00+02:00',
+      durationMinutes: 780,
+    });
+    const sight = buildDayStay({ suggestionId: 2, durationMinutes: 50 });
+    expect(defaultAnchor([sight, night])).toBe(2);
+    expect(defaultAnchor([night, buildDayStay({ suggestionId: 3, lat: null, lng: null })])).toBe(1);
   });
 });

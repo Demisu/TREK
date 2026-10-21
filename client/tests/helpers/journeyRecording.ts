@@ -94,7 +94,8 @@ export function buildDayStays(over: Partial<JourneyDayStays> = {}): JourneyDaySt
         endedAt: '2026-05-14T08:40:00+02:00',
         durationMinutes: 10,
         sourceStatus: 'suggested',
-        confidenceBand: 'low',
+        // Doubtful enough to ask about, not so doubtful that the review leaves it out.
+        confidenceBand: 'medium',
       }),
       buildDayStay(),
       buildDayStay({

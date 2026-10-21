@@ -102,12 +102,17 @@ export function clockOf(iso: string): string {
  * timestamp and printed, so a traveller on a 12-hour clock read every Dawarich time in
  * 24-hour while the rest of the app obeyed the setting. A required argument makes the
  * next caller answer the question rather than inherit the bug.
+ *
+ * A stay that ends on a later day says so (`18:30 – 08:30 +1`), as a timetable
+ * does, or a night at the hotel reads as fourteen hours that never happened.
  */
 export function timeRange(startedAt: string, endedAt: string, is12h: boolean): string {
   const from = formatClockTime(clockOf(startedAt), is12h)
   const to = formatClockTime(clockOf(endedAt), is12h)
   if (!from) return ''
-  return to ? `${from} – ${to}` : from
+  if (!to) return from
+  const days = Math.round((Date.parse(endedAt.slice(0, 10)) - Date.parse(startedAt.slice(0, 10))) / 86_400_000)
+  return days > 0 ? `${from} – ${to} +${days}` : `${from} – ${to}`
 }
 
 /**
