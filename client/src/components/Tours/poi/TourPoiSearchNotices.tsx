@@ -67,8 +67,9 @@ function WarningNotice({ text, search }: { text: string; search?: TourPoiSearch 
  * What the search answered beyond its places: offline, failed, kinds that
  * could not be searched, partly searched, cut, or empty. That the answer is
  * out of date the search button says, as it is what to press then. Nothing
- * found is said only when every kind was searched, with the next wider
- * corridor one press away; a failure or a gap carries its own retry.
+ * found is said only when every kind was searched along the whole line, with
+ * the next wider corridor one press away; a failure or a gap carries its own
+ * retry.
  */
 export function SearchNotices({ search, unit }: { search: TourPoiSearch; unit: Unit }) {
   const { t } = useTranslation();
@@ -85,12 +86,14 @@ export function SearchNotices({ search, unit }: { search: TourPoiSearch; unit: U
     { text: answer.truncated && t('tours.poi.truncated'), retry: false },
   ].filter((note): note is { text: string; retry: boolean } => !!note.text);
   const wider = search.widerCorridorM;
+  // A gap wants a retry, not a wider corridor, and changed choices were not searched yet.
+  const empty = answer.pois.length === 0 && answer.unavailable.length === 0 && !answer.partial && !search.outdated;
   return (
     <>
       {notes.map((note) => (
         <WarningNotice key={note.text} text={note.text} search={note.retry ? search : undefined} />
       ))}
-      {answer.pois.length === 0 && answer.unavailable.length === 0 && (
+      {empty && (
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
           <p className="m-0 text-content-muted" style={fs(12, 'body')}>
             {t('tours.poi.empty', { distance: formatDistance(km(search.corridorM), unit) })}

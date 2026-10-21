@@ -347,7 +347,8 @@ export const OVERPASS_ALONG_COOLDOWN_MS = 3 * 60 * 1000;
 /**
  * How often a search along a line may probe Overpass during the cooldown; a
  * busy mirror's Retry-After stretches it, never beyond the cooldown. The
- * searches beside the probe are refused at once, as in the whole cooldown.
+ * searches beside the probe wait for its answer and ask after it if it ended
+ * the cooldown; outside a probe they are refused at once.
  */
 export const OVERPASS_ALONG_PROBE_MS = 20 * 1000;
 
@@ -375,6 +376,8 @@ export class OsmClient {
   private overpassAlongCooldownUntil = 0;
   /** When the next probe of the cooldown may go out. */
   private overpassAlongProbeAt = 0;
+  /** The probe in flight, which the stretches beside it wait for. */
+  private overpassAlongProbe: Promise<unknown> | null = null;
   /** When an along query was last answered, so a failure that settles after an answer starts no cooldown. */
   private overpassAlongAnsweredAt = 0;
   /** Whether this cooldown's first skip was logged, so the log holds one line per cooldown. */
@@ -784,7 +787,8 @@ export class OsmClient {
    * unnamed garden or cafe is dropped as on the explore pill. A short deadline
    * of its own; failing throws as the explore pill's search does. During the
    * cooldown after every endpoint failed, a stretch still cached is answered
-   * from the cache and any other throws OverpassCoolingDown at once.
+   * from the cache, one beside the probe waits for it, and any other throws
+   * OverpassCoolingDown at once.
    */
   async searchOverpassPoisAlong(
     category: string,
@@ -803,11 +807,17 @@ export class OsmClient {
     const cached = cachedPoiAnswer(cacheKey);
     if (cached) return cached;
     // Neither a new search nor a later stretch of one under way waits for mirrors that just failed,
-    // but one in a while probes them, so a retry finds them back.
-    if (this.skipsOverpassAlong()) throw new OverpassCoolingDown();
-    if (Date.now() < this.overpassAlongCooldownUntil) this.overpassAlongProbeAt = Date.now() + OVERPASS_ALONG_PROBE_MS;
+    // but one in a while probes them, so a retry finds them back. A stretch beside the probe waits
+    // for its answer instead, so a probe that ends the cooldown answers its whole search.
+    if (this.overpassAlongProbe !== null || this.skipsOverpassAlong()) {
+      await this.overpassAlongProbe?.catch(() => undefined);
+      if (this.skipsOverpassAlong()) throw new OverpassCoolingDown();
+    }
 
-    const elements = await this.fetchOverpassAlong(overpassAlongQuery(match.filters, path, cap));
+    const query = overpassAlongQuery(match.filters, path, cap);
+    const elements = await (Date.now() < this.overpassAlongCooldownUntil
+      ? this.probeOverpassAlong(query)
+      : this.fetchOverpassAlong(query));
     const pois = readPois(elements, match, osmLang, KEPT_UNNAMED_ALONG);
     const value: PoiSearchResult = {
       pois: pois.slice(0, cap),
@@ -842,6 +852,22 @@ export class OsmClient {
     const now = Date.now();
     if (now >= this.overpassAlongCooldownUntil) return 0;
     return Math.max(0, Math.min(this.overpassAlongProbeAt, this.overpassAlongCooldownUntil) - now);
+  }
+
+  /**
+   * The along query sent as the cooldown's probe. Until it settles no other
+   * probe goes out, even once the next is due, since asking every mirror in
+   * turn can outlast OVERPASS_ALONG_PROBE_MS.
+   */
+  private async probeOverpassAlong(query: string): Promise<OverpassPoiElement[]> {
+    this.overpassAlongProbeAt = Date.now() + OVERPASS_ALONG_PROBE_MS;
+    const probe = this.fetchOverpassAlong(query);
+    this.overpassAlongProbe = probe;
+    try {
+      return await probe;
+    } finally {
+      this.overpassAlongProbe = null;
+    }
   }
 
   /**

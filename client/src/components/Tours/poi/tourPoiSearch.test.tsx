@@ -14,7 +14,7 @@ import { usePoiInsertion, type PoiInsertionPlanner } from './usePoiInsertion';
 import { useTourPoiMarkers } from './useTourPoiMarkers';
 import { useTourPoiSearch } from './useTourPoiSearch';
 
-// FE-TOUR-POI-001 to FE-TOUR-POI-026
+// FE-TOUR-POI-001 to FE-TOUR-POI-027
 
 vi.mock('../planner/useWaypointPlaceNames', () => ({ useWaypointPlaceNames: () => ({}) }));
 
@@ -654,6 +654,17 @@ describe('a search that could not ask, and its retry (PLN-05)', () => {
     await waitFor(() => expect(search).toHaveBeenCalledTimes(3));
     expect(search.mock.calls[2]?.[1]).toMatchObject({ corridor_m: 2000 });
     await waitFor(() => expect(screen.getByTestId('tour-poi-search')).toBeEnabled());
+    expect(screen.queryByTestId('tour-poi-widen')).not.toBeInTheDocument();
+  });
+
+  it('FE-TOUR-POI-027: an empty answer with stretches left out offers a retry, never nothing found or a wider corridor', async () => {
+    search.mockResolvedValue({ ...ANSWER, pois: [], partial: true });
+    render(<TourPoiSearchCard planner={searchPlanner()} />);
+    fireEvent.click(screen.getByTestId('tour-poi-search'));
+
+    expect(await screen.findByText(/Some stretches could not be searched/)).toBeInTheDocument();
+    expect(screen.getByTestId('tour-poi-retry')).toHaveTextContent('Try again');
+    expect(screen.queryByText(/Nothing found/)).not.toBeInTheDocument();
     expect(screen.queryByTestId('tour-poi-widen')).not.toBeInTheDocument();
   });
 });

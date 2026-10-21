@@ -5,8 +5,9 @@
  * because they are what a hike looks for, while an unnamed garden or cafe is
  * not. After every mirror failed, the next queries are refused at once for a
  * cooldown, unless Overpass answered meanwhile, the answer is still cached or
- * a probe is due (PLN-05). The mirrors are asked one after another, a busy
- * one's Retry-After heeded. The network is a stubbed global fetch.
+ * a probe is due, and a stretch beside the probe waits for it (PLN-05). The
+ * mirrors are asked one after another, a busy one's Retry-After heeded. The
+ * network is a stubbed global fetch.
  */
 import {
   OVERPASS_ALONG_COOLDOWN_MS,
@@ -241,32 +242,51 @@ describe('OsmClient.searchOverpassPoisAlong', () => {
     }
   });
 
-  it('MAPS-ALONG-032: during the cooldown one probe goes through, the searches beside it are refused, its answer ends it', async () => {
+  it('MAPS-ALONG-032: during the cooldown one probe goes through, the stretches beside it wait for its answer', async () => {
     vi.useFakeTimers({ now: new Date('2026-10-21T05:06:00Z'), toFake: ['Date'] });
     const fetchMock = vi.fn().mockResolvedValue(down());
     vi.stubGlobal('fetch', fetchMock);
+    const settle = () => new Promise((resolve) => setImmediate(resolve));
     try {
       await expect(osm.searchOverpassPoisAlong('viewpoint', line(31), 500)).rejects.toMatchObject({ status: 502 });
       expect(osm.overpassAlongRetryAfterMs()).toBe(OVERPASS_ALONG_PROBE_MS);
       const asked = fetchMock.mock.calls.length;
 
-      // The mirrors are back by the time the probe is due: it asks, the search beside it does not.
+      // The probe fails again: the stretch beside it asks nothing and is refused once the probe is.
       vi.setSystemTime(new Date('2026-10-21T05:06:20Z'));
-      fetchMock.mockResolvedValue(
-        answer([{ type: 'node', id: 31, lat: 47.715, lon: 11.1, tags: { tourism: 'viewpoint' } }]),
-      );
-      const probe = osm.searchOverpassPoisAlong('viewpoint', line(31), 500);
+      const failing = expect(osm.searchOverpassPoisAlong('viewpoint', line(31), 500)).rejects.toMatchObject({
+        status: 502,
+      });
       await expect(osm.searchOverpassPoisAlong('viewpoint', line(33), 500)).rejects.toBeInstanceOf(OverpassCoolingDown);
-      await expect(probe).resolves.toMatchObject({ pois: [expect.objectContaining({ osm_id: 'node:31' })] });
-      expect(fetchMock).toHaveBeenCalledTimes(asked + 1);
+      await failing;
+      expect(fetchMock).toHaveBeenCalledTimes(2 * asked);
 
-      // Its answer ends the cooldown: the next search asks at once.
+      // The mirrors are back by the next probe. It is still in flight when the one after would be due,
+      // yet no second probe goes out: the stretch beside it waits, then asks once the probe answered.
+      vi.setSystemTime(new Date('2026-10-21T05:06:40Z'));
+      let release: (value: unknown) => void = () => {};
+      fetchMock.mockImplementationOnce(() => new Promise((resolve) => (release = resolve)));
+      const found = answer([{ type: 'node', id: 31, lat: 47.715, lon: 11.1, tags: { tourism: 'viewpoint' } }]);
+      fetchMock.mockResolvedValue(found);
+      const probe = osm.searchOverpassPoisAlong('viewpoint', line(31), 500);
+      await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2 * asked + 1));
+      vi.setSystemTime(new Date(Date.now() + OVERPASS_ALONG_PROBE_MS + 1));
+      const beside = osm.searchOverpassPoisAlong('viewpoint', line(33), 500);
+      await settle();
+      expect(fetchMock).toHaveBeenCalledTimes(2 * asked + 1);
+
+      release(found);
+      await expect(probe).resolves.toMatchObject({ pois: [expect.objectContaining({ osm_id: 'node:31' })] });
+      await expect(beside).resolves.toMatchObject({ source: 'openstreetmap' });
+      expect(fetchMock).toHaveBeenCalledTimes(2 * asked + 2);
+
+      // Its answer ended the cooldown: the next search asks at once.
       expect(osm.skipsOverpassAlong()).toBe(false);
       expect(osm.overpassAlongRetryAfterMs()).toBe(0);
-      await expect(osm.searchOverpassPoisAlong('viewpoint', line(33), 500)).resolves.toMatchObject({
+      await expect(osm.searchOverpassPoisAlong('viewpoint', line(32), 500)).resolves.toMatchObject({
         source: 'openstreetmap',
       });
-      expect(fetchMock).toHaveBeenCalledTimes(asked + 2);
+      expect(fetchMock).toHaveBeenCalledTimes(2 * asked + 3);
     } finally {
       vi.useRealTimers();
     }
