@@ -1,4 +1,4 @@
-import { walkRemainderOf, type WalkRemainder, type WalkStationRef } from '@trek/shared';
+import { ferryCrossingsOf, walkRemainderOf, type WalkRemainder, type WalkStationRef } from '@trek/shared';
 import { useMemo } from 'react';
 import type { useTranslation } from '../../../i18n';
 import type { VisitsByStation } from '../../../store/tourVisitStore';
@@ -44,6 +44,8 @@ export function walkRemainingOf({
     })),
     line: route,
     walkingMinutes,
+    // CW-12: a ferry leg taken from a station is crossed by boat and takes none of the walking time.
+    crossings: ferryCrossingsOf(stations.map((station) => ({ fixed_leg: station.fixedLeg }))),
   });
 }
 

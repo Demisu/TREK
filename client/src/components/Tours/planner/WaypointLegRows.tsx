@@ -16,6 +16,7 @@ import type { usePaddleRegionLoad } from '../paddle/usePaddleRegionLoad';
 import { usePaddleWaypointActions } from '../paddle/usePaddleWaypointActions';
 import { usePortageWay, type usePortageRouting } from '../paddle/usePortageRouting';
 import { SkiLegFailureRow, SkiLegSteps } from '../ski/SkiLegRows';
+import { WalkFerryLegRow } from '../walk/WalkFerryLegRow';
 import type { PaddleLegFailure } from './paddleRouting';
 import { lineLengthM } from './tourFixedLegs';
 import type { TourPlannerController } from './useTourPlanner';
@@ -244,6 +245,13 @@ export function WaypointLegRows({
       ))}
       {point.fixedLeg?.kind === 'free' && <FreeLegRow leg={point.fixedLeg} ride={planner.isHorse} />}
       {point.fixedLeg?.kind === 'horse_route' && <HorseLegRow leg={point.fixedLeg} />}
+      {point.fixedLeg?.kind === 'ferry' && (
+        <WalkFerryLegRow
+          leg={point.fixedLeg}
+          editable={editable}
+          onRelease={() => planner.walkFerries.release(point.id)}
+        />
+      )}
       {routedLegs && <PaddleLegNotes leg={routedLegs.legs[index]} />}
       {planner.isSki && <SkiLegExtras planner={planner} point={point} index={index} editable={editable} />}
       {failure && (

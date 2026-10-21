@@ -365,6 +365,47 @@ describe('TourVisitsService', () => {
     expect(t.realtime.broadcastMock).not.toHaveBeenCalled();
   });
 
+  it('TOUR-VISITS-011: remaining shares no walking time out along a ferry leg the travellers took (CW-12)', async () => {
+    const { trip, day1 } = await fixture();
+    const island = await makePlace(orm(), trip.id, {
+      name: 'Giudecca',
+      route_geometry: JSON.stringify([
+        [48.1, 11.5],
+        [48.11, 11.51],
+        [48.12, 11.52],
+        [48.13, 11.53],
+      ]),
+    });
+    await makeTour(orm(), island.id, { tourTypeRef: 'walk', duration: 60 });
+    const ferry = {
+      kind: 'ferry',
+      geometry: [
+        [48.11, 11.51],
+        [48.12, 11.52],
+      ],
+      crossing: [0, 1],
+      minutes: 7,
+      walk_minutes: 0,
+    };
+    await addTourWaypoints(orm(), island.id, [
+      { lat: 48.1, lng: 11.5, station_key: 'stop-zattere', stay_minutes: 0 },
+      { lat: 48.11, lng: 11.51, station_key: 'stop-pier', stay_minutes: 0, fixed_leg: JSON.stringify(ferry) },
+      { lat: 48.12, lng: 11.52, station_key: 'stop-redentore', stay_minutes: 20 },
+      { lat: 48.13, lng: 11.53, station_key: 'stop-garden', stay_minutes: 30 },
+    ]);
+    const onDay1 = await makeDayAssignment(orm(), day1.id, island.id);
+    await markStationVisit(orm(), onDay1.id, 'stop-zattere', 'visited');
+
+    const remaining = await visits.remaining(trip.id, island.id, day1.id);
+    // Two stretches are walked, one is crossed by boat: the landing is passed after half the walk, not two thirds.
+    expect(remaining.open_stations.map((station) => [station.key, station.walk_minutes_from_reference])).toEqual([
+      ['stop-pier', 30],
+      ['stop-redentore', 30],
+      ['stop-garden', 60],
+    ]);
+    expect(remaining.walking).toMatchObject({ total_minutes: 60, remaining_minutes: 60 });
+  });
+
   it('TOUR-VISITS-009: a loop keeps its way back once every station is done, and a walk not on that day is a 404', async () => {
     const { trip, day1, day3, walk } = await fixture();
     const loop = await makePlace(orm(), trip.id, {

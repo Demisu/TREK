@@ -202,6 +202,47 @@ describe('Tours fixed legs', () => {
   });
 });
 
+describe('Tours ferry legs (CW-12)', () => {
+  const ferry = (crossing: [number, number], minutes: number | null = 7) => ({
+    kind: 'ferry' as const,
+    geometry: [
+      [48, 11],
+      [48.004, 11.008],
+      [48.006, 11.012],
+      [48.01, 11.02],
+    ] as [number, number][],
+    crossing,
+    minutes,
+    walk_minutes: 2,
+  });
+  const withLeg = (leg: ReturnType<typeof ferry>, type: 'walk' | 'hike') => ({
+    ...baseRequest,
+    tour_type: type,
+    ...(type === 'walk' ? { max_hiking_difficulty: null } : {}),
+    waypoints: [
+      { lat: 48, lng: 11, role: 'start' as const, sequence: 0, fixed_leg: leg },
+      { lat: 48.01, lng: 11.02, role: 'end' as const, sequence: 1 },
+    ],
+  });
+
+  it('takes a crossing by boat on a city walk, with where on its leg the boat runs and its minutes apart', () => {
+    expect(tourCreateRequestSchema.parse(withLeg(ferry([1, 2]), 'walk')).waypoints[0]?.fixed_leg).toEqual(
+      ferry([1, 2]),
+    );
+    expect(tourCreateRequestSchema.parse(withLeg(ferry([1, 2], null), 'walk')).waypoints[0]?.fixed_leg).toMatchObject({
+      minutes: null,
+    });
+  });
+
+  it('refuses a crossing on any other type, or one that does not run forwards between two points of its leg', () => {
+    expect(() => tourCreateRequestSchema.parse(withLeg(ferry([1, 2]), 'hike'))).toThrow(
+      /ferry leg belongs to a city walk/,
+    );
+    expect(() => tourCreateRequestSchema.parse(withLeg(ferry([2, 1]), 'walk'))).toThrow(/crossing runs between/);
+    expect(() => tourCreateRequestSchema.parse(withLeg(ferry([1, 4]), 'walk'))).toThrow(/crossing runs between/);
+  });
+});
+
 describe('Tours free legs', () => {
   const free = (from: [number, number], to: [number, number]) => ({ kind: 'free' as const, geometry: [from, to] });
 

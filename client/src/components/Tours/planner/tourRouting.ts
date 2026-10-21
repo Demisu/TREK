@@ -8,10 +8,19 @@ import type {
   TourFixedLeg,
 } from '@trek/shared'
 import type { Waypoint } from '../../../types'
-import { valhallaBase, valhallaRun, valhallaTurn, type CostingOptions } from '../../Map/valhallaRoute'
+import {
+  valhallaBase,
+  valhallaRun,
+  valhallaRunOnFoot,
+  valhallaTurn,
+  type CostingOptions,
+  type FerrySpan,
+  type SearchFilter,
+  type ValhallaLeg,
+} from '../../Map/valhallaRoute'
 import { hikingCosting, TOURS_MAX_HIKING_DIFFICULTY } from './hikingCosting'
 import { densifyLine, lineLengthM } from './tourFixedLegs'
-import { MAX_TOUR_SNAP_M, type TourRouteUnreachable } from './tourRouteOutcome'
+import { MAX_TOUR_SNAP_M, type TourRouteGap, type TourRouteUnreachable } from './tourRouteOutcome'
 
 export interface TourRoutePart {
   coordinates: [number, number][]
@@ -22,11 +31,32 @@ export interface TourRoutePart {
   /**
    * PAD-11: on a routed paddle tour, a stretch the paddler should look at:
    * whitewater or a boat pass, a gap in the data the router bridged, or a leg
-   * it could not plan (drawn straight, and nothing checked it).
+   * it could not plan (drawn straight, and nothing checked it). CW-12: on a
+   * city walk, a crossing by boat, which is no walking.
    */
-  mark?: 'rapids' | 'gap' | 'unrouted'
+  mark?: 'rapids' | 'gap' | 'unrouted' | 'ferry'
   /** SKI-02: a stretch of a ski tour the piste router planned, coloured by what it is; `summer` a summer path. */
   ski?: { kind: SkiSegmentKind | 'summer'; difficulty: SkiRunDifficulty | null; scheme?: SkiColourScheme }
+}
+
+/**
+ * CW-12: a city walk's crossing by boat, on the leg from one point to the
+ * next: the leg's line, where on it the boat runs, and the boat's own length
+ * and time apart from the walk to it and on from it. `accepted` once the
+ * travellers took it as a ferry leg of the walk; until then the walk is not
+ * saved.
+ */
+export interface WalkFerryCrossing {
+  /** The leg, by the place along the tour of the point it starts at. */
+  leg: number
+  geometry: [number, number][]
+  /** The points of `geometry` the boat leaves from and lands at. */
+  crossing: [number, number]
+  metres: number
+  /** Null where the router gave no time for the boat. */
+  seconds: number | null
+  walkSeconds: number
+  accepted: boolean
 }
 
 export interface TourRouteResult {
@@ -34,8 +64,10 @@ export interface TourRouteResult {
   /** The same line cut where it changes between routed and hand-drawn, for the map to tell them apart. */
   parts: TourRoutePart[]
   distanceMeters: number
-  /** Null where no time is worked out at all: a ride (HOR-01). */
+  /** Null where no time is worked out at all: a ride (HOR-01). On a city walk, the walking alone (CW-12). */
   durationSeconds: number | null
+  /** CW-12: a city walk's crossings by boat, in the order of its legs; absent where it takes none. */
+  ferries?: WalkFerryCrossing[]
 }
 
 /** How fast a fixed leg is reckoned until the heights are in: a via ferrata climbs slowly, a free leg is walked. */
@@ -82,20 +114,25 @@ export async function routeWalkingTour(
 }
 
 /**
- * CW-01: a city walk, on foot between its stations. No hiking limit is sent,
- * so the router keeps to the ways it takes for walking anyway (T1), and no
- * route choice of a hike. Ferries are avoided: a walk is walked, and with the
- * router's default Venice was crossed on the vaporetto lines instead of the
- * bridges. Where no way on land exists the router still takes the ferry.
+ * CW-01, CW-12: a city walk, on foot between its stations. No hiking limit is
+ * sent, so the router keeps to the ways it takes for walking anyway (T1), and
+ * no route choice of a hike. Ferries are avoided: a walk is walked, and with
+ * the router's default Venice was crossed on the vaporetto lines instead of
+ * the bridges (the reported Piazza San Marco to Hotel Moresco walk came back
+ * as 3.29 km and 37 min with 1.24 km of it on the San Tomà boat; avoided, it
+ * is 2.79 km over the bridges). No station is bound to a boat line either.
+ * Where no way on land exists the router still takes the ferry, and the walk
+ * says so (`ferries`); where no way exists at all, the leg is named (`gap`).
  */
 export async function routeCityWalk(
   waypoints: LandWaypoint[],
   signal?: AbortSignal,
-): Promise<TourRouteResult | TourRouteUnreachable | null> {
-  return routeOnLand(waypoints, 'walking', CITY_WALK_COSTING, signal)
+): Promise<TourRouteResult | TourRouteUnreachable | TourRouteGap | null> {
+  return routeOnLand(waypoints, 'walking', CITY_WALK_COSTING, signal, CITY_WALK_BINDING)
 }
 
 const CITY_WALK_COSTING: Readonly<CostingOptions> = { use_ferry: 0 }
+const CITY_WALK_BINDING: Readonly<SearchFilter> = { exclude_ferry: true }
 
 /**
  * RUN-01, RUN-02: what each run profile asks Valhalla's pedestrian costing
@@ -177,29 +214,142 @@ export function drawnTour(waypoints: LandWaypoint[]): TourRouteResult | null {
   return { coordinates, parts: mergeParts(lines), distanceMeters, durationSeconds: null }
 }
 
+/** CW-12: the line of a leg cut where the boat runs, the crossing marked as no walking. */
+function splitAtCrossings(coordinates: [number, number][], spans: readonly Pick<FerrySpan, 'from' | 'to'>[]): TourRoutePart[] {
+  const parts: TourRoutePart[] = []
+  let at = 0
+  for (const { from, to } of spans) {
+    if (from > at) parts.push({ coordinates: coordinates.slice(at, from + 1), free: false })
+    parts.push({ coordinates: coordinates.slice(from, to + 1), free: false, mark: 'ferry' })
+    at = to
+  }
+  if (at < coordinates.length - 1) parts.push({ coordinates: coordinates.slice(at), free: false })
+  return parts
+}
+
+/**
+ * CW-12: the crossing of a routed leg, from where its first boat stretch
+ * leaves to where its last one lands. The walk on the leg is the router's time
+ * less the boat's; where the router gave the boat no time, the walk is the
+ * leg's time shared out by the length walked.
+ */
+function crossingOf(leg: ValhallaLeg, index: number): WalkFerryCrossing | null {
+  const spans = leg.ferrySpans ?? []
+  const first = spans[0]
+  const last = spans[spans.length - 1]
+  if (!first || !last) return null
+  const crossing: [number, number] = [first.from, last.to]
+  const metres = spans.reduce((sum, span) => sum + span.metres, 0) || lineLengthM(leg.coordinates.slice(first.from, last.to + 1))
+  const seconds = spans.every((span) => span.seconds !== null)
+    ? spans.reduce((sum, span) => sum + (span.seconds ?? 0), 0)
+    : null
+  const length = lineLengthM(leg.coordinates)
+  const walkSeconds = seconds !== null
+    ? Math.max(0, leg.duration - seconds)
+    : length > 0 ? leg.duration * Math.max(0, 1 - metres / length) : 0
+  return { leg: index, geometry: leg.coordinates, crossing, metres, seconds, walkSeconds, accepted: false }
+}
+
+/** CW-12: a ferry leg the travellers took, as the walk counts it: the boat apart from the walk. */
+function acceptedCrossing(leg: Extract<TourFixedLeg, { kind: 'ferry' }>, index: number): WalkFerryCrossing {
+  const geometry = leg.geometry.map(([lat, lng]): [number, number] => [lat, lng])
+  const crossing: [number, number] = [leg.crossing[0], leg.crossing[1]]
+  return {
+    leg: index,
+    geometry,
+    crossing,
+    metres: lineLengthM(geometry.slice(crossing[0], crossing[1] + 1)),
+    seconds: leg.minutes === null ? null : leg.minutes * 60,
+    walkSeconds: leg.walk_minutes * 60,
+    accepted: true,
+  }
+}
+
+/**
+ * CW-12: the leg of a run no way joins, found by halving the run: whichever
+ * half still fails holds it. Null where every piece answers after all, a
+ * failure of the host rather than of the way, or once the run is called off.
+ */
+async function gapOf(
+  run: Array<Pick<Waypoint, 'lat' | 'lng'>>,
+  first: number,
+  ask: (points: Array<Pick<Waypoint, 'lat' | 'lng'>>) => Promise<unknown>,
+  signal?: AbortSignal,
+): Promise<TourRouteGap | null> {
+  let low = 0
+  let high = run.length - 1
+  let failed = false
+  while (high - low > 1) {
+    const middle = Math.floor((low + high) / 2)
+    const answer = await ask(run.slice(low, middle + 1))
+    if (signal?.aborted) return null
+    if (answer) {
+      low = middle
+    } else {
+      high = middle
+      failed = true
+    }
+  }
+  if (!failed && (await ask(run.slice(low, high + 1)))) return null
+  return signal?.aborted ? null : { gap: first + low }
+}
+
+// Only a walk bound off the boat lines (CW-12) names a leg no way joins; every other tour fails as before.
+function routeOnLand(
+  waypoints: LandWaypoint[],
+  mode: 'walking' | 'cycling',
+  costingOptions: Readonly<CostingOptions>,
+  signal?: AbortSignal,
+): Promise<TourRouteResult | TourRouteUnreachable | null>
+function routeOnLand(
+  waypoints: LandWaypoint[],
+  mode: 'walking' | 'cycling',
+  costingOptions: Readonly<CostingOptions>,
+  signal: AbortSignal | undefined,
+  searchFilter: Readonly<SearchFilter>,
+): Promise<TourRouteResult | TourRouteUnreachable | TourRouteGap | null>
 async function routeOnLand(
   waypoints: LandWaypoint[],
   mode: 'walking' | 'cycling',
   costingOptions: Readonly<CostingOptions>,
   signal?: AbortSignal,
-): Promise<TourRouteResult | TourRouteUnreachable | null> {
+  searchFilter: Readonly<SearchFilter> | null = null,
+): Promise<TourRouteResult | TourRouteUnreachable | TourRouteGap | null> {
   const lines: TourRoutePart[] = []
+  const ferries: WalkFerryCrossing[] = []
   let distanceMeters = 0
   let durationSeconds = 0
-  let unreachable: TourRouteUnreachable | null = null
+  let unreachable: TourRouteUnreachable | TourRouteGap | null = null
+  // A city walk binds no point to a boat line (CW-12); no other type asks for that.
+  const ask = (points: Array<Pick<Waypoint, 'lat' | 'lng'>>) => {
+    const asked = points.map(({ lat, lng }) => ({ lat, lng }))
+    return searchFilter
+      ? valhallaRunOnFoot(asked, signal, costingOptions, searchFilter)
+      : valhallaRun(asked, mode, [], signal, costingOptions)
+  }
   // `first`: where the run starts along the tour, so a point it cannot reach is named by its place in the tour.
   const routeRun = async (run: Array<Pick<Waypoint, 'lat' | 'lng'>>, first: number) => {
     if (run.length < 2) return true
-    const routed = await valhallaRun(run.map(({ lat, lng }) => ({ lat, lng })), mode, [], signal, costingOptions)
-    if (!routed) return false
+    const routed = await ask(run)
+    if (!routed) {
+      if (searchFilter && !signal?.aborted) unreachable = await gapOf(run, first, ask, signal)
+      return false
+    }
     const far = routed.snapped.findIndex((point) => point.meters > MAX_TOUR_SNAP_M)
     if (far >= 0) {
       unreachable = { unreachable: first + far, snappedMeters: Math.round(routed.snapped[far].meters) }
       return false
     }
-    lines.push({ coordinates: routed.total.coordinates, free: false })
+    const crossings = searchFilter
+      ? (routed.legs ?? []).flatMap((leg, index) => crossingOf(leg, first + index) ?? [])
+      : []
+    lines.push(...(crossings.length
+      ? splitAtCrossings(routed.total.coordinates, routed.total.ferrySpans ?? [])
+      : [{ coordinates: routed.total.coordinates, free: false }]))
+    ferries.push(...crossings)
     distanceMeters += routed.total.distance
     durationSeconds += routed.total.duration
+      - crossings.reduce((sum, crossing) => sum + (routed.legs[crossing.leg - first]?.duration ?? 0) - crossing.walkSeconds, 0)
     return true
   }
 
@@ -214,6 +364,16 @@ async function routeOnLand(
     // A section of a horse route is a ride's (HOR-01), which no router plans and no clock times.
     if (leg.kind === 'horse_route') return null
     if (!(await routeRun(run, runStart))) return unreachable
+    if (leg.kind === 'ferry') {
+      const crossing = acceptedCrossing(leg, i)
+      lines.push(...splitAtCrossings(crossing.geometry, [{ from: crossing.crossing[0], to: crossing.crossing[1] }]))
+      ferries.push(crossing)
+      distanceMeters += lineLengthM(crossing.geometry)
+      durationSeconds += crossing.walkSeconds
+      run = [waypoints[i + 1]]
+      runStart = i + 1
+      continue
+    }
     const drawn = leg.geometry.map(([lat, lng]): [number, number] => [lat, lng])
     // A hand-drawn leg is sampled along its length, so its heights follow the ground between its ends.
     const line = leg.kind === 'ferrata' ? drawn : densifyLine(drawn)
@@ -230,18 +390,27 @@ async function routeOnLand(
 
   // One line: each part after the first starts where the one before it ended, so its first point goes.
   const coordinates = lines.flatMap((line, index) => (index === 0 ? line.coordinates : line.coordinates.slice(1)))
-  return { coordinates, parts: mergeParts(lines), distanceMeters, durationSeconds }
+  return { coordinates, parts: mergeParts(lines), distanceMeters, durationSeconds, ...(ferries.length ? { ferries } : {}) }
 }
 
-/** Neighbouring parts of the same kind as one, so a run of hand-drawn legs is one dotted line and a portage one line on land. */
+/**
+ * Neighbouring parts of the same kind as one, so a run of hand-drawn legs is
+ * one dotted line and a portage one line on land; a crossing by boat stays a
+ * line of its own.
+ */
 function mergeParts(parts: TourRoutePart[]): TourRoutePart[] {
   const merged: TourRoutePart[] = []
   for (const part of parts) {
     const previous = merged[merged.length - 1]
-    if (previous && previous.free === part.free && !!previous.land === !!part.land) {
+    if (previous && previous.free === part.free && !!previous.land === !!part.land && previous.mark === part.mark) {
       previous.coordinates = [...previous.coordinates, ...part.coordinates.slice(1)]
     } else {
-      merged.push({ coordinates: [...part.coordinates], free: part.free, ...(part.land ? { land: true } : {}) })
+      merged.push({
+        coordinates: [...part.coordinates],
+        free: part.free,
+        ...(part.land ? { land: true } : {}),
+        ...(part.mark ? { mark: part.mark } : {}),
+      })
     }
   }
   return merged

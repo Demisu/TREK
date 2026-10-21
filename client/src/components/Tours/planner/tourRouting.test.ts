@@ -1,14 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { valhallaBase, valhallaRun, valhallaTurn } = vi.hoisted(() => ({
+const { valhallaBase, valhallaRun, valhallaRunOnFoot, valhallaTurn } = vi.hoisted(() => ({
   valhallaBase: vi.fn(),
   valhallaRun: vi.fn(),
+  valhallaRunOnFoot: vi.fn(),
   valhallaTurn: vi.fn(async () => {}),
 }))
 
 vi.mock('../../Map/valhallaRoute', () => ({
   valhallaBase,
   valhallaRun,
+  valhallaRunOnFoot,
   valhallaTurn,
 }))
 
@@ -231,9 +233,11 @@ describe('routing on land, bike profiles and unreachable points (BIK-01)', () =>
   })
 
   it('TOUR-ROUTING-033: a city walk goes on foot with no hiking limit, no choice of a hike, and avoids ferries (CW-01)', async () => {
-    valhallaRun.mockResolvedValueOnce(run([3, 4]))
+    valhallaRunOnFoot.mockResolvedValueOnce(run([3, 4]))
     expect(await routeCityWalk(waypoints)).toMatchObject({ distanceMeters: 1500, durationSeconds: 300 })
-    expect(valhallaRun).toHaveBeenCalledWith(waypoints, 'walking', [], undefined, { use_ferry: 0 })
+    // CW-12: and binds no stop to a boat line.
+    expect(valhallaRunOnFoot).toHaveBeenCalledWith(waypoints, undefined, { use_ferry: 0 }, { exclude_ferry: true })
+    expect(valhallaRun).not.toHaveBeenCalled()
   })
 
   it('TOUR-ROUTING-034: a run goes on foot, keeps off tracks and ferries where it can, with no hiking limit (RUN-01)', async () => {
@@ -254,5 +258,91 @@ describe('routing on land, bike profiles and unreachable points (BIK-01)', () =>
       use_ferry: 0,
       max_hiking_difficulty: 2,
     })
+  })
+})
+
+describe('a city walk across the water (CW-12)', () => {
+  beforeEach(() => {
+    valhallaRun.mockReset().mockResolvedValue(null)
+    valhallaRunOnFoot.mockReset().mockResolvedValue(null)
+    valhallaBase.mockReset().mockReturnValue('https://valhalla.test')
+  })
+
+  // The reported walk from Piazza San Marco: the second leg crosses on the boat from point 1 to point 2 of its line.
+  const sanMarco = { lat: 45.4342798, lng: 12.338111 }
+  const saoneri = { lat: 45.4367609, lng: 12.3287531 }
+  const moresco = { lat: 45.4361113, lng: 12.3214155 }
+  const walkedLeg = { coordinates: [[45.4343, 12.3381], [45.4355, 12.333], [45.4368, 12.3288]], distance: 900, duration: 650, hasFerry: false }
+  const boatLeg = {
+    coordinates: [[45.4368, 12.3288], [45.4352, 12.3275], [45.4331, 12.3262], [45.4361, 12.3214]],
+    distance: 1800,
+    duration: 1100,
+    hasFerry: true,
+    ferrySpans: [{ from: 1, to: 2, metres: 1236, seconds: 745 }],
+  }
+  const crossingRun = {
+    legs: [walkedLeg, boatLeg],
+    total: {
+      coordinates: [...walkedLeg.coordinates, ...boatLeg.coordinates.slice(1)],
+      distance: 2700,
+      duration: 1750,
+      ferrySpans: [{ from: 3, to: 4, metres: 1236, seconds: 745 }],
+    },
+    snapped: [3, 4, 5].map((meters) => ({ asked: [0, 0], at: [0, 0], meters })),
+  }
+
+  it('TOUR-ROUTING-036: a crossing the router still takes is its own part, out of the walking time and named on its leg', async () => {
+    valhallaRunOnFoot.mockResolvedValueOnce(crossingRun)
+    const routed = (await routeCityWalk([sanMarco, saoneri, moresco])) as TourRouteResult
+
+    expect(routed.parts.map((part) => [part.coordinates.length, part.mark ?? null])).toEqual([[4, null], [2, 'ferry'], [2, null]])
+    // 1750 s routed, of which the boat's 745 s are no walking.
+    expect(routed.durationSeconds).toBe(1005)
+    expect(routed.distanceMeters).toBe(2700)
+    expect(routed.ferries).toEqual([
+      { leg: 1, geometry: boatLeg.coordinates, crossing: [1, 2], metres: 1236, seconds: 745, walkSeconds: 355, accepted: false },
+    ])
+  })
+
+  it('TOUR-ROUTING-037: a walk over the bridges carries no crossing, and a hike is never bound off the boat lines', async () => {
+    valhallaRunOnFoot.mockResolvedValueOnce({ ...crossingRun, legs: [walkedLeg], total: { coordinates: walkedLeg.coordinates, distance: 900, duration: 650 } })
+    const routed = (await routeCityWalk([sanMarco, saoneri])) as TourRouteResult
+    expect(routed).not.toHaveProperty('ferries')
+    expect(routed.durationSeconds).toBe(650)
+
+    valhallaRun.mockResolvedValueOnce(crossingRun)
+    const hike = (await routeWalkingTour([sanMarco, saoneri, moresco])) as TourRouteResult
+    expect(valhallaRun.mock.calls[0]).toHaveLength(5)
+    expect(hike).not.toHaveProperty('ferries')
+    expect(hike.durationSeconds).toBe(1750)
+  })
+
+  it('TOUR-ROUTING-038: a ferry leg taken on purpose keeps its line and its walk, the router asked only around it', async () => {
+    const ferry = {
+      kind: 'ferry' as const,
+      geometry: boatLeg.coordinates as [number, number][],
+      crossing: [1, 2] as [number, number],
+      minutes: 12,
+      walk_minutes: 6,
+    }
+    valhallaRunOnFoot.mockResolvedValueOnce({ total: { coordinates: walkedLeg.coordinates, distance: 900, duration: 650 }, legs: [walkedLeg], snapped: [] })
+    const routed = (await routeCityWalk([sanMarco, { ...saoneri, fixedLeg: ferry }, moresco])) as TourRouteResult
+
+    expect(valhallaRunOnFoot).toHaveBeenCalledTimes(1)
+    expect(routed.durationSeconds).toBe(650 + 6 * 60)
+    expect(routed.parts.map((part) => part.mark ?? null)).toEqual([null, 'ferry', null])
+    expect(routed.ferries).toMatchObject([{ leg: 1, crossing: [1, 2], seconds: 720, walkSeconds: 360, accepted: true }])
+  })
+
+  it('TOUR-ROUTING-039: two stops no way joins are named by halving the walk, and a host that answers after all names none', async () => {
+    const answered = { total: { coordinates: [[0, 0], [1, 1]], distance: 1, duration: 1 }, legs: [], snapped: [] }
+    const stops = [sanMarco, saoneri, moresco, { lat: 45.43, lng: 12.31 }, { lat: 45.42, lng: 12.3 }]
+    // The whole walk fails, its first half [0..2] answers, then [2..3] fails: the gap is the leg from stop 2.
+    valhallaRunOnFoot.mockResolvedValueOnce(null).mockResolvedValueOnce(answered).mockResolvedValueOnce(null)
+    expect(await routeCityWalk(stops)).toEqual({ gap: 2 })
+    expect(valhallaRunOnFoot.mock.calls.map((call) => (call[0] as unknown[]).length)).toEqual([5, 3, 2])
+
+    valhallaRunOnFoot.mockReset().mockResolvedValueOnce(null).mockResolvedValue(answered)
+    expect(await routeCityWalk([sanMarco, saoneri])).toBeNull()
   })
 })

@@ -28,7 +28,7 @@ import {
   tourWaypointKey,
   type TourPlannerWaypoint,
 } from './tourPlannerWaypoints';
-import { isTourRoute, type TourRouteUnreachable } from './tourRouteOutcome';
+import { isTourRoute, type TourRouteGap, type TourRouteUnreachable } from './tourRouteOutcome';
 import {
   enrichTourElevations,
   rideTour,
@@ -38,6 +38,7 @@ import {
   routeWalkingTour,
   type TourElevationPoint,
   type TourRoutePart,
+  type WalkFerryCrossing,
 } from './tourRouting';
 import type { TourPlannerStatus } from './useTourPlanner';
 
@@ -78,6 +79,8 @@ interface PlannedRoute {
   enrichedGeometry: TourElevationPoint[] | null;
   distanceMeters: number | null;
   durationSeconds: number | null;
+  /** CW-12: a city walk's crossings by boat; null where it takes none. */
+  ferries: WalkFerryCrossing[] | null;
   forKey: string | null;
   /** The run it was planned in: its points with what was planned along them, its choices and the retry. */
   forRun: string | null;
@@ -91,6 +94,7 @@ const NO_ROUTE: PlannedRoute = {
   enrichedGeometry: null,
   distanceMeters: null,
   durationSeconds: null,
+  ferries: null,
   forKey: null,
   forRun: null,
 };
@@ -123,6 +127,7 @@ function skiPlanned(route: SkiTourRoute, plannedKey: string, runKey: string): Pl
     enrichedGeometry: route.elevations,
     distanceMeters: route.distanceMeters,
     durationSeconds: route.durationSeconds,
+    ferries: null,
     forKey: plannedKey,
     forRun: runKey,
   };
@@ -180,7 +185,7 @@ interface RouteRun {
   signal: AbortSignal;
   stale: () => boolean;
   setPlanned: (next: PlannedRoute | ((current: PlannedRoute) => PlannedRoute)) => void;
-  setUnreachable: (unreachable: TourRouteUnreachable | null) => void;
+  setUnreachable: (unreachable: TourRouteUnreachable | TourRouteGap | null) => void;
 }
 
 // PAD-11: a paddle tour is planned on the water by the server's router; its heights are no concern.
@@ -200,6 +205,7 @@ async function routePaddle({ inputs, plannedKey, runKey, signal, stale, setPlann
     enrichedGeometry: planned.coordinates.map(([lat, lng]): [number, number, number] => [lat, lng, 0]),
     distanceMeters: planned.distanceMeters,
     durationSeconds: null,
+    ferries: null,
     forKey: plannedKey,
     forRun: runKey,
   });
@@ -229,9 +235,10 @@ async function routeOnLand({ inputs, plannedKey, runKey, signal, stale, setPlann
   const routed = await routeLand(inputs, signal);
   if (stale()) return;
   if (!isTourRoute(routed)) {
+    // A failure keeps the route planned before; it no longer stands for these points (CW-12: no way at all is a gap).
     setUnreachable(routed);
     setStatus('routing-failed');
-    setError(routed ? 'unreachable' : 'routing');
+    setError(!routed ? 'routing' : 'gap' in routed ? 'walk-gap' : 'unreachable');
     return;
   }
   setUnreachable(null);
@@ -243,6 +250,7 @@ async function routeOnLand({ inputs, plannedKey, runKey, signal, stale, setPlann
     enrichedGeometry: null,
     distanceMeters: routed.distanceMeters,
     durationSeconds: routed.durationSeconds,
+    ferries: routed.ferries ?? null,
     forKey: plannedKey,
     forRun: runKey,
   });
@@ -377,8 +385,8 @@ export function useTourRoute(inputs: TourRouteInputs) {
     patchWaypoints,
   } = inputs;
   const [planned, setPlanned] = useState<PlannedRoute>(NO_ROUTE);
-  // A point no way of the tour's type reaches, and how far off the router would have bound it.
-  const [unreachable, setUnreachable] = useState<TourRouteUnreachable | null>(null);
+  // A point no way of the tour's type reaches, and how far off the router would have bound it; or a walk's leg no way joins.
+  const [unreachable, setUnreachable] = useState<TourRouteUnreachable | TourRouteGap | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const generationRef = useRef(0);
   const { openSavedSkiRoute, takeSavedSki } = useSavedSkiSeed();
@@ -483,7 +491,9 @@ export function useTourRoute(inputs: TourRouteInputs) {
     ...shown,
     /** The route shown was planned for these points and these choices. */
     routeCurrent: forKey === plannedKey,
-    unreachable: error === 'unreachable' ? unreachable : null,
+    unreachable: error === 'unreachable' && unreachable && 'unreachable' in unreachable ? unreachable : null,
+    /** CW-12: the leg of a city walk no way joins, while that is the error. */
+    walkGap: error === 'walk-gap' && unreachable && 'gap' in unreachable ? unreachable.gap : null,
     interruptRouting,
     clearRoute,
     openSavedSkiRoute,

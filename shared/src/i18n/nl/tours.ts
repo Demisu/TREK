@@ -767,6 +767,28 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Berekend',
   'tours.walk.stations': 'Haltes van de wandeling',
   'tours.walk.stationNumbered': 'Halte {number}',
+  'tours.walk.ferry.gap': 'Geen weg verbindt {from} en {to}, niet te voet en niet met een veerpont.',
+  'tours.walk.ferry.gapHint':
+    'De eerder geplande route blijft grijs op de kaart staan tot er een weg is gevonden. Verplaats een van de twee haltes.',
+  'tours.walk.ferry.pending':
+    'Er is geen looproute tussen {from} en {to}: de routeplanner steekt het water hier over met een veerpont.',
+  'tours.walk.ferry.pendingHint':
+    'De overtocht telt niet als looptijd. Neem de veerpont over of verplaats een halte zodat een looproute ze verbindt om op te slaan.',
+  'tours.walk.ferry.accepted':
+    'Veerpont van {from} naar {to}, bewust overgenomen. De tijd ervan staat los van de looptijd.',
+  'tours.walk.ferry.accept': 'Veerpont overnemen',
+  'tours.walk.ferry.show': 'Overtocht tonen',
+  'tours.walk.ferry.selectStop': 'Halte {number} kiezen',
+  'tours.walk.ferry.time': '{time} per boot',
+  'tours.walk.ferry.timeUnknown': 'Boottijd onbekend',
+  'tours.walk.ferry.timeHint': 'Zoals de routeplanner die voor de overtocht geeft. Hoort niet bij de looptijd.',
+  'tours.walk.ferry.field': 'Veerpont',
+  'tours.walk.ferry.fieldInfoLabel': 'Over de veerponttijd',
+  'tours.walk.ferry.fieldInfo':
+    'De tijd van de overtochten per boot, zoals de routeplanner die geeft. Staat los van de looptijd en zit niet in het geplande totaal.',
+  'tours.walk.ferry.leg': 'Overtocht met veerpont',
+  'tours.walk.ferry.legInfo': 'Per boot overgestoken, niet gelopen. De tijd zit niet in de looptijd.',
+  'tours.walk.ferry.release': 'Opnieuw te voet plannen',
   'tours.walk.stationsUnread':
     'De haltes van deze wandeling konden niet worden geladen. Open hem opnieuw met verbinding om ze te zien en af te vinken.',
   'tours.walk.progress': '{visited} van {total} bezocht',

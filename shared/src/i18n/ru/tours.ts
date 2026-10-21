@@ -774,6 +774,27 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Расчёт',
   'tours.walk.stations': 'Остановки прогулки',
   'tours.walk.stationNumbered': 'Остановка {number}',
+  'tours.walk.ferry.gap': 'Ни пешком, ни на пароме нет пути между {from} и {to}.',
+  'tours.walk.ferry.gapHint':
+    'Ранее построенный маршрут остаётся на карте серым, пока путь не найдётся. Передвиньте одну из двух остановок.',
+  'tours.walk.ferry.pending': 'Между {from} и {to} нет пешего пути: здесь маршрутизатор пересекает воду на пароме.',
+  'tours.walk.ferry.pendingHint':
+    'Переправа не считается временем ходьбы. Чтобы сохранить, примите паром или передвиньте остановку, чтобы их соединял пеший путь.',
+  'tours.walk.ferry.accepted':
+    'Паром от {from} до {to}, принят намеренно. Его время учитывается отдельно от времени ходьбы.',
+  'tours.walk.ferry.accept': 'Принять паром',
+  'tours.walk.ferry.show': 'Показать переправу',
+  'tours.walk.ferry.selectStop': 'Выбрать остановку {number}',
+  'tours.walk.ferry.time': '{time} на лодке',
+  'tours.walk.ferry.timeUnknown': 'Время на лодке неизвестно',
+  'tours.walk.ferry.timeHint': 'Как его даёт маршрутизатор для переправы. Не входит во время ходьбы.',
+  'tours.walk.ferry.field': 'Паром',
+  'tours.walk.ferry.fieldInfoLabel': 'О времени на пароме',
+  'tours.walk.ferry.fieldInfo':
+    'Время переправ на лодке, как его даёт маршрутизатор. Учитывается отдельно от времени ходьбы и не входит в плановый итог.',
+  'tours.walk.ferry.leg': 'Переправа на пароме',
+  'tours.walk.ferry.legInfo': 'Пересечено на лодке, не пешком. Его время не входит во время ходьбы.',
+  'tours.walk.ferry.release': 'Снова спланировать пешком',
   'tours.walk.stationsUnread':
     'Не удалось загрузить остановки этой прогулки. Открой её снова при подключении к сети, чтобы увидеть и отметить их.',
   'tours.walk.progress': 'Посещено {visited} из {total}',

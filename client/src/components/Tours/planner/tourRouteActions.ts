@@ -260,15 +260,16 @@ export function setWaypointLock<T extends RoutePoint>(points: readonly T[], id: 
 
 /**
  * The leg after this waypoint drawn by hand, or routed again (on a paddle
- * tour: on the water). A via ferrata, a portage and a horse route section keep
- * their line; the last point has no leg to change.
+ * tour: on the water). A via ferrata, a portage, a horse route section and a
+ * walk's crossing by boat keep their line; the last point has no leg to change.
  */
 export function toggleFreeLeg<T extends RoutePoint>(points: readonly T[], id: string): T[] {
   const index = points.findIndex((point) => point.id === id);
   const point = points[index];
   const next = points[index + 1];
   const kind = point?.fixedLeg?.kind;
-  if (!point || !next || kind === 'ferrata' || kind === 'horse_route' || isPortage(point.fixedLeg)) return [...points];
+  if (!point || !next || kind === 'ferrata' || kind === 'horse_route' || kind === 'ferry' || isPortage(point.fixedLeg))
+    return [...points];
   const copy = [...points];
   if (point.fixedLeg?.kind === 'free') {
     const { fixedLeg: _dropped, ...rest } = point;

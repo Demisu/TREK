@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach, vi } from 'vitest'
 import { http, HttpResponse } from 'msw'
 import { server } from '../../../tests/helpers/msw/server'
 import { useSettingsStore } from '../../store/settingsStore'
-import { valhallaBase, valhallaAvailable, valhallaTurn, resetValhallaTurns, valhallaRouteAvoiding, valhallaRun, valhallaAlternates, alternatesFrom, runFrom, legAvoids, valhallaTraceAttributes } from './valhallaRoute'
+import { valhallaBase, valhallaAvailable, valhallaTurn, resetValhallaTurns, valhallaRouteAvoiding, valhallaRun, valhallaRunOnFoot, valhallaAlternates, alternatesFrom, runFrom, legAvoids, valhallaTraceAttributes } from './valhallaRoute'
 
 const FOSSGIS_VALHALLA = 'https://valhalla1.openstreetmap.de/route'
 
@@ -628,5 +628,63 @@ describe('valhallaTraceAttributes (BIK-01)', () => {
     controller.abort()
     await expect(valhallaTraceAttributes(SHAPE_POINTS, controller.signal)).resolves.toBeNull()
     expect(asked).toBe(false)
+  })
+})
+
+describe('crossings by boat on a walk (CW-12)', () => {
+  /** A walk's leg as the public instance answers one: the boat boards at point 1 and lands at point 2. */
+  const ferryLeg = (maneuvers?: unknown[]) => ({
+    shape: SHAPE,
+    summary: { length: 1.5, time: 900, has_ferry: true },
+    ...(maneuvers ? { maneuvers } : {}),
+  })
+  // The San Tomà to Ca' Rezzonico crossing as measured on Venice, laid onto the test shape.
+  const boarding = [
+    { type: 1, begin_shape_index: 0, end_shape_index: 1, time: 100, length: 0.2 },
+    { type: 28, ferry: true, begin_shape_index: 1, end_shape_index: 2, time: 744.959, length: 1.236 },
+  ]
+  const walked = { shape: SHAPE, summary: { length: 1, time: 700, has_ferry: false } }
+
+  it('VALHALLA-FERRY-001: reads where a leg goes by boat off its maneuvers, with the crossing\'s own length and time', () => {
+    const run = runFrom({ trip: { legs: [ferryLeg(boarding)] } })
+    expect(run?.legs[0].ferrySpans).toEqual([{ from: 1, to: 2, metres: 1236, seconds: 744.959 }])
+  })
+
+  it('VALHALLA-FERRY-002: the joined line keeps each crossing on its own points', () => {
+    const run = runFrom({ trip: { legs: [walked, ferryLeg(boarding)] } })
+    // The second leg does not start where the first ends, so its three points follow the first three.
+    expect(run?.total.coordinates).toHaveLength(6)
+    expect(run?.total.ferrySpans).toEqual([{ from: 4, to: 5, metres: 1236, seconds: 744.959 }])
+    expect(run?.legs[0]).not.toHaveProperty('ferrySpans')
+  })
+
+  it('VALHALLA-FERRY-003: a ferry the maneuvers do not place takes the whole leg, its time unknown', () => {
+    const run = runFrom({ trip: { legs: [ferryLeg()] } })
+    expect(run?.legs[0].ferrySpans).toEqual([{ from: 0, to: 2, metres: 0, seconds: null }])
+  })
+
+  it('VALHALLA-FERRY-004: crossings that touch are one, and a crossing with no time leaves the sum unknown', () => {
+    const run = runFrom({
+      trip: {
+        legs: [ferryLeg([
+          { type: 28, ferry: true, begin_shape_index: 0, end_shape_index: 1, time: 60, length: 0.1 },
+          { type: 28, ferry: true, begin_shape_index: 1, end_shape_index: 2, length: 0.2 },
+        ])],
+      },
+    })
+    expect(run?.legs[0].ferrySpans).toEqual([{ from: 0, to: 2, metres: 300, seconds: null }])
+  })
+
+  it('VALHALLA-FERRY-005: binds no point to a boat line when asked, and only then', async () => {
+    const bodies: Array<{ locations: Array<Record<string, unknown>> }> = []
+    server.use(http.post(FOSSGIS_VALHALLA, async ({ request }) => {
+      bodies.push(await request.json() as { locations: Array<Record<string, unknown>> })
+      return HttpResponse.json({ trip: { legs: [walked] } })
+    }))
+    const points = [{ lat: 45.4342798, lng: 12.338111 }, { lat: 45.4367609, lng: 12.3287531 }]
+    await valhallaRunOnFoot(points, undefined, { use_ferry: 0 }, { exclude_ferry: true })
+    await valhallaRun(points, 'walking', [], undefined, { use_ferry: 0 })
+    expect(bodies[0].locations.map(location => location.search_filter)).toEqual([{ exclude_ferry: true }, { exclude_ferry: true }])
+    expect(bodies[1].locations.every(location => !('search_filter' in location))).toBe(true)
   })
 })

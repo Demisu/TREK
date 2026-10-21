@@ -14,6 +14,7 @@ import { parseRouteGeometry } from './tours.helpers';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import {
+  ferryCrossingsOf,
   isClosedLoop,
   walkRemainderOf,
   walkStationsOf,
@@ -84,14 +85,17 @@ export class TourVisitsService {
    * off since counts; nothing changes.
    */
   async remaining(tripId: number, placeId: number, dayId: number, assignmentId?: number): Promise<WalkRemaining> {
-    const [{ walk, progress }, place] = await Promise.all([
+    const [{ walk, progress }, place, points] = await Promise.all([
       this.dayRun(tripId, placeId, dayId, assignmentId),
       this.placesRepo.findInTrip(placeId, tripId),
+      this.waypointsRepo.listForPlace(placeId),
     ]);
     const remainder = walkRemainderOf({
       stations: progress.stations.map((station) => ({ ...station, stayMinutes: station.stay_minutes })),
       line: parseRouteGeometry(place?.route_geometry),
       walkingMinutes: progress.walking_minutes,
+      // CW-12: a ferry leg is crossed by boat; the saved walking time holds none of it.
+      crossings: ferryCrossingsOf(points),
     });
     return {
       place_id: placeId,

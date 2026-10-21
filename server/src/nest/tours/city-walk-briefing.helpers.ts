@@ -114,8 +114,8 @@ export type FootWay =
   | { kind: 'routed'; line: Array<[number, number]>; legs: Leg[]; seconds: number }
   | {
       kind: 'unrouted';
-      why: 'nothing_to_route' | 'router_unavailable' | 'station_off_the_way';
-      /** The station no way reaches, counted from 1. */
+      why: 'nothing_to_route' | 'router_unavailable' | 'station_off_the_way' | 'ferry_only';
+      /** The station no way reaches, or (ferry_only) the one the crossing by boat starts at, counted from 1. */
       position: number | null;
     };
 
@@ -124,6 +124,8 @@ export interface FootRouteAnswer {
   leg: { line: Array<[number, number]> };
   parts: ReadonlyArray<{ distance: number; duration: number }>;
   snapped?: ReadonlyArray<{ meters: number }>;
+  /** CW-12: the legs, counted from 0, the router could only join by boat. */
+  ferryLegs?: readonly number[];
 }
 
 interface Visit {
@@ -186,11 +188,16 @@ export function legOf(from: { lat: number; lng: number }, to: { lat: number; lng
 /**
  * The router's way as the walk takes it: each leg's distance and walking time,
  * and the line. A station the router had to move further onto a way than the
- * planner allows is one no way on foot reaches, and the way is not taken.
+ * planner allows is one no way on foot reaches, and the way is not taken. Nor
+ * is a way that crosses by boat (CW-12): the boat's time would pass for
+ * walking, so the walk waits for the travellers to take the crossing in the
+ * planner.
  */
 export function footWayOf(answer: FootRouteAnswer): FootWay {
   const off = (answer.snapped ?? []).findIndex((point) => point.meters > TOUR_MAX_SNAP_M);
   if (off >= 0) return { kind: 'unrouted', why: 'station_off_the_way', position: off + 1 };
+  const boat = answer.ferryLegs?.[0];
+  if (boat !== undefined) return { kind: 'unrouted', why: 'ferry_only', position: boat + 1 };
   return {
     kind: 'routed',
     line: answer.leg.line,

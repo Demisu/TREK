@@ -762,6 +762,29 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Dihitung',
   'tours.walk.stations': 'Titik singgah rute',
   'tours.walk.stationNumbered': 'Titik {number}',
+  'tours.walk.ferry.gap': 'Tidak ada jalan yang menghubungkan {from} dan {to}, baik jalan kaki maupun feri.',
+  'tours.walk.ferry.gapHint':
+    'Rute yang direncanakan sebelumnya tetap di peta, dibuat pudar, sampai jalan ditemukan. Pindahkan salah satu dari dua perhentian.',
+  'tours.walk.ferry.pending':
+    'Tidak ada jalan kaki antara {from} dan {to}: di sini perute menyeberangi air dengan feri.',
+  'tours.walk.ferry.pendingHint':
+    'Penyeberangan tidak dihitung sebagai waktu jalan kaki. Untuk menyimpan, ambil ferinya atau pindahkan perhentian agar jalan kaki menghubungkannya.',
+  'tours.walk.ferry.accepted':
+    'Feri dari {from} ke {to}, diambil dengan sengaja. Waktunya dipisahkan dari waktu jalan kaki.',
+  'tours.walk.ferry.accept': 'Ambil feri',
+  'tours.walk.ferry.show': 'Tampilkan penyeberangan',
+  'tours.walk.ferry.selectStop': 'Pilih perhentian {number}',
+  'tours.walk.ferry.time': '{time} dengan perahu',
+  'tours.walk.ferry.timeUnknown': 'Waktu perahu tidak diketahui',
+  'tours.walk.ferry.timeHint':
+    'Seperti yang diberikan perute untuk penyeberangan. Ini bukan bagian dari waktu jalan kaki.',
+  'tours.walk.ferry.field': 'Feri',
+  'tours.walk.ferry.fieldInfoLabel': 'Tentang waktu feri',
+  'tours.walk.ferry.fieldInfo':
+    'Waktu penyeberangan dengan perahu, seperti yang diberikan perute. Dipisahkan dari waktu jalan kaki dan tidak termasuk total yang direncanakan.',
+  'tours.walk.ferry.leg': 'Penyeberangan feri',
+  'tours.walk.ferry.legInfo': 'Diseberangi dengan perahu, bukan berjalan. Waktunya tidak termasuk waktu jalan kaki.',
+  'tours.walk.ferry.release': 'Rencanakan jalan kaki lagi',
   'tours.walk.stationsUnread':
     'Titik singgah rute ini tidak dapat dimuat. Buka lagi saat online untuk melihat dan mencentangnya.',
   'tours.walk.progress': '{visited} dari {total} dikunjungi',

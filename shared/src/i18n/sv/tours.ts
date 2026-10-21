@@ -750,6 +750,27 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Beräknad',
   'tours.walk.stations': 'Promenadens stopp',
   'tours.walk.stationNumbered': 'Stopp {number}',
+  'tours.walk.ferry.gap': 'Ingen väg förbinder {from} och {to}, varken till fots eller med färja.',
+  'tours.walk.ferry.gapHint':
+    'Den tidigare planerade rutten ligger kvar gråtonad på kartan tills en väg hittas. Flytta ett av de två stoppen.',
+  'tours.walk.ferry.pending':
+    'Det finns ingen gångväg mellan {from} och {to}: här korsar ruttplaneraren vattnet med färja.',
+  'tours.walk.ferry.pendingHint':
+    'Överfarten räknas inte som gångtid. För att spara, ta färjan eller flytta ett stopp så att en gångväg förbinder dem.',
+  'tours.walk.ferry.accepted': 'Färja från {from} till {to}, tagen med avsikt. Dess tid hålls skild från gångtiden.',
+  'tours.walk.ferry.accept': 'Ta färjan',
+  'tours.walk.ferry.show': 'Visa överfarten',
+  'tours.walk.ferry.selectStop': 'Välj stopp {number}',
+  'tours.walk.ferry.time': '{time} med båt',
+  'tours.walk.ferry.timeUnknown': 'Båttid okänd',
+  'tours.walk.ferry.timeHint': 'Som ruttplaneraren anger den för överfarten. Den ingår inte i gångtiden.',
+  'tours.walk.ferry.field': 'Färja',
+  'tours.walk.ferry.fieldInfoLabel': 'Om färjetiden',
+  'tours.walk.ferry.fieldInfo':
+    'Tiden som överfarterna med båt tar, som ruttplaneraren anger den. Den hålls skild från gångtiden och ingår inte i den planerade summan.',
+  'tours.walk.ferry.leg': 'Överfart med färja',
+  'tours.walk.ferry.legInfo': 'Korsat med båt, inte gånget. Tiden ingår inte i gångtiden.',
+  'tours.walk.ferry.release': 'Planera till fots igen',
   'tours.walk.stationsUnread':
     'Promenadens stopp kunde inte läsas in. Öppna den igen med uppkoppling för att se dem och bocka av dem.',
   'tours.walk.progress': '{visited} av {total} besökta',

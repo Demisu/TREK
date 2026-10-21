@@ -742,6 +742,26 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': '計算値',
   'tours.walk.stations': '立ち寄り先',
   'tours.walk.stationNumbered': '立ち寄り先 {number}',
+  'tours.walk.ferry.gap': '{from} と {to} を結ぶ道は、徒歩でもフェリーでもありません。',
+  'tours.walk.ferry.gapHint':
+    '以前に計画したルートは、道が見つかるまで地図上に薄く残ります。2つの立ち寄り先のどちらかを動かしてください。',
+  'tours.walk.ferry.pending': '{from} と {to} の間に徒歩の道はありません。ここではルート検索がフェリーで水を渡ります。',
+  'tours.walk.ferry.pendingHint':
+    '渡航は歩行時間に数えません。保存するには、フェリーを採用するか、徒歩の道でつながるよう立ち寄り先を動かしてください。',
+  'tours.walk.ferry.accepted': '{from} から {to} へのフェリー、意図して採用済み。その時間は歩行時間とは別です。',
+  'tours.walk.ferry.accept': 'フェリーを採用',
+  'tours.walk.ferry.show': '渡航を表示',
+  'tours.walk.ferry.selectStop': '立ち寄り先 {number} を選択',
+  'tours.walk.ferry.time': '船で {time}',
+  'tours.walk.ferry.timeUnknown': '船の時間は不明',
+  'tours.walk.ferry.timeHint': 'ルート検索が渡航について示す時間です。歩行時間には含まれません。',
+  'tours.walk.ferry.field': 'フェリー',
+  'tours.walk.ferry.fieldInfoLabel': 'フェリーの時間について',
+  'tours.walk.ferry.fieldInfo':
+    '船での渡航にかかる時間で、ルート検索が示すものです。歩行時間とは別で、予定合計にも含まれません。',
+  'tours.walk.ferry.leg': 'フェリーで渡航',
+  'tours.walk.ferry.legInfo': '歩かずに船で渡ります。その時間は歩行時間に含まれません。',
+  'tours.walk.ferry.release': 'もう一度徒歩で計画',
   'tours.walk.stationsUnread':
     'この街歩きの立ち寄り先を読み込めませんでした。オンラインの状態で開き直すと、表示してチェックできます。',
   'tours.walk.progress': '{total} 件中 {visited} 件訪問済み',

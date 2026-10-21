@@ -1,5 +1,6 @@
 import type { WalkRemainder, WalkStationRef } from './tour-walk.schema';
 import type { StationImportance } from './tours.schema';
+import { boatSpansOf } from './walk-ferry';
 import { stationShares, type WalkStop } from './walk-hours';
 
 /** A station of a walk with its status on one day; planned is a station nobody checked off. */
@@ -16,6 +17,8 @@ export interface WalkRemainderInput {
   /** The saved line; empty or null while the walk waits for its way. */
   line: ReadonlyArray<readonly [number, number, ...number[]]> | null;
   walkingMinutes: number | null;
+  /** CW-12: the boat part of each ferry leg the walk takes; no walking time is shared out along them. */
+  crossings?: ReadonlyArray<ReadonlyArray<readonly [number, number]>>;
 }
 
 function refOf(stations: readonly WalkRemainderStop[], index: number): WalkStationRef {
@@ -56,14 +59,15 @@ function gapOf({ stations, line, walkingMinutes }: WalkRemainderInput, ambiguous
  * are open. A station skipped ahead keeps the line through it, so the time is
  * an upper bound; a station planned before the last one visited leaves the
  * progress unclear and the time unknown. Stays are counted apart, an unknown
- * one listed rather than taken as nothing.
+ * one listed rather than taken as nothing. A crossing by boat (CW-12) is no
+ * walking and takes no share of the walking time.
  */
 export function walkRemainderOf(input: WalkRemainderInput): WalkRemainder {
   const { stations, line, walkingMinutes } = input;
   const { last, openBefore } = progressOf(stations);
   const ambiguous = openBefore.length > 0;
   const gap = gapOf(input, ambiguous);
-  const shares = gap === null && line ? stationShares(stations, line) : null;
+  const shares = gap === null && line ? stationShares(stations, line, boatSpansOf(line, input.crossings ?? [])) : null;
   const walking = walkingMinutes ?? 0;
   const passed = (index: number) => Math.round(walking * (shares?.[index] ?? 0));
   const fromReference = last < 0 ? 0 : passed(last);

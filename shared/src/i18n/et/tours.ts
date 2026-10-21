@@ -753,6 +753,26 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Arvutatud',
   'tours.walk.stations': 'Jalutuse peatused',
   'tours.walk.stationNumbered': 'Peatus {number}',
+  'tours.walk.ferry.gap': '{from} ja {to} vahel pole teed, ei jalgsi ega praamiga.',
+  'tours.walk.ferry.gapHint':
+    'Varem planeeritud marsruut jääb kaardile hallina, kuni tee leitakse. Liiguta üht kahest peatusest.',
+  'tours.walk.ferry.pending': '{from} ja {to} vahel pole jalgteed: marsruutija ületab siin vee praamiga.',
+  'tours.walk.ferry.pendingHint':
+    'Ülesõitu ei loeta kõndimisajaks. Salvestamiseks võta praam üle või liiguta peatust, et jalgtee need ühendaks.',
+  'tours.walk.ferry.accepted': 'Praam {from} kuni {to}, meelega üle võetud. Selle aeg on kõndimisajast eraldi.',
+  'tours.walk.ferry.accept': 'Võta praam',
+  'tours.walk.ferry.show': 'Näita ülesõitu',
+  'tours.walk.ferry.selectStop': 'Vali peatus {number}',
+  'tours.walk.ferry.time': '{time} paadiga',
+  'tours.walk.ferry.timeUnknown': 'Paadiaeg teadmata',
+  'tours.walk.ferry.timeHint': 'Nagu marsruutija selle ülesõidu jaoks annab. See pole kõndimisaja osa.',
+  'tours.walk.ferry.field': 'Praam',
+  'tours.walk.ferry.fieldInfoLabel': 'Praamiajast',
+  'tours.walk.ferry.fieldInfo':
+    'Paadiga ülesõitude aeg, nagu marsruutija selle annab. See on kõndimisajast eraldi ega kuulu planeeritud koguaega.',
+  'tours.walk.ferry.leg': 'Praamiga ülesõit',
+  'tours.walk.ferry.legInfo': 'Ületatud paadiga, mitte jalgsi. Selle aeg pole kõndimisajas.',
+  'tours.walk.ferry.release': 'Planeeri uuesti jalgsi',
   'tours.walk.stationsUnread':
     'Selle jalutuse peatusi ei õnnestunud laadida. Ava jalutus uuesti võrguühendusega, et neid näha ja ära märkida.',
   'tours.walk.progress': '{visited} / {total} külastatud',

@@ -772,6 +772,27 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Obliczono',
   'tours.walk.stations': 'Przystanki trasy',
   'tours.walk.stationNumbered': 'Przystanek {number}',
+  'tours.walk.ferry.gap': 'Żadna droga nie łączy {from} i {to}, ani pieszo, ani promem.',
+  'tours.walk.ferry.gapHint':
+    'Wcześniej zaplanowana trasa zostaje na mapie, wyszarzona, dopóki nie znajdzie się droga. Przesuń jeden z dwóch przystanków.',
+  'tours.walk.ferry.pending':
+    'Między {from} a {to} nie ma drogi pieszej: wyznaczanie trasy przeprawia się tu promem przez wodę.',
+  'tours.walk.ferry.pendingHint':
+    'Przeprawa nie liczy się jako czas marszu. Aby zapisać, przyjmij prom albo przesuń przystanek, żeby łączyła je droga piesza.',
+  'tours.walk.ferry.accepted': 'Prom z {from} do {to}, przyjęty celowo. Jego czas jest oddzielony od czasu marszu.',
+  'tours.walk.ferry.accept': 'Przyjmij prom',
+  'tours.walk.ferry.show': 'Pokaż przeprawę',
+  'tours.walk.ferry.selectStop': 'Wybierz przystanek {number}',
+  'tours.walk.ferry.time': '{time} łodzią',
+  'tours.walk.ferry.timeUnknown': 'Czas łodzią nieznany',
+  'tours.walk.ferry.timeHint': 'Tak, jak podaje go wyznaczanie trasy dla przeprawy. Nie jest częścią czasu marszu.',
+  'tours.walk.ferry.field': 'Prom',
+  'tours.walk.ferry.fieldInfoLabel': 'O czasie promu',
+  'tours.walk.ferry.fieldInfo':
+    'Czas przepraw łodzią, tak jak podaje go wyznaczanie trasy. Jest oddzielony od czasu marszu i nie wchodzi do planowanej sumy.',
+  'tours.walk.ferry.leg': 'Przeprawa promem',
+  'tours.walk.ferry.legInfo': 'Przepłynięte łodzią, nie przebyte pieszo. Jego czas nie jest w czasie marszu.',
+  'tours.walk.ferry.release': 'Zaplanuj znów pieszo',
   'tours.walk.stationsUnread':
     'Nie udało się wczytać przystanków tej trasy. Otwórz ją ponownie z połączeniem, aby je zobaczyć i odhaczyć.',
   'tours.walk.progress': 'Odwiedzono {visited} z {total}',

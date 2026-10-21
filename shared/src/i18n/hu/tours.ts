@@ -765,6 +765,27 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Számított',
   'tours.walk.stations': 'A séta megállói',
   'tours.walk.stationNumbered': '{number}. megálló',
+  'tours.walk.ferry.gap': 'Nincs út {from} és {to} között, sem gyalog, sem komppal.',
+  'tours.walk.ferry.gapHint':
+    'A korábban tervezett útvonal szürkén a térképen marad, amíg nem talál utat. Helyezd át a két megálló egyikét.',
+  'tours.walk.ferry.pending': 'Nincs gyalogos út {from} és {to} között: az útvonaltervező itt komppal kel át a vízen.',
+  'tours.walk.ferry.pendingHint':
+    'Az átkelés nem számít gyaloglási időnek. A mentéshez fogadd el a kompot, vagy helyezz át egy megállót, hogy gyalogos út kösse össze őket.',
+  'tours.walk.ferry.accepted':
+    'Komp {from} és {to} között, szándékosan elfogadva. Az ideje külön áll a gyaloglási időtől.',
+  'tours.walk.ferry.accept': 'Komp elfogadása',
+  'tours.walk.ferry.show': 'Átkelés mutatása',
+  'tours.walk.ferry.selectStop': '{number}. megálló kiválasztása',
+  'tours.walk.ferry.time': '{time} hajóval',
+  'tours.walk.ferry.timeUnknown': 'A hajóidő ismeretlen',
+  'tours.walk.ferry.timeHint': 'Ahogy az útvonaltervező megadja az átkeléshez. Nem része a gyaloglási időnek.',
+  'tours.walk.ferry.field': 'Komp',
+  'tours.walk.ferry.fieldInfoLabel': 'A kompidőről',
+  'tours.walk.ferry.fieldInfo':
+    'A hajós átkelések ideje, ahogy az útvonaltervező megadja. Külön áll a gyaloglási időtől, és nincs benne a tervezett összidőben.',
+  'tours.walk.ferry.leg': 'Kompos átkelés',
+  'tours.walk.ferry.legInfo': 'Hajóval átkelve, nem gyalog. Az ideje nincs a gyaloglási időben.',
+  'tours.walk.ferry.release': 'Újratervezés gyalog',
   'tours.walk.stationsUnread':
     'A séta megállóit nem sikerült betölteni. Nyisd meg újra internetkapcsolattal, hogy lásd és kipipálhasd őket.',
   'tours.walk.progress': '{total} megállóból {visited} meglátogatva',

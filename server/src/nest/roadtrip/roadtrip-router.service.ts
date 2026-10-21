@@ -27,7 +27,17 @@ const osrmSchema = z.object({
         distance: z.number().nonnegative(),
         duration: z.number().nonnegative(),
         legs: z
-          .array(z.object({ distance: z.number().nonnegative(), duration: z.number().nonnegative() }))
+          .array(
+            z.object({
+              distance: z.number().nonnegative(),
+              duration: z.number().nonnegative(),
+              // CW-12: asked only for a walk on foot, to tell a crossing by boat (`mode` ferry) apart.
+              steps: z
+                .array(z.object({ mode: z.string().max(32).optional() }))
+                .max(20000)
+                .optional(),
+            }),
+          )
           .min(1)
           .max(99),
         geometry: z.object({ coordinates: z.array(coordinate).min(2).max(200000) }),
@@ -49,6 +59,11 @@ const valhallaSchema = z.object({
             has_highway: z.boolean().optional(),
             has_ferry: z.boolean().optional(),
           }),
+          // CW-12: where a walk on foot boards a ferry (type 28, or `ferry` on the crossing).
+          maneuvers: z
+            .array(z.object({ type: z.number().optional(), ferry: z.boolean().optional() }))
+            .max(20000)
+            .optional(),
         }),
       )
       .min(1)
@@ -61,6 +76,48 @@ export interface RoadtripRoute {
   parts: { distance: number; duration: number }[];
   snapped?: SnappedWaypoint[];
   avoidMissed: RouteAvoidClass[];
+  /** CW-12: on a way asked on foot only, the legs (counted from 0) that still cross by boat. */
+  ferryLegs?: number[];
+}
+
+/** How a route is asked for besides its profile. */
+export interface RouteOptions {
+  /**
+   * CW-12: a way that is walked: no point bound to a ferry's edge, ferries
+   * avoided wherever a way on land exists, and the legs that still cross by
+   * boat said. A city walk asks this; a road trip day never does.
+   */
+  footOnly?: boolean;
+}
+
+/** Valhalla's maneuver type for boarding a ferry. */
+const FERRY_ENTER = 28;
+
+type ValhallaLegs = z.infer<typeof valhallaSchema>['trip']['legs'];
+
+/** Whether a walked leg still crosses by boat (CW-12). */
+function crossesByBoat(leg: ValhallaLegs[number]): boolean {
+  return (
+    leg.summary.has_ferry === true ||
+    (leg.maneuvers ?? []).some((maneuver) => maneuver.ferry === true || maneuver.type === FERRY_ENTER)
+  );
+}
+
+/** Valhalla's legs as a route: the line, its length and time, a part per leg, and where each point met a way. */
+function routeOfLegs(points: Point[], legs: ValhallaLegs) {
+  const shapes = legs.map((leg) => decode(leg.shape));
+  const locations = [...shapes.map((shape) => shape[0]), shapes[shapes.length - 1].at(-1)!];
+  return {
+    line: shapes.flat(),
+    distance: legs.reduce((sum, leg) => sum + leg.summary.length * 1000, 0),
+    duration: legs.reduce((sum, leg) => sum + leg.summary.time, 0),
+    parts: legs.map((leg) => ({ distance: leg.summary.length * 1000, duration: leg.summary.time })),
+    snapped: locations.map(([lat, lng], index): SnappedWaypoint => ({
+      asked: [points[index].lat, points[index].lng],
+      at: [lat, lng],
+      meters: haversineKm(points[index], { lat, lng }) * 1000,
+    })),
+  };
 }
 
 function decode(shape: string): [number, number][] {
@@ -152,8 +209,10 @@ export class RoadtripRouterService {
     points: Point[],
     profile: string,
     avoid: RouteAvoidClass[],
+    options: RouteOptions = {},
   ): Promise<RoadtripRoute> {
     const settings = await this.settings.getUserSettings(userId);
+    const footOnly = options.footOnly === true && profile === 'walking';
     const key = JSON.stringify([
       userId,
       tripId,
@@ -163,6 +222,7 @@ export class RoadtripRouterService {
       avoid,
       settings.routing_base_url,
       settings.valhalla_base_url,
+      ...(footOnly ? ['foot-only'] : []),
     ]);
     const cached = this.cache.get(key);
     if (!profile.startsWith('plugin:') && cached && Date.now() - cached.at < 300000) return cached.route;
@@ -171,6 +231,7 @@ export class RoadtripRouterService {
     let vias: RoutedLeg['vias'] = [];
     let avoidMissed = profile === 'driving' ? [...avoid] : [];
     let snapped: SnappedWaypoint[] | undefined;
+    let ferryLegs: number[] | undefined;
     const plugin = /^plugin:([^/]+)\/(.+)$/.exec(profile);
     if (plugin) {
       const [, id, name] = plugin;
@@ -197,6 +258,16 @@ export class RoadtripRouterService {
         typeof settings.valhalla_base_url === 'string' ? settings.valhalla_base_url.trim().replace(/\/+$/, '') : '';
       const valhalla = configuredValhalla || (base ? '' : 'https://valhalla1.openstreetmap.de');
       let weighted = false;
+      if (footOnly && valhalla) {
+        try {
+          const legs = await this.valhallaLegs(valhalla, points, 'pedestrian', { use_ferry: 0 }, true);
+          ({ line, distance, duration, parts, snapped } = routeOfLegs(points, legs));
+          ferryLegs = legs.flatMap((leg, index) => (crossesByBoat(leg) ? [index] : []));
+          weighted = true;
+        } catch {
+          snapped = undefined;
+        }
+      }
       if (mode === 'driving' && avoid.length && valhalla) {
         try {
           const options = {
@@ -204,28 +275,8 @@ export class RoadtripRouterService {
             use_highways: avoid.includes('motorway') ? 0 : 1,
             use_ferry: avoid.includes('ferry') ? 0 : 1,
           };
-          const legs: z.infer<typeof valhallaSchema>['trip']['legs'] = [];
-          for (let start = 0; start < points.length - 1; start += 9) {
-            const payload = await this.request(`${valhalla}/route`, {
-              locations: points.slice(start, start + 10).map((p) => ({ lat: p.lat, lon: p.lng, radius: 50 })),
-              costing: 'auto',
-              costing_options: { auto: options },
-              directions_options: { units: 'kilometers' },
-            });
-            legs.push(...valhallaSchema.parse(payload).trip.legs);
-          }
-          if (legs.length !== points.length - 1) throw new Error('Routing response has mismatched legs');
-          const shapes = legs.map((leg) => decode(leg.shape));
-          line = shapes.flat();
-          const locations = [...shapes.map((shape) => shape[0]), shapes[shapes.length - 1].at(-1)!];
-          snapped = locations.map(([lat, lng], index) => ({
-            asked: [points[index].lat, points[index].lng],
-            at: [lat, lng],
-            meters: haversineKm(points[index], { lat, lng }) * 1000,
-          }));
-          distance = legs.reduce((sum, leg) => sum + leg.summary.length * 1000, 0);
-          duration = legs.reduce((sum, leg) => sum + leg.summary.time, 0);
-          parts = legs.map((leg) => ({ distance: leg.summary.length * 1000, duration: leg.summary.time }));
+          const legs = await this.valhallaLegs(valhalla, points, 'auto', options);
+          ({ line, distance, duration, parts, snapped } = routeOfLegs(points, legs));
           avoidMissed = avoid.filter((cls) =>
             legs.some((leg) =>
               cls === 'toll'
@@ -254,15 +305,20 @@ export class RoadtripRouterService {
         // browser sends the same thing, see `uTurnParam` in client RouteCalculator.ts.
         // Only with something in the middle to turn round at.
         const uTurn = points.length > 2 ? '&continue_straight=false' : '';
+        // A walk on foot only asks for the steps, the one place OSRM says a leg is on a ferry.
         const payload = await this.request(
-          `${origin}/route/v1/${path}/${points.map((p) => `${p.lng},${p.lat}`).join(';')}?overview=full&geometries=geojson&steps=false${uTurn}`,
+          `${origin}/route/v1/${path}/${points.map((p) => `${p.lng},${p.lat}`).join(';')}?overview=full&geometries=geojson&steps=${footOnly}${uTurn}`,
         );
         const parsed = osrmSchema.parse(payload);
         const route = parsed.routes[0];
         line = route.geometry.coordinates.map(([lng, lat]) => [lat, lng]);
         distance = route.distance;
         duration = route.duration;
-        parts = route.legs;
+        parts = route.legs.map((leg) => ({ distance: leg.distance, duration: leg.duration }));
+        if (footOnly)
+          ferryLegs = route.legs.flatMap((leg, index) =>
+            leg.steps?.some((step) => step.mode === 'ferry') ? [index] : [],
+          );
         if (parsed.waypoints?.length === points.length)
           snapped = parsed.waypoints.map((waypoint, index) => ({
             asked: [points[index].lat, points[index].lng],
@@ -308,9 +364,41 @@ export class RoadtripRouterService {
         },
       },
       avoidMissed,
+      ...(ferryLegs ? { ferryLegs } : {}),
     };
     this.cache.set(key, { at: Date.now(), route });
     if (this.cache.size > 100) this.cache.delete(this.cache.keys().next().value!);
     return route;
+  }
+
+  /**
+   * Valhalla's legs through the points, ten locations a request, one after
+   * another through the paced queue. CW-12: a walk on foot binds no point to
+   * a ferry's edge (`offBoatLines`).
+   */
+  private async valhallaLegs(
+    valhalla: string,
+    points: Point[],
+    costing: 'auto' | 'pedestrian',
+    options: Record<string, number>,
+    offBoatLines = false,
+  ): Promise<ValhallaLegs> {
+    const legs: ValhallaLegs = [];
+    for (let start = 0; start < points.length - 1; start += 9) {
+      const payload = await this.request(`${valhalla}/route`, {
+        locations: points.slice(start, start + 10).map((p) => ({
+          lat: p.lat,
+          lon: p.lng,
+          radius: 50,
+          ...(offBoatLines ? { search_filter: { exclude_ferry: true } } : {}),
+        })),
+        costing,
+        costing_options: { [costing]: options },
+        directions_options: { units: 'kilometers' },
+      });
+      legs.push(...valhallaSchema.parse(payload).trip.legs);
+    }
+    if (legs.length !== points.length - 1) throw new Error('Routing response has mismatched legs');
+    return legs;
   }
 }

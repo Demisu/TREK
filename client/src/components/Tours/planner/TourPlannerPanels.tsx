@@ -54,6 +54,7 @@ import { TourGpxExportBarButton } from '../TourGpxExportButton'
 import { TourSaveToCollectionBarButton } from '../collection/TourSaveToCollectionButton'
 import { TourRemoteChangeNotice, TourRevisionConflictDialog } from './TourRevisionNotice'
 import { WalkImportDraftNotice } from '../walk/WalkImportDialog'
+import { WalkFerryNotice } from '../walk/WalkFerryNotice'
 import { WalkRoutePendingNotice } from '../walk/WalkRoutePending'
 import TourListFilterMenu, { TourFilterEmpty } from '../TourListFilterMenu'
 import { TourScopeSummary } from '../TourScopeSummary'
@@ -152,8 +153,8 @@ function StatusDot({ label, tone, children }: { label: string; tone: 'neutral' |
 
 /** Whether the head offers to try again; a paddle leg that failed has its own actions on its row (PAD-11). */
 function retryable(planner: TourPlannerController): boolean {
-  // A point no way reaches stays unreachable until it moves; asking again changes nothing.
-  if (planner.error === 'paddle-route' || planner.error === 'unreachable') return false
+  // A point no way reaches stays unreachable until it moves, a walk's leg no way joins too; asking again changes nothing.
+  if (planner.error === 'paddle-route' || planner.error === 'unreachable' || planner.error === 'walk-gap') return false
   return planner.status === 'routing-failed' || planner.status === 'elevation-failed'
 }
 
@@ -487,6 +488,7 @@ export function TourPlannerRail({ planner,
           {recordedTrack?.available && <RecordedTrackCard recordedTrack={recordedTrack} disabled={isSaving} />}
 
           <UnreachableNotice planner={planner} />
+          <WalkFerryNotice planner={planner} />
 
           <TourStageLossNotice planner={planner} />
           <TourStageDayNotice planner={planner} />
@@ -731,7 +733,7 @@ function plannerTimeFields(planner: TourPlannerController, t: Translate): TourMe
   }
   if (planner.stationStays) {
     return walkTimeFields({ walking: estimate, walkingMinutes: planner.walkingDurationMinutes, stays: planner.stationStays,
-      manualMinutes: planner.plannedDurationMinutes, t })
+      manualMinutes: planner.plannedDurationMinutes, ferries: planner.walkFerries.crossings, t })
   }
   return [
     {

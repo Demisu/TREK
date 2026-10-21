@@ -755,6 +755,28 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Hesablanmış',
   'tours.walk.stations': 'Gəzintinin dayanacaqları',
   'tours.walk.stationNumbered': 'Dayanacaq {number}',
+  'tours.walk.ferry.gap': '{from} ilə {to} arasında nə piyada, nə də bərə ilə yol var.',
+  'tours.walk.ferry.gapHint':
+    'Əvvəl planlanan marşrut yol tapılana qədər xəritədə solğun qalır. İki dayanacaqdan birini köçür.',
+  'tours.walk.ferry.pending':
+    '{from} ilə {to} arasında piyada yol yoxdur: marşrutlaşdırıcı burada suyu bərə ilə keçir.',
+  'tours.walk.ferry.pendingHint':
+    'Keçid yürüş vaxtı sayılmır. Yadda saxlamaq üçün bərəni qəbul et və ya piyada yol onları birləşdirsin deyə dayanacağı köçür.',
+  'tours.walk.ferry.accepted':
+    '{from}-dan {to}-a bərə, qəsdən qəbul edilib. Onun vaxtı yürüş vaxtından ayrı saxlanılır.',
+  'tours.walk.ferry.accept': 'Bərəni qəbul et',
+  'tours.walk.ferry.show': 'Keçidi göstər',
+  'tours.walk.ferry.selectStop': '{number} nömrəli dayanacağı seç',
+  'tours.walk.ferry.time': 'Qayıqla {time}',
+  'tours.walk.ferry.timeUnknown': 'Qayıq vaxtı bilinmir',
+  'tours.walk.ferry.timeHint': 'Marşrutlaşdırıcının keçid üçün verdiyi kimi. Yürüş vaxtına daxil deyil.',
+  'tours.walk.ferry.field': 'Bərə',
+  'tours.walk.ferry.fieldInfoLabel': 'Bərə vaxtı haqqında',
+  'tours.walk.ferry.fieldInfo':
+    'Qayıqla keçidlərin vaxtı, marşrutlaşdırıcının verdiyi kimi. Yürüş vaxtından ayrı saxlanılır və planlanan cəmə daxil deyil.',
+  'tours.walk.ferry.leg': 'Bərə keçidi',
+  'tours.walk.ferry.legInfo': 'Qayıqla keçilib, piyada deyil. Vaxtı yürüş vaxtına daxil deyil.',
+  'tours.walk.ferry.release': 'Yenidən piyada planla',
   'tours.walk.stationsUnread':
     'Bu gəzintinin dayanacaqları yüklənə bilmədi. Onları görmək və qeyd etmək üçün gəzintini internet bağlantısı ilə yenidən aç.',
   'tours.walk.progress': '{total} dayanacaqdan {visited} ziyarət edildi',

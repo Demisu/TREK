@@ -8,6 +8,7 @@ import type {
   TourWaypointRole,
 } from '@trek/shared';
 import { rideLegs, withoutHorseRoutes } from '../horse/horseLegs';
+import { walkOnly } from '../walk/walkFerry';
 import type { AutoBase } from './paddleRouting';
 import { keepJoinedFixedLegs } from './tourFixedLegs';
 import { alignFreeLegs } from './tourRouteActions';
@@ -122,8 +123,8 @@ export function ridablePoints(points: TourPlannerWaypoint[]): TourPlannerWaypoin
 /**
  * Roles from the order; free legs follow their points, and a paddle tour keeps
  * its portages and locks. A ride (HOR-01) has every leg on a horse route or
- * drawn by hand; any other type gives a horse route section back to the router.
- * A stage end (MDT-01) stays only where one can be: at a stop between start and
+ * drawn by hand; any other type gives a horse route section back to the router,
+ * and only a city walk keeps a crossing by boat (CW-12). A stage end (MDT-01) stays only where one can be: at a stop between start and
  * end. A mark that ends up elsewhere after a change (its point moved to an end,
  * made a shaping point) is dropped here, and the planner says so rather than
  * move it to another point.
@@ -133,7 +134,7 @@ export function normalizePlannerWaypoints(
   tourType: PlannableTourType = 'hike'
 ): TourPlannerWaypoint[] {
   const joined = keepJoinedFixedLegs(alignFreeLegs(points, tourType === 'kayak'));
-  const typed = tourType === 'horse' ? rideLegs(joined) : withoutHorseRoutes(joined);
+  const typed = tourType === 'horse' ? rideLegs(joined) : withoutHorseRoutes(walkOnly(joined, tourType));
   return typed.map((point, index) => {
     const role = index === 0 ? 'start' : index === points.length - 1 ? 'end' : 'via';
     if (!point.stageEnd || (role === 'via' && !point.shaping)) return { ...point, role };

@@ -765,6 +765,26 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Calculado',
   'tours.walk.stations': 'Paradas del paseo',
   'tours.walk.stationNumbered': 'Parada {number}',
+  'tours.walk.ferry.gap': 'Ningún camino une {from} y {to}, ni a pie ni en ferri.',
+  'tours.walk.ferry.gapHint':
+    'La ruta planificada antes queda en el mapa, en gris, hasta que se encuentre un camino. Mueve una de las dos paradas.',
+  'tours.walk.ferry.pending': 'No hay camino a pie entre {from} y {to}: aquí el enrutador cruza el agua en ferri.',
+  'tours.walk.ferry.pendingHint':
+    'La travesía no cuenta como tiempo a pie. Para guardar, acepta el ferri o mueve una parada para que un camino a pie las una.',
+  'tours.walk.ferry.accepted': 'Ferri de {from} a {to}, aceptado a propósito. Su tiempo queda aparte del tiempo a pie.',
+  'tours.walk.ferry.accept': 'Aceptar ferri',
+  'tours.walk.ferry.show': 'Mostrar travesía',
+  'tours.walk.ferry.selectStop': 'Elegir parada {number}',
+  'tours.walk.ferry.time': '{time} en barco',
+  'tours.walk.ferry.timeUnknown': 'Tiempo en barco desconocido',
+  'tours.walk.ferry.timeHint': 'Tal como lo da el enrutador para la travesía. No forma parte del tiempo a pie.',
+  'tours.walk.ferry.field': 'Ferri',
+  'tours.walk.ferry.fieldInfoLabel': 'Sobre el tiempo en ferri',
+  'tours.walk.ferry.fieldInfo':
+    'El tiempo de las travesías en barco, tal como lo da el enrutador. Queda aparte del tiempo a pie y no está en el total planificado.',
+  'tours.walk.ferry.leg': 'Travesía en ferri',
+  'tours.walk.ferry.legInfo': 'Cruzado en barco, no a pie. Su tiempo no está en el tiempo a pie.',
+  'tours.walk.ferry.release': 'Planificar a pie de nuevo',
   'tours.walk.stationsUnread':
     'No se pudieron cargar las paradas de este paseo. Vuelve a abrirlo con conexión para verlas y marcarlas.',
   'tours.walk.progress': '{visited} de {total} visitadas',

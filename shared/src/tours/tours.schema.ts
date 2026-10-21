@@ -366,6 +366,9 @@ export const TOUR_FIXED_LEG_END_TOLERANCE_M = 60;
  */
 export const TOUR_WRITE_MAX_BYTES = 2 * 1024 * 1024;
 
+/** The longest a ferry leg's crossing or its walk may take, a whole day. */
+const FERRY_LEG_MAX_MINUTES = 24 * 60;
+
 const fixedLegGeometrySchema = z
   .array(z.tuple([z.number().finite().min(-90).max(90), z.number().finite().min(-180).max(180)]))
   .min(2)
@@ -383,6 +386,9 @@ const fixedLegGeometrySchema = z
  * section (HOR-01) is a stretch of a signposted horse route from
  * OpenStreetMap, taken in the direction the rider chose, with the `horse=*`
  * tags its ways carried then; being on the route is no permission to ride it.
+ * A ferry leg (CW-12) is a city walk's crossing by boat the travellers took on
+ * purpose: the router's way from the station to the next, with where on it the
+ * boat runs, so the boat's time never counts as walking.
  */
 export const tourFixedLegSchema = z.discriminatedUnion('kind', [
   z.object({
@@ -415,6 +421,16 @@ export const tourFixedLegSchema = z.discriminatedUnion('kind', [
     signposted: horseSignpostedSchema.nullable().optional(),
     /** The `horse=*` tags along the section when it was taken, in metres per value. */
     access: horseAccessSharesSchema.optional(),
+  }),
+  z.object({
+    kind: z.literal('ferry'),
+    geometry: fixedLegGeometrySchema,
+    /** The points of the line the boat leaves from and lands at, by their index. */
+    crossing: z.tuple([z.number().int().nonnegative(), z.number().int().nonnegative()]),
+    /** The crossing's time as the router gave it; null when it gave none. */
+    minutes: z.number().int().min(0).max(FERRY_LEG_MAX_MINUTES).nullable(),
+    /** The walk to the boat and on from it along this leg, by the router. */
+    walk_minutes: z.number().int().min(0).max(FERRY_LEG_MAX_MINUTES),
   }),
 ]);
 export type TourFixedLeg = z.infer<typeof tourFixedLegSchema>;
@@ -589,6 +605,13 @@ export const tourCreateRequestSchema = z
             message: `Waypoint ${index}'s fixed leg must run from it to the next waypoint`,
           });
         }
+        if (leg.kind === 'ferry' && !(leg.crossing[0] < leg.crossing[1] && leg.crossing[1] < leg.geometry.length)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['waypoints', index, 'fixed_leg', 'crossing'],
+            message: 'a crossing runs between two points of its leg, the first before the second',
+          });
+        }
       }
       const expectedRole: TourWaypointRole =
         index === 0 ? 'start' : index === value.waypoints.length - 1 ? 'end' : 'via';
@@ -731,6 +754,9 @@ function tourTypeIssues(value: {
       kind === 'ferrata'
     )
       issues.push({ path: ['waypoints', index, 'fixed_leg'], message: `${named} has no via ferrata` });
+    // CW-12: a crossing by boat is taken on a city walk only, where the way on foot has none.
+    if (type !== 'walk' && kind === 'ferry')
+      issues.push({ path: ['waypoints', index, 'fixed_leg'], message: 'a ferry leg belongs to a city walk' });
     if (type !== 'horse' && kind === 'horse_route')
       issues.push({
         path: ['waypoints', index, 'fixed_leg'],

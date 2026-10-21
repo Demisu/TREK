@@ -16,7 +16,7 @@ const ANY_DAY = 0;
  * they set one). The proposal of a new walk, its creation and a prepared
  * change to a saved walk all ask here, so their distances and times come from
  * one source. Where the router gives no way, the answer says why instead of
- * guessing one.
+ * guessing one; a way that crosses by boat is none on foot (CW-12).
  */
 @Injectable()
 export class CityWalkFootWayService {
@@ -27,7 +27,7 @@ export class CityWalkFootWayService {
     if (points.length < 2) return { kind: 'unrouted', why: 'nothing_to_route', position: null };
     const asked = points.map(({ lat, lng }) => ({ lat, lng }));
     try {
-      return footWayOf(await this.router.route(userId, tripId, ANY_DAY, asked, 'walking', []));
+      return footWayOf(await this.router.route(userId, tripId, ANY_DAY, asked, 'walking', [], { footOnly: true }));
     } catch (err: unknown) {
       logWarn(`[CityWalk] no way on foot for trip ${tripId}: ${err instanceof Error ? err.message : String(err)}`);
       return { kind: 'unrouted', why: 'router_unavailable', position: null };

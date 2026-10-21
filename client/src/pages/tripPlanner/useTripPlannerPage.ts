@@ -3,6 +3,7 @@ import { usePoiExplore, type Bbox } from '../../components/Map/usePoiExplore'
 import { placeActions } from '../../components/Planner/usePlaceActions'
 import { tourRouteStyle } from '../../components/Tours/planner/tourRouteStyle'
 import { usePaddlePaint } from '../../components/Tours/paddle/paddlePaint'
+import { useWalkRoutePaint } from '../../components/Tours/walk/walkRoutePaint'
 import { useTrackPortageParts } from '../../components/Tours/paddle/useTrackPortageParts'
 import { usePaddleObstacleSync } from '../../components/Tours/paddle/usePaddleObstacleSync'
 import { tourPlannedTimes as projectTourPlannedTimes } from '../../components/Tours/tourPresentation'
@@ -68,12 +69,16 @@ export function useTripPlannerPage() {
     tourConversion.line, trackParts,
   ])
   const editingRoute = tourPlanner.mode.type === 'new-draft' || tourPlanner.mode.type === 'edit-saved'
-  // What no router planned is dotted; a paddle tour's portages brown, whitewater amber, gaps red.
+  // What no router planned is dotted; a paddle tour's portages brown, whitewater amber, gaps red, a walk's ferry blue.
   const paddlePaint = usePaddlePaint()
+  const walkPaint = useWalkRoutePaint()
+  // A route kept from before a plan that failed no longer stands for the points: greyed, not hidden.
+  const staleRoute = editingRoute && !tourPlanner.routeCurrent && tourPlanner.status === 'routing-failed'
   const partStyle = tourRouteStyle(
     !wandererBrowser.open && editingRoute ? tourPlanner.routeParts : !tourConversion.line ? trackParts : null,
     tourPlanner.isPaddle || !!trackParts,
-    { portage: paddlePaint.portage, rapids: paddlePaint.rapids, gap: paddlePaint.gap, casing: paddlePaint.disc },
+    { portage: paddlePaint.portage, rapids: paddlePaint.rapids, gap: paddlePaint.gap, casing: paddlePaint.disc, ...walkPaint },
+    staleRoute,
   )
   const routeWalking = partStyle.walking ?? (route && route.length === 2 && tourConversion.line ? [true, false] : null)
   // BIK-01 to BIK-05 and MAP-03: the stretches a tour's card points at, over the tour's own line,

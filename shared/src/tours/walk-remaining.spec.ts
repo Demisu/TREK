@@ -157,4 +157,16 @@ describe('walkRemainderOf (CW-13)', () => {
     expect(noTime.open_stations[0]?.walk_minutes_from_reference).toBeNull();
     expect(noTime.stays.remaining_known_minutes).toBe(20);
   });
+
+  it('shares no walking time out along a crossing by boat (CW-12)', () => {
+    // The stretch from the Cathedral to the Market is crossed by boat: the walk is the other three stretches.
+    const stations = walk(['visited', 'planned', 'planned', 'planned', 'planned']);
+    const crossings = [[line[1], line[2]] as Array<[number, number]>];
+    const result = walkRemainderSchema.parse(walkRemainderOf({ stations, line, walkingMinutes: 60, crossings }));
+    expect(result.open_stations.map((station) => station.walk_minutes_from_reference)).toEqual([20, 20, 40, 60]);
+    // Without the crossing every stretch counts alike.
+    expect(remainder(stations, 60).open_stations.map((station) => station.walk_minutes_from_reference)).toEqual([
+      15, 30, 45, 60,
+    ]);
+  });
 });

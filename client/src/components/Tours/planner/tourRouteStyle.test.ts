@@ -1,4 +1,4 @@
-// FE-TOUR-ROUTE-STYLE-001 to FE-TOUR-ROUTE-STYLE-004: how the planner map draws the parts of a tour (PAD-03, PAD-11, SKI-02).
+// FE-TOUR-ROUTE-STYLE-001 to FE-TOUR-ROUTE-STYLE-006: how the planner map draws the parts of a tour (PAD-03, PAD-11, SKI-02, CW-12).
 import { describe, expect, it } from 'vitest';
 import { tourRouteStyle } from './tourRouteStyle';
 import type { TourRoutePart } from './tourRouting';
@@ -59,5 +59,31 @@ describe('tourRouteStyle', () => {
     expect(style.walking).toEqual([false, true, false, true]);
     expect(style.colors?.map((color) => color?.line)).toEqual(['#d51e1e', '#6b7280', '#1f2937', undefined]);
     expect(style.colors?.[0]?.casing).toBe('white');
+  });
+
+  it('FE-TOUR-ROUTE-STYLE-005: a city walk dots its crossing by boat in the water blue, and only that stretch', () => {
+    const style = tourRouteStyle([part(), part({ mark: 'ferry' }), part()], false, {
+      ...PAINT,
+      ferry: 'blue',
+      stale: 'grey',
+    });
+    expect(style.walking).toEqual([false, true, false]);
+    expect(style.colors).toEqual([undefined, { line: 'blue', casing: 'white' }, undefined]);
+  });
+
+  it('FE-TOUR-ROUTE-STYLE-006: a route kept from before a failed plan is greyed whole, its dots kept', () => {
+    const style = tourRouteStyle(
+      [part(), part({ mark: 'ferry' })],
+      false,
+      { ...PAINT, ferry: 'blue', stale: 'grey' },
+      true
+    );
+    expect(style.walking).toEqual([false, true]);
+    expect(style.colors).toEqual([
+      { line: 'grey', casing: 'white' },
+      { line: 'grey', casing: 'white' },
+    ]);
+    // Without the grey resolved the route keeps its own colours rather than losing them.
+    expect(tourRouteStyle([part()], false, PAINT, true).colors).toBeNull();
   });
 });

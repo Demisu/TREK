@@ -769,6 +769,28 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Calcolato',
   'tours.walk.stations': 'Tappe del percorso',
   'tours.walk.stationNumbered': 'Tappa {number}',
+  'tours.walk.ferry.gap': 'Nessun percorso unisce {from} e {to}, né a piedi né in traghetto.',
+  'tours.walk.ferry.gapHint':
+    'Il percorso pianificato prima resta sulla mappa, in grigio, finché non si trova una via. Sposta una delle due tappe.',
+  'tours.walk.ferry.pending':
+    "Non c'è un percorso a piedi tra {from} e {to}: qui il calcolatore attraversa l'acqua in traghetto.",
+  'tours.walk.ferry.pendingHint':
+    'La traversata non conta come tempo a piedi. Per salvare, accetta il traghetto o sposta una tappa così che un percorso a piedi le unisca.',
+  'tours.walk.ferry.accepted':
+    'Traghetto da {from} a {to}, accettato di proposito. Il suo tempo resta separato dal tempo a piedi.',
+  'tours.walk.ferry.accept': 'Accetta traghetto',
+  'tours.walk.ferry.show': 'Mostra traversata',
+  'tours.walk.ferry.selectStop': 'Scegli la tappa {number}',
+  'tours.walk.ferry.time': '{time} in barca',
+  'tours.walk.ferry.timeUnknown': 'Tempo in barca sconosciuto',
+  'tours.walk.ferry.timeHint': 'Come lo indica il calcolatore per la traversata. Non fa parte del tempo a piedi.',
+  'tours.walk.ferry.field': 'Traghetto',
+  'tours.walk.ferry.fieldInfoLabel': 'Sul tempo in traghetto',
+  'tours.walk.ferry.fieldInfo':
+    'Il tempo delle traversate in barca, come lo indica il calcolatore. Resta separato dal tempo a piedi e non è nel totale pianificato.',
+  'tours.walk.ferry.leg': 'Traversata in traghetto',
+  'tours.walk.ferry.legInfo': 'Attraversato in barca, non a piedi. Il suo tempo non è nel tempo a piedi.',
+  'tours.walk.ferry.release': 'Ripianifica a piedi',
   'tours.walk.stationsUnread':
     'Non è stato possibile caricare le tappe di questo percorso. Riaprilo con una connessione per vederle e spuntarle.',
   'tours.walk.progress': '{visited} su {total} visitate',

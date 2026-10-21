@@ -12,9 +12,19 @@ export interface TourRouteUnreachable {
   snappedMeters: number;
 }
 
-/** Whether the router's answer is a route, rather than nothing or a point it could not reach. */
-export function isTourRoute(value: TourRouteResult | TourRouteUnreachable | null): value is TourRouteResult {
-  return !!value && !('unreachable' in value);
+/**
+ * CW-12: two points of a city walk no way joins, on foot or by boat. `gap` is
+ * the leg between them, by the place along the tour of the point it starts at.
+ */
+export interface TourRouteGap {
+  gap: number;
+}
+
+/** Whether the router's answer is a route, rather than nothing, a point it could not reach or a leg it found no way for. */
+export function isTourRoute(
+  value: TourRouteResult | TourRouteUnreachable | TourRouteGap | null
+): value is TourRouteResult {
+  return !!value && !('unreachable' in value) && !('gap' in value);
 }
 
 /** How far the router may move a point onto its way before the point counts as unreachable for the tour's type. */

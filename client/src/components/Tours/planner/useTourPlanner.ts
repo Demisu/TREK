@@ -29,6 +29,7 @@ import { savedSkiSeed } from '../ski/savedSkiRoute'
 import { useSkiFields } from '../ski/useSkiFields'
 import { lostStageEnds } from '../stages/tourStages'
 import { useTourStages } from '../stages/useTourStages'
+import { useWalkFerries } from '../walk/useWalkFerries'
 
 /** What a tour planned from an import starts with. */
 export interface DerivedTourDraft {
@@ -225,7 +226,6 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   useEffect(() => {
     invalidateDetailRequest()
   }, [tripId, invalidateDetailRequest])
-
 
   /** A field other than the route changed: the draft is unsaved again, and a finished save is no longer current. */
   const markEdited = useCallback(() => {
@@ -467,7 +467,6 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     if (next) restoreStep(next)
   }, [redoStep, restoreStep, snapshot])
 
-
   const setName = useCallback((value: string) => {
     if (value !== name && markEdited()) setNameState(value)
   }, [markEdited, name])
@@ -487,7 +486,6 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const setBreakAdditionalMinutes = useCallback((value: number | null) => {
     if (value !== breakAdditionalMinutes && markEdited()) setBreakAdditionalMinutesState(value)
   }, [breakAdditionalMinutes, markEdited])
-
 
   /**
    * PAD-01, BIK-01, RUN-01, HOR-01, SKI-02: the type, as one step of the history
@@ -809,7 +807,6 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const focusOwner = mode.type === 'view-gpx' || mode.type === 'edit-saved' ? `${mode.type}:${mode.placeId}` : mode.type
   useEffect(() => { setRouteProfileFocus(null) }, [focusOwner, routeAnalysis, readOnlyGpxAnalysis, readOnlyGpxTour])
 
-
   useEffect(() => {
     if (!hasUnsavedChanges) return
     const draft: DraftPayload = { version: 11, name, description, website, plannedDurationMinutes, breakAdditionalMinutes, waypoints, maxHikingDifficulty, editingPlaceId,
@@ -830,8 +827,10 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     return () => window.removeEventListener('beforeunload', warn)
   }, [hasUnsavedChanges])
 
+  // CW-12: a city walk's crossings by boat; one the travellers have not taken on purpose holds the save.
+  const walkFerries = useWalkFerries({ tourType, ferries: routing.ferries, routeCurrent, walkGap: routing.walkGap, waypoints, editWaypoints: commitWaypoints })
   const canSave = canEdit && !isSaving && hasUnsavedChanges && name.trim().length > 0 && status === 'ready'
-    && routeCurrent && hasCompleteElevation(enrichedGeometry)
+    && routeCurrent && hasCompleteElevation(enrichedGeometry) && !walkFerries.blocksSave
     && description.length <= 2000 && !websiteInvalid && !plannedDurationInvalid && !breakAdditionalInvalid && !plannedTotalInvalid
     && !paddleIncomplete && !(isPaddle && paddleSpeedInvalid) && !runPaceMissing && !runPaceInvalid && !skiMissing
 
@@ -932,7 +931,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     waypoints, selectedWaypointId, setSelectedWaypointId,
     addWaypoint, appendFixedLeg, setWaypointPosition, removeWaypoint, moveWaypoint, reorderWaypoint, editWaypoints: commitWaypoints,
     reverse, returnToStart, isLoop: isClosedLoop(waypoints), toggleWaypointFreeLeg, editPaddlePoints, amendWaypoints, paddleEstimate,
-    ...shaping, legVariants, roundHikes, paddleRoute, skiRoute, routeCurrent, stages,
+    ...shaping, legVariants, roundHikes, paddleRoute, skiRoute, routeCurrent, stages, walkFerries,
     undo, redo, canUndo: history.canUndo, canRedo: history.canRedo, historyMark: history.mark,
     status, error, retry, isSaving,
     route, routeParts, enrichedGeometry, routeAnalysis, distanceMeters, durationSeconds, unreachable,

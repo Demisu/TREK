@@ -100,6 +100,27 @@ const CHUNK_PAUSE_MS = 1100
  */
 const CHUNK_RETRIES = 1
 
+/**
+ * A stretch of a leg the router takes by boat, by the indices of the leg's
+ * line where the boat leaves and lands, with the crossing's own length in
+ * metres and its time in seconds (null where the router gave none).
+ */
+export interface FerrySpan {
+  from: number
+  to: number
+  metres: number
+  seconds: number | null
+}
+
+/**
+ * What the router may bind a point to. `exclude_ferry` keeps a point off a
+ * ferry's edge: a stop beside a pier, bound onto the boat line, would make the
+ * route ride the boat to its next landing however the costing weighs ferries.
+ */
+export interface SearchFilter {
+  exclude_ferry?: boolean
+}
+
 /** One way of driving a leg, in the units OSRM answers in so callers need no branch. */
 export interface ValhallaLeg {
   coordinates: [number, number][]
@@ -111,6 +132,8 @@ export interface ValhallaLeg {
   hasToll: boolean
   hasHighway: boolean
   hasFerry: boolean
+  /** CW-12: where the leg goes by boat, read off its maneuvers; absent where it does not. */
+  ferrySpans?: FerrySpan[]
 }
 
 /** A routed chain: one leg per pair of consecutive waypoints, plus the whole of it. */
@@ -196,6 +219,37 @@ export async function valhallaRun(
   signal?: AbortSignal,
   costingOptions: Readonly<CostingOptions> = {},
 ): Promise<ValhallaRun | null> {
+  return chainRun(waypoints, profile, avoid, signal, { costingOptions, searchFilter: null })
+}
+
+/**
+ * CW-12: a chain walked on foot, every point bound off the boat lines. Measured
+ * on Venice: a stop by a vaporetto pier bound onto the boat line ended the
+ * route on the ferry to its next landing, which `use_ferry` cannot weigh away
+ * because the edge is where the route starts, not a choice along it.
+ */
+export function valhallaRunOnFoot(
+  waypoints: Waypoint[],
+  signal: AbortSignal | undefined,
+  costingOptions: Readonly<CostingOptions>,
+  searchFilter: Readonly<SearchFilter>,
+): Promise<ValhallaRun | null> {
+  return chainRun(waypoints, 'walking', [], signal, { costingOptions, searchFilter })
+}
+
+/** How a chain is asked for besides its profile and avoidance. */
+interface RunAsk {
+  costingOptions: Readonly<CostingOptions>
+  searchFilter: Readonly<SearchFilter> | null
+}
+
+async function chainRun(
+  waypoints: Waypoint[],
+  profile: 'driving' | 'walking' | 'cycling',
+  avoid: readonly AvoidClass[],
+  signal: AbortSignal | undefined,
+  ask: RunAsk,
+): Promise<ValhallaRun | null> {
   const base = valhallaBase()
   if (!base || notValhalla.has(base) || waypoints.length < 2) return null
 
@@ -208,7 +262,7 @@ export async function valhallaRun(
     // rate limit on the last piece of a split day would otherwise throw away the pieces
     // that already answered and ask for all of them again — three times over, against a
     // host that allows one request a second.
-    const run = await askWithRetry(base, () => requestRun(base, chunk, profile, avoid, signal, costingOptions), signal)
+    const run = await askWithRetry(base, () => requestRun(base, chunk, profile, avoid, signal, ask), signal)
     // A day is one answer or none. Half a day of legs would be worse than no answer:
     // the schedule chains leg times blindly and cannot tell that it is missing some, so
     // it would print a complete, plausible, wrong timetable rather than a gap.
@@ -319,6 +373,7 @@ function routeBody(
   profile: 'driving' | 'walking' | 'cycling',
   avoid: readonly AvoidClass[],
   costingOptions: Readonly<CostingOptions> = {},
+  searchFilter: Readonly<SearchFilter> | null = null,
 ): Record<string, unknown> {
   const costing = COSTING[profile]
   // All of them in one request: the options are independent weightings, so asking to
@@ -328,7 +383,12 @@ function routeBody(
   const options: CostingOptions = { ...costingOptions }
   for (const cls of avoid) options[AVOID_OPTION[cls]] = 0
   return {
-    locations: waypoints.map(w => ({ lat: w.lat, lon: w.lng, radius: SNAP_RADIUS_M })),
+    locations: waypoints.map(w => ({
+      lat: w.lat,
+      lon: w.lng,
+      radius: SNAP_RADIUS_M,
+      ...(searchFilter ? { search_filter: searchFilter } : {}),
+    })),
     costing,
     costing_options: { [costing]: options },
     directions_options: { units: 'kilometers' },
@@ -445,10 +505,10 @@ async function requestRun(
   waypoints: Waypoint[],
   profile: 'driving' | 'walking' | 'cycling',
   avoid: readonly AvoidClass[],
-  signal?: AbortSignal,
-  costingOptions: Readonly<CostingOptions> = {},
+  signal: AbortSignal | undefined,
+  { costingOptions, searchFilter }: RunAsk,
 ): Promise<Omit<ValhallaRun, 'snapped'> | null> {
-  const data = await postRoute(base, routeBody(waypoints, profile, avoid, costingOptions), signal)
+  const data = await postRoute(base, routeBody(waypoints, profile, avoid, costingOptions, searchFilter), signal)
   return data === null ? null : runFrom(data)
 }
 
@@ -508,10 +568,14 @@ export function alternatesFrom(data: unknown): ValhallaLeg[] | null {
  */
 function joinLegs(legs: ValhallaLeg[]): ValhallaLeg {
   const coordinates: [number, number][] = []
+  const ferrySpans: FerrySpan[] = []
   for (const leg of legs) {
     const last = coordinates[coordinates.length - 1]
     const first = leg.coordinates[0]
     const continues = last && first && last[0] === first[0] && last[1] === first[1]
+    // Where the leg's first point lands on the joined line, so its boat stretches keep pointing at their own points.
+    const offset = continues ? coordinates.length - 1 : coordinates.length
+    for (const span of leg.ferrySpans ?? []) ferrySpans.push({ ...span, from: span.from + offset, to: span.to + offset })
     coordinates.push(...(continues ? leg.coordinates.slice(1) : leg.coordinates))
   }
   return {
@@ -523,6 +587,7 @@ function joinLegs(legs: ValhallaLeg[]): ValhallaLeg {
     hasToll: legs.some(l => l.hasToll),
     hasHighway: legs.some(l => l.hasHighway),
     hasFerry: legs.some(l => l.hasFerry),
+    ...(ferrySpans.length ? { ferrySpans } : {}),
   }
 }
 
@@ -560,17 +625,64 @@ export function runFrom(data: unknown): Omit<ValhallaRun, 'snapped'> | null {
     // Paris route reads 488.56, which is not a latitude; as 6 it reads 48.856193.
     const measure = measured(summary, decodePolyline(leg.shape, 6))
     if (!measure) return null
-    legs.push(measure)
+    const ferrySpans = measure.hasFerry ? ferrySpansOf(leg.maneuvers, measure.coordinates.length) : []
+    legs.push(ferrySpans.length ? { ...measure, ferrySpans } : measure)
   }
   return { legs, total: joinLegs(legs) }
 }
 
 interface ValhallaSummary { [key: string]: number | boolean | undefined }
 
+interface ValhallaManeuver {
+  type?: number
+  ferry?: boolean
+  begin_shape_index?: number
+  end_shape_index?: number
+  time?: number
+  length?: number
+}
+
 function tripOf(data: unknown) {
   return (data as {
-    trip?: { legs?: { shape?: string; summary?: ValhallaSummary }[]; summary?: ValhallaSummary }
+    trip?: {
+      legs?: { shape?: string; summary?: ValhallaSummary; maneuvers?: ValhallaManeuver[] }[]
+      summary?: ValhallaSummary
+    }
   })?.trip
+}
+
+/** Valhalla's maneuver type for boarding a ferry; the maneuver also carries `ferry: true` for its crossing. */
+const FERRY_ENTER = 28
+
+/**
+ * CW-12: the stretches of a leg the router takes by boat, read off its
+ * maneuvers: a crossing is the maneuver that boards the ferry, from the point
+ * it starts at to the one it ends at, with its own length and time. Measured
+ * on Venice, the San Tomà to Ca' Rezzonico line came back as one maneuver of
+ * type 28, ferry true, 1.236 km and 745 s over shape points 24 to 46, then the
+ * walk off it. Crossings that touch are one. A leg the summary says has a
+ * ferry but whose maneuvers do not say where is taken whole, without a time:
+ * the crossing is somewhere on it, and none of it is counted as walked.
+ */
+function ferrySpansOf(maneuvers: ValhallaManeuver[] | undefined, points: number): FerrySpan[] {
+  const spans: FerrySpan[] = []
+  for (const maneuver of maneuvers ?? []) {
+    if (maneuver.ferry !== true && maneuver.type !== FERRY_ENTER) continue
+    const from = Number(maneuver.begin_shape_index)
+    const to = Number(maneuver.end_shape_index)
+    if (!Number.isInteger(from) || !Number.isInteger(to) || from < 0 || to <= from || to >= points) continue
+    const metres = Number.isFinite(maneuver.length) ? Number(maneuver.length) * 1000 : 0
+    const seconds = Number.isFinite(maneuver.time) ? Number(maneuver.time) : null
+    const previous = spans[spans.length - 1]
+    if (previous && previous.to === from) {
+      previous.to = to
+      previous.metres += metres
+      previous.seconds = previous.seconds === null || seconds === null ? null : previous.seconds + seconds
+    } else {
+      spans.push({ from, to, metres, seconds })
+    }
+  }
+  return spans.length || points < 2 ? spans : [{ from: 0, to: points - 1, metres: 0, seconds: null }]
 }
 
 /** A summary and a shape as a leg, or null when the summary carries no numbers. */

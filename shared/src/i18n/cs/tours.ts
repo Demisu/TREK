@@ -751,6 +751,26 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Vypočteno',
   'tours.walk.stations': 'Zastávky procházky',
   'tours.walk.stationNumbered': 'Zastávka {number}',
+  'tours.walk.ferry.gap': 'Mezi {from} a {to} nevede žádná cesta, pěšky ani trajektem.',
+  'tours.walk.ferry.gapHint':
+    'Dříve naplánovaná trasa zůstane na mapě zašedlá, dokud se cesta nenajde. Přesuň jednu z obou zastávek.',
+  'tours.walk.ferry.pending': 'Mezi {from} a {to} nevede žádná pěší cesta: plánovač zde přejíždí vodu trajektem.',
+  'tours.walk.ferry.pendingHint':
+    'Přeprava se nepočítá do doby chůze. Pro uložení převezmi trajekt nebo přesuň zastávku, aby je spojila pěší cesta.',
+  'tours.walk.ferry.accepted': 'Trajekt z {from} do {to}, převzatý záměrně. Jeho čas je oddělen od doby chůze.',
+  'tours.walk.ferry.accept': 'Převzít trajekt',
+  'tours.walk.ferry.show': 'Ukázat přepravu',
+  'tours.walk.ferry.selectStop': 'Vybrat zastávku {number}',
+  'tours.walk.ferry.time': '{time} lodí',
+  'tours.walk.ferry.timeUnknown': 'Čas lodí neznámý',
+  'tours.walk.ferry.timeHint': 'Jak ho plánovač udává pro přepravu. Není součástí doby chůze.',
+  'tours.walk.ferry.field': 'Trajekt',
+  'tours.walk.ferry.fieldInfoLabel': 'O čase trajektu',
+  'tours.walk.ferry.fieldInfo':
+    'Čas přeprav lodí, jak ho udává plánovač. Je oddělen od doby chůze a není v plánovaném celku.',
+  'tours.walk.ferry.leg': 'Přeprava trajektem',
+  'tours.walk.ferry.legInfo': 'Přepluto lodí, ne prošlo. Jeho čas není v době chůze.',
+  'tours.walk.ferry.release': 'Znovu naplánovat pěšky',
   'tours.walk.stationsUnread':
     'Zastávky této procházky se nepodařilo načíst. Otevři ji znovu s připojením, pak je uvidíš a půjde je odškrtat.',
   'tours.walk.progress': 'Navštíveno {visited} z {total}',

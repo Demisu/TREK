@@ -370,6 +370,55 @@ describe('City walks e2e (real guards + temp SQLite)', () => {
     });
   });
 
+  describe('a crossing by boat taken as a ferry leg (CW-12)', () => {
+    const FERRY = {
+      kind: 'ferry',
+      geometry: [
+        [48.11, 11.51],
+        [48.12, 11.52],
+        [48.13, 11.53],
+      ],
+      crossing: [0, 1],
+      minutes: 7,
+      walk_minutes: 3,
+    };
+    const across = (leg: Point, type = 'walk') =>
+      walkBody({
+        tour_type: type,
+        waypoints: inOrder([
+          { lat: 48.1, lng: 11.5 },
+          { lat: 48.11, lng: 11.51, fixed_leg: leg },
+          { lat: 48.13, lng: 11.53 },
+        ]),
+      });
+
+    it('keeps the leg as it was taken, the boat apart from the walk, through a save and a read', async () => {
+      const { placeId, waypoints } = await saveWalk(5, across(FERRY));
+      expect(waypoints[1]?.fixed_leg).toEqual(FERRY);
+      const detail = await request(server).get(`/api/trips/5/tours/${placeId}`).set('Cookie', cookie(VIEWER));
+      expect(detail.body.waypoints[1].fixed_leg).toEqual(FERRY);
+      expect(detail.body.tour.duration).toBe(60);
+    });
+
+    it('refuses it on any other type, and a crossing that does not run forwards within its leg', async () => {
+      const bodies = [
+        across(FERRY, 'hike'),
+        across({ ...FERRY, crossing: [1, 0] }),
+        across({ ...FERRY, crossing: [1, 3] }),
+        across({ ...FERRY, minutes: -1 }),
+      ];
+      const statuses = await bodies.reduce<Promise<number[]>>(
+        async (done, body) => [
+          ...(await done),
+          (await request(server).post('/api/trips/5/tours').set('Cookie', cookie()).send(body)).status,
+        ],
+        Promise.resolve([]),
+      );
+      expect(statuses).toEqual([400, 400, 400, 400]);
+      expect(await countRows(orm, Tours)).toBe(0);
+    });
+  });
+
   describe('stations checked off on a day (CW-03)', () => {
     it('marks a station visited, then skipped, then takes it back, telling the trip each time', async () => {
       const { assignmentId, cathedral } = await walkOnDay3();

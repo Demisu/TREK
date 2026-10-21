@@ -768,6 +768,27 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Розрахунок',
   'tours.walk.stations': 'Зупинки прогулянки',
   'tours.walk.stationNumbered': 'Зупинка {number}',
+  'tours.walk.ferry.gap': 'Ні пішки, ні поромом немає шляху між {from} і {to}.',
+  'tours.walk.ferry.gapHint':
+    'Раніше побудований маршрут лишається на мапі сірим, доки шлях не знайдеться. Пересуньте одну з двох зупинок.',
+  'tours.walk.ferry.pending': 'Між {from} і {to} немає пішого шляху: тут маршрутизатор перетинає воду поромом.',
+  'tours.walk.ferry.pendingHint':
+    'Переправа не рахується як час ходьби. Щоб зберегти, прийміть пором або пересуньте зупинку, щоб їх з’єднував піший шлях.',
+  'tours.walk.ferry.accepted':
+    'Пором від {from} до {to}, прийнятий навмисно. Його час рахується окремо від часу ходьби.',
+  'tours.walk.ferry.accept': 'Прийняти пором',
+  'tours.walk.ferry.show': 'Показати переправу',
+  'tours.walk.ferry.selectStop': 'Вибрати зупинку {number}',
+  'tours.walk.ferry.time': '{time} човном',
+  'tours.walk.ferry.timeUnknown': 'Час човном невідомий',
+  'tours.walk.ferry.timeHint': 'Як його дає маршрутизатор для переправи. Не входить у час ходьби.',
+  'tours.walk.ferry.field': 'Пором',
+  'tours.walk.ferry.fieldInfoLabel': 'Про час на поромі',
+  'tours.walk.ferry.fieldInfo':
+    'Час переправ човном, як його дає маршрутизатор. Рахується окремо від часу ходьби і не входить до планового підсумку.',
+  'tours.walk.ferry.leg': 'Переправа поромом',
+  'tours.walk.ferry.legInfo': 'Перетнуто човном, не пішки. Його час не входить у час ходьби.',
+  'tours.walk.ferry.release': 'Знову спланувати пішки',
   'tours.walk.stationsUnread':
     'Не вдалося завантажити зупинки цієї прогулянки. Відкрий її знову з мережею, щоб побачити й відмітити їх.',
   'tours.walk.progress': 'Відвідано {visited} з {total}',

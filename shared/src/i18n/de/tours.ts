@@ -771,6 +771,28 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Berechnet',
   'tours.walk.stations': 'Stationen',
   'tours.walk.stationNumbered': 'Station {number}',
+  'tours.walk.ferry.gap': 'Kein Weg verbindet {from} und {to}, weder zu Fuß noch mit einer Fähre.',
+  'tours.walk.ferry.gapHint':
+    'Die zuvor geplante Route bleibt ausgegraut auf der Karte, bis ein Weg gefunden ist. Verschiebe eine der beiden Stationen.',
+  'tours.walk.ferry.pending':
+    'Zwischen {from} und {to} gibt es keinen Fußweg: Der Router setzt hier mit einer Fähre über.',
+  'tours.walk.ferry.pendingHint':
+    'Die Überfahrt zählt nicht als Gehzeit. Zum Speichern übernimm die Fähre oder verschiebe eine Station, damit ein Fußweg sie verbindet.',
+  'tours.walk.ferry.accepted':
+    'Fähre von {from} nach {to}, bewusst übernommen. Ihre Zeit steht getrennt von der Gehzeit.',
+  'tours.walk.ferry.accept': 'Fähre übernehmen',
+  'tours.walk.ferry.show': 'Überfahrt zeigen',
+  'tours.walk.ferry.selectStop': 'Station {number} wählen',
+  'tours.walk.ferry.time': '{time} mit dem Boot',
+  'tours.walk.ferry.timeUnknown': 'Bootszeit unbekannt',
+  'tours.walk.ferry.timeHint': 'So wie der Router sie für die Überfahrt angibt. Sie gehört nicht zur Gehzeit.',
+  'tours.walk.ferry.field': 'Fähre',
+  'tours.walk.ferry.fieldInfoLabel': 'Zur Fährzeit',
+  'tours.walk.ferry.fieldInfo':
+    'Die Zeit der Überfahrten mit dem Boot, so wie der Router sie angibt. Sie steht getrennt von der Gehzeit und ist nicht in der geplanten Gesamtzeit.',
+  'tours.walk.ferry.leg': 'Überfahrt mit der Fähre',
+  'tours.walk.ferry.legInfo': 'Mit dem Boot übergesetzt, nicht gegangen. Ihre Zeit ist nicht in der Gehzeit.',
+  'tours.walk.ferry.release': 'Wieder zu Fuß planen',
   'tours.walk.stationsUnread':
     'Die Stationen dieses Walks ließen sich nicht laden. Öffne ihn erneut mit Verbindung, um sie zu sehen und abzuhaken.',
   'tours.walk.progress': '{visited} von {total} besucht',

@@ -434,4 +434,31 @@ describe('city walk briefing helpers (CW-11)', () => {
       position: 2,
     });
   });
+
+  it('CWALK-HELP-015: a way that crosses by boat is none on foot; the estimates stand in and say where the boat starts (CW-12)', () => {
+    const line: Array<[number, number]> = [
+      [45.434, 12.338],
+      [45.4296, 12.3264],
+      [45.4268, 12.33],
+    ];
+    const parts = [
+      { distance: 1400, duration: 1000 },
+      { distance: 500, duration: 520 },
+    ];
+    const way = footWayOf({
+      leg: { line },
+      parts,
+      snapped: [{ meters: 3 }, { meters: 4 }, { meters: 5 }],
+      ferryLegs: [1],
+    });
+    expect(way).toEqual({ kind: 'unrouted', why: 'ferry_only', position: 2 });
+    const { route } = planWalk(plan({ end: null }));
+    expect(describeWalk(route, FRAME, way).estimate).toMatchObject({
+      kind: 'straight_line',
+      why: 'ferry_only',
+      position: 2,
+    });
+    // No crossing named, the way stands.
+    expect(footWayOf({ leg: { line }, parts, ferryLegs: [] })).toMatchObject({ kind: 'routed' });
+  });
 });

@@ -211,3 +211,94 @@ describe('server Roadtrip router', () => {
     expect(await router.profiles()).toContain('plugin:scenic/car');
   });
 });
+
+describe('server Roadtrip router, a walk on foot only (CW-12)', () => {
+  const encode = (value: number) => {
+    let remaining = value < 0 ? ~(value << 1) : value << 1;
+    let encoded = '';
+    while (remaining >= 32) {
+      encoded += String.fromCharCode((32 | (remaining & 31)) + 63);
+      remaining >>>= 5;
+    }
+    return encoded + String.fromCharCode(remaining + 63);
+  };
+  const shape = encode(48000000) + encode(10000000) + encode(1000000) + encode(1000000);
+  const valhallaLegs = (legs: unknown[]) => new Response(JSON.stringify({ trip: { legs } }));
+  const walked = { shape, summary: { length: 1.4, time: 1000, has_ferry: false } };
+  // Measured on Venice: the boat leg as FOSSGIS answers it, boarding at type 28 with ferry true.
+  const byBoat = {
+    shape,
+    summary: { length: 1.9, time: 1250, has_ferry: true },
+    maneuvers: [{ type: 1 }, { type: 28, ferry: true }, { type: 29 }],
+  };
+
+  it('asks Valhalla on foot with no point bound to a boat line, and names the legs that still cross by boat', async () => {
+    vi.mocked(safeFetchAdminConfigured).mockResolvedValueOnce(valhallaLegs([walked, byBoat]));
+    const route = await setup().router.route(1, 1, 0, points, 'walking', [], { footOnly: true });
+    const [url, init] = vi.mocked(safeFetchAdminConfigured).mock.calls[0] as [string, { body: string }];
+    expect(url).toBe('https://valhalla1.openstreetmap.de/route');
+    const body = JSON.parse(init.body) as { locations: Array<Record<string, unknown>>; costing_options: unknown };
+    expect(
+      body.locations.every((location) => (location.search_filter as { exclude_ferry: boolean }).exclude_ferry),
+    ).toBe(true);
+    expect(body.costing_options).toEqual({ pedestrian: { use_ferry: 0 } });
+    expect(route.ferryLegs).toEqual([1]);
+    expect(route.parts).toEqual([
+      { distance: 1400, duration: 1000 },
+      { distance: 1900, duration: 1250 },
+    ]);
+    expect(route.snapped).toHaveLength(3);
+  });
+
+  it('reads a crossing off OSRM steps where no Valhalla is asked, and keeps the foot-only answer apart in the cache', async () => {
+    vi.mocked(safeFetchAdminConfigured).mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          code: 'Ok',
+          routes: [
+            {
+              distance: 3000,
+              duration: 300,
+              geometry: { coordinates: points.map((p) => [p.lng, p.lat]) },
+              legs: [
+                { distance: 1000, duration: 100, steps: [{ mode: 'walking' }] },
+                { distance: 2000, duration: 200, steps: [{ mode: 'walking' }, { mode: 'ferry' }] },
+              ],
+            },
+          ],
+        }),
+      ),
+    );
+    const { router } = setup({ routing_base_url: 'http://router.internal' });
+    const route = await router.route(1, 1, 0, points, 'walking', [], { footOnly: true });
+    expect(safeFetchAdminConfigured).toHaveBeenCalledWith(expect.stringContaining('steps=true'), expect.anything());
+    expect(route.ferryLegs).toEqual([1]);
+    expect(route.parts).toEqual([
+      { distance: 1000, duration: 100 },
+      { distance: 2000, duration: 200 },
+    ]);
+    // The same points asked without the option are another question, answered without ferries named.
+    const plain = router.route(1, 1, 0, points, 'walking', []);
+    await vi.runAllTimersAsync();
+    expect(await plain).not.toHaveProperty('ferryLegs');
+    expect(safeFetchAdminConfigured).toHaveBeenLastCalledWith(
+      expect.stringContaining('steps=false'),
+      expect.anything(),
+    );
+  });
+
+  it('falls back to OSRM on foot when Valhalla fails, and leaves a drive as it was', async () => {
+    vi.mocked(safeFetchAdminConfigured).mockResolvedValueOnce(new Response('', { status: 503 }));
+    const pending = setup().router.route(1, 1, 0, points, 'walking', [], { footOnly: true });
+    await vi.runAllTimersAsync();
+    expect((await pending).ferryLegs).toEqual([]);
+    expect(safeFetchAdminConfigured).toHaveBeenLastCalledWith(
+      expect.stringContaining('routed-foot'),
+      expect.anything(),
+    );
+
+    const drive = await setup().router.route(1, 1, 0, points, 'driving', [], { footOnly: true });
+    expect(drive).not.toHaveProperty('ferryLegs');
+    expect(safeFetchAdminConfigured).toHaveBeenLastCalledWith(expect.stringContaining('routed-car'), expect.anything());
+  });
+});

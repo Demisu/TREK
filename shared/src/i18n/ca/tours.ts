@@ -768,6 +768,27 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Calculat',
   'tours.walk.stations': 'Parades de la ruta',
   'tours.walk.stationNumbered': 'Parada {number}',
+  'tours.walk.ferry.gap': 'Cap camí uneix {from} i {to}, ni a peu ni amb ferri.',
+  'tours.walk.ferry.gapHint':
+    'La ruta planificada abans es queda al mapa, en gris, fins que es trobi un camí. Mou una de les dues parades.',
+  'tours.walk.ferry.pending': "No hi ha cap camí a peu entre {from} i {to}: aquí el router travessa l'aigua amb ferri.",
+  'tours.walk.ferry.pendingHint':
+    'La travessia no compta com a temps a peu. Per desar, accepta el ferri o mou una parada perquè un camí a peu les uneixi.',
+  'tours.walk.ferry.accepted':
+    'Ferri de {from} a {to}, acceptat expressament. El seu temps es manté a part del temps a peu.',
+  'tours.walk.ferry.accept': 'Acceptar el ferri',
+  'tours.walk.ferry.show': 'Mostrar la travessia',
+  'tours.walk.ferry.selectStop': 'Tria la parada {number}',
+  'tours.walk.ferry.time': '{time} en vaixell',
+  'tours.walk.ferry.timeUnknown': 'Temps en vaixell desconegut',
+  'tours.walk.ferry.timeHint': 'Tal com el dona el router per a la travessia. No forma part del temps a peu.',
+  'tours.walk.ferry.field': 'Ferri',
+  'tours.walk.ferry.fieldInfoLabel': 'Sobre el temps de ferri',
+  'tours.walk.ferry.fieldInfo':
+    'El temps de les travessies en vaixell, tal com el dona el router. Es manté a part del temps a peu i no és al total planificat.',
+  'tours.walk.ferry.leg': 'Travessia en ferri',
+  'tours.walk.ferry.legInfo': 'Travessat en vaixell, no a peu. El seu temps no és al temps a peu.',
+  'tours.walk.ferry.release': 'Tornar a planificar a peu',
   'tours.walk.stationsUnread':
     "No s'han pogut carregar les parades d'aquesta ruta. Torna a obrir-la amb connexió per veure-les i marcar-les.",
   'tours.walk.progress': '{visited} de {total} visitades',

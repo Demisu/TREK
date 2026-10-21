@@ -34,6 +34,8 @@ interface StationColumns {
   opening_hours?: string | null;
   /** 1 for a shaping point. */
   shaping?: number;
+  /** The leg to the next point as a fixed line, as JSON. */
+  fixed_leg?: string | null;
   /** MDT-01: 1 for a stop that ends a stage of a multi-day tour. */
   stage_end?: number;
   /** The id of the place of the trip the point stands for. */

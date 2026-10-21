@@ -325,14 +325,22 @@ function passedAt(stops: readonly WalkStop[], flat: ReadonlyArray<[number, numbe
 /**
  * How far along the route each stop is passed, from 0 at its start to 1 at its
  * end, by distance, the stops matched in their order as `passedAt` does. Null
- * for a route of fewer than two points.
+ * for a route of fewer than two points. The stretches of `boatSpans` (CW-12,
+ * from the index the boat leaves at to the one it lands at) are crossed by
+ * boat and add no walking distance.
  */
-export function stationShares(stops: readonly WalkStop[], route: readonly RoutePoint[]): number[] | null {
+export function stationShares(
+  stops: readonly WalkStop[],
+  route: readonly RoutePoint[],
+  boatSpans: ReadonlyArray<readonly [number, number]> = [],
+): number[] | null {
   if (route.length < 2) return null;
   const flat = flatRoute(route);
+  const byBoat = (i: number) => boatSpans.some(([from, to]) => i > from && i <= to);
   const along = [0];
   for (let i = 1; i < flat.length; i += 1) {
-    along.push((along[i - 1] ?? 0) + Math.sqrt(flatGap(flat[i] ?? [0, 0], flat[i - 1] ?? [0, 0])));
+    const step = byBoat(i) ? 0 : Math.sqrt(flatGap(flat[i] ?? [0, 0], flat[i - 1] ?? [0, 0]));
+    along.push((along[i - 1] ?? 0) + step);
   }
   const total = along[along.length - 1] || 1;
   const indices = passedAt(stops, flat, Math.cos((route[0]?.[0] ?? 0) * RAD));

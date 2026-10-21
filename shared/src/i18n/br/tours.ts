@@ -764,6 +764,27 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Calculado',
   'tours.walk.stations': 'Paradas do passeio',
   'tours.walk.stationNumbered': 'Parada {number}',
+  'tours.walk.ferry.gap': 'Nenhum caminho liga {from} e {to}, nem a pé nem de balsa.',
+  'tours.walk.ferry.gapHint':
+    'A rota planejada antes fica no mapa, esmaecida, até que um caminho seja encontrado. Mova uma das duas paradas.',
+  'tours.walk.ferry.pending': 'Não há caminho a pé entre {from} e {to}: aqui o roteador atravessa a água de balsa.',
+  'tours.walk.ferry.pendingHint':
+    'A travessia não conta como tempo de caminhada. Para salvar, aceite a balsa ou mova uma parada para que um caminho a pé as ligue.',
+  'tours.walk.ferry.accepted':
+    'Balsa de {from} a {to}, aceita de propósito. O tempo dela fica separado do tempo de caminhada.',
+  'tours.walk.ferry.accept': 'Aceitar balsa',
+  'tours.walk.ferry.show': 'Mostrar travessia',
+  'tours.walk.ferry.selectStop': 'Selecionar parada {number}',
+  'tours.walk.ferry.time': '{time} de barco',
+  'tours.walk.ferry.timeUnknown': 'Tempo de barco desconhecido',
+  'tours.walk.ferry.timeHint': 'Como o roteador o informa para a travessia. Não faz parte do tempo de caminhada.',
+  'tours.walk.ferry.field': 'Balsa',
+  'tours.walk.ferry.fieldInfoLabel': 'Sobre o tempo de balsa',
+  'tours.walk.ferry.fieldInfo':
+    'O tempo das travessias de barco, como o roteador o informa. Fica separado do tempo de caminhada e não entra no total planejado.',
+  'tours.walk.ferry.leg': 'Travessia de balsa',
+  'tours.walk.ferry.legInfo': 'Atravessado de barco, não a pé. O tempo não está no tempo de caminhada.',
+  'tours.walk.ferry.release': 'Planejar a pé de novo',
   'tours.walk.stationsUnread':
     'Não foi possível carregar as paradas deste passeio. Abra-o de novo com conexão para vê-las e marcá-las.',
   'tours.walk.progress': '{visited} de {total} visitadas',

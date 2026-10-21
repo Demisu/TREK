@@ -1,6 +1,8 @@
 import { someStaysUnknown, walkTimesOf, type WalkTimes } from '../planner/stationModel';
+import type { WalkFerryCrossing } from '../planner/tourRouting';
 import type { TourMetricField } from '../tourParts';
 import { formatPlannedTourDuration, plannedTotalText } from '../tourPresentation';
+import { ferryMinutesOf } from './walkFerry';
 
 type Translate = (key: string, params?: Record<string, unknown>) => string;
 
@@ -27,7 +29,25 @@ export interface WalkTimeFieldsInput {
   stays: WalkStays;
   /** A total entered by hand, which stays apart from the one worked out; null when there is none. */
   manualMinutes: number | null;
+  /** CW-12: the walk's crossings by boat, whose time is never walking time. */
+  ferries?: readonly Pick<WalkFerryCrossing, 'seconds'>[];
   t: Translate;
+}
+
+/** CW-12: the time of a walk's crossings by boat, as a field of its own; none without a crossing. */
+function ferryField(ferries: readonly Pick<WalkFerryCrossing, 'seconds'>[], t: Translate): TourMetricField[] {
+  if (ferries.length === 0) return [];
+  const minutes = ferries.map(ferryMinutesOf);
+  const known = minutes.every((value) => value !== null);
+  return [
+    {
+      label: t('tours.walk.ferry.field'),
+      value: known
+        ? formatPlannedTourDuration(minutes.reduce<number>((sum, value) => sum + (value ?? 0), 0))
+        : t('tours.walk.ferry.timeUnknown'),
+      info: { label: t('tours.walk.ferry.fieldInfoLabel'), description: t('tours.walk.ferry.fieldInfo') },
+    },
+  ];
 }
 
 /**
@@ -42,6 +62,7 @@ export function walkTimeFields({
   walkingMinutes,
   stays,
   manualMinutes,
+  ferries = [],
   t,
 }: WalkTimeFieldsInput): TourMetricField[] {
   const notCalculated = t('tours.planner.walkingTimeUnknown');
@@ -52,6 +73,7 @@ export function walkTimeFields({
   const staysText = walkStaysText(stays, t);
   const parts: TourMetricField[] = [
     { ...walking, value: walkingMinutes == null ? notCalculated : formatPlannedTourDuration(walkingMinutes) },
+    ...ferryField(ferries, t),
     ...(staysText ? [{ label: t('tours.walk.stays'), value: staysText }] : []),
   ];
   const planned = t('tours.planner.plannedShort');

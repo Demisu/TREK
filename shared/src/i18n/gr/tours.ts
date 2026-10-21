@@ -782,6 +782,28 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Υπολογισμένο',
   'tours.walk.stations': 'Στάσεις της βόλτας',
   'tours.walk.stationNumbered': 'Στάση {number}',
+  'tours.walk.ferry.gap': 'Κανένας δρόμος δεν ενώνει {from} και {to}, ούτε με τα πόδια ούτε με φέρι.',
+  'tours.walk.ferry.gapHint':
+    'Η διαδρομή που σχεδιάστηκε πριν μένει στον χάρτη, γκριζαρισμένη, μέχρι να βρεθεί δρόμος. Μετακίνησε μία από τις δύο στάσεις.',
+  'tours.walk.ferry.pending':
+    'Δεν υπάρχει πεζός δρόμος μεταξύ {from} και {to}: εδώ η δρομολόγηση περνά το νερό με φέρι.',
+  'tours.walk.ferry.pendingHint':
+    'Η διάβαση δεν μετράει ως χρόνος περπατήματος. Για αποθήκευση, κράτησε το φέρι ή μετακίνησε μια στάση ώστε να τις ενώνει πεζός δρόμος.',
+  'tours.walk.ferry.accepted':
+    'Φέρι από {from} προς {to}, κρατημένο σκόπιμα. Ο χρόνος του μένει χωριστά από τον χρόνο περπατήματος.',
+  'tours.walk.ferry.accept': 'Κράτηση φέρι',
+  'tours.walk.ferry.show': 'Εμφάνιση διάβασης',
+  'tours.walk.ferry.selectStop': 'Επιλογή στάσης {number}',
+  'tours.walk.ferry.time': '{time} με σκάφος',
+  'tours.walk.ferry.timeUnknown': 'Άγνωστος χρόνος σκάφους',
+  'tours.walk.ferry.timeHint': 'Όπως τον δίνει η δρομολόγηση για τη διάβαση. Δεν είναι μέρος του χρόνου περπατήματος.',
+  'tours.walk.ferry.field': 'Φέρι',
+  'tours.walk.ferry.fieldInfoLabel': 'Σχετικά με τον χρόνο φέρι',
+  'tours.walk.ferry.fieldInfo':
+    'Ο χρόνος των διαβάσεων με σκάφος, όπως τον δίνει η δρομολόγηση. Μένει χωριστά από τον χρόνο περπατήματος και δεν μπαίνει στο προγραμματισμένο σύνολο.',
+  'tours.walk.ferry.leg': 'Διάβαση με φέρι',
+  'tours.walk.ferry.legInfo': 'Διασχίστηκε με σκάφος, όχι με τα πόδια. Ο χρόνος του δεν είναι στον χρόνο περπατήματος.',
+  'tours.walk.ferry.release': 'Ξανά σχεδιασμός με τα πόδια',
   'tours.walk.stationsUnread':
     'Δεν φορτώθηκαν οι στάσεις αυτής της βόλτας. Άνοιξέ την ξανά με σύνδεση για να τις δεις και να τις τσεκάρεις.',
   'tours.walk.progress': '{visited} από {total} επισκέψεις',

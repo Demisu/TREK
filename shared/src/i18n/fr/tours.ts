@@ -778,6 +778,28 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Calculé',
   'tours.walk.stations': 'Étapes de la balade',
   'tours.walk.stationNumbered': 'Étape {number}',
+  'tours.walk.ferry.gap': 'Aucun chemin ne relie {from} et {to}, ni à pied ni en ferry.',
+  'tours.walk.ferry.gapHint':
+    "L'itinéraire planifié avant reste sur la carte, grisé, jusqu'à ce qu'un chemin soit trouvé. Déplace l'une des deux étapes.",
+  'tours.walk.ferry.pending':
+    "Il n'y a pas de chemin à pied entre {from} et {to} : ici, le calculateur traverse l'eau en ferry.",
+  'tours.walk.ferry.pendingHint':
+    "La traversée ne compte pas comme temps de marche. Pour enregistrer, prends le ferry ou déplace une étape pour qu'un chemin à pied les relie.",
+  'tours.walk.ferry.accepted': 'Ferry de {from} à {to}, pris exprès. Son temps reste à part du temps de marche.',
+  'tours.walk.ferry.accept': 'Prendre le ferry',
+  'tours.walk.ferry.show': 'Montrer la traversée',
+  'tours.walk.ferry.selectStop': "Choisir l'étape {number}",
+  'tours.walk.ferry.time': '{time} en bateau',
+  'tours.walk.ferry.timeUnknown': 'Temps en bateau inconnu',
+  'tours.walk.ferry.timeHint':
+    'Tel que le calculateur le donne pour la traversée. Il ne fait pas partie du temps de marche.',
+  'tours.walk.ferry.field': 'Ferry', // same-as-en
+  'tours.walk.ferry.fieldInfoLabel': 'À propos du temps de ferry',
+  'tours.walk.ferry.fieldInfo':
+    "Le temps des traversées en bateau, tel que le calculateur le donne. Il reste à part du temps de marche et n'entre pas dans le total prévu.",
+  'tours.walk.ferry.leg': 'Traversée en ferry',
+  'tours.walk.ferry.legInfo': "Traversé en bateau, pas à pied. Son temps n'est pas dans le temps de marche.",
+  'tours.walk.ferry.release': 'Replanifier à pied',
   'tours.walk.stationsUnread':
     "Les étapes de cette balade n'ont pas pu être chargées. Rouvre-la avec une connexion pour les voir et les cocher.",
   'tours.walk.progress': '{visited} sur {total} visitées',

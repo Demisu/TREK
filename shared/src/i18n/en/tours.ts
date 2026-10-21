@@ -750,6 +750,28 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Computed',
   'tours.walk.stations': 'Stops of the walk',
   'tours.walk.stationNumbered': 'Stop {number}',
+  'tours.walk.ferry.gap': 'No way joins {from} and {to}, neither on foot nor by ferry.',
+  'tours.walk.ferry.gapHint':
+    'The route planned before stays on the map, greyed, until a way is found. Move one of the two stops.',
+  'tours.walk.ferry.pending':
+    'There is no way on foot between {from} and {to}: the router crosses the water by ferry here.',
+  'tours.walk.ferry.pendingHint':
+    'The crossing is not counted as walking time. To save, take the ferry or move a stop so a way on foot joins them.',
+  'tours.walk.ferry.accepted':
+    'Ferry from {from} to {to}, taken on purpose. Its time is kept apart from the walking time.',
+  'tours.walk.ferry.accept': 'Take ferry',
+  'tours.walk.ferry.show': 'Show crossing',
+  'tours.walk.ferry.selectStop': 'Select stop {number}',
+  'tours.walk.ferry.time': '{time} by boat',
+  'tours.walk.ferry.timeUnknown': 'Boat time unknown',
+  'tours.walk.ferry.timeHint': 'As the router gives it for the crossing. It is not part of the walking time.',
+  'tours.walk.ferry.field': 'Ferry',
+  'tours.walk.ferry.fieldInfoLabel': 'About the ferry time',
+  'tours.walk.ferry.fieldInfo':
+    'The time the crossings by boat take, as the router gives it. It is kept apart from the walking time and is not in the planned total.',
+  'tours.walk.ferry.leg': 'Ferry crossing',
+  'tours.walk.ferry.legInfo': 'Crossed by boat, not walked. Its time is not in the walking time.',
+  'tours.walk.ferry.release': 'Plan on foot again',
   'tours.walk.stationsUnread':
     'The stops of this walk could not be loaded. Open it again while online to see them and check them off.',
   'tours.walk.progress': '{visited} of {total} visited',

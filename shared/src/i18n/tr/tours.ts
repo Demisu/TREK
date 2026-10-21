@@ -754,6 +754,27 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Hesaplanan',
   'tours.walk.stations': 'Yürüyüşün durakları',
   'tours.walk.stationNumbered': 'Durak {number}',
+  'tours.walk.ferry.gap': '{from} ile {to} arasında ne yürüyerek ne de feribotla bir yol var.',
+  'tours.walk.ferry.gapHint':
+    'Daha önce planlanan rota, bir yol bulunana kadar haritada soluk kalır. İki duraktan birini taşı.',
+  'tours.walk.ferry.pending': '{from} ile {to} arasında yürüyüş yolu yok: yönlendirici burada suyu feribotla geçiyor.',
+  'tours.walk.ferry.pendingHint':
+    'Geçiş yürüyüş süresi sayılmaz. Kaydetmek için feribotu kabul et ya da bir durağı taşı, böylece bir yürüyüş yolu onları bağlasın.',
+  'tours.walk.ferry.accepted':
+    '{from} noktasından {to} noktasına feribot, bilerek kabul edildi. Süresi yürüyüş süresinden ayrı tutulur.',
+  'tours.walk.ferry.accept': 'Feribotu kabul et',
+  'tours.walk.ferry.show': 'Geçişi göster',
+  'tours.walk.ferry.selectStop': '{number}. durağı seç',
+  'tours.walk.ferry.time': 'Tekneyle {time}',
+  'tours.walk.ferry.timeUnknown': 'Tekne süresi bilinmiyor',
+  'tours.walk.ferry.timeHint': 'Yönlendiricinin geçiş için verdiği gibi. Yürüyüş süresinin parçası değildir.',
+  'tours.walk.ferry.field': 'Feribot',
+  'tours.walk.ferry.fieldInfoLabel': 'Feribot süresi hakkında',
+  'tours.walk.ferry.fieldInfo':
+    'Tekneyle geçişlerin süresi, yönlendiricinin verdiği gibi. Yürüyüş süresinden ayrı tutulur ve planlanan toplamda yer almaz.',
+  'tours.walk.ferry.leg': 'Feribotla geçiş',
+  'tours.walk.ferry.legInfo': 'Yürünmedi, tekneyle geçildi. Süresi yürüyüş süresinde yok.',
+  'tours.walk.ferry.release': 'Yeniden yürüyerek planla',
   'tours.walk.stationsUnread':
     'Bu yürüyüşün durakları yüklenemedi. Görmek ve işaretlemek için yürüyüşü bağlantı varken yeniden aç.',
   'tours.walk.progress': '{total} duraktan {visited} ziyaret edildi',

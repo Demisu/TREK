@@ -752,6 +752,27 @@ const tours: TranslationStrings = {
   'tours.walk.totalComputed': 'Đã tính',
   'tours.walk.stations': 'Các điểm dừng',
   'tours.walk.stationNumbered': 'Điểm dừng {number}',
+  'tours.walk.ferry.gap': 'Không có đường nào nối {from} và {to}, cả đi bộ lẫn phà.',
+  'tours.walk.ferry.gapHint':
+    'Lộ trình đã lập trước đó vẫn ở trên bản đồ, được làm mờ, cho đến khi tìm được đường. Hãy dời một trong hai điểm dừng.',
+  'tours.walk.ferry.pending': 'Không có đường đi bộ giữa {from} và {to}: ở đây bộ tìm đường qua nước bằng phà.',
+  'tours.walk.ferry.pendingHint':
+    'Chuyến qua sông không tính là thời gian đi bộ. Để lưu, hãy nhận chuyến phà hoặc dời một điểm dừng để có đường đi bộ nối chúng.',
+  'tours.walk.ferry.accepted':
+    'Phà từ {from} đến {to}, đã nhận có chủ ý. Thời gian của nó được tách khỏi thời gian đi bộ.',
+  'tours.walk.ferry.accept': 'Nhận phà',
+  'tours.walk.ferry.show': 'Hiện chuyến qua',
+  'tours.walk.ferry.selectStop': 'Chọn điểm dừng {number}',
+  'tours.walk.ferry.time': '{time} bằng thuyền',
+  'tours.walk.ferry.timeUnknown': 'Không rõ thời gian thuyền',
+  'tours.walk.ferry.timeHint': 'Như bộ tìm đường đưa ra cho chuyến qua. Không thuộc thời gian đi bộ.',
+  'tours.walk.ferry.field': 'Phà',
+  'tours.walk.ferry.fieldInfoLabel': 'Về thời gian đi phà',
+  'tours.walk.ferry.fieldInfo':
+    'Thời gian các chuyến qua bằng thuyền, như bộ tìm đường đưa ra. Được tách khỏi thời gian đi bộ và không nằm trong tổng đã lập.',
+  'tours.walk.ferry.leg': 'Qua bằng phà',
+  'tours.walk.ferry.legInfo': 'Qua bằng thuyền, không đi bộ. Thời gian không nằm trong thời gian đi bộ.',
+  'tours.walk.ferry.release': 'Lập lại theo đi bộ',
   'tours.walk.stationsUnread':
     'Không tải được các điểm dừng của lộ trình này. Hãy mở lại khi có kết nối để xem và đánh dấu chúng.',
   'tours.walk.progress': 'Đã ghé {visited}/{total}',
