@@ -234,27 +234,3 @@ export function changedDays(changes: readonly DayChange[]): number[] {
   }
   return days;
 }
-
-/** A leg this long without a time says the day asks a lot of travel. */
-const FAR_MINUTES = 60;
-
-/**
- * Whether a day still works once the changes ran: stops that take the same
- * time, a way there longer than the time between two stops, and legs over an
- * hour. Counted over the stops that stay on the day.
- */
-export function dayIssues(day: DayAfter): number {
-  return day.stops.reduce((sum, stop) => {
-    const lead = stop.lead;
-    if (stop.status === 'removed' || !lead) return sum;
-    const far = lead.travelMinutes !== null && lead.travelMinutes >= FAR_MINUTES;
-    return sum + (lead.overlapsWith || lead.shortBy !== null || far ? 1 : 0);
-  }, 0);
-}
-
-/** Whether a stop is one of those `dayIssues` counts. */
-export function stopIssue(stop: TimelineStop): boolean {
-  const lead = stop.lead;
-  if (stop.status === 'removed' || !lead) return false;
-  return !!lead.overlapsWith || lead.shortBy !== null || (lead.travelMinutes ?? 0) >= FAR_MINUTES;
-}

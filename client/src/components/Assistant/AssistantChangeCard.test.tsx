@@ -128,13 +128,10 @@ describe('AssistantChangeCard: deciding', () => {
     renderCard([pending('c1', 'Kinkaku-ji')]);
     expect(screen.getByText('Kinkaku-ji')).toBeInTheDocument();
     expect(screen.getByText('Add place')).toBeInTheDocument();
-    // The time is a chip of its own, old to new; the address waits behind "Details".
+    // The faint line says when, old to new; the address is for the planner, not the card.
     expect(screen.getByText('09:00')).toBeInTheDocument();
     expect(screen.getByText('10:30')).toBeInTheDocument();
     expect(screen.queryByText('Kyoto')).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Details' }));
-    expect(screen.getByText('Address')).toBeInTheDocument();
-    expect(screen.getByText('Kyoto')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Include this change' })).toBeNull();
     expect(screen.getByRole('status')).toHaveTextContent('1 change is waiting for you');
   });
@@ -239,36 +236,24 @@ describe('AssistantChangeCard: on the map', () => {
     expect(row).toHaveClass('bg-surface-hover');
   });
 
-  it('FE-AI-CARD-009: the days a waiting card touches read as named stops, with the schedule folded away', () => {
+  it('FE-AI-CARD-009: the head says whether the days still fit, without drawing the days again', () => {
     plannerHere();
     renderCard([onTheMap('c1', 'Pantheon')]);
-    expect(screen.getByText('Rome')).toBeInTheDocument();
-    // Folded, each stop is a chip with its name, not a blank block behind a tooltip.
-    expect(screen.getByText('Louvre')).toBeInTheDocument();
-    expect(screen.getAllByText('Pantheon')).toHaveLength(2);
-    expect(screen.queryByText('New')).toBeNull();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Show schedule' }));
-    expect(screen.getByRole('button', { name: 'Hide schedule' })).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByText('Louvre')).toBeInTheDocument();
-    expect(screen.getAllByText('Pantheon')).toHaveLength(2);
-    expect(screen.getByText('New')).toBeInTheDocument();
-    expect(screen.getByText(/min travel/)).toBeInTheDocument();
-
-    // Hovering the stop in the schedule lights the same pin as its row.
-    fireEvent.mouseEnter(screen.getByText('New'));
-    expect(useAssistantStore.getState().mapLink?.hoveredId).toBe('c1');
+    expect(screen.getByText(/Fits the time|to check/)).toBeInTheDocument();
+    // The day list of the planner shows the suggestion; the card keeps to one line per change.
+    expect(screen.getAllByText('Pantheon')).toHaveLength(1);
+    expect(screen.queryByRole('button', { name: 'Show schedule' })).toBeNull();
   });
 
-  it('FE-AI-CARD-010: no band while the planner holds another trip, or once nothing waits', () => {
+  it('FE-AI-CARD-010: no check while the planner holds another trip, or once nothing waits', () => {
     plannerHere(TRIP + 1);
     const first = renderCard([onTheMap('c1', 'Pantheon')]);
-    expect(screen.queryByRole('button', { name: 'Show schedule' })).toBeNull();
+    expect(screen.queryByText(/Fits the time|to check/)).toBeNull();
     first.unmount();
 
     plannerHere();
     renderCard([{ ...onTheMap('c1', 'Pantheon'), state: 'applied' }]);
-    expect(screen.queryByRole('button', { name: 'Show schedule' })).toBeNull();
+    expect(screen.queryByText(/Fits the time|to check/)).toBeNull();
   });
 
   it('FE-AI-CARD-011: on the phone the card hops to the map and frames what it would change', () => {

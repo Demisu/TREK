@@ -26,12 +26,11 @@ import { useTranslation } from '../../i18n';
 import { blockKeyOf } from '../../store/assistantMapModel';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import { useTripStore } from '../../store/tripStore';
-import ToggleSwitch from '../Settings/ToggleSwitch';
 import { useToast } from '../shared/Toast';
 import { Tooltip } from '../shared/Tooltip';
 import AssistantChangeFields from './AssistantChangeFields';
 import AssistantCompareSwitch from './AssistantCompareSwitch';
-import AssistantDayBand from './AssistantDayBand';
+import AssistantFitCheck from './AssistantFitCheck';
 import AssistantWeekOverview from './AssistantWeekOverview';
 import { type ChangeItem, type ChangeState, undoLeftMs } from './assistantParts';
 import { useAssistantView } from './assistantViewContext';
@@ -137,18 +136,18 @@ function ChangeHead({ preview, struck = false }: { preview: AssistantChangePrevi
   if (!preview) return <span className="trek-skeleton inline-block h-4 w-40" aria-hidden="true" />;
   return (
     <span className="flex min-w-0 flex-col">
-      <span className="flex min-w-0 items-center gap-1.5 text-caption text-content-muted">
+      <bdi className={`truncate text-body font-semibold leading-tight text-content ${struck ? 'line-through' : ''}`}>
+        {preview.subject}
+      </bdi>
+      <span className="mt-0.5 flex min-w-0 items-center gap-2.5 text-caption text-content-faint">
         <span className="truncate">{verbLabel(preview, t)}</span>
         {preview.domain && (
           // Where in TREK a change outside the trip plan lands: the vacation planner, the journal.
-          <span className="flex-shrink-0 rounded-full bg-surface-secondary px-1.5 font-medium text-content-secondary">
+          <span className="flex-shrink-0 rounded-full bg-surface-secondary px-1.5 text-content-secondary">
             {t(`assistant.domain.${preview.domain}`)}
           </span>
         )}
       </span>
-      <bdi className={`truncate text-body font-semibold text-content ${struck ? 'line-through' : ''}`}>
-        {preview.subject}
-      </bdi>
     </span>
   );
 }
@@ -245,38 +244,69 @@ function Receipt({
   );
 }
 
-/** A change waiting for its decision; resting on it lights its pin on the map. */
+/**
+ * A change waiting for its decision, as a row of the planner's day list: the
+ * round choice in front (only when there is more than one to choose from),
+ * what it touches in bold, and a faint line saying what happens and when.
+ * Resting on it lights its pin on the map.
+ */
 function PendingRow({
   item,
   excluded,
-  withSwitch,
+  withChoice,
   disabled,
   onToggle,
 }: {
   item: ChangeItem;
   excluded: boolean;
-  withSwitch: boolean;
+  withChoice: boolean;
   disabled: boolean;
   onToggle: () => void;
 }) {
   const { t } = useTranslation();
   const { tripId } = useAssistantView();
   const { litFromMap, handlers } = useChangeHover(tripId, item.preview?.effect ? item.toolCallId : null);
+  const preview = item.preview;
   return (
     <div
       {...handlers}
-      className={`-mx-1.5 flex gap-2.5 rounded-lg px-1.5 py-2.5 transition-[opacity,background-color] ${
-        excluded ? 'opacity-45' : ''
-      } ${litFromMap ? 'bg-surface-hover' : ''}`}
+      className={`-mx-1.5 flex items-center gap-2.5 rounded-[12px] px-1.5 py-2 transition-[opacity,background-color] ${
+        excluded ? 'opacity-50' : ''
+      } ${litFromMap ? 'bg-surface-hover' : 'hover:bg-surface-hover'}`}
     >
-      <KindTile verbKey={item.preview?.verbKey ?? null} />
-      <div className="min-w-0 flex-1">
-        <ChangeHead preview={item.preview} />
-        {item.preview && <AssistantChangeFields rows={item.preview.rows} />}
-      </div>
-      {withSwitch && (
-        <ToggleSwitch on={!excluded} onToggle={onToggle} label={t('assistant.change.include')} disabled={disabled} />
+      {withChoice && (
+        <button
+          type="button"
+          onClick={onToggle}
+          disabled={disabled}
+          aria-pressed={!excluded}
+          aria-label={t('assistant.change.include')}
+          className={`grid h-[18px] w-[18px] flex-none place-items-center rounded-full outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 ${
+            excluded ? 'border-[1.5px] border-edge bg-surface-card' : 'bg-accent'
+          }`}
+        >
+          {!excluded && <Check size={11} strokeWidth={3} aria-hidden="true" className="text-accent-text" />}
+        </button>
       )}
+      <KindTile verbKey={preview?.verbKey ?? null} size="sm" dimmed={excluded} />
+      <div className="min-w-0 flex-1">
+        {preview ? (
+          <>
+            <bdi className="block truncate text-body font-semibold leading-tight text-content">{preview.subject}</bdi>
+            <span className="mt-0.5 flex min-w-0 items-center gap-2.5 text-caption text-content-faint">
+              <span className="flex-shrink-0">{verbLabel(preview, t)}</span>
+              {preview.domain && (
+                <span className="flex-shrink-0 rounded-full bg-surface-secondary px-1.5 text-content-secondary">
+                  {t(`assistant.domain.${preview.domain}`)}
+                </span>
+              )}
+              <AssistantChangeFields rows={preview.rows} />
+            </span>
+          </>
+        ) : (
+          <span className="trek-skeleton inline-block h-4 w-40" aria-hidden="true" />
+        )}
+      </div>
     </div>
   );
 }
@@ -368,7 +398,12 @@ function HeadActions({
   const here = useTripStore((s) => s.trip?.id === tripId);
   if (open) {
     const toMap = variant === 'fullscreen' && !!onShowOnMap && here && changes.length > 0;
-    return toMap ? <ViewOnMapButton changes={changes} /> : null;
+    return (
+      <>
+        <AssistantFitCheck changes={changes} />
+        {toMap && <ViewOnMapButton changes={changes} />}
+      </>
+    );
   }
   return (
     <>
@@ -440,7 +475,6 @@ export default function AssistantChangeCard({ items }: { items: ChangeItem[] }) 
       {open && week.length > 0 && (
         <AssistantWeekOverview days={week} excluded={excluded} disabled={isRunning} onToggleDay={toggleDay} />
       )}
-      {open && !folded && <AssistantDayBand changes={changes} />}
       {folded && (
         <button
           type="button"
@@ -450,7 +484,7 @@ export default function AssistantChangeCard({ items }: { items: ChangeItem[] }) 
           {t('assistant.week.showAll', { count: pending.length })}
         </button>
       )}
-      <div className={open ? 'divide-y divide-edge-faint' : ''}>
+      <div>
         {items.map((item) =>
           item.state === 'pending' ? (
             folded ? null : (
@@ -458,7 +492,7 @@ export default function AssistantChangeCard({ items }: { items: ChangeItem[] }) 
                 key={item.toolCallId}
                 item={item}
                 excluded={excluded.has(item.toolCallId)}
-                withSwitch={pending.length > 1}
+                withChoice={pending.length > 1}
                 disabled={isRunning}
                 onToggle={() => toggle(item.toolCallId)}
               />

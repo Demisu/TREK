@@ -10,15 +10,7 @@ import { describe, expect, it } from 'vitest';
 
 import { buildAssignment, buildPlace } from '../../../tests/helpers/factories';
 import type { AssignmentsMap } from '../../types';
-import {
-  buildDayAfter,
-  changedDays,
-  changePoints,
-  type DayChange,
-  dayIssues,
-  minutesOf,
-  stopIssue,
-} from './dayAfterModel';
+import { buildDayAfter, changedDays, changePoints, type DayChange, minutesOf } from './dayAfterModel';
 
 // 0.01° of latitude is 1.112 km: with the detour factor that is 19 minutes on foot, 6 by bike.
 const louvre = buildPlace({ id: 10, name: 'Louvre', lat: 48.0, lng: 2.0, duration_minutes: 60 });
@@ -148,14 +140,11 @@ describe('dayAfterModel', () => {
     ]);
   });
 
-  it('FE-AI-DAYAFTER-009: a way longer than the time between two stops is too tight, and counts as an issue', () => {
+  it('FE-AI-DAYAFTER-009: a way longer than the time between two stops is too tight by the difference', () => {
     // Louvre until 10:00, then 19 minutes on foot to Orsay, which starts at 10:10: nine minutes short.
     const tight = plan();
     tight[3] = (tight[3] ?? []).map((a) => (a.id === 101 ? { ...a, assignment_time: '10:10' } : a));
     const after = day(3, [], tight);
     expect(after.stops[1]?.lead).toMatchObject({ travelMinutes: 19, shortBy: 9 });
-    expect(after.stops.map(stopIssue)).toEqual([false, true]);
-    expect(dayIssues(after)).toBe(1);
-    expect(dayIssues(day(3, []))).toBe(0);
   });
 });

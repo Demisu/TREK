@@ -332,6 +332,8 @@ export const JOURNEY_RECORDED_DAY_SEGMENTS: JsonColumn<DawarichTrackSegment[]> =
   schema: z.array(dawarichTrackSegmentSchema),
   fallback: () => [],
 };
+
+/**
  * The parts of an assistant message as the client renders them: text, tool
  * calls with their results and approvals, change previews and receipts. A
  * broken row reads as an empty message and is logged.
