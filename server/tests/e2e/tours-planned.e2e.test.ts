@@ -769,6 +769,56 @@ describe('Tours planned e2e (real guards + temp SQLite)', () => {
       });
     });
 
+    it('finds e-bike charging along a bike tour with what the point states, and only there (BIK-07)', async () => {
+      const charging = {
+        sockets: [{ type: 'schuko', count: 2, kw: null }],
+        capacity: null,
+        fee: false,
+        bicycle: 'designated',
+        access: 'customers',
+      };
+      const charger = {
+        ...spring,
+        osm_id: 'node:8',
+        name: '',
+        category: 'ebike_charging',
+        poi_type: 'amenity=charging_station&bicycle=designated',
+        charging,
+      };
+      mapsPoisAlong.mockResolvedValue({
+        pois: [charger, spring],
+        failed: [],
+        partial: false,
+        truncated: false,
+        capped: false,
+      });
+      const res = await request(server)
+        .post('/api/trips/5/tours/poi-search')
+        .set('Cookie', sessionCookie(VIEWER))
+        .send({ ...body, tour_type: 'bike', categories: ['ebike_charging', 'drinking_water'], corridor_m: 1000 });
+      expect(res.status).toBe(200);
+      expect(mapsPoisAlong.mock.calls.at(-1)?.[0]).toEqual(['ebike_charging', 'drinking_water']);
+      expect(res.body.pois).toEqual([
+        {
+          id: 'node:8',
+          name: '',
+          lat: 47.01,
+          lng: 11.001,
+          category: 'ebike_charging',
+          kind: 'amenity=charging_station&bicycle=designated',
+          source: 'openstreetmap',
+          address: null,
+          website: null,
+          phone: null,
+          opening_hours: null,
+          distance_m: expect.any(Number),
+          along_m: expect.any(Number),
+          charging,
+        },
+        expect.not.objectContaining({ charging: expect.anything() }),
+      ]);
+    });
+
     it('404 for someone outside the trip, 400 for a body it does not know, 401 without a session', async () => {
       const outsider = await request(server)
         .post('/api/trips/5/tours/poi-search')

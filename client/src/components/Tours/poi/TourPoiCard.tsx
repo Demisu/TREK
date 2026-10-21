@@ -12,6 +12,7 @@ import { useMapCardDismiss } from '../../Map/useMapCardDismiss';
 import { SoftPill, WhiteBadge } from '../../Planner/planParts';
 import { fs } from '../../shared/DialogShell';
 import type { TourPlannerController } from '../planner/useTourPlanner';
+import { TourPoiChargingFacts } from './TourPoiChargingFacts';
 import { TourPoiSlotPicker } from './TourPoiSlotPicker';
 import { usePoiInsertion } from './usePoiInsertion';
 import { useSelectedPoi } from './useTourPoiSearch';
@@ -135,6 +136,7 @@ function TourPoiCard({
         </WhiteBadge>
       </div>
       <PoiFacts poi={poi} />
+      {poi.charging && <TourPoiChargingFacts charging={poi.charging} />}
       <TourPoiSlotPicker planner={planner} poi={poi} insertion={insertion} unit={unit} />
       <p className="mt-2 flex flex-wrap gap-x-3 text-content-faint" style={fs(10.5, 'body')}>
         {suggested && <span>{t('tours.walk.themeReason', { theme: t(`tours.walk.theme.${suggested}`) })}</span>}

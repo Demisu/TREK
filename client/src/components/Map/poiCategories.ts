@@ -1,4 +1,4 @@
-import { Utensils, Coffee, Wine, BedDouble, Camera, Landmark, Trees, Ticket, Fuel, Zap, ParkingSquare, Tent, Binoculars, Mountain, Warehouse, Droplet, Toilet, Sandwich, Anchor, Sailboat, Wrench, Store, type LucideIcon } from 'lucide-react'
+import { Utensils, Coffee, Wine, BedDouble, Camera, Landmark, Trees, Ticket, Fuel, Zap, ParkingSquare, Tent, Binoculars, Mountain, Warehouse, Droplet, Toilet, Sandwich, Anchor, Sailboat, Wrench, Store, BatteryCharging, type LucideIcon } from 'lucide-react'
 import type { TourPoiCategory } from '@trek/shared'
 import { parsePluginPoiCategoryKey, type PluginPoiDetail } from '@trek/shared'
 // The road-trip kinds take their colour from the one place that defines it, so the
@@ -68,6 +68,8 @@ export const TOUR_POI_LOOKS: Record<TourPoiCategory, PoiCategory> = {
   cafe: { key: 'cafe', labelKey: 'tours.poi.cat.cafe', Icon: Coffee, color: coreColor('cafe') },
   restaurant: { key: 'restaurant', labelKey: 'tours.poi.cat.restaurant', Icon: Utensils, color: coreColor('restaurant') },
   market: { key: 'market', labelKey: 'tours.poi.cat.market', Icon: Store, color: coreColor('shopping') },
+  // BIK-07: the road trip's charging colour, so a charger reads as one on every map.
+  ebike_charging: { key: 'ebike_charging', labelKey: 'tours.poi.cat.ebike_charging', Icon: BatteryCharging, color: SERVICE_COLORS.charging },
 }
 
 // A Map rather than an object, so a category named after an Object.prototype member

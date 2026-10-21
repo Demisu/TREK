@@ -19,6 +19,7 @@ export const TOUR_POI_CATEGORIES = [
   'cafe',
   'restaurant',
   'market',
+  'ebike_charging',
 ] as const;
 export const tourPoiCategorySchema = z.enum(TOUR_POI_CATEGORIES);
 export type TourPoiCategory = z.infer<typeof tourPoiCategorySchema>;

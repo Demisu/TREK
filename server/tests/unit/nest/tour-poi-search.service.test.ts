@@ -215,6 +215,45 @@ describe('TourPoiSearchService', () => {
     expect(plain).not.toHaveProperty('retry_after_s');
   });
 
+  it('TOUR-POI-018: e-bike charging asks the map search for its own kind and carries what the point states', async () => {
+    const charging = {
+      sockets: [{ type: 'schuko', count: 2, kw: null }],
+      capacity: 2,
+      fee: false,
+      bicycle: 'designated',
+      access: null,
+    };
+    poisAlong.mockResolvedValue(
+      answer([
+        poi('node:1', 47.41, 11.1003, 'ebike_charging', {
+          name: '',
+          poi_type: 'amenity=charging_station&bicycle=designated',
+          charging,
+        }),
+        // A car charger's facts carry no bicycle tag and are never passed on as an e-bike's.
+        poi('node:2', 47.412, 11.1003, 'ebike_charging', {
+          charging: { sockets: [{ type: 'type2', count: 2, kw: 22 }], capacity: null, fee: null },
+        }),
+        poi('node:3', 47.414, 11.1003, 'drinking_water', { name: '' }),
+      ]),
+    );
+    const result = await service.search({
+      tour_type: 'bike',
+      categories: ['ebike_charging', 'drinking_water'],
+      corridor_m: 1000,
+      line: LINE,
+    });
+    expect(poisAlong.mock.calls[0]?.[0]).toEqual(['ebike_charging', 'drinking_water']);
+    expect(result.pois.map((found) => [found.id, found.category, found.kind])).toEqual([
+      ['node:1', 'ebike_charging', 'amenity=charging_station&bicycle=designated'],
+      ['node:2', 'ebike_charging', 'tourism=ebike_charging'],
+      ['node:3', 'drinking_water', 'tourism=drinking_water'],
+    ]);
+    expect(result.pois[0]?.charging).toEqual(charging);
+    expect(result.pois[1]).not.toHaveProperty('charging');
+    expect(result.pois[2]).not.toHaveProperty('charging');
+  });
+
   it('TOUR-POI-008: an unnamed place is kept and never merged with another unnamed one nearby', async () => {
     poisAlong.mockResolvedValue(
       answer([

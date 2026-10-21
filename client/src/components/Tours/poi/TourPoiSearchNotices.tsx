@@ -47,6 +47,26 @@ function RetryButton({ search }: { search: TourPoiSearch }) {
   );
 }
 
+/** The search sent again with the next wider corridor, while there is one. */
+function WidenButton({ search, unit }: { search: TourPoiSearch; unit: Unit }) {
+  const { t } = useTranslation();
+  const wider = search.widerCorridorM;
+  if (wider === null) return null;
+  return (
+    <button
+      type="button"
+      onClick={search.widen}
+      disabled={!search.canSearch}
+      data-testid="tour-poi-widen"
+      className="inline-flex items-center gap-1 rounded-full border border-edge bg-surface-card px-2 py-0.5 font-medium text-content hover:bg-surface-hover disabled:cursor-default disabled:opacity-50"
+      style={fs(11.5, 'body')}
+    >
+      <Expand size={11} strokeWidth={2.2} aria-hidden="true" />
+      {t('tours.poi.widen', { distance: formatDistance(km(wider), unit) })}
+    </button>
+  );
+}
+
 /** A warning of the search, with the way to send it again where that may help. */
 function WarningNotice({ text, search }: { text: string; search?: TourPoiSearch }) {
   return (
@@ -68,8 +88,8 @@ function WarningNotice({ text, search }: { text: string; search?: TourPoiSearch 
  * could not be searched, partly searched, cut, or empty. That the answer is
  * out of date the search button says, as it is what to press then. Nothing
  * found is said only when every kind was searched along the whole line, with
- * the next wider corridor one press away; a failure or a gap carries its own
- * retry.
+ * the next wider corridor one press away, as it is when no e-bike charger
+ * was found among other places; a failure or a gap carries its own retry.
  */
 export function SearchNotices({ search, unit }: { search: TourPoiSearch; unit: Unit }) {
   const { t } = useTranslation();
@@ -85,9 +105,14 @@ export function SearchNotices({ search, unit }: { search: TourPoiSearch; unit: U
     { text: answer.capped && t('tours.poi.capped'), retry: false },
     { text: answer.truncated && t('tours.poi.truncated'), retry: false },
   ].filter((note): note is { text: string; retry: boolean } => !!note.text);
-  const wider = search.widerCorridorM;
   // A gap wants a retry, not a wider corridor, and changed choices were not searched yet.
-  const empty = answer.pois.length === 0 && answer.unavailable.length === 0 && !answer.partial && !search.outdated;
+  const searchedAll = answer.unavailable.length === 0 && !answer.partial && !search.outdated;
+  const empty = answer.pois.length === 0 && searchedAll;
+  // BIK-07: few chargers are tagged for bikes, so none found is said, not left to look like a fault.
+  const noChargers =
+    searchedAll &&
+    search.categories.includes('ebike_charging') &&
+    !answer.pois.some((poi) => poi.category === 'ebike_charging');
   return (
     <>
       {notes.map((note) => (
@@ -98,19 +123,16 @@ export function SearchNotices({ search, unit }: { search: TourPoiSearch; unit: U
           <p className="m-0 text-content-muted" style={fs(12, 'body')}>
             {t('tours.poi.empty', { distance: formatDistance(km(search.corridorM), unit) })}
           </p>
-          {wider !== null && (
-            <button
-              type="button"
-              onClick={search.widen}
-              disabled={!search.canSearch}
-              data-testid="tour-poi-widen"
-              className="inline-flex items-center gap-1 rounded-full border border-edge bg-surface-card px-2 py-0.5 font-medium text-content hover:bg-surface-hover disabled:cursor-default disabled:opacity-50"
-              style={fs(11.5, 'body')}
-            >
-              <Expand size={11} strokeWidth={2.2} aria-hidden="true" />
-              {t('tours.poi.widen', { distance: formatDistance(km(wider), unit) })}
-            </button>
-          )}
+          <WidenButton search={search} unit={unit} />
+        </div>
+      )}
+      {noChargers && (
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5" data-testid="tour-poi-charging-few">
+          <p className="m-0 text-content-muted" style={fs(12, 'body')}>
+            {t('tours.poi.charging.fewMapped')}
+          </p>
+          {/* Nothing at all found offers the wider corridor above already. */}
+          {!empty && <WidenButton search={search} unit={unit} />}
         </div>
       )}
     </>

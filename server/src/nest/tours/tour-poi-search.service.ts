@@ -39,6 +39,8 @@ const MAPS_CATEGORIES: Record<TourPoiCategory, readonly string[]> = {
   cafe: ['cafe'],
   restaurant: ['restaurant'],
   market: ['market'],
+  // BIK-07: only points tagged for bicycles; the explore pill's `charging` is for cars.
+  ebike_charging: ['ebike_charging'],
 };
 
 /** The most places of one kind the map search answers from each source. */
@@ -187,6 +189,14 @@ function answerRows(places: readonly TourPoi[], ranks: ReadonlyMap<string, numbe
   return [...highlights, ...rest];
 }
 
+/** What an e-bike charging point states, as the answer carries it; nothing for any other place. */
+function bikeChargingOf(poi: MapsPoi): Pick<TourPoi, 'charging'> {
+  const charging = poi.charging;
+  if (!charging || !('bicycle' in charging)) return {};
+  const { bicycle, sockets, capacity, fee, access } = charging;
+  return { charging: { bicycle, sockets, capacity, fee, access } };
+}
+
 function tourCategoryOf(mapsCategory: string, asked: readonly TourPoiCategory[]): TourPoiCategory | undefined {
   return asked.find((category) => MAPS_CATEGORIES[category].includes(mapsCategory));
 }
@@ -221,6 +231,7 @@ function placesWithin(found: MapsPoi[], body: TourPoiSearchRequest, line: Array<
       opening_hours: poi.opening_hours,
       distance_m: Math.round(near.distanceM),
       along_m: Math.round(near.alongM),
+      ...bikeChargingOf(poi),
     };
     kept.set(poi.osm_id, place);
     if (name) byName.set(name, [...namesakes, place]);

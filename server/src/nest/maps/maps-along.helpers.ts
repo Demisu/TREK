@@ -3,6 +3,7 @@
  * the stretches Overpass is asked in, and the query that asks for every kind
  * near one stretch at once. Pure: PoisAlongResolver makes the calls.
  */
+import { overpassSelector } from './osm-filter.helpers';
 import { lineMetres, pointAtMeters, simplifyLine, sliceAtMeters, type LatLng } from '@trek/shared/roadtrip';
 
 /**
@@ -147,12 +148,7 @@ const coordinate = (value: number) => value.toFixed(5);
 export function overpassAlongQuery(filters: readonly string[], path: AroundPath, cap: number): string {
   const { south, west, north, east } = path.bbox;
   const box = `(${[south, west, north, east].map(coordinate).join(',')})`;
-  const selectors = filters
-    .map((filter) => {
-      const [key, value] = filter.split('=');
-      return `  nwr["${key}"="${value}"]${box};`;
-    })
-    .join('\n');
+  const selectors = filters.map((filter) => `  ${overpassSelector(filter, box)};`).join('\n');
   const line = path.points.map((point) => `${coordinate(point.lat)},${coordinate(point.lng)}`).join(',');
   return `[out:json][timeout:${OVERPASS_ALONG_QUERY_TIMEOUT_S}];\n(\n${selectors}\n)->.cand;\nnwr.cand(around:${path.radiusM},${line});\nout center tags ${cap + 25};`;
 }

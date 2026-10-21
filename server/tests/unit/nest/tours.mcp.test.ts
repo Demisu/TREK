@@ -407,6 +407,9 @@ describe('ToursMcp', () => {
     expect(description(ToursMcp, 'searchTourPois')).toMatch(/best known places.*highlight: true/);
     expect(description(ToursMcp, 'searchTourPois')).toContain('a ride, a bike tour');
     expect(description(ToursMcp, 'searchTourPois')).toContain('a ski and winter tour or a city walk');
+    // BIK-07: e-bike charging only where OpenStreetMap tags it for bicycles, with what it states.
+    expect(description(ToursMcp, 'searchTourPois')).toMatch(/ebike_charging.*bicycle=designated or yes/);
+    expect(description(ToursMcp, 'searchTourPois')).toContain('charging: bicycle, sockets');
     expect(description(TourLibraryMcp, 'takeOverTour')).toContain('protection');
     for (const method of ['deletePlace', 'bulkDeletePlaces']) {
       expect(description(PlacesMcp, method)).toContain(

@@ -14,7 +14,7 @@ import { usePoiInsertion, type PoiInsertionPlanner } from './usePoiInsertion';
 import { useTourPoiMarkers } from './useTourPoiMarkers';
 import { useTourPoiSearch } from './useTourPoiSearch';
 
-// FE-TOUR-POI-001 to FE-TOUR-POI-027
+// FE-TOUR-POI-001 to FE-TOUR-POI-030
 
 vi.mock('../planner/useWaypointPlaceNames', () => ({ useWaypointPlaceNames: () => ({}) }));
 
@@ -666,5 +666,107 @@ describe('a search that could not ask, and its retry (PLN-05)', () => {
     expect(screen.getByTestId('tour-poi-retry')).toHaveTextContent('Try again');
     expect(screen.queryByText(/Nothing found/)).not.toBeInTheDocument();
     expect(screen.queryByTestId('tour-poi-widen')).not.toBeInTheDocument();
+  });
+});
+
+describe('e-bike charging along a bike tour (BIK-07)', () => {
+  const CHARGER: TourPoi = {
+    ...SPRING,
+    id: 'node:5',
+    name: '',
+    category: 'ebike_charging',
+    kind: 'amenity=charging_station&bicycle=designated',
+    website: null,
+    opening_hours: null,
+    charging: {
+      bicycle: 'designated',
+      sockets: [{ type: 'schuko', count: 2, kw: null }],
+      capacity: null,
+      fee: false,
+      access: null,
+    },
+  };
+  const bikePlanner = (over: Partial<PoiInsertionPlanner> = {}) =>
+    ({ ...searchPlanner({ tourType: 'bike' }), ...insertionPlanner(over) }) as unknown as TourPlannerController;
+
+  it('FE-TOUR-POI-028: offered to a bike tour beside its first three, its card shows what the point states and adds it as a stop', async () => {
+    const { result } = renderHook(() => useTourPoiSearch(searchPlanner({ tourType: 'bike' })));
+    expect(result.current.offered).toContain('ebike_charging');
+    expect(result.current.categories).toEqual(['drinking_water', 'bike_repair', 'food']);
+    act(() => result.current.toggleCategory('ebike_charging'));
+    await act(() => result.current.search());
+    expect(search.mock.calls[0]?.[1]).toMatchObject({ categories: expect.arrayContaining(['ebike_charging']) });
+
+    useTourPoiStore.getState().clear();
+    search.mockResolvedValue({ ...ANSWER, pois: [CHARGER] });
+    const planner = bikePlanner();
+    renderAlong(planner);
+    fireEvent.click(screen.getByTestId('tour-poi-search'));
+    const row = await screen.findByTestId('tour-poi-node:5');
+    // Mapped without a name, it is named by its kind.
+    fireEvent.click(within(row).getByRole('button', { name: /E-bike charging/ }));
+    const facts = within(screen.getByTestId('tour-poi-overlay')).getByTestId('tour-poi-charging');
+    expect(facts).toHaveTextContent('Made for e-bikes');
+    expect(facts).toHaveTextContent('Schuko ×2');
+    expect(facts).toHaveTextContent('Free');
+    // Nothing said about access or room is shown as nothing, not as a guess.
+    expect(facts).not.toHaveTextContent('Open to all');
+    expect(facts).not.toHaveTextContent('Charging spots');
+    expect(within(facts).queryByTestId('tour-poi-charging-no-socket')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('tour-poi-add'));
+    await waitFor(() => expect(planner.editWaypoints).toHaveBeenCalledTimes(1));
+    const updater = vi.mocked(planner.editWaypoints).mock.calls[0]?.[0] as (
+      points: TourPlannerWaypoint[]
+    ) => TourPlannerWaypoint[];
+    const added = normalizePlannerWaypoints(updater(POINTS)).find((point) => point.lat === CHARGER.lat);
+    expect(added).toMatchObject({ lng: CHARGER.lng, name: 'E-bike charging' });
+  });
+
+  it('FE-TOUR-POI-029: a point that only lets bikes charge says so, and an unstated plug is dimmed, never named', async () => {
+    const plain: TourPoi = {
+      ...CHARGER,
+      charging: { bicycle: 'yes', sockets: [], capacity: 3, fee: null, access: 'customers' },
+    };
+    search.mockResolvedValue({ ...ANSWER, pois: [plain] });
+    renderAlong(bikePlanner());
+    fireEvent.click(screen.getByTestId('tour-poi-search'));
+    fireEvent.click(within(await screen.findByTestId('tour-poi-node:5')).getByRole('button'));
+    const facts = screen.getByTestId('tour-poi-charging');
+    expect(facts).toHaveTextContent('E-bikes may charge');
+    expect(facts).not.toHaveTextContent('Made for e-bikes');
+    expect(within(facts).getByTestId('tour-poi-charging-no-socket')).toHaveClass('opacity-60');
+    expect(facts).toHaveTextContent('Plug not stated');
+    expect(facts).toHaveTextContent('Customers only');
+    expect(facts).toHaveTextContent('Charging spots3');
+    expect(facts).not.toHaveTextContent('Free');
+    expect(facts).not.toHaveTextContent('Schuko');
+  });
+
+  it('FE-TOUR-POI-030: chargers asked for and none found says few are mapped, with the wider corridor one press away', async () => {
+    render(<TourPoiSearchCard planner={searchPlanner({ tourType: 'bike' })} />);
+    fireEvent.click(screen.getByTestId('tour-poi-categories'));
+    const list = screen.getByRole('group', { name: 'What to look for' });
+    fireEvent.click(within(list).getByRole('button', { name: 'E-bike charging' }));
+    fireEvent.click(screen.getByTestId('tour-poi-search'));
+
+    // Other places found, no charger: the note and the wider corridor, not nothing found.
+    const note = await screen.findByTestId('tour-poi-charging-few');
+    expect(note).toHaveTextContent('Few charging points are mapped for e-bikes yet.');
+    expect(within(note).getByTestId('tour-poi-widen')).toHaveTextContent('Widen to');
+    expect(screen.queryByText(/Nothing found/)).not.toBeInTheDocument();
+
+    // Nothing at all: nothing found with its own wider corridor, the note beside it without a second one.
+    search.mockResolvedValue({ ...ANSWER, pois: [] });
+    fireEvent.click(screen.getByTestId('tour-poi-widen'));
+    expect(await screen.findByText(/Nothing found within/)).toBeInTheDocument();
+    expect(screen.getByTestId('tour-poi-charging-few')).toBeInTheDocument();
+    expect(screen.getAllByTestId('tour-poi-widen')).toHaveLength(1);
+
+    // Chargers that could not be searched are named as such, never as few mapped.
+    search.mockResolvedValue({ ...ANSWER, pois: [], unavailable: ['ebike_charging'] });
+    fireEvent.click(screen.getByTestId('tour-poi-widen'));
+    expect(await screen.findByText(/Could not be searched right now: E-bike charging/)).toBeInTheDocument();
+    expect(screen.queryByTestId('tour-poi-charging-few')).not.toBeInTheDocument();
   });
 });

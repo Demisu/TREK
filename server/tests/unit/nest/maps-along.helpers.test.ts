@@ -123,6 +123,13 @@ describe('aroundPath and overpassAlongQuery', () => {
     expect(query).toContain(`nwr.cand(around:550,47.00000,11.00000,${at(0, 1000).lat.toFixed(5)},11.00000);`);
     expect(query.endsWith('out center tags 85;')).toBe(true);
   });
+
+  it('MAPS-ALONG-006b: a compound selector asks the box for places that carry every one of its tags (BIK-07)', () => {
+    const path = aroundPath([at(0, 0), at(0, 1000)], 500);
+    const query = overpassAlongQuery(['amenity=charging_station&bicycle=designated'], path, 30);
+    expect(query).toContain('  nwr["amenity"="charging_station"]["bicycle"="designated"](');
+    expect(query).not.toContain('nwr["amenity"="charging_station"](');
+  });
 });
 
 describe('overpassStretches', () => {

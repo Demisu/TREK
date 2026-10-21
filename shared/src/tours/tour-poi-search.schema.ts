@@ -23,7 +23,19 @@ export {
 /** The categories each planned tour type offers, the most asked first. */
 export const TOUR_POI_CATEGORIES_BY_TYPE: Record<PlannableTourType, readonly TourPoiCategory[]> = {
   hike: ['viewpoint', 'shelter', 'drinking_water', 'food', 'peak', 'toilets', 'picnic', 'campsite', 'sights'],
-  bike: ['drinking_water', 'bike_repair', 'food', 'viewpoint', 'toilets', 'shelter', 'picnic', 'campsite', 'sights'],
+  // BIK-07: e-bike charging after the first three, so a new bike tour still starts on those.
+  bike: [
+    'drinking_water',
+    'bike_repair',
+    'food',
+    'ebike_charging',
+    'viewpoint',
+    'toilets',
+    'shelter',
+    'picnic',
+    'campsite',
+    'sights',
+  ],
   kayak: ['slipway', 'boat_rental', 'drinking_water', 'food', 'toilets', 'picnic', 'campsite', 'shelter'],
   walk: ['sights', 'museum', 'park', 'viewpoint', 'cafe', 'restaurant', 'market', 'toilets', 'drinking_water'],
   run: ['drinking_water', 'toilets', 'park', 'viewpoint', 'cafe', 'food', 'shelter', 'sights'],
@@ -71,6 +83,28 @@ export const tourPoiSearchRequestSchema = z
   .strict();
 export type TourPoiSearchRequest = z.infer<typeof tourPoiSearchRequestSchema>;
 
+/**
+ * BIK-07: what a charging point for e-bikes says about itself, each field only
+ * as OpenStreetMap states it. The search keeps only points tagged for bicycles,
+ * so `bicycle` is always one of the two; a socket, fee or access left unsaid is
+ * null or missing, never a yes.
+ */
+const tourPoiChargingSchema = z.object({
+  /** `designated` is made for bikes, `yes` lets them charge. */
+  bicycle: z.enum(['yes', 'designated']),
+  /** One entry per socket family stated, with how many and how fast where said. */
+  sockets: z.array(
+    z.object({ type: z.string(), count: z.number().int().positive().nullable(), kw: z.number().positive().nullable() }),
+  ),
+  /** How many bikes can charge at once. */
+  capacity: z.number().int().positive().nullable(),
+  /** true costs money, false is free, null is not said. */
+  fee: z.boolean().nullable(),
+  /** OpenStreetMap's own access value, `customers` or `private` style. */
+  access: z.string().nullable(),
+});
+export type TourPoiCharging = z.infer<typeof tourPoiChargingSchema>;
+
 /** One place found: what the source says about it, and where it lies against the line. */
 export const tourPoiSchema = z.object({
   /** The source's own id, `node:123` style for OpenStreetMap. */
@@ -94,6 +128,8 @@ export const tourPoiSchema = z.object({
   along_m: z.number().nonnegative(),
   /** One of the best known places along the line (tour-highlights); absent means not one. */
   highlight: z.boolean().optional(),
+  /** BIK-07: what an e-bike charging point states; absent on every other kind. */
+  charging: tourPoiChargingSchema.optional(),
 });
 export type TourPoi = z.infer<typeof tourPoiSchema>;
 

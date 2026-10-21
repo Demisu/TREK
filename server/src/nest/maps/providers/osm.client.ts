@@ -34,10 +34,12 @@ import {
   haversineMetres,
   namesOverlap,
   readChargingInfo,
+  readBikeChargingInfo,
   buildOsmDetails,
   OSM_PLACE_ID,
   type OverpassPoi,
 } from '../maps.helpers';
+import { overpassSelector, tagsMatchFilter } from '../osm-filter.helpers';
 import { OverpassBusy, hedged, lastAnsweredFirst, retryAfterMs, soonestRetryMs } from '../overpass-hedge.helpers';
 import { readWikiIdentity } from './wiki-identity';
 import { Injectable } from '@nestjs/common';
@@ -259,7 +261,21 @@ const KEPT_UNNAMED_ALONG: ReadonlySet<string> = new Set([
   'peak',
   'slipway',
   'bike_repair',
+  // A charging point is often mapped with neither a name nor an operator.
+  'ebike_charging',
 ]);
+
+/**
+ * What a charging station states, read only where it means something. Every POI
+ * carries `capacity` and `fee` for its own reasons (a restaurant's capacity is
+ * seats), so reading them as charging data anywhere else would be wrong on most
+ * of the map.
+ */
+function chargingOf(category: string, tags: Record<string, string>): OverpassPoi['charging'] {
+  if (category === 'charging') return readChargingInfo(tags);
+  if (category === 'ebike_charging') return readBikeChargingInfo(tags);
+  return null;
+}
 
 /**
  * Overpass elements as POI rows, each labelled with the category its selector
@@ -276,11 +292,7 @@ function readPois(
   const pois: OverpassPoi[] = [];
   for (const el of elements) {
     const tags = el.tags || {};
-    const matched =
-      filters.find((f) => {
-        const [k, v] = f.split('=');
-        return tags[k] === v;
-      }) || filters[0];
+    const matched = filters.find((f) => tagsMatchFilter(tags, f)) || filters[0];
     const category = categoryOfFilter.get(matched) ?? categories[0];
     // `operator` comes last but matters for the road categories: petrol stations,
     // charging points and service areas are routinely mapped with an operator and no
@@ -294,6 +306,9 @@ function readPois(
     // statement in the hours field.
     if (tags.disused === 'yes' || tags.abandoned === 'yes') continue;
     if (tags.opening_hours === 'closed' || tags.opening_hours === 'off') continue;
+    const charging = chargingOf(category, tags);
+    // A charger that does not say bicycles may charge is never passed off as an e-bike one.
+    if (category === 'ebike_charging' && !charging) continue;
     const lat = el.lat ?? el.center?.lat;
     const lng = el.lon ?? el.center?.lon;
     if (lat == null || lng == null) continue;
@@ -317,10 +332,7 @@ function readPois(
       // Only the plain Q-id form is passed on; anything else would be a lookup we
       // would have to guess at.
       brand_wikidata: /^Q[0-9]+$/.test(tags['brand:wikidata'] || '') ? tags['brand:wikidata'] : null,
-      // Only where it means something. Every POI carries `capacity` and `fee` for its
-      // own reasons (a restaurant's capacity is seats), so reading them as charging
-      // data anywhere else would be wrong on most of the map.
-      charging: category === 'charging' ? readChargingInfo(tags) : null,
+      charging,
       source: 'openstreetmap',
     });
   }
@@ -762,12 +774,7 @@ export class OsmClient {
 
     // Overpass wants the box as (south,west,north,east) = (minLat,minLng,maxLat,maxLng).
     const box = `(${south},${west},${north},${east})`;
-    const selectors = filters
-      .map((f) => {
-        const [k, v] = f.split('=');
-        return `  nwr["${k}"="${v}"]${box};`;
-      })
-      .join('\n');
+    const selectors = filters.map((f) => `  ${overpassSelector(f, box)};`).join('\n');
     // `out center tags <n>` returns ways/relations with a computed center and caps
     // the result count in one round-trip.
     const query = `[out:json][timeout:${OVERPASS_QUERY_TIMEOUT_S}];\n(\n${selectors}\n);\nout center tags ${cap + 25};`;

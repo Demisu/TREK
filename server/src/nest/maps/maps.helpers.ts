@@ -254,8 +254,8 @@ export interface OverpassPoi {
   /** Brand name and its Wikidata id, when OSM carries them — the logo is looked up from the id. */
   brand: string | null;
   brand_wikidata: string | null;
-  /** What a charging station offers, when it is one and OSM says. */
-  charging: ChargingInfo | null;
+  /** What a charging station offers, when it is one and OSM says; for an e-bike one, who may charge too. */
+  charging: ChargingInfo | BikeChargingInfo | null;
   /**
    * Which index the row came from. Overture is not OpenStreetMap: it carries
    * OSM among other sources under other licences, so a row from the TREK index
@@ -315,9 +315,9 @@ function leadingNumber(raw: string | undefined): number | null {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
-export function readChargingInfo(tags: Record<string, string>): ChargingInfo | null {
+function readSockets(tags: Record<string, string>, families: readonly string[]): ChargingInfo['sockets'] {
   const sockets: ChargingInfo['sockets'] = [];
-  for (const family of SOCKET_FAMILIES) {
+  for (const family of families) {
     const raw = tags[`socket:${family}`];
     if (raw === undefined) continue;
     const count = Number.parseInt(raw, 10);
@@ -327,16 +327,58 @@ export function readChargingInfo(tags: Record<string, string>): ChargingInfo | n
       kw: leadingNumber(tags[`socket:${family}:output`]),
     });
   }
+  return sockets;
+}
+
+function readCapacity(tags: Record<string, string>): number | null {
   const capacity = Number.parseInt(tags.capacity ?? '', 10);
-  const fee = tags.fee === 'yes' ? true : tags.fee === 'no' ? false : null;
-  const info: ChargingInfo = {
-    sockets,
-    capacity: Number.isInteger(capacity) && capacity > 0 ? capacity : null,
-    fee,
-  };
+  return Number.isInteger(capacity) && capacity > 0 ? capacity : null;
+}
+
+function readFee(tags: Record<string, string>): boolean | null {
+  return tags.fee === 'yes' ? true : tags.fee === 'no' ? false : null;
+}
+
+export function readChargingInfo(tags: Record<string, string>): ChargingInfo | null {
+  const sockets = readSockets(tags, SOCKET_FAMILIES);
+  const fee = readFee(tags);
+  const info: ChargingInfo = { sockets, capacity: readCapacity(tags), fee };
   // Nothing said is null rather than an empty shell, so the client can tell "no data"
   // from "no sockets" without inspecting three fields.
   return sockets.length || info.capacity !== null || fee !== null ? info : null;
+}
+
+/** What an e-bike charging point states beyond a car charger's facts: that bicycles may charge, and who may use it. */
+interface BikeChargingInfo extends ChargingInfo {
+  /** `designated` is made for bikes, `yes` lets them charge; the selector asks for one of the two. */
+  bicycle: 'yes' | 'designated';
+  /** OSM's own access value, `customers` or `private` style; null when not stated. */
+  access: string | null;
+}
+
+/**
+ * The sockets an e-bike charger is mapped with: household plugs for the bike's own
+ * charger (Schuko, the French type E, the British, the Swiss T13/T23, the blue CEE
+ * camping plug) and Type 2. OSM documents no key for a maker's bike connector that
+ * mappers use consistently, so none is read.
+ */
+const BIKE_SOCKET_FAMILIES = ['schuko', 'typee', 'bs1363', 'sev1011_t13', 'sev1011_t23', 'cee_blue', 'type2'] as const;
+
+/**
+ * What an e-bike charging point states, or null when it is not tagged for bicycles:
+ * the search asks for `bicycle=yes|designated`, and a point read here without either
+ * is never passed off as one. Sockets, capacity and fee are read as on a car charger.
+ */
+export function readBikeChargingInfo(tags: Record<string, string>): BikeChargingInfo | null {
+  const bicycle = tags.bicycle;
+  if (bicycle !== 'yes' && bicycle !== 'designated') return null;
+  return {
+    sockets: readSockets(tags, BIKE_SOCKET_FAMILIES),
+    capacity: readCapacity(tags),
+    fee: readFee(tags),
+    bicycle,
+    access: tags.access?.trim() || null,
+  };
 }
 
 // Each pill category → the OSM tag selectors it searches. Keys here are the
@@ -378,6 +420,9 @@ export const CATEGORY_OSM_FILTERS: Record<string, string[]> = {
   slipway: ['leisure=slipway', 'canoe=put_in'],
   boat_rental: ['amenity=boat_rental'],
   bike_repair: ['amenity=bicycle_repair_station', 'shop=bicycle'],
+  // BIK-07: charging points that say they are for bicycles. A selector with `&` asks
+  // for every condition at once (osm-filter.helpers), so a car charger never comes back.
+  ebike_charging: ['amenity=charging_station&bicycle=designated', 'amenity=charging_station&bicycle=yes'],
   // A city walk's market (CW-05): the square itself, not the shops of a mall as `shopping` has them.
   market: ['amenity=marketplace'],
   // A city walk's museums and galleries (CW-05), without the theatres and public art of `museum`.

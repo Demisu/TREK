@@ -1,5 +1,5 @@
 /**
- * MAPS-ALONG-020..029, 032..034: the Overpass query near a line (PLN-02). One
+ * MAPS-ALONG-020..029, 032..034, 039: the Overpass query near a line (PLN-02). One
  * query for every kind the index does not know, the candidates of the line's
  * box kept within reach of the line itself, and unnamed taps and huts kept,
  * because they are what a hike looks for, while an unnamed garden or cafe is
@@ -413,6 +413,48 @@ describe('OsmClient.searchOverpassPoisAlong', () => {
       ['way:3', 'Hofgarten', 'park'],
       ['node:6', '', 'viewpoint'],
     ]);
+  });
+
+  it('MAPS-ALONG-039: e-bike charging asks for bicycle tags, keeps an unnamed point with its facts, never a car charger', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      answer([
+        {
+          type: 'node',
+          id: 1,
+          lat: 47.475,
+          lon: 11.1,
+          tags: { amenity: 'charging_station', bicycle: 'designated', 'socket:schuko': '2', fee: 'no' },
+        },
+        { type: 'node', id: 2, lat: 47.476, lon: 11.1, tags: { amenity: 'charging_station', name: 'Ionity' } },
+        {
+          type: 'node',
+          id: 3,
+          lat: 47.477,
+          lon: 11.1,
+          tags: { amenity: 'charging_station', bicycle: 'yes', operator: 'Stadtwerke', access: 'customers' },
+        },
+      ]),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const out = await osm.searchOverpassPoisAlong('ebike_charging', line(7), 1000);
+
+    const query = queryOf(fetchMock.mock.calls[0]);
+    expect(query).toContain('nwr["amenity"="charging_station"]["bicycle"="designated"](');
+    expect(query).toContain('nwr["amenity"="charging_station"]["bicycle"="yes"](');
+    expect(query).not.toContain('nwr["amenity"="charging_station"](');
+    expect(out.pois.map((poi) => [poi.osm_id, poi.name, poi.category, poi.poi_type])).toEqual([
+      ['node:1', '', 'ebike_charging', 'amenity=charging_station&bicycle=designated'],
+      ['node:3', 'Stadtwerke', 'ebike_charging', 'amenity=charging_station&bicycle=yes'],
+    ]);
+    expect(out.pois[0]?.charging).toEqual({
+      sockets: [{ type: 'schuko', count: 2, kw: null }],
+      capacity: null,
+      fee: false,
+      bicycle: 'designated',
+      access: null,
+    });
+    expect(out.pois[1]?.charging).toMatchObject({ bicycle: 'yes', access: 'customers', sockets: [] });
   });
 
   it('MAPS-ALONG-024: more places than the budget are cut to it and said to be', async () => {
