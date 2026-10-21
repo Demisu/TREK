@@ -1,4 +1,4 @@
-// FE-JRN-DETWIRE-001 to FE-JRN-DETWIRE-043
+// FE-JRN-DETWIRE-001 to FE-JRN-DETWIRE-044
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor, within } from '../../tests/helpers/render';
 import { journeyApi } from '../api/client';
@@ -49,6 +49,7 @@ vi.mock('../components/Journey/JourneyDetailPageGalleryView', () => ({ GalleryVi
 vi.mock('../components/Journey/JourneyDetailPageEntryEditor', () => ({ EntryEditor: capture('editor', 'entry-editor') }));
 vi.mock('../components/Journey/JourneyDetailPageAddTripDialog', () => ({ AddTripDialog: capture('addTrip', 'add-trip-dialog') }));
 vi.mock('../components/Journey/JourneyDetailPageSettingsDialog', () => ({ JourneySettingsDialog: capture('settings', 'settings-dialog') }));
+vi.mock('../components/Journey/JourneyDayImportDialog', () => ({ default: capture('dayImport', 'day-import-dialog') }));
 vi.mock('../components/Journey/JourneyDetailPageEntryCard', () => ({
   EntryCard: capture('entryCard', 'entry-card'),
   SkeletonCard: capture('skeletonCard', 'skeleton-card'),
@@ -104,6 +105,11 @@ function buildHook(over: Record<string, unknown> = {}): Record<string, unknown> 
     // carries has its own suite (FE-JRN-DAYDAW), and what this file pins is the wiring.
     dawarichByDate: new Map(), dawarichBusyId: null,
     acceptDawarich: vi.fn(async () => {}), dismissDawarich: vi.fn(),
+    // The recorded days a journey keeps (JRN-01) and the day take-over (JRN-02): none here,
+    // their dialogs have suites of their own.
+    recordings: { byDate: new Map(), dialog: null, open: vi.fn() },
+    canTakeOverRecording: false, recordingNeedsConnection: false,
+    dayImport: { open: vi.fn(), dialog: null },
     mapRef: { current: null }, fullMapRef: { current: null }, galleryUploadRef: { current: null },
     galleryProviders: [], setGalleryProviders: vi.fn(), galleryBrowseRef: { current: null },
     galleryUploadProgress: null, setGalleryUploadProgress: vi.fn(),
@@ -609,5 +615,20 @@ describe('JourneyDetailPage wiring', () => {
     const button = screen.getByText('journey.editor.uploadingProgress').closest('button')!;
     expect(button).toBeDisabled();
     expect(screen.queryByText('common.upload')).not.toBeInTheDocument();
+  });
+
+  it('FE-JRN-DETWIRE-044: a day takes over with its stays from its header, and the open day shows its dialog (JRN-02)', () => {
+    const open = vi.fn();
+    setup({ canTakeOverRecording: true, dayImport: { open, dialog: null } });
+
+    const [firstDay] = screen.getAllByTestId('journey-day-import');
+    fireEvent.click(firstDay as HTMLElement);
+    expect(open).toHaveBeenCalledWith('2026-05-01');
+    expect(screen.queryByTestId('day-import-dialog')).not.toBeInTheDocument();
+
+    const dialog = { journeyId: 7, date: '2026-05-01', dayColor: '#123456' };
+    setup({ canTakeOverRecording: true, dayImport: { open, dialog } });
+    expect(screen.getByTestId('day-import-dialog')).toBeInTheDocument();
+    expect(mocks.captured.dayImport).toMatchObject(dialog);
   });
 });

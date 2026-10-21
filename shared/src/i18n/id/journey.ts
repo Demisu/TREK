@@ -752,5 +752,68 @@ const journey: TranslationStrings = {
   'journey.recording.mode.boat': 'Perahu',
   'journey.recording.mode.stationary': 'Diam',
   'journey.recording.mode.unknown': 'Moda tidak dikenal',
+  'journey.dayImport.open': 'Ambil hari',
+  'journey.dayImport.openHint': 'Ambil hari ini beserta persinggahannya',
+  'journey.dayImport.openOn': 'Ambil {date} beserta persinggahannya',
+  'journey.dayImport.pending': '{count} persinggahan untuk ditinjau',
+  'journey.dayImport.sub':
+    'Persinggahanmu dari Dawarich pada hari ini. Pilih, ganti nama, dan gabungkan; semuanya menjadi draf.',
+  'journey.dayImport.loading': 'Membaca persinggahan hari ini dari Dawarich…',
+  'journey.dayImport.map': 'Hari di peta',
+  'journey.dayImport.stays': 'Persinggahan',
+  'journey.dayImport.modeEntries': 'Catatan',
+  'journey.dayImport.modeReport': 'Laporan harian',
+  'journey.dayImport.reportDefault': 'Hari {date}',
+  'journey.dayImport.reportHint':
+    'Semua persinggahan yang dipilih menjadi satu catatan yang mencantumkannya beserta waktunya. Setiap tempat tetap tersimpan untuk peta.',
+  'journey.dayImport.reportNeedsTwo': 'Pilih dua persinggahan atau lebih untuk laporan harian.',
+  'journey.dayImport.groupTitle': 'Judul catatan',
+  'journey.dayImport.groupPin': 'Posisi di peta',
+  'journey.dayImport.noPin': 'Tanpa posisi di peta',
+  'journey.dayImport.join': 'Gabungkan jadi satu catatan',
+  'journey.dayImport.split': 'Biarkan terpisah',
+  'journey.dayImport.choose': 'Ambil {name}',
+  'journey.dayImport.name': 'Nama {name}',
+  'journey.dayImport.unconfirmed': 'Belum dikonfirmasi',
+  'journey.dayImport.noPlace': 'Tanpa posisi',
+  'journey.dayImport.noPlaceHint':
+    'Dawarich tidak mencatat posisi untuk persinggahan ini, jadi catatannya tidak muncul di peta.',
+  'journey.dayImport.statusHere': 'Di {title}',
+  'journey.dayImport.statusHereUntitled': 'Di jurnal',
+  'journey.dayImport.statusElsewhere': 'Sudah diambil',
+  'journey.dayImport.statusElsewhereHint': 'Sudah diambil sebagai tempat, keinginan, atau ke jurnal lain.',
+  'journey.dayImport.statusSkipped': 'Dilewati',
+  'journey.dayImport.keepRoute': 'Simpan juga rute hari ini',
+  'journey.dayImport.keepRouteHint': '{distance} tercatat. Semua orang di perjalanan melihatnya di peta.',
+  'journey.dayImport.routeNone': 'Dawarich tidak mencatat rute pada hari ini.',
+  'journey.dayImport.routeKept': 'Rute disimpan',
+  'journey.dayImport.routeDiffers':
+    'Dawarich sekarang punya versi lain dari rute ini. Ganti lewat tombol rute hari itu.',
+  'journey.dayImport.existing': 'Sudah ada di hari ini',
+  'journey.dayImport.untitled': 'Catatan tanpa judul',
+  'journey.dayImport.draft': 'Draf',
+  'journey.dayImport.audience':
+    'Draf tidak tampil di tautan yang dibagikan. {count} orang lain di perjalanan ini melihatnya.',
+  'journey.dayImport.draftsNote':
+    'Draf tidak tampil di tautan yang dibagikan sampai kamu menerbitkannya. Tambahkan foto dan teks setelahnya.',
+  'journey.dayImport.submit': 'Ambil {count} draf',
+  'journey.dayImport.skipped': '{count} dilewati',
+  'journey.dayImport.skipHint':
+    'Persinggahan yang kamu lewati tidak lagi menunggu di hari ini. Kamu bisa memulihkannya di daftar persinggahan Dawarich.',
+  'journey.dayImport.problem.nothing': 'Pilih setidaknya satu persinggahan.',
+  'journey.dayImport.problem.name': 'Setiap persinggahan yang dipilih perlu nama.',
+  'journey.dayImport.problem.title': 'Setiap catatan gabungan dan laporan harian perlu judul.',
+  'journey.dayImport.done': '{count} draf diambil',
+  'journey.dayImport.alreadyTaken': '{count} persinggahan sudah ada di jurnal. Tidak ada yang ditulis dua kali.',
+  'journey.dayImport.failed':
+    'Tidak ada yang diambil: {reason} Daftar menunjukkan isi jurnal sekarang; mencoba lagi tidak menulis apa pun dua kali.',
+  'journey.dayImport.routeFailed': 'Draf sudah dibuat, tetapi rute tidak disimpan: {reason}',
+  'journey.dayImport.routeRetry': 'Simpan rute lagi',
+  'journey.dayImport.stale':
+    'Dawarich tidak menjawab: {reason} Menampilkan persinggahan dari sinkronisasi terakhir pada {date}.',
+  'journey.dayImport.staleNever':
+    'Dawarich tidak menjawab: {reason} Menampilkan persinggahan yang sudah diketahui TREK.',
+  'journey.dayImport.truncated': 'Dawarich hanya mengirim sebagian hari ini. Beberapa persinggahan mungkin hilang.',
+  'journey.dayImport.empty': 'Dawarich tidak menemukan persinggahan pada hari ini.',
 };
 export default journey;

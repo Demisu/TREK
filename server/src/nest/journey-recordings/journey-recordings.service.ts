@@ -49,7 +49,7 @@ export class JourneyRecordingsService {
     journeyId: number,
     request: JourneyRecordingPreviewRequest,
   ): Promise<JourneyRecordingPreview> {
-    const journey = await this.editable(journeyId, userId);
+    const journey = await this.requireEditable(journeyId, userId);
     await this.requireDawarich();
     const day = await this.tracks.fetchDay(userId, request.date, {
       offsetMinutes: request.utcOffsetMinutes,
@@ -84,7 +84,7 @@ export class JourneyRecordingsService {
     request: JourneyRecordingSaveRequest,
     socketId?: string,
   ): Promise<JourneyRecordingSaveResult> {
-    await this.editable(journeyId, userId);
+    await this.requireEditable(journeyId, userId);
     await this.requireDawarich();
     const day = await this.tracks.fetchDay(userId, date, {
       offsetMinutes: request.utcOffsetMinutes,
@@ -125,19 +125,20 @@ export class JourneyRecordingsService {
 
   /** Drops the day a journey keeps. Needs no Dawarich: a kept day stays removable once the connection is gone. */
   async remove(userId: number, journeyId: number, date: string, socketId?: string): Promise<void> {
-    await this.editable(journeyId, userId);
+    await this.requireEditable(journeyId, userId);
     if (!(await this.recordedDays.remove(journeyId, date))) throw notFound('No recording kept for that day');
     await this.journeys.broadcastJourneyEvent(journeyId, 'journey:recording:updated', { date }, socketId);
   }
 
-  private async editable(journeyId: number, userId: number) {
+  /** The journey, when the caller may edit it: 404 when they cannot open it, 403 when they only read it. */
+  async requireEditable(journeyId: number, userId: number) {
     const journey = await this.journeys.canAccessJourney(journeyId, userId);
     if (!journey) throw notFound('Journey not found');
     if (!(await this.journeys.canEdit(journeyId, userId))) throw forbidden('Not allowed');
     return journey;
   }
 
-  private async requireDawarich(): Promise<void> {
+  async requireDawarich(): Promise<void> {
     if (!(await this.addons.isAddonEnabled(ADDON_IDS.DAWARICH))) {
       throw notFound('Dawarich is not enabled', { code: 'addon_disabled' });
     }

@@ -17,6 +17,7 @@ import { openStaysByDate } from '../../components/Dawarich/dawarichSuggestionMod
 import type { DawarichSuggestion, DawarichSuggestionTarget } from '@trek/shared'
 
 import { useDawarichJournalTrail } from '../../hooks/useDawarichJournalTrail'
+import { useJourneyDetailDayImport } from './useJourneyDetailDayImport'
 import { useJourneyDetailRecordings } from './useJourneyDetailRecordings'
 import { useProviderPhotoAdds } from './useProviderPhotoAdds'
 
@@ -532,7 +533,7 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
   // asked for should not reach across the network for it.
   const dawarichTrail = useDawarichJournalTrail(tripDates, showTripTracks)
 
-  const { recordings, canTakeOverRecording, recordingNeedsConnection, mapTracks } = useJourneyDetailRecordings({
+  const { recordings, colorOfDay, canTakeOverRecording, recordingNeedsConnection, mapTracks } = useJourneyDetailRecordings({
     loaded: journeyLoaded,
     journey: current,
     canEdit: canEditEntries,
@@ -540,6 +541,21 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
     sidebarMapItems,
     tripTracks: tracks,
     liveTracks: dawarichTrail.tracks,
+  })
+
+  // The drafts a day's take-over wrote reach the timeline, and its stays leave the pending list.
+  const afterDayTakeOver = useCallback(() => {
+    if (current) void loadJourney(current.id)
+    dawarich.reload()
+  }, [current, loadJourney, dawarich])
+  const recordedDayOf = useCallback((date: string) => recordings.byDate.get(date), [recordings.byDate])
+  const dayImport = useJourneyDetailDayImport({
+    loaded: journeyLoaded,
+    journey: current,
+    colorOfDay,
+    recordedDayOf,
+    onKept: recordings.kept,
+    onTakenOver: afterDayTakeOver,
   })
 
   /** Studio's margin to the window on all four sides — see `.st-root` in studio.css. */
@@ -588,7 +604,7 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
     galleryUploadProgress, setGalleryUploadProgress,
     activeLocationId, handleMarkerClick, handleLocationClick,
     mapEntries, sidebarMapItems, tripDates, isMobile, tracks: mapTracks, dawarichTrail,
-    recordings, canTakeOverRecording, recordingNeedsConnection,
+    recordings, canTakeOverRecording, recordingNeedsConnection, dayImport,
     mapPhotos, openMapPhotos,
     feedEdge, scrollFeedTo,
     loadJourney, updateEntry, deleteEntry, reorderEntries, uploadPhotos, deletePhoto,

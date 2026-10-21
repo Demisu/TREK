@@ -11,7 +11,7 @@ import { AddonsService } from '../addons/addons.service';
 import { getCountryFromCoords } from '../atlas/atlas-geo';
 import { logError, logInfo } from '../audit/audit-log.logger';
 import { UnitOfWork } from '../database/unit-of-work';
-import { DawarichClient, DawarichError, type DawarichCreds } from './dawarich.client';
+import { DawarichClient, DawarichError, type DawarichCreds, type DawarichVisitRaw } from './dawarich.client';
 import { distanceMeters, localDateOf, normalizeVisit, syncWindow, visitHash } from './dawarich.helpers';
 import { DawarichService } from './dawarich.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -23,6 +23,8 @@ import {
   DAWARICH_BUCKET_MATCH_MIN_MINUTES,
   type DawarichSyncState,
 } from '@trek/shared';
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** What one user's sync produced — plus whether it ran at all. */
 export interface DawarichSyncOutcome {
@@ -249,88 +251,129 @@ export class DawarichSyncService {
     const seenIds = new Set<string>();
     let created = 0;
     let updated = 0;
-
     for (const raw of visits) {
-      const visit = normalizeVisit(raw);
-      if (!visit) continue;
-      seenIds.add(visit.sourceVisitId);
-
-      const hash = visitHash(raw);
-      const existing = await this.suggestions.findByUserAndVisit(userId, visit.sourceVisitId);
-
-      // Dawarich has no country code on a visit's place, so it is resolved here
-      // from the coordinates against the same borders the Atlas draws. A code
-      // the source does start sending one day wins, because it is the source's
-      // own answer.
-      const countryCode =
-        visit.countryCodeFromSource ??
-        (visit.lat !== null && visit.lng !== null ? getCountryFromCoords(visit.lat, visit.lng) : null);
-
-      const ownerTripId = tripForVisit(visit.localDate, tripId, existing?.trip_id ?? null, trips);
-
-      if (!existing) {
-        await this.suggestions.insertVisit({
-          user_id: userId,
-          source_visit_id: visit.sourceVisitId,
-          trip_id: ownerTripId,
-          name: visit.name,
-          lat: visit.lat,
-          lng: visit.lng,
-          started_at: visit.startedAt,
-          ended_at: visit.endedAt,
-          duration_minutes: visit.durationMinutes,
-          local_date: visit.localDate,
-          source_status: visit.status,
-          confidence: visit.confidence,
-          confidence_band: visit.confidenceBand,
-          country_code: countryCode,
-          source_hash: hash,
-          first_seen_at: new Date().toISOString(),
-          last_seen_at: new Date().toISOString(),
-        });
-        created++;
-        await this.matchBucketList(userId, visit.sourceVisitId, visit.lat, visit.lng, visit.durationMinutes);
-        continue;
-      }
-
-      const changed = existing.source_hash !== hash;
-
-      if (existing.state === 'new') {
-        // Nobody has acted on it yet, so the newest version of the source is
-        // simply the better suggestion. Overwriting here loses nothing, and
-        // that includes the trip: a stay parked on a neighbour by an earlier
-        // run moves to the trip whose dates hold it.
-        await this.suggestions.updateNewVisit(existing.id, {
-          name: visit.name,
-          lat: visit.lat,
-          lng: visit.lng,
-          started_at: visit.startedAt,
-          ended_at: visit.endedAt,
-          duration_minutes: visit.durationMinutes,
-          local_date: visit.localDate,
-          source_status: visit.status,
-          confidence: visit.confidence,
-          confidence_band: visit.confidenceBand,
-          country_code: countryCode,
-          source_hash: hash,
-          trip_id: ownerTripId,
-          last_seen_at: new Date().toISOString(),
-        });
-        if (changed) updated++;
-        await this.matchBucketList(userId, visit.sourceVisitId, visit.lat, visit.lng, visit.durationMinutes);
-        continue;
-      }
-
-      // Accepted or dismissed: the hash is refreshed so the flag is raised once
-      // rather than on every tick, but nothing the user can see is rewritten.
-      // `accepted_hash` is what they said yes to; the difference between that
-      // and the current hash is what the UI reports.
-      await this.suggestions.refreshHash(existing.id, hash, new Date().toISOString());
-      if (changed) updated++;
+      const outcome = await this.upsertVisit(userId, tripId, raw, trips);
+      if (!outcome) continue;
+      seenIds.add(outcome.sourceVisitId);
+      if (outcome.change === 'created') created++;
+      else if (outcome.change === 'updated') updated++;
     }
 
     const missing = await this.flagMissing(userId, tripId, from, to, seenIds);
     return { created, updated, missing };
+  }
+
+  /**
+   * One visit into the user's suggestions: inserted when new, overwritten while
+   * nobody acted on it, only its hash refreshed once accepted or dismissed.
+   * Null for a visit too broken to read.
+   *
+   * @txIndependent the stay is whole once written; the wish match after it is
+   * a derived hint the next sync works out again.
+   */
+  private async upsertVisit(
+    userId: number,
+    tripId: number | null,
+    raw: DawarichVisitRaw,
+    trips: TripRow[],
+  ): Promise<{ sourceVisitId: string; change: 'created' | 'updated' | 'unchanged' } | null> {
+    const visit = normalizeVisit(raw);
+    if (!visit) return null;
+
+    const hash = visitHash(raw);
+    const existing = await this.suggestions.findByUserAndVisit(userId, visit.sourceVisitId);
+
+    // Dawarich has no country code on a visit's place, so it is resolved here
+    // from the coordinates against the same borders the Atlas draws. A code
+    // the source does start sending one day wins, because it is the source's
+    // own answer.
+    const countryCode =
+      visit.countryCodeFromSource ??
+      (visit.lat !== null && visit.lng !== null ? getCountryFromCoords(visit.lat, visit.lng) : null);
+
+    const ownerTripId = tripForVisit(visit.localDate, tripId, existing?.trip_id ?? null, trips);
+
+    if (!existing) {
+      await this.suggestions.insertVisit({
+        user_id: userId,
+        source_visit_id: visit.sourceVisitId,
+        trip_id: ownerTripId,
+        name: visit.name,
+        lat: visit.lat,
+        lng: visit.lng,
+        started_at: visit.startedAt,
+        ended_at: visit.endedAt,
+        duration_minutes: visit.durationMinutes,
+        local_date: visit.localDate,
+        source_status: visit.status,
+        confidence: visit.confidence,
+        confidence_band: visit.confidenceBand,
+        country_code: countryCode,
+        source_hash: hash,
+        first_seen_at: new Date().toISOString(),
+        last_seen_at: new Date().toISOString(),
+      });
+      await this.matchBucketList(userId, visit.sourceVisitId, visit.lat, visit.lng, visit.durationMinutes);
+      return { sourceVisitId: visit.sourceVisitId, change: 'created' };
+    }
+
+    const changed = existing.source_hash !== hash;
+
+    if (existing.state === 'new') {
+      // Nobody has acted on it yet, so the newest version of the source is
+      // simply the better suggestion. Overwriting here loses nothing, and
+      // that includes the trip: a stay parked on a neighbour by an earlier
+      // run moves to the trip whose dates hold it.
+      await this.suggestions.updateNewVisit(existing.id, {
+        name: visit.name,
+        lat: visit.lat,
+        lng: visit.lng,
+        started_at: visit.startedAt,
+        ended_at: visit.endedAt,
+        duration_minutes: visit.durationMinutes,
+        local_date: visit.localDate,
+        source_status: visit.status,
+        confidence: visit.confidence,
+        confidence_band: visit.confidenceBand,
+        country_code: countryCode,
+        source_hash: hash,
+        trip_id: ownerTripId,
+        last_seen_at: new Date().toISOString(),
+      });
+      await this.matchBucketList(userId, visit.sourceVisitId, visit.lat, visit.lng, visit.durationMinutes);
+      return { sourceVisitId: visit.sourceVisitId, change: changed ? 'updated' : 'unchanged' };
+    }
+
+    // Accepted or dismissed: the hash is refreshed so the flag is raised once
+    // rather than on every tick, but nothing the user can see is rewritten.
+    // `accepted_hash` is what they said yes to; the difference between that
+    // and the current hash is what the UI reports.
+    await this.suggestions.refreshHash(existing.id, hash, new Date().toISOString());
+    return { sourceVisitId: visit.sourceVisitId, change: changed ? 'updated' : 'unchanged' };
+  }
+
+  /**
+   * The stays of one local day read again from Dawarich (JRN-02), so the day
+   * review shows what the recording holds now and not only what the last sync
+   * of a trip window brought in. The window reaches a day past both sides,
+   * because a stay's day is in its own zone and Dawarich filters on the start.
+   *
+   * Upserts only: nothing is flagged missing or deleted, since a window this
+   * narrow is no full re-read of anything a trip's sync holds.
+   *
+   * @txIndependent one stay at a time after the network read, as the trip
+   * sync writes them.
+   */
+  async refreshDay(userId: number, creds: DawarichCreds, date: string): Promise<{ truncated: boolean }> {
+    const day = Date.parse(`${date}T00:00:00Z`);
+    const { visits, truncated } = await this.client.listVisits(
+      creds,
+      new Date(day - DAY_MS),
+      new Date(day + 2 * DAY_MS),
+    );
+    const trips = await this.listTripsToSync(userId);
+    for (const raw of visits) await this.upsertVisit(userId, null, raw, trips);
+    return { truncated };
   }
 
   /**
@@ -495,10 +538,10 @@ function tripCovers(trip: TripRow, localDate: string): boolean {
  */
 function tripForVisit(
   localDate: string,
-  currentTripId: number,
+  currentTripId: number | null,
   existingTripId: number | null,
   trips: TripRow[],
-): number {
+): number | null {
   const existing = existingTripId === null ? undefined : trips.find((t) => t.id === existingTripId);
   if (existing && tripCovers(existing, localDate)) return existing.id;
   const current = trips.find((t) => t.id === currentTripId);

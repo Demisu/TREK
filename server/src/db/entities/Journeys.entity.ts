@@ -3,6 +3,7 @@ import { JourneysRepository } from '../repositories/Journeys.repository';
 import { JourneyBooks } from './JourneyBooks.entity';
 import { JourneyContributors } from './JourneyContributors.entity';
 import { JourneyEntries } from './JourneyEntries.entity';
+import { JourneyEntryStays } from './JourneyEntryStays.entity';
 import { JourneyPhotos } from './JourneyPhotos.entity';
 import { JourneyRecordedDays } from './JourneyRecordedDays.entity';
 import { JourneyShareTokens } from './JourneyShareTokens.entity';
@@ -31,6 +32,7 @@ export class Journeys {
   journey_books_collection = new Collection<JourneyBooks>(this);
   journey_contributors_collection = new Collection<JourneyContributors>(this);
   journey_entries_collection = new Collection<JourneyEntries>(this);
+  journey_entry_stays_collection = new Collection<JourneyEntryStays>(this);
   journey_photos_collection = new Collection<JourneyPhotos>(this);
   journey_recorded_days_collection = new Collection<JourneyRecordedDays>(this);
   journey_share_tokens: Ref<JourneyShareTokens> | null = null;
@@ -61,6 +63,7 @@ export const JourneysSchema = defineEntity({
     journey_books_collection: () => p.oneToMany(JourneyBooks).mappedBy('journey').hidden(),
     journey_contributors_collection: () => p.oneToMany(JourneyContributors).mappedBy('journey').hidden(),
     journey_entries_collection: () => p.oneToMany(JourneyEntries).mappedBy('journey').hidden(),
+    journey_entry_stays_collection: () => p.oneToMany(JourneyEntryStays).mappedBy('journey').hidden(),
     journey_photos_collection: () => p.oneToMany(JourneyPhotos).mappedBy('journey').hidden(),
     journey_recorded_days_collection: () => p.oneToMany(JourneyRecordedDays).mappedBy('journey').hidden(),
     journey_share_tokens: () => p.oneToOne(JourneyShareTokens).ref().mappedBy('journey').hidden(),

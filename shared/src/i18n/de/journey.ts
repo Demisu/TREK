@@ -774,5 +774,75 @@ const journey: TranslationStrings = {
   'journey.recording.mode.boat': 'Boot',
   'journey.recording.mode.stationary': 'Stillstand',
   'journey.recording.mode.unknown': 'Unbekannte Fortbewegung',
+  'journey.dayImport.open': 'Tag übernehmen',
+  'journey.dayImport.openHint': 'Diesen Tag mit seinen Aufenthalten übernehmen',
+  'journey.dayImport.openOn': '{date} mit Aufenthalten übernehmen',
+  'journey.dayImport.pending': '{count} Aufenthalte zum Prüfen',
+  'journey.dayImport.pending.one': '{count} Aufenthalt zum Prüfen',
+  'journey.dayImport.sub':
+    'Deine Aufenthalte aus Dawarich an diesem Tag. Wähle, benenne und fasse sie zusammen; sie werden zu Entwürfen.',
+  'journey.dayImport.loading': 'Aufenthalte des Tages werden aus Dawarich gelesen…',
+  'journey.dayImport.map': 'Tag auf der Karte',
+  'journey.dayImport.stays': 'Aufenthalte',
+  'journey.dayImport.modeEntries': 'Einträge',
+  'journey.dayImport.modeReport': 'Tagesbericht',
+  'journey.dayImport.reportDefault': 'Tag am {date}',
+  'journey.dayImport.reportHint':
+    'Alle gewählten Aufenthalte werden ein Eintrag, der sie mit ihren Zeiten auflistet. Jeder Ort bleibt für die Karte erhalten.',
+  'journey.dayImport.reportNeedsTwo': 'Wähle zwei oder mehr Aufenthalte für einen Tagesbericht.',
+  'journey.dayImport.groupTitle': 'Titel des Eintrags',
+  'journey.dayImport.groupPin': 'Kartenposition',
+  'journey.dayImport.noPin': 'Keine Kartenposition',
+  'journey.dayImport.join': 'Zu einem Eintrag verbinden',
+  'journey.dayImport.split': 'Getrennt lassen',
+  'journey.dayImport.choose': '{name} übernehmen',
+  'journey.dayImport.name': 'Name von {name}',
+  'journey.dayImport.unconfirmed': 'Unbestätigt',
+  'journey.dayImport.noPlace': 'Ohne Position',
+  'journey.dayImport.noPlaceHint':
+    'Dawarich hat für diesen Aufenthalt keine Position aufgezeichnet, sein Eintrag erscheint daher nicht auf der Karte.',
+  'journey.dayImport.statusHere': 'In {title}', // same-as-en
+  'journey.dayImport.statusHereUntitled': 'Im Journal',
+  'journey.dayImport.statusElsewhere': 'Übernommen',
+  'journey.dayImport.statusElsewhereHint': 'Schon als Ort, als Wunsch oder in ein anderes Journal übernommen.',
+  'journey.dayImport.statusSkipped': 'Ausgelassen',
+  'journey.dayImport.keepRoute': 'Tagesstrecke mitspeichern',
+  'journey.dayImport.keepRouteHint': '{distance} aufgezeichnet. Alle in dieser Journey sehen sie auf der Karte.',
+  'journey.dayImport.routeNone': 'Dawarich hat an diesem Tag keine Strecke aufgezeichnet.',
+  'journey.dayImport.routeKept': 'Strecke gespeichert',
+  'journey.dayImport.routeDiffers':
+    'Dawarich hat inzwischen eine andere Fassung der Strecke. Ersetze sie über den Streckenknopf des Tages.',
+  'journey.dayImport.existing': 'Schon an diesem Tag',
+  'journey.dayImport.untitled': 'Eintrag ohne Titel',
+  'journey.dayImport.draft': 'Entwurf',
+  'journey.dayImport.audience':
+    'Entwürfe erscheinen nicht in geteilten Links. {count} weitere Personen in dieser Journey sehen sie.',
+  'journey.dayImport.audience.one':
+    'Entwürfe erscheinen nicht in geteilten Links. {count} weitere Person in dieser Journey sieht sie.',
+  'journey.dayImport.draftsNote':
+    'Entwürfe erscheinen nicht in geteilten Links, bis du sie veröffentlichst. Fotos und Text ergänzt du danach.',
+  'journey.dayImport.submit': '{count} Entwürfe übernehmen',
+  'journey.dayImport.submit.one': '{count} Entwurf übernehmen',
+  'journey.dayImport.skipped': '{count} ausgelassen',
+  'journey.dayImport.skipped.one': '{count} ausgelassen',
+  'journey.dayImport.skipHint':
+    'Ausgelassene Aufenthalte warten an diesem Tag nicht mehr. Du kannst sie in der Dawarich-Aufenthaltsliste wiederherstellen.',
+  'journey.dayImport.problem.nothing': 'Wähle mindestens einen Aufenthalt.',
+  'journey.dayImport.problem.name': 'Jeder gewählte Aufenthalt braucht einen Namen.',
+  'journey.dayImport.problem.title': 'Jeder verbundene Eintrag und der Tagesbericht brauchen einen Titel.',
+  'journey.dayImport.done': '{count} Entwürfe übernommen',
+  'journey.dayImport.done.one': '{count} Entwurf übernommen',
+  'journey.dayImport.alreadyTaken': '{count} Aufenthalte waren schon im Journal. Nichts wurde doppelt angelegt.',
+  'journey.dayImport.alreadyTaken.one': '{count} Aufenthalt war schon im Journal. Nichts wurde doppelt angelegt.',
+  'journey.dayImport.failed':
+    'Nichts wurde übernommen: {reason} Die Liste zeigt, was das Journal jetzt enthält; ein neuer Versuch legt nichts doppelt an.',
+  'journey.dayImport.routeFailed': 'Die Entwürfe sind angelegt, die Strecke wurde aber nicht gespeichert: {reason}',
+  'journey.dayImport.routeRetry': 'Strecke erneut speichern',
+  'journey.dayImport.stale':
+    'Dawarich hat nicht geantwortet: {reason} Gezeigt werden die Aufenthalte des letzten Abgleichs vom {date}.',
+  'journey.dayImport.staleNever':
+    'Dawarich hat nicht geantwortet: {reason} Gezeigt werden die Aufenthalte, die TREK schon kennt.',
+  'journey.dayImport.truncated': 'Dawarich hat nur einen Teil dieses Tages geliefert. Es können Aufenthalte fehlen.',
+  'journey.dayImport.empty': 'Dawarich hat an diesem Tag keine Aufenthalte erkannt.',
 };
 export default journey;

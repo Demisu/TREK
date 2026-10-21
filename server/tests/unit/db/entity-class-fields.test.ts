@@ -45,7 +45,9 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 // + tour_source_hints: user_id (a hint is only ever written for the user whose snapshot it is about).
 // + journey_recorded_days: id, journey_id, local_date, source_kind, utc_offset_minutes, window_from,
 //   window_to, segments, point_count, content_hash, fetched_at (a kept day is only ever written whole).
-const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 530;
+// + journey_entry_stays: id, journey_id, entry_id, source_visit_id, name, started_at, ended_at (a stay is
+//   only ever written whole, by the take-over of its day).
+const KNOWN_UNINITIALISED_NOT_NULL_SCALARS = 537;
 
 describe('entity class fields never carry a NaN initialiser (task-4-review-shape.md, Important 1)', () => {
   it('CLASSFIELD-001: new X() has no own property whose value is NaN, across all 133 entities', () => {

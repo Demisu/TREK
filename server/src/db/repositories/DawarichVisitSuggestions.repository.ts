@@ -157,6 +157,17 @@ export class DawarichVisitSuggestionsRepository extends TrekRepository<DawarichV
   }
 
   /** DWS3 — `getOne`: single-row variant of {@link list}'s join. */
+  /** One person's stays of one local day, in the order they were lived (JRN-02's day review). */
+  async listForDay(userId: number, localDate: string): Promise<SuggestionJoinRow[]> {
+    const rows = await this.joinedQuery()
+      .where('s.user_id', '=', userId)
+      .where('s.local_date', '=', localDate)
+      .orderBy('s.started_at', 'asc')
+      .orderBy('s.id', 'asc')
+      .execute();
+    return rows as SuggestionJoinRow[];
+  }
+
   async getOne(userId: number, id: number): Promise<SuggestionJoinRow | null> {
     const row = await this.joinedQuery().where('s.id', '=', id).where('s.user_id', '=', userId).executeTakeFirst();
     return (row as SuggestionJoinRow) ?? null;

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { ChevronLeft, MapPin, Grid3x3, MoreHorizontal, Play, Image, Camera, EyeOff, Settings2, X, Route } from 'lucide-react'
+import { ChevronLeft, MapPin, Grid3x3, MoreHorizontal, Play, Image, Camera, EyeOff, Settings2, X, Route, ListChecks } from 'lucide-react'
 import JourneyMap from '../../../components/Journey/JourneyMapAuto'
 import PhotoLightbox from '../../../components/Journey/PhotoLightbox'
 import ContributorInviteDialog from '../../../components/Journey/ContributorInviteDialog'
@@ -27,6 +27,7 @@ import { useJourneyCarouselSync } from '../../../components/Journey/useJourneyCa
 import { useGalleryUpload } from '../../../components/Journey/useGalleryUpload'
 import MJourneyEntrySheet from './MJourneyEntrySheet'
 import MJourneySettingsSheet from './MJourneySettingsSheet'
+import MJourneyDayImportSheet from './MJourneyDayImportSheet'
 import MJourneyRecordingSheet from './MJourneyRecordingSheet'
 
 /**
@@ -49,7 +50,7 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
     showInvite, setShowInvite,
     showSettings, setShowSettings,
     hideSkeletons, setHideSkeletons,
-    sidebarMapItems, tracks, recordings, canTakeOverRecording,
+    sidebarMapItems, tracks, recordings, canTakeOverRecording, dayImport, dawarichByDate,
     dismissSuggestion, restoreSuggestions, openAtEntryId,
     loadJourney, updateEntry, deleteEntry, reorderEntries, uploadPhotos,
     addPickedProviderPhotos, addEntryProviderPhotos,
@@ -520,6 +521,21 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
               onClick={() => { setShowActionMenu(false); recordings.open(entries[activeIndex].entry_date) }}
             />
           )}
+          {/* The same day with its stays (JRN-02), counting the ones still waiting. */}
+          {canEditEntries && canTakeOverRecording && view === 'timeline' && entries[activeIndex] && (
+            <MListRow
+              icon={ListChecks}
+              label={t('journey.dayImport.openOn', {
+                date: new Date(entries[activeIndex].entry_date + 'T00:00:00').toLocaleDateString(locale, { day: 'numeric', month: 'long' }),
+              })}
+              trailing={dawarichByDate.get(entries[activeIndex].entry_date)?.length ? (
+                <span className="rounded-full bg-m-ic px-2 py-0.5 font-geist text-caption font-bold tabular-nums text-m-muted">
+                  {dawarichByDate.get(entries[activeIndex].entry_date)?.length}
+                </span>
+              ) : undefined}
+              onClick={() => { setShowActionMenu(false); dayImport.open(entries[activeIndex].entry_date) }}
+            />
+          )}
           {canEditJourney && (
             <MListRow
               icon={Settings2}
@@ -584,6 +600,7 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
       )}
 
       {recordings.dialog && <MJourneyRecordingSheet {...recordings.dialog} />}
+      {dayImport.dialog && <MJourneyDayImportSheet {...dayImport.dialog} />}
 
       {/* Journey settings */}
       {showSettings && (

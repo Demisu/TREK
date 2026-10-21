@@ -769,5 +769,75 @@ const journey: TranslationStrings = {
   'journey.recording.mode.boat': 'Barca',
   'journey.recording.mode.stationary': 'Fermo',
   'journey.recording.mode.unknown': 'Mezzo sconosciuto',
+  'journey.dayImport.open': 'Riprendi giornata',
+  'journey.dayImport.openHint': 'Riprendi questa giornata con le sue soste',
+  'journey.dayImport.openOn': 'Riprendi il {date} con le sue soste',
+  'journey.dayImport.pending': '{count} soste da controllare',
+  'journey.dayImport.pending.one': '{count} sosta da controllare',
+  'journey.dayImport.sub':
+    'Le tue soste da Dawarich in questa giornata. Sceglile, rinominale e uniscile; diventano bozze.',
+  'journey.dayImport.loading': 'Lettura delle soste della giornata da Dawarich…',
+  'journey.dayImport.map': 'La giornata sulla mappa',
+  'journey.dayImport.stays': 'Soste',
+  'journey.dayImport.modeEntries': 'Voci',
+  'journey.dayImport.modeReport': 'Resoconto del giorno',
+  'journey.dayImport.reportDefault': 'Giornata del {date}',
+  'journey.dayImport.reportHint':
+    'Tutte le soste scelte diventano una sola voce che le elenca con i loro orari. Ogni luogo resta registrato per la mappa.',
+  'journey.dayImport.reportNeedsTwo': 'Scegli due o più soste per un resoconto del giorno.',
+  'journey.dayImport.groupTitle': 'Titolo della voce',
+  'journey.dayImport.groupPin': 'Posizione sulla mappa',
+  'journey.dayImport.noPin': 'Nessuna posizione sulla mappa',
+  'journey.dayImport.join': 'Unisci in una voce',
+  'journey.dayImport.split': 'Tieni separate',
+  'journey.dayImport.choose': 'Riprendi {name}',
+  'journey.dayImport.name': 'Nome di {name}',
+  'journey.dayImport.unconfirmed': 'Non confermata',
+  'journey.dayImport.noPlace': 'Senza posizione',
+  'journey.dayImport.noPlaceHint':
+    'Dawarich non ha registrato una posizione per questa sosta, quindi la sua voce non compare sulla mappa.',
+  'journey.dayImport.statusHere': 'In {title}', // same-as-en
+  'journey.dayImport.statusHereUntitled': 'Nel diario',
+  'journey.dayImport.statusElsewhere': 'Già ripresa',
+  'journey.dayImport.statusElsewhereHint': 'Già ripresa come luogo, come desiderio o in un altro diario.',
+  'journey.dayImport.statusSkipped': 'Esclusa',
+  'journey.dayImport.keepRoute': 'Conserva anche il percorso del giorno',
+  'journey.dayImport.keepRouteHint': '{distance} registrati. Tutti nel viaggio lo vedono sulla mappa.',
+  'journey.dayImport.routeNone': 'Dawarich non ha registrato alcun percorso in questa giornata.',
+  'journey.dayImport.routeKept': 'Percorso conservato',
+  'journey.dayImport.routeDiffers':
+    'Dawarich ha ora un’altra versione del percorso. Sostituiscila con il pulsante del percorso della giornata.',
+  'journey.dayImport.existing': 'Già in questa giornata',
+  'journey.dayImport.untitled': 'Voce senza titolo',
+  'journey.dayImport.draft': 'Bozza',
+  'journey.dayImport.audience':
+    'Le bozze non compaiono nei link condivisi. Altre {count} persone di questo viaggio le vedono.',
+  'journey.dayImport.audience.one':
+    'Le bozze non compaiono nei link condivisi. {count} altra persona di questo viaggio le vede.',
+  'journey.dayImport.draftsNote':
+    'Le bozze non compaiono nei link condivisi finché non le pubblichi. Aggiungi foto e testo in seguito.',
+  'journey.dayImport.submit': 'Riprendi {count} bozze',
+  'journey.dayImport.submit.one': 'Riprendi {count} bozza',
+  'journey.dayImport.skipped': '{count} escluse',
+  'journey.dayImport.skipped.one': '{count} esclusa',
+  'journey.dayImport.skipHint':
+    'Le soste escluse non sono più in attesa in questa giornata. Puoi ripristinarle nell’elenco delle soste di Dawarich.',
+  'journey.dayImport.problem.nothing': 'Scegli almeno una sosta.',
+  'journey.dayImport.problem.name': 'Ogni sosta scelta ha bisogno di un nome.',
+  'journey.dayImport.problem.title': 'Ogni voce unita e il resoconto del giorno hanno bisogno di un titolo.',
+  'journey.dayImport.done': '{count} bozze riprese',
+  'journey.dayImport.done.one': '{count} bozza ripresa',
+  'journey.dayImport.alreadyTaken': '{count} soste erano già nel diario. Nulla è stato scritto due volte.',
+  'journey.dayImport.alreadyTaken.one': '{count} sosta era già nel diario. Nulla è stato scritto due volte.',
+  'journey.dayImport.failed':
+    'Non è stato ripreso nulla: {reason} L’elenco mostra ciò che il diario contiene ora; riprovare non scrive nulla due volte.',
+  'journey.dayImport.routeFailed': 'Le bozze sono state create, ma il percorso non è stato conservato: {reason}',
+  'journey.dayImport.routeRetry': 'Conserva di nuovo il percorso',
+  'journey.dayImport.stale':
+    'Dawarich non ha risposto: {reason} Vengono mostrate le soste dell’ultima sincronizzazione del {date}.',
+  'journey.dayImport.staleNever': 'Dawarich non ha risposto: {reason} Vengono mostrate le soste che TREK conosce già.',
+  'journey.dayImport.truncated':
+    'Dawarich ha inviato solo una parte di questa giornata. Alcune soste potrebbero mancare.',
+  'journey.dayImport.empty': 'Dawarich non ha trovato soste in questa giornata.',
 };
 export default journey;

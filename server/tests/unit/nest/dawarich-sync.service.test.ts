@@ -1204,3 +1204,70 @@ describe('DawarichSyncService — runSync', () => {
     await first;
   });
 });
+
+// ── One day read again (JRN-02) ──────────────────────────────────────────────
+
+describe('DawarichSyncService — refreshing one day', () => {
+  const CREDS: DawarichCreds = { baseUrl: 'https://dawarich.test', apiKey: 'secret-key', allowInsecureTls: false };
+
+  it('DAWARICH-SYNC-080: asks a window a day past both sides and files a new stay under the trip that holds it', async () => {
+    withVisits(visit({ id: 801, name: 'Museumsinsel' }));
+
+    const result = await svc.refreshDay(USER, CREDS, VISIT_DAY);
+
+    const [, from, to] = listVisits.mock.calls[0] as unknown as [DawarichCreds, Date, Date];
+    expect(from.toISOString().slice(0, 10)).toBe(dayOffset(-29));
+    expect(to.toISOString().slice(0, 10)).toBe(dayOffset(-26));
+    expect(result).toEqual({ truncated: false });
+    expect(await only()).toMatchObject({ source_visit_id: '801', name: 'Museumsinsel', trip_id: TRIP, state: 'new' });
+  });
+
+  it('DAWARICH-SYNC-081: a stay on a day no trip holds is kept without one, and nothing the day does not list is removed', async () => {
+    const lonelyDay = dayOffset(-10);
+    await seedSuggestion({
+      source_visit_id: '900',
+      trip: TRIP,
+      name: 'Gone from the source',
+      lat: LAT,
+      lng: LNG,
+      started_at: `${lonelyDay}T08:00:00Z`,
+      ended_at: `${lonelyDay}T08:30:00Z`,
+      duration_minutes: 30,
+      local_date: lonelyDay,
+      state: 'new',
+      source_hash: 'old',
+    });
+    listVisits.mockResolvedValue({
+      visits: [visit({ id: 901, started_at: `${lonelyDay}T10:00:00Z`, ended_at: `${lonelyDay}T11:00:00Z` })],
+      truncated: true,
+      version: null,
+    });
+
+    const result = await svc.refreshDay(USER, CREDS, lonelyDay);
+
+    expect(result).toEqual({ truncated: true });
+    expect((await rows()).map((row) => [row.source_visit_id, row.trip_id])).toEqual([
+      ['900', TRIP],
+      ['901', null],
+    ]);
+  });
+
+  it('DAWARICH-SYNC-082: an accepted stay keeps what the traveller agreed to and only learns that the source changed', async () => {
+    withVisits(visit({ id: 802, name: 'Before' }));
+    await svc.refreshDay(USER, CREDS, VISIT_DAY);
+    const before = await only();
+    await updateRows(
+      t,
+      DawarichVisitSuggestions,
+      { id: before.id },
+      { state: 'accepted', accepted_hash: before.source_hash },
+    );
+
+    withVisits(visit({ id: 802, name: 'After' }));
+    await svc.refreshDay(USER, CREDS, VISIT_DAY);
+
+    const after = await only();
+    expect(after).toMatchObject({ name: 'Before', state: 'accepted' });
+    expect(after.source_hash).not.toBe(before.source_hash);
+  });
+});

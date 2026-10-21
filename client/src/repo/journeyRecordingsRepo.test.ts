@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { buildRecordedDay, buildRecordingPreview } from '../../tests/helpers/journeyRecording';
+import { buildDayStays, buildRecordedDay, buildRecordingPreview } from '../../tests/helpers/journeyRecording';
 import { journeyRecordingsApi } from '../api/journeyRecordings';
 import { journeyRecordingsRepo } from './journeyRecordingsRepo';
 import { OnlineOnlyError } from './onlineOnly';
 
-// FE-REPO-JOURNEY-RECORDINGS-001 to FE-REPO-JOURNEY-RECORDINGS-003
+// FE-REPO-JOURNEY-RECORDINGS-001 to FE-REPO-JOURNEY-RECORDINGS-004
 
 const network = vi.hoisted(() => ({ offline: false }));
 vi.mock('../sync/networkMode', () => ({ isEffectivelyOffline: () => network.offline }));
@@ -53,5 +53,22 @@ describe('journeyRecordingsRepo', () => {
   it('FE-REPO-JOURNEY-RECORDINGS-003: an answer the contract does not describe fails here, not on the map', async () => {
     vi.spyOn(journeyRecordingsApi, 'list').mockResolvedValue({ days: [{ date: '2026-05-14' }] } as never);
     await expect(journeyRecordingsRepo.list(7)).rejects.toThrow();
+  });
+
+  it('FE-REPO-JOURNEY-RECORDINGS-004: reviews and takes over a day online only, parsing both answers (JRN-02)', async () => {
+    const review = buildDayStays();
+    vi.spyOn(journeyRecordingsApi, 'reviewDay').mockResolvedValue(review);
+    const takeOver = vi
+      .spyOn(journeyRecordingsApi, 'takeOverDay')
+      .mockResolvedValue({ entries: [{ id: 5, title: 'San Marco', stayCount: 2 }], alreadyTaken: [], skipped: [10] });
+    const body = { groups: [{ kind: 'single' as const, stays: [{ suggestionId: 13 }] }] };
+
+    expect(await journeyRecordingsRepo.reviewDay(7, '2026-05-14')).toEqual(review);
+    expect((await journeyRecordingsRepo.takeOverDay(7, '2026-05-14', body)).entries).toHaveLength(1);
+    expect(takeOver).toHaveBeenCalledWith(7, '2026-05-14', body);
+
+    network.offline = true;
+    await expect(journeyRecordingsRepo.reviewDay(7, '2026-05-14')).rejects.toBeInstanceOf(OnlineOnlyError);
+    await expect(journeyRecordingsRepo.takeOverDay(7, '2026-05-14', body)).rejects.toBeInstanceOf(OnlineOnlyError);
   });
 });

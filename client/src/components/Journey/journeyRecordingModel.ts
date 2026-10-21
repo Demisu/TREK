@@ -95,6 +95,11 @@ export function recordingErrorText(err: unknown, t: Translate): string {
   if (code === 'recording_exists' || code === 'recording_changed' || code === 'recording_empty') {
     return t(`journey.recording.error.${code}`);
   }
+  return reasonText(code, t);
+}
+
+/** A reason Dawarich gave as a code, in the reader's language; one TREK has no words for reads as unknown. */
+export function reasonText(code: string | null, t: Translate): string {
   if (code) {
     const key = `dawarich.error.${code}`;
     const text = t(key);

@@ -15,6 +15,8 @@ import {
 } from 'lucide-react'
 import MobileMapTimeline from '../components/Journey/MobileMapTimeline'
 import JourneyDayDawarich from '../components/Journey/JourneyDayDawarich'
+import JourneyDayImportButton from '../components/Journey/JourneyDayImportButton'
+import JourneyDayImportDialog from '../components/Journey/JourneyDayImportDialog'
 import JourneyDayRecordingButton from '../components/Journey/JourneyDayRecordingButton'
 import JourneyRecordingDialog from '../components/Journey/JourneyRecordingDialog'
 import MobileEntryView from '../components/Journey/MobileEntryView'
@@ -66,7 +68,7 @@ export function JourneyDetailPageDesktop({ journeyId, embedded = false }: Journe
     galleryUploadProgress, setGalleryUploadProgress,
     activeLocationId, handleMarkerClick, handleLocationClick,
     mapEntries, sidebarMapItems, tripDates, isMobile, tracks, mapPhotos, openMapPhotos,
-    recordings, canTakeOverRecording, recordingNeedsConnection,
+    recordings, canTakeOverRecording, recordingNeedsConnection, dayImport,
     feedEdge, scrollFeedTo,
     loadJourney, updateEntry, deleteEntry, reorderEntries, uploadPhotos, deletePhoto,
     addPickedProviderPhotos, addEntryProviderPhotos,
@@ -509,6 +511,12 @@ export function JourneyDetailPageDesktop({ journeyId, embedded = false }: Journe
                               needsConnection={recordingNeedsConnection}
                               onOpen={() => recordings.open(date)}
                             />
+                            <JourneyDayImportButton
+                              pending={stays.length}
+                              canTakeOver={canTakeOverRecording}
+                              needsConnection={recordingNeedsConnection}
+                              onOpen={() => dayImport.open(date)}
+                            />
                             {/* The only Add button used to be at the very top and always
                                 started on today, so putting something into an earlier day
                                 meant correcting the date by hand (discussion #2299). */}
@@ -619,6 +627,7 @@ export function JourneyDetailPageDesktop({ journeyId, embedded = false }: Journe
                           busyId={dawarichBusyId}
                           onAccept={acceptDawarich}
                           onDismiss={dismissDawarich}
+                          onTakeOverDay={canTakeOverRecording ? () => dayImport.open(date) : undefined}
                         />
                       </div>
                     )
@@ -779,6 +788,7 @@ export function JourneyDetailPageDesktop({ journeyId, embedded = false }: Journe
       )}
 
       {recordings.dialog && <JourneyRecordingDialog {...recordings.dialog} />}
+      {dayImport.dialog && <JourneyDayImportDialog {...dayImport.dialog} />}
 
       {/* Add Trip Dialog */}
       {showAddTrip && current && (

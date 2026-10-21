@@ -152,6 +152,20 @@ describe('DawarichVisitSuggestionsRepository', () => {
       expect(rows[0].matched_bucket_name).toBe('Wish');
     });
 
+    it('DVSREPO-080: one day of one person, in the order the stays were lived (JRN-02)', async () => {
+      const { user } = createUser(testDb);
+      const { user: stranger } = createUser(testDb);
+      const later = await seed(user.id, { local_date: '2026-09-01', started_at: '2026-09-01T15:00:00+02:00' });
+      const earlier = await seed(user.id, { local_date: '2026-09-01', started_at: '2026-09-01T09:00:00+02:00' });
+      await seed(user.id, { local_date: '2026-09-02' });
+      await seed(stranger.id, { local_date: '2026-09-01' });
+
+      const rows = await suggestions.listForDay(user.id, '2026-09-01');
+      expect(rows.map((row) => row.id)).toEqual([earlier, later]);
+      expect(rows[0]).toMatchObject({ trip_title: null, matched_bucket_name: null });
+      expect(await suggestions.listForDay(user.id, '2026-09-03')).toEqual([]);
+    });
+
     it("DVSREPO-002: scoped by user_id — a stranger's row never appears", async () => {
       const { user } = createUser(testDb);
       const { user: stranger } = createUser(testDb);

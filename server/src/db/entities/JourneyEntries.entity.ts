@@ -1,6 +1,7 @@
 import { Collection, EntityRepositoryType, type Opt, type Ref, defineEntity, p } from '@mikro-orm/core';
 import { JourneyEntriesRepository } from '../repositories/JourneyEntries.repository';
 import { JourneyEntryPhotos } from './JourneyEntryPhotos.entity';
+import { JourneyEntryStays } from './JourneyEntryStays.entity';
 import { Journeys } from './Journeys.entity';
 import { Places } from './Places.entity';
 import { Trips } from './Trips.entity';
@@ -39,6 +40,7 @@ export class JourneyEntries {
   source_assignment_id?: number | null;
   is_draft: number & Opt = 0;
   journey_entry_photos_collection = new Collection<JourneyEntryPhotos>(this);
+  journey_entry_stays_collection = new Collection<JourneyEntryStays>(this);
 }
 
 export const JourneyEntriesSchema = defineEntity({
@@ -90,5 +92,6 @@ export const JourneyEntriesSchema = defineEntity({
     source_assignment_id: p.integer().nullable(),
     is_draft: p.integer().default(0),
     journey_entry_photos_collection: () => p.oneToMany(JourneyEntryPhotos).mappedBy('entry').hidden(),
+    journey_entry_stays_collection: () => p.oneToMany(JourneyEntryStays).mappedBy('entry').hidden(),
   },
 });

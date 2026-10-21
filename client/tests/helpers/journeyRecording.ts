@@ -1,4 +1,4 @@
-import type { JourneyRecordedDay, JourneyRecordingPreview } from '@trek/shared';
+import type { JourneyDayStay, JourneyDayStays, JourneyRecordedDay, JourneyRecordingPreview } from '@trek/shared';
 
 /** A walk across Venice on the 14th, the way the server answers it. */
 export const WALK_SEGMENT = {
@@ -58,6 +58,68 @@ export function buildRecordingPreview(over: Partial<JourneyRecordingPreview> = {
     contentHash: 'a'.repeat(64),
     stored: null,
     sameAsStored: false,
+    audience: 0,
+    ...over,
+  };
+}
+
+/** A stay of the 14th as the day review lists it, open unless a case says otherwise. */
+export function buildDayStay(over: Partial<JourneyDayStay> = {}): JourneyDayStay {
+  return {
+    suggestionId: 11,
+    name: 'Piazza San Marco',
+    lat: 45.434,
+    lng: 12.3388,
+    startedAt: '2026-05-14T09:10:00+02:00',
+    endedAt: '2026-05-14T10:05:00+02:00',
+    durationMinutes: 55,
+    sourceStatus: 'confirmed',
+    confidenceBand: 'high',
+    status: 'open',
+    entry: null,
+    ...over,
+  };
+}
+
+/** The review of the 14th: two stays at San Marco, a parking stop and Rialto. */
+export function buildDayStays(over: Partial<JourneyDayStays> = {}): JourneyDayStays {
+  return {
+    journey: { id: 7, title: 'Venice' },
+    date: '2026-05-14',
+    stays: [
+      buildDayStay({
+        suggestionId: 10,
+        name: 'Parcheggio',
+        startedAt: '2026-05-14T08:30:00+02:00',
+        endedAt: '2026-05-14T08:40:00+02:00',
+        durationMinutes: 10,
+        sourceStatus: 'suggested',
+        confidenceBand: 'low',
+      }),
+      buildDayStay(),
+      buildDayStay({
+        suggestionId: 12,
+        startedAt: '2026-05-14T10:20:00+02:00',
+        endedAt: '2026-05-14T11:40:00+02:00',
+        durationMinutes: 80,
+        lat: 45.4341,
+        lng: 12.3391,
+      }),
+      buildDayStay({
+        suggestionId: 13,
+        name: 'Rialto',
+        startedAt: '2026-05-14T13:00:00+02:00',
+        endedAt: '2026-05-14T13:30:00+02:00',
+        durationMinutes: 30,
+        lat: 45.438,
+        lng: 12.3359,
+      }),
+    ],
+    entries: [],
+    fresh: true,
+    error: null,
+    syncedAt: null,
+    truncated: false,
     audience: 0,
     ...over,
   };

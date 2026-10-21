@@ -172,6 +172,11 @@ function buildHook(over: Record<string, unknown> = {}): Record<string, unknown> 
     hideSkeletons: false,
     setHideSkeletons: vi.fn(),
     sidebarMapItems: (current?.entries ?? []).map(e => ({ id: String(e.id), lat: 1, lng: 2, title: e.title ?? '' })),
+    // The recorded days (JRN-01) and the day take-over (JRN-02): closed, their sheets have suites of their own.
+    recordings: { byDate: new Map(), dialog: null, open: vi.fn() },
+    canTakeOverRecording: false,
+    dayImport: { open: vi.fn(), dialog: null },
+    dawarichByDate: new Map(),
     loadJourney: vi.fn(),
     updateEntry: vi.fn(async () => {}),
     deleteEntry: vi.fn(async () => {}),

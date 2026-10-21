@@ -28,6 +28,7 @@ import { AcceptError, DawarichSuggestionsService } from '../../../src/nest/integ
 import type { DawarichClient } from '../../../src/nest/integrations/dawarich.client';
 import type { DawarichService } from '../../../src/nest/integrations/dawarich.service';
 import type { JourneyDomainService } from '../../../src/nest/journey/journey-domain.service';
+import type { JourneyEntryStaysService } from '../../../src/nest/journey/journey-entry-stays.service';
 import type { PermissionsService } from '../../../src/nest/permissions/permissions.service';
 import type { PlacesService } from '../../../src/nest/places/places.service';
 import { createTestDawarichVisitSuggestionsRepo } from '../../helpers/dawarich-repos';
@@ -96,6 +97,8 @@ const assignmentsStub = { dayExists: vi.fn(), createAssignment: vi.fn(), broadca
 // day_edit to the owner the way an admin would and watch a member be refused.
 const permissionsStub = { checkPermission: vi.fn() };
 const journeyStub = { canEdit: vi.fn(), createEntry: vi.fn() };
+// The stay an entry was taken over from is recorded on it (JRN-02); its own suite has the rows.
+const journeyStaysStub = { record: vi.fn() };
 
 let t: TestOrm;
 let suggestions: DawarichVisitSuggestionsRepository;
@@ -124,6 +127,7 @@ beforeAll(async () => {
     assignmentsStub as unknown as AssignmentsService,
     permissionsStub as unknown as PermissionsService,
     journeyStub as unknown as JourneyDomainService,
+    journeyStaysStub as unknown as JourneyEntryStaysService,
     trips,
     placesRepo,
     bucketList,
@@ -182,6 +186,7 @@ function armStubs(): void {
   permissionsStub.checkPermission.mockReset().mockReturnValue(true);
   journeyStub.canEdit.mockReset().mockReturnValue(true);
   journeyStub.createEntry.mockReset().mockReturnValue({ id: CREATED_ENTRY_ID });
+  journeyStaysStub.record.mockReset();
 }
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
@@ -640,6 +645,37 @@ describe('DawarichSuggestionsService — accepting into a journey', () => {
     expect(row.state).toBe('accepted');
     expect(row.target).toBe('journal');
     expect(row.accepted_journal_entry_id).toBe(CREATED_ENTRY_ID);
+  });
+
+  it('DAWARICH-SUG-066: the stay is recorded on its entry, so taking its day over later finds it', async () => {
+    const { user } = createUser(testDb);
+    const id = await seedSuggestion({ userId: user.id, name: 'Cafe Central' });
+    journeyStub.createEntry.mockReturnValue({ id: CREATED_ENTRY_ID, journey_id: 88 });
+
+    await svc.accept(user.id, id, { target: 'journal', journalId: 88, name: 'Coffee' });
+
+    const row = await rowOf(id);
+    expect(journeyStaysStub.record).toHaveBeenCalledWith(88, CREATED_ENTRY_ID, user.id, [
+      {
+        sourceVisitId: row.source_visit_id,
+        name: 'Coffee',
+        lat: 48.2092,
+        lng: 16.3658,
+        startedAt: row.started_at,
+        endedAt: row.ended_at,
+        durationMinutes: row.duration_minutes,
+      },
+    ]);
+  });
+
+  it('DAWARICH-SUG-067: a stay that cannot be recorded leaves no entry accepted and the suggestion in review', async () => {
+    const { user } = createUser(testDb);
+    const id = await seedSuggestion({ userId: user.id });
+    journeyStaysStub.record.mockRejectedValue(new Error('constraint'));
+
+    await expect(svc.accept(user.id, id, { target: 'journal', journalId: 88 })).rejects.toThrow('constraint');
+
+    expect((await rowOf(id)).state).toBe('new');
   });
 
   it('DAWARICH-SUG-012: a journey id missing from the body is a 400, not a guess', async () => {

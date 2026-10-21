@@ -178,6 +178,8 @@ With the [MCP](MCP-Overview) addon on as well, an assistant can review your stay
 | `get_dawarich_trip_track` | Summarises a trip's recorded route per day: segments, times, travel mode and distance. The line itself stays on the map. | `journey:read` |
 | `preview_journey_recorded_day` | Reads one day of your recording and says what a journal would keep, without keeping it. Needs the Journey addon too. | `journey:read` |
 | `save_journey_recorded_day` | Keeps that day in a journal after you confirmed the preview, or replaces a different version when asked. Needs the Journey addon too. | `journey:write` |
+| `review_journey_day_stays` | Reads the stays of one day from your Dawarich and says which a journal holds already. Needs the Journey addon too. | `journey:read` |
+| `take_over_journey_day_stays` | Takes the stays you chose into a journal as drafts: one by one, joined per place or as one day report. Needs the Journey addon too. | `journey:write` |
 
 The same rules apply as in the browser: nothing is added until a tool is called, and the permissions for adding a place are checked the same way. See [MCP-Addon-Tools](MCP-Addon-Tools) and [MCP-Scopes](MCP-Scopes).
 

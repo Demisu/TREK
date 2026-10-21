@@ -19,7 +19,7 @@ const SKETCH_W = 320;
 const SKETCH_H = 150;
 
 /** A sentence about the recording, its icon saying how much it matters. */
-function Notice({ tone, children }: { tone: 'info' | 'warning' | 'danger'; children: ReactNode }) {
+export function Notice({ tone, children }: { tone: 'info' | 'warning' | 'danger'; children: ReactNode }) {
   const look = {
     info: 'bg-surface-secondary text-content-secondary',
     warning: 'bg-warning-soft text-warning',

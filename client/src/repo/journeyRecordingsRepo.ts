@@ -1,7 +1,12 @@
 import {
+  journeyDayImportResultSchema,
+  journeyDayStaysSchema,
   journeyRecordedDaysResponseSchema,
   journeyRecordingPreviewSchema,
   journeyRecordingSaveResultSchema,
+  type JourneyDayImportRequest,
+  type JourneyDayImportResult,
+  type JourneyDayStays,
   type JourneyRecordedDay,
   type JourneyRecordingPreview,
   type JourneyRecordingPreviewRequest,
@@ -40,5 +45,16 @@ export const journeyRecordingsRepo = {
   async remove(journeyId: number, date: string): Promise<void> {
     requireOnline();
     await journeyRecordingsApi.remove(journeyId, date);
+  },
+
+  /** JRN-02: the caller's stays of a day as the journey would take them over, read from Dawarich first. */
+  async reviewDay(journeyId: number, date: string, signal?: AbortSignal): Promise<JourneyDayStays> {
+    requireOnline();
+    return journeyDayStaysSchema.parse(await journeyRecordingsApi.reviewDay(journeyId, date, signal));
+  },
+
+  async takeOverDay(journeyId: number, date: string, body: JourneyDayImportRequest): Promise<JourneyDayImportResult> {
+    requireOnline();
+    return journeyDayImportResultSchema.parse(await journeyRecordingsApi.takeOverDay(journeyId, date, body));
   },
 };

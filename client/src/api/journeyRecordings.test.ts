@@ -51,4 +51,22 @@ describe('journeyRecordingsApi', () => {
       { method: 'DELETE', path: `${BASE}/2026-05-14`, body: null },
     ]);
   });
+
+  it('FE-API-JOURNEY-RECORDINGS-002: reviews the stays of a day and takes them over (JRN-02)', async () => {
+    const body = { groups: [{ kind: 'single' as const, stays: [{ suggestionId: 3 }] }], skipSuggestionIds: [4] };
+    server.use(
+      http.post(`${BASE}/2026-05-14/stays/review`, record({ date: '2026-05-14', stays: [] })),
+      http.post(`${BASE}/2026-05-14/stays/import`, record({ entries: [], alreadyTaken: [3], skipped: [] }))
+    );
+    expect(await journeyRecordingsApi.reviewDay(7, '2026-05-14')).toEqual({ date: '2026-05-14', stays: [] });
+    expect(await journeyRecordingsApi.takeOverDay(7, '2026-05-14', body)).toEqual({
+      entries: [],
+      alreadyTaken: [3],
+      skipped: [],
+    });
+    expect(calls).toEqual([
+      { method: 'POST', path: `${BASE}/2026-05-14/stays/review`, body: {} },
+      { method: 'POST', path: `${BASE}/2026-05-14/stays/import`, body },
+    ]);
+  });
 });

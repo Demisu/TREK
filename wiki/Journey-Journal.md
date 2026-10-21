@@ -123,6 +123,26 @@ What you should know:
 - **Everyone on the journey sees the route**, also when an editor kept their own recording; the dialog says how many people that is. Shared links do not show recorded days.
 - **Remove route** in the dialog takes the day off the journey again, also without a Dawarich connection. Dawarich keeps its own recording either way.
 
+### Taking over a day with its stays
+
+The stays [Dawarich](Dawarich) detected on a day (the café, the square, the museum) can become journal entries in one go, instead of one by one.
+
+1. In the timeline, the header of each day carries a list button beside the route; it shows how many stays of the day are still waiting. The row with the day's stays has a **Take over day** button too. On a phone: **More options**, then **Take over** the day of the card you are on.
+2. The dialog reads the day from your Dawarich again and shows its route and its stays on one map, numbered in the order you lived them, and lists them with their times and how long you stayed. A stay Dawarich only guessed, or is unsure about, says so; one without a position says it will not be on the map.
+3. Choose the stays you want and correct their names. Two stays of the same place in a row (you left the square for a coffee and came back) start joined as one entry; **Keep apart** separates them, **Join into one entry** joins any two neighbours. A joined entry gets a title and the stay it sits at on the map.
+4. **Day report** turns all chosen stays into one entry that lists them with their times, with a title and one map position (or none). Every stay stays on record with its own place, so a report does not cost you the places it covers.
+5. **Keep the day's route too** keeps the route as well, when the journey does not keep it yet.
+6. **Take over** writes the entries as drafts. Add photos and text afterwards, then publish them as usual.
+
+What you should know:
+
+- **Nothing is written before the button.** Cancelling leaves the journal and your stays as they were.
+- **Nothing is written twice.** Stays the journal holds already are marked with the entry they are in and cannot be chosen again; taking the same day over again, or retrying after an error, writes no second entry.
+- **What the journal holds stays as it is.** Existing entries, texts, photos and places are never changed; the dialog lists the day's entries so you see what is there.
+- **Stays you leave out** are no longer pending on that day; you can restore them in the Dawarich stay list.
+- **Drafts never appear on shared links.** Everyone on the journey sees them; the dialog says how many people that is.
+- **When Dawarich does not answer**, the dialog says why and shows the stays of the last sync instead, so you can still take them over.
+
 **Geotagged photos are drawn too.** A photo of the journey that knows where it was taken appears on the map as a thumbnail, and photos taken close together collapse into one thumbnail with a count. Click one to open those photos in the viewer.
 
 **Place entries from their photos**, a switch under **Photos** in **Journey Settings**, goes one step further: an entry without a place takes the spot where its first photo with GPS was taken. Places you set yourself are never moved. It is off by default.

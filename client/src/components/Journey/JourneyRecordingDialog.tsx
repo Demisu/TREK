@@ -1,7 +1,5 @@
-import { useId } from 'react';
 import { useTranslation } from '../../i18n';
-import DawarichIcon from '../shared/DawarichIcon';
-import { DialogFooter, DialogHeader, DialogShell, DialogTile, NEUTRAL_TINT } from '../shared/DialogShell';
+import DawarichDayDialog from './DawarichDayDialog';
 import { JourneyRecordingActions, JourneyRecordingReview } from './JourneyRecordingReview';
 import { useJourneyRecordingDay, type JourneyRecordingViewProps } from './useJourneyRecordingDay';
 
@@ -17,45 +15,18 @@ export default function JourneyRecordingDialog({
   onClose,
   ...rest
 }: JourneyRecordingViewProps) {
-  const { t, locale } = useTranslation();
-  const labelId = useId();
+  const { t } = useTranslation();
   const day = useJourneyRecordingDay({ date, onClose, ...rest });
-  const title = new Date(`${date}T00:00:00`).toLocaleDateString(locale, {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
 
   return (
-    <DialogShell
+    <DawarichDayDialog
+      journeyTitle={day.preview?.journey.title ?? journeyTitle}
+      date={date}
+      sub={t('journey.recording.sub')}
       onClose={onClose}
-      labelledBy={labelId}
-      width="detail"
-      align="top"
-      header={
-        <DialogHeader
-          tile={
-            <DialogTile>
-              <DawarichIcon size={26} />
-            </DialogTile>
-          }
-          tint={NEUTRAL_TINT}
-          labelId={labelId}
-          onClose={onClose}
-          eyebrow={day.preview?.journey.title ?? journeyTitle}
-          title={title}
-          sub={t('journey.recording.sub')}
-          subWraps
-        />
-      }
-      footer={
-        <DialogFooter>
-          <JourneyRecordingActions day={day} stored={stored} onCancel={onClose} />
-        </DialogFooter>
-      }
+      footer={<JourneyRecordingActions day={day} stored={stored} onCancel={onClose} />}
     >
       <JourneyRecordingReview day={day} stored={stored} />
-    </DialogShell>
+    </DawarichDayDialog>
   );
 }

@@ -44,6 +44,7 @@ import { JourneyBooksSchema } from './JourneyBooks.entity';
 import { JourneyContributorsSchema } from './JourneyContributors.entity';
 import { JourneyEntriesSchema } from './JourneyEntries.entity';
 import { JourneyEntryPhotosSchema } from './JourneyEntryPhotos.entity';
+import { JourneyEntryStaysSchema } from './JourneyEntryStays.entity';
 import { JourneyPhotosSchema } from './JourneyPhotos.entity';
 import { JourneyRecordedDaysSchema } from './JourneyRecordedDays.entity';
 import { JourneyShareTokensSchema } from './JourneyShareTokens.entity';
@@ -196,6 +197,7 @@ export const ALL_ENTITIES: readonly EntitySchema[] = [
   JourneyContributorsSchema,
   JourneyEntriesSchema,
   JourneyEntryPhotosSchema,
+  JourneyEntryStaysSchema,
   JourneyPhotosSchema,
   JourneyRecordedDaysSchema,
   JourneyShareTokensSchema,

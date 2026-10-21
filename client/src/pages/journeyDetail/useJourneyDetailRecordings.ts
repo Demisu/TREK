@@ -48,6 +48,7 @@ export function useJourneyDetailRecordings({
 
   return {
     recordings,
+    colorOfDay,
     canTakeOverRecording: canEdit && dawarichStatus === 'ready',
     recordingNeedsConnection: canEdit && dawarichStatus === 'offline',
     mapTracks,

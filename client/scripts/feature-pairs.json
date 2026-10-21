@@ -400,6 +400,12 @@
       ]
     },
     {
+      "feature": "Journey day take-over: useJourneyDayImport",
+      "hooks": ["src/components/Journey/useJourneyDayImport.ts"],
+      "desktop": ["src/components/Journey/JourneyDayImportDialog.tsx"],
+      "mobile": ["src/mobile/screens/journey/MJourneyDayImportSheet.tsx"]
+    },
+    {
       "feature": "Journey day recording: useJourneyRecordingDay",
       "hooks": ["src/components/Journey/useJourneyRecordingDay.ts"],
       "desktop": ["src/components/Journey/JourneyRecordingDialog.tsx"],
@@ -907,6 +913,7 @@
     "src/mobile/screens/collections/MCollSheetKit.tsx": "Phone only sheet UI primitives for the collections screens (header, footer, pill, eyebrow).",
     "src/mobile/screens/collections/collectionsMobileModel.ts": "Visual constants only the phone collections screens use (category and status specs, swatches, cover gradient).",
     "src/mobile/screens/dashboard/MUserMenu.tsx": "Phone avatar menu with a three state theme cycle the desktop navbar does not have.",
+    "src/mobile/screens/journey/MDawarichDaySheet.tsx": "Markup only; the phone frame the Dawarich day sheets (route and stays) render their shared review in.",
     "src/mobile/screens/settings/MConfirmSheet.tsx": "Phone only bottom sheet confirm dialog used across the mobile screens.",
     "src/mobile/screens/settings/MDawarichConnectionSection.tsx": "Already shares hooks/useDawarichConnection with components/Settings/DawarichConnectionSection.tsx.",
     "src/mobile/screens/settings/MMobileDashOrder.tsx": "Phone only setting that orders the mobile dashboard blocks; the desktop has no such setting.",

@@ -17,6 +17,7 @@ import { NAME_TO_CODE } from '../atlas/atlas-geo';
 import { AtlasService } from '../atlas/atlas.service';
 import { UnitOfWork } from '../database/unit-of-work';
 import { JourneyDomainService } from '../journey/journey-domain.service';
+import { JourneyEntryStaysService } from '../journey/journey-entry-stays.service';
 import { PermissionsService } from '../permissions/permissions.service';
 import { PlacesService } from '../places/places.service';
 import { DawarichClient, type DawarichCreds } from './dawarich.client';
@@ -68,6 +69,7 @@ export class DawarichSuggestionsService {
     private readonly assignments: AssignmentsService,
     private readonly permissions: PermissionsService,
     private readonly journey: JourneyDomainService,
+    private readonly journeyStays: JourneyEntryStaysService,
     @InjectRepository(Trips) private readonly trips: TripsRepository,
     @InjectRepository(Places) private readonly placesRepo: PlacesRepository,
     @InjectRepository(BucketList) private readonly bucketList: BucketListRepository,
@@ -298,6 +300,19 @@ export class DawarichSuggestionsService {
         sid,
       );
       if (!created) throw new AcceptError('journal_forbidden', 'Journey not found', 404);
+      // Recorded on the entry like a stay of a day taken over whole (JRN-02),
+      // so that taking the day over later finds this one in the journal.
+      await this.journeyStays.record(created.journey_id, created.id, userId, [
+        {
+          sourceVisitId: row.source_visit_id,
+          name: body.name?.trim() || row.name,
+          lat: row.lat,
+          lng: row.lng,
+          startedAt: row.started_at,
+          endedAt: row.ended_at,
+          durationMinutes: row.duration_minutes,
+        },
+      ]);
       await this.markAccepted(row.id, 'journal', { journalEntryId: created.id });
       return created;
     });

@@ -79,7 +79,8 @@ export class JourneyRecordingsController {
   }
 }
 
-function dateParam(raw: string): string {
+/** A `:date` path segment as a calendar day, 400 otherwise. */
+export function dateParam(raw: string): string {
   if (!journeyRecordingDateSchema.safeParse(raw).success) throw new HttpException({ error: 'Invalid date' }, 400);
   return raw;
 }

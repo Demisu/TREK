@@ -1200,9 +1200,9 @@ export class JourneyDomainService {
       is_draft?: boolean;
     },
     sid?: string,
+    announce = true,
   ): Promise<JourneyEntryWire | null> {
     if (!(await this.canEdit(journeyId, userId))) return null;
-
     const now = this.ts();
     const prosConsJson =
       data.pros_cons && (data.pros_cons.pros.length || data.pros_cons.cons.length)
@@ -1236,7 +1236,7 @@ export class JourneyDomainService {
     });
 
     const created = decodeEntryRow((await this.entriesRepo.findById(insertedId)) as JourneyEntry);
-    await this.broadcastJourneyEvent(journeyId, 'journey:entry:created', { entry: created }, sid);
+    if (announce) await this.broadcastJourneyEvent(journeyId, 'journey:entry:created', { entry: created }, sid);
     return created;
   }
 

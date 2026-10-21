@@ -47,6 +47,7 @@ import type { JourneyBooksTable } from './JourneyBooks.table';
 import type { JourneyContributorsTable } from './JourneyContributors.table';
 import type { JourneyEntriesTable } from './JourneyEntries.table';
 import type { JourneyEntryPhotosTable } from './JourneyEntryPhotos.table';
+import type { JourneyEntryStaysTable } from './JourneyEntryStays.table';
 import type { JourneyPhotosTable } from './JourneyPhotos.table';
 import type { JourneyRecordedDaysTable } from './JourneyRecordedDays.table';
 import type { JourneyShareTokensTable } from './JourneyShareTokens.table';
@@ -205,6 +206,7 @@ export interface DB {
   journey_contributors: JourneyContributorsTable;
   journey_entries: JourneyEntriesTable;
   journey_entry_photos: JourneyEntryPhotosTable;
+  journey_entry_stays: JourneyEntryStaysTable;
   journey_photos: JourneyPhotosTable;
   journey_recorded_days: JourneyRecordedDaysTable;
   journey_share_tokens: JourneyShareTokensTable;
