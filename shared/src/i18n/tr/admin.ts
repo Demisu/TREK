@@ -700,6 +700,9 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.llm_parsing.name': 'Yapay zekâ ile ayrıştırma',
   'admin.addons.catalog.llm_parsing.description':
     'Yerleşik ayrıştırıcının okuyamadığı rezervasyonları, seçtiğiniz yapay zekâ modeliyle okur',
+  'admin.addons.catalog.ai_assistant.name': 'Yapay zekâ asistanı',
+  'admin.addons.catalog.ai_assistant.description':
+    'Her gezide soruları yanıtlayan ve onayladığın değişiklikleri öneren bir sohbet',
   'admin.addons.llm.vision.auto': 'Otomatik',
   'admin.addons.llm.vision.on': 'Evet',
   'admin.addons.llm.vision.off': 'Hayır',

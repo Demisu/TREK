@@ -58,6 +58,16 @@ export class LlmConfigResolver {
   }
 
   /**
+   * The instance config without its key: the provider, the model and the
+   * address, for the AI assistant's admin form to start from while it has no
+   * connection of its own. Read only; nothing here changes AI parsing.
+   */
+  async readInstanceEndpoint(): Promise<Pick<ResolvedLlmConfig, 'provider' | 'model' | 'baseUrl'> | null> {
+    const config = await this.readInstanceConfig();
+    return config ? { provider: config.provider, model: config.model, baseUrl: config.baseUrl } : null;
+  }
+
+  /**
    * The saved local server and its decrypted key, for the admin screen's model
    * list and pull (#2649): a server behind an auth proxy answers neither without
    * the key. Read before a model is chosen, since listing the models is how one

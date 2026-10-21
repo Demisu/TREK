@@ -644,6 +644,9 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.llm_parsing.name': 'AI-analyse',
   'admin.addons.catalog.llm_parsing.description':
     'Leest boekingen die de ingebouwde parser niet begrijpt, met een AI-model naar keuze',
+  'admin.addons.catalog.ai_assistant.name': 'AI-assistent',
+  'admin.addons.catalog.ai_assistant.description':
+    'Een chat in elke reis die vragen beantwoordt en wijzigingen voorstelt die jij bevestigt',
   'admin.addons.llm.vision.auto': 'Automatisch',
   'admin.addons.llm.vision.on': 'Ja',
   'admin.addons.llm.vision.off': 'Nee',

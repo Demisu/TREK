@@ -2,7 +2,8 @@ import React from 'react'
 import { Trash2, Reply, ChevronUp } from 'lucide-react'
 import { Tooltip } from '../shared/Tooltip'
 import { URL_REGEX } from './CollabChat.constants'
-import { formatChatClockTime, formatChatDateSeparator, shouldShowChatDateSeparator } from './collabModel'
+import { formatChatClockTime, formatChatDateSeparator, isFromAssistant, shouldShowChatDateSeparator } from './collabModel'
+import CollabAssistantBadge from './CollabAssistantBadge'
 import { MessageText } from './CollabChatMessageText'
 import { CollabChatAttachment } from './CollabChatAttachment'
 import { LinkPreview } from './CollabChatLinkPreview'
@@ -122,6 +123,11 @@ export function ChatMessages(props: any) {
                     {!own && isNewGroup && (
                       <span style={{ fontSize: 'calc(10px * var(--fs-scale-caption, 1))', fontWeight: 600, color: 'var(--text-faint)', marginBottom: 2, paddingInlineStart: 4 }}>
                         {msg.username}
+                      </span>
+                    )}
+                    {isFromAssistant(msg) && (
+                      <span className="mb-0.5 ps-1">
+                        <CollabAssistantBadge name={msg.username} />
                       </span>
                     )}
 

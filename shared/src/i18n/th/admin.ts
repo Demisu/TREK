@@ -613,6 +613,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.airtrail.description': 'ซิงค์เที่ยวบินจากอินสแตนซ์ AirTrail ของคุณ',
   'admin.addons.catalog.llm_parsing.name': 'การแยกวิเคราะห์ AI',
   'admin.addons.catalog.llm_parsing.description': 'อ่านการจองที่ parser ในตัวไม่สามารถทำได้ โดยใช้โมเดล AI ที่คุณเลือก',
+  'admin.addons.catalog.ai_assistant.name': 'ผู้ช่วย AI',
+  'admin.addons.catalog.ai_assistant.description': 'แชตในทุกทริปที่ตอบคำถามและเสนอการเปลี่ยนแปลงให้คุณยืนยัน',
   'admin.addons.llm.vision.auto': 'อัตโนมัติ',
   'admin.addons.llm.vision.on': 'ใช่',
   'admin.addons.llm.vision.off': 'ไม่',

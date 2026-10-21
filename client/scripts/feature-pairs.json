@@ -23,6 +23,12 @@
       "mobile": ["src/mobile/screens/admin/MAdminAddonManager.tsx"]
     },
     {
+      "feature": "Addon manager: AI assistant",
+      "hooks": ["src/components/Admin/addons/useAiAdminConfig.ts"],
+      "desktop": ["src/components/Admin/addons/AiAdminConfig.tsx"],
+      "mobile": ["src/mobile/screens/admin/MAdminAiConfig.tsx"]
+    },
+    {
       "feature": "Admin notification preference matrix",
       "hooks": ["src/components/Admin/useAdminNotificationMatrix.ts", "src/pages/admin/AdminPage.constants.ts"],
       "desktop": ["src/pages/admin/AdminNotificationsPanel.tsx"],
@@ -57,6 +63,21 @@
       "hooks": ["src/pages/admin/adminModel.ts"],
       "desktop": ["src/pages/admin/AdminUsersTab.tsx"],
       "mobile": ["src/mobile/screens/admin/MAdminUsersSection.tsx"]
+    },
+    {
+      "feature": "AI assistant chat",
+      "hooks": ["src/components/Assistant/useAssistantThread.ts"],
+      "desktop": ["src/components/Assistant/AssistantWindow.tsx"],
+      "mobile": ["src/mobile/screens/trip/assistant/MAssistantScreen.tsx"]
+    },
+    {
+      "feature": "Assistant hints",
+      "hooks": ["src/components/Assistant/useAssistantHints.ts"],
+      "desktop": ["src/components/Assistant/AssistantHeader.tsx", "src/components/Assistant/AssistantLauncher.tsx"],
+      "mobile": [
+        "src/mobile/screens/trip/assistant/MAssistantScreen.tsx",
+        "src/mobile/screens/trip/sheets/MMehrSheet.tsx"
+      ]
     },
     {
       "feature": "Atlas country/region action sheet",
@@ -657,6 +678,12 @@
       "hooks": ["src/components/Settings/useSettingSaver.ts"],
       "desktop": ["src/components/Settings/DisplaySettingsTab.tsx"],
       "mobile": ["src/mobile/screens/settings/MSettingsGeneral.tsx"]
+    },
+    {
+      "feature": "Settings / Integrations / AI assistant",
+      "hooks": ["src/components/Settings/ai/useAiConnections.ts"],
+      "desktop": ["src/components/Settings/ai/AiConnectionSection.tsx"],
+      "mobile": ["src/mobile/screens/settings/MAiConnectionSection.tsx"]
     },
     {
       "feature": "Settings / Integrations / AI parsing",

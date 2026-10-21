@@ -22,6 +22,7 @@ import {
 } from '../../../components/Admin/addons/addonModel'
 import { useAddonManager } from '../../../components/Admin/addons/useAddonManager'
 import { useLlmParsingConfig } from '../../../components/Admin/addons/useLlmParsingConfig'
+import MAdminAiConfig from './MAdminAiConfig'
 import { ImmichIcon, SynologyIcon } from '../../../components/Admin/addons/PhotoProviderIcons'
 import { MAdminButton, MAdminCard, MAdminClampedText, MAdminField, MAdminInput, MAdminSecretInput } from './MAdminUi'
 import WandererMark from '../../../components/Tours/wanderer/WandererMark'
@@ -179,6 +180,11 @@ export default function MAdminAddonManager({ bagTrackingEnabled, onToggleBagTrac
                   {addon.id === 'llm_parsing' && addon.enabled && (
                     <div className="mt-1 border-t border-[color:var(--m-rowbr)] pt-3">
                       <LlmParsingConfig addon={addon} />
+                    </div>
+                  )}
+                  {addon.id === 'ai_assistant' && addon.enabled && (
+                    <div className="mt-1 border-t border-[color:var(--m-rowbr)] pt-3">
+                      <MAdminAiConfig />
                     </div>
                   )}
                 </div>

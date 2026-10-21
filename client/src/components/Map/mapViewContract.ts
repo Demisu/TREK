@@ -197,6 +197,58 @@ export interface MapViewProps {
    * it; the Leaflet renderer takes the prop and never calls it.
    */
   onMapReady?: (map: CompassMap | null) => void;
+  /** The assistant's suggestions that are not on the map yet, drawn as dashed pins outside the clusters. */
+  assistantGhosts?: AssistantGhost[];
+  /** The suggestion under the pointer, in the chat or on the map; its ghost pulses. */
+  assistantHoveredId?: string | null;
+  onAssistantGhostHover?: (id: string | null) => void;
+  onAssistantGhostClick?: (id: string) => void;
+  /** A place already on the map that the hovered suggestion is about; its own pin pulses instead of a ghost. */
+  assistantPulsePlaceId?: number | null;
+  /** Where the assistant asks the map to look; a new `key` is a new request. */
+  assistantCamera?: AssistantCamera | null;
+  /** Places that just arrived from an applied suggestion; their pins pop once. */
+  poppedPlaceIds?: readonly number[];
+  /** While the map shows the plan before a change, its pins cannot be dragged onto a day. */
+  markersLocked?: boolean;
+}
+
+/** The assistant's part of the contract, which both renderers hand to their assistant modules whole. */
+export type AssistantMapProps = Pick<
+  MapViewProps,
+  | 'assistantGhosts'
+  | 'assistantHoveredId'
+  | 'onAssistantGhostHover'
+  | 'onAssistantGhostClick'
+  | 'assistantPulsePlaceId'
+  | 'assistantCamera'
+  | 'poppedPlaceIds'
+  | 'markersLocked'
+>;
+
+/** A suggested place drawn before it exists. `color` and `icon` are its category's. */
+export interface AssistantGhost {
+  id: string;
+  lat: number;
+  lng: number;
+  name: string;
+  color?: string;
+  icon?: string;
+}
+
+/**
+ * A camera move the assistant asks for. `fit` frames all points, `pan` only
+ * brings their centre into view when it is outside. `auto` marks a move the
+ * user did not ask for: the map skips it while the user is moving the map
+ * themselves. `cover` is what the assistant's window hides of the map.
+ */
+export interface AssistantCamera {
+  key: string;
+  points: [number, number][];
+  mode: 'fit' | 'pan';
+  animate: boolean;
+  auto: boolean;
+  cover?: { side: 'left' | 'right'; px: number } | null;
 }
 
 /**

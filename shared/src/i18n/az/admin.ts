@@ -728,6 +728,9 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.llm_parsing.name': 'Süni intellektlə təhlil',
   'admin.addons.catalog.llm_parsing.description':
     'Daxili təhlilçinin oxuya bilmədiyi rezervasiyaları seçdiyiniz süni intellekt modeli ilə oxuyur',
+  'admin.addons.catalog.ai_assistant.name': 'Süni intellekt köməkçisi',
+  'admin.addons.catalog.ai_assistant.description':
+    'Hər səfərdə sualları cavablandıran və təsdiqlədiyiniz dəyişikliklər təklif edən söhbət',
   'admin.addons.llm.vision.auto': 'Avtomatik',
   'admin.addons.llm.vision.on': 'Bəli',
   'admin.addons.llm.vision.off': 'Xeyr',

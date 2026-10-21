@@ -1,7 +1,12 @@
 import type { EntitySchema } from '@mikro-orm/core';
 import { AddonsSchema } from './Addons.entity';
+import { AiConnectionsSchema } from './AiConnections.entity';
 import { AppSettingsSchema } from './AppSettings.entity';
 import { AssignmentParticipantsSchema } from './AssignmentParticipants.entity';
+import { AssistantMessagesSchema } from './AssistantMessages.entity';
+import { AssistantThreadsSchema } from './AssistantThreads.entity';
+import { AssistantToolCallsSchema } from './AssistantToolCalls.entity';
+import { AssistantUsageSchema } from './AssistantUsage.entity';
 import { AuditLogSchema } from './AuditLog.entity';
 import { BucketListSchema } from './BucketList.entity';
 import { BudgetCategoryOrderSchema } from './BudgetCategoryOrder.entity';
@@ -155,8 +160,13 @@ import { WebauthnCredentialsSchema } from './WebauthnCredentials.entity';
 
 export const ALL_ENTITIES: readonly EntitySchema[] = [
   AddonsSchema,
+  AiConnectionsSchema,
   AppSettingsSchema,
   AssignmentParticipantsSchema,
+  AssistantMessagesSchema,
+  AssistantThreadsSchema,
+  AssistantToolCallsSchema,
+  AssistantUsageSchema,
   AuditLogSchema,
   BucketListSchema,
   BudgetCategoryOrderSchema,

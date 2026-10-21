@@ -660,6 +660,9 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.llm_parsing.name': 'Analiza AI',
   'admin.addons.catalog.llm_parsing.description':
     'Odczytuje rezerwacje, których nie rozumie wbudowany parser, przy użyciu wybranego modelu AI',
+  'admin.addons.catalog.ai_assistant.name': 'Asystent AI',
+  'admin.addons.catalog.ai_assistant.description':
+    'Czat w każdej podróży, który odpowiada na pytania i proponuje zmiany do Twojego zatwierdzenia',
   'admin.addons.llm.vision.auto': 'Automatycznie',
   'admin.addons.llm.vision.on': 'Tak',
   'admin.addons.llm.vision.off': 'Nie',

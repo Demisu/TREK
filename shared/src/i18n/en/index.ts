@@ -1,5 +1,6 @@
 import admin from './admin';
 import airport from './airport';
+import assistant from './assistant';
 import atlas from './atlas';
 import backup from './backup';
 import budget from './budget';
@@ -116,5 +117,6 @@ const locale = {
   ...dawarich,
   ...docsync,
   ...ferratas,
+  ...assistant,
 };
 export default locale;

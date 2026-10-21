@@ -626,6 +626,9 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.llm_parsing.name': 'Análisis con IA',
   'admin.addons.catalog.llm_parsing.description':
     'Lee reservas que el analizador integrado no entiende, con un modelo de IA que tú elijas',
+  'admin.addons.catalog.ai_assistant.name': 'Asistente de IA',
+  'admin.addons.catalog.ai_assistant.description':
+    'Un chat en cada viaje que responde preguntas y propone cambios que tú confirmas',
   'admin.addons.llm.vision.auto': 'Automático',
   'admin.addons.llm.vision.on': 'Sí',
   'admin.addons.llm.vision.off': 'No',

@@ -712,6 +712,9 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.llm_parsing.name': 'Ανάλυση με τεχνητή νοημοσύνη',
   'admin.addons.catalog.llm_parsing.description':
     'Διαβάζει κρατήσεις που δεν καταλαβαίνει ο ενσωματωμένος αναλυτής, με μοντέλο ΤΝ της επιλογής σας',
+  'admin.addons.catalog.ai_assistant.name': 'Βοηθός τεχνητής νοημοσύνης',
+  'admin.addons.catalog.ai_assistant.description':
+    'Συνομιλία σε κάθε ταξίδι που απαντά σε ερωτήσεις και προτείνει αλλαγές που εσύ επιβεβαιώνεις',
   'admin.addons.llm.vision.auto': 'Αυτόματα',
   'admin.addons.llm.vision.on': 'Ναι',
   'admin.addons.llm.vision.off': 'Όχι',

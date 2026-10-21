@@ -650,6 +650,9 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.llm_parsing.name': 'MI-elemzés',
   'admin.addons.catalog.llm_parsing.description':
     'Beolvassa azokat a foglalásokat, amelyeket a beépített értelmező nem tud, az általad választott MI-modellel',
+  'admin.addons.catalog.ai_assistant.name': 'MI-asszisztens',
+  'admin.addons.catalog.ai_assistant.description':
+    'Csevegés minden utazásban, amely válaszol a kérdésekre, és módosításokat javasol, amelyeket te hagysz jóvá',
   'admin.addons.llm.vision.auto': 'Automatikus',
   'admin.addons.llm.vision.on': 'Igen',
   'admin.addons.llm.vision.off': 'Nem',

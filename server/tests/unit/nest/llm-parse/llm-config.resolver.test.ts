@@ -169,3 +169,20 @@ describe('readLocalServerAccess (#2649)', () => {
     expect(await resolver.readLocalServerAccess()).toBeNull();
   });
 });
+
+describe('readInstanceEndpoint', () => {
+  it('answers the saved provider, model and address, never the key', async () => {
+    setInstanceConfig({ provider: 'local', model: 'qwen3.5:4b', baseUrl: ' http://10.0.0.2:11434 ', apiKey: 'k' });
+    expect(await resolver.readInstanceEndpoint()).toEqual({
+      provider: 'local',
+      model: 'qwen3.5:4b',
+      baseUrl: 'http://10.0.0.2:11434',
+    });
+  });
+
+  it('answers null when nothing usable is saved', async () => {
+    expect(await resolver.readInstanceEndpoint()).toBeNull();
+    setInstanceConfig({ provider: 'anthropic', model: '' });
+    expect(await resolver.readInstanceEndpoint()).toBeNull();
+  });
+});

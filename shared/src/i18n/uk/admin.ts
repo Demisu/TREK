@@ -662,6 +662,9 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.llm_parsing.name': 'Розбір за допомогою ШІ',
   'admin.addons.catalog.llm_parsing.description':
     'Читає бронювання, які не розпізнає вбудований аналізатор, за допомогою обраної вами моделі ШІ',
+  'admin.addons.catalog.ai_assistant.name': 'ШІ-асистент',
+  'admin.addons.catalog.ai_assistant.description':
+    'Чат у кожній подорожі: відповідає на запитання й пропонує зміни, які ви підтверджуєте',
   'admin.addons.llm.vision.auto': 'Автоматично',
   'admin.addons.llm.vision.on': 'Так',
   'admin.addons.llm.vision.off': 'Ні',

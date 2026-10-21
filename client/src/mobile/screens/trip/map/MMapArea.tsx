@@ -425,6 +425,11 @@ export default function MMapArea({ planner, shell }: MMapAreaProps) {
         // and the leave would put out the road the tap has just lit.
         onChooseAlternative={onStage ? planner.setHighlightedAlternative : undefined}
         fitPadding={fitPadding}
+        // The assistant's suggestions on the plan map. A tap marks one, as a hover does on
+        // the desk; the hover itself stays off, since the emulated leave after a tap would
+        // take the mark straight off again.
+        {...(onStage ? {} : planner.assistantMap)}
+        onAssistantGhostHover={undefined}
       />
 
       {/* Floating map chrome — only while the map view is front-most. The POI bar

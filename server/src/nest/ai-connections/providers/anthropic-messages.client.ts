@@ -1,0 +1,183 @@
+import type {
+  AiChatClient,
+  AiChatEvent,
+  AiChatMessage,
+  AiChatRequest,
+  AiFinishReason,
+  AiToolCall,
+} from '../ai-chat-client.interface';
+import { AI_BASE_URLS } from '../ai-connections.constants';
+import { AiProviderError, errorCodeOf, providerFailure } from './provider-errors';
+import {
+  asCount,
+  asRecord,
+  asText,
+  openProviderStream,
+  parseEventData,
+  parseToolArgs,
+  toProviderSchema,
+  type AiFetch,
+} from './provider-http';
+import { readSseEvents } from './sse-lines';
+
+export const ANTHROPIC_VERSION = '2023-06-01';
+/** The answer cap of one step. A chat reply is short; tool calls with long arguments fit well inside. */
+const MAX_TOKENS = 4096;
+
+type ContentBlock = Record<string, unknown>;
+type AnthropicMessage = { role: 'user' | 'assistant'; content: ContentBlock[] };
+
+/**
+ * The provider-neutral history as Messages API turns: a tool result is a
+ * `tool_result` block of a user turn, and turns of the same role that follow
+ * each other merge into one, since the API wants them alternating.
+ */
+export function toAnthropicMessages(messages: AiChatMessage[]): AnthropicMessage[] {
+  const out: AnthropicMessage[] = [];
+  const push = (role: AnthropicMessage['role'], blocks: ContentBlock[]) => {
+    if (blocks.length === 0) return;
+    const last = out.at(-1);
+    if (last?.role === role) last.content.push(...blocks);
+    else out.push({ role, content: blocks });
+  };
+  for (const message of messages) {
+    if (message.role === 'user') {
+      push('user', [{ type: 'text', text: message.text }]);
+    } else if (message.role === 'assistant') {
+      push('assistant', [
+        ...(message.text ? [{ type: 'text', text: message.text }] : []),
+        ...message.toolCalls.map((call) => ({ type: 'tool_use', id: call.id, name: call.name, input: call.args })),
+      ]);
+    } else {
+      push('user', [
+        {
+          type: 'tool_result',
+          tool_use_id: message.toolCallId,
+          content: message.output,
+          ...(message.isError ? { is_error: true } : {}),
+        },
+      ]);
+    }
+  }
+  return out;
+}
+
+const STOP_REASONS: Record<string, AiFinishReason> = { tool_use: 'tool-calls', max_tokens: 'length' };
+
+/**
+ * Anthropic's Messages API, streamed. The instructions and the trip card are
+ * two system blocks, each marked for the prompt cache, so the tools and the
+ * instructions are read from cache on every later step of a conversation.
+ */
+export class AnthropicMessagesClient implements AiChatClient {
+  readonly kind = 'anthropic' as const;
+
+  constructor(
+    readonly model: string,
+    private readonly apiKey: string,
+    private readonly fetcher: AiFetch,
+  ) {}
+
+  async *stream(request: AiChatRequest, signal: AbortSignal): AsyncGenerator<AiChatEvent> {
+    const system = [request.system, request.context]
+      .filter((text): text is string => !!text)
+      .map((text) => ({ type: 'text', text, cache_control: { type: 'ephemeral' } }));
+    const body = {
+      model: this.model,
+      max_tokens: MAX_TOKENS,
+      stream: true,
+      system,
+      messages: toAnthropicMessages(request.messages),
+      ...(request.tools.length > 0
+        ? {
+            tools: request.tools.map((tool) => ({
+              name: tool.name,
+              description: tool.description,
+              input_schema: toProviderSchema(tool.parameters, this.kind),
+            })),
+          }
+        : {}),
+    };
+    const events = await openProviderStream(
+      this.fetcher,
+      this.kind,
+      `${AI_BASE_URLS.anthropic}/v1/messages`,
+      {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          accept: 'text/event-stream',
+          'x-api-key': this.apiKey,
+          'anthropic-version': ANTHROPIC_VERSION,
+        },
+        body: JSON.stringify(body),
+      },
+      signal,
+    );
+
+    const turn = new AnthropicTurn();
+    for await (const sse of readSseEvents(events)) {
+      const event = parseEventData(sse.data);
+      if (!event) continue;
+      if (event.type === 'error') throw providerFailure(this.kind, 0, errorCodeOf(event));
+      const out = turn.apply(event);
+      if (out) yield out;
+    }
+    if (!turn.finished) throw new AiProviderError('provider_unavailable', 0, true, undefined, 'stream_cut');
+    yield { type: 'usage', inputTokens: turn.inputTokens, outputTokens: turn.outputTokens };
+    yield { type: 'finish', reason: turn.reason };
+  }
+}
+
+/** What one streamed Messages API turn has said so far, fed one event at a time. */
+class AnthropicTurn {
+  inputTokens = 0;
+  outputTokens = 0;
+  reason: AiFinishReason = 'stop';
+  finished = false;
+  private readonly blocks = new Map<number, { call?: Omit<AiToolCall, 'args'>; json: string }>();
+
+  /** Takes one event in; answers what the caller learns from it now, if anything. */
+  apply(event: Record<string, unknown>): AiChatEvent | null {
+    const index = asCount(event.index);
+    switch (event.type) {
+      case 'message_start': {
+        const usage = asRecord(asRecord(event.message).usage);
+        this.inputTokens =
+          asCount(usage.input_tokens) +
+          asCount(usage.cache_creation_input_tokens) +
+          asCount(usage.cache_read_input_tokens);
+        this.outputTokens = asCount(usage.output_tokens);
+        return null;
+      }
+      case 'content_block_start': {
+        const block = asRecord(event.content_block);
+        const call = block.type === 'tool_use' ? { id: asText(block.id), name: asText(block.name) } : undefined;
+        this.blocks.set(index, { call, json: '' });
+        return null;
+      }
+      case 'content_block_delta': {
+        const delta = asRecord(event.delta);
+        if (delta.type === 'text_delta' && asText(delta.text)) return { type: 'text-delta', delta: asText(delta.text) };
+        const block = this.blocks.get(index);
+        if (delta.type === 'input_json_delta' && block) block.json += asText(delta.partial_json);
+        return null;
+      }
+      case 'content_block_stop': {
+        const block = this.blocks.get(index);
+        return block?.call ? { type: 'tool-call', call: { ...block.call, args: parseToolArgs(block.json) } } : null;
+      }
+      case 'message_delta': {
+        const stop = asText(asRecord(event.delta).stop_reason);
+        if (stop) this.reason = STOP_REASONS[stop] ?? 'stop';
+        this.outputTokens = asCount(asRecord(event.usage).output_tokens) || this.outputTokens;
+        return null;
+      }
+      case 'message_stop':
+        this.finished = true;
+        return null;
+      default:
+        return null;
+    }
+  }
+}

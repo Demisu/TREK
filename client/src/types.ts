@@ -150,6 +150,10 @@ export interface Settings {
   map_compact_unplanned?: boolean
   map_booking_labels?: boolean
   map_poi_pill_enabled?: boolean
+  /** The trip map pans to where the assistant searches and suggests places; absent reads as on. */
+  assistant_map_follow?: boolean
+  /** The assistant points out things in the plan worth a second look; absent reads as on. */
+  assistant_hints?: boolean
   map_always_show_routes?: boolean
   optimize_from_accommodation?: boolean
   map_provider?: 'leaflet' | 'mapbox-gl' | 'maplibre-gl'

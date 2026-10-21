@@ -729,8 +729,6 @@
   "src/components/Planner/parsedItemToDraft.ts",
   "src/components/Planner/placeAmap.test.ts",
   "src/components/Planner/placeAmap.ts",
-  "src/components/Planner/placeCategoryGuess.test.ts",
-  "src/components/Planner/placeCategoryGuess.ts",
   "src/components/Planner/placeCoMaps.test.ts",
   "src/components/Planner/placeCoMaps.ts",
   "src/components/Planner/placeDialogParts.test.tsx",

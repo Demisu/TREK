@@ -690,6 +690,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.llm_parsing.name': 'التحليل بالذكاء الاصطناعي',
   'admin.addons.catalog.llm_parsing.description':
     'يقرأ الحجوزات التي يعجز المحلل المدمج عن فهمها، بنموذج ذكاء اصطناعي تختاره',
+  'admin.addons.catalog.ai_assistant.name': 'المساعد الذكي',
+  'admin.addons.catalog.ai_assistant.description': 'محادثة في كل رحلة تجيب عن الأسئلة وتقترح تغييرات تؤكدها أنت',
   'admin.addons.llm.vision.auto': 'تلقائي',
   'admin.addons.llm.vision.on': 'نعم',
   'admin.addons.llm.vision.off': 'لا',

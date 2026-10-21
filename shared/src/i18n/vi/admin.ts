@@ -704,6 +704,9 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.llm_parsing.name': 'Phân tích bằng AI',
   'admin.addons.catalog.llm_parsing.description':
     'Đọc các đặt chỗ mà bộ phân tích tích hợp không hiểu, bằng mô hình AI bạn chọn',
+  'admin.addons.catalog.ai_assistant.name': 'Trợ lý AI',
+  'admin.addons.catalog.ai_assistant.description':
+    'Trò chuyện trong mỗi chuyến đi, trả lời câu hỏi và đề xuất thay đổi để bạn xác nhận',
   'admin.addons.llm.vision.auto': 'Tự động',
   'admin.addons.llm.vision.on': 'Có',
   'admin.addons.llm.vision.off': 'Không',

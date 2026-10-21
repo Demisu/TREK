@@ -709,6 +709,9 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.llm_parsing.name': 'Tehisintellektiga parsimine',
   'admin.addons.catalog.llm_parsing.description':
     'Loeb sinu valitud tehisintellektimudeli abil broneeringuid, mida sisseehitatud parser lugeda ei suuda',
+  'admin.addons.catalog.ai_assistant.name': 'Tehisintellekti assistent',
+  'admin.addons.catalog.ai_assistant.description':
+    'Vestlus igas reisis, mis vastab küsimustele ja pakub välja muudatusi, mille sina kinnitad',
   'admin.addons.llm.vision.auto': 'Automaatne',
   'admin.addons.llm.vision.on': 'Jah',
   'admin.addons.llm.vision.off': 'Ei',

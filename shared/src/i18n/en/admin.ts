@@ -691,6 +691,9 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.llm_parsing.name': 'AI Parsing',
   'admin.addons.catalog.llm_parsing.description':
     'Reads bookings the built-in parser cannot, using an AI model you choose',
+  'admin.addons.catalog.ai_assistant.name': 'AI Assistant',
+  'admin.addons.catalog.ai_assistant.description':
+    'A chat in every trip that answers questions and suggests changes you confirm',
   'admin.addons.llm.vision.auto': 'Automatic',
   'admin.addons.llm.vision.on': 'Yes',
   'admin.addons.llm.vision.off': 'No',

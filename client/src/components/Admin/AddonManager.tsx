@@ -17,6 +17,7 @@ import { SettingsCard, SettingsHint, StatusPill, SETTINGS_BUTTON_PRIMARY } from 
 import { type Addon, type CollabFeatures, ANTHROPIC_HINT, COLLAB_SUB_FEATURES, getAddonLabel, MASKED, RECOMMENDED_MODELS } from './addons/addonModel'
 import { useAddonManager } from './addons/useAddonManager'
 import { useLlmParsingConfig } from './addons/useLlmParsingConfig'
+import AiAdminConfig from './addons/AiAdminConfig'
 import { ImmichIcon, SynologyIcon } from './addons/PhotoProviderIcons'
 import WandererMark from '../Tours/wanderer/WandererMark'
 
@@ -181,6 +182,10 @@ export default function AddonManager({ bagTrackingEnabled, onToggleBagTracking, 
     // just as a form instead of toggle rows.
     if (addon.id === 'llm_parsing' && addon.enabled) {
       return <LlmParsingConfig addon={addon} />
+    }
+    // The assistant's settings and the connection everyone runs on, the same way.
+    if (addon.id === 'ai_assistant' && addon.enabled) {
+      return <AiAdminConfig />
     }
     return null
   }

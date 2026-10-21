@@ -713,6 +713,9 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.llm_parsing.name': 'AI-tolkning',
   'admin.addons.catalog.llm_parsing.description':
     'Läser bokningar som den inbyggda tolken inte klarar, med en AI-modell du väljer',
+  'admin.addons.catalog.ai_assistant.name': 'AI-assistent',
+  'admin.addons.catalog.ai_assistant.description':
+    'En chatt i varje resa som svarar på frågor och föreslår ändringar som du bekräftar',
   'admin.addons.llm.vision.auto': 'Automatiskt',
   'admin.addons.llm.vision.on': 'Ja',
   'admin.addons.llm.vision.off': 'Nej',

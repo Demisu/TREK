@@ -1,7 +1,12 @@
 {
   "Addons": "addons",
+  "AiConnections": "ai-connections",
   "AppSettings": "settings",
   "AssignmentParticipants": "assignments",
+  "AssistantMessages": "assistant",
+  "AssistantThreads": "assistant",
+  "AssistantToolCalls": "assistant",
+  "AssistantUsage": "ai-connections",
   "AuditLog": "audit",
   "BucketList": "atlas",
   "BudgetCategoryOrder": "budget",

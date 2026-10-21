@@ -1,0 +1,507 @@
+import { idParamSchema, idSchema } from '../common/primitives.schema';
+
+import { z } from 'zod';
+
+/**
+ * Trip assistant contract for /api/trips/:tripId/assistant.
+ *
+ * The assistant works the trip through the same MCP tools any client uses.
+ * Reading tools run at once; every writing call is held as a change preview
+ * the user applies or discards, and only then runs, with the arguments the
+ * server stored, never ones the client sends back. A file attached in the
+ * chat (`attachments`) is read by the server itself: the step is the call
+ * `read_booking_file`, and each booking it finds is held as an
+ * `import_booking` change like any other. Neither is a tool the model knows.
+ *
+ * `chat`, `attachments` and `threads/:threadId/decisions` answer with a stream of UI message
+ * chunks (`uiStreamChunkSchema`, a subset of the UI Message Stream v1 plus the
+ * `data-trek-*` parts), one `data: <json>` event each, closed by
+ * `data: [DONE]`. `__fixtures__/ui-stream.v1.txt` is one such stream; the
+ * server's writer and the client's parser are both tested against it.
+ */
+
+/** Why a turn could not run or stopped, as the `error` chunk and the JSON errors name it. */
+export const ASSISTANT_ERROR_CODES = [
+  'not_connected',
+  'busy',
+  'daily_limit',
+  'rate_limited',
+  'needs_reauth',
+  'usage_limit',
+  'not_eligible',
+  'invalid_key',
+  'provider_unavailable',
+  'max_steps',
+  'offline',
+  'no_bookings_found',
+  'import_unavailable',
+  // A found place was suggested while the thread still holds changes nobody decided on.
+  'decide_first',
+  // TREK's own per-user limit on turns and changes, apart from the provider's `rate_limited`.
+  'too_many_requests',
+  'generic',
+] as const;
+export const assistantErrorCodeSchema = z.enum(ASSISTANT_ERROR_CODES);
+export type AssistantErrorCode = z.infer<typeof assistantErrorCodeSchema>;
+
+/**
+ * What a change does, one per writing tool. The client labels the card with
+ * `assistant.change.verb.<key>`.
+ */
+export const ASSISTANT_CHANGE_VERB_KEYS = [
+  'addPlace',
+  'addPlaceToDay',
+  'updatePlace',
+  'assignPlace',
+  'moveAssignment',
+  'removeFromDay',
+  'addDayNote',
+  'updateDayNote',
+  'addPackingItem',
+  'updatePackingItem',
+  'addTodo',
+  'addBudgetItem',
+  'addReservation',
+  'importBooking',
+] as const;
+export const assistantChangeVerbKeySchema = z.enum(ASSISTANT_CHANGE_VERB_KEYS);
+export type AssistantChangeVerbKey = z.infer<typeof assistantChangeVerbKeySchema>;
+
+/** The field a change row shows, labelled `assistant.change.label.<key>`. */
+export const ASSISTANT_CHANGE_LABEL_KEYS = [
+  'name',
+  'description',
+  'address',
+  'coordinates',
+  'category',
+  'day',
+  'time',
+  'endTime',
+  'notes',
+  'website',
+  'phone',
+  'email',
+  'openingHours',
+  'price',
+  'currency',
+  'stopType',
+  'text',
+  'icon',
+  'color',
+  'position',
+  'quantity',
+  'weight',
+  'bag',
+  'packed',
+  'dueDate',
+  'priority',
+  'assignee',
+  'type',
+  'location',
+  'link',
+  'confirmation',
+  'checkIn',
+  'checkOut',
+  'stay',
+  'members',
+  'route',
+] as const;
+export const assistantChangeLabelKeySchema = z.enum(ASSISTANT_CHANGE_LABEL_KEYS);
+export type AssistantChangeLabelKey = z.infer<typeof assistantChangeLabelKeySchema>;
+
+const latSchema = z.number().min(-90).max(90);
+const lngSchema = z.number().min(-180).max(180);
+
+// ── Requests ────────────────────────────────────────────────────────────────
+
+/**
+ * A day, place or booking the user named with `@` in the message. The server
+ * checks each against the trip and takes the label from its own data, never
+ * from the request; one that is not in the trip is dropped without a word.
+ */
+export const ASSISTANT_MENTION_KINDS = ['day', 'place', 'reservation'] as const;
+export const assistantMentionSchema = z
+  .object({
+    kind: z.enum(ASSISTANT_MENTION_KINDS),
+    id: idSchema,
+  })
+  .strict();
+export type AssistantMention = z.infer<typeof assistantMentionSchema>;
+
+/** What the user is looking at when they ask: the selected day, or the places they asked about. */
+export const assistantFocusSchema = z
+  .object({
+    dayId: idSchema.optional(),
+    placeIds: z.array(idSchema).max(20).optional(),
+  })
+  .strict();
+export type AssistantFocus = z.infer<typeof assistantFocusSchema>;
+
+/** The language to answer in and the zone "today" is read in, sent with every turn. */
+export const assistantClientCtxSchema = z.object({
+  locale: z.string().min(2).max(10),
+  timeZone: z.string().min(1).max(64),
+});
+export type AssistantClientCtx = z.infer<typeof assistantClientCtxSchema>;
+
+/** POST /chat: a new message, in an existing thread or (threadId null) a new one. */
+export const assistantChatRequestSchema = assistantClientCtxSchema
+  .extend({
+    threadId: idSchema.nullable(),
+    text: z.string().trim().min(1).max(4000),
+    focus: assistantFocusSchema.optional(),
+    mentions: z.array(assistantMentionSchema).max(10).optional(),
+  })
+  .strict();
+export type AssistantChatRequest = z.infer<typeof assistantChatRequestSchema>;
+
+/**
+ * POST /attachments, multipart: the file in the field `file`, these as text
+ * fields beside it. A new thread when threadId is left out. Multipart sends
+ * every field as a string, so the id is read from its text.
+ */
+export const assistantAttachmentRequestSchema = assistantClientCtxSchema
+  .extend({
+    threadId: idParamSchema.optional(),
+  })
+  .strict();
+export type AssistantAttachmentRequest = z.infer<typeof assistantAttachmentRequestSchema>;
+
+/** One decision on a held change. */
+export const assistantDecisionSchema = z
+  .object({
+    toolCallId: z.string().min(1).max(64),
+    approved: z.boolean(),
+  })
+  .strict();
+export type AssistantDecision = z.infer<typeof assistantDecisionSchema>;
+
+/** POST /threads/:threadId/decisions: every change the step holds, applied or discarded. */
+export const assistantDecisionsRequestSchema = assistantClientCtxSchema
+  .extend({
+    decisions: z.array(assistantDecisionSchema).min(1).max(12),
+  })
+  .strict();
+export type AssistantDecisionsRequest = z.infer<typeof assistantDecisionsRequestSchema>;
+
+/** POST /stop. No fields: the body is JSON only so the request cannot be sent cross-site as a form. */
+export const assistantStopRequestSchema = z.object({}).strict();
+export type AssistantStopRequest = z.infer<typeof assistantStopRequestSchema>;
+
+/** POST /tool-calls/:toolCallId/undo. No fields, for the same reason as stop. */
+export const assistantUndoRequestSchema = z.object({}).strict();
+export type AssistantUndoRequest = z.infer<typeof assistantUndoRequestSchema>;
+
+/**
+ * POST /threads/:threadId/found-places: suggest a place from a search result
+ * for a day. `ref` names the place in the thread's stored places part; the
+ * server holds the change like any other and runs no model turn for it.
+ */
+export const assistantAddFoundPlaceRequestSchema = assistantClientCtxSchema
+  .extend({
+    ref: z.string().min(1).max(80),
+    dayId: idSchema,
+  })
+  .strict();
+export type AssistantAddFoundPlaceRequest = z.infer<typeof assistantAddFoundPlaceRequestSchema>;
+
+// ── Change previews ─────────────────────────────────────────────────────────
+
+/**
+ * What a change does to the day plan, so the map can show it before it is
+ * applied: the day it lands on (for a removal, the day it leaves), the day a
+ * move comes from, and for a place that does not exist yet its name and
+ * position. Null for a change that does not touch the plan.
+ */
+export const assistantChangeEffectSchema = z.object({
+  kind: z.enum(['add', 'remove', 'move']),
+  dayId: idSchema,
+  fromDayId: idSchema.nullable(),
+  placeId: idSchema.nullable(),
+  assignmentId: idSchema.nullable(),
+  place: z
+    .object({
+      name: z.string().max(200),
+      lat: latSchema,
+      lng: lngSchema,
+      categoryId: idSchema.nullable(),
+    })
+    .nullable(),
+});
+export type AssistantChangeEffect = z.infer<typeof assistantChangeEffectSchema>;
+
+/** One line of a change card, in plain words: names, dates and times, never ids. */
+export const assistantChangeRowSchema = z.object({
+  op: z.enum(['add', 'change', 'move']),
+  labelKey: assistantChangeLabelKeySchema,
+  before: z.string().nullable(),
+  after: z.string(),
+});
+export type AssistantChangeRow = z.infer<typeof assistantChangeRowSchema>;
+
+/** A held writing call as the user sees it before deciding. */
+export const assistantChangePreviewSchema = z.object({
+  toolCallId: z.string(),
+  verbKey: assistantChangeVerbKeySchema,
+  // What the change is about: the place, note or item name.
+  subject: z.string(),
+  rows: z.array(assistantChangeRowSchema).max(12),
+  // Where "Show on map" goes after the change was applied.
+  dayId: idSchema.nullable(),
+  placeIds: z.array(idSchema),
+  // Whether applying it can be undone for a while (a create with a matching delete).
+  undoable: z.boolean(),
+  // Left out by servers and stored previews from before the map showed changes.
+  effect: assistantChangeEffectSchema.nullable().optional(),
+});
+export type AssistantChangePreview = z.infer<typeof assistantChangePreviewSchema>;
+
+/** An applied change: what it touched, and until when it can be undone. */
+export const assistantAppliedSchema = z.object({
+  toolCallId: z.string(),
+  entity: z.enum(['place', 'assignment', 'day_note', 'packing', 'todo', 'budget', 'reservation']),
+  ids: z.array(idSchema),
+  dayId: idSchema.nullable(),
+  undoUntil: z.string().nullable(),
+});
+export type AssistantApplied = z.infer<typeof assistantAppliedSchema>;
+
+// ── Cards in an answer ──────────────────────────────────────────────────────
+
+/** The kind a found place is drawn as, read from whatever its source calls it. */
+export const ASSISTANT_FOUND_PLACE_KINDS = [
+  'lodging',
+  'food',
+  'drinks',
+  'sight',
+  'shopping',
+  'transport',
+  'beach',
+  'nature',
+  'activity',
+] as const;
+
+/**
+ * One place a search step found, normalized by the server from the tool's
+ * result. It never carries a URL: the client asks TREK's photo proxy with
+ * `photoKey` (a source id or `coords:lat,lng`) and shows only a same-origin
+ * answer. `openNow` is set only from the source's own flag and only while
+ * the trip is running; `inTripPlaceId` names the trip's place when it is the
+ * same one.
+ */
+export const assistantFoundPlaceSchema = z.object({
+  // `${toolCallId}:${index}`, the handle a suggestion for a day names it by.
+  ref: z.string().max(80),
+  name: z.string().max(120),
+  address: z.string().max(200).nullable(),
+  lat: latSchema,
+  lng: lngSchema,
+  kind: z.enum(ASSISTANT_FOUND_PLACE_KINDS).nullable(),
+  rating: z.number().min(0).max(5).nullable(),
+  openNow: z.boolean().nullable(),
+  googlePlaceId: z.string().regex(/^[\w-]{1,200}$/).nullable(),
+  osmId: z.string().max(40).nullable(),
+  photoKey: z.string().regex(/^([\w-]{1,200}|coords:-?\d{1,3}(\.\d{1,12})?,-?\d{1,3}(\.\d{1,12})?)$/).nullable(),
+  inTripPlaceId: idSchema.nullable(),
+});
+export type AssistantFoundPlace = z.infer<typeof assistantFoundPlaceSchema>;
+
+/** The places one search step found: at most eight, `more` counts the rest. */
+export const assistantPlacesSchema = z.object({
+  toolCallId: z.string().max(64),
+  places: z.array(assistantFoundPlaceSchema).max(8),
+  more: z.number().int().nonnegative(),
+});
+export type AssistantPlaces = z.infer<typeof assistantPlacesSchema>;
+
+/**
+ * The weather the steps of an answer looked up, one entry per date.
+ * Temperatures are °C; the client converts them to the user's unit. `main`
+ * is the condition the weather icon is chosen by.
+ */
+export const assistantWeatherDaySchema = z.object({
+  dayId: idSchema.nullable(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  main: z.string().max(20),
+  tempMax: z.number(),
+  tempMin: z.number().nullable(),
+  rainPct: z.number().int().min(0).max(100).nullable(),
+  kind: z.enum(['forecast', 'climate', 'current']),
+});
+export type AssistantWeatherDay = z.infer<typeof assistantWeatherDaySchema>;
+
+export const assistantWeatherSchema = z.object({
+  days: z.array(assistantWeatherDaySchema).min(1).max(16),
+});
+export type AssistantWeather = z.infer<typeof assistantWeatherSchema>;
+
+/** Where a running step looks: a point with a radius, or a box. */
+export const assistantActivityAreaSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('point'),
+    lat: latSchema,
+    lng: lngSchema,
+    radiusM: z.number().int().min(50).max(50_000),
+  }),
+  z.object({
+    type: z.literal('bbox'),
+    south: latSchema,
+    west: lngSchema,
+    north: latSchema,
+    east: lngSchema,
+  }),
+]);
+export type AssistantActivityArea = z.infer<typeof assistantActivityAreaSchema>;
+
+/**
+ * What a running step is doing, for the live line and the map: the place or
+ * query it names (shortened), and the area it searches when that is small
+ * enough to show. Only streamed, never stored.
+ */
+export const assistantActivitySchema = z.object({
+  toolCallId: z.string().max(64),
+  label: z.string().max(80).nullable(),
+  area: assistantActivityAreaSchema.nullable(),
+});
+export type AssistantActivity = z.infer<typeof assistantActivitySchema>;
+
+/** The mentions of a user message as the server checked them, with the labels it took from the trip. */
+export const assistantMentionsSchema = z.object({
+  items: z
+    .array(
+      z.object({
+        kind: z.enum(ASSISTANT_MENTION_KINDS),
+        id: idSchema,
+        label: z.string().max(120),
+      }),
+    )
+    .max(10),
+});
+export type AssistantMentions = z.infer<typeof assistantMentionsSchema>;
+
+// ── Threads and messages ────────────────────────────────────────────────────
+
+export const assistantThreadSummarySchema = z.object({
+  id: idSchema,
+  title: z.string(),
+  lastMessageAt: z.string(),
+});
+export type AssistantThreadSummary = z.infer<typeof assistantThreadSummarySchema>;
+
+/** GET /threads: the user's latest threads in this trip. */
+export const assistantThreadListResponseSchema = z.object({ threads: z.array(assistantThreadSummarySchema) });
+export type AssistantThreadListResponse = z.infer<typeof assistantThreadListResponseSchema>;
+
+/**
+ * A server-side approval gate on a tool call. `resolution` closes a request
+ * nobody decided: it expired after 24 hours, or the turn was cancelled.
+ */
+export const assistantToolApprovalSchema = z.object({
+  id: z.string(),
+  approved: z.boolean().optional(),
+  resolution: z.enum(['cancelled', 'expired']).optional(),
+});
+export type AssistantToolApproval = z.infer<typeof assistantToolApprovalSchema>;
+
+/** One stored part of a message, in the order the model produced it. */
+export const assistantMessagePartSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('text'), text: z.string() }),
+  // A file the user handed the assistant. Only its description is kept, never its content.
+  z.object({
+    type: z.literal('attachment'),
+    name: z.string(),
+    mime: z.string(),
+    size: z.number().int().nonnegative(),
+  }),
+  z.object({
+    type: z.literal('tool-call'),
+    toolCallId: z.string(),
+    toolName: z.string(),
+    args: z.record(z.string(), z.unknown()),
+    result: z.unknown().optional(),
+    isError: z.boolean().optional(),
+    approval: assistantToolApprovalSchema.optional(),
+  }),
+  z.object({ type: z.literal('data-trek-change'), data: assistantChangePreviewSchema }),
+  z.object({ type: z.literal('data-trek-applied'), data: assistantAppliedSchema }),
+  z.object({ type: z.literal('data-trek-places'), data: assistantPlacesSchema }),
+  z.object({ type: z.literal('data-trek-weather'), data: assistantWeatherSchema }),
+  // Only on a user message.
+  z.object({ type: z.literal('data-trek-mentions'), data: assistantMentionsSchema }),
+]);
+export type AssistantMessagePart = z.infer<typeof assistantMessagePartSchema>;
+
+export const assistantMessageSchema = z.object({
+  id: z.string(),
+  role: z.enum(['user', 'assistant']),
+  parts: z.array(assistantMessagePartSchema),
+  status: z.enum(['complete', 'awaiting_approval', 'aborted', 'error']),
+  createdAt: z.string(),
+});
+export type AssistantMessage = z.infer<typeof assistantMessageSchema>;
+
+/** GET /threads/:threadId: the thread with its latest 50 messages, oldest first. */
+export const assistantThreadResponseSchema = z.object({
+  thread: assistantThreadSummarySchema,
+  messages: z.array(assistantMessageSchema),
+});
+export type AssistantThreadResponse = z.infer<typeof assistantThreadResponseSchema>;
+
+/** POST /threads/:threadId/found-places: the new assistant message holding the suggested change. */
+export const assistantAddFoundPlaceResponseSchema = z.object({ message: assistantMessageSchema });
+export type AssistantAddFoundPlaceResponse = z.infer<typeof assistantAddFoundPlaceResponseSchema>;
+
+/** POST /tool-calls/:toolCallId/undo */
+export const assistantUndoResponseSchema = z.object({ undone: z.literal(true) });
+export type AssistantUndoResponse = z.infer<typeof assistantUndoResponseSchema>;
+
+// ── Stream ──────────────────────────────────────────────────────────────────
+
+/** The marker the last `data:` event of a stream carries instead of a chunk. */
+export const UI_STREAM_DONE = '[DONE]';
+
+/**
+ * The chunks of an assistant stream. A client ignores a chunk whose type it
+ * does not know, so new types can be added without breaking older clients.
+ * An error names an `AssistantErrorCode`; one this client does not know reads
+ * as `generic`.
+ */
+export const uiStreamChunkSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('start'), messageId: z.string() }),
+  z.object({ type: z.literal('start-step') }),
+  z.object({ type: z.literal('text-start'), id: z.string() }),
+  z.object({ type: z.literal('text-delta'), id: z.string(), delta: z.string() }),
+  z.object({ type: z.literal('text-end'), id: z.string() }),
+  z.object({ type: z.literal('tool-input-start'), toolCallId: z.string(), toolName: z.string() }),
+  z.object({
+    type: z.literal('tool-input-available'),
+    toolCallId: z.string(),
+    toolName: z.string(),
+    input: z.record(z.string(), z.unknown()),
+  }),
+  // approvalId is the toolCallId: one id addresses the call and its decision.
+  z.object({ type: z.literal('tool-approval-request'), approvalId: z.string(), toolCallId: z.string() }),
+  z.object({ type: z.literal('tool-output-available'), toolCallId: z.string(), output: z.unknown() }),
+  z.object({ type: z.literal('tool-output-error'), toolCallId: z.string(), errorText: z.string() }),
+  z.object({ type: z.literal('tool-output-denied'), toolCallId: z.string() }),
+  z.object({ type: z.literal('data-trek-thread'), data: z.object({ threadId: idSchema, title: z.string() }) }),
+  z.object({ type: z.literal('data-trek-change'), data: assistantChangePreviewSchema }),
+  z.object({ type: z.literal('data-trek-applied'), data: assistantAppliedSchema }),
+  z.object({ type: z.literal('data-trek-places'), data: assistantPlacesSchema }),
+  z.object({ type: z.literal('data-trek-weather'), data: assistantWeatherSchema }),
+  // Live progress of a running step; the message never keeps it.
+  z.object({
+    type: z.literal('data-trek-activity'),
+    data: assistantActivitySchema,
+    transient: z.literal(true).optional(),
+  }),
+  z.object({
+    type: z.literal('data-trek-quota'),
+    data: z.object({ used: z.number().int().nonnegative(), limit: z.number().int().nonnegative() }),
+  }),
+  z.object({ type: z.literal('finish-step') }),
+  z.object({ type: z.literal('finish'), finishReason: z.enum(['stop', 'tool-calls', 'error']).optional() }),
+  z.object({ type: z.literal('error'), errorText: assistantErrorCodeSchema.catch('generic') }),
+  z.object({ type: z.literal('abort') }),
+]);
+export type UiStreamChunk = z.infer<typeof uiStreamChunkSchema>;

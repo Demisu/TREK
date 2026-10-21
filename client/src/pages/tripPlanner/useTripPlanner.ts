@@ -49,6 +49,8 @@ import { useDayDelete } from './useDayDelete'
 import { useDayAdd } from './useDayAdd'
 import { usePlannerDialogs } from './usePlannerDialogs'
 import { usePlaceDeepLink } from './usePlaceDeepLink'
+import { useAssistantDeepLink } from './useAssistantDeepLink'
+import { useAssistantCompareView, useAssistantMapLink } from './useAssistantMapLink'
 import { usePlannerMapView } from './usePlannerMapView'
 import { useMapPlaces } from './useMapPlaces'
 import { useRoadtripFeed } from './useRoadtripFeed'
@@ -445,8 +447,10 @@ export function useTripPlanner() {
 
   useTripWebSocket(tripId, invalidateTourPlaceIds)
 
+  // While the assistant compares a block it changed with the plan before it, the map shows that plan.
+  const assistantView = useAssistantCompareView({ tripId, assignments, storedAssignments, places })
   const { expandedDayIds, setExpandedDayIds, mapPlaces, dayOrderMap, dayPlaces } = useMapPlaces({
-    places, assignments, selectedDayId, days, tripAccommodations, reservations, toursEnabled, tripId, tourPlaceIds, isMobile,
+    places: assistantView.places, assignments: assistantView.assignments, selectedDayId, days, tripAccommodations, reservations, toursEnabled, tripId, tourPlaceIds, isMobile,
   })
 
   // Fed whenever the addon is on, not only while the mode is being looked at.
@@ -461,7 +465,7 @@ export function useTripPlanner() {
   const roadtripVias = useRoadtripVias(tripId, !!enabledAddons.roadtrip)
   // MDT-02: where the stages of the multi-day tours run, so a day holding one routes to and draws that stage.
   const tourStageStops = useMemo(() => tourStageStopsByPlace(tours), [tours])
-  const { route, routeWalking, routeSegments, routeVias, routeInfo, setRoute, setRouteInfo, updateRouteForDay } = useRouteCalculation({ assignments, roadtripVias: roadtripVias.byDay, tourStageStops }, selectedDayId, routeShown, routeProfile, tripAccommodations)
+  const { route, routeWalking, routeSegments, routeVias, routeInfo, setRoute, setRouteInfo, updateRouteForDay } = useRouteCalculation({ assignments: assistantView.assignments, roadtripVias: roadtripVias.byDay, tourStageStops }, selectedDayId, routeShown, routeProfile, tripAccommodations)
   // Road trip mode already draws the whole trip its own way, so the overview stands
   // down there rather than drawing a second set of lines over it.
   const overviewActive = overviewShown && !roadtripMode
@@ -487,6 +491,10 @@ export function useTripPlanner() {
     setMobileSidebarOpen(null)
     updateRouteForDay(dayId)
   }, [updateRouteForDay, isMobileRef, mapLockedRef, setFitKey])
+  useAssistantDeepLink({ searchParams, setSearchParams, tripId, days, selectDay: handleSelectDay })
+  const assistantMap = useAssistantMapLink({
+    tripId, isMobile, mapLocked, mapPlaces, assignments: assistantView.assignments, markersLocked: assistantView.markersLocked, selectDay: handleSelectDay,
+  })
 
   const handlePlaceClick = useCallback((placeId: number | null, assignmentId?: number | null) => {
     if (assignmentId) {
@@ -762,5 +770,7 @@ export function useTripPlanner() {
     handleSaveReservation, handleSaveTransport, handleDeleteReservation,
     selectedPlace, dayOrderMap, dayPlaces,
     mapTileUrl, fontStyle, splashDone,
+    // The assistant on the map, handed to MapViewAuto whole by both shells.
+    assistantMap,
   }
 }

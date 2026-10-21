@@ -645,6 +645,9 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.llm_parsing.name': 'KI-Auswertung',
   'admin.addons.catalog.llm_parsing.description':
     'Liest Buchungen, an denen der eingebaute Parser scheitert, mit einem KI-Modell deiner Wahl',
+  'admin.addons.catalog.ai_assistant.name': 'KI-Assistent',
+  'admin.addons.catalog.ai_assistant.description':
+    'Ein Chat in jeder Reise, der Fragen beantwortet und Änderungen vorschlägt, die du bestätigst',
   'admin.addons.llm.vision.auto': 'Automatisch',
   'admin.addons.llm.vision.on': 'Ja',
   'admin.addons.llm.vision.off': 'Nein',

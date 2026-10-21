@@ -2,6 +2,8 @@ import type { JsonColumn } from '../utils/json-column';
 import {
   FERRATAS_RESULT_CAP,
   dawarichTrackSegmentSchema,
+  assistantChangePreviewSchema,
+  assistantMessagePartSchema,
   ferrataSchema,
   hikingPreferencesSchema,
   obstacleSnapshotSchema,
@@ -17,6 +19,8 @@ import {
   tourWaypointSchema,
   trackMarksSchema,
   type DawarichTrackSegment,
+  type AssistantChangePreview,
+  type AssistantMessagePart,
   type Ferrata,
   type GeometryPoint,
   type HikingPreferences,
@@ -327,4 +331,71 @@ export const JOURNEY_RECORDED_DAY_SEGMENTS: JsonColumn<DawarichTrackSegment[]> =
   column: 'journey_recorded_days.segments',
   schema: z.array(dawarichTrackSegmentSchema),
   fallback: () => [],
+};
+ * The parts of an assistant message as the client renders them: text, tool
+ * calls with their results and approvals, change previews and receipts. A
+ * broken row reads as an empty message and is logged.
+ */
+export const ASSISTANT_MESSAGE_PARTS: JsonColumn<AssistantMessagePart[]> = {
+  column: 'assistant_messages.parts',
+  schema: z.array(assistantMessagePartSchema),
+  fallback: () => [],
+};
+
+/**
+ * What a provider needs replayed as it sent it, when its history cannot be
+ * rebuilt from the parts: the Responses API's output items (reasoning with its
+ * encrypted content, function calls) for a conversation that stores nothing on
+ * the provider's side. A broken row reads as none, and the history is rebuilt
+ * from the parts instead.
+ */
+const aiProviderStateSchema = z.object({
+  adapter: z.literal('openai-responses'),
+  items: z.array(z.record(z.string(), z.unknown())),
+});
+export type AiProviderState = z.infer<typeof aiProviderStateSchema>;
+
+export const ASSISTANT_PROVIDER_STATE: JsonColumn<AiProviderState | null> = {
+  column: 'assistant_messages.provider_state',
+  schema: aiProviderStateSchema.nullable(),
+  fallback: () => null,
+};
+
+/** The arguments a proposed change runs with once approved, as the model sent them. A broken row runs nothing. */
+export const ASSISTANT_TOOL_ARGS: JsonColumn<Record<string, unknown>> = {
+  column: 'assistant_tool_calls.args',
+  schema: z.record(z.string(), z.unknown()),
+  fallback: () => ({}),
+};
+
+/** The change card of a proposed change. A broken row reads as none. */
+export const ASSISTANT_TOOL_PREVIEW: JsonColumn<AssistantChangePreview | null> = {
+  column: 'assistant_tool_calls.preview',
+  schema: assistantChangePreviewSchema.nullable(),
+  fallback: () => null,
+};
+
+/** What an executed change answered, the tool's own result. A broken row reads as none, which offers no undo. */
+export const ASSISTANT_TOOL_RESULT: JsonColumn<unknown> = {
+  column: 'assistant_tool_calls.result',
+  schema: z.unknown(),
+  fallback: () => null,
+};
+
+/**
+ * What a ChatGPT sign-in leaves that is not secret: the client id issued to
+ * this user's registration, the account's subject and the scopes granted. A
+ * broken row reads as none, so the next sign-in registers afresh.
+ */
+const aiConnectionAccountSchema = z.object({
+  clientId: z.string().optional(),
+  sub: z.string().optional(),
+  scopes: z.array(z.string()).optional(),
+});
+export type AiConnectionAccount = z.infer<typeof aiConnectionAccountSchema>;
+
+export const AI_CONNECTION_ACCOUNT: JsonColumn<AiConnectionAccount> = {
+  column: 'ai_connections.account',
+  schema: aiConnectionAccountSchema,
+  fallback: () => ({}),
 };

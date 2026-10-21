@@ -691,6 +691,9 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.llm_parsing.name': 'Analisis AI',
   'admin.addons.catalog.llm_parsing.description':
     'Membaca pemesanan yang tidak dipahami pengurai bawaan, dengan model AI pilihanmu',
+  'admin.addons.catalog.ai_assistant.name': 'Asisten AI',
+  'admin.addons.catalog.ai_assistant.description':
+    'Obrolan di setiap perjalanan yang menjawab pertanyaan dan menyarankan perubahan yang kamu konfirmasi',
   'admin.addons.llm.vision.auto': 'Otomatis',
   'admin.addons.llm.vision.on': 'Ya',
   'admin.addons.llm.vision.off': 'Tidak',

@@ -639,6 +639,8 @@ export class CollabService {
     text: string,
     replyTo?: number | null,
     files: Array<{ filename: string; originalname: string; size: number; mimetype: string }> = [],
+    // Where the message came from when not typed in the chat: only the assistant's share sets it.
+    origin: string | null = null,
   ): Promise<{ error?: string; message?: Awaited<ReturnType<CollabService['formatMessage']>> }> {
     if (replyTo) {
       // A soft-deleted message is gone as far as anyone replying is concerned:
@@ -652,7 +654,7 @@ export class CollabService {
     // storage, so a message row that lands without its attachment rows would
     // leave those bytes with nothing pointing at them and nothing to sweep them.
     const insertedId = await this.uow.transactional(async () => {
-      const id = await this.messagesRepo.insertMessage(tripId, userId, text.trim(), replyTo || null);
+      const id = await this.messagesRepo.insertMessage(tripId, userId, text.trim(), replyTo || null, origin);
 
       for (const file of files) {
         await this.messagesRepo.insertAttachmentForMessage({

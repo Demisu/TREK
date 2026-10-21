@@ -96,6 +96,7 @@ export * from './collection/collection.schema';
 export * from './collection/collection-file.schema';
 export * from './trip/trip.schema';
 export * from './place/place-hours';
+export * from './place/place-kind';
 export * from './trip/day-grid';
 export * from './trip-invite/trip-invite.schema';
 export * from './collab/collab.schema';
@@ -120,6 +121,9 @@ export * from './sessions/sessions.schema';
 export * from './oidc/oidc.schema';
 export * from './oauth/oauth.schema';
 export * from './admin/admin.schema';
+export * from './ai/ai-connections.schema';
+export * from './assistant/assistant.schema';
+export * from './assistant/assistant-share.schema';
 
 // Realtime WS event contract registry (event names + payload schemas)
 export * from './realtime/events.schema';

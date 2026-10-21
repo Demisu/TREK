@@ -665,6 +665,9 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.llm_parsing.name': 'Разбор с помощью ИИ',
   'admin.addons.catalog.llm_parsing.description':
     'Читает брони, которые не понимает встроенный анализатор, с помощью выбранной вами модели ИИ',
+  'admin.addons.catalog.ai_assistant.name': 'ИИ-ассистент',
+  'admin.addons.catalog.ai_assistant.description':
+    'Чат в каждой поездке: отвечает на вопросы и предлагает изменения, которые вы подтверждаете',
   'admin.addons.llm.vision.auto': 'Автоматически',
   'admin.addons.llm.vision.on': 'Да',
   'admin.addons.llm.vision.off': 'Нет',

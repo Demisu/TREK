@@ -654,6 +654,9 @@ const admin: TranslationStrings = {
     '各自が接続した Dawarich インスタンスから、滞在と記録されたルートを読み取ります',
   'admin.addons.catalog.llm_parsing.name': 'AI 解析',
   'admin.addons.catalog.llm_parsing.description': '内蔵パーサーが読めない予約を、選んだ AI モデルで読み取ります',
+  'admin.addons.catalog.ai_assistant.name': 'AI アシスタント',
+  'admin.addons.catalog.ai_assistant.description':
+    '旅行ごとに質問に答え、変更を提案するチャット。変更はあなたが確認してから反映されます',
   'admin.addons.llm.vision.auto': '自動',
   'admin.addons.llm.vision.on': 'はい',
   'admin.addons.llm.vision.off': 'いいえ',

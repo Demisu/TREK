@@ -653,6 +653,9 @@ const admin: TranslationStrings = {
     '사용자가 각자 연결한 Dawarich 인스턴스에서 방문 기록과 기록된 경로를 읽어옵니다',
   'admin.addons.catalog.llm_parsing.name': 'AI 분석',
   'admin.addons.catalog.llm_parsing.description': '기본 분석기가 읽지 못하는 예약을 원하는 AI 모델로 읽어냅니다',
+  'admin.addons.catalog.ai_assistant.name': 'AI 어시스턴트',
+  'admin.addons.catalog.ai_assistant.description':
+    '여행마다 질문에 답하고 변경 사항을 제안하는 채팅. 변경은 직접 확인한 뒤에 적용됩니다',
   'admin.addons.llm.vision.auto': '자동',
   'admin.addons.llm.vision.on': '예',
   'admin.addons.llm.vision.off': '아니요',

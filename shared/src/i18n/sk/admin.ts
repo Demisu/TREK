@@ -714,6 +714,9 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.llm_parsing.name': 'Analýza pomocou AI',
   'admin.addons.catalog.llm_parsing.description':
     'Prečíta rezervácie, ktoré vstavaný analyzátor nezvládne, pomocou zvoleného modelu AI',
+  'admin.addons.catalog.ai_assistant.name': 'AI asistent',
+  'admin.addons.catalog.ai_assistant.description':
+    'Chat v každej ceste, ktorý odpovedá na otázky a navrhuje zmeny, ktoré potvrdíš',
   'admin.addons.llm.vision.auto': 'Automaticky',
   'admin.addons.llm.vision.on': 'Áno',
   'admin.addons.llm.vision.off': 'Nie',

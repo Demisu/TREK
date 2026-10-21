@@ -578,6 +578,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.dawarich.description': '从每位使用者自行连接的 Dawarich 实例读取到访记录和记录的路线',
   'admin.addons.catalog.llm_parsing.name': 'AI 解析',
   'admin.addons.catalog.llm_parsing.description': '用你选择的 AI 模型读取内置解析器无法识别的预订',
+  'admin.addons.catalog.ai_assistant.name': 'AI 助手',
+  'admin.addons.catalog.ai_assistant.description': '在每个旅行中回答问题并提出修改建议的聊天助手，修改由你确认',
   'admin.addons.llm.vision.auto': '自动',
   'admin.addons.llm.vision.on': '是',
   'admin.addons.llm.vision.off': '否',
