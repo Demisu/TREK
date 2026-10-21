@@ -765,6 +765,24 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     'Titik singgah rute ini tidak dapat dimuat. Buka lagi saat online untuk melihat dan mencentangnya.',
   'tours.walk.progress': '{visited} dari {total} dikunjungi',
+  'tours.walk.remaining.pill': 'Sisa {time} berjalan',
+  'tours.walk.remaining.pillUpTo': 'Hingga {time} berjalan',
+  'tours.walk.remaining.unknown': 'Sisa waktu tidak diketahui',
+  'tours.walk.remaining.unclear': 'Urutan tidak jelas',
+  'tours.walk.remaining.fromStart':
+    'Waktu jalan dari awal, dibagi di sepanjang rute menurut jarak. Lama singgah tidak termasuk.',
+  'tours.walk.remaining.fromStation':
+    'Waktu jalan dari {name}, titik terakhir yang dikunjungi, dibagi di sepanjang rute menurut jarak. Lama singgah tidak termasuk.',
+  'tours.walk.remaining.upperBound':
+    'Sebuah titik di depan dilewati, tetapi rute masih melewatinya, jadi bisa lebih singkat.',
+  'tours.walk.remaining.afterLast': '{time} di antaranya dari titik terakhir sampai akhir rute.',
+  'tours.walk.remaining.stays': 'Lama singgah yang masih terbuka: {time}.',
+  'tours.walk.remaining.staysUnknown': '{count} titik terbuka belum punya lama singgah.',
+  'tours.walk.remaining.unclearHint':
+    'Titik sebelum {last} masih terbuka: {names}. Tandai sebagai dikunjungi atau dilewati untuk melihat sisa waktu.',
+  'tours.walk.remaining.routePending': 'Rute belum punya jalur, jadi sisa waktu tidak diketahui.',
+  'tours.walk.remaining.noWalkingTime': 'Rute belum punya waktu jalan, jadi sisa waktu tidak diketahui.',
+  'tours.walk.remaining.done': 'Semua titik sudah selesai.',
   'tours.walk.visit.visited': 'Sudah dikunjungi',
   'tours.walk.visit.skip': 'Lewati',
   'tours.walk.visit.undo': 'Batalkan',
@@ -833,10 +851,12 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': 'Tanpa akses umum',
   'tours.poi.charging.capacity': 'Tempat pengisian',
   'tours.poi.charging.socketsUnknown': 'Colokan tidak disebutkan',
-  'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap tidak menyebutkan colokannya, jadi belum diketahui apakah charger kamu cocok.',
+  'tours.poi.charging.socketsUnknownHint':
+    'OpenStreetMap tidak menyebutkan colokannya, jadi belum diketahui apakah charger kamu cocok.',
   'tours.poi.charging.ownCharger': 'Stopkontak rumah tangga menurut OpenStreetMap: bawa charger sendiri.',
   'tours.poi.charging.sourceHint': 'Menurut OpenStreetMap. Apakah berfungsi atau gratis hari ini tidak diketahui.',
-  'tours.poi.charging.fewMapped': 'Titik pengisian untuk e-bike yang terpetakan masih sedikit. Hanya yang ditandai OpenStreetMap untuk sepeda yang ditampilkan, tidak pernah pengisi daya khusus mobil.',
+  'tours.poi.charging.fewMapped':
+    'Titik pengisian untuk e-bike yang terpetakan masih sedikit. Hanya yang ditandai OpenStreetMap untuk sepeda yang ditampilkan, tidak pernah pengisi daya khusus mobil.',
   'tours.planner.tourType': 'Jenis tur',
   'tours.paddle.boat': 'Perahu',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

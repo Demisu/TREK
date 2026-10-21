@@ -771,6 +771,27 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     'Не вдалося завантажити зупинки цієї прогулянки. Відкрий її знову з мережею, щоб побачити й відмітити їх.',
   'tours.walk.progress': 'Відвідано {visited} з {total}',
+  'tours.walk.remaining.pill': 'Залишилося {time} пішки',
+  'tours.walk.remaining.pillUpTo': 'До {time} пішки',
+  'tours.walk.remaining.unknown': 'Час, що лишився, невідомий',
+  'tours.walk.remaining.unclear': 'Порядок неясний',
+  'tours.walk.remaining.fromStart':
+    'Час ходьби від старту, розподілений уздовж маршруту за відстанню. Перебування до нього не входять.',
+  'tours.walk.remaining.fromStation':
+    'Час ходьби від {name}, останньої відвіданої зупинки, розподілений уздовж маршруту за відстанню. Перебування до нього не входять.',
+  'tours.walk.remaining.upperBound':
+    'Зупинку попереду пропущено, але маршрут досі проходить через неї, тож може знадобитися менше.',
+  'tours.walk.remaining.afterLast': 'З нього {time} припадає на шлях від останньої зупинки до кінця прогулянки.',
+  'tours.walk.remaining.stays': 'Перебування, що лишилися: {time}.',
+  'tours.walk.remaining.staysUnknown': '{count} відкритої зупинки поки без тривалості перебування.',
+  'tours.walk.remaining.staysUnknown.one': '{count} відкрита зупинка поки без тривалості перебування.',
+  'tours.walk.remaining.staysUnknown.few': '{count} відкриті зупинки поки без тривалості перебування.',
+  'tours.walk.remaining.staysUnknown.many': '{count} відкритих зупинок поки без тривалості перебування.',
+  'tours.walk.remaining.unclearHint':
+    'Перед {last} ще є відкриті зупинки: {names}. Познач їх відвіданими або пропущеними, щоб побачити час, що лишився.',
+  'tours.walk.remaining.routePending': 'Прогулянка ще не має маршруту, тож час, що лишився, невідомий.',
+  'tours.walk.remaining.noWalkingTime': 'Прогулянка ще не має часу ходьби, тож час, що лишився, невідомий.',
+  'tours.walk.remaining.done': 'Усі зупинки пройдено.',
   'tours.walk.visit.visited': 'Відвідано',
   'tours.walk.visit.skip': 'Пропустити',
   'tours.walk.visit.undo': 'Скасувати',
@@ -839,10 +860,12 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': 'Немає загального доступу',
   'tours.poi.charging.capacity': 'Місця для заряджання',
   'tours.poi.charging.socketsUnknown': 'Роз’єм не вказано',
-  'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap не вказує роз’єм, тож невідомо, чи підійде ваш зарядний пристрій.',
+  'tours.poi.charging.socketsUnknownHint':
+    'OpenStreetMap не вказує роз’єм, тож невідомо, чи підійде ваш зарядний пристрій.',
   'tours.poi.charging.ownCharger': 'Звичайна розетка, за даними OpenStreetMap: візьміть свій зарядний пристрій.',
   'tours.poi.charging.sourceHint': 'За даними OpenStreetMap. Чи працює вона і чи безкоштовна сьогодні, невідомо.',
-  'tours.poi.charging.fewMapped': 'Зарядок для електровелосипедів на мапі поки мало. Показано лише ті, що OpenStreetMap позначає для велосипедів, і ніколи зарядку лише для автомобілів.',
+  'tours.poi.charging.fewMapped':
+    'Зарядок для електровелосипедів на мапі поки мало. Показано лише ті, що OpenStreetMap позначає для велосипедів, і ніколи зарядку лише для автомобілів.',
   'tours.planner.tourType': 'Тип туру',
   'tours.paddle.boat': 'Човен',
   'tours.paddle.boat.kayak': 'Каяк',

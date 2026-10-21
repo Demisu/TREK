@@ -756,6 +756,26 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     'Zastávky tejto prechádzky sa nepodarilo načítať. Otvor ju znova s pripojením, potom ich uvidíš a pôjde ich odškrtnúť.',
   'tours.walk.progress': 'Navštívené {visited} z {total}',
+  'tours.walk.remaining.pill': 'Zostáva {time} chôdze',
+  'tours.walk.remaining.pillUpTo': 'Až {time} chôdze',
+  'tours.walk.remaining.unknown': 'Zostávajúci čas neznámy',
+  'tours.walk.remaining.unclear': 'Nejasné poradie',
+  'tours.walk.remaining.fromStart':
+    'Čas chôdze od štartu, rozdelený pozdĺž trasy podľa vzdialenosti. Pobyty v ňom nie sú.',
+  'tours.walk.remaining.fromStation':
+    'Čas chôdze od {name}, poslednej navštívenej zastávky, rozdelený pozdĺž trasy podľa vzdialenosti. Pobyty v ňom nie sú.',
+  'tours.walk.remaining.upperBound':
+    'Zastávka pred vami je preskočená, ale trasa ňou stále vedie, takže to môže byť menej.',
+  'tours.walk.remaining.afterLast': 'Z toho {time} vedie od poslednej zastávky na koniec prechádzky.',
+  'tours.walk.remaining.stays': 'Ešte otvorené pobyty: {time}.',
+  'tours.walk.remaining.staysUnknown': '{count} otvorených zastávok zatiaľ nemá dĺžku pobytu.',
+  'tours.walk.remaining.staysUnknown.one': 'Jedna otvorená zastávka zatiaľ nemá dĺžku pobytu.',
+  'tours.walk.remaining.staysUnknown.few': '{count} otvorené zastávky zatiaľ nemajú dĺžku pobytu.',
+  'tours.walk.remaining.unclearHint':
+    'Pred zastávkou {last} sú ešte otvorené zastávky: {names}. Označ ich ako navštívené alebo preskočené, aby si videl zostávajúci čas.',
+  'tours.walk.remaining.routePending': 'Prechádzka zatiaľ nemá trasu, takže zostávajúci čas nie je známy.',
+  'tours.walk.remaining.noWalkingTime': 'Prechádzka zatiaľ nemá čas chôdze, takže zostávajúci čas nie je známy.',
+  'tours.walk.remaining.done': 'Všetky zastávky sú hotové.',
   'tours.walk.visit.visited': 'Navštívené',
   'tours.walk.visit.skip': 'Preskočiť',
   'tours.walk.visit.undo': 'Vrátiť',
@@ -823,10 +843,12 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': 'Bez verejného prístupu',
   'tours.poi.charging.capacity': 'Nabíjacie miesta',
   'tours.poi.charging.socketsUnknown': 'Zásuvka neuvedená',
-  'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap neuvádza, akú má zásuvku, takže nie je isté, či sa hodí tvoja nabíjačka.',
+  'tours.poi.charging.socketsUnknownHint':
+    'OpenStreetMap neuvádza, akú má zásuvku, takže nie je isté, či sa hodí tvoja nabíjačka.',
   'tours.poi.charging.ownCharger': 'Bežná zásuvka podľa OpenStreetMap: vezmi si vlastnú nabíjačku.',
   'tours.poi.charging.sourceHint': 'Podľa OpenStreetMap. Či dnes funguje alebo je zadarmo, nie je známe.',
-  'tours.poi.charging.fewMapped': 'Nabíjacích miest pre elektrobicykle je zatiaľ zmapovaných málo. Zobrazujú sa len tie, ktoré OpenStreetMap označuje pre bicykle, nikdy nabíjačka len pre autá.',
+  'tours.poi.charging.fewMapped':
+    'Nabíjacích miest pre elektrobicykle je zatiaľ zmapovaných málo. Zobrazujú sa len tie, ktoré OpenStreetMap označuje pre bicykle, nikdy nabíjačka len pre autá.',
   'tours.planner.tourType': 'Typ túry',
   'tours.paddle.boat': 'Loď',
   'tours.paddle.boat.kayak': 'Kajak',

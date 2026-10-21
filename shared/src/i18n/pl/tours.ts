@@ -775,6 +775,27 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     'Nie udało się wczytać przystanków tej trasy. Otwórz ją ponownie z połączeniem, aby je zobaczyć i odhaczyć.',
   'tours.walk.progress': 'Odwiedzono {visited} z {total}',
+  'tours.walk.remaining.pill': 'Zostało {time} pieszo',
+  'tours.walk.remaining.pillUpTo': 'Do {time} pieszo',
+  'tours.walk.remaining.unknown': 'Pozostały czas nieznany',
+  'tours.walk.remaining.unclear': 'Niejasna kolejność',
+  'tours.walk.remaining.fromStart':
+    'Czas marszu od startu, rozłożony wzdłuż trasy według odległości. Postoje nie są wliczone.',
+  'tours.walk.remaining.fromStation':
+    'Czas marszu od {name}, ostatniego odwiedzonego przystanku, rozłożony wzdłuż trasy według odległości. Postoje nie są wliczone.',
+  'tours.walk.remaining.upperBound':
+    'Przystanek dalej został pominięty, ale trasa nadal przez niego prowadzi, więc może to zająć mniej.',
+  'tours.walk.remaining.afterLast': 'Z tego {time} prowadzi od ostatniego przystanku do końca trasy.',
+  'tours.walk.remaining.stays': 'Pozostałe postoje: {time}.',
+  'tours.walk.remaining.staysUnknown': '{count} otwartego przystanku nie ma jeszcze czasu postoju.',
+  'tours.walk.remaining.staysUnknown.one': 'Jeden otwarty przystanek nie ma jeszcze czasu postoju.',
+  'tours.walk.remaining.staysUnknown.few': '{count} otwarte przystanki nie mają jeszcze czasu postoju.',
+  'tours.walk.remaining.staysUnknown.many': '{count} otwartych przystanków nie ma jeszcze czasu postoju.',
+  'tours.walk.remaining.unclearHint':
+    'Przed {last} są jeszcze otwarte przystanki: {names}. Oznacz je jako odwiedzone lub pominięte, aby zobaczyć pozostały czas.',
+  'tours.walk.remaining.routePending': 'Trasa nie ma jeszcze przebiegu, więc pozostały czas nie jest znany.',
+  'tours.walk.remaining.noWalkingTime': 'Trasa nie ma jeszcze czasu marszu, więc pozostały czas nie jest znany.',
+  'tours.walk.remaining.done': 'Wszystkie przystanki są zrobione.',
   'tours.walk.visit.visited': 'Odwiedzony',
   'tours.walk.visit.skip': 'Pomiń',
   'tours.walk.visit.undo': 'Cofnij',
@@ -845,10 +866,12 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': 'Brak dostępu publicznego',
   'tours.poi.charging.capacity': 'Miejsca ładowania',
   'tours.poi.charging.socketsUnknown': 'Gniazdo nie podane',
-  'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap nie podaje, jakie ma gniazdo, więc nie wiadomo, czy pasuje twoja ładowarka.',
+  'tours.poi.charging.socketsUnknownHint':
+    'OpenStreetMap nie podaje, jakie ma gniazdo, więc nie wiadomo, czy pasuje twoja ładowarka.',
   'tours.poi.charging.ownCharger': 'Zwykłe gniazdko według OpenStreetMap: weź własną ładowarkę.',
   'tours.poi.charging.sourceHint': 'Według OpenStreetMap. Nie wiadomo, czy dziś działa lub jest bezpłatne.',
-  'tours.poi.charging.fewMapped': 'Punktów ładowania dla e-rowerów jest na mapie jeszcze niewiele. Pokazywane są tylko te, które OpenStreetMap oznacza dla rowerów, nigdy ładowarka tylko dla aut.',
+  'tours.poi.charging.fewMapped':
+    'Punktów ładowania dla e-rowerów jest na mapie jeszcze niewiele. Pokazywane są tylko te, które OpenStreetMap oznacza dla rowerów, nigdy ładowarka tylko dla aut.',
   'tours.planner.tourType': 'Rodzaj wycieczki',
   'tours.paddle.boat': 'Łódź',
   'tours.paddle.boat.kayak': 'Kajak',

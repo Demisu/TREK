@@ -753,6 +753,24 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     'Promenadens stopp kunde inte läsas in. Öppna den igen med uppkoppling för att se dem och bocka av dem.',
   'tours.walk.progress': '{visited} av {total} besökta',
+  'tours.walk.remaining.pill': '{time} kvar till fots',
+  'tours.walk.remaining.pillUpTo': 'Upp till {time} till fots',
+  'tours.walk.remaining.unknown': 'Återstående tid okänd',
+  'tours.walk.remaining.unclear': 'Oklar ordning',
+  'tours.walk.remaining.fromStart': 'Gångtid från starten, fördelad längs rutten efter avstånd. Vistelser ingår inte.',
+  'tours.walk.remaining.fromStation':
+    'Gångtid från {name}, det senast besökta stoppet, fördelad längs rutten efter avstånd. Vistelser ingår inte.',
+  'tours.walk.remaining.upperBound':
+    'Ett stopp längre fram är överhoppat, men rutten går fortfarande genom det, så det kan ta kortare tid.',
+  'tours.walk.remaining.afterLast': '{time} av den går från sista stoppet till promenadens slut.',
+  'tours.walk.remaining.stays': 'Vistelser som återstår: {time}.',
+  'tours.walk.remaining.staysUnknown': '{count} öppna stopp har ingen vistelsetid än.',
+  'tours.walk.remaining.staysUnknown.one': 'Ett öppet stopp har ingen vistelsetid än.',
+  'tours.walk.remaining.unclearHint':
+    'Stopp före {last} är fortfarande öppna: {names}. Markera dem som besökta eller överhoppade för att se återstående tid.',
+  'tours.walk.remaining.routePending': 'Promenaden har ingen rutt än, så den återstående tiden är inte känd.',
+  'tours.walk.remaining.noWalkingTime': 'Promenaden har ingen gångtid än, så den återstående tiden är inte känd.',
+  'tours.walk.remaining.done': 'Alla stopp är klara.',
   'tours.walk.visit.visited': 'Besökt',
   'tours.walk.visit.skip': 'Hoppa över',
   'tours.walk.visit.undo': 'Ångra',
@@ -820,10 +838,12 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': 'Ingen allmän åtkomst',
   'tours.poi.charging.capacity': 'Laddplatser',
   'tours.poi.charging.socketsUnknown': 'Kontakt inte angiven',
-  'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap säger inte vilken kontakt den har, så om din laddare passar är okänt.',
+  'tours.poi.charging.socketsUnknownHint':
+    'OpenStreetMap säger inte vilken kontakt den har, så om din laddare passar är okänt.',
   'tours.poi.charging.ownCharger': 'Ett vanligt eluttag enligt OpenStreetMap: ta med din egen laddare.',
   'tours.poi.charging.sourceHint': 'Enligt OpenStreetMap. Om den fungerar eller är gratis i dag är okänt.',
-  'tours.poi.charging.fewMapped': 'Än så länge är få laddpunkter för elcyklar kartlagda. Bara de som OpenStreetMap märker för cyklar visas, aldrig en laddare bara för bilar.',
+  'tours.poi.charging.fewMapped':
+    'Än så länge är få laddpunkter för elcyklar kartlagda. Bara de som OpenStreetMap märker för cyklar visas, aldrig en laddare bara för bilar.',
   'tours.planner.tourType': 'Turtyp',
   'tours.paddle.boat': 'Båt',
   'tours.paddle.boat.kayak': 'Kajak',

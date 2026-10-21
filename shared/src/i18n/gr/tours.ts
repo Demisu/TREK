@@ -785,6 +785,27 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     'Δεν φορτώθηκαν οι στάσεις αυτής της βόλτας. Άνοιξέ την ξανά με σύνδεση για να τις δεις και να τις τσεκάρεις.',
   'tours.walk.progress': '{visited} από {total} επισκέψεις',
+  'tours.walk.remaining.pill': 'Απομένουν {time} με τα πόδια',
+  'tours.walk.remaining.pillUpTo': 'Έως {time} με τα πόδια',
+  'tours.walk.remaining.unknown': 'Άγνωστος χρόνος που απομένει',
+  'tours.walk.remaining.unclear': 'Ασαφής σειρά',
+  'tours.walk.remaining.fromStart':
+    'Χρόνος περπατήματος από την αφετηρία, μοιρασμένος κατά μήκος της διαδρομής ανάλογα με την απόσταση. Οι παραμονές δεν περιλαμβάνονται.',
+  'tours.walk.remaining.fromStation':
+    'Χρόνος περπατήματος από {name}, την τελευταία στάση που επισκέφθηκες, μοιρασμένος κατά μήκος της διαδρομής ανάλογα με την απόσταση. Οι παραμονές δεν περιλαμβάνονται.',
+  'tours.walk.remaining.upperBound':
+    'Μια στάση πιο μπροστά παραλείφθηκε, αλλά η διαδρομή περνά ακόμα από εκεί, οπότε μπορεί να πάρει λιγότερο.',
+  'tours.walk.remaining.afterLast': 'Από αυτόν, {time} οδηγούν από την τελευταία στάση στο τέλος της βόλτας.',
+  'tours.walk.remaining.stays': 'Παραμονές που απομένουν: {time}.',
+  'tours.walk.remaining.staysUnknown': '{count} ανοιχτές στάσεις δεν έχουν ακόμα διάρκεια παραμονής.',
+  'tours.walk.remaining.staysUnknown.one': 'Μία ανοιχτή στάση δεν έχει ακόμα διάρκεια παραμονής.',
+  'tours.walk.remaining.unclearHint':
+    'Υπάρχουν ακόμα ανοιχτές στάσεις πριν από {last}: {names}. Σήμανέ τες ως επισκεφθείσες ή παραλειφθείσες για να δεις τον χρόνο που απομένει.',
+  'tours.walk.remaining.routePending':
+    'Η βόλτα δεν έχει ακόμα διαδρομή, οπότε ο χρόνος που απομένει δεν είναι γνωστός.',
+  'tours.walk.remaining.noWalkingTime':
+    'Η βόλτα δεν έχει ακόμα χρόνο περπατήματος, οπότε ο χρόνος που απομένει δεν είναι γνωστός.',
+  'tours.walk.remaining.done': 'Όλες οι στάσεις ολοκληρώθηκαν.',
   'tours.walk.visit.visited': 'Επισκέφθηκα',
   'tours.walk.visit.skip': 'Παράλειψη',
   'tours.walk.visit.undo': 'Αναίρεση',
@@ -855,10 +876,12 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': 'Χωρίς δημόσια πρόσβαση',
   'tours.poi.charging.capacity': 'Θέσεις φόρτισης',
   'tours.poi.charging.socketsUnknown': 'Δεν αναφέρεται πρίζα',
-  'tours.poi.charging.socketsUnknownHint': 'Το OpenStreetMap δεν λέει ποια πρίζα έχει, οπότε δεν είναι γνωστό αν ταιριάζει ο φορτιστής σου.',
+  'tours.poi.charging.socketsUnknownHint':
+    'Το OpenStreetMap δεν λέει ποια πρίζα έχει, οπότε δεν είναι γνωστό αν ταιριάζει ο φορτιστής σου.',
   'tours.poi.charging.ownCharger': 'Οικιακή πρίζα, κατά το OpenStreetMap: φέρε τον δικό σου φορτιστή.',
   'tours.poi.charging.sourceHint': 'Κατά το OpenStreetMap. Αν λειτουργεί ή είναι δωρεάν σήμερα δεν είναι γνωστό.',
-  'tours.poi.charging.fewMapped': 'Λίγα σημεία φόρτισης για ηλεκτρικά ποδήλατα έχουν χαρτογραφηθεί ακόμη. Εμφανίζονται μόνο όσα το OpenStreetMap σημειώνει για ποδήλατα, ποτέ φορτιστής μόνο για αυτοκίνητα.',
+  'tours.poi.charging.fewMapped':
+    'Λίγα σημεία φόρτισης για ηλεκτρικά ποδήλατα έχουν χαρτογραφηθεί ακόμη. Εμφανίζονται μόνο όσα το OpenStreetMap σημειώνει για ποδήλατα, ποτέ φορτιστής μόνο για αυτοκίνητα.',
   'tours.planner.tourType': 'Τύπος διαδρομής',
   'tours.paddle.boat': 'Σκάφος',
   'tours.paddle.boat.kayak': 'Καγιάκ',

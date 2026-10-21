@@ -755,6 +755,24 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     'Không tải được các điểm dừng của lộ trình này. Hãy mở lại khi có kết nối để xem và đánh dấu chúng.',
   'tours.walk.progress': 'Đã ghé {visited}/{total}',
+  'tours.walk.remaining.pill': 'Còn {time} đi bộ',
+  'tours.walk.remaining.pillUpTo': 'Tối đa {time} đi bộ',
+  'tours.walk.remaining.unknown': 'Chưa biết thời gian còn lại',
+  'tours.walk.remaining.unclear': 'Thứ tự chưa rõ',
+  'tours.walk.remaining.fromStart':
+    'Thời gian đi bộ từ điểm xuất phát, chia dọc theo lộ trình theo quãng đường. Không tính thời gian dừng.',
+  'tours.walk.remaining.fromStation':
+    'Thời gian đi bộ từ {name}, điểm dừng ghé gần nhất, chia dọc theo lộ trình theo quãng đường. Không tính thời gian dừng.',
+  'tours.walk.remaining.upperBound':
+    'Một điểm dừng phía trước đã bị bỏ qua, nhưng lộ trình vẫn đi qua đó, nên có thể mất ít thời gian hơn.',
+  'tours.walk.remaining.afterLast': 'Trong đó {time} là từ điểm dừng cuối đến cuối lộ trình.',
+  'tours.walk.remaining.stays': 'Thời gian dừng còn lại: {time}.',
+  'tours.walk.remaining.staysUnknown': '{count} điểm dừng còn mở chưa có thời gian dừng.',
+  'tours.walk.remaining.unclearHint':
+    'Vẫn còn điểm dừng mở trước {last}: {names}. Đánh dấu đã ghé hoặc bỏ qua để xem thời gian còn lại.',
+  'tours.walk.remaining.routePending': 'Lộ trình chưa có đường đi, nên chưa biết thời gian còn lại.',
+  'tours.walk.remaining.noWalkingTime': 'Lộ trình chưa có thời gian đi bộ, nên chưa biết thời gian còn lại.',
+  'tours.walk.remaining.done': 'Đã xong mọi điểm dừng.',
   'tours.walk.visit.visited': 'Đã ghé',
   'tours.walk.visit.skip': 'Bỏ qua',
   'tours.walk.visit.undo': 'Hoàn tác',
@@ -822,10 +840,12 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': 'Không cho công chúng sử dụng',
   'tours.poi.charging.capacity': 'Chỗ sạc',
   'tours.poi.charging.socketsUnknown': 'Không ghi loại ổ cắm',
-  'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap không ghi loại ổ cắm, nên chưa biết bộ sạc của bạn có vừa không.',
+  'tours.poi.charging.socketsUnknownHint':
+    'OpenStreetMap không ghi loại ổ cắm, nên chưa biết bộ sạc của bạn có vừa không.',
   'tours.poi.charging.ownCharger': 'Ổ cắm gia dụng theo OpenStreetMap: hãy mang bộ sạc của bạn.',
   'tours.poi.charging.sourceHint': 'Theo OpenStreetMap. Hôm nay còn hoạt động hay miễn phí không thì chưa rõ.',
-  'tours.poi.charging.fewMapped': 'Hiện mới có ít điểm sạc cho xe đạp điện được lập bản đồ. Chỉ hiện những điểm OpenStreetMap đánh dấu cho xe đạp, không bao giờ là trạm sạc chỉ dành cho ô tô.',
+  'tours.poi.charging.fewMapped':
+    'Hiện mới có ít điểm sạc cho xe đạp điện được lập bản đồ. Chỉ hiện những điểm OpenStreetMap đánh dấu cho xe đạp, không bao giờ là trạm sạc chỉ dành cho ô tô.',
   'tours.planner.tourType': 'Loại chuyến',
   'tours.paddle.boat': 'Thuyền',
   'tours.paddle.boat.kayak': 'Thuyền kayak',

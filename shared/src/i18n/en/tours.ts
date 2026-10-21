@@ -753,6 +753,25 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     'The stops of this walk could not be loaded. Open it again while online to see them and check them off.',
   'tours.walk.progress': '{visited} of {total} visited',
+  'tours.walk.remaining.pill': '{time} left on foot',
+  'tours.walk.remaining.pillUpTo': 'Up to {time} on foot',
+  'tours.walk.remaining.unknown': 'Time left unknown',
+  'tours.walk.remaining.unclear': 'Order unclear',
+  'tours.walk.remaining.fromStart':
+    'Walking time from the start, shared out along the route by distance. Stays are not in it.',
+  'tours.walk.remaining.fromStation':
+    'Walking time from {name}, the last stop visited, shared out along the route by distance. Stays are not in it.',
+  'tours.walk.remaining.upperBound':
+    'A stop ahead is skipped, but the route still leads through it, so it may take less.',
+  'tours.walk.remaining.afterLast': '{time} of it lead from the last stop to the end of the walk.',
+  'tours.walk.remaining.stays': 'Stays still open: {time}.',
+  'tours.walk.remaining.staysUnknown': '{count} open stops have no stay yet.',
+  'tours.walk.remaining.staysUnknown.one': 'One open stop has no stay yet.',
+  'tours.walk.remaining.unclearHint':
+    'Stops before {last} are still open: {names}. Mark them visited or skipped to see the time left.',
+  'tours.walk.remaining.routePending': 'The walk has no route yet, so the time left is not known.',
+  'tours.walk.remaining.noWalkingTime': 'The walk has no walking time yet, so the time left is not known.',
+  'tours.walk.remaining.done': 'Every stop is done.',
   'tours.walk.visit.visited': 'Mark visited',
   'tours.walk.visit.skip': 'Skip',
   'tours.walk.visit.undo': 'Take back',
@@ -820,10 +839,12 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': 'No public access',
   'tours.poi.charging.capacity': 'Charging spots',
   'tours.poi.charging.socketsUnknown': 'Plug not stated',
-  'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap does not say which plug it has, so whether your charger fits is not known.',
+  'tours.poi.charging.socketsUnknownHint':
+    'OpenStreetMap does not say which plug it has, so whether your charger fits is not known.',
   'tours.poi.charging.ownCharger': 'A household socket, as OpenStreetMap states it: bring your own charger.',
   'tours.poi.charging.sourceHint': 'As OpenStreetMap states it. Whether it works or is free today is not known.',
-  'tours.poi.charging.fewMapped': 'Few charging points are mapped for e-bikes yet. Only those OpenStreetMap marks for bicycles are shown, never a charger for cars alone.',
+  'tours.poi.charging.fewMapped':
+    'Few charging points are mapped for e-bikes yet. Only those OpenStreetMap marks for bicycles are shown, never a charger for cars alone.',
   'tours.planner.tourType': 'Tour type',
   'tours.paddle.boat': 'Boat',
   'tours.paddle.boat.kayak': 'Kayak',

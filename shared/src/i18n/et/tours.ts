@@ -756,6 +756,25 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     'Selle jalutuse peatusi ei õnnestunud laadida. Ava jalutus uuesti võrguühendusega, et neid näha ja ära märkida.',
   'tours.walk.progress': '{visited} / {total} külastatud',
+  'tours.walk.remaining.pill': 'Jalgsi jäänud {time}',
+  'tours.walk.remaining.pillUpTo': 'Jalgsi kuni {time}',
+  'tours.walk.remaining.unknown': 'Järelejäänud aeg teadmata',
+  'tours.walk.remaining.unclear': 'Järjekord ebaselge',
+  'tours.walk.remaining.fromStart':
+    'Kõndimisaeg algusest, jaotatud mööda marsruuti vahemaa järgi. Peatumised pole selles.',
+  'tours.walk.remaining.fromStation':
+    'Kõndimisaeg kohast {name}, viimasest külastatud peatusest, jaotatud mööda marsruuti vahemaa järgi. Peatumised pole selles.',
+  'tours.walk.remaining.upperBound':
+    'Ees olev peatus on vahele jäetud, aga marsruut läheb ikka sealt läbi, nii et see võib võtta vähem.',
+  'tours.walk.remaining.afterLast': 'Sellest {time} viib viimasest peatusest jalutuse lõppu.',
+  'tours.walk.remaining.stays': 'Veel avatud peatumised: {time}.',
+  'tours.walk.remaining.staysUnknown': '{count} avatud peatusel pole veel peatumise aega.',
+  'tours.walk.remaining.staysUnknown.one': 'Ühel avatud peatusel pole veel peatumise aega.',
+  'tours.walk.remaining.unclearHint':
+    'Enne peatust {last} on veel avatud peatusi: {names}. Märgi need külastatuks või vahelejäetuks, et näha järelejäänud aega.',
+  'tours.walk.remaining.routePending': 'Jalutusel pole veel marsruuti, seega järelejäänud aeg pole teada.',
+  'tours.walk.remaining.noWalkingTime': 'Jalutusel pole veel kõndimisaega, seega järelejäänud aeg pole teada.',
+  'tours.walk.remaining.done': 'Kõik peatused on tehtud.',
   'tours.walk.visit.visited': 'Külastatud',
   'tours.walk.visit.skip': 'Jäta vahele',
   'tours.walk.visit.undo': 'Võta tagasi',
@@ -824,10 +843,12 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': 'Avalik juurdepääs puudub',
   'tours.poi.charging.capacity': 'Laadimiskohad',
   'tours.poi.charging.socketsUnknown': 'Pistik märkimata',
-  'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap ei ütle, mis pistik seal on, seega pole teada, kas sinu laadija sobib.',
+  'tours.poi.charging.socketsUnknownHint':
+    'OpenStreetMap ei ütle, mis pistik seal on, seega pole teada, kas sinu laadija sobib.',
   'tours.poi.charging.ownCharger': 'Tavaline pistikupesa OpenStreetMapi järgi: võta oma laadija kaasa.',
   'tours.poi.charging.sourceHint': 'OpenStreetMapi järgi. Kas see täna töötab või on tasuta, pole teada.',
-  'tours.poi.charging.fewMapped': 'Elektriratastele on kaardistatud veel vähe laadimiskohti. Näidatakse ainult neid, mille OpenStreetMap ratastele märgib, mitte kunagi ainult autodele mõeldud laadijat.',
+  'tours.poi.charging.fewMapped':
+    'Elektriratastele on kaardistatud veel vähe laadimiskohti. Näidatakse ainult neid, mille OpenStreetMap ratastele märgib, mitte kunagi ainult autodele mõeldud laadijat.',
   'tours.planner.tourType': 'Matka tüüp',
   'tours.paddle.boat': 'Paat',
   'tours.paddle.boat.kayak': 'Süst',

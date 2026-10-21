@@ -768,6 +768,25 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     'A séta megállóit nem sikerült betölteni. Nyisd meg újra internetkapcsolattal, hogy lásd és kipipálhasd őket.',
   'tours.walk.progress': '{total} megállóból {visited} meglátogatva',
+  'tours.walk.remaining.pill': 'Még {time} gyalog',
+  'tours.walk.remaining.pillUpTo': 'Legfeljebb {time} gyalog',
+  'tours.walk.remaining.unknown': 'Hátralévő idő ismeretlen',
+  'tours.walk.remaining.unclear': 'Nem egyértelmű sorrend',
+  'tours.walk.remaining.fromStart':
+    'Gyaloglási idő a kezdettől, az útvonal mentén táv szerint elosztva. A tartózkodások nincsenek benne.',
+  'tours.walk.remaining.fromStation':
+    'Gyaloglási idő innen: {name}, az utolsó meglátogatott megálló, az útvonal mentén táv szerint elosztva. A tartózkodások nincsenek benne.',
+  'tours.walk.remaining.upperBound':
+    'Egy későbbi megálló ki van hagyva, de az útvonal még átvezet rajta, így kevesebb is lehet.',
+  'tours.walk.remaining.afterLast': 'Ebből {time} vezet az utolsó megállótól a séta végéig.',
+  'tours.walk.remaining.stays': 'Még nyitott tartózkodások: {time}.',
+  'tours.walk.remaining.staysUnknown': '{count} nyitott megállónak még nincs tartózkodási ideje.',
+  'tours.walk.remaining.staysUnknown.one': 'Egy nyitott megállónak még nincs tartózkodási ideje.',
+  'tours.walk.remaining.unclearHint':
+    '{last} előtt még nyitott megállók vannak: {names}. Jelöld őket meglátogatottnak vagy kihagyottnak, hogy lásd a hátralévő időt.',
+  'tours.walk.remaining.routePending': 'A sétának még nincs útvonala, így a hátralévő idő nem ismert.',
+  'tours.walk.remaining.noWalkingTime': 'A sétának még nincs gyaloglási ideje, így a hátralévő idő nem ismert.',
+  'tours.walk.remaining.done': 'Minden megálló kész.',
   'tours.walk.visit.visited': 'Meglátogatva',
   'tours.walk.visit.skip': 'Kihagyás',
   'tours.walk.visit.undo': 'Visszavonás',
@@ -838,10 +857,12 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': 'Nem nyilvános',
   'tours.poi.charging.capacity': 'Töltőhelyek',
   'tours.poi.charging.socketsUnknown': 'Csatlakozó nincs megadva',
-  'tours.poi.charging.socketsUnknownHint': 'Az OpenStreetMap nem írja, milyen csatlakozója van, így nem tudni, jó-e a töltőd.',
+  'tours.poi.charging.socketsUnknownHint':
+    'Az OpenStreetMap nem írja, milyen csatlakozója van, így nem tudni, jó-e a töltőd.',
   'tours.poi.charging.ownCharger': 'Hagyományos konnektor az OpenStreetMap szerint: hozd a saját töltődet.',
   'tours.poi.charging.sourceHint': 'Az OpenStreetMap szerint. Hogy ma működik-e vagy ingyenes-e, nem ismert.',
-  'tours.poi.charging.fewMapped': 'E-bike-okhoz még kevés töltőpont van feltérképezve. Csak azok látszanak, amelyeket az OpenStreetMap kerékpárokhoz jelöl, sosem csak autóknak szánt töltő.',
+  'tours.poi.charging.fewMapped':
+    'E-bike-okhoz még kevés töltőpont van feltérképezve. Csak azok látszanak, amelyeket az OpenStreetMap kerékpárokhoz jelöl, sosem csak autóknak szánt töltő.',
   'tours.planner.tourType': 'Túratípus',
   'tours.paddle.boat': 'Hajó',
   'tours.paddle.boat.kayak': 'Kajak',

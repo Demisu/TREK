@@ -204,6 +204,35 @@ describe('WalkStationsCard', () => {
     expect(await screen.findByText('1 of 3 visited')).toBeInTheDocument();
   });
 
+  it('beside the count, says the walking time left from the last visit, and the stays apart in its tooltip (CW-13)', async () => {
+    useTourVisitStore.setState({ byAssignment: { 9: { 'stop-01': 'visited', 'stop-02': 'visited' } } });
+    card(onMonday());
+    const pill = await screen.findByTestId('walk-remaining');
+    expect(pill).toHaveTextContent('10 min left on foot');
+    expect(pill).toHaveAttribute(
+      'aria-label',
+      'Walking time from Stop 2, the last stop visited, shared out along the route by distance. Stays are not in it. Stays still open: 15 min.'
+    );
+    expect(pill).not.toHaveClass('opacity-60');
+  });
+
+  it('dims the time left where it is not known, and says why (CW-13)', async () => {
+    useTourVisitStore.setState({ byAssignment: { 9: { 'stop-02': 'visited' } } });
+    card(onMonday());
+    const unclear = await screen.findByTestId('walk-remaining');
+    expect(unclear).toHaveTextContent('Order unclear');
+    expect(unclear).toHaveClass('opacity-60');
+    expect(unclear.getAttribute('aria-label')).toContain('Stops before Stop 2 are still open: Museum.');
+  });
+
+  it('without a route, says the time left is not known rather than the whole walk (CW-13)', async () => {
+    useTourVisitStore.setState({ byAssignment: { 9: { 'stop-01': 'visited' } } });
+    card();
+    const pending = await screen.findByTestId('walk-remaining');
+    expect(pending).toHaveTextContent('Time left unknown');
+    expect(pending.getAttribute('aria-label')).toContain('The walk has no route yet, so the time left is not known.');
+  });
+
   it('on the day it was opened from, shows each arrival, the end of each stay and what the opening hours say', async () => {
     card(onMonday());
     expect(screen.getByTestId('walk-day')).toHaveTextContent(/^Day 1, .+, start 09:00$/);

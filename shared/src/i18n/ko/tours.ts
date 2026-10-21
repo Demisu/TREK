@@ -739,6 +739,23 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     '이 산책의 정류지를 불러오지 못했습니다. 온라인 상태에서 다시 열면 정류지를 보고 체크할 수 있습니다.',
   'tours.walk.progress': '{total}곳 중 {visited}곳 방문',
+  'tours.walk.remaining.pill': '도보로 {time} 남음',
+  'tours.walk.remaining.pillUpTo': '도보로 최대 {time}',
+  'tours.walk.remaining.unknown': '남은 시간 알 수 없음',
+  'tours.walk.remaining.unclear': '순서 불분명',
+  'tours.walk.remaining.fromStart':
+    '출발점부터의 도보 시간을 거리에 따라 경로를 따라 나눈 값입니다. 머무는 시간은 포함되지 않습니다.',
+  'tours.walk.remaining.fromStation':
+    '마지막으로 방문한 정류지 {name}부터의 도보 시간을 거리에 따라 경로를 따라 나눈 값입니다. 머무는 시간은 포함되지 않습니다.',
+  'tours.walk.remaining.upperBound': '앞의 정류지를 건너뛰었지만 경로가 여전히 그곳을 지나므로 더 짧을 수 있습니다.',
+  'tours.walk.remaining.afterLast': '그중 {time}은 마지막 정류지에서 산책 끝까지입니다.',
+  'tours.walk.remaining.stays': '남은 머무는 시간: {time}.',
+  'tours.walk.remaining.staysUnknown': '열린 정류지 {count}곳에 아직 머무는 시간이 없습니다.',
+  'tours.walk.remaining.unclearHint':
+    '{last} 앞에 아직 열린 정류지가 있습니다: {names}. 방문함이나 건너뜀으로 표시하면 남은 시간이 보입니다.',
+  'tours.walk.remaining.routePending': '산책에 아직 경로가 없어 남은 시간을 알 수 없습니다.',
+  'tours.walk.remaining.noWalkingTime': '산책에 아직 도보 시간이 없어 남은 시간을 알 수 없습니다.',
+  'tours.walk.remaining.done': '모든 정류지를 마쳤습니다.',
   'tours.walk.visit.visited': '방문함',
   'tours.walk.visit.skip': '건너뛰기',
   'tours.walk.visit.undo': '되돌리기',
@@ -807,10 +824,12 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': '일반 이용 불가',
   'tours.poi.charging.capacity': '충전 자리',
   'tours.poi.charging.socketsUnknown': '콘센트 정보 없음',
-  'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap에 콘센트 종류가 나와 있지 않아 내 충전기가 맞는지 알 수 없습니다.',
+  'tours.poi.charging.socketsUnknownHint':
+    'OpenStreetMap에 콘센트 종류가 나와 있지 않아 내 충전기가 맞는지 알 수 없습니다.',
   'tours.poi.charging.ownCharger': 'OpenStreetMap에 따르면 가정용 콘센트입니다. 충전기는 직접 챙기세요.',
   'tours.poi.charging.sourceHint': 'OpenStreetMap에 나온 그대로입니다. 오늘 작동하는지, 무료인지는 알 수 없습니다.',
-  'tours.poi.charging.fewMapped': '전기자전거 충전소는 아직 지도에 많지 않습니다. OpenStreetMap이 자전거용으로 표시한 곳만 보여 주며, 자동차 전용 충전기는 보여 주지 않습니다.',
+  'tours.poi.charging.fewMapped':
+    '전기자전거 충전소는 아직 지도에 많지 않습니다. OpenStreetMap이 자전거용으로 표시한 곳만 보여 주며, 자동차 전용 충전기는 보여 주지 않습니다.',
   'tours.planner.tourType': '투어 유형',
   'tours.paddle.boat': '보트',
   'tours.paddle.boat.kayak': '카약',

@@ -781,6 +781,26 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     "Les étapes de cette balade n'ont pas pu être chargées. Rouvre-la avec une connexion pour les voir et les cocher.",
   'tours.walk.progress': '{visited} sur {total} visitées',
+  'tours.walk.remaining.pill': 'Encore {time} à pied',
+  'tours.walk.remaining.pillUpTo': "Jusqu'à {time} à pied",
+  'tours.walk.remaining.unknown': 'Temps restant inconnu',
+  'tours.walk.remaining.unclear': 'Ordre incertain',
+  'tours.walk.remaining.fromStart':
+    "Temps de marche depuis le départ, réparti le long de l'itinéraire selon la distance. Les arrêts n'y sont pas.",
+  'tours.walk.remaining.fromStation':
+    "Temps de marche depuis {name}, la dernière étape visitée, réparti le long de l'itinéraire selon la distance. Les arrêts n'y sont pas.",
+  'tours.walk.remaining.upperBound':
+    "Une étape plus loin est passée, mais l'itinéraire la traverse encore, cela peut donc prendre moins.",
+  'tours.walk.remaining.afterLast': '{time} de ce temps mènent de la dernière étape à la fin de la balade.',
+  'tours.walk.remaining.stays': 'Arrêts encore ouverts : {time}.',
+  'tours.walk.remaining.staysUnknown': "{count} étapes ouvertes n'ont pas encore de durée d'arrêt.",
+  'tours.walk.remaining.staysUnknown.one': "{count} étape ouverte n'a pas encore de durée d'arrêt.",
+  'tours.walk.remaining.unclearHint':
+    'Des étapes avant {last} sont encore ouvertes : {names}. Marque-les comme visitées ou passées pour voir le temps restant.',
+  'tours.walk.remaining.routePending': "La balade n'a pas encore d'itinéraire, le temps restant n'est donc pas connu.",
+  'tours.walk.remaining.noWalkingTime':
+    "La balade n'a pas encore de temps de marche, le temps restant n'est donc pas connu.",
+  'tours.walk.remaining.done': 'Toutes les étapes sont faites.',
   'tours.walk.visit.visited': 'Visitée',
   'tours.walk.visit.skip': 'Passer',
   'tours.walk.visit.undo': 'Annuler',
@@ -850,10 +870,13 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': 'Pas d’accès public',
   'tours.poi.charging.capacity': 'Places de recharge',
   'tours.poi.charging.socketsUnknown': 'Prise non indiquée',
-  'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap n’indique pas la prise, on ne sait donc pas si ton chargeur convient.',
+  'tours.poi.charging.socketsUnknownHint':
+    'OpenStreetMap n’indique pas la prise, on ne sait donc pas si ton chargeur convient.',
   'tours.poi.charging.ownCharger': 'Une prise domestique, selon OpenStreetMap : apporte ton propre chargeur.',
-  'tours.poi.charging.sourceHint': 'Selon OpenStreetMap. On ne sait pas si elle fonctionne ou est gratuite aujourd’hui.',
-  'tours.poi.charging.fewMapped': 'Peu de bornes sont encore cartographiées pour les vélos électriques. Seules celles qu’OpenStreetMap signale pour les vélos sont affichées, jamais une borne réservée aux voitures.',
+  'tours.poi.charging.sourceHint':
+    'Selon OpenStreetMap. On ne sait pas si elle fonctionne ou est gratuite aujourd’hui.',
+  'tours.poi.charging.fewMapped':
+    'Peu de bornes sont encore cartographiées pour les vélos électriques. Seules celles qu’OpenStreetMap signale pour les vélos sont affichées, jamais une borne réservée aux voitures.',
   'tours.planner.tourType': 'Type de sortie',
   'tours.paddle.boat': 'Embarcation',
   'tours.paddle.boat.kayak': 'Kayak', // same-as-en

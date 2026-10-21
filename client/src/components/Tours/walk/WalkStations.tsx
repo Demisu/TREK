@@ -17,6 +17,8 @@ import { useLinkedPlaceOf, useWalkSchedule } from './useWalkSchedule';
 import { useWalkStations } from './useWalkStations';
 import { WalkDayLine } from './WalkDayLine';
 import { useDayVisits, useWalkProgress } from './walkProgress';
+import { useWalkRemaining } from './walkRemaining';
+import { WalkRemainingPill } from './WalkRemainingPill';
 import type { StationSchedule } from './walkSchedule';
 
 const NO_DAYS: Day[] = [];
@@ -206,6 +208,7 @@ export function WalkStationsCard({
   const choice = useWalkDay(isWalk ? tour.place_id : null, days, assignments, assignment?.day_id ?? null);
   const walkingMinutes = tour.duration ?? null;
   const schedule = useWalkSchedule({ stations, route, walkingMinutes, day: choice.day, placeOf });
+  const remainder = useWalkRemaining({ stations, visits, route, walkingMinutes, placeOf });
   if (!isWalk) return null;
   const onMark = (key: string, status: TourVisitStatus | 'planned') => {
     if (assignmentId === null) return;
@@ -221,7 +224,10 @@ export function WalkStationsCard({
       action={
         // No count where the stations could not be read: it would contradict the day row's.
         assignmentId !== null && listed.length > 0 ? (
-          <SoftPill>{t('tours.walk.progress', { visited, total: listed.length })}</SoftPill>
+          <span className="flex flex-wrap items-center gap-1.5">
+            {remainder && <WalkRemainingPill remainder={remainder} />}
+            <SoftPill>{t('tours.walk.progress', { visited, total: listed.length })}</SoftPill>
+          </span>
         ) : undefined
       }
     >

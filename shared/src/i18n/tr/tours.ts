@@ -757,6 +757,25 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     'Bu yürüyüşün durakları yüklenemedi. Görmek ve işaretlemek için yürüyüşü bağlantı varken yeniden aç.',
   'tours.walk.progress': '{total} duraktan {visited} ziyaret edildi',
+  'tours.walk.remaining.pill': 'Yürüyerek {time} kaldı',
+  'tours.walk.remaining.pillUpTo': 'Yürüyerek en fazla {time}',
+  'tours.walk.remaining.unknown': 'Kalan süre bilinmiyor',
+  'tours.walk.remaining.unclear': 'Sıra belirsiz',
+  'tours.walk.remaining.fromStart':
+    'Başlangıçtan itibaren yürüme süresi, rota boyunca mesafeye göre dağıtılmış. Kalışlar dahil değil.',
+  'tours.walk.remaining.fromStation':
+    'Son ziyaret edilen durak olan {name} konumundan itibaren yürüme süresi, rota boyunca mesafeye göre dağıtılmış. Kalışlar dahil değil.',
+  'tours.walk.remaining.upperBound':
+    'İlerideki bir durak atlandı ama rota hâlâ oradan geçiyor, bu yüzden daha kısa sürebilir.',
+  'tours.walk.remaining.afterLast': 'Bunun {time} kadarı son duraktan yürüyüşün sonuna kadar.',
+  'tours.walk.remaining.stays': 'Hâlâ açık kalışlar: {time}.',
+  'tours.walk.remaining.staysUnknown': '{count} açık durağın henüz kalış süresi yok.',
+  'tours.walk.remaining.staysUnknown.one': 'Bir açık durağın henüz kalış süresi yok.',
+  'tours.walk.remaining.unclearHint':
+    '{last} öncesinde hâlâ açık duraklar var: {names}. Kalan süreyi görmek için onları ziyaret edildi ya da atlandı olarak işaretle.',
+  'tours.walk.remaining.routePending': 'Yürüyüşün henüz rotası yok, bu yüzden kalan süre bilinmiyor.',
+  'tours.walk.remaining.noWalkingTime': 'Yürüyüşün henüz yürüme süresi yok, bu yüzden kalan süre bilinmiyor.',
+  'tours.walk.remaining.done': 'Tüm duraklar tamamlandı.',
   'tours.walk.visit.visited': 'Ziyaret edildi',
   'tours.walk.visit.skip': 'Atla',
   'tours.walk.visit.undo': 'Geri al',
@@ -828,10 +847,13 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': 'Genel erişime kapalı',
   'tours.poi.charging.capacity': 'Şarj yerleri',
   'tours.poi.charging.socketsUnknown': 'Priz belirtilmemiş',
-  'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap hangi prizi olduğunu söylemiyor, bu yüzden şarj cihazının uyup uymadığı bilinmiyor.',
+  'tours.poi.charging.socketsUnknownHint':
+    'OpenStreetMap hangi prizi olduğunu söylemiyor, bu yüzden şarj cihazının uyup uymadığı bilinmiyor.',
   'tours.poi.charging.ownCharger': 'OpenStreetMap’e göre ev tipi priz: kendi şarj cihazını getir.',
-  'tours.poi.charging.sourceHint': 'OpenStreetMap’e göre. Bugün çalışıp çalışmadığı ya da ücretsiz olup olmadığı bilinmiyor.',
-  'tours.poi.charging.fewMapped': 'E-bisikletler için henüz az şarj noktası haritalanmış. Yalnızca OpenStreetMap’in bisikletler için işaretledikleri gösterilir, asla yalnızca otomobillere ait bir şarj noktası değil.',
+  'tours.poi.charging.sourceHint':
+    'OpenStreetMap’e göre. Bugün çalışıp çalışmadığı ya da ücretsiz olup olmadığı bilinmiyor.',
+  'tours.poi.charging.fewMapped':
+    'E-bisikletler için henüz az şarj noktası haritalanmış. Yalnızca OpenStreetMap’in bisikletler için işaretledikleri gösterilir, asla yalnızca otomobillere ait bir şarj noktası değil.',
   'tours.planner.tourType': 'Tur türü',
   'tours.paddle.boat': 'Tekne',
   'tours.paddle.boat.kayak': 'Kano (kayak)',

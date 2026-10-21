@@ -745,6 +745,24 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     'この街歩きの立ち寄り先を読み込めませんでした。オンラインの状態で開き直すと、表示してチェックできます。',
   'tours.walk.progress': '{total} 件中 {visited} 件訪問済み',
+  'tours.walk.remaining.pill': '徒歩で残り {time}',
+  'tours.walk.remaining.pillUpTo': '徒歩で最大 {time}',
+  'tours.walk.remaining.unknown': '残り時間は不明',
+  'tours.walk.remaining.unclear': '順序が不明',
+  'tours.walk.remaining.fromStart':
+    'スタートからの歩行時間を、距離に応じてルートに沿って配分したものです。滞在は含みません。',
+  'tours.walk.remaining.fromStation':
+    '最後に訪問した立ち寄り先 {name} からの歩行時間を、距離に応じてルートに沿って配分したものです。滞在は含みません。',
+  'tours.walk.remaining.upperBound':
+    '先の立ち寄り先がスキップされていますが、ルートはまだそこを通るため、実際はもっと短いかもしれません。',
+  'tours.walk.remaining.afterLast': 'そのうち {time} は最後の立ち寄り先からルートの終点までです。',
+  'tours.walk.remaining.stays': '残りの滞在: {time}。',
+  'tours.walk.remaining.staysUnknown': '{count} 件の未訪問の立ち寄り先に滞在時間がまだありません。',
+  'tours.walk.remaining.unclearHint':
+    '{last} より前にまだ未訪問の立ち寄り先があります: {names}。訪問済みかスキップにすると残り時間が表示されます。',
+  'tours.walk.remaining.routePending': 'ルートがまだないため、残り時間は分かりません。',
+  'tours.walk.remaining.noWalkingTime': '歩行時間がまだないため、残り時間は分かりません。',
+  'tours.walk.remaining.done': 'すべての立ち寄り先が完了しました。',
   'tours.walk.visit.visited': '訪問済み',
   'tours.walk.visit.skip': 'スキップ',
   'tours.walk.visit.undo': '取り消す',
@@ -812,10 +830,12 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': '一般利用不可',
   'tours.poi.charging.capacity': '充電台数',
   'tours.poi.charging.socketsUnknown': 'コンセント不明',
-  'tours.poi.charging.socketsUnknownHint': 'OpenStreetMapにコンセントの種類が記載されていないため、お手持ちの充電器が使えるかは分かりません。',
+  'tours.poi.charging.socketsUnknownHint':
+    'OpenStreetMapにコンセントの種類が記載されていないため、お手持ちの充電器が使えるかは分かりません。',
   'tours.poi.charging.ownCharger': 'OpenStreetMapの記載では家庭用コンセントです。充電器はご自身でお持ちください。',
   'tours.poi.charging.sourceHint': 'OpenStreetMapの記載どおりです。今日使えるか、無料かは分かりません。',
-  'tours.poi.charging.fewMapped': 'e-bike用の充電スポットはまだ少ししか登録されていません。OpenStreetMapが自転車向けと記載しているものだけを表示し、自動車専用の充電器は表示しません。',
+  'tours.poi.charging.fewMapped':
+    'e-bike用の充電スポットはまだ少ししか登録されていません。OpenStreetMapが自転車向けと記載しているものだけを表示し、自動車専用の充電器は表示しません。',
   'tours.planner.tourType': 'ツアーの種類',
   'tours.paddle.boat': 'ボート',
   'tours.paddle.boat.kayak': 'カヤック',

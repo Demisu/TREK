@@ -777,6 +777,27 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     'Не удалось загрузить остановки этой прогулки. Открой её снова при подключении к сети, чтобы увидеть и отметить их.',
   'tours.walk.progress': 'Посещено {visited} из {total}',
+  'tours.walk.remaining.pill': 'Осталось {time} пешком',
+  'tours.walk.remaining.pillUpTo': 'До {time} пешком',
+  'tours.walk.remaining.unknown': 'Оставшееся время неизвестно',
+  'tours.walk.remaining.unclear': 'Порядок неясен',
+  'tours.walk.remaining.fromStart':
+    'Время в пути от старта, распределённое вдоль маршрута по расстоянию. Остановки в него не входят.',
+  'tours.walk.remaining.fromStation':
+    'Время в пути от {name}, последней посещённой остановки, распределённое вдоль маршрута по расстоянию. Остановки в него не входят.',
+  'tours.walk.remaining.upperBound':
+    'Остановка впереди пропущена, но маршрут всё ещё проходит через неё, поэтому может уйти меньше.',
+  'tours.walk.remaining.afterLast': 'Из него {time} приходится на путь от последней остановки до конца прогулки.',
+  'tours.walk.remaining.stays': 'Оставшиеся остановки: {time}.',
+  'tours.walk.remaining.staysUnknown': '{count} открытой остановки пока без длительности.',
+  'tours.walk.remaining.staysUnknown.one': '{count} открытая остановка пока без длительности.',
+  'tours.walk.remaining.staysUnknown.few': '{count} открытые остановки пока без длительности.',
+  'tours.walk.remaining.staysUnknown.many': '{count} открытых остановок пока без длительности.',
+  'tours.walk.remaining.unclearHint':
+    'До {last} ещё есть открытые остановки: {names}. Отметь их посещёнными или пропущенными, чтобы увидеть оставшееся время.',
+  'tours.walk.remaining.routePending': 'У прогулки пока нет маршрута, поэтому оставшееся время неизвестно.',
+  'tours.walk.remaining.noWalkingTime': 'У прогулки пока нет времени в пути, поэтому оставшееся время неизвестно.',
+  'tours.walk.remaining.done': 'Все остановки пройдены.',
   'tours.walk.visit.visited': 'Посещено',
   'tours.walk.visit.skip': 'Пропустить',
   'tours.walk.visit.undo': 'Отменить',
@@ -848,10 +869,12 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': 'Нет общего доступа',
   'tours.poi.charging.capacity': 'Места для зарядки',
   'tours.poi.charging.socketsUnknown': 'Разъём не указан',
-  'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap не указывает разъём, поэтому неизвестно, подойдёт ли ваше зарядное устройство.',
+  'tours.poi.charging.socketsUnknownHint':
+    'OpenStreetMap не указывает разъём, поэтому неизвестно, подойдёт ли ваше зарядное устройство.',
   'tours.poi.charging.ownCharger': 'Обычная розетка, по данным OpenStreetMap: возьмите своё зарядное устройство.',
   'tours.poi.charging.sourceHint': 'По данным OpenStreetMap. Работает ли она и бесплатна ли сегодня, неизвестно.',
-  'tours.poi.charging.fewMapped': 'Зарядок для электровелосипедов на карте пока мало. Показаны только те, что OpenStreetMap отмечает для велосипедов, и никогда зарядка только для автомобилей.',
+  'tours.poi.charging.fewMapped':
+    'Зарядок для электровелосипедов на карте пока мало. Показаны только те, что OpenStreetMap отмечает для велосипедов, и никогда зарядка только для автомобилей.',
   'tours.planner.tourType': 'Тип тура',
   'tours.paddle.boat': 'Лодка',
   'tours.paddle.boat.kayak': 'Каяк',

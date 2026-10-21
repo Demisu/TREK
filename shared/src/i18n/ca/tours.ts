@@ -771,6 +771,25 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     "No s'han pogut carregar les parades d'aquesta ruta. Torna a obrir-la amb connexió per veure-les i marcar-les.",
   'tours.walk.progress': '{visited} de {total} visitades',
+  'tours.walk.remaining.pill': 'Queden {time} a peu',
+  'tours.walk.remaining.pillUpTo': 'Fins a {time} a peu',
+  'tours.walk.remaining.unknown': 'Temps restant desconegut',
+  'tours.walk.remaining.unclear': 'Ordre poc clar',
+  'tours.walk.remaining.fromStart':
+    "Temps a peu des de l'inici, repartit al llarg de la ruta segons la distància. Les estades no hi són.",
+  'tours.walk.remaining.fromStation':
+    "Temps a peu des de {name}, l'última parada visitada, repartit al llarg de la ruta segons la distància. Les estades no hi són.",
+  'tours.walk.remaining.upperBound':
+    "S'ha omès una parada més endavant, però la ruta encara hi passa, així que pot ser menys.",
+  'tours.walk.remaining.afterLast': "{time} d'aquest temps van de l'última parada al final de la ruta.",
+  'tours.walk.remaining.stays': 'Estades encara obertes: {time}.',
+  'tours.walk.remaining.staysUnknown': '{count} parades obertes encara no tenen estada.',
+  'tours.walk.remaining.staysUnknown.one': '{count} parada oberta encara no té estada.',
+  'tours.walk.remaining.unclearHint':
+    'Hi ha parades obertes abans de {last}: {names}. Marca-les com a visitades o omeses per veure el temps restant.',
+  'tours.walk.remaining.routePending': 'La ruta encara no té recorregut, així que el temps restant no se sap.',
+  'tours.walk.remaining.noWalkingTime': 'La ruta encara no té temps a peu, així que el temps restant no se sap.',
+  'tours.walk.remaining.done': 'Totes les parades estan fetes.',
   'tours.walk.visit.visited': 'Visitada',
   'tours.walk.visit.skip': 'Omet',
   'tours.walk.visit.undo': 'Desfés',
@@ -840,10 +859,12 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': 'Sense accés públic',
   'tours.poi.charging.capacity': 'Places de càrrega',
   'tours.poi.charging.socketsUnknown': 'Endoll no indicat',
-  'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap no diu quin endoll té, així que no se sap si el teu carregador hi encaixa.',
+  'tours.poi.charging.socketsUnknownHint':
+    'OpenStreetMap no diu quin endoll té, així que no se sap si el teu carregador hi encaixa.',
   'tours.poi.charging.ownCharger': 'Un endoll domèstic, segons OpenStreetMap: porta el teu carregador.',
   'tours.poi.charging.sourceHint': 'Segons OpenStreetMap. No se sap si avui funciona o és gratuït.',
-  'tours.poi.charging.fewMapped': 'Encara hi ha pocs punts de càrrega cartografiats per a bicis elèctriques. Només es mostren els que OpenStreetMap marca per a bicicletes, mai un carregador només per a cotxes.',
+  'tours.poi.charging.fewMapped':
+    'Encara hi ha pocs punts de càrrega cartografiats per a bicis elèctriques. Només es mostren els que OpenStreetMap marca per a bicicletes, mai un carregador només per a cotxes.',
   'tours.planner.tourType': 'Tipus de ruta',
   'tours.paddle.boat': 'Embarcació',
   'tours.paddle.boat.kayak': 'Caiac',

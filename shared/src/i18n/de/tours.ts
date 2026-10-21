@@ -774,6 +774,25 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     'Die Stationen dieses Walks ließen sich nicht laden. Öffne ihn erneut mit Verbindung, um sie zu sehen und abzuhaken.',
   'tours.walk.progress': '{visited} von {total} besucht',
+  'tours.walk.remaining.pill': 'Noch {time} zu Fuß',
+  'tours.walk.remaining.pillUpTo': 'Bis zu {time} zu Fuß',
+  'tours.walk.remaining.unknown': 'Restzeit unbekannt',
+  'tours.walk.remaining.unclear': 'Reihenfolge unklar',
+  'tours.walk.remaining.fromStart':
+    'Gehzeit ab dem Start, nach Strecke entlang der Route verteilt. Aufenthalte sind nicht enthalten.',
+  'tours.walk.remaining.fromStation':
+    'Gehzeit ab {name}, der zuletzt besuchten Station, nach Strecke entlang der Route verteilt. Aufenthalte sind nicht enthalten.',
+  'tours.walk.remaining.upperBound':
+    'Eine Station voraus ist übersprungen, die Route führt aber noch hindurch, es kann also weniger sein.',
+  'tours.walk.remaining.afterLast': 'Davon führen {time} von der letzten Station bis zum Ende des Walks.',
+  'tours.walk.remaining.stays': 'Noch offene Aufenthalte: {time}.',
+  'tours.walk.remaining.staysUnknown': '{count} offene Stationen haben noch keine Aufenthaltsdauer.',
+  'tours.walk.remaining.staysUnknown.one': 'Eine offene Station hat noch keine Aufenthaltsdauer.',
+  'tours.walk.remaining.unclearHint':
+    'Vor {last} sind noch Stationen offen: {names}. Markiere sie als besucht oder übersprungen, um die Restzeit zu sehen.',
+  'tours.walk.remaining.routePending': 'Der Walk hat noch keine Route, daher ist die Restzeit nicht bekannt.',
+  'tours.walk.remaining.noWalkingTime': 'Der Walk hat noch keine Gehzeit, daher ist die Restzeit nicht bekannt.',
+  'tours.walk.remaining.done': 'Alle Stationen sind erledigt.',
   'tours.walk.visit.visited': 'Besucht',
   'tours.walk.visit.skip': 'Überspringen',
   'tours.walk.visit.undo': 'Zurücknehmen',
@@ -844,10 +863,14 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': 'Kein öffentlicher Zugang',
   'tours.poi.charging.capacity': 'Ladeplätze',
   'tours.poi.charging.socketsUnknown': 'Stecker nicht angegeben',
-  'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap nennt keinen Stecker, ob dein Ladegerät passt, ist also offen.',
-  'tours.poi.charging.ownCharger': 'Eine Haushaltssteckdose, so wie OpenStreetMap sie angibt: Ladegerät selbst mitbringen.',
-  'tours.poi.charging.sourceHint': 'So, wie OpenStreetMap es angibt. Ob sie heute funktioniert oder kostenlos ist, ist nicht bekannt.',
-  'tours.poi.charging.fewMapped': 'Für E-Bikes sind bisher wenige Ladestationen erfasst. Gezeigt werden nur die, die OpenStreetMap für Fahrräder kennzeichnet, nie eine reine Auto-Ladesäule.',
+  'tours.poi.charging.socketsUnknownHint':
+    'OpenStreetMap nennt keinen Stecker, ob dein Ladegerät passt, ist also offen.',
+  'tours.poi.charging.ownCharger':
+    'Eine Haushaltssteckdose, so wie OpenStreetMap sie angibt: Ladegerät selbst mitbringen.',
+  'tours.poi.charging.sourceHint':
+    'So, wie OpenStreetMap es angibt. Ob sie heute funktioniert oder kostenlos ist, ist nicht bekannt.',
+  'tours.poi.charging.fewMapped':
+    'Für E-Bikes sind bisher wenige Ladestationen erfasst. Gezeigt werden nur die, die OpenStreetMap für Fahrräder kennzeichnet, nie eine reine Auto-Ladesäule.',
   'tours.planner.tourType': 'Tourtyp',
   'tours.paddle.boat': 'Boot',
   'tours.paddle.boat.kayak': 'Kajak',

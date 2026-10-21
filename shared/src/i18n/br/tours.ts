@@ -767,6 +767,26 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     'Não foi possível carregar as paradas deste passeio. Abra-o de novo com conexão para vê-las e marcá-las.',
   'tours.walk.progress': '{visited} de {total} visitadas',
+  'tours.walk.remaining.pill': 'Faltam {time} a pé',
+  'tours.walk.remaining.pillUpTo': 'Até {time} a pé',
+  'tours.walk.remaining.unknown': 'Tempo restante desconhecido',
+  'tours.walk.remaining.unclear': 'Ordem incerta',
+  'tours.walk.remaining.fromStart':
+    'Tempo de caminhada desde o início, distribuído ao longo da rota pela distância. As permanências não entram.',
+  'tours.walk.remaining.fromStation':
+    'Tempo de caminhada desde {name}, a última parada visitada, distribuído ao longo da rota pela distância. As permanências não entram.',
+  'tours.walk.remaining.upperBound':
+    'Uma parada à frente foi pulada, mas a rota ainda passa por ela, então pode levar menos.',
+  'tours.walk.remaining.afterLast': '{time} disso vão da última parada até o fim do passeio.',
+  'tours.walk.remaining.stays': 'Permanências ainda abertas: {time}.',
+  'tours.walk.remaining.staysUnknown': '{count} paradas abertas ainda não têm permanência.',
+  'tours.walk.remaining.staysUnknown.one': '{count} parada aberta ainda não tem permanência.',
+  'tours.walk.remaining.unclearHint':
+    'Paradas antes de {last} ainda estão abertas: {names}. Marque-as como visitadas ou puladas para ver o tempo restante.',
+  'tours.walk.remaining.routePending': 'O passeio ainda não tem rota, então o tempo restante não é conhecido.',
+  'tours.walk.remaining.noWalkingTime':
+    'O passeio ainda não tem tempo de caminhada, então o tempo restante não é conhecido.',
+  'tours.walk.remaining.done': 'Todas as paradas estão feitas.',
   'tours.walk.visit.visited': 'Visitada',
   'tours.walk.visit.skip': 'Pular',
   'tours.walk.visit.undo': 'Desfazer',
@@ -836,10 +856,12 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': 'Sem acesso público',
   'tours.poi.charging.capacity': 'Vagas de recarga',
   'tours.poi.charging.socketsUnknown': 'Tomada não informada',
-  'tours.poi.charging.socketsUnknownHint': 'O OpenStreetMap não diz qual tomada tem, então não se sabe se o seu carregador serve.',
+  'tours.poi.charging.socketsUnknownHint':
+    'O OpenStreetMap não diz qual tomada tem, então não se sabe se o seu carregador serve.',
   'tours.poi.charging.ownCharger': 'Uma tomada comum, segundo o OpenStreetMap: leve seu próprio carregador.',
   'tours.poi.charging.sourceHint': 'Segundo o OpenStreetMap. Não se sabe se hoje funciona ou é grátis.',
-  'tours.poi.charging.fewMapped': 'Ainda há poucos pontos de recarga mapeados para e-bikes. Só aparecem os que o OpenStreetMap marca para bicicletas, nunca um carregador só para carros.',
+  'tours.poi.charging.fewMapped':
+    'Ainda há poucos pontos de recarga mapeados para e-bikes. Só aparecem os que o OpenStreetMap marca para bicicletas, nunca um carregador só para carros.',
   'tours.planner.tourType': 'Tipo de passeio',
   'tours.paddle.boat': 'Embarcação',
   'tours.paddle.boat.kayak': 'Caiaque',

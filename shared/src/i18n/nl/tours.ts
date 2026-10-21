@@ -770,6 +770,25 @@ const tours: TranslationStrings = {
   'tours.walk.stationsUnread':
     'De haltes van deze wandeling konden niet worden geladen. Open hem opnieuw met verbinding om ze te zien en af te vinken.',
   'tours.walk.progress': '{visited} van {total} bezocht',
+  'tours.walk.remaining.pill': 'Nog {time} lopen',
+  'tours.walk.remaining.pillUpTo': 'Tot {time} lopen',
+  'tours.walk.remaining.unknown': 'Resterende tijd onbekend',
+  'tours.walk.remaining.unclear': 'Volgorde onduidelijk',
+  'tours.walk.remaining.fromStart':
+    'Looptijd vanaf de start, langs de route verdeeld naar afstand. Verblijven zitten er niet in.',
+  'tours.walk.remaining.fromStation':
+    'Looptijd vanaf {name}, de laatst bezochte halte, langs de route verdeeld naar afstand. Verblijven zitten er niet in.',
+  'tours.walk.remaining.upperBound':
+    'Een halte verderop is overgeslagen, maar de route loopt er nog doorheen, dus het kan korter zijn.',
+  'tours.walk.remaining.afterLast': 'Daarvan loopt {time} van de laatste halte naar het einde van de wandeling.',
+  'tours.walk.remaining.stays': 'Nog open verblijven: {time}.',
+  'tours.walk.remaining.staysUnknown': '{count} open haltes hebben nog geen verblijfsduur.',
+  'tours.walk.remaining.staysUnknown.one': 'Eén open halte heeft nog geen verblijfsduur.',
+  'tours.walk.remaining.unclearHint':
+    'Haltes vóór {last} staan nog open: {names}. Markeer ze als bezocht of overgeslagen om de resterende tijd te zien.',
+  'tours.walk.remaining.routePending': 'De wandeling heeft nog geen route, dus de resterende tijd is niet bekend.',
+  'tours.walk.remaining.noWalkingTime': 'De wandeling heeft nog geen looptijd, dus de resterende tijd is niet bekend.',
+  'tours.walk.remaining.done': 'Alle haltes zijn gedaan.',
   'tours.walk.visit.visited': 'Bezocht',
   'tours.walk.visit.skip': 'Overslaan',
   'tours.walk.visit.undo': 'Terugnemen',
@@ -839,10 +858,12 @@ const tours: TranslationStrings = {
   'tours.poi.charging.access.none': 'Niet openbaar toegankelijk',
   'tours.poi.charging.capacity': 'Laadplekken',
   'tours.poi.charging.socketsUnknown': 'Stekker niet vermeld',
-  'tours.poi.charging.socketsUnknownHint': 'OpenStreetMap zegt niet welke stekker er is, dus of je lader past is onbekend.',
+  'tours.poi.charging.socketsUnknownHint':
+    'OpenStreetMap zegt niet welke stekker er is, dus of je lader past is onbekend.',
   'tours.poi.charging.ownCharger': 'Een gewoon stopcontact, volgens OpenStreetMap: neem je eigen lader mee.',
   'tours.poi.charging.sourceHint': 'Volgens OpenStreetMap. Of het vandaag werkt of gratis is, is onbekend.',
-  'tours.poi.charging.fewMapped': 'Er zijn nog weinig laadpunten voor e-bikes in kaart gebracht. Alleen die OpenStreetMap voor fietsen markeert worden getoond, nooit een laadpaal alleen voor auto’s.',
+  'tours.poi.charging.fewMapped':
+    'Er zijn nog weinig laadpunten voor e-bikes in kaart gebracht. Alleen die OpenStreetMap voor fietsen markeert worden getoond, nooit een laadpaal alleen voor auto’s.',
   'tours.planner.tourType': 'Soort tocht',
   'tours.paddle.boat': 'Boot',
   'tours.paddle.boat.kayak': 'Kajak',
