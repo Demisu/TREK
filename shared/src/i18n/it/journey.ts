@@ -827,8 +827,8 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.title': 'Ogni voce unita e il resoconto del giorno hanno bisogno di un titolo.',
   'journey.dayImport.done': '{count} bozze riprese',
   'journey.dayImport.done.one': '{count} bozza ripresa',
-  'journey.dayImport.alreadyTaken': '{count} soste erano già nel diario. Nulla è stato scritto due volte.',
-  'journey.dayImport.alreadyTaken.one': '{count} sosta era già nel diario. Nulla è stato scritto due volte.',
+  'journey.dayImport.alreadyTaken': '{count} soste erano già state riprese. Nulla è stato scritto due volte.',
+  'journey.dayImport.alreadyTaken.one': '{count} sosta era già stata ripresa. Nulla è stato scritto due volte.',
   'journey.dayImport.failed':
     'Non è stato ripreso nulla: {reason} L’elenco mostra ciò che il diario contiene ora; riprovare non scrive nulla due volte.',
   'journey.dayImport.routeFailed': 'Le bozze sono state create, ma il percorso non è stato conservato: {reason}',

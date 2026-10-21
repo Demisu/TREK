@@ -783,7 +783,7 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.name': 'จุดแวะพักที่เลือกทุกแห่งต้องมีชื่อ',
   'journey.dayImport.problem.title': 'รายการที่รวมกันและบันทึกประจำวันต้องมีชื่อ',
   'journey.dayImport.done': 'นำเข้าฉบับร่าง {count} รายการแล้ว',
-  'journey.dayImport.alreadyTaken': 'จุดแวะพัก {count} แห่งอยู่ในบันทึกแล้ว ไม่มีอะไรถูกเขียนซ้ำ',
+  'journey.dayImport.alreadyTaken': 'จุดแวะพัก {count} แห่งถูกนำเข้าไปแล้ว ไม่มีอะไรถูกเขียนซ้ำ',
   'journey.dayImport.failed':
     'ยังไม่ได้นำเข้าอะไร: {reason} รายการแสดงสิ่งที่อยู่ในบันทึกตอนนี้ การลองใหม่จะไม่เขียนซ้ำ',
   'journey.dayImport.routeFailed': 'สร้างฉบับร่างแล้ว แต่ยังไม่ได้เก็บเส้นทาง: {reason}',

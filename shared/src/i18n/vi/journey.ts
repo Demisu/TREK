@@ -801,7 +801,7 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.name': 'Mỗi điểm dừng đã chọn cần có tên.',
   'journey.dayImport.problem.title': 'Mỗi mục đã gộp và báo cáo ngày cần có tiêu đề.',
   'journey.dayImport.done': 'Đã nhập {count} bản nháp',
-  'journey.dayImport.alreadyTaken': '{count} điểm dừng đã có trong nhật ký. Không có gì bị ghi hai lần.',
+  'journey.dayImport.alreadyTaken': '{count} điểm dừng đã được chuyển vào trước đó. Không có gì bị ghi hai lần.',
   'journey.dayImport.failed':
     'Chưa nhập được gì: {reason} Danh sách cho thấy nhật ký hiện có gì; thử lại sẽ không ghi trùng.',
   'journey.dayImport.routeFailed': 'Bản nháp đã được tạo, nhưng lộ trình chưa được lưu: {reason}',

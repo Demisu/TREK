@@ -13,7 +13,7 @@ import { lockBodyScroll } from '../../utils/bodyScrollLock'
 import type { JourneyEntry } from '../../store/journeyStore'
 import { createDraftJourneyEntry, photoUrl } from './JourneyDetailPage.helpers'
 import { useDawarichSuggestions } from '../../hooks/useDawarichSuggestions'
-import { openStaysByDate } from '../../components/Dawarich/dawarichSuggestionModel'
+import { openStayDatesWithin, openStaysByDate } from '../../components/Dawarich/dawarichSuggestionModel'
 import type { DawarichSuggestion, DawarichSuggestionTarget } from '@trek/shared'
 
 import { useDawarichJournalTrail } from '../../hooks/useDawarichJournalTrail'
@@ -557,6 +557,16 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
     onKept: recordings.kept,
     onTakenOver: afterDayTakeOver,
   })
+  // The days a phone can take over from the stay sheet, a day with no entry or card on it included.
+  const dayImportDates = useMemo(
+    () => current && canEditEntries && canTakeOverRecording
+      ? openStayDatesWithin(dawarichByDate, [
+        ...current.entries.map(e => e.entry_date),
+        ...current.trips.flatMap(trip => [trip.start_date, trip.end_date]),
+      ])
+      : [],
+    [current, canEditEntries, canTakeOverRecording, dawarichByDate],
+  )
 
   /** Studio's margin to the window on all four sides — see `.st-root` in studio.css. */
   const STUDIO_INSET = 16
@@ -604,7 +614,7 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
     galleryUploadProgress, setGalleryUploadProgress,
     activeLocationId, handleMarkerClick, handleLocationClick,
     mapEntries, sidebarMapItems, tripDates, isMobile, tracks: mapTracks, dawarichTrail,
-    recordings, canTakeOverRecording, recordingNeedsConnection, dayImport,
+    recordings, canTakeOverRecording, recordingNeedsConnection, dayImport, dayImportDates,
     mapPhotos, openMapPhotos,
     feedEdge, scrollFeedTo,
     loadJourney, updateEntry, deleteEntry, reorderEntries, uploadPhotos, deletePhoto,

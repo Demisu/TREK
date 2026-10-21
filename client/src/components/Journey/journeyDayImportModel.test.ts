@@ -1,4 +1,4 @@
-// FE-JRN-DAYIMPORT-MODEL-001 to FE-JRN-DAYIMPORT-MODEL-008
+// FE-JRN-DAYIMPORT-MODEL-001 to FE-JRN-DAYIMPORT-MODEL-011
 //
 // JRN-02: what the traveller decided in the day take-over, before anything is
 // written. Two stays at San Marco, a parking stop and Rialto, as the review
@@ -109,5 +109,39 @@ describe('journeyDayImportModel', () => {
     expect(defaultAnchor(STAYS)).toBe(12);
     expect(defaultAnchor([buildDayStay({ suggestionId: 5, lat: null, lng: null })])).toBeNull();
     expect(rename(rename(initialChoice(STAYS), MARKUS, 'X'), MARKUS, MARKUS.name).names).toEqual({});
+  });
+
+  it('FE-JRN-DAYIMPORT-MODEL-009: a picked position whose stay was unchosen or split off falls back to one in the group', () => {
+    const report = { ...initialChoice(STAYS), mode: 'report' as const, anchors: { [REPORT_KEY]: 10 } };
+    expect(requestOf(toggleStay(report, 10), STAYS, REPORT).groups[0]).toMatchObject({ anchorSuggestionId: 12 });
+    const three = { ...toggleJoin(initialChoice(STAYS), 13), anchors: { 11: 13 } };
+    expect(requestOf(three, STAYS, REPORT).groups[1]).toMatchObject({ kind: 'merged', anchorSuggestionId: 13 });
+    expect(requestOf(toggleJoin(three, 13), STAYS, REPORT).groups[1]).toMatchObject({
+      kind: 'merged',
+      anchorSuggestionId: 12,
+    });
+  });
+
+  it('FE-JRN-DAYIMPORT-MODEL-010: the same place twice without a position is joined and sent without a pin', () => {
+    const stays = [
+      buildDayStay({ suggestionId: 1, lat: null, lng: null }),
+      buildDayStay({ suggestionId: 2, lat: null, lng: null }),
+    ];
+    const choice = initialChoice(stays);
+    expect(problemOf(choice, stays, REPORT)).toBeNull();
+    expect(requestOf(choice, stays, REPORT)).toEqual({
+      groups: [{ kind: 'merged', stays: [{ suggestionId: 1 }, { suggestionId: 2 }], title: 'Piazza San Marco' }],
+    });
+  });
+
+  it('FE-JRN-DAYIMPORT-MODEL-011: a stay taken over meanwhile is never joined across, even while still ticked', () => {
+    const stays = [
+      buildDayStay({ suggestionId: 1, name: 'Lido' }),
+      buildDayStay({ suggestionId: 2, name: 'Rialto', status: 'here' }),
+      buildDayStay({ suggestionId: 3, name: 'Zattere' }),
+    ];
+    const choice = { ...initialChoice(stays), selected: new Set([1, 2, 3]), joined: new Set([3]) };
+    expect(canJoin(choice, stays, 2)).toBe(false);
+    expect(groupsOf(choice, stays).map((g) => g.stays.map((s) => s.suggestionId))).toEqual([[1], [3]]);
   });
 });

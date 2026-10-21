@@ -836,8 +836,8 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.title': 'Κάθε ενωμένη καταχώριση και η αναφορά ημέρας χρειάζονται τίτλο.',
   'journey.dayImport.done': '{count} πρόχειρα μεταφέρθηκαν',
   'journey.dayImport.done.one': '{count} πρόχειρο μεταφέρθηκε',
-  'journey.dayImport.alreadyTaken': '{count} στάσεις υπήρχαν ήδη στο ημερολόγιο. Τίποτα δεν γράφτηκε δύο φορές.',
-  'journey.dayImport.alreadyTaken.one': '{count} στάση υπήρχε ήδη στο ημερολόγιο. Τίποτα δεν γράφτηκε δύο φορές.',
+  'journey.dayImport.alreadyTaken': '{count} στάσεις είχαν ήδη μεταφερθεί. Τίποτα δεν γράφτηκε δύο φορές.',
+  'journey.dayImport.alreadyTaken.one': '{count} στάση είχε ήδη μεταφερθεί. Τίποτα δεν γράφτηκε δύο φορές.',
   'journey.dayImport.failed':
     'Δεν μεταφέρθηκε τίποτα: {reason} Η λίστα δείχνει τι περιέχει τώρα το ημερολόγιο· μια νέα προσπάθεια δεν γράφει τίποτα δύο φορές.',
   'journey.dayImport.routeFailed': 'Τα πρόχειρα δημιουργήθηκαν, αλλά η διαδρομή δεν αποθηκεύτηκε: {reason}',

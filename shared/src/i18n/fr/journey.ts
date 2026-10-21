@@ -826,8 +826,8 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.title': 'Chaque entrée regroupée et le récit du jour doivent avoir un titre.',
   'journey.dayImport.done': '{count} brouillons repris',
   'journey.dayImport.done.one': '{count} brouillon repris',
-  'journey.dayImport.alreadyTaken': "{count} séjours étaient déjà dans le journal. Rien n'a été écrit deux fois.",
-  'journey.dayImport.alreadyTaken.one': "{count} séjour était déjà dans le journal. Rien n'a été écrit deux fois.",
+  'journey.dayImport.alreadyTaken': "{count} séjours avaient déjà été repris. Rien n'a été écrit deux fois.",
+  'journey.dayImport.alreadyTaken.one': "{count} séjour avait déjà été repris. Rien n'a été écrit deux fois.",
   'journey.dayImport.failed':
     "Rien n'a été repris : {reason} La liste montre ce que contient le journal maintenant ; un nouvel essai n'écrit rien deux fois.",
   'journey.dayImport.routeFailed': "Les brouillons sont créés, mais le trajet n'a pas été gardé : {reason}",

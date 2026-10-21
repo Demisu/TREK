@@ -804,7 +804,7 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.name': 'Setiap persinggahan yang dipilih perlu nama.',
   'journey.dayImport.problem.title': 'Setiap catatan gabungan dan laporan harian perlu judul.',
   'journey.dayImport.done': '{count} draf diambil',
-  'journey.dayImport.alreadyTaken': '{count} persinggahan sudah ada di jurnal. Tidak ada yang ditulis dua kali.',
+  'journey.dayImport.alreadyTaken': '{count} persinggahan sudah pernah diambil alih. Tidak ada yang ditulis dua kali.',
   'journey.dayImport.failed':
     'Tidak ada yang diambil: {reason} Daftar menunjukkan isi jurnal sekarang; mencoba lagi tidak menulis apa pun dua kali.',
   'journey.dayImport.routeFailed': 'Draf sudah dibuat, tetapi rute tidak disimpan: {reason}',

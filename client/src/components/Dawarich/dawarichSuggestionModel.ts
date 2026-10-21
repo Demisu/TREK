@@ -71,6 +71,22 @@ export function openStaysByDate(suggestions: DawarichSuggestion[]): Map<string, 
   return byDate;
 }
 
+/**
+ * The days with waiting stays that fall inside a journal's span, oldest first. The span
+ * is whatever dates bound it (its entries, its trips' first and last days); without any
+ * there is nothing to place a stay against, because the stays are the whole account's.
+ */
+export function openStayDatesWithin(
+  byDate: Map<string, DawarichSuggestion[]>,
+  span: Array<string | null | undefined>
+): string[] {
+  const bounds = span.filter((date): date is string => !!date).sort();
+  const first = bounds[0];
+  const last = bounds[bounds.length - 1];
+  if (!first || !last) return [];
+  return [...byDate.keys()].filter((date) => date >= first && date <= last).sort();
+}
+
 /** `HH:MM` out of an ISO timestamp, in the offset the timestamp carries. */
 export function clockOf(iso: string): string {
   return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(iso) ? iso.slice(11, 16) : ''

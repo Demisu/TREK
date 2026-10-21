@@ -820,8 +820,8 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.title': 'Varje ihopslaget inlägg och dagsrapporten behöver en rubrik.',
   'journey.dayImport.done': '{count} utkast övertagna',
   'journey.dayImport.done.one': '{count} utkast övertaget',
-  'journey.dayImport.alreadyTaken': '{count} vistelser fanns redan i dagboken. Inget skrevs två gånger.',
-  'journey.dayImport.alreadyTaken.one': '{count} vistelse fanns redan i dagboken. Inget skrevs två gånger.',
+  'journey.dayImport.alreadyTaken': '{count} vistelser var redan övertagna. Inget skrevs två gånger.',
+  'journey.dayImport.alreadyTaken.one': '{count} vistelse var redan övertagen. Inget skrevs två gånger.',
   'journey.dayImport.failed':
     'Inget togs över: {reason} Listan visar vad dagboken innehåller nu; ett nytt försök skriver inget två gånger.',
   'journey.dayImport.routeFailed': 'Utkasten är sparade, men rutten sparades inte: {reason}',

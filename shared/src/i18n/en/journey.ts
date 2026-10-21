@@ -819,8 +819,8 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.title': 'Every joined entry and the day report need a title.',
   'journey.dayImport.done': '{count} drafts taken over',
   'journey.dayImport.done.one': '{count} draft taken over',
-  'journey.dayImport.alreadyTaken': '{count} stays were in the journal already. Nothing was written twice.',
-  'journey.dayImport.alreadyTaken.one': '{count} stay was in the journal already. Nothing was written twice.',
+  'journey.dayImport.alreadyTaken': '{count} stays were taken over already. Nothing was written twice.',
+  'journey.dayImport.alreadyTaken.one': '{count} stay was taken over already. Nothing was written twice.',
   'journey.dayImport.failed':
     'Nothing was taken over: {reason} The list shows what the journal holds now; trying again writes nothing twice.',
   'journey.dayImport.routeFailed': 'The drafts are in, but the route was not kept: {reason}',

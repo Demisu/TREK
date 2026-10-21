@@ -825,8 +825,8 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.title': 'Cada entrada juntada e o relato do dia precisam de um título.',
   'journey.dayImport.done': '{count} rascunhos importados',
   'journey.dayImport.done.one': '{count} rascunho importado',
-  'journey.dayImport.alreadyTaken': '{count} paradas já estavam no diário. Nada foi gravado duas vezes.',
-  'journey.dayImport.alreadyTaken.one': '{count} parada já estava no diário. Nada foi gravado duas vezes.',
+  'journey.dayImport.alreadyTaken': '{count} paradas já tinham sido assumidas. Nada foi gravado duas vezes.',
+  'journey.dayImport.alreadyTaken.one': '{count} parada já tinha sido assumida. Nada foi gravado duas vezes.',
   'journey.dayImport.failed':
     'Nada foi importado: {reason} A lista mostra o que o diário contém agora; tentar de novo não grava nada duas vezes.',
   'journey.dayImport.routeFailed': 'Os rascunhos foram criados, mas a rota não foi salva: {reason}',

@@ -827,8 +827,8 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.title': 'Cada entrada unida y la crónica del día necesitan un título.',
   'journey.dayImport.done': '{count} borradores incorporados',
   'journey.dayImport.done.one': '{count} borrador incorporado',
-  'journey.dayImport.alreadyTaken': '{count} estancias ya estaban en el diario. No se escribió nada dos veces.',
-  'journey.dayImport.alreadyTaken.one': '{count} estancia ya estaba en el diario. No se escribió nada dos veces.',
+  'journey.dayImport.alreadyTaken': '{count} estancias ya se habían incorporado. No se escribió nada dos veces.',
+  'journey.dayImport.alreadyTaken.one': '{count} estancia ya se había incorporado. No se escribió nada dos veces.',
   'journey.dayImport.failed':
     'No se incorporó nada: {reason} La lista muestra lo que contiene ahora el diario; volver a intentarlo no escribe nada dos veces.',
   'journey.dayImport.routeFailed': 'Los borradores están creados, pero la ruta no se guardó: {reason}',

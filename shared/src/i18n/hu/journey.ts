@@ -824,8 +824,8 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.title': 'Minden összevont bejegyzésnek és a napi beszámolónak kell cím.',
   'journey.dayImport.done': '{count} piszkozat átvéve',
   'journey.dayImport.done.one': '{count} piszkozat átvéve',
-  'journey.dayImport.alreadyTaken': '{count} tartózkodás már a naplóban volt. Semmi sem lett kétszer felvéve.',
-  'journey.dayImport.alreadyTaken.one': '{count} tartózkodás már a naplóban volt. Semmi sem lett kétszer felvéve.',
+  'journey.dayImport.alreadyTaken': '{count} tartózkodást már korábban átvettek. Semmi sem lett kétszer felvéve.',
+  'journey.dayImport.alreadyTaken.one': '{count} tartózkodást már korábban átvettek. Semmi sem lett kétszer felvéve.',
   'journey.dayImport.failed':
     'Semmi sem lett átvéve: {reason} A lista azt mutatja, mi van most a naplóban; az újrapróbálás semmit sem ír kétszer.',
   'journey.dayImport.routeFailed': 'A piszkozatok elkészültek, de az útvonal nem lett mentve: {reason}',

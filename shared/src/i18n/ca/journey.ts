@@ -829,8 +829,8 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.title': 'Cada entrada unida i la crònica del dia necessiten un títol.',
   'journey.dayImport.done': '{count} esborranys incorporats',
   'journey.dayImport.done.one': '{count} esborrany incorporat',
-  'journey.dayImport.alreadyTaken': '{count} estades ja eren al diari. No s’ha escrit res dues vegades.',
-  'journey.dayImport.alreadyTaken.one': '{count} estada ja era al diari. No s’ha escrit res dues vegades.',
+  'journey.dayImport.alreadyTaken': '{count} estades ja s’havien incorporat. No s’ha escrit res dues vegades.',
+  'journey.dayImport.alreadyTaken.one': '{count} estada ja s’havia incorporat. No s’ha escrit res dues vegades.',
   'journey.dayImport.failed':
     'No s’ha incorporat res: {reason} La llista mostra el que conté ara el diari; tornar-ho a provar no escriu res dues vegades.',
   'journey.dayImport.routeFailed': 'Els esborranys s’han creat, però la ruta no s’ha desat: {reason}',

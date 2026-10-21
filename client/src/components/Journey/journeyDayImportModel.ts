@@ -74,6 +74,8 @@ export function canJoin(choice: DayImportChoice, stays: JourneyDayStay[], index:
     choice.mode === 'entries' &&
     !!stay &&
     !!before &&
+    isTakeable(stay) &&
+    isTakeable(before) &&
     choice.selected.has(stay.suggestionId) &&
     choice.selected.has(before.suggestionId)
   );
@@ -107,9 +109,12 @@ export function defaultAnchor(stays: JourneyDayStay[]): number | null {
   return best?.suggestionId ?? null;
 }
 
+/** The picked stay while it is still in the group; one unchosen or split off since falls back to the default. */
 export function anchorOf(choice: DayImportChoice, group: DayImportGroup): number | null {
   const picked = choice.anchors[group.key];
-  return picked === undefined ? defaultAnchor(group.stays) : picked;
+  if (picked === undefined) return defaultAnchor(group.stays);
+  if (picked !== null && !group.stays.some((stay) => stay.suggestionId === picked)) return defaultAnchor(group.stays);
+  return picked;
 }
 
 /** A group's title as typed, else what it starts with: the place for a merged entry, the given default for a report. */
@@ -146,12 +151,11 @@ export function requestOf(
       return name === stay.name ? { suggestionId: stay.suggestionId } : { suggestionId: stay.suggestionId, name };
     });
     if (group.kind === 'single') return { kind: group.kind, stays: named };
-    return {
-      kind: group.kind,
-      stays: named,
-      title: titleOf(choice, group, reportDefault).trim(),
-      anchorSuggestionId: anchorOf(choice, group),
-    };
+    const title = titleOf(choice, group, reportDefault).trim();
+    const anchor = anchorOf(choice, group);
+    // A merged entry of stays without a position has nothing to pin; the server then writes it without one.
+    if (anchor === null && group.kind === 'merged') return { kind: group.kind, stays: named, title };
+    return { kind: group.kind, stays: named, title, anchorSuggestionId: anchor };
   });
   const skipSuggestionIds = stays
     .filter((stay) => stay.status === 'open' && !choice.selected.has(stay.suggestionId))

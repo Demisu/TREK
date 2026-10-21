@@ -829,8 +829,8 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.title': 'Elk samengevoegd item en het dagverslag hebben een titel nodig.',
   'journey.dayImport.done': '{count} concepten overgenomen',
   'journey.dayImport.done.one': '{count} concept overgenomen',
-  'journey.dayImport.alreadyTaken': '{count} verblijven stonden al in het dagboek. Er is niets dubbel geschreven.',
-  'journey.dayImport.alreadyTaken.one': '{count} verblijf stond al in het dagboek. Er is niets dubbel geschreven.',
+  'journey.dayImport.alreadyTaken': '{count} verblijven waren al overgenomen. Er is niets dubbel geschreven.',
+  'journey.dayImport.alreadyTaken.one': '{count} verblijf was al overgenomen. Er is niets dubbel geschreven.',
   'journey.dayImport.failed':
     'Er is niets overgenomen: {reason} De lijst toont wat het dagboek nu bevat; opnieuw proberen schrijft niets dubbel.',
   'journey.dayImport.routeFailed': 'De concepten staan erin, maar de route is niet bewaard: {reason}',

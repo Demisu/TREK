@@ -790,7 +790,7 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.name': '선택한 머문 곳마다 이름이 필요합니다.',
   'journey.dayImport.problem.title': '합친 항목과 하루 기록에는 제목이 필요합니다.',
   'journey.dayImport.done': '초안 {count}개를 가져왔습니다',
-  'journey.dayImport.alreadyTaken': '머문 곳 {count}개는 이미 저널에 있었습니다. 중복으로 기록된 것은 없습니다.',
+  'journey.dayImport.alreadyTaken': '머문 곳 {count}개는 이미 가져온 상태였습니다. 중복으로 기록된 것은 없습니다.',
   'journey.dayImport.failed':
     '아무것도 가져오지 못했습니다: {reason} 목록은 지금 저널에 있는 내용을 보여 줍니다. 다시 시도해도 중복 기록되지 않습니다.',
   'journey.dayImport.routeFailed': '초안은 만들어졌지만 경로는 저장되지 않았습니다: {reason}',

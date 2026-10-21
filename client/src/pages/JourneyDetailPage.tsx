@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import MobileMapTimeline from '../components/Journey/MobileMapTimeline'
 import JourneyDayDawarich from '../components/Journey/JourneyDayDawarich'
+import { openStayDatesWithin } from '../components/Dawarich/dawarichSuggestionModel'
 import JourneyDayImportButton from '../components/Journey/JourneyDayImportButton'
 import JourneyDayImportDialog from '../components/Journey/JourneyDayImportDialog'
 import JourneyDayRecordingButton from '../components/Journey/JourneyDayRecordingButton'
@@ -113,11 +114,8 @@ export function JourneyDetailPageDesktop({ journeyId, embedded = false }: Journe
   // that trip's days. With no span at all there is nothing to place a stay against.
   // Not while a search is running either: a day whose entries the query filtered out is not
   // a day the reader is looking at.
-  const spanDates = [...dayGroups.keys(), tripDateMin, tripDateMax]
-    .filter((d): d is string => !!d)
-    .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
-  const suggestionDates = canEditEntries && !query && spanDates.length
-    ? [...dawarichByDate.keys()].filter(d => d >= spanDates[0] && d <= spanDates[spanDates.length - 1])
+  const suggestionDates = canEditEntries && !query
+    ? openStayDatesWithin(dawarichByDate, [...dayGroups.keys(), tripDateMin, tripDateMax])
     : []
   // A day that keeps its recorded route stays a day of the journey, entries or not.
   const recordedDates = query ? [] : [...recordings.byDate.keys()]

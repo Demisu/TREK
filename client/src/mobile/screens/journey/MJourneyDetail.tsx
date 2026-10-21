@@ -50,7 +50,7 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
     showInvite, setShowInvite,
     showSettings, setShowSettings,
     hideSkeletons, setHideSkeletons,
-    sidebarMapItems, tracks, recordings, canTakeOverRecording, dayImport, dawarichByDate,
+    sidebarMapItems, tracks, recordings, canTakeOverRecording, dayImport, dayImportDates, dawarichByDate,
     dismissSuggestion, restoreSuggestions, openAtEntryId,
     loadJourney, updateEntry, deleteEntry, reorderEntries, uploadPhotos,
     addPickedProviderPhotos, addEntryProviderPhotos,
@@ -64,6 +64,25 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
     setMobileGalleryOpen(view === 'gallery')
     return () => setMobileGalleryOpen(false)
   }, [view, setMobileGalleryOpen])
+
+  const dayImportRow = (date: string, closeMenu: () => void) => {
+    const waiting = dawarichByDate.get(date)?.length ?? 0
+    return (
+      <MListRow
+        key={date}
+        icon={ListChecks}
+        label={t('journey.dayImport.openOn', {
+          date: new Date(date + 'T00:00:00').toLocaleDateString(locale, { day: 'numeric', month: 'long' }),
+        })}
+        trailing={waiting > 0 ? (
+          <span className="rounded-full bg-m-ic px-2 py-0.5 font-geist text-caption font-bold tabular-nums text-m-muted">
+            {waiting}
+          </span>
+        ) : undefined}
+        onClick={() => { closeMenu(); dayImport.open(date) }}
+      />
+    )
+  }
 
   // Stable identity: the scroll effect in useJourneyCarouselSync re-attaches on every
   // change and would otherwise drop the pending settle timer on any unrelated render.
@@ -428,6 +447,13 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
               closeLabel={t('common.close')}
             />
             <div className="min-h-0 flex-1 overflow-y-auto px-[14px] pb-4">
+              {/* Whole days first: a day with stays and nothing written yet is reached
+                  from here, since it has no card to open the overflow menu on. */}
+              {dayImportDates.length > 0 && (
+                <div className="mb-2 flex flex-col border-b border-[color:var(--m-gbr)] pb-2">
+                  {dayImportDates.map(date => dayImportRow(date, () => setDawarichOpen(false)))}
+                </div>
+              )}
               {/* Journal entries and nothing else: a journey is for writing, and
                   the trip planner already offers the same stay as a place. */}
               <DawarichSuggestionsPanel
@@ -522,20 +548,8 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
             />
           )}
           {/* The same day with its stays (JRN-02), counting the ones still waiting. */}
-          {canEditEntries && canTakeOverRecording && view === 'timeline' && entries[activeIndex] && (
-            <MListRow
-              icon={ListChecks}
-              label={t('journey.dayImport.openOn', {
-                date: new Date(entries[activeIndex].entry_date + 'T00:00:00').toLocaleDateString(locale, { day: 'numeric', month: 'long' }),
-              })}
-              trailing={dawarichByDate.get(entries[activeIndex].entry_date)?.length ? (
-                <span className="rounded-full bg-m-ic px-2 py-0.5 font-geist text-caption font-bold tabular-nums text-m-muted">
-                  {dawarichByDate.get(entries[activeIndex].entry_date)?.length}
-                </span>
-              ) : undefined}
-              onClick={() => { setShowActionMenu(false); dayImport.open(entries[activeIndex].entry_date) }}
-            />
-          )}
+          {canEditEntries && canTakeOverRecording && view === 'timeline' && entries[activeIndex] &&
+            dayImportRow(entries[activeIndex].entry_date, () => setShowActionMenu(false))}
           {canEditJourney && (
             <MListRow
               icon={Settings2}

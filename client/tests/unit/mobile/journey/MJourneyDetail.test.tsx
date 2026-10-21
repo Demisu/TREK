@@ -1,10 +1,11 @@
-// FE-MOB-JDET-001 to FE-MOB-JDET-043
+// FE-MOB-JDET-001 to FE-MOB-JDET-044
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '../../../helpers/render';
 import MJourneyDetail from '../../../../src/mobile/screens/journey/MJourneyDetail';
 import { addonsApi, journeyApi, memoriesApi } from '../../../../src/api/client';
 import { useJourneyStore } from '../../../../src/store/journeyStore';
 import { useAuthStore } from '../../../../src/store/authStore';
+import { useAddonStore } from '../../../../src/store/addonStore';
 import type { GalleryPhoto, JourneyDetail, JourneyEntry } from '../../../../src/store/journeyStore';
 
 const mocks = vi.hoisted(() => ({
@@ -67,6 +68,10 @@ vi.mock('../../../../src/mobile/screens/journey/MJourneyEntrySheet', () => ({
     mocks.captured.entrySheet = props;
     return <div data-testid="entry-sheet" data-quick={String(props.quickCapture)} data-readonly={String(props.readOnly)} />;
   },
+}));
+
+vi.mock('../../../../src/components/Dawarich/DawarichSuggestionsPanel', () => ({
+  default: () => <div data-testid="dawarich-panel" />,
 }));
 
 vi.mock('../../../../src/mobile/screens/journey/MJourneySettingsSheet', () => ({
@@ -176,6 +181,7 @@ function buildHook(over: Record<string, unknown> = {}): Record<string, unknown> 
     recordings: { byDate: new Map(), dialog: null, open: vi.fn() },
     canTakeOverRecording: false,
     dayImport: { open: vi.fn(), dialog: null },
+    dayImportDates: [],
     dawarichByDate: new Map(),
     loadJourney: vi.fn(),
     updateEntry: vi.fn(async () => {}),
@@ -220,6 +226,7 @@ afterEach(() => {
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
   useJourneyStore.setState(journeyStoreInitial, true);
+  useAddonStore.setState({ addons: [] });
 });
 
 // ── Tests ────────────────────────────────────────────────────────────────────
@@ -715,5 +722,24 @@ describe('MJourneyDetail', () => {
 
     await waitFor(() => expect(toast.error).toHaveBeenCalledWith('common.error'));
     expect(hook.loadJourney).toHaveBeenCalledWith(12);
+  });
+
+  it('FE-MOB-JDET-044: a journey holding only stays offers each waiting day for a take-over from the stay sheet', () => {
+    useAddonStore.setState({ addons: [{ id: 'dawarich', enabled: true }] as never, loaded: true });
+    const stays = new Map([['2026-05-03', [{ id: 1 }, { id: 2 }]]]);
+    const { hook } = setup({
+      current: buildDetail({ entries: [], stats: { entries: 0, photos: 0, places: 0 } }),
+      canTakeOverRecording: true,
+      dawarichByDate: stays,
+      dayImportDates: ['2026-05-03'],
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'dawarich.suggestions.title' }));
+    const row = screen.getByRole('button', { name: /journey\.dayImport\.openOn/ });
+    expect(row).toHaveTextContent('2');
+    fireEvent.click(row);
+
+    expect((hook.dayImport as { open: ReturnType<typeof vi.fn> }).open).toHaveBeenCalledWith('2026-05-03');
+    expect(screen.queryByTestId('dawarich-panel')).not.toBeInTheDocument();
   });
 });

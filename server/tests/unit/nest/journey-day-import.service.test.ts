@@ -417,4 +417,33 @@ describe('JourneyDayImportService.takeOver', () => {
     const [draftId = 0] = result.entries.map((entry) => entry.id);
     expect(await findRow(orm, JourneyEntries, { id: draftId })).toMatchObject({ author_id: f.editor.id, is_draft: 1 });
   });
+
+  it('JRNDAY-SVC-011: the same place twice without a position is joined without a map position', async () => {
+    const f = await fixture();
+    const blind = (v: DawarichVisitRaw): DawarichVisitRaw => ({
+      ...v,
+      place: { latitude: null, longitude: null, id: null },
+    });
+    const stays = await reviewed(f.owner.id, f.journey.id, [blind(MARKUS_1), blind(MARKUS_2)]);
+
+    const result = await svc.takeOver(f.owner.id, f.journey.id, DAY, {
+      groups: [
+        {
+          kind: 'merged',
+          stays: [{ suggestionId: id(stays, 101) }, { suggestionId: id(stays, 102) }],
+          title: 'San Marco',
+        },
+      ],
+    });
+
+    const [draftId = 0] = result.entries.map((entry) => entry.id);
+    expect(await findRow(orm, JourneyEntries, { id: draftId })).toMatchObject({
+      is_draft: 1,
+      title: 'San Marco',
+      location_name: 'Piazza San Marco',
+      location_lat: null,
+      location_lng: null,
+    });
+    expect(await countRows(orm, JourneyEntryStays, { entry: draftId })).toBe(2);
+  });
 });

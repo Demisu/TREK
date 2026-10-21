@@ -898,8 +898,8 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.title': 'Birləşdirilmiş hər qeydin və gün hesabatının başlığı olmalıdır.',
   'journey.dayImport.done': '{count} qaralama köçürüldü',
   'journey.dayImport.done.one': '{count} qaralama köçürüldü',
-  'journey.dayImport.alreadyTaken': '{count} dayanacaq artıq gündəlikdə idi. Heç nə iki dəfə yazılmadı.',
-  'journey.dayImport.alreadyTaken.one': '{count} dayanacaq artıq gündəlikdə idi. Heç nə iki dəfə yazılmadı.',
+  'journey.dayImport.alreadyTaken': '{count} dayanacaq artıq köçürülmüşdü. Heç nə iki dəfə yazılmadı.',
+  'journey.dayImport.alreadyTaken.one': '{count} dayanacaq artıq köçürülmüşdü. Heç nə iki dəfə yazılmadı.',
   'journey.dayImport.failed':
     'Heç nə köçürülmədi: {reason} Siyahı gündəliyin indi nəyi saxladığını göstərir; yenidən cəhd heç nəyi iki dəfə yazmır.',
   'journey.dayImport.routeFailed': 'Qaralamalar əlavə olundu, amma marşrut saxlanmadı: {reason}',

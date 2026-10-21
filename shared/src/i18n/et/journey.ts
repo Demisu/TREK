@@ -822,8 +822,8 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.title': 'Igal ühendatud sissekandel ja päevaülevaatel peab olema pealkiri.',
   'journey.dayImport.done': '{count} mustandit üle võetud',
   'journey.dayImport.done.one': '{count} mustand üle võetud',
-  'journey.dayImport.alreadyTaken': '{count} peatust oli juba päevikus. Midagi ei kirjutatud kaks korda.',
-  'journey.dayImport.alreadyTaken.one': '{count} peatus oli juba päevikus. Midagi ei kirjutatud kaks korda.',
+  'journey.dayImport.alreadyTaken': '{count} peatust oli juba üle võetud. Midagi ei kirjutatud kaks korda.',
+  'journey.dayImport.alreadyTaken.one': '{count} peatus oli juba üle võetud. Midagi ei kirjutatud kaks korda.',
   'journey.dayImport.failed':
     'Midagi ei võetud üle: {reason} Loend näitab, mis päevikus praegu on; uus katse ei kirjuta midagi kaks korda.',
   'journey.dayImport.routeFailed': 'Mustandid on olemas, kuid teekonda ei hoitud: {reason}',

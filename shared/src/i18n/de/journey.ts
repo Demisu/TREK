@@ -832,8 +832,8 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.title': 'Jeder verbundene Eintrag und der Tagesbericht brauchen einen Titel.',
   'journey.dayImport.done': '{count} Entwürfe übernommen',
   'journey.dayImport.done.one': '{count} Entwurf übernommen',
-  'journey.dayImport.alreadyTaken': '{count} Aufenthalte waren schon im Journal. Nichts wurde doppelt angelegt.',
-  'journey.dayImport.alreadyTaken.one': '{count} Aufenthalt war schon im Journal. Nichts wurde doppelt angelegt.',
+  'journey.dayImport.alreadyTaken': '{count} Aufenthalte waren schon übernommen. Nichts wurde doppelt angelegt.',
+  'journey.dayImport.alreadyTaken.one': '{count} Aufenthalt war schon übernommen. Nichts wurde doppelt angelegt.',
   'journey.dayImport.failed':
     'Nichts wurde übernommen: {reason} Die Liste zeigt, was das Journal jetzt enthält; ein neuer Versuch legt nichts doppelt an.',
   'journey.dayImport.routeFailed': 'Die Entwürfe sind angelegt, die Strecke wurde aber nicht gespeichert: {reason}',

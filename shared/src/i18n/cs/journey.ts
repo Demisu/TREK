@@ -838,9 +838,9 @@ const journey: TranslationStrings = {
   'journey.dayImport.done': 'Převzato {count} konceptů',
   'journey.dayImport.done.one': 'Převzat {count} koncept',
   'journey.dayImport.done.few': 'Převzaty {count} koncepty',
-  'journey.dayImport.alreadyTaken': '{count} pobytů už bylo v deníku. Nic se nezapsalo dvakrát.',
-  'journey.dayImport.alreadyTaken.one': '{count} pobyt už byl v deníku. Nic se nezapsalo dvakrát.',
-  'journey.dayImport.alreadyTaken.few': '{count} pobyty už byly v deníku. Nic se nezapsalo dvakrát.',
+  'journey.dayImport.alreadyTaken': '{count} pobytů už bylo převzato. Nic se nezapsalo dvakrát.',
+  'journey.dayImport.alreadyTaken.one': '{count} pobyt už byl převzat. Nic se nezapsalo dvakrát.',
+  'journey.dayImport.alreadyTaken.few': '{count} pobyty už byly převzaty. Nic se nezapsalo dvakrát.',
   'journey.dayImport.failed':
     'Nic nebylo převzato: {reason} Seznam ukazuje, co deník teď obsahuje; nový pokus nic nezapíše dvakrát.',
   'journey.dayImport.routeFailed': 'Koncepty jsou vytvořené, ale trasa se neuložila: {reason}',

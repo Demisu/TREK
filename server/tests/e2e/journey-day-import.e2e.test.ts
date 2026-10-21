@@ -11,6 +11,7 @@
  * The walk: review the day, take two stays over as one entry and leave the
  * parking out, send the same take-over again without a second copy, and be
  * refused for a stay that is not the caller's or a group the contract refuses.
+ * The drafts written stay off the journey's public share.
  */
 import { DawarichConnections } from '../../src/db/entities/DawarichConnections.entity';
 import { DawarichVisitSuggestions } from '../../src/db/entities/DawarichVisitSuggestions.entity';
@@ -21,10 +22,11 @@ import { TrekExceptionFilter } from '../../src/nest/common/trek-exception.filter
 import { ZodValidationPipe } from '../../src/nest/common/zod-validation.pipe';
 import { DawarichClient } from '../../src/nest/integrations/dawarich.client';
 import { JourneyRecordingsModule } from '../../src/nest/journey-recordings/journey-recordings.module';
+import { JourneyShareService } from '../../src/nest/journey/journey-share.service';
 import { RealtimeModule } from '../../src/nest/realtime/realtime.module';
 import { RealtimeService } from '../../src/nest/realtime/realtime.service';
 import { createSnapshotTestDb } from '../helpers/db-mock';
-import { addJourneyContributor, makeJourney } from '../helpers/factories/journeys';
+import { addJourneyContributor, makeJourney, makeJourneyEntry } from '../helpers/factories/journeys';
 import { countRows, deleteRows, findRows, insertRow } from '../helpers/factories/rows';
 import { setAddonEnabled } from '../helpers/factories/settings';
 import { makeUser } from '../helpers/factories/users';
@@ -254,5 +256,22 @@ describe('Journey day take-over e2e (real guards + temp SQLite)', () => {
         .status,
     ).toBe(400);
     expect(await countRows(orm, JourneyEntries)).toBe(0);
+  });
+
+  it('the drafts of a take-over stay off the public share while what the journal published is on it', async () => {
+    const [, first] = await reviewedIds();
+    await makeJourneyEntry(orm, journeyId, OWNER, { title: 'Arrival', entry_date: DAY });
+    expect((await takeOver({ groups: [{ kind: 'single', stays: [{ suggestionId: first }] }] })).status).toBe(200);
+    const share = app.get(JourneyShareService, { strict: false });
+    const link = await share.createOrUpdateJourneyShareLink(journeyId, OWNER, {
+      share_timeline: true,
+      share_map: true,
+    });
+    if (!link) throw new Error('no share link');
+
+    const published = await share.getPublicJourney(link.token);
+
+    expect(published?.entries.map((entry) => entry.title)).toEqual(['Arrival']);
+    expect(published?.stats.entries).toBe(1);
   });
 });

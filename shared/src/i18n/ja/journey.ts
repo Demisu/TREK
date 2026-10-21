@@ -793,7 +793,7 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.name': '選んだ滞在先にはすべて名前が必要です。',
   'journey.dayImport.problem.title': 'まとめたエントリーと1日のレポートにはタイトルが必要です。',
   'journey.dayImport.done': '下書き {count} 件を取り込みました',
-  'journey.dayImport.alreadyTaken': '{count} 件の滞在先はすでにジャーナルにありました。二重には書き込まれていません。',
+  'journey.dayImport.alreadyTaken': '{count} 件の滞在先はすでに取り込み済みでした。二重には書き込まれていません。',
   'journey.dayImport.failed':
     '何も取り込まれませんでした: {reason} リストは現在のジャーナルの内容を示しています。再試行しても二重には書き込まれません。',
   'journey.dayImport.routeFailed': '下書きは作成されましたが、ルートは保存されませんでした: {reason}',

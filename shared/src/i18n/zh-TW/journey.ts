@@ -774,7 +774,7 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.name': '每個選取的停留點都需要名稱。',
   'journey.dayImport.problem.title': '每個合併的項目和當日記述都需要標題。',
   'journey.dayImport.done': '已匯入 {count} 篇草稿',
-  'journey.dayImport.alreadyTaken': '{count} 個停留點已在日誌中，沒有重複寫入。',
+  'journey.dayImport.alreadyTaken': '{count} 個停留點之前已被採用，沒有重複寫入。',
   'journey.dayImport.failed': '沒有匯入任何內容：{reason} 清單顯示日誌現在的內容；再試一次不會重複寫入。',
   'journey.dayImport.routeFailed': '草稿已建立，但路線未儲存：{reason}',
   'journey.dayImport.routeRetry': '再次儲存路線',

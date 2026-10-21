@@ -821,8 +821,8 @@ const journey: TranslationStrings = {
   'journey.dayImport.problem.title': 'Birleştirilen her kaydın ve gün raporunun bir başlığı olmalı.',
   'journey.dayImport.done': '{count} taslak aktarıldı',
   'journey.dayImport.done.one': '{count} taslak aktarıldı',
-  'journey.dayImport.alreadyTaken': '{count} durak zaten günlükteydi. Hiçbir şey iki kez yazılmadı.',
-  'journey.dayImport.alreadyTaken.one': '{count} durak zaten günlükteydi. Hiçbir şey iki kez yazılmadı.',
+  'journey.dayImport.alreadyTaken': '{count} durak zaten aktarılmıştı. Hiçbir şey iki kez yazılmadı.',
+  'journey.dayImport.alreadyTaken.one': '{count} durak zaten aktarılmıştı. Hiçbir şey iki kez yazılmadı.',
   'journey.dayImport.failed':
     'Hiçbir şey aktarılmadı: {reason} Liste günlüğün şu an neleri içerdiğini gösteriyor; yeniden denemek hiçbir şeyi iki kez yazmaz.',
   'journey.dayImport.routeFailed': 'Taslaklar eklendi ama rota saklanmadı: {reason}',

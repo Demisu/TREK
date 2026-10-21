@@ -1,12 +1,5 @@
 import { ADDON_IDS } from '../../addons';
-import {
-  McpController,
-  TOOL_ANNOTATIONS_READONLY,
-  TOOL_ANNOTATIONS_WRITE,
-  Tool,
-  ok,
-  type McpContext,
-} from '../../nest-mcp';
+import { McpController, TOOL_ANNOTATIONS_WRITE, Tool, ok, type McpContext } from '../../nest-mcp';
 import { addonGate, type HasAddons } from '../addons/addon-gate';
 import { AddonsService } from '../addons/addons.service';
 import { JourneyDayImportService } from './journey-day-import.service';
@@ -38,10 +31,11 @@ export class JourneyDayImportMcp {
   @Tool({
     name: 'review_journey_day_stays',
     description:
-      "The stays Dawarich found on one local day, from the caller's own connection, as a journey would take them over: each with its suggestionId, name, place, arrival and departure, whether Dawarich only guessed it, and its status for this journey (open, skipped before, here with the entry holding it, or taken over elsewhere), plus the entries the journey has on the day. When Dawarich does not answer, the stays of the last sync are shown with fresh: false and the reason. Needs edit access to the journey.",
+      "The stays Dawarich found on one local day, from the caller's own connection, as a journey would take them over: each with its suggestionId, name, place, arrival and departure, whether Dawarich only guessed it, and its status for this journey (open, skipped before, here with the entry holding it, or taken over elsewhere), plus the entries the journey has on the day. When Dawarich does not answer, the stays of the last sync are shown with fresh: false and the reason. Reading the day again refreshes the caller's own stored stays of it, nothing in the journey. Needs edit access to the journey.",
     inputSchema: { journeyId: idSchema, date: journeyRecordingDateSchema },
-    // Reaches the caller's own Dawarich instance and refreshes their stays of the day.
-    annotations: { ...TOOL_ANNOTATIONS_READONLY, openWorldHint: true },
+    // Reaches the caller's own Dawarich instance and refreshes their stored stays of the day; the journey
+    // scope's read access covers that, since only the caller's own stay list changes.
+    annotations: { ...TOOL_ANNOTATIONS_WRITE, openWorldHint: true },
     when: bothAddonsOn,
     access: { group: 'journey', mode: 'read' },
   })
