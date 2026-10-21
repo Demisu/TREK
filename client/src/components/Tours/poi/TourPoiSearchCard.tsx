@@ -1,6 +1,7 @@
 import type { TourPoi, WalkTheme } from '@trek/shared';
 import { TOUR_POI_CORRIDORS_M } from '@trek/shared';
 import {
+  Check,
   ChevronDown,
   Coffee,
   Landmark,
@@ -22,13 +23,14 @@ import { useTourPoiStore } from '../../../store/tourPoiStore';
 import { formatDistance } from '../../../utils/units';
 import { TOUR_POI_LOOKS } from '../../Map/poiCategories';
 import { PopoverItem } from '../../Packing/PackingPopover';
-import { WhiteBadge } from '../../Planner/planParts';
+import { SoftPill, WhiteBadge } from '../../Planner/planParts';
 import { PopoverListPanel, Segmented } from '../../shared/dialogParts';
 import { fs } from '../../shared/DialogShell';
 import { usePopoverList } from '../../shared/usePopoverList';
 import type { TourPlannerController } from '../planner/useTourPlanner';
 import { RailCard, TourNotice } from '../tourParts';
 import { formatPlannedTourDuration } from '../tourPresentation';
+import { placesInTour } from './poiInsertion';
 import { SearchNotices } from './TourPoiSearchNotices';
 import { usePoiInsertion, type InsertionOutcome } from './usePoiInsertion';
 import { useSelectedPoi, useTourPoiSearch, type TourPoiSearch } from './useTourPoiSearch';
@@ -155,7 +157,7 @@ function ThemeGrid({
  * and how far it lies from the route. A click opens its card over the map,
  * where the rest is said and the place is taken in as a stop.
  */
-function PoiRow({ poi, selected, unit }: { poi: TourPoi; selected: boolean; unit: Unit }) {
+function PoiRow({ poi, selected, inTour, unit }: { poi: TourPoi; selected: boolean; inTour: boolean; unit: Unit }) {
   const { t } = useTranslation();
   const select = useTourPoiStore((state) => state.select);
   const look = TOUR_POI_LOOKS[poi.category];
@@ -191,16 +193,25 @@ function PoiRow({ poi, selected, unit }: { poi: TourPoi; selected: boolean; unit
             <Star size={12} strokeWidth={2.2} fill="currentColor" aria-hidden="true" />
           </span>
         )}
-        <span className="min-w-0 flex-1 truncate font-medium text-content" style={fs(12, 'body')}>
+        <span
+          className={`min-w-0 flex-1 truncate font-medium ${inTour ? 'text-content-muted' : 'text-content'}`}
+          style={fs(12, 'body')}
+        >
           {poi.name || t(look.labelKey)}
         </span>
-        <span
-          className="flex-none tabular-nums text-content-faint"
-          style={fs(11, 'body')}
-          title={t('tours.poi.fromRoute', { distance })}
-        >
-          {distance}
-        </span>
+        {inTour ? (
+          <SoftPill icon={<Check size={10} strokeWidth={2.4} className="flex-none" />}>
+            {t('tours.placePicker.inTour')}
+          </SoftPill>
+        ) : (
+          <span
+            className="flex-none tabular-nums text-content-faint"
+            style={fs(11, 'body')}
+            title={t('tours.poi.fromRoute', { distance })}
+          >
+            {distance}
+          </span>
+        )}
       </button>
     </li>
   );
@@ -288,6 +299,7 @@ export function TourPoiSearchCard({ planner }: { planner: TourPlannerController 
   const insertion = usePoiInsertion(planner);
   const selected = useSelectedPoi();
   const pois = search.answer?.pois ?? [];
+  const inTour = placesInTour(pois, planner.waypoints);
   if (!planner.route || planner.route.length < 2) return null;
   return (
     <RailCard
@@ -360,7 +372,13 @@ export function TourPoiSearchCard({ planner }: { planner: TourPlannerController 
             data-testid="tour-poi-list"
           >
             {pois.map((poi) => (
-              <PoiRow key={poi.id} poi={poi} selected={selected?.id === poi.id} unit={unit} />
+              <PoiRow
+                key={poi.id}
+                poi={poi}
+                selected={selected?.id === poi.id}
+                inTour={inTour.has(poi.id)}
+                unit={unit}
+              />
             ))}
           </ul>
         )}

@@ -125,3 +125,14 @@ export function straightDetourM(line: ReadonlyArray<[number, number]>): number {
   const replaced = line.length > 2 && first && last ? legs([first, last]) : 0;
   return Math.max(0, legs(line) - replaced);
 }
+
+/** The places of a search that are a point of the tour already, told by where they lie: a taken place keeps its spot. */
+export function placesInTour(
+  places: ReadonlyArray<{ id: string; lat: number; lng: number }>,
+  points: readonly RoutePoint[]
+): Set<string> {
+  const spots = new Set(points.map((point) => `${point.lat.toFixed(6)},${point.lng.toFixed(6)}`));
+  return new Set(
+    places.filter((place) => spots.has(`${place.lat.toFixed(6)},${place.lng.toFixed(6)}`)).map((place) => place.id)
+  );
+}

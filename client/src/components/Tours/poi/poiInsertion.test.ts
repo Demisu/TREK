@@ -6,6 +6,7 @@ import {
   insertionBlock,
   insertionPreview,
   insertionSlots,
+  placesInTour,
   straightDetourM,
   withPointAfter,
 } from './poiInsertion';
@@ -155,5 +156,14 @@ describe('the slots a found place can go into (PLN-04)', () => {
     expect(chosenAfterId([A, B, C], null, place, { poiId: 'node:2', afterId: 'c' })).toBe('b');
     expect(chosenAfterId([A, B, C], null, place, { poiId: 'node:1', afterId: 'gone' })).toBe('b');
     expect(chosenAfterId([A, B, C], null, place, null)).toBe('b');
+  });
+
+  it('FE-TOUR-POI-INSERT-010: tells the places that are a point of the tour already by their spot', () => {
+    const places = [
+      { id: 'node:1', lat: B.lat, lng: B.lng },
+      { id: 'node:2', lat: B.lat + 0.001, lng: B.lng },
+    ];
+    expect([...placesInTour(places, [A, B, C])]).toEqual(['node:1']);
+    expect(placesInTour(places, [A, C]).size).toBe(0);
   });
 });
