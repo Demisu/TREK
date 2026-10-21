@@ -14,12 +14,14 @@ import {
 } from 'lucide-react';
 
 import { useTranslation } from '../../i18n';
+import { SoftPill } from '../Planner/planParts';
 
 /**
- * The few facts that tell a change apart at a glance, on the faint line under
- * its name the way the planner's day list shows a place: when, what kind,
- * what it costs, a new order. A value that changes reads old to new. The rest
- * of what the change sets is not listed: the planner shows it once applied.
+ * The few facts that tell a change apart at a glance, as badges on the line
+ * under its name the way the planner's day list shows a place: when, what
+ * kind, what it costs, a new order. A value that changes reads old to new.
+ * The rest of what the change sets is not listed: the planner shows it once
+ * applied.
  */
 
 /** The fields worth a place on the line, each with its glyph, in this order. */
@@ -53,23 +55,26 @@ export default function AssistantChangeFields({ rows }: { rows: AssistantChangeR
     .slice(0, MAX_FACTS);
   if (facts.length === 0) return null;
   return (
-    <span className="flex min-w-0 items-center gap-2.5">
+    <>
       {facts.map((row, i) => {
         const Icon = KEY_FIELDS[row.labelKey] ?? Tag;
         const changed = row.op !== 'add' && !!row.before;
         return (
-          <span key={`${row.labelKey}-${i}`} className="inline-flex min-w-0 items-center gap-1">
-            <Icon size={11} aria-hidden="true" className="flex-shrink-0" />
+          <SoftPill
+            key={`${row.labelKey}-${i}`}
+            className="max-w-full tabular-nums"
+            icon={<Icon size={10} strokeWidth={2.2} aria-hidden="true" className="flex-none text-content-faint" />}
+          >
             {changed && (
               <>
-                <bdi className="truncate line-through">{shown(row, row.before, dayWord)}</bdi>
-                <ArrowRight size={10} aria-hidden="true" className="flex-shrink-0 rtl:-scale-x-100" />
+                <bdi className="truncate text-content-faint line-through">{shown(row, row.before, dayWord)}</bdi>
+                <ArrowRight size={9} aria-hidden="true" className="flex-none text-content-faint rtl:-scale-x-100" />
               </>
             )}
-            <bdi className="truncate text-content-muted">{shown(row, row.after, dayWord)}</bdi>
-          </span>
+            <bdi className="truncate">{shown(row, row.after, dayWord)}</bdi>
+          </SoftPill>
         );
       })}
-    </span>
+    </>
   );
 }

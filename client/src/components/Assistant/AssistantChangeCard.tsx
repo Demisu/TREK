@@ -295,8 +295,8 @@ function PendingRow({
         {preview ? (
           <>
             <bdi className="block truncate text-body font-semibold leading-tight text-content">{preview.subject}</bdi>
-            <span className="mt-0.5 flex min-w-0 items-center gap-2.5 text-caption text-content-faint">
-              <span className="flex-shrink-0">{verbLabel(preview, t)}</span>
+            <span className="mt-1 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-caption text-content-faint">
+              <span className="me-0.5 min-w-0 truncate">{verbLabel(preview, t)}</span>
               {preview.domain && (
                 <span className="flex-shrink-0 rounded-full bg-surface-secondary px-1.5 text-content-secondary">
                   {t(`assistant.domain.${preview.domain}`)}
