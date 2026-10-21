@@ -16,21 +16,29 @@ export interface WalkTimes {
   unknownStays: number;
   /** The walk's stations, so that some stays unknown and all of them unknown read apart. */
   stations: number;
-  /** Walking and the known stays; the known stays alone while the walking time is not known, null while nothing is. */
+  /**
+   * CW-12: the minutes its crossings by boat take, never walking; null while
+   * the router gave one of them no time, absent for a walk without any.
+   */
+  ferryMinutes?: number | null;
+  /** Walking, the boat and the known stays; what is known of them while the walking time is not, null while nothing is. */
   totalMinutes: number | null;
-  /** The total leaves out a stay or the walking time that is not known. */
+  /** The total leaves out a stay, a boat's time or the walking time that is not known. */
   partial: boolean;
 }
 
 /** The times of a walk from its parts: the walking time, the stays entered, how many are unknown and of how many. */
 export function walkTimesOf(parts: Omit<WalkTimes, 'totalMinutes' | 'partial'>): WalkTimes {
-  const { walkingMinutes, stayMinutes, unknownStays, stations } = parts;
+  const { walkingMinutes, stayMinutes, unknownStays, stations, ferryMinutes } = parts;
   // Without a walking time the stays entered are still part of the whole: at least that much, never nothing.
-  const totalMinutes = walkingMinutes !== null ? walkingMinutes + stayMinutes : stayMinutes > 0 ? stayMinutes : null;
+  const known = stayMinutes + (ferryMinutes ?? 0);
+  const totalMinutes = walkingMinutes !== null ? walkingMinutes + known : known > 0 ? known : null;
   return {
     ...parts,
     totalMinutes,
-    partial: totalMinutes !== null && (someStaysUnknown({ unknownStays, stations }) || walkingMinutes === null),
+    partial:
+      totalMinutes !== null &&
+      (someStaysUnknown({ unknownStays, stations }) || walkingMinutes === null || ferryMinutes === null),
   };
 }
 

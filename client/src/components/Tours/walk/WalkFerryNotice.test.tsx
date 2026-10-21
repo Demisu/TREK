@@ -4,7 +4,7 @@ import type { WalkFerryCrossing } from '../planner/tourRouting';
 import type { TourPlannerController } from '../planner/useTourPlanner';
 import { WalkFerryNotice } from './WalkFerryNotice';
 
-// FE-WALK-FERRY-NOTICE-001 to FE-WALK-FERRY-NOTICE-003: a city walk's crossings by boat in the planner (CW-12).
+// FE-WALK-FERRY-NOTICE-001 to FE-WALK-FERRY-NOTICE-005: a city walk's crossings by boat in the planner (CW-12).
 
 const crossing = (extra: Partial<WalkFerryCrossing> = {}): WalkFerryCrossing => ({
   leg: 0,
@@ -13,7 +13,7 @@ const crossing = (extra: Partial<WalkFerryCrossing> = {}): WalkFerryCrossing => 
     [45.429, 12.329],
     [45.427, 12.33],
   ],
-  crossing: [1, 2],
+  crossings: [[1, 2]],
   metres: 268,
   seconds: 396,
   walkSeconds: 120,
@@ -21,14 +21,27 @@ const crossing = (extra: Partial<WalkFerryCrossing> = {}): WalkFerryCrossing => 
   ...extra,
 });
 
-function plannerWith(walkFerries: Partial<TourPlannerController['walkFerries']>) {
+const ZATTERE_TO_STOP_2 = [
+  { id: 'a', lat: 45.43, lng: 12.33, role: 'start', name: 'Zattere' },
+  { id: 'b', lat: 45.427, lng: 12.33, role: 'end', name: null },
+];
+
+function plannerWith(
+  walkFerries: Partial<TourPlannerController['walkFerries']>,
+  waypoints: unknown[] = ZATTERE_TO_STOP_2
+) {
   const actions = { accept: vi.fn(), release: vi.fn(), show: vi.fn(), select: vi.fn() };
   const planner = {
-    walkFerries: { crossings: [], pending: [], blocksSave: false, gap: null, ...actions, ...walkFerries },
-    waypoints: [
-      { id: 'a', lat: 45.43, lng: 12.33, role: 'start', name: 'Zattere' },
-      { id: 'b', lat: 45.427, lng: 12.33, role: 'end', name: null },
-    ],
+    walkFerries: {
+      crossings: [],
+      pending: [],
+      blocksSave: false,
+      gap: null,
+      acceptable: () => true,
+      ...actions,
+      ...walkFerries,
+    },
+    waypoints,
     setSelectedWaypointId: actions.select,
     canEdit: true,
     isSaving: false,
@@ -70,5 +83,36 @@ describe('WalkFerryNotice (CW-12)', () => {
     );
     fireEvent.click(screen.getByRole('button', { name: 'Select stop 2' }));
     expect(actions.select).toHaveBeenCalledWith('b');
+  });
+
+  it('FE-WALK-FERRY-NOTICE-004: a leg through a shaping point is named by the stations around it, numbered as the stop list numbers them', () => {
+    const { planner, actions } = plannerWith({ gap: { leg: 1 } }, [
+      { id: 'a', lat: 45.43, lng: 12.33, role: 'start', name: 'Zattere' },
+      { id: 's', lat: 45.429, lng: 12.331, role: 'via', shaping: true },
+      { id: 'b', lat: 45.428, lng: 12.332, role: 'via', name: null },
+      { id: 'c', lat: 45.427, lng: 12.33, role: 'end', name: 'Redentore' },
+    ]);
+    render(<WalkFerryNotice planner={planner} />);
+    expect(screen.getByTestId('walk-ferry-gap')).toHaveTextContent(
+      'No way joins Zattere and Stop 2, neither on foot nor by ferry.'
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Select stop 2' }));
+    expect(actions.select).toHaveBeenCalledWith('b');
+  });
+
+  it('FE-WALK-FERRY-NOTICE-005: a crossing too long to keep cannot be taken, and says why', () => {
+    const pending = crossing();
+    const { planner, actions } = plannerWith({
+      crossings: [pending],
+      pending: [pending],
+      blocksSave: true,
+      acceptable: () => false,
+    });
+    render(<WalkFerryNotice planner={planner} />);
+    const take = screen.getByRole('button', { name: 'Take ferry' });
+    expect(take).toBeDisabled();
+    fireEvent.click(take);
+    expect(actions.accept).not.toHaveBeenCalled();
+    expect(screen.getByTestId('walk-ferry-accept-too-long')).toBeInTheDocument();
   });
 });

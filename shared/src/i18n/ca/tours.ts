@@ -777,6 +777,8 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.accepted':
     'Ferri de {from} a {to}, acceptat expressament. El seu temps es manté a part del temps a peu.',
   'tours.walk.ferry.accept': 'Acceptar el ferri',
+  'tours.walk.ferry.acceptTooLong':
+    "La línia d'aquesta travessia és massa llarga per desar-la com un sol tram. Afegeix una parada pel camí o mou-ne una.",
   'tours.walk.ferry.show': 'Mostrar la travessia',
   'tours.walk.ferry.selectStop': 'Tria la parada {number}',
   'tours.walk.ferry.time': '{time} en vaixell',
@@ -785,7 +787,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'Ferri',
   'tours.walk.ferry.fieldInfoLabel': 'Sobre el temps de ferri',
   'tours.walk.ferry.fieldInfo':
-    'El temps de les travessies en vaixell, tal com el dona el router. Es manté a part del temps a peu i no és al total planificat.',
+    'El temps de les travessies en vaixell, tal com el dona el router. Es manté a part del temps a peu però compta al total planificat; sense ell, el total és un mínim.',
   'tours.walk.ferry.leg': 'Travessia en ferri',
   'tours.walk.ferry.legInfo': 'Travessat en vaixell, no a peu. El seu temps no és al temps a peu.',
   'tours.walk.ferry.release': 'Tornar a planificar a peu',

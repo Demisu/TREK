@@ -60,6 +60,31 @@ describe('walkStationFacts (CW-02, CW-03)', () => {
     });
   });
 
+  it('sums the minutes its ferry legs take by boat apart, unknown while one has no time (CW-12)', () => {
+    const ferry = (minutes: number | null) => ({
+      kind: 'ferry' as const,
+      geometry: [
+        [48.1, 11.5],
+        [48.105, 11.505],
+        [48.11, 11.51],
+      ] as [number, number][],
+      crossings: [[0, 1]] as [number, number][],
+      minutes,
+      walk_minutes: 3,
+    });
+    expect(
+      walkStationFacts('walk', [{ ...cathedral, fixed_leg: ferry(12) }, { ...market, fixed_leg: ferry(5) }, park]),
+    ).toMatchObject({
+      walk_ferry_minutes: 17,
+    });
+    expect(
+      walkStationFacts('walk', [{ ...cathedral, fixed_leg: ferry(12) }, { ...market, fixed_leg: ferry(null) }, park]),
+    ).toMatchObject({
+      walk_ferry_minutes: null,
+    });
+    expect(walkStationFacts('walk', [cathedral, market])).not.toHaveProperty('walk_ferry_minutes');
+  });
+
   it('says nothing of the stations of any other type', () => {
     expect(walkStationFacts('hike', [cathedral, { ...market, stay_minutes: 30 }])).toEqual({
       station_count: null,

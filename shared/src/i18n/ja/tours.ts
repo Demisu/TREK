@@ -750,6 +750,8 @@ const tours: TranslationStrings = {
     '渡航は歩行時間に数えません。保存するには、フェリーを採用するか、徒歩の道でつながるよう立ち寄り先を動かしてください。',
   'tours.walk.ferry.accepted': '{from} から {to} へのフェリー、意図して採用済み。その時間は歩行時間とは別です。',
   'tours.walk.ferry.accept': 'フェリーを採用',
+  'tours.walk.ferry.acceptTooLong':
+    'この渡航の線は長すぎて1つの区間として保存できません。途中に立ち寄り先を追加するか、どれかを動かしてください。',
   'tours.walk.ferry.show': '渡航を表示',
   'tours.walk.ferry.selectStop': '立ち寄り先 {number} を選択',
   'tours.walk.ferry.time': '船で {time}',
@@ -758,7 +760,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'フェリー',
   'tours.walk.ferry.fieldInfoLabel': 'フェリーの時間について',
   'tours.walk.ferry.fieldInfo':
-    '船での渡航にかかる時間で、ルート検索が示すものです。歩行時間とは別で、予定合計にも含まれません。',
+    '船での渡航にかかる時間で、ルート検索が示すものです。歩行時間とは別ですが、予定合計には含まれます。不明な場合、合計は最低値です。',
   'tours.walk.ferry.leg': 'フェリーで渡航',
   'tours.walk.ferry.legInfo': '歩かずに船で渡ります。その時間は歩行時間に含まれません。',
   'tours.walk.ferry.release': 'もう一度徒歩で計画',

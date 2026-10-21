@@ -1,3 +1,6 @@
+import type { TourFixedLeg } from './tours.schema';
+import { walkFerryMinutesOf } from './walk-ferry';
+
 /** Closer than this, in degrees, two points of a tour stand on the same spot (about a centimetre). */
 const SAME_SPOT_DEG = 1e-7;
 
@@ -32,11 +35,16 @@ export function walkStationsOf<T extends Spot & { shaping?: boolean | null }>(po
   return route.filter((point) => !point.shaping);
 }
 
-/** What a list says of a city walk's stations: how many, their stays as far as entered, and how many have none. */
+/**
+ * What a list says of a city walk's stations: how many, their stays as far as
+ * entered, and how many have none; with the minutes of its ferry legs by boat
+ * where it takes any (CW-12).
+ */
 interface WalkStationFacts {
   station_count: number | null;
   station_stay_minutes: number | null;
   station_stays_unknown: number | null;
+  walk_ferry_minutes?: number | null;
 }
 
 /**
@@ -48,13 +56,19 @@ interface WalkStationFacts {
  */
 export function walkStationFacts(
   tourType: string,
-  points: readonly (Spot & { shaping?: boolean | null; stay_minutes?: number | null })[],
+  points: readonly (Spot & {
+    shaping?: boolean | null;
+    stay_minutes?: number | null;
+    fixed_leg?: TourFixedLeg | null;
+  })[],
 ): WalkStationFacts {
   if (tourType !== 'walk') return { station_count: null, station_stay_minutes: null, station_stays_unknown: null };
   const stations = walkStationsOf(points);
+  const ferryMinutes = walkFerryMinutesOf(points);
   return {
     station_count: stations.length,
     station_stay_minutes: stations.reduce((sum, station) => sum + (station.stay_minutes ?? 0), 0),
     station_stays_unknown: stations.filter((station) => station.stay_minutes == null).length,
+    ...(ferryMinutes !== undefined ? { walk_ferry_minutes: ferryMinutes } : {}),
   };
 }

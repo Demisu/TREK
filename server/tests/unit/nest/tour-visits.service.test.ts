@@ -383,7 +383,7 @@ describe('TourVisitsService', () => {
         [48.11, 11.51],
         [48.12, 11.52],
       ],
-      crossing: [0, 1],
+      crossings: [[0, 1]],
       minutes: 7,
       walk_minutes: 0,
     };

@@ -763,6 +763,7 @@ const tours: TranslationStrings = {
     'لا يُحتسب العبور وقتَ مشي. للحفظ، اعتمد العبّارة أو انقل محطة كي يربطهما طريق سيرًا.',
   'tours.walk.ferry.accepted': 'عبّارة من {from} إلى {to}، اعتُمدت عن قصد. يبقى وقتها منفصلًا عن وقت المشي.',
   'tours.walk.ferry.accept': 'اعتماد العبّارة',
+  'tours.walk.ferry.acceptTooLong': 'خط هذا العبور أطول من أن يُحفظ كمقطع واحد. أضف محطة في الطريق أو انقل واحدة.',
   'tours.walk.ferry.show': 'إظهار العبور',
   'tours.walk.ferry.selectStop': 'اختيار المحطة {number}',
   'tours.walk.ferry.time': '{time} بالقارب',
@@ -771,7 +772,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'عبّارة',
   'tours.walk.ferry.fieldInfoLabel': 'عن وقت العبّارة',
   'tours.walk.ferry.fieldInfo':
-    'الوقت الذي تستغرقه العبورات بالقارب كما يعطيه الموجّه. يبقى منفصلًا عن وقت المشي وليس ضمن الإجمالي المخطط.',
+    'الوقت الذي تستغرقه العبورات بالقارب كما يعطيه الموجّه. يبقى منفصلًا عن وقت المشي لكنه يُحسب في الإجمالي المخطط؛ وبدونه يكون الإجمالي حدًا أدنى.',
   'tours.walk.ferry.leg': 'عبور بالعبّارة',
   'tours.walk.ferry.legInfo': 'عُبر بالقارب لا سيرًا. وقته ليس ضمن وقت المشي.',
   'tours.walk.ferry.release': 'التخطيط سيرًا من جديد',

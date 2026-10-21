@@ -74,6 +74,14 @@ describe('walkRemainingOf', () => {
   it('reads every station as planned before anything is checked off', () => {
     expect(walkRemainingOf(input())?.walking).toMatchObject({ remaining_minutes: 40, upper_bound: false });
   });
+
+  it('leaves out a ferry leg that starts at a shaping point, as the server reads it off all the points (CW-12)', () => {
+    const visits = { 'stop-museum': 'visited', 'stop-square': 'visited' } as const;
+    // The boat from a shaping point by the square to the cafe: the last stretch is no walking.
+    const ferries = [{ crossings: [ROUTE.slice(1)], minutes: 6 }];
+    expect(walkRemainingOf(input({ visits }))?.walking.remaining_minutes).toBe(20);
+    expect(walkRemainingOf(input({ visits, ferries }))?.walking.remaining_minutes).toBe(0);
+  });
 });
 
 describe('walkRemainingText', () => {

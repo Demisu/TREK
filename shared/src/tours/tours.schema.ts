@@ -308,6 +308,12 @@ export const tourListItemSchema = tourSchema.extend({
   /** CW-02: how many of a city walk's stations have no stay entered yet; null for any other type. */
   station_stays_unknown: z.number().int().nonnegative().nullable().optional(),
   /**
+   * CW-12: the minutes a city walk's ferry legs take by boat, never part of
+   * its walking time; null while the router gave one of them no time, absent
+   * for a walk without any.
+   */
+  walk_ferry_minutes: z.number().int().nonnegative().nullable().optional(),
+  /**
    * CW-11: a tour saved with its points only, its way not planned yet (a city
    * walk an assistant created). The planner plans the way when the tour is
    * opened, and a save keeps it. Absent in a list cached before it existed.
@@ -368,6 +374,8 @@ export const TOUR_WRITE_MAX_BYTES = 2 * 1024 * 1024;
 
 /** The longest a ferry leg's crossing or its walk may take, a whole day. */
 const FERRY_LEG_MAX_MINUTES = 24 * 60;
+/** The most stretches by boat one ferry leg keeps; a leg between two stations rarely boards more than twice. */
+const FERRY_LEG_MAX_CROSSINGS = 20;
 
 const fixedLegGeometrySchema = z
   .array(z.tuple([z.number().finite().min(-90).max(90), z.number().finite().min(-180).max(180)]))
@@ -425,9 +433,15 @@ export const tourFixedLegSchema = z.discriminatedUnion('kind', [
   z.object({
     kind: z.literal('ferry'),
     geometry: fixedLegGeometrySchema,
-    /** The points of the line the boat leaves from and lands at, by their index. */
-    crossing: z.tuple([z.number().int().nonnegative(), z.number().int().nonnegative()]),
-    /** The crossing's time as the router gave it; null when it gave none. */
+    /**
+     * Each stretch of the line by boat, as the indices of the points the boat
+     * leaves from and lands at, in order; the walk between two of them stays walking.
+     */
+    crossings: z
+      .array(z.tuple([z.number().int().nonnegative(), z.number().int().nonnegative()]))
+      .min(1)
+      .max(FERRY_LEG_MAX_CROSSINGS),
+    /** The time of all its crossings as the router gave it; null when it gave none for one of them. */
     minutes: z.number().int().min(0).max(FERRY_LEG_MAX_MINUTES).nullable(),
     /** The walk to the boat and on from it along this leg, by the router. */
     walk_minutes: z.number().int().min(0).max(FERRY_LEG_MAX_MINUTES),
@@ -605,11 +619,12 @@ export const tourCreateRequestSchema = z
             message: `Waypoint ${index}'s fixed leg must run from it to the next waypoint`,
           });
         }
-        if (leg.kind === 'ferry' && !(leg.crossing[0] < leg.crossing[1] && leg.crossing[1] < leg.geometry.length)) {
+        if (leg.kind === 'ferry' && !crossingsInOrder(leg.crossings, leg.geometry.length)) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            path: ['waypoints', index, 'fixed_leg', 'crossing'],
-            message: 'a crossing runs between two points of its leg, the first before the second',
+            path: ['waypoints', index, 'fixed_leg', 'crossings'],
+            message:
+              'a crossing runs between two points of its leg, the first before the second, after the one before it',
           });
         }
       }
@@ -634,6 +649,16 @@ export type TourCreateRequest = z.infer<typeof tourCreateRequestSchema>;
 export type TourCreateInput = z.input<typeof tourCreateRequestSchema>;
 
 type Issue = { path: Array<string | number>; message: string };
+
+function crossingsInOrder(crossings: ReadonlyArray<readonly unknown[]>, points: number): boolean {
+  let after = 0;
+  for (const crossing of crossings) {
+    const [from, to] = [Number(crossing[0]), Number(crossing[1])];
+    if (!(from >= after && from < to && to < points)) return false;
+    after = to;
+  }
+  return true;
+}
 
 /** How a refusal names each type. */
 const TYPE_NAMED: Record<PlannableTourType, string> = {

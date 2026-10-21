@@ -1,4 +1,4 @@
-import { walkStationsOf } from '@trek/shared';
+import { ferryLegsOf, walkStationsOf, type WalkFerryLeg } from '@trek/shared';
 import { tourRepo } from '../../../repo/tourRepo';
 import { randomId } from '../../../utils/randomId';
 import { plannerWaypointsOf, type TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
@@ -23,6 +23,23 @@ export async function readWalkStations(
   placeId: number,
   signal?: AbortSignal
 ): Promise<TourPlannerWaypoint[]> {
+  return (await readWalkPoints(tripId, placeId, signal)).stations;
+}
+
+/** A saved walk's stations with its ferry legs (CW-12), which may run from any of its points, a shaping point too. */
+export interface WalkPoints {
+  stations: TourPlannerWaypoint[];
+  ferries: WalkFerryLeg[];
+}
+
+export async function readWalkPoints(
+  tripId: number | string,
+  placeId: number,
+  signal?: AbortSignal
+): Promise<WalkPoints> {
   const detail = await tourRepo.detail(tripId, placeId, signal);
-  return ownStations(walkStationsOf(plannerWaypointsOf(detail.waypoints, randomId)), placeId);
+  return {
+    stations: ownStations(walkStationsOf(plannerWaypointsOf(detail.waypoints, randomId)), placeId),
+    ferries: ferryLegsOf(detail.waypoints),
+  };
 }

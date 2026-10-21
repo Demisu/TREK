@@ -188,6 +188,7 @@ export function derivedFields(detail: TourDetailResponse, { controlsFromTrack, l
     ...(line ? ['line.preview'] : []),
     ...(controlsFromTrack ? ['waypoints'] : []),
     ...(type === 'walk' ? ['tour.station_count', 'tour.station_stay_minutes', 'tour.station_stays_unknown'] : []),
+    ...(detail.tour.walk_ferry_minutes !== undefined ? ['tour.walk_ferry_minutes'] : []),
     ...(run ? ['run.open'] : []),
     ...(type === 'kayak' ? ['tour.paddle_check', 'obstacle_check'] : []),
     ...((detail.activities?.length ?? 0) > 0 ? ['activities[].metrics'] : []),

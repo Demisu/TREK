@@ -72,8 +72,8 @@ export function useTripPlannerPage() {
   // What no router planned is dotted; a paddle tour's portages brown, whitewater amber, gaps red, a walk's ferry blue.
   const paddlePaint = usePaddlePaint()
   const walkPaint = useWalkRoutePaint()
-  // A route kept from before a plan that failed no longer stands for the points: greyed, not hidden.
-  const staleRoute = editingRoute && !tourPlanner.routeCurrent && tourPlanner.status === 'routing-failed'
+  // CW-12: a walk kept from before a leg no way joins no longer stands for its stations: greyed, not hidden.
+  const staleRoute = editingRoute && !tourPlanner.routeCurrent && tourPlanner.error === 'walk-gap'
   const partStyle = tourRouteStyle(
     !wandererBrowser.open && editingRoute ? tourPlanner.routeParts : !tourConversion.line ? trackParts : null,
     tourPlanner.isPaddle || !!trackParts,

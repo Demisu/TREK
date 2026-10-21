@@ -763,6 +763,8 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.accepted':
     '{from} noktasından {to} noktasına feribot, bilerek kabul edildi. Süresi yürüyüş süresinden ayrı tutulur.',
   'tours.walk.ferry.accept': 'Feribotu kabul et',
+  'tours.walk.ferry.acceptTooLong':
+    'Bu geçişin çizgisi tek bir bölüm olarak saklanamayacak kadar uzun. Yol üzerine bir durak ekle veya birini taşı.',
   'tours.walk.ferry.show': 'Geçişi göster',
   'tours.walk.ferry.selectStop': '{number}. durağı seç',
   'tours.walk.ferry.time': 'Tekneyle {time}',
@@ -771,7 +773,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'Feribot',
   'tours.walk.ferry.fieldInfoLabel': 'Feribot süresi hakkında',
   'tours.walk.ferry.fieldInfo':
-    'Tekneyle geçişlerin süresi, yönlendiricinin verdiği gibi. Yürüyüş süresinden ayrı tutulur ve planlanan toplamda yer almaz.',
+    'Tekneyle geçişlerin süresi, yönlendiricinin verdiği gibi. Yürüyüş süresinden ayrı tutulur ama planlanan toplama dahildir; o olmadan toplam bir alt sınırdır.',
   'tours.walk.ferry.leg': 'Feribotla geçiş',
   'tours.walk.ferry.legInfo': 'Yürünmedi, tekneyle geçildi. Süresi yürüyüş süresinde yok.',
   'tours.walk.ferry.release': 'Yeniden yürüyerek planla',

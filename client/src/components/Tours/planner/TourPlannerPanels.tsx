@@ -733,7 +733,7 @@ function plannerTimeFields(planner: TourPlannerController, t: Translate): TourMe
   }
   if (planner.stationStays) {
     return walkTimeFields({ walking: estimate, walkingMinutes: planner.walkingDurationMinutes, stays: planner.stationStays,
-      manualMinutes: planner.plannedDurationMinutes, ferries: planner.walkFerries.crossings, t })
+      manualMinutes: planner.plannedDurationMinutes, t })
   }
   return [
     {

@@ -1,4 +1,12 @@
-import { minutesOf, stationArrivals, stationFit, stationHoursOn, type StationFit } from '@trek/shared';
+import {
+  boatsAlong,
+  minutesOf,
+  stationArrivals,
+  stationFit,
+  stationHoursOn,
+  type StationFit,
+  type WalkFerryLeg,
+} from '@trek/shared';
 import type { Assignment, Day, Place } from '../../../types';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 
@@ -44,6 +52,8 @@ export interface WalkScheduleInput {
   /** The day it is looked at, with the walk's start that day; null when it is on none. */
   day: { day: Pick<Day, 'date'>; start: string | null } | null;
   placeOf: LinkedPlaceOf;
+  /** CW-12: the walk's ferry legs; a station after a boat lands is reached the boat's minutes later. */
+  ferries?: readonly WalkFerryLeg[];
 }
 
 /**
@@ -67,11 +77,18 @@ function startOf(day: WalkScheduleInput['day']): { date: string; start: number }
   return start === null ? 'noStart' : { date: day.day.date, start };
 }
 
-export function walkScheduleOf({ stations, route, walkingMinutes, day, placeOf }: WalkScheduleInput): WalkSchedule {
+export function walkScheduleOf({
+  stations,
+  route,
+  walkingMinutes,
+  day,
+  placeOf,
+  ferries = [],
+}: WalkScheduleInput): WalkSchedule {
   const from = startOf(day);
   if (typeof from === 'string') return emptySchedule(from);
   if (!stations || !route) return emptySchedule('noRoute');
-  const arrivals = stationArrivals(stations, route, from.start, walkingMinutes);
+  const arrivals = stationArrivals(stations, route, from.start, walkingMinutes, boatsAlong(route, ferries));
   if (!arrivals) return emptySchedule('noRoute');
   const byStation = new Map<string, StationSchedule>();
   let anyHours = false;

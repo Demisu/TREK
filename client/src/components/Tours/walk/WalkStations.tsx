@@ -200,15 +200,17 @@ export function WalkStationsCard({
   const { t } = useTranslation();
   const toast = useToast();
   const isWalk = tour.tour_type === 'walk';
-  const stations = useWalkStations(tripId, tour.place_id, isWalk, tour.revision);
+  const walk = useWalkStations(tripId, tour.place_id, isWalk, tour.revision);
+  const stations = walk?.stations ?? null;
+  const ferries = walk?.ferries;
   const assignmentId = assignment?.id ?? null;
   const visits = useDayVisits(assignmentId);
   const mark = useTourVisitStore((state) => state.mark);
   const placeOf = useLinkedPlaceOf();
   const choice = useWalkDay(isWalk ? tour.place_id : null, days, assignments, assignment?.day_id ?? null);
   const walkingMinutes = tour.duration ?? null;
-  const schedule = useWalkSchedule({ stations, route, walkingMinutes, day: choice.day, placeOf });
-  const remainder = useWalkRemaining({ stations, visits, route, walkingMinutes, placeOf });
+  const schedule = useWalkSchedule({ stations, route, walkingMinutes, day: choice.day, placeOf, ferries });
+  const remainder = useWalkRemaining({ stations, visits, route, walkingMinutes, placeOf, ferries });
   if (!isWalk) return null;
   const onMark = (key: string, status: TourVisitStatus | 'planned') => {
     if (assignmentId === null) return;

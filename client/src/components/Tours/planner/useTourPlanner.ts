@@ -6,7 +6,6 @@ import { randomId } from '../../../utils/randomId'
 import { analyzeRouteGeometry, type RouteProfileFocus } from '../../../utils/routeGeometry'
 import { closeLoop, reverseRoute, toggleFreeLeg, withPointAppended } from './tourRouteActions'
 import { holdsHorseSection } from '../horse/horseLegs'
-import { walkTimes } from './stationModel'
 import { hasCompleteElevation, useTourRoute } from './useTourRoute'
 import { normalizePlannerWaypoints, plannerWaypointsOf, ridablePoints, routeInputsKey, sameWaypointSnapshot, savedWaypointsOf, unlinkedPoint, withSavedKeys, type TourPlannerWaypoint } from './tourPlannerWaypoints'
 import { openedTourFields, tourPlannerFacts } from './tourPlannerFacts'
@@ -29,7 +28,7 @@ import { savedSkiSeed } from '../ski/savedSkiRoute'
 import { useSkiFields } from '../ski/useSkiFields'
 import { lostStageEnds } from '../stages/tourStages'
 import { useTourStages } from '../stages/useTourStages'
-import { useWalkFerries } from '../walk/useWalkFerries'
+import { useWalkFerries, useWalkStays } from '../walk/useWalkFerries'
 
 /** What a tour planned from an import starts with. */
 export interface DerivedTourDraft {
@@ -523,8 +522,8 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
   const routedLegLengths = paddleRoute && routeCurrent ? paddleRoute.legLengths : undefined
   const paddleEstimate = useMemo(() => isPaddle ? paddleEstimateOf(waypoints, { effectiveSpeedKmh, portageSpeedKmh }, paddleSpeedInvalid, routedLegLengths) : null,
     [effectiveSpeedKmh, isPaddle, paddleSpeedInvalid, portageSpeedKmh, routedLegLengths, waypoints])
-  // CW-02: a city walk's stays, what of them is known.
-  const stays = useMemo(() => (tourType === 'walk' ? walkTimes(waypoints, null) : null), [tourType, waypoints])
+  // CW-02: a city walk's stays, what of them is known; CW-12: and the minutes of its boats, never walking.
+  const stays = useWalkStays(tourType, waypoints, routeCurrent ? routing.ferries : null)
   const runPaceSecondsPerKm = runPace.paceSecondsPerKm
   // MDT-01: the stages, cut from the route while it is the one planned for these points.
   const stagePaddle = useMemo(() => isPaddle

@@ -787,6 +787,8 @@ const tours: TranslationStrings = {
     "La traversée ne compte pas comme temps de marche. Pour enregistrer, prends le ferry ou déplace une étape pour qu'un chemin à pied les relie.",
   'tours.walk.ferry.accepted': 'Ferry de {from} à {to}, pris exprès. Son temps reste à part du temps de marche.',
   'tours.walk.ferry.accept': 'Prendre le ferry',
+  'tours.walk.ferry.acceptTooLong':
+    'La ligne de cette traversée est trop longue pour être gardée comme un seul tronçon. Ajoute une étape en chemin ou déplace-en une.',
   'tours.walk.ferry.show': 'Montrer la traversée',
   'tours.walk.ferry.selectStop': "Choisir l'étape {number}",
   'tours.walk.ferry.time': '{time} en bateau',
@@ -796,7 +798,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'Ferry', // same-as-en
   'tours.walk.ferry.fieldInfoLabel': 'À propos du temps de ferry',
   'tours.walk.ferry.fieldInfo':
-    "Le temps des traversées en bateau, tel que le calculateur le donne. Il reste à part du temps de marche et n'entre pas dans le total prévu.",
+    'Le temps des traversées en bateau, tel que le calculateur le donne. Il reste à part du temps de marche mais entre dans le total prévu. Sans lui, le total est un minimum.',
   'tours.walk.ferry.leg': 'Traversée en ferry',
   'tours.walk.ferry.legInfo': "Traversé en bateau, pas à pied. Son temps n'est pas dans le temps de marche.",
   'tours.walk.ferry.release': 'Replanifier à pied',

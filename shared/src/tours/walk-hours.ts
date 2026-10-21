@@ -323,6 +323,36 @@ function passedAt(stops: readonly WalkStop[], flat: ReadonlyArray<[number, numbe
 }
 
 /**
+ * CW-12: a walk's crossings by boat along its route: the spans the boat runs,
+ * from the index it leaves at to the one it lands at, and for each ferry leg
+ * the index its last boat lands at with the minutes of its boats (null where
+ * the router gave none).
+ */
+export interface WalkBoats {
+  spans: Array<[number, number]>;
+  landings: Array<{ at: number; minutes: number | null }>;
+}
+
+/** Each stop's share of the walk with the index of the route's point it is passed at. */
+function walkedAlong(
+  stops: readonly WalkStop[],
+  route: readonly RoutePoint[],
+  boatSpans: ReadonlyArray<readonly [number, number]>,
+): { shares: number[]; indices: number[] } | null {
+  if (route.length < 2) return null;
+  const flat = flatRoute(route);
+  const byBoat = (i: number) => boatSpans.some(([from, to]) => i > from && i <= to);
+  const along = [0];
+  for (let i = 1; i < flat.length; i += 1) {
+    const step = byBoat(i) ? 0 : Math.sqrt(flatGap(flat[i] ?? [0, 0], flat[i - 1] ?? [0, 0]));
+    along.push((along[i - 1] ?? 0) + step);
+  }
+  const total = along[along.length - 1] || 1;
+  const indices = passedAt(stops, flat, Math.cos((route[0]?.[0] ?? 0) * RAD));
+  return { shares: indices.map((index) => (along[index] ?? 0) / total), indices };
+}
+
+/**
  * How far along the route each stop is passed, from 0 at its start to 1 at its
  * end, by distance, the stops matched in their order as `passedAt` does. Null
  * for a route of fewer than two points. The stretches of `boatSpans` (CW-12,
@@ -334,39 +364,38 @@ export function stationShares(
   route: readonly RoutePoint[],
   boatSpans: ReadonlyArray<readonly [number, number]> = [],
 ): number[] | null {
-  if (route.length < 2) return null;
-  const flat = flatRoute(route);
-  const byBoat = (i: number) => boatSpans.some(([from, to]) => i > from && i <= to);
-  const along = [0];
-  for (let i = 1; i < flat.length; i += 1) {
-    const step = byBoat(i) ? 0 : Math.sqrt(flatGap(flat[i] ?? [0, 0], flat[i - 1] ?? [0, 0]));
-    along.push((along[i - 1] ?? 0) + step);
-  }
-  const total = along[along.length - 1] || 1;
-  const indices = passedAt(stops, flat, Math.cos((route[0]?.[0] ?? 0) * RAD));
-  return indices.map((index) => (along[index] ?? 0) / total);
+  return walkedAlong(stops, route, boatSpans)?.shares ?? null;
 }
 
 /**
  * The estimated arrival at each stop, in minutes after midnight and whole: the
  * start, the walking time shared out by how far along the route the stop is
  * passed, and the stays before it. A stay not known counts as nothing and
- * makes every later arrival a lower bound; a stay of 0 is known. Null when the
- * start, the walking time or the route is not known.
+ * makes every later arrival a lower bound; a stay of 0 is known. A crossing by
+ * boat (CW-12) takes no share of the walking time; a stop after it lands is
+ * reached its minutes later, a lower bound where the boat's time is not known.
+ * Null when the start, the walking time or the route is not known.
  */
 export function stationArrivals(
   stops: readonly WalkStop[],
   route: readonly RoutePoint[],
   start: number | null,
   walkingMinutes: number | null,
+  boats: Readonly<WalkBoats> = { spans: [], landings: [] },
 ): WalkArrival[] | null {
   if (start === null || walkingMinutes === null) return null;
-  const shares = stationShares(stops, route);
-  if (!shares) return null;
+  const walked = walkedAlong(stops, route, boats.spans);
+  if (!walked) return null;
   let stays = 0;
   let unknown = false;
   return stops.map((stop, index) => {
-    const arrival = { arrival: Math.round(start + walkingMinutes * (shares[index] ?? 0) + stays), atLeast: unknown };
+    const at = walked.indices[index] ?? 0;
+    const landed = boats.landings.filter((landing) => landing.at <= at);
+    const boat = landed.reduce((sum, landing) => sum + (landing.minutes ?? 0), 0);
+    const arrival = {
+      arrival: Math.round(start + walkingMinutes * (walked.shares[index] ?? 0) + boat + stays),
+      atLeast: unknown || landed.some((landing) => landing.minutes === null),
+    };
     if (stop.stayMinutes == null) unknown = true;
     else stays += stop.stayMinutes;
     return arrival;

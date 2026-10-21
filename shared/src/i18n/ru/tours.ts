@@ -783,6 +783,8 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.accepted':
     'Паром от {from} до {to}, принят намеренно. Его время учитывается отдельно от времени ходьбы.',
   'tours.walk.ferry.accept': 'Принять паром',
+  'tours.walk.ferry.acceptTooLong':
+    'Линия этой переправы слишком длинная, чтобы сохранить её одним участком. Добавьте остановку по пути или переместите одну.',
   'tours.walk.ferry.show': 'Показать переправу',
   'tours.walk.ferry.selectStop': 'Выбрать остановку {number}',
   'tours.walk.ferry.time': '{time} на лодке',
@@ -791,7 +793,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'Паром',
   'tours.walk.ferry.fieldInfoLabel': 'О времени на пароме',
   'tours.walk.ferry.fieldInfo':
-    'Время переправ на лодке, как его даёт маршрутизатор. Учитывается отдельно от времени ходьбы и не входит в плановый итог.',
+    'Время переправ на лодке, как его даёт маршрутизатор. Учитывается отдельно от времени ходьбы, но входит в плановый итог; без него итог является минимальным.',
   'tours.walk.ferry.leg': 'Переправа на пароме',
   'tours.walk.ferry.legInfo': 'Пересечено на лодке, не пешком. Его время не входит во время ходьбы.',
   'tours.walk.ferry.release': 'Снова спланировать пешком',

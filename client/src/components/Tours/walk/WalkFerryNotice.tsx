@@ -4,21 +4,43 @@ import { useSettingsStore } from '../../../store/settingsStore';
 import { formatDistance } from '../../../utils/units';
 import { SoftPill } from '../../Planner/planParts';
 import { Tooltip } from '../../shared/Tooltip';
+import { stopNumbersOf, type TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 import type { WalkFerryCrossing } from '../planner/tourRouting';
 import type { TourPlannerController } from '../planner/useTourPlanner';
 import { CardAction, TourNotice } from '../tourParts';
 import { formatPlannedTourDuration } from '../tourPresentation';
-import { ferryMinutesOf } from './walkFerry';
+import { useLinkedPlaceOf } from './useWalkSchedule';
+import { ferryMinutesOf, legStationsOf } from './walkFerry';
 import { FERRY_CSS_COLOR } from './walkRoutePaint';
 
 type Planner = Pick<
   TourPlannerController,
   'walkFerries' | 'waypoints' | 'setSelectedWaypointId' | 'canEdit' | 'isSaving'
 >;
-type Translate = ReturnType<typeof useTranslation>['t'];
 
-function pointName(planner: Planner, index: number, t: Translate): string {
-  return planner.waypoints[index]?.name?.trim() || t('tours.walk.stationNumbered', { number: index + 1 });
+/** A leg's two stations as the stop list shows them: by name, the trip place they stand for, else their number. */
+interface LegStop {
+  id: string | null;
+  name: string;
+  number: number;
+}
+
+function useLegStops(planner: Planner): (leg: number) => { from: LegStop; to: LegStop } {
+  const { t } = useTranslation();
+  const placeOf = useLinkedPlaceOf();
+  const numbers = stopNumbersOf(planner.waypoints);
+  const stopOf = (point: TourPlannerWaypoint | null): LegStop => {
+    const number = point ? (numbers.get(point.id) ?? 0) : 0;
+    return {
+      id: point?.id ?? null,
+      name: point?.name?.trim() || (point && placeOf(point)?.name) || t('tours.walk.stationNumbered', { number }),
+      number,
+    };
+  };
+  return (leg) => {
+    const { from, to } = legStationsOf(planner.waypoints, leg);
+    return { from: stopOf(from), to: stopOf(to) };
+  };
 }
 
 /** The crossing's length and time as badges; a time the router did not give says so, dimmed. */
@@ -44,12 +66,36 @@ function CrossingFacts({ crossing }: { crossing: WalkFerryCrossing }) {
   );
 }
 
-function selectAction(planner: Planner, index: number, t: Translate) {
-  const select = () => planner.setSelectedWaypointId(planner.waypoints[index]?.id ?? null);
+function SelectStop({ planner, stop }: { planner: Planner; stop: LegStop }) {
+  const { t } = useTranslation();
   return (
-    <CardAction icon={<MapPin size={12} strokeWidth={2} />} onClick={select}>
-      {t('tours.walk.ferry.selectStop', { number: index + 1 })}
+    <CardAction icon={<MapPin size={12} strokeWidth={2} />} onClick={() => planner.setSelectedWaypointId(stop.id)}>
+      {t('tours.walk.ferry.selectStop', { number: stop.number })}
     </CardAction>
+  );
+}
+
+/** Take ferry; one whose line is too long to keep as a leg is dimmed, with why and what to do instead. */
+function AcceptAction({ planner, crossing }: { planner: Planner; crossing: WalkFerryCrossing }) {
+  const { t } = useTranslation();
+  const { accept, acceptable } = planner.walkFerries;
+  const fits = acceptable(crossing);
+  const action = (
+    <CardAction
+      icon={<Check size={12} strokeWidth={2} />}
+      onClick={() => accept(crossing)}
+      disabled={!planner.canEdit || planner.isSaving || !fits}
+    >
+      {t('tours.walk.ferry.accept')}
+    </CardAction>
+  );
+  if (fits) return action;
+  return (
+    <Tooltip label={t('tours.walk.ferry.acceptTooLong')}>
+      <span className="inline-flex" data-testid="walk-ferry-accept-too-long">
+        {action}
+      </span>
+    </Tooltip>
   );
 }
 
@@ -63,26 +109,23 @@ function selectAction(planner: Planner, index: number, t: Translate) {
  */
 export function WalkFerryNotice({ planner }: { planner: Planner }) {
   const { t } = useTranslation();
-  const { gap, crossings, accept, show } = planner.walkFerries;
-  const locked = !planner.canEdit || planner.isSaving;
+  const { gap, crossings, show } = planner.walkFerries;
+  const stopsOf = useLegStops(planner);
+  const gapStops = gap ? stopsOf(gap.leg) : null;
   return (
     <>
-      {gap && (
+      {gapStops && (
         <TourNotice tone="warning" icon={<Unlink size={13} strokeWidth={2} />}>
           <span className="flex flex-col items-start gap-1.5" data-testid="walk-ferry-gap">
-            <span>
-              {t('tours.walk.ferry.gap', {
-                from: pointName(planner, gap.leg, t),
-                to: pointName(planner, gap.leg + 1, t),
-              })}
-            </span>
+            <span>{t('tours.walk.ferry.gap', { from: gapStops.from.name, to: gapStops.to.name })}</span>
             <span className="text-content-muted">{t('tours.walk.ferry.gapHint')}</span>
-            {selectAction(planner, gap.leg + 1, t)}
+            <SelectStop planner={planner} stop={gapStops.to} />
           </span>
         </TourNotice>
       )}
       {crossings.map((crossing) => {
-        const names = { from: pointName(planner, crossing.leg, t), to: pointName(planner, crossing.leg + 1, t) };
+        const stops = stopsOf(crossing.leg);
+        const names = { from: stops.from.name, to: stops.to.name };
         return (
           <TourNotice
             key={`${crossing.leg}:${crossing.accepted ? 'kept' : 'open'}`}
@@ -94,19 +137,11 @@ export function WalkFerryNotice({ planner }: { planner: Planner }) {
               <CrossingFacts crossing={crossing} />
               {!crossing.accepted && <span className="text-content-muted">{t('tours.walk.ferry.pendingHint')}</span>}
               <span className="flex flex-wrap gap-1.5">
-                {!crossing.accepted && (
-                  <CardAction
-                    icon={<Check size={12} strokeWidth={2} />}
-                    onClick={() => accept(crossing)}
-                    disabled={locked}
-                  >
-                    {t('tours.walk.ferry.accept')}
-                  </CardAction>
-                )}
+                {!crossing.accepted && <AcceptAction planner={planner} crossing={crossing} />}
                 <CardAction icon={<Eye size={12} strokeWidth={2} />} onClick={() => show(crossing)}>
                   {t('tours.walk.ferry.show')}
                 </CardAction>
-                {!crossing.accepted && selectAction(planner, crossing.leg + 1, t)}
+                {!crossing.accepted && <SelectStop planner={planner} stop={stops.to} />}
               </span>
             </span>
           </TourNotice>

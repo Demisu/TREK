@@ -759,6 +759,8 @@ const tours: TranslationStrings = {
     'Přeprava se nepočítá do doby chůze. Pro uložení převezmi trajekt nebo přesuň zastávku, aby je spojila pěší cesta.',
   'tours.walk.ferry.accepted': 'Trajekt z {from} do {to}, převzatý záměrně. Jeho čas je oddělen od doby chůze.',
   'tours.walk.ferry.accept': 'Převzít trajekt',
+  'tours.walk.ferry.acceptTooLong':
+    'Trasa této přepravy je příliš dlouhá na to, aby se uložila jako jeden úsek. Přidej zastávku po cestě, nebo jednu přesuň.',
   'tours.walk.ferry.show': 'Ukázat přepravu',
   'tours.walk.ferry.selectStop': 'Vybrat zastávku {number}',
   'tours.walk.ferry.time': '{time} lodí',
@@ -767,7 +769,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'Trajekt',
   'tours.walk.ferry.fieldInfoLabel': 'O čase trajektu',
   'tours.walk.ferry.fieldInfo':
-    'Čas přeprav lodí, jak ho udává plánovač. Je oddělen od doby chůze a není v plánovaném celku.',
+    'Čas přeprav lodí, jak ho udává plánovač. Je oddělen od doby chůze, ale počítá se do plánovaného celku; bez něj je celek jen spodní hranice.',
   'tours.walk.ferry.leg': 'Přeprava trajektem',
   'tours.walk.ferry.legInfo': 'Přepluto lodí, ne prošlo. Jeho čas není v době chůze.',
   'tours.walk.ferry.release': 'Znovu naplánovat pěšky',

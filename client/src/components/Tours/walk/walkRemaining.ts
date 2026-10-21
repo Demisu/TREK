@@ -1,4 +1,4 @@
-import { ferryCrossingsOf, walkRemainderOf, type WalkRemainder, type WalkStationRef } from '@trek/shared';
+import { walkRemainderOf, type WalkFerryLeg, type WalkRemainder, type WalkStationRef } from '@trek/shared';
 import { useMemo } from 'react';
 import type { useTranslation } from '../../../i18n';
 import type { VisitsByStation } from '../../../store/tourVisitStore';
@@ -16,7 +16,14 @@ export interface WalkRemainingInput {
   route: ReadonlyArray<readonly [number, number]> | null;
   walkingMinutes: number | null;
   placeOf: LinkedPlaceOf;
+  /**
+   * CW-12: the walk's ferry legs, read off all its points as the server reads
+   * them, so one from a shaping point counts too.
+   */
+  ferries?: readonly WalkFerryLeg[];
 }
+
+const NO_FERRIES: readonly WalkFerryLeg[] = [];
 
 /**
  * CW-13: what is left of a walk on the day it was opened from, by the same
@@ -30,6 +37,7 @@ export function walkRemainingOf({
   route,
   walkingMinutes,
   placeOf,
+  ferries = NO_FERRIES,
 }: WalkRemainingInput): WalkRemainder | null {
   if (!stations || stations.length === 0) return null;
   return walkRemainderOf({
@@ -44,8 +52,8 @@ export function walkRemainingOf({
     })),
     line: route,
     walkingMinutes,
-    // CW-12: a ferry leg taken from a station is crossed by boat and takes none of the walking time.
-    crossings: ferryCrossingsOf(stations.map((station) => ({ fixed_leg: station.fixedLeg }))),
+    // CW-12: a ferry leg is crossed by boat and takes none of the walking time.
+    crossings: ferries.flatMap((leg) => leg.crossings),
   });
 }
 
@@ -55,10 +63,11 @@ export function useWalkRemaining({
   route,
   walkingMinutes,
   placeOf,
+  ferries = NO_FERRIES,
 }: WalkRemainingInput): WalkRemainder | null {
   return useMemo(
-    () => walkRemainingOf({ stations, visits, route, walkingMinutes, placeOf }),
-    [placeOf, route, stations, visits, walkingMinutes]
+    () => walkRemainingOf({ stations, visits, route, walkingMinutes, placeOf, ferries }),
+    [ferries, placeOf, route, stations, visits, walkingMinutes]
   );
 }
 

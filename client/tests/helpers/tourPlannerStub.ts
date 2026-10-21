@@ -79,6 +79,17 @@ export function hikePlannerDefaults() {
       toggleStageEnd: vi.fn(),
       canEnd: vi.fn(() => false),
     },
+    // CW-12: a walk with no crossing by boat and no leg it cannot join.
+    walkFerries: {
+      crossings: [],
+      pending: [],
+      blocksSave: false,
+      gap: null,
+      acceptable: vi.fn(() => true),
+      accept: vi.fn(),
+      release: vi.fn(),
+      show: vi.fn(),
+    },
     // P2C-03: a tour opened at its first revision, with nothing known about others.
     revision: {
       base: null,

@@ -777,6 +777,8 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.accepted':
     'Veerpont van {from} naar {to}, bewust overgenomen. De tijd ervan staat los van de looptijd.',
   'tours.walk.ferry.accept': 'Veerpont overnemen',
+  'tours.walk.ferry.acceptTooLong':
+    'De lijn van deze overtocht is te lang om als één stuk te bewaren. Voeg onderweg een halte toe of verplaats er een.',
   'tours.walk.ferry.show': 'Overtocht tonen',
   'tours.walk.ferry.selectStop': 'Halte {number} kiezen',
   'tours.walk.ferry.time': '{time} per boot',
@@ -785,7 +787,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'Veerpont',
   'tours.walk.ferry.fieldInfoLabel': 'Over de veerponttijd',
   'tours.walk.ferry.fieldInfo':
-    'De tijd van de overtochten per boot, zoals de routeplanner die geeft. Staat los van de looptijd en zit niet in het geplande totaal.',
+    'De tijd van de overtochten per boot, zoals de routeplanner die geeft. Staat los van de looptijd, maar telt mee in het geplande totaal; zonder die tijd is het totaal een minimum.',
   'tours.walk.ferry.leg': 'Overtocht met veerpont',
   'tours.walk.ferry.legInfo': 'Per boot overgestoken, niet gelopen. De tijd zit niet in de looptijd.',
   'tours.walk.ferry.release': 'Opnieuw te voet plannen',

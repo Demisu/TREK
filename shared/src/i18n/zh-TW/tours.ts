@@ -706,6 +706,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.pendingHint': '渡船不計入步行時間。要儲存，請採用渡輪，或移動一個站點，讓步行道路連通它們。',
   'tours.walk.ferry.accepted': '從 {from} 到 {to} 的渡輪，已有意採用。其時間與步行時間分開。',
   'tours.walk.ferry.accept': '採用渡輪',
+  'tours.walk.ferry.acceptTooLong': '這段渡船的路線太長，無法作為一段保存。請在途中新增一個站點，或移動一個站點。',
   'tours.walk.ferry.show': '顯示渡船',
   'tours.walk.ferry.selectStop': '選擇站點 {number}',
   'tours.walk.ferry.time': '搭船 {time}',
@@ -713,7 +714,8 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.timeHint': '為路線規劃給出的渡船時間。不屬於步行時間。',
   'tours.walk.ferry.field': '渡輪',
   'tours.walk.ferry.fieldInfoLabel': '關於渡輪時間',
-  'tours.walk.ferry.fieldInfo': '搭船過水所需的時間，由路線規劃給出。與步行時間分開，也不計入計畫總時長。',
+  'tours.walk.ferry.fieldInfo':
+    '搭船過水所需的時間，由路線規劃給出。與步行時間分開，但計入計畫總時長；時間未知時，總時長為最少值。',
   'tours.walk.ferry.leg': '渡輪過水',
   'tours.walk.ferry.legInfo': '搭船而過，並非步行。其時間不計入步行時間。',
   'tours.walk.ferry.release': '重新按步行規劃',

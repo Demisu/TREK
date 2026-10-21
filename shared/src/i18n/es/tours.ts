@@ -773,6 +773,8 @@ const tours: TranslationStrings = {
     'La travesía no cuenta como tiempo a pie. Para guardar, acepta el ferri o mueve una parada para que un camino a pie las una.',
   'tours.walk.ferry.accepted': 'Ferri de {from} a {to}, aceptado a propósito. Su tiempo queda aparte del tiempo a pie.',
   'tours.walk.ferry.accept': 'Aceptar ferri',
+  'tours.walk.ferry.acceptTooLong':
+    'La línea de esta travesía es demasiado larga para guardarla como un solo tramo. Añade una parada en el camino o mueve una.',
   'tours.walk.ferry.show': 'Mostrar travesía',
   'tours.walk.ferry.selectStop': 'Elegir parada {number}',
   'tours.walk.ferry.time': '{time} en barco',
@@ -781,7 +783,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'Ferri',
   'tours.walk.ferry.fieldInfoLabel': 'Sobre el tiempo en ferri',
   'tours.walk.ferry.fieldInfo':
-    'El tiempo de las travesías en barco, tal como lo da el enrutador. Queda aparte del tiempo a pie y no está en el total planificado.',
+    'El tiempo de las travesías en barco, tal como lo da el enrutador. Queda aparte del tiempo a pie, pero cuenta en el total planificado; sin él, el total es un mínimo.',
   'tours.walk.ferry.leg': 'Travesía en ferri',
   'tours.walk.ferry.legInfo': 'Cruzado en barco, no a pie. Su tiempo no está en el tiempo a pie.',
   'tours.walk.ferry.release': 'Planificar a pie de nuevo',

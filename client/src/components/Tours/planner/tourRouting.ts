@@ -17,6 +17,8 @@ import {
   type FerrySpan,
   type SearchFilter,
   type ValhallaLeg,
+  type ValhallaNoPath,
+  type ValhallaRun,
 } from '../../Map/valhallaRoute'
 import { hikingCosting, TOURS_MAX_HIKING_DIFFICULTY } from './hikingCosting'
 import { densifyLine, lineLengthM } from './tourFixedLegs'
@@ -50,8 +52,8 @@ export interface WalkFerryCrossing {
   /** The leg, by the place along the tour of the point it starts at. */
   leg: number
   geometry: [number, number][]
-  /** The points of `geometry` the boat leaves from and lands at. */
-  crossing: [number, number]
+  /** Each stretch of `geometry` by boat, as the points the boat leaves from and lands at, in order. */
+  crossings: Array<[number, number]>
   metres: number
   /** Null where the router gave no time for the boat. */
   seconds: number | null
@@ -227,19 +229,22 @@ function splitAtCrossings(coordinates: [number, number][], spans: readonly Pick<
   return parts
 }
 
+/** The length of a leg's stretches by boat, measured along its line. */
+function boatMetresOf(geometry: [number, number][], crossings: ReadonlyArray<[number, number]>): number {
+  return crossings.reduce((sum, [from, to]) => sum + lineLengthM(geometry.slice(from, to + 1)), 0)
+}
+
 /**
- * CW-12: the crossing of a routed leg, from where its first boat stretch
- * leaves to where its last one lands. The walk on the leg is the router's time
- * less the boat's; where the router gave the boat no time, the walk is the
- * leg's time shared out by the length walked.
+ * CW-12: the crossing of a routed leg, each of its stretches by boat kept on
+ * its own, so a walk between two boats stays walking. The walk on the leg is
+ * the router's time less the boat's; where the router gave the boat no time,
+ * the walk is the leg's time shared out by the length walked.
  */
 function crossingOf(leg: ValhallaLeg, index: number): WalkFerryCrossing | null {
   const spans = leg.ferrySpans ?? []
-  const first = spans[0]
-  const last = spans[spans.length - 1]
-  if (!first || !last) return null
-  const crossing: [number, number] = [first.from, last.to]
-  const metres = spans.reduce((sum, span) => sum + span.metres, 0) || lineLengthM(leg.coordinates.slice(first.from, last.to + 1))
+  if (spans.length === 0) return null
+  const crossings = spans.map(({ from, to }): [number, number] => [from, to])
+  const metres = spans.reduce((sum, span) => sum + span.metres, 0) || boatMetresOf(leg.coordinates, crossings)
   const seconds = spans.every((span) => span.seconds !== null)
     ? spans.reduce((sum, span) => sum + (span.seconds ?? 0), 0)
     : null
@@ -247,18 +252,18 @@ function crossingOf(leg: ValhallaLeg, index: number): WalkFerryCrossing | null {
   const walkSeconds = seconds !== null
     ? Math.max(0, leg.duration - seconds)
     : length > 0 ? leg.duration * Math.max(0, 1 - metres / length) : 0
-  return { leg: index, geometry: leg.coordinates, crossing, metres, seconds, walkSeconds, accepted: false }
+  return { leg: index, geometry: leg.coordinates, crossings, metres, seconds, walkSeconds, accepted: false }
 }
 
 /** CW-12: a ferry leg the travellers took, as the walk counts it: the boat apart from the walk. */
 function acceptedCrossing(leg: Extract<TourFixedLeg, { kind: 'ferry' }>, index: number): WalkFerryCrossing {
   const geometry = leg.geometry.map(([lat, lng]): [number, number] => [lat, lng])
-  const crossing: [number, number] = [leg.crossing[0], leg.crossing[1]]
+  const crossings = leg.crossings.map(([from, to]): [number, number] => [from, to])
   return {
     leg: index,
     geometry,
-    crossing,
-    metres: lineLengthM(geometry.slice(crossing[0], crossing[1] + 1)),
+    crossings,
+    metres: boatMetresOf(geometry, crossings),
     seconds: leg.minutes === null ? null : leg.minutes * 60,
     walkSeconds: leg.walk_minutes * 60,
     accepted: true,
@@ -267,13 +272,14 @@ function acceptedCrossing(leg: Extract<TourFixedLeg, { kind: 'ferry' }>, index: 
 
 /**
  * CW-12: the leg of a run no way joins, found by halving the run: whichever
- * half still fails holds it. Null where every piece answers after all, a
- * failure of the host rather than of the way, or once the run is called off.
+ * half the router still finds no way through holds it. Null where every piece
+ * answers after all, where the router stops answering at all (a host that is
+ * down says nothing about the way), or once the run is called off.
  */
 async function gapOf(
   run: Array<Pick<Waypoint, 'lat' | 'lng'>>,
   first: number,
-  ask: (points: Array<Pick<Waypoint, 'lat' | 'lng'>>) => Promise<unknown>,
+  ask: (points: Array<Pick<Waypoint, 'lat' | 'lng'>>) => Promise<ValhallaRun | ValhallaNoPath | null>,
   signal?: AbortSignal,
 ): Promise<TourRouteGap | null> {
   let low = 0
@@ -282,15 +288,18 @@ async function gapOf(
   while (high - low > 1) {
     const middle = Math.floor((low + high) / 2)
     const answer = await ask(run.slice(low, middle + 1))
-    if (signal?.aborted) return null
-    if (answer) {
-      low = middle
-    } else {
+    if (!answer || signal?.aborted) return null
+    if ('noPath' in answer) {
       high = middle
       failed = true
+    } else {
+      low = middle
     }
   }
-  if (!failed && (await ask(run.slice(low, high + 1)))) return null
+  if (!failed) {
+    const last = await ask(run.slice(low, high + 1))
+    if (!last || !('noPath' in last)) return null
+  }
   return signal?.aborted ? null : { gap: first + low }
 }
 
@@ -321,7 +330,7 @@ async function routeOnLand(
   let durationSeconds = 0
   let unreachable: TourRouteUnreachable | TourRouteGap | null = null
   // A city walk binds no point to a boat line (CW-12); no other type asks for that.
-  const ask = (points: Array<Pick<Waypoint, 'lat' | 'lng'>>) => {
+  const ask = (points: Array<Pick<Waypoint, 'lat' | 'lng'>>): Promise<ValhallaRun | ValhallaNoPath | null> => {
     const asked = points.map(({ lat, lng }) => ({ lat, lng }))
     return searchFilter
       ? valhallaRunOnFoot(asked, signal, costingOptions, searchFilter)
@@ -331,8 +340,9 @@ async function routeOnLand(
   const routeRun = async (run: Array<Pick<Waypoint, 'lat' | 'lng'>>, first: number) => {
     if (run.length < 2) return true
     const routed = await ask(run)
-    if (!routed) {
-      if (searchFilter && !signal?.aborted) unreachable = await gapOf(run, first, ask, signal)
+    if (!routed || 'noPath' in routed) {
+      // Only the router's own "no way" names a leg; no answer at all stays a routing failure, with its retry.
+      if (routed && !signal?.aborted) unreachable = await gapOf(run, first, ask, signal)
       return false
     }
     const far = routed.snapped.findIndex((point) => point.meters > MAX_TOUR_SNAP_M)
@@ -366,7 +376,7 @@ async function routeOnLand(
     if (!(await routeRun(run, runStart))) return unreachable
     if (leg.kind === 'ferry') {
       const crossing = acceptedCrossing(leg, i)
-      lines.push(...splitAtCrossings(crossing.geometry, [{ from: crossing.crossing[0], to: crossing.crossing[1] }]))
+      lines.push(...splitAtCrossings(crossing.geometry, crossing.crossings.map(([from, to]) => ({ from, to }))))
       ferries.push(crossing)
       distanceMeters += lineLengthM(crossing.geometry)
       durationSeconds += crossing.walkSeconds

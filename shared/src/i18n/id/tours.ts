@@ -772,6 +772,8 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.accepted':
     'Feri dari {from} ke {to}, diambil dengan sengaja. Waktunya dipisahkan dari waktu jalan kaki.',
   'tours.walk.ferry.accept': 'Ambil feri',
+  'tours.walk.ferry.acceptTooLong':
+    'Garis penyeberangan ini terlalu panjang untuk disimpan sebagai satu ruas. Tambahkan perhentian di jalan atau pindahkan salah satunya.',
   'tours.walk.ferry.show': 'Tampilkan penyeberangan',
   'tours.walk.ferry.selectStop': 'Pilih perhentian {number}',
   'tours.walk.ferry.time': '{time} dengan perahu',
@@ -781,7 +783,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'Feri',
   'tours.walk.ferry.fieldInfoLabel': 'Tentang waktu feri',
   'tours.walk.ferry.fieldInfo':
-    'Waktu penyeberangan dengan perahu, seperti yang diberikan perute. Dipisahkan dari waktu jalan kaki dan tidak termasuk total yang direncanakan.',
+    'Waktu penyeberangan dengan perahu, seperti yang diberikan perute. Dipisahkan dari waktu jalan kaki, tetapi dihitung dalam total yang direncanakan; tanpanya, total adalah batas bawah.',
   'tours.walk.ferry.leg': 'Penyeberangan feri',
   'tours.walk.ferry.legInfo': 'Diseberangi dengan perahu, bukan berjalan. Waktunya tidak termasuk waktu jalan kaki.',
   'tours.walk.ferry.release': 'Rencanakan jalan kaki lagi',

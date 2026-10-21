@@ -761,6 +761,8 @@ const tours: TranslationStrings = {
     'Ülesõitu ei loeta kõndimisajaks. Salvestamiseks võta praam üle või liiguta peatust, et jalgtee need ühendaks.',
   'tours.walk.ferry.accepted': 'Praam {from} kuni {to}, meelega üle võetud. Selle aeg on kõndimisajast eraldi.',
   'tours.walk.ferry.accept': 'Võta praam',
+  'tours.walk.ferry.acceptTooLong':
+    'Selle ülesõidu joon on liiga pikk, et seda ühe lõiguna hoida. Lisa teele peatus või liiguta mõnda.',
   'tours.walk.ferry.show': 'Näita ülesõitu',
   'tours.walk.ferry.selectStop': 'Vali peatus {number}',
   'tours.walk.ferry.time': '{time} paadiga',
@@ -769,7 +771,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'Praam',
   'tours.walk.ferry.fieldInfoLabel': 'Praamiajast',
   'tours.walk.ferry.fieldInfo':
-    'Paadiga ülesõitude aeg, nagu marsruutija selle annab. See on kõndimisajast eraldi ega kuulu planeeritud koguaega.',
+    'Paadiga ülesõitude aeg, nagu marsruutija selle annab. See on kõndimisajast eraldi, kuid kuulub planeeritud koguaega; ilma selleta on koguaeg alampiir.',
   'tours.walk.ferry.leg': 'Praamiga ülesõit',
   'tours.walk.ferry.legInfo': 'Ületatud paadiga, mitte jalgsi. Selle aeg pole kõndimisajas.',
   'tours.walk.ferry.release': 'Planeeri uuesti jalgsi',

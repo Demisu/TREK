@@ -773,6 +773,8 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.accepted':
     'Balsa de {from} a {to}, aceita de propósito. O tempo dela fica separado do tempo de caminhada.',
   'tours.walk.ferry.accept': 'Aceitar balsa',
+  'tours.walk.ferry.acceptTooLong':
+    'A linha desta travessia é longa demais para ser guardada como um trecho. Adicione uma parada no caminho ou mova uma.',
   'tours.walk.ferry.show': 'Mostrar travessia',
   'tours.walk.ferry.selectStop': 'Selecionar parada {number}',
   'tours.walk.ferry.time': '{time} de barco',
@@ -781,7 +783,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'Balsa',
   'tours.walk.ferry.fieldInfoLabel': 'Sobre o tempo de balsa',
   'tours.walk.ferry.fieldInfo':
-    'O tempo das travessias de barco, como o roteador o informa. Fica separado do tempo de caminhada e não entra no total planejado.',
+    'O tempo das travessias de barco, como o roteador o informa. Fica separado do tempo de caminhada, mas entra no total planejado; sem ele, o total é um mínimo.',
   'tours.walk.ferry.leg': 'Travessia de balsa',
   'tours.walk.ferry.legInfo': 'Atravessado de barco, não a pé. O tempo não está no tempo de caminhada.',
   'tours.walk.ferry.release': 'Planejar a pé de novo',

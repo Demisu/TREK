@@ -136,6 +136,22 @@ export interface ValhallaLeg {
   ferrySpans?: FerrySpan[]
 }
 
+/**
+ * CW-12: the router's own word that no way joins the points, apart from a
+ * router that gave no answer at all: down, rate limited, or not asked.
+ */
+export interface ValhallaNoPath {
+  noPath: true
+}
+
+/**
+ * The refusals that are about the way rather than the host: points in
+ * regions no edge connects (170), a point with no edge near it (171), and no
+ * path found between them (442).
+ */
+const NO_PATH_CODES = new Set([170, 171, 442])
+const NO_PATH: ValhallaNoPath = { noPath: true }
+
 /** A routed chain: one leg per pair of consecutive waypoints, plus the whole of it. */
 export interface ValhallaRun {
   legs: ValhallaLeg[]
@@ -219,21 +235,24 @@ export async function valhallaRun(
   signal?: AbortSignal,
   costingOptions: Readonly<CostingOptions> = {},
 ): Promise<ValhallaRun | null> {
-  return chainRun(waypoints, profile, avoid, signal, { costingOptions, searchFilter: null })
+  const run = await chainRun(waypoints, profile, avoid, signal, { costingOptions, searchFilter: null })
+  if (!run || 'noPath' in run) return null
+  return run
 }
 
 /**
  * CW-12: a chain walked on foot, every point bound off the boat lines. Measured
  * on Venice: a stop by a vaporetto pier bound onto the boat line ended the
  * route on the ferry to its next landing, which `use_ferry` cannot weigh away
- * because the edge is where the route starts, not a choice along it.
+ * because the edge is where the route starts, not a choice along it. Tells a
+ * walk no way joins (`noPath`) from a router that did not answer (null).
  */
 export function valhallaRunOnFoot(
   waypoints: Waypoint[],
   signal: AbortSignal | undefined,
   costingOptions: Readonly<CostingOptions>,
   searchFilter: Readonly<SearchFilter>,
-): Promise<ValhallaRun | null> {
+): Promise<ValhallaRun | ValhallaNoPath | null> {
   return chainRun(waypoints, 'walking', [], signal, { costingOptions, searchFilter })
 }
 
@@ -249,7 +268,7 @@ async function chainRun(
   avoid: readonly AvoidClass[],
   signal: AbortSignal | undefined,
   ask: RunAsk,
-): Promise<ValhallaRun | null> {
+): Promise<ValhallaRun | ValhallaNoPath | null> {
   const base = valhallaBase()
   if (!base || notValhalla.has(base) || waypoints.length < 2) return null
 
@@ -267,6 +286,7 @@ async function chainRun(
     // the schedule chains leg times blindly and cannot tell that it is missing some, so
     // it would print a complete, plausible, wrong timetable rather than a gap.
     if (!run) return null
+    if ('noPath' in run) return run
     legs.push(...run.legs)
   }
   if (legs.length !== waypoints.length - 1) return null
@@ -395,7 +415,7 @@ function routeBody(
   }
 }
 
-/** The parsed answer to one POST, or null for every failure. */
+/** The parsed answer to one POST, `NO_PATH` when the router found no way, or null for every other failure. */
 async function postRoute(base: string, body: Record<string, unknown>, signal?: AbortSignal): Promise<unknown> {
   try {
     await valhallaTurn(base, signal)
@@ -414,11 +434,21 @@ async function postRoute(base: string, body: Record<string, unknown>, signal?: A
       // 400 carries the real refusals (unroutable point, over 1500 km apart) and 429
       // is the public instance's one-per-second.
       if (response.status === 404 || response.status === 405) notValhalla.add(base)
+      if (response.status === 400 && (await refusesTheWay(response))) return NO_PATH
       return null
     }
     return await response.json()
   } catch {
     return null
+  }
+}
+
+async function refusesTheWay(response: Response): Promise<boolean> {
+  try {
+    const code = ((await response.json()) as { error_code?: unknown })?.error_code
+    return typeof code === 'number' && NO_PATH_CODES.has(code)
+  } catch {
+    return false
   }
 }
 
@@ -507,8 +537,9 @@ async function requestRun(
   avoid: readonly AvoidClass[],
   signal: AbortSignal | undefined,
   { costingOptions, searchFilter }: RunAsk,
-): Promise<Omit<ValhallaRun, 'snapped'> | null> {
+): Promise<Omit<ValhallaRun, 'snapped'> | ValhallaNoPath | null> {
   const data = await postRoute(base, routeBody(waypoints, profile, avoid, costingOptions, searchFilter), signal)
+  if (data === NO_PATH) return NO_PATH
   return data === null ? null : runFrom(data)
 }
 

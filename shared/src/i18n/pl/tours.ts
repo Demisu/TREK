@@ -781,6 +781,8 @@ const tours: TranslationStrings = {
     'Przeprawa nie liczy się jako czas marszu. Aby zapisać, przyjmij prom albo przesuń przystanek, żeby łączyła je droga piesza.',
   'tours.walk.ferry.accepted': 'Prom z {from} do {to}, przyjęty celowo. Jego czas jest oddzielony od czasu marszu.',
   'tours.walk.ferry.accept': 'Przyjmij prom',
+  'tours.walk.ferry.acceptTooLong':
+    'Linia tej przeprawy jest zbyt długa, by zachować ją jako jeden odcinek. Dodaj przystanek po drodze lub przesuń któryś.',
   'tours.walk.ferry.show': 'Pokaż przeprawę',
   'tours.walk.ferry.selectStop': 'Wybierz przystanek {number}',
   'tours.walk.ferry.time': '{time} łodzią',
@@ -789,7 +791,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'Prom',
   'tours.walk.ferry.fieldInfoLabel': 'O czasie promu',
   'tours.walk.ferry.fieldInfo':
-    'Czas przepraw łodzią, tak jak podaje go wyznaczanie trasy. Jest oddzielony od czasu marszu i nie wchodzi do planowanej sumy.',
+    'Czas przepraw łodzią, tak jak podaje go wyznaczanie trasy. Jest oddzielony od czasu marszu, ale wlicza się do planowanej sumy; bez niego suma jest wartością minimalną.',
   'tours.walk.ferry.leg': 'Przeprawa promem',
   'tours.walk.ferry.legInfo': 'Przepłynięte łodzią, nie przebyte pieszo. Jego czas nie jest w czasie marszu.',
   'tours.walk.ferry.release': 'Zaplanuj znów pieszo',

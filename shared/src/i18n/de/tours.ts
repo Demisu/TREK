@@ -781,6 +781,8 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.accepted':
     'Fähre von {from} nach {to}, bewusst übernommen. Ihre Zeit steht getrennt von der Gehzeit.',
   'tours.walk.ferry.accept': 'Fähre übernehmen',
+  'tours.walk.ferry.acceptTooLong':
+    'Die Linie dieser Überfahrt ist zu lang, um sie als einen Abschnitt zu speichern. Setze unterwegs eine Station oder verschiebe eine.',
   'tours.walk.ferry.show': 'Überfahrt zeigen',
   'tours.walk.ferry.selectStop': 'Station {number} wählen',
   'tours.walk.ferry.time': '{time} mit dem Boot',
@@ -789,7 +791,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'Fähre',
   'tours.walk.ferry.fieldInfoLabel': 'Zur Fährzeit',
   'tours.walk.ferry.fieldInfo':
-    'Die Zeit der Überfahrten mit dem Boot, so wie der Router sie angibt. Sie steht getrennt von der Gehzeit und ist nicht in der geplanten Gesamtzeit.',
+    'Die Zeit der Überfahrten mit dem Boot, so wie der Router sie angibt. Sie steht getrennt von der Gehzeit, zählt aber zur geplanten Gesamtzeit; fehlt sie, ist die Gesamtzeit ein Mindestwert.',
   'tours.walk.ferry.leg': 'Überfahrt mit der Fähre',
   'tours.walk.ferry.legInfo': 'Mit dem Boot übergesetzt, nicht gegangen. Ihre Zeit ist nicht in der Gehzeit.',
   'tours.walk.ferry.release': 'Wieder zu Fuß planen',

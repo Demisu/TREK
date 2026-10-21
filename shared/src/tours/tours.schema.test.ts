@@ -203,7 +203,7 @@ describe('Tours fixed legs', () => {
 });
 
 describe('Tours ferry legs (CW-12)', () => {
-  const ferry = (crossing: [number, number], minutes: number | null = 7) => ({
+  const ferry = (crossings: Array<[number, number]>, minutes: number | null = 7) => ({
     kind: 'ferry' as const,
     geometry: [
       [48, 11],
@@ -211,7 +211,7 @@ describe('Tours ferry legs (CW-12)', () => {
       [48.006, 11.012],
       [48.01, 11.02],
     ] as [number, number][],
-    crossing,
+    crossings,
     minutes,
     walk_minutes: 2,
   });
@@ -226,20 +226,34 @@ describe('Tours ferry legs (CW-12)', () => {
   });
 
   it('takes a crossing by boat on a city walk, with where on its leg the boat runs and its minutes apart', () => {
-    expect(tourCreateRequestSchema.parse(withLeg(ferry([1, 2]), 'walk')).waypoints[0]?.fixed_leg).toEqual(
-      ferry([1, 2]),
+    expect(tourCreateRequestSchema.parse(withLeg(ferry([[1, 2]]), 'walk')).waypoints[0]?.fixed_leg).toEqual(
+      ferry([[1, 2]]),
     );
-    expect(tourCreateRequestSchema.parse(withLeg(ferry([1, 2], null), 'walk')).waypoints[0]?.fixed_leg).toMatchObject({
-      minutes: null,
-    });
+    expect(tourCreateRequestSchema.parse(withLeg(ferry([[1, 2]], null), 'walk')).waypoints[0]?.fixed_leg).toMatchObject(
+      {
+        minutes: null,
+      },
+    );
+    // Two boats on one leg with a walk between them: each stretch is kept on its own.
+    const twice = ferry([
+      [0, 1],
+      [2, 3],
+    ]);
+    expect(tourCreateRequestSchema.parse(withLeg(twice, 'walk')).waypoints[0]?.fixed_leg).toEqual(twice);
   });
 
   it('refuses a crossing on any other type, or one that does not run forwards between two points of its leg', () => {
-    expect(() => tourCreateRequestSchema.parse(withLeg(ferry([1, 2]), 'hike'))).toThrow(
+    expect(() => tourCreateRequestSchema.parse(withLeg(ferry([[1, 2]]), 'hike'))).toThrow(
       /ferry leg belongs to a city walk/,
     );
-    expect(() => tourCreateRequestSchema.parse(withLeg(ferry([2, 1]), 'walk'))).toThrow(/crossing runs between/);
-    expect(() => tourCreateRequestSchema.parse(withLeg(ferry([1, 4]), 'walk'))).toThrow(/crossing runs between/);
+    expect(() => tourCreateRequestSchema.parse(withLeg(ferry([[2, 1]]), 'walk'))).toThrow(/crossing runs between/);
+    expect(() => tourCreateRequestSchema.parse(withLeg(ferry([[1, 4]]), 'walk'))).toThrow(/crossing runs between/);
+    const overlapping = ferry([
+      [0, 2],
+      [1, 3],
+    ]);
+    expect(() => tourCreateRequestSchema.parse(withLeg(overlapping, 'walk'))).toThrow(/crossing runs between/);
+    expect(() => tourCreateRequestSchema.parse(withLeg(ferry([]), 'walk'))).toThrow();
   });
 });
 

@@ -774,6 +774,8 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.accepted':
     'Komp {from} és {to} között, szándékosan elfogadva. Az ideje külön áll a gyaloglási időtől.',
   'tours.walk.ferry.accept': 'Komp elfogadása',
+  'tours.walk.ferry.acceptTooLong':
+    'Ennek az átkelésnek a vonala túl hosszú ahhoz, hogy egy szakaszként megmaradjon. Adj hozzá egy megállót útközben, vagy helyezz át egyet.',
   'tours.walk.ferry.show': 'Átkelés mutatása',
   'tours.walk.ferry.selectStop': '{number}. megálló kiválasztása',
   'tours.walk.ferry.time': '{time} hajóval',
@@ -782,7 +784,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'Komp',
   'tours.walk.ferry.fieldInfoLabel': 'A kompidőről',
   'tours.walk.ferry.fieldInfo':
-    'A hajós átkelések ideje, ahogy az útvonaltervező megadja. Külön áll a gyaloglási időtől, és nincs benne a tervezett összidőben.',
+    'A hajós átkelések ideje, ahogy az útvonaltervező megadja. Külön áll a gyaloglási időtől, de beleszámít a tervezett összidőbe; nélküle az összidő csak alsó becslés.',
   'tours.walk.ferry.leg': 'Kompos átkelés',
   'tours.walk.ferry.legInfo': 'Hajóval átkelve, nem gyalog. Az ideje nincs a gyaloglási időben.',
   'tours.walk.ferry.release': 'Újratervezés gyalog',

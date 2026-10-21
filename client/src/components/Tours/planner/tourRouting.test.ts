@@ -300,7 +300,7 @@ describe('a city walk across the water (CW-12)', () => {
     expect(routed.durationSeconds).toBe(1005)
     expect(routed.distanceMeters).toBe(2700)
     expect(routed.ferries).toEqual([
-      { leg: 1, geometry: boatLeg.coordinates, crossing: [1, 2], metres: 1236, seconds: 745, walkSeconds: 355, accepted: false },
+      { leg: 1, geometry: boatLeg.coordinates, crossings: [[1, 2]], metres: 1236, seconds: 745, walkSeconds: 355, accepted: false },
     ])
   })
 
@@ -321,7 +321,7 @@ describe('a city walk across the water (CW-12)', () => {
     const ferry = {
       kind: 'ferry' as const,
       geometry: boatLeg.coordinates as [number, number][],
-      crossing: [1, 2] as [number, number],
+      crossings: [[1, 2]] as [number, number][],
       minutes: 12,
       walk_minutes: 6,
     }
@@ -331,18 +331,47 @@ describe('a city walk across the water (CW-12)', () => {
     expect(valhallaRunOnFoot).toHaveBeenCalledTimes(1)
     expect(routed.durationSeconds).toBe(650 + 6 * 60)
     expect(routed.parts.map((part) => part.mark ?? null)).toEqual([null, 'ferry', null])
-    expect(routed.ferries).toMatchObject([{ leg: 1, crossing: [1, 2], seconds: 720, walkSeconds: 360, accepted: true }])
+    expect(routed.ferries).toMatchObject([{ leg: 1, crossings: [[1, 2]], seconds: 720, walkSeconds: 360, accepted: true }])
   })
 
+  it('TOUR-ROUTING-041: two boats on one leg stay two crossings, the walk between them walking, before and after they are taken', async () => {
+    const line = [[45.4368, 12.3288], [45.4352, 12.3275], [45.4331, 12.3262], [45.434, 12.325], [45.4345, 12.323], [45.4361, 12.3214]]
+    const twoBoats = { coordinates: line, distance: 2000, duration: 1200, hasFerry: true,
+      ferrySpans: [{ from: 0, to: 1, metres: 200, seconds: 120 }, { from: 3, to: 4, metres: 150, seconds: 90 }] }
+    valhallaRunOnFoot.mockResolvedValueOnce({ legs: [twoBoats], total: twoBoats, snapped: [3, 4].map((meters) => ({ asked: [0, 0], at: [0, 0], meters })) })
+    const routed = (await routeCityWalk([saoneri, moresco])) as TourRouteResult
+    expect(routed.ferries?.[0]).toMatchObject({ crossings: [[0, 1], [3, 4]], metres: 350, seconds: 210, walkSeconds: 990 })
+    const drawn = routed.parts.map((part) => [part.coordinates.length, part.mark ?? null])
+    expect(drawn).toEqual([[2, 'ferry'], [3, null], [2, 'ferry'], [2, null]])
+
+    valhallaRunOnFoot.mockReset()
+    const taken = { kind: 'ferry' as const, geometry: line as [number, number][], crossings: [[0, 1], [3, 4]] as [number, number][], minutes: 4, walk_minutes: 17 }
+    const kept = (await routeCityWalk([{ ...saoneri, fixedLeg: taken }, moresco])) as TourRouteResult
+    expect(kept.parts.map((part) => [part.coordinates.length, part.mark ?? null])).toEqual(drawn)
+    expect(kept.ferries?.[0]).toMatchObject({ crossings: [[0, 1], [3, 4]], accepted: true })
+  })
+
+  const answered = { total: { coordinates: [[0, 0], [1, 1]], distance: 1, duration: 1 }, legs: [], snapped: [] }
+  const noPath = { noPath: true }
+  const stops = [sanMarco, saoneri, moresco, { lat: 45.43, lng: 12.31 }, { lat: 45.42, lng: 12.3 }]
+
   it('TOUR-ROUTING-039: two stops no way joins are named by halving the walk, and a host that answers after all names none', async () => {
-    const answered = { total: { coordinates: [[0, 0], [1, 1]], distance: 1, duration: 1 }, legs: [], snapped: [] }
-    const stops = [sanMarco, saoneri, moresco, { lat: 45.43, lng: 12.31 }, { lat: 45.42, lng: 12.3 }]
-    // The whole walk fails, its first half [0..2] answers, then [2..3] fails: the gap is the leg from stop 2.
-    valhallaRunOnFoot.mockResolvedValueOnce(null).mockResolvedValueOnce(answered).mockResolvedValueOnce(null)
+    // The whole walk has no way, its first half [0..2] answers, then [2..3] has none: the gap is the leg from stop 2.
+    valhallaRunOnFoot.mockResolvedValueOnce(noPath).mockResolvedValueOnce(answered).mockResolvedValueOnce(noPath)
     expect(await routeCityWalk(stops)).toEqual({ gap: 2 })
     expect(valhallaRunOnFoot.mock.calls.map((call) => (call[0] as unknown[]).length)).toEqual([5, 3, 2])
 
-    valhallaRunOnFoot.mockReset().mockResolvedValueOnce(null).mockResolvedValue(answered)
+    valhallaRunOnFoot.mockReset().mockResolvedValueOnce(noPath).mockResolvedValue(answered)
     expect(await routeCityWalk([sanMarco, saoneri])).toBeNull()
+  })
+
+  it('TOUR-ROUTING-040: a router that does not answer names no gap and asks no more, the walk failing as a routing error', async () => {
+    expect(await routeCityWalk(stops)).toBeNull()
+    expect(valhallaRunOnFoot).toHaveBeenCalledTimes(1)
+
+    // No way through the whole walk, but the host goes quiet while the halves are asked: nothing is known about the way.
+    valhallaRunOnFoot.mockReset().mockResolvedValueOnce(noPath).mockResolvedValue(null)
+    expect(await routeCityWalk(stops)).toBeNull()
+    expect(valhallaRunOnFoot).toHaveBeenCalledTimes(2)
   })
 })

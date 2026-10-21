@@ -765,6 +765,8 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.accepted':
     '{from}-dan {to}-a bərə, qəsdən qəbul edilib. Onun vaxtı yürüş vaxtından ayrı saxlanılır.',
   'tours.walk.ferry.accept': 'Bərəni qəbul et',
+  'tours.walk.ferry.acceptTooLong':
+    'Bu keçidin xətti bir hissə kimi saxlanmaq üçün çox uzundur. Yolda bir dayanacaq əlavə et və ya birini köçür.',
   'tours.walk.ferry.show': 'Keçidi göstər',
   'tours.walk.ferry.selectStop': '{number} nömrəli dayanacağı seç',
   'tours.walk.ferry.time': 'Qayıqla {time}',
@@ -773,7 +775,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'Bərə',
   'tours.walk.ferry.fieldInfoLabel': 'Bərə vaxtı haqqında',
   'tours.walk.ferry.fieldInfo':
-    'Qayıqla keçidlərin vaxtı, marşrutlaşdırıcının verdiyi kimi. Yürüş vaxtından ayrı saxlanılır və planlanan cəmə daxil deyil.',
+    'Qayıqla keçidlərin vaxtı, marşrutlaşdırıcının verdiyi kimi. Yürüş vaxtından ayrı saxlanılır, amma planlanan cəmə daxildir; o olmadan cəm minimum həddir.',
   'tours.walk.ferry.leg': 'Bərə keçidi',
   'tours.walk.ferry.legInfo': 'Qayıqla keçilib, piyada deyil. Vaxtı yürüş vaxtına daxil deyil.',
   'tours.walk.ferry.release': 'Yenidən piyada planla',

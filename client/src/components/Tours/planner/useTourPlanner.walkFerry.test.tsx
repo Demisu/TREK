@@ -30,7 +30,7 @@ const boatLine: [number, number][] = [ZATTERE, [45.4291, 12.3266], [45.4275, 12.
 const crossing = (accepted: boolean): WalkFerryCrossing => ({
   leg: 1,
   geometry: boatLine,
-  crossing: [1, 2],
+  crossings: [[1, 2]],
   metres: 268,
   seconds: 396,
   walkSeconds: 120,
@@ -118,7 +118,7 @@ describe('useTourPlanner, a city walk across the water (CW-12)', () => {
     expect(result.current.waypoints[1]?.fixedLeg).toEqual({
       kind: 'ferry',
       geometry: boatLine,
-      crossing: [1, 2],
+      crossings: [[1, 2]],
       minutes: 7,
       walk_minutes: 2,
     });
@@ -130,7 +130,7 @@ describe('useTourPlanner, a city walk across the water (CW-12)', () => {
       await result.current.save();
     });
     const body = createTour.mock.calls[0]?.[1] as TourCreateRequest;
-    expect(body.waypoints[1]?.fixed_leg).toMatchObject({ kind: 'ferry', crossing: [1, 2], minutes: 7 });
+    expect(body.waypoints[1]?.fixed_leg).toMatchObject({ kind: 'ferry', crossings: [[1, 2]], minutes: 7 });
     // The walking time saved is the walk alone; the boat's minutes stay on the leg.
     expect(body.duration_seconds).toBe(17 * 60);
   });

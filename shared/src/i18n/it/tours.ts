@@ -779,6 +779,8 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.accepted':
     'Traghetto da {from} a {to}, accettato di proposito. Il suo tempo resta separato dal tempo a piedi.',
   'tours.walk.ferry.accept': 'Accetta traghetto',
+  'tours.walk.ferry.acceptTooLong':
+    'La linea di questa traversata è troppo lunga per essere tenuta come un solo tratto. Aggiungi una tappa lungo il percorso o spostane una.',
   'tours.walk.ferry.show': 'Mostra traversata',
   'tours.walk.ferry.selectStop': 'Scegli la tappa {number}',
   'tours.walk.ferry.time': '{time} in barca',
@@ -787,7 +789,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'Traghetto',
   'tours.walk.ferry.fieldInfoLabel': 'Sul tempo in traghetto',
   'tours.walk.ferry.fieldInfo':
-    'Il tempo delle traversate in barca, come lo indica il calcolatore. Resta separato dal tempo a piedi e non è nel totale pianificato.',
+    'Il tempo delle traversate in barca, come lo indica il calcolatore. Resta separato dal tempo a piedi ma conta nel totale pianificato; senza di esso, il totale è un minimo.',
   'tours.walk.ferry.leg': 'Traversata in traghetto',
   'tours.walk.ferry.legInfo': 'Attraversato in barca, non a piedi. Il suo tempo non è nel tempo a piedi.',
   'tours.walk.ferry.release': 'Ripianifica a piedi',

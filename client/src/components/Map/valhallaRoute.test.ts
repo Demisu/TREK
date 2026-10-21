@@ -687,4 +687,21 @@ describe('crossings by boat on a walk (CW-12)', () => {
     expect(bodies[0].locations.map(location => location.search_filter)).toEqual([{ exclude_ferry: true }, { exclude_ferry: true }])
     expect(bodies[1].locations.every(location => !('search_filter' in location))).toBe(true)
   })
+
+  it('VALHALLA-FERRY-006: a "no path" from the router reads apart from a refusal about anything else, asked once', async () => {
+    const points = [{ lat: 45.4342798, lng: 12.338111 }, { lat: 45.4367609, lng: 12.3287531 }]
+    let calls = 0
+    setSettings({ valhalla_base_url: 'https://valhalla.test' })
+    server.use(http.post('https://valhalla.test/route', () => {
+      calls++
+      return HttpResponse.json({ error_code: 442, error: 'No path could be found for input', status_code: 400 }, { status: 400 })
+    }))
+    expect(await valhallaRunOnFoot(points, undefined, { use_ferry: 0 }, { exclude_ferry: true })).toEqual({ noPath: true })
+    expect(calls).toBe(1)
+    expect(await valhallaRun(points, 'walking', [])).toBeNull()
+
+    server.use(http.post('https://valhalla.test/route', () =>
+      HttpResponse.json({ error_code: 154, error: 'Path distance exceeds the max distance limit' }, { status: 400 })))
+    expect(await valhallaRunOnFoot(points, undefined, { use_ferry: 0 }, { exclude_ferry: true })).toBeNull()
+  })
 })

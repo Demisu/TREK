@@ -760,6 +760,8 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.accepted':
     'Ferry from {from} to {to}, taken on purpose. Its time is kept apart from the walking time.',
   'tours.walk.ferry.accept': 'Take ferry',
+  'tours.walk.ferry.acceptTooLong':
+    'The line of this crossing is too long to keep as one leg. Add a stop on the way, or move one.',
   'tours.walk.ferry.show': 'Show crossing',
   'tours.walk.ferry.selectStop': 'Select stop {number}',
   'tours.walk.ferry.time': '{time} by boat',
@@ -768,7 +770,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'Ferry',
   'tours.walk.ferry.fieldInfoLabel': 'About the ferry time',
   'tours.walk.ferry.fieldInfo':
-    'The time the crossings by boat take, as the router gives it. It is kept apart from the walking time and is not in the planned total.',
+    'The time the crossings by boat take, as the router gives it. It is kept apart from the walking time but counted in the planned total; without it, the total is a lower bound.',
   'tours.walk.ferry.leg': 'Ferry crossing',
   'tours.walk.ferry.legInfo': 'Crossed by boat, not walked. Its time is not in the walking time.',
   'tours.walk.ferry.release': 'Plan on foot again',

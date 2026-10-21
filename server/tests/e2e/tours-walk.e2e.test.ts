@@ -378,7 +378,7 @@ describe('City walks e2e (real guards + temp SQLite)', () => {
         [48.12, 11.52],
         [48.13, 11.53],
       ],
-      crossing: [0, 1],
+      crossings: [[0, 1]],
       minutes: 7,
       walk_minutes: 3,
     };
@@ -398,13 +398,15 @@ describe('City walks e2e (real guards + temp SQLite)', () => {
       const detail = await request(server).get(`/api/trips/5/tours/${placeId}`).set('Cookie', cookie(VIEWER));
       expect(detail.body.waypoints[1].fixed_leg).toEqual(FERRY);
       expect(detail.body.tour.duration).toBe(60);
+      // The boat is part of the day apart from the walking time, so a list can count it into the planned total.
+      expect(detail.body.tour.walk_ferry_minutes).toBe(7);
     });
 
     it('refuses it on any other type, and a crossing that does not run forwards within its leg', async () => {
       const bodies = [
         across(FERRY, 'hike'),
-        across({ ...FERRY, crossing: [1, 0] }),
-        across({ ...FERRY, crossing: [1, 3] }),
+        across({ ...FERRY, crossings: [[1, 0]] }),
+        across({ ...FERRY, crossings: [[1, 3]] }),
         across({ ...FERRY, minutes: -1 }),
       ];
       const statuses = await bodies.reduce<Promise<number[]>>(

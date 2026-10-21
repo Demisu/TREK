@@ -744,6 +744,8 @@ const tours: TranslationStrings = {
     '횡단은 도보 시간에 포함되지 않습니다. 저장하려면 페리를 채택하거나 도보 길이 이어지도록 정류지를 옮기세요.',
   'tours.walk.ferry.accepted': '{from}에서 {to}까지의 페리, 의도적으로 채택됨. 그 시간은 도보 시간과 따로 둡니다.',
   'tours.walk.ferry.accept': '페리 채택',
+  'tours.walk.ferry.acceptTooLong':
+    '이 횡단의 경로가 너무 길어 한 구간으로 저장할 수 없습니다. 중간에 정류지를 추가하거나 하나를 옮기세요.',
   'tours.walk.ferry.show': '횡단 보기',
   'tours.walk.ferry.selectStop': '정류지 {number} 선택',
   'tours.walk.ferry.time': '배로 {time}',
@@ -752,7 +754,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': '페리',
   'tours.walk.ferry.fieldInfoLabel': '페리 시간 안내',
   'tours.walk.ferry.fieldInfo':
-    '배로 건너는 데 걸리는 시간으로, 경로 탐색이 알려 준 값입니다. 도보 시간과 따로 두며 계획 총계에도 들어가지 않습니다.',
+    '배로 건너는 데 걸리는 시간으로, 경로 탐색이 알려 준 값입니다. 도보 시간과 따로 두지만 계획 총계에는 들어갑니다. 알 수 없으면 총계는 최소값입니다.',
   'tours.walk.ferry.leg': '페리 횡단',
   'tours.walk.ferry.legInfo': '걷지 않고 배로 건넙니다. 그 시간은 도보 시간에 없습니다.',
   'tours.walk.ferry.release': '다시 도보로 계획',

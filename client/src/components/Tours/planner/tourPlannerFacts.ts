@@ -76,7 +76,7 @@ export interface TourPlannerFactsInput {
    * CW-02: a city walk's stays as far as known, and of how many stations; null
    * for any other type, which takes its breaks.
    */
-  stays?: Pick<WalkTimes, 'stayMinutes' | 'unknownStays' | 'stations'> | null;
+  stays?: Pick<WalkTimes, 'stayMinutes' | 'unknownStays' | 'stations' | 'ferryMinutes'> | null;
   /** The router's own time, seconds: a bike tour's riding time; stands in for a hike until the heights are in. */
   durationSeconds: number | null;
   /** MDT-01: the stages the tour is split into, one for a day tour; a day each is what the times may take. */

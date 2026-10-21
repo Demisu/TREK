@@ -80,6 +80,18 @@ describe('walkScheduleOf', () => {
     expect(schedule.byStation.get('square')?.fit).toEqual({ kind: 'open', source: 'place', window: [540, 1410] });
   });
 
+  it('reaches a station after a crossing by boat its minutes later, the walk shared out on land only (CW-12)', () => {
+    // 20 min of walking to the square, then the boat to the cafe.
+    const stations = [museum, { ...square, stayMinutes: 0 }, cafe];
+    const boat = (minutes: number | null) => [{ crossings: [ROUTE.slice(1)], minutes }];
+    const crossed = walkScheduleOf(input({ stations, walkingMinutes: 20, ferries: boat(12) }));
+    expect(crossed.byStation.get('square')).toMatchObject({ arrival: 680, atLeast: false });
+    expect(crossed.byStation.get('cafe')).toMatchObject({ arrival: 692, atLeast: false, leave: 722 });
+
+    const untimed = walkScheduleOf(input({ stations, walkingMinutes: 20, ferries: boat(null) }));
+    expect(untimed.byStation.get('cafe')).toMatchObject({ arrival: 680, atLeast: true });
+  });
+
   it('knows no hours where no station has any', () => {
     const schedule = walkScheduleOf(input({ stations: [{ ...museum, openingHours: null }, square, cafe] }));
     expect(schedule.state).toBe('ready');

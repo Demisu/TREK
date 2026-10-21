@@ -759,6 +759,8 @@ const tours: TranslationStrings = {
     'Överfarten räknas inte som gångtid. För att spara, ta färjan eller flytta ett stopp så att en gångväg förbinder dem.',
   'tours.walk.ferry.accepted': 'Färja från {from} till {to}, tagen med avsikt. Dess tid hålls skild från gångtiden.',
   'tours.walk.ferry.accept': 'Ta färjan',
+  'tours.walk.ferry.acceptTooLong':
+    'Linjen för den här överfarten är för lång för att sparas som en sträcka. Lägg till ett stopp på vägen eller flytta ett.',
   'tours.walk.ferry.show': 'Visa överfarten',
   'tours.walk.ferry.selectStop': 'Välj stopp {number}',
   'tours.walk.ferry.time': '{time} med båt',
@@ -767,7 +769,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'Färja',
   'tours.walk.ferry.fieldInfoLabel': 'Om färjetiden',
   'tours.walk.ferry.fieldInfo':
-    'Tiden som överfarterna med båt tar, som ruttplaneraren anger den. Den hålls skild från gångtiden och ingår inte i den planerade summan.',
+    'Tiden som överfarterna med båt tar, som ruttplaneraren anger den. Den hålls skild från gångtiden men räknas in i den planerade summan; utan den är summan ett minimum.',
   'tours.walk.ferry.leg': 'Överfart med färja',
   'tours.walk.ferry.legInfo': 'Korsat med båt, inte gånget. Tiden ingår inte i gångtiden.',
   'tours.walk.ferry.release': 'Planera till fots igen',

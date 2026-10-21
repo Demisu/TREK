@@ -761,6 +761,8 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.accepted':
     'Phà từ {from} đến {to}, đã nhận có chủ ý. Thời gian của nó được tách khỏi thời gian đi bộ.',
   'tours.walk.ferry.accept': 'Nhận phà',
+  'tours.walk.ferry.acceptTooLong':
+    'Đường của chuyến qua này quá dài để giữ thành một chặng. Hãy thêm một điểm dừng trên đường hoặc di chuyển một điểm.',
   'tours.walk.ferry.show': 'Hiện chuyến qua',
   'tours.walk.ferry.selectStop': 'Chọn điểm dừng {number}',
   'tours.walk.ferry.time': '{time} bằng thuyền',
@@ -769,7 +771,7 @@ const tours: TranslationStrings = {
   'tours.walk.ferry.field': 'Phà',
   'tours.walk.ferry.fieldInfoLabel': 'Về thời gian đi phà',
   'tours.walk.ferry.fieldInfo':
-    'Thời gian các chuyến qua bằng thuyền, như bộ tìm đường đưa ra. Được tách khỏi thời gian đi bộ và không nằm trong tổng đã lập.',
+    'Thời gian các chuyến qua bằng thuyền, như bộ tìm đường đưa ra. Được tách khỏi thời gian đi bộ nhưng vẫn tính vào tổng đã lập; nếu thiếu, tổng chỉ là mức tối thiểu.',
   'tours.walk.ferry.leg': 'Qua bằng phà',
   'tours.walk.ferry.legInfo': 'Qua bằng thuyền, không đi bộ. Thời gian không nằm trong thời gian đi bộ.',
   'tours.walk.ferry.release': 'Lập lại theo đi bộ',

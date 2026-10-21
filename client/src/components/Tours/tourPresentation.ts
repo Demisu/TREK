@@ -36,7 +36,7 @@ export interface TourPlannedTimes {
 }
 
 type PlannedTimesSource = Pick<TourListItem, 'duration' | 'planned_duration_minutes' | 'break_additional_minutes'>
-  & Partial<Pick<TourListItem, 'tour_type' | 'station_count' | 'station_stay_minutes' | 'station_stays_unknown'>>
+  & Partial<Pick<TourListItem, 'tour_type' | 'station_count' | 'station_stay_minutes' | 'station_stays_unknown' | 'walk_ferry_minutes'>>
   & Partial<Pick<TourListItem, 'distance' | 'elevation_gain' | 'elevation_loss' | 'run_pace_seconds_per_km'>>
 
 /** TIME-01: the estimate of a tour, by the rule `@trek/shared` keeps for the app and the server alike. */
@@ -60,6 +60,8 @@ function walkTimesOfTour(tour: PlannedTimesSource): WalkTimes | null {
     stayMinutes: tour.station_stay_minutes,
     unknownStays: tour.station_stays_unknown ?? 0,
     stations: tour.station_count ?? 0,
+    // CW-12: the boat is part of the day, never of the walking time.
+    ...(tour.walk_ferry_minutes !== undefined ? { ferryMinutes: tour.walk_ferry_minutes } : {}),
   })
 }
 
