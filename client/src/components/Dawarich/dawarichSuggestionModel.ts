@@ -103,7 +103,7 @@ export function clockOf(iso: string): string {
  * 24-hour while the rest of the app obeyed the setting. A required argument makes the
  * next caller answer the question rather than inherit the bug.
  *
- * A stay that ends on a later day says so (`18:30 – 08:30 +1`), as a timetable
+ * A stay that ends on a later day says so, `08:30 +1` after an evening arrival, as a timetable
  * does, or a night at the hotel reads as fourteen hours that never happened.
  */
 export function timeRange(startedAt: string, endedAt: string, is12h: boolean): string {
