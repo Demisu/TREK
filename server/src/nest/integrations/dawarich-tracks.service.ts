@@ -1,7 +1,7 @@
 import { Trips } from '../../db/entities/Trips.entity';
 import { TripsRepository } from '../../db/repositories/Trips.repository';
 import { DomainError } from '../common/domain-error';
-import { DawarichClient, DawarichError, type DawarichCreds } from './dawarich.client';
+import { DawarichClient, DawarichError, type DawarichCreds, type DawarichTrackFeature } from './dawarich.client';
 import { RECORDING_GAP, bucketPointsByDay, bucketTracksByDay, countPoints, offsetMinutesOf } from './dawarich.helpers';
 import { DawarichService } from './dawarich.service';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -207,7 +207,7 @@ export class DawarichTracksService {
     if (capabilities?.tracks !== false) {
       try {
         const { features, truncated } = await this.client.listTracks(creds, from, to);
-        const sourceOffset = sourceOffsetOf(features[0]?.properties?.start_at);
+        const sourceOffset = sourceOffsetOn(features, date);
         const offset = zoneOf(zone, sourceOffset);
         const day = bucketTracksByDay(features, {
           maxPointsPerDay: DAWARICH_TRACK_POINTS_PER_DAY,
@@ -255,10 +255,21 @@ export class DawarichTracksService {
   }
 }
 
-/** The zone a Dawarich time names; null when it names none. */
-function sourceOffsetOf(value: unknown): number | null {
-  if (typeof value !== 'string' || !/(Z|[+-]\d{2}:?\d{2})$/.test(value)) return null;
-  return offsetMinutesOf(value);
+/**
+ * The zone Dawarich recorded the date in, read off the first track that starts
+ * on it: the window opens on the day before, and a traveller who crossed zones
+ * overnight was elsewhere then. A `Z` time names no zone, Dawarich just wrote
+ * UTC, so it reveals nothing about where the day was.
+ */
+function sourceOffsetOn(features: DawarichTrackFeature[], date: string): number | null {
+  for (const feature of features) {
+    const startAt = feature.properties?.start_at;
+    if (typeof startAt !== 'string' || !/[+-]\d{2}:?\d{2}$/.test(startAt)) continue;
+    const offset = offsetMinutesOf(startAt);
+    const localDate = new Date(Date.parse(startAt) + offset * 60_000).toISOString().slice(0, 10);
+    if (localDate === date) return offset;
+  }
+  return null;
 }
 
 function zoneOf(
