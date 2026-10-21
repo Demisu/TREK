@@ -21,12 +21,16 @@ export function makeCategory(orm: FactoryOrm, overrides: EntityData<Categories> 
 
 /** A tag owned by `userId`. */
 export function makeTag(orm: FactoryOrm, userId: number, overrides: EntityData<Tags> = {}): Promise<TagRow> {
-  return createRow(orm, Tags, {
-    user: userId,
-    name: `Test Tag ${nextSeq('tag')}`,
-    color: '#10b981',
-    ...overrides,
-  });
+  return createRow(
+    orm,
+    Tags,
+    {
+      user: userId,
+      name: `Test Tag ${nextSeq('tag')}`,
+      color: '#10b981',
+    },
+    overrides,
+  );
 }
 
 /** The lowest-id category, the one a place gets when the test names none. */
@@ -48,15 +52,19 @@ export async function makePlace(
   overrides: EntityData<Places> = {},
 ): Promise<PlaceRow> {
   const category = 'category' in overrides ? overrides.category : await firstCategoryId(orm);
-  return createRow(orm, Places, {
-    trip: tripId,
-    name: 'Test Place',
-    lat: 48.8566,
-    lng: 2.3522,
-    description: null,
-    ...overrides,
-    category,
-  });
+  return createRow(
+    orm,
+    Places,
+    {
+      trip: tripId,
+      name: 'Test Place',
+      lat: 48.8566,
+      lng: 2.3522,
+      description: null,
+      category,
+    },
+    { ...overrides, category },
+  );
 }
 
 /** Puts the tags on the place; tags it already has are skipped. */

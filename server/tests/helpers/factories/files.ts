@@ -17,14 +17,18 @@ export function makeTripFile(
   overrides: EntityData<TripFiles> = {},
 ): Promise<TripFileRow> {
   const n = nextSeq('trip-file');
-  return createRow(orm, TripFiles, {
-    trip: tripId,
-    filename: `test-file-${n}.pdf`,
-    original_name: `Test File ${n}.pdf`,
-    file_size: 1024,
-    mime_type: 'application/pdf',
-    ...overrides,
-  });
+  return createRow(
+    orm,
+    TripFiles,
+    {
+      trip: tripId,
+      filename: `test-file-${n}.pdf`,
+      original_name: `Test File ${n}.pdf`,
+      file_size: 1024,
+      mime_type: 'application/pdf',
+    },
+    overrides,
+  );
 }
 
 /** Links the file to a booking, an assignment, a place or an expense (name exactly one in `target`). */

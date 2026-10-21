@@ -65,11 +65,15 @@ export function makeInviteToken(
   createdBy: number,
   overrides: EntityData<InviteTokens> = {},
 ): Promise<EntityDTO<InviteTokens>> {
-  return createRow(orm, InviteTokens, {
-    token: `test-invite-${nextSeq('invite-token')}`,
-    max_uses: 1,
-    used_count: 0,
-    createdByRef: createdBy,
-    ...overrides,
-  });
+  return createRow(
+    orm,
+    InviteTokens,
+    {
+      token: `test-invite-${nextSeq('invite-token')}`,
+      max_uses: 1,
+      used_count: 0,
+      createdByRef: createdBy,
+    },
+    overrides,
+  );
 }
