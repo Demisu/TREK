@@ -884,12 +884,12 @@ describe('DawarichTracksService.fetchDay', () => {
     expect(day.segments).toHaveLength(1);
   });
 
-  it('DAWARICH-TRACKS-063: the source zone is the one of the first track on the date, not of the evening before in another zone', async () => {
+  it('DAWARICH-TRACKS-063: the source zone is the one of the first track on the date, not of the afternoon before in another zone', async () => {
     const h = harness({ capabilities: CAPABILITIES });
     h.listTracks.mockResolvedValue({
       features: [
-        // The evening before in Berlin, then the morning after landing in Tokyo.
-        feature({ start_at: '2026-04-30T20:00:00+02:00', end_at: '2026-04-30T21:00:00+02:00' }),
+        // The afternoon before in Berlin, then the morning after landing in Tokyo.
+        feature({ start_at: '2026-04-30T15:00:00+02:00', end_at: '2026-04-30T16:00:00+02:00' }),
         feature({ start_at: '2026-05-01T09:00:00+09:00', end_at: '2026-05-01T10:00:00+09:00' }),
       ],
       truncated: false,

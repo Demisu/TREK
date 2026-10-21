@@ -204,6 +204,7 @@ describe('TourChangeMcp.saveTourChange (MCP-T03)', () => {
       after.map(([lat, lng]) => ({ lat, lng })),
       'walking',
       [],
+      { footOnly: true },
     );
 
     // Saved: the line, the points with the kept keys and the link, the measures, the visits as they were.

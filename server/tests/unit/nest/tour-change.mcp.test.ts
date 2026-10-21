@@ -163,7 +163,7 @@ describe('TourChangeMcp (MCP-T02)', () => {
       [48.108, 11.5],
       [48.112, 11.5],
     ];
-    expect(route).toHaveBeenCalledWith(f.user.id, f.trip.id, 0, asked(saved), 'walking', []);
+    expect(route).toHaveBeenCalledWith(f.user.id, f.trip.id, 0, asked(saved), 'walking', [], { footOnly: true });
     expect(route).toHaveBeenCalledWith(
       f.user.id,
       f.trip.id,
@@ -171,6 +171,7 @@ describe('TourChangeMcp (MCP-T02)', () => {
       asked([...saved.slice(0, 3), [48.109, 11.501], [48.113, 11.502]]),
       'walking',
       [],
+      { footOnly: true },
     );
     expect(proposal.effects.walking).toEqual({
       planned_by: 'router_on_foot',

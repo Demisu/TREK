@@ -440,7 +440,7 @@ describe('CityWalkMcp (CW-11)', () => {
       { lat: 48.009, lng: 11 },
       { lat: 48.018, lng: 11 },
     ];
-    expect(route).toHaveBeenCalledWith(f.user.id, f.trip.id, 0, points, 'walking', []);
+    expect(route).toHaveBeenCalledWith(f.user.id, f.trip.id, 0, points, 'walking', [], { footOnly: true });
     expect(proposal.estimate).toEqual({ kind: 'routed', profile: 'walking' });
     expect(
       proposal.stations.map((s: { name: string; arrival: string; walk_from_previous: unknown }) => [
@@ -461,7 +461,7 @@ describe('CityWalkMcp (CW-11)', () => {
         ctx(f.user.id),
       ),
     );
-    expect(route).toHaveBeenLastCalledWith(f.user.id, f.trip.id, 0, points, 'walking', []);
+    expect(route).toHaveBeenLastCalledWith(f.user.id, f.trip.id, 0, points, 'walking', [], { footOnly: true });
     expect(created.foot_way).toEqual({ planned: true });
     expect(created.tour).toMatchObject({ route_pending: false, duration: 27, elevation_gain: null, station_count: 3 });
     expect(created.tour.distance).toBeCloseTo(2.0, 1);

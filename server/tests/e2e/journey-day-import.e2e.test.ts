@@ -20,6 +20,7 @@ import { JourneyEntryStays } from '../../src/db/entities/JourneyEntryStays.entit
 import { encrypt_api_key } from '../../src/nest/common/crypto/apiKeyCrypto';
 import { TrekExceptionFilter } from '../../src/nest/common/trek-exception.filter';
 import { ZodValidationPipe } from '../../src/nest/common/zod-validation.pipe';
+import { withRequestContext } from '../../src/nest/database/request-context';
 import { DawarichClient } from '../../src/nest/integrations/dawarich.client';
 import { JourneyRecordingsModule } from '../../src/nest/journey-recordings/journey-recordings.module';
 import { JourneyShareService } from '../../src/nest/journey/journey-share.service';
@@ -34,6 +35,7 @@ import { FakeRealtimeService } from '../helpers/fake-realtime';
 import { createTestMikroOrmModule, createTestOrm, type TestOrm } from '../helpers/test-orm';
 import { TestUnitOfWorkModule } from '../helpers/test-uow';
 import { sessionCookie } from './harness';
+import { MikroORM } from '@mikro-orm/core';
 import { Test } from '@nestjs/testing';
 
 import cookieParser from 'cookie-parser';
@@ -263,13 +265,15 @@ describe('Journey day take-over e2e (real guards + temp SQLite)', () => {
     await makeJourneyEntry(orm, journeyId, OWNER, { title: 'Arrival', entry_date: DAY });
     expect((await takeOver({ groups: [{ kind: 'single', stays: [{ suggestionId: first }] }] })).status).toBe(200);
     const share = app.get(JourneyShareService, { strict: false });
-    const link = await share.createOrUpdateJourneyShareLink(journeyId, OWNER, {
-      share_timeline: true,
-      share_map: true,
+    // Called beside a request, so the services get the request context a route would give them.
+    const published = await withRequestContext(app.get(MikroORM), async () => {
+      const link = await share.createOrUpdateJourneyShareLink(journeyId, OWNER, {
+        share_timeline: true,
+        share_map: true,
+      });
+      if (!link) throw new Error('no share link');
+      return share.getPublicJourney(link.token);
     });
-    if (!link) throw new Error('no share link');
-
-    const published = await share.getPublicJourney(link.token);
 
     expect(published?.entries.map((entry) => entry.title)).toEqual(['Arrival']);
     expect(published?.stats.entries).toBe(1);

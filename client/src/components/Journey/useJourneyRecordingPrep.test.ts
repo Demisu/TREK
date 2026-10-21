@@ -103,7 +103,7 @@ describe('useJourneyRecordingPrep', () => {
     await act(async () => {
       await result.current.setEnabled(true);
     });
-    expect(toast.error).toHaveBeenCalledWith('Failed to save');
+    expect(toast.error).toHaveBeenCalledWith('journey.settings.saveFailed');
     expect(opts.onSwitched).not.toHaveBeenCalled();
     expect(dawarich.syncNow).not.toHaveBeenCalled();
   });
@@ -124,7 +124,7 @@ describe('useJourneyRecordingPrep', () => {
     await act(async () => {
       await result.current.fetchNow();
     });
-    expect(toast.error).toHaveBeenCalledWith('Dawarich could not be asked right now.');
+    expect(toast.error).toHaveBeenCalledWith('journey.prep.fetchFailed');
     await waitFor(() => expect(repo.prep).toHaveBeenCalledTimes(3));
   });
 
@@ -136,9 +136,7 @@ describe('useJourneyRecordingPrep', () => {
     await act(async () => {
       await result.current.fetchNow();
     });
-    expect(toast.info).toHaveBeenCalledWith(
-      'A fetch is already running in the background. Its stays show up once it is through.'
-    );
+    expect(toast.info).toHaveBeenCalledWith('journey.prep.alreadyRunning');
   });
 
   it('FE-JRN-PREP-HOOK-007: a journey whose trips all ended out of reach marks no day and offers no fetch', async () => {
@@ -149,7 +147,7 @@ describe('useJourneyRecordingPrep', () => {
     expect(result.current.dayPrep('2026-05-14')).toBeNull();
     expect(result.current.canFetch).toBe(false);
     expect(result.current.statusLine).toEqual({
-      text: 'Trips that ended more than 400 days ago are not prepared in the background. Open one of their days to fetch it by hand.',
+      text: 'journey.prep.outOfReach',
       tone: 'warning',
     });
   });

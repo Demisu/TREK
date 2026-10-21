@@ -501,9 +501,10 @@ function JourneyMapGL(
       // fit bounds to all points
       const known = marksRef.current ?? []
       marksFramedRef.current = known.length > 0
+      known.forEach(mark => bounds.extend([mark.lng, mark.lat]))
       if (hasPoints || known.length > 0) {
         try {
-          map.fitBounds(markBounds(gl, known, entryPointsRef.current), fitOptions(paddingBottom, enableMapbox3d && fullScreen))
+          map.fitBounds(bounds, fitOptions(paddingBottom, enableMapbox3d && fullScreen))
         } catch { /* empty bounds */ }
       }
     })

@@ -19,6 +19,7 @@ import { Journeys } from '../../src/db/entities/Journeys.entity';
 import { encrypt_api_key } from '../../src/nest/common/crypto/apiKeyCrypto';
 import { TrekExceptionFilter } from '../../src/nest/common/trek-exception.filter';
 import { ZodValidationPipe } from '../../src/nest/common/zod-validation.pipe';
+import { withRequestContext } from '../../src/nest/database/request-context';
 import { DawarichSyncService } from '../../src/nest/integrations/dawarich-sync.service';
 import { DawarichClient, DawarichError } from '../../src/nest/integrations/dawarich.client';
 import { JourneyRecordingsModule } from '../../src/nest/journey-recordings/journey-recordings.module';
@@ -34,6 +35,7 @@ import { FakeRealtimeService } from '../helpers/fake-realtime';
 import { createTestMikroOrmModule, createTestOrm, type TestOrm } from '../helpers/test-orm';
 import { TestUnitOfWorkModule } from '../helpers/test-uow';
 import { sessionCookie } from './harness';
+import { MikroORM } from '@mikro-orm/core';
 import { Test } from '@nestjs/testing';
 
 import cookieParser from 'cookie-parser';
@@ -313,7 +315,8 @@ describe('Journey recordings e2e (real guards + temp SQLite)', () => {
     await linkTripToJourney(orm, journeyId, trip.id);
     await updateRows(orm, Journeys, { id: journeyId }, { auto_prepare_recordings: 1 });
     client.listVisits.mockResolvedValue({ visits: [], truncated: false, version: null });
-    await app.get(DawarichSyncService).syncUser(OWNER);
+    // The cron runs the sync in a request context of its own; called here, the test gives it one.
+    await withRequestContext(app.get(MikroORM), () => app.get(DawarichSyncService).syncUser(OWNER));
 
     const on = await request(server).get(`${base()}/prep`).set(as(OWNER));
     expect(on.body).toMatchObject({ enabled: true, connection: 'ready', lastError: null });

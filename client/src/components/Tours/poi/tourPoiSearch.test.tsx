@@ -63,6 +63,7 @@ const searchPlanner = (over: Partial<TourPlannerController> = {}) =>
     tourType: 'hike',
     route: ROUTE,
     mode: { type: 'edit-saved', placeId: 9 },
+    waypoints: [],
     ...over,
   }) as TourPlannerController;
 
@@ -720,7 +721,9 @@ describe('e-bike charging along a bike tour (BIK-07)', () => {
       points: TourPlannerWaypoint[]
     ) => TourPlannerWaypoint[];
     const added = normalizePlannerWaypoints(updater(POINTS)).find((point) => point.lat === CHARGER.lat);
-    expect(added).toMatchObject({ lng: CHARGER.lng, name: 'E-bike charging' });
+    // Unnamed, it keeps no name of its own, as every unnamed place does; its row shows the kind.
+    expect(added).toMatchObject({ lng: CHARGER.lng, poiCategory: 'ebike_charging' });
+    expect(added).not.toHaveProperty('name');
   });
 
   it('FE-TOUR-POI-029: a point that only lets bikes charge says so, and an unstated plug is dimmed, never named', async () => {

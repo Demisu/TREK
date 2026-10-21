@@ -152,7 +152,7 @@ describe('useJourneyDayImport', () => {
     await act(async () => result.current.submit());
 
     expect(toast.success).not.toHaveBeenCalled();
-    expect(toast.info).toHaveBeenCalledWith('2 stays were in the journal already. Nothing was written twice.');
+    expect(toast.info).toHaveBeenCalledWith('2 stays were taken over already. Nothing was written twice.');
     expect(repo.save).not.toHaveBeenCalled();
   });
 
