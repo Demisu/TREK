@@ -1,4 +1,4 @@
-// FE-JRN-RECORDING-DAY-001 to FE-JRN-RECORDING-DAY-007
+// FE-JRN-RECORDING-DAY-001 to FE-JRN-RECORDING-DAY-008
 //
 // JRN-01: taking one day's recorded route over, for the desktop dialog and the
 // phone sheet alike. Nothing is kept before the button, what is kept is the
@@ -121,6 +121,25 @@ describe('useJourneyRecordingDay', () => {
     expect(onKept).not.toHaveBeenCalled();
     expect(onClose).not.toHaveBeenCalled();
     expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it('FE-JRN-RECORDING-DAY-008: a day someone else kept meanwhile is read again and offers Replace, not a Keep that fails', async () => {
+    repo.preview.mockResolvedValue(buildRecordingPreview());
+    repo.save.mockRejectedValue(httpError('recording_exists'));
+    const { result, onKept, onClose } = setup();
+    await waitFor(() => expect(result.current.action).toBe('keep'));
+
+    repo.preview.mockResolvedValue(
+      buildRecordingPreview({ stored: buildRecordedDay({ contentHash: 'b'.repeat(64) }) })
+    );
+    await act(() => result.current.save());
+
+    expect(toast.error).toHaveBeenCalledWith('This journey already keeps another recording of that day.');
+    await waitFor(() => expect(result.current.action).toBe('replace'));
+    expect(repo.preview).toHaveBeenCalledTimes(2);
+    expect(result.current.changedSincePreview).toBe(false);
+    expect(onKept).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
   });
 
   it('FE-JRN-RECORDING-DAY-006: says why the day could not be read, and what was recorded nothing of has nothing to keep', async () => {

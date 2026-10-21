@@ -40,7 +40,7 @@ import MJourneyRecordingSheet from './MJourneyRecordingSheet'
  */
 export default function MJourneyDetail({ journeyId, embedded = false }: JourneyDetailOptions = {}) {
   const {
-    id, navigate, toast, t,
+    id, navigate, toast, t, locale,
     current, loading,
     canEditEntries, canEditJourney,
     view, setView,
@@ -515,7 +515,7 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
             <MListRow
               icon={Route}
               label={t('journey.recording.takeOverDay', {
-                date: new Date(entries[activeIndex].entry_date + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'long' }),
+                date: new Date(entries[activeIndex].entry_date + 'T00:00:00').toLocaleDateString(locale, { day: 'numeric', month: 'long' }),
               })}
               onClick={() => { setShowActionMenu(false); recordings.open(entries[activeIndex].entry_date) }}
             />

@@ -106,11 +106,15 @@ export function useJourneyRecordingDay({
       toast.success(t(action === 'replace' ? 'journey.recording.replacedToast' : 'journey.recording.keptToast'));
       onClose();
     } catch (err) {
-      if (recordingErrorCode(err) === 'recording_changed') {
+      const code = recordingErrorCode(err);
+      if (code === 'recording_changed') {
         setChangedSincePreview(true);
         retry();
       } else {
         toast.error(recordingErrorText(err, t));
+        // Someone kept the day meanwhile: read it again so the dialog shows
+        // their version and offers Replace instead of a Keep that cannot work.
+        if (code === 'recording_exists') retry();
       }
     } finally {
       setBusy(null);
