@@ -213,10 +213,9 @@ export class AssistantFoundPlacesService {
   private async answerOf(threadId: number): Promise<AssistantMessage> {
     const rows = await this.messages.listLatest(threadId, THREAD_ROWS);
     const calls = new Map<string, AssistantToolCallRow>();
-    for (const row of rows) {
-      if (!partsOf(row).some((part) => part.type === 'tool-call' && part.approval)) continue;
-      for (const call of await this.toolCalls.listByMessage(row.id)) calls.set(call.id, call);
-    }
+    const held = rows.filter((row) => partsOf(row).some((part) => part.type === 'tool-call' && part.approval));
+    const lists = await Promise.all(held.map((row) => this.toolCalls.listByMessage(row.id)));
+    for (const call of lists.flat()) calls.set(call.id, call);
     const messages = toThreadMessages(rows, calls, new Date());
     return messages[messages.length - 1];
   }

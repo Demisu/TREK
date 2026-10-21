@@ -73,7 +73,7 @@ beforeAll(async () => {
   orm = app.get(MikroORM);
   registry = app.get(McpRegistryService);
   tools = app.get(AssistantToolsService);
-  for (const addon of ['packing', 'budget']) await setAddonEnabled(orm, addon, true);
+  await Promise.all(['packing', 'budget'].map((addon) => setAddonEnabled(orm, addon, true)));
   const { user } = await makeUser(orm);
   listed = await listRaw(user.id);
 });
@@ -91,7 +91,7 @@ describe('the assistant tool catalog', () => {
     expect(checkToolCatalog(clash)).toContain('"import_booking" is the server\'s own step');
   });
 
-  it('ASTTOOL-006: the server\'s own steps are never offered to the model', () => {
+  it("ASTTOOL-006: the server's own steps are never offered to the model", () => {
     for (const name of ASSISTANT_SERVER_TOOLS) {
       expect(ASSISTANT_TOOL_ALLOWLIST.has(name), name).toBe(false);
       expect(listed.has(name), name).toBe(false);
@@ -149,7 +149,8 @@ describe('an assistant tool session', () => {
       const specs = session.specs();
       expect(specs.length).toBeGreaterThan(0);
       for (const spec of specs) {
-        expect(ASSISTANT_TOOL_ALLOWLIST.has(spec.name), spec.name).toBe(true);
+        // The trip notes are the server's own tool, offered beside the allowlist.
+        expect(ASSISTANT_TOOL_ALLOWLIST.has(spec.name) || spec.name === 'remember_for_trip', spec.name).toBe(true);
         const properties = Object.keys((spec.parameters.properties as Record<string, unknown> | undefined) ?? {});
         expect(properties, spec.name).not.toContain('tripId');
         const policy = ASSISTANT_ARG_POLICY[spec.name];

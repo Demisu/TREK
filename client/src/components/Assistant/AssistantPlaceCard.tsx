@@ -1,6 +1,6 @@
 import type { AssistantFoundPlace } from '@trek/shared';
 import { Check, ChevronDown, LoaderCircle, MapPin, Plus, Star } from 'lucide-react';
-import { type ReactNode, useRef } from 'react';
+import { createElement, type ReactNode, useRef } from 'react';
 
 import { useTranslation } from '../../i18n';
 import { getCategoryIcon } from '../shared/categoryIcons';
@@ -23,11 +23,12 @@ function SuggestButton({ place, strip, tall }: { place: AssistantFoundPlace; str
   const list = usePopoverList(focusDay ? days.findIndex((d) => d.id === focusDay.id) : 0, {
     estimatedHeight: Math.ceil(days.length / 7) * 44 + 16,
   });
+  const { open, toggle, close, triggerRef, listId } = list;
   const height = tall ? 'h-10' : 'h-7';
   const busy = adding === place.ref;
 
   const pick = (dayId: number) => {
-    list.close();
+    close();
     void strip.suggest(place, dayId);
   };
 
@@ -50,12 +51,12 @@ function SuggestButton({ place, strip, tall }: { place: AssistantFoundPlace; str
             <span className="truncate">{t('assistant.place.addToShort', { n: focusDay.n })}</span>
           </button>
           <button
-            ref={list.triggerRef}
+            ref={triggerRef}
             type="button"
             disabled={disabled}
-            onClick={list.toggle}
-            aria-expanded={list.open}
-            aria-controls={list.open ? list.listId : undefined}
+            onClick={toggle}
+            aria-expanded={open}
+            aria-controls={open ? listId : undefined}
             aria-label={t('assistant.place.pickDay')}
             className={`${ACTION} ${height} rounded-s-none px-1.5`}
           >
@@ -64,12 +65,12 @@ function SuggestButton({ place, strip, tall }: { place: AssistantFoundPlace; str
         </>
       ) : (
         <button
-          ref={list.triggerRef}
+          ref={triggerRef}
           type="button"
           disabled={disabled}
-          onClick={list.toggle}
-          aria-expanded={list.open}
-          aria-controls={list.open ? list.listId : undefined}
+          onClick={toggle}
+          aria-expanded={open}
+          aria-controls={open ? listId : undefined}
           className={`${ACTION} ${height} px-2`}
         >
           <Plus size={12} aria-hidden="true" />
@@ -122,14 +123,113 @@ function SuggestButton({ place, strip, tall }: { place: AssistantFoundPlace; str
   );
 }
 
+type Category = ReturnType<Strip['categoryOf']>;
+
+/** The picture, or the category's icon on its colour, with the category and whether it is open on it. */
+function PlaceMedia({
+  place,
+  photo,
+  category,
+}: {
+  place: AssistantFoundPlace;
+  photo: string | null;
+  category: Category;
+}) {
+  const { t } = useTranslation();
+  const icon = category ? getCategoryIcon(category.icon) : MapPin;
+  return (
+    <span
+      className="relative block h-24 w-full overflow-hidden bg-surface-secondary"
+      // Without a picture the category's own colour washes the space, data from the trip.
+      style={
+        photo || !category
+          ? undefined
+          : { background: `color-mix(in srgb, ${category.color} 16%, var(--bg-secondary))` }
+      }
+    >
+      {photo ? (
+        <img
+          src={photo}
+          alt=""
+          decoding="async"
+          loading="lazy"
+          className="h-full w-full object-cover transition-transform duration-300 group-hover/card:scale-[1.04]"
+        />
+      ) : (
+        <span className="grid h-full w-full place-items-center">
+          {createElement(icon, {
+            size: 30,
+            'aria-hidden': true,
+            style: { color: category?.color ?? 'var(--text-faint)' },
+          })}
+        </span>
+      )}
+      {category && photo && (
+        <span className="absolute start-2 top-2 inline-flex max-w-[75%] items-center gap-1 rounded-full bg-surface-card px-2 py-0.5 text-caption font-medium text-content shadow-sm">
+          {createElement(icon, {
+            size: 11,
+            'aria-hidden': true,
+            className: 'flex-shrink-0',
+            style: { color: category.color },
+          })}
+          <bdi className="truncate">{category.name}</bdi>
+        </span>
+      )}
+      {place.openNow !== null && (
+        <span className="absolute bottom-2 end-2 inline-flex items-center gap-1 rounded-full bg-surface-card px-2 py-0.5 text-caption font-medium text-content-muted shadow-sm">
+          <span
+            aria-hidden="true"
+            className={`h-1.5 w-1.5 rounded-full ${place.openNow ? 'bg-success' : 'bg-[color:var(--text-faint)]'}`}
+          />
+          {t(place.openNow ? 'assistant.place.openNow' : 'assistant.place.closed')}
+        </span>
+      )}
+    </span>
+  );
+}
+
+/** The card's one way on: "On map" for a place the trip has, "Suggested" once it is, else "+ Day 3". */
+function PlaceAction({
+  place,
+  strip,
+  suggested,
+  tall,
+}: {
+  place: AssistantFoundPlace;
+  strip: Strip;
+  suggested: boolean;
+  tall: boolean;
+}): ReactNode {
+  const { t } = useTranslation();
+  if (place.inTripPlaceId !== null) {
+    return (
+      <Tooltip label={t('assistant.place.inTrip')} placement="top">
+        <button type="button" onClick={() => strip.show(place)} className={`${ACTION} ${tall ? 'h-10' : 'h-7'} px-2`}>
+          <MapPin size={12} aria-hidden="true" />
+          {t('assistant.place.showOnMap')}
+        </button>
+      </Tooltip>
+    );
+  }
+  if (suggested) {
+    return (
+      <span className="inline-flex h-7 items-center gap-1 text-caption text-content-muted">
+        <Check size={12} aria-hidden="true" className="text-success" />
+        {t('assistant.place.suggested')}
+      </span>
+    );
+  }
+  return strip.canSuggest ? <SuggestButton place={place} strip={strip} tall={tall} /> : null;
+}
+
 /**
  * One place a search found, as a card: its picture from TREK's photo proxy
  * with the category it most likely belongs in on it (or that category's icon
  * on its colour), its name, address and rating, whether it is open now while
  * the trip runs, how far it is from the last stop of the day in focus, and one
- * way on: "+ Day 3" for a new
- * place, "On map" for one the trip has. A click on the card shows it on the
- * map, and resting the pointer on it pins it there for a moment.
+ * way on: "+ Day 3" for a new place, "On map" for one the trip has. A click on
+ * the card shows it on the map, and resting the pointer on it pins it there
+ * for a moment.
  */
 export default function AssistantPlaceCard({
   place,
@@ -146,29 +246,7 @@ export default function AssistantPlaceCard({
   const photo = useFoundPlacePhoto(place, ref);
   const category = strip.categoryOf(place);
   const distance = strip.distanceOf(place);
-  const Icon = category ? getCategoryIcon(category.icon) : MapPin;
   const tall = variant === 'fullscreen';
-
-  let action: ReactNode = null;
-  if (place.inTripPlaceId !== null) {
-    action = (
-      <Tooltip label={t('assistant.place.inTrip')} placement="top">
-        <button type="button" onClick={() => strip.show(place)} className={`${ACTION} ${tall ? 'h-10' : 'h-7'} px-2`}>
-          <MapPin size={12} aria-hidden="true" />
-          {t('assistant.place.showOnMap')}
-        </button>
-      </Tooltip>
-    );
-  } else if (suggested) {
-    action = (
-      <span className="inline-flex h-7 items-center gap-1 text-caption text-content-muted">
-        <Check size={12} aria-hidden="true" className="text-success" />
-        {t('assistant.place.suggested')}
-      </span>
-    );
-  } else if (strip.canSuggest) {
-    action = <SuggestButton place={place} strip={strip} tall={tall} />;
-  }
 
   return (
     <li
@@ -186,44 +264,7 @@ export default function AssistantPlaceCard({
         onBlur={() => strip.hover(null)}
         className="flex flex-col text-start outline-none focus-visible:bg-surface-hover"
       >
-        <span
-          className="relative block h-24 w-full overflow-hidden bg-surface-secondary"
-          // Without a picture the category's own colour washes the space, data from the trip.
-          style={
-            photo || !category
-              ? undefined
-              : { background: `color-mix(in srgb, ${category.color} 16%, var(--bg-secondary))` }
-          }
-        >
-          {photo ? (
-            <img
-              src={photo}
-              alt=""
-              decoding="async"
-              loading="lazy"
-              className="h-full w-full object-cover transition-transform duration-300 group-hover/card:scale-[1.04]"
-            />
-          ) : (
-            <span className="grid h-full w-full place-items-center">
-              <Icon size={30} aria-hidden="true" style={{ color: category?.color ?? 'var(--text-faint)' }} />
-            </span>
-          )}
-          {category && photo && (
-            <span className="absolute start-2 top-2 inline-flex max-w-[75%] items-center gap-1 rounded-full bg-surface-card px-2 py-0.5 text-caption font-medium text-content shadow-sm">
-              <Icon size={11} aria-hidden="true" className="flex-shrink-0" style={{ color: category.color }} />
-              <bdi className="truncate">{category.name}</bdi>
-            </span>
-          )}
-          {place.openNow !== null && (
-            <span className="absolute bottom-2 end-2 inline-flex items-center gap-1 rounded-full bg-surface-card px-2 py-0.5 text-caption font-medium text-content-muted shadow-sm">
-              <span
-                aria-hidden="true"
-                className={`h-1.5 w-1.5 rounded-full ${place.openNow ? 'bg-success' : 'bg-[color:var(--text-faint)]'}`}
-              />
-              {t(place.openNow ? 'assistant.place.openNow' : 'assistant.place.closed')}
-            </span>
-          )}
-        </span>
+        <PlaceMedia place={place} photo={photo} category={category} />
         <span className="flex min-w-0 flex-col gap-1 px-3 pt-2.5">
           <bdi className="line-clamp-2 text-body font-semibold leading-snug text-content">{place.name}</bdi>
           {category && !photo && <bdi className="truncate text-caption text-content-muted">{category.name}</bdi>}
@@ -241,7 +282,9 @@ export default function AssistantPlaceCard({
           )}
         </span>
       </button>
-      <div className="mt-auto flex min-w-0 px-3 pb-3 pt-2.5">{action}</div>
+      <div className="mt-auto flex min-w-0 px-3 pb-3 pt-2.5">
+        <PlaceAction place={place} strip={strip} suggested={suggested} tall={tall} />
+      </div>
     </li>
   );
 }

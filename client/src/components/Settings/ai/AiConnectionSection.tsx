@@ -202,6 +202,43 @@ function AssistantBehaviour() {
   );
 }
 
+/** The connect panel, opened on purpose or because nothing is connected yet. */
+function ConnectPanel({ S }: { S: AiConnections }) {
+  const { t } = useTranslation();
+  return (
+    <div className={`flex flex-col gap-3 ${S.view === 'setup' ? '' : 'border-t border-edge-faint pt-4'}`}>
+      <AiConnectPanel key={S.panelMode ?? 'any'} scope="user" onConnected={S.onConnected} initialMode={S.panelMode} />
+      {S.view !== 'setup' && (
+        <button type="button" onClick={S.closePanel} className={`${SETTINGS_BUTTON} self-start`} style={fs(13, 'body')}>
+          {t('common.cancel')}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** How long chats are kept, and for an admin the way to the setting for everyone. */
+function SectionFooter({ S }: { S: AiConnections }) {
+  const { t } = useTranslation();
+  const retention = S.view !== 'setup' && !!S.retentionText;
+  if (!S.isAdmin && !retention) return null;
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+      {S.view !== 'setup' && <SettingsHint>{S.retentionText}</SettingsHint>}
+      {S.isAdmin && (
+        <button
+          type="button"
+          onClick={S.openAdmin}
+          className="font-medium text-content-muted underline underline-offset-2 hover:text-content"
+          style={fs(12, 'body')}
+        >
+          {t('assistant.setup.forEveryone')}
+        </button>
+      )}
+    </div>
+  );
+}
+
 /**
  * Settings → Integrations → the user's AI connection: connect a provider, see
  * which one answers, pick its model, leave again. The assistant runs on it and
@@ -242,42 +279,8 @@ export default function AiConnectionSection({
       {assistant && (S.view === 'own' || S.view === 'instance') && <AssistantBehaviour />}
       {S.view === 'adminOnly' && <SettingsHint>{t('assistant.setup.adminOnly')}</SettingsHint>}
 
-      {S.panel && (
-        <div className={`flex flex-col gap-3 ${S.view === 'setup' ? '' : 'border-t border-edge-faint pt-4'}`}>
-          <AiConnectPanel
-            key={S.panelMode ?? 'any'}
-            scope="user"
-            onConnected={S.onConnected}
-            initialMode={S.panelMode}
-          />
-          {S.view !== 'setup' && (
-            <button
-              type="button"
-              onClick={S.closePanel}
-              className={`${SETTINGS_BUTTON} self-start`}
-              style={fs(13, 'body')}
-            >
-              {t('common.cancel')}
-            </button>
-          )}
-        </div>
-      )}
-
-      {(S.isAdmin || (S.retentionText && S.view !== 'setup')) && (
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-          {S.view !== 'setup' && <SettingsHint>{S.retentionText}</SettingsHint>}
-          {S.isAdmin && (
-            <button
-              type="button"
-              onClick={S.openAdmin}
-              className="font-medium text-content-muted underline underline-offset-2 hover:text-content"
-              style={fs(12, 'body')}
-            >
-              {t('assistant.setup.forEveryone')}
-            </button>
-          )}
-        </div>
-      )}
+      {S.panel && <ConnectPanel S={S} />}
+      <SectionFooter S={S} />
 
       <ConfirmDialog
         isOpen={S.ownActions.confirmingDisconnect}

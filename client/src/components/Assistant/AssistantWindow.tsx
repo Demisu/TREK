@@ -225,6 +225,7 @@ export default function AssistantWindow({ trip, onShowOnMap, onFocusDay }: Assis
   const loadStatus = useAssistantStore((s) => s.loadStatus);
   const toggle = useAssistantStore((s) => s.toggle);
   const [picked, setPicked] = useState<WindowTrip | null>(null);
+  const [wasOpen, setWasOpen] = useState(open);
 
   useEffect(() => {
     void loadStatus();
@@ -232,9 +233,10 @@ export default function AssistantWindow({ trip, onShowOnMap, onFocusDay }: Assis
   useAssistantHotkey(available, toggle);
 
   // A trip picked outside the planner is only for this opening; the next one asks again.
-  useEffect(() => {
+  if (open !== wasOpen) {
+    setWasOpen(open);
     if (!open) setPicked(null);
-  }, [open]);
+  }
 
   const current = trip ?? picked;
   const showPicked = useCallback(() => {

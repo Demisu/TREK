@@ -82,6 +82,19 @@ function weatherDays(parts: readonly AssistantMessagePart[]): AssistantWeatherDa
   return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
 }
 
+/**
+ * Adds a change to the change block before it, or starts one. A suggestion
+ * from the strip is a block of its own, decided apart from the changes before
+ * and after it, even where the answer joins them.
+ */
+function pushChange(blocks: MessageBlock[], item: ChangeItem, fromStrip: ReadonlySet<string>): void {
+  const last = blocks[blocks.length - 1];
+  const lastId = last?.kind === 'change' ? last.items[last.items.length - 1]?.toolCallId : undefined;
+  const apart = fromStrip.has(item.toolCallId) || (lastId !== undefined && fromStrip.has(lastId));
+  if (last?.kind === 'change' && !apart) last.items.push(item);
+  else blocks.push({ kind: 'change', key: `change-${item.toolCallId}`, items: [item] });
+}
+
 /** The steps block a new step joins: the last one, past any strip shown after it. */
 function openSteps(blocks: readonly MessageBlock[]): Extract<MessageBlock, { kind: 'steps' }> | null {
   for (let i = blocks.length - 1; i >= 0; i--) {
@@ -134,7 +147,6 @@ export function messageBlocks(message: AssistantMessage, writing: boolean): Mess
 
   const blocks: MessageBlock[] = [];
   message.parts.forEach((part, index) => {
-    const last = blocks[blocks.length - 1];
     if (part.type === 'text') {
       if (part.text.trim()) blocks.push({ kind: 'text', key: `text-${index}`, text: part.text });
       return;
@@ -153,12 +165,7 @@ export function messageBlocks(message: AssistantMessage, writing: boolean): Mess
     if (part.approval || preview) {
       const applied = receipts.get(part.toolCallId) ?? null;
       const item: ChangeItem = { toolCallId: part.toolCallId, preview, applied, state: changeState(part, applied) };
-      // A suggestion from the strip is a block of its own, decided apart from
-      // the changes before and after it, even where the answer joins them.
-      const lastId = last?.kind === 'change' ? last.items[last.items.length - 1]?.toolCallId : undefined;
-      const apart = fromStrip.has(part.toolCallId) || (lastId !== undefined && fromStrip.has(lastId));
-      if (last?.kind === 'change' && !apart) last.items.push(item);
-      else blocks.push({ kind: 'change', key: `change-${part.toolCallId}`, items: [item] });
+      pushChange(blocks, item, fromStrip);
       return;
     }
     const step: ToolStep = {

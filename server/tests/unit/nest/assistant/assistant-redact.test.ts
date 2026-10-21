@@ -37,12 +37,13 @@ describe('fitToSize', () => {
 
   it('ASTRED-011: cuts arrays and long strings, says so, and stays valid JSON', () => {
     const value = {
-      places: Array.from({ length: 500 }, (_, i) => ({ id: i, name: `Place ${i}`, about: 'x'.repeat(2000) })),
+      places: Array.from({ length: 500 }, (_, i) => ({ id: i, name: `Place ${i}`, about: 'x'.repeat(6000) })),
     };
     const fitted = fitToSize(value, 12_000) as { places: Array<{ about: string }>; truncated: boolean };
     expect(fitted.truncated).toBe(true);
     expect(fitted.places.length).toBeLessThan(500);
-    expect(fitted.places[0].about.length).toBe(1001);
+    // A string stops at 4 000 characters and an ellipsis.
+    expect(fitted.places[0].about.length).toBe(4001);
     expect(JSON.stringify(fitted).length).toBeLessThanOrEqual(12_000);
   });
 

@@ -1,7 +1,7 @@
 {
   "src": {
     "@typescript-eslint/no-non-null-assertion": 404,
-    "@typescript-eslint/no-misused-promises": 858,
+    "@typescript-eslint/no-misused-promises": 854,
     "no-console": 88,
     "complexity": 229,
     "@typescript-eslint/no-explicit-any": 146,
@@ -35,7 +35,7 @@
   },
   "tests": {
     "@typescript-eslint/no-explicit-any": 491,
-    "@typescript-eslint/no-non-null-assertion": 1943,
+    "@typescript-eslint/no-non-null-assertion": 1942,
     "@typescript-eslint/no-misused-promises": 22,
     "@typescript-eslint/no-unused-vars": 51,
     "@typescript-eslint/no-floating-promises": 33,

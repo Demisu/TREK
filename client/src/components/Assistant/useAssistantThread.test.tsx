@@ -14,6 +14,18 @@ import { TranslationProvider } from '../../i18n/TranslationContext';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import { useAssistantThread } from './useAssistantThread';
 
+const { addToast } = vi.hoisted(() => ({ addToast: vi.fn() }));
+// The toasts a component raises, read as (message, type) the way the toast host takes them.
+vi.mock('../shared/Toast', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../shared/Toast')>()),
+  useToast: () => ({
+    success: (message: string) => addToast(message, 'success', undefined),
+    error: (message: string) => addToast(message, 'error', undefined),
+    warning: (message: string) => addToast(message, 'warning', undefined),
+    info: (message: string) => addToast(message, 'info', undefined),
+  }),
+}));
+
 const TRIP = 4;
 const INITIAL = useAssistantStore.getState();
 
@@ -21,7 +33,6 @@ const resume = vi.fn(async () => {});
 const cancel = vi.fn();
 const deleteThread = vi.fn(async () => {});
 const openThread = vi.fn(async () => {});
-const addToast = vi.fn();
 
 const wrapper = ({ children }: { children: ReactNode }) => <TranslationProvider>{children}</TranslationProvider>;
 
@@ -45,13 +56,10 @@ function seed(threadId: number | null, retention: AiStatusResponse['retention'])
   });
 }
 
-beforeEach(() => {
-  window.__addToast = addToast as unknown as typeof window.__addToast;
-});
+beforeEach(() => {});
 
 afterEach(() => {
   useAssistantStore.setState(INITIAL, true);
-  delete window.__addToast;
   vi.clearAllMocks();
 });
 
@@ -80,7 +88,7 @@ describe('useAssistantThread', () => {
   it('FE-AI-THREAD-003: opens and deletes conversations of this trip only', async () => {
     seed(7, { mode: 'days', days: 30 });
     const { result } = renderHook(() => useAssistantThread(TRIP), { wrapper });
-    act(() => result.current.openThread(8));
+    await act(() => result.current.openThread(8));
     expect(openThread).toHaveBeenCalledWith(TRIP, 8);
     await act(() => result.current.removeThread());
     expect(deleteThread).toHaveBeenCalledWith(TRIP, 7);

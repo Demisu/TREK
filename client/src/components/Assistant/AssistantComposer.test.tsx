@@ -80,7 +80,7 @@ describe('AssistantComposer mentions', () => {
     fireEvent.keyDown(field, { key: 'Enter' });
     await waitFor(() => expect(field.value).toBe('Is @Louvre '));
     expect(send).not.toHaveBeenCalled();
-    expect(screen.queryByRole('listbox')).toBeNull();
+    await waitFor(() => expect(screen.queryByRole('listbox')).toBeNull());
     expect(mentions()).toEqual([{ kind: 'place', id: 21, label: 'Louvre' }]);
     expect(chatOf(useAssistantStore.getState(), TRIP).draft).toBe('Is @Louvre ');
     // The pick shows in the text only, never as a chip above it.

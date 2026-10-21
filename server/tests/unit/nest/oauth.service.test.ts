@@ -1527,7 +1527,7 @@ describe('Client ID Metadata Documents', () => {
     const result = await validateAuthorizeRequest(
       {
         ...authorizeParams(),
-        client_id: created.client!.client_id as string,
+        client_id: created.client?.client_id as string,
         redirect_uri: 'https://example.com/callback',
       },
       user.id,

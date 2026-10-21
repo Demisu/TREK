@@ -48,6 +48,7 @@ export default function AssistantHeader({ tripId, thread, tripTitle, onClose, dr
   const [confirming, setConfirming] = useState(false);
   const threads = thread.threads ?? [];
   const history = usePopoverList(threads.findIndex((th) => th.id === thread.threadId) + 1);
+  const { open: historyOpen, triggerRef: historyTrigger, listId: historyListId } = history;
   const hints = useAssistantHintsSetting();
 
   const openHistory = () => {
@@ -140,12 +141,12 @@ export default function AssistantHeader({ tripId, thread, tripTitle, onClose, dr
         </Tooltip>
         <Tooltip label={t('assistant.history.open')}>
           <button
-            ref={history.triggerRef}
+            ref={historyTrigger}
             type="button"
             onClick={openHistory}
             aria-label={t('assistant.history.open')}
-            aria-expanded={history.open}
-            aria-controls={history.open ? history.listId : undefined}
+            aria-expanded={historyOpen}
+            aria-controls={historyOpen ? historyListId : undefined}
             className={ICON_BUTTON}
           >
             <History size={13} aria-hidden="true" />

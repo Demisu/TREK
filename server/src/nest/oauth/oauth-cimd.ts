@@ -117,8 +117,10 @@ export class CimdClientResolver {
     if (cached && cached.expiresAt > Date.now()) return cached.client;
 
     const pending = this.inflight.get(clientId);
-    if (pending) return pending;
-    const lookup = this.lookup(url).finally(() => this.inflight.delete(clientId));
+    if (pending !== undefined) return pending;
+    const lookup = this.lookup(url).finally(() => {
+      this.inflight.delete(clientId);
+    });
     this.inflight.set(clientId, lookup);
     return lookup;
   }

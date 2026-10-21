@@ -13,6 +13,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { buildDay, buildPlace, buildTrip, buildUser } from '../../../tests/helpers/factories';
 import { fireEvent, render, screen } from '../../../tests/helpers/render';
+import { TranslationProvider } from '../../i18n/TranslationContext';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import { useAuthStore } from '../../store/authStore';
 import { useSettingsStore } from '../../store/settingsStore';
@@ -197,11 +198,12 @@ describe('the context menu rows', () => {
     const openWith = vi.fn();
     useAssistantStore.setState({ status: null, send, openWith });
     const louvre = buildPlace({ id: 5, name: 'Louvre' });
-    const off = renderHook(() => useAssistantMenu(TRIP));
+    const translated = ({ children }: { children: ReactNode }) => <TranslationProvider>{children}</TranslationProvider>;
+    const off = renderHook(() => useAssistantMenu(TRIP), { wrapper: translated });
     expect(off.result.current.place(louvre)).toEqual([]);
 
     useAssistantStore.setState({ status: { available: true } as never });
-    const on = renderHook(() => useAssistantMenu(TRIP));
+    const on = renderHook(() => useAssistantMenu(TRIP), { wrapper: translated });
     const rows = on.result.current.place(louvre);
     const alternative = rows.find((r) => 'label' in r && r.label === 'Find an alternative');
     act(() => (alternative && 'onClick' in alternative ? alternative.onClick() : undefined));

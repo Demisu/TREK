@@ -24,6 +24,7 @@ import { DayAssignments } from '../../src/db/entities/DayAssignments.entity';
 import { Places } from '../../src/db/entities/Places.entity';
 import { Reservations } from '../../src/db/entities/Reservations.entity';
 import { Trips } from '../../src/db/entities/Trips.entity';
+import { TURNS_PER_MINUTE } from '../../src/nest/assistant/assistant-tools.constants';
 import { AssistantToolsService } from '../../src/nest/assistant/assistant-tools.service';
 import { BookingImportService } from '../../src/nest/booking-import/booking-import.service';
 import { MapsService } from '../../src/nest/maps/maps.service';
@@ -168,11 +169,14 @@ afterAll(async () => {
 
 const CTX = { locale: 'en', timeZone: 'Europe/Berlin' };
 
-function textParser(res: IncomingMessage, done: (err: Error | null, body: string) => void): void {
-  let text = '';
-  res.setEncoding('utf8');
-  res.on('data', (chunk: string) => (text += chunk));
-  res.on('end', () => done(null, text));
+/** The request with its whole answer read as text, a stream included. */
+function asText(req: request.Test): request.Test {
+  return req.buffer(true).parse((res, done) => {
+    let text = '';
+    res.setEncoding('utf8');
+    res.on('data', (chunk: string) => (text += chunk));
+    res.on('end', () => done(null, text));
+  });
 }
 
 interface Answer {
@@ -182,12 +186,7 @@ interface Answer {
 }
 
 async function post(path: string, userId: number, body: object): Promise<Answer> {
-  const res = await request(nestApp.getHttpServer())
-    .post(path)
-    .set('Cookie', sessionCookie(userId))
-    .send(body)
-    .buffer(true)
-    .parse(textParser);
+  const res = await asText(request(nestApp.getHttpServer()).post(path).set('Cookie', sessionCookie(userId)).send(body));
   return parseAnswer(res.status, String(res.headers['content-type']), res.body as string);
 }
 
@@ -209,14 +208,13 @@ function parseAnswer(status: number, contentType: string, text: string): Answer 
 
 /** A file attached in the chat, as the client uploads it (multipart, the context as text fields). */
 async function upload(path: string, userId: number, fileName: string): Promise<Answer> {
-  const res = await request(nestApp.getHttpServer())
+  const req = request(nestApp.getHttpServer())
     .post(path)
     .set('Cookie', sessionCookie(userId))
     .field('locale', CTX.locale)
     .field('timeZone', CTX.timeZone)
-    .attach('file', Buffer.from('%PDF-1.4\n'), { filename: fileName, contentType: 'application/pdf' })
-    .buffer(true)
-    .parse(textParser);
+    .attach('file', Buffer.from('%PDF-1.4\n'), { filename: fileName, contentType: 'application/pdf' });
+  const res = await asText(req);
   return parseAnswer(res.status, String(res.headers['content-type']), res.body as string);
 }
 
@@ -302,7 +300,10 @@ async function searchTurn(t: { userId: number; base: string }) {
 }
 
 function addFound(path: string, userId: number, body: object) {
-  return request(nestApp.getHttpServer()).post(path).set('Cookie', sessionCookie(userId)).send({ ...CTX, ...body });
+  return request(nestApp.getHttpServer())
+    .post(path)
+    .set('Cookie', sessionCookie(userId))
+    .send({ ...CTX, ...body });
 }
 
 // ── Cases ────────────────────────────────────────────────────────────────────
@@ -556,7 +557,9 @@ describe('Trip assistant e2e', () => {
     provider.script = [() => ({ status: 503 })];
     const turn = await post(`${t.base}/chat`, t.userId, { ...CTX, threadId: null, text: 'hi' });
     expect(turn.status).toBe(200);
-    expect(turn.chunks.slice(-2)).toEqual([
+    // The day's count goes out before the end, so it is read apart from it.
+    const ending = turn.chunks.filter((chunk) => chunk.type !== 'data-trek-quota');
+    expect(ending.slice(-2)).toEqual([
       { type: 'error', errorText: 'provider_unavailable' },
       { type: 'finish', finishReason: 'error' },
     ]);
@@ -564,20 +567,20 @@ describe('Trip assistant e2e', () => {
 
   it('ASTE2E-011: turns are rate limited per user', async () => {
     const t = await travelerWithTrip();
-    const statuses: number[] = [];
-    let last: { code?: unknown } = {};
-    for (let i = 0; i < 11; i++) {
-      const res = await request(nestApp.getHttpServer())
-        .post(`${t.base}/tool-calls/missing/undo`)
-        .set('Cookie', sessionCookie(t.userId))
-        .send({});
-      statuses.push(res.status);
-      last = res.body as { code?: unknown };
-    }
-    expect(statuses.slice(0, 10).every((status) => status === 404)).toBe(true);
-    expect(statuses[10]).toBe(429);
+    const responses = await Promise.all(
+      Array.from({ length: TURNS_PER_MINUTE + 1 }, () =>
+        request(nestApp.getHttpServer())
+          .post(`${t.base}/tool-calls/missing/undo`)
+          .set('Cookie', sessionCookie(t.userId))
+          .send({}),
+      ),
+    );
+    const statuses = responses.map((res) => res.status);
+    expect(statuses.filter((status) => status === 404)).toHaveLength(TURNS_PER_MINUTE);
+    const limited = responses.filter((res) => res.status === 429);
+    expect(limited).toHaveLength(1);
     // TREK's own limit, told apart from a provider's `rate_limited`.
-    expect(last.code).toBe('too_many_requests');
+    expect((limited[0]?.body as { code?: unknown }).code).toBe('too_many_requests');
   });
 
   it('ASTE2E-012: a thread is deleted by its owner, and all go with the trip', async () => {
@@ -683,8 +686,8 @@ describe('Trip assistant e2e', () => {
       ],
       warnings: [],
     });
-    let threadId = 0;
-    let toolCallId = '';
+    let threadId: number;
+    let toolCallId: string;
     try {
       const turn = await upload(`${t.base}/attachments`, t.userId, 'ticket.pdf');
       expect(turn.status).toBe(200);
@@ -854,7 +857,10 @@ describe('Trip assistant e2e', () => {
 
     provider.script = [say('Noted.')];
     await post(`${t.base}/chat`, t.userId, { ...CTX, threadId, text: 'Thanks' });
-    const sent = provider.requests.at(-1)?.messages.map((message) => String(message.content ?? '')).join('\n');
+    const sent = provider.requests
+      .at(-1)
+      ?.messages.map((message) => String(message.content ?? ''))
+      .join('\n');
     expect(sent).toContain(`"Ginkaku-ji" was added to day ${day.id}.`);
   });
 

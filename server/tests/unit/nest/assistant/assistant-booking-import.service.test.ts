@@ -5,6 +5,7 @@
  * applies it, the same an MCP write runs.
  */
 import { AssistantBookingImportService } from '../../../../src/nest/assistant/assistant-booking-import.service';
+import { MAX_BOOKINGS_PER_FILE } from '../../../../src/nest/assistant/assistant-tools.constants';
 import { BookingImportService } from '../../../../src/nest/booking-import/booking-import.service';
 import { DemoService } from '../../../../src/nest/common/demo.service';
 import { DomainError } from '../../../../src/nest/common/domain-error';
@@ -41,7 +42,7 @@ async function make(opts: Opts = {}) {
     aiAvailable: vi.fn(async () => opts.ai === true),
     readsImages: vi.fn(async () => opts.images === true),
     preview: vi.fn(async (_files: Express.Multer.File[], _mode: string, _userId: number) => ({
-      items: Array.from({ length: 14 }, (_, index) => ({ ...ITEM, title: `Leg ${index}` })),
+      items: Array.from({ length: MAX_BOOKINGS_PER_FILE + 2 }, (_, index) => ({ ...ITEM, title: `Leg ${index}` })),
       warnings: [],
     })),
     confirm: vi.fn(async () => ({ created: [{ id: 81, title: 'ICE 123', type: 'train', day_id: 31 }] })),
@@ -82,12 +83,12 @@ describe('AssistantBookingImportService', () => {
     expect(await readable({ ai: true, images: true }, 'scan.jpg')).toBeNull();
   });
 
-  it('ASTBKI-002: reads with the AI only as a fallback, and keeps a step\'s worth of bookings', async () => {
+  it("ASTBKI-002: reads with the AI only as a fallback, and keeps a step's worth of bookings", async () => {
     const plain = await make();
     const items = await plain.service.read(7, file('a.pdf'));
     const given = expect.objectContaining({ originalname: 'a.pdf' });
     expect(plain.bookingImport.preview).toHaveBeenCalledWith([given], 'no-ai', 7);
-    expect(items).toHaveLength(12);
+    expect(items).toHaveLength(MAX_BOOKINGS_PER_FILE);
     const ai = await make({ ai: true });
     await ai.service.read(7, file('a.pdf'));
     expect(ai.bookingImport.preview.mock.calls[0][1]).toBe('fallback-on-empty');
@@ -104,14 +105,15 @@ describe('AssistantBookingImportService', () => {
   });
 
   it('ASTBKI-004: refused for a demo account, off the trip, without the right, or when broken', async () => {
-    for (const opts of [{ demo: true }, { trip: false }, { right: false }]) {
+    const refused = async (opts: Parameters<typeof make>[0]) => {
       const t = await make(opts);
       expect(await t.service.apply(7, 5, { ...ITEM })).toEqual({
         ok: false,
         value: 'You are not allowed to add bookings to this trip.',
       });
       expect(t.bookingImport.confirm).not.toHaveBeenCalled();
-    }
+    };
+    await Promise.all([{ demo: true }, { trip: false }, { right: false }].map(refused));
     const broken = await make();
     expect(await broken.service.apply(7, 5, { title: '' })).toEqual({
       ok: false,

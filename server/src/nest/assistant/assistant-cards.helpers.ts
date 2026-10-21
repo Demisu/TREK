@@ -1,6 +1,6 @@
 import type { CardPlace, TripCard } from './assistant-context';
 import { redactForProvider } from './assistant-redact';
-import { dayLabel } from './tool-call-preview.helpers';
+import { dayLabel, type PreviewContext } from './tool-call-preview.helpers';
 import {
   haversineMetres,
   kindOfResult,
@@ -255,6 +255,13 @@ export function activityOf(toolName: string, toolCallId: string, args: Row, card
   return label === null && area === null ? null : { toolCallId, label, area };
 }
 
+/** What a mention is called in the trip; null when the trip holds no such thing. */
+function mentionLabel(ctx: PreviewContext, kind: AssistantMention['kind'], id: number): string | null {
+  if (kind === 'day') return ctx.card.days.some((day) => day.id === id) ? dayLabel(ctx, id) : null;
+  if (kind === 'place') return ctx.card.places.get(id)?.name ?? null;
+  return ctx.card.reservations.get(id)?.title ?? null;
+}
+
 /**
  * The days, places and bookings the user named with `@`, with the labels the
  * trip gives them (never the ones the request sent). One that is not in the
@@ -269,10 +276,7 @@ export function mentionItems(
   const seen = new Set<string>();
   const ctx = { card, categories: new Map<number, string>(), locale };
   for (const { kind, id } of mentions) {
-    let label: string | null = null;
-    if (kind === 'day') label = card.days.some((day) => day.id === id) ? dayLabel(ctx, id) : null;
-    else if (kind === 'place') label = card.places.get(id)?.name ?? null;
-    else label = card.reservations.get(id)?.title ?? null;
+    const label = mentionLabel(ctx, kind, id);
     const shown = clipped(label, MAX_NAME_CHARS);
     if (!shown || seen.has(`${kind}:${id}`)) continue;
     seen.add(`${kind}:${id}`);

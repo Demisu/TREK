@@ -35,6 +35,7 @@ import { runAgentLoop, type AgentStore, type HeldCall, type StepRecord } from '.
 import { AssistantBookingImportService } from './assistant-booking-import.service';
 import { mentionItems } from './assistant-cards.helpers';
 import { buildTripCard, categoriesFrom, languageName, todayIn, turnContext, type TripCard } from './assistant-context';
+import { DISCARDED, NOT_RUN, type Outcome, withCancelled, withOutcomes } from './assistant-decisions.helpers';
 import { messageIdOf, outputText, partsOf, toChatHistory, toThreadMessages } from './assistant-history';
 import { rememberForTrip } from './assistant-memory';
 import { toolOutputForProvider } from './assistant-redact';
@@ -84,22 +85,18 @@ const THREAD_ROWS = 50;
 /** Message rows a turn sends the provider. */
 const HISTORY_ROWS = 120;
 
-/** What the model and the thread record for a change the user discarded or moved on from. */
-const DISCARDED = { applied: false, reason: 'The user discarded this change.' };
-const CANCELLED = { applied: false, reason: 'The user moved on without deciding.' };
-const NOT_RUN = { applied: false, reason: 'The change could not be run.' };
-
 /** What the read step of an attached file answers when the file could not be read. */
 const FILE_UNREADABLE = 'The file could not be read.';
 
 /** The longest file name a message keeps. */
 const MAX_FILE_NAME_CHARS = 255;
 
-/** What became of one decided change, as its message records it. */
-interface Outcome {
-  approved: boolean;
-  result: unknown;
-  isError: boolean;
+/** Where one applied change reports to: the stream, and what its message records. */
+interface AppliedSink {
+  w: UiStreamWriter;
+  unrun: Set<string>;
+  outcomes: Map<string, Outcome>;
+  receipts: AssistantMessagePart[];
 }
 
 /**
@@ -624,20 +621,21 @@ export class AssistantService {
 
   private async cancelOpen(threadId: number, now: string): Promise<void> {
     const open = await this.toolCalls.listOpen(threadId);
-    const cancelled = new Set<string>();
-    for (const call of open) {
-      if (await this.toolCalls.claimDecision(call.id, threadId, false, dbNow(new Date(0)), now)) cancelled.add(call.id);
-    }
-    for (const messageId of new Set(open.map((call) => call.message_id))) {
-      const row = await this.messages.findInThread(messageId, threadId);
-      if (!row) continue;
-      const parts = partsOf(row).map((part) =>
-        part.type === 'tool-call' && cancelled.has(part.toolCallId)
-          ? { ...part, result: CANCELLED, approval: { id: part.toolCallId, resolution: 'cancelled' as const } }
-          : part,
-      );
-      await this.messages.update(messageId, { parts: encodeParts(parts), status: 'complete' });
-    }
+    const claimed = await Promise.all(
+      open.map((call) => this.toolCalls.claimDecision(call.id, threadId, false, dbNow(new Date(0)), now)),
+    );
+    const cancelled = new Set(open.filter((_call, i) => claimed[i]).map((call) => call.id));
+    await Promise.all(
+      [...new Set(open.map((call) => call.message_id))].map((id) => this.markCancelled(id, threadId, cancelled)),
+    );
+  }
+
+  /** Marks the cancelled changes of one message as such, and the message as done. */
+  private async markCancelled(messageId: number, threadId: number, cancelled: ReadonlySet<string>): Promise<void> {
+    const row = await this.messages.findInThread(messageId, threadId);
+    if (!row) return;
+    const parts = withCancelled(partsOf(row), cancelled);
+    await this.messages.update(messageId, { parts: encodeParts(parts), status: 'complete' });
   }
 
   /**
@@ -660,14 +658,13 @@ export class AssistantService {
     const now = new Date();
     const notBefore = dbNow(new Date(now.getTime() - APPROVAL_TTL_MS));
     const decided = await this.uow.transactional(async () => {
-      const taken: Array<{ call: AssistantToolCallRow; approved: boolean }> = [];
-      for (const call of open) {
-        const approved = wanted.get(call.id) === true;
-        if (await this.toolCalls.claimDecision(call.id, threadId, approved, notBefore, dbNow(now))) {
-          taken.push({ call, approved });
-        }
-      }
-      return taken;
+      const claims = open.map((call) => ({ call, approved: wanted.get(call.id) === true }));
+      const taken = await Promise.all(
+        claims.map(({ call, approved }) =>
+          this.toolCalls.claimDecision(call.id, threadId, approved, notBefore, dbNow(now)),
+        ),
+      );
+      return claims.filter((_claim, i) => taken[i]);
     });
     if (decided.length === 0) {
       throw conflict('These changes were decided already or have expired', { code: 'generic' });
@@ -694,47 +691,59 @@ export class AssistantService {
   ): Promise<void> {
     const outcomes = new Map<string, Outcome>();
     const receipts: AssistantMessagePart[] = [];
-    for (const { call, approved } of decided) {
-      if (!approved) {
-        w.toolDenied(call.id);
-        outcomes.set(call.id, { approved: false, result: DISCARDED, isError: false });
-        continue;
-      }
-      const args = decodeJson(ASSISTANT_TOOL_ARGS, call.args, `tool call ${call.id}`);
-      const ran = await run(call.tool_name, args);
-      const output = toolOutputForProvider(call.tool_name, ran.value);
-      const undoable = ran.ok && !!ASSISTANT_UNDO_MAP[writeToolOf(call.tool_name, args)]?.args(args, ran.value);
-      const undoUntil = undoable ? dbNow(new Date(Date.now() + UNDO_WINDOW_MS)) : null;
-      await this.inContext(() =>
-        this.toolCalls.recordOutcome(
-          call.id,
-          ran.ok ? 'executed' : 'failed',
-          encodeJson(ASSISTANT_TOOL_RESULT, ran.value),
-          undoUntil,
-        ),
-      );
-      unrun.delete(call.id);
-      outcomes.set(call.id, { approved: true, result: output, isError: !ran.ok });
-      if (!ran.ok) {
-        w.toolError(call.id, outputText(output));
-        continue;
-      }
-      w.toolOutput(call.id, output);
-      const preview = decodeJson(ASSISTANT_TOOL_PREVIEW, call.preview, `tool call ${call.id}`);
-      const applied = appliedChange(
-        call.tool_name,
-        call.id,
-        args,
-        ran.value,
-        preview?.dayId ?? null,
-        utcSuffix(undoUntil),
-      );
-      if (applied) {
-        w.applied(applied);
-        receipts.push({ type: 'data-trek-applied', data: applied });
-      }
-    }
+    // One after another: a change may build on the one before it.
+    await decided.reduce<Promise<void>>(async (previous, { call, approved }) => {
+      await previous;
+      await this.applyOne(run, call, approved, { w, unrun, outcomes, receipts });
+    }, Promise.resolve());
     await this.recordDecided(threadId, decided[0].call.message_id, outcomes, receipts);
+  }
+
+  /** Runs one decided change, or records it as discarded, and tells the client what became of it. */
+  private async applyOne(
+    run: (name: string, args: Record<string, unknown>) => Promise<ToolRun>,
+    call: AssistantToolCallRow,
+    approved: boolean,
+    { w, unrun, outcomes, receipts }: AppliedSink,
+  ): Promise<void> {
+    if (!approved) {
+      w.toolDenied(call.id);
+      outcomes.set(call.id, { approved: false, result: DISCARDED, isError: false });
+      return;
+    }
+    const args = decodeJson(ASSISTANT_TOOL_ARGS, call.args, `tool call ${call.id}`);
+    const ran = await run(call.tool_name, args);
+    const output = toolOutputForProvider(call.tool_name, ran.value);
+    const undoable = ran.ok && !!ASSISTANT_UNDO_MAP[writeToolOf(call.tool_name, args)]?.args(args, ran.value);
+    const undoUntil = undoable ? dbNow(new Date(Date.now() + UNDO_WINDOW_MS)) : null;
+    await this.inContext(() =>
+      this.toolCalls.recordOutcome(
+        call.id,
+        ran.ok ? 'executed' : 'failed',
+        encodeJson(ASSISTANT_TOOL_RESULT, ran.value),
+        undoUntil,
+      ),
+    );
+    unrun.delete(call.id);
+    outcomes.set(call.id, { approved: true, result: output, isError: !ran.ok });
+    if (!ran.ok) {
+      w.toolError(call.id, outputText(output));
+      return;
+    }
+    w.toolOutput(call.id, output);
+    const preview = decodeJson(ASSISTANT_TOOL_PREVIEW, call.preview, `tool call ${call.id}`);
+    const applied = appliedChange(
+      call.tool_name,
+      call.id,
+      args,
+      ran.value,
+      preview?.dayId ?? null,
+      utcSuffix(undoUntil),
+    );
+    if (applied) {
+      w.applied(applied);
+      receipts.push({ type: 'data-trek-applied', data: applied });
+    }
   }
 
   /**
@@ -751,16 +760,17 @@ export class AssistantService {
   ): Promise<void> {
     const outcomes = new Map<string, Outcome>();
     for (const { call, approved } of decided) {
-      if (!approved) {
-        outcomes.set(call.id, { approved: false, result: DISCARDED, isError: false });
-        continue;
-      }
-      if (!unrun.has(call.id)) continue;
-      await this.inContext(() =>
-        this.toolCalls.recordOutcome(call.id, 'failed', encodeJson(ASSISTANT_TOOL_RESULT, NOT_RUN), null),
-      );
-      outcomes.set(call.id, { approved: true, result: NOT_RUN, isError: true });
+      if (!approved) outcomes.set(call.id, { approved: false, result: DISCARDED, isError: false });
+      else if (unrun.has(call.id)) outcomes.set(call.id, { approved: true, result: NOT_RUN, isError: true });
     }
+    const failed = decided.filter(({ call, approved }) => approved && unrun.has(call.id));
+    await Promise.all(
+      failed.map(({ call }) =>
+        this.inContext(() =>
+          this.toolCalls.recordOutcome(call.id, 'failed', encodeJson(ASSISTANT_TOOL_RESULT, NOT_RUN), null),
+        ),
+      ),
+    );
     await this.recordDecided(threadId, decided[0].call.message_id, outcomes, []);
   }
 
@@ -774,16 +784,7 @@ export class AssistantService {
     await this.inContext(async () => {
       const row = await this.messages.findInThread(messageId, threadId);
       if (!row) return;
-      const parts = partsOf(row).map((part) => {
-        const outcome = part.type === 'tool-call' ? outcomes.get(part.toolCallId) : undefined;
-        if (part.type !== 'tool-call' || !outcome) return part;
-        return {
-          ...part,
-          result: outcome.result,
-          ...(outcome.isError ? { isError: true } : {}),
-          approval: { id: part.toolCallId, approved: outcome.approved },
-        };
-      });
+      const parts = withOutcomes(partsOf(row), outcomes);
       await this.messages.update(messageId, { parts: encodeParts([...parts, ...receipts]), status: 'complete' });
     });
   }
@@ -799,12 +800,9 @@ export class AssistantService {
 
   /** The tool call rows behind the held changes of these messages, by id. */
   private async callsOf(rows: readonly AssistantMessageRow[]): Promise<Map<string, AssistantToolCallRow>> {
-    const calls = new Map<string, AssistantToolCallRow>();
-    for (const row of rows) {
-      if (!partsOf(row).some((part) => part.type === 'tool-call' && part.approval)) continue;
-      for (const call of await this.toolCalls.listByMessage(row.id)) calls.set(call.id, call);
-    }
-    return calls;
+    const held = rows.filter((row) => partsOf(row).some((part) => part.type === 'tool-call' && part.approval));
+    const lists = await Promise.all(held.map((row) => this.toolCalls.listByMessage(row.id)));
+    return new Map(lists.flat().map((call) => [call.id, call]));
   }
 
   /**

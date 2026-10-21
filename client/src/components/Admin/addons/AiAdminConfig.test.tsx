@@ -167,7 +167,9 @@ describe('AI parsing', () => {
     expect(
       await screen.findByText('No connection yet. Set one up for everyone, or give AI parsing its own.')
     ).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Connection' }));
+    // The link in the hint, not the tab of the same name above it.
+    const link = screen.getAllByRole('button', { name: 'Connection' }).find((b) => !b.hasAttribute('aria-pressed'));
+    await user.click(link as HTMLElement);
     expect(await screen.findByRole('radio', { name: 'I pay, own allowed' })).toBeInTheDocument();
   });
 

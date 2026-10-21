@@ -145,7 +145,6 @@
   "tests/integration/api/client.test.ts": 1,
   "tests/integration/hooks/useRouteCalculation.test.ts": 1,
   "tests/unit/i18n/i18nKeysScript.test.ts": 3,
-  "tests/unit/mobile/admin/MAdminAddonManager.test.tsx": 2,
   "tests/unit/mobile/admin/MAdminGitHubPanel.test.tsx": 1,
   "tests/unit/mobile/admin/MAdminNotifyMatrix.test.tsx": 1,
   "tests/unit/mobile/admin/MAdminStoragePanel.test.tsx": 1,

@@ -172,6 +172,231 @@ function uniqueCallId(call: AiToolCall, used: Set<string>, newId: () => string):
   return id;
 }
 
+/** What every step of one turn shares. */
+interface Turn {
+  deps: AgentDeps;
+  input: AgentInput;
+  w: UiStreamWriter;
+  signal: AbortSignal;
+  history: AiChatMessage[];
+  usage: { inputTokens: number; outputTokens: number };
+  knownPlaceIds: Set<string>;
+  /** Whether the turn used its one push (an empty, cut-off or announcing answer). */
+  nudged: boolean;
+}
+
+function outcomeOf(turn: Turn, end: AgentOutcome['end'], code: AssistantErrorCode | null = null): AgentOutcome {
+  return { end, code, ...turn.usage };
+}
+
+function finishTurn(turn: Turn, reason: 'stop' | 'tool-calls' | 'error'): void {
+  if (turn.deps.quota) turn.w.quota(turn.deps.quota.used, turn.deps.quota.limit);
+  turn.w.finish(reason);
+}
+
+/** What the model answered in one step. */
+interface StepAnswer {
+  text: string;
+  received: AiToolCall[];
+  providerState: AiProviderState | null;
+  cutOff: boolean;
+}
+
+/** Streams one answer of the model; a failure or a stop ends the turn here, saved as far as it got. */
+async function streamAnswer(turn: Turn, rowId: number): Promise<StepAnswer | AgentOutcome> {
+  const { deps, input, w, signal } = turn;
+  const answer: StepAnswer = { text: '', received: [], providerState: null, cutOff: false };
+  try {
+    const events = deps.client.stream(
+      {
+        system: input.system,
+        context: input.context,
+        messages: turn.history,
+        tools: deps.tools.specs(),
+        cacheKey: input.cacheKey,
+      },
+      signal,
+    );
+    for await (const event of events) {
+      if (event.type === 'text-delta') {
+        answer.text += event.delta;
+        w.text(event.delta);
+      } else if (event.type === 'tool-call') answer.received.push(event.call);
+      else if (event.type === 'usage') {
+        turn.usage.inputTokens += event.inputTokens;
+        turn.usage.outputTokens += event.outputTokens;
+      } else if (event.type === 'provider-state') answer.providerState = event.state;
+      else if (event.type === 'finish') answer.cutOff = event.reason === 'length';
+    }
+    return answer;
+  } catch (err) {
+    const partial: StepRecord = {
+      parts: answer.text ? [{ type: 'text', text: answer.text }] : [],
+      providerState: null,
+    };
+    if (signal.aborted) {
+      await deps.store.saveStep(rowId, partial, 'aborted');
+      w.abort();
+      return outcomeOf(turn, 'aborted');
+    }
+    const code = err instanceof AiProviderError ? err.code : 'generic';
+    await deps.store.saveStep(rowId, partial, 'error');
+    w.error(code);
+    finishTurn(turn, 'error');
+    return outcomeOf(turn, 'failed', code);
+  }
+}
+
+/**
+ * Runs the calls of one step in the order the model made them: a read at once,
+ * a change described and held, a refused call answered with why.
+ */
+async function runCalls(turn: Turn, calls: AiToolCall[], collected: StepParts): Promise<HeldCall[]> {
+  const { deps, w, signal } = turn;
+  const writes = calls.filter((call) => deps.tools.kindOf(call.name) === 'write').length;
+  const held: HeldCall[] = [];
+  let reads = 0;
+  const runOne = async (call: AiToolCall): Promise<void> => {
+    if (signal.aborted) return;
+    const kind = deps.tools.kindOf(call.name);
+    let prepared = kind ? deps.tools.pinArgs(call.name, call.args) : { error: `Unknown tool: ${call.name}` };
+    const unknownPlace = 'error' in prepared ? null : placeIdRefusal(call.name, prepared.args, turn.knownPlaceIds);
+    if (unknownPlace) prepared = { error: unknownPlace };
+    if (kind === 'read' && !('error' in prepared)) reads += 1;
+    const overCap = kind === 'write' ? writes > MAX_WRITES_PER_STEP : reads > MAX_READS_PER_STEP;
+    if ('error' in prepared || overCap) {
+      let refusal = kind === 'write' ? TOO_MANY_CHANGES : TOO_MANY_LOOKUPS;
+      if ('error' in prepared) refusal = prepared.error;
+      w.toolInput(call.id, call.name, call.args);
+      w.toolError(call.id, refusal);
+      collected.parts.push({
+        type: 'tool-call',
+        toolCallId: call.id,
+        toolName: call.name,
+        args: call.args,
+        result: refusal,
+        isError: true,
+      });
+      return;
+    }
+    if (kind === 'read') {
+      await runRead(deps, { id: call.id, name: call.name, args: prepared.args }, w, collected);
+      return;
+    }
+    const id = deps.newId();
+    const preview = await deps.describe(call.name, id, prepared.args);
+    held.push({ id, providerCallId: call.id, toolName: call.name, args: prepared.args, preview });
+  };
+  // One after another: the stream tells each call before the next one starts.
+  await calls.reduce<Promise<void>>(async (previous, call) => {
+    await previous;
+    await runOne(call);
+  }, Promise.resolve());
+  return held;
+}
+
+/** Saves a step whose changes wait for the user and announces them; the turn ends there. */
+async function holdChanges(turn: Turn, rowId: number, step: StepRecord, held: HeldCall[]): Promise<AgentOutcome> {
+  const { w } = turn;
+  for (const change of held) {
+    const { id, toolName, args } = change;
+    step.parts.push({ type: 'tool-call', toolCallId: id, toolName, args, approval: { id } });
+  }
+  step.parts.push(...held.map((change): AssistantMessagePart => ({ type: 'data-trek-change', data: change.preview })));
+  await turn.deps.store.holdStep(rowId, step, held);
+  for (const change of held) {
+    w.toolInput(change.id, change.toolName, change.args);
+    w.approvalRequest(change.id);
+    w.change(change.preview);
+  }
+  w.finishStep();
+  finishTurn(turn, 'tool-calls');
+  return outcomeOf(turn, 'awaiting');
+}
+
+/** Records a step that ran its reads, and hands their answers back for the next one. */
+async function carryOn(turn: Turn, rowId: number, step: StepRecord, text: string, calls: AiToolCall[]): Promise<void> {
+  await turn.deps.store.saveStep(rowId, step, 'complete');
+  turn.w.finishStep();
+  turn.history.push({ role: 'assistant', text, toolCalls: calls, providerState: step.providerState });
+  for (const part of step.parts) {
+    if (part.type !== 'tool-call') continue;
+    turn.history.push({
+      role: 'tool',
+      toolCallId: part.toolCallId,
+      name: part.toolName,
+      output: outputText(part.result),
+      ...(part.isError ? { isError: true } : {}),
+    });
+  }
+}
+
+/** One step of the turn: the outcome when the turn ends with it, null when the model is asked again. */
+async function runStep(turn: Turn, step: number): Promise<AgentOutcome | null> {
+  const { deps, input, w, signal, history } = turn;
+  const rowId = await deps.store.openStep();
+  w.startStep();
+  const answer = await streamAnswer(turn, rowId);
+  if ('end' in answer) return answer;
+  const { text, received, providerState, cutOff } = answer;
+
+  const parts: AssistantMessagePart[] = text ? [{ type: 'text', text }] : [];
+  const empty = received.length === 0 && !text.trim();
+  const announced = received.length === 0 && step === 0 && ANNOUNCED.test(text.trimEnd());
+  const push = empty || (received.length === 0 && cutOff) ? GO_ON : announced ? MAKE_THE_CALLS : null;
+  if (push && !turn.nudged) {
+    turn.nudged = true;
+    await deps.store.saveStep(rowId, { parts, providerState }, 'complete');
+    w.finishStep();
+    // An empty assistant message is one the providers refuse; only the push goes back.
+    if (!empty) history.push({ role: 'assistant', text, toolCalls: [], providerState });
+    history.push({ role: 'user', text: push });
+    return null;
+  }
+  if (empty) {
+    await deps.store.saveStep(rowId, { parts, providerState }, 'error');
+    w.error('empty_answer');
+    finishTurn(turn, 'error');
+    return outcomeOf(turn, 'failed', 'empty_answer');
+  }
+  if (received.length === 0) {
+    await deps.store.saveStep(rowId, { parts, providerState }, 'complete');
+    w.finishStep();
+    finishTurn(turn, 'stop');
+    return outcomeOf(turn, 'stop');
+  }
+
+  const calls = received.map((call) => ({ ...call, id: uniqueCallId(call, input.usedCallIds, deps.newId) }));
+  const collected: StepParts = { parts, weather: [], knownPlaceIds: turn.knownPlaceIds };
+  const held = await runCalls(turn, calls, collected);
+  // One weather strip per step, whatever the step held: it is told before the changes.
+  const weather = weatherOf(collected.weather);
+  if (weather) {
+    w.weather(weather);
+    parts.push({ type: 'data-trek-weather', data: weather });
+  }
+
+  // A stopped step keeps what ran; the changes it was about to propose are dropped, never held.
+  if (signal.aborted) {
+    await deps.store.saveStep(rowId, { parts, providerState }, 'aborted');
+    w.abort();
+    return outcomeOf(turn, 'aborted');
+  }
+  if (held.length > 0) return holdChanges(turn, rowId, { parts, providerState }, held);
+  await carryOn(turn, rowId, { parts, providerState }, text, calls);
+  return null;
+}
+
+/** The steps from `step` on, each after the one before, until one ends the turn or the limit does. */
+async function stepsFrom(turn: Turn, step: number): Promise<AgentOutcome> {
+  if (step >= MAX_STEPS) {
+    turn.w.error('max_steps');
+    finishTurn(turn, 'error');
+    return outcomeOf(turn, 'max_steps', 'max_steps');
+  }
+  return (await runStep(turn, step)) ?? stepsFrom(turn, step + 1);
+}
+
 /**
  * One assistant turn: the model is asked, the reads it calls are run and
  * answered, and it is asked again, until it answers without calling a tool,
@@ -183,180 +408,24 @@ function uniqueCallId(call: AiToolCall, used: Set<string>, newId: () => string):
  * before its held changes are announced, so a card the client shows always
  * exists on the server.
  */
-export async function runAgentLoop(
+export function runAgentLoop(
   deps: AgentDeps,
   input: AgentInput,
   w: UiStreamWriter,
   signal: AbortSignal,
 ): Promise<AgentOutcome> {
-  const usage = { inputTokens: 0, outputTokens: 0 };
-  const history = [...input.history];
-  const outcome = (end: AgentOutcome['end'], code: AssistantErrorCode | null = null): AgentOutcome => ({
-    end,
-    code,
-    ...usage,
-  });
-  const finish = (reason: 'stop' | 'tool-calls' | 'error') => {
-    if (deps.quota) w.quota(deps.quota.used, deps.quota.limit);
-    w.finish(reason);
-  };
-
   const knownPlaceIds = new Set(
     [...deps.card.places.values()].flatMap((place) => (place.googlePlaceId ? [place.googlePlaceId] : [])),
   );
-  let nudged = false;
-
-  for (let step = 0; step < MAX_STEPS; step++) {
-    const rowId = await deps.store.openStep();
-    w.startStep();
-    let text = '';
-    let providerState: AiProviderState | null = null;
-    let cutOff = false;
-    const received: AiToolCall[] = [];
-    try {
-      const events = deps.client.stream(
-        {
-          system: input.system,
-          context: input.context,
-          messages: history,
-          tools: deps.tools.specs(),
-          cacheKey: input.cacheKey,
-        },
-        signal,
-      );
-      for await (const event of events) {
-        if (event.type === 'text-delta') {
-          text += event.delta;
-          w.text(event.delta);
-        } else if (event.type === 'tool-call') received.push(event.call);
-        else if (event.type === 'usage') {
-          usage.inputTokens += event.inputTokens;
-          usage.outputTokens += event.outputTokens;
-        } else if (event.type === 'provider-state') providerState = event.state;
-        else if (event.type === 'finish') cutOff = event.reason === 'length';
-      }
-    } catch (err) {
-      const partial: StepRecord = { parts: text ? [{ type: 'text', text }] : [], providerState: null };
-      if (signal.aborted) {
-        await deps.store.saveStep(rowId, partial, 'aborted');
-        w.abort();
-        return outcome('aborted');
-      }
-      const code = err instanceof AiProviderError ? err.code : 'generic';
-      await deps.store.saveStep(rowId, partial, 'error');
-      w.error(code);
-      finish('error');
-      return outcome('failed', code);
-    }
-
-    const parts: AssistantMessagePart[] = text ? [{ type: 'text', text }] : [];
-    const empty = received.length === 0 && !text.trim();
-    const announced = received.length === 0 && step === 0 && ANNOUNCED.test(text.trimEnd());
-    const push = empty || (received.length === 0 && cutOff) ? GO_ON : announced ? MAKE_THE_CALLS : null;
-    if (push && !nudged) {
-      nudged = true;
-      await deps.store.saveStep(rowId, { parts, providerState }, 'complete');
-      w.finishStep();
-      // An empty assistant message is one the providers refuse; only the push goes back.
-      if (!empty) history.push({ role: 'assistant', text, toolCalls: [], providerState });
-      history.push({ role: 'user', text: push });
-      continue;
-    }
-    if (empty) {
-      await deps.store.saveStep(rowId, { parts, providerState }, 'error');
-      w.error('empty_answer');
-      finish('error');
-      return outcome('failed', 'empty_answer');
-    }
-    if (received.length === 0) {
-      await deps.store.saveStep(rowId, { parts, providerState }, 'complete');
-      w.finishStep();
-      finish('stop');
-      return outcome('stop');
-    }
-
-    const calls = received.map((call) => ({ ...call, id: uniqueCallId(call, input.usedCallIds, deps.newId) }));
-    const writes = calls.filter((call) => deps.tools.kindOf(call.name) === 'write').length;
-    const held: HeldCall[] = [];
-    const collected: StepParts = { parts, weather: [], knownPlaceIds };
-    let reads = 0;
-    for (const call of calls) {
-      if (signal.aborted) break;
-      const kind = deps.tools.kindOf(call.name);
-      let prepared = kind ? deps.tools.pinArgs(call.name, call.args) : { error: `Unknown tool: ${call.name}` };
-      const unknownPlace = 'error' in prepared ? null : placeIdRefusal(call.name, prepared.args, knownPlaceIds);
-      if (unknownPlace) prepared = { error: unknownPlace };
-      if (kind === 'read' && !('error' in prepared)) reads += 1;
-      const overCap = kind === 'write' ? writes > MAX_WRITES_PER_STEP : reads > MAX_READS_PER_STEP;
-      if ('error' in prepared || overCap) {
-        let refusal = kind === 'write' ? TOO_MANY_CHANGES : TOO_MANY_LOOKUPS;
-        if ('error' in prepared) refusal = prepared.error;
-        w.toolInput(call.id, call.name, call.args);
-        w.toolError(call.id, refusal);
-        parts.push({
-          type: 'tool-call',
-          toolCallId: call.id,
-          toolName: call.name,
-          args: call.args,
-          result: refusal,
-          isError: true,
-        });
-        continue;
-      }
-      if (kind === 'read') {
-        await runRead(deps, { id: call.id, name: call.name, args: prepared.args }, w, collected);
-        continue;
-      }
-      const id = deps.newId();
-      const preview = await deps.describe(call.name, id, prepared.args);
-      held.push({ id, providerCallId: call.id, toolName: call.name, args: prepared.args, preview });
-    }
-    // One weather strip per step, whatever the step held: it is told before the changes.
-    const weather = weatherOf(collected.weather);
-    if (weather) {
-      w.weather(weather);
-      parts.push({ type: 'data-trek-weather', data: weather });
-    }
-
-    // A stopped step keeps what ran; the changes it was about to propose are dropped, never held.
-    if (signal.aborted) {
-      await deps.store.saveStep(rowId, { parts, providerState }, 'aborted');
-      w.abort();
-      return outcome('aborted');
-    }
-    if (held.length > 0) {
-      for (const change of held) {
-        const { id, toolName, args } = change;
-        parts.push({ type: 'tool-call', toolCallId: id, toolName, args, approval: { id } });
-      }
-      parts.push(...held.map((change): AssistantMessagePart => ({ type: 'data-trek-change', data: change.preview })));
-      await deps.store.holdStep(rowId, { parts, providerState }, held);
-      for (const change of held) {
-        w.toolInput(change.id, change.toolName, change.args);
-        w.approvalRequest(change.id);
-        w.change(change.preview);
-      }
-      w.finishStep();
-      finish('tool-calls');
-      return outcome('awaiting');
-    }
-
-    await deps.store.saveStep(rowId, { parts, providerState }, 'complete');
-    w.finishStep();
-    history.push({ role: 'assistant', text, toolCalls: calls, providerState });
-    for (const part of parts) {
-      if (part.type !== 'tool-call') continue;
-      history.push({
-        role: 'tool',
-        toolCallId: part.toolCallId,
-        name: part.toolName,
-        output: outputText(part.result),
-        ...(part.isError ? { isError: true } : {}),
-      });
-    }
-  }
-
-  w.error('max_steps');
-  finish('error');
-  return outcome('max_steps', 'max_steps');
+  const turn: Turn = {
+    deps,
+    input,
+    w,
+    signal,
+    history: [...input.history],
+    usage: { inputTokens: 0, outputTokens: 0 },
+    knownPlaceIds,
+    nudged: false,
+  };
+  return stepsFrom(turn, 0);
 }

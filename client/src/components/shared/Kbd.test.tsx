@@ -4,7 +4,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { render } from '../../../tests/helpers/render';
-import Kbd, { isApplePlatform } from './Kbd';
+import { isApplePlatform } from '../../utils/applePlatform';
+import Kbd from './Kbd';
 
 afterEach(() => vi.restoreAllMocks());
 

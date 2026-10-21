@@ -1,5 +1,6 @@
 import type { AssistantWeatherDay } from '@trek/shared';
 import { Droplet } from 'lucide-react';
+import { createElement } from 'react';
 
 import { useTranslation } from '../../i18n';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
@@ -31,7 +32,7 @@ function WeatherChip({
   onPick: ((dayId: number) => void) | null;
 }) {
   const { t, locale } = useTranslation();
-  const Icon = weatherIconFor(day.main);
+  const icon = weatherIconFor(day.main);
   const { weekday, day: dayOfMonth } = dateParts(day.date, locale);
   // A climate figure is an average for the date, not a forecast; it says so with "≈".
   const approx = day.kind === 'climate' ? '≈' : '';
@@ -45,7 +46,7 @@ function WeatherChip({
       <span className="text-caption text-content-muted">
         {weekday} {dayOfMonth}
       </span>
-      <Icon size={16} strokeWidth={1.8} aria-hidden="true" className="text-content-secondary" />
+      {createElement(icon, { size: 16, strokeWidth: 1.8, 'aria-hidden': true, className: 'text-content-secondary' })}
       <span className="flex items-baseline gap-1 tabular-nums">
         <span className="text-body font-semibold text-content">{max}</span>
         {min && <span className="text-caption text-content-faint">{min}</span>}

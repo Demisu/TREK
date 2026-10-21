@@ -6,8 +6,8 @@
  * own (setting, lock, reduced motion, the phone's folded chat), the "before"
  * view of an applied block, and the pop of a place that arrives.
  */
-import type { AssistantMessage, AssistantMessagePart, Trip } from '@trek/shared';
 import { act, renderHook } from '@testing-library/react';
+import type { AssistantMessage, AssistantMessagePart, Trip } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import { useSettingsStore } from '../../store/settingsStore';
@@ -228,7 +228,9 @@ describe('useAssistantMapLink: after applying', () => {
     expect(selectDay).toHaveBeenCalledOnce();
     expect(selectDay).toHaveBeenCalledWith(3);
 
-    act(() => vi.advanceTimersByTime(1000));
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
     expect(result.current.poppedPlaceIds).toEqual([]);
     rerender({});
     expect(selectDay).toHaveBeenCalledOnce();

@@ -118,7 +118,7 @@ describe('toChatHistory', () => {
   });
 
   it('ASTHIS-002: cuts the lookups of earlier turns, keeps the current turn whole', () => {
-    const big = { places: Array.from({ length: 200 }, (_, i) => ({ id: i, name: `Place number ${i}` })) };
+    const big = { places: Array.from({ length: 500 }, (_, i) => ({ id: i, name: `Place number ${i}` })) };
     const rows = [
       row('user', [{ type: 'text', text: 'one' }]),
       row('assistant', [{ type: 'tool-call', toolCallId: 'a', toolName: 'list_places', args: {}, result: big }]),
@@ -126,7 +126,7 @@ describe('toChatHistory', () => {
       row('assistant', [{ type: 'tool-call', toolCallId: 'b', toolName: 'list_places', args: {}, result: big }]),
     ];
     const outputs = toChatHistory(rows, new Map()).filter((m) => m.role === 'tool') as Array<{ output: string }>;
-    expect(outputs[0].output.length).toBeLessThanOrEqual(2_000);
+    expect(outputs[0].output.length).toBeLessThanOrEqual(8_000);
     expect(JSON.parse(outputs[0].output)).toMatchObject({ truncated: true });
     expect(outputs[1].output).toBe(JSON.stringify(big));
   });

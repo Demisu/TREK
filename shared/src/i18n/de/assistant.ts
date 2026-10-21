@@ -398,7 +398,7 @@ const assistant: TranslationStrings = {
   'assistant.week.showAll.one': '{count} Änderung zeigen',
   'assistant.change.verb.updateBudgetItem': 'Ausgabe ändern',
   'assistant.change.verb.rememberNote': 'Für diese Reise merken',
-  'assistant.change.details': 'Details',
-  'assistant.change.detailsHide': 'Details ausblenden',
+  'assistant.change.details': 'Mehr Angaben',
+  'assistant.change.detailsHide': 'Angaben ausblenden',
 };
 export default assistant;

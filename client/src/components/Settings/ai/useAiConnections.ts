@@ -70,11 +70,7 @@ export function useAiModels(load: (() => Promise<AiModelInfo[]>) | null, connect
  * The choices of a model picker: what the provider offers, the recommended
  * one first with its badge, and the current model kept when it is not listed.
  */
-export function modelOptions(
-  models: AiModelInfo[],
-  current: string,
-  labels: { free: string; recommended: string }
-) {
+export function modelOptions(models: AiModelInfo[], current: string, labels: { free: string; recommended: string }) {
   const options = models.map((m) => ({
     value: m.id,
     label: m.label,
@@ -113,7 +109,10 @@ function useOwnConnection(own: AiConnectionView | null, reload: () => Promise<vo
   return {
     provider,
     models: own
-      ? modelOptions(models, own.model, { free: t('assistant.model.free'), recommended: t('assistant.model.recommended') })
+      ? modelOptions(models, own.model, {
+          free: t('assistant.model.free'),
+          recommended: t('assistant.model.recommended'),
+        })
       : [],
     busy,
     setModel: (model: string) => run(() => aiConnectionsRepo.setModel(model), 'common.saved'),
@@ -148,14 +147,10 @@ export function useAiConnections({ phone = false }: { phone?: boolean } = {}) {
   /** The panel opened on purpose: to renew a sign-in, replace a key, or connect one's own beside the admin's. */
   const [connecting, setConnecting] = useState<AiConnectMode | 'any' | null>(null);
 
-  const reload = async () => {
-    await loadStatus();
-    setLoaded(true);
-  };
-  const loadOnMount = useEffectEvent(() => void reload());
+  const reload = () => loadStatus().then(() => setLoaded(true));
   useEffect(() => {
-    loadOnMount();
-  }, []);
+    void loadStatus().then(() => setLoaded(true));
+  }, [loadStatus]);
 
   const onConnected = () => {
     setConnecting(null);
@@ -181,10 +176,9 @@ export function useAiConnections({ phone = false }: { phone?: boolean } = {}) {
       openWindow();
       void navigate('/dashboard');
     };
-    tripRepo.active().then(
-      ({ trip }) => (trip ? void navigate(`/trips/${trip.id}?assistant=1`) : withoutTrip()),
-      withoutTrip
-    );
+    tripRepo
+      .active()
+      .then(({ trip }) => (trip ? void navigate(`/trips/${trip.id}?assistant=1`) : withoutTrip()), withoutTrip);
   };
 
   return {

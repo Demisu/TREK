@@ -11,12 +11,12 @@ export type TagRow = EntityDTO<Tags>;
 
 /** A category; global unless `user` names an owner. */
 export function makeCategory(orm: FactoryOrm, overrides: EntityData<Categories> = {}): Promise<CategoryRow> {
-  return createRow(orm, Categories, {
-    name: `Test Category ${nextSeq('category')}`,
-    color: '#6366f1',
-    icon: '📍',
-    ...overrides,
-  });
+  return createRow(
+    orm,
+    Categories,
+    { name: `Test Category ${nextSeq('category')}`, color: '#6366f1', icon: '📍' },
+    overrides,
+  );
 }
 
 /** A tag owned by `userId`. */

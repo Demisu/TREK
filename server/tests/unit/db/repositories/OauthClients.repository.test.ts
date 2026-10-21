@@ -1,10 +1,10 @@
 import { OauthClients } from '../../../../src/db/entities/OauthClients.entity';
 import { OauthTokens } from '../../../../src/db/entities/OauthTokens.entity';
 import type { OauthClientsRepository } from '../../../../src/db/repositories/OauthClients.repository';
+import { dbNow } from '../../../../src/db/types';
 import { withRequestContext } from '../../../../src/nest/database/request-context';
 import { UnitOfWork } from '../../../../src/nest/database/unit-of-work';
 import { createSnapshotTestDb } from '../../../helpers/db-mock';
-import { dbNow } from '../../../../src/db/types';
 import { createUser } from '../../../helpers/factories';
 import { deleteRows, findRow, insertRow, updateRows } from '../../../helpers/factories/rows';
 import { resetTestDb } from '../../../helpers/test-db';
@@ -364,15 +364,16 @@ describe('OauthClientsRepository', () => {
       const held = await seedClient({ createdVia: 'cimd' });
       const recent = await seedClient({ createdVia: 'cimd' });
       const registered = await seedClient({ createdVia: 'settings_ui' });
-      for (const client of [unused, held, registered]) {
-        await updateRows(t, OauthClients, { id: client.id }, { created_at: OLD });
-      }
+      await Promise.all(
+        [unused, held, registered].map((client) => updateRows(t, OauthClients, { id: client.id }, { created_at: OLD })),
+      );
       await updateRows(t, OauthClients, { id: recent.id }, { created_at: '2026-10-15 00:00:00' });
       await holdToken(held.clientId);
 
       expect(await clients.deleteUnusedCimdBefore(CUTOFF)).toBe(1);
       expect(await storedClient(unused.id)).toBeNull();
-      for (const kept of [held, recent, registered]) expect(await storedClient(kept.id)).not.toBeNull();
+      const kept = await Promise.all([held, recent, registered].map((client) => storedClient(client.id)));
+      for (const row of kept) expect(row).not.toBeNull();
       expect(await clients.deleteUnusedCimdBefore(CUTOFF)).toBe(0);
     });
   });

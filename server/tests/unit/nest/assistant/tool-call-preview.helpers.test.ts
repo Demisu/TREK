@@ -307,6 +307,18 @@ describe('describeToolCall', () => {
     expect(elsewhere.dayId).toBeNull();
     expect(elsewhere.rows.map((row) => row.labelKey)).toEqual(['type', 'time']);
   });
+
+  it('ASTPRV-022: a changed expense names what it becomes, a kept note is its own subject', () => {
+    const expense = describe_('update_budget_item', { itemId: 31, total_price: 60, member_ids: [7, 8] });
+    expect(expense).toMatchObject({ verbKey: 'updateBudgetItem', subject: '#31', dayId: null });
+    expect(expense.rows).toEqual([
+      { op: 'add', labelKey: 'price', before: null, after: '€60.00' },
+      { op: 'add', labelKey: 'members', before: null, after: 'mia, jon' },
+    ]);
+    expect(describe_('update_budget_item', { itemId: 31, name: 'Dinner for two' }).subject).toBe('Dinner for two');
+    const note = describe_('remember_for_trip', { note: ' We travel as two. ' });
+    expect(note).toMatchObject({ verbKey: 'rememberNote', subject: 'We travel as two.', rows: [] });
+  });
 });
 
 describe('appliedChange', () => {

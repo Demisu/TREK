@@ -399,7 +399,7 @@ const assistant: TranslationStrings = {
   'assistant.week.showAll.one': '{count} wijziging tonen',
   'assistant.change.verb.updateBudgetItem': 'Uitgave wijzigen',
   'assistant.change.verb.rememberNote': 'Onthouden voor deze reis',
-  'assistant.change.details': 'Details',
-  'assistant.change.detailsHide': 'Details verbergen',
+  'assistant.change.details': 'Meer gegevens',
+  'assistant.change.detailsHide': 'Gegevens verbergen',
 };
 export default assistant;

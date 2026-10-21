@@ -3,7 +3,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useTranslation } from '../../i18n';
-import { prefersReducedMotion } from '../../utils/reducedMotion';
 import AssistantPlaceCard from './AssistantPlaceCard';
 import { suggestedFromStrip } from './assistantParts';
 import { useAssistantView } from './assistantViewContext';
@@ -71,10 +70,8 @@ export default function AssistantPlaceStrip({ found, message }: { found: Assista
     const step = card.offsetWidth + gap;
     const cards = Math.max(1, Math.floor((el.clientWidth - 32) / step));
     const rtl = getComputedStyle(el).direction === 'rtl';
-    el.scrollBy({
-      left: (rtl ? -towards : towards) * cards * step,
-      behavior: prefersReducedMotion() ? 'auto' : 'smooth',
-    });
+    // Smooth through the strip's own scroll-behavior, which reduced motion turns off.
+    el.scrollBy((rtl ? -towards : towards) * cards * step, 0);
   };
 
   const total = found.places.length + found.more;
@@ -114,7 +111,7 @@ export default function AssistantPlaceStrip({ found, message }: { found: Assista
         onScroll={measure}
         data-fade-start={fade.start || undefined}
         data-fade-end={fade.end || undefined}
-        className="trek-assistant-strip flex snap-x snap-mandatory scroll-px-4 gap-2.5 overflow-x-auto overscroll-x-contain px-4 pb-2 pt-0.5"
+        className="trek-assistant-strip flex snap-x snap-mandatory scroll-px-4 gap-2.5 overflow-x-auto overscroll-x-contain px-4 pb-2 pt-0.5 motion-safe:scroll-smooth"
       >
         {found.places.slice(0, SHOWN).map((place) => (
           <AssistantPlaceCard

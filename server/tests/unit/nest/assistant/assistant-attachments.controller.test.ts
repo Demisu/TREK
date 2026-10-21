@@ -126,9 +126,11 @@ describe('AssistantAttachmentsController', () => {
   it('ASTATT-004: an accepted file starts the turn on the response, for the caller and the trip', async () => {
     const t = make();
     const res = new FakeResponse();
-    for (const name of ['Bestätigung.PDF', 'ticket.pkpass', 'trip.ics', 'mail.eml', 'photo.jpg']) {
-      await t.controller.attach(user, '5', file(name), BODY, res as unknown as Response);
-    }
+    await Promise.all(
+      ['Bestätigung.PDF', 'ticket.pkpass', 'trip.ics', 'mail.eml', 'photo.jpg'].map((name) =>
+        t.controller.attach(user, '5', file(name), BODY, res as unknown as Response),
+      ),
+    );
     expect(t.service.attach).toHaveBeenCalledTimes(5);
     const [userId, tripId, body, given, channel] = t.service.attach.mock.calls[0];
     expect([userId, tripId, body]).toEqual([7, 5, BODY]);

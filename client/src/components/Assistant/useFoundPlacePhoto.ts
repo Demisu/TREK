@@ -35,15 +35,12 @@ export function useFoundPlacePhoto(place: AssistantFoundPlace, ref: RefObject<El
   const enabled = useAuthStore((s) => s.placesPhotosEnabled);
   const key = photoKeyOf(place);
   const [src, setSrc] = useState<string | null>(() => (key ? proxiedPhoto(getCached(key)?.photoUrl) : null));
-  const [visible, setVisible] = useState(false);
+  // Without an IntersectionObserver every card counts as in view.
+  const [visible, setVisible] = useState(() => typeof IntersectionObserver === 'undefined');
 
   useEffect(() => {
     const el = ref.current;
-    if (!enabled || !key || !el) return;
-    if (typeof IntersectionObserver === 'undefined') {
-      setVisible(true);
-      return;
-    }
+    if (!enabled || !key || !el || typeof IntersectionObserver === 'undefined') return;
     const io = new IntersectionObserver(
       ([entry]) => {
         if (!entry?.isIntersecting) return;

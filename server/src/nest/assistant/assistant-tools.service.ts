@@ -127,6 +127,8 @@ export class AssistantToolSession {
     private readonly tools: ReadonlyMap<string, ListedTool>,
     private readonly tripId: number,
     private readonly audit: (toolName: string) => void,
+    /** Whether the model may keep trip notes here: a turn's session, never an undo's. */
+    private readonly offersNotes: boolean,
   ) {}
 
   /** The tools as the model is offered them, with the trip notes the server keeps itself. */
@@ -136,11 +138,11 @@ export class AssistantToolSession {
       description: tool.description,
       parameters: modelSchema(tool.name, tool.inputSchema),
     }));
-    return [...listed, REMEMBER_SPEC];
+    return this.offersNotes ? [...listed, REMEMBER_SPEC] : listed;
   }
 
   kindOf(name: string): AssistantToolKind | null {
-    if (name === REMEMBER_TOOL) return 'write';
+    if (name === REMEMBER_TOOL) return this.offersNotes ? 'write' : null;
     return this.tools.get(name)?.kind ?? null;
   }
 
@@ -243,7 +245,8 @@ export class AssistantToolsService implements OnApplicationBootstrap {
         pinned: PINNED_ARG in properties,
       });
     }
-    return new AssistantToolSession(client, server, tools, tripId, (toolName) => this.audit(userId, toolName));
+    const offersNotes = include === ASSISTANT_TOOL_ALLOWLIST;
+    return new AssistantToolSession(client, server, tools, tripId, (name) => this.audit(userId, name), offersNotes);
   }
 
   /** The audit row an MCP client's call writes, marked as the assistant's. A failed write never fails the call. */

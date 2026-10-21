@@ -20,6 +20,18 @@ import AssistantCompareSwitch from './AssistantCompareSwitch';
 import type { ChangeItem } from './assistantParts';
 import { type AssistantView, AssistantViewContext } from './assistantViewContext';
 
+const { addToast } = vi.hoisted(() => ({ addToast: vi.fn() }));
+// The toasts a component raises, read as (message, type) the way the toast host takes them.
+vi.mock('../shared/Toast', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../shared/Toast')>()),
+  useToast: () => ({
+    success: (message: string) => addToast(message, 'success', undefined),
+    error: (message: string) => addToast(message, 'error', undefined),
+    warning: (message: string) => addToast(message, 'warning', undefined),
+    info: (message: string) => addToast(message, 'info', undefined),
+  }),
+}));
+
 const TRIP = 4;
 const INITIAL = useAssistantStore.getState();
 const TRIP_INITIAL = useTripStore.getState();
@@ -98,18 +110,15 @@ const undoBlock =
 const setCompare = vi.fn<(tripId: number, mode: 'before' | 'after') => void>();
 const requestCamera = vi.fn();
 const setMinimized = vi.fn();
-const addToast = vi.fn();
 
 beforeEach(() => {
   decide.mockResolvedValue(undefined);
   useAssistantStore.setState({ decide, undo, undoBlock, setCompare, requestCamera, setMinimized });
-  window.__addToast = addToast as unknown as typeof window.__addToast;
 });
 
 afterEach(() => {
   useAssistantStore.setState(INITIAL, true);
   useTripStore.setState(TRIP_INITIAL, true);
-  delete window.__addToast;
   vi.clearAllMocks();
   vi.useRealTimers();
 });
@@ -119,9 +128,13 @@ describe('AssistantChangeCard: deciding', () => {
     renderCard([pending('c1', 'Kinkaku-ji')]);
     expect(screen.getByText('Kinkaku-ji')).toBeInTheDocument();
     expect(screen.getByText('Add place')).toBeInTheDocument();
-    expect(screen.getByText('Address')).toBeInTheDocument();
+    // The time is a chip of its own, old to new; the address waits behind "Details".
     expect(screen.getByText('09:00')).toBeInTheDocument();
     expect(screen.getByText('10:30')).toBeInTheDocument();
+    expect(screen.queryByText('Kyoto')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Details' }));
+    expect(screen.getByText('Address')).toBeInTheDocument();
+    expect(screen.getByText('Kyoto')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Include this change' })).toBeNull();
     expect(screen.getByRole('status')).toHaveTextContent('1 change is waiting for you');
   });

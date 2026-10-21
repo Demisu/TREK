@@ -50,14 +50,7 @@ const DETOUR_FACTOR = 1.3;
 const TIGHT_LEG_SLACK_MINUTES = 10;
 
 export type HintRule =
-  | 'overlap'
-  | 'closed'
-  | 'outsideHours'
-  | 'tightLeg'
-  | 'gap'
-  | 'longLeg'
-  | 'noStay'
-  | 'unplacedBooking';
+  'overlap' | 'closed' | 'outsideHours' | 'tightLeg' | 'gap' | 'longLeg' | 'noStay' | 'unplacedBooking';
 
 const RULE_ORDER: readonly HintRule[] = [
   'overlap',
@@ -363,7 +356,7 @@ function legHints(pd: PlannedDay, ctx: Ctx): AssistantHint[] {
       { lat: from.assignment.place.lat as number, lng: from.assignment.place.lng as number },
       { lat: to.assignment.place.lat as number, lng: to.assignment.place.lng as number }
     );
-    const tooTight = tight ? null : tightLegHint(pd, from, to, km, cls);
+    const tooTight: AssistantHint | null = tight ? null : tightLegHint(pd, from, to, km, cls);
     if (tooTight) {
       tight = tooTight;
       continue;

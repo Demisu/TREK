@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useTranslation } from '../../i18n';
-import { isApplePlatform } from '../shared/Kbd';
+import { isApplePlatform } from '../../utils/applePlatform';
 
 /** Whether a key press is the assistant's shortcut: ⌘K on a Mac, Ctrl+K elsewhere, either works on both. */
 export function isAssistantHotkey(e: KeyboardEvent): boolean {

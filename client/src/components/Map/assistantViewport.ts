@@ -39,11 +39,19 @@ function report(tripId: number | null, edges: Edges | null): void {
   set(tripId !== null && usable ? { tripId, view: mapViewOf(edges) } : null);
 }
 
+/** The trip whose view is reported: only while the assistant can run, so a map without it listens to nothing. */
+function useReportedTrip(): number | null {
+  const available = useAssistantStore((s) => s.status?.available === true);
+  const tripId = useTripStore((s) => s.trip?.id ?? null);
+  return available ? tripId : null;
+}
+
 /** Leaflet: read from inside the map container, after each move and once on mount. */
 export function useReportViewLeaflet(): void {
   const map = useMap();
-  const tripId = useTripStore((s) => s.trip?.id ?? null);
+  const tripId = useReportedTrip();
   useEffect(() => {
+    if (tripId === null) return;
     const read = () => {
       const b = map.getBounds();
       report(tripId, { south: b.getSouth(), west: b.getWest(), north: b.getNorth(), east: b.getEast() });
@@ -71,10 +79,10 @@ interface ViewMap {
 
 /** GL: the same, once the map is ready. */
 export function useReportViewGL(mapRef: { readonly current: unknown }, mapReady: boolean): void {
-  const tripId = useTripStore((s) => s.trip?.id ?? null);
+  const tripId = useReportedTrip();
   useEffect(() => {
     const map = mapRef.current as Partial<ViewMap> | null;
-    if (!mapReady || !map?.on || !map.off || !map.getBounds) return;
+    if (tripId === null || !mapReady || !map?.on || !map.off || !map.getBounds) return;
     const { on, off, getBounds } = { on: map.on.bind(map), off: map.off.bind(map), getBounds: map.getBounds.bind(map) };
     const read = () => {
       const b = getBounds();

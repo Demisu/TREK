@@ -27,6 +27,72 @@ function savedOf(cfg: Record<string, unknown>): SavedParsing {
 }
 
 /**
+ * The models a local (Ollama) server has, and pulling the recommended ones.
+ * The list loads while the form shows the local provider: a provider change or
+ * opening the form loads it, the address field's own blur reloads it.
+ */
+function useLocalModels(baseUrl: string, isLocal: boolean, formOpen: boolean, onPulled: (id: string) => void) {
+  const { t } = useTranslation();
+  const toast = useToast();
+  const [installed, setInstalled] = useState<string[]>([]);
+  const [modelsErr, setModelsErr] = useState('');
+  const [loadingModels, setLoadingModels] = useState(false);
+  const [pulling, setPulling] = useState<string | null>(null);
+  const [pullPct, setPullPct] = useState(0);
+  const [pullStatus, setPullStatus] = useState('');
+  const effectiveUrl = baseUrl.trim() || DEFAULT_OLLAMA_URL;
+  const isInstalled = (id: string) => installed.some((n) => n === id || n.startsWith(id + ':') || n.startsWith(id));
+
+  const loadModels = async () => {
+    if (!isLocal) return;
+    setLoadingModels(true);
+    setModelsErr('');
+    try {
+      const res = await adminApi.llmLocalModels(effectiveUrl);
+      setInstalled(res.models.map((m) => m.name));
+    } catch (e: unknown) {
+      // The server says why (unreachable, key refused); axios' own status line does not.
+      setModelsErr(getApiErrorMessage(e, t('admin.addons.ai.parsing.unreachable')));
+      setInstalled([]);
+    } finally {
+      setLoadingModels(false);
+    }
+  };
+
+  const loadModelsForProvider = useEffectEvent(() => {
+    if (formOpen && isLocal) void loadModels();
+  });
+  useEffect(() => {
+    loadModelsForProvider();
+  }, [isLocal, formOpen]);
+
+  const pull = async (id: string) => {
+    if (pulling) return;
+    setPulling(id);
+    setPullPct(0);
+    setPullStatus(t('admin.addons.ai.parsing.pulling'));
+    try {
+      await adminApi.llmLocalPull(effectiveUrl, id, (p) => {
+        if (p.error) throw new Error(p.error);
+        if (p.status) setPullStatus(p.status);
+        if (p.total && p.completed != null) setPullPct(Math.round((p.completed / p.total) * 100));
+      });
+      toast.success(t('admin.addons.ai.parsing.pulled'));
+      onPulled(id);
+      await loadModels();
+    } catch (e: unknown) {
+      toast.error(e instanceof Error && e.message ? e.message : t('admin.addons.ai.parsing.pullFailed'));
+    } finally {
+      setPulling(null);
+      setPullPct(0);
+      setPullStatus('');
+    }
+  };
+
+  return { installed, modelsErr, loadingModels, pulling, pullPct, pullStatus, isInstalled, loadModels, pull };
+}
+
+/**
  * AI parsing's admin settings behind both admin shells. Parsing reads with the
  * AI connection the assistant runs on unless the instance keeps one of its own
  * here; an install set up before the two shared one keeps its own until the
@@ -45,14 +111,6 @@ export function useLlmParsingConfig(addon: Addon) {
   const [apiKey, setApiKey] = useState<string>(saved.apiKey);
   const [saving, setSaving] = useState(false);
 
-  // Local-provider model management.
-  const [installed, setInstalled] = useState<string[]>([]);
-  const [modelsErr, setModelsErr] = useState('');
-  const [loadingModels, setLoadingModels] = useState(false);
-  const [pulling, setPulling] = useState<string | null>(null);
-  const [pullPct, setPullPct] = useState(0);
-  const [pullStatus, setPullStatus] = useState('');
-
   /** A connection of its own, which wins over the shared one. */
   const ownConnection = !!(saved.provider && saved.model);
   const formOpen = ownConnection || editing;
@@ -68,57 +126,7 @@ export function useLlmParsingConfig(addon: Addon) {
     setProviderState(next);
   };
   const baseUrlPlaceholder = LLM_BASE_URL_PLACEHOLDER[provider] ?? LLM_BASE_URL_PLACEHOLDER.openai;
-
-  const effectiveUrl = baseUrl.trim() || DEFAULT_OLLAMA_URL;
-  const isInstalled = (id: string) => installed.some((n) => n === id || n.startsWith(id + ':') || n.startsWith(id));
-
-  const loadModels = async () => {
-    if (provider !== 'local') return;
-    setLoadingModels(true);
-    setModelsErr('');
-    try {
-      const res = await adminApi.llmLocalModels(effectiveUrl);
-      setInstalled(res.models.map((m) => m.name));
-    } catch (e: unknown) {
-      // The server says why (unreachable, key refused); axios' own status line does not.
-      setModelsErr(getApiErrorMessage(e, t('admin.addons.ai.parsing.unreachable')));
-      setInstalled([]);
-    } finally {
-      setLoadingModels(false);
-    }
-  };
-
-  // Load installed models while the form shows the local provider. Only a provider
-  // change (or opening the form) triggers it; the base URL's own blur reloads.
-  const loadModelsForProvider = useEffectEvent(() => {
-    if (formOpen && provider === 'local') void loadModels();
-  });
-  useEffect(() => {
-    loadModelsForProvider();
-  }, [provider, formOpen]);
-
-  const pull = async (id: string) => {
-    if (pulling) return;
-    setPulling(id);
-    setPullPct(0);
-    setPullStatus(t('admin.addons.ai.parsing.pulling'));
-    try {
-      await adminApi.llmLocalPull(effectiveUrl, id, (p) => {
-        if (p.error) throw new Error(p.error);
-        if (p.status) setPullStatus(p.status);
-        if (p.total && p.completed != null) setPullPct(Math.round((p.completed / p.total) * 100));
-      });
-      toast.success(t('admin.addons.ai.parsing.pulled'));
-      setModel(id);
-      await loadModels();
-    } catch (e: unknown) {
-      toast.error(e instanceof Error && e.message ? e.message : t('admin.addons.ai.parsing.pullFailed'));
-    } finally {
-      setPulling(null);
-      setPullPct(0);
-      setPullStatus('');
-    }
-  };
+  const local = useLocalModels(baseUrl, provider === 'local', formOpen, setModel);
 
   /** Writes the config; the stored key stays as long as the mask is sent in its place. */
   const write = async (next: SavedParsing, config: Record<string, unknown>): Promise<boolean> => {
@@ -186,15 +194,7 @@ export function useLlmParsingConfig(addon: Addon) {
     startOwn: () => setEditing(true),
     cancelOwn: () => setEditing(false),
     switchToShared,
-    installed,
-    modelsErr,
-    loadingModels,
-    pulling,
-    pullPct,
-    pullStatus,
-    isInstalled,
-    loadModels,
-    pull,
+    ...local,
     save,
   };
 }

@@ -101,7 +101,9 @@ async function conversation() {
 }
 
 function add(c: { userId: number; tripId: number; threadId: number }, ref: string, dayId = DAY) {
-  return t.get(AssistantFoundPlacesService).add(c.userId, c.tripId, c.threadId, { ref, dayId, locale: 'en' });
+  return t
+    .get(AssistantFoundPlacesService)
+    .add(c.userId, c.tripId, c.threadId, { ref, dayId, locale: 'en', timeZone: 'UTC' });
 }
 
 function calls(threadId: number) {
