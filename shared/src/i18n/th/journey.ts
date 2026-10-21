@@ -847,7 +847,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'แผนการเดินทาง',
   'journey.share.planHint': 'สถานที่ตามแผนและเส้นทาง GPX ของทริปที่เชื่อมโยงบนแผนที่',
   'journey.share.recordings': 'เส้นทางที่บันทึก',
-  'journey.share.recordingsHint': 'วันที่บันทึกซึ่งมีบันทึกที่เผยแพร่แล้ว แสดงว่าคุณอยู่ที่ไหน รวมถึงที่พักด้วย',
+  'journey.share.recordingsHint': 'วันที่บันทึกและจุดแวะที่นำมาจากวันนั้น ในวันที่มีบันทึกที่เผยแพร่แล้ว แสดงว่าคุณอยู่ที่ไหนและเมื่อไร รวมถึงที่พักด้วย',
   'journey.share.needsMap': 'แชร์แผนที่เพื่อเปิดใช้งานนี้',
 };
 export default journey;

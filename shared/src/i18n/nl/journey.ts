@@ -899,7 +899,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Reisplanning',
   'journey.share.planHint': 'Geplande plekken en GPX-routes van de gekoppelde reizen op de kaart',
   'journey.share.recordings': 'Opgenomen routes',
-  'journey.share.recordingsHint': 'Opgenomen dagen met een gepubliceerd verhaal. Ze tonen waar je was, ook je verblijf.',
+  'journey.share.recordingsHint': 'Opgenomen dagen en de stops die eruit zijn overgenomen, op dagen met een gepubliceerd verhaal. Ze tonen waar en wanneer je was, ook je verblijf.',
   'journey.share.needsMap': 'Deel de kaart om dit aan te zetten',
 };
 export default journey;

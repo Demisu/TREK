@@ -890,7 +890,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Reisiplaan',
   'journey.share.planHint': 'Seotud reiside planeeritud kohad ja GPX-marsruudid kaardil',
   'journey.share.recordings': 'Salvestatud marsruudid',
-  'journey.share.recordingsHint': 'Salvestatud päevad, millel on avaldatud sissekanne. Need näitavad, kus sa olid, ka su majutust.',
+  'journey.share.recordingsHint': 'Salvestatud päevad ja neist võetud peatused päevadel, millel on avaldatud sissekanne. Need näitavad, kus ja millal sa olid, ka su majutust.',
   'journey.share.needsMap': 'Selle sisselülitamiseks jaga kaarti',
 };
 export default journey;

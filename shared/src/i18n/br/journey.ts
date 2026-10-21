@@ -896,7 +896,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Plano da viagem',
   'journey.share.planHint': 'Lugares planejados e rotas GPX das viagens vinculadas no mapa',
   'journey.share.recordings': 'Rotas gravadas',
-  'journey.share.recordingsHint': 'Dias gravados que têm um registro publicado. Mostram onde você esteve, inclusive sua hospedagem.',
+  'journey.share.recordingsHint': 'Dias gravados e as paradas tiradas deles, nos dias com um registro publicado. Mostram onde e quando você esteve, inclusive sua hospedagem.',
   'journey.share.needsMap': 'Compartilhe o mapa para ativar isto',
 };
 export default journey;

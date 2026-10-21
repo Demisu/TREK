@@ -894,7 +894,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Úti terv',
   'journey.share.planHint': 'A kapcsolt utak tervezett helyei és GPX-útvonalai a térképen',
   'journey.share.recordings': 'Rögzített útvonalak',
-  'journey.share.recordingsHint': 'Rögzített napok, amelyekhez közzétett bejegyzés tartozik. Megmutatják, hol jártál, a szállásodat is.',
+  'journey.share.recordingsHint': 'Rögzített napok és a belőlük átvett megállók azokon a napokon, amelyekhez közzétett bejegyzés tartozik. Megmutatják, hol és mikor jártál, a szállásodat is.',
   'journey.share.needsMap': 'Oszd meg a térképet a bekapcsoláshoz',
 };
 export default journey;

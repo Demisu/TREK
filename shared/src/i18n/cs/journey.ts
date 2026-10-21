@@ -910,7 +910,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Plán cesty',
   'journey.share.planHint': 'Plánovaná místa a trasy GPX propojených cest na mapě',
   'journey.share.recordings': 'Zaznamenané trasy',
-  'journey.share.recordingsHint': 'Zaznamenané dny se zveřejněným záznamem. Ukazují, kde jste byli, i vaše ubytování.',
+  'journey.share.recordingsHint': 'Zaznamenané dny a zastávky z nich převzaté, u dnů se zveřejněným záznamem. Ukazují, kde a kdy jste byli, i vaše ubytování.',
   'journey.share.needsMap': 'Pro zapnutí sdílejte mapu',
 };
 export default journey;

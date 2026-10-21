@@ -886,7 +886,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Trip plan',
   'journey.share.planHint': 'Planned places and GPX routes of the linked trips on the map',
   'journey.share.recordings': 'Recorded routes',
-  'journey.share.recordingsHint': 'Recorded days that have a published entry. They show where you were, your accommodation too.',
+  'journey.share.recordingsHint': 'Recorded days and the stays taken from them, on days with a published entry. They show where and when you were, your accommodation too.',
   'journey.share.needsMap': 'Share the map to switch this on',
 };
 export default journey;

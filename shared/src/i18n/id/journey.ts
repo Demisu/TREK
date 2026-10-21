@@ -871,7 +871,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Rencana perjalanan',
   'journey.share.planHint': 'Tempat yang direncanakan dan rute GPX dari perjalanan tertaut di peta',
   'journey.share.recordings': 'Rute terekam',
-  'journey.share.recordingsHint': 'Hari terekam yang punya catatan terbit. Menunjukkan di mana kamu berada, termasuk penginapanmu.',
+  'journey.share.recordingsHint': 'Hari terekam dan persinggahan yang diambil darinya, pada hari yang punya catatan terbit. Menunjukkan di mana dan kapan kamu berada, termasuk penginapanmu.',
   'journey.share.needsMap': 'Bagikan peta untuk mengaktifkan ini',
 };
 export default journey;

@@ -84,7 +84,8 @@ export type JourneyMapLayersResponse = z.infer<typeof journeyMapLayersResponseSc
  * GET /api/public/journey/:token/map-layers: the same, cut to what the link
  * shares. Nothing while the map is not shared; the plan and its routes only
  * with `share_plan`; the recorded days only with `share_recordings` and only
- * on a day with a published entry; stays only of published entries.
+ * on a day with a published entry; the stays, taken from a recording, also
+ * only with `share_recordings` and only of published entries.
  */
 export const journeyPublicMapLayersResponseSchema = journeyMapLayersResponseSchema.extend({
   recordings: journeyMapRecordingsLayerSchema,

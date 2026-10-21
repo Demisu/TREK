@@ -941,7 +941,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Plan podróży',
   'journey.share.planHint': 'Zaplanowane miejsca i trasy GPX powiązanych podróży na mapie',
   'journey.share.recordings': 'Nagrane trasy',
-  'journey.share.recordingsHint': 'Nagrane dni z opublikowanym wpisem. Pokazują, gdzie byłeś, także nocleg.',
+  'journey.share.recordingsHint': 'Nagrane dni i przejęte z nich postoje, w dniach z opublikowanym wpisem. Pokazują, gdzie i kiedy byłeś, także nocleg.',
   'journey.share.needsMap': 'Udostępnij mapę, aby to włączyć',
 };
 export default journey;

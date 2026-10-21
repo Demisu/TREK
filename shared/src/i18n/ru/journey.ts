@@ -940,7 +940,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'План поездки',
   'journey.share.planHint': 'Запланированные места и GPX-маршруты связанных поездок на карте',
   'journey.share.recordings': 'Записанные маршруты',
-  'journey.share.recordingsHint': 'Записанные дни с опубликованной записью. Они показывают, где вы были, в том числе ваше жильё.',
+  'journey.share.recordingsHint': 'Записанные дни и взятые из них остановки, в дни с опубликованной записью. Они показывают, где и когда вы были, в том числе ваше жильё.',
   'journey.share.needsMap': 'Откройте доступ к карте, чтобы включить это',
 };
 export default journey;

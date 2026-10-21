@@ -907,7 +907,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Σχέδιο ταξιδιού',
   'journey.share.planHint': 'Προγραμματισμένα μέρη και διαδρομές GPX των συνδεδεμένων ταξιδιών στον χάρτη',
   'journey.share.recordings': 'Καταγεγραμμένες διαδρομές',
-  'journey.share.recordingsHint': 'Καταγεγραμμένες μέρες με δημοσιευμένη καταχώριση. Δείχνουν πού ήσουν, και το κατάλυμά σου.',
+  'journey.share.recordingsHint': 'Καταγεγραμμένες μέρες και οι στάσεις που προέρχονται από αυτές, σε μέρες με δημοσιευμένη καταχώριση. Δείχνουν πού και πότε ήσουν, και το κατάλυμά σου.',
   'journey.share.needsMap': 'Μοιράσου τον χάρτη για να το ενεργοποιήσεις',
 };
 export default journey;

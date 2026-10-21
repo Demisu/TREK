@@ -836,7 +836,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': '行程计划',
   'journey.share.planHint': '在地图上显示关联行程的计划地点和 GPX 路线',
   'journey.share.recordings': '记录的路线',
-  'journey.share.recordingsHint': '有已发布日记的记录日子。会显示你去过哪里，也包括住处。',
+  'journey.share.recordingsHint': '有已发布日记的日子的记录，以及从中取用的停留点。会显示你何时去过哪里，也包括住处。',
   'journey.share.needsMap': '共享地图后才能开启',
 };
 export default journey;

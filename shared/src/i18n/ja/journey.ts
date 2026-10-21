@@ -857,7 +857,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': '旅行の予定',
   'journey.share.planHint': 'リンクした旅行の予定の場所とGPXルートを地図に表示',
   'journey.share.recordings': '記録したルート',
-  'journey.share.recordingsHint': '公開済みのエントリーがある記録した日。宿泊先も含め、どこにいたかがわかります。',
+  'journey.share.recordingsHint': '公開済みのエントリーがある日の記録と、そこから取り込んだ滞在。宿泊先も含め、いつどこにいたかがわかります。',
   'journey.share.needsMap': '有効にするには地図を共有してください',
 };
 export default journey;

@@ -966,7 +966,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'خطة الرحلة',
   'journey.share.planHint': 'الأماكن المخطَّطة ومسارات GPX للرحلات المرتبطة على الخريطة',
   'journey.share.recordings': 'المسارات المسجَّلة',
-  'journey.share.recordingsHint': 'الأيام المسجَّلة التي لها تدوينة منشورة. تُظهر أين كنت، بما في ذلك مكان إقامتك.',
+  'journey.share.recordingsHint': 'الأيام المسجَّلة ومحطات التوقف المأخوذة منها، للأيام التي لها تدوينة منشورة. تُظهر أين كنت ومتى، بما في ذلك مكان إقامتك.',
   'journey.share.needsMap': 'شارك الخريطة لتفعيل هذا',
 };
 export default journey;

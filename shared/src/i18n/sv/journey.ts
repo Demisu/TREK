@@ -890,7 +890,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Resplan',
   'journey.share.planHint': 'Planerade platser och GPX-rutter för de länkade resorna på kartan',
   'journey.share.recordings': 'Inspelade rutter',
-  'journey.share.recordingsHint': 'Inspelade dagar som har ett publicerat inlägg. De visar var du var, även ditt boende.',
+  'journey.share.recordingsHint': 'Inspelade dagar och de stopp som hämtats från dem, på dagar med ett publicerat inlägg. De visar var och när du var, även ditt boende.',
   'journey.share.needsMap': 'Dela kartan för att slå på detta',
 };
 export default journey;

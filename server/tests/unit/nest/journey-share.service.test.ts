@@ -945,7 +945,7 @@ describe('parity — JourneyShareTokensRepository reads match the legacy stateme
     journeyEntryPhotosRepo = await createTestJourneyEntryPhotosRepo(testDb);
   });
 
-  it('JOURNEY-SHARE-P01: findFlagsByJourneyId (JS1) matches the legacy 5-column read', async () => {
+  it('JOURNEY-SHARE-P01: findFlagsByJourneyId (JS1) matches the 7-column read', async () => {
     const { user } = createUser(testDb);
     const journey = createJourney(testDb, user.id);
     await svc.createOrUpdateJourneyShareLink(journey.id, user.id, {
@@ -958,7 +958,7 @@ describe('parity — JourneyShareTokensRepository reads match the legacy stateme
     const legacy = testDb
       // test-sql-allow: the legacy statement is the oracle the repository read is held to.
       .prepare(
-        'SELECT token, share_timeline, share_gallery, share_map, newest_first FROM journey_share_tokens WHERE journey_id = ?',
+        'SELECT token, share_timeline, share_gallery, share_map, newest_first, share_plan, share_recordings FROM journey_share_tokens WHERE journey_id = ?',
       )
       .get(journey.id);
 
@@ -1115,6 +1115,8 @@ describe('parity — JourneyShareTokensRepository reads match the legacy stateme
               share_gallery,
               share_map,
               newest_first,
+              share_plan: false,
+              share_recordings: false,
             });
           }
         }

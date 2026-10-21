@@ -866,7 +866,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Kế hoạch chuyến đi',
   'journey.share.planHint': 'Địa điểm dự kiến và tuyến GPX của các chuyến đi liên kết trên bản đồ',
   'journey.share.recordings': 'Tuyến đã ghi',
-  'journey.share.recordingsHint': 'Những ngày đã ghi có bài viết được đăng. Cho thấy bạn đã ở đâu, kể cả chỗ ở.',
+  'journey.share.recordingsHint': 'Những ngày đã ghi và các điểm dừng lấy từ đó, vào những ngày có bài viết được đăng. Cho thấy bạn đã ở đâu và khi nào, kể cả chỗ ở.',
   'journey.share.needsMap': 'Chia sẻ bản đồ để bật mục này',
 };
 export default journey;

@@ -888,7 +888,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Gezi planı',
   'journey.share.planHint': 'Bağlı gezilerin planlanan yerleri ve GPX rotaları haritada',
   'journey.share.recordings': 'Kaydedilen rotalar',
-  'journey.share.recordingsHint': 'Yayınlanmış bir girdisi olan kaydedilmiş günler. Nerede olduğunu, konakladığın yeri de gösterir.',
+  'journey.share.recordingsHint': 'Yayınlanmış bir girdisi olan günlerde kaydedilmiş günler ve onlardan alınan duraklar. Nerede ve ne zaman olduğunu, konakladığın yeri de gösterir.',
   'journey.share.needsMap': 'Bunu açmak için haritayı paylaş',
 };
 export default journey;

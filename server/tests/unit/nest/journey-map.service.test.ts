@@ -280,7 +280,7 @@ describe('JourneyMapService.publicMapLayers', () => {
     });
   });
 
-  it('JRNMAP-010: a new link shares neither the plan nor the recorded days; stays of published entries do show', async () => {
+  it('JRNMAP-010: a new link shares neither the plan nor the recorded days, nor the stays taken from a recording', async () => {
     const { token, journey, user } = await shared({});
     const published = await makeJourneyEntry(orm, journey.id, user.id, { entry_date: '2026-05-14' });
     const draft = await makeJourneyEntry(orm, journey.id, user.id, { entry_date: '2026-05-14', is_draft: 1 });
@@ -293,7 +293,11 @@ describe('JourneyMapService.publicMapLayers', () => {
     expect(layers?.places).toEqual({ status: 'withheld' });
     expect(layers?.routes).toEqual({ status: 'withheld' });
     expect(layers?.recordings).toEqual({ status: 'withheld' });
-    expect(layers?.stays.status === 'ok' && layers.stays.items.map((s) => s.entry_id)).toEqual([published.id]);
+    expect(layers?.stays).toEqual({ status: 'withheld' });
+
+    await share.createOrUpdateJourneyShareLink(journey.id, user.id, { share_recordings: true });
+    const recorded = await map.publicMapLayers(token);
+    expect(recorded?.stays.status === 'ok' && recorded.stays.items.map((s) => s.entry_id)).toEqual([published.id]);
   });
 
   it('JRNMAP-011: the plan shows with share_plan, tied only to published entries; routes also need the track switch', async () => {

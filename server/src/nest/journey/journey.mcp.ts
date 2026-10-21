@@ -780,7 +780,7 @@ export class JourneyMcp {
   @Tool({
     name: 'create_journey_share_link',
     description:
-      'Create or update the public share link for a journey. Owner only. Flags left out keep their current value on an existing link; a new link defaults to timeline/gallery/map on and plan/recordings off. share_plan puts the planned places and GPX tracks on the shared map, share_recordings the recorded days that have a published entry; neither shows anything while share_map is off.',
+      'Create or update the public share link for a journey. Owner only. Flags left out keep their current value on an existing link; a new link defaults to timeline/gallery/map on and plan/recordings off. share_plan puts the planned places and GPX tracks on the shared map, share_recordings the recorded days that have a published entry and the stays of published entries; neither shows anything while share_map is off.',
     inputSchema: {
       journeyId: idSchema,
       share_timeline: z.boolean().optional(),

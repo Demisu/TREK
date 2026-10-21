@@ -898,7 +898,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Programma del viaggio',
   'journey.share.planHint': 'Luoghi pianificati e percorsi GPX dei viaggi collegati sulla mappa',
   'journey.share.recordings': 'Percorsi registrati',
-  'journey.share.recordingsHint': 'Giorni registrati con una voce pubblicata. Mostrano dove sei stato, anche il tuo alloggio.',
+  'journey.share.recordingsHint': 'Giorni registrati e le soste ricavate da essi, nei giorni con una voce pubblicata. Mostrano dove e quando sei stato, anche il tuo alloggio.',
   'journey.share.needsMap': 'Condividi la mappa per attivarlo',
 };
 export default journey;

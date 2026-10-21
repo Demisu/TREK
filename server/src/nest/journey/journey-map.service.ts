@@ -44,7 +44,8 @@ const WITHHELD = { status: 'withheld' } as const;
  * while the others still draw. Nothing is stored here and nothing is written:
  * a layer switched on in a browser only ever hides what the reader may see.
  * The public answer is cut on the server, by the link's flags, never by the
- * client: the map switched off shares nothing of it.
+ * client: the map switched off shares nothing of it, and the stays, being
+ * taken from a recording, travel only with the recorded days.
  */
 @Injectable()
 export class JourneyMapService {
@@ -91,7 +92,7 @@ export class JourneyMapService {
     const [places, routes, stays, recordings] = await Promise.all([
       sharePlan ? this.layer('places', journeyId, () => this.places(journeyId, published)) : WITHHELD,
       sharePlan && journey.show_trip_tracks ? this.layer('routes', journeyId, () => this.routes(journeyId)) : WITHHELD,
-      this.layer('stays', journeyId, () => this.stays(journeyId, published)),
+      link.share_recordings ? this.layer('stays', journeyId, () => this.stays(journeyId, published)) : WITHHELD,
       link.share_recordings
         ? this.layer('recordings', journeyId, () => this.recordings(journeyId, published))
         : WITHHELD,

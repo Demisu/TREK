@@ -899,7 +899,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Pla del viatge',
   'journey.share.planHint': 'Llocs planificats i rutes GPX dels viatges vinculats al mapa',
   'journey.share.recordings': 'Rutes enregistrades',
-  'journey.share.recordingsHint': 'Dies enregistrats amb una entrada publicada. Mostren on eres, també el teu allotjament.',
+  'journey.share.recordingsHint': 'Dies enregistrats i les parades que se\'n treuen, en els dies amb una entrada publicada. Mostren on i quan eres, també el teu allotjament.',
   'journey.share.needsMap': 'Comparteix el mapa per activar-ho',
 };
 export default journey;

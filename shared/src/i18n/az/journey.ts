@@ -967,7 +967,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Səyahət planı',
   'journey.share.planHint': 'Bağlı səyahətlərin planlaşdırılmış yerləri və GPX marşrutları xəritədə',
   'journey.share.recordings': 'Qeydə alınmış marşrutlar',
-  'journey.share.recordingsHint': 'Dərc olunmuş qeydi olan qeydə alınmış günlər. Harada olduğunu, qaldığın yeri də göstərir.',
+  'journey.share.recordingsHint': 'Dərc olunmuş qeydi olan qeydə alınmış günlər və onlardan götürülmüş dayanacaqlar. Harada və nə vaxt olduğunu, qaldığın yeri də göstərir.',
   'journey.share.needsMap': 'Bunu açmaq üçün xəritəni paylaş',
 };
 export default journey;

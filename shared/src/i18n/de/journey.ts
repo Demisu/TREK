@@ -904,7 +904,7 @@ const journey: TranslationStrings = {
   'journey.share.plan': 'Reiseplanung',
   'journey.share.planHint': 'Geplante Orte und GPX-Strecken der verknüpften Reisen auf der Karte',
   'journey.share.recordings': 'Aufgezeichnete Strecken',
-  'journey.share.recordingsHint': 'Aufgezeichnete Tage mit veröffentlichtem Eintrag. Sie zeigen, wo du warst, auch deine Unterkunft.',
+  'journey.share.recordingsHint': 'Aufgezeichnete Tage und die daraus übernommenen Aufenthalte, an Tagen mit veröffentlichtem Eintrag. Sie zeigen, wo und wann du warst, auch deine Unterkunft.',
   'journey.share.needsMap': 'Teile die Karte, um das einzuschalten',
 };
 export default journey;
