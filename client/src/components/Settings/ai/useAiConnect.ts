@@ -5,7 +5,14 @@ import { useTranslation } from '../../../i18n';
 import { aiConnectionsRepo } from '../../../repo/aiConnectionsRepo';
 import { detectKeyKind, isChatgptCallback, providerLabel } from '../../Assistant/providerCatalog';
 import { useToast } from '../../shared/Toast';
-import { connectErrorKey, httpHostOf, refusalCode, rememberOpenrouterFlow, takeOpenrouterFlow } from './aiConnectModel';
+import {
+  connectErrorKey,
+  httpHostOf,
+  refusalCode,
+  rememberOpenrouterFlow,
+  takeChatgptFlow,
+  takeOpenrouterFlow,
+} from './aiConnectModel';
 
 /**
  * The ways to connect a provider, one hook each, behind `AiConnectPanel`: a
@@ -291,6 +298,49 @@ export function useOpenrouterStart(scope: AiConnectionScope) {
   };
 
   return { start, busy };
+}
+
+/**
+ * Finishes a ChatGPT sign-in the page came back from through the relay
+ * (`?ai=chatgpt&code=…&state=…`): the server reads the address as it reads a
+ * pasted one. The parameters leave the address at once, so a reload does not
+ * try again.
+ */
+export function useChatgptReturn(onConnected: () => void) {
+  const { t } = useTranslation();
+  const toast = useToast();
+  const [params, setParams] = useSearchParams();
+  const handled = useRef(false);
+
+  const finish = useEffectEvent(async (returned: string) => {
+    const flowId = takeChatgptFlow();
+    if (!flowId) {
+      toast.error(t('assistant.connect.chatgptExpired'));
+      return;
+    }
+    try {
+      await aiConnectionsRepo.chatgptFinish({ flowId, pastedUrl: returned });
+      toast.success(t('assistant.connect.ok'));
+      onConnected();
+    } catch (err) {
+      toast.error(t(connectErrorKey(err)));
+    }
+  });
+
+  useEffect(() => {
+    if (handled.current || params.get('ai') !== 'chatgpt') return;
+    handled.current = true;
+    const returned = window.location.href;
+    setParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        for (const key of ['ai', 'code', 'state', 'scope', 'client_id', 'error']) next.delete(key);
+        return next;
+      },
+      { replace: true }
+    );
+    void finish(returned);
+  }, [params, setParams]);
 }
 
 /**

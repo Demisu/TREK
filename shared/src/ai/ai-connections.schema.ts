@@ -135,6 +135,8 @@ export const aiAuthStartResponseSchema = z.object({
   flowId: z.uuid(),
   authorizeUrl: z.url(),
   expiresAt: z.string(),
+  // The sign-in comes back to TREK by itself: open it in this tab, nothing to paste.
+  returns: z.boolean().optional(),
 });
 export type AiAuthStartResponse = z.infer<typeof aiAuthStartResponseSchema>;
 

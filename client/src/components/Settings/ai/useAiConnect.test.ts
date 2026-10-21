@@ -17,9 +17,15 @@ const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
 vi.mock('../../../repo/aiConnectionsRepo', () => ({ aiConnectionsRepo: repo }));
 vi.mock('../../shared/Toast', () => ({ useToast: () => toast }));
 
-const { useChatgptConnect, useCustomConnect, useKeyConnect, useOpenrouterReturn, useOpenrouterStart } =
-  await import('./useAiConnect');
-const { rememberOpenrouterFlow } = await import('./aiConnectModel');
+const {
+  useChatgptConnect,
+  useChatgptReturn,
+  useCustomConnect,
+  useKeyConnect,
+  useOpenrouterReturn,
+  useOpenrouterStart,
+} = await import('./useAiConnect');
+const { rememberChatgptFlow, rememberOpenrouterFlow } = await import('./aiConnectModel');
 
 function wrapperAt(url = '/settings') {
   return ({ children }: { children: ReactNode }) =>
@@ -248,5 +254,28 @@ describe('OpenRouter', () => {
     renderHook(() => useOpenrouterReturn(onConnected), { wrapper: wrapperAt('/settings?ai=openrouter&code=again') });
     await waitFor(() => expect(toast.error).toHaveBeenCalledTimes(1));
     expect(repo.openrouterFinish).not.toHaveBeenCalled();
+  });
+});
+
+describe('useChatgptReturn', () => {
+  it('FE-HOOK-AI-CONNECT-030: a sign-in back through the relay finishes once, as the address it came back to', async () => {
+    rememberChatgptFlow(FLOW.flowId);
+    const onConnected = vi.fn();
+    const { result } = renderHook(
+      () => {
+        useChatgptReturn(onConnected);
+        return useLocation();
+      },
+      { wrapper: wrapperAt('/settings?tab=integrations&ai=chatgpt&code=c1&state=s1.aA') }
+    );
+    await waitFor(() => expect(onConnected).toHaveBeenCalledTimes(1));
+    // The address as the browser holds it; the server checks it as it checks a pasted one.
+    expect(repo.chatgptFinish).toHaveBeenCalledWith({ flowId: FLOW.flowId, pastedUrl: window.location.href });
+    expect(result.current.search).toBe('?tab=integrations');
+
+    vi.clearAllMocks();
+    renderHook(() => useChatgptReturn(onConnected), { wrapper: wrapperAt('/settings?ai=chatgpt&code=again') });
+    await waitFor(() => expect(toast.error).toHaveBeenCalledTimes(1));
+    expect(repo.chatgptFinish).not.toHaveBeenCalled();
   });
 });

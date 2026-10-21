@@ -5,6 +5,7 @@ import { CHATGPT_USAGE_URL, providerLabel } from '../../Assistant/providerCatalo
 import { fs } from '../../shared/DialogShell';
 import { INPUT } from '../../shared/dialogParts';
 import { SETTINGS_BUTTON, SETTINGS_BUTTON_PRIMARY, SettingsHint } from '../settingsKit';
+import { rememberChatgptFlow } from './aiConnectModel';
 import type { ConnectError, useChatgptConnect } from './useAiConnect';
 
 type ChatgptConnect = ReturnType<typeof useChatgptConnect>;
@@ -97,9 +98,12 @@ export default function ChatGptPasteStep({
           <div className="flex">
             <a
               href={flow?.authorizeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={markOpened}
+              // A sign-in that comes back by itself leaves this tab; one to paste from opens beside it.
+              {...(flow?.returns ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
+              onClick={() => {
+                if (flow?.returns) rememberChatgptFlow(flow.flowId);
+                markOpened();
+              }}
               aria-disabled={!flow}
               className={`${SETTINGS_BUTTON_PRIMARY} ${flow ? '' : 'pointer-events-none opacity-50'}`}
               style={fs(13, 'body')}
@@ -109,56 +113,58 @@ export default function ChatGptPasteStep({
             </a>
           </div>
         </Step>
-        <Step n={2} text={t('assistant.connect.chatgptStep2')}>
-          <div className="flex gap-2">
-            <input
-              id={inputId}
-              ref={inputRef}
-              type="url"
-              inputMode="url"
-              autoComplete="off"
-              spellCheck={false}
-              dir="ltr"
-              value={pasted}
-              onChange={(e) => change(e.target.value)}
-              onPaste={(e) => {
-                if (paste(e.clipboardData.getData('text'))) e.preventDefault();
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  void submit();
-                }
-              }}
-              placeholder="http://127.0.0.1:1455/auth/callback?code=…"
-              aria-label={t('assistant.connect.chatgptPaste')}
-              className={`${INPUT} font-mono`}
-            />
-            {pasted.trim() ? (
-              <button
-                type="button"
-                onClick={() => void submit()}
-                disabled={busy || !flow}
-                className={SETTINGS_BUTTON_PRIMARY}
-                style={fs(13, 'body')}
-              >
-                {busy && <Loader2 size={14} className="animate-spin" />}
-                {t('assistant.connect.save')}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={pasteFromClipboard}
-                disabled={!flow}
-                className={`${SETTINGS_BUTTON} whitespace-nowrap`}
-                style={fs(13, 'body')}
-              >
-                <ClipboardPaste size={14} strokeWidth={2} />
-                {t('assistant.connect.chatgptPaste')}
-              </button>
-            )}
-          </div>
-        </Step>
+        {!flow?.returns && (
+          <Step n={2} text={t('assistant.connect.chatgptStep2')}>
+            <div className="flex gap-2">
+              <input
+                id={inputId}
+                ref={inputRef}
+                type="url"
+                inputMode="url"
+                autoComplete="off"
+                spellCheck={false}
+                dir="ltr"
+                value={pasted}
+                onChange={(e) => change(e.target.value)}
+                onPaste={(e) => {
+                  if (paste(e.clipboardData.getData('text'))) e.preventDefault();
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    void submit();
+                  }
+                }}
+                placeholder="http://127.0.0.1:1455/auth/callback?code=…"
+                aria-label={t('assistant.connect.chatgptPaste')}
+                className={`${INPUT} font-mono`}
+              />
+              {pasted.trim() ? (
+                <button
+                  type="button"
+                  onClick={() => void submit()}
+                  disabled={busy || !flow}
+                  className={SETTINGS_BUTTON_PRIMARY}
+                  style={fs(13, 'body')}
+                >
+                  {busy && <Loader2 size={14} className="animate-spin" />}
+                  {t('assistant.connect.save')}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={pasteFromClipboard}
+                  disabled={!flow}
+                  className={`${SETTINGS_BUTTON} whitespace-nowrap`}
+                  style={fs(13, 'body')}
+                >
+                  <ClipboardPaste size={14} strokeWidth={2} />
+                  {t('assistant.connect.chatgptPaste')}
+                </button>
+              )}
+            </div>
+          </Step>
+        )}
       </ol>
       {error && (
         <ConnectErrorNote error={error} provider={providerLabel('chatgpt', '')} onOtherProvider={onOtherProvider} />
