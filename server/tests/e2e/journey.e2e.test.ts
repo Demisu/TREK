@@ -6,10 +6,12 @@
  * codes and the unguarded public route.
  */
 import { AddonsService } from '../../src/nest/addons/addons.service';
+import { notFound } from '../../src/nest/common/domain-error';
 import { TrekExceptionFilter } from '../../src/nest/common/trek-exception.filter';
 import { ZodValidationPipe } from '../../src/nest/common/zod-validation.pipe';
 import { JourneyBookService } from '../../src/nest/journey/journey-book.service';
 import { JourneyDomainService } from '../../src/nest/journey/journey-domain.service';
+import { JourneyMapService } from '../../src/nest/journey/journey-map.service';
 import { JourneyShareService } from '../../src/nest/journey/journey-share.service';
 import { JourneyModule } from '../../src/nest/journey/journey.module';
 import { PhotoCaptureBackfillService } from '../../src/nest/memories/photo-capture-backfill.service';
@@ -110,6 +112,8 @@ const { backfillRun, backfillSchedule } = vi.hoisted(() => ({ backfillRun: vi.fn
 
 const { sharesvc } = vi.hoisted(() => ({ sharesvc: { getPublicJourney: vi.fn() } }));
 
+const { mapsvc } = vi.hoisted(() => ({ mapsvc: { mapLayers: vi.fn(), publicMapLayers: vi.fn() } }));
+
 const { booksvc } = vi.hoisted(() => ({
   booksvc: {
     getBook: vi.fn(),
@@ -134,6 +138,8 @@ describe('Journey e2e (real auth guard + temp SQLite)', () => {
       .useValue(sharesvc)
       .overrideProvider(JourneyBookService)
       .useValue(booksvc)
+      .overrideProvider(JourneyMapService)
+      .useValue(mapsvc)
       .overrideProvider(AddonsService)
       .useValue({ isAddonEnabled })
       .overrideProvider(PhotoCaptureBackfillService)
@@ -551,5 +557,63 @@ describe('Journey e2e (real auth guard + temp SQLite)', () => {
     const res = await request(server).get('/api/public/journey/bad');
     expect(res.status).toBe(404);
     expect(res.body).toEqual({ error: 'Not found' });
+  });
+
+  // ── Map layers (JRN-04) ───────────────────────────────────────────────────
+
+  const PLACE = {
+    place_id: 4,
+    trip_id: 2,
+    trip_title: 'Venice',
+    name: 'Piazza San Marco',
+    lat: 45.434,
+    lng: 12.3388,
+    days: ['2026-05-14'],
+    time: null,
+    category_color: null,
+    category_icon: null,
+    entry_id: 7,
+  };
+
+  it('401 for the map layers without a session', async () => {
+    expect((await request(server).get('/api/journeys/9/map-layers')).status).toBe(401);
+  });
+
+  it('200 with each source on its own, a failed one beside the others', async () => {
+    mapsvc.mapLayers.mockResolvedValueOnce({
+      places: { status: 'ok', items: [PLACE] },
+      routes: { status: 'unavailable' },
+      stays: { status: 'ok', items: [] },
+    });
+    const res = await request(server).get('/api/journeys/9/map-layers').set('Cookie', sessionCookie(1));
+    expect(res.status).toBe(200);
+    expect(res.body.places.items).toEqual([PLACE]);
+    expect(res.body.routes).toEqual({ status: 'unavailable' });
+    expect(mapsvc.mapLayers).toHaveBeenCalledWith(9, 1);
+  });
+
+  it('404 for the map layers of a journey out of reach', async () => {
+    mapsvc.mapLayers.mockRejectedValueOnce(notFound('Journey not found'));
+    const res = await request(server).get('/api/journeys/9/map-layers').set('Cookie', sessionCookie(1));
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({ error: 'Journey not found' });
+  });
+
+  it('public map layers are unguarded and answer what the link shares, 404 for an unknown token', async () => {
+    mapsvc.publicMapLayers.mockResolvedValueOnce({
+      places: { status: 'withheld' },
+      routes: { status: 'withheld' },
+      stays: { status: 'ok', items: [] },
+      recordings: { status: 'withheld' },
+    });
+    const res = await request(server).get('/api/public/journey/tok/map-layers');
+    expect(res.status).toBe(200);
+    expect(res.body.places).toEqual({ status: 'withheld' });
+    expect(mapsvc.publicMapLayers).toHaveBeenCalledWith('tok');
+
+    mapsvc.publicMapLayers.mockResolvedValueOnce(null);
+    const missing = await request(server).get('/api/public/journey/bad/map-layers');
+    expect(missing.status).toBe(404);
+    expect(missing.body).toEqual({ error: 'Not found' });
   });
 });

@@ -17,7 +17,7 @@ import { AddonsService } from '../addons/addons.service';
 import { JourneyDomainService } from './journey-domain.service';
 import { JourneyPhotoCaptureService } from './journey-photo-capture.service';
 import { JourneyShareService } from './journey-share.service';
-import { idSchema, journeyUpdateRequestSchema } from '@trek/shared';
+import { idSchema, journeyShareLinkRequestSchema, journeyUpdateRequestSchema } from '@trek/shared';
 
 import { z } from 'zod';
 
@@ -780,13 +780,15 @@ export class JourneyMcp {
   @Tool({
     name: 'create_journey_share_link',
     description:
-      'Create or update the public share link for a journey. Owner only. Flags left out keep their current value on an existing link; a new link defaults to timeline/gallery/map on.',
+      'Create or update the public share link for a journey. Owner only. Flags left out keep their current value on an existing link; a new link defaults to timeline/gallery/map on and plan/recordings off. share_plan puts the planned places and GPX tracks on the shared map, share_recordings the recorded days that have a published entry; neither shows anything while share_map is off.',
     inputSchema: {
       journeyId: idSchema,
       share_timeline: z.boolean().optional(),
       share_gallery: z.boolean().optional(),
       share_map: z.boolean().optional(),
       newest_first: z.boolean().optional(),
+      share_plan: journeyShareLinkRequestSchema.shape.share_plan,
+      share_recordings: journeyShareLinkRequestSchema.shape.share_recordings,
     },
     annotations: TOOL_ANNOTATIONS_WRITE,
     when: journeyAddonOn,
@@ -802,6 +804,8 @@ export class JourneyMcp {
       share_gallery?: boolean;
       share_map?: boolean;
       newest_first?: boolean;
+      share_plan?: boolean;
+      share_recordings?: boolean;
     },
     ctx: McpContext,
   ) {

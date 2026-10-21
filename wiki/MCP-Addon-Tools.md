@@ -183,6 +183,7 @@ Requires `journey:read` or `journey:write` scope.
 |---|---|
 | `list_journeys` | List all journeys owned or contributed to by the current user. |
 | `get_journey` | Get a full snapshot of a journey — metadata, entries, contributors, and linked trips. |
+| `get_journey_map_layers` | What a journey's map shows beside its entries and photos: the planned places of its linked trips with their days and the entry written about each (a plan is no proof of a visit), the trips' GPX routes by name and size while the track switch is on, and the stays journal entries were taken over from, each where it was recorded. Every source answers on its own, `ok` or `unavailable`. |
 | `get_journey_stats` | What a journey adds up to: distance travelled in metres, calendar days spanned, countries in visit order, the furthest point reached, and entry, photo and place counts. Entries switched off with `stats_excluded` count towards none of those and are listed under `excluded`. Pass `include_route` for the route itself, up to 400 stops with coordinates. |
 | `create_journey` | Create a new journey with title, optional subtitle, and an initial list of trip IDs. |
 | `update_journey` | Update a journey's title, subtitle, cover or status, and whether its entries offer a pros/cons list, a mood and a weather note (`show_verdict`, `show_mood`, `show_weather`). `status_override` sets the shown status by hand (`draft`, `live` or `completed`), `null` goes back to following the trip dates. `photo_location` lets an entry without a place take the position of its first geotagged photo. `auto_prepare_recordings` switches the preparation of its recorded days from Dawarich on or off. Owner only. |
@@ -205,7 +206,7 @@ Requires `journey:read` or `journey:write` scope.
 | `get_journey_suggestions` | Get suggested trips to add to journeys based on recent trip history. |
 | `list_journey_available_trips` | List all trips available to the current user for linking to a journey. |
 | `get_journey_share_link` | Get the current public share link for a journey. Requires `journey:share`. |
-| `create_journey_share_link` | Create or update the public share link for a journey. Requires `journey:share`. |
+| `create_journey_share_link` | Create or update the public share link for a journey. `share_plan` adds the linked trips' planned places and GPX routes to the shared map, `share_recordings` the recorded days that have a published entry; both start off and show nothing while the map is not shared. Requires `journey:share`. |
 | `delete_journey_share_link` | Revoke the public share link for a journey. Requires `journey:share`. |
 | `list_journey_recorded_days` | The days of recorded route a journey keeps: zone, distance, pieces, gaps, modes, whether the day was still running, and whose recording it is, without the geometry. Readable without a Dawarich connection. |
 | `delete_journey_recorded_day` | Drop the recorded route a journey keeps for one day. Entries and texts stay, and Dawarich keeps its own recording. Needs edit access. |

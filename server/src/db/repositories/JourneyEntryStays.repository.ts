@@ -20,6 +20,17 @@ export interface JourneyEntryStayWrite {
   user_id: number;
 }
 
+/** A located stay of a journey, as its map draws it (JRN-04). */
+export interface JourneyEntryStayMapRow {
+  id: number;
+  entry_id: number;
+  name: string;
+  lat: number;
+  lng: number;
+  started_at: string;
+  ended_at: string;
+}
+
 /** A stay a journey holds, with the entry that holds it. */
 interface JourneyEntryStayHeld {
   source_visit_id: string;
@@ -59,5 +70,19 @@ export class JourneyEntryStaysRepository extends TrekRepository<JourneyEntryStay
       .where('s.source', '=', source)
       .where('s.source_visit_id', 'in', sourceVisitIds)
       .execute();
+  }
+
+  /** The journey's stays that carry a position, by entry and in the order they were lived. */
+  async listLocatedForJourney(journeyId: number): Promise<JourneyEntryStayMapRow[]> {
+    const rows = await this.db()
+      .selectFrom('journey_entry_stays as s')
+      .select(['s.id', 's.entry_id', 's.name', 's.lat', 's.lng', 's.started_at', 's.ended_at'])
+      .where('s.journey_id', '=', journeyId)
+      .where('s.lat', 'is not', null)
+      .where('s.lng', 'is not', null)
+      .orderBy('s.entry_id', 'asc')
+      .orderBy('s.sort_order', 'asc')
+      .execute();
+    return rows.map((row) => ({ ...row, lat: row.lat as number, lng: row.lng as number }));
   }
 }

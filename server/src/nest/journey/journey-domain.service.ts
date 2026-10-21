@@ -28,6 +28,7 @@ import type { TripsRepository } from '../../db/repositories/Trips.repository';
 import { Places } from '../../db/entities/Places.entity';
 import type { PlacesRepository } from '../../db/repositories/Places.repository';
 import { presenceSet } from '../../db/repositories/_shared/presence-set';
+import { parseRouteGeometry } from './journey-geometry';
 
 /**
  * English country names for whatever codes a journey turned up.
@@ -914,25 +915,10 @@ export class JourneyDomainService {
 
     const tracks: JourneyTrack[] = [];
     for (const row of rows) {
-      let parsed: unknown;
-      try {
-        parsed = JSON.parse(row.route_geometry);
-      } catch {
-        continue; // A geometry that is not JSON is not worth failing the whole map over.
-      }
-      if (!Array.isArray(parsed)) continue;
-
-      const points: [number, number][] = [];
-      for (const entry of parsed) {
-        if (!Array.isArray(entry) || entry.length < 2) continue;
-        const lat = Number(entry[0]);
-        const lng = Number(entry[1]);
-        if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
-        points.push([lat, lng]);
-      }
-      // A single point is a pin, not a line, and the map already has the entry markers.
-      if (points.length < 2) continue;
-
+      // A geometry that is not JSON, or a single point (a pin, not a line), is
+      // not worth failing the whole map over.
+      const points = parseRouteGeometry(row.route_geometry);
+      if (!points) continue;
       tracks.push({
         place_id: row.place_id,
         trip_id: row.trip_id,

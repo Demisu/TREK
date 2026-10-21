@@ -2,9 +2,11 @@ import { ADDON_IDS } from '../../addons';
 import { AddonGuard } from '../addons/addon.guard';
 import { RequireAddon } from '../addons/require-addon.decorator';
 import { Public } from '../auth-core/public.decorator';
+import { ResponseContract } from '../common/response-contract';
 import { StorageService } from '../storage/storage.service';
 import { JourneyService } from './journey.service';
 import { Controller, Get, HttpException, Param, Res, UseGuards } from '@nestjs/common';
+import { journeyPublicMapLayersResponseSchema } from '@trek/shared';
 
 import type { Response } from 'express';
 import path from 'node:path';
@@ -40,6 +42,20 @@ export class JourneyPublicController {
       throw new HttpException({ error: 'Not found' }, 404);
     }
     return data;
+  }
+
+  /**
+   * What the shared map shows beside the entries and photos (JRN-04), cut to
+   * the link's flags on the server: nothing while the map is not shared.
+   */
+  @Get(':token/map-layers')
+  @ResponseContract(journeyPublicMapLayersResponseSchema)
+  async mapLayers(@Param('token') token: string) {
+    const layers = await this.journey.getPublicMapLayers(token);
+    if (!layers) {
+      throw new HttpException({ error: 'Not found' }, 404);
+    }
+    return layers;
   }
 
   @Get(':token/photos/:photoId/:kind')

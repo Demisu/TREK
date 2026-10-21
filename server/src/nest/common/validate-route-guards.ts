@@ -130,6 +130,7 @@ export const PUBLIC_ROUTE_ALLOW_LIST: string[] = [
   // Share-token validated.
   'JourneyPublicController.get',
   'JourneyPublicController.legacyPhoto',
+  'JourneyPublicController.mapLayers',
   'JourneyPublicController.photo',
   // The MCP transport — bearer tokens are verified inside the handler.
   // The same documents under the resource URL, for clients that append the

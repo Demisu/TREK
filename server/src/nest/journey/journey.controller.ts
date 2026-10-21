@@ -848,6 +848,8 @@ export class JourneyController {
       share_gallery: body.share_gallery as boolean | undefined,
       share_map: body.share_map as boolean | undefined,
       newest_first: body.newest_first as boolean | undefined,
+      share_plan: body.share_plan,
+      share_recordings: body.share_recordings,
     });
     if (!result) {
       throw new HttpException({ error: 'Not allowed' }, 403);

@@ -8,6 +8,8 @@ export interface JourneyShareLinkFlagsRow {
   share_gallery: number | null;
   share_map: number | null;
   newest_first: number;
+  share_plan: number;
+  share_recordings: number;
 }
 
 /** JS4/JS11's full-row shape (`getJourneyShareLink`, `getPublicJourney`'s entrypoint read). */
@@ -21,6 +23,18 @@ export interface JourneyShareTokenRow {
   share_map: number | null;
   created_at: string | null;
   newest_first: number;
+  share_plan: number;
+  share_recordings: number;
+}
+
+/** Every flag of a link, as stored (0/1). */
+export interface JourneyShareFlags {
+  share_timeline: number;
+  share_gallery: number;
+  share_map: number;
+  newest_first: number;
+  share_plan: number;
+  share_recordings: number;
 }
 
 /** JS6/JS9's narrow token-lookup projection — the anonymous photo/asset validators. */
@@ -82,7 +96,15 @@ export class JourneyShareTokensRepository extends TrekRepository<JourneyShareTok
   /** JS1 — `createOrUpdateJourneyShareLink`'s existing-link read: `SELECT token, share_timeline, share_gallery, share_map, newest_first FROM journey_share_tokens WHERE journey_id = ?`. */
   async findFlagsByJourneyId(journeyId: number): Promise<JourneyShareLinkFlagsRow | undefined> {
     return await this.qb('jst')
-      .select(['jst.token', 'jst.share_timeline', 'jst.share_gallery', 'jst.share_map', 'jst.newest_first'])
+      .select([
+        'jst.token',
+        'jst.share_timeline',
+        'jst.share_gallery',
+        'jst.share_map',
+        'jst.newest_first',
+        'jst.share_plan',
+        'jst.share_recordings',
+      ])
       .where({ journey: journeyId })
       .execute<JourneyShareLinkFlagsRow | undefined>('get', false);
   }
@@ -90,25 +112,17 @@ export class JourneyShareTokensRepository extends TrekRepository<JourneyShareTok
   /**
    * JS2 — the update branch: `UPDATE journey_share_tokens SET
    * share_timeline=?, share_gallery=?, share_map=?, newest_first=? WHERE
-   * journey_id=?`. A plain 4-column write, NOT a `presenceSet` call — the
+   * journey_id=?` (and the two map flags of JRN-04). A plain write, NOT a `presenceSet` call — the
    * service resolves every flag's final value (the `permissions.X ?? !!
    * existing.X` fallback merge) before calling this, so every call writes
-   * all four columns, present or not.
+   * every column, present or not.
    */
-  async updateFlags(
-    journeyId: number,
-    flags: { share_timeline: number; share_gallery: number; share_map: number; newest_first: number },
-  ): Promise<void> {
+  async updateFlags(journeyId: number, flags: JourneyShareFlags): Promise<void> {
     await this.nativeUpdate({ journey: journeyId }, flags);
   }
 
   /** JS3 — the create branch: `INSERT INTO journey_share_tokens (journey_id, token, created_by, share_timeline, share_gallery, share_map, newest_first) VALUES (?,?,?,?,?,?,?)`. */
-  async insertLink(
-    journeyId: number,
-    token: string,
-    createdBy: number,
-    flags: { share_timeline: number; share_gallery: number; share_map: number; newest_first: number },
-  ): Promise<void> {
+  async insertLink(journeyId: number, token: string, createdBy: number, flags: JourneyShareFlags): Promise<void> {
     await this.insert({ journey: journeyId, token, createdByRef: createdBy, ...flags });
   }
 

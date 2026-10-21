@@ -10,6 +10,8 @@ import { StorageModule } from '../storage/storage.module';
 import { StorageService } from '../storage/storage.service';
 import { JourneyBookService } from './journey-book.service';
 import { JourneyDomainModule } from './journey-domain.module';
+import { JourneyMapController } from './journey-map.controller';
+import { JourneyMapMcp } from './journey-map.mcp';
 import { JourneyPhotoCaptureModule } from './journey-photo-capture.module';
 import { JourneyPublicController } from './journey-public.controller';
 import { JourneyController } from './journey.controller';
@@ -50,7 +52,7 @@ import { MulterModule } from '@nestjs/platform-express';
     // for its own providers only, per that module's own docstring).
     MikroOrmModule.forFeature([Users, JourneyBooks]),
   ],
-  controllers: [JourneyController, JourneyPublicController],
-  providers: [JourneyService, JourneyBookService, JourneyMcp],
+  controllers: [JourneyController, JourneyMapController, JourneyPublicController],
+  providers: [JourneyService, JourneyBookService, JourneyMcp, JourneyMapMcp],
 })
 export class JourneyModule {}

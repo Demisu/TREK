@@ -5,6 +5,7 @@ import { ImmichService } from '../memories/immich.service';
 import { PhotoProviderRegistry } from '../memories/photo-provider.registry';
 import { PhotoResolverService } from '../memories/photo-resolver.service';
 import { JourneyDomainService } from './journey-domain.service';
+import { JourneyMapService } from './journey-map.service';
 import { JourneyShareService } from './journey-share.service';
 import { Injectable } from '@nestjs/common';
 
@@ -26,6 +27,7 @@ export class JourneyService {
     private readonly journey: JourneyDomainService,
     private readonly share: JourneyShareService,
     private readonly immichRepo: UserImmichRepository,
+    private readonly map: JourneyMapService,
   ) {}
 
   async journeyAddonEnabled(): Promise<boolean> {
@@ -197,6 +199,9 @@ export class JourneyService {
   // Public (share-token) access — no auth, validated by token.
   async getPublicJourney(token: string) {
     return this.share.getPublicJourney(token);
+  }
+  getPublicMapLayers(token: string) {
+    return this.map.publicMapLayers(token);
   }
   validateShareTokenForPhoto(token: string, photoId: number) {
     return this.share.validateShareTokenForPhoto(token, photoId);

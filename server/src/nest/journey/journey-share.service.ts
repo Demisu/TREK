@@ -26,6 +26,10 @@ interface JourneySharePermissions {
   share_map?: boolean;
   /** Read the journey newest-first, like a blog, rather than in trip order. */
   newest_first?: boolean;
+  /** The trips' plan on the shared map (JRN-04); off unless asked for. */
+  share_plan?: boolean;
+  /** The recorded days on the shared map (JRN-04); off unless asked for. */
+  share_recordings?: boolean;
 }
 
 interface JourneyShareTokenInfo {
@@ -35,6 +39,8 @@ interface JourneyShareTokenInfo {
   share_gallery: boolean;
   share_map: boolean;
   newest_first: boolean;
+  share_plan: boolean;
+  share_recordings: boolean;
 }
 
 /**
@@ -105,19 +111,30 @@ export class JourneyShareService {
         const share_gallery = permissions.share_gallery ?? !!existing.share_gallery;
         const share_map = permissions.share_map ?? !!existing.share_map;
         const newest_first = permissions.newest_first ?? !!existing.newest_first;
+        const share_plan = permissions.share_plan ?? !!existing.share_plan;
+        const share_recordings = permissions.share_recordings ?? !!existing.share_recordings;
         // JS2 — the SERVICE resolves the final value of every flag (above); the
-        // repository writes exactly those four already-resolved booleans, a
-        // plain 4-column UPDATE, not a presence-sentinel one.
+        // repository writes exactly those already-resolved booleans, a plain
+        // UPDATE, not a presence-sentinel one.
         await this.shareTokensRepo.updateFlags(journeyId, {
           share_timeline: share_timeline ? 1 : 0,
           share_gallery: share_gallery ? 1 : 0,
           share_map: share_map ? 1 : 0,
           newest_first: newest_first ? 1 : 0,
+          share_plan: share_plan ? 1 : 0,
+          share_recordings: share_recordings ? 1 : 0,
         });
         return { token: existing.token, created: false };
       }
 
-      const { share_timeline = true, share_gallery = true, share_map = true, newest_first = false } = permissions;
+      const {
+        share_timeline = true,
+        share_gallery = true,
+        share_map = true,
+        newest_first = false,
+        share_plan = false,
+        share_recordings = false,
+      } = permissions;
 
       const token = crypto.randomBytes(24).toString('base64url');
       // JS3.
@@ -126,6 +143,8 @@ export class JourneyShareService {
         share_gallery: share_gallery ? 1 : 0,
         share_map: share_map ? 1 : 0,
         newest_first: newest_first ? 1 : 0,
+        share_plan: share_plan ? 1 : 0,
+        share_recordings: share_recordings ? 1 : 0,
       });
       return { token, created: true };
     });
@@ -160,6 +179,8 @@ export class JourneyShareService {
       share_gallery: !!row.share_gallery,
       share_map: !!row.share_map,
       newest_first: !!row.newest_first,
+      share_plan: !!row.share_plan,
+      share_recordings: !!row.share_recordings,
     };
   }
 

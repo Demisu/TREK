@@ -103,6 +103,7 @@ export * from './journey/journey.schema';
 export * from './journey/journey-recordings.schema';
 export * from './journey/journey-day-import.schema';
 export * from './journey/journey-recording-prep.schema';
+export * from './journey/journey-map.schema';
 export * from './journey/trip-journal-link.schema';
 export * from './book/book.schema';
 export * from './book/journey-stats.schema';

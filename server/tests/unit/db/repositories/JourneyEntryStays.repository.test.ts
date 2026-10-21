@@ -137,4 +137,39 @@ describe('JourneyEntryStaysRepository', () => {
     await deleteRows(t, JourneyEntries, { id: second });
     expect(await countRows(t, JourneyEntryStays, {})).toBe(1);
   });
+
+  it('JESTAYS-005: the map reads the located stays of a journey by entry, in the order they were lived', async () => {
+    const { user, journey, entryId } = await journeyWithEntry();
+    const second = await entry(journey.id, user.id, 'Afternoon');
+    const other = await makeJourney(t, user.id);
+    await stays.insertStays([
+      stay(journey.id, second, user.id, { source_visit_id: '300', name: 'Giudecca' }),
+      stay(journey.id, entryId, user.id, { source_visit_id: '102', name: 'Rialto', sort_order: 1 }),
+      stay(journey.id, entryId, user.id, { source_visit_id: '101', name: 'San Marco', sort_order: 0 }),
+      stay(journey.id, entryId, user.id, {
+        source_visit_id: '103',
+        name: 'Nowhere',
+        lat: null,
+        lng: null,
+        sort_order: 2,
+      }),
+    ]);
+    await stays.insertStays([stay(other.id, entryId, user.id, { source_visit_id: '400' })]);
+
+    const located = await stays.listLocatedForJourney(journey.id);
+    expect(located.map((s) => [s.entry_id, s.name])).toEqual([
+      [entryId, 'San Marco'],
+      [entryId, 'Rialto'],
+      [second, 'Giudecca'],
+    ]);
+    expect(located[0]).toEqual({
+      id: expect.any(Number),
+      entry_id: entryId,
+      name: 'San Marco',
+      lat: 45.434,
+      lng: 12.3388,
+      started_at: '2026-05-14T09:10:00+02:00',
+      ended_at: '2026-05-14T10:05:00+02:00',
+    });
+  });
 });

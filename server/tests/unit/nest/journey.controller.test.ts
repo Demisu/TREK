@@ -1088,6 +1088,25 @@ describe('JourneyPublicController', () => {
     ).toEqual({ id: 1 });
   });
 
+  it('GET /:token/map-layers 404 on an unknown link, else the layers as the service cut them (JRN-04)', async () => {
+    expect(
+      await thrownAsync(() =>
+        new JourneyPublicController(
+          svc({ getPublicMapLayers: vi.fn().mockResolvedValue(null) } as Partial<JourneyService>),
+          storageStub,
+        ).mapLayers('tok'),
+      ),
+    ).toEqual({ status: 404, body: { error: 'Not found' } });
+    const layers = { places: { status: 'withheld' } };
+    const getPublicMapLayers = vi.fn().mockResolvedValue(layers);
+    expect(
+      await new JourneyPublicController(svc({ getPublicMapLayers } as Partial<JourneyService>), storageStub).mapLayers(
+        'tok',
+      ),
+    ).toBe(layers);
+    expect(getPublicMapLayers).toHaveBeenCalledWith('tok');
+  });
+
   it('photo proxy 404 on invalid token, else streams', async () => {
     expect(
       await thrownAsync(() =>

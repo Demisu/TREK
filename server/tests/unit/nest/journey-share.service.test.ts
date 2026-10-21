@@ -292,6 +292,27 @@ describe('createOrUpdateJourneyShareLink', () => {
     expect((await svc.getJourneyShareLink(journey.id))!.newest_first).toBe(true);
   });
 
+  it('JOURNEY-SHARE-030: the plan and the recorded days start unshared, are set apart and survive other updates (JRN-04)', async () => {
+    const { user } = createUser(testDb);
+    const journey = createJourney(testDb, user.id);
+
+    await svc.createOrUpdateJourneyShareLink(journey.id, user.id, {});
+    let link = await svc.getJourneyShareLink(journey.id);
+    expect(link!.share_plan).toBe(false);
+    expect(link!.share_recordings).toBe(false);
+
+    await svc.createOrUpdateJourneyShareLink(journey.id, user.id, { share_plan: true });
+    link = await svc.getJourneyShareLink(journey.id);
+    expect(link!.share_plan).toBe(true);
+    expect(link!.share_recordings).toBe(false);
+
+    await svc.createOrUpdateJourneyShareLink(journey.id, user.id, { share_recordings: true, share_gallery: false });
+    await svc.createOrUpdateJourneyShareLink(journey.id, user.id, { share_timeline: false });
+    link = await svc.getJourneyShareLink(journey.id);
+    expect(link!.share_plan).toBe(true);
+    expect(link!.share_recordings).toBe(true);
+  });
+
   it('JOURNEY-SHARE-004: different journeys get different tokens', async () => {
     const { user } = createUser(testDb);
     const j1 = createJourney(testDb, user.id);

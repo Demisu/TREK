@@ -173,6 +173,10 @@ export const journeyShareLinkRequestSchema = z.looseObject({
   share_map: z.unknown().optional(),
   /** Show the newest entry first, blog-style, rather than in trip order (#1614). */
   newest_first: z.unknown().optional(),
+  /** Put the linked trips' plan on the shared map (JRN-04). Nothing without `share_map`. */
+  share_plan: z.boolean().optional(),
+  /** Put the recorded days on the shared map, on days with a published entry (JRN-04). */
+  share_recordings: z.boolean().optional(),
 });
 export type JourneyShareLinkRequest = z.infer<typeof journeyShareLinkRequestSchema>;
 
@@ -252,6 +256,8 @@ export const journeyShareLinkSchema = z.object({
   share_gallery: z.boolean(),
   share_map: z.boolean(),
   newest_first: z.boolean(),
+  share_plan: z.boolean(),
+  share_recordings: z.boolean(),
 });
 export type JourneyShareLink = z.infer<typeof journeyShareLinkSchema>;
 

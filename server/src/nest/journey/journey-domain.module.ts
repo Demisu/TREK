@@ -16,6 +16,7 @@ import { RealtimeModule } from '../realtime/realtime.module';
 import { SettingsModule } from '../settings/settings.module';
 import { JourneyDomainService } from './journey-domain.service';
 import { JourneyEntryStaysService } from './journey-entry-stays.service';
+import { JourneyMapService } from './journey-map.service';
 import { JourneyRecordedDaysService } from './journey-recorded-days.service';
 import { JourneyRecordingPrepService } from './journey-recording-prep.service';
 import { JourneyShareService } from './journey-share.service';
@@ -75,6 +76,9 @@ import { Module } from '@nestjs/common';
  * `JourneyRecordingPrep` (JRN-03) is how far preparing a journey's recorded
  * days got for each person; `JourneyRecordingPrepService` keeps it and tells
  * the Dawarich sync which journeys to read.
+ * `JourneyMapService` (JRN-04) reads what the journey map shows besides its
+ * entries and photos, for the journey's people and for its share link, from
+ * the tables already registered here.
  */
 @Module({
   imports: [
@@ -103,6 +107,7 @@ import { Module } from '@nestjs/common';
     JourneyRecordedDaysService,
     JourneyEntryStaysService,
     JourneyRecordingPrepService,
+    JourneyMapService,
   ],
   exports: [
     JourneyDomainService,
@@ -110,6 +115,7 @@ import { Module } from '@nestjs/common';
     JourneyRecordedDaysService,
     JourneyEntryStaysService,
     JourneyRecordingPrepService,
+    JourneyMapService,
   ],
 })
 export class JourneyDomainModule {}

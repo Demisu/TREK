@@ -48,6 +48,32 @@ export interface AssignmentTimeRow {
 /** The `places`/`day_assignments`/`days` tables the sync-engine reads read. */
 type SyncPlacesKyselyDB = Pick<DB, 'places' | 'day_assignments' | 'days'>;
 
+/** One day a linked trip's plan puts a located place on (JRN-04), {@link JourneyTripsRepository.listMapPlacesForJourney}. */
+export interface JourneyMapPlaceRow {
+  place_id: number;
+  trip_id: number;
+  trip_title: string;
+  name: string;
+  lat: number;
+  lng: number;
+  day_date: string | null;
+  time: string | null;
+  category_color: string | null;
+  category_icon: string | null;
+}
+
+/** A place of a linked trip that carries a route (JRN-04), {@link JourneyTripsRepository.listRouteSourcesForJourney}. */
+export interface JourneyRouteSourceRow {
+  place_id: number;
+  trip_id: number;
+  name: string;
+  route_color: string | null;
+  route_geometry: string;
+}
+
+/** The tables the journey map's plan reads join. */
+type JourneyMapKyselyDB = Pick<DB, 'journey_trips' | 'trips' | 'places' | 'day_assignments' | 'days' | 'categories'>;
+
 /**
  * `journey_trips` — a genuine TWO-column composite primary key (`journey` +
  * `trip`, both `.primary()`, R3 — pinned against
@@ -179,5 +205,71 @@ export class JourneyTripsRepository extends TrekRepository<JourneyTrips> {
       .orderBy('da.order_index', 'asc')
       .execute();
     return rows as AssignmentTimeRow[];
+  }
+
+  /**
+   * The located places the linked trips plan on a day, one row per day they
+   * stand on, in plan order (JRN-04). Through `journey_trips`, so a linked
+   * trip nobody has written about yet still shows its plan; a place without
+   * coordinates is left out rather than put anywhere.
+   */
+  async listMapPlacesForJourney(journeyId: number): Promise<JourneyMapPlaceRow[]> {
+    const rows = await this.kysely<JourneyMapKyselyDB>()
+      .selectFrom('journey_trips as jt')
+      .innerJoin('trips as t', 't.id', 'jt.trip_id')
+      .innerJoin('places as p', 'p.trip_id', 'jt.trip_id')
+      .innerJoin('day_assignments as da', 'da.place_id', 'p.id')
+      .innerJoin('days as d', 'd.id', 'da.day_id')
+      .leftJoin('categories as c', 'c.id', 'p.category_id')
+      .select([
+        'p.id as place_id',
+        'p.trip_id',
+        't.title as trip_title',
+        'p.name',
+        'p.lat',
+        'p.lng',
+        'd.date as day_date',
+        'da.assignment_time',
+        'p.place_time',
+        'c.color as category_color',
+        'c.icon as category_icon',
+      ])
+      .where('jt.journey_id', '=', journeyId)
+      .where('p.lat', 'is not', null)
+      .where('p.lng', 'is not', null)
+      .orderBy('t.start_date', 'asc')
+      .orderBy('d.day_number', 'asc')
+      .orderBy('da.order_index', 'asc')
+      .execute();
+    return rows.map((row) => ({
+      place_id: row.place_id,
+      trip_id: row.trip_id,
+      trip_title: row.trip_title,
+      name: row.name,
+      lat: row.lat as number,
+      lng: row.lng as number,
+      day_date: row.day_date,
+      time: row.assignment_time ?? row.place_time,
+      category_color: row.category_color,
+      category_icon: row.category_icon,
+    }));
+  }
+
+  /**
+   * The places of the linked trips that carry a route (JRN-04). Unlike the
+   * entries' `listTracksSource`, which `/tracks` and Studio read and which
+   * stays as it is, this goes through `journey_trips`.
+   */
+  async listRouteSourcesForJourney(journeyId: number): Promise<JourneyRouteSourceRow[]> {
+    const rows = await this.kysely<JourneyMapKyselyDB>()
+      .selectFrom('journey_trips as jt')
+      .innerJoin('places as p', 'p.trip_id', 'jt.trip_id')
+      .select(['p.id as place_id', 'p.trip_id', 'p.name', 'p.route_color', 'p.route_geometry'])
+      .where('jt.journey_id', '=', journeyId)
+      .where('p.route_geometry', 'is not', null)
+      .orderBy('p.trip_id', 'asc')
+      .orderBy('p.id', 'asc')
+      .execute();
+    return rows as JourneyRouteSourceRow[];
   }
 }

@@ -87,6 +87,12 @@ describe('journeyShareLinkRequestSchema', () => {
     // The controller coerces with !!; a string flag has always worked.
     expect(journeyShareLinkRequestSchema.safeParse({ share_map: 'true' }).success).toBe(true);
   });
+
+  it('takes the plan and recordings flags as booleans only, being new (JRN-04)', () => {
+    expect(journeyShareLinkRequestSchema.safeParse({ share_plan: true, share_recordings: false }).success).toBe(true);
+    expect(journeyShareLinkRequestSchema.safeParse({ share_plan: 'true' }).success).toBe(false);
+    expect(journeyShareLinkRequestSchema.safeParse({ share_recordings: 1 }).success).toBe(false);
+  });
 });
 
 describe('the free-form bodies keep their unknown keys', () => {

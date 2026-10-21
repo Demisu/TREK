@@ -12,4 +12,6 @@ export interface JourneyShareTokensTable {
   share_map: InsertOptional<number | null>;
   created_at: InsertOptional<string | null>;
   newest_first: InsertOptional<number>;
+  share_plan: InsertOptional<number>;
+  share_recordings: InsertOptional<number>;
 }

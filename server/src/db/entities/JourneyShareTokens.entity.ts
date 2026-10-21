@@ -16,6 +16,8 @@ export class JourneyShareTokens {
   share_map?: number | null = 1;
   created_at?: string | null;
   newest_first: number & Opt = 0;
+  share_plan: number & Opt = 0;
+  share_recordings: number & Opt = 0;
   createdByRef!: Ref<Users>;
 }
 
@@ -34,6 +36,8 @@ export const JourneyShareTokensSchema = defineEntity({
     share_map: p.integer().nullable(),
     created_at: p.type(DbTimestampType).nullable().defaultRaw(`CURRENT_TIMESTAMP`),
     newest_first: p.integer().default(0),
+    share_plan: p.integer().default(0),
+    share_recordings: p.integer().default(0),
     createdByRef: () => p.manyToOne(Users).ref().joinColumn('created_by').hidden().index('idx_journey_share_tokens_created_by'),
   },
 });
