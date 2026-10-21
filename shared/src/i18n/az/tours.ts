@@ -370,7 +370,12 @@ const tours: TranslationStrings = {
   'tours.poi.source.trek': 'TREK-in yerlər indeksindən',
   'tours.poi.hoursHint': 'Mənbədə olduğu kimi; getməzdən əvvəl yoxla.',
   'tours.poi.website': 'Veb sayt',
-  'tours.poi.addAfter': 'Bundan sonra əlavə et',
+  'tours.poi.slot.label': 'Hara əlavə olunur',
+  'tours.poi.slot.between': '{from} ilə {to} arasında',
+  'tours.poi.slot.newEnd': 'Yeni son nöqtə kimi',
+  'tours.poi.slot.extends': 'Turu uzadır',
+  'tours.poi.slot.extendsHint': '{name} artıq son nöqtə olmayacaq: tur bu yerə qədər davam edir.',
+  'tours.poi.detourHint': 'Təxminən, düz xətt üzrə. Dəqiq dəyişiklik marşrut yenidən planlaşdırılandan sonra görünür.',
   'tours.poi.add': 'Dayanacaq kimi əlavə et',
   'tours.poi.notAPlace': 'Turun dayanacağı olur, səfərin yeri yox.',
   'tours.poi.blocked.fixed':

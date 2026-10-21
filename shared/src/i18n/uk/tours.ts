@@ -384,7 +384,12 @@ const tours: TranslationStrings = {
   'tours.poi.source.trek': 'З каталогу місць TREK',
   'tours.poi.hoursHint': 'За даними джерела; перевірте перед виходом.',
   'tours.poi.website': 'Вебсайт',
-  'tours.poi.addAfter': 'Додати після',
+  'tours.poi.slot.label': 'Куди вставити',
+  'tours.poi.slot.between': 'Між {from} і {to}',
+  'tours.poi.slot.newEnd': 'Як новий фініш',
+  'tours.poi.slot.extends': 'Подовжує маршрут',
+  'tours.poi.slot.extendsHint': '{name} більше не фініш: маршрут продовжується до цього місця.',
+  'tours.poi.detourHint': 'Приблизно, по прямій. Точна зміна з’явиться, щойно маршрут буде сплановано заново.',
   'tours.poi.add': 'Додати як зупинку',
   'tours.poi.notAPlace': 'Це стане зупинкою маршруту, а не місцем подорожі.',
   'tours.poi.blocked.fixed':

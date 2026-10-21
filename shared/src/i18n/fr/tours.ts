@@ -382,7 +382,13 @@ const tours: TranslationStrings = {
   'tours.poi.source.trek': "De l'index des lieux de TREK",
   'tours.poi.hoursHint': 'Selon la source ; vérifie avant de partir.',
   'tours.poi.website': 'Site web',
-  'tours.poi.addAfter': 'Ajouter après',
+  'tours.poi.slot.label': 'Où l’insérer',
+  'tours.poi.slot.between': 'Entre {from} et {to}',
+  'tours.poi.slot.newEnd': 'Comme nouvelle arrivée',
+  'tours.poi.slot.extends': 'Allonge la sortie',
+  'tours.poi.slot.extendsHint': '{name} n’est plus l’arrivée : la sortie continue jusqu’à ce lieu.',
+  'tours.poi.detourHint':
+    'Approximatif, à vol d’oiseau. Le changement exact s’affiche une fois l’itinéraire recalculé.',
   'tours.poi.add': 'Ajouter comme arrêt',
   'tours.poi.notAPlace': "Il devient un arrêt de l'itinéraire, pas un lieu du voyage.",
   'tours.poi.blocked.fixed':

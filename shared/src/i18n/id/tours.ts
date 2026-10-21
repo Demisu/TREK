@@ -371,7 +371,12 @@ const tours: TranslationStrings = {
   'tours.poi.source.trek': 'Dari indeks tempat TREK',
   'tours.poi.hoursHint': 'Sesuai sumbernya; periksa sebelum berangkat.',
   'tours.poi.website': 'Situs web',
-  'tours.poi.addAfter': 'Tambahkan setelah',
+  'tours.poi.slot.label': 'Masuk di mana',
+  'tours.poi.slot.between': 'Di antara {from} dan {to}',
+  'tours.poi.slot.newEnd': 'Sebagai titik akhir baru',
+  'tours.poi.slot.extends': 'Memperpanjang tur',
+  'tours.poi.slot.extendsHint': '{name} tidak lagi menjadi akhir: tur berlanjut sampai tempat ini.',
+  'tours.poi.detourHint': 'Perkiraan, garis lurus. Perubahan pastinya muncul setelah rute direncanakan ulang.',
   'tours.poi.add': 'Tambahkan sebagai pemberhentian',
   'tours.poi.notAPlace': 'Ini menjadi pemberhentian tur, bukan tempat perjalanan.',
   'tours.poi.blocked.fixed':

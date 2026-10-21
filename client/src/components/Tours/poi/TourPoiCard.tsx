@@ -1,6 +1,6 @@
 import type { TourPoi, WalkTheme } from '@trek/shared';
 import { WALK_THEMES } from '@trek/shared';
-import { Clock, ExternalLink, MoveHorizontal, Plus, Route, Star, X } from 'lucide-react';
+import { Clock, ExternalLink, MoveHorizontal, Route, Star, X } from 'lucide-react';
 import { useCallback, useRef } from 'react';
 import { useTranslation } from '../../../i18n';
 import { useSettingsStore } from '../../../store/settingsStore';
@@ -10,72 +10,15 @@ import { MAP_CARD_GLASS } from '../../Map/mapControlShadow';
 import { TOUR_POI_LOOKS } from '../../Map/poiCategories';
 import { useMapCardDismiss } from '../../Map/useMapCardDismiss';
 import { SoftPill, WhiteBadge } from '../../Planner/planParts';
-import { PillSelect } from '../../shared/dialogParts';
 import { fs } from '../../shared/DialogShell';
 import type { TourPlannerController } from '../planner/useTourPlanner';
-import { useWaypointPlaceNames } from '../planner/useWaypointPlaceNames';
+import { TourPoiSlotPicker } from './TourPoiSlotPicker';
 import { usePoiInsertion } from './usePoiInsertion';
 import { useSelectedPoi } from './useTourPoiSearch';
 
 type Unit = Parameters<typeof formatDistance>[1];
 
 const km = (metres: number) => metres / 1000;
-
-/** The point a place would follow, picked from the tour's points, with why one cannot take it. */
-function AfterPicker({
-  planner,
-  poi,
-  insertion,
-}: {
-  planner: TourPlannerController;
-  poi: TourPoi;
-  insertion: ReturnType<typeof usePoiInsertion>;
-}) {
-  const { t } = useTranslation();
-  const names = useWaypointPlaceNames(planner.waypoints);
-  const afterId = insertion.afterIdFor(poi);
-  const options = planner.waypoints.map((point, index) => ({
-    value: point.id,
-    label: `${index + 1}. ${point.shaping ? t('tours.planner.shapingPoint') : (names[point.id] ?? `${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}`)}`,
-  }));
-  const block = afterId ? insertion.blockOf(afterId) : 'none';
-  const locked = !planner.canEdit || planner.isSaving;
-  return (
-    <div className="mt-3 flex flex-col gap-2 border-t border-edge-faint pt-3" data-testid="tour-poi-insert">
-      <div className="flex min-w-0 items-center gap-2">
-        <span className="flex-none text-content-muted" style={fs(11.5, 'body')}>
-          {t('tours.poi.addAfter')}
-        </span>
-        <div className="min-w-0 flex-1">
-          <PillSelect
-            quiet
-            label={t('tours.poi.addAfter')}
-            value={afterId ?? ''}
-            options={options}
-            onChange={(value) => insertion.chooseAfter(poi, value)}
-          />
-        </div>
-      </div>
-      {block && (
-        <p className="m-0 text-warning" style={fs(11, 'body')}>
-          {t(`tours.poi.blocked.${block}`)}
-        </p>
-      )}
-      <button
-        type="button"
-        disabled={!!block || locked}
-        onClick={() => insertion.insert(poi)}
-        data-testid="tour-poi-add"
-        title={t('tours.poi.notAPlace')}
-        className="inline-flex h-8 items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 font-semibold text-accent-text shadow-sm transition-opacity hover:opacity-90 disabled:cursor-default disabled:opacity-40"
-        style={fs(12, 'body')}
-      >
-        <Plus size={14} strokeWidth={2.2} />
-        {t('tours.poi.add')}
-      </button>
-    </div>
-  );
-}
 
 /** What the source says about the place: its address, its opening hours as written, and its website. */
 function PoiFacts({ poi }: { poi: TourPoi }) {
@@ -192,7 +135,7 @@ function TourPoiCard({
         </WhiteBadge>
       </div>
       <PoiFacts poi={poi} />
-      <AfterPicker planner={planner} poi={poi} insertion={insertion} />
+      <TourPoiSlotPicker planner={planner} poi={poi} insertion={insertion} unit={unit} />
       <p className="mt-2 flex flex-wrap gap-x-3 text-content-faint" style={fs(10.5, 'body')}>
         {suggested && <span>{t('tours.walk.themeReason', { theme: t(`tours.walk.theme.${suggested}`) })}</span>}
         <span>{t(poi.source === 'trek-places' ? 'tours.poi.source.trek' : 'tours.poi.source.osm')}</span>

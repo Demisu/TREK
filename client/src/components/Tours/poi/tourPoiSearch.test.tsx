@@ -6,7 +6,7 @@ import { TranslationProvider } from '../../../i18n/TranslationContext';
 import { OnlineOnlyError } from '../../../repo/onlineOnly';
 import { tourPoiSearchRepo } from '../../../repo/tourPoiSearchRepo';
 import { useTourPoiStore } from '../../../store/tourPoiStore';
-import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
+import { normalizePlannerWaypoints, type TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 import type { TourPlannerController } from '../planner/useTourPlanner';
 import TourPoiOverlay from './TourPoiCard';
 import { TourPoiSearchCard } from './TourPoiSearchCard';
@@ -14,7 +14,7 @@ import { usePoiInsertion, type PoiInsertionPlanner } from './usePoiInsertion';
 import { useTourPoiMarkers } from './useTourPoiMarkers';
 import { useTourPoiSearch } from './useTourPoiSearch';
 
-// FE-TOUR-POI-001 to FE-TOUR-POI-018
+// FE-TOUR-POI-001 to FE-TOUR-POI-021
 
 vi.mock('../planner/useWaypointPlaceNames', () => ({ useWaypointPlaceNames: () => ({}) }));
 
@@ -125,6 +125,8 @@ function insertionPlanner(over: Partial<PoiInsertionPlanner> = {}): PoiInsertion
     walkingDurationMinutes: 40,
     canEdit: true,
     isSaving: false,
+    undo: vi.fn(),
+    canUndo: true,
     ...over,
   };
 }
@@ -436,5 +438,104 @@ describe('a city walk along its places (CW-05)', () => {
     expect(added[1]).toMatchObject({ poiCategory: 'cafe' });
     expect(added[1]).not.toHaveProperty('name');
     expect(added[1]).not.toHaveProperty('openingHours');
+  });
+});
+
+describe('choosing where a found place goes (PLN-04)', () => {
+  const alongPlanner = (over: Partial<PoiInsertionPlanner> = {}) =>
+    ({ ...searchPlanner(), ...insertionPlanner(over) }) as unknown as TourPlannerController;
+  async function openCard(planner: TourPlannerController) {
+    renderAlong(planner);
+    fireEvent.click(screen.getByTestId('tour-poi-search'));
+    fireEvent.click(within(await screen.findByTestId('tour-poi-node:1')).getByRole('button', { name: /Spring/ }));
+    return screen.getByTestId('tour-poi-overlay');
+  }
+  /** A press as a real pointer makes it: down, then the click. */
+  function press(element: HTMLElement) {
+    fireEvent.pointerDown(element);
+    fireEvent.mouseDown(element);
+    fireEvent.click(element);
+  }
+
+  it('FE-TOUR-POI-019: the last point picked as the position keeps the card open, and adding makes exactly one new end', async () => {
+    const planner = alongPlanner();
+    const card = await openCard(planner);
+    const slot = within(card).getByTestId('tour-poi-slot');
+    expect(slot).toHaveTextContent('Between Waypoint 2 and Waypoint 3');
+    press(slot);
+    const list = screen.getByRole('group', { name: 'Where it goes' });
+    expect(
+      within(list)
+        .getAllByRole('button')
+        .map((option) => option.textContent)
+    ).toEqual([
+      expect.stringContaining('Between Waypoint 1 and Waypoint 2'),
+      expect.stringContaining('Between Waypoint 2 and Waypoint 3'),
+      expect.stringContaining('As the new end'),
+    ]);
+    const newEnd = within(list).getByRole('button', { name: /As the new end/ });
+    expect(newEnd).toHaveTextContent('Extends the tour');
+    press(newEnd);
+
+    expect(screen.getByTestId('tour-poi-overlay')).toBeInTheDocument();
+    expect(screen.getByTestId('tour-poi-slot')).toHaveTextContent('As the new end');
+    expect(screen.getByTestId('tour-poi-slot-extends')).toHaveTextContent(
+      'Waypoint 3 is no longer the end: the tour goes on to this place.'
+    );
+    expect(planner.editWaypoints).not.toHaveBeenCalled();
+
+    press(screen.getByTestId('tour-poi-add'));
+    expect(planner.editWaypoints).toHaveBeenCalledTimes(1);
+    const updater = vi.mocked(planner.editWaypoints).mock.calls[0]?.[0] as (
+      points: TourPlannerWaypoint[]
+    ) => TourPlannerWaypoint[];
+    const next = normalizePlannerWaypoints(updater(POINTS));
+    expect(next).toHaveLength(POINTS.length + 1);
+    expect(next.map((point) => point.id).slice(0, 3)).toEqual(['a', 'b', 'c']);
+    expect(next.map((point) => point.role)).toEqual(['start', 'via', 'via', 'end']);
+    expect(next[3]).toMatchObject({ lat: SPRING.lat, lng: SPRING.lng, name: 'Spring' });
+    expect(screen.queryByTestId('tour-poi-overlay')).not.toBeInTheDocument();
+  });
+
+  it('FE-TOUR-POI-020: closing, Escape or a press outside leaves the tour alone, the picked slot with it', async () => {
+    const planner = alongPlanner();
+    const card = await openCard(planner);
+    press(within(card).getByTestId('tour-poi-slot'));
+    press(within(screen.getByRole('group', { name: 'Where it goes' })).getByRole('button', { name: /As the new end/ }));
+    fireEvent.pointerDown(document.body);
+    expect(screen.queryByTestId('tour-poi-overlay')).not.toBeInTheDocument();
+
+    fireEvent.click(within(screen.getByTestId('tour-poi-node:1')).getByRole('button', { name: /Spring/ }));
+    // Opened again, the place still goes where it was put.
+    expect(screen.getByTestId('tour-poi-slot')).toHaveTextContent('As the new end');
+    fireEvent.keyDown(document, { key: 'Escape' });
+    fireEvent.click(within(screen.getByTestId('tour-poi-node:1')).getByRole('button', { name: /Spring/ }));
+    fireEvent.click(within(screen.getByTestId('tour-poi-overlay')).getByRole('button', { name: 'Close' }));
+    expect(planner.editWaypoints).not.toHaveBeenCalled();
+    expect(planner.setSelectedWaypointId).not.toHaveBeenCalled();
+  });
+
+  it('FE-TOUR-POI-021: the notice of what was added takes it back with undo, only while that is the last step', async () => {
+    const added: TourPlannerWaypoint = { id: 'new', lat: SPRING.lat, lng: SPRING.lng, role: 'end' };
+    const withPoint = [PA, PB, { ...PC, role: 'via' as const }, added];
+    useTourPoiStore
+      .getState()
+      .setInserted({ pointId: 'new', name: 'Spring', before: { distanceM: 2200, minutes: 40 }, pointCount: 4 });
+    const planner = alongPlanner({ waypoints: withPoint, distanceMeters: 2900, walkingDurationMinutes: 52 });
+    const { unmount } = render(<TourPoiSearchCard planner={planner} />);
+    const notice = screen.getByTestId('tour-poi-outcome');
+    expect(notice).toHaveTextContent('+700 m');
+    fireEvent.click(within(notice).getByTestId('tour-poi-undo'));
+    expect(planner.undo).toHaveBeenCalledTimes(1);
+    expect(useTourPoiStore.getState().inserted).toBeNull();
+    unmount();
+
+    // With nothing to undo, or no right to edit, the notice offers no way back.
+    useTourPoiStore
+      .getState()
+      .setInserted({ pointId: 'new', name: 'Spring', before: { distanceM: 2200, minutes: 40 }, pointCount: 4 });
+    render(<TourPoiSearchCard planner={alongPlanner({ waypoints: withPoint, canUndo: false })} />);
+    expect(screen.getByTestId('tour-poi-outcome')).toBeInTheDocument();
+    expect(screen.queryByTestId('tour-poi-undo')).not.toBeInTheDocument();
   });
 });

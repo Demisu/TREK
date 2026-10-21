@@ -389,7 +389,12 @@ const tours: TranslationStrings = {
   'tours.poi.source.trek': 'Из каталога мест TREK',
   'tours.poi.hoursHint': 'По данным источника; проверьте перед выходом.',
   'tours.poi.website': 'Сайт',
-  'tours.poi.addAfter': 'Добавить после',
+  'tours.poi.slot.label': 'Куда вставить',
+  'tours.poi.slot.between': 'Между {from} и {to}',
+  'tours.poi.slot.newEnd': 'Как новый финиш',
+  'tours.poi.slot.extends': 'Удлиняет маршрут',
+  'tours.poi.slot.extendsHint': '{name} больше не финиш: маршрут продолжается до этого места.',
+  'tours.poi.detourHint': 'Примерно, по прямой. Точное изменение появится, когда маршрут будет построен заново.',
   'tours.poi.add': 'Добавить как остановку',
   'tours.poi.notAPlace': 'Это станет остановкой маршрута, а не местом поездки.',
   'tours.poi.blocked.fixed':

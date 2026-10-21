@@ -384,7 +384,13 @@ const tours: TranslationStrings = {
   'tours.poi.source.trek': 'Από το ευρετήριο τόπων του TREK',
   'tours.poi.hoursHint': 'Όπως τα δίνει η πηγή· έλεγξέ τα πριν πας.',
   'tours.poi.website': 'Ιστότοπος',
-  'tours.poi.addAfter': 'Προσθήκη μετά από',
+  'tours.poi.slot.label': 'Πού μπαίνει',
+  'tours.poi.slot.between': 'Ανάμεσα σε {from} και {to}',
+  'tours.poi.slot.newEnd': 'Ως νέος τερματισμός',
+  'tours.poi.slot.extends': 'Επεκτείνει τη διαδρομή',
+  'tours.poi.slot.extendsHint': 'Το {name} δεν είναι πια το τέλος: η διαδρομή συνεχίζει ως αυτό το μέρος.',
+  'tours.poi.detourHint':
+    'Κατά προσέγγιση, σε ευθεία γραμμή. Η ακριβής αλλαγή φαίνεται μόλις η διαδρομή σχεδιαστεί ξανά.',
   'tours.poi.add': 'Προσθήκη ως στάση',
   'tours.poi.notAPlace': 'Γίνεται στάση της διαδρομής, όχι μέρος του ταξιδιού.',
   'tours.poi.blocked.fixed':

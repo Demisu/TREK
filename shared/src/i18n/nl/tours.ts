@@ -378,7 +378,13 @@ const tours: TranslationStrings = {
   'tours.poi.source.trek': 'Uit de plekkenindex van TREK',
   'tours.poi.hoursHint': 'Zoals de bron ze geeft; controleer ze voor je gaat.',
   'tours.poi.website': 'Webpagina',
-  'tours.poi.addAfter': 'Toevoegen na',
+  'tours.poi.slot.label': 'Waar het komt',
+  'tours.poi.slot.between': 'Tussen {from} en {to}',
+  'tours.poi.slot.newEnd': 'Als nieuw eindpunt',
+  'tours.poi.slot.extends': 'Maakt de tocht langer',
+  'tours.poi.slot.extendsHint': '{name} is dan niet meer het eindpunt: de tocht gaat door tot deze plek.',
+  'tours.poi.detourHint':
+    'Ongeveer, in een rechte lijn. De precieze verandering zie je zodra de route opnieuw is gepland.',
   'tours.poi.add': 'Toevoegen als stop',
   'tours.poi.notAPlace': 'Het wordt een stop van de tocht, geen plek van de reis.',
   'tours.poi.blocked.fixed':

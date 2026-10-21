@@ -369,7 +369,12 @@ const tours: TranslationStrings = {
   'tours.poi.source.trek': "From TREK's places index",
   'tours.poi.hoursHint': 'As the source has them; check before you go.',
   'tours.poi.website': 'Website',
-  'tours.poi.addAfter': 'Add after',
+  'tours.poi.slot.label': 'Where it goes',
+  'tours.poi.slot.between': 'Between {from} and {to}',
+  'tours.poi.slot.newEnd': 'As the new end',
+  'tours.poi.slot.extends': 'Extends the tour',
+  'tours.poi.slot.extendsHint': '{name} is no longer the end: the tour goes on to this place.',
+  'tours.poi.detourHint': 'Roughly, in a straight line. The exact change shows once the route is planned again.',
   'tours.poi.add': 'Add as a stop',
   'tours.poi.notAPlace': 'It becomes a stop of the tour, not a place of the trip.',
   'tours.poi.blocked.fixed':

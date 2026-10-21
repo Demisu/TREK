@@ -377,7 +377,12 @@ const tours: TranslationStrings = {
   'tours.poi.source.trek': "De l'índex de llocs de TREK",
   'tours.poi.hoursHint': "Tal com les dona la font; comprova-les abans d'anar-hi.",
   'tours.poi.website': 'Lloc web',
-  'tours.poi.addAfter': 'Afegeix després de',
+  'tours.poi.slot.label': 'On va',
+  'tours.poi.slot.between': 'Entre {from} i {to}',
+  'tours.poi.slot.newEnd': 'Com a nou final',
+  'tours.poi.slot.extends': 'Allarga la ruta',
+  'tours.poi.slot.extendsHint': '{name} deixa de ser el final: la ruta continua fins a aquest lloc.',
+  'tours.poi.detourHint': 'Aproximat, en línia recta. El canvi exacte es mostra quan la ruta es torna a planificar.',
   'tours.poi.add': 'Afegeix com a parada',
   'tours.poi.notAPlace': 'Es converteix en una parada de la ruta, no en un lloc del viatge.',
   'tours.poi.blocked.fixed':

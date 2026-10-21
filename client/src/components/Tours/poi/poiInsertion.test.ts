@@ -1,8 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
-import { defaultAfterId, insertionBlock, withPointAfter } from './poiInsertion';
+import {
+  chosenAfterId,
+  defaultAfterId,
+  insertionBlock,
+  insertionPreview,
+  insertionSlots,
+  straightDetourM,
+  withPointAfter,
+} from './poiInsertion';
 
-// FE-TOUR-POI-INSERT-001 to FE-TOUR-POI-INSERT-005
+// FE-TOUR-POI-INSERT-001 to FE-TOUR-POI-INSERT-009
 
 const point = (id: string, lat: number, lng: number, over: Partial<TourPlannerWaypoint> = {}): TourPlannerWaypoint => ({
   id,
@@ -84,5 +92,68 @@ describe('placing a found place in the tour (PLN-03)', () => {
     });
     expect(defaultAfterId([A, free, C], null, 1600)).toBe('a');
     expect(defaultAfterId([], null, 0)).toBeNull();
+  });
+});
+
+describe('the slots a found place can go into (PLN-04)', () => {
+  const back = point('back', 47.0, 11.0, { role: 'end' });
+
+  it('FE-TOUR-POI-INSERT-006: one slot per point, between it and the next, the last one as the new end', () => {
+    expect(insertionSlots([A, B, C])).toEqual([
+      { afterId: 'a', beforeId: 'b', block: null },
+      { afterId: 'b', beforeId: 'c', block: null },
+      { afterId: 'c', beforeId: null, block: null },
+    ]);
+    // A loop has no new end: the slot after its way back is listed as one that cannot take the place.
+    expect(insertionSlots([A, B, back])[2]).toEqual({ afterId: 'back', beforeId: null, block: 'none' });
+  });
+
+  it('FE-TOUR-POI-INSERT-007: the preview runs through the place to the next point, or ends on it as the new end', () => {
+    const place = { lat: 47.03, lng: 11.0 };
+    expect(insertionPreview([A, B, C], 'b', place)).toEqual([
+      [47.01, 11.0],
+      [47.03, 11.0],
+      [47.02, 11.0],
+    ]);
+    expect(insertionPreview([A, B, C], 'c', place)).toEqual([
+      [47.02, 11.0],
+      [47.03, 11.0],
+    ]);
+    expect(insertionPreview([A, B, back], 'back', place)).toBeNull();
+  });
+
+  it('FE-TOUR-POI-INSERT-008: the detour as the crow flies: the way round less the stretch it replaces', () => {
+    // 1.11 km on to the place and 1.11 km back, instead of the 1.11 km between the points.
+    const between = straightDetourM([
+      [47.01, 11.0],
+      [47.02, 11.0],
+      [47.01, 11.0],
+    ]);
+    expect(between).toBeGreaterThan(2200);
+    expect(between).toBeLessThan(2250);
+    // A place on the way adds nothing.
+    expect(
+      straightDetourM([
+        [47.0, 11.0],
+        [47.01, 11.0],
+        [47.02, 11.0],
+      ])
+    ).toBeLessThan(1);
+    // As the new end, the whole way to it.
+    expect(
+      straightDetourM([
+        [47.02, 11.0],
+        [47.03, 11.0],
+      ])
+    ).toBeGreaterThan(1100);
+  });
+
+  it('FE-TOUR-POI-INSERT-009: keeps the point picked for the place while it is there, the suggestion otherwise', () => {
+    const place = { id: 'node:1', along_m: 1600 };
+    expect(chosenAfterId([A, B, C], null, place, { poiId: 'node:1', afterId: 'c' })).toBe('c');
+    // Picked for another place, or a point undone since.
+    expect(chosenAfterId([A, B, C], null, place, { poiId: 'node:2', afterId: 'c' })).toBe('b');
+    expect(chosenAfterId([A, B, C], null, place, { poiId: 'node:1', afterId: 'gone' })).toBe('b');
+    expect(chosenAfterId([A, B, C], null, place, null)).toBe('b');
   });
 });

@@ -370,7 +370,12 @@ const tours: TranslationStrings = {
   'tours.poi.source.trek': "TREK'in yer dizininden",
   'tours.poi.hoursHint': 'Kaynakta yazdığı gibi; gitmeden önce kontrol et.',
   'tours.poi.website': 'Web sitesi',
-  'tours.poi.addAfter': 'Şundan sonra ekle',
+  'tours.poi.slot.label': 'Nereye girer',
+  'tours.poi.slot.between': '{from} ile {to} arasına',
+  'tours.poi.slot.newEnd': 'Yeni varış noktası olarak',
+  'tours.poi.slot.extends': 'Turu uzatır',
+  'tours.poi.slot.extendsHint': '{name} artık varış noktası olmaz: tur bu yere kadar devam eder.',
+  'tours.poi.detourHint': 'Yaklaşık, kuş uçuşu. Kesin değişiklik rota yeniden planlandığında görünür.',
   'tours.poi.add': 'Mola olarak ekle',
   'tours.poi.notAPlace': 'Gezinin yeri değil, turun molası olur.',
   'tours.poi.blocked.fixed':

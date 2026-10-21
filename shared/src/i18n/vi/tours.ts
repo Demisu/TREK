@@ -369,7 +369,12 @@ const tours: TranslationStrings = {
   'tours.poi.source.trek': 'Từ chỉ mục địa điểm của TREK',
   'tours.poi.hoursHint': 'Theo nguồn dữ liệu; hãy kiểm tra trước khi đi.',
   'tours.poi.website': 'Trang web',
-  'tours.poi.addAfter': 'Thêm sau',
+  'tours.poi.slot.label': 'Chèn vào đâu',
+  'tours.poi.slot.between': 'Giữa {from} và {to}',
+  'tours.poi.slot.newEnd': 'Làm điểm cuối mới',
+  'tours.poi.slot.extends': 'Làm chuyến đi dài hơn',
+  'tours.poi.slot.extendsHint': '{name} sẽ không còn là điểm cuối: chuyến đi tiếp tục đến địa điểm này.',
+  'tours.poi.detourHint': 'Ước tính theo đường thẳng. Thay đổi chính xác sẽ hiện khi tuyến đường được lập lại.',
   'tours.poi.add': 'Thêm làm điểm dừng',
   'tours.poi.notAPlace': 'Đây trở thành điểm dừng của chuyến, không phải địa điểm của chuyến đi.',
   'tours.poi.blocked.fixed':

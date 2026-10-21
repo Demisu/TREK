@@ -16,6 +16,7 @@ import LegVariantsOverlay from '../../components/Tours/planner/LegVariantsCard';
 import RoundHikeOverlay from '../../components/Tours/planner/RoundHikeCard';
 import { useShapingClick } from '../../components/Tours/planner/useShapingClick';
 import TourPoiOverlay from '../../components/Tours/poi/TourPoiCard';
+import { usePoiInsertionPreview, withPreviewLine } from '../../components/Tours/poi/usePoiInsertionPreview';
 import { useTourPoiMarkers } from '../../components/Tours/poi/useTourPoiMarkers';
 import type { TerrainLegendLayout } from '../../components/Tours/terrain/TourTerrainMap';
 import { isRtlLanguage, useTranslation } from '../../i18n';
@@ -177,6 +178,16 @@ export function TourPlannerMapStage({
   // P2A-03: a click on the route being edited sets a shaping point there.
   // PLN-02: the places found along the tour, drawn on the map and picked from it.
   const poiMarkers = useTourPoiMarkers();
+  // PLN-04: where the place in the open card would go in, dotted, before it is taken in.
+  const poiPreview = usePoiInsertionPreview(tourPlanner);
+  const lines = useMemo(
+    () =>
+      withPreviewLine(
+        { route: tourMap.route, routeWalking: tourMap.routeWalking, routeColors: tourMap.routeColors },
+        poiPreview
+      ),
+    [poiPreview, tourMap.route, tourMap.routeColors, tourMap.routeWalking]
+  );
   // RTE-02, RTE-03: while other ways of a section or round hikes are offered, a click on the line sets nothing on it.
   const comparing = tourPlanner.legVariants.comparison !== null;
   const offeringRounds = tourPlanner.roundHikes.view !== null;
@@ -246,9 +257,9 @@ export function TourPlannerMapStage({
           <MapView
             tripId={tripId}
             places={[]}
-            route={tourMap.route}
-            routeWalking={tourMap.routeWalking}
-            routeColors={tourMap.routeColors}
+            route={lines.route}
+            routeWalking={lines.routeWalking}
+            routeColors={lines.routeColors}
             followSelection={false}
             onMapClick={
               onAddOrMark

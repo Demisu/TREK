@@ -10,12 +10,19 @@ export interface InsertedTourPoi {
   pointCount: number;
 }
 
+/** PLN-04: the slot picked for a place, kept until the place is taken in or the search is cleared. */
+export interface TourPoiSlotChoice {
+  poiId: string;
+  afterId: string;
+}
+
 /**
  * PLN-02: the places found along the tour in the planner, and the one chosen.
  * The card searches and lists them; the map stage draws them and opens the
  * chosen one's card over the map, where it is taken in as a stop. What the
  * last one taken in did is kept here, so the list says it once that card has
- * closed. Nothing here is kept beyond the view.
+ * closed, and the slot picked in the card, so the map can draw where the place
+ * would go. Nothing here is kept beyond the view.
  */
 export const useTourPoiStore = create<{
   pois: readonly TourPoi[];
@@ -23,17 +30,21 @@ export const useTourPoiStore = create<{
   theme: WalkTheme | null;
   selectedId: string | null;
   inserted: InsertedTourPoi | null;
+  slot: TourPoiSlotChoice | null;
   publish: (pois: readonly TourPoi[], theme?: WalkTheme | null) => void;
   select: (id: string | null) => void;
   setInserted: (inserted: InsertedTourPoi | null) => void;
+  chooseSlot: (slot: TourPoiSlotChoice | null) => void;
   clear: () => void;
 }>((set) => ({
   pois: [],
   theme: null,
   selectedId: null,
   inserted: null,
+  slot: null,
   publish: (pois, theme = null) => set({ pois, theme, selectedId: null }),
   select: (selectedId) => set({ selectedId }),
   setInserted: (inserted) => set({ inserted }),
-  clear: () => set({ pois: [], theme: null, selectedId: null, inserted: null }),
+  chooseSlot: (slot) => set({ slot }),
+  clear: () => set({ pois: [], theme: null, selectedId: null, inserted: null, slot: null }),
 }));

@@ -1,4 +1,4 @@
-import { isClosedLoop, nearnessToLine } from '@trek/shared';
+import { haversineMetres, isClosedLoop, nearnessToLine } from '@trek/shared';
 import { withPointAppended, type RoutePoint } from '../planner/tourRouteActions';
 
 type Point = RoutePoint & { role: string; shaping?: boolean };
@@ -55,4 +55,73 @@ export function defaultAfterId(
     if (along <= alongM) chosen = point.id;
   }
   return chosen;
+}
+
+/**
+ * The point a place goes in after: the one picked for it while that point is
+ * still there (not undone, not removed), else the suggestion.
+ */
+export function chosenAfterId(
+  points: readonly Point[],
+  route: Array<[number, number]> | null,
+  place: { id: string; along_m: number },
+  picked: { poiId: string; afterId: string } | null
+): string | null {
+  if (picked?.poiId === place.id && points.some((point) => point.id === picked.afterId)) return picked.afterId;
+  return defaultAfterId(points, route, place.along_m);
+}
+
+/**
+ * PLN-04: where a place can go, one slot per point: between it and the next
+ * point, or after the last as the new end, which makes the tour longer. A
+ * slot that cannot take it says why, so the list can show it dimmed.
+ */
+export interface InsertionSlot {
+  afterId: string;
+  /** The point it would go in before; null where it would become the new end. */
+  beforeId: string | null;
+  block: InsertionBlock | null;
+}
+
+export function insertionSlots(points: readonly Point[]): InsertionSlot[] {
+  return points.map((point, index) => ({
+    afterId: point.id,
+    beforeId: points[index + 1]?.id ?? null,
+    block: insertionBlock(points, point.id),
+  }));
+}
+
+/**
+ * The straight lines a place would add in the slot after `afterId`: from that
+ * point to the place and on to the next, or only to the place as the new
+ * end. Null where it cannot go there.
+ */
+export function insertionPreview(
+  points: readonly Point[],
+  afterId: string,
+  place: { lat: number; lng: number }
+): Array<[number, number]> | null {
+  if (insertionBlock(points, afterId) !== null) return null;
+  const index = points.findIndex((point) => point.id === afterId);
+  const from = points[index];
+  if (!from) return null;
+  const to = points[index + 1];
+  const line: Array<[number, number]> = [
+    [from.lat, from.lng],
+    [place.lat, place.lng],
+  ];
+  return to ? [...line, [to.lat, to.lng]] : line;
+}
+
+/** How much longer the preview's lines make the tour, as the crow flies; the route planned after says it exactly. */
+export function straightDetourM(line: ReadonlyArray<[number, number]>): number {
+  const legs = (path: ReadonlyArray<[number, number]>) =>
+    path.slice(1).reduce((sum, [lat, lng], index) => {
+      const [fromLat, fromLng] = path[index] ?? [lat, lng];
+      return sum + haversineMetres(fromLat, fromLng, lat, lng);
+    }, 0);
+  const first = line[0];
+  const last = line[line.length - 1];
+  const replaced = line.length > 2 && first && last ? legs([first, last]) : 0;
+  return Math.max(0, legs(line) - replaced);
 }

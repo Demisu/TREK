@@ -371,7 +371,12 @@ const tours: TranslationStrings = {
   'tours.poi.source.trek': 'TREKi kohtade registrist',
   'tours.poi.hoursHint': 'Allika järgi; kontrolli enne minekut.',
   'tours.poi.website': 'Veebileht',
-  'tours.poi.addAfter': 'Lisa pärast',
+  'tours.poi.slot.label': 'Kuhu see läheb',
+  'tours.poi.slot.between': '{from} ja {to} vahele',
+  'tours.poi.slot.newEnd': 'Uue lõpuna',
+  'tours.poi.slot.extends': 'Pikendab matka',
+  'tours.poi.slot.extendsHint': '{name} ei ole enam lõpp: matk jätkub selle kohani.',
+  'tours.poi.detourHint': 'Ligikaudu, linnulennult. Täpne muutus selgub, kui marsruut on uuesti planeeritud.',
   'tours.poi.add': 'Lisa peatusena',
   'tours.poi.notAPlace': 'Sellest saab matka peatus, mitte reisi koht.',
   'tours.poi.blocked.fixed':

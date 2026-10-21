@@ -377,7 +377,12 @@ const tours: TranslationStrings = {
   'tours.poi.source.trek': 'A TREK helyjegyzékéből',
   'tours.poi.hoursHint': 'A forrás szerint; indulás előtt ellenőrizd.',
   'tours.poi.website': 'Weboldal',
-  'tours.poi.addAfter': 'Beszúrás ez után',
+  'tours.poi.slot.label': 'Hová kerül',
+  'tours.poi.slot.between': '{from} és {to} közé',
+  'tours.poi.slot.newEnd': 'Új végpontként',
+  'tours.poi.slot.extends': 'Meghosszabbítja a túrát',
+  'tours.poi.slot.extendsHint': '{name} többé nem a végpont: a túra eddig a helyig folytatódik.',
+  'tours.poi.detourHint': 'Nagyjából, légvonalban. A pontos változás az útvonal újratervezése után látszik.',
   'tours.poi.add': 'Hozzáadás megállóként',
   'tours.poi.notAPlace': 'A túra megállója lesz, nem az út helye.',
   'tours.poi.blocked.fixed':

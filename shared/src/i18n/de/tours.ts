@@ -379,7 +379,12 @@ const tours: TranslationStrings = {
   'tours.poi.source.trek': 'Aus dem Ortsverzeichnis von TREK',
   'tours.poi.hoursHint': 'So, wie die Quelle sie angibt; prüf sie vor dem Losgehen.',
   'tours.poi.website': 'Webseite',
-  'tours.poi.addAfter': 'Einfügen nach',
+  'tours.poi.slot.label': 'Wo es hinkommt',
+  'tours.poi.slot.between': 'Zwischen {from} und {to}',
+  'tours.poi.slot.newEnd': 'Als neues Ziel',
+  'tours.poi.slot.extends': 'Verlängert die Tour',
+  'tours.poi.slot.extendsHint': '{name} ist dann nicht mehr das Ziel: Die Tour geht weiter bis zu diesem Ort.',
+  'tours.poi.detourHint': 'Grob, in Luftlinie. Die genaue Änderung steht da, sobald die Route neu geplant ist.',
   'tours.poi.add': 'Als Stopp hinzufügen',
   'tours.poi.notAPlace': 'Es wird ein Stopp der Tour, kein Ort der Reise.',
   'tours.poi.blocked.fixed':

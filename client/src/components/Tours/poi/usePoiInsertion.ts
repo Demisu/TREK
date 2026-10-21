@@ -1,12 +1,12 @@
 import type { TourPoi } from '@trek/shared';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { useTranslation } from '../../../i18n';
 import { useTourPoiStore, type InsertedTourPoi } from '../../../store/tourPoiStore';
 import { randomId } from '../../../utils/randomId';
 import { TOUR_POI_LOOKS } from '../../Map/poiCategories';
 import type { TourPlannerWaypoint } from '../planner/tourPlannerWaypoints';
 import type { TourPlannerController, TourPlannerStatus } from '../planner/useTourPlanner';
-import { defaultAfterId, insertionBlock, withPointAfter } from './poiInsertion';
+import { chosenAfterId, insertionBlock, insertionSlots, withPointAfter } from './poiInsertion';
 
 /** The route is planned through and its measures can be read. */
 const SETTLED: readonly TourPlannerStatus[] = ['ready', 'saved', 'elevation-failed'];
@@ -33,6 +33,8 @@ export type PoiInsertionPlanner = Pick<
   | 'walkingDurationMinutes'
   | 'canEdit'
   | 'isSaving'
+  | 'undo'
+  | 'canUndo'
 >;
 
 function measuresOf(planner: PoiInsertionPlanner): Measures | null {
@@ -52,19 +54,21 @@ function measuresOf(planner: PoiInsertionPlanner): Measures | null {
 export function usePoiInsertion(planner: PoiInsertionPlanner) {
   const { t } = useTranslation();
   const select = useTourPoiStore((state) => state.select);
-  const [afterChoice, setAfterChoice] = useState<{ poiId: string; afterId: string } | null>(null);
+  // In the store: the map draws where the place would go while its card is open.
+  const afterChoice = useTourPoiStore((state) => state.slot);
+  const chooseSlot = useTourPoiStore((state) => state.chooseSlot);
   // Kept in the store: the place is taken in from its card over the map, and the list says what it did.
   const inserted = useTourPoiStore((state) => state.inserted);
   const setInserted = useTourPoiStore((state) => state.setInserted);
 
   const afterIdFor = useCallback(
-    (poi: TourPoi) =>
-      afterChoice?.poiId === poi.id
-        ? afterChoice.afterId
-        : defaultAfterId(planner.waypoints, planner.route, poi.along_m),
+    (poi: TourPoi) => chosenAfterId(planner.waypoints, planner.route, poi, afterChoice),
     [afterChoice, planner.route, planner.waypoints]
   );
-  const chooseAfter = useCallback((poi: TourPoi, afterId: string) => setAfterChoice({ poiId: poi.id, afterId }), []);
+  const chooseAfter = useCallback(
+    (poi: TourPoi, afterId: string) => chooseSlot({ poiId: poi.id, afterId }),
+    [chooseSlot]
+  );
 
   const insert = useCallback(
     (poi: TourPoi) => {
@@ -89,21 +93,31 @@ export function usePoiInsertion(planner: PoiInsertionPlanner) {
       // An unnamed place (a tap, a bench) is told by its kind, as the list names it.
       const name = poi.name || t(TOUR_POI_LOOKS[poi.category].labelKey);
       setInserted({ pointId: point.id, name, before, pointCount: next.length });
+      chooseSlot(null);
       select(null);
       return true;
     },
-    [afterIdFor, planner, select, setInserted, t]
+    [afterIdFor, chooseSlot, planner, select, setInserted, t]
   );
 
   const dismiss = useCallback(() => setInserted(null), [setInserted]);
+  const outcome = outcomeOf(inserted, planner);
+  // The one step that took the place in, while it is still the last thing done to the points.
+  const { undo: undoStep } = planner;
+  const undo = useCallback(() => {
+    undoStep();
+    setInserted(null);
+  }, [setInserted, undoStep]);
 
   return {
     afterIdFor,
     chooseAfter,
     blockOf: (afterId: string) => insertionBlock(planner.waypoints, afterId),
+    slots: insertionSlots(planner.waypoints),
     insert,
-    outcome: outcomeOf(inserted, planner),
+    outcome,
     dismiss,
+    undo: outcome && planner.canUndo && planner.canEdit && !planner.isSaving ? undo : null,
   };
 }
 

@@ -12,6 +12,7 @@ import {
   Shuffle,
   Star,
   Trees,
+  Undo2,
   WifiOff,
   X,
   type LucideIcon,
@@ -247,8 +248,21 @@ function PoiRow({ poi, selected, unit }: { poi: TourPoi; selected: boolean; unit
   );
 }
 
-/** What taking a place in did: being planned, the route's change, or that it could not be told. */
-function OutcomeNotice({ outcome, onDismiss, unit }: { outcome: InsertionOutcome; onDismiss: () => void; unit: Unit }) {
+/**
+ * What taking a place in did: being planned, the route's change, or that it
+ * could not be told; with the way back while that step is the last one made.
+ */
+function OutcomeNotice({
+  outcome,
+  onDismiss,
+  onUndo,
+  unit,
+}: {
+  outcome: InsertionOutcome;
+  onDismiss: () => void;
+  onUndo: (() => void) | null;
+  unit: Unit;
+}) {
   const { t } = useTranslation();
   const signed = (value: string, negative: boolean) => `${negative ? '−' : '+'}${value}`;
   return (
@@ -276,6 +290,18 @@ function OutcomeNotice({ outcome, onDismiss, unit }: { outcome: InsertionOutcome
                   </WhiteBadge>
                 )}
               </>
+            )}
+            {onUndo && (
+              <button
+                type="button"
+                onClick={onUndo}
+                data-testid="tour-poi-undo"
+                className="inline-flex flex-none items-center gap-1 rounded-full px-1.5 font-semibold text-content hover:bg-surface-hover"
+                style={fs(11.5, 'body')}
+              >
+                <Undo2 size={12} strokeWidth={2.2} aria-hidden="true" />
+                {t('undo.button')}
+              </button>
             )}
           </span>
           <button
@@ -361,7 +387,14 @@ export function TourPoiSearchCard({ planner }: { planner: TourPlannerController 
             search.status === 'loading' ? 'tours.poi.searching' : search.answer ? 'tours.poi.again' : 'tours.poi.search'
           )}
         </button>
-        {insertion.outcome && <OutcomeNotice outcome={insertion.outcome} onDismiss={insertion.dismiss} unit={unit} />}
+        {insertion.outcome && (
+          <OutcomeNotice
+            outcome={insertion.outcome}
+            onDismiss={insertion.dismiss}
+            onUndo={insertion.undo}
+            unit={unit}
+          />
+        )}
         <SearchNotices search={search} unit={unit} />
         {pois.length > 0 && (
           <ul

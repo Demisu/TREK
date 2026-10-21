@@ -361,7 +361,12 @@ const tours: TranslationStrings = {
   'tours.poi.source.trek': 'TREK の場所インデックスより',
   'tours.poi.hoursHint': '情報源の記載どおりです。出発前に確認してください。',
   'tours.poi.website': 'ウェブサイト',
-  'tours.poi.addAfter': '次の地点の後に追加',
+  'tours.poi.slot.label': '追加する位置',
+  'tours.poi.slot.between': '{from}と{to}の間',
+  'tours.poi.slot.newEnd': '新しいゴールとして',
+  'tours.poi.slot.extends': 'ツアーが長くなります',
+  'tours.poi.slot.extendsHint': '{name}は終点ではなくなり、ツアーはこの場所まで続きます。',
+  'tours.poi.detourHint': '直線距離による目安です。正確な変化はルートの再計画後に表示されます。',
   'tours.poi.add': '立ち寄り地点として追加',
   'tours.poi.notAPlace': '旅の場所ではなく、ツアーの立ち寄り地点になります。',
   'tours.poi.blocked.fixed':

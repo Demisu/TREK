@@ -368,7 +368,12 @@ const tours: TranslationStrings = {
   'tours.poi.source.trek': 'Från TREKs platsindex',
   'tours.poi.hoursHint': 'Som källan anger dem; kontrollera innan du går.',
   'tours.poi.website': 'Webbplats',
-  'tours.poi.addAfter': 'Lägg till efter',
+  'tours.poi.slot.label': 'Var den hamnar',
+  'tours.poi.slot.between': 'Mellan {from} och {to}',
+  'tours.poi.slot.newEnd': 'Som nytt mål',
+  'tours.poi.slot.extends': 'Förlänger turen',
+  'tours.poi.slot.extendsHint': '{name} är inte längre målet: turen fortsätter till den här platsen.',
+  'tours.poi.detourHint': 'Ungefär, fågelvägen. Den exakta ändringen visas när rutten har planerats om.',
   'tours.poi.add': 'Lägg till som stopp',
   'tours.poi.notAPlace': 'Det blir ett stopp på turen, inte en plats i resan.',
   'tours.poi.blocked.fixed':
