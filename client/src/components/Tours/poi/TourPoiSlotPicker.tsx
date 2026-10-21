@@ -158,18 +158,21 @@ export function TourPoiSlotPicker({
         )
       )}
       <div className="flex items-center gap-2">
-        <button
-          type="button"
-          disabled={!!block || locked}
-          onClick={() => insertion.insert(poi)}
-          data-testid="tour-poi-add"
-          title={t('tours.poi.notAPlace')}
-          className="inline-flex h-8 flex-1 items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 font-semibold text-accent-text shadow-sm transition-opacity hover:opacity-90 disabled:cursor-default disabled:opacity-40"
-          style={fs(12, 'body')}
-        >
-          <Plus size={14} strokeWidth={2.2} />
-          {t('tours.poi.add')}
-        </button>
+        <Tooltip label={t('tours.poi.notAPlace')} placement="top">
+          <span className="flex min-w-0 flex-1">
+            <button
+              type="button"
+              disabled={!!block || locked}
+              onClick={() => insertion.insert(poi)}
+              data-testid="tour-poi-add"
+              className="inline-flex h-8 flex-1 items-center justify-center gap-1.5 rounded-[10px] bg-accent px-3 font-semibold text-accent-text shadow-sm transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-40"
+              style={fs(12, 'body')}
+            >
+              <Plus size={14} strokeWidth={2.2} />
+              {t('tours.poi.add')}
+            </button>
+          </span>
+        </Tooltip>
         {detour && !block && (
           <Tooltip label={t('tours.poi.detourHint')} placement="top">
             <span data-testid="tour-poi-detour">

@@ -10,11 +10,14 @@ const HISTORY_LIMIT = 30;
 export function usePlannerHistory<Entry>() {
   const [past, setPast] = useState<Entry[]>([]);
   const [future, setFuture] = useState<Entry[]>([]);
+  // Counts every step taken, undone or redone: a caller can tell whether its own step is still the last one.
+  const [mark, setMark] = useState(0);
 
   /** A new step: the state before it goes on the stack, and nothing is left to redo. */
   const record = useCallback((before: Entry) => {
     setPast((current) => [...current, before].slice(-HISTORY_LIMIT));
     setFuture([]);
+    setMark((current) => current + 1);
   }, []);
 
   /** The step to go back to, with the present kept for redo; null when there is none. */
@@ -24,6 +27,7 @@ export function usePlannerHistory<Entry>() {
       if (previous === undefined) return null;
       setPast(past.slice(0, -1));
       setFuture([present, ...future].slice(0, HISTORY_LIMIT));
+      setMark((current) => current + 1);
       return previous;
     },
     [future, past]
@@ -35,6 +39,7 @@ export function usePlannerHistory<Entry>() {
       if (next === undefined) return null;
       setPast([...past, present].slice(-HISTORY_LIMIT));
       setFuture(future.slice(1));
+      setMark((current) => current + 1);
       return next;
     },
     [future, past]
@@ -43,7 +48,8 @@ export function usePlannerHistory<Entry>() {
   const clear = useCallback(() => {
     setPast([]);
     setFuture([]);
+    setMark((current) => current + 1);
   }, []);
 
-  return { record, undo, redo, clear, canUndo: past.length > 0, canRedo: future.length > 0 };
+  return { record, undo, redo, clear, mark, canUndo: past.length > 0, canRedo: future.length > 0 };
 }

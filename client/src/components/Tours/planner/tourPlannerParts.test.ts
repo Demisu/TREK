@@ -329,6 +329,27 @@ describe('usePlannerHistory', () => {
       });
     expect(undone).toBe(30);
   });
+
+  it('moves its mark on every step taken, undone, redone or cleared, and not on an undo with nothing left', () => {
+    const { result } = renderHook(() => usePlannerHistory<number>());
+    expect(result.current.mark).toBe(0);
+    act(() => result.current.record(1));
+    expect(result.current.mark).toBe(1);
+    act(() => {
+      result.current.undo(2);
+    });
+    expect(result.current.mark).toBe(2);
+    act(() => {
+      result.current.undo(1);
+    });
+    expect(result.current.mark).toBe(2);
+    act(() => {
+      result.current.redo(1);
+    });
+    expect(result.current.mark).toBe(3);
+    act(() => result.current.clear());
+    expect(result.current.mark).toBe(4);
+  });
 });
 
 describe('useTourDraftStorage', () => {

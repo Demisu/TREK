@@ -933,7 +933,7 @@ export function useTourPlanner({ tripId, active = true, onSaved, canEdit: editPe
     addWaypoint, appendFixedLeg, setWaypointPosition, removeWaypoint, moveWaypoint, reorderWaypoint, editWaypoints: commitWaypoints,
     reverse, returnToStart, isLoop: isClosedLoop(waypoints), toggleWaypointFreeLeg, editPaddlePoints, amendWaypoints, paddleEstimate,
     ...shaping, legVariants, roundHikes, paddleRoute, skiRoute, routeCurrent, stages,
-    undo, redo, canUndo: history.canUndo, canRedo: history.canRedo,
+    undo, redo, canUndo: history.canUndo, canRedo: history.canRedo, historyMark: history.mark,
     status, error, retry, isSaving,
     route, routeParts, enrichedGeometry, routeAnalysis, distanceMeters, durationSeconds, unreachable,
     routeProfileFocus, setRouteProfileFocus,

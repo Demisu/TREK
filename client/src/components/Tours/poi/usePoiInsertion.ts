@@ -35,6 +35,7 @@ export type PoiInsertionPlanner = Pick<
   | 'isSaving'
   | 'undo'
   | 'canUndo'
+  | 'historyMark'
 >;
 
 function measuresOf(planner: PoiInsertionPlanner): Measures | null {
@@ -92,7 +93,8 @@ export function usePoiInsertion(planner: PoiInsertionPlanner) {
       planner.setSelectedWaypointId(point.id);
       // An unnamed place (a tap, a bench) is told by its kind, as the list names it.
       const name = poi.name || t(TOUR_POI_LOOKS[poi.category].labelKey);
-      setInserted({ pointId: point.id, name, before, pointCount: next.length });
+      // Taking it in is one step of the history, so the mark moves on by one.
+      setInserted({ pointId: point.id, name, before, pointCount: next.length, mark: planner.historyMark + 1 });
       chooseSlot(null);
       select(null);
       return true;
@@ -117,7 +119,10 @@ export function usePoiInsertion(planner: PoiInsertionPlanner) {
     insert,
     outcome,
     dismiss,
-    undo: outcome && planner.canUndo && planner.canEdit && !planner.isSaving ? undo : null,
+    undo:
+      outcome && inserted?.mark === planner.historyMark && planner.canUndo && planner.canEdit && !planner.isSaving
+        ? undo
+        : null,
   };
 }
 

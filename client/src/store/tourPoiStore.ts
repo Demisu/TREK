@@ -8,6 +8,8 @@ export interface InsertedTourPoi {
   before: { distanceM: number; minutes: number | null } | null;
   /** How many points the tour had once the place was in; another edit after it ends the comparison. */
   pointCount: number;
+  /** The planner's history mark right after the step that took the place in; undo is offered only while it holds. */
+  mark: number;
 }
 
 /** PLN-04: the slot picked for a place, kept until the place is taken in or the search is cleared. */

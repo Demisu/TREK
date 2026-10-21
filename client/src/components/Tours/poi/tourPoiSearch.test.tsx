@@ -14,7 +14,7 @@ import { usePoiInsertion, type PoiInsertionPlanner } from './usePoiInsertion';
 import { useTourPoiMarkers } from './useTourPoiMarkers';
 import { useTourPoiSearch } from './useTourPoiSearch';
 
-// FE-TOUR-POI-001 to FE-TOUR-POI-021
+// FE-TOUR-POI-001 to FE-TOUR-POI-022
 
 vi.mock('../planner/useWaypointPlaceNames', () => ({ useWaypointPlaceNames: () => ({}) }));
 
@@ -127,6 +127,7 @@ function insertionPlanner(over: Partial<PoiInsertionPlanner> = {}): PoiInsertion
     isSaving: false,
     undo: vi.fn(),
     canUndo: true,
+    historyMark: 0,
     ...over,
   };
 }
@@ -520,7 +521,13 @@ describe('choosing where a found place goes (PLN-04)', () => {
     const withPoint = [PA, PB, { ...PC, role: 'via' as const }, added];
     useTourPoiStore
       .getState()
-      .setInserted({ pointId: 'new', name: 'Spring', before: { distanceM: 2200, minutes: 40 }, pointCount: 4 });
+      .setInserted({
+        pointId: 'new',
+        name: 'Spring',
+        before: { distanceM: 2200, minutes: 40 },
+        pointCount: 4,
+        mark: 0,
+      });
     const planner = alongPlanner({ waypoints: withPoint, distanceMeters: 2900, walkingDurationMinutes: 52 });
     const { unmount } = render(<TourPoiSearchCard planner={planner} />);
     const notice = screen.getByTestId('tour-poi-outcome');
@@ -533,9 +540,33 @@ describe('choosing where a found place goes (PLN-04)', () => {
     // With nothing to undo, or no right to edit, the notice offers no way back.
     useTourPoiStore
       .getState()
-      .setInserted({ pointId: 'new', name: 'Spring', before: { distanceM: 2200, minutes: 40 }, pointCount: 4 });
+      .setInserted({
+        pointId: 'new',
+        name: 'Spring',
+        before: { distanceM: 2200, minutes: 40 },
+        pointCount: 4,
+        mark: 0,
+      });
     render(<TourPoiSearchCard planner={alongPlanner({ waypoints: withPoint, canUndo: false })} />);
     expect(screen.getByTestId('tour-poi-outcome')).toBeInTheDocument();
     expect(screen.queryByTestId('tour-poi-undo')).not.toBeInTheDocument();
+  });
+
+  it('FE-TOUR-POI-022: a later step that keeps the point count takes the undo away, so it never reverts that step', () => {
+    let planner = insertionPlanner({ historyMark: 3 });
+    const { result, rerender } = renderHook(() => usePoiInsertion(planner));
+    act(() => {
+      result.current.insert(SPRING);
+    });
+    const added = vi.mocked(planner.setSelectedWaypointId).mock.calls[0]?.[0] as string;
+    const withPoint = [PA, PB, { id: added, lat: 47.015, lng: 11.001, role: 'via' as const }, PC];
+    planner = insertionPlanner({ waypoints: withPoint, historyMark: 4 });
+    rerender();
+    expect(result.current.undo).not.toBeNull();
+    // The new point dragged, or the tour renamed: still four points, but no longer the last step.
+    planner = insertionPlanner({ waypoints: withPoint, historyMark: 5 });
+    rerender();
+    expect(result.current.outcome).not.toBeNull();
+    expect(result.current.undo).toBeNull();
   });
 });
