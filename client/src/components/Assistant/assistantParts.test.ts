@@ -183,21 +183,23 @@ function adds(id: string, spot: { lat: number; lng: number } | null, placeId: nu
 }
 
 describe('messageBlocks: found places and weather', () => {
-  it('FE-AI-PARTS-008: shows only the newest search, and steps after it join the row before it', () => {
+  it('FE-AI-PARTS-008: joins the places of all searches into one strip, each once, and steps after it join the row before it', () => {
     const blocks = messageBlocks(
       message([
         read('s1', []),
-        places('s1', [found('s1:0')]),
+        places('s1', [found('s1:0'), found('s1:1', { googlePlaceId: 'ChIJa' })], 2),
         read('s2', []),
-        places('s2', [found('s2:0'), found('s2:1', { lat: 40 })], 3),
-        { type: 'text', text: 'Two good ones.' },
+        places('s2', [found('s2:0', { name: 'Place s1:0' }), found('s2:1', { googlePlaceId: 'ChIJa', lat: 40 })], 3),
+        places('s3', [found('s3:0', { lat: 40 })]),
+        { type: 'text', text: 'Three good ones.' },
       ]),
       false
     );
     expect(blocks.map((b) => b.kind)).toEqual(['steps', 'places', 'text']);
     expect(blocks[0]).toMatchObject({ steps: [{ toolCallId: 's1' }, { toolCallId: 's2' }] });
+    // The same name at the same spot, or the same Google id, shows once.
     expect(blocks[1]).toMatchObject({
-      found: { toolCallId: 's2', more: 3, places: [{ ref: 's2:0' }, { ref: 's2:1' }] },
+      found: { toolCallId: 's3', more: 5, places: [{ ref: 's1:0' }, { ref: 's1:1' }, { ref: 's3:0' }] },
     });
   });
 

@@ -9,7 +9,7 @@ import { useAssistantView } from './assistantViewContext';
 import { useAssistantPlaceStrip } from './useAssistantPlaceStrip';
 
 /** Cards the strip shows, every one the server sends; what it left out is counted on the tile at its end. */
-const SHOWN = 20;
+const SHOWN = 60;
 
 // In the strip's head, never over a card: a press that ends a pixel off still lands on the arrow.
 const ARROW =

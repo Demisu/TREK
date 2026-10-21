@@ -82,6 +82,37 @@ function weatherDays(parts: readonly AssistantMessagePart[]): AssistantWeatherDa
   return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
 }
 
+/** The handles one place goes by: its ids, and its name at its spot (to about 100 m). */
+function placeKeys(place: AssistantFoundPlace): string[] {
+  const ids = [place.googlePlaceId && `g:${place.googlePlaceId}`, place.osmId && `o:${place.osmId}`];
+  const spot = `n:${place.name.trim().toLowerCase()}@${place.lat.toFixed(3)},${place.lng.toFixed(3)}`;
+  return [...ids.filter((key): key is string => !!key), spot];
+}
+
+/**
+ * The places all searches of an answer found, in the order they came, each
+ * once (also when two searches name it by different ids, as long as name and
+ * spot agree), with what the searches left out counted together.
+ */
+function allFound(parts: AssistantMessage['parts']): AssistantPlaces {
+  const seen = new Set<string>();
+  const places: AssistantFoundPlace[] = [];
+  let more = 0;
+  let toolCallId = '';
+  for (const part of parts) {
+    if (part.type !== 'data-trek-places') continue;
+    toolCallId = part.data.toolCallId;
+    more += part.data.more;
+    for (const place of part.data.places) {
+      const keys = placeKeys(place);
+      if (keys.some((key) => seen.has(key))) continue;
+      keys.forEach((key) => seen.add(key));
+      places.push(place);
+    }
+  }
+  return { toolCallId, places, more };
+}
+
 /**
  * Adds a change to the change block before it, or starts one. A suggestion
  * from the strip is a block of its own, decided apart from the changes before
@@ -121,8 +152,9 @@ function changeState(part: ToolCallPart, applied: AssistantApplied | null): Chan
  * message is still being streamed, so a step without a result is running and
  * not merely unanswered.
  *
- * Only the newest search shows its places, without the ones a change the
- * model proposed in the answer already holds; the weather of all steps joins
+ * The places of all its searches join into one strip where the newest search
+ * sat, each place once, without the ones a change the model proposed in the
+ * answer already holds; the weather of all steps joins
  * into one row where the first look sat. A strip does not split the steps
  * around it: a step after it joins the row of steps before it.
  */
@@ -152,8 +184,9 @@ export function messageBlocks(message: AssistantMessage, writing: boolean): Mess
       return;
     }
     if (part.type === 'data-trek-places' && index === lastPlaces) {
-      const places = part.data.places.filter((place) => !proposed(place, effects));
-      if (places.length > 0) blocks.push({ kind: 'places', key: `places-${index}`, found: { ...part.data, places } });
+      const found = allFound(message.parts);
+      const places = found.places.filter((place) => !proposed(place, effects));
+      if (places.length > 0) blocks.push({ kind: 'places', key: `places-${index}`, found: { ...found, places } });
       return;
     }
     if (part.type === 'data-trek-weather' && index === firstWeather) {
