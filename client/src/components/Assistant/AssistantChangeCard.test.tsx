@@ -230,7 +230,8 @@ describe('AssistantChangeCard: on the map', () => {
     fireEvent.mouseEnter(screen.getByText('Ryoan-ji'));
     expect(useAssistantStore.getState().mapLink?.hoveredId).toBeNull();
 
-    const row = screen.getByText('Pantheon').closest('[class*="py-2.5"]');
+    const row = screen.getByText('Pantheon').closest('[class*="rounded-[12px]"]');
+    expect(row).not.toBeNull();
     expect(row).not.toHaveClass('bg-surface-hover');
     act(() => useAssistantStore.setState({ mapLink: { tripId: TRIP, hoveredId: 'c1', source: 'map' } }));
     expect(row).toHaveClass('bg-surface-hover');

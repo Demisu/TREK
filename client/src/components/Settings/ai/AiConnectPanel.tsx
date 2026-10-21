@@ -384,11 +384,11 @@ function prefillModeOf(prefill: AiParsingPrefill | null): AiConnectMode | null {
 }
 
 /**
- * Connecting a provider in under a minute: two tiles, and the form of the one
- * picked below them. A user picks between signing in with ChatGPT and pasting
- * a key; the admin, setting up the connection for everyone, between a key and
- * an own server. ChatGPT is never shared across an instance, an own server
- * never named by a user (#1772): the server refuses both, so they are not offered.
+ * Connecting a provider in under a minute: a tile for each way, and the form
+ * of the one picked below them. A user picks between signing in with ChatGPT
+ * and pasting a key; the admin, setting up the connection for everyone, between
+ * a key, their own ChatGPT plan and an own server. An own server is never named
+ * by a user (#1772): the server refuses it, so it is not offered.
  */
 export default function AiConnectPanel({ scope, onConnected, initialMode, prefill = null }: AiConnectPanelProps) {
   const { t } = useTranslation();

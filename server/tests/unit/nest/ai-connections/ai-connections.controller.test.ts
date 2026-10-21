@@ -23,6 +23,8 @@ import { GUARDS_METADATA, HTTP_CODE_METADATA, METHOD_METADATA, PATH_METADATA } f
 import { describe, expect, it, vi } from 'vitest';
 
 const VIEW = { scope: 'user', kind: 'anthropic', model: 'm', hint: '…1234', status: 'ok', host: 'api.anthropic.com' };
+const INSTANCE_VIEW = { ...VIEW, scope: 'instance', kind: 'chatgpt', host: 'chatgpt.com' };
+const ADMIN_CONNECTION = { connection: INSTANCE_VIEW, prefill: null };
 const user = { id: 7, role: 'user' } as User;
 
 function services() {
@@ -35,16 +37,17 @@ function services() {
       removeOwn: vi.fn(async () => undefined),
       ackPrivacy: vi.fn(async () => undefined),
       ownView: vi.fn(async () => VIEW),
+      instanceView: vi.fn(async () => INSTANCE_VIEW),
       readSettings: vi.fn(async () => ({ policy: 'user' })),
       writeSettings: vi.fn(async () => ({ policy: 'user' })),
-      instanceConnection: vi.fn(async () => ({ connection: null, prefill: null })),
+      instanceConnection: vi.fn(async () => ADMIN_CONNECTION),
       saveInstance: vi.fn(async () => ({ connection: null, prefill: null })),
       removeInstance: vi.fn(async () => undefined),
       listInstanceModels: vi.fn(async () => []),
     },
     chatgpt: {
       start: vi.fn(async () => ({ flowId: 'f', authorizeUrl: 'https://auth.openai.com', expiresAt: 'x' })),
-      finish: vi.fn(async () => undefined),
+      finish: vi.fn(async (): Promise<'user' | 'instance'> => 'user'),
       signOut: vi.fn(async () => undefined),
     },
     openrouter: {
@@ -136,10 +139,14 @@ describe('AiConnectionsController', () => {
     await controller.startChatgpt(user);
     expect(s.chatgpt.start).toHaveBeenCalledWith(7);
     const flowId = '7d3c2a64-0f1e-4c4c-9a39-7d2a7a0c5b11';
-    expect(
-      await controller.finishChatgpt(user, { flowId, pastedUrl: 'http://127.0.0.1:1455/auth/callback?code=c' }),
-    ).toBe(VIEW);
-    expect(s.chatgpt.finish).toHaveBeenCalledWith(7, flowId, 'http://127.0.0.1:1455/auth/callback?code=c');
+    const pastedUrl = 'http://127.0.0.1:1455/auth/callback?code=c';
+    expect(await controller.finishChatgpt(user, { flowId, pastedUrl })).toBe(VIEW);
+    // The service gets the caller with their role, so it can refuse a sign-in for everyone to a non-admin.
+    expect(s.chatgpt.finish).toHaveBeenCalledWith(user, flowId, pastedUrl);
+    expect(s.connections.ownView).toHaveBeenCalledWith(7);
+    // A sign-in an admin started for everyone answers with the instance's connection.
+    s.chatgpt.finish.mockResolvedValueOnce('instance');
+    expect(await controller.finishChatgpt(user, { flowId, pastedUrl })).toBe(INSTANCE_VIEW);
     expect(await controller.signOutChatgpt(user)).toBe(VIEW);
     expect(s.chatgpt.signOut).toHaveBeenCalledWith(7);
   });
@@ -162,6 +169,7 @@ describe('AiAdminController', () => {
       controller: new AiAdminController(
         s.connections as unknown as AiConnectionsService,
         s.openrouter as unknown as OpenrouterAuthService,
+        s.chatgpt as unknown as ChatgptAuthService,
       ),
     };
   }
@@ -174,9 +182,17 @@ describe('AiAdminController', () => {
     });
     expect(Reflect.getMetadata(MANAGED_FORBIDDEN, AiAdminController)?.reason).toBeTruthy();
     expect(
-      ['settings', 'saveSettings', 'connection', 'saveConnection', 'removeConnection', 'models', 'startOpenrouter'].map(
-        (name) => route(AiAdminController, name),
-      ),
+      [
+        'settings',
+        'saveSettings',
+        'connection',
+        'saveConnection',
+        'removeConnection',
+        'models',
+        'startOpenrouter',
+        'startChatgpt',
+        'signOutChatgpt',
+      ].map((name) => route(AiAdminController, name)),
     ).toEqual([
       { method: RequestMethod.GET, path: 'settings', httpCode: undefined },
       { method: RequestMethod.PUT, path: 'settings', httpCode: undefined },
@@ -185,6 +201,8 @@ describe('AiAdminController', () => {
       { method: RequestMethod.DELETE, path: 'connection', httpCode: 200 },
       { method: RequestMethod.GET, path: 'models', httpCode: undefined },
       { method: RequestMethod.POST, path: 'connect/openrouter/start', httpCode: 200 },
+      { method: RequestMethod.POST, path: 'connect/chatgpt/start', httpCode: 200 },
+      { method: RequestMethod.POST, path: 'connect/chatgpt/sign-out', httpCode: 200 },
     ]);
   });
 
@@ -206,5 +224,10 @@ describe('AiAdminController', () => {
     expect(await controller.models(admin)).toEqual({ models: [] });
     await controller.startOpenrouter(admin);
     expect(s.openrouter.start).toHaveBeenCalledWith(1, 'instance');
+    // The admin's own ChatGPT plan, shared with everyone: started and signed out for the instance.
+    await controller.startChatgpt(admin);
+    expect(s.chatgpt.start).toHaveBeenCalledWith(1, 'instance');
+    expect(await controller.signOutChatgpt(admin)).toBe(ADMIN_CONNECTION);
+    expect(s.chatgpt.signOut).toHaveBeenCalledWith(1, 'instance');
   });
 });

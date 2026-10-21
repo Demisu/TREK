@@ -6,7 +6,7 @@ import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import { useToast } from '../shared/Toast';
 
 /** What the booking import reads (the server checks again), and how big one file may be. */
-export const ATTACH_EXTENSIONS: readonly string[] = [
+const ATTACH_EXTENSIONS: readonly string[] = [
   '.pdf',
   '.eml',
   '.pkpass',

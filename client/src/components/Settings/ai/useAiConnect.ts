@@ -151,6 +151,35 @@ export function useCustomConnect({
 }
 
 /**
+ * Hands `onText` what the clipboard holds where the browser lets the page read
+ * it; where it does not, or the user refuses, `onUnreadable` runs instead.
+ */
+function readClipboard(onText: (text: string) => void, onUnreadable: () => void) {
+  if (!navigator.clipboard?.readText || !window.isSecureContext) {
+    onUnreadable();
+    return;
+  }
+  navigator.clipboard.readText().then(onText, onUnreadable);
+}
+
+/** Runs `onBack` each time the user comes back to this tab while `watching` holds. */
+function useOnReturnToTab(watching: boolean, onBack: () => void) {
+  const back = useEffectEvent(onBack);
+  useEffect(() => {
+    if (!watching) return;
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') back();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onVisible);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', onVisible);
+    };
+  }, [watching]);
+}
+
+/**
  * Signing in with ChatGPT (K3). The sign-in address is fetched as soon as the
  * step shows, so opening it is a plain link and no popup blocker interferes.
  * ChatGPT then sends the browser to a loopback address that shows an error
@@ -241,47 +270,22 @@ export function useChatgptConnect({
     return true;
   };
 
+  const focusField = () => inputRef.current?.focus();
+
   /** Reads the address off the clipboard where the browser allows it, else hands the field the cursor. */
-  const pasteFromClipboard = () => {
-    if (!navigator.clipboard?.readText || !window.isSecureContext) {
-      inputRef.current?.focus();
-      return;
-    }
-    navigator.clipboard.readText().then(
-      (text) => {
-        if (!paste(text)) change(text);
-      },
-      () => inputRef.current?.focus()
-    );
-  };
+  const pasteFromClipboard = () =>
+    readClipboard((text) => {
+      if (!paste(text)) change(text);
+    }, focusField);
 
   // Back from the sign-in window: the address the user just copied is taken
   // off the clipboard where the browser allows it, else the field has the cursor.
-  const takeCopied = useEffectEvent(() => {
+  useOnReturnToTab(opened, () => {
     if (pasted.trim() || busy) return;
-    if (!navigator.clipboard?.readText || !window.isSecureContext) {
-      inputRef.current?.focus();
-      return;
-    }
-    navigator.clipboard.readText().then(
-      (text) => {
-        if (!paste(text)) inputRef.current?.focus();
-      },
-      () => inputRef.current?.focus()
-    );
+    readClipboard((text) => {
+      if (!paste(text)) focusField();
+    }, focusField);
   });
-  useEffect(() => {
-    if (!opened) return;
-    const onBack = () => {
-      if (document.visibilityState === 'visible') takeCopied();
-    };
-    document.addEventListener('visibilitychange', onBack);
-    window.addEventListener('focus', onBack);
-    return () => {
-      document.removeEventListener('visibilitychange', onBack);
-      window.removeEventListener('focus', onBack);
-    };
-  }, [opened]);
 
   return {
     flow,

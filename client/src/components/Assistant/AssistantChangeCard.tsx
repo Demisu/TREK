@@ -123,10 +123,12 @@ function KindTile({
   );
 }
 
-/** The verb as a quiet line over the name of what it touches. */
+/** The key of a tool's own action name, for the tools TREK names one for. */
+const toolKey = (tool: string) => `assistant.tool.${tool}`;
+
 /** What the change does: the tool's own action where TREK names it, else add, change or remove. */
 function verbLabel(preview: AssistantChangePreview, t: (key: string) => string): string {
-  const own = preview.tool ? `assistant.tool.${preview.tool}` : null;
+  const own = preview.tool ? toolKey(preview.tool) : null;
   const named = own ? t(own) : null;
   return named && named !== own ? named : t(`assistant.change.verb.${preview.verbKey}`);
 }

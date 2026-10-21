@@ -37,5 +37,5 @@ export function linkFile(
   fileId: number,
   target: Pick<EntityData<FileLinks>, 'reservation' | 'assignment' | 'place' | 'budgetItem'>,
 ): Promise<FileLinkRow> {
-  return createRow(orm, FileLinks, { file: fileId, ...target });
+  return createRow(orm, FileLinks, { file: fileId }, target);
 }

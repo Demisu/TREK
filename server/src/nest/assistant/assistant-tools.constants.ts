@@ -163,9 +163,6 @@ export const ASSISTANT_SERVER_TOOLS: ReadonlySet<string> = new Set([
   ...Object.keys(ASSISTANT_SERVER_WRITE_TOOLS),
 ]);
 
-/** Bookings one attached file may propose; the rest are left out, as a step holds no more changes. */
-export const MAX_BOOKINGS_PER_FILE = MAX_WRITES_PER_STEP;
-
 /** The largest file the assistant reads. */
 export const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
 

@@ -128,8 +128,6 @@ export function svgDataUrl(svg: string): string {
  */
 export function aiSectionText(assistant: boolean, parsing: boolean): { titleKey: string; hintKey: string } {
   if (!assistant) return { titleKey: 'settings.aiParsing.title', hintKey: 'assistant.connect.descriptionParsingOnly' };
-  return {
-    titleKey: 'assistant.connect.title',
-    hintKey: parsing ? 'assistant.connect.descriptionWithParsing' : 'assistant.connect.description',
-  };
+  if (parsing) return { titleKey: 'assistant.connect.title', hintKey: 'assistant.connect.descriptionWithParsing' };
+  return { titleKey: 'assistant.connect.title', hintKey: 'assistant.connect.description' };
 }

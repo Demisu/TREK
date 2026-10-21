@@ -1,5 +1,5 @@
-// FE-HOOK-AI-CONNECT-001 to FE-HOOK-AI-CONNECT-012: pasting a key, an own server, the ChatGPT sign-in and the OpenRouter return.
-import { act, renderHook, waitFor } from '@testing-library/react';
+// FE-HOOK-AI-CONNECT-001 to FE-HOOK-AI-CONNECT-013: pasting a key, an own server, the ChatGPT sign-in and the OpenRouter return.
+import { act, fireEvent, renderHook, waitFor } from '@testing-library/react';
 import { createElement, type ReactNode } from 'react';
 import { MemoryRouter, useLocation } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -217,6 +217,37 @@ describe('useChatgptConnect', () => {
     expect(result.current.error).toEqual({ messageKey: 'assistant.error.notEligible', code: 'not_eligible' });
     expect(onConnected).not.toHaveBeenCalled();
     expect(repo.chatgptStart).toHaveBeenCalledTimes(1);
+  });
+
+  it('FE-HOOK-AI-CONNECT-013: the clipboard fills the field where the browser lets it be read, else the field gets the cursor', async () => {
+    const readText = vi.fn(async () => 'not an address');
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { readText } });
+    Object.defineProperty(window, 'isSecureContext', { configurable: true, value: true });
+    const { result } = renderHook(() => useChatgptConnect({ active: true, onConnected: vi.fn() }), {
+      wrapper: wrapperAt(),
+    });
+    await waitFor(() => expect(result.current.flow).not.toBeNull());
+    const input = document.createElement('input');
+    document.body.append(input);
+    result.current.inputRef.current = input;
+
+    act(() => result.current.pasteFromClipboard());
+    await waitFor(() => expect(result.current.pasted).toBe('not an address'));
+    expect(repo.chatgptFinish).not.toHaveBeenCalled();
+
+    // Without a readable clipboard the button and the return from the sign-in window both focus the field.
+    Object.defineProperty(window, 'isSecureContext', { configurable: true, value: false });
+    act(() => result.current.pasteFromClipboard());
+    expect(document.activeElement).toBe(input);
+    input.blur();
+    act(() => {
+      result.current.change('');
+      result.current.markOpened();
+    });
+    fireEvent.focus(window);
+    expect(document.activeElement).toBe(input);
+    expect(readText).toHaveBeenCalledTimes(1);
+    input.remove();
   });
 });
 

@@ -24,7 +24,7 @@ import { OidcService } from '../../../../src/nest/oidc/oidc.service';
 import { createSnapshotTestDb } from '../../../helpers/db-mock';
 import { findRow } from '../../../helpers/factories/rows';
 import { readAppSetting } from '../../../helpers/factories/settings';
-import { makeAdmin, makeUser } from '../../../helpers/factories/users';
+import { makeUser } from '../../../helpers/factories/users';
 import { resetTestDb } from '../../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../../helpers/test-module';
 import { MikroORM } from '@mikro-orm/core';
@@ -99,6 +99,12 @@ async function refusal(promise: Promise<unknown>) {
   return { status: (err as DomainError).getStatus(), body: (err as DomainError).toBody() };
 }
 
+/** A stored user as the service takes the caller of a finished sign-in: the id and the role. */
+async function caller(role: 'user' | 'admin' = 'user'): Promise<{ id: number; role: string }> {
+  const { user } = await makeUser(orm(), { role });
+  return { id: user.id, role };
+}
+
 /** Starts a sign-in and answers its flow id with the state and nonce the authorize URL carried. */
 async function started(userId: number, scope: 'user' | 'instance' = 'user') {
   const start = await service().start(userId, scope);
@@ -161,7 +167,7 @@ describe('starting a sign-in', () => {
 
 describe('finishing a sign-in', () => {
   it('CGPT-010: exchanges the code, checks the ID token and saves the connection', async () => {
-    const { user } = await makeUser(orm());
+    const user = await caller();
     const flow = await started(user.id);
     const access = accessToken(Math.floor(Date.now() / 1000) + 3600);
     safeFetch.mockResolvedValueOnce(
@@ -176,7 +182,7 @@ describe('finishing a sign-in', () => {
     verifyIdToken.mockResolvedValueOnce(claims({ nonce: flow.nonce }));
 
     await service().finish(
-      user.id,
+      user,
       flow.flowId,
       callbackUrl({ code: 'code-1', state: flow.state, client_id: 'oaiapp_new_1' }),
     );
@@ -207,8 +213,8 @@ describe('finishing a sign-in', () => {
   });
 
   it('CGPT-030: an admin shares their plan with everyone; only an admin finishes that sign-in', async () => {
-    const { user: admin } = await makeAdmin(orm());
-    const { user: member } = await makeUser(orm());
+    const admin = await caller('admin');
+    const member = await caller();
     const shared = await started(admin.id, 'instance');
     const url = callbackUrl({ code: 'c', state: shared.state, client_id: 'oaiapp_shared' });
     // A flow belongs to whoever started it, so a member cannot even take it.
@@ -219,7 +225,10 @@ describe('finishing a sign-in', () => {
     );
     verifyIdToken.mockResolvedValueOnce(claims({ nonce: shared.nonce }));
     expect(await service().finish(admin, shared.flowId, url)).toBe('instance');
-    expect(await findRow(orm(), AiConnections, { scope: 'instance' })).toMatchObject({ kind: 'chatgpt', user: null });
+    expect(await findRow(orm(), AiConnections, { scope: 'instance' })).toMatchObject({
+      kind: 'chatgpt',
+      user_id: null,
+    });
     expect(await findRow(orm(), AiConnections, { user: admin.id })).toBeNull();
 
     // An admin who is no longer one cannot finish a sign-in for everyone they started before.
@@ -230,7 +239,7 @@ describe('finishing a sign-in', () => {
   });
 
   it('CGPT-011: a wrong address is refused before the flow is used, so the right one still works', async () => {
-    const { user } = await makeUser(orm());
+    const user = await caller();
     const flow = await started(user.id);
     const wrong = await Promise.all(
       ['not a url', 'http://localhost:1455/auth/callback?code=x', 'https://chatgpt.com/'].map((pasted) =>
@@ -251,8 +260,8 @@ describe('finishing a sign-in', () => {
   });
 
   it('CGPT-012: another state, an unknown or foreign flow, and a used one read as expired', async () => {
-    const { user } = await makeUser(orm());
-    const { user: other } = await makeUser(orm());
+    const user = await caller();
+    const other = await caller();
     const flow = await started(user.id);
     const url = callbackUrl({ code: 'c', state: flow.state, client_id: 'oaiapp_x' });
     expect((await refusal(service().finish(other, flow.flowId, url))).status).toBe(410);
@@ -270,7 +279,7 @@ describe('finishing a sign-in', () => {
   });
 
   it('CGPT-013: a client id that is not an issued one, named twice, or another than the saved one is refused', async () => {
-    const { user } = await makeUser(orm());
+    const user = await caller();
     const refused = await Promise.all(
       ['&client_id=evil', '&client_id=oaiapp_a&client_id=oaiapp_b'].map(async (extra) => {
         const flow = await started(user.id);
@@ -285,18 +294,14 @@ describe('finishing a sign-in', () => {
     expect(
       (
         await refusal(
-          service().finish(
-            user.id,
-            flow.flowId,
-            callbackUrl({ code: 'c', state: flow.state, client_id: 'oaiapp_other' }),
-          ),
+          service().finish(user, flow.flowId, callbackUrl({ code: 'c', state: flow.state, client_id: 'oaiapp_other' })),
         )
       ).body,
     ).toMatchObject({ code: 'wrong_url' });
   });
 
   it('CGPT-014: a nonce that does not match, another account and a plan without the scope are refused', async () => {
-    const { user } = await makeUser(orm());
+    const user = await caller();
     const answer = () =>
       tokenAnswer(200, { access_token: 'at', refresh_token: 'rt', id_token: 'id', scope: PLAN_SCOPES });
 
@@ -334,7 +339,7 @@ describe('finishing a sign-in', () => {
   });
 
   it('CGPT-015: a refused code reads as expired, a token endpoint that is down as provider_unavailable', async () => {
-    const { user } = await makeUser(orm());
+    const user = await caller();
     let flow = await started(user.id);
     safeFetch.mockResolvedValueOnce(tokenAnswer(400, { error: 'invalid_grant' }));
     expect(

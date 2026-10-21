@@ -5,7 +5,7 @@
  * applies it, the same an MCP write runs.
  */
 import { AssistantBookingImportService } from '../../../../src/nest/assistant/assistant-booking-import.service';
-import { MAX_BOOKINGS_PER_FILE } from '../../../../src/nest/assistant/assistant-tools.constants';
+import { MAX_WRITES_PER_STEP } from '../../../../src/nest/assistant/assistant-tools.constants';
 import { BookingImportService } from '../../../../src/nest/booking-import/booking-import.service';
 import { DemoService } from '../../../../src/nest/common/demo.service';
 import { DomainError } from '../../../../src/nest/common/domain-error';
@@ -42,7 +42,7 @@ async function make(opts: Opts = {}) {
     aiAvailable: vi.fn(async () => opts.ai === true),
     readsImages: vi.fn(async () => opts.images === true),
     preview: vi.fn(async (_files: Express.Multer.File[], _mode: string, _userId: number) => ({
-      items: Array.from({ length: MAX_BOOKINGS_PER_FILE + 2 }, (_, index) => ({ ...ITEM, title: `Leg ${index}` })),
+      items: Array.from({ length: MAX_WRITES_PER_STEP + 2 }, (_, index) => ({ ...ITEM, title: `Leg ${index}` })),
       warnings: [],
     })),
     confirm: vi.fn(async () => ({ created: [{ id: 81, title: 'ICE 123', type: 'train', day_id: 31 }] })),
@@ -88,7 +88,7 @@ describe('AssistantBookingImportService', () => {
     const items = await plain.service.read(7, file('a.pdf'));
     const given = expect.objectContaining({ originalname: 'a.pdf' });
     expect(plain.bookingImport.preview).toHaveBeenCalledWith([given], 'no-ai', 7);
-    expect(items).toHaveLength(MAX_BOOKINGS_PER_FILE);
+    expect(items).toHaveLength(MAX_WRITES_PER_STEP);
     const ai = await make({ ai: true });
     await ai.service.read(7, file('a.pdf'));
     expect(ai.bookingImport.preview.mock.calls[0][1]).toBe('fallback-on-empty');

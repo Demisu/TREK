@@ -7,7 +7,7 @@ import type { Addon } from './addonModel';
  * and MCP (TREK inside other AI apps). Their ids, rows and settings stay their
  * own; only the page groups them. Assistant and parsing share one connection.
  */
-export const AI_ADDON_IDS = ['ai_assistant', 'llm_parsing', 'mcp'] as const;
+const AI_ADDON_IDS = ['ai_assistant', 'llm_parsing', 'mcp'] as const;
 export type AiAddonId = (typeof AI_ADDON_IDS)[number];
 
 /** Each one's glyph, keyed by id: the icon column of an existing install still holds what it was seeded with. */

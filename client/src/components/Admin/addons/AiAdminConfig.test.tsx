@@ -95,7 +95,8 @@ describe('the connection and the assistant', () => {
     expect(screen.getByText('Everyone uses the connection below unless they connect their own.')).toBeInTheDocument();
     expect(screen.getByText('No connection yet.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Own server/ })).toBeInTheDocument();
-    expect(screen.queryByText('Sign in with ChatGPT')).not.toBeInTheDocument();
+    // The admin may share their own ChatGPT plan with everyone, so its tile is offered too.
+    expect(screen.getByRole('button', { name: /Sign in with ChatGPT/ })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'AI Assistant' }));
     expect(screen.getByDisplayValue('50')).toBeInTheDocument();
     expect(screen.getByText('Keep chats')).toBeInTheDocument();

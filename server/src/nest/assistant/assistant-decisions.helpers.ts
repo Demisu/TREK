@@ -3,7 +3,7 @@ import type { AssistantMessagePart } from '@trek/shared';
 /** What the model is told about a change the user discarded. */
 export const DISCARDED = { applied: false, reason: 'The user discarded this change.' };
 /** ... one the user left undecided by asking something else. */
-export const CANCELLED = { applied: false, reason: 'The user moved on without deciding.' };
+const CANCELLED = { applied: false, reason: 'The user moved on without deciding.' };
 /** ... one that was approved but never ran. */
 export const NOT_RUN = { applied: false, reason: 'The change could not be run.' };
 

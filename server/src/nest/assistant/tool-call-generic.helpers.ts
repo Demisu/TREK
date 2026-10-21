@@ -79,7 +79,7 @@ function clip(value: string): string {
 }
 
 /** "update_vacay_plan" reads as "update vacay plan"; only shown where nothing better is known. */
-export function humanToolName(name: string): string {
+function humanToolName(name: string): string {
   return name.replace(/_/g, ' ');
 }
 

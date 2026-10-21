@@ -1,4 +1,4 @@
-// FE-COMP-AI-CONNECT-PANEL-001 to FE-COMP-AI-CONNECT-PANEL-008: the two tiles, the key field, the ChatGPT paste step.
+// FE-COMP-AI-CONNECT-PANEL-001 to FE-COMP-AI-CONNECT-PANEL-009: the mode tiles, the key field, the ChatGPT paste step.
 import userEvent from '@testing-library/user-event';
 import type { AiStatusResponse } from '@trek/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -63,7 +63,7 @@ describe('AiConnectPanel', () => {
     expect(repo.chatgptStart).not.toHaveBeenCalled();
   });
 
-  it('FE-COMP-AI-CONNECT-PANEL-002: the admin picks between a key and an own server, prefilled from AI parsing', () => {
+  it('FE-COMP-AI-CONNECT-PANEL-002: the admin picks between a key, their ChatGPT plan and an own server, prefilled from AI parsing', () => {
     render(
       <AiConnectPanel
         scope="instance"
@@ -71,7 +71,9 @@ describe('AiConnectPanel', () => {
         prefill={{ kind: 'custom', baseUrl: 'http://ollama:11434/v1', model: 'qwen3:8b' }}
       />
     );
-    expect(screen.queryByText('Sign in with ChatGPT')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Paste an API key/ })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: /Sign in with ChatGPT/ })).toHaveAttribute('aria-pressed', 'false');
+    expect(repo.chatgptStart).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: /Own server/ })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByText('Taken over from AI Parsing.')).toBeInTheDocument();
     expect(screen.getByDisplayValue('http://ollama:11434/v1')).toBeInTheDocument();
@@ -182,5 +184,23 @@ describe('AiConnectPanel', () => {
     seedStore(useAddonStore, { addons: [{ id: 'mcp', name: 'MCP', type: 'integration', icon: '', enabled: true }] });
     render(<AiConnectPanel scope="user" onConnected={vi.fn()} />);
     expect(screen.getByRole('button', { name: 'Using Claude? Connect in Claude' })).toBeInTheDocument();
+  });
+
+  it('FE-COMP-AI-CONNECT-PANEL-009: the admin signing in with ChatGPT is told the plan is shared, and the sign-in is for everyone', async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<AiConnectPanel scope="user" onConnected={vi.fn()} initialMode="chatgpt" />);
+    await waitFor(() => expect(repo.chatgptStart).toHaveBeenCalledWith('user'));
+    expect(screen.queryByRole('note')).not.toBeInTheDocument();
+    unmount();
+
+    render(<AiConnectPanel scope="instance" onConnected={vi.fn()} />);
+    await user.click(screen.getByRole('button', { name: /Sign in with ChatGPT/ }));
+    expect(screen.getByRole('note')).toHaveTextContent(
+      'You share your own ChatGPT plan with everyone on this server: their chats count against your plan.'
+    );
+    await waitFor(() =>
+      expect(screen.getByRole('link', { name: /Open ChatGPT sign-in/ })).toHaveAttribute('href', FLOW.authorizeUrl)
+    );
+    expect(repo.chatgptStart).toHaveBeenLastCalledWith('instance');
   });
 });

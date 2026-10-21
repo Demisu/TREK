@@ -3,7 +3,7 @@ import { BookingImportService } from '../booking-import/booking-import.service';
 import { DemoService } from '../common/demo.service';
 import { McpToolGuardsService } from '../mcp-shared/mcp-tool-guards.service';
 import { TripAccessService } from '../trip-membership/trip-access.service';
-import { MAX_BOOKINGS_PER_FILE } from './assistant-tools.constants';
+import { MAX_WRITES_PER_STEP } from './assistant-tools.constants';
 import type { ToolRun } from './assistant-tools.service';
 import { Injectable } from '@nestjs/common';
 import { bookingImportPreviewItemSchema, LLM_PHOTO_EXTENSIONS, type BookingImportPreviewItem } from '@trek/shared';
@@ -54,7 +54,8 @@ export class AssistantBookingImportService {
   async read(userId: number, file: Express.Multer.File): Promise<BookingImportPreviewItem[]> {
     const mode = (await this.bookingImport.aiAvailable(userId)) ? 'fallback-on-empty' : 'no-ai';
     const preview = await this.bookingImport.preview([file], mode, userId);
-    return preview.items.slice(0, MAX_BOOKINGS_PER_FILE);
+    // One file proposes no more bookings than one step may hold changes; the rest are left out.
+    return preview.items.slice(0, MAX_WRITES_PER_STEP);
   }
 
   /**

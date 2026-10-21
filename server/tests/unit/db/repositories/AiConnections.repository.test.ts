@@ -1,8 +1,8 @@
 /**
  * AiConnectionsRepository and the table under it: one connection per user and
  * one for the instance, a save that replaces in place, the version check a
- * token refresh writes under, and the checks that keep ChatGPT personal and a
- * custom server the admin's.
+ * token refresh writes under, and the checks that keep a custom server the
+ * admin's while a ChatGPT sign-in may be either side's.
  */
 import { AiConnections } from '../../../../src/db/entities/AiConnections.entity';
 import { Users } from '../../../../src/db/entities/Users.entity';
@@ -80,13 +80,15 @@ describe('AiConnectionsRepository', () => {
     expect(await repo.findById(id)).toBeNull();
   });
 
-  it('AICREPO-003: the table refuses a ChatGPT instance connection, a custom user one and a stray base URL', async () => {
+  it('AICREPO-003: the table refuses a custom user connection and a stray base URL, takes a shared ChatGPT plan', async () => {
     const { user } = await makeUser(t);
-    await expect(repo.save(null, { ...KEY, kind: 'chatgpt' })).rejects.toThrow(/CHECK/);
     await expect(repo.save(user.id, { ...KEY, kind: 'custom', baseUrl: 'http://lan' })).rejects.toThrow(/CHECK/);
     await expect(repo.save(null, { ...KEY, baseUrl: 'http://lan' })).rejects.toThrow(/CHECK/);
     await expect(repo.save(null, { ...KEY, kind: 'custom' })).rejects.toThrow(/CHECK/);
     await expect(insertRow(t, AiConnections, { scope: 'user', kind: 'openai', model: 'm' })).rejects.toThrow(/CHECK/);
+    // An admin may share their own ChatGPT plan with everyone.
+    await repo.save(null, { ...KEY, kind: 'chatgpt' });
+    expect(await repo.findInstance()).toMatchObject({ scope: 'instance', user_id: null, kind: 'chatgpt' });
   });
 
   it('AICREPO-004: a user deleted takes their connection along', async () => {
