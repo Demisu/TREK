@@ -115,7 +115,12 @@ export class OpenAiChatClient implements AiChatClient {
     }
     if (!turn.done && !turn.reason) throw new AiProviderError('provider_unavailable', 0, true, undefined, 'stream_cut');
     for (const call of turn.calls()) yield { type: 'tool-call', call };
-    yield { type: 'usage', inputTokens: turn.inputTokens, outputTokens: turn.outputTokens };
+    yield {
+      type: 'usage',
+      inputTokens: turn.inputTokens,
+      cachedInputTokens: turn.cachedInputTokens,
+      outputTokens: turn.outputTokens,
+    };
     yield { type: 'finish', reason: turn.finishReason() };
   }
 }
@@ -127,6 +132,7 @@ export class OpenAiChatClient implements AiChatClient {
  */
 class ChatTurn {
   inputTokens = 0;
+  cachedInputTokens = 0;
   outputTokens = 0;
   reason: string | null = null;
   done = false;
@@ -137,6 +143,7 @@ class ChatTurn {
     const usage = asRecord(chunk.usage);
     if (chunk.usage) {
       this.inputTokens = asCount(usage.prompt_tokens);
+      this.cachedInputTokens = asCount(asRecord(usage.prompt_tokens_details).cached_tokens);
       this.outputTokens = asCount(usage.completion_tokens);
     }
     const choice = asRecord(Array.isArray(chunk.choices) ? chunk.choices[0] : undefined);

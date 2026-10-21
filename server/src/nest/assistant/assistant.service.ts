@@ -868,6 +868,7 @@ export class AssistantService {
         }
         await this.usage.record(spec.userId, spec.connection.paidBy, {
           inputTokens: outcome.inputTokens,
+          cachedInputTokens: outcome.cachedInputTokens,
           outputTokens: outcome.outputTokens,
         });
       });

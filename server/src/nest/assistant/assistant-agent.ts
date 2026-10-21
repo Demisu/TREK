@@ -82,6 +82,8 @@ interface AgentOutcome {
   /** What failed (a provider refusal, the step limit), null for a turn that ended well or was stopped. */
   code: AssistantErrorCode | null;
   inputTokens: number;
+  /** The part of inputTokens the provider read from its prompt cache. */
+  cachedInputTokens: number;
   outputTokens: number;
 }
 
@@ -179,7 +181,7 @@ interface Turn {
   w: UiStreamWriter;
   signal: AbortSignal;
   history: AiChatMessage[];
-  usage: { inputTokens: number; outputTokens: number };
+  usage: { inputTokens: number; cachedInputTokens: number; outputTokens: number };
   knownPlaceIds: Set<string>;
   /** Whether the turn used its one push (an empty, cut-off or announcing answer). */
   nudged: boolean;
@@ -224,6 +226,7 @@ async function streamAnswer(turn: Turn, rowId: number): Promise<StepAnswer | Age
       } else if (event.type === 'tool-call') answer.received.push(event.call);
       else if (event.type === 'usage') {
         turn.usage.inputTokens += event.inputTokens;
+        turn.usage.cachedInputTokens += event.cachedInputTokens;
         turn.usage.outputTokens += event.outputTokens;
       } else if (event.type === 'provider-state') answer.providerState = event.state;
       else if (event.type === 'finish') answer.cutOff = event.reason === 'length';
@@ -423,7 +426,7 @@ export function runAgentLoop(
     w,
     signal,
     history: [...input.history],
-    usage: { inputTokens: 0, outputTokens: 0 },
+    usage: { inputTokens: 0, cachedInputTokens: 0, outputTokens: 0 },
     knownPlaceIds,
     nudged: false,
   };

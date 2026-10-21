@@ -51,7 +51,8 @@ export type AiFinishReason = 'stop' | 'tool-calls' | 'length';
 export type AiChatEvent =
   | { type: 'text-delta'; delta: string }
   | { type: 'tool-call'; call: AiToolCall }
-  | { type: 'usage'; inputTokens: number; outputTokens: number }
+  /** `cachedInputTokens` is the part of `inputTokens` the provider read from its prompt cache. */
+  | { type: 'usage'; inputTokens: number; cachedInputTokens: number; outputTokens: number }
   | { type: 'provider-state'; state: AiProviderState }
   | { type: 'finish'; reason: AiFinishReason };
 

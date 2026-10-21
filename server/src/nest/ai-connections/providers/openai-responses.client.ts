@@ -116,7 +116,7 @@ export class OpenAiResponsesClient implements AiChatClient {
     const events = await this.open(body, request.cacheKey, signal);
 
     const items: Record<string, unknown>[] = [];
-    let usage = { inputTokens: 0, outputTokens: 0 };
+    let usage = { inputTokens: 0, cachedInputTokens: 0, outputTokens: 0 };
     let completed = false;
     for await (const sse of readSseEvents(events)) {
       const event = parseEventData(sse.data);
@@ -134,7 +134,11 @@ export class OpenAiResponsesClient implements AiChatClient {
         }
       } else if (event.type === 'response.completed') {
         const reported = asRecord(asRecord(event.response).usage);
-        usage = { inputTokens: asCount(reported.input_tokens), outputTokens: asCount(reported.output_tokens) };
+        usage = {
+          inputTokens: asCount(reported.input_tokens),
+          cachedInputTokens: asCount(asRecord(reported.input_tokens_details).cached_tokens),
+          outputTokens: asCount(reported.output_tokens),
+        };
         completed = true;
       } else if (event.type === 'error' || event.type === 'response.failed' || event.type === 'response.incomplete') {
         throw providerFailure(this.kind, 0, errorCodeOf(event) ?? errorCodeOf(event.response) ?? asText(event.type));

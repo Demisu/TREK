@@ -7,6 +7,7 @@
 import type { AiChatEvent, AiChatRequest } from '../../../../src/nest/ai-connections/ai-chat-client.interface';
 import {
   AnthropicMessagesClient,
+  markHistoryForCache,
   toAnthropicMessages,
 } from '../../../../src/nest/ai-connections/providers/anthropic-messages.client';
 import { OpenAiChatClient, toChatMessages } from '../../../../src/nest/ai-connections/providers/openai-chat.client';
@@ -194,6 +195,44 @@ describe('AnthropicMessagesClient', () => {
     expect([0, 1, 2, 3].map((i) => dig(body, 'messages', i, 'role'))).toEqual(['user', 'assistant', 'user', undefined]);
   });
 
+  it('ANTH-006: marks the end of the history and the end of what came before the question for the cache', async () => {
+    const http = fetchAnswering(streamResponse(STREAM));
+    await run(new AnthropicMessagesClient('m', 'k', http.fetcher).stream(REQUEST, signal()));
+    const marked = JSON.stringify(http.body()).match(/cache_control/g) ?? [];
+    expect(marked).toHaveLength(4);
+    // The question "Thanks" shares its turn with the tool result before it: both carry a mark.
+    expect(dig(http.body(), 'messages', 2, 'content')).toEqual([
+      { type: 'tool_result', tool_use_id: 'call_1', content: '{"id":7}', cache_control: { type: 'ephemeral' } },
+      { type: 'text', text: 'Thanks', cache_control: { type: 'ephemeral' } },
+    ]);
+    expect(dig(http.body(), 'messages', 0, 'content', 0, 'cache_control')).toBeUndefined();
+  });
+
+  it('ANTH-007: later steps of a turn keep the mark before the question; never more marks than allowed', () => {
+    const step = toAnthropicMessages([
+      ...REQUEST.messages,
+      { role: 'assistant', text: '', toolCalls: [{ id: 'call_2', name: 'list_places', args: {} }] },
+      { role: 'tool', toolCallId: 'call_2', name: 'list_places', output: '[]' },
+    ]);
+    markHistoryForCache(step, 2);
+    const marks = step.flatMap((turn, i) =>
+      turn.content.flatMap((block, j) => (block.cache_control ? [`${i}.${j}`] : [])),
+    );
+    expect(marks).toEqual(['2.0', '4.0']);
+
+    const first = toAnthropicMessages([{ role: 'user', text: 'Hi' }]);
+    markHistoryForCache(first, 2);
+    expect(first[0]?.content).toEqual([{ type: 'text', text: 'Hi', cache_control: { type: 'ephemeral' } }]);
+
+    const none = toAnthropicMessages(REQUEST.messages);
+    markHistoryForCache(none, 0);
+    expect(JSON.stringify(none)).not.toContain('cache_control');
+    const one = toAnthropicMessages(REQUEST.messages);
+    markHistoryForCache(one, 1);
+    expect(JSON.stringify(one).match(/cache_control/g)).toHaveLength(1);
+    markHistoryForCache([], 2);
+  });
+
   it('ANTH-002: a tool result and the next user text share one user turn', () => {
     expect(toAnthropicMessages(REQUEST.messages)[2]).toEqual({
       role: 'user',
@@ -216,7 +255,7 @@ describe('AnthropicMessagesClient', () => {
     expect(events).toEqual([
       { type: 'text-delta', delta: 'On it' },
       { type: 'tool-call', call: { id: 'toolu_01', name: 'create_place', args: { name: 'Ginkaku-ji' } } },
-      { type: 'usage', inputTokens: 100, outputTokens: 42 },
+      { type: 'usage', inputTokens: 100, cachedInputTokens: 90, outputTokens: 42 },
       { type: 'finish', reason: 'tool-calls' },
     ]);
   });
@@ -273,7 +312,7 @@ describe('OpenAiChatClient', () => {
     { choices: [{ delta: { tool_calls: [{ index: 0, function: { arguments: '{"name":' } }] } }] },
     { choices: [{ delta: { tool_calls: [{ index: 0, function: { arguments: '"Nijo"}' } }] } }] },
     { choices: [{ delta: {}, finish_reason: 'tool_calls' }] },
-    { choices: [], usage: { prompt_tokens: 120, completion_tokens: 30 } },
+    { choices: [], usage: { prompt_tokens: 120, prompt_tokens_details: { cached_tokens: 64 }, completion_tokens: 30 } },
     '[DONE]',
   ];
 
@@ -314,7 +353,7 @@ describe('OpenAiChatClient', () => {
       { type: 'text-delta', delta: 'Sure' },
       { type: 'text-delta', delta: ', adding.' },
       { type: 'tool-call', call: { id: 'call_a', name: 'create_place', args: { name: 'Nijo' } } },
-      { type: 'usage', inputTokens: 120, outputTokens: 30 },
+      { type: 'usage', inputTokens: 120, cachedInputTokens: 64, outputTokens: 30 },
       { type: 'finish', reason: 'tool-calls' },
     ]);
   });
@@ -392,7 +431,10 @@ describe('OpenAiResponsesClient', () => {
     { type: 'response.output_text.delta', delta: 'Adding ' },
     { type: 'response.output_text.delta', delta: 'it.' },
     { type: 'response.output_item.done', item: CALL },
-    { type: 'response.completed', response: { usage: { input_tokens: 500, output_tokens: 60 } } },
+    {
+      type: 'response.completed',
+      response: { usage: { input_tokens: 500, input_tokens_details: { cached_tokens: 400 }, output_tokens: 60 } },
+    },
   ];
   const tokens = (...values: string[]) => vi.fn(async (_rejected?: string) => values.shift() ?? 'none');
 
@@ -423,7 +465,7 @@ describe('OpenAiResponsesClient', () => {
       { type: 'text-delta', delta: 'Adding ' },
       { type: 'text-delta', delta: 'it.' },
       { type: 'tool-call', call: { id: 'call_x', name: 'create_place', args: { name: 'Ryoan-ji' } } },
-      { type: 'usage', inputTokens: 500, outputTokens: 60 },
+      { type: 'usage', inputTokens: 500, cachedInputTokens: 400, outputTokens: 60 },
       { type: 'provider-state', state: { adapter: 'openai-responses', items: [REASONING, CALL] } },
       { type: 'finish', reason: 'tool-calls' },
     ]);

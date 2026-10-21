@@ -158,12 +158,12 @@ describe('runAgentLoop', () => {
       [
         { type: 'text-delta', delta: 'Hello ' },
         { type: 'text-delta', delta: 'there' },
-        { type: 'usage', inputTokens: 10, outputTokens: 3 },
+        { type: 'usage', inputTokens: 10, cachedInputTokens: 0, outputTokens: 3 },
         { type: 'finish', reason: 'stop' },
       ],
     ]);
     const outcome = await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal);
-    expect(outcome).toEqual({ end: 'stop', code: null, inputTokens: 10, outputTokens: 3 });
+    expect(outcome).toEqual({ end: 'stop', code: null, inputTokens: 10, cachedInputTokens: 0, outputTokens: 3 });
     expect(t.memory.saved).toEqual([
       { rowId: 100, step: { parts: [{ type: 'text', text: 'Hello there' }], providerState: null }, status: 'complete' },
     ]);
@@ -184,16 +184,16 @@ describe('runAgentLoop', () => {
       [
         { type: 'tool-call', call: { id: 'toolu_1', name: 'list_places', args: { tripId: 1 } } },
         { type: 'provider-state', state: { adapter: 'openai-responses', items: [{ type: 'function_call' }] } },
-        { type: 'usage', inputTokens: 5, outputTokens: 1 },
+        { type: 'usage', inputTokens: 5, cachedInputTokens: 0, outputTokens: 1 },
         { type: 'finish', reason: 'tool-calls' },
       ],
       [
         { type: 'text-delta', delta: 'Found it' },
-        { type: 'usage', inputTokens: 7, outputTokens: 2 },
+        { type: 'usage', inputTokens: 7, cachedInputTokens: 5, outputTokens: 2 },
       ],
     ]);
     const outcome = await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal);
-    expect(outcome).toEqual({ end: 'stop', code: null, inputTokens: 12, outputTokens: 3 });
+    expect(outcome).toEqual({ end: 'stop', code: null, inputTokens: 12, cachedInputTokens: 5, outputTokens: 3 });
     expect(t.tools.call).toHaveBeenCalledWith('list_places', {});
     const second = t.requests[1].messages;
     expect(second[1]).toEqual({
