@@ -1,14 +1,14 @@
 import { Anchor, Bike, Footprints, Loader2, Map as MapIcon, MapPinPlus, Mountain, MountainSnow, Rotate3d, Satellite } from 'lucide-react'
 import type { PaddleMapLayer } from '../Tours/paddle/paddleMapLayer'
 import { PisteKeyButton } from '../Tours/winter/PisteKey'
-import type { ComponentType, CSSProperties } from 'react'
+import type { ComponentType } from 'react'
 import { useTranslation } from '../../i18n'
 import { FerrataLineIcon } from '../Ferratas/FerrataGlyph'
 import type { FerrataMapLayer } from '../Ferratas/useFerrataMapLayer'
 import type { FerrataStatus } from '../Ferratas/useTripFerratas'
 import { fs } from '../shared/DialogShell'
 import { Tooltip } from '../shared/Tooltip'
-import { MAP_CONTROL_SHADOW } from './mapControlShadow'
+import { FROSTED_SHELL, segmentStyle } from './mapControlShadow'
 import type { ToggleableRasterOverlay } from './mapRasterOverlay'
 import type { BaseMapHealth, TourRasterBase } from './tourRasterBases'
 
@@ -23,14 +23,6 @@ export interface TourLayerOffer {
   paddle?: PaddleMapLayer
   /** MAP-01, BIK-06: whether the map on terms shown (OpenHikingMap, CyclOSM) answers; the maps report into it. */
   baseHealth?: BaseMapHealth
-}
-
-const FROSTED_SHELL = {
-  display: 'inline-flex', alignItems: 'center', padding: 4, borderRadius: 999, pointerEvents: 'auto' as const,
-  background: 'var(--sidebar-bg)',
-  backdropFilter: 'blur(20px) saturate(180%)',
-  WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-  boxShadow: MAP_CONTROL_SHADOW,
 }
 
 // Where the switcher sits and how much room it takes, so a control placed beside it
@@ -91,14 +83,6 @@ const TOUR_LAYERS = [
   { id: 'cycle', labelKey: 'map.baseLayer.cycle', Icon: Bike },
   { id: 'satellite', labelKey: 'map.baseLayer.satellite', Icon: Satellite },
 ] as const
-
-/** A pill segment of the Tours control; `filled` lets its class paint the background. */
-const segmentStyle = (filled: boolean): CSSProperties => ({
-  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 5,
-  minHeight: 34, borderRadius: 999, border: 'none', cursor: 'pointer',
-  background: filled ? undefined : 'transparent', padding: '0 10px',
-  fontSize: 'calc(11px * var(--fs-scale-caption, 1))', fontWeight: 600,
-})
 
 type Translate = (key: string, params?: Record<string, string | number>) => string
 

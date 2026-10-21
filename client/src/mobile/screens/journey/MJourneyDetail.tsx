@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { ChevronLeft, MapPin, Grid3x3, MoreHorizontal, Play, Image, Camera, EyeOff, Settings2, X, Route, ListChecks } from 'lucide-react'
-import JourneyMap from '../../../components/Journey/JourneyMapAuto'
+import JourneyLayeredMap from '../../../components/Journey/JourneyLayeredMap'
 import PhotoLightbox from '../../../components/Journey/PhotoLightbox'
 import ContributorInviteDialog from '../../../components/Journey/ContributorInviteDialog'
 import ConfirmDialog from '../../../components/shared/ConfirmDialog'
@@ -51,7 +51,7 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
     showInvite, setShowInvite,
     showSettings, setShowSettings,
     hideSkeletons, setHideSkeletons,
-    sidebarMapItems, tracks, recordings, canTakeOverRecording, dayImport, dayImportDates, dawarichByDate, recordingPrep,
+    sidebarMapItems, tracks, mapLayers, entryTitleOf, mapPhotos, openMapPhotos, recordings, canTakeOverRecording, dayImport, dayImportDates, dawarichByDate, recordingPrep,
     dismissSuggestion, restoreSuggestions, openAtEntryId,
     loadJourney, updateEntry, deleteEntry, reorderEntries, uploadPhotos,
     addPickedProviderPhotos, addEntryProviderPhotos,
@@ -301,11 +301,18 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
     <div className="relative h-dvh overflow-hidden">
       {/* Integrated map — always mounted, the gallery overlays it */}
       <div className="absolute inset-0 z-0">
-        <JourneyMap
+        <JourneyLayeredMap
           ref={mapRef}
+          layers={mapLayers}
+          compactControls
+          controlsTop="calc(var(--m-safe-top, 12px) + 50px)"
+          onOpenEntry={handleMarkerClick}
+          entryTitleOf={entryTitleOf}
           checkins={[]}
           entries={sidebarMapItems}
           tracks={tracks}
+          photos={mapPhotos}
+          onPhotoClick={openMapPhotos}
           height={9999}
           dark={dark}
           activeMarkerId={entries[activeIndex] ? String(entries[activeIndex].id) : null}

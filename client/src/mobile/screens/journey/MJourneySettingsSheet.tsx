@@ -7,7 +7,7 @@ import ConfirmDialog from '../../../components/shared/ConfirmDialog'
 import { useTranslation } from '../../../i18n'
 import type { JourneyDetail, JourneyTripAccess } from '../../../store/journeyStore'
 import { useJourneySettings, useJourneyTripLinking } from '../../../components/Journey/useJourneySettings'
-import { useJourneyShareLink } from '../../../components/Journey/useJourneyShareLink'
+import { SHARE_MAP_EXTRAS, useJourneyShareLink } from '../../../components/Journey/useJourneyShareLink'
 import type { JourneyRecordingPrepState } from '../../../components/Journey/useJourneyRecordingPrep'
 import { pickGradient } from '../../../pages/journeyDetail/JourneyDetailPage.helpers'
 import { journeyCoverSrc } from './mobileJourneyMeta'
@@ -303,6 +303,23 @@ export default function MJourneySettingsSheet({
                 <Icon size={16} strokeWidth={2} className="flex-none text-m-muted" />
                 <span className="min-w-0 flex-1 text-[0.84375rem] font-bold">{label}</span>
                 <MToggle checked={shareLink[key]} onChange={() => toggleSharePerm(key)} ariaLabel={label} />
+              </div>
+            ))}
+            {/* What the shared map shows besides the entries (JRN-04), only while the map is shared. */}
+            {SHARE_MAP_EXTRAS.map(({ key, labelKey, hintKey }) => (
+              <div key={key} className={`flex items-center gap-[11px] py-[8px] ps-[29px] pe-[2px] ${shareLink.share_map ? '' : 'opacity-50'}`}>
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="text-body font-bold">{t(labelKey)}</span>
+                  <span className="font-geist text-caption text-m-muted">
+                    {shareLink.share_map ? t(hintKey) : t('journey.share.needsMap')}
+                  </span>
+                </span>
+                <MToggle
+                  checked={!!shareLink.share_map && !!shareLink[key]}
+                  onChange={() => { void toggleSharePerm(key) }}
+                  ariaLabel={t(labelKey)}
+                  disabled={!shareLink.share_map}
+                />
               </div>
             ))}
             <button

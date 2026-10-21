@@ -1,4 +1,4 @@
-// FE-JRN-DETWIRE-001 to FE-JRN-DETWIRE-046
+// FE-JRN-DETWIRE-001 to FE-JRN-DETWIRE-047
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor, within } from '../../tests/helpers/render';
 import { journeyApi } from '../api/client';
@@ -660,5 +660,23 @@ describe('JourneyDetailPage wiring', () => {
 
     expect(screen.getByTestId('day-import-dialog')).toBeInTheDocument();
     expect(mocks.captured.dayImport.prep).toBe(recordingPrep);
+  });
+
+  it('FE-JRN-DETWIRE-047: the sidebar map draws the layers of the hook, its switches above it (JRN-04)', () => {
+    const mapLayers = {
+      visibility: { plan: true, recorded: false, entries: true, photos: true },
+      toggle: vi.fn(),
+      controls: [{ layer: 'plan', count: 3, state: 'ready' }],
+      tracks: [],
+      marks: [],
+      plannedEntryIds: new Set(['1']),
+    };
+    setup({ mapLayers, entryTitleOf: () => null });
+
+    expect(mocks.captured.map.layerVisibility).toBe(mapLayers.visibility);
+    expect(mocks.captured.map.plannedEntryIds).toBe(mapLayers.plannedEntryIds);
+    expect(mocks.captured.map.tracks).toBe(mapLayers.tracks);
+    fireEvent.click(screen.getByTestId('journey-map-layer-plan'));
+    expect(mapLayers.toggle).toHaveBeenCalledWith('plan');
   });
 });

@@ -1,3 +1,5 @@
+import { clusterPoints } from './journeyMapMarks'
+
 /** A photo that knows where it was taken (#1614). */
 export interface MapPhoto {
   id: string
@@ -22,21 +24,9 @@ export function clusterPhotos(
   photos: MapPhoto[],
   project: (lat: number, lng: number) => { x: number; y: number },
 ): { lat: number; lng: number; members: MapPhoto[] }[] {
-  const buckets = new Map<string, MapPhoto[]>()
-  for (const photo of photos) {
-    const pt = project(photo.lat, photo.lng)
-    const key = `${Math.round(pt.x / PHOTO_CLUSTER_PX)}:${Math.round(pt.y / PHOTO_CLUSTER_PX)}`
-    const list = buckets.get(key)
-    if (list) list.push(photo)
-    else buckets.set(key, [photo])
-  }
-  return [...buckets.values()].map(members => ({
-    // Anchor on the first member rather than the centroid: the thumbnail shown is
-    // that photo's, so the pin should point where that picture was taken.
-    lat: members[0].lat,
-    lng: members[0].lng,
-    members,
-  }))
+  // Anchored on the first member rather than the centroid: the thumbnail shown
+  // is that photo's, so the pin should point where that picture was taken.
+  return clusterPoints(photos, project, PHOTO_CLUSTER_PX)
 }
 
 export function photoMarkerHtml(thumbUrl: string, count: number): string {

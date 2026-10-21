@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { DAY_COLORS } from '../components/Journey/dayColors';
 import JournalBody from '../components/Journey/JournalBody';
-import JourneyMap from '../components/Journey/JourneyMap';
+import JourneyLayeredMap from '../components/Journey/JourneyLayeredMap';
 import MobileEntryView from '../components/Journey/MobileEntryView';
 import MobileMapTimeline from '../components/Journey/MobileMapTimeline';
 import PhotoLightbox from '../components/Journey/PhotoLightbox';
@@ -124,6 +124,8 @@ export default function JourneyPublicPage() {
     allPhotos,
     stopNumberById,
     mapPhotos,
+    mapLayers,
+    entryTitleOf,
     desktopTwoColumn,
   } = useJourneyPublic();
 
@@ -622,8 +624,12 @@ export default function JourneyPublicPage() {
             }}
           >
             <div className="h-full overflow-hidden rounded-2xl border border-zinc-200 shadow-sm dark:border-zinc-800">
-              <JourneyMap
+              <JourneyLayeredMap
                 ref={mapRef}
+                engine="leaflet"
+                layers={mapLayers}
+                onOpenEntry={handleMarkerClick}
+                entryTitleOf={entryTitleOf}
                 checkins={[]}
                 entries={sidebarMapItems as any}
                 photos={photoLayer}
@@ -674,6 +680,10 @@ export default function JourneyPublicPage() {
               publicPhotoUrl={(photoId) => `/api/public/journey/${token}/photos/${photoId}/thumbnail`}
               carouselBottom="calc(env(safe-area-inset-bottom, 16px) + 8px)"
               cartoApiKey={cartoApiKey}
+              layers={mapLayers}
+              entryTitleOf={entryTitleOf}
+              photos={photoLayer}
+              controlsTop={availableViews.length > 1 ? 'calc(env(safe-area-inset-top, 0px) + 56px)' : undefined}
               showMood={journey.show_mood !== 0}
               showWeather={journey.show_weather !== 0}
             />
@@ -688,7 +698,17 @@ export default function JourneyPublicPage() {
           {/* Map (standalone tab — only in single-column mode) */}
           {view === 'map' && perms.share_map && (
             <div className="overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-700">
-              <JourneyMap checkins={[]} entries={sidebarMapItems as any} photos={photoLayer} height={500} cartoApiKey={cartoApiKey} />
+              <JourneyLayeredMap
+                engine="leaflet"
+                layers={mapLayers}
+                onOpenEntry={handleMarkerClick}
+                entryTitleOf={entryTitleOf}
+                checkins={[]}
+                entries={sidebarMapItems as any}
+                photos={photoLayer}
+                height={500}
+                cartoApiKey={cartoApiKey}
+              />
             </div>
           )}
         </div>

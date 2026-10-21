@@ -21,6 +21,7 @@ import { useJourneyRecordingPrep } from '../../components/Journey/useJourneyReco
 import { useAddonStore } from '../../store/addonStore'
 import { useJourneyDetailDayImport } from './useJourneyDetailDayImport'
 import { useJourneyDetailRecordings } from './useJourneyDetailRecordings'
+import { useJourneyMapLayers } from '../../components/Journey/useJourneyMapLayers'
 import { useProviderPhotoAdds } from './useProviderPhotoAdds'
 
 /** Stable identity for "this journey draws no trip tracks" (#2194). */
@@ -102,36 +103,13 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
     if (id) loadJourney(Number(id)).catch(() => {})
   }, [id])
 
-  // GPX tracks of the trips behind this journey (#1260), drawn only when the
-  // journey asks for them (#2194). Loaded separately from the journey itself: a
-  // journey without tracks is the common case, and a failed lookup should cost
-  // the map its lines, not the whole page.
-  //
-  // The switch gates the REQUEST, not just the rendering: the endpoint ships
-  // full unthinned geometry, which for a trip carrying a season of recorded
-  // drives is megabytes fetched on every journey open for a map nobody asked
-  // for. It stays untouched on the server so TREK Studio, which freezes the
-  // same endpoint's output into a saved book, keeps the set it laid out with.
-  const [tracks, setTracks] = useState<JourneyTrack[]>(NO_TRACKS)
-  // Gate on the journey the route actually names: loadJourney leaves the previous
-  // `current` in place while the next one loads, so reading the flag unguarded
-  // would fetch the tracks of journey A under the id of journey B — the exact
-  // megabyte-sized request the switch exists to avoid.
+  // The GPX tracks of the trips behind this journey (#1260) come with the map's
+  // plan layer now (JRN-04), and only while the journey asks for them (#2194):
+  // the server reads no geometry while the switch is off. Gate on the journey
+  // the route actually names: loadJourney leaves the previous `current` in
+  // place while the next one loads.
   const journeyLoaded = current?.id === Number(id)
   const showTripTracks = journeyLoaded && !!current?.show_trip_tracks
-  useEffect(() => {
-    if (!id || !showTripTracks) {
-      // A stable empty array: a fresh literal here would be a new reference on
-      // every toggle and re-render the map for nothing.
-      setTracks(NO_TRACKS)
-      return
-    }
-    let cancelled = false
-    journeyApi.listTracks(Number(id))
-      .then(res => { if (!cancelled) setTracks(res.tracks ?? NO_TRACKS) })
-      .catch(() => { if (!cancelled) setTracks(NO_TRACKS) })
-    return () => { cancelled = true }
-  }, [id, showTripTracks])
 
   useEffect(() => {
     if (current?.hide_skeletons !== undefined) setHideSkeletons(current.hide_skeletons)
@@ -554,8 +532,34 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
     canEdit: canEditEntries,
     dawarichStatus: dawarich.status,
     sidebarMapItems,
-    tripTracks: tracks,
+    tripTracks: NO_TRACKS,
     liveTracks: dawarichTrail.tracks,
+  })
+
+  // The map's layers (JRN-04): the plan of the linked trips, what was recorded,
+  // the entries with the stays of their day reports, the photos. Read again
+  // when an entry comes, goes or changes the place it came from, and when a
+  // trip is linked or the track switch flips.
+  const entryIdsOnMap = useMemo(() => new Set(sidebarMapItems.map(m => m.id)), [sidebarMapItems])
+  const entryById = useMemo(() => new Map((current?.entries ?? []).map(e => [e.id, e])), [current?.entries])
+  const dateOfEntry = useCallback((entryId: number) => entryById.get(entryId)?.entry_date ?? null, [entryById])
+  const entryTitleOf = useCallback((entryId: number) => {
+    const entry = entryById.get(entryId)
+    return entry ? entry.title || entry.location_name || null : null
+  }, [entryById])
+  const mapRefreshKey = useMemo(() => [
+    (current?.entries ?? []).filter(e => e.type !== 'skeleton').map(e => `${e.id}:${e.source_place_id ?? ''}`).join(','),
+    (current?.trips ?? []).map(trip => trip.trip_id).join(','),
+    showTripTracks ? 'tracks' : '',
+  ].join('|'), [current?.entries, current?.trips, showTripTracks])
+  const mapLayers = useJourneyMapLayers({
+    source: journeyLoaded && current ? { journeyId: current.id } : null,
+    refreshKey: mapRefreshKey,
+    entryIdsOnMap,
+    photoCount: mapPhotos.length,
+    recordedTracks: mapTracks,
+    colorOfDay,
+    dateOfEntry,
   })
 
   // The drafts a day's take-over wrote reach the timeline, and its stays leave the pending list.
@@ -628,7 +632,7 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
     mapRef, fullMapRef, galleryUploadRef, galleryProviders, setGalleryProviders, galleryBrowseRef,
     galleryUploadProgress, setGalleryUploadProgress,
     activeLocationId, handleMarkerClick, handleLocationClick,
-    mapEntries, sidebarMapItems, tripDates, isMobile, tracks: mapTracks, dawarichTrail,
+    mapEntries, sidebarMapItems, tripDates, isMobile, tracks: mapTracks, dawarichTrail, mapLayers, entryTitleOf,
     recordings, canTakeOverRecording, recordingNeedsConnection, dayImport, dayImportDates, recordingPrep,
     mapPhotos, openMapPhotos,
     feedEdge, scrollFeedTo,

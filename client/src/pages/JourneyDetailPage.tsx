@@ -1,7 +1,7 @@
 import { useAuthStore } from '../store/authStore'
 import { journeyApi } from '../api/client'
 import Navbar from '../components/Layout/Navbar'
-import JourneyMap from '../components/Journey/JourneyMapAuto'
+import JourneyLayeredMap from '../components/Journey/JourneyLayeredMap'
 import { DAY_COLORS } from '../components/Journey/dayColors'
 import PhotoLightbox from '../components/Journey/PhotoLightbox'
 import ContributorInviteDialog from '../components/Journey/ContributorInviteDialog'
@@ -68,7 +68,7 @@ export function JourneyDetailPageDesktop({ journeyId, embedded = false }: Journe
     mapRef, fullMapRef, galleryUploadRef, galleryProviders, setGalleryProviders, galleryBrowseRef,
     galleryUploadProgress, setGalleryUploadProgress,
     activeLocationId, handleMarkerClick, handleLocationClick,
-    mapEntries, sidebarMapItems, tripDates, isMobile, tracks, mapPhotos, openMapPhotos,
+    mapEntries, sidebarMapItems, tripDates, isMobile, tracks, mapPhotos, openMapPhotos, mapLayers, entryTitleOf,
     recordings, canTakeOverRecording, recordingNeedsConnection, dayImport, recordingPrep,
     feedEdge, scrollFeedTo,
     loadJourney, updateEntry, deleteEntry, reorderEntries, uploadPhotos, deletePhoto,
@@ -189,6 +189,10 @@ export function JourneyDetailPageDesktop({ journeyId, embedded = false }: Journe
           entries={timelineEntries}
           mapEntries={sidebarMapItems}
           tracks={tracks}
+          layers={mapLayers}
+          entryTitleOf={entryTitleOf}
+          photos={mapPhotos}
+          onPhotoClick={openMapPhotos}
           dark={document.documentElement.classList.contains('dark')}
           readOnly={!canEditEntries}
           onEntryClick={(entry) => setViewingEntry(entry)}
@@ -713,8 +717,11 @@ export function JourneyDetailPageDesktop({ journeyId, embedded = false }: Journe
           {!isMobile && (
             <aside className="w-[44%] max-w-[820px] min-w-[420px] pt-6 pe-4 pb-4 ps-0">
               <div className="h-full rounded-[22px] overflow-hidden shadow-sm" style={{ border: '1px solid var(--vg-line)' }}>
-                <JourneyMap
+                <JourneyLayeredMap
                   ref={mapRef}
+                  layers={mapLayers}
+                  onOpenEntry={handleMarkerClick}
+                  entryTitleOf={entryTitleOf}
                   checkins={[]}
                   entries={sidebarMapItems as any}
                   tracks={tracks}

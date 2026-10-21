@@ -10,9 +10,20 @@ export interface JourneyShareLink {
   share_timeline: boolean;
   share_gallery: boolean;
   share_map: boolean;
+  /** JRN-04: the trips' plan and the recorded days on the shared map; off unless switched on. */
+  share_plan?: boolean;
+  share_recordings?: boolean;
 }
 
-export type JourneySharePermission = 'share_timeline' | 'share_gallery' | 'share_map';
+/** What the shared map can show besides the entries, each only while the map itself is shared. */
+export type JourneyShareMapExtra = 'share_plan' | 'share_recordings';
+export type JourneySharePermission = 'share_timeline' | 'share_gallery' | 'share_map' | JourneyShareMapExtra;
+
+/** The map extras the share switches offer, with what each puts on the shared map. */
+export const SHARE_MAP_EXTRAS: { key: JourneyShareMapExtra; labelKey: string; hintKey: string }[] = [
+  { key: 'share_plan', labelKey: 'journey.share.plan', hintKey: 'journey.share.planHint' },
+  { key: 'share_recordings', labelKey: 'journey.share.recordings', hintKey: 'journey.share.recordingsHint' },
+];
 
 /** The public address of a journey share token. */
 export function journeyShareUrl(link: JourneyShareLink | null, origin: string): string {
@@ -71,6 +82,8 @@ export function useJourneyShareLink(journeyId: number) {
         share_timeline: updated.share_timeline,
         share_gallery: updated.share_gallery,
         share_map: updated.share_map,
+        // The map extras go only when switched: a link read before they existed keeps them off.
+        ...(key === 'share_plan' || key === 'share_recordings' ? { [key]: !!updated[key] } : {}),
       });
     } catch {
       setLink(previous);

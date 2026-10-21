@@ -28,7 +28,7 @@ export interface JourneyShareTokenRow {
 }
 
 /** Every flag of a link, as stored (0/1). */
-export interface JourneyShareFlags {
+interface JourneyShareFlags {
   share_timeline: number;
   share_gallery: number;
   share_map: number;

@@ -1,4 +1,4 @@
-// FE-JRN-SHARE-001 to FE-JRN-SHARE-011
+// FE-JRN-SHARE-001 to FE-JRN-SHARE-014
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { http, HttpResponse, delay } from 'msw'
@@ -213,5 +213,36 @@ describe('JourneyShareSection', () => {
     expect(await screen.findByRole('button', { name: 'Copied!' })).toBeInTheDocument()
     // The temporary textarea is removed again.
     expect(document.querySelector('textarea')).toBeNull()
+  })
+
+  it('FE-JRN-SHARE-013: the trip plan and the recorded routes switch on under the map, each on its own (JRN-04)', async () => {
+    const bodies: Record<string, unknown>[] = []
+    server.use(
+      http.get('/api/journeys/7/share-link', () => HttpResponse.json({ link: existingLink() })),
+      http.post('/api/journeys/7/share-link', async ({ request }) => {
+        bodies.push(await request.json() as Record<string, unknown>)
+        return HttpResponse.json({ token: 'tok-abc' })
+      }),
+    )
+    render(<JourneyShareSection journeyId={JOURNEY_ID} />)
+
+    const plan = await screen.findByRole('button', { name: /Trip plan/ })
+    expect(plan).toHaveAttribute('aria-pressed', 'false')
+    act(() => { plan.click() })
+
+    await waitFor(() => expect(bodies).toHaveLength(1))
+    expect(bodies[0]).toMatchObject({ share_plan: true })
+    expect(bodies[0]).not.toHaveProperty('share_recordings')
+    expect(screen.getByRole('button', { name: /Trip plan/ })).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('FE-JRN-SHARE-014: without the map shared the map extras are dimmed and cannot be switched', async () => {
+    server.use(http.get('/api/journeys/7/share-link', () => HttpResponse.json({ link: existingLink({ share_map: false, share_plan: true }) })))
+    render(<JourneyShareSection journeyId={JOURNEY_ID} />)
+
+    const plan = await screen.findByRole('button', { name: /Trip plan/ })
+    expect(plan).toBeDisabled()
+    expect(plan).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: /Recorded routes/ })).toBeDisabled()
   })
 })

@@ -68,6 +68,20 @@ function serveTracks(journeyId: number, tracks: JourneyTrack[] = []) {
   return asked;
 }
 
+/** Serves the map's layers of a journey, counting the reads. */
+function serveLayers(journeyId: number, routes: JourneyTrack[] = []) {
+  const asked = vi.fn();
+  server.use(http.get(`/api/journeys/${journeyId}/map-layers`, () => {
+    asked();
+    return HttpResponse.json({
+      places: { status: 'ok', items: [] },
+      routes: { status: 'ok', items: routes },
+      stays: { status: 'ok', items: [] },
+    });
+  }));
+  return asked;
+}
+
 // ── Harness ──────────────────────────────────────────────────────────────────
 
 type HookState = ReturnType<typeof useJourneyDetail>;
@@ -444,37 +458,40 @@ describe('useJourneyDetail', () => {
     expect(scrollTo).toHaveBeenLastCalledWith({ top: 9000, behavior: 'smooth' });
   });
 
-  // ── Trip GPX tracks (#2194) ────────────────────────────────────────────────
-  // The switch gates the request, not the drawing: the endpoint ships unthinned
-  // geometry, megabytes of it for a trip with a season of recorded drives.
+  // ── Trip GPX tracks (#2194) and the map's layers (JRN-04) ─────────────────
+  // The GPX tracks come with the plan layer now, read through the linked trips;
+  // the frozen /tracks answer stays Studio's. The server reads no geometry while
+  // the journey's switch is off, and the read follows the journey the route names.
 
-  it('FE-JRN-DETHOOK-026: a journey with the switch off never asks for the geometry', async () => {
-    const asked = serveTracks(7, [buildTrack()]);
-    setup();
-    await waitFor(() => expect(latest.current).not.toBeNull());
-    await new Promise(r => setTimeout(r, 20));
-
-    expect(asked).not.toHaveBeenCalled();
-    expect(latest.tracks).toEqual([]);
-  });
-
-  it('FE-JRN-DETHOOK-027: with the switch on the tracks are fetched and handed on', async () => {
-    // The column is INTEGER, so what arrives over the wire is 1, not true.
+  it('FE-JRN-DETHOOK-026: the map never asks the frozen tracks endpoint; its routes come with its layers', async () => {
     serveJourney(buildDetail({ show_trip_tracks: 1 }));
     const asked = serveTracks(7, [buildTrack()]);
+    const layers = serveLayers(7, [buildTrack({ kind: 'trip_gpx' })]);
     setup();
 
-    await waitFor(() => expect(latest.tracks).toHaveLength(1));
-    expect(latest.tracks[0].name).toBe('Ridge walk');
-    expect(asked).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(latest.mapLayers.tracks).toHaveLength(1));
+    expect(latest.mapLayers.tracks[0].name).toBe('Ridge walk');
+    expect(layers).toHaveBeenCalledTimes(1);
+    expect(asked).not.toHaveBeenCalled();
   });
 
-  it('FE-JRN-DETHOOK-028: the geometry follows the route id, not the journey still on screen', async () => {
-    // loadJourney leaves the previous journey in place while the next one loads, so an
-    // unguarded read of the flag would fetch journey B's tracks off journey A's setting.
+  it('FE-JRN-DETHOOK-027: flipping the track switch reads the layers again', async () => {
+    serveJourney(buildDetail({ show_trip_tracks: 0 }));
+    const layers = serveLayers(7);
+    setup();
+    await waitFor(() => expect(layers).toHaveBeenCalledTimes(1));
+
+    serveJourney(buildDetail({ show_trip_tracks: 1 }));
+    await act(async () => { await useJourneyStore.getState().loadJourney(7) });
+    await waitFor(() => expect(layers).toHaveBeenCalledTimes(2));
+  });
+
+  it('FE-JRN-DETHOOK-028: the layers follow the route id, not the journey still on screen', async () => {
+    // loadJourney leaves the previous journey in place while the next one loads.
     routeParams = { id: '8' };
     useJourneyStore.setState({ current: buildDetail({ show_trip_tracks: 1 }) });
-    const asked = serveTracks(8, [buildTrack()]);
+    const seven = serveLayers(7);
+    const eight = serveLayers(8);
     server.use(http.get('/api/journeys/8', async () => {
       await delay(20);
       return HttpResponse.json(buildDetail({ id: 8, title: 'Norway 2027' }));
@@ -482,18 +499,18 @@ describe('useJourneyDetail', () => {
     setup();
 
     await waitFor(() => expect(latest.current?.id).toBe(8));
-    expect(asked).not.toHaveBeenCalled();
-    expect(latest.tracks).toEqual([]);
+    await waitFor(() => expect(eight).toHaveBeenCalledTimes(1));
+    expect(seven).not.toHaveBeenCalled();
   });
 
-  it('FE-JRN-DETHOOK-029: a failed geometry lookup costs the map its lines, not the page', async () => {
+  it('FE-JRN-DETHOOK-029: a failed layers read costs the map its plan, not the page', async () => {
     serveJourney(buildDetail({ show_trip_tracks: 1 }));
-    server.use(http.get('/api/journeys/7/tracks', () => new HttpResponse(null, { status: 500 })));
+    server.use(http.get('/api/journeys/7/map-layers', () => new HttpResponse(null, { status: 500 })));
     setup();
 
-    await waitFor(() => expect(latest.current?.title).toBe('Japan 2026'));
-    await new Promise(r => setTimeout(r, 20));
-    expect(latest.tracks).toEqual([]);
+    await waitFor(() => expect(latest.mapLayers.controls.find(c => c.layer === 'plan')?.state).toBe('unavailable'));
+    expect(latest.current?.title).toBe('Japan 2026');
+    expect(latest.mapLayers.tracks).toEqual([]);
     expect(addToast).not.toHaveBeenCalled();
   });
 });

@@ -9,7 +9,7 @@
     "max-params": 35,
     "trek/store-without-selector": 69,
     "react-hooks/refs": 558,
-    "react-hooks/set-state-in-effect": 197,
+    "react-hooks/set-state-in-effect": 196,
     "@typescript-eslint/no-floating-promises": 167,
     "react-hooks/exhaustive-deps": 121,
     "@typescript-eslint/no-unused-vars": 129,

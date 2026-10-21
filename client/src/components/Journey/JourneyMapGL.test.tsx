@@ -1,4 +1,4 @@
-// FE-COMP-JMAPGL-001 to FE-COMP-JMAPGL-038, FE-COMP-JMAPGL-2453
+// FE-COMP-JMAPGL-001 to FE-COMP-JMAPGL-040, FE-COMP-JMAPGL-2453
 
 type Spy = ReturnType<typeof vi.fn>
 
@@ -48,6 +48,7 @@ const gl = vi.hoisted(() => {
     getSource: vi.fn((): unknown => null),
     setTerrain: vi.fn(),
     setConfigProperty: vi.fn(),
+    setLayoutProperty: vi.fn(),
   }
   const markers: MarkerStub[] = []
   const popups: PopupStub[] = []
@@ -685,5 +686,39 @@ describe('JourneyMapGL', () => {
   it('FE-COMP-JMAPGL-036: the token placeholder honours the height prop', () => {
     const { container } = render(<JourneyMapGL checkins={[]} entries={entries} height={9999} />)
     expect((container.firstChild as HTMLElement).style.height).toBe('100%')
+  })
+
+  it('FE-COMP-JMAPGL-039: the plan has its own casing, and a layer switched off is added hidden (JRN-04)', () => {
+    withToken()
+    render(
+      <JourneyMapGL
+        checkins={[]}
+        entries={entries}
+        tracks={[{ place_id: 1, trip_id: 1, name: 'Ridge', color: '#aa0000', points: [[47, 11], [47.1, 11.1]] }]}
+        layerVisibility={{ plan: false, recorded: true, entries: false }}
+      />,
+    )
+
+    const layer = (id: string) => vi.mocked(gl.map.addLayer).mock.calls.map(c => c[0] as { id: string; layout: Record<string, unknown>; filter?: unknown }).find(l => l.id === id)
+    expect(layer('journey-tracks-planned-casing')?.filter).toEqual(['==', ['get', 'planned'], true])
+    expect(layer('journey-tracks-planned-casing')?.layout.visibility).toBe('none')
+    expect(layer('journey-tracks-planned')?.layout.visibility).toBe('none')
+    expect(layer('journey-tracks-line')?.layout.visibility).toBeUndefined()
+    expect(layer('journey-route-line')?.layout.visibility).toBe('none')
+    expect(gl.markers.every(m => m.element.style.display === 'none')).toBe(true)
+  })
+
+  it('FE-COMP-JMAPGL-040: a switch shows and hides its layers in place, and the check follows the plan', () => {
+    withToken()
+    const shown = { plan: true, recorded: true, entries: true }
+    const { rerender } = render(<JourneyMapGL checkins={[]} entries={entries} layerVisibility={shown} />)
+    expect(gl.markers[0].element.innerHTML).not.toContain('#16a34a')
+
+    rerender(<JourneyMapGL checkins={[]} entries={entries} layerVisibility={{ ...shown, recorded: false }} plannedEntryIds={new Set(['e1'])} />)
+    expect(gl.map.setLayoutProperty).toHaveBeenCalledWith('journey-tracks-line', 'visibility', 'none')
+    expect(gl.map.setLayoutProperty).toHaveBeenCalledWith('journey-tracks-casing', 'visibility', 'none')
+    expect(gl.map.setLayoutProperty).not.toHaveBeenCalledWith('journey-tracks-planned', 'visibility', expect.anything())
+    expect(gl.markers[0].element.innerHTML).toContain('#16a34a')
+    expect(mapboxgl.Map).toHaveBeenCalledTimes(1)
   })
 })

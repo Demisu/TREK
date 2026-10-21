@@ -1,4 +1,4 @@
-// FE-COMP-JOURNEYMAP-001 to FE-COMP-JOURNEYMAP-051
+// FE-COMP-JOURNEYMAP-001 to FE-COMP-JOURNEYMAP-054
 
 vi.mock('../../api/websocket', () => ({
   connect: vi.fn(),
@@ -823,4 +823,59 @@ describe('JourneyMap', () => {
       map.latLngToContainerPoint.mockImplementation(() => ({ x: 0, y: 0 }));
     }
   });
+
+  // JRN-04: the layer switches hide in place, and the plan's places and stays draw beside the entries.
+
+  it('FE-COMP-JOURNEYMAP-052: switching the entries off takes their pin off the map and back, without a rebuild', () => {
+    const marker = mockedMarkerWithRemove();
+    const entry = [entriesWithCoords[0]];
+    const shown = { plan: true, recorded: true, entries: true };
+    const { rerender } = render(<JourneyMap checkins={[]} entries={entry} layerVisibility={shown} />);
+    expect(marker.addTo).toHaveBeenCalledTimes(1);
+
+    rerender(<JourneyMap checkins={[]} entries={entry} layerVisibility={{ ...shown, entries: false }} />);
+    expect(marker.remove).toHaveBeenCalledTimes(1);
+    rerender(<JourneyMap checkins={[]} entries={entry} layerVisibility={shown} />);
+    expect(marker.addTo).toHaveBeenCalledTimes(2);
+    expect(L.map).toHaveBeenCalledTimes(1);
+  });
+
+  it('FE-COMP-JOURNEYMAP-053: a planned place is drawn as its hollow pin, and a click hands it up', () => {
+    const onMarksPick = vi.fn();
+    const mark = {
+      kind: 'plan' as const,
+      key: 'plan:4',
+      lat: 45.43,
+      lng: 12.33,
+      color: '#e11d48',
+      place: {
+        place_id: 4, trip_id: 2, trip_title: 'Venice', name: 'San Marco', lat: 45.43, lng: 12.33,
+        days: [], time: null, category_color: '#e11d48', category_icon: null, entry_id: null,
+      },
+    };
+    render(<JourneyMap checkins={[]} entries={[]} marks={[mark]} onMarksPick={onMarksPick} />);
+
+    const pins = vi.mocked(L.divIcon).mock.calls.map(c => String(c[0]?.html)).filter(h => h.includes('stroke-dasharray'));
+    expect(pins).toHaveLength(1);
+    expect(pins[0]).toContain('#e11d48');
+    const click = mockedMarker().on.mock.calls.filter((c: unknown[]) => c[0] === 'click').pop()?.[1] as () => void;
+    click();
+    expect(onMarksPick).toHaveBeenCalledWith([mark]);
+  });
+
+  it('FE-COMP-JOURNEYMAP-054: an entry pin whose place the plan had too carries the check', () => {
+    render(<JourneyMap checkins={[]} entries={entriesWithCoords} plannedEntryIds={new Set(['e2'])} />);
+    expect(divIconHtml(0)).not.toContain('#16a34a');
+    expect(divIconHtml(1)).toContain('#16a34a');
+  });
 });
+
+/** The shared marker spy with the `remove` a hidden layer is taken off by. */
+function mockedMarkerWithRemove(): { addTo: Mock; remove: Mock } {
+  L.marker([0, 0]);
+  const marker = mockedMarker() as unknown as { addTo: Mock; remove: Mock };
+  marker.remove = vi.fn();
+  vi.mocked(L.marker).mockClear();
+  marker.addTo.mockClear();
+  return marker;
+}

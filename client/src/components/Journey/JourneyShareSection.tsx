@@ -1,6 +1,48 @@
-import { Link, List, Grid, MapPin, Check } from 'lucide-react'
+import { Link, List, Grid, MapPin, Check, CalendarRange, Route } from 'lucide-react'
 import { useTranslation } from '../../i18n'
-import { useJourneyShareLink } from './useJourneyShareLink'
+import { fs } from '../shared/DialogShell'
+import { Tooltip } from '../shared/Tooltip'
+import { SHARE_MAP_EXTRAS, useJourneyShareLink, type JourneyShareLink, type JourneyShareMapExtra } from './useJourneyShareLink'
+
+const EXTRA_ICONS = { share_plan: CalendarRange, share_recordings: Route } as const
+
+/**
+ * What the shared map shows besides the entries (JRN-04): the trips' plan and
+ * the recorded days, each off until the owner switches it on, nested under the
+ * map and dimmed with the reason while the map is not shared.
+ */
+function ShareMapExtras({ link, onToggle }: { link: JourneyShareLink; onToggle: (key: JourneyShareMapExtra) => void }) {
+  const { t } = useTranslation()
+  const mapShared = !!link.share_map
+  return (
+    <div className="ms-5 flex flex-col gap-1.5 border-s border-edge ps-3">
+      {SHARE_MAP_EXTRAS.map(({ key, labelKey, hintKey }) => {
+        const Icon = EXTRA_ICONS[key]
+        const on = mapShared && !!link[key]
+        return (
+          <Tooltip key={key} label={mapShared ? '' : t('journey.share.needsMap')} placement="top">
+            <button
+              type="button"
+              aria-pressed={on}
+              disabled={!mapShared}
+              onClick={() => onToggle(key)}
+              className={`flex w-full items-start gap-2.5 rounded-xl border px-3 py-2 text-start transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                on ? 'border-accent bg-accent text-accent-text' : 'border-edge text-content-muted hover:border-content-faint'
+              }`}
+            >
+              <Icon size={13} className="mt-0.5 flex-none" />
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="font-medium" style={fs(12, 'body')}>{t(labelKey)}</span>
+                <span className={on ? 'text-accent-text opacity-80' : 'text-content-faint'} style={fs(11)}>{t(hintKey)}</span>
+              </span>
+              {on && <Check size={12} className="mt-0.5 flex-none" />}
+            </button>
+          </Tooltip>
+        )
+      })}
+    </div>
+  )
+}
 
 export default function JourneyShareSection({ journeyId }: { journeyId: number }) {
   const { t } = useTranslation()
@@ -61,6 +103,7 @@ export default function JourneyShareSection({ journeyId }: { journeyId: number }
                 {link[key] && <Check size={12} className="ms-auto" />}
               </button>
             ))}
+            <ShareMapExtras link={link} onToggle={key => void togglePerm(key)} />
           </div>
         </div>
       )}

@@ -1,6 +1,8 @@
 import { useRef, useEffect } from 'react'
 import { Plus } from 'lucide-react'
-import JourneyMap from './JourneyMap'
+import JourneyLayeredMap from './JourneyLayeredMap'
+import type { JourneyMapLayersView } from './useJourneyMapLayers'
+import type { MapPhoto } from './journeyPhotoLayer'
 import JourneyEntryCover from './JourneyEntryCover'
 import JourneyDayScrubber from './JourneyDayScrubber'
 import { dayColorOf } from './journeyCard'
@@ -35,6 +37,14 @@ interface Props {
   showWeather?: boolean
   /** Which entry to open on. Today's, when today is part of the journey (#2299). */
   initialEntryId?: string | null
+  /** The map's layers (JRN-04); a picked place or stay leads to its entry's card. */
+  layers?: JourneyMapLayersView | null
+  entryTitleOf?: (entryId: number) => string | null
+  /** Geotagged photos on the map, a tap opening them. */
+  photos?: MapPhoto[]
+  onPhotoClick?: (photoIds: string[]) => void
+  /** Where the layer switches sit, below a bar laid over the top of the map. */
+  controlsTop?: number | string
 }
 
 export default function MobileMapTimeline({
@@ -52,6 +62,11 @@ export default function MobileMapTimeline({
   showMood = true,
   showWeather = true,
   initialEntryId,
+  layers,
+  entryTitleOf,
+  photos,
+  onPhotoClick,
+  controlsTop,
 }: Props) {
   const {
     mapRef, carouselRef, cardRefs, activeIndex, setActiveIndex, scrubberDays,
@@ -96,12 +111,20 @@ export default function MobileMapTimeline({
         className="fixed inset-x-0 z-10"
         style={{ top: 'var(--nav-h, 0px)', bottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
-        <JourneyMap
+        <JourneyLayeredMap
           ref={mapRef}
+          engine="leaflet"
+          layers={layers}
+          compactControls
+          controlsTop={controlsTop}
+          onOpenEntry={handleMarkerClick}
+          entryTitleOf={entryTitleOf}
           entries={mapEntries}
           checkins={[]}
           trail={trail}
           tracks={tracks}
+          photos={photos}
+          onPhotoClick={onPhotoClick}
           height={9999}
           dark={dark}
           onMarkerClick={handleMarkerClick}
@@ -128,12 +151,20 @@ export default function MobileMapTimeline({
       style={{ top: 'var(--nav-h, 0px)', bottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       {/* Full-screen map */}
-      <JourneyMap
+      <JourneyLayeredMap
         ref={mapRef}
+        engine="leaflet"
+        layers={layers}
+        compactControls
+        controlsTop={controlsTop}
+        onOpenEntry={handleMarkerClick}
+        entryTitleOf={entryTitleOf}
         entries={mapEntries}
         checkins={[]}
         trail={trail}
         tracks={tracks}
+        photos={photos}
+        onPhotoClick={onPhotoClick}
         height={9999}
         dark={dark}
         activeMarkerId={activeEntryId}

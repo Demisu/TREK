@@ -1,4 +1,4 @@
-// FE-MOB-JSET-001 to FE-MOB-JSET-036
+// FE-MOB-JSET-001 to FE-MOB-JSET-037
 import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor, within } from '../../../helpers/render';
 import MJourneySettingsSheet from '../../../../src/mobile/screens/journey/MJourneySettingsSheet';
@@ -479,5 +479,23 @@ describe('MJourneySettingsSheet', () => {
     setup();
     await screen.findByRole('switch', { name: /GPX/i });
     expect(screen.queryByRole('switch', { name: 'Prepare recorded days automatically' })).not.toBeInTheDocument();
+  });
+
+  it('FE-MOB-JSET-037: the trip plan and the recorded routes switch under a shared map and wait for it otherwise (JRN-04)', async () => {
+    vi.mocked(journeyApi.getShareLink).mockResolvedValue({
+      link: { token: 'tok-9', share_timeline: true, share_gallery: true, share_map: true },
+    });
+    const create = vi.spyOn(journeyApi, 'createShareLink').mockResolvedValue({ token: 'tok-9' });
+    setup();
+
+    const plan = await screen.findByRole('switch', { name: 'Trip plan' });
+    expect(plan).toHaveAttribute('aria-checked', 'false');
+    fireEvent.click(plan);
+    await waitFor(() => expect(create).toHaveBeenCalledWith(12, expect.objectContaining({ share_plan: true })));
+    expect(screen.getByRole('switch', { name: 'Trip plan' })).toHaveAttribute('aria-checked', 'true');
+
+    fireEvent.click(screen.getByRole('switch', { name: 'Map' }));
+    await waitFor(() => expect(screen.getByRole('switch', { name: 'Recorded routes' })).toBeDisabled());
+    expect(screen.getAllByText('Share the map to switch this on')).toHaveLength(2);
   });
 });

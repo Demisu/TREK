@@ -7,6 +7,8 @@ import type { JourneyMapGLHandle } from './JourneyMapGL'
 import { JourneyMapGLMapbox, JourneyMapGLMaplibre } from '../Map/glLazy'
 import type { JourneyTrack } from '@trek/shared'
 import type { MapPhoto } from './journeyPhotoLayer'
+import type { JourneyMapLayerVisibility } from './journeyMapLayers'
+import type { JourneyMapMark } from './journeyMapMarks'
 
 // Unified handle — both providers expose the same three methods.
 export type JourneyMapAutoHandle = JourneyMapHandle
@@ -41,6 +43,11 @@ interface Props {
   /** Geotagged photos as thumbnails on the map, both renderers (#2453). */
   photos?: MapPhoto[]
   onPhotoClick?: (photoIds: string[]) => void
+  /** JRN-04: the layers the reader shows, and the plan and stay marks, both renderers. */
+  layerVisibility?: JourneyMapLayerVisibility
+  marks?: JourneyMapMark[]
+  onMarksPick?: (marks: JourneyMapMark[]) => void
+  plannedEntryIds?: ReadonlySet<string>
 }
 
 function JourneyMapAuto({ ref, ...props }: Props) {

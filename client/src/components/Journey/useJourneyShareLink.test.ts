@@ -1,4 +1,4 @@
-// FE-JRN-SHAREHOOK-001 to FE-JRN-SHAREHOOK-008: the public share link logic behind
+// FE-JRN-SHAREHOOK-001 to FE-JRN-SHAREHOOK-009: the public share link logic behind
 // both the desktop share section and the phone settings sheet.
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
@@ -122,5 +122,16 @@ describe('useJourneyShareLink', () => {
     expect(result.current.copied).toBe(true);
     act(() => vi.advanceTimersByTime(2000));
     expect(result.current.copied).toBe(false);
+  });
+
+  it('FE-JRN-SHAREHOOK-009: the plan and the recorded days are switched on their own and start off (JRN-04)', async () => {
+    const { result } = await loaded();
+    await act(() => result.current.togglePerm('share_plan'));
+    expect(posted).toEqual([{ share_timeline: true, share_gallery: false, share_map: true, share_plan: true }]);
+    expect(result.current.link?.share_plan).toBe(true);
+    expect(result.current.link?.share_recordings).toBeUndefined();
+
+    await act(() => result.current.togglePerm('share_recordings'));
+    expect(posted[1]).toEqual({ share_timeline: true, share_gallery: false, share_map: true, share_recordings: true });
   });
 });

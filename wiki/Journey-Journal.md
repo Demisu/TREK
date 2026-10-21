@@ -100,7 +100,18 @@ The **+** in the bottom bar starts a quick capture for a moment on the move: a t
 
 The journey detail page includes a map on the right (desktop) or an integrated map-timeline (mobile) showing all entry locations alongside the places from linked trips.
 
-**GPX tracks are drawn too.** Any route you imported into one of the journey's linked trips, from a `.gpx`, `.kml` or `.kmz` file, appears on the journey map as well, in the same colour it has in the trip planner and with a white casing so it stays readable on satellite tiles. Nothing to switch on: the tracks belong to the trips your entries came from, so importing the file while planning is all it takes. Hovering a track shows its name. A trip's track is the plan, so it is drawn dashed; what was recorded, a day the journey keeps or the live [Dawarich](Dawarich) route, is drawn solid.
+**GPX tracks are drawn too.** Any route you imported into one of the journey's linked trips, from a `.gpx`, `.kml` or `.kmz` file, appears on the journey map as well, in the same colour it has in the trip planner and with a white casing so it stays readable on satellite tiles. They come with the trips linked to the journey, also a trip nobody has written about yet, while **Show trip tracks** is on in the journey settings. Hovering a track shows its name. A trip's track is the plan, so it is drawn dashed; what was recorded, a day the journey keeps or the live [Dawarich](Dawarich) route, is drawn solid.
+
+### Map layers
+
+The journey map shows four layers, each switched on and off at the top of the map; the switch is yours and remembered in this browser, per journey, and it changes nothing in the trip, the entries or the photos.
+
+- **Plan**: the places the linked trips put on their days, as hollow dashed pins in their category colour, and the trips' GPX routes. A place you wrote an entry about is not drawn twice: the entry's pin carries a small check instead. A planned place is no proof of a visit.
+- **Recorded**: the days of route the journey keeps and the live [Dawarich](Dawarich) route.
+- **Entries**: the journal entries with a place, and the stays a day report was taken over from, each as a small dot where it was recorded, so a report that covers several places shows them all without an entry per place.
+- **Photos**: the photos that know where they were taken.
+
+Each switch shows how many things it holds; a layer with nothing to show is dimmed and says why, one that could not be loaded is marked and the rest of the map keeps working. Marks on one spot join into a disc with their number, and a click lists them. A click on a planned place or a stay opens a card with its trip, days and times and, where there is one, a button to the entry. The **i** button beside the switches explains every pin, dot and line. The layers work the same on a phone and on a shared journey.
 
 The thin dashed line connecting entries in date order is something else and stays as it is: that one is drawn by TREK, while a track is a route.
 
@@ -120,7 +131,7 @@ What you should know:
 - **Taking the same day over again keeps no second copy.** When Dawarich now holds a different version (a day that was still running, a recording that was fixed), the dialog says so and **Replace** swaps it. Replacing never touches entries or texts.
 - **What you keep is what you saw.** If the recording changes in Dawarich while the dialog is open, nothing is kept and the dialog shows the new version first.
 - **A failed read changes nothing.** The version the journey keeps stays as it is, and the dialog offers **Try again**.
-- **Everyone on the journey sees the route**, also when an editor kept their own recording; the dialog says how many people that is. Shared links do not show recorded days.
+- **Everyone on the journey sees the route**, also when an editor kept their own recording; the dialog says how many people that is. Shared links show recorded days only when the owner switches on **Recorded routes**.
 - **Remove route** in the dialog takes the day off the journey again, also without a Dawarich connection. Dawarich keeps its own recording either way.
 
 ### Taking over a day with its stays
@@ -195,6 +206,8 @@ You can share a journey with a read-only public link. When creating the link you
 **Photos appear on the public map too**, as long as **Gallery** and **Map** are both on. A gallery photo that knows where it was taken becomes a thumbnail pin, clustered into one pin where several were taken close together, and sitting below the entry pins so the itinerary stays the point of the map. The location comes from the file's own EXIF for uploads and from Immich or Synology for provider photos, and a photo that carries none simply stays off the map (see the HEIC note above — that conversion drops GPS, so iPhone uploads usually arrive without a location).
 
 Both toggles matter. A photo's coordinates follow the **Map** switch: with Map off the gallery is still shared, but every photo's coordinates are stripped before they leave the server. With Gallery off no photos are sent at all, so a map-only share shows the entry pins and nothing else.
+
+**Trip plan** and **Recorded routes** add two more layers to the shared map, both off until you switch them on and both only while **Map** is on. Trip plan shares the planned places and GPX routes of the linked trips; Recorded routes shares the recorded days that have a published entry, which shows where you were, your accommodation too. Stays of published day reports show with the map; drafts and everything on them stay off the shared page.
 
 ## See also
 

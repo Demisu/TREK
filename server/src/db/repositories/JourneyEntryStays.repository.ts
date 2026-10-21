@@ -21,7 +21,7 @@ export interface JourneyEntryStayWrite {
 }
 
 /** A located stay of a journey, as its map draws it (JRN-04). */
-export interface JourneyEntryStayMapRow {
+interface JourneyEntryStayMapRow {
   id: number;
   entry_id: number;
   name: string;

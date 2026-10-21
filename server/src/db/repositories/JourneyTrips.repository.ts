@@ -49,7 +49,7 @@ export interface AssignmentTimeRow {
 type SyncPlacesKyselyDB = Pick<DB, 'places' | 'day_assignments' | 'days'>;
 
 /** One day a linked trip's plan puts a located place on (JRN-04), {@link JourneyTripsRepository.listMapPlacesForJourney}. */
-export interface JourneyMapPlaceRow {
+interface JourneyMapPlaceRow {
   place_id: number;
   trip_id: number;
   trip_title: string;
@@ -63,7 +63,7 @@ export interface JourneyMapPlaceRow {
 }
 
 /** A place of a linked trip that carries a route (JRN-04), {@link JourneyTripsRepository.listRouteSourcesForJourney}. */
-export interface JourneyRouteSourceRow {
+interface JourneyRouteSourceRow {
   place_id: number;
   trip_id: number;
   name: string;
