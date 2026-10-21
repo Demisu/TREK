@@ -897,7 +897,10 @@ export class AssistantService {
     return new Map(categories.map((category): [number, string] => [category.id, category.name]));
   }
 
-  /** Where the loop keeps its steps: one row each, the chat turn's first one made already. */
+  /**
+   * Where the loop keeps its steps: one row each, the chat turn's first one made already.
+   * @txIndependent each step is opened and saved on its own, with a provider's answer between them.
+   */
   private stepStore(spec: TurnSpec): AgentStore {
     let first = spec.firstRowId;
     const fields = (step: StepRecord) => ({

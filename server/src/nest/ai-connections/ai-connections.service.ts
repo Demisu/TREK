@@ -195,6 +195,10 @@ export class AiConnectionsService implements SharedAiConnectionPort {
     return this.ownView(userId);
   }
 
+  /**
+   * Picks the model of the user's own connection, one the provider offers.
+   * @txIndependent reading the credential may renew a ChatGPT sign-in first; that write stands on its own.
+   */
   async setOwnModel(userId: number, model: string): Promise<AiConnectionView> {
     const row = await this.ownRow(userId);
     const models = await this.modelsOf(userId, row);
