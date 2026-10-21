@@ -788,7 +788,7 @@ export function JourneyDetailPageDesktop({ journeyId, embedded = false }: Journe
       )}
 
       {recordings.dialog && <JourneyRecordingDialog {...recordings.dialog} />}
-      {dayImport.dialog && <JourneyDayImportDialog {...dayImport.dialog} />}
+      {dayImport.dialog && <JourneyDayImportDialog {...dayImport.dialog} prep={recordingPrep.prep ? recordingPrep : undefined} />}
 
       {/* Add Trip Dialog */}
       {showAddTrip && current && (

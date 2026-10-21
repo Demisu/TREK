@@ -873,6 +873,13 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'Zatiaľ nenačítané.',
   'journey.prep.dayProvisional': 'Načítané {time}, pred koncom dňa, niektoré pobyty môžu chýbať.',
   'journey.prep.dayFailed': 'Posledná aktualizácia zlyhala, toto je starší stav.',
+  'journey.prep.outOfReach':
+    'Cesty, ktoré sa skončili pred viac ako {count} dňami, sa na pozadí nepripravujú. Otvor niektorý z ich dní a načítaj ho ručne.',
+  'journey.prep.outOfReach.one':
+    'Cesty, ktoré sa skončili pred viac ako {count} dňom, sa na pozadí nepripravujú. Otvor niektorý z ich dní a načítaj ho ručne.',
+  'journey.prep.outOfReach.few':
+    'Cesty, ktoré sa skončili pred viac ako {count} dňami, sa na pozadí nepripravujú. Otvor niektorý z ich dní a načítaj ho ručne.',
+  'journey.prep.alreadyRunning': 'Na pozadí už jedno načítanie beží. Jeho zastávky sa zobrazia, hneď ako dobehne.',
   'journey.dayImport.running':
     'Tento deň ešte prebieha. Neskôr zaznamenané pobyty sa objavia, hneď ako ich Dawarich bude mať.',
 };

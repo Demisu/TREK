@@ -809,6 +809,9 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'ยังไม่ได้ดึงข้อมูล',
   'journey.prep.dayProvisional': 'ดึงเมื่อ {time} ก่อนสิ้นวัน อาจมีจุดแวะพักขาดหาย',
   'journey.prep.dayFailed': 'การรีเฟรชล่าสุดล้มเหลว นี่คือสถานะเก่ากว่า',
+  'journey.prep.outOfReach':
+    'ทริปที่จบไปนานกว่า {count} วันจะไม่ถูกเตรียมเบื้องหลัง เปิดวันใดวันหนึ่งของทริปเพื่อดึงข้อมูลด้วยตนเอง',
+  'journey.prep.alreadyRunning': 'มีการดึงข้อมูลทำงานอยู่เบื้องหลังแล้ว จุดแวะพักจะปรากฏเมื่อเสร็จ',
   'journey.dayImport.running': 'วันนี้ยังไม่จบ จุดแวะพักที่บันทึกภายหลังจะปรากฏเมื่อ Dawarich ได้รับแล้ว',
 };
 export default journey;

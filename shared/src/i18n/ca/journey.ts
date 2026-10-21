@@ -858,6 +858,11 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'Encara no consultat.',
   'journey.prep.dayProvisional': 'Consultat {time}, abans que acabés el dia, poden faltar estades.',
   'journey.prep.dayFailed': "L'última actualització ha fallat, aquest és l'estat anterior.",
+  'journey.prep.outOfReach':
+    'Els viatges que van acabar fa més de {count} dies no es preparen en segon pla. Obre un dels seus dies per obtenir-lo a mà.',
+  'journey.prep.outOfReach.one':
+    'Els viatges que van acabar fa més de {count} dia no es preparen en segon pla. Obre un dels seus dies per obtenir-lo a mà.',
+  'journey.prep.alreadyRunning': 'Ja hi ha una obtenció en curs en segon pla. Les estades apareixeran quan acabi.',
   'journey.dayImport.running':
     'Aquest dia encara no ha acabat. Les estades enregistrades més tard apareixen tan bon punt Dawarich les tingui.',
 };

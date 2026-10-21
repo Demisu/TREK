@@ -270,4 +270,29 @@ describe('JourneyRecordingPrepService', () => {
     await journeys.updateJourney(f.journey.id, f.owner.id, { auto_prepare_recordings: false });
     expect(await prep.listFor(f.owner.id)).toEqual([]);
   });
+
+  it('JRNPREP-SVC-003: the periods of a journey are the trips a run reads, an open one included and one out of reach left out', async () => {
+    const f = await fixture();
+    const old = await makeTrip(orm, f.owner.id, { start_date: dayOffset(-420), end_date: dayOffset(-410) });
+    const open = await makeTrip(orm, f.owner.id, { start_date: dayOffset(-1), end_date: null });
+    await linkTripToJourney(orm, f.journey.id, old.id);
+    await linkTripToJourney(orm, f.journey.id, open.id);
+
+    expect(await prep.periodsOf(f.journey.id, f.editor.id)).toEqual([
+      { start: TRIP_START, end: TRIP_END },
+      { start: dayOffset(-1), end: null },
+    ]);
+    expect(await prep.periodsOf(f.journey.id, f.viewer.id)).toEqual([]);
+  });
+
+  it('JRNPREP-SVC-004: a journey whose only trip ended out of reach has no period, and a run records nothing for it', async () => {
+    const { user: owner } = await makeUser(orm);
+    const journey = await makeJourney(orm, owner.id, { title: 'Lisbon', auto_prepare_recordings: 1 });
+    const old = await makeTrip(orm, owner.id, { start_date: dayOffset(-430), end_date: dayOffset(-420) });
+    await linkTripToJourney(orm, journey.id, old.id);
+
+    expect(await prep.periodsOf(journey.id, owner.id)).toEqual([]);
+    await sync.syncUser(owner.id);
+    expect(await findRow(orm, JourneyRecordingPrep, { journey: journey.id })).toBeNull();
+  });
 });

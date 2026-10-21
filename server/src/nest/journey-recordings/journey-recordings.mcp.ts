@@ -56,7 +56,7 @@ export class JourneyRecordingsMcp {
   @Tool({
     name: 'get_journey_recording_prep',
     description:
-      "Whether a journey prepares its recorded days from Dawarich in the background (its owner's switch, update_journey auto_prepare_recordings) and how the caller's own last runs over its linked trip periods went: when the last one was tried, when one last came through (the stays waiting at the journey's days are as new as that) and why the last one failed, plus whether the caller's connection can prepare anything at all (ready, sync_off, not_connected). Prepared stays are reviewed and taken over with review_journey_day_stays and take_over_journey_day_stays; nothing is ever written into the journey on its own. Needs edit access to the journey.",
+      "Whether a journey prepares its recorded days from Dawarich in the background (its owner's switch, update_journey auto_prepare_recordings) and how the caller's own last runs over its linked trip periods went: when the last one was tried, when one last came through (the stays waiting at the journey's days are as new as that) and why the last one failed, plus whether the caller's connection can prepare anything at all (ready, sync_off, not_connected) and, while the switch is on, the linked trip periods those runs reach (a trip that ended more than 400 days ago is not prepared; review_journey_day_stays still reads its days by hand). Prepared stays are reviewed and taken over with review_journey_day_stays and take_over_journey_day_stays; nothing is ever written into the journey on its own. Needs edit access to the journey.",
     inputSchema: { journeyId: idSchema },
     annotations: TOOL_ANNOTATIONS_READONLY,
     when: bothAddonsOn,

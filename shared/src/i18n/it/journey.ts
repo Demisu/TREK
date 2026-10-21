@@ -857,6 +857,11 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'Non ancora recuperato.',
   'journey.prep.dayProvisional': 'Recuperato {time}, prima della fine della giornata, possono mancare soste.',
   'journey.prep.dayFailed': "L'ultimo aggiornamento non è riuscito, questo è lo stato precedente.",
+  'journey.prep.outOfReach':
+    'I viaggi terminati più di {count} giorni fa non vengono preparati in background. Apri uno dei loro giorni per recuperarlo a mano.',
+  'journey.prep.outOfReach.one':
+    'I viaggi terminati più di {count} giorno fa non vengono preparati in background. Apri uno dei loro giorni per recuperarlo a mano.',
+  'journey.prep.alreadyRunning': 'Un recupero è già in corso in background. Le soste compariranno appena sarà finito.',
   'journey.dayImport.running':
     'Questa giornata è ancora in corso. Le soste registrate dopo compaiono appena Dawarich le ha.',
 };

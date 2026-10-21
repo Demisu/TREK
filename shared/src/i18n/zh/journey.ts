@@ -799,6 +799,8 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': '尚未获取。',
   'journey.prep.dayProvisional': '于 {time} 获取，当时这一天还没结束，可能缺少停留点。',
   'journey.prep.dayFailed': '上次刷新失败，这是较早的状态。',
+  'journey.prep.outOfReach': '结束超过 {count} 天的旅行不会在后台准备。打开其中某一天即可手动获取。',
+  'journey.prep.alreadyRunning': '后台已有一次获取正在进行。完成后停留点就会显示。',
   'journey.dayImport.running': '这一天还没结束。之后记录的停留点会在 Dawarich 收到后显示。',
 };
 export default journey;

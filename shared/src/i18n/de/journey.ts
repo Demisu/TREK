@@ -862,6 +862,12 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'Noch nicht abgerufen.',
   'journey.prep.dayProvisional': 'Abgerufen {time}, vor Tagesende, es können Aufenthalte fehlen.',
   'journey.prep.dayFailed': 'Die letzte Aktualisierung ist fehlgeschlagen, das ist der ältere Stand.',
+  'journey.prep.outOfReach':
+    'Reisen, die vor mehr als {count} Tagen endeten, werden nicht im Hintergrund vorbereitet. Öffne einen ihrer Tage, um ihn von Hand abzurufen.',
+  'journey.prep.outOfReach.one':
+    'Reisen, die vor mehr als {count} Tag endeten, werden nicht im Hintergrund vorbereitet. Öffne einen ihrer Tage, um ihn von Hand abzurufen.',
+  'journey.prep.alreadyRunning':
+    'Im Hintergrund läuft schon ein Abruf. Seine Aufenthalte erscheinen, sobald er durch ist.',
   'journey.dayImport.running':
     'Dieser Tag läuft noch. Später aufgezeichnete Aufenthalte erscheinen, sobald Dawarich sie hat.',
 };

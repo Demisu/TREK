@@ -854,6 +854,12 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'Ainda não buscado.',
   'journey.prep.dayProvisional': 'Buscado {time}, antes do fim do dia, podem faltar paradas.',
   'journey.prep.dayFailed': 'A última atualização falhou, este é o estado anterior.',
+  'journey.prep.outOfReach':
+    'Viagens que terminaram há mais de {count} dias não são preparadas em segundo plano. Abra um dos dias delas para buscá-lo manualmente.',
+  'journey.prep.outOfReach.one':
+    'Viagens que terminaram há mais de {count} dia não são preparadas em segundo plano. Abra um dos dias delas para buscá-lo manualmente.',
+  'journey.prep.alreadyRunning':
+    'Já há uma busca em andamento em segundo plano. As paradas aparecem assim que ela terminar.',
   'journey.dayImport.running':
     'Este dia ainda está em andamento. Paradas gravadas depois aparecem assim que o Dawarich as tiver.',
 };

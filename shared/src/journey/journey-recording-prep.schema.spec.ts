@@ -31,6 +31,15 @@ describe('journeyRecordingPrepSchema', () => {
     const { lastSuccessAt: _dropped, ...withoutSuccess } = PREP;
     expect(journeyRecordingPrepSchema.safeParse(withoutSuccess).success).toBe(false);
   });
+
+  it('JRNPREP-SCHEMA-003: the periods it reaches are optional, an open trip has no end', () => {
+    const periods = [
+      { start: '2026-05-10', end: '2026-05-14' },
+      { start: '2026-06-01', end: null },
+    ];
+    expect(journeyRecordingPrepSchema.parse({ ...PREP, periods }).periods).toEqual(periods);
+    expect(journeyRecordingPrepSchema.safeParse({ ...PREP, periods: [{ start: '2026-05-10' }] }).success).toBe(false);
+  });
 });
 
 describe('the journey switch', () => {

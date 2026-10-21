@@ -1,4 +1,4 @@
-// FE-JRN-DAYIMPORT-DIALOG-001 to FE-JRN-DAYIMPORT-DIALOG-006
+// FE-JRN-DAYIMPORT-DIALOG-001 to FE-JRN-DAYIMPORT-DIALOG-008
 //
 // JRN-02: the desktop dialog that takes a recorded day over with its stays. It
 // names the journey and the day, shows the stays on the map and in a list to
@@ -9,6 +9,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildDayStay, buildDayStays, buildRecordingPreview } from '../../../tests/helpers/journeyRecording';
 import { render, screen, waitFor, within } from '../../../tests/helpers/render';
 import JourneyDayImportDialog from './JourneyDayImportDialog';
+import type { JourneyRecordingPrepState } from './useJourneyRecordingPrep';
 
 const repo = vi.hoisted(() => ({
   reviewDay: vi.fn(),
@@ -30,7 +31,7 @@ vi.mock('./JourneyMapAuto', () => ({
   },
 }));
 
-function renderDialog() {
+function renderDialog(prep?: JourneyRecordingPrepState) {
   const props = { onTakenOver: vi.fn(), onKept: vi.fn(), onClose: vi.fn() };
   render(
     <JourneyDayImportDialog
@@ -39,10 +40,31 @@ function renderDialog() {
       date="2026-05-14"
       dayColor="#ff0055"
       storedRoute={undefined}
+      prep={prep}
       {...props}
     />
   );
   return props;
+}
+
+function prepState(over: Partial<JourneyRecordingPrepState> = {}): JourneyRecordingPrepState {
+  return {
+    prep: {
+      enabled: true,
+      connection: 'ready',
+      lastAttemptAt: '2026-05-16T08:00:00.000Z',
+      lastSuccessAt: '2026-05-14T18:00:00.000Z',
+      lastError: 'unreachable',
+    },
+    saving: false,
+    fetching: false,
+    statusLine: { text: 'The last refresh failed: Dawarich did not answer.', tone: 'warning' },
+    canFetch: true,
+    setEnabled: vi.fn(),
+    fetchNow: vi.fn(async () => {}),
+    dayPrep: () => ({ state: 'provisional', failed: true, lastSuccessAt: '2026-05-14T18:00:00.000Z' }),
+    ...over,
+  };
 }
 
 const rowOf = (name: string) =>
@@ -152,5 +174,27 @@ describe('JourneyDayImportDialog', () => {
     expect(await screen.findByText(/Dawarich did not answer/)).toBeInTheDocument();
     expect(screen.getByText(/Some stays may be missing/)).toBeInTheDocument();
     expect(screen.getByRole('checkbox', { name: 'Take over Rialto' })).toBeChecked();
+  });
+
+  it('FE-JRN-DAYIMPORT-DIALOG-007: an unsettled prepared day says why, with the caller status and a fetch by hand', async () => {
+    const user = userEvent.setup();
+    const prep = prepState();
+    renderDialog(prep);
+
+    expect(await screen.findByText(/before the day ended, so stays may be missing/)).toBeInTheDocument();
+    expect(screen.getByText(/this is the older state/)).toBeInTheDocument();
+    expect(screen.getByTestId('journey-prep-status')).toHaveTextContent(
+      'The last refresh failed: Dawarich did not answer.'
+    );
+    await user.click(screen.getByRole('button', { name: 'Fetch now' }));
+    expect(prep.fetchNow).toHaveBeenCalledTimes(1);
+  });
+
+  it('FE-JRN-DAYIMPORT-DIALOG-008: without the journey preparing its days, no status and no day notice', async () => {
+    renderDialog(prepState({ statusLine: null, canFetch: false, dayPrep: () => null }));
+
+    expect(await screen.findByRole('checkbox', { name: 'Take over Parcheggio' })).toBeChecked();
+    expect(screen.queryByTestId('journey-prep-status')).not.toBeInTheDocument();
+    expect(screen.queryByText(/this is the older state/)).not.toBeInTheDocument();
   });
 });

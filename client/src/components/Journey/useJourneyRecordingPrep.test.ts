@@ -1,4 +1,4 @@
-// FE-JRN-PREP-HOOK-001 to FE-JRN-PREP-HOOK-005
+// FE-JRN-PREP-HOOK-001 to FE-JRN-PREP-HOOK-007
 //
 // JRN-03: a journey preparing its recorded days, as the journey page, the
 // phone screen and both settings shells read it: the caller's status, the
@@ -48,6 +48,7 @@ beforeEach(() => {
   dawarich.syncNow.mockReset().mockResolvedValue({ state: 'ok', created: 0, updated: 0, missing: 0 });
   updateJourney.mockClear();
   toast.error.mockClear();
+  toast.info.mockClear();
   useJourneyStore.setState({ updateJourney });
 });
 
@@ -125,5 +126,31 @@ describe('useJourneyRecordingPrep', () => {
     });
     expect(toast.error).toHaveBeenCalledWith('Dawarich could not be asked right now.');
     await waitFor(() => expect(repo.prep).toHaveBeenCalledTimes(3));
+  });
+
+  it('FE-JRN-PREP-HOOK-006: a fetch while the background run is busy says so instead of looking like nothing happened', async () => {
+    dawarich.syncNow.mockResolvedValue({ state: 'ok', created: 0, updated: 0, missing: 0, alreadyRunning: true });
+    const { result } = renderHook(() => useJourneyRecordingPrep(options()));
+    await waitFor(() => expect(result.current.prep).not.toBeNull());
+
+    await act(async () => {
+      await result.current.fetchNow();
+    });
+    expect(toast.info).toHaveBeenCalledWith(
+      'A fetch is already running in the background. Its stays show up once it is through.'
+    );
+  });
+
+  it('FE-JRN-PREP-HOOK-007: a journey whose trips all ended out of reach marks no day and offers no fetch', async () => {
+    repo.prep.mockResolvedValue(status({ periods: [] }));
+    const { result } = renderHook(() => useJourneyRecordingPrep(options()));
+    await waitFor(() => expect(result.current.prep).not.toBeNull());
+
+    expect(result.current.dayPrep('2026-05-14')).toBeNull();
+    expect(result.current.canFetch).toBe(false);
+    expect(result.current.statusLine).toEqual({
+      text: 'Trips that ended more than 400 days ago are not prepared in the background. Open one of their days to fetch it by hand.',
+      tone: 'warning',
+    });
   });
 });

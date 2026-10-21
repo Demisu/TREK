@@ -5,7 +5,13 @@ import { dawarichRepo } from '../../repo/dawarichRepo';
 import { journeyRecordingsRepo } from '../../repo/journeyRecordingsRepo';
 import { useJourneyStore } from '../../store/journeyStore';
 import { useToast } from '../shared/Toast';
-import { dayPrepOf, prepStatusLine, type JourneyDayPrep, type PrepStatusLine } from './journeyRecordingPrepModel';
+import {
+  dayPrepOf,
+  prepReachOf,
+  prepStatusLine,
+  type JourneyDayPrep,
+  type PrepStatusLine,
+} from './journeyRecordingPrepModel';
 
 export interface JourneyRecordingPrepOptions {
   /** The journey the route names, or null while it loads. */
@@ -14,7 +20,7 @@ export interface JourneyRecordingPrepOptions {
   enabled: boolean;
   /** An editor with the Dawarich addon on: nobody else has anything of their own prepared. */
   active: boolean;
-  /** The dates of the linked trips, the only days that are prepared. */
+  /** The dates of the linked trips; only those the server says its runs reach are prepared. */
   periodDates: ReadonlySet<string>;
   /** The switch was saved: the journey is read again. */
   onSwitched: () => void;
@@ -28,7 +34,7 @@ export interface JourneyRecordingPrepState {
   saving: boolean;
   /** A fetch asked for by hand is running. */
   fetching: boolean;
-  /** The line under the switch in the settings; null while it is off or not read yet. */
+  /** The line under the switch in the settings and in the day review; null while it is off or not read yet. */
   statusLine: PrepStatusLine | null;
   /** Whether a fetch by hand would reach anything. */
   canFetch: boolean;
@@ -39,9 +45,10 @@ export interface JourneyRecordingPrepState {
 
 /**
  * A journey preparing its recorded days (JRN-03), for the journey page, the
- * phone screen and both settings shells: the caller's own status, the owner's
- * switch, a fetch by hand and where each day stands. Switching it on fetches
- * at once, so the days fill without waiting for the next background run.
+ * phone screen, both settings shells and the day review: the caller's own
+ * status, the owner's switch, a fetch by hand and where each day stands.
+ * Switching it on fetches at once, so the days fill without waiting for the
+ * next background run.
  */
 export function useJourneyRecordingPrep({
   journeyId,
@@ -73,7 +80,8 @@ export function useJourneyRecordingPrep({
   const fetchNow = useCallback(async () => {
     setFetching(true);
     try {
-      await dawarichRepo.syncNow();
+      const result = await dawarichRepo.syncNow();
+      if (result.alreadyRunning) toast.info(t('journey.prep.alreadyRunning'));
       onFetched();
     } catch {
       toast.error(t('journey.prep.fetchFailed'));
@@ -101,18 +109,20 @@ export function useJourneyRecordingPrep({
     [journeyId, updateJourney, onSwitched, toast, t, prep?.connection, fetchNow]
   );
 
+  const reach = useMemo(() => prepReachOf(prep, periodDates), [prep, periodDates]);
+  const prepared = reach.dates.size > 0;
   const statusLine = useMemo(
-    () => (prep ? prepStatusLine(prep, periodDates.size > 0, t, locale) : null),
-    [prep, periodDates, t, locale]
+    () => (prep ? prepStatusLine(prep, { prepared, outOfReach: reach.outOfReach }, t, locale) : null),
+    [prep, prepared, reach.outOfReach, t, locale]
   );
-  const dayPrep = useCallback((date: string) => dayPrepOf(date, prep, periodDates), [prep, periodDates]);
+  const dayPrep = useCallback((date: string) => dayPrepOf(date, prep, reach.dates), [prep, reach.dates]);
 
   return {
     prep,
     saving,
     fetching,
     statusLine,
-    canFetch: !!prep?.enabled && prep.connection !== 'not_connected' && periodDates.size > 0,
+    canFetch: !!prep?.enabled && prep.connection !== 'not_connected' && prepared,
     setEnabled,
     fetchNow,
     dayPrep,

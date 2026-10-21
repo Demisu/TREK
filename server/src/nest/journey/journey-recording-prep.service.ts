@@ -2,15 +2,9 @@ import { JourneyRecordingPrep } from '../../db/entities/JourneyRecordingPrep.ent
 import type { JourneyRecordingPrepRepository } from '../../db/repositories/JourneyRecordingPrep.repository';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
+import { JOURNEY_RECORDING_PREP_REACH_DAYS, type JourneyRecordingPrepPeriod } from '@trek/shared';
 
 const DAY_MS = 86_400_000;
-
-/**
- * How far back a finished trip is still read, as `TripsRepository.listTripsToSync`
- * reads a person's own trips: a journey must not reach further into the past
- * than the trip sync it rides on.
- */
-const SYNC_REACH_DAYS = 400;
 
 /** A journey that prepares its recorded days, with the linked trips the next run reads. */
 export interface PreparedJourney {
@@ -38,7 +32,7 @@ export class JourneyRecordingPrepService {
   /** The journeys this person prepares now, each with its linked trips within the sync's reach. */
   async listFor(userId: number, now: Date = new Date()): Promise<PreparedJourney[]> {
     const rows = await this.prep.listPreparedTrips(userId, {
-      endedAfter: isoDate(now.getTime() - SYNC_REACH_DAYS * DAY_MS),
+      endedAfter: isoDate(now.getTime() - JOURNEY_RECORDING_PREP_REACH_DAYS * DAY_MS),
       startedBy: isoDate(now.getTime() + DAY_MS),
     });
     const byJourney = new Map<number, PreparedJourney>();
@@ -51,6 +45,18 @@ export class JourneyRecordingPrepService {
       journey.trips.push({ id: row.trip_id, start_date: row.start_date, end_date: row.end_date });
     }
     return [...byJourney.values()];
+  }
+
+  /**
+   * The linked trips of one journey this person's runs reach, read as
+   * `listFor` reads them for the sync, so a day is only ever shown as
+   * prepared when a run actually reads it.
+   */
+  async periodsOf(journeyId: number, userId: number, now: Date = new Date()): Promise<JourneyRecordingPrepPeriod[]> {
+    const journey = (await this.listFor(userId, now)).find((j) => j.journeyId === journeyId);
+    return (journey?.trips ?? []).flatMap((trip) =>
+      trip.start_date ? [{ start: trip.start_date, end: trip.end_date }] : [],
+    );
   }
 
   /**

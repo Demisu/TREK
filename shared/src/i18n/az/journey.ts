@@ -926,6 +926,11 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'Hələ yüklənməyib.',
   'journey.prep.dayProvisional': '{time} yükləndi, gün bitməmiş, dayanacaqlar çatışmaya bilər.',
   'journey.prep.dayFailed': 'Son yeniləmə alınmadı, bu köhnə vəziyyətdir.',
+  'journey.prep.outOfReach':
+    '{count} gündən çox əvvəl bitmiş səfərlər arxa planda hazırlanmır. Əl ilə almaq üçün onların günlərindən birini açın.',
+  'journey.prep.outOfReach.one':
+    '{count} gündən çox əvvəl bitmiş səfərlər arxa planda hazırlanmır. Əl ilə almaq üçün onların günlərindən birini açın.',
+  'journey.prep.alreadyRunning': 'Arxa planda artıq bir alma prosesi gedir. Dayanacaqlar o bitən kimi görünəcək.',
   'journey.dayImport.running':
     'Bu gün hələ davam edir. Sonra qeydə alınan dayanacaqlar Dawarich-də olan kimi görünəcək.',
 };

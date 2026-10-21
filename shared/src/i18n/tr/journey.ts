@@ -848,6 +848,11 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'Henüz alınmadı.',
   'journey.prep.dayProvisional': '{time} alındı, gün bitmeden, eksik duraklar olabilir.',
   'journey.prep.dayFailed': 'Son yenileme başarısız oldu, bu daha eski durum.',
+  'journey.prep.outOfReach':
+    '{count} günden daha önce biten geziler arka planda hazırlanmaz. Elle almak için günlerinden birini açın.',
+  'journey.prep.outOfReach.one':
+    '{count} günden daha önce biten geziler arka planda hazırlanmaz. Elle almak için günlerinden birini açın.',
+  'journey.prep.alreadyRunning': 'Arka planda zaten bir alma işlemi sürüyor. Duraklar o bitince görünür.',
   'journey.dayImport.running': 'Bu gün hâlâ sürüyor. Daha sonra kaydedilen duraklar Dawarich onları aldığında görünür.',
 };
 export default journey;

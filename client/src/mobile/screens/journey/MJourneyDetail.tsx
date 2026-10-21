@@ -624,7 +624,7 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
       )}
 
       {recordings.dialog && <MJourneyRecordingSheet {...recordings.dialog} />}
-      {dayImport.dialog && <MJourneyDayImportSheet {...dayImport.dialog} />}
+      {dayImport.dialog && <MJourneyDayImportSheet {...dayImport.dialog} prep={recordingPrep.prep ? recordingPrep : undefined} />}
 
       {/* Journey settings */}
       {showSettings && (

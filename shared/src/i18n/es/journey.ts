@@ -856,6 +856,12 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'Aún sin consultar.',
   'journey.prep.dayProvisional': 'Consultado {time}, antes de que terminara el día, pueden faltar estancias.',
   'journey.prep.dayFailed': 'La última actualización falló, este es el estado anterior.',
+  'journey.prep.outOfReach':
+    'Los viajes que terminaron hace más de {count} días no se preparan en segundo plano. Abre uno de sus días para obtenerlo a mano.',
+  'journey.prep.outOfReach.one':
+    'Los viajes que terminaron hace más de {count} día no se preparan en segundo plano. Abre uno de sus días para obtenerlo a mano.',
+  'journey.prep.alreadyRunning':
+    'Ya hay una obtención en curso en segundo plano. Las estancias aparecerán en cuanto termine.',
   'journey.dayImport.running':
     'Este día aún no ha terminado. Las estancias grabadas más tarde aparecen en cuanto Dawarich las tenga.',
 };

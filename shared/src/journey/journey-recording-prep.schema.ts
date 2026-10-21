@@ -13,6 +13,19 @@ import { z } from 'zod';
 /** Whether the caller's own Dawarich can prepare anything: connected with its background sync on, with it off, or not connected. */
 export const JOURNEY_RECORDING_PREP_CONNECTIONS = ['ready', 'sync_off', 'not_connected'] as const;
 
+/**
+ * How many days after its end a linked trip is still prepared: the reach of
+ * the trip sync it rides on (`TripsRepository.listTripsToSync`), so a journey
+ * never reaches further back. Older trips are read by hand only.
+ */
+export const JOURNEY_RECORDING_PREP_REACH_DAYS = 400;
+
+/** A linked trip the caller's runs reach; `end` is null for a trip still open. */
+export const journeyRecordingPrepPeriodSchema = z.object({
+  start: z.string(),
+  end: z.string().nullable(),
+});
+
 /** GET /api/journeys/:id/recordings/prep */
 export const journeyRecordingPrepSchema = z.object({
   /** The journey's switch, `auto_prepare_recordings`. */
@@ -24,5 +37,11 @@ export const journeyRecordingPrepSchema = z.object({
   lastSuccessAt: z.string().nullable(),
   /** Dawarich's reason (a DAWARICH_ERROR_CODES code) when the last run failed; null when it came through. */
   lastError: z.string().nullable(),
+  /**
+   * The linked trips the caller's runs reach, so a day outside them is never
+   * shown as prepared. Omitted while the switch is off.
+   */
+  periods: z.array(journeyRecordingPrepPeriodSchema).optional(),
 });
 export type JourneyRecordingPrep = z.infer<typeof journeyRecordingPrepSchema>;
+export type JourneyRecordingPrepPeriod = z.infer<typeof journeyRecordingPrepPeriodSchema>;

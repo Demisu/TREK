@@ -81,6 +81,13 @@ vi.mock('../../../../src/mobile/screens/journey/MJourneySettingsSheet', () => ({
   },
 }));
 
+vi.mock('../../../../src/mobile/screens/journey/MJourneyDayImportSheet', () => ({
+  default: (props: Record<string, unknown>) => {
+    mocks.captured.dayImport = props;
+    return <div data-testid="day-import-sheet" />;
+  },
+}));
+
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 
 function buildEntry(over: Partial<JourneyEntry> = {}): JourneyEntry {
@@ -745,20 +752,24 @@ describe('MJourneyDetail', () => {
     expect(screen.queryByTestId('dawarich-panel')).not.toBeInTheDocument();
   });
 
-  it('FE-MOB-JDET-045: a waiting day the journey prepares carries a dot that says why it is not final (JRN-03)', () => {
+  it('FE-MOB-JDET-045: a waiting day the journey prepares carries a dot that says why it is not final, and its sheet gets the status (JRN-03)', () => {
     useAddonStore.setState({ addons: [{ id: 'dawarich', enabled: true }] as never, loaded: true });
+    const recordingPrep = {
+      prep: { enabled: true },
+      dayPrep: () => ({ state: 'running', failed: false, lastSuccessAt: null }),
+    };
     setup({
       current: buildDetail({ entries: [], stats: { entries: 0, photos: 0, places: 0 } }),
       canTakeOverRecording: true,
       dawarichByDate: new Map([['2026-05-03', [{ id: 1 }]]]),
       dayImportDates: ['2026-05-03'],
-      recordingPrep: {
-        prep: { enabled: true },
-        dayPrep: () => ({ state: 'running', failed: false, lastSuccessAt: null }),
-      },
+      dayImport: { open: vi.fn(), dialog: { journeyId: 1, date: '2026-05-03', dayColor: '#123456' } },
+      recordingPrep,
     });
 
     fireEvent.click(screen.getByRole('button', { name: 'dawarich.suggestions.title' }));
     expect(screen.getByRole('img', { name: 'journey.prep.dayRunning' })).toBeInTheDocument();
+    expect(screen.getByTestId('day-import-sheet')).toBeInTheDocument();
+    expect(mocks.captured.dayImport.prep).toBe(recordingPrep);
   });
 });

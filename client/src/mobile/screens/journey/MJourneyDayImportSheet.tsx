@@ -13,6 +13,7 @@ export default function MJourneyDayImportSheet({
   date,
   dayColor,
   onClose,
+  prep,
   ...rest
 }: JourneyDayImportViewProps) {
   const { t } = useTranslation();
@@ -27,7 +28,7 @@ export default function MJourneyDayImportSheet({
       onClose={onClose}
       footer={<JourneyDayImportActions state={state} onCancel={onClose} />}
     >
-      <JourneyDayImportReview state={state} dayColor={dayColor} />
+      <JourneyDayImportReview state={state} dayColor={dayColor} prep={prep} />
     </MDawarichDaySheet>
   );
 }

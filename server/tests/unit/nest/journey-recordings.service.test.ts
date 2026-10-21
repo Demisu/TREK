@@ -22,9 +22,15 @@ import { JourneyDomainService } from '../../../src/nest/journey/journey-domain.s
 import { JourneyRecordedDaysService } from '../../../src/nest/journey/journey-recorded-days.service';
 import { JourneyRecordingPrepService } from '../../../src/nest/journey/journey-recording-prep.service';
 import { createSnapshotTestDb } from '../../helpers/db-mock';
-import { addJourneyContributor, makeJourney, makeJourneyEntry } from '../../helpers/factories/journeys';
+import {
+  addJourneyContributor,
+  linkTripToJourney,
+  makeJourney,
+  makeJourneyEntry,
+} from '../../helpers/factories/journeys';
 import { countRows, findRow, upsertRow } from '../../helpers/factories/rows';
 import { setAddonEnabled } from '../../helpers/factories/settings';
+import { makeTrip } from '../../helpers/factories/trips';
 import { makeUser } from '../../helpers/factories/users';
 import { resetTestDb } from '../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../helpers/test-module';
@@ -417,7 +423,24 @@ describe('JourneyRecordingsService.prepStatus', () => {
       sync_enabled: 1,
     });
 
-    expect(await svc.prepStatus(f.owner.id, f.journey.id)).toMatchObject({ enabled: true, connection: 'ready' });
+    expect(await svc.prepStatus(f.owner.id, f.journey.id)).toMatchObject({
+      enabled: true,
+      connection: 'ready',
+      periods: [],
+    });
+  });
+
+  it('JRNREC-SVC-017: while on, it names the linked trips the runs reach and leaves out one that ended too long ago', async () => {
+    const f = await fixture();
+    const start = new Date(Date.now() - 5 * 86_400_000).toISOString().slice(0, 10);
+    const longAgo = new Date(Date.now() - 500 * 86_400_000).toISOString().slice(0, 10);
+    const recent = await makeTrip(orm, f.owner.id, { start_date: start, end_date: null });
+    const old = await makeTrip(orm, f.owner.id, { start_date: longAgo, end_date: longAgo });
+    await linkTripToJourney(orm, f.journey.id, recent.id);
+    await linkTripToJourney(orm, f.journey.id, old.id);
+    await t.get(JourneyDomainService).updateJourney(f.journey.id, f.owner.id, { auto_prepare_recordings: true });
+
+    expect((await svc.prepStatus(f.editor.id, f.journey.id)).periods).toEqual([{ start, end: null }]);
   });
 
   it('JRNREC-SVC-016: a reader, a stranger and a switched off Dawarich are refused as the other routes refuse them', async () => {

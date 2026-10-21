@@ -1,4 +1,4 @@
-// FE-JRN-DETWIRE-001 to FE-JRN-DETWIRE-045
+// FE-JRN-DETWIRE-001 to FE-JRN-DETWIRE-046
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor, within } from '../../tests/helpers/render';
 import { journeyApi } from '../api/client';
@@ -645,5 +645,20 @@ describe('JourneyDetailPage wiring', () => {
     expect(dayPrep).toHaveBeenCalledWith('2026-05-01');
     expect(screen.getAllByTestId('journey-day-prep-unsettled')).toHaveLength(1);
     expect(mocks.captured.settings.recordingPrep).toBe(recordingPrep);
+  });
+
+  it('FE-JRN-DETWIRE-046: an editor without the settings gets the status of their own preparation in the day dialog (JRN-03)', () => {
+    const recordingPrep = { prep: { enabled: true }, dayPrep: () => null };
+    const dialog = { journeyId: 7, date: '2026-05-01', dayColor: '#123456' };
+    setup({
+      canEditJourney: false,
+      myRole: 'editor',
+      canTakeOverRecording: true,
+      dayImport: { open: vi.fn(), dialog },
+      recordingPrep,
+    });
+
+    expect(screen.getByTestId('day-import-dialog')).toBeInTheDocument();
+    expect(mocks.captured.dayImport.prep).toBe(recordingPrep);
   });
 });

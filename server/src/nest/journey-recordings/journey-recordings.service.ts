@@ -137,17 +137,20 @@ export class JourneyRecordingsService {
 
   /**
    * Whether the journey prepares its recorded days (JRN-03) and how the
-   * caller's own last runs over it went, with what their connection allows.
+   * caller's own last runs over it went, with what their connection allows
+   * and, while it is on, which linked trips those runs reach.
    * Only for those who may edit it: a reader has nothing of theirs prepared.
    */
   async prepStatus(userId: number, journeyId: number): Promise<JourneyRecordingPrep> {
     const journey = await this.requireEditable(journeyId, userId);
     await this.requireDawarich();
     const connection = await this.dawarich.getConnection(userId);
+    const enabled = !!journey.auto_prepare_recordings;
     return {
-      enabled: !!journey.auto_prepare_recordings,
+      enabled,
       connection: !connection.connected ? 'not_connected' : connection.syncEnabled ? 'ready' : 'sync_off',
       ...(await this.prep.status(journeyId, userId)),
+      ...(enabled ? { periods: await this.prep.periodsOf(journeyId, userId) } : {}),
     };
   }
 

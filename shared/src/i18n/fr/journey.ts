@@ -855,6 +855,12 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'Pas encore récupéré.',
   'journey.prep.dayProvisional': 'Récupéré {time}, avant la fin de la journée, des séjours peuvent manquer.',
   'journey.prep.dayFailed': "La dernière actualisation a échoué, ceci est l'état précédent.",
+  'journey.prep.outOfReach':
+    "Les voyages terminés il y a plus de {count} jours ne sont pas préparés en arrière-plan. Ouvrez l'un de leurs jours pour le récupérer à la main.",
+  'journey.prep.outOfReach.one':
+    "Les voyages terminés il y a plus de {count} jour ne sont pas préparés en arrière-plan. Ouvrez l'un de leurs jours pour le récupérer à la main.",
+  'journey.prep.alreadyRunning':
+    "Une récupération est déjà en cours en arrière-plan. Ses étapes apparaîtront dès qu'elle sera terminée.",
   'journey.dayImport.running':
     "Cette journée n'est pas terminée. Les séjours enregistrés plus tard apparaissent dès que Dawarich les a.",
 };

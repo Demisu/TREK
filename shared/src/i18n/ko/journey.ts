@@ -816,6 +816,9 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': '아직 가져오지 않았습니다.',
   'journey.prep.dayProvisional': '{time}에 가져옴, 하루가 끝나기 전이라 머문 곳이 빠졌을 수 있습니다.',
   'journey.prep.dayFailed': '마지막 새로 고침에 실패했습니다. 이전 상태입니다.',
+  'journey.prep.outOfReach':
+    '{count}일 이상 전에 끝난 여행은 백그라운드에서 준비되지 않습니다. 해당 날짜를 열어 직접 가져오세요.',
+  'journey.prep.alreadyRunning': '백그라운드에서 이미 가져오는 중입니다. 끝나는 대로 머문 곳이 표시됩니다.',
   'journey.dayImport.running': '아직 진행 중인 날입니다. 나중에 기록된 머문 곳은 Dawarich에 들어오는 대로 표시됩니다.',
 };
 export default journey;

@@ -828,6 +828,9 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'Chưa lấy.',
   'journey.prep.dayProvisional': 'Đã lấy {time}, trước khi ngày kết thúc, có thể thiếu điểm dừng.',
   'journey.prep.dayFailed': 'Lần làm mới gần nhất thất bại, đây là trạng thái cũ hơn.',
+  'journey.prep.outOfReach':
+    'Các chuyến đi kết thúc hơn {count} ngày trước không được chuẩn bị ở nền. Mở một ngày của chuyến để lấy thủ công.',
+  'journey.prep.alreadyRunning': 'Đang có một lượt lấy dữ liệu chạy ở nền. Các điểm dừng sẽ hiện khi nó xong.',
   'journey.dayImport.running': 'Ngày này vẫn đang diễn ra. Các điểm dừng ghi sau sẽ hiện khi Dawarich có chúng.',
 };
 export default journey;

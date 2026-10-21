@@ -896,6 +896,15 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'Jeszcze nie pobrano.',
   'journey.prep.dayProvisional': 'Pobrano {time}, przed końcem dnia, może brakować postojów.',
   'journey.prep.dayFailed': 'Ostatnie odświeżenie nie powiodło się, to starszy stan.',
+  'journey.prep.outOfReach':
+    'Podróże zakończone ponad {count} dnia temu nie są przygotowywane w tle. Otwórz jeden z ich dni, aby pobrać go ręcznie.',
+  'journey.prep.outOfReach.one':
+    'Podróże zakończone ponad {count} dzień temu nie są przygotowywane w tle. Otwórz jeden z ich dni, aby pobrać go ręcznie.',
+  'journey.prep.outOfReach.few':
+    'Podróże zakończone ponad {count} dni temu nie są przygotowywane w tle. Otwórz jeden z ich dni, aby pobrać go ręcznie.',
+  'journey.prep.outOfReach.many':
+    'Podróże zakończone ponad {count} dni temu nie są przygotowywane w tle. Otwórz jeden z ich dni, aby pobrać go ręcznie.',
+  'journey.prep.alreadyRunning': 'W tle trwa już pobieranie. Postoje pojawią się, gdy się zakończy.',
   'journey.dayImport.running':
     'Ten dzień jeszcze trwa. Postoje zarejestrowane później pojawią się, gdy tylko Dawarich je będzie mieć.',
 };

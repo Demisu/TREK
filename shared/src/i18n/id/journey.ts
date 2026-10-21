@@ -832,6 +832,9 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'Belum diambil.',
   'journey.prep.dayProvisional': 'Diambil {time}, sebelum hari berakhir, beberapa persinggahan mungkin belum ada.',
   'journey.prep.dayFailed': 'Penyegaran terakhir gagal, ini keadaan yang lebih lama.',
+  'journey.prep.outOfReach':
+    'Perjalanan yang berakhir lebih dari {count} hari lalu tidak disiapkan di latar belakang. Buka salah satu harinya untuk mengambilnya secara manual.',
+  'journey.prep.alreadyRunning': 'Pengambilan sudah berjalan di latar belakang. Persinggahannya muncul begitu selesai.',
   'journey.dayImport.running':
     'Hari ini masih berlangsung. Persinggahan yang terekam kemudian muncul begitu Dawarich memilikinya.',
 };

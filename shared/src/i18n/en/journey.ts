@@ -846,6 +846,11 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'Not fetched yet.',
   'journey.prep.dayProvisional': 'Fetched {time}, before the day ended, so stays may be missing.',
   'journey.prep.dayFailed': 'The last refresh failed, this is the older state.',
+  'journey.prep.outOfReach':
+    'Trips that ended more than {count} days ago are not prepared in the background. Open one of their days to fetch it by hand.',
+  'journey.prep.outOfReach.one':
+    'Trips that ended more than {count} day ago are not prepared in the background. Open one of their days to fetch it by hand.',
+  'journey.prep.alreadyRunning': 'A fetch is already running in the background. Its stays show up once it is through.',
   'journey.dayImport.running': 'This day is still running. Stays recorded later show up once Dawarich has them.',
 };
 export default journey;

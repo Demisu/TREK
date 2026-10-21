@@ -26,6 +26,7 @@ import {
 } from './journeyDayImportModel';
 import { recordingErrorText } from './journeyRecordingModel';
 import { useJourneyRecordingDay } from './useJourneyRecordingDay';
+import type { JourneyRecordingPrepState } from './useJourneyRecordingPrep';
 
 /** What the desktop dialog and the phone sheet are opened with. */
 export interface JourneyDayImportViewProps {
@@ -40,6 +41,8 @@ export interface JourneyDayImportViewProps {
   onTakenOver: () => void;
   onKept: (day: JourneyRecordedDay) => void;
   onClose: () => void;
+  /** The caller's own preparation of the journey's days (JRN-03), for editors too; absent while it is off or unread. */
+  prep?: JourneyRecordingPrepState;
 }
 
 /**
@@ -259,7 +262,7 @@ export function useJourneyDayImport({
   onTakenOver,
   onKept,
   onClose,
-}: Omit<JourneyDayImportViewProps, 'journeyTitle'>) {
+}: Omit<JourneyDayImportViewProps, 'journeyTitle' | 'prep'>) {
   const { t, locale } = useTranslation();
   const day = useDayReview(journeyId, date);
   const route = useJourneyRecordingDay({ journeyId, date, onKept, onRemoved: noop, onClose: noop });
@@ -291,6 +294,7 @@ export function useJourneyDayImport({
   const problem = choice ? problemOf(choice, stays, reportDefault) : 'nothing';
 
   return {
+    date,
     review: day.review,
     loading: day.loading,
     /** The day is today: stays recorded later still arrive. */

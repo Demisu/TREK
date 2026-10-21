@@ -849,6 +849,11 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'Veel laadimata.',
   'journey.prep.dayProvisional': 'Laaditud {time}, enne päeva lõppu, peatusi võib puududa.',
   'journey.prep.dayFailed': 'Viimane värskendus ebaõnnestus, see on vanem seis.',
+  'journey.prep.outOfReach':
+    'Reise, mis lõppesid üle {count} päeva tagasi, taustal ette ei valmistata. Ava mõni nende päev, et see käsitsi tuua.',
+  'journey.prep.outOfReach.one':
+    'Reise, mis lõppesid üle {count} päeva tagasi, taustal ette ei valmistata. Ava mõni nende päev, et see käsitsi tuua.',
+  'journey.prep.alreadyRunning': 'Taustal juba käib üks toomine. Selle peatused ilmuvad, kui see on lõpetanud.',
   'journey.dayImport.running':
     'See päev alles kestab. Hiljem salvestatud peatused ilmuvad kohe, kui Dawarichil need on.',
 };

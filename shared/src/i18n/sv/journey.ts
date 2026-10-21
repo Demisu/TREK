@@ -849,6 +849,11 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'Inte hämtat än.',
   'journey.prep.dayProvisional': 'Hämtat {time}, innan dagen var slut, vistelser kan saknas.',
   'journey.prep.dayFailed': 'Senaste uppdateringen misslyckades, detta är det äldre läget.',
+  'journey.prep.outOfReach':
+    'Resor som slutade för mer än {count} dagar sedan förbereds inte i bakgrunden. Öppna en av deras dagar för att hämta den för hand.',
+  'journey.prep.outOfReach.one':
+    'Resor som slutade för mer än {count} dag sedan förbereds inte i bakgrunden. Öppna en av deras dagar för att hämta den för hand.',
+  'journey.prep.alreadyRunning': 'En hämtning pågår redan i bakgrunden. Vistelserna visas så snart den är klar.',
   'journey.dayImport.running':
     'Den här dagen pågår fortfarande. Vistelser som spelas in senare visas så snart Dawarich har dem.',
 };

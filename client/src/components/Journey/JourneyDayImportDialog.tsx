@@ -13,6 +13,7 @@ export default function JourneyDayImportDialog({
   date,
   dayColor,
   onClose,
+  prep,
   ...rest
 }: JourneyDayImportViewProps) {
   const { t } = useTranslation();
@@ -26,7 +27,7 @@ export default function JourneyDayImportDialog({
       onClose={onClose}
       footer={<JourneyDayImportActions state={state} onCancel={onClose} />}
     >
-      <JourneyDayImportReview state={state} dayColor={dayColor} />
+      <JourneyDayImportReview state={state} dayColor={dayColor} prep={prep} />
     </DawarichDayDialog>
   );
 }

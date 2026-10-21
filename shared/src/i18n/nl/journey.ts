@@ -858,6 +858,12 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'Nog niet opgehaald.',
   'journey.prep.dayProvisional': 'Opgehaald {time}, voor het einde van de dag, er kunnen verblijven ontbreken.',
   'journey.prep.dayFailed': 'De laatste verversing is mislukt, dit is de oudere stand.',
+  'journey.prep.outOfReach':
+    'Reizen die meer dan {count} dagen geleden eindigden, worden niet op de achtergrond voorbereid. Open een van hun dagen om die met de hand op te halen.',
+  'journey.prep.outOfReach.one':
+    'Reizen die meer dan {count} dag geleden eindigden, worden niet op de achtergrond voorbereid. Open een van hun dagen om die met de hand op te halen.',
+  'journey.prep.alreadyRunning':
+    'Er loopt al een ophaalactie op de achtergrond. De verblijven verschijnen zodra die klaar is.',
   'journey.dayImport.running': 'Deze dag loopt nog. Later opgenomen verblijven verschijnen zodra Dawarich ze heeft.',
 };
 export default journey;

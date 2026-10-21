@@ -11,16 +11,25 @@ import { Tooltip } from '../shared/Tooltip';
 import { JourneyDayImportStays } from './JourneyDayImportStays';
 import JourneyMap from './JourneyMapAuto';
 import { reasonText } from './journeyRecordingModel';
+import { dayPrepNotice } from './journeyRecordingPrepModel';
+import { JourneyRecordingPrepStatus } from './JourneyRecordingPrepSetting';
 import { Notice } from './JourneyRecordingReview';
 import { stayMarkerId, type JourneyDayImportState } from './useJourneyDayImport';
+import type { JourneyRecordingPrepState } from './useJourneyRecordingPrep';
 
-type Props = { state: JourneyDayImportState; dayColor: string };
+type Props = { state: JourneyDayImportState; dayColor: string; prep?: JourneyRecordingPrepState };
 
-/** Why the list may not be the whole day, and what went wrong on the way. */
-function DayNotices({ state }: { state: JourneyDayImportState }) {
+/**
+ * Why the list may not be the whole day, and what went wrong on the way. With
+ * the journey preparing its days, why this day is not final yet and how the
+ * caller's own preparation stands, so an editor sees it without the settings.
+ */
+function DayNotices({ state, prep }: { state: JourneyDayImportState; prep?: JourneyRecordingPrepState }) {
   const { t, locale } = useTranslation();
   const { review, outcome } = state;
   const reason = review ? reasonText(review.error, t) : '';
+  const day = prep?.dayPrep(state.date);
+  const dayNotice = day ? dayPrepNotice(day, t, locale) : '';
   return (
     <>
       {outcome?.kind === 'failed' && (
@@ -41,6 +50,8 @@ function DayNotices({ state }: { state: JourneyDayImportState }) {
       )}
       {review?.truncated && <Notice tone="warning">{t('journey.dayImport.truncated')}</Notice>}
       {state.running && <Notice tone="info">{t('journey.dayImport.running')}</Notice>}
+      {dayNotice && <Notice tone="warning">{dayNotice}</Notice>}
+      {prep && <JourneyRecordingPrepStatus prep={prep} />}
     </>
   );
 }
@@ -137,7 +148,7 @@ function scrollToStay(id: string): void {
  * holds on the day already, and who will see the drafts. The body of the
  * desktop dialog and of the phone sheet alike.
  */
-export function JourneyDayImportReview({ state, dayColor }: Props) {
+export function JourneyDayImportReview({ state, dayColor, prep }: Props) {
   const { t } = useTranslation();
   const { review, choice } = state;
   if (!review) {
@@ -162,7 +173,7 @@ export function JourneyDayImportReview({ state, dayColor }: Props) {
   }
   return (
     <>
-      <DayNotices state={state} />
+      <DayNotices state={state} prep={prep} />
       <DialogSection label={t('journey.dayImport.map')}>
         <div className="flex flex-col gap-2.5">
           <div className="overflow-hidden rounded-[12px] border border-edge-faint">

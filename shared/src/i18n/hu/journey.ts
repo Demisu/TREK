@@ -853,6 +853,11 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'Még nincs lekérve.',
   'journey.prep.dayProvisional': 'Lekérve {time}, a nap vége előtt, hiányozhatnak tartózkodások.',
   'journey.prep.dayFailed': 'A legutóbbi frissítés nem sikerült, ez a régebbi állapot.',
+  'journey.prep.outOfReach':
+    'A több mint {count} napja véget ért utak nem készülnek elő a háttérben. Nyisd meg az egyik napjukat, hogy kézzel lekérd.',
+  'journey.prep.outOfReach.one':
+    'A több mint {count} napja véget ért utak nem készülnek elő a háttérben. Nyisd meg az egyik napjukat, hogy kézzel lekérd.',
+  'journey.prep.alreadyRunning': 'A háttérben már fut egy lekérés. A megállói megjelennek, amint végzett.',
   'journey.dayImport.running':
     'Ez a nap még tart. A később rögzített tartózkodások megjelennek, amint a Dawarich megkapja őket.',
 };

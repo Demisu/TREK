@@ -819,6 +819,9 @@ const journey: TranslationStrings = {
   'journey.prep.dayPending': 'まだ取得していません。',
   'journey.prep.dayProvisional': '{time} に取得、一日が終わる前なので滞在先が欠けている可能性があります。',
   'journey.prep.dayFailed': '前回の更新に失敗しました。これは古い状態です。',
+  'journey.prep.outOfReach':
+    '{count} 日以上前に終わった旅行はバックグラウンドで準備されません。その日を開くと手動で取得できます。',
+  'journey.prep.alreadyRunning': 'バックグラウンドで取得がすでに実行中です。終わり次第、滞在先が表示されます。',
   'journey.dayImport.running': 'この日はまだ続いています。後から記録された滞在先は Dawarich に届き次第表示されます。',
 };
 export default journey;
