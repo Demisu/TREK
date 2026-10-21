@@ -54,7 +54,6 @@ describe('InMemoryAiAuthFlowStore', () => {
     state: 's',
     nonce: 'n',
     savedClientId: null,
-    redirectUri: 'http://127.0.0.1:1455/auth/callback',
     expiresAt,
   });
 

@@ -9,7 +9,7 @@ import { useAuthStore } from '../../../store/authStore';
 import { providerLabel } from '../../Assistant/providerCatalog';
 import { useToast } from '../../shared/Toast';
 import { type AiConnectMode, connectErrorKey, repairModeOf } from './aiConnectModel';
-import { useChatgptReturn, useOpenrouterReturn } from './useAiConnect';
+import { useOpenrouterReturn } from './useAiConnect';
 
 /**
  * What the AI connection card shows:
@@ -157,7 +157,6 @@ export function useAiConnections({ phone = false }: { phone?: boolean } = {}) {
     void reload();
   };
   useOpenrouterReturn(onConnected);
-  useChatgptReturn(onConnected);
 
   const own = status?.own ?? null;
   const view = viewOf(status, loaded);

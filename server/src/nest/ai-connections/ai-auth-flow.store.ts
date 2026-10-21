@@ -12,8 +12,6 @@ export interface ChatgptAuthFlow {
   nonce: string;
   /** The client id this user's registration was issued, sent instead of registering again. */
   savedClientId: string | null;
-  /** Where the sign-in ends: the loopback page to paste from, or the relay that comes back by itself. */
-  redirectUri: string;
   expiresAt: number;
 }
 

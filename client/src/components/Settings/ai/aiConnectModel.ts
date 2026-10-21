@@ -71,28 +71,6 @@ export function rememberOpenrouterFlow(flowId: string): void {
   }
 }
 
-const CHATGPT_FLOW_KEY = 'trek.ai.chatgptFlow';
-
-/** Keeps the ChatGPT sign-in that left for OpenAI and comes back by itself, for the page it returns to. */
-export function rememberChatgptFlow(flowId: string): void {
-  try {
-    sessionStorage.setItem(CHATGPT_FLOW_KEY, flowId);
-  } catch {
-    // Storage refused (private mode): the return then reads as an expired sign-in.
-  }
-}
-
-/** The ChatGPT sign-in this tab started, read once. */
-export function takeChatgptFlow(): string | null {
-  try {
-    const flowId = sessionStorage.getItem(CHATGPT_FLOW_KEY);
-    sessionStorage.removeItem(CHATGPT_FLOW_KEY);
-    return flowId;
-  } catch {
-    return null;
-  }
-}
-
 /** The flow the OpenRouter sign-in started, read once. */
 export function takeOpenrouterFlow(): string | null {
   try {

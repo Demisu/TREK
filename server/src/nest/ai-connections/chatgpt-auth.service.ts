@@ -1,4 +1,4 @@
-import { getAppUrl, runningVersion } from '../../app-config';
+import { runningVersion } from '../../app-config';
 import { AiConnections } from '../../db/entities/AiConnections.entity';
 import { AI_CONNECTION_ACCOUNT, type AiConnectionAccount } from '../../db/json-columns';
 import type { AiConnectionRow, AiConnectionsRepository } from '../../db/repositories/AiConnections.repository';
@@ -11,7 +11,6 @@ import { aiRefusal, providerRefusal } from './ai-connections.constants';
 import { AiRefreshLock } from './ai-refresh-lock';
 import { openSecrets, sealSecrets, type ChatgptTokens } from './ai-secrets';
 import { AiSettingsService } from './ai-settings.service';
-import { chatgptRelay, isChatgptCallback, relayState } from './chatgpt-return';
 import { ModelCatalogService, pickDefaultModel } from './model-catalog.service';
 import { AiProviderError, errorCodeOf } from './providers/provider-errors';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -108,7 +107,7 @@ function readPastedCallback(pasted: string): PastedCallback {
   } catch {
     throw aiRefusal('wrong_url', 'That is not the address the sign-in ended on');
   }
-  if (!isChatgptCallback(url, CHATGPT_REDIRECT_URI, getAppUrl())) {
+  if (`${url.origin}${url.pathname}` !== CHATGPT_REDIRECT_URI) {
     throw aiRefusal('wrong_url', 'That is not the address the sign-in ended on');
   }
   const params = url.searchParams;
@@ -154,13 +153,9 @@ export class ChatgptAuthService {
   async start(userId: number): Promise<AiAuthStartResponse> {
     await this.settings.assertCanConnectOwn(userId);
     const existing = await this.connections.findForUser(userId);
-    const relay = chatgptRelay(getAppUrl());
-    const registered = existing?.kind === 'chatgpt' ? (this.accountOf(existing).clientId ?? null) : null;
-    // Through the relay every user signs in with the project's client; otherwise each registers their own.
-    const savedClientId = relay?.clientId ?? registered;
-    const redirectUri = relay?.redirectUri ?? CHATGPT_REDIRECT_URI;
+    const savedClientId = existing?.kind === 'chatgpt' ? (this.accountOf(existing).clientId ?? null) : null;
     const verifier = randomToken();
-    const state = relay ? relayState(randomToken(), relay.returnUrl) : randomToken();
+    const state = randomToken();
     const nonce = randomToken();
     const params = new URLSearchParams({
       client_id: savedClientId ?? DYNAMIC_CLIENT_ID,
@@ -168,7 +163,7 @@ export class ChatgptAuthService {
       ...(savedClientId ? {} : { agent_name_hint: 'TREK' }),
       ext_agent_host_id: await this.settings.siwcHostId(),
       response_type: 'code',
-      redirect_uri: redirectUri,
+      redirect_uri: CHATGPT_REDIRECT_URI,
       resource: RESOURCE,
       scope: SCOPE,
       state,
@@ -178,22 +173,11 @@ export class ChatgptAuthService {
     });
     const flowId = randomUUID();
     const expiresAt = Date.now() + AI_AUTH_FLOW_TTL_MS;
-    const flow = {
-      provider: 'chatgpt' as const,
-      userId,
-      verifier,
-      state,
-      nonce,
-      savedClientId,
-      redirectUri,
-      expiresAt,
-    };
-    await this.flows.put(flowId, flow);
+    await this.flows.put(flowId, { provider: 'chatgpt', userId, verifier, state, nonce, savedClientId, expiresAt });
     return {
       flowId,
       authorizeUrl: `${AUTHORIZE_URL}?${params.toString()}`,
       expiresAt: new Date(expiresAt).toISOString(),
-      ...(relay ? { returns: true } : {}),
     };
   }
 
@@ -221,7 +205,7 @@ export class ChatgptAuthService {
       throw aiRefusal('wrong_url', 'That is not the address the sign-in ended on');
     }
 
-    const tokens = await this.exchangeCode(clientId, callback.code, flow.verifier, flow.redirectUri);
+    const tokens = await this.exchangeCode(clientId, callback.code, flow.verifier);
     if (!tokens.id_token || !tokens.refresh_token) {
       throw aiRefusal('provider_unavailable', 'ChatGPT sent an incomplete answer');
     }
@@ -333,19 +317,14 @@ export class ChatgptAuthService {
     });
   }
 
-  private async exchangeCode(
-    clientId: string,
-    code: string,
-    verifier: string,
-    redirectUri: string,
-  ): Promise<TokenResponse> {
+  private async exchangeCode(clientId: string, code: string, verifier: string): Promise<TokenResponse> {
     try {
       return await this.tokenRequest({
         grant_type: 'authorization_code',
         client_id: clientId,
         code,
         code_verifier: verifier,
-        redirect_uri: redirectUri,
+        redirect_uri: CHATGPT_REDIRECT_URI,
         resource: RESOURCE,
       });
     } catch (err) {
