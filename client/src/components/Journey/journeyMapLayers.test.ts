@@ -1,4 +1,4 @@
-// FE-JOURNEY-MAPLAYERS-001 to FE-JOURNEY-MAPLAYERS-008
+// FE-JOURNEY-MAPLAYERS-001 to FE-JOURNEY-MAPLAYERS-009
 //
 // JRN-04: the journey map's layer switches as kept in this browser, the marks
 // the plan and the stays become, and the switches a reader is offered.
@@ -168,5 +168,22 @@ describe('journey map layers', () => {
     });
     expect(controls.find((c) => c.layer === 'plan')).toEqual({ layer: 'plan', count: 3, state: 'unavailable' });
     expect(controls.find((c) => c.layer === 'entries')).toEqual({ layer: 'entries', count: 5, state: 'unavailable' });
+  });
+
+  it('FE-JOURNEY-MAPLAYERS-009: a journey whose recordings could not be read says so instead of nothing recorded', () => {
+    const recorded = (recordedRead: 'loading' | 'ready' | 'unavailable', recordedDays: number) =>
+      buildControls({
+        ownJourney: true,
+        sources: {},
+        loading: false,
+        recordedRead,
+        counts: { places: 0, routes: 0, recordedDays, entries: 0, stays: 0, photos: 0 },
+      }).find((c) => c.layer === 'recorded')?.state;
+
+    expect(recorded('unavailable', 0)).toBe('unavailable');
+    expect(recorded('unavailable', 2)).toBe('unavailable');
+    expect(recorded('loading', 0)).toBe('loading');
+    expect(recorded('loading', 1)).toBe('ready');
+    expect(recorded('ready', 0)).toBe('empty');
   });
 });

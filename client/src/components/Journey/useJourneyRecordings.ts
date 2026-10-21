@@ -8,6 +8,8 @@ import type { JourneyRecordingViewProps } from './useJourneyRecordingDay';
 
 interface JourneyRecordingsState {
   days: JourneyRecordedDay[];
+  /** Whether the days were read: a failed first read is not a journey that kept none. */
+  status: 'idle' | 'loading' | 'ready' | 'failed';
   byDate: ReadonlyMap<string, JourneyRecordedDay>;
   /** The kept days as lines for the journey map, one per piece, never joined across a gap. */
   tracks: JourneyTrack[];
@@ -44,7 +46,16 @@ export function useJourneyRecordings(
   // never shows the other one's days, and nothing has to be reset in an effect.
   const [loaded, setLoaded] = useState<{ journeyId: number | null; days: JourneyRecordedDay[] }>(NOTHING_LOADED);
   const [opened, setOpened] = useState<{ journeyId: number | null; date: string | null }>(NOTHING_OPEN);
+  const [failedFor, setFailedFor] = useState<number | null>(null);
   const days = loaded.journeyId === journeyId ? loaded.days : NO_DAYS;
+  const status =
+    journeyId === null
+      ? 'idle'
+      : loaded.journeyId === journeyId
+        ? 'ready'
+        : failedFor === journeyId
+          ? 'failed'
+          : 'loading';
   const openDate = opened.journeyId === journeyId ? opened.date : null;
 
   const read = useCallback(async () => {
@@ -61,12 +72,14 @@ export function useJourneyRecordings(
   useEffect(() => {
     let cancelled = false;
     void read().then((next) => {
-      if (next && !cancelled) setLoaded(next);
+      if (cancelled) return;
+      if (next) setLoaded(next);
+      else setFailedFor(journeyId);
     });
     return () => {
       cancelled = true;
     };
-  }, [read]);
+  }, [read, journeyId]);
 
   const reload = useCallback(async () => {
     const next = await read();
@@ -130,7 +143,7 @@ export function useJourneyRecordings(
     [journeyId, journeyTitle, openDate, byDate, kept, removed, close]
   );
 
-  return { days, byDate, tracks, openDate, dialog, open, close, kept, removed };
+  return { days, status, byDate, tracks, openDate, dialog, open, close, kept, removed };
 }
 
 /** Stable empty identity, so a journey without kept days never re-renders its map for nothing. */

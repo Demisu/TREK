@@ -183,6 +183,14 @@ const TRACK_FALLBACK_COLOR = '#4f46e5'
 /** The dash of a planned track; wide enough not to pass for the faint line between entries. */
 const PLANNED_DASH = '8 7'
 
+function markCoords(marks: JourneyMapMark[] | undefined): L.LatLngTuple[] {
+  return (marks ?? []).map(mark => [mark.lat, mark.lng] as L.LatLngTuple)
+}
+
+function fitOptions(paddingBottom: number | undefined): L.FitBoundsOptions {
+  return { paddingTopLeft: [50, 50], paddingBottomRight: [50, paddingBottom || 50], maxZoom: 16 }
+}
+
 function JourneyMap(
   { entries, photos, onPhotoClick, trail, tracks, height = 220, dark, activeMarkerId, onMarkerClick, fullScreen, paddingBottom, cartoApiKey, hideMarkerTooltip, layerVisibility = EVERY_LAYER, marks, onMarksPick, plannedEntryIds = NO_PLANNED, ref }: Props,
 ) {
@@ -222,6 +230,12 @@ function JourneyMap(
   onPhotoClickRef.current = onPhotoClick
   const markLayerRef = useRef<L.LayerGroup | null>(null)
   const onMarksPickRef = useRef(onMarksPick)
+  const marksRef = useRef(marks)
+  marksRef.current = marks
+  // A journey with nothing located of its own opens on the world until its
+  // plan or stays arrive; those get the first view unless the reader moved it.
+  const awaitingMarksRef = useRef(false)
+  const readerMovedRef = useRef(false)
   // What each switchable layer drew, and which of them are on the map right now.
   const drawnRef = useRef<DrawnLayers>(NOTHING_DRAWN())
   const shownRef = useRef<JourneyMapLayerVisibility>(layerVisibility)
@@ -303,6 +317,11 @@ function JourneyMap(
     L.control.attribution({ position: 'bottomright', prefix: false }).addTo(map)
     mapRef.current = map
     cancelledRef.current = false
+    awaitingMarksRef.current = false
+    readerMovedRef.current = false
+    const readerMoved = () => { readerMovedRef.current = true }
+    map.on('dragstart', readerMoved)
+    containerRef.current.addEventListener('wheel', readerMoved, { passive: true })
 
     // The basemap is a vector style unless the user brought their own raster
     // template, so which layer draws it is decided per template rather than once.
@@ -445,12 +464,12 @@ function JourneyMap(
         map.invalidateSize()
         // Tracks only get a say when the journey has nothing located of its own —
         // a world view would be worse than framing the one thing on the map.
-        const fitCoords = allCoords.length > 0 ? allCoords : trackCoords
+        const fitCoords = allCoords.length > 0 ? allCoords : trackCoords.length > 0 ? trackCoords : markCoords(marksRef.current)
         if (fitCoords.length > 0) {
-          const pb = paddingBottom || 50
-          map.fitBounds(L.latLngBounds(fitCoords), { paddingTopLeft: [50, 50], paddingBottomRight: [50, pb], maxZoom: 16 })
+          map.fitBounds(L.latLngBounds(fitCoords), fitOptions(paddingBottom))
         } else {
           map.setView([30, 0], 2)
+          awaitingMarksRef.current = true
         }
       } catch {}
     })
@@ -459,8 +478,10 @@ function JourneyMap(
       if (mapRef.current) map.invalidateSize()
     }, 200)
 
+    const container = containerRef.current
     return () => {
       cancelledRef.current = true
+      container.removeEventListener('wheel', readerMoved)
       map.remove()
       mapRef.current = null
       tileLayerRef.current = null
@@ -560,6 +581,12 @@ function JourneyMap(
       markLayerRef.current = drawLeafletMarks(map, marks, members => onMarksPickRef.current?.(members))
     }
 
+    const coords = markCoords(marks)
+    if (awaitingMarksRef.current && coords.length > 0) {
+      awaitingMarksRef.current = false
+      if (!readerMovedRef.current) map.fitBounds(L.latLngBounds(coords), fitOptions(paddingBottom))
+    }
+
     draw()
     map.on('zoomend', draw)
     map.on('moveend', draw)
@@ -584,8 +611,14 @@ function JourneyMap(
     return () => clearTimeout(timer)
   }, [activeMarkerId])
 
-  const zoomIn = () => mapRef.current?.zoomIn()
-  const zoomOut = () => mapRef.current?.zoomOut()
+  const zoomIn = () => {
+    readerMovedRef.current = true
+    mapRef.current?.zoomIn()
+  }
+  const zoomOut = () => {
+    readerMovedRef.current = true
+    mapRef.current?.zoomOut()
+  }
 
   return (
     <div style={{ position: 'relative', height: height === 9999 ? '100%' : height, width: '100%', borderRadius: 'inherit', overflow: 'hidden' }}>

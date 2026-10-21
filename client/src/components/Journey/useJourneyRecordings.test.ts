@@ -1,4 +1,4 @@
-// FE-JRN-RECORDINGS-HOOK-001 to FE-JRN-RECORDINGS-HOOK-005
+// FE-JRN-RECORDINGS-HOOK-001 to FE-JRN-RECORDINGS-HOOK-006
 //
 // JRN-01: the recorded days a journey keeps, as the desktop page and the phone
 // screen read them: the list, the lines they draw on the map, which day's
@@ -112,5 +112,19 @@ describe('useJourneyRecordings', () => {
     expect(result.current.days).toEqual([]);
     act(() => result.current.close());
     expect(result.current.dialog).toBeNull();
+  });
+
+  it('FE-JRN-RECORDINGS-HOOK-006: a first read that fails says so, rather than passing for a journey that kept no day', async () => {
+    repo.list.mockRejectedValueOnce(new Error('offline'));
+    const { result } = renderHook(() => useJourneyRecordings(JOURNEY, colorOf));
+    expect(result.current.status).toBe('loading');
+    await waitFor(() => expect(result.current.status).toBe('failed'));
+    expect(result.current.days).toEqual([]);
+
+    repo.list.mockResolvedValueOnce([buildRecordedDay()]);
+    await act(async () => {
+      await pings.handlers.get('journey:recording:updated')?.();
+    });
+    expect(result.current.status).toBe('ready');
   });
 });

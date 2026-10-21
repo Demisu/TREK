@@ -148,6 +148,21 @@ const EMPTY_TRACKS: JourneyTrack[] = []
 /** Fallback when a track carries no colour of its own, matching the planner's default. */
 const TRACK_FALLBACK_COLOR = '#4f46e5'
 
+function markBounds(gl: Props['gl'], marks: JourneyMapMark[]) {
+  const bounds = new gl.LngLatBounds()
+  marks.forEach(mark => bounds.extend([mark.lng, mark.lat]))
+  return bounds
+}
+
+function fitOptions(paddingBottom: number | undefined, tilted: boolean) {
+  return {
+    padding: { top: 50, bottom: paddingBottom || 50, left: 50, right: 50 },
+    maxZoom: 16,
+    pitch: tilted ? 45 : 0,
+    duration: 0,
+  }
+}
+
 function JourneyMapGL(
   { entries, trail, tracks, height = 220, dark, activeMarkerId, onMarkerClick, fullScreen, paddingBottom, glProvider = 'mapbox-gl', gl, hideMarkerTooltip, onMarkerPhotoClick, photos, onPhotoClick, layerVisibility = EVERY_LAYER, marks, onMarksPick, plannedEntryIds = NO_PLANNED, ref }: Props,
 ) {
@@ -184,6 +199,12 @@ function JourneyMapGL(
   const photoMarkersRef = useRef<{ remove: () => void }[]>([])
   const markMarkersRef = useRef<{ remove: () => void }[]>([])
   const onMarksPickRef = useRef(onMarksPick)
+  const marksRef = useRef(marks)
+  marksRef.current = marks
+  // As on the Leaflet map: nothing located of its own, so the plan or the
+  // stays get the first view once they arrive, unless the reader moved it.
+  const awaitingMarksRef = useRef(false)
+  const readerMovedRef = useRef(false)
   const visibilityRef = useRef(layerVisibility)
   const shownRef = useRef<JourneyMapLayerVisibility>(layerVisibility)
   const plannedRef = useRef(plannedEntryIds)
@@ -343,6 +364,11 @@ function JourneyMapGL(
 
     const map = new gl.Map(mapOptions as any)
     mapRef.current = map
+    awaitingMarksRef.current = false
+    readerMovedRef.current = false
+    map.on('movestart', (ev: { originalEvent?: unknown }) => {
+      if (ev.originalEvent) readerMovedRef.current = true
+    })
     shownRef.current = visibilityRef.current
     iconPlannedRef.current = plannedRef.current
     // A layer whose switch is off is added hidden, so switching it on later needs no rebuild.
@@ -471,15 +497,15 @@ function JourneyMapGL(
 
       // fit bounds to all points
       if (hasPoints) {
-        const pb = paddingBottom || 50
         try {
-          map.fitBounds(bounds, {
-            padding: { top: 50, bottom: pb, left: 50, right: 50 },
-            maxZoom: 16,
-            pitch: enableMapbox3d && fullScreen ? 45 : 0,
-            duration: 0,
-          })
+          map.fitBounds(bounds, fitOptions(paddingBottom, enableMapbox3d && fullScreen))
         } catch { /* empty bounds */ }
+      } else if (marksRef.current?.length) {
+        try {
+          map.fitBounds(markBounds(gl, marksRef.current), fitOptions(paddingBottom, enableMapbox3d && fullScreen))
+        } catch { /* empty bounds */ }
+      } else {
+        awaitingMarksRef.current = true
       }
     })
 
@@ -571,6 +597,14 @@ function JourneyMapGL(
     const draw = () => {
       clear()
       if (!marks?.length) return
+      if (awaitingMarksRef.current) {
+        awaitingMarksRef.current = false
+        if (!readerMovedRef.current) {
+          try {
+            map.fitBounds(markBounds(gl, marks), fitOptions(paddingBottom, enableMapbox3d && fullScreen))
+          } catch { /* empty bounds */ }
+        }
+      }
       for (const hit of clusterPoints(marks, (lat, lng) => map.project([lng, lat]), MARK_CLUSTER_PX)) {
         const look = markHitSvg(hit.members)
         const el = document.createElement('div')

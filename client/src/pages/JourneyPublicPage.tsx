@@ -166,6 +166,28 @@ export default function JourneyPublicPage() {
     }))
     : [];
 
+  // A photo hit on the map opens the photos it holds, as the gallery would.
+  const openMapPhotos = (ids: string[]) => {
+    const wanted = new Set(ids);
+    const picked = allPhotos.filter((p) => wanted.has(String(p.id)));
+    if (!token || picked.length === 0) return;
+    setLightbox({
+      photos: picked.map((p) => ({
+        id: String(p.id),
+        src: photoUrl(p, token, 'original'),
+        caption: p.caption,
+        mediaType: p.media_type,
+      })),
+      index: 0,
+    });
+  };
+
+  // The map tab only exists while the timeline is not shared, so an entry is shown on the map itself.
+  const focusEntryOnMap = (entryId: string) => {
+    setActiveEntryId(entryId);
+    mapRef.current?.focusMarker(entryId);
+  };
+
   // Shared timeline renderer used in both layout modes
   const renderTimeline = () => (
     <div className="flex flex-col gap-6">
@@ -633,6 +655,7 @@ export default function JourneyPublicPage() {
                 checkins={[]}
                 entries={sidebarMapItems as any}
                 photos={photoLayer}
+                onPhotoClick={openMapPhotos}
                 height={9999}
                 fullScreen
                 activeMarkerId={activeEntryId ?? undefined}
@@ -683,6 +706,7 @@ export default function JourneyPublicPage() {
               layers={mapLayers}
               entryTitleOf={entryTitleOf}
               photos={photoLayer}
+              onPhotoClick={openMapPhotos}
               controlsTop={availableViews.length > 1 ? 'calc(env(safe-area-inset-top, 0px) + 56px)' : undefined}
               showMood={journey.show_mood !== 0}
               showWeather={journey.show_weather !== 0}
@@ -699,13 +723,15 @@ export default function JourneyPublicPage() {
           {view === 'map' && perms.share_map && (
             <div className="overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-700">
               <JourneyLayeredMap
+                ref={mapRef}
                 engine="leaflet"
                 layers={mapLayers}
-                onOpenEntry={handleMarkerClick}
+                onOpenEntry={focusEntryOnMap}
                 entryTitleOf={entryTitleOf}
                 checkins={[]}
                 entries={sidebarMapItems as any}
                 photos={photoLayer}
+                onPhotoClick={openMapPhotos}
                 height={500}
                 cartoApiKey={cartoApiKey}
               />

@@ -209,10 +209,13 @@ export function buildControls({
   sources,
   loading,
   counts,
+  recordedRead = 'ready',
 }: {
   ownJourney: boolean;
   sources: ReturnType<typeof sourcesOf>;
   loading: boolean;
+  /** How the screen's own read of what was recorded went, for a journey's own map. */
+  recordedRead?: 'loading' | 'ready' | 'unavailable';
   counts: { places: number; routes: number; recordedDays: number; entries: number; stays: number; photos: number };
 }): JourneyMapLayerControl[] {
   const list: JourneyMapLayerControl[] = [];
@@ -225,9 +228,7 @@ export function buildControls({
   }
   if (ownJourney || sources.recordings?.status !== 'withheld') {
     const state = ownJourney
-      ? counts.recordedDays > 0
-        ? 'ready'
-        : 'empty'
+      ? ownRecordedState(recordedRead, counts.recordedDays)
       : stateOf(sources.recordings, loading, counts.recordedDays);
     list.push({ layer: 'recorded', count: counts.recordedDays, state });
   }
@@ -236,6 +237,12 @@ export function buildControls({
   list.push({ layer: 'entries', count: counts.entries, state: entriesState });
   list.push({ layer: 'photos', count: counts.photos, state: counts.photos > 0 ? 'ready' : 'empty' });
   return list;
+}
+
+function ownRecordedState(read: 'loading' | 'ready' | 'unavailable', days: number): JourneyMapLayerState {
+  if (read === 'unavailable') return 'unavailable';
+  if (days > 0) return 'ready';
+  return read === 'loading' ? 'loading' : 'empty';
 }
 
 /** Whether a track belongs to the plan (a trip's GPX) or to what was recorded. */

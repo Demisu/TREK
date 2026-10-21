@@ -44,6 +44,8 @@ interface Options {
   photoCount: number;
   /** What was recorded that the screen already holds: the kept days and the live trail of a journey's people. */
   recordedTracks?: JourneyTrack[];
+  /** How reading those went: a failed read is not a journey with nothing recorded. */
+  recordedRead?: 'loading' | 'ready' | 'unavailable';
   /** The colour of the pins of a day, so a stay and a recorded day read with their day. */
   colorOfDay: (date: string) => string | null;
   /** The day an entry is on, for the colour of its stays. */
@@ -114,6 +116,7 @@ export function useJourneyMapLayers({
   entryIdsOnMap,
   photoCount,
   recordedTracks = NO_TRACKS,
+  recordedRead = 'ready',
   colorOfDay,
   dateOfEntry,
 }: Options): JourneyMapLayersView {
@@ -181,6 +184,7 @@ export function useJourneyMapLayers({
         ownJourney: journeyId !== null,
         sources,
         loading,
+        recordedRead,
         counts: {
           places: places.length,
           routes: routes.length,
@@ -194,6 +198,7 @@ export function useJourneyMapLayers({
       journeyId,
       sources,
       loading,
+      recordedRead,
       places.length,
       routes.length,
       recordedDays,

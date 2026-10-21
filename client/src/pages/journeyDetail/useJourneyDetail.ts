@@ -552,12 +552,17 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
     (current?.trips ?? []).map(trip => trip.trip_id).join(','),
     showTripTracks ? 'tracks' : '',
   ].join('|'), [current?.entries, current?.trips, showTripTracks])
+  // The kept days and the live trail are read by this screen, not by the layers' read.
+  const recordedRead = recordings.status === 'failed' || dawarichTrail.status === 'unavailable'
+    ? 'unavailable'
+    : recordings.status === 'loading' || dawarichTrail.status === 'loading' ? 'loading' : 'ready'
   const mapLayers = useJourneyMapLayers({
     source: journeyLoaded && current ? { journeyId: current.id } : null,
     refreshKey: mapRefreshKey,
     entryIdsOnMap,
     photoCount: mapPhotos.length,
     recordedTracks: mapTracks,
+    recordedRead,
     colorOfDay,
     dateOfEntry,
   })
