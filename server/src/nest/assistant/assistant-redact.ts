@@ -18,7 +18,7 @@ const DROPPED_KEY = /^(image_url|cover_image|avatar|avatar_url|metadata)$|geomet
 const EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
 
 /** Longest string kept whole; a longer one keeps its start. */
-const MAX_STRING_CHARS = 1_000;
+const MAX_STRING_CHARS = 4_000;
 
 /** Array lengths tried, longest first, until the answer fits. */
 const ARRAY_CAPS = [100, 50, 20, 10, 5, 2, 1];

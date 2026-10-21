@@ -9,6 +9,7 @@ import {
   languageName,
   renderTripCard,
   todayIn,
+  tripMemoryOf,
   turnContext,
 } from '../../../../src/nest/assistant/assistant-context';
 
@@ -162,7 +163,7 @@ describe('renderTripCard', () => {
   });
 
   it('ASTCTX-011: a trip without days says so, and long lists are counted, not listed', () => {
-    const many = { places: Array.from({ length: 45 }, (_, i) => ({ id: i + 1, name: `P${i + 1}` })) };
+    const many = { places: Array.from({ length: 205 }, (_, i) => ({ id: i + 1, name: `P${i + 1}` })) };
     const text = renderTripCard(buildTripCard(1, { trip: { title: 'T' } }, many, null));
     expect(text).toContain('(no days yet)');
     expect(text).toContain('and 5 more');
@@ -181,6 +182,17 @@ describe('renderTripCard', () => {
     expect(text).toContain('Nishiki Market (12, google ChIJn)');
     expect(text).toContain('- place 12: Nishiki Market (at 35.0050, 135.7640; google place id ChIJn)');
     expect(renderTripCard(buildTripCard(1, SUMMARY, PLACES, null))).not.toContain('Around:');
+  });
+
+  it('ASTCTX-013: the part of the map on screen tells "here", a view of a whole country does not', () => {
+    const view = { south: 35.6, west: 139.7, north: 35.72, east: 139.82 };
+    const text = renderTripCard(buildTripCard(1, SUMMARY, PLACES, { view }));
+    expect(text).toContain(
+      "The map on the user's screen shows south 35.6000, west 139.7000, north 35.7200, east 139.8200.",
+    );
+    expect(text).toContain('"here", "nearby" or "around" means this area');
+    const country = { south: 30, west: 129, north: 45, east: 146 };
+    expect(renderTripCard(buildTripCard(1, SUMMARY, PLACES, { view: country }))).not.toContain('on the user');
   });
 });
 
@@ -201,13 +213,31 @@ describe('the turn context', () => {
   it('ASTCTX-022: carries the date, the units the user prefers and the card', () => {
     const card = buildTripCard(1, SUMMARY, PLACES, null);
     const context = turnContext(card, 'Asia/Tokyo', new Date('2026-06-11T23:30:00Z'), {
-      temperature: 'fahrenheit',
-      distance: 'metric',
-      timeFormat: 'nonsense',
+      temperature_unit: 'fahrenheit',
+      distance_unit: 'metric',
+      time_format: 'nonsense',
     });
     expect(context).toContain('Today is 2026-06-12 (time zone Asia/Tokyo).');
     expect(context).toContain('The user prefers temperatures in °F, distances in km.');
     expect(context).toContain('<trip_card>\nTrip: Kyoto in June');
     expect(turnContext(card, 'UTC', new Date(), {})).not.toContain('prefers');
+  });
+
+  it("ASTCTX-023: the trip notes of this trip come along as preferences, never another trip's", () => {
+    const card = buildTripCard(1, SUMMARY, PLACES, null);
+    const prefs = { assistant_memory: { '1': '  Vegetarian, no museums. ', '2': 'Other trip' } };
+    const context = turnContext(card, 'UTC', new Date(), prefs);
+    expect(context).toContain('<trip_notes>\nVegetarian, no museums.\n</trip_notes>');
+    expect(context).not.toContain('Other trip');
+    expect(tripMemoryOf({ assistant_memory: { '1': 'x'.repeat(3000) } }, 1)).toHaveLength(2000);
+    expect(tripMemoryOf({ assistant_memory: 'broken' }, 1)).toBeNull();
+  });
+
+  it('ASTCTX-024: cost estimates are asked for unless the user turned them off', () => {
+    const card = buildTripCard(1, SUMMARY, PLACES, null);
+    expect(turnContext(card, 'UTC', new Date(), {})).toContain('create_budget_item');
+    expect(turnContext(card, 'UTC', new Date(), { assistant_cost_estimates: false })).not.toContain(
+      'create_budget_item',
+    );
   });
 });

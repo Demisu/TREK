@@ -353,3 +353,42 @@ describe('resolving the connection a turn runs on', () => {
     expect((await service().ownView(id)).status).toBe('ok');
   });
 });
+
+describe('the connection AI parsing shares', () => {
+  it('AICS-030: parsing reads with the connection the policy picks, through the OpenAI-compatible endpoints', async () => {
+    const admin = await user();
+    const id = await user();
+    expect(await service().forParsing(id)).toBeNull();
+    await service().saveInstance(admin, { kind: 'gemini', apiKey: 'AQ.instance-key' });
+    expect(await service().forParsing(id)).toEqual({
+      provider: 'openai',
+      model: 'claude-haiku',
+      apiKey: 'AQ.instance-key',
+      baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
+    });
+    await service().saveOwnKey(id, { kind: 'anthropic', apiKey: 'sk-ant-own-parse' });
+    expect(await service().forParsing(id)).toEqual({
+      provider: 'anthropic',
+      model: 'claude-sonnet',
+      apiKey: 'sk-ant-own-parse',
+    });
+  });
+
+  it('AICS-031: a ChatGPT plan or a connection with a problem is not lent to parsing', async () => {
+    const id = await user();
+    const { em } = orm();
+    await em.fork().insert(AiConnections, {
+      scope: 'user',
+      user: id,
+      kind: 'chatgpt',
+      model: 'gpt-6.1-sol',
+      status: 'ok',
+    });
+    expect(await service().forParsing(id)).toBeNull();
+    await em.fork().nativeDelete(AiConnections, { user: id });
+    await service().saveOwnKey(id, { kind: 'openai', apiKey: 'sk-proj-own-parse' });
+    expect(await service().forParsing(id)).toMatchObject({ provider: 'openai', apiKey: 'sk-proj-own-parse' });
+    await em.fork().nativeUpdate(AiConnections, { user: id }, { status: 'error' });
+    expect(await service().forParsing(id)).toBeNull();
+  });
+});

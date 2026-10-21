@@ -18,7 +18,7 @@ import { CLAUDE_CONNECTOR_ANCHOR } from '../../../components/Settings/ai/aiConne
  * function audit is rebuilt natively in the mobile design language.
  */
 export default function MSettingsIntegrations() {
-  const { mcpEnabled, airtrailEnabled, llmEnabled, aiAssistantEnabled, dawarichEnabled, managed } = useIntegrationGates({ reloadAddons: true })
+  const { mcpEnabled, airtrailEnabled, llmEnabled, aiAssistantEnabled, aiConnectionEnabled, ownParsing, dawarichEnabled, managed } = useIntegrationGates({ reloadAddons: true })
 
   return (
     <>
@@ -28,11 +28,11 @@ export default function MSettingsIntegrations() {
       {!managed && <MPhotoProvidersSection />}
       {airtrailEnabled && !managed && <MAirTrailConnectionSection />}
       {dawarichEnabled && !managed && <MDawarichConnectionSection />}
-      {aiAssistantEnabled && !managed && <MAiConnectionSection />}
+      {aiConnectionEnabled && !managed && <MAiConnectionSection assistant={aiAssistantEnabled} parsing={llmEnabled} />}
       {/* Which model reads a booking, and what that costs, comes with the instance on
        a managed install. The per-user fallback exists for people who supply their
        own key, and there nobody does. */}
-      {llmEnabled && !managed && <MLlmConnectionSection />}
+      {llmEnabled && ownParsing && !managed && <MLlmConnectionSection />}
       {mcpEnabled && <MClaudeConnectorCard />}
       {mcpEnabled && <MSettingsMcp />}
     </>

@@ -22,6 +22,14 @@ interface StripDay {
   /** Its place in the trip, 1 for the first day: "+ Day 3". */
   n: number;
   label: string;
+  /** Its weekday, short ("Sat"), for the day grid; null for a day without a date. */
+  weekday: string | null;
+}
+
+/** The short weekday of a `YYYY-MM-DD` date, read as that calendar day wherever the reader is. */
+function weekdayOf(date: string | null | undefined, locale: string): string | null {
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+  return new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: 'UTC' }).format(new Date(`${date}T00:00:00Z`));
 }
 
 /** The trip category a found place most likely belongs in, for its line and its icon. */
@@ -89,7 +97,12 @@ export function useAssistantPlaceStrip() {
 
   const stripDays = useMemo(
     (): StripDay[] =>
-      (days ?? []).map((day, index) => ({ id: day.id, n: index + 1, label: dayLabel(day, index, t, locale) })),
+      (days ?? []).map((day, index) => ({
+        id: day.id,
+        n: index + 1,
+        label: dayLabel(day, index, t, locale),
+        weekday: weekdayOf(day.date, locale),
+      })),
     [days, t, locale]
   );
   const focusDay = stripDays.find((d) => d.id === focusDayId) ?? null;

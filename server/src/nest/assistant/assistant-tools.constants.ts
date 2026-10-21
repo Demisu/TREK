@@ -1,16 +1,20 @@
 import type { AssistantApplied, AssistantChangeVerbKey } from '@trek/shared';
 
-/** Model calls per turn before the loop stops and asks the user whether to go on. */
-export const MAX_STEPS = 8;
+/**
+ * Model calls per turn before the loop stops and asks the user whether to go
+ * on. Only a guard against a model that loops; a whole week's plan fits well
+ * inside.
+ */
+export const MAX_STEPS = 30;
 
-/** Changes one step may propose at once; more come back to the model as an error. */
-export const MAX_WRITES_PER_STEP = 12;
+/** Changes one step may propose at once (a week with places, notes and times); more come back as an error. */
+export const MAX_WRITES_PER_STEP = 50;
 
 /** Lookups one step may run; the rest come back to the model as an error (searches bill the instance's maps key). */
-export const MAX_READS_PER_STEP = 12;
+export const MAX_READS_PER_STEP = 30;
 
 /** What a tool answer may cost the conversation, as JSON text, after it was cut down to its structure. */
-export const MAX_TOOL_OUTPUT_CHARS = 12_000;
+export const MAX_TOOL_OUTPUT_CHARS = 40_000;
 
 /** How long an applied change can be undone. */
 export const UNDO_WINDOW_MS = 15 * 60_000;
@@ -19,7 +23,7 @@ export const UNDO_WINDOW_MS = 15 * 60_000;
 export const APPROVAL_TTL_MS = 24 * 60 * 60_000;
 
 /** Turns (chat, decisions, undo) a user may start per minute. */
-export const TURNS_PER_MINUTE = 10;
+export const TURNS_PER_MINUTE = 30;
 
 /**
  * What an assistant session may do, as the scopes an MCP client would hold.

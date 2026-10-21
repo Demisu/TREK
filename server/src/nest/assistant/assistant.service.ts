@@ -80,7 +80,7 @@ const THREADS_LISTED = 20;
 /** Message rows a thread is shown with. */
 const THREAD_ROWS = 50;
 /** Message rows a turn sends the provider. */
-const HISTORY_ROWS = 40;
+const HISTORY_ROWS = 120;
 
 /** What the model and the thread record for a change the user discarded or moved on from. */
 const DISCARDED = { applied: false, reason: 'The user discarded this change.' };
@@ -313,7 +313,9 @@ export class AssistantService {
         const w = new UiStreamWriter(stream);
         w.start(messageIdOf(await this.answerStart(threadId, decided[0].call.message_id)));
         const quota =
-          connection.paidBy === 'instance' ? { used: await this.usage.instanceTurnsToday(userId), limit: dailyTurns } : null;
+          connection.paidBy === 'instance'
+            ? { used: await this.usage.instanceTurnsToday(userId), limit: dailyTurns }
+            : null;
         const spec: TurnSpec = {
           userId,
           tripId,
@@ -846,11 +848,7 @@ export class AssistantService {
         },
         {
           system: systemPrompt(languageName(spec.locale)),
-          context: turnContext(card, spec.timeZone, new Date(), {
-            temperature: prefs.temperature_unit,
-            distance: prefs.distance_unit,
-            timeFormat: prefs.time_format,
-          }),
+          context: turnContext(card, spec.timeZone, new Date(), prefs),
           cacheKey: `trek-thread-${spec.threadId}`,
           history,
           usedCallIds: new Set(

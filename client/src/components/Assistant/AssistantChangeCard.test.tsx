@@ -226,10 +226,13 @@ describe('AssistantChangeCard: on the map', () => {
     expect(row).toHaveClass('bg-surface-hover');
   });
 
-  it('FE-AI-CARD-009: the days a waiting card touches read as a band, with the schedule folded away', () => {
+  it('FE-AI-CARD-009: the days a waiting card touches read as named stops, with the schedule folded away', () => {
     plannerHere();
     renderCard([onTheMap('c1', 'Pantheon')]);
     expect(screen.getByText('Rome')).toBeInTheDocument();
+    // Folded, each stop is a chip with its name, not a blank block behind a tooltip.
+    expect(screen.getByText('Louvre')).toBeInTheDocument();
+    expect(screen.getAllByText('Pantheon')).toHaveLength(2);
     expect(screen.queryByText('New')).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: 'Show schedule' }));

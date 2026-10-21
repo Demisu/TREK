@@ -2,23 +2,23 @@ import type { AiConnectionKind, AiConnectionView } from '@trek/shared';
 import { Loader2, LogOut, MessageCircle, Sparkles, Unplug } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from '../../../i18n';
+import { useAssistantCostEstimates, useAssistantMapFollow } from '../../Assistant/useAssistantMapFollow';
 import ConfirmDialog from '../../shared/ConfirmDialog';
 import CustomSelect from '../../shared/CustomSelect';
 import { fs } from '../../shared/DialogShell';
-import { useAssistantMapFollow } from '../../Assistant/useAssistantMapFollow';
 import Section from '../Section';
 import {
+  SettingRow,
+  SettingRows,
   SETTINGS_BUTTON,
   SETTINGS_BUTTON_DANGER,
   SETTINGS_BUTTON_PRIMARY,
-  SettingRow,
-  SettingRows,
   SettingsHint,
   StatusPill,
 } from '../settingsKit';
 import ToggleSwitch from '../ToggleSwitch';
+import { aiSectionText, CONNECTION_STATUS } from './aiConnectModel';
 import AiConnectPanel, { ProviderMark } from './AiConnectPanel';
-import { CONNECTION_STATUS } from './aiConnectModel';
 import { useAiConnections } from './useAiConnections';
 
 type AiConnections = ReturnType<typeof useAiConnections>;
@@ -173,6 +173,7 @@ function InstanceConnection({ S }: { S: AiConnections }) {
 function AssistantBehaviour() {
   const { t } = useTranslation();
   const follow = useAssistantMapFollow();
+  const costs = useAssistantCostEstimates();
   return (
     <SettingRows>
       <SettingRow
@@ -186,26 +187,45 @@ function AssistantBehaviour() {
           />
         }
       />
+      <SettingRow
+        label={t('assistant.settings.costEstimates')}
+        hint={t('assistant.settings.costEstimatesHint')}
+        control={
+          <ToggleSwitch
+            on={costs.on}
+            onToggle={() => void costs.set(!costs.on)}
+            label={t('assistant.settings.costEstimates')}
+          />
+        }
+      />
     </SettingRows>
   );
 }
 
 /**
- * Settings → Integrations → AI assistant: connect a provider, see which one
- * answers, pick its model, leave again. The only place a user sets the
- * assistant up; once it works, one button takes them to it.
+ * Settings → Integrations → the user's AI connection: connect a provider, see
+ * which one answers, pick its model, leave again. The assistant runs on it and
+ * AI parsing reads bookings with it, so it shows while either addon is on and
+ * says which it serves.
  */
-export default function AiConnectionSection(): React.ReactElement | null {
+export default function AiConnectionSection({
+  assistant = true,
+  parsing = false,
+}: {
+  assistant?: boolean;
+  parsing?: boolean;
+}): React.ReactElement | null {
   const { t } = useTranslation();
   const S = useAiConnections();
+  const text = aiSectionText(assistant, parsing);
   if (S.view === 'hidden') return null;
   const own = S.own;
 
   return (
     <Section
-      title={t('assistant.connect.title')}
+      title={t(text.titleKey)}
       icon={Sparkles}
-      hint={t('assistant.connect.description')}
+      hint={t(text.hintKey)}
       badge={
         own ? (
           <StatusPill tone={CONNECTION_STATUS[own.status].tone}>{t(CONNECTION_STATUS[own.status].labelKey)}</StatusPill>
@@ -219,7 +239,7 @@ export default function AiConnectionSection(): React.ReactElement | null {
       )}
       {S.view === 'own' && own && <OwnConnection S={S} own={own} />}
       {S.view === 'instance' && <InstanceConnection S={S} />}
-      {(S.view === 'own' || S.view === 'instance') && <AssistantBehaviour />}
+      {assistant && (S.view === 'own' || S.view === 'instance') && <AssistantBehaviour />}
       {S.view === 'adminOnly' && <SettingsHint>{t('assistant.setup.adminOnly')}</SettingsHint>}
 
       {S.panel && (

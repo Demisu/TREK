@@ -124,10 +124,10 @@ describe('foundPlacesOf', () => {
     expect(JSON.stringify(poi)).not.toMatch(/ramen\.example|opening/);
   });
 
-  it('ASTCRD-004: at most eight cards, the rest counted; places without a position or name are left out', () => {
-    const many = Array.from({ length: 11 }, (_, i) => ({ name: `Place ${i}`, lat: 35 + i / 100, lng: 135 }));
+  it('ASTCRD-004: at most twenty cards, the rest counted; places without a position or name are left out', () => {
+    const many = Array.from({ length: 23 }, (_, i) => ({ name: `Place ${i}`, lat: 35 + i / 100, lng: 135 }));
     const found = foundPlacesOf('search_place', 'm', { places: [{ name: 'No position' }, ...many] }, card, 'x');
-    expect(found?.places).toHaveLength(8);
+    expect(found?.places).toHaveLength(20);
     expect(found?.more).toBe(3);
     expect(found?.places[0]).toMatchObject({ ref: 'm:0', name: 'Place 0' });
     const odd = { places: [{ name: '', lat: 1, lng: 1 }, { name: 'Far', lat: 91, lng: 1 }, 'text', null] };

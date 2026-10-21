@@ -1,14 +1,25 @@
-import { Check, Loader2 } from 'lucide-react';
-import React, { useId } from 'react';
+import { Check, Loader2, Sparkles } from 'lucide-react';
+import React, { useId, useState } from 'react';
 import { useTranslation } from '../../../i18n';
 import AiConnectPanel, { ProviderMark } from '../../Settings/ai/AiConnectPanel';
 import { CONNECTION_STATUS } from '../../Settings/ai/aiConnectModel';
 import { SETTINGS_BUTTON, SETTINGS_BUTTON_DANGER, SettingsHint, StatusPill } from '../../Settings/settingsKit';
 import ConfirmDialog from '../../shared/ConfirmDialog';
 import CustomSelect from '../../shared/CustomSelect';
-import { fs } from '../../shared/DialogShell';
+import {
+  DialogButton,
+  DialogFooter,
+  DialogHeader,
+  DialogShell,
+  DialogTile,
+  FooterSpacer,
+  NEUTRAL_TINT,
+  fs,
+} from '../../shared/DialogShell';
 import { NumericInput } from '../../shared/NumericInput';
-import { EditorField, INPUT } from '../../shared/dialogParts';
+import { EditorField, INPUT, Segmented } from '../../shared/dialogParts';
+import ParsingSettings from './ParsingSettings';
+import type { Addon } from './addonModel';
 import { POLICY_CHOICES, useAiAdminConfig } from './useAiAdminConfig';
 
 type AiAdmin = ReturnType<typeof useAiAdminConfig>;
@@ -125,28 +136,12 @@ function InstanceConnection({ A }: { A: AiAdmin }) {
   );
 }
 
-/**
- * The AI assistant's settings on its addon tile, as a form in the shelf like
- * AI parsing's: who pays, the connection for everyone, the daily limit while
- * the instance pays, and how long chats are kept. Each change saves at once.
- */
-export default function AiAdminConfig(): React.ReactElement {
+/** The assistant's own limits: turns a day while the instance pays, and how long chats are kept. */
+function AssistantLimits({ A }: { A: AiAdmin }) {
   const { t } = useTranslation();
-  const A = useAiAdminConfig();
   const fieldId = useId();
-
-  if (!A.loaded) {
-    return (
-      <li className="grid place-items-center p-4">
-        <Loader2 size={18} className="animate-spin text-content-faint" />
-      </li>
-    );
-  }
-
   return (
-    <li className="flex flex-col gap-4 p-3">
-      <PolicyChoice A={A} />
-      {A.instancePays && <InstanceConnection A={A} />}
+    <div className="flex flex-col gap-4">
       {A.instancePays && (
         <EditorField
           label={t('assistant.admin.dailyLimit')}
@@ -175,6 +170,91 @@ export default function AiAdminConfig(): React.ReactElement {
           size="sm"
         />
       </EditorField>
+    </div>
+  );
+}
+
+type AiTab = 'connection' | 'assistant' | 'parsing';
+
+/**
+ * The AI settings behind the AI tile's button, in one dialog so the addon page
+ * stays short: the connection the assistant and AI parsing share (and who pays
+ * for it), the assistant's limits, and how bookings are read. A tab shows only
+ * while its addon is on. Each change saves at once.
+ */
+export default function AiSettingsDialog({
+  addons,
+  onClose,
+}: {
+  addons: Addon[];
+  onClose: () => void;
+}): React.ReactElement {
+  const { t } = useTranslation();
+  const labelId = useId();
+  const A = useAiAdminConfig();
+  const assistantOn = addons.some((a) => a.id === 'ai_assistant' && a.enabled);
+  const parsing = addons.find((a) => a.id === 'llm_parsing' && a.enabled) ?? null;
+  const tabs: { value: AiTab; label: string }[] = [
+    { value: 'connection', label: t('admin.addons.ai.tab.connection') },
+    ...(assistantOn ? [{ value: 'assistant' as const, label: t('admin.addons.catalog.ai_assistant.name') }] : []),
+    ...(parsing ? [{ value: 'parsing' as const, label: t('admin.addons.catalog.llm_parsing.name') }] : []),
+  ];
+  const [tab, setTab] = useState<AiTab>('connection');
+  const shown = tabs.some((x) => x.value === tab) ? tab : 'connection';
+
+  return (
+    <DialogShell
+      onClose={onClose}
+      labelledBy={labelId}
+      width="detail"
+      align="top"
+      blocked={A.instance.confirmingRemove}
+      header={
+        <DialogHeader
+          tile={
+            <DialogTile>
+              <Sparkles size={20} strokeWidth={2} />
+            </DialogTile>
+          }
+          tint={NEUTRAL_TINT}
+          labelId={labelId}
+          eyebrow={t('admin.addons.ai.name')}
+          title={t('admin.addons.ai.setup')}
+          sub={t('admin.addons.ai.dialogSub')}
+          subWraps
+          onClose={onClose}
+        />
+      }
+      footer={
+        <DialogFooter>
+          <FooterSpacer />
+          <DialogButton variant="primary" onClick={onClose}>
+            {t('common.close')}
+          </DialogButton>
+        </DialogFooter>
+      }
+    >
+      {tabs.length > 1 && (
+        <Segmented<AiTab> label={t('admin.addons.ai.setup')} value={shown} onChange={setTab} options={tabs} fill />
+      )}
+      {!A.loaded ? (
+        <div className="grid place-items-center py-10">
+          <Loader2 size={20} className="animate-spin text-content-faint" />
+        </div>
+      ) : (
+        <>
+          {shown === 'connection' && (
+            <div className="flex flex-col gap-4">
+              <PolicyChoice A={A} />
+              {A.instancePays && <InstanceConnection A={A} />}
+            </div>
+          )}
+          {shown === 'assistant' && <AssistantLimits A={A} />}
+          {shown === 'parsing' && parsing && (
+            <ParsingSettings addon={parsing} A={A} onOpenConnection={() => setTab('connection')} />
+          )}
+        </>
+      )}
 
       <ConfirmDialog
         isOpen={A.instance.confirmingRemove}
@@ -185,6 +265,6 @@ export default function AiAdminConfig(): React.ReactElement {
         confirmLabel={t('assistant.admin.connectionRemove')}
         danger
       />
-    </li>
+    </DialogShell>
   );
 }

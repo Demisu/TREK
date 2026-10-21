@@ -7,6 +7,7 @@ import { useTranslation } from '../../i18n';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import { Tooltip } from '../shared/Tooltip';
 import AssistantChangeCard from './AssistantChangeCard';
+import AssistantFollowUps from './AssistantFollowUps';
 import AssistantMarkdown from './AssistantMarkdown';
 import AssistantMentionText from './AssistantMentionText';
 import AssistantPlaceStrip from './AssistantPlaceStrip';
@@ -74,7 +75,9 @@ function AttachmentChip({ name, size }: { name: string; size: number }) {
       </span>
       <span className="flex min-w-0 flex-col">
         <bdi className="truncate text-body font-medium text-content">{name}</bdi>
-        <span className="text-caption tabular-nums text-content-muted">{kb >= 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb} KB`}</span>
+        <span className="text-caption tabular-nums text-content-muted">
+          {kb >= 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb} KB`}
+        </span>
       </span>
     </span>
   );
@@ -149,6 +152,7 @@ function Answer({ message }: { message: StoredMessage }) {
         </div>
       )}
       {share.canShare && <AssistantShareDialog share={share} />}
+      <AssistantFollowUps message={message} />
     </MessagePrimitive.Root>
   );
 }

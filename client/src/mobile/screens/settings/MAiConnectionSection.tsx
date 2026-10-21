@@ -1,10 +1,10 @@
 import type { AiConnectionView } from '@trek/shared';
 import { ChevronDown, Loader2, LogOut, MessageCircle, Sparkles, Unplug } from 'lucide-react';
 import React, { useState } from 'react';
+import { useAssistantCostEstimates, useAssistantMapFollow } from '../../../components/Assistant/useAssistantMapFollow';
 import AiConnectPanel from '../../../components/Settings/ai/AiConnectPanel';
-import { CONNECTION_STATUS } from '../../../components/Settings/ai/aiConnectModel';
+import { aiSectionText, CONNECTION_STATUS } from '../../../components/Settings/ai/aiConnectModel';
 import { useAiConnections } from '../../../components/Settings/ai/useAiConnections';
-import { useAssistantMapFollow } from '../../../components/Assistant/useAssistantMapFollow';
 import { StatusPill } from '../../../components/Settings/settingsKit';
 import { useTranslation } from '../../../i18n';
 import MToggle from '../../components/MToggle';
@@ -121,6 +121,7 @@ function MInstanceConnection({ S }: { S: AiConnections }) {
 function MAssistantBehaviour() {
   const { t } = useTranslation();
   const follow = useAssistantMapFollow();
+  const costs = useAssistantCostEstimates();
   return (
     <div className="mt-3 border-t border-[color:var(--m-rowbr)]">
       <MSetRow
@@ -134,6 +135,17 @@ function MAssistantBehaviour() {
           />
         }
       />
+      <MSetRow
+        label={t('assistant.settings.costEstimates')}
+        sub={t('assistant.settings.costEstimatesHint')}
+        trailing={
+          <MToggle
+            checked={costs.on}
+            onChange={(on) => void costs.set(on)}
+            ariaLabel={t('assistant.settings.costEstimates')}
+          />
+        }
+      />
     </div>
   );
 }
@@ -144,14 +156,21 @@ function MAssistantBehaviour() {
  * already a single column at phone width, and a second copy of the key and
  * sign-in steps would only drift.
  */
-export default function MAiConnectionSection(): React.ReactElement | null {
+export default function MAiConnectionSection({
+  assistant = true,
+  parsing = false,
+}: {
+  assistant?: boolean;
+  parsing?: boolean;
+}): React.ReactElement | null {
   const { t } = useTranslation();
   const S = useAiConnections({ phone: true });
+  const text = aiSectionText(assistant, parsing);
   if (S.view === 'hidden') return null;
 
   return (
-    <MSetCard title={t('assistant.connect.title')} icon={Sparkles} className="mt-3">
-      <MSetHint className="mb-3">{t('assistant.connect.description')}</MSetHint>
+    <MSetCard title={t(text.titleKey)} icon={Sparkles} className="mt-3">
+      <MSetHint className="mb-3">{t(text.hintKey)}</MSetHint>
 
       {S.view === 'loading' && (
         <div className="grid place-items-center py-4">
@@ -160,7 +179,7 @@ export default function MAiConnectionSection(): React.ReactElement | null {
       )}
       {S.view === 'own' && S.own && <MOwnConnection S={S} own={S.own} />}
       {S.view === 'instance' && <MInstanceConnection S={S} />}
-      {(S.view === 'own' || S.view === 'instance') && <MAssistantBehaviour />}
+      {assistant && (S.view === 'own' || S.view === 'instance') && <MAssistantBehaviour />}
       {S.view === 'adminOnly' && <MSetHint>{t('assistant.setup.adminOnly')}</MSetHint>}
 
       {S.panel && (

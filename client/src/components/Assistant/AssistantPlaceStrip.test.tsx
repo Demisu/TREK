@@ -8,7 +8,6 @@
 import type { AssistantFoundPlace, AssistantMessage, AssistantPlaces } from '@trek/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { fireEvent, render, screen, waitFor } from '../../../tests/helpers/render';
 import {
   buildAssignment,
   buildCategory,
@@ -17,6 +16,7 @@ import {
   buildTrip,
   buildUser,
 } from '../../../tests/helpers/factories';
+import { fireEvent, render, screen, waitFor } from '../../../tests/helpers/render';
 import { fetchPhoto } from '../../services/photoService';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import { useAuthStore } from '../../store/authStore';
@@ -119,12 +119,18 @@ describe('AssistantPlaceStrip', () => {
     expect(screen.getByText('1.2 km from the previous stop')).toBeInTheDocument();
   });
 
-  it('FE-AI-PLACES-002: shows six cards and counts the rest on a tile', () => {
+  it('FE-AI-PLACES-002: shows every card it was sent and counts what the server left out on a tile', () => {
     seed();
     const list = Array.from({ length: 8 }, (_, i) => place(`s1:${i}`));
     renderStrip({ toolCallId: 's1', places: list, more: 4 });
-    expect(screen.getAllByRole('button', { name: /^Add to/ })).toHaveLength(6);
-    expect(screen.getByText('6 more')).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /^Add to/ })).toHaveLength(8);
+    expect(screen.getByText('4 more')).toBeInTheDocument();
+  });
+
+  it('FE-AI-PLACES-009: a place known only by its position shows its category, never a photo of the area', () => {
+    seed();
+    renderStrip({ toolCallId: 's1', places: [place('s1:0', { photoKey: 'coords:41.889000,12.470000' })], more: 0 });
+    expect(fetchPhoto).not.toHaveBeenCalled();
   });
 
   it('FE-AI-PLACES-003: a picture only ever comes from the photo proxy', async () => {

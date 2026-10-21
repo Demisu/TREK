@@ -181,6 +181,7 @@ import {
   createTestVacaySharesRepo,
   createTestVacayUserSettingsRepo,
 } from './vacay-repos';
+import type { ModuleRef } from '@nestjs/core';
 
 import type Database from 'better-sqlite3';
 
@@ -416,6 +417,12 @@ export async function createPluginRpcHostParts(
     new SettingsService(await createTestUnitOfWork(db), appSettings, await createTestSettingsRepo(db), membership),
     (await sharedTestOrm(db)).repo(Addons),
     addons,
+    // No ai-connections here: parsing reads only its own settings.
+    {
+      get: () => {
+        throw new Error('not registered');
+      },
+    } as unknown as ModuleRef,
   );
   const pluginOrm = await sharedTestOrm(db);
   const oauth = new PluginOAuthService(

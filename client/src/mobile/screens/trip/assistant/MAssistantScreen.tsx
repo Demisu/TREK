@@ -5,6 +5,7 @@ import {
   History,
   Lightbulb,
   LightbulbOff,
+  NotebookPen,
   Plus,
   Settings,
   Sparkles,
@@ -14,12 +15,14 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { useNavigate } from 'react-router';
 
 import AssistantCompareSwitch from '../../../../components/Assistant/AssistantCompareSwitch';
+import AssistantMemoryDialog from '../../../../components/Assistant/AssistantMemoryDialog';
 import AssistantSurfaceLazy from '../../../../components/Assistant/AssistantSurfaceLazy';
 import { AI_SETTINGS_PATH } from '../../../../components/Assistant/assistantParts';
 import { showOnMapTarget } from '../../../../components/Assistant/assistantShowOnMap';
 import { useAssistantHintsSetting } from '../../../../components/Assistant/useAssistantHints';
 import { useAssistantLiveStep } from '../../../../components/Assistant/useAssistantLiveStep';
 import { useAssistantThread } from '../../../../components/Assistant/useAssistantThread';
+import { useTripMemory } from '../../../../components/Assistant/useTripMemory';
 import { useKeyboardInset } from '../../../../hooks/useKeyboardInset';
 import { useTranslation } from '../../../../i18n';
 import { chatOf, useAssistantStore } from '../../../../store/assistantStore';
@@ -126,6 +129,8 @@ function AssistantScreen({ tripId, tripTitle, hidden, hops }: ScreenProps) {
   const keyboard = useKeyboardInset();
   const [panel, setPanel] = useState<'history' | 'menu' | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const [memoryOpen, setMemoryOpen] = useState(false);
+  const memory = useTripMemory(tripId);
   const hints = useAssistantHintsSetting();
   useBackCloses(!hidden, close);
 
@@ -211,6 +216,11 @@ function AssistantScreen({ tripId, tripTitle, hidden, hops }: ScreenProps) {
         className="end-4 top-[calc(var(--m-safe-top,12px)+48px)]"
       >
         <MListRow
+          icon={NotebookPen}
+          label={t(memory.has ? 'assistant.memory.edit' : 'assistant.memory.title')}
+          onClick={() => pick(() => setMemoryOpen(true))}
+        />
+        <MListRow
           icon={hints.on ? LightbulbOff : Lightbulb}
           label={t(hints.on ? 'assistant.hint.menuOff' : 'assistant.hint.menuOn')}
           onClick={() => pick(hints.toggle)}
@@ -235,6 +245,7 @@ function AssistantScreen({ tripId, tripTitle, hidden, hops }: ScreenProps) {
         )}
       </MDropdownPanel>
 
+      {memoryOpen && <AssistantMemoryDialog tripId={tripId} onClose={() => setMemoryOpen(false)} />}
       <div className="flex min-h-0 flex-1 flex-col">
         <AssistantSurfaceLazy
           tripId={tripId}
@@ -324,12 +335,7 @@ export default function MAssistantScreen({ planner, shell }: MTripSheetsProps) {
   if (!available || !open || !planner.trip) return null;
   return (
     <>
-      <AssistantScreen
-        tripId={planner.tripId}
-        tripTitle={planner.trip.title}
-        hidden={minimized}
-        hops={hops}
-      />
+      <AssistantScreen tripId={planner.tripId} tripTitle={planner.trip.title} hidden={minimized} hops={hops} />
       {minimized && <BackToChat tripId={planner.tripId} running={running} />}
     </>
   );

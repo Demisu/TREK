@@ -968,5 +968,33 @@ const admin: TranslationStrings = {
   'admin.packingTemplates.deleteCategoryTitle': 'Excluir categoria',
   'admin.packingTemplates.deleteCategoryConfirm': 'Excluir a categoria "{name}" e todos os seus itens?',
   'admin.rotateJwt.button': 'Renovar',
+  'admin.addons.ai.name': 'IA',
+  'admin.addons.ai.description':
+    "Ur c'hennask evit ar skoazeller hag enporzhiañ an erlerc'hioù. Gant MCP e c'hall arloadoù IA all implijout TREK.",
+  'admin.addons.ai.setup': 'Kefluniañ an IA',
+  'admin.addons.ai.dialogSub':
+    "Ar c'hennask rannet gant ar skoazeller hag an dielfennañ gant IA, ha petra a c'hall ober pep hini.",
+  'admin.addons.ai.tab.connection': 'Kennask',
+  'admin.addons.ai.parsing.readsWith': "Lenn an erlerc'hioù gant",
+  'admin.addons.ai.parsing.own': 'Kennask dezhañ e-unan',
+  'admin.addons.ai.parsing.ownHint': "Implijet e-lec'h ar c'hennask rannet.",
+  'admin.addons.ai.parsing.useShared': "Implijout ar c'hennask rannet",
+  'admin.addons.ai.parsing.sharedTag': 'Rannet',
+  'admin.addons.ai.parsing.perUser': 'Pep hini a lenn gant e gennask e-unan, kefluniet en e arventennoù.',
+  'admin.addons.ai.parsing.none':
+    "Kennask ebet c'hoazh. Kefluniit unan evit an holl, pe roit unan d'an dielfennañ gant IA.",
+  'admin.addons.ai.parsing.setupOwn': 'Implijout unan all',
+  'admin.addons.ai.parsing.installed': 'Staliet war ar servijer',
+  'admin.addons.ai.parsing.refresh': 'Freskaat',
+  'admin.addons.ai.parsing.noModels': "Patrom ebet staliet c'hoazh. Pellgargit unan amañ dindan.",
+  'admin.addons.ai.parsing.pullTitle': 'Pellgargañ ur patrom erbedet',
+  'admin.addons.ai.parsing.pull': 'Pellgargañ',
+  'admin.addons.ai.parsing.pulling': 'O pellgargañ…',
+  'admin.addons.ai.parsing.use': 'Implijout',
+  'admin.addons.ai.parsing.selected': 'Dibabet',
+  'admin.addons.ai.parsing.pulled': 'Patrom pellgarget',
+  'admin.addons.ai.parsing.pullFailed': "N'eus ket bet gallet pellgargañ ar patrom",
+  'admin.addons.ai.parsing.unreachable': "N'eus ket bet gallet tizhout ar servijer lec'hel",
+  'admin.addons.ai.parsing.apiKeyOptional': "Peurliesañ n'eus ket ezhomm",
 };
 export default admin;

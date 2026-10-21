@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import type { ViewportPadding } from '../../utils/mapViewport';
 import { useAssistantMarkerClasses } from './assistantCamera';
 import { PLACE_POP_CLASS, PLACE_PULSE_CLASS } from './assistantGhostMarker';
+import { useReportViewGL } from './assistantViewport';
 import type { AssistantMapProps } from './mapViewContract';
 import { useAssistantCameraGL, type CameraEngine, type CameraMap } from './useAssistantCameraGL';
 import { useAssistantGhostMarkersGL, type GhostMap } from './useAssistantGhostMarkersGL';
@@ -65,4 +66,5 @@ export function useAssistantMapGL<Pin extends PinGL>({
   useAssistantCameraGL({ mapRef, mapReady, gl, camera: assistant.assistantCamera, padding });
   const markerEl = useCallback((id: number) => markersRef.current.get(id)?.el ?? null, [markersRef]);
   useAssistantMarkerClasses(markerEl, assistant.poppedPlaceIds, assistant.assistantPulsePlaceId);
+  useReportViewGL(mapRef, mapReady);
 }

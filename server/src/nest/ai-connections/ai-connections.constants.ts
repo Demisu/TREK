@@ -54,6 +54,7 @@ const REFUSAL_STATUS: Record<AiRefusalCode, number> = {
   invalid_key: 422,
   provider_unavailable: 502,
   max_steps: 409,
+  empty_answer: 502,
   offline: 503,
   no_bookings_found: 422,
   import_unavailable: 503,

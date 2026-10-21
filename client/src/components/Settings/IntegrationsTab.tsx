@@ -37,8 +37,10 @@ export default function IntegrationsTab(): React.ReactElement {
        own key, and there nobody does. */}
       {/* The assistant in TREK, with the same managed rule as AI parsing: there the
           operator decides which model the install talks to. */}
-      {S.aiAssistantEnabled && !managed && <AiConnectionSection />}
-      {S.llmEnabled && !managed && <LlmConnectionSection />}
+      {S.aiConnectionEnabled && !managed && (
+        <AiConnectionSection assistant={S.aiAssistantEnabled} parsing={S.llmEnabled} />
+      )}
+      {S.llmEnabled && S.ownParsing && !managed && <LlmConnectionSection />}
       {/* Above MCP on purpose: an API key needs no addon, and someone looking for
           one should not have to read past a section about AI assistants. */}
       <ApiKeysSection />
@@ -54,11 +56,11 @@ export default function IntegrationsTab(): React.ReactElement {
 function useIntegrations() {
   const { t, locale } = useTranslation()
   const toast = useToast()
-  const { mcpEnabled, airtrailEnabled, llmEnabled, aiAssistantEnabled, dawarichEnabled, wandererEnabled, managed } = useIntegrationGates({ reloadAddons: true })
+  const { mcpEnabled, airtrailEnabled, llmEnabled, aiAssistantEnabled, aiConnectionEnabled, ownParsing, dawarichEnabled, wandererEnabled, managed } = useIntegrationGates({ reloadAddons: true })
 
   const mcp = useMcpIntegration({ enabled: mcpEnabled, reloadClientsAfterWrite: false })
 
-  return { t, locale, toast, mcpEnabled, airtrailEnabled, llmEnabled, aiAssistantEnabled, dawarichEnabled,
+  return { t, locale, toast, mcpEnabled, airtrailEnabled, llmEnabled, aiAssistantEnabled, aiConnectionEnabled, ownParsing, dawarichEnabled,
     wandererEnabled,
     managed, ...mcp,
   }

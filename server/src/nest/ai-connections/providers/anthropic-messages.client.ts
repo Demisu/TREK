@@ -21,8 +21,13 @@ import {
 import { readSseEvents } from './sse-lines';
 
 export const ANTHROPIC_VERSION = '2023-06-01';
-/** The answer cap of one step. A chat reply is short; tool calls with long arguments fit well inside. */
-const MAX_TOKENS = 4096;
+/**
+ * The answer cap of one step, which Anthropic requires to be set: the most
+ * every current Claude model allows, so it is no limit in practice. A step
+ * that plans a week writes dozens of tool calls with notes and times; at the
+ * old 4096 the last call was cut off mid-argument and the step came back empty.
+ */
+const MAX_TOKENS = 32_000;
 
 type ContentBlock = Record<string, unknown>;
 type AnthropicMessage = { role: 'user' | 'assistant'; content: ContentBlock[] };

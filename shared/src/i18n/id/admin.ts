@@ -956,5 +956,32 @@ const admin: TranslationStrings = {
   'admin.packingTemplates.deleteCategoryTitle': 'Hapus kategori',
   'admin.packingTemplates.deleteCategoryConfirm': 'Hapus kategori "{name}" beserta semua itemnya?',
   'admin.rotateJwt.button': 'Putar Ulang',
+  'admin.addons.ai.name': 'AI', // same-as-en
+  'admin.addons.ai.description':
+    'Satu koneksi untuk asisten dan impor pemesanan. MCP memungkinkan aplikasi AI lain memakai TREK.',
+  'admin.addons.ai.setup': 'Atur AI',
+  'admin.addons.ai.dialogSub':
+    'Koneksi yang dipakai bersama oleh asisten dan penguraian AI, serta apa yang boleh dilakukan masing-masing.',
+  'admin.addons.ai.tab.connection': 'Koneksi',
+  'admin.addons.ai.parsing.readsWith': 'Membaca pemesanan dengan',
+  'admin.addons.ai.parsing.own': 'Koneksi sendiri',
+  'admin.addons.ai.parsing.ownHint': 'Dipakai sebagai pengganti koneksi bersama.',
+  'admin.addons.ai.parsing.useShared': 'Gunakan koneksi bersama',
+  'admin.addons.ai.parsing.sharedTag': 'Bersama',
+  'admin.addons.ai.parsing.perUser': 'Setiap orang membaca dengan koneksinya sendiri dari pengaturannya.',
+  'admin.addons.ai.parsing.none': 'Belum ada koneksi. Atur satu untuk semua, atau beri penguraian AI koneksi sendiri.',
+  'admin.addons.ai.parsing.setupOwn': 'Gunakan yang lain',
+  'admin.addons.ai.parsing.installed': 'Terpasang di server',
+  'admin.addons.ai.parsing.refresh': 'Muat ulang',
+  'admin.addons.ai.parsing.noModels': 'Belum ada model terpasang. Unduh satu di bawah.',
+  'admin.addons.ai.parsing.pullTitle': 'Unduh model yang disarankan',
+  'admin.addons.ai.parsing.pull': 'Unduh',
+  'admin.addons.ai.parsing.pulling': 'Mengunduh…',
+  'admin.addons.ai.parsing.use': 'Gunakan',
+  'admin.addons.ai.parsing.selected': 'Dipilih',
+  'admin.addons.ai.parsing.pulled': 'Model diunduh',
+  'admin.addons.ai.parsing.pullFailed': 'Model tidak dapat diunduh',
+  'admin.addons.ai.parsing.unreachable': 'Server lokal tidak dapat dijangkau',
+  'admin.addons.ai.parsing.apiKeyOptional': 'Biasanya tidak perlu',
 };
 export default admin;

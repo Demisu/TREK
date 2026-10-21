@@ -119,6 +119,16 @@ const ANNOUNCED = /(?::|…|\.\.\.)$/;
 const MAKE_THE_CALLS = 'Go on: make those tool calls now, in this reply, instead of announcing them.';
 
 /**
+ * A step that came back with nothing, or was cut off before a call was whole.
+ * Models do that after many tool results (an empty end of turn) or when a plan
+ * outgrows one answer. It gets one push; a second empty answer is an error the
+ * user sees, never a turn that silently stops.
+ */
+const GO_ON =
+  'Your last reply came back empty or was cut off. Carry on from where you were: answer, or make the calls now. ' +
+  'If the plan is large, propose part of it now; after the user decided you continue with the rest.';
+
+/**
  * Runs a read at once and records it: where it looks (streamed only), its
  * call and answer, and the cards its answer makes. The cards are built from
  * the tool's own answer, the parts the provider sees from the redacted one.
@@ -201,6 +211,7 @@ export async function runAgentLoop(
     w.startStep();
     let text = '';
     let providerState: AiProviderState | null = null;
+    let cutOff = false;
     const received: AiToolCall[] = [];
     try {
       const events = deps.client.stream(
@@ -222,6 +233,7 @@ export async function runAgentLoop(
           usage.inputTokens += event.inputTokens;
           usage.outputTokens += event.outputTokens;
         } else if (event.type === 'provider-state') providerState = event.state;
+        else if (event.type === 'finish') cutOff = event.reason === 'length';
       }
     } catch (err) {
       const partial: StepRecord = { parts: text ? [{ type: 'text', text }] : [], providerState: null };
@@ -238,12 +250,23 @@ export async function runAgentLoop(
     }
 
     const parts: AssistantMessagePart[] = text ? [{ type: 'text', text }] : [];
-    if (received.length === 0 && !nudged && step === 0 && ANNOUNCED.test(text.trimEnd())) {
+    const empty = received.length === 0 && !text.trim();
+    const announced = received.length === 0 && step === 0 && ANNOUNCED.test(text.trimEnd());
+    const push = empty || (received.length === 0 && cutOff) ? GO_ON : announced ? MAKE_THE_CALLS : null;
+    if (push && !nudged) {
       nudged = true;
       await deps.store.saveStep(rowId, { parts, providerState }, 'complete');
       w.finishStep();
-      history.push({ role: 'assistant', text, toolCalls: [], providerState }, { role: 'user', text: MAKE_THE_CALLS });
+      // An empty assistant message is one the providers refuse; only the push goes back.
+      if (!empty) history.push({ role: 'assistant', text, toolCalls: [], providerState });
+      history.push({ role: 'user', text: push });
       continue;
+    }
+    if (empty) {
+      await deps.store.saveStep(rowId, { parts, providerState }, 'error');
+      w.error('empty_answer');
+      finish('error');
+      return outcome('failed', 'empty_answer');
     }
     if (received.length === 0) {
       await deps.store.saveStep(rowId, { parts, providerState }, 'complete');

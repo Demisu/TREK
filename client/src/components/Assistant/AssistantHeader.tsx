@@ -1,24 +1,28 @@
-import { Ellipsis, History, Lightbulb, LightbulbOff, Plus, Settings, Trash2, X } from 'lucide-react';
+import { Ellipsis, History, Lightbulb, LightbulbOff, NotebookPen, Plus, Settings, Trash2, X } from 'lucide-react';
 import { type HTMLAttributes, type MouseEvent, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { useTranslation } from '../../i18n';
 import { PopoverItem } from '../Packing/PackingPopover';
 import ConfirmDialog from '../shared/ConfirmDialog';
-import { NEUTRAL_TINT } from '../shared/DialogShell';
 import { ContextMenu, useContextMenu } from '../shared/ContextMenu';
+import { NEUTRAL_TINT } from '../shared/DialogShell';
 import Tooltip from '../shared/Tooltip';
 import { PopoverListPanel } from '../shared/dialogParts';
 import { usePopoverList } from '../shared/usePopoverList';
+import AssistantMemoryDialog from './AssistantMemoryDialog';
 import { AI_SETTINGS_PATH } from './assistantParts';
 import { useAssistantHintsSetting } from './useAssistantHints';
+import { useAssistantLiveStep } from './useAssistantLiveStep';
 import type { useAssistantThread } from './useAssistantThread';
+import { useTripMemory } from './useTripMemory';
 
 // The round, raised buttons of TREK's dialog heads.
 const ICON_BUTTON =
   'grid h-7 w-7 place-items-center rounded-full bg-surface-card text-content-muted shadow-sm transition-colors hover:text-content';
 
 interface AssistantHeaderProps {
+  tripId: number;
   thread: ReturnType<typeof useAssistantThread>;
   tripTitle: string;
   onClose: () => void;
@@ -34,8 +38,11 @@ interface AssistantHeaderProps {
  * keeps the conversation, and an answer being written goes on. The model is not picked here;
  * that lives in the settings.
  */
-export default function AssistantHeader({ thread, tripTitle, onClose, dragProps }: AssistantHeaderProps) {
+export default function AssistantHeader({ tripId, thread, tripTitle, onClose, dragProps }: AssistantHeaderProps) {
   const { t, locale } = useTranslation();
+  const live = useAssistantLiveStep(tripId);
+  const memory = useTripMemory(tripId);
+  const [memoryOpen, setMemoryOpen] = useState(false);
   const navigate = useNavigate();
   const menu = useContextMenu();
   const [confirming, setConfirming] = useState(false);
@@ -90,9 +97,20 @@ export default function AssistantHeader({ thread, tripTitle, onClose, dragProps 
         className="flex min-w-0 flex-1 cursor-grab touch-none select-none items-center active:cursor-grabbing"
       >
         <div className="min-w-0 flex-1">
-          <p className="m-0 truncate font-geist text-caption font-bold uppercase tracking-[.08em] text-content-muted">
-            {t('assistant.launcher.tooltip')}
-          </p>
+          {thread.isRunning ? (
+            // While it works, the line over the title says what it does right now.
+            <p role="status" className="m-0 flex min-w-0 items-center gap-1.5 text-caption font-medium">
+              <span
+                aria-hidden="true"
+                className="trek-assistant-pulse h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent"
+              />
+              <span className="trek-assistant-shimmer truncate">{live?.text ?? t('assistant.step.working')}</span>
+            </p>
+          ) : (
+            <p className="m-0 truncate font-geist text-caption font-bold uppercase tracking-[.08em] text-content-muted">
+              {t('assistant.launcher.tooltip')}
+            </p>
+          )}
           <h2 className="m-0 truncate text-body font-bold tracking-[-0.01em] text-content">
             <bdi>{thread.title ?? tripTitle}</bdi>
           </h2>
@@ -104,6 +122,22 @@ export default function AssistantHeader({ thread, tripTitle, onClose, dragProps 
         onPointerDown={(e) => e.stopPropagation()}
         onDoubleClick={(e) => e.stopPropagation()}
       >
+        <Tooltip label={t(memory.has ? 'assistant.memory.edit' : 'assistant.memory.title')}>
+          <button
+            type="button"
+            onClick={() => setMemoryOpen(true)}
+            aria-label={t('assistant.memory.title')}
+            className={`relative ${ICON_BUTTON}`}
+          >
+            <NotebookPen size={13} aria-hidden="true" />
+            {memory.has && (
+              <span
+                aria-hidden="true"
+                className="absolute -end-0.5 -top-0.5 h-2 w-2 rounded-full bg-accent ring-2 ring-[color:var(--bg-elevated)]"
+              />
+            )}
+          </button>
+        </Tooltip>
         <Tooltip label={t('assistant.history.open')}>
           <button
             ref={history.triggerRef}
@@ -167,6 +201,7 @@ export default function AssistantHeader({ thread, tripTitle, onClose, dragProps 
       </PopoverListPanel>
 
       <ContextMenu menu={menu.menu} onClose={menu.close} />
+      {memoryOpen && <AssistantMemoryDialog tripId={tripId} onClose={() => setMemoryOpen(false)} />}
       <ConfirmDialog
         isOpen={confirming}
         onClose={() => setConfirming(false)}

@@ -29,7 +29,7 @@ import {
 type Row = Record<string, unknown>;
 
 /** Places a search shows as cards; `more` counts the rest. */
-const PLACES_SHOWN = 8;
+const PLACES_SHOWN = 20;
 const MAX_NAME_CHARS = 120;
 const MAX_ADDRESS_CHARS = 200;
 const MAX_LABEL_CHARS = 80;

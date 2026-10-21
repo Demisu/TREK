@@ -522,4 +522,38 @@ describe('runAgentLoop', () => {
     // Only once: the third answer ends on an ellipsis too and still ends the turn.
     expect(t.requests).toHaveLength(3);
   });
+
+  it('ASTAGT-017: an empty answer gets one push without an empty message in the history; a second one is an error', async () => {
+    const recovered = setup([
+      [{ type: 'tool-call', call: { id: 's1', name: 'search_place', args: { query: 'Sushi' } } }],
+      [{ type: 'finish', reason: 'stop' }],
+      [{ type: 'text-delta', delta: 'Here are three for tonight.' }],
+    ]);
+    expect(
+      (await runAgentLoop(recovered.deps, recovered.input, recovered.writer, new AbortController().signal)).end,
+    ).toBe('stop');
+    const pushed = recovered.requests[2].messages;
+    expect(pushed.at(-1)).toMatchObject({ role: 'user', text: expect.stringContaining('came back empty') });
+    expect(pushed.at(-2)).toMatchObject({ role: 'tool', toolCallId: 's1' });
+
+    const stuck = setup([[{ type: 'finish', reason: 'stop' }], [{ type: 'finish', reason: 'stop' }]]);
+    const outcome = await runAgentLoop(stuck.deps, stuck.input, stuck.writer, new AbortController().signal);
+    expect(outcome).toMatchObject({ end: 'failed', code: 'empty_answer' });
+    expect(stuck.chunks).toContainEqual({ type: 'error', errorText: 'empty_answer' });
+  });
+
+  it('ASTAGT-018: an answer cut off by the length limit is pushed to go on', async () => {
+    const t = setup([
+      [
+        { type: 'text-delta', delta: 'Day 1: Senso-ji, then' },
+        { type: 'finish', reason: 'length' },
+      ],
+      [{ type: 'text-delta', delta: ' Skytree in the evening.' }],
+    ]);
+    expect((await runAgentLoop(t.deps, t.input, t.writer, new AbortController().signal)).end).toBe('stop');
+    expect(t.requests[1].messages.slice(-2)).toMatchObject([
+      { role: 'assistant', text: 'Day 1: Senso-ji, then' },
+      { role: 'user', text: expect.stringContaining('cut off') },
+    ]);
+  });
 });

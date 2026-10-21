@@ -7,6 +7,16 @@ import { useAuthStore } from '../../store/authStore';
 /** The only pictures a found place shows: TREK's own photo proxy, never an address from the search. */
 const PROXY_PREFIX = '/api/maps/place-photo/';
 
+/**
+ * A key the proxy can find this very place's photo by. A place known only by
+ * its position (`coords:`, what a search of the open map data finds) would get
+ * a picture of its surroundings, the same street scene for every restaurant
+ * in a district; such a card shows its category instead.
+ */
+function photoKeyOf(place: AssistantFoundPlace): string | null {
+  return place.photoKey && !place.photoKey.startsWith('coords:') ? place.photoKey : null;
+}
+
 /** A picture TREK's proxy serves, or null for anything else. */
 function proxiedPhoto(url: string | null | undefined): string | null {
   return url?.startsWith(PROXY_PREFIX) ? url : null;
@@ -18,11 +28,12 @@ function proxiedPhoto(url: string | null | undefined): string | null {
  * provider, and a strip holds several. The answer goes through the shared
  * photo cache and its limit on parallel requests, so a place the planner shows
  * too is fetched once. Null while it loads, when there is none, when photos
- * are off, and for any answer that is not the proxy's own address.
+ * are off, for a place known only by its position, and for any answer that is
+ * not the proxy's own address.
  */
 export function useFoundPlacePhoto(place: AssistantFoundPlace, ref: RefObject<Element | null>): string | null {
   const enabled = useAuthStore((s) => s.placesPhotosEnabled);
-  const key = place.photoKey;
+  const key = photoKeyOf(place);
   const [src, setSrc] = useState<string | null>(() => (key ? proxiedPhoto(getCached(key)?.photoUrl) : null));
   const [visible, setVisible] = useState(false);
 

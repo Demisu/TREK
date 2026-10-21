@@ -16,17 +16,16 @@
       "feature": "Addon manager",
       "hooks": [
         "src/components/Admin/addons/addonModel.ts",
-        "src/components/Admin/addons/useAddonManager.ts",
-        "src/components/Admin/addons/useLlmParsingConfig.ts"
+        "src/components/Admin/addons/useAddonManager.ts"
       ],
       "desktop": ["src/components/Admin/AddonManager.tsx"],
       "mobile": ["src/mobile/screens/admin/MAdminAddonManager.tsx"]
     },
     {
-      "feature": "Addon manager: AI assistant",
-      "hooks": ["src/components/Admin/addons/useAiAdminConfig.ts"],
-      "desktop": ["src/components/Admin/addons/AiAdminConfig.tsx"],
-      "mobile": ["src/mobile/screens/admin/MAdminAiConfig.tsx"]
+      "feature": "Addon manager: AI tile",
+      "hooks": ["src/components/Admin/addons/useAiAddonTile.ts"],
+      "desktop": ["src/components/Admin/addons/AiAddonTile.tsx"],
+      "mobile": ["src/mobile/screens/admin/MAdminAddonManager.tsx"]
     },
     {
       "feature": "Admin notification preference matrix",

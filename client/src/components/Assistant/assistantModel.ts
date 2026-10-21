@@ -92,6 +92,10 @@ const ERRORS: Record<AssistantErrorCode, AssistantErrorView> = {
     messageKey: 'assistant.error.maxSteps',
     action: { kind: 'continue', labelKey: 'assistant.errorAction.continue' },
   },
+  empty_answer: {
+    messageKey: 'assistant.error.emptyAnswer',
+    action: { kind: 'continue', labelKey: 'assistant.errorAction.continue' },
+  },
   offline: { messageKey: 'assistant.error.offline', action: null },
   decide_first: { messageKey: 'assistant.error.decideFirst', action: null },
   too_many_requests: { messageKey: 'assistant.error.rateLimited', action: null },

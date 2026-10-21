@@ -6,9 +6,11 @@ import { AddonsService } from '../addons/addons.service';
 import { AuditService } from '../audit/audit.service';
 import { RateLimitService } from '../common/rate-limit.service';
 import { LlmParseService } from '../llm-parse/llm-parse.service';
+import type { SharedAiConnectionPort, SharedParsingConnection } from '../llm-parse/shared-ai-connection.interface';
 import { SettingsService } from '../settings/settings.service';
 import { pickConnection } from './ai-connection.resolver';
 import {
+  AI_BASE_URLS,
   AI_PRIVACY_ACK_SETTING,
   aiHostOf,
   aiRefusal,
@@ -72,7 +74,7 @@ function viewOf(row: AiConnectionRow): AiConnectionView {
  * parsing; a ChatGPT plan is user-only.
  */
 @Injectable()
-export class AiConnectionsService {
+export class AiConnectionsService implements SharedAiConnectionPort {
   constructor(
     @InjectRepository(AiConnections) private readonly connections: AiConnectionsRepository,
     private readonly aiSettings: AiSettingsService,
@@ -337,6 +339,41 @@ export class AiConnectionsService {
     } catch (err) {
       if (err instanceof AiProviderError) throw providerRefusal(err);
       throw err;
+    }
+  }
+
+  /**
+   * The connection a user's assistant would run on, as AI parsing reads it, so
+   * an instance sets up one provider for both. The admin's policy decides it
+   * the same way. A ChatGPT plan is left out: its sign-in only reaches the chat
+   * models, not the completions endpoint parsing calls. Gemini and OpenRouter
+   * go through their OpenAI-compatible endpoints; a custom server is the
+   * admin's own address, read like parsing's local provider (#1772).
+   */
+  async forParsing(userId: number): Promise<SharedParsingConnection | null> {
+    if (readEnv().managed.enabled) return null;
+    const { policy } = await this.aiSettings.read();
+    const picked = pickConnection(
+      policy,
+      await this.connections.findForUser(userId),
+      await this.connections.findInstance(),
+    );
+    const row = picked?.connection;
+    if (!row || row.status !== 'ok' || !row.model) return null;
+    const apiKey = this.storedApiKey(row) ?? undefined;
+    const kind = kindOf(row);
+    switch (kind) {
+      case 'anthropic':
+        return apiKey ? { provider: 'anthropic', model: row.model, apiKey } : null;
+      case 'openai':
+        return apiKey ? { provider: 'openai', model: row.model, apiKey } : null;
+      case 'gemini':
+      case 'openrouter':
+        return apiKey ? { provider: 'openai', model: row.model, apiKey, baseUrl: AI_BASE_URLS[kind] } : null;
+      case 'custom':
+        return row.base_url ? { provider: 'local', model: row.model, apiKey, baseUrl: row.base_url } : null;
+      default:
+        return null;
     }
   }
 

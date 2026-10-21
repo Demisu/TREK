@@ -35,6 +35,8 @@ interface StopLead {
   freeMinutes: number | null;
   /** The stop before, when the two take the same time. */
   overlapsWith: string | null;
+  /** Minutes the way there is longer than the time between the two; null when it fits or the times do not say. */
+  shortBy: number | null;
 }
 
 export interface TimelineStop {
@@ -152,10 +154,12 @@ function leadOf(prev: Draft, cur: Draft, defaultMode: string): StopLead {
             60
         )
       : null;
-  if (cur.start === null || prev.end === null) return { travelMinutes, freeMinutes: null, overlapsWith: null };
-  if (cur.start < prev.end) return { travelMinutes, freeMinutes: null, overlapsWith: prev.stop.name };
+  const none = { freeMinutes: null, overlapsWith: null, shortBy: null };
+  if (cur.start === null || prev.end === null) return { travelMinutes, ...none };
+  if (cur.start < prev.end) return { travelMinutes, ...none, overlapsWith: prev.stop.name };
   const free = cur.start - prev.end - (travelMinutes ?? 0);
-  return { travelMinutes, freeMinutes: free >= GAP_MIN_MINUTES ? free : null, overlapsWith: null };
+  if (free < 0) return { travelMinutes, ...none, shortBy: -free };
+  return { travelMinutes, ...none, freeMinutes: free >= GAP_MIN_MINUTES ? free : null };
 }
 
 /**
@@ -229,4 +233,28 @@ export function changedDays(changes: readonly DayChange[]): number[] {
     add(effect.fromDayId);
   }
   return days;
+}
+
+/** A leg this long without a time says the day asks a lot of travel. */
+const FAR_MINUTES = 60;
+
+/**
+ * Whether a day still works once the changes ran: stops that take the same
+ * time, a way there longer than the time between two stops, and legs over an
+ * hour. Counted over the stops that stay on the day.
+ */
+export function dayIssues(day: DayAfter): number {
+  return day.stops.reduce((sum, stop) => {
+    const lead = stop.lead;
+    if (stop.status === 'removed' || !lead) return sum;
+    const far = lead.travelMinutes !== null && lead.travelMinutes >= FAR_MINUTES;
+    return sum + (lead.overlapsWith || lead.shortBy !== null || far ? 1 : 0);
+  }, 0);
+}
+
+/** Whether a stop is one of those `dayIssues` counts. */
+export function stopIssue(stop: TimelineStop): boolean {
+  const lead = stop.lead;
+  if (stop.status === 'removed' || !lead) return false;
+  return !!lead.overlapsWith || lead.shortBy !== null || (lead.travelMinutes ?? 0) >= FAR_MINUTES;
 }

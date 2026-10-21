@@ -1,4 +1,4 @@
-import { ChevronDown, TriangleAlert } from 'lucide-react';
+import { ChevronDown, CircleCheck, TriangleAlert } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -7,38 +7,49 @@ import { useTripStore } from '../../store/tripStore';
 import { dayLabel } from '../../utils/dayLabel';
 import { Tooltip } from '../shared/Tooltip';
 import { useAssistantView } from './assistantViewContext';
-import { buildDayAfter, changedDays, type DayAfter, type DayChange, type TimelineStop } from './dayAfterModel';
+import {
+  buildDayAfter,
+  changedDays,
+  type DayAfter,
+  type DayChange,
+  dayIssues,
+  stopIssue,
+  type TimelineStop,
+} from './dayAfterModel';
 import { useChangeHover } from './useChangeHover';
 
 /**
- * The days a waiting card touches, as they would read once it ran: one thin
- * band per day with a block per stop, so a glance shows where the suggestion
- * lands among the rest. The details (times, the way between stops, free time,
- * a clash) stay folded away until asked for. Two days at most; the rest are
- * counted. Shown only while the planner holds this trip, since the day plans
- * come from it.
+ * The days a waiting card touches, as they would read once it ran: per day its
+ * date and its stops in order as small named chips, so a glance shows where the
+ * suggestion lands among the rest. The details (times, the way between stops,
+ * free time, a clash) stay folded away until asked for. Two days at most; the
+ * rest are counted. Shown only while the planner holds this trip, since the day
+ * plans come from it.
  */
 
-/** Days drawn as a band; the rest are counted. */
+/** Days shown; the rest are counted. */
 const MAX_DAYS = 2;
+/** Stops shown as chips on a day; the rest are counted. */
+const MAX_CHIPS = 6;
 
-const SEGMENT: Record<TimelineStop['status'], string> = {
-  kept: 'bg-surface-secondary',
-  new: 'border border-dashed border-success bg-success-soft',
-  removed: 'border border-edge-faint opacity-50',
+const CHIP: Record<TimelineStop['status'], string> = {
+  kept: 'border-transparent bg-surface-secondary text-content-muted',
+  new: 'border-dashed border-success bg-success-soft text-content',
+  removed: 'border-transparent text-content-faint line-through',
 };
 
-function Segment({ stop }: { stop: TimelineStop }) {
+/** One stop of the day, named; the change it belongs to lights up with it. */
+function StopChip({ stop }: { stop: TimelineStop }) {
   const { tripId } = useAssistantView();
   const { lit, handlers } = useChangeHover(tripId, stop.toolCallId);
-  const clash = stop.lead?.overlapsWith ? 'ring-1 ring-inset ring-danger' : '';
+  const clash = stop.lead?.overlapsWith ? 'border-danger' : stopIssue(stop) ? 'border-warning' : '';
   return (
-    <Tooltip label={stop.name} placement="top">
-      <span
-        {...(stop.toolCallId ? handlers : {})}
-        className={`h-full min-w-[6px] flex-1 rounded-sm transition-shadow ${SEGMENT[stop.status]} ${clash} ${lit ? 'ring-2 ring-inset ring-accent' : ''}`}
-      />
-    </Tooltip>
+    <span
+      {...(stop.toolCallId ? handlers : {})}
+      className={`inline-flex max-w-[11rem] items-center rounded-full border px-2 py-0.5 text-caption transition-colors ${CHIP[stop.status]} ${clash} ${lit ? 'bg-surface-hover' : ''}`}
+    >
+      <bdi className="truncate">{stop.name}</bdi>
+    </span>
   );
 }
 
@@ -47,13 +58,19 @@ function Lead({ stop, timed }: { stop: TimelineStop; timed: boolean }) {
   const lead = stop.lead;
   if (!lead) return null;
   const travel = lead.travelMinutes !== null && lead.travelMinutes > 0;
-  if (!travel && lead.freeMinutes === null && !lead.overlapsWith) return null;
+  if (!travel && lead.freeMinutes === null && !lead.overlapsWith && lead.shortBy === null) return null;
   return (
     <li
       className={`flex flex-wrap items-center gap-x-2 text-caption text-content-faint ${timed ? 'ps-[3.25rem]' : 'ps-1'}`}
     >
       {travel && <span>{t('assistant.change.timeline.travel', { count: lead.travelMinutes ?? 0 })}</span>}
       {lead.freeMinutes !== null && <span>{t('assistant.change.timeline.gap', { count: lead.freeMinutes })}</span>}
+      {lead.shortBy !== null && (
+        <span className="inline-flex items-center gap-1 font-medium text-warning">
+          <TriangleAlert size={11} aria-hidden="true" className="flex-shrink-0" />
+          {t('assistant.change.timeline.tight', { count: lead.shortBy })}
+        </span>
+      )}
       {lead.overlapsWith && (
         <span className="inline-flex items-center gap-1 text-content-muted">
           <TriangleAlert size={11} aria-hidden="true" className="flex-shrink-0 text-danger" />
@@ -91,16 +108,20 @@ function StopLine({ stop, timed }: { stop: TimelineStop; timed: boolean }) {
 
 function DayRow({ day, label, open }: { day: DayAfter; label: string; open: boolean }) {
   const timed = day.stops.some((s) => s.time !== null);
+  const chips = day.stops.slice(0, MAX_CHIPS);
   return (
     <div>
-      <div className="flex items-center gap-2">
-        <bdi className="w-16 flex-shrink-0 truncate text-caption text-content-muted">{label}</bdi>
-        <div className="flex h-6 min-w-0 flex-1 gap-0.5 overflow-hidden" aria-hidden="true">
-          {day.stops.map((stop) => (
-            <Segment key={stop.key} stop={stop} />
+      <bdi className="block truncate text-caption font-medium text-content-muted">{label}</bdi>
+      {!open && (
+        <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1">
+          {chips.map((stop) => (
+            <StopChip key={stop.key} stop={stop} />
           ))}
+          {day.stops.length > MAX_CHIPS && (
+            <span className="text-caption tabular-nums text-content-faint">+{day.stops.length - MAX_CHIPS}</span>
+          )}
         </div>
-      </div>
+      )}
       {open && (
         <ol className="trek-assistant-enter mt-1 space-y-0.5" aria-label={label}>
           {day.stops.map((stop) => (
@@ -153,6 +174,8 @@ export default function AssistantDayBand({ changes }: { changes: readonly DayCha
 
   if (rows.length === 0) return null;
   const shown = rows.slice(0, MAX_DAYS);
+  const issues = rows.reduce((sum, row) => sum + dayIssues(row.after), 0);
+  const measured = rows.some((row) => row.after.stops.some((stop) => stop.lead?.travelMinutes != null));
   const toggleLabel = t(open ? 'assistant.change.timeline.hide' : 'assistant.change.timeline.show');
   return (
     <div className="mb-1 flex gap-1.5">
@@ -161,18 +184,31 @@ export default function AssistantDayBand({ changes }: { changes: readonly DayCha
           <DayRow key={after.dayId} day={after} label={label} open={open} />
         ))}
         {rows.length > MAX_DAYS && (
-          <p className="ps-[4.5rem] text-caption text-content-faint">
+          <p className="text-caption text-content-faint">
             {t('assistant.change.timeline.moreDays', { count: rows.length - MAX_DAYS })}
           </p>
         )}
       </div>
+      {(issues > 0 || measured) && (
+        // What the check found, at a glance; a tap opens the schedule that says where.
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className={`inline-flex h-6 flex-shrink-0 items-center gap-1 self-start rounded-full px-2 text-caption font-medium transition-colors ${
+            issues > 0 ? 'bg-warning-soft text-warning hover:brightness-95' : 'bg-success-soft text-success'
+          }`}
+        >
+          {issues > 0 ? <TriangleAlert size={12} aria-hidden="true" /> : <CircleCheck size={12} aria-hidden="true" />}
+          {issues > 0 ? t('assistant.check.issues', { count: issues }) : t('assistant.check.ok')}
+        </button>
+      )}
       <Tooltip label={toggleLabel} placement="top">
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-label={toggleLabel}
-          className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md text-content-muted transition-colors hover:bg-surface-hover hover:text-content"
+          className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-content-muted outline-none transition-colors hover:bg-surface-hover hover:text-content focus-visible:ring-2 focus-visible:ring-accent"
         >
           <ChevronDown
             size={14}

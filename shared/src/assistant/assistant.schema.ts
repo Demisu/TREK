@@ -32,6 +32,8 @@ export const ASSISTANT_ERROR_CODES = [
   'invalid_key',
   'provider_unavailable',
   'max_steps',
+  // The model answered with nothing, not even after it was asked to go on.
+  'empty_answer',
   'offline',
   'no_bookings_found',
   'import_unavailable',
@@ -128,11 +130,21 @@ export const assistantMentionSchema = z
   .strict();
 export type AssistantMention = z.infer<typeof assistantMentionSchema>;
 
-/** What the user is looking at when they ask: the selected day, or the places they asked about. */
+/** The part of the map the planner shows, so "here" and "nearby" mean what is on screen. */
+export const assistantMapViewSchema = z
+  .object({ south: latSchema, west: lngSchema, north: latSchema, east: lngSchema })
+  .strict();
+export type AssistantMapView = z.infer<typeof assistantMapViewSchema>;
+
+/**
+ * What the user is looking at when they ask: the selected day, or the places
+ * they asked about, and the part of the map on screen.
+ */
 export const assistantFocusSchema = z
   .object({
     dayId: idSchema.optional(),
     placeIds: z.array(idSchema).max(20).optional(),
+    view: assistantMapViewSchema.optional(),
   })
   .strict();
 export type AssistantFocus = z.infer<typeof assistantFocusSchema>;
@@ -148,9 +160,9 @@ export type AssistantClientCtx = z.infer<typeof assistantClientCtxSchema>;
 export const assistantChatRequestSchema = assistantClientCtxSchema
   .extend({
     threadId: idSchema.nullable(),
-    text: z.string().trim().min(1).max(4000),
+    text: z.string().trim().min(1).max(32_000),
     focus: assistantFocusSchema.optional(),
-    mentions: z.array(assistantMentionSchema).max(10).optional(),
+    mentions: z.array(assistantMentionSchema).max(50).optional(),
   })
   .strict();
 export type AssistantChatRequest = z.infer<typeof assistantChatRequestSchema>;
@@ -179,7 +191,7 @@ export type AssistantDecision = z.infer<typeof assistantDecisionSchema>;
 /** POST /threads/:threadId/decisions: every change the step holds, applied or discarded. */
 export const assistantDecisionsRequestSchema = assistantClientCtxSchema
   .extend({
-    decisions: z.array(assistantDecisionSchema).min(1).max(12),
+    decisions: z.array(assistantDecisionSchema).min(1).max(50),
   })
   .strict();
 export type AssistantDecisionsRequest = z.infer<typeof assistantDecisionsRequestSchema>;
@@ -299,9 +311,15 @@ export const assistantFoundPlaceSchema = z.object({
   kind: z.enum(ASSISTANT_FOUND_PLACE_KINDS).nullable(),
   rating: z.number().min(0).max(5).nullable(),
   openNow: z.boolean().nullable(),
-  googlePlaceId: z.string().regex(/^[\w-]{1,200}$/).nullable(),
+  googlePlaceId: z
+    .string()
+    .regex(/^[\w-]{1,200}$/)
+    .nullable(),
   osmId: z.string().max(40).nullable(),
-  photoKey: z.string().regex(/^([\w-]{1,200}|coords:-?\d{1,3}(\.\d{1,12})?,-?\d{1,3}(\.\d{1,12})?)$/).nullable(),
+  photoKey: z
+    .string()
+    .regex(/^([\w-]{1,200}|coords:-?\d{1,3}(\.\d{1,12})?,-?\d{1,3}(\.\d{1,12})?)$/)
+    .nullable(),
   inTripPlaceId: idSchema.nullable(),
 });
 export type AssistantFoundPlace = z.infer<typeof assistantFoundPlaceSchema>;
@@ -309,7 +327,7 @@ export type AssistantFoundPlace = z.infer<typeof assistantFoundPlaceSchema>;
 /** The places one search step found: at most eight, `more` counts the rest. */
 export const assistantPlacesSchema = z.object({
   toolCallId: z.string().max(64),
-  places: z.array(assistantFoundPlaceSchema).max(8),
+  places: z.array(assistantFoundPlaceSchema).max(20),
   more: z.number().int().nonnegative(),
 });
 export type AssistantPlaces = z.infer<typeof assistantPlacesSchema>;
@@ -375,7 +393,7 @@ export const assistantMentionsSchema = z.object({
         label: z.string().max(120),
       }),
     )
-    .max(10),
+    .max(50),
 });
 export type AssistantMentions = z.infer<typeof assistantMentionsSchema>;
 

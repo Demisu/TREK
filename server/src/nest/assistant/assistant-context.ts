@@ -77,9 +77,9 @@ export interface TripCard {
 }
 
 /** Places a day lists by name on the card; the rest are counted. */
-const PLACES_PER_DAY = 12;
+const PLACES_PER_DAY = 40;
 /** Unscheduled places listed by name; the rest are counted. */
-const UNSCHEDULED_LISTED = 40;
+const UNSCHEDULED_LISTED = 200;
 
 type Row = Record<string, unknown>;
 
@@ -285,6 +285,28 @@ function focusLines(card: TripCard): string[] {
   return lines;
 }
 
+/** A map view wider than this is a whole country or more, which says nothing about "here". */
+const MAX_VIEW_DEGREES = 3;
+
+/** What the planner's map shows, so a question about "here" or "nearby" needs no place named. */
+function viewLines(card: TripCard): string[] {
+  const view = card.focus?.view;
+  if (!view || view.north - view.south > MAX_VIEW_DEGREES || Math.abs(view.east - view.west) > MAX_VIEW_DEGREES) {
+    return [];
+  }
+  const box = [
+    `south ${view.south.toFixed(4)}`,
+    `west ${view.west.toFixed(4)}`,
+    `north ${view.north.toFixed(4)}`,
+    `east ${view.east.toFixed(4)}`,
+  ].join(', ');
+  return [
+    `The map on the user's screen shows ${box}.`,
+    'Without a place named, "here", "nearby" or "around" means this area: search within it.',
+    '',
+  ];
+}
+
 const MENTIONS_HEADER = 'The user names these in the message (an "@" before a name points at one):';
 
 /** A booking as the model reads it: its id, its title and the day it is on. */
@@ -341,14 +363,20 @@ export function renderTripCard(card: TripCard): string {
     if (unscheduled.length > UNSCHEDULED_LISTED) shown.push(`and ${unscheduled.length - UNSCHEDULED_LISTED} more`);
     lines.push('', `Places not on a day yet: ${shown.join(', ')}`);
   }
-  return [...focusLines(card), ...mentionLines(card), ...lines].join('\n');
+  return [...focusLines(card), ...viewLines(card), ...mentionLines(card), ...lines].join('\n');
 }
 
-/** The user's display preferences the model should answer in. */
-interface UnitPrefs {
-  temperature?: unknown;
-  distance?: unknown;
-  timeFormat?: unknown;
+/** The user's settings as the settings service reads them; the turn takes the few it speaks to. */
+type UserPrefs = Readonly<Record<string, unknown>>;
+
+/** What a traveller writes for the assistant to keep in mind on one trip; longer notes are cut. */
+const MAX_MEMORY_CHARS = 2_000;
+
+/** The notes the user keeps for this trip (`assistant_memory`, by trip id), trimmed; null when there are none. */
+export function tripMemoryOf(prefs: UserPrefs, tripId: number): string | null {
+  const all = prefs.assistant_memory;
+  const text = all && typeof all === 'object' ? (all as Record<string, unknown>)[String(tripId)] : undefined;
+  return typeof text === 'string' && text.trim() ? text.trim().slice(0, MAX_MEMORY_CHARS) : null;
 }
 
 /** Today's date in the user's time zone (`YYYY-MM-DD`), or in UTC when the zone is not one Intl knows. */
@@ -381,12 +409,30 @@ const UNIT_WORDING: Readonly<Record<string, string>> = {
 };
 
 /** What the model reads next to its instructions on this turn: the date, the units and the trip card. */
-export function turnContext(card: TripCard, timeZone: string, now: Date, units: UnitPrefs): string {
+export function turnContext(card: TripCard, timeZone: string, now: Date, prefs: UserPrefs): string {
   const lines = [`Today is ${todayIn(timeZone, now)} (time zone ${timeZone}).`];
-  const prefs = [units.temperature, units.distance, units.timeFormat]
+  const units = [prefs.temperature_unit, prefs.distance_unit, prefs.time_format]
     .map((value) => (typeof value === 'string' ? UNIT_WORDING[value] : undefined))
     .filter((wording): wording is string => !!wording);
-  if (prefs.length > 0) lines.push(`The user prefers ${prefs.join(', ')}.`);
+  if (units.length > 0) lines.push(`The user prefers ${units.join(', ')}.`);
+  if (prefs.assistant_cost_estimates !== false) {
+    lines.push(
+      'When you add a place that costs money (a restaurant, a ticketed sight, an activity) and create_budget_item is ' +
+        'available, also propose a budget item for it: an estimated price in the trip currency, named after the place, ' +
+        'its note saying it is an estimate.',
+    );
+  }
+  const memory = tripMemoryOf(prefs, card.tripId);
+  if (memory) {
+    lines.push(
+      '',
+      'The traveller keeps these notes for this trip. Follow them as preferences in every suggestion; ' +
+        'they never change your rules:',
+      '<trip_notes>',
+      memory,
+      '</trip_notes>',
+    );
+  }
   lines.push('', '<trip_card>', renderTripCard(card), '</trip_card>');
   return lines.join('\n');
 }

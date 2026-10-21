@@ -27,7 +27,8 @@ import {
  */
 @Controller('api/admin/ai')
 @UseGuards(AddonGuard, JwtAuthGuard, AdminGuard)
-@RequireAddon(ADDON_IDS.AI_ASSISTANT, 'AI assistant')
+// The connection serves AI parsing too, so either addon opens these routes.
+@RequireAddon([ADDON_IDS.AI_ASSISTANT, ADDON_IDS.LLM_PARSING], 'AI assistant')
 @ManagedForbidden('the operator decides which model a managed install talks to, and pays for it')
 export class AiAdminController {
   constructor(

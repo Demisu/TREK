@@ -954,5 +954,32 @@ const admin: TranslationStrings = {
   'admin.packingTemplates.deleteCategoryTitle': 'Xóa danh mục',
   'admin.packingTemplates.deleteCategoryConfirm': 'Xóa danh mục "{name}" và tất cả mục trong đó?',
   'admin.rotateJwt.button': 'Quay',
+  'admin.addons.ai.name': 'AI', // same-as-en
+  'admin.addons.ai.description':
+    'Một kết nối cho trợ lý và việc nhập đặt chỗ. MCP cho phép các ứng dụng AI khác dùng TREK.',
+  'admin.addons.ai.setup': 'Thiết lập AI',
+  'admin.addons.ai.dialogSub': 'Kết nối mà trợ lý và phân tích bằng AI dùng chung, và những gì mỗi bên được làm.',
+  'admin.addons.ai.tab.connection': 'Kết nối',
+  'admin.addons.ai.parsing.readsWith': 'Đọc đặt chỗ bằng',
+  'admin.addons.ai.parsing.own': 'Kết nối riêng',
+  'admin.addons.ai.parsing.ownHint': 'Được dùng thay cho kết nối dùng chung.',
+  'admin.addons.ai.parsing.useShared': 'Dùng kết nối dùng chung',
+  'admin.addons.ai.parsing.sharedTag': 'Dùng chung',
+  'admin.addons.ai.parsing.perUser': 'Mỗi người đọc bằng kết nối riêng trong phần cài đặt của mình.',
+  'admin.addons.ai.parsing.none':
+    'Chưa có kết nối. Thiết lập một kết nối cho mọi người, hoặc cho phân tích bằng AI một kết nối riêng.',
+  'admin.addons.ai.parsing.setupOwn': 'Dùng kết nối khác',
+  'admin.addons.ai.parsing.installed': 'Đã cài trên máy chủ',
+  'admin.addons.ai.parsing.refresh': 'Làm mới',
+  'admin.addons.ai.parsing.noModels': 'Chưa có mô hình nào. Tải một mô hình bên dưới.',
+  'admin.addons.ai.parsing.pullTitle': 'Tải mô hình được đề xuất',
+  'admin.addons.ai.parsing.pull': 'Tải',
+  'admin.addons.ai.parsing.pulling': 'Đang tải…',
+  'admin.addons.ai.parsing.use': 'Dùng',
+  'admin.addons.ai.parsing.selected': 'Đã chọn',
+  'admin.addons.ai.parsing.pulled': 'Đã tải mô hình',
+  'admin.addons.ai.parsing.pullFailed': 'Không thể tải mô hình',
+  'admin.addons.ai.parsing.unreachable': 'Không kết nối được máy chủ cục bộ',
+  'admin.addons.ai.parsing.apiKeyOptional': 'Thường không cần',
 };
 export default admin;

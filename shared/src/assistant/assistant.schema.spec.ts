@@ -40,7 +40,7 @@ describe('assistantChatRequestSchema', () => {
 
   it('refuses blank or overlong text, a bad thread id and unknown keys', () => {
     expect(assistantChatRequestSchema.safeParse({ ...ctx, threadId: null, text: '   ' }).success).toBe(false);
-    expect(assistantChatRequestSchema.safeParse({ ...ctx, threadId: null, text: 'x'.repeat(4001) }).success).toBe(
+    expect(assistantChatRequestSchema.safeParse({ ...ctx, threadId: null, text: 'x'.repeat(32_001) }).success).toBe(
       false,
     );
     expect(assistantChatRequestSchema.safeParse({ ...ctx, threadId: 0, text: 'hi' }).success).toBe(false);
@@ -84,7 +84,7 @@ describe('assistantDecisionsRequestSchema', () => {
     expect(assistantDecisionsRequestSchema.safeParse({ ...ctx, decisions: [decision] }).success).toBe(true);
     expect(assistantDecisionsRequestSchema.safeParse({ ...ctx, decisions: [] }).success).toBe(false);
     expect(
-      assistantDecisionsRequestSchema.safeParse({ ...ctx, decisions: Array.from({ length: 13 }, () => decision) })
+      assistantDecisionsRequestSchema.safeParse({ ...ctx, decisions: Array.from({ length: 51 }, () => decision) })
         .success,
     ).toBe(false);
   });
@@ -225,8 +225,8 @@ describe('mentions in a chat request', () => {
       { kind: 'reservation', id: 2 },
     ];
     expect(assistantChatRequestSchema.safeParse({ ...base, mentions }).success).toBe(true);
-    const eleven = Array.from({ length: 11 }, () => ({ kind: 'place', id: 4 }));
-    expect(assistantChatRequestSchema.safeParse({ ...base, mentions: eleven }).success).toBe(false);
+    const tooMany = Array.from({ length: 51 }, () => ({ kind: 'place', id: 4 }));
+    expect(assistantChatRequestSchema.safeParse({ ...base, mentions: tooMany }).success).toBe(false);
     const labelled = [{ kind: 'place', id: 4, label: 'Louvre' }];
     expect(assistantChatRequestSchema.safeParse({ ...base, mentions: labelled }).success).toBe(false);
     expect(assistantChatRequestSchema.safeParse({ ...base, mentions: [{ kind: 'trip', id: 4 }] }).success).toBe(false);
@@ -325,11 +325,11 @@ describe('assistantFoundPlaceSchema', () => {
     expect(withPlace({ kind: 'casino' }).success).toBe(false);
   });
 
-  it('holds at most eight places to a step and counts the rest', () => {
-    const places = Array.from({ length: 9 }, (_, i) => ({ ...place, ref: `toolu_01:${i}` }));
+  it('holds at most twenty places to a step and counts the rest', () => {
+    const places = Array.from({ length: 21 }, (_, i) => ({ ...place, ref: `toolu_01:${i}` }));
     const step = (body: Record<string, unknown>) =>
       assistantPlacesSchema.safeParse({ toolCallId: 'toolu_01', ...body });
-    expect(step({ places: places.slice(0, 8), more: 1 }).success).toBe(true);
+    expect(step({ places: places.slice(0, 20), more: 1 }).success).toBe(true);
     expect(step({ places, more: 0 }).success).toBe(false);
     expect(step({ places: [], more: -1 }).success).toBe(false);
   });

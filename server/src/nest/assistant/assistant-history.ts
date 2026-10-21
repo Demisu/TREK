@@ -24,7 +24,7 @@ import type { AssistantMessage, AssistantMessagePart, AssistantToolApproval } fr
  */
 
 /** How far a tool answer from an earlier turn is cut, so old lookups do not crowd out the current one. */
-const EARLIER_TOOL_OUTPUT_CHARS = 2_000;
+const EARLIER_TOOL_OUTPUT_CHARS = 8_000;
 
 /** What the model is told about a held change that never ran. */
 const NOT_APPLIED = JSON.stringify({ applied: false, reason: 'The user did not apply this change.' });

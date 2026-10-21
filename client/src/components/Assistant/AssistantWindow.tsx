@@ -196,6 +196,7 @@ function ChatWindow({
       ))}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl">
         <AssistantHeader
+          tripId={trip.id}
           thread={thread}
           tripTitle={trip.title}
           dragProps={frame.handleProps}

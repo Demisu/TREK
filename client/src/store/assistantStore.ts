@@ -6,6 +6,7 @@ import {
   type AssistantDecision,
   type AssistantErrorCode,
   type AssistantFocus,
+  type AssistantMapView,
   type AssistantMention,
   type AssistantMessage,
   type AssistantMessagePart,
@@ -125,6 +126,8 @@ interface AssistantState {
   preview: { tripId: number; ref: string; lat: number; lng: number; name: string } | null;
   /** Where the floating window sits after its last move or resize, for the map to frame around it. */
   windowRect: WindowRect | null;
+  /** The part of the planner's map on screen, sent with a question so "here" means it. */
+  mapView: { tripId: number; view: AssistantMapView } | null;
 
   loadStatus: () => Promise<void>;
   ackPrivacy: () => Promise<void>;
@@ -169,6 +172,7 @@ interface AssistantState {
   requestCamera: (tripId: number, points: LatLng[], mode: 'fit' | 'pan', why: 'user' | 'auto') => void;
   setPreviewPin: (preview: AssistantState['preview']) => void;
   setWindowRect: (rect: WindowRect | null) => void;
+  setMapView: (mapView: AssistantState['mapView']) => void;
 }
 
 const NO_LIVE: AssistantTripChat['live'] = { activity: null };
@@ -332,6 +336,14 @@ async function runTurn(ctx: Ctx, tripId: number, turn: Turn): Promise<void> {
   }
 }
 
+/** The focus a question goes out with: the chip's, and the part of this trip's map on screen. */
+function focusWithView(ctx: Ctx, tripId: number, focus: AssistantFocus | null): { focus?: AssistantFocus } {
+  const mapView = ctx.get().mapView;
+  const view = mapView?.tripId === tripId ? mapView.view : undefined;
+  if (!focus && !view) return {};
+  return { focus: { ...(focus ?? {}), ...(view ? { view } : {}) } };
+}
+
 async function sendMessage(ctx: Ctx, tripId: number, text: string): Promise<void> {
   const c = chat(ctx, tripId);
   const trimmed = text.trim();
@@ -350,7 +362,7 @@ async function sendMessage(ctx: Ctx, tripId: number, text: string): Promise<void
     ...clientContext(),
     threadId: c.threadId,
     text: trimmed,
-    ...(c.focus ? { focus: c.focus } : {}),
+    ...focusWithView(ctx, tripId, c.focus),
     ...(mentions.length > 0 ? { mentions: mentions.map(({ kind, id }) => ({ kind, id })) } : {}),
   };
   // A new question looks at the plan as it is now.
@@ -602,10 +614,7 @@ function compareActions(ctx: Ctx) {
       patch(ctx, tripId, { compare: { ...compare, mode } });
       // Switching is asking to see it: frame the block's days on both sides.
       const days = Object.keys(compare.snapshot).map(Number);
-      const points = [
-        ...dayPoints(compare.snapshot, days),
-        ...dayPoints(useTripStore.getState().assignments, days),
-      ];
+      const points = [...dayPoints(compare.snapshot, days), ...dayPoints(useTripStore.getState().assignments, days)];
       requestCameraOn(ctx, tripId, points, 'fit', 'user');
     },
     addFoundPlace: async (tripId: number, ref: string, dayId: number) => {
@@ -650,6 +659,7 @@ function mapActions(ctx: Ctx) {
       requestCameraOn(ctx, tripId, points, mode, why),
     setPreviewPin: (preview: AssistantState['preview']) => ctx.set({ preview }),
     setWindowRect: (rect: WindowRect | null) => ctx.set({ windowRect: rect }),
+    setMapView: (mapView: AssistantState['mapView']) => ctx.set({ mapView }),
   };
 }
 
@@ -715,6 +725,7 @@ export const useAssistantStore = create<AssistantState>((set, get) => {
     camera: null,
     preview: null,
     windowRect: null,
+    mapView: null,
     ...shellActions(ctx),
     ...threadActions(ctx),
     ...turnActions(ctx),

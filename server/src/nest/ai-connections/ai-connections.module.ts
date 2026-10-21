@@ -4,6 +4,7 @@ import { AddonsModule } from '../addons/addons.module';
 import { AuditModule } from '../audit/audit.module';
 import { RateLimitModule } from '../common/rate-limit.module';
 import { LlmParseModule } from '../llm-parse/llm-parse.module';
+import { SHARED_AI_CONNECTION } from '../llm-parse/shared-ai-connection.interface';
 import { OidcModule } from '../oidc/oidc.module';
 import { SettingsModule } from '../settings/settings.module';
 import { AiAdminController } from './ai-admin.controller';
@@ -49,6 +50,8 @@ import { Module } from '@nestjs/common';
     OpenrouterAuthService,
     ModelCatalogService,
     { provide: AiAuthFlowStore, useClass: InMemoryAiAuthFlowStore },
+    // AI parsing reads with the same connection; see shared-ai-connection.interface.ts.
+    { provide: SHARED_AI_CONNECTION, useExisting: AiConnectionsService },
     { provide: AiRefreshLock, useClass: InMemoryAiRefreshLock },
   ],
   exports: [AiConnectionsService, AiChatClientService, AiUsageService],

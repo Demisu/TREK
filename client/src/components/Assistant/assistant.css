@@ -168,6 +168,20 @@
   animation: trek-assistant-busy 1.8s ease-in-out infinite;
 }
 
+/* The dot beside what the assistant does right now: a soft beat, a halo going out. */
+@keyframes trek-assistant-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 6px transparent;
+  }
+}
+.trek-assistant-pulse {
+  animation: trek-assistant-pulse 1.4s ease-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .trek-assistant-pop,
   .trek-assistant-enter {
@@ -176,7 +190,8 @@
   .trek-assistant-settle {
     transition: none;
   }
-  .trek-assistant-busy {
+  .trek-assistant-busy,
+  .trek-assistant-pulse {
     animation: none;
   }
   .trek-assistant-shimmer {
@@ -196,7 +211,8 @@
 [data-reduce-motion] .trek-assistant-settle {
   transition: none;
 }
-[data-reduce-motion] .trek-assistant-busy {
+[data-reduce-motion] .trek-assistant-busy,
+[data-reduce-motion] .trek-assistant-pulse {
   animation: none;
 }
 [data-reduce-motion] .trek-assistant-shimmer {

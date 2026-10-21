@@ -121,3 +121,15 @@ export function httpHostOf(raw: string): string {
 export function svgDataUrl(svg: string): string {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
+
+/**
+ * What a user's AI connection serves, as its section's title and line: the
+ * assistant, AI parsing (booking import reads with the same connection), or both.
+ */
+export function aiSectionText(assistant: boolean, parsing: boolean): { titleKey: string; hintKey: string } {
+  if (!assistant) return { titleKey: 'settings.aiParsing.title', hintKey: 'assistant.connect.descriptionParsingOnly' };
+  return {
+    titleKey: 'assistant.connect.title',
+    hintKey: parsing ? 'assistant.connect.descriptionWithParsing' : 'assistant.connect.description',
+  };
+}

@@ -2,6 +2,7 @@ import type { ViewportPadding } from '../../utils/mapViewport';
 import { useAssistantMarkerClasses } from './assistantCamera';
 import { AssistantCameraController } from './AssistantCameraController';
 import { AssistantGhostLayer } from './AssistantGhostLayer';
+import { useReportViewLeaflet } from './assistantViewport';
 import type { AssistantMapProps } from './mapViewContract';
 
 interface AssistantMapLeafletProps {
@@ -15,10 +16,12 @@ interface AssistantMapLeafletProps {
 /**
  * Everything the assistant does on the Leaflet map, mounted inside the map
  * container as one child, so MapView only hands its props on: the ghosts,
- * the camera, and the pop and pulse on the real pins.
+ * the camera, the pop and pulse on the real pins, and the part of the map
+ * the assistant is told is on screen.
  */
 export function AssistantMapLeaflet({ assistant, padding, markerEl }: AssistantMapLeafletProps) {
   useAssistantMarkerClasses(markerEl, assistant.poppedPlaceIds, assistant.assistantPulsePlaceId);
+  useReportViewLeaflet();
   return (
     <>
       <AssistantGhostLayer

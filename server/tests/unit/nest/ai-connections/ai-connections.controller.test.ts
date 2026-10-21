@@ -79,7 +79,7 @@ describe('AiConnectionsController', () => {
     expect(Reflect.getMetadata(PATH_METADATA, AiConnectionsController)).toBe('api/ai');
     expect(Reflect.getMetadata(GUARDS_METADATA, AiConnectionsController)).toEqual([AddonGuard, JwtAuthGuard]);
     expect(Reflect.getMetadata(REQUIRE_ADDON, AiConnectionsController)).toEqual({
-      addonId: 'ai_assistant',
+      addonId: ['ai_assistant', 'llm_parsing'],
       label: 'AI assistant',
     });
     expect(Reflect.getMetadata(MANAGED_FORBIDDEN, AiConnectionsController)?.reason).toBeTruthy();
@@ -169,7 +169,9 @@ describe('AiAdminController', () => {
   it('AICTL-010: sits behind the addon, auth and the admin check, withheld on a managed install', () => {
     expect(Reflect.getMetadata(PATH_METADATA, AiAdminController)).toBe('api/admin/ai');
     expect(Reflect.getMetadata(GUARDS_METADATA, AiAdminController)).toEqual([AddonGuard, JwtAuthGuard, AdminGuard]);
-    expect(Reflect.getMetadata(REQUIRE_ADDON, AiAdminController)).toMatchObject({ addonId: 'ai_assistant' });
+    expect(Reflect.getMetadata(REQUIRE_ADDON, AiAdminController)).toMatchObject({
+      addonId: ['ai_assistant', 'llm_parsing'],
+    });
     expect(Reflect.getMetadata(MANAGED_FORBIDDEN, AiAdminController)?.reason).toBeTruthy();
     expect(
       ['settings', 'saveSettings', 'connection', 'saveConnection', 'removeConnection', 'models', 'startOpenrouter'].map(

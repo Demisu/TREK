@@ -111,7 +111,7 @@ export default function AssistantComposer({ tripId, tripTitle }: { tripId: numbe
             onPaste={(e) => {
               if (e.clipboardData.files.length > 0 && take(e.clipboardData.files)) e.preventDefault();
             }}
-            className="max-h-48 min-h-[36px] flex-1 resize-none bg-transparent px-1.5 py-1.5 text-body text-content outline-none placeholder:text-content-faint disabled:cursor-not-allowed"
+            className="max-h-48 min-h-[36px] flex-1 resize-none bg-transparent px-1.5 py-1.5 text-body text-content outline-none placeholder:text-content-faint disabled:cursor-not-allowed dark:bg-transparent"
           />
           <AuiIf condition={(s) => s.thread.isRunning}>
             <ComposerPrimitive.Cancel

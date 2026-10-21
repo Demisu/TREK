@@ -25,14 +25,16 @@ import { blockKeyOf } from '../../store/assistantMapModel';
 import { chatOf, useAssistantStore } from '../../store/assistantStore';
 import { useTripStore } from '../../store/tripStore';
 import ToggleSwitch from '../Settings/ToggleSwitch';
-import { Tooltip } from '../shared/Tooltip';
 import { useToast } from '../shared/Toast';
+import { Tooltip } from '../shared/Tooltip';
 import AssistantCompareSwitch from './AssistantCompareSwitch';
 import AssistantDayBand from './AssistantDayBand';
+import AssistantWeekOverview from './AssistantWeekOverview';
 import { CHANGE_LABELS, type ChangeItem, type ChangeState, undoLeftMs } from './assistantParts';
 import { useAssistantView } from './assistantViewContext';
 import { changePoints, type DayChange } from './dayAfterModel';
 import { useChangeHover } from './useChangeHover';
+import { useWeekDays } from './useWeekDays';
 
 /**
  * The changes the assistant proposes in one go, as one card in plain words:
@@ -235,7 +237,11 @@ function Receipt({
         </Tooltip>
       )}
       <Tooltip label={statusLabel} placement="top">
-        <span role="img" aria-label={statusLabel} className={`flex h-7 w-5 items-center justify-center ${receipt.tone}`}>
+        <span
+          role="img"
+          aria-label={statusLabel}
+          className={`flex h-7 w-5 items-center justify-center ${receipt.tone}`}
+        >
           <Icon size={15} strokeWidth={2.4} className={item.state === 'applying' ? 'animate-spin' : ''} />
         </span>
       </Tooltip>
@@ -392,6 +398,21 @@ export default function AssistantChangeCard({ items }: { items: ChangeItem[] }) 
   const changes = useMemo(() => dayChangesOf(items, excluded), [items, excluded]);
   const undoable = items.filter((i) => undoableNow(i, undone, now)).map((i) => i.toolCallId);
 
+  const week = useWeekDays(pending);
+  const [showAll, setShowAll] = useState(false);
+  // A plan over a week reads from its grid; the single changes wait behind one line.
+  const folded = week.length > 0 && !showAll;
+
+  const toggleDay = (ids: readonly string[], include: boolean) =>
+    setExcluded((prev) => {
+      const next = new Set(prev);
+      for (const id of ids) {
+        if (include) next.delete(id);
+        else next.add(id);
+      }
+      return next;
+    });
+
   const toggle = (toolCallId: string) =>
     setExcluded((prev) => {
       const next = new Set(prev);
@@ -420,18 +441,32 @@ export default function AssistantChangeCard({ items }: { items: ChangeItem[] }) 
         count={items.length}
         actions={<HeadActions open={open} items={items} changes={changes} undoable={undoable} />}
       />
-      {open && <AssistantDayBand changes={changes} />}
+      {open && week.length > 0 && (
+        <AssistantWeekOverview days={week} excluded={excluded} disabled={isRunning} onToggleDay={toggleDay} />
+      )}
+      {open && !folded && <AssistantDayBand changes={changes} />}
+      {folded && (
+        <button
+          type="button"
+          onClick={() => setShowAll(true)}
+          className="mb-1 w-full rounded-lg px-2 py-1.5 text-center text-caption font-medium text-content-muted transition-colors hover:bg-surface-hover hover:text-content"
+        >
+          {t('assistant.week.showAll', { count: pending.length })}
+        </button>
+      )}
       <div className={open ? 'divide-y divide-edge-faint' : ''}>
         {items.map((item) =>
           item.state === 'pending' ? (
-            <PendingRow
-              key={item.toolCallId}
-              item={item}
-              excluded={excluded.has(item.toolCallId)}
-              withSwitch={pending.length > 1}
-              disabled={isRunning}
-              onToggle={() => toggle(item.toolCallId)}
-            />
+            folded ? null : (
+              <PendingRow
+                key={item.toolCallId}
+                item={item}
+                excluded={excluded.has(item.toolCallId)}
+                withSwitch={pending.length > 1}
+                disabled={isRunning}
+                onToggle={() => toggle(item.toolCallId)}
+              />
+            )
           ) : (
             <Receipt
               key={item.toolCallId}

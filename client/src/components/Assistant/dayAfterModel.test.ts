@@ -1,5 +1,5 @@
 /**
- * FE-AI-DAYAFTER-001 to FE-AI-DAYAFTER-008
+ * FE-AI-DAYAFTER-001 to FE-AI-DAYAFTER-009
  *
  * A day as it would read once a card's waiting changes ran, without React: who
  * stays, who joins at the end and who leaves, the way between two stops as a
@@ -10,7 +10,15 @@ import { describe, expect, it } from 'vitest';
 
 import { buildAssignment, buildPlace } from '../../../tests/helpers/factories';
 import type { AssignmentsMap } from '../../types';
-import { buildDayAfter, changedDays, changePoints, type DayChange, minutesOf } from './dayAfterModel';
+import {
+  buildDayAfter,
+  changedDays,
+  changePoints,
+  type DayChange,
+  dayIssues,
+  minutesOf,
+  stopIssue,
+} from './dayAfterModel';
 
 // 0.01° of latitude is 1.112 km: with the detour factor that is 19 minutes on foot, 6 by bike.
 const louvre = buildPlace({ id: 10, name: 'Louvre', lat: 48.0, lng: 2.0, duration_minutes: 60 });
@@ -51,7 +59,7 @@ describe('dayAfterModel', () => {
     ]);
     expect(stops[0]?.lead).toBeNull();
     // 09:00 plus an hour, 19 minutes on foot, so 161 minutes are left before 13:00.
-    expect(stops[1]?.lead).toEqual({ travelMinutes: 19, freeMinutes: 161, overlapsWith: null });
+    expect(stops[1]?.lead).toEqual({ travelMinutes: 19, freeMinutes: 161, overlapsWith: null, shortBy: null });
   });
 
   it('FE-AI-DAYAFTER-002: a new place joins at the end, named and placed by the change', () => {
@@ -59,7 +67,7 @@ describe('dayAfterModel', () => {
     const { stops } = day(3, [change('c1', pantheon)]);
     const last = stops[stops.length - 1];
     expect(last).toMatchObject({ key: 'new:c1', name: 'Pantheon', status: 'new', toolCallId: 'c1', time: null });
-    expect(last?.lead).toEqual({ travelMinutes: 19, freeMinutes: null, overlapsWith: null });
+    expect(last?.lead).toEqual({ travelMinutes: 19, freeMinutes: null, overlapsWith: null, shortBy: null });
   });
 
   it('FE-AI-DAYAFTER-003: a planned place joins by its id; a change with nothing to name it by is left out', () => {
@@ -138,5 +146,16 @@ describe('dayAfterModel', () => {
       [48.0, 2.0],
       [48.02, 2.0],
     ]);
+  });
+
+  it('FE-AI-DAYAFTER-009: a way longer than the time between two stops is too tight, and counts as an issue', () => {
+    // Louvre until 10:00, then 19 minutes on foot to Orsay, which starts at 10:10: nine minutes short.
+    const tight = plan();
+    tight[3] = (tight[3] ?? []).map((a) => (a.id === 101 ? { ...a, assignment_time: '10:10' } : a));
+    const after = day(3, [], tight);
+    expect(after.stops[1]?.lead).toMatchObject({ travelMinutes: 19, shortBy: 9 });
+    expect(after.stops.map(stopIssue)).toEqual([false, true]);
+    expect(dayIssues(after)).toBe(1);
+    expect(dayIssues(day(3, []))).toBe(0);
   });
 });
