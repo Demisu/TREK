@@ -9,11 +9,13 @@ import { db as testDb } from '../../../src/db/database';
 import { CollabNotes } from '../../../src/db/entities/CollabNotes.entity';
 import { DayNotes } from '../../../src/db/entities/DayNotes.entity';
 import { TripFiles } from '../../../src/db/entities/TripFiles.entity';
+import { NotificationsService } from '../../../src/nest/notifications/notifications.service';
 import { createUser, createTrip, createDay, createDayNote, createCollabNote } from '../../helpers/factories';
 import { makeTripFile } from '../../helpers/factories/files';
 import { countRows, findRow, updateRows } from '../../helpers/factories/rows';
 import { FakeRealtimeService } from '../../helpers/fake-realtime';
 import { createMcpHarness, parseToolResult, parseResourceResult, type McpHarness } from '../../helpers/mcp-harness';
+import { bootTestApp } from '../../helpers/test-app';
 import { resetTestDb } from '../../helpers/test-db';
 import { createTestOrm, type TestOrm } from '../../helpers/test-orm';
 
@@ -795,5 +797,31 @@ describe('Resource: trek://trips/{tripId}/collab-notes', () => {
       const data = parseResourceResult(result) as any;
       expect(data.error).toBeTruthy();
     });
+  });
+});
+
+describe('create_collab_note, as the Collab tab posts it', () => {
+  it('MCP-COLLAB-002: notifies the fellow travellers like the route does, after the room heard of the note', async () => {
+    const { user } = createUser(testDb);
+    const trip = createTrip(testDb, user.id);
+    const send = vi
+      .spyOn((await bootTestApp(realtime)).get(NotificationsService), 'send')
+      .mockResolvedValue({ attempted: 0, delivered: 0 });
+    try {
+      await withHarness(user.id, async (h) => {
+        await h.client.callTool({ name: 'create_collab_note', arguments: { tripId: trip.id, title: 'Ideas' } });
+      });
+      expect(broadcastMock).toHaveBeenCalledWith(trip.id, 'collab:note:created', expect.any(Object));
+      expect(send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: 'collab_message',
+          actorId: user.id,
+          targetId: trip.id,
+          params: expect.objectContaining({ actor: user.email }),
+        }),
+      );
+    } finally {
+      send.mockRestore();
+    }
   });
 });

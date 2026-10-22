@@ -129,8 +129,12 @@ export class CollabMcp {
   ) {
     if (!(await this.collab.verifyTripAccess(tripId, ctx.userId))) return noAccess();
     if (!(await this.guards.hasTripPermission('collab_edit', tripId, ctx.userId))) return permissionDenied();
-    const note = await this.collab.createNote(tripId, ctx.userId, { title, content, category, color, website, pinned });
-    this.guards.safeBroadcast(tripId, 'collab:note:created', { note });
+    // Through the route's own use case, so the fellow travellers get the same notification.
+    const note = await this.collab.postNote(
+      tripId,
+      { title, content, category, color, website, pinned },
+      await this.guards.tripWriter(tripId, ctx.userId),
+    );
     return ok({ note });
   }
 
@@ -364,9 +368,9 @@ export class CollabMcp {
   ) {
     if (!(await this.collab.verifyTripAccess(tripId, ctx.userId))) return noAccess();
     if (!(await this.guards.hasTripPermission('collab_edit', tripId, ctx.userId))) return permissionDenied();
-    const result = await this.collab.createMessage(tripId, ctx.userId, text, replyTo ?? null);
+    const writer = await this.guards.tripWriter(tripId, ctx.userId);
+    const result = await this.collab.postMessage(tripId, { text, replyTo: replyTo ?? null }, writer);
     if (result.error) return errorResult(result.error);
-    this.guards.safeBroadcast(tripId, 'collab:message:created', { message: result.message });
     return ok({ message: result.message });
   }
 

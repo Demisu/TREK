@@ -2,8 +2,9 @@
  * Sharing an assistant answer in the trip chat, over the real thread and
  * message repositories on a migrated test db: the chat must be on, the thread
  * the user's on this trip, the message an answer in it; then it is posted as
- * the user's own message with the assistant's origin, broadcast and notified
- * like a typed one.
+ * the user's own message with the assistant's origin, through the chat's own
+ * posting use case, which broadcasts and notifies like a typed message
+ * (collab.service.test.ts holds that, the preview included).
  *
  * Replaced: the addon switches and the collab chat itself.
  */
@@ -33,11 +34,14 @@ const addons = {
   getCollabFeatures: vi.fn(async () => ({ chat: true, notes: true, polls: true })),
 };
 const collab = {
-  createMessage: vi.fn(async (_trip: number, userId: number, text: string) => ({
-    message: { id: 90, user_id: userId, text: text.trim(), origin: 'assistant' },
+  restWriter: vi.fn((tripId: string, user: User, socketId: string | undefined) => ({
+    tripId,
+    userId: user.id,
+    socketId,
   })),
-  broadcast: vi.fn(),
-  notifyCollab: vi.fn(async () => undefined),
+  postMessage: vi.fn(async (_trip: number, input: { text: string; origin?: string | null }, w: { userId: number }) => ({
+    message: { id: 90, user_id: w.userId, text: input.text.trim(), origin: input.origin },
+  })),
 };
 
 beforeAll(async () => {
@@ -81,25 +85,24 @@ function shareAs(user: User, tripId: number, threadId: number, messageId: string
 }
 
 describe('AssistantShareService', () => {
-  it('ASTSHR-001: posts the answer as the user, marked as from the assistant, broadcast and notified', async () => {
+  it('ASTSHR-001: posts the answer as the user, marked as from the assistant, through the chat posting use case', async () => {
     const c = await conversation();
     const service = t.get(AssistantShareService);
-    const shared = await service.share(c.user, c.tripId, c.threadId, `msg-${c.answer.id}`, 'x'.repeat(100), 'sock-1');
-    expect(collab.createMessage).toHaveBeenCalledWith(c.tripId, c.user.id, 'x'.repeat(100), null, [], 'assistant');
-    expect(shared).toEqual({ message: expect.objectContaining({ id: 90, origin: 'assistant' }) });
-    expect(collab.broadcast).toHaveBeenCalledWith(
-      String(c.tripId),
-      'collab:message:created',
-      { message: shared.message },
-      'sock-1',
+    const shared = await service.share(c.user, c.tripId, c.threadId, `msg-${c.answer.id}`, 'x'.repeat(100), undefined);
+    expect(collab.postMessage).toHaveBeenCalledWith(
+      c.tripId,
+      { text: 'x'.repeat(100), origin: 'assistant' },
+      { tripId: String(c.tripId), userId: c.user.id, socketId: undefined },
     );
-    expect(collab.notifyCollab).toHaveBeenCalledWith(String(c.tripId), c.user, `${'x'.repeat(80)}...`);
+    expect(shared).toEqual({ message: expect.objectContaining({ id: 90, origin: 'assistant' }) });
   });
 
-  it('ASTSHR-002: a short answer is previewed whole', async () => {
+  it('ASTSHR-002: the asking tab hears its shared message too: the socket the route names is not left out', async () => {
     const c = await conversation();
-    await shareAs(c.user, c.tripId, c.threadId, `msg-${c.answer.id}`);
-    expect(collab.notifyCollab).toHaveBeenCalledWith(String(c.tripId), c.user, 'Hi');
+    await t.get(AssistantShareService).share(c.user, c.tripId, c.threadId, `msg-${c.answer.id}`, 'Hi', 'sock-1');
+    // It never put the message into its own chat, so a writer skipping it would leave the chat without it.
+    expect(collab.restWriter).toHaveBeenCalledWith(String(c.tripId), c.user, undefined);
+    expect(collab.postMessage.mock.calls[0]?.[2]).toMatchObject({ socketId: undefined });
   });
 
   it('ASTSHR-003: refused while the collab addon or its chat is off', async () => {
@@ -109,7 +112,7 @@ describe('AssistantShareService', () => {
     await expect(share()).rejects.toMatchObject({ status: 403, message: 'Collab chat is off' });
     addons.getCollabFeatures.mockResolvedValueOnce({ chat: false, notes: true, polls: true });
     await expect(share()).rejects.toMatchObject({ status: 403, code: 'forbidden' });
-    expect(collab.createMessage).not.toHaveBeenCalled();
+    expect(collab.postMessage).not.toHaveBeenCalled();
   });
 
   it('ASTSHR-004: a thread of another user or trip, a question, an answer elsewhere or no id is not found', async () => {
@@ -121,14 +124,14 @@ describe('AssistantShareService', () => {
     await expect(shareAs(c.user, c.tripId, c.threadId, `msg-${c.question.id}`)).rejects.toMatchObject(notFound);
     await expect(shareAs(c.user, c.tripId, c.threadId, `msg-${other.answer.id}`)).rejects.toMatchObject(notFound);
     await expect(shareAs(c.user, c.tripId, c.threadId, 'msg-x')).rejects.toBeInstanceOf(DomainError);
-    expect(collab.createMessage).not.toHaveBeenCalled();
+    expect(collab.postMessage).not.toHaveBeenCalled();
   });
 
   it('ASTSHR-005: a message the chat could not post is a refusal, never a silent success', async () => {
     const c = await conversation();
-    collab.createMessage.mockResolvedValueOnce({ message: undefined } as never);
+    collab.postMessage.mockResolvedValueOnce({ message: undefined } as never);
     await expect(shareAs(c.user, c.tripId, c.threadId, `msg-${c.answer.id}`)).rejects.toMatchObject({ status: 400 });
-    expect(collab.broadcast).not.toHaveBeenCalled();
+    expect(collab.postMessage).toHaveBeenCalledTimes(1);
   });
 
   it('ASTSHR-006: reads a wire message id as its row', () => {

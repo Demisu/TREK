@@ -11,9 +11,6 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
 import { COLLAB_MESSAGE_ORIGIN_ASSISTANT } from '@trek/shared';
 
-/** How much of the message the chat notification previews, as for one typed in the chat. */
-const PREVIEW_CHARS = 80;
-
 /** The row a message id on the wire (`msg-<row>`) names, or null for anything else. */
 export function messageRowOf(messageId: string): number | null {
   const match = /^msg-([1-9]\d{0,15})$/.exec(messageId);
@@ -26,7 +23,9 @@ export function messageRowOf(messageId: string): number | null {
  * as shared from the assistant (`origin`), which only this path sets: the
  * mark says the user shared an answer the assistant gave them in this trip,
  * so the server checks that answer, not the words. It reaches the chat like a
- * typed message, broadcast and notified the same way.
+ * typed message, broadcast and notified the same way, with one difference: the
+ * asking tab is not left out. It never put the message into its own chat, so it
+ * hears it like every other tab (the chat drops a message it already holds).
  */
 @Injectable()
 export class AssistantShareService {
@@ -48,7 +47,8 @@ export class AssistantShareService {
     threadId: number,
     messageId: string,
     text: string,
-    socketId: string | undefined,
+    // The asking tab, which the route hands on; deliberately not skipped (see the class comment).
+    _askingSocketId: string | undefined,
   ) {
     const collabOn = await this.addons.isAddonEnabled(ADDON_IDS.COLLAB);
     if (!collabOn || !(await this.addons.getCollabFeatures()).chat) throw aiRefusal('forbidden', 'Collab chat is off');
@@ -59,13 +59,13 @@ export class AssistantShareService {
     const row = rowId === null ? null : await this.messages.findInThread(rowId, threadId);
     if (row?.role !== 'assistant') throw aiRefusal('not_found', 'Message not found');
 
-    const created = await this.collab.createMessage(tripId, user.id, text, null, [], COLLAB_MESSAGE_ORIGIN_ASSISTANT);
+    const created = await this.collab.postMessage(
+      tripId,
+      { text, origin: COLLAB_MESSAGE_ORIGIN_ASSISTANT },
+      this.collab.restWriter(String(tripId), user, undefined),
+    );
     const message = created.message;
     if (!message) throw aiRefusal('generic', 'The message could not be posted');
-    this.collab.broadcast(String(tripId), 'collab:message:created', { message }, socketId);
-    const posted = message.text;
-    const preview = posted.length > PREVIEW_CHARS ? `${posted.substring(0, PREVIEW_CHARS)}...` : posted;
-    await this.collab.notifyCollab(String(tripId), user, preview);
     return { message };
   }
 }
