@@ -91,7 +91,9 @@ export function JourneyEntryFacts({ item }: { card: JourneyEntriesCard; item: Ch
           tone="info"
         />
       ))}
-      {states.map((row) => <StateChange key={row.field ?? row.labelKey} row={row} />)}
+      {states.map((row) => (
+        <StateChange key={row.field ?? row.labelKey} row={row} />
+      ))}
     </>
   );
 }

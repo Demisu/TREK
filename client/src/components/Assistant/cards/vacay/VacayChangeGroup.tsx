@@ -70,7 +70,11 @@ export default function VacayChangeGroup({
         />
       )}
       {placed.length > 0 && (
-        <ul className="sr-only">{placed.map((entry) => <li key={entry.toolCallId}>{labelOf(entry)}</li>)}</ul>
+        <ul className="sr-only">
+          {placed.map((entry) => (
+            <li key={entry.toolCallId}>{labelOf(entry)}</li>
+          ))}
+        </ul>
       )}
       {twice && (
         <div className={PILLS}>

@@ -181,7 +181,9 @@ function Words({ bubble, spot, own }: Pick<BubbleProps, 'bubble' | 'spot' | 'own
       reply={bubble.reply}
       text={<MessageText text={bubble.text} plain />}
     >
-      {bubble.files.map((file) => <ChatFile key={file.fileId} file={file} tripId={tripId} />)}
+      {bubble.files.map((file) => (
+        <ChatFile key={file.fileId} file={file} tripId={tripId} />
+      ))}
     </ChatBubble>
   );
 }

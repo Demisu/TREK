@@ -33,10 +33,7 @@ const passport: AtlasPassportCard = {
   kind: 'atlasPassport',
   countries: { visited: 23, planned: 4, idea: 0 },
   totals: { trips: 48, days: 410, places: 990, cities: 312, flownKm: 182_300 },
-  flags: [
-    ...CODES.map((code) => ({ code, status: 'visited' as const })),
-    { code: 'MA', status: 'planned' as const },
-  ],
+  flags: [...CODES.map((code) => ({ code, status: 'visited' as const })), { code: 'MA', status: 'planned' as const }],
   moreFlags: 4,
   continents: [
     { name: 'Europe', visited: 14, planned: 2 },

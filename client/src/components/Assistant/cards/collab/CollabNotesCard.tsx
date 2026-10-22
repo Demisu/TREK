@@ -146,7 +146,9 @@ export default function CollabNotesBlock({ cards }: { cards: readonly CardEntry[
         actions={<CardOpenButton target={NOTES_TARGET} labelKey="assistant.card.collab.openNotes" />}
       />
       <div className={`mt-2 gap-2 ${density === 'roomy' ? 'grid grid-cols-2' : 'flex flex-col'}`}>
-        {notes.map((note, index) => <NoteView key={note.noteId ?? `new-${index}`} note={note} state={null} />)}
+        {notes.map((note, index) => (
+          <NoteView key={note.noteId ?? `new-${index}`} note={note} state={null} />
+        ))}
       </div>
       <CardMore count={more} labelKey="assistant.card.collab.moreNotes" target={NOTES_TARGET} />
     </CardFrame>
@@ -157,7 +159,9 @@ export default function CollabNotesBlock({ cards }: { cards: readonly CardEntry[
 export function CollabNotesBody({ card, item }: { card: NotesCard; item: ChangeItem }) {
   return (
     <div className="flex flex-col gap-2">
-      {card.notes.map((note, index) => <NoteView key={note.noteId ?? `new-${index}`} note={note} state={item.state} />)}
+      {card.notes.map((note, index) => (
+        <NoteView key={note.noteId ?? `new-${index}`} note={note} state={item.state} />
+      ))}
     </div>
   );
 }

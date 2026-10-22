@@ -118,6 +118,3 @@ export interface CardView<K extends TrekCardKind> {
   runnable?(card: TrekCardOf<K>): boolean;
   startsExcluded?(card: TrekCardOf<K>): boolean;
 }
-
-/** The view of a kind not drawn yet: it renders nothing, so its cards are left out until a package fills it. */
-export const PENDING_VIEW = {} satisfies CardView<TrekCardKind>;

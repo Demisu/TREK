@@ -305,9 +305,7 @@ export function PackingGroup({
           ))}
         </ul>
       )}
-      {group.items.length > 0 && (
-        <MoreLine label={hidden > 0 ? t('tours.packing.more', { count: hidden }) : null} />
-      )}
+      {group.items.length > 0 && <MoreLine label={hidden > 0 ? t('tours.packing.more', { count: hidden }) : null} />}
     </section>
   );
 }

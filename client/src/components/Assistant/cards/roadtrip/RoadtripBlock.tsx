@@ -20,15 +20,7 @@ import { settingLabel } from './roadtripSettings';
  */
 
 /** One way of driving it, as a row to pick: saved or tried, how far and how long, how much to look at. */
-function VariantRow({
-  card,
-  picked,
-  onPick,
-}: {
-  card: RoadtripCard;
-  picked: boolean;
-  onPick: () => void;
-}) {
+function VariantRow({ card, picked, onPick }: { card: RoadtripCard; picked: boolean; onPick: () => void }) {
   const { t } = useTranslation();
   const format = useCardFormat();
   const warnings = card.days.filter(dayHasWarning).length;
@@ -55,9 +47,7 @@ function VariantRow({
           })}
         </span>
         {warnings > 0 && (
-          <span className="flex-none text-warning">
-            {t('assistant.card.roadtrip.warnings', { count: warnings })}
-          </span>
+          <span className="flex-none text-warning">{t('assistant.card.roadtrip.warnings', { count: warnings })}</span>
         )}
       </button>
     </li>

@@ -70,7 +70,9 @@ export default function VacayRowFacts({ card }: { card: VacayCard; item: ChangeI
         </SoftPill>
       )}
       {proposal.notes.map((note) => (
-        <SoftPill key={note} tone={NOTE_LOOK[note].tone}>{t(NOTE_LOOK[note].labelKey)}</SoftPill>
+        <SoftPill key={note} tone={NOTE_LOOK[note].tone}>
+          {t(NOTE_LOOK[note].labelKey)}
+        </SoftPill>
       ))}
     </>
   );

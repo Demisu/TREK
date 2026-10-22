@@ -65,7 +65,9 @@ export default function PaymentsCard({ cards }: { cards: readonly CardEntry[] })
         actions={<CardOpenButton target={costsTarget()} labelKey="assistant.card.budget.open" />}
       />
       <CardRows>
-        {card.rows.map((row, i) => <PaymentRow key={row.id ?? `new-${i}`} row={row} />)}
+        {card.rows.map((row, i) => (
+          <PaymentRow key={row.id ?? `new-${i}`} row={row} />
+        ))}
       </CardRows>
       <CardMore count={card.more} target={costsTarget()} />
     </CardFrame>

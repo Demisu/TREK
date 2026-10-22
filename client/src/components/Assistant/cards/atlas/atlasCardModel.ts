@@ -19,14 +19,13 @@ import type { ChangeItem } from '../../assistantParts';
  */
 
 /** How a country's or a region's standing reads. A table, so each word is named where it is read. */
-export const STATUS_LOOK: Readonly<Record<AtlasStatusAfter, { Icon: LucideIcon; tone: PillTone; labelKey: string }>> =
-  {
-    visited: { Icon: Check, tone: 'success', labelKey: 'assistant.card.atlas.status.visited' },
-    planned: { Icon: CalendarClock, tone: 'info', labelKey: 'assistant.card.atlas.status.planned' },
-    idea: { Icon: Lightbulb, tone: 'neutral', labelKey: 'assistant.card.atlas.status.idea' },
-    none: { Icon: CircleDashed, tone: 'neutral', labelKey: 'assistant.card.atlas.status.none' },
-    unknown: { Icon: Briefcase, tone: 'info', labelKey: 'assistant.card.atlas.status.unknown' },
-  };
+export const STATUS_LOOK: Readonly<Record<AtlasStatusAfter, { Icon: LucideIcon; tone: PillTone; labelKey: string }>> = {
+  visited: { Icon: Check, tone: 'success', labelKey: 'assistant.card.atlas.status.visited' },
+  planned: { Icon: CalendarClock, tone: 'info', labelKey: 'assistant.card.atlas.status.planned' },
+  idea: { Icon: Lightbulb, tone: 'neutral', labelKey: 'assistant.card.atlas.status.idea' },
+  none: { Icon: CircleDashed, tone: 'neutral', labelKey: 'assistant.card.atlas.status.none' },
+  unknown: { Icon: Briefcase, tone: 'info', labelKey: 'assistant.card.atlas.status.unknown' },
+};
 
 /** The continents in the Atlas page's own words. */
 export const CONTINENT_LABEL: Readonly<Record<AtlasCardContinent, { labelKey: string }>> = {

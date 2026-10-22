@@ -80,7 +80,7 @@ const oneLabel: Loader = async (args, read) => {
   return { ...NO_LOOKUP, items, collection: await collectionOf(read, positiveId(recordOf(label).collection_id)) };
 };
 
-export const COLLECTION_LOADS: Readonly<Record<string, Loader>> = {
+export const COLLECTION_LOADS: Readonly<Partial<Record<string, Loader>>> = {
   save_place_to_collection: async (args, read) => {
     const query = membershipQuery(args);
     const [collection, membership] = await Promise.all([

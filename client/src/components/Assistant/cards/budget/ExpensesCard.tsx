@@ -126,7 +126,9 @@ export default function ExpensesCard({ cards }: { cards: readonly CardEntry[] })
         actions={<CardOpenButton target={costsTarget()} labelKey="assistant.card.budget.open" />}
       />
       <CardRows>
-        {card.rows.map((row, i) => <ExpenseRow key={row.id ?? `new-${i}`} row={row} />)}
+        {card.rows.map((row, i) => (
+          <ExpenseRow key={row.id ?? `new-${i}`} row={row} />
+        ))}
       </CardRows>
       <ExpensesFoot card={card} />
     </CardFrame>

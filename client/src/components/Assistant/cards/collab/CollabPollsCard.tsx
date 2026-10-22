@@ -133,7 +133,9 @@ export default function CollabPollsBlock({ cards }: { cards: readonly CardEntry[
         actions={<CardOpenButton target={POLLS_TARGET} labelKey="assistant.card.collab.openPolls" />}
       />
       <div className="mt-2 flex flex-col gap-2">
-        {polls.map((poll, index) => <PollView key={poll.pollId ?? `new-${index}`} poll={poll} state={null} />)}
+        {polls.map((poll, index) => (
+          <PollView key={poll.pollId ?? `new-${index}`} poll={poll} state={null} />
+        ))}
       </div>
       <CardMore count={more} labelKey="assistant.card.collab.morePolls" target={POLLS_TARGET} />
     </CardFrame>
@@ -144,7 +146,9 @@ export default function CollabPollsBlock({ cards }: { cards: readonly CardEntry[
 export function CollabPollsBody({ card, item }: { card: PollsCard; item: ChangeItem }) {
   return (
     <div className="flex flex-col gap-2">
-      {card.polls.map((poll, index) => <PollView key={poll.pollId ?? `new-${index}`} poll={poll} state={item.state} />)}
+      {card.polls.map((poll, index) => (
+        <PollView key={poll.pollId ?? `new-${index}`} poll={poll} state={item.state} />
+      ))}
     </div>
   );
 }

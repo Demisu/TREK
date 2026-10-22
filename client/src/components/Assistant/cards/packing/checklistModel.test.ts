@@ -37,10 +37,7 @@ const row = (id: number | null, name: string, over: Partial<PackingCardItem> = {
   ...over,
 });
 
-const packing = (
-  groups: Array<[string, PackingCardItem[]]>,
-  over: Partial<PackingListCard> = {}
-): PackingListCard => ({
+const packing = (groups: Array<[string, PackingCardItem[]]>, over: Partial<PackingListCard> = {}): PackingListCard => ({
   kind: 'packingList',
   source: { type: 'trip' },
   groupBy: 'category',

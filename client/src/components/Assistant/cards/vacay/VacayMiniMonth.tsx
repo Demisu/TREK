@@ -96,7 +96,13 @@ function Cell({
       {marks}
     </span>
   );
-  return cell.holiday ? <Tooltip label={cell.holiday.name} placement="top">{body}</Tooltip> : body;
+  return cell.holiday ? (
+    <Tooltip label={cell.holiday.name} placement="top">
+      {body}
+    </Tooltip>
+  ) : (
+    body
+  );
 }
 
 export default function VacayMiniMonth({ view, month, placed, today, size, onToggle, labelOf }: MonthProps) {
@@ -109,7 +115,9 @@ export default function VacayMiniMonth({ view, month, placed, today, size, onTog
       <p className={TITLE}>{title}</p>
       <div className={GRID[size]}>
         {weekdays.map((name, column) => (
-          <span key={`weekday-${column}`} aria-hidden="true" className={WEEKDAY}>{name}</span>
+          <span key={`weekday-${column}`} aria-hidden="true" className={WEEKDAY}>
+            {name}
+          </span>
         ))}
         {cells.map((cell, index) =>
           cell ? (

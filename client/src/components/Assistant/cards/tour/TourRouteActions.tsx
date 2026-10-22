@@ -76,7 +76,9 @@ export default function TourRouteActions({
         )}
       </div>
       {take.visible && caption && (
-        <p className="m-0 text-end text-caption text-content-muted" role="status">{caption}</p>
+        <p className="m-0 text-end text-caption text-content-muted" role="status">
+          {caption}
+        </p>
       )}
     </div>
   );

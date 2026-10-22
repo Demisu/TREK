@@ -40,7 +40,7 @@ function placesCardOf(card: TrekCard | null): CollectionPlacesCard | null {
 }
 
 /** The saved place a change card is about: its only one. */
-export function firstPlace(card: TrekCard | null): CollectionCardPlace | null {
+function firstPlace(card: TrekCard | null): CollectionCardPlace | null {
   const places = placesCardOf(card)?.places ?? [];
   return places.length === 1 ? (places[0] ?? null) : null;
 }

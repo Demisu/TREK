@@ -122,7 +122,7 @@ function labelApplied({ result, preview }: AppliedInput): CollectionPlacesCard |
   return { ...card, labels: [{ ...shown, id: positiveId(label.id), name, color }] };
 }
 
-export const COLLECTION_APPLIED: Readonly<Record<string, (input: AppliedInput) => TrekCard | null>> = {
+export const COLLECTION_APPLIED: Readonly<Partial<Record<string, (input: AppliedInput) => TrekCard | null>>> = {
   save_place_to_collection: savedApplied,
   update_collection_place: placeApplied,
   set_collection_place_status: placeApplied,
@@ -137,22 +137,23 @@ export const COLLECTION_APPLIED: Readonly<Record<string, (input: AppliedInput) =
 };
 
 /** The ids a receipt names where the answer does not name them under the usual keys. */
-export const COLLECTION_APPLIED_IDS: Readonly<Record<string, (args: ToolArgs, result: unknown) => number[]>> = {
-  create_collection: (_args, result) => idsOf(positiveId(recordOf(recordOf(result).collection).id)),
-  update_collection: (args) => idsOf(argId(args, 'collectionId')),
-  delete_collection: (args) => idsOf(argId(args, 'collectionId')),
-  save_trip_places_to_collection: (args) => idsOf(argId(args, 'collectionId')),
-  accept_collection_invite: (args) => idsOf(argId(args, 'collectionId')),
-  decline_collection_invite: (args) => idsOf(argId(args, 'collectionId')),
-  cancel_collection_invite: (args) => idsOf(argId(args, 'collectionId')),
-  create_collection_label: (args) => idsOf(argId(args, 'collection_id')),
-  update_collection_label: (_args, result) => idsOf(positiveId(recordOf(recordOf(result).label).collection_id)),
-  // The new trip places, so "Show on map" opens the first of them.
-  copy_collection_places_to_trip: (_args, result) =>
-    rowsOf(recordOf(result).created)
-      .map((row) => positiveId(row.id))
-      .filter((id): id is number => id !== null),
-};
+export const COLLECTION_APPLIED_IDS: Readonly<Partial<Record<string, (args: ToolArgs, result: unknown) => number[]>>> =
+  {
+    create_collection: (_args, result) => idsOf(positiveId(recordOf(recordOf(result).collection).id)),
+    update_collection: (args) => idsOf(argId(args, 'collectionId')),
+    delete_collection: (args) => idsOf(argId(args, 'collectionId')),
+    save_trip_places_to_collection: (args) => idsOf(argId(args, 'collectionId')),
+    accept_collection_invite: (args) => idsOf(argId(args, 'collectionId')),
+    decline_collection_invite: (args) => idsOf(argId(args, 'collectionId')),
+    cancel_collection_invite: (args) => idsOf(argId(args, 'collectionId')),
+    create_collection_label: (args) => idsOf(argId(args, 'collection_id')),
+    update_collection_label: (_args, result) => idsOf(positiveId(recordOf(recordOf(result).label).collection_id)),
+    // The new trip places, so "Show on map" opens the first of them.
+    copy_collection_places_to_trip: (_args, result) =>
+      rowsOf(recordOf(result).created)
+        .map((row) => positiveId(row.id))
+        .filter((id): id is number => id !== null),
+  };
 
 function idsOf(id: number | null): number[] {
   return id === null ? [] : [id];

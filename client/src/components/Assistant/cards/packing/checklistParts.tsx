@@ -139,15 +139,7 @@ export interface RunEntry {
 }
 
 /** A change in a run: the round include choice, the tile of what it does, and the row. */
-function RunRow({
-  entry,
-  excluded,
-  onToggle,
-}: {
-  entry: RunEntry;
-  excluded: boolean;
-  onToggle: (id: string) => void;
-}) {
+function RunRow({ entry, excluded, onToggle }: { entry: RunEntry; excluded: boolean; onToggle: (id: string) => void }) {
   const { t } = useTranslation();
   const { variant } = useAssistantView();
   const glyph = ROW_GLYPH[entry.change];

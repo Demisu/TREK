@@ -33,7 +33,7 @@ export function NoteHeadBand({
 }) {
   return (
     <div
-      className={`flex items-center gap-2 py-1.5 ps-3 pe-1.5 ${bordered ? 'border-b border-edge-faint' : ''}`}
+      className={`flex items-center gap-2 py-1.5 pe-1.5 ps-3 ${bordered ? 'border-b border-edge-faint' : ''}`}
       style={{ background: tintOf(color) }}
     >
       {/* The category is only its colour here; the name is in the tooltip and the filter above. */}
