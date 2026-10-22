@@ -226,8 +226,7 @@
         "src/components/Collections/CollectionPicker.tsx",
         "src/components/Collections/CollectionPlaceDetail.tsx",
         "src/components/Collections/ListEditorModal.tsx",
-        "src/components/Collections/MSaveToCollectionSheet.tsx",
-        "src/components/Collections/StatusBadge.tsx"
+        "src/components/Collections/MSaveToCollectionSheet.tsx"
       ],
       "mobile": [
         "src/mobile/screens/collections/MCollAddSheet.tsx",
