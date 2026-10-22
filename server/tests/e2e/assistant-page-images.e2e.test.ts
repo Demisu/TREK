@@ -34,6 +34,7 @@ import { AnthropicMessagesClient } from '../../src/nest/ai-connections/providers
 import { OpenAiChatClient } from '../../src/nest/ai-connections/providers/openai-chat.client';
 import { OpenAiResponsesClient } from '../../src/nest/ai-connections/providers/openai-responses.client';
 import type { AiFetch } from '../../src/nest/ai-connections/providers/provider-http';
+import { withRequestContext } from '../../src/nest/database/request-context';
 import { JourneyBookEditService } from '../../src/nest/journey/journey-book-edit.service';
 import { makeJourney } from '../helpers/factories/journeys';
 import { setAddonEnabled } from '../helpers/factories/settings';
@@ -281,7 +282,8 @@ function studioTab(journeyId: number, userId: number) {
 async function ownerWithBook() {
   const { user } = await makeUser(orm);
   const journey = await makeJourney(orm, user.id, { title: 'Portugal by train' });
-  const created = await books.createBook(journey.id, user.id, {});
+  // A service called from the test, not through a route, needs the request context a route gets.
+  const created = await withRequestContext(orm, () => books.createBook(journey.id, user.id, {}));
   const inner = created.pages.find((page) => page.role === 'inner')?.id ?? 'no inner page';
   return { userId: user.id, journeyId: journey.id, inner, base: `/api/journeys/${journey.id}/assistant` };
 }

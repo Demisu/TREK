@@ -24,6 +24,7 @@
 import { buildApp } from '../../src/bootstrap';
 import { JourneyBookRevisions } from '../../src/db/entities/JourneyBookRevisions.entity';
 import { JourneyContributors } from '../../src/db/entities/JourneyContributors.entity';
+import { withRequestContext } from '../../src/nest/database/request-context';
 import { JourneyBookEditService } from '../../src/nest/journey/journey-book-edit.service';
 import { addJourneyContributor, makeJourney, makeJourneyEntry } from '../helpers/factories/journeys';
 import { countRows, findRow, updateRows } from '../helpers/factories/rows';
@@ -246,7 +247,8 @@ async function journeyWithBook() {
   const journey = await makeJourney(orm, user.id, { title: 'Lisbon' });
   await makeJourneyEntry(orm, journey.id, user.id, { title: 'Alfama', story: 'Trams.', entry_date: '2026-05-02' });
   await makeJourneyEntry(orm, journey.id, user.id, { title: 'Belem', story: 'Pasteis.', entry_date: '2026-05-03' });
-  const created = await books.createBook(journey.id, user.id, {});
+  // A service called from the test, not through a route, needs the request context a route gets.
+  const created = await withRequestContext(orm, () => books.createBook(journey.id, user.id, {}));
   broadcasts.broadcastToUser.mockClear();
   return { ownerId: user.id, journeyId: journey.id, created, base: `/api/journeys/${journey.id}/assistant` };
 }
