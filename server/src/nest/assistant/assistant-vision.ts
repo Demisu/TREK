@@ -116,9 +116,12 @@ function pageAfter(
 ): BookDocument | string {
   if (!ops) return doc;
   const made = applyBookOps(doc, { spreadId, ops }, base.ctx);
-  if (made.ok) return made.doc;
-  const at = made.error.opIndex === null ? '' : ` (operation ${made.error.opIndex})`;
-  return `Not a change the book takes${at}: ${made.error.code}: ${made.error.message}`;
+  // Compared with false, not read as a truth value: the non-strict compile narrows the union only that way.
+  if (made.ok === false) {
+    const at = made.error.opIndex === null ? '' : ` (operation ${made.error.opIndex})`;
+    return `Not a change the book takes${at}: ${made.error.code}: ${made.error.message}`;
+  }
+  return made.doc;
 }
 
 /** What the message keeps of a look: the page, the version, the image's size when one came, the description. */

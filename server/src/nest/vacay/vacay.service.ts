@@ -687,7 +687,7 @@ export class VacayService {
   // Invitations
   // -------------------------------------------------------------------------
 
-  async sendInvite(planId: number, inviterId: number, inviterUsername: string, targetUserId: number, socketId?: string): Promise<void> {
+  async sendInvite(planId: number, inviterId: number, inviterName: string, targetUserId: number, socketId?: string) {
     if (targetUserId === inviterId) throw new DomainError(400, 'Cannot invite yourself');
 
     // The picker no longer offers guests, but the id arrives from the client, so the
@@ -706,7 +706,7 @@ export class VacayService {
 
     await this.members.insertPending(planId, targetUserId);
 
-    const from = { id: inviterId, username: inviterUsername };
+    const from = { id: inviterId, username: inviterName };
     this.realtime.broadcastToUser(targetUserId, { type: 'vacay:invite', from, planId });
     // The plan's own tabs list the pending invite too: vacay:settings reads the plan again.
     const planUserIds = (await this.getPlanUsers(planId)).map(u => u.id);
@@ -717,7 +717,7 @@ export class VacayService {
     // nothing the module graph does not already give — NotificationsModule
     // reaches nothing in this direction — and it hid the edge while handing the
     // send a second NotificationsService built outside the container.
-    this.notifications.send({ event: 'vacay_invite', actorId: inviterId, scope: 'user', targetId: targetUserId, params: { actor: inviterUsername, planId: String(planId) } }).catch(() => {});
+    this.notifications.send({ event: 'vacay_invite', actorId: inviterId, scope: 'user', targetId: targetUserId, params: { actor: inviterName, planId: String(planId) } }).catch(() => {});
   }
 
   async acceptInvite(userId: number, planId: number, socketId: string | undefined): Promise<void> {
