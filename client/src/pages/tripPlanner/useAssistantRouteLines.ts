@@ -92,16 +92,10 @@ function useCssColor(): (value: string) => string {
   const theme = useMapPaint(THEME_PROBE);
   return useMemo(() => {
     const style = typeof document === 'undefined' ? null : getComputedStyle(document.documentElement);
-    const resolved = new Map<string, string>();
     return (value: string) => {
       const token = /^var\((--[\w-]+)\)$/.exec(value.trim())?.[1];
       if (!token) return value;
-      let color = resolved.get(token);
-      if (color === undefined) {
-        color = style?.getPropertyValue(token).trim() || theme.accent;
-        resolved.set(token, color);
-      }
-      return color;
+      return style?.getPropertyValue(token).trim() || theme.accent;
     };
   }, [theme]);
 }
@@ -193,16 +187,14 @@ export function useAssistantRouteLines({ tripId, isMobile, autoAllowed }: RouteL
 
   const ghosts = useMemo(
     () =>
-      cardGhosts(refs, CARD_MAP_LOOK).map(
-        (ghost): AssistantGhost => ({
-          id: ghost.id,
-          ref: ghost.ref,
-          lat: ghost.lat,
-          lng: ghost.lng,
-          name: ghost.name,
-          variant: ghost.variant ?? 'pin',
-        })
-      ),
+      cardGhosts(refs, CARD_MAP_LOOK).map((ghost): AssistantGhost => ({
+        id: ghost.id,
+        ref: ghost.ref,
+        lat: ghost.lat,
+        lng: ghost.lng,
+        name: ghost.name,
+        variant: ghost.variant ?? 'pin',
+      })),
     [refs]
   );
   const hiddenGhosts = useMemo(() => cardHiddenGhosts(refs, CARD_MAP_LOOK), [refs]);

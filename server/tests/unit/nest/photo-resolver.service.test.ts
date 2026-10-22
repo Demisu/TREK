@@ -394,9 +394,8 @@ describe('readForSignals: what the quality signals are measured on', () => {
     const outside = await insertPhoto({ provider: 'local', file_path: 'elsewhere/p.jpg' });
     const clip = await insertPhoto({ provider: 'local', file_path: 'journey/c.mp4', media_type: 'video' });
     const bare = await insertPhoto({ provider: 'local' });
-    for (const photoId of [outside, clip, bare, 999999]) {
-      expect(await svc.readForSignals(photoId, 100)).toEqual({ kind: 'none' });
-    }
+    const unread = await Promise.all([outside, clip, bare, 999999].map((photoId) => svc.readForSignals(photoId, 100)));
+    expect(unread).toEqual([{ kind: 'none' }, { kind: 'none' }, { kind: 'none' }, { kind: 'none' }]);
     expect(storage.withLocalFile).toHaveBeenCalledTimes(1);
   });
 

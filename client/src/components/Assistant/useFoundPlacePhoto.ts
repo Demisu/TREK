@@ -8,9 +8,9 @@ import { useAuthStore } from '../../store/authStore';
  * shows (its Google place id, its position and its name).
  */
 interface PhotoPlace {
-  photoKey: string | null;
-  lat: number | null;
-  lng: number | null;
+  photoKey?: string | null;
+  lat?: number | null;
+  lng?: number | null;
   name: string;
 }
 

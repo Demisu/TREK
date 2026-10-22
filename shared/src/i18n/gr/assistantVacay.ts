@@ -26,7 +26,7 @@ const assistantVacay: TranslationStrings = {
   'assistant.card.vacay.otherDays': 'Άλλες {count} μέρες άδειας φέτος',
   'assistant.card.vacay.otherDays.one': 'Άλλη {count} μέρα άδειας φέτος',
   'assistant.card.vacay.allowance': 'Δικαίωμα',
-  'assistant.card.vacay.meter': '{used} χρησιμοποιήθηκαν, {planned} σχεδιάζονται, απομένουν {left} από {total}',
+  'assistant.card.vacay.meter': '{used} χρησιμοποιήθηκαν, {planned} σχεδιάζονται, απομένουν {remaining} από {total}',
   'assistant.card.vacay.weekendBlocked': 'Σαββατοκύριακο, μπλοκαρισμένο στο πλάνο σου',
   'assistant.card.vacay.weekend': 'Μέρα Σαββατοκύριακου, μετράει ως άδεια',
   'assistant.card.vacay.publicHoliday': 'Δημόσια αργία, δεν χρειάζεται άδεια',

@@ -150,8 +150,9 @@ describe('AssistantGhostLineLayer', () => {
     expect(asked(paths()[1])).toMatchObject({ dash: '6 7' });
     expect(bringToFront).not.toHaveBeenCalled();
 
-    // The same line, now lit: its dash is asked away by name, so Leaflet's merged style drops it.
-    rerender(<AssistantGhostLineLayer lines={[other, { ...way, hot: true }]} />);
+    // The same line, now lit, which the route model draws solid: its dash is asked away by name,
+    // so Leaflet's merged style drops it.
+    rerender(<AssistantGhostLineLayer lines={[other, { ...way, dashed: false, hot: true }]} />);
     const lit = screen.getAllByTestId('group')[1];
     const core = lit?.querySelectorAll<HTMLElement>('[data-testid="polyline"]')[1];
     expect(asked(core)).toMatchObject({ dash: '', dashNamed: 'true' });

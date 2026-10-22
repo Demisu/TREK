@@ -28,7 +28,11 @@ vi.mock('./cardLooks', async (importOriginal) => {
         params: { tour: String(applied.ids[0]) },
       }),
     },
-    budget: { ...actual.ENTITY_LOOK.budget, open: () => ({ kind: 'tab', tab: 'finanzplan' }) },
+    budget: {
+      ...actual.ENTITY_LOOK.budget,
+      openLabelKey: undefined,
+      open: () => ({ kind: 'tab', tab: 'finanzplan' }),
+    },
     reservation: {
       ...actual.ENTITY_LOOK.reservation,
       openLabelKey: undefined,

@@ -3,7 +3,7 @@ import { CalendarDays, CarFront, Crosshair, MapPin, Route, TriangleAlert, Zap } 
 import { type ReactNode, useMemo, useState } from 'react';
 
 import { useTranslation } from '../../../../i18n';
-import { useAssistantStore } from '../../../../store/assistantStore';
+import { chatOf, useAssistantStore } from '../../../../store/assistantStore';
 import { SoftPill } from '../../../Planner/planParts';
 import { dayColor } from '../../../Roadtrip/dayColors';
 import { formatDurationShort } from '../../../Roadtrip/roadtripModel';
@@ -60,11 +60,13 @@ export default function RoadtripDrive({
   variants?: ReactNode;
 }) {
   const { t } = useTranslation();
-  const { variant } = useAssistantView();
+  const { tripId, variant } = useAssistantView();
   const format = useCardFormat();
   const map = useRoadtripCardMap();
   // The day the chat was opened on, read once: the card opens there, and on the first driving day otherwise.
-  const [selected, setSelected] = useState(() => defaultDayIndex(card, useAssistantStore.getState().focus?.dayId));
+  const [selected, setSelected] = useState(() =>
+    defaultDayIndex(card, chatOf(useAssistantStore.getState(), tripId).focus?.dayId)
+  );
   const tiles = useMemo(() => card.days.map(toRoadtripDay), [card]);
   const day = card.days[selected] ?? card.days[0];
   const railDay = tiles[selected] ?? tiles[0];

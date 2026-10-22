@@ -1,5 +1,6 @@
 import type { TourRouteCard, TourRouteStop } from '@trek/shared';
 import { AlertTriangle, Flag, MapPin, MountainSnow, type LucideIcon } from 'lucide-react';
+import { createElement } from 'react';
 
 import { useTranslation } from '../../../../i18n';
 import {
@@ -55,7 +56,6 @@ function StopChip({
 }) {
   const { t } = useTranslation();
   const format = useCardFormat();
-  const Icon = iconOf(stop);
   const name = stopName(stop, t);
   const along = stop.role === 'along';
   const off =
@@ -65,7 +65,12 @@ function StopChip({
   const stay = stop.stayMinutes ? t('assistant.card.tour.stay', { time: format.minutes(stop.stayMinutes) }) : null;
   const clock = stop.clock ? format.clock(stop.clock) : null;
   const label = [name, clock, off, stay].filter(Boolean).join(', ');
-  const glyph = <Icon size={10} strokeWidth={2.2} aria-hidden="true" className="flex-none text-content-faint" />;
+  const glyph = createElement(iconOf(stop), {
+    size: 10,
+    strokeWidth: 2.2,
+    'aria-hidden': true,
+    className: 'flex-none text-content-faint',
+  });
   const body = (
     <>
       <bdi className="max-w-[10rem] truncate">{name}</bdi>

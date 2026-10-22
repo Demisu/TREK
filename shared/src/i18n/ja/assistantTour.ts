@@ -62,8 +62,10 @@ const assistantTour: TranslationStrings = {
   'assistant.card.tour.warn.dark_start': '日の出前に出発します（{time}）',
   'assistant.card.tour.warn.dusk': '日没の1時間以内に戻ります',
   'assistant.card.tour.warn.legs_failed': '{count}区間を計画できませんでした',
-  'assistant.card.tour.problem.no_valhalla': 'このサーバーのルート検索は登山道を知らないため、ハイキングを計画できませんでした',
-  'assistant.card.tour.problem.router_unavailable': 'ルート検索が応答しませんでした。少ししてからもう一度お試しください',
+  'assistant.card.tour.problem.no_valhalla':
+    'このサーバーのルート検索は登山道を知らないため、ハイキングを計画できませんでした',
+  'assistant.card.tour.problem.router_unavailable':
+    'ルート検索が応答しませんでした。少ししてからもう一度お試しください',
   'assistant.card.tour.problem.no_way': 'T{grade}までの道ではこれらの地点を結べません',
   'assistant.card.tour.problem.no_way_any': 'これらの地点を結ぶ道がありません',
   'assistant.card.tour.problem.point_off_the_way': '地点{point}はどの道からも離れすぎています',

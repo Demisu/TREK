@@ -103,7 +103,7 @@ describe('TodoListCard', () => {
   });
 
   it("FE-AI-TODO-002: priorities take the panel tones; a passed due date turns red by the reader's own day", () => {
-    inView(<TodoListBlock cards={[{ toolCallId: 'call_1', card: ANSWER }]} />);
+    inView(<TodoListBlock cards={[{ toolCallId: 'call_1', card: ANSWER }]} />, { onOpen: vi.fn() });
     expect(screen.getByText('P1').closest('span')).toHaveClass('text-danger');
     expect(screen.getByText('P2').closest('span')).toHaveClass('text-warning');
     const due = screen.getAllByRole('button', { name: /Show this day in the plan/ });

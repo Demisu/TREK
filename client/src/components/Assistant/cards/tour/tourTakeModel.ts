@@ -14,7 +14,8 @@ const TAKE_TOOL = 'take_proposal';
 /** Whether two routes are one way: one activity, as many points, the same ends. */
 function sameWay(a: TourRouteCard, b: TourRouteCard): boolean {
   if (a.activity !== b.activity || a.line.length !== b.line.length || a.stops.length !== b.stops.length) return false;
-  const ends = (card: TourRouteCard) => [card.line[0], card.line.at(-1)].map((point) => point?.slice(0, 2).join(','));
+  const ends = (card: TourRouteCard) =>
+    [card.line[0], card.line[card.line.length - 1]].map((point) => point?.slice(0, 2).join(','));
   const [aStart, aEnd] = ends(a);
   const [bStart, bEnd] = ends(b);
   return aStart === bStart && aEnd === bEnd;

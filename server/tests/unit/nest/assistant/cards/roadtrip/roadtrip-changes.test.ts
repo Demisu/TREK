@@ -150,7 +150,9 @@ describe('via change cards', () => {
       ['Seefeld', true],
       ['Bolzano', true],
     ]);
-    const applied = appliedChange('import_google_maps_route', 'call_9', args, { place_ids: [41, 42] }, 31, null);
+    // The way back takes the visits it added, not the places.
+    const result = { place_ids: [51, 52], assignment_ids: [41, 42] };
+    const applied = appliedChange('import_google_maps_route', 'call_9', args, result, 31, null);
     expect(applied).toMatchObject({ entity: 'assignment', ids: [41, 42], dayId: 31 });
   });
 

@@ -26,7 +26,7 @@ const assistantVacay: TranslationStrings = {
   'assistant.card.vacay.otherDays': '{count} lediga dagar till i år',
   'assistant.card.vacay.otherDays.one': '{count} ledig dag till i år',
   'assistant.card.vacay.allowance': 'Semesterrätt',
-  'assistant.card.vacay.meter': '{used} uttagna, {planned} planerade, {left} kvar av {total}',
+  'assistant.card.vacay.meter': '{used} uttagna, {planned} planerade, {remaining} kvar av {total}',
   'assistant.card.vacay.weekendBlocked': 'Veckoslut, spärrat i din plan',
   'assistant.card.vacay.weekend': 'Veckoslut, räknas som semester',
   'assistant.card.vacay.publicHoliday': 'Helgdag, ingen semester behövs',

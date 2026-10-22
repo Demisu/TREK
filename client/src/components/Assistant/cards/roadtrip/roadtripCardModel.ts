@@ -50,7 +50,9 @@ function stopOf(stop: RoadtripCardStop, index: number, dayId: number): RoadtripS
     stopType: stop.stopType,
     fillPercent: stop.fillPercent,
     offRoadMeters: stop.offRoadM,
-    ...(stop.carrier ? { carrier: stop.carrier } : {}),
+    ...(stop.carrier
+      ? { carrier: { ...stop.carrier, code: stop.carrier.code ?? null, at: stop.carrier.at ?? null } }
+      : {}),
     ...(stop.autoNight ? { automaticNight: stop.autoNight } : {}),
     ...(stop.bookend
       ? {

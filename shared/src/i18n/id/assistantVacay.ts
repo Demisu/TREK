@@ -19,7 +19,7 @@ const assistantVacay: TranslationStrings = {
   'assistant.card.vacay.compDays': '{count} hari pengganti',
   'assistant.card.vacay.otherDays': '{count} hari libur lagi tahun ini',
   'assistant.card.vacay.allowance': 'Jatah cuti',
-  'assistant.card.vacay.meter': '{used} terpakai, {planned} direncanakan, sisa {left} dari {total}',
+  'assistant.card.vacay.meter': '{used} terpakai, {planned} direncanakan, sisa {remaining} dari {total}',
   'assistant.card.vacay.weekendBlocked': 'Akhir pekan, diblokir di rencanamu',
   'assistant.card.vacay.weekend': 'Hari akhir pekan, dihitung sebagai cuti',
   'assistant.card.vacay.publicHoliday': 'Hari libur nasional, tidak perlu cuti',

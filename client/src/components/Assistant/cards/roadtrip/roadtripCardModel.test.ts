@@ -12,6 +12,7 @@ import { describe, expect, it } from 'vitest';
 import { charger, DRIVE, FLORENCE_DAY, MUNICH_DAY } from '../../../../../tests/helpers/assistantRoadtrip';
 import { dayColor } from '../../../Roadtrip/dayColors';
 import { CARD_RULES } from '../cardLooks';
+import type { EntityLook } from '../cardTypes';
 import {
   chargersOnDay,
   dayHasWarning,
@@ -143,7 +144,7 @@ describe('roadtripCardModel', () => {
   });
 
   it('FE-AI-RT-007: an applied road trip change opens its day in the road trip and shows the day on the map', () => {
-    const look = ROADTRIP_LOOK.entities.roadtrip;
+    const look: EntityLook = ROADTRIP_LOOK.entities.roadtrip;
     const applied = { toolCallId: 'call_1', entity: 'roadtrip' as const, ids: [], dayId: 31, undoUntil: null };
     expect(look.onMap?.(applied, null)).toEqual({ placeId: null, dayId: 31 });
     expect(look.open?.(applied, null)).toEqual({ kind: 'tab', tab: 'roadtrip', params: { day: '31' } });

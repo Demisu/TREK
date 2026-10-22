@@ -19,8 +19,8 @@ import type { McpContext } from '../../../src/nest-mcp';
 import { getEntry, type ClassRef } from '../../../src/nest-mcp/metadata';
 import { AddonsService } from '../../../src/nest/addons/addons.service';
 import { JourneyBookPhotosMcp } from '../../../src/nest/journey/journey-book-photos.mcp';
-import { JourneyBookModule } from '../../../src/nest/journey/journey-book.module';
 import { JourneyBookMcp } from '../../../src/nest/journey/journey-book.mcp';
+import { JourneyBookModule } from '../../../src/nest/journey/journey-book.module';
 import { PhotoResolverService, type PhotoSignalSource } from '../../../src/nest/memories/photo-resolver.service';
 import { createSnapshotTestDb } from '../../helpers/db-mock';
 import { addJourneyContributor, makeJourney, makeJourneyEntry } from '../../helpers/factories/journeys';
@@ -49,7 +49,8 @@ beforeAll(async () => {
   });
   mcp = t.get(JourneyBookPhotosMcp);
   orm = await createTestOrm(db);
-  jpeg = Buffer.from(await new Jimp({ width: 400, height: 300, color: 0x6699ccff }).getBuffer('image/jpeg'));
+  // Large enough to print on a page, so a measured photo is not set aside as low resolution.
+  jpeg = Buffer.from(await new Jimp({ width: 1600, height: 1200, color: 0x6699ccff }).getBuffer('image/jpeg'));
 });
 beforeEach(() => {
   resetTestDb(db);

@@ -33,7 +33,7 @@ const assistantVacay: TranslationStrings = {
   'assistant.card.vacay.otherDays.one': 'Tento rok ešte {count} deň voľna',
   'assistant.card.vacay.otherDays.few': 'Tento rok ešte {count} dni voľna',
   'assistant.card.vacay.allowance': 'Nárok',
-  'assistant.card.vacay.meter': 'Vyčerpané {used}, naplánované {planned}, zostáva {left} z {total}',
+  'assistant.card.vacay.meter': 'Vyčerpané {used}, naplánované {planned}, zostáva {remaining} z {total}',
   'assistant.card.vacay.weekendBlocked': 'Víkend, vo tvojom pláne zablokovaný',
   'assistant.card.vacay.weekend': 'Víkendový deň, počíta sa ako dovolenka',
   'assistant.card.vacay.publicHoliday': 'Štátny sviatok, dovolenka nie je potrebná',

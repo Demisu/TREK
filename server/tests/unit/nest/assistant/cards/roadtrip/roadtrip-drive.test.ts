@@ -186,8 +186,9 @@ describe('calculate_roadtrip card', () => {
     const built = roadtripAnswerCard(input(answer([day(3)]))) as RoadtripCard;
     const lines = built.days[0].lines;
     expect(lines.length).toBe(2);
+    // No line reaches from Bavaria to Rome: the flight between the two terminals is no drive.
+    expect(lines.some((line) => line.some(([lat]) => lat > 47) && line.some(([lat]) => lat < 42))).toBe(false);
     const points = lines.flat();
-    expect(points.some(([lat]) => lat > 42 && lat < 48)).toBe(false);
     for (const [lat, lng] of points) {
       expect(Math.round(lat * 1e5) / 1e5).toBe(lat);
       expect(Math.round(lng * 1e5) / 1e5).toBe(lng);

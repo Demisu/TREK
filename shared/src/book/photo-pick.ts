@@ -258,7 +258,10 @@ export function pickBookPhotos(
   const chosen = filterFor(placed, options, byEntry);
   const groups = groupByDayAndPlace(chosen);
   const judged = groups.map((g) => judge(g, purpose, median));
-  const shown = takeRoundRobin(judged.map((j) => j.picks), limit);
+  const shown = takeRoundRobin(
+    judged.map((j) => j.picks),
+    limit,
+  );
   const out: BookPhotoSuggestions['groups'] = [];
   let groupsMore = 0;
   let droppedRoom: number = PHOTO_PICK.droppedTotal;
@@ -417,7 +420,7 @@ function similarSets(members: readonly Placed[]): Placed[][] {
     let r = i;
     while (parent[r] !== r) r = parent[r] ?? r;
     // Every index on the way now points straight at the root.
-    for (let k = i; parent[k] !== r; ) {
+    for (let k = i; parent[k] !== r;) {
       const next = parent[k] ?? r;
       parent[k] = r;
       k = next;

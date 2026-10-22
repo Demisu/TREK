@@ -51,26 +51,29 @@ export class TrekPhotoSignalsRepository extends TrekRepository<TrekPhotoSignals>
 
   /** The measurements stored for these photos, whatever version made them; a photo without one is left out. */
   async listForPhotos(photoIds: number[]): Promise<TrekPhotoSignalRow[]> {
-    const out: TrekPhotoSignalRow[] = [];
-    for (let i = 0; i < photoIds.length; i += IN_CHUNK) {
-      const rows = await this.db()
-        .selectFrom('trek_photo_signals')
-        .select([
-          'photo_id',
-          'algo',
-          'phash',
-          'sharpness',
-          'luma',
-          'clipped',
-          'orig_width',
-          'orig_height',
-          'computed_at',
-        ])
-        .where('photo_id', 'in', photoIds.slice(i, i + IN_CHUNK))
-        .execute();
-      out.push(...rows);
-    }
-    return out;
+    const chunks = Array.from({ length: Math.ceil(photoIds.length / IN_CHUNK) }, (_, i) =>
+      photoIds.slice(i * IN_CHUNK, (i + 1) * IN_CHUNK),
+    );
+    const found = await Promise.all(
+      chunks.map((chunk) =>
+        this.db()
+          .selectFrom('trek_photo_signals')
+          .select([
+            'photo_id',
+            'algo',
+            'phash',
+            'sharpness',
+            'luma',
+            'clipped',
+            'orig_width',
+            'orig_height',
+            'computed_at',
+          ])
+          .where('photo_id', 'in', chunk)
+          .execute(),
+      ),
+    );
+    return found.flat();
   }
 
   /** Stores a measurement, replacing the photo's earlier one. */

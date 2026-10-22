@@ -80,7 +80,8 @@ export function mergePayments(entries: readonly CardEntry[]): PaymentsCard | nul
 export function latestOf(entries: readonly CardEntry[], kind: 'settlement'): SettlementCard | null;
 export function latestOf(entries: readonly CardEntry[], kind: 'costPerPerson'): CostPerPersonCard | null;
 export function latestOf(entries: readonly CardEntry[], kind: 'settlement' | 'costPerPerson') {
-  return cardsOf(entries, kind).at(-1) ?? null;
+  const cards = cardsOf(entries, kind);
+  return cards[cards.length - 1] ?? null;
 }
 
 /** How many people of a split get a badge of their own before an even one reads as a stack. */

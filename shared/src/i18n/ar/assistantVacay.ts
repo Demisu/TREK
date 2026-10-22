@@ -54,7 +54,7 @@ const assistantVacay: TranslationStrings = {
   'assistant.card.vacay.otherDays.few': 'أيام إجازة أخرى هذا العام: {count}',
   'assistant.card.vacay.otherDays.many': 'أيام إجازة أخرى هذا العام: {count}',
   'assistant.card.vacay.allowance': 'الاستحقاق',
-  'assistant.card.vacay.meter': '{used} مستخدم، {planned} مخطط، {left} متبقٍ من {total}',
+  'assistant.card.vacay.meter': '{used} مستخدم، {planned} مخطط، {remaining} متبقٍ من {total}',
   'assistant.card.vacay.weekendBlocked': 'عطلة نهاية الأسبوع، محجوبة في خطتك',
   'assistant.card.vacay.weekend': 'يوم عطلة نهاية الأسبوع، يُحسب إجازة',
   'assistant.card.vacay.publicHoliday': 'عطلة رسمية، لا حاجة لإجازة',

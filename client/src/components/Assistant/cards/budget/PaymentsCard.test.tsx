@@ -6,7 +6,6 @@
  * change row (the amount it replaces struck through, the people it no longer
  * moves money between, the two faces under the row).
  */
-import type { AssistantMessage } from '@trek/shared';
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -19,14 +18,8 @@ import { type AssistantView, AssistantViewContext } from '../../assistantViewCon
 import PaymentsCard, { PaymentAside, PaymentBody, PaymentChangeFacts } from './PaymentsCard';
 
 const AUTH = useAuthStore.getState();
-const MESSAGE: AssistantMessage = {
-  id: 'm1',
-  role: 'assistant',
-  status: 'complete',
-  createdAt: '2026-10-22T08:00:00.000Z',
-  parts: [],
-};
-const money = (amount: number, currency = 'EUR') => formatMoney(amount, currency, 'en');
+// Intl puts a no-break space before the symbol, and text and label queries read it as a plain one.
+const money = (amount: number, currency = 'EUR') => formatMoney(amount, currency, 'en').replace(/[\u00a0\u202f]/g, ' ');
 
 function inView(ui: ReactNode, view: Partial<AssistantView> = {}) {
   const value: AssistantView = { tripId: 4, variant: 'window', ...view };
@@ -45,7 +38,7 @@ describe('payments', () => {
   it('FE-AI-CARD-BUD-015: the history names who paid whom, how much, when and why, and opens the Costs tab', () => {
     const onOpen = vi.fn();
     const card = payments([payment({ note: 'Bank transfer' }), payment({ id: 6, from: CLEO, to: BEN, date: null })], 2);
-    inView(<PaymentsCard cards={[{ toolCallId: 'r1', card }]} message={MESSAGE} />, { onOpen });
+    inView(<PaymentsCard cards={[{ toolCallId: 'r1', card }]} />, { onOpen });
     expect(screen.getByRole('region', { name: 'Settle history' })).toBeInTheDocument();
     expect(screen.getByText('4')).toBeInTheDocument();
     expect(screen.getAllByText(money(42.5))).toHaveLength(2);

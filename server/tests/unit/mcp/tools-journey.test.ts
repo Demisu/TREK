@@ -299,16 +299,19 @@ describe('journey read tools', () => {
     const { user } = createUser(testDb);
     await withHarness(user.id, async (h) => {
       const journey = await seedJourney(h, 'Berlin 2026');
-      for (const [entry_date, title] of [
+      const days = [
         ['2026-10-20', 'Before'],
         ['2026-10-21', 'Yesterday'],
         ['2026-10-22', 'Today'],
-      ] as const) {
+      ] as const;
+      // One after the other, in this order.
+      await days.reduce(async (previous, [entry_date, title]) => {
+        await previous;
         await h.client.callTool({
           name: 'create_journey_entry',
           arguments: { journeyId: journey.id, entry_date, title },
         });
-      }
+      }, Promise.resolve());
       const read = async (range: Record<string, string>) =>
         parseToolResult(
           await h.client.callTool({ name: 'list_journey_entries', arguments: { journeyId: journey.id, ...range } }),

@@ -102,7 +102,7 @@ describe('the journal entries card', () => {
 
   it('FE-AI-JOURNEY-002: an entry without a photo takes the width, and a known mood and weather are named', () => {
     const { container } = block([card([look({ photoId: null, mood: 'amazing', weather: 'cold' })])]);
-    expect(container.querySelector('img')).toBeNull();
+    expect(container.querySelector('img[src^="/api/photos/"]')).toBeNull();
     expect(screen.getByText('Amazing')).toBeInTheDocument();
     // `cold` is the id the journal stores for snow.
     expect(screen.getByText('Snowy')).toBeInTheDocument();

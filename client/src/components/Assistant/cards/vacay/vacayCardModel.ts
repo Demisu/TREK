@@ -213,10 +213,10 @@ export function allowancesOf(items: readonly ChangeItem[], excluded: ReadonlySet
 }
 
 /** What a line comes to: the days left before and after, and how far past the allowance it would go. */
-export function lineFigures(line: BalanceLine): { left: number; leftAfter: number; over: number } {
+export function lineFigures(line: BalanceLine): { leftNow: number; leftAfter: number; over: number } {
   const total = line.totalAfter ?? line.total;
   const leftAfter = total - (line.used + line.delta);
-  return { left: line.total - line.used, leftAfter, over: Math.max(0, -leftAfter) };
+  return { leftNow: line.total - line.used, leftAfter, over: Math.max(0, -leftAfter) };
 }
 
 /** Whether the lines need their year named: two years in one card, or a year that is not this one. */

@@ -224,11 +224,7 @@ describe('pickBookPhotos', () => {
 
   it('PHOTOPICK-010: without signals a caption wins, then a photo the book does not have yet, best first', () => {
     const result = pickBookPhotos(
-      [
-        at(1, '09:00:00', { inBook: true }),
-        at(2, '10:00:00'),
-        at(3, '11:00:00', { caption: 'Tram 28', inBook: true }),
-      ],
+      [at(1, '09:00:00', { inBook: true }), at(2, '10:00:00'), at(3, '11:00:00', { caption: 'Tram 28', inBook: true })],
       [],
       { limit: 2 },
     );
@@ -342,7 +338,10 @@ describe('pickBookPhotos', () => {
     expect(ids(one)).toEqual([[101]]);
     expect(one.groups[0]?.dropped).toHaveLength(30);
     expect(one.groups[0]?.dropped_more).toBe(5);
-    const five = pickBookPhotos([1, 2, 3, 4, 5].flatMap((day) => burst(day, 31)), []);
+    const five = pickBookPhotos(
+      [1, 2, 3, 4, 5].flatMap((day) => burst(day, 31)),
+      [],
+    );
     expect(bookPhotoSuggestionsSchema.parse(five)).toEqual(five);
     expect(five.groups.map((g) => [g.dropped.length, g.dropped_more])).toEqual([
       [30, 0],

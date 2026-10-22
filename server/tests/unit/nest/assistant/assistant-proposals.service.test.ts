@@ -218,7 +218,6 @@ describe('AssistantProposalsService', () => {
     await expect(take(c, 'w1')).rejects.toMatchObject({ status: 429, code: 'too_many_requests' });
     expect(await calls(c.threadId)).toHaveLength(1);
   });
-});
 
   it('ASTPROP-008: a walk stored cut down and masked is created from the tool asked again, named and on no day', async () => {
     const c = await conversation();

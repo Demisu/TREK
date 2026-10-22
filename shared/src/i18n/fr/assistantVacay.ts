@@ -26,7 +26,7 @@ const assistantVacay: TranslationStrings = {
   'assistant.card.vacay.otherDays': '{count} autres jours de congé cette année',
   'assistant.card.vacay.otherDays.one': '{count} autre jour de congé cette année',
   'assistant.card.vacay.allowance': 'Droits',
-  'assistant.card.vacay.meter': '{used} pris, {planned} prévus, {left} restants sur {total}',
+  'assistant.card.vacay.meter': '{used} pris, {planned} prévus, {remaining} restants sur {total}',
   'assistant.card.vacay.weekendBlocked': 'Week-end, bloqué dans votre plan',
   'assistant.card.vacay.weekend': 'Jour de week-end, compté comme congé',
   'assistant.card.vacay.publicHoliday': 'Jour férié, pas besoin de congé',

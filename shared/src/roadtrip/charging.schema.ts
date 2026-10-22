@@ -50,7 +50,10 @@ export function cheapestEnergy(tariffs: ChargingInfo['tariffs']): ChargingEnergy
       .map((component) => ({ price: component.price, currency: tariff.currency })),
   );
   if (new Set(energy.map((component) => component.currency)).size !== 1) return null;
-  return energy.reduce<ChargingEnergyPrice | null>((best, item) => (!best || item.price < best.price ? item : best), null);
+  return energy.reduce<ChargingEnergyPrice | null>(
+    (best, item) => (!best || item.price < best.price ? item : best),
+    null,
+  );
 }
 
 /**

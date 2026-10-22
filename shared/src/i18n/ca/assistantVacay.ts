@@ -26,7 +26,7 @@ const assistantVacay: TranslationStrings = {
   'assistant.card.vacay.otherDays': '{count} dies lliures més aquest any',
   'assistant.card.vacay.otherDays.one': '{count} dia lliure més aquest any',
   'assistant.card.vacay.allowance': 'Dret',
-  'assistant.card.vacay.meter': '{used} gastats, {planned} previstos, queden {left} de {total}',
+  'assistant.card.vacay.meter': '{used} gastats, {planned} previstos, queden {remaining} de {total}',
   'assistant.card.vacay.weekendBlocked': 'Cap de setmana, bloquejat al teu pla',
   'assistant.card.vacay.weekend': 'Dia de cap de setmana, compta com a vacances',
   'assistant.card.vacay.publicHoliday': 'Festiu, no cal demanar el dia',

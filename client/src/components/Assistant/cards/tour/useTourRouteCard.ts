@@ -14,22 +14,16 @@ import { canTake, routePoints } from './tourRouteModel';
 import { takeInThread } from './tourTakeModel';
 
 /**
- * What a route card and the phone's route peek share: the light between the
- * card and its line on the map (resting on one lights the other), the spot
- * of the route in focus (the profile, a stop chip and the map's pointer all
- * move one), and "On map", which frames the route (a ways card frames all
- * its ways, `frame`); on the phone the chat steps aside first and the route's
- * peek opens over the map.
+ * What a route card and the phone's route peek share: the spot of the route
+ * in focus, which the profile, a stop chip and the map's pointer all move.
+ * A card or a peek that goes takes its spot on the map with it.
  */
-export function useTourRouteCard(toolCallId: string, card: TourRouteCard, frame?: readonly TourRouteCard[]) {
-  const { tripId, variant, onRevealMap } = useAssistantView();
-  const hover = useChangeHover(tripId, toolCallId);
+export function useRouteFocus(toolCallId: string) {
+  const { tripId } = useAssistantView();
   const focus = useAssistantStore((s) =>
     s.routeFocus?.tripId === tripId && s.routeFocus.ref === toolCallId ? s.routeFocus.focus : null
   );
   const setRouteFocus = useAssistantStore((s) => s.setRouteFocus);
-  const requestCamera = useAssistantStore((s) => s.requestCamera);
-  const setRoutePeek = useAssistantStore((s) => s.setRoutePeek);
 
   /** Puts the focus out, if it is still this card's. */
   const release = useCallback(() => {
@@ -45,8 +39,25 @@ export function useTourRouteCard(toolCallId: string, card: TourRouteCard, frame?
     [tripId, toolCallId, setRouteFocus, release]
   );
 
-  // A card that goes takes its spot on the map with it.
   useEffect(() => release, [release]);
+
+  return { focus, setFocus };
+}
+
+/**
+ * A route card: the light between the card and its line on the map (resting
+ * on one lights the other), the spot of the route in focus, and "On map",
+ * which frames the route (a ways card frames all its ways, `frame`); on the
+ * phone the chat steps aside first and the route's peek opens over the map.
+ * The peek itself takes only the focus: its light is the map's, which
+ * moveRoutePeek moves, so closing it leaves a light the chat put on alone.
+ */
+export function useTourRouteCard(toolCallId: string, card: TourRouteCard, frame?: readonly TourRouteCard[]) {
+  const { tripId, variant, onRevealMap } = useAssistantView();
+  const hover = useChangeHover(tripId, toolCallId);
+  const { focus, setFocus } = useRouteFocus(toolCallId);
+  const requestCamera = useAssistantStore((s) => s.requestCamera);
+  const setRoutePeek = useAssistantStore((s) => s.setRoutePeek);
 
   const showOnMap = useCallback(() => {
     const points = (frame ?? [card]).flatMap(routePoints);

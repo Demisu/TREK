@@ -129,7 +129,8 @@ describe('the to-do change cards', () => {
   });
 
   it("ASTTODO-007: a list's default people show the ones it will have and the ones it drops", () => {
-    const loaded = { assignees: { Bookings: [{ user_id: 2 }] } };
+    // What the loader hands on: the read's assignees by list name, unwrapped.
+    const loaded = { Bookings: [{ user_id: 2 }] };
     const card = todos(change('set_todo_category_assignees', { categoryName: 'Bookings', userIds: [1] }, loaded));
     expect(card.groups).toEqual([
       {

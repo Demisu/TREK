@@ -27,7 +27,7 @@ import {
 } from '../../../../src/nest/photos/photo-signals.service';
 import { createSnapshotTestDb } from '../../../helpers/db-mock';
 import { makeJourney } from '../../../helpers/factories/journeys';
-import { countRows, insertRow } from '../../../helpers/factories/rows';
+import { countRows, insertRow, insertRows } from '../../../helpers/factories/rows';
 import { makeUser } from '../../../helpers/factories/users';
 import { resetTestDb } from '../../../helpers/test-db';
 import { createTestModule, type TestModule } from '../../../helpers/test-module';
@@ -76,17 +76,16 @@ afterAll(async () => {
 async function gallery(kinds: Array<'image' | 'video'>) {
   const { user } = await makeUser(orm);
   const journey = await makeJourney(orm, user.id);
-  const ids: number[] = [];
-  for (const [i, kind] of kinds.entries()) {
-    const id = await insertRow(orm, TrekPhotos, {
-      provider: 'local',
-      owner: user.id,
-      file_path: 'journey/p.jpg',
-      media_type: kind,
-    });
-    await insertRow(orm, JourneyPhotos, { journey: journey.id, photo: id, sort_order: i, created_at: Date.now() });
-    ids.push(id);
-  }
+  const ids = await insertRows(
+    orm,
+    TrekPhotos,
+    kinds.map((kind) => ({ provider: 'local', owner: user.id, file_path: 'journey/p.jpg', media_type: kind })),
+  );
+  await insertRows(
+    orm,
+    JourneyPhotos,
+    ids.map((id, i) => ({ journey: journey.id, photo: id, sort_order: i, created_at: Date.now() })),
+  );
   return { journeyId: journey.id, ids };
 }
 

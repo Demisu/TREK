@@ -11,6 +11,9 @@ import type { CollectionDetailResponse, CollectionItemsRequest, CollectionItemsR
 /** The most lists one lookup opens: 50 places and 20 labels can sit in no more than 70. */
 const MAX_LISTS = 70;
 
+/** A list the lookup opened, with whether the user may take places out of it. */
+type OpenedList = CollectionDetailResponse & { canDelete: boolean };
+
 /**
  * Saved places and labels by their own ids, wherever they are filed (the
  * get_collection_items tool): what an assistant's card needs to name a place
@@ -30,23 +33,13 @@ export class CollectionsItemsService {
   async getItems(userId: number, request: CollectionItemsRequest): Promise<CollectionItemsResponse> {
     const placeIds = [...new Set(request.placeIds ?? [])];
     const labelIds = [...new Set(request.labelIds ?? [])];
-    const listIds = new Set<number>();
-    for (const placeId of placeIds) {
-      const listId = await this.collectionsRepo.collectionIdOfPlace(placeId);
-      if (listId !== undefined) listIds.add(listId);
-    }
-    for (const labelId of labelIds) {
-      const listId = await this.labels.collectionIdOf(labelId);
-      if (listId !== undefined) listIds.add(listId);
-    }
-    const read: Array<CollectionDetailResponse & { canDelete: boolean }> = [];
-    for (const listId of [...listIds].slice(0, MAX_LISTS)) {
-      const detail = await this.readable(userId, listId);
-      if (!detail) continue;
-      // Places leave a list only by its owner or an admin (assertCanDelete); an editor adds.
-      const role = await this.collections.roleOf(userId, listId);
-      read.push({ ...detail, canDelete: role === 'owner' || role === 'admin' });
-    }
+    const [ofPlaces, ofLabels] = await Promise.all([
+      Promise.all(placeIds.map((placeId) => this.collectionsRepo.collectionIdOfPlace(placeId))),
+      Promise.all(labelIds.map((labelId) => this.labels.collectionIdOf(labelId))),
+    ]);
+    const listIds = new Set([...ofPlaces, ...ofLabels].filter((listId): listId is number => listId !== undefined));
+    const opened = await Promise.all([...listIds].slice(0, MAX_LISTS).map((listId) => this.withDelete(userId, listId)));
+    const read = opened.filter((list): list is OpenedList => list !== null);
     const wantedPlaces = new Set(placeIds);
     const wantedLabels = new Set(labelIds);
     return {
@@ -69,6 +62,15 @@ export class CollectionsItemsService {
       places: read.flatMap(({ places }) => places.filter((place) => wantedPlaces.has(place.id))),
       labels: read.flatMap(({ collection }) => (collection.labels ?? []).filter((label) => wantedLabels.has(label.id))),
     };
+  }
+
+  /** One list as its members read it, with whether the user may take places out of it. */
+  private async withDelete(userId: number, listId: number): Promise<OpenedList | null> {
+    const detail = await this.readable(userId, listId);
+    if (!detail) return null;
+    // Places leave a list only by its owner or an admin (assertCanDelete); an editor adds.
+    const role = await this.collections.roleOf(userId, listId);
+    return { ...detail, canDelete: role === 'owner' || role === 'admin' };
   }
 
   /** One list as its members read it; null for one the user may not see or that is gone. */

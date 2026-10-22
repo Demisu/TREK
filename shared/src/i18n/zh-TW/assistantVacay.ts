@@ -19,7 +19,7 @@ const assistantVacay: TranslationStrings = {
   'assistant.card.vacay.compDays': '補休 {count} 天',
   'assistant.card.vacay.otherDays': '今年還有 {count} 天休假',
   'assistant.card.vacay.allowance': '年假額度',
-  'assistant.card.vacay.meter': '已用 {used}，計畫 {planned}，共 {total}，剩餘 {left}',
+  'assistant.card.vacay.meter': '已用 {used}，計畫 {planned}，共 {total}，剩餘 {remaining}',
   'assistant.card.vacay.weekendBlocked': '週末，在你的計畫中已封鎖',
   'assistant.card.vacay.weekend': '週末，計入假期',
   'assistant.card.vacay.publicHoliday': '公共假日，無需請假',

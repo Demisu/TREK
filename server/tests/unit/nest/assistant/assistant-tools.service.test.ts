@@ -72,7 +72,8 @@ beforeAll(async () => {
   orm = app.get(MikroORM);
   registry = app.get(McpRegistryService);
   tools = app.get(AssistantToolsService);
-  await Promise.all(['packing', 'budget', 'collections'].map((addon) => setAddonEnabled(orm, addon, true)));
+  const addons = ['packing', 'budget', 'collections', 'journey', 'roadtrip'];
+  await Promise.all(addons.map((addon) => setAddonEnabled(orm, addon, true)));
   const { user } = await makeUser(orm);
   listed = await listRaw(user.id);
 });

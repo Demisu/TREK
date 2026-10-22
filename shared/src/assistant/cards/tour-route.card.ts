@@ -4,7 +4,7 @@ import { HIKE_UNROUTED_REASONS } from '../../tours/hike-plan.schema';
 import { HIKE_WARNING_KINDS } from '../../tours/hike-schedule';
 import { tourPoiCategorySchema } from '../../tours/tour-poi-category';
 import { tourMaxHikingDifficultySchema, tourTypeKeySchema } from '../../tours/tours.schema';
-import { cardClockSchema, cardDateSchema, cardLatSchema, cardLngSchema, cardText } from './card-parts';
+import { cardClockSchema, cardDateSchema, cardLatSchema, cardLngSchema, cardPointSchema, cardText } from './card-parts';
 
 import { z } from 'zod';
 
@@ -37,7 +37,13 @@ const minutes = z.number().int().min(0).max(86_400);
 const sacStep = z.number().int().min(1).max(6);
 
 /** A point of the line, `[lat, lng, height]` at five decimals; every height is null when one is missing. */
-export const tourRoutePointSchema = z.tuple([cardLatSchema, cardLngSchema, height.nullable()]);
+export type TourRoutePoint = [number, number, number | null];
+// Typed by hand like cardPointSchema: an inferred tuple reads every item as optional where strictNullChecks is off.
+export const tourRoutePointSchema: z.ZodType<TourRoutePoint> = z.tuple([
+  cardLatSchema,
+  cardLngSchema,
+  height.nullable(),
+]);
 
 /** What a stop is beyond its role: a kind of place along a hike, its highest point, a city walk's station. */
 export const TOUR_ROUTE_STOP_KINDS = ['highest', 'station'] as const;
@@ -164,7 +170,7 @@ export const tourRouteCardSchema = z.object({
   /** A held change of a saved tour's way: the way it has now, to draw faintly beside the new one. */
   previous: z
     .object({
-      line: z.array(z.tuple([cardLatSchema, cardLngSchema])).min(2).max(L.previous),
+      line: z.array(cardPointSchema).min(2).max(L.previous),
       distanceM: metres,
       ascentM: climb.nullable(),
       minutes: minutes.nullable(),

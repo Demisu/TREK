@@ -19,7 +19,7 @@ const assistantVacay: TranslationStrings = {
   'assistant.card.vacay.compDays': '{count} ngày nghỉ bù',
   'assistant.card.vacay.otherDays': 'Năm nay còn nghỉ thêm {count} ngày',
   'assistant.card.vacay.allowance': 'Số ngày phép',
-  'assistant.card.vacay.meter': 'Đã dùng {used}, dự kiến {planned}, còn {left} trên {total}',
+  'assistant.card.vacay.meter': 'Đã dùng {used}, dự kiến {planned}, còn {remaining} trên {total}',
   'assistant.card.vacay.weekendBlocked': 'Cuối tuần, bị chặn trong kế hoạch của bạn',
   'assistant.card.vacay.weekend': 'Ngày cuối tuần, tính là ngày phép',
   'assistant.card.vacay.publicHoliday': 'Ngày lễ, không cần nghỉ phép',

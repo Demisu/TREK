@@ -26,7 +26,7 @@ const assistantVacay: TranslationStrings = {
   'assistant.card.vacay.otherDays': 'Idén még {count} szabadnap',
   'assistant.card.vacay.otherDays.one': 'Idén még {count} szabadnap',
   'assistant.card.vacay.allowance': 'Szabadságkeret',
-  'assistant.card.vacay.meter': '{used} felhasználva, {planned} tervezve, {total} napból {left} maradt',
+  'assistant.card.vacay.meter': '{used} felhasználva, {planned} tervezve, {total} napból {remaining} maradt',
   'assistant.card.vacay.weekendBlocked': 'Hétvége, a tervedben letiltva',
   'assistant.card.vacay.weekend': 'Hétvégi nap, szabadságnak számít',
   'assistant.card.vacay.publicHoliday': 'Ünnepnap, nem kell szabadság',

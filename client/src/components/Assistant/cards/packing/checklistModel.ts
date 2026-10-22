@@ -63,9 +63,9 @@ function packingGroupKey(group: PackingCardGroup): string {
 }
 
 /** Rows joined by id, a later card's row replacing an earlier one; rows without an id are all kept. */
-function joinRows<T extends { id: number | null }>(earlier: readonly T[], later: readonly T[]): T[] {
-  const ids = new Set(later.flatMap((row) => (row.id === null ? [] : [row.id])));
-  return [...earlier.filter((row) => row.id === null || !ids.has(row.id)), ...later];
+function joinRows<T extends { id?: number | null }>(earlier: readonly T[], later: readonly T[]): T[] {
+  const ids = new Set(later.flatMap((row) => (typeof row.id === 'number' ? [row.id] : [])));
+  return [...earlier.filter((row) => typeof row.id !== 'number' || !ids.has(row.id)), ...later];
 }
 
 /** Whether a card shows every row it counts, so its figures can be counted again from its rows. */

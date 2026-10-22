@@ -1,5 +1,6 @@
 import type { TourRouteCard, TourRouteSchedule } from '@trek/shared';
 import { Clock, Droplet, Sunrise, Sunset } from 'lucide-react';
+import { createElement } from 'react';
 
 import { useTranslation } from '../../../../i18n';
 import { SoftPill } from '../../../Planner/planParts';
@@ -29,12 +30,12 @@ function Span({ span, className }: { span: BarSpan; className: string }) {
 
 /** One hour of the forecast: the hour, the sky, the temperature, and the rain when it is likely. */
 function HourCell({ hour }: { hour: TourRouteSchedule['hours'][number] }) {
-  const Icon = weatherIconFor(hour.main);
+  const icon = weatherIconFor(hour.main);
   const rain = hour.rainPct !== null && hour.rainPct >= RAIN_SHOWN_PCT ? hour.rainPct : null;
   return (
     <li className="flex w-9 flex-col items-center gap-0.5 text-caption tabular-nums text-content-secondary">
       <span className="text-content-faint">{String(hour.hour).padStart(2, '0')}</span>
-      <Icon size={14} strokeWidth={2} aria-hidden="true" />
+      {createElement(icon, { size: 14, strokeWidth: 2, 'aria-hidden': true })}
       <span>{`${hour.tempC}°`}</span>
       {rain !== null && (
         <span className="inline-flex items-center text-info">

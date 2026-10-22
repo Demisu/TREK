@@ -40,7 +40,7 @@ const assistantVacay: TranslationStrings = {
   'assistant.card.vacay.otherDays.few': 'Ще {count} дні відпочинку цього року',
   'assistant.card.vacay.otherDays.many': 'Ще {count} днів відпочинку цього року',
   'assistant.card.vacay.allowance': 'Право на відпустку',
-  'assistant.card.vacay.meter': 'Використано {used}, заплановано {planned}, залишилося {left} з {total}',
+  'assistant.card.vacay.meter': 'Використано {used}, заплановано {planned}, залишилося {remaining} з {total}',
   'assistant.card.vacay.weekendBlocked': 'Вихідні, заблоковані у вашому плані',
   'assistant.card.vacay.weekend': 'Вихідний день, рахується як відпустка',
   'assistant.card.vacay.publicHoliday': 'Свято, відпустка не потрібна',

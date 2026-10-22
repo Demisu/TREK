@@ -13,7 +13,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { charger, DRIVE, FLORENCE_DAY, MUNICH_DAY } from '../../../../../tests/helpers/assistantRoadtrip';
 import { fireEvent, render, screen } from '../../../../../tests/helpers/render';
-import { useAssistantStore } from '../../../../store/assistantStore';
+import { chatOf, useAssistantStore } from '../../../../store/assistantStore';
 import { type AssistantView, AssistantViewContext } from '../../assistantViewContext';
 import RoadtripBlock from './RoadtripBlock';
 
@@ -122,7 +122,9 @@ describe('RoadtripBlock', () => {
   });
 
   it('FE-AI-RT-016: opens on the day the chat was opened on and says where the battery runs dry', () => {
-    useAssistantStore.setState({ focus: { dayId: FLORENCE_DAY.dayId } });
+    useAssistantStore.setState((s) => ({
+      byTrip: { ...s.byTrip, 4: { ...chatOf(s, 4), focus: { dayId: FLORENCE_DAY.dayId } } },
+    }));
     const dry = { ...DRIVE, days: [MUNICH_DAY, { ...FLORENCE_DAY, dryKm: 280 }] };
     renderBlock([{ toolCallId: 'call_1', card: dry }]);
     expect(screen.getByText('Florence')).toBeInTheDocument();

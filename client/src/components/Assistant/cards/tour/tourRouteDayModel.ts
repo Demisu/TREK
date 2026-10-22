@@ -44,11 +44,7 @@ const round = (value: number) => Math.round(value * 100) / 100;
  * Null when the day knows neither the sun nor a start.
  */
 export function dayBarOf(schedule: TourRouteSchedule): DayBar | null {
-  const sunrise = schedule.sunrise ? clockMinutes(schedule.sunrise) : null;
-  const sunset = schedule.sunset ? clockMinutes(schedule.sunset) : null;
-  const start = schedule.start ? clockMinutes(schedule.start) : null;
-  let arrive = schedule.arrive ? clockMinutes(schedule.arrive) : null;
-  if (start !== null && arrive !== null && (schedule.nextDay || arrive < start)) arrive += DAY_MINUTES;
+  const { sunrise, sunset, start, arrive } = barClocks(schedule);
   const known = [sunrise, sunset, start, arrive].filter((value): value is number => value !== null);
   if (known.length === 0) return null;
   const from = Math.max(0, Math.floor(Math.min(...known) / 60) * 60 - 60);
@@ -65,6 +61,20 @@ export function dayBarOf(schedule: TourRouteSchedule): DayBar | null {
     if (arrive > sunset) dark.push(span(Math.max(start, sunset), arrive));
   }
   return { daylight, walk, dark };
+}
+
+/** The day's clocks in minutes from its midnight, null where it names none; an arrival past midnight counts on. */
+function barClocks(schedule: TourRouteSchedule): {
+  sunrise: number | null;
+  sunset: number | null;
+  start: number | null;
+  arrive: number | null;
+} {
+  const minutesOf = (clock: string | null | undefined) => (clock ? clockMinutes(clock) : null);
+  const start = minutesOf(schedule.start);
+  let arrive = minutesOf(schedule.arrive);
+  if (start !== null && arrive !== null && (schedule.nextDay || arrive < start)) arrive += DAY_MINUTES;
+  return { sunrise: minutesOf(schedule.sunrise), sunset: minutesOf(schedule.sunset), start, arrive };
 }
 
 /** The forecast's hours to show as cells: only a forecast's, since a climate's are last year's. */

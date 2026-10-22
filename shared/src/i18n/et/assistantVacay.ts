@@ -26,7 +26,7 @@ const assistantVacay: TranslationStrings = {
   'assistant.card.vacay.otherDays': 'Sel aastal veel {count} vaba päeva',
   'assistant.card.vacay.otherDays.one': 'Sel aastal veel {count} vaba päev',
   'assistant.card.vacay.allowance': 'Puhkusepäevade õigus',
-  'assistant.card.vacay.meter': '{used} kasutatud, {planned} plaanis, {total} päevast {left} jäänud',
+  'assistant.card.vacay.meter': '{used} kasutatud, {planned} plaanis, {total} päevast {remaining} jäänud',
   'assistant.card.vacay.weekendBlocked': 'Nädalavahetus, sinu plaanis blokeeritud',
   'assistant.card.vacay.weekend': 'Nädalavahetuse päev, loetakse puhkuseks',
   'assistant.card.vacay.publicHoliday': 'Riigipüha, puhkust pole vaja',

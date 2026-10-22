@@ -81,11 +81,15 @@ describe('useTourDeepLink', () => {
     late.planner.tours = [{ place_id: 41 }];
     late.hook.rerender();
     expect(late.workspace.openTourInPlanner).toHaveBeenCalledWith(41);
-    act(() => vi.advanceTimersByTime(3000));
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
     expect(late.planner.toast.error).not.toHaveBeenCalled();
 
     const loading = setup({ tours: [], ready: false });
-    act(() => vi.advanceTimersByTime(5000));
+    act(() => {
+      vi.advanceTimersByTime(5000);
+    });
     expect(loading.planner.invalidateTourPlaceIds).not.toHaveBeenCalled();
     expect(loading.planner.toast.error).not.toHaveBeenCalled();
     expect(loading.params.get('tour')).toBe('41');
@@ -93,7 +97,9 @@ describe('useTourDeepLink', () => {
     const missing = setup({ tours: [] });
     missing.hook.rerender();
     expect(missing.planner.invalidateTourPlaceIds).toHaveBeenCalledTimes(1);
-    act(() => vi.advanceTimersByTime(3000));
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
     expect(missing.planner.toast.error).toHaveBeenCalledWith('tours.planner.openFailed');
     expect(missing.params.get('tour')).toBeNull();
     expect(missing.workspace.openTourInPlanner).not.toHaveBeenCalled();

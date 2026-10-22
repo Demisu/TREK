@@ -16,7 +16,9 @@ export const cardLatSchema = z.number().min(-90).max(90);
 export const cardLngSchema = z.number().min(-180).max(180);
 
 /** A point of a line to draw, `[lat, lng]` at five decimals; single points are `{ lat, lng }` objects. */
-export const cardPointSchema = z.tuple([cardLatSchema, cardLngSchema]);
+export type CardPoint = [number, number];
+// Typed by hand: server and client compile without strictNullChecks, where an inferred tuple makes every item optional.
+export const cardPointSchema: z.ZodType<CardPoint> = z.tuple([cardLatSchema, cardLngSchema]);
 
 export const cardDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 export const cardClockSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
@@ -52,7 +54,6 @@ export const cardDaySchema = z.object({
 /** The most one card may weigh, as JSON text; a heavier one is not sent at all. */
 export const MAX_CARD_CHARS = 24_000;
 
-export type CardPoint = z.infer<typeof cardPointSchema>;
 export type CardMoney = z.infer<typeof cardMoneySchema>;
 export type CardPerson = z.infer<typeof cardPersonSchema>;
 export type CardDay = z.infer<typeof cardDaySchema>;

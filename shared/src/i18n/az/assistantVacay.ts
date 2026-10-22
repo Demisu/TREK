@@ -26,7 +26,7 @@ const assistantVacay: TranslationStrings = {
   'assistant.card.vacay.otherDays': 'Bu il daha {count} istirahət günü',
   'assistant.card.vacay.otherDays.one': 'Bu il daha {count} istirahət günü',
   'assistant.card.vacay.allowance': 'Məzuniyyət limiti',
-  'assistant.card.vacay.meter': '{used} istifadə olunub, {planned} planlaşdırılıb, {total} gündən {left} qalıb',
+  'assistant.card.vacay.meter': '{used} istifadə olunub, {planned} planlaşdırılıb, {total} gündən {remaining} qalıb',
   'assistant.card.vacay.weekendBlocked': 'Həftəsonu, planınızda bağlıdır',
   'assistant.card.vacay.weekend': 'Həftəsonu günü, məzuniyyət sayılır',
   'assistant.card.vacay.publicHoliday': 'Rəsmi bayram, məzuniyyət lazım deyil',

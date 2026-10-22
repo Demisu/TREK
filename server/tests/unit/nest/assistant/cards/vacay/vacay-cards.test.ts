@@ -452,8 +452,8 @@ describe('a held company holiday and allowance', () => {
     expect(whole.proposal?.notes).toEqual([]);
     // Company holidays off in the plan: the planner would refuse it, the tool writes it, the card warns.
     const companyOff = plan({ company_holidays_enabled: false });
-    const off = await loaded({ ...CALENDAR_YEAR, [readKey('get_vacay_plan')]: companyOff });
-    const unseen = change('toggle_company_holiday', { date: '2026-10-03' }, off);
+    const offFound = await loaded({ ...CALENDAR_YEAR, [readKey('get_vacay_plan')]: companyOff });
+    const unseen = change('toggle_company_holiday', { date: '2026-10-03' }, offFound);
     expect(unseen.proposal?.notes).toEqual(['companyOff', 'publicHoliday']);
   });
 

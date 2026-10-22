@@ -10,7 +10,7 @@ import { TourGrade, TourRouteFigures } from '../cards/tour/TourRouteHead';
 import { profileSamples, WAY_KEYS } from '../cards/tour/tourRouteModel';
 import TourRouteProfile from '../cards/tour/TourRouteProfile';
 import { routeName } from '../cards/tour/tourRouteWords';
-import { useTourRouteCard } from '../cards/tour/useTourRouteCard';
+import { useRouteFocus } from '../cards/tour/useTourRouteCard';
 import { moveRoutePeek } from './routePeekControl';
 import { type PeekRoute, peekRoute } from './routePeekModel';
 
@@ -21,7 +21,7 @@ function PeekBody({ route }: { route: PeekRoute }) {
   const { entry, ways, blockKey } = route;
   const { card, toolCallId } = entry;
   const pick = useAssistantStore((s) => s.pick);
-  const shown = useTourRouteCard(toolCallId, card, ways.length > 0 ? ways.map((way) => way.card) : undefined);
+  const shown = useRouteFocus(toolCallId);
   const samples = useMemo(() => profileSamples(card), [card]);
   const index = ways.findIndex((way) => way.toolCallId === toolCallId);
   const color = variantPaintCss(index >= 0 ? (WAY_KEYS[index] ?? 'a') : 'current');

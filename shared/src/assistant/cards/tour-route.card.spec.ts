@@ -47,10 +47,7 @@ function hike(extra: Partial<TourRouteCard> = {}): TourRouteCard {
       [47.61, 11.31, 1670],
     ],
     stretches: [{ facet: 'sac', fromM: 0, toM: 4000, step: 3 }],
-    stops: [
-      stop(0, { role: 'start', clock: '08:00' }),
-      stop(4100, { role: 'end', kind: 'peak', name: 'Hochfelln' }),
-    ],
+    stops: [stop(0, { role: 'start', clock: '08:00' }), stop(4100, { role: 'end', kind: 'peak', name: 'Hochfelln' })],
     stages: null,
     skiScheme: null,
     schedule: {

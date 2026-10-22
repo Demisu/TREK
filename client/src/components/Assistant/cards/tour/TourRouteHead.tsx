@@ -1,5 +1,6 @@
 import type { TourRouteCard } from '@trek/shared';
 import { CalendarDays, Clock, MoveHorizontal, TrendingDown, TrendingUp, type LucideIcon } from 'lucide-react';
+import { createElement } from 'react';
 
 import { useTranslation } from '../../../../i18n';
 import { SoftPill, WhiteBadge } from '../../../Planner/planParts';
@@ -66,12 +67,8 @@ export function TourRouteFigures({ card }: { card: TourRouteCard }) {
 export function TourGrade({ card }: { card: TourRouteCard }) {
   const { t } = useTranslation();
   if (card.activity !== 'hike' || !card.grades) {
-    const Icon = tourDayRowIcon(card.activity);
-    return (
-      <SoftPill icon={<Icon size={10} strokeWidth={2.2} aria-hidden="true" />}>
-        {t(TOUR_TYPE_WORDS[card.activity].labelKey)}
-      </SoftPill>
-    );
+    const icon = createElement(tourDayRowIcon(card.activity), { size: 10, strokeWidth: 2.2, 'aria-hidden': true });
+    return <SoftPill icon={icon}>{t(TOUR_TYPE_WORDS[card.activity].labelKey)}</SoftPill>;
   }
   const { highest, unknownShare } = card.grades;
   const uncertain = unknownShare >= 0.5;

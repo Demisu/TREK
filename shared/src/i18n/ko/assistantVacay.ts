@@ -19,7 +19,7 @@ const assistantVacay: TranslationStrings = {
   'assistant.card.vacay.compDays': '대체휴무 {count}일',
   'assistant.card.vacay.otherDays': '올해 {count}일 더 쉼',
   'assistant.card.vacay.allowance': '휴가 일수',
-  'assistant.card.vacay.meter': '{used} 사용, {planned} 예정, {total} 중 {left} 남음',
+  'assistant.card.vacay.meter': '{used} 사용, {planned} 예정, {total} 중 {remaining} 남음',
   'assistant.card.vacay.weekendBlocked': '주말, 플랜에서 차단됨',
   'assistant.card.vacay.weekend': '주말, 휴가로 계산됨',
   'assistant.card.vacay.publicHoliday': '공휴일, 휴가 불필요',

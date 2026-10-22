@@ -6,11 +6,7 @@
  * middle), the entries no rate converts, the payments already recorded, and
  * each traveller's share with how much of it is marked paid.
  */
-import type {
-  AssistantMessage,
-  CostPerPersonCard as CostPerPersonCardData,
-  SettlementCard as SettlementData,
-} from '@trek/shared';
+import type { CostPerPersonCard as CostPerPersonCardData, SettlementCard as SettlementData } from '@trek/shared';
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -24,14 +20,8 @@ import CostPerPersonCard from './CostPerPersonCard';
 import SettlementCard from './SettlementCard';
 
 const AUTH = useAuthStore.getState();
-const MESSAGE: AssistantMessage = {
-  id: 'm1',
-  role: 'assistant',
-  status: 'complete',
-  createdAt: '2026-10-22T08:00:00.000Z',
-  parts: [],
-};
-const money = (amount: number) => formatMoney(amount, 'EUR', 'en');
+// Intl puts a no-break space before the symbol, and text and label queries read it as a plain one.
+const money = (amount: number) => formatMoney(amount, 'EUR', 'en').replace(/[\u00a0\u202f]/g, ' ');
 
 function inView(ui: ReactNode, view: Partial<AssistantView> = {}) {
   const value: AssistantView = { tripId: 4, variant: 'window', ...view };
@@ -70,7 +60,7 @@ afterEach(() => {
 describe('settle up', () => {
   it('FE-AI-CARD-BUD-018: names who pays whom, the balances on their bars and the payments already recorded', () => {
     const onOpen = vi.fn();
-    inView(<SettlementCard cards={[{ toolCallId: 'r1', card: settle() }]} message={MESSAGE} />, { onOpen });
+    inView(<SettlementCard cards={[{ toolCallId: 'r1', card: settle() }]} />, { onOpen });
     expect(screen.getByRole('region', { name: 'Settle up' })).toBeInTheDocument();
     expect(screen.getByText(money(42.5))).toBeInTheDocument();
     expect(screen.getByText(money(18))).toBeInTheDocument();
@@ -90,7 +80,7 @@ describe('settle up', () => {
       recorded: 0,
       unconverted: { entries: 0, currencies: [] },
     });
-    inView(<SettlementCard cards={[{ toolCallId: 'r1', card: square }]} message={MESSAGE} />);
+    inView(<SettlementCard cards={[{ toolCallId: 'r1', card: square }]} />);
     expect(screen.getByText("Everyone's square")).toBeInTheDocument();
     expect(screen.getByText('No payments outstanding right now.')).toBeInTheDocument();
     expect(screen.getByText(money(0))).toHaveClass('text-content-faint');
@@ -100,7 +90,7 @@ describe('settle up', () => {
 
   it('FE-AI-CARD-BUD-020: a long settle up counts the payments and the balances it leaves out', () => {
     const card = settle({ moreFlows: 3, moreBalances: 7 });
-    inView(<SettlementCard cards={[{ toolCallId: 'r1', card }]} message={MESSAGE} />);
+    inView(<SettlementCard cards={[{ toolCallId: 'r1', card }]} />);
     expect(screen.getByText('3 more')).toBeInTheDocument();
     expect(screen.getByText('5')).toBeInTheDocument();
     expect(screen.getByText('7 more')).toBeInTheDocument();
@@ -118,7 +108,7 @@ describe('the share per traveller', () => {
       ],
       more: 1,
     };
-    inView(<CostPerPersonCard cards={[{ toolCallId: 'r1', card }]} message={MESSAGE} />, { onOpen: vi.fn() });
+    inView(<CostPerPersonCard cards={[{ toolCallId: 'r1', card }]} />, { onOpen: vi.fn() });
     expect(screen.getByRole('region', { name: 'Per Person' })).toBeInTheDocument();
     expect(screen.getByText(money(69))).toBeInTheDocument();
     expect(screen.getByText('2 expenses')).toBeInTheDocument();

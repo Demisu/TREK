@@ -13,8 +13,8 @@
 import type { McpContext } from '../../../src/nest-mcp';
 import { getEntry, type ClassRef } from '../../../src/nest-mcp/metadata';
 import { AddonsService } from '../../../src/nest/addons/addons.service';
-import { JourneyBookModule } from '../../../src/nest/journey/journey-book.module';
 import { JourneyBookMcp } from '../../../src/nest/journey/journey-book.mcp';
+import { JourneyBookModule } from '../../../src/nest/journey/journey-book.module';
 import { createSnapshotTestDb } from '../../helpers/db-mock';
 import { addJourneyContributor, makeJourney } from '../../helpers/factories/journeys';
 import { makeUser } from '../../helpers/factories/users';
@@ -75,17 +75,19 @@ describe('JourneyBookMcp', () => {
   it('JBMCP-001: every tool waits for the Journey addon and reads or writes in the journey group as it is annotated', async () => {
     const { user } = await makeUser(orm);
     const enabled = vi.spyOn(t.get(AddonsService), 'isAddonEnabled');
-    for (const method of [...READS, ...WRITES]) {
+    const tools = [...READS, ...WRITES].map((method) => {
       const entry = getEntry(JourneyBookMcp as unknown as ClassRef, method);
       if (entry?.kind !== 'tool') throw new Error(`${method} is no tool`);
       const reads = READS.includes(method);
       expect(entry.options.access, method).toEqual({ group: 'journey', mode: reads ? 'read' : 'write' });
       expect(entry.options.annotations?.readOnlyHint, method).toBe(reads);
-      enabled.mockResolvedValue(false);
-      expect(await entry.options.when?.(ctx(user.id), mcp), method).toBe(false);
-      enabled.mockResolvedValue(true);
-      expect(await entry.options.when?.(ctx(user.id), mcp), method).toBe(true);
-    }
+      return entry;
+    });
+    const gates = () => Promise.all(tools.map((entry) => entry.options.when?.(ctx(user.id), mcp)));
+    enabled.mockResolvedValue(false);
+    expect(await gates()).toEqual(tools.map(() => false));
+    enabled.mockResolvedValue(true);
+    expect(await gates()).toEqual(tools.map(() => true));
     const remove = getEntry(JourneyBookMcp as unknown as ClassRef, 'deleteBookPages');
     expect(remove?.kind === 'tool' && remove.options.annotations?.destructiveHint).toBe(true);
   });

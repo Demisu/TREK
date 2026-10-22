@@ -19,7 +19,7 @@ const assistantVacay: TranslationStrings = {
   'assistant.card.vacay.compDays': 'วันหยุดชดเชย {count} วัน',
   'assistant.card.vacay.otherDays': 'ปีนี้หยุดอีก {count} วัน',
   'assistant.card.vacay.allowance': 'สิทธิวันลา',
-  'assistant.card.vacay.meter': 'ใช้ไป {used} วางแผน {planned} เหลือ {left} จาก {total}',
+  'assistant.card.vacay.meter': 'ใช้ไป {used} วางแผน {planned} เหลือ {remaining} จาก {total}',
   'assistant.card.vacay.weekendBlocked': 'วันหยุดสุดสัปดาห์ ถูกบล็อกในแผนของคุณ',
   'assistant.card.vacay.weekend': 'วันหยุดสุดสัปดาห์ นับเป็นวันลา',
   'assistant.card.vacay.publicHoliday': 'วันหยุดนักขัตฤกษ์ ไม่ต้องลา',

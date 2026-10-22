@@ -93,6 +93,7 @@ export const MANAGED_ROUTE_ALLOW_LIST: string[] = [
   'AssistantController.deleteThread',
   'AssistantController.share',
   'AssistantController.stop',
+  'AssistantController.takeProposal',
   'AssistantController.thread',
   'AssistantController.threads',
   'AssistantController.undo',

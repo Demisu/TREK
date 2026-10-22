@@ -8,7 +8,7 @@
  * the one it replaces, the facts an update changes, the whole split with
  * paid and highlighted parts, what a run of new expenses adds up to).
  */
-import type { AssistantMessage, TrekCard } from '@trek/shared';
+import type { TrekCard } from '@trek/shared';
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -22,21 +22,17 @@ import { ExpenseAside, ExpenseBody, ExpenseFacts, ExpensesTogether } from './Exp
 import ExpensesCard from './ExpensesCard';
 
 const AUTH = useAuthStore.getState();
-const MESSAGE: AssistantMessage = {
-  id: 'm1',
-  role: 'assistant',
-  status: 'complete',
-  createdAt: '2026-10-22T08:00:00.000Z',
-  parts: [],
-};
-const money = (amount: number, currency = 'EUR') => formatMoney(amount, currency, 'en');
+// Intl puts a no-break space before the symbol, and text and label queries read it as a plain one.
+const money = (amount: number, currency = 'EUR') => formatMoney(amount, currency, 'en').replace(/[\u00a0\u202f]/g, ' ');
+// An accessible name is matched as it stands, so it keeps the no-break space.
+const moneyName = (amount: number) => formatMoney(amount, 'EUR', 'en');
 
 function inView(ui: ReactNode, view: Partial<AssistantView> = {}) {
   const value: AssistantView = { tripId: 4, variant: 'window', ...view };
   return render(<AssistantViewContext.Provider value={value}>{ui}</AssistantViewContext.Provider>);
 }
 
-const answer = (card: TrekCard) => <ExpensesCard cards={[{ toolCallId: 'r1', card }]} message={MESSAGE} />;
+const answer = (card: TrekCard) => <ExpensesCard cards={[{ toolCallId: 'r1', card }]} />;
 
 beforeEach(() => {
   useAuthStore.setState({ user: buildUser({ id: ANA.id }) });
@@ -106,7 +102,7 @@ describe('the expense list', () => {
     inView(answer(expenses([expense({ id: null, name: 'Gelato' })])), { onOpen: vi.fn() });
     expect(screen.getByText('Gelato')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Gelato/ })).toBeNull();
-    const { container } = render(<ExpensesCard cards={[]} message={MESSAGE} />);
+    const { container } = render(<ExpensesCard cards={[]} />);
     expect(container).toBeEmptyDOMElement();
   });
 });
@@ -162,14 +158,14 @@ describe('an expense in a change row', () => {
     expect(screen.getByLabelText(`You: ${money(28)}`)).toBeInTheDocument();
     expect(screen.getByLabelText(`Ben: ${money(28)}, Paid`).firstElementChild).toHaveClass('text-success');
     // The one the change is about stands out, and says whether the tick is set or taken off.
-    const cleo = screen.getByRole('img', { name: `Cleo: ${money(28)}, Not paid` });
+    const cleo = screen.getByRole('img', { name: `Cleo: ${moneyName(28)}, Not paid` });
     expect(cleo.firstElementChild).toHaveClass('bg-accent');
     expect(cleo.querySelector('.lucide-check')).toBeNull();
     first.unmount();
 
     const ticked = expense({ shares: split.shares.map((share) => ({ ...share, paid: true })), highlight: [CLEO.id] });
     const tick = inView(<ExpenseBody card={expenses([ticked])} item={changeItem('t', null)} />);
-    const paid = screen.getByRole('img', { name: `Cleo: ${money(28)}, Paid` });
+    const paid = screen.getByRole('img', { name: `Cleo: ${moneyName(28)}, Paid` });
     expect(paid.firstElementChild).toHaveClass('bg-accent');
     expect(paid.querySelector('.lucide-check')).not.toBeNull();
     tick.unmount();
@@ -185,7 +181,7 @@ describe('an expense in a change row', () => {
     const about = expense({ shares: crowd, highlight: [crowd[2]?.person.id ?? 0] });
     const third = inView(<ExpenseBody card={expenses([about])} item={changeItem('d', null)} />);
     expect(screen.queryByText(`${money(14)} per person`)).toBeNull();
-    const standsOut = screen.getByRole('img', { name: `Cleo: ${money(14)}, Not paid` });
+    const standsOut = screen.getByRole('img', { name: `Cleo: ${moneyName(14)}, Not paid` });
     expect(standsOut.firstElementChild).toHaveClass('bg-accent');
     third.unmount();
 

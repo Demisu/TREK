@@ -124,7 +124,7 @@ describe('vacayCardModel', () => {
     const view = mergeVacayCards(items.map((entry) => entry.card as VacayCard));
     const [line] = balanceLines(view, placedProposals(items, new Set()));
     expect(line).toMatchObject({ personId: 7, year: 2026, used: 28, delta: 1.5, totalAfter: null });
-    expect(line && lineFigures(line)).toEqual({ left: 2, leftAfter: 0.5, over: 0 });
+    expect(line && lineFigures(line)).toEqual({ leftNow: 2, leftAfter: 0.5, over: 0 });
     const [without] = balanceLines(view, placedProposals(items, new Set(['c1', 'c2'])));
     expect(without?.delta).toBe(-0.5);
 
@@ -136,7 +136,7 @@ describe('vacayCardModel', () => {
     const raised = allowancesOf([...items, item('c5', 'pending', allowance)], new Set());
     expect(raised.get('7:2026')).toBe(26);
     const [tight] = balanceLines(view, placedProposals(items, new Set()), raised);
-    expect(tight && lineFigures(tight)).toEqual({ left: 2, leftAfter: -3.5, over: 3.5 });
+    expect(tight && lineFigures(tight)).toEqual({ leftNow: 2, leftAfter: -3.5, over: 3.5 });
     expect(allowancesOf([item('c5', 'pending', allowance)], new Set(['c5'])).size).toBe(0);
 
     // The same day held twice the same way is taken and cleared again: it counts for nothing.

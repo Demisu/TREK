@@ -26,7 +26,7 @@ const assistantVacay: TranslationStrings = {
   'assistant.card.vacay.otherDays': 'Nog {count} vrije dagen dit jaar',
   'assistant.card.vacay.otherDays.one': 'Nog {count} vrije dag dit jaar',
   'assistant.card.vacay.allowance': 'Vakantierecht',
-  'assistant.card.vacay.meter': '{used} opgenomen, {planned} gepland, {left} over van {total}',
+  'assistant.card.vacay.meter': '{used} opgenomen, {planned} gepland, {remaining} over van {total}',
   'assistant.card.vacay.weekendBlocked': 'Weekend, geblokkeerd in je plan',
   'assistant.card.vacay.weekend': 'Weekenddag, telt als vakantie',
   'assistant.card.vacay.publicHoliday': 'Feestdag, geen vakantie nodig',

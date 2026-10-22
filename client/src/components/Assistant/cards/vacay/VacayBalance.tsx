@@ -87,7 +87,7 @@ function Line({ line, view, mode, withYear }: { line: BalanceLine; view: VacayVi
   const viewerId = useViewerId();
   const person = view.people.find((candidate) => candidate.id === line.personId);
   const color = personColor(view, line.personId);
-  const { left, leftAfter, over } = lineFigures(line);
+  const { leftNow, leftAfter, over } = lineFigures(line);
   const changes = line.delta !== 0 || line.totalAfter !== null;
   const total = line.totalAfter ?? line.total;
   const name = line.personId === viewerId ? t('assistant.card.common.you') : (person?.name ?? `#${line.personId}`);
@@ -95,7 +95,7 @@ function Line({ line, view, mode, withYear }: { line: BalanceLine; view: VacayVi
   const meter = t('assistant.card.vacay.meter', {
     used: fmtDays(line.used),
     planned: fmtDays(Math.max(0, line.delta)),
-    left: fmtDays(Math.max(0, leftAfter)),
+    remaining: fmtDays(Math.max(0, leftAfter)),
     total: fmtDays(total),
   });
   return (
@@ -107,13 +107,13 @@ function Line({ line, view, mode, withYear }: { line: BalanceLine; view: VacayVi
         <span className={FIGURES}>
           {changes && (
             <>
-              <span className={FIGURE}>{fmtDays(left)}</span>
+              <span className={FIGURE}>{fmtDays(leftNow)}</span>
               <ArrowRight size={12} aria-hidden="true" className={ARROW} />
             </>
           )}
           {mode === 'read' && !changes && <span className={CAPTION}>{usedOf}</span>}
           <span className={changes ? FIGURE : CAPTION}>
-            {t('assistant.card.vacay.daysLeft', { count: Math.max(0, changes ? leftAfter : left) })}
+            {t('assistant.card.vacay.daysLeft', { count: Math.max(0, changes ? leftAfter : leftNow) })}
           </span>
         </span>
       </div>
