@@ -896,5 +896,13 @@ const journey: TranslationStrings = {
     'Salvestatud päevad ja neist võetud peatused päevadel, millel on avaldatud sissekanne. Need näitavad, kus ja millal sa olid, ka su majutust.',
   'journey.share.needsMap': 'Selle sisselülitamiseks jaga kaarti',
   'journey.editor.tags': 'Sildid',
+  'journey.studio.assistant.toggle': 'Assistent',
+  'journey.studio.assistant.toggleHint': 'Kujunda raamat koos assistendiga',
+  'journey.studio.assistant.panel': 'Raamatu assistent',
+  'journey.studio.assistant.welcome': 'Milline peaks raamat välja nägema?',
+  'journey.studio.assistant.notice':
+    'Assistent saab vaadata lehte, mille kallal töötad. {provider} saab ainult selle lehe, pildina, millel on näha ainult sinu enda lisatud fotod. Seda, kes sinu fotodel on, ei saa tuvastada.',
+  'journey.studio.assistant.noticeAllow': 'Näita lehti',
+  'journey.studio.assistant.noticeLater': 'Mitte praegu',
 };
 export default journey;

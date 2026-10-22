@@ -904,5 +904,13 @@ const journey: TranslationStrings = {
     'Jours enregistrés et les arrêts qui en sont tirés, les jours ayant un récit publié. Ils montrent où et quand vous étiez, y compris votre hébergement.',
   'journey.share.needsMap': 'Partagez la carte pour activer ceci',
   'journey.editor.tags': 'Étiquettes',
+  'journey.studio.assistant.toggle': 'Assistant', // same-as-en
+  'journey.studio.assistant.toggleHint': 'Concevoir le livre avec l’assistant',
+  'journey.studio.assistant.panel': 'Assistant du livre',
+  'journey.studio.assistant.welcome': 'À quoi doit ressembler le livre ?',
+  'journey.studio.assistant.notice':
+    'L’assistant peut regarder la page sur laquelle vous travaillez. Seule cette page est envoyée à {provider}, sous forme d’image ne montrant que les photos que vous avez ajoutées vous-même. Il est impossible de détecter qui figure sur vos photos.',
+  'journey.studio.assistant.noticeAllow': 'Lui montrer les pages',
+  'journey.studio.assistant.noticeLater': 'Pas maintenant',
 };
 export default journey;

@@ -860,5 +860,13 @@ const journey: TranslationStrings = {
     '게시된 항목이 있는 날의 기록과 거기서 가져온 머문 곳. 숙소를 포함해 언제 어디에 있었는지 보여줍니다.',
   'journey.share.needsMap': '이 기능을 켜려면 지도를 공유하세요',
   'journey.editor.tags': '태그',
+  'journey.studio.assistant.toggle': '어시스턴트',
+  'journey.studio.assistant.toggleHint': '어시스턴트와 함께 책 디자인하기',
+  'journey.studio.assistant.panel': '책 어시스턴트',
+  'journey.studio.assistant.welcome': '책을 어떻게 꾸밀까요?',
+  'journey.studio.assistant.notice':
+    '어시스턴트가 작업 중인 페이지를 볼 수 있습니다. {provider}(으)로는 그 페이지만, 직접 추가한 사진만 보이는 이미지로 전송됩니다. 사진에 누가 있는지는 감지할 수 없습니다.',
+  'journey.studio.assistant.noticeAllow': '페이지 보여주기',
+  'journey.studio.assistant.noticeLater': '나중에',
 };
 export default journey;

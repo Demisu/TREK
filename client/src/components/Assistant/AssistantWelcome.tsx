@@ -3,7 +3,7 @@ import { ThreadPrimitive } from '@assistant-ui/react';
 import { useTranslation } from '../../i18n';
 import EmptyState from '../shared/EmptyState';
 import AssistantHints, { MAX_VISIBLE_HINTS } from './AssistantHints';
-import { useAssistantView } from './assistantViewContext';
+import { useAssistantScope, useAssistantView } from './assistantViewContext';
 import { useAssistantHints } from './useAssistantHints';
 import type { ReadySuggestion } from './useAssistantSuggestions';
 
@@ -28,12 +28,20 @@ export default function AssistantWelcome({
 }) {
   const { t } = useTranslation();
   const { tripId, variant } = useAssistantView();
+  // The Studio's chat is about a book, not a plan.
+  const book = useAssistantScope().kind === 'journey';
   const hints = useAssistantHints(tripId, { withStays: true });
   const crowded = Math.min(hints.hints.length, MAX_VISIBLE_HINTS) > SUGGESTIONS_UNDER_HINTS;
   const offered = crowded ? suggestions.slice(0, SUGGESTIONS_UNDER_HINTS) : suggestions;
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 py-6">
-      <EmptyState scene="chat" size={72} compact surface="var(--bg-elevated)" title={t('assistant.empty.title')} />
+      <EmptyState
+        scene="chat"
+        size={72}
+        compact
+        surface="var(--bg-elevated)"
+        title={book ? t('journey.studio.assistant.welcome') : t('assistant.empty.title')}
+      />
       {!canEdit && (
         <p className="m-0 max-w-xs text-center text-caption text-content-muted">{t('assistant.empty.readOnly')}</p>
       )}

@@ -65,6 +65,9 @@ export function applyChunk(
       return withCurrent(messages, now, (parts) => [...parts, { type: 'data-trek-weather', data: chunk.data }]);
     case 'data-trek-card':
       return chunk.data.card ? placeCard(messages, now, chunk.data) : messages;
+    case 'data-trek-page-view':
+      // A Studio page the turn looked at, as the server stores it: what it was, never the image.
+      return withCurrent(messages, now, (parts) => [...parts, { type: 'data-trek-page-view', data: chunk.data }]);
     case 'finish':
       return withStatus(messages, (m) =>
         m.status === 'error' ? m.status : m.parts.some(isAwaitingDecision) ? 'awaiting_approval' : 'complete'

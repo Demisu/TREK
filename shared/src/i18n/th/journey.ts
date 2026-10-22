@@ -853,5 +853,13 @@ const journey: TranslationStrings = {
     'วันที่บันทึกและจุดแวะที่นำมาจากวันนั้น ในวันที่มีบันทึกที่เผยแพร่แล้ว แสดงว่าคุณอยู่ที่ไหนและเมื่อไร รวมถึงที่พักด้วย',
   'journey.share.needsMap': 'แชร์แผนที่เพื่อเปิดใช้งานนี้',
   'journey.editor.tags': 'แท็ก',
+  'journey.studio.assistant.toggle': 'ผู้ช่วย',
+  'journey.studio.assistant.toggleHint': 'ออกแบบหนังสือร่วมกับผู้ช่วย',
+  'journey.studio.assistant.panel': 'ผู้ช่วยหนังสือ',
+  'journey.studio.assistant.welcome': 'อยากให้หนังสือออกมาเป็นแบบไหน?',
+  'journey.studio.assistant.notice':
+    'ผู้ช่วยสามารถดูหน้าที่คุณกำลังทำอยู่ได้ มีเพียงหน้านั้นที่ส่งไปยัง {provider} ในรูปแบบภาพที่แสดงเฉพาะรูปภาพที่คุณเพิ่มเอง ไม่สามารถตรวจจับได้ว่าใครอยู่ในรูปภาพของคุณ',
+  'journey.studio.assistant.noticeAllow': 'แสดงหน้าให้ดู',
+  'journey.studio.assistant.noticeLater': 'ไว้ทีหลัง',
 };
 export default journey;

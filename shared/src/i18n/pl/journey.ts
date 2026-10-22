@@ -947,5 +947,13 @@ const journey: TranslationStrings = {
     'Nagrane dni i przejęte z nich postoje, w dniach z opublikowanym wpisem. Pokazują, gdzie i kiedy byłeś, także nocleg.',
   'journey.share.needsMap': 'Udostępnij mapę, aby to włączyć',
   'journey.editor.tags': 'Tagi',
+  'journey.studio.assistant.toggle': 'Asystent',
+  'journey.studio.assistant.toggleHint': 'Projektuj książkę razem z asystentem',
+  'journey.studio.assistant.panel': 'Asystent książki',
+  'journey.studio.assistant.welcome': 'Jak ma wyglądać książka?',
+  'journey.studio.assistant.notice':
+    'Asystent może zobaczyć stronę, nad którą pracujesz. Do {provider} trafia tylko ta strona, jako obraz pokazujący wyłącznie zdjęcia dodane przez ciebie. Nie da się rozpoznać, kto jest na twoich zdjęciach.',
+  'journey.studio.assistant.noticeAllow': 'Pokaż strony',
+  'journey.studio.assistant.noticeLater': 'Nie teraz',
 };
 export default journey;

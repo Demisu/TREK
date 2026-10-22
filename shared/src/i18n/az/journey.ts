@@ -974,5 +974,13 @@ const journey: TranslationStrings = {
     'Dərc olunmuş qeydi olan qeydə alınmış günlər və onlardan götürülmüş dayanacaqlar. Harada və nə vaxt olduğunu, qaldığın yeri də göstərir.',
   'journey.share.needsMap': 'Bunu açmaq üçün xəritəni paylaş',
   'journey.editor.tags': 'Etiketlər',
+  'journey.studio.assistant.toggle': 'Köməkçi',
+  'journey.studio.assistant.toggleHint': 'Kitabı köməkçi ilə birlikdə tərtib et',
+  'journey.studio.assistant.panel': 'Kitab köməkçisi',
+  'journey.studio.assistant.welcome': 'Kitab necə görünsün?',
+  'journey.studio.assistant.notice':
+    'Köməkçi üzərində işlədiyin səhifəyə baxa bilər. {provider} xidmətinə yalnız bu səhifə, yalnız özün əlavə etdiyin fotoların göründüyü şəkil kimi göndərilir. Fotolarında kimin olduğunu müəyyən etmək mümkün deyil.',
+  'journey.studio.assistant.noticeAllow': 'Səhifələri göstər',
+  'journey.studio.assistant.noticeLater': 'İndi yox',
 };
 export default journey;

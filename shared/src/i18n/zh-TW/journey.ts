@@ -840,5 +840,13 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint': '有已發布日記的日子的記錄，以及從中取用的停留點。會顯示你何時去過哪裡，也包括住處。',
   'journey.share.needsMap': '分享地圖後才能開啟',
   'journey.editor.tags': '標籤',
+  'journey.studio.assistant.toggle': '助理',
+  'journey.studio.assistant.toggleHint': '與助理一起設計這本書',
+  'journey.studio.assistant.panel': '書籍助理',
+  'journey.studio.assistant.welcome': '這本書想做成什麼樣子？',
+  'journey.studio.assistant.notice':
+    '助理可以查看你正在編輯的頁面。只有這一頁會以圖片形式傳送給 {provider}，圖片中只顯示你自己新增的照片。無法辨識照片中的人物是誰。',
+  'journey.studio.assistant.noticeAllow': '允許查看頁面',
+  'journey.studio.assistant.noticeLater': '暫不',
 };
 export default journey;

@@ -840,5 +840,13 @@ const journey: TranslationStrings = {
   'journey.share.recordingsHint': '有已发布日记的日子的记录，以及从中取用的停留点。会显示你何时去过哪里，也包括住处。',
   'journey.share.needsMap': '共享地图后才能开启',
   'journey.editor.tags': '标签',
+  'journey.studio.assistant.toggle': '助手',
+  'journey.studio.assistant.toggleHint': '与助手一起设计这本书',
+  'journey.studio.assistant.panel': '书籍助手',
+  'journey.studio.assistant.welcome': '这本书想做成什么样子？',
+  'journey.studio.assistant.notice':
+    '助手可以查看你正在编辑的页面。只有这一页会以图片形式发送给 {provider}，图片中只显示你自己添加的照片。无法识别照片中的人物是谁。',
+  'journey.studio.assistant.noticeAllow': '允许查看页面',
+  'journey.studio.assistant.noticeLater': '暂不',
 };
 export default journey;

@@ -916,5 +916,13 @@ const journey: TranslationStrings = {
     'Zaznamenané dny a zastávky z nich převzaté, u dnů se zveřejněným záznamem. Ukazují, kde a kdy jste byli, i vaše ubytování.',
   'journey.share.needsMap': 'Pro zapnutí sdílejte mapu',
   'journey.editor.tags': 'Štítky',
+  'journey.studio.assistant.toggle': 'Asistent',
+  'journey.studio.assistant.toggleHint': 'Navrhněte knihu společně s asistentem',
+  'journey.studio.assistant.panel': 'Asistent knihy',
+  'journey.studio.assistant.welcome': 'Jak má kniha vypadat?',
+  'journey.studio.assistant.notice':
+    'Asistent se může podívat na stránku, na které pracujete. Na {provider} jde jen tato stránka, jako obrázek, na kterém jsou jen fotky, které jste přidali sami. Kdo je na vašich fotkách, nelze rozpoznat.',
+  'journey.studio.assistant.noticeAllow': 'Ukázat stránky',
+  'journey.studio.assistant.noticeLater': 'Teď ne',
 };
 export default journey;

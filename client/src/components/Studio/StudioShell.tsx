@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router'
 import {
-  ArrowLeft, BookOpen, Check, ChevronDown, ClipboardPaste, Download, Maximize2, Minus, Plus,
+  ArrowLeft, BookOpen, Check, ChevronDown, ClipboardPaste, Download, Maximize2, MessageSquare, Minus, Plus,
   Redo2, Sparkles, Undo2,
 } from 'lucide-react'
 import { useJourneyStudio } from '../../pages/journeyStudio/useJourneyStudio'
@@ -21,6 +21,8 @@ import { PeerBadges } from './PeerBadges'
 import { TrimField } from './TrimField'
 import { Tooltip } from '../shared/Tooltip'
 import { useStudioStore } from '../../store/studioStore'
+import StudioAssistantPanel, { StudioPageStage } from './StudioAssistantPanel'
+import { useStudioAssistant, type StudioAssistant } from './useStudioAssistant'
 import '../../styles/dashboard.css'
 import '../../styles/studio.css'
 import './bookFontFaces'
@@ -42,6 +44,7 @@ export default function StudioShell() {
   const navigate = useNavigate()
   const [bookView, setBookView] = useState(true)
   const [exporting, setExporting] = useState(false)
+  const assistant = useStudioAssistant({ journeyId: s.journeyId, flush: s.flushBook })
 
   if (s.isMobile) {
     return createPortal(
@@ -83,7 +86,13 @@ export default function StudioShell() {
         aria-modal="true"
         aria-label={s.t('journey.studio.title')}
       >
-        <StudioBar s={s} bookView={bookView} setBookView={setBookView} onExport={() => setExporting(true)} />
+        <StudioBar
+          s={s}
+          bookView={bookView}
+          setBookView={setBookView}
+          onExport={() => setExporting(true)}
+          assistant={assistant}
+        />
         {/* The journey gallery's picker, inside Studio's own layer (#2271). */}
         {s.providerPick && s.journey && (
           <ProviderPicker
@@ -98,7 +107,7 @@ export default function StudioShell() {
           />
         )}
 
-        <div className="st-body">
+        <div className={`st-body ${assistant.open ? 'has-assistant' : ''}`}>
           <StudioSidebar
             page={s.page}
             pxPerMm={s.pxPerMm}
@@ -124,7 +133,9 @@ export default function StudioShell() {
             t={s.t}
             locale={s.locale}
           />
+          <AssistantColumn s={s} assistant={assistant} />
         </div>
+        <StudioPageStage assistant={assistant} />
 
         {exporting && s.doc && (
           <StudioExport
@@ -142,9 +153,18 @@ export default function StudioShell() {
 
 type Studio = ReturnType<typeof useJourneyStudio>
 
+/** The chat column at the end of the body, while it is open. */
+function AssistantColumn({ s, assistant }: { s: Studio; assistant: StudioAssistant }) {
+  if (!assistant.open) return null
+  return <StudioAssistantPanel assistant={assistant} title={s.journey?.title || s.t('journey.title')} />
+}
+
 function StudioBar({
-  s, bookView, setBookView, onExport,
-}: { s: Studio; bookView: boolean; setBookView: (v: boolean) => void; onExport: () => void }) {
+  s, bookView, setBookView, onExport, assistant,
+}: {
+  s: Studio; bookView: boolean; setBookView: (v: boolean) => void; onExport: () => void
+  assistant: StudioAssistant
+}) {
   return (
     <div className="st-bar">
       <button type="button" onClick={s.close} className="st-back" title={s.t('journey.studio.backToJourney')}>
@@ -217,6 +237,18 @@ function StudioBar({
         <div className="st-sep" />
 
         <AutoLayoutButton s={s} />
+        {/* The book's assistant, as a column beside the page; only where it can run for this user. */}
+        {assistant.available && (
+          <button type="button"
+            className={`st-tool ${assistant.open ? 'is-on' : ''}`}
+            onClick={assistant.toggle}
+            aria-pressed={assistant.open}
+            title={s.t('journey.studio.assistant.toggleHint')}
+          >
+            <MessageSquare size={14} />
+            <span className="st-tool-label">{s.t('journey.studio.assistant.toggle')}</span>
+          </button>
+        )}
         <button type="button"
           className="st-tool is-primary"
           onClick={onExport}

@@ -906,5 +906,13 @@ const journey: TranslationStrings = {
     "Dies enregistrats i les parades que se'n treuen, en els dies amb una entrada publicada. Mostren on i quan eres, també el teu allotjament.",
   'journey.share.needsMap': 'Comparteix el mapa per activar-ho',
   'journey.editor.tags': 'Etiquetes',
+  'journey.studio.assistant.toggle': 'Assistent',
+  'journey.studio.assistant.toggleHint': 'Dissenya el llibre amb l’assistent',
+  'journey.studio.assistant.panel': 'Assistent del llibre',
+  'journey.studio.assistant.welcome': 'Com hauria de ser el llibre?',
+  'journey.studio.assistant.notice':
+    'L’assistent pot mirar la pàgina en què treballes. Només aquesta pàgina s’envia a {provider}, com una imatge que mostra només les fotos que has afegit tu. No es pot detectar qui surt a les teves fotos.',
+  'journey.studio.assistant.noticeAllow': 'Mostra-li pàgines',
+  'journey.studio.assistant.noticeLater': 'Ara no',
 };
 export default journey;

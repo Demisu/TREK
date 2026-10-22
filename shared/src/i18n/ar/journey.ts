@@ -972,5 +972,13 @@ const journey: TranslationStrings = {
     'الأيام المسجَّلة ومحطات التوقف المأخوذة منها، للأيام التي لها تدوينة منشورة. تُظهر أين كنت ومتى، بما في ذلك مكان إقامتك.',
   'journey.share.needsMap': 'شارك الخريطة لتفعيل هذا',
   'journey.editor.tags': 'الوسوم',
+  'journey.studio.assistant.toggle': 'المساعد',
+  'journey.studio.assistant.toggleHint': 'صمّم الكتاب مع المساعد',
+  'journey.studio.assistant.panel': 'مساعد الكتاب',
+  'journey.studio.assistant.welcome': 'كيف تريد أن يبدو الكتاب؟',
+  'journey.studio.assistant.notice':
+    'يمكن للمساعد رؤية الصفحة التي تعمل عليها. تُرسل هذه الصفحة وحدها إلى {provider} كصورة لا تظهر فيها إلا الصور التي أضفتها بنفسك. لا يمكن التعرّف على من يظهر في صورك.',
+  'journey.studio.assistant.noticeAllow': 'اعرض الصفحات',
+  'journey.studio.assistant.noticeLater': 'ليس الآن',
 };
 export default journey;

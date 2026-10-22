@@ -912,5 +912,13 @@ const journey: TranslationStrings = {
     'Aufgezeichnete Tage und die daraus übernommenen Aufenthalte, an Tagen mit veröffentlichtem Eintrag. Sie zeigen, wo und wann du warst, auch deine Unterkunft.',
   'journey.share.needsMap': 'Teile die Karte, um das einzuschalten',
   'journey.editor.tags': 'Tags', // same-as-en
+  'journey.studio.assistant.toggle': 'Assistent',
+  'journey.studio.assistant.toggleHint': 'Das Buch gemeinsam mit dem Assistenten gestalten',
+  'journey.studio.assistant.panel': 'Buch-Assistent',
+  'journey.studio.assistant.welcome': 'Wie soll das Buch aussehen?',
+  'journey.studio.assistant.notice':
+    'Der Assistent kann sich die Seite ansehen, an der du arbeitest. Nur diese Seite geht an {provider}, als Bild, auf dem nur deine eigenen Fotos zu sehen sind. Wer auf deinen Fotos ist, lässt sich nicht erkennen.',
+  'journey.studio.assistant.noticeAllow': 'Seiten zeigen',
+  'journey.studio.assistant.noticeLater': 'Jetzt nicht',
 };
 export default journey;

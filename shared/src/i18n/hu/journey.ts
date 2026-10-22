@@ -902,5 +902,13 @@ const journey: TranslationStrings = {
     'Rögzített napok és a belőlük átvett megállók azokon a napokon, amelyekhez közzétett bejegyzés tartozik. Megmutatják, hol és mikor jártál, a szállásodat is.',
   'journey.share.needsMap': 'Oszd meg a térképet a bekapcsoláshoz',
   'journey.editor.tags': 'Címkék',
+  'journey.studio.assistant.toggle': 'Asszisztens',
+  'journey.studio.assistant.toggleHint': 'Tervezd meg a könyvet az asszisztenssel',
+  'journey.studio.assistant.panel': 'Könyvasszisztens',
+  'journey.studio.assistant.welcome': 'Milyen legyen a könyv?',
+  'journey.studio.assistant.notice':
+    'Az asszisztens megnézheti az oldalt, amelyen dolgozol. Csak ez az oldal kerül a(z) {provider} szolgáltatóhoz, képként, amelyen csak a saját magad által hozzáadott fotók látszanak. Azt, hogy ki szerepel a fotóidon, nem lehet felismerni.',
+  'journey.studio.assistant.noticeAllow': 'Oldalak megmutatása',
+  'journey.studio.assistant.noticeLater': 'Most nem',
 };
 export default journey;

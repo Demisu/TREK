@@ -878,5 +878,13 @@ const journey: TranslationStrings = {
     'Hari terekam dan persinggahan yang diambil darinya, pada hari yang punya catatan terbit. Menunjukkan di mana dan kapan kamu berada, termasuk penginapanmu.',
   'journey.share.needsMap': 'Bagikan peta untuk mengaktifkan ini',
   'journey.editor.tags': 'Tag',
+  'journey.studio.assistant.toggle': 'Asisten',
+  'journey.studio.assistant.toggleHint': 'Rancang buku bersama asisten',
+  'journey.studio.assistant.panel': 'Asisten buku',
+  'journey.studio.assistant.welcome': 'Seperti apa bukunya nanti?',
+  'journey.studio.assistant.notice':
+    'Asisten dapat melihat halaman yang sedang Anda kerjakan. Hanya halaman itu yang dikirim ke {provider}, sebagai gambar yang hanya menampilkan foto yang Anda tambahkan sendiri. Siapa yang ada di foto Anda tidak dapat dideteksi.',
+  'journey.studio.assistant.noticeAllow': 'Tunjukkan halaman',
+  'journey.studio.assistant.noticeLater': 'Nanti saja',
 };
 export default journey;

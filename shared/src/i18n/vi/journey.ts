@@ -873,5 +873,13 @@ const journey: TranslationStrings = {
     'Những ngày đã ghi và các điểm dừng lấy từ đó, vào những ngày có bài viết được đăng. Cho thấy bạn đã ở đâu và khi nào, kể cả chỗ ở.',
   'journey.share.needsMap': 'Chia sẻ bản đồ để bật mục này',
   'journey.editor.tags': 'Thẻ',
+  'journey.studio.assistant.toggle': 'Trợ lý',
+  'journey.studio.assistant.toggleHint': 'Thiết kế cuốn sách cùng trợ lý',
+  'journey.studio.assistant.panel': 'Trợ lý sách',
+  'journey.studio.assistant.welcome': 'Cuốn sách nên trông như thế nào?',
+  'journey.studio.assistant.notice':
+    'Trợ lý có thể xem trang bạn đang làm. Chỉ trang đó được gửi tới {provider}, dưới dạng ảnh chỉ hiển thị những ảnh do chính bạn thêm vào. Không thể nhận biết ai có trong ảnh của bạn.',
+  'journey.studio.assistant.noticeAllow': 'Cho xem trang',
+  'journey.studio.assistant.noticeLater': 'Để sau',
 };
 export default journey;

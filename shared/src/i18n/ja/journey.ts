@@ -864,5 +864,13 @@ const journey: TranslationStrings = {
     '公開済みのエントリーがある日の記録と、そこから取り込んだ滞在。宿泊先も含め、いつどこにいたかがわかります。',
   'journey.share.needsMap': '有効にするには地図を共有してください',
   'journey.editor.tags': 'タグ',
+  'journey.studio.assistant.toggle': 'アシスタント',
+  'journey.studio.assistant.toggleHint': 'アシスタントと一緒に本をデザイン',
+  'journey.studio.assistant.panel': '本のアシスタント',
+  'journey.studio.assistant.welcome': 'どんな本にしますか？',
+  'journey.studio.assistant.notice':
+    'アシスタントは作業中のページを見ることができます。{provider} に送られるのはそのページだけで、あなた自身が追加した写真だけが写った画像として送られます。写真に誰が写っているかは判別できません。',
+  'journey.studio.assistant.noticeAllow': 'ページを見せる',
+  'journey.studio.assistant.noticeLater': '今はしない',
 };
 export default journey;

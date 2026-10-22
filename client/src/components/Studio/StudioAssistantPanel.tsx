@@ -1,0 +1,173 @@
+import '../../styles/studio-assistant.css';
+
+import { ImageIcon } from 'lucide-react';
+import { type HTMLAttributes, type KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router';
+
+import { useTranslation } from '../../i18n';
+import { useAssistantStore } from '../../store/assistantStore';
+import AssistantHeader from '../Assistant/AssistantHeader';
+import AssistantSurfaceLazy from '../Assistant/AssistantSurfaceLazy';
+import type { EntityTarget } from '../Assistant/cards/cardTypes';
+import { providerLabel } from '../Assistant/providerCatalog';
+import { useAssistantThread } from '../Assistant/useAssistantThread';
+import { useToast } from '../shared/Toast';
+import { SpreadView } from './SpreadView';
+import { sheetSizePx } from './pageSnapshot';
+import type { StudioAssistant, StudioRenderJob } from './useStudioAssistant';
+
+/**
+ * The assistant as a column of TREK Studio (journey-studio.md 4.5): the same
+ * chat as the planner's window, on the journey's conversations, beside the
+ * page it talks about. Desktop only, like the Studio itself.
+ *
+ * Studio closes on Escape and edits the selection on Delete, copy and paste.
+ * Inside the column every key belongs to the chat, so it stops here, and
+ * Escape stops a running answer first.
+ */
+
+/** The column is not a window: its head moves nothing. */
+const NO_DRAG: HTMLAttributes<HTMLElement> = { style: { cursor: 'default' } };
+
+/**
+ * Images of a page leave only once the user agreed, per connection. Until
+ * then the Studio's assistant reads the pages as text. "Not now" hides the
+ * notice for this visit; the next one asks again.
+ */
+function StudioImagesNotice() {
+  const { t } = useTranslation();
+  const toast = useToast();
+  const effective = useAssistantStore((s) => s.status?.effective ?? null);
+  const acked = useAssistantStore((s) => s.status?.studioImagesAcked === true);
+  const ackStudioImages = useAssistantStore((s) => s.ackStudioImages);
+  const [later, setLater] = useState(false);
+
+  if (!effective || acked || later) return null;
+  const provider = providerLabel(effective.kind, effective.host);
+
+  const allow = async () => {
+    try {
+      await ackStudioImages();
+    } catch {
+      toast.error(t('assistant.error.generic'));
+    }
+  };
+
+  return (
+    <div
+      role="note"
+      className="st-assistant-notice rounded-lg border border-edge-faint bg-surface-secondary px-3 py-2.5 text-caption text-content-secondary"
+    >
+      <div className="flex items-start gap-2.5">
+        <ImageIcon size={14} aria-hidden="true" className="mt-0.5 flex-shrink-0 text-content-muted" />
+        <p className="m-0 min-w-0 flex-1">{t('journey.studio.assistant.notice', { provider })}</p>
+      </div>
+      <div className="mt-2 flex items-center justify-end gap-1">
+        <button
+          type="button"
+          onClick={() => setLater(true)}
+          className="rounded-md px-2 py-1 text-caption text-content-muted hover:bg-surface-hover hover:text-content"
+        >
+          {t('journey.studio.assistant.noticeLater')}
+        </button>
+        <button
+          type="button"
+          onClick={() => void allow()}
+          className="rounded-md px-2 py-1 text-caption font-medium text-accent-on hover:bg-surface-hover"
+        >
+          {t('journey.studio.assistant.noticeAllow')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** One page a turn asked for, drawn as the editor draws it and handed on once it is in the DOM. */
+function StageSheet({
+  job,
+  onDrawn,
+}: {
+  job: StudioRenderJob;
+  onDrawn: (job: StudioRenderJob, sheet: HTMLElement) => Promise<void>;
+}) {
+  const sheet = useRef<HTMLDivElement>(null);
+  // A job goes up once, even when the effect runs again (development's double run, a new callback).
+  const sent = useRef<StudioRenderJob | null>(null);
+  const size = sheetSizePx(job.spread, job.page);
+
+  useEffect(() => {
+    if (!sheet.current || sent.current === job) return;
+    sent.current = job;
+    void onDrawn(job, sheet.current);
+  }, [job, onDrawn]);
+
+  return (
+    // A page is laid out in millimetres from its top left whatever the reading direction.
+    <div ref={sheet} dir="ltr" style={{ position: 'relative', width: size.width, height: size.height }}>
+      <SpreadView spread={job.spread} page={job.page} folios={job.folios} print hiddenPhotoIds={job.hidden} />
+    </div>
+  );
+}
+
+/**
+ * The pages being drawn for a turn, where nobody sees them. Off screen rather
+ * than hidden, as StudioExport does it: a hidden subtree lays nothing out,
+ * and the page is measured in millimetres by the CSS that draws it.
+ */
+export function StudioPageStage({ assistant }: { assistant: StudioAssistant }) {
+  if (assistant.jobs.length === 0) return null;
+  return (
+    <div
+      aria-hidden="true"
+      className="st-assistant-stage"
+      style={{ position: 'fixed', insetInlineStart: '-20000mm', top: 0, pointerEvents: 'none' }}
+    >
+      {assistant.jobs.map((job) => (
+        <StageSheet key={job.request.requestId} job={job} onDrawn={assistant.drawn} />
+      ))}
+    </div>
+  );
+}
+
+export default function StudioAssistantPanel({ assistant, title }: { assistant: StudioAssistant; title: string }) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const thread = useAssistantThread(assistant.chatKey);
+  const { isRunning, stop } = thread;
+
+  // A card points at a page of this book (`?page=`) or somewhere else in the app.
+  const onOpen = useCallback(
+    (target: EntityTarget) => {
+      if (target.kind === 'page') void navigate(target.path);
+    },
+    [navigate]
+  );
+
+  // Every key pressed in the column is the chat's: the editor's own keys
+  // (Delete, Backspace, copy, paste, undo, Escape) listen on the window and
+  // would otherwise act on the page's selection from a focused chat button.
+  const onKeyDown = (e: KeyboardEvent<HTMLElement>) => {
+    e.stopPropagation();
+    if (e.key === 'Escape' && isRunning && !e.defaultPrevented) stop();
+  };
+
+  return (
+    <aside className="st-panel st-assistant" aria-label={t('journey.studio.assistant.panel')} onKeyDown={onKeyDown}>
+      <AssistantHeader
+        tripId={assistant.chatKey}
+        thread={thread}
+        tripTitle={title}
+        dragProps={NO_DRAG}
+        onClose={assistant.toggle}
+      />
+      <StudioImagesNotice />
+      <AssistantSurfaceLazy
+        tripId={assistant.chatKey}
+        tripTitle={title}
+        variant="window"
+        density="compact"
+        onOpen={onOpen}
+      />
+    </aside>
+  );
+}

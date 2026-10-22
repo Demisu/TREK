@@ -953,5 +953,13 @@ const journey: TranslationStrings = {
     'Записані дні та взяті з них зупинки, у дні з опублікованим записом. Вони показують, де і коли ви були, зокрема ваше житло.',
   'journey.share.needsMap': 'Відкрийте доступ до карти, щоб увімкнути це',
   'journey.editor.tags': 'Теги',
+  'journey.studio.assistant.toggle': 'Асистент',
+  'journey.studio.assistant.toggleHint': 'Створюйте книгу разом з асистентом',
+  'journey.studio.assistant.panel': 'Асистент книги',
+  'journey.studio.assistant.welcome': 'Якою має бути книга?',
+  'journey.studio.assistant.notice':
+    'Асистент може переглянути сторінку, над якою ви працюєте. До {provider} надсилається лише ця сторінка, як зображення, на якому видно тільки фото, додані вами. Визначити, хто є на ваших фото, неможливо.',
+  'journey.studio.assistant.noticeAllow': 'Показувати сторінки',
+  'journey.studio.assistant.noticeLater': 'Не зараз',
 };
 export default journey;

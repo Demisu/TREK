@@ -1,5 +1,5 @@
 /**
- * FE-AI-MSG-001 to FE-AI-MSG-009
+ * FE-AI-MSG-001 to FE-AI-MSG-010
  *
  * The stream is folded into messages of the shape the server stores, so a
  * chat that was streamed and one that was reloaded render the same. The
@@ -195,5 +195,27 @@ describe('markDecisions and closeUndo', () => {
       type: 'data-trek-applied',
       data: { ...applied, undoUntil: null },
     });
+  });
+
+  it('FE-AI-MSG-010: a page the Studio turn looked at is kept as the server stores it, and its request is not', () => {
+    const view = { spreadId: 'sp-3', bookVersion: 4, width: 1280, height: 640, bytes: 182_000, description: 'Page 2' };
+    const request = {
+      requestId: '5f0c3a52-8d1e-4b7a-9c2f-0a1b2c3d4e5f',
+      threadId: 9,
+      spreadId: 'sp-3',
+      bookVersion: 4,
+      hiddenPhotoIds: [],
+    };
+
+    const folded = fold(
+      [QUESTION],
+      [
+        { type: 'start', messageId: 'm-2' },
+        { type: 'data-trek-render-request', data: request, transient: true },
+        { type: 'data-trek-page-view', data: view },
+      ]
+    );
+
+    expect(folded[1]?.parts).toEqual([{ type: 'data-trek-page-view', data: view }]);
   });
 });

@@ -892,5 +892,13 @@ const journey: TranslationStrings = {
     'Recorded days and the stays taken from them, on days with a published entry. They show where and when you were, your accommodation too.',
   'journey.share.needsMap': 'Share the map to switch this on',
   'journey.editor.tags': 'Tags',
+  'journey.studio.assistant.toggle': 'Assistant',
+  'journey.studio.assistant.toggleHint': 'Design the book together with the assistant',
+  'journey.studio.assistant.panel': 'Book assistant',
+  'journey.studio.assistant.welcome': 'What should the book look like?',
+  'journey.studio.assistant.notice':
+    'The assistant can look at the page you are working on. Only that page goes to {provider}, as a picture showing just the photos you added yourself. Who is in your photos cannot be detected.',
+  'journey.studio.assistant.noticeAllow': 'Show it pages',
+  'journey.studio.assistant.noticeLater': 'Not now',
 };
 export default journey;

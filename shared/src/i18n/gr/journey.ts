@@ -914,5 +914,13 @@ const journey: TranslationStrings = {
     'Καταγεγραμμένες μέρες και οι στάσεις που προέρχονται από αυτές, σε μέρες με δημοσιευμένη καταχώριση. Δείχνουν πού και πότε ήσουν, και το κατάλυμά σου.',
   'journey.share.needsMap': 'Μοιράσου τον χάρτη για να το ενεργοποιήσεις',
   'journey.editor.tags': 'Ετικέτες',
+  'journey.studio.assistant.toggle': 'Βοηθός',
+  'journey.studio.assistant.toggleHint': 'Σχεδιάστε το βιβλίο μαζί με τον βοηθό',
+  'journey.studio.assistant.panel': 'Βοηθός βιβλίου',
+  'journey.studio.assistant.welcome': 'Πώς πρέπει να είναι το βιβλίο;',
+  'journey.studio.assistant.notice':
+    'Ο βοηθός μπορεί να δει τη σελίδα στην οποία δουλεύετε. Μόνο αυτή η σελίδα στέλνεται στο {provider}, ως εικόνα που δείχνει μόνο τις φωτογραφίες που προσθέσατε εσείς. Δεν είναι δυνατό να αναγνωριστεί ποιος εμφανίζεται στις φωτογραφίες σας.',
+  'journey.studio.assistant.noticeAllow': 'Εμφάνιση σελίδων',
+  'journey.studio.assistant.noticeLater': 'Όχι τώρα',
 };
 export default journey;

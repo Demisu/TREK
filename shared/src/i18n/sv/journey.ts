@@ -896,5 +896,13 @@ const journey: TranslationStrings = {
     'Inspelade dagar och de stopp som hämtats från dem, på dagar med ett publicerat inlägg. De visar var och när du var, även ditt boende.',
   'journey.share.needsMap': 'Dela kartan för att slå på detta',
   'journey.editor.tags': 'Taggar',
+  'journey.studio.assistant.toggle': 'Assistent',
+  'journey.studio.assistant.toggleHint': 'Formge boken tillsammans med assistenten',
+  'journey.studio.assistant.panel': 'Bokassistent',
+  'journey.studio.assistant.welcome': 'Hur ska boken se ut?',
+  'journey.studio.assistant.notice':
+    'Assistenten kan titta på sidan du arbetar med. Bara den sidan skickas till {provider}, som en bild som bara visar foton du själv har lagt till. Vem som finns på dina foton går inte att upptäcka.',
+  'journey.studio.assistant.noticeAllow': 'Visa sidor',
+  'journey.studio.assistant.noticeLater': 'Inte nu',
 };
 export default journey;
