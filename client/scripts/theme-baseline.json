@@ -309,7 +309,6 @@
   "pages/TripPlannerPage.tsx": 7,
   "pages/VacayPage.tsx": 13,
   "pages/atlas/useAtlas.ts": 2,
-  "pages/collections/collectionsModel.ts": 1,
   "pages/collections/useCollections.ts": 1,
   "pages/sharedTrip/SharedChrome.tsx": 2,
   "pages/sharedTrip/SharedMap.tsx": 1,

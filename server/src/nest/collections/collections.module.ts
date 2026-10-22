@@ -21,6 +21,7 @@ import { PlacesModule } from '../places/places.module';
 import { buildStorageUploadOptions } from '../storage/storage-upload.factory';
 import { StorageModule } from '../storage/storage.module';
 import { StorageService } from '../storage/storage.service';
+import { CollectionsItemsService } from './collections-items.service';
 import { CollectionsController } from './collections.controller';
 import { MAX_COVER_SIZE } from './collections.controller';
 import { CollectionsMcp } from './collections.mcp';
@@ -76,7 +77,7 @@ import { MulterModule } from '@nestjs/platform-express';
     ]),
   ],
   controllers: [CollectionsController],
-  providers: [CollectionsService, CollectionsMcp, CollectionsRpc],
+  providers: [CollectionsService, CollectionsItemsService, CollectionsMcp, CollectionsRpc],
   exports: [CollectionsService],
 })
 export class CollectionsModule {}

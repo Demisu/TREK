@@ -12,5 +12,7 @@ export * from './collection-places.card';
  * or entity is added here and nowhere else.
  */
 export const COLLECTION_CARD_SCHEMAS = [collectionPlacesCardSchema, collectionListsCardSchema] as const;
+/** Their changes read as the plain add, change and remove, named by each tool's own label. */
 export const COLLECTION_VERB_KEYS = [] as const;
-export const COLLECTION_APPLIED_ENTITIES = [] as const;
+/** A list (`collection`) and a saved place of one (`collection_place`), both opened in Collections. */
+export const COLLECTION_APPLIED_ENTITIES = ['collection', 'collection_place'] as const;

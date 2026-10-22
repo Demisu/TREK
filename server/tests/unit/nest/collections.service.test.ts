@@ -1193,7 +1193,7 @@ describe('bulk status', () => {
     await svc.setStatus(owner.id, saved.id, 'visited');
 
     expect((await svc.findMembership(viewer.id, { google_place_id: 'gp-9' })).lists).toEqual([
-      { collection_id: readonly.id, name: 'Shared', place_id: saved.id, status: 'visited', can_edit: false },
+      { collection_id: readonly.id, name: 'Shared', color: '#6366f1', place_id: saved.id, status: 'visited', can_edit: false },
     ]);
     expect((await svc.findMembership(owner.id, { google_place_id: 'gp-9' })).lists[0].can_edit).toBe(true);
   });
