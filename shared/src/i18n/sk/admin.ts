@@ -695,6 +695,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'Cesta autom',
   'admin.addons.catalog.roadtrip.description':
     'Plánujte jazdy so zastávkami na trase, časmi jazdy a časmi príchodu, ktoré sa aktualizujú samy',
+  'admin.addons.catalog.tours.name': 'Túry',
+  'admin.addons.catalog.tours.description': 'Pešie, cyklo a ďalšie túry, ktoré vedú po trase',
   'admin.addons.catalog.memories.name': 'Fotky (Immich)',
   'admin.addons.catalog.memories.description': 'Zdieľajte cestovné fotky cez svoju inštanciu Immich',
   'admin.addons.catalog.mcp.name': 'MCP',

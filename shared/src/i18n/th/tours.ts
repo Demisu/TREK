@@ -187,7 +187,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.profileFocus': 'ที่ระยะ {distance}: {elevation}',
   'tours.planner.inspector.elevationPlaceholder': 'กราฟจะแสดงเมื่อมีข้อมูลระดับความสูงของเส้นทาง',
   'tours.planner.gpxNoGeometry': 'ไม่มีข้อมูลรูปทรงเส้นทางสำหรับทัวร์ที่นำเข้าจาก GPX นี้',
-  'tours.planner.mobileHint': 'วางแผนทัวร์ได้บนแท็บเล็ตและคอมพิวเตอร์ ที่นี่สามารถดูทัวร์ที่บันทึกไว้และจัดลงวันได้',
   'tourTypes.hike': 'เดินป่า',
   'tourTypes.bike': 'ทัวร์จักรยาน',
   'tourTypes.run': 'วิ่ง',

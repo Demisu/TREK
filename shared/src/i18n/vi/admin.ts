@@ -685,6 +685,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.collab.description': 'Ghi chú, bình chọn, trò chuyện và gợi ý để cùng lên kế hoạch',
   'admin.addons.catalog.roadtrip.name': 'Chuyến đi đường bộ',
   'admin.addons.catalog.roadtrip.description': 'Lên kế hoạch lái xe có điểm dừng; thời gian lái và giờ đến tự tính lại',
+  'admin.addons.catalog.tours.name': 'Chuyến tham quan',
+  'admin.addons.catalog.tours.description': 'Đi bộ đường dài, đạp xe và các chuyến đi theo lộ trình',
   'admin.addons.catalog.memories.name': 'Hình ảnh (Immich)',
   'admin.addons.catalog.memories.description': 'Chia sẻ ảnh chuyến đi qua phiên bản Immich của bạn',
   'admin.addons.catalog.mcp.name': 'MCP',

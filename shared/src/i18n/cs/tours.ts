@@ -198,8 +198,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.profileFocus': 'Ve vzdálenosti {distance}: {elevation}',
   'tours.planner.inspector.elevationPlaceholder': 'Profil se zobrazí, až budou k dispozici výškové údaje trasy.',
   'tours.planner.gpxNoGeometry': 'Pro tento import GPX není dostupná geometrie trasy.',
-  'tours.planner.mobileHint':
-    'Plánování výletů je dostupné na tabletu a počítači. Zde lze uložené výlety prohlížet a přiřazovat ke dnům.',
   'tourTypes.hike': 'Pěší túra',
   'tourTypes.bike': 'Cyklovýlet',
   'tourTypes.run': 'Běh',

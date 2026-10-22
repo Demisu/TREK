@@ -56,8 +56,11 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.rtInfoTitle': 'Στοιχεία οδήγησης',
   'mobileTrip.rtDesktopNote':
     'Αυτά τα στοιχεία ορίζονται στον υπολογιστή, όπου μπορείτε επίσης να συγκρίνετε άλλες διαδρομές και να κάνετε μια ημέρα να ακολουθεί ένα εισαγόμενο ίχνος.',
-  'mobileTrip.rtPlanOnDesktop':
-    'Ο σχεδιασμός γίνεται στον υπολογιστή. Το TREK υπολογίζει τη διαδρομή μόλις μια ημέρα έχει δύο μέρη.',
+  'mobileTrip.planOnDesktop': 'Σχεδιάζεται στον υπολογιστή',
+  'mobileTrip.rtDriveOnTwoPlaces': 'Το TREK υπολογίζει τη διαδρομή μόλις μια ημέρα έχει δύο μέρη.',
+  'mobileTrip.toursEmptyBody': 'Οι αποθηκευμένες εκδρομές εμφανίζονται εδώ, έτοιμες να μπουν σε μια ημέρα.',
+  'mobileTrip.toursCount': '{count} εκδρομές',
+  'mobileTrip.toursCount.one': '{count} εκδρομή',
   'mobileTrip.rtSearchOffline': 'Χρειάζεται σύνδεση: η αναζήτηση διαβάζει τη διαδρομή που ακολουθεί.',
   'mobileTrip.rtBehind': '{time} πίσω από το πρόγραμμα',
   'mobileTrip.rtStart': 'Έναρξη',

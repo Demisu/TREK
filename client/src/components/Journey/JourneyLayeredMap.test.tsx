@@ -89,6 +89,12 @@ describe('JourneyLayeredMap', () => {
     expect(last().photos).toBeUndefined();
   });
 
+  it('FE-JOURNEY-LAYEREDMAP-002b: the phone draws the layers without their switches', () => {
+    render(<JourneyLayeredMap layers={layers()} hideLayerControl checkins={[]} entries={[]} photos={PHOTOS} />);
+    expect(last()).toMatchObject({ marks: [MARK], layerVisibility: ALL_VISIBLE });
+    expect(screen.queryByRole('group', { name: 'Map layers' })).toBeNull();
+  });
+
   it('FE-JOURNEY-LAYEREDMAP-003: a picked mark opens its card, which goes when its layer is switched off', () => {
     const onOpenEntry = vi.fn();
     const { rerender } = render(

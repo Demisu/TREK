@@ -679,6 +679,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'Yol gezisi',
   'admin.addons.catalog.roadtrip.description':
     'Duraklı sürüşler planlayın; sürüş ve varış saatleri kendiliğinden yeniden hesaplanır',
+  'admin.addons.catalog.tours.name': 'Turlar',
+  'admin.addons.catalog.tours.description': 'Bir rotayı izleyen yürüyüşler, bisiklet ve diğer turlar',
   'admin.addons.catalog.memories.name': 'Fotoğraflar (Immich)',
   'admin.addons.catalog.memories.description': 'Immich örneğiniz aracılığıyla gezi fotoğraflarını paylaşın',
   'admin.addons.catalog.mcp.name': 'MCP',

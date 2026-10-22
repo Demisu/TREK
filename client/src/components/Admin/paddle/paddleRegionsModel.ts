@@ -1,4 +1,25 @@
-import type { PaddleRegion } from '@trek/shared';
+import type { PaddleRegion, PaddleRegionAutoMode } from '@trek/shared';
+
+/** How TREK loads a paddler's region by itself, in the order the switch shows them. */
+export const AUTO_LOAD_MODES: readonly PaddleRegionAutoMode[] = ['auto', 'ask', 'off'];
+/** The largest region TREK loads by itself, in megabytes: a district, a state, a small country. */
+export const AUTO_LOAD_SIZES = [100, 250, 500, 1000, 2000] as const;
+
+/** The size choices, with a stored size outside the presets kept among them in its place. */
+export function autoLoadSizes(current: number): number[] {
+  return (AUTO_LOAD_SIZES as readonly number[]).includes(current)
+    ? [...AUTO_LOAD_SIZES]
+    : [...AUTO_LOAD_SIZES, current].sort((a, b) => a - b);
+}
+
+/** A size in megabytes as the reader's language writes it, from 1000 on in gigabytes. */
+export function formatMegabytes(mb: number, language: string): string {
+  return new Intl.NumberFormat(language, {
+    style: 'unit',
+    unit: mb >= 1000 ? 'gigabyte' : 'megabyte',
+    maximumFractionDigits: mb >= 1000 ? 1 : 0,
+  }).format(mb >= 1000 ? mb / 1000 : mb);
+}
 
 /** A region waiting for its read or being read: the list asks again until none is. */
 export function isReading(region: Pick<PaddleRegion, 'status'>): boolean {

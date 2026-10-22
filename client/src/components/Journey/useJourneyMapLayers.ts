@@ -50,6 +50,12 @@ interface Options {
   colorOfDay: (date: string) => string | null;
   /** The day an entry is on, for the colour of its stays. */
   dateOfEntry: (entryId: number) => string | null;
+  /**
+   * Every layer on, whatever this browser kept: the phone shows no switches,
+   * so a layer once switched off there would stay off with no way back. A
+   * switch that is still offered then holds only for the visit.
+   */
+  allLayers?: boolean;
 }
 
 const NO_TRACKS: JourneyTrack[] = [];
@@ -119,13 +125,14 @@ export function useJourneyMapLayers({
   recordedRead = 'ready',
   colorOfDay,
   dateOfEntry,
+  allLayers = false,
 }: Options): JourneyMapLayersView {
   const { t, locale } = useTranslation();
   const journeyId = source && 'journeyId' in source ? source.journeyId : null;
   const token = source && 'token' in source ? source.token : null;
   const storageKey =
     journeyId !== null ? layersStorageKey({ journeyId }) : token !== null ? layersStorageKey({ token }) : null;
-  const { visibility, toggle } = useLayerSwitches(storageKey);
+  const { visibility, toggle } = useLayerSwitches(allLayers ? null : storageKey);
 
   const sourceKey = journeyId !== null ? `j:${journeyId}` : token !== null ? `s:${token}` : null;
   // A shared page reads once; a journey's own map only while the plan or the entries are shown.

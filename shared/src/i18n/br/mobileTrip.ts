@@ -56,8 +56,11 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.rtInfoTitle': 'Dados de condução',
   'mobileTrip.rtDesktopNote':
     'Esses dados são definidos no computador, onde você também pode comparar rotas alternativas e fazer um dia seguir uma trilha importada.',
-  'mobileTrip.rtPlanOnDesktop':
-    'O planejamento acontece no computador. O TREK calcula o trajeto assim que um dia tem dois locais.',
+  'mobileTrip.planOnDesktop': 'Planejado no computador',
+  'mobileTrip.rtDriveOnTwoPlaces': 'O TREK calcula o trajeto assim que um dia tem dois locais.',
+  'mobileTrip.toursEmptyBody': 'Os passeios salvos aparecem aqui, prontos para entrar em um dia.',
+  'mobileTrip.toursCount': '{count} passeios',
+  'mobileTrip.toursCount.one': '{count} passeio',
   'mobileTrip.rtSearchOffline': 'Precisa de conexão: a busca lê a rota à frente.',
   'mobileTrip.rtBehind': '{time} de atraso em relação ao plano',
   'mobileTrip.rtStart': 'Início',

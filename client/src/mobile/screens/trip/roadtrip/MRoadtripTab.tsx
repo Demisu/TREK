@@ -9,6 +9,7 @@ import MRtAlternativesBar from './MRtAlternativesBar'
 import { RtAutoRow, RtBookendRow, RtBookingChips, RtDryRow, RtLegRow, RtRideRow, RtSpillRow, RtStopRow, type RowChrome } from './MRoadtripRows'
 import MBadge from '../../../components/MBadge'
 import MDancingTrek from '../../../components/MDancingTrek'
+import MPlanOnDesktopBadge from '../../../components/MPlanOnDesktopBadge'
 import { formatDurationShort } from '../../../../components/Roadtrip/roadtripModel'
 import { navigationTargetLabel, getNavigationTargets } from '../../../../components/Planner/placeNavigation'
 import { useSettingsStore } from '../../../../store/settingsStore'
@@ -485,9 +486,12 @@ function EmptyStage({ planner, loading }: { planner: MTripTabPanelProps['planner
         {loading ? t('roadtrip.summary.partial') : t('roadtrip.empty.title')}
       </p>
       {!loading && (
-        <p className="mt-1.5 max-w-[27ch] font-geist text-[0.78125rem] leading-[1.5] text-m-muted">
-          {t('mobileTrip.rtPlanOnDesktop')}
-        </p>
+        <>
+          <p className="mt-1.5 max-w-[27ch] font-geist text-[length:calc(12.5px*var(--fs-scale-body,1))] leading-[1.5] text-m-muted">
+            {t('mobileTrip.rtDriveOnTwoPlaces')}
+          </p>
+          <MPlanOnDesktopBadge className="mt-3" />
+        </>
       )}
     </div>
   )

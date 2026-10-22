@@ -195,8 +195,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.profileFocus': 'Tại {distance}: {elevation}',
   'tours.planner.inspector.elevationPlaceholder': 'Biểu đồ sẽ hiển thị khi có dữ liệu độ cao của tuyến đường.',
   'tours.planner.gpxNoGeometry': 'Không có dữ liệu hình dạng tuyến đường cho bản nhập GPX này.',
-  'tours.planner.mobileHint':
-    'Có thể lập kế hoạch tham quan trên máy tính bảng và máy tính. Tại đây, bạn có thể xem và xếp lịch cho các chuyến tham quan đã lưu.',
   'tourTypes.hike': 'Đi bộ đường dài',
   'tourTypes.bike': 'Chuyến đạp xe',
   'tourTypes.run': 'Chạy bộ',

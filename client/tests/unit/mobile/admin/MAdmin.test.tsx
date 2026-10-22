@@ -60,7 +60,7 @@ vi.mock('../../../../src/mobile/screens/admin/MAdminStoragePanel', () => ({
 }));
 
 // The addon manager is reduced to the two controls MAdmin wires itself.
-vi.mock('../../../../src/components/Admin/paddle/PaddleRegionsPanel', () => ({
+vi.mock('../../../../src/mobile/screens/admin/MAdminPaddleRegionsPanel', () => ({
   default: () => <div data-testid="paddle-regions-panel" />,
 }));
 vi.mock('../../../../src/mobile/screens/admin/MAdminAddonManager', () => ({

@@ -115,7 +115,7 @@ export default function MobileMapTimeline({
           ref={mapRef}
           engine="leaflet"
           layers={layers}
-          compactControls
+          hideLayerControl
           controlsTop={controlsTop}
           onOpenEntry={handleMarkerClick}
           entryTitleOf={entryTitleOf}
@@ -155,7 +155,7 @@ export default function MobileMapTimeline({
         ref={mapRef}
         engine="leaflet"
         layers={layers}
-        compactControls
+        hideLayerControl
         controlsTop={controlsTop}
         onOpenEntry={handleMarkerClick}
         entryTitleOf={entryTitleOf}

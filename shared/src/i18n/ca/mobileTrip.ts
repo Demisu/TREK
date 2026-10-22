@@ -56,8 +56,11 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.rtInfoTitle': 'Dades de conducció',
   'mobileTrip.rtDesktopNote':
     'Aquestes dades es configuren a l’escriptori, on també pots comparar rutes alternatives i fer que un dia segueixi una traça importada.',
-  'mobileTrip.rtPlanOnDesktop':
-    'La planificació es fa a l’escriptori. TREK calcula el trajecte quan un dia té dos llocs.',
+  'mobileTrip.planOnDesktop': 'Es planifica a l’ordinador',
+  'mobileTrip.rtDriveOnTwoPlaces': 'TREK calcula el trajecte quan un dia té dos llocs.',
+  'mobileTrip.toursEmptyBody': 'Les excursions desades apareixen aquí, a punt per afegir-les a un dia.',
+  'mobileTrip.toursCount': '{count} excursions',
+  'mobileTrip.toursCount.one': '{count} excursió',
   'mobileTrip.rtSearchOffline': 'Cal connexió: la cerca llegeix la ruta que tens per endavant.',
   'mobileTrip.rtBehind': '{time} de retard sobre el pla',
   'mobileTrip.rtStart': 'Inici',

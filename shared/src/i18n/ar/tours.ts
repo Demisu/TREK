@@ -211,8 +211,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.profileFocus': 'عند {distance}: {elevation}',
   'tours.planner.inspector.elevationPlaceholder': 'يظهر المخطط عند توفّر بيانات ارتفاع المسار.',
   'tours.planner.gpxNoGeometry': 'بيانات الشكل الهندسي للمسار غير متاحة لملف GPX المستورد هذا.',
-  'tours.planner.mobileHint':
-    'تخطيط الجولات متاح على الأجهزة اللوحية والحواسيب. يمكنك هنا عرض الجولات المحفوظة وجدولتها.',
   'tourTypes.hike': 'مشي طويل',
   'tourTypes.bike': 'جولة بالدراجة',
   'tourTypes.run': 'جري',

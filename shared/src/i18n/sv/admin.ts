@@ -694,6 +694,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'Bilresa',
   'admin.addons.catalog.roadtrip.description':
     'Planera körningar med stopp – körtider och ankomsttider räknas om automatiskt',
+  'admin.addons.catalog.tours.name': 'Turer',
+  'admin.addons.catalog.tours.description': 'Vandringar, cykelturer och andra turer längs en rutt',
   'admin.addons.catalog.memories.name': 'Foton (Immich)',
   'admin.addons.catalog.memories.description': 'Dela resefoton via din Immich-instans',
   'admin.addons.catalog.mcp.name': 'MCP',

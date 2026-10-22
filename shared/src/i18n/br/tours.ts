@@ -200,8 +200,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.elevationPlaceholder':
     'O perfil é exibido quando os dados de elevação da rota estão disponíveis.',
   'tours.planner.gpxNoGeometry': 'A geometria da rota não está disponível para esta importação GPX.',
-  'tours.planner.mobileHint':
-    'O planejamento de passeios está disponível em tablets e computadores. Aqui você pode visualizar os passeios salvos e atribuí-los a um dia.',
   'tourTypes.hike': 'Trilha',
   'tourTypes.bike': 'Passeio de bicicleta',
   'tourTypes.run': 'Corrida',

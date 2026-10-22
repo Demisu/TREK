@@ -181,7 +181,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.profileFocus': '距离 {distance} 处：{elevation}',
   'tours.planner.inspector.elevationPlaceholder': '获取到路线海拔数据后将显示剖面图。',
   'tours.planner.gpxNoGeometry': '本次 GPX 导入没有可用的路线几何数据。',
-  'tours.planner.mobileHint': '可在平板电脑和电脑上规划游览路线。在这里可以查看已保存的游览活动并安排日期。',
   'tourTypes.hike': '徒步',
   'tourTypes.bike': '骑行',
   'tourTypes.run': '跑步',

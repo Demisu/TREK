@@ -201,8 +201,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.elevationPlaceholder':
     'Das Höhenprofil erscheint, sobald Höhendaten für die Route verfügbar sind.',
   'tours.planner.gpxNoGeometry': 'Für diesen GPX-Import sind keine Routendaten verfügbar.',
-  'tours.planner.mobileHint':
-    'Touren planen kannst du auf einem Tablet oder am Computer. Hier kannst du gespeicherte Touren ansehen und zuordnen.',
   'tourTypes.hike': 'Wanderung',
   'tourTypes.bike': 'Radtour',
   'tourTypes.run': 'Lauf',

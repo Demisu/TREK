@@ -203,8 +203,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.elevationPlaceholder':
     "Le profil s'affiche lorsque les données d'altitude de l'itinéraire sont disponibles.",
   'tours.planner.gpxNoGeometry': "La géométrie de l'itinéraire est indisponible pour cet import GPX.",
-  'tours.planner.mobileHint':
-    'La planification des sorties est disponible sur tablette et ordinateur. Vous pouvez consulter les sorties enregistrées et les affecter à une journée ici.',
   'tourTypes.hike': 'Randonnée',
   'tourTypes.bike': 'Sortie à vélo',
   'tourTypes.run': 'Course à pied',

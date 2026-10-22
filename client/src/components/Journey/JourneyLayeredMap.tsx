@@ -20,8 +20,8 @@ interface Props extends MapProps {
   layers?: JourneyMapLayersView | null;
   /** A shared page and the phone timeline draw with Leaflet whatever a setting says. */
   engine?: 'auto' | 'leaflet';
-  /** Icon-only switches, for a phone. */
-  compactControls?: boolean;
+  /** No layer switches: the phone keeps its map clear and shows every layer (the picked card still opens). */
+  hideLayerControl?: boolean;
   /** How far from the map's top the switches sit, clear of a bar laid over the map. */
   controlsTop?: number | string;
   /** Leads from a picked place or stay to its entry. */
@@ -40,7 +40,7 @@ export default function JourneyLayeredMap({
   ref,
   layers,
   engine = 'auto',
-  compactControls = false,
+  hideLayerControl = false,
   controlsTop = 12,
   onOpenEntry,
   entryTitleOf,
@@ -88,9 +88,11 @@ export default function JourneyLayeredMap({
           className="pointer-events-none absolute inset-x-3 z-10 flex flex-col items-start gap-2"
           style={{ top: controlsTop }}
         >
-          <div className="pointer-events-auto max-w-full">
-            <JourneyMapLayerControl layers={layers} compact={compactControls} />
-          </div>
+          {!hideLayerControl && (
+            <div className="pointer-events-auto max-w-full">
+              <JourneyMapLayerControl layers={layers} />
+            </div>
+          )}
           {card && (
             <JourneyMapPickCard
               key={card.key}

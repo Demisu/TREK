@@ -49,14 +49,16 @@ export function isPhotosAddon(addon: Addon): boolean {
 
 /** The catalog name and description for an addon, falling back to what the server sent. */
 export function getAddonLabel(t: (key: string) => string, addon: Addon): { name: string; description: string } {
-  const nameKey = `admin.addons.catalog.${addon.id}.name`;
-  const descKey = `admin.addons.catalog.${addon.id}.description`;
-  const translatedName = t(nameKey);
-  const translatedDescription = t(descKey);
+  // Spelled out inside t() so the key check sees which catalog keys this reaches.
+  const translatedName = t(`admin.addons.catalog.${addon.id}.name`);
+  const translatedDescription = t(`admin.addons.catalog.${addon.id}.description`);
 
   return {
-    name: translatedName !== nameKey ? translatedName : addon.name,
-    description: translatedDescription !== descKey ? translatedDescription : addon.description,
+    name: translatedName !== `admin.addons.catalog.${addon.id}.name` ? translatedName : addon.name,
+    description:
+      translatedDescription !== `admin.addons.catalog.${addon.id}.description`
+        ? translatedDescription
+        : addon.description,
   };
 }
 

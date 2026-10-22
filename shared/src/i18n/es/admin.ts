@@ -766,6 +766,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'Viaje por carretera',
   'admin.addons.catalog.roadtrip.description':
     'Planifica trayectos con paradas: los tiempos de conducción y las horas de llegada se recalculan solos',
+  'admin.addons.catalog.tours.name': 'Excursiones',
+  'admin.addons.catalog.tours.description': 'Senderismo, rutas en bici y otras excursiones que siguen un recorrido',
   'admin.oidcOnlyMode': 'Desactivar autenticación por contraseña',
   'admin.oidcOnlyModeHint':
     'Si está activado, solo se permite el inicio de sesión con SSO. El inicio de sesión y registro con contraseña se bloquean.',

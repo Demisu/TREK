@@ -30,6 +30,7 @@ export function useJourneyDetailLayers({
   sidebarMapItems,
   photoCount,
   showTripTracks,
+  allLayers = false,
 }: {
   journey: JourneyDetail | null;
   /** Whether `journey` is the one the route names yet: the store keeps the last one while the next loads. */
@@ -43,6 +44,8 @@ export function useJourneyDetailLayers({
   sidebarMapItems: ReadonlyArray<{ id: string; entry_date: string; dayColor: string }>;
   photoCount: number;
   showTripTracks: boolean;
+  /** The phone: every map layer on, as it offers no switches (see useJourneyMapLayers). */
+  allLayers?: boolean;
 }) {
   // The editor's own status, the owner's switch, and where each day of the trips stands.
   const isAddonEnabled = useAddonStore((s) => s.isEnabled);
@@ -111,6 +114,7 @@ export function useJourneyDetailLayers({
     recordedRead,
     colorOfDay,
     dateOfEntry,
+    allLayers,
   });
 
   // The drafts a day's take-over wrote reach the timeline, and its stays leave the pending list.

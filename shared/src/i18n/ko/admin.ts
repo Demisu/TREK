@@ -635,6 +635,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': '로드트립',
   'admin.addons.catalog.roadtrip.description':
     '경유지가 있는 주행을 계획하세요. 운전 시간과 도착 시간이 자동으로 다시 계산됩니다',
+  'admin.addons.catalog.tours.name': '투어',
+  'admin.addons.catalog.tours.description': '경로를 따라가는 하이킹, 라이딩 등 투어',
   'admin.addons.catalog.memories.name': '사진 (Immich)',
   'admin.addons.catalog.memories.description': 'Immich 인스턴스를 통해 여행 사진 공유',
   'admin.addons.catalog.mcp.name': 'MCP',

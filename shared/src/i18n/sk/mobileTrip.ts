@@ -59,7 +59,12 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.rtInfoTitle': 'Údaje o jazde',
   'mobileTrip.rtDesktopNote':
     'Tieto údaje sa nastavujú na počítači, kde môžete tiež porovnávať alternatívne trasy a nechať deň sledovať importovanú stopu.',
-  'mobileTrip.rtPlanOnDesktop': 'Plánovanie prebieha na počítači. Len čo má deň dve miesta, TREK jazdu vypočíta.',
+  'mobileTrip.planOnDesktop': 'Plánuje sa na počítači',
+  'mobileTrip.rtDriveOnTwoPlaces': 'Len čo má deň dve miesta, TREK jazdu vypočíta.',
+  'mobileTrip.toursEmptyBody': 'Uložené túry sa zobrazia tu a môžeš ich pridať k dňu.',
+  'mobileTrip.toursCount': '{count} túr',
+  'mobileTrip.toursCount.one': '{count} túra',
+  'mobileTrip.toursCount.few': '{count} túry',
   'mobileTrip.rtSearchOffline': 'Vyžaduje pripojenie: hľadanie číta trasu pred vami.',
   'mobileTrip.rtBehind': 'o {time} za plánom',
   'mobileTrip.rtStart': 'Začiatok',

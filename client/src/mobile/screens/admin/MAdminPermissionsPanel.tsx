@@ -21,23 +21,21 @@ export default function MAdminPermissionsPanel(): React.ReactElement {
 
   return (
     <MAdminCard>
-      <div className="mb-1 flex items-center gap-2">
-        <div className="min-w-0 flex-1">
-          <div className="text-[0.875rem] font-extrabold text-m-ink">{t('perm.title')}</div>
-          <div className="mt-[2px] font-geist text-[0.625rem] leading-relaxed text-m-muted">{t('perm.subtitle')}</div>
+      {/* The title gets the full width and the actions a row of their own: beside a
+          long title they ran into its second line. */}
+      <div className="mb-1">
+        <div className="text-[length:calc(14px*var(--fs-scale-body,1))] font-extrabold text-m-ink">{t('perm.title')}</div>
+        <div className="mt-[2px] font-geist text-[length:calc(10px*var(--fs-scale-caption,1))] leading-relaxed text-m-muted">{t('perm.subtitle')}</div>
+        <div className="mt-2.5 flex items-center justify-end gap-2">
+          <MAdminButton variant="ghost" disabled={saving} onClick={handleReset}>
+            <RotateCcw size={12} strokeWidth={2.2} />
+            {t('perm.resetDefaults')}
+          </MAdminButton>
+          <MAdminButton busy={saving} disabled={saving || !dirty} onClick={handleSave}>
+            {!saving && <Save size={12} strokeWidth={2.2} />}
+            {t('common.save')}
+          </MAdminButton>
         </div>
-        <MAdminButton
-          variant="ghost"
-          disabled={saving}
-          title={t('perm.resetDefaults')}
-          onClick={handleReset}
-        >
-          <RotateCcw size={12} strokeWidth={2.2} />
-        </MAdminButton>
-        <MAdminButton busy={saving} disabled={saving || !dirty} onClick={handleSave}>
-          {!saving && <Save size={12} strokeWidth={2.2} />}
-          {t('common.save')}
-        </MAdminButton>
       </div>
 
       <div>

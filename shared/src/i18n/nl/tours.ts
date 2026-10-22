@@ -199,8 +199,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.elevationPlaceholder':
     'Het profiel wordt getoond zodra hoogtegegevens voor de route beschikbaar zijn.',
   'tours.planner.gpxNoGeometry': 'De routegeometrie is niet beschikbaar voor deze GPX-import.',
-  'tours.planner.mobileHint':
-    'Tochten plannen kan op een tablet of computer. Hier kun je opgeslagen tochten bekijken en aan een dag toewijzen.',
   'tourTypes.hike': 'Wandeling',
   'tourTypes.bike': 'Fietstocht',
   'tourTypes.run': 'Hardlooptocht',

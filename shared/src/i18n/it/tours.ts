@@ -199,8 +199,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.elevationPlaceholder':
     'Il profilo viene mostrato quando sono disponibili i dati altimetrici del percorso.',
   'tours.planner.gpxNoGeometry': 'La geometria del percorso non è disponibile per questa importazione GPX.',
-  'tours.planner.mobileHint':
-    'La pianificazione delle escursioni è disponibile su tablet e computer. Qui puoi visualizzare le escursioni salvate e assegnarle a un giorno.',
   'tourTypes.hike': 'Escursione a piedi',
   'tourTypes.bike': 'Escursione in bici',
   'tourTypes.run': 'Corsa',

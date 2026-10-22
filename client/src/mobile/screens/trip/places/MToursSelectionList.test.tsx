@@ -1,10 +1,11 @@
-import { render, screen } from '../../../../../tests/helpers/render'
+import { fireEvent, render, screen } from '../../../../../tests/helpers/render'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { TourListItem } from '@trek/shared'
 import en from '@trek/shared/i18n/en'
 import de from '@trek/shared/i18n/de'
 import { resetAllStores, seedStore } from '../../../../../tests/helpers/store'
 import { useSettingsStore } from '../../../../store/settingsStore'
+import { useTripStore } from '../../../../store/tripStore'
 import type { TripPlanner, MTripShellApi } from '../MTripShell'
 import MToursSelectionList from './MToursSelectionList'
 import type { ComponentProps } from 'react'
@@ -33,37 +34,34 @@ const tour: TourListItem = {
   caution: false,
 }
 
-const reloadTourPlaceIds = vi.fn().mockResolvedValue(undefined)
+const day = { id: 11, day_number: 1, date: '2026-07-08', title: null } as never
+
 const handlePlaceClick = vi.fn()
 const openSheet = vi.fn()
 
-function planner(): TripPlanner {
+function translate(table: Record<string, unknown>) {
+  return (key: string, params?: Record<string, string | number>) => {
+    const value = table[key] ?? en[key]
+    if (typeof value !== 'string') return key
+    return value.replace(/\{(\w+)\}/g, (_, name: string) => String(params?.[name] ?? ''))
+  }
+}
+
+function planner(overrides: Partial<TripPlanner> = {}): TripPlanner {
   return {
-    t: (key: string) => {
-      const value = en[key]
-      return typeof value === 'string' ? value : key
-    },
+    t: translate(en),
     tripId: 7,
     tours: [tour],
+    places: [{ id: 42, name: tour.name, route_geometry: '[[47,11],[47.1,11.1]]', route_color: '#ff0000' }],
     selectedPlaceId: null,
-    selectedPlace: null,
-    selectedTour: null,
-    selectedDayId: null,
-    selectedAssignmentId: null,
-    assignments: {},
-    days: [],
-    files: [],
-    canUploadFiles: false,
-    reloadTourPlaceIds,
+    days: [day],
     handlePlaceClick,
+    ...overrides,
   } as unknown as TripPlanner
 }
 
-function shell(sheet: MTripShellApi['sheet'] = null): MTripShellApi {
-  return {
-    sheet,
-    openSheet,
-  } as unknown as MTripShellApi
+function shell(): MTripShellApi {
+  return { sheet: null, openSheet } as unknown as MTripShellApi
 }
 
 beforeEach(() => {
@@ -73,84 +71,72 @@ beforeEach(() => {
 })
 
 describe('MToursSelectionList', () => {
-  it('shows German ADD, difficulty and empty-state text without raw Tours keys', () => {
-    const germanPlanner = { ...planner(), t: (key: string) => {
-      const value = de[key] ?? en[key]
-      return typeof value === 'string' ? value : key
-    } }
-    const { rerender } = render(<List planner={germanPlanner} shell={shell()} />)
+  it('lists a tour like a place: its grade tile, its name, its figures and a plus to put it on a day', () => {
+    render(<List planner={planner()} shell={shell()} canAssign />)
 
-    expect(screen.getByRole('button', { name: 'Zum Tag hinzufügen' })).toBeInTheDocument()
-    expect(screen.getByTitle('T2 – Bergwandern')).toHaveAttribute('aria-label', 'T2 – Bergwandern')
-    expect(screen.getByText(germanPlanner.t('tours.planner.mobileHint'))).toBeInTheDocument()
-    rerender(<List planner={{ ...germanPlanner, tours: [] }} shell={shell()} />)
-    expect(screen.getByText('Noch keine Touren')).toBeInTheDocument()
-    expect(screen.getByText(germanPlanner.t('tours.empty.body'))).toBeInTheDocument()
-    expect(document.body.textContent).not.toMatch(/\btours\.[a-zA-Z]/)
-  })
+    expect(screen.getByRole('img', { name: en['tours.planner.difficulty.t2'] as string })).toHaveTextContent('T2')
+    expect(screen.getByText(tour.name)).toHaveClass('truncate')
+    expect(screen.getByTestId('mobile-tour-metrics')).toHaveTextContent('12.5 km')
+    expect(screen.getByTestId('mobile-tour-metrics')).toHaveTextContent('420 m')
+    expect(screen.getByText('1 tour')).toBeInTheDocument()
 
-  it('gives a tour name the full row and up to two lines', () => {
-    render(<List planner={planner()} shell={shell()} />)
-
-    const name = screen.getByText(tour.name)
-    expect(name).toHaveClass('line-clamp-2', 'break-words')
-    expect(name).toHaveAttribute('title', tour.name)
-    expect(name).not.toHaveClass('truncate')
-  })
-
-  it('keeps the mobile TRIP-PLAN Tours browse list limited to viewing and assignment', () => {
-    const { container } = render(<List planner={{ ...planner(), selectedPlaceId: tour.place_id }} shell={shell()} canEdit canAssign />)
-    expect(screen.getByRole('option', { name: new RegExp(tour.name) })).toHaveAttribute('aria-selected', 'true')
-    const metrics = screen.getByTestId('mobile-tour-metrics')
-    expect(metrics).toHaveTextContent('12.5 km')
-    expect(metrics).toHaveTextContent('420 m')
-    expect(metrics).toHaveTextContent('390 m')
-    for (const metric of metrics.children) expect(metric).toHaveClass('whitespace-nowrap')
-    expect(metrics.children[0].getAttribute('aria-label')).toContain('12.5 km')
-    expect(metrics.children[1].getAttribute('aria-label')).toContain('420 m')
-    expect(metrics.children[2].getAttribute('aria-label')).toContain('390 m')
-    expect(screen.getByText('TREK')).toBeInTheDocument()
-    expect(screen.getByTitle(en['tours.planner.difficulty.t2'] as string)).toHaveAttribute('aria-label', en['tours.planner.difficulty.t2'])
-    const add = screen.getByRole('button', { name: 'Add to day' })
-    expect(add).toHaveClass('w-full')
-    add.click()
+    fireEvent.click(screen.getByRole('button', { name: 'Add to day' }))
     expect(openSheet).toHaveBeenCalledWith('bract', { placeId: tour.place_id, dayPicker: true })
-    expect(container.querySelector('[data-testid="mobile-tour-metrics"]')).toBeTruthy()
-    expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument()
   })
 
-  it('keeps a long German name and source/difficulty labels intact', () => {
-    const germanPlanner = {
-      ...planner(),
-      tours: [{ ...tour, name: 'Eine sehr lange deutsche Wanderung durch das abgelegene Gebirge', has_waypoints: false }],
-      t: (key: string) => {
-        const value = de[key] ?? en[key]
-        return typeof value === 'string' ? value : key
-      },
-    }
-    render(<List planner={germanPlanner} shell={shell()} />)
-    expect(screen.getByRole('option', { name: /Eine sehr lange deutsche Wanderung/ })).toBeInTheDocument()
-    expect(screen.getByText('GPX-Import')).toBeInTheDocument()
-    expect(screen.getByLabelText('T2 – Bergwandern')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Zum Tag hinzufügen' })).toHaveClass('w-full')
+  it('opens the tour on a tap and marks the selected one', () => {
+    render(<List planner={planner({ selectedPlaceId: tour.place_id })} shell={shell()} canAssign />)
+
+    const open = screen.getByRole('button', { name: new RegExp(tour.name) })
+    expect(open).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(open)
+    expect(handlePlaceClick).toHaveBeenCalledWith(tour.place_id)
   })
 
-  it('shows no T-badge for an imported tour that carries no difficulty', () => {
-    const imported = { ...tour, has_waypoints: false, max_hiking_difficulty: null }
-    render(<List planner={{ ...planner(), tours: [imported] }} shell={shell()} />)
+  it('names the day a planned tour is on, and how many more, instead of the plus', () => {
+    seedStore(useTripStore, { assignments: { '11': [{ id: 1, place_id: 42 }], '12': [{ id: 2, place_id: 42 }] } })
+    const days = [day, { id: 12, day_number: 2, date: '2026-07-09', title: null }] as never
+    render(<List planner={planner({ days })} shell={shell()} canAssign />)
 
-    const row = screen.getByRole('option', { name: new RegExp(tour.name) })
-    expect(row).not.toHaveTextContent(/T\d/)
-    expect(row).not.toHaveTextContent('Tnull')
-    expect(screen.queryByTitle(/^T\d/)).not.toBeInTheDocument()
-    expect(screen.getByText(en['tours.badge.gpx'] as string)).toBeInTheDocument()
+    expect(screen.getByText(/Day 1/)).toHaveTextContent('Day 1 +1')
+    expect(screen.queryByRole('button', { name: 'Add to day' })).not.toBeInTheDocument()
   })
 
-  it('does not refresh Tours merely because the mobile assignment sheet closes', () => {
-    const { rerender } = render(<List planner={planner()} shell={shell({ id: 'bract' })} />)
+  it('offers no plus to someone who may not plan days', () => {
+    render(<List planner={planner()} shell={shell()} canAssign={false} />)
+    expect(screen.queryByRole('button', { name: 'Add to day' })).not.toBeInTheDocument()
+  })
 
-    rerender(<List planner={planner()} shell={shell()} />)
+  it('shows the type of an ungraded tour and where an import came from', () => {
+    const imported = { ...tour, has_waypoints: false, max_hiking_difficulty: null, tour_type: 'kayak' as const }
+    render(<List planner={planner({ tours: [imported] })} shell={shell()} />)
 
-    expect(reloadTourPlaceIds).not.toHaveBeenCalled()
+    expect(screen.getByRole('img', { name: en['tourTypes.kayak'] as string })).not.toHaveTextContent(/T\d/)
+    expect(screen.getByLabelText(en['tours.badge.gpx'] as string)).toHaveTextContent('GPX')
+  })
+
+  it('says once that tours are planned on a bigger screen, in German too', () => {
+    render(<List planner={planner({ t: translate(de) })} shell={shell()} />)
+    expect(screen.getByText('Geplant wird am Desktop')).toBeInTheDocument()
+    expect(screen.getByText('1 Tour')).toBeInTheDocument()
+    expect(document.body.textContent).not.toMatch(/\b(tours|mobileTrip)\.[a-zA-Z]/)
+  })
+
+  it('without tours shows the empty state with the same badge', () => {
+    render(<List planner={planner({ tours: [], t: translate(de) })} shell={shell()} />)
+    expect(screen.getByText('Noch keine Touren')).toBeInTheDocument()
+    expect(screen.getByText(de['mobileTrip.toursEmptyBody'] as string)).toBeInTheDocument()
+    expect(screen.getByText('Geplant wird am Desktop')).toBeInTheDocument()
+  })
+
+  it('narrows the list by a facet and widens it again', () => {
+    const other = { ...tour, place_id: 43, name: 'Other', max_hiking_difficulty: 4 }
+    render(<List planner={planner({ tours: [tour, other] })} shell={shell()} />)
+
+    fireEvent.click(screen.getByRole('button', { name: /^T4/ }))
+    expect(screen.getByText('Other')).toBeInTheDocument()
+    expect(screen.queryByText(tour.name)).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /^T4/ }))
+    expect(screen.getByText(tour.name)).toBeInTheDocument()
   })
 })

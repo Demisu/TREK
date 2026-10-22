@@ -195,8 +195,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.profileFocus': '{distance} məsafədə: {elevation}',
   'tours.planner.inspector.elevationPlaceholder': 'Marşrutun yüksəklik məlumatları olduqda profil göstərilir.',
   'tours.planner.gpxNoGeometry': 'Bu GPX idxalı üçün marşrut həndəsəsi əlçatan deyil.',
-  'tours.planner.mobileHint':
-    'Tur planlaşdırmaq planşet və kompüterdə mümkündür. Burada saxlanılmış turlara baxmaq və onları günlərə təyin etmək olar.',
   'tourTypes.hike': 'Yürüş',
   'tourTypes.bike': 'Velosiped turu',
   'tourTypes.run': 'Qaçış',

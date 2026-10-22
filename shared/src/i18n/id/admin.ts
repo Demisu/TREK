@@ -672,6 +672,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'Perjalanan darat',
   'admin.addons.catalog.roadtrip.description':
     'Rencanakan perjalanan dengan perhentian; waktu berkendara dan tiba dihitung ulang otomatis',
+  'admin.addons.catalog.tours.name': 'Tur',
+  'admin.addons.catalog.tours.description': 'Pendakian, bersepeda, dan tur lain yang mengikuti rute',
   'admin.addons.catalog.memories.name': 'Foto (Immich)',
   'admin.addons.catalog.memories.description': 'Bagikan foto perjalanan melalui instans Immich kamu',
   'admin.addons.catalog.mcp.name': 'MCP',

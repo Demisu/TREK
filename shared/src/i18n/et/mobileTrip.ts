@@ -56,8 +56,11 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.rtInfoTitle': 'Sõiduandmed',
   'mobileTrip.rtDesktopNote':
     'Neid andmeid saab määrata töölauavaates, kus saad võrrelda ka alternatiivseid marsruute ja määrata päeva järgima imporditud rada.',
-  'mobileTrip.rtPlanOnDesktop':
-    'Planeerimine toimub töölauavaates. TREK arvutab sõidu, kui päeval on vähemalt kaks kohta.',
+  'mobileTrip.planOnDesktop': 'Planeeritakse arvutis',
+  'mobileTrip.rtDriveOnTwoPlaces': 'TREK arvutab sõidu, kui päeval on vähemalt kaks kohta.',
+  'mobileTrip.toursEmptyBody': 'Salvestatud retked ilmuvad siia ja neid saab päevale lisada.',
+  'mobileTrip.toursCount': '{count} retke',
+  'mobileTrip.toursCount.one': '{count} retk',
   'mobileTrip.rtSearchOffline': 'Vajab ühendust: otsing kasutab eesolevat marsruuti.',
   'mobileTrip.rtBehind': '{time} plaanist maas',
   'mobileTrip.rtStart': 'Algus',

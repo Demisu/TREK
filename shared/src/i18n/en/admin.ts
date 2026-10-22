@@ -672,6 +672,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'Road trip',
   'admin.addons.catalog.roadtrip.description':
     'Plan drives with stops along the route, driving times, and arrival times that update themselves',
+  'admin.addons.catalog.tours.name': 'Tours',
+  'admin.addons.catalog.tours.description': 'Hikes, rides and other tours that follow a route',
   'admin.addons.catalog.memories.name': 'Photos (Immich)',
   'admin.addons.catalog.memories.description': 'Share trip photos via your Immich instance',
   'admin.addons.catalog.mcp.name': 'MCP',

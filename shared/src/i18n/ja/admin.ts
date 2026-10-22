@@ -636,6 +636,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'ロードトリップ',
   'admin.addons.catalog.roadtrip.description':
     '立ち寄り先付きのドライブを計画。運転時間と到着時刻は自動で再計算されます',
+  'admin.addons.catalog.tours.name': 'ツアー',
+  'admin.addons.catalog.tours.description': 'ルートに沿ったハイキング、サイクリングなどのツアー',
   'admin.addons.catalog.memories.name': '写真（Immich）',
   'admin.addons.catalog.memories.description': 'Immichで旅行写真を共有',
   'admin.addons.catalog.mcp.name': 'MCP',

@@ -206,8 +206,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.profileFocus': 'На відстані {distance}: {elevation}',
   'tours.planner.inspector.elevationPlaceholder': 'Профіль з’явиться, коли будуть доступні дані про висоту маршруту.',
   'tours.planner.gpxNoGeometry': 'Геометрія маршруту недоступна для цього імпорту GPX.',
-  'tours.planner.mobileHint':
-    'Планування турів доступне на планшеті й комп’ютері. Тут можна переглядати збережені тури та призначати їх на дні.',
   'tourTypes.hike': 'Піший похід',
   'tourTypes.bike': 'Велотур',
   'tourTypes.run': 'Пробіжка',

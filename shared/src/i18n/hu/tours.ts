@@ -199,8 +199,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.elevationPlaceholder':
     'A profil akkor jelenik meg, ha rendelkezésre állnak az útvonal magassági adatai.',
   'tours.planner.gpxNoGeometry': 'Ehhez a GPX-importhoz nem érhető el útvonalgeometria.',
-  'tours.planner.mobileHint':
-    'A túratervezés táblagépen és számítógépen érhető el. Itt megtekintheted és napokhoz rendelheted a mentett túrákat.',
   'tourTypes.hike': 'Gyalogtúra',
   'tourTypes.bike': 'Kerékpártúra',
   'tourTypes.run': 'Futás',

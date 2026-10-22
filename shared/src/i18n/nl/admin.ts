@@ -629,6 +629,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'Roadtrip',
   'admin.addons.catalog.roadtrip.description':
     'Plan ritten met tussenstops; rijtijden en aankomsttijden berekenen zichzelf opnieuw',
+  'admin.addons.catalog.tours.name': 'Tochten',
+  'admin.addons.catalog.tours.description': 'Wandelingen, fietstochten en andere tochten langs een route',
   'admin.addons.subtitleBefore': 'Schakel functies in of uit om je ',
   'admin.addons.subtitleAfter': '-ervaring aan te passen.',
   'admin.addons.catalog.naver_list_import.name': 'Naver List Import',

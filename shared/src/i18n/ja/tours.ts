@@ -190,8 +190,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.profileFocus': '距離{distance}：標高{elevation}',
   'tours.planner.inspector.elevationPlaceholder': 'ルートの標高データが取得できると、グラフが表示されます。',
   'tours.planner.gpxNoGeometry': 'このGPXインポートにはルートの形状データがありません。',
-  'tours.planner.mobileHint':
-    'ツアーの計画はタブレットとパソコンで利用できます。ここでは保存済みのツアーを閲覧し、日程に割り当てられます。',
   'tourTypes.hike': 'ハイキング',
   'tourTypes.bike': 'サイクリング',
   'tourTypes.run': 'ランニング',

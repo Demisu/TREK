@@ -621,6 +621,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'Viagem de carro',
   'admin.addons.catalog.roadtrip.description':
     'Planeje trajetos com paradas; tempos de direção e horários de chegada se recalculam sozinhos',
+  'admin.addons.catalog.tours.name': 'Passeios',
+  'admin.addons.catalog.tours.description': 'Trilhas, pedaladas e outros passeios que seguem uma rota',
   'admin.addons.catalog.mcp.name': 'MCP',
   'admin.addons.catalog.mcp.description': 'Model Context Protocol para integração com assistentes de IA',
   'admin.addons.subtitleBefore': 'Ative ou desative recursos para personalizar sua ',

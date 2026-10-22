@@ -194,8 +194,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.profileFocus': 'At {distance}: {elevation}',
   'tours.planner.inspector.elevationPlaceholder': 'The profile is shown when route elevation data is available.',
   'tours.planner.gpxNoGeometry': 'Route geometry is unavailable for this GPX import.',
-  'tours.planner.mobileHint':
-    'Tour planning is available on tablet and desktop. Saved tours can be viewed and scheduled here.',
   'tourTypes.hike': 'Hike',
   'tourTypes.bike': 'Bike tour',
   'tourTypes.run': 'Run',

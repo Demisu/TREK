@@ -62,8 +62,13 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.rtInfoTitle': 'Дані про водіння',
   'mobileTrip.rtDesktopNote':
     'Ці дані задаються на комп’ютері: там само можна порівнювати інші маршрути та провести день за імпортованим треком.',
-  'mobileTrip.rtPlanOnDesktop':
-    'Планування відбувається на комп’ютері. TREK розрахує маршрут, щойно в дні буде два місця.',
+  'mobileTrip.planOnDesktop': 'Планування на комп’ютері',
+  'mobileTrip.rtDriveOnTwoPlaces': 'TREK розрахує маршрут, щойно в дні буде два місця.',
+  'mobileTrip.toursEmptyBody': 'Збережені тури з’являться тут, їх можна додати до дня.',
+  'mobileTrip.toursCount': '{count} тури',
+  'mobileTrip.toursCount.one': '{count} тур',
+  'mobileTrip.toursCount.few': '{count} тури',
+  'mobileTrip.toursCount.many': '{count} турів',
   'mobileTrip.rtSearchOffline': 'Потрібне з’єднання: пошук зчитує маршрут попереду.',
   'mobileTrip.rtBehind': 'на {time} пізніше плану',
   'mobileTrip.rtStart': 'Початок',

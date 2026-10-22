@@ -672,6 +672,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'رحلة برية',
   'admin.addons.catalog.roadtrip.description':
     'خطّط رحلات القيادة مع محطات توقف، وتُحدَّث أوقات القيادة والوصول تلقائيًا',
+  'admin.addons.catalog.tours.name': 'الجولات',
+  'admin.addons.catalog.tours.description': 'مشي وركوب دراجات وجولات أخرى تتبع مسارًا',
   'admin.addons.catalog.memories.name': 'صور (Immich)',
   'admin.addons.catalog.memories.description': 'شارك صور رحلتك عبر Immich',
   'admin.addons.catalog.mcp.description': 'بروتوكول سياق النموذج لتكامل مساعد الذكاء الاصطناعي',

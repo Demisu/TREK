@@ -118,9 +118,10 @@ describe('MAdminAddonManager', () => {
     render(<MAdminAddonManager />);
 
     await screen.findByText('Lists');
-    expect(screen.getByText('Trip — Available as a tab within each trip')).toBeInTheDocument();
+    // The band names the type and says what it means on a line of its own, no dash between them.
+    expect(screen.getByText('Available as a tab within each trip')).toBeInTheDocument();
     expect(screen.getByText('Packing lists and to-do tasks for your trips')).toBeInTheDocument();
-    expect(screen.getByText('Trip')).toBeInTheDocument();
+    expect(screen.getAllByText('Trip')).toHaveLength(2);
     expect(screen.getByRole('switch', { name: 'Lists' })).toHaveAttribute('aria-checked', 'true');
   });
 
@@ -275,7 +276,7 @@ describe('MAdminAddonManager', () => {
     render(<MAdminAddonManager />);
 
     await screen.findByText('Immich');
-    expect(screen.getByText('Global — Available as a standalone section in the main navigation')).toBeInTheDocument();
+    expect(screen.getByText('Available as a standalone section in the main navigation')).toBeInTheDocument();
     expect(screen.getByText('Synology Photos')).toBeInTheDocument();
     expect(screen.getByText('Unsplash')).toBeInTheDocument();
     expect(screen.getByRole('switch', { name: 'Immich' })).toHaveAttribute('aria-checked', 'true');
@@ -499,7 +500,7 @@ describe('MAdminAddonManager', () => {
     render(<MAdminAddonManager />);
 
     await screen.findByText('AI Parsing');
-    expect(screen.getByText('Integration — Backend services and API integrations with no dedicated page')).toBeInTheDocument();
+    expect(screen.getByText('Backend services and API integrations with no dedicated page')).toBeInTheDocument();
     expect(screen.queryByText('Connection')).not.toBeInTheDocument();
   });
 

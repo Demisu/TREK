@@ -56,7 +56,11 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.rtInfoTitle': 'Fahrdaten',
   'mobileTrip.rtDesktopNote':
     'Diese Werte werden am Desktop gesetzt. Dort kannst du auch Routenvarianten vergleichen und einen Tag einer importierten Spur folgen lassen.',
-  'mobileTrip.rtPlanOnDesktop': 'Geplant wird am Desktop. TREK berechnet die Fahrt, sobald ein Tag zwei Orte hat.',
+  'mobileTrip.planOnDesktop': 'Geplant wird am Desktop',
+  'mobileTrip.rtDriveOnTwoPlaces': 'TREK berechnet die Fahrt, sobald ein Tag zwei Orte hat.',
+  'mobileTrip.toursEmptyBody': 'Gespeicherte Touren erscheinen hier und lassen sich einem Tag zuordnen.',
+  'mobileTrip.toursCount': '{count} Touren',
+  'mobileTrip.toursCount.one': '{count} Tour',
   'mobileTrip.rtSearchOffline': 'Braucht eine Verbindung: Die Suche liest die Strecke, die vor dir liegt.',
   'mobileTrip.rtBehind': '{time} hinter dem Plan',
   'mobileTrip.rtStart': 'Start',

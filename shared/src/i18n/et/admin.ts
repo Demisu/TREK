@@ -690,6 +690,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'Autoreis',
   'admin.addons.catalog.roadtrip.description':
     'Planeeri sõite koos marsruudipeatuste, sõiduaegade ja automaatselt uuenevate saabumisaegadega',
+  'admin.addons.catalog.tours.name': 'Retked',
+  'admin.addons.catalog.tours.description': 'Matkad, rattasõidud ja muud retked, mis järgivad marsruuti',
   'admin.addons.catalog.memories.name': 'Fotod (Immich)',
   'admin.addons.catalog.memories.description': 'Jaga reisifotosid oma Immichi paigalduse kaudu',
   'admin.addons.catalog.mcp.name': 'MCP',

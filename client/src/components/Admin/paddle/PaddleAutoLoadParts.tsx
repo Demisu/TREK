@@ -5,24 +5,17 @@ import { ChoiceChips, SettingRows, SETTINGS_BUTTON, SettingsHint, StatusPill } f
 import { LABEL, Segmented } from '../../shared/dialogParts';
 import { fs } from '../../shared/DialogShell';
 import { Tooltip } from '../../shared/Tooltip';
+import { AUTO_LOAD_MODES, autoLoadSizes, formatMegabytes } from './paddleRegionsModel';
 import type { usePaddleRegionsAdmin } from './usePaddleRegionsAdmin';
 
 type Admin = ReturnType<typeof usePaddleRegionsAdmin>;
 
-const MODES: readonly PaddleRegionAutoMode[] = ['auto', 'ask', 'off'];
 const MODE_ICONS = { auto: CloudDownload, ask: Hand, off: Power } as const;
-/** The largest region TREK loads by itself, in megabytes: a district, a state, a small country. */
-const SIZES = [100, 250, 500, 1000, 2000] as const;
 
-/** A size in megabytes as the reader's language writes it, from 1000 on in gigabytes. */
+/** `formatMegabytes` in the reader's language. */
 function useMegabytes() {
   const { language } = useTranslation();
-  return (mb: number) =>
-    new Intl.NumberFormat(language, {
-      style: 'unit',
-      unit: mb >= 1000 ? 'gigabyte' : 'megabyte',
-      maximumFractionDigits: mb >= 1000 ? 1 : 0,
-    }).format(mb >= 1000 ? mb / 1000 : mb);
+  return (mb: number) => formatMegabytes(mb, language);
 }
 
 const MB = 1024 * 1024;
@@ -36,9 +29,7 @@ export function AutoLoadSettings({ admin }: { admin: Admin }) {
   const megabytes = useMegabytes();
   const { settings, saving, save } = admin.autoLoad;
   if (!settings) return null;
-  const sizes = SIZES.includes(settings.max_mb as (typeof SIZES)[number])
-    ? SIZES
-    : [...SIZES, settings.max_mb].sort((a, b) => a - b);
+  const sizes = autoLoadSizes(settings.max_mb);
   return (
     <div data-testid="paddle-auto-load" className="flex min-w-0 flex-col gap-2.5">
       <div className="min-w-0">
@@ -49,7 +40,7 @@ export function AutoLoadSettings({ admin }: { admin: Admin }) {
             onChange={(mode) => void save({ mode })}
             label={t('admin.paddleRegions.auto.title')}
             fill
-            options={MODES.map((mode) => {
+            options={AUTO_LOAD_MODES.map((mode) => {
               const Icon = MODE_ICONS[mode];
               return {
                 value: mode,

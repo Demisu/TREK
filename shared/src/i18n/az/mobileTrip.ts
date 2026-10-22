@@ -56,8 +56,11 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.rtInfoTitle': 'Avtomobil marşrutu göstəriciləri',
   'mobileTrip.rtDesktopNote':
     'Bu göstəricilər kompüterdə təyin edilir. Orada alternativ marşrutları müqayisə edə və günü idxal edilmiş iz üzrə hərəkət edəcək şəkildə qura bilərsiniz.',
-  'mobileTrip.rtPlanOnDesktop':
-    'Planlaşdırma kompüterdə aparılır. Gündə iki məkan olduqda TREK avtomobil marşrutunu hesablayır.',
+  'mobileTrip.planOnDesktop': 'Planlama kompüterdə',
+  'mobileTrip.rtDriveOnTwoPlaces': 'Gündə iki məkan olduqda TREK avtomobil marşrutunu hesablayır.',
+  'mobileTrip.toursEmptyBody': 'Saxlanmış turlar burada görünür və günə əlavə edilə bilər.',
+  'mobileTrip.toursCount': '{count} tur',
+  'mobileTrip.toursCount.one': '{count} tur',
   'mobileTrip.rtSearchOffline': 'İnternet bağlantısı tələb olunur: axtarış qarşıdakı marşrutu yoxlayır.',
   'mobileTrip.rtBehind': 'Plandan {time} geri',
   'mobileTrip.rtStart': 'Başlanğıc',

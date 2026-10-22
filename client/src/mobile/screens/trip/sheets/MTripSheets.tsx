@@ -3,8 +3,6 @@ import { createPortal } from 'react-dom'
 import TransitJourneyModal from '../../../../components/Planner/TransitJourneyModal'
 import BookingImportModal from '../../../../components/Planner/BookingImportModal'
 import AirTrailImportModal from '../../../../components/Planner/AirTrailImportModal'
-import TripFormModal from '../../../../components/Trips/TripFormModal'
-import TripMembersModal from '../../../../components/Trips/TripMembersModal'
 import TourDetailDialog from '../../../../components/Tours/TourDetailDialog'
 import { useBookingExpenseEditor } from '../../../../pages/tripPlanner/useBookingExpenseEditor'
 import { applyTripCoverUpdate } from '../../../../pages/tripPlanner/tripCover'
@@ -26,6 +24,8 @@ import MNoteSheet, { type MNoteSheetPayload } from './MNoteSheet'
 import MImportSheet from './MImportSheet'
 import MExportSheet from './MExportSheet'
 import MMehrSheet from './MMehrSheet'
+import MTripSettingsSheet from './MTripSettingsSheet'
+import MNewTripSheet from '../../dashboard/MNewTripSheet'
 import MPlacesFilterSheet from '../places/MPlacesFilterSheet'
 import MRtStopSheet from '../roadtrip/MRtStopSheet'
 import MRtStaySheet from '../roadtrip/MRtStaySheet'
@@ -97,9 +97,10 @@ export function MSelectedTourDetail({ planner }: Pick<MTripSheetsProps, 'planner
  * transport, bract, note, import, export, mehr — the place inspector keys off
  * the planner's place selection instead), and the planner-flag editors that
  * every entry point (?create=, import review, timeline, map long-press) opens
- * through useTripPlanner state. The transport/booking/transit/import/member
+ * through useTripPlanner state. The transport/booking/transit/import
  * editors reuse the shared desktop modals until they get mobile counterparts;
- * they carry the full behaviour (undo, WS sync, review flow) unchanged.
+ * they carry the full behaviour (undo, WS sync, review flow) unchanged. Trip edit and
+ * the trip settings have phone sheets of their own.
  */
 export default function MTripSheets({ planner, shell }: MTripSheetsProps) {
   const { t, toast, tripId, trip, tripActions } = planner
@@ -197,21 +198,21 @@ export default function MTripSheets({ planner, shell }: MTripSheetsProps) {
       <AirTrailImportModal isOpen={planner.showAirTrailImport} onClose={() => planner.setShowAirTrailImport(false)} tripId={tripId} pushUndo={planner.pushUndo} />
 
       {/* Trip edit + share/members, opened from the Mehr sheet. */}
-      <TripFormModal
-        isOpen={sheet?.id === 'tripedit'}
+      <MNewTripSheet
+        open={sheet?.id === 'tripedit'}
+        trip={trip ?? null}
         onClose={shell.closeSheet}
         onSave={async (data) => {
           await tripActions.updateTrip(tripId, data)
           toast.success(t('trip.toast.tripUpdated'))
         }}
-        trip={trip}
         onCoverUpdate={applyTripCoverUpdate}
       />
-      <TripMembersModal
-        isOpen={sheet?.id === 'members'}
+      <MTripSettingsSheet
+        open={sheet?.id === 'members'}
         onClose={shell.closeSheet}
         tripId={tripId}
-        tripTitle={trip?.title}
+        tripTitle={trip?.title ?? ''}
         onMembersChanged={planner.refreshMembers}
       />
 

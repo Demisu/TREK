@@ -207,8 +207,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.profileFocus': 'Na dystansie {distance}: {elevation}',
   'tours.planner.inspector.elevationPlaceholder': 'Profil pojawi się, gdy będą dostępne dane wysokościowe trasy.',
   'tours.planner.gpxNoGeometry': 'Geometria trasy jest niedostępna dla tego importu GPX.',
-  'tours.planner.mobileHint':
-    'Planowanie wycieczek jest dostępne na tablecie i komputerze. Tutaj możesz przeglądać zapisane wycieczki i przypisywać je do dni.',
   'tourTypes.hike': 'Wędrówka piesza',
   'tourTypes.bike': 'Wycieczka rowerowa',
   'tourTypes.run': 'Bieg',

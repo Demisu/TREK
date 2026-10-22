@@ -180,7 +180,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.profileFocus': '距離 {distance} 處：{elevation}',
   'tours.planner.inspector.elevationPlaceholder': '取得路線的海拔資料後，會顯示剖面圖。',
   'tours.planner.gpxNoGeometry': '這次 GPX 匯入沒有可用的路線幾何資料。',
-  'tours.planner.mobileHint': '可在平板電腦與電腦上規劃遊程。在這裡可以檢視已儲存的遊程並安排日期。',
   'tourTypes.hike': '健行',
   'tourTypes.bike': '單車遊程',
   'tourTypes.run': '跑步',

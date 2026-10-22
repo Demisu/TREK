@@ -60,6 +60,25 @@ export function MAdminRow({
   )
 }
 
+/**
+ * A description that keeps to two lines until it is tapped. On a phone the long
+ * ones (a map provider's terms, how a loader decides) pushed every control off
+ * screen; the whole text stays one tap away.
+ */
+export function MAdminClampedText({ children, className = '' }: { children: string; className?: string }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <button
+      type="button"
+      aria-expanded={open}
+      onClick={() => setOpen((value) => !value)}
+      className={`block w-full text-start font-geist leading-relaxed text-m-muted ${open ? '' : 'line-clamp-2'} ${className}`}
+    >
+      {children}
+    </button>
+  )
+}
+
 /** Labelled form field with an optional hint line under the control. */
 export function MAdminField({ label, hint, children }: { label: ReactNode; hint?: ReactNode; children: ReactNode }) {
   return (

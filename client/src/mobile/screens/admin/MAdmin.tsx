@@ -1,5 +1,5 @@
-import SchoolHolidayCatalog from '../../../components/Admin/SchoolHolidayCatalog'
-import PaddleRegionsPanel from '../../../components/Admin/paddle/PaddleRegionsPanel'
+import MAdminSchoolHolidayCatalog from './MAdminSchoolHolidayCatalog'
+import MAdminPaddleRegionsPanel from './MAdminPaddleRegionsPanel'
 import { useState } from 'react'
 import {
   ArrowUp,
@@ -206,7 +206,7 @@ export default function MAdmin() {
         <div className="space-y-4">
           <MAdminPackingTemplateManager />
           <MAdminCategoryManager />
-          <SchoolHolidayCatalog />
+          <MAdminSchoolHolidayCatalog />
         </div>
       )}
       {activeTab === 'addons' && (
@@ -217,7 +217,7 @@ export default function MAdmin() {
             collabFeatures={collabFeatures}
             onToggleCollabFeature={toggleCollabFeature}
           />
-          <PaddleRegionsPanel />
+          <MAdminPaddleRegionsPanel />
         </div>
       )}
       {activeTab === 'plugins' && <MAdminPluginsPanel />}

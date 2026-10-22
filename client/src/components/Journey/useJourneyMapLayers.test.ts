@@ -111,6 +111,33 @@ describe('useJourneyMapLayers', () => {
     });
   });
 
+  it('FE-JOURNEY-MAPLAYERS-HOOK-002b: the phone shows every layer whatever was kept, and keeps no switch', () => {
+    vi.spyOn(journeyMapRepo, 'layers').mockResolvedValue({
+      places: { status: 'ok', items: [] },
+      routes: { status: 'ok', items: [] },
+      stays: { status: 'ok', items: [] },
+    });
+    localStorage.setItem('trek:journey-map-layers:8', JSON.stringify({ plan: false, entries: false }));
+    const { result } = renderHook(() =>
+      useJourneyMapLayers({
+        source: { journeyId: 8 },
+        entryIdsOnMap: NO_ENTRIES,
+        photoCount: 0,
+        colorOfDay,
+        dateOfEntry,
+        allLayers: true,
+      })
+    );
+
+    expect(result.current.visibility).toMatchObject({ plan: true, entries: true, recorded: true, photos: true });
+    act(() => result.current.toggle('photos'));
+    expect(result.current.visibility.photos).toBe(false);
+    expect(JSON.parse(localStorage.getItem('trek:journey-map-layers:8') ?? '{}')).toEqual({
+      plan: false,
+      entries: false,
+    });
+  });
+
   it('FE-JOURNEY-MAPLAYERS-HOOK-003: a read that fails says so on the plan and the entries, and the recordings still draw', async () => {
     vi.spyOn(journeyMapRepo, 'layers').mockRejectedValue(new Error('down'));
     const recorded: JourneyTrack = {

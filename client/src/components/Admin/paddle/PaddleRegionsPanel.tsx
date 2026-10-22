@@ -25,8 +25,8 @@ type Admin = ReturnType<typeof usePaddleRegionsAdmin>;
  * PAD-05A in the admin area: the regions TREK reads paddle obstacles for,
  * picked from Geofabrik's list, and (PAD-11C) how TREK loads the region of a
  * place a paddler plans in by itself, with the regions that wait for an admin.
- * Both the desktop and the phone admin show this one card under the addons,
- * while the Tours addon is on.
+ * The desktop admin shows this card under the addons while the Tours addon
+ * is on; the phone has MAdminPaddleRegionsPanel on the same hook.
  */
 export default function PaddleRegionsPanel() {
   return (

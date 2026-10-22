@@ -899,6 +899,24 @@
       "hooks": ["src/components/Vacay/useVacaySettings.ts"],
       "desktop": ["src/components/Vacay/VacaySettings.tsx"],
       "mobile": ["src/mobile/screens/vacay/MVacaySettingsSheet.tsx"]
+    },
+    {
+      "feature": "Paddle regions admin card",
+      "hooks": ["src/components/Admin/paddle/usePaddleRegionsAdmin.ts", "src/components/Admin/paddle/paddleRegionsModel.ts"],
+      "desktop": ["src/components/Admin/paddle/PaddleRegionsPanel.tsx"],
+      "mobile": ["src/mobile/screens/admin/MAdminPaddleRegionsPanel.tsx"]
+    },
+    {
+      "feature": "School holiday catalog admin card",
+      "hooks": ["src/components/Admin/useSchoolHolidayCatalog.ts"],
+      "desktop": ["src/components/Admin/SchoolHolidayCatalog.tsx"],
+      "mobile": ["src/mobile/screens/admin/MAdminSchoolHolidayCatalog.tsx"]
+    },
+    {
+      "feature": "Trip settings: members, guests, public and invite link",
+      "hooks": ["src/components/Trips/useTripShare.ts"],
+      "desktop": ["src/components/Trips/TripShareDialog.tsx"],
+      "mobile": ["src/mobile/screens/trip/sheets/MTripSettingsSheet.tsx"]
     }
   ],
   "mobileOnly": {

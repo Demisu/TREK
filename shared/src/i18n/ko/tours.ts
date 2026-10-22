@@ -188,8 +188,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.profileFocus': '{distance} 지점: {elevation}',
   'tours.planner.inspector.elevationPlaceholder': '경로의 고도 데이터가 있으면 그래프가 표시됩니다.',
   'tours.planner.gpxNoGeometry': '이 GPX 가져오기에는 경로 형상 데이터가 없습니다.',
-  'tours.planner.mobileHint':
-    '투어 계획은 태블릿과 컴퓨터에서 이용할 수 있습니다. 여기에서는 저장된 투어를 보고 일정에 배정할 수 있습니다.',
   'tourTypes.hike': '하이킹',
   'tourTypes.bike': '자전거 투어',
   'tourTypes.run': '달리기',

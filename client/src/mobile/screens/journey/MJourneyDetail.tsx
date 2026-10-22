@@ -304,7 +304,7 @@ export default function MJourneyDetail({ journeyId, embedded = false }: JourneyD
         <JourneyLayeredMap
           ref={mapRef}
           layers={mapLayers}
-          compactControls
+          hideLayerControl
           controlsTop="calc(var(--m-safe-top, 12px) + 50px)"
           onOpenEntry={handleMarkerClick}
           entryTitleOf={entryTitleOf}

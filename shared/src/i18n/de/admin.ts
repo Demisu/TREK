@@ -626,6 +626,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'Roadtrip',
   'admin.addons.catalog.roadtrip.description':
     'Fahrten mit Zwischenstopps planen — Fahrzeiten und Ankunftszeiten rechnen sich selbst neu',
+  'admin.addons.catalog.tours.name': 'Touren',
+  'admin.addons.catalog.tours.description': 'Wanderungen, Radtouren und andere Touren entlang einer Route',
   'admin.addons.catalog.memories.name': 'Fotos (Immich)',
   'admin.addons.catalog.memories.description': 'Reisefotos über deine Immich-Instanz teilen',
   'admin.addons.catalog.mcp.name': 'MCP',

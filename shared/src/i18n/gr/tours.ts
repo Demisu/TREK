@@ -204,8 +204,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.elevationPlaceholder':
     'Το προφίλ εμφανίζεται όταν είναι διαθέσιμα τα υψομετρικά δεδομένα της διαδρομής.',
   'tours.planner.gpxNoGeometry': 'Η γεωμετρία της διαδρομής δεν είναι διαθέσιμη για αυτήν την εισαγωγή GPX.',
-  'tours.planner.mobileHint':
-    'Ο σχεδιασμός εκδρομών είναι διαθέσιμος σε τάμπλετ και υπολογιστή. Εδώ μπορείτε να βλέπετε τις αποθηκευμένες εκδρομές και να τις αντιστοιχίζετε σε ημέρες.',
   'tourTypes.hike': 'Πεζοπορία',
   'tourTypes.bike': 'Ποδηλατική εκδρομή',
   'tourTypes.run': 'Τρέξιμο',

@@ -635,6 +635,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'Road trip',
   'admin.addons.catalog.roadtrip.description':
     'Planifiez des trajets avec étapes : temps de conduite et heures d’arrivée se recalculent seuls',
+  'admin.addons.catalog.tours.name': 'Sorties',
+  'admin.addons.catalog.tours.description': 'Randonnées, balades à vélo et autres sorties qui suivent un itinéraire',
   'admin.addons.subtitleBefore': 'Activez ou désactivez des fonctionnalités pour personnaliser votre expérience ',
   'admin.addons.subtitleAfter': '.',
   'admin.addons.catalog.naver_list_import.name': 'Naver List Import',

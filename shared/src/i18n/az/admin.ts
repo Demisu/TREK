@@ -709,6 +709,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'Avtomobil səyahəti',
   'admin.addons.catalog.roadtrip.description':
     'Marşrut üzərindəki dayanacaqlar, sürmə müddətləri və avtomatik yenilənən çatma vaxtları ilə avtomobil səfərlərini planlaşdırın',
+  'admin.addons.catalog.tours.name': 'Turlar',
+  'admin.addons.catalog.tours.description': 'Marşrut üzrə gəzintilər, velosiped və digər turlar',
   'admin.addons.catalog.memories.name': 'Fotolar (Immich)',
   'admin.addons.catalog.memories.description': 'Immich sisteminiz vasitəsilə səyahət fotolarını paylaşın',
   'admin.addons.catalog.mcp.name': 'MCP',

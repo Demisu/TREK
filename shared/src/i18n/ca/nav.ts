@@ -1,7 +1,6 @@
 import type { TranslationStrings } from '../types';
 
 const nav: TranslationStrings = {
-  'nav.trip': 'Viatge',
   'nav.settings': 'Configuració',
   'nav.admin': 'Administració',
   'nav.logout': 'Tanca la sessió',

@@ -647,6 +647,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'Автоподорож',
   'admin.addons.catalog.roadtrip.description':
     'Плануйте поїздки із зупинками — час у дорозі та прибуття перераховуються автоматично',
+  'admin.addons.catalog.tours.name': 'Тури',
+  'admin.addons.catalog.tours.description': 'Походи, велопрогулянки та інші тури за маршрутом',
   'admin.addons.subtitleBefore': 'Увімкніть або вимкніть функції для налаштування ',
   'admin.addons.subtitleAfter': ' під себе.',
   'admin.addons.catalog.naver_list_import.name': 'Naver List Import',

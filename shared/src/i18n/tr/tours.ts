@@ -195,8 +195,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.elevationPlaceholder':
     'Rotanın yükseklik verileri kullanılabilir olduğunda profil gösterilir.',
   'tours.planner.gpxNoGeometry': 'Bu GPX içe aktarımı için rota geometrisi kullanılamıyor.',
-  'tours.planner.mobileHint':
-    'Tur planlama tablet ve bilgisayarda kullanılabilir. Burada kaydedilmiş turları görüntüleyebilir ve günlere atayabilirsiniz.',
   'tourTypes.hike': 'Doğa yürüyüşü',
   'tourTypes.bike': 'Bisiklet turu',
   'tourTypes.run': 'Koşu',

@@ -23,7 +23,7 @@ import {
 import { useAddonManager } from '../../../components/Admin/addons/useAddonManager'
 import { useLlmParsingConfig } from '../../../components/Admin/addons/useLlmParsingConfig'
 import { ImmichIcon, SynologyIcon } from '../../../components/Admin/addons/PhotoProviderIcons'
-import { MAdminButton, MAdminCard, MAdminField, MAdminInput, MAdminSecretInput } from './MAdminUi'
+import { MAdminButton, MAdminCard, MAdminClampedText, MAdminField, MAdminInput, MAdminSecretInput } from './MAdminUi'
 import WandererMark from '../../../components/Tours/wanderer/WandererMark'
 
 // Keys are the `icon` column from the addons table; anything unknown falls back to
@@ -82,9 +82,10 @@ export default function MAdminAddonManager({ bagTrackingEnabled, onToggleBagTrac
       {/* Header */}
       <MAdminCard>
         <div className="text-[0.875rem] font-extrabold text-m-ink">{t('admin.addons.title')}</div>
-        <p className="mt-[2px] flex flex-wrap items-center gap-1 font-geist text-[0.625rem] leading-relaxed text-m-muted">
-          {t('admin.addons.subtitleBefore')}
-          <img src={dark ? '/text-light.svg' : '/text-dark.svg'} alt="TREK" style={{ height: 11, display: 'inline', verticalAlign: 'middle', opacity: 0.7 }} />
+        {/* One run of text with the wordmark inside it, so a line break falls between words and never around the logo. */}
+        <p className="mt-[2px] font-geist text-[length:calc(10px*var(--fs-scale-caption,1))] leading-relaxed text-m-muted">
+          {t('admin.addons.subtitleBefore')}{' '}
+          <img src={dark ? '/text-light.svg' : '/text-dark.svg'} alt="TREK" className="inline h-[9px] w-auto align-baseline opacity-70" />{' '}
           {t('admin.addons.subtitleAfter')}
         </p>
       </MAdminCard>
@@ -100,7 +101,7 @@ export default function MAdminAddonManager({ bagTrackingEnabled, onToggleBagTrac
           {/* Trip Addons */}
           {tripAddons.length > 0 && (
             <MAdminCard>
-              <MGroupHead icon={Briefcase} label={`${t('admin.addons.type.trip')} — ${t('admin.addons.tripHint')}`} />
+              <MGroupHead icon={Briefcase} label={t('admin.addons.type.trip')} hint={t('admin.addons.tripHint')} />
               {tripAddons.map((addon, i) => (
                 <div key={addon.id}>
                   <MAddonRow addon={addon} onToggle={handleToggle} t={t} first={i === 0} />
@@ -157,7 +158,7 @@ export default function MAdminAddonManager({ bagTrackingEnabled, onToggleBagTrac
           {/* Global Addons */}
           {globalAddons.length > 0 && (
             <MAdminCard>
-              <MGroupHead icon={Globe} label={`${t('admin.addons.type.global')} — ${t('admin.addons.globalHint')}`} />
+              <MGroupHead icon={Globe} label={t('admin.addons.type.global')} hint={t('admin.addons.globalHint')} />
               {globalAddons.map((addon, i) => (
                 <div key={addon.id}>
                   <MAddonRow addon={addon} onToggle={handleToggle} t={t} first={i === 0} />
@@ -171,7 +172,7 @@ export default function MAdminAddonManager({ bagTrackingEnabled, onToggleBagTrac
           {/* Integration Addons */}
           {integrationAddons.length > 0 && (
             <MAdminCard>
-              <MGroupHead icon={Link2} label={`${t('admin.addons.type.integration')} — ${t('admin.addons.integrationHint')}`} />
+              <MGroupHead icon={Link2} label={t('admin.addons.type.integration')} hint={t('admin.addons.integrationHint')} />
               {integrationAddons.map((addon, i) => (
                 <div key={addon.id}>
                   <MAddonRow addon={addon} onToggle={handleToggle} t={t} first={i === 0} />
@@ -191,11 +192,14 @@ export default function MAdminAddonManager({ bagTrackingEnabled, onToggleBagTrac
 }
 
 /** Group subheader: small icon + uppercase label, matches the desktop section band. */
-function MGroupHead({ icon: Icon, label }: { icon: typeof Briefcase; label: string }) {
+function MGroupHead({ icon: Icon, label, hint }: { icon: typeof Briefcase; label: string; hint: string }) {
   return (
-    <div className="mb-1 flex items-center gap-2">
-      <Icon size={13} className="flex-none text-m-muted" />
-      <span className="font-geist text-[0.625rem] font-bold uppercase tracking-[0.06em] text-m-muted">{label}</span>
+    <div className="mb-1">
+      <div className="flex items-center gap-2">
+        <Icon size={13} className="flex-none text-m-muted" />
+        <span className="font-geist text-[length:calc(10px*var(--fs-scale-caption,1))] font-bold uppercase tracking-[0.06em] text-m-muted">{label}</span>
+      </div>
+      <p className="mt-[2px] ps-[21px] font-geist text-[length:calc(9.5px*var(--fs-scale-caption,1))] leading-snug text-m-faint">{hint}</p>
     </div>
   )
 }
@@ -225,7 +229,7 @@ function MAddonRow({ addon, onToggle, t, first }: MAddonRowProps) {
             {typeLabel}
           </span>
         </div>
-        <p className="mt-[1px] font-geist text-[0.625rem] leading-relaxed text-m-muted">{label.description}</p>
+        <MAdminClampedText className="mt-[1px] text-[length:calc(10px*var(--fs-scale-caption,1))]">{label.description}</MAdminClampedText>
       </div>
       <MToggle checked={addon.enabled} ariaLabel={label.name} onChange={() => onToggle(addon)} />
     </div>
@@ -268,7 +272,7 @@ function MSubRow({ icon: Icon, providerIcon: ProviderIcon, title, subtitle, enab
       </span>
       <div className="min-w-0 flex-1">
         <div className="text-[0.75rem] font-bold text-m-ink">{title}</div>
-        <div className="mt-[1px] font-geist text-[0.59375rem] leading-relaxed text-m-muted">{subtitle}</div>
+        <MAdminClampedText className="mt-[1px] text-[length:calc(9.5px*var(--fs-scale-caption,1))]">{subtitle}</MAdminClampedText>
       </div>
       <MToggle checked={enabled} ariaLabel={title} onChange={onToggle} />
     </div>

@@ -193,8 +193,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.profileFocus': 'Pada jarak {distance}: {elevation}',
   'tours.planner.inspector.elevationPlaceholder': 'Profil ditampilkan saat data elevasi rute tersedia.',
   'tours.planner.gpxNoGeometry': 'Geometri rute tidak tersedia untuk impor GPX ini.',
-  'tours.planner.mobileHint':
-    'Perencanaan tur tersedia di tablet dan komputer. Tur tersimpan dapat dilihat dan dijadwalkan di sini.',
   'tourTypes.hike': 'Pendakian',
   'tourTypes.bike': 'Tur sepeda',
   'tourTypes.run': 'Lari',

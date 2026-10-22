@@ -200,8 +200,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.elevationPlaceholder':
     "El perfil es mostra quan hi ha dades d'altitud de la ruta disponibles.",
   'tours.planner.gpxNoGeometry': 'La geometria de la ruta no està disponible per a aquesta importació GPX.',
-  'tours.planner.mobileHint':
-    'La planificació d’excursions està disponible en tauletes i ordinadors. Aquí pots consultar les excursions desades i assignar-les a un dia.',
   'tourTypes.hike': 'Senderisme',
   'tourTypes.bike': 'Ruta en bicicleta',
   'tourTypes.run': 'Córrer',

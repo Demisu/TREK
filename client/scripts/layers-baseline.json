@@ -42,7 +42,6 @@
   "src/components/Studio/StudioSidebar.tsx": 1,
   "src/components/Studio/TravelElements.tsx": 1,
   "src/components/Todo/useTodoList.ts": 1,
-  "src/components/Trips/TripMembersModal.tsx": 1,
   "src/components/shared/ConfirmDialog.tsx": 1,
   "src/components/shared/CountryFlag.tsx": 1,
   "src/components/shared/EmptyState.tsx": 1,

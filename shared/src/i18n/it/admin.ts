@@ -626,6 +626,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'Viaggio su strada',
   'admin.addons.catalog.roadtrip.description':
     'Pianifica viaggi con soste: tempi di guida e orari di arrivo si ricalcolano da soli',
+  'admin.addons.catalog.tours.name': 'Escursioni',
+  'admin.addons.catalog.tours.description': 'Escursioni a piedi, in bici e altre uscite che seguono un percorso',
   'admin.addons.catalog.memories.name': 'Foto (Immich)',
   'admin.addons.catalog.memories.description': 'Condividi le foto del viaggio tramite la tua istanza Immich',
   'admin.addons.catalog.mcp.name': 'MCP',

@@ -691,6 +691,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'Οδικό ταξίδι',
   'admin.addons.catalog.roadtrip.description':
     'Σχεδιάστε διαδρομές με στάσεις — οι χρόνοι οδήγησης και άφιξης υπολογίζονται ξανά αυτόματα',
+  'admin.addons.catalog.tours.name': 'Εκδρομές',
+  'admin.addons.catalog.tours.description': 'Πεζοπορίες, ποδηλατάδες και άλλες εκδρομές που ακολουθούν μια διαδρομή',
   'admin.addons.catalog.memories.name': 'Φωτογραφίες (Immich)',
   'admin.addons.catalog.memories.description':
     'Μοιραστείτε φωτογραφίες ταξιδιού μέσω της δικής σας εγκατάστασης Immich',

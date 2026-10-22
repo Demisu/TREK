@@ -631,6 +631,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'Autós út',
   'admin.addons.catalog.roadtrip.description':
     'Tervezz megállókkal tarkított utakat – a vezetési és érkezési idők maguktól újraszámolódnak',
+  'admin.addons.catalog.tours.name': 'Túrák',
+  'admin.addons.catalog.tours.description': 'Gyalog-, kerékpár- és más túrák, amelyek útvonalat követnek',
   'admin.addons.catalog.memories.name': 'Fotók (Immich)',
   'admin.addons.catalog.memories.description': 'Utazási fotók megosztása az Immich példányon keresztül',
   'admin.addons.catalog.mcp.name': 'MCP',

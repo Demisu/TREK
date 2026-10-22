@@ -1,13 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Archive, ArchiveRestore, Camera, Search, X } from 'lucide-react'
+import { Archive, ArchiveRestore, Bell, Camera, Search, X } from 'lucide-react'
 import { useTranslation } from '../../../i18n'
 import { useCanDo } from '../../../store/permissionsStore'
 import { useSettingsStore } from '../../../store/settingsStore'
+import { useAuthStore } from '../../../store/authStore'
+import MChip from '../../components/MChip'
 import { CustomDatePicker } from '../../../components/shared/CustomDateTimePicker'
 import CustomSelect from '../../../components/shared/CustomSelect'
 import { currenciesWith, SYMBOLS } from '../../../components/Budget/BudgetPanel.constants'
 import type { DashboardTrip } from '../../../pages/dashboard/dashboardModel'
-import { type Trip, type TripCreateRequest } from '@trek/shared'
+import { MAX_TRIP_DAYS, type Trip, type TripCreateRequest } from '@trek/shared'
 import MSheet from '../../components/MSheet'
 import MIconBtn from '../../components/MIconBtn'
 import MListRow from '../../components/MListRow'
@@ -29,6 +31,9 @@ interface MNewTripSheetProps {
   onArchive?: () => void
 }
 
+/** The reminder presets the desktop form offers; anything else is a custom number of days. */
+const REMINDER_PRESETS = [0, 1, 3, 9]
+
 function FieldLabel({ children }: { children: React.ReactNode }): React.ReactElement {
   return (
     <div className="font-geist text-[0.5625rem] font-bold uppercase tracking-[.1em] text-m-faint">{children}</div>
@@ -37,7 +42,9 @@ function FieldLabel({ children }: { children: React.ReactNode }): React.ReactEle
 
 /**
  * Create/edit trip sheet — the mobile counterpart of TripFormModal's core flow:
- * title, date range and Unsplash cover search (plus device upload). Archiving
+ * title, date range (or a day count without one), the reminder and the
+ * Unsplash cover search (plus device upload). The trip planner's More sheet
+ * opens it for editing too. Archiving
  * lives here in edit mode, as decided for the grid cards.
  */
 export default function MNewTripSheet({ open, trip, onClose, onSave, onCoverUpdate, onArchive }: MNewTripSheetProps): React.ReactElement {
@@ -48,12 +55,19 @@ export default function MNewTripSheet({ open, trip, onClose, onSave, onCoverUpda
   const fileRef = useRef<HTMLInputElement>(null)
   const canEditTrip = !isEditing || can('trip_edit', trip)
   const canUploadCover = !isEditing || can('trip_cover_upload', trip)
+  const currentUser = useAuthStore(s => s.user)
+  const remindersEnabled = useAuthStore(s => s.tripRemindersEnabled)
+  // As on the desktop: the reminder is the owner's (or an admin's), and set when creating.
+  const showReminder = !isEditing || trip?.user_id === currentUser?.id || currentUser?.role === 'admin'
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [currency, setCurrency] = useState('EUR')
+  const [dayCount, setDayCount] = useState<number | ''>(7)
+  const [reminderDays, setReminderDays] = useState(0)
+  const [customReminder, setCustomReminder] = useState(false)
   const [error, setError] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const cover = useTripCoverPicker({ trip, title, onCoverUpdate, releasePreviewOnChange: true })
@@ -71,6 +85,10 @@ export default function MNewTripSheet({ open, trip, onClose, onSave, onCoverUpda
     setStartDate(trip?.start_date || '')
     setEndDate(trip?.end_date || '')
     setCurrency(trip?.currency || defaultCurrency)
+    setDayCount(trip?.day_count || 7)
+    const reminder = trip ? (trip.reminder_days ?? 3) : (remindersEnabled ? 3 : 0)
+    setReminderDays(reminder)
+    setCustomReminder(!REMINDER_PRESETS.includes(reminder))
     cover.resetCover(trip?.cover_image || null)
     setError('')
     setPendingRemoval(null)
@@ -89,13 +107,21 @@ export default function MNewTripSheet({ open, trip, onClose, onSave, onCoverUpda
     setError('')
     const formError = tripFormError({ title, startDate, endDate }, trip, t)
     if (formError) { setError(formError); return null }
+    const dateless = !startDate && !endDate
+    if (dateless && (dayCount === '' || dayCount < 1 || dayCount > MAX_TRIP_DAYS)) {
+      setError(t('dashboard.dayCountRequired')); return null
+    }
+    // The count goes along only when it says something new: the trip's own one
+    // goes stale in the planner, and sending it back would trim a day just added.
+    const sendDayCount = dateless && (!isEditing || dayCount !== trip?.day_count)
     return {
       title: title.trim(),
       description: description.trim() || null,
       start_date: startDate || null,
       end_date: endDate || null,
       currency,
-      ...(!startDate && !endDate && !isEditing ? { day_count: 7 } : {}),
+      ...(showReminder ? { reminder_days: reminderDays } : {}),
+      ...(sendDayCount ? { day_count: Number(dayCount) } : {}),
     }
   }
 
@@ -197,8 +223,28 @@ export default function MNewTripSheet({ open, trip, onClose, onSave, onCoverUpda
             />
           </div>
         </div>
-        {!isEditing && !startDate && !endDate && (
-          <div className="mt-[6px] px-1 font-geist text-[0.625rem] text-m-faint">{t('dashboard.noDateHint')}</div>
+        {!startDate && !endDate && (
+          <>
+            <div className={`${boxCls} mt-2`}>
+              <FieldLabel>{t('dashboard.dayCount')}</FieldLabel>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={MAX_TRIP_DAYS}
+                value={dayCount}
+                onChange={e => {
+                  if (!canEditTrip) return
+                  setError('')
+                  const raw = e.target.value
+                  setDayCount(raw === '' ? '' : Math.min(MAX_TRIP_DAYS, Math.max(1, Math.floor(Number(raw)) || 1)))
+                }}
+                readOnly={!canEditTrip}
+                className={inputCls}
+              />
+            </div>
+            {!isEditing && <div className="mt-[6px] px-1 font-geist text-[length:calc(10px*var(--fs-scale-caption,1))] text-m-faint">{t('dashboard.noDateHint')}</div>}
+          </>
         )}
 
         <div className="mt-2">
@@ -213,6 +259,47 @@ export default function MNewTripSheet({ open, trip, onClose, onSave, onCoverUpda
             style={{ width: '100%', marginTop: 5 }}
           />
         </div>
+
+        {showReminder && (
+          <div className={`${boxCls} mt-2`}>
+            <FieldLabel>
+              <span className="inline-flex items-center gap-1"><Bell size={10} strokeWidth={2.4} />{t('trips.reminder')}</span>
+            </FieldLabel>
+            {!remindersEnabled ? (
+              <p className="mt-1 font-geist text-[length:calc(11px*var(--fs-scale-caption,1))] leading-snug text-m-muted">{t('trips.reminderDisabledHint')}</p>
+            ) : (
+              <>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {REMINDER_PRESETS.map(days => (
+                    <MChip key={days} pressable active={!customReminder && reminderDays === days}
+                      onClick={() => { setError(''); setReminderDays(days); setCustomReminder(false) }}>
+                      {days === 0 ? t('trips.reminderNone') : `${days} ${t(days === 1 ? 'trips.reminderDay' : 'trips.reminderDays')}`}
+                    </MChip>
+                  ))}
+                  <MChip pressable active={customReminder}
+                    onClick={() => { setCustomReminder(true); if (REMINDER_PRESETS.includes(reminderDays)) setReminderDays(7) }}>
+                    {t('trips.reminderCustom')}
+                  </MChip>
+                </div>
+                {customReminder && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      max={30}
+                      value={reminderDays}
+                      onChange={e => setReminderDays(Math.max(1, Math.min(30, Number(e.target.value) || 1)))}
+                      aria-label={t('trips.reminderDaysBefore')}
+                      className="h-[34px] w-16 rounded-full border border-[color:var(--m-rowbr)] bg-transparent px-3 text-center text-[length:calc(13px*var(--fs-scale-body,1))] font-semibold text-m-ink outline-none"
+                    />
+                    <span className="font-geist text-[length:calc(11px*var(--fs-scale-caption,1))] text-m-muted">{t('trips.reminderDaysBefore')}</span>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
 
         {canUploadCover && (
           <div className="mt-2">

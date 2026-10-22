@@ -641,6 +641,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'Cesta autem',
   'admin.addons.catalog.roadtrip.description':
     'Plánujte jízdy se zastávkami – doby jízdy a časy příjezdu se přepočítají samy',
+  'admin.addons.catalog.tours.name': 'Výlety',
+  'admin.addons.catalog.tours.description': 'Pěší, cyklo a další výlety, které vedou po trase',
   'admin.addons.enabled': 'Povoleno',
   'admin.addons.disabled': 'Zakázáno',
   'admin.addons.type.trip': 'Cesta',

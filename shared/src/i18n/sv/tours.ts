@@ -194,8 +194,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.profileFocus': 'Vid {distance}: {elevation}',
   'tours.planner.inspector.elevationPlaceholder': 'Profilen visas när höjddata för rutten finns tillgängliga.',
   'tours.planner.gpxNoGeometry': 'Ruttgeometrin är inte tillgänglig för den här GPX-importen.',
-  'tours.planner.mobileHint':
-    'Turplanering är tillgänglig på surfplatta och dator. Här kan du visa sparade turer och tilldela dem till en dag.',
   'tourTypes.hike': 'Vandring',
   'tourTypes.bike': 'Cykeltur',
   'tourTypes.run': 'Löptur',

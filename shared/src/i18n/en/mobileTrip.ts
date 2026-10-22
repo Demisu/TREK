@@ -56,7 +56,11 @@ const mobileTrip: TranslationStrings = {
   'mobileTrip.rtInfoTitle': 'Driving figures',
   'mobileTrip.rtDesktopNote':
     'These figures are set on the desktop, where you can also compare route alternatives and make a day follow an imported track.',
-  'mobileTrip.rtPlanOnDesktop': 'Planning happens on the desktop. TREK works out the drive once a day has two places.',
+  'mobileTrip.planOnDesktop': 'Planned on desktop',
+  'mobileTrip.rtDriveOnTwoPlaces': 'TREK works out the drive once a day has two places.',
+  'mobileTrip.toursEmptyBody': 'Saved tours show up here, ready to put on a day.',
+  'mobileTrip.toursCount': '{count} tours',
+  'mobileTrip.toursCount.one': '{count} tour',
   'mobileTrip.rtSearchOffline': 'Needs a connection: the search reads the route ahead.',
   'mobileTrip.rtBehind': '{time} behind plan',
   'mobileTrip.rtStart': 'Start',

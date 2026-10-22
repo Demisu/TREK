@@ -615,6 +615,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.collab.description': '備註、投票、聊天與建議，方便一起規劃',
   'admin.addons.catalog.roadtrip.name': '公路旅行',
   'admin.addons.catalog.roadtrip.description': '規劃含停靠點的駕駛行程，駕駛時間與抵達時間會自動重算',
+  'admin.addons.catalog.tours.name': '遊程',
+  'admin.addons.catalog.tours.description': '沿路線進行的健行、騎行等遊程',
   'admin.addons.subtitleBefore': '啟用或停用功能以自定義你的 ',
   'admin.addons.subtitleAfter': ' 體驗。',
   'admin.addons.catalog.naver_list_import.name': 'Naver List Import',

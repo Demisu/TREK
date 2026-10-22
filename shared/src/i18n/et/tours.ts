@@ -197,8 +197,6 @@ const tours: TranslationStrings = {
   'tours.planner.inspector.profileFocus': 'Kaugusel {distance}: {elevation}',
   'tours.planner.inspector.elevationPlaceholder': 'Profiil kuvatakse, kui marsruudi kõrgusandmed on saadaval.',
   'tours.planner.gpxNoGeometry': 'Selle GPX-impordi marsruudi geomeetria pole saadaval.',
-  'tours.planner.mobileHint':
-    'Retki saab planeerida tahvel- ja lauaarvutis. Siin saab salvestatud retki vaadata ja päevadele lisada.',
   'tourTypes.hike': 'Matk',
   'tourTypes.bike': 'Rattaretk',
   'tourTypes.run': 'Jooks',

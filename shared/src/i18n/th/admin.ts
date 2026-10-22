@@ -816,6 +816,8 @@ const admin: TranslationStrings = {
   'admin.addons.catalog.roadtrip.name': 'โรดทริป',
   'admin.addons.catalog.roadtrip.description':
     'วางแผนการขับรถด้วยจุดแวะตามเส้นทาง เวลาเดินทาง และเวลาไปถึงที่อัปเดตเอง',
+  'admin.addons.catalog.tours.name': 'ทัวร์',
+  'admin.addons.catalog.tours.description': 'เดินป่า ปั่นจักรยาน และทัวร์อื่นๆ ที่ไปตามเส้นทาง',
   'admin.addons.catalog.dawarich.name': 'Dawarich',
   'admin.addons.catalog.dawarich.description':
     'อ่านการเยี่ยมชมและเส้นทางที่บันทึกจากอินสแตนซ์ Dawarich ที่ผู้อ่านแต่ละคนเชื่อมต่อเอง',

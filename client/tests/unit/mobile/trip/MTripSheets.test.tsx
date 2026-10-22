@@ -133,9 +133,9 @@ vi.mock('../../../../src/components/Planner/AirTrailImportModal', () => ({
   ),
 }))
 
-vi.mock('../../../../src/components/Trips/TripFormModal', () => ({
-  default: ({ isOpen, onClose, onSave, trip, onCoverUpdate }: {
-    isOpen: boolean; onClose: () => void
+vi.mock('../../../../src/mobile/screens/dashboard/MNewTripSheet', () => ({
+  default: ({ open: isOpen, onClose, onSave, trip, onCoverUpdate }: {
+    open: boolean; onClose: () => void
     onSave: (data: Record<string, unknown>) => Promise<void>
     trip?: Trip | null
     onCoverUpdate: (id: number, coverUrl: string) => void
@@ -148,9 +148,9 @@ vi.mock('../../../../src/components/Trips/TripFormModal', () => ({
   ),
 }))
 
-vi.mock('../../../../src/components/Trips/TripMembersModal', () => ({
-  default: ({ isOpen, onClose, tripTitle, onMembersChanged }: {
-    isOpen: boolean; onClose: () => void; tripTitle?: string; onMembersChanged: () => void
+vi.mock('../../../../src/mobile/screens/trip/sheets/MTripSettingsSheet', () => ({
+  default: ({ open: isOpen, onClose, tripTitle, onMembersChanged }: {
+    open: boolean; onClose: () => void; tripTitle?: string; onMembersChanged: () => void
   }) => (
     <div data-testid="stub-members" data-open={String(isOpen)} data-title={tripTitle ?? 'none'}>
       <button type="button" onClick={onMembersChanged}>members changed</button>
