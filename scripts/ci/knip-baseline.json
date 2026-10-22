@@ -151,7 +151,7 @@
     "client/src/components/Studio/grids.ts": 1,
     "client/src/components/Studio/mapTiles.ts": 1,
     "client/src/components/Studio/templates.ts": 1,
-    "client/src/components/Trips/useTripShare.ts": 3,
+    "client/src/components/Trips/useTripShare.ts": 2,
     "client/src/components/shared/DialogShell.tsx": 1,
     "client/src/components/shared/SlidingTabs.tsx": 1,
     "client/src/components/shared/elevationProfileModel.ts": 1,

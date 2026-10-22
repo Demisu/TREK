@@ -511,7 +511,7 @@ export function useJourneyDetail({ journeyId, embedded = false }: JourneyDetailO
     dayImport, dayImportDates,
   } = useJourneyDetailLayers({
     journey: current, loaded: journeyLoaded, canEditEntries, loadJourney, dawarich, dawarichByDate, dawarichTrail,
-    tripDates, sidebarMapItems, photoCount: mapPhotos.length, showTripTracks, allLayers: isMobile,
+    tripDates, sidebarMapItems, photoCount: mapPhotos.length, showTripTracks,
   })
 
   /** Studio's margin to the window on all four sides — see `.st-root` in studio.css. */

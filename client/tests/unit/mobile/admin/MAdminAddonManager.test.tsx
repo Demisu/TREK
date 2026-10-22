@@ -282,7 +282,8 @@ describe('MAdminAddonManager', () => {
     expect(screen.getByRole('switch', { name: 'Immich' })).toHaveAttribute('aria-checked', 'true');
     // Journey + three providers, and providers are not shown as top-level rows.
     expect(screen.getAllByRole('switch')).toHaveLength(4);
-    expect(screen.queryByText('Global')).toBeInTheDocument();
+    // The band and the addon's type badge both say Global.
+    expect(screen.getAllByText('Global')).toHaveLength(2);
   });
 
   it('FE-MOB-AADD-015: toggling a provider persists it and rolls back on failure', async () => {
@@ -419,7 +420,8 @@ describe('MAdminAddonManager', () => {
       expect(screen.getByRole('switch', { name: 'Nextcloud' })).toHaveAttribute('aria-checked', 'true');
       // Documents plus two providers, and neither provider carries a type badge of its own.
       expect(screen.getAllByRole('switch')).toHaveLength(3);
-      expect(screen.getAllByText('Trip')).toHaveLength(1);
+      // The band and the addon's type badge.
+      expect(screen.getAllByText('Trip')).toHaveLength(2);
     });
 
     it('FE-MOB-AADD-029: the shelf stays hidden while Documents is off', async () => {

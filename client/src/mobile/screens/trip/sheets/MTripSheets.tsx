@@ -200,7 +200,7 @@ export default function MTripSheets({ planner, shell }: MTripSheetsProps) {
       {/* Trip edit + share/members, opened from the Mehr sheet. */}
       <MNewTripSheet
         open={sheet?.id === 'tripedit'}
-        trip={trip ?? null}
+        trip={trip}
         onClose={shell.closeSheet}
         onSave={async (data) => {
           await tripActions.updateTrip(tripId, data)
@@ -212,7 +212,7 @@ export default function MTripSheets({ planner, shell }: MTripSheetsProps) {
         open={sheet?.id === 'members'}
         onClose={shell.closeSheet}
         tripId={tripId}
-        tripTitle={trip?.title ?? ''}
+        tripTitle={trip?.title}
         onMembersChanged={planner.refreshMembers}
       />
 

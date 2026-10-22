@@ -148,12 +148,13 @@ describe('Tours permissions without database setup', () => {
     expect(remove).toHaveBeenCalledTimes(canAssign ? 1 : 0)
     const view = vi.fn()
     const openSheet = vi.fn()
-    rerender(<List planner={{ t: (key: string) => key, tours: [tour], handlePlaceClick: view, reloadTourPlaceIds: vi.fn() } as never} shell={{ sheet: 'other', openSheet } as never} canEdit={canEdit} canAssign={canAssign} />)
-    fireEvent.click(screen.getByRole('option'))
+    rerender(<List planner={{ t: (key: string) => key, tours: [tour], places: [], days: [], handlePlaceClick: view, reloadTourPlaceIds: vi.fn() } as never} shell={{ sheet: 'other', openSheet } as never} canEdit={canEdit} canAssign={canAssign} />)
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(tour.name) }))
     expect(view).toHaveBeenCalledWith(42)
-    const attach = screen.getByRole('button', { name: 'tours.addToDay' }) as HTMLButtonElement
-    expect(attach.disabled).toBe(!canAssign)
-    fireEvent.click(attach)
+    // Without the permission the row offers no plus at all, as an unplanned place's row does.
+    const attach = screen.queryByRole('button', { name: 'tours.addToDay' })
+    expect(Boolean(attach)).toBe(canAssign)
+    if (attach) fireEvent.click(attach)
     expect(openSheet).toHaveBeenCalledTimes(canAssign ? 1 : 0)
   })
   it.each([[false, false], [true, false], [false, true], [true, true]])('rails edit=%s assign=%s separate save and existing-tour attach', (canEdit, canAssign) => {

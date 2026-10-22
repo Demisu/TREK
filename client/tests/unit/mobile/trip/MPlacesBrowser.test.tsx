@@ -383,7 +383,7 @@ describe('MPlacesBrowser', () => {
     expect(list).not.toHaveBeenCalled()
 
     fireEvent.click(screen.getByRole('tab', { name: /^Tours$/i }))
-    expect(screen.getByRole('option', { name: /Ridge walk/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Ridge walk/ })).toBeInTheDocument()
     expect(screen.queryByText('Louvre')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'mobileTrip.importPlaces' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'common.add' })).not.toBeInTheDocument()

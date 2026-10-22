@@ -3,7 +3,7 @@ import type { PaddleRegion, PaddleRegionAutoMode } from '@trek/shared';
 /** How TREK loads a paddler's region by itself, in the order the switch shows them. */
 export const AUTO_LOAD_MODES: readonly PaddleRegionAutoMode[] = ['auto', 'ask', 'off'];
 /** The largest region TREK loads by itself, in megabytes: a district, a state, a small country. */
-export const AUTO_LOAD_SIZES = [100, 250, 500, 1000, 2000] as const;
+const AUTO_LOAD_SIZES = [100, 250, 500, 1000, 2000] as const;
 
 /** The size choices, with a stored size outside the presets kept among them in its place. */
 export function autoLoadSizes(current: number): number[] {

@@ -41,7 +41,9 @@ const openSheet = vi.fn()
 
 function translate(table: Record<string, unknown>) {
   return (key: string, params?: Record<string, string | number>) => {
-    const value = table[key] ?? en[key]
+    // The one form is all a count of 1 needs here; the real t() picks it by Intl.PluralRules.
+    const one = params?.count === 1 ? table[`${key}.one`] : undefined
+    const value = one ?? table[key] ?? en[key]
     if (typeof value !== 'string') return key
     return value.replace(/\{(\w+)\}/g, (_, name: string) => String(params?.[name] ?? ''))
   }
@@ -115,9 +117,10 @@ describe('MToursSelectionList', () => {
     expect(screen.getByLabelText(en['tours.badge.gpx'] as string)).toHaveTextContent('GPX')
   })
 
-  it('says once that tours are planned on a bigger screen, in German too', () => {
+  it('says once that tours are planned on a bigger screen, and counts in German', () => {
     render(<List planner={planner({ t: translate(de) })} shell={shell()} />)
-    expect(screen.getByText('Geplant wird am Desktop')).toBeInTheDocument()
+    // The badge reads the app's language, English in this suite.
+    expect(screen.getByText('Planned on desktop')).toBeInTheDocument()
     expect(screen.getByText('1 Tour')).toBeInTheDocument()
     expect(document.body.textContent).not.toMatch(/\b(tours|mobileTrip)\.[a-zA-Z]/)
   })
@@ -126,17 +129,17 @@ describe('MToursSelectionList', () => {
     render(<List planner={planner({ tours: [], t: translate(de) })} shell={shell()} />)
     expect(screen.getByText('Noch keine Touren')).toBeInTheDocument()
     expect(screen.getByText(de['mobileTrip.toursEmptyBody'] as string)).toBeInTheDocument()
-    expect(screen.getByText('Geplant wird am Desktop')).toBeInTheDocument()
+    expect(screen.getByText('Planned on desktop')).toBeInTheDocument()
   })
 
   it('narrows the list by a facet and widens it again', () => {
     const other = { ...tour, place_id: 43, name: 'Other', max_hiking_difficulty: 4 }
     render(<List planner={planner({ tours: [tour, other] })} shell={shell()} />)
 
-    fireEvent.click(screen.getByRole('button', { name: /^T4/ }))
+    fireEvent.click(screen.getByRole('button', { name: /^T4 \d+$/ }))
     expect(screen.getByText('Other')).toBeInTheDocument()
     expect(screen.queryByText(tour.name)).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /^T4/ }))
+    fireEvent.click(screen.getByRole('button', { name: /^T4 \d+$/ }))
     expect(screen.getByText(tour.name)).toBeInTheDocument()
   })
 })

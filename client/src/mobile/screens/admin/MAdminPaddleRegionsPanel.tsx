@@ -266,9 +266,9 @@ function CatalogSearch({ admin }: { admin: Admin }) {
   );
 }
 
-function RegionRow({ region, admin }: { region: PaddleRegion; admin: Admin }) {
+/** What a region's read stands at: its status, where it came from, its objects, its date and its water. */
+function RegionBadges({ region }: { region: PaddleRegion }) {
   const { t, language } = useTranslation();
-  const busy = admin.busyId === region.id;
   const percent = progressPercent(region);
   const status =
     region.status === 'importing' && region.progress
@@ -280,6 +280,38 @@ function RegionRow({ region, admin }: { region: PaddleRegion; admin: Admin }) {
   const km = region.network
     ? new Intl.NumberFormat(language, { maximumFractionDigits: 0 }).format(region.network.water_km)
     : null;
+  return (
+    <div className="mt-1 flex flex-wrap gap-1">
+      <MBadge
+        caps={false}
+        className={TONE[regionStatusTone(region.status)]}
+        icon={region.status === 'importing' ? <Loader2 size={10} className="animate-spin" /> : undefined}
+      >
+        {status}
+        {percent === null ? '' : ` ${new Intl.NumberFormat(language, { style: 'percent' }).format(percent / 100)}`}
+      </MBadge>
+      {region.origin === 'auto' && (
+        <MBadge caps={false} icon={<Sparkles size={10} strokeWidth={2.2} />}>
+          {t('admin.paddleRegions.origin.auto')}
+        </MBadge>
+      )}
+      {region.imported_at && (
+        <MBadge caps={false}>{t('admin.paddleRegions.objects', { count: region.feature_count })}</MBadge>
+      )}
+      {region.imported_at && date && <MBadge caps={false}>{t('admin.paddleRegions.asOf', { date })}</MBadge>}
+      {km !== null && <MBadge caps={false}>{t('admin.paddleRegions.network.km', { km })}</MBadge>}
+      {!region.network && region.imported_at && region.status !== 'importing' && (
+        <MBadge caps={false} className="!text-[color:var(--m-st-pending)]">
+          {t('admin.paddleRegions.network.missing')}
+        </MBadge>
+      )}
+    </div>
+  );
+}
+
+function RegionRow({ region, admin }: { region: PaddleRegion; admin: Admin }) {
+  const { t } = useTranslation();
+  const busy = admin.busyId === region.id;
   return (
     <div
       data-testid="paddle-region-row"
@@ -295,31 +327,7 @@ function RegionRow({ region, admin }: { region: PaddleRegion; admin: Admin }) {
         <div className="truncate text-[length:calc(13px*var(--fs-scale-body,1))] font-semibold text-m-ink">
           {region.name}
         </div>
-        <div className="mt-1 flex flex-wrap gap-1">
-          <MBadge
-            caps={false}
-            className={TONE[regionStatusTone(region.status)]}
-            icon={region.status === 'importing' ? <Loader2 size={10} className="animate-spin" /> : undefined}
-          >
-            {status}
-            {percent === null ? '' : ` ${new Intl.NumberFormat(language, { style: 'percent' }).format(percent / 100)}`}
-          </MBadge>
-          {region.origin === 'auto' && (
-            <MBadge caps={false} icon={<Sparkles size={10} strokeWidth={2.2} />}>
-              {t('admin.paddleRegions.origin.auto')}
-            </MBadge>
-          )}
-          {region.imported_at && (
-            <MBadge caps={false}>{t('admin.paddleRegions.objects', { count: region.feature_count })}</MBadge>
-          )}
-          {region.imported_at && date && <MBadge caps={false}>{t('admin.paddleRegions.asOf', { date })}</MBadge>}
-          {km !== null && <MBadge caps={false}>{t('admin.paddleRegions.network.km', { km })}</MBadge>}
-          {!region.network && region.imported_at && region.status !== 'importing' && (
-            <MBadge caps={false} className="!text-[color:var(--m-st-pending)]">
-              {t('admin.paddleRegions.network.missing')}
-            </MBadge>
-          )}
-        </div>
+        <RegionBadges region={region} />
         {region.status === 'failed' && region.error && (
           <p className="mt-1 line-clamp-2 break-words font-geist text-[length:calc(10px*var(--fs-scale-caption,1))] text-[color:var(--m-st-danger)]">
             {region.error}

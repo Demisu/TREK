@@ -22,14 +22,17 @@ import { endDateForNewStart, tripFormError } from '../../../components/Trips/tri
 
 interface MNewTripSheetProps {
   open: boolean
-  /** null = create, otherwise edit */
-  trip: DashboardTrip | null
+  /** null or undefined = create, otherwise edit (the planner may not have its trip yet) */
+  trip: DashboardTrip | null | undefined
   onClose: () => void
   onSave: (data: TripCreateRequest) => Promise<{ trip?: Trip } | void> | void
   onCoverUpdate?: (tripId: number, coverUrl: string | null) => void
   /** Edit mode only: archives (or restores) the trip — the grid cards have no archive button. */
   onArchive?: () => void
 }
+
+const BOX_CLS = 'rounded-[14px] border border-[color:var(--m-rowbr)] bg-[color:var(--m-ic)] p-[11px_12px]'
+const INPUT_CLS = 'w-full border-none bg-transparent pt-[2px] font-[inherit] text-[0.9375rem] font-semibold text-m-ink outline-none placeholder:text-m-faint'
 
 /** The reminder presets the desktop form offers; anything else is a custom number of days. */
 const REMINDER_PRESETS = [0, 1, 3, 9]
@@ -47,12 +50,12 @@ function FieldLabel({ children }: { children: React.ReactNode }): React.ReactEle
  * opens it for editing too. Archiving
  * lives here in edit mode, as decided for the grid cards.
  */
-export default function MNewTripSheet({ open, trip, onClose, onSave, onCoverUpdate, onArchive }: MNewTripSheetProps): React.ReactElement {
+export default function MNewTripSheet({ open, trip: tripProp, onClose, onSave, onCoverUpdate, onArchive }: MNewTripSheetProps): React.ReactElement {
+  const trip = tripProp ?? null
   const isEditing = !!trip
   const { t } = useTranslation()
   const can = useCanDo()
   const defaultCurrency = useSettingsStore(s => s.settings.default_currency) || 'EUR'
-  const fileRef = useRef<HTMLInputElement>(null)
   const canEditTrip = !isEditing || can('trip_edit', trip)
   const canUploadCover = !isEditing || can('trip_cover_upload', trip)
   const currentUser = useAuthStore(s => s.user)
@@ -71,7 +74,6 @@ export default function MNewTripSheet({ open, trip, onClose, onSave, onCoverUpda
   const [error, setError] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const cover = useTripCoverPicker({ trip, title, onCoverUpdate, releasePreviewOnChange: true })
-  const { coverPreview, uploadingCover, searchQuery, setSearchQuery, searchResults, searchError, searching } = cover
   // A save whose new dates remove days with something on them, held until the
   // traveller confirms. The phone has no shift step, so bookings keep their dates.
   const [pendingRemoval, setPendingRemoval] = useState<{ payload: TripCreateRequest; removal: RangeRemoval | 'unknown' } | null>(null)
@@ -149,13 +151,8 @@ export default function MNewTripSheet({ open, trip, onClose, onSave, onCoverUpda
     }
   }
 
-  const handleCoverFile = cover.selectFile
-  const handleSearch = cover.search
-  const selectUnsplash = cover.selectPhoto
-  const removeCover = cover.removeCover
-
-  const boxCls = 'rounded-[14px] border border-[color:var(--m-rowbr)] bg-[color:var(--m-ic)] p-[11px_12px]'
-  const inputCls = 'w-full border-none bg-transparent pt-[2px] font-[inherit] text-[0.9375rem] font-semibold text-m-ink outline-none placeholder:text-m-faint'
+  const boxCls = BOX_CLS
+  const inputCls = INPUT_CLS
 
   const removalList = pendingRemoval && pendingRemoval.removal !== 'unknown' ? pendingRemoval.removal : null
 
@@ -261,135 +258,17 @@ export default function MNewTripSheet({ open, trip, onClose, onSave, onCoverUpda
         </div>
 
         {showReminder && (
-          <div className={`${boxCls} mt-2`}>
-            <FieldLabel>
-              <span className="inline-flex items-center gap-1"><Bell size={10} strokeWidth={2.4} />{t('trips.reminder')}</span>
-            </FieldLabel>
-            {!remindersEnabled ? (
-              <p className="mt-1 font-geist text-[length:calc(11px*var(--fs-scale-caption,1))] leading-snug text-m-muted">{t('trips.reminderDisabledHint')}</p>
-            ) : (
-              <>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {REMINDER_PRESETS.map(days => (
-                    <MChip key={days} pressable active={!customReminder && reminderDays === days}
-                      onClick={() => { setError(''); setReminderDays(days); setCustomReminder(false) }}>
-                      {days === 0 ? t('trips.reminderNone') : `${days} ${t(days === 1 ? 'trips.reminderDay' : 'trips.reminderDays')}`}
-                    </MChip>
-                  ))}
-                  <MChip pressable active={customReminder}
-                    onClick={() => { setCustomReminder(true); if (REMINDER_PRESETS.includes(reminderDays)) setReminderDays(7) }}>
-                    {t('trips.reminderCustom')}
-                  </MChip>
-                </div>
-                {customReminder && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <input
-                      type="number"
-                      inputMode="numeric"
-                      min={1}
-                      max={30}
-                      value={reminderDays}
-                      onChange={e => setReminderDays(Math.max(1, Math.min(30, Number(e.target.value) || 1)))}
-                      aria-label={t('trips.reminderDaysBefore')}
-                      className="h-[34px] w-16 rounded-full border border-[color:var(--m-rowbr)] bg-transparent px-3 text-center text-[length:calc(13px*var(--fs-scale-body,1))] font-semibold text-m-ink outline-none"
-                    />
-                    <span className="font-geist text-[length:calc(11px*var(--fs-scale-caption,1))] text-m-muted">{t('trips.reminderDaysBefore')}</span>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+          <ReminderField
+            enabled={remindersEnabled}
+            days={reminderDays}
+            custom={customReminder}
+            onPreset={days => { setError(''); setReminderDays(days); setCustomReminder(false) }}
+            onCustom={() => { setCustomReminder(true); if (REMINDER_PRESETS.includes(reminderDays)) setReminderDays(7) }}
+            onDays={setReminderDays}
+          />
         )}
 
-        {canUploadCover && (
-          <div className="mt-2">
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={e => { void handleCoverFile(e.target.files?.[0]); e.target.value = '' }}
-            />
-            {coverPreview ? (
-              <div className="relative h-[130px] overflow-hidden rounded-[16px]">
-                <img src={coverPreview} alt="" className="h-full w-full object-cover" />
-                <div className="absolute bottom-2 end-2 flex gap-[6px]">
-                  <button
-                    type="button"
-                    onClick={() => fileRef.current?.click()}
-                    disabled={uploadingCover}
-                    className="flex h-[34px] items-center gap-1 rounded-full border border-white/30 bg-white/[.22] px-3 text-[0.6875rem] font-semibold text-white backdrop-blur-[8px]"
-                  >
-                    <Camera size={13} strokeWidth={2.1} />
-                    {uploadingCover ? t('common.uploading') : t('common.change')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={removeCover}
-                    aria-label={t('common.delete')}
-                    className="flex h-[34px] w-[34px] items-center justify-center rounded-full border border-white/30 bg-white/[.22] text-white backdrop-blur-[8px]"
-                  >
-                    <X size={14} strokeWidth={2.1} />
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => fileRef.current?.click()}
-                disabled={uploadingCover}
-                className="flex w-full items-center justify-center gap-[6px] rounded-[14px] border border-dashed border-[color:var(--m-rowbr)] bg-[color:var(--m-ic)] p-[18px] text-[0.8125rem] font-medium text-m-muted"
-              >
-                <Camera size={15} strokeWidth={2} />
-                {uploadingCover ? t('common.uploading') : t('dashboard.mobile.addCoverImage')}
-              </button>
-            )}
-
-            <div className="mt-2 flex gap-2">
-              <div className={`${boxCls} min-w-0 flex-1 py-[9px]`}>
-                <input
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); void handleSearch() } }}
-                  placeholder={t('dashboard.unsplashSearchPlaceholder')}
-                  className={`${inputCls} pt-0 text-[0.8125rem] font-medium`}
-                />
-              </div>
-              <button
-                type="button"
-                onClick={handleSearch}
-                disabled={searching || (!searchQuery.trim() && !title.trim())}
-                aria-label={t('dashboard.searchUnsplash')}
-                className="flex h-auto w-[42px] flex-none items-center justify-center rounded-[14px] bg-m-act text-m-actfg disabled:opacity-50"
-              >
-                <Search size={15} strokeWidth={2.2} />
-              </button>
-            </div>
-            {searchError && <p className="mt-[6px] px-1 text-[0.6875rem] font-medium text-[color:var(--m-st-danger)]">{searchError}</p>}
-            {searchResults.length > 0 && (
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                {searchResults.map(photo => (
-                  <button
-                    key={photo.id}
-                    type="button"
-                    onClick={() => selectUnsplash(photo)}
-                    aria-label={t('dashboard.useUnsplashPhoto', { photographer: photo.photographer || 'Unsplash' })}
-                    className={`relative h-20 overflow-hidden rounded-[12px] border ${
-                      coverPreview === photo.url ? 'border-[color:var(--m-act)]' : 'border-[color:var(--m-rowbr)]'
-                    }`}
-                  >
-                    <img src={photo.thumb} alt={photo.description || ''} loading="lazy" className="h-full w-full object-cover" />
-                    {photo.photographer && (
-                      <span className="absolute inset-x-0 bottom-0 truncate bg-black/55 px-[6px] py-1 text-start font-geist text-[0.625rem] text-white">
-                        {photo.photographer}
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+        {canUploadCover && <CoverField cover={cover} title={title} />}
 
         {isEditing && onArchive && (
           <div className="mt-2 rounded-[14px] bg-[color:var(--m-ic)]">
@@ -447,5 +326,151 @@ export default function MNewTripSheet({ open, trip, onClose, onSave, onCoverUpda
       )}
     </MConfirmSheet>
     </>
+  )
+}
+
+/** The trip's reminder: the presets, or a number of days of one's own; a hint while reminders are off. */
+function ReminderField({ enabled, days, custom, onPreset, onCustom, onDays }: {
+  enabled: boolean
+  days: number
+  custom: boolean
+  onPreset: (days: number) => void
+  onCustom: () => void
+  onDays: (days: number) => void
+}): React.ReactElement {
+  const { t } = useTranslation()
+  return (
+    <div className={`${BOX_CLS} mt-2`}>
+      <FieldLabel>
+        <span className="inline-flex items-center gap-1"><Bell size={10} strokeWidth={2.4} />{t('trips.reminder')}</span>
+      </FieldLabel>
+      {!enabled ? (
+        <p className="mt-1 font-geist text-[length:calc(11px*var(--fs-scale-caption,1))] leading-snug text-m-muted">{t('trips.reminderDisabledHint')}</p>
+      ) : (
+        <>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {REMINDER_PRESETS.map(preset => (
+              <MChip key={preset} pressable active={!custom && days === preset} onClick={() => onPreset(preset)}>
+                {preset === 0 ? t('trips.reminderNone') : `${preset} ${t(preset === 1 ? 'trips.reminderDay' : 'trips.reminderDays')}`}
+              </MChip>
+            ))}
+            <MChip pressable active={custom} onClick={onCustom}>
+              {t('trips.reminderCustom')}
+            </MChip>
+          </div>
+          {custom && (
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={30}
+                value={days}
+                onChange={e => onDays(Math.max(1, Math.min(30, Number(e.target.value) || 1)))}
+                aria-label={t('trips.reminderDaysBefore')}
+                className="h-[34px] w-16 rounded-full border border-[color:var(--m-rowbr)] bg-transparent px-3 text-center text-[length:calc(13px*var(--fs-scale-body,1))] font-semibold text-m-ink outline-none"
+              />
+              <span className="font-geist text-[length:calc(11px*var(--fs-scale-caption,1))] text-m-muted">{t('trips.reminderDaysBefore')}</span>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
+/** The cover: a photo from the device or from Unsplash, with its preview. */
+function CoverField({ cover, title }: { cover: ReturnType<typeof useTripCoverPicker>; title: string }): React.ReactElement {
+  const { t } = useTranslation()
+  const fileRef = useRef<HTMLInputElement>(null)
+  const { coverPreview, uploadingCover, searchQuery, setSearchQuery, searchResults, searchError, searching } = cover
+  return (
+    <div className="mt-2">
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={e => { void cover.selectFile(e.target.files?.[0]); e.target.value = '' }}
+      />
+      {coverPreview ? (
+        <div className="relative h-[130px] overflow-hidden rounded-[16px]">
+          <img src={coverPreview} alt="" className="h-full w-full object-cover" />
+          <div className="absolute bottom-2 end-2 flex gap-[6px]">
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={uploadingCover}
+              className="flex h-[34px] items-center gap-1 rounded-full border border-white/30 bg-white/[.22] px-3 text-[0.6875rem] font-semibold text-white backdrop-blur-[8px]"
+            >
+              <Camera size={13} strokeWidth={2.1} />
+              {uploadingCover ? t('common.uploading') : t('common.change')}
+            </button>
+            <button
+              type="button"
+              onClick={cover.removeCover}
+              aria-label={t('common.delete')}
+              className="flex h-[34px] w-[34px] items-center justify-center rounded-full border border-white/30 bg-white/[.22] text-white backdrop-blur-[8px]"
+            >
+              <X size={14} strokeWidth={2.1} />
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={uploadingCover}
+          className="flex w-full items-center justify-center gap-[6px] rounded-[14px] border border-dashed border-[color:var(--m-rowbr)] bg-[color:var(--m-ic)] p-[18px] text-[0.8125rem] font-medium text-m-muted"
+        >
+          <Camera size={15} strokeWidth={2} />
+          {uploadingCover ? t('common.uploading') : t('dashboard.mobile.addCoverImage')}
+        </button>
+      )}
+
+      <div className="mt-2 flex gap-2">
+        <div className={`${BOX_CLS} min-w-0 flex-1 py-[9px]`}>
+          <input
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); void cover.search() } }}
+            placeholder={t('dashboard.unsplashSearchPlaceholder')}
+            className={`${INPUT_CLS} pt-0 text-[0.8125rem] font-medium`}
+          />
+        </div>
+        <button
+          type="button"
+          onClick={cover.search}
+          disabled={searching || (!searchQuery.trim() && !title.trim())}
+          aria-label={t('dashboard.searchUnsplash')}
+          className="flex h-auto w-[42px] flex-none items-center justify-center rounded-[14px] bg-m-act text-m-actfg disabled:opacity-50"
+        >
+          <Search size={15} strokeWidth={2.2} />
+        </button>
+      </div>
+      {searchError && <p className="mt-[6px] px-1 text-[0.6875rem] font-medium text-[color:var(--m-st-danger)]">{searchError}</p>}
+      {searchResults.length > 0 && (
+        <div className="mt-2 grid grid-cols-3 gap-2">
+          {searchResults.map(photo => (
+            <button
+              key={photo.id}
+              type="button"
+              onClick={() => cover.selectPhoto(photo)}
+              aria-label={t('dashboard.useUnsplashPhoto', { photographer: photo.photographer || 'Unsplash' })}
+              className={`relative h-20 overflow-hidden rounded-[12px] border ${
+                coverPreview === photo.url ? 'border-[color:var(--m-act)]' : 'border-[color:var(--m-rowbr)]'
+              }`}
+            >
+              <img src={photo.thumb} alt={photo.description || ''} loading="lazy" className="h-full w-full object-cover" />
+              {photo.photographer && (
+                <span className="absolute inset-x-0 bottom-0 truncate bg-black/55 px-[6px] py-1 text-start font-geist text-[0.625rem] text-white">
+                  {photo.photographer}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }

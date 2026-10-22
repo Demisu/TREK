@@ -35,7 +35,7 @@ interface MTripSettingsSheetProps {
   open: boolean;
   onClose: () => void;
   tripId: number;
-  tripTitle: string;
+  tripTitle?: string;
   onMembersChanged?: () => void;
 }
 
@@ -214,6 +214,215 @@ function InviteLinkSection({ tripId }: { tripId: number }) {
   );
 }
 
+type Members = ReturnType<typeof useTripMembers>;
+type Translate = ReturnType<typeof useTranslation>['t'];
+type Ask = (question: Question) => void;
+
+/** What a question says and what its button does, by the kind of question. */
+function questionWords(question: Question | null, t: Translate): { text: string; action: string } {
+  if (!question) return { text: '', action: '' };
+  if (question.kind === 'transfer')
+    return { text: t('members.confirmTransfer', { name: question.name }), action: t('members.makeOwner') };
+  if (question.kind === 'guest') return { text: t('members.confirmRemoveGuest'), action: t('members.removeAccess') };
+  return question.self
+    ? { text: t('members.confirmLeave'), action: t('members.leaveTrip') }
+    : { text: t('members.confirmRemove'), action: t('members.removeAccess') };
+}
+
+/** Make owner and remove (or leave) beside a member, as far as the reader may. */
+function MemberActions({ member, m, ask }: { member: ListedMember; m: Members; ask: Ask }) {
+  const { t } = useTranslation();
+  const self = member.id === m.user?.id;
+  const canRemove = self || (m.canManageMembers && member.role !== 'owner');
+  return (
+    <>
+      {m.isCurrentOwner && member.role !== 'owner' && (
+        <button
+          type="button"
+          aria-label={t('members.makeOwner')}
+          disabled={m.transferringId === member.id}
+          onClick={() => ask({ kind: 'transfer', id: member.id, name: member.username })}
+          className={ROUND}
+        >
+          <Crown size={14} strokeWidth={2} />
+        </button>
+      )}
+      {canRemove && (
+        <button
+          type="button"
+          aria-label={self ? t('members.leaveTrip') : t('members.removeAccess')}
+          disabled={m.removingId === member.id}
+          onClick={() => ask({ kind: 'remove', id: member.id, self })}
+          className={ROUND}
+        >
+          {self ? <LogOut size={14} strokeWidth={2} /> : <UserMinus size={14} strokeWidth={2} />}
+        </button>
+      )}
+    </>
+  );
+}
+
+/** The badges beside a member's name: you, and the owner's crown. */
+function MemberBadges({ member, m }: { member: ListedMember; m: Members }) {
+  const { t } = useTranslation();
+  return (
+    <>
+      {member.id === m.user?.id && (
+        <span className={`${PILL} bg-[color:var(--m-ic)] text-m-muted`}>{t('members.you')}</span>
+      )}
+      {member.role === 'owner' && (
+        <span className={`${PILL} bg-m-act text-m-actfg`}>
+          <Crown size={9} strokeWidth={2.4} />
+          {t('members.owner')}
+        </span>
+      )}
+    </>
+  );
+}
+
+/** Who has access: the invite picker for those who may add people, then everyone with their badges. */
+function AccessSection({ m, ask }: { m: Members; ask: Ask }) {
+  const { t } = useTranslation();
+  return (
+    <Section title={`${t('members.access')} ${m.realMembers.length}`}>
+      {m.canManageMembers && (
+        <div className="flex gap-2">
+          <CustomSelect
+            value={m.selectedUserId}
+            onChange={(value) => m.setSelectedUserId(String(value))}
+            placeholder={t('members.selectUser')}
+            options={[
+              { value: '', label: t('members.selectUser') },
+              ...m.availableUsers.map((u) => ({ value: String(u.id), label: u.username })),
+            ]}
+            searchable
+            size="sm"
+            style={{ flex: 1, minWidth: 0 }}
+          />
+          <button
+            type="button"
+            onClick={() => void m.add()}
+            disabled={m.adding || !m.selectedUserId}
+            aria-label={t('members.invite')}
+            className={PRIMARY}
+          >
+            <UserPlus size={14} strokeWidth={2.2} />
+          </button>
+        </div>
+      )}
+      {m.canManageMembers && m.availableUsers.length === 0 && m.allUsers.length > 0 && (
+        <p className="font-geist text-[length:calc(11px*var(--fs-scale-caption,1))] text-m-faint">
+          {t('members.allHaveAccess')}
+        </p>
+      )}
+      {m.loading && m.realMembers.length === 0 ? (
+        <div className="h-[44px] animate-pulse rounded-full bg-[color:var(--m-ic)]" />
+      ) : (
+        m.realMembers.map((member) => (
+          <PersonRow
+            key={member.id}
+            name={member.username}
+            avatarUrl={member.avatar_url ?? null}
+            badges={<MemberBadges member={member} m={m} />}
+          >
+            <MemberActions member={member} m={m} ask={ask} />
+          </PersonRow>
+        ))
+      )}
+    </Section>
+  );
+}
+
+/** A guest's row, or the field its new name is typed into. */
+function GuestRow({ guest, m, ask }: { guest: Members['guests'][number]; m: Members; ask: Ask }) {
+  const { t } = useTranslation();
+  if (m.renamingGuestId === guest.id) {
+    return (
+      <input
+        autoFocus
+        value={m.renameValue}
+        maxLength={50}
+        aria-label={t('common.rename')}
+        onChange={(e) => m.setRenameValue(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') void m.commitRename(guest.id);
+          if (e.key === 'Escape') m.cancelRename();
+        }}
+        onBlur={() => void m.commitRename(guest.id)}
+        className={FIELD}
+      />
+    );
+  }
+  return (
+    <PersonRow
+      name={guest.username}
+      avatarUrl={null}
+      badges={
+        <span className={`${PILL} bg-[color:var(--m-ic)] text-m-muted`}>
+          <UserRound size={9} strokeWidth={2.4} />
+          {t('members.guest')}
+        </span>
+      }
+    >
+      {m.isCurrentOwner && (
+        <>
+          <button type="button" aria-label={t('common.rename')} onClick={() => m.startRename(guest)} className={ROUND}>
+            <Pencil size={13} strokeWidth={2} />
+          </button>
+          <button
+            type="button"
+            aria-label={t('members.removeAccess')}
+            disabled={m.removingId === guest.id}
+            onClick={() => ask({ kind: 'guest', id: guest.id })}
+            className={ROUND}
+          >
+            <Trash2 size={13} strokeWidth={2} />
+          </button>
+        </>
+      )}
+    </PersonRow>
+  );
+}
+
+/** The guests without an account, and for the owner the field that adds one. */
+function GuestsSection({ m, ask }: { m: Members; ask: Ask }) {
+  const { t } = useTranslation();
+  if (!m.isCurrentOwner && m.guests.length === 0) return null;
+  return (
+    <Section
+      title={m.guests.length > 0 ? `${t('members.guests')} ${m.guests.length}` : t('members.guests')}
+      hint={t('members.guestsHint')}
+    >
+      {m.guests.map((guest) => (
+        <GuestRow key={guest.id} guest={guest} m={m} ask={ask} />
+      ))}
+      {m.isCurrentOwner && (
+        <div className="flex gap-2">
+          <input
+            value={m.newGuestName}
+            maxLength={50}
+            placeholder={t('members.guestNamePlaceholder')}
+            onChange={(e) => m.setNewGuestName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') void m.addGuest();
+            }}
+            className={FIELD}
+          />
+          <button
+            type="button"
+            onClick={() => void m.addGuest()}
+            disabled={m.addingGuest || !m.newGuestName.trim()}
+            aria-label={t('members.addGuest')}
+            className={PRIMARY}
+          >
+            <Plus size={15} strokeWidth={2.2} />
+          </button>
+        </div>
+      )}
+    </Section>
+  );
+}
+
 /**
  * The trip's settings on the phone (the Mehr sheet's "Trip settings"): who has
  * access, the guests without an account, the public link, the invite link and
@@ -230,6 +439,7 @@ export default function MTripSettingsSheet({
   const { t } = useTranslation();
   const m = useTripMembers({ isOpen: open, tripId, onClose, onMembersChanged });
   const [question, setQuestion] = useState<Question | null>(null);
+  const words = questionWords(question, t);
 
   const answer = () => {
     if (!question) return;
@@ -237,52 +447,6 @@ export default function MTripSettingsSheet({
     else if (question.kind === 'remove') void m.remove(question.id, question.self);
     else void m.removeGuest(question.id);
     setQuestion(null);
-  };
-  const questionText = !question
-    ? ''
-    : question.kind === 'transfer'
-      ? t('members.confirmTransfer', { name: question.name })
-      : question.kind === 'guest'
-        ? t('members.confirmRemoveGuest')
-        : question.self
-          ? t('members.confirmLeave')
-          : t('members.confirmRemove');
-  const questionAction =
-    question?.kind === 'transfer'
-      ? t('members.makeOwner')
-      : question?.kind === 'remove' && question.self
-        ? t('members.leaveTrip')
-        : t('members.removeAccess');
-
-  const memberActions = (member: ListedMember) => {
-    const self = member.id === m.user?.id;
-    const canRemove = self || (m.canManageMembers && member.role !== 'owner');
-    return (
-      <>
-        {m.isCurrentOwner && member.role !== 'owner' && (
-          <button
-            type="button"
-            aria-label={t('members.makeOwner')}
-            disabled={m.transferringId === member.id}
-            onClick={() => setQuestion({ kind: 'transfer', id: member.id, name: member.username })}
-            className={ROUND}
-          >
-            <Crown size={14} strokeWidth={2} />
-          </button>
-        )}
-        {canRemove && (
-          <button
-            type="button"
-            aria-label={self ? t('members.leaveTrip') : t('members.removeAccess')}
-            disabled={m.removingId === member.id}
-            onClick={() => setQuestion({ kind: 'remove', id: member.id, self })}
-            className={ROUND}
-          >
-            {self ? <LogOut size={14} strokeWidth={2} /> : <UserMinus size={14} strokeWidth={2} />}
-          </button>
-        )}
-      </>
-    );
   };
 
   return (
@@ -299,148 +463,8 @@ export default function MTripSettingsSheet({
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto px-[18px] pb-[18px] pt-3">
-          <Section title={`${t('members.access')} ${m.realMembers.length}`}>
-            {m.canManageMembers && (
-              <div className="flex gap-2">
-                <CustomSelect
-                  value={m.selectedUserId}
-                  onChange={(value) => m.setSelectedUserId(String(value))}
-                  placeholder={t('members.selectUser')}
-                  options={[
-                    { value: '', label: t('members.selectUser') },
-                    ...m.availableUsers.map((u) => ({ value: String(u.id), label: u.username })),
-                  ]}
-                  searchable
-                  size="sm"
-                  style={{ flex: 1, minWidth: 0 }}
-                />
-                <button
-                  type="button"
-                  onClick={() => void m.add()}
-                  disabled={m.adding || !m.selectedUserId}
-                  aria-label={t('members.invite')}
-                  className={PRIMARY}
-                >
-                  <UserPlus size={14} strokeWidth={2.2} />
-                </button>
-              </div>
-            )}
-            {m.canManageMembers && m.availableUsers.length === 0 && m.allUsers.length > 0 && (
-              <p className="font-geist text-[length:calc(11px*var(--fs-scale-caption,1))] text-m-faint">
-                {t('members.allHaveAccess')}
-              </p>
-            )}
-            {m.loading && m.realMembers.length === 0 ? (
-              <div className="h-[44px] animate-pulse rounded-full bg-[color:var(--m-ic)]" />
-            ) : (
-              m.realMembers.map((member) => (
-                <PersonRow
-                  key={member.id}
-                  name={member.username}
-                  avatarUrl={member.avatar_url}
-                  badges={
-                    <>
-                      {member.id === m.user?.id && (
-                        <span className={`${PILL} bg-[color:var(--m-ic)] text-m-muted`}>{t('members.you')}</span>
-                      )}
-                      {member.role === 'owner' && (
-                        <span className={`${PILL} bg-m-act text-m-actfg`}>
-                          <Crown size={9} strokeWidth={2.4} />
-                          {t('members.owner')}
-                        </span>
-                      )}
-                    </>
-                  }
-                >
-                  {memberActions(member)}
-                </PersonRow>
-              ))
-            )}
-          </Section>
-
-          {(m.isCurrentOwner || m.guests.length > 0) && (
-            <Section
-              title={`${t('members.guests')}${m.guests.length > 0 ? ` ${m.guests.length}` : ''}`}
-              hint={t('members.guestsHint')}
-            >
-              {m.guests.map((guest) =>
-                m.renamingGuestId === guest.id ? (
-                  <input
-                    key={guest.id}
-                    autoFocus
-                    value={m.renameValue}
-                    maxLength={50}
-                    aria-label={t('common.rename')}
-                    onChange={(e) => m.setRenameValue(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') void m.commitRename(guest.id);
-                      if (e.key === 'Escape') m.cancelRename();
-                    }}
-                    onBlur={() => void m.commitRename(guest.id)}
-                    className={FIELD}
-                  />
-                ) : (
-                  <PersonRow
-                    key={guest.id}
-                    name={guest.username}
-                    avatarUrl={null}
-                    badges={
-                      <span className={`${PILL} bg-[color:var(--m-ic)] text-m-muted`}>
-                        <UserRound size={9} strokeWidth={2.4} />
-                        {t('members.guest')}
-                      </span>
-                    }
-                  >
-                    {m.isCurrentOwner && (
-                      <>
-                        <button
-                          type="button"
-                          aria-label={t('common.rename')}
-                          onClick={() => m.startRename(guest)}
-                          className={ROUND}
-                        >
-                          <Pencil size={13} strokeWidth={2} />
-                        </button>
-                        <button
-                          type="button"
-                          aria-label={t('members.removeAccess')}
-                          disabled={m.removingId === guest.id}
-                          onClick={() => setQuestion({ kind: 'guest', id: guest.id })}
-                          className={ROUND}
-                        >
-                          <Trash2 size={13} strokeWidth={2} />
-                        </button>
-                      </>
-                    )}
-                  </PersonRow>
-                )
-              )}
-              {m.isCurrentOwner && (
-                <div className="flex gap-2">
-                  <input
-                    value={m.newGuestName}
-                    maxLength={50}
-                    placeholder={t('members.guestNamePlaceholder')}
-                    onChange={(e) => m.setNewGuestName(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') void m.addGuest();
-                    }}
-                    className={FIELD}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => void m.addGuest()}
-                    disabled={m.addingGuest || !m.newGuestName.trim()}
-                    aria-label={t('members.addGuest')}
-                    className={PRIMARY}
-                  >
-                    <Plus size={15} strokeWidth={2.2} />
-                  </button>
-                </div>
-              )}
-            </Section>
-          )}
-
+          <AccessSection m={m} ask={setQuestion} />
+          <GuestsSection m={m} ask={setQuestion} />
           {m.canManageShare && <ShareLinkSection tripId={tripId} />}
           {m.canManageShare && <InviteLinkSection tripId={tripId} />}
           <TripJournalLinkSection tripId={tripId} />
@@ -450,9 +474,9 @@ export default function MTripSettingsSheet({
       <MConfirmSheet
         open={question != null}
         onClose={() => setQuestion(null)}
-        title={questionAction}
-        message={questionText}
-        confirmLabel={questionAction}
+        title={words.action}
+        message={words.text}
+        confirmLabel={words.action}
         cancelLabel={t('common.cancel')}
         danger={question?.kind !== 'transfer'}
         onConfirm={answer}
