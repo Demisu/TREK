@@ -5,6 +5,7 @@ import { bookElementId as elementId, bookPageSetupSchema } from '@trek/shared'
 import { journeyApi } from '../../api/client'
 import { useJourneyStore, type GalleryPhoto, type JourneyEntry, type JourneyPhoto } from '../../store/journeyStore'
 import { useStudioStore } from '../../store/studioStore'
+import { useAuthStore } from '../../store/authStore'
 import { useToast } from '../../components/shared/Toast'
 import { uploadStudioPhotos, type StudioUploader } from '../../components/Studio/studioUpload'
 import { useBookStore } from '../../components/Studio/useBookStore'
@@ -101,6 +102,8 @@ export function useJourneyStudio() {
 
   const doc = useStudioStore(s => s.doc)
   const loadDoc = useStudioStore(s => s.load)
+  const adoptRemote = useStudioStore(s => s.adoptRemote)
+  const selfId = useAuthStore(s => s.user?.id ?? null)
   const activeSpread = useStudioStore(s => s.activeSpread)
   const setActiveSpread = useStudioStore(s => s.setActiveSpread)
   const selection = useStudioStore(s => s.selection)
@@ -142,7 +145,9 @@ export function useJourneyStudio() {
    * was not a starting point but the only point — close the tab and the
    * afternoon went with it.
    */
-  const book = useBookStore(journeyId, loadDoc)
+  // A save from elsewhere (another editor, the assistant) keeps the page; only
+  // this user's own saves (their assistant) become an undo step.
+  const book = useBookStore(journeyId, adoptRemote, selfId)
   // Pulled out because close() needs it and the store object itself is new on
   // every render — depending on that made the save effect fire per render.
   const { queueSave, saveNow, loaded: bookLoaded } = book
@@ -828,6 +833,8 @@ export function useJourneyStudio() {
     /** Autosave: its state, and the two ways out of a conflict. */
     saveState: book.state,
     saveNow: book.saveNow,
+    /** Writes everything local and says whether it landed: before an assistant turn or apply. */
+    flushBook: book.flush,
     acceptTheirs: book.acceptTheirs,
     keepMine: book.keepMine,
     spread,

@@ -34,6 +34,21 @@ interface StudioState {
   clipboard: StudioClipboard | null
 
   load: (doc: BookDocument) => void
+  /**
+   * Take a version saved somewhere else (another editor, the assistant) into
+   * the open book without throwing the user out of it.
+   *
+   * `load` is for opening: back to the cover, history gone. Here the page stays
+   * the one the user was on (found by its spread id, wherever it moved to),
+   * what is still on that page stays selected, and the document it replaces
+   * becomes an undo step, so Ctrl+Z takes an assistant's change back.
+   *
+   * `undoable: false` is for a save by somebody else: the page and selection
+   * stay, but the history goes, as with `load`. Otherwise their whole save would
+   * sit one Ctrl+Z away, and undoing what the user took for their own last step
+   * would quietly write the older book over another person's work.
+   */
+  adoptRemote: (doc: BookDocument, opts?: { undoable?: boolean }) => void
   setActiveSpread: (i: number) => void
   select: (ids: string[]) => void
   toggleSelect: (id: string, additive: boolean) => void
@@ -115,6 +130,29 @@ export const useStudioStore = create<StudioState>((set, get) => ({
   clipboard: null,
 
   load: doc => set({ doc, selection: [], activeSpread: 0, past: [], future: [], gestureBase: null }),
+  adoptRemote: (doc, opts) => set(s => {
+    if (!s.doc) return { doc, selection: [], activeSpread: 0, past: [], future: [], gestureBase: null }
+    if (doc === s.doc) return {}
+    const spreadId = s.doc.spreads[s.activeSpread]?.id
+    const found = spreadId ? doc.spreads.findIndex(sp => sp.id === spreadId) : -1
+    // A page that is gone (deleted elsewhere) leaves the user where it was, or on the last page.
+    const activeSpread = found >= 0 ? found : Math.max(0, Math.min(s.activeSpread, doc.spreads.length - 1))
+    const onPage = new Set((doc.spreads[activeSpread]?.elements ?? []).map(e => e.id))
+    // A gesture that has already moved is replaced half done, so the step to go
+    // back to is where it started, not the half-finished frame.
+    const replaced = s.gestureBase ?? s.doc
+    return {
+      doc,
+      activeSpread,
+      selection: found >= 0 ? s.selection.filter(id => onPage.has(id)) : [],
+      past: opts?.undoable === false ? [] : [...s.past, replaced].slice(-HISTORY_LIMIT),
+      // A new branch: redoing what was undone before this arrived would write over it.
+      future: [],
+      // An open gesture carries on from the new document, so closing it records
+      // that, not the old one a second time.
+      gestureBase: s.gestureBase ? doc : null,
+    }
+  }),
   setActiveSpread: i => set({ activeSpread: i, selection: [] }),
   select: ids => set({ selection: ids }),
   toggleSelect: (id, additive) => set(s => {
