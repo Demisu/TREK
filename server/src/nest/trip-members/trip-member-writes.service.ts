@@ -38,8 +38,8 @@ export class TripMemberWritesService {
   async addMember(tripId: string | number, identifier: string, tripOwnerId: number, writer: TripWriter) {
     const result = await this.roster.addMember(tripId, identifier, tripOwnerId, writer.userId);
     writer.events.emit('member:added', { member: result.member });
-    // The invitation names who sent it by address, as the route always did with its session user.
-    const actor = { id: writer.userId, email: (await this.users.getEmail(writer.userId)) ?? '' };
+    // The invitation names who sent it by name, as the route does with its session user.
+    const actor = { id: writer.userId, username: (await this.users.findById(writer.userId))?.username ?? '' };
     this.roster.notifyInvite(String(tripId), actor, result.targetUserId, result.tripTitle, result.member.email);
     return result;
   }

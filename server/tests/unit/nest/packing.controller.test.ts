@@ -1,4 +1,4 @@
-import type { MailerService } from '../../../src/nest/notifications/mailer/mailer.service';
+import type { NotificationsService } from '../../../src/nest/notifications/notifications.service';
 import { PackingWritesService } from '../../../src/nest/packing/packing-writes.service';
 import { PackingController as RoutePackingController } from '../../../src/nest/packing/packing.controller';
 import type { PackingService } from '../../../src/nest/packing/packing.service';
@@ -63,13 +63,13 @@ function makeService(overrides: Partial<PackingService> = {}): PackingService {
  * The route over the real item use cases (PackingWritesService), with the
  * permission granted: the 403 lives in trip-access.guard.test.ts, and these
  * cases pin what the route answers and broadcasts through the service mock.
- * The mailer answers the actor's email the assignee notification names.
+ * The notifications answer the actor's name the assignee notification gives.
  */
 const allowAll = { checkPermission: vi.fn().mockResolvedValue(true) } as unknown as PermissionsService;
-const mailer = { getUserEmail: vi.fn().mockResolvedValue(user.email) } as unknown as MailerService;
+const notifications = { actorName: vi.fn().mockResolvedValue('u') } as unknown as NotificationsService;
 class PackingController extends RoutePackingController {
   constructor(svc: PackingService) {
-    super(svc, new PackingWritesService(svc, allowAll, mailer));
+    super(svc, new PackingWritesService(svc, allowAll, notifications));
   }
 }
 
@@ -797,8 +797,8 @@ describe('PackingController (parity with the legacy /api/trips/:tripId/packing r
         { category: 'Clothes', assignees: [{ user_id: 2 }] },
         'sock',
       );
-      // The actor is named by the email on its account row, as the MCP tool names it.
-      expect(notifyTagged).toHaveBeenCalledWith('5', { id: user.id, email: user.email }, 'Clothes', [2]);
+      // The actor is named by the name on its account row, as the MCP tool names it.
+      expect(notifyTagged).toHaveBeenCalledWith('5', { id: user.id, username: 'u' }, 'Clothes', [2]);
     });
 
     it('notifies nobody when the category is cleared', async () => {

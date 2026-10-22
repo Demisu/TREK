@@ -254,8 +254,8 @@ export class CollabService {
   }
 
   /** The writer as a notification names them: by id, and by the address the route read off its session. */
-  private async actorOf(writer: TripWriter): Promise<Pick<User, 'id' | 'email'>> {
-    return { id: writer.userId, email: await this.notifications.actorEmail(writer.userId) };
+  private async actorOf(writer: TripWriter): Promise<Pick<User, 'id' | 'username'>> {
+    return { id: writer.userId, username: await this.notifications.actorName(writer.userId) };
   }
 
   /* ------------------------------------------------------------------ */
@@ -907,7 +907,7 @@ export class CollabService {
   }
 
   /** Fire-and-forget collab notification (mirrors the legacy route's dynamic import). */
-  async notifyCollab(tripId: string, actor: Pick<User, 'id' | 'email'>, preview?: string): Promise<void> {
+  async notifyCollab(tripId: string, actor: Pick<User, 'id' | 'username'>, preview?: string): Promise<void> {
     // Injected, not a lazy import of the old notifications bridge. The laziness bought
     // nothing the module graph does not already give — NotificationsModule
     // reaches nothing in this direction — and it hid the edge while handing the

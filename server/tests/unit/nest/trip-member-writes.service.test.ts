@@ -57,7 +57,7 @@ afterAll(async () => {
 });
 
 describe('TripMemberWritesService', () => {
-  it('MEMBER-WRITES-001: an inviter whose address cannot be read still sends the invitation, with an empty address', async () => {
+  it('MEMBER-WRITES-001: an inviter whose name cannot be read still sends the invitation, with an empty name', async () => {
     const member = { id: 21, email: 'invitee@example.test' };
     roster.addMember.mockResolvedValue({ member, targetUserId: 21, tripTitle: 'Lisbon' });
     const writer = writerFor(987654);
@@ -69,7 +69,7 @@ describe('TripMemberWritesService', () => {
     expect(writer.events.emit).toHaveBeenCalledWith('member:added', { member });
     expect(roster.notifyInvite).toHaveBeenCalledWith(
       '7',
-      { id: 987654, email: '' },
+      { id: 987654, username: '' },
       21,
       'Lisbon',
       'invitee@example.test',

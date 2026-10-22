@@ -413,7 +413,7 @@ describe('postNote / postMessage', () => {
     const send = vi.fn(async (_payload: { params: Record<string, string> }) => ({ attempted: 0, delivered: 0 }));
     const notifications = {
       send,
-      actorEmail: vi.fn(async () => 'owner@collab.test'),
+      actorName: vi.fn(async () => 'owner'),
     } as unknown as NotificationsService;
     const service = await buildCollabService(collabFx.storage, rateLimit, notifications, realtime);
     return { service, realtime, send };
@@ -440,7 +440,7 @@ describe('postNote / postMessage', () => {
         actorId: user1.id,
         scope: 'trip',
         targetId: trip.id,
-        params: expect.objectContaining({ actor: 'owner@collab.test', tripId: String(trip.id) }),
+        params: expect.objectContaining({ actor: 'owner', tripId: String(trip.id) }),
       }),
     );
   });

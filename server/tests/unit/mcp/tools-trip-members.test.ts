@@ -987,7 +987,7 @@ describe('Guest tools stay owner-only', () => {
 // ---------------------------------------------------------------------------
 
 describe('Roster writes, as REST makes them', () => {
-  it('MCP-MEMBERS-001: add_trip_member sends the invitation the planner sends, naming the inviter by address', async () => {
+  it('MCP-MEMBERS-001: add_trip_member sends the invitation the planner sends, naming the inviter by name', async () => {
     const { user: owner } = createUser(testDb);
     const { user: invitee } = createUser(testDb);
     const trip = createTrip(testDb, owner.id);
@@ -1004,7 +1004,7 @@ describe('Roster writes, as REST makes them', () => {
           actorId: owner.id,
           scope: 'user',
           targetId: invitee.id,
-          params: expect.objectContaining({ actor: owner.email, invitee: invitee.email, tripId: String(trip.id) }),
+          params: expect.objectContaining({ actor: owner.username, invitee: invitee.email, tripId: String(trip.id) }),
         }),
       );
     } finally {

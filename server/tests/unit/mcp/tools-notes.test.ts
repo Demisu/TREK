@@ -817,7 +817,7 @@ describe('create_collab_note, as the Collab tab posts it', () => {
           event: 'collab_message',
           actorId: user.id,
           targetId: trip.id,
-          params: expect.objectContaining({ actor: user.email }),
+          params: expect.objectContaining({ actor: user.username }),
         }),
       );
     } finally {

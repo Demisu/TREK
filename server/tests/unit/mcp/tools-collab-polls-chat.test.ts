@@ -553,7 +553,7 @@ describe('send_collab_message, as the chat posts it', () => {
           event: 'collab_message',
           actorId: user.id,
           targetId: trip.id,
-          params: expect.objectContaining({ actor: user.email, preview: 'Dinner at 8?' }),
+          params: expect.objectContaining({ actor: user.username, preview: 'Dinner at 8?' }),
         }),
       );
     } finally {

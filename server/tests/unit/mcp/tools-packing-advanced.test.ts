@@ -406,7 +406,7 @@ describe('Tool: set_packing_category_assignees', () => {
       await new Promise<void>((resolve) => setImmediate(resolve));
       const sent = await findRow(orm, Notifications, { recipient: member.id });
       expect(sent?.text_key).toBe('notif.packing_tagged.text');
-      expect(JSON.parse(String(sent?.text_params))).toMatchObject({ actor: user.email, category: 'Clothing' });
+      expect(JSON.parse(String(sent?.text_params))).toMatchObject({ actor: user.username, category: 'Clothing' });
     });
   });
 

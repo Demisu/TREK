@@ -2,7 +2,7 @@ import type { User } from '../../types';
 import { isUpdateConflict } from '../common/conflictResult';
 import { DomainError } from '../common/domain-error';
 import { requireTripWrite, type TripWriter } from '../common/trip-writer';
-import { MailerService } from '../notifications/mailer/mailer.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PermissionsService } from '../permissions/permissions.service';
 import { PackingService, isInvalidBagRef, type PackingVisibility } from './packing.service';
 import { Injectable } from '@nestjs/common';
@@ -56,7 +56,7 @@ export class PackingWritesService {
   constructor(
     private readonly packing: PackingService,
     private readonly permissions: PermissionsService,
-    private readonly mailer: MailerService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   /**
@@ -209,10 +209,10 @@ export class PackingWritesService {
     const assignees = await this.packing.updateCategoryAssignees(tripId, category, userIds);
     writer.events.emit('packing:assignees', { category, assignees });
     if (userIds.length > 0) {
-      // The notification names its actor by email. A writer carries only the id,
-      // so the address is read here; a guest never signs in, so never writes.
-      const email = await this.mailer.getUserEmail(writer.userId);
-      if (email) await this.packing.notifyTagged(String(tripId), { id: writer.userId, email }, category, userIds);
+      // The notification names its actor by name. A writer carries only the id,
+      // so the name is read here; an account that is gone notifies nobody.
+      const username = await this.notifications.actorName(writer.userId);
+      if (username) await this.packing.notifyTagged(String(tripId), { id: writer.userId, username }, category, userIds);
     }
     return assignees;
   }

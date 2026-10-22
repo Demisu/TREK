@@ -1,6 +1,6 @@
 import { DomainError } from '../../../src/nest/common/domain-error';
 import { McpToolGuardsService } from '../../../src/nest/mcp-shared/mcp-tool-guards.service';
-import type { MailerService } from '../../../src/nest/notifications/mailer/mailer.service';
+import type { NotificationsService } from '../../../src/nest/notifications/notifications.service';
 import { PackingWritesService } from '../../../src/nest/packing/packing-writes.service';
 import type { PackingService } from '../../../src/nest/packing/packing.service';
 import type { PermissionsService } from '../../../src/nest/permissions/permissions.service';
@@ -64,8 +64,8 @@ function setup(overrides: Record<string, unknown> = {}, opts: { allowed?: boolea
   const permissions = {
     checkPermission: vi.fn().mockResolvedValue(opts.allowed ?? true),
   } as unknown as PermissionsService;
-  const mailer = { getUserEmail: vi.fn().mockResolvedValue(user.email) } as unknown as MailerService;
-  const writes = new PackingWritesService(packing, permissions, mailer);
+  const notifications = { actorName: vi.fn().mockResolvedValue('u') } as unknown as NotificationsService;
+  const writes = new PackingWritesService(packing, permissions, notifications);
   const guards = new McpToolGuardsService(
     { getOwnerId: vi.fn().mockResolvedValue(1) } as never,
     { getRole: vi.fn().mockResolvedValue('user') } as never,
@@ -82,7 +82,7 @@ function setup(overrides: Record<string, unknown> = {}, opts: { allowed?: boolea
     await fn(writer);
     return { names: names(), calls: [...realtime.broadcast.mock.calls] };
   };
-  return { writes, packing, permissions, mailer, realtime, run };
+  return { writes, packing, permissions, notifications, realtime, run };
 }
 
 describe('packing item events: REST == MCP', () => {
@@ -274,19 +274,19 @@ describe('packing list use cases: REST == MCP', () => {
     const mcp = await s.run('mcp', (w) => s.writes.setCategoryAssignees(5, 'Clothes', [2], w));
     expect(mcp.names).toEqual(rest.names);
     expect(rest.calls).toEqual([['5', 'packing:assignees', { category: 'Clothes', assignees }, 'sock']]);
-    // The MCP tool used to tell none of them; both name the actor by its email.
-    const actor = { id: 1, email: user.email };
+    // The MCP tool used to tell none of them; both name the actor by name.
+    const actor = { id: 1, username: 'u' };
     expect(s.packing.notifyTagged).toHaveBeenNthCalledWith(1, '5', actor, 'Clothes', [2]);
     expect(s.packing.notifyTagged).toHaveBeenNthCalledWith(2, '5', actor, 'Clothes', [2]);
-    expect(s.mailer.getUserEmail).toHaveBeenCalledWith(1);
+    expect(s.notifications.actorName).toHaveBeenCalledWith(1);
   });
 
-  it('PACK-LIST-006: clearing a category notifies nobody, and an actor without an address is not named', async () => {
+  it('PACK-LIST-006: clearing a category notifies nobody, and an actor without a name is not named', async () => {
     const s = setup({ updateCategoryAssignees: vi.fn().mockResolvedValue([]), notifyTagged: vi.fn() });
     await s.run('mcp', (w) => s.writes.setCategoryAssignees(5, 'Clothes', [], w));
-    expect(s.mailer.getUserEmail).not.toHaveBeenCalled();
+    expect(s.notifications.actorName).not.toHaveBeenCalled();
 
-    vi.mocked(s.mailer.getUserEmail).mockResolvedValueOnce(null);
+    vi.mocked(s.notifications.actorName).mockResolvedValueOnce('');
     await s.run('mcp', (w) => s.writes.setCategoryAssignees(5, 'Clothes', [2], w));
     expect(s.packing.notifyTagged).not.toHaveBeenCalled();
   });

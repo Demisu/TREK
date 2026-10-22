@@ -662,9 +662,9 @@ export class NotificationsService {
     return true;
   }
 
-  /** The address a notification names its actor by, as the routes read it off their session user. */
-  async actorEmail(userId: number): Promise<string> {
-    return (await this.mailer.getUserEmail(userId)) ?? '';
+  /** The name a notification gives its actor, as the routes read it off their session user. */
+  async actorName(userId: number): Promise<string> {
+    return (await this.notificationsRepo.findUserBasic(userId))?.username ?? '';
   }
 
   async deleteOne(notificationId: number, userId: number): Promise<boolean> {

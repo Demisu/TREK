@@ -120,7 +120,7 @@ export class TripMembersService {
   /** Fire-and-forget trip-invite notification (mirrors the route's dynamic import). */
   notifyInvite(
     tripId: string,
-    actor: Pick<User, 'id' | 'email'>,
+    actor: Pick<User, 'id' | 'username'>,
     targetUserId: number,
     tripTitle: string,
     inviteeEmail: string,
