@@ -91,6 +91,7 @@ const UNNUMBERED = [
   'Migration20200101046210_the_trip_assistant_remembers_its_conversations',
   'Migration20200101046220_a_chat_message_can_say_it_came_from_the_assistant',
   'Migration20200101046230_an_admin_can_share_a_chatgpt_plan',
+  'Migration20200101046240_a_photo_keeps_its_quality_signals',
 ];
 // The last step the positional runner ever had; planLegacyBaseline refuses a
 // schema_version past it.

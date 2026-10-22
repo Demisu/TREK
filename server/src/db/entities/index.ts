@@ -129,6 +129,7 @@ import { TourTypesSchema } from './TourTypes.entity';
 import { TourWaypointsSchema } from './TourWaypoints.entity';
 import { ToursSchema } from './Tours.entity';
 import { TrekPhotoCacheMetaSchema } from './TrekPhotoCacheMeta.entity';
+import { TrekPhotoSignalsSchema } from './TrekPhotoSignals.entity';
 import { TrekPhotosSchema } from './TrekPhotos.entity';
 import { TripAlbumLinksSchema } from './TripAlbumLinks.entity';
 import { TripDocumentLinksSchema } from './TripDocumentLinks.entity';
@@ -289,6 +290,7 @@ export const ALL_ENTITIES: readonly EntitySchema[] = [
   TourWaypointsSchema,
   ToursSchema,
   TrekPhotoCacheMetaSchema,
+  TrekPhotoSignalsSchema,
   TrekPhotosSchema,
   TripAlbumLinksSchema,
   TripDocumentLinksSchema,

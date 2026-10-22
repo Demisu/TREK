@@ -53,7 +53,8 @@ describe('ALL_ENTITIES', () => {
    * + tour_drafts, the Tours planner's unsaved draft per user and trip
    * + ai_connections, the AI assistant's connections to a language model
    * + assistant_threads, assistant_messages, assistant_tool_calls and assistant_usage,
-   *   the trip assistant's conversations, the changes it proposed and what it used)
+   *   the trip assistant's conversations, the changes it proposed and what it used
+   * + trek_photo_signals, what a photo's pixels say, for picking photos for a book)
    * is registered, and no two share a class name (a silent duplicate would
    * shadow one of them in `orm.getMetadata()`, exactly the kind of drift
    * `entity-schema-parity.test.ts` can't see — it iterates the metadata map,
